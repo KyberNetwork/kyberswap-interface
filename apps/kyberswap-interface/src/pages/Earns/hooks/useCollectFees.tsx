@@ -128,7 +128,7 @@ const useCollectFees = ({ refetchAfterCollect }: { refetchAfterCollect: () => vo
         {
           logo: position.token0.logo,
           symbol: position.token0.symbol,
-          amount: position.token0.unclaimedAmount.toString(),
+          amount: position.token0.unclaimedAmount,
           value: position.token0.unclaimedValue,
           address: position.token0.address,
           isNative: position.token0.isNative,
@@ -137,7 +137,7 @@ const useCollectFees = ({ refetchAfterCollect }: { refetchAfterCollect: () => vo
         {
           logo: position.token1.logo,
           symbol: position.token1.symbol,
-          amount: position.token1.unclaimedAmount.toString(),
+          amount: position.token1.unclaimedAmount,
           value: position.token1.unclaimedValue,
           address: position.token1.address,
           isNative: position.token1.isNative,

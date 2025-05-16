@@ -7,8 +7,8 @@ import { Direction } from 'pages/MarketOverview/SortIcon'
 
 export enum SortBy {
   VALUE = 'value',
-  APR_7D = 'apr_7d',
-  UNCLAIMED_FEE = 'unclaimed_fee',
+  APR = 'apr',
+  UNCLAIMED_FEE = 'unclaimed_fees',
   UNCLAIMED_REWARDS = 'unclaimed_rewards',
 }
 

@@ -87,12 +87,6 @@ export const ChainImage = styled.img`
   top: 4px;
 `
 
-export const DexImage = styled.img`
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-`
-
 export enum BadgeType {
   PRIMARY = 'primary',
   WARNING = 'warning',

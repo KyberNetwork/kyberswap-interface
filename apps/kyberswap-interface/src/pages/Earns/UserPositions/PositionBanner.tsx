@@ -18,37 +18,30 @@ import {
   RewardBannerWrapper,
 } from 'pages/Earns/UserPositions/styles'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
-import { EarnPosition } from 'pages/Earns/types'
+import { ParsedPosition } from 'pages/Earns/types'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
-export default function PositionBanner({ positions }: { positions: Array<EarnPosition> | undefined }) {
+export default function PositionBanner({ positions }: { positions: Array<ParsedPosition> }) {
   const theme = useTheme()
   const { onOpenClaim: onOpenClaimRewards, rewardInfo, claimModal: claimRewardsModal } = useKemRewards()
 
-  const totalRewardsAmount = rewardInfo?.totalRewardsAmount || 0
-  const totalRewardsUsdValue = rewardInfo?.totalRewardsUsdValue || 0
+  const totalRewardsAmount = rewardInfo?.totalAmount || 0
+  const totalRewardsUsdValue = rewardInfo?.totalUsdValue || 0
 
-  const claimableRewardsAmount = rewardInfo?.claimableRewardsAmount || 0
-  const claimedRewardsUsdValue = rewardInfo?.claimedRewardsUsdValue || 0
+  const claimableRewardsAmount = rewardInfo?.claimableAmount || 0
+  const claimedRewardsUsdValue = rewardInfo?.claimedUsdValue || 0
 
-  const pendingRewardsUsdValue = rewardInfo?.pendingRewardsUsdValue || 0
-  const claimableRewardsUsdValue = rewardInfo?.claimableRewardsUsdValue || 0
+  const pendingRewardsUsdValue = rewardInfo?.pendingUsdValue || 0
+  const claimableRewardsUsdValue = rewardInfo?.claimableUsdValue || 0
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   const overviewData = useMemo(() => {
     if (!positions) return
-    const totalValue = positions.reduce((acc, position) => acc + position.currentPositionValue, 0)
-    const totalEarnedFee = positions.reduce((acc, position) => {
-      const feePending = position.feePending.reduce((a, b) => a + b.quotes.usd.value, 0)
-      const feeClaimed = position.feesClaimed.reduce((a, b) => a + b.quotes.usd.value, 0)
-      return acc + (feePending > 0 ? feePending : 0) + (feeClaimed > 0 ? feeClaimed : 0)
-    }, 0)
-    const totalUnclaimedFee = positions.reduce((acc, position) => {
-      const feePending = position.feePending.reduce((a, b) => a + b.quotes.usd.value, 0)
-      return acc + (position.feeInfo ? position.feeInfo.totalValue : feePending > 0 ? feePending : 0)
-    }, 0)
+    const totalValue = positions.reduce((acc, position) => acc + position.totalValue, 0)
+    const totalEarnedFee = positions.reduce((acc, position) => acc + position.earning.earned, 0)
+    const totalUnclaimedFee = positions.reduce((acc, position) => acc + position.unclaimedFees, 0)
 
     return { totalValue, totalEarnedFee, totalUnclaimedFee }
   }, [positions])
@@ -59,7 +52,7 @@ export default function PositionBanner({ positions }: { positions: Array<EarnPos
   const claimRewardButton = (
     <MouseoverTooltipDesktopOnly text={t`Claim all available farming rewards`} width="fit-content" placement="bottom">
       <PositionAction
-        disabled={!claimableRewardsAmount}
+        disabled={!claimableRewardsUsdValue}
         mobileAutoWidth
         outline
         onClick={() => onOpenClaimRewards()}
@@ -189,7 +182,7 @@ export default function PositionBanner({ positions }: { positions: Array<EarnPos
                           <ListClaimableTokens>
                             {rewardInfo?.claimableTokens.map((token, index) => (
                               <li key={`${token.address}-${index}`}>
-                                {formatDisplayNumber(token.amount, { significantDigits: 4 })} {token.symbol}
+                                {formatDisplayNumber(token.claimableAmount, { significantDigits: 4 })} {token.symbol}
                               </li>
                             ))}
                           </ListClaimableTokens>

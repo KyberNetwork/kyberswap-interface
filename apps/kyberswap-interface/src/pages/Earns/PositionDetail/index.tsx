@@ -45,7 +45,7 @@ const PositionDetail = () => {
   const hadForceLoading = useRef(forceLoading ? true : false)
 
   const position: ParsedPosition | undefined = useMemo(
-    () => (!!userPosition?.[0] ? parseRawPosition(userPosition[0]) : undefined),
+    () => (!!userPosition?.[0] ? parseRawPosition({ position: userPosition[0] }) : undefined),
     [userPosition],
   )
 

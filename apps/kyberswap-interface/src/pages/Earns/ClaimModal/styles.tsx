@@ -60,7 +60,7 @@ export const Image = styled.img`
   border-radius: 50%;
 `
 
-export const DexImage = styled(Image)`
+const DexImage = styled(Image)`
   width: 14px;
   height: 14px;
   margin-left: -6px;

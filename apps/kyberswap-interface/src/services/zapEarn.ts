@@ -128,7 +128,12 @@ const zapEarnServiceApi = createApi({
     userPositions: builder.query<Array<EarnPosition>, PositionQueryParams>({
       query: params => ({
         url: `/v1/userPositions`,
-        params,
+        params: {
+          ...params,
+          protocols: DEX_FILTER_MAPPING[params.protocols as keyof typeof DEX_FILTER_MAPPING]
+            ? DEX_FILTER_MAPPING[params.protocols as keyof typeof DEX_FILTER_MAPPING].join(',')
+            : params.protocols,
+        },
       }),
       transformResponse: (response: {
         data: {

@@ -2,9 +2,9 @@ import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Flex, Text } from 'rebass'
 
-import HelpIcon from 'assets/svg/help-circle.svg'
 import InfoHelper from 'components/InfoHelper'
 import Loader from 'components/Loader'
+import TokenLogo from 'components/TokenLogo'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useReadingContract } from 'hooks/useContract'
 import useTheme from 'hooks/useTheme'
@@ -18,22 +18,11 @@ import {
   TotalLiquiditySection,
   VerticalDivider,
 } from 'pages/Earns/PositionDetail/styles'
-import { DexImage } from 'pages/Earns/UserPositions/styles'
 import { CoreProtocol, DEXES_SUPPORT_COLLECT_FEE, NFT_MANAGER_ABI } from 'pages/Earns/constants'
 import useCollectFees from 'pages/Earns/hooks/useCollectFees'
-import { ParsedPosition } from 'pages/Earns/types'
+import { FeeInfo, ParsedPosition } from 'pages/Earns/types'
 import { formatAprNumber, getFullUnclaimedFeesInfo, getNftManagerContractAddress, isForkFrom } from 'pages/Earns/utils'
 import { formatDisplayNumber } from 'utils/numbers'
-
-export interface FeeInfo {
-  balance0: string | number
-  balance1: string | number
-  amount0: string | number
-  amount1: string | number
-  value0: number
-  value1: number
-  totalValue: number
-}
 
 const LeftSection = ({ position }: { position: ParsedPosition }) => {
   const theme = useTheme()
@@ -124,24 +113,12 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
           <VerticalDivider />
           <Flex flexDirection={'column'} alignContent={'flex-end'} sx={{ gap: 2 }}>
             <Flex alignItems={'center'} sx={{ gap: '6px' }}>
-              <DexImage
-                src={position.token0.logo}
-                onError={({ currentTarget }) => {
-                  currentTarget.onerror = null
-                  currentTarget.src = HelpIcon
-                }}
-              />
+              <TokenLogo src={position.token0.logo} size={16} />
               <Text>{formatDisplayNumber(position.token0.totalAmount, { significantDigits: 6 })}</Text>
               <Text>{position.token0.symbol}</Text>
             </Flex>
             <Flex alignItems={'center'} sx={{ gap: '6px' }}>
-              <DexImage
-                src={position.token1.logo}
-                onError={({ currentTarget }) => {
-                  currentTarget.onerror = null
-                  currentTarget.src = HelpIcon
-                }}
-              />
+              <TokenLogo src={position.token1.logo} size={16} />
               <Text>{formatDisplayNumber(position.token1.totalAmount, { significantDigits: 6 })}</Text>
               <Text>{position.token1.symbol}</Text>
             </Flex>

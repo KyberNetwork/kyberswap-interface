@@ -21,7 +21,7 @@ import { APP_PATHS } from 'constants/index'
 import useDebounce from 'hooks/useDebounce'
 import useTheme from 'hooks/useTheme'
 import DropdownMenu, { MenuOption } from 'pages/Earns/PoolExplorer/DropdownMenu'
-import TableContent, { dexMapping } from 'pages/Earns/PoolExplorer/TableContent'
+import TableContent, { dexKeyMapping } from 'pages/Earns/PoolExplorer/TableContent'
 import {
   ContentWrapper,
   Disclaimer,
@@ -195,7 +195,7 @@ const PoolExplorer = () => {
     }
     ;(async () => {
       const pool = await handleFetchPoolData({ chainId: Number(chainId), address })
-      if (pool && (pool.exchange === dex || pool.exchange === dexMapping[dex]))
+      if (pool && (pool.exchange === dex || pool.exchange === dexKeyMapping[dex]))
         handleOpenZapIn({ pool: { dex: dex as EarnDex2, chainId: Number(chainId), address: pool.address } })
       else {
         notify(

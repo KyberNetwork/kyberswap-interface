@@ -33,7 +33,7 @@ export interface ClaimInfo {
     isNative?: boolean
     balance?: string | number
     value: number
-    amount: string
+    amount: number
   }>
   nativeToken?: NativeToken
   totalValue: number

@@ -1,4 +1,3 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
@@ -13,20 +12,12 @@ import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { fetchListTokenByAddresses } from 'hooks/Tokens'
 import ClaimModal, { ClaimInfo, ClaimType } from 'pages/Earns/ClaimModal'
 import { KEM_REWARDS_CONTRACT } from 'pages/Earns/constants'
+import { RewardInfo, TokenRewardInfo } from 'pages/Earns/types'
 import { submitTransaction } from 'pages/Earns/utils'
 import { useNotify } from 'state/application/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useAllTransactions, useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
-
-interface TokenType {
-  symbol: string
-  logo: string
-  chainId: ChainId
-  amount: number
-  usdValue: number
-  address: string
-}
 
 const useKemRewards = () => {
   const notify = useNotify()
@@ -57,85 +48,90 @@ const useKemRewards = () => {
   const [claiming, setClaiming] = useState(false)
   const [txHash, setTxHash] = useState<string | null>(null)
 
-  const rewardInfo = useMemo(() => {
+  const rewardInfo: RewardInfo | null = useMemo(() => {
     if (!campaignId || !data || !data.length || !tokens.length) return null
 
     const phase1TokenAddress = Object.keys(data[0].claimedAmounts)[0]
     const phase1Token = tokens.find(token => token.address.toLowerCase() === phase1TokenAddress.toLowerCase())
     if (!phase1Token) return null
 
-    const totalRewardsUsdValue = data.reduce((acc, item) => acc + Number(item.totalUSDValue), 0)
-    const totalRewardsAmount = data.reduce((acc, item) => {
-      const claimedAmounts = Number(item.claimedAmounts[phase1TokenAddress] || 0) / 10 ** phase1Token.decimals
+    const totalUsdValue = data.reduce((acc, item) => acc + Number(item.totalUSDValue), 0)
+    const totalAmount = data.reduce((acc, item) => {
       const merkleAmounts = Number(item.merkleAmounts[phase1TokenAddress] || 0) / 10 ** phase1Token.decimals
       const pendingAmounts = Number(item.pendingAmounts[phase1TokenAddress] || 0) / 10 ** phase1Token.decimals
 
-      return acc + claimedAmounts + merkleAmounts + pendingAmounts
-    }, 0)
+      return acc + merkleAmounts + pendingAmounts
+    }, 0) // temporary
 
-    const pendingRewardsUsdValue = data.reduce((acc, item) => acc + Number(item.pendingUSDValue), 0)
-    const claimedRewardsUsdValue = data.reduce((acc, item) => acc + Number(item.claimedUSDValue), 0)
+    const pendingUsdValue = data.reduce((acc, item) => acc + Number(item.pendingUSDValue), 0)
+    const claimedUsdValue = data.reduce((acc, item) => acc + Number(item.claimedUSDValue), 0)
 
-    const claimableRewardsUsdValue = data.reduce((acc, item) => acc + Number(item.claimableUSDValue), 0)
-    const claimableRewardsAmount = data.reduce((acc, item) => {
-      const totalAmount = Object.keys(item.merkleAmounts).reduce((childAcc, tokenRewardItem) => {
+    const claimableUsdValue = data.reduce((acc, item) => acc + Number(item.claimableUSDValue), 0)
+    const claimableAmount = data.reduce((acc, item) => {
+      const amount = Object.keys(item.merkleAmounts).reduce((childAcc, tokenRewardItem) => {
         const token = tokens.find(token => token.address.toLowerCase() === tokenRewardItem.toLowerCase())
         if (!token) return childAcc
-        return childAcc + Number(item.merkleAmounts[tokenRewardItem]) / 10 ** token.decimals
+
+        return (
+          childAcc +
+          (Number(item.merkleAmounts[tokenRewardItem]) - Number(item.claimedAmounts[tokenRewardItem])) /
+            10 ** token.decimals
+        )
       }, 0)
-      return acc + totalAmount
-    }, 0)
+      return acc + amount
+    }, 0) // temporary
 
-    const nfts = data.map(item => {
-      const totalAmount = Object.keys(item.merkleAmounts).reduce((childAcc, tokenRewardItem) => {
-        const token = tokens.find(token => token.address.toLowerCase() === tokenRewardItem.toLowerCase())
-        if (!token) return childAcc
-        return childAcc + Number(item.merkleAmounts[tokenRewardItem]) / 10 ** token.decimals
-      }, 0)
+    const nfts = data.map(item => ({
+      nftId: item.erc721TokenId,
+      totalUsdValue: Number(item.totalUSDValue),
+      pendingUsdValue: Number(item.pendingUSDValue),
+      claimedUsdValue: Number(item.claimedUSDValue),
+      claimableUsdValue: Number(item.claimableUSDValue),
+      tokens: Object.keys(item.merkleAmounts)
+        .map(tokenAddress => {
+          const token = tokens.find(token => token.address.toLowerCase() === tokenAddress.toLowerCase())
+          if (!token) return null
 
-      return {
-        nftId: item.erc721TokenId,
-        claimableUsdValue: Number(item.claimableUSDValue),
-        totalAmount, // temporary
-        tokens: Object.keys(item.merkleAmounts)
-          .map(tokenAddress => {
-            const token = tokens.find(token => token.address.toLowerCase() === tokenAddress.toLowerCase())
-            if (!token) return null
-            return {
-              symbol: token.symbol as string,
-              logo: token.logoURI as string,
-              chainId: token.chainId,
-              amount: Number(item.merkleAmounts[tokenAddress]) / 10 ** token.decimals,
-              usdValue: Number(item.claimableUSDValues[tokenAddress]),
-              address: tokenAddress,
-            }
-          })
-          .filter((token): token is TokenType => !!token),
-      }
-    })
+          return {
+            symbol: token.symbol,
+            logo: token.logoURI,
+            chainId: token.chainId,
+            address: tokenAddress,
+            totalAmount:
+              (Number(item.merkleAmounts[tokenAddress]) + Number(item.pendingAmounts[tokenAddress])) /
+              10 ** token.decimals,
+            claimableAmount:
+              (Number(item.merkleAmounts[tokenAddress]) - Number(item.claimedAmounts[tokenAddress])) /
+              10 ** token.decimals,
+            claimableUsdValue: Number(item.claimableUSDValues[tokenAddress]),
+          }
+        })
+        .filter((token): token is TokenRewardInfo => !!token),
+    }))
 
-    const claimableTokens: TokenType[] = []
+    const claimableTokens: TokenRewardInfo[] = []
     nfts.forEach(nft => {
       nft.tokens.forEach(token => {
         const existingTokenIndex = claimableTokens.findIndex(t => t.address === token.address)
         if (existingTokenIndex === -1) {
           claimableTokens.push(token)
         } else {
-          claimableTokens[existingTokenIndex].amount += token.amount
-          claimableTokens[existingTokenIndex].usdValue += token.usdValue
+          claimableTokens[existingTokenIndex].totalAmount += token.totalAmount
+          claimableTokens[existingTokenIndex].claimableAmount += token.claimableAmount
+          claimableTokens[existingTokenIndex].claimableUsdValue += token.claimableUsdValue
         }
       })
     })
 
     return {
-      totalRewardsUsdValue,
-      totalRewardsAmount, // temporary
-      pendingRewardsUsdValue,
-      claimedRewardsUsdValue,
-      claimableRewardsUsdValue,
-      claimableRewardsAmount, // temporary
-      nfts,
+      totalUsdValue,
+      totalAmount, // temporary
+      pendingUsdValue,
+      claimedUsdValue,
+      claimableUsdValue,
+      claimableAmount, // temporary
       claimableTokens,
+      nfts,
     }
   }, [campaignId, data, tokens])
 
@@ -218,12 +214,12 @@ const useKemRewards = () => {
       nftId,
       chainId: nftId && positionChainId ? positionChainId : chainId,
       tokens: (rewardNftInfo?.tokens || rewardInfo.claimableTokens || []).map(tokenReward => ({
-        logo: tokenReward?.logo || '',
-        symbol: tokenReward?.symbol || '',
-        amount: tokenReward?.amount.toString() || '',
-        value: tokenReward?.usdValue || 0,
+        logo: tokenReward.logo,
+        symbol: tokenReward.symbol,
+        amount: tokenReward.claimableAmount,
+        value: tokenReward.claimableUsdValue,
       })),
-      totalValue: rewardNftInfo?.claimableUsdValue || rewardInfo.claimableRewardsUsdValue,
+      totalValue: rewardNftInfo ? rewardNftInfo.claimableUsdValue : rewardInfo.claimableUsdValue,
     })
   }
 
@@ -268,7 +264,7 @@ const useKemRewards = () => {
       />
     ) : null
 
-  return { rewardInfo, claimModal, onOpenClaim }
+  return { rewardInfo, claimModal, onOpenClaim, claiming }
 }
 
 export default useKemRewards

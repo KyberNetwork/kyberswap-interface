@@ -15,24 +15,22 @@ const TokenLogo = ({
   src,
   alt,
   className,
-  width = 24,
-  height = 24,
+  size = 24,
   primaryBoxShadow = false,
   style,
 }: {
   src?: string
   alt?: string
   className?: string
-  width?: number
-  height?: number
+  size?: number
   primaryBoxShadow?: boolean
   style?: React.CSSProperties
 }) => (
   <Image
     style={style}
     className={className}
-    width={width}
-    height={height}
+    width={size}
+    height={size}
     src={src || UnknownToken}
     alt={alt || ''}
     onError={({ currentTarget }) => {

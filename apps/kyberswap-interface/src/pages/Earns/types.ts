@@ -65,6 +65,7 @@ export interface EarnPosition {
   feesClaimed: Array<PositionAmount>
   createdTime: number
   apr: number
+  aprKem: number
   currentPositionValue: number
   earning24h: number
   earning7d: number
@@ -78,7 +79,14 @@ export interface EarnPosition {
     tickSpacing: number
     project: EarnDex
     projectLogo: string
+    category: PAIR_CATEGORY
   }
+  suggestionPool: {
+    address: string
+    chainId: number
+    feeTier: number
+    poolExchange: EarnDex2
+  } | null
 }
 
 export interface ParsedPosition {
@@ -88,8 +96,10 @@ export interface ParsedPosition {
     fee: number
     address: string
     isUniv2: boolean
+    isFarming: boolean
     nativeToken: NativeToken
     tickSpacing: number
+    category: PAIR_CATEGORY
   }
   dex: {
     id: EarnDex
@@ -111,18 +121,27 @@ export interface ParsedPosition {
     in7d: number
     in24h: number
   }
+  farming: {
+    unclaimedUsdValue: number
+    pendingUsdValue: number
+    claimableUsdValue: number
+  }
   token0: Token
   token1: Token
   tokenAddress: string
   apr: number
+  aprKem: number
+  aprFee: number
   totalValue: number
   status: string
   createdTime: number
   unclaimedFees: number
-  isInKemLm: boolean
-  kemPoolToMigrate: boolean
-  rewardToken: string
-  unclaimedRewards: number
+  suggestionPool: {
+    address: string
+    chainId: number
+    feeTier: number
+    poolExchange: EarnDex2
+  } | null
 }
 
 interface Token {
@@ -155,4 +174,52 @@ interface PositionAmount {
       value: number
     }
   }
+}
+
+export enum PAIR_CATEGORY {
+  STABLE = 'stablePair',
+  CORRELATED = 'correlatedPair',
+  EXOTIC = 'exoticPair',
+  HIGH_VOLATILITY = 'highVolatilityPair',
+  DEFAULT_EMPTY = '', // For Krystal data
+}
+
+export interface FeeInfo {
+  balance0: string | number
+  balance1: string | number
+  amount0: string | number
+  amount1: string | number
+  value0: number
+  value1: number
+  totalValue: number
+}
+
+export interface RewardInfo {
+  totalUsdValue: number
+  totalAmount: number
+  pendingUsdValue: number
+  claimedUsdValue: number
+  claimableUsdValue: number
+  claimableAmount: number
+  nfts: Array<NftRewardInfo>
+  claimableTokens: Array<TokenRewardInfo>
+}
+
+export interface NftRewardInfo {
+  nftId: string
+  totalUsdValue: number
+  pendingUsdValue: number
+  claimedUsdValue: number
+  claimableUsdValue: number
+  tokens: Array<TokenRewardInfo>
+}
+
+export interface TokenRewardInfo {
+  symbol: string
+  logo: string
+  chainId: number
+  address: string
+  totalAmount: number
+  claimableAmount: number
+  claimableUsdValue: number
 }

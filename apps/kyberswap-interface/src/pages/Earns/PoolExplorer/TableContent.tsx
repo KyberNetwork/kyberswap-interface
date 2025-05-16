@@ -32,10 +32,14 @@ import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
-export const dexMapping: { [key: string]: string } = {
+export const dexKeyMapping: { [key: string]: string } = {
   uniswapv2: 'uniswap',
   kodiakcl: 'kodiak-v3',
   uniswapv4: 'uniswap-v4',
+}
+
+const dexNameMapping: { [key: string]: string } = {
+  'Uniswap V4 KEM': 'Uniswap V4',
 }
 
 const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: ({ pool }: ZapInInfo) => void }) => {
@@ -63,10 +67,15 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: ({ pool }: Zap
       (poolData?.data?.pools || []).map(pool => {
         const isFarmingPool = isFarmingProtocol(pool.exchange)
 
+        const dexLogo =
+          dexList.data?.find(dex => dex.dexId === (dexKeyMapping[pool.exchange] || pool.exchange))?.logoURL || ''
+        const dexName =
+          dexList.data?.find(dex => dex.dexId === (dexKeyMapping[pool.exchange] || pool.exchange))?.name || ''
+
         return {
           ...pool,
-          dexLogo: dexList.data?.find(dex => dex.dexId === (dexMapping[pool.exchange] || pool.exchange))?.logoURL || '',
-          dexName: dexList.data?.find(dex => dex.dexId === (dexMapping[pool.exchange] || pool.exchange))?.name || '',
+          dexLogo,
+          dexName: dexNameMapping[dexName] || dexName,
           aprFee: pool.apr,
           apr: isFarmingPool ? (pool.aprKem || 0) + pool.apr : pool.apr,
         }
@@ -219,7 +228,7 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: ({ pool }: Zap
                     <CopyHelper size={16} toCopy={pool.address?.toLowerCase()} />
                   </Flex>
                   <Flex sx={{ gap: 2 }}>
-                    <TokenLogo src={pool.dexLogo} width={22} height={22} />
+                    <TokenLogo src={pool.dexLogo} size={22} />
                     <FeeTier>{formatDisplayNumber(pool.feeTier, { significantDigits: 4 })}%</FeeTier>
                   </Flex>
                 </Flex>
@@ -274,7 +283,7 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: ({ pool }: Zap
           }
         >
           <Flex fontSize={14} alignItems="center" sx={{ gap: 1 }}>
-            <TokenLogo src={pool.dexLogo} width={20} height={20} />
+            <TokenLogo src={pool.dexLogo} size={20} />
             <Text color={theme.subText}>{pool.dexName}</Text>
           </Flex>
           <Flex alignItems="center" sx={{ gap: 2 }}>

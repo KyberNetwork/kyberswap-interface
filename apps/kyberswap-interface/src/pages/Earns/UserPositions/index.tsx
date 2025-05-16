@@ -26,14 +26,15 @@ import {
   PositionTableWrapper,
 } from 'pages/Earns/UserPositions/styles'
 import useFilter, { SortBy } from 'pages/Earns/UserPositions/useFilter'
-import { CoreProtocol, earnSupportedChains, earnSupportedProtocols } from 'pages/Earns/constants'
+import { earnSupportedChains, earnSupportedProtocols } from 'pages/Earns/constants'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
+import useKemRewards from 'pages/Earns/hooks/useKemRewards'
 import useSupportedDexesAndChains from 'pages/Earns/hooks/useSupportedDexesAndChains'
 import useZapInWidget from 'pages/Earns/hooks/useZapInWidget'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import useZapOutWidget from 'pages/Earns/hooks/useZapOutWidget'
-import { PositionStatus } from 'pages/Earns/types'
-import { isForkFrom } from 'pages/Earns/utils'
+import { ParsedPosition, PositionStatus } from 'pages/Earns/types'
+import { parseRawPosition } from 'pages/Earns/utils'
 import SortIcon, { Direction } from 'pages/MarketOverview/SortIcon'
 import { MEDIA_WIDTHS } from 'theme'
 
@@ -71,64 +72,73 @@ const UserPositions = () => {
     refetch,
   } = useUserPositionsQuery(positionQueryParams, {
     skip: !account,
-    pollingInterval: 15_000,
+    pollingInterval: 20_000,
   })
+
+  const { rewardInfo } = useKemRewards()
 
   useAccountChanged(() => {
     refetch()
     setLoading(true)
   })
 
-  const filteredPositions = useMemo(() => {
+  const parsedPositions: Array<ParsedPosition> = useMemo(() => {
     if (!userPosition) return []
 
-    let positions = [...userPosition].map(position => {
+    let parsedData = [...userPosition].map(position => {
       const feeInfo = feeInfoFromRpc.find(feeInfo => feeInfo.id === position.tokenId)
-      if (!feeInfo) return position
-      return {
-        ...position,
+      const nftRewardInfo = rewardInfo?.nfts.find(rewardInfo => rewardInfo.nftId === position.tokenId)
+
+      return parseRawPosition({
+        position,
         feeInfo,
-      }
+        nftRewardInfo,
+      })
     })
+
     if (filters.status)
-      positions = positions.filter(position =>
-        !isForkFrom(position.pool.project, CoreProtocol.UniswapV2)
-          ? position.status === filters.status
-          : filters.status === PositionStatus.IN_RANGE,
+      parsedData = parsedData.filter(position =>
+        !position.pool.isUniv2 ? position.status === filters.status : filters.status === PositionStatus.IN_RANGE,
       )
     if (filters.sortBy) {
       if (filters.sortBy === SortBy.VALUE) {
-        positions.sort((a, b) => {
-          const aValue = a.currentPositionValue
-          const bValue = b.currentPositionValue
+        parsedData.sort((a, b) => {
+          const aValue = a.totalValue
+          const bValue = b.totalValue
+
           return filters.orderBy === Direction.ASC ? aValue - bValue : bValue - aValue
         })
-      } else if (filters.sortBy === SortBy.APR_7D) {
-        positions.sort((a, b) => {
+      } else if (filters.sortBy === SortBy.APR) {
+        parsedData.sort((a, b) => {
           const aValue = a.apr
           const bValue = b.apr
+
           return filters.orderBy === Direction.ASC ? aValue - bValue : bValue - aValue
         })
       } else if (filters.sortBy === SortBy.UNCLAIMED_FEE) {
-        positions.sort((a, b) => {
-          const aValue = a.feeInfo
-            ? a.feeInfo.totalValue
-            : a.feePending.reduce((total, fee) => total + fee.quotes.usd.value, 0)
-          const bValue = b.feeInfo
-            ? b.feeInfo.totalValue
-            : b.feePending.reduce((total, fee) => total + fee.quotes.usd.value, 0)
+        parsedData.sort((a, b) => {
+          const aValue = a.unclaimedFees
+          const bValue = b.unclaimedFees
+
+          return filters.orderBy === Direction.ASC ? aValue - bValue : bValue - aValue
+        })
+      } else if (filters.sortBy === SortBy.UNCLAIMED_REWARDS) {
+        parsedData.sort((a, b) => {
+          const aValue = a.farming.unclaimedUsdValue
+          const bValue = b.farming.unclaimedUsdValue
+
           return filters.orderBy === Direction.ASC ? aValue - bValue : bValue - aValue
         })
       }
     }
 
-    return positions
-  }, [feeInfoFromRpc, filters.orderBy, filters.sortBy, filters.status, userPosition])
+    return parsedData
+  }, [feeInfoFromRpc, filters.orderBy, filters.sortBy, filters.status, rewardInfo?.nfts, userPosition])
 
-  const positionsToShow = useMemo(() => {
-    if (filteredPositions.length <= POSITIONS_TABLE_LIMIT) return filteredPositions
-    return filteredPositions.slice((filters.page - 1) * POSITIONS_TABLE_LIMIT, filters.page * POSITIONS_TABLE_LIMIT)
-  }, [filteredPositions, filters.page])
+  const paginatedPositions: Array<ParsedPosition> = useMemo(() => {
+    if (parsedPositions.length <= POSITIONS_TABLE_LIMIT) return parsedPositions
+    return parsedPositions.slice((filters.page - 1) * POSITIONS_TABLE_LIMIT, filters.page * POSITIONS_TABLE_LIMIT)
+  }, [parsedPositions, filters.page])
 
   const onSortChange = (sortBy: string) => {
     if (!filters.sortBy || filters.sortBy !== sortBy) {
@@ -236,7 +246,7 @@ const UserPositions = () => {
           />
         </Flex>
 
-        {account && <PositionBanner positions={filteredPositions} />}
+        {account && <PositionBanner positions={parsedPositions} />}
 
         <Filter
           supportedChains={supportedChains}
@@ -250,7 +260,7 @@ const UserPositions = () => {
 
         <PositionTableWrapper>
           <ContentWrapper>
-            {!upToLarge && positionsToShow && positionsToShow.length > 0 && (
+            {!upToLarge && paginatedPositions && paginatedPositions.length > 0 && (
               <PositionTableHeader>
                 <PositionTableHeaderItem>{t`Position`}</PositionTableHeaderItem>
 
@@ -262,17 +272,10 @@ const UserPositions = () => {
                   />
                 </PositionTableHeaderFlexItem>
 
-                <PositionTableHeaderFlexItem role="button" onClick={() => onSortChange(SortBy.APR_7D)}>
+                <PositionTableHeaderFlexItem role="button" onClick={() => onSortChange(SortBy.APR)}>
                   {t`est. APR`}
-                  <InfoHelper
-                    text={t`7 days data`}
-                    placement="bottom"
-                    width="fit-content"
-                    size={16}
-                    style={{ marginLeft: '2px', position: 'relative', top: '2px' }}
-                  />
                   <SortIcon
-                    sorted={filters.sortBy === SortBy.APR_7D ? (filters.orderBy as Direction) : undefined}
+                    sorted={filters.sortBy === SortBy.APR ? (filters.orderBy as Direction) : undefined}
                     style={{ position: 'relative', top: '4px' }}
                   />
                 </PositionTableHeaderFlexItem>
@@ -322,7 +325,7 @@ const UserPositions = () => {
               <LocalLoader />
             ) : (
               <TableContent
-                positions={positionsToShow}
+                positions={paginatedPositions}
                 feeInfoFromRpc={feeInfoFromRpc}
                 setFeeInfoFromRpc={setFeeInfoFromRpc}
                 onOpenZapInWidget={handleOpenZapIn}
@@ -334,7 +337,7 @@ const UserPositions = () => {
             <Pagination
               haveBg={false}
               onPageChange={(newPage: number) => updateFilters('page', newPage)}
-              totalCount={filteredPositions?.length || 0}
+              totalCount={parsedPositions.length || 0}
               currentPage={filters.page}
               pageSize={POSITIONS_TABLE_LIMIT}
             />

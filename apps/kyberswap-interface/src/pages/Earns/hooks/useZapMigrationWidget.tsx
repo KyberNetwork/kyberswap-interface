@@ -8,7 +8,7 @@ import { NotificationType } from 'components/Announcement/type'
 import Modal from 'components/Modal'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import { EarnDex, earnSupportedProtocols } from 'pages/Earns/constants'
+import { EarnDex, EarnDex2, earnSupportedProtocols } from 'pages/Earns/constants'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import { navigateToPositionAfterZap, submitTransaction } from 'pages/Earns/utils'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
@@ -43,12 +43,12 @@ interface MigrateLiquidityParams extends MigrateLiquidityPureParams {
 
 export interface ZapMigrationInfo {
   from: {
-    dex: EarnDex
+    dex: EarnDex | EarnDex2
     poolId: string
     positionId: string | number
   }
   to: {
-    dex: EarnDex
+    dex: EarnDex | EarnDex2
     poolId: string
     positionId?: string | number
   }
@@ -56,7 +56,7 @@ export interface ZapMigrationInfo {
   initialTick?: { tickUpper: number; tickLower: number }
 }
 
-const zapMigrationDexMapping: Record<EarnDex, ZapMigrationDex | null> = {
+const zapMigrationDexMapping: Record<EarnDex | EarnDex2, ZapMigrationDex | null> = {
   [EarnDex.DEX_UNISWAPV3]: ZapMigrationDex.DEX_UNISWAPV3,
   [EarnDex.DEX_PANCAKESWAPV3]: ZapMigrationDex.DEX_PANCAKESWAPV3,
   [EarnDex.DEX_SUSHISWAPV3]: ZapMigrationDex.DEX_SUSHISWAPV3,
@@ -67,6 +67,17 @@ const zapMigrationDexMapping: Record<EarnDex, ZapMigrationDex | null> = {
   [EarnDex.DEX_UNISWAPV2]: ZapMigrationDex.DEX_UNISWAPV2,
   [EarnDex.DEX_UNISWAP_V4]: ZapMigrationDex.DEX_UNISWAP_V4,
   [EarnDex.DEX_UNISWAP_V4_KEM]: ZapMigrationDex.DEX_UNISWAP_V4_KEM,
+
+  [EarnDex2.DEX_UNISWAPV3]: ZapMigrationDex.DEX_UNISWAPV3,
+  [EarnDex2.DEX_PANCAKESWAPV3]: ZapMigrationDex.DEX_PANCAKESWAPV3,
+  [EarnDex2.DEX_SUSHISWAPV3]: ZapMigrationDex.DEX_SUSHISWAPV3,
+  [EarnDex2.DEX_QUICKSWAPV3ALGEBRA]: ZapMigrationDex.DEX_QUICKSWAPV3ALGEBRA,
+  [EarnDex2.DEX_CAMELOTV3]: ZapMigrationDex.DEX_CAMELOTV3,
+  [EarnDex2.DEX_THENAFUSION]: ZapMigrationDex.DEX_THENAFUSION,
+  [EarnDex2.DEX_KODIAK_V3]: ZapMigrationDex.DEX_KODIAK_V3,
+  [EarnDex2.DEX_UNISWAPV2]: ZapMigrationDex.DEX_UNISWAPV2,
+  [EarnDex2.DEX_UNISWAP_V4]: ZapMigrationDex.DEX_UNISWAP_V4,
+  [EarnDex2.DEX_UNISWAP_V4_KEM]: ZapMigrationDex.DEX_UNISWAP_V4_KEM,
 }
 
 const useZapMigrationWidget = () => {

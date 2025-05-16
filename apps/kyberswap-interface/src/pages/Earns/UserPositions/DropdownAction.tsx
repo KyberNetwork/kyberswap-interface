@@ -113,20 +113,26 @@ const DropdownAction = ({
   position,
   onOpenIncreaseLiquidityWidget,
   onOpenZapOut,
-  onClaimFee,
-  claimDisabled,
-  claiming,
-  positionToClaim,
   placement = 'bottom',
+  claimFees: { onClaimFee, feesClaimDisabled, feesClaiming, positionThatClaimingFees },
+  claimRewards: { onClaimRewards, rewardsClaimDisabled, rewardsClaiming, positionThatClaimingRewards },
 }: {
   position: ParsedPosition
   onOpenIncreaseLiquidityWidget: (e: React.MouseEvent, position: ParsedPosition) => void
   onOpenZapOut: (e: React.MouseEvent, position: ParsedPosition) => void
-  onClaimFee: (e: React.MouseEvent, position: ParsedPosition) => void
-  claimDisabled: boolean
-  claiming: boolean
-  positionToClaim: ParsedPosition | null
   placement?: 'top' | 'bottom'
+  claimFees: {
+    onClaimFee: (e: React.MouseEvent, position: ParsedPosition) => void
+    feesClaimDisabled: boolean
+    feesClaiming: boolean
+    positionThatClaimingFees: ParsedPosition | null
+  }
+  claimRewards: {
+    onClaimRewards: (e: React.MouseEvent, position: ParsedPosition) => void
+    rewardsClaimDisabled: boolean
+    rewardsClaiming: boolean
+    positionThatClaimingRewards: ParsedPosition | null
+  }
 }) => {
   const theme = useTheme()
   const [open, setOpen] = useState(false)
@@ -137,14 +143,6 @@ const DropdownAction = ({
     e.preventDefault()
     setOpen(!open)
   }
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (!ref?.current?.contains(event.target as Node)) setOpen(false)
-    }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [ref])
 
   const handleAction = (e: React.MouseEvent, action: (e: React.MouseEvent, position: ParsedPosition) => void) => {
     setOpen(false)
@@ -157,6 +155,14 @@ const DropdownAction = ({
     setOpen(false)
   }
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (!ref?.current?.contains(event.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [ref])
+
   const renderActionItems = () => (
     <>
       <DropdownContentItem onClick={e => handleAction(e, onOpenIncreaseLiquidityWidget)}>
@@ -168,14 +174,14 @@ const DropdownAction = ({
         <Text>{t`Remove Liquidity`}</Text>
       </DropdownContentItem>
       <DropdownContentItem
-        disabled={claimDisabled}
+        disabled={feesClaimDisabled}
         onClick={e => {
-          if (!claimDisabled) {
+          if (!feesClaimDisabled) {
             handleAction(e, onClaimFee)
           } else e.preventDefault()
         }}
       >
-        {claiming && positionToClaim && positionToClaim.tokenId === position.tokenId ? (
+        {feesClaiming && positionThatClaimingFees && positionThatClaimingFees.tokenId === position.tokenId ? (
           <Loader size={'16px'} stroke={'#7a7a7a'} />
         ) : (
           <IconClaimFees width={16} />
@@ -183,13 +189,18 @@ const DropdownAction = ({
         <Text>{t`Claim Fees`}</Text>
       </DropdownContentItem>
       <DropdownContentItem
-        disabled
+        disabled={rewardsClaimDisabled}
         onClick={e => {
-          e.preventDefault()
-          e.stopPropagation()
+          if (!rewardsClaimDisabled) {
+            handleAction(e, onClaimRewards)
+          } else e.preventDefault()
         }}
       >
-        <IconClaimRewards width={14} style={{ marginRight: '2px' }} />
+        {rewardsClaiming && positionThatClaimingRewards && positionThatClaimingRewards.tokenId === position.tokenId ? (
+          <Loader size={'16px'} stroke={'#7a7a7a'} />
+        ) : (
+          <IconClaimRewards width={14} style={{ marginRight: '2px' }} />
+        )}
         <Text>{t`Claim Rewards`}</Text>
       </DropdownContentItem>
     </>

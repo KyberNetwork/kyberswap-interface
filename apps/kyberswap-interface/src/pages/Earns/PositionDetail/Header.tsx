@@ -9,7 +9,7 @@ import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
 import { DexInfo, IconArrowLeft, PositionHeader } from 'pages/Earns/PositionDetail/styles'
-import { Badge, BadgeType, ChainImage, DexImage, ImageContainer } from 'pages/Earns/UserPositions/styles'
+import { Badge, BadgeType, ChainImage, ImageContainer } from 'pages/Earns/UserPositions/styles'
 import { CoreProtocol, EarnDex, PROTOCOL_POSITION_URL, earnSupportedProtocols } from 'pages/Earns/constants'
 import { ParsedPosition, PositionStatus } from 'pages/Earns/types'
 import { isForkFrom } from 'pages/Earns/utils'
@@ -98,7 +98,7 @@ const PositionDetailHeader = ({
             placement="top"
           >
             <DexInfo openable={earnSupportedProtocols.includes(position.dex.id)} onClick={onOpenPositionInDexSite}>
-              <DexImage src={position.dex.logo} alt="" />
+              <TokenLogo src={position.dex.logo} size={16} />
               <Text fontSize={14} color={theme.subText}>
                 {position.dex.id}
               </Text>

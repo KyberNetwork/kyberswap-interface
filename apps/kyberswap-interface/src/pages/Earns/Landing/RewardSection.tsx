@@ -22,9 +22,7 @@ const RewardSection = () => {
 
   const { rewardInfo } = useKemRewards()
 
-  const totalRewardsAmount = rewardInfo?.totalRewardsAmount || 0
-  const rewardUsdValue = rewardInfo?.totalRewardsUsdValue || 0
-  const rewardToken = 'KNC'
+  const rewardUsdValue = rewardInfo?.totalUsdValue || 0
 
   const btnPath = !account
     ? '#'
@@ -61,8 +59,8 @@ const RewardSection = () => {
           />
           <Flex flexDirection={upToSmall ? 'column' : 'row'} alignContent={'center'} sx={{ gap: upToSmall ? 0 : 2 }}>
             <Flex alignContent={'center'} sx={{ gap: 2 }}>
-              <Text>{formatDisplayNumber(totalRewardsAmount, { significantDigits: 6 })}</Text>
-              <Text>{rewardToken}</Text>
+              <Text>{formatDisplayNumber(rewardInfo?.totalAmount || 0, { significantDigits: 6 })}</Text>
+              <Text>KNC</Text>
             </Flex>
             {rewardUsdValue > 0 ? (
               <Text width={'fit-content'} color={theme.subText} fontSize={upToSmall ? '16px' : undefined}>
