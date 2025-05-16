@@ -73,6 +73,9 @@ export interface NormalizedQuote {
   contractAddress: string
 
   rawQuote: any
+
+  protocolFee: number
+  platformFeePercent: number
 }
 
 export interface NormalizedTxResponse {

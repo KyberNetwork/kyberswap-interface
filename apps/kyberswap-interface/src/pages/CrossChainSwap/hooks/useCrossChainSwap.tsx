@@ -196,10 +196,12 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
 
     const body: Record<string, string[]> = {}
     if ((currencyIn as any)?.wrapped?.address) {
-      body[fromChainId] = [(currencyIn as any)?.wrapped?.address]
+      if (!body[fromChainId]) body[fromChainId] = []
+      body[fromChainId].push((currencyIn as any)?.wrapped?.address)
     }
     if ((currencyOut as any)?.wrapped?.address) {
-      body[toChainId] = [(currencyOut as any)?.wrapped?.address]
+      if (!body[toChainId]) body[toChainId] = []
+      body[toChainId].push((currencyOut as any)?.wrapped?.address)
     }
 
     const r: {
@@ -223,9 +225,9 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     if (isFromEvm && isToEvm) {
       const [token0Cat, token1Cat] = await Promise.all([
         await fetch(
-          `${TOKEN_API_URL}/v1/public/category/token?tokens=${
-            (currencyIn as any).wrapped.address
-          }&chainId=${fromChainId}`,
+          `${TOKEN_API_URL}/v1/public/category/token?tokens=${(
+            currencyIn as any
+          ).wrapped.address.toLowerCase()}&chainId=${fromChainId}`,
         )
           .then(res => res.json())
           .then(res => {
@@ -236,9 +238,9 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
           }),
 
         await fetch(
-          `${TOKEN_API_URL}/v1/public/category/token?tokens=${
-            (currencyOut as any).wrapped.address
-          }&chainId=${toChainId}`,
+          `${TOKEN_API_URL}/v1/public/category/token?tokens=${(
+            currencyOut as any
+          ).wrapped.address.toLowerCase()}&chainId=${toChainId}`,
         )
           .then(res => res.json())
           .then(res => {
@@ -258,7 +260,6 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
         feeBps = 15
       }
     }
-
     const isToNear = toChainId === 'near'
 
     setLoading(true)

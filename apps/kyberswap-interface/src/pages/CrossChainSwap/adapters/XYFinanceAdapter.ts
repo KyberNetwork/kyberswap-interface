@@ -8,7 +8,7 @@ import {
   EvmQuoteParams,
 } from './BaseSwapAdapter'
 import { WalletClient, formatUnits } from 'viem'
-import { ETHER_ADDRESS } from 'constants/index'
+import { CROSS_CHAIN_FEE_RECEIVER, ETHER_ADDRESS } from 'constants/index'
 import { Quote } from '../registry'
 
 const XY_FINANCE_API = 'https://aggregator-api.xy.finance/v1'
@@ -58,10 +58,9 @@ export class XYFinanceAdapter extends BaseSwapAdapter {
       slippage: (params.slippage * 100) / 10_000,
       // bridgeProviders: 'yBridge',
 
-      // TODO: add fee
-      // affiliate: '',
-      // Commission rate of affiliate, denominator is 1000000. Affiliate must be provided when passing commissionRate.
-      // commissionRate
+      affiliate: CROSS_CHAIN_FEE_RECEIVER,
+      //represents the fee you wish to collect. It is an integer between 0 and 100,000. In this range, 100,000 corresponds to 10%, 10,000 represents 1%, and so on in a similar fashion.
+      commissionRate: (params.feeBps / 10_000) * 1_000_000,
     }
     // Convert the parameters object to URL query string
     const queryParams = new URLSearchParams()
@@ -94,6 +93,9 @@ export class XYFinanceAdapter extends BaseSwapAdapter {
       timeEstimate: r.estimatedTransferTime,
       contractAddress: r.contractAddress,
       rawQuote: r,
+
+      protocolFee: 0,
+      platformFeePercent: (params.feeBps * 100) / 10_000,
     }
   }
 

@@ -165,7 +165,7 @@ export const TransactionHistory = () => {
                 fontSize: '12px',
               }}
             >
-              {tx.status}
+              {tx.status || 'Processing'}
             </Flex>
 
             <Flex alignItems="center" color={theme.subText} sx={{ gap: '4px' }}>

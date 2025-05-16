@@ -9,7 +9,7 @@ import {
 } from './BaseSwapAdapter'
 import { MAINNET_RELAY_API, getClient, createClient } from '@reservoir0x/relay-sdk'
 import { WalletClient, formatUnits } from 'viem'
-import { ZERO_ADDRESS } from 'constants/index'
+import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
 import { Quote } from '../registry'
 import { MAINNET_NETWORKS } from 'constants/networks'
 
@@ -45,15 +45,14 @@ export class RelayAdapter extends BaseSwapAdapter {
       amount: params.amount,
       tradeType: 'EXACT_INPUT',
       wallet: params.walletClient,
-      // options: {
-      //   appFees: [
-      //     {
-      //       // TODO: add app fee
-      //       recipient: '0xDcFCD5dD752492b95ac8C1964C83F992e7e39FA9',
-      //       fee: '100',
-      //     },
-      //   ],
-      // },
+      options: {
+        appFees: [
+          {
+            recipient: CROSS_CHAIN_FEE_RECEIVER,
+            fee: params.feeBps.toString(),
+          },
+        ],
+      },
     })
 
     const formattedOutputAmount = formatUnits(BigInt(resp.details?.currencyOut?.amount || '0'), params.toToken.decimals)
@@ -75,6 +74,8 @@ export class RelayAdapter extends BaseSwapAdapter {
       // Relay dont need to approve, we send token to contract directly
       contractAddress: ZERO_ADDRESS,
       rawQuote: resp,
+      protocolFee: 0,
+      platformFeePercent: (params.feeBps * 100) / 10000,
     }
   }
 

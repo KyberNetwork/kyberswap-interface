@@ -110,11 +110,11 @@ export class OptimexAdapter extends BaseSwapAdapter {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          affiliate_fee_bps: '0',
           debug: true,
           from_token_amount: params.amount,
           from_token_id: fromTokenId,
           to_token_id: toTokenId,
+          affiliate_fee_bps: params.feeBps.toString(),
         }),
       }).then(res => res.json()),
       fetch(`https://api.optimex.xyz/v1/trades/estimate?from_token=${fromTokenId}&to_token=${toTokenId}`).then(res =>
@@ -179,6 +179,10 @@ export class OptimexAdapter extends BaseSwapAdapter {
       timeEstimate: estimateRes.data.estimated_time,
       contractAddress: txData?.deposit_address || ZERO_ADDRESS,
       rawQuote: { ...quoteRes.data, txData },
+
+      //
+      protocolFee: 0,
+      platformFeePercent: (params.feeBps * 100) / 10000,
     }
   }
 

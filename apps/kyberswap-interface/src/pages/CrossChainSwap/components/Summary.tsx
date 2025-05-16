@@ -71,6 +71,26 @@ export const Summary = ({ quote, tokenOut, full }: { quote?: Quote; tokenOut?: C
         <Text>{quote ? `${Math.abs(quote.quote.priceImpact).toFixed(2)}%` : '--'}</Text>
       </Flex>
 
+      {quote && quote.quote.protocolFee > 0 && (
+        <Flex justifyContent="space-between">
+          <MouseoverTooltip text="UI Fee">
+            <Text color={theme.subText} sx={{ borderBottom: `1px dotted ${theme.border}` }}>
+              Protocol Fee
+            </Text>
+          </MouseoverTooltip>
+          <Text>{formatDisplayNumber(quote.quote.protocolFee, { style: 'currency', fractionDigits: 2 })}</Text>
+        </Flex>
+      )}
+
+      <Flex justifyContent="space-between">
+        <MouseoverTooltip text="UI Fee">
+          <Text color={theme.subText} sx={{ borderBottom: `1px dotted ${theme.border}` }}>
+            Platform Fee
+          </Text>
+        </MouseoverTooltip>
+        <Text>{quote ? `${quote.quote.platformFeePercent.toFixed(2)}%` : '--'}</Text>
+      </Flex>
+
       {/*
       <Flex justifyContent="space-between">
         <MouseoverTooltip text="Estimated network fee for your transaction.">

@@ -57,6 +57,7 @@ export class LifiAdapter extends BaseSwapAdapter {
       toChain: +params.toChain, // Optimism
       toToken: params.toToken.isNative ? ZERO_ADDRESS : params.toToken.wrapped.address,
       toAddress: params.recipient,
+      fee: params.feeBps / 10_000,
     })
 
     //const inputUsd = Number(r.estimate.fromAmountUSD || '0')
@@ -82,6 +83,9 @@ export class LifiAdapter extends BaseSwapAdapter {
       timeEstimate: r.estimate.executionDuration,
       contractAddress: r.transactionRequest?.to || r.estimate.approvalAddress,
       rawQuote: r,
+
+      protocolFee: 0,
+      platformFeePercent: (params.feeBps * 100) / 10_000,
     }
   }
 

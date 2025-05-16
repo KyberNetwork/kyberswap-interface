@@ -12,24 +12,26 @@ import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { WalletClient, formatUnits } from 'viem'
 import { Quote } from '../registry'
 
-function to2ByteHexFromString(input: string): string {
-  const encoder = new TextEncoder()
-  const bytes = encoder.encode(input)
+import { ethers } from 'ethers'
+import { CROSS_CHAIN_FEE_RECEIVER } from 'constants/index'
 
-  // Take first 2 bytes
-  const view = bytes.slice(0, 2)
-  return Array.from(view)
-    .map(b => b.toString(16).padStart(2, '0'))
-    .join('')
-}
+// Define the ABI of the functions
+const transferFunction = 'function transfer(address to, uint256 amount)'
+
+// Create Interface instances
+const erc20Interface = new ethers.utils.Interface([transferFunction])
+
 export class AcrossAdapter extends BaseSwapAdapter {
   private acrossClient: AcrossClient
 
   constructor() {
     super()
     this.acrossClient = createAcrossClient({
-      integratorId: `0x${to2ByteHexFromString('kyberswap')}`,
+      integratorId: `0x008a`,
       chains: [mainnet, arbitrum, optimism, linea, polygon, zksync, base, scroll, blast],
+      rpcUrls: {
+        [ChainId.BASE]: 'https://base.drpc.org',
+      },
     })
   }
 
@@ -58,36 +60,63 @@ export class AcrossAdapter extends BaseSwapAdapter {
   }
 
   async getQuote(params: EvmQuoteParams): Promise<NormalizedQuote> {
-    const resp = await this.acrossClient.getQuote({
-      route: {
-        originChainId: +params.fromChain,
-        destinationChainId: +params.toChain,
-        inputToken: params.fromToken.wrapped.address as `0x${string}`,
-        outputToken: params.toToken.wrapped.address as `0x${string}`,
-        isNative: params.fromToken.isNative,
-      },
-      inputAmount: params.amount,
-    })
-    const tokenInUsd = params.tokenInUsd
-    const tokenOutUsd = params.tokenOutUsd
-    const formattedOutputAmount = formatUnits(BigInt(resp.deposit.outputAmount), params.toToken.decimals)
-    const formattedInputAmount = formatUnits(BigInt(params.amount), params.fromToken.decimals)
-    const inputUsd = tokenInUsd * +formattedInputAmount
-    const outputUsd = tokenOutUsd * +formattedOutputAmount
+    try {
+      const resp = await this.acrossClient.getQuote({
+        route: {
+          originChainId: +params.fromChain,
+          destinationChainId: +params.toChain,
+          inputToken: params.fromToken.wrapped.address as `0x${string}`,
+          outputToken: params.toToken.wrapped.address as `0x${string}`,
+          isNative: params.fromToken.isNative,
+        },
+        inputAmount: params.amount,
+        // TODO
+        recipient: '0x924a9f036260DdD5808007E1AA95f08eD08aA569',
+        crossChainMessage: {
+          actions: [
+            {
+              target: params.toToken.wrapped.address as `0x${string}`,
+              callData: erc20Interface.encodeFunctionData('transfer', [CROSS_CHAIN_FEE_RECEIVER, 0n]) as `0x${string}`,
+              value: '0',
+              update: updatedAmount => ({
+                callData: erc20Interface.encodeFunctionData('transfer', [
+                  CROSS_CHAIN_FEE_RECEIVER,
+                  (updatedAmount * BigInt(params.feeBps)) / 10_000n,
+                ]) as `0x${string}`,
+              }),
+            },
+          ],
+          fallbackRecipient: params.recipient as `0x${string}`,
+        },
+      })
+      const tokenInUsd = params.tokenInUsd
+      const tokenOutUsd = params.tokenOutUsd
+      const formattedOutputAmount = formatUnits(BigInt(resp.deposit.outputAmount), params.toToken.decimals)
+      const formattedInputAmount = formatUnits(BigInt(params.amount), params.fromToken.decimals)
+      const inputUsd = tokenInUsd * +formattedInputAmount
+      const outputUsd = tokenOutUsd * +formattedOutputAmount
 
-    return {
-      quoteParams: params,
-      outputAmount: BigInt(resp.deposit.outputAmount),
-      formattedOutputAmount,
-      inputUsd: tokenInUsd * +formatUnits(BigInt(params.amount), params.fromToken.decimals),
-      outputUsd: tokenOutUsd * +formattedOutputAmount,
-      rate: +formattedOutputAmount / +formattedInputAmount,
-      timeEstimate: resp.estimatedFillTimeSec,
-      priceImpact: (Math.abs(outputUsd - inputUsd) * 100) / inputUsd,
-      // TODO: what is gas fee for across
-      gasFeeUsd: 0,
-      contractAddress: resp.deposit.spokePoolAddress,
-      rawQuote: resp,
+      return {
+        quoteParams: params,
+        outputAmount: BigInt(resp.deposit.outputAmount),
+        formattedOutputAmount,
+        inputUsd: tokenInUsd * +formatUnits(BigInt(params.amount), params.fromToken.decimals),
+        outputUsd: tokenOutUsd * +formattedOutputAmount,
+        rate: +formattedOutputAmount / +formattedInputAmount,
+        timeEstimate: resp.estimatedFillTimeSec,
+        priceImpact: (Math.abs(outputUsd - inputUsd) * 100) / inputUsd,
+        // TODO: what is gas fee for across
+        gasFeeUsd: 0,
+        contractAddress: resp.deposit.spokePoolAddress,
+        rawQuote: resp,
+
+        // TODO: handle fee
+        protocolFee: 0,
+        platformFeePercent: (params.feeBps * 100) / 10_000,
+      }
+    } catch (e) {
+      console.log('Across getQuote error', e)
+      throw e
     }
   }
 
@@ -118,17 +147,25 @@ export class AcrossAdapter extends BaseSwapAdapter {
     })
   }
   async getTransactionStatus(params: NormalizedTxResponse): Promise<SwapStatus> {
-    const res = await this.acrossClient.getDeposit({
-      findBy: {
-        originChainId: +params.sourceChain,
-        destinationChainId: +params.targetChain,
-        depositTxHash: params.sourceTxHash as `0x${string}`,
-      },
-    })
+    try {
+      const res = await this.acrossClient.getDeposit({
+        findBy: {
+          originChainId: +params.sourceChain,
+          destinationChainId: +params.targetChain,
+          depositTxHash: params.sourceTxHash as `0x${string}`,
+        },
+      })
 
-    return {
-      txHash: res.fillTxHash || '',
-      status: res.status === 'filled' ? 'Success' : 'Processing',
+      return {
+        txHash: res.fillTxHash || '',
+        status: res.status === 'filled' ? 'Success' : 'Processing',
+      }
+    } catch (error) {
+      console.error('Error fetching transaction status:', error)
+      return {
+        txHash: '',
+        status: 'Processing',
+      }
     }
   }
 }

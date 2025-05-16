@@ -97,6 +97,10 @@ export class SymbiosisAdapter extends BaseSwapAdapter {
       timeEstimate: res.estimatedTime,
       contractAddress: res.approveTo || ZERO_ADDRESS,
       rawQuote: res,
+
+      // TODO: add Fee
+      protocolFee: 0,
+      platformFeePercent: 0,
     }
   }
 

@@ -346,3 +346,5 @@ export const SAFE_APP_FEE_RECEIVER_ADDRESS = '0x55602F3057be52BFB6F98fFE799CFDec
 export const SAFE_APP_CLIENT_ID = 'app.safe.global'
 
 export const CROSS_CHAIN_FEE_RECEIVER = '0x0193a8a52D77E27bDd4f12E0cDd52d8Ff1d97d68'
+export const CROSS_CHAIN_FEE_RECEIVER_NEAR = 'vietnv1304.near'
+export const CROSS_CHAIN_FEE_RECEIVER_BTC = 'bc1qmzgkj3hznt8heh4vp33v2cr2mvsyhc3lmfzz9p'

@@ -8,8 +8,10 @@ import {
   EvmQuoteParams,
 } from './BaseSwapAdapter'
 import { WalletClient, formatUnits } from 'viem'
-import { ZERO_ADDRESS } from 'constants/index'
+import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
 import { Quote } from '../registry'
+import { TOKEN_API_URL } from 'constants/env'
+import { NativeCurrencies } from 'constants/tokens'
 
 const DEBRIDGE_API = 'https://dln.debridge.finance/v1.0/dln/order'
 
@@ -57,10 +59,10 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
       enableEstimate: false,
       prependOperatingExpenses: false,
 
-      // TODO: add fee
-      // affiliate: '',
-      // Commission rate of affiliate, denominator is 1000000. Affiliate must be provided when passing commissionRate.
-      // commissionRate
+      // TODO: ask product to generate affiliate
+      affiliate: 31956,
+      affiliateFeePercent: (params.feeBps * 100) / 10_000,
+      affiliateFeeRecipient: CROSS_CHAIN_FEE_RECEIVER,
     }
 
     let path = 'quote'
@@ -79,6 +81,7 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
     for (const [key, value] of Object.entries(p)) {
       queryParams.append(key, String(value))
     }
+
     const r = await fetch(`${DEBRIDGE_API}/${path}?${queryParams.toString()}`).then(res => res.json())
     if (!r.estimation) {
       throw new Error('No route found')
@@ -96,6 +99,42 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
     const inputUsd = params.tokenInUsd * +formattedInputAmount
     const outputUsd = params.tokenOutUsd * +formattedOutputAmount
 
+    // const affiliateFee = r.estimation.costsDetails.find(
+    //   (item: { payload: { feeAmount: string; feeBps: string }; tokenIn: string; type: string }) =>
+    //     item.type === 'AffiliateFee',
+    // )
+    //
+    // let platformFee = 0
+    // const { srcChainTokenIn, srcChainTokenOut } = r.estimation
+    // if (affiliateFee?.tokenIn === srcChainTokenIn?.address) {
+    //   platformFee =
+    //     (Number(((BigInt(affiliateFee.payload.feeAmount) * 1000n) / BigInt(srcChainTokenIn.amount)).toString()) *
+    //       srcChainTokenIn.approximateUsdValue) /
+    //     1000
+    // } else if (affiliateFee?.tokenIn === srcChainTokenOut?.address) {
+    //   platformFee =
+    //     (Number(((BigInt(affiliateFee.payload.feeAmount) * 1000n) / BigInt(srcChainTokenOut.amount)).toString()) *
+    //       srcChainTokenOut.approximateUsdValue) /
+    //     1000
+    // }
+
+    const fixFee = r.fixFee
+
+    const wrappedAddress = NativeCurrencies[params.fromChain as ChainId].wrapped.address
+    const nativePrice = await fetch(`${TOKEN_API_URL}/v1/public/tokens/prices`, {
+      method: 'POST',
+      body: JSON.stringify({
+        [params.fromChain]: [wrappedAddress],
+      }),
+    })
+      .then(res => res.json())
+      .then(res => {
+        return res?.data?.[params.fromChain]?.[wrappedAddress]?.PriceBuy || 0
+      })
+
+    const protocolFee =
+      Number(nativePrice) * (Number(fixFee) / 10 ** NativeCurrencies[params.fromChain as ChainId].decimals)
+
     return {
       quoteParams: params,
       outputAmount: BigInt(r.estimation.dstChainTokenOut.recommendedAmount),
@@ -105,13 +144,16 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
       inputUsd,
       outputUsd,
 
-      priceImpact: Math.abs(outputUsd - inputUsd) / inputUsd,
+      priceImpact: (Math.abs(outputUsd - inputUsd) * 100) / inputUsd,
       rate: +formattedOutputAmount / +formattedInputAmount,
 
       gasFeeUsd: 0,
       timeEstimate: r.order.approximateFulfillmentDelay,
       contractAddress: r.tx.allowanceTarget || r.tx.to,
       rawQuote: r,
+
+      protocolFee,
+      platformFeePercent: (params.feeBps * 100) / 10_000,
     }
   }
 

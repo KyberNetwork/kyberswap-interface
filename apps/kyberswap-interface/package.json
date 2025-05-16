@@ -42,7 +42,7 @@
     "@0xsquid/sdk": "2.8.24",
     "@across-protocol/app-sdk": "^0.2.0",
     "@apollo/client": "^3.7.1",
-    "@defuse-protocol/one-click-sdk-typescript": "^0.1.1",
+    "@defuse-protocol/one-click-sdk-typescript": "^0.1.2",
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
     "@ethersproject/abi": "^5.8.0",
     "@ethersproject/abstract-provider": "^5.8.0",

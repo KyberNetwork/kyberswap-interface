@@ -9,7 +9,7 @@ import {
   EvmQuoteParams,
 } from './BaseSwapAdapter'
 import { WalletClient, formatUnits, parseUnits } from 'viem'
-import { ZERO_ADDRESS } from 'constants/index'
+import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
 import { Quote } from '../registry'
 
 const mappingChain: Record<string, ChainName> = {
@@ -50,8 +50,8 @@ export class MayanAdapter extends BaseSwapAdapter {
       fromChain: mappingChain[params.fromChain],
       toChain: mappingChain[params.toChain],
       slippageBps: params.slippage,
-      // referrer: 'YOUR SOLANA WALLET ADDRESS', // optional
-      // referrerBps: 5, // optional
+      referrer: CROSS_CHAIN_FEE_RECEIVER,
+      referrerBps: params.feeBps,
     })
     if (!quotes?.[0]) {
       throw new Error('No quotes found')
@@ -80,6 +80,9 @@ export class MayanAdapter extends BaseSwapAdapter {
       timeEstimate: quotes[0].etaSeconds,
       contractAddress: addresses.MAYAN_FORWARDER_CONTRACT,
       rawQuote: quotes[0],
+
+      protocolFee: 0,
+      platformFeePercent: (params.feeBps * 100) / 10_000,
     }
   }
 

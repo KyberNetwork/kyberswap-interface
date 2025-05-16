@@ -30,7 +30,7 @@ const ListRoute = styled.div`
 `
 
 const Row = styled.div<{ selected: boolean }>`
-  padding: 16px;
+  padding: 12px;
   background-color: ${({ selected, theme }) => (selected ? rgba(theme.primary, 0.1) : 'transparent')};
   border-radius: 16px;
   border: 1px solid ${({ selected, theme }) => (selected ? theme.darkGreen : theme.border)};
@@ -53,6 +53,7 @@ export const QuoteSelector = ({
 }) => {
   const [show, setShow] = useState(false)
   const theme = useTheme()
+  console.log(quotes)
 
   return (
     <MenuFlyout
@@ -115,20 +116,25 @@ export const QuoteSelector = ({
                     <TokenLogoWithChain
                       currency={tokenOut}
                       chainId={quote.quote.quoteParams.toChain}
-                      size={24}
+                      size={20}
                       chainLogoStyle={{
                         bottom: 0,
                         top: 'auto',
                       }}
                     />
-                    <Text fontWeight="500" fontSize={24} marginLeft="4px">
+                    <Text fontWeight="500" fontSize={20} marginLeft="4px">
                       {formatDisplayNumber(quote.quote.formattedOutputAmount, { significantDigits: 4 })}
                     </Text>
-                    <Text color={theme.subText} marginLeft="4px" fontWeight="500" fontSize={20}>
+                    <Text color={theme.subText} marginLeft="4px" fontWeight="500" fontSize={18}>
                       {tokenOut?.symbol}
                     </Text>
                     <Text marginLeft="4px" color={theme.subText} fontSize={14}>
-                      ~{formatDisplayNumber(quote.quote.outputUsd, { style: 'currency', significantDigits: 4 })}
+                      ~
+                      {formatDisplayNumber(quote.quote.outputUsd, {
+                        style: 'currency',
+                        significantDigits: 3,
+                        fractionDigits: 2,
+                      })}
                     </Text>
 
                     {index === 0 && (
@@ -136,9 +142,9 @@ export const QuoteSelector = ({
                         sx={{
                           backgroundColor: theme.darkGreen,
                           color: theme.white,
-                          padding: '2px 8px',
+                          padding: '2px 6px',
                           borderRadius: '999px',
-                          fontSize: '12px',
+                          fontSize: '10px',
                           fontWeight: 500,
                           marginLeft: 'auto',
                         }}
@@ -148,13 +154,26 @@ export const QuoteSelector = ({
                     )}
                   </Flex>
                   <Flex marginTop="8px" alignItems="center" color={theme.subText} fontSize="14px">
-                    <img src={quote.adapter.getIcon()} alt={quote.adapter.getName()} width={16} height={16} />
+                    <img src={quote.adapter.getIcon()} alt={quote.adapter.getName()} width={14} height={14} />
                     <Text ml="4px">{quote.adapter.getName()}</Text>
                     <Text mx="8px">|</Text>
                     <Clock size={14} />
                     <Text ml="4px" mr="8px">
                       {quote.quote.timeEstimate}s
                     </Text>
+                    {quote.quote.protocolFee > 0 && (
+                      <>
+                        <Text mx="8px">|</Text>
+                        <Text ml="4px" mr="8px">
+                          Protocol fee:{' '}
+                          {formatDisplayNumber(quote.quote.protocolFee, {
+                            style: 'currency',
+                            significantDigits: 3,
+                          })}
+                        </Text>
+                      </>
+                    )}
+
                     {/*
                   <GasStation />
                   <Text ml="4px">
