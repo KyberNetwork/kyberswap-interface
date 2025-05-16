@@ -10,12 +10,7 @@ import {
   NearQuoteParams,
 } from './BaseSwapAdapter'
 import { WalletClient, formatUnits } from 'viem'
-import {
-  CROSS_CHAIN_FEE_RECEIVER,
-  CROSS_CHAIN_FEE_RECEIVER_BTC,
-  CROSS_CHAIN_FEE_RECEIVER_NEAR,
-  ZERO_ADDRESS,
-} from 'constants/index'
+import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
 import { Quote } from '../registry'
 import { OneClickService, OpenAPI, QuoteRequest } from '@defuse-protocol/one-click-sdk-typescript'
 
@@ -122,12 +117,7 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
       recipientType: QuoteRequest.recipientType.DESTINATION_CHAIN,
       appFees: [
         {
-          recipient:
-            params.fromChain === NonEvmChain.Near
-              ? CROSS_CHAIN_FEE_RECEIVER_NEAR
-              : params.fromChain === NonEvmChain.Bitcoin
-              ? CROSS_CHAIN_FEE_RECEIVER_BTC
-              : CROSS_CHAIN_FEE_RECEIVER,
+          recipient: CROSS_CHAIN_FEE_RECEIVER.toLowerCase(),
           fee: params.feeBps,
         },
       ],

@@ -9,7 +9,7 @@ import {
   QuoteParams,
 } from './BaseSwapAdapter'
 import { WalletClient, formatUnits } from 'viem'
-import { ZERO_ADDRESS } from 'constants/index'
+import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
 import { Quote } from '../registry'
 
 //const erc20Abi = [
@@ -154,6 +154,14 @@ export class OptimexAdapter extends BaseSwapAdapter {
           from_wallet_address: params.sender,
           trade_timeout: Math.floor(tradeTimeout.getTime() / 1000),
           script_timeout: Math.floor(scriptTimeout.getTime() / 1000),
+          affiliate_info: [
+            {
+              provider: 'KyberSwap',
+              rate: params.feeBps,
+              receiver: CROSS_CHAIN_FEE_RECEIVER,
+              network: 'ethereum',
+            },
+          ],
         }),
       }).then(res => res.json())
 
@@ -180,7 +188,6 @@ export class OptimexAdapter extends BaseSwapAdapter {
       contractAddress: txData?.deposit_address || ZERO_ADDRESS,
       rawQuote: { ...quoteRes.data, txData },
 
-      //
       protocolFee: 0,
       platformFeePercent: (params.feeBps * 100) / 10000,
     }
