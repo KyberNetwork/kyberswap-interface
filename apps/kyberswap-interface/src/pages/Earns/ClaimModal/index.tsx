@@ -60,7 +60,7 @@ const ClaimModal = ({
 
   const [autoClaim, setAutoClaim] = useState(false)
 
-  const handleCollectFees = useCallback(async () => {
+  const handleClaim = useCallback(async () => {
     if (!library) return
     const accounts = await library.listAccounts()
     if (chainId !== claimInfo.chainId || !accounts.length) {
@@ -74,10 +74,10 @@ const ClaimModal = ({
 
   useEffect(() => {
     if (autoClaim && chainId === claimInfo.chainId) {
-      handleCollectFees()
+      handleClaim()
       setAutoClaim(false)
     }
-  }, [chainId, claimInfo.chainId, handleCollectFees, autoClaim])
+  }, [chainId, claimInfo.chainId, handleClaim, autoClaim])
 
   const chainLogo = supportedChains.find(chain => chain.chainId === claimInfo.chainId)?.icon || ''
 
@@ -114,7 +114,7 @@ const ClaimModal = ({
         </ClaimInfoWrapper>
         <Row gap="16px" flexDirection={upToExtraSmall ? 'column' : 'row'}>
           <ButtonOutlined onClick={onClose}>{t`Cancel`}</ButtonOutlined>
-          <ButtonPrimary gap="4px" disabled={claiming} onClick={handleCollectFees}>
+          <ButtonPrimary gap="4px" disabled={claiming} onClick={handleClaim}>
             {claiming && <Loader stroke={'#505050'} />}
             {claiming ? t`Claiming` : t`Claim`}
           </ButtonPrimary>
