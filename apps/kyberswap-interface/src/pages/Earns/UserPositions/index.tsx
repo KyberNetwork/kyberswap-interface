@@ -72,7 +72,7 @@ const UserPositions = () => {
     refetch,
   } = useUserPositionsQuery(positionQueryParams, {
     skip: !account,
-    pollingInterval: 20_000,
+    pollingInterval: 15_000,
   })
 
   const { rewardInfo } = useKemRewards()

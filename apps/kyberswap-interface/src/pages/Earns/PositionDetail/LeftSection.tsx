@@ -1,12 +1,9 @@
 import { t } from '@lingui/macro'
-import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Flex, Text } from 'rebass'
 
-import InfoHelper from 'components/InfoHelper'
 import Loader from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
 import { NETWORKS_INFO } from 'constants/networks'
-import { useReadingContract } from 'hooks/useContract'
 import useTheme from 'hooks/useTheme'
 import PositionHistory from 'pages/Earns/PositionDetail/PositionHistory'
 import Rewards from 'pages/Earns/PositionDetail/Rewards'
@@ -18,79 +15,31 @@ import {
   TotalLiquiditySection,
   VerticalDivider,
 } from 'pages/Earns/PositionDetail/styles'
-import { CoreProtocol, DEXES_SUPPORT_COLLECT_FEE, NFT_MANAGER_ABI } from 'pages/Earns/constants'
+import { CoreProtocol, DEXES_SUPPORT_COLLECT_FEE } from 'pages/Earns/constants'
 import useCollectFees from 'pages/Earns/hooks/useCollectFees'
-import { FeeInfo, ParsedPosition } from 'pages/Earns/types'
-import { formatAprNumber, getFullUnclaimedFeesInfo, getNftManagerContractAddress, isForkFrom } from 'pages/Earns/utils'
+import { ParsedPosition } from 'pages/Earns/types'
+import { formatAprNumber, isForkFrom } from 'pages/Earns/utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
-const LeftSection = ({ position }: { position: ParsedPosition }) => {
+const LeftSection = ({
+  position,
+  onFetchUnclaimedFee,
+}: {
+  position: ParsedPosition
+  onFetchUnclaimedFee: () => void
+}) => {
   const theme = useTheme()
-  const [feeInfoFromRpc, setFeeInfoFromRpc] = useState<FeeInfo | null>(null)
-  const [positionOwner, setPositionOwner] = useState<string | null>(null)
 
   const {
     claimModal: claimFeesModal,
     onOpenClaim: onOpenClaimFees,
     claiming: feesClaiming,
   } = useCollectFees({
-    refetchAfterCollect: () => handleFetchUnclaimedFee(),
+    refetchAfterCollect: () => onFetchUnclaimedFee(),
   })
 
-  const nftManagerContractAddress = getNftManagerContractAddress(position.dex.id, position.chain.id)
-  const nftManagerAbi = NFT_MANAGER_ABI[position.dex.id as keyof typeof NFT_MANAGER_ABI]
-  const contract = useReadingContract(nftManagerContractAddress, nftManagerAbi, position.chain.id)
   const isUniv2 = isForkFrom(position.dex.id, CoreProtocol.UniswapV2)
   const nativeToken = NETWORKS_INFO[position.chain.id as keyof typeof NETWORKS_INFO].nativeToken
-
-  const feeInfo = useMemo(
-    () =>
-      feeInfoFromRpc || {
-        balance0: position.token0.unclaimedBalance,
-        balance1: position.token1.unclaimedBalance,
-        amount0: position.token0.unclaimedAmount,
-        amount1: position.token1.unclaimedAmount,
-        value0: position.token0.unclaimedValue,
-        value1: position.token1.unclaimedValue,
-        totalValue: position.token0.unclaimedValue + position.token1.unclaimedValue,
-      },
-    [
-      feeInfoFromRpc,
-      position.token0.unclaimedAmount,
-      position.token0.unclaimedBalance,
-      position.token0.unclaimedValue,
-      position.token1.unclaimedAmount,
-      position.token1.unclaimedBalance,
-      position.token1.unclaimedValue,
-    ],
-  )
-
-  const handleGetPositionOwner = useCallback(async () => {
-    if (!contract) return
-    const owner = await contract.ownerOf(position.tokenId)
-    if (owner) setPositionOwner(owner)
-  }, [contract, position.tokenId])
-
-  const handleFetchUnclaimedFee = useCallback(async () => {
-    if (!contract || !positionOwner || !feesClaiming) return
-
-    const feeFromRpc = await getFullUnclaimedFeesInfo({
-      contract,
-      positionOwner,
-      tokenId: position.tokenId,
-      chainId: position.chain.id,
-      token0: position.token0,
-      token1: position.token1,
-    })
-
-    setFeeInfoFromRpc(feeFromRpc)
-
-    setTimeout(() => setFeeInfoFromRpc(null), 60_000)
-  }, [contract, positionOwner, feesClaiming, position.tokenId, position.chain.id, position.token0, position.token1])
-
-  useEffect(() => {
-    handleGetPositionOwner()
-  }, [handleGetPositionOwner])
 
   return (
     <>
@@ -127,12 +76,9 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
 
         {/* Est. Position APR */}
         <AprSection>
-          <Flex alignItems={'center'} sx={{ marginTop: 1 }}>
-            <Text fontSize={14} color={theme.subText}>
-              {t`Est. Position APR`}
-            </Text>
-            <InfoHelper text={t`Estimated 7 days APR`} placement="top" />
-          </Flex>
+          <Text fontSize={14} color={theme.subText}>
+            {t`Est. Position APR`}
+          </Text>
           <Text fontSize={20} color={position.apr > 0 ? theme.primary : theme.text}>
             {formatAprNumber(position.apr * 100)}%
           </Text>
@@ -189,8 +135,8 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
                 {t`Total Unclaimed Fees`}
               </Text>
               <Text fontSize={18}>
-                {feeInfo
-                  ? formatDisplayNumber(feeInfo.totalValue, {
+                {position.unclaimedFees
+                  ? formatDisplayNumber(position.unclaimedFees, {
                       significantDigits: 4,
                       style: 'currency',
                     })
@@ -200,20 +146,20 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
             <Flex alignItems={'center'} justifyContent={'space-between'}>
               <div>
                 <Flex alignItems={'center'} sx={{ gap: '6px' }} marginBottom={1}>
-                  <Text>{formatDisplayNumber(feeInfo?.amount0, { significantDigits: 4 })}</Text>
+                  <Text>{formatDisplayNumber(position.token0.unclaimedAmount, { significantDigits: 4 })}</Text>
                   <Text>{position.token0.isNative ? nativeToken.symbol : position.token0.symbol}</Text>
                   <Text fontSize={14} color={theme.subText}>
-                    {formatDisplayNumber(feeInfo?.value0, {
+                    {formatDisplayNumber(position.token0.unclaimedValue, {
                       style: 'currency',
                       significantDigits: 4,
                     })}
                   </Text>
                 </Flex>
                 <Flex alignItems={'center'} sx={{ gap: '6px' }}>
-                  <Text>{formatDisplayNumber(feeInfo?.amount1, { significantDigits: 4 })}</Text>
+                  <Text>{formatDisplayNumber(position.token1.unclaimedAmount, { significantDigits: 4 })}</Text>
                   <Text>{position.token1.isNative ? nativeToken.symbol : position.token1.symbol}</Text>
                   <Text fontSize={14} color={theme.subText}>
-                    {formatDisplayNumber(feeInfo?.value1, {
+                    {formatDisplayNumber(position.token1.unclaimedValue, {
                       style: 'currency',
                       significantDigits: 4,
                     })}
@@ -225,8 +171,8 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
                 outline
                 mobileAutoWidth
                 load={feesClaiming}
-                disabled={(!feeInfo || feeInfo.totalValue === 0) && !feesClaiming}
-                onClick={() => feeInfo && feeInfo.totalValue !== 0 && !feesClaiming && onOpenClaimFees(position)}
+                disabled={position.unclaimedFees === 0 || feesClaiming}
+                onClick={() => position.unclaimedFees > 0 && !feesClaiming && onOpenClaimFees(position)}
               >
                 {feesClaiming && <Loader size="14px" />}
                 {feesClaiming ? t`Claiming` : t`Claim`}
@@ -236,7 +182,7 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
         ) : null}
 
         {/* Rewards */}
-        <Rewards />
+        {position.pool.isFarming && <Rewards />}
 
         {/* Position History */}
         {!isUniv2 && <PositionHistory position={position} />}

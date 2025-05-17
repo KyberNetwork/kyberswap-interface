@@ -1,4 +1,5 @@
 import { t } from '@lingui/macro'
+import { useEffect, useState } from 'react'
 import { Clock } from 'react-feather'
 import { Flex, Text } from 'rebass'
 
@@ -6,8 +7,48 @@ import { ReactComponent as KemIcon } from 'assets/svg/kyber/kem.svg'
 import useTheme from 'hooks/useTheme'
 import { NextDistribution, PositionAction, RewardsSection } from 'pages/Earns/PositionDetail/styles'
 
+const getNextWednesdayMidnightUTC = () => {
+  const now = new Date()
+  const nextWednesday = new Date(now)
+
+  // Set to next Wednesday (3 is Wednesday in getUTCDay())
+  nextWednesday.setUTCDate(now.getUTCDate() + ((3 - now.getUTCDay() + 7) % 7))
+  // Set to 12:00 AM UTC (midnight)
+  nextWednesday.setUTCHours(0, 0, 0, 0)
+
+  // If we're already past this Wednesday's midnight, get next week's
+  if (now > nextWednesday) {
+    nextWednesday.setUTCDate(nextWednesday.getUTCDate() + 7)
+  }
+
+  return Math.floor(nextWednesday.getTime() / 1000)
+}
+
+const formatTimeRemaining = (seconds: number) => {
+  const days = Math.floor(seconds / 86400)
+  const hours = Math.floor((seconds % 86400) / 3600)
+  const minutes = Math.floor((seconds % 3600) / 60)
+  const secs = seconds % 60
+
+  return `${days}d ${hours}h ${minutes}m ${secs}s`
+}
+
 const Rewards = () => {
   const theme = useTheme()
+  const [timeRemaining, setTimeRemaining] = useState('')
+  const [nextDistributionTime] = useState(getNextWednesdayMidnightUTC())
+
+  useEffect(() => {
+    const calculateTimeRemaining = () => {
+      const now = Math.floor(Date.now() / 1000)
+      const remaining = nextDistributionTime - now
+      setTimeRemaining(formatTimeRemaining(remaining))
+    }
+
+    calculateTimeRemaining()
+    const interval = setInterval(calculateTimeRemaining, 1000)
+    return () => clearInterval(interval)
+  }, [nextDistributionTime])
 
   return (
     <RewardsSection>
@@ -32,7 +73,7 @@ const Rewards = () => {
         <Flex alignItems={'center'} sx={{ gap: 1 }}>
           <Clock size={16} color={theme.subText} />
           <Text fontSize={14} color={theme.subText}>
-            6d 12h 30m 45s
+            {timeRemaining}
           </Text>
         </Flex>
       </NextDistribution>
