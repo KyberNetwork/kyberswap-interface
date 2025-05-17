@@ -49,11 +49,6 @@ const UserPositions = () => {
   const { filters, updateFilters } = useFilter()
   const { supportedDexes, supportedChains } = useSupportedDexesAndChains(filters)
 
-  const { widget: zapMigrationWidget, handleOpenZapMigration } = useZapMigrationWidget()
-  const { widget: zapInWidget, handleOpenZapIn } = useZapInWidget({
-    onOpenZapMigration: handleOpenZapMigration,
-  })
-  const { widget: zapOutWidget, handleOpenZapOut } = useZapOutWidget()
   const firstLoading = useRef(false)
   const [loading, setLoading] = useState(false)
   const [feeInfoFromRpc, setFeeInfoFromRpc] = useState<FeeInfoFromRpc[]>([])
@@ -74,6 +69,13 @@ const UserPositions = () => {
     skip: !account,
     pollingInterval: 15_000,
   })
+
+  const { widget: zapMigrationWidget, handleOpenZapMigration } = useZapMigrationWidget(refetch)
+  const { widget: zapInWidget, handleOpenZapIn } = useZapInWidget({
+    onOpenZapMigration: handleOpenZapMigration,
+    onRefreshPosition: refetch,
+  })
+  const { widget: zapOutWidget, handleOpenZapOut } = useZapOutWidget(refetch)
 
   const { rewardInfo } = useKemRewards()
 

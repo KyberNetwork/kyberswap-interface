@@ -35,7 +35,6 @@ import { formatDisplayNumber } from 'utils/numbers'
 export const dexKeyMapping: { [key: string]: string } = {
   uniswapv2: 'uniswap',
   kodiakcl: 'kodiak-v3',
-  uniswapv4: 'uniswap-v4',
 }
 
 const dexNameMapping: { [key: string]: string } = {

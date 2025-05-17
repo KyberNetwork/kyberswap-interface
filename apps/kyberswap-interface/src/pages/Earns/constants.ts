@@ -29,7 +29,7 @@ export enum EarnDex2 {
   DEX_THENAFUSION = 'thena',
   DEX_KODIAK_V3 = 'kodiakcl',
   DEX_UNISWAPV2 = 'uniswapv2',
-  DEX_UNISWAP_V4 = 'uniswapv4',
+  DEX_UNISWAP_V4 = 'uniswap-v4',
   DEX_UNISWAP_V4_KEM = 'uniswap-v4-kem',
 }
 

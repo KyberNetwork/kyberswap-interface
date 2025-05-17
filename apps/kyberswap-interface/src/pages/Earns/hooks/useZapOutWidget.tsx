@@ -44,7 +44,7 @@ const zapOutDexMapping: Record<EarnDex | EarnDex2, ZapOutDex> = {
   [EarnDex2.DEX_UNISWAP_V4_KEM]: ZapOutDex.DEX_UNISWAP_V4_KEM,
 }
 
-const useZapOutWidget = () => {
+const useZapOutWidget = (onRefreshPosition?: () => void) => {
   const toggleWalletModal = useWalletModalToggle()
   const notify = useNotify()
   const refCode = getCookieValue('refCode')
@@ -70,7 +70,10 @@ const useZapOutWidget = () => {
               address: account,
               chainId: chainId as unknown as ZapOutChainId,
             },
-            onClose: () => setZapOutPureParams(null),
+            onClose: () => {
+              setZapOutPureParams(null)
+              onRefreshPosition?.()
+            },
             onConnectWallet: toggleWalletModal,
             onSwitchChain: () => changeNetwork(zapOutPureParams.chainId as number),
             onSubmitTx: async (txData: { from: string; to: string; value: string; data: string }) => {
@@ -80,7 +83,7 @@ const useZapOutWidget = () => {
             },
           }
         : null,
-    [account, chainId, changeNetwork, library, toggleWalletModal, zapOutPureParams, refCode],
+    [account, chainId, changeNetwork, library, toggleWalletModal, zapOutPureParams, refCode, onRefreshPosition],
   )
 
   const handleOpenZapOut = ({ position }: ZapOutInfo) => {

@@ -80,7 +80,7 @@ const zapMigrationDexMapping: Record<EarnDex | EarnDex2, ZapMigrationDex | null>
   [EarnDex2.DEX_UNISWAP_V4_KEM]: ZapMigrationDex.DEX_UNISWAP_V4_KEM,
 }
 
-const useZapMigrationWidget = () => {
+const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
   const toggleWalletModal = useWalletModalToggle()
   const notify = useNotify()
   const navigate = useNavigate()
@@ -158,7 +158,10 @@ const useZapMigrationWidget = () => {
               setMigrateLiquidityPureParams(null)
               handleNavigateToPosition(txHash, chainId, targetDex, targetPoolId)
             },
-            onClose: () => setMigrateLiquidityPureParams(null),
+            onClose: () => {
+              setMigrateLiquidityPureParams(null)
+              onRefreshPosition?.()
+            },
             onBack: () => setMigrateLiquidityPureParams(null),
             onConnectWallet: toggleWalletModal,
             onSwitchChain: () => changeNetwork(migrateLiquidityPureParams.chainId as number),
@@ -178,6 +181,7 @@ const useZapMigrationWidget = () => {
       handleNavigateToPosition,
       changeNetwork,
       library,
+      onRefreshPosition,
     ],
   )
 
