@@ -22,15 +22,15 @@ const RewardSection = () => {
 
   const { rewardInfo } = useKemRewards()
 
-  const rewardUsdValue = rewardInfo?.totalUsdValue || 0
+  const totalRewardUsdValue = rewardInfo?.totalUsdValue || 0
 
   const btnPath = !account
     ? '#'
-    : rewardUsdValue >= 10
+    : totalRewardUsdValue >= 10
     ? APP_PATHS.EARN_POSITIONS
     : `${APP_PATHS.EARN_POOLS}?tag=${FilterTag.FARMING_POOL}`
 
-  const btnText = !account ? t`Connect wallet` : rewardUsdValue >= 10 ? t`Collect Rewards` : t`Earn Rewards`
+  const btnText = !account ? t`Connect wallet` : totalRewardUsdValue >= 10 ? t`Collect Rewards` : t`Earn Rewards`
 
   const handleClickBtn = () => {
     if (!account) toggleWalletModal()
@@ -62,9 +62,9 @@ const RewardSection = () => {
               <Text>{formatDisplayNumber(rewardInfo?.totalAmount || 0, { significantDigits: 6 })}</Text>
               <Text>KNC</Text>
             </Flex>
-            {rewardUsdValue > 0 ? (
+            {totalRewardUsdValue > 0 ? (
               <Text width={'fit-content'} color={theme.subText} fontSize={upToSmall ? '16px' : undefined}>
-                {formatDisplayNumber(rewardUsdValue, { significantDigits: 6, style: 'currency' })}
+                {formatDisplayNumber(totalRewardUsdValue, { significantDigits: 6, style: 'currency' })}
               </Text>
             ) : null}
           </Flex>

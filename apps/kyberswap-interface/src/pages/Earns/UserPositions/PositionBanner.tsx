@@ -7,6 +7,7 @@ import { Flex, Text } from 'rebass'
 import { ReactComponent as IconKem } from 'assets/svg/kyber/kem.svg'
 import InfoHelper from 'components/InfoHelper'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
+import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { PositionAction } from 'pages/Earns/PositionDetail/styles'
 import {
@@ -24,16 +25,19 @@ import { formatDisplayNumber } from 'utils/numbers'
 
 export default function PositionBanner({ positions }: { positions: Array<ParsedPosition> }) {
   const theme = useTheme()
+  const { chainId } = useActiveWeb3React()
   const { onOpenClaim: onOpenClaimRewards, rewardInfo, claimModal: claimRewardsModal } = useKemRewards()
 
-  const totalRewardsAmount = rewardInfo?.totalAmount || 0
-  const totalRewardsUsdValue = rewardInfo?.totalUsdValue || 0
+  const rewardInfoThisChain = chainId ? rewardInfo?.chains.find(item => item.chainId === chainId) : null
 
-  const claimableRewardsAmount = rewardInfo?.claimableAmount || 0
-  const claimedRewardsUsdValue = rewardInfo?.claimedUsdValue || 0
+  const totalRewardsAmount = rewardInfoThisChain?.totalAmount || 0
+  const totalRewardsUsdValue = rewardInfoThisChain?.totalUsdValue || 0
 
-  const pendingRewardsUsdValue = rewardInfo?.pendingUsdValue || 0
-  const claimableRewardsUsdValue = rewardInfo?.claimableUsdValue || 0
+  const claimableRewardsAmount = rewardInfoThisChain?.claimableAmount || 0
+  const claimedRewardsUsdValue = rewardInfoThisChain?.claimedUsdValue || 0
+
+  const pendingRewardsUsdValue = rewardInfoThisChain?.pendingUsdValue || 0
+  const claimableRewardsUsdValue = rewardInfoThisChain?.claimableUsdValue || 0
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
@@ -180,7 +184,7 @@ export default function PositionBanner({ positions }: { positions: Array<ParsedP
                         <>
                           <Text>{t`Rewards you can claim right now`}</Text>
                           <ListClaimableTokens>
-                            {rewardInfo?.claimableTokens.map((token, index) => (
+                            {rewardInfoThisChain?.claimableTokens.map((token, index) => (
                               <li key={`${token.address}-${index}`}>
                                 {formatDisplayNumber(token.claimableAmount, { significantDigits: 4 })} {token.symbol}
                               </li>

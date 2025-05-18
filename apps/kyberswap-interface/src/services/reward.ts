@@ -21,7 +21,6 @@ interface RewardCampaignParams {
 }
 
 interface RewardInfoParams {
-  chainId: ChainId
   campaignId: string
   owner: string
 }
@@ -39,6 +38,16 @@ interface TokenReward {
   merkleAmounts: { [tokenAddress: string]: string }
   pendingAmounts: { [tokenAddress: string]: string }
   claimableUSDValues: { [tokenAddress: string]: string }
+}
+
+interface RewardData {
+  [chainId: string]: {
+    campaigns: {
+      [campaignId: string]: {
+        tokens: Array<TokenReward>
+      }
+    }
+  }
 }
 
 const rewardServiceApi = createApi({
@@ -73,16 +82,16 @@ const rewardServiceApi = createApi({
         }>
       }) => (response.data.length > 0 ? response.data[0].campaignId : null),
     }),
-    rewardInfo: builder.query<Array<TokenReward>, RewardInfoParams>({
+    rewardInfo: builder.query<RewardData, RewardInfoParams>({
       query: params => ({
         url: `/kem/owner/claim-status`,
         params,
       }),
       transformResponse: (response: {
         data: {
-          tokens: Array<TokenReward>
+          chains: RewardData
         }
-      }) => response.data.tokens,
+      }) => response.data.chains,
     }),
   }),
 })

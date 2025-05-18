@@ -196,13 +196,25 @@ export interface FeeInfo {
 
 export interface RewardInfo {
   totalUsdValue: number
-  totalAmount: number
   pendingUsdValue: number
   claimedUsdValue: number
   claimableUsdValue: number
+
+  totalAmount: number
   claimableAmount: number
-  nfts: Array<NftRewardInfo>
-  claimableTokens: Array<TokenRewardInfo>
+
+  chains: Array<{
+    chainId: number
+    totalUsdValue: number
+    totalAmount: number
+    pendingUsdValue: number
+    claimedUsdValue: number
+    claimableUsdValue: number
+    claimableAmount: number
+
+    nfts: Array<NftRewardInfo>
+    claimableTokens: Array<TokenRewardInfo>
+  }>
 }
 
 export interface NftRewardInfo {
