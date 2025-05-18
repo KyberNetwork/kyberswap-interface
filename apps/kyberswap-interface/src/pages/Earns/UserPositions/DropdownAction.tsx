@@ -1,5 +1,6 @@
 import { t } from '@lingui/macro'
 import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Minus, MoreVertical, Plus } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
@@ -36,11 +37,8 @@ const DropdownTitleWrapper = styled.div<{ open: boolean }>`
   `}
 `
 
-const DropdownContent = styled.div<{ placement?: 'top' | 'bottom' }>`
-  position: absolute;
-  top: ${({ placement }) => (placement === 'bottom' ? '42px' : undefined)};
-  bottom: ${({ placement }) => (placement === 'top' ? '34px' : undefined)};
-  right: 0;
+const DropdownContent = styled.div`
+  position: fixed;
   background: ${({ theme }) => theme.tabActive};
   border-radius: 12px;
   padding: 14px 0;
@@ -51,7 +49,8 @@ const DropdownContent = styled.div<{ placement?: 'top' | 'bottom' }>`
   flex-direction: column;
   align-items: 'flex-start';
   gap: 4px;
-  z-index: 100;
+  z-index: 1000;
+  box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.1);
 `
 
 const DropdownContentItem = styled.div<{ disabled?: boolean }>`
@@ -113,14 +112,12 @@ const DropdownAction = ({
   position,
   onOpenIncreaseLiquidityWidget,
   onOpenZapOut,
-  placement = 'bottom',
   claimFees: { onClaimFee, feesClaimDisabled, feesClaiming, positionThatClaimingFees },
   claimRewards: { onClaimRewards, rewardsClaimDisabled, rewardsClaiming, positionThatClaimingRewards },
 }: {
   position: ParsedPosition
   onOpenIncreaseLiquidityWidget: (e: React.MouseEvent, position: ParsedPosition) => void
   onOpenZapOut: (e: React.MouseEvent, position: ParsedPosition) => void
-  placement?: 'top' | 'bottom'
   claimFees: {
     onClaimFee: (e: React.MouseEvent, position: ParsedPosition) => void
     feesClaimDisabled: boolean
@@ -206,12 +203,26 @@ const DropdownAction = ({
     </>
   )
 
+  const getDropdownPosition = () => {
+    if (!ref.current) return { top: 0, left: 0 }
+    const rect = ref.current.getBoundingClientRect()
+    return {
+      top: rect.bottom + 5,
+      left: rect.right - 200, // Adjust this value based on your dropdown width
+    }
+  }
+
   return (
     <DropdownWrapper ref={ref}>
       <DropdownTitleWrapper open={open} onClick={handleOpenChange}>
         <MoreVertical color={theme.subText} size={18} />
       </DropdownTitleWrapper>
-      {!upToExtraSmall && open && <DropdownContent placement={placement}>{renderActionItems()}</DropdownContent>}
+      {!upToExtraSmall &&
+        open &&
+        createPortal(
+          <DropdownContent style={getDropdownPosition()}>{renderActionItems()}</DropdownContent>,
+          document.body,
+        )}
       {upToExtraSmall && (
         <>
           <Overlay open={open} onClick={onClickOverlay} />

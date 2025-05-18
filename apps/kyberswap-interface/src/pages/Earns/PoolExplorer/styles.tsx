@@ -108,7 +108,7 @@ export const NavigateButton: React.FC<NavigateButtonProps> = ({ icon, text, to, 
 export const TableWrapper = styled.div`
   background: ${({ theme }) => rgba(theme.background, 0.8)};
   border-radius: 16px;
-  overflow: hidden;
+  position: relative;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     margin: 0 -16px;

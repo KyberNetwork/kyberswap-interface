@@ -226,7 +226,6 @@ export default function TableContent({
                   position={position}
                   onOpenIncreaseLiquidityWidget={handleOpenIncreaseLiquidityWidget}
                   onOpenZapOut={handleOpenZapOut}
-                  placement={index < positions.length - 2 ? 'bottom' : 'top'}
                   claimFees={{
                     onClaimFee: handleClaimFees,
                     feesClaimDisabled,
