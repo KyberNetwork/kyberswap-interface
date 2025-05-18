@@ -37,7 +37,7 @@ export const dexKeyMapping: { [key: string]: string } = {
   kodiakcl: 'kodiak-v3',
 }
 
-const dexNameMapping: { [key: string]: string } = {
+export const dexNameMapping: { [key: string]: string } = {
   'Uniswap V4 KEM': 'Uniswap V4',
 }
 

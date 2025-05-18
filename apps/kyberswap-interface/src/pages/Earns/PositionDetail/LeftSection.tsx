@@ -87,7 +87,7 @@ const LeftSection = ({
         {/* Fee Earn */}
         <InfoSection>
           <Text fontSize={14} color={theme.subText} marginBottom={3}>
-            {t`Fee Earn`}
+            {t`Fees Earn`}
           </Text>
           <Flex alignItems={'center'} justifyContent={'space-between'}>
             <Flex flexDirection={'column'} sx={{ gap: 2 }}>
@@ -132,7 +132,7 @@ const LeftSection = ({
           <InfoSection>
             <Flex alignItems={'center'} justifyContent={'space-between'} marginBottom={2}>
               <Text fontSize={14} color={theme.subText} marginTop={1}>
-                {t`Total Unclaimed Fees`}
+                {t`Unclaimed Fees`}
               </Text>
               <Text fontSize={18}>
                 {position.unclaimedFees
@@ -182,7 +182,7 @@ const LeftSection = ({
         ) : null}
 
         {/* Rewards */}
-        {position.pool.isFarming && <Rewards />}
+        {position.pool.isFarming && <Rewards position={position} />}
 
         {/* Position History */}
         {!isUniv2 && <PositionHistory position={position} />}

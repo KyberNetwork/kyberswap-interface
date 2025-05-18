@@ -99,6 +99,24 @@ const useKemRewards = () => {
         claimedUsdValue: Number(item.claimedUSDValue),
         claimableUsdValue: Number(item.claimableUSDValue),
 
+        totalAmount: kncAddress
+          ? rewardInfoForChain.reduce((acc, item) => {
+              const merkleAmounts = Number(item.merkleAmounts[kncAddress] || 0) / 10 ** kncTokenDecimals
+              const pendingAmounts = Number(item.pendingAmounts[kncAddress] || 0) / 10 ** kncTokenDecimals
+
+              return acc + merkleAmounts + pendingAmounts
+            }, 0)
+          : 0, // temporary
+        claimableAmount: kncAddress
+          ? rewardInfoForChain.reduce((acc, item) => {
+              return (
+                acc +
+                (Number(item.merkleAmounts[kncAddress] || 0) - Number(item.claimedAmounts[kncAddress] || 0)) /
+                  10 ** kncTokenDecimals
+              )
+            }, 0)
+          : 0, // temporary
+
         tokens: Object.keys(item.merkleAmounts)
           .map(tokenAddress => {
             const token = tokens.find(token => token.address.toLowerCase() === tokenAddress.toLowerCase())

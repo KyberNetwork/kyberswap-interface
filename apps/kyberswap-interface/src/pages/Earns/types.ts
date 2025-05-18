@@ -206,10 +206,11 @@ export interface RewardInfo {
   chains: Array<{
     chainId: number
     totalUsdValue: number
-    totalAmount: number
     pendingUsdValue: number
     claimedUsdValue: number
     claimableUsdValue: number
+
+    totalAmount: number
     claimableAmount: number
 
     nfts: Array<NftRewardInfo>
@@ -223,6 +224,10 @@ export interface NftRewardInfo {
   pendingUsdValue: number
   claimedUsdValue: number
   claimableUsdValue: number
+
+  totalAmount: number
+  claimableAmount: number
+
   tokens: Array<TokenRewardInfo>
 }
 
