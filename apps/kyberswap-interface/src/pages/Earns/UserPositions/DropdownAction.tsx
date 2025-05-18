@@ -133,8 +133,30 @@ const DropdownAction = ({
 }) => {
   const theme = useTheme()
   const [open, setOpen] = useState(false)
+  const [portalPosition, setPortalPosition] = useState({ top: 0, left: 0 })
   const ref = useRef<HTMLDivElement>(null)
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
+
+  const updatePortalPosition = () => {
+    if (!ref.current) return
+    const rect = ref.current.getBoundingClientRect()
+    setPortalPosition({
+      top: rect.bottom + 5,
+      left: rect.right - 200,
+    })
+  }
+
+  useEffect(() => {
+    if (open) {
+      updatePortalPosition()
+      window.addEventListener('scroll', updatePortalPosition, true)
+      window.addEventListener('resize', updatePortalPosition)
+    }
+    return () => {
+      window.removeEventListener('scroll', updatePortalPosition, true)
+      window.removeEventListener('resize', updatePortalPosition)
+    }
+  }, [open])
 
   const handleOpenChange = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -154,7 +176,10 @@ const DropdownAction = ({
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (!ref?.current?.contains(event.target as Node)) setOpen(false)
+      const portalContent = document.querySelector('[data-dropdown-content]')
+      if (!ref?.current?.contains(event.target as Node) && !portalContent?.contains(event.target as Node)) {
+        setOpen(false)
+      }
     }
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
@@ -162,17 +187,28 @@ const DropdownAction = ({
 
   const renderActionItems = () => (
     <>
-      <DropdownContentItem onClick={e => handleAction(e, onOpenIncreaseLiquidityWidget)}>
+      <DropdownContentItem
+        onClick={e => {
+          e.stopPropagation()
+          handleAction(e, onOpenIncreaseLiquidityWidget)
+        }}
+      >
         <Plus size={16} />
         <Text>{t`Increase Liquidity`}</Text>
       </DropdownContentItem>
-      <DropdownContentItem onClick={e => handleAction(e, onOpenZapOut)}>
+      <DropdownContentItem
+        onClick={e => {
+          e.stopPropagation()
+          handleAction(e, onOpenZapOut)
+        }}
+      >
         <Minus size={16} />
         <Text>{t`Remove Liquidity`}</Text>
       </DropdownContentItem>
       <DropdownContentItem
         disabled={feesClaimDisabled}
         onClick={e => {
+          e.stopPropagation()
           if (!feesClaimDisabled) {
             handleAction(e, onClaimFee)
           } else e.preventDefault()
@@ -188,6 +224,7 @@ const DropdownAction = ({
       <DropdownContentItem
         disabled={rewardsClaimDisabled}
         onClick={e => {
+          e.stopPropagation()
           if (!rewardsClaimDisabled) {
             handleAction(e, onClaimRewards)
           } else e.preventDefault()
@@ -203,15 +240,6 @@ const DropdownAction = ({
     </>
   )
 
-  const getDropdownPosition = () => {
-    if (!ref.current) return { top: 0, left: 0 }
-    const rect = ref.current.getBoundingClientRect()
-    return {
-      top: rect.bottom + 5,
-      left: rect.right - 200, // Adjust this value based on your dropdown width
-    }
-  }
-
   return (
     <DropdownWrapper ref={ref}>
       <DropdownTitleWrapper open={open} onClick={handleOpenChange}>
@@ -220,7 +248,9 @@ const DropdownAction = ({
       {!upToExtraSmall &&
         open &&
         createPortal(
-          <DropdownContent style={getDropdownPosition()}>{renderActionItems()}</DropdownContent>,
+          <DropdownContent style={portalPosition} data-dropdown-content>
+            {renderActionItems()}
+          </DropdownContent>,
           document.body,
         )}
       {upToExtraSmall && (
