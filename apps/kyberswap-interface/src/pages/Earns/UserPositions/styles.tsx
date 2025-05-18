@@ -1,6 +1,6 @@
 import { rgba } from 'polished'
 import { Link } from 'react-router-dom'
-import styled, { keyframes } from 'styled-components'
+import styled from 'styled-components'
 
 import { ReactComponent as IconCurrentPrice } from 'assets/svg/earn/ic_position_current_price.svg'
 import { PoolPageWrapper, TableBody, TableHeader, TableWrapper } from 'pages/Earns/PoolExplorer/styles'
@@ -232,11 +232,6 @@ export const EmptyPositionText = styled.div`
   margin: 20px 0;
 `
 
-const borderRotate = keyframes`
-  0% { --border-angle: 0deg; }
-  100% { --border-angle: 360deg; }
-`
-
 export const BannerContainer = styled.div`
   padding: 1px;
   background-clip: padding-box;
@@ -244,13 +239,27 @@ export const BannerContainer = styled.div`
   border-radius: 12px;
   width: 100%;
   height: auto;
+  position: relative;
+  overflow: hidden;
 
-  --border-angle: 0deg;
-  animation: ${borderRotate} 2s infinite linear;
-  border: 1px solid transparent;
-  background: linear-gradient(rgba(148, 117, 203, 0.1), rgba(148, 117, 203, 0.1)) padding-box,
-    conic-gradient(from var(--border-angle), rgba(148, 117, 203, 0.1) 50%, rgba(130, 71, 229, 0.4)) border-box;
-  backdrop-filter: blur(2px);
+  ::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 1px;
+    background: linear-gradient(
+        90deg,
+        rgba(162, 89, 255, 0.6) 0%,
+        rgba(162, 89, 255, 0) 50%,
+        rgba(162, 89, 255, 0.6) 100%
+      ),
+      radial-gradient(58.61% 54.58% at 30.56% 0%, rgba(162, 89, 255, 0.3) 0%, rgba(0, 0, 0, 0) 100%);
+    mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+    -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+  }
 `
 
 export const BannerWrapper = styled.div`
