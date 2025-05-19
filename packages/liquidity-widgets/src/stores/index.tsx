@@ -248,7 +248,7 @@ const createWidgetStore = (initProps: InnerWidgetProps) => {
           sqrtPriceX96: poolUniv3.positionInfo.sqrtPriceX96,
           tick: poolUniv3.positionInfo.tick,
           tickSpacing: poolUniv3.positionInfo.tickSpacing,
-          ticks: poolUniv3.positionInfo.ticks,
+          ticks: poolUniv3.positionInfo.ticks || [],
           minTick: nearestUsableTick(
             MIN_TICK,
             poolUniv3.positionInfo.tickSpacing

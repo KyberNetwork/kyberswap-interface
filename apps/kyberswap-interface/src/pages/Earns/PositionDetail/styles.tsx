@@ -84,10 +84,12 @@ export const NextDistribution = styled.div`
   padding: 8px 12px 12px;
 `
 
-export const TotalLiquiditySection = styled(InfoSection)`
+export const TotalLiquiditySection = styled(InfoSection)<{ showForFarming?: boolean }>`
   display: flex;
   align-items: center;
   gap: 20px;
+
+  ${({ showForFarming }) => showForFarming && 'flex-grow: 1;'}
 `
 
 export const PriceSection = styled(InfoSection)`
@@ -98,10 +100,17 @@ export const PriceSection = styled(InfoSection)`
   flex-wrap: wrap;
 `
 
-export const AprSection = styled(InfoSection)`
+export const AprSection = styled(InfoSection)<{ showForFarming?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: space-between;
+
+  ${({ showForFarming }) => showForFarming && 'flex-direction: column;'}
+  ${({ showForFarming }) => showForFarming && 'align-items: flex-start;'}
+  ${({ showForFarming }) => showForFarming && 'justify-content: center;'}
+  ${({ showForFarming }) => showForFarming && 'padding: 16px 24px;'}
+  ${({ showForFarming }) => showForFarming && 'gap: 4px;'}
+  ${({ showForFarming }) => showForFarming && 'align-self: stretch;'}
 `
 
 const PriceRangeSection = styled(InfoSection)`

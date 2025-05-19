@@ -86,7 +86,7 @@ export const univ3Pool = z.object({
     sqrtPriceX96: z.string(),
     tickSpacing: z.number(),
     tick: z.number(),
-    ticks: z.array(tick),
+    ticks: z.array(tick).optional(),
   }),
 });
 

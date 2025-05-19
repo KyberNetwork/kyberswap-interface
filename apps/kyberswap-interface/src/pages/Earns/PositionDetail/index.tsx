@@ -6,8 +6,11 @@ import { useUserPositionsQuery } from 'services/zapEarn'
 
 import { ReactComponent as IconEarnNotFound } from 'assets/svg/earn/ic_earn_not_found.svg'
 import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_earn_position.svg'
+import { ReactComponent as IconKem } from 'assets/svg/kyber/kem.svg'
 import { ReactComponent as RocketIcon } from 'assets/svg/rocket.svg'
+import InfoHelper from 'components/InfoHelper'
 import LocalLoader from 'components/LocalLoader'
+import TokenLogo from 'components/TokenLogo'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
@@ -15,12 +18,19 @@ import { NavigateButton } from 'pages/Earns/PoolExplorer/styles'
 import PositionDetailHeader from 'pages/Earns/PositionDetail/Header'
 import LeftSection from 'pages/Earns/PositionDetail/LeftSection'
 import RightSection from 'pages/Earns/PositionDetail/RightSection'
-import { MigrationLiquidityRecommend, PositionDetailWrapper } from 'pages/Earns/PositionDetail/styles'
+import {
+  AprSection,
+  MigrationLiquidityRecommend,
+  PositionDetailWrapper,
+  TotalLiquiditySection,
+  VerticalDivider,
+} from 'pages/Earns/PositionDetail/styles'
 import { EmptyPositionText, PositionPageWrapper } from 'pages/Earns/UserPositions/styles'
 import { EarnDex2 } from 'pages/Earns/constants'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import { FeeInfo, ParsedPosition } from 'pages/Earns/types'
-import { getFullUnclaimedFeesInfo, getNftManagerContract, parseRawPosition } from 'pages/Earns/utils'
+import { formatAprNumber, getFullUnclaimedFeesInfo, getNftManagerContract, parseRawPosition } from 'pages/Earns/utils'
+import { formatDisplayNumber } from 'utils/numbers'
 
 const PositionDetail = () => {
   const firstLoading = useRef(false)
@@ -129,6 +139,63 @@ const PositionDetail = () => {
     </EmptyPositionText>
   )
 
+  const totalLiquiditySection = (
+    <TotalLiquiditySection showForFarming={position?.pool.isFarming}>
+      <Flex flexDirection={'column'} alignContent={'flex-start'} sx={{ gap: '6px' }}>
+        <Text fontSize={14} color={theme.subText}>
+          {t`Total Liquidity`}
+        </Text>
+        <Text fontSize={20}>
+          {formatDisplayNumber(position?.totalValue, {
+            style: 'currency',
+            significantDigits: 4,
+          })}
+        </Text>
+      </Flex>
+      <VerticalDivider />
+      <Flex flexDirection={'column'} alignContent={'flex-end'} sx={{ gap: 2 }}>
+        <Flex alignItems={'center'} sx={{ gap: '6px' }}>
+          <TokenLogo src={position?.token0.logo} size={16} />
+          <Text>{formatDisplayNumber(position?.token0.totalAmount, { significantDigits: 6 })}</Text>
+          <Text>{position?.token0.symbol}</Text>
+        </Flex>
+        <Flex alignItems={'center'} sx={{ gap: '6px' }}>
+          <TokenLogo src={position?.token1.logo} size={16} />
+          <Text>{formatDisplayNumber(position?.token1.totalAmount, { significantDigits: 6 })}</Text>
+          <Text>{position?.token1.symbol}</Text>
+        </Flex>
+      </Flex>
+    </TotalLiquiditySection>
+  )
+
+  const aprSection = (
+    <AprSection showForFarming={position?.pool.isFarming}>
+      <Flex alignItems={'center'} sx={{ gap: '2px' }}>
+        <Text fontSize={14} color={theme.subText}>
+          {t`Est. Position APR`}
+        </Text>
+        {position?.pool.isFarming && (
+          <InfoHelper
+            size={16}
+            text={
+              <div>
+                {t`LP Fee APR`}: {formatAprNumber(position?.aprFee || 0)}%
+                <br />
+                {t`Farm Rewards APR`}: {formatAprNumber(position?.aprKem || 0)}%
+              </div>
+            }
+          />
+        )}
+      </Flex>
+      <Flex alignItems={'center'} sx={{ gap: 1 }}>
+        <Text fontSize={20} color={position?.apr && position.apr > 0 ? theme.primary : theme.text}>
+          {formatAprNumber((position?.apr || 0) * 100)}%
+        </Text>
+        {position?.pool.isFarming && <IconKem width={20} height={20} />}
+      </Flex>
+    </AprSection>
+  )
+
   return (
     <>
       {zapMigrationWidget}
@@ -153,8 +220,18 @@ const PositionDetail = () => {
               </MigrationLiquidityRecommend>
             )}
             <PositionDetailWrapper>
-              <LeftSection position={position} onFetchUnclaimedFee={handleFetchUnclaimedFee} />
-              <RightSection position={position} onOpenZapMigration={handleOpenZapMigration} />
+              <LeftSection
+                position={position}
+                onFetchUnclaimedFee={handleFetchUnclaimedFee}
+                totalLiquiditySection={totalLiquiditySection}
+                aprSection={aprSection}
+              />
+              <RightSection
+                position={position}
+                onOpenZapMigration={handleOpenZapMigration}
+                totalLiquiditySection={totalLiquiditySection}
+                aprSection={aprSection}
+              />
             </PositionDetailWrapper>
           </>
         ) : (

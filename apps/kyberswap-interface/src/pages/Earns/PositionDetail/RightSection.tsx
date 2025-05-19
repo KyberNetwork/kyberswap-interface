@@ -2,6 +2,7 @@ import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick } from '@kybe
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useEffect, useMemo, useState } from 'react'
+import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { usePoolDetailQuery } from 'services/poolService'
 
@@ -27,16 +28,23 @@ import { ZapMigrationInfo } from 'pages/Earns/hooks/useZapMigrationWidget'
 import useZapOutWidget from 'pages/Earns/hooks/useZapOutWidget'
 import { ParsedPosition } from 'pages/Earns/types'
 import { isForkFrom } from 'pages/Earns/utils'
+import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber, toString } from 'utils/numbers'
 
 const RightSection = ({
   position,
   onOpenZapMigration,
+  totalLiquiditySection,
+  aprSection,
 }: {
   position: ParsedPosition
   onOpenZapMigration: (props: ZapMigrationInfo) => void
+  totalLiquiditySection: React.ReactNode
+  aprSection: React.ReactNode
 }) => {
   const theme = useTheme()
+  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+
   const { account } = useActiveWeb3React()
   const { stableCoins } = useStableCoins(position.chain.id)
   const { data: pool } = usePoolDetailQuery({ chainId: position.chain.id, ids: position.pool.address })
@@ -117,6 +125,13 @@ const RightSection = ({
       {zapOutWidget}
 
       <InfoRightColumn halfWidth={isUniv2}>
+        {!upToSmall && position.pool.isFarming ? (
+          <Flex alignItems={'center'} sx={{ gap: '12px' }}>
+            {totalLiquiditySection}
+            {aprSection}
+          </Flex>
+        ) : null}
+
         {price ? (
           <PriceSection>
             <Flex alignItems={'center'} sx={{ gap: 1 }} flexWrap={'wrap'}>

@@ -1,34 +1,33 @@
 import { t } from '@lingui/macro'
+import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
 import Loader from 'components/Loader'
-import TokenLogo from 'components/TokenLogo'
 import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
 import PositionHistory from 'pages/Earns/PositionDetail/PositionHistory'
 import Rewards from 'pages/Earns/PositionDetail/Rewards'
-import {
-  AprSection,
-  InfoLeftColumn,
-  InfoSection,
-  PositionAction,
-  TotalLiquiditySection,
-  VerticalDivider,
-} from 'pages/Earns/PositionDetail/styles'
+import { InfoLeftColumn, InfoSection, PositionAction, VerticalDivider } from 'pages/Earns/PositionDetail/styles'
 import { CoreProtocol, DEXES_SUPPORT_COLLECT_FEE } from 'pages/Earns/constants'
 import useCollectFees from 'pages/Earns/hooks/useCollectFees'
 import { ParsedPosition } from 'pages/Earns/types'
-import { formatAprNumber, isForkFrom } from 'pages/Earns/utils'
+import { isForkFrom } from 'pages/Earns/utils'
+import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const LeftSection = ({
   position,
   onFetchUnclaimedFee,
+  totalLiquiditySection,
+  aprSection,
 }: {
   position: ParsedPosition
   onFetchUnclaimedFee: () => void
+  totalLiquiditySection: React.ReactNode
+  aprSection: React.ReactNode
 }) => {
   const theme = useTheme()
+  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   const {
     claimModal: claimFeesModal,
@@ -47,42 +46,10 @@ const LeftSection = ({
 
       <InfoLeftColumn halfWidth={isUniv2}>
         {/* Total Liquidity */}
-        <TotalLiquiditySection>
-          <Flex flexDirection={'column'} alignContent={'flex-start'} sx={{ gap: '6px' }}>
-            <Text fontSize={14} color={theme.subText}>
-              {t`Total Liquidity`}
-            </Text>
-            <Text fontSize={20}>
-              {formatDisplayNumber(position.totalValue, {
-                style: 'currency',
-                significantDigits: 4,
-              })}
-            </Text>
-          </Flex>
-          <VerticalDivider />
-          <Flex flexDirection={'column'} alignContent={'flex-end'} sx={{ gap: 2 }}>
-            <Flex alignItems={'center'} sx={{ gap: '6px' }}>
-              <TokenLogo src={position.token0.logo} size={16} />
-              <Text>{formatDisplayNumber(position.token0.totalAmount, { significantDigits: 6 })}</Text>
-              <Text>{position.token0.symbol}</Text>
-            </Flex>
-            <Flex alignItems={'center'} sx={{ gap: '6px' }}>
-              <TokenLogo src={position.token1.logo} size={16} />
-              <Text>{formatDisplayNumber(position.token1.totalAmount, { significantDigits: 6 })}</Text>
-              <Text>{position.token1.symbol}</Text>
-            </Flex>
-          </Flex>
-        </TotalLiquiditySection>
+        {upToSmall || !position.pool.isFarming ? totalLiquiditySection : null}
 
         {/* Est. Position APR */}
-        <AprSection>
-          <Text fontSize={14} color={theme.subText}>
-            {t`Est. Position APR`}
-          </Text>
-          <Text fontSize={20} color={position.apr > 0 ? theme.primary : theme.text}>
-            {formatAprNumber(position.apr * 100)}%
-          </Text>
-        </AprSection>
+        {upToSmall || !position.pool.isFarming ? aprSection : null}
 
         {/* Fee Earn */}
         <InfoSection>

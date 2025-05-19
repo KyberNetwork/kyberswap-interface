@@ -12,9 +12,12 @@ import NavGroup from 'components/Header/groups/NavGroup'
 import { DropdownTextAnchor, StyledNavLink } from 'components/Header/styleds'
 import { APP_PATHS } from 'constants/index'
 import { FilterTag } from 'pages/Earns/PoolExplorer'
+import { MEDIA_WIDTHS } from 'theme'
 
 const EarnNavGroup = () => {
   const upTo420 = useMedia('(max-width: 420px)')
+  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+
   const { pathname, search } = useLocation()
   const isActive = [
     APP_PATHS.EARN,
@@ -31,7 +34,11 @@ const EarnNavGroup = () => {
         <DropdownTextAnchor>
           <Flex sx={{ gap: 1 }} alignItems="center">
             <KemIcon width={20} height={20} />
-            {t`Earn`}
+            {upToSmall ? (
+              t`Earn`
+            ) : (
+              <StyledNavLink to={{ pathname: `${APP_PATHS.EARN}` }} style={{ padding: 0 }}>{t`Earn`}</StyledNavLink>
+            )}
           </Flex>
         </DropdownTextAnchor>
       }
