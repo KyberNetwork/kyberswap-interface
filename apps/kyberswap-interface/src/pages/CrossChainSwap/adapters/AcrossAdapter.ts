@@ -148,16 +148,11 @@ export class AcrossAdapter extends BaseSwapAdapter {
   }
   async getTransactionStatus(params: NormalizedTxResponse): Promise<SwapStatus> {
     try {
-      const res = await this.acrossClient.getDeposit({
-        findBy: {
-          originChainId: +params.sourceChain,
-          destinationChainId: +params.targetChain,
-          depositTxHash: params.sourceTxHash as `0x${string}`,
-        },
-      })
-
+      const res = await fetch(`https://app.across.to/api/deposit/status?depositTxHash=${params.sourceTxHash}`).then(
+        res => res.json(),
+      )
       return {
-        txHash: res.fillTxHash || '',
+        txHash: res.fillTx || '',
         status: res.status === 'filled' ? 'Success' : 'Processing',
       }
     } catch (error) {
