@@ -117,8 +117,16 @@ export class XYFinanceAdapter extends BaseSwapAdapter {
       bridgeProvider: quote.rawQuote.bridgeDescription.provider,
       srcBridgeTokenAddress: quote.rawQuote.bridgeDescription.srcBridgeTokenAddress,
       dstBridgeTokenAddress: quote.rawQuote.bridgeDescription.dstBridgeTokenAddress,
-      srcSwapProvider: quote.rawQuote.srcSwapDescription.provider,
-      dstSwapProvider: quote.rawQuote.dstSwapDescription.provider,
+      affiliate: CROSS_CHAIN_FEE_RECEIVER,
+      //represents the fee you wish to collect. It is an integer between 0 and 100,000. In this range, 100,000 corresponds to 10%, 10,000 represents 1%, and so on in a similar fashion.
+      commissionRate: (quote.quoteParams.feeBps / 10_000) * 1_000_000,
+
+      ...(quote.rawQuote.srcSwapDescription ? { srcSwapProvider: quote.rawQuote.srcSwapDescription.provider } : {}),
+      ...(quote.rawQuote.srcSwapDescription
+        ? {
+            dstSwapProvider: quote.rawQuote.dstSwapDescription?.provider,
+          }
+        : {}),
     }
 
     // Convert the parameters object to URL query string
@@ -128,7 +136,9 @@ export class XYFinanceAdapter extends BaseSwapAdapter {
     }
     const resp = await fetch(`${XY_FINANCE_API}/buildTx?${queryParams.toString()}`).then(res => res.json())
 
-    // TODO: handle rate change
+    if (BigInt(resp.route.dstQuoteTokenAmount) < quote.outputAmount) {
+      throw new Error('Rate has changed')
+    }
 
     if (resp.tx) {
       const tx = await walletClient.sendTransaction({

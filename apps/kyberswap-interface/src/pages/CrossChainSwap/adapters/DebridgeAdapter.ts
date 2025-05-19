@@ -183,15 +183,8 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
   }
 
   async getTransactionStatus(p: NormalizedTxResponse): Promise<SwapStatus> {
-    console.log(p)
+    const r = await fetch(`${DEBRIDGE_API}/${p.id}/status`).then(res => res.json())
+    console.log(r)
     throw new Error('Not implemented')
-    //const res = await fetch(`${DEBRIDGE_API}/crossChainStatus?srcChainId=${p.sourceChain}&srcTxHash=${p.id}`).then(r =>
-    //  r.json(),
-    //)
-    //
-    //return {
-    //  txHash: res.tx || '',
-    //  status: res.status === 'Done' ? 'filled' : 'pending',
-    //}
   }
 }
