@@ -8,7 +8,13 @@ import { usePrevious } from 'react-use'
 
 import { NotificationType } from 'components/Announcement/type'
 import EIP_2612 from 'constants/abis/eip2612.json'
-import { EIP712_DOMAIN_TYPE, EIP712_DOMAIN_TYPE_SALT, PermitType } from 'constants/permit'
+import {
+  EIP712_DOMAIN_TYPE,
+  EIP712_DOMAIN_TYPE_NOVERSION,
+  EIP712_DOMAIN_TYPE_SALT,
+  EIP712_DOMAIN_TYPE_SALT_NOVERSION,
+  PermitType,
+} from 'constants/permit'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useNotify } from 'state/application/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
@@ -43,7 +49,7 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
   const { mixpanelHandler } = useMixpanel()
   const overwritedPermitData = useMemo(
     () =>
-      currency instanceof WrappedTokenInfo && ['AMOUNT', 'SALT'].includes(currency.permitType) && currency.permitVersion
+      currency instanceof WrappedTokenInfo && ['AMOUNT', 'SALT'].includes(currency.permitType)
         ? {
             type: currency.permitType,
             version: currency.permitVersion,
@@ -108,8 +114,12 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
       types: {
         EIP712Domain:
           overwritedPermitData && overwritedPermitData.type === PermitType.SALT
-            ? EIP712_DOMAIN_TYPE_SALT
-            : EIP712_DOMAIN_TYPE,
+            ? overwritedPermitData.version
+              ? EIP712_DOMAIN_TYPE_SALT
+              : EIP712_DOMAIN_TYPE_SALT_NOVERSION
+            : overwritedPermitData.version
+            ? EIP712_DOMAIN_TYPE
+            : EIP712_DOMAIN_TYPE_NOVERSION,
         Permit: [
           {
             name: 'owner',
