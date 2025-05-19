@@ -6,7 +6,7 @@ import Loader from 'components/Loader'
 import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
 import PositionHistory from 'pages/Earns/PositionDetail/PositionHistory'
-import Rewards from 'pages/Earns/PositionDetail/Rewards'
+import RewardSection from 'pages/Earns/PositionDetail/RewardSection'
 import { InfoLeftColumn, InfoSection, PositionAction, VerticalDivider } from 'pages/Earns/PositionDetail/styles'
 import { CoreProtocol, DEXES_SUPPORT_COLLECT_FEE } from 'pages/Earns/constants'
 import useCollectFees from 'pages/Earns/hooks/useCollectFees'
@@ -149,7 +149,7 @@ const LeftSection = ({
         ) : null}
 
         {/* Rewards */}
-        {position.pool.isFarming && <Rewards position={position} />}
+        {position.pool.isFarming && <RewardSection position={position} />}
 
         {/* Position History */}
         {!isUniv2 && <PositionHistory position={position} />}

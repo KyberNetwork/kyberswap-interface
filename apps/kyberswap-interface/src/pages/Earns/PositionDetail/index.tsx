@@ -177,6 +177,7 @@ const PositionDetail = () => {
         {position?.pool.isFarming && (
           <InfoHelper
             size={16}
+            placement="top"
             text={
               <div>
                 {t`LP Fee APR`}: {formatAprNumber(position?.aprFee || 0)}%

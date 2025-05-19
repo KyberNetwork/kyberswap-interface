@@ -46,6 +46,25 @@ const PositionDetailHeader = ({
     window.open(parsedUrl)
   }
 
+  const statusBadge = (
+    <Badge
+      type={
+        posStatus === PositionStatus.IN_RANGE
+          ? BadgeType.PRIMARY
+          : posStatus === PositionStatus.OUT_RANGE
+          ? BadgeType.WARNING
+          : BadgeType.DISABLED
+      }
+    >
+      ●{' '}
+      {posStatus === PositionStatus.IN_RANGE
+        ? t`In range`
+        : posStatus === PositionStatus.OUT_RANGE
+        ? t`Out of range`
+        : t`Closed`}
+    </Badge>
+  )
+
   return (
     <Flex sx={{ gap: 3 }} marginBottom={1}>
       <PositionHeader>
@@ -77,21 +96,13 @@ const PositionDetailHeader = ({
           </Badge>
         </Flex>
         <Flex alignItems={'center'} sx={{ gap: '10px' }} flexWrap={'wrap'}>
-          {!upToSmall && (
-            <Badge type={posStatus === PositionStatus.IN_RANGE ? BadgeType.PRIMARY : BadgeType.WARNING}>
-              ● {posStatus === PositionStatus.IN_RANGE ? t`In range` : t`Out of range`}
-            </Badge>
-          )}
+          {!upToSmall && statusBadge}
           {isUniv2 ? null : (
             <Text fontSize={upToSmall ? 16 : 14} color={theme.subText}>
               #{position.tokenId}
             </Text>
           )}
-          {upToSmall && (
-            <Badge type={posStatus === PositionStatus.IN_RANGE ? BadgeType.PRIMARY : BadgeType.WARNING}>
-              ● {posStatus === PositionStatus.IN_RANGE ? t`In range` : t`Out of range`}
-            </Badge>
-          )}
+          {upToSmall && statusBadge}
           <MouseoverTooltipDesktopOnly
             text={`View this position on ${position.dex.id.split(' ')?.[0] || ''}`}
             width="fit-content"

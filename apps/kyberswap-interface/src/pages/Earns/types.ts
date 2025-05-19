@@ -4,6 +4,7 @@ import { EarnDex, EarnDex2 } from 'pages/Earns/constants'
 export enum PositionStatus {
   IN_RANGE = 'IN_RANGE',
   OUT_RANGE = 'OUT_RANGE',
+  CLOSED = 'CLOSED',
 }
 
 export enum PositionHistoryType {

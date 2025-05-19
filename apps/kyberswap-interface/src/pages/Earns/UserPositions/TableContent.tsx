@@ -31,7 +31,13 @@ import {
   PositionValueLabel,
   PositionValueWrapper,
 } from 'pages/Earns/UserPositions/styles'
-import { CoreProtocol, DEXES_SUPPORT_COLLECT_FEE, EarnDex, EarnDex2 } from 'pages/Earns/constants'
+import {
+  CoreProtocol,
+  DEXES_SUPPORT_COLLECT_FEE,
+  EarnDex,
+  EarnDex2,
+  mappingProtocolGroupNameToExchange,
+} from 'pages/Earns/constants'
 import useCollectFees from 'pages/Earns/hooks/useCollectFees'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
 import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
@@ -49,14 +55,12 @@ export interface FeeInfoFromRpc extends FeeInfo {
 }
 
 export default function TableContent({
-  filters,
   positions,
   feeInfoFromRpc,
   setFeeInfoFromRpc,
   onOpenZapInWidget,
   onOpenZapOut,
 }: {
-  filters: PositionFilter
   positions: Array<ParsedPosition>
   feeInfoFromRpc: FeeInfoFromRpc[]
   setFeeInfoFromRpc: (feeInfo: FeeInfoFromRpc[]) => void
@@ -183,8 +187,6 @@ export default function TableContent({
     })
   }
 
-  const isShowClosedPosition = filters.positionStatus === PositionExistStatus.CLOSED
-
   const emptyPosition = (
     <EmptyPositionText>
       <IconEarnNotFound />
@@ -250,7 +252,7 @@ export default function TableContent({
                   key={`${tokenId}-${pool.address}-${index}`}
                   to={APP_PATHS.EARN_POSITION_DETAIL.replace(':positionId', !pool.isUniv2 ? id : pool.address)
                     .replace(':chainId', chain.id.toString())
-                    .replace(':protocol', dex.id)}
+                    .replace(':protocol', mappingProtocolGroupNameToExchange[dex.id] || dex.id)}
                 >
                   {/* Overview info */}
                   <PositionOverview>
@@ -281,19 +283,19 @@ export default function TableContent({
                       )}
                       <Badge
                         type={
-                          isShowClosedPosition
-                            ? BadgeType.DISABLED
-                            : status === PositionStatus.IN_RANGE
+                          status === PositionStatus.IN_RANGE
                             ? BadgeType.PRIMARY
-                            : BadgeType.WARNING
+                            : status === PositionStatus.OUT_RANGE
+                            ? BadgeType.WARNING
+                            : BadgeType.DISABLED
                         }
                       >
                         ●{' '}
-                        {isShowClosedPosition
-                          ? t`Closed`
-                          : status === PositionStatus.IN_RANGE
+                        {status === PositionStatus.IN_RANGE
                           ? t`In range`
-                          : t`Out of range`}
+                          : status === PositionStatus.OUT_RANGE
+                          ? t`Out of range`
+                          : t`Closed`}
                       </Badge>
                     </Flex>
                   </PositionOverview>
@@ -347,7 +349,7 @@ export default function TableContent({
                                 sx={{ cursor: 'pointer' }}
                                 onClick={e => handleMigrateToKem(e, position)}
                               >
-                                Migrate →
+                                {t`Migrate`} →
                               </Text>
                             </>
                           }

@@ -49,6 +49,19 @@ export const earnSupportedChains = enumToArrayOfValues(EarnChain, 'number')
 export const earnSupportedProtocols = enumToArrayOfValues(EarnDex)
 export const earnSupportedExchanges = enumToArrayOfValues(EarnDex2)
 
+export const mappingProtocolGroupNameToExchange: { [key in EarnDex]: EarnDex2 } = {
+  [EarnDex.DEX_UNISWAPV3]: EarnDex2.DEX_UNISWAPV3,
+  [EarnDex.DEX_PANCAKESWAPV3]: EarnDex2.DEX_PANCAKESWAPV3,
+  [EarnDex.DEX_SUSHISWAPV3]: EarnDex2.DEX_SUSHISWAPV3,
+  [EarnDex.DEX_QUICKSWAPV3ALGEBRA]: EarnDex2.DEX_QUICKSWAPV3ALGEBRA,
+  [EarnDex.DEX_CAMELOTV3]: EarnDex2.DEX_CAMELOTV3,
+  [EarnDex.DEX_THENAFUSION]: EarnDex2.DEX_THENAFUSION,
+  [EarnDex.DEX_KODIAK_V3]: EarnDex2.DEX_KODIAK_V3,
+  [EarnDex.DEX_UNISWAPV2]: EarnDex2.DEX_UNISWAPV2,
+  [EarnDex.DEX_UNISWAP_V4]: EarnDex2.DEX_UNISWAP_V4,
+  [EarnDex.DEX_UNISWAP_V4_KEM]: EarnDex2.DEX_UNISWAP_V4_KEM,
+}
+
 export const NFT_MANAGER_CONTRACT: { [key in EarnDex]: { [key: string]: string } | string } = {
   [EarnDex.DEX_UNISWAPV3]: {
     [ChainId.MAINNET]: '0xC36442b4a4522E871399CD717aBDD847Ab11FE88',

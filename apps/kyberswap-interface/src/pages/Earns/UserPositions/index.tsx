@@ -329,7 +329,6 @@ const UserPositions = () => {
               <LocalLoader />
             ) : (
               <TableContent
-                filters={filters}
                 positions={paginatedPositions}
                 feeInfoFromRpc={feeInfoFromRpc}
                 setFeeInfoFromRpc={setFeeInfoFromRpc}

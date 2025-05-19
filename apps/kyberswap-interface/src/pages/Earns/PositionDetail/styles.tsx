@@ -76,12 +76,25 @@ export const RewardsSection = styled(InfoSection)`
 `
 
 export const NextDistribution = styled.div`
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-radius: 12px;
+  border-radius: 10px;
   background: ${({ theme }) => rgba(theme.white, 0.04)};
-  padding: 8px 12px 12px;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+`
+
+export const RewardDetailInfo = styled.div`
+  display: flex;
+  padding: 16px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  align-self: stretch;
+  border-radius: 16px;
+  background: ${({ theme }) => rgba(theme.white, 0.04)};
 `
 
 export const TotalLiquiditySection = styled(InfoSection)<{ showForFarming?: boolean }>`
@@ -130,9 +143,9 @@ export const MaxPriceSection = styled(PriceRangeSection)`
   border-color: rgba(143, 146, 255, 0.6);
 `
 
-export const VerticalDivider = styled.div`
+export const VerticalDivider = styled.div<{ height?: string }>`
   width: 1px;
-  height: 32px;
+  height: ${({ height }) => height || '32px'};
   background: ${({ theme }) => theme.tabActive};
 `
 
