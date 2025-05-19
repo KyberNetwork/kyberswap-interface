@@ -49,6 +49,7 @@ function CrossChainSwap() {
     showPreview,
     recipient,
     setRecipient,
+    warning,
   } = useCrossChainSwap()
   const theme = useTheme()
   const [searchParams, setSearchParams] = useSearchParams()
@@ -216,6 +217,7 @@ function CrossChainSwap() {
       </AutoColumn>
 
       <SlippageSetting
+        slippageInfo={warning?.slippageInfo}
         rightComponent={
           quotes.length > 1 && selectedQuote ? (
             <QuoteSelector
