@@ -40,6 +40,7 @@ export default function PositionBanner({ positions }: { positions: Array<ParsedP
   const claimableRewardsUsdValue = rewardInfoThisChain?.claimableUsdValue || 0
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+  const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
 
   const overviewData = useMemo(() => {
     if (!positions) return
@@ -71,7 +72,11 @@ export default function PositionBanner({ positions }: { positions: Array<ParsedP
     <>
       {claimRewardsModal}
 
-      <Flex alignItems="center" sx={{ gap: '20px' }}>
+      <Flex
+        flexDirection={!upToLarge ? 'row' : 'column'}
+        alignItems="center"
+        sx={{ gap: !upToLarge ? '20px' : '12px' }}
+      >
         <BannerContainer>
           <BannerWrapper>
             <BannerDataItem>
@@ -182,7 +187,10 @@ export default function PositionBanner({ positions }: { positions: Array<ParsedP
                     <InfoHelper
                       text={
                         <>
-                          <Text>{t`Rewards you can claim right now`}</Text>
+                          <Text>
+                            {t`Rewards you can claim right now`}
+                            {claimableRewardsUsdValue ? '' : ': 0'}
+                          </Text>
                           <ListClaimableTokens>
                             {rewardInfoThisChain?.claimableTokens.map((token, index) => (
                               <li key={`${token.address}-${index}`}>
@@ -192,7 +200,7 @@ export default function PositionBanner({ positions }: { positions: Array<ParsedP
                           </ListClaimableTokens>
                         </>
                       }
-                      width="290px"
+                      width={claimableRewardsUsdValue ? '290px' : 'fit-content'}
                       placement="top"
                       size={16}
                     />

@@ -37,10 +37,6 @@ export const dexKeyMapping: { [key: string]: string } = {
   kodiakcl: 'kodiak-v3',
 }
 
-export const dexNameMapping: { [key: string]: string } = {
-  'Uniswap V4 KEM': 'Uniswap V4',
-}
-
 const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: ({ pool }: ZapInInfo) => void }) => {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
@@ -74,7 +70,7 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: ({ pool }: Zap
         return {
           ...pool,
           dexLogo,
-          dexName: dexNameMapping[dexName] || dexName,
+          dexName,
           aprFee: pool.apr,
           apr: isFarmingPool ? (pool.aprKem || 0) + pool.apr : pool.apr,
         }

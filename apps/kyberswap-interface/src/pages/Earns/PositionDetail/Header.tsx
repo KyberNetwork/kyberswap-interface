@@ -8,7 +8,6 @@ import InfoHelper from 'components/InfoHelper'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
-import { dexNameMapping } from 'pages/Earns/PoolExplorer/TableContent'
 import { DexInfo, IconArrowLeft, PositionHeader } from 'pages/Earns/PositionDetail/styles'
 import { Badge, BadgeType, ChainImage, ImageContainer } from 'pages/Earns/UserPositions/styles'
 import { CoreProtocol, EarnDex, PROTOCOL_POSITION_URL, earnSupportedProtocols } from 'pages/Earns/constants'
@@ -101,7 +100,7 @@ const PositionDetailHeader = ({
             <DexInfo openable={earnSupportedProtocols.includes(position.dex.id)} onClick={onOpenPositionInDexSite}>
               <TokenLogo src={position.dex.logo} size={16} />
               <Text fontSize={14} color={theme.subText}>
-                {dexNameMapping[position.dex.id] || position.dex.id}
+                {position.dex.id}
               </Text>
             </DexInfo>
           </MouseoverTooltipDesktopOnly>
