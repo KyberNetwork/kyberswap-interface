@@ -26,7 +26,7 @@ import {
   PositionTableWrapper,
 } from 'pages/Earns/UserPositions/styles'
 import useFilter, { SortBy } from 'pages/Earns/UserPositions/useFilter'
-import { earnSupportedChains, earnSupportedProtocols } from 'pages/Earns/constants'
+import { earnSupportedChains, earnSupportedExchanges } from 'pages/Earns/constants'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
 import useSupportedDexesAndChains from 'pages/Earns/hooks/useSupportedDexesAndChains'
@@ -56,7 +56,7 @@ const UserPositions = () => {
   const positionQueryParams = {
     addresses: account || '',
     chainIds: filters.chainIds || earnSupportedChains.join(','),
-    protocols: filters.protocols || earnSupportedProtocols.join(','),
+    protocols: filters.protocols || earnSupportedExchanges.join(','),
     q: filters.q,
   }
 

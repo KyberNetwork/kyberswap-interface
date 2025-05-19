@@ -124,9 +124,7 @@ const zapEarnServiceApi = createApi({
     userPositions: builder.query<Array<EarnPosition>, PositionQueryParams>({
       query: params => ({
         url: `/v1/userPositions`,
-        params: {
-          ...params,
-        },
+        params,
       }),
       transformResponse: (response: {
         data: {

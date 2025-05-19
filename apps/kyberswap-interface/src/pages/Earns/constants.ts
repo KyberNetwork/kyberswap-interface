@@ -47,6 +47,7 @@ export enum EarnChain {
 export const earnSupportedChains = enumToArrayOfValues(EarnChain, 'number')
 
 export const earnSupportedProtocols = enumToArrayOfValues(EarnDex)
+export const earnSupportedExchanges = enumToArrayOfValues(EarnDex2)
 
 export const NFT_MANAGER_CONTRACT: { [key in EarnDex]: { [key: string]: string } | string } = {
   [EarnDex.DEX_UNISWAPV3]: {

@@ -140,7 +140,7 @@ export const parseRawPosition = ({
     dex: {
       id: dex,
       logo: position.pool.projectLogo,
-      version: listDexesWithVersion.includes(dex) ? position.pool.project?.split(' ')?.[1] || '' : '',
+      version: listDexesWithVersion.includes(dex) ? dex.split(' ')[dex.split(' ').length - 1] || '' : '',
     },
     chain: {
       id: position.chainId,
