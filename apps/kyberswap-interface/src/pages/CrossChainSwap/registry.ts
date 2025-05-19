@@ -1,3 +1,4 @@
+import { isEvmChain } from 'utils'
 import { NearQuoteParams, NormalizedQuote, QuoteParams, SwapProvider } from './adapters'
 
 export interface Quote {
@@ -24,13 +25,18 @@ export class CrossChainSwapAdapterRegistry {
   async getQuotes(params: QuoteParams | NearQuoteParams): Promise<Quote[]> {
     const quotes: { adapter: SwapProvider; quote: NormalizedQuote }[] = []
 
-    const adapters = this.getAllAdapters().filter(
-      adapter =>
-        adapter.getSupportedChains().includes(params.fromChain) &&
-        adapter.getSupportedChains().includes(params.toChain),
-    )
-    console.debug(
+    const adapters =
+      params.fromChain === params.toChain && isEvmChain(params.fromChain)
+        ? ([this.getAdapter('KyberSwap')] as SwapProvider[])
+        : this.getAllAdapters().filter(
+            adapter =>
+              adapter.getSupportedChains().includes(params.fromChain) &&
+              adapter.getSupportedChains().includes(params.toChain),
+          )
+
+    console.log(
       'Available adapters',
+      params,
       adapters.map(ad => ad.getName()),
     )
     // Get quotes from all compatible adapters

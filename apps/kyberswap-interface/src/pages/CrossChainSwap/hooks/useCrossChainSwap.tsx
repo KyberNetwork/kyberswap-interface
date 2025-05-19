@@ -10,7 +10,7 @@ import { useWalletClient } from 'wagmi'
 import useDebounce from 'hooks/useDebounce'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { isEvmChain, isNonEvmChain } from 'utils'
-import { BitcoinToken, Chain, Currency, NearQuoteParams, NonEvmChain, QuoteParams } from '../adapters'
+import { BitcoinToken, Chain, Currency, NearQuoteParams, NonEvmChain, QuoteParams, SwapProvider } from '../adapters'
 import { NearToken, useNearTokens } from 'state/crossChainSwap'
 import { ZERO_ADDRESS } from 'constants/index'
 import { TOKEN_API_URL } from 'constants/env'
@@ -171,7 +171,6 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
   const [selectedAdapter, setSelectedAdapter] = useState<string | null>(null)
   const walletClient = useWalletClient()
   const [slippage] = useUserSlippageTolerance()
-  console.log(slippage)
 
   const selectedQuote = useMemo(() => {
     return quotes.find(q => q.adapter.getName() === selectedAdapter) || quotes[0] || null
@@ -268,13 +267,16 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     const getQuotesWithCancellation = async (params: QuoteParams | NearQuoteParams) => {
       // Create a modified version of getQuotes that can be cancelled
       const quotes: Quote[] = []
-      const adapters = registry
-        .getAllAdapters()
-        .filter(
-          adapter =>
-            adapter.getSupportedChains().includes(params.fromChain) &&
-            adapter.getSupportedChains().includes(params.toChain),
-        )
+      const adapters =
+        params.fromChain === params.toChain && isEvmChain(params.fromChain)
+          ? ([registry.getAdapter('KyberSwap')] as SwapProvider[])
+          : registry
+              .getAllAdapters()
+              .filter(
+                adapter =>
+                  adapter.getSupportedChains().includes(params.fromChain) &&
+                  adapter.getSupportedChains().includes(params.toChain),
+              )
 
       // Map each adapter to a promise that can be cancelled
       const quotePromises = adapters.map(async adapter => {
