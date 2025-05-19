@@ -24,6 +24,7 @@ import { useActiveWeb3React } from 'hooks'
 import { ChangeEvent, useState } from 'react'
 import { BitcoinConnectModal } from './components/BitcoinConnectModal'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
+import { PiWarning } from './components/PiWarning'
 
 const Wrapper = styled.div`
   display: flex;
@@ -230,6 +231,8 @@ function CrossChainSwap() {
       />
 
       <Summary quote={selectedQuote || undefined} tokenOut={currencyOut} />
+
+      <PiWarning />
 
       <SwapAction setShowBtcModal={setShowBtcConnect} />
 

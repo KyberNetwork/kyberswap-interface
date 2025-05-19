@@ -93,7 +93,7 @@ export class MayanAdapter extends BaseSwapAdapter {
     const res = getSwapFromEvmTxPayload(
       quote.rawQuote as MayanQuote,
       account,
-      account,
+      quote.quoteParams.recipient,
       null,
       account,
       quote.quoteParams.fromChain,

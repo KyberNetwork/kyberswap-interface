@@ -18,6 +18,7 @@ import { Chain, Currency, NonEvmChain, NonEvmChainInfo } from '../adapters'
 import { isEvmChain } from 'utils'
 import { formatUnits } from 'viem'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
+import { PiWarning } from './PiWarning'
 
 const Wrapper = styled.div`
   padding: 1rem;
@@ -74,7 +75,7 @@ const TokenBoxInfo = ({
 
 export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDismiss: () => void }) => {
   const theme = useTheme()
-  const { selectedQuote, currencyIn, currencyOut, amountInWei, fromChainId, toChainId } = useCrossChainSwap()
+  const { selectedQuote, currencyIn, currencyOut, amountInWei, fromChainId, toChainId, warning } = useCrossChainSwap()
   const { data: walletClient } = useWalletClient()
   const [submittingTx, setSubmittingTx] = useState(false)
   const [txHash, setTxHash] = useState('')
@@ -192,6 +193,9 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
             />
             <Flex marginTop="1rem"></Flex>
             <Summary quote={selectedQuote} tokenOut={currencyOut} full />
+
+            {warning?.priceImpaceInfo.message && <Flex marginTop="1rem"></Flex>}
+            <PiWarning />
 
             <Text marginY="1rem" fontStyle="italic" color={'#737373'} fontSize={12}>
               Routed via {selectedQuote.adapter.getName()}

@@ -43,6 +43,20 @@ const RegistryContext = createContext<
       getQuote: () => Promise<void>
       recipient: string
       setRecipient: (value: string) => void
+      warning: {
+        slippageInfo: {
+          default: number
+          presets: number[]
+          isHigh: boolean
+          isLow: boolean
+          message: string
+        }
+        priceImpaceInfo: {
+          isHigh: boolean
+          isVeryHigh: boolean
+          message: string
+        }
+      } | null
     }
   | undefined
 >(undefined)
@@ -176,6 +190,64 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     return quotes.find(q => q.adapter.getName() === selectedAdapter) || quotes[0] || null
   }, [quotes, selectedAdapter])
 
+  // reset selected adapter when from or to chain changes
+  useEffect(() => {
+    setSelectedAdapter(null)
+  }, [currencyIn, currencyOut, fromChainId, toChainId])
+
+  const [category, setCategory] = useState<'stablePair' | 'commonPair' | 'highVolatilityPair' | 'exoticPair'>(
+    'commonPair',
+  )
+  const warning = useMemo(() => {
+    if (!selectedQuote) return null
+    const highSlippageMsg = 'Your slippage is set higher than usual, which may cause unexpected losses'
+    const lowSlippageMsg = 'Your slippage is set lower than usual, which may cause transaction failure.'
+    const veryHighPiMsg = 'The price impact is high — double check the output before proceeding.'
+    const highPiMsg = 'The price impact might be high — double check the output before proceeding.'
+    if (isFromEvm && isToEvm) {
+      const slippageHighThreshold = category === 'stablePair' ? 100 : 200
+      const slippageLowThreshold = category === 'stablePair' ? 5 : 30
+      const slippageInfo = {
+        default: category === 'stablePair' ? 10 : 50,
+        presets: category === 'stablePair' ? [5, 10, 30, 100] : [10, 50, 100, 200],
+        isHigh: slippage >= slippageHighThreshold,
+        isLow: slippage < slippageLowThreshold,
+        message:
+          slippage >= slippageHighThreshold ? highSlippageMsg : slippage < slippageLowThreshold ? lowSlippageMsg : '',
+      }
+
+      const highPriceImpactThreshold = 0 // category === 'stablePair' ? 1 : 2
+      const veryHighPriceImpactThreshold = category === 'stablePair' ? 3 : 5
+      const priceImpaceInfo = {
+        isHigh: selectedQuote.quote.priceImpact > highPriceImpactThreshold,
+        isVeryHigh: selectedQuote.quote.priceImpact >= veryHighPriceImpactThreshold,
+        message:
+          selectedQuote.quote.priceImpact >= veryHighPriceImpactThreshold
+            ? veryHighPiMsg
+            : selectedQuote.quote.priceImpact > highPriceImpactThreshold
+            ? highPiMsg
+            : '',
+      }
+      return { slippageInfo, priceImpaceInfo }
+    }
+
+    return {
+      slippageInfo: {
+        default: 50,
+        presets: [50, 100, 200, 300],
+        isHigh: slippage >= 300,
+        isLow: slippage < 30,
+        message: slippage >= 300 ? highSlippageMsg : slippage < 30 ? lowSlippageMsg : '',
+      },
+      priceImpaceInfo: {
+        isHigh: selectedQuote.quote.priceImpact > 3,
+        isVeryHigh: selectedQuote.quote.priceImpact >= 10,
+        message:
+          selectedQuote.quote.priceImpact >= 10 ? veryHighPiMsg : selectedQuote.quote.priceImpact > 3 ? highPiMsg : '',
+      },
+    }
+  }, [selectedQuote, category, isFromEvm, isToEvm, slippage])
+
   const [showPreview, setShowPreview] = useState(false)
   const disable = !fromChainId || !toChainId || !currencyIn || !currencyOut || !inputAmount || inputAmount === '0'
 
@@ -220,9 +292,12 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
 
     const tokenInUsd = r?.data?.[fromChainId]?.[(currencyIn as any).wrapped.address]?.PriceBuy || 0
     const tokenOutUsd = r?.data?.[toChainId as any]?.[(currencyOut as any).wrapped.address]?.PriceBuy || 0
+    const isToNear = toChainId === 'near'
 
-    let feeBps = 25 // 0.25% for BTC-> EVM and non-EVM -> non-EVM
-    if (isFromEvm && isToEvm) {
+    let feeBps = 25
+    if ((isFromBitcoin && isToEvm) || (isFromEvm && isToBitcoin)) {
+      feeBps = 25
+    } else if (isFromEvm && isToEvm) {
       const [token0Cat, token1Cat] = await Promise.all([
         await fetch(
           `${TOKEN_API_URL}/v1/public/category/token?tokens=${(
@@ -251,16 +326,21 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
           }),
       ])
       if (token0Cat === 'stablePair' && token1Cat === 'stablePair') {
+        setCategory('stablePair')
         feeBps = 5
       } else if (token0Cat === 'commonPair' && token1Cat === 'commonPair') {
+        setCategory('commonPair')
         feeBps = 10
       } else if (token0Cat === 'highVolatilityPair' && token1Cat === 'highVolatilityPair') {
+        setCategory('highVolatilityPair')
         feeBps = 25
       } else {
+        setCategory('exoticPair')
         feeBps = 15
       }
+    } else if (isFromNear || isToNear) {
+      feeBps = 20
     }
-    const isToNear = toChainId === 'near'
 
     setLoading(true)
 
@@ -381,6 +461,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
         amountInWei: inputAmount,
         recipient,
         setRecipient,
+        warning,
       }}
     >
       {children}

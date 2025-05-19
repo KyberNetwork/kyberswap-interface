@@ -114,7 +114,7 @@ export class XYFinanceAdapter extends BaseSwapAdapter {
       dstQuoteTokenAddress: toToken.isNative ? ETHER_ADDRESS : toToken.address,
       // slippage: quote.quoteParams.slippage,
       slippage: (quote.quoteParams.slippage * 100) / 10_000,
-      receiver: account,
+      receiver: quote.quoteParams.recipient,
       bridgeProvider: quote.rawQuote.bridgeDescription.provider,
       srcBridgeTokenAddress: quote.rawQuote.bridgeDescription.srcBridgeTokenAddress,
       dstBridgeTokenAddress: quote.rawQuote.bridgeDescription.dstBridgeTokenAddress,

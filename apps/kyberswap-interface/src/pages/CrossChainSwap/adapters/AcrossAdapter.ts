@@ -21,6 +21,19 @@ const transferFunction = 'function transfer(address to, uint256 amount)'
 // Create Interface instances
 const erc20Interface = new ethers.utils.Interface([transferFunction])
 
+const multicalHandlerContract: Record<string, `0x${string}`> = {
+  [ChainId.MAINNET]: '0x924a9f036260DdD5808007E1AA95f08eD08aA569',
+  [ChainId.ARBITRUM]: '0x924a9f036260DdD5808007E1AA95f08eD08aA569',
+  [ChainId.OPTIMISM]: '0x924a9f036260DdD5808007E1AA95f08eD08aA569',
+  [ChainId.LINEA]: '0x1015c58894961F4F7Dd7D68ba033e28Ed3ee1cDB',
+  [ChainId.MATIC]: '0x924a9f036260DdD5808007E1AA95f08eD08aA569',
+  [ChainId.ZKSYNC]: '0x863859ef502F0Ee9676626ED5B418037252eFeb2',
+  [ChainId.BASE]: '0x1015c58894961F4F7Dd7D68ba033e28Ed3ee1cDB',
+  [ChainId.SCROLL]: '0x1015c58894961F4F7Dd7D68ba033e28Ed3ee1cDB',
+  [ChainId.BLAST]: '0x1015c58894961F4F7Dd7D68ba033e28Ed3ee1cDB',
+  [ChainId.UNICHAIN]: '0x1015c58894961F4F7Dd7D68ba033e28Ed3ee1cDB',
+}
+
 export class AcrossAdapter extends BaseSwapAdapter {
   private acrossClient: AcrossClient
 
@@ -71,8 +84,7 @@ export class AcrossAdapter extends BaseSwapAdapter {
           isNative: params.fromToken.isNative,
         },
         inputAmount: params.amount,
-        // TODO
-        recipient: '0x924a9f036260DdD5808007E1AA95f08eD08aA569',
+        recipient: multicalHandlerContract[params.toChain],
         crossChainMessage: {
           actions: [
             {

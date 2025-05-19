@@ -11,6 +11,7 @@ import { formatDisplayNumber } from 'utils/numbers'
 import { Clock } from 'react-feather'
 // import { GasStation } from 'components/Icons'
 import { Currency } from '../adapters'
+import { MouseoverTooltip } from 'components/Tooltip'
 
 const Wrapper = styled.div`
   display: flex;
@@ -59,22 +60,24 @@ export const QuoteSelector = ({
     <MenuFlyout
       isOpen={show}
       trigger={
-        <Box
-          role="button"
-          sx={{
-            cursor: 'pointer',
-            width: '28px',
-            height: '28px',
-            color: theme.subText,
-            backgroundColor: rgba(theme.subText, 0.08),
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <RouteIcon />
-        </Box>
+        <MouseoverTooltip text="More options" width="fit-content">
+          <Box
+            role="button"
+            sx={{
+              cursor: 'pointer',
+              width: '28px',
+              height: '28px',
+              color: theme.text,
+              backgroundColor: rgba(theme.subText, 0.08),
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <RouteIcon />
+          </Box>
+        </MouseoverTooltip>
       }
       hasArrow={false}
       toggle={() => setShow(prev => !prev)}
@@ -89,7 +92,7 @@ export const QuoteSelector = ({
     >
       <Wrapper>
         <Text fontSize="16px" fontWeight="500">
-          Choose your exchange rate
+          Choose your Route
         </Text>
         <Box
           sx={{
@@ -163,7 +166,6 @@ export const QuoteSelector = ({
                     </Text>
                     {quote.quote.protocolFee > 0 && (
                       <>
-                        <Text mx="8px">|</Text>
                         <Text ml="4px" mr="8px">
                           Protocol fee:{' '}
                           {formatDisplayNumber(quote.quote.protocolFee, {
