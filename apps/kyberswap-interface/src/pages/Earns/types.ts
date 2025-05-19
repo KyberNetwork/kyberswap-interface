@@ -10,6 +10,11 @@ export enum PositionHistoryType {
   DEPOSIT = 'DEPOSIT',
 }
 
+export enum PositionExistStatus {
+  OPEN = 'open',
+  CLOSED = 'closed',
+}
+
 export interface PositionFilter {
   chainIds?: string
   positionId?: string
@@ -18,6 +23,7 @@ export interface PositionFilter {
   q?: string
   sortBy?: string
   orderBy?: string
+  positionStatus: PositionExistStatus
   page: number
 }
 

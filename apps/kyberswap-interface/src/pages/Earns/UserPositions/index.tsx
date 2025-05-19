@@ -58,6 +58,7 @@ const UserPositions = () => {
     chainIds: filters.chainIds || earnSupportedChains.join(','),
     protocols: filters.protocols || earnSupportedExchanges.join(','),
     q: filters.q,
+    positionStatus: filters.positionStatus,
   }
 
   const {
@@ -328,6 +329,7 @@ const UserPositions = () => {
               <LocalLoader />
             ) : (
               <TableContent
+                filters={filters}
                 positions={paginatedPositions}
                 feeInfoFromRpc={feeInfoFromRpc}
                 setFeeInfoFromRpc={setFeeInfoFromRpc}

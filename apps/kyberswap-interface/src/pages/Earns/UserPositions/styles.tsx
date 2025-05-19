@@ -92,6 +92,7 @@ export enum BadgeType {
   WARNING = 'warning',
   SECONDARY = 'secondary',
   ROUNDED = 'rounded',
+  DISABLED = 'disabled',
 }
 
 export const Badge = styled.div<{ type?: BadgeType }>`
@@ -119,6 +120,8 @@ export const Badge = styled.div<{ type?: BadgeType }>`
         return `
             color: ${theme.blue2};
             `
+      case BadgeType.DISABLED:
+        return ''
       case BadgeType.ROUNDED:
         return `
             padding: 8px;
@@ -410,6 +413,10 @@ export const IndicatorLabel = styled.div`
   transform: translateX(-42%);
   font-size: 12px;
   color: #fafafa;
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `
 
 export const CurrentPriceWrapper = styled.div<{ lower?: boolean }>`

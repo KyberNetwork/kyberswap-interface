@@ -37,7 +37,7 @@ import useKemRewards from 'pages/Earns/hooks/useKemRewards'
 import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import { ZapOutInfo } from 'pages/Earns/hooks/useZapOutWidget'
-import { FeeInfo, ParsedPosition, PositionStatus } from 'pages/Earns/types'
+import { FeeInfo, ParsedPosition, PositionExistStatus, PositionFilter, PositionStatus } from 'pages/Earns/types'
 import { formatAprNumber, getFullUnclaimedFeesInfo, getNftManagerContract, isForkFrom } from 'pages/Earns/utils'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
@@ -49,12 +49,14 @@ export interface FeeInfoFromRpc extends FeeInfo {
 }
 
 export default function TableContent({
+  filters,
   positions,
   feeInfoFromRpc,
   setFeeInfoFromRpc,
   onOpenZapInWidget,
   onOpenZapOut,
 }: {
+  filters: PositionFilter
   positions: Array<ParsedPosition>
   feeInfoFromRpc: FeeInfoFromRpc[]
   setFeeInfoFromRpc: (feeInfo: FeeInfoFromRpc[]) => void
@@ -181,6 +183,8 @@ export default function TableContent({
     })
   }
 
+  const isShowClosedPosition = filters.positionStatus === PositionExistStatus.CLOSED
+
   const emptyPosition = (
     <EmptyPositionText>
       <IconEarnNotFound />
@@ -275,8 +279,21 @@ export default function TableContent({
                           #{tokenId}
                         </Text>
                       )}
-                      <Badge type={status === PositionStatus.IN_RANGE ? BadgeType.PRIMARY : BadgeType.WARNING}>
-                        ● {status === PositionStatus.IN_RANGE ? t`In range` : t`Out of range`}
+                      <Badge
+                        type={
+                          isShowClosedPosition
+                            ? BadgeType.DISABLED
+                            : status === PositionStatus.IN_RANGE
+                            ? BadgeType.PRIMARY
+                            : BadgeType.WARNING
+                        }
+                      >
+                        ●{' '}
+                        {isShowClosedPosition
+                          ? t`Closed`
+                          : status === PositionStatus.IN_RANGE
+                          ? t`In range`
+                          : t`Out of range`}
                       </Badge>
                     </Flex>
                   </PositionOverview>

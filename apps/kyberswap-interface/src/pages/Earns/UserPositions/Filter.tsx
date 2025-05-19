@@ -8,13 +8,18 @@ import Search from 'components/Search'
 import useDebounce from 'hooks/useDebounce'
 import DropdownMenu, { MenuOption } from 'pages/Earns/PoolExplorer/DropdownMenu'
 import { AllChainsOption, AllProtocolsOption } from 'pages/Earns/hooks/useSupportedDexesAndChains'
-import { PositionFilter, PositionStatus } from 'pages/Earns/types'
+import { PositionExistStatus, PositionFilter, PositionStatus } from 'pages/Earns/types'
 import { MEDIA_WIDTHS } from 'theme'
 
 const POSITION_STATUS = [
   { label: 'All Positions', value: '' },
   { label: 'In Range', value: PositionStatus.IN_RANGE },
   { label: 'Out Range', value: PositionStatus.OUT_RANGE },
+]
+
+const POSITION_EXIST_STATUS = [
+  { label: 'Open positions', value: PositionExistStatus.OPEN },
+  { label: 'Closed positions', value: PositionExistStatus.CLOSED },
 ]
 
 export default function Filter({
@@ -87,6 +92,13 @@ export default function Filter({
           value={filters.status || ''}
           options={POSITION_STATUS}
           onChange={value => value !== filters.status && updateFilters('status', value)}
+        />
+        <DropdownMenu
+          alignLeft
+          mobileFullWidth
+          value={filters.positionStatus}
+          options={POSITION_EXIST_STATUS}
+          onChange={value => value !== filters.positionStatus && updateFilters('positionStatus', value)}
         />
       </Flex>
       <Search
