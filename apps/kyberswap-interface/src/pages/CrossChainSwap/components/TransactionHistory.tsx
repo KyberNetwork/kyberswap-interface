@@ -216,7 +216,9 @@ export const TransactionHistory = () => {
                       color={theme.subText}
                       size={16}
                       href={
-                        tx.targetChain === NonEvmChain.Near
+                        tx.adapter.toLowerCase() === 'debridge'
+                          ? `https://app.debridge.finance/order?orderId=${tx.targetTxHash}`
+                          : tx.targetChain === NonEvmChain.Near
                           ? `https://nearblocks.io/txns/${tx.targetTxHash}`
                           : tx.targetChain === NonEvmChain.Bitcoin
                           ? `https://mempool.space/tx/${tx.targetTxHash}`

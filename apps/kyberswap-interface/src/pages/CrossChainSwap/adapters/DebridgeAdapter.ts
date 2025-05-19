@@ -169,7 +169,7 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
       data: quote.rawQuote.tx.data,
     })
     return {
-      id: tx, // specific id for each provider
+      id: quote.rawQuote.orderId, // specific id for each provider
       sourceTxHash: tx,
       adapter: this.getName(),
       sourceChain: quote.quoteParams.fromChain,
@@ -184,7 +184,9 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
 
   async getTransactionStatus(p: NormalizedTxResponse): Promise<SwapStatus> {
     const r = await fetch(`${DEBRIDGE_API}/${p.id}/status`).then(res => res.json())
-    console.log(r)
-    throw new Error('Not implemented')
+    return {
+      status: r.status === 'Fulfilled' ? 'Success' : 'Processing',
+      txHash: p.id,
+    }
   }
 }
