@@ -107,8 +107,6 @@ const useSupportedDexesAndChains = (filters: PoolQueryParams | PositionFilter) =
     return [AllProtocolsOption].concat(parsedProtocols)
   }, [selectedChainId, supportedProtocols])
 
-  console.log('chains', chains)
-
   return { supportedDexes, supportedChains: chains }
 }
 
