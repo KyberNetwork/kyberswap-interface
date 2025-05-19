@@ -41,6 +41,7 @@ export class XYFinanceAdapter extends BaseSwapAdapter {
       ChainId.BLAST,
       ChainId.BERA,
       ChainId.SONIC,
+      ChainId.UNICHAIN,
     ]
   }
 
