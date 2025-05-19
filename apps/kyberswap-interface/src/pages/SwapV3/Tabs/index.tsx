@@ -116,7 +116,7 @@ export default function Tabs({ activeTab, setActiveTab, customChainId }: Props) 
       <TabWrapper>
         {show(TAB.SWAP) && (
           <Tab onClick={() => onClickTab(TAB.SWAP)} isActive={TAB.SWAP === activeTab}>
-            <Text fontSize={20} fontWeight={500}>
+            <Text fontSize={18} fontWeight={500}>
               <Trans>Swap</Trans>
             </Text>
           </Tab>
@@ -133,7 +133,7 @@ export default function Tabs({ activeTab, setActiveTab, customChainId }: Props) 
           isActive={activeTab === TAB.CROSS_CHAIN}
           data-testid="cross-chain-tab"
         >
-          <Text fontSize={20} fontWeight={500}>
+          <Text fontSize={18} fontWeight={500}>
             <Trans>Cross-Chain</Trans>
           </Text>
         </Tab>

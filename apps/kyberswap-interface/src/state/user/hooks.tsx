@@ -480,7 +480,7 @@ export const useCrossChainSetting = () => {
 
 export const useSlippageSettingByPage = () => {
   const dispatch = useDispatch()
-  const { isCrossChain } = usePageLocation()
+  // const { isCrossChain } = usePageLocation()
   const [rawSlippageTolerance, setRawSlippageTolerance] = useUserSlippageTolerance()
 
   const isPinSlippageSwap = useAppSelector(state => state.user.isSlippageControlPinned)
@@ -488,16 +488,16 @@ export const useSlippageSettingByPage = () => {
     dispatch(pinSlippageControl(!isSlippageControlPinned))
   }
 
-  const {
-    setting: { slippageTolerance: rawSlippageSwapCrossChain, isSlippageControlPinned: isPinSlippageCrossChain },
-    setRawSlippage: setRawSlippageCrossChain,
-    toggleSlippageControlPinned: togglePinnedSlippageCrossChain,
-  } = useCrossChainSetting()
+  // const {
+  //   setting: { slippageTolerance: rawSlippageSwapCrossChain, isSlippageControlPinned: isPinSlippageCrossChain },
+  //   setRawSlippage: setRawSlippageCrossChain,
+  //   toggleSlippageControlPinned: togglePinnedSlippageCrossChain,
+  // } = useCrossChainSetting()
 
-  const rawSlippage = isCrossChain ? rawSlippageSwapCrossChain : rawSlippageTolerance
-  const setRawSlippage = isCrossChain ? setRawSlippageCrossChain : setRawSlippageTolerance
-  const isSlippageControlPinned = isCrossChain ? isPinSlippageCrossChain : isPinSlippageSwap
-  const togglePinSlippage = isCrossChain ? togglePinnedSlippageCrossChain : togglePinSlippageSwap
+  const rawSlippage = rawSlippageTolerance
+  const setRawSlippage = setRawSlippageTolerance
+  const isSlippageControlPinned = isPinSlippageSwap
+  const togglePinSlippage = togglePinSlippageSwap
 
   return {
     rawSlippage,

@@ -174,7 +174,7 @@ export const TransactionHistory = () => {
               <img src={targetChainLogo} alt="" width={16} height={16} />
             </Flex>
 
-            <div>
+            <div style={{ zIndex: -1 }}>
               <Flex sx={{ gap: '4px' }} alignItems="center" color={theme.subText} fontSize="12px">
                 <TokenLogoWithChain chainId={tx.sourceChain as any} currency={tx.sourceToken} />-
                 {formatDisplayNumber(formatUnits(BigInt(tx.inputAmount), tx.sourceToken.decimals), {

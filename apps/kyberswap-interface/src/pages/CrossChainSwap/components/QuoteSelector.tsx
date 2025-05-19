@@ -123,7 +123,7 @@ export const QuoteSelector = ({
                       }}
                     />
                     <Text fontWeight="500" fontSize={20} marginLeft="4px">
-                      {formatDisplayNumber(quote.quote.formattedOutputAmount, { significantDigits: 4 })}
+                      {formatDisplayNumber(quote.quote.formattedOutputAmount, { significantDigits: 5 })}
                     </Text>
                     <Text color={theme.subText} marginLeft="4px" fontWeight="500" fontSize={18}>
                       {tokenOut?.symbol}

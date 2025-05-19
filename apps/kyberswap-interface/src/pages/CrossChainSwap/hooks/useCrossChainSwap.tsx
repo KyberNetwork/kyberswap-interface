@@ -171,6 +171,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
   const [selectedAdapter, setSelectedAdapter] = useState<string | null>(null)
   const walletClient = useWalletClient()
   const [slippage] = useUserSlippageTolerance()
+  console.log(slippage)
 
   const selectedQuote = useMemo(() => {
     return quotes.find(q => q.adapter.getName() === selectedAdapter) || quotes[0] || null
