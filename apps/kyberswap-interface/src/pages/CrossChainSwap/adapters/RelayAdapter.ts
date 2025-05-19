@@ -7,11 +7,30 @@ import {
   SwapStatus,
   EvmQuoteParams,
 } from './BaseSwapAdapter'
-import { MAINNET_RELAY_API, getClient, createClient } from '@reservoir0x/relay-sdk'
+import { MAINNET_RELAY_API, getClient, createClient, convertViemChainToRelayChain } from '@reservoir0x/relay-sdk'
 import { WalletClient, formatUnits } from 'viem'
 import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
 import { Quote } from '../registry'
 import { MAINNET_NETWORKS } from 'constants/networks'
+import {
+  arbitrum,
+  avalanche,
+  base,
+  berachain,
+  blast,
+  bsc,
+  fantom,
+  linea,
+  mainnet,
+  mantle,
+  optimism,
+  polygon,
+  scroll,
+  sonic,
+  zksync,
+  ronin,
+  unichain,
+} from 'viem/chains'
 
 export class RelayAdapter extends BaseSwapAdapter {
   constructor() {
@@ -19,6 +38,25 @@ export class RelayAdapter extends BaseSwapAdapter {
     createClient({
       baseApiUrl: MAINNET_RELAY_API,
       source: 'kyberswap',
+      chains: [
+        arbitrum,
+        avalanche,
+        base,
+        berachain,
+        blast,
+        bsc,
+        fantom,
+        linea,
+        mainnet,
+        mantle,
+        optimism,
+        polygon,
+        scroll,
+        sonic,
+        zksync,
+        ronin,
+        unichain,
+      ].map(convertViemChainToRelayChain),
     })
   }
 
