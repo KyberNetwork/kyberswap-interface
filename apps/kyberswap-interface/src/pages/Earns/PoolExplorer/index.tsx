@@ -35,7 +35,7 @@ import {
 } from 'pages/Earns/PoolExplorer/styles'
 import useFilter from 'pages/Earns/PoolExplorer/useFilter'
 import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
-import { EarnDex2 } from 'pages/Earns/constants'
+import { Exchange } from 'pages/Earns/constants'
 import useSupportedDexesAndChains from 'pages/Earns/hooks/useSupportedDexesAndChains'
 import useZapInWidget, { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
@@ -196,7 +196,7 @@ const PoolExplorer = () => {
     ;(async () => {
       const pool = await handleFetchPoolData({ chainId: Number(chainId), address })
       if (pool && (pool.exchange === dex || pool.exchange === dexKeyMapping[dex]))
-        handleOpenZapIn({ pool: { dex: dex as EarnDex2, chainId: Number(chainId), address: pool.address } })
+        handleOpenZapIn({ pool: { dex: dex as Exchange, chainId: Number(chainId), address: pool.address } })
       else {
         notify(
           {

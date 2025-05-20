@@ -6,7 +6,7 @@ import { NotificationType } from 'components/Announcement/type'
 import Modal from 'components/Modal'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import { EarnDex, EarnDex2 } from 'pages/Earns/constants'
+import { EarnDex, Exchange } from 'pages/Earns/constants'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import { submitTransaction } from 'pages/Earns/utils'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
@@ -14,14 +14,14 @@ import { getCookieValue } from 'utils'
 
 export interface ZapOutInfo {
   position: {
-    dex: EarnDex | EarnDex2
+    dex: EarnDex | Exchange
     chainId: number
     poolAddress: string
     id: string
   }
 }
 
-const zapOutDexMapping: Record<EarnDex | EarnDex2, ZapOutDex> = {
+const zapOutDexMapping: Record<EarnDex | Exchange, ZapOutDex> = {
   [EarnDex.DEX_UNISWAPV3]: ZapOutDex.DEX_UNISWAPV3,
   [EarnDex.DEX_PANCAKESWAPV3]: ZapOutDex.DEX_PANCAKESWAPV3,
   [EarnDex.DEX_SUSHISWAPV3]: ZapOutDex.DEX_SUSHISWAPV3,
@@ -32,16 +32,16 @@ const zapOutDexMapping: Record<EarnDex | EarnDex2, ZapOutDex> = {
   [EarnDex.DEX_UNISWAPV2]: ZapOutDex.DEX_UNISWAPV2,
   [EarnDex.DEX_UNISWAP_V4]: ZapOutDex.DEX_UNISWAP_V4,
   [EarnDex.DEX_UNISWAP_V4_KEM]: ZapOutDex.DEX_UNISWAP_V4_KEM,
-  [EarnDex2.DEX_UNISWAPV3]: ZapOutDex.DEX_UNISWAPV3,
-  [EarnDex2.DEX_PANCAKESWAPV3]: ZapOutDex.DEX_PANCAKESWAPV3,
-  [EarnDex2.DEX_SUSHISWAPV3]: ZapOutDex.DEX_SUSHISWAPV3,
-  [EarnDex2.DEX_QUICKSWAPV3ALGEBRA]: ZapOutDex.DEX_QUICKSWAPV3ALGEBRA,
-  [EarnDex2.DEX_CAMELOTV3]: ZapOutDex.DEX_CAMELOTV3,
-  [EarnDex2.DEX_THENAFUSION]: ZapOutDex.DEX_THENAFUSION,
-  [EarnDex2.DEX_KODIAK_V3]: ZapOutDex.DEX_KODIAK_V3,
-  [EarnDex2.DEX_UNISWAPV2]: ZapOutDex.DEX_UNISWAPV2,
-  [EarnDex2.DEX_UNISWAP_V4]: ZapOutDex.DEX_UNISWAP_V4,
-  [EarnDex2.DEX_UNISWAP_V4_KEM]: ZapOutDex.DEX_UNISWAP_V4_KEM,
+  [Exchange.DEX_UNISWAPV3]: ZapOutDex.DEX_UNISWAPV3,
+  [Exchange.DEX_PANCAKESWAPV3]: ZapOutDex.DEX_PANCAKESWAPV3,
+  [Exchange.DEX_SUSHISWAPV3]: ZapOutDex.DEX_SUSHISWAPV3,
+  [Exchange.DEX_QUICKSWAPV3ALGEBRA]: ZapOutDex.DEX_QUICKSWAPV3ALGEBRA,
+  [Exchange.DEX_CAMELOTV3]: ZapOutDex.DEX_CAMELOTV3,
+  [Exchange.DEX_THENAFUSION]: ZapOutDex.DEX_THENAFUSION,
+  [Exchange.DEX_KODIAK_V3]: ZapOutDex.DEX_KODIAK_V3,
+  [Exchange.DEX_UNISWAPV2]: ZapOutDex.DEX_UNISWAPV2,
+  [Exchange.DEX_UNISWAP_V4]: ZapOutDex.DEX_UNISWAP_V4,
+  [Exchange.DEX_UNISWAP_V4_KEM]: ZapOutDex.DEX_UNISWAP_V4_KEM,
 }
 
 const useZapOutWidget = (onRefreshPosition?: () => void) => {

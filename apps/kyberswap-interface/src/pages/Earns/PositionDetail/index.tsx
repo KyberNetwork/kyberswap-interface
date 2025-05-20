@@ -26,7 +26,7 @@ import {
   VerticalDivider,
 } from 'pages/Earns/PositionDetail/styles'
 import { EmptyPositionText, PositionPageWrapper } from 'pages/Earns/UserPositions/styles'
-import { EarnDex2 } from 'pages/Earns/constants'
+import { Exchange } from 'pages/Earns/constants'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import { FeeInfo, ParsedPosition } from 'pages/Earns/types'
 import { formatAprNumber, getFullUnclaimedFeesInfo, getNftManagerContract, parseRawPosition } from 'pages/Earns/utils'
@@ -101,7 +101,7 @@ const PositionDetail = () => {
         positionId: position.tokenId,
       },
       to: {
-        dex: position.suggestionPool?.poolExchange as EarnDex2,
+        dex: position.suggestionPool?.poolExchange as Exchange,
         poolId: position.suggestionPool?.address || '',
       },
     })

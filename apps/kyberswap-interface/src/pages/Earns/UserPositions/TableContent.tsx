@@ -35,8 +35,8 @@ import {
   CoreProtocol,
   DEXES_SUPPORT_COLLECT_FEE,
   EarnDex,
-  EarnDex2,
-  mappingProtocolGroupNameToExchange,
+  Exchange,
+  protocolGroupNameToExchangeMapping,
 } from 'pages/Earns/constants'
 import useCollectFees from 'pages/Earns/hooks/useCollectFees'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
@@ -181,7 +181,7 @@ export default function TableContent({
         positionId: position.tokenId,
       },
       to: {
-        dex: position.suggestionPool?.poolExchange as EarnDex2,
+        dex: position.suggestionPool?.poolExchange as Exchange,
         poolId: position.suggestionPool?.address || '',
       },
     })
@@ -252,7 +252,7 @@ export default function TableContent({
                   key={`${tokenId}-${pool.address}-${index}`}
                   to={APP_PATHS.EARN_POSITION_DETAIL.replace(':positionId', !pool.isUniv2 ? id : pool.address)
                     .replace(':chainId', chain.id.toString())
-                    .replace(':protocol', mappingProtocolGroupNameToExchange[dex.id] || dex.id)}
+                    .replace(':protocol', protocolGroupNameToExchangeMapping[dex.id] || dex.id)}
                 >
                   {/* Overview info */}
                   <PositionOverview>

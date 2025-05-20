@@ -11,7 +11,7 @@ import { NotificationType } from 'components/Announcement/type'
 import Modal from 'components/Modal'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import { EarnDex, EarnDex2, earnSupportedProtocols } from 'pages/Earns/constants'
+import { EarnDex, Exchange, earnSupportedProtocols } from 'pages/Earns/constants'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import { ZapMigrationInfo } from 'pages/Earns/hooks/useZapMigrationWidget'
 import { navigateToPositionAfterZap, submitTransaction } from 'pages/Earns/utils'
@@ -42,12 +42,12 @@ export interface ZapInInfo {
   pool: {
     chainId: number
     address: string
-    dex: EarnDex | EarnDex2
+    dex: EarnDex | Exchange
   }
   positionId?: string
 }
 
-const zapInDexMapping: Record<EarnDex | EarnDex2, ZapInPoolType> = {
+const zapInDexMapping: Record<EarnDex | Exchange, ZapInPoolType> = {
   [EarnDex.DEX_UNISWAPV3]: ZapInPoolType.DEX_UNISWAPV3,
   [EarnDex.DEX_PANCAKESWAPV3]: ZapInPoolType.DEX_PANCAKESWAPV3,
   [EarnDex.DEX_SUSHISWAPV3]: ZapInPoolType.DEX_SUSHISWAPV3,
@@ -58,16 +58,16 @@ const zapInDexMapping: Record<EarnDex | EarnDex2, ZapInPoolType> = {
   [EarnDex.DEX_UNISWAPV2]: ZapInPoolType.DEX_UNISWAPV2,
   [EarnDex.DEX_UNISWAP_V4]: ZapInPoolType.DEX_UNISWAP_V4,
   [EarnDex.DEX_UNISWAP_V4_KEM]: ZapInPoolType.DEX_UNISWAP_V4_KEM,
-  [EarnDex2.DEX_UNISWAPV3]: ZapInPoolType.DEX_UNISWAPV3,
-  [EarnDex2.DEX_PANCAKESWAPV3]: ZapInPoolType.DEX_PANCAKESWAPV3,
-  [EarnDex2.DEX_SUSHISWAPV3]: ZapInPoolType.DEX_SUSHISWAPV3,
-  [EarnDex2.DEX_QUICKSWAPV3ALGEBRA]: ZapInPoolType.DEX_QUICKSWAPV3ALGEBRA,
-  [EarnDex2.DEX_CAMELOTV3]: ZapInPoolType.DEX_CAMELOTV3,
-  [EarnDex2.DEX_THENAFUSION]: ZapInPoolType.DEX_THENAFUSION,
-  [EarnDex2.DEX_KODIAK_V3]: ZapInPoolType.DEX_KODIAK_V3,
-  [EarnDex2.DEX_UNISWAPV2]: ZapInPoolType.DEX_UNISWAPV2,
-  [EarnDex2.DEX_UNISWAP_V4]: ZapInPoolType.DEX_UNISWAP_V4,
-  [EarnDex2.DEX_UNISWAP_V4_KEM]: ZapInPoolType.DEX_UNISWAP_V4_KEM,
+  [Exchange.DEX_UNISWAPV3]: ZapInPoolType.DEX_UNISWAPV3,
+  [Exchange.DEX_PANCAKESWAPV3]: ZapInPoolType.DEX_PANCAKESWAPV3,
+  [Exchange.DEX_SUSHISWAPV3]: ZapInPoolType.DEX_SUSHISWAPV3,
+  [Exchange.DEX_QUICKSWAPV3ALGEBRA]: ZapInPoolType.DEX_QUICKSWAPV3ALGEBRA,
+  [Exchange.DEX_CAMELOTV3]: ZapInPoolType.DEX_CAMELOTV3,
+  [Exchange.DEX_THENAFUSION]: ZapInPoolType.DEX_THENAFUSION,
+  [Exchange.DEX_KODIAK_V3]: ZapInPoolType.DEX_KODIAK_V3,
+  [Exchange.DEX_UNISWAPV2]: ZapInPoolType.DEX_UNISWAPV2,
+  [Exchange.DEX_UNISWAP_V4]: ZapInPoolType.DEX_UNISWAP_V4,
+  [Exchange.DEX_UNISWAP_V4_KEM]: ZapInPoolType.DEX_UNISWAP_V4_KEM,
 }
 
 const useZapInWidget = ({

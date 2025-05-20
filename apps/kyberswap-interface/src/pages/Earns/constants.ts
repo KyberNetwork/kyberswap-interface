@@ -20,7 +20,7 @@ export enum EarnDex {
   DEX_UNISWAP_V4_KEM = 'Uniswap V4 FairFlow',
 }
 
-export enum EarnDex2 {
+export enum Exchange {
   DEX_UNISWAPV3 = 'uniswapv3',
   DEX_PANCAKESWAPV3 = 'pancake-v3',
   DEX_SUSHISWAPV3 = 'sushiswap-v3',
@@ -47,19 +47,19 @@ export enum EarnChain {
 export const earnSupportedChains = enumToArrayOfValues(EarnChain, 'number')
 
 export const earnSupportedProtocols = enumToArrayOfValues(EarnDex)
-export const earnSupportedExchanges = enumToArrayOfValues(EarnDex2)
+export const earnSupportedExchanges = enumToArrayOfValues(Exchange)
 
-export const mappingProtocolGroupNameToExchange: { [key in EarnDex]: EarnDex2 } = {
-  [EarnDex.DEX_UNISWAPV3]: EarnDex2.DEX_UNISWAPV3,
-  [EarnDex.DEX_PANCAKESWAPV3]: EarnDex2.DEX_PANCAKESWAPV3,
-  [EarnDex.DEX_SUSHISWAPV3]: EarnDex2.DEX_SUSHISWAPV3,
-  [EarnDex.DEX_QUICKSWAPV3ALGEBRA]: EarnDex2.DEX_QUICKSWAPV3ALGEBRA,
-  [EarnDex.DEX_CAMELOTV3]: EarnDex2.DEX_CAMELOTV3,
-  [EarnDex.DEX_THENAFUSION]: EarnDex2.DEX_THENAFUSION,
-  [EarnDex.DEX_KODIAK_V3]: EarnDex2.DEX_KODIAK_V3,
-  [EarnDex.DEX_UNISWAPV2]: EarnDex2.DEX_UNISWAPV2,
-  [EarnDex.DEX_UNISWAP_V4]: EarnDex2.DEX_UNISWAP_V4,
-  [EarnDex.DEX_UNISWAP_V4_KEM]: EarnDex2.DEX_UNISWAP_V4_KEM,
+export const protocolGroupNameToExchangeMapping: { [key in EarnDex]: Exchange } = {
+  [EarnDex.DEX_UNISWAPV3]: Exchange.DEX_UNISWAPV3,
+  [EarnDex.DEX_PANCAKESWAPV3]: Exchange.DEX_PANCAKESWAPV3,
+  [EarnDex.DEX_SUSHISWAPV3]: Exchange.DEX_SUSHISWAPV3,
+  [EarnDex.DEX_QUICKSWAPV3ALGEBRA]: Exchange.DEX_QUICKSWAPV3ALGEBRA,
+  [EarnDex.DEX_CAMELOTV3]: Exchange.DEX_CAMELOTV3,
+  [EarnDex.DEX_THENAFUSION]: Exchange.DEX_THENAFUSION,
+  [EarnDex.DEX_KODIAK_V3]: Exchange.DEX_KODIAK_V3,
+  [EarnDex.DEX_UNISWAPV2]: Exchange.DEX_UNISWAPV2,
+  [EarnDex.DEX_UNISWAP_V4]: Exchange.DEX_UNISWAP_V4,
+  [EarnDex.DEX_UNISWAP_V4_KEM]: Exchange.DEX_UNISWAP_V4_KEM,
 }
 
 export const NFT_MANAGER_CONTRACT: { [key in EarnDex]: { [key: string]: string } | string } = {
@@ -126,7 +126,7 @@ export const NFT_MANAGER_CONTRACT: { [key in EarnDex]: { [key: string]: string }
   },
 }
 
-export const FARMING_DEXES = [EarnDex.DEX_UNISWAP_V4_KEM, EarnDex2.DEX_UNISWAP_V4_KEM]
+export const FARMING_DEXES = [EarnDex.DEX_UNISWAP_V4_KEM, Exchange.DEX_UNISWAP_V4_KEM]
 
 export const NATIVE_ADDRESSES: Record<EarnChain, string> = {
   [EarnChain.MAINNET]: ETHER_ADDRESS.toLowerCase(),

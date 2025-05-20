@@ -1,5 +1,5 @@
 import { NativeToken } from 'constants/networks/type'
-import { EarnDex, EarnDex2 } from 'pages/Earns/constants'
+import { EarnDex, Exchange } from 'pages/Earns/constants'
 
 export enum PositionStatus {
   ALL = '',
@@ -26,7 +26,7 @@ export interface PositionFilter {
 export interface EarnPool {
   address: string
   earnFee: number
-  exchange: EarnDex2
+  exchange: Exchange
   type: string
   feeTier: number
   volume: number
@@ -87,7 +87,7 @@ export interface EarnPosition {
     address: string
     chainId: number
     feeTier: number
-    poolExchange: EarnDex2
+    poolExchange: Exchange
   } | null
 }
 
@@ -142,7 +142,7 @@ export interface ParsedPosition {
     address: string
     chainId: number
     feeTier: number
-    poolExchange: EarnDex2
+    poolExchange: Exchange
   } | null
 }
 
