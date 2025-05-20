@@ -157,7 +157,7 @@ export class OptimexAdapter extends BaseSwapAdapter {
           affiliate_info: [
             {
               provider: 'KyberSwap',
-              rate: params.feeBps,
+              rate: params.feeBps.toString(),
               receiver: CROSS_CHAIN_FEE_RECEIVER,
               network: 'ethereum',
             },
