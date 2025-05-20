@@ -94,7 +94,7 @@ export class MayanAdapter extends BaseSwapAdapter {
       quote.rawQuote as MayanQuote,
       account,
       quote.quoteParams.recipient,
-      null,
+      { evm: CROSS_CHAIN_FEE_RECEIVER },
       account,
       quote.quoteParams.fromChain,
       null,
