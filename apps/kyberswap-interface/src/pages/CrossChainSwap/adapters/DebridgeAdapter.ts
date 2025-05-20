@@ -59,8 +59,7 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
       enableEstimate: false,
       prependOperatingExpenses: false,
 
-      // TODO: ask product to generate affiliate
-      affiliate: 31956,
+      affiliate: 31982,
       affiliateFeePercent: (params.feeBps * 100) / 10_000,
       affiliateFeeRecipient: CROSS_CHAIN_FEE_RECEIVER,
     }
