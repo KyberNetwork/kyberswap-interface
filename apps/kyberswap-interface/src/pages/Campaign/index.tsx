@@ -198,17 +198,17 @@ const mayTradingWeeks = [
   //   end: 1748736000,
   // },
   {
-    value: 20,
+    value: 21,
     label: (
       <Text>
         <Text as="span" color="#ffffff">
           Week 1
         </Text>{' '}
-        May 12 - May 18
+        May 19 - May 25
       </Text>
     ),
-    start: 1747008000,
-    end: 1747612800,
+    start: 1747612800,
+    end: 1748217600,
   },
 ].reverse()
 
