@@ -17,8 +17,7 @@ export enum EarnDex {
   DEX_KODIAK_V3 = 'Kodiak Concentrated',
   DEX_UNISWAPV2 = 'Uniswap V2',
   DEX_UNISWAP_V4 = 'Uniswap V4',
-  // DEX_UNISWAP_V4_KEM = 'Uniswap V4 FairFlow',
-  DEX_UNISWAP_V4_KEM = 'Uniswap V4 KEM',
+  DEX_UNISWAP_V4_KEM = 'Uniswap V4 FairFlow',
 }
 
 export enum EarnDex2 {
