@@ -33,6 +33,7 @@ import { useWalletModalToggle } from 'state/application/hooks'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useToggle from 'hooks/useToggle'
 import useDisconnectWallet from 'hooks/web3/useDisconnectWallet'
+import Skeleton from 'react-loading-skeleton'
 
 const TokenPanelWrapper = styled.div`
   padding: 12px;
@@ -50,6 +51,7 @@ export const TokenPanel = ({
   onSelectCurrency,
   evmLayout,
   setShowBtcConnect,
+  loading,
 }: {
   evmLayout?: boolean
   setShowBtcConnect: (val: boolean) => void
@@ -61,6 +63,7 @@ export const TokenPanel = ({
   amountUsd?: number
   disabled: boolean
   onUserInput: (value: string) => void
+  loading?: boolean
 }) => {
   const theme = useTheme()
   const [modalOpen, setModalOpen] = useState(false)
@@ -258,18 +261,40 @@ export const TokenPanel = ({
       </Flex>
 
       <InputRow>
-        <NumericalInput
-          error={false}
-          className="token-amount-input"
-          value={value}
-          disabled={disabled}
-          onUserInput={onUserInput}
-        />
+        {loading ? (
+          <div style={{ flex: 1 }}>
+            <Skeleton
+              height="24px"
+              width="160px"
+              baseColor={theme.background}
+              highlightColor={theme.buttonGray}
+              borderRadius="1rem"
+            />
+          </div>
+        ) : (
+          <NumericalInput
+            error={false}
+            className="token-amount-input"
+            value={value}
+            disabled={disabled}
+            onUserInput={onUserInput}
+          />
+        )}
 
-        {amountUsd && (
-          <Text fontSize="0.875rem" marginRight="8px" fontWeight="500" color={theme.border}>
-            ~{formatDisplayNumber(amountUsd, { significantDigits: 4, style: 'currency' })}
-          </Text>
+        {loading ? (
+          <Skeleton
+            height="12px"
+            width="44px"
+            baseColor={theme.background}
+            highlightColor={theme.buttonGray}
+            borderRadius="1rem"
+          />
+        ) : (
+          amountUsd !== 0 && (
+            <Text fontSize="0.875rem" marginRight="8px" fontWeight="500" color={theme.border}>
+              ~{formatDisplayNumber(amountUsd, { significantDigits: 4, style: 'currency' })}
+            </Text>
+          )
         )}
 
         <CurrencySelect

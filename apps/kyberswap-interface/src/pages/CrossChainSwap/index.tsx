@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+import Skeleton from 'react-loading-skeleton'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
 import { TokenPanel } from './components/TokenPanel'
 import { Flex, Text } from 'rebass'
@@ -123,7 +124,15 @@ function CrossChainSwap() {
           <Text as="span" color={theme.subText}>
             Cross-chain rate:
           </Text>
-          {selectedQuote && toChainId ? (
+          {loading ? (
+            <Skeleton
+              height="16px"
+              width="120px"
+              baseColor={theme.background}
+              highlightColor={theme.buttonGray}
+              borderRadius="1rem"
+            />
+          ) : selectedQuote && toChainId ? (
             <>
               1 <TokenLogoWithChain currency={currencyIn} chainId={fromChainId} />
               {}= {formatDisplayNumber(selectedQuote.quote.rate, { significantDigits: 6 })}
@@ -164,6 +173,7 @@ function CrossChainSwap() {
       </Flex>
 
       <TokenPanel
+        loading={loading}
         evmLayout={isEvmChain(fromChainId) && isToEvm}
         setShowBtcConnect={setShowBtcConnect}
         selectedChain={toChainId}

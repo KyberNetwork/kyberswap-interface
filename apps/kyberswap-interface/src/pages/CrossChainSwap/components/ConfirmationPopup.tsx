@@ -39,11 +39,13 @@ const TokenBoxInfo = ({
   currency,
   usdValue,
   amount,
+  title,
 }: {
   chainId: Chain
   currency?: Currency
   amount: string
   usdValue: number
+  title: string
 }) => {
   const theme = useTheme()
   const { name, icon } = isEvmChain(chainId)
@@ -52,7 +54,7 @@ const TokenBoxInfo = ({
   return (
     <TokenBox>
       <Flex justifyContent="space-between" fontSize={12} fontWeight={500} mb="0.5rem" color={theme.subText}>
-        <Text>Input Amount</Text>
+        <Text>{title}</Text>
         <Flex sx={{ gap: '4px' }} alignItems="center">
           <img src={icon} alt={chainId.toString()} width={16} height={16} style={{ borderRadius: '50%' }} />
           <Text>{name}</Text>
@@ -162,6 +164,7 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
               Please review the details of your swap
             </Text>
             <TokenBoxInfo
+              title="Input Amount"
               chainId={fromChainId}
               currency={currencyIn}
               amount={amount || ''}
@@ -188,6 +191,7 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
               <ArrowDown />
             </Box>
             <TokenBoxInfo
+              title="Ouput Amount"
               chainId={toChainId}
               currency={currencyOut}
               amount={selectedQuote?.quote.formattedOutputAmount || ''}
