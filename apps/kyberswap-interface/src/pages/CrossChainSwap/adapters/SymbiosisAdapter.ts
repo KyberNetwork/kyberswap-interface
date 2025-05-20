@@ -91,7 +91,7 @@ export class SymbiosisAdapter extends BaseSwapAdapter {
       formattedOutputAmount,
       inputUsd,
       outputUsd,
-      priceImpact: ((inputUsd - outputUsd) * 100) / inputUsd,
+      priceImpact: !inputUsd || !outputUsd ? NaN : ((inputUsd - outputUsd) * 100) / inputUsd,
       rate: +formattedOutputAmount / +formattedInputAmount,
       gasFeeUsd: 0,
       timeEstimate: res.estimatedTime,

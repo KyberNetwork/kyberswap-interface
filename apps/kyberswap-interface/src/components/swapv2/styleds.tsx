@@ -35,7 +35,7 @@ export const Container = styled.div`
   width: 100%;
   max-width: 1392px;
   gap: 48px;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
+  ${({ theme }) => theme.mediaWidth.upToLarge`
     gap: 24px;
     flex-direction: column;
     align-items: center;

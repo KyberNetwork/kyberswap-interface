@@ -13,9 +13,11 @@ import { TokenLogoWithChain } from './TokenLogoWithChain'
 import { formatDisplayNumber } from 'utils/numbers'
 import { formatUnits } from 'viem'
 import { getEtherscanLink, shortenHash } from 'utils'
-import { ExternalLinkIcon } from 'theme'
+import { ExternalLinkIcon, MEDIA_WIDTHS } from 'theme'
 import { NonEvmChain, NonEvmChainInfo } from '../adapters'
 import Pagination from 'components/Pagination'
+import { useMedia } from 'react-use'
+import Divider from 'components/Divider'
 
 const PAGE_SIZE = 5
 
@@ -44,6 +46,8 @@ const TableRow = styled(TableHeader)`
 
 export const TransactionHistory = () => {
   const [transactions, setTransactions] = useCrossChainTransactions()
+
+  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   const pendingTxs = useMemo(() => {
     return transactions.filter(
@@ -117,13 +121,19 @@ export const TransactionHistory = () => {
 
   return (
     <>
-      <TableHeader>
-        <Text>CREATED</Text>
-        <Text>STATUS</Text>
-        <Text>ROUTE</Text>
-        <Text>AMOUNT</Text>
-        <Text textAlign="right">ACTIONS</Text>
-      </TableHeader>
+      {upToSmall ? (
+        <Text fontWeight={500} fontSize={14} color={theme.subText}>
+          HISTORY
+        </Text>
+      ) : (
+        <TableHeader>
+          <Text>CREATED</Text>
+          <Text>STATUS</Text>
+          <Text>ROUTE</Text>
+          <Text>AMOUNT</Text>
+          <Text textAlign="right">ACTIONS</Text>
+        </TableHeader>
+      )}
       {transactions.length === 0 && (
         <Text color={theme.subText} padding="36px" textAlign="center">
           No transaction found
@@ -137,106 +147,163 @@ export const TransactionHistory = () => {
           ? NonEvmChainInfo[tx.targetChain].icon
           : (NETWORKS_INFO as any)[tx.targetChain]?.icon
 
+        const time = (
+          <Flex sx={{ gap: '4px' }} alignItems="center">
+            <img
+              src={registry.getAdapter(tx.adapter)?.getIcon()}
+              style={{ borderRadius: '50%' }}
+              width={16}
+              height={16}
+              alt=""
+            />
+            <Text>{format(new Date(tx.timestamp), 'dd/MM/yyyy')}</Text>
+            <Text color={theme.subText}>{format(new Date(tx.timestamp), 'HH:mm:ss')}</Text>
+          </Flex>
+        )
+        const status = (
+          <Flex
+            sx={{
+              borderRadius: '999px',
+              padding: '2px 8px',
+              width: 'fit-content',
+              height: 'fit-content',
+              background: rgba(
+                tx.status === 'Success' ? theme.primary : tx.status === 'Failed' ? theme.red : theme.warning,
+                0.2,
+              ),
+              color: tx.status === 'Success' ? theme.primary : tx.status === 'Failed' ? theme.red : theme.warning,
+              fontSize: '12px',
+            }}
+          >
+            {tx.status || 'Processing'}
+          </Flex>
+        )
+        const fromto = (
+          <Flex alignItems="center" color={theme.subText} sx={{ gap: '4px' }}>
+            <img src={sourceChainLogo} alt="" width={16} height={16} />
+            <ChevronRight size={14} />
+            <img src={targetChainLogo} alt="" width={16} height={16} />
+          </Flex>
+        )
+
+        const amount = (
+          <div style={{ zIndex: -1 }}>
+            <Flex sx={{ gap: '4px' }} alignItems="center" color={theme.subText} fontSize="12px">
+              <TokenLogoWithChain chainId={tx.sourceChain as any} currency={tx.sourceToken} />-
+              {formatDisplayNumber(formatUnits(BigInt(tx.inputAmount), tx.sourceToken.decimals), {
+                significantDigits: 6,
+              })}{' '}
+              {tx.sourceToken.symbol}
+            </Flex>
+            <Flex sx={{ gap: '4px' }} alignItems="center" color={theme.subText} mt="8px" fontSize="12px">
+              <TokenLogoWithChain chainId={tx.targetChain as any} currency={tx.targetToken} />+
+              {formatDisplayNumber(formatUnits(BigInt(tx.outputAmount), tx.targetToken.decimals), {
+                significantDigits: 6,
+              })}{' '}
+              {tx.targetToken.symbol}
+            </Flex>
+          </div>
+        )
+
+        const sourceTx = (
+          <Flex alignItems="center" sx={{ gap: '8px' }}>
+            {shortenHash(tx.sourceTxHash)}
+            <ExternalLinkIcon
+              color={theme.subText}
+              size={14}
+              href={
+                tx.sourceChain === NonEvmChain.Near
+                  ? `https://nearblocks.io/address/${tx.id}`
+                  : tx.sourceChain === NonEvmChain.Bitcoin
+                  ? `https://mempool.space/tx/${tx.sourceTxHash}`
+                  : getEtherscanLink(tx.sourceChain as any, tx.sourceTxHash, 'transaction')
+              }
+            />
+          </Flex>
+        )
+        const fill = tx.targetTxHash ? (
+          <Flex alignItems="center" sx={{ gap: '8px' }}>
+            {shortenHash(tx.targetTxHash)}
+            <ExternalLinkIcon
+              color={theme.subText}
+              size={14}
+              href={
+                tx.adapter.toLowerCase() === 'debridge'
+                  ? `https://app.debridge.finance/order?orderId=${tx.targetTxHash}`
+                  : tx.targetChain === NonEvmChain.Near
+                  ? `https://nearblocks.io/txns/${tx.targetTxHash}`
+                  : tx.targetChain === NonEvmChain.Bitcoin
+                  ? `https://mempool.space/tx/${tx.targetTxHash}`
+                  : getEtherscanLink(tx.targetChain as any, tx.targetTxHash, 'transaction')
+              }
+            />
+          </Flex>
+        ) : tx.status === 'Processing' ? (
+          <Skeleton
+            height="18px"
+            width="98px"
+            baseColor={theme.background}
+            highlightColor={theme.buttonGray}
+            borderRadius="1rem"
+          />
+        ) : (
+          '--'
+        )
+
+        if (upToSmall) {
+          return (
+            <Flex key={tx.id} flexDirection="column" sx={{ gap: '12px' }} mt="24px">
+              <Flex justifyContent="space-between" alignItems="center" paddingX="12px">
+                {time} {status}
+              </Flex>
+
+              <Flex justifyContent="space-between" alignItems="center" paddingX="12px">
+                {fromto} {amount}
+              </Flex>
+
+              <Flex
+                fontSize={14}
+                justifyContent="space-between"
+                alignItems="center"
+                paddingX="12px"
+                color={theme.subText}
+              >
+                <Text color={theme.text}>Deposit:</Text>
+                {sourceTx}
+              </Flex>
+              <Flex
+                fontSize={14}
+                justifyContent="space-between"
+                alignItems="center"
+                paddingX="12px"
+                color={theme.subText}
+              >
+                <Text color={theme.text}>Fill:</Text>
+                {fill}
+              </Flex>
+              <Divider></Divider>
+            </Flex>
+          )
+        }
+
         return (
           <TableRow key={tx.id}>
-            <Flex sx={{ gap: '4px' }} alignItems="center">
-              <img
-                src={registry.getAdapter(tx.adapter)?.getIcon()}
-                style={{ borderRadius: '50%' }}
-                width={16}
-                height={16}
-                alt=""
-              />
-              <Text>{format(new Date(tx.timestamp), 'dd/MM/yyyy')}</Text>
-              <Text color={theme.subText}>{format(new Date(tx.timestamp), 'HH:mm:ss')}</Text>
-            </Flex>
+            {time}
 
-            <Flex
-              sx={{
-                borderRadius: '999px',
-                padding: '2px 8px',
-                width: 'fit-content',
-                height: 'fit-content',
-                background: rgba(
-                  tx.status === 'Success' ? theme.primary : tx.status === 'Failed' ? theme.red : theme.warning,
-                  0.2,
-                ),
-                color: tx.status === 'Success' ? theme.primary : tx.status === 'Failed' ? theme.red : theme.warning,
-                fontSize: '12px',
-              }}
-            >
-              {tx.status || 'Processing'}
-            </Flex>
+            {status}
 
-            <Flex alignItems="center" color={theme.subText} sx={{ gap: '4px' }}>
-              <img src={sourceChainLogo} alt="" width={16} height={16} />
-              <ChevronRight size={14} />
-              <img src={targetChainLogo} alt="" width={16} height={16} />
-            </Flex>
+            {fromto}
 
-            <div style={{ zIndex: -1 }}>
-              <Flex sx={{ gap: '4px' }} alignItems="center" color={theme.subText} fontSize="12px">
-                <TokenLogoWithChain chainId={tx.sourceChain as any} currency={tx.sourceToken} />-
-                {formatDisplayNumber(formatUnits(BigInt(tx.inputAmount), tx.sourceToken.decimals), {
-                  significantDigits: 6,
-                })}{' '}
-                {tx.sourceToken.symbol}
-              </Flex>
-              <Flex sx={{ gap: '4px' }} alignItems="center" color={theme.subText} mt="8px" fontSize="12px">
-                <TokenLogoWithChain chainId={tx.targetChain as any} currency={tx.targetToken} />+
-                {formatDisplayNumber(formatUnits(BigInt(tx.outputAmount), tx.targetToken.decimals), {
-                  significantDigits: 6,
-                })}{' '}
-                {tx.targetToken.symbol}
-              </Flex>
-            </div>
+            {amount}
 
             <div>
               <Flex justifyContent="flex-end" sx={{ gap: '4px' }} color={theme.subText}>
-                <Text color={theme.text}>Deposit:</Text> {shortenHash(tx.sourceTxHash)}
-                <ExternalLinkIcon
-                  color={theme.subText}
-                  size={16}
-                  href={
-                    tx.sourceChain === NonEvmChain.Near
-                      ? `https://nearblocks.io/address/${tx.id}`
-                      : tx.sourceChain === NonEvmChain.Bitcoin
-                      ? `https://mempool.space/tx/${tx.sourceTxHash}`
-                      : getEtherscanLink(tx.sourceChain as any, tx.sourceTxHash, 'transaction')
-                  }
-                />
+                <Text color={theme.text}>Deposit:</Text>
+                {sourceTx}
               </Flex>
 
               <Flex justifyContent="flex-end" sx={{ gap: '4px' }} color={theme.subText} mt="8px">
-                <Text color={theme.text}>Fill:</Text>{' '}
-                {tx.targetTxHash ? (
-                  <>
-                    {shortenHash(tx.targetTxHash)}
-                    <ExternalLinkIcon
-                      color={theme.subText}
-                      size={16}
-                      href={
-                        tx.adapter.toLowerCase() === 'debridge'
-                          ? `https://app.debridge.finance/order?orderId=${tx.targetTxHash}`
-                          : tx.targetChain === NonEvmChain.Near
-                          ? `https://nearblocks.io/txns/${tx.targetTxHash}`
-                          : tx.targetChain === NonEvmChain.Bitcoin
-                          ? `https://mempool.space/tx/${tx.targetTxHash}`
-                          : getEtherscanLink(tx.targetChain as any, tx.targetTxHash, 'transaction')
-                      }
-                    />
-                  </>
-                ) : tx.status === 'Processing' ? (
-                  <Skeleton
-                    height="18px"
-                    width="98px"
-                    baseColor={theme.background}
-                    highlightColor={theme.buttonGray}
-                    borderRadius="1rem"
-                  />
-                ) : (
-                  '--'
-                )}
+                <Text color={theme.text}>Fill:</Text> {fill}
               </Flex>
             </div>
           </TableRow>

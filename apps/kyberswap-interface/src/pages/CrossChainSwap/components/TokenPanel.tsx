@@ -356,7 +356,7 @@ export const TokenPanel = ({
         />
       ) : (
         <Modal
-          isOpen={modalOpen}
+          isOpen={modalOpen && selectedChain !== NonEvmChain.Bitcoin}
           onDismiss={() => setModalOpen(false)}
           maxHeight={isMobileHorizontal ? 100 : 80}
           height={isMobileHorizontal ? '95vh' : undefined}

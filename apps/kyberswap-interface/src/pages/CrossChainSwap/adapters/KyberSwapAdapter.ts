@@ -76,7 +76,7 @@ export class KyberSwapAdapter extends BaseSwapAdapter {
       outputUsd: tokenOutUsd * +formattedOutputAmount,
       rate: +formattedOutputAmount / +formattedInputAmount,
       timeEstimate: 1,
-      priceImpact: ((inputUsd - outputUsd) * 100) / inputUsd,
+      priceImpact: !inputUsd || !outputUsd ? NaN : ((inputUsd - outputUsd) * 100) / inputUsd,
       // TODO: what is gas fee for across
       gasFeeUsd: 0,
       contractAddress: response.data?.data?.routerAddress || '',

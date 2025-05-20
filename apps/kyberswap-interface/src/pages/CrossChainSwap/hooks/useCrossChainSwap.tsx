@@ -215,15 +215,17 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
 
       const highPriceImpactThreshold = category === 'stablePair' ? 1 : 2
       const veryHighPriceImpactThreshold = category === 'stablePair' ? 3 : 5
+      const unableToCalcPi = !selectedQuote.quote.priceImpact
       const priceImpaceInfo = {
         isHigh: selectedQuote.quote.priceImpact > highPriceImpactThreshold,
-        isVeryHigh: selectedQuote.quote.priceImpact >= veryHighPriceImpactThreshold,
-        message:
-          selectedQuote.quote.priceImpact >= veryHighPriceImpactThreshold
-            ? veryHighPiMsg
-            : selectedQuote.quote.priceImpact > highPriceImpactThreshold
-            ? highPiMsg
-            : '',
+        isVeryHigh: unableToCalcPi || selectedQuote.quote.priceImpact >= veryHighPriceImpactThreshold,
+        message: unableToCalcPi
+          ? 'Unable to calculate price impact'
+          : selectedQuote.quote.priceImpact >= veryHighPriceImpactThreshold
+          ? veryHighPiMsg
+          : selectedQuote.quote.priceImpact > highPriceImpactThreshold
+          ? highPiMsg
+          : '',
       }
       return { slippageInfo, priceImpaceInfo }
     }

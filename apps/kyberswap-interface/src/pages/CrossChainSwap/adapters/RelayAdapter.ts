@@ -64,7 +64,7 @@ export class RelayAdapter extends BaseSwapAdapter {
     return 'Relay'
   }
   getIcon(): string {
-    return 'https://relay.link/favicon.ico'
+    return 'https://storage.googleapis.com/ks-setting-1d682dca/84e906bb-eaeb-45d3-a64c-2aa9c84eb3ea1747759080942.png'
   }
   getSupportedChains(): Chain[] {
     return [...MAINNET_NETWORKS]
@@ -105,7 +105,7 @@ export class RelayAdapter extends BaseSwapAdapter {
       formattedOutputAmount,
       inputUsd,
       outputUsd,
-      priceImpact: ((inputUsd - outputUsd) * 100) / inputUsd,
+      priceImpact: !inputUsd || !outputUsd ? NaN : ((inputUsd - outputUsd) * 100) / inputUsd,
       //rate: Number(resp.details?.rate || 0),
       rate: +formattedOutputAmount / +formattedInputAmount,
       gasFeeUsd: Number(resp.fees?.gas?.amountUsd || 0),

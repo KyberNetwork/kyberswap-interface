@@ -117,7 +117,7 @@ export class AcrossAdapter extends BaseSwapAdapter {
         outputUsd: tokenOutUsd * +formattedOutputAmount,
         rate: +formattedOutputAmount / +formattedInputAmount,
         timeEstimate: resp.estimatedFillTimeSec,
-        priceImpact: ((inputUsd - outputUsd) * 100) / inputUsd,
+        priceImpact: !inputUsd || !outputUsd ? NaN : ((inputUsd - outputUsd) * 100) / inputUsd,
         // TODO: what is gas fee for across
         gasFeeUsd: 0,
         contractAddress: resp.deposit.spokePoolAddress,
