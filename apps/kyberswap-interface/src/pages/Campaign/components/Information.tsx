@@ -10,12 +10,40 @@ import { ButtonIcon } from 'pages/Pools/styleds'
 import { ExternalLink } from 'theme'
 
 export enum CampaignType {
+  MayTrading = 'MayTrading',
   Aggregator = 'Aggregator',
   LimitOrder = 'LimitOrder',
   Referrals = 'Referrals',
 }
 
 const howToEarnPoints = (week: number) => ({
+  [CampaignType.MayTrading]: (
+    <>
+      <li>
+        Go to <ExternalLink href="https://kyberswap.com">kyberswap.com</ExternalLink> and change the network to Base
+      </li>
+      <li>
+        Trade the eligible token from this list. You can freely trade any pair composed of tokens from them, excluding
+        WETH-ETH, WETH-USDC, and ETH-USDC.
+      </li>
+      <li>
+        For $1 in trading volume, you earn 1 point
+        <ul style={{ margin: 0 }}>
+          <li>
+            {
+              'Example: You trade $100 of AIXBT for USDC. If you receive $99 worth of USDC, then your trade volume is counted as $99 ~ 99 points.'
+            }
+          </li>
+        </ul>
+      </li>
+      <li>
+        Rewards will be distributed at the end of the campaign based on the leaderboard
+        <ul style={{ margin: 0 }}>
+          <li>{'Higher points, higher rank, bigger reward.'}</li>
+        </ul>
+      </li>
+    </>
+  ),
   [CampaignType.Aggregator]: (
     <>
       <li>
@@ -156,6 +184,7 @@ const howToEarnPoints = (week: number) => ({
 })
 
 const timelines = {
+  [CampaignType.MayTrading]: 'The campaign will start from 00h00, 27/05 - 23h59, 01/06 in UTC timezone',
   [CampaignType.Aggregator]:
     'The Campaign will take place over 10 weeks, from 8th July to 16th September 2024. Points and Rewards are reset to 0 each Monday at 0:00 UTC, after the end of each weekly event.',
   [CampaignType.LimitOrder]:
@@ -164,6 +193,45 @@ const timelines = {
 }
 
 const rewards = {
+  [CampaignType.MayTrading]: (
+    <>
+      <li>
+        Trade more to earn more points to climb the leaderboard. A higher rank will lead to higher rewards.
+        <ul style={{ margin: 0 }}>
+          <li>Rank 1: 1050 KNC</li>
+        </ul>
+        <ul style={{ margin: 0 }}>
+          <li>Rank 2-5: 550 KNC</li>
+        </ul>
+        <ul style={{ margin: 0 }}>
+          <li>Rank 6-20: 250 KNC</li>
+        </ul>
+        <ul style={{ margin: 0 }}>
+          <li>Rank 21-100: 100 KNC</li>
+        </ul>
+      </li>
+      <li>
+        In the event that multiple participants achieve the same score for a ranked position (e.g., two users tied for
+        Rank 1), the corresponding rewards for that rank and the following rank will be combined and equally distributed
+        among the tied participants.
+        <ul style={{ margin: 0 }}>
+          <li>
+            For example: If two users tie for Rank 1, the rewards for Rank 1 and Rank 2 (in Rank 2-5) will be added
+            together and split equally between the two → Each receives (1050 + 550) ÷ 2 = 800 KNC
+          </li>
+        </ul>
+      </li>
+      <li>
+        Rewards will be distributed in KNC tokens on Polygon.
+        <ul style={{ margin: 0 }}>
+          <li>Winners can claim their rewards directly on the KyberSwap UI after 7 days when the campaign ends.</li>
+        </ul>
+        <ul style={{ margin: 0 }}>
+          <li>Rewards must be claimed within 30 days from the claim start date.</li>
+        </ul>
+      </li>
+    </>
+  ),
   [CampaignType.Aggregator]: (
     <>
       <li>
@@ -234,6 +302,53 @@ const rewards = {
 }
 
 const faq = {
+  [CampaignType.MayTrading]: [
+    {
+      q: 'Can I trade any pair?',
+      a: (
+        <span>
+          No. Only eligible token pairs curated by KyberSwap will count. Excluded pairs: WETH-ETH, WETH-USDC, and
+          ETH-USDC
+        </span>
+      ),
+    },
+    {
+      q: 'How is trading volume calculated?',
+      a: (
+        <span>
+          Volume is based on the output token value received per swap. Example: If you swap $100 of AIXBT for VIRTUAL
+          and receive $99 worth of VIRTUAL, your trade volume = $99 ~ 99 points.
+        </span>
+      ),
+    },
+    {
+      q: 'Are there any activities that may lead to disqualification?',
+      a: (
+        <span>
+          Any wallet engaging in cheating, such as wash trading, sybil attacks, flashloan-based volume inflation, and
+          any other behavior deemed manipulative or abusive by the KyberSwap team will be disqualified.
+        </span>
+      ),
+    },
+    {
+      q: 'Where will I receive my KNC rewards?',
+      a: (
+        <span>
+          All KNC rewards will be available to claim on Kyberswap.com on the Ethereum network. Please ensure you have
+          access to your Ethereum address and enough ETH for gas if needed.
+        </span>
+      ),
+    },
+    {
+      q: 'Will liquidity provision or LP activity count toward volume?',
+      a: (
+        <span>
+          No. Only trading volume from eligible tokens executed via KyberSwap.com is eligible. LP deposits or other DeFi
+          activities are not included.
+        </span>
+      ),
+    },
+  ],
   [CampaignType.Aggregator]: [
     {
       q: 'How can I be eligible to the trading campaign?',

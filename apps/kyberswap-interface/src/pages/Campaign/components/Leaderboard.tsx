@@ -14,6 +14,8 @@ import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
 import { CampaignType } from './Information'
+import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
+import { ZERO_ADDRESS } from 'constants/index'
 
 const Wrapper = styled.div`
   border-radius: 20px;
@@ -30,15 +32,25 @@ export default function Leaderboard({ type, week, year }: { type: CampaignType; 
   const [searchParams, setSearchParams] = useSearchParams()
   const page = +(searchParams.get('page') || '1')
 
+  const program = type === CampaignType.MayTrading ? 'grind/base' : 'stip'
   const campaign =
-    type === CampaignType.Aggregator
+    type === CampaignType.Aggregator || type === CampaignType.MayTrading
       ? 'trading-incentive'
       : type === CampaignType.LimitOrder
       ? 'limit-order-farming'
       : 'referral-program'
 
+  const rewardAmount = (reward?: string): string => {
+    const rewardAmount = CurrencyAmount.fromRawAmount(
+      new Token(1, ZERO_ADDRESS, 18, 'mock'),
+      reward?.split('.')[0] || '0',
+    )
+    return rewardAmount ? rewardAmount.toSignificant(4) : '0'
+  }
+
   const { isLoading, data } = useGetLeaderboardQuery(
     {
+      program,
       week,
       year,
       campaign,
@@ -55,6 +67,7 @@ export default function Leaderboard({ type, week, year }: { type: CampaignType; 
 
   const { data: userData } = useGetUserRewardQuery(
     {
+      program,
       week,
       year,
       wallet: account || '',
@@ -96,6 +109,12 @@ export default function Leaderboard({ type, week, year }: { type: CampaignType; 
         <Text width="150px" marginLeft="1.25rem" textAlign="right">
           {campaign === 'referral-program' ? 'NUMBER OF REFERRALS' : 'POINTS'}
         </Text>
+
+        {type === CampaignType.MayTrading && (
+          <Text width="150px" marginLeft="1.25rem" textAlign="right">
+            REWARDS
+          </Text>
+        )}
       </Flex>
 
       <Divider />
@@ -116,6 +135,12 @@ export default function Leaderboard({ type, week, year }: { type: CampaignType; 
             <Text width="100px" fontWeight="500" marginLeft="1.25rem" textAlign="right">
               {formatDisplayNumber(Math.floor(item.point), { significantDigits: 4 })}
             </Text>
+
+            {type === CampaignType.MayTrading && (
+              <Text width="150px" fontWeight="500" marginLeft="1.25rem" textAlign="right">
+                {rewardAmount(item.reward)}
+              </Text>
+            )}
           </Flex>
         ))
       ) : (

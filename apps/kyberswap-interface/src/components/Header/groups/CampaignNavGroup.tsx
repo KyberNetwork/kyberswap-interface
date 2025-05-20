@@ -34,6 +34,10 @@ const CampaignNavGroup = () => {
         }
         dropdownContent={
           <Column>
+            <StyledNavLink to={APP_PATHS.MAY_TRADING_CAMPAIGN}>
+              <Trans>May Trading</Trans>
+            </StyledNavLink>
+
             <StyledNavLink to={APP_PATHS.AGGREGATOR_CAMPAIGN} style={{ gap: '12px' }}>
               <Trans>Aggregator Trading</Trans>
             </StyledNavLink>

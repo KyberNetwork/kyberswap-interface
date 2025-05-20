@@ -21,6 +21,7 @@ import AboutNavGroup from './groups/AboutNavGroup'
 import KyberDAONavGroup from './groups/KyberDaoGroup'
 import SwapNavGroup from './groups/SwapNavGroup'
 import { StyledNavExternalLink, StyledNavLink } from './styleds'
+import CampaignNavGroup from './groups/CampaignNavGroup'
 
 const HeaderFrame = styled.div<{ hide?: boolean }>`
   height: ${({ hide }) => (hide ? 0 : undefined)};
@@ -215,6 +216,7 @@ export default function Header() {
             </StyledNavLink>
             <StyledNavLink to={`${APP_PATHS.MARKET_OVERVIEW}`}>Market</StyledNavLink>
             <KyberDAONavGroup />
+            <CampaignNavGroup />
             <StyledNavExternalLink target="_blank" href={AGGREGATOR_ANALYTICS_URL}>
               <Trans>Analytics</Trans>
             </StyledNavExternalLink>
