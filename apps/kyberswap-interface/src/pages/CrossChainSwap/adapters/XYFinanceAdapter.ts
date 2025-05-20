@@ -126,7 +126,7 @@ export class XYFinanceAdapter extends BaseSwapAdapter {
       commissionRate: (quote.quoteParams.feeBps / 10_000) * 1_000_000,
 
       ...(quote.rawQuote.srcSwapDescription ? { srcSwapProvider: quote.rawQuote.srcSwapDescription.provider } : {}),
-      ...(quote.rawQuote.srcSwapDescription
+      ...(quote.rawQuote.dstSwapDescription
         ? {
             dstSwapProvider: quote.rawQuote.dstSwapDescription?.provider,
           }

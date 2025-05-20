@@ -288,9 +288,10 @@ export const TokenPanel = ({
             baseColor={theme.background}
             highlightColor={theme.buttonGray}
             borderRadius="1rem"
+            style={{ marginRight: '6px' }}
           />
         ) : (
-          amountUsd !== 0 && (
+          !!amountUsd && (
             <Text fontSize="0.875rem" marginRight="8px" fontWeight="500" color={theme.border}>
               ~{formatDisplayNumber(amountUsd, { significantDigits: 4, style: 'currency' })}
             </Text>
