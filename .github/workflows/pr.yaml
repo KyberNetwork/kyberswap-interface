@@ -116,7 +116,7 @@ jobs:
 
       - name: Build packages
         run: |
-          pnpm build --filter "@kyber/svgr-esbuild-plugin" && pnpm build --filter "@kyber/ui"
+          pnpm --parallel -r --filter "@kyber/svgr-esbuild-plugin" --filter "@kyber/ui" build
           pnpm --filter "@kyberswap/liquidity-chart" build
           pnpm --filter "@kyber/utils" build
           pnpm --parallel --filter "@kyberswap/liquidity-widgets" --filter "@kyberswap/zap-migration-widgets" --filter "@kyberswap/zap-out-widgets" build
@@ -178,7 +178,7 @@ jobs:
 
       - name: Build packages
         run: |
-          pnpm build --filter "@kyber/svgr-esbuild-plugin" && pnpm build --filter "@kyber/ui"
+          pnpm --parallel -r --filter "@kyber/svgr-esbuild-plugin" --filter "@kyber/ui" build
           pnpm --filter "@kyberswap/liquidity-chart" build
 
       - name: Run lint
