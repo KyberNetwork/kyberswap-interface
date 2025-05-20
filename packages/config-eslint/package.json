@@ -2,6 +2,15 @@
   "name": "@kyber/eslint-config",
   "version": "0.0.0",
   "private": true,
+  "main": "index.js",
+  "files": [
+    "index.js",
+    "library.js",
+    "react.js",
+    "next.js",
+    "liquidity-widgets.js",
+    "prettier.js"
+  ],
   "devDependencies": {
     "@vercel/style-guide": "^5.2.0",
     "eslint-config-turbo": "^1.12.4"
