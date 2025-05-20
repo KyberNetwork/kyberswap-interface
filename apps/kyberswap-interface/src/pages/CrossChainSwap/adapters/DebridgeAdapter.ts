@@ -144,7 +144,7 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
       inputUsd,
       outputUsd,
 
-      priceImpact: (Math.abs(outputUsd - inputUsd) * 100) / inputUsd,
+      priceImpact: ((inputUsd - outputUsd) * 100) / inputUsd,
       rate: +formattedOutputAmount / +formattedInputAmount,
 
       gasFeeUsd: 0,

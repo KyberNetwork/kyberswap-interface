@@ -75,7 +75,7 @@ export class LifiAdapter extends BaseSwapAdapter {
       inputUsd,
       outputUsd,
 
-      priceImpact: Math.abs(outputUsd - inputUsd) / inputUsd,
+      priceImpact: ((inputUsd - outputUsd) * 100) / inputUsd,
       rate: +formattedOutputAmount / +formattedInputAmount,
 
       gasFeeUsd: 0,

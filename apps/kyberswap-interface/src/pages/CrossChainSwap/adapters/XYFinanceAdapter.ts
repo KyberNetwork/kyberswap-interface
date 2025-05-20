@@ -80,15 +80,18 @@ export class XYFinanceAdapter extends BaseSwapAdapter {
     const formattedOutputAmount = formatUnits(BigInt(r.dstQuoteTokenAmount), params.toToken.decimals)
     const formattedInputAmount = formatUnits(BigInt(params.amount), params.fromToken.decimals)
 
+    const tokenInUsd = params.tokenInUsd
+    const tokenOutUsd = params.tokenOutUsd
+    const inputUsd = tokenInUsd * +formattedInputAmount
+    const outputUsd = tokenOutUsd * +formattedOutputAmount
+
     return {
       quoteParams: params,
       outputAmount: BigInt(r.dstQuoteTokenAmount),
       formattedOutputAmount,
-      inputUsd: Number(r.srcQuoteTokenUsdValue),
-      outputUsd: Number(r.dstQuoteTokenUsdValue),
-      priceImpact: Math.abs(
-        ((Number(r.dstQuoteTokenUsdValue) - Number(r.srcQuoteTokenUsdValue)) * 100) / Number(r.srcQuoteTokenUsdValue),
-      ),
+      inputUsd,
+      outputUsd,
+      priceImpact: ((inputUsd - outputUsd) * 100) / inputUsd,
       rate: +formattedOutputAmount / +formattedInputAmount,
       gasFeeUsd: 0,
       timeEstimate: r.estimatedTransferTime,

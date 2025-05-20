@@ -73,7 +73,7 @@ export class MayanAdapter extends BaseSwapAdapter {
 
       inputUsd,
       outputUsd,
-      priceImpact: (Math.abs(outputUsd - inputUsd) * 100) / inputUsd,
+      priceImpact: ((inputUsd - outputUsd) * 100) / inputUsd,
       rate: quotes[0].expectedAmountOut / +formattedInputAmount,
       gasFeeUsd: 0,
 

@@ -135,7 +135,7 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
       formattedOutputAmount,
       inputUsd: +quote.quote.amountInUsd,
       outputUsd: +quote.quote.amountOutUsd,
-      priceImpact: (Math.abs(outputUsd - inputUsd) * 100) / inputUsd,
+      priceImpact: ((inputUsd - outputUsd) * 100) / inputUsd,
       rate: +formattedOutputAmount / +formattedInputAmount,
       gasFeeUsd: 0,
       timeEstimate: quote.quote.timeEstimate || 0,

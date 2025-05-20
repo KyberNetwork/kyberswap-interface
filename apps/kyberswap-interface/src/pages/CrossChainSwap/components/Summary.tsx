@@ -68,7 +68,11 @@ export const Summary = ({ quote, tokenOut, full }: { quote?: Quote; tokenOut?: C
             Price Impact
           </Text>
         </MouseoverTooltip>
-        <Text>{quote ? `${Math.abs(quote.quote.priceImpact).toFixed(2)}%` : '--'}</Text>
+        <Text>
+          {quote
+            ? `${quote.quote.priceImpact < 0.01 ? '<0.01%' : Math.abs(quote.quote.priceImpact).toFixed(2)}%`
+            : '--'}
+        </Text>
       </Flex>
 
       {quote && quote.quote.protocolFee > 0 && (

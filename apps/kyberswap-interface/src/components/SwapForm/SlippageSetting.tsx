@@ -13,6 +13,7 @@ import { useDefaultSlippageByPair, usePairCategory } from 'state/swap/hooks'
 import { useDegenModeManager, useSlippageSettingByPage } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
 import { SLIPPAGE_STATUS, SLIPPAGE_WARNING_MESSAGES, checkRangeSlippage, formatSlippage } from 'utils/slippage'
+import WarningNote from 'components/WarningNote'
 
 const highlight = keyframes`
   0% {
@@ -69,6 +70,7 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
 
   const { rawSlippage, setRawSlippage, isSlippageControlPinned } = useSlippageSettingByPage()
 
+  console.log(slippageInfo)
   const pairCategory = usePairCategory()
   const defaultSlippage = useDefaultSlippageByPair()
   const defaultSlp = slippageInfo ? slippageInfo.default : defaultSlippage
@@ -167,7 +169,9 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
               }}
             >
               {msg ? (
-                <MouseoverTooltip text={`Your slippage ${msg}`}>{formatSlippage(rawSlippage)}</MouseoverTooltip>
+                <MouseoverTooltip text={slippageInfo ? msg : `Your slippage ${msg}`}>
+                  {formatSlippage(rawSlippage)}
+                </MouseoverTooltip>
               ) : (
                 formatSlippage(rawSlippage)
               )}
@@ -224,7 +228,7 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
           </Flex>
         )}
 
-        <SlippageWarningNote rawSlippage={rawSlippage} />
+        {slippageInfo ? msg && <WarningNote shortText={msg} /> : <SlippageWarningNote rawSlippage={rawSlippage} />}
       </Flex>
     </Flex>
   )

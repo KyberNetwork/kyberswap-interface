@@ -181,7 +181,7 @@ export class OptimexAdapter extends BaseSwapAdapter {
       formattedOutputAmount,
       inputUsd,
       outputUsd,
-      priceImpact: (Math.abs(outputUsd - inputUsd) * 100) / inputUsd,
+      priceImpact: ((inputUsd - outputUsd) * 100) / inputUsd,
       rate: +formattedOutputAmount / +formattedInputAmount,
       gasFeeUsd: 0,
       timeEstimate: estimateRes.data.estimated_time,

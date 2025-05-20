@@ -105,7 +105,7 @@ export class RelayAdapter extends BaseSwapAdapter {
       formattedOutputAmount,
       inputUsd,
       outputUsd,
-      priceImpact: (Math.abs(outputUsd - inputUsd) * 100) / inputUsd,
+      priceImpact: ((inputUsd - outputUsd) * 100) / inputUsd,
       //rate: Number(resp.details?.rate || 0),
       rate: +formattedOutputAmount / +formattedInputAmount,
       gasFeeUsd: Number(resp.fees?.gas?.amountUsd || 0),

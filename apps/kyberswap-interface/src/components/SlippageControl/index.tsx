@@ -66,8 +66,13 @@ const SlippageControl: React.FC<Props> = props => {
   const { mixpanelHandler } = useMixpanel()
   const cat = usePairCategory()
   const options = useMemo(
-    () => (cat === 'highVolatilityPair' ? DEFAULT_SLIPPAGES_HIGH_VOTALITY : DEFAULT_SLIPPAGES),
-    [cat],
+    () =>
+      props.options?.length
+        ? props.options
+        : cat === 'highVolatilityPair'
+        ? DEFAULT_SLIPPAGES_HIGH_VOTALITY
+        : DEFAULT_SLIPPAGES,
+    [cat, props.options],
   )
 
   return (
