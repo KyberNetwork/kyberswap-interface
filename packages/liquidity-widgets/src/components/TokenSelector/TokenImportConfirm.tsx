@@ -1,20 +1,18 @@
-import { Token } from '@kyber/schema'
-import { Button } from '@kyber/ui/button'
-
-import IconAlertTriangle from '@/assets/svg/alert-triangle.svg'
-import IconBack from '@/assets/svg/arrow-left.svg'
-import IconExternalLink from '@/assets/svg/external-link.svg'
-import defaultTokenLogo from '@/assets/svg/question.svg?url'
-import X from '@/assets/svg/x.svg'
-import { shortenAddress } from '@/components/TokenInfo/utils'
-import { MAX_ZAP_IN_TOKENS } from '@/constants'
-import useCopy from '@/hooks/useCopy'
-import { useTokenList } from '@/hooks/useTokenList'
-import { useZapState } from '@/hooks/useZapInState'
-import { useWidgetContext } from '@/stores'
-import { getEtherscanLink } from '@/utils'
-
-import { TOKEN_SELECT_MODE } from '.'
+import X from "@/assets/svg/x.svg";
+import { Button } from "@kyber/ui/button";
+import { shortenAddress } from "@/components/TokenInfo/utils";
+import { getEtherscanLink } from "@/utils";
+import { useTokenList } from "@/hooks/useTokenList";
+import { TOKEN_SELECT_MODE } from ".";
+import IconBack from "@/assets/svg/arrow-left.svg";
+import IconAlertTriangle from "@/assets/svg/alert-triangle.svg";
+import IconExternalLink from "@/assets/svg/external-link.svg";
+import defaultTokenLogo from "@/assets/svg/question.svg?url";
+import { useZapState } from "@/hooks/useZapInState";
+import { MAX_ZAP_IN_TOKENS } from "@/constants";
+import { Token } from "@kyber/schema";
+import { useWidgetContext } from "@/stores";
+import useCopy from "@/hooks/useCopy";
 
 const TokenImportConfirm = ({
   token,
@@ -25,60 +23,68 @@ const TokenImportConfirm = ({
   onGoBack,
   onClose,
 }: {
-  token: Token
-  mode: TOKEN_SELECT_MODE
-  selectedTokenAddress?: string
-  selectedTokens?: Token[]
-  setTokenToImport: (token: Token | null) => void
-  onGoBack: () => void
-  onClose: () => void
+  token: Token;
+  mode: TOKEN_SELECT_MODE;
+  selectedTokenAddress?: string;
+  selectedTokens?: Token[];
+  setTokenToImport: (token: Token | null) => void;
+  onGoBack: () => void;
+  onClose: () => void;
 }) => {
-  const chainId = useWidgetContext(s => s.chainId)
+  const chainId = useWidgetContext((s) => s.chainId);
 
-  const { tokensIn, setTokensIn, amountsIn, setAmountsIn } = useZapState()
-  const { addToken } = useTokenList()
-  const Copy = useCopy({ text: token.address })
+  const { tokensIn, setTokensIn, amountsIn, setAmountsIn } = useZapState();
+  const { addToken } = useTokenList();
+  const Copy = useCopy({ text: token.address });
 
   const handleOpenExternalLink = () => {
-    const externalLink = getEtherscanLink(chainId, token.address, 'address')
-    if (externalLink && window) window.open(externalLink, '_blank')
-  }
+    const externalLink = getEtherscanLink(chainId, token.address, "address");
+    if (externalLink && window) window.open(externalLink, "_blank");
+  };
 
   const handleAddToken = () => {
-    addToken(token)
+    addToken(token);
     if (mode === TOKEN_SELECT_MODE.SELECT) {
-      const index = tokensIn.findIndex((tokenIn: Token) => tokenIn.address === selectedTokenAddress)
+      const index = tokensIn.findIndex(
+        (tokenIn: Token) => tokenIn.address === selectedTokenAddress
+      );
       if (index > -1) {
-        const clonedTokensIn = [...tokensIn]
-        clonedTokensIn[index] = token
-        setTokensIn(clonedTokensIn)
+        const clonedTokensIn = [...tokensIn];
+        clonedTokensIn[index] = token;
+        setTokensIn(clonedTokensIn);
 
-        const listAmountsIn = amountsIn.split(',')
-        listAmountsIn[index] = ''
-        setAmountsIn(listAmountsIn.join(','))
+        const listAmountsIn = amountsIn.split(",");
+        listAmountsIn[index] = "";
+        setAmountsIn(listAmountsIn.join(","));
 
-        onClose()
+        onClose();
       }
     } else if ((selectedTokens || []).length < MAX_ZAP_IN_TOKENS) {
-      const clonedTokensIn = [...tokensIn]
-      clonedTokensIn.push(token)
-      setTokensIn(clonedTokensIn)
-      setAmountsIn(`${amountsIn},`)
+      const clonedTokensIn = [...tokensIn];
+      clonedTokensIn.push(token);
+      setTokensIn(clonedTokensIn);
+      setAmountsIn(`${amountsIn},`);
     }
-    setTokenToImport(null)
-  }
+    setTokenToImport(null);
+  };
 
   return (
     <div className="w-full text-white">
       <div className="flex items-center justify-between p-4 pb-2 border-b border-[#40444f]">
-        <IconBack className="w-6 h-6 cursor-pointer hover:text-subText" onClick={onGoBack} />
+        <IconBack
+          className="w-6 h-6 cursor-pointer hover:text-subText"
+          onClick={onGoBack}
+        />
         <span className="text-xl">Import Token</span>
         <X className="cursor-pointer hover:text-subText" onClick={onClose} />
       </div>
       <div className="p-4 flex flex-col gap-4">
         <div className="bg-warning-200 p-[15px] flex rounded-md text-warning items-start gap-2">
           <IconAlertTriangle className="h-[18px]" />
-          <p className="text-sm">This token isn’t frequently swapped. Please do your own research before trading.</p>
+          <p className="text-sm">
+            This token isn’t frequently swapped. Please do your own research
+            before trading.
+          </p>
         </div>
         <div className="bg-[#0f0f0f] rounded-md p-8 flex gap-[10px] items-start">
           <img
@@ -86,8 +92,8 @@ const TokenImportConfirm = ({
             src={token.logo}
             alt="token logo"
             onError={({ currentTarget }) => {
-              currentTarget.onerror = null
-              currentTarget.src = defaultTokenLogo
+              currentTarget.onerror = null;
+              currentTarget.src = defaultTokenLogo;
             }}
           />
           <div className="flex flex-col gap-1">
@@ -106,7 +112,7 @@ const TokenImportConfirm = ({
         <Button onClick={handleAddToken}>I understand</Button>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default TokenImportConfirm
+export default TokenImportConfirm;

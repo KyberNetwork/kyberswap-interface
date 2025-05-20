@@ -1,20 +1,19 @@
-import { useTokenPrices } from '@kyber/hooks/use-token-prices'
-
-import { useWidgetContext } from '@/stores'
+import { useWidgetContext } from "@/stores";
+import { useTokenPrices } from "@kyber/hooks/use-token-prices";
 
 export default function useMarketPrice(tokensAddress: string) {
-  const chainId = useWidgetContext(s => s.chainId)
+  const chainId = useWidgetContext((s) => s.chainId);
 
   const { prices } = useTokenPrices({
     addresses: tokensAddress
-      .split(',')
+      .split(",")
       .filter(Boolean)
-      .map(item => item.toLowerCase()),
+      .map((item) => item.toLowerCase()),
     chainId,
-  })
+  });
 
   return tokensAddress
-    .split(',')
+    .split(",")
     .filter(Boolean)
-    .map(item => prices[item.toLowerCase()] || 0)
+    .map((item) => prices[item.toLowerCase()] || 0);
 }
