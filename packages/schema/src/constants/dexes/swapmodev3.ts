@@ -1,4 +1,4 @@
-import { ChainId } from "@/schema";
+import { ChainId } from "@/schema/chain";
 import swapmodeLogo from "@/assets/dexes/swapmode.png";
 
 export default {

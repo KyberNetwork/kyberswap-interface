@@ -4,7 +4,7 @@ import TokenImportConfirm from "./TokenImportConfirm";
 import TokenInfo from "../TokenInfo";
 import TokenSelector, { TOKEN_SELECT_MODE } from ".";
 import Modal from "../Modal";
-import { Token } from "@/schema";
+import { Token } from "@kyber/schema";
 
 const TokenSelectorModal = ({
   selectedTokenAddress,

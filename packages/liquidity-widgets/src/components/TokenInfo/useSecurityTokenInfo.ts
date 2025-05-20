@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { PATHS } from "@/constants";
+import { API_URLS } from "@kyber/schema";
 import {
   getSecurityTokenInfo,
   SecurityInfo,
@@ -20,7 +20,9 @@ export default function useSecurityTokenInfo(tokenAddress: string) {
 
   const handleFetchSecurityData = () => {
     setLoading(true);
-    fetch(`${PATHS.GO_PLUS_API}/${chainId}?contract_addresses=${tokenAddress}`)
+    fetch(
+      `${API_URLS.GO_PLUS_API}/${chainId}?contract_addresses=${tokenAddress}`
+    )
       .then((res) => res.json())
       .then((data) => setSecurityRawInfo(data.result?.[tokenAddress]))
       .catch((e) => {

@@ -1,7 +1,7 @@
 import ChevronLeft from "@/assets/svg/chevron-left.svg";
 import MarketInfo from "@/components/TokenInfo/MarketInfo";
 import SecurityInfo from "@/components/TokenInfo/SecurityInfo";
-import { Token } from "@/schema";
+import { Token } from "@kyber/schema";
 
 const TokenInfo = ({
   token,

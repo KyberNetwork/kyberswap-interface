@@ -1,6 +1,6 @@
 import { createContext, useRef, useContext, useEffect } from "react";
 import { createStore, useStore } from "zustand";
-import { DEXES_INFO, NETWORKS_INFO, PATHS } from "@/constants";
+import { DEXES_INFO, NETWORKS_INFO, API_URLS } from "@kyber/schema";
 import {
   ChainId,
   PoolType,
@@ -14,8 +14,8 @@ import {
   Token,
   algebraTypes,
   univ4Types,
-} from "@/schema";
-import { Theme } from "@/theme";
+  Theme,
+} from "@kyber/schema";
 import { useTokenPrices } from "@kyber/hooks/use-token-prices";
 import { getFunctionSelector, encodeUint256 } from "@kyber/utils/crypto";
 import {
@@ -115,7 +115,7 @@ const createWidgetStore = (initProps: InnerWidgetProps) => {
       set({ poolLoading: true });
 
       const res = await fetch(
-        `${PATHS.BFF_API}/v1/pools?chainId=${chainId}&ids=${poolAddress}&protocol=${poolType}`
+        `${API_URLS.BFF_API}/v1/pools?chainId=${chainId}&ids=${poolAddress}&protocol=${poolType}`
       ).then((res) => res.json());
       const { success, data, error } = poolResponse.safeParse({
         poolType,
@@ -213,7 +213,7 @@ const createWidgetStore = (initProps: InnerWidgetProps) => {
 
       // check category pair
       const pairCheck = await fetch(
-        `${PATHS.TOKEN_API}/v1/public/category/pair?chainId=${chainId}&tokenIn=${token0Address}&tokenOut=${token1Address}`
+        `${API_URLS.TOKEN_API}/v1/public/category/pair?chainId=${chainId}&tokenIn=${token0Address}&tokenOut=${token1Address}`
       ).then((res) => res.json());
       const cat = pairCheck?.data?.category || "commonPair";
 

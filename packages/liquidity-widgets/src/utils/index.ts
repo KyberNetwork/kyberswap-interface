@@ -1,5 +1,4 @@
-import { NETWORKS_INFO } from "@/constants";
-import { ChainId } from "@/schema";
+import { NETWORKS_INFO, ChainId } from "@kyber/schema";
 import { formatUnits } from "@kyber/utils/number";
 
 export const formatCurrency = (value: number) =>

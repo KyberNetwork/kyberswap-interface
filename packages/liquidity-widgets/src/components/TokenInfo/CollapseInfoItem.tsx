@@ -11,7 +11,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@kyber/ui/accordion";
-import { NO_DATA } from "@/constants";
 import IconAlertOctagon from "@/assets/svg/alert-octagon.svg";
 import Loader from "@/components/Loader";
 
@@ -108,7 +107,7 @@ const CollapseInfoItem = ({
             ) : isNumber ? (
               `Unknown`
             ) : (
-              NO_DATA
+              "--"
             );
 
             return (
@@ -123,7 +122,7 @@ const CollapseInfoItem = ({
                       ? isNumber
                         ? colorRiskyByAmount
                         : colorRiskyByType
-                      : displayValue === NO_DATA
+                      : displayValue === "--"
                       ? "text-subText"
                       : "text-accent"
                   }`}

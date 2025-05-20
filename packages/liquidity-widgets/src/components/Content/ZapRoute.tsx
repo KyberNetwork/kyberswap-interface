@@ -7,7 +7,7 @@ import {
   ZapAction,
 } from "@/hooks/types/zapInTypes";
 import { formatWei } from "@/utils";
-import { DEXES_INFO, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO } from "@/constants";
+import { DEXES_INFO, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO } from "@kyber/schema";
 import { useWidgetContext } from "@/stores";
 import {
   Accordion,

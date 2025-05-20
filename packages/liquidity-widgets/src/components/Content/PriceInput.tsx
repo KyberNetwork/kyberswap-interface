@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useZapState } from "@/hooks/useZapInState";
 import { Type } from "@/hooks/types/zapInTypes";
-import { NO_DATA } from "@/constants";
 import { useWidgetContext } from "@/stores";
 import {
   MAX_TICK,
@@ -10,7 +9,7 @@ import {
   priceToClosestTick,
   tickToPrice,
 } from "@kyber/utils/uniswapv3";
-import { univ3PoolNormalize } from "@/schema";
+import { univ3PoolNormalize } from "@kyber/schema";
 import { formatNumber } from "@/utils";
 
 export default function PriceInput({ type }: { type: Type }) {
@@ -194,7 +193,7 @@ export default function PriceInput({ type }: { type: Type }) {
             ? !revertPrice
               ? `${pool?.token1.symbol}/${pool?.token0.symbol}`
               : `${pool?.token0.symbol}/${pool?.token1.symbol}`
-            : NO_DATA}
+            : "--"}
         </span>
       </div>
 

@@ -2,8 +2,7 @@ import "./Widget.scss";
 import "./globals.css";
 
 import { ReactNode, useEffect, useMemo } from "react";
-import { defaultTheme, Theme } from "@/theme";
-import { PoolType, ChainId } from "@/schema";
+import { defaultTheme, Theme, PoolType, ChainId } from "@kyber/schema";
 import WidgetContent from "@/components/Content";
 import { ZapContextProvider } from "@/hooks/useZapInState";
 import { TokenListProvider } from "@/hooks/useTokenList";

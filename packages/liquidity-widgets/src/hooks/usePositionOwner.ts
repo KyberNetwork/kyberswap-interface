@@ -1,5 +1,4 @@
-import { DEXES_INFO, NETWORKS_INFO } from "@/constants";
-import { ChainId, PoolType } from "@/schema";
+import { DEXES_INFO, NETWORKS_INFO, ChainId, PoolType } from "@kyber/schema";
 import { decodeAddress, getFunctionSelector } from "@kyber/utils/crypto";
 import { useEffect, useState } from "react";
 

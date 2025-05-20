@@ -41,7 +41,6 @@
   "devDependencies": {
     "@kyber/eslint-config": "workspace:*",
     "@kyber/hooks": "workspace:^",
-    "@kyber/schema": "workspace:^",
     "@kyber/tailwind-config": "workspace:^",
     "@kyber/typescript-config": "workspace:*",
     "@kyber/utils": "workspace:^",

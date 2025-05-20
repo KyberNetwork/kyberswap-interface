@@ -1,4 +1,4 @@
-import { ChainId } from "@/schema";
+import { ChainId } from "@/schema/chain";
 import metavaultLogo from "@/assets/dexes/metavault.svg?url";
 
 export default {

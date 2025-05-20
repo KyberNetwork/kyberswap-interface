@@ -19,10 +19,14 @@ import {
 import {
   DEXES_INFO,
   NETWORKS_INFO,
-  PATHS,
+  API_URLS,
   CHAIN_ID_TO_CHAIN,
   NATIVE_TOKEN_ADDRESS,
-} from "@/constants";
+  Pool,
+  Token,
+  univ2PoolNormalize,
+  univ3PoolNormalize,
+} from "@kyber/schema";
 import {
   PI_LEVEL,
   formatCurrency,
@@ -47,7 +51,6 @@ import {
   toRawString,
 } from "@kyber/utils/number";
 import { useWidgetContext } from "@/stores";
-import { Pool, Token, univ2PoolNormalize, univ3PoolNormalize } from "@/schema";
 import { tickToPrice } from "@kyber/utils/uniswapv3";
 import {
   calculateGasMargin,
@@ -442,7 +445,7 @@ export default function Preview({
 
   useEffect(() => {
     fetch(
-      `${PATHS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/in/route/build`,
+      `${API_URLS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/in/route/build`,
       {
         method: "POST",
         body: JSON.stringify({
@@ -503,7 +506,7 @@ export default function Preview({
     setTxError(null);
 
     fetch(
-      `${PATHS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/in/route/build`,
+      `${API_URLS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/in/route/build`,
       {
         method: "POST",
         body: JSON.stringify({

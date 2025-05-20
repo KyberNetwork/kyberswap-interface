@@ -1,4 +1,4 @@
-import { ChainId } from "@/schema";
+import { ChainId } from "@/schema/chain";
 import koiclLogo from "@/assets/dexes/koicl.png";
 
 export default {

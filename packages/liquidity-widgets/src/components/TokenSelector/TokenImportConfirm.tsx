@@ -10,7 +10,7 @@ import IconExternalLink from "@/assets/svg/external-link.svg";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
 import { useZapState } from "@/hooks/useZapInState";
 import { MAX_ZAP_IN_TOKENS } from "@/constants";
-import { Token } from "@/schema";
+import { Token } from "@kyber/schema";
 import { useWidgetContext } from "@/stores";
 import useCopy from "@/hooks/useCopy";
 

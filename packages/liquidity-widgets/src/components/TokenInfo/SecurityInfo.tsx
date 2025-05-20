@@ -1,8 +1,7 @@
 import { useMemo } from "react";
 import { MouseoverTooltip } from "@/components/Tooltip";
-import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO } from "@/constants";
+import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, Token } from "@kyber/schema";
 import { useWidgetContext } from "@/stores";
-import { Token } from "@/schema";
 import useSecurityTokenInfo from "@/components/TokenInfo/useSecurityTokenInfo";
 import CollapseInfoItem from "@/components/TokenInfo/CollapseInfoItem";
 import IconSecurityTrading from "@/assets/svg/security-trading.svg";

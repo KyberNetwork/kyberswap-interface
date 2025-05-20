@@ -1,4 +1,4 @@
-import { ChainId } from "@/schema";
+import { ChainId } from "@/schema/chain";
 import thrusterLogo from "@/assets/dexes/thruster.png";
 
 export default {

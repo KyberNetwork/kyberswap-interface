@@ -1,4 +1,4 @@
-import { ChainId } from "@/schema";
+import { ChainId } from "@/schema/chain";
 import camelotLogo from "@/assets/dexes/camelot.svg?url";
 
 export default {

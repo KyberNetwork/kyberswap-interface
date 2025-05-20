@@ -1,5 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
-import { DEXES_INFO, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO } from "@/constants";
+import {
+  DEXES_INFO,
+  NATIVE_TOKEN_ADDRESS,
+  NETWORKS_INFO,
+  univ4Types,
+} from "@kyber/schema";
 import {
   calculateGasMargin,
   checkApproval,
@@ -10,7 +15,6 @@ import {
   isTransactionSuccessful,
 } from "@kyber/utils/crypto";
 import { useWidgetContext } from "@/stores";
-import { univ4Types } from "@/schema";
 
 export enum APPROVAL_STATE {
   UNKNOWN = "unknown",

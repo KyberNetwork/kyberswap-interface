@@ -1,8 +1,7 @@
 import { shortenAddress } from "@/components/TokenInfo/utils";
 import { useMemo, useState } from "react";
-import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO } from "@/constants";
+import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, Token } from "@kyber/schema";
 import { useWidgetContext } from "@/stores";
-import { Token } from "@/schema";
 import useMarketTokenInfo from "@/components/TokenInfo/useMarketTokenInfo";
 import useCopy from "@/hooks/useCopy";
 import Loader from "@/components/Loader";

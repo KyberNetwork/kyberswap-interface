@@ -1,4 +1,4 @@
-import { ChainId } from "@/schema";
+import { ChainId } from "@/schema/chain";
 import uniLogo from "@/assets/dexes/uniswap.png";
 
 export default {

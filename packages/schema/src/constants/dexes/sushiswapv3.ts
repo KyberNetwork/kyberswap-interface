@@ -1,4 +1,4 @@
-import { ChainId } from "@/schema";
+import { ChainId } from "@/schema/chain";
 import sushiLogo from "@/assets/dexes/sushi.png";
 
 export default {

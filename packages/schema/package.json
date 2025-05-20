@@ -2,12 +2,23 @@
   "name": "@kyber/schema",
   "version": "0.0.0",
   "private": true,
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./index.ts",
-    "zap": "./src/zap.ts"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./zap": {
+      "types": "./dist/zap.d.ts",
+      "import": "./dist/zap.mjs",
+      "require": "./dist/zap.js"
+    }
   },
   "scripts": {
-    "build": "tailwindcss -i ./src/styles.css -o ./dist/index.css",
+    "build": "tsup src/index.ts src/zap.ts --format cjs,esm --dts",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
@@ -26,6 +37,7 @@
     "eslint": "^8.57.0",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.13",
+    "tsup": "^8.0.2",
     "typescript": "5.3.2"
   },
   "peerDependencies": {

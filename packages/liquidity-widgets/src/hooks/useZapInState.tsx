@@ -15,23 +15,21 @@ import useTokenBalances from "@/hooks/useTokenBalances";
 import {
   NATIVE_TOKEN_ADDRESS,
   NETWORKS_INFO,
-  PATHS,
+  API_URLS,
   ZERO_ADDRESS,
   CHAIN_ID_TO_CHAIN,
-} from "@/constants";
+  Token,
+  univ2PoolNormalize,
+  univ3PoolNormalize,
+  Univ3PoolType,
+  univ3Position,
+} from "@kyber/schema";
 import {
   assertUnreachable,
   formatWei,
   countDecimals,
   formatNumber,
 } from "@/utils";
-import {
-  Token,
-  univ2PoolNormalize,
-  univ3PoolNormalize,
-  Univ3PoolType,
-  univ3Position,
-} from "@/schema";
 import { useWidgetContext } from "@/stores";
 import { divideBigIntToString } from "@kyber/utils/number";
 import { tickToPrice } from "@kyber/utils/uniswapv3";
@@ -534,7 +532,7 @@ export const ZapContextProvider = ({
       });
 
       fetch(
-        `${PATHS.ZAP_API}/${
+        `${API_URLS.ZAP_API}/${
           CHAIN_ID_TO_CHAIN[chainId]
         }/api/v1/in/route?${tmp.slice(1)}`,
         {

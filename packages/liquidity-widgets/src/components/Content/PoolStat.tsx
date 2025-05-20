@@ -1,10 +1,8 @@
-import { PATHS } from "@/constants";
-import { Univ2PoolType } from "@/schema";
+import { API_URLS, Univ2PoolType, PoolType } from "@kyber/schema";
 import { useWidgetContext } from "@/stores";
-import { formatDisplayNumber } from "@/utils/number";
+import { formatDisplayNumber } from "@kyber/utils/number";
 import { cn } from "@kyber/utils/tailwind-helpers";
 import { useEffect, useState } from "react";
-import { PoolType } from "@/schema";
 
 interface PoolInfo {
   tvl: number;
@@ -41,7 +39,7 @@ export default function PoolStat({
   useEffect(() => {
     const handleFetchPoolInfo = () => {
       fetch(
-        `${PATHS.ZAP_EARN_API}/v1/pools?chainId=${chainId}&address=${poolAddress}&protocol=${poolType}`
+        `${API_URLS.ZAP_EARN_API}/v1/pools?chainId=${chainId}&address=${poolAddress}&protocol=${poolType}`
       )
         .then((res) => res.json())
         .then(

@@ -1,4 +1,4 @@
-import { ChainId } from "@/schema";
+import { ChainId } from "@/schema/chain";
 import thenaLogo from "@/assets/dexes/thena.png";
 
 export default {

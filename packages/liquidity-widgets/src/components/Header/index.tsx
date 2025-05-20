@@ -1,8 +1,12 @@
-import { DEXES_INFO, NETWORKS_INFO } from "@/constants";
+import {
+  DEXES_INFO,
+  NETWORKS_INFO,
+  univ3PoolNormalize,
+  univ3Position,
+} from "@kyber/schema";
 import { useZapState } from "@/hooks/useZapInState";
 import { MouseoverTooltip } from "@/components/Tooltip";
 import { useWidgetContext } from "@/stores";
-import { univ3PoolNormalize, univ3Position } from "@/schema";
 import { shortenAddress } from "@/components/TokenInfo/utils";
 import useCopy from "@/hooks/useCopy";
 import RefreshLoading from "@/components/Header/RefreshLoading";

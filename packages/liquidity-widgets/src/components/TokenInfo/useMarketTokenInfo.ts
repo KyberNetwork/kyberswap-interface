@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { TokenInfo, parseMarketTokenInfo } from "@/components/TokenInfo/utils";
-import { PATHS, NETWORKS_INFO } from "@/constants";
+import { API_URLS, NETWORKS_INFO } from "@kyber/schema";
 import { useWidgetContext } from "@/stores";
 
 const FETCH_INTERVAL = 60_000;
@@ -23,8 +23,8 @@ export default function useMarketTokenInfo(tokenAddress: string) {
     setLoading(true);
     fetch(
       tokenAddress === NETWORKS_INFO[chainId].wrappedToken.address.toLowerCase()
-        ? `${PATHS.COINGECKO_API_URL}/coins/${NETWORKS_INFO[chainId].coingeckoNativeTokenId}`
-        : `${PATHS.COINGECKO_API_URL}/coins/${NETWORKS_INFO[chainId].coingeckoNetworkId}/contract/${tokenAddress}`
+        ? `${API_URLS.COINGECKO_API_URL}/coins/${NETWORKS_INFO[chainId].coingeckoNativeTokenId}`
+        : `${API_URLS.COINGECKO_API_URL}/coins/${NETWORKS_INFO[chainId].coingeckoNetworkId}/contract/${tokenAddress}`
     )
       .then((res) => res.json())
       .then((data) =>

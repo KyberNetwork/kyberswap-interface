@@ -26,8 +26,9 @@ import PriceInput from "@/components/Content/PriceInput";
 import ZapRoute from "@/components/Content/ZapRoute";
 import ErrorIcon from "@/assets/svg/error.svg";
 import X from "@/assets/svg/x.svg";
-import { FARMING_CONTRACTS, MAX_ZAP_IN_TOKENS } from "@/constants";
+import { MAX_ZAP_IN_TOKENS } from "@/constants";
 import {
+  FARMING_CONTRACTS,
   Pool,
   univ2PoolNormalize,
   Univ2PoolType,
@@ -35,7 +36,7 @@ import {
   Univ3PoolType,
   univ3Position,
   univ4Types,
-} from "@/schema";
+} from "@kyber/schema";
 import { useWidgetContext } from "@/stores";
 import { parseUnits } from "@kyber/utils/crypto";
 import { divideBigIntToString, formatDisplayNumber } from "@kyber/utils/number";

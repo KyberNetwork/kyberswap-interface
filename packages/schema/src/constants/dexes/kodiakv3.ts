@@ -1,4 +1,4 @@
-import { ChainId } from "@/schema";
+import { ChainId } from "@/schema/chain";
 import kodiakLogo from "@/assets/dexes/kodiak.png";
 
 export default {

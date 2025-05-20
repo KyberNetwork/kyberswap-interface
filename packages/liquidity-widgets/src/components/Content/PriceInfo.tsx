@@ -5,7 +5,7 @@ import SwitchIcon from "@/assets/svg/switch.svg";
 import { useWidgetContext } from "@/stores";
 import { tickToPrice } from "@kyber/utils/uniswapv3";
 import { divideBigIntToString, formatDisplayNumber } from "@kyber/utils/number";
-import { univ2PoolNormalize, univ3PoolNormalize } from "@/schema";
+import { univ2PoolNormalize, univ3PoolNormalize } from "@kyber/schema";
 import { MouseoverTooltip } from "@/components/Tooltip";
 
 const shortenSymbol = (symbol: string, characterNumber: number = 8) =>

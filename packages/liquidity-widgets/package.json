@@ -48,6 +48,7 @@
     "@kyberswap/liquidity-chart": "workspace:^",
     "@kyber/hooks": "workspace:^",
     "@kyber/utils": "workspace:^",
+    "@kyber/schema": "workspace:^",
     "@types/lodash": "^4.14.196",
     "@types/numeral": "^2.0.5",
     "@types/react": "^18.0.17",

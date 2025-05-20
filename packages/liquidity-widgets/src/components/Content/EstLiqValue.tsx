@@ -16,7 +16,7 @@ import {
 } from "@/utils";
 import InfoHelper from "@/components/InfoHelper";
 import { MouseoverTooltip } from "@/components/Tooltip";
-import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, PATHS } from "@/constants";
+import { NETWORKS_INFO, NATIVE_TOKEN_ADDRESS, API_URLS } from "@kyber/schema";
 import {
   Accordion,
   AccordionContent,
@@ -24,10 +24,9 @@ import {
   AccordionTrigger,
 } from "@kyber/ui/accordion";
 import { useMemo } from "react";
-import { formatDisplayNumber } from "@/utils/number";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
 import { useWidgetContext } from "@/stores";
-import { toRawString } from "@kyber/utils/number";
+import { toRawString, formatDisplayNumber } from "@kyber/utils/number";
 import { formatUnits } from "@kyber/utils/crypto";
 import { SlippageWarning } from "@/components/SlippageWarning";
 import { cn } from "@kyber/utils/tailwind-helpers";
@@ -517,7 +516,7 @@ export default function EstLiqValue() {
                 You still have to pay the standard gas fees.{" "}
                 <a
                   className="text-accent"
-                  href={PATHS.DOCUMENT.ZAP_FEE_MODEL}
+                  href={API_URLS.DOCUMENT.ZAP_FEE_MODEL}
                   target="_blank"
                   rel="noopener norefferer"
                 >

@@ -7,8 +7,7 @@ import {
   useMemo,
   useState,
 } from "react";
-import { PATHS } from "@/constants";
-import { ChainId, Pool, Token } from "@/schema";
+import { API_URLS, ChainId, Pool, Token } from "@kyber/schema";
 
 type TokenListContextState = {
   tokens: Token[];
@@ -127,7 +126,7 @@ export const TokenListProvider = ({
   const fetchTokenList = useCallback(() => {
     setLoading(true);
     fetch(
-      `${PATHS.KYBERSWAP_SETTING_API}/v1/tokens?page=1&pageSize=100&isWhitelisted=true&chainIds=${chainId}`
+      `${API_URLS.KYBERSWAP_SETTING_API}/v1/tokens?page=1&pageSize=100&isWhitelisted=true&chainIds=${chainId}`
     )
       .then((res) => res.json())
       .then((res) =>
@@ -148,7 +147,7 @@ export const TokenListProvider = ({
       setLoading(true);
       try {
         const res = await fetch(
-          `${PATHS.KYBERSWAP_SETTING_API}/v1/tokens?query=${address}&page=1&pageSize=100&chainIds=${chainId}`
+          `${API_URLS.KYBERSWAP_SETTING_API}/v1/tokens?query=${address}&page=1&pageSize=100&chainIds=${chainId}`
         );
         const { data } = await res.json();
 

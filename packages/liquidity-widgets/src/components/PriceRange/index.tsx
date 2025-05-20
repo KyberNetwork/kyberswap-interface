@@ -13,7 +13,7 @@ import {
   priceToClosestTick,
   tickToPrice,
 } from "@kyber/utils/uniswapv3";
-import { univ3PoolNormalize, Univ3PoolType } from "@/schema";
+import { univ3PoolNormalize, Univ3PoolType } from "@kyber/schema";
 import { toString } from "@kyber/utils/number";
 
 interface SelectedRange {

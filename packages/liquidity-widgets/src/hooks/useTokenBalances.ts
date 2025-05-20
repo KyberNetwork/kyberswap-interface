@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO } from "@/constants";
+import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, ChainId } from "@kyber/schema";
 import { getFunctionSelector } from "@kyber/utils/crypto";
-import { ChainId } from "@/schema";
 
 function encodeBytes(data: string) {
   const length = data.length / 2; // Hex string length divided by 2 for bytes

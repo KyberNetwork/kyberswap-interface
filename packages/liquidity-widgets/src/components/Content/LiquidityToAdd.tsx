@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useZapState } from "@/hooks/useZapInState";
 import { TOKEN_SELECT_MODE } from "@/components/TokenSelector/index";
-import { NATIVE_TOKEN_ADDRESS } from "@/constants";
+import { NATIVE_TOKEN_ADDRESS } from "@kyber/schema";
 import { formatWei } from "@/utils";
 import { formatUnits } from "@kyber/utils/crypto";
 import { formatDisplayNumber } from "@kyber/utils/number";

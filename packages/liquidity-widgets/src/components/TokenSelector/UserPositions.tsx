@@ -1,6 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { shortenAddress } from "../TokenInfo/utils";
-import { PATHS } from "@/constants";
+import {
+  API_URLS,
+  EarnDex,
+  Univ2EarnDex,
+  EARN_SUPPORTED_CHAINS,
+  EARN_SUPPORTED_PROTOCOLS,
+} from "@kyber/schema";
 import { useZapState } from "@/hooks/useZapInState";
 import { useWidgetContext } from "@/stores";
 import { EarnPosition, PositionStatus } from "@/types/index";
@@ -11,12 +17,6 @@ import IconCopy from "@/assets/svg/copy.svg";
 import IconPositionConnectWallet from "@/assets/svg/ic_position_connect_wallet.svg";
 import IconPositionNotFound from "@/assets/svg/ic_position_not_found.svg";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
-import {
-  EarnDex,
-  Univ2EarnDex,
-  EARN_SUPPORTED_CHAINS,
-  EARN_SUPPORTED_PROTOCOLS,
-} from "@/schema";
 
 const COPY_TIMEOUT = 2000;
 let hideCopied: ReturnType<typeof setTimeout>;
@@ -90,7 +90,7 @@ const UserPositions = ({ search }: { search: string }) => {
     setLoading(true);
     try {
       const response = await fetch(
-        `${PATHS.ZAP_EARN_API}/v1/userPositions` +
+        `${API_URLS.ZAP_EARN_API}/v1/userPositions` +
           "?" +
           new URLSearchParams({
             addresses: account,

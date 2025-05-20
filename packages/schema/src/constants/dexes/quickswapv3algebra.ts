@@ -1,4 +1,4 @@
-import { ChainId } from "@/schema";
+import { ChainId } from "@/schema/chain";
 import quickswapLogo from "@/assets/dexes/quickswap.png";
 
 export default {
