@@ -18,7 +18,7 @@
     }
   },
   "scripts": {
-    "build": "tsup src/index.ts src/zap.ts --format cjs,esm --dts",
+    "build": "tsup --config tsup.config.ts",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
