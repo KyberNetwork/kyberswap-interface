@@ -207,7 +207,12 @@ function CrossChainSwap() {
             sx={{ gap: '4px', cursor: 'pointer' }}
             role="button"
             onClick={() => {
-              if (isEvmChain(fromChainId) && isToEvm) setShowEvmRecipient(prev => !prev)
+              if (isEvmChain(fromChainId) && isToEvm) {
+                if (!showEvmRecipient) {
+                  setRecipient('')
+                }
+                setShowEvmRecipient(prev => !prev)
+              }
             }}
           >
             <Text>

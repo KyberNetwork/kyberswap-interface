@@ -10,6 +10,8 @@ import {
 import { WalletClient, formatUnits } from 'viem'
 import { CROSS_CHAIN_FEE_RECEIVER, ETHER_ADDRESS } from 'constants/index'
 import { Quote } from '../registry'
+import { getPublicClient } from '@wagmi/core'
+import { wagmiConfig } from 'components/Web3Provider'
 
 const XY_FINANCE_API = 'https://aggregator-api.xy.finance/v1'
 
@@ -170,6 +172,19 @@ export class XYFinanceAdapter extends BaseSwapAdapter {
   }
 
   async getTransactionStatus(p: NormalizedTxResponse): Promise<SwapStatus> {
+    const publicClient = getPublicClient(wagmiConfig, {
+      chainId: p.sourceChain as any,
+    })
+    const receipt = await publicClient?.getTransactionReceipt({
+      hash: p.id as `0x${string}`,
+    })
+    if (receipt.status === 'reverted') {
+      return {
+        txHash: '',
+        status: 'Failed',
+      }
+    }
+
     const res = await fetch(`${XY_FINANCE_API}/crossChainStatus?srcChainId=${p.sourceChain}&srcTxHash=${p.id}`).then(
       r => r.json(),
     )
