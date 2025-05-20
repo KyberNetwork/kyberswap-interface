@@ -1351,6 +1351,9 @@ importers:
       '@kyber/hooks':
         specifier: workspace:^
         version: link:../hooks
+      '@kyber/svgr-esbuild-plugin':
+        specifier: workspace:^
+        version: link:../svgr-esbuild-plugin
       '@kyber/tailwind-config':
         specifier: workspace:^
         version: link:../config-tailwind
@@ -1384,6 +1387,9 @@ importers:
       tailwindcss:
         specifier: ^3.4.13
         version: 3.4.14
+      tsup:
+        specifier: ^8.0.2
+        version: 8.3.5(postcss@8.4.49)(typescript@5.3.2)
       typescript:
         specifier: 5.3.2
         version: 5.3.2

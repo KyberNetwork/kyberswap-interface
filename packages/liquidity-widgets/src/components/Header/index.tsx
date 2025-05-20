@@ -13,6 +13,7 @@ import RefreshLoading from "@/components/Header/RefreshLoading";
 import SettingIcon from "@/assets/svg/setting.svg";
 import X from "@/assets/svg/x.svg";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
+import TokenLogo from "@kyber/ui/token-logo";
 
 const Header = ({ onDismiss }: { onDismiss: () => void }) => {
   const { chainId, pool, poolType, positionId, position, theme, poolAddress } =
@@ -81,14 +82,10 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
       <div className="flex justify-between items-center mt-4">
         <div className="flex items-center flex-wrap gap-1 text-sm max-sm:gap-y-2">
           <div className="flex items-end">
-            <img
+            <TokenLogo
               src={token0.logo}
-              className="rounded-full w-[26px] h-[26px] border-[2px] border-layer1"
-              alt="token0 logo"
-              onError={({ currentTarget }) => {
-                currentTarget.onerror = null;
-                currentTarget.src = defaultTokenLogo;
-              }}
+              size={26}
+              className="border-[2px] border-layer1"
             />
             <img
               src={token1.logo}

@@ -18,10 +18,11 @@
     "./label": "./src/components/ui/label.tsx",
     "./tabs": "./src/components/ui/tabs.tsx",
     "./card": "./src/components/ui/card.tsx",
-    "./radio-group": "./src/components/ui/radio-group.tsx"
+    "./radio-group": "./src/components/ui/radio-group.tsx",
+    "./token-logo": "./src/components/token-logo.tsx"
   },
   "scripts": {
-    "build": "tailwindcss -i ./src/styles.css -o ./dist/index.css",
+    "build": "tsup && tailwindcss -i ./src/styles.css -o ./dist/index.css",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
@@ -41,6 +42,7 @@
   "devDependencies": {
     "@kyber/eslint-config": "workspace:*",
     "@kyber/hooks": "workspace:^",
+    "@kyber/svgr-esbuild-plugin": "workspace:^",
     "@kyber/tailwind-config": "workspace:^",
     "@kyber/typescript-config": "workspace:*",
     "@kyber/utils": "workspace:^",
@@ -52,6 +54,7 @@
     "eslint": "^8.57.0",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.13",
+    "tsup": "^8.0.2",
     "typescript": "5.3.2"
   },
   "peerDependencies": {
