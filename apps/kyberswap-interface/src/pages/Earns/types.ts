@@ -2,6 +2,7 @@ import { NativeToken } from 'constants/networks/type'
 import { EarnDex, EarnDex2 } from 'pages/Earns/constants'
 
 export enum PositionStatus {
+  ALL = '',
   IN_RANGE = 'IN_RANGE',
   OUT_RANGE = 'OUT_RANGE',
   CLOSED = 'CLOSED',
@@ -11,20 +12,14 @@ export enum PositionHistoryType {
   DEPOSIT = 'DEPOSIT',
 }
 
-export enum PositionExistStatus {
-  OPEN = 'open',
-  CLOSED = 'closed',
-}
-
 export interface PositionFilter {
   chainIds?: string
   positionId?: string
   protocols?: string
-  status?: string
+  status: PositionStatus
   q?: string
   sortBy?: string
   orderBy?: string
-  positionStatus: PositionExistStatus
   page: number
 }
 

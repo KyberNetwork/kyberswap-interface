@@ -10,7 +10,7 @@ import { ReactComponent as IconClaimRewards } from 'assets/svg/earn/ic_claim.svg
 import { ReactComponent as IconClaimFees } from 'assets/svg/earn/ic_earn_claim_fees.svg'
 import Loader from 'components/Loader'
 import useTheme from 'hooks/useTheme'
-import { ParsedPosition } from 'pages/Earns/types'
+import { ParsedPosition, PositionStatus } from 'pages/Earns/types'
 import { MEDIA_WIDTHS } from 'theme'
 
 const DropdownWrapper = styled.div`
@@ -194,11 +194,13 @@ const DropdownAction = ({
         }}
       >
         <Plus size={16} />
-        <Text>{t`Increase Liquidity`}</Text>
+        <Text>{position.status === PositionStatus.CLOSED ? t`Add Liquidity` : t`Increase Liquidity`}</Text>
       </DropdownContentItem>
       <DropdownContentItem
+        disabled={position.status === PositionStatus.CLOSED}
         onClick={e => {
           e.stopPropagation()
+          if (position.status === PositionStatus.CLOSED) return
           handleAction(e, onOpenZapOut)
         }}
       >

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
 import { useActiveWeb3React } from 'hooks'
-import { PositionExistStatus, PositionFilter } from 'pages/Earns/types'
+import { PositionFilter, PositionStatus } from 'pages/Earns/types'
 import { Direction } from 'pages/MarketOverview/SortIcon'
 
 export enum SortBy {
@@ -20,8 +20,7 @@ export default function useFilter() {
     () => ({
       chainIds: searchParams.get('chainIds') || '',
       protocols: searchParams.get('protocols') || '',
-      positionStatus: (searchParams.get('positionStatus') as PositionExistStatus) || PositionExistStatus.OPEN,
-      status: searchParams.get('status') || '',
+      status: (searchParams.get('status') as PositionStatus) || PositionStatus.ALL,
       q: searchParams.get('q') || '',
       sortBy: searchParams.get('sortBy') || SortBy.VALUE,
       orderBy: searchParams.get('orderBy') || Direction.DESC,
@@ -43,8 +42,8 @@ export default function useFilter() {
         searchParams.delete('orderBy')
         searchParams.delete('sortBy')
       }
-      if (key === 'positionStatus' && value === PositionExistStatus.OPEN) {
-        searchParams.delete('positionStatus')
+      if (key === 'status' && value === PositionStatus.ALL) {
+        searchParams.delete('status')
       }
 
       setSearchParams(searchParams)

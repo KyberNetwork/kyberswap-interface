@@ -26,7 +26,7 @@ import { CoreProtocol } from 'pages/Earns/constants'
 import useZapInWidget from 'pages/Earns/hooks/useZapInWidget'
 import { ZapMigrationInfo } from 'pages/Earns/hooks/useZapMigrationWidget'
 import useZapOutWidget from 'pages/Earns/hooks/useZapOutWidget'
-import { ParsedPosition } from 'pages/Earns/types'
+import { ParsedPosition, PositionStatus } from 'pages/Earns/types'
 import { isForkFrom } from 'pages/Earns/utils'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber, toString } from 'utils/numbers'
@@ -104,7 +104,7 @@ const RightSection = ({
         chainId: position.chain.id,
         address: position.pool.address,
       },
-      positionId: isUniv2 ? account || '' : position.tokenId,
+      positionId: position.status === PositionStatus.CLOSED ? undefined : isUniv2 ? account || '' : position.tokenId,
     })
   }
 
@@ -195,7 +195,9 @@ const RightSection = ({
         <PositionActionWrapper>
           <PositionAction
             outlineDefault
+            disabled={position.status === PositionStatus.CLOSED}
             onClick={() => {
+              if (position.status === PositionStatus.CLOSED) return
               handleOpenZapOut({
                 position: {
                   dex: position.dex.id,
@@ -206,7 +208,9 @@ const RightSection = ({
               })
             }}
           >{t`Remove Liquidity`}</PositionAction>
-          <PositionAction onClick={onOpenIncreaseLiquidityWidget}>{t`Add Liquidity`}</PositionAction>
+          <PositionAction onClick={onOpenIncreaseLiquidityWidget}>
+            {position.status === PositionStatus.CLOSED ? t`Add Liquidity` : t`Increase Liquidity`}
+          </PositionAction>
         </PositionActionWrapper>
       </InfoRightColumn>
     </>

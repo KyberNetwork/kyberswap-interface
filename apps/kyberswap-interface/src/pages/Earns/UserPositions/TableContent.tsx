@@ -135,7 +135,7 @@ export default function TableContent({
         chainId: position.chain.id,
         address: position.pool.address,
       },
-      positionId: isUniv2 ? account || '' : position.tokenId,
+      positionId: position.status === PositionStatus.CLOSED ? undefined : isUniv2 ? account || '' : position.tokenId,
     })
   }
 

@@ -58,7 +58,7 @@ const UserPositions = () => {
     chainIds: filters.chainIds || earnSupportedChains.join(','),
     protocols: filters.protocols || earnSupportedExchanges.join(','),
     q: filters.q,
-    positionStatus: filters.positionStatus,
+    positionStatus: filters.status === PositionStatus.CLOSED ? 'closed' : '',
   }
 
   const {
@@ -101,9 +101,11 @@ const UserPositions = () => {
     })
 
     if (filters.status)
-      parsedData = parsedData.filter(position =>
-        !position.pool.isUniv2 ? position.status === filters.status : filters.status === PositionStatus.IN_RANGE,
-      )
+      parsedData = parsedData.filter(position => {
+        if (filters.status === PositionStatus.CLOSED) return position.status === PositionStatus.CLOSED
+
+        return position.pool.isUniv2 ? filters.status === PositionStatus.IN_RANGE : position.status === filters.status
+      })
     if (filters.sortBy) {
       if (filters.sortBy === SortBy.VALUE) {
         parsedData.sort((a, b) => {
