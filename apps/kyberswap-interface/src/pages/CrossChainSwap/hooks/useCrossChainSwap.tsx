@@ -213,7 +213,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
           slippage >= slippageHighThreshold ? highSlippageMsg : slippage < slippageLowThreshold ? lowSlippageMsg : '',
       }
 
-      const highPriceImpactThreshold = 0 // category === 'stablePair' ? 1 : 2
+      const highPriceImpactThreshold = category === 'stablePair' ? 1 : 2
       const veryHighPriceImpactThreshold = category === 'stablePair' ? 3 : 5
       const priceImpaceInfo = {
         isHigh: selectedQuote.quote.priceImpact > highPriceImpactThreshold,
@@ -346,7 +346,9 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
       const quotes: Quote[] = []
       const adapters =
         params.fromChain === params.toChain && isEvmChain(params.fromChain)
-          ? ([registry.getAdapter('KyberSwap')] as SwapProvider[])
+          ? registry.getAdapter('KyberSwap')
+            ? ([registry.getAdapter('KyberSwap')] as SwapProvider[])
+            : ([] as SwapProvider[])
           : registry
               .getAllAdapters()
               .filter(

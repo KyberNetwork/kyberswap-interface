@@ -111,7 +111,7 @@ export class CrossChainSwapFactory {
       CrossChainSwapFactory.getDebridgeInstance(),
       CrossChainSwapFactory.getLifiInstance(),
       CrossChainSwapFactory.getOptimexAdapter(),
-      // CrossChainSwapFactory.getKsApdater(), => kyberswap only for same chain
+      CrossChainSwapFactory.getKsApdater(),
     ]
   }
 

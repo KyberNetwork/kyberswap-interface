@@ -1,6 +1,6 @@
 import { ReactNode, createContext, useCallback, useContext, useEffect, useState } from 'react'
 
-type WalletType = 'xverse' | 'bitget'
+type WalletType = 'xverse' | 'bitget' | 'okx'
 
 // Define types for wallet interfaces
 interface BitcoinWalletBase {
@@ -154,7 +154,6 @@ export const BitcoinWalletProvider = ({ children }: { children: ReactNode }) => 
           throw new Error(response?.error?.message || 'No transaction ID received')
         },
       }
-      providers.push(xverseProvider)
 
       const bitgetProvider = {
         name: 'Bitget',
@@ -196,11 +195,55 @@ export const BitcoinWalletProvider = ({ children }: { children: ReactNode }) => 
           return await window?.bitkeep.unisat.sendBitcoin(recipient, amount.toString())
         },
       }
+      const isOkxInstalled = typeof window !== 'undefined' && 'okxwallet' in window && window.okxwallet !== undefined
+      const okxProvider = {
+        name: 'OKX Wallet',
+        logo: 'https://storage.googleapis.com/ks-setting-1d682dca/77e2b120-4456-4181-b621-f2bbc590689d1747713432378.png',
+        type: 'okx' as const,
+        isInstalled: () => isOkxInstalled,
+        connect: async () => {
+          if (!isOkxInstalled) {
+            window.open('https://www.okx.com/download', '_blank')
+            return
+          }
+          if (!!connectingWallet) {
+            return
+          }
+          setConnectingWallet('okx')
+          let resp = await window.okxwallet.bitcoin.connect()
+          // sometime okx return null => throw error => user try again => always failed.
+          // => call disconnect && connect again will resolve
+          if (resp === null) await window.okxwallet.bitcoin.disconnect?.()
+          resp = await window.okxwallet.bitcoin.connect()
+
+          const { address, compressedPublicKey } = resp
+          setWalletInfo({
+            isConnected: true,
+            address,
+            publicKey: compressedPublicKey,
+            walletType: 'okx',
+          })
+          setConnectingWallet(null)
+        },
+        disconnect: async () => {
+          await window.okxwallet.bitcoin.disconnect?.()
+          localStorage.removeItem('okx')
+          setBalance(0)
+          setWalletInfo(defaultInfo)
+        },
+        sendBitcoin: async ({ recipient, amount }: { recipient: string; amount: number | string }) => {
+          return await window.okxwallet.bitcoin.sendBitcoin(recipient, Number(amount))
+        },
+      }
+
+      providers.push(xverseProvider)
       providers.push(bitgetProvider)
+      providers.push(okxProvider)
 
       const lastConnectedWallet = localStorage.getItem('bitcoinWallet')
       providers.find(wallet => wallet.type === lastConnectedWallet)?.connect()
 
+      providers.sort(a => (a.isInstalled() ? -1 : 1))
       setAvailableWallets(providers)
     }
 
