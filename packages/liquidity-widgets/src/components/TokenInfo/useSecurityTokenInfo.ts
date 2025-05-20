@@ -1,16 +1,13 @@
-import { useEffect, useMemo, useState } from "react";
-import { API_URLS } from "@kyber/schema";
-import {
-  getSecurityTokenInfo,
-  SecurityInfo,
-} from "@/components/TokenInfo/utils";
-import { useWidgetContext } from "@/stores";
+import { useEffect, useMemo, useState } from 'react';
+
+import { API_URLS } from '@kyber/schema';
+
+import { SecurityInfo, getSecurityTokenInfo } from '@/components/TokenInfo/utils';
+import { useWidgetContext } from '@/stores';
 
 export default function useSecurityTokenInfo(tokenAddress: string) {
   const chainId = useWidgetContext((s) => s.chainId);
-  const [securityRawInfo, setSecurityRawInfo] = useState<SecurityInfo | null>(
-    null
-  );
+  const [securityRawInfo, setSecurityRawInfo] = useState<SecurityInfo | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
   const parsedSecurityInfo = useMemo(
@@ -20,9 +17,7 @@ export default function useSecurityTokenInfo(tokenAddress: string) {
 
   const handleFetchSecurityData = () => {
     setLoading(true);
-    fetch(
-      `${API_URLS.GO_PLUS_API}/${chainId}?contract_addresses=${tokenAddress}`
-    )
+    fetch(`${API_URLS.GO_PLUS_API}/${chainId}?contract_addresses=${tokenAddress}`)
       .then((res) => res.json())
       .then((data) => setSecurityRawInfo(data.result?.[tokenAddress]))
       .catch((e) => {

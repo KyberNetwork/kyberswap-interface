@@ -1,4 +1,4 @@
-import React, { CSSProperties, ReactNode } from "react";
+import React, { CSSProperties, ReactNode } from 'react';
 
 export interface ToggleProps {
   id?: string;
@@ -8,13 +8,7 @@ export interface ToggleProps {
   icon?: ReactNode;
 }
 
-const Toggle: React.FC<ToggleProps> = ({
-  id,
-  isActive,
-  toggle,
-  style,
-  icon,
-}) => {
+const Toggle: React.FC<ToggleProps> = ({ id, isActive, toggle, style, icon }) => {
   return (
     <div
       id={id}

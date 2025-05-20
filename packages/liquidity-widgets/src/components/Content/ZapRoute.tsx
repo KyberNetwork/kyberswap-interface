@@ -1,20 +1,17 @@
-import { useMemo, useState } from "react";
-import { useZapState } from "@/hooks/useZapInState";
+import { useMemo, useState } from 'react';
+
+import { DEXES_INFO, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO } from '@kyber/schema';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@kyber/ui/accordion';
+
 import {
   AddLiquidityAction,
   AggregatorSwapAction,
   PoolSwapAction,
   ZapAction,
-} from "@/hooks/types/zapInTypes";
-import { formatWei } from "@/utils";
-import { DEXES_INFO, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO } from "@kyber/schema";
-import { useWidgetContext } from "@/stores";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@kyber/ui/accordion";
+} from '@/hooks/types/zapInTypes';
+import { useZapState } from '@/hooks/useZapInState';
+import { useWidgetContext } from '@/stores';
+import { formatWei } from '@/utils';
 
 export default function ZapRoute() {
   const { zapInfo, tokensIn } = useZapState();
@@ -23,16 +20,15 @@ export default function ZapRoute() {
 
   const defaultToken = {
     decimals: undefined,
-    address: "",
-    logo: "",
-    symbol: "",
+    address: '',
+    logo: '',
+    symbol: '',
   };
-  const { symbol: symbol0 } = pool === "loading" ? defaultToken : pool.token0;
-  const { symbol: symbol1 } = pool === "loading" ? defaultToken : pool.token1;
+  const { symbol: symbol0 } = pool === 'loading' ? defaultToken : pool.token0;
+  const { symbol: symbol1 } = pool === 'loading' ? defaultToken : pool.token1;
 
   const dexNameObj = DEXES_INFO[poolType].name;
-  const dexName =
-    typeof dexNameObj === "string" ? dexNameObj : dexNameObj[chainId];
+  const dexName = typeof dexNameObj === 'string' ? dexNameObj : dexNameObj[chainId];
 
   const onExpand = () => setExpanded((prev) => !prev);
 
@@ -45,16 +41,16 @@ export default function ZapRoute() {
       (item) => item.type === ZapAction.POOL_SWAP
     ) as PoolSwapAction | null;
 
-    if (pool === "loading") return [];
+    if (pool === 'loading') return [];
     const tokens = [
       ...tokensIn,
       pool.token0,
       pool.token1,
       NETWORKS_INFO[chainId].wrappedToken,
       {
-        name: "ETH",
+        name: 'ETH',
         address: NATIVE_TOKEN_ADDRESS,
-        symbol: "ETH",
+        symbol: 'ETH',
         decimals: 18,
       },
     ];
@@ -62,35 +58,31 @@ export default function ZapRoute() {
     const parsedAggregatorSwapInfo =
       aggregatorSwapInfo?.aggregatorSwap?.swaps?.map((item) => {
         const tokenIn = tokens.find(
-          (token) =>
-            token.address.toLowerCase() === item.tokenIn.address.toLowerCase()
+          (token) => token.address.toLowerCase() === item.tokenIn.address.toLowerCase()
         );
         const tokenOut = tokens.find(
-          (token) =>
-            token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
+          (token) => token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
         );
         return {
-          tokenInSymbol: tokenIn?.symbol || "--",
-          tokenOutSymbol: tokenOut?.symbol || "--",
+          tokenInSymbol: tokenIn?.symbol || '--',
+          tokenOutSymbol: tokenOut?.symbol || '--',
           amountIn: formatWei(item.tokenIn.amount, tokenIn?.decimals),
           amountOut: formatWei(item.tokenOut.amount, tokenOut?.decimals),
-          pool: "KyberSwap",
+          pool: 'KyberSwap',
         };
       }) || [];
 
     const parsedPoolSwapInfo =
       poolSwapInfo?.poolSwap?.swaps?.map((item) => {
         const tokenIn = tokens.find(
-          (token) =>
-            token.address.toLowerCase() === item.tokenIn.address.toLowerCase()
+          (token) => token.address.toLowerCase() === item.tokenIn.address.toLowerCase()
         );
         const tokenOut = tokens.find(
-          (token) =>
-            token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
+          (token) => token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
         );
         return {
-          tokenInSymbol: tokenIn?.symbol || "--",
-          tokenOutSymbol: tokenOut?.symbol || "--",
+          tokenInSymbol: tokenIn?.symbol || '--',
+          tokenOutSymbol: tokenOut?.symbol || '--',
           amountIn: formatWei(item.tokenIn.amount, tokenIn?.decimals),
           amountOut: formatWei(item.tokenOut.amount, tokenOut?.decimals),
           pool: `${dexName} Pool`,
@@ -101,35 +93,24 @@ export default function ZapRoute() {
   }, [chainId, dexName, pool, tokensIn, zapInfo?.zapDetails.actions]);
 
   const addedLiquidityInfo = useMemo(() => {
-    if (pool === "loading") return { addedAmount0: "0", addedAmount1: "0" };
+    if (pool === 'loading') return { addedAmount0: '0', addedAmount1: '0' };
     const data = zapInfo?.zapDetails.actions.find(
       (item) => item.type === ZapAction.ADD_LIQUIDITY
     ) as AddLiquidityAction | null;
 
-    const addedAmount0 = formatWei(
-      data?.addLiquidity.token0.amount,
-      pool?.token0?.decimals
-    );
-    const addedAmount1 = formatWei(
-      data?.addLiquidity.token1.amount,
-      pool?.token1?.decimals
-    );
+    const addedAmount0 = formatWei(data?.addLiquidity.token0.amount, pool?.token0?.decimals);
+    const addedAmount1 = formatWei(data?.addLiquidity.token1.amount, pool?.token1?.decimals);
 
     return { addedAmount0, addedAmount1 };
   }, [pool, zapInfo?.zapDetails.actions]);
 
   return (
     <>
-      <Accordion
-        type="single"
-        collapsible
-        className="w-full mt-4"
-        value={expanded ? "item-1" : ""}
-      >
+      <Accordion type="single" collapsible className="w-full mt-4" value={expanded ? 'item-1' : ''}>
         <AccordionItem value="item-1">
           <AccordionTrigger
             className={`px-4 py-3 text-sm border border-stroke text-text rounded-md ${
-              expanded ? "!rounded-b-none !border-b-0 !pb-1" : ""
+              expanded ? '!rounded-b-none !border-b-0 !pb-1' : ''
             }`}
             onClick={onExpand}
           >
@@ -148,8 +129,8 @@ export default function ZapRoute() {
                   {index + 1}
                 </div>
                 <div className="flex-1 text-subText leading-4">
-                  Swap {item.amountIn} {item.tokenInSymbol} for {item.amountOut}{" "}
-                  {item.tokenOutSymbol} via{" "}
+                  Swap {item.amountIn} {item.tokenInSymbol} for {item.amountOut}{' '}
+                  {item.tokenOutSymbol} via{' '}
                   <span className="font-medium text-text">{item.pool}</span>
                 </div>
               </div>
@@ -160,8 +141,8 @@ export default function ZapRoute() {
                 {swapInfo.length + 1}
               </div>
               <div className="flex-1 text-subText leading-4">
-                Build LP using {addedLiquidityInfo.addedAmount0} {symbol0} and{" "}
-                {addedLiquidityInfo.addedAmount1} {symbol1} on{" "}
+                Build LP using {addedLiquidityInfo.addedAmount0} {symbol0} and{' '}
+                {addedLiquidityInfo.addedAmount1} {symbol1} on{' '}
                 <span className="font-medium text-text">{dexName}</span>
               </div>
             </div>

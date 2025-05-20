@@ -1,23 +1,25 @@
-import { createContext, useRef, useContext, useEffect } from "react";
-import { createStore, useStore } from "zustand";
-import { DEXES_INFO, NETWORKS_INFO, API_URLS } from "@kyber/schema";
+import { createContext, useContext, useEffect, useRef } from 'react';
+
+import { createStore, useStore } from 'zustand';
+
+import { useTokenPrices } from '@kyber/hooks/use-token-prices';
+import { API_URLS, DEXES_INFO, NETWORKS_INFO } from '@kyber/schema';
 import {
   ChainId,
-  PoolType,
   Pool,
+  PoolType,
   Position,
-  poolResponse,
-  univ3Pool,
-  univ2Pool,
-  Univ3PoolType,
-  Univ2PoolType,
-  Token,
-  algebraTypes,
-  univ4Types,
   Theme,
-} from "@kyber/schema";
-import { useTokenPrices } from "@kyber/hooks/use-token-prices";
-import { getFunctionSelector, encodeUint256 } from "@kyber/utils/crypto";
+  Token,
+  Univ2PoolType,
+  Univ3PoolType,
+  algebraTypes,
+  poolResponse,
+  univ2Pool,
+  univ3Pool,
+  univ4Types,
+} from '@kyber/schema';
+import { encodeUint256, getFunctionSelector } from '@kyber/utils/crypto';
 import {
   MAX_TICK,
   MIN_TICK,
@@ -26,7 +28,7 @@ import {
   decodeUniswapV4PositionInfo,
   getPositionAmounts,
   nearestUsableTick,
-} from "@kyber/utils/uniswapv3";
+} from '@kyber/utils/uniswapv3';
 
 export interface WidgetProps {
   theme?: Theme;
@@ -73,21 +75,17 @@ export interface WidgetProps {
 
 interface WidgetState extends WidgetProps {
   theme: Theme;
-  pool: "loading" | Pool;
-  position: "loading" | Position;
+  pool: 'loading' | Pool;
+  position: 'loading' | Position;
   errorMsg: string;
   showWidget: boolean;
   poolLoading: boolean;
 
   getPool: (
-    fetchPrices: (
-      address: string[]
-    ) => Promise<{ [key: string]: { PriceBuy: number } }>
+    fetchPrices: (address: string[]) => Promise<{ [key: string]: { PriceBuy: number } }>
   ) => void;
 
-  setConnectedAccount: (
-    connectedAccount: WidgetProps["connectedAccount"]
-  ) => void;
+  setConnectedAccount: (connectedAccount: WidgetProps['connectedAccount']) => void;
 
   toggleShowWidget: (newState: boolean) => void;
 }
@@ -102,15 +100,14 @@ const createWidgetStore = (initProps: InnerWidgetProps) => {
   return createStore<WidgetState>()((set, get) => ({
     ...initProps,
     theme: initProps.theme,
-    pool: "loading",
-    position: "loading",
-    errorMsg: "",
+    pool: 'loading',
+    position: 'loading',
+    errorMsg: '',
     showWidget: true,
     poolLoading: false,
 
     getPool: async (fetchPrices) => {
-      const { poolAddress, chainId, poolType, positionId, connectedAccount } =
-        get();
+      const { poolAddress, chainId, poolType, positionId, connectedAccount } = get();
 
       set({ poolLoading: true });
 
@@ -122,17 +119,28 @@ const createWidgetStore = (initProps: InnerWidgetProps) => {
         ...res,
       });
 
-      const firstLoad = get().pool === "loading";
+      const firstLoad = get().pool === 'loading';
       if (!success) {
-        firstLoad &&
-          set({ errorMsg: `Can't get pool info ${error.toString()}` });
+        firstLoad && set({ errorMsg: `Can't get pool info ${error.toString()}` });
         console.error("Can't get pool info", error);
         set({ poolLoading: false });
         return;
       }
-      const pool = data.data.pools.find(
-        (item) => item.address.toLowerCase() === poolAddress.toLowerCase()
-      );
+      const pool = (
+        data.data.pools as Array<{
+          address: string;
+          swapFee: number;
+          exchange: string;
+          tokens: [{ address: string }, { address: string }];
+          positionInfo: {
+            tick: number;
+            liquidity: string;
+            sqrtPriceX96: string;
+            tickSpacing: number;
+            ticks?: any[];
+          };
+        }>
+      ).find((item) => item.address.toLowerCase() === poolAddress.toLowerCase());
       if (!pool) {
         firstLoad && set({ errorMsg: `Can't get pool info, address: ${pool}` });
         set({ poolLoading: false });
@@ -141,10 +149,7 @@ const createWidgetStore = (initProps: InnerWidgetProps) => {
       const token0Address = pool.tokens[0].address;
       const token1Address = pool.tokens[1].address;
 
-      const prices = await fetchPrices([
-        token0Address.toLowerCase(),
-        token1Address.toLowerCase(),
-      ]);
+      const prices = await fetchPrices([token0Address.toLowerCase(), token1Address.toLowerCase()]);
 
       const token0Price = prices[token0Address.toLowerCase()]?.PriceBuy || 0;
       const token1Price = prices[token1Address.toLowerCase()]?.PriceBuy || 0;
@@ -162,12 +167,8 @@ const createWidgetStore = (initProps: InnerWidgetProps) => {
         .then((res) => res?.data?.tokens || [])
         .catch(() => []);
 
-      let token0 = tokens.find(
-        (tk) => tk.address.toLowerCase() === token0Address.toLowerCase()
-      );
-      let token1 = tokens.find(
-        (tk) => tk.address.toLowerCase() === token1Address.toLowerCase()
-      );
+      let token0 = tokens.find((tk) => tk.address.toLowerCase() === token0Address.toLowerCase());
+      let token1 = tokens.find((tk) => tk.address.toLowerCase() === token1Address.toLowerCase());
 
       if (!token0 || !token1) {
         const tokensToImport = [];
@@ -182,16 +183,13 @@ const createWidgetStore = (initProps: InnerWidgetProps) => {
             address: token1Address,
           });
 
-        const res = await fetch(
-          `https://ks-setting.kyberswap.com/api/v1/tokens/import`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ tokens: tokensToImport }),
-          }
-        ).then((res) => res.json());
+        const res = await fetch(`https://ks-setting.kyberswap.com/api/v1/tokens/import`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ tokens: tokensToImport }),
+        }).then((res) => res.json());
 
         if (!token0)
           token0 = res?.data?.tokens?.find(
@@ -215,7 +213,7 @@ const createWidgetStore = (initProps: InnerWidgetProps) => {
       const pairCheck = await fetch(
         `${API_URLS.TOKEN_API}/v1/public/category/pair?chainId=${chainId}&tokenIn=${token0Address}&tokenOut=${token1Address}`
       ).then((res) => res.json());
-      const cat = pairCheck?.data?.category || "commonPair";
+      const cat = pairCheck?.data?.category || 'commonPair';
 
       const { success: isUniV3, data: poolUniv3 } = univ3Pool.safeParse(pool);
       const { success: isUniV2, data: poolUniv2 } = univ2Pool.safeParse(pool);
@@ -224,10 +222,9 @@ const createWidgetStore = (initProps: InnerWidgetProps) => {
       let p: Pool;
 
       if (isUniV3) {
-        const { success: isUniV3PoolType, data: pt } =
-          Univ3PoolType.safeParse(poolType);
+        const { success: isUniV3PoolType, data: pt } = Univ3PoolType.safeParse(poolType);
         if (!isUniV3PoolType) {
-          throw new Error("Invalid pool univ3 type");
+          throw new Error('Invalid pool univ3 type');
         }
         p = {
           category: cat,
@@ -249,21 +246,14 @@ const createWidgetStore = (initProps: InnerWidgetProps) => {
           tick: poolUniv3.positionInfo.tick,
           tickSpacing: poolUniv3.positionInfo.tickSpacing,
           ticks: poolUniv3.positionInfo.ticks || [],
-          minTick: nearestUsableTick(
-            MIN_TICK,
-            poolUniv3.positionInfo.tickSpacing
-          ),
-          maxTick: nearestUsableTick(
-            MAX_TICK,
-            poolUniv3.positionInfo.tickSpacing
-          ),
+          minTick: nearestUsableTick(MIN_TICK, poolUniv3.positionInfo.tickSpacing),
+          maxTick: nearestUsableTick(MAX_TICK, poolUniv3.positionInfo.tickSpacing),
         };
         set({ pool: p });
 
         if (positionId !== undefined) {
           const contract = DEXES_INFO[poolType].nftManagerContract;
-          const contractAddress =
-            typeof contract === "string" ? contract : contract[chainId];
+          const contractAddress = typeof contract === 'string' ? contract : contract[chainId];
           if (!contractAddress) {
             set({
               errorMsg: `Pool type ${poolType} is not supported in chainId: ${chainId}`,
@@ -272,9 +262,7 @@ const createWidgetStore = (initProps: InnerWidgetProps) => {
             return;
           }
           // Function signature and encoded token ID
-          const functionSignature = !isUniv4
-            ? "positions(uint256)"
-            : "positionInfo(uint256)";
+          const functionSignature = !isUniv4 ? 'positions(uint256)' : 'positionInfo(uint256)';
           const selector = getFunctionSelector(functionSignature);
           const encodedTokenId = encodeUint256(BigInt(positionId));
 
@@ -282,73 +270,69 @@ const createWidgetStore = (initProps: InnerWidgetProps) => {
 
           // JSON-RPC payload
           const payload = {
-            jsonrpc: "2.0",
-            method: "eth_call",
+            jsonrpc: '2.0',
+            method: 'eth_call',
             params: [
               {
                 to: contractAddress,
                 data: data,
               },
-              "latest",
+              'latest',
             ],
             id: 1,
           };
 
           // Send JSON-RPC request via fetch
           const response = await fetch(NETWORKS_INFO[chainId].defaultRpc, {
-            method: "POST",
+            method: 'POST',
             headers: {
-              "Content-Type": "application/json",
+              'Content-Type': 'application/json',
             },
             body: JSON.stringify(payload),
           });
 
           const { result, error } = await response.json();
 
-          if (result && result !== "0x") {
+          if (result && result !== '0x') {
             const data = isUniv4
               ? decodeUniswapV4PositionInfo(result)
               : algebraTypes.includes(pt)
-              ? decodeAlgebraV1Position(result)
-              : decodePosition(result);
+                ? decodeAlgebraV1Position(result)
+                : decodePosition(result);
 
             if (isUniv4) {
-              const liquidityFunctionSignature =
-                "getPositionLiquidity(uint256)";
-              const liquiditySelector = getFunctionSelector(
-                liquidityFunctionSignature
-              );
+              const liquidityFunctionSignature = 'getPositionLiquidity(uint256)';
+              const liquiditySelector = getFunctionSelector(liquidityFunctionSignature);
               const liquidityData = `0x${liquiditySelector}${encodedTokenId}`;
 
               const payload = {
-                jsonrpc: "2.0",
-                method: "eth_call",
+                jsonrpc: '2.0',
+                method: 'eth_call',
                 params: [
                   {
                     to: contractAddress,
                     data: liquidityData,
                   },
-                  "latest",
+                  'latest',
                 ],
                 id: 1,
               };
 
               const response = await fetch(NETWORKS_INFO[chainId].defaultRpc, {
-                method: "POST",
+                method: 'POST',
                 headers: {
-                  "Content-Type": "application/json",
+                  'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(payload),
               });
 
-              const { result: liquidityResult, error: liquidityError } =
-                await response.json();
+              const { result: liquidityResult, error: liquidityError } = await response.json();
 
-              if (liquidityResult && liquidityResult !== "0x") {
+              if (liquidityResult && liquidityResult !== '0x') {
                 data.liquidity = BigInt(liquidityResult);
               } else {
                 set({
-                  errorMsg: liquidityError.message || "Position not found",
+                  errorMsg: liquidityError.message || 'Position not found',
                 });
                 set({ poolLoading: false });
               }
@@ -377,15 +361,14 @@ const createWidgetStore = (initProps: InnerWidgetProps) => {
             return;
           }
 
-          set({ errorMsg: error.message || "Position not found" });
+          set({ errorMsg: error.message || 'Position not found' });
           set({ poolLoading: false });
         }
       } else if (isUniV2) {
-        const { success: isUniV2PoolType, data: pt } =
-          Univ2PoolType.safeParse(poolType);
+        const { success: isUniV2PoolType, data: pt } = Univ2PoolType.safeParse(poolType);
         if (!isUniV2PoolType) {
           set({ poolLoading: false });
-          throw new Error("Invalid pool univ2 type");
+          throw new Error('Invalid pool univ2 type');
         }
         p = {
           category: cat,
@@ -408,26 +391,26 @@ const createWidgetStore = (initProps: InnerWidgetProps) => {
 
         if (positionId || (firstLoad && connectedAccount.address)) {
           // get pool total supply and user supply
-          const posId = positionId || connectedAccount.address || "";
-          const balanceOfSelector = getFunctionSelector("balanceOf(address)");
-          const totalSupplySelector = getFunctionSelector("totalSupply()");
-          const paddedAccount = posId.replace("0x", "").padStart(64, "0");
+          const posId = positionId || connectedAccount.address || '';
+          const balanceOfSelector = getFunctionSelector('balanceOf(address)');
+          const totalSupplySelector = getFunctionSelector('totalSupply()');
+          const paddedAccount = posId.replace('0x', '').padStart(64, '0');
 
           const getPayload = (d: string) => {
             return {
-              method: "POST",
+              method: 'POST',
               headers: {
-                "Content-Type": "application/json",
+                'Content-Type': 'application/json',
               },
               body: JSON.stringify({
-                jsonrpc: "2.0",
-                method: "eth_call",
+                jsonrpc: '2.0',
+                method: 'eth_call',
                 params: [
                   {
                     to: poolAddress,
                     data: d,
                   },
-                  "latest",
+                  'latest',
                 ],
                 id: 1,
               }),
@@ -443,39 +426,30 @@ const createWidgetStore = (initProps: InnerWidgetProps) => {
             getPayload(`0x${totalSupplySelector}`)
           ).then((res) => res.json());
 
-          const userBalance = BigInt(balanceRes?.result || "0");
-          const totalSupply = BigInt(totalSupplyRes?.result || "0");
+          const userBalance = BigInt(balanceRes?.result || '0');
+          const totalSupply = BigInt(totalSupplyRes?.result || '0');
 
           const p = {
             liquidity: userBalance.toString(),
-            amount0:
-              (userBalance * BigInt(poolUniv2.reserves[0])) / totalSupply,
-            amount1:
-              (userBalance * BigInt(poolUniv2.reserves[1])) / totalSupply,
+            amount0: (userBalance * BigInt(poolUniv2.reserves[0])) / totalSupply,
+            amount1: (userBalance * BigInt(poolUniv2.reserves[1])) / totalSupply,
             poolType: pt,
             totalSupply,
           };
           if (positionId || userBalance > BigInt(0)) set({ position: p });
-          if (
-            !positionId &&
-            connectedAccount.address &&
-            userBalance > BigInt(0)
-          )
+          if (!positionId && connectedAccount.address && userBalance > BigInt(0))
             set({ positionId: connectedAccount.address });
         }
       } else {
         set({ poolLoading: false });
-        throw new Error("Invalid pool type");
+        throw new Error('Invalid pool type');
       }
       set({ poolLoading: false });
     },
-    setConnectedAccount: (
-      connectedAccount: WidgetProps["connectedAccount"]
-    ) => {
+    setConnectedAccount: (connectedAccount: WidgetProps['connectedAccount']) => {
       set({ connectedAccount });
     },
-    toggleShowWidget: (newState: boolean) =>
-      set(() => ({ showWidget: newState })),
+    toggleShowWidget: (newState: boolean) => set(() => ({ showWidget: newState })),
   }));
 };
 
@@ -505,13 +479,11 @@ export function WidgetProvider({ children, ...props }: WidgetProviderProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props]);
 
-  return (
-    <WidgetContext.Provider value={store}>{children}</WidgetContext.Provider>
-  );
+  return <WidgetContext.Provider value={store}>{children}</WidgetContext.Provider>;
 }
 
 export function useWidgetContext<T>(selector: (state: WidgetState) => T): T {
   const store = useContext(WidgetContext);
-  if (!store) throw new Error("Missing BearContext.Provider in the tree");
+  if (!store) throw new Error('Missing BearContext.Provider in the tree');
   return useStore(store, selector);
 }

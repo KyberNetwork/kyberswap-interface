@@ -1,32 +1,50 @@
-import Info from "@/assets/svg/info.svg";
-import DropdownIcon from "@/assets/svg/dropdown.svg";
-import Spinner from "@/assets/svg/loader.svg";
-import SwitchIcon from "@/assets/svg/switch.svg";
-import SuccessIcon from "@/assets/svg/success.svg";
-import ErrorIcon from "@/assets/svg/error.svg";
-import { useTokenPrices } from "@kyber/hooks/use-token-prices";
+import { useEffect, useMemo, useState } from 'react';
 
-import { useZapState } from "@/hooks/useZapInState";
+import { useTokenPrices } from '@kyber/hooks/use-token-prices';
 import {
-  AddLiquidityAction,
-  RefundAction,
-  ProtocolFeeAction,
-  ZapRouteDetail,
-  ZapAction,
-  AggregatorSwapAction,
-  PoolSwapAction,
-} from "@/hooks/types/zapInTypes";
-import {
-  DEXES_INFO,
-  NETWORKS_INFO,
   API_URLS,
   CHAIN_ID_TO_CHAIN,
+  DEXES_INFO,
   NATIVE_TOKEN_ADDRESS,
+  NETWORKS_INFO,
   Pool,
   Token,
   univ2PoolNormalize,
   univ3PoolNormalize,
-} from "@kyber/schema";
+} from '@kyber/schema';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@kyber/ui/accordion';
+import {
+  calculateGasMargin,
+  estimateGas,
+  formatUnits,
+  getCurrentGasPrice,
+  isTransactionSuccessful,
+} from '@kyber/utils/crypto';
+import { divideBigIntToString, formatDisplayNumber, toRawString } from '@kyber/utils/number';
+import { cn } from '@kyber/utils/tailwind-helpers';
+import { tickToPrice } from '@kyber/utils/uniswapv3';
+
+import DropdownIcon from '@/assets/svg/dropdown.svg';
+import ErrorIcon from '@/assets/svg/error.svg';
+import Info from '@/assets/svg/info.svg';
+import Spinner from '@/assets/svg/loader.svg';
+import defaultTokenLogo from '@/assets/svg/question.svg?url';
+import SuccessIcon from '@/assets/svg/success.svg';
+import SwitchIcon from '@/assets/svg/switch.svg';
+import InfoHelper from '@/components/InfoHelper';
+import { SlippageWarning } from '@/components/SlippageWarning';
+import { MouseoverTooltip } from '@/components/Tooltip';
+import {
+  AddLiquidityAction,
+  AggregatorSwapAction,
+  PoolSwapAction,
+  ProtocolFeeAction,
+  RefundAction,
+  ZapAction,
+  ZapRouteDetail,
+} from '@/hooks/types/zapInTypes';
+import { useZapState } from '@/hooks/useZapInState';
+import { useWidgetContext } from '@/stores';
 import {
   PI_LEVEL,
   formatCurrency,
@@ -34,33 +52,7 @@ import {
   formatWei,
   friendlyError,
   getPriceImpact,
-} from "@/utils";
-import { useEffect, useMemo, useState } from "react";
-import InfoHelper from "@/components/InfoHelper";
-import { MouseoverTooltip } from "@/components/Tooltip";
-import defaultTokenLogo from "@/assets/svg/question.svg?url";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@kyber/ui/accordion";
-import {
-  divideBigIntToString,
-  formatDisplayNumber,
-  toRawString,
-} from "@kyber/utils/number";
-import { useWidgetContext } from "@/stores";
-import { tickToPrice } from "@kyber/utils/uniswapv3";
-import {
-  calculateGasMargin,
-  estimateGas,
-  formatUnits,
-  getCurrentGasPrice,
-  isTransactionSuccessful,
-} from "@kyber/utils/crypto";
-import { cn } from "@kyber/utils/tailwind-helpers";
-import { SlippageWarning } from "@/components/SlippageWarning";
+} from '@/utils';
 
 export interface ZapState {
   pool: Pool;
@@ -108,33 +100,28 @@ export default function Preview({
 
   const { fetchPrices } = useTokenPrices({ addresses: [], chainId });
 
-  const [txHash, setTxHash] = useState("");
+  const [txHash, setTxHash] = useState('');
   const [attempTx, setAttempTx] = useState(false);
   const [txError, setTxError] = useState<Error | null>(null);
-  const [txStatus, setTxStatus] = useState<"success" | "failed" | "">("");
+  const [txStatus, setTxStatus] = useState<'success' | 'failed' | ''>('');
   const [showErrorDetail, setShowErrorDetail] = useState(false);
   const [gasUsd, setGasUsd] = useState<number | null>(null);
 
-  const listAmountsIn = useMemo(() => amountsIn.split(","), [amountsIn]);
+  const listAmountsIn = useMemo(() => amountsIn.split(','), [amountsIn]);
 
-  const { success: isUniV3, data: univ3Pool } =
-    univ3PoolNormalize.safeParse(pool);
-  const isOutOfRange = isUniV3
-    ? tickLower > univ3Pool.tick || univ3Pool.tick >= tickUpper
-    : false;
+  const { success: isUniV3, data: univ3Pool } = univ3PoolNormalize.safeParse(pool);
+  const isOutOfRange = isUniV3 ? tickLower > univ3Pool.tick || univ3Pool.tick >= tickUpper : false;
 
   useEffect(() => {
     if (txHash) {
       const i = setInterval(() => {
-        isTransactionSuccessful(NETWORKS_INFO[chainId].defaultRpc, txHash).then(
-          (res) => {
-            if (!res) return;
+        isTransactionSuccessful(NETWORKS_INFO[chainId].defaultRpc, txHash).then((res) => {
+          if (!res) return;
 
-            if (res.status) {
-              setTxStatus("success");
-            } else setTxStatus("failed");
-          }
-        );
+          if (res.status) {
+            setTxStatus('success');
+          } else setTxStatus('failed');
+        });
       }, 10_000);
 
       return () => {
@@ -144,51 +131,32 @@ export default function Preview({
   }, [chainId, txHash]);
 
   const addedLiqInfo = useMemo(
-    () =>
-      zapInfo.zapDetails.actions.find(
-        (item) => item.type === ZapAction.ADD_LIQUIDITY
-      ),
+    () => zapInfo.zapDetails.actions.find((item) => item.type === ZapAction.ADD_LIQUIDITY),
     [zapInfo.zapDetails.actions]
   ) as AddLiquidityAction;
 
   const addedAmount0 = useMemo(
-    () =>
-      formatUnits(
-        addedLiqInfo?.addLiquidity.token0.amount,
-        pool.token0?.decimals
-      ),
+    () => formatUnits(addedLiqInfo?.addLiquidity.token0.amount, pool.token0?.decimals),
     [addedLiqInfo?.addLiquidity.token0.amount, pool]
   );
 
   const addedAmount1 = useMemo(
-    () =>
-      formatUnits(
-        addedLiqInfo?.addLiquidity.token1.amount,
-        pool.token1?.decimals
-      ),
+    () => formatUnits(addedLiqInfo?.addLiquidity.token1.amount, pool.token1?.decimals),
     [addedLiqInfo?.addLiquidity.token1.amount, pool]
   );
 
   const amount0 =
-    position === "loading"
-      ? 0
-      : +toRawString(position.amount0, pool.token0?.decimals);
+    position === 'loading' ? 0 : +toRawString(position.amount0, pool.token0?.decimals);
   const amount1 =
-    position === "loading"
-      ? 0
-      : +toRawString(position.amount1, pool.token1?.decimals);
+    position === 'loading' ? 0 : +toRawString(position.amount1, pool.token1?.decimals);
 
   const positionAmount0Usd = useMemo(
-    () =>
-      (amount0 * +(addedLiqInfo?.addLiquidity.token0.amountUsd || 0)) /
-        +addedAmount0 || 0,
+    () => (amount0 * +(addedLiqInfo?.addLiquidity.token0.amountUsd || 0)) / +addedAmount0 || 0,
     [addedAmount0, addedLiqInfo?.addLiquidity.token0.amountUsd, amount0]
   );
 
   const positionAmount1Usd = useMemo(
-    () =>
-      (amount1 * +(addedLiqInfo?.addLiquidity.token1.amountUsd || 0)) /
-        +addedAmount1 || 0,
+    () => (amount1 * +(addedLiqInfo?.addLiquidity.token1.amountUsd || 0)) / +addedAmount1 || 0,
     [addedAmount1, addedLiqInfo?.addLiquidity.token1.amountUsd, amount1]
   );
 
@@ -215,45 +183,37 @@ export default function Preview({
     pool.token1?.decimals
   );
 
-  const refundUsd =
-    refundInfo?.refund.tokens.reduce((acc, cur) => acc + +cur.amountUsd, 0) ||
-    0;
+  const refundUsd = refundInfo?.refund.tokens.reduce((acc, cur) => acc + +cur.amountUsd, 0) || 0;
 
-  const { success: isUniV2, data: uniV2Pool } =
-    univ2PoolNormalize.safeParse(pool);
+  const { success: isUniV2, data: uniV2Pool } = univ2PoolNormalize.safeParse(pool);
   const univ2Price = isUniV2
     ? +divideBigIntToString(
-        BigInt(uniV2Pool.reserves[1]) *
-          10n ** BigInt(uniV2Pool.token0?.decimals),
-        BigInt(uniV2Pool.reserves[0]) *
-          10n ** BigInt(uniV2Pool.token1?.decimals),
+        BigInt(uniV2Pool.reserves[1]) * 10n ** BigInt(uniV2Pool.token0?.decimals),
+        BigInt(uniV2Pool.reserves[0]) * 10n ** BigInt(uniV2Pool.token1?.decimals),
         18
       )
     : 0;
 
   const price = isUniV3
     ? formatDisplayNumber(
-        tickToPrice(
-          univ3Pool.tick,
-          pool.token0?.decimals,
-          pool.token1?.decimals,
-          revert
-        ),
-        { significantDigits: 6 }
+        tickToPrice(univ3Pool.tick, pool.token0?.decimals, pool.token1?.decimals, revert),
+        {
+          significantDigits: 6,
+        }
       )
     : isUniV2
-    ? formatDisplayNumber(revert ? 1 / univ2Price : univ2Price, {
-        significantDigits: 6,
-      })
-    : "--";
+      ? formatDisplayNumber(revert ? 1 / univ2Price : univ2Price, {
+          significantDigits: 6,
+        })
+      : '--';
 
   const priceRange = useMemo(() => {
     if (!univ3Pool) return null;
     const maxPrice =
       tickUpper === univ3Pool.maxTick
         ? revert
-          ? "0"
-          : "∞"
+          ? '0'
+          : '∞'
         : formatNumber(
             parseFloat(
               tickToPrice(
@@ -267,8 +227,8 @@ export default function Preview({
     const minPrice =
       tickLower === univ3Pool.minTick
         ? revert
-          ? "∞"
-          : "0"
+          ? '∞'
+          : '0'
         : formatNumber(
             parseFloat(
               tickToPrice(
@@ -281,14 +241,7 @@ export default function Preview({
           );
 
     return [minPrice, maxPrice];
-  }, [
-    univ3Pool,
-    tickUpper,
-    revert,
-    pool.token0?.decimals,
-    pool.token1?.decimals,
-    tickLower,
-  ]);
+  }, [univ3Pool, tickUpper, revert, pool.token0?.decimals, pool.token1?.decimals, tickLower]);
 
   const quote = (
     <span>
@@ -305,12 +258,11 @@ export default function Preview({
   const zapFee = ((feeInfo?.protocolFee.pcm || 0) / 100_000) * 100;
   const piRes = getPriceImpact(
     zapInfo?.zapDetails.priceImpact,
-    "Zap Impact",
+    'Zap Impact',
     zapInfo?.zapDetails.suggestedSlippage || 100
   );
 
-  const piVeryHigh =
-    zapInfo && [PI_LEVEL.VERY_HIGH, PI_LEVEL.INVALID].includes(piRes.level);
+  const piVeryHigh = zapInfo && [PI_LEVEL.VERY_HIGH, PI_LEVEL.INVALID].includes(piRes.level);
 
   const piHigh = zapInfo && piRes.level === PI_LEVEL.HIGH;
 
@@ -330,9 +282,9 @@ export default function Preview({
       pool.token1,
       NETWORKS_INFO[chainId].wrappedToken,
       {
-        name: "ETH",
+        name: 'ETH',
         address: NATIVE_TOKEN_ADDRESS,
-        symbol: "ETH",
+        symbol: 'ETH',
         decimals: 18,
       },
     ];
@@ -340,36 +292,27 @@ export default function Preview({
     const parsedAggregatorSwapInfo =
       aggregatorSwapInfo?.aggregatorSwap?.swaps?.map((item) => {
         const tokenIn = tokens.find(
-          (token) =>
-            token.address.toLowerCase() === item.tokenIn.address.toLowerCase()
+          (token) => token.address.toLowerCase() === item.tokenIn.address.toLowerCase()
         );
         const tokenOut = tokens.find(
-          (token) =>
-            token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
+          (token) => token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
         );
-        const amountIn = formatWei(
-          item.tokenIn.amount,
-          tokenIn?.decimals
-        ).replace(/,/g, "");
-        const amountOut = formatWei(
-          item.tokenOut.amount,
-          tokenOut?.decimals
-        ).replace(/,/g, "");
+        const amountIn = formatWei(item.tokenIn.amount, tokenIn?.decimals).replace(/,/g, '');
+        const amountOut = formatWei(item.tokenOut.amount, tokenOut?.decimals).replace(/,/g, '');
 
         const pi =
-          ((parseFloat(item.tokenIn.amountUsd) -
-            parseFloat(item.tokenOut.amountUsd)) /
+          ((parseFloat(item.tokenIn.amountUsd) - parseFloat(item.tokenOut.amountUsd)) /
             parseFloat(item.tokenIn.amountUsd)) *
           100;
         const piRes = getPriceImpact(
           pi,
-          "Swap Price Impact",
+          'Swap Price Impact',
           zapInfo?.zapDetails.suggestedSlippage || 100
         );
 
         return {
-          tokenInSymbol: tokenIn?.symbol || "--",
-          tokenOutSymbol: tokenOut?.symbol || "--",
+          tokenInSymbol: tokenIn?.symbol || '--',
+          tokenOutSymbol: tokenOut?.symbol || '--',
           amountIn,
           amountOut,
           piRes,
@@ -379,36 +322,27 @@ export default function Preview({
     const parsedPoolSwapInfo =
       poolSwapInfo?.poolSwap?.swaps?.map((item) => {
         const tokenIn = tokens.find(
-          (token) =>
-            token.address.toLowerCase() === item.tokenIn.address.toLowerCase()
+          (token) => token.address.toLowerCase() === item.tokenIn.address.toLowerCase()
         );
         const tokenOut = tokens.find(
-          (token) =>
-            token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
+          (token) => token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
         );
-        const amountIn = formatWei(
-          item.tokenIn.amount,
-          tokenIn?.decimals
-        ).replace(/,/g, "");
-        const amountOut = formatWei(
-          item.tokenOut.amount,
-          tokenOut?.decimals
-        ).replace(/,/g, "");
+        const amountIn = formatWei(item.tokenIn.amount, tokenIn?.decimals).replace(/,/g, '');
+        const amountOut = formatWei(item.tokenOut.amount, tokenOut?.decimals).replace(/,/g, '');
 
         const pi =
-          ((parseFloat(item.tokenIn.amountUsd) -
-            parseFloat(item.tokenOut.amountUsd)) /
+          ((parseFloat(item.tokenIn.amountUsd) - parseFloat(item.tokenOut.amountUsd)) /
             parseFloat(item.tokenIn.amountUsd)) *
           100;
         const piRes = getPriceImpact(
           pi,
-          "Swap Price Impact",
+          'Swap Price Impact',
           zapInfo?.zapDetails.suggestedSlippage || 100
         );
 
         return {
-          tokenInSymbol: tokenIn?.symbol || "--",
-          tokenOutSymbol: tokenOut?.symbol || "--",
+          tokenInSymbol: tokenIn?.symbol || '--',
+          tokenOutSymbol: tokenOut?.symbol || '--',
           amountIn,
           amountOut,
           piRes,
@@ -416,47 +350,34 @@ export default function Preview({
       }) || [];
 
     return parsedAggregatorSwapInfo.concat(parsedPoolSwapInfo);
-  }, [
-    zapInfo?.zapDetails.actions,
-    zapInfo?.zapDetails.suggestedSlippage,
-    pool,
-    tokensIn,
-    chainId,
-  ]);
+  }, [zapInfo?.zapDetails.actions, zapInfo?.zapDetails.suggestedSlippage, pool, tokensIn, chainId]);
 
   const swapPiRes = useMemo(() => {
-    const invalidRes = swapPi.find(
-      (item) => item.piRes.level === PI_LEVEL.INVALID
-    );
+    const invalidRes = swapPi.find((item) => item.piRes.level === PI_LEVEL.INVALID);
     if (invalidRes) return invalidRes;
 
     const highRes = swapPi.find((item) => item.piRes.level === PI_LEVEL.HIGH);
     if (highRes) return highRes;
 
-    const veryHighRes = swapPi.find(
-      (item) => item.piRes.level === PI_LEVEL.HIGH
-    );
+    const veryHighRes = swapPi.find((item) => item.piRes.level === PI_LEVEL.HIGH);
     if (veryHighRes) return veryHighRes;
 
-    return { piRes: { level: PI_LEVEL.NORMAL, msg: "" } };
+    return { piRes: { level: PI_LEVEL.NORMAL, msg: '' } };
   }, [swapPi]);
 
   const rpcUrl = NETWORKS_INFO[chainId].defaultRpc;
 
   useEffect(() => {
-    fetch(
-      `${API_URLS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/in/route/build`,
-      {
-        method: "POST",
-        body: JSON.stringify({
-          sender: account,
-          recipient: account,
-          route: zapInfo.route,
-          deadline,
-          source,
-        }),
-      }
-    )
+    fetch(`${API_URLS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/in/route/build`, {
+      method: 'POST',
+      body: JSON.stringify({
+        sender: account,
+        recipient: account,
+        route: zapInfo.route,
+        deadline,
+        source,
+      }),
+    })
       .then((res) => res.json())
       .then(async (res) => {
         const { data } = res || {};
@@ -469,56 +390,49 @@ export default function Preview({
           };
 
           try {
-            const wethAddress =
-              NETWORKS_INFO[chainId].wrappedToken.address.toLowerCase();
-            const [gasEstimation, nativeTokenPrice, gasPrice] =
-              await Promise.all([
-                estimateGas(rpcUrl, txData),
-                fetchPrices([wethAddress])
-                  .then((prices: { [x: string]: { PriceBuy: number } }) => {
-                    return prices[wethAddress]?.PriceBuy || 0;
-                  })
-                  .catch(() => 0),
-                getCurrentGasPrice(rpcUrl),
-              ]);
+            const wethAddress = NETWORKS_INFO[chainId].wrappedToken.address.toLowerCase();
+            const [gasEstimation, nativeTokenPrice, gasPrice] = await Promise.all([
+              estimateGas(rpcUrl, txData),
+              fetchPrices([wethAddress])
+                .then((prices: { [x: string]: { PriceBuy: number } }) => {
+                  return prices[wethAddress]?.PriceBuy || 0;
+                })
+                .catch(() => 0),
+              getCurrentGasPrice(rpcUrl),
+            ]);
 
             const gasUsd =
-              +formatUnits(gasPrice, 18) *
-              +gasEstimation.toString() *
-              nativeTokenPrice;
+              +formatUnits(gasPrice, 18) * +gasEstimation.toString() * nativeTokenPrice;
 
             setGasUsd(gasUsd);
           } catch (e) {
-            console.log("Estimate gas failed", e);
+            console.log('Estimate gas failed', e);
           }
         }
       });
   }, [account, chainId, deadline, fetchPrices, rpcUrl, source, zapInfo.route]);
 
   const dexName =
-    typeof DEXES_INFO[poolType].name === "string"
+    typeof DEXES_INFO[poolType].name === 'string'
       ? DEXES_INFO[poolType].name
       : DEXES_INFO[poolType].name[chainId];
 
   const handleClick = async () => {
     setAttempTx(true);
-    setTxHash("");
+    setTxHash('');
     setTxError(null);
 
-    fetch(
-      `${API_URLS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/in/route/build`,
-      {
-        method: "POST",
-        body: JSON.stringify({
-          sender: account,
-          recipient: account,
-          route: zapInfo.route,
-          deadline,
-          source,
-          referral,
-        }),
-      }
-    )
+    fetch(`${API_URLS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/in/route/build`, {
+      method: 'POST',
+      body: JSON.stringify({
+        sender: account,
+        recipient: account,
+        route: zapInfo.route,
+        deadline,
+        source,
+        referral,
+      }),
+    })
       .then((res) => res.json())
       .then(async (res) => {
         const { data } = res || {};
@@ -547,21 +461,21 @@ export default function Preview({
   };
 
   if (attempTx || txHash) {
-    let txStatusText = "";
+    let txStatusText = '';
     if (txHash) {
-      if (txStatus === "success") txStatusText = "Transaction successful";
-      else if (txStatus === "failed") txStatusText = "Transaction failed";
-      else txStatusText = "Processing transaction";
+      if (txStatus === 'success') txStatusText = 'Transaction successful';
+      else if (txStatus === 'failed') txStatusText = 'Transaction failed';
+      else txStatusText = 'Processing transaction';
     } else {
-      txStatusText = "Waiting For Confirmation";
+      txStatusText = 'Waiting For Confirmation';
     }
 
     return (
       <div className="mt-4 gap-4 flex flex-col justify-center items-center text-base font-medium">
         <div className="min-h-[300px] flex justify-center gap-3 flex-col items-center flex-1">
-          {txStatus === "success" ? (
+          {txStatus === 'success' ? (
             <SuccessIcon className="text-success" />
-          ) : txStatus === "failed" ? (
+          ) : txStatus === 'failed' ? (
             <ErrorIcon className="text-error" />
           ) : (
             <Spinner className="text-success animate-spin duration-2000 ease-linear repeat-infinite" />
@@ -570,16 +484,14 @@ export default function Preview({
 
           {!txHash && (
             <div className="text-sm text-subText text-center">
-              Confirm this transaction in your wallet - Zapping{" "}
+              Confirm this transaction in your wallet - Zapping{' '}
               {positionId && isUniV3
                 ? `Position #${positionId}`
                 : `${dexName} ${pool.token0.symbol}/${pool.token1.symbol} ${pool.fee}%`}
             </div>
           )}
-          {txHash && txStatus === "" && (
-            <div className="text-sm text-subText">
-              Waiting for the transaction to be mined
-            </div>
+          {txHash && txStatus === '' && (
+            <div className="text-sm text-subText">Waiting for the transaction to be mined</div>
           )}
         </div>
 
@@ -589,25 +501,20 @@ export default function Preview({
             className="flex justify-end items-center text-accent text-sm gap-1"
             href={`${NETWORKS_INFO[chainId].scanLink}/tx/${txHash}`}
             target="_blank"
-            rel="noopener norefferer"
+            rel="noopener norefferer noreferrer"
           >
             View transaction ↗
           </a>
         )}
         <div className="flex gap-4 w-full">
           <button
-            className={cn(
-              onViewPosition ? "ks-outline-btn flex-1" : "ks-primary-btn flex-1"
-            )}
+            className={cn(onViewPosition ? 'ks-outline-btn flex-1' : 'ks-primary-btn flex-1')}
             onClick={onDismiss}
           >
             Close
           </button>
-          {txStatus === "success" && onViewPosition && (
-            <button
-              className="ks-primary-btn flex-1"
-              onClick={() => onViewPosition(txHash)}
-            >
+          {txStatus === 'success' && onViewPosition && (
+            <button className="ks-primary-btn flex-1" onClick={() => onViewPosition(txHash)}>
               View position
             </button>
           )}
@@ -636,24 +543,18 @@ export default function Preview({
               Error details
             </div>
             <DropdownIcon
-              className={`transition-all duration-200 ease-in-out ${
-                !showErrorDetail ? "rotate-0" : "-rotate-180"
-              }`}
+              className={`transition-all duration-200 ease-in-out ${!showErrorDetail ? 'rotate-0' : '-rotate-180'}`}
             />
           </div>
           <div className="ks-lw-divider" />
 
-          <div
-            className={`ks-error-msg ${
-              showErrorDetail ? "mt-3 max-h-[200px]" : ""
-            }`}
-          >
+          <div className={`ks-error-msg ${showErrorDetail ? 'mt-3 max-h-[200px]' : ''}`}>
             {txError?.message || JSON.stringify(txError)}
           </div>
         </div>
 
         <button className="ks-primary-btn w-full" onClick={onDismiss}>
-          {txError ? "Dismiss" : "Close"}
+          {txError ? 'Dismiss' : 'Close'}
         </button>
       </div>
     );
@@ -721,13 +622,13 @@ export default function Preview({
               background: `${theme.warning}33`,
             }}
           >
-            Inactive{" "}
+            Inactive{' '}
             <InfoHelper
               width="300px"
               color={theme.warning}
               text="Your liquidity is outside the current market range and will not be used/earn fees until the market price enters your specified range."
               size={16}
-              style={{ position: "relative", top: "-1px", margin: 0 }}
+              style={{ position: 'relative', top: '-1px', margin: 0 }}
             />
           </div>
         )}
@@ -755,10 +656,7 @@ export default function Preview({
                 {listAmountsIn[index]} {token.symbol}
               </span>
               <span className="ml-1 text-subText">
-                ~
-                {formatCurrency(
-                  tokensInUsdPrice[index] * parseFloat(listAmountsIn[index])
-                )}
+                ~{formatCurrency(tokensInUsdPrice[index] * parseFloat(listAmountsIn[index]))}
               </span>
             </div>
           ))}
@@ -809,18 +707,14 @@ export default function Preview({
 
       <div className="flex flex-col items-center gap-3 mt-4">
         <div className="flex justify-between gap-4 w-full items-start">
-          <div className="text-sm font-medium text-subText">
-            Est. Pooled Amount
-          </div>
+          <div className="text-sm font-medium text-subText">Est. Pooled Amount</div>
           <div className="text-[14px] flex gap-4">
             <div className="flex flex-col gap-1">
               <div className="flex gap-1">
                 {pool?.token0?.logo && (
                   <img
                     src={pool.token0.logo}
-                    className={`w-4 h-4 rounded-full relative ${
-                      positionId ? "" : "mt-1 -top-1"
-                    }`}
+                    className={`w-4 h-4 rounded-full relative ${positionId ? '' : 'mt-1 -top-1'}`}
                     onError={({ currentTarget }) => {
                       currentTarget.onerror = null;
                       currentTarget.src = defaultTokenLogo;
@@ -828,26 +722,23 @@ export default function Preview({
                   />
                 )}
                 <div>
-                  {formatDisplayNumber(
-                    positionId !== undefined ? amount0 : +addedAmount0,
-                    { significantDigits: 4 }
-                  )}{" "}
+                  {formatDisplayNumber(positionId !== undefined ? amount0 : +addedAmount0, {
+                    significantDigits: 4,
+                  })}{' '}
                   {pool?.token0.symbol}
                 </div>
               </div>
 
               {positionId && (
                 <div className="text-end">
-                  +{" "}
-                  {formatDisplayNumber(+addedAmount0, { significantDigits: 4 })}{" "}
+                  + {formatDisplayNumber(+addedAmount0, { significantDigits: 4 })}{' '}
                   {pool?.token0.symbol}
                 </div>
               )}
               <div className="ml-auto w-fit text-subText">
                 ~
                 {formatCurrency(
-                  +(addedLiqInfo?.addLiquidity.token0.amountUsd || 0) +
-                    positionAmount0Usd
+                  +(addedLiqInfo?.addLiquidity.token0.amountUsd || 0) + positionAmount0Usd
                 )}
               </div>
             </div>
@@ -856,9 +747,7 @@ export default function Preview({
                 {pool?.token1?.logo && (
                   <img
                     src={pool.token1.logo}
-                    className={`w-4 h-4 rounded-full relative ${
-                      positionId ? "" : "mt-1 -top-1"
-                    }`}
+                    className={`w-4 h-4 rounded-full relative ${positionId ? '' : 'mt-1 -top-1'}`}
                     onError={({ currentTarget }) => {
                       currentTarget.onerror = null;
                       currentTarget.src = defaultTokenLogo;
@@ -866,25 +755,22 @@ export default function Preview({
                   />
                 )}
                 <div>
-                  {formatDisplayNumber(
-                    positionId !== undefined ? amount1 : +addedAmount1,
-                    { significantDigits: 4 }
-                  )}{" "}
+                  {formatDisplayNumber(positionId !== undefined ? amount1 : +addedAmount1, {
+                    significantDigits: 4,
+                  })}{' '}
                   {pool?.token1.symbol}
                 </div>
               </div>
               {positionId && (
                 <div className="text-end">
-                  +{" "}
-                  {formatDisplayNumber(+addedAmount1, { significantDigits: 4 })}{" "}
+                  + {formatDisplayNumber(+addedAmount1, { significantDigits: 4 })}{' '}
                   {pool?.token1.symbol}
                 </div>
               )}
               <div className="ml-auto w-fit text-subText">
                 ~
                 {formatCurrency(
-                  +(addedLiqInfo?.addLiquidity.token1.amountUsd || 0) +
-                    positionAmount1Usd
+                  +(addedLiqInfo?.addLiquidity.token1.amountUsd || 0) + positionAmount1Usd
                 )}
               </div>
             </div>
@@ -906,7 +792,7 @@ export default function Preview({
               text={
                 <div>
                   <div>
-                    {refundAmount0} {pool.token0.symbol}{" "}
+                    {refundAmount0} {pool.token0.symbol}{' '}
                   </div>
                   <div>
                     {refundAmount1} {pool.token1.symbol}
@@ -936,10 +822,10 @@ export default function Preview({
                     <div
                       className={`text-xs border-b border-dotted border-subText ${
                         swapPiRes.piRes.level === PI_LEVEL.NORMAL
-                          ? "text-subText"
+                          ? 'text-subText'
                           : swapPiRes.piRes.level === PI_LEVEL.HIGH
-                          ? "!text-warning !border-warning"
-                          : "!text-error !border-error"
+                            ? '!text-warning !border-warning'
+                            : '!text-error !border-error'
                       }`}
                     >
                       Swap Price Impact
@@ -951,21 +837,21 @@ export default function Preview({
                     <div
                       className={`text-xs flex justify-between align-middle ${
                         item.piRes.level === PI_LEVEL.NORMAL
-                          ? "text-subText brightness-125"
+                          ? 'text-subText brightness-125'
                           : item.piRes.level === PI_LEVEL.HIGH
-                          ? "text-warning"
-                          : "text-error"
+                            ? 'text-warning'
+                            : 'text-error'
                       }`}
                       key={index}
                     >
                       <div className="ml-3">
                         {formatDisplayNumber(item.amountIn, {
                           significantDigits: 4,
-                        })}{" "}
-                        {item.tokenInSymbol} {"→ "}
+                        })}{' '}
+                        {item.tokenInSymbol} {'→ '}
                         {formatDisplayNumber(item.amountOut, {
                           significantDigits: 4,
-                        })}{" "}
+                        })}{' '}
                         {item.tokenOutSymbol}
                       </div>
                       <div>{item.piRes.display}</div>
@@ -996,13 +882,12 @@ export default function Preview({
           >
             <div
               className={cn(
-                "text-xs text-subText border-b border-dotted border-subText",
-                piRes.level === PI_LEVEL.VERY_HIGH ||
-                  piRes.level === PI_LEVEL.INVALID
-                  ? "border-error text-error"
+                'text-xs text-subText border-b border-dotted border-subText',
+                piRes.level === PI_LEVEL.VERY_HIGH || piRes.level === PI_LEVEL.INVALID
+                  ? 'border-error text-error'
                   : piRes.level === PI_LEVEL.HIGH
-                  ? "border-warning text-warning"
-                  : "border-subText text-subText"
+                    ? 'border-warning text-warning'
+                    : 'border-subText text-subText'
               )}
             >
               Zap impact
@@ -1011,26 +896,22 @@ export default function Preview({
           {zapInfo ? (
             <div
               className={`text-sm font-medium ${
-                piRes.level === PI_LEVEL.VERY_HIGH ||
-                piRes.level === PI_LEVEL.INVALID
-                  ? "text-error"
+                piRes.level === PI_LEVEL.VERY_HIGH || piRes.level === PI_LEVEL.INVALID
+                  ? 'text-error'
                   : piRes.level === PI_LEVEL.HIGH
-                  ? "text-warning"
-                  : "text-text"
+                    ? 'text-warning'
+                    : 'text-text'
               }`}
             >
               {piRes.display}
             </div>
           ) : (
-            "--"
+            '--'
           )}
         </div>
 
         <div className="flex justify-between items-center gap-4 w-full">
-          <MouseoverTooltip
-            text="Estimated network fee for your transaction."
-            width="220px"
-          >
+          <MouseoverTooltip text="Estimated network fee for your transaction." width="220px">
             <div className="text-xs text-subText border-b border-dotted border-subText">
               Est. Gas Fee
             </div>
@@ -1039,9 +920,9 @@ export default function Preview({
             {gasUsd
               ? formatDisplayNumber(gasUsd, {
                   significantDigits: 4,
-                  style: "currency",
+                  style: 'currency',
                 })
-              : "--"}
+              : '--'}
           </div>
         </div>
 
@@ -1049,13 +930,13 @@ export default function Preview({
           <MouseoverTooltip
             text={
               <div>
-                Fees charged for automatically zapping into a liquidity pool.
-                You still have to pay the standard gas fees.{" "}
+                Fees charged for automatically zapping into a liquidity pool. You still have to pay
+                the standard gas fees.{' '}
                 <a
                   className="text-accent"
                   href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-zap-as-a-service/zap-fee-model"
                   target="_blank"
-                  rel="noopener norefferer"
+                  rel="noopener norefferer noreferrer"
                 >
                   More details.
                 </a>
@@ -1067,9 +948,7 @@ export default function Preview({
               Zap Fee
             </div>
           </MouseoverTooltip>
-          <div className="text-sm font-medium">
-            {parseFloat(zapFee.toFixed(3))}%
-          </div>
+          <div className="text-sm font-medium">{parseFloat(zapFee.toFixed(3))}%</div>
         </div>
       </div>
 
@@ -1082,23 +961,19 @@ export default function Preview({
           }}
         >
           {slippage > zapInfo.zapDetails.suggestedSlippage * 2
-            ? "Your slippage is set higher than usual, which may cause unexpected losses."
-            : "Your slippage is set lower than usual, increasing the risk of transaction failure."}
+            ? 'Your slippage is set higher than usual, which may cause unexpected losses.'
+            : 'Your slippage is set lower than usual, increasing the risk of transaction failure.'}
         </div>
       )}
 
       {zapInfo && swapPiRes.piRes.level !== PI_LEVEL.NORMAL && (
         <div
           className={`rounded-md text-xs px-4 py-3 mt-4 font-normal ${
-            swapPiRes.piRes.level === PI_LEVEL.HIGH
-              ? "text-warning"
-              : "text-error"
+            swapPiRes.piRes.level === PI_LEVEL.HIGH ? 'text-warning' : 'text-error'
           }`}
           style={{
             backgroundColor:
-              swapPiRes.piRes.level === PI_LEVEL.HIGH
-                ? `${theme.warning}33`
-                : `${theme.error}33`,
+              swapPiRes.piRes.level === PI_LEVEL.HIGH ? `${theme.warning}33` : `${theme.error}33`,
           }}
         >
           {swapPiRes.piRes.msg}
@@ -1107,9 +982,7 @@ export default function Preview({
 
       {zapInfo && piRes.level !== PI_LEVEL.NORMAL && (
         <div
-          className={`rounded-md text-xs px-4 py-3 mt-4 font-normal ${
-            piHigh ? "text-warning" : "text-error"
-          }`}
+          className={`rounded-md text-xs px-4 py-3 mt-4 font-normal ${piHigh ? 'text-warning' : 'text-error'}`}
           style={{
             backgroundColor: piHigh ? `${theme.warning}33` : `${theme.error}33`,
           }}
@@ -1119,22 +992,17 @@ export default function Preview({
       )}
 
       <p className="text-[#737373] italic text-xs mt-4">
-        The information is intended solely for your reference at the time you
-        are viewing. It is your responsibility to verify all information before
-        making decisions
+        The information is intended solely for your reference at the time you are viewing. It is
+        your responsibility to verify all information before making decisions
       </p>
 
       <button
         className={`ks-primary-btn mt-4 w-full ${
-          piVeryHigh
-            ? "bg-error border-error"
-            : piHigh
-            ? "bg-warning border-warning"
-            : ""
+          piVeryHigh ? 'bg-error border-error' : piHigh ? 'bg-warning border-warning' : ''
         }`}
         onClick={handleClick}
       >
-        {positionId ? "Increase" : "Add"} Liquidity
+        {positionId ? 'Increase' : 'Add'} Liquidity
       </button>
     </div>
   );

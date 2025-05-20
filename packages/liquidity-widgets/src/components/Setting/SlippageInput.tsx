@@ -1,15 +1,15 @@
-import { useState } from "react";
-import { useZapState } from "@/hooks/useZapInState";
-import AlertIcon from "@/assets/svg/alert.svg";
+import { useState } from 'react';
 
-export const parseSlippageInput = (str: string): number =>
-  Math.round(Number.parseFloat(str) * 100);
+import AlertIcon from '@/assets/svg/alert.svg';
+import { useZapState } from '@/hooks/useZapInState';
+
+export const parseSlippageInput = (str: string): number => Math.round(Number.parseFloat(str) * 100);
 
 export const validateSlippageInput = (
   str: string,
   suggestedSlippage: number
 ): { isValid: boolean; message?: string } => {
-  if (str === "") {
+  if (str === '') {
     return {
       isValid: true,
     };
@@ -63,7 +63,7 @@ export const validateSlippageInput = (
 const SlippageInput = () => {
   const { slippage, setSlippage, setManualSlippage, zapInfo } = useZapState();
   const [v, setV] = useState(() => {
-    if ([5, 10, 50, 100].includes(slippage)) return "";
+    if ([5, 10, 50, 100].includes(slippage)) return '';
     return ((slippage * 100) / 10_000).toString();
   });
 
@@ -90,7 +90,7 @@ const SlippageInput = () => {
   const onCustomSlippageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
 
-    if (value === "") {
+    if (value === '') {
       setV(value);
       setSlippage(10);
       return;
@@ -124,7 +124,7 @@ const SlippageInput = () => {
             onClick={() => {
               setSlippage(item);
               setManualSlippage(true);
-              setV("");
+              setV('');
             }}
             key={item}
             style={{ flex: 2 }}
@@ -143,9 +143,7 @@ const SlippageInput = () => {
         >
           {zapInfo && message && (
             <AlertIcon
-              className={`absolute top-[5px] left-1 w-4 h-4 ${
-                isValid ? "text-warning" : "text-error"
-              }`}
+              className={`absolute top-[5px] left-1 w-4 h-4 ${isValid ? 'text-warning' : 'text-error'}`}
             />
           )}
           <input
@@ -163,9 +161,7 @@ const SlippageInput = () => {
       </div>
       {zapInfo && (message || slippage) && (
         <div
-          className={`text-xs text-left mt-1 max-w-[280px] ${
-            isValid ? "text-warning" : "text-error"
-          }`}
+          className={`text-xs text-left mt-1 max-w-[280px] ${isValid ? 'text-warning' : 'text-error'}`}
         >
           {message || slpWarning}
         </div>

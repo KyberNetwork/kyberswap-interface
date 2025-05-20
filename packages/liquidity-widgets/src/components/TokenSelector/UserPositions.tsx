@@ -1,22 +1,25 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { shortenAddress } from "../TokenInfo/utils";
+import { useCallback, useEffect, useMemo, useState } from 'react';
+
 import {
   API_URLS,
-  EarnDex,
-  Univ2EarnDex,
   EARN_SUPPORTED_CHAINS,
   EARN_SUPPORTED_PROTOCOLS,
-} from "@kyber/schema";
-import { useZapState } from "@/hooks/useZapInState";
-import { useWidgetContext } from "@/stores";
-import { EarnPosition, PositionStatus } from "@/types/index";
-import { isAddress } from "@kyber/utils/crypto";
-import { formatDisplayNumber } from "@kyber/utils/number";
-import CircleCheckBig from "@/assets/svg/circle-check-big.svg";
-import IconCopy from "@/assets/svg/copy.svg";
-import IconPositionConnectWallet from "@/assets/svg/ic_position_connect_wallet.svg";
-import IconPositionNotFound from "@/assets/svg/ic_position_not_found.svg";
-import defaultTokenLogo from "@/assets/svg/question.svg?url";
+  EarnDex,
+  Univ2EarnDex,
+} from '@kyber/schema';
+import { isAddress } from '@kyber/utils/crypto';
+import { formatDisplayNumber } from '@kyber/utils/number';
+
+import CircleCheckBig from '@/assets/svg/circle-check-big.svg';
+import IconCopy from '@/assets/svg/copy.svg';
+import IconPositionConnectWallet from '@/assets/svg/ic_position_connect_wallet.svg';
+import IconPositionNotFound from '@/assets/svg/ic_position_not_found.svg';
+import defaultTokenLogo from '@/assets/svg/question.svg?url';
+import { useZapState } from '@/hooks/useZapInState';
+import { useWidgetContext } from '@/stores';
+import { EarnPosition, PositionStatus } from '@/types/index';
+
+import { shortenAddress } from '../TokenInfo/utils';
 
 const COPY_TIMEOUT = 2000;
 let hideCopied: ReturnType<typeof setTimeout>;
@@ -50,18 +53,12 @@ const UserPositions = ({ search }: { search: string }) => {
 
     return positions.filter((position: EarnPosition) => {
       const poolAddress = position.pool.poolAddress.toLowerCase();
-      const token0Symbol =
-        position.pool.tokenAmounts[0]?.token.symbol.toLowerCase();
-      const token1Symbol =
-        position.pool.tokenAmounts[1]?.token.symbol.toLowerCase();
-      const token0Name =
-        position.pool.tokenAmounts[0]?.token.name.toLowerCase();
-      const token1Name =
-        position.pool.tokenAmounts[1]?.token.name.toLowerCase();
-      const token0Address =
-        position.pool.tokenAmounts[0]?.token.address.toLowerCase();
-      const token1Address =
-        position.pool.tokenAmounts[1]?.token.address.toLowerCase();
+      const token0Symbol = position.pool.tokenAmounts[0]?.token.symbol.toLowerCase();
+      const token1Symbol = position.pool.tokenAmounts[1]?.token.symbol.toLowerCase();
+      const token0Name = position.pool.tokenAmounts[0]?.token.name.toLowerCase();
+      const token1Name = position.pool.tokenAmounts[1]?.token.name.toLowerCase();
+      const token0Address = position.pool.tokenAmounts[0]?.token.address.toLowerCase();
+      const token1Address = position.pool.tokenAmounts[1]?.token.address.toLowerCase();
 
       return isAddress(search)
         ? poolAddress.includes(search.toLowerCase()) ||
@@ -91,16 +88,16 @@ const UserPositions = ({ search }: { search: string }) => {
     try {
       const response = await fetch(
         `${API_URLS.ZAP_EARN_API}/v1/userPositions` +
-          "?" +
+          '?' +
           new URLSearchParams({
             addresses: account,
             chainIds: chainId.toString(),
-            protocols: EARN_SUPPORTED_PROTOCOLS.join(","),
-            quoteSymbol: "usd",
-            offset: "0",
-            orderBy: "liquidity",
-            orderASC: "false",
-            positionStatus: "open",
+            protocols: EARN_SUPPORTED_PROTOCOLS.join(','),
+            quoteSymbol: 'usd',
+            offset: '0',
+            orderBy: 'liquidity',
+            orderASC: 'false',
+            positionStatus: 'open',
           }).toString()
       );
       const data = await response.json();
@@ -108,7 +105,7 @@ const UserPositions = ({ search }: { search: string }) => {
         setUserPositions(data.data.positions);
       }
     } catch (error) {
-      console.log("fetch user positions error", error);
+      console.log('fetch user positions error', error);
     } finally {
       setLoading(false);
     }
@@ -212,8 +209,8 @@ const UserPositions = ({ search }: { search: string }) => {
                   />
                 </div>
                 <span>
-                  {position.pool.tokenAmounts[0]?.token.symbol || ""}/
-                  {position.pool.tokenAmounts[1]?.token.symbol || ""}
+                  {position.pool.tokenAmounts[0]?.token.symbol || ''}/
+                  {position.pool.tokenAmounts[1]?.token.symbol || ''}
                 </span>
                 {position.pool.fees?.length > 0 && (
                   <div className="rounded-full text-sm bg-[#ffffff14] text-subText px-[10px] py-1">
@@ -223,7 +220,7 @@ const UserPositions = ({ search }: { search: string }) => {
               </div>
               <div>
                 {formatDisplayNumber(position.currentPositionValue, {
-                  style: "currency",
+                  style: 'currency',
                   significantDigits: 4,
                 })}
               </div>
@@ -240,9 +237,7 @@ const UserPositions = ({ search }: { search: string }) => {
                     currentTarget.src = defaultTokenLogo;
                   }}
                 />
-                {!isUniv2 && (
-                  <span className="text-subText">#{position.tokenId}</span>
-                )}
+                {!isUniv2 && <span className="text-subText">#{position.tokenId}</span>}
                 <div className="text-[#027BC7] bg-[#ffffff0a] rounded-full px-[10px] py-1 flex gap-1 text-sm">
                   {shortenAddress(position.pool.poolAddress, 4)}
                   {copied !== position.tokenId ? (
@@ -260,19 +255,13 @@ const UserPositions = ({ search }: { search: string }) => {
               </div>
               <div
                 className={`rounded-full text-xs px-2 py-1 font-normal text-${
-                  posStatus === PositionStatus.OUT_RANGE ? "warning" : "accent"
+                  posStatus === PositionStatus.OUT_RANGE ? 'warning' : 'accent'
                 }`}
                 style={{
-                  background: `${
-                    posStatus === PositionStatus.OUT_RANGE
-                      ? theme.warning
-                      : theme.accent
-                  }33`,
+                  background: `${posStatus === PositionStatus.OUT_RANGE ? theme.warning : theme.accent}33`,
                 }}
               >
-                {posStatus === PositionStatus.OUT_RANGE
-                  ? "● Out of range"
-                  : "● In range"}
+                {posStatus === PositionStatus.OUT_RANGE ? '● Out of range' : '● In range'}
               </div>
             </div>
           </div>

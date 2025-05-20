@@ -1,20 +1,18 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from 'react';
+
+import { Univ3PoolType, univ3PoolNormalize } from '@kyber/schema';
+import { Button } from '@kyber/ui/button';
+import { toString } from '@kyber/utils/number';
+import { nearestUsableTick, priceToClosestTick, tickToPrice } from '@kyber/utils/uniswapv3';
+
 import {
+  DEFAULT_PRICE_RANGE,
+  FULL_PRICE_RANGE,
   FeeAmount,
   PRICE_RANGE,
-  FULL_PRICE_RANGE,
-  DEFAULT_PRICE_RANGE,
-} from "@/components/PriceRange/constants";
-import { Button } from "@kyber/ui/button";
-import { useZapState } from "@/hooks/useZapInState";
-import { useWidgetContext } from "@/stores";
-import {
-  nearestUsableTick,
-  priceToClosestTick,
-  tickToPrice,
-} from "@kyber/utils/uniswapv3";
-import { univ3PoolNormalize, Univ3PoolType } from "@kyber/schema";
-import { toString } from "@kyber/utils/number";
+} from '@/components/PriceRange/constants';
+import { useZapState } from '@/hooks/useZapInState';
+import { useWidgetContext } from '@/stores';
 
 interface SelectedRange {
   range: number | string;
@@ -24,44 +22,27 @@ interface SelectedRange {
 
 const getFeeRange = (fee: number): FeeAmount | undefined => {
   if (!fee) return;
-  return [
-    FeeAmount.HIGH,
-    FeeAmount.MEDIUM,
-    FeeAmount.LOW,
-    FeeAmount.LOWEST,
-  ].reduce(
+  return [FeeAmount.HIGH, FeeAmount.MEDIUM, FeeAmount.LOW, FeeAmount.LOWEST].reduce(
     (range, current) => (current >= fee ? current : range),
     FeeAmount.HIGH
   );
 };
 
 const PriceRange = () => {
-  const [selectedRange, setSelectedRange] = useState<SelectedRange | null>(
-    null
-  );
+  const [selectedRange, setSelectedRange] = useState<SelectedRange | null>(null);
 
-  const {
-    priceLower,
-    priceUpper,
-    setTickLower,
-    setTickUpper,
-    tickLower,
-    tickUpper,
-    revertPrice,
-  } = useZapState();
+  const { priceLower, priceUpper, setTickLower, setTickUpper, tickLower, tickUpper, revertPrice } =
+    useZapState();
 
   const { pool, positionId } = useWidgetContext((s) => s);
-  const loading = pool === "loading";
+  const loading = pool === 'loading';
 
-  const fee = pool === "loading" ? 0 : pool.fee;
+  const fee = pool === 'loading' ? 0 : pool.fee;
   const feeRange = getFeeRange(fee);
-  const priceRanges = useMemo(
-    () => (feeRange ? PRICE_RANGE[feeRange] : []),
-    [feeRange]
-  );
+  const priceRanges = useMemo(() => (feeRange ? PRICE_RANGE[feeRange] : []), [feeRange]);
 
   const priceRangeCalculated = useMemo(() => {
-    if (!priceRanges.length || pool === "loading") return;
+    if (!priceRanges.length || pool === 'loading') return;
     const { success, data } = univ3PoolNormalize.safeParse(pool);
     if (!success) return;
     return priceRanges
@@ -109,28 +90,28 @@ const PriceRange = () => {
   }, [pool, priceRanges]);
 
   const minPrice = useMemo(() => {
-    if (pool !== "loading") {
+    if (pool !== 'loading') {
       const { success, data } = univ3PoolNormalize.safeParse(pool);
       if (
         success &&
         ((!revertPrice && data.minTick === tickLower) ||
           (revertPrice && data.maxTick === tickUpper))
       )
-        return "0";
+        return '0';
 
       return !revertPrice ? priceLower : priceUpper;
     }
   }, [revertPrice, pool, tickLower, tickUpper, priceLower, priceUpper]);
 
   const maxPrice = useMemo(() => {
-    if (pool !== "loading") {
+    if (pool !== 'loading') {
       const { success, data } = univ3PoolNormalize.safeParse(pool);
       if (
         success &&
         ((!revertPrice && data.maxTick === tickUpper) ||
           (revertPrice && data.minTick === tickLower))
       )
-        return "∞";
+        return '∞';
       return !revertPrice ? priceUpper : priceLower;
     }
   }, [revertPrice, pool, tickUpper, tickLower, priceUpper, priceLower]);
@@ -160,8 +141,7 @@ const PriceRange = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [feeRange]);
 
-  const isUniv3 =
-    pool !== "loading" && Univ3PoolType.safeParse(pool.poolType).success;
+  const isUniv3 = pool !== 'loading' && Univ3PoolType.safeParse(pool.poolType).success;
 
   if (!isUniv3) return null;
 
@@ -171,14 +151,8 @@ const PriceRange = () => {
         <Button
           key={index}
           variant="outline"
-          className={`flex-1 ${
-            item === selectedRange?.range
-              ? " text-accent !border-accent"
-              : " text-subText"
-          }`}
-          onClick={() =>
-            handleSelectPriceRange(item as typeof FULL_PRICE_RANGE | number)
-          }
+          className={`flex-1 ${item === selectedRange?.range ? ' text-accent !border-accent' : ' text-subText'}`}
+          onClick={() => handleSelectPriceRange(item as typeof FULL_PRICE_RANGE | number)}
         >
           {item === FULL_PRICE_RANGE ? item : `${Number(item) * 100}%`}
         </Button>
@@ -186,9 +160,7 @@ const PriceRange = () => {
     </div>
   ) : (
     <div className="px-4 py-3 mt-4 text-sm border border-stroke rounded-md">
-      <p className="text-subText mb-3">
-        {!loading ? "Your Position Price Ranges" : "Loading..."}
-      </p>
+      <p className="text-subText mb-3">{!loading ? 'Your Position Price Ranges' : 'Loading...'}</p>
       {!loading && (
         <div className="flex items-center gap-4">
           <div className="bg-white bg-opacity-[0.04] rounded-md py-3 w-1/2 flex flex-col items-center justify-center gap-1">
