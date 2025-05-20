@@ -94,19 +94,17 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
   const isToEvm = isEvmChain(Number(to))
 
   useEffect(() => {
-    if (account && !evmRecipient) {
+    if (account) {
       setEvmRecipient(account)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [account])
 
   const { signedAccountId } = useWalletSelector()
 
   useEffect(() => {
-    if (signedAccountId && !nearRecipient) {
+    if (signedAccountId) {
       setNearRecipient(signedAccountId)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [signedAccountId])
 
   const { walletInfo } = useBitcoinWallet()
@@ -114,10 +112,9 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
   const btcPublicKey = walletInfo?.publicKey
 
   useEffect(() => {
-    if (btcAddress && !btcRecipient) {
+    if (btcAddress) {
       setBtcRecipient(btcAddress)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [btcAddress])
 
   const recipient = useMemo(() => {

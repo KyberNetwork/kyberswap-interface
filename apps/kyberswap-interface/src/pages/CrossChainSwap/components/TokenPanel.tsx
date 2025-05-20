@@ -48,8 +48,10 @@ export const TokenPanel = ({
   onUserInput,
   disabled,
   onSelectCurrency,
+  evmLayout,
   setShowBtcConnect,
 }: {
+  evmLayout?: boolean
   setShowBtcConnect: (val: boolean) => void
   selectedChain?: Chain
   selectedCurrency?: Currency
@@ -203,52 +205,56 @@ export const TokenPanel = ({
           ref={ref}
         />
 
-        <Flex
-          role="button"
-          fontSize={12}
-          fontWeight={500}
-          alignItems="center"
-          color={theme.subText}
-          sx={{ gap: '4px', cursor: 'pointer', position: 'relative' }}
-          onClick={handleWalletClick}
-        >
-          {connectedAddress
-            ? selectedChain === NonEvmChain.Near
-              ? connectedAddress
-              : shortenHash(connectedAddress)
-            : `Select Wallet`}
-          <ChevronDown size={14} />
+        {evmLayout ? (
+          balanceSection
+        ) : (
+          <Flex
+            role="button"
+            fontSize={12}
+            fontWeight={500}
+            alignItems="center"
+            color={theme.subText}
+            sx={{ gap: '4px', cursor: 'pointer', position: 'relative' }}
+            onClick={handleWalletClick}
+          >
+            {connectedAddress
+              ? selectedChain === NonEvmChain.Near && connectedAddress.includes('.near')
+                ? connectedAddress
+                : shortenHash(connectedAddress)
+              : `Select Wallet`}
+            <ChevronDown size={14} />
 
-          {showMenu && (
-            <Box
-              ref={node}
-              sx={{
-                position: 'absolute',
-                right: 0,
-                top: '26px',
-                background: theme.tableHeader,
-                borderRadius: '8px',
-              }}
-            >
-              <Text
-                role="button"
-                padding="12px 16px"
-                onClick={async e => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  if (selectedChain === NonEvmChain.Near) nearSignOut()
-                  else if (selectedChain === NonEvmChain.Bitcoin)
-                    await availableWallets.find(wallet => wallet.type === walletInfo.walletType)?.disconnect?.()
-                  else disconnectWallet()
-
-                  toggleShowMenu()
+            {showMenu && (
+              <Box
+                ref={node}
+                sx={{
+                  position: 'absolute',
+                  right: 0,
+                  top: '26px',
+                  background: theme.tableHeader,
+                  borderRadius: '8px',
                 }}
               >
-                Disconnect
-              </Text>
-            </Box>
-          )}
-        </Flex>
+                <Text
+                  role="button"
+                  padding="12px 16px"
+                  onClick={async e => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    if (selectedChain === NonEvmChain.Near) nearSignOut()
+                    else if (selectedChain === NonEvmChain.Bitcoin)
+                      await availableWallets.find(wallet => wallet.type === walletInfo.walletType)?.disconnect?.()
+                    else disconnectWallet()
+
+                    toggleShowMenu()
+                  }}
+                >
+                  Disconnect
+                </Text>
+              </Box>
+            )}
+          </Flex>
+        )}
       </Flex>
 
       <InputRow>
@@ -311,7 +317,7 @@ export const TokenPanel = ({
           </Aligner>
         </CurrencySelect>
       </InputRow>
-      {balanceSection}
+      {!evmLayout && balanceSection}
 
       {isEvm ? (
         <CurrencySearchModal

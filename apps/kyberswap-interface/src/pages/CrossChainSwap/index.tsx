@@ -21,10 +21,11 @@ import { AutoColumn } from 'components/Column'
 import { ButtonLight } from 'components/Button'
 import { NonEvmChain } from './adapters'
 import { useActiveWeb3React } from 'hooks'
-import { ChangeEvent, useState } from 'react'
+import { ChangeEvent, useEffect, useState } from 'react'
 import { BitcoinConnectModal } from './components/BitcoinConnectModal'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import { PiWarning } from './components/PiWarning'
+import { ChevronDown, ChevronUp } from 'react-feather'
 
 const Wrapper = styled.div`
   display: flex;
@@ -55,11 +56,18 @@ function CrossChainSwap() {
   const [searchParams, setSearchParams] = useSearchParams()
   const { account } = useActiveWeb3React()
   const [showBtcModal, setShowBtcConnect] = useState(false)
+  const [showEvmRecipient, setShowEvmRecipient] = useState(false)
 
   const isToNear = toChainId === NonEvmChain.Near
   const isToBtc = toChainId === NonEvmChain.Bitcoin
   const isToEvm = toChainId && isEvmChain(toChainId)
   const networkName = isToNear ? 'NEAR' : isToBtc ? 'Bitcoin' : 'EVM'
+
+  useEffect(() => {
+    if (isEvmChain(fromChainId) && isToEvm && !showEvmRecipient) {
+      setRecipient(account || '')
+    }
+  }, [showEvmRecipient, account, fromChainId, isToEvm, setRecipient])
 
   const nearWallet = useWalletSelector()
   const { walletInfo } = useBitcoinWallet()
@@ -76,6 +84,7 @@ function CrossChainSwap() {
   return (
     <Wrapper>
       <TokenPanel
+        evmLayout={isEvmChain(fromChainId) && isToEvm}
         setShowBtcConnect={setShowBtcConnect}
         selectedChain={fromChainId}
         selectedCurrency={currencyIn || undefined}
@@ -155,6 +164,7 @@ function CrossChainSwap() {
       </Flex>
 
       <TokenPanel
+        evmLayout={isEvmChain(fromChainId) && isToEvm}
         setShowBtcConnect={setShowBtcConnect}
         selectedChain={toChainId}
         selectedCurrency={currencyOut || undefined}
@@ -182,9 +192,23 @@ function CrossChainSwap() {
 
       <AutoColumn gap="8px">
         <Flex justifyContent="space-between" fontSize={12} color={theme.subText} px="8px" alignItems="center">
-          <Text>Recipient ({networkName} address)</Text>
+          <Flex
+            alignItems="center"
+            sx={{ gap: '4px', cursor: 'pointer' }}
+            role="button"
+            onClick={() => {
+              if (isEvmChain(fromChainId) && isToEvm) setShowEvmRecipient(prev => !prev)
+            }}
+          >
+            <Text>
+              {isEvmChain(fromChainId) && isToEvm ? 'Send to other wallet' : `Recipient (${networkName} address)`}
+            </Text>
+            {isEvmChain(fromChainId) &&
+              isToEvm &&
+              (showEvmRecipient ? <ChevronUp size={16} /> : <ChevronDown size={16} />)}
+          </Flex>
 
-          {toChainId && (
+          {toChainId && (isEvmChain(fromChainId) && isToEvm ? showEvmRecipient : true) && (
             <Flex sx={{ gap: '4px' }}>
               {isDifferentRecipient && (
                 <ButtonLight
@@ -205,15 +229,17 @@ function CrossChainSwap() {
             </Flex>
           )}
         </Flex>
-        <AddressInput
-          placeholder={`Enter ${networkName} receiving address`}
-          value={recipient}
-          onChange={(event: ChangeEvent<HTMLInputElement>) => {
-            const input = event.target.value
-            const withoutSpaces = input.replace(/\s+/g, '')
-            setRecipient(withoutSpaces)
-          }}
-        />
+        {(isEvmChain(fromChainId) && isToEvm ? showEvmRecipient : true) && (
+          <AddressInput
+            placeholder={`Enter ${networkName} receiving address`}
+            value={recipient}
+            onChange={(event: ChangeEvent<HTMLInputElement>) => {
+              const input = event.target.value
+              const withoutSpaces = input.replace(/\s+/g, '')
+              setRecipient(withoutSpaces)
+            }}
+          />
+        )}
       </AutoColumn>
 
       <SlippageSetting
