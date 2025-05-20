@@ -353,6 +353,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
               .getAllAdapters()
               .filter(
                 adapter =>
+                  adapter.getName() !== 'KyberSwap' &&
                   adapter.getSupportedChains().includes(params.fromChain) &&
                   adapter.getSupportedChains().includes(params.toChain),
               )

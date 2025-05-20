@@ -23,7 +23,7 @@ const Wrapper = styled.div`
 export const Summary = ({ quote, tokenOut, full }: { quote?: Quote; tokenOut?: Currency; full?: boolean }) => {
   const [slippage] = useUserSlippageTolerance()
 
-  const { currencyIn } = useCrossChainSwap()
+  const { currencyIn, warning } = useCrossChainSwap()
 
   const theme = useTheme()
   const minimumReceived =
@@ -68,7 +68,15 @@ export const Summary = ({ quote, tokenOut, full }: { quote?: Quote; tokenOut?: C
             Price Impact
           </Text>
         </MouseoverTooltip>
-        <Text>
+        <Text
+          color={
+            warning?.priceImpaceInfo.isVeryHigh
+              ? theme.red
+              : warning?.priceImpaceInfo.isHigh
+              ? theme.warning
+              : undefined
+          }
+        >
           {quote
             ? `${quote.quote.priceImpact < 0.01 ? '<0.01%' : Math.abs(quote.quote.priceImpact).toFixed(2)}%`
             : '--'}
@@ -127,7 +135,18 @@ export const Summary = ({ quote, tokenOut, full }: { quote?: Quote; tokenOut?: C
           </Text>
         </MouseoverTooltip>
 
-        <Text>{((slippage * 100) / 10_000).toFixed(2)}%</Text>
+        <MouseoverTooltip text={warning?.slippageInfo.message}>
+          <Text
+            color={warning?.slippageInfo.message ? theme.warning : undefined}
+            sx={{
+              textDecoration: warning?.slippageInfo.message ? 'underline' : undefined,
+              textDecorationStyle: 'dotted',
+              textUnderlineOffset: '4px',
+            }}
+          >
+            {((slippage * 100) / 10_000).toFixed(2)}%
+          </Text>
+        </MouseoverTooltip>
       </Flex>
     </Wrapper>
   )
