@@ -400,7 +400,9 @@ const MyDashboard = () => {
                       ESTIMATED REWARDS {infor}
                     </Text>
                     <Flex justifyContent="flex-end" alignItems="flex-end" flexDirection="column">
-                      <Text>{formatDisplayNumber(totalRw.toFixed(3), { significantDigits: 6 })} KNC</Text>
+                      <Text>
+                        {formatDisplayNumber(totalRw.toFixed(3), { significantDigits: 6 })} {rewardTokenSymbol}
+                      </Text>
                       <Text color={theme.subText}>
                         {formatDisplayNumber((+totalRw.toExact() * price).toFixed(3), {
                           significantDigits: 4,
@@ -414,7 +416,9 @@ const MyDashboard = () => {
                       CLAIMABLE REWARDS
                     </Text>
                     <Flex justifyContent="flex-end" alignItems="flex-end" flexDirection="column">
-                      <Text>{formatDisplayNumber(claimableRw.toFixed(3), { significantDigits: 6 })} KNC</Text>
+                      <Text>
+                        {formatDisplayNumber(claimableRw.toFixed(3), { significantDigits: 6 })} {rewardTokenSymbol}
+                      </Text>
                       <Text color={theme.subText}>
                         {formatDisplayNumber((+claimableRw.toExact() * price).toFixed(3), {
                           significantDigits: 4,
@@ -433,7 +437,9 @@ const MyDashboard = () => {
                 </Text>
                 <Text textAlign="right">{formatDisplayNumber(Math.floor(item.point), { significantDigits: 4 })}</Text>
                 <Flex justifyContent="flex-end" alignItems="flex-end" flexDirection="column">
-                  <Text>{formatDisplayNumber(totalRw.toFixed(3), { significantDigits: 6 })} KNC</Text>
+                  <Text>
+                    {formatDisplayNumber(totalRw.toFixed(3), { significantDigits: 6 })} {rewardTokenSymbol}
+                  </Text>
                   <Text color={theme.subText}>
                     {formatDisplayNumber((+totalRw.toExact() * price).toFixed(3), {
                       significantDigits: 4,
@@ -443,7 +449,9 @@ const MyDashboard = () => {
                 </Flex>
 
                 <Flex justifyContent="flex-end" alignItems="flex-end" flexDirection="column">
-                  <Text>{formatDisplayNumber(claimableRw.toFixed(3), { significantDigits: 6 })} KNC</Text>
+                  <Text>
+                    {formatDisplayNumber(claimableRw.toFixed(3), { significantDigits: 6 })} {rewardTokenSymbol}
+                  </Text>
                   <Text color={theme.subText}>
                     {formatDisplayNumber((+claimableRw.toExact() * price).toFixed(3), {
                       significantDigits: 4,
