@@ -66,7 +66,7 @@ const zapMigrationDexMapping: Record<EarnDex | Exchange, ZapMigrationDex | null>
   [EarnDex.DEX_KODIAK_V3]: ZapMigrationDex.DEX_KODIAK_V3,
   [EarnDex.DEX_UNISWAPV2]: ZapMigrationDex.DEX_UNISWAPV2,
   [EarnDex.DEX_UNISWAP_V4]: ZapMigrationDex.DEX_UNISWAP_V4,
-  [EarnDex.DEX_UNISWAP_V4_KEM]: ZapMigrationDex.DEX_UNISWAP_V4_KEM,
+  [EarnDex.DEX_UNISWAP_V4_FAIRFLOW]: ZapMigrationDex.DEX_UNISWAP_V4_FAIRFLOW,
 
   [Exchange.DEX_UNISWAPV3]: ZapMigrationDex.DEX_UNISWAPV3,
   [Exchange.DEX_PANCAKESWAPV3]: ZapMigrationDex.DEX_PANCAKESWAPV3,
@@ -77,7 +77,7 @@ const zapMigrationDexMapping: Record<EarnDex | Exchange, ZapMigrationDex | null>
   [Exchange.DEX_KODIAK_V3]: ZapMigrationDex.DEX_KODIAK_V3,
   [Exchange.DEX_UNISWAPV2]: ZapMigrationDex.DEX_UNISWAPV2,
   [Exchange.DEX_UNISWAP_V4]: ZapMigrationDex.DEX_UNISWAP_V4,
-  [Exchange.DEX_UNISWAP_V4_KEM]: ZapMigrationDex.DEX_UNISWAP_V4_KEM,
+  [Exchange.DEX_UNISWAP_V4_FAIRFLOW]: ZapMigrationDex.DEX_UNISWAP_V4_FAIRFLOW,
 }
 
 const useZapMigrationWidget = (onRefreshPosition?: () => void) => {

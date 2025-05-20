@@ -122,7 +122,7 @@ export const parseRawPosition = ({
     EarnDex.DEX_UNISWAPV2,
     EarnDex.DEX_UNISWAPV3,
     EarnDex.DEX_UNISWAP_V4,
-    EarnDex.DEX_UNISWAP_V4_KEM,
+    EarnDex.DEX_UNISWAP_V4_FAIRFLOW,
   ]
 
   return {

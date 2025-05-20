@@ -27,7 +27,7 @@ import squadswapv2 from "@/constants/dexes/squadswapv2";
 
 export const DEXES_INFO: Record<PoolType, DexInfo> = {
   [PoolType.DEX_UNISWAP_V4]: uniswapv4,
-  [PoolType.DEX_UNISWAP_V4_KEM]: uniswapv4,
+  [PoolType.DEX_UNISWAP_V4_FAIRFLOW]: uniswapv4,
   [PoolType.DEX_UNISWAPV3]: uniswapv3,
   [PoolType.DEX_PANCAKESWAPV3]: pancakeswapv3,
   [PoolType.DEX_METAVAULTV3]: metavaultv3,
