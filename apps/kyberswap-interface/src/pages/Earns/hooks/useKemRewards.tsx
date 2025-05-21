@@ -64,7 +64,7 @@ const useKemRewards = () => {
     const kncTokenDecimals = 18
 
     const chains = Object.keys(data).map(chainId => {
-      const rewardInfoForChain = data[chainId].campaigns[campaignId].tokens
+      const rewardInfoForChain = data[chainId].campaigns[campaignId]?.tokens || []
 
       const totalUsdValue = rewardInfoForChain.reduce((acc, item) => acc + Number(item.totalUSDValue), 0)
       const pendingUsdValue = rewardInfoForChain.reduce((acc, item) => acc + Number(item.pendingUSDValue), 0)
@@ -289,7 +289,7 @@ const useKemRewards = () => {
 
       supportedChains.forEach(chainInfo => {
         if (data[chainInfo.chainId.toString()]) {
-          data[chainInfo.chainId.toString()].campaigns[campaignId].tokens.forEach(item => {
+          data[chainInfo.chainId.toString()].campaigns[campaignId]?.tokens.forEach(item => {
             Object.keys(item.claimedAmounts).forEach(address => {
               !listTokenAddress.includes(address) && listTokenAddress.push(address)
             })
