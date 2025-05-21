@@ -24,6 +24,7 @@ import Information, { CampaignType } from './components/Information'
 import JoinReferral from './components/JoinReferral'
 import Leaderboard from './components/Leaderboard'
 import { StatCard, Tab, Tabs, Wrapper } from './styles'
+import { KNC } from 'constants/tokens'
 
 function getCurrentWeek(): number {
   const currentDate: Date = new Date()
@@ -242,9 +243,7 @@ export default function Aggregator() {
 
   const rewardChain = type == CampaignType.MayTrading ? ChainId.MAINNET : ChainId.ARBITRUM
   const rewardToken =
-    type == CampaignType.MayTrading
-      ? '0x28fe69Ff6864C1C218878BDCA01482D36B9D57b1'
-      : '0x912CE59144191C1204E64559FE8253a0e49E6548'
+    type == CampaignType.MayTrading ? KNC[rewardChain].address : '0x912CE59144191C1204E64559FE8253a0e49E6548'
   const rewardTokenSymbol = type == CampaignType.MayTrading ? 'KNC' : 'ARB'
   const rewardTokenLogo =
     type == CampaignType.MayTrading

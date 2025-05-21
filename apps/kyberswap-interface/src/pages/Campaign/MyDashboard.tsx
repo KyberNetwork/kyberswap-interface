@@ -22,6 +22,7 @@ import banner from './assets/banner.png'
 import ClaimBtn from './components/ClaimBtn'
 import MyReferralDashboard from './components/MyReferralDashboard'
 import { Tab, Tabs, Wrapper } from './styles'
+import { KNC } from 'constants/tokens'
 
 const TableHeader = styled.div`
   display: grid;
@@ -59,8 +60,7 @@ const MyDashboard = () => {
   }
 
   const rewardChain = tab === 'may-trading' ? ChainId.MAINNET : ChainId.ARBITRUM
-  const rewardToken =
-    tab === 'may-trading' ? '0x28fe69Ff6864C1C218878BDCA01482D36B9D57b1' : '0x912CE59144191C1204E64559FE8253a0e49E6548'
+  const rewardToken = tab === 'may-trading' ? KNC[rewardChain].address : '0x912CE59144191C1204E64559FE8253a0e49E6548'
   const rewardTokenSymbol = tab === 'may-trading' ? 'KNC' : 'ARB'
   const rewardTokenLogo =
     tab === 'may-trading'
@@ -96,7 +96,7 @@ const MyDashboard = () => {
 
   const data = tab === 'may-trading' || tab === 'trading-incentive' ? trading : loData
 
-  const BASE_WEEK = tab === 'may-trading' ? 19 : 27
+  const BASE_WEEK = tab === 'may-trading' ? 20 : 27
 
   const tradingRw = CurrencyAmount.fromRawAmount(mockToken, trading?.data?.totalReward?.split('.')[0] || '0')
   const loRw = CurrencyAmount.fromRawAmount(mockToken, loData?.data?.totalReward?.split('.')[0] || '0')
