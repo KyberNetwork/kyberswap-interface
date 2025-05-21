@@ -52,13 +52,6 @@ export default function useFilter() {
           !arrValue.includes(PositionStatus.CLOSED)
         ) {
           searchParams.delete('status')
-        } else if (arrValue.includes(PositionStatus.CLOSED)) {
-          const index = arrValue.indexOf(PositionStatus.CLOSED)
-          if (index === arrValue.length - 1) searchParams.set('status', PositionStatus.CLOSED)
-          else {
-            arrValue.splice(index, 1)
-            searchParams.set('status', arrValue.join(','))
-          }
         } else searchParams.set('status', value.toString())
       }
 

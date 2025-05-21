@@ -58,7 +58,7 @@ const UserPositions = () => {
     chainIds: filters.chainIds || earnSupportedChains.join(','),
     protocols: filters.protocols || earnSupportedExchanges.join(','),
     q: filters.q,
-    positionStatus: filters.status === PositionStatus.CLOSED ? 'closed' : '',
+    positionStatus: 'all',
   }
 
   const {
@@ -100,12 +100,14 @@ const UserPositions = () => {
       })
     })
 
-    if (filters.status && filters.status !== `${PositionStatus.IN_RANGE},${PositionStatus.OUT_RANGE}`)
-      parsedData = parsedData.filter(position => {
-        if (filters.status === PositionStatus.CLOSED) return position.status === PositionStatus.CLOSED
+    const arrStatus = filters.status.split(',')
+    parsedData = parsedData.filter(position => {
+      if (filters.status === PositionStatus.OUT_RANGE)
+        return !position.pool.isUniv2 && arrStatus.includes(position.status)
 
-        return position.pool.isUniv2 ? filters.status === PositionStatus.IN_RANGE : position.status === filters.status
-      })
+      return arrStatus.includes(position.status)
+    })
+
     if (filters.sortBy) {
       if (filters.sortBy === SortBy.VALUE) {
         parsedData.sort((a, b) => {
