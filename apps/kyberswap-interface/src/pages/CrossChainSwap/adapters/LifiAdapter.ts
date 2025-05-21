@@ -18,7 +18,7 @@ export class LifiAdapter extends BaseSwapAdapter {
   constructor() {
     super()
     createConfig({
-      integrator: 'KyberSwap',
+      integrator: 'kyberswap',
     })
   }
 
