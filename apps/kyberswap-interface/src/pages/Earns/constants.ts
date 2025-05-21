@@ -30,7 +30,7 @@ export enum Exchange {
   DEX_KODIAK_V3 = 'kodiakcl',
   DEX_UNISWAPV2 = 'uniswapv2',
   DEX_UNISWAP_V4 = 'uniswap-v4',
-  DEX_UNISWAP_V4_FAIRFLOW = 'uniswap-v4-kem',
+  DEX_UNISWAP_V4_FAIRFLOW = 'uniswap-v4-fairflow',
 }
 
 export enum EarnChain {
