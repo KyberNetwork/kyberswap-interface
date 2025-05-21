@@ -286,12 +286,15 @@ const useKemRewards = () => {
         return
       }
       const listTokenAddress: string[] = []
+      const propertyToCheck = ['claimableUSDValues', 'claimedAmounts', 'merkleAmounts', 'pendingAmounts'] as const
 
       supportedChains.forEach(chainInfo => {
         if (data[chainInfo.chainId.toString()]) {
           data[chainInfo.chainId.toString()].campaigns[campaignId]?.tokens.forEach(item => {
-            Object.keys(item.claimedAmounts).forEach(address => {
-              !listTokenAddress.includes(address) && listTokenAddress.push(address)
+            propertyToCheck.forEach(property => {
+              Object.keys(item[property as keyof typeof item]).forEach(address => {
+                !listTokenAddress.includes(address) && listTokenAddress.push(address)
+              })
             })
           })
         }
