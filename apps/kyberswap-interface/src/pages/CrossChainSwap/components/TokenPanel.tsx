@@ -182,7 +182,9 @@ export const TokenPanel = ({
       }}
     >
       <Wallet color={theme.subText} />
-      {[NonEvmChain.Near, NonEvmChain.Bitcoin].includes(selectedChain)
+      {!connectedAddress
+        ? '--'
+        : [NonEvmChain.Near, NonEvmChain.Bitcoin].includes(selectedChain)
         ? formatDisplayNumber(
             formatUnits(
               NonEvmChain.Near === selectedChain

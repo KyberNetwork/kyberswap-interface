@@ -19,6 +19,13 @@ const Wrapper = styled.div`
   flex-direction: column;
   gap: 12px;
 `
+export const formatTime = (seconds: number) => {
+  if (seconds <= 60) return `${seconds}s`
+  const mins = Math.floor(seconds / 60)
+  const secs = seconds % 60
+
+  return `${mins}mins ${secs > 0 ? secs + 's' : ''}`
+}
 
 export const Summary = ({ quote, tokenOut, full }: { quote?: Quote; tokenOut?: Currency; full?: boolean }) => {
   const [slippage] = useUserSlippageTolerance()
@@ -59,7 +66,7 @@ export const Summary = ({ quote, tokenOut, full }: { quote?: Quote; tokenOut?: C
             Estimated Processing Time
           </Text>
         </MouseoverTooltip>
-        <Text>{quote ? `~${quote.quote.timeEstimate}s` : '--'}</Text>
+        <Text>{quote ? `~${formatTime(quote.quote.timeEstimate)}` : '--'}</Text>
       </Flex>
 
       <Flex justifyContent="space-between">
