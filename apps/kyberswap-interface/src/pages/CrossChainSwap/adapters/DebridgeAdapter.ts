@@ -168,6 +168,7 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
       data: quote.rawQuote.tx.data,
     })
     return {
+      sender: quote.quoteParams.sender,
       id: quote.rawQuote.orderId, // specific id for each provider
       sourceTxHash: tx,
       adapter: this.getName(),

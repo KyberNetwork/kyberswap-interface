@@ -155,6 +155,7 @@ export class XYFinanceAdapter extends BaseSwapAdapter {
         data: resp.tx.data,
       })
       return {
+        sender: quote.quoteParams.sender,
         id: tx, // specific id for each provider
         sourceTxHash: tx,
         adapter: this.getName(),

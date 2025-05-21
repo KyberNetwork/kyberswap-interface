@@ -116,6 +116,7 @@ export class SymbiosisAdapter extends BaseSwapAdapter {
       data: quote.rawQuote.tx.data,
     })
     return {
+      sender: quote.quoteParams.sender,
       id: tx, // specific id for each provider
       sourceTxHash: tx,
       adapter: this.getName(),

@@ -129,6 +129,7 @@ export class RelayAdapter extends BaseSwapAdapter {
               const txHash = currentStep.items?.[0]?.txHashes?.[0].txHash
               if (txHash) {
                 resolve({
+                  sender: quote.quote.quoteParams.sender,
                   sourceTxHash: txHash,
                   adapter: this.getName(),
                   id: currentStep.requestId,

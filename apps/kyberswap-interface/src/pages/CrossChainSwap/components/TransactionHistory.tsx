@@ -18,6 +18,7 @@ import { NonEvmChain, NonEvmChainInfo } from '../adapters'
 import Pagination from 'components/Pagination'
 import { useMedia } from 'react-use'
 import Divider from 'components/Divider'
+import CopyHelper from 'components/Copy'
 
 const PAGE_SIZE = 5
 
@@ -148,17 +149,26 @@ export const TransactionHistory = () => {
           : (NETWORKS_INFO as any)[tx.targetChain]?.icon
 
         const time = (
-          <Flex sx={{ gap: '4px' }} alignItems="center">
-            <img
-              src={registry.getAdapter(tx.adapter)?.getIcon()}
-              style={{ borderRadius: '50%' }}
-              width={16}
-              height={16}
-              alt=""
-            />
-            <Text>{format(new Date(tx.timestamp), 'dd/MM/yyyy')}</Text>
-            <Text color={theme.subText}>{format(new Date(tx.timestamp), 'HH:mm:ss')}</Text>
-          </Flex>
+          <div>
+            <Flex sx={{ gap: '4px' }} alignItems="center">
+              <img
+                src={registry.getAdapter(tx.adapter)?.getIcon()}
+                style={{ borderRadius: '50%' }}
+                width={16}
+                height={16}
+                alt=""
+              />
+              <Text>{format(new Date(tx.timestamp), 'dd/MM/yyyy')}</Text>
+              <Text color={theme.subText}>{format(new Date(tx.timestamp), 'HH:mm:ss')}</Text>
+            </Flex>
+            {tx.sender && (
+              <Flex mt="8px" color={theme.blue} fontSize="14px" sx={{ gap: '4px' }} alignItems="center">
+                <Text color={theme.subText}>Sender:</Text>{' '}
+                {tx.sender.includes('.near') ? tx.sender : shortenHash(tx.sender)}
+                <CopyHelper toCopy={tx.sender} />
+              </Flex>
+            )}
+          </div>
         )
         const status = (
           <Flex

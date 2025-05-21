@@ -200,6 +200,7 @@ export class OptimexAdapter extends BaseSwapAdapter {
     sendBtcFn?: (params: { recipient: string; amount: string | number }) => Promise<string>,
   ): Promise<NormalizedTxResponse> {
     const params = {
+      sender: quote.quoteParams.sender,
       id: quote.rawQuote.txData.trade_id,
       adapter: this.getName(),
       sourceChain: quote.quoteParams.fromChain,

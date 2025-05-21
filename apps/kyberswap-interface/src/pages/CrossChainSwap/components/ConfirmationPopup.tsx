@@ -15,11 +15,12 @@ import { useState } from 'react'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { useCrossChainTransactions } from 'state/crossChainSwap'
 import { Chain, Currency, NonEvmChain, NonEvmChainInfo } from '../adapters'
-import { getEtherscanLink, isEvmChain } from 'utils'
+import { getEtherscanLink, isEvmChain, shortenHash } from 'utils'
 import { formatUnits } from 'viem'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import { PiWarning } from './PiWarning'
 import { ExternalLink } from 'theme'
+import CopyHelper from 'components/Copy'
 
 const Wrapper = styled.div`
   padding: 1rem;
@@ -203,13 +204,16 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
                 padding: '12px',
                 borderRadius: '16px',
                 border: `1px solid ${theme.border}`,
+                display: 'flex',
+                justifyContent: 'space-between',
               }}
             >
               <Text fontSize={12} fontWeight={500} color={theme.subText}>
                 Recipient
               </Text>
-              <Text marginTop="8px" fontSize={14} sx={{ wordBreak: 'break-word' }}>
+              <Flex fontSize={14} alignItems="center" color={theme.subText}>
                 <ExternalLink
+                  style={{ textDecoration: 'none', color: theme.text }}
                   href={
                     toChainId === NonEvmChain.Near
                       ? `https://nearblocks.io/address/${recipient}`
@@ -218,9 +222,10 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
                       : getEtherscanLink(toChainId, recipient, 'address')
                   }
                 >
-                  {recipient}
+                  {recipient.includes('.near') ? recipient : shortenHash(recipient)} ↗
                 </ExternalLink>
-              </Text>
+                <CopyHelper toCopy={recipient} />
+              </Flex>
             </Box>
             <Flex marginTop="1rem"></Flex>
             <Summary quote={selectedQuote} tokenOut={currencyOut} full />

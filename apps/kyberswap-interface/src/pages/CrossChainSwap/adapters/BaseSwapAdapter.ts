@@ -81,6 +81,7 @@ export interface NormalizedQuote {
 export interface NormalizedTxResponse {
   id: string // specific id for each provider
   sourceTxHash: string
+  sender: string
   adapter: string
   sourceChain: Chain
   targetChain: Chain

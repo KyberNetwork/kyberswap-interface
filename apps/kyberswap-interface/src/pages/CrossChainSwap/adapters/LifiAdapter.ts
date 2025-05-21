@@ -101,6 +101,7 @@ export class LifiAdapter extends BaseSwapAdapter {
     })
 
     return {
+      sender: quote.quoteParams.sender,
       id: tx, // specific id for each provider
       sourceTxHash: tx,
       adapter: this.getName(),

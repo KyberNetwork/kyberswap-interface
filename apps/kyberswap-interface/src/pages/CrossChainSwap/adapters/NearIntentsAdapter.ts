@@ -154,6 +154,7 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
     sendBtcFn?: (params: { recipient: string; amount: string | number }) => Promise<string>,
   ): Promise<NormalizedTxResponse> {
     const params = {
+      sender: quote.quoteParams.sender,
       id: quote.rawQuote.quote.depositAddress, // specific id for each provider
       adapter: this.getName(),
       sourceChain: quote.quoteParams.fromChain,

@@ -141,6 +141,7 @@ export class AcrossAdapter extends BaseSwapAdapter {
           onProgress: progress => {
             if (progress.step === 'deposit' && 'txHash' in progress) {
               resolve({
+                sender: quote.quote.quoteParams.sender,
                 sourceTxHash: progress.txHash,
                 adapter: this.getName(),
                 id: progress.txHash,
