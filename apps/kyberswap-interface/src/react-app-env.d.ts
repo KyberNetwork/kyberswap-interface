@@ -40,6 +40,8 @@ interface Window {
   tag?: string
   coin98?: any
   okxwallet?: any
+  unisat_wallet?: any
+  phantom?: any
   rabby?: any
   coinbaseWalletExtension?: any
   dataLayer?: any[]

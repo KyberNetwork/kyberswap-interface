@@ -1,6 +1,6 @@
 import { ReactNode, createContext, useCallback, useContext, useEffect, useState } from 'react'
 
-type WalletType = 'xverse' | 'bitget' | 'okx'
+type WalletType = 'xverse' | 'bitget' | 'okx' | 'unisat' | 'phantom'
 
 // Define types for wallet interfaces
 interface BitcoinWalletBase {
@@ -227,7 +227,7 @@ export const BitcoinWalletProvider = ({ children }: { children: ReactNode }) => 
         },
         disconnect: async () => {
           await window.okxwallet.bitcoin.disconnect?.()
-          localStorage.removeItem('okx')
+          localStorage.removeItem('bitcoinWallet')
           setBalance(0)
           setWalletInfo(defaultInfo)
         },
@@ -235,10 +235,91 @@ export const BitcoinWalletProvider = ({ children }: { children: ReactNode }) => 
           return await window.okxwallet.bitcoin.sendBitcoin(recipient, Number(amount))
         },
       }
+      const unisatProvider = {
+        name: 'Unisat Wallet',
+        logo: 'https://storage.googleapis.com/ks-setting-1d682dca/d2d471f2-8a3c-4824-9166-39db073aec131747803667826.png',
+        type: 'unisat' as const,
+        isInstalled: () => !!window.unisat_wallet,
+        connect: async () => {
+          if (!window.unisat_wallet) {
+            window.open('https://unisat.io/download', '_blank')
+            return
+          }
+          if (!!connectingWallet) {
+            return
+          }
+          setConnectingWallet('unisat')
+          const currentNetwork = await window.unisat_wallet.getNetwork()
+          if (currentNetwork !== 'livenet') {
+            await window.unisat_wallet.switchNetwork('livenet')
+          }
+          const [accounts, publicKey] = await Promise.all([
+            window.unisat_wallet.requestAccounts(),
+            window.unisat_wallet.getPublicKey(),
+          ])
+
+          setWalletInfo({
+            isConnected: true,
+            address: accounts[0],
+            publicKey,
+            walletType: 'unisat',
+          })
+          setConnectingWallet(null)
+        },
+        disconnect: async () => {
+          localStorage.removeItem('bitcoinWallet')
+          setBalance(0)
+          setWalletInfo(defaultInfo)
+        },
+        sendBitcoin: async ({ recipient, amount }: { recipient: string; amount: number | string }) => {
+          return await window?.unisat_wallet.sendBitcoin(recipient, amount.toString())
+        },
+      }
+      // const phantomProvider = {
+      //   name: 'Phantom',
+      //   logo: 'https://phantom.com/favicon/apple-touch-icon.png',
+      //   type: 'phantom' as const,
+      //   isInstalled: () => !!window.phantom?.bitcoin,
+      //   connect: async () => {
+      //     if (!window.phantom?.bitcoin) {
+      //       window.open('https://phantom.com/download', '_blank')
+      //       return
+      //     }
+      //     if (!!connectingWallet) {
+      //       return
+      //     }
+      //     setConnectingWallet('phantom')
+      //     const currentNetwork = await window.phantom.bitcoin.connect()
+      //     if (currentNetwork !== 'livenet') {
+      //       await window.unisat_wallet.switchNetwork('livenet')
+      //     }
+      //     const [accounts, publicKey] = await Promise.all([
+      //       window.unisat_wallet.requestAccounts(),
+      //       window.unisat_wallet.getPublicKey(),
+      //     ])
+      //
+      //     setWalletInfo({
+      //       isConnected: true,
+      //       address: accounts[0],
+      //       publicKey,
+      //       walletType: 'unisat',
+      //     })
+      //     setConnectingWallet(null)
+      //   },
+      //   disconnect: async () => {
+      //     localStorage.removeItem('bitcoinWallet')
+      //     setBalance(0)
+      //     setWalletInfo(defaultInfo)
+      //   },
+      //   sendBitcoin: async ({ recipient, amount }: { recipient: string; amount: number | string }) => {
+      //     return await window?.unisat_wallet.sendBitcoin(recipient, amount.toString())
+      //   },
+      // }
 
       providers.push(xverseProvider)
       providers.push(bitgetProvider)
       providers.push(okxProvider)
+      providers.push(unisatProvider)
 
       const lastConnectedWallet = localStorage.getItem('bitcoinWallet')
       providers.find(wallet => wallet.type === lastConnectedWallet)?.connect()
