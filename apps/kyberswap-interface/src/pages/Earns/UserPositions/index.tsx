@@ -100,7 +100,7 @@ const UserPositions = () => {
       })
     })
 
-    if (filters.status)
+    if (filters.status && filters.status !== `${PositionStatus.IN_RANGE},${PositionStatus.OUT_RANGE}`)
       parsedData = parsedData.filter(position => {
         if (filters.status === PositionStatus.CLOSED) return position.status === PositionStatus.CLOSED
 

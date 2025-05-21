@@ -20,7 +20,6 @@ import { BFF_API } from 'constants/env'
 import { APP_PATHS } from 'constants/index'
 import useDebounce from 'hooks/useDebounce'
 import useTheme from 'hooks/useTheme'
-import DropdownMenu, { MenuOption } from 'pages/Earns/PoolExplorer/DropdownMenu'
 import TableContent, { dexKeyMapping } from 'pages/Earns/PoolExplorer/TableContent'
 import {
   ContentWrapper,
@@ -35,6 +34,7 @@ import {
 } from 'pages/Earns/PoolExplorer/styles'
 import useFilter from 'pages/Earns/PoolExplorer/useFilter'
 import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
+import DropdownMenu, { MenuOption } from 'pages/Earns/components/DropdownMenu'
 import { Exchange } from 'pages/Earns/constants'
 import useSupportedDexesAndChains from 'pages/Earns/hooks/useSupportedDexesAndChains'
 import useZapInWidget, { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'

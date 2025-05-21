@@ -20,7 +20,8 @@ export default function useFilter() {
     () => ({
       chainIds: searchParams.get('chainIds') || '',
       protocols: searchParams.get('protocols') || '',
-      status: (searchParams.get('status') as PositionStatus) || PositionStatus.ALL,
+      status:
+        (searchParams.get('status') as PositionStatus) || `${PositionStatus.IN_RANGE},${PositionStatus.OUT_RANGE}`,
       q: searchParams.get('q') || '',
       sortBy: searchParams.get('sortBy') || SortBy.VALUE,
       orderBy: searchParams.get('orderBy') || Direction.DESC,
@@ -42,8 +43,23 @@ export default function useFilter() {
         searchParams.delete('orderBy')
         searchParams.delete('sortBy')
       }
-      if (key === 'status' && value === PositionStatus.ALL) {
-        searchParams.delete('status')
+
+      if (key === 'status') {
+        const arrValue = value.toString().split(',')
+        if (
+          arrValue.includes(PositionStatus.IN_RANGE) &&
+          arrValue.includes(PositionStatus.OUT_RANGE) &&
+          !arrValue.includes(PositionStatus.CLOSED)
+        ) {
+          searchParams.delete('status')
+        } else if (arrValue.includes(PositionStatus.CLOSED)) {
+          const index = arrValue.indexOf(PositionStatus.CLOSED)
+          if (index === arrValue.length - 1) searchParams.set('status', PositionStatus.CLOSED)
+          else {
+            arrValue.splice(index, 1)
+            searchParams.set('status', arrValue.join(','))
+          }
+        } else searchParams.set('status', value.toString())
       }
 
       setSearchParams(searchParams)

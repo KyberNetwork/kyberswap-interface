@@ -12,7 +12,14 @@ import { useWeb3React } from 'hooks'
 import useChainsConfig from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import { ClaimInfo, ClaimInfoRow, ClaimInfoWrapper, ModalHeader, Wrapper, X } from 'pages/Earns/ClaimModal/styles'
+import {
+  ClaimInfo,
+  ClaimInfoRow,
+  ClaimInfoWrapper,
+  ModalHeader,
+  Wrapper,
+  X,
+} from 'pages/Earns/components/ClaimModal/styles'
 import { EarnDex } from 'pages/Earns/constants'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'

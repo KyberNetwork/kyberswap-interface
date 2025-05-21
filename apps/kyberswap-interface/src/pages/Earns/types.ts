@@ -2,7 +2,6 @@ import { NativeToken } from 'constants/networks/type'
 import { EarnDex, Exchange } from 'pages/Earns/constants'
 
 export enum PositionStatus {
-  ALL = '',
   IN_RANGE = 'IN_RANGE',
   OUT_RANGE = 'OUT_RANGE',
   CLOSED = 'CLOSED',
@@ -16,7 +15,7 @@ export interface PositionFilter {
   chainIds?: string
   positionId?: string
   protocols?: string
-  status: PositionStatus
+  status: string
   q?: string
   sortBy?: string
   orderBy?: string
