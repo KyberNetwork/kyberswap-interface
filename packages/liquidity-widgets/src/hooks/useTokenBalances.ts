@@ -205,7 +205,8 @@ const useTokenBalances = (chainId: ChainId, tokenAddresses: string[], account?: 
     } finally {
       setLoading(false);
     }
-  }, [rpcUrl, account, multiCall, tokenAddresses]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rpcUrl, account, multiCall, JSON.stringify(tokenAddresses)]);
 
   useEffect(() => {
     fetchBalances();

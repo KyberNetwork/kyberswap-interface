@@ -4,13 +4,13 @@ import { univ2PoolNormalize, univ3PoolNormalize } from '@kyber/schema';
 import { divideBigIntToString, formatDisplayNumber } from '@kyber/utils/number';
 import { tickToPrice } from '@kyber/utils/uniswapv3';
 
-import SwitchIcon from '@/assets/svg/switch.svg';
+import RevertPriceIcon from '@/assets/svg/ic_revert_price.svg';
 import { MouseoverTooltip } from '@/components/Tooltip';
 import { useZapState } from '@/hooks/useZapInState';
 import { useWidgetContext } from '@/stores';
 import { assertUnreachable } from '@/utils';
 
-const shortenSymbol = (symbol: string, characterNumber: number = 8) =>
+const shortenSymbol = (symbol: string, characterNumber = 8) =>
   symbol.length > characterNumber + 2 ? symbol.slice(0, characterNumber) + '...' : symbol;
 
 export default function PriceInfo() {
@@ -72,28 +72,33 @@ export default function PriceInfo() {
   return (
     <>
       <div className="rounded-md border border-stroke py-3 px-4 mt-[6px]">
-        <div className="flex items-center justify-start gap-1 text-subText text-sm flex-wrap">
-          <span>Pool price</span>
-          <span className="font-medium text-text">{price}</span>
+        <div className="flex justify-between">
+          <div className="flex items-center justify-start gap-1 text-sm flex-wrap">
+            <span className="text-subText">Current price</span>
+            <span>1</span>
+            <MouseoverTooltip
+              text={firstTokenShortenSymbol !== firstToken?.symbol ? firstToken?.symbol : ''}
+              placement="top"
+            >
+              {firstTokenShortenSymbol}
+            </MouseoverTooltip>
+            <span>=</span>
+            <span>{price}</span>
 
-          <MouseoverTooltip
-            text={secondTokenShortenSymbol !== secondToken?.symbol ? secondToken?.symbol : ''}
-            placement="top"
+            <MouseoverTooltip
+              text={secondTokenShortenSymbol !== secondToken?.symbol ? secondToken?.symbol : ''}
+              placement="top"
+            >
+              {secondTokenShortenSymbol}
+            </MouseoverTooltip>
+          </div>
+
+          <div
+            className="flex items-center justify-center rounded-full bg-[#ffffff14] w-6 h-6"
+            onClick={toggleRevertPrice}
           >
-            {secondTokenShortenSymbol}
-          </MouseoverTooltip>
-          <span>per</span>
-          <MouseoverTooltip
-            text={firstTokenShortenSymbol !== firstToken?.symbol ? firstToken?.symbol : ''}
-            placement="top"
-          >
-            {firstTokenShortenSymbol}
-          </MouseoverTooltip>
-          <SwitchIcon
-            className="cursor-pointer"
-            onClick={() => toggleRevertPrice()}
-            role="button"
-          />
+            <RevertPriceIcon className="cursor-pointer" role="button" />
+          </div>
         </div>
       </div>
 

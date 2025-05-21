@@ -35,8 +35,8 @@ export default function PriceInput({ type }: { type: Type }) {
     pool === 'loading'
       ? undefined
       : pool.tick % pool.tickSpacing === 0
-        ? pool.tick
-        : nearestUsableTick(pool.tick, pool.tickSpacing);
+      ? pool.tick
+      : nearestUsableTick(pool.tick, pool.tickSpacing);
 
   const increaseTickLower = () => {
     if (pool === 'loading' || poolTick === undefined) return;
@@ -130,15 +130,28 @@ export default function PriceInput({ type }: { type: Type }) {
   ]);
 
   return (
-    <div
-      className={`mt-[0.6rem] py-[10px] px-[14px] gap-[10px] flex border ${
-        type === Type.PriceLower ? 'border-accent' : 'border-[#7289DA]'
-      } rounded-md`}
-    >
-      <div className="flex flex-col gap-2 flex-1 text-xs font-medium text-subText">
+    <div className="mt-[0.6rem] w-1/2 p-3 justify-between flex items-center border rounded-md border-stroke">
+      {!positionId && (
+        <button
+          className="w-6 h-6 rounded-[4px] border border-stroke bg-layer2 text-subText flex items-center justify-center cursor-pointer hover:enabled:brightness-150 active:enabled:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
+          role="button"
+          onClick={() => {
+            if (type === Type.PriceLower) {
+              revertPrice ? increaseTickUpper() : decreaseTickLower();
+            } else {
+              revertPrice ? increaseTickLower() : decreaseTickUpper();
+            }
+          }}
+          disabled={isFullRange || positionId !== undefined}
+        >
+          -
+        </button>
+      )}
+
+      <div className="flex flex-col items-center gap-[6px] w-fit text-sm font-medium text-subText">
         <span>{type === Type.PriceLower ? 'Min' : 'Max'} price</span>
         <input
-          className="bg-transparent text-text text-base p-0 border-none outline-none disabled:cursor-not-allowed disabled:opacity-60"
+          className="bg-transparent w-[90px] text-center text-text text-base p-0 border-none outline-none disabled:cursor-not-allowed disabled:opacity-60"
           value={localValue}
           autoFocus={false}
           onChange={onPriceChange}
@@ -157,42 +170,26 @@ export default function PriceInput({ type }: { type: Type }) {
         <span>
           {pool !== 'loading'
             ? !revertPrice
-              ? `${pool?.token1.symbol}/${pool?.token0.symbol}`
-              : `${pool?.token0.symbol}/${pool?.token1.symbol}`
+              ? `${pool?.token1.symbol} per ${pool?.token0.symbol}`
+              : `${pool?.token0.symbol} per ${pool?.token1.symbol}`
             : '--'}
         </span>
       </div>
 
-      {positionId === undefined && (
-        <div className="flex flex-col gap-3 justify-center">
-          <button
-            className="w-6 h-6 rounded-[4px] border border-stroke bg-layer2 text-subText flex items-center justify-center cursor-pointer hover:enabled:brightness-150 active:enabled:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
-            onClick={() => {
-              if (type === Type.PriceLower) {
-                revertPrice ? decreaseTickUpper() : increaseTickLower();
-              } else {
-                revertPrice ? decreaseTickLower() : increaseTickUpper();
-              }
-            }}
-            disabled={isFullRange || positionId !== undefined}
-          >
-            +
-          </button>
-          <button
-            className="w-6 h-6 rounded-[4px] border border-stroke bg-layer2 text-subText flex items-center justify-center cursor-pointer hover:enabled:brightness-150 active:enabled:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
-            role="button"
-            onClick={() => {
-              if (type === Type.PriceLower) {
-                revertPrice ? increaseTickUpper() : decreaseTickLower();
-              } else {
-                revertPrice ? increaseTickLower() : decreaseTickUpper();
-              }
-            }}
-            disabled={isFullRange || positionId !== undefined}
-          >
-            -
-          </button>
-        </div>
+      {!positionId && (
+        <button
+          className="w-6 h-6 rounded-[4px] border border-stroke bg-layer2 text-subText flex items-center justify-center cursor-pointer hover:enabled:brightness-150 active:enabled:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
+          onClick={() => {
+            if (type === Type.PriceLower) {
+              revertPrice ? decreaseTickUpper() : increaseTickLower();
+            } else {
+              revertPrice ? decreaseTickLower() : increaseTickUpper();
+            }
+          }}
+          disabled={isFullRange || positionId !== undefined}
+        >
+          +
+        </button>
       )}
     </div>
   );

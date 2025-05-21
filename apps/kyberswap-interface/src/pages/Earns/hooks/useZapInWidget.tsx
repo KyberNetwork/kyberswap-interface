@@ -217,7 +217,7 @@ const useZapInWidget = ({
   useAccountChanged(handleCloseZapInWidget)
 
   const widget = addLiquidityParams ? (
-    <Modal isOpen mobileFullWidth maxWidth={760} width={'760px'} onDismiss={handleCloseZapInWidget}>
+    <Modal isOpen mobileFullWidth maxWidth={800} width={'800px'} onDismiss={handleCloseZapInWidget}>
       <ZapIn {...addLiquidityParams} />
     </Modal>
   ) : null

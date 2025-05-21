@@ -195,12 +195,13 @@ const PoolExplorer = () => {
     }
     ;(async () => {
       const pool = await handleFetchPoolData({ chainId: Number(chainId), address })
+
       if (pool && (pool.exchange === dex || pool.exchange === dexKeyMapping[dex]))
         handleOpenZapIn({ pool: { dex: dex as Exchange, chainId: Number(chainId), address: pool.address } })
       else {
         notify(
           {
-            title: `Open pool detail failed`,
+            title: t`Open pool detail failed`,
             summary: `Invalid pool info`,
             type: NotificationType.ERROR,
           },

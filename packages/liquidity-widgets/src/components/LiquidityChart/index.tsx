@@ -174,6 +174,13 @@ export default function LiquidityChart() {
         ticksAtLimit={ticksAtLimit}
         revertPrice={revertPrice}
         onBrushDomainChange={onBrushDomainChange}
+        zoomPosition={{
+          top: '0px',
+          left: undefined,
+          right: '0px',
+          bottom: undefined,
+          gap: '8px',
+        }}
       />
     </div>
   );

@@ -421,7 +421,7 @@ export default function Content() {
       <div className={`p-6 ${!showWidget ? 'hidden' : ''}`}>
         <Header onDismiss={onClose} />
         <div className="mt-5 flex gap-5 max-sm:flex-col">
-          <div className="flex-1 w-1/2 max-sm:w-full">
+          <div className="w-3/5 max-sm:w-full">
             <PoolStat
               chainId={chainId}
               poolAddress={poolAddress}
@@ -433,10 +433,10 @@ export default function Content() {
             <PriceRange />
             {positionId === undefined ? (
               isUniV3PoolType && (
-                <>
+                <div className="flex gap-4 w-full">
                   <PriceInput type={Type.PriceLower} />
                   <PriceInput type={Type.PriceUpper} />
-                </>
+                </div>
               )
             ) : (
               <PositionLiquidity />
@@ -449,7 +449,7 @@ export default function Content() {
             ) : null}
           </div>
 
-          <div className="flex-1 w-1/2 max-sm:w-full">
+          <div className="w-2/5 max-sm:w-full">
             {isUniV3PoolType ? addLiquiditySection : null}
 
             <EstLiqValue />
@@ -509,19 +509,19 @@ export default function Content() {
             )}
           </div>
         </div>
-        <div className="flex gap-6 mt-6">
-          <button className="ks-outline-btn flex-1" onClick={onClose}>
+        <div className="flex justify-center gap-5 mt-6">
+          <button className="ks-outline-btn w-[190px]" onClick={onClose}>
             Cancel
           </button>
           <button
-            className={`ks-primary-btn flex-1 ${
+            className={`ks-primary-btn w-[190px] ${
               !disabled &&
               Object.values(approvalStates).some((item) => item !== APPROVAL_STATE.NOT_APPROVED)
                 ? pi.piVeryHigh
                   ? 'bg-error border-solid border-error text-white'
                   : pi.piHigh
-                    ? 'bg-warning border-solid border-warning'
-                    : ''
+                  ? 'bg-warning border-solid border-warning'
+                  : ''
                 : ''
             }`}
             disabled={disabled}

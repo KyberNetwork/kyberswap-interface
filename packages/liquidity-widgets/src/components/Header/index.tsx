@@ -10,20 +10,26 @@ import { MouseoverTooltip } from '@/components/Tooltip';
 import useCopy from '@/hooks/useCopy';
 import { useZapState } from '@/hooks/useZapInState';
 import { useWidgetContext } from '@/stores';
+import InfoHelper from '@/components/InfoHelper';
 
 const Header = ({ onDismiss }: { onDismiss: () => void }) => {
   const { chainId, pool, poolType, positionId, position, theme, poolAddress } = useWidgetContext(
     (s) => s
   );
 
-  const Copy = useCopy({
-    text: poolAddress,
-    copyClassName: '!text-[#2C9CE4] hover:brightness-125',
-  });
-
   const { toggleSetting, degenMode } = useZapState();
 
   const loading = pool === 'loading';
+
+  const Copy = useCopy({
+    text: poolAddress,
+  });
+  const CopyToken0 = useCopy({
+    text: '123',
+  });
+  const CopyToken1 = useCopy({
+    text: '123',
+  });
 
   if (loading) return <span>loading...</span>;
 
@@ -52,7 +58,9 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
             <>
               <div>#{positionId}</div>
               <div
-                className={`rounded-full text-xs px-2 py-1 font-normal text-${isOutOfRange ? 'warning' : 'accent'}`}
+                className={`rounded-full text-xs px-2 py-1 font-normal text-${
+                  isOutOfRange ? 'warning' : 'accent'
+                }`}
                 style={{
                   background: `${isOutOfRange ? theme.warning : theme.accent}33`,
                 }}
@@ -71,22 +79,15 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
         <div className="flex items-center flex-wrap gap-1 text-sm max-sm:gap-y-2">
           <div className="flex items-end">
             <TokenLogo src={token0.logo} size={26} className="border-[2px] border-layer1" />
-            <img
+            <TokenLogo
               src={token1.logo}
-              className="-ml-[6px] rounded-full w-[26px] h-[26px] border-[2px] border-layer1"
-              alt="token1 logo"
-              onError={({ currentTarget }) => {
-                currentTarget.onerror = null;
-                currentTarget.src = defaultTokenLogo;
-              }}
+              size={26}
+              className="border-[2px] border-layer1 -ml-[6px]"
             />
-            <img
-              className="-ml-1 bg-layer1 rounded-full w-[14px] h-[14px] border-[2px] border-layer1 max-sm:w-[18px] max-sm:h-[18px] max-sm:-ml-2"
+            <TokenLogo
               src={NETWORKS_INFO[chainId].logo}
-              onError={({ currentTarget }) => {
-                currentTarget.onerror = null;
-                currentTarget.src = defaultTokenLogo;
-              }}
+              size={14}
+              className="border-[2px] border-layer1 max-sm:w-[18px] max-sm:h-[18px] max-sm:-ml-2 -ml-1"
             />
           </div>
 
@@ -98,9 +99,36 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
             <div className="rounded-full text-xs bg-layer2 text-subText px-[14px] py-1">
               Fee {fee}%
             </div>
-            <div className="rounded-full text-xs bg-layer2 text-[#2C9CE4] px-3 py-1 flex gap-1">
+            {/* <div className="rounded-full text-xs bg-layer2 text-[#2C9CE4] px-3 py-1 flex gap-1">
               {shortenAddress(poolAddress, 4)}
               {Copy}
+            </div> */}
+            <div className="flex items-center justify-center px-2 py-1 bg-layer2 rounded-full">
+              <InfoHelper
+                placement="top"
+                noneMarginLeft
+                color="#2C9CE4"
+                size={16}
+                text={
+                  <div className="flex flex-col text-xs text-subText gap-2">
+                    <div className="flex items-center gap-3">
+                      <span>{token0.symbol}: </span>
+                      <span>{shortenAddress(token0.address, 4)}</span>
+                      <span>{CopyToken0}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span>{token1.symbol}: </span>
+                      <span>{shortenAddress(token1.address, 4)}</span>
+                      <span>{CopyToken1}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span>Pool Address: </span>
+                      <span>{shortenAddress(poolAddress, 4)}</span>
+                      <span>{Copy}</span>
+                    </div>
+                  </div>
+                }
+              />
             </div>
             <div className="flex items-center gap-1">
               <img

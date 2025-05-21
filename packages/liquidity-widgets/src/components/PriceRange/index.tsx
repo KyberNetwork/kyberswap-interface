@@ -146,12 +146,14 @@ const PriceRange = () => {
   if (!isUniv3) return null;
 
   return !positionId ? (
-    <div className="flex gap-[6px] my-[10px]">
+    <div className="flex mt-6 gap-[6px] my-[10px] border border-stroke rounded-md">
       {priceRanges.map((item: string | number, index: number) => (
         <Button
           key={index}
           variant="outline"
-          className={`flex-1 ${item === selectedRange?.range ? ' text-accent !border-accent' : ' text-subText'}`}
+          className={`flex-1 !border-none !text-icon ${
+            item === selectedRange?.range ? ' !bg-[#ffffff14]' : ''
+          }`}
           onClick={() => handleSelectPriceRange(item as typeof FULL_PRICE_RANGE | number)}
         >
           {item === FULL_PRICE_RANGE ? item : `${Number(item) * 100}%`}

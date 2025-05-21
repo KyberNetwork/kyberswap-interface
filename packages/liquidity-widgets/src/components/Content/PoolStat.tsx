@@ -4,6 +4,7 @@ import { API_URLS, PoolType, Univ2PoolType } from '@kyber/schema';
 import { formatDisplayNumber } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
+import FarmingIcon from '@/assets/svg/kem.svg';
 import { useWidgetContext } from '@/stores';
 
 interface PoolInfo {
@@ -52,11 +53,11 @@ export default function PoolStat({
   return (
     <div
       className={cn(
-        'px-4 py-3 border border-stroke rounded-md text-subText text-sm flex flex-col gap-[6px]',
+        'px-4 py-3 border border-stroke rounded-md text-subText text-sm flex max-sm:flex-col justify-between gap-[6px]',
         positionId ? 'mb-4' : 'mb-[10px]'
       )}
     >
-      <div className="flex justify-between">
+      <div className="flex flex-col max-sm:flex-row max-sm:justify-between items-start gap-1">
         <span>TVL</span>
         <span className="text-text">
           {poolInfo?.tvl || poolInfo?.tvl === 0
@@ -67,7 +68,7 @@ export default function PoolStat({
             : '--'}
         </span>
       </div>
-      <div className="flex justify-between">
+      <div className="flex flex-col max-sm:flex-row max-sm:justify-between items-start gap-1">
         <span>24h Volume</span>
         <span className="text-text">
           {poolInfo?.volume24h || poolInfo?.volume24h === 0
@@ -78,7 +79,7 @@ export default function PoolStat({
             : '--'}
         </span>
       </div>
-      <div className="flex justify-between">
+      <div className="flex flex-col max-sm:flex-row max-sm:justify-between items-start gap-1">
         <span>24h Fees</span>
         <span className="text-text">
           {poolInfo?.fees24h || poolInfo?.fees24h === 0
@@ -89,25 +90,32 @@ export default function PoolStat({
             : '--'}
         </span>
       </div>
-      <div className="flex justify-between">
+      <div className="flex flex-col max-sm:flex-row max-sm:justify-between items-start gap-1">
         <span>Est. APR</span>
-        <span className={poolInfo?.apr24h && poolInfo.apr24h > 0 ? 'text-accent' : 'text-text'}>
+        <div
+          className={`flex items-center gap-1 ${
+            poolInfo?.apr24h && poolInfo.apr24h > 0 ? 'text-accent' : 'text-text'
+          }`}
+        >
           {poolInfo?.apr24h || poolInfo?.apr24h === 0
             ? formatDisplayNumber(poolInfo.apr24h, {
                 significantDigits:
                   poolInfo.apr24h < 1
                     ? 2
                     : poolInfo.apr24h < 10
-                      ? 3
-                      : poolInfo.apr24h < 100
-                        ? 4
-                        : 5,
+                    ? 3
+                    : poolInfo.apr24h < 100
+                    ? 4
+                    : 5,
               }) + '%'
             : '--'}
-        </span>
+          {poolType === PoolType.DEX_UNISWAP_V4_FAIRFLOW ? (
+            <FarmingIcon width={20} height={20} />
+          ) : null}
+        </div>
       </div>
       {isUniv2 && (
-        <div className="flex justify-between">
+        <div className="flex flex-col max-sm:flex-row max-sm:justify-between items-start gap-1">
           <span>Pool Share</span>
           <span className="text-text">
             {poolShare || poolShare === 0 ? (poolShare < 0.01 ? '<0.01%' : poolShare + '%') : '--'}
