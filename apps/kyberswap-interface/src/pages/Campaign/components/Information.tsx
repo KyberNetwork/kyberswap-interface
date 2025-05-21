@@ -576,6 +576,68 @@ const faq = {
   ],
 }
 
+const stipTerms = (week: number, type: CampaignType) => (
+  <>
+    <li>
+      The Campaign will run from{' '}
+      <Text as="span" color="#ffffff" fontStyle="bold">
+        8th July 2024 at 0:00 UTC to 15th September 2024 at 23:59 UTC UTC
+      </Text>
+      . KyberSwap retains the right to amend the {"Campaign's"} start and end dates with reasonable notice.
+    </li>
+    <li>All KyberSwap Aggregator API users from whitelisted clients are welcome to participate in the campaign.</li>
+    <li>
+      KyberSwap maintains the right, at its sole discretion, to disqualify any user who violates, cheats, or exploits
+      the campaign.
+    </li>
+    <li>Please note that KyberSwap reserves the rights to change the rules & conditions at its sole discretion. </li>
+    <li>
+      Points & Rewards on the Leaderboard are subject to change during the buffer period before the distribution of ARB.{' '}
+      <Text as="span" color="#ffffff" fontStyle="bold">
+        Any wallet that tries to sybil or cheat in any way will have all their points and rewards forfeited.
+      </Text>
+    </li>
+
+    {week > 28 && (
+      <>
+        <li>
+          Heavy wash trading, sybil-attack, Just-in-time liquidity attack, flashloans attacks or other related
+          activities are not allowed and will forfeit points & rewards of the identified users. KyberSwap team will
+          monitor and exclude such behaviour from the STIP Campaign.
+        </li>
+        <li>
+          The rules against such activities will remain unrevealed to avoid abuse from a selected group of users.
+          KyberSwap team can exclude wallets from the campaign at its sole discretion.
+        </li>
+        {type === CampaignType.Aggregator && (
+          <li>Only trades made through whitelisted router contracts such as KyberSwap Router are eligible.</li>
+        )}
+      </>
+    )}
+  </>
+)
+
+const mayTradingTerms = (
+  <>
+    <li>
+      KyberSwap reserves the right to disqualify any address found to engage in the following: wash trading, sybil
+      attacks, flashloan-based volume inflation, and any other behavior deemed manipulative or abusive by the KyberSwap
+      team.
+    </li>
+    <li>
+      KyberSwap may modify the campaign mechanics, eligibility, or rewards at any time without prior notice. All
+      decisions regarding rewards and disqualification are final and at the sole discretion of the KyberSwap team.
+    </li>
+    <li>
+      KyberSwap does not endorse or promote any specific tokens in this campaign. All trading decisions are made at the
+      user&apos;s own risk.
+    </li>
+  </>
+)
+
+const termAndConds = (week: number, type: CampaignType) =>
+  type === CampaignType.MayTrading ? mayTradingTerms : stipTerms(week, type)
+
 export default function Information({ type, week }: { type: CampaignType; week: number }) {
   const theme = useTheme()
   const [isShowRule, setIsShowRule] = useState(true)
@@ -583,6 +645,7 @@ export default function Information({ type, week }: { type: CampaignType; week: 
   const [isShowReward, setIsShowReward] = useState(true)
   const [isShowFaq, setIsShowFaq] = useState(true)
   const [isShowTc, setIsShowTc] = useState(true)
+  const [isShowEligible, setIsShowEligible] = useState(true)
 
   const upTo450 = useMedia(`(max-width: 450px)`)
   const upTo400 = useMedia(`(max-width: 400px)`)
@@ -677,6 +740,50 @@ export default function Information({ type, week }: { type: CampaignType; week: 
         {rewards[type]}
       </Text>
 
+      {type === CampaignType.MayTrading && (
+        <>
+          <Divider style={{ marginTop: '20px' }} />
+
+          <Flex justifyContent="space-between" marginTop="20px">
+            <Flex fontSize={20} sx={{ gap: '4px' }} alignItems="center">
+              ☑️ Eligibility
+            </Flex>
+
+            <ButtonIcon onClick={() => setIsShowEligible(prev => !prev)}>
+              {!isShowEligible ? <Plus size={14} /> : <Minus size={14} />}
+            </ButtonIcon>
+          </Flex>
+
+          <Text
+            color={theme.subText}
+            lineHeight="28px"
+            marginLeft="12px"
+            sx={{
+              maxHeight: isShowEligible ? '2000px' : 0,
+              opacity: isShowEligible ? 1 : 0,
+              marginTop: isShowEligible ? '1rem' : 0,
+              transition: 'all 0.3s ease',
+              overflow: 'hidden',
+            }}
+          >
+            <li>
+              Only trading volume from pairs composed of{' '}
+              <ExternalLink href="https://docs.google.com/spreadsheets/d/1WOTmuXgIGGYMagz9ziCK-Z_dm_WBSdjAkvz1nrADt2U/edit?gid=0#gid=0">
+                eligible tokens
+              </ExternalLink>{' '}
+              eligible tokens will be counted, excluding WETH-ETH, WETH-USDC, and ETH-USDC.
+            </li>
+            <li>
+              Only trading volume via KyberSwap Aggregator (Swap feature) and executed on{' '}
+              <ExternalLink href="https://kyberswap.com">kyberswap.com</ExternalLink> is counted.
+            </li>
+            <li>
+              Only trades executed after 00:00 UTC, 27 May 2025, and before 23:59 UTC, 01 June 2025, will be eligible.
+            </li>
+          </Text>
+        </>
+      )}
+
       <Divider style={{ marginTop: '20px' }} />
 
       <Flex justifyContent="space-between" marginTop="20px">
@@ -709,45 +816,7 @@ export default function Information({ type, week }: { type: CampaignType; week: 
           should be read in conjunction with the KyberSwap Terms of Use, which lay out the terms and conditions that
           apply to all KyberSwap promotional activities ({'"Campaign"'}).
         </li>
-        <li>
-          The Campaign will run from{' '}
-          <Text as="span" color="#ffffff" fontStyle="bold">
-            8th July 2024 at 0:00 UTC to 15th September 2024 at 23:59 UTC UTC
-          </Text>
-          . KyberSwap retains the right to amend the {"Campaign's"} start and end dates with reasonable notice.
-        </li>
-        <li>All KyberSwap Aggregator API users from whitelisted clients are welcome to participate in the campaign.</li>
-        <li>
-          KyberSwap maintains the right, at its sole discretion, to disqualify any user who violates, cheats, or
-          exploits the campaign.
-        </li>
-        <li>
-          Please note that KyberSwap reserves the rights to change the rules & conditions at its sole discretion.{' '}
-        </li>
-        <li>
-          Points & Rewards on the Leaderboard are subject to change during the buffer period before the distribution of
-          ARB.{' '}
-          <Text as="span" color="#ffffff" fontStyle="bold">
-            Any wallet that tries to sybil or cheat in any way will have all their points and rewards forfeited.
-          </Text>
-        </li>
-
-        {week > 28 && (
-          <>
-            <li>
-              Heavy wash trading, sybil-attack, Just-in-time liquidity attack, flashloans attacks or other related
-              activities are not allowed and will forfeit points & rewards of the identified users. KyberSwap team will
-              monitor and exclude such behaviour from the STIP Campaign.
-            </li>
-            <li>
-              The rules against such activities will remain unrevealed to avoid abuse from a selected group of users.
-              KyberSwap team can exclude wallets from the campaign at its sole discretion.
-            </li>
-            {type === CampaignType.Aggregator && (
-              <li>Only trades made through whitelisted router contracts such as KyberSwap Router are eligible.</li>
-            )}
-          </>
-        )}
+        {termAndConds(week, type)}
       </Text>
 
       <Divider style={{ marginTop: '20px' }} />
