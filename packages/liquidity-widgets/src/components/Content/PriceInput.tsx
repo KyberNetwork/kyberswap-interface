@@ -35,8 +35,8 @@ export default function PriceInput({ type }: { type: Type }) {
     pool === 'loading'
       ? undefined
       : pool.tick % pool.tickSpacing === 0
-      ? pool.tick
-      : nearestUsableTick(pool.tick, pool.tickSpacing);
+        ? pool.tick
+        : nearestUsableTick(pool.tick, pool.tickSpacing);
 
   const increaseTickLower = () => {
     if (pool === 'loading' || poolTick === undefined) return;

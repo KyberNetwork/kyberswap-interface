@@ -103,10 +103,10 @@ export default function PoolStat({
                   poolInfo.apr24h < 1
                     ? 2
                     : poolInfo.apr24h < 10
-                    ? 3
-                    : poolInfo.apr24h < 100
-                    ? 4
-                    : 5,
+                      ? 3
+                      : poolInfo.apr24h < 100
+                        ? 4
+                        : 5,
               }) + '%'
             : '--'}
           {poolType === PoolType.DEX_UNISWAP_V4_FAIRFLOW ? (
