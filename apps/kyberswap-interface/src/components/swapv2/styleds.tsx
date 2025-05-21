@@ -187,6 +187,7 @@ export const ButtonReturnType = styled.div<{ active?: boolean }>`
 `
 
 export const SwapFormWrapper = styled.div<{ isShowTutorial?: boolean }>`
+  z-index: 1;
   width: 425px;
   display: flex;
   flex-direction: column;
