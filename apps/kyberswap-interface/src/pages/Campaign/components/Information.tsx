@@ -20,11 +20,17 @@ const howToEarnPoints = (week: number) => ({
   [CampaignType.MayTrading]: (
     <>
       <li>
-        Go to <ExternalLink href="https://kyberswap.com">kyberswap.com</ExternalLink> and change the network to Base
+        Go to <Link to="/">KyberSwap.com</Link>, open the Swap feature, and switch the network to Base
       </li>
       <li>
-        Trade the eligible token from this list. You can freely trade any pair composed of tokens from them, excluding
-        WETH-ETH, WETH-USDC, and ETH-USDC.
+        You may freely trade any pair composed of{' '}
+        <ExternalLink href="https://docs.google.com/spreadsheets/d/1WOTmuXgIGGYMagz9ziCK-Z_dm_WBSdjAkvz1nrADt2U/edit?gid=0#gid=0">
+          eligible tokens
+        </ExternalLink>{' '}
+        , excluding WETH-ETH, WETH-USDC, and ETH-USDC.
+        <ul style={{ margin: 0 }}>
+          <li>{'Examples of eligible pairs: AIXBT-VVV, AIXBT-USDC…'}</li>
+        </ul>
       </li>
       <li>
         For $1 in trading volume, you earn 1 point
@@ -37,10 +43,8 @@ const howToEarnPoints = (week: number) => ({
         </ul>
       </li>
       <li>
-        Rewards will be distributed at the end of the campaign based on the leaderboard
-        <ul style={{ margin: 0 }}>
-          <li>{'Higher points, higher rank, bigger reward.'}</li>
-        </ul>
+        Rewards are distributed based on the points leaderboard - the more points you earn, the higher your rank and the
+        bigger your reward.
       </li>
     </>
   ),
@@ -196,7 +200,7 @@ const rewards = {
   [CampaignType.MayTrading]: (
     <>
       <li>
-        Trade more to earn more points to climb the leaderboard. A higher rank will lead to higher rewards.
+        Trade more to earn more points to climb the leaderboard - the higher your rank, the greater your rewards.
         <ul style={{ margin: 0 }}>
           <li>Rank 1: 1050 KNC</li>
         </ul>
@@ -222,12 +226,15 @@ const rewards = {
         </ul>
       </li>
       <li>
-        Rewards will be distributed in KNC tokens on Polygon.
+        Rewards will be distributed in KNC tokens on Ethereum.
         <ul style={{ margin: 0 }}>
-          <li>Winners can claim their rewards directly on the KyberSwap UI after 7 days when the campaign ends.</li>
+          <li>KNC rewards will be available to claim on the “My Dashboard” page starting from 00:00 UTC on June 9. </li>
         </ul>
         <ul style={{ margin: 0 }}>
-          <li>Rewards must be claimed within 30 days from the claim start date.</li>
+          <li>
+            Claiming will require a gas fee. Users must claim their rewards before 00:00 UTC on July 9; unclaimed
+            rewards after this time will no longer be available.
+          </li>
         </ul>
       </li>
     </>
@@ -304,20 +311,20 @@ const rewards = {
 const faq = {
   [CampaignType.MayTrading]: [
     {
-      q: 'Can I trade any pair?',
+      q: 'How can I be eligible for the campaign?',
       a: (
         <span>
-          No. Only eligible token pairs curated by KyberSwap will count. Excluded pairs: WETH-ETH, WETH-USDC, and
-          ETH-USDC
+          To be eligible, you must make a swap on <Link to="/">KyberSwap.com</Link> using trading pairs composed of
+          eligible tokens from the list, excluding WETH-ETH, WETH-USDC, and ETH-USDC.
         </span>
       ),
     },
     {
-      q: 'How is trading volume calculated?',
+      q: 'How are points calculated?',
       a: (
         <span>
-          Volume is based on the output token value received per swap. Example: If you swap $100 of AIXBT for VIRTUAL
-          and receive $99 worth of VIRTUAL, your trade volume = $99 ~ 99 points.
+          Points are calculated based on the trading volume of eligible tokens — you earn 1 point for every $1 of
+          eligible trading volume.
         </span>
       ),
     },
@@ -331,22 +338,26 @@ const faq = {
       ),
     },
     {
-      q: 'Where will I receive my KNC rewards?',
+      q: 'How can I claim my reward?',
       a: (
         <span>
-          All KNC rewards will be available to claim on Kyberswap.com on the Ethereum network. Please ensure you have
-          access to your Ethereum address and enough ETH for gas if needed.
+          KNC rewards will be available to claim on the “My Dashboard” page starting from 00:00 UTC on June 9. Rewards
+          are claimable on Ethereum, and claiming will require a gas fee. Users must claim their rewards before 00:00
+          UTC on July 9; unclaimed rewards after this time will no longer be available.
         </span>
       ),
     },
     {
-      q: 'Will liquidity provision or LP activity count toward volume?',
-      a: (
-        <span>
-          No. Only trading volume from eligible tokens executed via KyberSwap.com is eligible. LP deposits or other DeFi
-          activities are not included.
-        </span>
-      ),
+      q: 'How can I check my current rank?',
+      a: <span>You can view your total points earned and current rank by going to the “Leaderboard” tab.</span>,
+    },
+    {
+      q: 'How often is the data updated?',
+      a: <span>The points data are updated hourly.</span>,
+    },
+    {
+      q: 'Are there any minimum or maximum value (USD) requirements for each trade?',
+      a: <span>There is no minimum nor maximum value requirement for a trade to earn points.</span>,
     },
   ],
   [CampaignType.Aggregator]: [
@@ -771,7 +782,7 @@ export default function Information({ type, week }: { type: CampaignType; week: 
               <ExternalLink href="https://docs.google.com/spreadsheets/d/1WOTmuXgIGGYMagz9ziCK-Z_dm_WBSdjAkvz1nrADt2U/edit?gid=0#gid=0">
                 eligible tokens
               </ExternalLink>{' '}
-              eligible tokens will be counted, excluding WETH-ETH, WETH-USDC, and ETH-USDC.
+              will be counted, excluding WETH-ETH, WETH-USDC, and ETH-USDC.
             </li>
             <li>
               Only trading volume via KyberSwap Aggregator (Swap feature) and executed on{' '}
