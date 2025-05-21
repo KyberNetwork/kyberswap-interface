@@ -19,6 +19,7 @@ import { MEDIA_WIDTHS, StyledInternalLink } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
 import banner from './assets/banner.png'
+import mayTradingBanner from './assets/may_trading.png'
 import ClaimBtn from './components/ClaimBtn'
 import MyReferralDashboard from './components/MyReferralDashboard'
 import { Tab, Tabs, Wrapper } from './styles'
@@ -181,7 +182,12 @@ const MyDashboard = () => {
 
   return (
     <Wrapper>
-      <img src={banner} width="100%" alt="banner" style={{ borderRadius: '12px' }} />
+      <img
+        src={tab === 'may-trading' ? mayTradingBanner : banner}
+        width="100%"
+        alt="banner"
+        style={{ borderRadius: '12px' }}
+      />
       <Text fontSize={24} fontWeight="500" marginTop="1.5rem" mb="1.5rem">
         My Dashboard
       </Text>

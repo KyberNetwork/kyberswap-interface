@@ -20,6 +20,7 @@ import { formatDisplayNumber } from 'utils/numbers'
 import loBanner from './assets/limit_order.png'
 import referralBanner from './assets/referral.png'
 import tradingBanner from './assets/trading.png'
+import mayTradingBanner from './assets/may_trading.png'
 import Information, { CampaignType } from './components/Information'
 import JoinReferral from './components/JoinReferral'
 import Leaderboard from './components/Leaderboard'
@@ -410,6 +411,8 @@ export default function Aggregator() {
             ? tradingBanner
             : type === CampaignType.LimitOrder
             ? loBanner
+            : type === CampaignType.MayTrading
+            ? mayTradingBanner
             : referralBanner
         }
         width="100%"
