@@ -94,12 +94,17 @@ export const useTokensBalanceOfAnotherChain = (
   const { account } = useActiveWeb3React()
   const multicallContract = useMulticallContract(chainId)
 
-  const { data: balances = [], isLoading } = contractQuery.useFetchBalancesQuery({
-    account,
-    tokens,
-    multicallContract,
-    chainId,
-  })
+  const { data: balances = [], isLoading } = contractQuery.useFetchBalancesQuery(
+    {
+      account,
+      tokens,
+      multicallContract,
+      chainId,
+    },
+    {
+      pollingInterval: 15_000,
+    },
+  )
 
   return [balances, isLoading]
 }
