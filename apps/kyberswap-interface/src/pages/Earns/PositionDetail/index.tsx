@@ -178,11 +178,12 @@ const PositionDetail = () => {
           <InfoHelper
             size={16}
             placement="top"
+            width="fit-content"
             text={
               <div>
-                {t`LP Fee APR`}: {formatAprNumber(position?.aprFee || 0)}%
+                {t`LP Fee APR`}: {formatAprNumber((position?.aprFee || 0) * 100)}%
                 <br />
-                {t`Farm Rewards APR`}: {formatAprNumber(position?.aprKem || 0)}%
+                {t`Rewards APR`}: {formatAprNumber((position?.aprKem || 0) * 100)}%
               </div>
             }
           />
