@@ -30,7 +30,26 @@ const ListRoute = styled.div`
   flex-direction: column;
   gap: 1rem;
   max-height: 100%;
-  overflow-y: scroll;
+  overflow-y: auto;
+
+  /* width */
+  ::-webkit-scrollbar {
+    display: unset;
+    width: 6px;
+    border-radius: 999px;
+  }
+
+  /* Track */
+  ::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 999px;
+  }
+
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: ${({ theme }) => theme.subText + '66'};
+    border-radius: 999px;
+  }
 `
 
 const Row = styled.div<{ selected: boolean }>`
