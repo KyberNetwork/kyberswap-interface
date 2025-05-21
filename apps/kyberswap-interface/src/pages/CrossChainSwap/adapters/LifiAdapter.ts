@@ -8,7 +8,7 @@ import {
   EvmQuoteParams,
 } from './BaseSwapAdapter'
 import { WalletClient, formatUnits } from 'viem'
-import { ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
+import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
 import { Quote } from '../registry'
 import { MAINNET_NETWORKS } from 'constants/networks'
 
@@ -52,11 +52,11 @@ export class LifiAdapter extends BaseSwapAdapter {
       fromChain: +params.fromChain, // Arbitrum
       fromToken: params.fromToken.isNative ? ZERO_ADDRESS : params.fromToken.wrapped.address,
       fromAmount: params.amount,
-      fromAddress: params.sender || ETHER_ADDRESS,
+      fromAddress: params.sender === ZERO_ADDRESS ? CROSS_CHAIN_FEE_RECEIVER : params.sender,
 
       toChain: +params.toChain, // Optimism
       toToken: params.toToken.isNative ? ZERO_ADDRESS : params.toToken.wrapped.address,
-      toAddress: params.recipient,
+      toAddress: params.recipient === ZERO_ADDRESS ? undefined : params.recipient,
       fee: params.feeBps / 10_000,
     })
 
