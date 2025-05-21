@@ -138,7 +138,7 @@ export default function Leaderboard({ type, week, year }: { type: CampaignType; 
 
             {type === CampaignType.MayTrading && (
               <Text width="150px" fontWeight="500" marginLeft="1.25rem" textAlign="right">
-                {rewardAmount(item.reward)} KNC
+                {formatDisplayNumber(rewardAmount(item.reward), { significantDigits: 4 })} KNC
               </Text>
             )}
           </Flex>
