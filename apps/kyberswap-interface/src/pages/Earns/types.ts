@@ -30,7 +30,7 @@ export interface EarnPool {
   feeTier: number
   volume: number
   apr: number
-  aprKem: number
+  kemApr: number
   liquidity: number
   tvl: number
   chainId?: number
@@ -48,7 +48,7 @@ export interface EarnPool {
 export interface ParsedEarnPool extends EarnPool {
   dexLogo: string
   dexName: string
-  aprFee: number
+  feeApr: number
 }
 
 export interface EarnPosition {
@@ -66,7 +66,7 @@ export interface EarnPosition {
   feesClaimed: Array<PositionAmount>
   createdTime: number
   apr: number
-  aprKem: number
+  kemApr: number
   currentPositionValue: number
   earning24h: number
   earning7d: number
@@ -131,8 +131,8 @@ export interface ParsedPosition {
   token1: Token
   tokenAddress: string
   apr: number
-  aprKem: number
-  aprFee: number
+  kemApr: number
+  feeApr: number
   totalValue: number
   status: string
   createdTime: number

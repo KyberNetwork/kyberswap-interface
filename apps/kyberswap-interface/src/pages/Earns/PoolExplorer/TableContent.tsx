@@ -71,8 +71,8 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: ({ pool }: Zap
           ...pool,
           dexLogo,
           dexName,
-          aprFee: pool.apr,
-          apr: isFarmingPool ? (pool.aprKem || 0) + pool.apr : pool.apr,
+          feeApr: pool.apr,
+          apr: isFarmingPool ? (pool.kemApr || 0) + pool.apr : pool.apr,
         }
       }),
     [poolData, dexList],
@@ -183,9 +183,9 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: ({ pool }: Zap
         width="max-content"
         text={
           <div>
-            {t`LP Fee APR`}: {formatAprNumber(pool.aprFee)}%
+            {t`LP Fee APR`}: {formatAprNumber(pool.feeApr)}%
             <br />
-            {t`Farm Rewards APR`}: {formatAprNumber(pool.aprKem || 0)}%
+            {t`Rewards APR`}: {formatAprNumber(pool.kemApr || 0)}%
           </div>
         }
       >

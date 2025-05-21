@@ -181,9 +181,9 @@ const PositionDetail = () => {
             width="fit-content"
             text={
               <div>
-                {t`LP Fee APR`}: {formatAprNumber((position?.aprFee || 0) * 100)}%
+                {t`LP Fee APR`}: {formatAprNumber((position?.feeApr || 0) * 100)}%
                 <br />
-                {t`Rewards APR`}: {formatAprNumber((position?.aprKem || 0) * 100)}%
+                {t`Rewards APR`}: {formatAprNumber((position?.kemApr || 0) * 100)}%
               </div>
             }
           />
