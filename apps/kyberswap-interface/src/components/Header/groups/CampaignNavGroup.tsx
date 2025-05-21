@@ -8,6 +8,8 @@ import { APP_PATHS } from 'constants/index'
 
 import { DropdownTextAnchor, StyledNavLink } from '../styleds'
 import NavGroup from './NavGroup'
+import { NewLabel } from 'components/Menu'
+import { Flex } from 'rebass'
 
 const StyledNavGroup = styled(NavGroup)`
   ${({ theme }) => theme.mediaWidth.upToXXSmall`
@@ -15,9 +17,22 @@ const StyledNavGroup = styled(NavGroup)`
   `}
 `
 
+const StyledNavGroupPad = styled(NavGroup)`
+  ${({ theme }) => theme.mediaWidth.upToXXSmall`
+      display: none;
+  `}
+  margin-left: 4px;
+`
+
+const ELabel = styled.span`
+  font-size: 10px;
+  margin-left: 4px;
+`
+
 const CampaignNavGroup = () => {
   const { pathname } = useLocation()
-  const isActive = pathname.includes('/campaigns')
+  const isActiveMayTrading = pathname.includes('/campaigns/may-trading')
+  const isActive = pathname.includes('/campaigns') && !isActiveMayTrading
   const upTo500 = useMedia('(max-width: 500px)')
 
   // if (upTo500) return null
@@ -26,30 +41,50 @@ const CampaignNavGroup = () => {
     <>
       <StyledNavGroup
         dropdownAlign={upTo500 ? 'right' : 'left'}
-        isActive={isActive}
+        isActive={isActiveMayTrading}
         anchor={
           <DropdownTextAnchor style={{ position: 'relative', width: 'max-content' }}>
-            <Trans>Campaigns</Trans>
+            <Flex>
+              Campaigns
+              <NewLabel>New</NewLabel>
+            </Flex>
           </DropdownTextAnchor>
         }
         dropdownContent={
           <Column>
             <StyledNavLink to={APP_PATHS.MAY_TRADING_CAMPAIGN}>
               <Trans>May Trading</Trans>
+              <NewLabel>New</NewLabel>
             </StyledNavLink>
 
-            <StyledNavLink to={APP_PATHS.AGGREGATOR_CAMPAIGN} style={{ gap: '12px' }}>
-              <Trans>Aggregator Trading</Trans>
-            </StyledNavLink>
-            <StyledNavLink to={APP_PATHS.LIMIT_ORDER_CAMPAIGN} style={{ gap: '12px' }}>
-              <Trans>Limit Order</Trans>
-            </StyledNavLink>
-            <StyledNavLink to={APP_PATHS.REFFERAL_CAMPAIGN} style={{ gap: '12px' }}>
-              <Trans>Referral</Trans>
-            </StyledNavLink>
-            <StyledNavLink to={APP_PATHS.MY_DASHBOARD} style={{ gap: '12px' }}>
-              <Trans>My Dashboard</Trans>
-            </StyledNavLink>
+            <StyledNavGroupPad
+              dropdownAlign={upTo500 ? 'right' : 'left'}
+              isActive={isActive}
+              anchor={
+                <DropdownTextAnchor style={{ position: 'relative', width: 'max-content' }}>
+                  <Flex>
+                    Arbitrum STIP
+                    <ELabel>ENDED</ELabel>
+                  </Flex>
+                </DropdownTextAnchor>
+              }
+              dropdownContent={
+                <Column>
+                  <StyledNavLink to={APP_PATHS.AGGREGATOR_CAMPAIGN} style={{ gap: '12px' }}>
+                    <Trans>Aggregator Trading</Trans>
+                  </StyledNavLink>
+                  <StyledNavLink to={APP_PATHS.LIMIT_ORDER_CAMPAIGN} style={{ gap: '12px' }}>
+                    <Trans>Limit Order</Trans>
+                  </StyledNavLink>
+                  <StyledNavLink to={APP_PATHS.REFFERAL_CAMPAIGN} style={{ gap: '12px' }}>
+                    <Trans>Referral</Trans>
+                  </StyledNavLink>
+                  <StyledNavLink to={APP_PATHS.MY_DASHBOARD} style={{ gap: '12px' }}>
+                    <Trans>My Dashboard</Trans>
+                  </StyledNavLink>
+                </Column>
+              }
+            />
           </Column>
         }
       />

@@ -366,6 +366,12 @@ export default function Aggregator() {
 
   const dashboardTab = type === CampaignType.MayTrading ? 'may-trading' : campaign
 
+  const startEndIn =
+    type === CampaignType.MayTrading
+      ? `${isNotStart ? 'Starting in' : isEnd ? 'Ended at' : 'Ending in'}`
+      : `Week ${selectedWeek - startWeek + 1} ${isNotStart ? 'starting in' : isEnd ? 'ended at' : 'ending in'}`
+  const estRewardText = type === CampaignType.MayTrading ? 'My Rewards' : 'My Estimated Rewards'
+
   useEffect(() => {
     searchParams.set('page', '1')
     setSearchParams(searchParams)
@@ -425,7 +431,7 @@ export default function Aggregator() {
         {campaign === 'referral-program' && <JoinReferral />}
       </Flex>
 
-      {campaign !== 'referral-program' && (
+      {campaign !== 'referral-program' && type != CampaignType.MayTrading && (
         <Flex
           justifyContent="space-between"
           marginTop="1.5rem"
@@ -491,7 +497,7 @@ export default function Aggregator() {
         {campaign !== 'referral-program' && (
           <StatCard>
             <Text fontSize={14} color={theme.subText}>
-              Week {selectedWeek - startWeek + 1} {isNotStart ? 'starting in' : isEnd ? 'ended at' : 'ending in'}
+              {startEndIn}
             </Text>
             <Text marginTop="8px" fontSize={20} fontWeight="500">
               {isEnd ? dayjs(week.end * 1000).format('MMM DD YYYY') : getFormattedTime(duration)}
@@ -527,7 +533,7 @@ export default function Aggregator() {
 
         <StatCard>
           <Text fontSize={14} color={theme.subText}>
-            My Estimated Rewards {info}
+            {estRewardText} {info}
           </Text>
           <Flex marginTop="8px" fontSize={20} fontWeight="500" alignItems="center">
             <img
