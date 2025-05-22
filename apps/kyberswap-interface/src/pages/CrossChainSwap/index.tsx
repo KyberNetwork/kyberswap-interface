@@ -225,7 +225,7 @@ function CrossChainSwap() {
 
           {toChainId && (isEvmChain(fromChainId) && isToEvm ? showEvmRecipient : true) && (
             <Flex sx={{ gap: '4px' }}>
-              {isDifferentRecipient && (
+              {isDifferentRecipient && (!isEvmChain(fromChainId) || !isToEvm) && (
                 <ButtonLight
                   padding="2px 8px"
                   width="fit-content"
