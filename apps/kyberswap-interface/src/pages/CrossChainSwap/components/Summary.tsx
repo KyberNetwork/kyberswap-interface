@@ -24,7 +24,7 @@ export const formatTime = (seconds: number) => {
   const mins = Math.floor(seconds / 60)
   const secs = seconds % 60
 
-  return `${mins}mins ${secs > 0 ? secs + 's' : ''}`
+  return `${mins}m${secs > 0 ? secs + 's' : ''}`
 }
 
 export const Summary = ({ quote, tokenOut, full }: { quote?: Quote; tokenOut?: Currency; full?: boolean }) => {

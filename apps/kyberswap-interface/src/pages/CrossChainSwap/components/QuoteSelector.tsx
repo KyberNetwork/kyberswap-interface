@@ -15,6 +15,7 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import { useMedia } from 'react-use'
 import { MEDIA_WIDTHS } from 'theme'
 import Modal from 'components/Modal'
+import { formatTime } from './Summary'
 
 const Wrapper = styled.div`
   display: flex;
@@ -31,6 +32,7 @@ const ListRoute = styled.div`
   gap: 1rem;
   max-height: 100%;
   overflow-y: auto;
+  padding-right: 8px;
 
   /* width */
   ::-webkit-scrollbar {
@@ -155,7 +157,7 @@ export const QuoteSelector = ({
                   <Text mx="8px">|</Text>
                   <Clock size={14} />
                   <Text ml="4px" mr="8px">
-                    {quote.quote.timeEstimate}s
+                    {formatTime(quote.quote.timeEstimate)}
                   </Text>
                   {quote.quote.protocolFee > 0 && (
                     <>
@@ -216,7 +218,7 @@ export const QuoteSelector = ({
             setShow(false)
           }}
         >
-          <Flex width="100%" padding="20px">
+          <Flex width="100%" padding="20px" paddingRight="12px">
             {content}
           </Flex>
         </Modal>
@@ -240,6 +242,7 @@ export const QuoteSelector = ({
         zIndex: 9999,
         height: '100%',
         backgroundColor: theme.background,
+        paddingRight: '12px',
       }}
     >
       {content}

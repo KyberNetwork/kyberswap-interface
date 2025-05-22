@@ -325,7 +325,7 @@ export const TransactionHistory = () => {
         currentPage={currentPage}
         pageSize={PAGE_SIZE}
         haveBg={false}
-        style={{ padding: '0', marginTop: '16px', zIndex: -1 }}
+        style={{ padding: '0', marginTop: '16px' }}
       />
     </>
   )
