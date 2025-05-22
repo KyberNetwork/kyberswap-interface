@@ -334,7 +334,25 @@ export default function TableContent({
                   <PositionValueWrapper>
                     <PositionValueLabel>{t`APR`}</PositionValueLabel>
                     <Flex alignItems={'center'} sx={{ gap: 1 }}>
-                      <Text color={pool.isFarming ? theme.primary : theme.text}>{formatAprNumber(apr * 100)}%</Text>
+                      <MouseoverTooltipDesktopOnly
+                        text={
+                          pool.isFarming ? (
+                            <>
+                              <Text>
+                                {t`LP Fees APR`}: {formatAprNumber(position.feeApr * 100)}%
+                              </Text>
+                              <Text>
+                                {t`Rewards APR`}: {formatAprNumber(position.kemApr * 100)}%
+                              </Text>
+                            </>
+                          ) : null
+                        }
+                        width="fit-content"
+                        placement="bottom"
+                      >
+                        <Text color={pool.isFarming ? theme.primary : theme.text}>{formatAprNumber(apr * 100)}%</Text>
+                      </MouseoverTooltipDesktopOnly>
+
                       {!!position.suggestionPool && (
                         <MouseoverTooltipDesktopOnly
                           text={
