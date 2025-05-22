@@ -11,7 +11,7 @@ import { formatDisplayNumber } from 'utils/numbers'
 import CurrencyLogo from 'components/CurrencyLogo'
 import { ChainId, Currency as EvmCurrency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Summary } from './Summary'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { useCrossChainTransactions } from 'state/crossChainSwap'
 import { Chain, Currency, NonEvmChain, NonEvmChainInfo } from '../adapters'
@@ -21,6 +21,7 @@ import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import { PiWarning } from './PiWarning'
 import { ExternalLink } from 'theme'
 import CopyHelper from 'components/Copy'
+import { useSearchParams } from 'react-router-dom'
 
 const Wrapper = styled.div`
   padding: 1rem;
@@ -86,6 +87,22 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
   const [txHash, setTxHash] = useState('')
   const [txError, setTxError] = useState('')
   const [transactions, setTransactions] = useCrossChainTransactions()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const transactionHashes = searchParams.get('transactionHashes')
+  useEffect(() => {
+    try {
+      const tx = JSON.parse(localStorage.getItem('cross-chain-swap-my-near-wallet-tx') || '')
+      if (transactionHashes && tx) {
+        setTransactions([tx, ...transactions].slice(0, 30))
+        localStorage.removeItem('cross-chain-swap-my-near-wallet-tx')
+        searchParams.delete('transactionHashes')
+        setSearchParams(searchParams)
+      }
+    } catch {
+      // do nothing
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [transactionHashes])
 
   const nearWallet = useWalletSelector()
 

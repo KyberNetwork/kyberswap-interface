@@ -294,7 +294,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     const isToNear = toChainId === 'near'
 
     let feeBps = 25
-    if ((isFromBitcoin && isToEvm) || (isFromEvm && isToBitcoin)) {
+    if (isFromBitcoin || isToBitcoin) {
       feeBps = 25
     } else if (isFromEvm && isToEvm) {
       const [token0Cat, token1Cat] = await Promise.all([

@@ -250,13 +250,24 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
           ],
         })
 
+        // My near wallet is redirect to wallet website -> need store to process later
+        if (nearWallet?.wallet?.id === 'my-near-wallet')
+          localStorage.setItem(
+            'cross-chain-swap-my-near-wallet-tx',
+            JSON.stringify({
+              ...params,
+              sourceTxHash: quote.rawQuote.quote.depositAddress,
+            }),
+          )
+
         await nearWallet
           .signAndSendTransactions({
             transactions,
           })
           .catch(e => {
             console.log('NearIntents signAndSendTransactions failed', e)
-            reject(e)
+            if (nearWallet?.wallet?.id === 'my-near-wallet') reject()
+            else reject(e)
           })
 
         resolve({
