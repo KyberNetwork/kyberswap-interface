@@ -514,7 +514,7 @@ export default function Content() {
             Cancel
           </button>
           <button
-            className={`ks-primary-btn w-[190px] ${
+            className={`ks-primary-btn min-w-[190px] w-fit ${
               !disabled &&
               Object.values(approvalStates).some((item) => item !== APPROVAL_STATE.NOT_APPROVED)
                 ? pi.piVeryHigh
