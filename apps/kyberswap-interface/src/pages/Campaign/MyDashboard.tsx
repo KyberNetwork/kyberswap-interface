@@ -24,6 +24,7 @@ import ClaimBtn from './components/ClaimBtn'
 import MyReferralDashboard from './components/MyReferralDashboard'
 import { Tab, Tabs, Wrapper } from './styles'
 import { KNC } from 'constants/tokens'
+import { NewLabel } from 'components/Menu'
 
 const TableHeader = styled.div`
   display: grid;
@@ -40,6 +41,11 @@ const TableRow = styled(TableHeader)`
   font-weight: 400;
   color: ${({ theme }) => theme.text};
   align-items: center;
+`
+
+const ELabel = styled.span`
+  font-size: 10px;
+  margin-left: 4px;
 `
 
 const mockToken = new Token(1, ZERO_ADDRESS, 18, 'mock')
@@ -265,16 +271,24 @@ const MyDashboard = () => {
 
       <Tabs>
         <Tab role="button" active={tab === 'may-trading'} onClick={() => changeTab('may-trading')}>
-          May Trading (New)
+          <Flex>
+            May Trading <NewLabel>NEW</NewLabel>
+          </Flex>
         </Tab>
         <Tab role="button" active={tab === 'trading-incentive'} onClick={() => changeTab('trading-incentive')}>
-          Trading
+          <Flex>
+            Trading <ELabel>ENDED</ELabel>
+          </Flex>
         </Tab>
         <Tab role="button" active={tab === 'limit-order-farming'} onClick={() => changeTab('limit-order-farming')}>
-          Limit Order
+          <Flex>
+            Limit Order <ELabel>ENDED</ELabel>
+          </Flex>
         </Tab>
         <Tab role="button" active={tab === 'referral-program'} onClick={() => changeTab('referral-program')}>
-          Referral
+          <Flex>
+            Referral <ELabel>ENDED</ELabel>
+          </Flex>
         </Tab>
       </Tabs>
 
