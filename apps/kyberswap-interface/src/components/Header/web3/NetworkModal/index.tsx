@@ -212,24 +212,42 @@ export default function NetworkModal({
             ) : (
               <NetworkList data-testid="network-list">
                 <>
+                  {/*Ethereum and BTC should render first*/}
                   {supportedChains
-                    .filter(chain => !favoriteChains.some(_ => _ === chain.chainId.toString()))
+
+                    .filter(chain => chain.chainId === 1 && !favoriteChains.some(_ => _ === chain.chainId.toString()))
+                    .map(renderNetworkButton)}
+
+                  {!favoriteChains.includes('bitcoin') &&
+                    activeChainIds?.length &&
+                    activeChainIds.includes('bitcoin') &&
+                    renderNetworkButton({
+                      chainId: 'bitcoin' as any,
+                      name: NonEvmChainInfo[NonEvmChain.Bitcoin].name,
+                      icon: NonEvmChainInfo[NonEvmChain.Bitcoin].icon,
+                      state: ChainState.ACTIVE,
+                    })}
+
+                  {supportedChains
+                    .filter(chain => chain.chainId !== 1 && !favoriteChains.some(_ => _ === chain.chainId.toString()))
                     .map((networkInfo: NetworkInfo) => {
                       return renderNetworkButton(networkInfo)
                     })}
-                  {Object.values(NonEvmChain).map((network: NonEvmChain) => {
-                    if (
-                      favoriteChains.includes(network) ||
-                      (activeChainIds?.length && !activeChainIds.includes(network))
-                    )
-                      return null
-                    return renderNetworkButton({
-                      chainId: network as any,
-                      name: NonEvmChainInfo[network as NonEvmChain].name,
-                      icon: NonEvmChainInfo[network as NonEvmChain].icon,
-                      state: ChainState.ACTIVE,
-                    })
-                  })}
+                  {Object.values(NonEvmChain)
+                    .filter(n => n !== NonEvmChain.Bitcoin)
+                    .map((network: NonEvmChain) => {
+                      if (
+                        favoriteChains.includes(network) ||
+                        (activeChainIds?.length && !activeChainIds.includes(network))
+                      )
+                        return null
+                      return renderNetworkButton({
+                        chainId: network as any,
+                        name: NonEvmChainInfo[network as NonEvmChain].name,
+                        icon: NonEvmChainInfo[network as NonEvmChain].icon,
+                        state: ChainState.ACTIVE,
+                      })
+                    })}
                 </>
               </NetworkList>
             )}
