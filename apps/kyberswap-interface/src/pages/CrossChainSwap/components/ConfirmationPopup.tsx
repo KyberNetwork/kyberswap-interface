@@ -247,7 +247,7 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
             <Flex marginTop="1rem"></Flex>
             <Summary quote={selectedQuote} tokenOut={currencyOut} full />
 
-            {warning?.priceImpaceInfo.message && <Flex marginTop="1rem"></Flex>}
+            {warning?.priceImpaceInfo?.message && <Flex marginTop="1rem"></Flex>}
             <PiWarning />
 
             <Text marginY="1rem" fontStyle="italic" color={'#737373'} fontSize={12}>

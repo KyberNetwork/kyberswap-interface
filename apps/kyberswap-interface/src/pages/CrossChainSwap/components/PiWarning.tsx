@@ -7,7 +7,7 @@ import { rgba } from 'polished'
 export const PiWarning = () => {
   const { warning } = useCrossChainSwap()
   const theme = useTheme()
-  if (!warning?.priceImpaceInfo?.message) return null
+  if (!warning?.priceImpaceInfo || !warning?.priceImpaceInfo?.message) return null
 
   return (
     <Flex
@@ -20,7 +20,7 @@ export const PiWarning = () => {
         color: warning.priceImpaceInfo.isVeryHigh ? theme.red : theme.warning,
       }}
     >
-      <WarningIcon color={warning.priceImpaceInfo.isVeryHigh ? theme.red : theme.warning} size={18} />
+      <WarningIcon color={warning.priceImpaceInfo?.isVeryHigh ? theme.red : theme.warning} size={18} />
       {warning.priceImpaceInfo?.message}
     </Flex>
   )

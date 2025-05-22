@@ -55,7 +55,7 @@ const RegistryContext = createContext<
           isHigh: boolean
           isVeryHigh: boolean
           message: string
-        }
+        } | null
       } | null
     }
   | undefined
@@ -196,7 +196,6 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     'commonPair',
   )
   const warning = useMemo(() => {
-    if (!selectedQuote) return null
     const highSlippageMsg = 'Your slippage is set higher than usual, which may cause unexpected losses'
     const lowSlippageMsg = 'Your slippage is set lower than usual, which may cause transaction failure.'
     const veryHighPiMsg = 'The price impact is high — double check the output before proceeding.'
@@ -215,18 +214,20 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
 
       const highPriceImpactThreshold = category === 'stablePair' ? 1 : 2
       const veryHighPriceImpactThreshold = category === 'stablePair' ? 3 : 5
-      const unableToCalcPi = !selectedQuote.quote.priceImpact
-      const priceImpaceInfo = {
-        isHigh: selectedQuote.quote.priceImpact > highPriceImpactThreshold,
-        isVeryHigh: unableToCalcPi || selectedQuote.quote.priceImpact >= veryHighPriceImpactThreshold,
-        message: unableToCalcPi
-          ? 'Unable to calculate price impact'
-          : selectedQuote.quote.priceImpact >= veryHighPriceImpactThreshold
-          ? veryHighPiMsg
-          : selectedQuote.quote.priceImpact > highPriceImpactThreshold
-          ? highPiMsg
-          : '',
-      }
+      const unableToCalcPi = !selectedQuote?.quote?.priceImpact
+      const priceImpaceInfo = !selectedQuote
+        ? null
+        : {
+            isHigh: selectedQuote.quote.priceImpact > highPriceImpactThreshold,
+            isVeryHigh: unableToCalcPi || selectedQuote.quote.priceImpact >= veryHighPriceImpactThreshold,
+            message: unableToCalcPi
+              ? 'Unable to calculate price impact'
+              : selectedQuote.quote.priceImpact >= veryHighPriceImpactThreshold
+              ? veryHighPiMsg
+              : selectedQuote.quote.priceImpact > highPriceImpactThreshold
+              ? highPiMsg
+              : '',
+          }
       return { slippageInfo, priceImpaceInfo }
     }
 
@@ -238,12 +239,18 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
         isLow: slippage < 30,
         message: slippage >= 300 ? highSlippageMsg : slippage < 30 ? lowSlippageMsg : '',
       },
-      priceImpaceInfo: {
-        isHigh: selectedQuote.quote.priceImpact > 3,
-        isVeryHigh: selectedQuote.quote.priceImpact >= 10,
-        message:
-          selectedQuote.quote.priceImpact >= 10 ? veryHighPiMsg : selectedQuote.quote.priceImpact > 3 ? highPiMsg : '',
-      },
+      priceImpaceInfo: !selectedQuote
+        ? null
+        : {
+            isHigh: selectedQuote.quote.priceImpact > 3,
+            isVeryHigh: selectedQuote.quote.priceImpact >= 10,
+            message:
+              selectedQuote.quote.priceImpact >= 10
+                ? veryHighPiMsg
+                : selectedQuote.quote.priceImpact > 3
+                ? highPiMsg
+                : '',
+          },
     }
   }, [selectedQuote, category, isFromEvm, isToEvm, slippage])
 

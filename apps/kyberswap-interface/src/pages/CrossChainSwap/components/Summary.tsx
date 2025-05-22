@@ -77,9 +77,9 @@ export const Summary = ({ quote, tokenOut, full }: { quote?: Quote; tokenOut?: C
         </MouseoverTooltip>
         <Text
           color={
-            warning?.priceImpaceInfo.isVeryHigh
+            warning?.priceImpaceInfo?.isVeryHigh
               ? theme.red
-              : warning?.priceImpaceInfo.isHigh
+              : warning?.priceImpaceInfo?.isHigh
               ? theme.warning
               : undefined
           }
