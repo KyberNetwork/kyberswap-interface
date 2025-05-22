@@ -88,7 +88,12 @@ const RewardSection = ({ position }: { position: ParsedPosition }) => {
               </Text>
               <KemIcon width={20} height={20} />
             </Flex>
-            <Text fontSize={20}>{rewardInfoThisPosition?.totalAmount || 0} KNC</Text>
+            <Text fontSize={20}>
+              {formatDisplayNumber(rewardInfoThisPosition?.totalUsdValue || 0, {
+                significantDigits: 6,
+                style: 'currency',
+              })}
+            </Text>
           </Flex>
 
           {rewardInfoThisPosition?.totalUsdValue ? (
@@ -99,7 +104,7 @@ const RewardSection = ({ position }: { position: ParsedPosition }) => {
                 {rewardInfoThisPosition?.tokens.map((item, index) => (
                   <Flex key={index} alignItems={'center'} sx={{ gap: '6px' }}>
                     <TokenLogo src={item.logo} size={16} />
-                    <Text fontSize={16}>{formatDisplayNumber(item.claimableAmount, { significantDigits: 6 })}</Text>
+                    <Text fontSize={16}>{formatDisplayNumber(item.totalAmount, { significantDigits: 6 })}</Text>
                     <Text fontSize={16}>{item.symbol}</Text>
                   </Flex>
                 ))}

@@ -44,6 +44,7 @@ export interface ClaimInfo {
   }>
   nativeToken?: NativeToken
   totalValue: number
+  campaignId?: string
 }
 
 const ClaimModal = ({

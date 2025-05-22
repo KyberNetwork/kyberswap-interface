@@ -221,6 +221,7 @@ export interface RewardInfo {
 
 export interface NftRewardInfo {
   nftId: string
+  campaignId: string
   totalUsdValue: number
   pendingUsdValue: number
   claimedUsdValue: number
