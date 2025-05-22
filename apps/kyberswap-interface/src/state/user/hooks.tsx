@@ -37,6 +37,7 @@ import {
   toggleTradeRoutes,
   toggleUseAggregatorForZap,
   updateAcceptedTermVersion,
+  updateFavoriteChains,
   updatePoolDegenMode,
   updateTokenAnalysisSettings,
   updateUserDeadline,
@@ -527,4 +528,19 @@ export function useShowTradeRoutes(): boolean {
 export function useToggleTradeRoutes(): () => void {
   const dispatch = useDispatch<AppDispatch>()
   return useCallback(() => dispatch(toggleTradeRoutes()), [dispatch])
+}
+export function useFavoriteChains(): [string[], (val: string[]) => void] {
+  const dispatch = useDispatch<AppDispatch>()
+  const favoriteChains = useSelector<AppState, AppState['user']['favoriteChains']>(
+    state => state.user.favoriteChains || [],
+  )
+
+  const setFavoriteChains = useCallback(
+    (chains: string[]) => {
+      dispatch(updateFavoriteChains(chains))
+    },
+    [dispatch],
+  )
+
+  return [favoriteChains, setFavoriteChains]
 }

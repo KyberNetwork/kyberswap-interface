@@ -1,3 +1,4 @@
+import { APP_PATHS } from 'constants/index'
 import { ReactNode, createContext, useCallback, useContext, useEffect, useState } from 'react'
 
 type WalletType = 'xverse' | 'bitget' | 'okx' | 'unisat' | 'phantom'
@@ -7,7 +8,7 @@ interface BitcoinWalletBase {
   name: string
   logo: string
   type: WalletType
-  connect: () => void
+  connect: () => Promise<void>
   disconnect?: () => void
   sendBitcoin: ({ recipient, amount }: { recipient: string; amount: number | string }) => Promise<string>
   isInstalled: () => boolean
@@ -321,8 +322,10 @@ export const BitcoinWalletProvider = ({ children }: { children: ReactNode }) => 
       providers.push(okxProvider)
       providers.push(unisatProvider)
 
-      const lastConnectedWallet = localStorage.getItem('bitcoinWallet')
-      providers.find(wallet => wallet.type === lastConnectedWallet)?.connect()
+      if (window.location.pathname === APP_PATHS.CROSS_CHAIN) {
+        const lastConnectedWallet = localStorage.getItem('bitcoinWallet')
+        providers.find(wallet => wallet.type === lastConnectedWallet)?.connect()
+      }
 
       providers.sort(a => (a.isInstalled() ? -1 : 1))
       setAvailableWallets(providers)

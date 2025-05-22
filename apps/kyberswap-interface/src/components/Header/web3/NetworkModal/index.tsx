@@ -1,6 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { LayoutGroup } from 'framer-motion'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { X } from 'react-feather'
 import { Text } from 'rebass'
 import { useUpdateProfileMutation } from 'services/identity'
@@ -25,6 +25,7 @@ import DropzoneOverlay from './components/DropzoneOverlay'
 import { useDragAndDrop } from './hooks'
 import { NetworkList, Wrapper } from './styleds'
 import { Chain, NonEvmChainInfo, NonEvmChain } from 'pages/CrossChainSwap/adapters'
+import { useFavoriteChains } from 'state/user/hooks'
 
 const FAVORITE_DROPZONE_ID = 'favorite-dropzone'
 
@@ -48,7 +49,8 @@ export default function NetworkModal({
   const { userInfo } = useSessionInfo()
   const { mixpanelHandler } = useMixpanel()
   const [requestSaveProfile] = useUpdateProfileMutation()
-  const [favoriteChains, setFavoriteChains] = useState<string[]>(userInfo?.data?.favouriteChainIds || [])
+  // const [favoriteChains, setFavoriteChains] = useState<string[]>(userInfo?.data?.favouriteChainIds || [])
+  const [favoriteChains, setFavoriteChains] = useFavoriteChains()
 
   const wrapperRef = useRef<HTMLDivElement>(null)
 
@@ -109,8 +111,8 @@ export default function NetworkModal({
   }
 
   useEffect(() => {
-    setFavoriteChains(userInfo?.data?.favouriteChainIds || [])
-  }, [userInfo])
+    if (userInfo?.data?.favouriteChainIds?.length) setFavoriteChains(userInfo?.data?.favouriteChainIds || [])
+  }, [userInfo, setFavoriteChains])
 
   return (
     <Modal
@@ -170,6 +172,8 @@ export default function NetworkModal({
                       return renderNetworkButton(chainInfo)
                     }
 
+                    if (activeChainIds?.length && !activeChainIds.includes(chainId)) return null
+
                     if (NonEvmChainInfo[chainId as NonEvmChain]) {
                       return renderNetworkButton({
                         chainId: chainId as any,
@@ -214,11 +218,15 @@ export default function NetworkModal({
                       return renderNetworkButton(networkInfo)
                     })}
                   {Object.values(NonEvmChain).map((network: NonEvmChain) => {
-                    if (activeChainIds?.length && !activeChainIds.includes(network)) return null
+                    if (
+                      favoriteChains.includes(network) ||
+                      (activeChainIds?.length && !activeChainIds.includes(network))
+                    )
+                      return null
                     return renderNetworkButton({
                       chainId: network as any,
-                      name: NonEvmChainInfo[network].name,
-                      icon: NonEvmChainInfo[network].icon,
+                      name: NonEvmChainInfo[network as NonEvmChain].name,
+                      icon: NonEvmChainInfo[network as NonEvmChain].icon,
                       state: ChainState.ACTIVE,
                     })
                   })}
