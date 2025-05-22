@@ -421,7 +421,7 @@ export default function Content() {
       <div className={`p-6 ${!showWidget ? 'hidden' : ''}`}>
         <Header onDismiss={onClose} />
         <div className="mt-5 flex gap-5 max-sm:flex-col">
-          <div className="w-3/5 max-sm:w-full">
+          <div className="w-[55%] max-sm:w-full">
             <PoolStat
               chainId={chainId}
               poolAddress={poolAddress}
@@ -449,7 +449,7 @@ export default function Content() {
             ) : null}
           </div>
 
-          <div className="w-2/5 max-sm:w-full">
+          <div className="w-[45%] max-sm:w-full">
             {isUniV3PoolType ? addLiquiditySection : null}
 
             <EstLiqValue />
