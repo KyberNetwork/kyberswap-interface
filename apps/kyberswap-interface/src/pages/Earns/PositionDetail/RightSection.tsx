@@ -64,6 +64,7 @@ const RightSection = ({
 
   const priceRange = useMemo(() => {
     if (!pool) return
+    if (position.pool.isUniv2) return ['0', '∞']
 
     const tickSpacing = pool?.positionInfo.tickSpacing
     const minTick = nearestUsableTick(MIN_TICK, tickSpacing)
