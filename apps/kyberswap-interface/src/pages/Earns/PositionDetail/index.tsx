@@ -2,6 +2,7 @@ import { formatAprNumber } from '@kyber/utils/dist/number'
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { usePreviousDistinct } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { useUserPositionsQuery } from 'services/zapEarn'
 
@@ -59,11 +60,18 @@ const PositionDetail = () => {
   const hadForceLoading = useRef(forceLoading ? true : false)
   const [feeInfoFromRpc, setFeeInfoFromRpc] = useState<FeeInfo | undefined>()
 
-  const position: ParsedPosition | undefined = useMemo(() => {
-    if (!userPosition?.[0]) return undefined
+  const previousPosition = usePreviousDistinct(userPosition)
 
-    return parseRawPosition({ position: userPosition[0], feeInfo: feeInfoFromRpc })
-  }, [feeInfoFromRpc, userPosition])
+  const position: ParsedPosition | undefined = useMemo(() => {
+    let positionToRender = []
+
+    if (!userPosition || !userPosition.length) {
+      if (!previousPosition || !previousPosition.length) return undefined
+      positionToRender = previousPosition
+    } else positionToRender = userPosition
+
+    return parseRawPosition({ position: positionToRender[0], feeInfo: feeInfoFromRpc })
+  }, [feeInfoFromRpc, userPosition, previousPosition])
 
   const handleFetchUnclaimedFee = useCallback(async () => {
     if (!position || !library) return

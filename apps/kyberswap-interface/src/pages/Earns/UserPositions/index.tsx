@@ -1,7 +1,7 @@
 import { t } from '@lingui/macro'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useMedia } from 'react-use'
+import { useMedia, usePreviousDistinct } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { useUserPositionsQuery } from 'services/zapEarn'
 
@@ -86,10 +86,16 @@ const UserPositions = () => {
     setLoading(true)
   })
 
-  const parsedPositions: Array<ParsedPosition> = useMemo(() => {
-    if (!userPosition) return []
+  const previousPosition = usePreviousDistinct(userPosition)
 
-    let parsedData = [...userPosition].map(position => {
+  const parsedPositions: Array<ParsedPosition> = useMemo(() => {
+    let positionToRender = []
+    if (!userPosition || !userPosition.length) {
+      if (!previousPosition || !previousPosition.length) return []
+      positionToRender = previousPosition
+    } else positionToRender = userPosition
+
+    let parsedData = [...positionToRender].map(position => {
       const feeInfo = feeInfoFromRpc.find(feeInfo => feeInfo.id === position.tokenId)
       const nftRewardInfo = rewardInfoThisChain?.nfts.find(rewardInfo => rewardInfo.nftId === position.tokenId)
 
@@ -141,7 +147,15 @@ const UserPositions = () => {
     }
 
     return parsedData
-  }, [feeInfoFromRpc, filters.orderBy, filters.sortBy, filters.status, rewardInfoThisChain?.nfts, userPosition])
+  }, [
+    feeInfoFromRpc,
+    filters.orderBy,
+    filters.sortBy,
+    filters.status,
+    previousPosition,
+    rewardInfoThisChain?.nfts,
+    userPosition,
+  ])
 
   const paginatedPositions: Array<ParsedPosition> = useMemo(() => {
     if (parsedPositions.length <= POSITIONS_TABLE_LIMIT) return parsedPositions
