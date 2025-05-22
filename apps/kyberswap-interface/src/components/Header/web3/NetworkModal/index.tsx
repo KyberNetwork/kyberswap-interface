@@ -169,6 +169,15 @@ export default function NetworkModal({
                     if (chainInfo) {
                       return renderNetworkButton(chainInfo)
                     }
+
+                    if (NonEvmChainInfo[chainId as NonEvmChain]) {
+                      return renderNetworkButton({
+                        chainId: chainId as any,
+                        name: NonEvmChainInfo[chainId as NonEvmChain].name,
+                        icon: NonEvmChainInfo[chainId as NonEvmChain].icon,
+                        state: ChainState.ACTIVE,
+                      })
+                    }
                     return null
                   })}
                 </LayoutGroup>
@@ -205,6 +214,7 @@ export default function NetworkModal({
                       return renderNetworkButton(networkInfo)
                     })}
                   {Object.values(NonEvmChain).map((network: NonEvmChain) => {
+                    if (activeChainIds?.length && !activeChainIds.includes(network)) return null
                     return renderNetworkButton({
                       chainId: network as any,
                       name: NonEvmChainInfo[network].name,

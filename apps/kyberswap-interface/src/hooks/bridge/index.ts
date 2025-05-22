@@ -41,7 +41,13 @@ export const useEthBalanceOfAnotherChain = (chainId: ChainId | undefined) => {
       }
     }
     getBalance()
-    return () => controller.abort()
+    const i = setInterval(() => {
+      getBalance()
+    }, 15_000)
+    return () => {
+      controller.abort()
+      clearInterval(i)
+    }
   }, [chainId, readProvider, account])
 
   return balance

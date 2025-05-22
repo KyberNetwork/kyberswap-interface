@@ -70,7 +70,6 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
 
   const { rawSlippage, setRawSlippage, isSlippageControlPinned } = useSlippageSettingByPage()
 
-  console.log(slippageInfo)
   const pairCategory = usePairCategory()
   const defaultSlippage = useDefaultSlippageByPair()
   const defaultSlp = slippageInfo ? slippageInfo.default : defaultSlippage

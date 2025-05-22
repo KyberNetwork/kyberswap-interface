@@ -1,4 +1,4 @@
-import { arbitrum, base, blast, linea, mainnet, optimism, polygon, scroll, zksync } from 'viem/chains'
+import { arbitrum, base, blast, linea, mainnet, optimism, polygon, scroll, unichain, zksync } from 'viem/chains'
 import {
   BaseSwapAdapter,
   Chain,
@@ -41,7 +41,7 @@ export class AcrossAdapter extends BaseSwapAdapter {
     super()
     this.acrossClient = createAcrossClient({
       integratorId: `0x008a`,
-      chains: [mainnet, arbitrum, optimism, linea, polygon, zksync, base, scroll, blast],
+      chains: [mainnet, arbitrum, optimism, linea, polygon, zksync, base, scroll, blast, unichain],
       rpcUrls: {
         [ChainId.BASE]: 'https://base.drpc.org',
       },
