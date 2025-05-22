@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { API_URLS, PoolType, Univ2PoolType } from '@kyber/schema';
-import { formatDisplayNumber } from '@kyber/utils/number';
+import { formatDisplayNumber, formatAprNumber } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
 import FarmingIcon from '@/assets/svg/kem.svg';
@@ -98,16 +98,7 @@ export default function PoolStat({
           }`}
         >
           {poolInfo?.apr24h || poolInfo?.apr24h === 0
-            ? formatDisplayNumber(poolInfo.apr24h, {
-                significantDigits:
-                  poolInfo.apr24h < 1
-                    ? 2
-                    : poolInfo.apr24h < 10
-                      ? 3
-                      : poolInfo.apr24h < 100
-                        ? 4
-                        : 5,
-              }) + '%'
+            ? formatAprNumber(poolInfo.apr24h) + '%'
             : '--'}
           {poolType === PoolType.DEX_UNISWAP_V4_FAIRFLOW ? (
             <FarmingIcon width={20} height={20} />

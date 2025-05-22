@@ -1,3 +1,4 @@
+import { formatAprNumber } from '@kyber/utils/dist/number'
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
@@ -29,7 +30,7 @@ import { EmptyPositionText, PositionPageWrapper } from 'pages/Earns/UserPosition
 import { Exchange } from 'pages/Earns/constants'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import { FeeInfo, ParsedPosition } from 'pages/Earns/types'
-import { formatAprNumber, getFullUnclaimedFeesInfo, getNftManagerContract, parseRawPosition } from 'pages/Earns/utils'
+import { getFullUnclaimedFeesInfo, getNftManagerContract, parseRawPosition } from 'pages/Earns/utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const PositionDetail = () => {

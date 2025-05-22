@@ -1,3 +1,4 @@
+import { formatAprNumber } from '@kyber/utils/dist/number'
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -19,7 +20,6 @@ import {
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import { formatAprNumber } from 'pages/Earns/utils'
 import { MEDIA_WIDTHS } from 'theme'
 
 let indexInterval: NodeJS.Timeout

@@ -1,3 +1,4 @@
+import { formatAprNumber } from '@kyber/utils/dist/number'
 import { t } from '@lingui/macro'
 import { useEffect, useMemo, useState } from 'react'
 import { Star } from 'react-feather'
@@ -27,7 +28,7 @@ import {
 import useFilter from 'pages/Earns/PoolExplorer/useFilter'
 import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import { ParsedEarnPool } from 'pages/Earns/types'
-import { formatAprNumber, isFarmingProtocol } from 'pages/Earns/utils'
+import { isFarmingProtocol } from 'pages/Earns/utils'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'

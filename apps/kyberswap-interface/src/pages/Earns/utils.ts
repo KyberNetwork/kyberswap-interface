@@ -18,18 +18,6 @@ import {
 import { EarnPosition, FeeInfo, NftRewardInfo, PositionStatus } from 'pages/Earns/types'
 import { calculateGasMargin } from 'utils'
 import { getReadingContract } from 'utils/getContract'
-import { formatDisplayNumber } from 'utils/numbers'
-
-export const formatAprNumber = (apr: string | number): string => {
-  const formattedApr = Number(apr)
-  let n = 0
-  while (n < 4) {
-    if (formattedApr - 10 ** n < 0) break
-    n++
-  }
-
-  return formatDisplayNumber(formattedApr, { significantDigits: n + 2 })
-}
 
 export const getTokenId = async (provider: Web3Provider, txHash: string) => {
   try {
