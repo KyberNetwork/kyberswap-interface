@@ -102,7 +102,7 @@ export const useTokensBalanceOfAnotherChain = (
       chainId,
     },
     {
-      pollingInterval: 15_000,
+      pollingInterval: 10_000,
     },
   )
 
