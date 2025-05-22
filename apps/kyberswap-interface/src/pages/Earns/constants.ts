@@ -213,4 +213,9 @@ export const PROTOCOLS_CORE_MAPPING: Record<EarnDex, CoreProtocol> = {
   [EarnDex.DEX_UNISWAP_V4_FAIRFLOW]: CoreProtocol.UniswapV4,
 }
 
-export const KEM_REWARDS_CONTRACT = '0x0bd49FdEa9e8c3Fc410f37A643377C45659297cc'
+export const FARMING_SUPPORTED_CHAIN = [ChainId.MAINNET, ChainId.BASE]
+
+export const KEM_REWARDS_CONTRACT = {
+  [ChainId.MAINNET]: '0xF268cd33C76E3ba6963CD080DcE74C7C71d57a60',
+  [ChainId.BASE]: '0x0bd49FdEa9e8c3Fc410f37A643377C45659297cc',
+}

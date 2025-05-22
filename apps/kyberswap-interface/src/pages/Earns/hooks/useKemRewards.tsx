@@ -12,7 +12,7 @@ import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { fetchListTokenByAddresses } from 'hooks/Tokens'
 import useChainsConfig from 'hooks/useChainsConfig'
 import ClaimModal, { ClaimInfo, ClaimType } from 'pages/Earns/components/ClaimModal'
-import { KEM_REWARDS_CONTRACT } from 'pages/Earns/constants'
+import { FARMING_SUPPORTED_CHAIN, KEM_REWARDS_CONTRACT } from 'pages/Earns/constants'
 import { RewardInfo, TokenRewardInfo } from 'pages/Earns/types'
 import { submitTransaction } from 'pages/Earns/utils'
 import { useNotify } from 'state/application/hooks'
@@ -177,10 +177,10 @@ const useKemRewards = () => {
     }
   }, [data, tokens])
 
-  console.log('rewardInfo', rewardInfo)
-
   const handleClaim = useCallback(async () => {
     if (!account || !claimInfo) return
+    if (!FARMING_SUPPORTED_CHAIN.includes(chainId)) return
+
     setClaiming(true)
 
     const encodeData = !claimInfo.nftId
@@ -205,7 +205,7 @@ const useKemRewards = () => {
     const txHash = await submitTransaction({
       library,
       txData: {
-        to: KEM_REWARDS_CONTRACT,
+        to: KEM_REWARDS_CONTRACT[chainId as keyof typeof KEM_REWARDS_CONTRACT],
         data: `0x${encodeData.data}`,
       },
       onError: (error: Error) => {
