@@ -3,7 +3,7 @@ import { motion, useAnimationControls, useDragControls } from 'framer-motion'
 import { rgba } from 'polished'
 import { RefObject, useEffect, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
@@ -17,7 +17,8 @@ import { ChainState } from 'hooks/useChainsConfig'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import { Chain } from 'pages/CrossChainSwap/adapters'
+import { Chain, NonEvmChain } from 'pages/CrossChainSwap/adapters'
+import { APP_PATHS } from 'constants/index'
 
 const NewLabel = styled.span`
   font-size: 12px;
@@ -140,6 +141,7 @@ const DraggableNetworkButton = ({
   const animationControls = useAnimationControls()
   const qs = useParsedQueryString()
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
   const { state, icon, chainId, name } = networkInfo
   const isMaintenance = state === ChainState.MAINTENANCE
   const disabled = isComingSoon || (activeChainIds ? !activeChainIds?.includes(chainId) : false) || isMaintenance
@@ -149,6 +151,17 @@ const DraggableNetworkButton = ({
   const handleChainSelect = () => {
     if (disabled) return
     customToggleModal?.()
+
+    if (Object.values(NonEvmChain).includes(chainId)) {
+      if (window.location.pathname !== APP_PATHS.CROSS_CHAIN) navigate(`${APP_PATHS.CROSS_CHAIN}?from=${chainId}`)
+      else {
+        const to = searchParams.get('to')
+        if (chainId !== to) searchParams.set('from', chainId)
+        setSearchParams(searchParams, { replace: true })
+      }
+      onChangedNetwork?.()
+      return
+    }
     if (customOnSelectNetwork) {
       customOnSelectNetwork(chainId)
     } else {
