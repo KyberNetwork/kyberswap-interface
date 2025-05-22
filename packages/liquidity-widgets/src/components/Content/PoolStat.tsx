@@ -12,6 +12,7 @@ interface PoolInfo {
   volume24h: number;
   fees24h: number;
   apr24h: number;
+  kemApr24h: number;
 }
 
 export default function PoolStat({
@@ -49,6 +50,8 @@ export default function PoolStat({
 
     handleFetchPoolInfo();
   }, [chainId, poolAddress, poolType]);
+
+  const poolApr = (poolInfo?.apr24h || 0) + (poolInfo?.kemApr24h || 0);
 
   return (
     <div
@@ -92,14 +95,8 @@ export default function PoolStat({
       </div>
       <div className="flex flex-col max-sm:flex-row max-sm:justify-between items-start gap-1">
         <span>Est. APR</span>
-        <div
-          className={`flex items-center gap-1 ${
-            poolInfo?.apr24h && poolInfo.apr24h > 0 ? 'text-accent' : 'text-text'
-          }`}
-        >
-          {poolInfo?.apr24h || poolInfo?.apr24h === 0
-            ? formatAprNumber(poolInfo.apr24h) + '%'
-            : '--'}
+        <div className={`flex items-center gap-1 ${poolApr > 0 ? 'text-accent' : 'text-text'}`}>
+          {formatAprNumber(poolApr) + '%'}
           {poolType === PoolType.DEX_UNISWAP_V4_FAIRFLOW ? (
             <FarmingIcon width={20} height={20} />
           ) : null}
