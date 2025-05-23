@@ -4,28 +4,10 @@ on:
   workflow_dispatch:
 
 jobs:
-  prepare:
-    runs-on: ubuntu-latest
-    outputs:
-      head_sha: ${{ steps.head_sha.outputs.value}}
-      build_date: ${{ steps.build_date.outputs.value }}
-    steps:
-      - name: Extract GitHub HEAD SHA
-        id: head_sha
-        run: echo "::set-output name=value::$(git rev-parse HEAD)"
-      - name: Build date
-        shell: bash
-        id: build_date
-        run: echo "::set-output name=value::$(date +%FT%T%z)"
-
   build:
-    needs:
-      - prepare
     runs-on: ubuntu-latest
     env:
       SERVICE: kyberswap-interface
-      VERSION_TAG: pre-${{ needs.prepare.outputs.head_sha }}
-      BUILD_DATE: ${{ needs.prepare.outputs.build_date }}
     steps:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -33,6 +15,7 @@ jobs:
       - run: |
           echo "@kybernetwork:registry=https://npm.pkg.github.com" >> .npmrc
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.GH_PAT }}" >> .npmrc
+          echo "sha_short=$(git rev-parse --short "$GITHUB_SHA")" >> "$GITHUB_ENV"
 
       - uses: pnpm/action-setup@v4
         name: Install pnpm
@@ -97,9 +80,9 @@ jobs:
           labels: |
             kyber.network.schema-version=1.0
             kyber.network.vcs-ref=${{ github.sha }}
-            kyber.network.version=${{ env.VERSION_TAG }}
+            kyber.network.version=${{ env.sha_short }}
             kyber.network.name=${{ env.SERVICE }}
-          tags: asia.gcr.io/kyber-operation/core/${{ env.SERVICE }}:${{ env.VERSION_TAG }}
+          tags: asia.gcr.io/kyber-operation/core/${{ env.SERVICE }}:${{ env.sha_short }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new
           
