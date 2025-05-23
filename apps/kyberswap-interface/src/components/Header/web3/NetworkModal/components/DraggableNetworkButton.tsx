@@ -152,7 +152,9 @@ const DraggableNetworkButton = ({
     if (disabled) return
     customToggleModal?.()
 
-    if (Object.values(NonEvmChain).includes(chainId)) {
+    if (customOnSelectNetwork) {
+      customOnSelectNetwork(chainId)
+    } else if (Object.values(NonEvmChain).includes(chainId)) {
       if (window.location.pathname !== APP_PATHS.CROSS_CHAIN) navigate(`${APP_PATHS.CROSS_CHAIN}?from=${chainId}`)
       else {
         const to = searchParams.get('to')
@@ -161,9 +163,6 @@ const DraggableNetworkButton = ({
       }
       onChangedNetwork?.()
       return
-    }
-    if (customOnSelectNetwork) {
-      customOnSelectNetwork(chainId)
     } else {
       const filteredParams = Object.fromEntries(
         Object.entries(qs).filter(([_, value]) => value !== undefined), // Remove undefined values

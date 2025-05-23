@@ -104,14 +104,15 @@ export class AcrossAdapter extends BaseSwapAdapter {
       })
       const tokenInUsd = params.tokenInUsd
       const tokenOutUsd = params.tokenOutUsd
-      const formattedOutputAmount = formatUnits(BigInt(resp.deposit.outputAmount), params.toToken.decimals)
+      const feeAmount = (BigInt(resp.deposit.outputAmount) * BigInt(params.feeBps)) / 10_000n
+      const formattedOutputAmount = formatUnits(BigInt(resp.deposit.outputAmount) - feeAmount, params.toToken.decimals)
       const formattedInputAmount = formatUnits(BigInt(params.amount), params.fromToken.decimals)
       const inputUsd = tokenInUsd * +formattedInputAmount
       const outputUsd = tokenOutUsd * +formattedOutputAmount
 
       return {
         quoteParams: params,
-        outputAmount: BigInt(resp.deposit.outputAmount),
+        outputAmount: BigInt(resp.deposit.outputAmount) - feeAmount,
         formattedOutputAmount,
         inputUsd: tokenInUsd * +formatUnits(BigInt(params.amount), params.fromToken.decimals),
         outputUsd: tokenOutUsd * +formattedOutputAmount,
