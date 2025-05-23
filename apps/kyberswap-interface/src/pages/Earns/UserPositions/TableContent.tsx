@@ -339,10 +339,10 @@ export default function TableContent({
                           pool.isFarming ? (
                             <>
                               <Text>
-                                {t`LP Fees APR`}: {formatAprNumber(position.feeApr * 100)}%
+                                {t`LP Fees APR`}: {formatAprNumber(position.feeApr)}%
                               </Text>
                               <Text>
-                                {t`Rewards APR`}: {formatAprNumber(position.kemApr * 100)}%
+                                {t`Rewards APR`}: {formatAprNumber(position.kemApr)}%
                               </Text>
                             </>
                           ) : null
@@ -350,7 +350,7 @@ export default function TableContent({
                         width="fit-content"
                         placement="bottom"
                       >
-                        <Text color={pool.isFarming ? theme.primary : theme.text}>{formatAprNumber(apr * 100)}%</Text>
+                        <Text color={pool.isFarming ? theme.primary : theme.text}>{formatAprNumber(apr)}%</Text>
                       </MouseoverTooltipDesktopOnly>
 
                       {!!position.suggestionPool && (

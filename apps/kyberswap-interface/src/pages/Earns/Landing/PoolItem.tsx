@@ -18,8 +18,6 @@ const PoolItem = ({ pool, isFarming }: { pool: EarnPool; isFarming?: boolean }) 
     onOpenZapMigration: handleOpenZapMigration,
   })
 
-  const poolApr = pool.apr + (pool.kemApr || 0)
-
   return (
     <PoolRow
       justifyContent="space-between"
@@ -71,7 +69,7 @@ const PoolItem = ({ pool, isFarming }: { pool: EarnPool; isFarming?: boolean }) 
       </Flex>
 
       <Flex alignItems="center" sx={{ gap: '4px' }}>
-        <Text color={theme.primary}>{formatAprNumber(poolApr)}%</Text>
+        <Text color={theme.primary}>{formatAprNumber(pool.apr + pool.kemApr)}%</Text>
         {isFarming && <IconFarmingPool width={20} height={20} />}
       </Flex>
     </PoolRow>

@@ -172,11 +172,11 @@ export const SymbolText = styled.div`
   text-overflow: ellipsis;
 `
 
-export const Apr = styled.div<{ positive: boolean }>`
+export const Apr = styled.div<{ value: number }>`
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  color: ${({ positive, theme }) => (positive ? theme.primary : theme.red)};
+  color: ${({ value, theme }) => (value > 0 ? theme.primary : value < 0 ? theme.red : theme.text)};
 `
 
 export const MobileTableRow = styled.div`

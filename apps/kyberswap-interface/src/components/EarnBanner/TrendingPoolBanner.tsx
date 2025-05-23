@@ -75,7 +75,7 @@ export default function TrendingPoolBanner() {
         </Flex>
         <PoolAprWrapper>
           <PoolApr>
-            {formatAprNumber(pool.apr)}% <AprText>APR</AprText>
+            {formatAprNumber(pool.apr + pool.kemApr)}% <AprText>APR</AprText>
           </PoolApr>
         </PoolAprWrapper>
       </PoolWrapper>

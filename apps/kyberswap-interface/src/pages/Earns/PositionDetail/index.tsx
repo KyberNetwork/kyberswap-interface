@@ -31,7 +31,7 @@ import { EmptyPositionText, PositionPageWrapper } from 'pages/Earns/UserPosition
 import { Exchange } from 'pages/Earns/constants'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import { FeeInfo, ParsedPosition } from 'pages/Earns/types'
-import { getFullUnclaimedFeesInfo, getNftManagerContract, parseRawPosition } from 'pages/Earns/utils'
+import { getFullUnclaimedFeesInfo, getNftManagerContract, parsePosition } from 'pages/Earns/utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const PositionDetail = () => {
@@ -70,7 +70,7 @@ const PositionDetail = () => {
       positionToRender = previousPosition
     } else positionToRender = userPosition
 
-    return parseRawPosition({ position: positionToRender[0], feeInfo: feeInfoFromRpc })
+    return parsePosition({ position: positionToRender[0], feeInfo: feeInfoFromRpc })
   }, [feeInfoFromRpc, userPosition, previousPosition])
 
   const handleFetchUnclaimedFee = useCallback(async () => {
@@ -190,9 +190,9 @@ const PositionDetail = () => {
             width="fit-content"
             text={
               <div>
-                {t`LP Fee APR`}: {formatAprNumber((position?.feeApr || 0) * 100)}%
+                {t`LP Fee APR`}: {formatAprNumber(position?.feeApr || 0)}%
                 <br />
-                {t`Rewards APR`}: {formatAprNumber((position?.kemApr || 0) * 100)}%
+                {t`Rewards APR`}: {formatAprNumber(position?.kemApr || 0)}%
               </div>
             }
           />
@@ -200,7 +200,7 @@ const PositionDetail = () => {
       </Flex>
       <Flex alignItems={'center'} sx={{ gap: 1 }}>
         <Text fontSize={20} color={position?.apr && position.apr > 0 ? theme.primary : theme.text}>
-          {formatAprNumber((position?.apr || 0) * 100)}%
+          {formatAprNumber(position?.apr || 0)}%
         </Text>
         {position?.pool.isFarming && <IconKem width={20} height={20} />}
       </Flex>

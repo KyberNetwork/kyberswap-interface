@@ -34,7 +34,7 @@ import useZapInWidget from 'pages/Earns/hooks/useZapInWidget'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import useZapOutWidget from 'pages/Earns/hooks/useZapOutWidget'
 import { ParsedPosition, PositionStatus } from 'pages/Earns/types'
-import { parseRawPosition } from 'pages/Earns/utils'
+import { parsePosition } from 'pages/Earns/utils'
 import SortIcon, { Direction } from 'pages/MarketOverview/SortIcon'
 import { MEDIA_WIDTHS } from 'theme'
 
@@ -99,7 +99,7 @@ const UserPositions = () => {
       const feeInfo = feeInfoFromRpc.find(feeInfo => feeInfo.id === position.tokenId)
       const nftRewardInfo = rewardInfoThisChain?.nfts.find(rewardInfo => rewardInfo.nftId === position.tokenId)
 
-      return parseRawPosition({
+      return parsePosition({
         position,
         feeInfo,
         nftRewardInfo,

@@ -9,7 +9,7 @@ import useChainsConfig from 'hooks/useChainsConfig'
 import ClaimModal, { ClaimInfo, ClaimType } from 'pages/Earns/components/ClaimModal'
 import { EarnDex, FARMING_SUPPORTED_CHAIN, KEM_REWARDS_CONTRACT } from 'pages/Earns/constants'
 import { RewardInfo } from 'pages/Earns/types'
-import { getNftManagerContractAddress, parseRewardInfo, submitTransaction } from 'pages/Earns/utils'
+import { getNftManagerContractAddress, parseReward, submitTransaction } from 'pages/Earns/utils'
 import { useNotify } from 'state/application/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useAllTransactions, useTransactionAdder } from 'state/transactions/hooks'
@@ -39,7 +39,7 @@ const useKemRewards = () => {
   const [claiming, setClaiming] = useState(false)
   const [txHash, setTxHash] = useState<string | null>(null)
 
-  const rewardInfo: RewardInfo | null = useMemo(() => parseRewardInfo(data, tokens), [data, tokens])
+  const rewardInfo: RewardInfo | null = useMemo(() => parseReward(data, tokens), [data, tokens])
 
   const handleClaim = useCallback(async () => {
     if (!account || !claimInfo) return
