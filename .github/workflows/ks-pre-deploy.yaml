@@ -64,7 +64,7 @@ jobs:
       - name: Build interface
         env:
           CI: false
-          VITE_TAG: ${{ github.event.inputs.version }}
+          VITE_TAG: pre-${{ needs.prepare.outputs.head_sha }}
           NODE_OPTIONS: '--max_old_space_size=4096'
         working-directory: apps/kyberswap-interface
         run: pnpm build-prod
@@ -99,8 +99,7 @@ jobs:
             kyber.network.vcs-ref=${{ github.sha }}
             kyber.network.version=${{ env.VERSION_TAG }}
             kyber.network.name=${{ env.SERVICE }}
-          tags: |
-            asia.gcr.io/kyber-operation/core/${{ env.SERVICE }}:${{ env.VERSION_TAG }}
+          tags: asia.gcr.io/kyber-operation/core/${{ env.SERVICE }}:${{ env.VERSION_TAG }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new
           
