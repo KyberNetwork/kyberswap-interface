@@ -36,6 +36,8 @@ export default function PoolStat({
       ? null
       : Number((BigInt(position.liquidity) * 10000n) / BigInt(position.totalSupply)) / 100;
 
+  const poolApr = (poolInfo?.apr24h || 0) + (poolInfo?.kemApr24h || 0);
+
   useEffect(() => {
     const handleFetchPoolInfo = () => {
       fetch(
@@ -50,8 +52,6 @@ export default function PoolStat({
 
     handleFetchPoolInfo();
   }, [chainId, poolAddress, poolType]);
-
-  const poolApr = (poolInfo?.apr24h || 0) + (poolInfo?.kemApr24h || 0);
 
   return (
     <div
