@@ -155,10 +155,14 @@ const DraggableNetworkButton = ({
     if (customOnSelectNetwork) {
       customOnSelectNetwork(chainId)
     } else if (Object.values(NonEvmChain).includes(chainId)) {
-      if (window.location.pathname !== APP_PATHS.CROSS_CHAIN) navigate(`${APP_PATHS.CROSS_CHAIN}?from=${chainId}`)
+      if (window.location.pathname !== APP_PATHS.CROSS_CHAIN)
+        navigate(`${APP_PATHS.CROSS_CHAIN}?from=${chainId}&showConnect=true`)
       else {
         const to = searchParams.get('to')
-        if (chainId !== to) searchParams.set('from', chainId)
+        if (chainId !== to) {
+          searchParams.set('from', chainId)
+          searchParams.set('showConnect', 'true')
+        }
         setSearchParams(searchParams, { replace: true })
       }
       onChangedNetwork?.()

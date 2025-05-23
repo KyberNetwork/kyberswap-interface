@@ -59,6 +59,8 @@ function CrossChainSwap() {
   const [showBtcModal, setShowBtcConnect] = useState(false)
   const [showEvmRecipient, setShowEvmRecipient] = useState(false)
 
+  const showConnect = searchParams.get('showConnect')
+
   const isToNear = toChainId === NonEvmChain.Near
   const isToBtc = toChainId === NonEvmChain.Bitcoin
   const isToEvm = toChainId && isEvmChain(toChainId)
@@ -81,6 +83,20 @@ function CrossChainSwap() {
     : isToBtc
     ? btcAddress && btcAddress !== recipient
     : false
+
+  useEffect(() => {
+    console.log('showConnect', showConnect)
+    if (showConnect) {
+      if (fromChainId === NonEvmChain.Bitcoin && !btcAddress) {
+        console.log('xxx')
+        setShowBtcConnect(true)
+      } else if (fromChainId === NonEvmChain.Near && !nearWallet.signedAccountId) {
+        nearWallet.signIn()
+      }
+      searchParams.delete('showConnect')
+      setSearchParams(searchParams)
+    }
+  }, [showConnect, searchParams, setSearchParams, fromChainId, btcAddress, nearWallet])
 
   return (
     <Wrapper>
