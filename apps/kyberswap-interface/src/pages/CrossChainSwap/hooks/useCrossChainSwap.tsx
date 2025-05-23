@@ -337,7 +337,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
       } else if (token0Cat === 'commonPair' && token1Cat === 'commonPair') {
         setCategory('commonPair')
         feeBps = 10
-      } else if (token0Cat === 'highVolatilityPair' && token1Cat === 'highVolatilityPair') {
+      } else if (token0Cat === 'highVolatilityPair' || token1Cat === 'highVolatilityPair') {
         setCategory('highVolatilityPair')
         feeBps = 25
       } else {
