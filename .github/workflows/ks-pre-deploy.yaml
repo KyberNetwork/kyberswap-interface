@@ -1,4 +1,4 @@
-name: 'KyberSwap Release Publish'
+name: 'KyberSwap Pre-Release Publish'
 
 on:
   workflow_dispatch:
