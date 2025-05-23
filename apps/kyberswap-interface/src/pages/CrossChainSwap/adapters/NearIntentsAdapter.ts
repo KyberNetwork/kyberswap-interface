@@ -176,7 +176,7 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
 
     const params = {
       sender: quote.quoteParams.sender,
-      id: quote.rawQuote.quote.depositAddress, // specific id for each provider
+      id: depositAddress, // specific id for each provider
       adapter: this.getName(),
       sourceChain: quote.quoteParams.fromChain,
       targetChain: quote.quoteParams.toChain,
