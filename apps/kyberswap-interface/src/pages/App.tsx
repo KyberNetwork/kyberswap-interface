@@ -45,7 +45,6 @@ const MarketOverview = lazy(() => import('./MarketOverview'))
 const ElasticSwap = lazy(() => import('./ElasticSwap'))
 const SwapV3 = lazy(() => import('./SwapV3'))
 const PartnerSwap = lazy(() => import('./PartnerSwap'))
-// const Bridge = lazy(() => import('./Bridge'))
 const MyPool = lazy(() => import('./MyPool'))
 
 const PoolFinder = lazy(() => import('./PoolFinder'))
@@ -307,7 +306,6 @@ export default function App() {
               <Route path={`${APP_PATHS.ABOUT}/kyberswap`} element={<AboutKyberSwap />} />
               <Route path={`${APP_PATHS.ABOUT}/knc`} element={<AboutKNC />} />
               {/*<Route path={`${APP_PATHS.BUY_CRYPTO}`} element={<BuyCrypto />} />*/}
-              {/* <Route path={`${APP_PATHS.BRIDGE}`} element={<Bridge />} /> */}
               <Route
                 path={`${APP_PATHS.PROFILE_MANAGE}`}
                 element={

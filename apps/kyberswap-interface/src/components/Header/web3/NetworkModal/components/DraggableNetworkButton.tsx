@@ -1,10 +1,9 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { motion, useAnimationControls, useDragControls } from 'framer-motion'
 import { rgba } from 'polished'
 import { RefObject, useEffect, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled, { css } from 'styled-components'
 
@@ -18,6 +17,8 @@ import { ChainState } from 'hooks/useChainsConfig'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
+import { Chain, NonEvmChain } from 'pages/CrossChainSwap/adapters'
+import { APP_PATHS } from 'constants/index'
 
 const NewLabel = styled.span`
   font-size: 12px;
@@ -115,15 +116,15 @@ const DraggableNetworkButton = ({
   onDrop,
   isComingSoon,
 }: {
-  networkInfo: NetworkInfo
-  activeChainIds?: ChainId[]
+  networkInfo: Pick<NetworkInfo, 'state' | 'icon' | 'chainId' | 'name'>
+  activeChainIds?: Chain[]
   isSelected?: boolean
   disabledMsg?: string
   isEdittingMobile?: boolean
   isAddButton?: boolean
   dragConstraints?: RefObject<Element>
   customToggleModal?: () => void
-  customOnSelectNetwork?: (chainId: ChainId) => void
+  customOnSelectNetwork?: (chainId: Chain) => void
   onChangedNetwork?: () => void
   onDrag?: (x: number, y: number) => void
   onDrop?: () => void
@@ -140,6 +141,7 @@ const DraggableNetworkButton = ({
   const animationControls = useAnimationControls()
   const qs = useParsedQueryString()
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
   const { state, icon, chainId, name } = networkInfo
   const isMaintenance = state === ChainState.MAINTENANCE
   const disabled = isComingSoon || (activeChainIds ? !activeChainIds?.includes(chainId) : false) || isMaintenance
@@ -149,8 +151,22 @@ const DraggableNetworkButton = ({
   const handleChainSelect = () => {
     if (disabled) return
     customToggleModal?.()
+
     if (customOnSelectNetwork) {
       customOnSelectNetwork(chainId)
+    } else if (Object.values(NonEvmChain).includes(chainId)) {
+      if (window.location.pathname !== APP_PATHS.CROSS_CHAIN)
+        navigate(`${APP_PATHS.CROSS_CHAIN}?from=${chainId}&showConnect=true`)
+      else {
+        const to = searchParams.get('to')
+        if (chainId !== to) {
+          searchParams.set('from', chainId)
+          searchParams.set('showConnect', 'true')
+        }
+        setSearchParams(searchParams, { replace: true })
+      }
+      onChangedNetwork?.()
+      return
     } else {
       const filteredParams = Object.fromEntries(
         Object.entries(qs).filter(([_, value]) => value !== undefined), // Remove undefined values
@@ -208,7 +224,7 @@ const DraggableNetworkButton = ({
   return (
     <MouseoverTooltip
       style={{ zIndex: Z_INDEXS.MODAL + 1 }}
-      key={networkInfo.chainId}
+      key={chainId}
       text={
         disabled && !dragging
           ? isMaintenance
@@ -238,9 +254,9 @@ const DraggableNetworkButton = ({
         )}
         <ListItem
           ref={ref}
-          key={networkInfo.chainId.toString()}
+          key={chainId.toString()}
           drag
-          layoutId={networkInfo.chainId.toString()}
+          layoutId={chainId.toString()}
           dragMomentum={false}
           dragControls={dragControls}
           dragConstraints={dragConstraints}

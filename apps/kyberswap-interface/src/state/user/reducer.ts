@@ -29,6 +29,7 @@ import {
   toggleUseAggregatorForZap,
   updateAcceptedTermVersion,
   updateChainId,
+  updateFavoriteChains,
   updatePoolDegenMode,
   updatePoolSlippageTolerance,
   updateSafeAppAcceptedTermOfUse,
@@ -112,6 +113,7 @@ export interface UserState {
   crossChain: CrossChainSetting
   myEarningChart: boolean
   showTradeRoutes: boolean
+  favoriteChains: string[]
 }
 
 function pairKey(token0Address: string, token1Address: string) {
@@ -149,6 +151,7 @@ const initialState: UserState = {
   myEarningChart: true,
   paymentToken: null,
   showTradeRoutes: true,
+  favoriteChains: [],
 }
 
 export default createReducer(initialState, builder =>
@@ -306,5 +309,8 @@ export default createReducer(initialState, builder =>
     })
     .addCase(toggleTradeRoutes, state => {
       state.showTradeRoutes = !state.showTradeRoutes
+    })
+    .addCase(updateFavoriteChains, (state, { payload }) => {
+      state.favoriteChains = payload
     }),
 )

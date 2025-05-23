@@ -1,6 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { useState } from 'react'
+import { useState, forwardRef, useImperativeHandle } from 'react'
 import styled from 'styled-components'
 
 import { ReactComponent as DropdownSvg } from 'assets/svg/down.svg'
@@ -8,6 +8,8 @@ import NetworkModal from 'components/Header/web3/NetworkModal'
 import { NetworkLogo } from 'components/Logo'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
+import { Chain, NonEvmChain, NonEvmChainInfo } from 'pages/CrossChainSwap/adapters'
+import { isEvmChain } from 'utils'
 
 const NetworkSwitchContainer = styled.div`
   display: flex;
@@ -34,17 +36,17 @@ const DropdownIcon = styled(DropdownSvg)<{ open: boolean }>`
   transform: rotate(${({ open }) => (open ? '180deg' : '0')});
   transition: transform 300ms;
 `
-function Web3Network({
-  chainIds = [],
-  onSelectNetwork,
-  selectedChainId,
-  tooltipNotSupportChain,
-}: {
-  chainIds: ChainId[]
-  onSelectNetwork: (chain: ChainId) => void
-  selectedChainId?: ChainId
-  tooltipNotSupportChain?: string
-}): JSX.Element | null {
+const SelectNetwork = forwardRef<
+  {
+    toggleNetworkModal: () => void
+  },
+  {
+    chainIds: Chain[]
+    onSelectNetwork: (chain: Chain) => void
+    selectedChainId?: Chain
+    tooltipNotSupportChain?: string
+  }
+>(({ chainIds = [], onSelectNetwork, selectedChainId, tooltipNotSupportChain }, ref) => {
   const { chainId } = useActiveWeb3React()
 
   const [isOpen, setIsOpen] = useState(false)
@@ -52,8 +54,17 @@ function Web3Network({
     setIsOpen(!isOpen)
   }
 
+  useImperativeHandle(ref, () => ({
+    toggleNetworkModal,
+  }))
+
   if (!chainId) return null
-  const { name } = selectedChainId ? NETWORKS_INFO[selectedChainId] : { name: t`Select a network` }
+  const { name } = !selectedChainId
+    ? { name: t`Select a network` }
+    : isEvmChain(selectedChainId)
+    ? NETWORKS_INFO[selectedChainId as ChainId]
+    : NonEvmChainInfo[selectedChainId as NonEvmChain]
+
   return (
     <>
       <NetworkSwitchContainer data-testid="network-button" onClick={() => chainIds.length && toggleNetworkModal()}>
@@ -73,6 +84,7 @@ function Web3Network({
       />
     </>
   )
-}
+})
+SelectNetwork.displayName = 'SelectNetwork'
 
-export default Web3Network
+export default SelectNetwork

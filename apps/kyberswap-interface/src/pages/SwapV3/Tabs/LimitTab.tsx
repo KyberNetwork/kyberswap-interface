@@ -14,13 +14,13 @@ import { Tab } from './index'
 
 const ActiveBadge = styled.span`
   display: inline-block;
-  min-width: 20px;
+  min-width: 18px;
   padding: 2px 6px;
   color: ${({ theme }) => theme.primary};
   background-color: ${({ theme }) => rgba(theme.primary, 0.3)};
   border-radius: 20px;
   font-weight: 500;
-  font-size: 14px;
+  font-size: 12px;
 `
 
 type Props = {
@@ -61,7 +61,7 @@ export default function LimitTab({ onClick, active, customChainId }: Props) {
       data-testid="limit-button"
       onClick={onClick}
       isActive={active || isLimitPage}
-      style={{ display: 'flex', gap: '4px', fontSize: '20px', fontWeight: '500' }}
+      style={{ display: 'flex', gap: '4px', fontSize: '18px', fontWeight: '500' }}
     >
       <Trans>Limit Order</Trans>{' '}
       {!!numberOfActiveOrders && (

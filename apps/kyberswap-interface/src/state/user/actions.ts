@@ -61,3 +61,4 @@ export const toggleMyEarningChart = createAction<void>('user/toggleMyEarningChar
 
 export const setCrossChainSetting = createAction<CrossChainSetting>('user/setCrossChainSetting')
 export const setPaymentToken = createAction<Token | null>('user/setPaymentToken')
+export const updateFavoriteChains = createAction<string[]>('user/updateFavoriteChains ')
