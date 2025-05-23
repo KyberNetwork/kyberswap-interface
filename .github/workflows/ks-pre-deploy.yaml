@@ -16,6 +16,7 @@ jobs:
           echo "@kybernetwork:registry=https://npm.pkg.github.com" >> .npmrc
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.GH_PAT }}" >> .npmrc
           echo "sha_short=$(git rev-parse --short "$GITHUB_SHA")" >> "$GITHUB_ENV"
+          echo "VITE_TAG=$(git rev-parse --short "$GITHUB_SHA")" >> "$GITHUB_ENV"
 
       - uses: pnpm/action-setup@v4
         name: Install pnpm
@@ -50,7 +51,6 @@ jobs:
       - name: Build interface
         env:
           CI: false
-          VITE_TAG: pre-${{ needs.prepare.outputs.head_sha }}
           NODE_OPTIONS: '--max_old_space_size=4096'
         working-directory: apps/kyberswap-interface
         run: pnpm build-prod
