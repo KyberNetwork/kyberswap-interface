@@ -99,7 +99,7 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
 
     // Create a quote request
     const quoteRequest: QuoteRequest = {
-      dry: false,
+      dry: true,
       deadline: deadline.toISOString(),
       slippageTolerance: params.slippage,
       swapType: QuoteRequest.swapType.EXACT_INPUT,
@@ -153,6 +153,22 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
     nearWallet?: ReturnType<typeof useWalletSelector>,
     sendBtcFn?: (params: { recipient: string; amount: string | number }) => Promise<string>,
   ): Promise<NormalizedTxResponse> {
+    const quoteParams = {
+      ...quote.rawQuote.quoteRequest,
+      dry: false,
+    }
+    delete quoteParams.correlationId
+
+    const refreshedQuote = await OneClickService.getQuote(quoteParams)
+    const depositAddress = refreshedQuote?.quote?.depositAddress
+    if (!depositAddress) {
+      throw new Error('Deposit address not found')
+    }
+
+    if (BigInt(refreshedQuote.quote.amountOut) < BigInt(quote.rawQuote.quote.amountOut)) {
+      throw new Error('Quote amount out is less than expected')
+    }
+
     const params = {
       sender: quote.quoteParams.sender,
       id: quote.rawQuote.quote.depositAddress, // specific id for each provider
@@ -175,12 +191,12 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
 
         try {
           const tx = await sendBtcFn({
-            recipient: quote.rawQuote.quote.depositAddress,
+            recipient: depositAddress,
             amount: quote.quoteParams.amount,
           })
           await OneClickService.submitDepositTx({
             txHash: tx,
-            depositAddress: quote.rawQuote.quote.depositAddress,
+            depositAddress,
           }).catch(e => {
             console.log('NearIntents submitDepositTx failed', e)
           })
@@ -214,7 +230,7 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
                 type: 'FunctionCall',
                 params: {
                   methodName: 'storage_deposit',
-                  args: { account_id: quote.rawQuote.quote.depositAddress, registration_only: true },
+                  args: { account_id: depositAddress, registration_only: true },
                   gas: '30000000000000',
                   deposit: '1250000000000000000000', // 0.00125 NEAR
                 },
@@ -224,9 +240,7 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
 
         transactions.push({
           signerId: nearWallet.signedAccountId,
-          receiverId: isNative
-            ? quote.rawQuote.quote.depositAddress
-            : (quote.quoteParams.fromToken as any).contractAddress,
+          receiverId: isNative ? depositAddress : (quote.quoteParams.fromToken as any).contractAddress,
           actions: [
             isNative
               ? {
@@ -240,7 +254,7 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
                   params: {
                     methodName: 'ft_transfer',
                     args: {
-                      receiver_id: quote.rawQuote.quote.depositAddress,
+                      receiver_id: depositAddress,
                       amount: quote.quoteParams.amount,
                     },
                     gas: '30000000000000',
@@ -256,7 +270,7 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
             'cross-chain-swap-my-near-wallet-tx',
             JSON.stringify({
               ...params,
-              sourceTxHash: quote.rawQuote.quote.depositAddress,
+              sourceTxHash: depositAddress,
             }),
           )
 
@@ -272,7 +286,7 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
 
         resolve({
           ...params,
-          sourceTxHash: quote.rawQuote.quote.depositAddress,
+          sourceTxHash: depositAddress,
         })
       })
     }
@@ -289,7 +303,7 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
 
         const hash = await ((fromToken as any).isNative
           ? walletClient.sendTransaction({
-              to: quote.rawQuote.quote.depositAddress,
+              to: depositAddress as `0x${string}`,
               value: BigInt(quote.quoteParams.amount),
               chain: undefined,
               account,
@@ -300,13 +314,13 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
                 : (fromToken as any).wrapped.address) as `0x${string}`,
               abi: erc20Abi,
               functionName: 'transfer',
-              args: [quote.rawQuote.quote.depositAddress, quote.quoteParams.amount],
+              args: [depositAddress, quote.quoteParams.amount],
               chain: undefined,
               account,
             }))
         await OneClickService.submitDepositTx({
           txHash: hash,
-          depositAddress: quote.rawQuote.quote.depositAddress,
+          depositAddress,
         }).catch(e => {
           console.log('NearIntents submitDepositTx failed', e)
         })
