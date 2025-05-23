@@ -155,7 +155,6 @@ export const APP_PATHS = {
   MY_POOLS: '/myPools',
   DISCOVER: '/discover',
   BUY_CRYPTO: '/buy-crypto',
-  BRIDGE: '/bridge',
   CROSS_CHAIN: '/cross-chain',
   KYBERDAO: '/kyberdao',
   KYBERDAO_STAKE: '/kyberdao/stake-knc',
@@ -257,21 +256,7 @@ export const TRANSACTION_STATE_DEFAULT: TransactionFlowState = {
 }
 
 export const CHAINS_SUPPORT_FEE_CONFIGS: ChainId[] = []
-export const CHAINS_SUPPORT_CROSS_CHAIN =
-  ENV.ENV_KEY === ENV.EnvKeys.PROD || ENV.ENV_KEY === ENV.EnvKeys.STG
-    ? [
-        ChainId.MAINNET,
-        ChainId.BSCMAINNET,
-        ChainId.MATIC,
-        ChainId.AVAXMAINNET,
-        ChainId.ARBITRUM,
-        ChainId.OPTIMISM,
-        ChainId.FANTOM,
-        ChainId.LINEA,
-        ChainId.BASE,
-        ChainId.SCROLL,
-      ]
-    : SUPPORTED_NETWORKS
+export const CHAINS_SUPPORT_CROSS_CHAIN = SUPPORTED_NETWORKS
 
 export const SWAP_FEE_RECEIVER_ADDRESS = '0x4f82e73EDb06d29Ff62C91EC8f5Ff06571bdeb29'
 
@@ -358,3 +343,5 @@ export const ClientNameMapping: { [key: string]: string } = {
 
 export const SAFE_APP_FEE_RECEIVER_ADDRESS = '0x55602F3057be52BFB6F98fFE799CFDec58Af5130'
 export const SAFE_APP_CLIENT_ID = 'app.safe.global'
+
+export const CROSS_CHAIN_FEE_RECEIVER = '0x0891617fe27647731d6f1e764092b2f9f06130A0'

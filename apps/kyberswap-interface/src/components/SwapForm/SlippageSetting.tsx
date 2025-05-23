@@ -13,6 +13,7 @@ import { useDefaultSlippageByPair, usePairCategory } from 'state/swap/hooks'
 import { useDegenModeManager, useSlippageSettingByPage } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
 import { SLIPPAGE_STATUS, SLIPPAGE_WARNING_MESSAGES, checkRangeSlippage, formatSlippage } from 'utils/slippage'
+import WarningNote from 'components/WarningNote'
 
 const highlight = keyframes`
   0% {
@@ -54,8 +55,15 @@ const DropdownIcon = styled.div`
 type Props = {
   rightComponent?: ReactNode
   tooltip?: ReactNode
+  slippageInfo?: {
+    message: string
+    isHigh: boolean
+    isLow: boolean
+    default: number
+    presets: number[]
+  }
 }
-const SlippageSetting = ({ rightComponent, tooltip }: Props) => {
+const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
   const theme = useTheme()
   const [expanded, setExpanded] = useState(false)
   const [isDegenMode] = useDegenModeManager()
@@ -63,15 +71,29 @@ const SlippageSetting = ({ rightComponent, tooltip }: Props) => {
   const { rawSlippage, setRawSlippage, isSlippageControlPinned } = useSlippageSettingByPage()
 
   const pairCategory = usePairCategory()
-  const defaultSlp = useDefaultSlippageByPair()
-  const slippageStatus = checkRangeSlippage(rawSlippage, pairCategory)
-  const isWarningSlippage = slippageStatus !== SLIPPAGE_STATUS.NORMAL
+  const defaultSlippage = useDefaultSlippageByPair()
+  const defaultSlp = slippageInfo ? slippageInfo.default : defaultSlippage
+  const slippageStatus = slippageInfo
+    ? slippageInfo.isHigh
+      ? SLIPPAGE_STATUS.HIGH
+      : slippageInfo.isLow
+      ? SLIPPAGE_STATUS.LOW
+      : SLIPPAGE_STATUS.NORMAL
+    : checkRangeSlippage(rawSlippage, pairCategory)
+  const isWarningSlippage = slippageInfo
+    ? slippageInfo.isHigh || slippageInfo.isLow
+    : slippageStatus !== SLIPPAGE_STATUS.NORMAL
 
-  const msg = SLIPPAGE_WARNING_MESSAGES[slippageStatus]?.[pairCategory] || ''
+  const msg = slippageInfo ? slippageInfo.message : SLIPPAGE_WARNING_MESSAGES[slippageStatus]?.[pairCategory] || ''
 
   const options = useMemo(
-    () => (pairCategory === 'highVolatilityPair' ? DEFAULT_SLIPPAGES_HIGH_VOTALITY : DEFAULT_SLIPPAGES),
-    [pairCategory],
+    () =>
+      slippageInfo
+        ? slippageInfo.presets
+        : pairCategory === 'highVolatilityPair'
+        ? DEFAULT_SLIPPAGES_HIGH_VOTALITY
+        : DEFAULT_SLIPPAGES,
+    [pairCategory, slippageInfo],
   )
 
   if (!isSlippageControlPinned) {
@@ -146,7 +168,9 @@ const SlippageSetting = ({ rightComponent, tooltip }: Props) => {
               }}
             >
               {msg ? (
-                <MouseoverTooltip text={`Your slippage ${msg}`}>{formatSlippage(rawSlippage)}</MouseoverTooltip>
+                <MouseoverTooltip text={slippageInfo ? msg : `Your slippage ${msg}`}>
+                  {formatSlippage(rawSlippage)}
+                </MouseoverTooltip>
               ) : (
                 formatSlippage(rawSlippage)
               )}
@@ -203,7 +227,7 @@ const SlippageSetting = ({ rightComponent, tooltip }: Props) => {
           </Flex>
         )}
 
-        <SlippageWarningNote rawSlippage={rawSlippage} />
+        {slippageInfo ? msg && <WarningNote shortText={msg} /> : <SlippageWarningNote rawSlippage={rawSlippage} />}
       </Flex>
     </Flex>
   )

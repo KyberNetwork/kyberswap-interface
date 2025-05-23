@@ -41,7 +41,13 @@ export const useEthBalanceOfAnotherChain = (chainId: ChainId | undefined) => {
       }
     }
     getBalance()
-    return () => controller.abort()
+    const i = setInterval(() => {
+      getBalance()
+    }, 15_000)
+    return () => {
+      controller.abort()
+      clearInterval(i)
+    }
   }, [chainId, readProvider, account])
 
   return balance
@@ -94,12 +100,17 @@ export const useTokensBalanceOfAnotherChain = (
   const { account } = useActiveWeb3React()
   const multicallContract = useMulticallContract(chainId)
 
-  const { data: balances = [], isLoading } = contractQuery.useFetchBalancesQuery({
-    account,
-    tokens,
-    multicallContract,
-    chainId,
-  })
+  const { data: balances = [], isLoading } = contractQuery.useFetchBalancesQuery(
+    {
+      account,
+      tokens,
+      multicallContract,
+      chainId,
+    },
+    {
+      pollingInterval: 10_000,
+    },
+  )
 
   return [balances, isLoading]
 }
