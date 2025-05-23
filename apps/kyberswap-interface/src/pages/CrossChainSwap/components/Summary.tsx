@@ -104,7 +104,16 @@ export const Summary = ({ quote, tokenOut, full }: { quote?: Quote; tokenOut?: C
       )}
 
       <Flex justifyContent="space-between">
-        <MouseoverTooltip text="UI Fee">
+        <MouseoverTooltip
+          text={
+            <Text>
+              Check more details{' '}
+              <ExternalLink href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-interface/user-guides/cross-chain-swap">
+                here
+              </ExternalLink>
+            </Text>
+          }
+        >
           <Text color={theme.subText} sx={{ borderBottom: `1px dotted ${theme.border}` }}>
             Platform Fee
           </Text>
