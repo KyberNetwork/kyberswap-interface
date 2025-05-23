@@ -1,15 +1,22 @@
+import { formatAprNumber } from '@kyber/utils/dist/number'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Flex, Text } from 'rebass'
-import { EarnPool } from 'pages/Earns/types'
+
+import { ReactComponent as IconFarmingPool } from 'assets/svg/kyber/kem.svg'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
-import useLiquidityWidget from 'pages/Earns/useLiquidityWidget'
-import { formatAprNumber } from 'pages/Earns/utils'
 import { PoolRow, Tag } from 'pages/Earns/Landing/styles'
+import useZapInWidget from 'pages/Earns/hooks/useZapInWidget'
+import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
+import { EarnPool } from 'pages/Earns/types'
+import { formatDisplayNumber } from 'utils/numbers'
 
-const PoolItem = ({ pool }: { pool: EarnPool }) => {
+const PoolItem = ({ pool, isFarming }: { pool: EarnPool; isFarming?: boolean }) => {
   const theme = useTheme()
-  const { liquidityWidget, handleOpenZapInWidget } = useLiquidityWidget()
+  const { widget: zapMigrationWidget, handleOpenZapMigration } = useZapMigrationWidget()
+  const { widget: zapInWidget, handleOpenZapIn } = useZapInWidget({
+    onOpenZapMigration: handleOpenZapMigration,
+  })
 
   return (
     <PoolRow
@@ -18,14 +25,17 @@ const PoolItem = ({ pool }: { pool: EarnPool }) => {
       role="button"
       onClick={e => {
         e.stopPropagation()
-        handleOpenZapInWidget({
-          exchange: pool.exchange,
-          chainId: pool.chainId,
-          address: pool.address,
+        handleOpenZapIn({
+          pool: {
+            dex: pool.exchange,
+            chainId: pool.chainId as number,
+            address: pool.address,
+          },
         })
       }}
     >
-      {liquidityWidget}
+      {zapInWidget}
+      {zapMigrationWidget}
       <Flex alignItems="center" sx={{ gap: '4px', flex: 1 }}>
         <img src={pool.tokens?.[0].logoURI} width={24} height={24} alt="" style={{ borderRadius: '50%' }} />
         <img
@@ -55,10 +65,13 @@ const PoolItem = ({ pool }: { pool: EarnPool }) => {
             {pool.tokens?.[1].symbol}
           </Text>
         </Text>
-        <Tag>{pool.feeTier}%</Tag>
+        <Tag>{formatDisplayNumber(pool.feeTier, { significantDigits: 4 })}%</Tag>
       </Flex>
 
-      <Text color={theme.primary}>{formatAprNumber(pool.apr)}%</Text>
+      <Flex alignItems="center" sx={{ gap: '4px' }}>
+        <Text color={theme.primary}>{formatAprNumber(pool.apr + pool.kemApr)}%</Text>
+        {isFarming && <IconFarmingPool width={20} height={20} />}
+      </Flex>
     </PoolRow>
   )
 }

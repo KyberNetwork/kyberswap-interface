@@ -56,6 +56,7 @@ const dexMapping: Record<Dex, string[]> = {
   [Dex.DEX_SQUADSWAP_V2]: ["squadswap"],
 
   [Dex.DEX_UNISWAP_V4]: ["uniswap-v4"],
+  [Dex.DEX_UNISWAP_V4_FAIRFLOW]: ["uniswap-v4-fairflow"],
 } as const;
 
 const poolResponse = z.object({
@@ -86,7 +87,7 @@ const poolResponse = z.object({
             sqrtPriceX96: z.string(),
             tickSpacing: z.number(),
             tick: z.number(),
-            ticks: z.array(tick),
+            ticks: z.array(tick).optional(),
           }),
         })
         .or(
@@ -258,7 +259,7 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
           liquidity: p.positionInfo.liquidity,
           sqrtPriceX96: p.positionInfo.sqrtPriceX96,
           tickSpacing: p.positionInfo.tickSpacing,
-          ticks: p.positionInfo.ticks,
+          ticks: p.positionInfo.ticks || [],
           minTick: nearestUsableTick(MIN_TICK, p.positionInfo.tickSpacing),
           maxTick: nearestUsableTick(MAX_TICK, p.positionInfo.tickSpacing),
         } as Pool;
@@ -306,7 +307,7 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
           liquidity: p1.positionInfo.liquidity,
           sqrtPriceX96: p1.positionInfo.sqrtPriceX96,
           tickSpacing: p1.positionInfo.tickSpacing,
-          ticks: p1.positionInfo.ticks,
+          ticks: p1.positionInfo.ticks || [],
           minTick: nearestUsableTick(MIN_TICK, p1.positionInfo.tickSpacing),
           maxTick: nearestUsableTick(MAX_TICK, p1.positionInfo.tickSpacing),
         } as Pool;

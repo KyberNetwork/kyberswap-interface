@@ -1,6 +1,6 @@
 import styled, { css } from 'styled-components'
 
-import { ReactComponent as KyberLogo } from 'assets/svg/kyber_logo.svg'
+import { ReactComponent as KyberLogo } from 'assets/svg/kyber/kyber_logo.svg'
 
 const absoluteStyle = css`
   position: absolute;

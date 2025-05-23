@@ -1,9 +1,7 @@
+import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick } from '@kyber/utils/dist/uniswapv3'
 import { t } from '@lingui/macro'
 import { useMemo, useRef, useState } from 'react'
 
-import { formatDisplayNumber, toString } from 'utils/numbers'
-
-import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick } from 'pages/Earns/uniswapv3'
 import {
   CurrentPriceTooltip,
   CurrentPriceWrapper,
@@ -16,6 +14,7 @@ import {
 } from 'pages/Earns/UserPositions/styles'
 import { CoreProtocol, EarnDex } from 'pages/Earns/constants'
 import { isForkFrom } from 'pages/Earns/utils'
+import { formatDisplayNumber, toString } from 'utils/numbers'
 
 export default function PriceRange({
   minPrice,
@@ -39,6 +38,7 @@ export default function PriceRange({
 
   const ticksAtLimit: { lower: boolean; upper: boolean } | undefined = useMemo(() => {
     if (isUniv2) return { lower: true, upper: true }
+    if (!tickSpacing) return
 
     const minTick = nearestUsableTick(MIN_TICK, tickSpacing)
     const maxTick = nearestUsableTick(MAX_TICK, tickSpacing)
@@ -75,7 +75,7 @@ export default function PriceRange({
       {outOfRange && (
         <CurrentPriceIndicator lower={currentPrice < minPrice} currentPrice={currentPrice} color="#fbb324" />
       )}
-      <PriceRangeEl isLowestPrice={ticksAtLimit.lower} isHighestPrice={ticksAtLimit.upper}>
+      <PriceRangeEl isLowestPrice={ticksAtLimit.lower} isHighestPrice={ticksAtLimit.upper} outOfRange={outOfRange}>
         {!outOfRange && (
           <CurrentPriceIndicator
             currentPrice={currentPrice}
@@ -83,14 +83,14 @@ export default function PriceRange({
             left={isUniv2 ? 0.2 : (currentPrice - minPrice) / (maxPrice - minPrice)}
           />
         )}
-        <LowerPriceIndicator>
+        <LowerPriceIndicator outOfRange={outOfRange}>
           <IndicatorLabel>
-            {ticksAtLimit.lower ? '0' : formatDisplayNumber(minPrice, { significantDigits: 6 })}
+            {ticksAtLimit.lower ? '0' : formatDisplayNumber(minPrice, { significantDigits: 4 })}
           </IndicatorLabel>
         </LowerPriceIndicator>
-        <UpperPriceIndicator>
+        <UpperPriceIndicator outOfRange={outOfRange}>
           <IndicatorLabel>
-            {ticksAtLimit.upper ? '∞' : formatDisplayNumber(maxPrice, { significantDigits: 6 })}
+            {ticksAtLimit.upper ? '∞' : formatDisplayNumber(maxPrice, { significantDigits: 4 })}
           </IndicatorLabel>
         </UpperPriceIndicator>
       </PriceRangeEl>
@@ -135,7 +135,7 @@ const CurrentPriceIndicator = ({
         onMouseLeave={() => setCurrentPriceHover(false)}
       />
       <CurrentPriceTooltip show={currentPriceHover}>
-        {t`Current Price`}: {formatDisplayNumber(currentPrice, { significantDigits: 6 })}
+        {t`Current Price`}: {formatDisplayNumber(currentPrice, { significantDigits: 4 })}
       </CurrentPriceTooltip>
     </CurrentPriceWrapper>
   )

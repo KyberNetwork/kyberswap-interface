@@ -8,6 +8,7 @@ import InfoBox from "@/components/InfoBox";
 import useDensityChartData from "@/hooks/useDensityChartData";
 import "./styles.css";
 import { getFeeRange } from "./utils";
+import { formatDisplayNumber } from "@kyber/utils/number";
 
 export default function LiquidityChartRangeInput({
   id,
@@ -20,6 +21,8 @@ export default function LiquidityChartRangeInput({
   zoomPosition,
   zoomInIcon,
   zoomOutIcon,
+  showLabelAsAmount = false,
+  alwaysShowLabel = false,
   onBrushDomainChange,
 }: LiquidityChartRangeInputProps) {
   const chartData = useDensityChartData({ pool, revertPrice });
@@ -49,6 +52,9 @@ export default function LiquidityChartRangeInput({
         return "0";
       if (d === "e" && ticksAtLimit[!revertPrice ? Bound.UPPER : Bound.LOWER])
         return "∞";
+
+      if (showLabelAsAmount)
+        return formatDisplayNumber(x, { significantDigits: 6 });
 
       const percent =
         (x < currentPrice ? -1 : 1) *
@@ -120,6 +126,7 @@ export default function LiquidityChartRangeInput({
               zoomLevels={defaultZoomLevels}
               zoomOutIcon={zoomOutIcon}
               zoomPosition={zoomPosition}
+              alwaysShowLabel={alwaysShowLabel}
             />
           </div>
         )}

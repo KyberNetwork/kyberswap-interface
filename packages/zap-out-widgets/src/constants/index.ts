@@ -39,7 +39,7 @@ import kodiakv3 from "@/constants/dexes/kodiakv3";
 import squadswapv3 from "@/constants/dexes/squadswapv3";
 import squadswapv2 from "@/constants/dexes/squadswapv2";
 
-import { DexInfo, PoolType } from "@/schema/protocol";
+import { DexInfo, PoolType } from "@/schema/dex";
 import { ChainId } from "@/schema/chain";
 import { NetworkInfo } from "@/types/index";
 
@@ -66,6 +66,7 @@ export const NETWORKS_INFO: Record<ChainId, NetworkInfo> = {
 
 export const DEXES_INFO: Record<PoolType, DexInfo> = {
   [PoolType.DEX_UNISWAP_V4]: uniswapv4,
+  [PoolType.DEX_UNISWAP_V4_FAIRFLOW]: uniswapv4,
   [PoolType.DEX_UNISWAPV3]: uniswapv3,
   [PoolType.DEX_PANCAKESWAPV3]: pancakeswapv3,
   [PoolType.DEX_METAVAULTV3]: metavaultv3,
@@ -124,6 +125,7 @@ export const CHAIN_ID_TO_CHAIN: { [chainId in ChainId]: string } = {
 
 export const poolTypeToDexId: { [poolType in PoolType]: number } = {
   DEX_UNISWAP_V4: 68,
+  DEX_UNISWAP_V4_FAIRFLOW: 73,
 
   DEX_UNISWAPV3: 2,
   DEX_PANCAKESWAPV3: 3,
