@@ -93,7 +93,10 @@ export const BitcoinWalletProvider = ({ children }: { children: ReactNode }) => 
         isInstalled: () => !!window?.XverseProviders,
         connect: async () => {
           if (!window?.XverseProviders) {
-            window.open('https://xverse.app/download', '_blank')
+            window.open(
+              'https://chromewebstore.google.com/detail/xverse-bitcoin-crypto-wal/idnnbdplmphpflfnlkomgpfbpcgelopg',
+              '_blank',
+            )
             return
           }
           if (connectingWallet !== null) {
@@ -163,7 +166,10 @@ export const BitcoinWalletProvider = ({ children }: { children: ReactNode }) => 
         isInstalled: () => !!window?.bitkeep,
         connect: async () => {
           if (!window?.bitkeep) {
-            window.open('https://web3.bitget.com/en/wallet-download', '_blank')
+            window.open(
+              'https://chromewebstore.google.com/detail/bitget-wallet-crypto-web3/jiidiaalihmmhddjgbnbgdfflelocpak',
+              '_blank',
+            )
             return
           }
           if (!!connectingWallet) {
@@ -204,7 +210,10 @@ export const BitcoinWalletProvider = ({ children }: { children: ReactNode }) => 
         isInstalled: () => isOkxInstalled,
         connect: async () => {
           if (!isOkxInstalled) {
-            window.open('https://www.okx.com/download', '_blank')
+            window.open(
+              'https://chromewebstore.google.com/detail/okx-wallet/mcohilncbfahbmgdjkbpemcciiolgcge',
+              '_blank',
+            )
             return
           }
           if (!!connectingWallet) {
@@ -243,7 +252,10 @@ export const BitcoinWalletProvider = ({ children }: { children: ReactNode }) => 
         isInstalled: () => !!window.unisat_wallet,
         connect: async () => {
           if (!window.unisat_wallet) {
-            window.open('https://unisat.io/download', '_blank')
+            window.open(
+              'https://chromewebstore.google.com/detail/unisat-wallet/ppbibelpcjmhbdihakflkdcoccbgbkpo?hl=en',
+              '_blank',
+            )
             return
           }
           if (!!connectingWallet) {
