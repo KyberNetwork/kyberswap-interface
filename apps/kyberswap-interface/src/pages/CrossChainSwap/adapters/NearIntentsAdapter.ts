@@ -156,6 +156,11 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
     const quoteParams = {
       ...quote.rawQuote.quoteRequest,
       dry: false,
+      // adjust slippage to 0,01% to accept the rate change
+      slippageTolerance:
+        Math.floor(quote.quoteParams.slippage * 0.9) > 1
+          ? Math.floor(quote.quoteParams.slippage * 0.9)
+          : quote.quoteParams.slippage,
     }
     delete quoteParams.correlationId
 
@@ -165,7 +170,7 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
       throw new Error('Deposit address not found')
     }
 
-    if (BigInt(refreshedQuote.quote.amountOut) < BigInt(quote.rawQuote.quote.amountOut)) {
+    if (BigInt(refreshedQuote.quote.minAmountOut) < BigInt(quote.rawQuote.quote.minAmountOut)) {
       throw new Error('Quote amount out is less than expected')
     }
 
