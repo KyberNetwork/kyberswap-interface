@@ -83,9 +83,9 @@ jobs:
           labels: |
             kyber.network.schema-version=1.0
             kyber.network.vcs-ref=${{ github.sha }}
-            kyber.network.version=${{ env.sha_short }}
+            kyber.network.version=pre-${{ env.sha_short }}
             kyber.network.name=${{ env.SERVICE }}
-          tags: asia.gcr.io/kyber-operation/core/${{ env.SERVICE }}:${{ env.sha_short }}
+          tags: asia.gcr.io/kyber-operation/core/${{ env.SERVICE }}:pre-${{ env.sha_short }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new
           
