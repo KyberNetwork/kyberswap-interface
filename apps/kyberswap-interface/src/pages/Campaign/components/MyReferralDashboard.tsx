@@ -30,7 +30,7 @@ export default function MyReferralDashboard({ price, infor }: { price: number; i
     { skip: !userRefCode },
   )
   const { data: referralData, isLoading } = useGetUserReferralTotalRewardQuery(
-    { wallet: account || '' },
+    { program: 'stip', wallet: account || '' },
     {
       skip: !account,
     },
