@@ -26,7 +26,7 @@ import { ChangeEvent, useEffect, useState } from 'react'
 import { BitcoinConnectModal } from './components/BitcoinConnectModal'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import { PiWarning } from './components/PiWarning'
-import { ChevronDown, ChevronUp } from 'react-feather'
+import { ChevronDown, ChevronUp, Repeat } from 'react-feather'
 
 const Wrapper = styled.div`
   display: flex;
@@ -58,6 +58,7 @@ function CrossChainSwap() {
   const { account } = useActiveWeb3React()
   const [showBtcModal, setShowBtcConnect] = useState(false)
   const [showEvmRecipient, setShowEvmRecipient] = useState(false)
+  const [revertPrice, setRevertPrice] = useState(false)
 
   const showConnect = searchParams.get('showConnect')
 
@@ -85,10 +86,8 @@ function CrossChainSwap() {
     : false
 
   useEffect(() => {
-    console.log('showConnect', showConnect)
     if (showConnect) {
       if (fromChainId === NonEvmChain.Bitcoin && !btcAddress) {
-        console.log('xxx')
         setShowBtcConnect(true)
       } else if (fromChainId === NonEvmChain.Near && !nearWallet.signedAccountId) {
         nearWallet.signIn()
@@ -149,11 +148,26 @@ function CrossChainSwap() {
               borderRadius="1rem"
             />
           ) : selectedQuote && toChainId ? (
-            <>
-              1 <TokenLogoWithChain currency={currencyIn} chainId={fromChainId} />
-              {}= {formatDisplayNumber(selectedQuote.quote.rate, { significantDigits: 6 })}
-              <TokenLogoWithChain currency={currencyOut} chainId={toChainId} />
-            </>
+            <Flex
+              role="button"
+              sx={{ alignItems: 'center', gap: '4px', cursor: 'pointer' }}
+              onClick={() => setRevertPrice(!revertPrice)}
+            >
+              1{' '}
+              <TokenLogoWithChain
+                currency={revertPrice ? currencyOut : currencyIn}
+                chainId={revertPrice ? toChainId : fromChainId}
+              />
+              {}={' '}
+              {formatDisplayNumber(revertPrice ? 1 / selectedQuote.quote.rate : selectedQuote.quote.rate, {
+                significantDigits: 6,
+              })}
+              <TokenLogoWithChain
+                currency={revertPrice ? currencyIn : currencyOut}
+                chainId={revertPrice ? fromChainId : toChainId}
+              />
+              <Repeat size={12} color={theme.subText} />
+            </Flex>
           ) : (
             '--'
           )}
@@ -173,7 +187,7 @@ function CrossChainSwap() {
                 ? cOut?.isNative
                   ? cOut.symbol || ''
                   : cOut?.wrapped.address || ''
-                : (currencyOut as NearToken).assetId,
+                : (currencyOut as NearToken)?.assetId || '',
             )
             searchParams.set(
               'tokenOut',
@@ -181,8 +195,9 @@ function CrossChainSwap() {
                 ? cIn?.isNative
                   ? cIn.symbol || ''
                   : cIn?.wrapped.address || ''
-                : (currencyIn as NearToken).assetId,
+                : (currencyIn as NearToken)?.assetId || '',
             )
+            console.log(searchParams)
             setSearchParams(searchParams)
           }}
         />
