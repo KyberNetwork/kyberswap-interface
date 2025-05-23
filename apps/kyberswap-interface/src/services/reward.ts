@@ -38,7 +38,7 @@ export interface TokenRewardExtended extends TokenReward {
   campaignId: string
 }
 
-interface RewardData {
+export interface RewardData {
   [chainId: string]: {
     campaigns: {
       [campaignId: string]: {
