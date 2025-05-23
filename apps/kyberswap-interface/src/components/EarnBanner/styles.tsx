@@ -4,11 +4,6 @@ import styled, { css, keyframes } from 'styled-components'
 import { ReactComponent as MoveBackSvg } from 'assets/svg/ic_move_back.svg'
 import { ReactComponent as MoveForwardSvg } from 'assets/svg/ic_move_forward.svg'
 
-const borderRotate = keyframes`
-  0% { --border-angle: 0deg; }
-  100% { --border-angle: 360deg; }
-`
-
 // TrendingBanner
 export const TrendingWrapper = styled.div`
   width: 100%;
@@ -23,11 +18,9 @@ export const TrendingWrapper = styled.div`
   position: relative;
   cursor: pointer;
 
-  --border-angle: 0deg;
-  animation: ${borderRotate} 2s infinite linear;
   border: 1px solid transparent;
   background: linear-gradient(#1d5b49, #1d5b49) padding-box,
-    conic-gradient(from var(--border-angle), #196750 50%, ${({ theme }) => theme.primary}) border-box;
+    linear-gradient(135deg, #4ec7a2 0%, #1d5b49 40%, #1d5b49 60%, #4ec7a2 100%) border-box;
   backdrop-filter: blur(2px);
 `
 
@@ -96,11 +89,9 @@ export const FarmingWrapper = styled.div`
   flex-shrink: 0;
   position: relative;
 
-  --border-angle: 0deg;
-  animation: ${borderRotate} 2s infinite linear;
   border: 1px solid transparent;
   background: linear-gradient(#272e62, #272e62) padding-box,
-    conic-gradient(from var(--border-angle), #3c88e2 50%, #704ad8) border-box; // #3c88e2 #7161ff
+    linear-gradient(135deg, #5a7fff 0%, #272e62 70%, #272e62 30%, #5a7fff 100%) border-box;
   backdrop-filter: blur(2px);
 `
 
