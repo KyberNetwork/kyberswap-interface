@@ -59,26 +59,28 @@ export default function TrendingPoolBanner() {
     return () => indexInterval && clearInterval(indexInterval)
   }, [])
 
-  return !!pool ? (
+  return (
     <TrendingWrapper onClick={handleClickBanner}>
       <Flex alignItems="center" sx={{ gap: '8px' }}>
         <IconTrending width={24} height={24} color={theme.primary} />
         <Text color={theme.primary}>{t`TRENDING POOLS`}</Text>
       </Flex>
-      <PoolWrapper animate={animate} onClick={handleClickBannerPool}>
-        <Flex alignItems="center">
-          <TokenLogo src={pool.tokens[0].logoURI} primaryBoxShadow />
-          <TokenLogo src={pool.tokens[1].logoURI} primaryBoxShadow />
-          <Text marginLeft={2}>
-            {pool.tokens[0].symbol}/{pool.tokens[1].symbol}
-          </Text>
-        </Flex>
-        <PoolAprWrapper>
-          <PoolApr>
-            {formatAprNumber(pool.apr + pool.kemApr)}% <AprText>APR</AprText>
-          </PoolApr>
-        </PoolAprWrapper>
-      </PoolWrapper>
+      {!!pool ? (
+        <PoolWrapper animate={animate} onClick={handleClickBannerPool}>
+          <Flex alignItems="center">
+            <TokenLogo src={pool.tokens[0].logoURI} boxShadowColor="#0b2e24" />
+            <TokenLogo src={pool.tokens[1].logoURI} boxShadowColor="#0b2e24" />
+            <Text marginLeft={2}>
+              {pool.tokens[0].symbol}/{pool.tokens[1].symbol}
+            </Text>
+          </Flex>
+          <PoolAprWrapper>
+            <PoolApr>
+              {formatAprNumber(pool.apr + pool.kemApr)}% <AprText>APR</AprText>
+            </PoolApr>
+          </PoolAprWrapper>
+        </PoolWrapper>
+      ) : null}
     </TrendingWrapper>
-  ) : null
+  )
 }

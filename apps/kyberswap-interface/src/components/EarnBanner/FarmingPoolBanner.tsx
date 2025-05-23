@@ -89,23 +89,23 @@ export default function FarmingPoolBanner() {
     return () => indexInterval && clearInterval(indexInterval)
   }, [handleMoveForward])
 
-  return pools.length > 0 ? (
+  return (
     <FarmingWrapper>
       <Flex alignItems="center" sx={{ gap: '6px' }}>
         <IconKem width={26} height={26} color={theme.primary} />
         <Text color={'#FCD884'}>{t`FARMING POOLS`}</Text>
       </Flex>
-      <Flex
-        justifyContent="center"
-        alignItems="center"
-        sx={{ gap: '8px', width: '102%', position: 'relative', left: '-1%' }}
-        ref={WrapperRef}
-      >
-        {pools.length > 0 && (
-          <>
-            {containerWidth > 0 && <MoveBackIcon onClick={handleMoveBack} />}
-            <FarmingPoolContainer>
-              {containerWidth > 0 && (
+      {pools.length > 0 ? (
+        <Flex
+          justifyContent="center"
+          alignItems="center"
+          sx={{ gap: '8px', width: '102%', position: 'relative', left: '-1%' }}
+          ref={WrapperRef}
+        >
+          {containerWidth > 0 && (
+            <>
+              <MoveBackIcon onClick={handleMoveBack} />
+              <FarmingPoolContainer>
                 <FarmingPoolWrapper
                   animateMoveForward={animateMoveForward}
                   animateMoveBack={animateMoveBack}
@@ -125,12 +125,12 @@ export default function FarmingPoolBanner() {
                     </FarmingPool>
                   ))}
                 </FarmingPoolWrapper>
-              )}
-            </FarmingPoolContainer>
-            {containerWidth > 0 && <MoveForwardIcon onClick={handleMoveForward} />}
-          </>
-        )}
-      </Flex>
+              </FarmingPoolContainer>
+              <MoveForwardIcon onClick={handleMoveForward} />
+            </>
+          )}
+        </Flex>
+      ) : null}
     </FarmingWrapper>
-  ) : null
+  )
 }

@@ -45,7 +45,7 @@ export const BannerWrapper = styled.div`
 `
 
 export const TrendingWrapper = styled.div`
-  width: 45%;
+  width: 40%;
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
     width: 100%;
@@ -53,7 +53,7 @@ export const TrendingWrapper = styled.div`
 `
 
 export const FarmingWrapper = styled.div`
-  width: calc(55% - 20px);
+  width: calc(60% - 20px);
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
     width: 100%;
