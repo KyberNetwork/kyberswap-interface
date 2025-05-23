@@ -1,4 +1,4 @@
-import { RefObject, useEffect, useRef } from "react";
+import { RefObject, useEffect, useRef } from 'react';
 
 export function useOnClickOutside<T extends HTMLElement>(
   node: RefObject<T | undefined> | RefObject<T | undefined>[],
@@ -12,14 +12,14 @@ export function useOnClickOutside<T extends HTMLElement>(
       let nodes: RefObject<T | undefined>[];
       if (
         [
-          ...document.getElementsByClassName("setting"),
-          ...document.getElementsByClassName("ks-lw-modal-overlay"),
+          ...document.getElementsByClassName('setting'),
+          ...document.getElementsByClassName('ks-lw-modal-overlay'),
         ].some((el: Element) => el.contains(e.target as Node))
       ) {
         return;
       }
       if (
-        [...document.getElementsByTagName("kyber-portal")].some((el: Element) =>
+        [...document.getElementsByTagName('kyber-portal')].some((el: Element) =>
           el.contains(e.target as Node)
         )
       ) {
@@ -27,18 +27,16 @@ export function useOnClickOutside<T extends HTMLElement>(
       }
       if (Array.isArray(node)) nodes = node;
       else nodes = [node];
-      if (
-        nodes.some((node) => node.current?.contains(e.target as Node) ?? false)
-      ) {
+      if (nodes.some((node) => node.current?.contains(e.target as Node) ?? false)) {
         return;
       }
       handlerRef.current?.();
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [node]);
 }

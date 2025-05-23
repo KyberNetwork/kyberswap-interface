@@ -18,6 +18,7 @@ import marketOverviewApi from 'services/marketOverview'
 import poolServiceApi from 'services/poolService'
 import priceAlertApi from 'services/priceAlert'
 import referralApi from 'services/referral'
+import rewardServiceApi from 'services/reward'
 import routeApi from 'services/route'
 import socialApi from 'services/social'
 import tokenApi from 'services/token'
@@ -111,6 +112,7 @@ const store = configureStore({
     [routeApi.reducerPath]: routeApi.reducer,
     [tokenApi.reducerPath]: tokenApi.reducer,
     [zapEarnServiceApi.reducerPath]: zapEarnServiceApi.reducer,
+    [rewardServiceApi.reducerPath]: rewardServiceApi.reducer,
     [poolServiceApi.reducerPath]: poolServiceApi.reducer,
     [referralApi.reducerPath]: referralApi.reducer,
     [campaignApi.reducerPath]: campaignApi.reducer,
@@ -138,6 +140,7 @@ const store = configureStore({
       .concat(socialApi.middleware)
       .concat(tokenApi.middleware)
       .concat(zapEarnServiceApi.middleware)
+      .concat(rewardServiceApi.middleware)
       .concat(poolServiceApi.middleware)
       .concat(referralApi.middleware)
       .concat(campaignApi.middleware)

@@ -1,41 +1,49 @@
 import { t } from '@lingui/macro'
-import { useEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import { useUserPositionsQuery } from 'services/zapEarn'
 
-import { ReactComponent as IconEarnNotFound } from 'assets/svg/ic_earn_not_found.svg'
-import { ReactComponent as IconUserEarnPosition } from 'assets/svg/ic_user_earn_position.svg'
+import { ReactComponent as IconEarnNotFound } from 'assets/svg/earn/ic_earn_not_found.svg'
+import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_earn_position.svg'
+import { ReactComponent as IconKem } from 'assets/svg/kyber/kem.svg'
 import { ReactComponent as RocketIcon } from 'assets/svg/rocket.svg'
+import InfoHelper from 'components/InfoHelper'
 import LocalLoader from 'components/LocalLoader'
+import TokenLogo from 'components/TokenLogo'
 import { APP_PATHS } from 'constants/index'
-import { useActiveWeb3React } from 'hooks'
-
+import { useActiveWeb3React, useWeb3React } from 'hooks'
+import useTheme from 'hooks/useTheme'
 import { NavigateButton } from 'pages/Earns/PoolExplorer/styles'
-import { EmptyPositionText, PositionPageWrapper } from 'pages/Earns/UserPositions/styles'
-import useLiquidityWidget from 'pages/Earns/useLiquidityWidget'
 import PositionDetailHeader from 'pages/Earns/PositionDetail/Header'
 import LeftSection from 'pages/Earns/PositionDetail/LeftSection'
 import RightSection from 'pages/Earns/PositionDetail/RightSection'
 import {
-  MainSection,
-  PositionAction,
-  PositionActionWrapper,
+  AprSection,
+  MigrationLiquidityRecommend,
   PositionDetailWrapper,
+  TotalLiquiditySection,
+  VerticalDivider,
 } from 'pages/Earns/PositionDetail/styles'
-import { CoreProtocol, EarnDex } from 'pages/Earns/constants'
-import { ParsedPosition } from 'pages/Earns/types'
-import { isForkFrom } from 'pages/Earns/utils'
+import { EmptyPositionText, PositionPageWrapper } from 'pages/Earns/UserPositions/styles'
+import { Exchange } from 'pages/Earns/constants'
+import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
+import { FeeInfo, ParsedPosition } from 'pages/Earns/types'
+import { formatAprNumber, getFullUnclaimedFeesInfo, getNftManagerContract, parseRawPosition } from 'pages/Earns/utils'
+import { formatDisplayNumber } from 'utils/numbers'
 
 const PositionDetail = () => {
   const firstLoading = useRef(false)
   const navigate = useNavigate()
+  const theme = useTheme()
   const [searchParams, setSearchParams] = useSearchParams()
   const forceLoading = searchParams.get('forceLoading')
 
   const { account } = useActiveWeb3React()
+  const { library } = useWeb3React()
   const { positionId, chainId, protocol } = useParams()
-  const { liquidityWidget, handleOpenZapInWidget, handleOpenZapOut } = useLiquidityWidget()
+  const { widget: zapMigrationWidget, handleOpenZapMigration } = useZapMigrationWidget()
+
   const { data: userPosition, isLoading } = useUserPositionsQuery(
     {
       addresses: account || '',
@@ -45,66 +53,58 @@ const PositionDetail = () => {
     },
     { skip: !account, pollingInterval: forceLoading ? 5_000 : 15_000 },
   )
+
   const currentWalletAddress = useRef(account)
   const hadForceLoading = useRef(forceLoading ? true : false)
+  const [feeInfoFromRpc, setFeeInfoFromRpc] = useState<FeeInfo | undefined>()
 
   const position: ParsedPosition | undefined = useMemo(() => {
-    if (!userPosition?.[0]) return
-    const position = userPosition?.[0]
+    if (!userPosition?.[0]) return undefined
 
-    return {
-      id: position.tokenId,
-      dex: position.pool.project || '',
-      dexImage: position.pool.projectLogo || '',
-      chainId: position.chainId,
-      chainName: position.chainName,
-      chainLogo: position.chainLogo || '',
-      poolAddress: position.pool.poolAddress || '',
-      tokenAddress: position.tokenAddress,
-      token0Address: position.pool.tokenAmounts[0]?.token.address || '',
-      token1Address: position.pool.tokenAmounts[1]?.token.address || '',
-      token0Logo: position.pool.tokenAmounts[0]?.token.logo || '',
-      token1Logo: position.pool.tokenAmounts[1]?.token.logo || '',
-      token0Symbol: position.pool.tokenAmounts[0]?.token.symbol || '',
-      token1Symbol: position.pool.tokenAmounts[1]?.token.symbol || '',
-      token0Decimals: position.pool.tokenAmounts[0]?.token.decimals,
-      token1Decimals: position.pool.tokenAmounts[1]?.token.decimals,
-      token0Price: position.currentAmounts[0]?.token.price,
-      token1Price: position.currentAmounts[1]?.token.price,
-      poolFee: position.pool.fees?.[0],
-      status: position.status,
-      totalValue: position.currentPositionValue,
-      apr: position.apr || 0,
-      token0TotalAmount: position
-        ? position.currentAmounts[0]?.quotes.usd.value / position.currentAmounts[0]?.quotes.usd.price
-        : 0,
-      token1TotalAmount: position
-        ? position.currentAmounts[1]?.quotes.usd.value / position.currentAmounts[1]?.quotes.usd.price
-        : 0,
-      minPrice: position.minPrice || 0,
-      maxPrice: position.maxPrice || 0,
-      pairRate: position.pool.price || 0,
-      earning24h: position.earning24h,
-      earning7d: position.earning7d,
-      totalEarnedFee:
-        position.feePending.reduce((a, b) => a + b.quotes.usd.value, 0) +
-        position.feesClaimed.reduce((a, b) => a + b.quotes.usd.value, 0),
-      createdTime: position.createdTime,
-    }
-  }, [userPosition])
+    return parseRawPosition({ position: userPosition[0], feeInfo: feeInfoFromRpc })
+  }, [feeInfoFromRpc, userPosition])
 
-  const isUniv2 = useMemo(() => position && isForkFrom(position.dex as EarnDex, CoreProtocol.UniswapV2), [position])
+  const handleFetchUnclaimedFee = useCallback(async () => {
+    if (!position || !library) return
+    const contract = getNftManagerContract(position.dex.id, position.chain.id, library)
 
-  const onOpenIncreaseLiquidityWidget = () => {
-    if (!position) return
-    handleOpenZapInWidget(
-      {
-        exchange: position.dex,
-        chainId: position.chainId,
-        address: position.poolAddress,
+    if (!contract) return
+    const owner = await contract.ownerOf(position.tokenId)
+
+    if (!owner) return
+
+    const feeFromRpc = await getFullUnclaimedFeesInfo({
+      contract,
+      positionOwner: owner,
+      tokenId: position.tokenId,
+      chainId: position.chain.id,
+      token0: position.token0,
+      token1: position.token1,
+    })
+
+    setFeeInfoFromRpc(feeFromRpc)
+
+    setTimeout(() => setFeeInfoFromRpc(undefined), 60_000)
+  }, [library, position])
+
+  const handleMigrateToKem = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    e.preventDefault()
+
+    if (!position || !position.suggestionPool) return
+
+    handleOpenZapMigration({
+      chainId: position.chain.id,
+      from: {
+        dex: position.dex.id,
+        poolId: position.pool.address,
+        positionId: position.tokenId,
       },
-      isUniv2 ? account || '' : position.id,
-    )
+      to: {
+        dex: position.suggestionPool?.poolExchange as Exchange,
+        poolId: position.suggestionPool?.address || '',
+      },
+    })
   }
 
   useEffect(() => {
@@ -124,47 +124,120 @@ const PositionDetail = () => {
     }
   }, [forceLoading, position, searchParams, setSearchParams])
 
+  const emptyPosition = (
+    <EmptyPositionText>
+      <IconEarnNotFound />
+      <Text>{t`No position found!`}</Text>
+      <Flex sx={{ gap: 2 }} marginTop={12}>
+        <NavigateButton
+          icon={<RocketIcon width={20} height={20} />}
+          text={t`Explorer Pools`}
+          to={APP_PATHS.EARN_POOLS}
+        />
+        <NavigateButton icon={<IconUserEarnPosition />} text={t`My Positions`} to={APP_PATHS.EARN_POSITIONS} />
+      </Flex>
+    </EmptyPositionText>
+  )
+
+  const totalLiquiditySection = (
+    <TotalLiquiditySection showForFarming={position?.pool.isFarming}>
+      <Flex flexDirection={'column'} alignContent={'flex-start'} sx={{ gap: '6px' }}>
+        <Text fontSize={14} color={theme.subText}>
+          {t`Total Liquidity`}
+        </Text>
+        <Text fontSize={20}>
+          {formatDisplayNumber(position?.totalValue, {
+            style: 'currency',
+            significantDigits: 4,
+          })}
+        </Text>
+      </Flex>
+      <VerticalDivider />
+      <Flex flexDirection={'column'} alignContent={'flex-end'} sx={{ gap: 2 }}>
+        <Flex alignItems={'center'} sx={{ gap: '6px' }}>
+          <TokenLogo src={position?.token0.logo} size={16} />
+          <Text>{formatDisplayNumber(position?.token0.totalAmount, { significantDigits: 6 })}</Text>
+          <Text>{position?.token0.symbol}</Text>
+        </Flex>
+        <Flex alignItems={'center'} sx={{ gap: '6px' }}>
+          <TokenLogo src={position?.token1.logo} size={16} />
+          <Text>{formatDisplayNumber(position?.token1.totalAmount, { significantDigits: 6 })}</Text>
+          <Text>{position?.token1.symbol}</Text>
+        </Flex>
+      </Flex>
+    </TotalLiquiditySection>
+  )
+
+  const aprSection = (
+    <AprSection showForFarming={position?.pool.isFarming}>
+      <Flex alignItems={'center'} sx={{ gap: '2px' }}>
+        <Text fontSize={14} color={theme.subText}>
+          {t`Est. Position APR`}
+        </Text>
+        {position?.pool.isFarming && (
+          <InfoHelper
+            size={16}
+            placement="top"
+            width="fit-content"
+            text={
+              <div>
+                {t`LP Fee APR`}: {formatAprNumber((position?.feeApr || 0) * 100)}%
+                <br />
+                {t`Rewards APR`}: {formatAprNumber((position?.kemApr || 0) * 100)}%
+              </div>
+            }
+          />
+        )}
+      </Flex>
+      <Flex alignItems={'center'} sx={{ gap: 1 }}>
+        <Text fontSize={20} color={position?.apr && position.apr > 0 ? theme.primary : theme.text}>
+          {formatAprNumber((position?.apr || 0) * 100)}%
+        </Text>
+        {position?.pool.isFarming && <IconKem width={20} height={20} />}
+      </Flex>
+    </AprSection>
+  )
+
   return (
     <>
-      {liquidityWidget}
+      {zapMigrationWidget}
+
       <PositionPageWrapper>
         {forceLoading || (isLoading && !firstLoading.current) ? (
           <LocalLoader />
         ) : !!position ? (
           <>
             <PositionDetailHeader position={position} hadForceLoading={hadForceLoading.current} />
+            {!!position?.suggestionPool && (
+              <MigrationLiquidityRecommend>
+                <Text color={'#fafafa'} lineHeight={'18px'}>
+                  {position.pool.fee === position.suggestionPool.feeTier
+                    ? t`Migrate to exact same pair and fee tier on Uniswap v4 hook to earn extra rewards from the
+              Kyberswap Liquidity Mining Program.`
+                    : t`We found a pool with the same pair having Liquidity Mining Program. Migrate to this pool on Uniswap v4 hook to start earning farming rewards.`}
+                </Text>
+                <Text color={theme.primary} sx={{ cursor: 'pointer' }} onClick={handleMigrateToKem}>
+                  Migrate →
+                </Text>
+              </MigrationLiquidityRecommend>
+            )}
             <PositionDetailWrapper>
-              <MainSection>
-                <LeftSection position={position} />
-                <RightSection position={position} />
-              </MainSection>
-              <PositionActionWrapper>
-                <PositionAction
-                  outline
-                  onClick={() => {
-                    handleOpenZapOut({
-                      ...position,
-                      id: isUniv2 ? account || '' : position.id,
-                    })
-                  }}
-                >{t`Remove Liquidity`}</PositionAction>
-                <PositionAction onClick={onOpenIncreaseLiquidityWidget}>{t`Add Liquidity`}</PositionAction>
-              </PositionActionWrapper>
+              <LeftSection
+                position={position}
+                onFetchUnclaimedFee={handleFetchUnclaimedFee}
+                totalLiquiditySection={totalLiquiditySection}
+                aprSection={aprSection}
+              />
+              <RightSection
+                position={position}
+                onOpenZapMigration={handleOpenZapMigration}
+                totalLiquiditySection={totalLiquiditySection}
+                aprSection={aprSection}
+              />
             </PositionDetailWrapper>
           </>
         ) : (
-          <EmptyPositionText>
-            <IconEarnNotFound />
-            <Text>{t`No position found!`}</Text>
-            <Flex sx={{ gap: 2 }} marginTop={12}>
-              <NavigateButton
-                icon={<RocketIcon width={20} height={20} />}
-                text={t`Explorer Pools`}
-                to={APP_PATHS.EARN_POOLS}
-              />
-              <NavigateButton icon={<IconUserEarnPosition />} text={t`My Positions`} to={APP_PATHS.EARN_POSITIONS} />
-            </Flex>
-          </EmptyPositionText>
+          emptyPosition
         )}
       </PositionPageWrapper>
     </>

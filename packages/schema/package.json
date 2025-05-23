@@ -1,0 +1,46 @@
+{
+  "name": "@kyber/schema",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./zap": {
+      "types": "./dist/zap.d.ts",
+      "import": "./dist/zap.mjs",
+      "require": "./dist/zap.js"
+    }
+  },
+  "scripts": {
+    "build": "tsup --config tsup.config.ts",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@kyber/eslint-config": "workspace:*",
+    "@kyber/tailwind-config": "workspace:^",
+    "@kyber/typescript-config": "workspace:*",
+    "@kyber/utils": "workspace:^",
+    "@types/eslint": "^8.56.5",
+    "@types/node": "^20.11.24",
+    "@types/react": "^18.0.17",
+    "@types/react-dom": "^18.0.6",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^8.57.0",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.13",
+    "tsup": "^8.0.2",
+    "typescript": "5.3.2"
+  },
+  "peerDependencies": {
+    "react": ">=16.8.0"
+  }
+}

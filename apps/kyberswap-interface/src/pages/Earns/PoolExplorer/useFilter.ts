@@ -2,12 +2,11 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useCallback, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { PoolQueryParams } from 'services/zapEarn'
-import { earnSupportedChains } from 'pages/Earns/constants'
 
 import { useActiveWeb3React } from 'hooks'
-import { Direction } from 'pages/MarketOverview/SortIcon'
-
 import { FilterTag, SortBy, timings } from 'pages/Earns/PoolExplorer'
+import { earnSupportedChains } from 'pages/Earns/constants'
+import { Direction } from 'pages/MarketOverview/SortIcon'
 
 export default function useFilter(setSearch?: (search: string) => void) {
   const [searchParams, setSearchParams] = useSearchParams()

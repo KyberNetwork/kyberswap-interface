@@ -3,8 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
-import { Image } from 'components/Image'
-
 export const PoolPageWrapper = styled.div`
   padding: 32px 24px 68px;
   width: 100%;
@@ -35,7 +33,7 @@ export const TagContainer = styled.div`
   display: flex;
   gap: 1rem;
   width: 100%;
-  overflow-x: auto;
+  flex-wrap: wrap;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     gap: 0.75rem;
@@ -60,6 +58,10 @@ export const Tag = styled.div<{ active: boolean }>`
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     height: 38px;
+  `}
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    font-size: 16px;
   `}
 `
 
@@ -106,7 +108,7 @@ export const NavigateButton: React.FC<NavigateButtonProps> = ({ icon, text, to, 
 export const TableWrapper = styled.div`
   background: ${({ theme }) => rgba(theme.background, 0.8)};
   border-radius: 16px;
-  overflow: hidden;
+  position: relative;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     margin: 0 -16px;
@@ -118,7 +120,7 @@ export const ContentWrapper = styled.div``
 
 export const TableHeader = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1.4fr 0.5fr 1fr 1fr 1fr 80px;
+  grid-template-columns: 1fr 1.4fr 0.5fr 0.8fr 1fr 1fr 80px;
   align-items: center;
   color: ${({ theme }) => theme.subText};
   border-bottom: 1px solid ${({ theme }) => theme.tableHeader};
@@ -127,7 +129,7 @@ export const TableHeader = styled.div`
   margin-bottom: 0;
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
-    grid-template-columns: 1fr 1.2fr 0.5fr 1fr 1fr 1fr 80px;
+    grid-template-columns: 1fr 1.2fr 0.5fr 0.8fr 1fr 1fr 80px;
   `}
 `
 
@@ -138,7 +140,7 @@ export const TableBody = styled.div`
 
 export const TableRow = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1.4fr 0.5fr 1fr 1fr 1fr 80px;
+  grid-template-columns: 1fr 1.4fr 0.5fr 0.8fr 1fr 1fr 80px;
   padding: 24px;
   cursor: pointer;
 
@@ -147,7 +149,7 @@ export const TableRow = styled.div`
   }
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
-    grid-template-columns: 1fr 1.2fr 0.5fr 1fr 1fr 1fr 80px;
+    grid-template-columns: 1fr 1.2fr 0.5fr 0.8fr 1fr 1fr 80px;
   `}
 `
 
@@ -164,17 +166,6 @@ export const FeeTier = styled.div`
   `}
 `
 
-export const CurrencyRoundedImage = styled(Image)`
-  border-radius: 50%;
-  width: 24px;
-  height: 24px;
-`
-
-export const CurrencySecondImage = styled(CurrencyRoundedImage)`
-  position: relative;
-  left: -6px;
-`
-
 export const SymbolText = styled.div`
   white-space: nowrap;
   overflow: hidden;
@@ -183,22 +174,20 @@ export const SymbolText = styled.div`
 
 export const Apr = styled.div<{ positive: boolean }>`
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
+  align-items: center;
   color: ${({ positive, theme }) => (positive ? theme.primary : theme.red)};
 `
 
 export const MobileTableRow = styled.div`
   padding: 28px 24px 0;
   cursor: pointer;
-
-  :hover {
-    background: ${({ theme }) => rgba(theme.primary, 0.2)};
-  }
 `
 export const MobileTableBottomRow = styled.div<{ withoutBorder: boolean }>`
-  display: grid;
-  grid-template-columns: 1.5fr 1fr 1fr;
+  display: flex;
+  flex-direction: column;
   padding: 16px 0;
+  gap: 12px;
   border-bottom: ${({ withoutBorder, theme }) => (withoutBorder ? 'none' : `1px solid ${theme.tableHeader}`)};
 `
 

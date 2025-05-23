@@ -42,6 +42,7 @@ export default function InfoHelper({
   width,
   style,
   zIndexTooltip = Z_INDEXS.POPOVER_CONTAINER,
+  noArrow = false,
 }: {
   text: string | ReactNode
   size?: number
@@ -52,6 +53,7 @@ export default function InfoHelper({
   width?: string
   style?: CSSProperties
   zIndexTooltip?: number
+  noArrow?: boolean
 }) {
   const [show, setShow] = useState<boolean>(false)
 
@@ -75,6 +77,7 @@ export default function InfoHelper({
         width={width}
         size={fontSize || size}
         style={{ zIndex: zIndexTooltip }}
+        noArrow={noArrow}
       >
         <InfoWrapper isActive={isActive}>
           <Info size={size || 12} color={color || 'currentcolor'} />

@@ -1,10 +1,10 @@
-name: 'KyberSwap Interface Release'
+name: "KyberSwap Interface Release"
 
 on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Release version'
+        description: "Release version"
         type: string
         required: true
 
@@ -54,18 +54,21 @@ jobs:
         uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # v4.2.0
         with:
           node-version: 21.0.0
-          registry-url: 'https://npm.pkg.github.com'
-          scope: '@kybernetwork'
+          registry-url: "https://npm.pkg.github.com"
+          scope: "@kybernetwork"
           token: ${{ secrets.GH_PAT }}
-          cache: 'pnpm'
+          cache: "pnpm"
 
       - name: Install dependencies
         run: pnpm install
-      
+
       - name: Build packages
         run: |
-          pnpm --parallel -r --filter "@kyber/svgr-esbuild-plugin" --filter "@kyber/ui" build
+          pnpm --filter "@kyber/svgr-esbuild-plugin" build
+          pnpm --filter "@kyber/schema" build
+          pnpm --filter "@kyber/ui" build
           pnpm --filter "@kyberswap/liquidity-chart" build
+          pnpm --filter "@kyber/utils" build
           pnpm --parallel --filter "@kyberswap/liquidity-widgets" --filter "@kyberswap/zap-migration-widgets" --filter "@kyberswap/zap-out-widgets" build
 
       - name: Run lint
@@ -75,7 +78,7 @@ jobs:
         env:
           CI: false
           VITE_TAG: ${{ github.event.inputs.version }}
-          NODE_OPTIONS: '--max_old_space_size=4096'
+          NODE_OPTIONS: "--max_old_space_size=4096"
         working-directory: apps/kyberswap-interface
         run: pnpm build-prod
 
@@ -85,7 +88,7 @@ jobs:
       - name: Gcloud Auth
         uses: google-github-actions/auth@v1
         with:
-          credentials_json: '${{ secrets.GCR_CREDENTIALS }}'
+          credentials_json: "${{ secrets.GCR_CREDENTIALS }}"
 
       - name: Setup Gcloud SDK
         uses: google-github-actions/setup-gcloud@v1
@@ -114,7 +117,7 @@ jobs:
             asia.gcr.io/kyber-operation/core/${{ env.SERVICE }}:${{ env.VERSION_TAG }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new
-          
+
       - name: Move Docker cache
         run: |
           rm -rf /tmp/.buildx-cache
@@ -151,5 +154,5 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: ${{ env.VERSION_TAG }}
           prerelease: false
-          name: 'KyberSwap Interface - ${{ env.VERSION_TAG }}'
+          name: "KyberSwap Interface - ${{ env.VERSION_TAG }}"
           generate_release_notes: true
