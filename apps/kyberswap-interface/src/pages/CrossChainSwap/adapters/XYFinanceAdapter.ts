@@ -111,6 +111,11 @@ export class XYFinanceAdapter extends BaseSwapAdapter {
 
     const fromToken = quote.quoteParams.fromToken as Currency
     const toToken = quote.quoteParams.toToken as Currency
+    const buildSlippage =
+      Math.floor(quote.quoteParams.slippage * 0.9) > 1
+        ? Math.floor(quote.quoteParams.slippage * 0.9)
+        : quote.quoteParams.slippage
+
     const p = {
       srcChainId: quote.quoteParams.fromChain,
       srcQuoteTokenAddress: fromToken.isNative ? ETHER_ADDRESS : fromToken.address,
@@ -118,7 +123,7 @@ export class XYFinanceAdapter extends BaseSwapAdapter {
       dstChainId: quote.quoteParams.toChain,
       dstQuoteTokenAddress: toToken.isNative ? ETHER_ADDRESS : toToken.address,
       // slippage: quote.quoteParams.slippage,
-      slippage: (quote.quoteParams.slippage * 100) / 10_000,
+      slippage: (buildSlippage * 100) / 10_000,
       receiver: quote.quoteParams.recipient,
       bridgeProvider: quote.rawQuote.bridgeDescription.provider,
       srcBridgeTokenAddress: quote.rawQuote.bridgeDescription.srcBridgeTokenAddress,
@@ -142,7 +147,7 @@ export class XYFinanceAdapter extends BaseSwapAdapter {
     }
     const resp = await fetch(`${XY_FINANCE_API}/buildTx?${queryParams.toString()}`).then(res => res.json())
 
-    if (BigInt(resp.route.dstQuoteTokenAmount) < quote.outputAmount) {
+    if (BigInt(resp.route.minReceiveAmount) < BigInt(quote.rawQuote.minReceiveAmount)) {
       throw new Error('Rate has changed')
     }
 
