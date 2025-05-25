@@ -1,17 +1,6 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
-import {
-  BaseSwapAdapter,
-  Chain,
-  NormalizedQuote,
-  NormalizedTxResponse,
-  SwapStatus,
-  EvmQuoteParams,
-} from './BaseSwapAdapter'
-import { MAINNET_RELAY_API, getClient, createClient, convertViemChainToRelayChain } from '@reservoir0x/relay-sdk'
+import { MAINNET_RELAY_API, convertViemChainToRelayChain, createClient, getClient } from '@reservoir0x/relay-sdk'
 import { WalletClient, formatUnits } from 'viem'
-import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
-import { Quote } from '../registry'
-import { MAINNET_NETWORKS } from 'constants/networks'
 import {
   arbitrum,
   avalanche,
@@ -25,12 +14,25 @@ import {
   mantle,
   optimism,
   polygon,
+  ronin,
   scroll,
   sonic,
-  zksync,
-  ronin,
   unichain,
+  zksync,
 } from 'viem/chains'
+
+import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
+import { MAINNET_NETWORKS } from 'constants/networks'
+
+import { Quote } from '../registry'
+import {
+  BaseSwapAdapter,
+  Chain,
+  EvmQuoteParams,
+  NormalizedQuote,
+  NormalizedTxResponse,
+  SwapStatus,
+} from './BaseSwapAdapter'
 
 export class RelayAdapter extends BaseSwapAdapter {
   constructor() {

@@ -1,10 +1,11 @@
-import CurrencyLogo from 'components/CurrencyLogo'
-import { Flex } from 'rebass'
-import { Chain, Currency } from '../adapters'
 import { Currency as EvmCurrency } from '@kyberswap/ks-sdk-core'
+import { Flex } from 'rebass'
 
-import { getNetworkInfo } from '../utils'
+import CurrencyLogo from 'components/CurrencyLogo'
 import { isEvmChain } from 'utils'
+
+import { Chain, Currency } from '../adapters'
+import { getNetworkInfo } from '../utils'
 
 export const TokenLogoWithChain = ({
   currency,
