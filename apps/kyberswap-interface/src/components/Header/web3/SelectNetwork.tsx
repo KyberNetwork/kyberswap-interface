@@ -16,6 +16,7 @@ import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useNetworkModalToggle } from 'state/application/hooks'
 import { useNativeBalance } from 'state/wallet/hooks'
 import { formatDisplayNumber } from 'utils/numbers'
+import { NonEvmChain } from 'pages/CrossChainSwap/adapters'
 
 const NetworkSwitchContainer = styled.div`
   display: flex;
@@ -96,7 +97,7 @@ function SelectNetwork(): JSX.Element | null {
       <NetworkModal
         selectedId={chainId}
         disabledMsg={t`Unsupported by your wallet.`}
-        activeChainIds={walletSupportsChain}
+        activeChainIds={[NonEvmChain.Bitcoin, NonEvmChain.Near, ...walletSupportsChain]}
       />
     </NetworkCard>
   )

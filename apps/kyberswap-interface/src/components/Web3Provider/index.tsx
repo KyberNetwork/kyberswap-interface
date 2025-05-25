@@ -188,26 +188,28 @@ const WC_PARAMS = {
   },
 }
 
+const wagmiChains = [
+  mainnet,
+  arbitrum,
+  optimism,
+  zksync,
+  polygon,
+  base,
+  bsc,
+  linea,
+  mantle,
+  scroll,
+  avalanche,
+  fantom,
+  blast,
+  sonic,
+  berachain,
+  ronin,
+  unichain,
+] as const
+
 export const wagmiConfig = createConfig({
-  chains: [
-    mainnet,
-    arbitrum,
-    optimism,
-    zksync,
-    polygon,
-    base,
-    bsc,
-    linea,
-    mantle,
-    scroll,
-    avalanche,
-    fantom,
-    blast,
-    sonic,
-    berachain,
-    ronin,
-    unichain,
-  ],
+  chains: wagmiChains,
   connectors: [
     injectedWithFallback(),
     walletConnect(WC_PARAMS),

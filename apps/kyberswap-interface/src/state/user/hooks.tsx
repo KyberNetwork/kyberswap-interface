@@ -2,7 +2,7 @@ import { ChainId, Token } from '@kyberswap/ks-sdk-core'
 import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { INITIAL_ALLOWED_SLIPPAGE, TERM_FILES_PATH } from 'constants/index'
+import { TERM_FILES_PATH } from 'constants/index'
 import { SupportedLocale } from 'constants/locales'
 import { GAS_TOKENS } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
@@ -37,8 +37,8 @@ import {
   toggleTradeRoutes,
   toggleUseAggregatorForZap,
   updateAcceptedTermVersion,
+  updateFavoriteChains,
   updatePoolDegenMode,
-  updatePoolSlippageTolerance,
   updateTokenAnalysisSettings,
   updateUserDeadline,
   updateUserDegenMode,
@@ -168,13 +168,13 @@ export function useAggregatorForZapSetting(): [boolean, () => void] {
 
 export function useUserSlippageTolerance(): [number, (slippage: number) => void] {
   const [swapSlippageTolerance, setSwapSlippageTolerance] = useSwapSlippageTolerance()
-  const [poolSlippageTolerance, setPoolSlippageTolerance] = usePoolSlippageTolerance()
+  //const [poolSlippageTolerance, setPoolSlippageTolerance] = usePoolSlippageTolerance()
 
-  const { isSwapPage } = usePageLocation()
-  if (isSwapPage) {
-    return [swapSlippageTolerance, setSwapSlippageTolerance]
-  }
-  return [poolSlippageTolerance, setPoolSlippageTolerance]
+  //const { isSwapPage } = usePageLocation()
+  //if (isSwapPage) {
+  //  return [swapSlippageTolerance, setSwapSlippageTolerance]
+  //}
+  return [swapSlippageTolerance, setSwapSlippageTolerance]
 }
 
 export function useSwapSlippageTolerance(): [number, (slippage: number) => void] {
@@ -192,17 +192,18 @@ export function useSwapSlippageTolerance(): [number, (slippage: number) => void]
 }
 
 export function usePoolSlippageTolerance(): [number, (slippage: number) => void] {
-  const dispatch = useDispatch<AppDispatch>()
-  const poolSlippageTolerance = useSelector<AppState, AppState['user']['poolSlippageTolerance']>(state => {
-    return state.user.poolSlippageTolerance || INITIAL_ALLOWED_SLIPPAGE
-  })
-  const setPoolSlippageTolerance = useCallback(
-    (poolSlippageTolerance: number) => {
-      dispatch(updatePoolSlippageTolerance({ poolSlippageTolerance }))
-    },
-    [dispatch],
-  )
-  return [poolSlippageTolerance, setPoolSlippageTolerance]
+  //const dispatch = useDispatch<AppDispatch>()
+  //const poolSlippageTolerance = useSelector<AppState, AppState['user']['poolSlippageTolerance']>(state => {
+  //  return state.user.poolSlippageTolerance || INITIAL_ALLOWED_SLIPPAGE
+  //})
+  //const setPoolSlippageTolerance = useCallback(
+  //  (poolSlippageTolerance: number) => {
+  //    dispatch(updatePoolSlippageTolerance({ poolSlippageTolerance }))
+  //  },
+  //  [dispatch],
+  //)
+  //return [poolSlippageTolerance, setPoolSlippageTolerance]
+  return useSwapSlippageTolerance()
 }
 
 export function useUserTransactionTTL(): [number, (slippage: number) => void] {
@@ -480,7 +481,7 @@ export const useCrossChainSetting = () => {
 
 export const useSlippageSettingByPage = () => {
   const dispatch = useDispatch()
-  const { isCrossChain } = usePageLocation()
+  // const { isCrossChain } = usePageLocation()
   const [rawSlippageTolerance, setRawSlippageTolerance] = useUserSlippageTolerance()
 
   const isPinSlippageSwap = useAppSelector(state => state.user.isSlippageControlPinned)
@@ -488,16 +489,16 @@ export const useSlippageSettingByPage = () => {
     dispatch(pinSlippageControl(!isSlippageControlPinned))
   }
 
-  const {
-    setting: { slippageTolerance: rawSlippageSwapCrossChain, isSlippageControlPinned: isPinSlippageCrossChain },
-    setRawSlippage: setRawSlippageCrossChain,
-    toggleSlippageControlPinned: togglePinnedSlippageCrossChain,
-  } = useCrossChainSetting()
+  // const {
+  //   setting: { slippageTolerance: rawSlippageSwapCrossChain, isSlippageControlPinned: isPinSlippageCrossChain },
+  //   setRawSlippage: setRawSlippageCrossChain,
+  //   toggleSlippageControlPinned: togglePinnedSlippageCrossChain,
+  // } = useCrossChainSetting()
 
-  const rawSlippage = isCrossChain ? rawSlippageSwapCrossChain : rawSlippageTolerance
-  const setRawSlippage = isCrossChain ? setRawSlippageCrossChain : setRawSlippageTolerance
-  const isSlippageControlPinned = isCrossChain ? isPinSlippageCrossChain : isPinSlippageSwap
-  const togglePinSlippage = isCrossChain ? togglePinnedSlippageCrossChain : togglePinSlippageSwap
+  const rawSlippage = rawSlippageTolerance
+  const setRawSlippage = setRawSlippageTolerance
+  const isSlippageControlPinned = isPinSlippageSwap
+  const togglePinSlippage = togglePinSlippageSwap
 
   return {
     rawSlippage,
@@ -527,4 +528,19 @@ export function useShowTradeRoutes(): boolean {
 export function useToggleTradeRoutes(): () => void {
   const dispatch = useDispatch<AppDispatch>()
   return useCallback(() => dispatch(toggleTradeRoutes()), [dispatch])
+}
+export function useFavoriteChains(): [string[], (val: string[]) => void] {
+  const dispatch = useDispatch<AppDispatch>()
+  const favoriteChains = useSelector<AppState, AppState['user']['favoriteChains']>(
+    state => state.user.favoriteChains || [],
+  )
+
+  const setFavoriteChains = useCallback(
+    (chains: string[]) => {
+      dispatch(updateFavoriteChains(chains))
+    },
+    [dispatch],
+  )
+
+  return [favoriteChains, setFavoriteChains]
 }

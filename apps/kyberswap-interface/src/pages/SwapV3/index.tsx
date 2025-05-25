@@ -31,9 +31,6 @@ import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import { BodyWrapper } from 'pages/AppBody'
-import CrossChain from 'pages/CrossChain'
-import CrossChainLink from 'pages/CrossChain/CrossChainLink'
-import CrossChainTransfersHistory from 'pages/CrossChain/TransfersHistory'
 import Header from 'pages/SwapV3/Header'
 import useCurrenciesByPage from 'pages/SwapV3/useCurrenciesByPage'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
@@ -42,6 +39,8 @@ import { DetailedRouteSummary } from 'types/route'
 import { getTradeComposition } from 'utils/aggregationRouting'
 
 import PopulatedSwapForm from './PopulatedSwapForm'
+import CrossChainSwap from 'pages/CrossChainSwap'
+import { TransactionHistory } from 'pages/CrossChainSwap/components/TransactionHistory'
 
 const TradeRouting = lazy(() => import('components/TradeRouting'))
 
@@ -192,10 +191,9 @@ export default function Swap() {
                 <LiquiditySourcesPanel onBack={() => setActiveTab(TAB.SETTINGS)} />
               )}
               {activeTab === TAB.LIMIT && <LimitOrder />}
-              {isCrossChainPage && <CrossChain visible={activeTab === TAB.CROSS_CHAIN} />}
               {activeTab === TAB.GAS_TOKEN && <GasTokenSetting onBack={() => setActiveTab(TAB.SWAP)} />}
+              {activeTab === TAB.CROSS_CHAIN && <CrossChainSwap />}
             </AppBodyWrapped>
-            {isCrossChainPage && <CrossChainLink isBridge />}
           </SwapFormWrapper>
 
           <InfoComponents>
@@ -232,7 +230,7 @@ export default function Swap() {
             )}
 
             {isLimitPage && <ListLimitOrder />}
-            {isCrossChainPage && <CrossChainTransfersHistory />}
+            {isCrossChainPage && <TransactionHistory />}
           </InfoComponents>
         </Container>
         <Flex justifyContent="center">

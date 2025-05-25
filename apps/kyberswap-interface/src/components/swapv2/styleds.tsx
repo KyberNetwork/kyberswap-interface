@@ -35,7 +35,7 @@ export const Container = styled.div`
   width: 100%;
   max-width: 1392px;
   gap: 48px;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
+  ${({ theme }) => theme.mediaWidth.upToLarge`
     gap: 24px;
     flex-direction: column;
     align-items: center;
@@ -187,6 +187,7 @@ export const ButtonReturnType = styled.div<{ active?: boolean }>`
 `
 
 export const SwapFormWrapper = styled.div<{ isShowTutorial?: boolean }>`
+  z-index: 1;
   width: 425px;
   display: flex;
   flex-direction: column;
