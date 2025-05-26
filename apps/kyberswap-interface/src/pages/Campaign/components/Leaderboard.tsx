@@ -14,6 +14,8 @@ import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
 import { CampaignType } from './Information'
+import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
+import { ZERO_ADDRESS } from 'constants/index'
 
 const Wrapper = styled.div`
   border-radius: 20px;
@@ -30,15 +32,25 @@ export default function Leaderboard({ type, week, year }: { type: CampaignType; 
   const [searchParams, setSearchParams] = useSearchParams()
   const page = +(searchParams.get('page') || '1')
 
+  const program = type === CampaignType.MayTrading ? 'grind/base' : 'stip'
   const campaign =
-    type === CampaignType.Aggregator
+    type === CampaignType.Aggregator || type === CampaignType.MayTrading
       ? 'trading-incentive'
       : type === CampaignType.LimitOrder
       ? 'limit-order-farming'
       : 'referral-program'
 
+  const rewardAmount = (reward?: string): string => {
+    const rewardAmount = CurrencyAmount.fromRawAmount(
+      new Token(1, ZERO_ADDRESS, 18, 'mock'),
+      reward?.split('.')[0] || '0',
+    )
+    return rewardAmount ? rewardAmount.toSignificant(4) : '0'
+  }
+
   const { isLoading, data } = useGetLeaderboardQuery(
     {
+      program,
       week,
       year,
       campaign,
@@ -55,6 +67,7 @@ export default function Leaderboard({ type, week, year }: { type: CampaignType; 
 
   const { data: userData } = useGetUserRewardQuery(
     {
+      program,
       week,
       year,
       wallet: account || '',
@@ -84,7 +97,7 @@ export default function Leaderboard({ type, week, year }: { type: CampaignType; 
 
       <Flex padding={upToSmall ? '1rem 0' : '1rem 1.25rem'} fontSize={12} fontWeight="500" color={theme.subText}>
         {campaign !== 'referral-program' && (
-          <Text width="50px" textAlign="center">
+          <Text width={upToSmall ? '30px' : '50px'} textAlign="center">
             RANK
           </Text>
         )}
@@ -93,9 +106,15 @@ export default function Leaderboard({ type, week, year }: { type: CampaignType; 
           WALLET
         </Text>
 
-        <Text width="150px" marginLeft="1.25rem" textAlign="right">
+        <Text width={campaign === 'referral-program' ? '150px' : '80px'} marginLeft="1.25rem" textAlign="right">
           {campaign === 'referral-program' ? 'NUMBER OF REFERRALS' : 'POINTS'}
         </Text>
+
+        {type === CampaignType.MayTrading && (
+          <Text width={!upToSmall ? '150px' : '80px'} marginLeft="1.25rem" textAlign="right">
+            REWARDS
+          </Text>
+        )}
       </Flex>
 
       <Divider />
@@ -105,7 +124,7 @@ export default function Leaderboard({ type, week, year }: { type: CampaignType; 
       ) : campaign !== 'referral-program' ? (
         data?.data?.leaderBoards.map((item, index) => (
           <Flex padding={upToSmall ? '1rem 0' : '1rem 1.25rem'} key={item.wallet} fontSize={14} color={theme.text}>
-            <Text width="50px" fontWeight="500" textAlign="center">
+            <Text width={upToSmall ? '30px' : '50px'} fontWeight="500" textAlign="center">
               {index + (page - 1) * 10 + 1}
             </Text>
 
@@ -113,9 +132,15 @@ export default function Leaderboard({ type, week, year }: { type: CampaignType; 
               {upToSmall ? `${item.wallet.substring(0, 4 + 2)}...${item.wallet.substring(42 - 4)}` : item.wallet}
             </Text>
 
-            <Text width="100px" fontWeight="500" marginLeft="1.25rem" textAlign="right">
+            <Text width={'70px'} marginLeft="1.25rem" textAlign="right">
               {formatDisplayNumber(Math.floor(item.point), { significantDigits: 4 })}
             </Text>
+
+            {type === CampaignType.MayTrading && (
+              <Text width={!upToSmall ? '150px' : '70px'} marginLeft="1.25rem" textAlign="right">
+                {formatDisplayNumber(rewardAmount(item.reward), { significantDigits: 4 })} KNC
+              </Text>
+            )}
           </Flex>
         ))
       ) : (

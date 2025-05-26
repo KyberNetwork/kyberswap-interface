@@ -217,9 +217,9 @@ export default function Menu() {
     toggle()
   }
 
-  const showAbout = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
-  const showBlog = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
-  const showAnalytics = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
+  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
+  const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
+  const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
   const bridgeLink = networkInfo.bridgeURL
   const toggleClaimPopup = useToggleModal(ApplicationModal.CLAIM_POPUP)
@@ -325,8 +325,20 @@ export default function Menu() {
                 </Text>
               </MenuItem>
             )}
+            {upToExtraSmall && (
+              <NavLink to={APP_PATHS.MARKET_OVERVIEW}>
+                <MenuItem
+                  onClick={() => {
+                    navigate(APP_PATHS.MARKET_OVERVIEW)
+                  }}
+                >
+                  <PieChart />
+                  <Text>Market</Text>
+                </MenuItem>
+              </NavLink>
+            )}
 
-            {showAnalytics && (
+            {upToMedium && (
               <>
                 <MenuItem>
                   <NavDropDown
@@ -348,23 +360,26 @@ export default function Menu() {
               </>
             )}
 
-            <MenuItem>
-              <NavDropDown
-                icon={<CampaignIcon />}
-                title={
-                  <Text sx={{ position: 'relative' }} width="max-content">
-                    <Trans>Campaigns</Trans>
-                  </Text>
-                }
-                link="#"
-                options={[
-                  { link: APP_PATHS.AGGREGATOR_CAMPAIGN, label: t`Aggregator Trading` },
-                  { link: APP_PATHS.LIMIT_ORDER_CAMPAIGN, label: t`Limit Order` },
-                  { link: APP_PATHS.REFFERAL_CAMPAIGN, label: t`Referral` },
-                  { link: APP_PATHS.MY_DASHBOARD, label: t`My Dashboard`, external: true },
-                ]}
-              />
-            </MenuItem>
+            {upToXXSmall && (
+              <MenuItem>
+                <NavDropDown
+                  icon={<CampaignIcon />}
+                  title={
+                    <Text sx={{ position: 'relative' }} width="max-content">
+                      <Trans>Campaigns</Trans>
+                    </Text>
+                  }
+                  link="/campaigns"
+                  options={[
+                    { link: APP_PATHS.MAY_TRADING_CAMPAIGN, label: t`May Trading` },
+                    { link: APP_PATHS.AGGREGATOR_CAMPAIGN, label: t`Aggregator Trading` },
+                    { link: APP_PATHS.LIMIT_ORDER_CAMPAIGN, label: t`Limit Order` },
+                    { link: APP_PATHS.REFFERAL_CAMPAIGN, label: t`Referral` },
+                    { link: APP_PATHS.MY_DASHBOARD, label: t`My Dashboard`, external: true },
+                  ]}
+                />
+              </MenuItem>
+            )}
 
             {bridgeLink && (
               <MenuItem>
@@ -375,26 +390,27 @@ export default function Menu() {
               </MenuItem>
             )}
 
-            {showAnalytics && (
-              <MenuItem>
-                <ExternalLink href={AGGREGATOR_ANALYTICS_URL}>
-                  <PieChart />
-                  <Trans>Analytics</Trans>
-                </ExternalLink>
-              </MenuItem>
-            )}
-            {showAbout && (
-              <MenuItem>
-                <NavDropDown
-                  icon={<Info />}
-                  title={t`About`}
-                  link={'/about'}
-                  options={[
-                    { link: '/about/kyberswap', label: 'KyberSwap' },
-                    { link: '/about/knc', label: 'KNC' },
-                  ]}
-                />
-              </MenuItem>
+            {upToMedium && (
+              <>
+                <MenuItem>
+                  <ExternalLink href={AGGREGATOR_ANALYTICS_URL}>
+                    <PieChart />
+                    <Trans>Analytics</Trans>
+                  </ExternalLink>
+                </MenuItem>
+
+                <MenuItem>
+                  <NavDropDown
+                    icon={<Info />}
+                    title={t`About`}
+                    link={'/about'}
+                    options={[
+                      { link: '/about/kyberswap', label: 'KyberSwap' },
+                      { link: '/about/knc', label: 'KNC' },
+                    ]}
+                  />
+                </MenuItem>
+              </>
             )}
 
             <MenuItem>
@@ -435,7 +451,7 @@ export default function Menu() {
               </ExternalLink>
             </MenuItem>
 
-            {showBlog && (
+            {upToExtraSmall && (
               <MenuItem>
                 <ExternalLink href="https://blog.kyberswap.com">
                   <BlogIcon />
