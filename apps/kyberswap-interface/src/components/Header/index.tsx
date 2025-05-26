@@ -176,6 +176,8 @@ export default function Header() {
 
   const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
+  const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
+  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
 
   const menu = (
     <HeaderElementWrap>
@@ -214,12 +216,14 @@ export default function Header() {
                 <NewLabel>New</NewLabel>
               </Flex>
             </StyledNavLink>
-            <StyledNavLink to={`${APP_PATHS.MARKET_OVERVIEW}`}>Market</StyledNavLink>
-            <KyberDAONavGroup />
             <CampaignNavGroup />
-            <StyledNavExternalLink target="_blank" href={AGGREGATOR_ANALYTICS_URL}>
-              <Trans>Analytics</Trans>
-            </StyledNavExternalLink>
+            {!upToExtraSmall && <StyledNavLink to={`${APP_PATHS.MARKET_OVERVIEW}`}>Market</StyledNavLink>}
+            <KyberDAONavGroup />
+            {!upToMedium && (
+              <StyledNavExternalLink target="_blank" href={AGGREGATOR_ANALYTICS_URL}>
+                <Trans>Analytics</Trans>
+              </StyledNavExternalLink>
+            )}
             <AboutNavGroup />
           </HeaderLinks>
         )}

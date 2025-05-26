@@ -1,7 +1,7 @@
 import { Trans } from '@lingui/macro'
 import { useLocation } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import styled from 'styled-components'
+import styled, { useTheme } from 'styled-components'
 
 import Column from 'components/Column'
 import { APP_PATHS } from 'constants/index'
@@ -13,15 +13,8 @@ import { Flex } from 'rebass'
 
 const StyledNavGroup = styled(NavGroup)`
   ${({ theme }) => theme.mediaWidth.upToXXSmall`
-      display: none;
+      // display: none;
   `}
-`
-
-const StyledNavGroupPad = styled(NavGroup)`
-  ${({ theme }) => theme.mediaWidth.upToXXSmall`
-      display: none;
-  `}
-  margin-left: 4px;
 `
 
 const ELabel = styled.span`
@@ -29,19 +22,25 @@ const ELabel = styled.span`
   margin-left: 4px;
 `
 
+const NestedNavLink = styled(StyledNavLink)`
+  font-size: 14px;
+  gap: 12px;
+`
+
 const CampaignNavGroup = () => {
   const { pathname } = useLocation()
   const isActiveMayTrading = pathname.includes('/campaigns/may-trading')
   const isActive = pathname.includes('/campaigns') && !isActiveMayTrading
-  const upTo500 = useMedia('(max-width: 500px)')
+  const upTo500 = useMedia('(max-width: 420px)')
+  const theme = useTheme()
 
-  // if (upTo500) return null
+  if (upTo500) return null
 
   return (
     <>
       <StyledNavGroup
         dropdownAlign={upTo500 ? 'right' : 'left'}
-        isActive={isActiveMayTrading}
+        isActive={isActive}
         anchor={
           <DropdownTextAnchor style={{ position: 'relative', width: 'max-content' }}>
             <Flex>
@@ -57,34 +56,29 @@ const CampaignNavGroup = () => {
               <NewLabel>New</NewLabel>
             </StyledNavLink>
 
-            <StyledNavGroupPad
-              dropdownAlign={upTo500 ? 'right' : 'left'}
-              isActive={isActive}
-              anchor={
-                <DropdownTextAnchor style={{ position: 'relative', width: 'max-content' }}>
-                  <Flex>
-                    Arbitrum STIP
-                    <ELabel>ENDED</ELabel>
-                  </Flex>
-                </DropdownTextAnchor>
-              }
-              dropdownContent={
-                <Column>
-                  <StyledNavLink to={APP_PATHS.AGGREGATOR_CAMPAIGN} style={{ gap: '12px' }}>
-                    <Trans>Aggregator Trading</Trans>
-                  </StyledNavLink>
-                  <StyledNavLink to={APP_PATHS.LIMIT_ORDER_CAMPAIGN} style={{ gap: '12px' }}>
-                    <Trans>Limit Order</Trans>
-                  </StyledNavLink>
-                  <StyledNavLink to={APP_PATHS.REFFERAL_CAMPAIGN} style={{ gap: '12px' }}>
-                    <Trans>Referral</Trans>
-                  </StyledNavLink>
-                  <StyledNavLink to={APP_PATHS.MY_DASHBOARD} style={{ gap: '12px' }}>
-                    <Trans>My Dashboard</Trans>
-                  </StyledNavLink>
-                </Column>
-              }
-            />
+            <StyledNavLink to={APP_PATHS.AGGREGATOR_CAMPAIGN} style={{ textDecoration: 'none', color: theme.subText }}>
+              Arbitrum STIP
+              <ELabel>ENDED</ELabel>
+            </StyledNavLink>
+
+            <Column
+              sx={{
+                padding: '0px 8px',
+              }}
+            >
+              <NestedNavLink to={APP_PATHS.AGGREGATOR_CAMPAIGN}>
+                <Trans>Aggregator Trading</Trans>
+              </NestedNavLink>
+              <NestedNavLink to={APP_PATHS.LIMIT_ORDER_CAMPAIGN}>
+                <Trans>Limit Order</Trans>
+              </NestedNavLink>
+              <NestedNavLink to={APP_PATHS.REFFERAL_CAMPAIGN}>
+                <Trans>Referral</Trans>
+              </NestedNavLink>
+            </Column>
+            <StyledNavLink to={APP_PATHS.MY_DASHBOARD} style={{ gap: '12px' }}>
+              <Trans>My Dashboard</Trans>
+            </StyledNavLink>
           </Column>
         }
       />

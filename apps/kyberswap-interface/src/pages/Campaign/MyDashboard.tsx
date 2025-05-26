@@ -60,7 +60,7 @@ const MyDashboard = () => {
   const { account } = useActiveWeb3React()
   const theme = useTheme()
   const [searchParams, setSearchParams] = useSearchParams()
-  const tab = searchParams.get('tab') || 'trading-incentive'
+  const tab = searchParams.get('tab') || 'may-trading'
   const changeTab = (t: string) => {
     searchParams.set('tab', t)
     setSearchParams(searchParams)
@@ -97,7 +97,7 @@ const MyDashboard = () => {
       wallet: account || '',
     },
     {
-      skip: !account,
+      skip: !account || program === 'grind/base', // Only fetch limit order farming data for the STIP program
     },
   )
 
@@ -111,7 +111,7 @@ const MyDashboard = () => {
   const { data: referralData } = useGetUserReferralTotalRewardQuery(
     { program, wallet: account || '' },
     {
-      skip: !account,
+      skip: !account || program === 'grind/base', // Only fetch limit order farming data for the STIP program
     },
   )
   const referralReward = referralData?.data?.totalReward
