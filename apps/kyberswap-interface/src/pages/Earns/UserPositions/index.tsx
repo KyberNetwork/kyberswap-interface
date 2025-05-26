@@ -45,7 +45,7 @@ const UserPositions = () => {
   const navigate = useNavigate()
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
-  const { account, chainId } = useActiveWeb3React()
+  const { account } = useActiveWeb3React()
   const { filters, updateFilters } = useFilter()
   const { supportedDexes, supportedChains } = useSupportedDexesAndChains(filters)
 
@@ -79,7 +79,6 @@ const UserPositions = () => {
   const { widget: zapOutWidget, handleOpenZapOut } = useZapOutWidget(refetch)
 
   const { rewardInfo } = useKemRewards()
-  const rewardInfoThisChain = chainId ? rewardInfo?.chains.find(item => item.chainId === chainId) : null
 
   useAccountChanged(() => {
     refetch()
@@ -97,7 +96,7 @@ const UserPositions = () => {
 
     let parsedData = [...positionToRender].map(position => {
       const feeInfo = feeInfoFromRpc.find(feeInfo => feeInfo.id === position.tokenId)
-      const nftRewardInfo = rewardInfoThisChain?.nfts.find(rewardInfo => rewardInfo.nftId === position.tokenId)
+      const nftRewardInfo = rewardInfo?.nfts.find(item => item.nftId === position.tokenId)
 
       return parsePosition({
         position,
@@ -153,7 +152,7 @@ const UserPositions = () => {
     filters.sortBy,
     filters.status,
     previousPosition,
-    rewardInfoThisChain?.nfts,
+    rewardInfo?.nfts,
     userPosition,
   ])
 

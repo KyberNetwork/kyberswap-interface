@@ -437,6 +437,8 @@ export const parseReward = (data: RewardData | undefined, tokens: WrappedTokenIn
   const totalAmount = chains.reduce((acc, item) => acc + item.totalAmount, 0)
   const claimableAmount = chains.reduce((acc, item) => acc + item.claimableAmount, 0)
 
+  const nfts = chains.reduce((acc, item) => acc.concat(item.nfts), [] as NftRewardInfo[])
+
   return {
     totalUsdValue,
     totalAmount,
@@ -445,5 +447,6 @@ export const parseReward = (data: RewardData | undefined, tokens: WrappedTokenIn
     claimableUsdValue,
     claimableAmount,
     chains,
+    nfts,
   }
 }

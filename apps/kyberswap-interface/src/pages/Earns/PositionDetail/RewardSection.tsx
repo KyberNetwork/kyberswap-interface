@@ -7,7 +7,6 @@ import { ReactComponent as KemIcon } from 'assets/svg/kyber/kem.svg'
 import InfoHelper from 'components/InfoHelper'
 import Loader from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
-import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import {
   NextDistribution,
@@ -49,7 +48,6 @@ const formatTimeRemaining = (seconds: number) => {
 
 const RewardSection = ({ position }: { position: ParsedPosition }) => {
   const theme = useTheme()
-  const { chainId } = useActiveWeb3React()
 
   const [timeRemaining, setTimeRemaining] = useState('')
   const [nextDistributionTime] = useState(getNextWednesdayMidnightUTC())
@@ -60,8 +58,7 @@ const RewardSection = ({ position }: { position: ParsedPosition }) => {
     onOpenClaim: onOpenClaimRewards,
     claiming: rewardsClaiming,
   } = useKemRewards()
-  const rewardInfoThisChain = chainId ? rewardInfo?.chains.find(item => item.chainId === chainId) : null
-  const rewardInfoThisPosition = rewardInfoThisChain?.nfts.find(item => item.nftId === position.tokenId)
+  const rewardInfoThisPosition = rewardInfo?.nfts.find(item => item.nftId === position.tokenId)
 
   useEffect(() => {
     const calculateTimeRemaining = () => {

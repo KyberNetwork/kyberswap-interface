@@ -57,7 +57,7 @@ const rewardServiceApi = createApi({
   endpoints: builder => ({
     batchClaimEncodeData: builder.mutation<string, BatchClaimEncodeParams>({
       query: params => ({
-        url: `/kem/batch-claim/owner`,
+        url: `/kem/batch-claim/erc721`,
         params,
       }),
       transformResponse: (response: { data: string }) => response.data,

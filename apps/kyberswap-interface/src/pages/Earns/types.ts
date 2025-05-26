@@ -217,6 +217,7 @@ export interface RewardInfo {
     nfts: Array<NftRewardInfo>
     claimableTokens: Array<TokenRewardInfo>
   }>
+  nfts: Array<NftRewardInfo>
 }
 
 export interface NftRewardInfo {

@@ -78,6 +78,7 @@ const useKemRewards = () => {
             : 'An error occurred while processing your request',
       })
       setClaiming(false)
+      setOpenClaimModal(false)
       return
     }
 
@@ -94,6 +95,7 @@ const useKemRewards = () => {
           summary: error.message,
         })
         setClaiming(false)
+        setOpenClaimModal(false)
       },
     })
     if (!txHash) throw new Error('Transaction failed')
