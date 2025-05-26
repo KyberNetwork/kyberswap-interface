@@ -270,15 +270,17 @@ const MyDashboard = () => {
             </Flex>
             */}
           </Flex>
-          <Flex alignItems="center" sx={{ gap: '4px' }} fontSize={24} marginTop="0.5rem">
-            <TokenLogoWithChain chainId={stipReward.chainId} tokenLogo={stipReward.logo} size={24} />
-            <Text fontWeight="500" ml="6px">
-              {totalStipRw} {stipReward.symbol}
-            </Text>
-            <Text color="#FAFAFA80" fontSize={16} marginTop="2px">
-              {totalStipRwUsd}
-            </Text>
-          </Flex>
+          {stipTradingRw?.greaterThan('0') && (
+            <Flex alignItems="center" sx={{ gap: '4px' }} fontSize={24} marginTop="0.5rem">
+              <TokenLogoWithChain chainId={stipReward.chainId} tokenLogo={stipReward.logo} size={24} />
+              <Text fontWeight="500" ml="6px">
+                {totalStipRw} {stipReward.symbol}
+              </Text>
+              <Text color="#FAFAFA80" fontSize={16} marginTop="2px">
+                {totalStipRwUsd}
+              </Text>
+            </Flex>
+          )}
           <Flex alignItems="center" sx={{ gap: '4px' }} fontSize={24} marginTop="0.5rem">
             <TokenLogoWithChain chainId={mayTradingReward.chainId} tokenLogo={mayTradingReward.logo} size={24} />
             <Text fontWeight="500" ml="6px">
@@ -303,15 +305,17 @@ const MyDashboard = () => {
         >
           <Text>My claim-able rewards</Text>
 
-          <Flex alignItems="center" sx={{ gap: '4px' }} fontSize={24} marginTop="0.5rem">
-            <TokenLogoWithChain chainId={stipReward.chainId} tokenLogo={stipReward.logo} size={24} />
-            <Text fontWeight="500" ml="6px">
-              {totalClaimableRw} {stipReward.symbol}
-            </Text>
-            <Text color="#FAFAFA80" fontSize={16} marginTop="2px">
-              {totalClaimableRwUsd}
-            </Text>
-          </Flex>
+          {stipTradingRw?.greaterThan('0') && (
+            <Flex alignItems="center" sx={{ gap: '4px' }} fontSize={24} marginTop="0.5rem">
+              <TokenLogoWithChain chainId={stipReward.chainId} tokenLogo={stipReward.logo} size={24} />
+              <Text fontWeight="500" ml="6px">
+                {totalClaimableRw} {stipReward.symbol}
+              </Text>
+              <Text color="#FAFAFA80" fontSize={16} marginTop="2px">
+                {totalClaimableRwUsd}
+              </Text>
+            </Flex>
+          )}
           <Flex alignItems="center" sx={{ gap: '4px' }} fontSize={24} marginTop="0.5rem">
             <TokenLogoWithChain chainId={mayTradingReward.chainId} tokenLogo={mayTradingReward.logo} size={24} />
             <Text fontWeight="500" ml="6px">

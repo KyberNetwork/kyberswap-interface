@@ -216,8 +216,8 @@ export default function Header() {
                 <NewLabel>New</NewLabel>
               </Flex>
             </StyledNavLink>
-            <CampaignNavGroup />
             {!upToExtraSmall && <StyledNavLink to={`${APP_PATHS.MARKET_OVERVIEW}`}>Market</StyledNavLink>}
+            <CampaignNavGroup />
             <KyberDAONavGroup />
             {!upToMedium && (
               <StyledNavExternalLink target="_blank" href={AGGREGATOR_ANALYTICS_URL}>
