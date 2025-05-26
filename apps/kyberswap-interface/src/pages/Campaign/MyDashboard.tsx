@@ -25,6 +25,7 @@ import MyReferralDashboard from './components/MyReferralDashboard'
 import { Tab, Tabs, Wrapper } from './styles'
 import { KNC } from 'constants/tokens'
 import { NewLabel } from 'components/Menu'
+import { TokenLogoWithChain } from 'components/Logo'
 
 const TableHeader = styled.div`
   display: grid;
@@ -66,22 +67,31 @@ const MyDashboard = () => {
     setSearchParams(searchParams)
   }
 
-  const rewardChain = tab === 'may-trading' ? ChainId.MAINNET : ChainId.ARBITRUM
-  const rewardToken = tab === 'may-trading' ? KNC[rewardChain].address : '0x912CE59144191C1204E64559FE8253a0e49E6548'
-  const rewardTokenSymbol = tab === 'may-trading' ? 'KNC' : 'ARB'
-  const rewardTokenLogo =
-    tab === 'may-trading'
-      ? 'https://s2.coinmarketcap.com/static/img/coins/64x64/9444.png'
-      : 'https://s2.coinmarketcap.com/static/img/coins/64x64/11841.png'
+  const stipReward = {
+    chainId: ChainId.ARBITRUM,
+    address: '0x912CE59144191C1204E64559FE8253a0e49E6548',
+    decimals: 18,
+    symbol: 'ARB',
+    logo: 'https://storage.googleapis.com/ks-setting-1d682dca/e123a120-6556-4a72-83c8-af4cce475e43.png',
+  }
+  const mayTradingReward = {
+    chainId: ChainId.MAINNET,
+    address: KNC[ChainId.MAINNET].address,
+    decimals: 18,
+    symbol: 'KNC',
+    logo: 'https://s2.coinmarketcap.com/static/img/coins/64x64/9444.png',
+  }
 
-  const marketPriceMap = useTokenPrices([rewardToken], rewardChain)
-  const price = marketPriceMap?.[rewardToken] || 0
+  const rewardTokenLogo = tab === 'may-trading' ? mayTradingReward.logo : stipReward.logo
+  const rewardTokenSymbol = tab === 'may-trading' ? mayTradingReward.symbol : stipReward.symbol
 
-  const program = tab === 'may-trading' ? 'grind/base' : 'stip'
+  const stipRewardPrice = useTokenPrices([stipReward.address], stipReward.chainId)?.[stipReward.address] || 0
+  const mayTradingRewardPrice =
+    useTokenPrices([mayTradingReward.address], mayTradingReward.chainId)?.[mayTradingReward.address] || 0
 
-  const { data: trading } = useGetUserWeeklyRewardQuery(
+  const { data: mayTrading } = useGetUserWeeklyRewardQuery(
     {
-      program,
+      program: 'grind/base',
       campaign: 'trading-incentive',
       wallet: account || '',
     },
@@ -90,28 +100,41 @@ const MyDashboard = () => {
     },
   )
 
-  const { data: loData } = useGetUserWeeklyRewardQuery(
+  const { data: stipTrading } = useGetUserWeeklyRewardQuery(
     {
-      program,
+      program: 'stip',
+      campaign: 'trading-incentive',
+      wallet: account || '',
+    },
+    {
+      skip: !account,
+    },
+  )
+
+  const { data: stipLoData } = useGetUserWeeklyRewardQuery(
+    {
+      program: 'stip',
       campaign: 'limit-order-farming',
       wallet: account || '',
     },
     {
-      skip: !account || program === 'grind/base', // Only fetch limit order farming data for the STIP program
+      skip: !account,
     },
   )
 
-  const data = tab === 'may-trading' || tab === 'trading-incentive' ? trading : loData
+  const data = tab === 'may-trading' ? mayTrading : tab === 'trading-incentive' ? stipTrading : stipLoData
 
-  const BASE_WEEK = tab === 'may-trading' ? 20 : 27
+  const BASE_WEEK = tab === 'may-trading' ? 21 : 27
 
-  const tradingRw = CurrencyAmount.fromRawAmount(mockToken, trading?.data?.totalReward?.split('.')[0] || '0')
-  const loRw = CurrencyAmount.fromRawAmount(mockToken, loData?.data?.totalReward?.split('.')[0] || '0')
+  const stipTradingRw = CurrencyAmount.fromRawAmount(mockToken, stipTrading?.data?.totalReward?.split('.')[0] || '0')
+  const stipLoRw = CurrencyAmount.fromRawAmount(mockToken, stipLoData?.data?.totalReward?.split('.')[0] || '0')
+
+  const mayTradingRw = CurrencyAmount.fromRawAmount(mockToken, mayTrading?.data?.totalReward?.split('.')[0] || '0')
 
   const { data: referralData } = useGetUserReferralTotalRewardQuery(
-    { program, wallet: account || '' },
+    { program: 'stip', wallet: account || '' },
     {
-      skip: !account || program === 'grind/base', // Only fetch limit order farming data for the STIP program
+      skip: !account,
     },
   )
   const referralReward = referralData?.data?.totalReward
@@ -121,44 +144,66 @@ const MyDashboard = () => {
       ).toExact()
     : '0'
 
-  const referralRewardUsd = +referralReward * price
+  const referralRewardUsd = +referralReward * stipRewardPrice
 
-  const totalRw = formatDisplayNumber((+tradingRw.toExact() + +loRw.toExact() + +referralReward).toFixed(3), {
+  const totalMayTradingRw = formatDisplayNumber(+mayTradingRw.toExact(), { significantDigits: 6 })
+  const totalMayTradingRwUsd = formatDisplayNumber(+mayTradingRw.toExact() * mayTradingRewardPrice, {
     significantDigits: 6,
+    style: 'currency',
   })
-  const totalRwUsd = formatDisplayNumber(
-    (referralRewardUsd + (+tradingRw.toExact() + +loRw.toExact()) * price).toFixed(3),
+
+  const totalStipRw = formatDisplayNumber(
+    (+stipTradingRw.toExact() + +stipLoRw.toExact() + +referralReward).toFixed(3),
+    {
+      significantDigits: 6,
+    },
+  )
+  const totalStipRwUsd = formatDisplayNumber(
+    (referralRewardUsd + (+stipTradingRw.toExact() + +stipLoRw.toExact()) * stipRewardPrice).toFixed(3),
     {
       significantDigits: 6,
       style: 'currency',
     },
   )
 
-  const tradingClaimableRw = CurrencyAmount.fromRawAmount(
+  const stipTradingClaimableRw = CurrencyAmount.fromRawAmount(
     mockToken,
-    trading?.data?.totalClaimableReward?.split('.')[0] || '0',
+    stipTrading?.data?.totalClaimableReward?.split('.')[0] || '0',
   )
-  const loClaimableRw = CurrencyAmount.fromRawAmount(
+  const stipLoClaimableRw = CurrencyAmount.fromRawAmount(
     mockToken,
-    loData?.data?.totalClaimableReward?.split('.')[0] || '0',
+    stipLoData?.data?.totalClaimableReward?.split('.')[0] || '0',
+  )
+  const mayTradingClaimableRw = CurrencyAmount.fromRawAmount(
+    mockToken,
+    mayTrading?.data?.totalClaimableReward?.split('.')[0] || '0',
   )
 
-  const totalClaimableRw = formatDisplayNumber((+tradingClaimableRw.toExact() + +loClaimableRw.toExact()).toFixed(3), {
-    significantDigits: 6,
-  })
+  const totalClaimableRw = formatDisplayNumber(
+    (+stipTradingClaimableRw.toExact() + +stipLoClaimableRw.toExact()).toFixed(3),
+    {
+      significantDigits: 6,
+    },
+  )
   const totalClaimableRwUsd = formatDisplayNumber(
-    ((+tradingClaimableRw.toExact() + +loClaimableRw.toExact()) * price).toFixed(3),
+    ((+stipTradingClaimableRw.toExact() + +stipLoClaimableRw.toExact()) * stipRewardPrice).toFixed(3),
     {
       significantDigits: 6,
       style: 'currency',
     },
   )
+  const totalMayTradingClaimableRw = formatDisplayNumber(+mayTradingClaimableRw.toExact(), { significantDigits: 6 })
+  const toalMayTradingClaimableRwUsd = formatDisplayNumber(+mayTradingClaimableRw.toExact() * mayTradingRewardPrice, {
+    significantDigits: 6,
+    style: 'currency',
+  })
 
   const totalRewardByCampaign = CurrencyAmount.fromRawAmount(mockToken, data?.data?.totalReward?.split('.')[0] || '0')
   const claimableRewardByCampaign = CurrencyAmount.fromRawAmount(
     mockToken,
     data?.data?.totalClaimableReward?.split('.')[0] || '0',
   )
+  const price = tab === 'may-trading' ? mayTradingRewardPrice : stipRewardPrice
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const infor = (
@@ -225,18 +270,21 @@ const MyDashboard = () => {
             */}
           </Flex>
           <Flex alignItems="center" sx={{ gap: '4px' }} fontSize={24} marginTop="0.5rem">
-            <img
-              src={rewardTokenLogo}
-              alt={rewardTokenSymbol}
-              width="20px"
-              height="20px"
-              style={{ borderRadius: '50%' }}
-            />
-            <Text fontWeight="500">
-              {totalRw} {rewardTokenSymbol}
+            <TokenLogoWithChain chainId={stipReward.chainId} tokenLogo={stipReward.logo} size={24} />
+            <Text fontWeight="500" ml="6px">
+              {totalStipRw} {stipReward.symbol}
             </Text>
             <Text color="#FAFAFA80" fontSize={16} marginTop="2px">
-              {totalRwUsd}
+              {totalStipRwUsd}
+            </Text>
+          </Flex>
+          <Flex alignItems="center" sx={{ gap: '4px' }} fontSize={24} marginTop="0.5rem">
+            <TokenLogoWithChain chainId={mayTradingReward.chainId} tokenLogo={mayTradingReward.logo} size={24} />
+            <Text fontWeight="500" ml="6px">
+              {totalMayTradingRw} {mayTradingReward.symbol}
+            </Text>
+            <Text color="#FAFAFA80" fontSize={16} marginTop="2px">
+              {totalMayTradingRwUsd}
             </Text>
           </Flex>
         </Box>
@@ -252,18 +300,21 @@ const MyDashboard = () => {
           <Text>My claim-able rewards</Text>
 
           <Flex alignItems="center" sx={{ gap: '4px' }} fontSize={24} marginTop="0.5rem">
-            <img
-              src={rewardTokenLogo}
-              alt={rewardTokenSymbol}
-              width="20px"
-              height="20px"
-              style={{ borderRadius: '50%' }}
-            />
-            <Text fontWeight="500">
-              {totalClaimableRw} {rewardTokenSymbol}
+            <TokenLogoWithChain chainId={stipReward.chainId} tokenLogo={stipReward.logo} size={24} />
+            <Text fontWeight="500" ml="6px">
+              {totalClaimableRw} {stipReward.symbol}
             </Text>
             <Text color="#FAFAFA80" fontSize={16} marginTop="2px">
               {totalClaimableRwUsd}
+            </Text>
+          </Flex>
+          <Flex alignItems="center" sx={{ gap: '4px' }} fontSize={24} marginTop="0.5rem">
+            <TokenLogoWithChain chainId={mayTradingReward.chainId} tokenLogo={mayTradingReward.logo} size={24} />
+            <Text fontWeight="500" ml="6px">
+              {totalMayTradingClaimableRw} {mayTradingReward.symbol}
+            </Text>
+            <Text color="#FAFAFA80" fontSize={16} marginTop="2px">
+              {toalMayTradingClaimableRwUsd}
             </Text>
           </Flex>
         </Box>
@@ -297,7 +348,7 @@ const MyDashboard = () => {
           Please connect wallet to view your Dashboard
         </Text>
       ) : tab === 'referral-program' ? (
-        <MyReferralDashboard price={price} infor={infor} />
+        <MyReferralDashboard price={stipRewardPrice} infor={infor} />
       ) : (
         <Box marginTop="1.25rem" sx={{ borderRadius: '20px', background: theme.background }} padding="1.5rem">
           <Box
