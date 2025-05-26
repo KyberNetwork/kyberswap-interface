@@ -206,6 +206,7 @@ const MyDashboard = () => {
   const price = tab === 'may-trading' ? mayTradingRewardPrice : stipRewardPrice
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const infor = (
     <InfoHelper
       text={
@@ -329,24 +330,20 @@ const MyDashboard = () => {
 
       <Tabs>
         <Tab role="button" active={tab === 'may-trading'} onClick={() => changeTab('may-trading')}>
-          <Flex>
-            May Trading <NewLabel>NEW</NewLabel>
-          </Flex>
+          {upToExtraSmall && <NewLabel style={{ marginLeft: '0' }}>New</NewLabel>}
+          <Flex>May Trading {!upToExtraSmall && <NewLabel>NEW</NewLabel>}</Flex>
         </Tab>
         <Tab role="button" active={tab === 'trading-incentive'} onClick={() => changeTab('trading-incentive')}>
-          <Flex>
-            Trading <ELabel>ENDED</ELabel>
-          </Flex>
+          {upToExtraSmall && <ELabel style={{ marginLeft: 0 }}>ENDED</ELabel>}
+          <Flex>Trading {!upToExtraSmall && <ELabel>ENDED</ELabel>}</Flex>
         </Tab>
         <Tab role="button" active={tab === 'limit-order-farming'} onClick={() => changeTab('limit-order-farming')}>
-          <Flex>
-            Limit Order <ELabel>ENDED</ELabel>
-          </Flex>
+          {upToExtraSmall && <ELabel></ELabel>}
+          <Flex>Limit Order {!upToExtraSmall && <ELabel>ENDED</ELabel>}</Flex>
         </Tab>
         <Tab role="button" active={tab === 'referral-program'} onClick={() => changeTab('referral-program')}>
-          <Flex>
-            Referral <ELabel>ENDED</ELabel>
-          </Flex>
+          {upToExtraSmall && <ELabel></ELabel>}
+          <Flex>Referral {!upToExtraSmall && <ELabel>ENDED</ELabel>}</Flex>
         </Tab>
       </Tabs>
 
