@@ -55,26 +55,26 @@ const ZapContext = createContext<{
   tickUpper: number | null;
   tokensIn: Token[];
   amountsIn: string;
-  setTokensIn: (value: Token[]) => void;
-  setAmountsIn: (value: string) => void;
+  setTokensIn: (_value: Token[]) => void;
+  setAmountsIn: (_value: string) => void;
   toggleRevertPrice: () => void;
-  setTickLower: (value: number) => void;
-  setTickUpper: (value: number) => void;
+  setTickLower: (_value: number) => void;
+  setTickUpper: (_value: number) => void;
   error: string;
   zapInfo: ZapRouteDetail | null;
   loading: boolean;
   slippage: number;
   priceLower: string | null;
   priceUpper: string | null;
-  setSlippage: (val: number) => void;
+  setSlippage: (_val: number) => void;
   ttl: number;
-  setTtl: (val: number) => void;
-  toggleSetting: (highlightDegenMode?: boolean) => void;
+  setTtl: (_val: number) => void;
+  toggleSetting: (_highlightDegenMode?: boolean) => void;
   highlightDegenMode: boolean;
-  setShowSeting: (val: boolean) => void;
+  setShowSeting: (_val: boolean) => void;
   showSetting: boolean;
   degenMode: boolean;
-  setDegenMode: (val: boolean) => void;
+  setDegenMode: (_val: boolean) => void;
   positionId?: string;
   poolPrice: number | null;
   source: string;
@@ -84,7 +84,7 @@ const ZapContext = createContext<{
   tokensInUsdPrice: number[];
   token0Price: number;
   token1Price: number;
-  setManualSlippage: (val: boolean) => void;
+  setManualSlippage: (_val: boolean) => void;
 }>({
   highlightDegenMode: false,
   price: null,
