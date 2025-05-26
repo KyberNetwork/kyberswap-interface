@@ -127,7 +127,7 @@ const RightSection = ({
 
       <InfoRightColumn halfWidth={isUniv2}>
         {!upToSmall && position.pool.isFarming ? (
-          <Flex alignItems={'center'} sx={{ gap: '12px' }}>
+          <Flex flexWrap={'wrap'} alignItems={'center'} sx={{ gap: '12px' }}>
             {totalLiquiditySection}
             {aprSection}
           </Flex>
