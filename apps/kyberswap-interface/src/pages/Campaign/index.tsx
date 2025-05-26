@@ -334,7 +334,7 @@ export default function Aggregator() {
     return () => i && clearTimeout(i)
   }, [counter])
 
-  const tab = searchParams.get('tab') || 'leaderboard'
+  const tab = searchParams.get('tab') || 'information'
 
   const marketPriceMap = useTokenPrices([rewardToken], rewardChain)
   const price = marketPriceMap?.[rewardToken] || 0
