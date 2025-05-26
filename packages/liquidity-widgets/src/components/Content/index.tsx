@@ -31,11 +31,11 @@ import Preview, { ZapState } from '@/components/Preview';
 import PriceRange from '@/components/PriceRange';
 import { TOKEN_SELECT_MODE } from '@/components/TokenSelector';
 import TokenSelectorModal from '@/components/TokenSelector/TokenSelectorModal';
-import { MAX_ZAP_IN_TOKENS } from '@/constants';
+import { MAX_ZAP_IN_TOKENS, ERROR_MESSAGE } from '@/constants';
 import { AggregatorSwapAction, PoolSwapAction, Type, ZapAction } from '@/hooks/types/zapInTypes';
 import { APPROVAL_STATE, useApprovals } from '@/hooks/useApproval';
 import usePositionOwner from '@/hooks/usePositionOwner';
-import { ERROR_MESSAGE, useZapState } from '@/hooks/useZapInState';
+import { useZapState } from '@/hooks/useZapInState';
 import { useWidgetContext } from '@/stores';
 import { PI_LEVEL, checkDeviated, getPriceImpact } from '@/utils';
 

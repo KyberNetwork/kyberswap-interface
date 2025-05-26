@@ -52,6 +52,7 @@ import {
   formatWei,
   friendlyError,
   getPriceImpact,
+  parseTokensAndAmounts,
 } from '@/utils';
 
 export interface ZapState {
@@ -95,8 +96,13 @@ export default function Preview({
     toggleRevertPrice,
     tokensIn,
     amountsIn,
-    tokensInUsdPrice,
+    tokenPrices,
   } = useZapState();
+
+  const { tokensIn: listValidTokensIn, amountsIn: listValidAmountsIn } = parseTokensAndAmounts(
+    tokensIn,
+    amountsIn
+  );
 
   const { fetchPrices } = useTokenPrices({ addresses: [], chainId });
 
@@ -106,8 +112,6 @@ export default function Preview({
   const [txStatus, setTxStatus] = useState<'success' | 'failed' | ''>('');
   const [showErrorDetail, setShowErrorDetail] = useState(false);
   const [gasUsd, setGasUsd] = useState<number | null>(null);
-
-  const listAmountsIn = useMemo(() => amountsIn.split(','), [amountsIn]);
 
   const { success: isUniV3, data: univ3Pool } = univ3PoolNormalize.safeParse(pool);
   const isOutOfRange = isUniV3 ? tickLower > univ3Pool.tick || univ3Pool.tick >= tickUpper : false;
@@ -642,7 +646,7 @@ export default function Preview({
           </p>
         </div>
         <div className="mt-2">
-          {tokensIn.map((token, index: number) => (
+          {listValidTokensIn.map((token, index: number) => (
             <div className="flex items-center gap-2 mt-1" key={token.address}>
               <img
                 src={token.logo}
@@ -653,10 +657,13 @@ export default function Preview({
                 }}
               />
               <span>
-                {listAmountsIn[index]} {token.symbol}
+                {listValidAmountsIn[index]} {token.symbol}
               </span>
               <span className="ml-1 text-subText">
-                ~{formatCurrency(tokensInUsdPrice[index] * parseFloat(listAmountsIn[index]))}
+                ~
+                {formatCurrency(
+                  tokenPrices[token.address.toLowerCase()] * parseFloat(listValidAmountsIn[index])
+                )}
               </span>
             </div>
           ))}

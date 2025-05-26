@@ -24,29 +24,25 @@ import {
   univ3Position,
   univ3Types,
 } from '@kyber/schema';
-import { formatUnits, parseUnits } from '@kyber/utils/crypto';
+import { parseUnits } from '@kyber/utils/crypto';
 import { divideBigIntToString } from '@kyber/utils/number';
 import { tickToPrice } from '@kyber/utils/uniswapv3';
 
 import { ZapRouteDetail } from '@/hooks/types/zapInTypes';
 import useDebounce from '@/hooks/useDebounce';
-import useMarketPrice from '@/hooks/useMarketPrice';
 import useTokenBalances from '@/hooks/useTokenBalances';
 import { useTokenList } from '@/hooks/useTokenList';
 import { useWidgetContext } from '@/stores';
-import { assertUnreachable, countDecimals, formatNumber, formatWei } from '@/utils';
+import {
+  assertUnreachable,
+  formatNumber,
+  formatWei,
+  parseTokensAndAmounts,
+  validateData,
+} from '@/utils';
 
-export const ERROR_MESSAGE = {
-  CONNECT_WALLET: 'Connect wallet',
-  WRONG_NETWORK: 'Switch network',
-  SELECT_TOKEN_IN: 'Select token in',
-  ENTER_MIN_PRICE: 'Enter min price',
-  ENTER_MAX_PRICE: 'Enter max price',
-  INVALID_PRICE_RANGE: 'Invalid price range',
-  ENTER_AMOUNT: 'Enter amount for',
-  INSUFFICIENT_BALANCE: 'Insufficient balance',
-  INVALID_INPUT_AMOUNT: 'Invalid input amount',
-};
+import { ERROR_MESSAGE } from '@/constants';
+import { useTokenPrices } from '@kyber/hooks/use-token-prices';
 
 const ZapContext = createContext<{
   price: number | null;
@@ -81,7 +77,7 @@ const ZapContext = createContext<{
   balanceTokens: {
     [key: string]: bigint;
   };
-  tokensInUsdPrice: number[];
+  tokenPrices: { [key: string]: number };
   token0Price: number;
   token1Price: number;
   setManualSlippage: (_val: boolean) => void;
@@ -115,7 +111,7 @@ const ZapContext = createContext<{
   poolPrice: null,
   source: '',
   balanceTokens: {},
-  tokensInUsdPrice: [],
+  tokenPrices: {},
   token0Price: 0,
   token1Price: 0,
   setManualSlippage: (_val: boolean) => {},
@@ -202,15 +198,14 @@ export const ZapContextProvider = ({
     }
   }, [isTokensStable, pool, manualSlippage, isTokensInPair]);
 
-  const tokensInUsdPrice = useMarketPrice(
-    tokensIn
-      .map((token) =>
-        token.address.toLowerCase() !== NATIVE_TOKEN_ADDRESS.toLowerCase()
-          ? token.address
-          : NETWORKS_INFO[chainId].wrappedToken.address
-      )
-      ?.join(',')
-  );
+  const { prices: tokenPrices } = useTokenPrices({
+    addresses: tokensIn.map((token) =>
+      token.address.toLowerCase() !== NATIVE_TOKEN_ADDRESS.toLowerCase()
+        ? token.address.toLowerCase()
+        : NETWORKS_INFO[chainId].wrappedToken.address.toLowerCase()
+    ),
+    chainId,
+  });
 
   const poolPrice = useMemo(() => {
     let price;
@@ -260,65 +255,33 @@ export const ZapContextProvider = ({
 
   const isUniv3Pool = useMemo(() => Univ3PoolType.safeParse(poolType).success, [poolType]);
 
-  const error = useMemo(() => {
-    if (!account) return ERROR_MESSAGE.CONNECT_WALLET;
-    if (chainId !== networkChainId) return ERROR_MESSAGE.WRONG_NETWORK;
-
-    if (!tokensIn.length) return ERROR_MESSAGE.SELECT_TOKEN_IN;
-    if (isUniv3Pool) {
-      if (tickLower === null) return ERROR_MESSAGE.ENTER_MIN_PRICE;
-      if (tickUpper === null) return ERROR_MESSAGE.ENTER_MAX_PRICE;
-
-      if (tickLower >= tickUpper) return ERROR_MESSAGE.INVALID_PRICE_RANGE;
-    }
-
-    const listAmountsIn = debounceAmountsIn.split(',');
-    const listTokenEmptyAmount = tokensIn.filter(
-      (_, index) =>
-        !listAmountsIn[index] || listAmountsIn[index] === '0' || !parseFloat(listAmountsIn[index])
-    );
-    if (listTokenEmptyAmount.length)
-      return (
-        ERROR_MESSAGE.ENTER_AMOUNT +
-        ' ' +
-        listTokenEmptyAmount.map((token: Token) => token.symbol).join(', ')
-      );
-
-    try {
-      for (let i = 0; i < tokensIn.length; i++) {
-        const balance = formatUnits(
-          balances[
-            tokensIn[i]?.address === NATIVE_TOKEN_ADDRESS ||
-            tokensIn[i]?.address === NATIVE_TOKEN_ADDRESS.toLowerCase()
-              ? NATIVE_TOKEN_ADDRESS
-              : tokensIn[i]?.address.toLowerCase()
-          ]?.toString() || '0',
-          tokensIn[i]?.decimals
-        );
-
-        if (countDecimals(listAmountsIn[i]) > tokensIn[i]?.decimals)
-          return ERROR_MESSAGE.INVALID_INPUT_AMOUNT;
-        if (parseFloat(listAmountsIn[i]) > parseFloat(balance))
-          return ERROR_MESSAGE.INSUFFICIENT_BALANCE;
-      }
-    } catch (e) {
-      return ERROR_MESSAGE.INVALID_INPUT_AMOUNT;
-    }
-
-    if (zapApiError) return zapApiError;
-    return '';
-  }, [
-    account,
-    chainId,
-    networkChainId,
-    tokensIn,
-    debounceAmountsIn,
-    tickLower,
-    tickUpper,
-    zapApiError,
-    balances,
-    isUniv3Pool,
-  ]);
+  const error = useMemo(
+    () =>
+      validateData({
+        account,
+        chainId,
+        networkChainId,
+        tokensIn,
+        isUniv3Pool,
+        tickLower: tickLower || 0,
+        tickUpper: tickUpper || 0,
+        amountsIn: debounceAmountsIn,
+        balances,
+        zapApiError,
+      }),
+    [
+      account,
+      chainId,
+      networkChainId,
+      tokensIn,
+      debounceAmountsIn,
+      tickLower,
+      tickUpper,
+      zapApiError,
+      balances,
+      isUniv3Pool,
+    ]
+  );
 
   const toggleRevertPrice = useCallback(() => {
     setRevertPrice((prev) => !prev);
@@ -436,7 +399,6 @@ export const ZapContextProvider = ({
     if (isToken0Stable || (isToken0Native && !isToken1Stable)) setRevertPrice(true);
   }, [defaultRevertChecked, pool, wrappedNativeToken.address]);
 
-  // Get zap route
   useEffect(() => {
     if (
       (isUniv3Pool ? debounceTickLower !== null && debounceTickUpper !== null : true) &&
@@ -447,16 +409,18 @@ export const ZapContextProvider = ({
         error === ERROR_MESSAGE.CONNECT_WALLET ||
         error === ERROR_MESSAGE.WRONG_NETWORK)
     ) {
-      let formattedTokensIn = '';
       let formattedAmountsInWeis = '';
-      const listAmountsIn = amountsIn.split(',');
+
+      const {
+        tokensIn: listValidTokensIn,
+        amountsIn: listValidAmountsIn,
+        tokenAddresses: validTokenInAddresses,
+      } = parseTokensAndAmounts(tokensIn, amountsIn);
 
       try {
-        formattedTokensIn = tokensIn.map((token: Token) => token.address).join(',');
-
-        formattedAmountsInWeis = tokensIn
+        formattedAmountsInWeis = listValidTokensIn
           .map((token: Token, index: number) =>
-            parseUnits(listAmountsIn[index] || '0', token?.decimals).toString()
+            parseUnits(listValidAmountsIn[index] || '0', token.decimals).toString()
           )
           .join(',');
       } catch (error) {
@@ -464,7 +428,7 @@ export const ZapContextProvider = ({
       }
 
       if (
-        !formattedTokensIn ||
+        !validTokenInAddresses ||
         !formattedAmountsInWeis ||
         formattedAmountsInWeis === '0' ||
         formattedAmountsInWeis === '00'
@@ -486,7 +450,7 @@ export const ZapContextProvider = ({
               'position.tickLower': debounceTickLower,
             }
           : { 'position.id': account || ZERO_ADDRESS }),
-        tokensIn: formattedTokensIn,
+        tokensIn: validTokenInAddresses,
         amountsIn: formattedAmountsInWeis,
         slippage,
         ...(positionId ? { 'position.id': positionId } : {}),
@@ -597,7 +561,7 @@ export const ZapContextProvider = ({
         poolPrice,
         source,
         balanceTokens: balances,
-        tokensInUsdPrice,
+        tokenPrices,
         token0Price,
         token1Price,
         highlightDegenMode,
