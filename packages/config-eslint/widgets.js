@@ -44,6 +44,7 @@ module.exports = {
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/explicit-module-boundary-types": "off",
     "@typescript-eslint/camelcase": "off",
+    "@typescript-eslint/no-non-null-assertion": "off",
     "react/prop-types": "off",
     "@typescript-eslint/interface-name-prefix": "off",
     "react/react-in-jsx-scope": "off",
