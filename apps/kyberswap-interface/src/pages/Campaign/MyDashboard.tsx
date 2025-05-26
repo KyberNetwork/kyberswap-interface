@@ -287,6 +287,9 @@ const MyDashboard = () => {
               {totalMayTradingRwUsd}
             </Text>
           </Flex>
+          <Text fontStyle="italic" color={theme.subText} mt="12px">
+            The current rewards are based on your current rank. See Information for details.
+          </Text>
         </Box>
 
         <Box
@@ -317,6 +320,10 @@ const MyDashboard = () => {
               {toalMayTradingClaimableRwUsd}
             </Text>
           </Flex>
+
+          <Text fontStyle="italic" color={theme.subText} mt="12px">
+            Total final rewards that you can claim for the campaign.
+          </Text>
         </Box>
       </Flex>
 
