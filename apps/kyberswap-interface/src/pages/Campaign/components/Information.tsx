@@ -20,7 +20,7 @@ const howToEarnPoints = (week: number) => ({
   [CampaignType.MayTrading]: (
     <>
       <li>
-        Go to <Link to="/">KyberSwap.com</Link>, open the Swap feature, and switch the network to Base
+        Go to <Link to="/swap/base">KyberSwap.com</Link>, open the Swap feature, and switch the network to Base
       </li>
       <li>
         You may freely trade any pair composed of{' '}
@@ -314,8 +314,8 @@ const faq = {
       q: 'How can I be eligible for the campaign?',
       a: (
         <span>
-          To be eligible, you must make a swap on <Link to="/">KyberSwap.com</Link> using trading pairs composed of
-          eligible tokens from the list, excluding WETH-ETH, WETH-USDC, and ETH-USDC.
+          To be eligible, you must make a swap on <Link to="/swap/base">KyberSwap.com</Link> using trading pairs
+          composed of eligible tokens from the list, excluding WETH-ETH, WETH-USDC, and ETH-USDC.
         </span>
       ),
     },
@@ -786,7 +786,7 @@ export default function Information({ type, week }: { type: CampaignType; week: 
             </li>
             <li>
               Only trading volume via KyberSwap Aggregator (Swap feature) and executed on{' '}
-              <ExternalLink href="https://kyberswap.com">kyberswap.com</ExternalLink> is counted.
+              <Link to="/swap/base">KyberSwap.com</Link> is counted.
             </li>
             <li>
               Only trades executed after 00:00 UTC, 27 May 2025, and before 23:59 UTC, 01 June 2025, will be eligible.
