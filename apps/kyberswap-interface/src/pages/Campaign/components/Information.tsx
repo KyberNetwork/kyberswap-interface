@@ -21,8 +21,7 @@ const howToEarnPoints = (week: number) => ({
     <>
       The campaign takes place entirely on Base chain.
       <li>
-        Go to <Link to="/swap/base">kyberswap.com/swap/base</Link>, open the Swap feature, and switch the network to
-        Base
+        Go to <Link to="/swap/base">kyberswap.com/swap/base</Link>
       </li>
       <li>
         You may freely trade any pair composed of{' '}
