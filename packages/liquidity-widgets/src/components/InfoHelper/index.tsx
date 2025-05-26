@@ -1,16 +1,18 @@
-import { CSSProperties, ReactNode, useCallback, useState } from 'react';
+import { CSSProperties, ReactNode } from 'react';
 
 import { Placement } from '@popperjs/core';
 
 import Info from '@/assets/svg/info.svg';
-import Tooltip from '@/components/Tooltip';
+import { MouseoverTooltip } from '@/components/Tooltip';
 
 export default function InfoHelper({
   text,
   size = 14,
   placement,
-  style,
+  style = {},
   color,
+  width,
+  noneMarginLeft,
 }: {
   text: string | ReactNode;
   size?: number;
@@ -18,19 +20,26 @@ export default function InfoHelper({
   placement?: Placement;
   style?: CSSProperties;
   color?: string;
+  width?: string;
+  noneMarginLeft?: boolean;
 }) {
-  const [show, setShow] = useState<boolean>(false);
-
-  const open = useCallback(() => setShow(true), [setShow]);
-  const close = useCallback(() => setShow(false), [setShow]);
-
   return (
-    <div style={style}>
-      <Tooltip text={text} show={show} placement={placement} size={size}>
-        <div onClick={open} onMouseEnter={open} onMouseLeave={close}>
+    <span
+      style={{
+        display: 'inline-flex',
+        justifyContent: 'center',
+        marginLeft: noneMarginLeft ? '0' : '0.25rem',
+        alignItems: 'center',
+        lineHeight: '100%',
+        verticalAlign: 'middle',
+        ...style,
+      }}
+    >
+      <MouseoverTooltip text={text} placement={placement} size={size} width={width}>
+        <div className="flex items-center justify-center border-none bg-none outline-none cursor-default rounded-full text-subText">
           <Info style={{ color, width: size, height: size }} />
         </div>
-      </Tooltip>
-    </div>
+      </MouseoverTooltip>
+    </span>
   );
 }
