@@ -43,8 +43,10 @@ const howToEarnPoints = (week: number) => ({
         </ul>
       </li>
       <li>
-        Rewards are distributed based on the points leaderboard - the more points you earn, the higher your rank and the
-        bigger your reward.
+        Rewards will be distributed at the end of the campaign based on the leaderboard
+        <ul style={{ margin: 0 }}>
+          <li>Higher points, higher rank, bigger reward.</li>
+        </ul>
       </li>
     </>
   ),
@@ -200,17 +202,26 @@ const rewards = {
   [CampaignType.MayTrading]: (
     <>
       <li>
-        Trade more to earn more points to climb the leaderboard - the higher your rank, the greater your rewards.
+        Leaderboard:
         <ul style={{ margin: 0 }}>
+          <li>Ranked based on cumulative points during the campaign period.</li>
+        </ul>
+        <ul style={{ margin: 0 }}>
+          <li>Each wallet address can ONLY receive a reward ONCE.</li>
+        </ul>
+      </li>
+      <li>
+        Trade more to earn more points to climb the leaderboard - the higher your rank, the greater your rewards.
+        <ul style={{ margin: 0, color: '#fff' }}>
           <li>Rank 1: 1050 KNC</li>
         </ul>
-        <ul style={{ margin: 0 }}>
+        <ul style={{ margin: 0, color: '#fff' }}>
           <li>Rank 2-5: 550 KNC</li>
         </ul>
-        <ul style={{ margin: 0 }}>
+        <ul style={{ margin: 0, color: '#fff' }}>
           <li>Rank 6-20: 250 KNC</li>
         </ul>
-        <ul style={{ margin: 0 }}>
+        <ul style={{ margin: 0, color: '#fff' }}>
           <li>Rank 21-100: 100 KNC</li>
         </ul>
       </li>
@@ -228,13 +239,10 @@ const rewards = {
       <li>
         Rewards will be distributed in KNC tokens on Ethereum.
         <ul style={{ margin: 0 }}>
-          <li>KNC rewards will be available to claim on the “My Dashboard” page starting from 00:00 UTC on June 9. </li>
+          <li>Winners can claim their rewards directly on the KyberSwap UI after 7 days when the campaign ends.</li>
         </ul>
         <ul style={{ margin: 0 }}>
-          <li>
-            Claiming will require a gas fee. Users must claim their rewards before 00:00 UTC on July 9; unclaimed
-            rewards after this time will no longer be available.
-          </li>
+          <li>Rewards must be claimed within 30 days from the claim start date.</li>
         </ul>
       </li>
     </>
@@ -631,17 +639,35 @@ const stipTerms = (week: number, type: CampaignType) => (
 const mayTradingTerms = (
   <>
     <li>
-      KyberSwap reserves the right to disqualify any address found to engage in the following: wash trading, sybil
-      attacks, flashloan-based volume inflation, and any other behavior deemed manipulative or abusive by the KyberSwap
-      team.
+      KyberSwap reserves the right to disqualify any address found to engage in the following:
+      <ul style={{ margin: 0 }}>
+        <li>Wash trading</li>
+        <li>Sybil attacks (e.g., using multiple addresses controlled by the same user or funded by the same source)</li>
+        <li>Flashloan-based volume inflation</li>
+        <li>Any other behavior deemed manipulative or abusive by the KyberSwap team.</li>
+      </ul>
+    </li>
+
+    <li>
+      Rights Reserved by KyberSwap:
+      <ul style={{ margin: 0 }}>
+        <li> KyberSwap may modify the campaign mechanics, eligibility, or rewards at any time without prior notice.</li>
+        <li>The campaign may be suspended or cancelled in case of unforeseen technical issues or vulnerabilities.</li>
+        <li>
+          All decisions regarding rewards and disqualification are final and at the sole discretion of the KyberSwap
+          team.
+        </li>
+      </ul>
     </li>
     <li>
-      KyberSwap may modify the campaign mechanics, eligibility, or rewards at any time without prior notice. All
-      decisions regarding rewards and disqualification are final and at the sole discretion of the KyberSwap team.
-    </li>
-    <li>
-      KyberSwap does not endorse or promote any specific tokens in this campaign. All trading decisions are made at the
-      user&apos;s own risk.
+      Trading loss:
+      <ul style={{ margin: 0 }}>
+        <li>KyberSwap does not provide compensation for trading losses or slippage on eligible pairs.</li>
+        <li>
+          KyberSwap does not endorse or promote any specific tokens in this campaign. All trading decisions are made at
+          the user&apos;s own risk.
+        </li>
+      </ul>
     </li>
   </>
 )

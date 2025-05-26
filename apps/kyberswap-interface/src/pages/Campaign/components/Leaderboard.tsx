@@ -97,7 +97,7 @@ export default function Leaderboard({ type, week, year }: { type: CampaignType; 
 
       <Flex padding={upToSmall ? '1rem 0' : '1rem 1.25rem'} fontSize={12} fontWeight="500" color={theme.subText}>
         {campaign !== 'referral-program' && (
-          <Text width="50px" textAlign="center">
+          <Text width={upToSmall ? '30px' : '50px'} textAlign="center">
             RANK
           </Text>
         )}
@@ -106,12 +106,12 @@ export default function Leaderboard({ type, week, year }: { type: CampaignType; 
           WALLET
         </Text>
 
-        <Text width="150px" marginLeft="1.25rem" textAlign="right">
+        <Text width={campaign === 'referral-program' ? '150px' : '80px'} marginLeft="1.25rem" textAlign="right">
           {campaign === 'referral-program' ? 'NUMBER OF REFERRALS' : 'POINTS'}
         </Text>
 
         {type === CampaignType.MayTrading && (
-          <Text width="150px" marginLeft="1.25rem" textAlign="right">
+          <Text width={!upToSmall ? '150px' : '80px'} marginLeft="1.25rem" textAlign="right">
             REWARDS
           </Text>
         )}
@@ -124,7 +124,7 @@ export default function Leaderboard({ type, week, year }: { type: CampaignType; 
       ) : campaign !== 'referral-program' ? (
         data?.data?.leaderBoards.map((item, index) => (
           <Flex padding={upToSmall ? '1rem 0' : '1rem 1.25rem'} key={item.wallet} fontSize={14} color={theme.text}>
-            <Text width="50px" fontWeight="500" textAlign="center">
+            <Text width={upToSmall ? '30px' : '50px'} fontWeight="500" textAlign="center">
               {index + (page - 1) * 10 + 1}
             </Text>
 
@@ -132,12 +132,12 @@ export default function Leaderboard({ type, week, year }: { type: CampaignType; 
               {upToSmall ? `${item.wallet.substring(0, 4 + 2)}...${item.wallet.substring(42 - 4)}` : item.wallet}
             </Text>
 
-            <Text width="100px" fontWeight="500" marginLeft="1.25rem" textAlign="right">
+            <Text width={'70px'} marginLeft="1.25rem" textAlign="right">
               {formatDisplayNumber(Math.floor(item.point), { significantDigits: 4 })}
             </Text>
 
             {type === CampaignType.MayTrading && (
-              <Text width="150px" fontWeight="500" marginLeft="1.25rem" textAlign="right">
+              <Text width={!upToSmall ? '150px' : '70px'} marginLeft="1.25rem" textAlign="right">
                 {formatDisplayNumber(rewardAmount(item.reward), { significantDigits: 4 })} KNC
               </Text>
             )}
