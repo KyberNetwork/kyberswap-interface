@@ -141,8 +141,8 @@ export default function EstLiqValue() {
         const tokenOut = tokens.find(
           (token) => token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
         );
-        const amountIn = formatUnits(item.tokenIn.amount, tokenIn?.decimals);
-        const amountOut = formatUnits(item.tokenOut.amount, tokenOut?.decimals);
+        const amountIn = formatUnits(item.tokenIn.amount || 0, tokenIn?.decimals);
+        const amountOut = formatUnits(item.tokenOut.amount || 0, tokenOut?.decimals);
 
         const pi =
           parseFloat(item.tokenIn.amountUsd) === 0
@@ -176,8 +176,8 @@ export default function EstLiqValue() {
           (token) => token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
         );
 
-        const amountIn = formatUnits(item.tokenIn.amount, tokenIn?.decimals);
-        const amountOut = formatUnits(item.tokenOut.amount, tokenOut?.decimals);
+        const amountIn = formatUnits(item.tokenIn.amount || 0, tokenIn?.decimals);
+        const amountOut = formatUnits(item.tokenOut.amount || 0, tokenOut?.decimals);
 
         const pi =
           parseFloat(item.tokenIn.amountUsd) === 0

@@ -20,7 +20,7 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
   const [openTokenSelectModal, setOpenTokenSelectModal] = useState<boolean>(false);
 
   const token = useMemo(() => tokensIn[tokenIndex], [tokensIn, tokenIndex]);
-  const amount = useMemo(() => amountsIn.split(',')[tokenIndex], [amountsIn, tokenIndex]);
+  const amount = useMemo(() => amountsIn.split(',')[tokenIndex] || '', [amountsIn, tokenIndex]);
 
   const usdAmount = useMemo(
     () => tokensInUsdPrice[tokenIndex] * parseFloat(amount || '0'),
