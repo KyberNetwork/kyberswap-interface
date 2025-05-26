@@ -15,7 +15,7 @@ const shortenSymbol = (symbol: string, characterNumber = 8) =>
 
 export default function PriceInfo() {
   const { pool, theme, poolType } = useWidgetContext((s) => s);
-  const { marketPrice, revertPrice, toggleRevertPrice } = useZapState();
+  const { poolPrice, revertPrice, toggleRevertPrice } = useZapState();
 
   const loading = pool === 'loading';
 
@@ -45,21 +45,6 @@ export default function PriceInfo() {
     }
     return assertUnreachable(poolType as never, 'poolType is not handled');
   }, [pool, poolType, revertPrice]);
-
-  const isDeviated = useMemo(
-    () => !!marketPrice && Math.abs(marketPrice / (revertPrice ? 1 / +price : +price) - 1) > 0.02,
-    [marketPrice, price, revertPrice]
-  );
-
-  const marketRate = useMemo(
-    () =>
-      marketPrice
-        ? formatDisplayNumber(revertPrice ? 1 / marketPrice : marketPrice, {
-            significantDigits: 6,
-          })
-        : null,
-    [marketPrice, revertPrice]
-  );
 
   if (loading) return <div className="rounded-md border border-stroke py-3 px-4">Loading...</div>;
 
@@ -102,7 +87,7 @@ export default function PriceInfo() {
         </div>
       </div>
 
-      {marketPrice === null && (
+      {poolPrice === null && (
         <div
           className="py-3 px-4 text-subText text-sm rounded-md mt-2 font-normal"
           style={{ backgroundColor: `${theme.warning}33` }}
@@ -110,25 +95,6 @@ export default function PriceInfo() {
           <span className="italic text-text">
             Unable to get the market price. Please be cautious!
           </span>
-        </div>
-      )}
-
-      {isDeviated && (
-        <div
-          className="py-3 px-4 text-subText text-sm rounded-md mt-2 font-normal"
-          style={{ backgroundColor: `${theme.warning}33` }}
-        >
-          <div className="italic text-text">
-            The pool's current price of{' '}
-            <span className="font-medium text-warning not-italic">
-              1 {secondToken.symbol} = {price} {firstToken.symbol}
-            </span>{' '}
-            deviates from the market price{' '}
-            <span className="font-medium text-warning not-italic">
-              (1 {secondToken.symbol} = {marketRate} {firstToken.symbol})
-            </span>
-            . You might have high impermanent loss after you add liquidity to this pool
-          </div>
         </div>
       )}
     </>

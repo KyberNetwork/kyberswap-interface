@@ -246,3 +246,6 @@ export const countDecimals = (value: string | number) => {
   if (Math.floor(+value) === +value) return 0;
   return value.toString().split('.')[1].length || 0;
 };
+
+export const checkDeviated = (price: number | null, newPrice: number | undefined) =>
+  !!price && !!newPrice && Math.abs(price / newPrice - 1) > 0.02;

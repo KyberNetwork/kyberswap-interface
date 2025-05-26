@@ -1,3 +1,4 @@
+/* eslint-env node */
 module.exports = {
-  extends: ["@kyber/eslint-config/liquidity-widgets"],
+  extends: ['@kyber/eslint-config/widgets'],
 };

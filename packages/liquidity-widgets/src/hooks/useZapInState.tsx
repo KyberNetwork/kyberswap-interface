@@ -14,11 +14,15 @@ import {
   NATIVE_TOKEN_ADDRESS,
   NETWORKS_INFO,
   Token,
+  UniV2Pool,
+  UniV3Pool,
   Univ3PoolType,
   ZERO_ADDRESS,
   univ2PoolNormalize,
+  univ2Types,
   univ3PoolNormalize,
   univ3Position,
+  univ3Types,
 } from '@kyber/schema';
 import { formatUnits, parseUnits } from '@kyber/utils/crypto';
 import { divideBigIntToString } from '@kyber/utils/number';
@@ -72,7 +76,7 @@ const ZapContext = createContext<{
   degenMode: boolean;
   setDegenMode: (val: boolean) => void;
   positionId?: string;
-  marketPrice: number | undefined | null;
+  poolPrice: number | null;
   source: string;
   balanceTokens: {
     [key: string]: bigint;
@@ -108,7 +112,7 @@ const ZapContext = createContext<{
   showSetting: false,
   degenMode: false,
   setDegenMode: (_val: boolean) => {},
-  marketPrice: undefined,
+  poolPrice: null,
   source: '',
   balanceTokens: {},
   tokensInUsdPrice: [],
@@ -173,6 +177,9 @@ export const ZapContextProvider = ({
   const debounceTickUpper = useDebounce(tickUpper, 300);
   const debounceAmountsIn = useDebounce(amountsIn, 300);
 
+  const isUniV3 = pool !== 'loading' && univ3Types.includes(poolType as any);
+  const isUniV2 = pool !== 'loading' && univ2Types.includes(poolType as any);
+
   const isTokensStable = tokensIn.every((tk) => tk.isStable);
 
   const isTokensInPair = tokensIn.every((tk) => {
@@ -205,11 +212,26 @@ export const ZapContextProvider = ({
       ?.join(',')
   );
 
-  const marketPrice = useMemo(() => {
-    return pool !== 'loading' && pool.token0.price && pool.token1.price
-      ? pool.token0.price / pool.token1.price
-      : undefined;
-  }, [pool]);
+  const poolPrice = useMemo(() => {
+    let price;
+    if (isUniV3)
+      price = tickToPrice(
+        (pool as UniV3Pool).tick,
+        pool.token0.decimals,
+        pool.token1.decimals,
+        revertPrice
+      );
+    if (isUniV2) {
+      const purePrice = divideBigIntToString(
+        BigInt((pool as UniV2Pool).reserves[1]) * 10n ** BigInt(pool.token0.decimals),
+        BigInt((pool as UniV2Pool).reserves[0]) * 10n ** BigInt(pool.token1.decimals),
+        18
+      );
+      price = revertPrice ? 1 / +purePrice : purePrice;
+    }
+
+    return price ? Number(price) : null;
+  }, [isUniV2, isUniV3, pool, revertPrice]);
 
   const nativeToken = useMemo(
     () => ({
@@ -572,7 +594,7 @@ export const ZapContextProvider = ({
         positionId,
         degenMode,
         setDegenMode,
-        marketPrice,
+        poolPrice,
         source,
         balanceTokens: balances,
         tokensInUsdPrice,
