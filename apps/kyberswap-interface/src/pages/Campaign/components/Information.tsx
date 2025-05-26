@@ -19,8 +19,10 @@ export enum CampaignType {
 const howToEarnPoints = (week: number) => ({
   [CampaignType.MayTrading]: (
     <>
+      The campaign takes place entirely on Base chain.
       <li>
-        Go to <Link to="/swap/base">KyberSwap.com</Link>, open the Swap feature, and switch the network to Base
+        Go to <Link to="/swap/base">kyberswap.com/swap/base</Link>, open the Swap feature, and switch the network to
+        Base
       </li>
       <li>
         You may freely trade any pair composed of{' '}
@@ -631,9 +633,13 @@ const stipTerms = (week: number, type: CampaignType) => (
 const mayTradingTerms = (
   <>
     <li>
+      Points & Rewards on the Leaderboard are subject to change during the buffer period before the distribution of
+      rewards. Any wallet that tries to sybil or cheat in any way will have all their points and rewards forfeited.
+    </li>
+    <li>
       KyberSwap reserves the right to disqualify any address found to engage in the following: wash trading, sybil
-      attacks, flashloan-based volume inflation, and any other behavior deemed manipulative or abusive by the KyberSwap
-      team.
+      attacks, flashloan-based volume inflation, just-in-time liquidity attack and any other behavior deemed
+      manipulative or abusive by the KyberSwap team.
     </li>
 
     <li>
@@ -786,8 +792,7 @@ export default function Information({ type, week }: { type: CampaignType; week: 
               will be counted, excluding WETH-ETH, WETH-USDC, and ETH-USDC.
             </li>
             <li>
-              Only trading volume via KyberSwap Aggregator (Swap feature) and executed on{' '}
-              <Link to="/swap/base">KyberSwap.com</Link> is counted.
+              Only trading volume executed on <Link to="/swap/base">kyberswap.com/swap/base</Link> is counted.
             </li>
             <li>
               Only trades executed after 00:00 UTC, 27 May 2025, and before 23:59 UTC, 01 June 2025, will be eligible.
