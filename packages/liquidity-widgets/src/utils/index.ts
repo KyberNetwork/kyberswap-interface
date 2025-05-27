@@ -338,7 +338,7 @@ export const parseTokensAndAmounts = (tokensIn: Token[], amountsIn: string) => {
 
   return {
     tokensIn: listValidTokensIn,
-    amountsIn: listValidAmountsIn.join(','),
+    amountsIn: listValidAmountsIn,
     tokenAddresses: (listValidTokensIn || []).map((token) => token.address).join(','),
   };
 };
