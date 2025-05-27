@@ -31,7 +31,8 @@ import { EmptyPositionText, PositionPageWrapper } from 'pages/Earns/UserPosition
 import { Exchange } from 'pages/Earns/constants'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import { FeeInfo, ParsedPosition } from 'pages/Earns/types'
-import { getUnclaimedFeesInfo, parsePosition } from 'pages/Earns/utils'
+import { getUnclaimedFeesInfo } from 'pages/Earns/utils/fees'
+import { parsePosition } from 'pages/Earns/utils/position'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const PositionDetail = () => {

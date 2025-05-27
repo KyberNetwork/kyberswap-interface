@@ -45,7 +45,8 @@ import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import { ZapOutInfo } from 'pages/Earns/hooks/useZapOutWidget'
 import { FeeInfo, ParsedPosition, PositionStatus } from 'pages/Earns/types'
-import { getUnclaimedFeesInfo, isForkFrom } from 'pages/Earns/utils'
+import { isForkFrom } from 'pages/Earns/utils'
+import { getUnclaimedFeesInfo } from 'pages/Earns/utils/fees'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -214,7 +215,7 @@ export default function TableContent({
               const feesClaimDisabled =
                 !DEXES_SUPPORT_COLLECT_FEE[dex.id as EarnDex] || unclaimedFees === 0 || feesClaiming
               const rewardsClaimDisabled =
-                !position.pool.isFarming || rewardsClaiming || position.farming.unclaimedUsdValue === 0
+                !position.pool.isFarming || rewardsClaiming || position.farming.claimableUsdValue === 0
 
               const actions = (
                 <DropdownAction

@@ -7,7 +7,6 @@ import { Flex, Text } from 'rebass'
 import { ReactComponent as IconKem } from 'assets/svg/kyber/kem.svg'
 import InfoHelper from 'components/InfoHelper'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
-import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { PositionAction } from 'pages/Earns/PositionDetail/styles'
 import {
@@ -19,25 +18,32 @@ import {
   RewardBannerWrapper,
 } from 'pages/Earns/UserPositions/styles'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
-import { ParsedPosition } from 'pages/Earns/types'
+import { ParsedPosition, PositionFilter } from 'pages/Earns/types'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
-export default function PositionBanner({ positions }: { positions: Array<ParsedPosition> }) {
+export default function PositionBanner({
+  positions,
+  filters,
+}: {
+  positions: Array<ParsedPosition>
+  filters: PositionFilter
+}) {
   const theme = useTheme()
-  const { chainId } = useActiveWeb3React()
   const { onOpenClaim: onOpenClaimRewards, rewardInfo, claimModal: claimRewardsModal } = useKemRewards()
 
-  const rewardInfoThisChain = chainId ? rewardInfo?.chains.find(item => item.chainId === chainId) : null
+  const rewardToShow = !filters.chainIds
+    ? rewardInfo
+    : rewardInfo?.chains.find(item => item.chainId.toString() === filters.chainIds)
 
-  const totalRewardsAmount = rewardInfoThisChain?.totalAmount || 0
-  const totalRewardsUsdValue = rewardInfoThisChain?.totalUsdValue || 0
+  const totalRewardsAmount = rewardToShow?.totalAmount || 0
+  const totalRewardsUsdValue = rewardToShow?.totalUsdValue || 0
 
-  const claimableRewardsAmount = rewardInfoThisChain?.claimableAmount || 0
-  const claimedRewardsUsdValue = rewardInfoThisChain?.claimedUsdValue || 0
+  const claimableRewardsAmount = rewardToShow?.claimableAmount || 0
+  const claimedRewardsUsdValue = rewardToShow?.claimedUsdValue || 0
 
-  const pendingRewardsUsdValue = rewardInfoThisChain?.pendingUsdValue || 0
-  const claimableRewardsUsdValue = rewardInfoThisChain?.claimableUsdValue || 0
+  const pendingRewardsUsdValue = rewardToShow?.pendingUsdValue || 0
+  const claimableRewardsUsdValue = rewardToShow?.claimableUsdValue || 0
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
@@ -192,7 +198,7 @@ export default function PositionBanner({ positions }: { positions: Array<ParsedP
                             {claimableRewardsUsdValue ? '' : ': 0'}
                           </Text>
                           <ListClaimableTokens>
-                            {rewardInfoThisChain?.claimableTokens.map((token, index) => (
+                            {(rewardToShow?.claimableTokens || []).map((token, index) => (
                               <li key={`${token.address}-${index}`}>
                                 {formatDisplayNumber(token.claimableAmount, { significantDigits: 4 })} {token.symbol}
                               </li>
