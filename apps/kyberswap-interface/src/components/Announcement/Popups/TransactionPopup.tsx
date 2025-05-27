@@ -1,4 +1,3 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { Box, Text } from 'rebass'
 import styled from 'styled-components'
@@ -8,7 +7,6 @@ import { AutoColumn } from 'components/Column'
 import { CheckCircle } from 'components/Icons'
 import IconFailure from 'components/Icons/Failed'
 import { AutoRow } from 'components/Row'
-import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useAllTransactions } from 'state/transactions/hooks'
@@ -98,19 +96,6 @@ const zapInLiquidity = (txs: TransactionDetails) => {
   return t`You have zapped ${zapAmountIn} ${zapSymbolIn} into ${tokenAmountIn} ${tokenSymbolIn} and ${tokenAmountOut} ${tokenSymbolOut} of liquidity to the pool.`
 }
 
-const summaryCrossChain = (txs: TransactionDetails) => {
-  const {
-    tokenAmountIn,
-    tokenAmountOut,
-    tokenSymbolIn,
-    tokenSymbolOut,
-    chainIdIn = ChainId.MAINNET,
-    chainIdOut = ChainId.MAINNET,
-  } = (txs.extraInfo || {}) as TransactionExtraInfo2Token
-  const summary = `Your ${txs.type} transaction from ${tokenAmountIn} ${tokenSymbolIn} (${NETWORKS_INFO[chainIdIn].name}) to ${tokenAmountOut} ${tokenSymbolOut} (${NETWORKS_INFO[chainIdOut].name})`
-  return { success: `${summary} is being processed`, error: `${summary} failed` }
-}
-
 const summaryDelegateDao = (txs: TransactionDetails) => {
   const { contract = '' } = (txs.extraInfo || {}) as TransactionExtraBaseInfo
   const shortenAddress = getShortenAddress(contract)
@@ -156,8 +141,6 @@ const SUMMARY: { [type in TRANSACTION_TYPE]: SummaryFunction } = {
   [TRANSACTION_TYPE.UNWRAP_TOKEN]: summary2Token,
   [TRANSACTION_TYPE.APPROVE]: summaryApprove,
   [TRANSACTION_TYPE.SWAP]: summary2Token,
-  [TRANSACTION_TYPE.BRIDGE]: summaryCrossChain,
-  [TRANSACTION_TYPE.CROSS_CHAIN_SWAP]: summaryCrossChain,
 
   [TRANSACTION_TYPE.CLASSIC_CREATE_POOL]: summaryLiquidity,
   [TRANSACTION_TYPE.ELASTIC_CREATE_POOL]: summaryLiquidity,
@@ -193,8 +176,6 @@ const SUMMARY: { [type in TRANSACTION_TYPE]: SummaryFunction } = {
 }
 
 const CUSTOM_SUCCESS_STATUS: { [key in string]: string } = {
-  [TRANSACTION_TYPE.BRIDGE]: '- Processing',
-  [TRANSACTION_TYPE.CROSS_CHAIN_SWAP]: '- Processing',
   [TRANSACTION_TYPE.CANCEL_LIMIT_ORDER]: 'Submitted',
 }
 

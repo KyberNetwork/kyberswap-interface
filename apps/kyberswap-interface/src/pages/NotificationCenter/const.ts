@@ -22,7 +22,6 @@ export enum PROFILE_MANAGE_ROUTES {
   MY_ELASTIC_POOLS = '/notification/elastic-pools',
   LIMIT_ORDERS = '/notification/limit-orders',
   BRIDGE = '/notification/bridge',
-  CROSS_CHAIN = '/cross-chain',
 }
 
 export type CreatePriceAlertPayload = {

@@ -1,5 +1,4 @@
 import { t } from '@lingui/macro'
-import axios from 'axios'
 import debounce from 'lodash.debounce'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Repeat } from 'react-feather'
@@ -13,21 +12,14 @@ import Loader from 'components/Loader'
 import { PrimaryText } from 'components/WalletPopup/Transactions/TransactionItem'
 import { isTxsPendingTooLong as isShowPendingWarning } from 'components/WalletPopup/Transactions/helper'
 import { CancellingOrderInfo } from 'components/swapv2/LimitOrder/useCancellingOrders'
-import { BFF_API } from 'constants/env'
-import { MultichainTransferStatus } from 'hooks/bridge/useGetBridgeTransfers'
 import useTheme from 'hooks/useTheme'
-import { isCrossChainTxsPending } from 'pages/CrossChain/helpers'
 import { AppDispatch } from 'state'
 import { modifyTransaction } from 'state/transactions/actions'
 import { TRANSACTION_TYPE, TransactionDetails } from 'state/transactions/type'
 import { getTransactionStatus } from 'utils/transaction'
 
 const MAX_TIME_CHECK_STATUS = 7 * 86_400_000 // the time that we don't need to interval check
-const TYPE_NEED_CHECK_PENDING = [
-  TRANSACTION_TYPE.CANCEL_LIMIT_ORDER,
-  TRANSACTION_TYPE.BRIDGE,
-  TRANSACTION_TYPE.CROSS_CHAIN_SWAP,
-]
+const TYPE_NEED_CHECK_PENDING = [TRANSACTION_TYPE.CANCEL_LIMIT_ORDER]
 
 const isTxsActuallySuccess = (txs: TransactionDetails) => txs.extraInfo?.actuallySuccess
 
@@ -70,16 +62,6 @@ function StatusIcon({
           const orderId = extraInfo?.arbitrary?.order_id
           isPending = isOrderCancelling(orderId)
           break
-        case TRANSACTION_TYPE.BRIDGE: {
-          const { data: response } = await axios.get(`${BFF_API}/v1/cross-chain-history/multichain-transfers/${hash}`)
-          isPending = response?.data?.status === MultichainTransferStatus.Processing
-          break
-        }
-        case TRANSACTION_TYPE.CROSS_CHAIN_SWAP: {
-          const { data: response } = await axios.get(`${BFF_API}/v1/cross-chain-history/squid-transfers/${hash}`)
-          isPending = isCrossChainTxsPending(response?.data?.status)
-          break
-        }
       }
       if (!isPending && !isLoadingRemoteData) {
         dispatch(

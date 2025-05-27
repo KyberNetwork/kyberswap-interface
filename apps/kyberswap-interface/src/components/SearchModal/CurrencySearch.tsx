@@ -179,9 +179,9 @@ export function CurrencySearch({
   const filterWrapFunc = useCallback(
     (token: Currency | undefined) => {
       if (filterWrap && otherSelectedCurrency?.equals(WETH[chainId])) {
-        return !isTokenNative(token, token?.chainId)
+        return !isTokenNative(token)
       }
-      if (filterWrap && otherSelectedCurrency && isTokenNative(otherSelectedCurrency, otherSelectedCurrency?.chainId)) {
+      if (filterWrap && otherSelectedCurrency && isTokenNative(otherSelectedCurrency)) {
         return !token?.equals(WETH[chainId])
       }
       return true
@@ -203,7 +203,7 @@ export function CurrencySearch({
 
   const handleCurrencySelect = useCallback(
     (currency: Currency) => {
-      onCurrencySelect(isTokenNative(currency, currency.chainId) ? NativeCurrencies[currency.chainId] : currency)
+      onCurrencySelect(isTokenNative(currency) ? NativeCurrencies[currency.chainId] : currency)
       onDismiss()
     },
     [onDismiss, onCurrencySelect],

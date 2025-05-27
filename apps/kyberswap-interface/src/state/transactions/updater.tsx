@@ -137,15 +137,6 @@ export default function Updater(): null {
           })
           break
         }
-        case TRANSACTION_TYPE.BRIDGE: {
-          if (arbitrary) {
-            mixpanelHandler(MIXPANEL_TYPE.BRIDGE_TRANSACTION_SUBMIT, {
-              ...arbitrary,
-              tx_hash: receipt.transactionHash,
-            })
-          }
-          break
-        }
         // case TRANSACTION_TYPE.ELASTIC_COLLECT_FEE: {
         //   if (arbitrary) {
         //     mixpanelHandler(MIXPANEL_TYPE.ELASTIC_COLLECT_FEES_COMPLETED, arbitrary)
