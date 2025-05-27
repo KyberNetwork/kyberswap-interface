@@ -6,6 +6,7 @@ import styled from 'styled-components'
 
 import { APP_PATHS } from 'constants/index'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import { MEDIA_WIDTHS } from 'theme'
 
 import { DropdownTextAnchor, StyledNavExternalLink, StyledNavLink } from '../styleds'
 import NavGroup from './NavGroup'
@@ -20,13 +21,15 @@ const AboutWrapper = styled.span`
 const AboutNavGroup = () => {
   const { pathname } = useLocation()
   const isActive = pathname.includes(APP_PATHS.ABOUT)
-  const upTo1000 = useMedia('(max-width: 1000px)')
+  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   const { mixpanelHandler } = useMixpanel()
+
+  if (upToSmall) return null
   return (
     <AboutWrapper>
       <NavGroup
-        dropdownAlign={upTo1000 ? 'right' : 'left'}
+        dropdownAlign={upToSmall ? 'right' : 'left'}
         isActive={isActive}
         anchor={
           <DropdownTextAnchor>

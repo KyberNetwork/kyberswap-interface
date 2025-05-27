@@ -7,13 +7,14 @@ import styled from 'styled-components'
 
 import Announcement from 'components/Announcement'
 import AboutNavGroup from 'components/Header/groups/AboutNavGroup'
+import CampaignNavGroup from 'components/Header/groups/CampaignNavGroup'
 import EarnNavGroup from 'components/Header/groups/EarnNavGroup'
 import KyberDAONavGroup from 'components/Header/groups/KyberDaoGroup'
 import SwapNavGroup from 'components/Header/groups/SwapNavGroup'
 import { StyledNavExternalLink, StyledNavLink } from 'components/Header/styleds'
 import SelectNetwork from 'components/Header/web3/SelectNetwork'
 import SelectWallet from 'components/Header/web3/SelectWallet'
-import Menu from 'components/Menu'
+import Menu, { NewLabel } from 'components/Menu'
 import Row, { RowFixed } from 'components/Row'
 import { AGGREGATOR_ANALYTICS_URL, APP_PATHS } from 'constants/index'
 import { Z_INDEXS } from 'constants/styles'
@@ -175,6 +176,8 @@ export default function Header() {
 
   const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
+  const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
+  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
 
   const menu = (
     <HeaderElementWrap>
@@ -209,10 +212,20 @@ export default function Header() {
             <SwapNavGroup />
             <EarnNavGroup />
             <StyledNavLink to={`${APP_PATHS.MARKET_OVERVIEW}`}>Market</StyledNavLink>
+            <StyledNavLink to={`${APP_PATHS.EARN}`}>
+              <Flex>
+                Earn
+                <NewLabel>New</NewLabel>
+              </Flex>
+            </StyledNavLink>
+            {!upToExtraSmall && <StyledNavLink to={`${APP_PATHS.MARKET_OVERVIEW}`}>Market</StyledNavLink>}
+            <CampaignNavGroup />
             <KyberDAONavGroup />
-            <StyledNavExternalLink target="_blank" href={AGGREGATOR_ANALYTICS_URL}>
-              <Trans>Analytics</Trans>
-            </StyledNavExternalLink>
+            {!upToMedium && (
+              <StyledNavExternalLink target="_blank" href={AGGREGATOR_ANALYTICS_URL}>
+                <Trans>Analytics</Trans>
+              </StyledNavExternalLink>
+            )}
             <AboutNavGroup />
           </HeaderLinks>
         )}

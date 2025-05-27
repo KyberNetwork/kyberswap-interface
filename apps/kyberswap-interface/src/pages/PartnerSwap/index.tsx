@@ -25,8 +25,8 @@ import { useActiveWeb3React } from 'hooks'
 import { useCurrencyV2 } from 'hooks/Tokens'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { BodyWrapper } from 'pages/AppBody'
-import CrossChain from 'pages/CrossChain'
-import CrossChainTransfersHistory from 'pages/CrossChain/TransfersHistory'
+import CrossChainSwap from 'pages/CrossChainSwap'
+import { TransactionHistory } from 'pages/CrossChainSwap/components/TransactionHistory'
 import { TAB, isSettingTab } from 'pages/SwapV3'
 import Header from 'pages/SwapV3/Header'
 import Updater from 'state/customizeDexes/updater'
@@ -228,17 +228,18 @@ export default function PartnerSwap() {
                     />
                   </div>
                 ))}
-              {isCrossChainPage && <CrossChain visible={activeTab === TAB.CROSS_CHAIN} />}
+              {isCrossChainPage && <CrossChainSwap />}
             </AppBodyWrapped>
           </SwapFormWrapper>
 
           <InfoComponents>
             {isLimitPage && <ListLimitOrder customChainId={expectedChainId} />}
-            {isCrossChainPage && <CrossChainTransfersHistory />}
+            {isCrossChainPage && <TransactionHistory />}
           </InfoComponents>
         </Container>
         <Flex justifyContent="center">
           <SwitchLocaleLinkWrapper>
+            kkkk
             <SwitchLocaleLink />
           </SwitchLocaleLinkWrapper>
         </Flex>

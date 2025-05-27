@@ -3,7 +3,6 @@ import React from 'react'
 import { PRIVATE_ANN_TITLE } from 'components/Announcement/PrivateAnnoucement'
 import { AnnouncementTemplate, PrivateAnnouncement, PrivateAnnouncementType } from 'components/Announcement/type'
 
-import CrossChain from './CrossChain'
 import LimitOrder from './LimitOrder'
 import PoolPosition from './PoolPosition'
 import PriceAlert from './PriceAlert'
@@ -20,7 +19,6 @@ type PrivateAnnouncementCenterMap = {
 const ANNOUNCEMENT_MAP_IN_CENTER = {
   [PrivateAnnouncementType.ELASTIC_POOLS]: PoolPosition,
   [PrivateAnnouncementType.LIMIT_ORDER]: LimitOrder,
-  [PrivateAnnouncementType.CROSS_CHAIN]: CrossChain,
   [PrivateAnnouncementType.PRICE_ALERT]: PriceAlert,
   [PrivateAnnouncementType.DIRECT_MESSAGE]: PrivateMessage,
 } as PrivateAnnouncementCenterMap

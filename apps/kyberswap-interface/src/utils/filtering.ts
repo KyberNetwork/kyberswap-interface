@@ -28,7 +28,8 @@ function createTokenFilterFunction<T extends Token | TokenInfo>(
 
   if (lowerSearchParts.length === 0) return alwaysTrue
 
-  const matchesSearch = (s: string): boolean => {
+  const matchesSearch = (st: string): boolean => {
+    const s = st.replace('₮', 'T')
     const sParts = s
       .toLowerCase()
       .split(/\s+/)
