@@ -27,7 +27,6 @@ import application from './application/reducer'
 import authen from './authen/reducer'
 import burnProAmm from './burn/proamm/reducer'
 import burn from './burn/reducer'
-import crossChain from './crossChain/reducer'
 import customizeDexes from './customizeDexes'
 import { updateVersion } from './global/actions'
 import limit from './limit/reducer'
@@ -102,7 +101,6 @@ const store = configureStore({
     [priceAlertApi.reducerPath]: priceAlertApi.reducer,
     [socialApi.reducerPath]: socialApi.reducer,
     tutorial,
-    crossChain,
     customizeDexes,
     tokenPrices,
     topTokens,

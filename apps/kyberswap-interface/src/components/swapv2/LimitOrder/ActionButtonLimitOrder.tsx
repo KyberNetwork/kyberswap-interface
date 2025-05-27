@@ -68,7 +68,7 @@ export default function ActionButtonLimitOrder({
     approval !== ApprovalState.APPROVED ||
     isWrappingEth ||
     (showWrap && !isWrappingEth) ||
-    (currencyIn?.equals(WETH[currencyIn.chainId]) && isTokenNative(currencyOut, currencyOut?.chainId))
+    (currencyIn?.equals(WETH[currencyIn.chainId]) && isTokenNative(currencyOut))
 
   const { account } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()

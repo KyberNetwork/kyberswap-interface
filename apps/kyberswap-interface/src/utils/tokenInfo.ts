@@ -1,4 +1,4 @@
-import { ChainId, Currency, NativeCurrency, Token, WETH } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, NativeCurrency, Token } from '@kyberswap/ks-sdk-core'
 
 import { ETHER_ADDRESS } from 'constants/index'
 import { TokenInfo, WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
@@ -12,17 +12,8 @@ export const getFormattedAddress = (chainId: ChainId, address?: string, fallback
   }
 }
 
-export const isTokenNative = (
-  currency: Currency | WrappedTokenInfo | undefined,
-  chainId: ChainId | undefined,
-): currency is NativeCurrency => {
-  if (currency?.isNative || currency?.address === ETHER_ADDRESS) return true
-  // case multichain token
-  return chainId
-    ? WETH[chainId]?.address === currency?.address &&
-        currency instanceof WrappedTokenInfo &&
-        currency.multichainInfo?.tokenType === 'NATIVE'
-    : false
+export const isTokenNative = (currency: Currency | WrappedTokenInfo | undefined): currency is NativeCurrency => {
+  return currency?.isNative || currency?.address === ETHER_ADDRESS
 }
 
 export const getTokenAddress = (currency: Currency) =>

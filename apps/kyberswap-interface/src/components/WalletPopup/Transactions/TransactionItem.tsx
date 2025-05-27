@@ -1,17 +1,14 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
-import { Fragment, ReactNode, forwardRef } from 'react'
+import { ReactNode, forwardRef } from 'react'
 import { Flex, Text } from 'rebass'
 import styled, { CSSProperties } from 'styled-components'
 
-import { ReactComponent as ArrowDown } from 'assets/svg/arrow_down.svg'
 import { ReactComponent as NftIcon } from 'assets/svg/nft_icon.svg'
 import SendIcon from 'components/Icons/SendIcon'
-import { NetworkLogo } from 'components/Logo'
 import Row from 'components/Row'
 import ContractAddress from 'components/WalletPopup/Transactions/ContractAddress'
-import DeltaTokenAmount, { TokenAmountWrapper } from 'components/WalletPopup/Transactions/DeltaTokenAmount'
+import DeltaTokenAmount from 'components/WalletPopup/Transactions/DeltaTokenAmount'
 import Icon from 'components/WalletPopup/Transactions/Icon'
 import PendingWarning from 'components/WalletPopup/Transactions/PendingWarning'
 import PoolFarmLink from 'components/WalletPopup/Transactions/PoolFarmLink'
@@ -19,9 +16,7 @@ import Status from 'components/WalletPopup/Transactions/Status'
 import { isTxsPendingTooLong } from 'components/WalletPopup/Transactions/helper'
 import { CancellingOrderInfo } from 'components/swapv2/LimitOrder/useCancellingOrders'
 import { APP_PATHS, ETHER_ADDRESS } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
-import { getAxelarScanUrl } from 'pages/CrossChain'
 import {
   TRANSACTION_TYPE,
   TransactionDetails,
@@ -192,96 +187,6 @@ const DescriptionHarvestFarmReward = (transaction: TransactionDetails) => {
   )
 }
 
-const DescriptionBridge = (transaction: TransactionDetails) => {
-  const { extraInfo = {} } = transaction
-  const {
-    tokenAmountIn,
-    tokenSymbolIn,
-    chainIdIn = ChainId.MAINNET,
-    chainIdOut = ChainId.MAINNET,
-    tokenAddressIn,
-  } = extraInfo as TransactionExtraInfo2Token
-  const theme = useTheme()
-
-  return {
-    leftComponent: (
-      <>
-        <div style={{ position: 'relative' }}>
-          <TokenAmountWrapper>
-            <NetworkLogo chainId={chainIdIn} style={{ width: 12, height: 12 }} />
-            <PrimaryText>{NETWORKS_INFO[chainIdIn].name}</PrimaryText>
-          </TokenAmountWrapper>
-          <ArrowDown style={{ position: 'absolute', left: 4, height: 10 }} />
-        </div>
-        <TokenAmountWrapper>
-          <NetworkLogo chainId={chainIdOut} style={{ width: 12, height: 12 }} />
-          <PrimaryText>{NETWORKS_INFO[chainIdOut].name}</PrimaryText>
-        </TokenAmountWrapper>
-      </>
-    ),
-    rightComponent: (
-      <DeltaTokenAmount
-        color={theme.text}
-        symbol={tokenSymbolIn}
-        amount={tokenAmountIn}
-        tokenAddress={tokenAddressIn}
-      />
-    ),
-  }
-}
-
-const DescriptionCrossChain = (transaction: TransactionDetails) => {
-  const { extraInfo = {} } = transaction
-  const {
-    tokenAmountIn,
-    tokenSymbolIn,
-    chainIdIn = ChainId.MAINNET,
-    chainIdOut = ChainId.MAINNET,
-    tokenAddressIn,
-    tokenAddressOut,
-    tokenAmountOut,
-    tokenSymbolOut,
-    tokenLogoURLIn,
-    tokenLogoURLOut,
-    rate,
-  } = extraInfo as TransactionExtraInfo2Token
-  const theme = useTheme()
-
-  return {
-    leftComponent: (
-      <>
-        <TokenAmountWrapper>
-          <DeltaTokenAmount
-            tokenAddress={tokenAddressOut}
-            amount={tokenAmountOut}
-            symbol={tokenSymbolOut}
-            plus
-            chainId={chainIdOut}
-            logoURL={tokenLogoURLOut}
-          />
-        </TokenAmountWrapper>
-        <TokenAmountWrapper>
-          <DeltaTokenAmount
-            tokenAddress={tokenAddressIn}
-            amount={tokenAmountIn}
-            symbol={tokenSymbolIn}
-            plus={false}
-            chainId={chainIdIn}
-            logoURL={tokenLogoURLIn}
-          />
-        </TokenAmountWrapper>
-      </>
-    ),
-    rightComponent: (
-      <DeltaTokenAmount
-        color={theme.text}
-        symbol={`${tokenSymbolIn}/${tokenSymbolOut}`}
-        amount={Number(rate).toPrecision(6)}
-      />
-    ),
-  }
-}
-
 // ex: approve elastic farm, approve knc, claim 3knc
 const DescriptionApproveClaim = (transaction: TransactionDetails) => {
   const { extraInfo = {}, type } = transaction
@@ -361,8 +266,6 @@ const DESCRIPTION_MAP: {
   [TRANSACTION_TYPE.SWAP]: Description2Token,
   [TRANSACTION_TYPE.KYBERDAO_MIGRATE]: Description2Token,
 
-  [TRANSACTION_TYPE.BRIDGE]: DescriptionBridge,
-  [TRANSACTION_TYPE.CROSS_CHAIN_SWAP]: DescriptionCrossChain,
   [TRANSACTION_TYPE.CANCEL_LIMIT_ORDER]: DescriptionLimitOrder,
 
   [TRANSACTION_TYPE.CLASSIC_CREATE_POOL]: DescriptionLiquidity,
@@ -412,14 +315,7 @@ export default forwardRef<HTMLDivElement, Prop>(function TransactionItem(
           <Text color={theme.text} fontSize="14px">
             {type}
           </Text>
-          <ExternalLinkIcon
-            color={theme.subText}
-            href={
-              type === TRANSACTION_TYPE.CROSS_CHAIN_SWAP
-                ? getAxelarScanUrl(hash)
-                : getEtherscanLink(chainId, hash, 'transaction')
-            }
-          />
+          <ExternalLinkIcon color={theme.subText} href={getEtherscanLink(chainId, hash, 'transaction')} />
         </Row>
         <Status transaction={transaction} cancellingOrderInfo={cancellingOrderInfo} />
       </Flex>

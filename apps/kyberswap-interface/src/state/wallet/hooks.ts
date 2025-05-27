@@ -155,9 +155,9 @@ export function useCurrencyBalances(
   const chainId = customChain || currentChain
 
   const tokens: Token[] = useMemo(() => {
-    const result = currencies?.filter((currency): currency is Token => !!currency && !isTokenNative(currency, chainId))
+    const result = currencies?.filter((currency): currency is Token => !!currency && !isTokenNative(currency))
     return result?.length ? result : (EMPTY_ARRAY as Token[])
-  }, [currencies, chainId])
+  }, [currencies])
 
   const tokenBalances = useTokenBalances(tokens, chainId)
   const ethBalance = useNativeBalance(chainId)
@@ -165,10 +165,10 @@ export function useCurrencyBalances(
     () =>
       currencies?.map(currency => {
         if (!account || !currency) return undefined
-        if (isTokenNative(currency, chainId)) return ethBalance
+        if (isTokenNative(currency)) return ethBalance
         return tokenBalances[(currency as Token).address]
       }) ?? EMPTY_ARRAY,
-    [account, currencies, ethBalance, tokenBalances, chainId],
+    [account, currencies, ethBalance, tokenBalances],
   )
 }
 
@@ -203,7 +203,7 @@ export const useTokensHasBalance = (includesImportToken = false) => {
     if (!loadingBalance && ethBalance) {
       // call once per chain
       const list: Currency[] = currencies.filter(currency => {
-        if (isTokenNative(currency, currency.chainId)) return false
+        if (isTokenNative(currency)) return false
         const hasBalance = !currencyBalances[currency.wrapped.address]?.equalTo(
           CurrencyAmount.fromRawAmount(currency, '0'),
         )
