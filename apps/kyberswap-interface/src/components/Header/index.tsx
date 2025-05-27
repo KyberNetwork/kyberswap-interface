@@ -211,13 +211,7 @@ export default function Header() {
           <HeaderLinks>
             <SwapNavGroup />
             <EarnNavGroup />
-            <StyledNavLink to={`${APP_PATHS.MARKET_OVERVIEW}`}>Market</StyledNavLink>
-            <StyledNavLink to={`${APP_PATHS.EARN}`}>
-              <Flex>
-                Earn
-                <NewLabel>New</NewLabel>
-              </Flex>
-            </StyledNavLink>
+
             {!upToExtraSmall && <StyledNavLink to={`${APP_PATHS.MARKET_OVERVIEW}`}>Market</StyledNavLink>}
             <CampaignNavGroup />
             <KyberDAONavGroup />
