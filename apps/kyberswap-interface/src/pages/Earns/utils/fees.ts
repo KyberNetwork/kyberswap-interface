@@ -1,8 +1,11 @@
 import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
+import { ethers } from 'ethers'
 import { defaultAbiCoder as abiEncoder, keccak256, solidityPack } from 'ethers/lib/utils'
 
 import StateViewABI from 'constants/abis/earn/uniswapv4StateViewAbi.json'
-import { CoreProtocol, EarnDex, UNISWAPV4_STATEVIEW_CONTRACT } from 'pages/Earns/constants'
+import { ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
+import { ClaimInfo } from 'pages/Earns/components/ClaimModal'
+import { CoreProtocol, EarnDex, UNISWAPV4_STATEVIEW_CONTRACT, UNWRAP_WNATIVE_TOKEN_FUNC } from 'pages/Earns/constants'
 import { ParsedPosition } from 'pages/Earns/types'
 import { getNftManagerContract, getNftManagerContractAddress, isForkFrom } from 'pages/Earns/utils'
 import { getReadingContractWithCustomChain } from 'utils/getContract'
@@ -136,5 +139,137 @@ const decodePositionInfo = (positionInfo: string | bigint) => {
     poolId: truncatedPoolIdHex, // for poolKeys lookup
     tickLower,
     tickUpper,
+  }
+}
+
+export const getUniv3CollectCallData = async ({
+  claimInfo,
+  recipient,
+}: {
+  claimInfo: ClaimInfo | null
+  recipient?: string
+}) => {
+  if (!claimInfo || !recipient) return
+
+  const contract = getNftManagerContract(claimInfo.dex as EarnDex, claimInfo.chainId)
+  if (!contract) return
+
+  const tokenId = claimInfo.nftId
+  const maxUnit = '0x' + (2n ** 128n - 1n).toString(16)
+  const calldatas = []
+
+  const token0 = claimInfo.tokens[0]
+  const token1 = claimInfo.tokens[1]
+
+  const owner = await contract.ownerOf(tokenId)
+  const involvesETH = token0.isNative || token1.isNative
+  const collectParams = {
+    tokenId,
+    recipient: involvesETH ? ZERO_ADDRESS : recipient,
+    amount0Max: maxUnit,
+    amount1Max: maxUnit,
+  }
+  const collectCallData = contract.interface.encodeFunctionData('collect', [collectParams])
+  calldatas.push(collectCallData)
+
+  if (involvesETH) {
+    const ethAmount = token0.isNative ? token0.balance : token1.balance
+    const token = token0.isNative ? token1.address : token0.address
+    const tokenAmount = token0.isNative ? token1.balance : token0.balance
+
+    const unwrapWNativeTokenFuncName =
+      UNWRAP_WNATIVE_TOKEN_FUNC[claimInfo.dex as keyof typeof UNWRAP_WNATIVE_TOKEN_FUNC]
+    if (!unwrapWNativeTokenFuncName) return
+    const unwrapWETH9CallData = contract.interface.encodeFunctionData(unwrapWNativeTokenFuncName, [
+      ethAmount,
+      recipient,
+    ])
+
+    const sweepTokenCallData = contract.interface.encodeFunctionData('sweepToken', [token, tokenAmount, recipient])
+
+    calldatas.push(unwrapWETH9CallData)
+    calldatas.push(sweepTokenCallData)
+  }
+
+  const multicallData = contract.interface.encodeFunctionData('multicall', [calldatas])
+
+  return {
+    to: owner !== recipient ? owner : contract.address,
+    data: multicallData,
+  }
+}
+
+export const getUniv4CollectCallData = async ({
+  claimInfo,
+  recipient,
+}: {
+  claimInfo: ClaimInfo | null
+  recipient?: string
+}) => {
+  if (!claimInfo || !recipient) return
+
+  const contract = getNftManagerContract(claimInfo.dex as EarnDex, claimInfo.chainId)
+  if (!contract) return
+
+  const token0 = claimInfo.tokens[0]
+  const token1 = claimInfo.tokens[1]
+  if (!token0.address || !token1.address) return
+
+  const isToken0Native = token0.address === ETHER_ADDRESS
+  const isToken1Native = token1.address === ETHER_ADDRESS
+
+  let token0Address: string
+  let token1Address: string
+
+  if (isToken0Native || isToken1Native) {
+    token0Address = isToken0Native ? ZERO_ADDRESS : token0.address
+    token1Address = isToken1Native ? ZERO_ADDRESS : token1.address
+  } else {
+    // Fallback: sort numerically
+    if (token0.address.toLowerCase() < token1.address.toLowerCase()) {
+      token0Address = token0.address
+      token1Address = token1.address
+    } else {
+      token0Address = token1.address
+      token1Address = token0.address
+    }
+  }
+
+  // Uniswap V4 action codes
+  const DECREASE_LIQUIDITY = 0x01
+  const TAKE_PAIR = 0x11
+
+  // Pack the actions: DECREASE_LIQUIDITY then TAKE_PAIR
+  const actions = ethers.utils.solidityPack(['uint8', 'uint8'], [DECREASE_LIQUIDITY, TAKE_PAIR])
+
+  // Params for DECREASE_LIQUIDITY
+  const params0 = ethers.utils.defaultAbiCoder.encode(
+    ['uint256', 'uint256', 'uint128', 'uint128', 'bytes'],
+    [claimInfo.nftId, 0, 0, 0, '0x'], // 0 liquidity = just claim fees
+  )
+
+  // Params for TAKE_PAIR
+  const params1 = ethers.utils.defaultAbiCoder.encode(
+    ['address', 'address', 'address'],
+    [token0Address, token1Address, recipient],
+  )
+
+  // Encode unlockData
+  const unlockData = ethers.utils.defaultAbiCoder.encode(['bytes', 'bytes[]'], [actions, [params0, params1]])
+
+  // Set deadline
+  const deadline = Math.floor(Date.now() / 1000) + 60
+
+  // Encode function data
+  const data = contract.interface.encodeFunctionData('modifyLiquidities', [unlockData, deadline])
+
+  // Determine ETH value to send
+  // const value = 0
+
+  return {
+    to: contract.address,
+    data,
+    // value,
+    // gasLimit: ethers.utils.hexlify(500_000), // safe upper bound
   }
 }

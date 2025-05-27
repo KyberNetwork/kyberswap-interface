@@ -2,13 +2,13 @@ import { t } from '@lingui/macro'
 import { useCallback, useEffect, useState } from 'react'
 
 import { NotificationType } from 'components/Announcement/type'
-import { ZERO_ADDRESS } from 'constants/index'
 import { NativeToken } from 'constants/networks/type'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import ClaimModal, { ClaimInfo, ClaimType } from 'pages/Earns/components/ClaimModal'
-import { DEXES_SUPPORT_COLLECT_FEE, UNWRAP_WNATIVE_TOKEN_FUNC } from 'pages/Earns/constants'
+import { CoreProtocol, DEXES_SUPPORT_COLLECT_FEE } from 'pages/Earns/constants'
 import { ParsedPosition } from 'pages/Earns/types'
-import { getNftManagerContract, submitTransaction } from 'pages/Earns/utils'
+import { getNftManagerContract, isForkFrom, submitTransaction } from 'pages/Earns/utils'
+import { getUniv3CollectCallData, getUniv4CollectCallData } from 'pages/Earns/utils/fees'
 import { useNotify } from 'state/application/hooks'
 import { useAllTransactions, useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
@@ -33,55 +33,23 @@ const useCollectFees = ({ refetchAfterCollect }: { refetchAfterCollect: () => vo
     const contract = getNftManagerContract(claimInfo.dex, claimInfo.chainId)
     if (!contract) return
 
-    setClaiming(true)
-
-    const tokenId = claimInfo.nftId
-    const recipient = account
-    const maxUnit = '0x' + (2n ** 128n - 1n).toString(16)
-    const calldatas = []
-
     const token0 = claimInfo.tokens[0]
     const token1 = claimInfo.tokens[1]
-    const nativeToken = claimInfo.nativeToken as NativeToken
+    if (!token0.address || !token1.address) return
 
-    const owner = await contract.ownerOf(tokenId)
-    const involvesETH = token0.isNative || token1.isNative
-    const collectParams = {
-      tokenId,
-      recipient: involvesETH ? ZERO_ADDRESS : account,
-      amount0Max: maxUnit,
-      amount1Max: maxUnit,
-    }
-    const collectCallData = contract.interface.encodeFunctionData('collect', [collectParams])
-    calldatas.push(collectCallData)
+    setClaiming(true)
 
-    if (involvesETH) {
-      const ethAmount = token0.isNative ? token0.balance : token1.balance
-      const token = token0.isNative ? token1.address : token0.address
-      const tokenAmount = token0.isNative ? token1.balance : token0.balance
+    const isUniv4 = isForkFrom(claimInfo.dex, CoreProtocol.UniswapV4)
 
-      const unwrapWNativeTokenFuncName =
-        UNWRAP_WNATIVE_TOKEN_FUNC[claimInfo.dex as keyof typeof UNWRAP_WNATIVE_TOKEN_FUNC]
-      if (!unwrapWNativeTokenFuncName) return
-      const unwrapWETH9CallData = contract.interface.encodeFunctionData(unwrapWNativeTokenFuncName, [
-        ethAmount,
-        recipient,
-      ])
+    const txData = isUniv4
+      ? await getUniv4CollectCallData({ claimInfo, recipient: account })
+      : await getUniv3CollectCallData({ claimInfo, recipient: account })
 
-      const sweepTokenCallData = contract.interface.encodeFunctionData('sweepToken', [token, tokenAmount, recipient])
-
-      calldatas.push(unwrapWETH9CallData)
-      calldatas.push(sweepTokenCallData)
-    }
-
-    const multicallData = contract.interface.encodeFunctionData('multicall', [calldatas])
+    if (!txData) return
 
     const txHash = await submitTransaction({
       library,
-      txData: {
-        to: owner !== account ? owner : contract.address,
-        data: multicallData,
-      },
+      txData,
       onError: (error: Error) => {
         notify({
           title: t`Error`,
@@ -93,6 +61,10 @@ const useCollectFees = ({ refetchAfterCollect }: { refetchAfterCollect: () => vo
     })
     if (!txHash) throw new Error('Transaction failed')
     setTxHash(txHash)
+
+    const nativeToken = claimInfo.nativeToken as NativeToken
+    const token0Symbol = isUniv4 ? token0.symbol : token0.isNative ? nativeToken.symbol : token0.symbol
+    const token1Symbol = isUniv4 ? token1.symbol : token1.isNative ? nativeToken.symbol : token1.symbol
     addTransactionWithType({
       type: TRANSACTION_TYPE.COLLECT_FEE,
       hash: txHash,
@@ -101,11 +73,11 @@ const useCollectFees = ({ refetchAfterCollect }: { refetchAfterCollect: () => vo
         tokenAmountOut: formatDisplayNumber(token1.amount, { significantDigits: 4 }),
         tokenAddressIn: token0.address,
         tokenAddressOut: token1.address,
-        tokenSymbolIn: token0.isNative ? nativeToken.symbol : token0.symbol,
-        tokenSymbolOut: token1.isNative ? nativeToken.symbol : token1.symbol,
+        tokenSymbolIn: token0Symbol,
+        tokenSymbolOut: token1Symbol,
         arbitrary: {
-          token_1: token0.symbol,
-          token_2: token1.symbol,
+          token_1: token0Symbol,
+          token_2: token1Symbol,
           token_1_amount: formatDisplayNumber(token0.amount, { significantDigits: 4 }),
           token_2_amount: formatDisplayNumber(token1.amount, { significantDigits: 4 }),
         },
