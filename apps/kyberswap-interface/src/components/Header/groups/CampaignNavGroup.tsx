@@ -1,4 +1,5 @@
 import { Trans } from '@lingui/macro'
+import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import { useLocation } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import styled, { useTheme } from 'styled-components'
@@ -10,6 +11,12 @@ import { DropdownTextAnchor, StyledNavLink } from '../styleds'
 import NavGroup from './NavGroup'
 import { NewLabel } from 'components/Menu'
 import { Flex } from 'rebass'
+import { useState } from 'react'
+
+const DropdownIcon = styled(DropdownSVG)<{ open: boolean }>`
+  transform: ${({ open }) => (open ? 'rotate(180deg)' : 'rotate(0deg)')};
+  transition: transform 0.3s;
+`
 
 const StyledNavGroup = styled(NavGroup)`
   ${({ theme }) => theme.mediaWidth.upToXXSmall`
@@ -35,6 +42,8 @@ const CampaignNavGroup = () => {
   const upTo500 = useMedia('(max-width: 500px)')
   const theme = useTheme()
 
+  const [showStip, setShowStip] = useState(false)
+
   if (upTo420) return null
 
   return (
@@ -57,24 +66,37 @@ const CampaignNavGroup = () => {
               <NewLabel>New</NewLabel>
             </StyledNavLink>
 
-            <StyledNavLink to={APP_PATHS.AGGREGATOR_CAMPAIGN} style={{ textDecoration: 'none', color: theme.subText }}>
+            <StyledNavLink
+              to={APP_PATHS.AGGREGATOR_CAMPAIGN}
+              style={{ textDecoration: 'none', color: theme.subText, paddingRight: '0', paddingBottom: '0' }}
+              onClick={e => {
+                e.preventDefault()
+                setShowStip(!showStip)
+              }}
+            >
               Arbitrum STIP
               <ELabel>ENDED</ELabel>
+              <DropdownIcon open={showStip} />
             </StyledNavLink>
 
             <Column
               sx={{
                 padding: '0px 8px',
+                height: 'auto',
+                maxHeight: showStip ? '300px' : '0',
+                transition: 'all 0.3s ease-in-out',
+                ovlerflow: 'hidden',
+                visibility: showStip ? 'visible' : 'hidden',
               }}
             >
               <NestedNavLink to={APP_PATHS.AGGREGATOR_CAMPAIGN}>
-                <Trans>Aggregator Trading</Trans>
+                <li>Aggregator Trading</li>
               </NestedNavLink>
               <NestedNavLink to={APP_PATHS.LIMIT_ORDER_CAMPAIGN}>
-                <Trans>Limit Order</Trans>
+                <li>Limit Order</li>
               </NestedNavLink>
               <NestedNavLink to={APP_PATHS.REFFERAL_CAMPAIGN}>
-                <Trans>Referral</Trans>
+                <li>Referral</li>
               </NestedNavLink>
             </Column>
             <StyledNavLink to={APP_PATHS.MY_DASHBOARD} style={{ gap: '12px' }}>
