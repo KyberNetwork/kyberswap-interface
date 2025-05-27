@@ -54,7 +54,7 @@ export const useEthBalanceOfAnotherChain = (chainId: ChainId | undefined) => {
 }
 
 export const useTokenBalanceOfAnotherChain = (chainId?: ChainId, token?: WrappedTokenInfo) => {
-  const isNative = isTokenNative(token, chainId)
+  const isNative = isTokenNative(token)
   const param = useMemo(() => (token && !isNative ? [token] : []), [token, isNative])
 
   const ethBalance = useEthBalanceOfAnotherChain(chainId)

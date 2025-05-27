@@ -3,8 +3,6 @@ import { Repeat } from 'react-feather'
 import { DefaultTheme } from 'styled-components'
 
 import { ReactComponent as ApproveIcon } from 'assets/svg/approve_icon.svg'
-import { ReactComponent as BridgeIcon } from 'assets/svg/bridge_icon.svg'
-import { ReactComponent as CrossChain } from 'assets/svg/cross_chain_icon.svg'
 import { ReactComponent as LiquidityIcon } from 'assets/svg/liquidity_icon.svg'
 import { ReactComponent as ThunderIcon } from 'assets/svg/thunder_icon.svg'
 import { MoneyBag } from 'components/Icons'
@@ -28,8 +26,6 @@ const MAP_ICON_BY_TYPE: (theme: DefaultTheme) => Partial<Record<TRANSACTION_TYPE
 ) => ({
   [TRANSACTION_TYPE.KYBERDAO_CLAIM_GAS_REFUND]: <IconSprite id="refund" size={16} color={theme.subText} />,
   [TRANSACTION_TYPE.CANCEL_LIMIT_ORDER]: <IconFailure size={18} />,
-  [TRANSACTION_TYPE.BRIDGE]: <BridgeIcon />,
-  [TRANSACTION_TYPE.CROSS_CHAIN_SWAP]: <CrossChain />,
   [TRANSACTION_TYPE.APPROVE]: <ApproveIcon width={20} height={22} />,
   [TRANSACTION_TYPE.CLAIM_REWARD]: <MoneyBag size={18} />,
   [TRANSACTION_TYPE.TRANSFER_TOKEN]: <SendIcon />,

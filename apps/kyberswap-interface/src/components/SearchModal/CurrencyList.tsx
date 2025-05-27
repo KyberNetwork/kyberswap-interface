@@ -91,7 +91,7 @@ const DescText = styled.div`
 `
 export const getDisplayTokenInfo = (currency: Currency) => {
   return {
-    symbol: isTokenNative(currency, currency.chainId) ? currency.symbol : currency?.wrapped?.symbol || currency.symbol,
+    symbol: isTokenNative(currency) ? currency.symbol : currency?.wrapped?.symbol || currency.symbol,
   }
 }
 export function CurrencyRow({
@@ -264,7 +264,7 @@ function CurrencyList({
         token &&
         !extendCurrency?.isWhitelisted &&
         !tokenImports.find(importedToken => importedToken.address === token.address) &&
-        !isTokenNative(currency, currency.chainId)
+        !isTokenNative(currency)
       if (showImport && token && setImportToken) {
         return <ImportRow style={style} token={token} setImportToken={setImportToken} dim={true} />
       }

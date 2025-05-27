@@ -106,14 +106,6 @@ export default function Popups() {
     const unsubscribePrivate = subscribePrivateAnnouncement(account, data => {
       data.forEach(item => {
         switch (item.templateType) {
-          case PrivateAnnouncementType.CROSS_CHAIN:
-            addPopup({
-              content: item,
-              popupType: PopupType.TOP_RIGHT,
-              key: item.metaMessageId,
-              removeAfterMs: 15_000,
-            })
-            break
           case PrivateAnnouncementType.DIRECT_MESSAGE: {
             const { templateBody, metaMessageId } = item
             addPopup({

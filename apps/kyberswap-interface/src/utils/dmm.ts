@@ -248,7 +248,7 @@ export const getMyLiquidity = (
 export function useCurrencyConvertedToNative(currency?: Currency): Currency | undefined {
   return useMemo(() => {
     if (!!currency) {
-      return isTokenNative(currency, currency.chainId) ? NativeCurrencies[currency.chainId] : currency
+      return isTokenNative(currency) ? NativeCurrencies[currency.chainId] : currency
     }
     return undefined
   }, [currency])

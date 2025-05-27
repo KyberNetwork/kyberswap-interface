@@ -3,7 +3,6 @@ import { useLocation } from 'react-router-dom'
 
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import { useCrossChainState } from 'state/crossChain/hooks'
 import { useLimitState } from 'state/limit/hooks'
 import { Field } from 'state/swap/actions'
 import { useInputCurrency, useOutputCurrency } from 'state/swap/hooks'
@@ -18,14 +17,9 @@ const useCurrenciesByPage = () => {
   const currencyInSwap = useInputCurrency()
   const currencyOutSwap = useOutputCurrency()
   const limitState = useLimitState()
-  const [crossChainState] = useCrossChainState()
 
-  const currencyIn = isSwapPage ? currencyInSwap : isCrossChainPage ? crossChainState.currencyIn : limitState.currencyIn
-  const currencyOut = isSwapPage
-    ? currencyOutSwap
-    : isCrossChainPage
-    ? crossChainState.currencyOut
-    : limitState.currencyOut
+  const currencyIn = isSwapPage ? currencyInSwap : limitState.currencyIn
+  const currencyOut = isSwapPage ? currencyOutSwap : limitState.currencyOut
 
   const currencies = useMemo(
     () => ({

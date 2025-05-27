@@ -33,7 +33,6 @@ function getTokenComparator(
     [tokenAddress: string]: TokenAmount | undefined
   },
   ethBalance: CurrencyAmount<Currency> | undefined,
-  chainId: ChainId,
 ): (tokenA: Token, tokenB: Token) => number {
   return function sortTokens(tokenA: Token, tokenB: Token): number {
     // -1 = a is first
@@ -41,8 +40,8 @@ function getTokenComparator(
 
     // sort by balances
 
-    const balanceA = isTokenNative(tokenA, chainId) ? ethBalance : balances[tokenA.address]
-    const balanceB = isTokenNative(tokenB, chainId) ? ethBalance : balances[tokenB.address]
+    const balanceA = isTokenNative(tokenA) ? ethBalance : balances[tokenA.address]
+    const balanceB = isTokenNative(tokenB) ? ethBalance : balances[tokenB.address]
 
     const balanceComp = balanceComparator(balanceA, balanceB)
     if (balanceComp !== 0) return balanceComp
@@ -63,10 +62,10 @@ export function useTokenComparator(inverted: boolean, customChain?: ChainId): (t
   const balances = useAllTokenBalances(chainId)
   const ethBalance = useNativeBalance(chainId)
   return useMemo(() => {
-    const comparator = getTokenComparator(balances ?? EMPTY_OBJECT, ethBalance, chainId)
+    const comparator = getTokenComparator(balances ?? EMPTY_OBJECT, ethBalance)
     if (inverted) {
       return (tokenA: Token, tokenB: Token) => comparator(tokenA, tokenB) * -1
     }
     return comparator
-  }, [balances, inverted, ethBalance, chainId])
+  }, [balances, inverted, ethBalance])
 }

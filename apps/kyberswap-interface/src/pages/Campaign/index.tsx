@@ -434,7 +434,7 @@ export default function Aggregator() {
         {campaign === 'referral-program' && <JoinReferral />}
       </Flex>
 
-      {campaign !== 'referral-program' && type != CampaignType.MayTrading && (
+      {campaign !== 'referral-program' && (
         <Flex
           justifyContent="space-between"
           marginTop="1.5rem"
