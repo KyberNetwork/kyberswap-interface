@@ -124,22 +124,23 @@ const RewardSection = ({ position }: { position: ParsedPosition }) => {
           </Flex>
 
           <Flex width={'100%'} alignItems={'center'} justifyContent={'space-between'}>
-            <Text fontSize={20}>
-              {formatDisplayNumber(rewardInfoThisPosition?.pendingUsdValue || 0, {
-                significantDigits: 6,
-                style: 'currency',
-              })}
-            </Text>
             <Flex alignItems={'center'}>
-              <Text fontSize={14} color={theme.subText}>
-                {t`Pending`}
+              <Text fontSize={20}>
+                {formatDisplayNumber(rewardInfoThisPosition?.pendingUsdValue || 0, {
+                  significantDigits: 6,
+                  style: 'currency',
+                })}
               </Text>
               <InfoHelper
                 text={t`Rewards that will be available within 2 days after the countdown completes.`}
                 width="330px"
                 placement="top"
+                color={theme.text}
               />
             </Flex>
+            <Text fontSize={14} color={theme.subText}>
+              {t`Pending`}
+            </Text>
           </Flex>
 
           <NextDistribution>
