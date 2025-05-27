@@ -130,9 +130,16 @@ const RewardSection = ({ position }: { position: ParsedPosition }) => {
                 style: 'currency',
               })}
             </Text>
-            <Text fontSize={14} color={theme.subText}>
-              {t`Pending`}
-            </Text>
+            <Flex alignItems={'center'}>
+              <Text fontSize={14} color={theme.subText}>
+                {t`Pending`}
+              </Text>
+              <InfoHelper
+                text={t`Rewards that will be available within 2 days after the countdown completes.`}
+                width="330px"
+                placement="top"
+              />
+            </Flex>
           </Flex>
 
           <NextDistribution>
