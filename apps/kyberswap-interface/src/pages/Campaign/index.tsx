@@ -432,9 +432,20 @@ export default function Aggregator() {
         </Text>
 
         {campaign === 'referral-program' && <JoinReferral />}
+        {type === CampaignType.MayTrading && (
+          <ButtonPrimary
+            width={upToExtraSmall ? '100%' : '160px'}
+            height="40px"
+            onClick={() => {
+              navigate(ctaLink)
+            }}
+          >
+            {ctaText}
+          </ButtonPrimary>
+        )}
       </Flex>
 
-      {campaign !== 'referral-program' && (
+      {campaign !== 'referral-program' && type != CampaignType.MayTrading && (
         <Flex
           justifyContent="space-between"
           marginTop="1.5rem"
