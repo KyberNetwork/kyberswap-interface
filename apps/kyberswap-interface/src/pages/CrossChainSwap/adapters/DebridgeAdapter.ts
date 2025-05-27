@@ -15,6 +15,12 @@ import { NativeCurrencies } from 'constants/tokens'
 
 const DEBRIDGE_API = 'https://dln.debridge.finance/v1.0/dln/order'
 
+const mappingChainId: Record<string, number> = {
+  [ChainId.SONIC]: 100000014,
+  [ChainId.MANTLE]: 100000023,
+  [ChainId.BERA]: 100000020,
+}
+
 export class DeBridgeAdapter extends BaseSwapAdapter {
   constructor() {
     super()
@@ -48,11 +54,11 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
 
   async getQuote(params: EvmQuoteParams): Promise<NormalizedQuote> {
     let p: Record<string, string | boolean | number> = {
-      srcChainId: params.fromChain,
+      srcChainId: mappingChainId[params.fromChain] || params.fromChain,
       srcChainTokenIn: params.fromToken.isNative ? ZERO_ADDRESS : params.fromToken.address,
       srcChainTokenInAmount: params.amount,
 
-      dstChainId: params.toChain,
+      dstChainId: mappingChainId[params.toChain] || params.toChain,
       dstChainTokenOut: params.toToken.isNative ? ZERO_ADDRESS : params.toToken.address,
       dstChainTokenOutAmount: 'auto',
 
@@ -97,25 +103,6 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
 
     const inputUsd = params.tokenInUsd * +formattedInputAmount
     const outputUsd = params.tokenOutUsd * +formattedOutputAmount
-
-    // const affiliateFee = r.estimation.costsDetails.find(
-    //   (item: { payload: { feeAmount: string; feeBps: string }; tokenIn: string; type: string }) =>
-    //     item.type === 'AffiliateFee',
-    // )
-    //
-    // let platformFee = 0
-    // const { srcChainTokenIn, srcChainTokenOut } = r.estimation
-    // if (affiliateFee?.tokenIn === srcChainTokenIn?.address) {
-    //   platformFee =
-    //     (Number(((BigInt(affiliateFee.payload.feeAmount) * 1000n) / BigInt(srcChainTokenIn.amount)).toString()) *
-    //       srcChainTokenIn.approximateUsdValue) /
-    //     1000
-    // } else if (affiliateFee?.tokenIn === srcChainTokenOut?.address) {
-    //   platformFee =
-    //     (Number(((BigInt(affiliateFee.payload.feeAmount) * 1000n) / BigInt(srcChainTokenOut.amount)).toString()) *
-    //       srcChainTokenOut.approximateUsdValue) /
-    //     1000
-    // }
 
     const fixFee = r.fixFee
 

@@ -21,6 +21,7 @@ import AboutNavGroup from './groups/AboutNavGroup'
 import KyberDAONavGroup from './groups/KyberDaoGroup'
 import SwapNavGroup from './groups/SwapNavGroup'
 import { StyledNavExternalLink, StyledNavLink } from './styleds'
+import CampaignNavGroup from './groups/CampaignNavGroup'
 
 const HeaderFrame = styled.div<{ hide?: boolean }>`
   height: ${({ hide }) => (hide ? 0 : undefined)};
@@ -175,6 +176,8 @@ export default function Header() {
 
   const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
+  const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
+  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
 
   const menu = (
     <HeaderElementWrap>
@@ -213,11 +216,14 @@ export default function Header() {
                 <NewLabel>New</NewLabel>
               </Flex>
             </StyledNavLink>
-            <StyledNavLink to={`${APP_PATHS.MARKET_OVERVIEW}`}>Market</StyledNavLink>
+            {!upToExtraSmall && <StyledNavLink to={`${APP_PATHS.MARKET_OVERVIEW}`}>Market</StyledNavLink>}
+            <CampaignNavGroup />
             <KyberDAONavGroup />
-            <StyledNavExternalLink target="_blank" href={AGGREGATOR_ANALYTICS_URL}>
-              <Trans>Analytics</Trans>
-            </StyledNavExternalLink>
+            {!upToMedium && (
+              <StyledNavExternalLink target="_blank" href={AGGREGATOR_ANALYTICS_URL}>
+                <Trans>Analytics</Trans>
+              </StyledNavExternalLink>
+            )}
             <AboutNavGroup />
           </HeaderLinks>
         )}

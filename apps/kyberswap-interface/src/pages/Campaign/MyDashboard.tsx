@@ -19,9 +19,13 @@ import { MEDIA_WIDTHS, StyledInternalLink } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
 import banner from './assets/banner.png'
+import mayTradingBanner from './assets/may_trading.png'
 import ClaimBtn from './components/ClaimBtn'
 import MyReferralDashboard from './components/MyReferralDashboard'
 import { Tab, Tabs, Wrapper } from './styles'
+import { KNC } from 'constants/tokens'
+import { NewLabel } from 'components/Menu'
+import { TokenLogoWithChain } from 'components/Logo'
 
 const TableHeader = styled.div`
   display: grid;
@@ -40,30 +44,54 @@ const TableRow = styled(TableHeader)`
   align-items: center;
 `
 
+const ELabel = styled.span`
+  font-size: 10px;
+  margin-left: 4px;
+`
+
 const mockToken = new Token(1, ZERO_ADDRESS, 18, 'mock')
 
 function getDateOfWeek(w: number, y: number) {
-  const d = 1 + (w - 1) * 7 // 1st of January + 7 days for each week
+  const first = y === 2025 ? -1 : 1 // 1st of January
+  const d = first + (w - 1) * 7 // 1st of January + 7 days for each week
   return new Date(y, 0, d)
 }
-
-const BASE_WEEK = 27
 
 const MyDashboard = () => {
   const { account } = useActiveWeb3React()
   const theme = useTheme()
   const [searchParams, setSearchParams] = useSearchParams()
-  const tab = searchParams.get('tab') || 'trading-incentive'
+  const tab = searchParams.get('tab') || 'may-trading'
   const changeTab = (t: string) => {
     searchParams.set('tab', t)
     setSearchParams(searchParams)
   }
 
-  const marketPriceMap = useTokenPrices(['0x912CE59144191C1204E64559FE8253a0e49E6548'], ChainId.ARBITRUM)
-  const price = marketPriceMap?.['0x912CE59144191C1204E64559FE8253a0e49E6548'] || 0
+  const stipReward = {
+    chainId: ChainId.ARBITRUM,
+    address: '0x912CE59144191C1204E64559FE8253a0e49E6548',
+    decimals: 18,
+    symbol: 'ARB',
+    logo: 'https://storage.googleapis.com/ks-setting-1d682dca/e123a120-6556-4a72-83c8-af4cce475e43.png',
+  }
+  const mayTradingReward = {
+    chainId: ChainId.MAINNET,
+    address: KNC[ChainId.MAINNET].address,
+    decimals: 18,
+    symbol: 'KNC',
+    logo: 'https://s2.coinmarketcap.com/static/img/coins/64x64/9444.png',
+  }
 
-  const { data: trading } = useGetUserWeeklyRewardQuery(
+  const rewardTokenLogo = tab === 'may-trading' ? mayTradingReward.logo : stipReward.logo
+  const rewardTokenSymbol = tab === 'may-trading' ? mayTradingReward.symbol : stipReward.symbol
+
+  const stipRewardPrice = useTokenPrices([stipReward.address], stipReward.chainId)?.[stipReward.address] || 0
+  const mayTradingRewardPrice =
+    useTokenPrices([mayTradingReward.address], mayTradingReward.chainId)?.[mayTradingReward.address] || 0
+
+  const { data: mayTrading } = useGetUserWeeklyRewardQuery(
     {
+      program: 'grind/base',
       campaign: 'trading-incentive',
       wallet: account || '',
     },
@@ -72,8 +100,20 @@ const MyDashboard = () => {
     },
   )
 
-  const { data: loData } = useGetUserWeeklyRewardQuery(
+  const { data: stipTrading } = useGetUserWeeklyRewardQuery(
     {
+      program: 'stip',
+      campaign: 'trading-incentive',
+      wallet: account || '',
+    },
+    {
+      skip: !account,
+    },
+  )
+
+  const { data: stipLoData } = useGetUserWeeklyRewardQuery(
+    {
+      program: 'stip',
       campaign: 'limit-order-farming',
       wallet: account || '',
     },
@@ -82,13 +122,17 @@ const MyDashboard = () => {
     },
   )
 
-  const data = tab === 'trading-incentive' ? trading : loData
+  const data = tab === 'may-trading' ? mayTrading : tab === 'trading-incentive' ? stipTrading : stipLoData
 
-  const tradingRw = CurrencyAmount.fromRawAmount(mockToken, trading?.data?.totalReward?.split('.')[0] || '0')
-  const loRw = CurrencyAmount.fromRawAmount(mockToken, loData?.data?.totalReward?.split('.')[0] || '0')
+  const BASE_WEEK = tab === 'may-trading' ? 21 : 27
+
+  const stipTradingRw = CurrencyAmount.fromRawAmount(mockToken, stipTrading?.data?.totalReward?.split('.')[0] || '0')
+  const stipLoRw = CurrencyAmount.fromRawAmount(mockToken, stipLoData?.data?.totalReward?.split('.')[0] || '0')
+
+  const mayTradingRw = CurrencyAmount.fromRawAmount(mockToken, mayTrading?.data?.totalReward?.split('.')[0] || '0')
 
   const { data: referralData } = useGetUserReferralTotalRewardQuery(
-    { wallet: account || '' },
+    { program: 'stip', wallet: account || '' },
     {
       skip: !account,
     },
@@ -100,46 +144,69 @@ const MyDashboard = () => {
       ).toExact()
     : '0'
 
-  const referralRewardUsd = +referralReward * price
+  const referralRewardUsd = +referralReward * stipRewardPrice
 
-  const totalRw = formatDisplayNumber((+tradingRw.toExact() + +loRw.toExact() + +referralReward).toFixed(3), {
+  const totalMayTradingRw = formatDisplayNumber(+mayTradingRw.toExact(), { significantDigits: 6 })
+  const totalMayTradingRwUsd = formatDisplayNumber(+mayTradingRw.toExact() * mayTradingRewardPrice, {
     significantDigits: 6,
+    style: 'currency',
   })
-  const totalRwUsd = formatDisplayNumber(
-    (referralRewardUsd + (+tradingRw.toExact() + +loRw.toExact()) * price).toFixed(3),
+
+  const totalStipRw = formatDisplayNumber(
+    (+stipTradingRw.toExact() + +stipLoRw.toExact() + +referralReward).toFixed(3),
+    {
+      significantDigits: 6,
+    },
+  )
+  const totalStipRwUsd = formatDisplayNumber(
+    (referralRewardUsd + (+stipTradingRw.toExact() + +stipLoRw.toExact()) * stipRewardPrice).toFixed(3),
     {
       significantDigits: 6,
       style: 'currency',
     },
   )
 
-  const tradingClaimableRw = CurrencyAmount.fromRawAmount(
+  const stipTradingClaimableRw = CurrencyAmount.fromRawAmount(
     mockToken,
-    trading?.data?.totalClaimableReward?.split('.')[0] || '0',
+    stipTrading?.data?.totalClaimableReward?.split('.')[0] || '0',
   )
-  const loClaimableRw = CurrencyAmount.fromRawAmount(
+  const stipLoClaimableRw = CurrencyAmount.fromRawAmount(
     mockToken,
-    loData?.data?.totalClaimableReward?.split('.')[0] || '0',
+    stipLoData?.data?.totalClaimableReward?.split('.')[0] || '0',
+  )
+  const mayTradingClaimableRw = CurrencyAmount.fromRawAmount(
+    mockToken,
+    mayTrading?.data?.totalClaimableReward?.split('.')[0] || '0',
   )
 
-  const totalClaimableRw = formatDisplayNumber((+tradingClaimableRw.toExact() + +loClaimableRw.toExact()).toFixed(3), {
-    significantDigits: 6,
-  })
+  const totalClaimableRw = formatDisplayNumber(
+    (+stipTradingClaimableRw.toExact() + +stipLoClaimableRw.toExact()).toFixed(3),
+    {
+      significantDigits: 6,
+    },
+  )
   const totalClaimableRwUsd = formatDisplayNumber(
-    ((+tradingClaimableRw.toExact() + +loClaimableRw.toExact()) * price).toFixed(3),
+    ((+stipTradingClaimableRw.toExact() + +stipLoClaimableRw.toExact()) * stipRewardPrice).toFixed(3),
     {
       significantDigits: 6,
       style: 'currency',
     },
   )
+  const totalMayTradingClaimableRw = formatDisplayNumber(+mayTradingClaimableRw.toExact(), { significantDigits: 6 })
+  const toalMayTradingClaimableRwUsd = formatDisplayNumber(+mayTradingClaimableRw.toExact() * mayTradingRewardPrice, {
+    significantDigits: 6,
+    style: 'currency',
+  })
 
   const totalRewardByCampaign = CurrencyAmount.fromRawAmount(mockToken, data?.data?.totalReward?.split('.')[0] || '0')
   const claimableRewardByCampaign = CurrencyAmount.fromRawAmount(
     mockToken,
     data?.data?.totalClaimableReward?.split('.')[0] || '0',
   )
+  const price = tab === 'may-trading' ? mayTradingRewardPrice : stipRewardPrice
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const infor = (
     <InfoHelper
       text={
@@ -148,7 +215,9 @@ const MyDashboard = () => {
           week. Check out how they are calculated in the{' '}
           <StyledInternalLink
             to={
-              tab === 'trading-incentive'
+              tab === 'may-trading'
+                ? '/campaigns/may-trading?tab=information'
+                : tab === 'trading-incentive'
                 ? '/campaigns/aggregator?tab=information'
                 : tab === 'limit-order-farming'
                 ? '/campaigns/limit-order?tab=information'
@@ -165,7 +234,12 @@ const MyDashboard = () => {
 
   return (
     <Wrapper>
-      <img src={banner} width="100%" alt="banner" style={{ borderRadius: '12px' }} />
+      <img
+        src={tab === 'may-trading' ? mayTradingBanner : banner}
+        width="100%"
+        alt="banner"
+        style={{ borderRadius: '12px' }}
+      />
       <Text fontSize={24} fontWeight="500" marginTop="1.5rem" mb="1.5rem">
         My Dashboard
       </Text>
@@ -196,22 +270,28 @@ const MyDashboard = () => {
             </Flex>
             */}
           </Flex>
+          {stipTradingRw?.greaterThan('0') && (
+            <Flex alignItems="center" sx={{ gap: '4px' }} fontSize={24} marginTop="0.5rem">
+              <TokenLogoWithChain chainId={stipReward.chainId} tokenLogo={stipReward.logo} size={24} />
+              <Text fontWeight="500" ml="6px">
+                {totalStipRw} {stipReward.symbol}
+              </Text>
+              <Text color="#FAFAFA80" fontSize={16} marginTop="2px">
+                {totalStipRwUsd}
+              </Text>
+            </Flex>
+          )}
           <Flex alignItems="center" sx={{ gap: '4px' }} fontSize={24} marginTop="0.5rem">
-            <img
-              src="https://s2.coinmarketcap.com/static/img/coins/64x64/11841.png"
-              alt="arb"
-              width="20px"
-              height="20px"
-              style={{ borderRadius: '50%' }}
-            />
-            <Text fontWeight="500">{totalRw} ARB</Text>
+            <TokenLogoWithChain chainId={mayTradingReward.chainId} tokenLogo={mayTradingReward.logo} size={24} />
+            <Text fontWeight="500" ml="6px">
+              {totalMayTradingRw} {mayTradingReward.symbol}
+            </Text>
             <Text color="#FAFAFA80" fontSize={16} marginTop="2px">
-              {totalRwUsd}
+              {totalMayTradingRwUsd}
             </Text>
           </Flex>
-
-          <Text marginTop="8px" fontStyle="italic" color="#FfFfFA99">
-            Total estimated rewards of all 3 campaigns (Aggregator, Limit Order, Referral)
+          <Text fontStyle="italic" color={theme.subText} mt="12px">
+            The current rewards are based on your current rank. See Information for details.
           </Text>
         </Box>
 
@@ -225,35 +305,49 @@ const MyDashboard = () => {
         >
           <Text>My claim-able rewards</Text>
 
+          {stipTradingRw?.greaterThan('0') && (
+            <Flex alignItems="center" sx={{ gap: '4px' }} fontSize={24} marginTop="0.5rem">
+              <TokenLogoWithChain chainId={stipReward.chainId} tokenLogo={stipReward.logo} size={24} />
+              <Text fontWeight="500" ml="6px">
+                {totalClaimableRw} {stipReward.symbol}
+              </Text>
+              <Text color="#FAFAFA80" fontSize={16} marginTop="2px">
+                {totalClaimableRwUsd}
+              </Text>
+            </Flex>
+          )}
           <Flex alignItems="center" sx={{ gap: '4px' }} fontSize={24} marginTop="0.5rem">
-            <img
-              src="https://s2.coinmarketcap.com/static/img/coins/64x64/11841.png"
-              alt="arb"
-              width="20px"
-              height="20px"
-              style={{ borderRadius: '50%' }}
-            />
-            <Text fontWeight="500">{totalClaimableRw} ARB</Text>
+            <TokenLogoWithChain chainId={mayTradingReward.chainId} tokenLogo={mayTradingReward.logo} size={24} />
+            <Text fontWeight="500" ml="6px">
+              {totalMayTradingClaimableRw} {mayTradingReward.symbol}
+            </Text>
             <Text color="#FAFAFA80" fontSize={16} marginTop="2px">
-              {totalClaimableRwUsd}
+              {toalMayTradingClaimableRwUsd}
             </Text>
           </Flex>
 
-          <Text marginTop="8px" fontStyle="italic" color="#FfFfFA99">
-            Total final rewards that you can claim of all 3 campaigns (Aggregator, Limit Order, Referral)
+          <Text fontStyle="italic" color={theme.subText} mt="12px">
+            Total final rewards that you can claim for the campaign.
           </Text>
         </Box>
       </Flex>
 
       <Tabs>
+        <Tab role="button" active={tab === 'may-trading'} onClick={() => changeTab('may-trading')}>
+          {upToExtraSmall && <NewLabel style={{ marginLeft: '0' }}>New</NewLabel>}
+          <Flex>May Trading {!upToExtraSmall && <NewLabel>NEW</NewLabel>}</Flex>
+        </Tab>
         <Tab role="button" active={tab === 'trading-incentive'} onClick={() => changeTab('trading-incentive')}>
-          Trading
+          {upToExtraSmall && <ELabel style={{ marginLeft: 0 }}>ENDED</ELabel>}
+          <Flex>Trading {!upToExtraSmall && <ELabel>ENDED</ELabel>}</Flex>
         </Tab>
         <Tab role="button" active={tab === 'limit-order-farming'} onClick={() => changeTab('limit-order-farming')}>
-          Limit Order
+          {upToExtraSmall && <ELabel></ELabel>}
+          <Flex>Limit Order {!upToExtraSmall && <ELabel>ENDED</ELabel>}</Flex>
         </Tab>
         <Tab role="button" active={tab === 'referral-program'} onClick={() => changeTab('referral-program')}>
-          Referral
+          {upToExtraSmall && <ELabel></ELabel>}
+          <Flex>Referral {!upToExtraSmall && <ELabel>ENDED</ELabel>}</Flex>
         </Tab>
       </Tabs>
 
@@ -262,7 +356,7 @@ const MyDashboard = () => {
           Please connect wallet to view your Dashboard
         </Text>
       ) : tab === 'referral-program' ? (
-        <MyReferralDashboard price={price} infor={infor} />
+        <MyReferralDashboard price={stipRewardPrice} infor={infor} />
       ) : (
         <Box marginTop="1.25rem" sx={{ borderRadius: '20px', background: theme.background }} padding="1.5rem">
           <Box
@@ -283,14 +377,14 @@ const MyDashboard = () => {
               <Text color={theme.subText}>Total Estimated rewards {infor}</Text>
               <Flex sx={{ gap: '4px' }} marginTop="8px" alignItems="center">
                 <img
-                  src="https://s2.coinmarketcap.com/static/img/coins/64x64/11841.png"
-                  alt="arb"
+                  src={rewardTokenLogo}
+                  alt={rewardTokenSymbol}
                   width="20px"
                   height="20px"
                   style={{ borderRadius: '50%' }}
                 />
                 <Text fontSize={18} fontWeight="500">
-                  {formatDisplayNumber(totalRewardByCampaign.toFixed(3), { significantDigits: 6 })} ARB{' '}
+                  {formatDisplayNumber(totalRewardByCampaign.toFixed(3), { significantDigits: 6 })} {rewardTokenSymbol}{' '}
                   <Text color={theme.subText} as="span">
                     {formatDisplayNumber((+totalRewardByCampaign.toExact() * price).toFixed(3), {
                       significantDigits: 4,
@@ -304,15 +398,16 @@ const MyDashboard = () => {
               <Text color={theme.subText}>Total Claim-able rewards</Text>
               <Flex sx={{ gap: '4px' }} marginTop="8px" alignItems="center">
                 <img
-                  src="https://s2.coinmarketcap.com/static/img/coins/64x64/11841.png"
-                  alt="arb"
+                  src={rewardTokenLogo}
+                  alt={rewardTokenSymbol}
                   width="20px"
                   height="20px"
                   style={{ borderRadius: '50%' }}
                 />
 
                 <Text fontSize={18} fontWeight="500">
-                  {formatDisplayNumber(claimableRewardByCampaign.toFixed(3), { significantDigits: 6 })} ARB{' '}
+                  {formatDisplayNumber(claimableRewardByCampaign.toFixed(3), { significantDigits: 6 })}{' '}
+                  {rewardTokenSymbol}{' '}
                   <Text color={theme.subText} as="span">
                     {formatDisplayNumber((+claimableRewardByCampaign.toExact() * price).toFixed(3), {
                       significantDigits: 4,
@@ -384,7 +479,9 @@ const MyDashboard = () => {
                       ESTIMATED REWARDS {infor}
                     </Text>
                     <Flex justifyContent="flex-end" alignItems="flex-end" flexDirection="column">
-                      <Text>{formatDisplayNumber(totalRw.toFixed(3), { significantDigits: 6 })} ARB</Text>
+                      <Text>
+                        {formatDisplayNumber(totalRw.toFixed(3), { significantDigits: 6 })} {rewardTokenSymbol}
+                      </Text>
                       <Text color={theme.subText}>
                         {formatDisplayNumber((+totalRw.toExact() * price).toFixed(3), {
                           significantDigits: 4,
@@ -398,7 +495,9 @@ const MyDashboard = () => {
                       CLAIMABLE REWARDS
                     </Text>
                     <Flex justifyContent="flex-end" alignItems="flex-end" flexDirection="column">
-                      <Text>{formatDisplayNumber(claimableRw.toFixed(3), { significantDigits: 6 })} ARB</Text>
+                      <Text>
+                        {formatDisplayNumber(claimableRw.toFixed(3), { significantDigits: 6 })} {rewardTokenSymbol}
+                      </Text>
                       <Text color={theme.subText}>
                         {formatDisplayNumber((+claimableRw.toExact() * price).toFixed(3), {
                           significantDigits: 4,
@@ -417,7 +516,9 @@ const MyDashboard = () => {
                 </Text>
                 <Text textAlign="right">{formatDisplayNumber(Math.floor(item.point), { significantDigits: 4 })}</Text>
                 <Flex justifyContent="flex-end" alignItems="flex-end" flexDirection="column">
-                  <Text>{formatDisplayNumber(totalRw.toFixed(3), { significantDigits: 6 })} ARB</Text>
+                  <Text>
+                    {formatDisplayNumber(totalRw.toFixed(3), { significantDigits: 6 })} {rewardTokenSymbol}
+                  </Text>
                   <Text color={theme.subText}>
                     {formatDisplayNumber((+totalRw.toExact() * price).toFixed(3), {
                       significantDigits: 4,
@@ -427,7 +528,9 @@ const MyDashboard = () => {
                 </Flex>
 
                 <Flex justifyContent="flex-end" alignItems="flex-end" flexDirection="column">
-                  <Text>{formatDisplayNumber(claimableRw.toFixed(3), { significantDigits: 6 })} ARB</Text>
+                  <Text>
+                    {formatDisplayNumber(claimableRw.toFixed(3), { significantDigits: 6 })} {rewardTokenSymbol}
+                  </Text>
                   <Text color={theme.subText}>
                     {formatDisplayNumber((+claimableRw.toExact() * price).toFixed(3), {
                       significantDigits: 4,

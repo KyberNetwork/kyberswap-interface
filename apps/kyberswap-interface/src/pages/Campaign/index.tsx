@@ -20,10 +20,12 @@ import { formatDisplayNumber } from 'utils/numbers'
 import loBanner from './assets/limit_order.png'
 import referralBanner from './assets/referral.png'
 import tradingBanner from './assets/trading.png'
+import mayTradingBanner from './assets/may_trading.png'
 import Information, { CampaignType } from './components/Information'
 import JoinReferral from './components/JoinReferral'
 import Leaderboard from './components/Leaderboard'
 import { StatCard, Tab, Tabs, Wrapper } from './styles'
+import { KNC } from 'constants/tokens'
 
 function getCurrentWeek(): number {
   const currentDate: Date = new Date()
@@ -50,7 +52,7 @@ function getCurrentWeek(): number {
   return weekNumber
 }
 
-const weeks = [
+const stipWeeks = [
   {
     value: 37,
     label: (
@@ -183,6 +185,35 @@ const weeks = [
   },
 ].reverse()
 
+const mayTradingWeeks = [
+  // {
+  //   value: 22,
+  //   label: (
+  //     <Text>
+  //       <Text as="span" color="#ffffff">
+  //         Week 3
+  //       </Text>{' '}
+  //       May 26 - Jun 1
+  //     </Text>
+  //   ),
+  //   start: 1748131200,
+  //   end: 1748736000,
+  // },
+  {
+    value: 22,
+    label: (
+      <Text>
+        <Text as="span" color="#ffffff">
+          Week 1
+        </Text>{' '}
+        May 19 - May 25
+      </Text>
+    ),
+    start: 1748304000,
+    end: 1748822400,
+  },
+].reverse()
+
 const getFormattedTime = (totalSeconds: number): string => {
   // const totalSeconds = Math.floor(milliseconds / 1000);
   const totalDays = Math.floor(totalSeconds / 86400)
@@ -198,7 +229,6 @@ export default function Aggregator() {
   const theme = useTheme()
   const navigate = useNavigate()
   const w = getCurrentWeek()
-  const [selectedWeek, setSelectedWeek] = useState(w <= 37 ? w : 37)
   const [searchParams, setSearchParams] = useSearchParams()
   const { pathname } = useLocation()
   const type =
@@ -206,10 +236,43 @@ export default function Aggregator() {
       ? CampaignType.Aggregator
       : pathname === APP_PATHS.LIMIT_ORDER_CAMPAIGN
       ? CampaignType.LimitOrder
+      : pathname === APP_PATHS.MAY_TRADING_CAMPAIGN
+      ? CampaignType.MayTrading
       : CampaignType.Referrals
 
+  const year = type == CampaignType.MayTrading ? 2025 : 2024
+
+  const rewardChain = type == CampaignType.MayTrading ? ChainId.MAINNET : ChainId.ARBITRUM
+  const rewardToken =
+    type == CampaignType.MayTrading ? KNC[rewardChain].address : '0x912CE59144191C1204E64559FE8253a0e49E6548'
+  const rewardTokenSymbol = type == CampaignType.MayTrading ? 'KNC' : 'ARB'
+  const rewardTokenLogo =
+    type == CampaignType.MayTrading
+      ? 'https://s2.coinmarketcap.com/static/img/coins/64x64/9444.png'
+      : 'https://s2.coinmarketcap.com/static/img/coins/64x64/11841.png'
+
+  const ctaLink =
+    type == CampaignType.MayTrading
+      ? '/swap/base'
+      : type == CampaignType.Aggregator
+      ? '/swap/arbitrum/eth-to-arb'
+      : '/limit/arbitrum'
+  const ctaText = type == CampaignType.MayTrading || type == CampaignType.Aggregator ? 'Trade Now' : 'Place order'
+
+  const weeks = type === CampaignType.MayTrading ? mayTradingWeeks : stipWeeks
+  const startWeek = weeks[0].value
+  const endWeek = weeks[weeks.length - 1].value
+  const [selectedWeek, setSelectedWeek] = useState(startWeek <= w && w <= endWeek ? w : endWeek)
+
+  useEffect(() => {
+    if (selectedWeek < startWeek || selectedWeek > endWeek) {
+      setSelectedWeek(endWeek)
+    }
+  }, [selectedWeek, startWeek, endWeek])
+
+  const program = type === CampaignType.MayTrading ? 'grind/base' : 'stip'
   const campaign =
-    type === CampaignType.Aggregator
+    type === CampaignType.Aggregator || type === CampaignType.MayTrading
       ? 'trading-incentive'
       : type === CampaignType.LimitOrder
       ? 'limit-order-farming'
@@ -217,8 +280,9 @@ export default function Aggregator() {
   const { account } = useWeb3React()
   const { data: userData } = useGetUserRewardQuery(
     {
+      program,
       week: selectedWeek,
-      year: 2024,
+      year: year,
       wallet: account || '',
       campaign,
     },
@@ -230,8 +294,9 @@ export default function Aggregator() {
 
   const { data } = useGetLeaderboardQuery(
     {
+      program,
       week: selectedWeek,
-      year: 2024,
+      year: year,
       campaign,
       pageSize: 10,
       pageNumber: page,
@@ -269,10 +334,10 @@ export default function Aggregator() {
     return () => i && clearTimeout(i)
   }, [counter])
 
-  const tab = searchParams.get('tab') || 'leaderboard'
+  const tab = searchParams.get('tab') || 'information'
 
-  const marketPriceMap = useTokenPrices(['0x912CE59144191C1204E64559FE8253a0e49E6548'], ChainId.ARBITRUM)
-  const price = marketPriceMap?.['0x912CE59144191C1204E64559FE8253a0e49E6548'] || 0
+  const marketPriceMap = useTokenPrices([rewardToken], rewardChain)
+  const price = marketPriceMap?.[rewardToken] || 0
 
   const rewardAmount = CurrencyAmount.fromRawAmount(
     new Token(1, ZERO_ADDRESS, 18, 'mock'),
@@ -285,7 +350,7 @@ export default function Aggregator() {
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
 
   const { data: referralData } = useGetUserReferralTotalRewardQuery(
-    { wallet: account || '' },
+    { program, wallet: account || '' },
     {
       skip: !account || campaign !== 'referral-program',
     },
@@ -299,6 +364,14 @@ export default function Aggregator() {
   const referralRewardUsd = price * +referralRewardAmount?.toExact() || 0
 
   const usd = campaign === 'referral-program' ? referralRewardUsd : rewardUsd
+
+  const dashboardTab = type === CampaignType.MayTrading ? 'may-trading' : campaign
+
+  const startEndIn =
+    type === CampaignType.MayTrading
+      ? `${isNotStart ? 'Starting in' : isEnd ? 'Ended at' : 'Ending in'}`
+      : `Week ${selectedWeek - startWeek + 1} ${isNotStart ? 'starting in' : isEnd ? 'ended at' : 'ending in'}`
+  const estRewardText = 'My Estimated Rewards'
 
   useEffect(() => {
     searchParams.set('page', '1')
@@ -314,7 +387,9 @@ export default function Aggregator() {
           <StyledInternalLink
             to={
               campaign === 'trading-incentive'
-                ? '/campaigns/aggregator?tab=information'
+                ? type === CampaignType.Aggregator
+                  ? '/campaigns/aggregator?tab=information'
+                  : '/campaigns/may-trading?tab=information'
                 : campaign === 'limit-order-farming'
                 ? '/campaigns/limit-order?tab=information'
                 : '/campaigns/referrals?tab=information'
@@ -336,6 +411,8 @@ export default function Aggregator() {
             ? tradingBanner
             : type === CampaignType.LimitOrder
             ? loBanner
+            : type === CampaignType.MayTrading
+            ? mayTradingBanner
             : referralBanner
         }
         width="100%"
@@ -348,6 +425,8 @@ export default function Aggregator() {
             ? 'Aggregator Trading'
             : type === CampaignType.LimitOrder
             ? 'Limit Order'
+            : type === CampaignType.MayTrading
+            ? 'May Trading'
             : 'Referral'}{' '}
           Campaign
         </Text>
@@ -355,7 +434,7 @@ export default function Aggregator() {
         {campaign === 'referral-program' && <JoinReferral />}
       </Flex>
 
-      {campaign !== 'referral-program' && (
+      {campaign !== 'referral-program' && type != CampaignType.MayTrading && (
         <Flex
           justifyContent="space-between"
           marginTop="1.5rem"
@@ -397,10 +476,10 @@ export default function Aggregator() {
             width={upToExtraSmall ? '100%' : '160px'}
             height="40px"
             onClick={() => {
-              navigate(campaign === 'trading-incentive' ? '/swap/arbitrum/eth-to-arb' : '/limit/arbitrum')
+              navigate(ctaLink)
             }}
           >
-            {campaign === 'trading-incentive' ? 'Trade now' : 'Place order'}
+            {ctaText}
           </ButtonPrimary>
         </Flex>
       )}
@@ -421,7 +500,7 @@ export default function Aggregator() {
         {campaign !== 'referral-program' && (
           <StatCard>
             <Text fontSize={14} color={theme.subText}>
-              Week {selectedWeek - 27} {isNotStart ? 'starting in' : isEnd ? 'ended at' : 'ending in'}
+              {startEndIn}
             </Text>
             <Text marginTop="8px" fontSize={20} fontWeight="500">
               {isEnd ? dayjs(week.end * 1000).format('MMM DD YYYY') : getFormattedTime(duration)}
@@ -457,18 +536,18 @@ export default function Aggregator() {
 
         <StatCard>
           <Text fontSize={14} color={theme.subText}>
-            My Estimated Rewards {info}
+            {estRewardText} {info}
           </Text>
           <Flex marginTop="8px" fontSize={20} fontWeight="500" alignItems="center">
             <img
-              src="https://s2.coinmarketcap.com/static/img/coins/64x64/11841.png"
-              alt="arb"
+              src={rewardTokenLogo}
+              alt={rewardTokenSymbol}
               width="20px"
               height="20px"
               style={{ borderRadius: '50%' }}
             />
             <Text marginLeft="4px" fontSize={16}>
-              {campaign === 'referral-program' ? referralReward : rewardNumber} ARB
+              {campaign === 'referral-program' ? referralReward : rewardNumber} {rewardTokenSymbol}
             </Text>
             <Text ml="4px" fontSize={14} color={theme.subText}>
               {formatDisplayNumber(usd, { style: 'currency', significantDigits: 4 })}
@@ -501,12 +580,12 @@ export default function Aggregator() {
           </Tab>
         </Tabs>
 
-        <StyledInternalLink to={`${APP_PATHS.MY_DASHBOARD}?tab=${campaign}`}>[ My Dashboard ]</StyledInternalLink>
+        <StyledInternalLink to={`${APP_PATHS.MY_DASHBOARD}?tab=${dashboardTab}`}>[ My Dashboard ]</StyledInternalLink>
       </Flex>
 
       {tab === 'information' && <Information type={type} week={selectedWeek} />}
 
-      {tab === 'leaderboard' && <Leaderboard type={type} week={selectedWeek} year={2024} />}
+      {tab === 'leaderboard' && <Leaderboard type={type} week={selectedWeek} year={year} />}
     </Wrapper>
   )
 }
