@@ -14,7 +14,7 @@ import InfoHelper from 'components/InfoHelper'
 import LocalLoader from 'components/LocalLoader'
 import TokenLogo from 'components/TokenLogo'
 import { APP_PATHS } from 'constants/index'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { NavigateButton } from 'pages/Earns/PoolExplorer/styles'
 import PositionDetailHeader from 'pages/Earns/PositionDetail/Header'
@@ -31,7 +31,7 @@ import { EmptyPositionText, PositionPageWrapper } from 'pages/Earns/UserPosition
 import { Exchange } from 'pages/Earns/constants'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import { FeeInfo, ParsedPosition } from 'pages/Earns/types'
-import { getFullUnclaimedFeesInfo, getNftManagerContract, parsePosition } from 'pages/Earns/utils'
+import { getUnclaimedFeesInfo, parsePosition } from 'pages/Earns/utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const PositionDetail = () => {
@@ -42,7 +42,6 @@ const PositionDetail = () => {
   const forceLoading = searchParams.get('forceLoading')
 
   const { account } = useActiveWeb3React()
-  const { library } = useWeb3React()
   const { positionId, chainId, protocol } = useParams()
   const { widget: zapMigrationWidget, handleOpenZapMigration } = useZapMigrationWidget()
 
@@ -74,27 +73,14 @@ const PositionDetail = () => {
   }, [feeInfoFromRpc, userPosition, previousPosition])
 
   const handleFetchUnclaimedFee = useCallback(async () => {
-    if (!position || !library) return
-    const contract = getNftManagerContract(position.dex.id, position.chain.id, library)
+    if (!position) return
 
-    if (!contract) return
-    const owner = await contract.ownerOf(position.tokenId)
-
-    if (!owner) return
-
-    const feeFromRpc = await getFullUnclaimedFeesInfo({
-      contract,
-      positionOwner: owner,
-      tokenId: position.tokenId,
-      chainId: position.chain.id,
-      token0: position.token0,
-      token1: position.token1,
-    })
+    const feeFromRpc = await getUnclaimedFeesInfo(position)
 
     setFeeInfoFromRpc(feeFromRpc)
 
     setTimeout(() => setFeeInfoFromRpc(undefined), 60_000)
-  }, [library, position])
+  }, [position])
 
   const handleMigrateToKem = (e: React.MouseEvent) => {
     e.stopPropagation()

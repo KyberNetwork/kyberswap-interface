@@ -30,7 +30,7 @@ const useCollectFees = ({ refetchAfterCollect }: { refetchAfterCollect: () => vo
   const handleClaim = useCallback(async () => {
     if (!library || !claimInfo?.dex || !DEXES_SUPPORT_COLLECT_FEE[claimInfo.dex]) return
 
-    const contract = getNftManagerContract(claimInfo.dex, claimInfo.chainId, library)
+    const contract = getNftManagerContract(claimInfo.dex, claimInfo.chainId)
     if (!contract) return
 
     setClaiming(true)

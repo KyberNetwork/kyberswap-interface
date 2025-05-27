@@ -1,8 +1,10 @@
 import { TransactionRequest, Web3Provider } from '@ethersproject/providers'
-import { CurrencyAmount, Token, WETH } from '@kyberswap/ks-sdk-core'
-import { Contract, ethers } from 'ethers'
+import { ChainId, CurrencyAmount, Token, WETH } from '@kyberswap/ks-sdk-core'
+import { ethers } from 'ethers'
+import { defaultAbiCoder as abiEncoder, keccak256, solidityPack } from 'ethers/lib/utils'
 import { RewardData, TokenRewardExtended } from 'services/reward'
 
+import StateViewABI from 'constants/abis/earn/uniswapv4StateViewAbi.json'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import {
@@ -15,11 +17,19 @@ import {
   NFT_MANAGER_ABI,
   NFT_MANAGER_CONTRACT,
   PROTOCOLS_CORE_MAPPING,
+  UNISWAPV4_STATEVIEW_CONTRACT,
 } from 'pages/Earns/constants'
-import { EarnPosition, FeeInfo, NftRewardInfo, PositionStatus, TokenRewardInfo } from 'pages/Earns/types'
+import {
+  EarnPosition,
+  FeeInfo,
+  NftRewardInfo,
+  ParsedPosition,
+  PositionStatus,
+  TokenRewardInfo,
+} from 'pages/Earns/types'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { calculateGasMargin } from 'utils'
-import { getReadingContract } from 'utils/getContract'
+import { getReadingContractWithCustomChain } from 'utils/getContract'
 
 export const getTokenId = async (provider: Web3Provider, txHash: string) => {
   try {
@@ -107,24 +117,29 @@ export const submitTransaction = async ({
   }
 }
 
-export const getUnclaimedFees = async ({
-  contract,
-  positionOwner,
+export const getUniv3UnclaimedFees = async ({
   tokenId,
+  dex,
+  chainId,
 }: {
-  contract: Contract
-  positionOwner: string
   tokenId: string
+  dex: EarnDex
+  chainId: number
 }) => {
+  const contract = getNftManagerContract(dex, chainId)
+  if (!contract) return { balance0: 0, balance1: 0 }
+
+  const owner = await contract.ownerOf(tokenId)
+
   const maxUnit = '0x' + (2n ** 128n - 1n).toString(16)
   const results = await contract.callStatic.collect(
     {
-      tokenId: tokenId,
-      recipient: positionOwner,
+      tokenId,
+      recipient: owner,
       amount0Max: maxUnit,
       amount1Max: maxUnit,
     },
-    { from: positionOwner },
+    { from: owner },
   )
   const balance0 = results.amount0.toString()
   const balance1 = results.amount1.toString()
@@ -132,41 +147,73 @@ export const getUnclaimedFees = async ({
   return { balance0, balance1 }
 }
 
-export const getFullUnclaimedFeesInfo = async ({
-  contract,
-  positionOwner,
+export const getUniv4UnclaimedFees = async ({
   tokenId,
+  dex,
   chainId,
-  token0,
-  token1,
+  poolAddress,
 }: {
-  contract: Contract
-  positionOwner: string
-  tokenId: string
+  tokenId: number | string
+  dex: EarnDex
   chainId: number
-  token0: {
-    address: string
-    decimals: number
-    price: number
-  }
-  token1: {
-    address: string
-    decimals: number
-    price: number
-  }
+  poolAddress: string
 }) => {
-  const maxUnit = '0x' + (2n ** 128n - 1n).toString(16)
-  const results = await contract.callStatic.collect(
-    {
-      tokenId: tokenId,
-      recipient: positionOwner,
-      amount0Max: maxUnit,
-      amount1Max: maxUnit,
-    },
-    { from: positionOwner },
-  )
-  const balance0 = results.amount0.toString()
-  const balance1 = results.amount1.toString()
+  const defaultBalance = { balance0: 0, balance1: 0 }
+
+  try {
+    const nftPosManagerContract = getNftManagerContract(dex, chainId)
+    if (!nftPosManagerContract) return defaultBalance
+
+    const positionInfo = await nftPosManagerContract.positionInfo(tokenId)
+    const { tickLower, tickUpper } = decodePositionInfo(BigInt(positionInfo))
+
+    const stateViewAddress = UNISWAPV4_STATEVIEW_CONTRACT[chainId as keyof typeof UNISWAPV4_STATEVIEW_CONTRACT]
+    const stateViewContract = getReadingContractWithCustomChain(stateViewAddress, StateViewABI, chainId)
+    if (!stateViewContract) return defaultBalance
+
+    const salt = abiEncoder.encode(['uint256'], [tokenId])
+    const nftPosManagerAddress = getNftManagerContractAddress(dex, chainId)
+    const positionId = keccak256(
+      solidityPack(['address', 'int24', 'int24', 'bytes32'], [nftPosManagerAddress, tickLower, tickUpper, salt]),
+    )
+    const statePositionInfo = await stateViewContract.getPositionInfo(poolAddress, positionId)
+    const positionLiquidity = statePositionInfo[0]
+
+    const feeGrowthInsideCurrent = await stateViewContract.getFeeGrowthInside(poolAddress, tickLower, tickUpper)
+    const pendingFees0 = positionLiquidity
+      .mul(feeGrowthInsideCurrent[0].sub(statePositionInfo.feeGrowthInside0LastX128))
+      .shr(128)
+    const pendingFees1 = positionLiquidity
+      .mul(feeGrowthInsideCurrent[1].sub(statePositionInfo.feeGrowthInside1LastX128))
+      .shr(128)
+
+    return {
+      balance0: pendingFees0.toString(),
+      balance1: pendingFees1.toString(),
+    }
+  } catch (error) {
+    console.log('getUniv4UnclaimedFees error', error)
+    return defaultBalance
+  }
+}
+
+export const getUnclaimedFeesInfo = async (position: ParsedPosition) => {
+  const { tokenId, dex, chain, token0, token1 } = position
+  const chainId = chain.id
+  const isUniv4 = isForkFrom(dex.id, CoreProtocol.UniswapV4)
+
+  const { balance0, balance1 } = isUniv4
+    ? await getUniv4UnclaimedFees({
+        tokenId,
+        dex: dex.id,
+        chainId,
+        poolAddress: position.pool.address,
+      })
+    : await getUniv3UnclaimedFees({
+        tokenId,
+        dex: dex.id,
+        chainId,
+      })
 
   const amount0 = CurrencyAmount.fromRawAmount(new Token(chainId, token0.address, token0.decimals), balance0).toExact()
   const amount1 = CurrencyAmount.fromRawAmount(new Token(chainId, token1.address, token1.decimals), balance1).toExact()
@@ -185,6 +232,31 @@ export const getFullUnclaimedFeesInfo = async ({
   }
 }
 
+const decodePositionInfo = (positionInfo: string | bigint) => {
+  // Convert input to BigInt if it's a hex string
+  if (typeof positionInfo === 'string') {
+    positionInfo = BigInt(positionInfo)
+  }
+
+  // Extract tickLower (bits 8–31), signed 24-bit
+  const tickLowerRaw = Number((positionInfo >> 8n) & 0xffffffn)
+  const tickLower = tickLowerRaw >= 0x800000 ? tickLowerRaw - 0x1000000 : tickLowerRaw
+
+  // Extract tickUpper (bits 32–55), signed 24-bit
+  const tickUpperRaw = Number((positionInfo >> 32n) & 0xffffffn)
+  const tickUpper = tickUpperRaw >= 0x800000 ? tickUpperRaw - 0x1000000 : tickUpperRaw
+
+  // Extract top 200 bits (25 bytes) for poolId
+  const truncatedPoolIdBigInt = positionInfo >> 56n
+  const truncatedPoolIdHex = '0x' + truncatedPoolIdBigInt.toString(16).padStart(50, '0') // 25 bytes = 50 hex chars
+
+  return {
+    poolId: truncatedPoolIdHex, // for poolKeys lookup
+    tickLower,
+    tickUpper,
+  }
+}
+
 export const getNftManagerContractAddress = (dex: EarnDex, chainId: number) => {
   const nftManagerContractElement = NFT_MANAGER_CONTRACT[dex]
 
@@ -193,12 +265,12 @@ export const getNftManagerContractAddress = (dex: EarnDex, chainId: number) => {
     : nftManagerContractElement[chainId as keyof typeof nftManagerContractElement]
 }
 
-export const getNftManagerContract = (dex: EarnDex, chainId: number, library: Web3Provider) => {
+export const getNftManagerContract = (dex: EarnDex, chainId: number) => {
   const nftManagerContractAddress = getNftManagerContractAddress(dex, chainId)
   const nftManagerAbi = NFT_MANAGER_ABI[dex]
   if (!nftManagerAbi) return
 
-  return getReadingContract(nftManagerContractAddress, nftManagerAbi, library)
+  return getReadingContractWithCustomChain(nftManagerContractAddress, nftManagerAbi, chainId as ChainId)
 }
 
 export const parsePosition = ({
