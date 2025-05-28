@@ -767,6 +767,9 @@ importers:
       '@kyberswap/liquidity-widgets':
         specifier: workspace:^
         version: link:../../packages/liquidity-widgets
+      '@kyberswap/pancake-liquidity-widgets':
+        specifier: workspace:*
+        version: link:../../packages/pancake-liquidity-widgets
       '@kyberswap/zap-migration-widgets':
         specifier: workspace:^
         version: link:../../packages/zap-migration-widgets

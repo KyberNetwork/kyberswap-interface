@@ -296,3 +296,8 @@ export const chainIdToChain: { [chainId: number]: string } = {
 };
 
 export const MAX_ZAP_IN_TOKENS = 5;
+
+export enum Dex {
+  DEX_PANCAKESWAPV3 = "DEX_PANCAKESWAPV3",
+  DEX_PANCAKE_INFINITY_CL = "DEX_PANCAKE_INFINITY_CL",
+}

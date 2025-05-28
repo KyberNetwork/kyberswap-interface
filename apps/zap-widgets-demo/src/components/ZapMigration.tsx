@@ -1,7 +1,7 @@
-import { zapMigrationDexMapping } from "../constant";
-import Input from "./Input";
-import Modal from "./Modal";
-import SubmitButton from "./SubmitButton";
+import { zapMigrationDexMapping } from "@/constant";
+import Input from "@/components/Input";
+import Modal from "@/components/Modal";
+import SubmitButton from "@/components/SubmitButton";
 import {
   Card,
   CardContent,
@@ -22,6 +22,7 @@ import "@kyberswap/zap-migration-widgets/dist/style.css";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { useState } from "react";
 import { useAccount, useChainId, useSwitchChain, useWalletClient } from "wagmi";
+import { Zap } from "@/App";
 
 const ZapMigration = () => {
   const { address } = useAccount();
@@ -108,7 +109,7 @@ const ZapMigration = () => {
   };
 
   return (
-    <TabsContent value="zap-migration">
+    <TabsContent value={Zap.ZAP_MIGRATION}>
       <Card>
         <CardHeader>
           <CardTitle>Zap migration widget</CardTitle>

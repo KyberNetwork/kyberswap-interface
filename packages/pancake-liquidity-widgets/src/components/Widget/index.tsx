@@ -8,7 +8,7 @@ import { Web3Provider } from "@/hooks/useProvider";
 import { TokenProvider } from "@/hooks/useTokens";
 import { WidgetProvider } from "@/hooks/useWidgetInfo";
 import { ZapContextProvider } from "@/hooks/useZapInState";
-import { NetworkInfo } from "@/constants";
+import { Dex, NetworkInfo } from "@/constants";
 import "./Widget.scss";
 import "../../globals.css";
 
@@ -33,6 +33,7 @@ export interface WidgetProps {
   excludedSources?: string;
   initDepositTokens: string;
   initAmounts: string;
+  dex: Dex;
   onDismiss: () => void;
   onTxSubmit?: (txHash: string) => void;
   onConnectWallet: () => void;
@@ -154,3 +155,5 @@ export default function Widget({
     </Web3Provider>
   );
 }
+
+export { Dex };
