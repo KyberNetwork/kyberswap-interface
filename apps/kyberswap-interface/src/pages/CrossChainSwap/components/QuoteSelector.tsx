@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { Quote } from '../registry'
 import { ReactComponent as RouteIcon } from 'assets/svg/route_icon.svg'
 import { Box, Flex, Text } from 'rebass'
@@ -16,6 +16,8 @@ import { useMedia } from 'react-use'
 import { MEDIA_WIDTHS } from 'theme'
 import Modal from 'components/Modal'
 import { formatTime } from './Summary'
+import { registry, useCrossChainSwap } from '../hooks/useCrossChainSwap'
+import Skeleton from 'react-loading-skeleton'
 
 const Wrapper = styled.div`
   display: flex;
@@ -76,6 +78,7 @@ export const QuoteSelector = ({
   onChange: (quote: Quote) => void
   tokenOut?: Currency
 }) => {
+  const { allLoading } = useCrossChainSwap()
   const [show, setShow] = useState(false)
   const theme = useTheme()
 
@@ -181,6 +184,33 @@ export const QuoteSelector = ({
               </Row>
             )
           })}
+          {allLoading &&
+            Array(registry.getAllAdapters().length - quotes.length)
+              .fill(0)
+              .map((_, index) => {
+                return (
+                  <React.Fragment key={index}>
+                    <Row selected={false}>
+                      <Skeleton
+                        height="20px"
+                        width="200px"
+                        baseColor={theme.disableText}
+                        highlightColor={theme.buttonGray}
+                        borderRadius="1rem"
+                      />
+
+                      <Skeleton
+                        style={{ marginTop: '8px' }}
+                        height="16px"
+                        width="134px"
+                        baseColor={theme.disableText}
+                        highlightColor={theme.buttonGray}
+                        borderRadius="1rem"
+                      />
+                    </Row>
+                  </React.Fragment>
+                )
+              })}
         </ListRoute>
       </Box>
     </Wrapper>

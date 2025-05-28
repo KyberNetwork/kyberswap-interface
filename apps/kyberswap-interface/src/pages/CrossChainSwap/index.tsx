@@ -143,7 +143,7 @@ function CrossChainSwap() {
             <Skeleton
               height="16px"
               width="120px"
-              baseColor={theme.background}
+              baseColor={theme.disableText}
               highlightColor={theme.buttonGray}
               borderRadius="1rem"
             />
@@ -291,7 +291,7 @@ function CrossChainSwap() {
       <SlippageSetting
         slippageInfo={warning?.slippageInfo}
         rightComponent={
-          quotes.length > 1 && selectedQuote ? (
+          selectedQuote ? (
             <QuoteSelector
               quotes={quotes}
               selectedQuote={selectedQuote}
