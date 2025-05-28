@@ -224,17 +224,20 @@ export const QuoteSelector = ({
       role="button"
       sx={{
         cursor: 'pointer',
-        width: '28px',
-        height: '28px',
-        color: theme.text,
         backgroundColor: rgba(theme.subText, 0.08),
-        borderRadius: '50%',
+        fontSize: '14px',
+        padding: '4px 8px',
+        gap: '4px',
+        color: theme.subText,
+        borderRadius: '999px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
+        fontWeight: 500,
       }}
     >
       <RouteIcon />
+      Route Options
     </Box>
   )
 

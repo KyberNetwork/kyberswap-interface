@@ -306,8 +306,13 @@ function CrossChainSwap() {
 
       <Summary quote={selectedQuote || undefined} tokenOut={currencyOut} />
 
-      <PiWarning />
+      {selectedQuote && (
+        <Text fontStyle="italic" color={'#737373'} fontSize={12}>
+          Routed via {selectedQuote.adapter.getName()}
+        </Text>
+      )}
 
+      <PiWarning />
       <SwapAction setShowBtcModal={setShowBtcConnect} />
 
       <BitcoinConnectModal
