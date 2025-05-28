@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
-import { Text } from 'rebass'
+import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ButtonEmpty } from 'components/Button'
@@ -11,6 +11,7 @@ import useParsedQueryString from 'hooks/useParsedQueryString'
 import { TAB } from 'pages/SwapV3'
 import LimitTab from 'pages/SwapV3/Tabs/LimitTab'
 import { isSupportLimitOrder } from 'utils'
+import { NewLabel } from 'components/Menu'
 
 const TabContainer = styled.div`
   display: flex;
@@ -36,12 +37,13 @@ const TabWrapper = styled.div`
 
 export const Tab = styled(ButtonEmpty)<{ isActive: boolean }>`
   width: fit-content;
-  font-weight: 400;
-  padding: 0px 0.75rem;
+  font-weight: 500;
+  padding: 0px 0.5rem;
   margin-bottom: 4px;
   color: ${({ theme, isActive }) => (isActive ? theme.primary : theme.subText)};
   position: relative;
   border-radius: 0;
+  font-size: 18px;
   border-left: 2px solid ${({ theme }) => theme.border};
   :first-child {
     border: none;
@@ -59,8 +61,9 @@ export const Tab = styled(ButtonEmpty)<{ isActive: boolean }>`
     margin-right: 0;
   }
 
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-      padding: 0px 0.75rem;
+  ${({ theme }) => theme.mediaWidth.upToXXSmall`
+    font-size: 14px;
+    padding: 0px 0.25rem;
   `}
 `
 
@@ -116,7 +119,7 @@ export default function Tabs({ activeTab, setActiveTab, customChainId }: Props) 
       <TabWrapper>
         {show(TAB.SWAP) && (
           <Tab onClick={() => onClickTab(TAB.SWAP)} isActive={TAB.SWAP === activeTab}>
-            <Text fontSize={18} fontWeight={500}>
+            <Text fontWeight={500}>
               <Trans>Swap</Trans>
             </Text>
           </Tab>
@@ -133,9 +136,10 @@ export default function Tabs({ activeTab, setActiveTab, customChainId }: Props) 
           isActive={activeTab === TAB.CROSS_CHAIN}
           data-testid="cross-chain-tab"
         >
-          <Text fontSize={18} fontWeight={500}>
+          <Flex fontWeight={500}>
             <Trans>Cross-Chain</Trans>
-          </Text>
+            <NewLabel>New</NewLabel>
+          </Flex>
         </Tab>
       </TabWrapper>
     </TabContainer>
