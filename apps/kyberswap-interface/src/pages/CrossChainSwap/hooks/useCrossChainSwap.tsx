@@ -22,6 +22,13 @@ CrossChainSwapFactory.getAllAdapters().forEach(adapter => {
   registry.registerAdapter(adapter)
 })
 
+// Helper function to create a timeout promise
+const createTimeoutPromise = (ms: number) => {
+  return new Promise<never>((_, reject) => {
+    setTimeout(() => reject(new Error('Timeout')), ms)
+  })
+}
+
 const RegistryContext = createContext<
   | {
       showPreview: boolean
@@ -373,7 +380,8 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
           // Check for cancellation before starting
           if (signal.aborted) throw new Error('Cancelled')
 
-          const quote = await adapter.getQuote(params)
+          // Race between the adapter quote and timeout
+          const quote = await Promise.race([adapter.getQuote(params), createTimeoutPromise(3_000)])
 
           // Check for cancellation after getting quote
           if (signal.aborted) throw new Error('Cancelled')
