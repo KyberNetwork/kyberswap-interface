@@ -106,10 +106,10 @@ export class CrossChainSwapFactory {
       CrossChainSwapFactory.getXyFinanceAdapter(),
       CrossChainSwapFactory.getNearIntentsAdapter(),
       CrossChainSwapFactory.getMayanAdapter(),
-      CrossChainSwapFactory.getSymbiosisAdapter(),
+      //CrossChainSwapFactory.getSymbiosisAdapter(),
       CrossChainSwapFactory.getDebridgeInstance(),
       CrossChainSwapFactory.getLifiInstance(),
-      CrossChainSwapFactory.getOptimexAdapter(),
+      //CrossChainSwapFactory.getOptimexAdapter(),
       CrossChainSwapFactory.getKsApdater(),
     ]
   }

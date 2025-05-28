@@ -61,9 +61,9 @@ export const Tab = styled(ButtonEmpty)<{ isActive: boolean }>`
     margin-right: 0;
   }
 
-  ${({ theme }) => theme.mediaWidth.upToXXSmall`
+  ${({ theme }) => theme.mediaWidth.upToSmall`
     font-size: 14px;
-    padding: 0px 0.25rem;
+    padding: 0px 0.4rem;
   `}
 `
 
@@ -104,6 +104,9 @@ export default function Tabs({ activeTab, setActiveTab, customChainId }: Props) 
     }
 
     setActiveTab(tab)
+    if (tab === TAB.SWAP && pathname.includes('/swap')) {
+      return
+    }
     const { inputCurrency, outputCurrency, ...newQs } = qs
     navigateFn({
       pathname:
