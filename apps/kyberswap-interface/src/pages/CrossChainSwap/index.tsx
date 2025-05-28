@@ -143,7 +143,7 @@ function CrossChainSwap() {
             <Skeleton
               height="16px"
               width="120px"
-              baseColor={theme.background}
+              baseColor={theme.disableText}
               highlightColor={theme.buttonGray}
               borderRadius="1rem"
             />
@@ -291,7 +291,7 @@ function CrossChainSwap() {
       <SlippageSetting
         slippageInfo={warning?.slippageInfo}
         rightComponent={
-          quotes.length > 1 && selectedQuote ? (
+          selectedQuote ? (
             <QuoteSelector
               quotes={quotes}
               selectedQuote={selectedQuote}
@@ -306,8 +306,13 @@ function CrossChainSwap() {
 
       <Summary quote={selectedQuote || undefined} tokenOut={currencyOut} />
 
-      <PiWarning />
+      {selectedQuote && (
+        <Text fontStyle="italic" color={'#737373'} fontSize={12}>
+          Routed via {selectedQuote.adapter.getName()}
+        </Text>
+      )}
 
+      <PiWarning />
       <SwapAction setShowBtcModal={setShowBtcConnect} />
 
       <BitcoinConnectModal

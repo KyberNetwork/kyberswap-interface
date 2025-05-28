@@ -89,7 +89,7 @@ const SlippageSetting: React.FC<Props> = ({ shouldShowPinButton = true }) => {
 
       {isWarning && (
         <Message data-warning={true} data-error={false}>
-          `Your slippage ${msg}`
+          Your slippage {msg}
         </Message>
       )}
     </Flex>

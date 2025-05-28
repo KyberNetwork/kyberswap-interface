@@ -108,10 +108,20 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
 
   const { walletInfo, availableWallets } = useBitcoinWallet()
 
-  const sendBtcFn = (params: { recipient: string; amount: string | number }) => {
+  const sendBtcFn = async (params: { recipient: string; amount: string | number }) => {
+    const feeRate = await fetch('https://mempool.space/api/v1/fees/recommended').then(res => res.json())
+    console.log(feeRate)
+
     const selectedWallet = availableWallets.find(item => item.type === walletInfo.walletType)
     if (!selectedWallet) throw new Error('Not connected wallet')
-    return selectedWallet.sendBitcoin(params)
+    return selectedWallet.sendBitcoin({
+      ...params,
+      ...(feeRate?.fastestFee
+        ? {
+            options: { feeRate: feeRate.fastestFee * 1.2 },
+          }
+        : {}),
+    })
   }
 
   const inputAmount =
@@ -162,6 +172,13 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
       isOpen={submittingTx || isOpen}
       onDismiss={dismiss}
       hash={txHash}
+      scanLink={
+        fromChainId === NonEvmChain.Near
+          ? `https://nearblocks.io/address/${txHash}`
+          : fromChainId === NonEvmChain.Bitcoin
+          ? `https://mempool.space/tx/${txHash}`
+          : getEtherscanLink(fromChainId, txHash, 'transaction')
+      }
       attemptingTxn={submittingTx}
       pendingText={`Swapping ${currencyIn?.symbol} for ${currencyOut?.symbol}`}
       content={() => {

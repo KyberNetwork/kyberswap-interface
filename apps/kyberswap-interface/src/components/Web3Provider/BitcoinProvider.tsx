@@ -3,6 +3,12 @@ import { ReactNode, createContext, useCallback, useContext, useEffect, useState 
 
 type WalletType = 'xverse' | 'bitget' | 'okx' | 'unisat' | 'phantom'
 
+interface SendBitcoinParams {
+  recipient: string
+  amount: number | string
+  options?: { feeRate?: number }
+}
+
 // Define types for wallet interfaces
 interface BitcoinWalletBase {
   name: string
@@ -10,7 +16,7 @@ interface BitcoinWalletBase {
   type: WalletType
   connect: () => Promise<void>
   disconnect?: () => void
-  sendBitcoin: ({ recipient, amount }: { recipient: string; amount: number | string }) => Promise<string>
+  sendBitcoin: ({ recipient, amount }: SendBitcoinParams) => Promise<string>
   isInstalled: () => boolean
 }
 
@@ -165,41 +171,46 @@ export const BitcoinWalletProvider = ({ children }: { children: ReactNode }) => 
         type: 'bitget' as const,
         isInstalled: () => !!window?.bitkeep,
         connect: async () => {
-          if (!window?.bitkeep) {
-            window.open(
-              'https://chromewebstore.google.com/detail/bitget-wallet-crypto-web3/jiidiaalihmmhddjgbnbgdfflelocpak',
-              '_blank',
-            )
-            return
-          }
-          if (!!connectingWallet) {
-            return
-          }
-          setConnectingWallet('bitget')
-          const currentNetwork = await window.bitkeep.unisat.getNetwork()
-          if (currentNetwork !== 'livenet') {
-            await window.bitkeep.unisat.switchNetwork('livenet')
-          }
-          const [accounts, publicKey] = await Promise.all([
-            window.bitkeep.unisat.requestAccounts(),
-            window.bitkeep.unisat.getPublicKey(),
-          ])
+          try {
+            if (!window?.bitkeep) {
+              window.open(
+                'https://chromewebstore.google.com/detail/bitget-wallet-crypto-web3/jiidiaalihmmhddjgbnbgdfflelocpak',
+                '_blank',
+              )
+              return
+            }
+            if (!!connectingWallet) {
+              return
+            }
+            setConnectingWallet('bitget')
+            const currentNetwork = await window.bitkeep.unisat.getNetwork()
+            if (currentNetwork !== 'livenet') {
+              await window.bitkeep.unisat.switchNetwork('livenet')
+            }
+            const [accounts, publicKey] = await Promise.all([
+              window.bitkeep.unisat.requestAccounts(),
+              window.bitkeep.unisat.getPublicKey(),
+            ])
 
-          setWalletInfo({
-            isConnected: true,
-            address: accounts[0],
-            publicKey,
-            walletType: 'bitget',
-          })
-          setConnectingWallet(null)
+            setWalletInfo({
+              isConnected: true,
+              address: accounts[0],
+              publicKey,
+              walletType: 'bitget',
+            })
+            setConnectingWallet(null)
+          } catch (e) {
+            console.log('bitget connect error', e)
+            setConnectingWallet(null)
+          }
         },
         disconnect: async () => {
           localStorage.removeItem('bitcoinWallet')
           setBalance(0)
           setWalletInfo(defaultInfo)
         },
-        sendBitcoin: async ({ recipient, amount }: { recipient: string; amount: number | string }) => {
-          return await window?.bitkeep.unisat.sendBitcoin(recipient, amount.toString())
+        sendBitcoin: async ({ recipient, amount, options }: SendBitcoinParams) => {
+          return await window?.bitkeep.unisat.sendBitcoin(recipient, amount.toString(), options)
         },
       }
       const isOkxInstalled = typeof window !== 'undefined' && 'okxwallet' in window && window.okxwallet !== undefined
@@ -209,31 +220,36 @@ export const BitcoinWalletProvider = ({ children }: { children: ReactNode }) => 
         type: 'okx' as const,
         isInstalled: () => isOkxInstalled,
         connect: async () => {
-          if (!isOkxInstalled) {
-            window.open(
-              'https://chromewebstore.google.com/detail/okx-wallet/mcohilncbfahbmgdjkbpemcciiolgcge',
-              '_blank',
-            )
-            return
-          }
-          if (!!connectingWallet) {
-            return
-          }
-          setConnectingWallet('okx')
-          let resp = await window.okxwallet.bitcoin.connect()
-          // sometime okx return null => throw error => user try again => always failed.
-          // => call disconnect && connect again will resolve
-          if (resp === null) await window.okxwallet.bitcoin.disconnect?.()
-          resp = await window.okxwallet.bitcoin.connect()
+          try {
+            if (!isOkxInstalled) {
+              window.open(
+                'https://chromewebstore.google.com/detail/okx-wallet/mcohilncbfahbmgdjkbpemcciiolgcge',
+                '_blank',
+              )
+              return
+            }
+            if (!!connectingWallet) {
+              return
+            }
+            setConnectingWallet('okx')
+            let resp = await window.okxwallet.bitcoin.connect()
+            // sometime okx return null => throw error => user try again => always failed.
+            // => call disconnect && connect again will resolve
+            if (resp === null) await window.okxwallet.bitcoin.disconnect?.()
+            resp = await window.okxwallet.bitcoin.connect()
 
-          const { address, compressedPublicKey } = resp
-          setWalletInfo({
-            isConnected: true,
-            address,
-            publicKey: compressedPublicKey,
-            walletType: 'okx',
-          })
-          setConnectingWallet(null)
+            const { address, compressedPublicKey } = resp
+            setWalletInfo({
+              isConnected: true,
+              address,
+              publicKey: compressedPublicKey,
+              walletType: 'okx',
+            })
+            setConnectingWallet(null)
+          } catch (e) {
+            console.log('okx connect error', e)
+            setConnectingWallet
+          }
         },
         disconnect: async () => {
           await window.okxwallet.bitcoin.disconnect?.()
@@ -241,8 +257,8 @@ export const BitcoinWalletProvider = ({ children }: { children: ReactNode }) => 
           setBalance(0)
           setWalletInfo(defaultInfo)
         },
-        sendBitcoin: async ({ recipient, amount }: { recipient: string; amount: number | string }) => {
-          return await window.okxwallet.bitcoin.sendBitcoin(recipient, Number(amount))
+        sendBitcoin: async ({ recipient, amount, options }: SendBitcoinParams) => {
+          return await window.okxwallet.bitcoin.sendBitcoin(recipient, Number(amount), options)
         },
       }
       const unisatProvider = {
@@ -284,8 +300,8 @@ export const BitcoinWalletProvider = ({ children }: { children: ReactNode }) => 
           setBalance(0)
           setWalletInfo(defaultInfo)
         },
-        sendBitcoin: async ({ recipient, amount }: { recipient: string; amount: number | string }) => {
-          return await window?.unisat_wallet.sendBitcoin(recipient, amount.toString())
+        sendBitcoin: async ({ recipient, amount, options }: SendBitcoinParams) => {
+          return await window?.unisat_wallet.sendBitcoin(recipient, amount.toString(), options)
         },
       }
       // const phantomProvider = {
@@ -336,7 +352,13 @@ export const BitcoinWalletProvider = ({ children }: { children: ReactNode }) => 
 
       if (window.location.pathname === APP_PATHS.CROSS_CHAIN) {
         const lastConnectedWallet = localStorage.getItem('bitcoinWallet')
-        providers.find(wallet => wallet.type === lastConnectedWallet)?.connect()
+        providers
+          .find(wallet => wallet.type === lastConnectedWallet)
+          ?.connect()
+          .catch(() => {
+            localStorage.removeItem('bitcoinWallet')
+            setConnectingWallet(null)
+          })
       }
 
       providers.sort(a => (a.isInstalled() ? -1 : 1))
