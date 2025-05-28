@@ -172,6 +172,13 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
       isOpen={submittingTx || isOpen}
       onDismiss={dismiss}
       hash={txHash}
+      scanLink={
+        fromChainId === NonEvmChain.Near
+          ? `https://nearblocks.io/address/${txHash}`
+          : fromChainId === NonEvmChain.Bitcoin
+          ? `https://mempool.space/tx/${txHash}`
+          : getEtherscanLink(fromChainId, txHash, 'transaction')
+      }
       attemptingTxn={submittingTx}
       pendingText={`Swapping ${currencyIn?.symbol} for ${currencyOut?.symbol}`}
       content={() => {
