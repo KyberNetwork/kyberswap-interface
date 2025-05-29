@@ -1,5 +1,6 @@
-import { APP_PATHS } from 'constants/index'
 import { ReactNode, createContext, useCallback, useContext, useEffect, useState } from 'react'
+
+import { APP_PATHS } from 'constants/index'
 
 type WalletType = 'xverse' | 'bitget' | 'okx' | 'unisat' | 'phantom'
 

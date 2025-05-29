@@ -18,6 +18,7 @@ import marketOverviewApi from 'services/marketOverview'
 import poolServiceApi from 'services/poolService'
 import priceAlertApi from 'services/priceAlert'
 import referralApi from 'services/referral'
+import rewardServiceApi from 'services/reward'
 import routeApi from 'services/route'
 import socialApi from 'services/social'
 import tokenApi from 'services/token'
@@ -27,6 +28,7 @@ import application from './application/reducer'
 import authen from './authen/reducer'
 import burnProAmm from './burn/proamm/reducer'
 import burn from './burn/reducer'
+import crossChainSwap from './crossChainSwap'
 import customizeDexes from './customizeDexes'
 import { updateVersion } from './global/actions'
 import limit from './limit/reducer'
@@ -41,7 +43,6 @@ import swap from './swap/reducer'
 import tokenPrices from './tokenPrices'
 import topTokens from './topTokens'
 import transactions from './transactions/reducer'
-import crossChainSwap from './crossChainSwap'
 import tutorial from './tutorial/reducer'
 import user, { UserState } from './user/reducer'
 
@@ -107,6 +108,7 @@ const store = configureStore({
     [routeApi.reducerPath]: routeApi.reducer,
     [tokenApi.reducerPath]: tokenApi.reducer,
     [zapEarnServiceApi.reducerPath]: zapEarnServiceApi.reducer,
+    [rewardServiceApi.reducerPath]: rewardServiceApi.reducer,
     [poolServiceApi.reducerPath]: poolServiceApi.reducer,
     [referralApi.reducerPath]: referralApi.reducer,
     [campaignApi.reducerPath]: campaignApi.reducer,
@@ -139,6 +141,7 @@ const store = configureStore({
       .concat(socialApi.middleware)
       .concat(tokenApi.middleware)
       .concat(zapEarnServiceApi.middleware)
+      .concat(rewardServiceApi.middleware)
       .concat(poolServiceApi.middleware)
       .concat(referralApi.middleware)
       .concat(campaignApi.middleware)

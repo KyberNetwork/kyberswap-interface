@@ -1,6 +1,10 @@
+import { NativeToken } from 'constants/networks/type'
+import { EarnDex, Exchange } from 'pages/Earns/constants'
+
 export enum PositionStatus {
   IN_RANGE = 'IN_RANGE',
   OUT_RANGE = 'OUT_RANGE',
+  CLOSED = 'CLOSED',
 }
 
 export enum PositionHistoryType {
@@ -11,7 +15,7 @@ export interface PositionFilter {
   chainIds?: string
   positionId?: string
   protocols?: string
-  status?: string
+  status: string
   q?: string
   sortBy?: string
   orderBy?: string
@@ -21,11 +25,12 @@ export interface PositionFilter {
 export interface EarnPool {
   address: string
   earnFee: number
-  exchange: string
+  exchange: Exchange
   type: string
   feeTier: number
   volume: number
   apr: number
+  kemApr: number
   liquidity: number
   tvl: number
   chainId?: number
@@ -40,106 +45,118 @@ export interface EarnPool {
   }>
 }
 
+export interface ParsedEarnPool extends EarnPool {
+  dexLogo: string
+  dexName: string
+  feeApr: number
+}
+
 export interface EarnPosition {
   [x: string]: any
   chainName: 'eth'
   chainId: number
   chainLogo: string
-  userAddress: string
   id: string
   tokenAddress: string
   tokenId: string
-  liquidity: string
   minPrice: number
   maxPrice: number
   currentAmounts: Array<PositionAmount>
-  providedAmounts: Array<PositionAmount>
   feePending: Array<PositionAmount>
   feesClaimed: Array<PositionAmount>
-  farmRewardsPending: Array<PositionAmount>
-  farmRewardsClaimed: Array<PositionAmount>
-  feeEarned24h: Array<PositionAmount>
-  farmReward24h: Array<PositionAmount>
   createdTime: number
-  lastUpdateBlock: number
-  openedBlock: number
-  openedTime: number
-  closedBlock: number
-  closedTime: number
-  closedPrice: number
-  farming: boolean
-  impermanentLoss: number
   apr: number
-  feeApr: number
-  farmApr: number
-  pnl: number
-  initialUnderlyingValue: number
-  currentUnderlyingValue: number
+  kemApr: number
   currentPositionValue: number
-  compareWithHodl: number
-  returnOnInvestment: number
-  totalDepositValue: number
-  totalWithdrawValue: number
-  yesterdayEarning: number
   earning24h: number
   earning7d: number
   status: PositionStatus
-  avgConvertPrice: number
-  isConvertedFromToken0: boolean
-  gasUsed: number
-  isSupportAutomation: boolean
-  hasAutomationOrder: boolean
   pool: {
     id: string
     poolAddress: string
     price: number
     tokenAmounts: Array<PositionAmount>
-    farmRewardTokens: Array<PositionAmount>
     fees: Array<number>
-    rewards24h: Array<PositionAmount>
     tickSpacing: number
-    project: string
+    project: EarnDex
     projectLogo: string
-    projectAddress: string
-    showWarning: boolean
-    tvl: number
-    farmAddress: string
-    tag: string
+    category: PAIR_CATEGORY
   }
+  suggestionPool: {
+    address: string
+    chainId: number
+    feeTier: number
+    poolExchange: Exchange
+  } | null
 }
 
 export interface ParsedPosition {
   id: string
-  dex: string
-  dexImage: string
-  chainId: number
-  chainName: string
-  chainLogo: string
-  poolAddress: string
+  tokenId: string
+  pool: {
+    fee: number
+    address: string
+    isUniv2: boolean
+    isFarming: boolean
+    nativeToken: NativeToken
+    tickSpacing: number
+    category: PAIR_CATEGORY
+  }
+  dex: {
+    id: EarnDex
+    logo: string
+    version: string
+  }
+  chain: {
+    id: number
+    name: string
+    logo: string
+  }
+  priceRange: {
+    min: number
+    max: number
+    current: number
+  }
+  earning: {
+    earned: number
+    in7d: number
+    in24h: number
+  }
+  farming: {
+    unclaimedUsdValue: number
+    pendingUsdValue: number
+    claimableUsdValue: number
+  }
+  token0: Token
+  token1: Token
   tokenAddress: string
-  token0Address: string
-  token1Address: string
-  token0Logo: string
-  token1Logo: string
-  token0Symbol: string
-  token1Symbol: string
-  token0Decimals: number
-  token1Decimals: number
-  token0Price: number
-  token1Price: number
-  poolFee: number
-  status: string
-  totalValue: number
   apr: number
-  token0TotalAmount: number
-  token1TotalAmount: number
-  minPrice: number
-  maxPrice: number
-  pairRate: number
-  earning24h: number
-  earning7d: number
-  totalEarnedFee: number
+  kemApr: number
+  feeApr: number
+  totalValue: number
+  status: string
   createdTime: number
+  unclaimedFees: number
+  suggestionPool: {
+    address: string
+    chainId: number
+    feeTier: number
+    poolExchange: Exchange
+  } | null
+}
+
+interface Token {
+  address: string
+  symbol: string
+  decimals: number
+  logo: string
+  price: number
+  totalAmount: number
+  isNative: boolean
+  totalProvide: number
+  unclaimedAmount: number
+  unclaimedBalance: number
+  unclaimedValue: number
 }
 
 interface PositionAmount {
@@ -149,20 +166,82 @@ interface PositionAmount {
     name: string
     decimals: number
     logo: string
-    tag: string
     price: number
   }
-  tokenType: string
-  tokenID: string
   balance: string
   quotes: {
     usd: {
-      symbol: string
-      marketPrice: number
       price: number
-      priceChange24hPercentage: number
       value: number
-      timestamp: number
     }
   }
+}
+
+export enum PAIR_CATEGORY {
+  STABLE = 'stablePair',
+  CORRELATED = 'correlatedPair',
+  EXOTIC = 'exoticPair',
+  HIGH_VOLATILITY = 'highVolatilityPair',
+  DEFAULT_EMPTY = '', // For Krystal data
+}
+
+export interface FeeInfo {
+  balance0: string | number
+  balance1: string | number
+  amount0: string | number
+  amount1: string | number
+  value0: number
+  value1: number
+  totalValue: number
+}
+
+export interface RewardInfo {
+  totalUsdValue: number
+  pendingUsdValue: number
+  claimedUsdValue: number
+  claimableUsdValue: number
+
+  totalAmount: number
+  claimableAmount: number
+
+  nfts: Array<NftRewardInfo>
+  claimableTokens: Array<TokenRewardInfo>
+
+  chains: Array<{
+    chainId: number
+    totalUsdValue: number
+    pendingUsdValue: number
+    claimedUsdValue: number
+    claimableUsdValue: number
+
+    totalAmount: number
+    claimableAmount: number
+
+    nfts: Array<NftRewardInfo>
+    claimableTokens: Array<TokenRewardInfo>
+  }>
+}
+
+export interface NftRewardInfo {
+  nftId: string
+  campaignId: string
+  totalUsdValue: number
+  pendingUsdValue: number
+  claimedUsdValue: number
+  claimableUsdValue: number
+
+  totalAmount: number
+  claimableAmount: number
+
+  tokens: Array<TokenRewardInfo>
+}
+
+export interface TokenRewardInfo {
+  symbol: string
+  logo: string
+  chainId: number
+  address: string
+  totalAmount: number
+  claimableAmount: number
+  claimableUsdValue: number
 }

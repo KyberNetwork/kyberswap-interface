@@ -1,9 +1,11 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+
 import { EarnPool, EarnPosition, PositionHistoryType } from 'pages/Earns/types'
 
 interface LandingResponse {
   data: {
+    farmingPools: Array<EarnPool>
     highlightedPools: Array<EarnPool>
     solidEarning: Array<EarnPool>
     highAPR: Array<EarnPool>

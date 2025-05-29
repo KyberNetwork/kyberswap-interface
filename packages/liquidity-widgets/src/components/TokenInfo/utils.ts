@@ -1,5 +1,6 @@
-import { isAddress } from "@kyber/utils/crypto";
-import Numeral from "numeral";
+import Numeral from 'numeral';
+
+import { isAddress } from '@kyber/utils/crypto';
 
 export interface TokenInfo {
   price: number;
@@ -15,13 +16,13 @@ export interface TokenInfo {
 }
 
 const toK = (num: string) => {
-  return Numeral(num).format("0.[00]a");
+  return Numeral(num).format('0.[00]a');
 };
 
 const formatDollarFractionAmount = (num: number, digits: number) => {
-  const formatter = new Intl.NumberFormat(["en-US"], {
-    style: "currency",
-    currency: "USD",
+  const formatter = new Intl.NumberFormat(['en-US'], {
+    style: 'currency',
+    currency: 'USD',
     minimumFractionDigits: digits,
     maximumFractionDigits: digits,
   });
@@ -33,7 +34,7 @@ const formatDollarFractionAmount = (num: number, digits: number) => {
 // 0.000297796.toFixed(6) = 0.000298
 // truncateFloatNumber(0.000297796) = 0.000297
 const truncateFloatNumber = (num: number, maximumFractionDigits = 6) => {
-  const [wholePart, fractionalPart] = String(num).split(".");
+  const [wholePart, fractionalPart] = String(num).split('.');
 
   if (!fractionalPart) {
     return wholePart;
@@ -43,39 +44,33 @@ const truncateFloatNumber = (num: number, maximumFractionDigits = 6) => {
 };
 
 const formatLongNumber = (num: string, usd?: boolean): string => {
-  return usd ? `$${Numeral(num).format("0,0")}` : Numeral(num).format("0,0");
+  return usd ? `$${Numeral(num).format('0,0')}` : Numeral(num).format('0,0');
 };
 
-const formattedNum = (
-  number: string | number,
-  usd = false,
-  fractionDigits = 5
-): string => {
-  if (number === 0 || number === "" || number === undefined) {
-    return usd ? "$0" : "0";
+const formattedNum = (number: string | number, usd = false, fractionDigits = 5): string => {
+  if (number === 0 || number === '' || number === undefined) {
+    return usd ? '$0' : '0';
   }
 
   const num = parseFloat(String(number));
 
   if (num > 500000000) {
-    return (usd ? "$" : "") + toK(num.toFixed(0));
+    return (usd ? '$' : '') + toK(num.toFixed(0));
   }
 
   if (num >= 1000) {
-    return usd
-      ? formatDollarFractionAmount(num, 0)
-      : Number(num.toFixed(0)).toLocaleString();
+    return usd ? formatDollarFractionAmount(num, 0) : Number(num.toFixed(0)).toLocaleString();
   }
 
   if (num === 0) {
     if (usd) {
-      return "$0";
+      return '$0';
     }
-    return "0";
+    return '0';
   }
 
   if (num < 0.0001) {
-    return usd ? "< $0.0001" : "< 0.0001";
+    return usd ? '< $0.0001' : '< 0.0001';
   }
 
   if (usd) {
@@ -94,52 +89,50 @@ const formattedNum = (
 };
 
 export const parseMarketTokenInfo = (tokenInfo: TokenInfo | null) => {
-  const NOT_AVAILABLE = "--";
+  const NOT_AVAILABLE = '--';
   const listData = [
     {
-      label: "Price",
-      value: tokenInfo?.price
-        ? formattedNum(tokenInfo.price.toString(), true)
-        : NOT_AVAILABLE,
+      label: 'Price',
+      value: tokenInfo?.price ? formattedNum(tokenInfo.price.toString(), true) : NOT_AVAILABLE,
     },
     {
-      label: "Market Cap Rank",
+      label: 'Market Cap Rank',
       value: tokenInfo?.marketCapRank
         ? `#${formattedNum(tokenInfo.marketCapRank.toString())}`
         : NOT_AVAILABLE,
     },
     {
-      label: "Trading Volume (24H)",
+      label: 'Trading Volume (24H)',
       value: tokenInfo?.tradingVolume
         ? formatLongNumber(tokenInfo.tradingVolume.toString(), true)
         : NOT_AVAILABLE,
     },
     {
-      label: "Market Cap",
+      label: 'Market Cap',
       value: tokenInfo?.marketCap
         ? formatLongNumber(tokenInfo.marketCap.toString(), true)
         : NOT_AVAILABLE,
     },
     {
-      label: "All-Time High",
+      label: 'All-Time High',
       value: tokenInfo?.allTimeHigh
         ? formattedNum(tokenInfo.allTimeHigh.toString(), true)
         : NOT_AVAILABLE,
     },
     {
-      label: "All-Time Low",
+      label: 'All-Time Low',
       value: tokenInfo?.allTimeLow
         ? formattedNum(tokenInfo.allTimeLow.toString(), true)
         : NOT_AVAILABLE,
     },
     {
-      label: "Circulating Supply",
+      label: 'Circulating Supply',
       value: tokenInfo?.circulatingSupply
         ? formatLongNumber(tokenInfo.circulatingSupply.toString())
         : NOT_AVAILABLE,
     },
     {
-      label: "Total Supply",
+      label: 'Total Supply',
       value: tokenInfo?.totalSupply
         ? formatLongNumber(tokenInfo.totalSupply.toString())
         : NOT_AVAILABLE,
@@ -154,9 +147,7 @@ export const shortenAddress = (address: string, chars = 4): string => {
   if (!parsed) {
     throw Error(`Invalid 'address' parameter '${address}'`);
   }
-  return `${address.substring(0, chars + 2)}...${address.substring(
-    address.length - chars
-  )}`;
+  return `${address.substring(0, chars + 2)}...${address.substring(address.length - chars)}`;
 };
 
 export enum WarningType {
@@ -200,15 +191,12 @@ export const RISKY_THRESHOLD = {
 
 export const isItemRisky = ({ value, isNumber, riskyReverse }: ItemData) => {
   const isRisky =
-    (!isNumber && value === "0") ||
-    (isNumber && (Number(value) >= RISKY_THRESHOLD.WARNING || value === ""));
+    (!isNumber && value === '0') ||
+    (isNumber && (Number(value) >= RISKY_THRESHOLD.WARNING || value === ''));
   return value !== undefined && (riskyReverse ? !isRisky : isRisky);
 };
 
-const calcTotalRiskFn = (
-  total: { totalRisk: number; totalWarning: number },
-  item: ItemData
-) => {
+const calcTotalRiskFn = (total: { totalRisk: number; totalWarning: number }, item: ItemData) => {
   if (isItemRisky(item)) {
     if (item.type === WarningType.RISKY) total.totalRisk++;
     else total.totalWarning++;
@@ -224,7 +212,7 @@ const calcTotalRisk = (data: ItemData[]) => {
 };
 
 const reverseValue = (value: string | undefined) =>
-  !value ? undefined : value === "0" ? "1" : "0";
+  !value ? undefined : value === '0' ? '1' : '0';
 
 export const getSecurityTokenInfo = (data: SecurityInfo | null) => {
   const contractData: ItemData[] = [

@@ -1,7 +1,8 @@
-import { ReactNode, useCallback, useRef, useState } from "react";
-import Popover, { PopoverProps } from "@/components/Tooltip/Popover";
+import { ReactNode, useCallback, useRef, useState } from 'react';
 
-interface TooltipProps extends Omit<PopoverProps, "content"> {
+import Popover, { PopoverProps } from '@/components/Tooltip/Popover';
+
+interface TooltipProps extends Omit<PopoverProps, 'content'> {
   text: string | ReactNode;
   delay?: number;
   width?: string;
@@ -30,10 +31,10 @@ export default function Tooltip({
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
             style={{
-              width: width || "max-content",
-              padding: "10px 16px",
+              width: width || 'max-content',
+              padding: '10px 16px',
               lineHeight: 1.5,
-              fontWeight: "400",
+              fontWeight: '400',
               fontSize: `${size || 14}px`,
             }}
           >
@@ -51,11 +52,9 @@ export function MouseoverTooltip({
   disableTooltip,
   delay,
   ...rest
-}: Omit<TooltipProps, "show">) {
+}: Omit<TooltipProps, 'show'>) {
   const [show, setShow] = useState(false);
-  const [closeTimeout, setCloseTimeout] = useState<ReturnType<
-    typeof setTimeout
-  > | null>(null);
+  const [closeTimeout, setCloseTimeout] = useState<ReturnType<typeof setTimeout> | null>(null);
   const hovering = useRef(false);
   const open = useCallback(() => {
     if (rest.text) {
@@ -83,11 +82,7 @@ export function MouseoverTooltip({
   if (disableTooltip) return <>{children}</>;
   return (
     <Tooltip {...rest} show={show} onMouseEnter={open} onMouseLeave={close}>
-      <div
-        onMouseOver={open}
-        onMouseLeave={close}
-        className="flex items-center"
-      >
+      <div onMouseOver={open} onMouseLeave={close} className="flex items-center">
         {children}
       </div>
     </Tooltip>

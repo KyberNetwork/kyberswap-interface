@@ -7,13 +7,13 @@ import styled, { keyframes } from 'styled-components'
 import SlippageControl from 'components/SlippageControl'
 import SlippageWarningNote from 'components/SlippageWarningNote'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
+import WarningNote from 'components/WarningNote'
 import { DEFAULT_SLIPPAGES, DEFAULT_SLIPPAGES_HIGH_VOTALITY } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { useDefaultSlippageByPair, usePairCategory } from 'state/swap/hooks'
 import { useDegenModeManager, useSlippageSettingByPage } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
 import { SLIPPAGE_STATUS, SLIPPAGE_WARNING_MESSAGES, checkRangeSlippage, formatSlippage } from 'utils/slippage'
-import WarningNote from 'components/WarningNote'
 
 const highlight = keyframes`
   0% {

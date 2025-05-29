@@ -6,6 +6,7 @@
   "include": [
     "src",
     "turbo",
+    "tsup.config.ts",
     "tailwind.config.ts",
     "src/**/*.ts",
     "src/**/*.tsx"
