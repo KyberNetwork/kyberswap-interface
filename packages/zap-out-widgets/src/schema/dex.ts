@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export enum PoolType {
   DEX_UNISWAP_V4 = "DEX_UNISWAP_V4",
-  DEX_UNISWAP_V4_FAIRFLOW = "DEX_UNISWAP_V4_FAIRFLOW",
+  DEX_KEM_UNISWAP_V4_FAIRFLOW = "DEX_KEM_UNISWAP_V4_FAIRFLOW",
 
   DEX_UNISWAPV3 = "DEX_UNISWAPV3",
   DEX_PANCAKESWAPV3 = "DEX_PANCAKESWAPV3",
@@ -36,7 +36,7 @@ export enum PoolType {
 
 export const univ4Types = [
   PoolType.DEX_UNISWAP_V4,
-  PoolType.DEX_UNISWAP_V4_FAIRFLOW,
+  PoolType.DEX_KEM_UNISWAP_V4_FAIRFLOW,
 ];
 
 export const algebraTypes = [
@@ -62,7 +62,7 @@ export const univ3Types = [
   PoolType.DEX_KODIAK_V3,
   PoolType.DEX_SQUADSWAP_V3,
   PoolType.DEX_UNISWAP_V4,
-  PoolType.DEX_UNISWAP_V4_FAIRFLOW,
+  PoolType.DEX_KEM_UNISWAP_V4_FAIRFLOW,
 ] as const;
 export const Univ3PoolType = z.enum(univ3Types);
 
