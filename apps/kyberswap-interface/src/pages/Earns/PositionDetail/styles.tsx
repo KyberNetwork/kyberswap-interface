@@ -84,6 +84,8 @@ export const NextDistribution = styled.div`
   background: ${({ theme }) => rgba(theme.white, 0.04)};
   padding: 8px 12px;
   margin-bottom: 8px;
+  flex-wrap: wrap;
+  gap: 8px;
 `
 
 export const RewardDetailInfo = styled.div`

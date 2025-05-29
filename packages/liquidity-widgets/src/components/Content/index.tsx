@@ -31,13 +31,13 @@ import Preview, { ZapState } from '@/components/Preview';
 import PriceRange from '@/components/PriceRange';
 import { TOKEN_SELECT_MODE } from '@/components/TokenSelector';
 import TokenSelectorModal from '@/components/TokenSelector/TokenSelectorModal';
-import { MAX_ZAP_IN_TOKENS } from '@/constants';
+import { MAX_ZAP_IN_TOKENS, ERROR_MESSAGE } from '@/constants';
 import { AggregatorSwapAction, PoolSwapAction, Type, ZapAction } from '@/hooks/types/zapInTypes';
 import { APPROVAL_STATE, useApprovals } from '@/hooks/useApproval';
 import usePositionOwner from '@/hooks/usePositionOwner';
-import { ERROR_MESSAGE, useZapState } from '@/hooks/useZapInState';
+import { useZapState } from '@/hooks/useZapInState';
 import { useWidgetContext } from '@/stores';
-import { PI_LEVEL, getPriceImpact } from '@/utils';
+import { PI_LEVEL, checkDeviated, getPriceImpact } from '@/utils';
 
 export default function Content() {
   const {
@@ -53,7 +53,7 @@ export default function Content() {
     positionId,
     degenMode,
     revertPrice,
-    marketPrice,
+    poolPrice,
     tokensIn,
     amountsIn,
     toggleSetting,
@@ -253,10 +253,7 @@ export default function Content() {
     }
   }, [newPool]);
 
-  const isDeviated = useMemo(
-    () => !!marketPrice && newPoolPrice && Math.abs(marketPrice / +newPoolPrice - 1) > 0.02,
-    [marketPrice, newPoolPrice]
-  );
+  const isDeviated = checkDeviated(poolPrice, newPoolPrice);
 
   const isOutOfRangeAfterZap = useMemo(() => {
     const { success, data } = univ3Position.safeParse(position);
@@ -274,16 +271,6 @@ export default function Content() {
       tickLower === pool.minTick &&
       tickUpper === pool.maxTick,
     [pool, tickLower, tickUpper]
-  );
-
-  const marketRate = useMemo(
-    () =>
-      marketPrice
-        ? formatDisplayNumber(revertPrice ? 1 / marketPrice : marketPrice, {
-            significantDigits: 6,
-          })
-        : null,
-    [marketPrice, revertPrice]
   );
 
   const price = useMemo(
@@ -421,7 +408,7 @@ export default function Content() {
       <div className={`p-6 ${!showWidget ? 'hidden' : ''}`}>
         <Header onDismiss={onClose} />
         <div className="mt-5 flex gap-5 max-sm:flex-col">
-          <div className="w-3/5 max-sm:w-full">
+          <div className="w-[55%] max-sm:w-full">
             <PoolStat
               chainId={chainId}
               poolAddress={poolAddress}
@@ -449,7 +436,7 @@ export default function Content() {
             ) : null}
           </div>
 
-          <div className="w-2/5 max-sm:w-full">
+          <div className="w-[45%] max-sm:w-full">
             {isUniV3PoolType ? addLiquiditySection : null}
 
             <EstLiqValue />
@@ -490,7 +477,8 @@ export default function Content() {
                   </span>{' '}
                   deviates from the market price{' '}
                   <span className="font-medium text-warning not-italic">
-                    (1 {revertPrice ? token1?.symbol : token0?.symbol} = {marketRate}{' '}
+                    (1 {revertPrice ? token1?.symbol : token0?.symbol} ={' '}
+                    {formatDisplayNumber(poolPrice, { significantDigits: 6 })}{' '}
                     {revertPrice ? token0?.symbol : token1?.symbol})
                   </span>
                   . You might have high impermanent loss after you add liquidity to this pool

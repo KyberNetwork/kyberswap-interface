@@ -1,6 +1,5 @@
 import { Token } from '@kyberswap/ks-sdk-core'
 
-import { MultiChainTokenInfo } from 'pages/Bridge/type'
 import { isAddress } from 'utils/address'
 
 export interface TokenInfo {
@@ -11,7 +10,6 @@ export interface TokenInfo {
   readonly symbol: string
   readonly logoURI?: string
   readonly isWhitelisted?: boolean // from backend
-  readonly multichainInfo?: MultiChainTokenInfo // from multichain api
   readonly domainSeparator?: string
   readonly permitType?: 'AMOUNT' | 'SALT'
   readonly permitVersion?: '1' | '2'
@@ -27,7 +25,6 @@ export class WrappedTokenInfo extends Token {
 
   public readonly logoURI: string | undefined
   public readonly isWhitelisted: boolean = false
-  public readonly multichainInfo: MultiChainTokenInfo | undefined
 
   public readonly domainSeparator?: string
   public readonly permitType?: 'AMOUNT' | 'SALT'
@@ -39,7 +36,6 @@ export class WrappedTokenInfo extends Token {
   constructor(tokenInfo: TokenInfo) {
     const {
       isWhitelisted,
-      multichainInfo,
       chainId,
       decimals,
       symbol,
@@ -55,7 +51,6 @@ export class WrappedTokenInfo extends Token {
     } = tokenInfo
     super(chainId, isAddress(chainId, address) || address, decimals, symbol, name)
 
-    this.multichainInfo = multichainInfo
     this.isWhitelisted = !!isWhitelisted
     this.logoURI = logoURI
     this.domainSeparator = domainSeparator

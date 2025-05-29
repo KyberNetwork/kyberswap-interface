@@ -21,6 +21,7 @@ export const Tabs = styled.div`
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
     gap: 0.5rem;
     font-size: 16px;
+    justify-content: space-between;
   `}
 `
 

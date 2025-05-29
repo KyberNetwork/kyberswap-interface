@@ -5,8 +5,9 @@ import { ImageProps } from 'rebass'
 import styled from 'styled-components'
 
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
+import { Chain, NonEvmChain, NonEvmChainInfo } from 'pages/CrossChainSwap/adapters'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
-import { getNativeTokenLogo } from 'utils'
+import { getNativeTokenLogo, isEvmChain } from 'utils'
 
 const BAD_SRCS: { [tokenAddress: string]: true } = {}
 
@@ -39,8 +40,9 @@ export default function Logo({ srcs, alt, ...rest }: LogoProps) {
   return <HelpCircle {...rest} />
 }
 
-export function NetworkLogo({ chainId, style = {} }: { chainId: ChainId; style?: CSSProperties }) {
-  const { icon } = NETWORKS_INFO[chainId]
+export function NetworkLogo({ chainId, style = {} }: { chainId: Chain; style?: CSSProperties }) {
+  const { icon } = isEvmChain(chainId) ? NETWORKS_INFO[chainId as ChainId] : NonEvmChainInfo[chainId as NonEvmChain]
+
   if (!icon) return null
   return <img src={icon} alt="Switch Network" style={style} />
 }

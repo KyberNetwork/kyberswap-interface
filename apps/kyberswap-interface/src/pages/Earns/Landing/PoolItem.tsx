@@ -1,14 +1,17 @@
+import { formatAprNumber } from '@kyber/utils/dist/number'
 import { ChainId } from '@kyberswap/ks-sdk-core'
+import { t } from '@lingui/macro'
 import { Flex, Text } from 'rebass'
 
 import { ReactComponent as IconFarmingPool } from 'assets/svg/kyber/kem.svg'
+import TokenLogo from 'components/TokenLogo'
+import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
 import { PoolRow, Tag } from 'pages/Earns/Landing/styles'
 import useZapInWidget from 'pages/Earns/hooks/useZapInWidget'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import { EarnPool } from 'pages/Earns/types'
-import { formatAprNumber } from 'pages/Earns/utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const PoolItem = ({ pool, isFarming }: { pool: EarnPool; isFarming?: boolean }) => {
@@ -37,14 +40,8 @@ const PoolItem = ({ pool, isFarming }: { pool: EarnPool; isFarming?: boolean }) 
       {zapInWidget}
       {zapMigrationWidget}
       <Flex alignItems="center" sx={{ gap: '4px', flex: 1 }}>
-        <img src={pool.tokens?.[0].logoURI} width={24} height={24} alt="" style={{ borderRadius: '50%' }} />
-        <img
-          src={pool.tokens?.[1].logoURI}
-          width={24}
-          height={24}
-          alt=""
-          style={{ marginLeft: '-8px', borderRadius: '50%' }}
-        />
+        <TokenLogo src={pool.tokens?.[0].logoURI} size={24} />
+        <TokenLogo src={pool.tokens?.[1].logoURI} size={24} />
         <img
           src={NETWORKS_INFO[pool.chainId as ChainId].icon}
           width={12}
@@ -69,8 +66,22 @@ const PoolItem = ({ pool, isFarming }: { pool: EarnPool; isFarming?: boolean }) 
       </Flex>
 
       <Flex alignItems="center" sx={{ gap: '4px' }}>
-        <Text color={theme.primary}>{formatAprNumber(pool.apr)}%</Text>
-        {isFarming && <IconFarmingPool width={20} height={20} />}
+        <Text color={theme.primary}>{formatAprNumber(pool.apr + pool.kemApr)}%</Text>
+        {isFarming && (
+          <MouseoverTooltipDesktopOnly
+            placement="top"
+            width="fit-content"
+            text={
+              <div>
+                {t`LP Fee APR`}: {formatAprNumber(pool.apr)}%
+                <br />
+                {t`Rewards APR`}: {formatAprNumber(pool.kemApr)}%
+              </div>
+            }
+          >
+            <IconFarmingPool width={20} height={20} />
+          </MouseoverTooltipDesktopOnly>
+        )}
       </Flex>
     </PoolRow>
   )

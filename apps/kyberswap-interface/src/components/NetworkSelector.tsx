@@ -9,6 +9,7 @@ import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import { DEFAULT_OUTPUT_TOKEN_BY_CHAIN, NativeCurrencies } from 'constants/tokens'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
+import { isNonEvmChain } from 'utils'
 
 import NetworkModal from './Header/web3/NetworkModal'
 
@@ -42,11 +43,13 @@ export const NetworkSelector = ({
       <NetworkModal
         selectedId={chainId}
         customOnSelectNetwork={
-          customOnSelectNetwork ||
+          // TODO: resolve type here
+          (customOnSelectNetwork as any) ||
           (chain => {
+            if (isNonEvmChain(chain)) return
             searchParams.set('chainId', chain.toString())
-            searchParams.set('inputCurrency', NativeCurrencies[chain].symbol || 'eth')
-            searchParams.set('outputCurrency', DEFAULT_OUTPUT_TOKEN_BY_CHAIN[chain]?.address || '')
+            searchParams.set('inputCurrency', NativeCurrencies[chain as ChainId].symbol || 'eth')
+            searchParams.set('outputCurrency', DEFAULT_OUTPUT_TOKEN_BY_CHAIN[chain as ChainId]?.address || '')
             setSearchParams(searchParams)
           })
         }

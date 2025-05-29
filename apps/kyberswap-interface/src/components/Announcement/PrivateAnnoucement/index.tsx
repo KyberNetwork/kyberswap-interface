@@ -2,8 +2,6 @@ import { t } from '@lingui/macro'
 import React, { ReactNode } from 'react'
 import { CSSProperties } from 'styled-components'
 
-import InboxItemBridge from 'components/Announcement/PrivateAnnoucement/InboxItemBridge'
-import InboxItemCrossChain from 'components/Announcement/PrivateAnnoucement/InboxItemCrossChain'
 import InboxItemLO from 'components/Announcement/PrivateAnnoucement/InboxItemLO'
 import InboxItemPoolPosition from 'components/Announcement/PrivateAnnoucement/InboxItemPoolPosition'
 import InboxItemPriceAlert from 'components/Announcement/PrivateAnnoucement/InboxItemPriceAlert'
@@ -28,15 +26,11 @@ const ANNOUNCEMENT_MAP: () => PrivateAnnouncementMap = () =>
   ({
     [PrivateAnnouncementType.ELASTIC_POOLS]: InboxItemPoolPosition,
     [PrivateAnnouncementType.LIMIT_ORDER]: InboxItemLO,
-    [PrivateAnnouncementType.BRIDGE_ASSET]: InboxItemBridge,
-    [PrivateAnnouncementType.CROSS_CHAIN]: InboxItemCrossChain,
     [PrivateAnnouncementType.PRICE_ALERT]: InboxItemPriceAlert,
     [PrivateAnnouncementType.DIRECT_MESSAGE]: InboxItemPrivateMessage,
   } as PrivateAnnouncementMap)
 
 export const PRIVATE_ANN_TITLE: () => Partial<{ [type in PrivateAnnouncementType]: string }> = () => ({
-  [PrivateAnnouncementType.BRIDGE_ASSET]: t`Cross-Chain Bridge`,
-  [PrivateAnnouncementType.CROSS_CHAIN]: t`Cross-Chain Swaps`,
   [PrivateAnnouncementType.LIMIT_ORDER]: t`Limit Orders`,
   [PrivateAnnouncementType.PRICE_ALERT]: t`Price Alerts`,
   [PrivateAnnouncementType.ELASTIC_POOLS]: t`Elastic Liquidity Positions`,

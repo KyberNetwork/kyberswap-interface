@@ -1,7 +1,7 @@
 import { t } from '@lingui/macro'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useMedia } from 'react-use'
+import { useMedia, usePreviousDistinct } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { useUserPositionsQuery } from 'services/zapEarn'
 
@@ -34,7 +34,7 @@ import useZapInWidget from 'pages/Earns/hooks/useZapInWidget'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import useZapOutWidget from 'pages/Earns/hooks/useZapOutWidget'
 import { ParsedPosition, PositionStatus } from 'pages/Earns/types'
-import { parseRawPosition } from 'pages/Earns/utils'
+import { parsePosition } from 'pages/Earns/utils/position'
 import SortIcon, { Direction } from 'pages/MarketOverview/SortIcon'
 import { MEDIA_WIDTHS } from 'theme'
 
@@ -45,7 +45,7 @@ const UserPositions = () => {
   const navigate = useNavigate()
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
-  const { account, chainId } = useActiveWeb3React()
+  const { account } = useActiveWeb3React()
   const { filters, updateFilters } = useFilter()
   const { supportedDexes, supportedChains } = useSupportedDexesAndChains(filters)
 
@@ -79,21 +79,26 @@ const UserPositions = () => {
   const { widget: zapOutWidget, handleOpenZapOut } = useZapOutWidget(refetch)
 
   const { rewardInfo } = useKemRewards()
-  const rewardInfoThisChain = chainId ? rewardInfo?.chains.find(item => item.chainId === chainId) : null
 
   useAccountChanged(() => {
     refetch()
     setLoading(true)
   })
 
+  const previousPosition = usePreviousDistinct(userPosition)
+
   const parsedPositions: Array<ParsedPosition> = useMemo(() => {
-    if (!userPosition) return []
+    let positionToRender = []
+    if (!userPosition || !userPosition.length) {
+      if (!previousPosition || !previousPosition.length) return []
+      positionToRender = previousPosition
+    } else positionToRender = userPosition
 
-    let parsedData = [...userPosition].map(position => {
+    let parsedData = [...positionToRender].map(position => {
       const feeInfo = feeInfoFromRpc.find(feeInfo => feeInfo.id === position.tokenId)
-      const nftRewardInfo = rewardInfoThisChain?.nfts.find(rewardInfo => rewardInfo.nftId === position.tokenId)
+      const nftRewardInfo = rewardInfo?.nfts.find(item => item.nftId === position.tokenId)
 
-      return parseRawPosition({
+      return parsePosition({
         position,
         feeInfo,
         nftRewardInfo,
@@ -141,7 +146,15 @@ const UserPositions = () => {
     }
 
     return parsedData
-  }, [feeInfoFromRpc, filters.orderBy, filters.sortBy, filters.status, rewardInfoThisChain?.nfts, userPosition])
+  }, [
+    feeInfoFromRpc,
+    filters.orderBy,
+    filters.sortBy,
+    filters.status,
+    previousPosition,
+    rewardInfo?.nfts,
+    userPosition,
+  ])
 
   const paginatedPositions: Array<ParsedPosition> = useMemo(() => {
     if (parsedPositions.length <= POSITIONS_TABLE_LIMIT) return parsedPositions
@@ -254,7 +267,7 @@ const UserPositions = () => {
           />
         </Flex>
 
-        {account && <PositionBanner positions={parsedPositions} />}
+        {account && <PositionBanner positions={parsedPositions} filters={filters} />}
 
         <Filter
           supportedChains={supportedChains}

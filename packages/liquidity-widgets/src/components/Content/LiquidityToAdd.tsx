@@ -14,17 +14,17 @@ import { useZapState } from '@/hooks/useZapInState';
 import { formatWei } from '@/utils';
 
 export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
-  const { tokensIn, setTokensIn, amountsIn, setAmountsIn, balanceTokens, tokensInUsdPrice } =
+  const { tokensIn, setTokensIn, amountsIn, setAmountsIn, balanceTokens, tokenPrices } =
     useZapState();
 
   const [openTokenSelectModal, setOpenTokenSelectModal] = useState<boolean>(false);
 
   const token = useMemo(() => tokensIn[tokenIndex], [tokensIn, tokenIndex]);
-  const amount = useMemo(() => amountsIn.split(',')[tokenIndex], [amountsIn, tokenIndex]);
+  const amount = useMemo(() => amountsIn.split(',')[tokenIndex] || '', [amountsIn, tokenIndex]);
 
   const usdAmount = useMemo(
-    () => tokensInUsdPrice[tokenIndex] * parseFloat(amount || '0'),
-    [tokensInUsdPrice, tokenIndex, amount]
+    () => tokenPrices[token.address.toLowerCase()] * parseFloat(amount || '0'),
+    [tokenPrices, token.address, amount]
   );
 
   const balanceInWei = useMemo(

@@ -3,7 +3,6 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 interface BatchClaimEncodeParams {
   chainId: ChainId
-  campaignId: string
   owner: string
   recipient: string
 }
@@ -16,12 +15,7 @@ interface ClaimEncodeParams {
   recipient: string
 }
 
-interface RewardCampaignParams {
-  chainId: ChainId
-}
-
 interface RewardInfoParams {
-  campaignId: string
   owner: string
 }
 
@@ -40,7 +34,11 @@ interface TokenReward {
   claimableUSDValues: { [tokenAddress: string]: string }
 }
 
-interface RewardData {
+export interface TokenRewardExtended extends TokenReward {
+  campaignId: string
+}
+
+export interface RewardData {
   [chainId: string]: {
     campaigns: {
       [campaignId: string]: {
@@ -59,7 +57,7 @@ const rewardServiceApi = createApi({
   endpoints: builder => ({
     batchClaimEncodeData: builder.mutation<string, BatchClaimEncodeParams>({
       query: params => ({
-        url: `/kem/batch-claim/owner`,
+        url: `/kem/batch-claim/erc721`,
         params,
       }),
       transformResponse: (response: { data: string }) => response.data,
@@ -70,17 +68,6 @@ const rewardServiceApi = createApi({
         params,
       }),
       transformResponse: (response: { data: string }) => response.data,
-    }),
-    rewardCampaign: builder.query<string | null, RewardCampaignParams>({
-      query: params => ({
-        url: `/kem/campaigns`,
-        params,
-      }),
-      transformResponse: (response: {
-        data: Array<{
-          campaignId: string
-        }>
-      }) => (response.data.length > 0 ? response.data[0].campaignId : null),
     }),
     rewardInfo: builder.query<RewardData, RewardInfoParams>({
       query: params => ({
@@ -96,11 +83,6 @@ const rewardServiceApi = createApi({
   }),
 })
 
-export const {
-  useRewardCampaignQuery,
-  useRewardInfoQuery,
-  useBatchClaimEncodeDataMutation,
-  useClaimEncodeDataMutation,
-} = rewardServiceApi
+export const { useRewardInfoQuery, useBatchClaimEncodeDataMutation, useClaimEncodeDataMutation } = rewardServiceApi
 
 export default rewardServiceApi

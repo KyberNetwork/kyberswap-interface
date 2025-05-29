@@ -24,14 +24,11 @@ import socialApi from 'services/social'
 import tokenApi from 'services/token'
 import zapEarnServiceApi from 'services/zapEarn'
 
-import { ENV_LEVEL } from 'constants/env'
-import { ENV_TYPE } from 'constants/type'
-
 import application from './application/reducer'
 import authen from './authen/reducer'
 import burnProAmm from './burn/proamm/reducer'
 import burn from './burn/reducer'
-import crossChain from './crossChain/reducer'
+import crossChainSwap from './crossChainSwap'
 import customizeDexes from './customizeDexes'
 import { updateVersion } from './global/actions'
 import limit from './limit/reducer'
@@ -49,8 +46,7 @@ import transactions from './transactions/reducer'
 import tutorial from './tutorial/reducer'
 import user, { UserState } from './user/reducer'
 
-const PERSISTED_KEYS: string[] = ['user', 'transactions', 'profile']
-ENV_LEVEL < ENV_TYPE.PROD && PERSISTED_KEYS.push('customizeDexes')
+const PERSISTED_KEYS: string[] = ['user', 'transactions', 'profile', 'crossChainSwap.transactions']
 
 // Migrate from old version to new version, prevent lost favorite tokens of user
 const preloadedState: any = load({ states: PERSISTED_KEYS })
@@ -79,6 +75,7 @@ const store = configureStore({
     profile,
     user,
     transactions,
+    crossChainSwap,
     swap,
     limit,
     mint,
@@ -105,7 +102,6 @@ const store = configureStore({
     [priceAlertApi.reducerPath]: priceAlertApi.reducer,
     [socialApi.reducerPath]: socialApi.reducer,
     tutorial,
-    crossChain,
     customizeDexes,
     tokenPrices,
     topTokens,
@@ -122,7 +118,12 @@ const store = configureStore({
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({ thunk: true, immutableCheck: false, serializableCheck: false })
-      .concat(save({ states: PERSISTED_KEYS, debounce: 100 }))
+      .concat(
+        save({
+          states: PERSISTED_KEYS,
+          debounce: 100,
+        }),
+      )
       .concat(geckoTerminalApi.middleware)
       .concat(coingeckoApi.middleware)
       .concat(externalApi.middleware)

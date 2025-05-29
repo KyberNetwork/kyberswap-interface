@@ -36,6 +36,8 @@ import MulticallUpdater from './state/multicall/updater'
 import TransactionUpdater from './state/transactions/updater'
 import UserUpdater from './state/user/updater'
 import ThemeProvider, { FixedGlobalStyle, ThemedGlobalStyle } from './theme'
+import NEARWalletProvider from 'components/Web3Provider/NearProvider'
+import { BitcoinWalletProvider } from 'components/Web3Provider/BitcoinProvider'
 
 dayjs.extend(utc)
 dayjs.extend(duration)
@@ -124,11 +126,15 @@ const ReactApp = () => {
         <BrowserRouter>
           <LanguageProvider>
             <Web3Provider>
-              <Updaters />
-              <ThemeProvider>
-                <ThemedGlobalStyle />
-                <App />
-              </ThemeProvider>
+              <BitcoinWalletProvider>
+                <NEARWalletProvider>
+                  <Updaters />
+                  <ThemeProvider>
+                    <ThemedGlobalStyle />
+                    <App />
+                  </ThemeProvider>
+                </NEARWalletProvider>
+              </BitcoinWalletProvider>
             </Web3Provider>
           </LanguageProvider>
         </BrowserRouter>

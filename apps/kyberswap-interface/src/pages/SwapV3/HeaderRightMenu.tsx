@@ -17,7 +17,6 @@ import { useDegenModeManager } from 'state/user/hooks'
 
 const ActionPanel = styled.div`
   display: flex;
-  gap: 0.5rem;
   border-radius: 18px;
 `
 
@@ -55,13 +54,15 @@ export default function HeaderRightMenu({
 
   return (
     <ActionPanel>
-      <TokenInfoIcon
-        currencies={currencies}
-        onClick={() => {
-          mixpanelHandler(MIXPANEL_TYPE.SWAP_TOKEN_INFO_CLICK)
-          onToggleActionTab(TAB.INFO)
-        }}
-      />
+      {!isCrossChainPage && (
+        <TokenInfoIcon
+          currencies={currencies}
+          onClick={() => {
+            mixpanelHandler(MIXPANEL_TYPE.SWAP_TOKEN_INFO_CLICK)
+            onToggleActionTab(TAB.INFO)
+          }}
+        />
+      )}
       {!isLimitPage && (
         <StyledActionButtonSwapForm
           active={activeTab === TAB.SETTINGS}

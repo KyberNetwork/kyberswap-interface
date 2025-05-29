@@ -1,7 +1,6 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { LayoutGroup } from 'framer-motion'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { X } from 'react-feather'
 import { Text } from 'rebass'
 import { useUpdateProfileMutation } from 'services/identity'
@@ -13,12 +12,14 @@ import Row, { RowBetween } from 'components/Row'
 import { NetworkInfo } from 'constants/networks/type'
 import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
-import useChainsConfig from 'hooks/useChainsConfig'
+import useChainsConfig, { ChainState } from 'hooks/useChainsConfig'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import { Chain, NonEvmChain, NonEvmChainInfo } from 'pages/CrossChainSwap/adapters'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useNetworkModalToggle } from 'state/application/hooks'
 import { useSessionInfo } from 'state/authen/hooks'
+import { useFavoriteChains } from 'state/user/hooks'
 import { TYPE } from 'theme'
 
 import DraggableNetworkButton from './components/DraggableNetworkButton'
@@ -36,10 +37,10 @@ export default function NetworkModal({
   customToggleModal,
   disabledMsg,
 }: {
-  activeChainIds?: ChainId[]
-  selectedId?: ChainId
+  activeChainIds?: Chain[]
+  selectedId?: Chain
   isOpen?: boolean
-  customOnSelectNetwork?: (chainId: ChainId) => void
+  customOnSelectNetwork?: (chain: Chain) => void
   customToggleModal?: () => void
   disabledMsg?: string
 }): JSX.Element | null {
@@ -48,7 +49,8 @@ export default function NetworkModal({
   const { userInfo } = useSessionInfo()
   const { mixpanelHandler } = useMixpanel()
   const [requestSaveProfile] = useUpdateProfileMutation()
-  const [favoriteChains, setFavoriteChains] = useState<string[]>(userInfo?.data?.favouriteChainIds || [])
+  // const [favoriteChains, setFavoriteChains] = useState<string[]>(userInfo?.data?.favouriteChainIds || [])
+  const [favoriteChains, setFavoriteChains] = useFavoriteChains()
 
   const wrapperRef = useRef<HTMLDivElement>(null)
 
@@ -87,7 +89,7 @@ export default function NetworkModal({
     }
   }
 
-  const renderNetworkButton = (networkInfo: NetworkInfo) => {
+  const renderNetworkButton = (networkInfo: Pick<NetworkInfo, 'state' | 'icon' | 'chainId' | 'name'>) => {
     const chainId = networkInfo.chainId.toString()
     return (
       <DraggableNetworkButton
@@ -109,8 +111,8 @@ export default function NetworkModal({
   }
 
   useEffect(() => {
-    setFavoriteChains(userInfo?.data?.favouriteChainIds || [])
-  }, [userInfo])
+    if (userInfo?.data?.favouriteChainIds?.length) setFavoriteChains(userInfo?.data?.favouriteChainIds || [])
+  }, [userInfo, setFavoriteChains])
 
   return (
     <Modal
@@ -165,8 +167,20 @@ export default function NetworkModal({
                       )
                     }
                     const chainInfo = supportedChains.find(item => item.chainId.toString() === chainId)
+
                     if (chainInfo) {
                       return renderNetworkButton(chainInfo)
+                    }
+
+                    if (activeChainIds?.length && !activeChainIds.includes(chainId)) return null
+
+                    if (NonEvmChainInfo[chainId as NonEvmChain]) {
+                      return renderNetworkButton({
+                        chainId: chainId as any,
+                        name: NonEvmChainInfo[chainId as NonEvmChain].name,
+                        icon: NonEvmChainInfo[chainId as NonEvmChain].icon,
+                        state: ChainState.ACTIVE,
+                      })
                     }
                     return null
                   })}
@@ -198,10 +212,41 @@ export default function NetworkModal({
             ) : (
               <NetworkList data-testid="network-list">
                 <>
+                  {/*Ethereum and BTC should render first*/}
                   {supportedChains
-                    .filter(chain => !favoriteChains.some(_ => _ === chain.chainId.toString()))
+
+                    .filter(chain => chain.chainId === 1 && !favoriteChains.some(_ => _ === chain.chainId.toString()))
+                    .map(renderNetworkButton)}
+
+                  {!favoriteChains.includes('bitcoin') &&
+                    activeChainIds?.length &&
+                    activeChainIds.includes('bitcoin') &&
+                    renderNetworkButton({
+                      chainId: 'bitcoin' as any,
+                      name: NonEvmChainInfo[NonEvmChain.Bitcoin].name,
+                      icon: NonEvmChainInfo[NonEvmChain.Bitcoin].icon,
+                      state: ChainState.ACTIVE,
+                    })}
+
+                  {supportedChains
+                    .filter(chain => chain.chainId !== 1 && !favoriteChains.some(_ => _ === chain.chainId.toString()))
                     .map((networkInfo: NetworkInfo) => {
                       return renderNetworkButton(networkInfo)
+                    })}
+                  {Object.values(NonEvmChain)
+                    .filter(n => n !== NonEvmChain.Bitcoin)
+                    .map((network: NonEvmChain) => {
+                      if (
+                        favoriteChains.includes(network) ||
+                        (activeChainIds?.length && !activeChainIds.includes(network))
+                      )
+                        return null
+                      return renderNetworkButton({
+                        chainId: network as any,
+                        name: NonEvmChainInfo[network as NonEvmChain].name,
+                        icon: NonEvmChainInfo[network as NonEvmChain].icon,
+                        state: ChainState.ACTIVE,
+                      })
                     })}
                 </>
               </NetworkList>

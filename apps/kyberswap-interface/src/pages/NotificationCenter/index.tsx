@@ -130,14 +130,6 @@ function NotificationCenter({ redirectRoute }: { redirectRoute?: PROFILE_MANAGE_
               path={PROFILE_MANAGE_ROUTES.LIMIT_ORDERS}
               element={<PrivateAnnouncement type={PrivateAnnouncementType.LIMIT_ORDER} />}
             />
-            <Route
-              path={PROFILE_MANAGE_ROUTES.BRIDGE}
-              element={<PrivateAnnouncement type={PrivateAnnouncementType.BRIDGE_ASSET} />}
-            />
-            <Route
-              path={PROFILE_MANAGE_ROUTES.CROSS_CHAIN}
-              element={<PrivateAnnouncement type={PrivateAnnouncementType.CROSS_CHAIN} />}
-            />
             <Route path={PROFILE_MANAGE_ROUTES.CREATE_ALERT} element={<CreateAlert />} />
 
             <Route

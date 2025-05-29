@@ -10,6 +10,7 @@ import { ENV_KEY } from 'constants/env'
 import { DEFAULT_GAS_LIMIT_MARGIN, ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 import { KNCL_ADDRESS, KNC_ADDRESS } from 'constants/tokens'
+import { Chain, NonEvmChain } from 'pages/CrossChainSwap/adapters'
 import store from 'state'
 import { GroupedTxsByHash, TransactionDetails } from 'state/transactions/type'
 
@@ -50,6 +51,16 @@ export function shortenAddress(chainId: ChainId, address: string, chars = 4, che
   }
   const value = (checksum && parsed ? parsed : address) ?? ''
   return `${value.substring(0, chars + 2)}...${value.substring(42 - chars)}`
+}
+
+export const shortenHash = (hash: string, chars = 3): string => {
+  if (!hash) return ''
+  if (hash.length < chars * 2) return hash
+
+  const start = hash.substring(0, chars + 2)
+  const end = hash.substring(hash.length - chars)
+
+  return `${start}...${end}`
 }
 
 /**
@@ -462,3 +473,10 @@ export const enumToArrayOfValues = (enumObject: { [x: string]: unknown }, valueT
 
 const ancestorOrigins = window.location.ancestorOrigins
 export const isInSafeApp = !!ancestorOrigins?.[ancestorOrigins.length - 1]?.includes('app.safe.global')
+
+export const isEvmChain = (chain: Chain) => {
+  return Object.values(ChainId).includes(chain)
+}
+export const isNonEvmChain = (chain: Chain) => {
+  return Object.values(NonEvmChain).includes(chain)
+}

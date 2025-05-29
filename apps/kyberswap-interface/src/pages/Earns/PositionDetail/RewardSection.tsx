@@ -7,7 +7,6 @@ import { ReactComponent as KemIcon } from 'assets/svg/kyber/kem.svg'
 import InfoHelper from 'components/InfoHelper'
 import Loader from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
-import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import {
   NextDistribution,
@@ -49,7 +48,6 @@ const formatTimeRemaining = (seconds: number) => {
 
 const RewardSection = ({ position }: { position: ParsedPosition }) => {
   const theme = useTheme()
-  const { chainId } = useActiveWeb3React()
 
   const [timeRemaining, setTimeRemaining] = useState('')
   const [nextDistributionTime] = useState(getNextWednesdayMidnightUTC())
@@ -60,8 +58,7 @@ const RewardSection = ({ position }: { position: ParsedPosition }) => {
     onOpenClaim: onOpenClaimRewards,
     claiming: rewardsClaiming,
   } = useKemRewards()
-  const rewardInfoThisChain = chainId ? rewardInfo?.chains.find(item => item.chainId === chainId) : null
-  const rewardInfoThisPosition = rewardInfoThisChain?.nfts.find(item => item.nftId === position.tokenId)
+  const rewardInfoThisPosition = rewardInfo?.nfts.find(item => item.nftId === position.tokenId)
 
   useEffect(() => {
     const calculateTimeRemaining = () => {
@@ -88,7 +85,12 @@ const RewardSection = ({ position }: { position: ParsedPosition }) => {
               </Text>
               <KemIcon width={20} height={20} />
             </Flex>
-            <Text fontSize={20}>{rewardInfoThisPosition?.totalAmount || 0} KNC</Text>
+            <Text fontSize={20}>
+              {formatDisplayNumber(rewardInfoThisPosition?.totalUsdValue || 0, {
+                significantDigits: 6,
+                style: 'currency',
+              })}
+            </Text>
           </Flex>
 
           {rewardInfoThisPosition?.totalUsdValue ? (
@@ -99,7 +101,7 @@ const RewardSection = ({ position }: { position: ParsedPosition }) => {
                 {rewardInfoThisPosition?.tokens.map((item, index) => (
                   <Flex key={index} alignItems={'center'} sx={{ gap: '6px' }}>
                     <TokenLogo src={item.logo} size={16} />
-                    <Text fontSize={16}>{formatDisplayNumber(item.claimableAmount, { significantDigits: 6 })}</Text>
+                    <Text fontSize={16}>{formatDisplayNumber(item.totalAmount, { significantDigits: 6 })}</Text>
                     <Text fontSize={16}>{item.symbol}</Text>
                   </Flex>
                 ))}
@@ -122,12 +124,20 @@ const RewardSection = ({ position }: { position: ParsedPosition }) => {
           </Flex>
 
           <Flex width={'100%'} alignItems={'center'} justifyContent={'space-between'}>
-            <Text fontSize={20}>
-              {formatDisplayNumber(rewardInfoThisPosition?.pendingUsdValue || 0, {
-                significantDigits: 6,
-                style: 'currency',
-              })}
-            </Text>
+            <Flex alignItems={'center'}>
+              <Text fontSize={20}>
+                {formatDisplayNumber(rewardInfoThisPosition?.pendingUsdValue || 0, {
+                  significantDigits: 6,
+                  style: 'currency',
+                })}
+              </Text>
+              <InfoHelper
+                text={t`Rewards that will be available within 2 days after the countdown completes.`}
+                width="330px"
+                placement="top"
+                color={theme.text}
+              />
+            </Flex>
             <Text fontSize={14} color={theme.subText}>
               {t`Pending`}
             </Text>

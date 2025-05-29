@@ -1,3 +1,4 @@
+import { formatAprNumber } from '@kyber/utils/dist/number'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useCallback, useState } from 'react'
@@ -12,7 +13,7 @@ import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { PositionAction as PositionActionBtn } from 'pages/Earns/PositionDetail/styles'
 import DropdownAction from 'pages/Earns/UserPositions/DropdownAction'
@@ -44,7 +45,8 @@ import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import { ZapOutInfo } from 'pages/Earns/hooks/useZapOutWidget'
 import { FeeInfo, ParsedPosition, PositionStatus } from 'pages/Earns/types'
-import { formatAprNumber, getFullUnclaimedFeesInfo, getNftManagerContract, isForkFrom } from 'pages/Earns/utils'
+import { isForkFrom } from 'pages/Earns/utils'
+import { getUnclaimedFeesInfo } from 'pages/Earns/utils/fees'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -68,7 +70,6 @@ export default function TableContent({
   onOpenZapOut: ({ position }: ZapOutInfo) => void
 }) {
   const { account } = useActiveWeb3React()
-  const { library } = useWeb3React()
   const toggleWalletModal = useWalletModalToggle()
   const theme = useTheme()
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
@@ -93,22 +94,11 @@ export default function TableContent({
 
   const handleFetchUnclaimedFee = useCallback(
     async (position: ParsedPosition | null) => {
-      if (!position || !library) return
+      if (!position) return
 
-      const { token0, token1, chain, dex, tokenId } = position
-      const contract = getNftManagerContract(dex.id, chain.id, library)
+      const feeFromRpc = await getUnclaimedFeesInfo(position)
 
-      if (!contract) return
-      const owner = await contract.ownerOf(position.tokenId)
-
-      const feeFromRpc = await getFullUnclaimedFeesInfo({
-        contract,
-        positionOwner: owner,
-        tokenId,
-        chainId: chain.id,
-        token0,
-        token1,
-      })
+      const { tokenId } = position
       const feeInfoToAdd = {
         ...feeFromRpc,
         id: tokenId,
@@ -122,7 +112,7 @@ export default function TableContent({
 
       setFeeInfoFromRpc(feeInfoFromRpcClone)
     },
-    [feeInfoFromRpc, library, setFeeInfoFromRpc],
+    [feeInfoFromRpc, setFeeInfoFromRpc],
   )
 
   const handleOpenIncreaseLiquidityWidget = (e: React.MouseEvent, position: ParsedPosition) => {
@@ -225,7 +215,7 @@ export default function TableContent({
               const feesClaimDisabled =
                 !DEXES_SUPPORT_COLLECT_FEE[dex.id as EarnDex] || unclaimedFees === 0 || feesClaiming
               const rewardsClaimDisabled =
-                !position.pool.isFarming || rewardsClaiming || position.farming.unclaimedUsdValue === 0
+                !position.pool.isFarming || rewardsClaiming || position.farming.claimableUsdValue === 0
 
               const actions = (
                 <DropdownAction
@@ -333,7 +323,25 @@ export default function TableContent({
                   <PositionValueWrapper>
                     <PositionValueLabel>{t`APR`}</PositionValueLabel>
                     <Flex alignItems={'center'} sx={{ gap: 1 }}>
-                      <Text color={pool.isFarming ? theme.primary : theme.text}>{formatAprNumber(apr * 100)}%</Text>
+                      <MouseoverTooltipDesktopOnly
+                        text={
+                          pool.isFarming ? (
+                            <>
+                              <Text>
+                                {t`LP Fees APR`}: {formatAprNumber(position.feeApr)}%
+                              </Text>
+                              <Text>
+                                {t`Rewards APR`}: {formatAprNumber(position.kemApr)}%
+                              </Text>
+                            </>
+                          ) : null
+                        }
+                        width="fit-content"
+                        placement="bottom"
+                      >
+                        <Text color={pool.isFarming ? theme.primary : theme.text}>{formatAprNumber(apr)}%</Text>
+                      </MouseoverTooltipDesktopOnly>
+
                       {!!position.suggestionPool && (
                         <MouseoverTooltipDesktopOnly
                           text={

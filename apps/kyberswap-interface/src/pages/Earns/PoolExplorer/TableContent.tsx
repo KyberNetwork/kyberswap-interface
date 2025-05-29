@@ -1,3 +1,4 @@
+import { formatAprNumber } from '@kyber/utils/dist/number'
 import { t } from '@lingui/macro'
 import { useEffect, useMemo, useState } from 'react'
 import { Star } from 'react-feather'
@@ -27,7 +28,7 @@ import {
 import useFilter from 'pages/Earns/PoolExplorer/useFilter'
 import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import { ParsedEarnPool } from 'pages/Earns/types'
-import { formatAprNumber, isFarmingProtocol } from 'pages/Earns/utils'
+import { isFarmingProtocol } from 'pages/Earns/utils'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -60,8 +61,6 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: ({ pool }: Zap
   const tablePoolData: Array<ParsedEarnPool> = useMemo(
     () =>
       (poolData?.data?.pools || []).map(pool => {
-        const isFarmingPool = isFarmingProtocol(pool.exchange)
-
         const dexLogo =
           dexList.data?.find(dex => dex.dexId === (dexKeyMapping[pool.exchange] || pool.exchange))?.logoURL || ''
         const dexName =
@@ -72,7 +71,7 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: ({ pool }: Zap
           dexLogo,
           dexName,
           feeApr: pool.apr,
-          apr: isFarmingPool ? (pool.kemApr || 0) + pool.apr : pool.apr,
+          apr: pool.kemApr + pool.apr,
         }
       }),
     [poolData, dexList],
@@ -230,7 +229,7 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: ({ pool }: Zap
               </Flex>
               <Flex alignItems="center" sx={{ gap: '12px' }}>
                 <Flex alignItems="center" sx={{ gap: '2px' }}>
-                  <Apr positive={pool.apr > 0}>{formatAprNumber(pool.apr)}%</Apr>
+                  <Apr value={pool.apr}>{formatAprNumber(pool.apr)}%</Apr>
                   {kemFarming(pool)}
                 </Flex>
                 <Star
@@ -291,7 +290,7 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: ({ pool }: Zap
             </SymbolText>
             <FeeTier>{formatDisplayNumber(pool.feeTier, { significantDigits: 4 })}%</FeeTier>
           </Flex>
-          <Apr positive={pool.apr > 0}>
+          <Apr value={pool.apr}>
             {formatAprNumber(pool.apr)}% {kemFarming(pool)}
           </Apr>
           <Flex justifyContent="flex-end">

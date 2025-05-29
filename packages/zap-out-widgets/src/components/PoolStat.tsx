@@ -1,5 +1,5 @@
 import { PATHS } from "@/constants";
-import { formatDisplayNumber } from "@kyber/utils/number";
+import { formatAprNumber, formatDisplayNumber } from "@kyber/utils/number";
 import { cn } from "@kyber/utils/tailwind-helpers";
 import { useEffect, useState } from "react";
 import { useZapOutContext } from "@/stores";
@@ -10,6 +10,7 @@ interface PoolInfo {
   volume24h: number;
   fees24h: number;
   apr24h: number;
+  kemApr24h: number;
 }
 
 export default function PoolStat({
@@ -35,6 +36,8 @@ export default function PoolStat({
       : Number(
           (BigInt(position.liquidity) * 10000n) / BigInt(position.totalSupply)
         ) / 100;
+
+  const poolApr = (poolInfo?.apr24h || 0) + (poolInfo?.kemApr24h || 0);
 
   useEffect(() => {
     const handleFetchPoolInfo = () => {
@@ -95,25 +98,8 @@ export default function PoolStat({
       </div>
       <div className="flex justify-between">
         <span>Est. APR</span>
-        <span
-          className={
-            poolInfo?.apr24h && poolInfo.apr24h > 0
-              ? "text-accent"
-              : "text-text"
-          }
-        >
-          {poolInfo?.apr24h || poolInfo?.apr24h === 0
-            ? formatDisplayNumber(poolInfo.apr24h, {
-                significantDigits:
-                  poolInfo.apr24h < 1
-                    ? 2
-                    : poolInfo.apr24h < 10
-                    ? 3
-                    : poolInfo.apr24h < 100
-                    ? 4
-                    : 5,
-              }) + "%"
-            : "--"}
+        <span className={poolApr > 0 ? "text-accent" : "text-text"}>
+          {formatAprNumber(poolApr) + "%"}
         </span>
       </div>
       {isUniv2 && (

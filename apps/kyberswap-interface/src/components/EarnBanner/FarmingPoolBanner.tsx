@@ -1,3 +1,4 @@
+import { formatAprNumber } from '@kyber/utils/dist/number'
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -19,7 +20,6 @@ import {
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import { formatAprNumber } from 'pages/Earns/utils'
 import { MEDIA_WIDTHS } from 'theme'
 
 let indexInterval: NodeJS.Timeout
@@ -89,23 +89,23 @@ export default function FarmingPoolBanner() {
     return () => indexInterval && clearInterval(indexInterval)
   }, [handleMoveForward])
 
-  return pools.length > 0 ? (
+  return (
     <FarmingWrapper>
       <Flex alignItems="center" sx={{ gap: '6px' }}>
         <IconKem width={26} height={26} color={theme.primary} />
         <Text color={'#FCD884'}>{t`FARMING POOLS`}</Text>
       </Flex>
-      <Flex
-        justifyContent="center"
-        alignItems="center"
-        sx={{ gap: '8px', width: '102%', position: 'relative', left: '-1%' }}
-        ref={WrapperRef}
-      >
-        {pools.length > 0 && (
-          <>
-            {containerWidth > 0 && <MoveBackIcon onClick={handleMoveBack} />}
-            <FarmingPoolContainer>
-              {containerWidth > 0 && (
+      {pools.length > 0 ? (
+        <Flex
+          justifyContent="center"
+          alignItems="center"
+          sx={{ gap: '8px', width: '102%', position: 'relative', left: '-1%' }}
+          ref={WrapperRef}
+        >
+          {containerWidth > 0 && (
+            <>
+              <MoveBackIcon onClick={handleMoveBack} />
+              <FarmingPoolContainer>
                 <FarmingPoolWrapper
                   animateMoveForward={animateMoveForward}
                   animateMoveBack={animateMoveBack}
@@ -121,16 +121,16 @@ export default function FarmingPoolBanner() {
                       <PoolPairText>
                         {pool.tokens[0].symbol}/{pool.tokens[1].symbol}
                       </PoolPairText>
-                      <FarmingAprBadge>{formatAprNumber(pool.apr)}%</FarmingAprBadge>
+                      <FarmingAprBadge>{formatAprNumber(pool.apr + pool.kemApr)}%</FarmingAprBadge>
                     </FarmingPool>
                   ))}
                 </FarmingPoolWrapper>
-              )}
-            </FarmingPoolContainer>
-            {containerWidth > 0 && <MoveForwardIcon onClick={handleMoveForward} />}
-          </>
-        )}
-      </Flex>
+              </FarmingPoolContainer>
+              <MoveForwardIcon onClick={handleMoveForward} />
+            </>
+          )}
+        </Flex>
+      ) : null}
     </FarmingWrapper>
-  ) : null
+  )
 }

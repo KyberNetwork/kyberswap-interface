@@ -12,6 +12,7 @@ import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useWalletSupportedChains } from 'hooks/web3/useWalletSupportedChains'
+import { NonEvmChain } from 'pages/CrossChainSwap/adapters'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useNetworkModalToggle } from 'state/application/hooks'
 import { useNativeBalance } from 'state/wallet/hooks'
@@ -96,7 +97,7 @@ function SelectNetwork(): JSX.Element | null {
       <NetworkModal
         selectedId={chainId}
         disabledMsg={t`Unsupported by your wallet.`}
-        activeChainIds={walletSupportsChain}
+        activeChainIds={[NonEvmChain.Bitcoin, NonEvmChain.Near, ...walletSupportsChain]}
       />
     </NetworkCard>
   )

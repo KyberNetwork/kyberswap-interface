@@ -1,9 +1,9 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { ContractInterface } from 'ethers'
 
-import AlgebraNftManagerABI from 'constants/abis/nft-manager-contract/algebraNftManagerContract.json'
-import Univ3NftManagerABI from 'constants/abis/nft-manager-contract/uniswapv3NftManagerContract.json'
-import Univ4NftManagerABI from 'constants/abis/nft-manager-contract/uniswapv4NftManagerContract.json'
+import AlgebraNftManagerABI from 'constants/abis/earn/algebraNftManagerContract.json'
+import Univ3NftManagerABI from 'constants/abis/earn/uniswapv3NftManagerContract.json'
+import Univ4NftManagerABI from 'constants/abis/earn/uniswapv4NftManagerContract.json'
 import { ETHER_ADDRESS } from 'constants/index'
 import { enumToArrayOfValues } from 'utils'
 
@@ -213,4 +213,20 @@ export const PROTOCOLS_CORE_MAPPING: Record<EarnDex, CoreProtocol> = {
   [EarnDex.DEX_UNISWAP_V4_FAIRFLOW]: CoreProtocol.UniswapV4,
 }
 
-export const KEM_REWARDS_CONTRACT = '0x0bd49FdEa9e8c3Fc410f37A643377C45659297cc'
+export const FARMING_SUPPORTED_CHAIN = [ChainId.MAINNET, ChainId.BASE]
+
+export const KEM_REWARDS_CONTRACT = {
+  [ChainId.MAINNET]: '0xF268cd33C76E3ba6963CD080DcE74C7C71d57a60',
+  [ChainId.BASE]: '0x0bd49FdEa9e8c3Fc410f37A643377C45659297cc',
+}
+
+export const UNISWAPV4_STATEVIEW_CONTRACT: Record<EarnChain, string> = {
+  [EarnChain.MAINNET]: '0x7ffe42c4a5deea5b0fec41c94c136cf115597227',
+  [EarnChain.BASE]: '0xa3c0c9b65bad0b08107aa264b0f3db444b867a71',
+  [EarnChain.BSC]: '0xd13dd3d6e93f276fafc9db9e6bb47c1180aee0c4',
+  [EarnChain.ARBITRUM]: '0x76fd297e2d437cd7f76d50f01afe6160f86e9990',
+  [EarnChain.AVAX]: '0xc3c9e198c735a4b97e3e683f391ccbdd60b69286',
+  [EarnChain.OPTIMISM]: '0xc18a3169788f4f75a170290584eca6395c75ecdb',
+  [EarnChain.MATIC]: '0x5ea1bd7974c8a611cbab0bdcafcb1d9cc9b3ba5a',
+  [EarnChain.BERA]: '',
+}

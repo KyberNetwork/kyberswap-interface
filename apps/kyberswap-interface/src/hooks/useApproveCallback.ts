@@ -1,13 +1,13 @@
 import { MaxUint256 } from '@ethersproject/constants'
 import { Currency, CurrencyAmount, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
+import { BigNumber } from 'ethers'
 import { Interface } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { NotificationType } from 'components/Announcement/type'
 import ERC20_ABI from 'constants/abis/erc20.json'
-import { useTokenAllowance } from 'data/Allowances'
 import { useNotify } from 'state/application/hooks'
 import { Field } from 'state/swap/actions'
 import { useHasPendingApproval, useTransactionAdder } from 'state/transactions/hooks'
@@ -20,7 +20,7 @@ import { computeSlippageAdjustedAmounts } from 'utils/prices'
 import { paymasterExecute } from 'utils/sendTransaction'
 
 import { useActiveWeb3React } from './index'
-import { useTokenSigningContract } from './useContract'
+import { useTokenReadingContract, useTokenSigningContract } from './useContract'
 
 const ERC20Interface = new Interface(ERC20_ABI)
 
@@ -39,8 +39,23 @@ export function useApproveCallback(
 ): [ApprovalState, (customAllowance?: CurrencyAmount<Currency>) => Promise<void>, TokenAmount | undefined] {
   const { account } = useActiveWeb3React()
   const token = amountToApprove?.currency.wrapped
-  const currentAllowance = useTokenAllowance(token, account ?? undefined, spender)
   const pendingApproval = useHasPendingApproval(token?.address, spender)
+
+  const tokenContract = useTokenSigningContract(token?.address)
+  const readingTokenContract = useTokenReadingContract(token?.address)
+
+  const [currentAllowance, setAllowance] = useState<TokenAmount | undefined>(undefined)
+  const getAllowance = useCallback(async () => {
+    if (!readingTokenContract || !token) return
+    readingTokenContract.allowance(account, spender).then((res: BigNumber) => {
+      setAllowance(TokenAmount.fromRawAmount(token, res.toString()))
+    })
+  }, [readingTokenContract, account, spender, token])
+
+  useEffect(() => {
+    getAllowance()
+  }, [getAllowance, pendingApproval])
+
   // check the current approval status
   const approvalState: ApprovalState = useMemo(() => {
     if (!amountToApprove || !spender) return ApprovalState.UNKNOWN
@@ -65,7 +80,6 @@ export function useApproveCallback(
   }, [amountToApprove, currentAllowance, pendingApproval, spender])
   const notify = useNotify()
 
-  const tokenContract = useTokenSigningContract(token?.address)
   const addTransactionWithType = useTransactionAdder()
   const [paymentToken] = usePaymentToken()
 

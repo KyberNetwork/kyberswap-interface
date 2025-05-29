@@ -7,9 +7,6 @@ import styled from 'styled-components'
 
 //import { ReactComponent as MasterCard } from 'assets/buy-crypto/master-card.svg'
 //import { ReactComponent as Visa } from 'assets/buy-crypto/visa.svg'
-// import MultichainLogoLight from 'assets/images/multichain_white.png'
-import SquidLogoLight from 'assets/images/squid_light.png'
-// import { ReactComponent as BridgeIcon } from 'assets/svg/bridge_icon.svg'
 //import { ReactComponent as BuyCrypto } from 'assets/svg/buy_crypto.svg'
 import { ReactComponent as CrossChainIcon } from 'assets/svg/cross_chain_icon.svg'
 import { ReactComponent as LimitOrderIcon } from 'assets/svg/limit_order.svg'
@@ -37,11 +34,6 @@ const IconWrapper = styled.div`
 //  }
 //`
 
-// const StyledBridgeIcon = styled(BridgeIcon)`
-//   path {
-//     fill: currentColor;
-//   }
-// `
 //const StyledBuyCrypto = styled(BuyCrypto)`
 //  path {
 //    fill: currentColor;
@@ -55,9 +47,7 @@ const SwapNavGroup = () => {
 
   const [{ show: isShowTutorial = false, stepInfo }] = useTutorialSwapGuide()
 
-  const isActive = [APP_PATHS.SWAP, APP_PATHS.BUY_CRYPTO, APP_PATHS.BRIDGE, APP_PATHS.LIMIT].some(path =>
-    pathname.startsWith(path),
-  )
+  const isActive = [APP_PATHS.SWAP, APP_PATHS.BUY_CRYPTO, APP_PATHS.LIMIT].some(path => pathname.startsWith(path))
 
   return (
     <NavGroup
@@ -107,41 +97,16 @@ const SwapNavGroup = () => {
               to={APP_PATHS.CROSS_CHAIN}
               style={{ flexDirection: 'column', width: '100%' }}
             >
-              <Flex alignItems="center" sx={{ gap: '12px' }} justifyContent="space-between">
+              <Flex alignItems="center" sx={{ gap: '12px' }}>
                 <IconWrapper>
                   <CrossChainIcon height={15} />
                 </IconWrapper>
-                <Flex alignItems={'center'} sx={{ flex: 1 }} justifyContent={'space-between'}>
-                  <Trans>Cross-Chain</Trans>
-                  <img src={SquidLogoLight} alt="kyberswap with Squid" height={16} />
-                </Flex>
+                <Trans>Cross-Chain</Trans>
               </Flex>
             </StyledNavLink>
           )}
 
           {/*
-          !(chainId === ChainId.LINEA_TESTNET) && (
-            <StyledNavLink
-              id="bridge-nav-link"
-              to={APP_PATHS.BRIDGE}
-              style={{ flexDirection: 'column', width: '100%' }}
-            >
-              <Flex alignItems="center" sx={{ gap: '12px' }} justifyContent="space-between">
-                <IconWrapper>
-                  <StyledBridgeIcon height={15} />
-                </IconWrapper>
-                <Flex alignItems={'center'} sx={{ flex: 1 }} justifyContent={'space-between'}>
-                  <Trans>Bridge</Trans>
-                  <img
-                    src={isDark ? MultichainLogoLight : MultichainLogoDark}
-                    alt="kyberswap with multichain"
-                    height={10}
-                  />
-                </Flex>
-              </Flex>
-            </StyledNavLink>
-          )
-
           <StyledNavLink
             id="buy-crypto-nav-link"
             to={APP_PATHS.BUY_CRYPTO}

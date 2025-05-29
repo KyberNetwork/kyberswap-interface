@@ -342,7 +342,7 @@ export function useCurrencyV2(currencyId: string | undefined, customChainId?: Ch
       lowercaseId === ETHER_ADDRESS.toLowerCase(),
     [chainId, lowercaseId],
   )
-  const whitelistTokens = useAllTokens()
+  const whitelistTokens = useAllTokens(false, chainId)
   const tokenInWhitelist = currencyId
     ? whitelistTokens[currencyId] || whitelistTokens[currencyId?.toLowerCase()]
     : undefined

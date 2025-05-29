@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { API_URLS, PoolType, Univ2PoolType } from '@kyber/schema';
-import { formatDisplayNumber } from '@kyber/utils/number';
+import { formatDisplayNumber, formatAprNumber } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
 import FarmingIcon from '@/assets/svg/kem.svg';
@@ -12,6 +12,7 @@ interface PoolInfo {
   volume24h: number;
   fees24h: number;
   apr24h: number;
+  kemApr24h: number;
 }
 
 export default function PoolStat({
@@ -34,6 +35,8 @@ export default function PoolStat({
     position === 'loading' || !isUniv2 || !('totalSupply' in position)
       ? null
       : Number((BigInt(position.liquidity) * 10000n) / BigInt(position.totalSupply)) / 100;
+
+  const poolApr = (poolInfo?.apr24h || 0) + (poolInfo?.kemApr24h || 0);
 
   useEffect(() => {
     const handleFetchPoolInfo = () => {
@@ -92,23 +95,8 @@ export default function PoolStat({
       </div>
       <div className="flex flex-col max-sm:flex-row max-sm:justify-between items-start gap-1">
         <span>Est. APR</span>
-        <div
-          className={`flex items-center gap-1 ${
-            poolInfo?.apr24h && poolInfo.apr24h > 0 ? 'text-accent' : 'text-text'
-          }`}
-        >
-          {poolInfo?.apr24h || poolInfo?.apr24h === 0
-            ? formatDisplayNumber(poolInfo.apr24h, {
-                significantDigits:
-                  poolInfo.apr24h < 1
-                    ? 2
-                    : poolInfo.apr24h < 10
-                      ? 3
-                      : poolInfo.apr24h < 100
-                        ? 4
-                        : 5,
-              }) + '%'
-            : '--'}
+        <div className={`flex items-center gap-1 ${poolApr > 0 ? 'text-accent' : 'text-text'}`}>
+          {formatAprNumber(poolApr) + '%'}
           {poolType === PoolType.DEX_UNISWAP_V4_FAIRFLOW ? (
             <FarmingIcon width={20} height={20} />
           ) : null}
