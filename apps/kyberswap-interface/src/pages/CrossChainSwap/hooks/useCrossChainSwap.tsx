@@ -86,6 +86,10 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
   const { chainId, account } = useActiveWeb3React()
 
   useEffect(() => {
+    setLoading(true)
+  }, [amount])
+
+  useEffect(() => {
     if (!from) {
       searchParams.set('from', chainId?.toString() || '')
       setSearchParams(searchParams)

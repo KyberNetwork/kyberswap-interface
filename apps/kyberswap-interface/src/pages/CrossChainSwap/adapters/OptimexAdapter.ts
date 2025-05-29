@@ -79,6 +79,7 @@ export class OptimexAdapter extends BaseSwapAdapter {
     if (!this.tokens?.length) {
       await this.getTokens()
     }
+    console.log(params)
 
     const isFromBtc = params.fromChain === NonEvmChain.Bitcoin
     const isToBtc = params.toChain === NonEvmChain.Bitcoin
@@ -117,9 +118,7 @@ export class OptimexAdapter extends BaseSwapAdapter {
           affiliate_fee_bps: params.feeBps.toString(),
         }),
       }).then(res => res.json()),
-      fetch(`https://api.optimex.xyz/v1/trades/estimate?from_token=${fromTokenId}&to_token=${toTokenId}`).then(res =>
-        res.json(),
-      ),
+      fetch(`${OPTIMEX_API}/trades/estimate?from_token=${fromTokenId}&to_token=${toTokenId}`).then(res => res.json()),
       fetch(`https://api.optimex.xyz/v1/tokens/${fromToken.token_symbol}`)
         .then(res => res.json())
         .then(res => res?.data?.current_price || 0),
@@ -220,7 +219,7 @@ export class OptimexAdapter extends BaseSwapAdapter {
         recipient: quote.rawQuote.txData.deposit_address,
         amount: quote.quoteParams.amount,
       })
-      await fetch(`https://api.optimex.xyz/v1/trades/${quote.rawQuote.txData.trade_id}/submit-tx`, {
+      await fetch(`${OPTIMEX_API}/trades/${quote.rawQuote.txData.trade_id}/submit-tx`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -266,15 +265,15 @@ export class OptimexAdapter extends BaseSwapAdapter {
   }
 
   async getTransactionStatus(p: NormalizedTxResponse): Promise<SwapStatus> {
-    const res = await fetch(`https://api.optimex.xyz/v1/trades/${p.id}`).then(res => res.json())
+    const res = await fetch(`${OPTIMEX_API}/trades/${p.id}`).then(res => res.json())
 
     return {
-      txHash: res.data?.settlement_tx_id || '',
+      txHash: res.data?.payment_bundle?.settlement_tx || '',
       status:
-        res?.data?.status === 'PAYMENT_CONFIRMED'
+        res?.data?.state === 'Done'
           ? 'Success'
-          : res?.data?.status === 'REFUNDED'
-          ? 'Refunded'
+          : ['Failed', 'UserCancelled'].includes(res?.data?.state)
+          ? 'Failed'
           : 'Processing',
     }
   }
