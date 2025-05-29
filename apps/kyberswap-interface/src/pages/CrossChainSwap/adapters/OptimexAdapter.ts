@@ -218,18 +218,20 @@ export class OptimexAdapter extends BaseSwapAdapter {
       const res = await sendBtcFn({
         recipient: quote.rawQuote.txData.deposit_address,
         amount: quote.quoteParams.amount,
-      })
-      await fetch(`${OPTIMEX_API}/trades/${quote.rawQuote.txData.trade_id}/submit-tx`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          tx_id: res,
-        }),
       }).catch(e => {
-        console.log('submit tx error for optimex', e)
+        throw e
       })
+      // await fetch(`${OPTIMEX_API}/trades/${quote.rawQuote.txData.trade_id}/submit-tx`, {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify({
+      //     tx_id: res,
+      //   }),
+      // }).catch(e => {
+      //   console.log('submit tx error for optimex', e)
+      // })
       return {
         ...params,
         sourceTxHash: res,
