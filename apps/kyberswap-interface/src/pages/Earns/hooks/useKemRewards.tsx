@@ -48,7 +48,7 @@ const useKemRewards = () => {
 
     setClaiming(true)
 
-    const positionManagerContract = getNftManagerContractAddress(EarnDex.DEX_UNISWAP_V4_FAIRFLOW, chainId)
+    const positionManagerContract = getNftManagerContractAddress(EarnDex.DEX_KEM_UNISWAP_V4_FAIRFLOW, chainId)
 
     const encodeData = !claimInfo.nftId
       ? await batchClaimEncodeData({

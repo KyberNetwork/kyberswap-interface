@@ -11,6 +11,7 @@ import styled from 'styled-components'
 import { ReactComponent as CrossChainIcon } from 'assets/svg/cross_chain_icon.svg'
 import { ReactComponent as LimitOrderIcon } from 'assets/svg/limit_order.svg'
 import { DropdownTextAnchor, StyledNavLink } from 'components/Header/styleds'
+import { NewLabel } from 'components/Menu'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { APP_PATHS, CHAINS_SUPPORT_CROSS_CHAIN } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
@@ -101,7 +102,10 @@ const SwapNavGroup = () => {
                 <IconWrapper>
                   <CrossChainIcon height={15} />
                 </IconWrapper>
-                <Trans>Cross-Chain</Trans>
+                <Flex>
+                  <Trans>Cross-Chain</Trans>
+                  <NewLabel>New</NewLabel>
+                </Flex>
               </Flex>
             </StyledNavLink>
           )}

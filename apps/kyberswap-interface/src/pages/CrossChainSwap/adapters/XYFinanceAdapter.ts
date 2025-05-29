@@ -61,6 +61,8 @@ export class XYFinanceAdapter extends BaseSwapAdapter {
       dstChainId: params.toChain,
       dstQuoteTokenAddress: params.toToken.isNative ? ETHER_ADDRESS : params.toToken.address,
       slippage: (params.slippage * 100) / 10_000,
+      srcSwapProviders: 'KyberSwap V1 DexAggregator',
+
       // bridgeProviders: 'yBridge',
 
       affiliate: CROSS_CHAIN_FEE_RECEIVER,

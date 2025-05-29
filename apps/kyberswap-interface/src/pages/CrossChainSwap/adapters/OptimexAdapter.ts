@@ -219,7 +219,7 @@ export class OptimexAdapter extends BaseSwapAdapter {
         recipient: quote.rawQuote.txData.deposit_address,
         amount: quote.quoteParams.amount,
       })
-      await fetch(`${OPTIMEX_API}/trades/${quote.rawQuote.txData.trade_id}/submit-tx`, {
+      await fetch(`https://api.optimex.xyz/v1/trades/${quote.rawQuote.txData.trade_id}/submit-tx`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

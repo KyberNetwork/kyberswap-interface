@@ -1,6 +1,7 @@
 import { rgba } from 'polished'
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { Clock, X } from 'react-feather'
+import Skeleton from 'react-loading-skeleton'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -15,6 +16,7 @@ import { formatDisplayNumber } from 'utils/numbers'
 
 // import { GasStation } from 'components/Icons'
 import { Currency } from '../adapters'
+import { registry, useCrossChainSwap } from '../hooks/useCrossChainSwap'
 import { Quote } from '../registry'
 import { formatTime } from './Summary'
 import { TokenLogoWithChain } from './TokenLogoWithChain'
@@ -78,6 +80,7 @@ export const QuoteSelector = ({
   onChange: (quote: Quote) => void
   tokenOut?: Currency
 }) => {
+  const { allLoading } = useCrossChainSwap()
   const [show, setShow] = useState(false)
   const theme = useTheme()
 
@@ -183,6 +186,33 @@ export const QuoteSelector = ({
               </Row>
             )
           })}
+          {allLoading &&
+            Array(registry.getAllAdapters().length - quotes.length)
+              .fill(0)
+              .map((_, index) => {
+                return (
+                  <React.Fragment key={index}>
+                    <Row selected={false}>
+                      <Skeleton
+                        height="20px"
+                        width="200px"
+                        baseColor={theme.disableText}
+                        highlightColor={theme.buttonGray}
+                        borderRadius="1rem"
+                      />
+
+                      <Skeleton
+                        style={{ marginTop: '8px' }}
+                        height="16px"
+                        width="134px"
+                        baseColor={theme.disableText}
+                        highlightColor={theme.buttonGray}
+                        borderRadius="1rem"
+                      />
+                    </Row>
+                  </React.Fragment>
+                )
+              })}
         </ListRoute>
       </Box>
     </Wrapper>
@@ -196,17 +226,20 @@ export const QuoteSelector = ({
       role="button"
       sx={{
         cursor: 'pointer',
-        width: '28px',
-        height: '28px',
-        color: theme.text,
         backgroundColor: rgba(theme.subText, 0.08),
-        borderRadius: '50%',
+        fontSize: '14px',
+        padding: '4px 8px',
+        gap: '4px',
+        color: theme.subText,
+        borderRadius: '999px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
+        fontWeight: 500,
       }}
     >
       <RouteIcon />
+      Route Options
     </Box>
   )
 

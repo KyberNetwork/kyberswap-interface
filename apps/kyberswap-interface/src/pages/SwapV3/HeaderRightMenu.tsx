@@ -1,6 +1,7 @@
 import { t } from '@lingui/macro'
 import { isMobile } from 'react-device-detect'
 import { useLocation } from 'react-router-dom'
+import { useMedia } from 'react-use'
 import styled from 'styled-components'
 
 import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
@@ -14,9 +15,11 @@ import useTheme from 'hooks/useTheme'
 import { TAB } from 'pages/SwapV3/index'
 import useCurrenciesByPage from 'pages/SwapV3/useCurrenciesByPage'
 import { useDegenModeManager } from 'state/user/hooks'
+import { MEDIA_WIDTHS } from 'theme'
 
 const ActionPanel = styled.div`
   display: flex;
+  align-items: center;
   border-radius: 18px;
 `
 
@@ -51,12 +54,14 @@ export default function HeaderRightMenu({
     }
   }
   const [isDegenMode] = useDegenModeManager()
+  const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
 
   return (
     <ActionPanel>
       {!isCrossChainPage && (
         <TokenInfoIcon
           currencies={currencies}
+          size={upToXXSmall ? 16 : 20}
           onClick={() => {
             mixpanelHandler(MIXPANEL_TYPE.SWAP_TOKEN_INFO_CLICK)
             onToggleActionTab(TAB.INFO)

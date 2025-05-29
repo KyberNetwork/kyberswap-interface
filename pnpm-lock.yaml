@@ -281,9 +281,6 @@ importers:
       polished:
         specifier: ^3.7.2
         version: 3.7.2
-      postinstall-postinstall:
-        specifier: ^2.1.0
-        version: 2.1.0
       process:
         specifier: ^0.11.10
         version: 0.11.10
@@ -26360,11 +26357,6 @@ packages:
       nanoid: 3.3.7
       picocolors: 1.1.1
       source-map-js: 1.2.1
-
-  /postinstall-postinstall@2.1.0:
-    resolution: {integrity: sha512-7hQX6ZlZXIoRiWNrbMQaLzUUfH+sSx39u8EJ9HYuDc1kLo9IXKWjM5RSquZN1ad5GnH8CGFM78fsAAQi3OKEEQ==}
-    requiresBuild: true
-    dev: false
 
   /preact@10.24.3:
     resolution: {integrity: sha512-Z2dPnBnMUfyQfSQ+GBdsGa16hz35YmLmtTLhM169uW944hYL6xzTYkJjC07j+Wosz733pMWx0fgON3JNw1jJQA==}
