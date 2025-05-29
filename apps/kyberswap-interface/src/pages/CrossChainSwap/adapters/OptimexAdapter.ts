@@ -146,7 +146,10 @@ export class OptimexAdapter extends BaseSwapAdapter {
           session_id: quoteRes.data.session_id,
           from_user_address: params.sender,
           amount_in: params.amount,
-          min_amount_out: (BigInt(quoteRes.data.best_quote_after_fees) * (10_000n - BigInt(params.slippage))) / 10_000n,
+          min_amount_out: (
+            (BigInt(quoteRes.data.best_quote_after_fees) * (10_000n - BigInt(params.slippage))) /
+            10_000n
+          ).toString(),
           to_user_address: params.recipient,
           user_refund_pubkey: params.fromChain === NonEvmChain.Bitcoin ? params.publicKey : params.sender,
           user_refund_address: params.sender,
