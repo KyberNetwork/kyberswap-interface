@@ -135,9 +135,11 @@ export function TransactionSubmittedContent({
   hash,
   tokenAddToMetaMask,
   showTxBanner = true,
+  scanLink,
 }: {
   onDismiss: () => void
   hash: string | undefined
+  scanLink?: string
   chainId: ChainId
   tokenAddToMetaMask?: Token
   showTxBanner?: boolean
@@ -164,7 +166,7 @@ export function TransactionSubmittedContent({
             <Trans>Transaction Submitted</Trans>
           </Text>
           {hash && (
-            <ExternalLink href={getEtherscanLink(chainId, hash, 'transaction')}>
+            <ExternalLink href={scanLink || getEtherscanLink(chainId, hash, 'transaction')}>
               <Text fontWeight={500} fontSize={14} color={theme.primary}>
                 <Trans>View transaction</Trans>
               </Text>
@@ -322,11 +324,13 @@ interface ConfirmationModalProps {
   showTxBanner?: boolean
   maxWidth?: string | number
   width?: string
+  scanLink?: string
 }
 
 export default function TransactionConfirmationModal({
   isOpen,
   onDismiss,
+  scanLink,
   attemptingTxn,
   attemptingTxnContent,
   hash,
@@ -357,6 +361,7 @@ export default function TransactionConfirmationModal({
         <TransactionSubmittedContent
           showTxBanner={showTxBanner}
           chainId={chainId}
+          scanLink={scanLink}
           hash={hash}
           onDismiss={onDismiss}
           tokenAddToMetaMask={tokenAddToMetaMask as Token}

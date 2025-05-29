@@ -56,13 +56,7 @@ export default function LimitTab({ onClick, active, customChainId }: Props) {
   }
 
   return (
-    <Tab
-      id="limit-button"
-      data-testid="limit-button"
-      onClick={onClick}
-      isActive={active || isLimitPage}
-      style={{ display: 'flex', gap: '4px', fontSize: '18px', fontWeight: '500' }}
-    >
+    <Tab id="limit-button" data-testid="limit-button" onClick={onClick} isActive={active || isLimitPage}>
       <Trans>Limit Order</Trans>{' '}
       {!!numberOfActiveOrders && (
         <MouseoverTooltip placement="top" text={<Trans>You have {numberOfActiveOrders} active orders.</Trans>}>
