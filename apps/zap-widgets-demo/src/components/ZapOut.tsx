@@ -1,7 +1,7 @@
-import { zapOutDexMapping } from "../constant";
-import Input from "./Input";
-import Modal from "./Modal";
-import SubmitButton from "./SubmitButton";
+import { zapOutDexMapping } from "@/constant";
+import Input from "@/components/Input";
+import Modal from "@/components/Modal";
+import SubmitButton from "@/components/SubmitButton";
 import {
   Card,
   CardContent,
@@ -22,6 +22,7 @@ import "@kyberswap/zap-out-widgets/dist/style.css";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { useState } from "react";
 import { useAccount, useChainId, useSwitchChain, useWalletClient } from "wagmi";
+import { Zap } from "@/App";
 
 const ZapOut = () => {
   const { address } = useAccount();
@@ -87,7 +88,7 @@ const ZapOut = () => {
   };
 
   return (
-    <TabsContent value="zap-out">
+    <TabsContent value={Zap.ZAP_OUT}>
       <Card>
         <CardHeader>
           <CardTitle>Zap out widget</CardTitle>

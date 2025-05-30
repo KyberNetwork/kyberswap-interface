@@ -8,7 +8,7 @@ import {
 } from "react";
 import { PancakeToken } from "@/entities/Pool";
 import { useWeb3Provider } from "@/hooks/useProvider";
-import { PATHS } from "@/constants";
+import { API_URL } from "@/constants";
 
 type TokenListContextState = {
   loading: boolean;
@@ -30,7 +30,7 @@ export const TokenProvider = ({ children }: { children: ReactNode }) => {
   const fetchTokenList = useCallback(() => {
     setLoading(true);
     fetch(
-      `${PATHS.KYBERSWAP_SETTING_API}?page=1&pageSize=100&isWhitelisted=true&chainIds=${chainId}`
+      `${API_URL.KYBERSWAP_SETTING_API}/tokens?page=1&pageSize=100&isWhitelisted=true&chainIds=${chainId}`
     )
       .then((res) => res.json())
       .then((res) => setAllTokens(res.data.tokens))
@@ -44,7 +44,7 @@ export const TokenProvider = ({ children }: { children: ReactNode }) => {
       setLoading(true);
       try {
         const res = await fetch(
-          `${PATHS.KYBERSWAP_SETTING_API}?query=${address}&page=1&pageSize=100&chainIds=${chainId}`
+          `${API_URL.KYBERSWAP_SETTING_API}/tokens?query=${address}&page=1&pageSize=100&chainIds=${chainId}`
         );
         const { data } = await res.json();
 

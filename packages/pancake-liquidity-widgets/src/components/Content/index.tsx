@@ -13,9 +13,7 @@ import Preview, { ZapState } from "@/components/Preview";
 import Modal from "@/components/Modal";
 import InfoHelper from "@/components/InfoHelper";
 import { useWeb3Provider } from "@/hooks/useProvider";
-import { ImpactType, PI_LEVEL, getPriceImpact } from "@/utils";
-import { tryParseTick } from "@/utils/pancakev3";
-import { nearestUsableTick } from "@pancakeswap/v3-sdk";
+import { ImpactType, PI_LEVEL, correctPrice, getPriceImpact } from "@/utils";
 import {
   ZapAction,
   AggregatorSwapAction,
@@ -26,7 +24,7 @@ import {
 import X from "@/assets/x.svg";
 import ErrorIcon from "@/assets/error.svg";
 import { MAX_ZAP_IN_TOKENS } from "@/constants";
-// import LiquidityChart from "./LiquidityChart";
+import { tickToPrice } from "@kyber/utils/uniswapv3";
 
 export default function Content({
   onDismiss,
@@ -221,47 +219,37 @@ export default function Content({
     }
   }, [snapshotState, onTogglePreview]);
 
-  const correctPrice = useCallback(
-    (value: string, type: Type) => {
-      if (!pool) return;
-      if (revertPrice) {
-        const defaultTick =
-          (type === Type.PriceLower ? tickLower : tickUpper) ||
-          pool?.tickCurrent;
-        const tick =
-          tryParseTick(pool?.token1, pool?.token0, pool?.fee, value) ??
-          defaultTick;
-        if (Number.isInteger(tick))
-          setTick(type, nearestUsableTick(tick, pool.tickSpacing));
-      } else {
-        const defaultTick =
-          (type === Type.PriceLower ? tickLower : tickUpper) ||
-          pool?.tickCurrent;
-        const tick =
-          tryParseTick(pool?.token0, pool?.token1, pool?.fee, value) ??
-          defaultTick;
-        if (Number.isInteger(tick))
-          setTick(type, nearestUsableTick(tick, pool.tickSpacing));
-      }
-    },
-    [pool, revertPrice, tickLower, tickUpper, setTick]
-  );
-
   const currentPoolPrice = pool
-    ? revertPrice
-      ? pool.priceOf(pool.token1)
-      : pool.priceOf(pool.token0)
+    ? tickToPrice(
+        pool.tickCurrent,
+        pool.token0.decimals,
+        pool.token1.decimals,
+        revertPrice
+      )
     : undefined;
 
   const selectPriceRange = useCallback(
     (percent: number) => {
       if (!currentPoolPrice) return;
-      const left = +currentPoolPrice.toSignificant(18) * (1 - percent);
-      const right = +currentPoolPrice.toSignificant(18) * (1 + percent);
-      correctPrice(left.toString(), Type.PriceLower);
-      correctPrice(right.toString(), Type.PriceUpper);
+      const left = +currentPoolPrice * (1 - percent);
+      const right = +currentPoolPrice * (1 + percent);
+
+      correctPrice({
+        value: left.toString(),
+        type: Type.PriceLower,
+        pool,
+        revertPrice,
+        setTick,
+      });
+      correctPrice({
+        value: right.toString(),
+        type: Type.PriceUpper,
+        pool,
+        revertPrice,
+        setTick,
+      });
     },
-    [correctPrice, currentPoolPrice]
+    [currentPoolPrice, pool, revertPrice, setTick]
   );
 
   useEffect(() => {

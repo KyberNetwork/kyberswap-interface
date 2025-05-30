@@ -1,6 +1,7 @@
 import { PoolType as ZapInDex } from "@kyberswap/liquidity-widgets";
 import { Dex as ZapMigrationDex } from "@kyberswap/zap-migration-widgets";
 import { PoolType as ZapOutDex } from "@kyberswap/zap-out-widgets";
+import { Dex as PancakeZapInDex } from "@kyberswap/pancake-liquidity-widgets";
 
 export const zapInDexMapping: Record<ZapInDex, string> = {
   [ZapInDex.DEX_UNISWAP_V4]: "Uniswap V4",
@@ -71,4 +72,9 @@ export const zapOutDexMapping: Record<ZapOutDex, string> = {
   [ZapOutDex.DEX_KODIAK_V2]: "Kodiak V2",
   [ZapOutDex.DEX_SQUADSWAP_V3]: "Squad Swap V3",
   [ZapOutDex.DEX_SQUADSWAP_V2]: "Squad Swap V2",
+};
+
+export const pancakeZapInDexMapping: Record<PancakeZapInDex, string> = {
+  [PancakeZapInDex.DEX_PANCAKESWAPV3]: "PancakeSwap V3",
+  [PancakeZapInDex.DEX_PANCAKE_INFINITY_CL]: "Infinity CL",
 };
