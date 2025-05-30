@@ -274,7 +274,7 @@ export class OptimexAdapter extends BaseSwapAdapter {
       status:
         res?.data?.state === 'Done'
           ? 'Success'
-          : ['Failed', 'UserCancelled'].includes(res?.data?.state)
+          : ['Aborted', 'Failed', 'UserCancelled'].includes(res?.data?.state)
           ? 'Failed'
           : 'Processing',
     }
