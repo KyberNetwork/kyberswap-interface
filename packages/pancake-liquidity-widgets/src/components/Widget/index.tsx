@@ -69,6 +69,7 @@ export default function Widget({
   onAmountChange,
   onOpenTokenSelectModal,
   farmContractAddresses = [],
+  dex,
 }: WidgetProps) {
   const publicClient = useMemo(() => {
     const chain = getChainById(chainId);
@@ -135,6 +136,7 @@ export default function Widget({
           onAmountChange={onAmountChange}
           onOpenTokenSelectModal={onOpenTokenSelectModal}
           farmContractAddresses={farmContractAddresses}
+          dex={dex}
         >
           <ZapContextProvider
             includedSources={includedSources}

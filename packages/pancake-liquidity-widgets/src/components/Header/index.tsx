@@ -2,8 +2,7 @@ import { MouseoverTooltip } from "@/components/Tooltip";
 import { useWeb3Provider } from "@/hooks/useProvider";
 import { useWidgetInfo } from "@/hooks/useWidgetInfo";
 import { useZapState } from "@/hooks/useZapInState";
-import { NetworkInfo, BASE_BPS } from "@/constants";
-import { getDexLogo, getDexName } from "@/utils";
+import { NetworkInfo, DEXES_INFO, BASE_BPS } from "@/constants";
 import { PancakeToken } from "@/entities/Pool";
 import SettingIcon from "@/assets/setting.svg";
 import X from "@/assets/x.svg";
@@ -34,7 +33,7 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
 
 const PoolInfo = () => {
   const { chainId } = useWeb3Provider();
-  const { loading, pool, positionId, position, theme } = useWidgetInfo();
+  const { loading, pool, positionId, position, theme, dex } = useWidgetInfo();
 
   const { toggleSetting, degenMode } = useZapState();
 
@@ -54,8 +53,7 @@ const PoolInfo = () => {
   const token1 = pool.token1 as PancakeToken;
   const fee = pool.fee;
 
-  const logo = getDexLogo();
-  const name = getDexName();
+  const { logo, name } = DEXES_INFO[dex];
 
   const isOutOfRange = position
     ? pool.tickCurrent < position.tickLower ||

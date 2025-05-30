@@ -13,7 +13,10 @@ import {
 import { Label } from "@kyber/ui/label";
 import { RadioGroup, RadioGroupItem } from "@kyber/ui/radio-group";
 import { TabsContent } from "@kyber/ui/tabs";
-import { LiquidityWidget as ZapInWidget, Dex as ZapInDex } from "@kyberswap/pancake-liquidity-widgets";
+import {
+  LiquidityWidget as ZapInWidget,
+  Dex as ZapInDex,
+} from "@kyberswap/pancake-liquidity-widgets";
 import "@kyberswap/pancake-liquidity-widgets/dist/style.css";
 
 import { useConnectModal } from "@rainbow-me/rainbowkit";
@@ -37,18 +40,24 @@ const ZapIn = () => {
     initTickUpper: string;
     initDepositTokens: string;
     initAmounts: string;
-    theme: 'dark' | 'light';
+    theme: "dark" | "light";
   }>({
-    chainId: 8453,
-    positionId: "",
-    poolAddress:
-      "0xb775272e537cc670c65dc852908ad47015244eaf",
-    poolType: ZapInDex.DEX_PANCAKESWAPV3,
+    chainId: 56,
     initTickLower: "",
-    initTickUpper: '',
+    initTickUpper: "",
     initDepositTokens: "",
     initAmounts: "",
     theme: "dark",
+
+    positionId: "",
+    // positionId: "6361",
+    poolAddress:
+      "0x752e76950f6167b8dbb0495b957d264d61724dfa26e3dd6fad1ba820862ce9cf",
+    poolType: ZapInDex.DEX_PANCAKE_INFINITY_CL,
+
+    // poolAddress: "0x133b3d95bad5405d14d53473671200e9342896bf",
+    // poolType: ZapInDex.DEX_PANCAKESWAPV3,
+    // positionId: "1373488",
   });
 
   const handleAddTokens = useCallback((tokenAddresses: string) => {
@@ -230,24 +239,18 @@ const ZapIn = () => {
               onValueChange={(value) =>
                 setParams((p) => ({
                   ...p,
-                  theme: value as 'dark' | 'light',
+                  theme: value as "dark" | "light",
                 }))
               }
             >
               <div className="flex items-center space-x-2">
-                <RadioGroupItem
-                  value="dark"
-                  id="theme-dark"
-                />
+                <RadioGroupItem value="dark" id="theme-dark" />
                 <Label className="text-xs" htmlFor={`theme-dark`}>
                   Dark
                 </Label>
               </div>
               <div className="flex items-center space-x-2">
-                <RadioGroupItem
-                  value="light"
-                  id="theme-light"
-                />
+                <RadioGroupItem value="light" id="theme-light" />
                 <Label className="text-xs" htmlFor={`theme-light`}>
                   Light
                 </Label>
@@ -275,7 +278,8 @@ const ZapIn = () => {
                     id={`${index + 1}`}
                   />
                   <Label className="text-xs" htmlFor={`${index + 1}`}>
-                    {ZapInDex[key as keyof typeof ZapInDex] in pancakeZapInDexMapping
+                    {ZapInDex[key as keyof typeof ZapInDex] in
+                    pancakeZapInDexMapping
                       ? pancakeZapInDexMapping[
                           ZapInDex[
                             key as keyof typeof ZapInDex

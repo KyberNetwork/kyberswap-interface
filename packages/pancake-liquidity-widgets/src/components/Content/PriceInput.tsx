@@ -1,10 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useZapState } from "@/hooks/useZapInState";
 import { useWidgetInfo } from "@/hooks/useWidgetInfo";
 import { nearestUsableTick } from "@pancakeswap/v3-sdk";
-import { tryParseTick } from "@/utils/pancakev3";
 import { Type } from "@/types/zapInTypes";
 import { cn } from "@kyber/utils/tailwind-helpers";
+import { correctPrice } from "@/utils";
 
 export default function PriceInput({ type }: { type: Type }) {
   const {
@@ -18,12 +18,6 @@ export default function PriceInput({ type }: { type: Type }) {
   } = useZapState();
   const { pool } = useWidgetInfo();
   const [localValue, setLocalValue] = useState("");
-
-  const price = useMemo(() => {
-    const leftPrice = !revertPrice ? priceLower : priceUpper?.invert();
-    const rightPrice = !revertPrice ? priceUpper : priceLower?.invert();
-    return type === Type.PriceLower ? leftPrice : rightPrice;
-  }, [type, priceLower, revertPrice, priceUpper]);
 
   const isFullRange =
     !!pool && tickLower === pool.minTick && tickUpper === pool.maxTick;
@@ -72,27 +66,6 @@ export default function PriceInput({ type }: { type: Type }) {
     }
   };
 
-  const correctPrice = (value: string) => {
-    if (!pool) return;
-    if (revertPrice) {
-      const defaultTick =
-        (type === Type.PriceLower ? tickLower : tickUpper) || pool?.tickCurrent;
-      const tick =
-        tryParseTick(pool?.token1, pool?.token0, pool?.fee, value) ??
-        defaultTick;
-      if (Number.isInteger(tick))
-        setTick(type, nearestUsableTick(tick, pool.tickSpacing));
-    } else {
-      const defaultTick =
-        (type === Type.PriceLower ? tickLower : tickUpper) || pool?.tickCurrent;
-      const tick =
-        tryParseTick(pool?.token0, pool?.token1, pool?.fee, value) ??
-        defaultTick;
-      if (Number.isInteger(tick))
-        setTick(type, nearestUsableTick(tick, pool.tickSpacing));
-    }
-  };
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/,/g, ".");
     const inputRegex = RegExp(`^\\d*(?:\\\\[.])?\\d*$`); // match escaped "." characters via in a non-capturing group
@@ -115,8 +88,21 @@ export default function PriceInput({ type }: { type: Type }) {
       (!revertPrice ? pool?.maxTick === tickUpper : pool?.minTick === tickLower)
     ) {
       setLocalValue("∞");
-    } else if (price) setLocalValue(price?.toSignificant(6));
-  }, [isFullRange, pool, type, tickLower, tickUpper, price, revertPrice]);
+    } else if (priceLower && priceUpper) {
+      if (type === Type.PriceLower)
+        setLocalValue(!revertPrice ? priceLower : priceUpper);
+      else setLocalValue(!revertPrice ? priceUpper : priceLower);
+    }
+  }, [
+    isFullRange,
+    pool,
+    type,
+    tickLower,
+    tickUpper,
+    priceLower,
+    priceUpper,
+    revertPrice,
+  ]);
 
   return (
     <div className="mt-3 p-3 border border-inputBorder text-center rounded-md bg-inputBackground text-textSecondary">
@@ -139,7 +125,15 @@ export default function PriceInput({ type }: { type: Type }) {
         <input
           value={localValue}
           onChange={handleInputChange}
-          onBlur={(e) => correctPrice(e.target.value)}
+          onBlur={(e) =>
+            correctPrice({
+              value: e.target.value,
+              type,
+              pool,
+              revertPrice,
+              setTick,
+            })
+          }
           inputMode="decimal"
           autoComplete="off"
           autoCorrect="off"

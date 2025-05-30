@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@kyberswap/zap-migration-widgets": "workspace:^",
-    "@kyberswap/pancake-liquidity-widgets": "workspace:*",
+    "@kyberswap/pancake-liquidity-widgets": "workspace:^",
     "@kyberswap/liquidity-widgets": "workspace:^",
     "@kyberswap/zap-out-widgets": "workspace:^",
     "@rainbow-me/rainbowkit": "2.1.0",

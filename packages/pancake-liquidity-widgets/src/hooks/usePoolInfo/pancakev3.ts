@@ -1,13 +1,17 @@
-import { Position as PancakePosition, Position } from "@pancakeswap/v3-sdk";
 import { Address } from "viem";
 import { useEffect, useState } from "react";
-import { Pancakev3PoolABI } from "@/abis/pancakev3_pool";
-import { Pancakev3PosManagerABI } from "@/abis/pancakev3_pos_manager";
 import { useWeb3Provider } from "@/hooks/useProvider";
-import { PANCAKE_NFT_MANAGER_CONTRACT, NetworkInfo } from "@/constants";
-import { PancakeToken, PancakeV3Pool } from "@/entities/Pool";
+import {
+  NetworkInfo,
+  Dex,
+  PANCAKE_NATIVE_TOKEN_ADDRESS,
+  NATIVE_TOKEN_ADDRESS,
+} from "@/constants";
+import { Pool } from "@/entities/Pool";
+import { Position } from "@/entities/Position";
+import { getPoolInfo, getPositionInfo } from "@/utils";
 
-interface TokenInfo {
+export interface TokenInfo {
   chainId: number;
   decimals: number;
   name: string;
@@ -18,70 +22,38 @@ interface TokenInfo {
 
 export default function usePoolInfo(
   poolAddress: string,
-  positionId: string | undefined
+  positionId: string | undefined,
+  dex: Dex
 ): {
-  pool: PancakeV3Pool | null;
+  pool: Pool | null;
   loading: boolean;
   position: Position | null;
   positionOwner: Address | null;
   error: string;
 } {
   const [loading, setLoading] = useState(true);
-  const [pool, setPool] = useState<PancakeV3Pool | null>(null);
+  const [pool, setPool] = useState<Pool | null>(null);
   const [position, setPosition] = useState<Position | null>(null);
   const [positionOwner, setPositionOwner] = useState<Address | null>(null);
-
-  const { chainId, publicClient } = useWeb3Provider();
-  const posManagerContractAddress = PANCAKE_NFT_MANAGER_CONTRACT[chainId];
-
   const [error, setError] = useState("");
 
+  const { chainId, publicClient } = useWeb3Provider();
+
   useEffect(() => {
-    const getPoolInfo = async () => {
+    const getZapInfo = async () => {
       if (!publicClient || !!pool) {
         setLoading(false);
         return;
       }
-      const multiCallRes = await publicClient.multicall({
-        contracts: [
-          {
-            address: poolAddress as Address,
-            abi: Pancakev3PoolABI,
-            functionName: "token0",
-          },
-          {
-            address: poolAddress as Address,
-            abi: Pancakev3PoolABI,
-            functionName: "token1",
-          },
-          {
-            address: poolAddress as Address,
-            abi: Pancakev3PoolABI,
-            functionName: "fee",
-          },
-          {
-            address: poolAddress as Address,
-            abi: Pancakev3PoolABI,
-            functionName: "slot0",
-          },
-          {
-            address: poolAddress as Address,
-            abi: Pancakev3PoolABI,
-            functionName: "liquidity",
-          },
-        ],
+
+      const poolInfo = await getPoolInfo({
+        poolAddress,
+        dex,
+        chainId,
+        publicClient,
       });
 
-      const [address0, address1, fee, slot0, liquidity] = [
-        multiCallRes[0].result,
-        multiCallRes[1].result,
-        multiCallRes[2].result,
-        multiCallRes[3].result || [],
-        multiCallRes[4].result,
-      ];
-      const [sqrtPriceX96, tick] = slot0;
-
-      if (!address0 || !address1 || !fee || !liquidity) {
+      if (!poolInfo) {
         setError(
           `Can't get Pool info for pool address ${poolAddress.substring(
             0,
@@ -90,196 +62,90 @@ export default function usePoolInfo(
         );
         return;
       }
+      setPool(poolInfo);
 
-      const tokens = await fetch(
-        `https://ks-setting.kyberswap.com/api/v1/tokens?chainIds=${chainId}&addresses=${address0},${address1}`
-      )
-        .then((res) => res.json())
-        .then((res) => res?.data?.tokens || []);
+      if (positionId) {
+        const positionInfo = await getPositionInfo({
+          chainId,
+          publicClient,
+          dex,
+          positionId,
+        });
 
-      let token0Info = tokens.find(
-        (tk: TokenInfo) => tk.address.toLowerCase() === address0.toLowerCase()
-      );
-      let token1Info = tokens.find(
-        (tk: TokenInfo) => tk.address.toLowerCase() === address1.toLowerCase()
-      );
+        const { owner, tickLower, tickUpper, liquidity, token0, token1, fee } =
+          positionInfo;
 
-      const addressToImport = [
-        ...(!token0Info ? [address0] : []),
-        ...(!token1Info ? [address1] : []),
-      ];
-
-      if (addressToImport.length) {
-        const tokens = await fetch(
-          "https://ks-setting.kyberswap.com/api/v1/tokens/import",
-          {
-            method: "POST",
-            body: JSON.stringify({
-              tokens: addressToImport.map((item) => ({
-                chainId: chainId.toString(),
-                address: item,
-              })),
-            }),
-          }
-        )
-          .then((res) => res.json())
-          .then(
-            (res) =>
-              res?.data?.tokens.map((item: { data: TokenInfo }) => ({
-                ...item.data,
-                chainId: +item.data.chainId,
-              })) || []
-          );
-
-        if (!token0Info)
-          token0Info = tokens.find(
-            (item: PancakeToken) =>
-              item.address.toLowerCase() === address0.toLowerCase()
-          );
-        if (!token1Info)
-          token1Info = tokens.find(
-            (item: PancakeToken) =>
-              item.address.toLowerCase() === address1.toLowerCase()
-          );
-      }
-      if (token0Info && token1Info && fee) {
-        const initToken = (t: TokenInfo) =>
-          new PancakeToken(
-            t.chainId,
-            t.address,
-            t.decimals,
-            t.symbol,
-            t.name,
-            t.logoURI || `https://ui-avatars.com/api/?name=?`
-          );
-
-        const token0 = initToken(token0Info);
-        const token1 = initToken(token1Info);
-
-        const pool = new PancakeV3Pool(
-          token0,
-          token1,
-          fee,
-          sqrtPriceX96,
-          liquidity,
-          tick
-        );
-        setPool(pool);
-
-        if (positionId && publicClient) {
-          const multiCallRes = await publicClient.multicall({
-            contracts: [
-              {
-                address: posManagerContractAddress,
-                abi: Pancakev3PosManagerABI,
-                functionName: "ownerOf",
-                args: [BigInt(positionId)],
-              },
-              {
-                address: posManagerContractAddress,
-                abi: Pancakev3PosManagerABI,
-                functionName: "positions",
-                args: [BigInt(positionId)],
-              },
-            ],
-          });
-
-          if (multiCallRes.some((item) => item.status === "failure")) {
-            return;
-          }
-
-          const [ownerResult, positionResult] = multiCallRes;
-          const owner = ownerResult.result!;
-          const [
-            ,
-            ,
-            // _nonce,
-            // operator,
-            token0,
-            token1,
-            fee,
-            tickLower,
-            tickUpper,
-            liquidity,
-            // _feeGrowthInside0LastX128,
-            // _feeGrowthInside1LastX128,
-            // _tokensOwed0,
-            // _tokensOwed1,
-          ] = positionResult.result!;
-
-          if (
-            token0.toLowerCase() !== pool.token0.address.toLowerCase() ||
-            token1.toLowerCase() !== pool.token1.address.toLowerCase() ||
-            fee !== pool.fee
-          ) {
-            setError(
-              `Position ${positionId} does not belong to the pool ${pool.token0.symbol}-${pool.token1.symbol}`
-            );
-            return;
-          }
-          const position = new PancakePosition({
-            pool,
-            tickLower: tickLower,
-            tickUpper: tickUpper,
-            liquidity: liquidity.toString(),
-          });
-          setPosition(position);
-          setPositionOwner(owner);
+        if (!tickLower || !tickUpper || !liquidity || !fee) {
+          setError(`can't get position info`);
+          return;
         }
+
+        if (owner) setPositionOwner(owner as Address);
+
+        const token0Address = (
+          dex === Dex.DEX_PANCAKESWAPV3
+            ? token0
+            : token0 === PANCAKE_NATIVE_TOKEN_ADDRESS
+            ? NATIVE_TOKEN_ADDRESS
+            : token0
+        )?.toLowerCase();
+
+        const token1Address = (
+          dex === Dex.DEX_PANCAKESWAPV3
+            ? token1
+            : token1 === PANCAKE_NATIVE_TOKEN_ADDRESS
+            ? NATIVE_TOKEN_ADDRESS
+            : token1
+        )?.toLowerCase();
+
+        if (
+          token0Address !== poolInfo.token0.address.toLowerCase() ||
+          token1Address !== poolInfo.token1.address.toLowerCase()
+        ) {
+          setError(
+            `Position ${positionId} does not belong to the pool ${poolInfo.token0.symbol}-${poolInfo.token1.symbol}`
+          );
+          return;
+        }
+
+        const position = new Position({
+          pool: poolInfo,
+          tickLower: tickLower,
+          tickUpper: tickUpper,
+          liquidity: liquidity.toString(),
+        });
+
+        setPosition(position);
       }
       setLoading(false);
     };
-    getPoolInfo();
-  }, [
-    chainId,
-    pool,
-    poolAddress,
-    posManagerContractAddress,
-    positionId,
-    publicClient,
-  ]);
+
+    getZapInfo();
+  }, [chainId, dex, pool, poolAddress, positionId, publicClient]);
 
   useEffect(() => {
     let i: ReturnType<typeof setInterval> | undefined;
     if (!!pool && publicClient) {
       const getSlot0 = async () => {
-        const multiCallRes = await publicClient.multicall({
-          contracts: [
-            {
-              address: poolAddress as Address,
-              abi: Pancakev3PoolABI,
-              functionName: "slot0",
-            },
-            {
-              address: poolAddress as Address,
-              abi: Pancakev3PoolABI,
-              functionName: "liquidity",
-            },
-          ],
+        const poolInfo = await getPoolInfo({
+          poolAddress,
+          dex,
+          chainId,
+          publicClient,
         });
+        if (!poolInfo) return;
 
-        const [slot0, liquidity] = [
-          multiCallRes[0].result || [],
-          multiCallRes[1].result,
-        ];
-        const [sqrtPriceX96, tick] = slot0;
-
-        if (
-          liquidity === undefined ||
-          sqrtPriceX96 === undefined ||
-          tick === undefined
-        ) {
-          return;
-        }
+        const { liquidity, sqrtRatioX96, tickCurrent, tickSpacing } = poolInfo;
 
         setPool(
-          new PancakeV3Pool(
+          new Pool(
             pool.token0,
             pool.token1,
             pool.fee,
-            sqrtPriceX96,
+            sqrtRatioX96,
             liquidity,
-            tick
+            tickCurrent,
+            tickSpacing
           )
         );
       };
@@ -292,7 +158,7 @@ export default function usePoolInfo(
     return () => {
       i && clearInterval(i);
     };
-  }, [pool, poolAddress, publicClient]);
+  }, [chainId, dex, pool, poolAddress, publicClient]);
 
   return { loading, pool, position, error, positionOwner };
 }
