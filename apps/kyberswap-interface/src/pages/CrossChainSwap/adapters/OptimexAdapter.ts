@@ -79,6 +79,7 @@ export class OptimexAdapter extends BaseSwapAdapter {
     if (!this.tokens?.length) {
       await this.getTokens()
     }
+    console.log(params)
 
     const isFromBtc = params.fromChain === NonEvmChain.Bitcoin
     const isToBtc = params.toChain === NonEvmChain.Bitcoin
@@ -117,9 +118,7 @@ export class OptimexAdapter extends BaseSwapAdapter {
           affiliate_fee_bps: params.feeBps.toString(),
         }),
       }).then(res => res.json()),
-      fetch(`https://api.optimex.xyz/v1/trades/estimate?from_token=${fromTokenId}&to_token=${toTokenId}`).then(res =>
-        res.json(),
-      ),
+      fetch(`${OPTIMEX_API}/trades/estimate?from_token=${fromTokenId}&to_token=${toTokenId}`).then(res => res.json()),
       fetch(`https://api.optimex.xyz/v1/tokens/${fromToken.token_symbol}`)
         .then(res => res.json())
         .then(res => res?.data?.current_price || 0),
@@ -146,7 +145,10 @@ export class OptimexAdapter extends BaseSwapAdapter {
           session_id: quoteRes.data.session_id,
           from_user_address: params.sender,
           amount_in: params.amount,
-          min_amount_out: (BigInt(quoteRes.data.best_quote_after_fees) * (10_000n - BigInt(params.slippage))) / 10_000n,
+          min_amount_out: (
+            (BigInt(quoteRes.data.best_quote_after_fees) * (10_000n - BigInt(params.slippage))) /
+            10_000n
+          ).toString(),
           to_user_address: params.recipient,
           user_refund_pubkey: params.fromChain === NonEvmChain.Bitcoin ? params.publicKey : params.sender,
           user_refund_address: params.sender,
@@ -216,18 +218,20 @@ export class OptimexAdapter extends BaseSwapAdapter {
       const res = await sendBtcFn({
         recipient: quote.rawQuote.txData.deposit_address,
         amount: quote.quoteParams.amount,
-      })
-      await fetch(`https://api.optimex.xyz/v1/trades/${quote.rawQuote.txData.trade_id}/submit-tx`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          tx_id: res,
-        }),
       }).catch(e => {
-        console.log('submit tx error for optimex', e)
+        throw e
       })
+      // await fetch(`${OPTIMEX_API}/trades/${quote.rawQuote.txData.trade_id}/submit-tx`, {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify({
+      //     tx_id: res,
+      //   }),
+      // }).catch(e => {
+      //   console.log('submit tx error for optimex', e)
+      // })
       return {
         ...params,
         sourceTxHash: res,
@@ -263,15 +267,15 @@ export class OptimexAdapter extends BaseSwapAdapter {
   }
 
   async getTransactionStatus(p: NormalizedTxResponse): Promise<SwapStatus> {
-    const res = await fetch(`https://api.optimex.xyz/v1/trades/${p.id}`).then(res => res.json())
+    const res = await fetch(`${OPTIMEX_API}/trades/${p.id}`).then(res => res.json())
 
     return {
-      txHash: res.data?.settlement_tx_id || '',
+      txHash: res.data?.payment_bundle?.settlement_tx || '',
       status:
-        res?.data?.status === 'PAYMENT_CONFIRMED'
+        res?.data?.state === 'Done'
           ? 'Success'
-          : res?.data?.status === 'REFUNDED'
-          ? 'Refunded'
+          : ['Aborted', 'Failed', 'UserCancelled'].includes(res?.data?.state)
+          ? 'Failed'
           : 'Processing',
     }
   }
