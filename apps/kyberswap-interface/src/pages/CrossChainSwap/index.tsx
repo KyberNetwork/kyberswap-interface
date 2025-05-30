@@ -45,6 +45,7 @@ function CrossChainSwap() {
     currencyIn,
     currencyOut,
     quotes,
+    allLoading,
     loading,
     getQuote,
     disable,
@@ -129,7 +130,7 @@ function CrossChainSwap() {
 
       <Flex justifyContent="space-between" alignItems="center">
         <RefreshLoading
-          refetchLoading={loading}
+          refetchLoading={allLoading}
           clickable
           disableRefresh={disable || showPreview}
           onRefresh={getQuote}
