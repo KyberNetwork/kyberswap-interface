@@ -114,33 +114,35 @@ export default function LiquidityWidget() {
     <>
       {openModal ? (
         <>
-          <KsLiquidityWidget
-            theme={theme}
-            dex={dex}
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            walletClient={walletClient as any}
-            account={account}
-            chainId={selectedChainId}
-            networkChainId={chainId}
-            initTickLower={undefined}
-            initTickUpper={undefined}
-            poolAddress={poolAddress}
-            positionId={positionId}
-            feeAddress="0xB82bb6Ce9A249076Ca7135470e7CA634806De168"
-            feePcm={0}
-            source="zap-widget-demo"
-            includedSources={undefined}
-            excludedSources={undefined}
-            initDepositTokens={initDepositTokens}
-            initAmounts={initAmounts}
-            onConnectWallet={toggleWalletModal}
-            onDismiss={() => window.location.reload()}
-            onTxSubmit={undefined}
-            onAddTokens={handleAddTokens}
-            onRemoveToken={handleRemoveToken}
-            onAmountChange={handleAmountChange}
-            onOpenTokenSelectModal={handleOpenTokenSelectModal}
-          />
+          <Box>
+            <KsLiquidityWidget
+              theme={theme}
+              dex={dex}
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              walletClient={walletClient as any}
+              account={account}
+              chainId={selectedChainId}
+              networkChainId={chainId}
+              initTickLower={undefined}
+              initTickUpper={undefined}
+              poolAddress={poolAddress}
+              positionId={positionId}
+              feeAddress="0xB82bb6Ce9A249076Ca7135470e7CA634806De168"
+              feePcm={0}
+              source="zap-widget-demo"
+              includedSources={undefined}
+              excludedSources={undefined}
+              initDepositTokens={initDepositTokens}
+              initAmounts={initAmounts}
+              onConnectWallet={toggleWalletModal}
+              onDismiss={() => setOpenModal(false)}
+              onTxSubmit={undefined}
+              onAddTokens={handleAddTokens}
+              onRemoveToken={handleRemoveToken}
+              onAmountChange={handleAmountChange}
+              onOpenTokenSelectModal={handleOpenTokenSelectModal}
+            />
+          </Box>
           <CurrencySearchModal
             isOpen={openTokenSelectModal}
             onDismiss={handleDismiss}
