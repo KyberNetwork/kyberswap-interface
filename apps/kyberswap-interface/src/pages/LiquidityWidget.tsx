@@ -114,7 +114,14 @@ export default function LiquidityWidget() {
     <>
       {openModal ? (
         <>
-          <Box>
+          <Box
+            sx={{
+              maxWidth: '800px',
+              gap: '1rem',
+              width: '100%',
+              color: '#fff',
+            }}
+          >
             <KsLiquidityWidget
               theme={theme}
               dex={dex}
