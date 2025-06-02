@@ -5,6 +5,7 @@ import { nearestUsableTick } from "@pancakeswap/v3-sdk";
 import { Type } from "@/types/zapInTypes";
 import { cn } from "@kyber/utils/tailwind-helpers";
 import { correctPrice } from "@/utils";
+import { formatDisplayNumber } from "@kyber/utils/number";
 
 export default function PriceInput({ type }: { type: Type }) {
   const {
@@ -89,9 +90,25 @@ export default function PriceInput({ type }: { type: Type }) {
     ) {
       setLocalValue("∞");
     } else if (priceLower && priceUpper) {
-      if (type === Type.PriceLower)
-        setLocalValue(!revertPrice ? priceLower : priceUpper);
-      else setLocalValue(!revertPrice ? priceUpper : priceLower);
+      if (type === Type.PriceLower) {
+        const valueToSet = !revertPrice ? priceLower : priceUpper;
+        if (positionId)
+          setLocalValue(
+            formatDisplayNumber(valueToSet, {
+              significantDigits: 6,
+            })
+          );
+        else setLocalValue(valueToSet);
+      } else {
+        const valueToSet = !revertPrice ? priceUpper : priceLower;
+        if (positionId)
+          setLocalValue(
+            formatDisplayNumber(valueToSet, {
+              significantDigits: 6,
+            })
+          );
+        else setLocalValue(valueToSet);
+      }
     }
   }, [
     isFullRange,
@@ -102,6 +119,7 @@ export default function PriceInput({ type }: { type: Type }) {
     priceLower,
     priceUpper,
     revertPrice,
+    positionId,
   ]);
 
   return (
