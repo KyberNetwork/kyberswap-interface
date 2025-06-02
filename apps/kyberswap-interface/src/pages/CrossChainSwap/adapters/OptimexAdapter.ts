@@ -129,7 +129,7 @@ export class OptimexAdapter extends BaseSwapAdapter {
 
     let txData: { deposit_address: string; payload?: string; trade_id: string } | null = null
 
-    if (params.sender && params.recipient && params.publicKey) {
+    if (params.sender && params.recipient && (isFromBtc ? params.publicKey : true)) {
       const tradeTimeout = new Date()
       tradeTimeout.setHours(tradeTimeout.getHours() + 2)
 
