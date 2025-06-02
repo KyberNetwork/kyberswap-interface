@@ -225,9 +225,6 @@ export default function Header() {
               </StyledNavExternalLink>
             )}
             <AboutNavGroup />
-            <StyledNavLink to={'/liquidity-widget'}>
-              <Trans>Pancake Widget</Trans>
-            </StyledNavLink>
           </HeaderLinks>
         )}
       </HeaderRow>
