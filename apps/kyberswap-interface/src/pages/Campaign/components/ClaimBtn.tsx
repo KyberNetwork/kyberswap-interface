@@ -24,10 +24,13 @@ const ClaimBtn = ({ info }: { info: { ref: string; clientCode: string } }) => {
 
   const addTransactionWithType = useTransactionAdder()
 
-  const handleClaim = useCallback(() => {
+  const networkToSwitch = info.clientCode === 'arbitrum-stip' ? ChainId.ARBITRUM : ChainId.MAINNET
+  const handleClaim = useCallback(async () => {
     if (!account) return
-    if (chainId !== ChainId.ARBITRUM) {
-      changeNetwork(ChainId.ARBITRUM)
+    if (chainId !== networkToSwitch) {
+      changeNetwork(networkToSwitch)
+      const sleep = (ms: number) => new Promise(r => setTimeout(r, ms))
+      await sleep(2000)
       setAutoClaim(true)
       return
     }
@@ -88,14 +91,24 @@ const ClaimBtn = ({ info }: { info: { ref: string; clientCode: string } }) => {
             setIsClaiming(false)
           })
       })
-  }, [chainId, library, changeNetwork, addTransactionWithType, info.ref, info.clientCode, notify, account])
+  }, [
+    chainId,
+    library,
+    changeNetwork,
+    addTransactionWithType,
+    info.ref,
+    info.clientCode,
+    notify,
+    account,
+    networkToSwitch,
+  ])
 
   useEffect(() => {
-    if (autoClaim && chainId === ChainId.ARBITRUM) {
+    if (autoClaim && chainId === networkToSwitch) {
       handleClaim()
       setAutoClaim(false)
     }
-  }, [chainId, autoClaim, handleClaim])
+  }, [chainId, autoClaim, handleClaim, networkToSwitch])
 
   return (
     <ButtonOutlined color={theme.primary} width="88px" height="32px" onClick={handleClaim} disabled={claiming}>

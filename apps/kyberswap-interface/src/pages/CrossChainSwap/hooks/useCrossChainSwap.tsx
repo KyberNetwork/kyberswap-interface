@@ -22,6 +22,13 @@ CrossChainSwapFactory.getAllAdapters().forEach(adapter => {
   registry.registerAdapter(adapter)
 })
 
+// Helper function to create a timeout promise
+const createTimeoutPromise = (ms: number) => {
+  return new Promise<never>((_, reject) => {
+    setTimeout(() => reject(new Error('Timeout')), ms)
+  })
+}
+
 const RegistryContext = createContext<
   | {
       showPreview: boolean
@@ -35,6 +42,7 @@ const RegistryContext = createContext<
       currencyIn: Currency | undefined
       currencyOut: Currency | undefined
       loading: boolean
+      allLoading: boolean
       quotes: Quote[]
       selectedQuote: Quote | null
       setSelectedAdapter: (quote: string | null) => void
@@ -177,6 +185,8 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
   )
 
   const [loading, setLoading] = useState(false)
+  const [allLoading, setAllLoading] = useState(false)
+
   const [quotes, setQuotes] = useState<Quote[]>([])
 
   const [selectedAdapter, setSelectedAdapter] = useState<string | null>(null)
@@ -349,6 +359,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     }
 
     setLoading(true)
+    setAllLoading(true)
 
     const getQuotesWithCancellation = async (params: QuoteParams | NearQuoteParams) => {
       // Create a modified version of getQuotes that can be cancelled
@@ -373,12 +384,16 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
           // Check for cancellation before starting
           if (signal.aborted) throw new Error('Cancelled')
 
-          const quote = await adapter.getQuote(params)
+          // Race between the adapter quote and timeout
+          const quote = await Promise.race([adapter.getQuote(params), createTimeoutPromise(9_000)])
 
           // Check for cancellation after getting quote
           if (signal.aborted) throw new Error('Cancelled')
 
           quotes.push({ adapter, quote })
+          const sortedQuotes = [...quotes].sort((a, b) => (a.quote.outputAmount < b.quote.outputAmount ? 1 : -1))
+          setQuotes(sortedQuotes)
+          setLoading(false)
         } catch (err) {
           if (err.message === 'Cancelled' || signal.aborted) {
             throw new Error('Cancelled')
@@ -426,6 +441,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     })
     setQuotes(q)
     setLoading(false)
+    setAllLoading(false)
   }, [
     recipient,
     isFromEvm,
@@ -464,6 +480,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
         currencyOut: currencyOut || undefined,
         quotes,
         loading,
+        allLoading,
         amount,
         setAmount,
         nearTokens,

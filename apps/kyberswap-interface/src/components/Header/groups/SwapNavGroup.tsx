@@ -19,6 +19,7 @@ import { isSupportLimitOrder, isInSafeApp } from 'utils'
 
 import { DropdownTextAnchor, StyledNavLink } from '../styleds'
 import NavGroup from './NavGroup'
+import { NewLabel } from 'components/Menu'
 
 const IconWrapper = styled.div`
   flex: 0 0 16px;
@@ -101,7 +102,10 @@ const SwapNavGroup = () => {
                 <IconWrapper>
                   <CrossChainIcon height={15} />
                 </IconWrapper>
-                <Trans>Cross-Chain</Trans>
+                <Flex>
+                  <Trans>Cross-Chain</Trans>
+                  <NewLabel>New</NewLabel>
+                </Flex>
               </Flex>
             </StyledNavLink>
           )}

@@ -155,7 +155,7 @@ export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean
 
     if (approvalState === 'NOT_APPROVED' && selectedQuote.quote.contractAddress !== ZERO_ADDRESS) {
       return {
-        label: 'Approve',
+        label: `Approve`,
         onClick: () => {
           setClickedApprove(true)
           approve(inputAmount).finally(() => {

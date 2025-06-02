@@ -8,13 +8,23 @@ import { StyledActionButtonSwapForm } from 'components/swapv2/styleds'
 import useTheme from 'hooks/useTheme'
 import { Field } from 'state/swap/actions'
 
-function TokenInfoIcon({ onClick }: { currencies: { [field in Field]?: Currency }; onClick?: () => void }) {
+function TokenInfoIcon({
+  onClick,
+  size,
+}: {
+  currencies: { [field in Field]?: Currency }
+  onClick?: () => void
+  size?: number
+}) {
   const theme = useTheme()
 
   return (
-    <StyledActionButtonSwapForm onClick={onClick}>
+    <StyledActionButtonSwapForm
+      onClick={onClick}
+      style={{ width: size ? size * 1.5 + 'px' : undefined, height: size ? size * 1.5 + 'px' : undefined }}
+    >
       <MouseoverTooltip text={t`Token Info`} placement="top" width="fit-content" disableTooltip={isMobile}>
-        <Info color={theme.subText} size={20} />
+        <Info color={theme.subText} size={size || 20} />
       </MouseoverTooltip>
     </StyledActionButtonSwapForm>
   )

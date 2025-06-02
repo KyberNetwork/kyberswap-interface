@@ -106,11 +106,10 @@ export class CrossChainSwapFactory {
       CrossChainSwapFactory.getXyFinanceAdapter(),
       CrossChainSwapFactory.getNearIntentsAdapter(),
       CrossChainSwapFactory.getMayanAdapter(),
-      // TODO: disable symbiosis for now becasue they didnt support charge fee by api params yet
-      // CrossChainSwapFactory.getSymbiosisAdapter(),
+      //CrossChainSwapFactory.getSymbiosisAdapter(),
       CrossChainSwapFactory.getDebridgeInstance(),
       CrossChainSwapFactory.getLifiInstance(),
-      // CrossChainSwapFactory.getOptimexAdapter(),
+      //CrossChainSwapFactory.getOptimexAdapter(),
       CrossChainSwapFactory.getKsApdater(),
     ]
   }
