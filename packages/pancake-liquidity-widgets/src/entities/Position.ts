@@ -1,6 +1,7 @@
 import { Pool } from "@/entities/Pool";
-import { Token, CurrencyAmount, Price } from "@pancakeswap/sdk";
+import { Token, Price } from "@pancakeswap/sdk";
 import { TickMath } from "@pancakeswap/v3-sdk";
+import { getPositionAmounts } from "@kyber/utils/uniswapv3";
 
 export class Position {
   public readonly pool: Pool;
@@ -58,38 +59,30 @@ export class Position {
   /**
    * Returns the amount of token0 that this position's liquidity could be burned for at the current pool price
    */
-  get amount0(): CurrencyAmount<Token> {
-    if (this.pool.tickCurrent < this.tickLower) {
-      return CurrencyAmount.fromRawAmount(
-        this.pool.token0,
-        TickMath.getSqrtRatioAtTick(this.tickLower)
-      );
-    } else if (this.pool.tickCurrent >= this.tickUpper) {
-      return CurrencyAmount.fromRawAmount(this.pool.token0, 0);
-    } else {
-      return CurrencyAmount.fromRawAmount(
-        this.pool.token0,
-        TickMath.getSqrtRatioAtTick(this.pool.tickCurrent)
-      );
-    }
+  get amount0(): string {
+    const { amount0 } = getPositionAmounts(
+      this.pool.tickCurrent,
+      this.tickLower,
+      this.tickUpper,
+      BigInt(this.pool.sqrtRatioX96),
+      BigInt(this.liquidity)
+    );
+
+    return (+amount0.toString() / 10 ** this.pool.token0.decimals).toString();
   }
 
   /**
    * Returns the amount of token1 that this position's liquidity could be burned for at the current pool price
    */
-  get amount1(): CurrencyAmount<Token> {
-    if (this.pool.tickCurrent < this.tickLower) {
-      return CurrencyAmount.fromRawAmount(this.pool.token1, 0);
-    } else if (this.pool.tickCurrent >= this.tickUpper) {
-      return CurrencyAmount.fromRawAmount(
-        this.pool.token1,
-        TickMath.getSqrtRatioAtTick(this.tickUpper)
-      );
-    } else {
-      return CurrencyAmount.fromRawAmount(
-        this.pool.token1,
-        TickMath.getSqrtRatioAtTick(this.pool.tickCurrent)
-      );
-    }
+  get amount1(): string {
+    const { amount1 } = getPositionAmounts(
+      this.pool.tickCurrent,
+      this.tickLower,
+      this.tickUpper,
+      BigInt(this.pool.sqrtRatioX96),
+      BigInt(this.liquidity)
+    );
+
+    return (+amount1.toString() / 10 ** this.pool.token1.decimals).toString();
   }
 }
