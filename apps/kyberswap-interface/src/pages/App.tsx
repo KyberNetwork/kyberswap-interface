@@ -26,6 +26,7 @@ import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { RedirectPathToSwapV3Network } from 'pages/SwapV3/redirects'
 import { isInSafeApp, isSupportLimitOrder } from 'utils'
 
+import LiquidityWidget from './LiquidityWidget'
 import VerifyAuth from './Verify/VerifyAuth'
 import Modal from 'components/Modal'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
@@ -276,6 +277,7 @@ export default function App() {
               {CHAINS_SUPPORT_CROSS_CHAIN.includes(chainId) && !isInSafeApp && (
                 <Route path={`${APP_PATHS.CROSS_CHAIN}`} element={<SwapV3 />} />
               )}
+              <Route path="/liquidity-widget" element={<LiquidityWidget />} />
 
               {isSupportLimitOrder(chainId) && (
                 <Route path={`${APP_PATHS.LIMIT}/:network/:currency?`} element={<SwapPage />} />

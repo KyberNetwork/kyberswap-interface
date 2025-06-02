@@ -60,6 +60,7 @@
     "@kyberswap/ks-sdk-elastic": "^1.1.2",
     "@kyberswap/liquidity-chart": "workspace:*",
     "@kyberswap/liquidity-widgets": "workspace:*",
+    "@kyberswap/pancake-liquidity-widgets": "workspace:*",
     "@kyberswap/oauth2": "1.0.2",
     "@kyberswap/zap-migration-widgets": "workspace:*",
     "@kyberswap/zap-out-widgets": "workspace:*",

@@ -86,6 +86,9 @@ importers:
       '@kyberswap/oauth2':
         specifier: 1.0.2
         version: 1.0.2
+      '@kyberswap/pancake-liquidity-widgets':
+        specifier: workspace:*
+        version: link:../../packages/pancake-liquidity-widgets
       '@kyberswap/zap-migration-widgets':
         specifier: workspace:*
         version: link:../../packages/zap-migration-widgets
@@ -13056,7 +13059,7 @@ packages:
       '@typescript-eslint/types': 6.21.0
       '@typescript-eslint/typescript-estree': 6.21.0(typescript@5.6.3)
       '@typescript-eslint/visitor-keys': 6.21.0
-      debug: 4.4.0(supports-color@5.5.0)
+      debug: 4.3.7
       eslint: 8.57.0
       typescript: 5.6.3
     transitivePeerDependencies:
