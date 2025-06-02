@@ -86,9 +86,6 @@ importers:
       '@kyberswap/oauth2':
         specifier: 1.0.2
         version: 1.0.2
-      '@kyberswap/pancake-liquidity-widgets':
-        specifier: workspace:*
-        version: link:../../packages/pancake-liquidity-widgets
       '@kyberswap/zap-migration-widgets':
         specifier: workspace:*
         version: link:../../packages/zap-migration-widgets
