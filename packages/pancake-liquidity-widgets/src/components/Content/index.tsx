@@ -80,6 +80,7 @@ export default function Content({
     isApproved: nftApproved,
     approve: approveNft,
     pendingTx: pendingTxNft,
+    checkApproval: checkNftApproval,
   } = useNftApproval({
     rpcUrl: NetworkInfo[chainId].defaultRpc,
     nftManagerContract,
@@ -332,6 +333,7 @@ export default function Content({
 
           <Preview
             onTxSubmit={onTxSubmit}
+            checkNftApproval={checkNftApproval}
             zapState={snapshotState}
             onDismiss={() => {
               setSnapshotState(null);

@@ -66,6 +66,7 @@ export interface PreviewProps {
   zapState: ZapState;
   onDismiss: () => void;
   onTxSubmit?: (tx: string) => void;
+  checkNftApproval: () => void;
 }
 
 export default function Preview({
@@ -81,6 +82,7 @@ export default function Preview({
   },
   onDismiss,
   onTxSubmit,
+  checkNftApproval,
 }: PreviewProps) {
   const { chainId, account, publicClient, walletClient } = useWeb3Provider();
   const { positionId, position, dex } = useWidgetInfo();
@@ -490,7 +492,13 @@ export default function Preview({
             View transaction ↗
           </a>
         )}
-        <button className="ks-primary-btn w-full" onClick={onDismiss}>
+        <button
+          className="ks-primary-btn w-full"
+          onClick={() => {
+            checkNftApproval();
+            onDismiss();
+          }}
+        >
           Close
         </button>
       </div>

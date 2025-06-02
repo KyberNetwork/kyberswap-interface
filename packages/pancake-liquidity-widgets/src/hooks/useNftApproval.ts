@@ -72,6 +72,7 @@ export function useNftApproval({
 
   const checkApproval = useCallback(async () => {
     if (!spender || !account || !nftId || pendingTx) return;
+    setIsChecking(true);
 
     const methodSignature = getFunctionSelector("getApproved(uint256)");
     const encodedTokenId = nftId.toString(16).padStart(64, "0");
@@ -103,6 +104,7 @@ export function useNftApproval({
           spender.toLowerCase()
         )
           setIsApproved(true);
+        else setIsApproved(false);
       })
       .finally(() => {
         setIsChecking(false);
@@ -118,5 +120,5 @@ export function useNftApproval({
     };
   }, [checkApproval]);
 
-  return { isChecking, isApproved, approve, pendingTx };
+  return { isChecking, isApproved, approve, pendingTx, checkApproval };
 }
