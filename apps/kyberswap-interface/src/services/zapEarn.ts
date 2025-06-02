@@ -58,6 +58,7 @@ export interface PositionQueryParams {
   protocols: string
   q?: string
   positionId?: string
+  debug?: string
 }
 
 interface PositionHistoryParams {

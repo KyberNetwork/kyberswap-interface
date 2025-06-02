@@ -52,6 +52,7 @@ const PositionDetail = () => {
       positionId: positionId,
       chainIds: chainId || '',
       protocols: protocol || '',
+      debug: 'use_kyber_data_db',
     },
     { skip: !account, pollingInterval: forceLoading ? 5_000 : 15_000 },
   )

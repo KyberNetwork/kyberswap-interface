@@ -59,6 +59,7 @@ const UserPositions = () => {
     protocols: filters.protocols || earnSupportedExchanges.join(','),
     q: filters.q,
     positionStatus: 'all',
+    debug: 'use_kyber_data_db',
   }
 
   const {
