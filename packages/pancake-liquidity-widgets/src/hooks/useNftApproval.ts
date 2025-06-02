@@ -8,6 +8,8 @@ import {
 import { useCallback, useEffect, useState } from "react";
 import { useWeb3Provider } from "@/hooks/useProvider";
 
+let intervalCheckApproval: number | undefined;
+
 export function useNftApproval({
   rpcUrl,
   nftManagerContract,
@@ -68,8 +70,8 @@ export function useNftApproval({
     }
   }, [pendingTx, rpcUrl]);
 
-  useEffect(() => {
-    if (!spender || !account || !nftId) return;
+  const checkApproval = useCallback(async () => {
+    if (!spender || !account || !nftId || pendingTx) return;
 
     const methodSignature = getFunctionSelector("getApproved(uint256)");
     const encodedTokenId = nftId.toString(16).padStart(64, "0");
@@ -105,7 +107,16 @@ export function useNftApproval({
       .finally(() => {
         setIsChecking(false);
       });
-  }, [account, nftId, nftManagerContract, rpcUrl, spender]);
+  }, [account, nftId, nftManagerContract, pendingTx, rpcUrl, spender]);
+
+  useEffect(() => {
+    checkApproval();
+    intervalCheckApproval = setInterval(checkApproval, 8_000);
+
+    return () => {
+      if (intervalCheckApproval) clearInterval(intervalCheckApproval);
+    };
+  }, [checkApproval]);
 
   return { isChecking, isApproved, approve, pendingTx };
 }
