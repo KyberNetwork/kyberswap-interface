@@ -1,10 +1,11 @@
+import { shortenAddress } from '@kyber/utils/dist/crypto'
 import { t } from '@lingui/macro'
 import { useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
 import CopyHelper from 'components/Copy'
-import InfoHelper from 'components/InfoHelper'
+import { InfoHelperWithDelay } from 'components/InfoHelper'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
@@ -88,18 +89,17 @@ const PositionDetailHeader = ({
           </Text>
           {position.pool.fee && <Badge>Fee {position.pool.fee}%</Badge>}
           <Badge type={BadgeType.ROUNDED}>
-            <InfoHelper
-              color={theme.blue2}
-              size={16}
-              width="fit-content"
+            <InfoHelperWithDelay
               text={
                 <Flex alignItems={'center'} sx={{ gap: 1 }} color={theme.blue2}>
-                  <Text fontSize={14}>{position.pool.address}</Text>
+                  <Text fontSize={14}>{shortenAddress(position.pool.address, 6)}</Text>
                   <CopyHelper size={16} toCopy={position.pool.address} />
                 </Flex>
               }
+              size={16}
+              color={theme.blue2}
               placement="top"
-              style={{ marginLeft: 0 }}
+              width="fit-content"
             />
           </Badge>
         </Flex>
