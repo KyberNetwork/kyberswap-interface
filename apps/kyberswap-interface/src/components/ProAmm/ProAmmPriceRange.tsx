@@ -6,7 +6,6 @@ import { Flex, Text } from 'rebass'
 import { OutlineCard } from 'components/Card'
 import { AutoColumn } from 'components/Column'
 import InfoHelper from 'components/InfoHelper'
-import LiquidityChartRangeInput from 'components/LiquidityChartRangeInput'
 import { RowBetween, RowFixed } from 'components/Row'
 import useTheme from 'hooks/useTheme'
 import { Bound } from 'state/mint/proamm/type'
@@ -71,24 +70,6 @@ export default function ProAmmPriceRange({
               </span>
             </RowFixed>
           </Flex>
-
-          <LiquidityChartRangeInput
-            style={{ minHeight: '180px' }}
-            currencyA={baseCurrency}
-            currencyB={quoteCurrency}
-            feeAmount={position.pool.fee}
-            ticksAtLimit={ticksAtLimit}
-            price={price ? parseFloat(price.toSignificant(8)) : undefined}
-            leftPrice={priceLower}
-            rightPrice={priceUpper}
-            onLeftRangeInput={() => {
-              //
-            }}
-            onRightRangeInput={() => {
-              //
-            }}
-            interactive={false}
-          />
         </div>
         <RowBetween style={{ gap: '12px' }}>
           <Flex>

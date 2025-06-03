@@ -23,14 +23,13 @@ import { useTotalSupply } from 'data/TotalSupply'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { IconWrapper } from 'pages/Pools/styleds'
-import { useETHPrice } from 'state/application/hooks'
-import { UserLiquidityPosition, useSinglePoolData } from 'state/pools/hooks'
+import { UserLiquidityPosition } from 'state/pools/hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useTokenBalance } from 'state/wallet/hooks'
 import { ExternalLink, UppercaseText } from 'theme'
 import { formattedNum, shortenAddress } from 'utils'
 import { currencyId } from 'utils/currencyId'
-import { getTradingFeeAPR, useCurrencyConvertedToNative } from 'utils/dmm'
+import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
 const TokenWrapper = styled.div`
@@ -369,16 +368,6 @@ const Row = styled(Flex)`
 export default function FullPositionCard({ pair, border, stakedBalance, myLiquidity, tab }: PositionCardProps) {
   const { chainId, networkInfo } = useActiveWeb3React()
 
-  const ethPrice = useETHPrice()
-
-  const { data: poolData } = useSinglePoolData(pair.address.toLowerCase(), ethPrice.currentPrice)
-
-  // const volume = poolData?.oneDayVolumeUSD || poolData?.oneDayVolumeUntracked
-  const fee = poolData?.oneDayFeeUSD || poolData?.oneDayFeeUntracked
-  const tradingFeeAPR = getTradingFeeAPR(poolData?.reserveUSD, fee)
-
-  const apr = tradingFeeAPR
-
   const currency0 = unwrappedToken(pair.token0)
   const currency1 = unwrappedToken(pair.token1)
 
@@ -454,8 +443,6 @@ export default function FullPositionCard({ pair, border, stakedBalance, myLiquid
 
   const theme = useTheme()
 
-  const feeApr = tradingFeeAPR.toFixed(2)
-
   return (
     <StyledPositionCard border={border}>
       <Flex justifyContent="space-between">
@@ -517,10 +504,10 @@ export default function FullPositionCard({ pair, border, stakedBalance, myLiquid
         </Text>
         <Flex fontSize={12} color={theme.subText} marginTop="2px" alignItems="baseline" sx={{ gap: '4px' }}>
           <Flex alignItems="center" flexDirection="row">
-            APR {tab === 'STAKED' && <InfoHelper text={t`${feeApr}% LP Fee`} size={14} />}
+            APR
           </Flex>
           <Text as="span" color={theme.apr} fontSize="20px" fontWeight={500}>
-            {apr ? `${apr.toFixed(2)}%` : '--'}
+            --
           </Text>
         </Flex>
       </Flex>
@@ -691,7 +678,7 @@ export default function FullPositionCard({ pair, border, stakedBalance, myLiquid
         <ButtonEmpty width="max-content" style={{ fontSize: '14px' }} padding="0">
           <ExternalLink
             style={{ width: '100%', textAlign: 'center' }}
-            href={`${DMM_ANALYTICS_URL[chainId]}/pool/${poolData?.id ?? ''}`}
+            href={`${DMM_ANALYTICS_URL[chainId]}/pool/${pair.address || ''}`}
           >
             <Trans>Analytics ↗</Trans>
           </ExternalLink>

@@ -1,7 +1,8 @@
-import { zapInDexMapping } from "../constant";
-import Input from "./Input";
-import Modal from "./Modal";
-import SubmitButton from "./SubmitButton";
+import { Zap } from "@/App";
+import { zapInDexMapping } from "@/constant";
+import Input from "@/components/Input";
+import Modal from "@/components/Modal";
+import SubmitButton from "@/components/SubmitButton";
 import {
   Card,
   CardContent,
@@ -89,7 +90,7 @@ const ZapIn = () => {
   };
 
   return (
-    <TabsContent value="zap-in">
+    <TabsContent value={Zap.ZAP_IN}>
       <Card>
         <CardHeader>
           <CardTitle>Zap in widget</CardTitle>

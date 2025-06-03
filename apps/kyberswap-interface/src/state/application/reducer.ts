@@ -20,16 +20,9 @@ import {
   setOpenModal,
   setSubscribedNotificationTopic,
   updateBlockNumber,
-  updateETHPrice,
   updateServiceWorker,
 } from './actions'
 import { ModalParams } from './types'
-
-type ETHPrice = {
-  currentPrice?: string
-  oneDayBackPrice?: string
-  pricePercentChange?: number
-}
 
 export type ConfirmModalState = {
   isOpen: boolean
@@ -46,7 +39,6 @@ interface ApplicationState {
   readonly popupList: PopupItemType[]
   readonly openModal: ApplicationModal | null
   readonly openModalParams: { [key in ApplicationModal]?: ModalParams[key] }
-  readonly ethPrice: ETHPrice
   readonly serviceWorkerRegistration: ServiceWorkerRegistration | null
 
   readonly notification: {
@@ -93,7 +85,6 @@ const initialState: ApplicationState = {
   popupList: [],
   openModal: null,
   openModalParams: {},
-  ethPrice: {},
   serviceWorkerRegistration: null,
   notification: initialStateNotification,
   config: {},
@@ -139,12 +130,6 @@ export default createReducer(initialState, builder =>
     .addCase(removePopup, (state, { payload: { key } }) => {
       state.popupList = state.popupList.filter(p => p.key !== key)
     })
-    .addCase(updateETHPrice, (state, { payload: { currentPrice, oneDayBackPrice, pricePercentChange } }) => {
-      state.ethPrice.currentPrice = currentPrice
-      state.ethPrice.oneDayBackPrice = oneDayBackPrice
-      state.ethPrice.pricePercentChange = pricePercentChange
-    })
-
     .addCase(updateServiceWorker, (state, { payload }) => {
       state.serviceWorkerRegistration = payload
     })
@@ -198,12 +183,6 @@ export default createReducer(initialState, builder =>
       const isEnableBlockService = data?.isEnableBlockService ?? false
       const isEnableKNProtocol = data?.isEnableKNProtocol ?? false
 
-      const blockSubgraph = data?.blockSubgraph || NETWORKS_INFO[chainId].defaultBlockSubgraph
-
-      const classicSubgraph = data?.classicSubgraph || NETWORKS_INFO[chainId].classic.defaultSubgraph
-
-      const elasticSubgraph = data?.elasticSubgraph || NETWORKS_INFO[chainId].elastic.defaultSubgraph
-
       if (!state.config) state.config = {}
       state.config = {
         ...state.config,
@@ -211,9 +190,6 @@ export default createReducer(initialState, builder =>
           rpc,
           isEnableBlockService,
           isEnableKNProtocol,
-          blockSubgraph,
-          elasticSubgraph,
-          classicSubgraph,
           commonTokens: data.commonTokens,
         },
       }

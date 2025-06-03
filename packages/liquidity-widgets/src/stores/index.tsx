@@ -114,6 +114,7 @@ const createWidgetStore = (initProps: InnerWidgetProps) => {
       const res = await fetch(
         `${API_URLS.BFF_API}/v1/pools?chainId=${chainId}&ids=${poolAddress}&protocol=${poolType}`
       ).then((res) => res.json());
+
       const { success, data, error } = poolResponse.safeParse({
         poolType,
         ...res,

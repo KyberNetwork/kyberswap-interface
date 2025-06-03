@@ -2,8 +2,7 @@ import { MouseoverTooltip } from "@/components/Tooltip";
 import { useWeb3Provider } from "@/hooks/useProvider";
 import { useWidgetInfo } from "@/hooks/useWidgetInfo";
 import { useZapState } from "@/hooks/useZapInState";
-import { NetworkInfo, BASE_BPS } from "@/constants";
-import { getDexLogo, getDexName } from "@/utils";
+import { NetworkInfo, DEXES_INFO, BASE_BPS } from "@/constants";
 import { PancakeToken } from "@/entities/Pool";
 import SettingIcon from "@/assets/setting.svg";
 import X from "@/assets/x.svg";
@@ -34,7 +33,7 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
 
 const PoolInfo = () => {
   const { chainId } = useWeb3Provider();
-  const { loading, pool, positionId, position, theme } = useWidgetInfo();
+  const { loading, pool, positionId, position, theme, poolType } = useWidgetInfo();
 
   const { toggleSetting, degenMode } = useZapState();
 
@@ -54,8 +53,7 @@ const PoolInfo = () => {
   const token1 = pool.token1 as PancakeToken;
   const fee = pool.fee;
 
-  const logo = getDexLogo();
-  const name = getDexName();
+  const { logo, name } = DEXES_INFO[poolType];
 
   const isOutOfRange = position
     ? pool.tickCurrent < position.tickLower ||
@@ -107,18 +105,18 @@ const PoolInfo = () => {
             )}
           </span>
 
-          <div className="flex gap-2 mt-1 leading-5">
+          <div className="flex max-sm:flex-col gap-2 mt-1 leading-5">
             {positionId &&
               (!isOutOfRange ? (
-                <div className="rounded-full py-0 px-2 h-6 text-sm flex items-center gap-1 box-border border border-green20 text-green50 bg-green10">
+                <div className="rounded-full w-fit py-0 px-2 h-6 text-sm flex items-center gap-1 box-border border border-green20 text-green50 bg-green10">
                   Active
                 </div>
               ) : (
-                <div className="rounded-full py-0 px-2 h-6 text-sm flex items-center gap-1 box-border border border-warningBorder text-warning bg-warningBackground">
+                <div className="rounded-full w-fit py-0 px-2 h-6 text-sm flex items-center gap-1 box-border border border-warningBorder text-warning bg-warningBackground">
                   Inactive
                 </div>
               ))}
-            <div className="rounded-full py-0 px-2 h-6 bg-tertiary text-textSecondary text-sm flex items-center gap-1 box-border">
+            <div className="rounded-full w-max py-0 h-6 px-2 bg-tertiary text-textSecondary text-sm flex items-center gap-1 box-border">
               <img
                 src={logo}
                 width={16}

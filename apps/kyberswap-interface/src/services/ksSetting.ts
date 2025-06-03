@@ -1,4 +1,3 @@
-import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
 import { ChainId, NativeCurrency } from '@kyberswap/ks-sdk-core'
 import { createApi } from '@reduxjs/toolkit/query/react'
 import baseQueryOauth from 'services/baseQueryOauth'
@@ -14,9 +13,6 @@ export type KyberSwapConfig = {
   rpc: string
   isEnableBlockService: boolean
   isEnableKNProtocol: boolean
-  blockClient: ApolloClient<NormalizedCacheObject>
-  classicClient: ApolloClient<NormalizedCacheObject>
-  elasticClient: ApolloClient<NormalizedCacheObject>
   readProvider: AppJsonRpcProvider | undefined
   commonTokens?: string[]
 }
@@ -25,9 +21,6 @@ export type KyberSwapConfigResponse = {
   rpc: string
   isEnableBlockService: boolean
   isEnableKNProtocol: boolean
-  blockSubgraph: string
-  classicSubgraph: string
-  elasticSubgraph: string
   commonTokens?: string[]
 }
 

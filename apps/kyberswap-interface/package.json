@@ -39,7 +39,6 @@
   ],
   "dependencies": {
     "@across-protocol/app-sdk": "^0.2.0",
-    "@apollo/client": "^3.7.1",
     "@defuse-protocol/one-click-sdk-typescript": "^0.1.2",
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
     "@ethersproject/abi": "^5.8.0",
@@ -106,7 +105,6 @@
     "find-replacement-tx": "^1.2.3",
     "firebase": "^9.8.2",
     "framer-motion": "^10.12.4",
-    "graphql": "^15.8.0",
     "html2canvas": "^1.4.1",
     "html5-qrcode": "^2.3.8",
     "inter-ui": "^3.19.3",
