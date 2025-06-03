@@ -60,7 +60,6 @@ const MultiSelect = ({
       return
     }
     onChange(arrValue.join(','))
-    setOpen(false)
   }
 
   useEffect(() => {
