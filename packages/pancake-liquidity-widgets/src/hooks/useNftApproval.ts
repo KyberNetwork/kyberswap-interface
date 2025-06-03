@@ -1,3 +1,4 @@
+import { useWeb3Provider } from "@/hooks/useProvider";
 import {
   calculateGasMargin,
   decodeAddress,
@@ -6,9 +7,8 @@ import {
   isTransactionSuccessful,
 } from "@kyber/utils/crypto";
 import { useCallback, useEffect, useState } from "react";
-import { useWeb3Provider } from "@/hooks/useProvider";
 
-let intervalCheckApproval: number | undefined;
+let intervalCheckApproval: ReturnType<typeof setTimeout> | null;
 
 export function useNftApproval({
   rpcUrl,
