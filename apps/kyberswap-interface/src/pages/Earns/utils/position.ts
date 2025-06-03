@@ -73,7 +73,7 @@ export const parsePosition = ({
       in24h: position.earning24h || 0,
     },
     farming: {
-      unclaimedUsdValue: (nftRewardInfo?.pendingUsdValue || 0) + (nftRewardInfo?.claimedUsdValue || 0),
+      unclaimedUsdValue: (nftRewardInfo?.pendingUsdValue || 0) + (nftRewardInfo?.claimableUsdValue || 0),
       pendingUsdValue: nftRewardInfo?.pendingUsdValue || 0,
       claimableUsdValue: nftRewardInfo?.claimableUsdValue || 0,
     },
