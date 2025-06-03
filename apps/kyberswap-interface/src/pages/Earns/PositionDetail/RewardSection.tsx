@@ -26,8 +26,8 @@ const getNextWednesdayMidnightUTC = () => {
 
   // Set to next Wednesday (3 is Wednesday in getUTCDay())
   nextWednesday.setUTCDate(now.getUTCDate() + ((3 - now.getUTCDay() + 7) % 7))
-  // Set to 12:00 AM UTC (midnight)
-  nextWednesday.setUTCHours(0, 0, 0, 0)
+  // Set to 10:00 AM UTC
+  nextWednesday.setUTCHours(10, 0, 0, 0)
 
   // If we're already past this Wednesday's midnight, get next week's
   if (now > nextWednesday) {
