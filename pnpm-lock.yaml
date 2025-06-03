@@ -197,6 +197,9 @@ importers:
       base64-js:
         specifier: ^1.5.1
         version: 1.5.1
+      bitcoinjs-lib:
+        specifier: ^6.1.7
+        version: 6.1.7
       buffer:
         specifier: ^6.0.3
         version: 6.0.3
@@ -16437,6 +16440,18 @@ packages:
       wif: 2.0.6
     dev: false
 
+  /bitcoinjs-lib@6.1.7:
+    resolution: {integrity: sha512-tlf/r2DGMbF7ky1MgUqXHzypYHakkEnm0SZP23CJKIqNY/5uNAnMbFhMJdhjrL/7anfb/U8+AlpdjPWjPnAalg==}
+    engines: {node: '>=8.0.0'}
+    dependencies:
+      '@noble/hashes': 1.8.0
+      bech32: 2.0.0
+      bip174: 2.1.1
+      bs58check: 3.0.1
+      typeforce: 1.18.0
+      varuint-bitcoin: 1.1.2
+    dev: false
+
   /bitcoinjs-lib@7.0.0-rc.0(typescript@5.3.3):
     resolution: {integrity: sha512-7CQgOIbREemKR/NT2uc3uO/fkEy+6CM0sLxboVVY6bv6DbZmPt3gg5Y/hhWgQFeZu5lfTbtVAv32MIxf7lMh4g==}
     engines: {node: '>=18.0.0'}
@@ -16683,6 +16698,13 @@ packages:
       bs58: 4.0.1
       create-hash: 1.2.0
       safe-buffer: 5.2.1
+    dev: false
+
+  /bs58check@3.0.1:
+    resolution: {integrity: sha512-hjuuJvoWEybo7Hn/0xOrczQKKEKD63WguEjlhLExYs2wUBcebDC1jDNK17eEAD2lYfw82d5ASC1d7K3SWszjaQ==}
+    dependencies:
+      '@noble/hashes': 1.8.0
+      bs58: 5.0.0
     dev: false
 
   /bs58check@4.0.0:

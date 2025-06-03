@@ -115,6 +115,7 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
     if (!selectedWallet) throw new Error('Not connected wallet')
     return selectedWallet.sendBitcoin({
       ...params,
+      sender: walletInfo?.address || undefined,
       ...(feeRate?.fastestFee
         ? {
             options: { feeRate: feeRate.fastestFee * 1.2 },

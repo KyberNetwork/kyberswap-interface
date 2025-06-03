@@ -1,6 +1,7 @@
 export type WalletType = 'xverse' | 'okx' | 'unisat' | 'bitget' | 'ledger'
 
 export interface SendBitcoinParams {
+  sender?: string // required for ledger
   recipient: string
   amount: number | string
   options?: { feeRate?: number }

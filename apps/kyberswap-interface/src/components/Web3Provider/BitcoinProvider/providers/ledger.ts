@@ -1,6 +1,6 @@
 import { BitcoinWalletBase, CreateProviderParams, SendBitcoinParams } from '../types'
+//import { getAppAndVersion } from '@ledgerhq/hw-app-btc/getAppAndVersion'
 import Btc from '@ledgerhq/hw-app-btc'
-// import { getAppAndVersion } from '@ledgerhq/hw-app-btc/getAppAndVersion'
 import * as Transport from '@ledgerhq/hw-transport'
 import TransportWebUSB from '@ledgerhq/hw-transport-webusb'
 
@@ -12,6 +12,11 @@ function getFormat(derivationPath: string) {
     : 'legacy' // P2PKH
 }
 
+// Store transport globally to reuse
+let transport: TransportWebUSB | null = null
+
+const path = "m/84'/0'/0'/0/0"
+
 export const createLedgerProvider = ({
   connectingWallet,
   setConnectingWallet,
@@ -19,7 +24,7 @@ export const createLedgerProvider = ({
   defaultInfo,
 }: CreateProviderParams): BitcoinWalletBase => ({
   name: 'Ledger',
-  logo: 'https://www.ledger.com/wp-content/themes/ledger-v2/public/images/ledger-logo-long.svg',
+  logo: 'https://storage.googleapis.com/ks-setting-1d682dca/d8d5850d-adf9-4ec3-904b-33830f6b25bd1748936729072.png',
   type: 'ledger' as const,
   isInstalled: () => false,
   connect: async () => {
@@ -27,8 +32,19 @@ export const createLedgerProvider = ({
       if (!!connectingWallet) return
 
       setConnectingWallet('ledger')
+
+      if (transport) {
+        try {
+          await transport.close()
+        } catch (e) {
+          console.warn('Error closing transport:', e)
+        }
+        transport = null
+        await new Promise(resolve => setTimeout(resolve, 1000))
+      }
+
       await TransportWebUSB.request()
-      const transport = (await TransportWebUSB.create(undefined, 5_000)) as TransportWebUSB
+      transport = (await TransportWebUSB.create(undefined, 5_000)) as TransportWebUSB
       transport.setExchangeTimeout(30000)
       await transport.send(0xb0, 0x01, 0x00, 0x00)
 
@@ -36,7 +52,6 @@ export const createLedgerProvider = ({
         transport: transport as unknown as Transport.default,
         currency: 'bitcoin',
       })
-      const path = "m/84'/0'/0'/0/0"
       const result = await btcApp.getWalletPublicKey(path, {
         format: getFormat(path),
       })
@@ -51,14 +66,25 @@ export const createLedgerProvider = ({
       })
       setConnectingWallet(null)
     } catch (error) {
+      console.log(error)
       setConnectingWallet(null)
     }
   },
   disconnect: async () => {
+    if (transport) {
+      try {
+        await transport.close()
+      } catch (error) {
+        console.error('Error closing transport:', error)
+      }
+      transport = null
+    }
     localStorage.removeItem('bitcoinWallet')
     setWalletInfo(defaultInfo)
   },
-  sendBitcoin: async ({ recipient, amount, options }: SendBitcoinParams) => {
-    return await window?.unisat_wallet.sendBitcoin(recipient, amount.toString(), options)
+
+  sendBitcoin: async ({ sender, recipient, amount, options }: SendBitcoinParams) => {
+    console.log(`Sending Bitcoin from ${sender} to ${recipient} with amount: ${amount} and options:`, options)
+    throw new Error('Not implemented yet')
   },
 })
