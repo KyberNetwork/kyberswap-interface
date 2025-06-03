@@ -13,6 +13,7 @@ export default function InfoHelper({
   color,
   width,
   noneMarginLeft,
+  delay,
 }: {
   text: string | ReactNode;
   size?: number;
@@ -22,6 +23,7 @@ export default function InfoHelper({
   color?: string;
   width?: string;
   noneMarginLeft?: boolean;
+  delay?: number;
 }) {
   return (
     <span
@@ -35,7 +37,7 @@ export default function InfoHelper({
         ...style,
       }}
     >
-      <MouseoverTooltip text={text} placement={placement} size={size} width={width}>
+      <MouseoverTooltip text={text} placement={placement} size={size} width={width} delay={delay}>
         <div className="flex items-center justify-center border-none bg-none outline-none cursor-default rounded-full text-subText">
           <Info style={{ color, width: size, height: size }} />
         </div>

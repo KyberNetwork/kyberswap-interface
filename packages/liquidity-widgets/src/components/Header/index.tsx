@@ -122,6 +122,7 @@ const Header = () => {
                   noneMarginLeft
                   color="#2C9CE4"
                   size={16}
+                  delay={100}
                   text={
                     <div className="flex flex-col text-xs text-subText gap-2">
                       <div className="flex items-center gap-3">

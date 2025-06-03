@@ -61,23 +61,23 @@ export function MouseoverTooltip({
       hovering.current = true;
       setTimeout(() => {
         if (hovering.current) setShow(true);
-      }, delay || 50);
+      }, 50);
 
       if (closeTimeout) {
         clearTimeout(closeTimeout);
         setCloseTimeout(null);
       }
     }
-  }, [rest.text, closeTimeout, delay]);
+  }, [rest.text, closeTimeout]);
   const close = useCallback(
     () =>
       setCloseTimeout(
         setTimeout(() => {
           hovering.current = false;
           setShow(false);
-        }, 50)
+        }, delay || 50)
       ),
-    []
+    [delay]
   );
   if (disableTooltip) return <>{children}</>;
   return (
