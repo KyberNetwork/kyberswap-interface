@@ -8,7 +8,7 @@ import { Web3Provider } from "@/hooks/useProvider";
 import { TokenProvider } from "@/hooks/useTokens";
 import { WidgetProvider } from "@/hooks/useWidgetInfo";
 import { ZapContextProvider } from "@/hooks/useZapInState";
-import { NetworkInfo } from "@/constants";
+import { PoolType, NetworkInfo } from "@/constants";
 import "./Widget.scss";
 import "../../globals.css";
 
@@ -33,6 +33,7 @@ export interface WidgetProps {
   excludedSources?: string;
   initDepositTokens: string;
   initAmounts: string;
+  poolType: PoolType;
   onDismiss: () => void;
   onTxSubmit?: (txHash: string) => void;
   onConnectWallet: () => void;
@@ -68,6 +69,7 @@ export default function Widget({
   onAmountChange,
   onOpenTokenSelectModal,
   farmContractAddresses = [],
+  poolType,
 }: WidgetProps) {
   const publicClient = useMemo(() => {
     const chain = getChainById(chainId);
@@ -134,6 +136,7 @@ export default function Widget({
           onAmountChange={onAmountChange}
           onOpenTokenSelectModal={onOpenTokenSelectModal}
           farmContractAddresses={farmContractAddresses}
+          poolType={poolType}
         >
           <ZapContextProvider
             includedSources={includedSources}
@@ -154,3 +157,5 @@ export default function Widget({
     </Web3Provider>
   );
 }
+
+export { PoolType };

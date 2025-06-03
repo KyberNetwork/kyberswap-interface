@@ -1,6 +1,29 @@
-import { isAddress as _isAddress, getAddress, formatUnits } from "viem";
-import { ProtocolFeeAction } from "@/types/zapInTypes";
-import pancakeLogo from "@/assets/pancake.png";
+import {
+  isAddress as _isAddress,
+  getAddress,
+  formatUnits,
+  PublicClient,
+  Address,
+} from "viem";
+import { ProtocolFeeAction, Type } from "@/types/zapInTypes";
+import {
+  API_URL,
+  BASE_BPS,
+  PoolType,
+  DEXES_INFO,
+  NATIVE_TOKEN_ADDRESS,
+  NetworkInfo,
+  PANCAKE_NATIVE_TOKEN_ADDRESS,
+  POOL_MANAGER_CONTRACT,
+  POSITION_MANAGER_CONTRACT,
+} from "@/constants";
+import { TokenInfo } from "@/hooks/usePoolInfo/pancakev3";
+import { PancakeToken, Pool } from "@/entities/Pool";
+import { InfinityCLPoolManagerABI } from "@/abis/infinity_cl_pool_manager";
+import { InfinityCLPosManagerABI } from "@/abis/infinity_cl_pos_manager";
+import { Pancakev3PosManagerABI } from "@/abis/pancakev3_pos_manager";
+import { nearestUsableTick } from "@pancakeswap/v3-sdk";
+import { priceToClosestTick } from "@kyber/utils/uniswapv3";
 
 // returns the checksummed address if the address is valid, otherwise returns false
 export function isAddress(value: string): string | false {
@@ -193,12 +216,12 @@ export function friendlyError(error: Error | string): string {
   return `An error occurred`;
 }
 
-export const getDexName = () => {
-  return "PancakeSwap V3";
+export const getDexName = (poolType: PoolType) => {
+  return DEXES_INFO[poolType].name;
 };
 
-export const getDexLogo = () => {
-  return pancakeLogo;
+export const getDexLogo = (poolType: PoolType) => {
+  return DEXES_INFO[poolType].logo;
 };
 
 export enum PI_LEVEL {
@@ -291,3 +314,360 @@ export function calculateGasMargin(value: bigint): bigint {
     ? value + gasMargin
     : value + defaultGasLimitMargin;
 }
+
+export const getPoolInfo = async ({
+  chainId,
+  poolAddress,
+  publicClient,
+  poolType,
+}: {
+  chainId: number;
+  poolAddress: string;
+  publicClient: PublicClient;
+  poolType: PoolType;
+}) => {
+  const res = await fetch(
+    `${API_URL.KYBERSWAP_BFF_API}/v1/pools?chainId=${chainId}&ids=${poolAddress}`
+  ).then((res) => res.json());
+
+  const poolInfo = res?.data?.pools?.[0];
+  if (!poolInfo) return null;
+
+  const { tokens, swapFee, positionInfo } = poolInfo;
+  const token0Address = tokens[0].address;
+  const token1Address = tokens[1].address;
+
+  const { token0, token1 } = await getTokenInfo({
+    chainId,
+    token0Address,
+    token1Address,
+    poolType,
+  });
+  if (!token0 || !token1) return null;
+
+  const fee = await getFee({
+    rawFee: Number(swapFee),
+    chainId,
+    poolType,
+    poolAddress,
+    publicClient,
+  });
+  if (!fee) return null;
+
+  const { sqrtPriceX96, liquidity, tick, tickSpacing } = positionInfo;
+  if (!sqrtPriceX96 || !liquidity || !tick || !tickSpacing) return null;
+
+  return new Pool(
+    token0,
+    token1,
+    fee * BASE_BPS,
+    sqrtPriceX96,
+    liquidity,
+    tick,
+    tickSpacing
+  );
+};
+
+export const getTokenInfo = async ({
+  chainId,
+  token0Address,
+  token1Address,
+  poolType,
+}: {
+  chainId: number;
+  token0Address: string;
+  token1Address: string;
+  poolType: PoolType;
+}) => {
+  const nullTokens = {
+    token0: null,
+    token1: null,
+  };
+
+  const isPancakeV3 = poolType === PoolType.DEX_PANCAKESWAPV3;
+
+  const isToken0Native = !isPancakeV3
+    ? token0Address.toLowerCase() ===
+      NetworkInfo[chainId].wrappedToken.address.toLowerCase()
+    : token0Address.toLowerCase() ===
+      PANCAKE_NATIVE_TOKEN_ADDRESS.toLowerCase();
+  const isToken1Native = !isPancakeV3
+    ? token1Address.toLowerCase() ===
+      NetworkInfo[chainId].wrappedToken.address.toLowerCase()
+    : token1Address.toLowerCase() ===
+      PANCAKE_NATIVE_TOKEN_ADDRESS.toLowerCase();
+
+  const address0 = isToken0Native
+    ? NATIVE_TOKEN_ADDRESS.toLowerCase()
+    : token0Address;
+  const address1 = isToken1Native
+    ? NATIVE_TOKEN_ADDRESS.toLowerCase()
+    : token1Address;
+
+  try {
+    const tokens = await fetch(
+      `${API_URL.KYBERSWAP_SETTING_API}/tokens?chainIds=${chainId}&addresses=${address0},${address1}`
+    )
+      .then((res) => res.json())
+      .then((res) => res?.data?.tokens || []);
+
+    let token0Info = tokens.find(
+      (tk: TokenInfo) => tk.address.toLowerCase() === address0.toLowerCase()
+    );
+    let token1Info = tokens.find(
+      (tk: TokenInfo) => tk.address.toLowerCase() === address1.toLowerCase()
+    );
+
+    const addressToImport = [
+      ...(!token0Info ? [address0] : []),
+      ...(!token1Info ? [address1] : []),
+    ];
+
+    if (addressToImport.length) {
+      const tokens = await fetch(
+        `${API_URL.KYBERSWAP_SETTING_API}/tokens/import`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            tokens: addressToImport.map((item) => ({
+              chainId: chainId.toString(),
+              address: item,
+            })),
+          }),
+        }
+      )
+        .then((res) => res.json())
+        .then(
+          (res) =>
+            res?.data?.tokens.map((item: { data: TokenInfo }) => ({
+              ...item.data,
+              chainId: +item.data.chainId,
+            })) || []
+        );
+
+      if (!token0Info)
+        token0Info = tokens.find(
+          (item: PancakeToken) =>
+            item.address.toLowerCase() === address0.toLowerCase()
+        );
+      if (!token1Info)
+        token1Info = tokens.find(
+          (item: PancakeToken) =>
+            item.address.toLowerCase() === address1.toLowerCase()
+        );
+    }
+
+    if (token0Info && token1Info) {
+      const initToken = (t: TokenInfo) =>
+        new PancakeToken(
+          t.chainId,
+          t.address,
+          t.decimals,
+          t.symbol,
+          t.name,
+          t.logoURI || `https://ui-avatars.com/api/?name=?`
+        );
+
+      const token0 = initToken(token0Info);
+      const token1 = initToken(token1Info);
+
+      return {
+        token0,
+        token1,
+      };
+    }
+
+    return nullTokens;
+  } catch (error) {
+    console.error("Get tokens info error: ", error);
+    return nullTokens;
+  }
+};
+
+export const getFee = async ({
+  chainId,
+  rawFee,
+  poolType,
+  poolAddress,
+  publicClient,
+}: {
+  chainId: number;
+  rawFee: number;
+  poolType: PoolType;
+  poolAddress: string;
+  publicClient: PublicClient;
+}) => {
+  try {
+    if (poolType === PoolType.DEX_PANCAKESWAPV3) return rawFee;
+    if (rawFee * 10_000 === 0x800000) return null; // dynamic fee - do not support yet
+
+    const poolManagerContract =
+      POOL_MANAGER_CONTRACT[PoolType.DEX_PANCAKE_INFINITY_CL][chainId];
+    if (!poolManagerContract) return null;
+
+    const slot0 = await publicClient.readContract({
+      address: poolManagerContract as Address,
+      abi: InfinityCLPoolManagerABI,
+      functionName: "getSlot0",
+      args: [poolAddress as `0x${string}`],
+    });
+    if (!slot0) return null;
+
+    const lpFee = Math.round((slot0[3] / 10000) * 1000) / 1000;
+    const protocolFee = Math.round(((slot0[2] >> 12) / 10000) * 1000) / 1000;
+
+    return lpFee + protocolFee;
+  } catch (error) {
+    console.error("Get fee error: ", error);
+    return null;
+  }
+};
+
+export const getPositionInfo = async ({
+  chainId,
+  publicClient,
+  poolType,
+  positionId,
+}: {
+  chainId: number;
+  publicClient: PublicClient;
+  poolType: PoolType;
+  positionId: string;
+}) => {
+  const nullPosition = {
+    owner: null,
+    tickLower: null,
+    tickUpper: null,
+    liquidity: null,
+    token0: null,
+    token1: null,
+    fee: null,
+  };
+
+  const posManagerContractAddress = POSITION_MANAGER_CONTRACT[poolType][
+    chainId
+  ] as Address;
+  const posManagerContractABI =
+  poolType === PoolType.DEX_PANCAKESWAPV3
+      ? Pancakev3PosManagerABI
+      : InfinityCLPosManagerABI;
+
+  const multiCallRes = await publicClient.multicall({
+    contracts: [
+      {
+        address: posManagerContractAddress,
+        abi: posManagerContractABI,
+        functionName: "ownerOf",
+        args: [BigInt(positionId)],
+      },
+      {
+        address: posManagerContractAddress,
+        abi: posManagerContractABI,
+        functionName: "positions",
+        args: [BigInt(positionId)],
+      },
+    ],
+  });
+
+  if (multiCallRes.some((item) => item.status === "failure"))
+    return nullPosition;
+
+  const [ownerResult, positionResult] = multiCallRes;
+
+  const owner = ownerResult.result!;
+  let tickLower;
+  let tickUpper;
+  let liquidity;
+  let token0;
+  let token1;
+  let fee;
+
+  if (poolType === PoolType.DEX_PANCAKESWAPV3) {
+    const [
+      ,
+      ,
+      token0FromRpc,
+      token1FromRpc,
+      feeFromRpc,
+      tickLowerFromRpc,
+      tickUpperFromRpc,
+      liquidityFromRpc,
+    ] = positionResult.result as [
+      bigint,
+      string,
+      string,
+      string,
+      number,
+      number,
+      number,
+      bigint
+    ];
+
+    tickLower = tickLowerFromRpc;
+    tickUpper = tickUpperFromRpc;
+    liquidity = liquidityFromRpc;
+    token0 = token0FromRpc;
+    token1 = token1FromRpc;
+    fee = feeFromRpc;
+  } else if (poolType === PoolType.DEX_PANCAKE_INFINITY_CL) {
+    const [
+      { currency0, currency1, fee: feeFromRpc },
+      tickLowerFromRpc,
+      tickUpperFromRpc,
+      liquidityFromRpc,
+    ] = positionResult.result as [
+      { currency0: string; currency1: string; fee: number },
+      number,
+      number,
+      bigint
+    ];
+
+    tickLower = tickLowerFromRpc;
+    tickUpper = tickUpperFromRpc;
+    liquidity = liquidityFromRpc;
+    token0 = currency0;
+    token1 = currency1;
+    fee = feeFromRpc;
+  }
+
+  return {
+    owner,
+    tickLower,
+    tickUpper,
+    liquidity,
+    token0,
+    token1,
+    fee,
+  };
+};
+
+export const correctPrice = ({
+  value,
+  type,
+  pool,
+  revertPrice,
+  setTick,
+}: {
+  value: string;
+  type: Type;
+  pool: Pool | null;
+  revertPrice: boolean;
+  setTick: (type: Type, tick: number) => void;
+}) => {
+  if (!pool) return;
+
+  const tick = priceToClosestTick(
+    value,
+    pool.token0.decimals,
+    pool.token1.decimals,
+    revertPrice
+  );
+
+  if (tick !== undefined) {
+    const t =
+      tick % pool.tickSpacing === 0
+        ? tick
+        : nearestUsableTick(tick, pool.tickSpacing);
+    setTick(type, t);
+  }
+};
