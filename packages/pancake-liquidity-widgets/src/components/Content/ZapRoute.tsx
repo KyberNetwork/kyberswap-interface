@@ -15,7 +15,7 @@ import { PancakeToken } from "@/entities/Pool";
 
 export default function ZapRoute() {
   const { zapInfo, tokensIn } = useZapState();
-  const { pool } = useWidgetInfo();
+  const { pool, poolType } = useWidgetInfo();
   const { chainId } = useWeb3Provider();
 
   const tokens = useMemo(
@@ -72,12 +72,12 @@ export default function ZapRoute() {
           tokenOutSymbol: tokenOut?.symbol || "--",
           amountIn: formatWei(item.tokenIn.amount, tokenIn?.decimals),
           amountOut: formatWei(item.tokenOut.amount, tokenOut?.decimals),
-          pool: `${getDexName()} Pool`,
+          pool: `${getDexName(poolType)} Pool`,
         };
       }) || [];
 
     return parsedAggregatorSwapInfo.concat(parsedPoolSwapInfo);
-  }, [tokens, zapInfo?.zapDetails.actions]);
+  }, [tokens, zapInfo?.zapDetails.actions, poolType]);
 
   const addedLiquidityInfo = useMemo(() => {
     const data = zapInfo?.zapDetails.actions.find(
@@ -128,7 +128,9 @@ export default function ZapRoute() {
             Build LP using {addedLiquidityInfo.addedAmount0}{" "}
             {pool?.token0.symbol} and {addedLiquidityInfo.addedAmount1}{" "}
             {pool?.token1.symbol} on{" "}
-            <span className="text-textPrimary font-medium">{getDexName()}</span>
+            <span className="text-textPrimary font-medium">
+              {getDexName(poolType)}
+            </span>
           </div>
         </div>
       </div>

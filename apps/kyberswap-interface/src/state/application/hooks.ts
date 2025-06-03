@@ -1,4 +1,3 @@
-import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -21,7 +20,6 @@ import { useActiveWeb3React } from 'hooks/index'
 import { useAppSelector } from 'state/hooks'
 import { AppDispatch, AppState } from 'state/index'
 import { useTokenPricesWithLoading } from 'state/tokenPrices/hooks'
-import { createClient } from 'utils/client'
 
 import { ApplicationModal, addPopup, closeModal, removePopup, setAnnouncementDetail, setOpenModal } from './actions'
 import { ModalParams } from './types'
@@ -226,13 +224,6 @@ export function useActivePopups() {
   }, [popups, chainId, account])
 }
 
-// todo: should fetch from price service
-export function useETHPrice(): AppState['application']['ethPrice'] {
-  const ethPrice = useSelector((state: AppState) => state.application.ethPrice)
-
-  return ethPrice
-}
-
 export function useKNCPrice() {
   const { data } = useTokenPricesWithLoading([KNC_ADDRESS], ChainId.MAINNET)
   if (!data) return 0
@@ -263,10 +254,8 @@ export const useDetailAnnouncement = (): [DetailAnnouncementParam, (v: DetailAnn
 
 const cacheConfig: {
   rpc: { [rpc: string]: AppJsonRpcProvider }
-  client: { [subgraphLink: string]: ApolloClient<NormalizedCacheObject> }
 } = {
   rpc: {},
-  client: {},
 }
 
 const cacheCalc: <T extends keyof typeof cacheConfig, U extends (typeof cacheConfig)[T][string]>(
@@ -278,8 +267,8 @@ const cacheCalc: <T extends keyof typeof cacheConfig, U extends (typeof cacheCon
   value: string,
   fallback: (value: string) => U,
 ) => {
-  if (!cacheConfig[type][value]) {
-    cacheConfig[type][value] = fallback(value)
+  if (!cacheConfig['rpc'][value]) {
+    cacheConfig['rpc'][value] = fallback(value)
   }
   return cacheConfig[type][value] as U
 }
@@ -289,9 +278,6 @@ function getDefaultConfig(chainId: ChainId): KyberSwapConfigResponse {
     rpc: NETWORKS_INFO[chainId].defaultRpcUrl,
     isEnableKNProtocol: false,
     isEnableBlockService: false,
-    blockSubgraph: NETWORKS_INFO[chainId].defaultBlockSubgraph,
-    elasticSubgraph: NETWORKS_INFO[chainId].elastic.defaultSubgraph,
-    classicSubgraph: NETWORKS_INFO[chainId].classic.defaultSubgraph,
     commonTokens: undefined,
   }
 }
@@ -305,18 +291,6 @@ export const useKyberSwapConfig = (customChainId?: ChainId): KyberSwapConfig => 
   const readProvider = useMemo(() => {
     return cacheCalc('rpc', config.rpc, rpc => new AppJsonRpcProvider(rpc, chainId))
   }, [config.rpc, chainId])
-  const blockClient = useMemo(
-    () => cacheCalc('client', config.blockSubgraph, subgraph => createClient(subgraph)),
-    [config.blockSubgraph],
-  )
-  const classicClient = useMemo(
-    () => cacheCalc('client', config.classicSubgraph, subgraph => createClient(subgraph)),
-    [config.classicSubgraph],
-  )
-  const elasticClient = useMemo(
-    () => cacheCalc('client', config.elasticSubgraph, subgraph => createClient(subgraph)),
-    [config.elasticSubgraph],
-  )
 
   return useMemo(() => {
     return {
@@ -324,19 +298,7 @@ export const useKyberSwapConfig = (customChainId?: ChainId): KyberSwapConfig => 
       isEnableBlockService: config.isEnableBlockService,
       isEnableKNProtocol: config.isEnableKNProtocol,
       readProvider,
-      blockClient,
-      elasticClient,
-      classicClient,
       commonTokens: config.commonTokens,
     }
-  }, [
-    config.rpc,
-    config.isEnableBlockService,
-    config.isEnableKNProtocol,
-    config.commonTokens,
-    readProvider,
-    blockClient,
-    elasticClient,
-    classicClient,
-  ])
+  }, [config.rpc, config.isEnableBlockService, config.isEnableKNProtocol, config.commonTokens, readProvider])
 }

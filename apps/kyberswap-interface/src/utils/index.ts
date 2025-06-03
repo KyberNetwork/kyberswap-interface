@@ -1,4 +1,3 @@
-import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
 import { Chain, NonEvmChain } from 'pages/CrossChainSwap/adapters'
 import { BigNumber } from '@ethersproject/bignumber'
 import { ChainId, Currency, CurrencyAmount, Percent, WETH } from '@kyberswap/ks-sdk-core'
@@ -6,7 +5,6 @@ import dayjs from 'dayjs'
 import JSBI from 'jsbi'
 import Numeral from 'numeral'
 
-import { GET_BLOCKS } from 'apollo/queries'
 import { ENV_KEY } from 'constants/env'
 import { DEFAULT_GAS_LIMIT_MARGIN, ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
@@ -214,126 +212,6 @@ export function formattedNumLong(num: number, usd = false) {
   if (usd) return formatDollarSignificantAmount(num, 1, 4)
 
   return Number(num.toFixed(5)).toLocaleString()
-}
-
-/**
- * get standard percent change between two values
- * @param {*} valueNow
- * @param {*} value24HoursAgo
- */
-export const getPercentChange = (valueNow: string, value24HoursAgo: string) => {
-  const adjustedPercentChange =
-    ((parseFloat(valueNow) - parseFloat(value24HoursAgo)) / parseFloat(value24HoursAgo)) * 100
-
-  if (isNaN(adjustedPercentChange) || !isFinite(adjustedPercentChange)) {
-    return 0
-  }
-
-  return adjustedPercentChange
-}
-
-export function getTimestampsForChanges(): [number, number, number] {
-  const utcCurrentTime = dayjs()
-  const t1 = utcCurrentTime.subtract(1, 'day').startOf('minute').unix()
-  const t2 = utcCurrentTime.subtract(2, 'day').startOf('minute').unix()
-  const tWeek = utcCurrentTime.subtract(1, 'week').startOf('minute').unix()
-  return [t1, t2, tWeek]
-}
-
-export async function splitQuery<ResultType, T, U>(
-  query: (values: T[], ...vars: U[]) => import('graphql').DocumentNode,
-  localClient: ApolloClient<NormalizedCacheObject>,
-  list: T[],
-  vars: U[],
-  skipCount = 100,
-): Promise<
-  | {
-      [key: string]: ResultType
-    }
-  | undefined
-> {
-  let fetchedData = {}
-  let allFound = false
-  let skip = 0
-
-  while (!allFound) {
-    let end = list.length
-    if (skip + skipCount < list.length) {
-      end = skip + skipCount
-    }
-    const sliced = list.slice(skip, end)
-    const result = await localClient.query({
-      query: query(sliced, ...vars),
-      fetchPolicy: 'no-cache',
-    })
-    fetchedData = {
-      ...fetchedData,
-      ...result.data,
-    }
-    if (Object.keys(result.data).length < skipCount || skip + skipCount > list.length) {
-      allFound = true
-    } else {
-      skip += skipCount
-    }
-  }
-
-  return fetchedData
-}
-
-/**
- * @notice Fetches block objects for an array of timestamps.
- * @dev blocks are returned in chronological order (ASC) regardless of input.
- * @dev blocks are returned at string representations of Int
- * @dev timestamps are returns as they were provided; not the block time.
- * @param {Array} timestamps
- */
-async function getBlocksFromTimestampsSubgraph(
-  blockClient: ApolloClient<NormalizedCacheObject>,
-  timestamps: number[],
-): Promise<{ timestamp: number; number: number }[]> {
-  if (timestamps?.length === 0) {
-    return []
-  }
-
-  const fetchedData = await splitQuery<{ number: string }[], number, any>(GET_BLOCKS, blockClient, timestamps, [])
-  const blocks: { timestamp: number; number: number }[] = []
-  if (fetchedData) {
-    for (const t in fetchedData) {
-      if (fetchedData[t].length > 0) {
-        blocks.push({
-          timestamp: Number(t.split('t')[1]),
-          number: Number(fetchedData[t][0]['number']),
-        })
-      }
-    }
-  }
-
-  return blocks
-}
-
-// TODO: Remove
-export async function getBlocksFromTimestamps(
-  _isEnableBlockService: boolean,
-  blockClient: ApolloClient<NormalizedCacheObject>,
-  timestamps: number[],
-  _chainId: ChainId,
-): Promise<{ timestamp: number; number: number }[]> {
-  return getBlocksFromTimestampsSubgraph(blockClient, timestamps)
-}
-
-/**
- * gets the amount difference in 24h
- * @param {*} valueNow
- * @param {*} value24HoursAgo
- */
-export const get24hValue = (valueNow: string, value24HoursAgo: string | undefined): number => {
-  if (value24HoursAgo === undefined) {
-    return 0
-  }
-  // get volume info for both 24 hour periods
-  const currentChange = parseFloat(valueNow) - parseFloat(value24HoursAgo)
-
-  return currentChange
 }
 
 export const getNativeTokenLogo = (chainId: ChainId) => {

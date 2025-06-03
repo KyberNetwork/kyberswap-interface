@@ -6,7 +6,6 @@ import { TERM_FILES_PATH } from 'constants/index'
 import { SupportedLocale } from 'constants/locales'
 import { GAS_TOKENS } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
-import { useAllTokens } from 'hooks/Tokens'
 import {
   useDynamicFeeFactoryContract,
   useOldStaticFeeFactoryContract,
@@ -18,7 +17,6 @@ import { useKyberSwapConfig } from 'state/application/hooks'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useSingleContractMultipleData } from 'state/multicall/hooks'
-import { useUserLiquidityPositions } from 'state/pools/hooks'
 import { useCheckStablePairSwap } from 'state/swap/hooks'
 import {
   SerializedToken,
@@ -46,7 +44,7 @@ import {
   updateUserSlippageTolerance,
 } from 'state/user/actions'
 import { CROSS_CHAIN_SETTING_DEFAULT, CrossChainSetting, VIEW_MODE } from 'state/user/reducer'
-import { isAddress, isChristmasTime } from 'utils'
+import { isChristmasTime } from 'utils'
 
 const MAX_FAVORITE_LIMIT = 12
 
@@ -316,29 +314,6 @@ export function useToV2LiquidityTokens(
 
 export function useLiquidityPositionTokenPairs(): [Token, Token][] {
   const { chainId } = useActiveWeb3React()
-  const allTokens = useAllTokens()
-
-  const { data: userLiquidityPositions } = useUserLiquidityPositions()
-
-  // get pairs that has liquidity
-  const generatedPairs: [Token, Token][] = useMemo(() => {
-    if (userLiquidityPositions?.liquidityPositions) {
-      const result: [Token, Token][] = []
-
-      userLiquidityPositions?.liquidityPositions.forEach(position => {
-        const token0Address = isAddress(chainId, position.pool.token0.id)
-        const token1Address = isAddress(chainId, position.pool.token1.id)
-
-        if (token0Address && token1Address && allTokens[token0Address] && allTokens[token1Address]) {
-          result.push([allTokens[token0Address], allTokens[token1Address]])
-        }
-      })
-
-      return result
-    }
-
-    return []
-  }, [chainId, allTokens, userLiquidityPositions])
 
   // pairs saved by users
   const savedSerializedPairs = useSelector<AppState, AppState['user']['pairs']>(({ user: { pairs } }) => pairs)
@@ -353,11 +328,9 @@ export function useLiquidityPositionTokenPairs(): [Token, Token][] {
     })
   }, [savedSerializedPairs, chainId])
 
-  const combinedList = useMemo(() => userPairs.concat(generatedPairs), [generatedPairs, userPairs])
-
   return useMemo(() => {
     // dedupes pairs of tokens in the combined list
-    const keyed = combinedList.reduce<{ [key: string]: [Token, Token] }>((memo, [tokenA, tokenB]) => {
+    const keyed = userPairs.reduce<{ [key: string]: [Token, Token] }>((memo, [tokenA, tokenB]) => {
       const sorted = tokenA.sortsBefore(tokenB)
       const key = sorted ? `${tokenA.address}:${tokenB.address}` : `${tokenB.address}:${tokenA.address}`
       if (memo[key]) return memo
@@ -366,7 +339,7 @@ export function useLiquidityPositionTokenPairs(): [Token, Token][] {
     }, {})
 
     return Object.keys(keyed).map(key => keyed[key])
-  }, [combinedList])
+  }, [userPairs])
 }
 
 export function useUpdateTokenAnalysisSettings(): (payload: string) => void {

@@ -29,7 +29,7 @@ import useTheme from 'hooks/useTheme'
 import { useSyncNetworkParamWithStore } from 'hooks/web3/useSyncNetworkParamWithStore'
 import ElasticLegacy from 'pages/ElasticLegacy'
 import ProAmmPool from 'pages/ProAmmPool'
-import { UserLiquidityPosition, useUserLiquidityPositions } from 'state/pools/hooks'
+import { UserLiquidityPosition } from 'state/pools/hooks'
 import { useLiquidityPositionTokenPairs, useToV2LiquidityTokens } from 'state/user/hooks'
 import { useTokenBalancesWithLoadingIndicator } from 'state/wallet/hooks'
 import { StyledInternalLink, TYPE } from 'theme'
@@ -185,7 +185,6 @@ function MyPoolClassic() {
 
   const under768 = useMedia('(max-width:768px)')
   const liquidityPositionTokenPairs = useLiquidityPositionTokenPairs()
-  const { loading: loadingUserLiquidityPositions, data: userLiquidityPositions } = useUserLiquidityPositions()
 
   const [searchParams, setSearchParams] = useSearchParams()
   const searchValue = searchParams.get('search') || ''
@@ -253,13 +252,9 @@ function MyPoolClassic() {
     [key: string]: UserLiquidityPosition
   } = {}
 
-  userLiquidityPositions?.liquidityPositions.forEach((position: UserLiquidityPosition) => {
-    transformedUserLiquidityPositions[position.pool.id] = position
-  })
-
   const [showStaked, setShowStaked] = useState(false)
 
-  const loading = v2IsLoading || loadingUserLiquidityPositions
+  const loading = v2IsLoading
 
   const { mixpanelHandler } = useMixpanel()
 

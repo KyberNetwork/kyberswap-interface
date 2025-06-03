@@ -15,7 +15,6 @@ import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 import { AppJsonRpcProvider } from 'constants/providers'
 import { ChainStateMap } from 'hooks/useChainsConfig'
 import { AppState } from 'state'
-import { createClient } from 'utils/client'
 
 const cacheRPC: { [chainId in ChainId]?: { [rpc: string]: AppJsonRpcProvider } } = {}
 
@@ -36,9 +35,6 @@ const parseResponse = (
     rpc,
     isEnableBlockService: data?.isEnableBlockService || false,
     isEnableKNProtocol: data?.isEnableKNProtocol || false,
-    blockClient: createClient(data?.blockSubgraph || NETWORKS_INFO[defaultChainId].defaultBlockSubgraph),
-    classicClient: createClient(data?.classicSubgraph || NETWORKS_INFO[defaultChainId].classic.defaultSubgraph),
-    elasticClient: createClient(data?.elasticSubgraph || NETWORKS_INFO[defaultChainId].elastic.defaultSubgraph),
     readProvider: provider,
   }
 }
