@@ -903,6 +903,9 @@ importers:
       '@kyber/eslint-config':
         specifier: workspace:*
         version: link:../config-eslint
+      '@kyber/schema':
+        specifier: workspace:*
+        version: link:../schema
       '@kyber/typescript-config':
         specifier: workspace:*
         version: link:../config-typescript
@@ -13202,7 +13205,7 @@ packages:
       '@typescript-eslint/types': 6.21.0
       '@typescript-eslint/typescript-estree': 6.21.0(typescript@5.3.2)
       '@typescript-eslint/visitor-keys': 6.21.0
-      debug: 4.4.0(supports-color@5.5.0)
+      debug: 4.3.7
       eslint: 8.57.0
       typescript: 5.3.2
     transitivePeerDependencies:

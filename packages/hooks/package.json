@@ -7,7 +7,8 @@
     "./use-interval": "./src/use-interval.ts",
     "./use-window-size": "./src/use-window-size.ts",
     "./use-token-prices": "./src/use-token-prices.ts",
-    "./use-approval": "./src/use-approval.ts"
+    "./use-approval": "./src/use-approval.ts",
+    ".": "./src/index.ts"
   },
   "scripts": {
     "type-check": "tsc --noEmit"
@@ -16,6 +17,7 @@
     "@kyber/eslint-config": "workspace:*",
     "@kyber/utils": "workspace:*",
     "@kyber/typescript-config": "workspace:*",
+    "@kyber/schema": "workspace:*",
     "@types/eslint": "^8.56.5",
     "@types/node": "^20.11.24",
     "@types/react": "^18.0.17",
