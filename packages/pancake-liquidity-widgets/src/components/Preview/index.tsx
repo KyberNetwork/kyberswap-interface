@@ -29,8 +29,7 @@ import {
   getPriceImpact,
   getWarningThreshold,
 } from "@/utils";
-import { Token, Price } from "@pancakeswap/sdk";
-import { PancakeToken, PancakeV3Pool } from "@/entities/Pool";
+import { PancakeToken, Pool } from "@/entities/Pool";
 import { PancakeTokenAdvanced } from "@/types/zapInTypes";
 import Info from "@/assets/info.svg";
 import DropdownIcon from "@/assets/dropdown.svg";
@@ -46,14 +45,16 @@ import {
   AccordionTrigger,
 } from "@kyber/ui/accordion";
 import defaultTokenLogo from "@/assets/question.svg?url";
+import { tickToPrice } from "@kyber/utils/uniswapv3";
+import { formatDisplayNumber } from "@kyber/utils/number";
 
 export interface ZapState {
-  pool: PancakeV3Pool;
+  pool: Pool;
   zapInfo: ZapRouteDetail;
   tokensIn: PancakeTokenAdvanced[];
   amountsIn: string;
-  priceLower: Price<Token, Token>;
-  priceUpper: Price<Token, Token>;
+  priceLower: string;
+  priceUpper: string;
   deadline: number;
   isFullRange: boolean;
   slippage: number;
@@ -65,6 +66,7 @@ export interface PreviewProps {
   zapState: ZapState;
   onDismiss: () => void;
   onTxSubmit?: (tx: string) => void;
+  checkNftApproval: () => void;
 }
 
 export default function Preview({
@@ -73,8 +75,6 @@ export default function Preview({
     zapInfo,
     tokensIn,
     amountsIn,
-    priceLower,
-    priceUpper,
     deadline,
     slippage,
     tickLower,
@@ -82,10 +82,17 @@ export default function Preview({
   },
   onDismiss,
   onTxSubmit,
+  checkNftApproval,
 }: PreviewProps) {
   const { chainId, account, publicClient, walletClient } = useWeb3Provider();
-  const { positionId, position } = useWidgetInfo();
-  const { source, revertPrice: revert, toggleRevertPrice } = useZapState();
+  const { positionId, position, poolType } = useWidgetInfo();
+  const {
+    source,
+    revertPrice: revert,
+    toggleRevertPrice,
+    priceLower,
+    priceUpper,
+  } = useZapState();
 
   const [txHash, setTxHash] = useState<Address | undefined>(undefined);
   const [attempTx, setAttempTx] = useState(false);
@@ -138,12 +145,12 @@ export default function Preview({
   );
 
   const positionAmount0Usd =
-    (+(position?.amount0.toExact() || 0) *
+    (+(position?.amount0 || 0) *
       +(addedLiqInfo?.addLiquidity.token0.amountUsd || 0)) /
       +addedAmount0 || 0;
 
   const positionAmount1Usd =
-    (+(position?.amount1.toExact() || 0) *
+    (+(position?.amount1 || 0) *
       +(addedLiqInfo?.addLiquidity.token1.amountUsd || 0)) /
       +addedAmount1 || 0;
 
@@ -178,14 +185,13 @@ export default function Preview({
     0;
 
   const price = pool
-    ? (revert
-        ? pool.priceOf(pool.token1)
-        : pool.priceOf(pool.token0)
-      ).toSignificant(6)
+    ? tickToPrice(
+        pool.tickCurrent,
+        pool.token0.decimals,
+        pool.token1.decimals,
+        revert
+      )
     : "--";
-
-  const leftPrice = !revert ? priceLower : priceUpper?.invert();
-  const rightPrice = !revert ? priceUpper : priceLower?.invert();
 
   const quote = (
     <span>
@@ -264,7 +270,15 @@ export default function Preview({
           }
         }
       });
-  }, [account, chainId, deadline, publicClient, source, zapInfo.route]);
+  }, [
+    account,
+    chainId,
+    deadline,
+    fetchPrices,
+    publicClient,
+    source,
+    zapInfo.route,
+  ]);
 
   const handleClick = async () => {
     if (!publicClient || !account || !walletClient) {
@@ -406,6 +420,28 @@ export default function Preview({
     return { piRes: { level: PI_LEVEL.NORMAL, msg: "" } };
   }, [swapPi]);
 
+  const priceRange = useMemo(() => {
+    if (!pool) return null;
+
+    const maxPrice = !revert
+      ? tickUpper === pool.maxTick
+        ? "∞"
+        : formatDisplayNumber(priceUpper, { significantDigits: 6 })
+      : tickLower === pool.minTick
+      ? "∞"
+      : formatDisplayNumber(priceLower, { significantDigits: 6 });
+
+    const minPrice = !revert
+      ? tickLower === pool.minTick
+        ? "0"
+        : formatDisplayNumber(priceLower, { significantDigits: 6 })
+      : tickUpper === pool.maxTick
+      ? "0"
+      : formatDisplayNumber(priceUpper, { significantDigits: 6 });
+
+    return [minPrice, maxPrice];
+  }, [pool, tickUpper, revert, priceUpper, tickLower, priceLower]);
+
   if (attempTx || txHash) {
     let txStatusText = "";
     if (txHash) {
@@ -433,7 +469,7 @@ export default function Preview({
               Confirm this transaction in your wallet - Zapping{" "}
               {positionId
                 ? `Position #${positionId}`
-                : `${getDexName()} ${pool.token0.symbol}/${
+                : `${getDexName(poolType)} ${pool.token0.symbol}/${
                     pool.token1.symbol
                   } ${pool.fee / 10_000}%`}
             </div>
@@ -456,7 +492,13 @@ export default function Preview({
             View transaction ↗
           </a>
         )}
-        <button className="ks-primary-btn w-full" onClick={onDismiss}>
+        <button
+          className="ks-primary-btn w-full"
+          onClick={() => {
+            checkNftApproval();
+            onDismiss();
+          }}
+        >
           Close
         </button>
       </div>
@@ -510,8 +552,8 @@ export default function Preview({
     ? pool.tickCurrent < position.tickLower ||
       pool.tickCurrent >= position.tickUpper
     : false;
-  const logo = getDexLogo();
-  const name = getDexName();
+  const logo = getDexLogo(poolType);
+  const name = getDexName(poolType);
   const fee = pool.fee;
 
   const piVeryHigh =
@@ -616,7 +658,9 @@ export default function Preview({
       <div className="ks-lw-card mt-3 text-sm">
         <div className="flex items-center gap-1 text-sm text-textSecondary">
           <div>Current pool price</div>
-          <span className="text-textPrimary">{price}</span>
+          <span className="text-textPrimary">
+            {formatDisplayNumber(price, { significantDigits: 6 })}
+          </span>
           {quote}
           <SwitchIcon
             className="cursor-pointer"
@@ -631,11 +675,7 @@ export default function Preview({
               MIN PRICE
             </div>
             <div className="w-full overflow-hidden text-ellipsis whitespace-nowrap text-center text-base font-semibold">
-              {(
-                revert ? tickUpper === pool.maxTick : tickLower === pool.minTick
-              )
-                ? "0"
-                : leftPrice?.toSignificant(6)}
+              {priceRange?.[0]}
             </div>
             <div className="text-textSecondary">{quote}</div>
           </div>
@@ -644,13 +684,7 @@ export default function Preview({
               MAX PRICE
             </div>
             <div className="text-center w-full overflow-hidden text-ellipsis whitespace-nowrap text-base font-semibold">
-              {(
-                !revert
-                  ? tickUpper === pool.maxTick
-                  : tickLower === pool.minTick
-              )
-                ? "∞"
-                : rightPrice?.toSignificant(6)}
+              {priceRange?.[1]}
             </div>
             <div className="text-textSecondary">{quote}</div>
           </div>
@@ -677,8 +711,7 @@ export default function Preview({
               <div>
                 {position ? (
                   <div className="text-end">
-                    {formatNumber(+position.amount0.toExact(), 4)}{" "}
-                    {pool?.token0.symbol}
+                    {formatNumber(+position.amount0, 4)} {pool?.token0.symbol}
                   </div>
                 ) : (
                   <div className="text-end">
@@ -720,8 +753,7 @@ export default function Preview({
               )}
               {position ? (
                 <div className="text-end">
-                  {formatNumber(+position.amount1.toExact(), 4)}{" "}
-                  {pool?.token1.symbol}
+                  {formatNumber(+position.amount1, 4)} {pool?.token1.symbol}
                 </div>
               ) : (
                 <div className="text-end">

@@ -31,6 +31,7 @@ import {
 import { useMemo } from "react";
 import { NetworkInfo } from "@/constants";
 import defaultTokenLogo from "@/assets/question.svg?url";
+import { tickToPrice } from "@kyber/utils/uniswapv3";
 
 export default function EstLiqValue() {
   const { zapInfo, source, marketPrice, revertPrice, tokensIn } = useZapState();
@@ -213,12 +214,12 @@ export default function EstLiqValue() {
   );
 
   const positionAmount0Usd =
-    (+(position?.amount0.toExact() || 0) *
+    (+(position?.amount0 || 0) *
       +(addLiquidityInfo?.addLiquidity.token0.amountUsd || 0)) /
       +addedAmount0 || 0;
 
   const positionAmount1Usd =
-    (+(position?.amount1.toExact() || 0) *
+    (+(position?.amount1 || 0) *
       +(addLiquidityInfo?.addLiquidity.token1.amountUsd || 0)) /
       +addedAmount1 || 0;
 
@@ -236,16 +237,25 @@ export default function EstLiqValue() {
           sqrtRatioX96: newData.newSqrtP,
           tick: newData.newTick,
           liquidity: (
-            pool.liquidity + BigInt(zapInfo.positionDetails.addedLiquidity)
+            BigInt(pool.liquidity) +
+            BigInt(zapInfo.positionDetails.addedLiquidity)
           ).toString(),
+          tickSpacing: pool.tickSpacing,
         })
       : null;
 
-  const isDevatied =
+  const isDeviated =
     !!marketPrice &&
     newPool &&
     Math.abs(
-      marketPrice / +newPool.priceOf(newPool.token0).toSignificant() - 1
+      marketPrice /
+        +tickToPrice(
+          newPool.tickCurrent,
+          newPool.token0.decimals,
+          newPool.token1.decimals,
+          false
+        ) -
+        1
     ) > 0.02;
 
   const isOutOfRangeAfterZap =
@@ -255,10 +265,12 @@ export default function EstLiqValue() {
       : false;
 
   const price = newPool
-    ? (revertPrice
-        ? newPool.priceOf(newPool.token1)
-        : newPool.priceOf(newPool.token0)
-      ).toSignificant(6)
+    ? tickToPrice(
+        newPool.tickCurrent,
+        newPool.token0.decimals,
+        newPool.token1.decimals,
+        revertPrice
+      )
     : "--";
 
   const marketRate = marketPrice
@@ -299,7 +311,7 @@ export default function EstLiqValue() {
                 )}
                 {position ? (
                   <div className="text-end">
-                    {formatNumber(+position.amount0.toExact())} {token0?.symbol}
+                    {formatNumber(+position.amount0)} {token0?.symbol}
                   </div>
                 ) : (
                   <div className="text-end">
@@ -346,7 +358,7 @@ export default function EstLiqValue() {
 
                 {position ? (
                   <div className="text-end">
-                    {formatNumber(+position.amount1.toExact())} {token1?.symbol}
+                    {formatNumber(+position.amount1)} {token1?.symbol}
                   </div>
                 ) : (
                   <div className="text-end">
@@ -553,7 +565,7 @@ export default function EstLiqValue() {
             pool price moves back to select price range
           </div>
         )}
-        {isDevatied && (
+        {isDeviated && (
           <div className="ks-lw-card-warning mt-3">
             <div className="text">
               The pool's estimated price after zapping:{" "}

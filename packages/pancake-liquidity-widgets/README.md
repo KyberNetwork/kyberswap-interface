@@ -26,12 +26,11 @@ account | Current connected wallet | string | ""
 networkChainId | Current network chainId | number | Required
 chainId | network of selected pool | number | Required 
 poolAddress | address of pool to zap | string | Required 
+<mark>poolType</mark> | type of pool to zap | [enum](https://github.com/KyberNetwork/kyberswap-interface/blob/feat/infinity-cl/packages/pancake-liquidity-widgets/src/constants/index.ts#L284-L287) | Required 
 positionId | Optional, in case “Increasing Liquidity into an existing position”, pass the position id. The position should belong to the poolAddress. Otherwise, it considers as “Adding Liquidity into a new position” | number | undefined 
 initTickLower | init tick lower in case add liquidity into a new position | number | undefined 
 initTickUpper | init tick upper in case add liquidity into a new position | number | undefined 
-<s>initDepositToken</s> | <s>init deposit token in. Use `0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE` in case it's native token</s> | <s>string</s> | <s>undefined</s> 
 initDepositTokens | Initial deposit tokens's address, separated by commas | string | ""
-<s>initAmount</s> | <s>init amount in</s> | <s>number</s> | <s>undefined </s>
 initAmounts | Initial amounts for the deposit tokens, separated by commas | string | ""
 theme | matching with pancake theme. accept 'dark' or 'light' | string | dark
 feeAddress | Wallet Address if you want to charge zap fee | string | undefined 
