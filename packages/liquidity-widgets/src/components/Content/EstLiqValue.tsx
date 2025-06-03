@@ -403,7 +403,7 @@ export default function EstLiqValue() {
                 width="220px"
               >
                 <div className="text-subText mt-[2px] w-fit border-b border-dotted border-subText">
-                  Swap Impact
+                  Swap Price Impact
                 </div>
               </MouseoverTooltip>
               <span>--</span>
