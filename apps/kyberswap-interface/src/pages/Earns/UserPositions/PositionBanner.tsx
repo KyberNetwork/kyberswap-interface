@@ -22,6 +22,8 @@ import { ParsedPosition, PositionFilter } from 'pages/Earns/types'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
+import { LIMIT_TEXT_STYLES } from '../constants'
+
 export default function PositionBanner({
   positions,
   filters,
@@ -90,6 +92,7 @@ export default function PositionBanner({
               <Text
                 fontSize={24}
                 color={overviewData?.totalValue && overviewData?.totalValue > 0 ? theme.primary : theme.text}
+                sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '140px' }}
               >
                 {formatDisplayNumber(overviewData?.totalValue, { style: 'currency', significantDigits: 4 })}
               </Text>
@@ -97,14 +100,14 @@ export default function PositionBanner({
             <BannerDivider />
             <BannerDataItem>
               <Text color={theme.subText}>{t`Earned Fees`}</Text>
-              <Text fontSize={24}>
+              <Text fontSize={24} sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '140px' }}>
                 {formatDisplayNumber(overviewData?.totalEarnedFee, { style: 'currency', significantDigits: 4 })}
               </Text>
             </BannerDataItem>
             <BannerDivider />
             <BannerDataItem>
               <Text color={theme.subText}>{t`Total Unclaimed Fees`}</Text>
-              <Text fontSize={24}>
+              <Text fontSize={24} sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '140px' }}>
                 {formatDisplayNumber(overviewData?.totalUnclaimedFee, { style: 'currency', significantDigits: 4 })}
               </Text>
             </BannerDataItem>

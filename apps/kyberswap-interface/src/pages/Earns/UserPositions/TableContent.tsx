@@ -37,6 +37,7 @@ import {
   DEXES_SUPPORT_COLLECT_FEE,
   EarnDex,
   Exchange,
+  LIMIT_TEXT_STYLES,
   protocolGroupNameToExchangeMapping,
 } from 'pages/Earns/constants'
 import useCollectFees from 'pages/Earns/hooks/useCollectFees'
@@ -310,7 +311,7 @@ export default function TableContent({
                       width="fit-content"
                       placement="bottom"
                     >
-                      <Text>
+                      <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '100px' }}>
                         {formatDisplayNumber(totalValue, {
                           style: 'currency',
                           significantDigits: 4,
@@ -393,7 +394,9 @@ export default function TableContent({
                       width="fit-content"
                       placement="bottom"
                     >
-                      <Text>{formatDisplayNumber(unclaimedFees, { style: 'currency', significantDigits: 4 })}</Text>
+                      <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '100px' }}>
+                        {formatDisplayNumber(unclaimedFees, { style: 'currency', significantDigits: 4 })}
+                      </Text>
                     </MouseoverTooltipDesktopOnly>
                   </PositionValueWrapper>
 

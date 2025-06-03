@@ -230,3 +230,9 @@ export const UNISWAPV4_STATEVIEW_CONTRACT: Record<EarnChain, string> = {
   [EarnChain.MATIC]: '0x5ea1bd7974c8a611cbab0bdcafcb1d9cc9b3ba5a',
   [EarnChain.BERA]: '',
 }
+
+export const LIMIT_TEXT_STYLES = {
+  textOverflow: 'ellipsis',
+  overflow: 'hidden',
+  whiteSpace: 'nowrap',
+}
