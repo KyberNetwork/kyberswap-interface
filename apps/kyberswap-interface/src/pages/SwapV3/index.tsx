@@ -175,7 +175,7 @@ export default function Swap() {
           </SwapFormWrapper>
 
           <InfoComponents>
-            {(isSwapPage || isLimitPage) && !isPartnerSwap && (
+            {(isSwapPage || isLimitPage || isCrossChainPage) && !isPartnerSwap && (
               <BannerWrapper>
                 <TrendingWrapper>
                   <TrendingPoolBanner />
