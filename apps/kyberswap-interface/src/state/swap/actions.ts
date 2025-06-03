@@ -20,7 +20,6 @@ export const replaceSwapState = createAction<{
   recipient: string | null
 }>('swap/replaceSwapState')
 export const setRecipient = createAction<{ recipient: string | null }>('swap/setRecipient')
-export const setTrendingSoonShowed = createAction('swap/setTrendingSoonShowed')
 export const setTrade = createAction<{ trade: Aggregator | undefined }>('swap/setTrade')
 export const permitUpdate = createAction<{
   chainId: number
