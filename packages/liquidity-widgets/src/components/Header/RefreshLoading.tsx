@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 
-import { useTokenPrices } from '@kyber/hooks/use-token-prices';
+import { useDebounce, useTokenPrices } from '@kyber/hooks';
 
-import useDebounce from '@/hooks/useDebounce';
 import { useWidgetContext } from '@/stores';
 
 const INTERVAL_REFETCH_TIME = 10; // seconds

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 
-import { useTokenPrices } from '@kyber/hooks/use-token-prices';
+import { useTokenPrices } from '@kyber/hooks';
 import {
   API_URLS,
   CHAIN_ID_TO_CHAIN,

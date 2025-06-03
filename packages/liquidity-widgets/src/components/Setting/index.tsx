@@ -7,7 +7,7 @@ import Modal from '@/components/Modal';
 import SlippageInput from '@/components/Setting/SlippageInput';
 import Toggle from '@/components/Toggle';
 import { MouseoverTooltip } from '@/components/Tooltip';
-import { useOnClickOutside } from '@/hooks/useOnClickOutside';
+import { useOnClickOutside } from '@kyber/hooks';
 import { useZapState } from '@/hooks/useZapInState';
 
 const validateDeadlineString = (str: string): boolean => {
@@ -54,7 +54,7 @@ export default function Setting() {
       if (!isValid) setDeadline(20);
       toggleSetting();
     }
-  });
+  }, ['setting', 'ks-lw-modal-overlay', 'kyber-portal']);
 
   if (!showSetting) return null;
 

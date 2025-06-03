@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useRef } from 'react';
 
 import { createStore, useStore } from 'zustand';
 
-import { useTokenPrices } from '@kyber/hooks/use-token-prices';
+import { useTokenPrices } from '@kyber/hooks';
 import { API_URLS, DEXES_INFO, NETWORKS_INFO } from '@kyber/schema';
 import {
   ChainId,

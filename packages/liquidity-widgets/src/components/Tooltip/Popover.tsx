@@ -6,7 +6,7 @@ import { Placement } from '@popperjs/core';
 
 import { Portal } from '@kyber/ui/portal';
 
-import useInterval from '@/hooks/useInterval';
+import { useInterval } from '@kyber/hooks';
 
 export interface PopoverProps {
   content: React.ReactNode;

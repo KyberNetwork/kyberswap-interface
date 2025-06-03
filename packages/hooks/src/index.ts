@@ -4,3 +4,6 @@ export * from "./use-approval";
 export * from "./use-debounce";
 export * from "./use-interval";
 export * from "./use-window-size";
+export * from "./use-position-owner";
+export * from "./use-on-click-outside";
+export * from "./use-token-balances";

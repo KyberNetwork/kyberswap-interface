@@ -29,8 +29,7 @@ import { divideBigIntToString } from '@kyber/utils/number';
 import { tickToPrice } from '@kyber/utils/uniswapv3';
 
 import { ZapRouteDetail } from '@/hooks/types/zapInTypes';
-import useDebounce from '@/hooks/useDebounce';
-import useTokenBalances from '@/hooks/useTokenBalances';
+import { useDebounce, useTokenBalances, useTokenPrices } from '@kyber/hooks';
 import { useTokenList } from '@/hooks/useTokenList';
 import { useWidgetContext } from '@/stores';
 import {
@@ -42,7 +41,6 @@ import {
 } from '@/utils';
 
 import { ERROR_MESSAGE } from '@/constants';
-import { useTokenPrices } from '@kyber/hooks/use-token-prices';
 
 const ZapContext = createContext<{
   price: number | null;

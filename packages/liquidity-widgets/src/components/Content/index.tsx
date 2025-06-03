@@ -34,7 +34,7 @@ import TokenSelectorModal from '@/components/TokenSelector/TokenSelectorModal';
 import { MAX_ZAP_IN_TOKENS, ERROR_MESSAGE } from '@/constants';
 import { AggregatorSwapAction, PoolSwapAction, Type, ZapAction } from '@/hooks/types/zapInTypes';
 import { APPROVAL_STATE, useApprovals } from '@/hooks/useApproval';
-import usePositionOwner from '@/hooks/usePositionOwner';
+import { usePositionOwner } from '@kyber/hooks';
 import { useZapState } from '@/hooks/useZapInState';
 import { useWidgetContext } from '@/stores';
 import { PI_LEVEL, checkDeviated, getPriceImpact } from '@/utils';
@@ -95,7 +95,11 @@ export default function Content() {
       tokensIn.map((token) => token?.address || ''),
       zapInfo?.routerAddress || ''
     );
-  const positionOwner = usePositionOwner({ positionId, chainId, poolType });
+  const positionOwner = usePositionOwner({
+    positionId: positionId || '',
+    chainId,
+    poolType,
+  });
   const isNotOwner =
     positionId &&
     positionOwner &&
