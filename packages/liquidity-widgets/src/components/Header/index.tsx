@@ -25,10 +25,10 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
     text: poolAddress,
   });
   const CopyToken0 = useCopy({
-    text: '123',
+    text: pool === 'loading' ? '' : pool.token0.address,
   });
   const CopyToken1 = useCopy({
-    text: '123',
+    text: pool === 'loading' ? '' : pool.token1.address,
   });
 
   if (loading) return <span>loading...</span>;
