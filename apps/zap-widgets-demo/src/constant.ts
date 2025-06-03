@@ -1,7 +1,7 @@
 import { PoolType as ZapInDex } from "@kyberswap/liquidity-widgets";
 import { Dex as ZapMigrationDex } from "@kyberswap/zap-migration-widgets";
 import { PoolType as ZapOutDex } from "@kyberswap/zap-out-widgets";
-import { Dex as PancakeZapInDex } from "@kyberswap/pancake-liquidity-widgets";
+import { PoolType as PancakeZapInDex } from "@kyberswap/pancake-liquidity-widgets";
 
 export const zapInDexMapping: Record<ZapInDex, string> = {
   [ZapInDex.DEX_UNISWAP_V4]: "Uniswap V4",

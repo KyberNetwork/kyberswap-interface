@@ -15,7 +15,7 @@ import { RadioGroup, RadioGroupItem } from "@kyber/ui/radio-group";
 import { TabsContent } from "@kyber/ui/tabs";
 import {
   LiquidityWidget as ZapInWidget,
-  Dex as ZapInDex,
+  PoolType as ZapInDex,
 } from "@kyberswap/pancake-liquidity-widgets";
 import "@kyberswap/pancake-liquidity-widgets/dist/style.css";
 
@@ -120,7 +120,7 @@ const ZapIn = () => {
     chainId: params.chainId ? Number(params.chainId) : 0,
     positionId: params.positionId || undefined,
     poolAddress: params.poolAddress,
-    dex: params.poolType,
+    poolType: params.poolType,
     initTickLower: params.initTickLower ? +params.initTickLower : undefined,
     initTickUpper: params.initTickUpper ? +params.initTickUpper : undefined,
     theme: params.theme,
