@@ -167,7 +167,7 @@ export default function PriceInput({ type }: { type: Type }) {
           maxLength={79}
           spellCheck="false"
         />
-        <span>
+        <span className="w-max">
           {pool !== 'loading'
             ? !revertPrice
               ? `${pool?.token1.symbol} per ${pool?.token0.symbol}`
