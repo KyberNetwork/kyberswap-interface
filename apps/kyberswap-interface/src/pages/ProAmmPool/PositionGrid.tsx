@@ -1,4 +1,3 @@
-import { gql, useQuery } from '@apollo/client'
 import { useScroll } from '@use-gesture/react'
 import memoizeOne from 'memoize-one'
 import React, { CSSProperties, ComponentType, forwardRef, memo, useMemo, useRef } from 'react'
@@ -6,8 +5,6 @@ import { useMedia } from 'react-use'
 import { FixedSizeGrid as FixedSizeGridRW, GridChildComponentProps, areEqual } from 'react-window'
 import styled from 'styled-components'
 
-import { useActiveWeb3React } from 'hooks'
-import { useKyberSwapConfig } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { PositionDetails } from 'types/position'
 
@@ -51,76 +48,9 @@ export const PositionCardGrid = styled.div`
   `};
 `
 
-const queryPositionLastCollectedTimes = gql`
-  query positions($ids: [String]!) {
-    positions(where: { id_in: $ids }) {
-      id
-      createdAtTimestamp
-      lastCollectedFeeAt
-      lastHarvestedFarmRewardAt
-    }
-  }
-`
-
 function PositionGrid({ positions, refe }: { positions: PositionDetails[]; refe?: React.MutableRefObject<any> }) {
-  const { chainId } = useActiveWeb3React()
-  const { elasticClient } = useKyberSwapConfig(chainId)
-
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
-
-  const positionIds = useMemo(() => positions.map(pos => pos.tokenId.toString()), [positions])
-  const { data } = useQuery(queryPositionLastCollectedTimes, {
-    client: elasticClient,
-    variables: {
-      ids: positionIds,
-    },
-    fetchPolicy: 'cache-first',
-    skip: !positionIds.length,
-  })
-
-  const liquidityTimes = useMemo(
-    () =>
-      data?.positions.reduce((acc: { [id: string]: number }, item: { id: string; lastCollectedFeeAt: string }) => {
-        return {
-          ...acc,
-          [item.id]: Date.now() / 1000 - Number(item.lastCollectedFeeAt), // seconds
-        }
-      }, {}),
-    [data?.positions],
-  )
-
-  const farmingTimes = useMemo(
-    () =>
-      data?.positions.reduce(
-        (acc: { [id: string]: number }, item: { id: string; lastHarvestedFarmRewardAt?: string }) => {
-          return {
-            ...acc,
-            [item.id]: item?.lastHarvestedFarmRewardAt ? Date.now() / 1000 - Number(item.lastHarvestedFarmRewardAt) : 0, // seconds
-          }
-        },
-        {},
-      ),
-    [data?.positions],
-  )
-
-  const createdAts = useMemo(
-    () =>
-      data?.positions.reduce((acc: { [id: string]: number }, item: { id: string; createdAtTimestamp: string }) => {
-        return {
-          ...acc,
-          [item.id]: Number(item.createdAtTimestamp), // seconds
-        }
-      }, {}),
-    [data],
-  )
-
-  // TODO: Temporary hardcoded fee to 0
-  // const rewardRes = useSingleContractMultipleData(
-  //   tickReaderContract,
-  //   'getTotalFeesOwedToPosition',
-  //   positions.map(item => [networkInfo.elastic.nonfungiblePositionManager, item.poolId, item.tokenId]),
-  // )
 
   const feeRewards = useMemo(() => {
     return positions.reduce<{ [tokenId: string]: [string, string] }>((acc, item, _index) => {
@@ -137,7 +67,7 @@ function PositionGrid({ positions, refe }: { positions: PositionDetails[]; refe?
     }, {})
   }, [positions])
 
-  const itemData = createItemData(positions, liquidityTimes, farmingTimes, feeRewards, createdAts, refe)
+  const itemData = createItemData(positions, {}, {}, feeRewards, {}, refe)
 
   const columnCount = upToSmall ? 1 : upToLarge ? 2 : 3
   return (

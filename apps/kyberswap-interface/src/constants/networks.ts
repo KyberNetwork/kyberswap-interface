@@ -133,9 +133,6 @@ export const ONLY_STATIC_FEE_CHAINS = [
   ChainId.SCROLL,
 ]
 
-// hardcode for unavailable subgraph
-export const ONLY_DYNAMIC_FEE_CHAINS: ChainId[] = []
-
 export const CLAIM_REWARDS_DATA_URL: { [chainId: number]: string } = {
   [ChainId.AVAXMAINNET]:
     'https://raw.githubusercontent.com/KyberNetwork/avax-trading-contest-reward-distribution/develop/results/reward_proof.json',
