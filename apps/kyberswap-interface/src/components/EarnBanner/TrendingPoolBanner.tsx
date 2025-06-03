@@ -54,7 +54,7 @@ export default function TrendingPoolBanner() {
       setTimeout(() => setIndex(prev => (prev >= 9 ? 0 : prev + 1)), 200)
       setTimeout(() => setAnimate(false), 1000)
     }
-    indexInterval = setInterval(handleIndexChange, 4000)
+    indexInterval = setInterval(handleIndexChange, 4_000)
 
     return () => indexInterval && clearInterval(indexInterval)
   }, [])

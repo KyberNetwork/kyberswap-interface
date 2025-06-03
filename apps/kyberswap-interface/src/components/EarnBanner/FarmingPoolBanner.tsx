@@ -76,15 +76,16 @@ export default function FarmingPoolBanner() {
   }
 
   const handleMoveForward = useCallback(() => {
+    if (animateMoveForward || animateMoveBack) return
     setAnimateMoveForward(true)
     setTimeout(() => {
       setIndex(prev => (prev === totalPools.length - 1 ? 0 : prev + 1))
       setAnimateMoveForward(false)
     }, 700)
-  }, [totalPools])
+  }, [animateMoveBack, animateMoveForward, totalPools.length])
 
   useEffect(() => {
-    indexInterval = setInterval(handleMoveForward, 6_000)
+    indexInterval = setInterval(handleMoveForward, 4_000)
 
     return () => indexInterval && clearInterval(indexInterval)
   }, [handleMoveForward])
