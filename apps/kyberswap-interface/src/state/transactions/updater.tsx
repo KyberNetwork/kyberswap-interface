@@ -57,7 +57,7 @@ export default function Updater(): null {
 
   // show popup on confirm
 
-  const { mixpanelHandler, subgraphMixpanelHandler } = useMixpanel()
+  const { mixpanelHandler } = useMixpanel()
   const transactionNotify = useTransactionNotify()
 
   const handleTransactionReceipt = (hash: string, receipt: any) => {
@@ -252,17 +252,6 @@ export default function Updater(): null {
             .catch((error: any) => {
               console.error(`failed to check transaction hash: ${hash}`, error)
             })
-        }
-      })
-
-    uniqueTransactions
-      .filter(hash => findTx(transactions, hash)?.extraInfo?.needCheckSubgraph)
-      .forEach(async (hash: string) => {
-        const transaction = findTx(transactions, hash)
-        try {
-          transaction && subgraphMixpanelHandler(transaction)
-        } catch (error) {
-          console.log(error)
         }
       })
 

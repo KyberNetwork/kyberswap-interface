@@ -17,17 +17,6 @@ export const PoolsPageWrapper = styled.div`
   gap: 20px;
 `
 
-export const CurrencyWrapper = styled.div`
-  display: flex;
-  align-items: center;
-`
-
-export const SelectPairInstructionWrapper = styled.div`
-  text-align: center;
-  height: 100%;
-  padding: 24px;
-`
-
 export const IconWrapper = styled.div`
   border-radius: 50%;
   background: ${({ theme }) => theme.apr};

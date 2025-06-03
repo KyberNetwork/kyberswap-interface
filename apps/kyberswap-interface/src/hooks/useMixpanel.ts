@@ -3,30 +3,15 @@ import { formatUnits, isAddress } from 'ethers/lib/utils'
 import mixpanel from 'mixpanel-browser'
 import { useCallback, useEffect, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
-import { useDispatch } from 'react-redux'
 import { useLocation } from 'react-router-dom'
 import { usePrevious } from 'react-use'
 
-import {
-  GET_MINT_VALUES_AFTER_CREATE_POOL_SUCCESS,
-  GET_POOL_VALUES_AFTER_BURNS_SUCCESS,
-  GET_POOL_VALUES_AFTER_MINTS_SUCCESS,
-} from 'apollo/queries'
-import {
-  PROMM_GET_MINT_VALUES_AFTER_CREATE_POOL_SUCCESS,
-  PROMM_GET_POOL_VALUES_AFTER_BURNS_SUCCESS,
-  PROMM_GET_POOL_VALUES_AFTER_MINTS_SUCCESS,
-} from 'apollo/queries/promm'
-import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
-import { AppDispatch } from 'state'
-import { useETHPrice, useKyberSwapConfig } from 'state/application/hooks'
 import { RANGE } from 'state/mint/proamm/type'
 import { Field } from 'state/swap/actions'
 import { useInputCurrency, useOutputCurrency } from 'state/swap/hooks'
-import { modifyTransaction } from 'state/transactions/actions'
-import { TRANSACTION_TYPE, TransactionDetails, TransactionExtraInfo2Token } from 'state/transactions/type'
+import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 
 export enum MIXPANEL_TYPE {
@@ -266,7 +251,7 @@ type FeeInfo = {
 }
 
 export default function useMixpanel(currencies?: { [field in Field]?: Currency }) {
-  const { chainId, account, networkInfo } = useActiveWeb3React()
+  const { account, networkInfo } = useActiveWeb3React()
   const network = networkInfo.name
 
   const inputCurrencyFromHook = useInputCurrency()
@@ -277,10 +262,7 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
   const inputSymbol = inputCurrency && inputCurrency.isNative ? networkInfo.nativeToken.symbol : inputCurrency?.symbol
   const outputSymbol =
     outputCurrency && outputCurrency.isNative ? networkInfo.nativeToken.symbol : outputCurrency?.symbol
-  const ethPrice = useETHPrice()
-  const dispatch = useDispatch<AppDispatch>()
   const [allowedSlippage] = useUserSlippageTolerance()
-  const { elasticClient, classicClient } = useKyberSwapConfig()
 
   const mixpanelHandler = useCallback(
     (type: MIXPANEL_TYPE, payload?: any) => {
@@ -405,16 +387,12 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
           const body: Record<string, any> = {
             input_token: arbitrary.inputSymbol,
             output_token: arbitrary.outputSymbol,
-            actual_gas:
-              ethPrice &&
-              ethPrice.currentPrice &&
-              (actual_gas.toNumber() * parseFloat(formattedGas) * parseFloat(ethPrice.currentPrice)).toFixed(4),
+            actual_gas: actual_gas.toNumber() * parseFloat(formattedGas),
             tx_hash: tx_hash,
             trade_qty: arbitrary.inputAmount,
             slippage_setting: arbitrary.slippageSetting,
             price_impact: arbitrary.priceImpact,
             gas_price: formattedGas,
-            eth_price: ethPrice?.currentPrice,
             actual_gas_native: actual_gas?.toNumber(),
           }
 
@@ -1276,211 +1254,10 @@ export default function useMixpanel(currencies?: { [field in Field]?: Currency }
       }
     },
     /* eslint-disable */
-    [currencies, network, account, mixpanel.hasOwnProperty('get_distinct_id'), ethPrice?.currentPrice],
+    [currencies, network, account, mixpanel.hasOwnProperty('get_distinct_id')],
     /* eslint-enable */
   )
-  const subgraphMixpanelHandler = useCallback(
-    async (transaction: TransactionDetails) => {
-      const hash = transaction.hash
-      const arbitrary = transaction.extraInfo?.arbitrary
-      switch (transaction.type) {
-        case TRANSACTION_TYPE.CLASSIC_ADD_LIQUIDITY: {
-          const { poolAddress, token_1, token_2, add_liquidity_method, amp } = arbitrary || {}
-          const res = await classicClient.query({
-            query: GET_POOL_VALUES_AFTER_MINTS_SUCCESS,
-            variables: {
-              poolAddress: poolAddress.toLowerCase(),
-            },
-            fetchPolicy: 'network-only',
-          })
-          if (transaction.confirmedTime && new Date().getTime() - transaction.confirmedTime < 3600000) {
-            if (
-              !res.data?.pool?.mints ||
-              res.data.pool.mints.every((mint: { id: string }) => !mint.id.startsWith(transaction.hash))
-            )
-              break
-          }
-          const { reserve0, reserve1, reserveUSD } = res.data.pool
-          const mint = res.data.pool.mints.find((mint: { id: string }) => mint.id.startsWith(transaction.hash))
-          mixpanelHandler(MIXPANEL_TYPE.ADD_LIQUIDITY_COMPLETED, {
-            token_1_pool_qty: reserve0,
-            token_2_pool_qty: reserve1,
-            liquidity_USD: reserveUSD,
-            token_1,
-            token_2,
-            token_1_qty: mint?.amount0,
-            token_2_qty: mint?.amount1,
-            tx_liquidity_USD: mint?.amountUSD,
-            add_liquidity_method,
-            amp,
-            tx_hash: hash,
-          })
-          dispatch(modifyTransaction({ chainId, hash, needCheckSubgraph: false }))
-          break
-        }
-        case TRANSACTION_TYPE.ELASTIC_ADD_LIQUIDITY: {
-          const {
-            contract: poolAddress = '',
-            tokenSymbolIn: token_1,
-            tokenSymbolOut: token_2,
-          } = (transaction.extraInfo || {}) as TransactionExtraInfo2Token
-          const res = await elasticClient.query({
-            query: PROMM_GET_POOL_VALUES_AFTER_MINTS_SUCCESS,
-            variables: {
-              poolAddress: poolAddress.toLowerCase(),
-            },
-            fetchPolicy: 'network-only',
-          })
-          if (transaction.confirmedTime && new Date().getTime() - transaction.confirmedTime < 3_600_000) {
-            if (
-              !res.data?.pool?.mints ||
-              res.data.pool.mints.every((mint: { id: string }) => !mint.id.startsWith(transaction.hash))
-            )
-              break
-          }
-          const { totalValueLockedToken0, totalValueLockedToken1, totalValueLockedUSD, feeTier, mints } = res.data.pool
-          const mint = mints.find((mint: { id: string }) => mint.id.startsWith(transaction.hash))
-          mixpanelHandler(MIXPANEL_TYPE.ELASTIC_ADD_LIQUIDITY_COMPLETED, {
-            token_1_pool_qty: totalValueLockedToken0,
-            token_2_pool_qty: totalValueLockedToken1,
-            liquidity_USD: totalValueLockedUSD,
-            token_1,
-            token_2,
-            token_1_qty: mint?.amount0,
-            token_2_qty: mint?.amount1,
-            tx_liquidity_USD: mint?.amountUSD,
-            fee_tier: feeTier / ELASTIC_BASE_FEE_UNIT,
-            tx_hash: hash,
-          })
-          dispatch(modifyTransaction({ chainId, hash, needCheckSubgraph: false }))
-          break
-        }
-        case TRANSACTION_TYPE.CLASSIC_REMOVE_LIQUIDITY: {
-          const { poolAddress, token_1, token_2, amp, remove_liquidity_method } = arbitrary || {}
-          const res = await classicClient.query({
-            query: GET_POOL_VALUES_AFTER_BURNS_SUCCESS,
-            variables: {
-              poolAddress: poolAddress.toLowerCase(),
-            },
-            fetchPolicy: 'network-only',
-          })
-
-          if (transaction.confirmedTime && new Date().getTime() - transaction.confirmedTime < 3600000) {
-            if (
-              !res.data?.pool?.burns ||
-              res.data.pool.burns.every((burn: { id: string }) => !burn.id.startsWith(transaction.hash))
-            )
-              break
-          }
-          const { reserve0, reserve1, reserveUSD } = res.data.pool
-          const burn = res.data.pool.burns.find((burn: { id: string }) => burn.id.startsWith(transaction.hash))
-          mixpanelHandler(MIXPANEL_TYPE.REMOVE_LIQUIDITY_COMPLETED, {
-            token_1_pool_qty: reserve0,
-            token_2_pool_qty: reserve1,
-            liquidity_USD: reserveUSD,
-            token_1,
-            token_2,
-            token_1_qty: burn?.amount0,
-            token_2_qty: burn?.amount1,
-            tx_liquidity_USD: burn?.amountUSD,
-            remove_liquidity_method: remove_liquidity_method,
-            amp,
-            tx_hash: hash,
-          })
-          dispatch(modifyTransaction({ chainId, hash, needCheckSubgraph: false }))
-          break
-        }
-        case TRANSACTION_TYPE.ELASTIC_REMOVE_LIQUIDITY: {
-          const {
-            contract: poolAddress = '',
-            tokenSymbolIn,
-            tokenSymbolOut,
-          } = (transaction.extraInfo || {}) as TransactionExtraInfo2Token
-          const res = await elasticClient.query({
-            query: PROMM_GET_POOL_VALUES_AFTER_BURNS_SUCCESS,
-            variables: {
-              poolAddress: poolAddress.toLowerCase(),
-            },
-            fetchPolicy: 'network-only',
-          })
-          if (transaction.confirmedTime && new Date().getTime() - transaction.confirmedTime < 3600000) {
-            if (
-              !res.data?.pool?.burns ||
-              res.data.pool.burns.every((burn: { id: string }) => !burn.id.startsWith(transaction.hash))
-            )
-              break
-          }
-          const { totalValueLockedToken0, totalValueLockedToken1, totalValueLockedUSD, feeTier } = res?.data?.pool || {}
-          const burn = res.data?.pool?.burns?.find((burn: { id: string }) => burn.id.startsWith(transaction.hash))
-          mixpanelHandler(MIXPANEL_TYPE.ELASTIC_REMOVE_LIQUIDITY_COMPLETED, {
-            token_1_pool_qty: totalValueLockedToken0,
-            token_2_pool_qty: totalValueLockedToken1,
-            liquidity_USD: totalValueLockedUSD,
-            token_1: tokenSymbolIn,
-            token_2: tokenSymbolOut,
-            token_1_qty: burn?.amount0,
-            token_2_qty: burn?.amount1,
-            tx_liquidity_USD: burn?.amountUSD,
-            fee_tier: feeTier / ELASTIC_BASE_FEE_UNIT,
-            tx_hash: hash,
-          })
-          dispatch(modifyTransaction({ chainId, hash, needCheckSubgraph: false }))
-          break
-        }
-        case TRANSACTION_TYPE.CLASSIC_CREATE_POOL: {
-          const { amp, token_1, token_2 } = arbitrary || {}
-          const res = await classicClient.query({
-            query: GET_MINT_VALUES_AFTER_CREATE_POOL_SUCCESS,
-            variables: {
-              transactionHash: hash,
-            },
-            fetchPolicy: 'network-only',
-          })
-          if (transaction.confirmedTime && new Date().getTime() - transaction.confirmedTime < 3600000) {
-            if (!res.data?.transaction?.mints || res.data.transaction.mints.length === 0) break
-          }
-          const { amount0, amount1, amountUSD } = res.data.transaction.mints[0]
-          mixpanelHandler(MIXPANEL_TYPE.CREATE_POOL_COMPLETED, {
-            token_1,
-            token_2,
-            amp,
-            tx_hash: hash,
-            token_1_qty: amount0,
-            token_2_qty: amount1,
-            tx_liquidity_USD: amountUSD,
-          })
-          break
-        }
-        case TRANSACTION_TYPE.ELASTIC_CREATE_POOL: {
-          const res = await elasticClient.query({
-            query: PROMM_GET_MINT_VALUES_AFTER_CREATE_POOL_SUCCESS,
-            variables: {
-              transactionHash: hash,
-            },
-            fetchPolicy: 'network-only',
-          })
-          if (transaction.confirmedTime && new Date().getTime() - transaction.confirmedTime < 3600000) {
-            if (!res.data?.transaction?.mints || res.data.transaction.mints.length === 0) break
-          }
-          const { amount0, amount1, amountUSD } = res.data.transaction.mints[0]
-          const { tokenSymbolIn, tokenSymbolOut } = (transaction.extraInfo ?? {}) as TransactionExtraInfo2Token
-          mixpanelHandler(MIXPANEL_TYPE.ELASTIC_CREATE_POOL_COMPLETED, {
-            token_1: tokenSymbolIn,
-            token_2: tokenSymbolOut,
-            tx_hash: hash,
-            token_1_qty: amount0,
-            token_2_qty: amount1,
-            tx_liquidity_USD: amountUSD,
-          })
-          break
-        }
-        default:
-          break
-      }
-    },
-    [chainId, dispatch, mixpanelHandler, classicClient, elasticClient],
-  )
-  return { mixpanelHandler, subgraphMixpanelHandler }
+  return { mixpanelHandler }
 }
 
 export const useGlobalMixpanelEvents = () => {
