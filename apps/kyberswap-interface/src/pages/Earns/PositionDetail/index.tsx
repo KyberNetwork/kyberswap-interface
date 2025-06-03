@@ -30,7 +30,7 @@ import {
 import { EmptyPositionText, PositionPageWrapper } from 'pages/Earns/UserPositions/styles'
 import { Exchange } from 'pages/Earns/constants'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
-import { FeeInfo, ParsedPosition } from 'pages/Earns/types'
+import { FeeInfo, ParsedPosition, PositionStatus } from 'pages/Earns/types'
 import { getUnclaimedFeesInfo } from 'pages/Earns/utils/fees'
 import { parsePosition } from 'pages/Earns/utils/position'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -204,7 +204,7 @@ const PositionDetail = () => {
         ) : !!position ? (
           <>
             <PositionDetailHeader position={position} hadForceLoading={hadForceLoading.current} />
-            {!!position?.suggestionPool && (
+            {!!position?.suggestionPool && position.status !== PositionStatus.CLOSED && (
               <MigrationLiquidityRecommend>
                 <Text color={'#fafafa'} lineHeight={'18px'}>
                   {position.pool.fee === position.suggestionPool.feeTier

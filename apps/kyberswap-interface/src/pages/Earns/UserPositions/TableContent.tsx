@@ -342,7 +342,7 @@ export default function TableContent({
                         <Text color={pool.isFarming ? theme.primary : theme.text}>{formatAprNumber(apr)}%</Text>
                       </MouseoverTooltipDesktopOnly>
 
-                      {!!position.suggestionPool && (
+                      {!!position.suggestionPool && position.status !== PositionStatus.CLOSED && (
                         <MouseoverTooltipDesktopOnly
                           text={
                             <>
