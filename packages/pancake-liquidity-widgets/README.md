@@ -26,7 +26,7 @@ account | Current connected wallet | string | ""
 networkChainId | Current network chainId | number | Required
 chainId | network of selected pool | number | Required 
 poolAddress | address of pool to zap | string | Required 
-<mark>poolType</mark> | type of pool to zap | [enum](https://github.com/KyberNetwork/kyberswap-interface/blob/feat/infinity-cl/packages/pancake-liquidity-widgets/src/constants/index.ts#L284-L287) | Required 
+<mark>poolType</mark> | type of pool to zap | [enum](https://github.com/KyberNetwork/kyberswap-interface/blob/main/packages/pancake-liquidity-widgets/src/constants/index.ts#L284-L287) | Required 
 positionId | Optional, in case “Increasing Liquidity into an existing position”, pass the position id. The position should belong to the poolAddress. Otherwise, it considers as “Adding Liquidity into a new position” | number | undefined 
 initTickLower | init tick lower in case add liquidity into a new position | number | undefined 
 initTickUpper | init tick upper in case add liquidity into a new position | number | undefined 
