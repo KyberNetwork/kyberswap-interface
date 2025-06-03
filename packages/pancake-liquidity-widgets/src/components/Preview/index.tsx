@@ -85,7 +85,7 @@ export default function Preview({
   checkNftApproval,
 }: PreviewProps) {
   const { chainId, account, publicClient, walletClient } = useWeb3Provider();
-  const { positionId, position, dex } = useWidgetInfo();
+  const { positionId, position, poolType } = useWidgetInfo();
   const {
     source,
     revertPrice: revert,
@@ -469,7 +469,7 @@ export default function Preview({
               Confirm this transaction in your wallet - Zapping{" "}
               {positionId
                 ? `Position #${positionId}`
-                : `${getDexName(dex)} ${pool.token0.symbol}/${
+                : `${getDexName(poolType)} ${pool.token0.symbol}/${
                     pool.token1.symbol
                   } ${pool.fee / 10_000}%`}
             </div>
@@ -552,8 +552,8 @@ export default function Preview({
     ? pool.tickCurrent < position.tickLower ||
       pool.tickCurrent >= position.tickUpper
     : false;
-  const logo = getDexLogo(dex);
-  const name = getDexName(dex);
+  const logo = getDexLogo(poolType);
+  const name = getDexName(poolType);
   const fee = pool.fee;
 
   const piVeryHigh =

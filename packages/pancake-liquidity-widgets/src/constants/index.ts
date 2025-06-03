@@ -281,7 +281,7 @@ export const chainIdToChain: { [chainId: number]: string } = {
 
 export const MAX_ZAP_IN_TOKENS = 5;
 
-export enum Dex {
+export enum PoolType {
   DEX_PANCAKESWAPV3 = "DEX_PANCAKESWAPV3",
   DEX_PANCAKE_INFINITY_CL = "DEX_PANCAKE_INFINITY_CL",
 }
@@ -292,18 +292,18 @@ export const API_URL = {
 };
 
 export const POOL_MANAGER_CONTRACT: {
-  [dex in Dex]: { [chainId: number]: string } | string;
+  [poolType in PoolType]: { [chainId: number]: string } | string;
 } = {
-  [Dex.DEX_PANCAKESWAPV3]: "",
-  [Dex.DEX_PANCAKE_INFINITY_CL]: {
+  [PoolType.DEX_PANCAKESWAPV3]: "",
+  [PoolType.DEX_PANCAKE_INFINITY_CL]: {
     56: "0xa0FfB9c1CE1Fe56963B0321B32E7A0302114058b",
   },
 };
 
 export const POSITION_MANAGER_CONTRACT: {
-  [dex in Dex]: { [chainId: number]: Address } | Address;
+  [poolType in PoolType]: { [chainId: number]: Address } | Address;
 } = {
-  [Dex.DEX_PANCAKESWAPV3]: {
+  [PoolType.DEX_PANCAKESWAPV3]: {
     1: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
     56: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
     137: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
@@ -318,7 +318,7 @@ export const POSITION_MANAGER_CONTRACT: {
     534352: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
     1101: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
   },
-  [Dex.DEX_PANCAKE_INFINITY_CL]: {
+  [PoolType.DEX_PANCAKE_INFINITY_CL]: {
     56: "0x55f4c8abA71A1e923edC303eb4fEfF14608cC226",
   },
 };
@@ -328,12 +328,12 @@ interface DexInfo {
   logo: string;
 }
 
-export const DEXES_INFO: { [dex in Dex]: DexInfo } = {
-  [Dex.DEX_PANCAKESWAPV3]: {
+export const DEXES_INFO: { [poolType in PoolType]: DexInfo } = {
+  [PoolType.DEX_PANCAKESWAPV3]: {
     name: "PancakeSwap V3",
     logo: pancakeLogo,
   },
-  [Dex.DEX_PANCAKE_INFINITY_CL]: {
+  [PoolType.DEX_PANCAKE_INFINITY_CL]: {
     name: "Pancake Infinity CL",
     logo: pancakeLogo,
   },

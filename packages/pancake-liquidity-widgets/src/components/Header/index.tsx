@@ -33,7 +33,7 @@ const Header = ({ onDismiss }: { onDismiss: () => void }) => {
 
 const PoolInfo = () => {
   const { chainId } = useWeb3Provider();
-  const { loading, pool, positionId, position, theme, dex } = useWidgetInfo();
+  const { loading, pool, positionId, position, theme, poolType } = useWidgetInfo();
 
   const { toggleSetting, degenMode } = useZapState();
 
@@ -53,7 +53,7 @@ const PoolInfo = () => {
   const token1 = pool.token1 as PancakeToken;
   const fee = pool.fee;
 
-  const { logo, name } = DEXES_INFO[dex];
+  const { logo, name } = DEXES_INFO[poolType];
 
   const isOutOfRange = position
     ? pool.tickCurrent < position.tickLower ||

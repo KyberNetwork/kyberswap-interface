@@ -115,7 +115,7 @@ export const ZapContextProvider = ({
     feePcm,
     feeAddress,
     onAddTokens,
-    dex,
+    poolType,
   } = useWidgetInfo();
   const { chainId, networkChainId } = useWeb3Provider();
   const { getToken } = useTokens();
@@ -408,7 +408,7 @@ export const ZapContextProvider = ({
 
       setLoading(true);
       const params: { [key: string]: string | number | boolean } = {
-        dex,
+        dex: poolType,
         "pool.id": poolAddress,
         "pool.token0": pool.token0.address,
         "pool.token1": pool.token1.address,
@@ -477,7 +477,7 @@ export const ZapContextProvider = ({
     debounceAmountsIn,
     error,
     zapApiError,
-    dex,
+    poolType,
   ]);
 
   return (

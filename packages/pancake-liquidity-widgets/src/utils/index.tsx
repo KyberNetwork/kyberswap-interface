@@ -9,7 +9,7 @@ import { ProtocolFeeAction, Type } from "@/types/zapInTypes";
 import {
   API_URL,
   BASE_BPS,
-  Dex,
+  PoolType,
   DEXES_INFO,
   NATIVE_TOKEN_ADDRESS,
   NetworkInfo,
@@ -216,12 +216,12 @@ export function friendlyError(error: Error | string): string {
   return `An error occurred`;
 }
 
-export const getDexName = (dex: Dex) => {
-  return DEXES_INFO[dex].name;
+export const getDexName = (poolType: PoolType) => {
+  return DEXES_INFO[poolType].name;
 };
 
-export const getDexLogo = (dex: Dex) => {
-  return DEXES_INFO[dex].logo;
+export const getDexLogo = (poolType: PoolType) => {
+  return DEXES_INFO[poolType].logo;
 };
 
 export enum PI_LEVEL {
@@ -319,12 +319,12 @@ export const getPoolInfo = async ({
   chainId,
   poolAddress,
   publicClient,
-  dex,
+  poolType,
 }: {
   chainId: number;
   poolAddress: string;
   publicClient: PublicClient;
-  dex: Dex;
+  poolType: PoolType;
 }) => {
   const res = await fetch(
     `${API_URL.KYBERSWAP_BFF_API}/v1/pools?chainId=${chainId}&ids=${poolAddress}`
@@ -341,14 +341,14 @@ export const getPoolInfo = async ({
     chainId,
     token0Address,
     token1Address,
-    dex,
+    poolType,
   });
   if (!token0 || !token1) return null;
 
   const fee = await getFee({
     rawFee: Number(swapFee),
     chainId,
-    dex,
+    poolType,
     poolAddress,
     publicClient,
   });
@@ -372,19 +372,19 @@ export const getTokenInfo = async ({
   chainId,
   token0Address,
   token1Address,
-  dex,
+  poolType,
 }: {
   chainId: number;
   token0Address: string;
   token1Address: string;
-  dex: Dex;
+  poolType: PoolType;
 }) => {
   const nullTokens = {
     token0: null,
     token1: null,
   };
 
-  const isPancakeV3 = dex === Dex.DEX_PANCAKESWAPV3;
+  const isPancakeV3 = poolType === PoolType.DEX_PANCAKESWAPV3;
 
   const isToken0Native = !isPancakeV3
     ? token0Address.toLowerCase() ===
@@ -487,22 +487,22 @@ export const getTokenInfo = async ({
 export const getFee = async ({
   chainId,
   rawFee,
-  dex,
+  poolType,
   poolAddress,
   publicClient,
 }: {
   chainId: number;
   rawFee: number;
-  dex: Dex;
+  poolType: PoolType;
   poolAddress: string;
   publicClient: PublicClient;
 }) => {
   try {
-    if (dex === Dex.DEX_PANCAKESWAPV3) return rawFee;
+    if (poolType === PoolType.DEX_PANCAKESWAPV3) return rawFee;
     if (rawFee * 10_000 === 0x800000) return null; // dynamic fee - do not support yet
 
     const poolManagerContract =
-      POOL_MANAGER_CONTRACT[Dex.DEX_PANCAKE_INFINITY_CL][chainId];
+      POOL_MANAGER_CONTRACT[PoolType.DEX_PANCAKE_INFINITY_CL][chainId];
     if (!poolManagerContract) return null;
 
     const slot0 = await publicClient.readContract({
@@ -526,12 +526,12 @@ export const getFee = async ({
 export const getPositionInfo = async ({
   chainId,
   publicClient,
-  dex,
+  poolType,
   positionId,
 }: {
   chainId: number;
   publicClient: PublicClient;
-  dex: Dex;
+  poolType: PoolType;
   positionId: string;
 }) => {
   const nullPosition = {
@@ -544,11 +544,11 @@ export const getPositionInfo = async ({
     fee: null,
   };
 
-  const posManagerContractAddress = POSITION_MANAGER_CONTRACT[dex][
+  const posManagerContractAddress = POSITION_MANAGER_CONTRACT[poolType][
     chainId
   ] as Address;
   const posManagerContractABI =
-    dex === Dex.DEX_PANCAKESWAPV3
+  poolType === PoolType.DEX_PANCAKESWAPV3
       ? Pancakev3PosManagerABI
       : InfinityCLPosManagerABI;
 
@@ -582,7 +582,7 @@ export const getPositionInfo = async ({
   let token1;
   let fee;
 
-  if (dex === Dex.DEX_PANCAKESWAPV3) {
+  if (poolType === PoolType.DEX_PANCAKESWAPV3) {
     const [
       ,
       ,
@@ -609,7 +609,7 @@ export const getPositionInfo = async ({
     token0 = token0FromRpc;
     token1 = token1FromRpc;
     fee = feeFromRpc;
-  } else if (dex === Dex.DEX_PANCAKE_INFINITY_CL) {
+  } else if (poolType === PoolType.DEX_PANCAKE_INFINITY_CL) {
     const [
       { currency0, currency1, fee: feeFromRpc },
       tickLowerFromRpc,

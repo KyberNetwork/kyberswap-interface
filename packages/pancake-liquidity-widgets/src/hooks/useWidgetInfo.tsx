@@ -4,7 +4,7 @@ import usePoolInfo from "@/hooks/usePoolInfo";
 import { defaultTheme, Theme } from "@/theme";
 import { Pool } from "@/entities/Pool";
 import { Position } from "@/entities/Position";
-import { Dex } from "@/constants";
+import { PoolType } from "@/constants";
 
 type ContextState = {
   loading: boolean;
@@ -23,7 +23,7 @@ type ContextState = {
   onAmountChange: (tokenAddress: string, amount: string) => void;
   onOpenTokenSelectModal: () => void;
   farmContractAddresses: string[];
-  dex: Dex;
+  poolType: PoolType;
 };
 
 const WidgetContext = createContext<ContextState>({
@@ -33,7 +33,7 @@ const WidgetContext = createContext<ContextState>({
   position: null,
   positionOwner: null,
   theme: defaultTheme,
-  dex: Dex.DEX_PANCAKESWAPV3,
+  poolType: PoolType.DEX_PANCAKESWAPV3,
   onConnectWallet: () => {},
   onAddTokens: () => {},
   onRemoveToken: () => {},
@@ -52,7 +52,7 @@ type Props = {
   feeAddress?: string;
   feePcm?: number;
   error?: string;
-  dex: Dex;
+  poolType: PoolType;
   onConnectWallet: () => void;
   onAddTokens: (tokenAddresses: string) => void;
   onRemoveToken: (tokenAddress: string) => void;
@@ -65,13 +65,13 @@ export const WidgetProvider = ({
   poolAddress,
   children,
   positionId,
-  dex,
+  poolType,
   ...rest
 }: Props) => {
   const { loading, pool, position, error, positionOwner } = usePoolInfo(
     poolAddress,
     positionId,
-    dex
+    poolType
   );
 
   return (
@@ -84,7 +84,7 @@ export const WidgetProvider = ({
         position,
         positionOwner,
         error,
-        dex,
+        poolType,
         ...rest,
       }}
     >

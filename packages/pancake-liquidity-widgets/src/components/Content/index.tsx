@@ -24,7 +24,7 @@ import {
 import X from "@/assets/x.svg";
 import ErrorIcon from "@/assets/error.svg";
 import {
-  Dex,
+  PoolType,
   MAX_ZAP_IN_TOKENS,
   NetworkInfo,
   POSITION_MANAGER_CONTRACT,
@@ -64,14 +64,14 @@ export default function Content({
     error: loadPoolError,
     onConnectWallet,
     onOpenTokenSelectModal,
-    dex,
+    poolType,
   } = useWidgetInfo();
   const { account, chainId } = useWeb3Provider();
 
   const [clickedApprove, setClickedLoading] = useState(false);
   const [snapshotState, setSnapshotState] = useState<ZapState | null>(null);
 
-  const nftManager = POSITION_MANAGER_CONTRACT[dex];
+  const nftManager = POSITION_MANAGER_CONTRACT[poolType];
   const nftManagerContract =
     typeof nftManager === "string" ? nftManager : nftManager[chainId];
 
@@ -88,7 +88,7 @@ export default function Content({
     spender: zapInfo?.routerAddress,
   });
 
-  const isInfinityCl = dex === Dex.DEX_PANCAKE_INFINITY_CL;
+  const isInfinityCl = poolType === PoolType.DEX_PANCAKE_INFINITY_CL;
 
   const amountsInWei: string[] = useMemo(
     () =>

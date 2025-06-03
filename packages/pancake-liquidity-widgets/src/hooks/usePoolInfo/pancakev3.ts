@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useWeb3Provider } from "@/hooks/useProvider";
 import {
   NetworkInfo,
-  Dex,
+  PoolType,
   PANCAKE_NATIVE_TOKEN_ADDRESS,
   NATIVE_TOKEN_ADDRESS,
 } from "@/constants";
@@ -23,7 +23,7 @@ export interface TokenInfo {
 export default function usePoolInfo(
   poolAddress: string,
   positionId: string | undefined,
-  dex: Dex
+  poolType: PoolType
 ): {
   pool: Pool | null;
   loading: boolean;
@@ -48,7 +48,7 @@ export default function usePoolInfo(
 
       const poolInfo = await getPoolInfo({
         poolAddress,
-        dex,
+        poolType,
         chainId,
         publicClient,
       });
@@ -68,7 +68,7 @@ export default function usePoolInfo(
         const positionInfo = await getPositionInfo({
           chainId,
           publicClient,
-          dex,
+          poolType,
           positionId,
         });
 
@@ -83,7 +83,7 @@ export default function usePoolInfo(
         if (owner) setPositionOwner(owner as Address);
 
         const token0Address = (
-          dex === Dex.DEX_PANCAKESWAPV3
+          poolType === PoolType.DEX_PANCAKESWAPV3
             ? token0
             : token0 === PANCAKE_NATIVE_TOKEN_ADDRESS
             ? NATIVE_TOKEN_ADDRESS
@@ -91,7 +91,7 @@ export default function usePoolInfo(
         )?.toLowerCase();
 
         const token1Address = (
-          dex === Dex.DEX_PANCAKESWAPV3
+          poolType === PoolType.DEX_PANCAKESWAPV3
             ? token1
             : token1 === PANCAKE_NATIVE_TOKEN_ADDRESS
             ? NATIVE_TOKEN_ADDRESS
@@ -121,7 +121,7 @@ export default function usePoolInfo(
     };
 
     getZapInfo();
-  }, [chainId, dex, pool, poolAddress, positionId, publicClient]);
+  }, [chainId, poolType, pool, poolAddress, positionId, publicClient]);
 
   useEffect(() => {
     let i: ReturnType<typeof setInterval> | undefined;
@@ -129,7 +129,7 @@ export default function usePoolInfo(
       const getSlot0 = async () => {
         const poolInfo = await getPoolInfo({
           poolAddress,
-          dex,
+          poolType,
           chainId,
           publicClient,
         });
@@ -158,7 +158,7 @@ export default function usePoolInfo(
     return () => {
       i && clearInterval(i);
     };
-  }, [chainId, dex, pool, poolAddress, publicClient]);
+  }, [chainId, poolType, pool, poolAddress, publicClient]);
 
   return { loading, pool, position, error, positionOwner };
 }
