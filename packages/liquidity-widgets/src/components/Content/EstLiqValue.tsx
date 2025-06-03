@@ -498,7 +498,7 @@ export default function EstLiqValue() {
           style={{ background: `${theme.warning}33` }}
         >
           {((refundUsd * 100) / initUsd).toFixed(2)}% of your input remains unused. Consider
-          lowering your input amount
+          refreshing or changing your input amount to get updated routes.
         </div>
       )}
 
