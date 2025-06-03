@@ -1,6 +1,6 @@
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useState } from 'react'
-import { Info, Star } from 'react-feather'
+import { Star } from 'react-feather'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
@@ -335,14 +335,6 @@ const PoolExplorer = () => {
                 onClick={() => onSortChange(SortBy.TVL)}
               >
                 {t`TVL`}
-                <MouseoverTooltipDesktopOnly
-                  text={t`Only pools with a Total Value Locked of $10,000 or more are displayed on this page`}
-                  placement="top"
-                >
-                  <Text marginRight={1} marginLeft={1} sx={{ position: 'relative', top: '2.5px' }}>
-                    <Info color={theme.subText} size={16} />
-                  </Text>
-                </MouseoverTooltipDesktopOnly>
                 <SortIcon sorted={filters.sortBy === SortBy.TVL ? (filters.orderBy as Direction) : undefined} />
               </Flex>
               <Flex
