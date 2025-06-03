@@ -10,4 +10,14 @@ export const token = z.object({
   isStable: z.boolean().optional(),
 });
 
+export const defaultToken = {
+  address: '',
+  symbol: '',
+  name: '',
+  decimals: NaN,
+  logo: '',
+  price: NaN,
+  isStable: false,
+}
+
 export type Token = z.infer<typeof token>;

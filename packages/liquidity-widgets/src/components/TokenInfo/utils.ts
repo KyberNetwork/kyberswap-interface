@@ -144,9 +144,7 @@ export const parseMarketTokenInfo = (tokenInfo: TokenInfo | null) => {
 
 export const shortenAddress = (address: string, chars = 4): string => {
   const parsed = isAddress(address);
-  if (!parsed) {
-    throw Error(`Invalid 'address' parameter '${address}'`);
-  }
+  if (!parsed) return address;
   return `${address.substring(0, chars + 2)}...${address.substring(address.length - chars)}`;
 };
 
