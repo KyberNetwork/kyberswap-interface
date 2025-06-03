@@ -29,7 +29,7 @@ const useKemRewards = () => {
     {
       owner: account || '',
     },
-    { skip: !account, pollingInterval: 30_000 },
+    { skip: !account, pollingInterval: 15_000 },
   )
   const [batchClaimEncodeData] = useBatchClaimEncodeDataMutation()
   const [claimEncodeData] = useClaimEncodeDataMutation()
