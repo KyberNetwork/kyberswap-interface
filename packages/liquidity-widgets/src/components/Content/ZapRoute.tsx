@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 
 import { DEXES_INFO, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO } from '@kyber/schema';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@kyber/ui/accordion';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@kyber/ui';
 
 import {
   AddLiquidityAction,

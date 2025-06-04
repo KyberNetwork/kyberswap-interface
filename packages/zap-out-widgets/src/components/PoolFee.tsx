@@ -1,7 +1,7 @@
 import { useZapOutContext } from "@/stores";
 import questionImg from "@/assets/svg/question.svg?url";
 import { RemoveLiquidityAction, useZapOutUserState } from "@/stores/state";
-import { Skeleton } from "@kyber/ui/skeleton";
+import { Skeleton } from "@kyber/ui";
 import {
   formatDisplayNumber,
   formatTokenAmount,

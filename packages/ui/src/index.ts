@@ -1,5 +1,5 @@
-export { Button } from "./components/ui/button";
-export { Input } from "./components/ui/input";
+export { Button, type ButtonProps } from "./components/ui/button";
+export { Input, type InputProps } from "./components/ui/input";
 export { Label } from "./components/ui/label";
 export { Tabs, TabsContent, TabsList, TabsTrigger } from "./components/ui/tabs";
 export {
@@ -26,6 +26,7 @@ export {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogPortal
 } from "./components/ui/dialog";
 export { ScrollArea, ScrollBar } from "./components/ui/scroll-area";
 export { Skeleton } from "./components/ui/skeleton";

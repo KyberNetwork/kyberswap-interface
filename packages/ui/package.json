@@ -19,7 +19,8 @@
     "./tabs": "./src/components/ui/tabs.tsx",
     "./card": "./src/components/ui/card.tsx",
     "./radio-group": "./src/components/ui/radio-group.tsx",
-    "./token-logo": "./src/components/token-logo.tsx"
+    "./token-logo": "./src/components/token-logo.tsx",
+    ".": "./src/index.ts"
   },
   "scripts": {
     "build": "tsup && tailwindcss -i ./src/styles.css -o ./dist/index.css",

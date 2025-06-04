@@ -1,4 +1,4 @@
-import { Button, ButtonProps } from "@kyber/ui/button";
+import { Button, ButtonProps } from "@kyber/ui";
 import { forwardRef } from "react";
 
 const SubmitButton = forwardRef<HTMLButtonElement, ButtonProps>(

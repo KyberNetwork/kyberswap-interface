@@ -1,4 +1,4 @@
-import { MouseoverTooltip } from "@kyber/ui/tooltip";
+import { MouseoverTooltip } from "@kyber/ui";
 import { cn } from "@kyber/utils/tailwind-helpers";
 
 export const SlippageInfo = ({

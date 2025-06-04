@@ -5,8 +5,7 @@ import {
   univ3Position,
   defaultToken,
 } from '@kyber/schema';
-import TokenLogo from '@kyber/ui/token-logo';
-import { Skeleton } from '@kyber/ui/skeleton';
+import { Skeleton, TokenLogo } from '@kyber/ui';
 
 import defaultTokenLogo from '@/assets/svg/question.svg?url';
 import SettingIcon from '@/assets/svg/setting.svg';

@@ -1,5 +1,5 @@
 import { Token } from '@kyber/schema';
-import { Button } from '@kyber/ui/button';
+import { Button } from '@kyber/ui';
 
 import IconAlertTriangle from '@/assets/svg/alert-triangle.svg';
 import IconBack from '@/assets/svg/arrow-left.svg';

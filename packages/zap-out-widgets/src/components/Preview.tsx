@@ -1,5 +1,5 @@
 import Modal from "@/components/Modal";
-import { ScrollArea } from "@kyber/ui/scroll-area";
+import { ScrollArea } from "@kyber/ui";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
 import X from "@/assets/svg/x.svg";
 import { RefundAction, useZapOutUserState } from "@/stores/state";

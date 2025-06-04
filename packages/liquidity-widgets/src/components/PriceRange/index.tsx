@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import { Univ3PoolType, univ3PoolNormalize } from '@kyber/schema';
-import { Button } from '@kyber/ui/button';
+import { Button } from '@kyber/ui';
 import { toString } from '@kyber/utils/number';
 import { nearestUsableTick, priceToClosestTick, tickToPrice } from '@kyber/utils/uniswapv3';
 

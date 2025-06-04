@@ -1,4 +1,4 @@
-import { Skeleton } from "@kyber/ui/skeleton";
+import { Skeleton } from "@kyber/ui";
 import {
   formatDisplayNumber,
   formatTokenAmount,

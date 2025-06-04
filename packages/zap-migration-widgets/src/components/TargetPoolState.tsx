@@ -11,7 +11,7 @@ import {
 import { usePoolsStore } from "../stores/usePoolsStore";
 import { usePositionStore } from "../stores/usePositionStore";
 import { useZapStateStore } from "../stores/useZapStateStore";
-import { Skeleton } from "@kyber/ui/skeleton";
+import { Skeleton } from "@kyber/ui";
 import {
   divideBigIntToString,
   formatDisplayNumber,

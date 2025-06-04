@@ -8,7 +8,7 @@ import {
   formatTokenAmount,
   toRawString,
 } from "@kyber/utils/number";
-import { Skeleton } from "@kyber/ui/skeleton";
+import { Skeleton } from "@kyber/ui";
 import { cn } from "@kyber/utils/tailwind-helpers";
 import { univ2Dexes, UniV2Pool } from "../schema";
 

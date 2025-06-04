@@ -5,8 +5,10 @@ import {
   DialogHeader,
   DialogPortal,
   DialogTitle,
-} from "@kyber/ui/dialog";
-import { ScrollArea } from "@kyber/ui/scroll-area";
+  ScrollArea,
+  MouseoverTooltip,
+  InfoHelper
+} from "@kyber/ui";
 import { useTokenPrices } from "@kyber/hooks/use-token-prices";
 import {
   ProtocolFeeAction,
@@ -37,8 +39,6 @@ import {
 } from "@kyber/utils/crypto";
 import { MigrationSummary } from "./MigrationSummary";
 import { SwapPI, useSwapPI } from "../SwapImpact";
-import { MouseoverTooltip } from "@kyber/ui/tooltip";
-import { InfoHelper } from "@kyber/ui/info-helper";
 import { PI_LEVEL, formatCurrency } from "../../utils";
 import useCopy from "../../hooks/use-copy";
 import { SlippageInfo } from "../SlippageInfo";

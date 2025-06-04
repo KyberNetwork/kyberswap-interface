@@ -14,7 +14,7 @@ import { RefundAction, useZapStateStore } from "../stores/useZapStateStore";
 import { PI_LEVEL } from "../utils";
 import { useSwapPI } from "./SwapImpact";
 import { useDebounce } from "@kyber/hooks/use-debounce";
-import { InfoHelper } from "@kyber/ui/info-helper";
+import { InfoHelper } from "@kyber/ui";
 import { formatTokenAmount } from "@kyber/utils/number";
 import { cn } from "@kyber/utils/tailwind-helpers";
 import { useEffect, useState } from "react";

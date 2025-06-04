@@ -4,7 +4,7 @@ import { usePopper } from 'react-popper';
 
 import { Placement } from '@popperjs/core';
 
-import { Portal } from '@kyber/ui/portal';
+import { Portal } from '@kyber/ui';
 
 import { useInterval } from '@kyber/hooks';
 

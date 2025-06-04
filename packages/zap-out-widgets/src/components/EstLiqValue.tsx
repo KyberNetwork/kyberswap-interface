@@ -5,7 +5,7 @@ import { useDebounce } from "@kyber/hooks/use-debounce";
 import { useZapOutContext } from "@/stores";
 import { RefundAction, useZapOutUserState } from "@/stores/state";
 import { PI_LEVEL, formatCurrency, getPriceImpact } from "@/utils";
-import { Skeleton } from "@kyber/ui/skeleton";
+import { Skeleton } from "@kyber/ui";
 import { formatTokenAmount } from "@kyber/utils/number";
 import { useEffect } from "react";
 import { SwapPI } from "@/components/SwapImpact";

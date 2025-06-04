@@ -22,7 +22,7 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@kyber/ui/dialog";
+} from "@kyber/ui";
 import "@kyber/ui/styles.css";
 import { cn } from "@kyber/utils/tailwind-helpers";
 import { useEffect } from "react";

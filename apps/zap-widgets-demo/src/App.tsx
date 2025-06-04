@@ -7,7 +7,7 @@ import ZapIn from "@/components/ZapIn";
 import ZapMigration from "@/components/ZapMigration";
 import ZapOut from "@/components/ZapOut";
 import PancakeZapIn from "@/components/PancakeZapIn";
-import { Tabs, TabsList, TabsTrigger } from "@kyber/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@kyber/ui";
 
 // eslint-disable-next-line react-refresh/only-export-components
 export enum Zap {

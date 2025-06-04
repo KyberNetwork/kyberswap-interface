@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
 import { API_URLS, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO } from '@kyber/schema';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@kyber/ui/accordion';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@kyber/ui';
 import { formatUnits } from '@kyber/utils/crypto';
 import { formatDisplayNumber, toRawString } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';

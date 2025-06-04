@@ -12,7 +12,7 @@ import {
   univ2PoolNormalize,
   univ3PoolNormalize,
 } from '@kyber/schema';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@kyber/ui/accordion';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@kyber/ui';
 import {
   calculateGasMargin,
   estimateGas,

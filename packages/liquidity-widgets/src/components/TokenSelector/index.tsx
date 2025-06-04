@@ -1,9 +1,7 @@
 import { ChangeEvent, MouseEvent, useEffect, useMemo, useState } from 'react';
 
 import { NATIVE_TOKEN_ADDRESS, Token } from '@kyber/schema';
-import { Button } from '@kyber/ui/button';
-import { Input } from '@kyber/ui/input';
-import { ScrollArea } from '@kyber/ui/scroll-area';
+import { Button, ScrollArea, Input } from '@kyber/ui';
 import { formatUnits, isAddress } from '@kyber/utils/crypto';
 
 import Check from '@/assets/svg/check.svg';
