@@ -278,6 +278,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     if (disable) {
       setQuotes([])
       setSelectedAdapter(null)
+      abortControllerRef.current.abort()
       return
     }
     abortControllerRef.current.abort()
