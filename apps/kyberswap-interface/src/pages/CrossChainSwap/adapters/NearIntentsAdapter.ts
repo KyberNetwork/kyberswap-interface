@@ -60,7 +60,9 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
 
   async getQuote(params: NearQuoteParams): Promise<NormalizedQuote> {
     const deadline = new Date()
-    deadline.setSeconds(deadline.getSeconds() + 60 * 20)
+
+    // 1 hour for Bitcoin, 20 minutes for other chains
+    deadline.setSeconds(deadline.getSeconds() + (params.fromChain === NonEvmChain.Bitcoin ? 60 * 60 : 60 * 20))
 
     const fromAssetId =
       'assetId' in params.fromToken

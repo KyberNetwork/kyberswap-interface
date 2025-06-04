@@ -8,7 +8,7 @@ import { useSearchParams } from 'react-router-dom'
 import { CrossChainSwapRegistryProvider, useCrossChainSwap } from './hooks/useCrossChainSwap'
 import { formatDisplayNumber } from 'utils/numbers'
 import SlippageSetting from 'components/SwapForm/SlippageSetting'
-import { QuoteSelector } from './components/QuoteSelector'
+import { QuoteSelector, Tag } from './components/QuoteSelector'
 import { TokenLogoWithChain } from './components/TokenLogoWithChain'
 import { Summary } from './components/Summary'
 import { SwapAction } from './components/SwapAction'
@@ -308,8 +308,9 @@ function CrossChainSwap() {
       <Summary quote={selectedQuote || undefined} tokenOut={currencyOut} />
 
       {selectedQuote && (
-        <Text fontStyle="italic" color={'#737373'} fontSize={12}>
+        <Text fontStyle="italic" color={'#737373'} fontSize={12} display="flex">
           Routed via {selectedQuote.adapter.getName()}
+          {selectedQuote.adapter.getName() === 'Optimex' && <Tag>Beta</Tag>}
         </Text>
       )}
 

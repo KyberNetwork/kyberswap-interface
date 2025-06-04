@@ -79,7 +79,6 @@ export class OptimexAdapter extends BaseSwapAdapter {
     if (!this.tokens?.length) {
       await this.getTokens()
     }
-    console.log(params)
 
     const isFromBtc = params.fromChain === NonEvmChain.Bitcoin
     const isToBtc = params.toChain === NonEvmChain.Bitcoin

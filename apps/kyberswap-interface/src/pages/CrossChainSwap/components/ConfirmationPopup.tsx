@@ -1,4 +1,5 @@
 import { ButtonEmpty, ButtonPrimary } from 'components/Button'
+import { Tag } from './QuoteSelector'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
 import useTheme from 'hooks/useTheme'
 import { ArrowDown, X } from 'react-feather'
@@ -267,8 +268,9 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
             {warning?.priceImpaceInfo?.message && <Flex marginTop="1rem"></Flex>}
             <PiWarning />
 
-            <Text marginY="1rem" fontStyle="italic" color={'#737373'} fontSize={12}>
+            <Text marginY="1rem" fontStyle="italic" color={'#737373'} fontSize={12} display="flex" alignItems="center">
               Routed via {selectedQuote.adapter.getName()}
+              {selectedQuote.adapter.getName() === 'Optimex' && <Tag>Beta</Tag>}
             </Text>
 
             <ButtonPrimary onClick={handleSwap}>Confirm Swap</ButtonPrimary>
