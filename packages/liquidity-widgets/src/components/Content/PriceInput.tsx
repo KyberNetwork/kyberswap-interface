@@ -133,7 +133,7 @@ export default function PriceInput({ type }: { type: Type }) {
     <div className="mt-[0.6rem] w-1/2 p-3 justify-between flex items-center border rounded-md border-stroke">
       {!positionId && (
         <button
-          className="w-6 h-6 rounded-[4px] border border-stroke bg-layer2 text-subText flex items-center justify-center cursor-pointer hover:enabled:brightness-150 active:enabled:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
+          className="w-6 h-6 rounded-[4px] border border-stroke bg-layer2 text-subText flex items-center justify-center cursor-pointer hover:enabled:brightness-150 active:enabled:scale-95 disabled:cursor-not-allowed disabled:opacity-60 outline-none"
           role="button"
           onClick={() => {
             if (type === Type.PriceLower) {
@@ -178,7 +178,7 @@ export default function PriceInput({ type }: { type: Type }) {
 
       {!positionId && (
         <button
-          className="w-6 h-6 rounded-[4px] border border-stroke bg-layer2 text-subText flex items-center justify-center cursor-pointer hover:enabled:brightness-150 active:enabled:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
+          className="w-6 h-6 rounded-[4px] border border-stroke bg-layer2 text-subText flex items-center justify-center cursor-pointer hover:enabled:brightness-150 active:enabled:scale-95 disabled:cursor-not-allowed disabled:opacity-60 outline-none"
           onClick={() => {
             if (type === Type.PriceLower) {
               revertPrice ? decreaseTickUpper() : increaseTickLower();

@@ -368,7 +368,7 @@ export default function TokenSelector({
             <Input
               type="text"
               placeholder="Search by token name, token symbol or address"
-              className="h-[45px] pl-4 pr-10 py-2 bg-[#0f0f0f] border-[1.5px] border-[#0f0f0f] text-white placeholder-subText rounded-full focus:border-success"
+              className="h-[45px] pl-4 pr-10 py-2 bg-[#0f0f0f] border-[1.5px] border-[#0f0f0f] text-white placeholder-subText rounded-full focus:border-success outline-none"
               value={searchTerm}
               onChange={handleChangeSearch}
             />
@@ -395,7 +395,7 @@ export default function TokenSelector({
         )}
 
         <ScrollArea
-          className={`custom-scrollbar !mt-0 ${modalTabSelected === MODAL_TAB.TOKENS ? 'h-[280px]' : 'h-[356px]'}`}
+          className={`!mt-0 ${modalTabSelected === MODAL_TAB.TOKENS ? 'h-[280px]' : 'h-[356px]'}`}
         >
           {modalTabSelected === MODAL_TAB.TOKENS && (
             <>
