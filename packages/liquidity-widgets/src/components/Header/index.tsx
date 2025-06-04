@@ -1,11 +1,5 @@
-import {
-  DEXES_INFO,
-  NETWORKS_INFO,
-  univ3PoolNormalize,
-  univ3Position,
-  defaultToken,
-} from '@kyber/schema';
-import { MouseoverTooltip, Skeleton, TokenLogo, InfoHelper } from '@kyber/ui';
+import { DEXES_INFO, NETWORKS_INFO, defaultToken, univ3PoolNormalize, univ3Position } from '@kyber/schema';
+import { InfoHelper, MouseoverTooltip, Skeleton, TokenLogo } from '@kyber/ui';
 
 import defaultTokenLogo from '@/assets/svg/question.svg?url';
 import SettingIcon from '@/assets/svg/setting.svg';
@@ -17,8 +11,7 @@ import { useZapState } from '@/hooks/useZapInState';
 import { useWidgetContext } from '@/stores';
 
 const Header = () => {
-  const { chainId, pool, poolType, positionId, position, theme, poolAddress, onClose } =
-    useWidgetContext((s) => s);
+  const { chainId, pool, poolType, positionId, position, theme, poolAddress, onClose } = useWidgetContext(s => s);
 
   const { toggleSetting, degenMode } = useZapState();
 
@@ -43,9 +36,7 @@ const Header = () => {
   const { success: isUniV3, data: univ3Pool } = univ3PoolNormalize.safeParse(pool);
 
   const isOutOfRange =
-    !!positionId && success && isUniV3
-      ? univ3Pool.tick < data.tickLower || univ3Pool.tick >= data.tickUpper
-      : false;
+    !!positionId && success && isUniV3 ? univ3Pool.tick < data.tickLower || univ3Pool.tick >= data.tickUpper : false;
 
   const handleToggleSetting = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
@@ -68,9 +59,7 @@ const Header = () => {
               <>
                 <div>#{positionId}</div>
                 <div
-                  className={`rounded-full text-xs px-2 py-1 font-normal text-${
-                    isOutOfRange ? 'warning' : 'accent'
-                  }`}
+                  className={`rounded-full text-xs px-2 py-1 font-normal text-${isOutOfRange ? 'warning' : 'accent'}`}
                   style={{
                     background: `${isOutOfRange ? theme.warning : theme.accent}33`,
                   }}
@@ -93,11 +82,7 @@ const Header = () => {
           <div className="flex items-center flex-wrap gap-1 text-sm max-sm:gap-y-2">
             <div className="flex items-end">
               <TokenLogo src={token0.logo} size={26} className="border-[2px] border-layer1" />
-              <TokenLogo
-                src={token1.logo}
-                size={26}
-                className="border-[2px] border-layer1 -ml-[6px]"
-              />
+              <TokenLogo src={token1.logo} size={26} className="border-[2px] border-layer1 -ml-[6px]" />
               <TokenLogo
                 src={NETWORKS_INFO[chainId].logo}
                 size={14}
@@ -110,9 +95,7 @@ const Header = () => {
             </span>
 
             <div className="flex flex-wrap ml-[2px] gap-[6px] text-subText items-center">
-              <div className="rounded-full text-xs bg-layer2 text-subText px-[14px] py-1">
-                Fee {fee}%
-              </div>
+              <div className="rounded-full text-xs bg-layer2 text-subText px-[14px] py-1">Fee {fee}%</div>
               <div className="flex items-center justify-center px-2 py-1 bg-layer2 rounded-full">
                 <InfoHelper
                   placement="top"
@@ -158,10 +141,7 @@ const Header = () => {
           </div>
         )}
 
-        <MouseoverTooltip
-          className="top-16 right-6 max-sm:absolute"
-          text={degenMode ? 'Degen Mode is turned on!' : ''}
-        >
+        <MouseoverTooltip className="top-16 right-6 max-sm:absolute" text={degenMode ? 'Degen Mode is turned on!' : ''}>
           <div
             className={`setting w-9 h-9 flex items-center justify-center rounded-full cursor-pointer bg-layer2 hover:brightness-125 active:scale-95 ${
               degenMode ? 'text-warning' : ''

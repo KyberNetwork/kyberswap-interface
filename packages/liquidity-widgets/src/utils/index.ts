@@ -1,6 +1,7 @@
-import { ERROR_MESSAGE } from '@/constants';
 import { ChainId, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, Token } from '@kyber/schema';
 import { formatUnits } from '@kyber/utils/number';
+
+import { ERROR_MESSAGE } from '@/constants';
 
 export const formatCurrency = (value: number) =>
   new Intl.NumberFormat('en-US', {
@@ -45,20 +46,14 @@ const rejectedPhrases: readonly string[] = [
   'User declined to send the transaction',
   'user denied transaction',
   'you must accept',
-].map((phrase) => phrase.toLowerCase());
+].map(phrase => phrase.toLowerCase());
 
-function didUserReject(
-  error: { code: number; message: string; errorMessage: string } | string
-): boolean {
+function didUserReject(error: { code: number; message: string; errorMessage: string } | string): boolean {
   const message = String(
-    typeof error === 'string' ? error : error?.message || error?.code || error?.errorMessage || ''
+    typeof error === 'string' ? error : error?.message || error?.code || error?.errorMessage || '',
   ).toLowerCase();
   return (
-    [
-      ErrorCode.USER_REJECTED_REQUEST,
-      ErrorCode.ACTION_REJECTED,
-      ErrorCode.ALPHA_WALLET_REJECTED_CODE,
-    ]
+    [ErrorCode.USER_REJECTED_REQUEST, ErrorCode.ACTION_REJECTED, ErrorCode.ALPHA_WALLET_REJECTED_CODE]
       .map(String)
       .includes((error as { code: number })?.code?.toString?.()) ||
     [
@@ -70,7 +65,7 @@ function didUserReject(
     ]
       .map(String)
       .includes(message) ||
-    rejectedPhrases.some((phrase) => message?.includes?.(phrase))
+    rejectedPhrases.some(phrase => message?.includes?.(phrase))
   );
 }
 
@@ -82,8 +77,7 @@ function capitalizeFirstLetter(str?: string) {
 function parseKnownPattern(text: string): string | undefined {
   const error = text?.toLowerCase?.() || '';
 
-  if (!error || error.includes('router: expired'))
-    return 'An error occurred. Refresh the page and try again ';
+  if (!error || error.includes('router: expired')) return 'An error occurred. Refresh the page and try again ';
 
   if (
     error.includes('mintotalamountout') ||
@@ -100,8 +94,7 @@ function parseKnownPattern(text: string): string | undefined {
   if (didUserReject(error)) return `User rejected the transaction.`;
 
   // classic/elastic remove liquidity error
-  if (error.includes('insufficient'))
-    return `An error occurred. Please try increasing max slippage`;
+  if (error.includes('insufficient')) return `An error occurred. Please try increasing max slippage`;
 
   if (error.includes('permit')) return `An error occurred. Invalid Permit Signature`;
 
@@ -119,13 +112,13 @@ const patterns: {
 }[] = [
   {
     pattern: /{"originalError":.+"message":"execution reverted: ([^"]+)"/,
-    getMessage: (match) => match[1],
+    getMessage: match => match[1],
   },
-  { pattern: /^([\w ]*\w+) \(.+?\)$/, getMessage: (match) => match[1] },
-  { pattern: /"message": ?"[^"]+?"/, getMessage: (match) => match[1] },
+  { pattern: /^([\w ]*\w+) \(.+?\)$/, getMessage: match => match[1] },
+  { pattern: /"message": ?"[^"]+?"/, getMessage: match => match[1] },
 ];
 function parseKnownRegexPattern(text: string): string | undefined {
-  const pattern = patterns.find((pattern) => pattern.pattern.exec(text));
+  const pattern = patterns.find(pattern => pattern.pattern.exec(text));
   if (pattern) return capitalizeFirstLetter(pattern.getMessage(pattern.pattern.exec(text)!));
   return undefined;
 }
@@ -153,7 +146,7 @@ export enum PI_LEVEL {
 export const getPriceImpact = (
   pi: number | null | undefined,
   type: 'Swap Price Impact' | 'Zap Impact',
-  suggestedSlippage: number
+  suggestedSlippage: number,
 ) => {
   if (pi === null || pi === undefined || isNaN(pi))
     return {
@@ -206,7 +199,7 @@ export enum PairType {
 export function getEtherscanLink(
   chainId: ChainId,
   data: string,
-  type: 'transaction' | 'token' | 'address' | 'block'
+  type: 'transaction' | 'token' | 'address' | 'block',
 ): string {
   const prefix = NETWORKS_INFO[chainId].scanLink;
 
@@ -293,10 +286,7 @@ export const validateData = ({
   const isAmountEntered = tokensIn.some((_, index) => isValidNumber(listAmountsIn[index]));
   if (!isAmountEntered) return ERROR_MESSAGE.ENTER_AMOUNT;
 
-  const { tokensIn: listValidTokensIn, amountsIn: listValidAmountsIn } = parseTokensAndAmounts(
-    tokensIn,
-    amountsIn
-  );
+  const { tokensIn: listValidTokensIn, amountsIn: listValidAmountsIn } = parseTokensAndAmounts(tokensIn, amountsIn);
 
   try {
     for (let i = 0; i < listValidTokensIn.length; i++) {
@@ -305,15 +295,11 @@ export const validateData = ({
         listValidTokensIn[i].address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase()
           ? NATIVE_TOKEN_ADDRESS
           : listValidTokensIn[i].address.toLowerCase();
-      const balance = formatUnits(
-        balances[tokenAddress]?.toString() || '0',
-        listValidTokensIn[i].decimals
-      );
+      const balance = formatUnits(balances[tokenAddress]?.toString() || '0', listValidTokensIn[i].decimals);
 
       if (countDecimals(listValidAmountsIn[i]) > listValidTokensIn[i].decimals)
         return ERROR_MESSAGE.INVALID_INPUT_AMOUNT;
-      if (parseFloat(listValidAmountsIn[i]) > parseFloat(balance))
-        return ERROR_MESSAGE.INSUFFICIENT_BALANCE;
+      if (parseFloat(listValidAmountsIn[i]) > parseFloat(balance)) return ERROR_MESSAGE.INSUFFICIENT_BALANCE;
     }
   } catch (e) {
     return ERROR_MESSAGE.INVALID_INPUT_AMOUNT;
@@ -339,6 +325,6 @@ export const parseTokensAndAmounts = (tokensIn: Token[], amountsIn: string) => {
   return {
     tokensIn: listValidTokensIn,
     amountsIn: listValidAmountsIn,
-    tokenAddresses: (listValidTokensIn || []).map((token) => token.address).join(','),
+    tokenAddresses: (listValidTokensIn || []).map(token => token.address).join(','),
   };
 };

@@ -1,6 +1,7 @@
-import { svgrPlugin } from '@kyber/svgr-esbuild-plugin';
 import { sassPlugin } from 'esbuild-sass-plugin';
 import { defineConfig } from 'tsup';
+
+import { svgrPlugin } from '@kyber/svgr-esbuild-plugin';
 
 export default defineConfig({
   entry: { 'liquidity-widget': 'src/index.tsx' },

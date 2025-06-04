@@ -6,21 +6,18 @@ import { SecurityInfo, getSecurityTokenInfo } from '@/components/TokenInfo/utils
 import { useWidgetContext } from '@/stores';
 
 export default function useSecurityTokenInfo(tokenAddress: string) {
-  const chainId = useWidgetContext((s) => s.chainId);
+  const chainId = useWidgetContext(s => s.chainId);
   const [securityRawInfo, setSecurityRawInfo] = useState<SecurityInfo | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
-  const parsedSecurityInfo = useMemo(
-    () => getSecurityTokenInfo(securityRawInfo),
-    [securityRawInfo]
-  );
+  const parsedSecurityInfo = useMemo(() => getSecurityTokenInfo(securityRawInfo), [securityRawInfo]);
 
   const handleFetchSecurityData = () => {
     setLoading(true);
     fetch(`${API_URLS.GO_PLUS_API}/${chainId}?contract_addresses=${tokenAddress}`)
-      .then((res) => res.json())
-      .then((data) => setSecurityRawInfo(data.result?.[tokenAddress]))
-      .catch((e) => {
+      .then(res => res.json())
+      .then(data => setSecurityRawInfo(data.result?.[tokenAddress]))
+      .catch(e => {
         console.log(e.message);
         setSecurityRawInfo(null);
       })

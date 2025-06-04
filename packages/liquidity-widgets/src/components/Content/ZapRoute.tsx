@@ -3,19 +3,14 @@ import { useMemo, useState } from 'react';
 import { DEXES_INFO, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO } from '@kyber/schema';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@kyber/ui';
 
-import {
-  AddLiquidityAction,
-  AggregatorSwapAction,
-  PoolSwapAction,
-  ZapAction,
-} from '@/types/zapRoute';
 import { useZapState } from '@/hooks/useZapInState';
 import { useWidgetContext } from '@/stores';
+import { AddLiquidityAction, AggregatorSwapAction, PoolSwapAction, ZapAction } from '@/types/zapRoute';
 import { formatWei } from '@/utils';
 
 export default function ZapRoute() {
   const { zapInfo, tokensIn } = useZapState();
-  const { pool, poolType, chainId } = useWidgetContext((s) => s);
+  const { pool, poolType, chainId } = useWidgetContext(s => s);
   const [expanded, setExpanded] = useState(false);
 
   const defaultToken = {
@@ -30,15 +25,15 @@ export default function ZapRoute() {
   const dexNameObj = DEXES_INFO[poolType].name;
   const dexName = typeof dexNameObj === 'string' ? dexNameObj : dexNameObj[chainId];
 
-  const onExpand = () => setExpanded((prev) => !prev);
+  const onExpand = () => setExpanded(prev => !prev);
 
   const swapInfo = useMemo(() => {
     const aggregatorSwapInfo = zapInfo?.zapDetails.actions.find(
-      (item) => item.type === ZapAction.AGGREGATOR_SWAP
+      item => item.type === ZapAction.AGGREGATOR_SWAP,
     ) as AggregatorSwapAction | null;
 
     const poolSwapInfo = zapInfo?.zapDetails.actions.find(
-      (item) => item.type === ZapAction.POOL_SWAP
+      item => item.type === ZapAction.POOL_SWAP,
     ) as PoolSwapAction | null;
 
     if (pool === 'loading') return [];
@@ -56,13 +51,9 @@ export default function ZapRoute() {
     ];
 
     const parsedAggregatorSwapInfo =
-      aggregatorSwapInfo?.aggregatorSwap?.swaps?.map((item) => {
-        const tokenIn = tokens.find(
-          (token) => token.address.toLowerCase() === item.tokenIn.address.toLowerCase()
-        );
-        const tokenOut = tokens.find(
-          (token) => token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
-        );
+      aggregatorSwapInfo?.aggregatorSwap?.swaps?.map(item => {
+        const tokenIn = tokens.find(token => token.address.toLowerCase() === item.tokenIn.address.toLowerCase());
+        const tokenOut = tokens.find(token => token.address.toLowerCase() === item.tokenOut.address.toLowerCase());
         return {
           tokenInSymbol: tokenIn?.symbol || '--',
           tokenOutSymbol: tokenOut?.symbol || '--',
@@ -73,13 +64,9 @@ export default function ZapRoute() {
       }) || [];
 
     const parsedPoolSwapInfo =
-      poolSwapInfo?.poolSwap?.swaps?.map((item) => {
-        const tokenIn = tokens.find(
-          (token) => token.address.toLowerCase() === item.tokenIn.address.toLowerCase()
-        );
-        const tokenOut = tokens.find(
-          (token) => token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
-        );
+      poolSwapInfo?.poolSwap?.swaps?.map(item => {
+        const tokenIn = tokens.find(token => token.address.toLowerCase() === item.tokenIn.address.toLowerCase());
+        const tokenOut = tokens.find(token => token.address.toLowerCase() === item.tokenOut.address.toLowerCase());
         return {
           tokenInSymbol: tokenIn?.symbol || '--',
           tokenOutSymbol: tokenOut?.symbol || '--',
@@ -95,7 +82,7 @@ export default function ZapRoute() {
   const addedLiquidityInfo = useMemo(() => {
     if (pool === 'loading') return { addedAmount0: '0', addedAmount1: '0' };
     const data = zapInfo?.zapDetails.actions.find(
-      (item) => item.type === ZapAction.ADD_LIQUIDITY
+      item => item.type === ZapAction.ADD_LIQUIDITY,
     ) as AddLiquidityAction | null;
 
     const addedAmount0 = formatWei(data?.addLiquidity.token0.amount, pool?.token0?.decimals);
@@ -117,9 +104,7 @@ export default function ZapRoute() {
             Zap Summary
           </AccordionTrigger>
           <AccordionContent className="px-4 pb-4 pt-0 border border-stroke !border-t-0 rounded-b-md">
-            <p className="text-subText text-xs italic">
-              The actual Zap Routes could be adjusted with on-chain states
-            </p>
+            <p className="text-subText text-xs italic">The actual Zap Routes could be adjusted with on-chain states</p>
 
             <div className="h-[1px] w-full bg-stroke mt-1 mb-3" />
 
@@ -129,8 +114,7 @@ export default function ZapRoute() {
                   {index + 1}
                 </div>
                 <div className="flex-1 text-subText leading-4">
-                  Swap {item.amountIn} {item.tokenInSymbol} for {item.amountOut}{' '}
-                  {item.tokenOutSymbol} via{' '}
+                  Swap {item.amountIn} {item.tokenInSymbol} for {item.amountOut} {item.tokenOutSymbol} via{' '}
                   <span className="font-medium text-text">{item.pool}</span>
                 </div>
               </div>
@@ -141,9 +125,8 @@ export default function ZapRoute() {
                 {swapInfo.length + 1}
               </div>
               <div className="flex-1 text-subText leading-4">
-                Build LP using {addedLiquidityInfo.addedAmount0} {symbol0} and{' '}
-                {addedLiquidityInfo.addedAmount1} {symbol1} on{' '}
-                <span className="font-medium text-text">{dexName}</span>
+                Build LP using {addedLiquidityInfo.addedAmount0} {symbol0} and {addedLiquidityInfo.addedAmount1}{' '}
+                {symbol1} on <span className="font-medium text-text">{dexName}</span>
               </div>
             </div>
           </AccordionContent>

@@ -9,14 +9,11 @@ const FETCH_INTERVAL = 60_000;
 let fetchInterval: ReturnType<typeof setInterval>;
 
 export default function useMarketTokenInfo(tokenAddress: string) {
-  const chainId = useWidgetContext((s) => s.chainId);
+  const chainId = useWidgetContext(s => s.chainId);
   const [marketTokenInfo, setMarketTokenInfo] = useState<TokenInfo | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
-  const parsedMarketTokenInfo = useMemo(
-    () => parseMarketTokenInfo(marketTokenInfo),
-    [marketTokenInfo]
-  );
+  const parsedMarketTokenInfo = useMemo(() => parseMarketTokenInfo(marketTokenInfo), [marketTokenInfo]);
 
   const handleFetchCoingeckoData = () => {
     if (!tokenAddress) return;
@@ -24,10 +21,10 @@ export default function useMarketTokenInfo(tokenAddress: string) {
     fetch(
       tokenAddress === NETWORKS_INFO[chainId].wrappedToken.address.toLowerCase()
         ? `${API_URLS.COINGECKO_API_URL}/coins/${NETWORKS_INFO[chainId].coingeckoNativeTokenId}`
-        : `${API_URLS.COINGECKO_API_URL}/coins/${NETWORKS_INFO[chainId].coingeckoNetworkId}/contract/${tokenAddress}`
+        : `${API_URLS.COINGECKO_API_URL}/coins/${NETWORKS_INFO[chainId].coingeckoNetworkId}/contract/${tokenAddress}`,
     )
-      .then((res) => res.json())
-      .then((data) =>
+      .then(res => res.json())
+      .then(data =>
         setMarketTokenInfo({
           price: data?.market_data?.current_price?.usd || 0,
           marketCap: data?.market_data?.market_cap?.usd || 0,
@@ -39,9 +36,9 @@ export default function useMarketTokenInfo(tokenAddress: string) {
           tradingVolume: data?.market_data?.total_volume?.usd || 0,
           description: data?.description || { en: '' },
           name: data?.name || '',
-        })
+        }),
       )
-      .catch((e) => {
+      .catch(e => {
         console.log(e.message);
         setMarketTokenInfo(null);
       })

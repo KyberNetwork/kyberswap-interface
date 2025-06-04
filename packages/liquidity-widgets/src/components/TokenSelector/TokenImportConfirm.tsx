@@ -33,7 +33,7 @@ const TokenImportConfirm = ({
   onGoBack: () => void;
   onClose: () => void;
 }) => {
-  const chainId = useWidgetContext((s) => s.chainId);
+  const chainId = useWidgetContext(s => s.chainId);
 
   const { tokensIn, setTokensIn, amountsIn, setAmountsIn } = useZapState();
   const { addToken } = useTokenList();
@@ -48,7 +48,7 @@ const TokenImportConfirm = ({
     addToken(token);
     if (mode === TOKEN_SELECT_MODE.SELECT) {
       const index = tokensIn.findIndex(
-        (tokenIn: Token) => tokenIn.address === selectedTokenAddress
+        (tokenIn: Token) => tokenIn.address === selectedTokenAddress,
       );
       if (index > -1) {
         const clonedTokensIn = [...tokensIn];

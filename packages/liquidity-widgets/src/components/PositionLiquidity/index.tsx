@@ -5,23 +5,17 @@ import { useWidgetContext } from '@/stores';
 import { formatCurrency } from '@/utils';
 
 const PositionLiquidity = () => {
-  const { pool, position } = useWidgetContext((s) => s);
+  const { pool, position } = useWidgetContext(s => s);
   const loading = pool === 'loading';
 
   const amount0 =
-    position === 'loading' || pool === 'loading'
-      ? '0'
-      : formatTokenAmount(position.amount0, pool.token0?.decimals);
+    position === 'loading' || pool === 'loading' ? '0' : formatTokenAmount(position.amount0, pool.token0?.decimals);
   const amount1 =
-    position === 'loading' || pool === 'loading'
-      ? '0'
-      : formatTokenAmount(position.amount1, pool.token1?.decimals);
+    position === 'loading' || pool === 'loading' ? '0' : formatTokenAmount(position.amount1, pool.token1?.decimals);
 
   return (
     <div className="px-4 py-3 mt-4 border border-stroke rounded-md">
-      <p className="text-subText mb-4 text-sm">
-        {!loading ? 'Your Position Liquidity' : 'Loading...'}
-      </p>
+      <p className="text-subText mb-4 text-sm">{!loading ? 'Your Position Liquidity' : 'Loading...'}</p>
       {!loading && (
         <>
           <div className="flex justify-between">

@@ -12,14 +12,7 @@ import {
   univ2PoolNormalize,
   univ3PoolNormalize,
 } from '@kyber/schema';
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-  MouseoverTooltip,
-  InfoHelper,
-} from '@kyber/ui';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, InfoHelper, MouseoverTooltip } from '@kyber/ui';
 import {
   calculateGasMargin,
   estimateGas,
@@ -39,6 +32,8 @@ import defaultTokenLogo from '@/assets/svg/question.svg?url';
 import SuccessIcon from '@/assets/svg/success.svg';
 import SwitchIcon from '@/assets/svg/switch.svg';
 import { SlippageWarning } from '@/components/SlippageWarning';
+import { useZapState } from '@/hooks/useZapInState';
+import { useWidgetContext } from '@/stores';
 import {
   AddLiquidityAction,
   AggregatorSwapAction,
@@ -48,8 +43,6 @@ import {
   ZapAction,
   ZapRouteDetail,
 } from '@/types/zapRoute';
-import { useZapState } from '@/hooks/useZapInState';
-import { useWidgetContext } from '@/stores';
 import {
   PI_LEVEL,
   formatCurrency,
@@ -81,33 +74,14 @@ export default function Preview({
   zapState: { pool, zapInfo, deadline, slippage, tickLower, tickUpper },
   onDismiss,
 }: PreviewProps) {
-  const {
-    poolType,
-    positionId,
-    chainId,
-    connectedAccount,
-    theme,
-    position,
-    onSubmitTx,
-    onViewPosition,
-    referral,
-  } = useWidgetContext((s) => s);
+  const { poolType, positionId, chainId, connectedAccount, theme, position, onSubmitTx, onViewPosition, referral } =
+    useWidgetContext(s => s);
 
   const { address: account } = connectedAccount;
 
-  const {
-    source,
-    revertPrice: revert,
-    toggleRevertPrice,
-    tokensIn,
-    amountsIn,
-    tokenPrices,
-  } = useZapState();
+  const { source, revertPrice: revert, toggleRevertPrice, tokensIn, amountsIn, tokenPrices } = useZapState();
 
-  const { tokensIn: listValidTokensIn, amountsIn: listValidAmountsIn } = parseTokensAndAmounts(
-    tokensIn,
-    amountsIn
-  );
+  const { tokensIn: listValidTokensIn, amountsIn: listValidAmountsIn } = parseTokensAndAmounts(tokensIn, amountsIn);
 
   const { fetchPrices } = useTokenPrices({ addresses: [], chainId });
 
@@ -124,7 +98,7 @@ export default function Preview({
   useEffect(() => {
     if (txHash) {
       const i = setInterval(() => {
-        isTransactionSuccessful(NETWORKS_INFO[chainId].defaultRpc, txHash).then((res) => {
+        isTransactionSuccessful(NETWORKS_INFO[chainId].defaultRpc, txHash).then(res => {
           if (!res) return;
 
           if (res.status) {
@@ -140,56 +114,48 @@ export default function Preview({
   }, [chainId, txHash]);
 
   const addedLiqInfo = useMemo(
-    () => zapInfo.zapDetails.actions.find((item) => item.type === ZapAction.ADD_LIQUIDITY),
-    [zapInfo.zapDetails.actions]
+    () => zapInfo.zapDetails.actions.find(item => item.type === ZapAction.ADD_LIQUIDITY),
+    [zapInfo.zapDetails.actions],
   ) as AddLiquidityAction;
 
   const addedAmount0 = useMemo(
     () => formatUnits(addedLiqInfo?.addLiquidity.token0.amount, pool.token0?.decimals),
-    [addedLiqInfo?.addLiquidity.token0.amount, pool]
+    [addedLiqInfo?.addLiquidity.token0.amount, pool],
   );
 
   const addedAmount1 = useMemo(
     () => formatUnits(addedLiqInfo?.addLiquidity.token1.amount, pool.token1?.decimals),
-    [addedLiqInfo?.addLiquidity.token1.amount, pool]
+    [addedLiqInfo?.addLiquidity.token1.amount, pool],
   );
 
-  const amount0 =
-    position === 'loading' ? 0 : +toRawString(position.amount0, pool.token0?.decimals);
-  const amount1 =
-    position === 'loading' ? 0 : +toRawString(position.amount1, pool.token1?.decimals);
+  const amount0 = position === 'loading' ? 0 : +toRawString(position.amount0, pool.token0?.decimals);
+  const amount1 = position === 'loading' ? 0 : +toRawString(position.amount1, pool.token1?.decimals);
 
   const positionAmount0Usd = useMemo(
     () => (amount0 * +(addedLiqInfo?.addLiquidity.token0.amountUsd || 0)) / +addedAmount0 || 0,
-    [addedAmount0, addedLiqInfo?.addLiquidity.token0.amountUsd, amount0]
+    [addedAmount0, addedLiqInfo?.addLiquidity.token0.amountUsd, amount0],
   );
 
   const positionAmount1Usd = useMemo(
     () => (amount1 * +(addedLiqInfo?.addLiquidity.token1.amountUsd || 0)) / +addedAmount1 || 0,
-    [addedAmount1, addedLiqInfo?.addLiquidity.token1.amountUsd, amount1]
+    [addedAmount1, addedLiqInfo?.addLiquidity.token1.amountUsd, amount1],
   );
 
-  const refundInfo = zapInfo.zapDetails.actions.find(
-    (item) => item.type === ZapAction.REFUND
-  ) as RefundAction | null;
+  const refundInfo = zapInfo.zapDetails.actions.find(item => item.type === ZapAction.REFUND) as RefundAction | null;
 
   const refundToken0 =
-    refundInfo?.refund.tokens.filter(
-      (item) => item.address.toLowerCase() === pool.token0.address.toLowerCase()
-    ) || [];
+    refundInfo?.refund.tokens.filter(item => item.address.toLowerCase() === pool.token0.address.toLowerCase()) || [];
   const refundToken1 =
-    refundInfo?.refund.tokens.filter(
-      (item) => item.address.toLowerCase() === pool.token1.address.toLowerCase()
-    ) || [];
+    refundInfo?.refund.tokens.filter(item => item.address.toLowerCase() === pool.token1.address.toLowerCase()) || [];
 
   const refundAmount0 = formatWei(
     refundToken0.reduce((acc, cur) => acc + BigInt(cur.amount), 0n).toString(),
-    pool.token0?.decimals
+    pool.token0?.decimals,
   );
 
   const refundAmount1 = formatWei(
     refundToken1.reduce((acc, cur) => acc + BigInt(cur.amount), 0n).toString(),
-    pool.token1?.decimals
+    pool.token1?.decimals,
   );
 
   const refundUsd = refundInfo?.refund.tokens.reduce((acc, cur) => acc + +cur.amountUsd, 0) || 0;
@@ -199,17 +165,14 @@ export default function Preview({
     ? +divideBigIntToString(
         BigInt(uniV2Pool.reserves[1]) * 10n ** BigInt(uniV2Pool.token0?.decimals),
         BigInt(uniV2Pool.reserves[0]) * 10n ** BigInt(uniV2Pool.token1?.decimals),
-        18
+        18,
       )
     : 0;
 
   const price = isUniV3
-    ? formatDisplayNumber(
-        tickToPrice(univ3Pool.tick, pool.token0?.decimals, pool.token1?.decimals, revert),
-        {
-          significantDigits: 6,
-        }
-      )
+    ? formatDisplayNumber(tickToPrice(univ3Pool.tick, pool.token0?.decimals, pool.token1?.decimals, revert), {
+        significantDigits: 6,
+      })
     : isUniV2
       ? formatDisplayNumber(revert ? 1 / univ2Price : univ2Price, {
           significantDigits: 6,
@@ -225,13 +188,8 @@ export default function Preview({
           : '∞'
         : formatNumber(
             parseFloat(
-              tickToPrice(
-                !revert ? tickUpper : tickLower,
-                pool.token0?.decimals,
-                pool.token1?.decimals,
-                revert
-              )
-            )
+              tickToPrice(!revert ? tickUpper : tickLower, pool.token0?.decimals, pool.token1?.decimals, revert),
+            ),
           );
     const minPrice =
       tickLower === univ3Pool.minTick
@@ -240,13 +198,8 @@ export default function Preview({
           : '0'
         : formatNumber(
             parseFloat(
-              tickToPrice(
-                !revert ? tickLower : tickUpper,
-                pool.token0?.decimals,
-                pool.token1?.decimals,
-                revert
-              )
-            )
+              tickToPrice(!revert ? tickLower : tickUpper, pool.token0?.decimals, pool.token1?.decimals, revert),
+            ),
           );
 
     return [minPrice, maxPrice];
@@ -254,21 +207,19 @@ export default function Preview({
 
   const quote = (
     <span>
-      {!revert
-        ? `${pool?.token1.symbol}/${pool?.token0.symbol}`
-        : `${pool?.token0.symbol}/${pool?.token1.symbol}`}
+      {!revert ? `${pool?.token1.symbol}/${pool?.token0.symbol}` : `${pool?.token0.symbol}/${pool?.token1.symbol}`}
     </span>
   );
 
-  const feeInfo = zapInfo.zapDetails.actions.find(
-    (item) => item.type === ZapAction.PROTOCOL_FEE
-  ) as ProtocolFeeAction | undefined;
+  const feeInfo = zapInfo.zapDetails.actions.find(item => item.type === ZapAction.PROTOCOL_FEE) as
+    | ProtocolFeeAction
+    | undefined;
 
   const zapFee = ((feeInfo?.protocolFee.pcm || 0) / 100_000) * 100;
   const piRes = getPriceImpact(
     zapInfo?.zapDetails.priceImpact,
     'Zap Impact',
-    zapInfo?.zapDetails.suggestedSlippage || 100
+    zapInfo?.zapDetails.suggestedSlippage || 100,
   );
 
   const piVeryHigh = zapInfo && [PI_LEVEL.VERY_HIGH, PI_LEVEL.INVALID].includes(piRes.level);
@@ -277,11 +228,11 @@ export default function Preview({
 
   const swapPi = useMemo(() => {
     const aggregatorSwapInfo = zapInfo?.zapDetails.actions.find(
-      (item) => item.type === ZapAction.AGGREGATOR_SWAP
+      item => item.type === ZapAction.AGGREGATOR_SWAP,
     ) as AggregatorSwapAction | null;
 
     const poolSwapInfo = zapInfo?.zapDetails.actions.find(
-      (item) => item.type === ZapAction.POOL_SWAP
+      item => item.type === ZapAction.POOL_SWAP,
     ) as PoolSwapAction | null;
 
     if (!pool) return [];
@@ -299,13 +250,9 @@ export default function Preview({
     ];
 
     const parsedAggregatorSwapInfo =
-      aggregatorSwapInfo?.aggregatorSwap?.swaps?.map((item) => {
-        const tokenIn = tokens.find(
-          (token) => token.address.toLowerCase() === item.tokenIn.address.toLowerCase()
-        );
-        const tokenOut = tokens.find(
-          (token) => token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
-        );
+      aggregatorSwapInfo?.aggregatorSwap?.swaps?.map(item => {
+        const tokenIn = tokens.find(token => token.address.toLowerCase() === item.tokenIn.address.toLowerCase());
+        const tokenOut = tokens.find(token => token.address.toLowerCase() === item.tokenOut.address.toLowerCase());
         const amountIn = formatWei(item.tokenIn.amount, tokenIn?.decimals).replace(/,/g, '');
         const amountOut = formatWei(item.tokenOut.amount, tokenOut?.decimals).replace(/,/g, '');
 
@@ -313,11 +260,7 @@ export default function Preview({
           ((parseFloat(item.tokenIn.amountUsd) - parseFloat(item.tokenOut.amountUsd)) /
             parseFloat(item.tokenIn.amountUsd)) *
           100;
-        const piRes = getPriceImpact(
-          pi,
-          'Swap Price Impact',
-          zapInfo?.zapDetails.suggestedSlippage || 100
-        );
+        const piRes = getPriceImpact(pi, 'Swap Price Impact', zapInfo?.zapDetails.suggestedSlippage || 100);
 
         return {
           tokenInSymbol: tokenIn?.symbol || '--',
@@ -329,13 +272,9 @@ export default function Preview({
       }) || [];
 
     const parsedPoolSwapInfo =
-      poolSwapInfo?.poolSwap?.swaps?.map((item) => {
-        const tokenIn = tokens.find(
-          (token) => token.address.toLowerCase() === item.tokenIn.address.toLowerCase()
-        );
-        const tokenOut = tokens.find(
-          (token) => token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
-        );
+      poolSwapInfo?.poolSwap?.swaps?.map(item => {
+        const tokenIn = tokens.find(token => token.address.toLowerCase() === item.tokenIn.address.toLowerCase());
+        const tokenOut = tokens.find(token => token.address.toLowerCase() === item.tokenOut.address.toLowerCase());
         const amountIn = formatWei(item.tokenIn.amount, tokenIn?.decimals).replace(/,/g, '');
         const amountOut = formatWei(item.tokenOut.amount, tokenOut?.decimals).replace(/,/g, '');
 
@@ -343,11 +282,7 @@ export default function Preview({
           ((parseFloat(item.tokenIn.amountUsd) - parseFloat(item.tokenOut.amountUsd)) /
             parseFloat(item.tokenIn.amountUsd)) *
           100;
-        const piRes = getPriceImpact(
-          pi,
-          'Swap Price Impact',
-          zapInfo?.zapDetails.suggestedSlippage || 100
-        );
+        const piRes = getPriceImpact(pi, 'Swap Price Impact', zapInfo?.zapDetails.suggestedSlippage || 100);
 
         return {
           tokenInSymbol: tokenIn?.symbol || '--',
@@ -362,13 +297,13 @@ export default function Preview({
   }, [zapInfo?.zapDetails.actions, zapInfo?.zapDetails.suggestedSlippage, pool, tokensIn, chainId]);
 
   const swapPiRes = useMemo(() => {
-    const invalidRes = swapPi.find((item) => item.piRes.level === PI_LEVEL.INVALID);
+    const invalidRes = swapPi.find(item => item.piRes.level === PI_LEVEL.INVALID);
     if (invalidRes) return invalidRes;
 
-    const highRes = swapPi.find((item) => item.piRes.level === PI_LEVEL.HIGH);
+    const highRes = swapPi.find(item => item.piRes.level === PI_LEVEL.HIGH);
     if (highRes) return highRes;
 
-    const veryHighRes = swapPi.find((item) => item.piRes.level === PI_LEVEL.HIGH);
+    const veryHighRes = swapPi.find(item => item.piRes.level === PI_LEVEL.HIGH);
     if (veryHighRes) return veryHighRes;
 
     return { piRes: { level: PI_LEVEL.NORMAL, msg: '' } };
@@ -387,8 +322,8 @@ export default function Preview({
         source,
       }),
     })
-      .then((res) => res.json())
-      .then(async (res) => {
+      .then(res => res.json())
+      .then(async res => {
         const { data } = res || {};
         if (data.callData && account) {
           const txData = {
@@ -410,8 +345,7 @@ export default function Preview({
               getCurrentGasPrice(rpcUrl),
             ]);
 
-            const gasUsd =
-              +formatUnits(gasPrice, 18) * +gasEstimation.toString() * nativeTokenPrice;
+            const gasUsd = +formatUnits(gasPrice, 18) * +gasEstimation.toString() * nativeTokenPrice;
 
             setGasUsd(gasUsd);
           } catch (e) {
@@ -422,9 +356,7 @@ export default function Preview({
   }, [account, chainId, deadline, fetchPrices, rpcUrl, source, zapInfo.route]);
 
   const dexName =
-    typeof DEXES_INFO[poolType].name === 'string'
-      ? DEXES_INFO[poolType].name
-      : DEXES_INFO[poolType].name[chainId];
+    typeof DEXES_INFO[poolType].name === 'string' ? DEXES_INFO[poolType].name : DEXES_INFO[poolType].name[chainId];
 
   const handleClick = async () => {
     setAttempTx(true);
@@ -442,8 +374,8 @@ export default function Preview({
         referral,
       }),
     })
-      .then((res) => res.json())
-      .then(async (res) => {
+      .then(res => res.json())
+      .then(async res => {
         const { data } = res || {};
         if (data.callData && account) {
           const txData = {
@@ -545,7 +477,7 @@ export default function Preview({
           <div
             className="flex justify-between items-center px-0 py-[10px] cursor-pointer w-full"
             role="button"
-            onClick={() => setShowErrorDetail((prev) => !prev)}
+            onClick={() => setShowErrorDetail(prev => !prev)}
           >
             <div className="flex items-center gap-1 text-sm">
               <Info />
@@ -646,9 +578,7 @@ export default function Preview({
       <div className="ks-lw-card mt-4">
         <div className="ks-lw-card-title">
           <p>Zap-in Amount</p>
-          <p className="text-text font-normal text-lg">
-            {formatCurrency(+zapInfo.zapDetails.initialAmountUsd)}
-          </p>
+          <p className="text-text font-normal text-lg">{formatCurrency(+zapInfo.zapDetails.initialAmountUsd)}</p>
         </div>
         <div className="mt-2">
           {listValidTokensIn.map((token, index: number) => (
@@ -665,10 +595,7 @@ export default function Preview({
                 {listValidAmountsIn[index]} {token.symbol}
               </span>
               <span className="ml-1 text-subText">
-                ~
-                {formatCurrency(
-                  tokenPrices[token.address.toLowerCase()] * parseFloat(listValidAmountsIn[index])
-                )}
+                ~{formatCurrency(tokenPrices[token.address.toLowerCase()] * parseFloat(listValidAmountsIn[index]))}
               </span>
             </div>
           ))}
@@ -682,11 +609,7 @@ export default function Preview({
             <div className="flex items-center gap-1 text-sm">
               <span>{price}</span>
               {quote}
-              <SwitchIcon
-                className="cursor-pointer"
-                onClick={() => toggleRevertPrice()}
-                role="button"
-              />
+              <SwitchIcon className="cursor-pointer" onClick={() => toggleRevertPrice()} role="button" />
             </div>
           </div>
 
@@ -743,15 +666,11 @@ export default function Preview({
 
               {positionId && (
                 <div className="text-end">
-                  + {formatDisplayNumber(+addedAmount0, { significantDigits: 4 })}{' '}
-                  {pool?.token0.symbol}
+                  + {formatDisplayNumber(+addedAmount0, { significantDigits: 4 })} {pool?.token0.symbol}
                 </div>
               )}
               <div className="ml-auto w-fit text-subText">
-                ~
-                {formatCurrency(
-                  +(addedLiqInfo?.addLiquidity.token0.amountUsd || 0) + positionAmount0Usd
-                )}
+                ~{formatCurrency(+(addedLiqInfo?.addLiquidity.token0.amountUsd || 0) + positionAmount0Usd)}
               </div>
             </div>
             <div className="flex flex-col gap-1">
@@ -775,15 +694,11 @@ export default function Preview({
               </div>
               {positionId && (
                 <div className="text-end">
-                  + {formatDisplayNumber(+addedAmount1, { significantDigits: 4 })}{' '}
-                  {pool?.token1.symbol}
+                  + {formatDisplayNumber(+addedAmount1, { significantDigits: 4 })} {pool?.token1.symbol}
                 </div>
               )}
               <div className="ml-auto w-fit text-subText">
-                ~
-                {formatCurrency(
-                  +(addedLiqInfo?.addLiquidity.token1.amountUsd || 0) + positionAmount1Usd
-                )}
+                ~{formatCurrency(+(addedLiqInfo?.addLiquidity.token1.amountUsd || 0) + positionAmount1Usd)}
               </div>
             </div>
           </div>
@@ -794,9 +709,7 @@ export default function Preview({
             text="Based on your price range settings, a portion of your liquidity will be automatically zapped into the pool, while the remaining amount will stay in your wallet."
             width="220px"
           >
-            <div className="text-xs text-subText border-b border-dotted border-subText">
-              Remaining Amount
-            </div>
+            <div className="text-xs text-subText border-b border-dotted border-subText">Remaining Amount</div>
           </MouseoverTooltip>
           <span className="text-sm font-medium">
             {formatCurrency(refundUsd)}
@@ -827,10 +740,7 @@ export default function Preview({
             <Accordion type="single" collapsible className="w-full">
               <AccordionItem value="item-1">
                 <AccordionTrigger>
-                  <MouseoverTooltip
-                    text="View all the detailed estimated price impact of each swap"
-                    width="220px"
-                  >
+                  <MouseoverTooltip text="View all the detailed estimated price impact of each swap" width="220px">
                     <div
                       className={`text-xs border-b border-dotted border-subText ${
                         swapPiRes.piRes.level === PI_LEVEL.NORMAL
@@ -878,9 +788,7 @@ export default function Preview({
                 text="Estimated change in price due to the size of your transaction. Applied to the Swap steps."
                 width="220px"
               >
-                <div className="border-b border-dotted border-subText text-xs text-subText">
-                  Swap Impact
-                </div>
+                <div className="border-b border-dotted border-subText text-xs text-subText">Swap Impact</div>
               </MouseoverTooltip>
               <span>--</span>
             </>
@@ -899,7 +807,7 @@ export default function Preview({
                   ? 'border-error text-error'
                   : piRes.level === PI_LEVEL.HIGH
                     ? 'border-warning text-warning'
-                    : 'border-subText text-subText'
+                    : 'border-subText text-subText',
               )}
             >
               Zap impact
@@ -924,9 +832,7 @@ export default function Preview({
 
         <div className="flex justify-between items-center gap-4 w-full">
           <MouseoverTooltip text="Estimated network fee for your transaction." width="220px">
-            <div className="text-xs text-subText border-b border-dotted border-subText">
-              Est. Gas Fee
-            </div>
+            <div className="text-xs text-subText border-b border-dotted border-subText">Est. Gas Fee</div>
           </MouseoverTooltip>
           <div className="text-sm font-medium">
             {gasUsd
@@ -942,8 +848,8 @@ export default function Preview({
           <MouseoverTooltip
             text={
               <div>
-                Fees charged for automatically zapping into a liquidity pool. You still have to pay
-                the standard gas fees.{' '}
+                Fees charged for automatically zapping into a liquidity pool. You still have to pay the standard gas
+                fees.{' '}
                 <a
                   className="text-accent"
                   href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-zap-as-a-service/zap-fee-model"
@@ -956,16 +862,13 @@ export default function Preview({
             }
             width="220px"
           >
-            <div className="text-xs text-subText border-b border-dotted border-subText">
-              Zap Fee
-            </div>
+            <div className="text-xs text-subText border-b border-dotted border-subText">Zap Fee</div>
           </MouseoverTooltip>
           <div className="text-sm font-medium">{parseFloat(zapFee.toFixed(3))}%</div>
         </div>
       </div>
 
-      {(slippage > 2 * zapInfo.zapDetails.suggestedSlippage ||
-        slippage < zapInfo.zapDetails.suggestedSlippage / 2) && (
+      {(slippage > 2 * zapInfo.zapDetails.suggestedSlippage || slippage < zapInfo.zapDetails.suggestedSlippage / 2) && (
         <div
           className="rounded-md text-xs px-4 py-3 mt-4 font-normal text-warning"
           style={{
@@ -984,8 +887,7 @@ export default function Preview({
             swapPiRes.piRes.level === PI_LEVEL.HIGH ? 'text-warning' : 'text-error'
           }`}
           style={{
-            backgroundColor:
-              swapPiRes.piRes.level === PI_LEVEL.HIGH ? `${theme.warning}33` : `${theme.error}33`,
+            backgroundColor: swapPiRes.piRes.level === PI_LEVEL.HIGH ? `${theme.warning}33` : `${theme.error}33`,
           }}
         >
           {swapPiRes.piRes.msg}
@@ -1004,8 +906,8 @@ export default function Preview({
       )}
 
       <p className="text-[#737373] italic text-xs mt-4">
-        The information is intended solely for your reference at the time you are viewing. It is
-        your responsibility to verify all information before making decisions
+        The information is intended solely for your reference at the time you are viewing. It is your responsibility to
+        verify all information before making decisions
       </p>
 
       <button

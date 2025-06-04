@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 
 import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, Token } from '@kyber/schema';
+import { MouseoverTooltip } from '@kyber/ui';
 
 import LogoGoPlus from '@/assets/svg/goplus.svg';
 import IconSecurityContract from '@/assets/svg/security-contract.svg';
@@ -8,11 +9,10 @@ import IconSecurityTrading from '@/assets/svg/security-trading.svg';
 import IconSecurity from '@/assets/svg/security.svg';
 import CollapseInfoItem from '@/components/TokenInfo/CollapseInfoItem';
 import useSecurityTokenInfo from '@/components/TokenInfo/useSecurityTokenInfo';
-import { MouseoverTooltip } from '@kyber/ui';
 import { useWidgetContext } from '@/stores';
 
 const SecurityInfo = ({ token }: { token: Token }) => {
-  const { theme, chainId } = useWidgetContext((s) => s);
+  const { theme, chainId } = useWidgetContext(s => s);
 
   const tokenAddress = useMemo(
     () =>
@@ -22,17 +22,14 @@ const SecurityInfo = ({ token }: { token: Token }) => {
           : token.address
         : ''
       ).toLowerCase(),
-    [token, chainId]
+    [token, chainId],
   );
 
   const { securityInfo, loading } = useSecurityTokenInfo(tokenAddress);
 
   return (
     <>
-      <div
-        className="flex items-center justify-between px-4 py-2 text-text"
-        style={{ background: `${theme.icons}33` }}
-      >
+      <div className="flex items-center justify-between px-4 py-2 text-text" style={{ background: `${theme.icons}33` }}>
         <div className="flex items-center gap-2">
           {' '}
           <IconSecurity className="h-6 w-6" />
@@ -44,8 +41,7 @@ const SecurityInfo = ({ token }: { token: Token }) => {
           </MouseoverTooltip>
         </div>
         <div className="flex items-center gap-1">
-          <span className="text-subText text-[10px]">Powered by</span>{' '}
-          <LogoGoPlus className="h-4 w-14" />
+          <span className="text-subText text-[10px]">Powered by</span> <LogoGoPlus className="h-4 w-14" />
         </div>
       </div>
       <div className="flex flex-col gap-[14px] p-[14px]">

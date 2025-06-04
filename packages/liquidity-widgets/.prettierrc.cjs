@@ -1,1 +1,1 @@
-module.exports = require('@kyber/eslint-config/prettier')
+module.exports = require('@kyber/eslint-config/prettier');

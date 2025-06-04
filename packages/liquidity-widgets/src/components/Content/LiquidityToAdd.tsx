@@ -14,8 +14,7 @@ import { useZapState } from '@/hooks/useZapInState';
 import { formatWei } from '@/utils';
 
 export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
-  const { tokensIn, setTokensIn, amountsIn, setAmountsIn, balanceTokens, tokenPrices } =
-    useZapState();
+  const { tokensIn, setTokensIn, amountsIn, setAmountsIn, balanceTokens, tokenPrices } = useZapState();
 
   const [openTokenSelectModal, setOpenTokenSelectModal] = useState<boolean>(false);
 
@@ -24,18 +23,17 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
 
   const usdAmount = useMemo(
     () => tokenPrices[token.address.toLowerCase()] * parseFloat(amount || '0'),
-    [tokenPrices, token.address, amount]
+    [tokenPrices, token.address, amount],
   );
 
   const balanceInWei = useMemo(
     () =>
       balanceTokens[
-        token.address === NATIVE_TOKEN_ADDRESS ||
-        token.address === NATIVE_TOKEN_ADDRESS.toLowerCase()
+        token.address === NATIVE_TOKEN_ADDRESS || token.address === NATIVE_TOKEN_ADDRESS.toLowerCase()
           ? NATIVE_TOKEN_ADDRESS
           : token.address.toLowerCase()
       ]?.toString() || '0',
-    [balanceTokens, token]
+    [balanceTokens, token],
   );
 
   const onChangeAmount = (e: any) => {
@@ -81,10 +79,7 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
             <button
               className="rounded-full outline-inherit cursor-pointer items-center flex gap-1 hover:brightness-150 active:scale-95 py-[2px] px-2 text-xs bg-transparent border-[1.8px] border-solid border-stroke font-normal text-subText brightness-150"
               onClick={() => {
-                if (balanceInWei)
-                  onChangeTokenAmount(
-                    formatUnits(BigInt(balanceInWei).toString(), token?.decimals)
-                  );
+                if (balanceInWei) onChangeTokenAmount(formatUnits(BigInt(balanceInWei).toString(), token?.decimals));
               }}
             >
               Max
@@ -93,9 +88,7 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
               className="rounded-full outline-inherit cursor-pointer items-center flex gap-1 hover:brightness-150 active:scale-95 py-[2px] px-2 text-xs bg-transparent border-[1.8px] border-solid border-stroke font-normal text-subText brightness-150"
               onClick={() => {
                 if (balanceInWei)
-                  onChangeTokenAmount(
-                    formatUnits((BigInt(balanceInWei) / 2n).toString(), token.decimals)
-                  );
+                  onChangeTokenAmount(formatUnits((BigInt(balanceInWei) / 2n).toString(), token.decimals));
               }}
             >
               Half
@@ -105,8 +98,7 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
           <div
             className="flex items-center gap-[6px] cursor-pointer"
             onClick={() => {
-              if (balanceInWei)
-                onChangeTokenAmount(formatUnits(BigInt(balanceInWei).toString(), token?.decimals));
+              if (balanceInWei) onChangeTokenAmount(formatUnits(BigInt(balanceInWei).toString(), token?.decimals));
             }}
           >
             <WalletIcon />

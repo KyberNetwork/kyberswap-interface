@@ -1,11 +1,11 @@
 import { useMemo } from 'react';
 
 import { univ2PoolNormalize, univ3PoolNormalize } from '@kyber/schema';
+import { MouseoverTooltip } from '@kyber/ui';
 import { divideBigIntToString, formatDisplayNumber } from '@kyber/utils/number';
 import { tickToPrice } from '@kyber/utils/uniswapv3';
 
 import RevertPriceIcon from '@/assets/svg/ic_revert_price.svg';
-import { MouseoverTooltip } from '@kyber/ui';
 import { useZapState } from '@/hooks/useZapInState';
 import { useWidgetContext } from '@/stores';
 import { assertUnreachable } from '@/utils';
@@ -14,7 +14,7 @@ const shortenSymbol = (symbol: string, characterNumber = 8) =>
   symbol.length > characterNumber + 2 ? symbol.slice(0, characterNumber) + '...' : symbol;
 
 export default function PriceInfo() {
-  const { pool, theme, poolType } = useWidgetContext((s) => s);
+  const { pool, theme, poolType } = useWidgetContext(s => s);
   const { poolPrice, revertPrice, toggleRevertPrice } = useZapState();
 
   const loading = pool === 'loading';
@@ -23,12 +23,9 @@ export default function PriceInfo() {
     if (pool === 'loading') return '--';
     const { success, data } = univ3PoolNormalize.safeParse(pool);
     if (success) {
-      return formatDisplayNumber(
-        tickToPrice(data.tick, data.token0?.decimals, data.token1?.decimals, revertPrice),
-        {
-          significantDigits: 6,
-        }
-      );
+      return formatDisplayNumber(tickToPrice(data.tick, data.token0?.decimals, data.token1?.decimals, revertPrice), {
+        significantDigits: 6,
+      });
     }
 
     const { success: isUniV2, data: uniV2Pool } = univ2PoolNormalize.safeParse(pool);
@@ -37,7 +34,7 @@ export default function PriceInfo() {
       const p = divideBigIntToString(
         BigInt(uniV2Pool.reserves[1]) * 10n ** BigInt(uniV2Pool.token0?.decimals),
         BigInt(uniV2Pool.reserves[0]) * 10n ** BigInt(uniV2Pool.token1?.decimals),
-        18
+        18,
       );
       return formatDisplayNumber(revertPrice ? 1 / +p : p, {
         significantDigits: 6,
@@ -92,9 +89,7 @@ export default function PriceInfo() {
           className="py-3 px-4 text-subText text-sm rounded-md mt-2 font-normal"
           style={{ backgroundColor: `${theme.warning}33` }}
         >
-          <span className="italic text-text">
-            Unable to get the market price. Please be cautious!
-          </span>
+          <span className="italic text-text">Unable to get the market price. Please be cautious!</span>
         </div>
       )}
     </>

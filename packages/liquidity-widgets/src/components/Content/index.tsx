@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 
+import { usePositionOwner } from '@kyber/hooks';
 import {
   FARMING_CONTRACTS,
   Pool,
@@ -10,6 +11,7 @@ import {
   univ3Position,
   univ4Types,
 } from '@kyber/schema';
+import { InfoHelper } from '@kyber/ui';
 import { parseUnits } from '@kyber/utils/crypto';
 import { divideBigIntToString, formatDisplayNumber } from '@kyber/utils/number';
 import { tickToPrice } from '@kyber/utils/uniswapv3';
@@ -23,7 +25,6 @@ import PriceInfo from '@/components/Content/PriceInfo';
 import PriceInput from '@/components/Content/PriceInput';
 import ZapRoute from '@/components/Content/ZapRoute';
 import Header from '@/components/Header';
-import { InfoHelper } from '@kyber/ui';
 import LiquidityChart from '@/components/LiquidityChart';
 import Modal from '@/components/Modal';
 import PositionLiquidity from '@/components/PositionLiquidity';
@@ -31,13 +32,12 @@ import Preview, { ZapState } from '@/components/Preview';
 import PriceRange from '@/components/PriceRange';
 import { TOKEN_SELECT_MODE } from '@/components/TokenSelector';
 import TokenSelectorModal from '@/components/TokenSelector/TokenSelectorModal';
-import { MAX_ZAP_IN_TOKENS, ERROR_MESSAGE } from '@/constants';
-import { AggregatorSwapAction, PoolSwapAction, ZapAction } from '@/types/zapRoute';
-import { PriceType } from '@/types/index';
+import { ERROR_MESSAGE, MAX_ZAP_IN_TOKENS } from '@/constants';
 import { APPROVAL_STATE, useApprovals } from '@/hooks/useApproval';
-import { usePositionOwner } from '@kyber/hooks';
 import { useZapState } from '@/hooks/useZapInState';
 import { useWidgetContext } from '@/stores';
+import { PriceType } from '@/types/index';
+import { AggregatorSwapAction, PoolSwapAction, ZapAction } from '@/types/zapRoute';
 import { PI_LEVEL, checkDeviated, getPriceImpact } from '@/utils';
 
 export default function Content() {
@@ -73,7 +73,7 @@ export default function Content() {
     poolAddress,
     chainId,
     connectedAccount,
-  } = useWidgetContext((s) => s);
+  } = useWidgetContext(s => s);
 
   const { success: isUniV3 } = univ3PoolNormalize.safeParse(pool);
   const isUniv4 = univ4Types.includes(poolType);
@@ -84,18 +84,15 @@ export default function Content() {
         ? []
         : amountsIn
             .split(',')
-            .map((amount, index) =>
-              parseUnits(amount || '0', tokensIn[index]?.decimals || 0).toString()
-            ),
-    [tokensIn, amountsIn]
+            .map((amount, index) => parseUnits(amount || '0', tokensIn[index]?.decimals || 0).toString()),
+    [tokensIn, amountsIn],
   );
 
-  const { loading, approvalStates, approve, addressToApprove, nftApproval, approveNft } =
-    useApprovals(
-      amountsInWei,
-      tokensIn.map((token) => token?.address || ''),
-      zapInfo?.routerAddress || ''
-    );
+  const { loading, approvalStates, approve, addressToApprove, nftApproval, approveNft } = useApprovals(
+    amountsInWei,
+    tokensIn.map(token => token?.address || ''),
+    zapInfo?.routerAddress || '',
+  );
   const positionOwner = usePositionOwner({
     positionId: positionId || '',
     chainId,
@@ -118,61 +115,47 @@ export default function Content() {
   const [snapshotState, setSnapshotState] = useState<ZapState | null>(null);
 
   const notApprove = useMemo(
-    () =>
-      tokensIn.find((item) => approvalStates[item?.address || ''] === APPROVAL_STATE.NOT_APPROVED),
-    [approvalStates, tokensIn]
+    () => tokensIn.find(item => approvalStates[item?.address || ''] === APPROVAL_STATE.NOT_APPROVED),
+    [approvalStates, tokensIn],
   );
 
   const pi = useMemo(() => {
-    const aggregatorSwapInfo = zapInfo?.zapDetails.actions.find(
-      (item) => item.type === ZapAction.AGGREGATOR_SWAP
-    ) as AggregatorSwapAction | undefined;
+    const aggregatorSwapInfo = zapInfo?.zapDetails.actions.find(item => item.type === ZapAction.AGGREGATOR_SWAP) as
+      | AggregatorSwapAction
+      | undefined;
 
     const poolSwapInfo = zapInfo?.zapDetails.actions.find(
-      (item) => item.type === ZapAction.POOL_SWAP
+      item => item.type === ZapAction.POOL_SWAP,
     ) as PoolSwapAction | null;
 
     const piRes = getPriceImpact(
       zapInfo?.zapDetails.priceImpact,
       'Zap Impact',
-      zapInfo?.zapDetails.suggestedSlippage || 100
+      zapInfo?.zapDetails.suggestedSlippage || 100,
     );
 
     const aggregatorSwapPi =
-      aggregatorSwapInfo?.aggregatorSwap?.swaps?.map((item) => {
+      aggregatorSwapInfo?.aggregatorSwap?.swaps?.map(item => {
         const pi =
           ((parseFloat(item.tokenIn.amountUsd) - parseFloat(item.tokenOut.amountUsd)) /
             parseFloat(item.tokenIn.amountUsd)) *
           100;
-        return getPriceImpact(
-          pi,
-          'Swap Price Impact',
-          zapInfo?.zapDetails.suggestedSlippage || 100
-        );
+        return getPriceImpact(pi, 'Swap Price Impact', zapInfo?.zapDetails.suggestedSlippage || 100);
       }) || [];
     const poolSwapPi =
-      poolSwapInfo?.poolSwap?.swaps?.map((item) => {
+      poolSwapInfo?.poolSwap?.swaps?.map(item => {
         const pi =
           ((parseFloat(item.tokenIn.amountUsd) - parseFloat(item.tokenOut.amountUsd)) /
             parseFloat(item.tokenIn.amountUsd)) *
           100;
-        return getPriceImpact(
-          pi,
-          'Swap Price Impact',
-          zapInfo?.zapDetails.suggestedSlippage || 100
-        );
+        return getPriceImpact(pi, 'Swap Price Impact', zapInfo?.zapDetails.suggestedSlippage || 100);
       }) || [];
 
-    const swapPiHigh = !!aggregatorSwapPi
-      .concat(poolSwapPi)
-      .find((item) => item.level === PI_LEVEL.HIGH);
+    const swapPiHigh = !!aggregatorSwapPi.concat(poolSwapPi).find(item => item.level === PI_LEVEL.HIGH);
 
-    const swapPiVeryHigh = !!aggregatorSwapPi
-      .concat(poolSwapPi)
-      .find((item) => item.level === PI_LEVEL.VERY_HIGH);
+    const swapPiVeryHigh = !!aggregatorSwapPi.concat(poolSwapPi).find(item => item.level === PI_LEVEL.VERY_HIGH);
 
-    const piVeryHigh =
-      (zapInfo && [PI_LEVEL.VERY_HIGH, PI_LEVEL.INVALID].includes(piRes.level)) || swapPiVeryHigh;
+    const piVeryHigh = (zapInfo && [PI_LEVEL.VERY_HIGH, PI_LEVEL.INVALID].includes(piRes.level)) || swapPiVeryHigh;
 
     const piHigh = (zapInfo && piRes.level === PI_LEVEL.HIGH) || swapPiHigh;
 
@@ -204,7 +187,7 @@ export default function Content() {
     loading ||
     zapLoading ||
     (!!error && !isWrongNetwork && !isNotConnected) ||
-    Object.values(approvalStates).some((item) => item === APPROVAL_STATE.PENDING);
+    Object.values(approvalStates).some(item => item === APPROVAL_STATE.PENDING);
 
   const { success: isUniV3PoolType } = Univ3PoolType.safeParse(poolType);
 
@@ -224,19 +207,14 @@ export default function Content() {
           poolType: pt,
           sqrtRatioX96: newInfo?.newSqrtP,
           tick: newInfo.newTick,
-          liquidity: (
-            BigInt(data.liquidity) + BigInt(zapInfo.positionDetails.addedLiquidity)
-          ).toString(),
+          liquidity: (BigInt(data.liquidity) + BigInt(zapInfo.positionDetails.addedLiquidity)).toString(),
         };
       }
       if (isUniV2 && isUniV2PoolType)
         return {
           ...poolUniv2,
           poolType: univ2pt,
-          reverses: [
-            zapInfo.poolDetails.uniswapV2.newReserve0,
-            zapInfo.poolDetails.uniswapV2.newReserve1,
-          ],
+          reverses: [zapInfo.poolDetails.uniswapV2.newReserve0, zapInfo.poolDetails.uniswapV2.newReserve1],
         };
     }
     return null;
@@ -244,8 +222,7 @@ export default function Content() {
 
   const newPoolPrice = useMemo(() => {
     const { success, data } = univ3PoolNormalize.safeParse(newPool);
-    if (success)
-      return +tickToPrice(data.tick, data.token0?.decimals, data.token1?.decimals, false);
+    if (success) return +tickToPrice(data.tick, data.token0?.decimals, data.token1?.decimals, false);
 
     const { success: isUniV2, data: uniV2Pool } = univ2PoolNormalize.safeParse(newPool);
 
@@ -253,7 +230,7 @@ export default function Content() {
       return +divideBigIntToString(
         BigInt(uniV2Pool.reserves[1]) * 10n ** BigInt(uniV2Pool.token0?.decimals),
         BigInt(uniV2Pool.reserves[0]) * 10n ** BigInt(uniV2Pool.token1?.decimals),
-        18
+        18,
       );
     }
   }, [newPool]);
@@ -270,12 +247,8 @@ export default function Content() {
   }, [newPool, position]);
 
   const isFullRange = useMemo(
-    () =>
-      pool !== 'loading' &&
-      'minTick' in pool &&
-      tickLower === pool.minTick &&
-      tickUpper === pool.maxTick,
-    [pool, tickLower, tickUpper]
+    () => pool !== 'loading' && 'minTick' in pool && tickLower === pool.minTick && tickUpper === pool.maxTick,
+    [pool, tickLower, tickUpper],
   );
 
   const price = useMemo(
@@ -285,7 +258,7 @@ export default function Content() {
             significantDigits: 6,
           })
         : '--',
-    [newPoolPrice, revertPrice]
+    [newPoolPrice, revertPrice],
   );
 
   const hanldeClick = () => {
@@ -327,9 +300,7 @@ export default function Content() {
         pool,
         zapInfo,
         deadline: Math.floor(date.getTime() / 1000),
-        isFullRange: isUniV3Pool
-          ? univ3Pool.minTick === tickUpper && univ3Pool.maxTick === tickLower
-          : true,
+        isFullRange: isUniV3Pool ? univ3Pool.minTick === tickUpper && univ3Pool.maxTick === tickLower : true,
         slippage,
         tickUpper: tickUpper !== null ? tickUpper : 0,
         tickLower: tickLower !== null ? tickLower : 0,
@@ -343,7 +314,7 @@ export default function Content() {
   const token0 = pool === 'loading' ? null : pool.token0;
   const token1 = pool === 'loading' ? null : pool.token1;
 
-  const { onClose } = useWidgetContext((s) => s);
+  const { onClose } = useWidgetContext(s => s);
 
   useEffect(() => {
     toggleShowWidget(!snapshotState);
@@ -358,10 +329,7 @@ export default function Content() {
         ))}
       </div>
 
-      <div
-        className="my-3 text-accent cursor-pointer w-fit text-sm"
-        onClick={onOpenTokenSelectModal}
-      >
+      <div className="my-3 text-accent cursor-pointer w-fit text-sm" onClick={onOpenTokenSelectModal}>
         + Add Token(s) or Use Existing Position
         <InfoHelper
           placement="bottom"
@@ -386,10 +354,7 @@ export default function Content() {
           <div className="flex flex-col items-center gap-8 text-error">
             <ErrorIcon className="text-error" />
             <div className="text-center">{loadPoolError}</div>
-            <button
-              className="ks-primary-btn w-[95%] bg-error border-solid border-error"
-              onClick={onClose}
-            >
+            <button className="ks-primary-btn w-[95%] bg-error border-solid border-error" onClick={onClose}>
               Close
             </button>
           </div>
@@ -407,19 +372,12 @@ export default function Content() {
           <Preview zapState={snapshotState} onDismiss={() => setSnapshotState(null)} />
         </Modal>
       )}
-      {openTokenSelectModal && (
-        <TokenSelectorModal mode={TOKEN_SELECT_MODE.ADD} onClose={onCloseTokenSelectModal} />
-      )}
+      {openTokenSelectModal && <TokenSelectorModal mode={TOKEN_SELECT_MODE.ADD} onClose={onCloseTokenSelectModal} />}
       <div className={`p-6 ${!showWidget ? 'hidden' : ''}`}>
         <Header />
         <div className="mt-5 flex gap-5 max-sm:flex-col">
           <div className="w-[55%] max-sm:w-full">
-            <PoolStat
-              chainId={chainId}
-              poolAddress={poolAddress}
-              poolType={poolType}
-              positionId={positionId}
-            />
+            <PoolStat chainId={chainId} poolAddress={poolAddress} poolType={poolType} positionId={positionId} />
             <PriceInfo />
             {!positionId && isUniV3 && <LiquidityChart />}
             <PriceRange />
@@ -454,8 +412,8 @@ export default function Content() {
                   backgroundColor: `${theme.blue}33`,
                 }}
               >
-                Your liquidity is outside the current market range and will not be used/earn fees
-                until the market price enters your specified range.
+                Your liquidity is outside the current market range and will not be used/earn fees until the market price
+                enters your specified range.
               </div>
             )}
             {isFullRange && (
@@ -465,8 +423,8 @@ export default function Content() {
                   backgroundColor: `${theme.blue}33`,
                 }}
               >
-                Your liquidity is active across the full price range. However, this may result in a
-                lower APR than estimated due to less concentration of liquidity.
+                Your liquidity is active across the full price range. However, this may result in a lower APR than
+                estimated due to less concentration of liquidity.
               </div>
             )}
             {isDeviated && (
@@ -496,8 +454,7 @@ export default function Content() {
                 className="py-3 px-4 text-subText text-sm rounded-md mt-4 font-normal"
                 style={{ backgroundColor: `${theme.warning}33` }}
               >
-                You are not the current owner of the position #{positionId}, please double check
-                before proceeding
+                You are not the current owner of the position #{positionId}, please double check before proceeding
               </div>
             )}
           </div>
@@ -508,8 +465,7 @@ export default function Content() {
           </button>
           <button
             className={`ks-primary-btn min-w-[190px] w-fit ${
-              !disabled &&
-              Object.values(approvalStates).some((item) => item !== APPROVAL_STATE.NOT_APPROVED)
+              !disabled && Object.values(approvalStates).some(item => item !== APPROVAL_STATE.NOT_APPROVED)
                 ? pi.piVeryHigh
                   ? 'bg-error border-solid border-error text-white'
                   : pi.piHigh
@@ -525,7 +481,7 @@ export default function Content() {
               !error &&
               !isWrongNetwork &&
               !isNotConnected &&
-              Object.values(approvalStates).every((item) => item === APPROVAL_STATE.APPROVED) && (
+              Object.values(approvalStates).every(item => item === APPROVAL_STATE.APPROVED) && (
                 <InfoHelper
                   width="300px"
                   color="#ffffff"

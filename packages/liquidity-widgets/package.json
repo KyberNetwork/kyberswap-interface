@@ -52,7 +52,6 @@
     "@kyber/utils": "workspace:^",
     "@kyberswap/liquidity-chart": "workspace:^",
     "@trivago/prettier-plugin-sort-imports": "^4.2.0",
-    "@types/lodash": "^4.14.196",
     "@types/numeral": "^2.0.5",
     "@types/react": "^18.0.17",
     "@types/react-dom": "^18.2.17",

@@ -8,7 +8,7 @@ const INTERVAL_REFETCH_TIME = 10; // seconds
 let interval: ReturnType<typeof setInterval>;
 
 const Spin = ({ countdown }: { countdown: number }) => {
-  const theme = useWidgetContext((s) => s.theme);
+  const theme = useWidgetContext(s => s.theme);
 
   return (
     <svg
@@ -47,9 +47,7 @@ const Spin = ({ countdown }: { countdown: number }) => {
           stroke="currentColor"
           strokeWidth="16"
           strokeDasharray="30"
-          strokeDashoffset={
-            !countdown ? 0 : -30 + (countdown / (INTERVAL_REFETCH_TIME * 1_000)) * 30
-          }
+          strokeDashoffset={!countdown ? 0 : -30 + (countdown / (INTERVAL_REFETCH_TIME * 1_000)) * 30}
         />
       </g>
     </svg>
@@ -57,7 +55,7 @@ const Spin = ({ countdown }: { countdown: number }) => {
 };
 
 export default function RefreshLoading() {
-  const { chainId, poolLoading, getPool } = useWidgetContext((s) => s);
+  const { chainId, poolLoading, getPool } = useWidgetContext(s => s);
 
   const { fetchPrices } = useTokenPrices({
     addresses: [],

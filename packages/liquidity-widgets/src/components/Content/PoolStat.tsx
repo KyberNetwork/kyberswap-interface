@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { API_URLS, PoolType, Univ2PoolType } from '@kyber/schema';
-import { formatDisplayNumber, formatAprNumber } from '@kyber/utils/number';
+import { formatAprNumber, formatDisplayNumber } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
 import FarmingIcon from '@/assets/svg/kem.svg';
@@ -26,7 +26,7 @@ export default function PoolStat({
   poolType: PoolType;
   positionId?: string;
 }) {
-  const { position } = useWidgetContext((s) => s);
+  const { position } = useWidgetContext(s => s);
   const [poolInfo, setPoolInfo] = useState<PoolInfo | null>(null);
 
   const isUniv2 = position !== 'loading' && Univ2PoolType.safeParse(position.poolType).success;
@@ -40,12 +40,10 @@ export default function PoolStat({
 
   useEffect(() => {
     const handleFetchPoolInfo = () => {
-      fetch(
-        `${API_URLS.ZAP_EARN_API}/v1/pools?chainId=${chainId}&address=${poolAddress}&protocol=${poolType}`
-      )
-        .then((res) => res.json())
-        .then((data) => data?.data?.poolStats && setPoolInfo(data.data.poolStats))
-        .catch((e) => {
+      fetch(`${API_URLS.ZAP_EARN_API}/v1/pools?chainId=${chainId}&address=${poolAddress}&protocol=${poolType}`)
+        .then(res => res.json())
+        .then(data => data?.data?.poolStats && setPoolInfo(data.data.poolStats))
+        .catch(e => {
           console.log(e.message);
         });
     };
@@ -57,7 +55,7 @@ export default function PoolStat({
     <div
       className={cn(
         'px-4 py-3 border border-stroke rounded-md text-subText text-sm flex max-sm:flex-col justify-between gap-[6px]',
-        positionId ? 'mb-4' : 'mb-[10px]'
+        positionId ? 'mb-4' : 'mb-[10px]',
       )}
     >
       <div className="flex flex-col max-sm:flex-row max-sm:justify-between items-start gap-1">
@@ -97,9 +95,7 @@ export default function PoolStat({
         <span>Est. APR</span>
         <div className={`flex items-center gap-1 ${poolApr > 0 ? 'text-accent' : 'text-text'}`}>
           {formatAprNumber(poolApr) + '%'}
-          {poolType === PoolType.DEX_KEM_UNISWAP_V4_FAIRFLOW ? (
-            <FarmingIcon width={20} height={20} />
-          ) : null}
+          {poolType === PoolType.DEX_KEM_UNISWAP_V4_FAIRFLOW ? <FarmingIcon width={20} height={20} /> : null}
         </div>
       </div>
       {isUniv2 && (

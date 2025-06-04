@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 
 import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, Token } from '@kyber/schema';
+import { Loader } from '@kyber/ui';
 
 import LogoCoingecko from '@/assets/svg/coingecko.svg';
 import IconDown from '@/assets/svg/down.svg';
@@ -8,14 +9,12 @@ import defaultTokenLogo from '@/assets/svg/question.svg?url';
 import IconZiczac from '@/assets/svg/ziczac.svg';
 import useMarketTokenInfo from '@/components/TokenInfo/useMarketTokenInfo';
 import { shortenAddress } from '@/components/TokenInfo/utils';
-
 import useCopy from '@/hooks/useCopy';
 import { useWidgetContext } from '@/stores';
-import { Loader } from '@kyber/ui';
 
 const MarketInfo = ({ token }: { token: Token }) => {
-  const theme = useWidgetContext((s) => s.theme);
-  const chainId = useWidgetContext((s) => s.chainId);
+  const theme = useWidgetContext(s => s.theme);
+  const chainId = useWidgetContext(s => s.chainId);
 
   const tokenAddress = useMemo(
     () =>
@@ -25,7 +24,7 @@ const MarketInfo = ({ token }: { token: Token }) => {
           : token.address
         : ''
       ).toLowerCase(),
-    [token, chainId]
+    [token, chainId],
   );
   const Copy = useCopy({
     text: tokenAddress,
@@ -36,22 +35,18 @@ const MarketInfo = ({ token }: { token: Token }) => {
   const { marketTokenInfo, loading } = useMarketTokenInfo(tokenAddress);
   const [expand, setExpand] = useState<boolean>(false);
 
-  const handleChangeExpand = () => setExpand((prev) => !prev);
+  const handleChangeExpand = () => setExpand(prev => !prev);
 
   return (
     <>
-      <div
-        className="flex items-center justify-between px-4 py-2 text-text"
-        style={{ background: `${theme.icons}33` }}
-      >
+      <div className="flex items-center justify-between px-4 py-2 text-text" style={{ background: `${theme.icons}33` }}>
         <div className="flex items-center gap-2">
           {' '}
           <IconZiczac className="h-6 w-6" />
           <span>Market Info</span>
         </div>
         <div className="flex items-center gap-1">
-          <span className="text-subText text-[10px]">Powered by</span>{' '}
-          <LogoCoingecko className="h-4 w-14" />
+          <span className="text-subText text-[10px]">Powered by</span> <LogoCoingecko className="h-4 w-14" />
         </div>
       </div>
       <div
@@ -59,12 +54,10 @@ const MarketInfo = ({ token }: { token: Token }) => {
           expand ? 'h-[226px]' : 'h-[86px]'
         }`}
       >
-        {(marketTokenInfo || []).map((item) => (
+        {(marketTokenInfo || []).map(item => (
           <div key={item.label} className="flex items-center justify-between text-xs">
             <span className="text-subText">{item.label}</span>
-            <span>
-              {loading ? <Loader className="animate-spin w-[10px] h-[10px]" /> : item.value}
-            </span>
+            <span>{loading ? <Loader className="animate-spin w-[10px] h-[10px]" /> : item.value}</span>
           </div>
         ))}
       </div>
@@ -96,9 +89,7 @@ const MarketInfo = ({ token }: { token: Token }) => {
           onClick={handleChangeExpand}
         >
           <span>{!expand ? 'View more' : 'View less'}</span>
-          <IconDown
-            className={`transition ease-in-out duration-300 ${expand ? 'rotate-[-180deg]' : ''}`}
-          />
+          <IconDown className={`transition ease-in-out duration-300 ${expand ? 'rotate-[-180deg]' : ''}`} />
         </div>
       </div>
     </>

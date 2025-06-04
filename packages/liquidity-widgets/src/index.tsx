@@ -34,13 +34,13 @@ const LiquidityWidget = (props: WidgetProps) => {
             ...theme,
           }
         : defaultTheme,
-    [theme]
+    [theme],
   );
 
   useEffect(() => {
     if (!themeToApply) return;
     const r = document.querySelector<HTMLElement>(':root');
-    Object.keys(themeToApply).forEach((key) => {
+    Object.keys(themeToApply).forEach(key => {
       r?.style.setProperty(`--ks-lw-${key}`, themeToApply[key as keyof Theme]);
     });
   }, [themeToApply]);
@@ -71,7 +71,7 @@ const LiquidityWidget = (props: WidgetProps) => {
 };
 
 const TokenProvider = ({ children, chainId }: { children: ReactNode; chainId: ChainId }) => {
-  const pool = useWidgetContext((s) => s.pool);
+  const pool = useWidgetContext(s => s.pool);
   return (
     <TokenListProvider chainId={chainId} pool={pool}>
       {children}

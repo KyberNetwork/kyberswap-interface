@@ -61,15 +61,9 @@ export interface WidgetProps {
       poolId: string;
       positionId: string | number;
     },
-    initialTick?: { tickLower: number; tickUpper: number }
+    initialTick?: { tickLower: number; tickUpper: number },
   ) => void;
-  onSubmitTx: (txData: {
-    from: string;
-    to: string;
-    value: string;
-    data: string;
-    gasLimit: string;
-  }) => Promise<string>;
+  onSubmitTx: (txData: { from: string; to: string; value: string; data: string; gasLimit: string }) => Promise<string>;
   onViewPosition?: (txHash: string) => void;
 }
 
@@ -81,9 +75,7 @@ interface WidgetState extends WidgetProps {
   showWidget: boolean;
   poolLoading: boolean;
 
-  getPool: (
-    fetchPrices: (address: string[]) => Promise<{ [key: string]: { PriceBuy: number } }>
-  ) => void;
+  getPool: (fetchPrices: (address: string[]) => Promise<{ [key: string]: { PriceBuy: number } }>) => void;
 
   setConnectedAccount: (connectedAccount: WidgetProps['connectedAccount']) => void;
 
@@ -106,14 +98,14 @@ const createWidgetStore = (initProps: InnerWidgetProps) => {
     showWidget: true,
     poolLoading: false,
 
-    getPool: async (fetchPrices) => {
+    getPool: async fetchPrices => {
       const { poolAddress, chainId, poolType, positionId, connectedAccount } = get();
 
       set({ poolLoading: true });
 
       const res = await fetch(
-        `${API_URLS.BFF_API}/v1/pools?chainId=${chainId}&ids=${poolAddress}&protocol=${poolType}`
-      ).then((res) => res.json());
+        `${API_URLS.BFF_API}/v1/pools?chainId=${chainId}&ids=${poolAddress}&protocol=${poolType}`,
+      ).then(res => res.json());
 
       const { success, data, error } = poolResponse.safeParse({
         poolType,
@@ -141,7 +133,7 @@ const createWidgetStore = (initProps: InnerWidgetProps) => {
             ticks?: any[];
           };
         }>
-      ).find((item) => item.address.toLowerCase() === poolAddress.toLowerCase());
+      ).find(item => item.address.toLowerCase() === poolAddress.toLowerCase());
       if (!pool) {
         firstLoad && set({ errorMsg: `Can't get pool info, address: ${pool}` });
         set({ poolLoading: false });
@@ -162,14 +154,14 @@ const createWidgetStore = (initProps: InnerWidgetProps) => {
         symbol: string;
         decimals: number;
       }[] = await fetch(
-        `https://ks-setting.kyberswap.com/api/v1/tokens?chainIds=${chainId}&addresses=${token0Address},${token1Address}`
+        `https://ks-setting.kyberswap.com/api/v1/tokens?chainIds=${chainId}&addresses=${token0Address},${token1Address}`,
       )
-        .then((res) => res.json())
-        .then((res) => res?.data?.tokens || [])
+        .then(res => res.json())
+        .then(res => res?.data?.tokens || [])
         .catch(() => []);
 
-      let token0 = tokens.find((tk) => tk.address.toLowerCase() === token0Address.toLowerCase());
-      let token1 = tokens.find((tk) => tk.address.toLowerCase() === token1Address.toLowerCase());
+      let token0 = tokens.find(tk => tk.address.toLowerCase() === token0Address.toLowerCase());
+      let token1 = tokens.find(tk => tk.address.toLowerCase() === token1Address.toLowerCase());
 
       if (!token0 || !token1) {
         const tokensToImport = [];
@@ -190,17 +182,15 @@ const createWidgetStore = (initProps: InnerWidgetProps) => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({ tokens: tokensToImport }),
-        }).then((res) => res.json());
+        }).then(res => res.json());
 
         if (!token0)
           token0 = res?.data?.tokens?.find(
-            (item: { data: Token }) =>
-              item.data.address.toLowerCase() === token0Address.toLowerCase()
+            (item: { data: Token }) => item.data.address.toLowerCase() === token0Address.toLowerCase(),
           )?.data;
         if (!token1)
           token1 = res?.data?.tokens?.find(
-            (item: { data: Token }) =>
-              item.data.address.toLowerCase() === token1Address.toLowerCase()
+            (item: { data: Token }) => item.data.address.toLowerCase() === token1Address.toLowerCase(),
           )?.data;
 
         if (!token0 || !token1) {
@@ -212,8 +202,8 @@ const createWidgetStore = (initProps: InnerWidgetProps) => {
 
       // check category pair
       const pairCheck = await fetch(
-        `${API_URLS.TOKEN_API}/v1/public/category/pair?chainId=${chainId}&tokenIn=${token0Address}&tokenOut=${token1Address}`
-      ).then((res) => res.json());
+        `${API_URLS.TOKEN_API}/v1/public/category/pair?chainId=${chainId}&tokenIn=${token0Address}&tokenOut=${token1Address}`,
+      ).then(res => res.json());
       const cat = pairCheck?.data?.category || 'commonPair';
 
       const { success: isUniV3, data: poolUniv3 } = univ3Pool.safeParse(pool);
@@ -344,7 +334,7 @@ const createWidgetStore = (initProps: InnerWidgetProps) => {
               data.tickLower,
               data.tickUpper,
               BigInt(p.sqrtPriceX96),
-              data.liquidity
+              data.liquidity,
             );
 
             set({
@@ -420,12 +410,12 @@ const createWidgetStore = (initProps: InnerWidgetProps) => {
 
           const balanceRes = await fetch(
             NETWORKS_INFO[chainId].defaultRpc,
-            getPayload(`0x${balanceOfSelector}${paddedAccount}`)
-          ).then((res) => res.json());
+            getPayload(`0x${balanceOfSelector}${paddedAccount}`),
+          ).then(res => res.json());
           const totalSupplyRes = await fetch(
             NETWORKS_INFO[chainId].defaultRpc,
-            getPayload(`0x${totalSupplySelector}`)
-          ).then((res) => res.json());
+            getPayload(`0x${totalSupplySelector}`),
+          ).then(res => res.json());
 
           const userBalance = BigInt(balanceRes?.result || '0');
           const totalSupply = BigInt(totalSupplyRes?.result || '0');

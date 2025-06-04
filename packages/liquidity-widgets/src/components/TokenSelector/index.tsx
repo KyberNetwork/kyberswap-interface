@@ -1,7 +1,7 @@
 import { ChangeEvent, MouseEvent, useEffect, useMemo, useState } from 'react';
 
 import { NATIVE_TOKEN_ADDRESS, Token } from '@kyber/schema';
-import { Button, ScrollArea, Input } from '@kyber/ui';
+import { Button, Input, ScrollArea } from '@kyber/ui';
 import { formatUnits, isAddress } from '@kyber/utils/crypto';
 
 import Check from '@/assets/svg/check.svg';
@@ -60,7 +60,7 @@ export default function TokenSelector({
   setTokenToImport: (token: Token) => void;
   onClose: () => void;
 }) {
-  const { pool, theme, onOpenZapMigration } = useWidgetContext((s) => s);
+  const { pool, theme, onOpenZapMigration } = useWidgetContext(s => s);
   const { balanceTokens, tokensIn, setTokensIn, amountsIn, setAmountsIn } = useZapState();
   const { importedTokens, allTokens, fetchTokenInfo, removeToken } = useTokenList();
 
@@ -83,7 +83,7 @@ export default function TokenSelector({
 
   const modalTokensInAddress = useMemo(
     () => modalTokensIn.map((token: Token) => token.address?.toLowerCase()),
-    [modalTokensIn]
+    [modalTokensIn],
   );
 
   const listTokens = useMemo(
@@ -91,13 +91,11 @@ export default function TokenSelector({
       (tabSelected === TOKEN_TAB.ALL ? allTokens : importedTokens)
         .map((token: Token) => {
           const foundTokenSelected = tokensIn.find(
-            (tokenIn: Token) => tokenIn.address.toLowerCase() === token.address.toLowerCase()
+            (tokenIn: Token) => tokenIn.address.toLowerCase() === token.address.toLowerCase(),
           );
           const balanceInWei =
             balanceTokens[
-              token.address === NATIVE_TOKEN_ADDRESS.toLowerCase()
-                ? NATIVE_TOKEN_ADDRESS
-                : token.address.toLowerCase()
+              token.address === NATIVE_TOKEN_ADDRESS.toLowerCase() ? NATIVE_TOKEN_ADDRESS : token.address.toLowerCase()
             ]?.toString() || '0';
 
           return {
@@ -111,12 +109,8 @@ export default function TokenSelector({
                 ? false
                 : true,
             selected:
-              tokensIn.find(
-                (tokenIn: Token) => tokenIn.address.toLowerCase() === token.address.toLowerCase()
-              ) ||
-              selectedTokens.find(
-                (tokenIn: Token) => tokenIn.address.toLowerCase() === token.address.toLowerCase()
-              )
+              tokensIn.find((tokenIn: Token) => tokenIn.address.toLowerCase() === token.address.toLowerCase()) ||
+              selectedTokens.find((tokenIn: Token) => tokenIn.address.toLowerCase() === token.address.toLowerCase())
                 ? 1
                 : 0,
             inPair:
@@ -127,10 +121,7 @@ export default function TokenSelector({
                   : 0,
           };
         })
-        .sort(
-          (a: CustomizeToken, b: CustomizeToken) =>
-            parseFloat(b.balanceToSort) - parseFloat(a.balanceToSort)
-        )
+        .sort((a: CustomizeToken, b: CustomizeToken) => parseFloat(b.balanceToSort) - parseFloat(a.balanceToSort))
         .sort((a: CustomizeToken, b: CustomizeToken) => b.inPair - a.inPair)
         .sort((a: CustomizeToken, b: CustomizeToken) => b.selected - a.selected),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -144,7 +135,7 @@ export default function TokenSelector({
       selectedTokenAddress,
       token0Address,
       token1Address,
-    ]
+    ],
   );
 
   const filteredTokens = useMemo(() => {
@@ -154,7 +145,7 @@ export default function TokenSelector({
       (item: CustomizeToken) =>
         item.name?.toLowerCase().includes(search) ||
         item.symbol?.toLowerCase().includes(search) ||
-        item.address?.toLowerCase().includes(search)
+        item.address?.toLowerCase().includes(search),
     );
   }, [listTokens, searchTerm]);
 
@@ -174,8 +165,7 @@ export default function TokenSelector({
       }
     } else {
       const index = modalTokensIn.findIndex(
-        (token: Token) =>
-          token.address === newToken.address || token.address.toLowerCase() === newToken.address
+        (token: Token) => token.address === newToken.address || token.address.toLowerCase() === newToken.address,
       );
       if (index > -1) {
         const clonedModalTokensIn = [...modalTokensIn];
@@ -195,7 +185,7 @@ export default function TokenSelector({
         setModalAmountsIn(`${modalAmountsIn},`);
       } else {
         setMessage(
-          'You have reached the maximum token selection limit. Please deselect one or more tokens to make changes.'
+          'You have reached the maximum token selection limit. Please deselect one or more tokens to make changes.',
         );
       }
     }
@@ -275,7 +265,7 @@ export default function TokenSelector({
   useEffect(() => {
     if (unImportedTokens?.length) {
       const cloneUnImportedTokens = [...unImportedTokens].filter(
-        (token) => !importedTokens.find((importedToken) => importedToken.address === token.address)
+        token => !importedTokens.find(importedToken => importedToken.address === token.address),
       );
       setUnImportedTokens(cloneUnImportedTokens);
       setSearchTerm('');
@@ -287,7 +277,7 @@ export default function TokenSelector({
     const search = searchTerm.toLowerCase().trim();
 
     if (!filteredTokens.length && isAddress(search)) {
-      fetchTokenInfo(search).then((res) => setUnImportedTokens(res));
+      fetchTokenInfo(search).then(res => setUnImportedTokens(res));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filteredTokens]);
@@ -297,11 +287,7 @@ export default function TokenSelector({
     const cloneAmountsIn = amountsIn.split(',');
 
     selectedTokens.forEach((token: Token) => {
-      if (
-        !cloneTokensIn.find(
-          (tokenIn: Token) => tokenIn.address.toLowerCase() === token.address.toLowerCase()
-        )
-      ) {
+      if (!cloneTokensIn.find((tokenIn: Token) => tokenIn.address.toLowerCase() === token.address.toLowerCase())) {
         cloneTokensIn.push(token);
         cloneAmountsIn.push('');
       }
@@ -375,9 +361,7 @@ export default function TokenSelector({
         </div>
 
         {mode === TOKEN_SELECT_MODE.ADD && modalTabSelected === MODAL_TAB.TOKENS && (
-          <p className="text-sm text-subText px-6">
-            The maximum number of tokens selected is {MAX_ZAP_IN_TOKENS}.
-          </p>
+          <p className="text-sm text-subText px-6">The maximum number of tokens selected is {MAX_ZAP_IN_TOKENS}.</p>
         )}
 
         {modalTabSelected === MODAL_TAB.TOKENS && (
@@ -392,9 +376,7 @@ export default function TokenSelector({
           />
         )}
 
-        <ScrollArea
-          className={`!mt-0 ${modalTabSelected === MODAL_TAB.TOKENS ? 'h-[280px]' : 'h-[356px]'}`}
-        >
+        <ScrollArea className={`!mt-0 ${modalTabSelected === MODAL_TAB.TOKENS ? 'h-[280px]' : 'h-[356px]'}`}>
           {modalTabSelected === MODAL_TAB.TOKENS && (
             <>
               {tabSelected === TOKEN_TAB.ALL &&
@@ -462,9 +444,7 @@ export default function TokenSelector({
                       />
                       <div>
                         <p className="leading-6">{token.symbol}</p>
-                        <p
-                          className={`${tabSelected === TOKEN_TAB.ALL ? 'text-xs' : ''} text-subText`}
-                        >
+                        <p className={`${tabSelected === TOKEN_TAB.ALL ? 'text-xs' : ''} text-subText`}>
                           {tabSelected === TOKEN_TAB.ALL ? token.name : token.balance}
                         </p>
                       </div>
@@ -475,18 +455,17 @@ export default function TokenSelector({
                       ) : (
                         <TrashIcon
                           className="w-[18px] text-subText hover:text-text !cursor-pointer"
-                          onClick={(e) => handleRemoveImportedToken(e, token)}
+                          onClick={e => handleRemoveImportedToken(e, token)}
                         />
                       )}
                       <Info
                         className="w-[18px] h-[18px] text-subText hover:text-text !cursor-pointer"
-                        onClick={(e) => handleShowTokenInfo(e, token)}
+                        onClick={e => handleShowTokenInfo(e, token)}
                       />
                     </div>
                   </div>
                 ))
-              ) : !unImportedTokens.length ||
-                (tabSelected === TOKEN_TAB.IMPORTED && !importedTokens.length) ? (
+              ) : !unImportedTokens.length || (tabSelected === TOKEN_TAB.IMPORTED && !importedTokens.length) ? (
                 <div className="text-center text-[#6C7284] font-medium mt-4">No results found.</div>
               ) : (
                 <></>
@@ -550,9 +529,7 @@ const TokenFeature = ({
 
   const handleRemoveAllImportedToken = () => {
     if (
-      tokensIn.find((tokenIn: Token) =>
-        importedTokens.find((importedToken) => tokenIn.address === importedToken.address)
-      )
+      tokensIn.find((tokenIn: Token) => importedTokens.find(importedToken => tokenIn.address === importedToken.address))
     ) {
       if (tokensIn.length === 1) {
         setMessage('You cannot remove the only selected token, please select another token first.');
@@ -563,18 +540,14 @@ const TokenFeature = ({
       const listAmountsIn: (string | null)[] = amountsIn.split(',');
 
       for (let i = 0; i < clonedTokensIn.length; i++) {
-        if (
-          importedTokens.find(
-            (importedToken) => importedToken.address === clonedTokensIn[i]?.address
-          )
-        ) {
+        if (importedTokens.find(importedToken => importedToken.address === clonedTokensIn[i]?.address)) {
           clonedTokensIn[i] = null;
           listAmountsIn[i] = null;
         }
       }
 
-      const removedTokensIn = clonedTokensIn.filter((token) => token !== null);
-      const removedAmountsIn = listAmountsIn.filter((amount) => amount !== null);
+      const removedTokensIn = clonedTokensIn.filter(token => token !== null);
+      const removedAmountsIn = listAmountsIn.filter(amount => amount !== null);
       setTokensIn(removedTokensIn as Token[]);
       setAmountsIn(removedAmountsIn.join(','));
 
@@ -582,7 +555,7 @@ const TokenFeature = ({
 
       const needClose =
         mode === TOKEN_SELECT_MODE.SELECT &&
-        importedTokens.find((importedToken) => importedToken.address === selectedTokenAddress);
+        importedTokens.find(importedToken => importedToken.address === selectedTokenAddress);
       removeAllTokens();
 
       if (needClose) onClose();

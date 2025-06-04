@@ -1,23 +1,16 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import { univ3PoolNormalize } from '@kyber/schema';
-import {
-  MAX_TICK,
-  MIN_TICK,
-  nearestUsableTick,
-  priceToClosestTick,
-  tickToPrice,
-} from '@kyber/utils/uniswapv3';
+import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick, tickToPrice } from '@kyber/utils/uniswapv3';
 
-import { PriceType } from '@/types/index';
 import { useZapState } from '@/hooks/useZapInState';
 import { useWidgetContext } from '@/stores';
+import { PriceType } from '@/types/index';
 import { formatNumber } from '@/utils';
 
 export default function PriceInput({ type }: { type: PriceType }) {
-  const { tickLower, tickUpper, revertPrice, setTickLower, setTickUpper, positionId } =
-    useZapState();
-  const { pool: rawPool } = useWidgetContext((s) => s);
+  const { tickLower, tickUpper, revertPrice, setTickLower, setTickUpper, positionId } = useZapState();
+  const { pool: rawPool } = useWidgetContext(s => s);
   const [localValue, setLocalValue] = useState('');
 
   const pool = useMemo(() => {
@@ -28,8 +21,7 @@ export default function PriceInput({ type }: { type: PriceType }) {
     return 'loading';
   }, [rawPool]);
 
-  const isFullRange =
-    pool !== 'loading' && tickLower === pool.minTick && tickUpper === pool.maxTick;
+  const isFullRange = pool !== 'loading' && tickLower === pool.minTick && tickUpper === pool.maxTick;
 
   const poolTick =
     pool === 'loading'
@@ -73,12 +65,7 @@ export default function PriceInput({ type }: { type: PriceType }) {
 
   const wrappedCorrectPrice = (value: string) => {
     if (pool === 'loading') return;
-    const tick = priceToClosestTick(
-      value,
-      pool.token0?.decimals,
-      pool.token1?.decimals,
-      revertPrice
-    );
+    const tick = priceToClosestTick(value, pool.token0?.decimals, pool.token1?.decimals, revertPrice);
     if (tick !== undefined) {
       const t = tick % pool.tickSpacing === 0 ? tick : nearestUsableTick(tick, pool.tickSpacing);
       if (type === PriceType.PriceLower) {
@@ -155,7 +142,7 @@ export default function PriceInput({ type }: { type: PriceType }) {
           value={localValue}
           autoFocus={false}
           onChange={onPriceChange}
-          onBlur={(e) => wrappedCorrectPrice(e.target.value)}
+          onBlur={e => wrappedCorrectPrice(e.target.value)}
           inputMode="decimal"
           autoComplete="off"
           autoCorrect="off"

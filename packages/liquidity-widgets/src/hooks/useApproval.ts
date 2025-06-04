@@ -21,9 +21,7 @@ export enum APPROVAL_STATE {
 }
 
 export const useApprovals = (amounts: string[], addreses: string[], spender: string) => {
-  const { chainId, connectedAccount, onSubmitTx, poolType, positionId } = useWidgetContext(
-    (s) => s
-  );
+  const { chainId, connectedAccount, onSubmitTx, poolType, positionId } = useWidgetContext(s => s);
   const { address: account } = connectedAccount;
 
   const isUniv4 = univ4Types.includes(poolType);
@@ -37,11 +35,9 @@ export const useApprovals = (amounts: string[], addreses: string[], spender: str
       return {
         ...acc,
         [token]:
-          token.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase()
-            ? APPROVAL_STATE.APPROVED
-            : APPROVAL_STATE.UNKNOWN,
+          token.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase() ? APPROVAL_STATE.APPROVED : APPROVAL_STATE.UNKNOWN,
       };
-    }, {})
+    }, {}),
   );
   const [nftApproval, setNftApproval] = useState(false);
   const [tokenPendingTx, setTokenPendingTx] = useState('');
@@ -56,8 +52,7 @@ export const useApprovals = (amounts: string[], addreses: string[], spender: str
 
     const approveFunctionSig = getFunctionSelector('approve(address,uint256)'); // "0x095ea7b3"; // Keccak-256 hash of "" truncated to 4 bytes
     const paddedSpender = spender.replace('0x', '').padStart(64, '0');
-    const paddedAmount =
-      'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'.padStart(64, '0'); // Amount in hex
+    const paddedAmount = 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'.padStart(64, '0'); // Amount in hex
 
     const data = `0x${approveFunctionSig}${paddedSpender}${paddedAmount}`;
 
@@ -120,15 +115,13 @@ export const useApprovals = (amounts: string[], addreses: string[], spender: str
   useEffect(() => {
     if (tokenPendingTx) {
       const i = setInterval(() => {
-        isTransactionSuccessful(rpcUrl, tokenPendingTx).then((res) => {
+        isTransactionSuccessful(rpcUrl, tokenPendingTx).then(res => {
           if (res) {
             setTokenPendingTx('');
             if (res.status) setAddressToApprove('');
             setApprovalStates({
               ...approvalStates,
-              [addressToApprove]: res.status
-                ? APPROVAL_STATE.APPROVED
-                : APPROVAL_STATE.NOT_APPROVED,
+              [addressToApprove]: res.status ? APPROVAL_STATE.APPROVED : APPROVAL_STATE.NOT_APPROVED,
             });
           }
         });
@@ -143,7 +136,7 @@ export const useApprovals = (amounts: string[], addreses: string[], spender: str
   useEffect(() => {
     if (nftPendingTx) {
       const i = setInterval(() => {
-        isTransactionSuccessful(rpcUrl, nftPendingTx).then((res) => {
+        isTransactionSuccessful(rpcUrl, nftPendingTx).then(res => {
           if (res) {
             setNftPendingTx('');
             setNftApproval(res.status);
@@ -162,8 +155,7 @@ export const useApprovals = (amounts: string[], addreses: string[], spender: str
       setTokenApprovelLoading(true);
       Promise.all(
         addreses.map(async (address, index) => {
-          if (address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase())
-            return APPROVAL_STATE.APPROVED;
+          if (address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase()) return APPROVAL_STATE.APPROVED;
 
           const amountToApprove = BigInt(amounts[index]);
           return await checkApproval({
@@ -172,7 +164,7 @@ export const useApprovals = (amounts: string[], addreses: string[], spender: str
             owner: account,
             spender,
           })
-            .then((allowance) => {
+            .then(allowance => {
               if (amountToApprove <= allowance) {
                 return APPROVAL_STATE.APPROVED;
               } else {
@@ -184,9 +176,9 @@ export const useApprovals = (amounts: string[], addreses: string[], spender: str
               console.log('get allowance failed', e);
               return APPROVAL_STATE.UNKNOWN;
             });
-        })
+        }),
       )
-        .then((res) => {
+        .then(res => {
           const tmp = addreses.reduce((acc, address, index) => {
             return {
               ...acc,
@@ -241,8 +233,8 @@ export const useApprovals = (amounts: string[], addreses: string[], spender: str
         ],
       }),
     })
-      .then((res) => res.json())
-      .then((res) => {
+      .then(res => res.json())
+      .then(res => {
         setNftApprovalLoading(false);
         const address = decodeAddress((res?.result || '').slice(2))?.toLowerCase();
         if (address === spender.toLowerCase()) setNftApproval(true);

@@ -1,13 +1,6 @@
-import {
-  ReactNode,
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import { ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
+import { useDebounce, useTokenBalances, useTokenPrices } from '@kyber/hooks';
 import {
   API_URLS,
   CHAIN_ID_TO_CHAIN,
@@ -28,19 +21,11 @@ import { parseUnits } from '@kyber/utils/crypto';
 import { divideBigIntToString } from '@kyber/utils/number';
 import { tickToPrice } from '@kyber/utils/uniswapv3';
 
-import { ZapRouteDetail } from '@/types/zapRoute';
-import { useDebounce, useTokenBalances, useTokenPrices } from '@kyber/hooks';
+import { ERROR_MESSAGE } from '@/constants';
 import { useTokenList } from '@/hooks/useTokenList';
 import { useWidgetContext } from '@/stores';
-import {
-  assertUnreachable,
-  formatNumber,
-  formatWei,
-  parseTokensAndAmounts,
-  validateData,
-} from '@/utils';
-
-import { ERROR_MESSAGE } from '@/constants';
+import { ZapRouteDetail } from '@/types/zapRoute';
+import { assertUnreachable, formatNumber, formatWei, parseTokensAndAmounts, validateData } from '@/utils';
 
 const ZapContext = createContext<{
   price: number | null;
@@ -130,16 +115,9 @@ export const ZapContextProvider = ({
   initDepositTokens?: string;
   initAmounts?: string;
 }) => {
-  const {
-    pool,
-    poolType,
-    poolAddress,
-    position,
-    positionId,
-    feeConfig,
-    chainId,
-    connectedAccount,
-  } = useWidgetContext((s) => s);
+  const { pool, poolType, poolAddress, position, positionId, feeConfig, chainId, connectedAccount } = useWidgetContext(
+    s => s,
+  );
   const { feePcm, feeAddress } = feeConfig || {};
   const account = connectedAccount?.address;
 
@@ -147,8 +125,8 @@ export const ZapContextProvider = ({
   const { allTokens } = useTokenList();
   const { balances } = useTokenBalances(
     chainId,
-    allTokens.map((item) => item.address),
-    account
+    allTokens.map(item => item.address),
+    account,
   );
 
   const [showSetting, setShowSeting] = useState(false);
@@ -174,16 +152,15 @@ export const ZapContextProvider = ({
   const isUniV3 = pool !== 'loading' && univ3Types.includes(poolType as any);
   const isUniV2 = pool !== 'loading' && univ2Types.includes(poolType as any);
 
-  const isTokensStable = tokensIn.every((tk) => tk.isStable);
+  const isTokensStable = tokensIn.every(tk => tk.isStable);
 
-  const isTokensInPair = tokensIn.every((tk) => {
+  const isTokensInPair = tokensIn.every(tk => {
     const addr =
       tk.address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase()
         ? NETWORKS_INFO[chainId].wrappedToken.address.toLowerCase()
         : tk.address.toLowerCase();
     return (
-      pool !== 'loading' &&
-      (pool.token0.address.toLowerCase() === addr || pool.token1.address.toLowerCase() === addr)
+      pool !== 'loading' && (pool.token0.address.toLowerCase() === addr || pool.token1.address.toLowerCase() === addr)
     );
   });
 
@@ -197,28 +174,22 @@ export const ZapContextProvider = ({
   }, [isTokensStable, pool, manualSlippage, isTokensInPair]);
 
   const { prices: tokenPrices } = useTokenPrices({
-    addresses: tokensIn.map((token) =>
+    addresses: tokensIn.map(token =>
       token.address.toLowerCase() !== NATIVE_TOKEN_ADDRESS.toLowerCase()
         ? token.address.toLowerCase()
-        : NETWORKS_INFO[chainId].wrappedToken.address.toLowerCase()
+        : NETWORKS_INFO[chainId].wrappedToken.address.toLowerCase(),
     ),
     chainId,
   });
 
   const poolPrice = useMemo(() => {
     let price;
-    if (isUniV3)
-      price = tickToPrice(
-        (pool as UniV3Pool).tick,
-        pool.token0.decimals,
-        pool.token1.decimals,
-        revertPrice
-      );
+    if (isUniV3) price = tickToPrice((pool as UniV3Pool).tick, pool.token0.decimals, pool.token1.decimals, revertPrice);
     if (isUniV2) {
       const purePrice = divideBigIntToString(
         BigInt((pool as UniV2Pool).reserves[1]) * 10n ** BigInt(pool.token0.decimals),
         BigInt((pool as UniV2Pool).reserves[0]) * 10n ** BigInt(pool.token1.decimals),
-        18
+        18,
       );
       price = revertPrice ? 1 / +purePrice : purePrice;
     }
@@ -233,22 +204,18 @@ export const ZapContextProvider = ({
       symbol: NETWORKS_INFO[chainId].wrappedToken.symbol.slice(1) || '',
       logo: NETWORKS_INFO[chainId].nativeLogo,
     }),
-    [chainId]
+    [chainId],
   );
   const wrappedNativeToken = NETWORKS_INFO[chainId].wrappedToken;
 
   const priceLower = useMemo(() => {
     if (pool === 'loading' || tickLower == null) return null;
-    return formatNumber(
-      +tickToPrice(tickLower, pool.token0?.decimals, pool.token1?.decimals, revertPrice)
-    );
+    return formatNumber(+tickToPrice(tickLower, pool.token0?.decimals, pool.token1?.decimals, revertPrice));
   }, [pool, tickLower, revertPrice]);
 
   const priceUpper = useMemo(() => {
     if (pool === 'loading' || tickUpper === null) return null;
-    return formatNumber(
-      +tickToPrice(tickUpper, pool.token0?.decimals, pool.token1?.decimals, revertPrice)
-    );
+    return formatNumber(+tickToPrice(tickUpper, pool.token0?.decimals, pool.token1?.decimals, revertPrice));
   }, [pool, tickUpper, revertPrice]);
 
   const isUniv3Pool = useMemo(() => Univ3PoolType.safeParse(poolType).success, [poolType]);
@@ -278,15 +245,15 @@ export const ZapContextProvider = ({
       zapApiError,
       balances,
       isUniv3Pool,
-    ]
+    ],
   );
 
   const toggleRevertPrice = useCallback(() => {
-    setRevertPrice((prev) => !prev);
+    setRevertPrice(prev => !prev);
   }, []);
 
   const toggleSetting = (highlight?: boolean) => {
-    setShowSeting((prev) => !prev);
+    setShowSeting(prev => !prev);
     if (highlight) {
       setHighlightDegenMode(true);
       setTimeout(() => {
@@ -317,10 +284,8 @@ export const ZapContextProvider = ({
     if (initDepositTokens && allTokens.length) {
       const listInitTokens = initDepositTokens
         .split(',')
-        .map((address: string) =>
-          allTokens.find((token) => token.address.toLowerCase() === address.toLowerCase())
-        )
-        .filter((item) => !!item);
+        .map((address: string) => allTokens.find(token => token.address.toLowerCase() === address.toLowerCase()))
+        .filter(item => !!item);
       const listInitAmounts = initAmounts?.split(',') || [];
       const parseListAmountsIn: string[] = [];
 
@@ -340,10 +305,8 @@ export const ZapContextProvider = ({
     }
 
     // with balance
-    const isToken0Native =
-      pool?.token0.address.toLowerCase() === wrappedNativeToken.address.toLowerCase();
-    const isToken1Native =
-      pool?.token1.address.toLowerCase() === wrappedNativeToken.address.toLowerCase();
+    const isToken0Native = pool?.token0.address.toLowerCase() === wrappedNativeToken.address.toLowerCase();
+    const isToken1Native = pool?.token1.address.toLowerCase() === wrappedNativeToken.address.toLowerCase();
 
     const token0Address = isToken0Native ? NATIVE_TOKEN_ADDRESS : pool.token0.address.toLowerCase();
     const token1Address = isToken1Native ? NATIVE_TOKEN_ADDRESS : pool.token1.address.toLowerCase();
@@ -355,16 +318,12 @@ export const ZapContextProvider = ({
       const token1 = isToken1Native ? nativeToken : pool.token1;
 
       const token0Balance = formatWei(
-        balances[
-          isToken0Native ? NATIVE_TOKEN_ADDRESS : pool.token0.address.toLowerCase()
-        ]?.toString() || '0',
-        token0?.decimals
+        balances[isToken0Native ? NATIVE_TOKEN_ADDRESS : pool.token0.address.toLowerCase()]?.toString() || '0',
+        token0?.decimals,
       );
       const token1Balance = formatWei(
-        balances[
-          isToken1Native ? NATIVE_TOKEN_ADDRESS : pool.token1.address.toLowerCase()
-        ]?.toString() || '0',
-        token1?.decimals
+        balances[isToken1Native ? NATIVE_TOKEN_ADDRESS : pool.token1.address.toLowerCase()]?.toString() || '0',
+        token1?.decimals,
       );
       if (parseFloat(token0Balance) > 0) tokensToSet.push(token0);
       if (parseFloat(token1Balance) > 0) tokensToSet.push(token1);
@@ -390,8 +349,7 @@ export const ZapContextProvider = ({
   useEffect(() => {
     if (pool === 'loading' || defaultRevertChecked) return;
     setDefaultRevertChecked(true);
-    const isToken0Native =
-      pool.token0.address.toLowerCase() === wrappedNativeToken.address.toLowerCase();
+    const isToken0Native = pool.token0.address.toLowerCase() === wrappedNativeToken.address.toLowerCase();
     const isToken0Stable = pool.token0.isStable;
     const isToken1Stable = pool.token1.isStable;
     if (isToken0Stable || (isToken0Native && !isToken1Stable)) setRevertPrice(true);
@@ -417,9 +375,7 @@ export const ZapContextProvider = ({
 
       try {
         formattedAmountsInWeis = listValidTokensIn
-          .map((token: Token, index: number) =>
-            parseUnits(listValidAmountsIn[index] || '0', token.decimals).toString()
-          )
+          .map((token: Token, index: number) => parseUnits(listValidAmountsIn[index] || '0', token.decimals).toString())
           .join(',');
       } catch (error) {
         console.log(error);
@@ -458,7 +414,7 @@ export const ZapContextProvider = ({
       };
 
       let tmp = '';
-      Object.keys(params).forEach((key) => {
+      Object.keys(params).forEach(key => {
         tmp = `${tmp}&${key}=${params[key]}`;
       });
 
@@ -467,8 +423,8 @@ export const ZapContextProvider = ({
           'X-Client-Id': source,
         },
       })
-        .then((res) => res.json())
-        .then((res) => {
+        .then(res => res.json())
+        .then(res => {
           if (res.data) {
             setZapApiError('');
             setZapInfo(res.data);
@@ -477,7 +433,7 @@ export const ZapContextProvider = ({
             setZapApiError(res.message || 'Something went wrong');
           }
         })
-        .catch((e) => {
+        .catch(e => {
           // setZapInfo(null);
           setZapApiError(e.message || 'Something went wrong');
         })
@@ -519,7 +475,7 @@ export const ZapContextProvider = ({
       const p = +divideBigIntToString(
         BigInt(uniV2Pool.reserves[1]) * 10n ** BigInt(uniV2Pool.token0?.decimals),
         BigInt(uniV2Pool.reserves[0]) * 10n ** BigInt(uniV2Pool.token1?.decimals),
-        18
+        18,
       );
       return revertPrice ? 1 / p : p;
     }

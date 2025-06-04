@@ -1,6 +1,5 @@
-import { cn } from '@kyber/utils/tailwind-helpers';
-
 import { MouseoverTooltip } from '@kyber/ui';
+import { cn } from '@kyber/utils/tailwind-helpers';
 
 export const SlippageWarning = ({
   slippage,
@@ -24,7 +23,7 @@ export const SlippageWarning = ({
             'text-subText text-xs border-b border-dotted border-subText',
             showWarning && (slippage > 2 * suggestedSlippage || slippage < suggestedSlippage / 2)
               ? 'text-warning border-warning'
-              : ''
+              : '',
           )}
         >
           Swap Max Slippage

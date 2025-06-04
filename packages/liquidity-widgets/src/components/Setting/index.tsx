@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
+import { useOnClickOutside } from '@kyber/hooks';
+import { MouseoverTooltip, Toggle } from '@kyber/ui';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
 import X from '@/assets/svg/x.svg';
 import Modal from '@/components/Modal';
 import SlippageInput from '@/components/Setting/SlippageInput';
 import { useZapState } from '@/hooks/useZapInState';
-import { useOnClickOutside } from '@kyber/hooks';
-import { MouseoverTooltip, Toggle } from '@kyber/ui';
 
 const validateDeadlineString = (str: string): boolean => {
   const value = Number.parseInt(str, 10);
@@ -31,8 +31,7 @@ const validateDeadlineString = (str: string): boolean => {
 };
 
 export default function Setting() {
-  const { showSetting, ttl, setTtl, toggleSetting, degenMode, setDegenMode, highlightDegenMode } =
-    useZapState();
+  const { showSetting, ttl, setTtl, toggleSetting, degenMode, setDegenMode, highlightDegenMode } = useZapState();
   const ref = useRef(null);
   const [deadline, setDeadline] = useState(ttl);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -68,20 +67,19 @@ export default function Setting() {
           </div>
 
           <div className="text-sm text-subText mt-5">
-            Turn this on to make trades with very high price impact or to set very high slippage
-            tolerance. This can result in bad rates and loss of funds. Be cautious.
+            Turn this on to make trades with very high price impact or to set very high slippage tolerance. This can
+            result in bad rates and loss of funds. Be cautious.
           </div>
 
           <div className="text-sm text-subText mt-5">
-            Please type the word <span className="text-warning">Confirm</span> below to enable Degen
-            Mode
+            Please type the word <span className="text-warning">Confirm</span> below to enable Degen Mode
           </div>
 
           <input
             className="box-border mt-5 py-2 px-4 text-sm outline-none border-none w-full text-white bg-layer2 rounded-md"
             placeholder="Confirm"
             value={confirm}
-            onChange={(e) => {
+            onChange={e => {
               setConfirm(e.target.value.trim());
             }}
           />
@@ -111,10 +109,7 @@ export default function Setting() {
           </div>
         </div>
       </Modal>
-      <div
-        className="absolute right-6 top-[116px] bg-layer2 p-5 rounded-md min-w-[320px]"
-        ref={ref}
-      >
+      <div className="absolute right-6 top-[116px] bg-layer2 p-5 rounded-md min-w-[320px]" ref={ref}>
         <div className="text-base font-medium mb-5">Advanced Setting</div>
         <MouseoverTooltip
           text="Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price. Please use with caution!"
@@ -129,9 +124,7 @@ export default function Setting() {
             text="Transaction will revert if it is pending for longer than the indicated time."
             width="220px"
           >
-            <div className="text-sm border-b border-dotted border-subText">
-              Transaction Time Limit
-            </div>
+            <div className="text-sm border-b border-dotted border-subText">Transaction Time Limit</div>
           </MouseoverTooltip>
 
           <div className="flex py-[6px] px-2 gap-1 rounded-full bg-transparent text-subText text-xs font-medium text-right">
@@ -141,7 +134,7 @@ export default function Setting() {
               placeholder="20"
               value={deadline ? deadline.toString() : ''}
               data-invalid={!isValid}
-              onChange={(e) => {
+              onChange={e => {
                 const v = +e.target.value
                   .trim()
                   .replace(/[^0-9.]/g, '')
@@ -157,7 +150,7 @@ export default function Setting() {
         <div
           className={cn(
             'flex items-center justify-between degen-mode rounded-xl mt-2 py-1',
-            highlightDegenMode ? '-mx-2 px-2' : ''
+            highlightDegenMode ? '-mx-2 px-2' : '',
           )}
           data-highlight={highlightDegenMode}
         >

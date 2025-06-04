@@ -120,12 +120,7 @@ export interface ZapRouteDetail {
   zapDetails: {
     initialAmountUsd: string;
     actions: Array<
-      | ProtocolFeeAction
-      | AggregatorSwapAction
-      | PoolSwapAction
-      | AddLiquidityAction
-      | RefundAction
-      | PartnerFeeAction
+      ProtocolFeeAction | AggregatorSwapAction | PoolSwapAction | AddLiquidityAction | RefundAction | PartnerFeeAction
     >;
     finalAmountUsd: string;
     priceImpact: number | null | undefined;

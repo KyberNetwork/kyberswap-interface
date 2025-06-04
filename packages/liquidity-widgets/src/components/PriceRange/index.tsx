@@ -5,12 +5,7 @@ import { Button } from '@kyber/ui';
 import { toString } from '@kyber/utils/number';
 import { nearestUsableTick, priceToClosestTick, tickToPrice } from '@kyber/utils/uniswapv3';
 
-import {
-  DEFAULT_PRICE_RANGE,
-  FULL_PRICE_RANGE,
-  FeeAmount,
-  PRICE_RANGE,
-} from '@/components/PriceRange/constants';
+import { DEFAULT_PRICE_RANGE, FULL_PRICE_RANGE, FeeAmount, PRICE_RANGE } from '@/components/PriceRange/constants';
 import { useZapState } from '@/hooks/useZapInState';
 import { useWidgetContext } from '@/stores';
 
@@ -24,17 +19,16 @@ const getFeeRange = (fee: number): FeeAmount | undefined => {
   if (!fee) return;
   return [FeeAmount.HIGH, FeeAmount.MEDIUM, FeeAmount.LOW, FeeAmount.LOWEST].reduce(
     (range, current) => (current >= fee ? current : range),
-    FeeAmount.HIGH
+    FeeAmount.HIGH,
   );
 };
 
 const PriceRange = () => {
   const [selectedRange, setSelectedRange] = useState<SelectedRange | null>(null);
 
-  const { priceLower, priceUpper, setTickLower, setTickUpper, tickLower, tickUpper, revertPrice } =
-    useZapState();
+  const { priceLower, priceUpper, setTickLower, setTickUpper, tickLower, tickUpper, revertPrice } = useZapState();
 
-  const { pool, positionId } = useWidgetContext((s) => s);
+  const { pool, positionId } = useWidgetContext(s => s);
   const loading = pool === 'loading';
 
   const fee = pool === 'loading' ? 0 : pool.fee;
@@ -46,7 +40,7 @@ const PriceRange = () => {
     const { success, data } = univ3PoolNormalize.safeParse(pool);
     if (!success) return;
     return priceRanges
-      .map((item) => {
+      .map(item => {
         if (item === FULL_PRICE_RANGE)
           return {
             range: item,
@@ -54,30 +48,15 @@ const PriceRange = () => {
             tickUpper: data.maxTick,
           };
 
-        const currentPoolPrice = tickToPrice(
-          data.tick,
-          pool.token0?.decimals,
-          pool.token1?.decimals,
-          false
-        );
+        const currentPoolPrice = tickToPrice(data.tick, pool.token0?.decimals, pool.token1?.decimals, false);
 
         if (!currentPoolPrice) return;
 
         const left = +currentPoolPrice * (1 - Number(item));
         const right = +currentPoolPrice * (1 + Number(item));
 
-        const lower = priceToClosestTick(
-          toString(Number(left)),
-          pool.token0?.decimals,
-          pool.token1?.decimals,
-          false
-        );
-        const upper = priceToClosestTick(
-          toString(Number(right)),
-          pool.token0?.decimals,
-          pool.token1?.decimals,
-          false
-        );
+        const lower = priceToClosestTick(toString(Number(left)), pool.token0?.decimals, pool.token1?.decimals, false);
+        const upper = priceToClosestTick(toString(Number(right)), pool.token0?.decimals, pool.token1?.decimals, false);
         if (!lower || !upper) return null;
 
         return {
@@ -86,17 +65,13 @@ const PriceRange = () => {
           tickUpper: nearestUsableTick(upper, data.tickSpacing),
         };
       })
-      .filter((item) => !!item);
+      .filter(item => !!item);
   }, [pool, priceRanges]);
 
   const minPrice = useMemo(() => {
     if (pool !== 'loading') {
       const { success, data } = univ3PoolNormalize.safeParse(pool);
-      if (
-        success &&
-        ((!revertPrice && data.minTick === tickLower) ||
-          (revertPrice && data.maxTick === tickUpper))
-      )
+      if (success && ((!revertPrice && data.minTick === tickLower) || (revertPrice && data.maxTick === tickUpper)))
         return '0';
 
       return !revertPrice ? priceLower : priceUpper;
@@ -106,11 +81,7 @@ const PriceRange = () => {
   const maxPrice = useMemo(() => {
     if (pool !== 'loading') {
       const { success, data } = univ3PoolNormalize.safeParse(pool);
-      if (
-        success &&
-        ((!revertPrice && data.maxTick === tickUpper) ||
-          (revertPrice && data.minTick === tickLower))
-      )
+      if (success && ((!revertPrice && data.maxTick === tickUpper) || (revertPrice && data.minTick === tickLower)))
         return '∞';
       return !revertPrice ? priceUpper : priceLower;
     }
@@ -118,7 +89,7 @@ const PriceRange = () => {
 
   const handleSelectPriceRange = (range: string | number) => {
     if (!priceRangeCalculated) return;
-    const selected = priceRangeCalculated.find((item) => item?.range === range);
+    const selected = priceRangeCalculated.find(item => item?.range === range);
     if (!selected) return;
     setSelectedRange(selected);
     setTickLower(selected.tickLower);
@@ -127,9 +98,7 @@ const PriceRange = () => {
 
   useEffect(() => {
     if (!priceRangeCalculated) return;
-    const selected = priceRangeCalculated.find(
-      (item) => item?.tickLower === tickLower && item?.tickUpper === tickUpper
-    );
+    const selected = priceRangeCalculated.find(item => item?.tickLower === tickLower && item?.tickUpper === tickUpper);
     if (selected) setSelectedRange(selected);
     else setSelectedRange(null);
   }, [priceRangeCalculated, tickLower, tickUpper]);
@@ -151,9 +120,7 @@ const PriceRange = () => {
         <Button
           key={index}
           variant="outline"
-          className={`flex-1 !border-none !text-icon ${
-            item === selectedRange?.range ? ' !bg-[#ffffff14]' : ''
-          }`}
+          className={`flex-1 !border-none !text-icon ${item === selectedRange?.range ? ' !bg-[#ffffff14]' : ''}`}
           onClick={() => handleSelectPriceRange(item as typeof FULL_PRICE_RANGE | number)}
         >
           {item === FULL_PRICE_RANGE ? item : `${Number(item) * 100}%`}

@@ -1,12 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import {
-  API_URLS,
-  EARN_SUPPORTED_CHAINS,
-  EARN_SUPPORTED_EXCHANGES,
-  EarnDex,
-  Univ2EarnDex,
-} from '@kyber/schema';
+import { API_URLS, EARN_SUPPORTED_CHAINS, EARN_SUPPORTED_EXCHANGES, EarnDex, Univ2EarnDex } from '@kyber/schema';
 import { isAddress } from '@kyber/utils/crypto';
 import { formatDisplayNumber } from '@kyber/utils/number';
 
@@ -25,15 +19,8 @@ const COPY_TIMEOUT = 2000;
 let hideCopied: ReturnType<typeof setTimeout>;
 
 const UserPositions = ({ search }: { search: string }) => {
-  const {
-    theme,
-    connectedAccount,
-    chainId,
-    positionId,
-    onOpenZapMigration,
-    onConnectWallet,
-    poolAddress,
-  } = useWidgetContext((s) => s);
+  const { theme, connectedAccount, chainId, positionId, onOpenZapMigration, onConnectWallet, poolAddress } =
+    useWidgetContext(s => s);
   const { address: account } = connectedAccount || {};
   const { tickLower, tickUpper } = useZapState();
 
@@ -46,7 +33,7 @@ const UserPositions = ({ search }: { search: string }) => {
       ? userPositions.filter((position: EarnPosition) =>
           position.pool.project !== EarnDex.DEX_UNISWAPV2
             ? position.tokenId !== positionId
-            : position.pool.poolAddress !== poolAddress
+            : position.pool.poolAddress !== poolAddress,
         )
       : userPositions;
     if (!search) return positions;
@@ -98,7 +85,7 @@ const UserPositions = ({ search }: { search: string }) => {
             orderBy: 'liquidity',
             orderASC: 'false',
             positionStatus: 'open',
-          }).toString()
+          }).toString(),
       );
       const data = await response.json();
       if (data?.data?.positions) {
@@ -122,10 +109,7 @@ const UserPositions = ({ search }: { search: string }) => {
       <div className="flex flex-col items-center justify-center gap-3 text-subText font-medium h-[260px] relative mx-6">
         <IconPositionConnectWallet />
         No positions found. Connect your wallet first.
-        <button
-          className="ks-primary-btn w-full absolute -bottom-14 left-0"
-          onClick={onConnectWallet}
-        >
+        <button className="ks-primary-btn w-full absolute -bottom-14 left-0" onClick={onConnectWallet}>
           Connect
         </button>
       </div>
@@ -164,17 +148,14 @@ const UserPositions = ({ search }: { search: string }) => {
                 {
                   exchange: position.pool.project,
                   poolId: position.pool.poolAddress,
-                  positionId:
-                    position.pool.project !== EarnDex.DEX_UNISWAPV2
-                      ? position.tokenId
-                      : position.userAddress,
+                  positionId: position.pool.project !== EarnDex.DEX_UNISWAPV2 ? position.tokenId : position.userAddress,
                 },
                 tickLower !== null && tickUpper !== null
                   ? {
                       tickLower,
                       tickUpper,
                     }
-                  : undefined
+                  : undefined,
               )
             }
           >
@@ -243,7 +224,7 @@ const UserPositions = ({ search }: { search: string }) => {
                   {copied !== position.tokenId ? (
                     <IconCopy
                       className="w-[14px] h-[14px] text-[#027BC7] hover:brightness-125 relative top-[3px] cursor-pointer"
-                      onClick={(e) => {
+                      onClick={e => {
                         e.stopPropagation();
                         copy(position);
                       }}
@@ -265,9 +246,7 @@ const UserPositions = ({ search }: { search: string }) => {
               </div>
             </div>
           </div>
-          {index !== userPositions.length - 1 && (
-            <div className="h-[1px] bg-[#ffffff14] mx-[26px]" />
-          )}
+          {index !== userPositions.length - 1 && <div className="h-[1px] bg-[#ffffff14] mx-[26px]" />}
         </div>
       );
     })
