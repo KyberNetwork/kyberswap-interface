@@ -1,4 +1,4 @@
-import type { ScaleLinear, ZoomTransform } from "d3";
+import type { ScaleLinear, ZoomTransform } from 'd3';
 
 type BigintIsh = bigint | number | string;
 
@@ -11,8 +11,8 @@ export enum FeeAmount {
 }
 
 export enum Bound {
-  LOWER = "LOWER",
-  UPPER = "UPPER",
+  LOWER = 'LOWER',
+  UPPER = 'UPPER',
 }
 
 export interface PoolInfo {
@@ -94,10 +94,7 @@ export interface LiquidityChartRangeInputProps {
   zoomOutIcon?: JSX.Element;
   showLabelAsAmount?: boolean;
   alwaysShowLabel?: boolean;
-  onBrushDomainChange?: (
-    domain: [number, number],
-    mode: string | undefined
-  ) => void;
+  onBrushDomainChange?: (domain: [number, number], mode: string | undefined) => void;
 }
 
 export interface ChartProps {
@@ -114,11 +111,8 @@ export interface ChartProps {
   zoomInIcon?: JSX.Element;
   zoomOutIcon?: JSX.Element;
   alwaysShowLabel?: boolean;
-  brushLabels: (d: "w" | "e", x: number) => string;
-  onBrushDomainChange?: (
-    domain: [number, number],
-    mode: string | undefined
-  ) => void;
+  brushLabels: (d: 'w' | 'e', x: number) => string;
+  onBrushDomainChange?: (domain: [number, number], mode: string | undefined) => void;
 }
 
 export interface AreaProps {
@@ -145,7 +139,7 @@ export interface BrushProps {
   innerHeight: number;
   zoomInited: boolean;
   alwaysShowLabel?: boolean;
-  brushLabelValue: (d: "w" | "e", x: number) => string;
+  brushLabelValue: (d: 'w' | 'e', x: number) => string;
   setBrushExtent?: (extent: [number, number], mode: string | undefined) => void;
 }
 

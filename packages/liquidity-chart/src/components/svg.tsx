@@ -14,17 +14,17 @@ export const brushHandlePath = (height: number) =>
     `C 11 26 11 12 1 12`,
     `V 0`,
     `M 0 1`,
-  ].join(" ");
+  ].join(' ');
 
 export const brushHandleAccentPath = () =>
   [
-    "m 5 7", // move to first accent
-    "v 14", // vertical line
-    "M 0 0", // move to origin
-    "m 9 7", // move to second accent
-    "v 14", // vertical line
-    "z",
-  ].join(" ");
+    'm 5 7', // move to first accent
+    'v 14', // vertical line
+    'M 0 0', // move to origin
+    'm 9 7', // move to second accent
+    'v 14', // vertical line
+    'z',
+  ].join(' ');
 
 export const OffScreenHandle = ({
   color,
