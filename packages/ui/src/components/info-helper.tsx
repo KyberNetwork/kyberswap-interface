@@ -2,8 +2,8 @@ import { CSSProperties, ReactNode } from 'react';
 
 import { Placement } from '@popperjs/core';
 
-import Info from "../assets/icons/info.svg";
-import { MouseoverTooltip } from "./Tooltip";
+import Info from '../assets/icons/info.svg';
+import { MouseoverTooltip } from './Tooltip';
 
 export function InfoHelper({
   text,

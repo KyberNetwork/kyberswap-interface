@@ -1,8 +1,8 @@
-"use client";
+import * as React from 'react';
 
-import * as React from "react";
-import * as TabsPrimitive from "@radix-ui/react-tabs";
-import { cn } from "@kyber/utils/tailwind-helpers";
+import * as TabsPrimitive from '@radix-ui/react-tabs';
+
+import { cn } from '@kyber/utils/tailwind-helpers';
 
 const Tabs = TabsPrimitive.Root;
 
@@ -11,10 +11,7 @@ const TabsList = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof TabsPrimitive.List>
 >(({ className, ...props }, ref) => (
   <TabsPrimitive.List
-    className={cn(
-      "inline-flex h-10 items-center justify-center bg-[#27272a] rounded-[8px] text-[#a1a1aa]",
-      className
-    )}
+    className={cn('inline-flex h-10 items-center justify-center bg-[#27272a] rounded-[8px] text-[#a1a1aa]', className)}
     ref={ref}
     {...props}
   />
@@ -27,8 +24,8 @@ const TabsTrigger = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <TabsPrimitive.Trigger
     className={cn(
-      "inline-flex items-center justify-center whitespace-nowrap rounded-[8px] px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-[#09090b] data-[state=active]:text-[#fafafa] data-[state=active]:shadow-sm",
-      className
+      'inline-flex items-center justify-center whitespace-nowrap rounded-[8px] px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-[#09090b] data-[state=active]:text-[#fafafa] data-[state=active]:shadow-sm',
+      className,
     )}
     ref={ref}
     {...props}
@@ -42,8 +39,8 @@ const TabsContent = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <TabsPrimitive.Content
     className={cn(
-      "mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-      className
+      'mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+      className,
     )}
     ref={ref}
     {...props}
