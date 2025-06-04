@@ -114,6 +114,7 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
 
       refundTo: params.sender,
       refundType: QuoteRequest.refundType.ORIGIN_CHAIN,
+      referral: 'KyberSwap',
 
       recipient: params.recipient,
       recipientType: QuoteRequest.recipientType.DESTINATION_CHAIN,
