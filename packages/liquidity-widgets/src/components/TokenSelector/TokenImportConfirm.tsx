@@ -47,9 +47,7 @@ const TokenImportConfirm = ({
   const handleAddToken = () => {
     addToken(token);
     if (mode === TOKEN_SELECT_MODE.SELECT) {
-      const index = tokensIn.findIndex(
-        (tokenIn: Token) => tokenIn.address === selectedTokenAddress,
-      );
+      const index = tokensIn.findIndex((tokenIn: Token) => tokenIn.address === selectedTokenAddress);
       if (index > -1) {
         const clonedTokensIn = [...tokensIn];
         clonedTokensIn[index] = token;
@@ -80,9 +78,7 @@ const TokenImportConfirm = ({
       <div className="p-4 flex flex-col gap-4">
         <div className="bg-warning-200 p-[15px] flex rounded-md text-warning items-start gap-2">
           <IconAlertTriangle className="h-[18px]" />
-          <p className="text-sm">
-            This token isn’t frequently swapped. Please do your own research before trading.
-          </p>
+          <p className="text-sm">This token isn’t frequently swapped. Please do your own research before trading.</p>
         </div>
         <div className="bg-[#0f0f0f] rounded-md p-8 flex gap-[10px] items-start">
           <img
