@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 export const token = z.object({
   address: z.string(),
@@ -18,6 +18,6 @@ export const defaultToken = {
   logo: '',
   price: NaN,
   isStable: false,
-}
+};
 
 export type Token = z.infer<typeof token>;

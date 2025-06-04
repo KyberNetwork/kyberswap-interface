@@ -1,49 +1,49 @@
-declare module "*.png" {
+declare module '*.png' {
   const content: string;
   export default content;
 }
 
-declare module "*.png?url" {
+declare module '*.png?url' {
   const content: string;
   export default content;
 }
 
-declare module "*.jpg" {
+declare module '*.jpg' {
   const content: string;
   export default content;
 }
 
-declare module "*.jpg?url" {
+declare module '*.jpg?url' {
   const content: string;
   export default content;
 }
 
-declare module "*.jpeg" {
+declare module '*.jpeg' {
   const content: string;
   export default content;
 }
 
-declare module "*.jpeg?url" {
+declare module '*.jpeg?url' {
   const content: string;
   export default content;
 }
 
-declare module "*.svg" {
+declare module '*.svg' {
   const content: string;
   export default content;
 }
 
-declare module "*.svg?url" {
+declare module '*.svg?url' {
   const content: string;
   export default content;
 }
 
-declare module "*.gif" {
+declare module '*.gif' {
   const content: string;
   export default content;
 }
 
-declare module "*.gif?url" {
+declare module '*.gif?url' {
   const content: string;
   export default content;
 }

@@ -1,7 +1,7 @@
-import thrusterLogo from "@/assets/dexes/thruster.png";
+import thrusterLogo from '@/assets/dexes/thruster.png';
 
 export default {
   icon: thrusterLogo,
-  name: "Thruster V2",
+  name: 'Thruster V2',
   nftManagerContract: {},
 };

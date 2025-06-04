@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 const token = z.object({
   address: z.string(),
@@ -7,7 +7,7 @@ const token = z.object({
 });
 
 const removeLiquidityAction = z.object({
-  type: z.literal("ACTION_TYPE_REMOVE_LIQUIDITY"),
+  type: z.literal('ACTION_TYPE_REMOVE_LIQUIDITY'),
   removeLiquidity: z.object({
     tokens: z.array(token),
   }),
@@ -16,13 +16,13 @@ const removeLiquidityAction = z.object({
 export type RemoveLiquidityAction = z.infer<typeof removeLiquidityAction>;
 
 const aggregatorSwapAction = z.object({
-  type: z.literal("ACTION_TYPE_AGGREGATOR_SWAP"),
+  type: z.literal('ACTION_TYPE_AGGREGATOR_SWAP'),
   aggregatorSwap: z.object({
     swaps: z.array(
       z.object({
         tokenIn: token,
         tokenOut: token,
-      })
+      }),
     ),
   }),
 });
@@ -30,7 +30,7 @@ const aggregatorSwapAction = z.object({
 export type AggregatorSwapAction = z.infer<typeof aggregatorSwapAction>;
 
 const addliquidtyAction = z.object({
-  type: z.literal("ACTION_TYPE_ADD_LIQUIDITY"),
+  type: z.literal('ACTION_TYPE_ADD_LIQUIDITY'),
   addLiquidity: z.object({
     token0: token,
     token1: token,
@@ -40,20 +40,20 @@ const addliquidtyAction = z.object({
 export type AddLiquidityAction = z.infer<typeof addliquidtyAction>;
 
 const poolSwapAction = z.object({
-  type: z.literal("ACTION_TYPE_POOL_SWAP"),
+  type: z.literal('ACTION_TYPE_POOL_SWAP'),
   poolSwap: z.object({
     swaps: z.array(
       z.object({
         tokenIn: token,
         tokenOut: token,
-      })
+      }),
     ),
   }),
 });
 export type PoolSwapAction = z.infer<typeof poolSwapAction>;
 
 const protocolFeeAction = z.object({
-  type: z.literal("ACTION_TYPE_PROTOCOL_FEE"),
+  type: z.literal('ACTION_TYPE_PROTOCOL_FEE'),
   protocolFee: z.object({
     pcm: z.number(),
     tokens: z.array(token),
@@ -63,7 +63,7 @@ const protocolFeeAction = z.object({
 export type ProtocolFeeAction = z.infer<typeof protocolFeeAction>;
 
 const refundAction = z.object({
-  type: z.literal("ACTION_TYPE_REFUND"),
+  type: z.literal('ACTION_TYPE_REFUND'),
   refund: z.object({
     tokens: z.array(token),
   }),
@@ -90,7 +90,7 @@ const apiResponse = z.object({
   zapDetails: z.object({
     initialAmountUsd: z.string(),
     actions: z.array(
-      z.discriminatedUnion("type", [
+      z.discriminatedUnion('type', [
         removeLiquidityAction,
         protocolFeeAction,
         aggregatorSwapAction,
@@ -99,7 +99,7 @@ const apiResponse = z.object({
 
         addliquidtyAction,
         refundAction,
-      ])
+      ]),
     ),
 
     finalAmountUsd: z.string(),
