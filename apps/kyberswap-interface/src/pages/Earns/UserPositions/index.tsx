@@ -90,7 +90,7 @@ const UserPositions = () => {
   const parsedPositions: Array<ParsedPosition> = useMemo(() => {
     let positionToRender = []
     if (!userPosition || !userPosition.length) {
-      if (!previousPosition || !previousPosition.length) return []
+      if (!previousPosition || !previousPosition.length || !isError) return []
       positionToRender = previousPosition
     } else positionToRender = userPosition
 
@@ -151,6 +151,7 @@ const UserPositions = () => {
     filters.orderBy,
     filters.sortBy,
     filters.status,
+    isError,
     previousPosition,
     rewardInfo?.nfts,
     userPosition,
