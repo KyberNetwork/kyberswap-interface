@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   API_URLS,
   EARN_SUPPORTED_CHAINS,
-  EARN_SUPPORTED_PROTOCOLS,
+  EARN_SUPPORTED_EXCHANGES,
   EarnDex,
   Univ2EarnDex,
 } from '@kyber/schema';
@@ -92,7 +92,7 @@ const UserPositions = ({ search }: { search: string }) => {
           new URLSearchParams({
             addresses: account,
             chainIds: chainId.toString(),
-            protocols: EARN_SUPPORTED_PROTOCOLS.join(','),
+            protocols: EARN_SUPPORTED_EXCHANGES.join(','),
             quoteSymbol: 'usd',
             offset: '0',
             orderBy: 'liquidity',
@@ -218,7 +218,7 @@ const UserPositions = ({ search }: { search: string }) => {
                   </div>
                 )}
               </div>
-              <div>
+              <div className="max-w-[100px] overflow-hidden text-ellipsis whitespace-nowrap">
                 {formatDisplayNumber(position.currentPositionValue, {
                   style: 'currency',
                   significantDigits: 4,

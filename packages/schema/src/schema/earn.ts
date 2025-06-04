@@ -15,6 +15,19 @@ export enum EarnDex {
   DEX_UNISWAPV2 = "Uniswap V2",
 }
 
+export enum Exchange {
+  DEX_UNISWAP_V4 = "uniswap-v4",
+  DEX_KEM_UNISWAP_V4_FAIRFLOW = "uniswap-v4-fairflow",
+  DEX_UNISWAPV3 = "uniswapv3",
+  DEX_PANCAKESWAPV3 = "pancake-v3",
+  DEX_SUSHISWAPV3 = "sushiswap-v3",
+  DEX_QUICKSWAPV3ALGEBRA = "quickswap-v3",
+  DEX_CAMELOTV3 = "camelot-v3",
+  DEX_THENAFUSION = "thena",
+  DEX_KODIAK_V3 = "kodiakcl",
+  DEX_UNISWAPV2 = "uniswapv2",
+}
+
 export enum EarnChain {
   MAINNET = ChainId.Ethereum,
   BASE = ChainId.Base,
@@ -45,4 +58,4 @@ export const Univ3EarnDex = z.enum(univ3Dexes);
 
 export const EARN_SUPPORTED_CHAINS = enumToArrayOfValues(EarnChain, "number");
 
-export const EARN_SUPPORTED_PROTOCOLS = enumToArrayOfValues(EarnDex);
+export const EARN_SUPPORTED_EXCHANGES = enumToArrayOfValues(Exchange);
