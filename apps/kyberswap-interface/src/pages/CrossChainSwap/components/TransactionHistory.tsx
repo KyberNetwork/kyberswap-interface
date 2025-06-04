@@ -56,7 +56,10 @@ export const TransactionHistory = () => {
 
   const pendingTxs = useMemo(() => {
     return transactions.filter(
-      tx => (!tx.targetTxHash || !tx.status || tx.status === 'Processing') && tx.status !== 'Refunded',
+      tx =>
+        (!tx.targetTxHash || !tx.status || tx.status === 'Processing') &&
+        tx.status !== 'Refunded' &&
+        tx.status !== 'Failed',
     )
   }, [transactions])
 

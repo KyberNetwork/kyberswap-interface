@@ -65,7 +65,7 @@ export class OptimexAdapter extends BaseSwapAdapter {
     return 'Optimex'
   }
   getIcon(): string {
-    return 'https://app.optimex.xyz/icons/favicon.ico'
+    return 'https://storage.googleapis.com/ks-setting-1d682dca/464ce79e-a906-4590-bf78-9054e606aa041749023419612.png'
   }
   getSupportedChains(): Chain[] {
     return [NonEvmChain.Bitcoin, ChainId.MAINNET]
@@ -271,12 +271,13 @@ export class OptimexAdapter extends BaseSwapAdapter {
 
     return {
       txHash: res.data?.payment_bundle?.settlement_tx || '',
-      status:
-        res?.data?.state === 'Done'
-          ? 'Success'
-          : ['Aborted', 'Failed', 'UserCancelled'].includes(res?.data?.state)
-          ? 'Failed'
-          : 'Processing',
+      status: ['Done', 'PaymentConfirmed'].includes(res?.data?.state)
+        ? 'Success'
+        : ['Aborted', 'ToBeAborted', 'Failed', 'Failure', 'UserCancelled'].includes(res?.data?.state)
+        ? 'Failed'
+        : res?.data?.state === 'Refunded'
+        ? 'Refunded'
+        : 'Processing',
     }
   }
 }
