@@ -26,6 +26,7 @@ export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean
     currencyIn,
     currencyOut,
     allLoading,
+    loading,
     selectedQuote,
     recipient,
   } = useCrossChainSwap()
@@ -181,7 +182,13 @@ export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean
           setShowPreview(false)
         }}
       />
-      <ButtonPrimary disabled={disabled} onClick={onClick}>
+      <ButtonPrimary
+        disabled={disabled}
+        onClick={() => {
+          if (loading) return
+          onClick?.()
+        }}
+      >
         {label}
       </ButtonPrimary>
     </>
