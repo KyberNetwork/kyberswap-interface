@@ -5,18 +5,16 @@ import {
   univ3Position,
   defaultToken,
 } from '@kyber/schema';
-import { Skeleton, TokenLogo } from '@kyber/ui';
+import { MouseoverTooltip, Skeleton, TokenLogo, InfoHelper } from '@kyber/ui';
 
 import defaultTokenLogo from '@/assets/svg/question.svg?url';
 import SettingIcon from '@/assets/svg/setting.svg';
 import X from '@/assets/svg/x.svg';
 import RefreshLoading from '@/components/Header/RefreshLoading';
 import { shortenAddress } from '@/components/TokenInfo/utils';
-import { MouseoverTooltip } from '@/components/Tooltip';
 import useCopy from '@/hooks/useCopy';
 import { useZapState } from '@/hooks/useZapInState';
 import { useWidgetContext } from '@/stores';
-import InfoHelper from '@/components/InfoHelper';
 
 const Header = () => {
   const { chainId, pool, poolType, positionId, position, theme, poolAddress, onClose } =

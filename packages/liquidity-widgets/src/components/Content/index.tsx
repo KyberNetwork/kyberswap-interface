@@ -23,7 +23,7 @@ import PriceInfo from '@/components/Content/PriceInfo';
 import PriceInput from '@/components/Content/PriceInput';
 import ZapRoute from '@/components/Content/ZapRoute';
 import Header from '@/components/Header';
-import InfoHelper from '@/components/InfoHelper';
+import { InfoHelper } from '@kyber/ui';
 import LiquidityChart from '@/components/LiquidityChart';
 import Modal from '@/components/Modal';
 import PositionLiquidity from '@/components/PositionLiquidity';

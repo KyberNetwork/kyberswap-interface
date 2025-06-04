@@ -1,9 +1,8 @@
 import { ReactNode, useState } from 'react';
 
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@kyber/ui';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Loader } from '@kyber/ui';
 
 import IconAlertOctagon from '@/assets/svg/alert-octagon.svg';
-import Loader from '@/components/Loader';
 import { ItemData, RISKY_THRESHOLD, WarningType, isItemRisky } from '@/components/TokenInfo/utils';
 
 const CollapseInfoItem = ({

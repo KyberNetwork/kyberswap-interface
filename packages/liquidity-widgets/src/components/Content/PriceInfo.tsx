@@ -5,7 +5,7 @@ import { divideBigIntToString, formatDisplayNumber } from '@kyber/utils/number';
 import { tickToPrice } from '@kyber/utils/uniswapv3';
 
 import RevertPriceIcon from '@/assets/svg/ic_revert_price.svg';
-import { MouseoverTooltip } from '@/components/Tooltip';
+import { MouseoverTooltip } from '@kyber/ui';
 import { useZapState } from '@/hooks/useZapInState';
 import { useWidgetContext } from '@/stores';
 import { assertUnreachable } from '@/utils';

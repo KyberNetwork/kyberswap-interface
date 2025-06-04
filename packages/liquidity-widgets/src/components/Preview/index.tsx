@@ -12,7 +12,14 @@ import {
   univ2PoolNormalize,
   univ3PoolNormalize,
 } from '@kyber/schema';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@kyber/ui';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+  MouseoverTooltip,
+  InfoHelper,
+} from '@kyber/ui';
 import {
   calculateGasMargin,
   estimateGas,
@@ -31,9 +38,7 @@ import Spinner from '@/assets/svg/loader.svg';
 import defaultTokenLogo from '@/assets/svg/question.svg?url';
 import SuccessIcon from '@/assets/svg/success.svg';
 import SwitchIcon from '@/assets/svg/switch.svg';
-import InfoHelper from '@/components/InfoHelper';
 import { SlippageWarning } from '@/components/SlippageWarning';
-import { MouseoverTooltip } from '@/components/Tooltip';
 import {
   AddLiquidityAction,
   AggregatorSwapAction,

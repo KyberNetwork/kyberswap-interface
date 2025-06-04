@@ -9,7 +9,7 @@
     "./dialog": "./src/components/ui/dialog.tsx",
     "./slider": "./src/components/ui/slider.tsx",
     "./accordion": "./src/components/ui/accordion.tsx",
-    "./tooltip": "./src/components/tooltip.tsx",
+    "./tooltip": "./src/components/Tooltip/index.tsx",
     "./toggle": "./src/components/toggle.tsx",
     "./scroll-area": "./src/components/ui/scroll-area.tsx",
     "./info-helper": "./src/components/info-helper.tsx",

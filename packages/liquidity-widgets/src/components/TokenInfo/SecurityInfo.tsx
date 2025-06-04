@@ -8,7 +8,7 @@ import IconSecurityTrading from '@/assets/svg/security-trading.svg';
 import IconSecurity from '@/assets/svg/security.svg';
 import CollapseInfoItem from '@/components/TokenInfo/CollapseInfoItem';
 import useSecurityTokenInfo from '@/components/TokenInfo/useSecurityTokenInfo';
-import { MouseoverTooltip } from '@/components/Tooltip';
+import { MouseoverTooltip } from '@kyber/ui';
 import { useWidgetContext } from '@/stores';
 
 const SecurityInfo = ({ token }: { token: Token }) => {

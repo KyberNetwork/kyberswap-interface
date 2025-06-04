@@ -1,6 +1,6 @@
 import "./tooltip.css";
 import { Placement } from "@popperjs/core";
-import { Portal } from "../portal";
+import { Portal } from "../../portal";
 import React, { useCallback, useState } from "react";
 import { usePopper } from "react-popper";
 import { useInterval } from "@kyber/hooks/use-interval";

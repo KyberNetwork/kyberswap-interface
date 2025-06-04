@@ -1,15 +1,20 @@
 import { useMemo } from 'react';
 
 import { API_URLS, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO } from '@kyber/schema';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@kyber/ui';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+  MouseoverTooltip,
+  InfoHelper,
+} from '@kyber/ui';
 import { formatUnits } from '@kyber/utils/crypto';
 import { formatDisplayNumber, toRawString } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
 import defaultTokenLogo from '@/assets/svg/question.svg?url';
-import InfoHelper from '@/components/InfoHelper';
 import { SlippageWarning } from '@/components/SlippageWarning';
-import { MouseoverTooltip } from '@/components/Tooltip';
 import {
   AddLiquidityAction,
   AggregatorSwapAction,

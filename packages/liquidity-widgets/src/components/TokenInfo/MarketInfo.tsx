@@ -6,11 +6,12 @@ import LogoCoingecko from '@/assets/svg/coingecko.svg';
 import IconDown from '@/assets/svg/down.svg';
 import defaultTokenLogo from '@/assets/svg/question.svg?url';
 import IconZiczac from '@/assets/svg/ziczac.svg';
-import Loader from '@/components/Loader';
 import useMarketTokenInfo from '@/components/TokenInfo/useMarketTokenInfo';
 import { shortenAddress } from '@/components/TokenInfo/utils';
+
 import useCopy from '@/hooks/useCopy';
 import { useWidgetContext } from '@/stores';
+import { Loader } from '@kyber/ui';
 
 const MarketInfo = ({ token }: { token: Token }) => {
   const theme = useWidgetContext((s) => s.theme);
