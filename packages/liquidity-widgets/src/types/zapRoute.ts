@@ -136,8 +136,3 @@ export interface ZapRouteDetail {
   gas: string;
   gasUsd: string;
 }
-
-export enum Type {
-  PriceLower = 'PriceLower',
-  PriceUpper = 'PriceUpper',
-}

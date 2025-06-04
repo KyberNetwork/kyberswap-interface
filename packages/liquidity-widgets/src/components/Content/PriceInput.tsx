@@ -9,12 +9,12 @@ import {
   tickToPrice,
 } from '@kyber/utils/uniswapv3';
 
-import { Type } from '@/hooks/types/zapInTypes';
+import { PriceType } from '@/types/index';
 import { useZapState } from '@/hooks/useZapInState';
 import { useWidgetContext } from '@/stores';
 import { formatNumber } from '@/utils';
 
-export default function PriceInput({ type }: { type: Type }) {
+export default function PriceInput({ type }: { type: PriceType }) {
   const { tickLower, tickUpper, revertPrice, setTickLower, setTickUpper, positionId } =
     useZapState();
   const { pool: rawPool } = useWidgetContext((s) => s);
@@ -81,7 +81,7 @@ export default function PriceInput({ type }: { type: Type }) {
     );
     if (tick !== undefined) {
       const t = tick % pool.tickSpacing === 0 ? tick : nearestUsableTick(tick, pool.tickSpacing);
-      if (type === Type.PriceLower) {
+      if (type === PriceType.PriceLower) {
         revertPrice ? setTickUpper(t) : setTickLower(t);
       } else {
         revertPrice ? setTickLower(t) : setTickUpper(t);
@@ -109,7 +109,7 @@ export default function PriceInput({ type }: { type: Type }) {
             : '0'
           : tickToPrice(tickLower, pool.token0?.decimals, pool.token1?.decimals, revertPrice);
 
-      if (type === Type.PriceLower) {
+      if (type === PriceType.PriceLower) {
         const valueToSet = revertPrice ? maxPrice : minPrice;
         setLocalValue(valueToSet === '∞' ? valueToSet : formatNumber(parseFloat(valueToSet)));
       } else {
@@ -136,7 +136,7 @@ export default function PriceInput({ type }: { type: Type }) {
           className="w-6 h-6 rounded-[4px] border border-stroke bg-layer2 text-subText flex items-center justify-center cursor-pointer hover:enabled:brightness-150 active:enabled:scale-95 disabled:cursor-not-allowed disabled:opacity-60 outline-none"
           role="button"
           onClick={() => {
-            if (type === Type.PriceLower) {
+            if (type === PriceType.PriceLower) {
               revertPrice ? increaseTickUpper() : decreaseTickLower();
             } else {
               revertPrice ? increaseTickLower() : decreaseTickUpper();
@@ -149,7 +149,7 @@ export default function PriceInput({ type }: { type: Type }) {
       )}
 
       <div className="flex flex-col items-center gap-[6px] w-fit text-sm font-medium text-subText">
-        <span>{type === Type.PriceLower ? 'Min' : 'Max'} price</span>
+        <span>{type === PriceType.PriceLower ? 'Min' : 'Max'} price</span>
         <input
           className="bg-transparent w-[90px] text-center text-text text-base p-0 border-none outline-none disabled:cursor-not-allowed disabled:opacity-60"
           value={localValue}
@@ -180,7 +180,7 @@ export default function PriceInput({ type }: { type: Type }) {
         <button
           className="w-6 h-6 rounded-[4px] border border-stroke bg-layer2 text-subText flex items-center justify-center cursor-pointer hover:enabled:brightness-150 active:enabled:scale-95 disabled:cursor-not-allowed disabled:opacity-60 outline-none"
           onClick={() => {
-            if (type === Type.PriceLower) {
+            if (type === PriceType.PriceLower) {
               revertPrice ? decreaseTickUpper() : increaseTickLower();
             } else {
               revertPrice ? decreaseTickLower() : increaseTickUpper();

@@ -23,7 +23,7 @@ import {
   ProtocolFeeAction,
   RefundAction,
   ZapAction,
-} from '@/hooks/types/zapInTypes';
+} from '@/types/zapRoute';
 import { useZapState } from '@/hooks/useZapInState';
 import { useWidgetContext } from '@/stores';
 import { PI_LEVEL, formatCurrency, formatNumber, getPriceImpact } from '@/utils';

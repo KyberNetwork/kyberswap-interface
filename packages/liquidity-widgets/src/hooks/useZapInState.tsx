@@ -28,7 +28,7 @@ import { parseUnits } from '@kyber/utils/crypto';
 import { divideBigIntToString } from '@kyber/utils/number';
 import { tickToPrice } from '@kyber/utils/uniswapv3';
 
-import { ZapRouteDetail } from '@/hooks/types/zapInTypes';
+import { ZapRouteDetail } from '@/types/zapRoute';
 import { useDebounce, useTokenBalances, useTokenPrices } from '@kyber/hooks';
 import { useTokenList } from '@/hooks/useTokenList';
 import { useWidgetContext } from '@/stores';

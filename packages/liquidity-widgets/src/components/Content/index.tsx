@@ -32,7 +32,8 @@ import PriceRange from '@/components/PriceRange';
 import { TOKEN_SELECT_MODE } from '@/components/TokenSelector';
 import TokenSelectorModal from '@/components/TokenSelector/TokenSelectorModal';
 import { MAX_ZAP_IN_TOKENS, ERROR_MESSAGE } from '@/constants';
-import { AggregatorSwapAction, PoolSwapAction, Type, ZapAction } from '@/hooks/types/zapInTypes';
+import { AggregatorSwapAction, PoolSwapAction, ZapAction } from '@/types/zapRoute';
+import { PriceType } from '@/types/index';
 import { APPROVAL_STATE, useApprovals } from '@/hooks/useApproval';
 import { usePositionOwner } from '@kyber/hooks';
 import { useZapState } from '@/hooks/useZapInState';
@@ -425,8 +426,8 @@ export default function Content() {
             {positionId === undefined ? (
               isUniV3PoolType && (
                 <div className="flex gap-4 w-full">
-                  <PriceInput type={Type.PriceLower} />
-                  <PriceInput type={Type.PriceUpper} />
+                  <PriceInput type={PriceType.PriceLower} />
+                  <PriceInput type={PriceType.PriceUpper} />
                 </div>
               )
             ) : (

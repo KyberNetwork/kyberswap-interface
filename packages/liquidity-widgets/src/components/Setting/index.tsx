@@ -5,10 +5,9 @@ import { cn } from '@kyber/utils/tailwind-helpers';
 import X from '@/assets/svg/x.svg';
 import Modal from '@/components/Modal';
 import SlippageInput from '@/components/Setting/SlippageInput';
-import Toggle from '@/components/Toggle';
 import { useZapState } from '@/hooks/useZapInState';
-import { MouseoverTooltip } from '@kyber/ui';
 import { useOnClickOutside } from '@kyber/hooks';
+import { MouseoverTooltip, Toggle } from '@kyber/ui';
 
 const validateDeadlineString = (str: string): boolean => {
   const value = Number.parseInt(str, 10);

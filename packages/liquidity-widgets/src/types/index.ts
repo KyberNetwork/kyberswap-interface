@@ -61,3 +61,8 @@ interface PositionAmount {
     };
   };
 }
+
+export enum PriceType {
+  PriceLower = 'PriceLower',
+  PriceUpper = 'PriceUpper',
+}

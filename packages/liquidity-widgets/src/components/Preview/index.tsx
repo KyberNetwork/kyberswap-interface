@@ -47,7 +47,7 @@ import {
   RefundAction,
   ZapAction,
   ZapRouteDetail,
-} from '@/hooks/types/zapInTypes';
+} from '@/types/zapRoute';
 import { useZapState } from '@/hooks/useZapInState';
 import { useWidgetContext } from '@/stores';
 import {
