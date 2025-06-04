@@ -111,7 +111,7 @@ export class OptimexAdapter extends BaseSwapAdapter {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          debug: true,
+          debug: false,
           from_token_amount: params.amount,
           from_token_id: fromTokenId,
           to_token_id: toTokenId,

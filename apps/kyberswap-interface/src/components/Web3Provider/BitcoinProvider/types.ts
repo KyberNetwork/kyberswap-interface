@@ -11,7 +11,7 @@ export interface BitcoinWalletBase {
   name: string
   logo: string
   type: WalletType
-  connect: () => Promise<void>
+  connect: (path?: string) => Promise<void>
   disconnect?: () => Promise<void>
   sendBitcoin: ({ recipient, amount }: SendBitcoinParams) => Promise<string>
   isInstalled: () => boolean
