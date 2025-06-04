@@ -66,7 +66,10 @@ export const NETWORKS_INFO: Record<ChainId, NetworkInfo> = {
 
 export const DEXES_INFO: Record<PoolType, DexInfo> = {
   [PoolType.DEX_UNISWAP_V4]: uniswapv4,
-  [PoolType.DEX_KEM_UNISWAP_V4_FAIRFLOW]: uniswapv4,
+  [PoolType.DEX_KEM_UNISWAP_V4_FAIRFLOW]: {
+    ...uniswapv4,
+    name: 'Uniswap V4 FairFlow',
+  },
   [PoolType.DEX_UNISWAPV3]: uniswapv3,
   [PoolType.DEX_PANCAKESWAPV3]: pancakeswapv3,
   [PoolType.DEX_METAVAULTV3]: metavaultv3,
