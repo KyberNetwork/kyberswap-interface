@@ -91,7 +91,7 @@ export const TransactionHistory = () => {
               }
 
               // Only update if we have meaningful changes
-              if (txHash !== tx.targetTxHash || status !== tx.status) {
+              if ((txHash && txHash !== tx.targetTxHash) || status !== tx.status) {
                 const txIndex = updatedTransactions.findIndex(t => t.id === tx.id)
 
                 if (txIndex !== -1) {
