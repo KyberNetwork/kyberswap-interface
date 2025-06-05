@@ -1,7 +1,5 @@
 import { z } from 'zod';
 
-import { enumToArrayOfValues } from '@kyber/utils';
-
 import { ChainId } from '@/schema/chain';
 
 export enum EarnDex {
@@ -57,7 +55,3 @@ const univ3Dexes = [
   EarnDex.DEX_UNISWAP_V4_FAIRFLOW,
 ] as const;
 export const Univ3EarnDex = z.enum(univ3Dexes);
-
-export const EARN_SUPPORTED_CHAINS = enumToArrayOfValues(EarnChain, 'number');
-
-export const EARN_SUPPORTED_EXCHANGES = enumToArrayOfValues(Exchange);

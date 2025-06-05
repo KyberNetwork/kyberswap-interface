@@ -21,9 +21,10 @@ interface GetPoolParams {
   dexFrom: Dex;
   poolTo: string;
   dexTo: Dex;
-  fetchPrices: (
-    address: string[]
-  ) => Promise<{ [key: string]: { PriceBuy: number } }>;
+  fetchPrices: (params: {
+    addresses: string[];
+    chainId: ChainId;
+  }) => Promise<{ [key: string]: { PriceBuy: number } }>;
 }
 interface PoolsState {
   pools: "loading" | [Pool, Pool];
@@ -190,9 +191,10 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
         .then((res) => res?.data?.tokens || [])
         .catch(() => []);
 
-      const prices = await fetchPrices(
-        addresses.map((item) => item.toLowerCase())
-      );
+      const prices = await fetchPrices({
+        addresses: addresses.map((item) => item.toLowerCase()),
+        chainId,
+      });
 
       const enrichLogoAndPrice = async (
         token: Pick<Token, "address">

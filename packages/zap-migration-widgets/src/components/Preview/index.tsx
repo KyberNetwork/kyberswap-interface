@@ -7,9 +7,8 @@ import {
   DialogTitle,
   ScrollArea,
   MouseoverTooltip,
-  InfoHelper
+  InfoHelper,
 } from "@kyber/ui";
-import { useTokenPrices } from "@kyber/hooks/use-token-prices";
 import {
   ProtocolFeeAction,
   RefundAction,
@@ -42,6 +41,7 @@ import { SwapPI, useSwapPI } from "../SwapImpact";
 import { PI_LEVEL, formatCurrency } from "../../utils";
 import useCopy from "../../hooks/use-copy";
 import { SlippageInfo } from "../SlippageInfo";
+import { fetchTokenPrice } from "@kyber/utils";
 
 export function Preview({
   chainId,
@@ -88,8 +88,6 @@ export function Preview({
     value: string;
   } | null>(null);
   const [error, setError] = useState<string>("");
-
-  const { fetchPrices } = useTokenPrices({ addresses: [], chainId });
 
   useEffect(() => {
     if (!route?.route || !showPreview) return;
@@ -138,7 +136,10 @@ export function Preview({
           return "0";
         }),
         getCurrentGasPrice(rpcUrl).catch(() => 0),
-        fetchPrices([wethAddress])
+        fetchTokenPrice({
+          addresses: [wethAddress],
+          chainId,
+        })
           .then((prices) => {
             return prices[wethAddress]?.PriceBuy || 0;
           })
@@ -260,16 +261,16 @@ export function Preview({
             {txStatus === "success"
               ? "Migrate Success!"
               : txStatus === "failed"
-              ? "Transaction Failed!"
-              : "Processing Transaction"}
+                ? "Transaction Failed!"
+                : "Processing Transaction"}
           </div>
 
           <div className="text-subText">
             {txStatus === "success"
               ? "You have successfully added liquidity!"
               : txStatus === "failed"
-              ? "An error occurred during the liquidity migration."
-              : "Transaction submitted. Waiting for the transaction to be mined"}
+                ? "An error occurred during the liquidity migration."
+                : "Transaction submitted. Waiting for the transaction to be mined"}
           </div>
           <a
             className="text-primary text-xs mt-4"
@@ -546,8 +547,8 @@ export function Preview({
                         zapPiRes.level === PI_LEVEL.INVALID
                         ? "text-error border-error"
                         : zapPiRes.level === PI_LEVEL.HIGH
-                        ? "text-warning border-warning"
-                        : "text-subText border-subText"
+                          ? "text-warning border-warning"
+                          : "text-subText border-subText"
                     )}
                   >
                     Zap Impact
@@ -560,8 +561,8 @@ export function Preview({
                       zapPiRes.level === PI_LEVEL.INVALID
                         ? "text-error"
                         : zapPiRes.level === PI_LEVEL.HIGH
-                        ? "text-warning"
-                        : "text-text"
+                          ? "text-warning"
+                          : "text-text"
                     }`}
                   >
                     {zapPiRes.display}

@@ -2,7 +2,6 @@ import { createContext, useContext, useEffect, useRef } from 'react';
 
 import { createStore, useStore } from 'zustand';
 
-import { useTokenPrices } from '@kyber/hooks';
 import { API_URLS, DEXES_INFO, NETWORKS_INFO } from '@kyber/schema';
 import {
   ChainId,
@@ -19,6 +18,7 @@ import {
   univ3Pool,
   univ4Types,
 } from '@kyber/schema';
+import { fetchTokenPrice } from '@kyber/utils';
 import { encodeUint256, getFunctionSelector } from '@kyber/utils/crypto';
 import {
   MAX_TICK,
@@ -75,7 +75,7 @@ interface WidgetState extends WidgetProps {
   showWidget: boolean;
   poolLoading: boolean;
 
-  getPool: (fetchPrices: (address: string[]) => Promise<{ [key: string]: { PriceBuy: number } }>) => void;
+  getPool: () => void;
 
   setConnectedAccount: (connectedAccount: WidgetProps['connectedAccount']) => void;
 
@@ -98,7 +98,7 @@ const createWidgetStore = (initProps: InnerWidgetProps) => {
     showWidget: true,
     poolLoading: false,
 
-    getPool: async fetchPrices => {
+    getPool: async () => {
       const { poolAddress, chainId, poolType, positionId, connectedAccount } = get();
 
       set({ poolLoading: true });
@@ -142,7 +142,10 @@ const createWidgetStore = (initProps: InnerWidgetProps) => {
       const token0Address = pool.tokens[0].address;
       const token1Address = pool.tokens[1].address;
 
-      const prices = await fetchPrices([token0Address.toLowerCase(), token1Address.toLowerCase()]);
+      const prices = await fetchTokenPrice({
+        addresses: [token0Address.toLowerCase(), token1Address.toLowerCase()],
+        chainId,
+      });
 
       const token0Price = prices[token0Address.toLowerCase()]?.PriceBuy || 0;
       const token1Price = prices[token1Address.toLowerCase()]?.PriceBuy || 0;
@@ -451,14 +454,9 @@ const WidgetContext = createContext<WidgetStore | null>(null);
 export function WidgetProvider({ children, ...props }: WidgetProviderProps) {
   const store = useRef(createWidgetStore(props)).current;
 
-  const { fetchPrices } = useTokenPrices({
-    addresses: [],
-    chainId: store.getState().chainId,
-  });
-
   useEffect(() => {
     // get Pool and position then update store here
-    store.getState().getPool(fetchPrices);
+    store.getState().getPool();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

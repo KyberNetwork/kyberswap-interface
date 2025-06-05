@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { API_URLS, EARN_SUPPORTED_CHAINS, EARN_SUPPORTED_EXCHANGES, EarnDex, Univ2EarnDex } from '@kyber/schema';
+import { API_URLS, EarnChain, EarnDex, Exchange, Univ2EarnDex } from '@kyber/schema';
+import { enumToArrayOfValues } from '@kyber/utils';
 import { isAddress } from '@kyber/utils/crypto';
 import { formatDisplayNumber } from '@kyber/utils/number';
 
@@ -17,6 +18,10 @@ import { shortenAddress } from '../TokenInfo/utils';
 
 const COPY_TIMEOUT = 2000;
 let hideCopied: ReturnType<typeof setTimeout>;
+
+const earnSupportedChains = enumToArrayOfValues(EarnChain, 'number');
+
+export const earnSupportedExchanges = enumToArrayOfValues(Exchange);
 
 const UserPositions = ({ search }: { search: string }) => {
   const { theme, connectedAccount, chainId, positionId, onOpenZapMigration, onConnectWallet, poolAddress } =
@@ -70,7 +75,7 @@ const UserPositions = ({ search }: { search: string }) => {
   };
 
   const handleGetUserPositions = useCallback(async () => {
-    if (!account || !EARN_SUPPORTED_CHAINS.includes(chainId)) return;
+    if (!account || !earnSupportedChains.includes(chainId)) return;
     setLoading(true);
     try {
       const response = await fetch(
@@ -79,7 +84,7 @@ const UserPositions = ({ search }: { search: string }) => {
           new URLSearchParams({
             addresses: account,
             chainIds: chainId.toString(),
-            protocols: EARN_SUPPORTED_EXCHANGES.join(','),
+            protocols: earnSupportedExchanges.join(','),
             quoteSymbol: 'usd',
             offset: '0',
             orderBy: 'liquidity',

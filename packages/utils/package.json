@@ -24,6 +24,7 @@
     "./dist/number": "./src/number.ts"
   },
   "devDependencies": {
+    "@kyber/schema": "workspace:*",
     "@kyber/eslint-config": "workspace:*",
     "@kyber/typescript-config": "workspace:*",
     "@types/eslint": "^8.56.5",

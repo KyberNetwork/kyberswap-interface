@@ -28,7 +28,6 @@
     "@kyber/eslint-config": "workspace:*",
     "@kyber/tailwind-config": "workspace:^",
     "@kyber/typescript-config": "workspace:*",
-    "@kyber/utils": "workspace:^",
     "@types/eslint": "^8.56.5",
     "@types/node": "^20.11.24",
     "@types/react": "^18.0.17",

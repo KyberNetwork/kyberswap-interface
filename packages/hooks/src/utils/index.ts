@@ -1,6 +1,6 @@
 import { getFunctionSelector } from '@kyber/utils/crypto';
 
-export const encodeBytes = (data: string) => {
+const encodeBytes = (data: string) => {
   const length = data.length / 2; // Hex string length divided by 2 for bytes
   const lengthEncoded = length.toString(16).padStart(64, '0');
   const paddedData = data.padEnd(Math.ceil(data.length / 64) * 64, '0');

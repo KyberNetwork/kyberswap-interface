@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { useDebounce, useTokenPrices } from '@kyber/hooks';
+import { useDebounce } from '@kyber/hooks';
 
 import { useWidgetContext } from '@/stores';
 
@@ -55,12 +55,8 @@ const Spin = ({ countdown }: { countdown: number }) => {
 };
 
 export default function RefreshLoading() {
-  const { chainId, poolLoading, getPool } = useWidgetContext(s => s);
+  const { poolLoading, getPool } = useWidgetContext(s => s);
 
-  const { fetchPrices } = useTokenPrices({
-    addresses: [],
-    chainId,
-  });
   const [countdown, setCountdown] = useState(0);
 
   const debouncedRefetchLoading = useDebounce(poolLoading, 100);
@@ -76,7 +72,7 @@ export default function RefreshLoading() {
         const newCountdown = countdown - 10;
         setCountdown(newCountdown);
         if (newCountdown === 10) {
-          getPool(fetchPrices);
+          getPool();
         }
       }, 10);
     }
@@ -84,7 +80,7 @@ export default function RefreshLoading() {
     return () => {
       clearInterval(interval);
     };
-  }, [countdown, fetchPrices, getPool]);
+  }, [countdown, getPool]);
 
   return (
     <div className="flex items-center relative w-fit">

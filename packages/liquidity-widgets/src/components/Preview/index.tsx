@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
 
-import { useTokenPrices } from '@kyber/hooks';
 import {
   API_URLS,
   CHAIN_ID_TO_CHAIN,
@@ -13,6 +12,7 @@ import {
   univ3PoolNormalize,
 } from '@kyber/schema';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, InfoHelper, MouseoverTooltip } from '@kyber/ui';
+import { fetchTokenPrice } from '@kyber/utils';
 import {
   calculateGasMargin,
   estimateGas,
@@ -82,8 +82,6 @@ export default function Preview({
   const { source, revertPrice: revert, toggleRevertPrice, tokensIn, amountsIn, tokenPrices } = useZapState();
 
   const { tokensIn: listValidTokensIn, amountsIn: listValidAmountsIn } = parseTokensAndAmounts(tokensIn, amountsIn);
-
-  const { fetchPrices } = useTokenPrices({ addresses: [], chainId });
 
   const [txHash, setTxHash] = useState('');
   const [attempTx, setAttempTx] = useState(false);
@@ -337,7 +335,7 @@ export default function Preview({
             const wethAddress = NETWORKS_INFO[chainId].wrappedToken.address.toLowerCase();
             const [gasEstimation, nativeTokenPrice, gasPrice] = await Promise.all([
               estimateGas(rpcUrl, txData),
-              fetchPrices([wethAddress])
+              fetchTokenPrice({ addresses: [wethAddress], chainId })
                 .then((prices: { [x: string]: { PriceBuy: number } }) => {
                   return prices[wethAddress]?.PriceBuy || 0;
                 })
@@ -353,7 +351,7 @@ export default function Preview({
           }
         }
       });
-  }, [account, chainId, deadline, fetchPrices, rpcUrl, source, zapInfo.route]);
+  }, [account, chainId, deadline, rpcUrl, source, zapInfo.route]);
 
   const dexName =
     typeof DEXES_INFO[poolType].name === 'string' ? DEXES_INFO[poolType].name : DEXES_INFO[poolType].name[chainId];

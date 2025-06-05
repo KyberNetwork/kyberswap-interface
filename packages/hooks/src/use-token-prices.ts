@@ -1,14 +1,6 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
-const TOKEN_API_URL = 'https://token-api.kyberengineering.io/api';
-
-interface PriceResponse {
-  data: {
-    [chainId: string]: {
-      [address: string]: { PriceBuy: number; PriceSell: number };
-    };
-  };
-}
+import { fetchTokenPrice } from '@kyber/utils';
 
 export function useTokenPrices({ addresses, chainId }: { addresses: string[]; chainId: number }) {
   const [loading, setLoading] = useState(false);
@@ -21,27 +13,13 @@ export function useTokenPrices({ addresses, chainId }: { addresses: string[]; ch
     }, {});
   });
 
-  const fetchPrices = useCallback(
-    async (_addresses: string[]) => {
-      const r: PriceResponse = await fetch(`${TOKEN_API_URL}/v1/public/tokens/prices`, {
-        method: 'POST',
-        body: JSON.stringify({
-          [chainId]: _addresses,
-        }),
-      }).then(res => res.json());
-
-      return r?.data?.[chainId] || {};
-    },
-    [chainId],
-  );
-
   useEffect(() => {
     if (addresses.length === 0) {
       setPrices({});
       return;
     }
 
-    fetchPrices(addresses)
+    fetchTokenPrice({ addresses, chainId })
       .then(prices => {
         setPrices(
           addresses.reduce((acc, address) => {
@@ -56,11 +34,10 @@ export function useTokenPrices({ addresses, chainId }: { addresses: string[]; ch
         setLoading(false);
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fetchPrices, addresses.join(',')]);
+  }, [chainId, addresses.join(',')]);
 
   return {
     loading,
     prices,
-    fetchPrices,
   };
 }

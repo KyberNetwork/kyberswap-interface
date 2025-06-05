@@ -1,3 +1,4 @@
+import { fetchTokenPrice } from "@kyber/utils";
 import CircleChevronRight from "./assets/icons/circle-chevron-right.svg";
 import { Action } from "./components/Action";
 import { EstimateLiqValue } from "./components/EstimateLiqValue";
@@ -15,7 +16,6 @@ import { usePoolsStore } from "./stores/usePoolsStore";
 import { usePositionStore } from "./stores/usePositionStore";
 import { useZapStateStore } from "./stores/useZapStateStore";
 import { defaultTheme, Theme } from "./theme";
-import { useTokenPrices } from "@kyber/hooks/use-token-prices";
 import {
   Dialog,
   DialogContent,
@@ -128,7 +128,6 @@ export const ZapMigration = (props: ZapMigrationProps) => {
   } = usePositionStore();
 
   const { showPreview, manualSlippage, setSlippage } = useZapStateStore();
-  const { fetchPrices } = useTokenPrices({ addresses: [], chainId });
 
   useEffect(() => {
     if (!theme) return;
@@ -160,7 +159,7 @@ export const ZapMigration = (props: ZapMigrationProps) => {
       poolTo: to.poolId,
       dexFrom: from.dex,
       dexTo: to.dex,
-      fetchPrices,
+      fetchPrices: fetchTokenPrice,
     };
     getPools(params);
 
