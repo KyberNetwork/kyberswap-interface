@@ -282,8 +282,9 @@ export const chainIdToChain: { [chainId: number]: string } = {
 export const MAX_ZAP_IN_TOKENS = 5;
 
 export enum PoolType {
-  DEX_PANCAKESWAPV3 = "DEX_PANCAKESWAPV3",
-  DEX_PANCAKE_INFINITY_CL = "DEX_PANCAKE_INFINITY_CL",
+  DEX_PANCAKESWAPV3 = 3,
+  DEX_PANCAKE_INFINITY_CL = 75,
+  DEX_KEM_PANCAKE_INFINITY_CL = 74,
 }
 
 export const API_URL = {
@@ -296,6 +297,9 @@ export const POOL_MANAGER_CONTRACT: {
 } = {
   [PoolType.DEX_PANCAKESWAPV3]: "",
   [PoolType.DEX_PANCAKE_INFINITY_CL]: {
+    56: "0xa0FfB9c1CE1Fe56963B0321B32E7A0302114058b",
+  },
+  [PoolType.DEX_KEM_PANCAKE_INFINITY_CL]: {
     56: "0xa0FfB9c1CE1Fe56963B0321B32E7A0302114058b",
   },
 };
@@ -321,6 +325,9 @@ export const POSITION_MANAGER_CONTRACT: {
   [PoolType.DEX_PANCAKE_INFINITY_CL]: {
     56: "0x55f4c8abA71A1e923edC303eb4fEfF14608cC226",
   },
+  [PoolType.DEX_KEM_PANCAKE_INFINITY_CL]: {
+    56: "0x55f4c8abA71A1e923edC303eb4fEfF14608cC226",
+  },
 };
 
 interface DexInfo {
@@ -337,4 +344,19 @@ export const DEXES_INFO: { [poolType in PoolType]: DexInfo } = {
     name: "Pancake Infinity CL",
     logo: pancakeLogo,
   },
+  [PoolType.DEX_KEM_PANCAKE_INFINITY_CL]: {
+    name: "Pancake Kem Infinity CL",
+    logo: pancakeLogo,
+  },
+};
+
+export enum CoreProtocol {
+  PancakeSwapV3,
+  PancakeInfinityCL,
+}
+
+export const PROTOCOLS_CORE_MAPPING: Record<PoolType, CoreProtocol> = {
+  [PoolType.DEX_PANCAKESWAPV3]: CoreProtocol.PancakeSwapV3,
+  [PoolType.DEX_PANCAKE_INFINITY_CL]: CoreProtocol.PancakeInfinityCL,
+  [PoolType.DEX_KEM_PANCAKE_INFINITY_CL]: CoreProtocol.PancakeInfinityCL,
 };
