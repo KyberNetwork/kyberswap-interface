@@ -597,7 +597,7 @@ export default function Preview({
             )}
           </span>
 
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             {positionId &&
               (!isOutOfRange ? (
                 <div className="rounded-full py-0 px-2 h-6 text-sm flex items-center gap-1 box-border border border-green20 text-green50 bg-green10">
