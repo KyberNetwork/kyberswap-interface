@@ -88,6 +88,10 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
   const { chainId, account } = useActiveWeb3React()
 
   useEffect(() => {
+    setLoading(true)
+  }, [amount])
+
+  useEffect(() => {
     if (!from) {
       searchParams.set('from', chainId?.toString() || '')
       setSearchParams(searchParams)
@@ -276,6 +280,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     if (disable) {
       setQuotes([])
       setSelectedAdapter(null)
+      abortControllerRef.current.abort()
       return
     }
     abortControllerRef.current.abort()

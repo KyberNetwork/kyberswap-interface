@@ -58,7 +58,12 @@ function parseKnownPattern(text: string): string | undefined {
 
   if (
     matchPatterns(
-      ['insufficient funds for intrinsic transaction cost', 'OutOfFund', 'insufficient balance for transfer'],
+      [
+        'insufficient funds for intrinsic transaction cost',
+        'OutOfFund',
+        'insufficient balance for transfer',
+        'insufficient funds',
+      ],
       error,
     )
   )

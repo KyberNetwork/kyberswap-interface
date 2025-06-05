@@ -1,5 +1,5 @@
+// import { setupHereWallet } from '@near-wallet-selector/here-wallet'
 import { NetworkId } from '@near-wallet-selector/core/src/lib/options.types'
-import { setupHereWallet } from '@near-wallet-selector/here-wallet'
 import { setupLedger } from '@near-wallet-selector/ledger'
 import { setupMathWallet } from '@near-wallet-selector/math-wallet'
 import { setupMeteorWallet } from '@near-wallet-selector/meteor-wallet'
@@ -27,7 +27,7 @@ const walletSelectorConfig = {
     setupNightly(),
     // setupBitgetWallet(),
     setupMathWallet(),
-    setupHereWallet(),
+    // setupHereWallet(),
     // setupMeteorWalletApp({ contractId: CONTRACT_ID }),
     // setupOKXWallet(),
     // setupWelldoneWallet(),

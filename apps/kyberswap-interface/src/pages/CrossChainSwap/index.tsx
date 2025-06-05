@@ -23,7 +23,7 @@ import { formatDisplayNumber } from 'utils/numbers'
 import { NonEvmChain } from './adapters'
 import { BitcoinConnectModal } from './components/BitcoinConnectModal'
 import { PiWarning } from './components/PiWarning'
-import { QuoteSelector } from './components/QuoteSelector'
+import { QuoteSelector, Tag } from './components/QuoteSelector'
 import { Summary } from './components/Summary'
 import { SwapAction } from './components/SwapAction'
 import { TokenLogoWithChain } from './components/TokenLogoWithChain'
@@ -47,6 +47,7 @@ function CrossChainSwap() {
     currencyIn,
     currencyOut,
     quotes,
+    allLoading,
     loading,
     getQuote,
     disable,
@@ -131,7 +132,7 @@ function CrossChainSwap() {
 
       <Flex justifyContent="space-between" alignItems="center">
         <RefreshLoading
-          refetchLoading={loading}
+          refetchLoading={allLoading}
           clickable
           disableRefresh={disable || showPreview}
           onRefresh={getQuote}
@@ -309,8 +310,9 @@ function CrossChainSwap() {
       <Summary quote={selectedQuote || undefined} tokenOut={currencyOut} />
 
       {selectedQuote && (
-        <Text fontStyle="italic" color={'#737373'} fontSize={12}>
+        <Text fontStyle="italic" color={'#737373'} fontSize={12} display="flex">
           Routed via {selectedQuote.adapter.getName()}
+          {selectedQuote.adapter.getName() === 'Optimex' && <Tag>Beta</Tag>}
         </Text>
       )}
 
