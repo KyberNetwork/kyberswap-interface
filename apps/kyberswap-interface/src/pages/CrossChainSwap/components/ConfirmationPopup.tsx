@@ -1,4 +1,5 @@
 import { ButtonEmpty, ButtonPrimary } from 'components/Button'
+import { Tag } from './QuoteSelector'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
 import useTheme from 'hooks/useTheme'
 import { ArrowDown, X } from 'react-feather'
@@ -110,12 +111,12 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
 
   const sendBtcFn = async (params: { recipient: string; amount: string | number }) => {
     const feeRate = await fetch('https://mempool.space/api/v1/fees/recommended').then(res => res.json())
-    console.log(feeRate)
 
     const selectedWallet = availableWallets.find(item => item.type === walletInfo.walletType)
     if (!selectedWallet) throw new Error('Not connected wallet')
     return selectedWallet.sendBitcoin({
       ...params,
+      sender: walletInfo?.address || undefined,
       ...(feeRate?.fastestFee
         ? {
             options: { feeRate: feeRate.fastestFee * 1.2 },
@@ -267,8 +268,9 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
             {warning?.priceImpaceInfo?.message && <Flex marginTop="1rem"></Flex>}
             <PiWarning />
 
-            <Text marginY="1rem" fontStyle="italic" color={'#737373'} fontSize={12}>
+            <Text marginY="1rem" fontStyle="italic" color={'#737373'} fontSize={12} display="flex" alignItems="center">
               Routed via {selectedQuote.adapter.getName()}
+              {selectedQuote.adapter.getName() === 'Optimex' && <Tag>Beta</Tag>}
             </Text>
 
             <ButtonPrimary onClick={handleSwap}>Confirm Swap</ButtonPrimary>

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, useRef } from 'react'
 import Skeleton from 'react-loading-skeleton'
 import { Flex, Text } from 'rebass'
 import { useCrossChainTransactions } from 'state/crossChainSwap'
@@ -50,70 +50,110 @@ export const TransactionHistory = () => {
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
+  // Track ongoing API calls to prevent duplicates
+  const ongoingCallsRef = useRef(new Set())
+  const intervalRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
   const pendingTxs = useMemo(() => {
     return transactions.filter(
-      tx => (!tx.targetTxHash || !tx.status || tx.status === 'Processing') && tx.status !== 'Refunded',
+      tx =>
+        (!tx.targetTxHash || !tx.status || tx.status === 'Processing') &&
+        tx.status !== 'Refunded' &&
+        tx.status !== 'Failed',
     )
   }, [transactions])
 
   useEffect(() => {
-    // Create an array to track if we need to update
-    const updatedTransactions = [...transactions]
-    let hasUpdates = false
-
-    // Create an async function to fetch statuses
     const checkTransactions = async () => {
-      // Use Promise.all to handle multiple async calls efficiently
-      await Promise.all(
-        pendingTxs.map(async tx => {
-          const adapter = registry.getAdapter(tx.adapter)
-          if (!adapter) return null
+      // Filter out transactions that are already being checked
+      const txsToCheck = pendingTxs.filter(tx => !ongoingCallsRef.current.has(tx.id))
 
-          try {
-            const { txHash, status } = (await adapter.getTransactionStatus(tx)) || {
-              txHash: '',
-              status: 'Processing',
-            }
+      if (txsToCheck.length === 0) return
 
-            // Only update if we have a txHash or status changed
-            if (txHash || status !== tx.status) {
-              // Find the transaction index in our copied array
-              const txIndex = updatedTransactions.findIndex(t => t.id === tx.id)
+      // Mark these transactions as being checked
+      txsToCheck.forEach(tx => ongoingCallsRef.current.add(tx.id))
 
-              if (txIndex !== -1) {
-                // Create updated transaction with new data
-                updatedTransactions[txIndex] = {
-                  ...updatedTransactions[txIndex],
-                  targetTxHash: txHash || updatedTransactions[txIndex].targetTxHash,
-                  status: status || updatedTransactions[txIndex].status,
-                }
-                hasUpdates = true
+      try {
+        const updatedTransactions = [...transactions]
+        let hasUpdates = false
+
+        // Use Promise.allSettled to handle individual failures gracefully
+        const results = await Promise.allSettled(
+          txsToCheck.map(async tx => {
+            const adapter = registry.getAdapter(tx.adapter)
+            if (!adapter) return null
+
+            try {
+              const result = await adapter.getTransactionStatus(tx)
+              const { txHash, status } = result || {
+                txHash: '',
+                status: 'Processing',
               }
-            }
-            return true
-          } catch (error) {
-            console.error(`Failed to check status for transaction ${tx.id}:`, error)
-            return false
-          }
-        }),
-      )
 
-      // Only dispatch update if we have changes
-      if (hasUpdates) {
-        setTransactions(updatedTransactions)
+              // Only update if we have meaningful changes
+              if ((txHash && txHash !== tx.targetTxHash) || status !== tx.status) {
+                const txIndex = updatedTransactions.findIndex(t => t.id === tx.id)
+
+                if (txIndex !== -1) {
+                  updatedTransactions[txIndex] = {
+                    ...updatedTransactions[txIndex],
+                    targetTxHash: txHash || updatedTransactions[txIndex].targetTxHash,
+                    status: status || updatedTransactions[txIndex].status,
+                  }
+                  hasUpdates = true
+                }
+              }
+              return { success: true, txId: tx.id }
+            } catch (error) {
+              console.error(`Failed to check status for transaction ${tx.id}:`, error)
+              return { success: false, txId: tx.id, error }
+            }
+          }),
+        )
+
+        // Remove transaction IDs from ongoing calls set
+        results.forEach(result => {
+          if (result.status === 'fulfilled' && result.value?.txId) {
+            ongoingCallsRef.current.delete(result.value.txId)
+          } else if (result.status === 'rejected') {
+            // Handle rejected promises - you might want to extract txId differently
+            console.error('Promise rejected:', result.reason)
+          }
+        })
+
+        // Update transactions if we have changes
+        if (hasUpdates) {
+          setTransactions(updatedTransactions)
+        }
+      } catch (error) {
+        console.error('Error in checkTransactions:', error)
+        // Clear ongoing calls in case of unexpected error
+        txsToCheck.forEach(tx => ongoingCallsRef.current.delete(tx.id))
       }
+    }
+
+    // Clear any existing interval
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current)
+      intervalRef.current = null
     }
 
     // Only run if we have pending transactions
     if (pendingTxs.length > 0) {
+      // Initial check
       checkTransactions()
 
-      // Optional: set up an interval to poll for updates
-      const interval = setInterval(checkTransactions, 10_000) // Check every 10 seconds
-
-      return () => clearInterval(interval)
+      // Set up interval for periodic checks
+      intervalRef.current = setInterval(checkTransactions, 10_000) // Check every 10 seconds
     }
-    return undefined
+
+    // Cleanup function
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+        intervalRef.current = null
+      }
+    }
   }, [pendingTxs, transactions, setTransactions])
 
   const theme = useTheme()
