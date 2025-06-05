@@ -35,7 +35,7 @@ export const parsePosition = ({
     EarnDex.DEX_UNISWAPV2,
     EarnDex.DEX_UNISWAPV3,
     EarnDex.DEX_UNISWAP_V4,
-    EarnDex.DEX_KEM_UNISWAP_V4_FAIRFLOW,
+    EarnDex.DEX_UNISWAP_V4_FAIRFLOW,
   ]
 
   return {

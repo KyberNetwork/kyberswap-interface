@@ -95,7 +95,7 @@ export default function PoolStat({
         <span>Est. APR</span>
         <div className={`flex items-center gap-1 ${poolApr > 0 ? 'text-accent' : 'text-text'}`}>
           {formatAprNumber(poolApr) + '%'}
-          {poolType === PoolType.DEX_KEM_UNISWAP_V4_FAIRFLOW ? <FarmingIcon width={20} height={20} /> : null}
+          {poolType === PoolType.DEX_UNISWAP_V4_FAIRFLOW ? <FarmingIcon width={20} height={20} /> : null}
         </div>
       </div>
       {isUniv2 && (

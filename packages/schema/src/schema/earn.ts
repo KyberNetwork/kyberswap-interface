@@ -6,7 +6,7 @@ import { ChainId } from '@/schema/chain';
 
 export enum EarnDex {
   DEX_UNISWAP_V4 = 'Uniswap V4',
-  DEX_KEM_UNISWAP_V4_FAIRFLOW = 'Uniswap V4 FairFlow',
+  DEX_UNISWAP_V4_FAIRFLOW = 'Uniswap V4 FairFlow',
   DEX_UNISWAPV3 = 'Uniswap V3',
   DEX_PANCAKESWAPV3 = 'PancakeSwap V3',
   DEX_SUSHISWAPV3 = 'SushiSwap V3',
@@ -19,7 +19,7 @@ export enum EarnDex {
 
 export enum Exchange {
   DEX_UNISWAP_V4 = 'uniswap-v4',
-  DEX_KEM_UNISWAP_V4_FAIRFLOW = 'uniswap-v4-fairflow',
+  DEX_UNISWAP_V4_FAIRFLOW = 'uniswap-v4-fairflow',
   DEX_UNISWAPV3 = 'uniswapv3',
   DEX_PANCAKESWAPV3 = 'pancake-v3',
   DEX_SUSHISWAPV3 = 'sushiswap-v3',
@@ -54,7 +54,7 @@ const univ3Dexes = [
   EarnDex.DEX_QUICKSWAPV3ALGEBRA,
 
   EarnDex.DEX_UNISWAP_V4,
-  EarnDex.DEX_KEM_UNISWAP_V4_FAIRFLOW,
+  EarnDex.DEX_UNISWAP_V4_FAIRFLOW,
 ] as const;
 export const Univ3EarnDex = z.enum(univ3Dexes);
 

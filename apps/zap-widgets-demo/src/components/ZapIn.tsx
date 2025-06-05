@@ -43,7 +43,7 @@ const ZapIn = () => {
     positionId: "", // 22415
     poolAddress:
       "0xdbcba57c5681e063bd033c8f735f6b3e62f1a07947a731c61586c00863d0b613",
-    poolType: ZapInDex.DEX_KEM_UNISWAP_V4_FAIRFLOW,
+    poolType: ZapInDex.DEX_UNISWAP_V4_FAIRFLOW,
   });
 
   const widgetProps = {

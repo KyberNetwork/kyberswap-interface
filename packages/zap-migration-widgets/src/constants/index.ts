@@ -53,7 +53,7 @@ export const NETWORKS_INFO: Record<ChainId, Chain> = {
 
 export const DEXES_INFO: Record<Dex, DexInfo> = {
   [Dex.DEX_UNISWAP_V4]: uniswapv4,
-  [Dex.DEX_KEM_UNISWAP_V4_FAIRFLOW]: {
+  [Dex.DEX_UNISWAP_V4_FAIRFLOW]: {
     ...uniswapv4,
     name: "Uniswap V4 FairFlow",
   },

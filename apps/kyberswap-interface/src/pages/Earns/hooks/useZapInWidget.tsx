@@ -58,7 +58,7 @@ const zapInDexMapping: Record<EarnDex | Exchange, ZapInPoolType> = {
   [EarnDex.DEX_KODIAK_V3]: ZapInPoolType.DEX_KODIAK_V3,
   [EarnDex.DEX_UNISWAPV2]: ZapInPoolType.DEX_UNISWAPV2,
   [EarnDex.DEX_UNISWAP_V4]: ZapInPoolType.DEX_UNISWAP_V4,
-  [EarnDex.DEX_KEM_UNISWAP_V4_FAIRFLOW]: ZapInPoolType.DEX_KEM_UNISWAP_V4_FAIRFLOW,
+  [EarnDex.DEX_UNISWAP_V4_FAIRFLOW]: ZapInPoolType.DEX_UNISWAP_V4_FAIRFLOW,
   [Exchange.DEX_UNISWAPV3]: ZapInPoolType.DEX_UNISWAPV3,
   [Exchange.DEX_PANCAKESWAPV3]: ZapInPoolType.DEX_PANCAKESWAPV3,
   [Exchange.DEX_SUSHISWAPV3]: ZapInPoolType.DEX_SUSHISWAPV3,
@@ -68,7 +68,7 @@ const zapInDexMapping: Record<EarnDex | Exchange, ZapInPoolType> = {
   [Exchange.DEX_KODIAK_V3]: ZapInPoolType.DEX_KODIAK_V3,
   [Exchange.DEX_UNISWAPV2]: ZapInPoolType.DEX_UNISWAPV2,
   [Exchange.DEX_UNISWAP_V4]: ZapInPoolType.DEX_UNISWAP_V4,
-  [Exchange.DEX_KEM_UNISWAP_V4_FAIRFLOW]: ZapInPoolType.DEX_KEM_UNISWAP_V4_FAIRFLOW,
+  [Exchange.DEX_UNISWAP_V4_FAIRFLOW]: ZapInPoolType.DEX_UNISWAP_V4_FAIRFLOW,
 }
 
 const useZapInWidget = ({
