@@ -13,7 +13,13 @@ import Preview, { ZapState } from "@/components/Preview";
 import Modal from "@/components/Modal";
 import InfoHelper from "@/components/InfoHelper";
 import { useWeb3Provider } from "@/hooks/useProvider";
-import { ImpactType, PI_LEVEL, correctPrice, getPriceImpact } from "@/utils";
+import {
+  ImpactType,
+  PI_LEVEL,
+  correctPrice,
+  getPriceImpact,
+  isForkFrom,
+} from "@/utils";
 import {
   ZapAction,
   AggregatorSwapAction,
@@ -24,10 +30,10 @@ import {
 import X from "@/assets/x.svg";
 import ErrorIcon from "@/assets/error.svg";
 import {
-  PoolType,
   MAX_ZAP_IN_TOKENS,
   NetworkInfo,
   POSITION_MANAGER_CONTRACT,
+  CoreProtocol,
 } from "@/constants";
 import { tickToPrice } from "@kyber/utils/uniswapv3";
 import { useNftApproval } from "@/hooks/useNftApproval";
@@ -88,7 +94,10 @@ export default function Content({
     spender: zapInfo?.routerAddress,
   });
 
-  const isInfinityCl = poolType === PoolType.DEX_PANCAKE_INFINITY_CL;
+  const isPancakeInfinityCL = isForkFrom(
+    poolType,
+    CoreProtocol.PancakeInfinityCL
+  );
 
   const amountsInWei: string[] = useMemo(
     () =>
@@ -179,14 +188,14 @@ export default function Content({
     if (loading) return "Checking Allowance";
     if (addressToApprove || pendingTxNft) return "Approving";
     if (notApprove) return `Approve ${notApprove.symbol}`;
-    if (isInfinityCl && positionId && !nftApproved) return "Approve NFT";
+    if (isPancakeInfinityCL && positionId && !nftApproved) return "Approve NFT";
     if (pi.piVeryHigh) return "Zap anyway";
 
     return "Preview";
   }, [
     addressToApprove,
     error,
-    isInfinityCl,
+    isPancakeInfinityCL,
     loading,
     nftApproved,
     notApprove,
@@ -199,7 +208,7 @@ export default function Content({
   const disabled = useMemo(
     () =>
       clickedApprove ||
-      (isInfinityCl && positionId && (pendingTxNft || isChecking)) ||
+      (isPancakeInfinityCL && positionId && (pendingTxNft || isChecking)) ||
       loading ||
       zapLoading ||
       !!error ||
@@ -213,7 +222,7 @@ export default function Content({
       degenMode,
       error,
       isChecking,
-      isInfinityCl,
+      isPancakeInfinityCL,
       loading,
       pendingTxNft,
       pi.piVeryHigh,
@@ -226,7 +235,7 @@ export default function Content({
     if (notApprove) {
       setClickedLoading(true);
       approve(notApprove.address).finally(() => setClickedLoading(false));
-    } else if (isInfinityCl && positionId && !nftApproved) {
+    } else if (isPancakeInfinityCL && positionId && !nftApproved) {
       setClickedLoading(true);
       approveNft().finally(() => setClickedLoading(false));
     } else if (

@@ -80,4 +80,5 @@ export const zapOutDexMapping: Record<ZapOutDex, string> = {
 export const pancakeZapInDexMapping: Record<PancakeZapInDex, string> = {
   [PancakeZapInDex.DEX_PANCAKESWAPV3]: "PancakeSwap V3",
   [PancakeZapInDex.DEX_PANCAKE_INFINITY_CL]: "Infinity CL",
+  [PancakeZapInDex.DEX_KEM_PANCAKE_INFINITY_CL]: "Kem Infinity CL",
 };

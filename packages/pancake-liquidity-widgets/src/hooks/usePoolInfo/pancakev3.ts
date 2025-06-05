@@ -6,10 +6,11 @@ import {
   PoolType,
   PANCAKE_NATIVE_TOKEN_ADDRESS,
   NATIVE_TOKEN_ADDRESS,
+  CoreProtocol,
 } from "@/constants";
 import { Pool } from "@/entities/Pool";
 import { Position } from "@/entities/Position";
-import { getPoolInfo, getPositionInfo } from "@/utils";
+import { getPoolInfo, getPositionInfo, isForkFrom } from "@/utils";
 
 export interface TokenInfo {
   chainId: number;
@@ -82,8 +83,10 @@ export default function usePoolInfo(
 
         if (owner) setPositionOwner(owner as Address);
 
+        const isPancakeV3 = isForkFrom(poolType, CoreProtocol.PancakeSwapV3);
+
         const token0Address = (
-          poolType === PoolType.DEX_PANCAKESWAPV3
+          isPancakeV3
             ? token0
             : token0 === PANCAKE_NATIVE_TOKEN_ADDRESS
             ? NATIVE_TOKEN_ADDRESS
@@ -91,7 +94,7 @@ export default function usePoolInfo(
         )?.toLowerCase();
 
         const token1Address = (
-          poolType === PoolType.DEX_PANCAKESWAPV3
+          isPancakeV3
             ? token1
             : token1 === PANCAKE_NATIVE_TOKEN_ADDRESS
             ? NATIVE_TOKEN_ADDRESS
