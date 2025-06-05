@@ -12,19 +12,6 @@ import { WalletClient, formatUnits } from 'viem'
 import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
 import { Quote } from '../registry'
 
-//const erc20Abi = [
-//  {
-//    inputs: [
-//      { type: 'address', name: 'recipient' },
-//      { type: 'uint256', name: 'amount' },
-//    ],
-//    name: 'transfer',
-//    outputs: [{ type: 'bool', name: '' }],
-//    stateMutability: 'nonpayable',
-//    type: 'function',
-//  },
-//]
-
 const OPTIMEX_API = 'https://ks-provider.optimex.xyz/v1'
 
 interface OptimexToken {
@@ -220,17 +207,17 @@ export class OptimexAdapter extends BaseSwapAdapter {
       }).catch(e => {
         throw e
       })
-      // await fetch(`${OPTIMEX_API}/trades/${quote.rawQuote.txData.trade_id}/submit-tx`, {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify({
-      //     tx_id: res,
-      //   }),
-      // }).catch(e => {
-      //   console.log('submit tx error for optimex', e)
-      // })
+      await fetch(`${OPTIMEX_API}/trades/${quote.rawQuote.txData.trade_id}/submit-tx`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          tx_id: res,
+        }),
+      }).catch(e => {
+        console.log('submit tx error for optimex', e)
+      })
       return {
         ...params,
         sourceTxHash: res,

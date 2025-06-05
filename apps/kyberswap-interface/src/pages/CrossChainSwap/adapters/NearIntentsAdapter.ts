@@ -42,6 +42,8 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
     super()
     // Initialize the API client
     OpenAPI.BASE = 'https://1click.chaindefuser.com'
+    OpenAPI.TOKEN =
+      'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjIwMjUtMDQtMjMtdjEifQ.eyJ2IjoxLCJrZXlfdHlwZSI6ImRpc3RyaWJ1dGlvbl9jaGFubmVsIiwicGFydG5lcl9pZCI6Imt5YmVyIiwiaWF0IjoxNzQ5MDQyNDk1LCJleHAiOjE3ODA1Nzg0OTV9.sC5g1Jn4BRIGXkIRmN4dnK2BzbIglLOVuOmnrTItGaAP-QU69lbyYs2QGPE-5c7dRC9Cc3s0ktO50W9VXiqQEefu-VCQTKtjsfIwfAm7wDC1XKUT7lbQL2uODqXxR6yg5d8ENu6p8F2t86_T8IEpid6b1yBidKladbs9tI2QebSp3Sn6bjtsnpD-9W2dsW0Gd6PUkpZizb--YqkmdPQ8Eu85fIxtDO64qbp0Xp6NY8caFEA1yakbwaMEUWXnNX6PB_elfH28sF0cMbqlyAGiHe98J8tZ47kga6e6yZP4UHoak3Y_eRNuX_CpwoXfULx1t8YLoSJEQuP9JsPIoyw5dA'
   }
 
   getName(): string {
@@ -114,7 +116,7 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
 
       refundTo: params.sender,
       refundType: QuoteRequest.refundType.ORIGIN_CHAIN,
-      referral: 'KyberSwap',
+      referral: 'kyberswap',
 
       recipient: params.recipient,
       recipientType: QuoteRequest.recipientType.DESTINATION_CHAIN,
