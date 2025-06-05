@@ -16,6 +16,7 @@ import { ZERO_ADDRESS } from 'constants/index'
 import { TOKEN_API_URL } from 'constants/env'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
+import { isCanonicalPair } from '../utils'
 
 export const registry = new CrossChainSwapAdapterRegistry()
 CrossChainSwapFactory.getAllAdapters().forEach(adapter => {
@@ -319,45 +320,56 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     if (isFromBitcoin || isToBitcoin) {
       feeBps = 25
     } else if (isFromEvm && isToEvm) {
-      const [token0Cat, token1Cat] = await Promise.all([
-        await fetch(
-          `${TOKEN_API_URL}/v1/public/category/token?tokens=${(
-            currencyIn as any
-          ).wrapped.address.toLowerCase()}&chainId=${fromChainId}`,
+      if (
+        isCanonicalPair(
+          (currencyIn as any).chainId,
+          (currencyIn as any).wrapped.address,
+          (currencyOut as any).chainId,
+          (currencyOut as any).wrapped.address,
         )
-          .then(res => res.json())
-          .then(res => {
-            const cat = res?.data?.find(
-              (item: any) => item.token.toLowerCase() === (currencyIn as any).wrapped.address.toLowerCase(),
-            )
-            return cat?.category || 'exoticPair'
-          }),
-
-        await fetch(
-          `${TOKEN_API_URL}/v1/public/category/token?tokens=${(
-            currencyOut as any
-          ).wrapped.address.toLowerCase()}&chainId=${toChainId}`,
-        )
-          .then(res => res.json())
-          .then(res => {
-            const cat = res?.data?.find(
-              (item: any) => item.token.toLowerCase() === (currencyOut as any).wrapped.address.toLowerCase(),
-            )
-            return cat?.category || 'exoticPair'
-          }),
-      ])
-      if (token0Cat === 'stablePair' && token1Cat === 'stablePair') {
-        setCategory('stablePair')
+      ) {
         feeBps = 5
-      } else if (token0Cat === 'commonPair' && token1Cat === 'commonPair') {
-        setCategory('commonPair')
-        feeBps = 10
-      } else if (token0Cat === 'highVolatilityPair' || token1Cat === 'highVolatilityPair') {
-        setCategory('highVolatilityPair')
-        feeBps = 25
       } else {
-        setCategory('exoticPair')
-        feeBps = 15
+        const [token0Cat, token1Cat] = await Promise.all([
+          await fetch(
+            `${TOKEN_API_URL}/v1/public/category/token?tokens=${(
+              currencyIn as any
+            ).wrapped.address.toLowerCase()}&chainId=${fromChainId}`,
+          )
+            .then(res => res.json())
+            .then(res => {
+              const cat = res?.data?.find(
+                (item: any) => item.token.toLowerCase() === (currencyIn as any).wrapped.address.toLowerCase(),
+              )
+              return cat?.category || 'exoticPair'
+            }),
+
+          await fetch(
+            `${TOKEN_API_URL}/v1/public/category/token?tokens=${(
+              currencyOut as any
+            ).wrapped.address.toLowerCase()}&chainId=${toChainId}`,
+          )
+            .then(res => res.json())
+            .then(res => {
+              const cat = res?.data?.find(
+                (item: any) => item.token.toLowerCase() === (currencyOut as any).wrapped.address.toLowerCase(),
+              )
+              return cat?.category || 'exoticPair'
+            }),
+        ])
+        if (token0Cat === 'stablePair' && token1Cat === 'stablePair') {
+          setCategory('stablePair')
+          feeBps = 5
+        } else if (token0Cat === 'commonPair' && token1Cat === 'commonPair') {
+          setCategory('commonPair')
+          feeBps = 10
+        } else if (token0Cat === 'highVolatilityPair' || token1Cat === 'highVolatilityPair') {
+          setCategory('highVolatilityPair')
+          feeBps = 25
+        } else {
+          setCategory('exoticPair')
+          feeBps = 15
+        }
       }
     } else if (isFromNear || isToNear) {
       feeBps = 20
