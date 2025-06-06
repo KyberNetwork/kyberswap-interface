@@ -39,7 +39,7 @@ export const isFarmingProtocol = (protocol: EarnDex | Exchange) => FARMING_DEXES
 
 export const isNativeToken = (tokenAddress: string, chainId: keyof typeof WETH) =>
   NATIVE_ADDRESSES[chainId as EarnChain] === tokenAddress.toLowerCase() ||
-  (WETH[chainId] && tokenAddress.toLowerCase() === WETH[chainId].address)
+  (WETH[chainId] && tokenAddress.toLowerCase() === WETH[chainId].address.toLowerCase())
 
 export const submitTransaction = async ({
   library,
