@@ -16,6 +16,8 @@ import {
   PANCAKE_NATIVE_TOKEN_ADDRESS,
   POOL_MANAGER_CONTRACT,
   POSITION_MANAGER_CONTRACT,
+  PROTOCOLS_CORE_MAPPING,
+  CoreProtocol,
 } from "@/constants";
 import { TokenInfo } from "@/hooks/usePoolInfo/pancakev3";
 import { PancakeToken, Pool } from "@/entities/Pool";
@@ -384,7 +386,7 @@ export const getTokenInfo = async ({
     token1: null,
   };
 
-  const isPancakeV3 = poolType === PoolType.DEX_PANCAKESWAPV3;
+  const isPancakeV3 = isForkFrom(poolType, CoreProtocol.PancakeSwapV3);
 
   const isToken0Native = !isPancakeV3
     ? token0Address.toLowerCase() ===
@@ -498,7 +500,8 @@ export const getFee = async ({
   publicClient: PublicClient;
 }) => {
   try {
-    if (poolType === PoolType.DEX_PANCAKESWAPV3) return rawFee;
+    const isPancakeV3 = isForkFrom(poolType, CoreProtocol.PancakeSwapV3);
+    if (isPancakeV3) return rawFee;
     if (rawFee * 10_000 === 0x800000) return null; // dynamic fee - do not support yet
 
     const poolManagerContract =
@@ -544,13 +547,18 @@ export const getPositionInfo = async ({
     fee: null,
   };
 
+  const isPancakeV3 = isForkFrom(poolType, CoreProtocol.PancakeSwapV3);
+  const isPancakeInfinityCL = isForkFrom(
+    poolType,
+    CoreProtocol.PancakeInfinityCL
+  );
+
   const posManagerContractAddress = POSITION_MANAGER_CONTRACT[poolType][
     chainId
   ] as Address;
-  const posManagerContractABI =
-  poolType === PoolType.DEX_PANCAKESWAPV3
-      ? Pancakev3PosManagerABI
-      : InfinityCLPosManagerABI;
+  const posManagerContractABI = isPancakeV3
+    ? Pancakev3PosManagerABI
+    : InfinityCLPosManagerABI;
 
   const multiCallRes = await publicClient.multicall({
     contracts: [
@@ -582,7 +590,7 @@ export const getPositionInfo = async ({
   let token1;
   let fee;
 
-  if (poolType === PoolType.DEX_PANCAKESWAPV3) {
+  if (isPancakeV3) {
     const [
       ,
       ,
@@ -609,7 +617,7 @@ export const getPositionInfo = async ({
     token0 = token0FromRpc;
     token1 = token1FromRpc;
     fee = feeFromRpc;
-  } else if (poolType === PoolType.DEX_PANCAKE_INFINITY_CL) {
+  } else if (isPancakeInfinityCL) {
     const [
       { currency0, currency1, fee: feeFromRpc },
       tickLowerFromRpc,
@@ -671,3 +679,6 @@ export const correctPrice = ({
     setTick(type, t);
   }
 };
+
+export const isForkFrom = (poolType: PoolType, coreProtocol: CoreProtocol) =>
+  PROTOCOLS_CORE_MAPPING[poolType] === coreProtocol;

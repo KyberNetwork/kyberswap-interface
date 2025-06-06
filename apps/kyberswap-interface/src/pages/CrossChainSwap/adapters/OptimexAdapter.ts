@@ -12,19 +12,6 @@ import { WalletClient, formatUnits } from 'viem'
 import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
 import { Quote } from '../registry'
 
-//const erc20Abi = [
-//  {
-//    inputs: [
-//      { type: 'address', name: 'recipient' },
-//      { type: 'uint256', name: 'amount' },
-//    ],
-//    name: 'transfer',
-//    outputs: [{ type: 'bool', name: '' }],
-//    stateMutability: 'nonpayable',
-//    type: 'function',
-//  },
-//]
-
 const OPTIMEX_API = 'https://ks-provider.optimex.xyz/v1'
 
 interface OptimexToken {
@@ -65,7 +52,7 @@ export class OptimexAdapter extends BaseSwapAdapter {
     return 'Optimex'
   }
   getIcon(): string {
-    return 'https://app.optimex.xyz/icons/favicon.ico'
+    return 'https://storage.googleapis.com/ks-setting-1d682dca/464ce79e-a906-4590-bf78-9054e606aa041749023419612.png'
   }
   getSupportedChains(): Chain[] {
     return [NonEvmChain.Bitcoin, ChainId.MAINNET]
@@ -110,16 +97,14 @@ export class OptimexAdapter extends BaseSwapAdapter {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          debug: true,
+          debug: false,
           from_token_amount: params.amount,
           from_token_id: fromTokenId,
           to_token_id: toTokenId,
           affiliate_fee_bps: params.feeBps.toString(),
         }),
       }).then(res => res.json()),
-      fetch(`https://api.optimex.xyz/v1/trades/estimate?from_token=${fromTokenId}&to_token=${toTokenId}`).then(res =>
-        res.json(),
-      ),
+      fetch(`${OPTIMEX_API}/trades/estimate?from_token=${fromTokenId}&to_token=${toTokenId}`).then(res => res.json()),
       fetch(`https://api.optimex.xyz/v1/tokens/${fromToken.token_symbol}`)
         .then(res => res.json())
         .then(res => res?.data?.current_price || 0),
@@ -130,7 +115,7 @@ export class OptimexAdapter extends BaseSwapAdapter {
 
     let txData: { deposit_address: string; payload?: string; trade_id: string } | null = null
 
-    if (params.sender && params.recipient && params.publicKey) {
+    if (params.sender && params.recipient && (isFromBtc ? params.publicKey : true)) {
       const tradeTimeout = new Date()
       tradeTimeout.setHours(tradeTimeout.getHours() + 2)
 
@@ -146,7 +131,10 @@ export class OptimexAdapter extends BaseSwapAdapter {
           session_id: quoteRes.data.session_id,
           from_user_address: params.sender,
           amount_in: params.amount,
-          min_amount_out: (BigInt(quoteRes.data.best_quote_after_fees) * (10_000n - BigInt(params.slippage))) / 10_000n,
+          min_amount_out: (
+            (BigInt(quoteRes.data.best_quote_after_fees) * (10_000n - BigInt(params.slippage))) /
+            10_000n
+          ).toString(),
           to_user_address: params.recipient,
           user_refund_pubkey: params.fromChain === NonEvmChain.Bitcoin ? params.publicKey : params.sender,
           user_refund_address: params.sender,
@@ -216,8 +204,10 @@ export class OptimexAdapter extends BaseSwapAdapter {
       const res = await sendBtcFn({
         recipient: quote.rawQuote.txData.deposit_address,
         amount: quote.quoteParams.amount,
+      }).catch(e => {
+        throw e
       })
-      await fetch(`https://api.optimex.xyz/v1/trades/${quote.rawQuote.txData.trade_id}/submit-tx`, {
+      await fetch(`${OPTIMEX_API}/trades/${quote.rawQuote.txData.trade_id}/submit-tx`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -263,16 +253,17 @@ export class OptimexAdapter extends BaseSwapAdapter {
   }
 
   async getTransactionStatus(p: NormalizedTxResponse): Promise<SwapStatus> {
-    const res = await fetch(`https://api.optimex.xyz/v1/trades/${p.id}`).then(res => res.json())
+    const res = await fetch(`${OPTIMEX_API}/trades/${p.id}`).then(res => res.json())
 
     return {
-      txHash: res.data?.settlement_tx_id || '',
-      status:
-        res?.data?.status === 'PAYMENT_CONFIRMED'
-          ? 'Success'
-          : res?.data?.status === 'REFUNDED'
-          ? 'Refunded'
-          : 'Processing',
+      txHash: res.data?.payment_bundle?.settlement_tx || '',
+      status: ['Done', 'PaymentConfirmed'].includes(res?.data?.state)
+        ? 'Success'
+        : ['Aborted', 'ToBeAborted', 'Failed', 'Failure', 'UserCancelled'].includes(res?.data?.state)
+        ? 'Failed'
+        : res?.data?.state === 'Refunded'
+        ? 'Refunded'
+        : 'Processing',
     }
   }
 }

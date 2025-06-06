@@ -1,14 +1,13 @@
-import type { ZoomTransform } from "d3";
-import { max, scaleLinear } from "d3";
-import { useEffect, useMemo, useRef, useState } from "react";
-import partition from "lodash.partition";
-import type { ChartEntry, ChartProps } from "@/types";
-import { Bound } from "@/types";
 import Area from "@/components/Area";
 import AxisBottom from "@/components/AxisBottom";
 import Brush from "@/components/Brush";
 import Line from "@/components/Line";
 import Zoom from "@/components/Zoom";
+import type { ChartEntry, ChartProps } from "@/types";
+import type { ZoomTransform } from "d3";
+import { max, scaleLinear } from "d3";
+import partition from "lodash.partition";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 const xAccessor = (d: ChartEntry) => d.price;
 const yAccessor = (d: ChartEntry) => d.activeLiquidity;

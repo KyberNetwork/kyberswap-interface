@@ -263,32 +263,34 @@ const ZapIn = () => {
             <Label>Protocols</Label>
             <RadioGroup
               className="grid grid-cols-3 gap-2 max-md:grid-cols-2"
-              value={params.poolType}
+              value={params.poolType.toString()}
               onValueChange={(value) =>
                 setParams((p) => ({
                   ...p,
-                  poolType: value as ZapInDex,
+                  poolType: Number(value) as ZapInDex,
                 }))
               }
             >
-              {Object.keys(ZapInDex).map((key: string, index: number) => (
-                <div className="flex items-center space-x-2" key={key}>
-                  <RadioGroupItem
-                    value={ZapInDex[key as keyof typeof ZapInDex]}
-                    id={`${index + 1}`}
-                  />
-                  <Label className="text-xs" htmlFor={`${index + 1}`}>
-                    {ZapInDex[key as keyof typeof ZapInDex] in
-                    pancakeZapInDexMapping
-                      ? pancakeZapInDexMapping[
-                          ZapInDex[
-                            key as keyof typeof ZapInDex
-                          ] as keyof typeof pancakeZapInDexMapping
-                        ]
-                      : ZapInDex[key as keyof typeof ZapInDex]}
-                  </Label>
-                </div>
-              ))}
+              {Object.keys(ZapInDex)
+                .filter((key) => isNaN(Number(key)))
+                .map((key: string, index: number) => (
+                  <div className="flex items-center space-x-2" key={key}>
+                    <RadioGroupItem
+                      value={ZapInDex[key as keyof typeof ZapInDex].toString()}
+                      id={`${index + 1}`}
+                    />
+                    <Label className="text-xs" htmlFor={`${index + 1}`}>
+                      {ZapInDex[key as keyof typeof ZapInDex] in
+                      pancakeZapInDexMapping
+                        ? pancakeZapInDexMapping[
+                            ZapInDex[
+                              key as keyof typeof ZapInDex
+                            ] as keyof typeof pancakeZapInDexMapping
+                          ]
+                        : ZapInDex[key as keyof typeof ZapInDex]}
+                    </Label>
+                  </div>
+                ))}
             </RadioGroup>
           </div>
         </CardContent>
