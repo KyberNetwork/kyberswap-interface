@@ -4,7 +4,6 @@ import { MouseoverTooltip } from "@/components/Tooltip";
 import { ZAP_URL, useZapState } from "@/hooks/useZapInState";
 import { useWeb3Provider } from "@/hooks/useProvider";
 import { useWidgetInfo } from "@/hooks/useWidgetInfo";
-import { useTokenPrices } from "@kyber/hooks/use-token-prices";
 import {
   ZapAction,
   AddLiquidityAction,
@@ -47,6 +46,7 @@ import {
 import defaultTokenLogo from "@/assets/question.svg?url";
 import { tickToPrice } from "@kyber/utils/uniswapv3";
 import { formatDisplayNumber } from "@kyber/utils/number";
+import { fetchTokenPrice } from "@kyber/utils";
 
 export interface ZapState {
   pool: Pool;
@@ -99,8 +99,6 @@ export default function Preview({
   const [txError, setTxError] = useState<Error | null>(null);
   const [txStatus, setTxStatus] = useState<"success" | "failed" | "">("");
   const [showErrorDetail, setShowErrorDetail] = useState(false);
-
-  const { fetchPrices } = useTokenPrices({ addresses: [], chainId });
 
   const token0 = pool.token0 as PancakeToken;
   const token1 = pool.token1 as PancakeToken;
@@ -256,7 +254,10 @@ export default function Preview({
               NetworkInfo[chainId].wrappedToken.address.toLowerCase();
             const [estimateGas, priceRes, gasPrice] = await Promise.all([
               publicClient.estimateGas(txData),
-              fetchPrices([wethAddress]),
+              fetchTokenPrice({
+                addresses: [wethAddress],
+                chainId,
+              }),
               publicClient.getGasPrice(),
             ]);
             const price = priceRes?.[wethAddress]?.PriceBuy || 0;
@@ -270,15 +271,7 @@ export default function Preview({
           }
         }
       });
-  }, [
-    account,
-    chainId,
-    deadline,
-    fetchPrices,
-    publicClient,
-    source,
-    zapInfo.route,
-  ]);
+  }, [account, chainId, deadline, publicClient, source, zapInfo.route]);
 
   const handleClick = async () => {
     if (!publicClient || !account || !walletClient) {
@@ -428,16 +421,16 @@ export default function Preview({
         ? "∞"
         : formatDisplayNumber(priceUpper, { significantDigits: 6 })
       : tickLower === pool.minTick
-      ? "∞"
-      : formatDisplayNumber(priceLower, { significantDigits: 6 });
+        ? "∞"
+        : formatDisplayNumber(priceLower, { significantDigits: 6 });
 
     const minPrice = !revert
       ? tickLower === pool.minTick
         ? "0"
         : formatDisplayNumber(priceLower, { significantDigits: 6 })
       : tickUpper === pool.maxTick
-      ? "0"
-      : formatDisplayNumber(priceUpper, { significantDigits: 6 });
+        ? "0"
+        : formatDisplayNumber(priceUpper, { significantDigits: 6 });
 
     return [minPrice, maxPrice];
   }, [pool, tickUpper, revert, priceUpper, tickLower, priceLower]);
@@ -834,8 +827,8 @@ export default function Preview({
                         swapPiRes.piRes.level === PI_LEVEL.NORMAL
                           ? ""
                           : swapPiRes.piRes.level === PI_LEVEL.HIGH
-                          ? "!text-warning !border-warning"
-                          : "!text-error !border-error"
+                            ? "!text-warning !border-warning"
+                            : "!text-error !border-error"
                       }`}
                     >
                       Swap Impact
@@ -851,8 +844,8 @@ export default function Preview({
                         item.piRes.level === PI_LEVEL.NORMAL
                           ? "brightness-125"
                           : item.piRes.level === PI_LEVEL.HIGH
-                          ? "!text-warning"
-                          : "!text-error"
+                            ? "!text-warning"
+                            : "!text-error"
                       }`}
                       key={index}
                     >
@@ -897,8 +890,8 @@ export default function Preview({
                 piRes.level === PI_LEVEL.INVALID
                   ? "text-error"
                   : piRes.level === PI_LEVEL.HIGH
-                  ? "text-warning"
-                  : "text-textPrimary"
+                    ? "text-warning"
+                    : "text-textPrimary"
               }
             >
               {piRes.display}
@@ -984,8 +977,8 @@ export default function Preview({
           piVeryHigh
             ? "border border-error"
             : piHigh
-            ? "border border-warning"
-            : ""
+              ? "border border-warning"
+              : ""
         }`}
         onClick={handleClick}
       >

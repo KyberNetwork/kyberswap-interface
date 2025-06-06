@@ -22,8 +22,8 @@ import { divideBigIntToString } from '@kyber/utils/number';
 import { tickToPrice } from '@kyber/utils/uniswapv3';
 
 import { ERROR_MESSAGE } from '@/constants';
-import { useTokenList } from '@/hooks/useTokenList';
 import { useWidgetContext } from '@/stores';
+import { useTokenStore } from '@/stores/useTokenStore';
 import { ZapRouteDetail } from '@/types/zapRoute';
 import { assertUnreachable, formatNumber, formatWei, parseTokensAndAmounts, validateData } from '@/utils';
 
@@ -122,7 +122,10 @@ export const ZapContextProvider = ({
   const account = connectedAccount?.address;
 
   const networkChainId = connectedAccount?.chainId;
-  const { allTokens } = useTokenList();
+
+  const { tokens, importedTokens } = useTokenStore();
+  const allTokens = useMemo(() => [...tokens, ...importedTokens], [tokens, importedTokens]);
+
   const { balances } = useTokenBalances(
     chainId,
     allTokens.map(item => item.address),

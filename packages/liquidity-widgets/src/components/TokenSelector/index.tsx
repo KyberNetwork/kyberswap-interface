@@ -1,7 +1,8 @@
 import { ChangeEvent, MouseEvent, useEffect, useMemo, useState } from 'react';
 
 import { NATIVE_TOKEN_ADDRESS, Token } from '@kyber/schema';
-import { Button, Input, ScrollArea } from '@kyber/ui';
+import { Button, Input } from '@kyber/ui';
+import { fetchTokenInfo } from '@kyber/utils';
 import { formatUnits, isAddress } from '@kyber/utils/crypto';
 
 import Check from '@/assets/svg/check.svg';
@@ -12,9 +13,9 @@ import TrashIcon from '@/assets/svg/trash.svg';
 import X from '@/assets/svg/x.svg';
 import UserPositions from '@/components/TokenSelector/UserPositions';
 import { MAX_ZAP_IN_TOKENS } from '@/constants';
-import { useTokenList } from '@/hooks/useTokenList';
 import { useZapState } from '@/hooks/useZapInState';
 import { useWidgetContext } from '@/stores';
+import { useTokenStore } from '@/stores/useTokenStore';
 import { formatWei } from '@/utils';
 
 export enum TOKEN_SELECT_MODE {
@@ -60,9 +61,12 @@ export default function TokenSelector({
   setTokenToImport: (token: Token) => void;
   onClose: () => void;
 }) {
-  const { pool, theme, onOpenZapMigration } = useWidgetContext(s => s);
+  const { pool, theme, onOpenZapMigration, chainId } = useWidgetContext(s => s);
   const { balanceTokens, tokensIn, setTokensIn, amountsIn, setAmountsIn } = useZapState();
-  const { importedTokens, allTokens, fetchTokenInfo, removeToken } = useTokenList();
+
+  const { importedTokens, tokens, removeImportedToken } = useTokenStore();
+
+  const allTokens = useMemo(() => [...tokens, ...importedTokens], [tokens, importedTokens]);
 
   const defaultToken = {
     decimals: undefined,
@@ -223,14 +227,14 @@ export default function TokenSelector({
       setTokensIn(clonedTokensIn);
       setAmountsIn(listAmountsIn.join(','));
       setSelectedTokens(clonedTokensIn);
-      removeToken(token);
+      removeImportedToken(token);
 
       if (token.address === selectedTokenAddress && mode === TOKEN_SELECT_MODE.SELECT) onClose();
 
       return;
     }
 
-    removeToken(token);
+    removeImportedToken(token);
   };
 
   const handleShowTokenInfo = (e: MouseEvent<SVGSVGElement>, token: Token) => {
@@ -277,7 +281,10 @@ export default function TokenSelector({
     const search = searchTerm.toLowerCase().trim();
 
     if (!filteredTokens.length && isAddress(search)) {
-      fetchTokenInfo(search).then(res => setUnImportedTokens(res));
+      fetchTokenInfo(search, chainId).then(res => {
+        console.log('res', res);
+        setUnImportedTokens(res);
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filteredTokens]);
@@ -376,7 +383,7 @@ export default function TokenSelector({
           />
         )}
 
-        <ScrollArea className={`!mt-0 ${modalTabSelected === MODAL_TAB.TOKENS ? 'h-[280px]' : 'h-[356px]'}`}>
+        <div className={`!mt-0 ${modalTabSelected === MODAL_TAB.TOKENS ? 'h-[280px]' : 'h-[356px]'} overflow-y-auto`}>
           {modalTabSelected === MODAL_TAB.TOKENS && (
             <>
               {tabSelected === TOKEN_TAB.ALL &&
@@ -474,7 +481,7 @@ export default function TokenSelector({
           )}
 
           {modalTabSelected === MODAL_TAB.POSITIONS && <UserPositions search={searchTerm} />}
-        </ScrollArea>
+        </div>
 
         {message && (
           <div
@@ -525,7 +532,7 @@ const TokenFeature = ({
   onClose: () => void;
 }) => {
   const { tokensIn, setTokensIn, amountsIn, setAmountsIn } = useZapState();
-  const { importedTokens, removeAllTokens } = useTokenList();
+  const { importedTokens, removeAllImportedTokens } = useTokenStore();
 
   const handleRemoveAllImportedToken = () => {
     if (
@@ -556,14 +563,14 @@ const TokenFeature = ({
       const needClose =
         mode === TOKEN_SELECT_MODE.SELECT &&
         importedTokens.find(importedToken => importedToken.address === selectedTokenAddress);
-      removeAllTokens();
+      removeAllImportedTokens();
 
       if (needClose) onClose();
 
       return;
     }
 
-    removeAllTokens();
+    removeAllImportedTokens();
   };
 
   return (

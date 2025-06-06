@@ -1,12 +1,12 @@
-import { ReactNode, useEffect, useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import { ChainId, PoolType, Theme, defaultTheme } from '@kyber/schema';
 
 import WidgetContent from '@/components/Content';
 import Setting from '@/components/Setting';
-import { TokenListProvider } from '@/hooks/useTokenList';
 import { ZapContextProvider } from '@/hooks/useZapInState';
-import { WidgetProps, WidgetProvider, useWidgetContext } from '@/stores';
+import { WidgetProps, WidgetProvider } from '@/stores';
+import { useTokenStore } from '@/stores/useTokenStore';
 
 import './Widget.scss';
 import './globals.css';
@@ -25,6 +25,7 @@ createModalRoot();
 
 const LiquidityWidget = (props: WidgetProps) => {
   const { theme, aggregatorOptions, source, initDepositTokens, initAmounts, chainId } = props;
+  const { fetchImportedTokens, fetchTokens } = useTokenStore();
 
   const themeToApply = useMemo(
     () =>
@@ -36,6 +37,11 @@ const LiquidityWidget = (props: WidgetProps) => {
         : defaultTheme,
     [theme],
   );
+
+  useEffect(() => {
+    fetchTokens({ chainId }); // TODO: add pool tokens
+    fetchImportedTokens();
+  }, [fetchTokens, fetchImportedTokens, chainId]);
 
   useEffect(() => {
     if (!themeToApply) return;
@@ -52,30 +58,19 @@ const LiquidityWidget = (props: WidgetProps) => {
 
   return (
     <WidgetProvider {...widgetProps}>
-      <TokenProvider chainId={chainId}>
-        <ZapContextProvider
-          includedSources={aggregatorOptions?.includedSources?.join(',')}
-          excludedSources={aggregatorOptions?.excludedSources?.join(',')}
-          source={source}
-          initDepositTokens={initDepositTokens}
-          initAmounts={initAmounts}
-        >
-          <div className="ks-lw ks-lw-style">
-            <WidgetContent />
-            <Setting />
-          </div>
-        </ZapContextProvider>
-      </TokenProvider>
+      <ZapContextProvider
+        includedSources={aggregatorOptions?.includedSources?.join(',')}
+        excludedSources={aggregatorOptions?.excludedSources?.join(',')}
+        source={source}
+        initDepositTokens={initDepositTokens}
+        initAmounts={initAmounts}
+      >
+        <div className="ks-lw ks-lw-style">
+          <WidgetContent />
+          <Setting />
+        </div>
+      </ZapContextProvider>
     </WidgetProvider>
-  );
-};
-
-const TokenProvider = ({ children, chainId }: { children: ReactNode; chainId: ChainId }) => {
-  const pool = useWidgetContext(s => s.pool);
-  return (
-    <TokenListProvider chainId={chainId} pool={pool}>
-      {children}
-    </TokenListProvider>
   );
 };
 

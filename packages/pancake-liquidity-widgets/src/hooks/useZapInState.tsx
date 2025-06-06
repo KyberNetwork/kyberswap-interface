@@ -18,7 +18,7 @@ import { tickToPrice } from "@kyber/utils/uniswapv3";
 import { useDebounce } from "@kyber/hooks/use-debounce";
 import { chainIdToChain, NATIVE_TOKEN_ADDRESS, NetworkInfo } from "@/constants";
 import { ZapRouteDetail, Type, PancakeTokenAdvanced } from "@/types/zapInTypes";
-import { useTokenPrices } from "@kyber/hooks/use-token-prices";
+import { fetchTokenPrice } from "@kyber/utils";
 
 export const ZAP_URL = "https://zap-api.kyberswap.com";
 
@@ -354,15 +354,17 @@ export const ZapContextProvider = ({
     setAmountsIn(initAmounts);
   }, [initAmounts]);
 
-  const { fetchPrices } = useTokenPrices({ addresses: [], chainId });
   // get pair market price
   useEffect(() => {
     if (!pool) return;
 
-    fetchPrices([
-      pool.token0.address.toLowerCase(),
-      pool.token1.address.toLowerCase(),
-    ]).then((prices) => {
+    fetchTokenPrice({
+      addresses: [
+        pool.token0.address.toLowerCase(),
+        pool.token1.address.toLowerCase(),
+      ],
+      chainId,
+    }).then((prices) => {
       const price0 = prices?.[pool.token0.address.toLowerCase()].PriceBuy || 0;
       const price1 = prices?.[pool.token1.address.toLowerCase()].PriceBuy || 0;
       if (price0 && price1) setMarketPrice(price0 / price1);

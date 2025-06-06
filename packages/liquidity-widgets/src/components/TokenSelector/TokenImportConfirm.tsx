@@ -9,9 +9,9 @@ import X from '@/assets/svg/x.svg';
 import { shortenAddress } from '@/components/TokenInfo/utils';
 import { MAX_ZAP_IN_TOKENS } from '@/constants';
 import useCopy from '@/hooks/useCopy';
-import { useTokenList } from '@/hooks/useTokenList';
 import { useZapState } from '@/hooks/useZapInState';
 import { useWidgetContext } from '@/stores';
+import { useTokenStore } from '@/stores/useTokenStore';
 import { getEtherscanLink } from '@/utils';
 
 import { TOKEN_SELECT_MODE } from '.';
@@ -36,7 +36,7 @@ const TokenImportConfirm = ({
   const chainId = useWidgetContext(s => s.chainId);
 
   const { tokensIn, setTokensIn, amountsIn, setAmountsIn } = useZapState();
-  const { addToken } = useTokenList();
+  const { importToken } = useTokenStore();
   const Copy = useCopy({ text: token.address });
 
   const handleOpenExternalLink = () => {
@@ -45,7 +45,7 @@ const TokenImportConfirm = ({
   };
 
   const handleAddToken = () => {
-    addToken(token);
+    importToken(token);
     if (mode === TOKEN_SELECT_MODE.SELECT) {
       const index = tokensIn.findIndex((tokenIn: Token) => tokenIn.address === selectedTokenAddress);
       if (index > -1) {
@@ -103,7 +103,9 @@ const TokenImportConfirm = ({
             </p>
           </div>
         </div>
-        <Button onClick={handleAddToken}>I understand</Button>
+        <Button className="ks-primary-btn" onClick={handleAddToken}>
+          I understand
+        </Button>
       </div>
     </div>
   );

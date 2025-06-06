@@ -5,9 +5,14 @@ export const fetchTokenInfo = async (address: string, chainId: number) => {
     const res = await fetch(
       `${API_URLS.KYBERSWAP_SETTING_API}/v1/tokens?pageSize=100&page=1&query=${address}&chainIds=${chainId}`,
     );
-    const { data } = (await res.json()) as { data: { tokens: Token[] } };
+    const { data } = (await res.json()) as { data: { tokens: (Token & { logoURI: string })[] } };
 
-    return data.tokens || [];
+    return (
+      data.tokens.map(token => ({
+        ...token,
+        logo: token.logoURI,
+      })) || []
+    );
   } catch (error) {
     return [];
   }
