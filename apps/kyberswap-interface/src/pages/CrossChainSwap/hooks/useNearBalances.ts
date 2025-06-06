@@ -1,5 +1,6 @@
-import { useMemo, useCallback, useState, useEffect } from 'react'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+
 import { useNearTokens } from 'state/crossChainSwap'
 
 const TTL = 30 // 30s

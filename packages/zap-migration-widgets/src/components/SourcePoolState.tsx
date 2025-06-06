@@ -11,8 +11,7 @@ import { usePositionStore } from "../stores/usePositionStore";
 import { useZapStateStore } from "../stores/useZapStateStore";
 import { Image } from "./Image";
 import { PoolFee } from "./PoolFee";
-import { Skeleton } from "@kyber/ui/skeleton";
-import { Slider } from "@kyber/ui/slider";
+import { Skeleton, Slider } from "@kyber/ui";
 import {
   formatDisplayNumber,
   formatTokenAmount,

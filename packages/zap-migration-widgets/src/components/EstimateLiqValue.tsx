@@ -10,9 +10,7 @@ import { PI_LEVEL, formatCurrency } from "../utils";
 import { Image } from "./Image";
 import { SlippageInfo } from "./SlippageInfo";
 import { SwapPI, useSwapPI } from "./SwapImpact";
-import { InfoHelper } from "@kyber/ui/info-helper";
-import { Skeleton } from "@kyber/ui/skeleton";
-import { MouseoverTooltip } from "@kyber/ui/tooltip";
+import { InfoHelper, MouseoverTooltip, Skeleton } from "@kyber/ui";
 import {
   formatDisplayNumber,
   formatTokenAmount,

@@ -1,6 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { NormalizedTxResponse } from 'pages/CrossChainSwap/adapters'
 import { useEffect, useMemo } from 'react'
+
+import { NormalizedTxResponse } from 'pages/CrossChainSwap/adapters'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 
 // Add a loading state to track fetch status

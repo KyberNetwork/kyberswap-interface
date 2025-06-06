@@ -1,11 +1,12 @@
-import { BitcoinWalletBase, CreateProviderParams, SendBitcoinParams } from '../types'
-import { getAppAndVersion } from '@ledgerhq/hw-app-btc/getAppAndVersion'
+import * as ecc from '@bitcoinerlab/secp256k1'
 import Btc from '@ledgerhq/hw-app-btc'
+import { getAppAndVersion } from '@ledgerhq/hw-app-btc/getAppAndVersion'
 import { Transaction } from '@ledgerhq/hw-app-btc/lib/types'
 import * as Transport from '@ledgerhq/hw-transport'
 import TransportWebUSB from '@ledgerhq/hw-transport-webusb'
 import * as bitcoin from 'bitcoinjs-lib'
-import * as ecc from '@bitcoinerlab/secp256k1'
+
+import { BitcoinWalletBase, CreateProviderParams, SendBitcoinParams } from '../types'
 
 // Initialize ECC library - this must be done before using bitcoinjs-lib
 bitcoin.initEccLib(ecc)

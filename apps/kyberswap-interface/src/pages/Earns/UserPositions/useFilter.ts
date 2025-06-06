@@ -1,14 +1,15 @@
 import { useCallback, useEffect, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { PositionFilter } from 'pages/Earns/types'
 
 import { useActiveWeb3React } from 'hooks'
+import { PositionFilter, PositionStatus } from 'pages/Earns/types'
 import { Direction } from 'pages/MarketOverview/SortIcon'
 
 export enum SortBy {
   VALUE = 'value',
-  APR_7D = 'apr_7d',
-  UNCLAIMED_FEE = 'unclaimed_fee',
+  APR = 'apr',
+  UNCLAIMED_FEE = 'unclaimed_fees',
+  UNCLAIMED_REWARDS = 'unclaimed_rewards',
 }
 
 export default function useFilter() {
@@ -19,7 +20,8 @@ export default function useFilter() {
     () => ({
       chainIds: searchParams.get('chainIds') || '',
       protocols: searchParams.get('protocols') || '',
-      status: searchParams.get('status') || '',
+      status:
+        (searchParams.get('status') as PositionStatus) || `${PositionStatus.IN_RANGE},${PositionStatus.OUT_RANGE}`,
       q: searchParams.get('q') || '',
       sortBy: searchParams.get('sortBy') || SortBy.VALUE,
       orderBy: searchParams.get('orderBy') || Direction.DESC,
@@ -40,6 +42,17 @@ export default function useFilter() {
       if (orderBy === Direction.DESC && sortBy === SortBy.VALUE) {
         searchParams.delete('orderBy')
         searchParams.delete('sortBy')
+      }
+
+      if (key === 'status') {
+        const arrValue = value.toString().split(',')
+        if (
+          arrValue.includes(PositionStatus.IN_RANGE) &&
+          arrValue.includes(PositionStatus.OUT_RANGE) &&
+          !arrValue.includes(PositionStatus.CLOSED)
+        ) {
+          searchParams.delete('status')
+        } else searchParams.set('status', value.toString())
       }
 
       setSearchParams(searchParams)

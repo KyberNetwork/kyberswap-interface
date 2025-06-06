@@ -1,22 +1,23 @@
+import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
+import { getPublicClient } from '@wagmi/core'
+import routeApi from 'services/route'
+import { WalletClient, formatUnits } from 'viem'
+
+import { wagmiConfig } from 'components/Web3Provider'
+import { AGGREGATOR_API } from 'constants/env'
+import { AGGREGATOR_API_PATHS, ETHER_ADDRESS } from 'constants/index'
+import { MAINNET_NETWORKS, NETWORKS_INFO } from 'constants/networks'
 import store from 'state'
+
+import { Quote } from '../registry'
 import {
   BaseSwapAdapter,
   Chain,
+  EvmQuoteParams,
   NormalizedQuote,
   NormalizedTxResponse,
   SwapStatus,
-  EvmQuoteParams,
 } from './BaseSwapAdapter'
-import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
-import { WalletClient, formatUnits } from 'viem'
-import { Quote } from '../registry'
-
-import { AGGREGATOR_API_PATHS, ETHER_ADDRESS } from 'constants/index'
-import { MAINNET_NETWORKS, NETWORKS_INFO } from 'constants/networks'
-import routeApi from 'services/route'
-import { AGGREGATOR_API } from 'constants/env'
-import { getPublicClient } from '@wagmi/core'
-import { wagmiConfig } from 'components/Web3Provider'
 
 export class KyberSwapAdapter extends BaseSwapAdapter {
   constructor() {

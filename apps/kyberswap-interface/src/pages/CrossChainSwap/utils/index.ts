@@ -1,7 +1,9 @@
-import { isEvmChain } from 'utils'
-import { Chain, NonEvmChain, NonEvmChainInfo } from '../adapters'
-import { NETWORKS_INFO } from 'constants/networks'
 import { ChainId } from '@kyberswap/ks-sdk-core'
+
+import { NETWORKS_INFO } from 'constants/networks'
+import { isEvmChain } from 'utils'
+
+import { Chain, NonEvmChain, NonEvmChainInfo } from '../adapters'
 
 export const getNetworkInfo = (chain: Chain) => {
   if (isEvmChain(chain))

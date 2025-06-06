@@ -1,4 +1,5 @@
 import { rgba } from 'polished'
+import { Link } from 'react-router-dom'
 import { Flex } from 'rebass'
 import styled, { keyframes } from 'styled-components'
 
@@ -80,10 +81,10 @@ export const OverviewWrapper = styled.div`
   ${({ theme }) => theme.mediaWidth.upToSmall`
     display: flex;
     flex-direction: column;
+    margin-top: 20px;
   `}
 
   ${({ theme }) => theme.mediaWidth.upToXXSmall`
-    margin-top: 40px;
     gap: 16px;
   `}
 `
@@ -144,14 +145,11 @@ export const CardWrapper = styled.div`
   `}
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
-    padding: 0 36px 28px;
-    min-height: 285px;
-  `}
-
-  ${({ theme }) => theme.mediaWidth.upToXXSmall`
-    padding: 0 30px 24px;
+    padding: 20px 16px;
     min-height: unset;
     height: fit-content;
+    flex-direction: row;
+    gap: 12px;
   `}
 `
 
@@ -160,8 +158,8 @@ export const ButtonPrimaryStyled = styled(ButtonPrimary)`
   width: 132px;
   height: 36px;
 
-  ${({ theme }) => theme.mediaWidth.upToXXSmall`
-    margin-top: 18px;
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    margin-top: 20px;
   `}
 `
 
@@ -198,4 +196,31 @@ export const Tag = styled.div`
   color: ${({ theme }) => theme.subText};
   padding: 4px 8px;
   font-size: 12px;
+`
+
+const borderRotate = keyframes`
+  0% { --border-angle: 0deg; }
+  100% { --border-angle: 360deg; }
+`
+
+// Total rewards
+export const RewardsNavigateButton = styled(Link)`
+  padding: 2px 14px 2px 20px;
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  cursor: pointer;
+
+  --border-angle: 0deg;
+  animation: ${borderRotate} 2s infinite linear;
+  border: 1px solid transparent;
+  background: linear-gradient(#1d5b49, #1d5b49) padding-box,
+    conic-gradient(from var(--border-angle), #196750 50%, ${({ theme }) => theme.primary}) border-box;
+  backdrop-filter: blur(2px);
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    width: 100%;
+    justify-content: center;
+  `}
 `

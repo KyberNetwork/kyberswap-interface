@@ -9,7 +9,7 @@ import {
 import { usePoolsStore } from "../stores/usePoolsStore";
 import { usePositionStore } from "../stores/usePositionStore";
 import { Image } from "./Image";
-import { Skeleton } from "@kyber/ui/skeleton";
+import { Skeleton } from "@kyber/ui";
 import {
   formatDisplayNumber,
   formatTokenAmount,

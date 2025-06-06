@@ -9,7 +9,7 @@ import {
 } from "../schema";
 import { usePoolsStore } from "../stores/usePoolsStore";
 import { Image } from "./Image";
-import { Skeleton } from "@kyber/ui/skeleton";
+import { Skeleton } from "@kyber/ui";
 
 export function PoolInfo({
   chainId,

@@ -1,17 +1,19 @@
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
+import { getPublicClient } from '@wagmi/core'
+import { WalletClient, formatUnits } from 'viem'
+
+import { wagmiConfig } from 'components/Web3Provider'
+import { CROSS_CHAIN_FEE_RECEIVER, ETHER_ADDRESS } from 'constants/index'
+
+import { Quote } from '../registry'
 import {
   BaseSwapAdapter,
   Chain,
+  EvmQuoteParams,
   NormalizedQuote,
   NormalizedTxResponse,
   SwapStatus,
-  EvmQuoteParams,
 } from './BaseSwapAdapter'
-import { WalletClient, formatUnits } from 'viem'
-import { CROSS_CHAIN_FEE_RECEIVER, ETHER_ADDRESS } from 'constants/index'
-import { Quote } from '../registry'
-import { getPublicClient } from '@wagmi/core'
-import { wagmiConfig } from 'components/Web3Provider'
 
 const XY_FINANCE_API = 'https://aggregator-api.xy.finance/v1'
 

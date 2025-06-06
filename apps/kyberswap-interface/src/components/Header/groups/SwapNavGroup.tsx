@@ -10,16 +10,16 @@ import styled from 'styled-components'
 //import { ReactComponent as BuyCrypto } from 'assets/svg/buy_crypto.svg'
 import { ReactComponent as CrossChainIcon } from 'assets/svg/cross_chain_icon.svg'
 import { ReactComponent as LimitOrderIcon } from 'assets/svg/limit_order.svg'
+import { DropdownTextAnchor, StyledNavLink } from 'components/Header/styleds'
+import { NewLabel } from 'components/Menu'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { APP_PATHS, CHAINS_SUPPORT_CROSS_CHAIN } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 //import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
-import { isSupportLimitOrder, isInSafeApp } from 'utils'
+import { isInSafeApp, isSupportLimitOrder } from 'utils'
 
-import { DropdownTextAnchor, StyledNavLink } from '../styleds'
 import NavGroup from './NavGroup'
-import { NewLabel } from 'components/Menu'
 
 const IconWrapper = styled.div`
   flex: 0 0 16px;
@@ -52,7 +52,7 @@ const SwapNavGroup = () => {
 
   return (
     <NavGroup
-      dropdownAlign={upToXXSmall ? 'right' : 'left'}
+      dropdownAlign={upToXXSmall ? 'center' : 'left'}
       isActive={isActive}
       forceOpen={isShowTutorial && stepInfo?.selector === `#${TutorialIds.BRIDGE_LINKS}`}
       anchor={
@@ -61,7 +61,7 @@ const SwapNavGroup = () => {
         </DropdownTextAnchor>
       }
       dropdownContent={
-        <Flex flexDirection={'column'} id={TutorialIds.BRIDGE_LINKS} minWidth={'250px'}>
+        <Flex flexDirection={'column'} id={TutorialIds.BRIDGE_LINKS} minWidth={upToXXSmall ? '230px' : '250px'}>
           <StyledNavLink
             id={`swapv2-nav-link`}
             to={`${APP_PATHS.SWAP}/${networkInfo.route}`}

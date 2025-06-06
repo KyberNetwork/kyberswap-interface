@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import X from "../../assets/icons/x.svg";
 import Modal from "../Modal";
 import SlippageInput from "./SlippageInput";
-import { MouseoverTooltip } from "@kyber/ui/tooltip";
+import { MouseoverTooltip } from "@kyber/ui";
 import { useOnClickOutside } from "../../hooks/use-on-click-outside";
 import { useZapStateStore } from "../../stores/useZapStateStore";
 import Toggle from "../Toggle";

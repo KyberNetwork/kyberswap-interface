@@ -1,6 +1,7 @@
 import { t } from '@lingui/macro'
 import { isMobile } from 'react-device-detect'
 import { useLocation } from 'react-router-dom'
+import { useMedia } from 'react-use'
 import styled from 'styled-components'
 
 import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
@@ -14,7 +15,6 @@ import useTheme from 'hooks/useTheme'
 import { TAB } from 'pages/SwapV3/index'
 import useCurrenciesByPage from 'pages/SwapV3/useCurrenciesByPage'
 import { useDegenModeManager } from 'state/user/hooks'
-import { useMedia } from 'react-use'
 import { MEDIA_WIDTHS } from 'theme'
 
 const ActionPanel = styled.div`

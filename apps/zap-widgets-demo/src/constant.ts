@@ -5,6 +5,7 @@ import { PoolType as PancakeZapInDex } from "@kyberswap/pancake-liquidity-widget
 
 export const zapInDexMapping: Record<ZapInDex, string> = {
   [ZapInDex.DEX_UNISWAP_V4]: "Uniswap V4",
+  [ZapInDex.DEX_UNISWAP_V4_FAIRFLOW]: "Uniswap V4 FairFlow",
   [ZapInDex.DEX_UNISWAPV3]: "Uniswap V3",
   [ZapInDex.DEX_PANCAKESWAPV3]: "PancakeSwap V3",
   [ZapInDex.DEX_METAVAULTV3]: "MetaVault V3",
@@ -31,6 +32,7 @@ export const zapInDexMapping: Record<ZapInDex, string> = {
 
 export const zapMigrationDexMapping: Record<ZapMigrationDex, string> = {
   [ZapMigrationDex.DEX_UNISWAP_V4]: "Uniswap V4",
+  [ZapMigrationDex.DEX_UNISWAP_V4_FAIRFLOW]: "Uniswap V4 FairFlow",
   [ZapMigrationDex.DEX_UNISWAPV3]: "Uniswap V3",
   [ZapMigrationDex.DEX_PANCAKESWAPV3]: "PancakeSwap V3",
   [ZapMigrationDex.DEX_METAVAULTV3]: "MetaVault V3",
@@ -50,6 +52,7 @@ export const zapMigrationDexMapping: Record<ZapMigrationDex, string> = {
 
 export const zapOutDexMapping: Record<ZapOutDex, string> = {
   [ZapOutDex.DEX_UNISWAP_V4]: "Uniswap V4",
+  [ZapOutDex.DEX_UNISWAP_V4_FAIRFLOW]: "Uniswap V4 FairFlow",
   [ZapOutDex.DEX_UNISWAPV3]: "Uniswap V3",
   [ZapOutDex.DEX_PANCAKESWAPV3]: "PancakeSwap V3",
   [ZapOutDex.DEX_METAVAULTV3]: "MetaVault V3",

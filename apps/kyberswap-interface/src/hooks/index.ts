@@ -14,8 +14,9 @@ import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import { useEthersProvider } from 'hooks/useEthersProvider'
 import store, { AppState } from 'state'
 import { useIsAcceptedTerm } from 'state/user/hooks'
-import useDisconnectWallet from './web3/useDisconnectWallet'
 import { isInSafeApp } from 'utils'
+
+import useDisconnectWallet from './web3/useDisconnectWallet'
 
 export function useActiveWeb3React(): {
   chainId: ChainId
