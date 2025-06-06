@@ -17,6 +17,7 @@ import { TOKEN_API_URL } from 'constants/env'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import { isCanonicalPair } from '../utils'
+import { NativeCurrencies } from 'constants/tokens'
 
 export const registry = new CrossChainSwapAdapterRegistry()
 CrossChainSwapFactory.getAllAdapters().forEach(adapter => {
@@ -91,11 +92,46 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
   }, [amount])
 
   useEffect(() => {
+    let hasUpdate = false
     if (!from) {
       searchParams.set('from', chainId?.toString() || '')
+      hasUpdate = true
+    }
+
+    if (!to) {
+      const lastChainId = localStorage.getItem('crossChainSwapLastChainOut')
+      if (lastChainId) {
+        searchParams.set('to', lastChainId)
+        hasUpdate = true
+      }
+    }
+
+    if (!tokenIn) {
+      if (from === 'near') {
+        searchParams.set('tokenIn', 'near')
+        hasUpdate = true
+      }
+      if (isEvmChain(from ? +from : chainId)) {
+        searchParams.set('tokenIn', NativeCurrencies[chainId]?.symbol?.toLowerCase() || '')
+        hasUpdate = true
+      }
+    }
+
+    if (!tokenOut) {
+      if (from === 'near') {
+        searchParams.set('tokenOut', 'near')
+        hasUpdate = true
+      }
+      if (isEvmChain(to ? +to : chainId)) {
+        searchParams.set('tokenOut', NativeCurrencies[chainId]?.symbol?.toLowerCase() || '')
+        hasUpdate = true
+      }
+    }
+
+    if (hasUpdate) {
       setSearchParams(searchParams)
     }
-  }, [from, chainId, searchParams, setSearchParams])
+  }, [from, to, tokenIn, chainId, searchParams, setSearchParams, tokenOut])
 
   const isFromNear = from === 'near'
   const isFromBitcoin = from === 'bitcoin'
@@ -177,6 +213,10 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     if (isToNear) return nearTokens.find(token => token.assetId === tokenOut)
     throw new Error('Network is not supported')
   }, [currencyOutEvm, isToEvm, tokenOut, isToNear, isToBitcoin, nearTokens, toChainId])
+
+  useEffect(() => {
+    localStorage.setItem('crossChainSwapLastChainOut', toChainId?.toString() || '')
+  }, [toChainId])
 
   const inputAmount = useMemo(
     () =>
