@@ -1,5 +1,4 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { useState } from 'react'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
 
@@ -7,6 +6,7 @@ import ListMyOrder from '../ListOrder'
 import OrderBook from '../OrderBook'
 import { LimitOrderTab } from '../type'
 import TabSelector from './TabSelector'
+import { useSearchParams } from 'react-router-dom'
 
 const Wrapper = styled.div`
   display: flex;
@@ -24,7 +24,14 @@ const Wrapper = styled.div`
 `
 
 export default function ListLimitOrder({ customChainId }: { customChainId?: ChainId }) {
-  const [activeTab, setActiveTab] = useState<LimitOrderTab>(LimitOrderTab.ORDER_BOOK)
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  const activeTab = (searchParams.get('activeTab') as LimitOrderTab) || LimitOrderTab.ORDER_BOOK
+
+  const setActiveTab = (tab: LimitOrderTab) => {
+    searchParams.set('activeTab', tab)
+    setSearchParams(searchParams, { replace: true })
+  }
 
   return (
     <Wrapper>

@@ -11,7 +11,6 @@ import {
   revokePermit,
   setRecipient,
   setTrade,
-  setTrendingSoonShowed,
   switchCurrencies,
   switchCurrenciesV2,
   typeInput,
@@ -20,15 +19,7 @@ import {
 export interface SwapState {
   readonly independentField: Field // TODO: remove since unused anymore
   readonly typedValue: string
-  // readonly [Field.INPUT]: {
-  //   readonly currencyId: string | undefined
-  // }
-  // readonly [Field.OUTPUT]: {
-  //   readonly currencyId: string | undefined
-  // }
-  // the typed recipient address or ENS name, or null if swap should go to sender
   readonly recipient: string | null
-  readonly trendingSoonShowed?: boolean
   readonly trade?: Aggregator
 
   readonly showConfirm: boolean
@@ -53,24 +44,11 @@ export interface SwapState {
   }
 }
 
-// const { search, pathname } = window.location
-// const { inputCurrency = '', outputCurrency = '' } = pathname.startsWith(APP_PATHS.SWAP)
-//   ? queryStringToObject(search)
-//   : {}
-
 const initialState: SwapState = {
   independentField: Field.INPUT,
   permitData: {},
   typedValue: '1',
-  // [Field.INPUT]: {
-  //   currencyId: inputCurrency?.toString() || '',
-  // },
-  // [Field.OUTPUT]: {
-  //   currencyId: outputCurrency?.toString() || '',
-  // },
   recipient: null,
-  // Flag to only show animation of trending soon banner 1 time
-  trendingSoonShowed: false,
   trade: undefined,
 
   showConfirm: false,
@@ -87,37 +65,11 @@ export default createReducer<SwapState>(initialState, builder =>
     .addCase(replaceSwapState, (state, { payload: { typedValue, recipient, field } }) => {
       return {
         ...state,
-        // [Field.INPUT]: {
-        //   currencyId: inputCurrencyId,
-        // },
-        // [Field.OUTPUT]: {
-        //   currencyId: outputCurrencyId,
-        // },
         independentField: field,
         typedValue: typedValue || state.typedValue || '1',
         recipient,
       }
     })
-    // .addCase(selectCurrency, (state, { payload: { currencyId, field } }) => {
-    //   const otherField = field === Field.INPUT ? Field.OUTPUT : Field.INPUT
-    //   if (currencyId === state[otherField].currencyId) {
-    //     // the case where we have to swap the order
-    //     return {
-    //       ...state,
-    //       isSelectTokenManually: true,
-    //       independentField: state.independentField === Field.INPUT ? Field.OUTPUT : Field.INPUT,
-    //       [field]: { currencyId },
-    //       [otherField]: { currencyId: state[field].currencyId },
-    //     }
-    //   } else {
-    //     // the normal case
-    //     return {
-    //       ...state,
-    //       isSelectTokenManually: true,
-    //       [field]: { currencyId },
-    //     }
-    //   }
-    // })
     .addCase(resetSelectCurrency, (state, { payload: { field } }) => {
       return {
         ...state,
@@ -129,8 +81,6 @@ export default createReducer<SwapState>(initialState, builder =>
         ...state,
         isSelectTokenManually: true,
         independentField: state.independentField === Field.INPUT ? Field.OUTPUT : Field.INPUT,
-        // [Field.INPUT]: { currencyId: state[Field.OUTPUT].currencyId },
-        // [Field.OUTPUT]: { currencyId: state[Field.INPUT].currencyId },
       }
     })
     .addCase(switchCurrenciesV2, state => {
@@ -138,8 +88,6 @@ export default createReducer<SwapState>(initialState, builder =>
         ...state,
         independentField: Field.INPUT,
         isSelectTokenManually: true,
-        // [Field.INPUT]: { currencyId: state[Field.OUTPUT].currencyId },
-        // [Field.OUTPUT]: { currencyId: state[Field.INPUT].currencyId },
       }
     })
     .addCase(typeInput, (state, { payload: { field, typedValue } }) => {
@@ -148,9 +96,6 @@ export default createReducer<SwapState>(initialState, builder =>
     })
     .addCase(setRecipient, (state, { payload: { recipient } }) => {
       state.recipient = recipient
-    })
-    .addCase(setTrendingSoonShowed, state => {
-      state.trendingSoonShowed = true
     })
     .addCase(setTrade, (state, { payload: { trade } }) => {
       state.trade = trade

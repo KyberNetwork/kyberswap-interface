@@ -3,7 +3,7 @@ import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import { Trash } from 'react-feather'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import { useGetListOrdersQuery } from 'services/limitOrder'
@@ -139,7 +139,18 @@ export default function ListMyOrder({ customChainId }: { customChainId?: ChainId
 
   const { tab, ...qs } = useParsedQueryString<{ tab: LimitOrderStatus }>()
   const [orderType, setOrderType] = useState<LimitOrderStatus>(LimitOrderStatus.ACTIVE)
-  const [keyword, setKeyword] = useState('')
+
+  const [searchParams, setSearchParams] = useSearchParams()
+  const keyword = searchParams.get('search') || ''
+
+  const setKeyword = useCallback(
+    (val: string) => {
+      searchParams.set('search', val)
+      setSearchParams(searchParams, { replace: true })
+    },
+    [searchParams, setSearchParams],
+  )
+
   const [isOpenCancel, setIsOpenCancel] = useState(false)
   const [isOpenEdit, setIsOpenEdit] = useState(false)
   const { ordersNeedCreated: ordersUpdating } = useLimitState()
@@ -186,10 +197,9 @@ export default function ListMyOrder({ customChainId }: { customChainId?: ChainId
     setCurPage(page)
   }
 
-  const onReset = () => {
-    setKeyword('')
+  const onReset = useCallback(() => {
     setCurPage(1)
-  }
+  }, [])
 
   const isPartnerSwap = window.location.pathname.includes(APP_PATHS.PARTNER_SWAP)
   const navigate = useNavigate()
@@ -208,7 +218,7 @@ export default function ListMyOrder({ customChainId }: { customChainId?: ChainId
 
   useEffect(() => {
     onReset()
-  }, [chainId, orderType])
+  }, [chainId, onReset, orderType])
 
   const invalidateTag = useInvalidateTagLimitOrder()
   const refetchOrders = useCallback(() => {
@@ -220,7 +230,7 @@ export default function ListMyOrder({ customChainId }: { customChainId?: ChainId
       onReset()
       refetchOrders()
     } catch (error) {}
-  }, [refetchOrders])
+  }, [onReset, refetchOrders])
 
   useEffect(() => {
     if (!account) return

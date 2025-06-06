@@ -5,7 +5,7 @@ import { parseGetRouteResponse } from 'services/route/utils'
 import useGetRoute, { ArgsGetRoute } from 'components/SwapForm/hooks/useGetRoute'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
-import { useTokenPricesWithLoading } from 'state/tokenPrices/hooks'
+import { PriceType, useTokenPricesWithLoading } from 'state/tokenPrices/hooks'
 
 export type BaseTradeInfo = {
   priceUsdIn: number
@@ -26,7 +26,7 @@ function useBaseTradeInfo(currencyIn: Currency | undefined, currencyOut: Currenc
     return list.filter(Boolean) as string[]
   }, [currencyIn, currencyOut, chainId])
 
-  const { data: pricesUsd, loading, refetch } = useTokenPricesWithLoading(addresses, chainId)
+  const { data: pricesUsd, loading, refetch } = useTokenPricesWithLoading(addresses, chainId, PriceType.Average)
 
   const nativePriceUsd = pricesUsd[WETH[chainId].wrapped.address]
 

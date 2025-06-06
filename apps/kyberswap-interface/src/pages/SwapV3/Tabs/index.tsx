@@ -1,6 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -83,6 +83,7 @@ export default function Tabs({ activeTab, setActiveTab, customChainId }: Props) 
   }>()
 
   const { pathname } = useLocation()
+  const { currency: currencyParam } = useParams()
 
   const isParnerSwap = pathname.startsWith(APP_PATHS.PARTNER_SWAP)
 
@@ -112,7 +113,7 @@ export default function Tabs({ activeTab, setActiveTab, customChainId }: Props) 
       pathname:
         tab === TAB.CROSS_CHAIN
           ? APP_PATHS.CROSS_CHAIN
-          : `${tab === TAB.LIMIT ? APP_PATHS.LIMIT : APP_PATHS.SWAP}/${networkInfo.route}`,
+          : `${tab === TAB.LIMIT ? APP_PATHS.LIMIT : APP_PATHS.SWAP}/${networkInfo.route}/${currencyParam || ''}`,
       search: new URLSearchParams(newQs).toString(),
     })
   }
