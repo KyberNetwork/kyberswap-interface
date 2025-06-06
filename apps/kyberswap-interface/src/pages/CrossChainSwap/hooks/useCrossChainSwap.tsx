@@ -93,15 +93,19 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
 
   useEffect(() => {
     let hasUpdate = false
+    let newFrom = from
     if (!from) {
       searchParams.set('from', chainId?.toString() || '')
+      newFrom = chainId?.toString() || ''
       hasUpdate = true
     }
 
+    let newTo = to
     if (!to) {
       const lastChainId = localStorage.getItem('crossChainSwapLastChainOut')
-      if (lastChainId) {
+      if (lastChainId && lastChainId !== newFrom) {
         searchParams.set('to', lastChainId)
+        newTo = lastChainId
         hasUpdate = true
       }
     }
@@ -112,7 +116,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
         hasUpdate = true
       }
       if (isEvmChain(from ? +from : chainId)) {
-        searchParams.set('tokenIn', NativeCurrencies[chainId]?.symbol?.toLowerCase() || '')
+        searchParams.set('tokenIn', NativeCurrencies[(from ? +from : chainId) as ChainId]?.symbol?.toLowerCase() || '')
         hasUpdate = true
       }
     }
@@ -122,8 +126,8 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
         searchParams.set('tokenOut', 'near')
         hasUpdate = true
       }
-      if (isEvmChain(to ? +to : chainId)) {
-        searchParams.set('tokenOut', NativeCurrencies[chainId]?.symbol?.toLowerCase() || '')
+      if (newTo && isEvmChain(+newTo)) {
+        searchParams.set('tokenOut', NativeCurrencies[+newTo as ChainId]?.symbol?.toLowerCase() || '')
         hasUpdate = true
       }
     }
