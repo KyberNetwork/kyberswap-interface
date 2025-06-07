@@ -58,6 +58,7 @@ export const univ3Pool = z.object({
     tick: z.number(),
     ticks: z.array(tick).optional(),
   }),
+  staticExtra: z.string(),
 });
 
 export const univ3PoolResponse = z.object({

@@ -16,6 +16,7 @@ import {
   univ3PoolNormalize,
   univ3Position,
   univ3Types,
+  univ4Types,
 } from '@kyber/schema';
 import { parseUnits } from '@kyber/utils/crypto';
 import { divideBigIntToString } from '@kyber/utils/number';
@@ -148,6 +149,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
 
   const isUniV3 = pool !== 'loading' && univ3Types.includes(poolType as any);
   const isUniV2 = pool !== 'loading' && univ2Types.includes(poolType as any);
+  const isUniV4 = univ4Types.includes(poolType);
 
   const isTokensStable = tokensIn.every(tk => tk.isStable);
 
@@ -172,7 +174,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
 
   const { prices: tokenPrices } = useTokenPrices({
     addresses: tokensIn.map(token =>
-      token.address.toLowerCase() !== NATIVE_TOKEN_ADDRESS.toLowerCase()
+      token.address.toLowerCase() !== NATIVE_TOKEN_ADDRESS.toLowerCase() || isUniV4
         ? token.address.toLowerCase()
         : NETWORKS_INFO[chainId].wrappedToken.address.toLowerCase(),
     ),

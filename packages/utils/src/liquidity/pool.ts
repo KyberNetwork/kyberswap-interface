@@ -1,6 +1,7 @@
 import {
   API_URLS,
   ChainId,
+  NATIVE_TOKEN_ADDRESS,
   PoolType,
   Token,
   Univ2PoolType,
@@ -8,6 +9,7 @@ import {
   poolResponse,
   univ2Pool,
   univ3Pool,
+  univ4Types,
 } from '@kyber/schema';
 
 import { fetchTokenPrice } from '../services';
@@ -58,6 +60,7 @@ export const getPoolInfo = async ({
         tickSpacing: number;
         ticks?: any[];
       };
+      staticExtra: string;
     }>
   ).find(item => item.address.toLowerCase() === poolAddress.toLowerCase());
 
@@ -67,8 +70,14 @@ export const getPoolInfo = async ({
       pool: null,
     };
 
-  const token0Address = pool.tokens[0].address;
-  const token1Address = pool.tokens[1].address;
+  const isUniV4 = univ4Types.includes(poolType);
+
+  const staticExtra = JSON.parse(pool.staticExtra || '{}');
+  const isToken0Native = isUniV4 && pool.staticExtra && staticExtra?.['0x0']?.[0];
+  const isToken1Native = isUniV4 && pool.staticExtra && staticExtra?.['0x0']?.[1];
+
+  const token0Address = isToken0Native ? NATIVE_TOKEN_ADDRESS.toLowerCase() : pool.tokens[0].address;
+  const token1Address = isToken1Native ? NATIVE_TOKEN_ADDRESS.toLowerCase() : pool.tokens[1].address;
 
   const { token0, token1 } = await getPoolTokens({ token0Address, token1Address, chainId });
 
