@@ -36,3 +36,27 @@ export const fetchTokenPrice = async ({ addresses, chainId }: { addresses: strin
 
   return priceResponse?.data?.[chainId] || {};
 };
+
+interface PoolStatResponse {
+  data: {
+    poolStats: PoolStatInfo;
+  };
+}
+
+export interface PoolStatInfo {
+  tvl: number;
+  volume24h: number;
+  fees24h: number;
+  apr24h: number;
+  kemApr24h: number;
+  kemLMApr: number;
+  kemEGApr: number;
+}
+
+export const fetchPoolStat = async ({ chainId, poolAddress }: { chainId: number; poolAddress: string }) => {
+  const poolStatResponse: PoolStatResponse = (await fetch(
+    `${API_URLS.ZAP_EARN_API}/v1/pools?chainId=${chainId}&address=${poolAddress}`,
+  ).then(res => res.json())) as PoolStatResponse;
+
+  return poolStatResponse?.data?.poolStats || null;
+};

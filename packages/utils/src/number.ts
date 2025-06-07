@@ -149,6 +149,8 @@ export function toString(x: number): string {
 }
 
 export const formatAprNumber = (apr: string | number): string => {
+  if (apr === 0) return '0';
+
   const formattedApr = Number(apr);
   let n = 0;
   while (n < 4) {

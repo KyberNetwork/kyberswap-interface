@@ -1,19 +1,22 @@
 import { create } from 'zustand';
 
 import { Pool, PoolType } from '@kyber/schema';
-import { POOL_ERROR, getPoolInfo } from '@kyber/utils';
+import { POOL_ERROR, PoolStatInfo, fetchPoolStat, getPoolInfo } from '@kyber/utils';
 
 interface PoolState {
   poolLoading: boolean;
   poolError: string;
   pool: 'loading' | Pool;
+  poolStat: PoolStatInfo | null;
   getPool: (props: getPoolProps) => void;
+  getPoolStat: ({ poolAddress, chainId }: { poolAddress: string; chainId: number }) => void;
   reset: () => void;
 }
 
-const initState: Omit<PoolState, 'getPool' | 'reset'> = {
+const initState: Omit<PoolState, 'getPool' | 'getPoolStat' | 'reset'> = {
   poolLoading: false,
   pool: 'loading',
+  poolStat: null,
   poolError: '',
 };
 
@@ -37,5 +40,13 @@ export const usePoolStore = create<PoolState>((set, get) => ({
     else if (poolInfo.pool) set({ pool: poolInfo.pool as Pool });
 
     set({ poolLoading: false });
+  },
+  getPoolStat: async ({ poolAddress, chainId }: { poolAddress: string; chainId: number }) => {
+    try {
+      const poolStat = await fetchPoolStat({ chainId, poolAddress });
+      set({ poolStat: poolStat });
+    } catch (error) {
+      console.error('Error fetching pool stat', error);
+    }
   },
 }));

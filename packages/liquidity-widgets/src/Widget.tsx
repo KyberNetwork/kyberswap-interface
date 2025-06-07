@@ -92,8 +92,8 @@ export default function Widget() {
   const { positionId, position } = usePositionStore(
     useShallow(s => ({ positionId: s.positionId, position: s.position })),
   );
-  const { pool, poolError, getPool } = usePoolStore(
-    useShallow(s => ({ pool: s.pool, poolError: s.poolError, getPool: s.getPool })),
+  const { pool, poolError, getPool, getPoolStat } = usePoolStore(
+    useShallow(s => ({ pool: s.pool, poolError: s.poolError, getPool: s.getPool, getPoolStat: s.getPoolStat })),
   );
   const positionOwner = usePositionOwner({
     positionId: positionId || '',
@@ -281,7 +281,8 @@ export default function Widget() {
 
   const refetchData = useCallback(() => {
     getPool({ poolAddress, chainId, poolType });
-  }, [getPool, poolAddress, chainId, poolType]);
+    getPoolStat({ poolAddress, chainId });
+  }, [getPool, poolAddress, chainId, poolType, getPoolStat]);
 
   const price = useMemo(
     () =>
