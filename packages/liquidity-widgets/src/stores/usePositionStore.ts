@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-import { Pool, PoolType, Position, univ2Pool, univ3Pool } from '@kyber/schema';
+import { Pool, PoolType, Position, univ2PoolNormalize, univ3PoolNormalize } from '@kyber/schema';
 import { getUniv2PositionInfo, getUniv3PositionInfo } from '@kyber/utils';
 
 interface PositionState {
@@ -30,13 +30,13 @@ interface getPositionProps {
   pool: Pool;
 }
 
-export const usePoolStore = create<PositionState>((set, get) => ({
+export const usePositionStore = create<PositionState>((set, get) => ({
   ...initState,
   reset: () => set(initState),
   setPositionId: (positionId: string) => set({ positionId }),
   getPosition: async ({ pool, positionId, chainId, poolType, connectedAccount }: getPositionProps) => {
-    const { success: isUniV3, data: univ3PoolInfo } = univ3Pool.safeParse(pool);
-    const { success: isUniV2, data: univ2PoolInfo } = univ2Pool.safeParse(pool);
+    const { success: isUniV3, data: univ3PoolInfo } = univ3PoolNormalize.safeParse(pool);
+    const { success: isUniV2, data: univ2PoolInfo } = univ2PoolNormalize.safeParse(pool);
 
     const { firstLoad } = get();
 
@@ -47,8 +47,8 @@ export const usePoolStore = create<PositionState>((set, get) => ({
           poolType,
           positionId,
           chainId,
-          tickCurrent: univ3PoolInfo.positionInfo.tick,
-          sqrtPriceX96: univ3PoolInfo.positionInfo.sqrtPriceX96,
+          tickCurrent: univ3PoolInfo.tick,
+          sqrtPriceX96: univ3PoolInfo.sqrtPriceX96,
         });
 
         if (positionInfo.error) set({ positionError: positionInfo.error });

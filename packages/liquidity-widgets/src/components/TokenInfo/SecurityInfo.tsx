@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, Token } from '@kyber/schema';
+import { ChainId, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, Theme, Token } from '@kyber/schema';
 import { MouseoverTooltip } from '@kyber/ui';
 
 import LogoGoPlus from '@/assets/svg/goplus.svg';
@@ -9,11 +9,8 @@ import IconSecurityTrading from '@/assets/svg/security-trading.svg';
 import IconSecurity from '@/assets/svg/security.svg';
 import CollapseInfoItem from '@/components/TokenInfo/CollapseInfoItem';
 import useSecurityTokenInfo from '@/components/TokenInfo/useSecurityTokenInfo';
-import { useWidgetContext } from '@/stores';
 
-const SecurityInfo = ({ token }: { token: Token }) => {
-  const { theme, chainId } = useWidgetContext(s => s);
-
+const SecurityInfo = ({ token, theme, chainId }: { token: Token; theme: Theme; chainId: ChainId }) => {
   const tokenAddress = useMemo(
     () =>
       (token?.address

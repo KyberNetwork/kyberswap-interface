@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
+import { useShallow } from 'zustand/shallow';
+
 import { API_URLS, EarnChain, EarnDex, Exchange, Univ2EarnDex } from '@kyber/schema';
 import { enumToArrayOfValues } from '@kyber/utils';
 import { isAddress } from '@kyber/utils/crypto';
@@ -10,11 +12,10 @@ import IconCopy from '@/assets/svg/copy.svg';
 import IconPositionConnectWallet from '@/assets/svg/ic_position_connect_wallet.svg';
 import IconPositionNotFound from '@/assets/svg/ic_position_not_found.svg';
 import defaultTokenLogo from '@/assets/svg/question.svg?url';
+import { shortenAddress } from '@/components/TokenInfo/utils';
 import { useZapState } from '@/hooks/useZapInState';
-import { useWidgetContext } from '@/stores';
+import { useWidgetStore } from '@/stores/useWidgetStore';
 import { EarnPosition, PositionStatus } from '@/types/index';
-
-import { shortenAddress } from '../TokenInfo/utils';
 
 const COPY_TIMEOUT = 2000;
 let hideCopied: ReturnType<typeof setTimeout>;
@@ -25,7 +26,18 @@ export const earnSupportedExchanges = enumToArrayOfValues(Exchange);
 
 const UserPositions = ({ search }: { search: string }) => {
   const { theme, connectedAccount, chainId, positionId, onOpenZapMigration, onConnectWallet, poolAddress } =
-    useWidgetContext(s => s);
+    useWidgetStore(
+      useShallow(s => ({
+        theme: s.theme,
+        connectedAccount: s.connectedAccount,
+        chainId: s.chainId,
+        positionId: s.positionId,
+        onOpenZapMigration: s.onOpenZapMigration,
+        onConnectWallet: s.onConnectWallet,
+        poolAddress: s.poolAddress,
+      })),
+    );
+
   const { address: account } = connectedAccount || {};
   const { tickLower, tickUpper } = useZapState();
 

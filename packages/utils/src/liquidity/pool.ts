@@ -122,8 +122,9 @@ export const getPoolInfo = async ({
     return {
       error: null,
       pool: {
-        category,
+        address: univ2PoolInfo.address,
         poolType,
+        category,
         token0,
         token1,
         fee: univ2PoolInfo.swapFee,

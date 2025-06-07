@@ -54,3 +54,5 @@ export const DEXES_INFO: Record<PoolType, DexInfo> = {
   [PoolType.DEX_SQUADSWAP_V3]: squadswapv3,
   [PoolType.DEX_SQUADSWAP_V2]: squadswapv2,
 };
+
+export const defaultDexInfo = { icon: '', name: '' };

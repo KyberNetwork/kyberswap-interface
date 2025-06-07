@@ -1,4 +1,13 @@
-import { DEXES_INFO, NETWORKS_INFO, defaultToken, univ3PoolNormalize, univ3Position } from '@kyber/schema';
+import { useShallow } from 'zustand/shallow';
+
+import {
+  DEXES_INFO,
+  NETWORKS_INFO,
+  defaultDexInfo,
+  defaultToken,
+  univ3PoolNormalize,
+  univ3Position,
+} from '@kyber/schema';
 import { InfoHelper, MouseoverTooltip, Skeleton, TokenLogo } from '@kyber/ui';
 
 import defaultTokenLogo from '@/assets/svg/question.svg?url';
@@ -8,14 +17,30 @@ import RefreshLoading from '@/components/Header/RefreshLoading';
 import { shortenAddress } from '@/components/TokenInfo/utils';
 import useCopy from '@/hooks/useCopy';
 import { useZapState } from '@/hooks/useZapInState';
-import { useWidgetContext } from '@/stores';
+import { usePoolStore } from '@/stores/usePoolStore';
+import { usePositionStore } from '@/stores/usePositionStore';
+import { useWidgetStore } from '@/stores/useWidgetStore';
 
-const Header = () => {
-  const { chainId, pool, poolType, positionId, position, theme, poolAddress, onClose } = useWidgetContext(s => s);
+const Header = ({ refetchData }: { refetchData: () => void }) => {
+  const { theme, chainId, onClose } = useWidgetStore(
+    useShallow(s => ({
+      theme: s.theme,
+      chainId: s.chainId,
+      onClose: s.onClose,
+    })),
+  );
+  const pool = usePoolStore(s => s.pool);
+  const { positionId, position } = usePositionStore(
+    useShallow(s => ({
+      positionId: s.positionId,
+      position: s.position,
+    })),
+  );
 
   const { toggleSetting, degenMode } = useZapState();
 
   const initializing = pool === 'loading' || !pool;
+  const poolAddress = initializing ? '' : pool.address;
 
   const PoolCopy = useCopy({
     text: poolAddress,
@@ -29,7 +54,7 @@ const Header = () => {
 
   const { token0 = defaultToken, token1 = defaultToken, fee = 0 } = !initializing ? pool : {};
 
-  const { icon: dexLogo, name: rawName } = DEXES_INFO[poolType];
+  const { icon: dexLogo, name: rawName } = !initializing ? DEXES_INFO[pool.poolType] : defaultDexInfo;
   const dexName = typeof rawName === 'string' ? rawName : rawName[chainId];
 
   const { success, data } = univ3Position.safeParse(position);
@@ -68,7 +93,7 @@ const Header = () => {
                 </div>
               </>
             )}
-            <RefreshLoading />
+            <RefreshLoading refetchData={refetchData} />
           </div>
         )}
         <div className="cursor-pointer text-subText" role="button" onClick={onClose}>

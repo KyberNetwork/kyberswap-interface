@@ -1,29 +1,27 @@
 import { useMemo, useState } from 'react';
 
-import { DEXES_INFO, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO } from '@kyber/schema';
+import { DEXES_INFO, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, defaultToken } from '@kyber/schema';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@kyber/ui';
 
 import { useZapState } from '@/hooks/useZapInState';
-import { useWidgetContext } from '@/stores';
+import { usePoolStore } from '@/stores/usePoolStore';
+import { useWidgetStore } from '@/stores/useWidgetStore';
 import { AddLiquidityAction, AggregatorSwapAction, PoolSwapAction, ZapAction } from '@/types/zapRoute';
 import { formatWei } from '@/utils';
 
 export default function ZapRoute() {
+  const chainId = useWidgetStore(s => s.chainId);
   const { zapInfo, tokensIn } = useZapState();
-  const { pool, poolType, chainId } = useWidgetContext(s => s);
+  const pool = usePoolStore(s => s.pool);
   const [expanded, setExpanded] = useState(false);
 
-  const defaultToken = {
-    decimals: undefined,
-    address: '',
-    logo: '',
-    symbol: '',
-  };
-  const { symbol: symbol0 } = pool === 'loading' ? defaultToken : pool.token0;
-  const { symbol: symbol1 } = pool === 'loading' ? defaultToken : pool.token1;
+  const initializing = pool === 'loading';
 
-  const dexNameObj = DEXES_INFO[poolType].name;
-  const dexName = typeof dexNameObj === 'string' ? dexNameObj : dexNameObj[chainId];
+  const { symbol: symbol0 } = initializing ? defaultToken : pool.token0;
+  const { symbol: symbol1 } = initializing ? defaultToken : pool.token1;
+
+  const dexNameObj = initializing ? null : DEXES_INFO[pool.poolType].name;
+  const dexName = !dexNameObj ? '' : typeof dexNameObj === 'string' ? dexNameObj : dexNameObj[chainId];
 
   const onExpand = () => setExpanded(prev => !prev);
 

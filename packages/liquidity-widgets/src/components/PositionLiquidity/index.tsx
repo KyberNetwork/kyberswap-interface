@@ -1,22 +1,24 @@
 import { formatTokenAmount } from '@kyber/utils/number';
 
 import defaultTokenLogo from '@/assets/svg/question.svg?url';
-import { useWidgetContext } from '@/stores';
+import { usePoolStore } from '@/stores/usePoolStore';
+import { usePositionStore } from '@/stores/usePositionStore';
 import { formatCurrency } from '@/utils';
 
 const PositionLiquidity = () => {
-  const { pool, position } = useWidgetContext(s => s);
-  const loading = pool === 'loading';
+  const pool = usePoolStore(s => s.pool);
+  const position = usePositionStore(s => s.position);
 
-  const amount0 =
-    position === 'loading' || pool === 'loading' ? '0' : formatTokenAmount(position.amount0, pool.token0?.decimals);
-  const amount1 =
-    position === 'loading' || pool === 'loading' ? '0' : formatTokenAmount(position.amount1, pool.token1?.decimals);
+  const initializing = pool === 'loading';
+  const positionNotExist = position === 'loading' || !position || initializing;
+
+  const amount0 = positionNotExist ? '0' : formatTokenAmount(position.amount0, pool.token0.decimals);
+  const amount1 = positionNotExist ? '0' : formatTokenAmount(position.amount1, pool.token1.decimals);
 
   return (
     <div className="px-4 py-3 mt-4 border border-stroke rounded-md">
-      <p className="text-subText mb-4 text-sm">{!loading ? 'Your Position Liquidity' : 'Loading...'}</p>
-      {!loading && (
+      <p className="text-subText mb-4 text-sm">{!initializing ? 'Your Position Liquidity' : 'Loading...'}</p>
+      {!initializing && (
         <>
           <div className="flex justify-between">
             <div className="flex gap-2">

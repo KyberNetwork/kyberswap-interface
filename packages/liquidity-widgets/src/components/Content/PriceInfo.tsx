@@ -7,14 +7,16 @@ import { tickToPrice } from '@kyber/utils/uniswapv3';
 
 import RevertPriceIcon from '@/assets/svg/ic_revert_price.svg';
 import { useZapState } from '@/hooks/useZapInState';
-import { useWidgetContext } from '@/stores';
+import { usePoolStore } from '@/stores/usePoolStore';
+import { useWidgetStore } from '@/stores/useWidgetStore';
 import { assertUnreachable } from '@/utils';
 
 const shortenSymbol = (symbol: string, characterNumber = 8) =>
   symbol.length > characterNumber + 2 ? symbol.slice(0, characterNumber) + '...' : symbol;
 
 export default function PriceInfo() {
-  const { pool, theme, poolType } = useWidgetContext(s => s);
+  const theme = useWidgetStore(s => s.theme);
+  const pool = usePoolStore(s => s.pool);
   const { poolPrice, revertPrice, toggleRevertPrice } = useZapState();
 
   const loading = pool === 'loading';
@@ -40,8 +42,8 @@ export default function PriceInfo() {
         significantDigits: 6,
       });
     }
-    return assertUnreachable(poolType as never, 'poolType is not handled');
-  }, [pool, poolType, revertPrice]);
+    return assertUnreachable(pool.poolType as never, 'poolType is not handled');
+  }, [pool, revertPrice]);
 
   if (loading) return <div className="rounded-md border border-stroke py-3 px-4">Loading...</div>;
 

@@ -7,7 +7,8 @@ import { nearestUsableTick, priceToClosestTick, tickToPrice } from '@kyber/utils
 
 import { DEFAULT_PRICE_RANGE, FULL_PRICE_RANGE, FeeAmount, PRICE_RANGE } from '@/components/PriceRange/constants';
 import { useZapState } from '@/hooks/useZapInState';
-import { useWidgetContext } from '@/stores';
+import { usePoolStore } from '@/stores/usePoolStore';
+import { usePositionStore } from '@/stores/usePositionStore';
 
 interface SelectedRange {
   range: number | string;
@@ -24,11 +25,12 @@ const getFeeRange = (fee: number): FeeAmount | undefined => {
 };
 
 const PriceRange = () => {
+  const { priceLower, priceUpper, setTickLower, setTickUpper, tickLower, tickUpper, revertPrice } = useZapState();
   const [selectedRange, setSelectedRange] = useState<SelectedRange | null>(null);
 
-  const { priceLower, priceUpper, setTickLower, setTickUpper, tickLower, tickUpper, revertPrice } = useZapState();
+  const pool = usePoolStore(s => s.pool);
+  const positionId = usePositionStore(s => s.positionId);
 
-  const { pool, positionId } = useWidgetContext(s => s);
   const loading = pool === 'loading';
 
   const fee = pool === 'loading' ? 0 : pool.fee;

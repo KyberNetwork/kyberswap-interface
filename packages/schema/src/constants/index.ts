@@ -39,3 +39,11 @@ export const API_URLS = {
     ZAP_FEE_MODEL: 'https://docs.kyberswap.com/kyberswap-solutions/kyberswap-zap-as-a-service/zap-fee-model',
   },
 };
+
+export enum POOL_CATEGORY {
+  STABLE_PAIR = 'stablePair',
+  CORRELATED_PAIR = 'correlatedPair',
+  COMMON_PAIR = 'commonPair',
+  EXOTIC_PAIR = 'exoticPair',
+  HIGH_VOLATILITY_PAIR = 'highVolatilityPair',
+}

@@ -10,8 +10,8 @@ import { shortenAddress } from '@/components/TokenInfo/utils';
 import { MAX_ZAP_IN_TOKENS } from '@/constants';
 import useCopy from '@/hooks/useCopy';
 import { useZapState } from '@/hooks/useZapInState';
-import { useWidgetContext } from '@/stores';
 import { useTokenStore } from '@/stores/useTokenStore';
+import { useWidgetStore } from '@/stores/useWidgetStore';
 import { getEtherscanLink } from '@/utils';
 
 import { TOKEN_SELECT_MODE } from '.';
@@ -33,10 +33,9 @@ const TokenImportConfirm = ({
   onGoBack: () => void;
   onClose: () => void;
 }) => {
-  const chainId = useWidgetContext(s => s.chainId);
-
   const { tokensIn, setTokensIn, amountsIn, setAmountsIn } = useZapState();
-  const { importToken } = useTokenStore();
+  const chainId = useWidgetStore(s => s.chainId);
+  const importToken = useTokenStore(s => s.importToken);
   const Copy = useCopy({ text: token.address });
 
   const handleOpenExternalLink = () => {

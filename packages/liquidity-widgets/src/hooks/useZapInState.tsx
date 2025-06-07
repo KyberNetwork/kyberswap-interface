@@ -22,8 +22,10 @@ import { divideBigIntToString } from '@kyber/utils/number';
 import { tickToPrice } from '@kyber/utils/uniswapv3';
 
 import { ERROR_MESSAGE } from '@/constants';
-import { useWidgetContext } from '@/stores';
+import { usePoolStore } from '@/stores/usePoolStore';
+import { usePositionStore } from '@/stores/usePositionStore';
 import { useTokenStore } from '@/stores/useTokenStore';
+import { useWidgetStore } from '@/stores/useWidgetStore';
 import { ZapRouteDetail } from '@/types/zapRoute';
 import { assertUnreachable, formatNumber, formatWei, parseTokensAndAmounts, validateData } from '@/utils';
 
@@ -100,24 +102,16 @@ const ZapContext = createContext<{
   setManualSlippage: (_val: boolean) => {},
 });
 
-export const ZapContextProvider = ({
-  children,
-  source,
-  excludedSources,
-  includedSources,
-  initDepositTokens,
-  initAmounts,
-}: {
-  children: ReactNode;
-  source: string;
-  includedSources?: string;
-  excludedSources?: string;
-  initDepositTokens?: string;
-  initAmounts?: string;
-}) => {
-  const { pool, poolType, poolAddress, position, positionId, feeConfig, chainId, connectedAccount } = useWidgetContext(
-    s => s,
-  );
+export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
+  const { chainId, source, aggregatorOptions, initDepositTokens, initAmounts, feeConfig, poolType, poolAddress } =
+    useWidgetStore();
+  const connectedAccount = useWidgetStore(state => state.connectedAccount);
+
+  const excludedSources = aggregatorOptions?.excludedSources?.join(',');
+  const includedSources = aggregatorOptions?.includedSources?.join(',');
+
+  const { positionId, position } = usePositionStore();
+  const { pool } = usePoolStore();
   const { feePcm, feeAddress } = feeConfig || {};
   const account = connectedAccount?.address;
 

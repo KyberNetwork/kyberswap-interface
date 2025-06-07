@@ -1,11 +1,15 @@
 import { useEffect, useState } from 'react';
 
+import { useShallow } from 'zustand/shallow';
+
 import { API_URLS, PoolType, Univ2PoolType } from '@kyber/schema';
 import { formatAprNumber, formatDisplayNumber } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
 import FarmingIcon from '@/assets/svg/kem.svg';
-import { useWidgetContext } from '@/stores';
+import { usePoolStore } from '@/stores/usePoolStore';
+import { usePositionStore } from '@/stores/usePositionStore';
+import { useWidgetStore } from '@/stores/useWidgetStore';
 
 interface PoolInfo {
   tvl: number;
@@ -15,21 +19,21 @@ interface PoolInfo {
   kemApr24h: number;
 }
 
-export default function PoolStat({
-  chainId,
-  poolAddress,
-  poolType,
-  positionId,
-}: {
-  chainId: number;
-  poolAddress: string;
-  poolType: PoolType;
-  positionId?: string;
-}) {
-  const { position } = useWidgetContext(s => s);
+export default function PoolStat() {
+  const chainId = useWidgetStore(s => s.chainId);
+  const { position, positionId } = usePositionStore(
+    useShallow(s => ({
+      position: s.position,
+      positionId: s.positionId,
+    })),
+  );
+  const pool = usePoolStore(s => s.pool);
   const [poolInfo, setPoolInfo] = useState<PoolInfo | null>(null);
 
-  const isUniv2 = position !== 'loading' && Univ2PoolType.safeParse(position.poolType).success;
+  const poolAddress = pool === 'loading' ? '' : pool.address;
+  const poolType = pool === 'loading' ? '' : pool.poolType;
+
+  const isUniv2 = position !== 'loading' && !!position && Univ2PoolType.safeParse(position.poolType).success;
 
   const poolShare =
     position === 'loading' || !isUniv2 || !('totalSupply' in position)

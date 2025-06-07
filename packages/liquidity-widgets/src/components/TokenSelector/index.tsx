@@ -1,5 +1,7 @@
 import { ChangeEvent, MouseEvent, useEffect, useMemo, useState } from 'react';
 
+import { useShallow } from 'zustand/shallow';
+
 import { NATIVE_TOKEN_ADDRESS, Token } from '@kyber/schema';
 import { Button, Input } from '@kyber/ui';
 import { fetchTokenInfo } from '@kyber/utils';
@@ -14,8 +16,9 @@ import X from '@/assets/svg/x.svg';
 import UserPositions from '@/components/TokenSelector/UserPositions';
 import { MAX_ZAP_IN_TOKENS } from '@/constants';
 import { useZapState } from '@/hooks/useZapInState';
-import { useWidgetContext } from '@/stores';
+import { usePoolStore } from '@/stores/usePoolStore';
 import { useTokenStore } from '@/stores/useTokenStore';
+import { useWidgetStore } from '@/stores/useWidgetStore';
 import { formatWei } from '@/utils';
 
 export enum TOKEN_SELECT_MODE {
@@ -61,10 +64,23 @@ export default function TokenSelector({
   setTokenToImport: (token: Token) => void;
   onClose: () => void;
 }) {
-  const { pool, theme, onOpenZapMigration, chainId } = useWidgetContext(s => s);
   const { balanceTokens, tokensIn, setTokensIn, amountsIn, setAmountsIn } = useZapState();
 
-  const { importedTokens, tokens, removeImportedToken } = useTokenStore();
+  const { theme, onOpenZapMigration, chainId } = useWidgetStore(
+    useShallow(s => ({
+      theme: s.theme,
+      onOpenZapMigration: s.onOpenZapMigration,
+      chainId: s.chainId,
+    })),
+  );
+  const pool = usePoolStore(s => s.pool);
+  const { importedTokens, tokens, removeImportedToken } = useTokenStore(
+    useShallow(s => ({
+      importedTokens: s.importedTokens,
+      tokens: s.tokens,
+      removeImportedToken: s.removeImportedToken,
+    })),
+  );
 
   const allTokens = useMemo(() => [...tokens, ...importedTokens], [tokens, importedTokens]);
 

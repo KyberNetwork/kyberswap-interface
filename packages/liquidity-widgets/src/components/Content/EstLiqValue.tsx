@@ -1,5 +1,7 @@
 import { useMemo } from 'react';
 
+import { useShallow } from 'zustand/shallow';
+
 import { API_URLS, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO } from '@kyber/schema';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, InfoHelper, MouseoverTooltip } from '@kyber/ui';
 import { formatUnits } from '@kyber/utils/crypto';
@@ -9,7 +11,9 @@ import { cn } from '@kyber/utils/tailwind-helpers';
 import defaultTokenLogo from '@/assets/svg/question.svg?url';
 import { SlippageWarning } from '@/components/SlippageWarning';
 import { useZapState } from '@/hooks/useZapInState';
-import { useWidgetContext } from '@/stores';
+import { usePoolStore } from '@/stores/usePoolStore';
+import { usePositionStore } from '@/stores/usePositionStore';
+import { useWidgetStore } from '@/stores/useWidgetStore';
 import {
   AddLiquidityAction,
   AggregatorSwapAction,
@@ -22,8 +26,20 @@ import {
 import { PI_LEVEL, formatCurrency, formatNumber, getPriceImpact } from '@/utils';
 
 export default function EstLiqValue() {
+  const { theme, chainId } = useWidgetStore(
+    useShallow(s => ({
+      theme: s.theme,
+      chainId: s.chainId,
+    })),
+  );
   const { zapInfo, source, slippage, tokensIn } = useZapState();
-  const { pool, chainId, theme, position, positionId } = useWidgetContext(s => s);
+  const pool = usePoolStore(s => s.pool);
+  const { positionId, position } = usePositionStore(
+    useShallow(s => ({
+      positionId: s.positionId,
+      position: s.position,
+    })),
+  );
 
   const addLiquidityInfo = zapInfo?.zapDetails.actions.find(item => item.type === ZapAction.ADD_LIQUIDITY) as
     | AddLiquidityAction
@@ -181,11 +197,11 @@ export default function EstLiqValue() {
   }, [swapPi]);
 
   const amount0 =
-    position === 'loading' || pool === 'loading' || !pool.token0?.decimals
+    position === 'loading' || pool === 'loading' || !pool.token0?.decimals || !position
       ? 0
       : +toRawString(position.amount0, pool.token0.decimals);
   const amount1 =
-    position === 'loading' || pool === 'loading' || !pool.token1.decimals
+    position === 'loading' || pool === 'loading' || !pool.token1.decimals || !position
       ? 0
       : +toRawString(position.amount1, pool.token1.decimals);
 

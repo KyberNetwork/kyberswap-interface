@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { POOL_CATEGORY } from '@/constants';
 import { PoolType, Univ3PoolType } from '@/schema/dex';
 import { tick } from '@/schema/tick';
 import { token } from '@/schema/token';
@@ -32,25 +33,9 @@ const dexMapping: Record<PoolType, string[]> = {
   [PoolType.DEX_THENAFUSION]: ['thena-fusion'],
   [PoolType.DEX_CAMELOTV3]: ['camelot-v3'],
   [PoolType.DEX_QUICKSWAPV3ALGEBRA]: ['quickswap-v3'],
-  //[PoolType.DEX_BLADESWAP]: ["blade"],
 } as const;
 
 const dexValues = Object.values(dexMapping).flat();
-
-export const univ3PoolNormalize = z.object({
-  address: z.string(),
-  token0: token,
-  token1: token,
-  fee: z.number(),
-  tick: z.number(),
-  liquidity: z.string(),
-  sqrtPriceX96: z.string(),
-  tickSpacing: z.number(),
-  ticks: z.array(tick),
-  minTick: z.number(),
-  maxTick: z.number(),
-  category: z.enum(['stablePair', 'correlatedPair', 'commonPair', 'exoticPair', 'highVolatilityPair']),
-});
 
 export type UniV3Pool = z.infer<typeof univ3PoolNormalize>;
 
@@ -80,4 +65,20 @@ export const univ3PoolResponse = z.object({
   data: z.object({
     pools: z.array(univ3Pool),
   }),
+});
+
+export const univ3PoolNormalize = z.object({
+  address: z.string(),
+  poolType: Univ3PoolType,
+  token0: token,
+  token1: token,
+  fee: z.number(),
+  tick: z.number(),
+  liquidity: z.string(),
+  sqrtPriceX96: z.string(),
+  tickSpacing: z.number(),
+  ticks: z.array(tick),
+  minTick: z.number(),
+  maxTick: z.number(),
+  category: z.nativeEnum(POOL_CATEGORY),
 });

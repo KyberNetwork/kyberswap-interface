@@ -4,13 +4,13 @@ import { univ3PoolNormalize } from '@kyber/schema';
 import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick, tickToPrice } from '@kyber/utils/uniswapv3';
 
 import { useZapState } from '@/hooks/useZapInState';
-import { useWidgetContext } from '@/stores';
+import { usePoolStore } from '@/stores/usePoolStore';
 import { PriceType } from '@/types/index';
 import { formatNumber } from '@/utils';
 
 export default function PriceInput({ type }: { type: PriceType }) {
   const { tickLower, tickUpper, revertPrice, setTickLower, setTickUpper, positionId } = useZapState();
-  const { pool: rawPool } = useWidgetContext(s => s);
+  const rawPool = usePoolStore(s => s.pool);
   const [localValue, setLocalValue] = useState('');
 
   const pool = useMemo(() => {

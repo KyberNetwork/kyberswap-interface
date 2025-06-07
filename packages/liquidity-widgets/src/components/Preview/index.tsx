@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 
+import { useShallow } from 'zustand/shallow';
+
 import {
   API_URLS,
   CHAIN_ID_TO_CHAIN,
@@ -33,7 +35,8 @@ import SuccessIcon from '@/assets/svg/success.svg';
 import SwitchIcon from '@/assets/svg/switch.svg';
 import { SlippageWarning } from '@/components/SlippageWarning';
 import { useZapState } from '@/hooks/useZapInState';
-import { useWidgetContext } from '@/stores';
+import { usePositionStore } from '@/stores/usePositionStore';
+import { useWidgetStore } from '@/stores/useWidgetStore';
 import {
   AddLiquidityAction,
   AggregatorSwapAction,
@@ -74,8 +77,24 @@ export default function Preview({
   zapState: { pool, zapInfo, deadline, slippage, tickLower, tickUpper },
   onDismiss,
 }: PreviewProps) {
-  const { poolType, positionId, chainId, connectedAccount, theme, position, onSubmitTx, onViewPosition, referral } =
-    useWidgetContext(s => s);
+  const { poolType, chainId, connectedAccount, theme, onSubmitTx, onViewPosition, referral } = useWidgetStore(
+    useShallow(s => ({
+      poolType: s.poolType,
+      chainId: s.chainId,
+      connectedAccount: s.connectedAccount,
+      theme: s.theme,
+      onSubmitTx: s.onSubmitTx,
+      onViewPosition: s.onViewPosition,
+      referral: s.referral,
+    })),
+  );
+
+  const { positionId, position } = usePositionStore(
+    useShallow(s => ({
+      positionId: s.positionId,
+      position: s.position,
+    })),
+  );
 
   const { address: account } = connectedAccount;
 
@@ -126,8 +145,8 @@ export default function Preview({
     [addedLiqInfo?.addLiquidity.token1.amount, pool],
   );
 
-  const amount0 = position === 'loading' ? 0 : +toRawString(position.amount0, pool.token0?.decimals);
-  const amount1 = position === 'loading' ? 0 : +toRawString(position.amount1, pool.token1?.decimals);
+  const amount0 = position === 'loading' || !position ? 0 : +toRawString(position.amount0, pool.token0?.decimals);
+  const amount1 = position === 'loading' || !position ? 0 : +toRawString(position.amount1, pool.token1?.decimals);
 
   const positionAmount0Usd = useMemo(
     () => (amount0 * +(addedLiqInfo?.addLiquidity.token0.amountUsd || 0)) / +addedAmount0 || 0,

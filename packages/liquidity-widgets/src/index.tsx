@@ -1,12 +1,16 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 
-import { ChainId, PoolType, Theme, defaultTheme } from '@kyber/schema';
+import { useShallow } from 'zustand/shallow';
 
-import WidgetContent from '@/components/Content';
-import Setting from '@/components/Setting';
+import { ChainId, PoolType, Theme } from '@kyber/schema';
+
+import Widget from '@/Widget';
 import { ZapContextProvider } from '@/hooks/useZapInState';
-import { WidgetProps, WidgetProvider } from '@/stores';
+import { usePoolStore } from '@/stores/usePoolStore';
+import { usePositionStore } from '@/stores/usePositionStore';
 import { useTokenStore } from '@/stores/useTokenStore';
+import { useWidgetStore } from '@/stores/useWidgetStore';
+import { WidgetProps } from '@/types/index';
 
 import './Widget.scss';
 import './globals.css';
@@ -23,54 +27,82 @@ const createModalRoot = () => {
 
 createModalRoot();
 
-const LiquidityWidget = (props: WidgetProps) => {
-  const { theme, aggregatorOptions, source, initDepositTokens, initAmounts, chainId } = props;
-  const { fetchImportedTokens, fetchTokens } = useTokenStore();
+const LiquidityWidget = (widgetProps: WidgetProps) => {
+  const { chainId, poolAddress, poolType, positionId, connectedAccount } = widgetProps;
 
-  const themeToApply = useMemo(
-    () =>
-      theme && typeof theme === 'object'
-        ? {
-            ...defaultTheme,
-            ...theme,
-          }
-        : defaultTheme,
-    [theme],
+  const { theme, setInitiaWidgetState } = useWidgetStore(
+    useShallow(s => ({ theme: s.theme, setInitiaWidgetState: s.setInitiaWidgetState })),
+  );
+  const {
+    pool,
+    getPool,
+    reset: resetPoolStore,
+  } = usePoolStore(useShallow(s => ({ pool: s.pool, getPool: s.getPool, reset: s.reset })));
+  const {
+    fetchImportedTokens,
+    fetchTokens,
+    reset: resetTokenStore,
+  } = useTokenStore(
+    useShallow(s => ({
+      fetchImportedTokens: s.fetchImportedTokens,
+      fetchTokens: s.fetchTokens,
+      reset: s.reset,
+    })),
+  );
+  const { getPosition, reset: resetPositionStore } = usePositionStore(
+    useShallow(s => ({ getPosition: s.getPosition, reset: s.reset })),
   );
 
+  const [firstFetch, setFirstFetch] = useState(false);
+
   useEffect(() => {
-    fetchTokens({ chainId }); // TODO: add pool tokens
+    const resetStore = () => {
+      resetPoolStore();
+      resetTokenStore();
+      resetPositionStore();
+    };
+
+    setInitiaWidgetState(widgetProps, resetStore);
+  }, [widgetProps, setInitiaWidgetState, resetPoolStore, resetTokenStore, resetPositionStore]);
+
+  useEffect(() => {
     fetchImportedTokens();
-  }, [fetchTokens, fetchImportedTokens, chainId]);
+  }, [fetchImportedTokens]);
 
   useEffect(() => {
-    if (!themeToApply) return;
-    const r = document.querySelector<HTMLElement>(':root');
-    Object.keys(themeToApply).forEach(key => {
-      r?.style.setProperty(`--ks-lw-${key}`, themeToApply[key as keyof Theme]);
-    });
-  }, [themeToApply]);
+    getPool({ poolAddress, chainId, poolType });
+  }, [chainId, getPool, poolAddress, poolType]);
 
-  const widgetProps = {
-    ...props,
-    theme: themeToApply,
-  };
+  useEffect(() => {
+    if (firstFetch || pool === 'loading' || !pool) return;
+
+    fetchTokens({
+      chainId,
+      defaultAddresses: `${pool.token0.address},${pool.token1.address}`,
+    });
+    getPosition({
+      positionId,
+      chainId,
+      poolType,
+      connectedAccount,
+      pool,
+    });
+    setFirstFetch(true);
+  }, [chainId, connectedAccount, fetchTokens, firstFetch, getPosition, pool, poolType, positionId]);
+
+  useEffect(() => {
+    if (!theme) return;
+
+    const root = document.querySelector<HTMLElement>(':root');
+    Object.keys(theme).forEach(key => {
+      root?.style.setProperty(`--ks-lw-${key}`, theme[key as keyof Theme]);
+    });
+  }, [theme]);
 
   return (
-    <WidgetProvider {...widgetProps}>
-      <ZapContextProvider
-        includedSources={aggregatorOptions?.includedSources?.join(',')}
-        excludedSources={aggregatorOptions?.excludedSources?.join(',')}
-        source={source}
-        initDepositTokens={initDepositTokens}
-        initAmounts={initAmounts}
-      >
-        <div className="ks-lw ks-lw-style">
-          <WidgetContent />
-          <Setting />
-        </div>
-      </ZapContextProvider>
-    </WidgetProvider>
+    <ZapContextProvider>
+      <Widget />
+    </ZapContextProvider>
   );
 };
 

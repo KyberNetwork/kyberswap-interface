@@ -136,7 +136,7 @@ const EarnLanding = () => {
 
         <PoolSection
           title={t`Highlighted Pools`}
-          tooltip={t`Pools matching your wallet tokens or top 24h volume pools if no wallet is connected`}
+          tooltip={t`Pools matching your wallet tokens or top volume pools if no wallet is connected`}
           icon={FireIcon}
           tag={FilterTag.HIGHLIGHTED_POOL}
           isLoading={isLoading}

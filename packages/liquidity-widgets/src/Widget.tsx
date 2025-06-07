@@ -1,4 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
+
+import { useShallow } from 'zustand/shallow';
 
 import { usePositionOwner } from '@kyber/hooks';
 import {
@@ -6,6 +8,7 @@ import {
   Pool,
   Univ2PoolType,
   Univ3PoolType,
+  defaultToken,
   univ2PoolNormalize,
   univ3PoolNormalize,
   univ3Position,
@@ -30,17 +33,44 @@ import Modal from '@/components/Modal';
 import PositionLiquidity from '@/components/PositionLiquidity';
 import Preview, { ZapState } from '@/components/Preview';
 import PriceRange from '@/components/PriceRange';
+import Setting from '@/components/Setting';
 import { TOKEN_SELECT_MODE } from '@/components/TokenSelector';
 import TokenSelectorModal from '@/components/TokenSelector/TokenSelectorModal';
 import { ERROR_MESSAGE, MAX_ZAP_IN_TOKENS } from '@/constants';
 import { APPROVAL_STATE, useApprovals } from '@/hooks/useApproval';
 import { useZapState } from '@/hooks/useZapInState';
-import { useWidgetContext } from '@/stores';
+import { usePoolStore } from '@/stores/usePoolStore';
+import { usePositionStore } from '@/stores/usePositionStore';
+import { useWidgetStore } from '@/stores/useWidgetStore';
 import { PriceType } from '@/types/index';
 import { AggregatorSwapAction, PoolSwapAction, ZapAction } from '@/types/zapRoute';
 import { PI_LEVEL, checkDeviated, getPriceImpact } from '@/utils';
 
-export default function Content() {
+export default function Widget() {
+  const {
+    theme,
+    poolType,
+    chainId,
+    poolAddress,
+    connectedAccount,
+    onClose,
+    onConnectWallet,
+    onSwitchChain,
+    onSubmitTx,
+  } = useWidgetStore(
+    useShallow(s => ({
+      theme: s.theme,
+      poolType: s.poolType,
+      chainId: s.chainId,
+      poolAddress: s.poolAddress,
+      connectedAccount: s.connectedAccount,
+      onClose: s.onClose,
+      onConnectWallet: s.onConnectWallet,
+      onSwitchChain: s.onSwitchChain,
+      onSubmitTx: s.onSubmitTx,
+    })),
+  );
+
   const {
     zapInfo,
     error,
@@ -51,7 +81,6 @@ export default function Content() {
     tickLower,
     tickUpper,
     slippage,
-    positionId,
     degenMode,
     revertPrice,
     poolPrice,
@@ -60,23 +89,17 @@ export default function Content() {
     toggleSetting,
   } = useZapState();
 
-  const {
-    pool,
-    poolType,
-    theme,
-    errorMsg: loadPoolError,
-    position,
-    showWidget,
-    onConnectWallet,
-    onSwitchChain,
-    toggleShowWidget,
-    poolAddress,
+  const { positionId, position } = usePositionStore(
+    useShallow(s => ({ positionId: s.positionId, position: s.position })),
+  );
+  const { pool, poolError, getPool } = usePoolStore(
+    useShallow(s => ({ pool: s.pool, poolError: s.poolError, getPool: s.getPool })),
+  );
+  const positionOwner = usePositionOwner({
+    positionId: positionId || '',
     chainId,
-    connectedAccount,
-  } = useWidgetContext(s => s);
-
-  const { success: isUniV3 } = univ3PoolNormalize.safeParse(pool);
-  const isUniv4 = univ4Types.includes(poolType);
+    poolType,
+  });
 
   const amountsInWei: string[] = useMemo(
     () =>
@@ -88,31 +111,85 @@ export default function Content() {
     [tokensIn, amountsIn],
   );
 
-  const { loading, approvalStates, approve, addressToApprove, nftApproval, approveNft } = useApprovals(
-    amountsInWei,
-    tokensIn.map(token => token?.address || ''),
-    zapInfo?.routerAddress || '',
-  );
-  const positionOwner = usePositionOwner({
-    positionId: positionId || '',
+  const { loading, approvalStates, approve, addressToApprove, nftApproval, approveNft } = useApprovals({
     chainId,
+    positionId,
     poolType,
+    amounts: amountsInWei,
+    addreses: tokensIn.map(token => token?.address || ''),
+    spender: zapInfo?.routerAddress || '',
+    userAddress: connectedAccount?.address,
+    onSubmitTx: onSubmitTx,
   });
-  const isNotOwner =
-    positionId &&
-    positionOwner &&
-    connectedAccount?.address &&
-    positionOwner !== connectedAccount?.address?.toLowerCase()
-      ? true
-      : false;
-  const isFarming =
-    isNotOwner &&
-    FARMING_CONTRACTS[poolType]?.[chainId] &&
-    FARMING_CONTRACTS[poolType]?.[chainId]?.toLowerCase() === positionOwner?.toLowerCase();
+
+  const initializing = pool === 'loading' || !pool;
+  const { token0 = defaultToken, token1 = defaultToken } = !initializing ? pool : {};
 
   const [openTokenSelectModal, setOpenTokenSelectModal] = useState(false);
   const [clickedApprove, setClickedLoading] = useState(false);
   const [snapshotState, setSnapshotState] = useState<ZapState | null>(null);
+
+  const showWidget = !snapshotState;
+  const { success: isUniV3 } = univ3PoolNormalize.safeParse(pool);
+  const isUniv4 = univ4Types.includes(poolType);
+
+  const newPool: Pool | null = useMemo(() => {
+    const { success, data } = univ3PoolNormalize.safeParse(pool);
+    const { success: isUniV3PoolType, data: pt } = Univ3PoolType.safeParse(poolType);
+
+    const { success: isUniV2, data: poolUniv2 } = univ2PoolNormalize.safeParse(pool);
+
+    const { success: isUniV2PoolType, data: univ2pt } = Univ2PoolType.safeParse(poolType);
+
+    if (zapInfo) {
+      if (success && isUniV3PoolType) {
+        const newInfo = zapInfo?.poolDetails.uniswapV3 || zapInfo?.poolDetails.algebraV1;
+        return {
+          ...data,
+          poolType: pt,
+          sqrtRatioX96: newInfo?.newSqrtP,
+          tick: newInfo.newTick,
+          liquidity: (BigInt(data.liquidity) + BigInt(zapInfo.positionDetails.addedLiquidity)).toString(),
+        };
+      }
+      if (isUniV2 && isUniV2PoolType)
+        return {
+          ...poolUniv2,
+          poolType: univ2pt,
+          reverses: [zapInfo.poolDetails.uniswapV2.newReserve0, zapInfo.poolDetails.uniswapV2.newReserve1],
+        };
+    }
+    return null;
+  }, [pool, poolType, zapInfo]);
+
+  const isOutOfRangeAfterZap = useMemo(() => {
+    const { success, data } = univ3Position.safeParse(position);
+    const { success: isUniV3Pool, data: newPoolUniv3 } = univ3PoolNormalize.safeParse(newPool);
+
+    return newPool && success && isUniV3Pool
+      ? newPoolUniv3.tick < data.tickLower || newPoolUniv3.tick >= data.tickUpper
+      : false;
+  }, [newPool, position]);
+
+  const isFullRange = useMemo(
+    () => pool !== 'loading' && 'minTick' in pool && tickLower === pool.minTick && tickUpper === pool.maxTick,
+    [pool, tickLower, tickUpper],
+  );
+
+  const newPoolPrice = useMemo(() => {
+    const { success, data } = univ3PoolNormalize.safeParse(newPool);
+    if (success) return +tickToPrice(data.tick, data.token0?.decimals, data.token1?.decimals, false);
+
+    const { success: isUniV2, data: uniV2Pool } = univ2PoolNormalize.safeParse(newPool);
+
+    if (isUniV2) {
+      return +divideBigIntToString(
+        BigInt(uniV2Pool.reserves[1]) * 10n ** BigInt(uniV2Pool.token0?.decimals),
+        BigInt(uniV2Pool.reserves[0]) * 10n ** BigInt(uniV2Pool.token1?.decimals),
+        18,
+      );
+    }
+  }, [newPool]);
 
   const notApprove = useMemo(
     () => tokensIn.find(item => approvalStates[item?.address || ''] === APPROVAL_STATE.NOT_APPROVED),
@@ -162,6 +239,30 @@ export default function Content() {
     return { piVeryHigh, piHigh };
   }, [zapInfo]);
 
+  const isWrongNetwork = error === ERROR_MESSAGE.WRONG_NETWORK;
+  const isNotConnected = error === ERROR_MESSAGE.CONNECT_WALLET;
+  const isNotOwner =
+    positionId &&
+    positionOwner &&
+    connectedAccount?.address &&
+    positionOwner !== connectedAccount?.address?.toLowerCase()
+      ? true
+      : false;
+  const isFarming =
+    isNotOwner &&
+    FARMING_CONTRACTS[poolType]?.[chainId] &&
+    FARMING_CONTRACTS[poolType]?.[chainId]?.toLowerCase() === positionOwner?.toLowerCase();
+
+  const isDeviated = checkDeviated(poolPrice, newPoolPrice);
+
+  const disabled =
+    (isUniv4 && isNotOwner) ||
+    clickedApprove ||
+    loading ||
+    zapLoading ||
+    (!!error && !isWrongNetwork && !isNotConnected) ||
+    Object.values(approvalStates).some(item => item === APPROVAL_STATE.PENDING);
+
   const btnText = (() => {
     if (error) return error;
     if (isUniv4 && isNotOwner) {
@@ -178,78 +279,9 @@ export default function Content() {
     return 'Preview';
   })();
 
-  const isWrongNetwork = error === ERROR_MESSAGE.WRONG_NETWORK;
-  const isNotConnected = error === ERROR_MESSAGE.CONNECT_WALLET;
-
-  const disabled =
-    (isUniv4 && isNotOwner) ||
-    clickedApprove ||
-    loading ||
-    zapLoading ||
-    (!!error && !isWrongNetwork && !isNotConnected) ||
-    Object.values(approvalStates).some(item => item === APPROVAL_STATE.PENDING);
-
-  const { success: isUniV3PoolType } = Univ3PoolType.safeParse(poolType);
-
-  const newPool: Pool | null = useMemo(() => {
-    const { success, data } = univ3PoolNormalize.safeParse(pool);
-    const { success: isUniV3PoolType, data: pt } = Univ3PoolType.safeParse(poolType);
-
-    const { success: isUniV2, data: poolUniv2 } = univ2PoolNormalize.safeParse(pool);
-
-    const { success: isUniV2PoolType, data: univ2pt } = Univ2PoolType.safeParse(poolType);
-
-    if (zapInfo) {
-      if (success && isUniV3PoolType) {
-        const newInfo = zapInfo?.poolDetails.uniswapV3 || zapInfo?.poolDetails.algebraV1;
-        return {
-          ...data,
-          poolType: pt,
-          sqrtRatioX96: newInfo?.newSqrtP,
-          tick: newInfo.newTick,
-          liquidity: (BigInt(data.liquidity) + BigInt(zapInfo.positionDetails.addedLiquidity)).toString(),
-        };
-      }
-      if (isUniV2 && isUniV2PoolType)
-        return {
-          ...poolUniv2,
-          poolType: univ2pt,
-          reverses: [zapInfo.poolDetails.uniswapV2.newReserve0, zapInfo.poolDetails.uniswapV2.newReserve1],
-        };
-    }
-    return null;
-  }, [pool, poolType, zapInfo]);
-
-  const newPoolPrice = useMemo(() => {
-    const { success, data } = univ3PoolNormalize.safeParse(newPool);
-    if (success) return +tickToPrice(data.tick, data.token0?.decimals, data.token1?.decimals, false);
-
-    const { success: isUniV2, data: uniV2Pool } = univ2PoolNormalize.safeParse(newPool);
-
-    if (isUniV2) {
-      return +divideBigIntToString(
-        BigInt(uniV2Pool.reserves[1]) * 10n ** BigInt(uniV2Pool.token0?.decimals),
-        BigInt(uniV2Pool.reserves[0]) * 10n ** BigInt(uniV2Pool.token1?.decimals),
-        18,
-      );
-    }
-  }, [newPool]);
-
-  const isDeviated = checkDeviated(poolPrice, newPoolPrice);
-
-  const isOutOfRangeAfterZap = useMemo(() => {
-    const { success, data } = univ3Position.safeParse(position);
-    const { success: isUniV3Pool, data: newPoolUniv3 } = univ3PoolNormalize.safeParse(newPool);
-
-    return newPool && success && isUniV3Pool
-      ? newPoolUniv3.tick < data.tickLower || newPoolUniv3.tick >= data.tickUpper
-      : false;
-  }, [newPool, position]);
-
-  const isFullRange = useMemo(
-    () => pool !== 'loading' && 'minTick' in pool && tickLower === pool.minTick && tickUpper === pool.maxTick,
-    [pool, tickLower, tickUpper],
-  );
+  const refetchData = useCallback(() => {
+    getPool({ poolAddress, chainId, poolType });
+  }, [getPool, poolAddress, chainId, poolType]);
 
   const price = useMemo(
     () =>
@@ -311,15 +343,6 @@ export default function Content() {
   const onOpenTokenSelectModal = () => setOpenTokenSelectModal(true);
   const onCloseTokenSelectModal = () => setOpenTokenSelectModal(false);
 
-  const token0 = pool === 'loading' ? null : pool.token0;
-  const token1 = pool === 'loading' ? null : pool.token1;
-
-  const { onClose } = useWidgetContext(s => s);
-
-  useEffect(() => {
-    toggleShowWidget(!snapshotState);
-  }, [snapshotState, toggleShowWidget]);
-
   const addLiquiditySection = (
     <>
       <div>
@@ -348,12 +371,12 @@ export default function Content() {
   );
 
   return (
-    <>
-      {loadPoolError && (
+    <div className="ks-lw ks-lw-style">
+      {poolError && (
         <Modal isOpen onClick={() => onClose()}>
           <div className="flex flex-col items-center gap-8 text-error">
             <ErrorIcon className="text-error" />
-            <div className="text-center">{loadPoolError}</div>
+            <div className="text-center">{poolError}</div>
             <button className="ks-primary-btn w-[95%] bg-error border-solid border-error" onClick={onClose}>
               Close
             </button>
@@ -374,15 +397,15 @@ export default function Content() {
       )}
       {openTokenSelectModal && <TokenSelectorModal mode={TOKEN_SELECT_MODE.ADD} onClose={onCloseTokenSelectModal} />}
       <div className={`p-6 ${!showWidget ? 'hidden' : ''}`}>
-        <Header />
+        <Header refetchData={refetchData} />
         <div className="mt-5 flex gap-5 max-sm:flex-col">
           <div className="w-[55%] max-sm:w-full">
-            <PoolStat chainId={chainId} poolAddress={poolAddress} poolType={poolType} positionId={positionId} />
+            <PoolStat />
             <PriceInfo />
             {!positionId && isUniV3 && <LiquidityChart />}
             <PriceRange />
             {positionId === undefined ? (
-              isUniV3PoolType && (
+              isUniV3 && (
                 <div className="flex gap-4 w-full">
                   <PriceInput type={PriceType.PriceLower} />
                   <PriceInput type={PriceType.PriceUpper} />
@@ -391,7 +414,7 @@ export default function Content() {
             ) : (
               <PositionLiquidity />
             )}
-            {!isUniV3PoolType ? (
+            {!isUniV3 ? (
               <>
                 <div className="mt-4" />
                 {addLiquiditySection}
@@ -400,7 +423,7 @@ export default function Content() {
           </div>
 
           <div className="w-[45%] max-sm:w-full">
-            {isUniV3PoolType ? addLiquiditySection : null}
+            {isUniV3 ? addLiquiditySection : null}
 
             <EstLiqValue />
             <ZapRoute />
@@ -435,14 +458,14 @@ export default function Content() {
                 <div className="italic text-text">
                   The pool's estimated price after zapping of{' '}
                   <span className="font-medium text-warning not-italic ml-[2px]">
-                    1 {revertPrice ? token1?.symbol : token0?.symbol} = {price}{' '}
-                    {revertPrice ? token0?.symbol : token1?.symbol}
+                    1 {revertPrice ? token1.symbol : token0.symbol} = {price}{' '}
+                    {revertPrice ? token0.symbol : token1.symbol}
                   </span>{' '}
                   deviates from the market price{' '}
                   <span className="font-medium text-warning not-italic">
-                    (1 {revertPrice ? token1?.symbol : token0?.symbol} ={' '}
+                    (1 {revertPrice ? token1.symbol : token0.symbol} ={' '}
                     {formatDisplayNumber(poolPrice, { significantDigits: 6 })}{' '}
-                    {revertPrice ? token0?.symbol : token1?.symbol})
+                    {revertPrice ? token0.symbol : token1.symbol})
                   </span>
                   . You might have high impermanent loss after you add liquidity to this pool
                 </div>
@@ -495,6 +518,7 @@ export default function Content() {
           </button>
         </div>
       </div>
-    </>
+      <Setting />
+    </div>
   );
 }

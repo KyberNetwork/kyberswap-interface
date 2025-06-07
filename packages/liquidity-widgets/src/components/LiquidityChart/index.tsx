@@ -8,10 +8,12 @@ import { Bound, LiquidityChartRangeInput } from '@kyberswap/liquidity-chart';
 import '@kyberswap/liquidity-chart/style.css';
 
 import { useZapState } from '@/hooks/useZapInState';
-import { useWidgetContext } from '@/stores';
+import { usePoolStore } from '@/stores/usePoolStore';
+import { usePositionStore } from '@/stores/usePositionStore';
 
 export default function LiquidityChart() {
-  const { pool: rawPool, positionId } = useWidgetContext(s => s);
+  const positionId = usePositionStore(s => s.positionId);
+  const rawPool = usePoolStore(s => s.pool);
   const { tickLower, tickUpper, revertPrice, setTickLower, setTickUpper, priceLower, priceUpper } = useZapState();
 
   const pool = useMemo(() => {

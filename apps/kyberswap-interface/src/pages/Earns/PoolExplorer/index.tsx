@@ -69,7 +69,7 @@ const filterTags = [
     label: 'Highlighted Pools',
     value: FilterTag.HIGHLIGHTED_POOL,
     icon: <IconHighlightedPool width={20} color="#FF007A" />,
-    tooltip: 'Pools matching your wallet tokens or top 24h volume pools if no wallet is connected',
+    tooltip: 'Pools matching your wallet tokens or top volume pools if no wallet is connected',
   },
   {
     label: 'High APR',
