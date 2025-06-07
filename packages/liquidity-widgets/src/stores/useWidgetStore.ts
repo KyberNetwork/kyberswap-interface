@@ -35,11 +35,10 @@ const initState = {
   onViewPosition: undefined,
 };
 
-export const useWidgetStore = create<WidgetState>((set, get) => ({
+export const useWidgetStore = create<WidgetState>((set, _get) => ({
   ...initState,
   reset: () => set(initState),
   setInitiaWidgetState: (props: WidgetProps, resetStore: () => void) => {
-    const { reset: resetWidgetStore } = get();
     const { theme, onClose } = props;
     const themeToApply =
       theme && typeof theme === 'object'
@@ -54,7 +53,6 @@ export const useWidgetStore = create<WidgetState>((set, get) => ({
       theme: themeToApply,
       onClose: () => {
         resetStore();
-        resetWidgetStore();
         onClose();
       },
     });

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { useShallow } from 'zustand/shallow';
 
@@ -30,8 +30,12 @@ createModalRoot();
 const LiquidityWidget = (widgetProps: WidgetProps) => {
   const { chainId, poolAddress, poolType, positionId, connectedAccount } = widgetProps;
 
-  const { theme, setInitiaWidgetState } = useWidgetStore(
-    useShallow(s => ({ theme: s.theme, setInitiaWidgetState: s.setInitiaWidgetState })),
+  const {
+    theme,
+    setInitiaWidgetState,
+    reset: resetWidgetStore,
+  } = useWidgetStore(
+    useShallow(s => ({ theme: s.theme, setInitiaWidgetState: s.setInitiaWidgetState, reset: s.reset })),
   );
   const {
     pool,
@@ -55,15 +59,20 @@ const LiquidityWidget = (widgetProps: WidgetProps) => {
 
   const [firstFetch, setFirstFetch] = useState(false);
 
-  useEffect(() => {
-    const resetStore = () => {
-      resetPoolStore();
-      resetTokenStore();
-      resetPositionStore();
-    };
+  const resetStore = useCallback(() => {
+    resetPoolStore();
+    resetTokenStore();
+    resetPositionStore();
+    resetWidgetStore();
+  }, [resetPoolStore, resetTokenStore, resetPositionStore, resetWidgetStore]);
 
+  useEffect(() => {
+    return () => resetStore();
+  }, [resetStore]);
+
+  useEffect(() => {
     setInitiaWidgetState(widgetProps, resetStore);
-  }, [widgetProps, setInitiaWidgetState, resetPoolStore, resetTokenStore, resetPositionStore]);
+  }, [widgetProps, setInitiaWidgetState, resetStore]);
 
   useEffect(() => {
     fetchImportedTokens();
