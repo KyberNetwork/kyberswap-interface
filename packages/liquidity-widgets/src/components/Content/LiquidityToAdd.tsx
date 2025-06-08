@@ -10,7 +10,7 @@ import WalletIcon from '@/assets/svg/wallet.svg';
 import X from '@/assets/svg/x.svg';
 import TokenSelectorModal from '@/components/TokenSelector/TokenSelectorModal';
 import { TOKEN_SELECT_MODE } from '@/components/TokenSelector/index';
-import { useZapState } from '@/hooks/useZapInState';
+import { useZapState } from '@/hooks/useZapState';
 import { formatWei } from '@/utils';
 
 export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {

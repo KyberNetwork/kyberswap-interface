@@ -1,4 +1,6 @@
-import { ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { ReactNode, createContext, useContext, useEffect, useMemo, useState } from 'react';
+
+import { useShallow } from 'zustand/shallow';
 
 import { useDebounce, useTokenBalances, useTokenPrices } from '@kyber/hooks';
 import {
@@ -7,19 +9,12 @@ import {
   NATIVE_TOKEN_ADDRESS,
   NETWORKS_INFO,
   Token,
-  UniV2Pool,
-  UniV3Pool,
-  Univ3PoolType,
   ZERO_ADDRESS,
-  univ2PoolNormalize,
-  univ2Types,
-  univ3PoolNormalize,
   univ3Position,
   univ3Types,
   univ4Types,
 } from '@kyber/schema';
 import { parseUnits } from '@kyber/utils/crypto';
-import { divideBigIntToString } from '@kyber/utils/number';
 import { tickToPrice } from '@kyber/utils/uniswapv3';
 
 import { ERROR_MESSAGE } from '@/constants';
@@ -28,98 +23,112 @@ import { usePositionStore } from '@/stores/usePositionStore';
 import { useTokenStore } from '@/stores/useTokenStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 import { ZapRouteDetail } from '@/types/zapRoute';
-import { assertUnreachable, formatNumber, formatWei, parseTokensAndAmounts, validateData } from '@/utils';
+import { formatNumber, formatWei, parseTokensAndAmounts, validateData } from '@/utils';
 
 const ZapContext = createContext<{
-  price: number | null;
-  revertPrice: boolean;
   tickLower: number | null;
   tickUpper: number | null;
   tokensIn: Token[];
   amountsIn: string;
-  setTokensIn: (_value: Token[]) => void;
-  setAmountsIn: (_value: string) => void;
-  toggleRevertPrice: () => void;
-  setTickLower: (_value: number) => void;
-  setTickUpper: (_value: number) => void;
   error: string;
   zapInfo: ZapRouteDetail | null;
   loading: boolean;
   slippage: number;
   priceLower: string | null;
   priceUpper: string | null;
-  setSlippage: (_val: number) => void;
   ttl: number;
-  setTtl: (_val: number) => void;
-  toggleSetting: (_highlightDegenMode?: boolean) => void;
   highlightDegenMode: boolean;
-  setShowSeting: (_val: boolean) => void;
   showSetting: boolean;
   degenMode: boolean;
-  setDegenMode: (_val: boolean) => void;
-  positionId?: string;
-  poolPrice: number | null;
-  source: string;
   balanceTokens: {
     [key: string]: bigint;
   };
   tokenPrices: { [key: string]: number };
-  token0Price: number;
-  token1Price: number;
+  setTokensIn: (_value: Token[]) => void;
+  setAmountsIn: (_value: string) => void;
+  setTickLower: (_value: number) => void;
+  setTickUpper: (_value: number) => void;
+  setSlippage: (_val: number) => void;
+  setTtl: (_val: number) => void;
+  toggleSetting: (_highlightDegenMode?: boolean) => void;
+  setShowSeting: (_val: boolean) => void;
+  setDegenMode: (_val: boolean) => void;
   setManualSlippage: (_val: boolean) => void;
 }>({
   highlightDegenMode: false,
-  price: null,
-  revertPrice: false,
   tickLower: null,
   tickUpper: null,
   priceLower: null,
   priceUpper: null,
   tokensIn: [],
-  setTokensIn: (_value: Token[]) => {},
   amountsIn: '',
-  setAmountsIn: (_value: string) => {},
-  toggleRevertPrice: () => {},
-  setTickLower: (_value: number) => {},
-  setTickUpper: (_value: number) => {},
   error: '',
   zapInfo: null,
   loading: false,
   slippage: 50,
-  setSlippage: (_val: number) => {},
   ttl: 20, // 20min
+  showSetting: false,
+  degenMode: false,
+  balanceTokens: {},
+  tokenPrices: {},
+  setTokensIn: (_value: Token[]) => {},
+  setAmountsIn: (_value: string) => {},
+  setTickLower: (_value: number) => {},
+  setTickUpper: (_value: number) => {},
+  setSlippage: (_val: number) => {},
   setTtl: (_val: number) => {},
   toggleSetting: (_highlightDegenMode?: boolean) => {},
   setShowSeting: (_val: boolean) => {},
-  showSetting: false,
-  degenMode: false,
   setDegenMode: (_val: boolean) => {},
-  poolPrice: null,
-  source: '',
-  balanceTokens: {},
-  tokenPrices: {},
-  token0Price: 0,
-  token1Price: 0,
   setManualSlippage: (_val: boolean) => {},
 });
 
 export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
-  const { chainId, source, aggregatorOptions, initDepositTokens, initAmounts, feeConfig, poolType, poolAddress } =
-    useWidgetStore();
-  const connectedAccount = useWidgetStore(state => state.connectedAccount);
+  const {
+    chainId,
+    source,
+    aggregatorOptions,
+    initDepositTokens,
+    initAmounts,
+    feeConfig,
+    poolType,
+    poolAddress,
+    connectedAccount,
+  } = useWidgetStore(
+    useShallow(s => ({
+      chainId: s.chainId,
+      source: s.source,
+      aggregatorOptions: s.aggregatorOptions,
+      initDepositTokens: s.initDepositTokens,
+      initAmounts: s.initAmounts,
+      feeConfig: s.feeConfig,
+      poolType: s.poolType,
+      poolAddress: s.poolAddress,
+      connectedAccount: s.connectedAccount,
+    })),
+  );
+  const { positionId, position } = usePositionStore(
+    useShallow(s => ({
+      positionId: s.positionId,
+      position: s.position,
+    })),
+  );
+  const { pool, revertPrice, setRevertPrice } = usePoolStore(
+    useShallow(s => ({ pool: s.pool, revertPrice: s.revertPrice, setRevertPrice: s.setRevertPrice })),
+  );
+  const { tokens, importedTokens } = useTokenStore(
+    useShallow(s => ({
+      tokens: s.tokens,
+      importedTokens: s.importedTokens,
+    })),
+  );
 
+  const allTokens = useMemo(() => [...tokens, ...importedTokens], [tokens, importedTokens]);
   const excludedSources = aggregatorOptions?.excludedSources?.join(',');
   const includedSources = aggregatorOptions?.includedSources?.join(',');
-
-  const { positionId, position } = usePositionStore();
-  const { pool } = usePoolStore();
-  const { feePcm, feeAddress } = feeConfig || {};
   const account = connectedAccount?.address;
-
   const networkChainId = connectedAccount?.chainId;
-
-  const { tokens, importedTokens } = useTokenStore();
-  const allTokens = useMemo(() => [...tokens, ...importedTokens], [tokens, importedTokens]);
+  const { feePcm, feeAddress } = feeConfig || {};
 
   const { balances } = useTokenBalances(
     chainId,
@@ -131,7 +140,6 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
   const [slippage, setSlippage] = useState(50);
   const [manualSlippage, setManualSlippage] = useState(false);
   const [ttl, setTtl] = useState(20);
-  const [revertPrice, setRevertPrice] = useState(false);
   const [tickLower, setTickLower] = useState<number | null>(null);
   const [tickUpper, setTickUpper] = useState<number | null>(null);
   const [tokensIn, setTokensIn] = useState<Token[]>([]);
@@ -147,8 +155,9 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
   const debounceTickUpper = useDebounce(tickUpper, 300);
   const debounceAmountsIn = useDebounce(amountsIn, 300);
 
-  const isUniV3 = pool !== 'loading' && univ3Types.includes(poolType as any);
-  const isUniV2 = pool !== 'loading' && univ2Types.includes(poolType as any);
+  const initializing = pool === 'loading';
+
+  const isUniV3 = !initializing && univ3Types.includes(poolType as any);
   const isUniV4 = univ4Types.includes(poolType);
 
   const isTokensStable = tokensIn.every(tk => tk.isStable);
@@ -181,21 +190,6 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
     chainId,
   });
 
-  const poolPrice = useMemo(() => {
-    let price;
-    if (isUniV3) price = tickToPrice((pool as UniV3Pool).tick, pool.token0.decimals, pool.token1.decimals, revertPrice);
-    if (isUniV2) {
-      const purePrice = divideBigIntToString(
-        BigInt((pool as UniV2Pool).reserves[1]) * 10n ** BigInt(pool.token0.decimals),
-        BigInt((pool as UniV2Pool).reserves[0]) * 10n ** BigInt(pool.token1.decimals),
-        18,
-      );
-      price = revertPrice ? 1 / +purePrice : purePrice;
-    }
-
-    return price ? Number(price) : null;
-  }, [isUniV2, isUniV3, pool, revertPrice]);
-
   const nativeToken = useMemo(
     () => ({
       address: NATIVE_TOKEN_ADDRESS,
@@ -208,16 +202,14 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
   const wrappedNativeToken = NETWORKS_INFO[chainId].wrappedToken;
 
   const priceLower = useMemo(() => {
-    if (pool === 'loading' || tickLower == null) return null;
-    return formatNumber(+tickToPrice(tickLower, pool.token0?.decimals, pool.token1?.decimals, revertPrice));
-  }, [pool, tickLower, revertPrice]);
+    if (initializing || tickLower == null) return null;
+    return formatNumber(+tickToPrice(tickLower, pool.token0.decimals, pool.token1.decimals, revertPrice));
+  }, [pool, tickLower, revertPrice, initializing]);
 
   const priceUpper = useMemo(() => {
-    if (pool === 'loading' || tickUpper === null) return null;
-    return formatNumber(+tickToPrice(tickUpper, pool.token0?.decimals, pool.token1?.decimals, revertPrice));
-  }, [pool, tickUpper, revertPrice]);
-
-  const isUniv3Pool = useMemo(() => Univ3PoolType.safeParse(poolType).success, [poolType]);
+    if (initializing || tickUpper === null) return null;
+    return formatNumber(+tickToPrice(tickUpper, pool.token0.decimals, pool.token1.decimals, revertPrice));
+  }, [pool, tickUpper, revertPrice, initializing]);
 
   const error = useMemo(
     () =>
@@ -226,7 +218,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
         chainId,
         networkChainId,
         tokensIn,
-        isUniv3Pool,
+        isUniV3,
         tickLower: tickLower || 0,
         tickUpper: tickUpper || 0,
         amountsIn: debounceAmountsIn,
@@ -243,13 +235,9 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
       tickUpper,
       zapApiError,
       balances,
-      isUniv3Pool,
+      isUniV3,
     ],
   );
-
-  const toggleRevertPrice = useCallback(() => {
-    setRevertPrice(prev => !prev);
-  }, []);
 
   const toggleSetting = (highlight?: boolean) => {
     setShowSeting(prev => !prev);
@@ -262,22 +250,19 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
-    if (position !== 'loading') {
-      const { success, data } = univ3Position.safeParse(position);
+    if (position) {
+      const { success: isUniV3Position, data } = univ3Position.safeParse(position);
 
-      if (success && data?.tickUpper !== undefined && data.tickLower !== undefined) {
+      if (isUniV3Position && data.tickUpper !== undefined && data.tickLower !== undefined) {
         setTickLower(data.tickLower);
         setTickUpper(data.tickUpper);
       }
     }
   }, [position]);
 
-  const token0Price = pool !== 'loading' ? pool.token0.price || 0 : 0;
-  const token1Price = pool !== 'loading' ? pool.token1.price || 0 : 0;
-
   // set default tokens in
   useEffect(() => {
-    if (!pool || pool === 'loading' || tokensIn.length) return;
+    if (!pool || initializing || tokensIn.length) return;
 
     // with params
     if (initDepositTokens && allTokens.length) {
@@ -335,29 +320,28 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
     tokensIn,
     nativeToken,
     chainId,
-    token0Price,
-    token1Price,
     balances,
     initDepositTokens,
     allTokens,
     initAmounts,
     account,
     wrappedNativeToken.address,
+    initializing,
   ]);
 
   useEffect(() => {
-    if (pool === 'loading' || defaultRevertChecked) return;
+    if (initializing || defaultRevertChecked) return;
     setDefaultRevertChecked(true);
     const isToken0Native = pool.token0.address.toLowerCase() === wrappedNativeToken.address.toLowerCase();
     const isToken0Stable = pool.token0.isStable;
     const isToken1Stable = pool.token1.isStable;
     if (isToken0Stable || (isToken0Native && !isToken1Stable)) setRevertPrice(true);
-  }, [defaultRevertChecked, pool, wrappedNativeToken.address]);
+  }, [defaultRevertChecked, initializing, pool, setRevertPrice, wrappedNativeToken.address]);
 
   useEffect(() => {
     if (
-      (isUniv3Pool ? debounceTickLower !== null && debounceTickUpper !== null : true) &&
-      pool !== 'loading' &&
+      (isUniV3 ? debounceTickLower !== null && debounceTickUpper !== null : true) &&
+      !initializing &&
       (!error ||
         error === zapApiError ||
         error === ERROR_MESSAGE.INSUFFICIENT_BALANCE ||
@@ -397,7 +381,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
         'pool.token0': pool.token0.address,
         'pool.token1': pool.token1.address,
         'pool.fee': pool.fee * 10_000,
-        ...(isUniv3Pool && debounceTickUpper !== null && debounceTickLower !== null && !positionId
+        ...(isUniV3 && debounceTickUpper !== null && debounceTickLower !== null && !positionId
           ? {
               'position.tickUpper': debounceTickUpper,
               'position.tickLower': debounceTickLower,
@@ -461,39 +445,15 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
     zapApiError,
   ]);
 
-  const price = useMemo(() => {
-    if (pool === 'loading') return null;
-    const { success, data } = univ3PoolNormalize.safeParse(pool);
-    if (success) {
-      return +tickToPrice(data.tick, data.token0?.decimals, data.token1?.decimals, revertPrice);
-    }
-
-    const { success: isUniV2, data: uniV2Pool } = univ2PoolNormalize.safeParse(pool);
-
-    if (isUniV2) {
-      const p = +divideBigIntToString(
-        BigInt(uniV2Pool.reserves[1]) * 10n ** BigInt(uniV2Pool.token0?.decimals),
-        BigInt(uniV2Pool.reserves[0]) * 10n ** BigInt(uniV2Pool.token1?.decimals),
-        18,
-      );
-      return revertPrice ? 1 / p : p;
-    }
-
-    return assertUnreachable(poolType as never, 'poolType is not handled');
-  }, [pool, poolType, revertPrice]);
-
   return (
     <ZapContext.Provider
       value={{
-        price,
-        revertPrice,
         tickLower,
         tickUpper,
         tokensIn,
         setTokensIn,
         amountsIn,
         setAmountsIn,
-        toggleRevertPrice,
         setTickLower,
         setTickUpper,
         error,
@@ -508,15 +468,10 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
         toggleSetting,
         setShowSeting,
         showSetting,
-        positionId,
         degenMode,
         setDegenMode,
-        poolPrice,
-        source,
         balanceTokens: balances,
         tokenPrices,
-        token0Price,
-        token1Price,
         highlightDegenMode,
         setManualSlippage,
       }}

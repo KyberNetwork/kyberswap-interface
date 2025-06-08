@@ -1,12 +1,13 @@
 import { useMemo } from 'react';
 
+import { useShallow } from 'zustand/shallow';
+
 import { univ2PoolNormalize, univ3PoolNormalize } from '@kyber/schema';
 import { MouseoverTooltip } from '@kyber/ui';
 import { divideBigIntToString, formatDisplayNumber } from '@kyber/utils/number';
 import { tickToPrice } from '@kyber/utils/uniswapv3';
 
 import RevertPriceIcon from '@/assets/svg/ic_revert_price.svg';
-import { useZapState } from '@/hooks/useZapInState';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 import { assertUnreachable } from '@/utils';
@@ -16,8 +17,14 @@ const shortenSymbol = (symbol: string, characterNumber = 8) =>
 
 export default function PriceInfo() {
   const theme = useWidgetStore(s => s.theme);
-  const pool = usePoolStore(s => s.pool);
-  const { poolPrice, revertPrice, toggleRevertPrice } = useZapState();
+  const { pool, poolPrice, revertPrice, toggleRevertPrice } = usePoolStore(
+    useShallow(s => ({
+      pool: s.pool,
+      poolPrice: s.poolPrice,
+      revertPrice: s.revertPrice,
+      toggleRevertPrice: s.toggleRevertPrice,
+    })),
+  );
 
   const loading = pool === 'loading';
 

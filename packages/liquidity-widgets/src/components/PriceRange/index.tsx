@@ -1,12 +1,14 @@
 import { useEffect, useMemo, useState } from 'react';
 
+import { useShallow } from 'zustand/shallow';
+
 import { Univ3PoolType, univ3PoolNormalize } from '@kyber/schema';
 import { Button } from '@kyber/ui';
 import { toString } from '@kyber/utils/number';
 import { nearestUsableTick, priceToClosestTick, tickToPrice } from '@kyber/utils/uniswapv3';
 
 import { DEFAULT_PRICE_RANGE, FULL_PRICE_RANGE, FeeAmount, PRICE_RANGE } from '@/components/PriceRange/constants';
-import { useZapState } from '@/hooks/useZapInState';
+import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
 
@@ -25,10 +27,10 @@ const getFeeRange = (fee: number): FeeAmount | undefined => {
 };
 
 const PriceRange = () => {
-  const { priceLower, priceUpper, setTickLower, setTickUpper, tickLower, tickUpper, revertPrice } = useZapState();
+  const { priceLower, priceUpper, setTickLower, setTickUpper, tickLower, tickUpper } = useZapState();
   const [selectedRange, setSelectedRange] = useState<SelectedRange | null>(null);
 
-  const pool = usePoolStore(s => s.pool);
+  const { pool, revertPrice } = usePoolStore(useShallow(s => ({ pool: s.pool, revertPrice: s.revertPrice })));
   const positionId = usePositionStore(s => s.positionId);
 
   const loading = pool === 'loading';

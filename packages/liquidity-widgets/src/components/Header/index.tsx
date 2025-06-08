@@ -16,7 +16,7 @@ import X from '@/assets/svg/x.svg';
 import RefreshLoading from '@/components/Header/RefreshLoading';
 import { shortenAddress } from '@/components/TokenInfo/utils';
 import useCopy from '@/hooks/useCopy';
-import { useZapState } from '@/hooks/useZapInState';
+import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';

@@ -9,7 +9,7 @@ import X from '@/assets/svg/x.svg';
 import { shortenAddress } from '@/components/TokenInfo/utils';
 import { MAX_ZAP_IN_TOKENS } from '@/constants';
 import useCopy from '@/hooks/useCopy';
-import { useZapState } from '@/hooks/useZapInState';
+import { useZapState } from '@/hooks/useZapState';
 import { useTokenStore } from '@/stores/useTokenStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 import { getEtherscanLink } from '@/utils';

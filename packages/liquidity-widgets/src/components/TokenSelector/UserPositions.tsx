@@ -13,7 +13,7 @@ import IconPositionConnectWallet from '@/assets/svg/ic_position_connect_wallet.s
 import IconPositionNotFound from '@/assets/svg/ic_position_not_found.svg';
 import defaultTokenLogo from '@/assets/svg/question.svg?url';
 import { shortenAddress } from '@/components/TokenInfo/utils';
-import { useZapState } from '@/hooks/useZapInState';
+import { useZapState } from '@/hooks/useZapState';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 import { EarnPosition, PositionStatus } from '@/types/index';
 

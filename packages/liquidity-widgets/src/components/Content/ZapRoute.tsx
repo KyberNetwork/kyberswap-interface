@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react';
 import { DEXES_INFO, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, defaultToken } from '@kyber/schema';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@kyber/ui';
 
-import { useZapState } from '@/hooks/useZapInState';
+import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 import { AddLiquidityAction, AggregatorSwapAction, PoolSwapAction, ZapAction } from '@/types/zapRoute';

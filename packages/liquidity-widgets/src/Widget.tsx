@@ -38,7 +38,7 @@ import { TOKEN_SELECT_MODE } from '@/components/TokenSelector';
 import TokenSelectorModal from '@/components/TokenSelector/TokenSelectorModal';
 import { ERROR_MESSAGE, MAX_ZAP_IN_TOKENS } from '@/constants';
 import { APPROVAL_STATE, useApprovals } from '@/hooks/useApproval';
-import { useZapState } from '@/hooks/useZapInState';
+import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
@@ -82,8 +82,6 @@ export default function Widget() {
     tickUpper,
     slippage,
     degenMode,
-    revertPrice,
-    poolPrice,
     tokensIn,
     amountsIn,
     toggleSetting,
@@ -92,8 +90,15 @@ export default function Widget() {
   const { positionId, position } = usePositionStore(
     useShallow(s => ({ positionId: s.positionId, position: s.position })),
   );
-  const { pool, poolError, getPool, getPoolStat } = usePoolStore(
-    useShallow(s => ({ pool: s.pool, poolError: s.poolError, getPool: s.getPool, getPoolStat: s.getPoolStat })),
+  const { pool, poolError, getPool, getPoolStat, poolPrice, revertPrice } = usePoolStore(
+    useShallow(s => ({
+      pool: s.pool,
+      poolError: s.poolError,
+      getPool: s.getPool,
+      getPoolStat: s.getPoolStat,
+      poolPrice: s.poolPrice,
+      revertPrice: s.revertPrice,
+    })),
   );
   const positionOwner = usePositionOwner({
     positionId: positionId || '',

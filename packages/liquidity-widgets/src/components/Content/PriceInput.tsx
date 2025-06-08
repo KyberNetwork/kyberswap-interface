@@ -1,16 +1,21 @@
 import { useEffect, useMemo, useState } from 'react';
 
+import { useShallow } from 'zustand/shallow';
+
 import { univ3PoolNormalize } from '@kyber/schema';
 import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick, tickToPrice } from '@kyber/utils/uniswapv3';
 
-import { useZapState } from '@/hooks/useZapInState';
+import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
+import { usePositionStore } from '@/stores/usePositionStore';
 import { PriceType } from '@/types/index';
 import { formatNumber } from '@/utils';
 
 export default function PriceInput({ type }: { type: PriceType }) {
-  const { tickLower, tickUpper, revertPrice, setTickLower, setTickUpper, positionId } = useZapState();
-  const rawPool = usePoolStore(s => s.pool);
+  const { tickLower, tickUpper, setTickLower, setTickUpper } = useZapState();
+  const { pool: rawPool, revertPrice } = usePoolStore(useShallow(s => ({ pool: s.pool, revertPrice: s.revertPrice })));
+  const { positionId } = usePositionStore(useShallow(s => ({ positionId: s.positionId })));
+
   const [localValue, setLocalValue] = useState('');
 
   const pool = useMemo(() => {

@@ -254,7 +254,7 @@ export const validateData = ({
   networkChainId,
   tokensIn,
   amountsIn,
-  isUniv3Pool,
+  isUniV3,
   tickLower,
   tickUpper,
   balances,
@@ -265,7 +265,7 @@ export const validateData = ({
   networkChainId: ChainId;
   tokensIn: Token[];
   amountsIn: string;
-  isUniv3Pool: boolean;
+  isUniV3: boolean;
   tickLower: number;
   tickUpper: number;
   balances: {
@@ -276,7 +276,7 @@ export const validateData = ({
   if (!account) return ERROR_MESSAGE.CONNECT_WALLET;
   if (chainId !== networkChainId) return ERROR_MESSAGE.WRONG_NETWORK;
   if (!tokensIn.length) return ERROR_MESSAGE.SELECT_TOKEN_IN;
-  if (isUniv3Pool) {
+  if (isUniV3) {
     if (tickLower === null) return ERROR_MESSAGE.ENTER_MIN_PRICE;
     if (tickUpper === null) return ERROR_MESSAGE.ENTER_MAX_PRICE;
     if (tickLower >= tickUpper) return ERROR_MESSAGE.INVALID_PRICE_RANGE;

@@ -10,7 +10,7 @@ import { cn } from '@kyber/utils/tailwind-helpers';
 
 import defaultTokenLogo from '@/assets/svg/question.svg?url';
 import { SlippageWarning } from '@/components/SlippageWarning';
-import { useZapState } from '@/hooks/useZapInState';
+import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
@@ -26,13 +26,14 @@ import {
 import { PI_LEVEL, formatCurrency, formatNumber, getPriceImpact } from '@/utils';
 
 export default function EstLiqValue() {
-  const { theme, chainId } = useWidgetStore(
+  const { theme, chainId, source } = useWidgetStore(
     useShallow(s => ({
       theme: s.theme,
       chainId: s.chainId,
+      source: s.source,
     })),
   );
-  const { zapInfo, source, slippage, tokensIn } = useZapState();
+  const { zapInfo, slippage, tokensIn } = useZapState();
   const pool = usePoolStore(s => s.pool);
   const { positionId, position } = usePositionStore(
     useShallow(s => ({

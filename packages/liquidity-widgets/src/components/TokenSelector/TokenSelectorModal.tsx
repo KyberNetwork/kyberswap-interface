@@ -6,7 +6,7 @@ import Modal from '@/components/Modal';
 import TokenInfo from '@/components/TokenInfo';
 import TokenSelector, { TOKEN_SELECT_MODE } from '@/components/TokenSelector';
 import TokenImportConfirm from '@/components/TokenSelector/TokenImportConfirm';
-import { useZapState } from '@/hooks/useZapInState';
+import { useZapState } from '@/hooks/useZapState';
 
 const TokenSelectorModal = ({
   selectedTokenAddress,

@@ -5,7 +5,7 @@ import { useShallow } from 'zustand/shallow';
 import { ChainId, PoolType, Theme } from '@kyber/schema';
 
 import Widget from '@/Widget';
-import { ZapContextProvider } from '@/hooks/useZapInState';
+import { ZapContextProvider } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
 import { useTokenStore } from '@/stores/useTokenStore';

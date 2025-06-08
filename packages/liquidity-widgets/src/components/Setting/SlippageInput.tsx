@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 import AlertIcon from '@/assets/svg/alert.svg';
-import { useZapState } from '@/hooks/useZapInState';
+import { useZapState } from '@/hooks/useZapState';
 
 export const parseSlippageInput = (str: string): number => Math.round(Number.parseFloat(str) * 100);
 

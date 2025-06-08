@@ -34,7 +34,8 @@ import defaultTokenLogo from '@/assets/svg/question.svg?url';
 import SuccessIcon from '@/assets/svg/success.svg';
 import SwitchIcon from '@/assets/svg/switch.svg';
 import { SlippageWarning } from '@/components/SlippageWarning';
-import { useZapState } from '@/hooks/useZapInState';
+import { useZapState } from '@/hooks/useZapState';
+import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 import {
@@ -77,7 +78,7 @@ export default function Preview({
   zapState: { pool, zapInfo, deadline, slippage, tickLower, tickUpper },
   onDismiss,
 }: PreviewProps) {
-  const { poolType, chainId, connectedAccount, theme, onSubmitTx, onViewPosition, referral } = useWidgetStore(
+  const { poolType, chainId, connectedAccount, theme, onSubmitTx, onViewPosition, referral, source } = useWidgetStore(
     useShallow(s => ({
       poolType: s.poolType,
       chainId: s.chainId,
@@ -86,19 +87,22 @@ export default function Preview({
       onSubmitTx: s.onSubmitTx,
       onViewPosition: s.onViewPosition,
       referral: s.referral,
+      source: s.source,
     })),
   );
-
   const { positionId, position } = usePositionStore(
     useShallow(s => ({
       positionId: s.positionId,
       position: s.position,
     })),
   );
+  const { revertPrice, toggleRevertPrice } = usePoolStore(
+    useShallow(s => ({ revertPrice: s.revertPrice, toggleRevertPrice: s.toggleRevertPrice })),
+  );
 
   const { address: account } = connectedAccount;
 
-  const { source, revertPrice: revert, toggleRevertPrice, tokensIn, amountsIn, tokenPrices } = useZapState();
+  const { tokensIn, amountsIn, tokenPrices } = useZapState();
 
   const { tokensIn: listValidTokensIn, amountsIn: listValidAmountsIn } = parseTokensAndAmounts(tokensIn, amountsIn);
 
@@ -187,11 +191,11 @@ export default function Preview({
     : 0;
 
   const price = isUniV3
-    ? formatDisplayNumber(tickToPrice(univ3Pool.tick, pool.token0?.decimals, pool.token1?.decimals, revert), {
+    ? formatDisplayNumber(tickToPrice(univ3Pool.tick, pool.token0?.decimals, pool.token1?.decimals, revertPrice), {
         significantDigits: 6,
       })
     : isUniV2
-      ? formatDisplayNumber(revert ? 1 / univ2Price : univ2Price, {
+      ? formatDisplayNumber(revertPrice ? 1 / univ2Price : univ2Price, {
           significantDigits: 6,
         })
       : '--';
@@ -200,31 +204,41 @@ export default function Preview({
     if (!univ3Pool) return null;
     const maxPrice =
       tickUpper === univ3Pool.maxTick
-        ? revert
+        ? revertPrice
           ? '0'
           : '∞'
         : formatNumber(
             parseFloat(
-              tickToPrice(!revert ? tickUpper : tickLower, pool.token0?.decimals, pool.token1?.decimals, revert),
+              tickToPrice(
+                !revertPrice ? tickUpper : tickLower,
+                pool.token0?.decimals,
+                pool.token1?.decimals,
+                revertPrice,
+              ),
             ),
           );
     const minPrice =
       tickLower === univ3Pool.minTick
-        ? revert
+        ? revertPrice
           ? '∞'
           : '0'
         : formatNumber(
             parseFloat(
-              tickToPrice(!revert ? tickLower : tickUpper, pool.token0?.decimals, pool.token1?.decimals, revert),
+              tickToPrice(
+                !revertPrice ? tickLower : tickUpper,
+                pool.token0?.decimals,
+                pool.token1?.decimals,
+                revertPrice,
+              ),
             ),
           );
 
     return [minPrice, maxPrice];
-  }, [univ3Pool, tickUpper, revert, pool.token0?.decimals, pool.token1?.decimals, tickLower]);
+  }, [univ3Pool, tickUpper, revertPrice, pool.token0?.decimals, pool.token1?.decimals, tickLower]);
 
   const quote = (
     <span>
-      {!revert ? `${pool?.token1.symbol}/${pool?.token0.symbol}` : `${pool?.token0.symbol}/${pool?.token1.symbol}`}
+      {!revertPrice ? `${pool?.token1.symbol}/${pool?.token0.symbol}` : `${pool?.token0.symbol}/${pool?.token1.symbol}`}
     </span>
   );
 

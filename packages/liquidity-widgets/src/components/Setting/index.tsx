@@ -7,7 +7,7 @@ import { cn } from '@kyber/utils/tailwind-helpers';
 import X from '@/assets/svg/x.svg';
 import Modal from '@/components/Modal';
 import SlippageInput from '@/components/Setting/SlippageInput';
-import { useZapState } from '@/hooks/useZapInState';
+import { useZapState } from '@/hooks/useZapState';
 
 const validateDeadlineString = (str: string): boolean => {
   const value = Number.parseInt(str, 10);

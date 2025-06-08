@@ -15,7 +15,7 @@ import TrashIcon from '@/assets/svg/trash.svg';
 import X from '@/assets/svg/x.svg';
 import UserPositions from '@/components/TokenSelector/UserPositions';
 import { MAX_ZAP_IN_TOKENS } from '@/constants';
-import { useZapState } from '@/hooks/useZapInState';
+import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { useTokenStore } from '@/stores/useTokenStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
