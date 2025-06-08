@@ -4,11 +4,11 @@ import {
   NATIVE_TOKEN_ADDRESS,
   PoolType,
   Token,
-  Univ2PoolType,
-  Univ3PoolType,
   poolResponse,
   univ2Pool,
+  univ2Types,
   univ3Pool,
+  univ3Types,
   univ4Types,
 } from '@kyber/schema';
 
@@ -93,7 +93,7 @@ export const getPoolInfo = async ({
   const { success: isUniV2, data: univ2PoolInfo } = univ2Pool.safeParse(pool);
 
   if (isUniV3) {
-    const { success: isUniV3PoolType } = Univ3PoolType.safeParse(poolType);
+    const isUniV3PoolType = univ3Types.includes(poolType as any);
     if (!isUniV3PoolType)
       return {
         error: POOL_ERROR.INVALID_UNIV3_POOL_TYPE,
@@ -121,7 +121,7 @@ export const getPoolInfo = async ({
   }
 
   if (isUniV2) {
-    const { success: isUniV2PoolType } = Univ2PoolType.safeParse(poolType);
+    const isUniV2PoolType = univ2Types.includes(poolType as any);
     if (!isUniV2PoolType)
       return {
         error: POOL_ERROR.INVALID_UNIV2_POOL_TYPE,

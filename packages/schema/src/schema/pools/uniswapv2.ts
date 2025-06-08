@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 import { POOL_CATEGORY } from '@/constants';
-import { Univ2PoolType } from '@/schema/dex';
+import { PoolType, univ2Types } from '@/schema/dex';
 import { token } from '@/schema/token';
 
 export const univ2Pool = z.object({
@@ -22,14 +22,16 @@ export const univ2Pool = z.object({
 });
 
 export const univ2PoolResponse = z.object({
-  poolType: Univ2PoolType,
+  poolType: z.nativeEnum(PoolType).refine((val): val is Univ2PoolType => univ2Types.includes(val as Univ2PoolType)),
   data: z.object({
     pools: z.array(univ2Pool),
   }),
 });
 
+type Univ2PoolType = (typeof univ2Types)[number];
+
 export const univ2PoolNormalize = z.object({
-  poolType: Univ2PoolType,
+  poolType: z.nativeEnum(PoolType).refine((val): val is Univ2PoolType => univ2Types.includes(val as Univ2PoolType)),
   address: z.string(),
   token0: token,
   token1: token,

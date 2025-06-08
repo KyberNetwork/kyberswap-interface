@@ -3,6 +3,7 @@ import { useShallow } from 'zustand/shallow';
 import {
   DEXES_INFO,
   NETWORKS_INFO,
+  PoolType,
   defaultDexInfo,
   defaultToken,
   univ3PoolNormalize,
@@ -54,7 +55,7 @@ const Header = ({ refetchData }: { refetchData: () => void }) => {
 
   const { token0 = defaultToken, token1 = defaultToken, fee = 0 } = !initializing ? pool : {};
 
-  const { icon: dexLogo, name: rawName } = !initializing ? DEXES_INFO[pool.poolType] : defaultDexInfo;
+  const { icon: dexLogo, name: rawName } = !initializing ? DEXES_INFO[pool.poolType as PoolType] : defaultDexInfo;
   const dexName = typeof rawName === 'string' ? rawName : rawName[chainId];
 
   const { success, data } = univ3Position.safeParse(position);

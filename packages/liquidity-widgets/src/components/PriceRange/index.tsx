@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { useShallow } from 'zustand/shallow';
 
-import { Univ3PoolType, univ3PoolNormalize } from '@kyber/schema';
+import { univ3PoolNormalize, univ3Types } from '@kyber/schema';
 import { Button } from '@kyber/ui';
 import { toString } from '@kyber/utils/number';
 import { nearestUsableTick, priceToClosestTick, tickToPrice } from '@kyber/utils/uniswapv3';
@@ -114,7 +114,7 @@ const PriceRange = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [feeRange]);
 
-  const isUniv3 = pool !== 'loading' && Univ3PoolType.safeParse(pool.poolType).success;
+  const isUniv3 = pool !== 'loading' && univ3Types.includes(pool.poolType as any);
 
   if (!isUniv3) return null;
 

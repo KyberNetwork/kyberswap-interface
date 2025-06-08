@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 
-import { DEXES_INFO, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, defaultToken } from '@kyber/schema';
+import { DEXES_INFO, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, PoolType, defaultToken } from '@kyber/schema';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@kyber/ui';
 
 import { useZapState } from '@/hooks/useZapState';
@@ -20,7 +20,7 @@ export default function ZapRoute() {
   const { symbol: symbol0 } = initializing ? defaultToken : pool.token0;
   const { symbol: symbol1 } = initializing ? defaultToken : pool.token1;
 
-  const dexNameObj = initializing ? null : DEXES_INFO[pool.poolType].name;
+  const dexNameObj = initializing ? null : DEXES_INFO[pool.poolType as PoolType].name;
   const dexName = !dexNameObj ? '' : typeof dexNameObj === 'string' ? dexNameObj : dexNameObj[chainId];
 
   const onExpand = () => setExpanded(prev => !prev);

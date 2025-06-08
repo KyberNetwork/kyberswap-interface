@@ -1,37 +1,33 @@
 import { z } from 'zod';
 
 export enum PoolType {
-  DEX_UNISWAP_V4 = 'DEX_UNISWAP_V4',
-  DEX_UNISWAP_V4_FAIRFLOW = 'DEX_UNISWAP_V4_FAIRFLOW',
+  DEX_UNISWAP_V4 = 68,
+  DEX_UNISWAP_V4_FAIRFLOW = 73,
 
-  DEX_UNISWAPV3 = 'DEX_UNISWAPV3',
-  DEX_PANCAKESWAPV3 = 'DEX_PANCAKESWAPV3',
-  DEX_METAVAULTV3 = 'DEX_METAVAULTV3',
-  DEX_LINEHUBV3 = 'DEX_LINEHUBV3',
-  DEX_SWAPMODEV3 = 'DEX_SWAPMODEV3',
-  DEX_KOICL = 'DEX_KOICL',
-  DEX_THRUSTERV3 = 'DEX_THRUSTERV3',
-  DEX_SUSHISWAPV3 = 'DEX_SUSHISWAPV3',
-  DEX_KODIAK_V3 = 'DEX_KODIAK_V3',
-  DEX_SQUADSWAP_V3 = 'DEX_SQUADSWAP_V3',
+  DEX_UNISWAPV3 = 2,
+  DEX_PANCAKESWAPV3 = 3,
+  DEX_METAVAULTV3 = 8,
+  DEX_LINEHUBV3 = 35,
+  DEX_SWAPMODEV3 = 46,
+  DEX_KOICL = 38,
+  DEX_THRUSTERV3 = 12,
+  DEX_SUSHISWAPV3 = 11,
+  DEX_KODIAK_V3 = 58,
+  DEX_SQUADSWAP_V3 = 66,
 
-  DEX_PANCAKESWAPV2 = 'DEX_PANCAKESWAPV2',
-  DEX_UNISWAPV2 = 'DEX_UNISWAPV2',
-  DEX_PANGOLINSTANDARD = 'DEX_PANGOLINSTANDARD',
-  DEX_SUSHISWAPV2 = 'DEX_SUSHISWAPV2',
-  DEX_QUICKSWAPV2 = 'DEX_QUICKSWAPV2',
-  DEX_THRUSTERV2 = 'DEX_THRUSTERV2',
-  DEX_SWAPMODEV2 = 'DEX_SWAPMODEV2',
-  DEX_KODIAK_V2 = 'DEX_KODIAK_V2',
-  DEX_SQUADSWAP_V2 = 'DEX_SQUADSWAP_V2',
+  DEX_PANCAKESWAPV2 = 16,
+  DEX_UNISWAPV2 = 4,
+  DEX_PANGOLINSTANDARD = 18,
+  DEX_SUSHISWAPV2 = 5,
+  DEX_QUICKSWAPV2 = 19,
+  DEX_THRUSTERV2 = 20,
+  DEX_SWAPMODEV2 = 44,
+  DEX_KODIAK_V2 = 57,
+  DEX_SQUADSWAP_V2 = 65,
 
-  // algebraV1
-  DEX_THENAFUSION = 'DEX_THENAFUSION',
-  DEX_QUICKSWAPV3ALGEBRA = 'DEX_QUICKSWAPV3ALGEBRA',
-  // algebraV19
-  DEX_CAMELOTV3 = 'DEX_CAMELOTV3',
-  // algebra integral
-  //DEX_BLADESWAP = "DEX_BLADESWAP",
+  DEX_THENAFUSION = 15,
+  DEX_QUICKSWAPV3ALGEBRA = 14,
+  DEX_CAMELOTV3 = 13,
 }
 
 export const univ4Types = [PoolType.DEX_UNISWAP_V4, PoolType.DEX_UNISWAP_V4_FAIRFLOW];
@@ -61,7 +57,7 @@ export const univ3Types = [
   PoolType.DEX_UNISWAP_V4,
   PoolType.DEX_UNISWAP_V4_FAIRFLOW,
 ] as const;
-export const Univ3PoolType = z.enum(univ3Types);
+export type Univ3PoolType = (typeof univ3Types)[number];
 
 export const univ2Types = [
   PoolType.DEX_PANCAKESWAPV2,
@@ -74,9 +70,9 @@ export const univ2Types = [
   PoolType.DEX_KODIAK_V2,
   PoolType.DEX_SQUADSWAP_V2,
 ] as const;
-export const Univ2PoolType = z.enum(univ2Types);
+export type Univ2PoolType = (typeof univ2Types)[number];
 
-export const poolType = Univ3PoolType.or(Univ2PoolType);
+// export const poolType = Univ3PoolType.or(Univ2PoolType);
 
 export const dexInfo = z.object({
   icon: z.string(),

@@ -10,8 +10,10 @@ import {
   Univ3PoolType,
   defaultToken,
   univ2PoolNormalize,
+  univ2Types,
   univ3PoolNormalize,
   univ3Position,
+  univ3Types,
   univ4Types,
 } from '@kyber/schema';
 import { InfoHelper } from '@kyber/ui';
@@ -139,28 +141,27 @@ export default function Widget() {
   const isUniv4 = univ4Types.includes(poolType);
 
   const newPool: Pool | null = useMemo(() => {
-    const { success, data } = univ3PoolNormalize.safeParse(pool);
-    const { success: isUniV3PoolType, data: pt } = Univ3PoolType.safeParse(poolType);
+    const { success: isUniV3, data: univ3PoolInfo } = univ3PoolNormalize.safeParse(pool);
+    const { success: isUniV2, data: uniV2PoolInfo } = univ2PoolNormalize.safeParse(pool);
 
-    const { success: isUniV2, data: poolUniv2 } = univ2PoolNormalize.safeParse(pool);
-
-    const { success: isUniV2PoolType, data: univ2pt } = Univ2PoolType.safeParse(poolType);
+    const isUniV3PoolType = univ3Types.includes(poolType as any);
+    const isUniV2PoolType = univ2Types.includes(poolType as any);
 
     if (zapInfo) {
-      if (success && isUniV3PoolType) {
+      if (isUniV3 && isUniV3PoolType) {
         const newInfo = zapInfo?.poolDetails.uniswapV3 || zapInfo?.poolDetails.algebraV1;
         return {
-          ...data,
-          poolType: pt,
+          ...univ3PoolInfo,
+          poolType: poolType as Univ3PoolType,
           sqrtRatioX96: newInfo?.newSqrtP,
           tick: newInfo.newTick,
-          liquidity: (BigInt(data.liquidity) + BigInt(zapInfo.positionDetails.addedLiquidity)).toString(),
+          liquidity: (BigInt(univ3PoolInfo.liquidity) + BigInt(zapInfo.positionDetails.addedLiquidity)).toString(),
         };
       }
       if (isUniV2 && isUniV2PoolType)
         return {
-          ...poolUniv2,
-          poolType: univ2pt,
+          ...uniV2PoolInfo,
+          poolType: poolType as Univ2PoolType,
           reverses: [zapInfo.poolDetails.uniswapV2.newReserve0, zapInfo.poolDetails.uniswapV2.newReserve1],
         };
     }

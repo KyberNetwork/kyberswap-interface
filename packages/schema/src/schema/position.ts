@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { Univ2PoolType, Univ3PoolType } from '@/schema/dex';
+import { univ2Types, univ3Types } from '@/schema/dex';
 
 export const univ3Position = z.object({
   id: z.number(),
@@ -20,13 +20,28 @@ export const univ2Position = z.object({
 });
 export type UniV2Position = z.infer<typeof univ2Position>;
 
+const createUniV3PositionSchemas = () =>
+  univ3Types.map(poolType =>
+    univ3Position.extend({
+      poolType: z.literal(poolType),
+    }),
+  );
+
+const createUniV2PositionSchemas = () =>
+  univ2Types.map(poolType =>
+    univ2Position.extend({
+      poolType: z.literal(poolType),
+    }),
+  );
+
+const uniV3Schemas = createUniV3PositionSchemas();
+const uniV2Schemas = createUniV2PositionSchemas();
+
 export const position = z.discriminatedUnion('poolType', [
-  univ3Position.extend({
-    poolType: Univ3PoolType,
-  }),
-  univ2Position.extend({
-    poolType: Univ2PoolType,
-  }),
+  uniV3Schemas[0],
+  ...uniV3Schemas.slice(1),
+  uniV2Schemas[0],
+  ...uniV2Schemas.slice(1),
 ]);
 
 export type Position = z.infer<typeof position>;

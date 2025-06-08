@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 import { POOL_CATEGORY } from '@/constants';
-import { PoolType, Univ3PoolType } from '@/schema/dex';
+import { PoolType, univ3Types } from '@/schema/dex';
 import { tick } from '@/schema/tick';
 import { token } from '@/schema/token';
 
@@ -44,7 +44,7 @@ export const univ3Pool = z.object({
   swapFee: z.number(),
   exchange: z.enum(dexValues as [string, ...string[]]).transform(val => {
     // Reverse lookup in the enum
-    const dexEnumKey = Object.keys(dexMapping).find(key => dexMapping[key as PoolType].includes(val));
+    const dexEnumKey = Object.keys(dexMapping).find(key => dexMapping[Number(key) as PoolType].includes(val));
     if (!dexEnumKey) {
       throw new Error(`No enum value for exchange: ${val}`);
     }
@@ -62,15 +62,17 @@ export const univ3Pool = z.object({
 });
 
 export const univ3PoolResponse = z.object({
-  poolType: Univ3PoolType,
+  poolType: z.nativeEnum(PoolType).refine((val): val is Univ3PoolType => univ3Types.includes(val as Univ3PoolType)),
   data: z.object({
     pools: z.array(univ3Pool),
   }),
 });
 
+type Univ3PoolType = (typeof univ3Types)[number];
+
 export const univ3PoolNormalize = z.object({
   address: z.string(),
-  poolType: Univ3PoolType,
+  poolType: z.nativeEnum(PoolType).refine((val): val is Univ3PoolType => univ3Types.includes(val as Univ3PoolType)),
   token0: token,
   token1: token,
   fee: z.number(),
