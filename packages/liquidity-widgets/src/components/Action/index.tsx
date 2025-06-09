@@ -6,7 +6,7 @@ import { usePositionOwner } from '@kyber/hooks';
 import { APPROVAL_STATE, useErc20Approvals, useNftApproval } from '@kyber/hooks';
 import { FARMING_CONTRACTS, NETWORKS_INFO, defaultToken, univ3PoolNormalize, univ4Types } from '@kyber/schema';
 import { InfoHelper } from '@kyber/ui';
-import { PI_LEVEL, getSwapPriceImpactFromZapInfo } from '@kyber/utils';
+import { PI_LEVEL, getNftManagerContractAddress, getSwapPriceImpactFromZapInfo } from '@kyber/utils';
 import { parseUnits } from '@kyber/utils/crypto';
 
 import { ERROR_MESSAGE } from '@/constants';
@@ -84,12 +84,18 @@ export default function Action() {
     spender: zapInfo?.routerAddress || '',
     onSubmitTx: onSubmitTx,
   });
-  const { isApproved: nftApproved, approve: approveNft } = useNftApproval({
+
+  const nftManagerContract = getNftManagerContractAddress(poolType, chainId);
+  const {
+    isApproved: nftApproved,
+    approve: approveNft,
+    approvePendingTx: nftApprovePendingTx,
+  } = useNftApproval({
     tokenId: positionId ? +positionId : undefined,
     spender: zapInfo?.routerAddress || '',
     userAddress: connectedAccount?.address || '',
     rpcUrl: NETWORKS_INFO[chainId].defaultRpc,
-    nftManagerContract: zapInfo?.routerAddress || '',
+    nftManagerContract,
     onSubmitTx: onSubmitTx,
   });
 
@@ -118,6 +124,7 @@ export default function Action() {
   const disabled =
     (isUniv4 && isNotOwner) ||
     clickedApprove ||
+    nftApprovePendingTx ||
     loading ||
     zapLoading ||
     (!!error && !isWrongNetwork && !isNotConnected) ||
@@ -136,7 +143,7 @@ export default function Action() {
     }
     if (zapLoading) return 'Loading...';
     if (loading) return 'Checking Allowance';
-    if (addressToApprove) return 'Approving';
+    if (addressToApprove || nftApprovePendingTx) return 'Approving';
     if (notApprove) return `Approve ${notApprove.symbol}`;
     if (isUniv4 && positionId && !nftApproved) return 'Approve NFT';
     if (priceImpact?.piRes.level === PI_LEVEL.VERY_HIGH) return 'Zap anyway';
@@ -206,7 +213,7 @@ export default function Action() {
                 : ''
             : ''
         }`}
-        disabled={disabled}
+        disabled={!!disabled}
         onClick={hanldeClick}
       >
         {btnText}
