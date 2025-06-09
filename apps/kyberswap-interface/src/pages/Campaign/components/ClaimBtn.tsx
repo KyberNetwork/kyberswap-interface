@@ -39,7 +39,7 @@ const ClaimBtn = ({ info }: { info: { ref: string; clientCode: string } }) => {
       method: 'POST',
       body: JSON.stringify({
         wallet: account,
-        chainId: '42161',
+        chainId: networkToSwitch.toString(),
         clientCode: info.clientCode,
         ref: info.ref,
       }),
