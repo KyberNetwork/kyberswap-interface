@@ -4,7 +4,7 @@ import * as DialogPrimitive from '@radix-ui/react-dialog';
 
 import { cn } from '@kyber/utils/tailwind-helpers';
 
-import X from '../icons/x.svg';
+import X from '../icons/x.svg?react';
 
 const Dialog = DialogPrimitive.Root;
 

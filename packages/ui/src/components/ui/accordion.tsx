@@ -4,7 +4,7 @@ import * as AccordionPrimitive from '@radix-ui/react-accordion';
 
 import { cn } from '@kyber/utils/tailwind-helpers';
 
-import ChevronDownIcon from '../icons/chevron-down.svg';
+import ChevronDownIcon from '../icons/chevron-down.svg?react';
 
 const Accordion = AccordionPrimitive.Root;
 
