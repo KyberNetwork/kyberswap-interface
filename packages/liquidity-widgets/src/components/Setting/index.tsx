@@ -7,28 +7,8 @@ import { cn } from '@kyber/utils/tailwind-helpers';
 import X from '@/assets/svg/x.svg';
 import Modal from '@/components/Modal';
 import SlippageInput from '@/components/Setting/SlippageInput';
+import { validateDeadlineString } from '@/components/Setting/utils';
 import { useZapState } from '@/hooks/useZapState';
-
-const validateDeadlineString = (str: string): boolean => {
-  const value = Number.parseInt(str, 10);
-
-  // must not be longer than 10000 (5 chars)
-  if (str.length > '10000'.length) {
-    return false;
-  }
-
-  // must be an integer
-  if (Number.isNaN(value) || String(Math.floor(value)) !== str) {
-    return false;
-  }
-
-  // must be in (0, 1000)
-  if (0 < value && value < 10000) {
-    return true;
-  }
-
-  return false;
-};
 
 export default function Setting() {
   const { showSetting, ttl, setTtl, toggleSetting, degenMode, setDegenMode, highlightDegenMode } = useZapState();

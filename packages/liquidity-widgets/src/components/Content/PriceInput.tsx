@@ -3,16 +3,16 @@ import { useEffect, useMemo, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { univ3PoolNormalize } from '@kyber/schema';
-import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick, tickToPrice } from '@kyber/utils/uniswapv3';
+import { formatNumber } from '@kyber/utils/number';
+import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick } from '@kyber/utils/uniswapv3';
 
 import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
 import { PriceType } from '@/types/index';
-import { formatNumber } from '@/utils';
 
 export default function PriceInput({ type }: { type: PriceType }) {
-  const { tickLower, tickUpper, setTickLower, setTickUpper } = useZapState();
+  const { tickLower, tickUpper, setTickLower, setTickUpper, priceLower, priceUpper } = useZapState();
   const { pool: rawPool, revertPrice } = usePoolStore(useShallow(s => ({ pool: s.pool, revertPrice: s.revertPrice })));
   const { positionId } = usePositionStore(useShallow(s => ({ positionId: s.positionId })));
 
@@ -22,7 +22,7 @@ export default function PriceInput({ type }: { type: PriceType }) {
     if (rawPool === 'loading') return rawPool;
     const { success, data } = univ3PoolNormalize.safeParse(rawPool);
     if (success) return data;
-    // TODO: check if return loading here ok?
+
     return 'loading';
   }, [rawPool]);
 
@@ -85,41 +85,26 @@ export default function PriceInput({ type }: { type: PriceType }) {
   const isMaxTick = pool !== 'loading' && tickUpper === pool.maxTick;
 
   useEffect(() => {
-    if (pool !== 'loading') {
-      let minPrice = localValue;
-      let maxPrice = localValue;
-      if (tickUpper !== null)
-        maxPrice = isMaxTick
-          ? revertPrice
-            ? '0'
-            : '∞'
-          : tickToPrice(tickUpper, pool.token0?.decimals, pool.token1?.decimals, revertPrice);
-      if (tickLower !== null)
-        minPrice = isMinTick
-          ? revertPrice
-            ? '∞'
-            : '0'
-          : tickToPrice(tickLower, pool.token0?.decimals, pool.token1?.decimals, revertPrice);
-
+    if (pool === 'loading') return;
+    if (type === PriceType.PriceLower && (!revertPrice ? pool?.minTick === tickLower : pool?.maxTick === tickUpper)) {
+      setLocalValue('0');
+    } else if (
+      type === PriceType.PriceUpper &&
+      (!revertPrice ? pool?.maxTick === tickUpper : pool?.minTick === tickLower)
+    ) {
+      setLocalValue('∞');
+    } else if (priceLower && priceUpper) {
       if (type === PriceType.PriceLower) {
-        const valueToSet = revertPrice ? maxPrice : minPrice;
-        setLocalValue(valueToSet === '∞' ? valueToSet : formatNumber(parseFloat(valueToSet)));
+        const valueToSet = !revertPrice ? priceLower : priceUpper;
+        if (positionId) setLocalValue(formatNumber(parseFloat(valueToSet)));
+        else setLocalValue(valueToSet);
       } else {
-        const valueToSet = revertPrice ? minPrice : maxPrice;
-        setLocalValue(valueToSet === '∞' ? valueToSet : formatNumber(parseFloat(valueToSet)));
+        const valueToSet = !revertPrice ? priceUpper : priceLower;
+        if (positionId) setLocalValue(formatNumber(parseFloat(valueToSet)));
+        else setLocalValue(valueToSet);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    tickUpper,
-    tickLower,
-    pool,
-    revertPrice,
-    isMaxTick,
-    isMinTick,
-    // localValue,
-    type,
-  ]);
+  }, [tickUpper, tickLower, pool, revertPrice, isMaxTick, isMinTick, type, priceLower, priceUpper, positionId]);
 
   return (
     <div className="mt-[0.6rem] w-1/2 p-3 justify-between flex items-center border rounded-md border-stroke">

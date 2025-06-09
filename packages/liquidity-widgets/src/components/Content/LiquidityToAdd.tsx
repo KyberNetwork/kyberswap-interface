@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 
 import { NATIVE_TOKEN_ADDRESS } from '@kyber/schema';
 import { formatUnits } from '@kyber/utils/crypto';
-import { formatDisplayNumber } from '@kyber/utils/number';
+import { formatDisplayNumber, formatWei } from '@kyber/utils/number';
 
 import DropdownIcon from '@/assets/svg/dropdown.svg';
 import defaultTokenLogo from '@/assets/svg/question.svg?url';
@@ -11,7 +11,6 @@ import X from '@/assets/svg/x.svg';
 import TokenSelectorModal from '@/components/TokenSelector/TokenSelectorModal';
 import { TOKEN_SELECT_MODE } from '@/components/TokenSelector/index';
 import { useZapState } from '@/hooks/useZapState';
-import { formatWei } from '@/utils';
 
 export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
   const { tokensIn, setTokensIn, amountsIn, setAmountsIn, balanceTokens, tokenPrices } = useZapState();

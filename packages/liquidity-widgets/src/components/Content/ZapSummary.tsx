@@ -1,16 +1,25 @@
 import { useMemo, useState } from 'react';
 
-import { DEXES_INFO, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, PoolType, defaultToken } from '@kyber/schema';
+import { useShallow } from 'zustand/shallow';
+
+import { AddLiquidityAction, DEXES_INFO, PoolType, ZapAction, defaultToken } from '@kyber/schema';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@kyber/ui';
+import { parseSwapActions } from '@kyber/utils';
+import { formatWei } from '@kyber/utils/number';
 
 import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
-import { AddLiquidityAction, AggregatorSwapAction, PoolSwapAction, ZapAction } from '@/types/zapRoute';
-import { formatWei } from '@/utils';
 
-export default function ZapRoute() {
-  const chainId = useWidgetStore(s => s.chainId);
+export default function ZapSummary() {
+  const { nativeToken, wrappedNativeToken, chainId, poolType } = useWidgetStore(
+    useShallow(s => ({
+      nativeToken: s.nativeToken,
+      wrappedNativeToken: s.wrappedNativeToken,
+      chainId: s.chainId,
+      poolType: s.poolType,
+    })),
+  );
   const { zapInfo, tokensIn } = useZapState();
   const pool = usePoolStore(s => s.pool);
   const [expanded, setExpanded] = useState(false);
@@ -19,63 +28,21 @@ export default function ZapRoute() {
 
   const { symbol: symbol0 } = initializing ? defaultToken : pool.token0;
   const { symbol: symbol1 } = initializing ? defaultToken : pool.token1;
+  const { token0 = defaultToken, token1 = defaultToken } = !initializing ? pool : {};
 
   const dexNameObj = initializing ? null : DEXES_INFO[pool.poolType as PoolType].name;
   const dexName = !dexNameObj ? '' : typeof dexNameObj === 'string' ? dexNameObj : dexNameObj[chainId];
 
   const onExpand = () => setExpanded(prev => !prev);
 
-  const swapInfo = useMemo(() => {
-    const aggregatorSwapInfo = zapInfo?.zapDetails.actions.find(
-      item => item.type === ZapAction.AGGREGATOR_SWAP,
-    ) as AggregatorSwapAction | null;
-
-    const poolSwapInfo = zapInfo?.zapDetails.actions.find(
-      item => item.type === ZapAction.POOL_SWAP,
-    ) as PoolSwapAction | null;
-
-    if (pool === 'loading') return [];
-    const tokens = [
-      ...tokensIn,
-      pool.token0,
-      pool.token1,
-      NETWORKS_INFO[chainId].wrappedToken,
-      {
-        name: 'ETH',
-        address: NATIVE_TOKEN_ADDRESS,
-        symbol: 'ETH',
-        decimals: 18,
-      },
-    ];
-
-    const parsedAggregatorSwapInfo =
-      aggregatorSwapInfo?.aggregatorSwap?.swaps?.map(item => {
-        const tokenIn = tokens.find(token => token.address.toLowerCase() === item.tokenIn.address.toLowerCase());
-        const tokenOut = tokens.find(token => token.address.toLowerCase() === item.tokenOut.address.toLowerCase());
-        return {
-          tokenInSymbol: tokenIn?.symbol || '--',
-          tokenOutSymbol: tokenOut?.symbol || '--',
-          amountIn: formatWei(item.tokenIn.amount, tokenIn?.decimals),
-          amountOut: formatWei(item.tokenOut.amount, tokenOut?.decimals),
-          pool: 'KyberSwap',
-        };
-      }) || [];
-
-    const parsedPoolSwapInfo =
-      poolSwapInfo?.poolSwap?.swaps?.map(item => {
-        const tokenIn = tokens.find(token => token.address.toLowerCase() === item.tokenIn.address.toLowerCase());
-        const tokenOut = tokens.find(token => token.address.toLowerCase() === item.tokenOut.address.toLowerCase());
-        return {
-          tokenInSymbol: tokenIn?.symbol || '--',
-          tokenOutSymbol: tokenOut?.symbol || '--',
-          amountIn: formatWei(item.tokenIn.amount, tokenIn?.decimals),
-          amountOut: formatWei(item.tokenOut.amount, tokenOut?.decimals),
-          pool: `${dexName} Pool`,
-        };
-      }) || [];
-
-    return parsedAggregatorSwapInfo.concat(parsedPoolSwapInfo);
-  }, [chainId, dexName, pool, tokensIn, zapInfo?.zapDetails.actions]);
+  const tokensToCheck = useMemo(
+    () => [...tokensIn, token0, token1, wrappedNativeToken, nativeToken],
+    [tokensIn, token0, token1, wrappedNativeToken, nativeToken],
+  );
+  const swapActions = useMemo(
+    () => parseSwapActions({ zapInfo, tokens: tokensToCheck, poolType, chainId }),
+    [chainId, poolType, tokensToCheck, zapInfo],
+  );
 
   const addedLiquidityInfo = useMemo(() => {
     if (pool === 'loading') return { addedAmount0: '0', addedAmount1: '0' };
@@ -106,7 +73,7 @@ export default function ZapRoute() {
 
             <div className="h-[1px] w-full bg-stroke mt-1 mb-3" />
 
-            {swapInfo.map((item, index) => (
+            {swapActions.map((item, index) => (
               <div className="flex gap-3 items-center mt-3 text-xs" key={index}>
                 <div className="rounded-full w-6 h-6 flex items-center justify-center font-medium bg-layer2">
                   {index + 1}
@@ -120,7 +87,7 @@ export default function ZapRoute() {
 
             <div className="flex gap-3 items-center text-xs mt-3">
               <div className="rounded-full w-6 h-6 flex items-center justify-center font-medium bg-layer2">
-                {swapInfo.length + 1}
+                {swapActions.length + 1}
               </div>
               <div className="flex-1 text-subText leading-4">
                 Build LP using {addedLiquidityInfo.addedAmount0} {symbol0} and {addedLiquidityInfo.addedAmount1}{' '}

@@ -4,13 +4,13 @@ import { useShallow } from 'zustand/shallow';
 
 import { univ2PoolNormalize, univ3PoolNormalize } from '@kyber/schema';
 import { MouseoverTooltip } from '@kyber/ui';
+import { assertUnreachable } from '@kyber/utils';
 import { divideBigIntToString, formatDisplayNumber } from '@kyber/utils/number';
 import { tickToPrice } from '@kyber/utils/uniswapv3';
 
 import RevertPriceIcon from '@/assets/svg/ic_revert_price.svg';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
-import { assertUnreachable } from '@/utils';
 
 const shortenSymbol = (symbol: string, characterNumber = 8) =>
   symbol.length > characterNumber + 2 ? symbol.slice(0, characterNumber) + '...' : symbol;

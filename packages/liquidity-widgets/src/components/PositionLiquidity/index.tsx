@@ -1,9 +1,8 @@
-import { formatTokenAmount } from '@kyber/utils/number';
+import { formatCurrency, formatTokenAmount } from '@kyber/utils/number';
 
 import defaultTokenLogo from '@/assets/svg/question.svg?url';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
-import { formatCurrency } from '@/utils';
 
 const PositionLiquidity = () => {
   const pool = usePoolStore(s => s.pool);

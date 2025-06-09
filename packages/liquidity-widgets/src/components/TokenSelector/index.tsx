@@ -2,10 +2,11 @@ import { ChangeEvent, MouseEvent, useEffect, useMemo, useState } from 'react';
 
 import { useShallow } from 'zustand/shallow';
 
-import { NATIVE_TOKEN_ADDRESS, Token } from '@kyber/schema';
+import { NATIVE_TOKEN_ADDRESS, Token, defaultToken } from '@kyber/schema';
 import { Button, Input } from '@kyber/ui';
 import { fetchTokenInfo } from '@kyber/utils';
 import { formatUnits, isAddress } from '@kyber/utils/crypto';
+import { formatWei } from '@kyber/utils/number';
 
 import Check from '@/assets/svg/check.svg';
 import Info from '@/assets/svg/info.svg';
@@ -19,7 +20,6 @@ import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { useTokenStore } from '@/stores/useTokenStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
-import { formatWei } from '@/utils';
 
 export enum TOKEN_SELECT_MODE {
   SELECT = 'SELECT',
@@ -64,8 +64,6 @@ export default function TokenSelector({
   setTokenToImport: (token: Token) => void;
   onClose: () => void;
 }) {
-  const { balanceTokens, tokensIn, setTokensIn, amountsIn, setAmountsIn } = useZapState();
-
   const { theme, onOpenZapMigration, chainId } = useWidgetStore(
     useShallow(s => ({
       theme: s.theme,
@@ -81,17 +79,13 @@ export default function TokenSelector({
       removeImportedToken: s.removeImportedToken,
     })),
   );
+  const { balanceTokens, tokensIn, setTokensIn, amountsIn, setAmountsIn } = useZapState();
 
+  const initializing = pool === 'loading';
   const allTokens = useMemo(() => [...tokens, ...importedTokens], [tokens, importedTokens]);
 
-  const defaultToken = {
-    decimals: undefined,
-    address: '',
-    logo: '',
-    symbol: '',
-  };
-  const { address: token0Address } = pool === 'loading' ? defaultToken : pool.token0;
-  const { address: token1Address } = pool === 'loading' ? defaultToken : pool.token1;
+  const { address: token0Address } = initializing ? defaultToken : pool.token0;
+  const { address: token1Address } = initializing ? defaultToken : pool.token1;
 
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [unImportedTokens, setUnImportedTokens] = useState<Token[]>([]);
@@ -322,7 +316,7 @@ export default function TokenSelector({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tokensIn, amountsIn]);
 
-  if (pool === 'loading') return null;
+  if (initializing) return null;
 
   return (
     <div className="w-full mx-auto text-white overflow-hidden">

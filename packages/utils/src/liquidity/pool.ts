@@ -2,18 +2,22 @@ import {
   API_URLS,
   ChainId,
   NATIVE_TOKEN_ADDRESS,
+  Pool,
   PoolType,
   Token,
   poolResponse,
   univ2Pool,
+  univ2PoolNormalize,
   univ2Types,
   univ3Pool,
+  univ3PoolNormalize,
   univ3Types,
   univ4Types,
 } from '@kyber/schema';
 
+import { divideBigIntToString } from '../number';
 import { fetchTokenPrice } from '../services';
-import { MAX_TICK, MIN_TICK, nearestUsableTick } from '../uniswapv3';
+import { MAX_TICK, MIN_TICK, nearestUsableTick, tickToPrice } from '../uniswapv3';
 
 export enum POOL_ERROR {
   CANT_GET_POOL_INFO = "Can't get pool info",
@@ -244,4 +248,26 @@ const getPoolCategory = async ({
   ).then(res => res.json() as Promise<{ data: { category: string } }>);
 
   return pairCheck?.data?.category || 'commonPair';
+};
+
+export const getPoolPrice = ({ pool, revertPrice }: { pool: Pool | 'loading' | null; revertPrice: boolean }) => {
+  if (pool === 'loading' || !pool) return null;
+
+  const { success: isUniV3, data: uniV3PoolInfo } = univ3PoolNormalize.safeParse(pool);
+  const { success: isUniV2, data: uniV2PoolInfo } = univ2PoolNormalize.safeParse(pool);
+
+  if (isUniV3)
+    return +tickToPrice(uniV3PoolInfo.tick, uniV3PoolInfo.token0.decimals, uniV3PoolInfo.token1.decimals, revertPrice);
+
+  if (isUniV2) {
+    const price = +divideBigIntToString(
+      BigInt(uniV2PoolInfo.reserves[1]) * 10n ** BigInt(uniV2PoolInfo.token0.decimals),
+      BigInt(uniV2PoolInfo.reserves[0]) * 10n ** BigInt(uniV2PoolInfo.token1.decimals),
+      18,
+    );
+
+    return revertPrice ? 1 / price : price;
+  }
+
+  return null;
 };

@@ -10,11 +10,13 @@ import {
   NETWORKS_INFO,
   Token,
   ZERO_ADDRESS,
+  ZapRouteDetail,
   univ3Position,
   univ3Types,
   univ4Types,
 } from '@kyber/schema';
 import { parseUnits } from '@kyber/utils/crypto';
+import { formatNumber, formatWei } from '@kyber/utils/number';
 import { tickToPrice } from '@kyber/utils/uniswapv3';
 
 import { ERROR_MESSAGE } from '@/constants';
@@ -22,8 +24,8 @@ import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
 import { useTokenStore } from '@/stores/useTokenStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
-import { ZapRouteDetail } from '@/types/zapRoute';
-import { formatNumber, formatWei, parseTokensAndAmounts, validateData } from '@/utils';
+import { ZapState } from '@/types/index';
+import { parseTokensAndAmounts, validateData } from '@/utils';
 
 const ZapContext = createContext<{
   tickLower: number | null;
@@ -44,6 +46,7 @@ const ZapContext = createContext<{
     [key: string]: bigint;
   };
   tokenPrices: { [key: string]: number };
+  snapshotState: ZapState | null;
   setTokensIn: (_value: Token[]) => void;
   setAmountsIn: (_value: string) => void;
   setTickLower: (_value: number) => void;
@@ -54,6 +57,7 @@ const ZapContext = createContext<{
   setShowSeting: (_val: boolean) => void;
   setDegenMode: (_val: boolean) => void;
   setManualSlippage: (_val: boolean) => void;
+  setSnapshotState: (_val: ZapState | null) => void;
 }>({
   highlightDegenMode: false,
   tickLower: null,
@@ -71,6 +75,7 @@ const ZapContext = createContext<{
   degenMode: false,
   balanceTokens: {},
   tokenPrices: {},
+  snapshotState: null,
   setTokensIn: (_value: Token[]) => {},
   setAmountsIn: (_value: string) => {},
   setTickLower: (_value: number) => {},
@@ -81,6 +86,7 @@ const ZapContext = createContext<{
   setShowSeting: (_val: boolean) => {},
   setDegenMode: (_val: boolean) => {},
   setManualSlippage: (_val: boolean) => {},
+  setSnapshotState: (_val: ZapState | null) => {},
 });
 
 export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
@@ -94,6 +100,8 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
     poolType,
     poolAddress,
     connectedAccount,
+    nativeToken,
+    wrappedNativeToken,
   } = useWidgetStore(
     useShallow(s => ({
       chainId: s.chainId,
@@ -105,6 +113,8 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
       poolType: s.poolType,
       poolAddress: s.poolAddress,
       connectedAccount: s.connectedAccount,
+      nativeToken: s.nativeToken,
+      wrappedNativeToken: s.wrappedNativeToken,
     })),
   );
   const { positionId, position } = usePositionStore(
@@ -150,6 +160,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
   const [degenMode, setDegenMode] = useState(false);
   const [highlightDegenMode, setHighlightDegenMode] = useState(false);
   const [defaultRevertChecked, setDefaultRevertChecked] = useState(false);
+  const [snapshotState, setSnapshotState] = useState<ZapState | null>(null);
 
   const debounceTickLower = useDebounce(tickLower, 300);
   const debounceTickUpper = useDebounce(tickUpper, 300);
@@ -189,17 +200,6 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
     ),
     chainId,
   });
-
-  const nativeToken = useMemo(
-    () => ({
-      address: NATIVE_TOKEN_ADDRESS,
-      decimals: NETWORKS_INFO[chainId].wrappedToken?.decimals,
-      symbol: NETWORKS_INFO[chainId].wrappedToken.symbol.slice(1) || '',
-      logo: NETWORKS_INFO[chainId].nativeLogo,
-    }),
-    [chainId],
-  );
-  const wrappedNativeToken = NETWORKS_INFO[chainId].wrappedToken;
 
   const priceLower = useMemo(() => {
     if (initializing || tickLower == null) return null;
@@ -289,8 +289,8 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
     }
 
     // with balance
-    const isToken0Native = pool?.token0.address.toLowerCase() === wrappedNativeToken.address.toLowerCase();
-    const isToken1Native = pool?.token1.address.toLowerCase() === wrappedNativeToken.address.toLowerCase();
+    const isToken0Native = pool?.token0.address.toLowerCase() === wrappedNativeToken?.address.toLowerCase();
+    const isToken1Native = pool?.token1.address.toLowerCase() === wrappedNativeToken?.address.toLowerCase();
 
     const token0Address = isToken0Native ? NATIVE_TOKEN_ADDRESS : pool.token0.address.toLowerCase();
     const token1Address = isToken1Native ? NATIVE_TOKEN_ADDRESS : pool.token1.address.toLowerCase();
@@ -325,18 +325,18 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
     allTokens,
     initAmounts,
     account,
-    wrappedNativeToken.address,
+    wrappedNativeToken?.address,
     initializing,
   ]);
 
   useEffect(() => {
     if (initializing || defaultRevertChecked) return;
     setDefaultRevertChecked(true);
-    const isToken0Native = pool.token0.address.toLowerCase() === wrappedNativeToken.address.toLowerCase();
+    const isToken0Native = pool.token0.address.toLowerCase() === wrappedNativeToken?.address.toLowerCase();
     const isToken0Stable = pool.token0.isStable;
     const isToken1Stable = pool.token1.isStable;
     if (isToken0Stable || (isToken0Native && !isToken1Stable)) setRevertPrice(true);
-  }, [defaultRevertChecked, initializing, pool, setRevertPrice, wrappedNativeToken.address]);
+  }, [defaultRevertChecked, initializing, pool, setRevertPrice, wrappedNativeToken?.address]);
 
   useEffect(() => {
     if (
@@ -474,6 +474,8 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
         tokenPrices,
         highlightDegenMode,
         setManualSlippage,
+        snapshotState,
+        setSnapshotState,
       }}
     >
       {children}

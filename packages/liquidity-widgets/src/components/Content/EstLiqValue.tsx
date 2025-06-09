@@ -2,10 +2,10 @@ import { useMemo } from 'react';
 
 import { useShallow } from 'zustand/shallow';
 
-import { API_URLS, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO } from '@kyber/schema';
+import { API_URLS, defaultToken } from '@kyber/schema';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, InfoHelper, MouseoverTooltip } from '@kyber/ui';
-import { formatUnits } from '@kyber/utils/crypto';
-import { formatDisplayNumber, toRawString } from '@kyber/utils/number';
+import { PI_LEVEL, getSwapPriceImpactFromActions, parseSwapActions, parseZapInfo } from '@kyber/utils';
+import { formatCurrency, formatDisplayNumber, formatNumber } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
 import defaultTokenLogo from '@/assets/svg/question.svg?url';
@@ -14,23 +14,16 @@ import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
-import {
-  AddLiquidityAction,
-  AggregatorSwapAction,
-  PartnerFeeAction,
-  PoolSwapAction,
-  ProtocolFeeAction,
-  RefundAction,
-  ZapAction,
-} from '@/types/zapRoute';
-import { PI_LEVEL, formatCurrency, formatNumber, getPriceImpact } from '@/utils';
 
 export default function EstLiqValue() {
-  const { theme, chainId, source } = useWidgetStore(
+  const { theme, chainId, source, poolType, wrappedNativeToken, nativeToken } = useWidgetStore(
     useShallow(s => ({
       theme: s.theme,
       chainId: s.chainId,
       source: s.source,
+      poolType: s.poolType,
+      wrappedNativeToken: s.wrappedNativeToken,
+      nativeToken: s.nativeToken,
     })),
   );
   const { zapInfo, slippage, tokensIn } = useZapState();
@@ -42,193 +35,42 @@ export default function EstLiqValue() {
     })),
   );
 
-  const addLiquidityInfo = zapInfo?.zapDetails.actions.find(item => item.type === ZapAction.ADD_LIQUIDITY) as
-    | AddLiquidityAction
-    | undefined;
-
-  const defaultToken = {
-    decimals: undefined,
-    address: '',
-    logo: '',
-    symbol: '',
-  };
+  const { token0, token1 } = pool === 'loading' ? { token0: defaultToken, token1: defaultToken } : pool;
   const {
-    decimals: token0Decimals,
-    address: token0Address,
-    logo: logo0,
-    symbol: symbol0,
-  } = pool === 'loading' ? defaultToken : pool.token0;
-  const {
-    decimals: token1Decimals,
-    address: token1Address,
-    logo: logo1,
-    symbol: symbol1,
-  } = pool === 'loading' ? defaultToken : pool.token1;
+    refundInfo,
+    addedAmountInfo,
+    initUsd,
+    suggestedSlippage,
+    isHighRemainingAmount,
+    feeInfo,
+    positionAmountInfo,
+    zapImpact,
+  } = parseZapInfo({ zapInfo, token0, token1, position });
 
-  const addedAmount0 = formatUnits(addLiquidityInfo?.addLiquidity.token0.amount || '0', token0Decimals);
-  const addedAmount1 = formatUnits(addLiquidityInfo?.addLiquidity.token1.amount || '0', token1Decimals);
-
-  const refundInfo = zapInfo?.zapDetails.actions.find(item => item.type === ZapAction.REFUND) as RefundAction | null;
-  const refundToken0 =
-    refundInfo?.refund.tokens.filter(item => item.address.toLowerCase() === token0Address?.toLowerCase()) || [];
-  const refundToken1 =
-    refundInfo?.refund.tokens.filter(item => item.address.toLowerCase() === token1Address?.toLowerCase()) || [];
-
-  const refundAmount0 = formatDisplayNumber(
-    formatUnits(refundToken0.reduce((acc, cur) => acc + BigInt(cur.amount), 0n).toString(), token0Decimals),
-    { significantDigits: 6 },
+  const tokensToCheck = useMemo(
+    () => [...tokensIn, token0, token1, wrappedNativeToken, nativeToken],
+    [tokensIn, token0, token1, wrappedNativeToken, nativeToken],
   );
-
-  const refundAmount1 = formatDisplayNumber(
-    formatUnits(refundToken1.reduce((acc, cur) => acc + BigInt(cur.amount), 0n).toString(), token1Decimals),
-    { significantDigits: 6 },
-  );
-
-  const refundUsd = refundInfo?.refund.tokens.reduce((acc, cur) => acc + +cur.amountUsd, 0) || 0;
-  const initUsd = Number(zapInfo?.zapDetails.initialAmountUsd || 0);
-  const suggestedSlippage = (zapInfo?.zapDetails.suggestedSlippage || 100) / 10_000;
-  const isHighRemainingAmount = initUsd ? refundUsd / initUsd >= suggestedSlippage : false;
-
-  const feeInfo = zapInfo?.zapDetails.actions.find(item => item.type === ZapAction.PROTOCOL_FEE) as
-    | ProtocolFeeAction
-    | undefined;
-
-  const partnerFeeInfo = zapInfo?.zapDetails.actions.find(item => item.type === ZapAction.PARTNET_FEE) as
-    | PartnerFeeAction
-    | undefined;
-
-  const protocolFee = ((feeInfo?.protocolFee.pcm || 0) / 100_000) * 100;
-  const partnerFee = ((partnerFeeInfo?.partnerFee.pcm || 0) / 100_000) * 100;
-
-  const piRes = getPriceImpact(
-    zapInfo?.zapDetails.priceImpact,
-    'Zap Impact',
-    zapInfo?.zapDetails.suggestedSlippage || 100,
-  );
-
-  const swapPi = useMemo(() => {
-    const aggregatorSwapInfo = zapInfo?.zapDetails.actions.find(
-      item => item.type === ZapAction.AGGREGATOR_SWAP,
-    ) as AggregatorSwapAction | null;
-
-    const poolSwapInfo = zapInfo?.zapDetails.actions.find(
-      item => item.type === ZapAction.POOL_SWAP,
-    ) as PoolSwapAction | null;
-
-    if (pool === 'loading') return [];
-
-    const tokens = [
-      ...tokensIn,
-      pool.token0,
-      pool.token1,
-      NETWORKS_INFO[chainId].wrappedToken,
-      {
-        name: 'ETH',
-        address: NATIVE_TOKEN_ADDRESS,
-        symbol: 'ETH',
-        decimals: 18,
-      },
-    ];
-
-    const parsedAggregatorSwapInfo =
-      aggregatorSwapInfo?.aggregatorSwap?.swaps?.map(item => {
-        const tokenIn = tokens.find(token => token.address.toLowerCase() === item.tokenIn.address.toLowerCase());
-        const tokenOut = tokens.find(token => token.address.toLowerCase() === item.tokenOut.address.toLowerCase());
-        const amountIn = formatUnits(item.tokenIn.amount || 0, tokenIn?.decimals);
-        const amountOut = formatUnits(item.tokenOut.amount || 0, tokenOut?.decimals);
-
-        const pi =
-          parseFloat(item.tokenIn.amountUsd) === 0
-            ? 0
-            : ((parseFloat(item.tokenIn.amountUsd) - parseFloat(item.tokenOut.amountUsd)) /
-                parseFloat(item.tokenIn.amountUsd)) *
-              100;
-
-        const piRes = getPriceImpact(pi, 'Swap Price Impact', zapInfo?.zapDetails.suggestedSlippage || 100);
-
-        return {
-          tokenInSymbol: tokenIn?.symbol || '--',
-          tokenOutSymbol: tokenOut?.symbol || '--',
-          amountIn,
-          amountOut,
-          piRes,
-        };
-      }) || [];
-
-    const parsedPoolSwapInfo =
-      poolSwapInfo?.poolSwap?.swaps?.map(item => {
-        const tokenIn = tokens.find(token => token.address.toLowerCase() === item.tokenIn.address.toLowerCase());
-
-        const tokenOut = tokens.find(token => token.address.toLowerCase() === item.tokenOut.address.toLowerCase());
-
-        const amountIn = formatUnits(item.tokenIn.amount || 0, tokenIn?.decimals);
-        const amountOut = formatUnits(item.tokenOut.amount || 0, tokenOut?.decimals);
-
-        const pi =
-          parseFloat(item.tokenIn.amountUsd) === 0
-            ? 0
-            : ((parseFloat(item.tokenIn.amountUsd) - parseFloat(item.tokenOut.amountUsd)) /
-                parseFloat(item.tokenIn.amountUsd)) *
-              100;
-        const piRes = getPriceImpact(pi, 'Swap Price Impact', zapInfo?.zapDetails.suggestedSlippage || 100);
-
-        return {
-          tokenInSymbol: tokenIn?.symbol || '--',
-          tokenOutSymbol: tokenOut?.symbol || '--',
-          amountIn,
-          amountOut,
-          piRes,
-        };
-      }) || [];
-
-    return parsedAggregatorSwapInfo.concat(parsedPoolSwapInfo);
-  }, [zapInfo?.zapDetails.actions, zapInfo?.zapDetails.suggestedSlippage, pool, tokensIn, chainId]);
-
-  const swapPiRes = useMemo(() => {
-    const invalidRes = swapPi.find(item => item.piRes.level === PI_LEVEL.INVALID);
-    if (invalidRes) return invalidRes;
-
-    const highRes = swapPi.find(item => item.piRes.level === PI_LEVEL.HIGH);
-    if (highRes) return highRes;
-
-    const veryHighRes = swapPi.find(item => item.piRes.level === PI_LEVEL.VERY_HIGH);
-    if (veryHighRes) return veryHighRes;
-
-    return { piRes: { level: PI_LEVEL.NORMAL, msg: '' } };
-  }, [swapPi]);
-
-  const amount0 =
-    position === 'loading' || pool === 'loading' || !pool.token0?.decimals || !position
-      ? 0
-      : +toRawString(position.amount0, pool.token0.decimals);
-  const amount1 =
-    position === 'loading' || pool === 'loading' || !pool.token1.decimals || !position
-      ? 0
-      : +toRawString(position.amount1, pool.token1.decimals);
-
-  const positionAmount0Usd = (amount0 * +(addLiquidityInfo?.addLiquidity.token0.amountUsd || 0)) / +addedAmount0 || 0;
-
-  const positionAmount1Usd = (amount1 * +(addLiquidityInfo?.addLiquidity.token1.amountUsd || 0)) / +addedAmount1 || 0;
-
-  const addedAmountUsd = +(zapInfo?.positionDetails.addedAmountUsd || 0) + positionAmount0Usd + positionAmount1Usd || 0;
+  const swapActions = parseSwapActions({ zapInfo, tokens: tokensToCheck, poolType, chainId });
+  const swapPriceImpact = getSwapPriceImpactFromActions(swapActions);
 
   return (
     <>
       <div className="border border-stroke rounded-md py-3 px-4">
         <div className="text-sm mb-1 flex justify-between">
           Est. Liquidity Value
-          {!!addedAmountUsd && <span>{formatCurrency(addedAmountUsd)}</span>}
+          {!!positionAmountInfo.addedAmountUsd && <span>{formatCurrency(positionAmountInfo.addedAmountUsd)}</span>}
         </div>
         <div className="ks-lw-divider" />
 
         <div className="flex justify-between items-start mt-3 text-xs">
-          <div className="text-subText mt-[2px] w-fit">Est. Pooled {symbol0}</div>
+          <div className="text-subText mt-[2px] w-fit">Est. Pooled {token0.symbol}</div>
           {zapInfo ? (
             <div>
               <div className="flex justify-end items-start gap-1">
-                {logo0 && (
+                {token0.logo && (
                   <img
-                    src={logo0}
+                    src={token0.logo}
                     width="14px"
                     className="mt-[2px] rounded-full"
                     onError={({ currentTarget }) => {
@@ -238,17 +80,18 @@ export default function EstLiqValue() {
                   />
                 )}
                 <div className="text-end">
-                  {formatNumber(positionId !== undefined ? amount0 : +addedAmount0)} {symbol0}
+                  {formatNumber(positionId !== undefined ? positionAmountInfo.amount0 : addedAmountInfo.addedAmount0)}{' '}
+                  {token0.symbol}
                 </div>
               </div>
               {positionId && (
                 <div className="text-end">
-                  + {formatNumber(+addedAmount0)} {symbol0}
+                  + {formatNumber(addedAmountInfo.addedAmount0)} {token0.symbol}
                 </div>
               )}
 
               <div className="text-subText mt-[2px] w-fit ml-auto">
-                ~{formatCurrency(+(addLiquidityInfo?.addLiquidity.token0.amountUsd || 0) + positionAmount0Usd)}
+                ~{formatCurrency(addedAmountInfo.addedAmount0Usd + positionAmountInfo.positionAmount0Usd)}
               </div>
             </div>
           ) : (
@@ -257,13 +100,13 @@ export default function EstLiqValue() {
         </div>
 
         <div className="flex justify-between items-start mt-3 text-xs">
-          <div className="text-subText mt-[2px] w-fit">Est. Pooled {symbol1}</div>
+          <div className="text-subText mt-[2px] w-fit">Est. Pooled {token1.symbol}</div>
           {zapInfo ? (
             <div>
               <div className="flex justify-end items-start gap-1">
-                {logo1 && (
+                {token1.logo && (
                   <img
-                    src={logo1}
+                    src={token1.logo}
                     width="14px"
                     className="mt-[2px] rounded-full"
                     onError={({ currentTarget }) => {
@@ -273,17 +116,18 @@ export default function EstLiqValue() {
                   />
                 )}
                 <div className="text-end">
-                  {formatNumber(positionId !== undefined ? amount1 : +addedAmount1)} {symbol1}
+                  {formatNumber(positionId !== undefined ? positionAmountInfo.amount1 : addedAmountInfo.addedAmount1)}{' '}
+                  {token1.symbol}
                 </div>
               </div>
               {positionId && (
                 <div className="text-end">
-                  + {formatNumber(+addedAmount1)} {symbol1}
+                  + {formatNumber(addedAmountInfo.addedAmount1)} {token1.symbol}
                 </div>
               )}
 
               <div className="text-subText mt-[2px] w-fit ml-auto">
-                ~{formatCurrency(+(addLiquidityInfo?.addLiquidity.token1.amountUsd || 0) + positionAmount1Usd)}
+                ~{formatCurrency(addedAmountInfo.addedAmount1Usd + positionAmountInfo.positionAmount1Usd)}
               </div>
             </div>
           ) : (
@@ -302,15 +146,15 @@ export default function EstLiqValue() {
           </MouseoverTooltip>
 
           <div>
-            {formatCurrency(refundUsd)}
+            {formatCurrency(refundInfo.refundUsd)}
             <InfoHelper
               text={
                 <div>
                   <div>
-                    {refundAmount0} {symbol0}{' '}
+                    {refundInfo.refundAmount0} {token0.symbol}{' '}
                   </div>
                   <div>
-                    {refundAmount1} {symbol1}
+                    {refundInfo.refundAmount1} {token1.symbol}
                   </div>
                 </div>
               }
@@ -319,16 +163,16 @@ export default function EstLiqValue() {
         </div>
 
         <div className="flex justify-between items-start mt-3 text-xs">
-          {swapPi.length ? (
+          {swapActions.length ? (
             <Accordion type="single" collapsible className="w-full">
               <AccordionItem value="item-1">
                 <AccordionTrigger>
                   <MouseoverTooltip text="View all the detailed estimated price impact of each swap" width="220px">
                     <div
                       className={`text-subText mt-[2px] w-fit border-b border-dotted border-subText text-xs ${
-                        swapPiRes.piRes.level === PI_LEVEL.NORMAL
+                        swapPriceImpact.piRes.level === PI_LEVEL.NORMAL
                           ? ''
-                          : swapPiRes.piRes.level === PI_LEVEL.HIGH
+                          : swapPriceImpact.piRes.level === PI_LEVEL.HIGH
                             ? '!text-warning !border-warning'
                             : '!text-error !border-error'
                       }`}
@@ -338,7 +182,7 @@ export default function EstLiqValue() {
                   </MouseoverTooltip>
                 </AccordionTrigger>
                 <AccordionContent>
-                  {swapPi.map((item, index: number) => (
+                  {swapActions.map((item, index: number) => (
                     <div
                       className={`text-xs flex justify-between align-middle ${
                         item.piRes.level === PI_LEVEL.NORMAL
@@ -383,7 +227,7 @@ export default function EstLiqValue() {
         <SlippageWarning
           className="mt-3 text-xs"
           slippage={slippage}
-          suggestedSlippage={zapInfo?.zapDetails.suggestedSlippage || 100}
+          suggestedSlippage={suggestedSlippage}
           showWarning={!!zapInfo}
         />
 
@@ -396,9 +240,9 @@ export default function EstLiqValue() {
               className={cn(
                 'text-subText mt-[2px] w-fit border-b border-dotted border-subText',
                 zapInfo
-                  ? piRes.level === PI_LEVEL.VERY_HIGH || piRes.level === PI_LEVEL.INVALID
+                  ? zapImpact.level === PI_LEVEL.VERY_HIGH || zapImpact.level === PI_LEVEL.INVALID
                     ? 'border-error text-error'
-                    : piRes.level === PI_LEVEL.HIGH
+                    : zapImpact.level === PI_LEVEL.HIGH
                       ? 'border-warning text-warning'
                       : 'border-subText'
                   : '',
@@ -410,14 +254,14 @@ export default function EstLiqValue() {
           {zapInfo ? (
             <div
               className={
-                piRes.level === PI_LEVEL.VERY_HIGH || piRes.level === PI_LEVEL.INVALID
+                zapImpact.level === PI_LEVEL.VERY_HIGH || zapImpact.level === PI_LEVEL.INVALID
                   ? 'text-error'
-                  : piRes.level === PI_LEVEL.HIGH
+                  : zapImpact.level === PI_LEVEL.HIGH
                     ? 'text-warning'
                     : 'text-text'
               }
             >
-              {piRes.display}
+              {zapImpact.display}
             </div>
           ) : (
             '--'
@@ -447,14 +291,14 @@ export default function EstLiqValue() {
 
           <MouseoverTooltip
             text={
-              partnerFee
-                ? `${parseFloat(protocolFee.toFixed(3))}% Protocol Fee + ${parseFloat(
-                    partnerFee.toFixed(3),
+              feeInfo.partnerFee
+                ? `${parseFloat(feeInfo.protocolFee.toFixed(3))}% Protocol Fee + ${parseFloat(
+                    feeInfo.partnerFee.toFixed(3),
                   )}% Fee for ${source}`
                 : ''
             }
           >
-            <div>{feeInfo ? parseFloat((protocolFee + partnerFee).toFixed(3)) + '%' : '--'}</div>
+            <div>{parseFloat((feeInfo.protocolFee + feeInfo.partnerFee).toFixed(3)) + '%'}</div>
           </MouseoverTooltip>
         </div>
       </div>
@@ -464,34 +308,34 @@ export default function EstLiqValue() {
           className="rounded-md text-xs py-3 px-4 mt-4 font-normal leading-[18px] text-warning"
           style={{ background: `${theme.warning}33` }}
         >
-          {((refundUsd * 100) / initUsd).toFixed(2)}% of your input remains unused. Consider refreshing or changing your
-          input amount to get updated routes.
+          {((refundInfo.refundUsd * 100) / initUsd).toFixed(2)}% of your input remains unused. Consider refreshing or
+          changing your input amount to get updated routes.
         </div>
       )}
 
-      {zapInfo && swapPiRes.piRes.level !== PI_LEVEL.NORMAL && (
+      {zapInfo && swapPriceImpact.piRes.level !== PI_LEVEL.NORMAL && (
         <div
           className={`rounded-md text-xs py-3 px-4 mt-4 font-normal leading-[18px] ${
-            swapPiRes.piRes.level === PI_LEVEL.HIGH ? 'text-warning' : 'text-error'
+            swapPriceImpact.piRes.level === PI_LEVEL.HIGH ? 'text-warning' : 'text-error'
           }`}
           style={{
-            backgroundColor: swapPiRes.piRes.level === PI_LEVEL.HIGH ? `${theme.warning}33` : `${theme.error}33`,
+            backgroundColor: swapPriceImpact.piRes.level === PI_LEVEL.HIGH ? `${theme.warning}33` : `${theme.error}33`,
           }}
         >
-          {swapPiRes.piRes.msg}
+          {swapPriceImpact.piRes.msg}
         </div>
       )}
 
-      {zapInfo && piRes.level !== PI_LEVEL.NORMAL && (
+      {zapInfo && zapImpact.level !== PI_LEVEL.NORMAL && (
         <div
           className={`rounded-md text-xs py-3 px-4 mt-4 font-normal leading-[18px] ${
-            piRes.level === PI_LEVEL.HIGH ? 'text-warning' : 'text-error'
+            zapImpact.level === PI_LEVEL.HIGH ? 'text-warning' : 'text-error'
           }`}
           style={{
-            backgroundColor: piRes.level === PI_LEVEL.HIGH ? `${theme.warning}33` : `${theme.error}33`,
+            backgroundColor: zapImpact.level === PI_LEVEL.HIGH ? `${theme.warning}33` : `${theme.error}33`,
           }}
         >
-          {piRes.msg}
+          {zapImpact.msg}
         </div>
       )}
     </>

@@ -1,9 +1,7 @@
 import { create } from 'zustand';
 
-import { Pool, PoolType, univ2PoolNormalize, univ3PoolNormalize } from '@kyber/schema';
-import { POOL_ERROR, PoolStatInfo, fetchPoolStat, getPoolInfo } from '@kyber/utils';
-import { divideBigIntToString } from '@kyber/utils/number';
-import { tickToPrice } from '@kyber/utils/uniswapv3';
+import { Pool, PoolType } from '@kyber/schema';
+import { POOL_ERROR, PoolStatInfo, fetchPoolStat, getPoolInfo, getPoolPrice } from '@kyber/utils';
 
 interface PoolState {
   poolLoading: boolean;
@@ -68,31 +66,9 @@ export const usePoolStore = create<PoolState>((set, get) => ({
   },
   getPoolPrice: () => {
     const { pool, revertPrice } = get();
-    if (pool === 'loading') return null;
+    const price = getPoolPrice({ pool, revertPrice });
 
-    const { success: isUniV3, data: uniV3PoolInfo } = univ3PoolNormalize.safeParse(pool);
-    const { success: isUniV2, data: uniV2PoolInfo } = univ2PoolNormalize.safeParse(pool);
-
-    if (isUniV3) {
-      set({
-        poolPrice: +tickToPrice(
-          uniV3PoolInfo.tick,
-          uniV3PoolInfo.token0.decimals,
-          uniV3PoolInfo.token1.decimals,
-          revertPrice,
-        ),
-      });
-      return;
-    }
-
-    if (isUniV2) {
-      const price = +divideBigIntToString(
-        BigInt(uniV2PoolInfo.reserves[1]) * 10n ** BigInt(uniV2PoolInfo.token0?.decimals),
-        BigInt(uniV2PoolInfo.reserves[0]) * 10n ** BigInt(uniV2PoolInfo.token1?.decimals),
-        18,
-      );
-      set({ poolPrice: revertPrice ? 1 / price : price });
-    }
+    if (price !== null) set({ poolPrice: price });
   },
   setRevertPrice: (revertPrice: boolean) => set({ revertPrice }),
   toggleRevertPrice: () => set(state => ({ revertPrice: !state.revertPrice })),

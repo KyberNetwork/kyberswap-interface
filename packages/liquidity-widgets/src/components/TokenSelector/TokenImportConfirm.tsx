@@ -1,5 +1,6 @@
 import { Token } from '@kyber/schema';
 import { Button } from '@kyber/ui';
+import { getEtherscanLink } from '@kyber/utils';
 
 import IconAlertTriangle from '@/assets/svg/alert-triangle.svg';
 import IconBack from '@/assets/svg/arrow-left.svg';
@@ -12,7 +13,6 @@ import useCopy from '@/hooks/useCopy';
 import { useZapState } from '@/hooks/useZapState';
 import { useTokenStore } from '@/stores/useTokenStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
-import { getEtherscanLink } from '@/utils';
 
 import { TOKEN_SELECT_MODE } from '.';
 

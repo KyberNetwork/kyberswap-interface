@@ -2,19 +2,11 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { useShallow } from 'zustand/shallow';
 
-import {
-  API_URLS,
-  CHAIN_ID_TO_CHAIN,
-  DEXES_INFO,
-  NATIVE_TOKEN_ADDRESS,
-  NETWORKS_INFO,
-  Pool,
-  Token,
-  univ2PoolNormalize,
-  univ3PoolNormalize,
-} from '@kyber/schema';
+import { API_URLS, CHAIN_ID_TO_CHAIN, DEXES_INFO, NETWORKS_INFO, univ3PoolNormalize } from '@kyber/schema';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, InfoHelper, MouseoverTooltip } from '@kyber/ui';
-import { fetchTokenPrice } from '@kyber/utils';
+import { fetchTokenPrice, getSwapPriceImpactFromActions, parseSwapActions, parseZapInfo } from '@kyber/utils';
+import { friendlyError } from '@kyber/utils';
+import { PI_LEVEL } from '@kyber/utils';
 import {
   calculateGasMargin,
   estimateGas,
@@ -22,7 +14,7 @@ import {
   getCurrentGasPrice,
   isTransactionSuccessful,
 } from '@kyber/utils/crypto';
-import { divideBigIntToString, formatDisplayNumber, toRawString } from '@kyber/utils/number';
+import { formatCurrency, formatDisplayNumber, formatNumber } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
 import { tickToPrice } from '@kyber/utils/uniswapv3';
 
@@ -38,36 +30,8 @@ import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
-import {
-  AddLiquidityAction,
-  AggregatorSwapAction,
-  PoolSwapAction,
-  ProtocolFeeAction,
-  RefundAction,
-  ZapAction,
-  ZapRouteDetail,
-} from '@/types/zapRoute';
-import {
-  PI_LEVEL,
-  formatCurrency,
-  formatNumber,
-  formatWei,
-  friendlyError,
-  getPriceImpact,
-  parseTokensAndAmounts,
-} from '@/utils';
-
-export interface ZapState {
-  pool: Pool;
-  zapInfo: ZapRouteDetail;
-  tokensIn: Token[];
-  amountsIn: string;
-  deadline: number;
-  isFullRange: boolean;
-  slippage: number;
-  tickLower: number;
-  tickUpper: number;
-}
+import { ZapState } from '@/types/index';
+import { parseTokensAndAmounts } from '@/utils';
 
 export interface PreviewProps {
   zapState: ZapState;
@@ -78,7 +42,18 @@ export default function Preview({
   zapState: { pool, zapInfo, deadline, slippage, tickLower, tickUpper },
   onDismiss,
 }: PreviewProps) {
-  const { poolType, chainId, connectedAccount, theme, onSubmitTx, onViewPosition, referral, source } = useWidgetStore(
+  const {
+    poolType,
+    chainId,
+    connectedAccount,
+    theme,
+    onSubmitTx,
+    onViewPosition,
+    referral,
+    source,
+    wrappedNativeToken,
+    nativeToken,
+  } = useWidgetStore(
     useShallow(s => ({
       poolType: s.poolType,
       chainId: s.chainId,
@@ -88,6 +63,8 @@ export default function Preview({
       onViewPosition: s.onViewPosition,
       referral: s.referral,
       source: s.source,
+      wrappedNativeToken: s.wrappedNativeToken,
+      nativeToken: s.nativeToken,
     })),
   );
   const { positionId, position } = usePositionStore(
@@ -96,14 +73,12 @@ export default function Preview({
       position: s.position,
     })),
   );
-  const { revertPrice, toggleRevertPrice } = usePoolStore(
-    useShallow(s => ({ revertPrice: s.revertPrice, toggleRevertPrice: s.toggleRevertPrice })),
+  const { revertPrice, toggleRevertPrice, poolPrice } = usePoolStore(
+    useShallow(s => ({ revertPrice: s.revertPrice, toggleRevertPrice: s.toggleRevertPrice, poolPrice: s.poolPrice })),
   );
 
   const { address: account } = connectedAccount;
-
   const { tokensIn, amountsIn, tokenPrices } = useZapState();
-
   const { tokensIn: listValidTokensIn, amountsIn: listValidAmountsIn } = parseTokensAndAmounts(tokensIn, amountsIn);
 
   const [txHash, setTxHash] = useState('');
@@ -134,71 +109,13 @@ export default function Preview({
     }
   }, [chainId, txHash]);
 
-  const addedLiqInfo = useMemo(
-    () => zapInfo.zapDetails.actions.find(item => item.type === ZapAction.ADD_LIQUIDITY),
-    [zapInfo.zapDetails.actions],
-  ) as AddLiquidityAction;
-
-  const addedAmount0 = useMemo(
-    () => formatUnits(addedLiqInfo?.addLiquidity.token0.amount, pool.token0?.decimals),
-    [addedLiqInfo?.addLiquidity.token0.amount, pool],
-  );
-
-  const addedAmount1 = useMemo(
-    () => formatUnits(addedLiqInfo?.addLiquidity.token1.amount, pool.token1?.decimals),
-    [addedLiqInfo?.addLiquidity.token1.amount, pool],
-  );
-
-  const amount0 = position === 'loading' || !position ? 0 : +toRawString(position.amount0, pool.token0?.decimals);
-  const amount1 = position === 'loading' || !position ? 0 : +toRawString(position.amount1, pool.token1?.decimals);
-
-  const positionAmount0Usd = useMemo(
-    () => (amount0 * +(addedLiqInfo?.addLiquidity.token0.amountUsd || 0)) / +addedAmount0 || 0,
-    [addedAmount0, addedLiqInfo?.addLiquidity.token0.amountUsd, amount0],
-  );
-
-  const positionAmount1Usd = useMemo(
-    () => (amount1 * +(addedLiqInfo?.addLiquidity.token1.amountUsd || 0)) / +addedAmount1 || 0,
-    [addedAmount1, addedLiqInfo?.addLiquidity.token1.amountUsd, amount1],
-  );
-
-  const refundInfo = zapInfo.zapDetails.actions.find(item => item.type === ZapAction.REFUND) as RefundAction | null;
-
-  const refundToken0 =
-    refundInfo?.refund.tokens.filter(item => item.address.toLowerCase() === pool.token0.address.toLowerCase()) || [];
-  const refundToken1 =
-    refundInfo?.refund.tokens.filter(item => item.address.toLowerCase() === pool.token1.address.toLowerCase()) || [];
-
-  const refundAmount0 = formatWei(
-    refundToken0.reduce((acc, cur) => acc + BigInt(cur.amount), 0n).toString(),
-    pool.token0?.decimals,
-  );
-
-  const refundAmount1 = formatWei(
-    refundToken1.reduce((acc, cur) => acc + BigInt(cur.amount), 0n).toString(),
-    pool.token1?.decimals,
-  );
-
-  const refundUsd = refundInfo?.refund.tokens.reduce((acc, cur) => acc + +cur.amountUsd, 0) || 0;
-
-  const { success: isUniV2, data: uniV2Pool } = univ2PoolNormalize.safeParse(pool);
-  const univ2Price = isUniV2
-    ? +divideBigIntToString(
-        BigInt(uniV2Pool.reserves[1]) * 10n ** BigInt(uniV2Pool.token0?.decimals),
-        BigInt(uniV2Pool.reserves[0]) * 10n ** BigInt(uniV2Pool.token1?.decimals),
-        18,
-      )
-    : 0;
-
-  const price = isUniV3
-    ? formatDisplayNumber(tickToPrice(univ3Pool.tick, pool.token0?.decimals, pool.token1?.decimals, revertPrice), {
-        significantDigits: 6,
-      })
-    : isUniV2
-      ? formatDisplayNumber(revertPrice ? 1 / univ2Price : univ2Price, {
-          significantDigits: 6,
-        })
-      : '--';
+  const { token0, token1 } = pool;
+  const { refundInfo, addedAmountInfo, feeInfo, positionAmountInfo, zapImpact } = parseZapInfo({
+    zapInfo,
+    token0,
+    token1,
+    position,
+  });
 
   const priceRange = useMemo(() => {
     if (!univ3Pool) return null;
@@ -242,104 +159,12 @@ export default function Preview({
     </span>
   );
 
-  const feeInfo = zapInfo.zapDetails.actions.find(item => item.type === ZapAction.PROTOCOL_FEE) as
-    | ProtocolFeeAction
-    | undefined;
-
-  const zapFee = ((feeInfo?.protocolFee.pcm || 0) / 100_000) * 100;
-  const piRes = getPriceImpact(
-    zapInfo?.zapDetails.priceImpact,
-    'Zap Impact',
-    zapInfo?.zapDetails.suggestedSlippage || 100,
+  const tokensToCheck = useMemo(
+    () => [...tokensIn, token0, token1, wrappedNativeToken, nativeToken],
+    [tokensIn, token0, token1, wrappedNativeToken, nativeToken],
   );
-
-  const piVeryHigh = zapInfo && [PI_LEVEL.VERY_HIGH, PI_LEVEL.INVALID].includes(piRes.level);
-
-  const piHigh = zapInfo && piRes.level === PI_LEVEL.HIGH;
-
-  const swapPi = useMemo(() => {
-    const aggregatorSwapInfo = zapInfo?.zapDetails.actions.find(
-      item => item.type === ZapAction.AGGREGATOR_SWAP,
-    ) as AggregatorSwapAction | null;
-
-    const poolSwapInfo = zapInfo?.zapDetails.actions.find(
-      item => item.type === ZapAction.POOL_SWAP,
-    ) as PoolSwapAction | null;
-
-    if (!pool) return [];
-    const tokens = [
-      ...tokensIn,
-      pool.token0,
-      pool.token1,
-      NETWORKS_INFO[chainId].wrappedToken,
-      {
-        name: 'ETH',
-        address: NATIVE_TOKEN_ADDRESS,
-        symbol: 'ETH',
-        decimals: 18,
-      },
-    ];
-
-    const parsedAggregatorSwapInfo =
-      aggregatorSwapInfo?.aggregatorSwap?.swaps?.map(item => {
-        const tokenIn = tokens.find(token => token.address.toLowerCase() === item.tokenIn.address.toLowerCase());
-        const tokenOut = tokens.find(token => token.address.toLowerCase() === item.tokenOut.address.toLowerCase());
-        const amountIn = formatWei(item.tokenIn.amount, tokenIn?.decimals).replace(/,/g, '');
-        const amountOut = formatWei(item.tokenOut.amount, tokenOut?.decimals).replace(/,/g, '');
-
-        const pi =
-          ((parseFloat(item.tokenIn.amountUsd) - parseFloat(item.tokenOut.amountUsd)) /
-            parseFloat(item.tokenIn.amountUsd)) *
-          100;
-        const piRes = getPriceImpact(pi, 'Swap Price Impact', zapInfo?.zapDetails.suggestedSlippage || 100);
-
-        return {
-          tokenInSymbol: tokenIn?.symbol || '--',
-          tokenOutSymbol: tokenOut?.symbol || '--',
-          amountIn,
-          amountOut,
-          piRes,
-        };
-      }) || [];
-
-    const parsedPoolSwapInfo =
-      poolSwapInfo?.poolSwap?.swaps?.map(item => {
-        const tokenIn = tokens.find(token => token.address.toLowerCase() === item.tokenIn.address.toLowerCase());
-        const tokenOut = tokens.find(token => token.address.toLowerCase() === item.tokenOut.address.toLowerCase());
-        const amountIn = formatWei(item.tokenIn.amount, tokenIn?.decimals).replace(/,/g, '');
-        const amountOut = formatWei(item.tokenOut.amount, tokenOut?.decimals).replace(/,/g, '');
-
-        const pi =
-          ((parseFloat(item.tokenIn.amountUsd) - parseFloat(item.tokenOut.amountUsd)) /
-            parseFloat(item.tokenIn.amountUsd)) *
-          100;
-        const piRes = getPriceImpact(pi, 'Swap Price Impact', zapInfo?.zapDetails.suggestedSlippage || 100);
-
-        return {
-          tokenInSymbol: tokenIn?.symbol || '--',
-          tokenOutSymbol: tokenOut?.symbol || '--',
-          amountIn,
-          amountOut,
-          piRes,
-        };
-      }) || [];
-
-    return parsedAggregatorSwapInfo.concat(parsedPoolSwapInfo);
-  }, [zapInfo?.zapDetails.actions, zapInfo?.zapDetails.suggestedSlippage, pool, tokensIn, chainId]);
-
-  const swapPiRes = useMemo(() => {
-    const invalidRes = swapPi.find(item => item.piRes.level === PI_LEVEL.INVALID);
-    if (invalidRes) return invalidRes;
-
-    const highRes = swapPi.find(item => item.piRes.level === PI_LEVEL.HIGH);
-    if (highRes) return highRes;
-
-    const veryHighRes = swapPi.find(item => item.piRes.level === PI_LEVEL.HIGH);
-    if (veryHighRes) return veryHighRes;
-
-    return { piRes: { level: PI_LEVEL.NORMAL, msg: '' } };
-  }, [swapPi]);
-
+  const swapActions = parseSwapActions({ zapInfo, tokens: tokensToCheck, poolType, chainId });
+  const swapPriceImpact = getSwapPriceImpactFromActions(swapActions);
   const rpcUrl = NETWORKS_INFO[chainId].defaultRpc;
 
   useEffect(() => {
@@ -638,7 +463,7 @@ export default function Preview({
           <div className="flex justify-between items-center gap-4 w-full">
             <div className="ks-lw-card-title">Current pool price</div>
             <div className="flex items-center gap-1 text-sm">
-              <span>{price}</span>
+              <span>{poolPrice}</span>
               {quote}
               <SwitchIcon className="cursor-pointer" onClick={() => toggleRevertPrice()} role="button" />
             </div>
@@ -688,20 +513,23 @@ export default function Preview({
                   />
                 )}
                 <div>
-                  {formatDisplayNumber(positionId !== undefined ? amount0 : +addedAmount0, {
-                    significantDigits: 4,
-                  })}{' '}
+                  {formatDisplayNumber(
+                    positionId !== undefined ? positionAmountInfo.amount0 : addedAmountInfo.addedAmount0,
+                    {
+                      significantDigits: 4,
+                    },
+                  )}{' '}
                   {pool?.token0.symbol}
                 </div>
               </div>
 
               {positionId && (
                 <div className="text-end">
-                  + {formatDisplayNumber(+addedAmount0, { significantDigits: 4 })} {pool?.token0.symbol}
+                  + {formatDisplayNumber(addedAmountInfo.addedAmount0, { significantDigits: 4 })} {pool?.token0.symbol}
                 </div>
               )}
               <div className="ml-auto w-fit text-subText">
-                ~{formatCurrency(+(addedLiqInfo?.addLiquidity.token0.amountUsd || 0) + positionAmount0Usd)}
+                ~{formatCurrency(addedAmountInfo.addedAmount0Usd + positionAmountInfo.positionAmount0Usd)}
               </div>
             </div>
             <div className="flex flex-col gap-1">
@@ -717,19 +545,22 @@ export default function Preview({
                   />
                 )}
                 <div>
-                  {formatDisplayNumber(positionId !== undefined ? amount1 : +addedAmount1, {
-                    significantDigits: 4,
-                  })}{' '}
+                  {formatDisplayNumber(
+                    positionId !== undefined ? positionAmountInfo.amount1 : addedAmountInfo.addedAmount1,
+                    {
+                      significantDigits: 4,
+                    },
+                  )}{' '}
                   {pool?.token1.symbol}
                 </div>
               </div>
               {positionId && (
                 <div className="text-end">
-                  + {formatDisplayNumber(+addedAmount1, { significantDigits: 4 })} {pool?.token1.symbol}
+                  + {formatDisplayNumber(addedAmountInfo.addedAmount1, { significantDigits: 4 })} {pool?.token1.symbol}
                 </div>
               )}
               <div className="ml-auto w-fit text-subText">
-                ~{formatCurrency(+(addedLiqInfo?.addLiquidity.token1.amountUsd || 0) + positionAmount1Usd)}
+                ~{formatCurrency(addedAmountInfo.addedAmount1Usd + positionAmountInfo.positionAmount1Usd)}
               </div>
             </div>
           </div>
@@ -743,15 +574,15 @@ export default function Preview({
             <div className="text-xs text-subText border-b border-dotted border-subText">Remaining Amount</div>
           </MouseoverTooltip>
           <span className="text-sm font-medium">
-            {formatCurrency(refundUsd)}
+            {formatCurrency(refundInfo.refundUsd)}
             <InfoHelper
               text={
                 <div>
                   <div>
-                    {refundAmount0} {pool.token0.symbol}{' '}
+                    {refundInfo.refundAmount0} {pool.token0.symbol}{' '}
                   </div>
                   <div>
-                    {refundAmount1} {pool.token1.symbol}
+                    {refundInfo.refundAmount1} {pool.token1.symbol}
                   </div>
                 </div>
               }
@@ -767,16 +598,16 @@ export default function Preview({
         />
 
         <div className="flex justify-between items-center gap-4 w-full">
-          {swapPi.length ? (
+          {swapActions.length ? (
             <Accordion type="single" collapsible className="w-full">
               <AccordionItem value="item-1">
                 <AccordionTrigger>
                   <MouseoverTooltip text="View all the detailed estimated price impact of each swap" width="220px">
                     <div
                       className={`text-xs border-b border-dotted border-subText ${
-                        swapPiRes.piRes.level === PI_LEVEL.NORMAL
+                        swapPriceImpact.piRes.level === PI_LEVEL.NORMAL
                           ? 'text-subText'
-                          : swapPiRes.piRes.level === PI_LEVEL.HIGH
+                          : swapPriceImpact.piRes.level === PI_LEVEL.HIGH
                             ? '!text-warning !border-warning'
                             : '!text-error !border-error'
                       }`}
@@ -786,7 +617,7 @@ export default function Preview({
                   </MouseoverTooltip>
                 </AccordionTrigger>
                 <AccordionContent>
-                  {swapPi.map((item, index: number) => (
+                  {swapActions.map((item, index: number) => (
                     <div
                       className={`text-xs flex justify-between align-middle ${
                         item.piRes.level === PI_LEVEL.NORMAL
@@ -834,9 +665,9 @@ export default function Preview({
             <div
               className={cn(
                 'text-xs text-subText border-b border-dotted border-subText',
-                piRes.level === PI_LEVEL.VERY_HIGH || piRes.level === PI_LEVEL.INVALID
+                zapImpact.level === PI_LEVEL.VERY_HIGH || zapImpact.level === PI_LEVEL.INVALID
                   ? 'border-error text-error'
-                  : piRes.level === PI_LEVEL.HIGH
+                  : zapImpact.level === PI_LEVEL.HIGH
                     ? 'border-warning text-warning'
                     : 'border-subText text-subText',
               )}
@@ -847,14 +678,14 @@ export default function Preview({
           {zapInfo ? (
             <div
               className={`text-sm font-medium ${
-                piRes.level === PI_LEVEL.VERY_HIGH || piRes.level === PI_LEVEL.INVALID
+                zapImpact.level === PI_LEVEL.VERY_HIGH || zapImpact.level === PI_LEVEL.INVALID
                   ? 'text-error'
-                  : piRes.level === PI_LEVEL.HIGH
+                  : zapImpact.level === PI_LEVEL.HIGH
                     ? 'text-warning'
                     : 'text-text'
               }`}
             >
-              {piRes.display}
+              {zapImpact.display}
             </div>
           ) : (
             '--'
@@ -895,7 +726,7 @@ export default function Preview({
           >
             <div className="text-xs text-subText border-b border-dotted border-subText">Zap Fee</div>
           </MouseoverTooltip>
-          <div className="text-sm font-medium">{parseFloat(zapFee.toFixed(3))}%</div>
+          <div className="text-sm font-medium">{parseFloat(feeInfo.protocolFee.toFixed(3))}%</div>
         </div>
       </div>
 
@@ -912,27 +743,27 @@ export default function Preview({
         </div>
       )}
 
-      {zapInfo && swapPiRes.piRes.level !== PI_LEVEL.NORMAL && (
+      {zapInfo && swapPriceImpact.piRes.level !== PI_LEVEL.NORMAL && (
         <div
           className={`rounded-md text-xs px-4 py-3 mt-4 font-normal ${
-            swapPiRes.piRes.level === PI_LEVEL.HIGH ? 'text-warning' : 'text-error'
+            swapPriceImpact.piRes.level === PI_LEVEL.HIGH ? 'text-warning' : 'text-error'
           }`}
           style={{
-            backgroundColor: swapPiRes.piRes.level === PI_LEVEL.HIGH ? `${theme.warning}33` : `${theme.error}33`,
+            backgroundColor: swapPriceImpact.piRes.level === PI_LEVEL.HIGH ? `${theme.warning}33` : `${theme.error}33`,
           }}
         >
-          {swapPiRes.piRes.msg}
+          {swapPriceImpact.piRes.msg}
         </div>
       )}
 
-      {zapInfo && piRes.level !== PI_LEVEL.NORMAL && (
+      {zapInfo && zapImpact.level !== PI_LEVEL.NORMAL && (
         <div
-          className={`rounded-md text-xs px-4 py-3 mt-4 font-normal ${piHigh ? 'text-warning' : 'text-error'}`}
+          className={`rounded-md text-xs px-4 py-3 mt-4 font-normal ${zapImpact.level === PI_LEVEL.HIGH ? 'text-warning' : 'text-error'}`}
           style={{
-            backgroundColor: piHigh ? `${theme.warning}33` : `${theme.error}33`,
+            backgroundColor: zapImpact.level === PI_LEVEL.HIGH ? `${theme.warning}33` : `${theme.error}33`,
           }}
         >
-          {piRes.msg}
+          {zapImpact.msg}
         </div>
       )}
 
@@ -943,7 +774,11 @@ export default function Preview({
 
       <button
         className={`ks-primary-btn mt-4 w-full ${
-          piVeryHigh ? 'bg-error border-error' : piHigh ? 'bg-warning border-warning' : ''
+          zapImpact.level === PI_LEVEL.VERY_HIGH
+            ? 'bg-error border-error'
+            : zapImpact.level === PI_LEVEL.HIGH
+              ? 'bg-warning border-warning'
+              : ''
         }`}
         onClick={handleClick}
       >

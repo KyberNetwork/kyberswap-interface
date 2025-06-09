@@ -4,7 +4,6 @@ import { useShallow } from 'zustand/shallow';
 
 import { usePositionOwner } from '@kyber/hooks';
 import {
-  FARMING_CONTRACTS,
   Pool,
   Univ2PoolType,
   Univ3PoolType,
@@ -17,49 +16,37 @@ import {
   univ4Types,
 } from '@kyber/schema';
 import { InfoHelper } from '@kyber/ui';
-import { parseUnits } from '@kyber/utils/crypto';
-import { divideBigIntToString, formatDisplayNumber } from '@kyber/utils/number';
-import { tickToPrice } from '@kyber/utils/uniswapv3';
+import { getPoolPrice } from '@kyber/utils';
+import { formatDisplayNumber } from '@kyber/utils/number';
 
 import ErrorIcon from '@/assets/svg/error.svg';
 import X from '@/assets/svg/x.svg';
+import Action from '@/components/Action';
 import EstLiqValue from '@/components/Content/EstLiqValue';
 import LiquidityToAdd from '@/components/Content/LiquidityToAdd';
 import PoolStat from '@/components/Content/PoolStat';
 import PriceInfo from '@/components/Content/PriceInfo';
 import PriceInput from '@/components/Content/PriceInput';
-import ZapRoute from '@/components/Content/ZapRoute';
+import ZapSummary from '@/components/Content/ZapSummary';
 import Header from '@/components/Header';
 import LiquidityChart from '@/components/LiquidityChart';
 import Modal from '@/components/Modal';
 import PositionLiquidity from '@/components/PositionLiquidity';
-import Preview, { ZapState } from '@/components/Preview';
+import Preview from '@/components/Preview';
 import PriceRange from '@/components/PriceRange';
 import Setting from '@/components/Setting';
 import { TOKEN_SELECT_MODE } from '@/components/TokenSelector';
 import TokenSelectorModal from '@/components/TokenSelector/TokenSelectorModal';
-import { ERROR_MESSAGE, MAX_ZAP_IN_TOKENS } from '@/constants';
-import { APPROVAL_STATE, useApprovals } from '@/hooks/useApproval';
+import { MAX_ZAP_IN_TOKENS } from '@/constants';
 import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 import { PriceType } from '@/types/index';
-import { AggregatorSwapAction, PoolSwapAction, ZapAction } from '@/types/zapRoute';
-import { PI_LEVEL, checkDeviated, getPriceImpact } from '@/utils';
+import { checkDeviated } from '@/utils';
 
 export default function Widget() {
-  const {
-    theme,
-    poolType,
-    chainId,
-    poolAddress,
-    connectedAccount,
-    onClose,
-    onConnectWallet,
-    onSwitchChain,
-    onSubmitTx,
-  } = useWidgetStore(
+  const { theme, poolType, chainId, poolAddress, connectedAccount, onClose } = useWidgetStore(
     useShallow(s => ({
       theme: s.theme,
       poolType: s.poolType,
@@ -67,28 +54,8 @@ export default function Widget() {
       poolAddress: s.poolAddress,
       connectedAccount: s.connectedAccount,
       onClose: s.onClose,
-      onConnectWallet: s.onConnectWallet,
-      onSwitchChain: s.onSwitchChain,
-      onSubmitTx: s.onSubmitTx,
     })),
   );
-
-  const {
-    zapInfo,
-    error,
-    priceLower,
-    priceUpper,
-    ttl,
-    loading: zapLoading,
-    tickLower,
-    tickUpper,
-    slippage,
-    degenMode,
-    tokensIn,
-    amountsIn,
-    toggleSetting,
-  } = useZapState();
-
   const { positionId, position } = usePositionStore(
     useShallow(s => ({ positionId: s.positionId, position: s.position })),
   );
@@ -107,36 +74,13 @@ export default function Widget() {
     chainId,
     poolType,
   });
+  const { zapInfo, tickLower, tickUpper, tokensIn, snapshotState, setSnapshotState } = useZapState();
 
-  const amountsInWei: string[] = useMemo(
-    () =>
-      !amountsIn
-        ? []
-        : amountsIn
-            .split(',')
-            .map((amount, index) => parseUnits(amount || '0', tokensIn[index]?.decimals || 0).toString()),
-    [tokensIn, amountsIn],
-  );
-
-  const { loading, approvalStates, approve, addressToApprove, nftApproval, approveNft } = useApprovals({
-    chainId,
-    positionId,
-    poolType,
-    amounts: amountsInWei,
-    addreses: tokensIn.map(token => token?.address || ''),
-    spender: zapInfo?.routerAddress || '',
-    userAddress: connectedAccount?.address,
-    onSubmitTx: onSubmitTx,
-  });
+  const [openTokenSelectModal, setOpenTokenSelectModal] = useState(false);
 
   const initializing = pool === 'loading' || !pool;
   const { token0 = defaultToken, token1 = defaultToken } = !initializing ? pool : {};
 
-  const [openTokenSelectModal, setOpenTokenSelectModal] = useState(false);
-  const [clickedApprove, setClickedLoading] = useState(false);
-  const [snapshotState, setSnapshotState] = useState<ZapState | null>(null);
-
-  const showWidget = !snapshotState;
   const { success: isUniV3 } = univ3PoolNormalize.safeParse(pool);
   const isUniv4 = univ4Types.includes(poolType);
 
@@ -182,71 +126,8 @@ export default function Widget() {
     [pool, tickLower, tickUpper],
   );
 
-  const newPoolPrice = useMemo(() => {
-    const { success, data } = univ3PoolNormalize.safeParse(newPool);
-    if (success) return +tickToPrice(data.tick, data.token0?.decimals, data.token1?.decimals, false);
+  const newPoolPrice = useMemo(() => getPoolPrice({ pool: newPool, revertPrice }), [newPool, revertPrice]);
 
-    const { success: isUniV2, data: uniV2Pool } = univ2PoolNormalize.safeParse(newPool);
-
-    if (isUniV2) {
-      return +divideBigIntToString(
-        BigInt(uniV2Pool.reserves[1]) * 10n ** BigInt(uniV2Pool.token0?.decimals),
-        BigInt(uniV2Pool.reserves[0]) * 10n ** BigInt(uniV2Pool.token1?.decimals),
-        18,
-      );
-    }
-  }, [newPool]);
-
-  const notApprove = useMemo(
-    () => tokensIn.find(item => approvalStates[item?.address || ''] === APPROVAL_STATE.NOT_APPROVED),
-    [approvalStates, tokensIn],
-  );
-
-  const pi = useMemo(() => {
-    const aggregatorSwapInfo = zapInfo?.zapDetails.actions.find(item => item.type === ZapAction.AGGREGATOR_SWAP) as
-      | AggregatorSwapAction
-      | undefined;
-
-    const poolSwapInfo = zapInfo?.zapDetails.actions.find(
-      item => item.type === ZapAction.POOL_SWAP,
-    ) as PoolSwapAction | null;
-
-    const piRes = getPriceImpact(
-      zapInfo?.zapDetails.priceImpact,
-      'Zap Impact',
-      zapInfo?.zapDetails.suggestedSlippage || 100,
-    );
-
-    const aggregatorSwapPi =
-      aggregatorSwapInfo?.aggregatorSwap?.swaps?.map(item => {
-        const pi =
-          ((parseFloat(item.tokenIn.amountUsd) - parseFloat(item.tokenOut.amountUsd)) /
-            parseFloat(item.tokenIn.amountUsd)) *
-          100;
-        return getPriceImpact(pi, 'Swap Price Impact', zapInfo?.zapDetails.suggestedSlippage || 100);
-      }) || [];
-    const poolSwapPi =
-      poolSwapInfo?.poolSwap?.swaps?.map(item => {
-        const pi =
-          ((parseFloat(item.tokenIn.amountUsd) - parseFloat(item.tokenOut.amountUsd)) /
-            parseFloat(item.tokenIn.amountUsd)) *
-          100;
-        return getPriceImpact(pi, 'Swap Price Impact', zapInfo?.zapDetails.suggestedSlippage || 100);
-      }) || [];
-
-    const swapPiHigh = !!aggregatorSwapPi.concat(poolSwapPi).find(item => item.level === PI_LEVEL.HIGH);
-
-    const swapPiVeryHigh = !!aggregatorSwapPi.concat(poolSwapPi).find(item => item.level === PI_LEVEL.VERY_HIGH);
-
-    const piVeryHigh = (zapInfo && [PI_LEVEL.VERY_HIGH, PI_LEVEL.INVALID].includes(piRes.level)) || swapPiVeryHigh;
-
-    const piHigh = (zapInfo && piRes.level === PI_LEVEL.HIGH) || swapPiHigh;
-
-    return { piVeryHigh, piHigh };
-  }, [zapInfo]);
-
-  const isWrongNetwork = error === ERROR_MESSAGE.WRONG_NETWORK;
-  const isNotConnected = error === ERROR_MESSAGE.CONNECT_WALLET;
   const isNotOwner =
     positionId &&
     positionOwner &&
@@ -254,98 +135,13 @@ export default function Widget() {
     positionOwner !== connectedAccount?.address?.toLowerCase()
       ? true
       : false;
-  const isFarming =
-    isNotOwner &&
-    FARMING_CONTRACTS[poolType]?.[chainId] &&
-    FARMING_CONTRACTS[poolType]?.[chainId]?.toLowerCase() === positionOwner?.toLowerCase();
 
   const isDeviated = checkDeviated(poolPrice, newPoolPrice);
-
-  const disabled =
-    (isUniv4 && isNotOwner) ||
-    clickedApprove ||
-    loading ||
-    zapLoading ||
-    (!!error && !isWrongNetwork && !isNotConnected) ||
-    Object.values(approvalStates).some(item => item === APPROVAL_STATE.PENDING);
-
-  const btnText = (() => {
-    if (error) return error;
-    if (isUniv4 && isNotOwner) {
-      if (isFarming) return 'Your position is in farming';
-      return 'Not the position owner';
-    }
-    if (zapLoading) return 'Loading...';
-    if (loading) return 'Checking Allowance';
-    if (addressToApprove) return 'Approving';
-    if (notApprove) return `Approve ${notApprove.symbol}`;
-    if (isUniv4 && positionId && !nftApproval) return 'Approve NFT';
-    if (pi.piVeryHigh) return 'Zap anyway';
-
-    return 'Preview';
-  })();
 
   const refetchData = useCallback(() => {
     getPool({ poolAddress, chainId, poolType });
     getPoolStat({ poolAddress, chainId });
   }, [getPool, poolAddress, chainId, poolType, getPoolStat]);
-
-  const price = useMemo(
-    () =>
-      newPoolPrice
-        ? formatDisplayNumber(revertPrice ? 1 / newPoolPrice : newPoolPrice, {
-            significantDigits: 6,
-          })
-        : '--',
-    [newPoolPrice, revertPrice],
-  );
-
-  const hanldeClick = () => {
-    const { success: isUniV3Pool, data: univ3Pool } = univ3PoolNormalize.safeParse(pool);
-    if (isNotConnected) {
-      onConnectWallet();
-      return;
-    }
-    if (isWrongNetwork) {
-      onSwitchChain();
-      return;
-    }
-    if (notApprove) {
-      setClickedLoading(true);
-      approve(notApprove.address).finally(() => setClickedLoading(false));
-    } else if (isUniv4 && positionId && !nftApproval) {
-      setClickedLoading(true);
-      approveNft().finally(() => setClickedLoading(false));
-    } else if (
-      pool !== 'loading' &&
-      amountsIn &&
-      tokensIn.every(Boolean) &&
-      zapInfo &&
-      (isUniV3Pool ? tickLower !== null && tickUpper !== null && priceLower && priceUpper : true)
-    ) {
-      if (pi.piVeryHigh && !degenMode) {
-        toggleSetting(true);
-        document.getElementById('zapin-setting')?.scrollIntoView({ behavior: 'smooth' });
-
-        return;
-      }
-
-      const date = new Date();
-      date.setMinutes(date.getMinutes() + (ttl || 20));
-
-      setSnapshotState({
-        tokensIn: tokensIn,
-        amountsIn,
-        pool,
-        zapInfo,
-        deadline: Math.floor(date.getTime() / 1000),
-        isFullRange: isUniV3Pool ? univ3Pool.minTick === tickUpper && univ3Pool.maxTick === tickLower : true,
-        slippage,
-        tickUpper: tickUpper !== null ? tickUpper : 0,
-        tickLower: tickLower !== null ? tickLower : 0,
-      });
-    }
-  };
 
   const onOpenTokenSelectModal = () => setOpenTokenSelectModal(true);
   const onCloseTokenSelectModal = () => setOpenTokenSelectModal(false);
@@ -403,7 +199,7 @@ export default function Widget() {
         </Modal>
       )}
       {openTokenSelectModal && <TokenSelectorModal mode={TOKEN_SELECT_MODE.ADD} onClose={onCloseTokenSelectModal} />}
-      <div className={`p-6 ${!showWidget ? 'hidden' : ''}`}>
+      <div className={`p-6 ${snapshotState ? 'hidden' : ''}`}>
         <Header refetchData={refetchData} />
         <div className="mt-5 flex gap-5 max-sm:flex-col">
           <div className="w-[55%] max-sm:w-full">
@@ -433,7 +229,7 @@ export default function Widget() {
             {isUniV3 ? addLiquiditySection : null}
 
             <EstLiqValue />
-            <ZapRoute />
+            <ZapSummary />
 
             {isOutOfRangeAfterZap && (
               <div
@@ -465,7 +261,7 @@ export default function Widget() {
                 <div className="italic text-text">
                   The pool's estimated price after zapping of{' '}
                   <span className="font-medium text-warning not-italic ml-[2px]">
-                    1 {revertPrice ? token1.symbol : token0.symbol} = {price}{' '}
+                    1 {revertPrice ? token1.symbol : token0.symbol} = {newPoolPrice}{' '}
                     {revertPrice ? token0.symbol : token1.symbol}
                   </span>{' '}
                   deviates from the market price{' '}
@@ -489,41 +285,7 @@ export default function Widget() {
             )}
           </div>
         </div>
-        <div className="flex justify-center gap-5 mt-6">
-          <button className="ks-outline-btn w-[190px]" onClick={onClose}>
-            Cancel
-          </button>
-          <button
-            className={`ks-primary-btn min-w-[190px] w-fit ${
-              !disabled && Object.values(approvalStates).some(item => item !== APPROVAL_STATE.NOT_APPROVED)
-                ? pi.piVeryHigh
-                  ? 'bg-error border-solid border-error text-white'
-                  : pi.piHigh
-                    ? 'bg-warning border-solid border-warning'
-                    : ''
-                : ''
-            }`}
-            disabled={disabled}
-            onClick={hanldeClick}
-          >
-            {btnText}
-            {pi.piVeryHigh &&
-              !error &&
-              !isWrongNetwork &&
-              !isNotConnected &&
-              Object.values(approvalStates).every(item => item === APPROVAL_STATE.APPROVED) && (
-                <InfoHelper
-                  width="300px"
-                  color="#ffffff"
-                  text={
-                    degenMode
-                      ? 'You have turned on Degen Mode from settings. Trades with very high price impact can be executed'
-                      : 'To ensure you dont lose funds due to very high price impact, swap has been disabled for this trade. If you still wish to continue, you can turn on Degen Mode from Settings.'
-                  }
-                />
-              )}
-          </button>
-        </div>
+        <Action />
       </div>
       <Setting />
     </div>

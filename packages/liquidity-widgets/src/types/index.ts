@@ -1,4 +1,4 @@
-import { ChainId, EarnDex, PoolType, Theme } from '@kyber/schema';
+import { ChainId, EarnDex, Pool, PoolType, Theme, Token, ZapRouteDetail } from '@kyber/schema';
 
 export interface WidgetProps {
   theme?: Theme;
@@ -102,4 +102,16 @@ interface PositionAmount {
 export enum PriceType {
   PriceLower = 'PriceLower',
   PriceUpper = 'PriceUpper',
+}
+
+export interface ZapState {
+  pool: Pool;
+  zapInfo: ZapRouteDetail;
+  tokensIn: Token[];
+  amountsIn: string;
+  deadline: number;
+  isFullRange: boolean;
+  slippage: number;
+  tickLower: number;
+  tickUpper: number;
 }

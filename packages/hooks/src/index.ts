@@ -7,3 +7,4 @@ export * from './use-window-size';
 export * from './use-position-owner';
 export * from './use-on-click-outside';
 export * from './use-token-balances';
+export * from './use-nft-approval';
