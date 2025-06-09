@@ -15,7 +15,7 @@ import {
   univ3Types,
   univ4Types,
 } from '@kyber/schema';
-import { InfoHelper } from '@kyber/ui';
+import { InfoHelper, Skeleton } from '@kyber/ui';
 import { getPoolPrice } from '@kyber/utils';
 import { formatDisplayNumber } from '@kyber/utils/number';
 
@@ -23,7 +23,7 @@ import ErrorIcon from '@/assets/svg/error.svg';
 import X from '@/assets/svg/x.svg';
 import Action from '@/components/Action';
 import EstLiqValue from '@/components/Content/EstLiqValue';
-import LiquidityToAdd from '@/components/Content/LiquidityToAdd';
+import LiquidityToAdd, { LiquidityToAddSkeleton } from '@/components/Content/LiquidityToAdd';
 import PoolStat from '@/components/Content/PoolStat';
 import PriceInfo from '@/components/Content/PriceInfo';
 import PriceInput from '@/components/Content/PriceInput';
@@ -46,7 +46,7 @@ import { PriceType } from '@/types/index';
 import { checkDeviated } from '@/utils';
 
 export default function Widget() {
-  const { theme, poolType, chainId, poolAddress, connectedAccount, onClose } = useWidgetStore(
+  const { theme, poolType, chainId, poolAddress, connectedAccount, onClose, positionId } = useWidgetStore(
     useShallow(s => ({
       theme: s.theme,
       poolType: s.poolType,
@@ -54,11 +54,10 @@ export default function Widget() {
       poolAddress: s.poolAddress,
       connectedAccount: s.connectedAccount,
       onClose: s.onClose,
+      positionId: s.positionId,
     })),
   );
-  const { positionId, position } = usePositionStore(
-    useShallow(s => ({ positionId: s.positionId, position: s.position })),
-  );
+  const { position } = usePositionStore(useShallow(s => ({ position: s.position })));
   const { pool, poolError, getPool, getPoolStat, poolPrice, revertPrice } = usePoolStore(
     useShallow(s => ({
       pool: s.pool,
@@ -78,10 +77,10 @@ export default function Widget() {
 
   const [openTokenSelectModal, setOpenTokenSelectModal] = useState(false);
 
-  const initializing = pool === 'loading' || !pool;
+  const initializing = pool === 'loading';
   const { token0 = defaultToken, token1 = defaultToken } = !initializing ? pool : {};
 
-  const { success: isUniV3 } = univ3PoolNormalize.safeParse(pool);
+  const isUniV3 = univ3Types.includes(poolType as any);
   const isUniv4 = univ4Types.includes(poolType);
 
   const newPool: Pool | null = useMemo(() => {
@@ -150,9 +149,11 @@ export default function Widget() {
     <>
       <div>
         <div className="text-base pl-1">{positionId ? 'Increase' : 'Add'} Liquidity</div>
-        {tokensIn.map((_, tokenIndex: number) => (
-          <LiquidityToAdd tokenIndex={tokenIndex} key={tokenIndex} />
-        ))}
+        {initializing || !tokensIn.length ? (
+          <LiquidityToAddSkeleton />
+        ) : (
+          tokensIn.map((_, tokenIndex: number) => <LiquidityToAdd tokenIndex={tokenIndex} key={tokenIndex} />)
+        )}
       </div>
 
       <div className="my-3 text-accent cursor-pointer w-fit text-sm" onClick={onOpenTokenSelectModal}>
@@ -198,16 +199,18 @@ export default function Widget() {
           <Preview zapState={snapshotState} onDismiss={() => setSnapshotState(null)} />
         </Modal>
       )}
+
       {openTokenSelectModal && <TokenSelectorModal mode={TOKEN_SELECT_MODE.ADD} onClose={onCloseTokenSelectModal} />}
+
       <div className={`p-6 ${snapshotState ? 'hidden' : ''}`}>
         <Header refetchData={refetchData} />
         <div className="mt-5 flex gap-5 max-sm:flex-col">
           <div className="w-[55%] max-sm:w-full">
             <PoolStat />
             <PriceInfo />
-            {!positionId && isUniV3 && <LiquidityChart />}
+            {!positionId && isUniV3 && (initializing ? <Skeleton className="w-full h-44 mt-4" /> : <LiquidityChart />)}
             <PriceRange />
-            {positionId === undefined ? (
+            {!positionId ? (
               isUniV3 && (
                 <div className="flex gap-4 w-full">
                   <PriceInput type={PriceType.PriceLower} />

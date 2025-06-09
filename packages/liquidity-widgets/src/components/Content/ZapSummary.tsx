@@ -30,7 +30,7 @@ export default function ZapSummary() {
   const { symbol: symbol1 } = initializing ? defaultToken : pool.token1;
   const { token0 = defaultToken, token1 = defaultToken } = !initializing ? pool : {};
 
-  const dexNameObj = initializing ? null : DEXES_INFO[pool.poolType as PoolType].name;
+  const dexNameObj = DEXES_INFO[poolType as PoolType].name;
   const dexName = !dexNameObj ? '' : typeof dexNameObj === 'string' ? dexNameObj : dexNameObj[chainId];
 
   const onExpand = () => setExpanded(prev => !prev);

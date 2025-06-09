@@ -53,6 +53,7 @@ export default function Preview({
     source,
     wrappedNativeToken,
     nativeToken,
+    positionId,
   } = useWidgetStore(
     useShallow(s => ({
       poolType: s.poolType,
@@ -65,11 +66,11 @@ export default function Preview({
       source: s.source,
       wrappedNativeToken: s.wrappedNativeToken,
       nativeToken: s.nativeToken,
+      positionId: s.positionId,
     })),
   );
-  const { positionId, position } = usePositionStore(
+  const { position } = usePositionStore(
     useShallow(s => ({
-      positionId: s.positionId,
       position: s.position,
     })),
   );

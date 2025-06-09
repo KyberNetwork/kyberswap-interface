@@ -3,20 +3,23 @@ import { useEffect, useMemo, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { univ3PoolNormalize } from '@kyber/schema';
+import { Skeleton } from '@kyber/ui';
 import { formatNumber } from '@kyber/utils/number';
 import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick } from '@kyber/utils/uniswapv3';
 
 import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
-import { usePositionStore } from '@/stores/usePositionStore';
+import { useWidgetStore } from '@/stores/useWidgetStore';
 import { PriceType } from '@/types/index';
 
 export default function PriceInput({ type }: { type: PriceType }) {
   const { tickLower, tickUpper, setTickLower, setTickUpper, priceLower, priceUpper } = useZapState();
   const { pool: rawPool, revertPrice } = usePoolStore(useShallow(s => ({ pool: s.pool, revertPrice: s.revertPrice })));
-  const { positionId } = usePositionStore(useShallow(s => ({ positionId: s.positionId })));
+  const { positionId } = useWidgetStore(useShallow(s => ({ positionId: s.positionId })));
 
   const [localValue, setLocalValue] = useState('');
+
+  const initializing = rawPool === 'loading';
 
   const pool = useMemo(() => {
     if (rawPool === 'loading') return rawPool;
@@ -108,66 +111,70 @@ export default function PriceInput({ type }: { type: PriceType }) {
 
   return (
     <div className="mt-[0.6rem] w-1/2 p-3 justify-between flex items-center border rounded-md border-stroke">
-      {!positionId && (
-        <button
-          className="w-6 h-6 rounded-[4px] border border-stroke bg-layer2 text-subText flex items-center justify-center cursor-pointer hover:enabled:brightness-150 active:enabled:scale-95 disabled:cursor-not-allowed disabled:opacity-60 outline-none"
-          role="button"
-          onClick={() => {
-            if (type === PriceType.PriceLower) {
-              revertPrice ? increaseTickUpper() : decreaseTickLower();
-            } else {
-              revertPrice ? increaseTickLower() : decreaseTickUpper();
-            }
-          }}
-          disabled={isFullRange || positionId !== undefined}
-        >
-          -
-        </button>
-      )}
+      <button
+        className="w-6 h-6 rounded-[4px] border border-stroke bg-layer2 text-subText flex items-center justify-center cursor-pointer hover:enabled:brightness-150 active:enabled:scale-95 disabled:cursor-not-allowed disabled:opacity-60 outline-none"
+        role="button"
+        onClick={() => {
+          if (type === PriceType.PriceLower) {
+            revertPrice ? increaseTickUpper() : decreaseTickLower();
+          } else {
+            revertPrice ? increaseTickLower() : decreaseTickUpper();
+          }
+        }}
+        disabled={isFullRange || positionId !== undefined}
+      >
+        -
+      </button>
 
       <div className="flex flex-col items-center gap-[6px] w-fit text-sm font-medium text-subText">
         <span>{type === PriceType.PriceLower ? 'Min' : 'Max'} price</span>
-        <input
-          className="bg-transparent w-[90px] text-center text-text text-base p-0 border-none outline-none disabled:cursor-not-allowed disabled:opacity-60"
-          value={localValue}
-          autoFocus={false}
-          onChange={onPriceChange}
-          onBlur={e => wrappedCorrectPrice(e.target.value)}
-          inputMode="decimal"
-          autoComplete="off"
-          autoCorrect="off"
-          disabled={positionId !== undefined}
-          type="text"
-          pattern="^[0-9]*[.,]?[0-9]*$"
-          placeholder="0.0"
-          minLength={1}
-          maxLength={79}
-          spellCheck="false"
-        />
-        <span className="w-max">
-          {pool !== 'loading'
-            ? !revertPrice
-              ? `${pool?.token1.symbol} per ${pool?.token0.symbol}`
-              : `${pool?.token0.symbol} per ${pool?.token1.symbol}`
-            : '--'}
-        </span>
+        {initializing ? (
+          <Skeleton className="w-20 h-6" />
+        ) : (
+          <input
+            className="bg-transparent w-[90px] text-center text-text text-base p-0 border-none outline-none disabled:cursor-not-allowed disabled:opacity-60"
+            value={localValue}
+            autoFocus={false}
+            onChange={onPriceChange}
+            onBlur={e => wrappedCorrectPrice(e.target.value)}
+            inputMode="decimal"
+            autoComplete="off"
+            autoCorrect="off"
+            disabled={positionId !== undefined}
+            type="text"
+            pattern="^[0-9]*[.,]?[0-9]*$"
+            placeholder="0.0"
+            minLength={1}
+            maxLength={79}
+            spellCheck="false"
+          />
+        )}
+        {initializing ? (
+          <Skeleton className="w-24 h-5" />
+        ) : (
+          <span className="w-max">
+            {pool !== 'loading'
+              ? !revertPrice
+                ? `${pool?.token1.symbol} per ${pool?.token0.symbol}`
+                : `${pool?.token0.symbol} per ${pool?.token1.symbol}`
+              : '--'}
+          </span>
+        )}
       </div>
 
-      {!positionId && (
-        <button
-          className="w-6 h-6 rounded-[4px] border border-stroke bg-layer2 text-subText flex items-center justify-center cursor-pointer hover:enabled:brightness-150 active:enabled:scale-95 disabled:cursor-not-allowed disabled:opacity-60 outline-none"
-          onClick={() => {
-            if (type === PriceType.PriceLower) {
-              revertPrice ? decreaseTickUpper() : increaseTickLower();
-            } else {
-              revertPrice ? decreaseTickLower() : increaseTickUpper();
-            }
-          }}
-          disabled={isFullRange || positionId !== undefined}
-        >
-          +
-        </button>
-      )}
+      <button
+        className="w-6 h-6 rounded-[4px] border border-stroke bg-layer2 text-subText flex items-center justify-center cursor-pointer hover:enabled:brightness-150 active:enabled:scale-95 disabled:cursor-not-allowed disabled:opacity-60 outline-none"
+        onClick={() => {
+          if (type === PriceType.PriceLower) {
+            revertPrice ? decreaseTickUpper() : increaseTickLower();
+          } else {
+            revertPrice ? decreaseTickLower() : increaseTickUpper();
+          }
+        }}
+        disabled={isFullRange || positionId !== undefined}
+      >
+        +
+      </button>
     </div>
   );
 }

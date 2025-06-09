@@ -1,14 +1,6 @@
 import { useShallow } from 'zustand/shallow';
 
-import {
-  DEXES_INFO,
-  NETWORKS_INFO,
-  PoolType,
-  defaultDexInfo,
-  defaultToken,
-  univ3PoolNormalize,
-  univ3Position,
-} from '@kyber/schema';
+import { DEXES_INFO, NETWORKS_INFO, PoolType, defaultToken, univ3PoolNormalize, univ3Position } from '@kyber/schema';
 import { InfoHelper, MouseoverTooltip, Skeleton, TokenLogo } from '@kyber/ui';
 
 import defaultTokenLogo from '@/assets/svg/question.svg?url';
@@ -23,17 +15,18 @@ import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
 const Header = ({ refetchData }: { refetchData: () => void }) => {
-  const { theme, chainId, onClose } = useWidgetStore(
+  const { theme, chainId, onClose, poolType, positionId } = useWidgetStore(
     useShallow(s => ({
       theme: s.theme,
       chainId: s.chainId,
       onClose: s.onClose,
+      poolType: s.poolType,
+      positionId: s.positionId,
     })),
   );
   const pool = usePoolStore(s => s.pool);
-  const { positionId, position } = usePositionStore(
+  const { position } = usePositionStore(
     useShallow(s => ({
-      positionId: s.positionId,
       position: s.position,
     })),
   );
@@ -55,7 +48,7 @@ const Header = ({ refetchData }: { refetchData: () => void }) => {
 
   const { token0 = defaultToken, token1 = defaultToken, fee = 0 } = !initializing ? pool : {};
 
-  const { icon: dexLogo, name: rawName } = !initializing ? DEXES_INFO[pool.poolType as PoolType] : defaultDexInfo;
+  const { icon: dexLogo, name: rawName } = DEXES_INFO[poolType as PoolType];
   const dexName = typeof rawName === 'string' ? rawName : rawName[chainId];
 
   const { success, data } = univ3Position.safeParse(position);

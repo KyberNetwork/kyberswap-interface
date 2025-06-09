@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 
 import { NATIVE_TOKEN_ADDRESS } from '@kyber/schema';
+import { Skeleton } from '@kyber/ui';
 import { formatUnits } from '@kyber/utils/crypto';
 import { formatDisplayNumber, formatWei } from '@kyber/utils/number';
 
@@ -162,3 +163,30 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
     </>
   );
 }
+
+export const LiquidityToAddSkeleton = () => {
+  return (
+    <div className="mt-4 border border-stroke rounded-md p-3 brightness-85 bg-layer2 relative">
+      <div className="flex justify-between text-subText text-sm font-medium">
+        <div className="flex items-center gap-[6px]">
+          <button className="rounded-full outline-inherit cursor-pointer items-center flex gap-1 hover:brightness-150 active:scale-95 py-[2px] px-2 text-xs bg-transparent border-[1.8px] border-solid border-stroke font-normal text-subText brightness-150">
+            Max
+          </button>
+          <button className="rounded-full outline-inherit cursor-pointer items-center flex gap-1 hover:brightness-150 active:scale-95 py-[2px] px-2 text-xs bg-transparent border-[1.8px] border-solid border-stroke font-normal text-subText brightness-150">
+            Half
+          </button>
+        </div>
+
+        <div className="flex items-center gap-[6px] cursor-pointer">
+          <WalletIcon />
+          <Skeleton className="w-16 h-5" />
+        </div>
+      </div>
+
+      <div className="w-full flex mt-4 items-center gap-2">
+        <div className="flex-1" />
+        <Skeleton className="w-32 h-9" />
+      </div>
+    </div>
+  );
+};

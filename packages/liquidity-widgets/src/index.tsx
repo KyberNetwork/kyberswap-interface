@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { ChainId, PoolType, Theme } from '@kyber/schema';
+import '@kyber/ui/styles.css';
 
 import Widget from '@/Widget';
 import { ZapContextProvider } from '@/hooks/useZapState';
@@ -34,8 +35,14 @@ const LiquidityWidget = (widgetProps: WidgetProps) => {
     theme,
     setInitiaWidgetState,
     reset: resetWidgetStore,
+    setPositionId,
   } = useWidgetStore(
-    useShallow(s => ({ theme: s.theme, setInitiaWidgetState: s.setInitiaWidgetState, reset: s.reset })),
+    useShallow(s => ({
+      theme: s.theme,
+      setInitiaWidgetState: s.setInitiaWidgetState,
+      reset: s.reset,
+      setPositionId: s.setPositionId,
+    })),
   );
   const {
     pool,
@@ -100,9 +107,11 @@ const LiquidityWidget = (widgetProps: WidgetProps) => {
       poolType,
       connectedAccount,
       pool,
+      setPositionId,
     });
+    if (positionId) setPositionId(positionId);
     setFirstFetch(true);
-  }, [chainId, connectedAccount, fetchTokens, firstFetch, getPosition, pool, poolType, positionId]);
+  }, [chainId, connectedAccount, fetchTokens, firstFetch, getPosition, pool, poolType, positionId, setPositionId]);
 
   useEffect(() => {
     if (!theme) return;

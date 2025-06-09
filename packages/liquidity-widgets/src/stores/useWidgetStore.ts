@@ -18,6 +18,7 @@ interface WidgetState extends WidgetProps {
   nativeToken: Token;
   wrappedNativeToken: Token;
   reset: () => void;
+  setPositionId: (positionId: string) => void;
   setInitiaWidgetState: (props: WidgetProps, resetStore: () => void) => void;
 }
 
@@ -83,4 +84,5 @@ export const useWidgetStore = create<WidgetState>((set, _get) => ({
       wrappedNativeToken,
     });
   },
+  setPositionId: (positionId: string) => set({ positionId }),
 }));

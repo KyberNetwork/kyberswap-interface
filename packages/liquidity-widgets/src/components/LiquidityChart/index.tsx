@@ -11,10 +11,10 @@ import '@kyberswap/liquidity-chart/style.css';
 
 import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
-import { usePositionStore } from '@/stores/usePositionStore';
+import { useWidgetStore } from '@/stores/useWidgetStore';
 
 export default function LiquidityChart() {
-  const positionId = usePositionStore(s => s.positionId);
+  const { positionId } = useWidgetStore(useShallow(s => ({ positionId: s.positionId })));
   const { pool: rawPool, revertPrice } = usePoolStore(useShallow(s => ({ pool: s.pool, revertPrice: s.revertPrice })));
   const { tickLower, tickUpper, setTickLower, setTickUpper, priceLower, priceUpper } = useZapState();
 

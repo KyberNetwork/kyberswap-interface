@@ -3,7 +3,15 @@ import { useMemo } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { API_URLS, defaultToken } from '@kyber/schema';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, InfoHelper, MouseoverTooltip } from '@kyber/ui';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+  InfoHelper,
+  MouseoverTooltip,
+  Skeleton,
+} from '@kyber/ui';
 import { PI_LEVEL, getSwapPriceImpactFromActions, parseSwapActions, parseZapInfo } from '@kyber/utils';
 import { formatCurrency, formatDisplayNumber, formatNumber } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
@@ -16,7 +24,7 @@ import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
 export default function EstLiqValue() {
-  const { theme, chainId, source, poolType, wrappedNativeToken, nativeToken } = useWidgetStore(
+  const { theme, chainId, source, poolType, wrappedNativeToken, nativeToken, positionId } = useWidgetStore(
     useShallow(s => ({
       theme: s.theme,
       chainId: s.chainId,
@@ -24,18 +32,19 @@ export default function EstLiqValue() {
       poolType: s.poolType,
       wrappedNativeToken: s.wrappedNativeToken,
       nativeToken: s.nativeToken,
+      positionId: s.positionId,
     })),
   );
   const { zapInfo, slippage, tokensIn } = useZapState();
   const pool = usePoolStore(s => s.pool);
-  const { positionId, position } = usePositionStore(
+  const { position } = usePositionStore(
     useShallow(s => ({
-      positionId: s.positionId,
       position: s.position,
     })),
   );
 
-  const { token0, token1 } = pool === 'loading' ? { token0: defaultToken, token1: defaultToken } : pool;
+  const initializing = pool === 'loading';
+  const { token0, token1 } = initializing ? { token0: defaultToken, token1: defaultToken } : pool;
   const {
     refundInfo,
     addedAmountInfo,
@@ -64,8 +73,12 @@ export default function EstLiqValue() {
         <div className="ks-lw-divider" />
 
         <div className="flex justify-between items-start mt-3 text-xs">
-          <div className="text-subText mt-[2px] w-fit">Est. Pooled {token0.symbol}</div>
-          {zapInfo ? (
+          <div className="text-subText mt-[2px] w-fit flex items-center">
+            Est. Pooled {initializing ? <Skeleton className="w-10 h-4 ml-2" /> : token0.symbol}
+          </div>
+          {initializing ? (
+            <Skeleton className="w-14 h-4" />
+          ) : zapInfo ? (
             <div>
               <div className="flex justify-end items-start gap-1">
                 {token0.logo && (
@@ -100,8 +113,12 @@ export default function EstLiqValue() {
         </div>
 
         <div className="flex justify-between items-start mt-3 text-xs">
-          <div className="text-subText mt-[2px] w-fit">Est. Pooled {token1.symbol}</div>
-          {zapInfo ? (
+          <div className="text-subText mt-[2px] w-fit flex items-center">
+            Est. Pooled {initializing ? <Skeleton className="w-10 h-4 ml-2" /> : token1.symbol}
+          </div>
+          {initializing ? (
+            <Skeleton className="w-14 h-4" />
+          ) : zapInfo ? (
             <div>
               <div className="flex justify-end items-start gap-1">
                 {token1.logo && (
@@ -145,21 +162,25 @@ export default function EstLiqValue() {
             </div>
           </MouseoverTooltip>
 
-          <div>
-            {formatCurrency(refundInfo.refundUsd)}
-            <InfoHelper
-              text={
-                <div>
+          {initializing ? (
+            <Skeleton className="w-14 h-4" />
+          ) : (
+            <div>
+              {formatCurrency(refundInfo.refundUsd)}
+              <InfoHelper
+                text={
                   <div>
-                    {refundInfo.refundAmount0} {token0.symbol}{' '}
+                    <div>
+                      {refundInfo.refundAmount0} {token0.symbol}{' '}
+                    </div>
+                    <div>
+                      {refundInfo.refundAmount1} {token1.symbol}
+                    </div>
                   </div>
-                  <div>
-                    {refundInfo.refundAmount1} {token1.symbol}
-                  </div>
-                </div>
-              }
-            />
-          </div>
+                }
+              />
+            </div>
+          )}
         </div>
 
         <div className="flex justify-between items-start mt-3 text-xs">
@@ -219,7 +240,7 @@ export default function EstLiqValue() {
                   Swap Price Impact
                 </div>
               </MouseoverTooltip>
-              <span>--</span>
+              {initializing ? <Skeleton className="w-14 h-4" /> : <span>--</span>}
             </>
           )}
         </div>
@@ -251,7 +272,9 @@ export default function EstLiqValue() {
               Zap Impact
             </div>
           </MouseoverTooltip>
-          {zapInfo ? (
+          {initializing ? (
+            <Skeleton className="w-14 h-4" />
+          ) : zapInfo ? (
             <div
               className={
                 zapImpact.level === PI_LEVEL.VERY_HIGH || zapImpact.level === PI_LEVEL.INVALID
@@ -289,17 +312,21 @@ export default function EstLiqValue() {
             <div className="text-subText mt-[2px] w-fit border-b border-dotted border-subText">Zap Fee</div>
           </MouseoverTooltip>
 
-          <MouseoverTooltip
-            text={
-              feeInfo.partnerFee
-                ? `${parseFloat(feeInfo.protocolFee.toFixed(3))}% Protocol Fee + ${parseFloat(
-                    feeInfo.partnerFee.toFixed(3),
-                  )}% Fee for ${source}`
-                : ''
-            }
-          >
-            <div>{parseFloat((feeInfo.protocolFee + feeInfo.partnerFee).toFixed(3)) + '%'}</div>
-          </MouseoverTooltip>
+          {initializing ? (
+            <Skeleton className="w-14 h-4" />
+          ) : (
+            <MouseoverTooltip
+              text={
+                feeInfo.partnerFee
+                  ? `${parseFloat(feeInfo.protocolFee.toFixed(3))}% Protocol Fee + ${parseFloat(
+                      feeInfo.partnerFee.toFixed(3),
+                    )}% Fee for ${source}`
+                  : ''
+              }
+            >
+              <div>{parseFloat((feeInfo.protocolFee + feeInfo.partnerFee).toFixed(3)) + '%'}</div>
+            </MouseoverTooltip>
+          )}
         </div>
       </div>
 

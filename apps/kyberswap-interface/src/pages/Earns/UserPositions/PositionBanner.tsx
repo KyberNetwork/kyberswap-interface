@@ -167,7 +167,7 @@ export default function PositionBanner({
                   {formatDisplayNumber(totalRewardsUsdValue, { significantDigits: 4, style: 'currency' })}
                 </Text>
               </Flex>
-              <Flex alignItems={'center'} justifyContent={'flex-start'} sx={{ gap: 4 }}>
+              <Flex alignItems={'center'} flexWrap={'wrap'} justifyContent={'flex-start'} sx={{ gap: 4, rowGap: 2 }}>
                 <BannerDataItem>
                   <Text fontSize={14} color={theme.subText}>{t`Claimed`}</Text>
                   <Text fontSize={20}>

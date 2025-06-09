@@ -5,7 +5,6 @@ import { getUniv2PositionInfo, getUniv3PositionInfo } from '@kyber/utils';
 
 interface PositionState {
   positionError: string;
-  positionId: string | undefined;
   position: 'loading' | Position | null;
   firstLoad: boolean;
   getPosition: (props: getPositionProps) => void;
@@ -14,27 +13,26 @@ interface PositionState {
 
 const initState: Omit<PositionState, 'getPosition' | 'reset'> = {
   position: 'loading',
-  positionId: undefined,
   positionError: '',
   firstLoad: true,
 };
 
 interface getPositionProps {
-  positionId: string | undefined;
   chainId: number;
+  positionId: string | undefined;
   poolType: PoolType;
   connectedAccount: {
     address?: string | undefined;
     chainId: number;
   };
   pool: Pool;
+  setPositionId: (positionId: string) => void;
 }
 
 export const usePositionStore = create<PositionState>((set, get) => ({
   ...initState,
   reset: () => set(initState),
-  setPositionId: (positionId: string) => set({ positionId }),
-  getPosition: async ({ pool, positionId, chainId, poolType, connectedAccount }: getPositionProps) => {
+  getPosition: async ({ pool, positionId, chainId, poolType, connectedAccount, setPositionId }: getPositionProps) => {
     const { success: isUniV3, data: univ3PoolInfo } = univ3PoolNormalize.safeParse(pool);
     const { success: isUniV2, data: univ2PoolInfo } = univ2PoolNormalize.safeParse(pool);
 
@@ -76,7 +74,7 @@ export const usePositionStore = create<PositionState>((set, get) => ({
         }
 
         set({ position: positionInfo.position as Position });
-        if (!positionId && connectedAccount.address) set({ positionId: connectedAccount.address });
+        if (!positionId && connectedAccount.address) setPositionId(connectedAccount.address);
       }
 
       return;

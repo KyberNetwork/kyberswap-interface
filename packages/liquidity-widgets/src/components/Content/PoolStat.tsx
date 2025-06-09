@@ -9,12 +9,18 @@ import { cn } from '@kyber/utils/tailwind-helpers';
 import FarmingIcon from '@/assets/svg/kem.svg';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
+import { useWidgetStore } from '@/stores/useWidgetStore';
 
 export default function PoolStat() {
-  const { position, positionId } = usePositionStore(
+  const { poolType, positionId } = useWidgetStore(
+    useShallow(s => ({
+      poolType: s.poolType,
+      positionId: s.positionId,
+    })),
+  );
+  const { position } = usePositionStore(
     useShallow(s => ({
       position: s.position,
-      positionId: s.positionId,
     })),
   );
   const { pool, poolStat } = usePoolStore(
@@ -26,7 +32,7 @@ export default function PoolStat() {
 
   const initializing = pool === 'loading';
 
-  const isUniv2 = !initializing && univ2Types.includes(pool.poolType as any);
+  const isUniv2 = univ2Types.includes(poolType as any);
 
   const poolShare =
     position === 'loading' || !position || !isUniv2 || !('totalSupply' in position)
@@ -34,7 +40,7 @@ export default function PoolStat() {
       : Number((BigInt(position.liquidity) * 10000n) / BigInt(position.totalSupply)) / 100;
 
   const poolApr = (poolStat?.apr24h || 0) + (poolStat?.kemEGApr || 0) + (poolStat?.kemEGApr || 0);
-  const isFarming = !initializing && pool.poolType === PoolType.DEX_UNISWAP_V4_FAIRFLOW; // TODO: change this logic
+  const isFarming = poolType === PoolType.DEX_UNISWAP_V4_FAIRFLOW; // TODO: change this logic
 
   return (
     <div
@@ -117,7 +123,7 @@ export default function PoolStat() {
           )}
         </div>
       </div>
-      {isUniv2 && (
+      {isUniv2 && !!positionId && (
         <div className="flex justify-between items-start gap-1 mt-3 border-t border-stroke pt-2">
           <span>Pool Share</span>
           <span className="text-text">

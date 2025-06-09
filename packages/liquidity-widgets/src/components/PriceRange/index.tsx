@@ -3,14 +3,14 @@ import { useEffect, useMemo, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { univ3PoolNormalize, univ3Types } from '@kyber/schema';
-import { Button } from '@kyber/ui';
+import { Button, Skeleton } from '@kyber/ui';
 import { toString } from '@kyber/utils/number';
 import { nearestUsableTick, priceToClosestTick, tickToPrice } from '@kyber/utils/uniswapv3';
 
 import { DEFAULT_PRICE_RANGE, FULL_PRICE_RANGE, FeeAmount, PRICE_RANGE } from '@/components/PriceRange/constants';
 import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
-import { usePositionStore } from '@/stores/usePositionStore';
+import { useWidgetStore } from '@/stores/useWidgetStore';
 
 interface SelectedRange {
   range: number | string;
@@ -30,8 +30,10 @@ const PriceRange = () => {
   const { priceLower, priceUpper, setTickLower, setTickUpper, tickLower, tickUpper } = useZapState();
   const [selectedRange, setSelectedRange] = useState<SelectedRange | null>(null);
 
+  const { poolType, positionId } = useWidgetStore(
+    useShallow(s => ({ poolType: s.poolType, positionId: s.positionId })),
+  );
   const { pool, revertPrice } = usePoolStore(useShallow(s => ({ pool: s.pool, revertPrice: s.revertPrice })));
-  const positionId = usePositionStore(s => s.positionId);
 
   const initializing = pool === 'loading';
 
@@ -114,52 +116,83 @@ const PriceRange = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [feeRange]);
 
-  const isUniv3 = !initializing && univ3Types.includes(pool.poolType as any);
+  const isUniv3 = univ3Types.includes(poolType as any);
 
   if (!isUniv3) return null;
 
   return !positionId ? (
     <div className="flex mt-6 gap-[6px] my-[10px] border border-stroke rounded-md">
-      {priceRanges.map((item: string | number, index: number) => (
-        <Button
-          key={index}
-          variant="outline"
-          className={`flex-1 !border-none !text-icon ${item === selectedRange?.range ? ' !bg-[#ffffff14]' : ''}`}
-          onClick={() => handleSelectPriceRange(item as typeof FULL_PRICE_RANGE | number)}
-        >
-          {item === FULL_PRICE_RANGE ? item : `${Number(item) * 100}%`}
-        </Button>
-      ))}
+      {initializing ? (
+        <>
+          <Button variant="outline" className="flex-1 !border-none !text-icon">
+            {FULL_PRICE_RANGE}
+          </Button>
+          <Button variant="outline" className="flex-1 !border-none !text-icon">
+            <Skeleton className="w-full h-full" />
+          </Button>
+          <Button variant="outline" className="flex-1 !border-none !text-icon">
+            <Skeleton className="w-full h-full" />
+          </Button>
+          <Button variant="outline" className="flex-1 !border-none !text-icon">
+            <Skeleton className="w-full h-full" />
+          </Button>
+        </>
+      ) : (
+        priceRanges.map((item: string | number, index: number) => (
+          <Button
+            key={index}
+            variant="outline"
+            className={`flex-1 !border-none !text-icon ${item === selectedRange?.range ? ' !bg-[#ffffff14]' : ''}`}
+            onClick={() => handleSelectPriceRange(item as typeof FULL_PRICE_RANGE | number)}
+          >
+            {item === FULL_PRICE_RANGE ? item : `${Number(item) * 100}%`}
+          </Button>
+        ))
+      )}
     </div>
   ) : (
     <div className="px-4 py-3 mt-4 text-sm border border-stroke rounded-md">
-      <p className="text-subText mb-3">{!initializing ? 'Your Position Price Ranges' : 'Loading...'}</p>
-      {!initializing && (
-        <div className="flex items-center gap-4">
-          <div className="bg-white bg-opacity-[0.04] rounded-md py-3 w-1/2 flex flex-col items-center justify-center gap-1">
-            <p className="text-subText">Min Price</p>
+      <p className="text-subText mb-3">Your Position Price Ranges</p>
+      <div className="flex items-center gap-4">
+        <div className="bg-white bg-opacity-[0.04] rounded-md py-3 w-1/2 flex flex-col items-center justify-center gap-1">
+          <p className="text-subText">Min Price</p>
+          {initializing ? (
+            <Skeleton className="w-14 h-5" />
+          ) : (
             <p className="max-w-full truncate" title={minPrice?.toString()}>
               {minPrice}
             </p>
+          )}
+          {initializing ? (
+            <Skeleton className="w-20 h-5" />
+          ) : (
             <p className="text-subText">
               {revertPrice
                 ? `${pool?.token0.symbol}/${pool?.token1.symbol}`
                 : `${pool?.token1.symbol}/${pool?.token0.symbol}`}
             </p>
-          </div>
-          <div className="bg-white bg-opacity-[0.04] rounded-md px-2 py-3 w-1/2 flex flex-col items-center justify-center gap-1">
-            <p className="text-subText">Max Price</p>
+          )}
+        </div>
+        <div className="bg-white bg-opacity-[0.04] rounded-md px-2 py-3 w-1/2 flex flex-col items-center justify-center gap-1">
+          <p className="text-subText">Max Price</p>
+          {initializing ? (
+            <Skeleton className="w-14 h-5" />
+          ) : (
             <p className="max-w-full truncate" title={maxPrice?.toString()}>
               {maxPrice}
             </p>
+          )}
+          {initializing ? (
+            <Skeleton className="w-20 h-5" />
+          ) : (
             <p className="text-subText">
               {revertPrice
                 ? `${pool?.token0.symbol}/${pool?.token1.symbol}`
                 : `${pool?.token1.symbol}/${pool?.token0.symbol}`}
             </p>
-          </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 };

@@ -102,6 +102,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
     connectedAccount,
     nativeToken,
     wrappedNativeToken,
+    positionId,
   } = useWidgetStore(
     useShallow(s => ({
       chainId: s.chainId,
@@ -115,11 +116,11 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
       connectedAccount: s.connectedAccount,
       nativeToken: s.nativeToken,
       wrappedNativeToken: s.wrappedNativeToken,
+      positionId: s.positionId,
     })),
   );
-  const { positionId, position } = usePositionStore(
+  const { position } = usePositionStore(
     useShallow(s => ({
-      positionId: s.positionId,
       position: s.position,
     })),
   );

@@ -12,7 +12,6 @@ import { parseUnits } from '@kyber/utils/crypto';
 import { ERROR_MESSAGE } from '@/constants';
 import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
-import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
 export default function Action() {
@@ -26,6 +25,7 @@ export default function Action() {
     onSubmitTx,
     nativeToken,
     wrappedNativeToken,
+    positionId,
   } = useWidgetStore(
     useShallow(s => ({
       poolType: s.poolType,
@@ -37,10 +37,10 @@ export default function Action() {
       onSubmitTx: s.onSubmitTx,
       nativeToken: s.nativeToken,
       wrappedNativeToken: s.wrappedNativeToken,
+      positionId: s.positionId,
     })),
   );
   const pool = usePoolStore(s => s.pool);
-  const positionId = usePositionStore(s => s.positionId);
   const positionOwner = usePositionOwner({
     positionId: positionId || '',
     chainId,

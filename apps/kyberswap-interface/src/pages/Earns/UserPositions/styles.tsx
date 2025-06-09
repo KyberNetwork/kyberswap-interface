@@ -333,6 +333,7 @@ export const PositionTableHeader = styled(TableHeader)`
     minmax(150px, 1.5fr) /* Balance */
     minmax(160px, 1.5fr) /* Price range */
     minmax(75px, auto); /* Actions */
+  overflow: hidden;
 `
 
 export const PositionTableHeaderItem = styled.div`
