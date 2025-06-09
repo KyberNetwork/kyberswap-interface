@@ -15,7 +15,7 @@ import {
   univ3Types,
   univ4Types,
 } from '@kyber/schema';
-import { InfoHelper, Skeleton } from '@kyber/ui';
+import { InfoHelper } from '@kyber/ui';
 import { getPoolPrice } from '@kyber/utils';
 import { formatDisplayNumber } from '@kyber/utils/number';
 
@@ -30,6 +30,7 @@ import PriceInput from '@/components/Content/PriceInput';
 import ZapSummary from '@/components/Content/ZapSummary';
 import Header from '@/components/Header';
 import LiquidityChart from '@/components/LiquidityChart';
+import LiquidityChartSkeleton from '@/components/LiquidityChart/LiquidityChartSkeleton';
 import Modal from '@/components/Modal';
 import PositionLiquidity from '@/components/PositionLiquidity';
 import Preview from '@/components/Preview';
@@ -208,7 +209,7 @@ export default function Widget() {
           <div className="w-[55%] max-sm:w-full">
             <PoolStat />
             <PriceInfo />
-            {!positionId && isUniV3 && (initializing ? <Skeleton className="w-full h-44 mt-4" /> : <LiquidityChart />)}
+            {!positionId && isUniV3 && (initializing ? <LiquidityChartSkeleton /> : <LiquidityChart />)}
             <PriceRange />
             {!positionId ? (
               isUniV3 && (
