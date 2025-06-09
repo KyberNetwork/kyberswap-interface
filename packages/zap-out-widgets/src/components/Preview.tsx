@@ -203,7 +203,7 @@ export const Preview = () => {
                 : "Processing Transaction"}
           </div>
 
-          <div className="text-subText">
+          <div className="text-subText text-center">
             {txStatus === "success"
               ? "You have successfully added liquidity!"
               : txStatus === "failed"

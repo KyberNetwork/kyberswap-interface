@@ -20,7 +20,6 @@ import { getPoolPrice } from '@kyber/utils';
 import { formatDisplayNumber } from '@kyber/utils/number';
 
 import ErrorIcon from '@/assets/svg/error.svg';
-import X from '@/assets/svg/x.svg';
 import Action from '@/components/Action';
 import EstLiqValue from '@/components/Content/EstLiqValue';
 import LiquidityToAdd, { LiquidityToAddSkeleton } from '@/components/Content/LiquidityToAdd';
@@ -190,13 +189,6 @@ export default function Widget() {
       )}
       {snapshotState && (
         <Modal isOpen onClick={() => setSnapshotState(null)} modalContentClass="!max-h-[96vh]">
-          <div className="flex justify-between text-xl font-medium">
-            <div>{positionId ? 'Increase' : 'Add'} Liquidity via Zap</div>
-            <div role="button" onClick={() => setSnapshotState(null)} className="cursor-pointer">
-              <X />
-            </div>
-          </div>
-
           <Preview zapState={snapshotState} onDismiss={() => setSnapshotState(null)} />
         </Modal>
       )}
