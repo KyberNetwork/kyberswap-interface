@@ -92,7 +92,7 @@ export default function PositionBanner({
               <Text
                 fontSize={24}
                 color={overviewData?.totalValue && overviewData?.totalValue > 0 ? theme.primary : theme.text}
-                sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '140px' }}
+                sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '135px' }}
               >
                 {formatDisplayNumber(overviewData?.totalValue, { style: 'currency', significantDigits: 4 })}
               </Text>
