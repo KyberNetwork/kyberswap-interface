@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 
 import { usePositionOwner } from '@kyber/hooks';
-import { APPROVAL_STATE, useApprovals, useNftApproval } from '@kyber/hooks';
+import { APPROVAL_STATE, useErc20Approvals, useNftApproval } from '@kyber/hooks';
 import { FARMING_CONTRACTS, NETWORKS_INFO, defaultToken, univ3PoolNormalize, univ4Types } from '@kyber/schema';
 import { InfoHelper } from '@kyber/ui';
 import { PI_LEVEL, getSwapPriceImpactFromZapInfo } from '@kyber/utils';
@@ -76,7 +76,7 @@ export default function Action() {
     [tokensIn, amountsIn],
   );
 
-  const { loading, approvalStates, approve, addressToApprove } = useApprovals({
+  const { loading, approvalStates, approve, addressToApprove } = useErc20Approvals({
     amounts: amountsInWei,
     addreses: tokensIn.map(token => token?.address || ''),
     owner: connectedAccount?.address || '',

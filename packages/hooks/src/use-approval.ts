@@ -17,7 +17,7 @@ export enum APPROVAL_STATE {
   NOT_APPROVED = 'not_approved',
 }
 
-export const useApprovals = ({
+export const useErc20Approvals = ({
   amounts,
   addreses,
   owner,
