@@ -1,13 +1,11 @@
 import { useZapOutContext } from "@/stores";
 import { useZapOutUserState } from "@/stores/state";
 import SettingIcon from "@/assets/svg/setting.svg";
-import defaultTokenLogo from "@/assets/svg/question.svg?url";
-import { Skeleton, MouseoverTooltip } from "@kyber/ui";
+import { Skeleton, MouseoverTooltip, TokenLogo, InfoHelper } from "@kyber/ui";
 import X from "@/assets/svg/x.svg";
 import { UniV3Pool, UniV3Position, Univ3PoolType } from "@/schema";
 import { cn } from "@kyber/utils/tailwind-helpers";
 import { DEXES_INFO, NETWORKS_INFO } from "@/constants";
-import { SyntheticEvent } from "react";
 import Setting from "@/components/Setting";
 import { shortenAddress } from "@/components/TokenInfo/utils";
 import useCopy from "@/hooks/useCopy";
@@ -26,12 +24,18 @@ export const Header = () => {
   const isUniV3 = Univ3PoolType.safeParse(poolType).success;
 
   const { degenMode, toggleSetting } = useZapOutUserState();
-  const Copy = useCopy({
-    text: poolAddress,
-    copyClassName: "!text-blue hover:brightness-125",
-  });
 
   const loading = pool === "loading" || position === "loading";
+
+  const PoolCopy = useCopy({
+    text: poolAddress,
+  });
+  const Token0Copy = useCopy({
+    text: loading ? "" : pool.token0.address,
+  });
+  const Token1Copy = useCopy({
+    text: loading ? "" : pool.token1.address,
+  });
 
   const isOutOfRange =
     isUniV3 && !loading
@@ -39,15 +43,8 @@ export const Header = () => {
         (pool as UniV3Pool).tick >= (position as UniV3Position).tickUpper
       : false;
 
-  const onImgError = ({
-    currentTarget,
-  }: SyntheticEvent<HTMLImageElement, Event>) => {
-    currentTarget.onerror = null;
-    currentTarget.src = defaultTokenLogo;
-  };
-
-  const { icon: logo, name: rawName } = DEXES_INFO[poolType];
-  const name = typeof rawName === "string" ? rawName : rawName[chainId];
+  const { icon: dexLogo, name: rawName } = DEXES_INFO[poolType];
+  const dexName = typeof rawName === "string" ? rawName : rawName[chainId];
 
   return (
     <>
@@ -89,46 +86,61 @@ export const Header = () => {
         ) : (
           <div className="flex items-center gap-1 flex-1 flex-wrap">
             <div className="relative flex items-end">
-              <img
+              <TokenLogo
                 src={pool.token0.logo}
-                alt="token0 logo"
-                onError={onImgError}
-                className="w-6 h-6 rounded-full"
+                size={26}
+                className="border-[2px] border-layer1"
               />
-              <img
-                className="w-6 h-6 -ml-2 rounded-full"
+              <TokenLogo
                 src={pool.token1.logo}
-                alt="token1 logo"
-                onError={onImgError}
+                size={26}
+                className="border-[2px] border-layer1 -ml-[6px]"
               />
-              <img
-                className="w-3 h-3 -ml-1"
+              <TokenLogo
                 src={NETWORKS_INFO[chainId].logo}
-                onError={onImgError}
+                size={14}
+                className="border-[2px] border-layer1 max-sm:w-[18px] max-sm:h-[18px] max-sm:-ml-2 -ml-1"
               />
             </div>
             <span className="text-xl">
               {pool.token0.symbol}/{pool.token1.symbol}
             </span>
-            <div className="rounded-full text-xs bg-layer2 text-text px-3 py-[2px]">
+            <div className="rounded-full text-xs bg-layer2 text-subText px-[14px] py-1">
               Fee {pool.fee}%
             </div>
 
-            <div className="rounded-full text-xs bg-layer2 text-blue px-3 py-1 flex gap-1">
-              {shortenAddress(poolAddress, 4)}
-              {Copy}
+            <div className="flex items-center justify-center px-2 py-1 bg-layer2 rounded-full">
+              <InfoHelper
+                placement="top"
+                noneMarginLeft
+                color="#2C9CE4"
+                size={16}
+                delay={100}
+                text={
+                  <div className="flex flex-col text-xs text-subText gap-2">
+                    <div className="flex items-center gap-3">
+                      <span>{pool.token0.symbol}: </span>
+                      <span>{shortenAddress(pool.token0.address, 4)}</span>
+                      <span>{Token0Copy}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span>{pool.token1.symbol}: </span>
+                      <span>{shortenAddress(pool.token1.address, 4)}</span>
+                      <span>{Token1Copy}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span>Pool Address: </span>
+                      <span>{shortenAddress(poolAddress, 4)}</span>
+                      <span>{PoolCopy}</span>
+                    </div>
+                  </div>
+                }
+              />
             </div>
 
             <div className="flex items-center gap-1">
-              <img
-                src={logo}
-                width={16}
-                height={16}
-                className="rounded-full"
-                alt=""
-                onError={onImgError}
-              />
-              <span className="text-sm">{name}</span>
+              <TokenLogo src={dexLogo} size={16} />
+              <span>{dexName}</span>
             </div>
           </div>
         )}

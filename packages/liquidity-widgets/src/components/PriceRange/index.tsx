@@ -168,8 +168,8 @@ const PriceRange = () => {
           ) : (
             <p className="text-subText">
               {revertPrice
-                ? `${pool?.token0.symbol}/${pool?.token1.symbol}`
-                : `${pool?.token1.symbol}/${pool?.token0.symbol}`}
+                ? `${pool?.token0.symbol} per ${pool?.token1.symbol}`
+                : `${pool?.token1.symbol} per ${pool?.token0.symbol}`}
             </p>
           )}
         </div>
@@ -187,8 +187,8 @@ const PriceRange = () => {
           ) : (
             <p className="text-subText">
               {revertPrice
-                ? `${pool?.token0.symbol}/${pool?.token1.symbol}`
-                : `${pool?.token1.symbol}/${pool?.token0.symbol}`}
+                ? `${pool?.token0.symbol} per ${pool?.token1.symbol}`
+                : `${pool?.token1.symbol} per ${pool?.token0.symbol}`}
             </p>
           )}
         </div>

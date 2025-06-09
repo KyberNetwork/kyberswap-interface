@@ -3,7 +3,6 @@ import { useShallow } from 'zustand/shallow';
 import { DEXES_INFO, NETWORKS_INFO, PoolType, defaultToken, univ3PoolNormalize, univ3Position } from '@kyber/schema';
 import { InfoHelper, MouseoverTooltip, Skeleton, TokenLogo } from '@kyber/ui';
 
-import defaultTokenLogo from '@/assets/svg/question.svg?url';
 import SettingIcon from '@/assets/svg/setting.svg';
 import X from '@/assets/svg/x.svg';
 import RefreshLoading from '@/components/Header/RefreshLoading';
@@ -144,16 +143,7 @@ const Header = ({ refetchData }: { refetchData: () => void }) => {
                 />
               </div>
               <div className="flex items-center gap-1">
-                <img
-                  src={dexLogo}
-                  width={16}
-                  height={16}
-                  alt=""
-                  onError={({ currentTarget }) => {
-                    currentTarget.onerror = null;
-                    currentTarget.src = defaultTokenLogo;
-                  }}
-                />
+                <TokenLogo src={dexLogo} size={16} />
                 <span>{dexName}</span>
               </div>
             </div>

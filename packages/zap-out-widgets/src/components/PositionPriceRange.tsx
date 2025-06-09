@@ -1,11 +1,12 @@
-import { univ3PoolNormalize, univ3Position } from "@/schema";
+import { univ3PoolNormalize, Univ3PoolType, univ3Position } from "@/schema";
 import { useZapOutContext } from "@/stores";
 import { useZapOutUserState } from "@/stores/state";
+import { Skeleton } from "@kyber/ui";
 import { formatDisplayNumber } from "@kyber/utils/number";
 import { tickToPrice } from "@kyber/utils/uniswapv3";
 
 export function PositionPriceRange() {
-  const { position, pool } = useZapOutContext((s) => s);
+  const { position, pool, poolType } = useZapOutContext((s) => s);
 
   const { revertPrice } = useZapOutUserState();
 
@@ -15,24 +16,37 @@ export function PositionPriceRange() {
   const { success: isUniv3Pool, data: univ3Pool } =
     univ3PoolNormalize.safeParse(pool);
 
-  if (!isUniv3 || !isUniv3Pool) return null;
+  const isUniV3PoolType = Univ3PoolType.safeParse(poolType).success;
+  const isUniV3 = isUniv3 && isUniv3Pool;
+  if (!isUniV3PoolType) return null;
 
-  const minPrice = tickToPrice(
-    univ3Pos.tickLower,
-    univ3Pool.token0.decimals,
-    univ3Pool.token1.decimals,
-    revertPrice
-  );
+  const initializing =
+    pool === "loading" || position === "loading" || !univ3Pool || !univ3Pos;
 
-  const maxPrice = tickToPrice(
-    univ3Pos.tickUpper,
-    univ3Pool.token0.decimals,
-    univ3Pool.token1.decimals,
-    revertPrice
-  );
+  const minPrice =
+    isUniV3 && !initializing
+      ? tickToPrice(
+          univ3Pos.tickLower,
+          univ3Pool.token0.decimals,
+          univ3Pool.token1.decimals,
+          revertPrice
+        )
+      : 0;
 
-  const isMinTick = univ3Pos.tickLower === univ3Pool.minTick;
-  const isMaxTick = univ3Pos.tickUpper === univ3Pool.maxTick;
+  const maxPrice =
+    isUniV3 && !initializing
+      ? tickToPrice(
+          univ3Pos.tickUpper,
+          univ3Pool.token0.decimals,
+          univ3Pool.token1.decimals,
+          revertPrice
+        )
+      : 0;
+
+  const isMinTick =
+    isUniV3 && !initializing ? univ3Pos.tickLower === univ3Pool.minTick : true;
+  const isMaxTick =
+    isUniV3 && !initializing ? univ3Pos.tickUpper === univ3Pool.maxTick : true;
 
   const displayLower = isMinTick
     ? "0"
@@ -46,25 +60,45 @@ export function PositionPriceRange() {
         significantDigits: 8,
       });
 
-  const label = revertPrice
-    ? `${univ3Pool.token0.symbol} per ${univ3Pool.token1.symbol}`
-    : `${univ3Pool.token1.symbol} per ${univ3Pool.token0.symbol}`;
+  const label = initializing
+    ? ""
+    : revertPrice
+      ? `${pool.token0.symbol} per ${pool.token1.symbol}`
+      : `${pool.token1.symbol} per ${pool.token0.symbol}`;
 
   return (
-    <div className="rounded-lg px-4 py-3 border border-stroke text-sm text-subText">
-      <div>Your Position Price Ranges</div>
-
-      <div className="flex gap-4 mt-3">
-        <div className="bg-layer2 rounded-xl p-3 flex flex-col gap-2 flex-1 text-center">
-          <div>Min Price</div>
-          <div className="text-text text-sm font-medium">{displayLower}</div>
-          <div>{label}</div>
+    <div className="px-4 py-3 text-sm border border-stroke rounded-md">
+      <p className="text-subText mb-3">Your Position Price Ranges</p>
+      <div className="flex items-center gap-4">
+        <div className="bg-white bg-opacity-[0.04] rounded-md py-3 w-1/2 flex flex-col items-center justify-center gap-1">
+          <p className="text-subText">Min Price</p>
+          {initializing ? (
+            <Skeleton className="w-14 h-5" />
+          ) : (
+            <p className="max-w-full truncate" title={displayLower}>
+              {displayLower}
+            </p>
+          )}
+          {initializing ? (
+            <Skeleton className="w-20 h-5" />
+          ) : (
+            <p className="text-subText">{label}</p>
+          )}
         </div>
-
-        <div className="bg-layer2 rounded-xl p-3 flex flex-col gap-2 flex-1 text-center">
-          <div>Max Price</div>
-          <div className="text-text text-sm font-medium">{displayUpper}</div>
-          <div>{label}</div>
+        <div className="bg-white bg-opacity-[0.04] rounded-md px-2 py-3 w-1/2 flex flex-col items-center justify-center gap-1">
+          <p className="text-subText">Max Price</p>
+          {initializing ? (
+            <Skeleton className="w-14 h-5" />
+          ) : (
+            <p className="max-w-full truncate" title={displayUpper}>
+              {displayUpper}
+            </p>
+          )}
+          {initializing ? (
+            <Skeleton className="w-20 h-5" />
+          ) : (
+            <p className="text-subText">{label}</p>
+          )}
         </div>
       </div>
     </div>

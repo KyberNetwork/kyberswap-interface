@@ -1,5 +1,4 @@
 import { useZapOutContext } from "@/stores";
-import questionImg from "@/assets/svg/question.svg?url";
 import { RemoveLiquidityAction, useZapOutUserState } from "@/stores/state";
 import { Skeleton } from "@kyber/ui";
 import {
@@ -7,7 +6,7 @@ import {
   formatTokenAmount,
   toRawString,
 } from "@kyber/utils/number";
-import { SyntheticEvent, useRef } from "react";
+import { useRef } from "react";
 import { univ2PoolNormalize } from "@/schema";
 
 export const PoolFee = () => {
@@ -41,86 +40,67 @@ export const PoolFee = () => {
   const feeAmount1Ref = useRef(feeAmount1);
   if (route) feeAmount1Ref.current = feeAmount1;
 
-  const onError = ({
-    currentTarget,
-  }: SyntheticEvent<HTMLImageElement, Event>) => {
-    currentTarget.onerror = null; // prevents looping
-    currentTarget.src = questionImg;
-  };
-
   if (isUniv2) return null;
 
   return (
     <div className="rounded-lg px-4 py-3 border border-stroke text-sm text-subText">
-      <div>Pool fee</div>
+      <div>Claim fee</div>
+      <div className="mt-2 h-[1px] w-full bg-stroke" />
+      <div className=" mt-2 flex items-start justify-between">
+        <div>Pool fee</div>
 
-      <div className="flex justify-between mt-2 items-center">
-        {pool === "loading" ? (
-          <>
-            <Skeleton className="h-5 w-20 mt-2" />
-            <Skeleton className="h-4 w-14" />
-          </>
-        ) : (
-          <>
-            <div className="flex items-center text-base gap-1 text-text">
-              <img
-                src={pool.token0.logo || ""}
-                alt=""
-                className="w-4 h-4"
-                onError={onError}
-              />
-              {formatTokenAmount(
-                feeAmount0Ref.current,
-                pool.token0.decimals,
-                8
-              )}{" "}
-              {pool.token0.symbol}
-            </div>
-            <div className="text-xs text-subText">
-              {formatDisplayNumber(
-                (pool.token0.price || 0) *
-                  Number(
-                    toRawString(feeAmount0Ref.current, pool.token0.decimals)
-                  ),
-                { style: "currency" }
-              )}
-            </div>
-          </>
-        )}
-      </div>
-      <div className="flex justify-between mt-2 items-center">
-        {pool === "loading" ? (
-          <>
-            <Skeleton className="h-5 w-20 mt-2" />
-            <Skeleton className="h-4 w-14" />
-          </>
-        ) : (
-          <>
-            <div className="flex items-center text-base gap-1 text-text">
-              <img
-                src={pool.token1.logo || ""}
-                alt=""
-                className="w-4 h-4"
-                onError={onError}
-              />
-              {formatTokenAmount(
-                feeAmount1Ref.current,
-                pool.token1.decimals,
-                8
-              )}{" "}
-              {pool.token1.symbol}
-            </div>
-            <div className="text-xs text-subText">
-              {formatDisplayNumber(
-                (pool.token1.price || 0) *
-                  Number(
-                    toRawString(feeAmount1Ref.current, pool.token1.decimals)
-                  ),
-                { style: "currency" }
-              )}
-            </div>
-          </>
-        )}
+        <div className="flex flex-col gap-2">
+          <div className="flex justify-between items-center gap-2">
+            {pool === "loading" ? (
+              <Skeleton className="h-5 w-20" />
+            ) : (
+              <>
+                <div className="flex items-center text-base gap-1 text-text">
+                  {formatTokenAmount(
+                    feeAmount0Ref.current,
+                    pool.token0.decimals,
+                    8
+                  )}{" "}
+                  {pool.token0.symbol}
+                </div>
+                <div className="text-xs text-subText">
+                  {formatDisplayNumber(
+                    (pool.token0.price || 0) *
+                      Number(
+                        toRawString(feeAmount0Ref.current, pool.token0.decimals)
+                      ),
+                    { style: "currency" }
+                  )}
+                </div>
+              </>
+            )}
+          </div>
+          <div className="flex justify-between items-center gap-2">
+            {pool === "loading" ? (
+              <Skeleton className="h-5 w-20" />
+            ) : (
+              <>
+                <div className="flex items-center text-base gap-1 text-text">
+                  {formatTokenAmount(
+                    feeAmount1Ref.current,
+                    pool.token1.decimals,
+                    8
+                  )}{" "}
+                  {pool.token1.symbol}
+                </div>
+                <div className="text-xs text-subText">
+                  {formatDisplayNumber(
+                    (pool.token1.price || 0) *
+                      Number(
+                        toRawString(feeAmount1Ref.current, pool.token1.decimals)
+                      ),
+                    { style: "currency" }
+                  )}
+                </div>
+              </>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
