@@ -182,7 +182,7 @@ export default function Preview({
       .then(res => res.json())
       .then(async res => {
         const { data } = res || {};
-        if (data.callData && account) {
+        if (data?.callData && account) {
           const txData = {
             from: account,
             to: data.routerAddress,
@@ -449,7 +449,10 @@ export default function Preview({
                 }}
               />
               <span>
-                {listValidAmountsIn[index]} {token.symbol}
+                {formatDisplayNumber(listValidAmountsIn[index], {
+                  significantDigits: 6,
+                })}{' '}
+                {token.symbol}
               </span>
               <span className="ml-1 text-subText">
                 ~{formatCurrency(tokenPrices[token.address.toLowerCase()] * parseFloat(listValidAmountsIn[index]))}
