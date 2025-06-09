@@ -370,7 +370,6 @@ export const ZapContextProvider = ({
       if (price0 && price1) setMarketPrice(price0 / price1);
       else setMarketPrice(null);
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chainId, pool]);
 
   // get zap route

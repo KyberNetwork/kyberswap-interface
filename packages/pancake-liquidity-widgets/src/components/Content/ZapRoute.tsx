@@ -106,7 +106,7 @@ export default function ZapRoute() {
         Zap Route
         <InfoHelper text="The actual Zap Route could be adjusted with on-chain states" />
       </div>
-      <div className="ks-lw-card flex flex-col gap-4">
+      <div className="pcs-lw-card flex flex-col gap-4">
         {swapInfo.map((item, index) => (
           <div className="flex gap-3 items-center" key={index}>
             <div className="rounded-[50%] w-6 h-6 flex justify-center items-center text-sm font-medium bg-inputBackground text-textSecondary">

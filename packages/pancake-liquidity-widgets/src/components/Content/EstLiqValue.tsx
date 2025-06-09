@@ -282,7 +282,7 @@ export default function EstLiqValue() {
       <div className="text-xs font-medium text-secondary uppercase mt-6">
         Summary
       </div>
-      <div className="ks-lw-card mt-2 flex flex-col gap-[10px]">
+      <div className="pcs-lw-card mt-2 flex flex-col gap-[10px]">
         <div className="flex justify-between items-start text-sm">
           Est. Liquidity Value
           {!!addedAmountUsd && (
@@ -426,8 +426,8 @@ export default function EstLiqValue() {
                         swapPiRes.piRes.level === PI_LEVEL.NORMAL
                           ? ""
                           : swapPiRes.piRes.level === PI_LEVEL.HIGH
-                          ? "!text-warning !border-warning"
-                          : "!text-error !border-error"
+                            ? "!text-warning !border-warning"
+                            : "!text-error !border-error"
                       }`}
                     >
                       Swap Impact
@@ -443,8 +443,8 @@ export default function EstLiqValue() {
                         item.piRes.level === PI_LEVEL.NORMAL
                           ? "brightness-125"
                           : item.piRes.level === PI_LEVEL.HIGH
-                          ? "!text-warning"
-                          : "!text-error"
+                            ? "!text-warning"
+                            : "!text-error"
                       }`}
                       key={index}
                     >
@@ -489,8 +489,8 @@ export default function EstLiqValue() {
                 piRes.level === PI_LEVEL.INVALID
                   ? "text-error"
                   : piRes.level === PI_LEVEL.HIGH
-                  ? "text-warning"
-                  : "text-textPrimary"
+                    ? "text-warning"
+                    : "text-textPrimary"
               }
             >
               {piRes.display}
@@ -550,15 +550,15 @@ export default function EstLiqValue() {
         </div>
 
         {aggregatorSwapInfo && swapPiRes.piRes.level !== PI_LEVEL.NORMAL && (
-          <div className="ks-lw-card-warning mt-3">{swapPiRes.piRes.msg}</div>
+          <div className="pcs-lw-card-warning mt-3">{swapPiRes.piRes.msg}</div>
         )}
 
         {zapInfo && piRes.level !== PI_LEVEL.NORMAL && (
-          <div className="ks-lw-card-warning mt-3">{piRes.msg}</div>
+          <div className="pcs-lw-card-warning mt-3">{piRes.msg}</div>
         )}
 
         {isOutOfRangeAfterZap && (
-          <div className="ks-lw-card-warning mt-3">
+          <div className="pcs-lw-card-warning mt-3">
             The position will be <span className="text-warning">inactive</span>{" "}
             after zapping and{" "}
             <span className="text-warning">won’t earn any fees</span> until the
@@ -566,7 +566,7 @@ export default function EstLiqValue() {
           </div>
         )}
         {isDeviated && (
-          <div className="ks-lw-card-warning mt-3">
+          <div className="pcs-lw-card-warning mt-3">
             <div className="text">
               The pool's estimated price after zapping:{" "}
               <span className="font-medium text-warning ml-[2px] not-italic">
@@ -586,7 +586,7 @@ export default function EstLiqValue() {
         )}
 
         {isNotOwnByUser && !isOwnByFarmContract && (
-          <div className="ks-lw-card-warning mt-3">
+          <div className="pcs-lw-card-warning mt-3">
             You are not the current owner of the position{" "}
             <span className="text-warning">#{positionId}</span>, please double
             check before proceeding

@@ -486,7 +486,7 @@ export default function Preview({
           </a>
         )}
         <button
-          className="ks-primary-btn w-full"
+          className="pcs-primary-btn w-full"
           onClick={() => {
             checkNftApproval();
             onDismiss();
@@ -526,7 +526,7 @@ export default function Preview({
           <div className="h-[1px] w-full bg-cardBorder" />
 
           <div
-            className={`ks-error-msg ${
+            className={`pcs-error-msg ${
               showErrorDetail ? "mt-3 max-h-[200px]" : ""
             }`}
           >
@@ -534,7 +534,7 @@ export default function Preview({
           </div>
         </div>
 
-        <button className="ks-primary-btn w-full" onClick={onDismiss}>
+        <button className="pcs-primary-btn w-full" onClick={onDismiss}>
           {txError ? "Dismiss" : "Close"}
         </button>
       </div>
@@ -620,7 +620,7 @@ export default function Preview({
         </div>
       </div>
 
-      <div className="ks-lw-card mt-4 border border-inputBorder bg-inputBackground">
+      <div className="pcs-lw-card mt-4 border border-inputBorder bg-inputBackground">
         <div>Zap-in Amount</div>
 
         {tokensIn.map((token: PancakeTokenAdvanced, index: number) => (
@@ -648,7 +648,7 @@ export default function Preview({
         ))}
       </div>
 
-      <div className="ks-lw-card mt-3 text-sm">
+      <div className="pcs-lw-card mt-3 text-sm">
         <div className="flex items-center gap-1 text-sm text-textSecondary">
           <div>Current pool price</div>
           <span className="text-textPrimary">
@@ -684,7 +684,7 @@ export default function Preview({
         </div>
       </div>
 
-      <div className="ks-lw-card flex flex-col gap-3 mt-3">
+      <div className="pcs-lw-card flex flex-col gap-3 mt-3">
         <div className="flex justify-between gap-4 w-full items-start">
           <div className="text-sm font-medium text-textSecondary">
             Est. Pooled {pool.token0.symbol}
@@ -957,21 +957,21 @@ export default function Preview({
       </div>
 
       {slippage > warningThreshold && (
-        <div className="ks-lw-card-warning mt-3">
+        <div className="pcs-lw-card-warning mt-3">
           Slippage is high, your transaction might be front-run!
         </div>
       )}
 
       {aggregatorSwapInfo && swapPiRes.piRes.level !== PI_LEVEL.NORMAL && (
-        <div className="ks-lw-card-warning mt-3">{swapPiRes.piRes.msg}</div>
+        <div className="pcs-lw-card-warning mt-3">{swapPiRes.piRes.msg}</div>
       )}
 
       {zapInfo && piRes.level !== PI_LEVEL.NORMAL && (
-        <div className="ks-lw-card-warning mt-3">{piRes.msg}</div>
+        <div className="pcs-lw-card-warning mt-3">{piRes.msg}</div>
       )}
 
       <button
-        className={`ks-primary-btn mt-4 w-full ${
+        className={`pcs-primary-btn mt-4 w-full ${
           piVeryHigh ? "bg-error" : piHigh ? "bg-warning" : ""
         } ${
           piVeryHigh

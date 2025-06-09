@@ -16,7 +16,7 @@
   },
   "scripts": {
     "build": "turbo build",
-    "build-package": "pnpm --parallel -r --filter \"@kyber/svgr-esbuild-plugin\" --filter \"@kyber/schema\" --filter \"@kyber/utils\" --filter \"@kyber/ui\" build && pnpm --filter \"@kyberswap/liquidity-chart\" build && pnpm --parallel --filter \"@kyberswap/liquidity-widgets\" --filter \"@kyberswap/zap-migration-widgets\" --filter \"@kyberswap/zap-out-widgets\" build",
+    "build-package": "pnpm --parallel -r --filter \"@kyber/svgr-esbuild-plugin\" --filter \"@kyber/schema\" --filter \"@kyber/utils\" --filter \"@kyber/ui\" build && pnpm --filter \"@kyberswap/liquidity-chart\" build && pnpm --parallel --filter \"@kyberswap/liquidity-widgets\" --filter \"@kyberswap/zap-migration-widgets\" --filter \"@kyberswap/zap-out-widgets\" --filter \"@kyberswap/pancake-liquidity-widgets\" build",
     "lint": "turbo lint",
     "dev": "turbo dev",
     "type-check": "turbo type-check"
