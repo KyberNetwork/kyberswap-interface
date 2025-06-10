@@ -142,7 +142,7 @@ const PositionDetail = () => {
           {t`Total Liquidity`}
         </Text>
         <Text fontSize={20}>
-          {formatDisplayNumber(position?.totalValue, {
+          {formatDisplayNumber(position?.totalProvidedValue, {
             style: 'currency',
             significantDigits: 4,
           })}
@@ -152,12 +152,12 @@ const PositionDetail = () => {
       <Flex flexDirection={'column'} alignContent={'flex-end'} sx={{ gap: 2 }}>
         <Flex alignItems={'center'} sx={{ gap: '6px' }}>
           <TokenLogo src={position?.token0.logo} size={16} />
-          <Text>{formatDisplayNumber(position?.token0.totalAmount, { significantDigits: 6 })}</Text>
+          <Text>{formatDisplayNumber(position?.token0.totalProvide, { significantDigits: 4 })}</Text>
           <Text>{position?.token0.symbol}</Text>
         </Flex>
         <Flex alignItems={'center'} sx={{ gap: '6px' }}>
           <TokenLogo src={position?.token1.logo} size={16} />
-          <Text>{formatDisplayNumber(position?.token1.totalAmount, { significantDigits: 6 })}</Text>
+          <Text>{formatDisplayNumber(position?.token1.totalProvide, { significantDigits: 4 })}</Text>
           <Text>{position?.token1.symbol}</Text>
         </Flex>
       </Flex>

@@ -134,6 +134,7 @@ export interface ParsedPosition {
   kemApr: number
   feeApr: number
   totalValue: number
+  totalProvidedValue: number
   status: string
   createdTime: number
   unclaimedFees: number

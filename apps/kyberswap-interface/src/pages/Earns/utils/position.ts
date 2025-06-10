@@ -24,6 +24,10 @@ export const parsePosition = ({
     position.feePending[1]?.quotes.usd.value / position.feePending[1]?.quotes.usd.price +
     position.feesClaimed[1]?.quotes.usd.value / position.feesClaimed[1]?.quotes.usd.price
 
+  const totalValue = position.currentPositionValue
+  const unclaimedFees = feeInfo ? feeInfo.totalValue : position.feePending.reduce((a, b) => a + b.quotes.usd.value, 0)
+  const totalProvidedValue = totalValue - unclaimedFees
+
   const token0Address = position.pool.tokenAmounts[0]?.token.address || ''
   const token1Address = position.pool.tokenAmounts[1]?.token.address || ''
 
@@ -112,8 +116,9 @@ export const parsePosition = ({
     feeApr: position.apr || 0,
     apr: (position.apr || 0) + (position.kemApr || 0),
     kemApr: position.kemApr || 0,
-    totalValue: position.currentPositionValue,
-    unclaimedFees: feeInfo ? feeInfo.totalValue : position.feePending.reduce((a, b) => a + b.quotes.usd.value, 0),
+    totalValue,
+    totalProvidedValue,
+    unclaimedFees,
     status: isUniv2 ? PositionStatus.IN_RANGE : position.status,
     createdTime: position.createdTime,
   }
