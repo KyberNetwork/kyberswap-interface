@@ -13,7 +13,7 @@ import {
   Skeleton,
 } from '@kyber/ui';
 import { PI_LEVEL, getSwapPriceImpactFromActions, parseSwapActions, parseZapInfo } from '@kyber/utils';
-import { formatCurrency, formatDisplayNumber, formatNumber } from '@kyber/utils/number';
+import { formatCurrency, formatNumber } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
 import defaultTokenLogo from '@/assets/svg/question.svg?url';
@@ -215,14 +215,8 @@ export default function EstLiqValue() {
                       key={index}
                     >
                       <div className="ml-3">
-                        {formatDisplayNumber(item.amountIn, {
-                          significantDigits: 4,
-                        })}{' '}
-                        {item.tokenInSymbol} {'→ '}
-                        {formatDisplayNumber(item.amountOut, {
-                          significantDigits: 4,
-                        })}{' '}
-                        {item.tokenOutSymbol}
+                        {item.amountIn} {item.tokenInSymbol} {'→ '}
+                        {item.amountOut} {item.tokenOutSymbol}
                       </div>
                       <div>{item.piRes.display}</div>
                     </div>

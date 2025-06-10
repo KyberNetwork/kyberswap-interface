@@ -257,7 +257,8 @@ export default function Widget() {
                 <div className="italic text-text">
                   The pool's estimated price after zapping of{' '}
                   <span className="font-medium text-warning not-italic ml-[2px]">
-                    1 {revertPrice ? token1.symbol : token0.symbol} = {newPoolPrice}{' '}
+                    1 {revertPrice ? token1.symbol : token0.symbol} ={' '}
+                    {formatDisplayNumber(newPoolPrice, { significantDigits: 6 })}{' '}
                     {revertPrice ? token0.symbol : token1.symbol}
                   </span>{' '}
                   deviates from the market price{' '}

@@ -6,7 +6,7 @@ import { usePositionOwner } from '@kyber/hooks';
 import { APPROVAL_STATE, useErc20Approvals, useNftApproval } from '@kyber/hooks';
 import { FARMING_CONTRACTS, NETWORKS_INFO, defaultToken, univ3PoolNormalize, univ4Types } from '@kyber/schema';
 import { InfoHelper } from '@kyber/ui';
-import { PI_LEVEL, getNftManagerContractAddress, getSwapPriceImpactFromZapInfo } from '@kyber/utils';
+import { PI_LEVEL, getNftManagerContractAddress, getPriceImpact, getSwapPriceImpactFromZapInfo } from '@kyber/utils';
 import { parseUnits } from '@kyber/utils/crypto';
 
 import { ERROR_MESSAGE } from '@/constants';
@@ -135,6 +135,16 @@ export default function Action() {
     ? null
     : getSwapPriceImpactFromZapInfo({ zapInfo, tokens: tokensToCheck, poolType, chainId });
 
+  const zapImpact = !zapInfo
+    ? null
+    : getPriceImpact(zapInfo.zapDetails.priceImpact, 'Zap Impact', zapInfo.zapDetails.suggestedSlippage || 100);
+
+  const isVeryHighPriceImpact = priceImpact?.piRes.level === PI_LEVEL.VERY_HIGH;
+  const isHighPriceImpact = priceImpact?.piRes.level === PI_LEVEL.HIGH;
+  const isVeryHighZapImpact = zapImpact?.level === PI_LEVEL.VERY_HIGH;
+  const isHighZapImpact = zapImpact?.level === PI_LEVEL.HIGH;
+  const isInvalidZapImpact = zapImpact?.level === PI_LEVEL.INVALID;
+
   const btnText = (() => {
     if (error) return error;
     if (isUniv4 && isNotOwner) {
@@ -146,7 +156,7 @@ export default function Action() {
     if (addressToApprove || nftApprovePendingTx) return 'Approving';
     if (notApprove) return `Approve ${notApprove.symbol}`;
     if (isUniv4 && positionId && !nftApproved) return 'Approve NFT';
-    if (priceImpact?.piRes.level === PI_LEVEL.VERY_HIGH) return 'Zap anyway';
+    if (isVeryHighPriceImpact || isVeryHighZapImpact || isInvalidZapImpact) return 'Zap anyway';
 
     return 'Preview';
   })();
@@ -174,7 +184,7 @@ export default function Action() {
       zapInfo &&
       (isUniV3Pool ? tickLower !== null && tickUpper !== null && priceLower && priceUpper : true)
     ) {
-      if (priceImpact?.piRes.level === PI_LEVEL.VERY_HIGH && !degenMode) {
+      if ((isVeryHighPriceImpact || isVeryHighZapImpact || isInvalidZapImpact) && !degenMode) {
         toggleSetting(true);
         document.getElementById('zapin-setting')?.scrollIntoView({ behavior: 'smooth' });
 
@@ -206,9 +216,9 @@ export default function Action() {
       <button
         className={`ks-primary-btn min-w-[190px] w-fit ${
           !disabled && Object.values(approvalStates).some(item => item !== APPROVAL_STATE.NOT_APPROVED)
-            ? priceImpact?.piRes.level === PI_LEVEL.VERY_HIGH
+            ? isVeryHighPriceImpact || isVeryHighZapImpact || isInvalidZapImpact
               ? 'bg-error border-solid border-error text-white'
-              : priceImpact?.piRes.level === PI_LEVEL.HIGH
+              : isHighPriceImpact || isHighZapImpact
                 ? 'bg-warning border-solid border-warning'
                 : ''
             : ''
@@ -217,7 +227,7 @@ export default function Action() {
         onClick={hanldeClick}
       >
         {btnText}
-        {priceImpact?.piRes.level === PI_LEVEL.VERY_HIGH &&
+        {(isVeryHighPriceImpact || isVeryHighZapImpact || isInvalidZapImpact) &&
           !error &&
           !isWrongNetwork &&
           !isNotConnected &&
