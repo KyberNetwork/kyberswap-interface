@@ -5,7 +5,6 @@ import {
   ZERO_ADDRESS,
 } from "../constants";
 import { useNftApproval } from "../hooks/use-nft-approval";
-import { useTargetNftApproval } from "../hooks/use-target-nft-approval";
 import usePositionOwner from "../hooks/usePositionOwner";
 import { ChainId, Token, univ2Dexes, univ4Dexes } from "../schema";
 import { usePoolsStore } from "../stores/usePoolsStore";
@@ -133,7 +132,7 @@ export function Action({
     isApproved: targetNftApproved,
     approve: targetNftApprove,
     pendingTx: targetNftPendingTx,
-  } = useTargetNftApproval({
+  } = useNftApproval({
     rpcUrl: NETWORKS_INFO[chainId].defaultRpc,
     nftManagerContract: targetNftManager
       ? typeof targetNftManager === "string"

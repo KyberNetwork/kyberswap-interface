@@ -43,7 +43,7 @@ export function PoolInfo({
 
   return (
     <>
-      <div className="flex gap-1 items-center">
+      <div className="flex gap-1 items-center flex-wrap">
         <div className="flex items-end">
           <Image
             src={pool.token0.logo || ""}
@@ -63,6 +63,9 @@ export function PoolInfo({
         </div>
         <div className="text-xl self-center">
           {pool.token0.symbol}/{pool.token1.symbol}
+        </div>
+        <div className="text-base opacity-70 relative top-[2px]">
+          #{position?.id}
         </div>
         {position && univ3Dexes.includes(position.dex) && (
           <div
