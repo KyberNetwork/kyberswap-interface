@@ -408,7 +408,9 @@ export default function OrderItem({
     )
   }
 
-  const highlight = searchParams.get('highlight') === 'true'
+  const highlight =
+    searchParams.get('highlight') === 'true' &&
+    order.makerAsset.toLowerCase() === searchParams.get('search')?.toLowerCase()
 
   return (
     <>
