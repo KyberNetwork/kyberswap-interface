@@ -30,7 +30,8 @@ export interface EarnPool {
   feeTier: number
   volume: number
   apr: number
-  kemApr: number
+  kemEGApr: number
+  kemLMApr: number
   liquidity: number
   tvl: number
   chainId?: number
@@ -66,7 +67,8 @@ export interface EarnPosition {
   feesClaimed: Array<PositionAmount>
   createdTime: number
   apr: number
-  kemApr: number
+  kemEGApr: number
+  kemLMApr: number
   currentPositionValue: number
   earning24h: number
   earning7d: number
@@ -131,7 +133,8 @@ export interface ParsedPosition {
   token1: Token
   tokenAddress: string
   apr: number
-  kemApr: number
+  kemEGApr: number
+  kemLMApr: number
   feeApr: number
   totalValue: number
   totalProvidedValue: number

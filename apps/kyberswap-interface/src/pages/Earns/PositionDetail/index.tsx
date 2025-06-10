@@ -179,7 +179,9 @@ const PositionDetail = () => {
               <div>
                 {t`LP Fee APR`}: {formatAprNumber(position?.feeApr || 0)}%
                 <br />
-                {t`Rewards APR`}: {formatAprNumber(position?.kemApr || 0)}%
+                {t`EG Sharing Reward`}: {formatAprNumber(position?.kemEGApr || 0)}%
+                <br />
+                {t`LM Reward`}: {formatAprNumber(position?.kemLMApr || 0)}%
               </div>
             }
           />

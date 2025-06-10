@@ -71,7 +71,7 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: ({ pool }: Zap
           dexLogo,
           dexName,
           feeApr: pool.apr,
-          apr: pool.kemApr + pool.apr,
+          apr: (pool.kemEGApr || 0) + (pool.kemLMApr || 0) + pool.apr,
         }
       }),
     [poolData, dexList],
@@ -184,7 +184,9 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: ({ pool }: Zap
           <div>
             {t`LP Fee APR`}: {formatAprNumber(pool.feeApr)}%
             <br />
-            {t`Rewards APR`}: {formatAprNumber(pool.kemApr || 0)}%
+            {t`EG Sharing Reward`}: {formatAprNumber(pool.kemEGApr || 0)}%
+            <br />
+            {t`LM Reward`}: {formatAprNumber(pool.kemLMApr || 0)}%
           </div>
         }
       >

@@ -66,16 +66,20 @@ const PoolItem = ({ pool, isFarming }: { pool: EarnPool; isFarming?: boolean }) 
       </Flex>
 
       <Flex alignItems="center" sx={{ gap: '4px' }}>
-        <Text color={theme.primary}>{formatAprNumber(pool.apr + pool.kemApr)}%</Text>
+        <Text color={theme.primary}>
+          {formatAprNumber((pool.apr || 0) + (pool.kemEGApr || 0) + (pool.kemLMApr || 0))}%
+        </Text>
         {isFarming && (
           <MouseoverTooltipDesktopOnly
             placement="top"
             width="fit-content"
             text={
               <div>
-                {t`LP Fee APR`}: {formatAprNumber(pool.apr)}%
+                {t`LP Fee APR`}: {formatAprNumber(pool.apr || 0)}%
                 <br />
-                {t`Rewards APR`}: {formatAprNumber(pool.kemApr)}%
+                {t`EG Sharing Reward`}: {formatAprNumber(pool.kemEGApr || 0)}%
+                <br />
+                {t`LM Reward`}: {formatAprNumber(pool.kemLMApr || 0)}%
               </div>
             }
           >

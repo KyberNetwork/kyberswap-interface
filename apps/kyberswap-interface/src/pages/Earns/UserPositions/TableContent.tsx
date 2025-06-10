@@ -332,13 +332,15 @@ export default function TableContent({
                                 {t`LP Fees APR`}: {formatAprNumber(position.feeApr)}%
                               </Text>
                               <Text>
-                                {t`Rewards APR`}: {formatAprNumber(position.kemApr)}%
+                                {t`EG Sharing Reward`}: {formatAprNumber(position.kemEGApr)}%
+                                <br />
+                                {t`LM Reward`}: {formatAprNumber(position.kemLMApr)}%
                               </Text>
                             </>
                           ) : null
                         }
                         width="fit-content"
-                        placement="bottom"
+                        placement="top"
                       >
                         <Text color={pool.isFarming ? theme.primary : theme.text}>{formatAprNumber(apr)}%</Text>
                       </MouseoverTooltipDesktopOnly>
