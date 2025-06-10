@@ -64,7 +64,7 @@ export const getPoolInfo = async ({
         tickSpacing: number;
         ticks?: any[];
       };
-      staticExtra: string;
+      staticExtra?: string;
     }>
   ).find(item => item.address.toLowerCase() === poolAddress.toLowerCase());
 
@@ -76,7 +76,7 @@ export const getPoolInfo = async ({
 
   const isUniV4 = univ4Types.includes(poolType);
 
-  const staticExtra = JSON.parse(pool.staticExtra || '{}');
+  const staticExtra = pool.staticExtra && 'staticExtra' in pool ? JSON.parse(pool.staticExtra) : null;
   const isToken0Native = isUniV4 && pool.staticExtra && staticExtra?.['0x0']?.[0];
   const isToken1Native = isUniV4 && pool.staticExtra && staticExtra?.['0x0']?.[1];
 

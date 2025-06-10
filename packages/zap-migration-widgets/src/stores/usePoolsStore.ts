@@ -91,7 +91,7 @@ const poolResponse = z.object({
             tick: z.number(),
             ticks: z.array(tick).optional(),
           }),
-          staticExtra: z.string(),
+          staticExtra: z.string().optional(),
         })
         .or(
           z.object({
@@ -113,7 +113,6 @@ const poolResponse = z.object({
               fee: z.number(),
               feePrecision: z.number(),
             }),
-            staticExtra: z.string(),
           })
         )
     ),
@@ -172,8 +171,14 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
       const isFromUniV4 = univ4Dexes.includes(dexFrom);
       const isToUniV4 = univ4Dexes.includes(dexTo);
 
-      const sourceStaticExtra = JSON.parse(fromPool.staticExtra || "{}");
-      const targetStaticExtra = JSON.parse(toPool.staticExtra || "{}");
+      const sourceStaticExtra =
+        "staticExtra" in fromPool && fromPool.staticExtra
+          ? JSON.parse(fromPool.staticExtra)
+          : null;
+      const targetStaticExtra =
+        "staticExtra" in toPool && toPool.staticExtra
+          ? JSON.parse(toPool.staticExtra)
+          : null;
 
       const isFromToken0Native = isFromUniV4 && sourceStaticExtra?.["0x0"]?.[0];
       const isFromToken1Native = isFromUniV4 && sourceStaticExtra?.["0x0"]?.[1];

@@ -37,7 +37,6 @@ export const univ2Pool = z.object({
   //  fee: z.number(),
   //  feePrecision: z.number(),
   //}),
-  staticExtra: z.string(),
 });
 
 export const univ2PoolResponse = z.object({

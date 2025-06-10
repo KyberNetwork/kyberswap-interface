@@ -114,11 +114,15 @@ const createZapOutStore = (initProps: InnerZapOutProps) => {
 
       const isUniV4 = univ4Types.includes(poolType);
 
-      const staticExtra = JSON.parse(pool.staticExtra || "{}");
+      const staticExtra =
+        "staticExtra" in pool && pool.staticExtra
+          ? JSON.parse(pool.staticExtra)
+          : null;
+
       const isToken0Native =
-        isUniV4 && pool.staticExtra && staticExtra?.["0x0"]?.[0];
+        isUniV4 && staticExtra && staticExtra?.["0x0"]?.[0];
       const isToken1Native =
-        isUniV4 && pool.staticExtra && staticExtra?.["0x0"]?.[1];
+        isUniV4 && staticExtra && staticExtra?.["0x0"]?.[1];
 
       const token0Address = isToken0Native
         ? NATIVE_TOKEN_ADDRESS.toLowerCase()
