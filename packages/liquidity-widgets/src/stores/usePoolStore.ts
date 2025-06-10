@@ -71,5 +71,8 @@ export const usePoolStore = create<PoolState>((set, get) => ({
     if (price !== null) set({ poolPrice: price });
   },
   setRevertPrice: (revertPrice: boolean) => set({ revertPrice }),
-  toggleRevertPrice: () => set(state => ({ revertPrice: !state.revertPrice })),
+  toggleRevertPrice: () => {
+    set(state => ({ revertPrice: !state.revertPrice }));
+    get().getPoolPrice();
+  },
 }));
