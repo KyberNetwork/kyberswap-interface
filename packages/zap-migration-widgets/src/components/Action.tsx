@@ -287,8 +287,8 @@ export function Action({
             ? pi.piVeryHigh
               ? "bg-error border-solid border-error text-white"
               : pi.piHigh
-              ? "bg-warning border-solid border-warning"
-              : ""
+                ? "bg-warning border-solid border-warning"
+                : ""
             : ""
         )}
         disabled={disableBtn}

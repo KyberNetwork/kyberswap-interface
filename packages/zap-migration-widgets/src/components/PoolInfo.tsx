@@ -64,23 +64,6 @@ export function PoolInfo({
         <div className="text-xl self-center">
           {pool.token0.symbol}/{pool.token1.symbol}
         </div>
-        <div className="text-lg">
-          {position && univ3Dexes.includes(position.dex) && (
-            <div>#{position.id}</div>
-          )}
-        </div>
-      </div>
-
-      <div className="mt-2.5 flex items-center gap-1">
-        <Image
-          src={DEXES_INFO[pool.dex].icon}
-          alt={dexName}
-          className="w-4 h-4 rounded-full"
-        />
-        <div className="text-sm opacity-70">{dexName}</div>
-        <div className="rounded-xl bg-layer2 px-2 py-1 text-xs">
-          Fee {pool.fee}%
-        </div>
         {position && univ3Dexes.includes(position.dex) && (
           <div
             className={`rounded-full text-xs px-2 py-1 font-normal ${
@@ -93,6 +76,18 @@ export function PoolInfo({
             {isOutOfRange ? "● Out of range" : "● In range"}
           </div>
         )}
+      </div>
+
+      <div className="mt-2.5 flex items-center gap-1">
+        <Image
+          src={DEXES_INFO[pool.dex].icon}
+          alt={dexName}
+          className="w-4 h-4 rounded-full"
+        />
+        <div className="text-sm opacity-70">{dexName}</div>
+        <div className="rounded-xl bg-layer2 px-2 py-1 text-xs">
+          Fee {pool.fee}%
+        </div>
       </div>
     </>
   );

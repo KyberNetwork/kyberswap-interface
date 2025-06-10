@@ -8,11 +8,12 @@ import {
   token,
   univ2Dexes,
   univ3Dexes,
+  univ4Dexes,
 } from "../schema";
 import { Theme, defaultTheme } from "../theme";
 import { z } from "zod";
 import { create } from "zustand";
-import { NETWORKS_INFO, PATHS } from "../constants";
+import { NETWORKS_INFO, NATIVE_TOKEN_ADDRESS, PATHS } from "../constants";
 import { MAX_TICK, MIN_TICK, nearestUsableTick } from "@kyber/utils/uniswapv3";
 
 interface GetPoolParams {
@@ -90,6 +91,7 @@ const poolResponse = z.object({
             tick: z.number(),
             ticks: z.array(tick).optional(),
           }),
+          staticExtra: z.string(),
         })
         .or(
           z.object({
@@ -111,6 +113,7 @@ const poolResponse = z.object({
               fee: z.number(),
               feePrecision: z.number(),
             }),
+            staticExtra: z.string(),
           })
         )
     ),
@@ -166,17 +169,36 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
         return;
       }
 
-      const fromPoolToken0 = fromPool.tokens[0];
-      const fromPoolToken1 = fromPool.tokens[1];
-      const toPoolToken0 = toPool.tokens[0];
-      const toPoolToken1 = toPool.tokens[1];
+      const isFromUniV4 = univ4Dexes.includes(dexFrom);
+      const isToUniV4 = univ4Dexes.includes(dexTo);
+
+      const sourceStaticExtra = JSON.parse(fromPool.staticExtra || "{}");
+      const targetStaticExtra = JSON.parse(toPool.staticExtra || "{}");
+
+      const isFromToken0Native = isFromUniV4 && sourceStaticExtra?.["0x0"]?.[0];
+      const isFromToken1Native = isFromUniV4 && sourceStaticExtra?.["0x0"]?.[1];
+      const isToToken0Native = isToUniV4 && targetStaticExtra?.["0x0"]?.[0];
+      const isToToken1Native = isToUniV4 && targetStaticExtra?.["0x0"]?.[1];
+
+      const fromPoolToken0Address = isFromToken0Native
+        ? NATIVE_TOKEN_ADDRESS.toLowerCase()
+        : fromPool.tokens[0].address;
+      const fromPoolToken1Address = isFromToken1Native
+        ? NATIVE_TOKEN_ADDRESS.toLowerCase()
+        : fromPool.tokens[1].address;
+      const toPoolToken0Address = isToToken0Native
+        ? NATIVE_TOKEN_ADDRESS.toLowerCase()
+        : toPool.tokens[0].address;
+      const toPoolToken1Address = isToToken1Native
+        ? NATIVE_TOKEN_ADDRESS.toLowerCase()
+        : toPool.tokens[1].address;
 
       const addresses = [
-        fromPoolToken0,
-        fromPoolToken1,
-        toPoolToken0,
-        toPoolToken1,
-      ].map((item) => item.address.toLowerCase());
+        fromPoolToken0Address,
+        fromPoolToken1Address,
+        toPoolToken0Address,
+        toPoolToken1Address,
+      ];
 
       const tokens: {
         address: string;
@@ -235,8 +257,12 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
         };
       };
 
-      const tokenFrom0 = await enrichLogoAndPrice(fromPoolToken0);
-      const tokenFrom1 = await enrichLogoAndPrice(fromPoolToken1);
+      const tokenFrom0 = await enrichLogoAndPrice({
+        address: fromPoolToken0Address,
+      });
+      const tokenFrom1 = await enrichLogoAndPrice({
+        address: fromPoolToken1Address,
+      });
       if (!tokenFrom0 || !tokenFrom1) {
         set({ error: "Can't get token info" });
         return;
@@ -280,8 +306,12 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
         return;
       }
 
-      const tokenTo0 = await enrichLogoAndPrice(toPoolToken0);
-      const tokenTo1 = await enrichLogoAndPrice(toPoolToken1);
+      const tokenTo0 = await enrichLogoAndPrice({
+        address: toPoolToken0Address,
+      });
+      const tokenTo1 = await enrichLogoAndPrice({
+        address: toPoolToken1Address,
+      });
       if (!tokenTo0 || !tokenTo1) {
         set({ error: "Can't get token info" });
         return;

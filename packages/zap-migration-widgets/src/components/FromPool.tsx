@@ -21,10 +21,7 @@ import { getPositionAmounts } from "@kyber/utils/uniswapv3";
 export const LiquiditySkeleton = () => (
   <>
     <Skeleton className="w-16 h-5" />
-    <div className="flex flex-col items-end h-[40px]">
-      <Skeleton className="w-20 h-4" />
-      <Skeleton className="w-10 h-3 mt-1" />
-    </div>
+    <Skeleton className="w-20 h-4" />
   </>
 );
 
@@ -71,7 +68,7 @@ export function FromPool({ className }: { className?: string }) {
       <div className="text-subText text-sm">
         Your Current Position Liquidity
       </div>
-      <div className="mt-2 flex items-start justify-between">
+      <div className="mt-2 flex items-center justify-between">
         {pools === "loading" || position === "loading" ? (
           <LiquiditySkeleton />
         ) : (
@@ -82,23 +79,23 @@ export function FromPool({ className }: { className?: string }) {
                 alt={pools[0].token0.symbol}
                 className="w-4 h-4"
               />
+              <span className="text-base">
+                {formatTokenAmount(amount0, pools[0].token0.decimals, 10)}
+              </span>
               <span className="text-base">{pools[0].token0.symbol}</span>
             </div>
-            <div className="text-base flex flex-col items-end">
-              {formatTokenAmount(amount0, pools[0].token0.decimals, 10)}
-              <div className="text-subText text-xs">
-                {formatDisplayNumber(
-                  (pools[0].token0.price || 0) *
-                    Number(toRawString(amount0, pools[0].token0.decimals)),
-                  { style: "currency" }
-                )}
-              </div>
+            <div className="text-subText text-xs flex flex-col items-end">
+              {formatDisplayNumber(
+                (pools[0].token0.price || 0) *
+                  Number(toRawString(amount0, pools[0].token0.decimals)),
+                { style: "currency" }
+              )}
             </div>
           </>
         )}
       </div>
 
-      <div className="mt-2 flex items-start justify-between">
+      <div className="mt-2 flex items-center justify-between">
         {pools === "loading" || position === "loading" ? (
           <LiquiditySkeleton />
         ) : (
@@ -109,17 +106,17 @@ export function FromPool({ className }: { className?: string }) {
                 alt={pools[0].token1.symbol}
                 className="w-4 h-4"
               />
+              <span className="text-base">
+                {formatTokenAmount(amount1, pools[0].token1.decimals, 10)}
+              </span>
               <span className="text-base">{pools[0].token1.symbol}</span>
             </div>
-            <div className="text-base flex flex-col items-end">
-              {formatTokenAmount(amount1, pools[0].token1.decimals, 10)}
-              <div className="text-subText text-xs">
-                {formatDisplayNumber(
-                  (pools[0].token1.price || 0) *
-                    Number(toRawString(amount1, pools[0].token1.decimals)),
-                  { style: "currency" }
-                )}
-              </div>
+            <div className="text-subText text-xs flex flex-col items-end">
+              {formatDisplayNumber(
+                (pools[0].token1.price || 0) *
+                  Number(toRawString(amount1, pools[0].token1.decimals)),
+                { style: "currency" }
+              )}
             </div>
           </>
         )}

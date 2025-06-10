@@ -6,7 +6,7 @@ import { ChainId } from "..";
 import { Skeleton, MouseoverTooltip } from "@kyber/ui";
 import { usePositionStore } from "../stores/usePositionStore";
 import { useZapStateStore } from "../stores/useZapStateStore";
-import ChevronLeft from "../assets/icons/chevron-left.svg";
+import ArrowLeft from "../assets/icons/ic_left_arrow.svg";
 import Setting from "./Setting";
 
 export function Header({
@@ -28,14 +28,14 @@ export function Header({
         {pools === "loading" ? (
           <Skeleton className="w-[300px] h-7" />
         ) : (
-          <div className="flex gap-1">
+          <div className="flex items-center gap-2">
             {onBack && (
-              <ChevronLeft
-                className="relative top-[2px] cursor-pointer text-subText hover:text-text"
+              <ArrowLeft
+                className="cursor-pointer text-subText hover:text-text"
                 onClick={onBack}
               />
             )}
-            Migrate from {pools[0].token0.symbol}/{pools[0].token1.symbol} to{" "}
+            Migrate {pools[0].token0.symbol}/{pools[0].token1.symbol} to{" "}
             {pools[1].token0.symbol}/{pools[1].token1.symbol}
           </div>
         )}

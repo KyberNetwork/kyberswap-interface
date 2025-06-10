@@ -1,7 +1,6 @@
 import { fetchTokenPrice } from "@kyber/utils";
 import CircleChevronRight from "./assets/icons/circle-chevron-right.svg";
 import { Action } from "./components/Action";
-import { EstimateLiqValue } from "./components/EstimateLiqValue";
 import { FromPool } from "./components/FromPool";
 import { Header } from "./components/Header";
 import { PoolInfo } from "./components/PoolInfo";
@@ -11,7 +10,7 @@ import { TargetPoolState } from "./components/TargetPoolState";
 import { ToPool } from "./components/ToPool";
 import "./index.css";
 import "./index.scss";
-import { ChainId, Dex, DexFrom, DexTo, univ2Dexes } from "./schema";
+import { ChainId, Dex, DexFrom, DexTo } from "./schema";
 import { usePoolsStore } from "./stores/usePoolsStore";
 import { usePositionStore } from "./stores/usePositionStore";
 import { useZapStateStore } from "./stores/useZapStateStore";
@@ -110,9 +109,6 @@ export const ZapMigration = (props: ZapMigrationProps) => {
   } = usePoolsStore();
   const { reset } = useZapStateStore();
   const { reset: resetPos, toPosition } = usePositionStore();
-
-  const isTargetUniv2 =
-    pools !== "loading" && univ2Dexes.includes(pools[1].dex);
 
   const onClose = () => {
     resetPos();
@@ -237,7 +233,6 @@ export const ZapMigration = (props: ZapMigrationProps) => {
 
           <TargetPoolState initialTick={initialTick} chainId={chainId} />
         </div>
-        {!isTargetUniv2 && <EstimateLiqValue chainId={chainId} />}
 
         <Action
           client={client}
