@@ -42,7 +42,10 @@ export default function PoolStat({
           (BigInt(position.liquidity) * 10000n) / BigInt(position.totalSupply)
         ) / 100;
 
-  const poolApr = (poolInfo?.apr24h || 0) + (poolInfo?.kemApr24h || 0);
+  const poolApr =
+    (poolInfo?.apr24h || 0) +
+    (poolInfo?.kemEGApr || 0) +
+    (poolInfo?.kemLMApr || 0);
 
   const isFarming = poolType === PoolType.DEX_UNISWAP_V4_FAIRFLOW; // TODO: change this logic
 
