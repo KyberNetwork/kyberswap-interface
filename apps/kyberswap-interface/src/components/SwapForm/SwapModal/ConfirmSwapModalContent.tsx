@@ -378,10 +378,13 @@ export default function ConfirmSwapModalContent({
 
           {errorWhileBuildRoute && <WarningNote shortText={errorText} />}
           {showLOWwarning && (
-            <Text fontStyle="italic" fontSize={12} color={theme.subText}>
-              Notice: Some of your {currencyIn?.symbol} is already reserved by an open Limit Order—review it{' '}
+            <Text fontStyle="italic" fontSize={12} color={theme.subText} fontWeight={500}>
+              <Text fontWeight="500" color={theme.text} as="span">
+                Notice
+              </Text>
+              : Some of your {currencyIn?.symbol} is already reserved by an open Limit Order—review it{' '}
               <Link
-                to={`${APP_PATHS.LIMIT}/${networkInfo.route}/${currencyParam}?activeTab=${LimitOrderTab.MY_ORDER}&search=${currencyIn?.wrapped.address}`}
+                to={`${APP_PATHS.LIMIT}/${networkInfo.route}/${currencyParam}?activeTab=${LimitOrderTab.MY_ORDER}&search=${currencyIn?.wrapped.address}&highlight=true`}
               >
                 here.
               </Link>
