@@ -5,7 +5,7 @@ import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
 import { ReactComponent as IconKem } from 'assets/svg/kyber/kem.svg'
-import InfoHelper from 'components/InfoHelper'
+// import InfoHelper from 'components/InfoHelper'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
 import { PositionAction } from 'pages/Earns/PositionDetail/styles'
@@ -13,8 +13,7 @@ import {
   BannerContainer,
   BannerDataItem,
   BannerDivider,
-  BannerWrapper,
-  ListClaimableTokens,
+  BannerWrapper, // ListClaimableTokens,
   RewardBannerWrapper,
 } from 'pages/Earns/UserPositions/styles'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
@@ -42,9 +41,9 @@ export default function PositionBanner({
   const totalRewardsUsdValue = rewardToShow?.totalUsdValue || 0
 
   const claimableRewardsAmount = rewardToShow?.claimableAmount || 0
-  const claimedRewardsUsdValue = rewardToShow?.claimedUsdValue || 0
+  // const claimedRewardsUsdValue = rewardToShow?.claimedUsdValue || 0
 
-  const pendingRewardsUsdValue = rewardToShow?.pendingUsdValue || 0
+  // const pendingRewardsUsdValue = rewardToShow?.pendingUsdValue || 0
   const claimableRewardsUsdValue = rewardToShow?.claimableUsdValue || 0
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
@@ -158,7 +157,7 @@ export default function PositionBanner({
         {!upToSmall && (
           <BannerContainer>
             <RewardBannerWrapper>
-              <Flex alignItems={'center'} sx={{ gap: 3 }}>
+              {/* <Flex alignItems={'center'} sx={{ gap: 3 }}>
                 <Flex alignItems={'center'} sx={{ gap: 2 }}>
                   <IconKem width={KemImageSize} height={KemImageSize} style={{ position: 'relative', top: 2 }} />
                   <Text color={theme.subText}>{t`Total Rewards`}</Text>
@@ -219,7 +218,9 @@ export default function PositionBanner({
                   </Text>
                 </BannerDataItem>
                 {claimRewardButton}
-              </Flex>
+              </Flex> */}
+
+              <div className="text-subText text-sm">In maintenance</div>
             </RewardBannerWrapper>
           </BannerContainer>
         )}
