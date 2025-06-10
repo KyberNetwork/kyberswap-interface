@@ -50,7 +50,7 @@ export default function PoolStat() {
       )}
     >
       <div className="flex max-sm:flex-col justify-between gap-[6px]">
-        <div className="flex flex-col max-sm:flex-row max-sm:justify-between items-start gap-1">
+        <div className="flex flex-col max-sm:!flex-row max-sm:justify-between items-start gap-1">
           <span>TVL</span>
           {initializing ? (
             <Skeleton className="w-16 h-5" />
@@ -65,7 +65,7 @@ export default function PoolStat() {
             </span>
           )}
         </div>
-        <div className="flex flex-col max-sm:flex-row max-sm:justify-between items-start gap-1">
+        <div className="flex flex-col max-sm:!flex-row max-sm:justify-between items-start gap-1">
           <span>24h Volume</span>
           {initializing ? (
             <Skeleton className="w-16 h-5" />
@@ -80,7 +80,7 @@ export default function PoolStat() {
             </span>
           )}
         </div>
-        <div className="flex flex-col max-sm:flex-row max-sm:justify-between items-start gap-1">
+        <div className="flex flex-col max-sm:!flex-row max-sm:justify-between items-start gap-1">
           <span>24h Fees</span>
           {initializing ? (
             <Skeleton className="w-16 h-5" />
@@ -95,7 +95,7 @@ export default function PoolStat() {
             </span>
           )}
         </div>
-        <div className="flex flex-col max-sm:flex-row max-sm:justify-between items-start gap-1">
+        <div className="flex flex-col max-sm:!flex-row max-sm:justify-between items-start gap-1">
           <span>Est. APR</span>
           {initializing ? (
             <Skeleton className="w-16 h-5" />
