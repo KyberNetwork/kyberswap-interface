@@ -47,7 +47,7 @@ export const parsePosition = ({
     tokenId: position.tokenId,
     pool: {
       fee: position.pool.fees?.[0],
-      address: position.pool.poolAddress,
+      address: position.pool.id,
       nativeToken: NETWORKS_INFO[position.chainId as keyof typeof NETWORKS_INFO].nativeToken,
       tickSpacing: position.pool.tickSpacing,
       category: position.pool.category,
