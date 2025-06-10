@@ -16,6 +16,8 @@ import { ZERO_ADDRESS } from 'constants/index'
 import { TOKEN_API_URL } from 'constants/env'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
+import { isCanonicalPair } from '../utils'
+import { NativeCurrencies } from 'constants/tokens'
 
 export const registry = new CrossChainSwapAdapterRegistry()
 CrossChainSwapFactory.getAllAdapters().forEach(adapter => {
@@ -90,11 +92,50 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
   }, [amount])
 
   useEffect(() => {
+    let hasUpdate = false
+    let newFrom = from
     if (!from) {
       searchParams.set('from', chainId?.toString() || '')
+      newFrom = chainId?.toString() || ''
+      hasUpdate = true
+    }
+
+    let newTo = to
+    if (!to) {
+      const lastChainId = localStorage.getItem('crossChainSwapLastChainOut')
+      if (lastChainId && lastChainId !== newFrom) {
+        searchParams.set('to', lastChainId)
+        newTo = lastChainId
+        hasUpdate = true
+      }
+    }
+
+    if (!tokenIn) {
+      if (from === 'near') {
+        searchParams.set('tokenIn', 'near')
+        hasUpdate = true
+      }
+      if (isEvmChain(from ? +from : chainId)) {
+        searchParams.set('tokenIn', NativeCurrencies[(from ? +from : chainId) as ChainId]?.symbol?.toLowerCase() || '')
+        hasUpdate = true
+      }
+    }
+
+    if (!tokenOut) {
+      if (from === 'near') {
+        searchParams.set('tokenOut', 'near')
+        hasUpdate = true
+      }
+      if (newTo && isEvmChain(+newTo)) {
+        searchParams.set('tokenOut', NativeCurrencies[+newTo as ChainId]?.symbol?.toLowerCase() || '')
+        hasUpdate = true
+      }
+    }
+
+    if (hasUpdate) {
       setSearchParams(searchParams)
     }
-  }, [from, chainId, searchParams, setSearchParams])
+  }, [from, to, tokenIn, chainId, searchParams, setSearchParams, tokenOut])
 
   const isFromNear = from === 'near'
   const isFromBitcoin = from === 'bitcoin'
@@ -176,6 +217,10 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     if (isToNear) return nearTokens.find(token => token.assetId === tokenOut)
     throw new Error('Network is not supported')
   }, [currencyOutEvm, isToEvm, tokenOut, isToNear, isToBitcoin, nearTokens, toChainId])
+
+  useEffect(() => {
+    localStorage.setItem('crossChainSwapLastChainOut', toChainId?.toString() || '')
+  }, [toChainId])
 
   const inputAmount = useMemo(
     () =>
@@ -319,45 +364,56 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     if (isFromBitcoin || isToBitcoin) {
       feeBps = 25
     } else if (isFromEvm && isToEvm) {
-      const [token0Cat, token1Cat] = await Promise.all([
-        await fetch(
-          `${TOKEN_API_URL}/v1/public/category/token?tokens=${(
-            currencyIn as any
-          ).wrapped.address.toLowerCase()}&chainId=${fromChainId}`,
+      if (
+        isCanonicalPair(
+          (currencyIn as any).chainId,
+          (currencyIn as any).wrapped.address,
+          (currencyOut as any).chainId,
+          (currencyOut as any).wrapped.address,
         )
-          .then(res => res.json())
-          .then(res => {
-            const cat = res?.data?.find(
-              (item: any) => item.token.toLowerCase() === (currencyIn as any).wrapped.address.toLowerCase(),
-            )
-            return cat?.category || 'exoticPair'
-          }),
-
-        await fetch(
-          `${TOKEN_API_URL}/v1/public/category/token?tokens=${(
-            currencyOut as any
-          ).wrapped.address.toLowerCase()}&chainId=${toChainId}`,
-        )
-          .then(res => res.json())
-          .then(res => {
-            const cat = res?.data?.find(
-              (item: any) => item.token.toLowerCase() === (currencyOut as any).wrapped.address.toLowerCase(),
-            )
-            return cat?.category || 'exoticPair'
-          }),
-      ])
-      if (token0Cat === 'stablePair' && token1Cat === 'stablePair') {
-        setCategory('stablePair')
+      ) {
         feeBps = 5
-      } else if (token0Cat === 'commonPair' && token1Cat === 'commonPair') {
-        setCategory('commonPair')
-        feeBps = 10
-      } else if (token0Cat === 'highVolatilityPair' || token1Cat === 'highVolatilityPair') {
-        setCategory('highVolatilityPair')
-        feeBps = 25
       } else {
-        setCategory('exoticPair')
-        feeBps = 15
+        const [token0Cat, token1Cat] = await Promise.all([
+          await fetch(
+            `${TOKEN_API_URL}/v1/public/category/token?tokens=${(
+              currencyIn as any
+            ).wrapped.address.toLowerCase()}&chainId=${fromChainId}`,
+          )
+            .then(res => res.json())
+            .then(res => {
+              const cat = res?.data?.find(
+                (item: any) => item.token.toLowerCase() === (currencyIn as any).wrapped.address.toLowerCase(),
+              )
+              return cat?.category || 'exoticPair'
+            }),
+
+          await fetch(
+            `${TOKEN_API_URL}/v1/public/category/token?tokens=${(
+              currencyOut as any
+            ).wrapped.address.toLowerCase()}&chainId=${toChainId}`,
+          )
+            .then(res => res.json())
+            .then(res => {
+              const cat = res?.data?.find(
+                (item: any) => item.token.toLowerCase() === (currencyOut as any).wrapped.address.toLowerCase(),
+              )
+              return cat?.category || 'exoticPair'
+            }),
+        ])
+        if (token0Cat === 'stablePair' && token1Cat === 'stablePair') {
+          setCategory('stablePair')
+          feeBps = 5
+        } else if (token0Cat === 'commonPair' && token1Cat === 'commonPair') {
+          setCategory('commonPair')
+          feeBps = 10
+        } else if (token0Cat === 'highVolatilityPair' || token1Cat === 'highVolatilityPair') {
+          setCategory('highVolatilityPair')
+          feeBps = 25
+        } else {
+          setCategory('exoticPair')
+          feeBps = 15
+        }
       }
     } else if (isFromNear || isToNear) {
       feeBps = 20
