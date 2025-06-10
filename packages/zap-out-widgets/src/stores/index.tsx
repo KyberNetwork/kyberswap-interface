@@ -1,5 +1,10 @@
 import { useZapOutUserState } from "@/stores/state";
-import { DEXES_INFO, NETWORKS_INFO, PATHS } from "@/constants";
+import {
+  DEXES_INFO,
+  NATIVE_TOKEN_ADDRESS,
+  NETWORKS_INFO,
+  PATHS,
+} from "@/constants";
 import {
   ChainId,
   Pool,
@@ -106,8 +111,21 @@ const createZapOutStore = (initProps: InnerZapOutProps) => {
         firstLoad && set({ errorMsg: `Can't get pool info, address: ${pool}` });
         return;
       }
-      const token0Address = pool.tokens[0].address;
-      const token1Address = pool.tokens[1].address;
+
+      const isUniV4 = univ4Types.includes(poolType);
+
+      const staticExtra = JSON.parse(pool.staticExtra || "{}");
+      const isToken0Native =
+        isUniV4 && pool.staticExtra && staticExtra?.["0x0"]?.[0];
+      const isToken1Native =
+        isUniV4 && pool.staticExtra && staticExtra?.["0x0"]?.[1];
+
+      const token0Address = isToken0Native
+        ? NATIVE_TOKEN_ADDRESS.toLowerCase()
+        : pool.tokens[0].address;
+      const token1Address = isToken1Native
+        ? NATIVE_TOKEN_ADDRESS.toLowerCase()
+        : pool.tokens[1].address;
 
       // check category pair
       const pairCheck = await fetch(
@@ -186,7 +204,6 @@ const createZapOutStore = (initProps: InnerZapOutProps) => {
 
       const { success: isUniV3, data: poolUniv3 } = univ3Pool.safeParse(pool);
       const { success: isUniV2, data: poolUniv2 } = univ2Pool.safeParse(pool);
-      const isUniv4 = univ4Types.includes(poolType);
 
       let p: Pool;
 
@@ -237,7 +254,7 @@ const createZapOutStore = (initProps: InnerZapOutProps) => {
           return;
         }
         // Function signature and encoded token ID
-        const functionSignature = !isUniv4
+        const functionSignature = !isUniV4
           ? "positions(uint256)"
           : "positionInfo(uint256)";
         const selector = getFunctionSelector(functionSignature);
@@ -271,13 +288,13 @@ const createZapOutStore = (initProps: InnerZapOutProps) => {
         const { result, error } = await response.json();
 
         if (result && result !== "0x") {
-          const data = isUniv4
+          const data = isUniV4
             ? decodeUniswapV4PositionInfo(result)
             : algebraTypes.includes(pt)
               ? decodeAlgebraV1Position(result)
               : decodePosition(result);
 
-          if (isUniv4) {
+          if (isUniV4) {
             const liquidityFunctionSignature = "getPositionLiquidity(uint256)";
             const liquiditySelector = getFunctionSelector(
               liquidityFunctionSignature
