@@ -83,7 +83,7 @@ const useKemRewards = () => {
       return
     }
 
-    const txHash = await submitTransaction({
+    const res = await submitTransaction({
       library,
       txData: {
         to: KEM_REWARDS_CONTRACT[chainId as keyof typeof KEM_REWARDS_CONTRACT],
@@ -99,7 +99,8 @@ const useKemRewards = () => {
         setOpenClaimModal(false)
       },
     })
-    if (!txHash) throw new Error('Transaction failed')
+    const { txHash, error } = res
+    if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
     setTxHash(txHash)
     addTransactionWithType({
       type: TRANSACTION_TYPE.COLLECT_FEE,

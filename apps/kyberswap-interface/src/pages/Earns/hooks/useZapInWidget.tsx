@@ -194,8 +194,11 @@ const useZapInWidget = ({
             onSwitchChain: () => changeNetwork(addLiquidityPureParams.chainId as number),
             onOpenZapMigration: handleOpenZapMigration,
             onSubmitTx: async (txData: { from: string; to: string; data: string; value: string; gasLimit: string }) => {
-              const txHash = await submitTransaction({ library, txData })
-              if (!txHash) throw new Error('Transaction failed')
+              const res = await submitTransaction({ library, txData })
+              const { txHash, error } = res
+
+              if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
+
               return txHash
             },
           }

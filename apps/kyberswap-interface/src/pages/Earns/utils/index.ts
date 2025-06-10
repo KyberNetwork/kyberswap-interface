@@ -58,11 +58,17 @@ export const submitTransaction = async ({
       gasLimit: calculateGasMargin(estimate),
     })
 
-    return res.hash || undefined
+    return {
+      txHash: res.hash,
+      error: null,
+    }
   } catch (error) {
     console.error('Submit transaction error:', error)
     if (onError) onError(error as Error)
-    return
+    return {
+      txHash: null,
+      error: error as Error,
+    }
   }
 }
 

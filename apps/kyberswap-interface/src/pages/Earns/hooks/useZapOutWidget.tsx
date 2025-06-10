@@ -77,8 +77,9 @@ const useZapOutWidget = (onRefreshPosition?: () => void) => {
             onConnectWallet: toggleWalletModal,
             onSwitchChain: () => changeNetwork(zapOutPureParams.chainId as number),
             onSubmitTx: async (txData: { from: string; to: string; value: string; data: string }) => {
-              const txHash = await submitTransaction({ library, txData })
-              if (!txHash) throw new Error('Transaction failed')
+              const res = await submitTransaction({ library, txData })
+              const { txHash, error } = res
+              if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
               return txHash
             },
           }

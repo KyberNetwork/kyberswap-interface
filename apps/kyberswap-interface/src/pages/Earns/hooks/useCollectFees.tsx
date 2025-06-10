@@ -47,7 +47,7 @@ const useCollectFees = ({ refetchAfterCollect }: { refetchAfterCollect: () => vo
 
     if (!txData) return
 
-    const txHash = await submitTransaction({
+    const res = await submitTransaction({
       library,
       txData,
       onError: (error: Error) => {
@@ -59,7 +59,9 @@ const useCollectFees = ({ refetchAfterCollect }: { refetchAfterCollect: () => vo
         setClaiming(false)
       },
     })
-    if (!txHash) throw new Error('Transaction failed')
+    const { txHash, error } = res
+    if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
+
     setTxHash(txHash)
 
     const nativeToken = claimInfo.nativeToken as NativeToken
