@@ -3,7 +3,15 @@ import { useEffect, useMemo, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { API_URLS, CHAIN_ID_TO_CHAIN, DEXES_INFO, NETWORKS_INFO, univ3PoolNormalize } from '@kyber/schema';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, InfoHelper, MouseoverTooltip } from '@kyber/ui';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+  InfoHelper,
+  MouseoverTooltip,
+  ScrollArea,
+} from '@kyber/ui';
 import { fetchTokenPrice, getSwapPriceImpactFromActions, parseSwapActions, parseZapInfo } from '@kyber/utils';
 import { friendlyError } from '@kyber/utils';
 import { PI_LEVEL } from '@kyber/utils';
@@ -18,7 +26,6 @@ import { formatCurrency, formatDisplayNumber, formatNumber } from '@kyber/utils/
 import { cn } from '@kyber/utils/tailwind-helpers';
 import { tickToPrice } from '@kyber/utils/uniswapv3';
 
-import DropdownIcon from '@/assets/svg/dropdown.svg';
 import ErrorIcon from '@/assets/svg/error.svg';
 import Info from '@/assets/svg/info.svg';
 import Spinner from '@/assets/svg/loader.svg';
@@ -87,7 +94,6 @@ export default function Preview({
   const [attempTx, setAttempTx] = useState(false);
   const [txError, setTxError] = useState<Error | null>(null);
   const [txStatus, setTxStatus] = useState<'success' | 'failed' | ''>('');
-  const [showErrorDetail, setShowErrorDetail] = useState(false);
   const [gasUsd, setGasUsd] = useState<number | null>(null);
 
   const { success: isUniV3, data: univ3Pool } = univ3PoolNormalize.safeParse(pool);
@@ -325,37 +331,21 @@ export default function Preview({
 
   if (txError) {
     return (
-      <div className="mt-4 gap-4 flex flex-col justify-center items-center text-base font-medium">
-        <div className="flex items-center justify-center gap-2  font-medium">
+      <div className="gap-2 flex flex-col justify-center items-center text-base font-medium">
+        <div className="flex pt-1 items-center justify-center gap-2 font-medium">
           <ErrorIcon className="w-6 h-6 text-error" />
-          <div className="max-w-[86%] font-medium my-4">{friendlyError(txError)}</div>
+          <div className="max-w-[86%] font-medium my-3">Failed to add liquidity</div>
         </div>
 
-        <div className="w-full">
-          <div className="ks-lw-divider" />
-          <div
-            className="flex justify-between items-center px-0 py-[10px] cursor-pointer w-full"
-            role="button"
-            onClick={() => setShowErrorDetail(prev => !prev)}
-          >
-            <div className="flex items-center gap-1 text-sm">
-              <Info />
-              Error details
-            </div>
-            <DropdownIcon
-              className={`transition-all duration-200 ease-in-out ${!showErrorDetail ? 'rotate-0' : '-rotate-180'}`}
-            />
+        <ScrollArea>
+          <div className="text-subText break-all	text-center max-h-[200px]" style={{ wordBreak: 'break-word' }}>
+            {friendlyError(txError) || txError?.message || JSON.stringify(txError)}
           </div>
-          <div className="ks-lw-divider" />
+        </ScrollArea>
 
-          <div className={`ks-error-msg ${showErrorDetail ? 'mt-3 max-h-[200px]' : ''}`}>
-            {txError?.message || JSON.stringify(txError)}
-          </div>
-        </div>
-
-        <button className="ks-primary-btn w-full" onClick={onDismiss}>
+        {/* <button className="ks-primary-btn w-full" onClick={onDismiss}>
           {txError ? 'Dismiss' : 'Close'}
-        </button>
+        </button> */}
       </div>
     );
   }
