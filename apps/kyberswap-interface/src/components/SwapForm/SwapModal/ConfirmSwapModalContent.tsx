@@ -36,9 +36,10 @@ import { checkPriceImpact } from 'utils/prices'
 
 import SwapBrief from './SwapBrief'
 import SwapDetails, { Props as SwapDetailsProps } from './SwapDetails'
-import { useGetTotalActiveMakingAmountQuery } from 'services/limitOrder'
+import { useGetListOrdersQuery, useGetTotalActiveMakingAmountQuery } from 'services/limitOrder'
 import { useTokenBalance } from 'state/wallet/hooks'
-import { LimitOrderTab } from 'components/swapv2/LimitOrder/type'
+import { LimitOrderStatus, LimitOrderTab } from 'components/swapv2/LimitOrder/type'
+import { calcPercentFilledOrder } from 'components/swapv2/LimitOrder/helpers'
 
 const SHOW_ACCEPT_NEW_AMOUNT_THRESHOLD = -1
 const AMOUNT_OUT_FROM_BUILD_ERROR_THRESHOLD = -5
@@ -302,11 +303,40 @@ export default function ConfirmSwapModalContent({
     { chainId, tokenAddress: currencyIn?.wrapped.address ?? '', account: account ?? '' },
     { skip: !currencyIn || !account },
   )
+  const { data: { orders = [] } = {} } = useGetListOrdersQuery(
+    {
+      chainId,
+      maker: account,
+      status: LimitOrderStatus.ACTIVE,
+      query: currencyIn?.wrapped.address,
+      page: 1,
+      pageSize: 20,
+    },
+    { skip: !account, refetchOnFocus: true },
+  )
+
+  const ignoredOrders = useMemo(() => {
+    return orders.filter(order => {
+      const filledPercent = calcPercentFilledOrder(
+        order.filledTakingAmount,
+        order.takingAmount,
+        order.takerAssetDecimals,
+      )
+      return filledPercent === '99.99'
+    })
+  }, [orders])
+
+  const activeMakingAmount =
+    BigInt(loActiveMakingAmount || 0) -
+    ignoredOrders.reduce((acc, order) => {
+      return acc + BigInt(order.makingAmount) - BigInt(order.filledMakingAmount)
+    }, 0n)
+
   const balance = useTokenBalance(currencyIn?.wrapped)
 
   const remainAmount = BigInt(balance?.quotient.toString() || 0) - BigInt(buildResult?.data?.amountIn || 0)
 
-  const showLOWwarning = !!loActiveMakingAmount && remainAmount < BigInt(loActiveMakingAmount)
+  const showLOWwarning = !!loActiveMakingAmount && remainAmount < activeMakingAmount
 
   return (
     <>
