@@ -109,7 +109,9 @@ export default function TokenSelector({
           );
           const balanceInWei =
             balanceTokens[
-              token.address === NATIVE_TOKEN_ADDRESS.toLowerCase() ? NATIVE_TOKEN_ADDRESS : token.address.toLowerCase()
+              token.address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase()
+                ? NATIVE_TOKEN_ADDRESS.toLowerCase()
+                : token.address.toLowerCase()
             ]?.toString() || '0';
 
           return {

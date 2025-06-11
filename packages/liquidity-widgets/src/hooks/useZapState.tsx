@@ -13,7 +13,6 @@ import {
   ZapRouteDetail,
   univ3Position,
   univ3Types,
-  univ4Types,
 } from '@kyber/schema';
 import { parseUnits } from '@kyber/utils/crypto';
 import { formatNumber, formatWei } from '@kyber/utils/number';
@@ -170,7 +169,6 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
   const initializing = pool === 'loading';
 
   const isUniV3 = !initializing && univ3Types.includes(poolType as any);
-  const isUniV4 = univ4Types.includes(poolType);
 
   const isTokensStable = tokensIn.every(tk => tk.isStable);
 
@@ -194,11 +192,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
   }, [isTokensStable, pool, manualSlippage, isTokensInPair]);
 
   const { prices: tokenPrices } = useTokenPrices({
-    addresses: tokensIn.map(token =>
-      token.address.toLowerCase() !== NATIVE_TOKEN_ADDRESS.toLowerCase() || isUniV4
-        ? token.address.toLowerCase()
-        : NETWORKS_INFO[chainId].wrappedToken.address.toLowerCase(),
-    ),
+    addresses: tokensIn.map(token => token.address.toLowerCase()),
     chainId,
   });
 
@@ -290,28 +284,16 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
     }
 
     // with balance
-    const isToken0Native = pool?.token0.address.toLowerCase() === wrappedNativeToken?.address.toLowerCase();
-    const isToken1Native = pool?.token1.address.toLowerCase() === wrappedNativeToken?.address.toLowerCase();
-
-    const token0Address = isToken0Native ? NATIVE_TOKEN_ADDRESS : pool.token0.address.toLowerCase();
-    const token1Address = isToken1Native ? NATIVE_TOKEN_ADDRESS : pool.token1.address.toLowerCase();
+    const token0Address = pool.token0.address.toLowerCase();
+    const token1Address = pool.token1.address.toLowerCase();
 
     if (!initDepositTokens && token0Address in balances && token1Address in balances) {
       const tokensToSet = [];
 
-      const token0 = isToken0Native ? nativeToken : pool.token0;
-      const token1 = isToken1Native ? nativeToken : pool.token1;
-
-      const token0Balance = formatWei(
-        balances[isToken0Native ? NATIVE_TOKEN_ADDRESS : pool.token0.address.toLowerCase()]?.toString() || '0',
-        token0?.decimals,
-      );
-      const token1Balance = formatWei(
-        balances[isToken1Native ? NATIVE_TOKEN_ADDRESS : pool.token1.address.toLowerCase()]?.toString() || '0',
-        token1?.decimals,
-      );
-      if (parseFloat(token0Balance) > 0) tokensToSet.push(token0);
-      if (parseFloat(token1Balance) > 0) tokensToSet.push(token1);
+      const token0Balance = formatWei(balances[token0Address]?.toString() || '0', pool.token0.decimals);
+      const token1Balance = formatWei(balances[token1Address]?.toString() || '0', pool.token1.decimals);
+      if (parseFloat(token0Balance) > 0) tokensToSet.push(pool.token0);
+      if (parseFloat(token1Balance) > 0) tokensToSet.push(pool.token1);
       if (!tokensToSet.length) tokensToSet.push(nativeToken);
 
       setTokensIn(tokensToSet as Token[]);

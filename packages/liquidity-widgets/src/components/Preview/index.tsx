@@ -434,7 +434,9 @@ export default function Preview({
         <div className="ks-lw-card mt-4">
           <div className="ks-lw-card-title">
             <p>Zap-in Amount</p>
-            <p className="text-text font-normal text-lg">{formatCurrency(+zapInfo.zapDetails.initialAmountUsd)}</p>
+            <p className="text-text font-normal text-lg">
+              {formatDisplayNumber(+zapInfo.zapDetails.initialAmountUsd, { significantDigits: 6, style: 'currency' })}
+            </p>
           </div>
           <div className="mt-2">
             {listValidTokensIn.map((token, index: number) => (
@@ -454,7 +456,11 @@ export default function Preview({
                   {token.symbol}
                 </span>
                 <span className="ml-1 text-subText">
-                  ~{formatCurrency(tokenPrices[token.address.toLowerCase()] * parseFloat(listValidAmountsIn[index]))}
+                  ~
+                  {formatDisplayNumber(
+                    tokenPrices[token.address.toLowerCase()] * parseFloat(listValidAmountsIn[index]),
+                    { significantDigits: 6, style: 'currency' },
+                  )}
                 </span>
               </div>
             ))}

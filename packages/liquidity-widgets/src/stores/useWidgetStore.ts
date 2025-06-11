@@ -76,10 +76,11 @@ export const useWidgetStore = create<WidgetState>((set, _get) => ({
     set({
       nativeToken: {
         ...wrappedNativeToken,
-        address: NATIVE_TOKEN_ADDRESS,
+        address: NATIVE_TOKEN_ADDRESS.toLowerCase(),
         decimals: wrappedNativeToken.decimals,
         symbol: wrappedNativeToken.symbol.slice(1) || '',
         logo: NETWORKS_INFO[chainId].nativeLogo,
+        name: 'Ethereum',
       },
       wrappedNativeToken,
     });

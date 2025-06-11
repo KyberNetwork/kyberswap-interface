@@ -89,7 +89,7 @@ export const useTokenBalances = (chainId: ChainId, tokenAddresses: string[], acc
         }),
         {} as Record<string, bigint>,
       );
-      balancesMap[NATIVE_TOKEN_ADDRESS] = nativeBalance;
+      balancesMap[NATIVE_TOKEN_ADDRESS.toLowerCase()] = nativeBalance;
 
       setBalances(balancesMap);
     } catch (error) {

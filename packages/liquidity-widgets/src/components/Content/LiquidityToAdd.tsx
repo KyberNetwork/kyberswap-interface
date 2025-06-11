@@ -29,8 +29,8 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
   const balanceInWei = useMemo(
     () =>
       balanceTokens[
-        token.address === NATIVE_TOKEN_ADDRESS || token.address === NATIVE_TOKEN_ADDRESS.toLowerCase()
-          ? NATIVE_TOKEN_ADDRESS
+        token.address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase()
+          ? NATIVE_TOKEN_ADDRESS.toLowerCase()
           : token.address.toLowerCase()
       ]?.toString() || '0',
     [balanceTokens, token],

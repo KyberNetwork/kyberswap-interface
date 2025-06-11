@@ -58,9 +58,8 @@ export const validateData = ({
   try {
     for (let i = 0; i < listValidTokensIn.length; i++) {
       const tokenAddress =
-        listValidTokensIn[i].address === NATIVE_TOKEN_ADDRESS ||
         listValidTokensIn[i].address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase()
-          ? NATIVE_TOKEN_ADDRESS
+          ? NATIVE_TOKEN_ADDRESS.toLowerCase()
           : listValidTokensIn[i].address.toLowerCase();
       const balance = formatUnits(balances[tokenAddress]?.toString() || '0', listValidTokensIn[i].decimals);
 
