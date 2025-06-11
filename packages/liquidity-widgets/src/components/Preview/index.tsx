@@ -87,7 +87,7 @@ export default function Preview({
   );
 
   const { address: account } = connectedAccount;
-  const { tokensIn, amountsIn, tokenPrices } = useZapState();
+  const { tokensIn, amountsIn } = useZapState();
   const { tokensIn: listValidTokensIn, amountsIn: listValidAmountsIn } = parseTokensAndAmounts(tokensIn, amountsIn);
 
   const [txHash, setTxHash] = useState('');
@@ -454,13 +454,6 @@ export default function Preview({
                     significantDigits: 6,
                   })}{' '}
                   {token.symbol}
-                </span>
-                <span className="ml-1 text-subText">
-                  ~
-                  {formatDisplayNumber(
-                    tokenPrices[token.address.toLowerCase()] * parseFloat(listValidAmountsIn[index]),
-                    { significantDigits: 6, style: 'currency' },
-                  )}
                 </span>
               </div>
             ))}
