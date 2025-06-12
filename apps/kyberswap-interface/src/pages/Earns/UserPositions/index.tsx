@@ -137,8 +137,8 @@ const UserPositions = () => {
         })
       } else if (filters.sortBy === SortBy.UNCLAIMED_REWARDS) {
         parsedData.sort((a, b) => {
-          const aValue = a.farming.unclaimedUsdValue
-          const bValue = b.farming.unclaimedUsdValue
+          const aValue = a.rewards.unclaimedUsdValue
+          const bValue = b.rewards.unclaimedUsdValue
 
           return filters.orderBy === Direction.ASC ? aValue - bValue : bValue - aValue
         })
@@ -268,7 +268,7 @@ const UserPositions = () => {
           />
         </Flex>
 
-        {account && <PositionBanner positions={parsedPositions} filters={filters} />}
+        {account && <PositionBanner positions={parsedPositions} />}
 
         <Filter
           supportedChains={supportedChains}

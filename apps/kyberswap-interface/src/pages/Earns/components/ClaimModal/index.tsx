@@ -31,7 +31,7 @@ export enum ClaimType {
 
 export interface ClaimInfo {
   dex?: EarnDex
-  nftId?: string
+  nftId: string
   chainId: number
   tokens: Array<{
     logo: string
@@ -44,7 +44,6 @@ export interface ClaimInfo {
   }>
   nativeToken?: NativeToken
   totalValue: number
-  campaignId?: string
 }
 
 const ClaimModal = ({

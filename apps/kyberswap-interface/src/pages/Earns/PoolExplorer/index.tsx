@@ -287,7 +287,7 @@ const PoolExplorer = () => {
           <DropdownMenu width={30} options={timings} value={filters.interval} onChange={onIntervalChange} />
         </Flex>
         <Search
-          placeholder="Search by token symbol or address"
+          placeholder="Search by token symbol or pool/token address"
           searchValue={search}
           allowClear
           onSearch={val => setSearch(val)}

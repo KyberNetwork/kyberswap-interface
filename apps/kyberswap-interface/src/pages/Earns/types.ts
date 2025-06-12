@@ -124,11 +124,22 @@ export interface ParsedPosition {
     in7d: number
     in24h: number
   }
-  farming: {
+  rewards: {
+    totalUsdValue: number
+    claimedUsdValue: number
     unclaimedUsdValue: number
+    inProgressUsdValue: number
     pendingUsdValue: number
+    vestingUsdValue: number
     claimableUsdValue: number
+    egTokens: Array<TokenRewardInfo>
+    lmTokens: Array<TokenRewardInfo>
   }
+  totalValueTokens: Array<{
+    address: string
+    symbol: string
+    amount: number
+  }>
   token0: Token
   token1: Token
   tokenAddress: string
@@ -201,51 +212,51 @@ export interface FeeInfo {
 
 export interface RewardInfo {
   totalUsdValue: number
-  pendingUsdValue: number
-  claimedUsdValue: number
   claimableUsdValue: number
-
-  totalAmount: number
-  claimableAmount: number
-
   nfts: Array<NftRewardInfo>
-  claimableTokens: Array<TokenRewardInfo>
+  chains: Array<ChainRewardInfo>
+}
 
-  chains: Array<{
-    chainId: number
-    totalUsdValue: number
-    pendingUsdValue: number
-    claimedUsdValue: number
-    claimableUsdValue: number
-
-    totalAmount: number
-    claimableAmount: number
-
-    nfts: Array<NftRewardInfo>
-    claimableTokens: Array<TokenRewardInfo>
-  }>
+export interface ChainRewardInfo {
+  chainId: number
+  chainName: string
+  chainLogo: string
+  claimableUsdValue: number
+  tokens: Array<TokenRewardInfo>
 }
 
 export interface NftRewardInfo {
   nftId: string
-  campaignId: string
+  chainId: number
   totalUsdValue: number
-  pendingUsdValue: number
   claimedUsdValue: number
+  inProgressUsdValue: number
+  pendingUsdValue: number
+  vestingUsdValue: number
   claimableUsdValue: number
-
-  totalAmount: number
-  claimableAmount: number
+  unclaimedUsdValue: number
 
   tokens: Array<TokenRewardInfo>
+  egTokens: Array<TokenRewardInfo>
+  lmTokens: Array<TokenRewardInfo>
 }
 
 export interface TokenRewardInfo {
   symbol: string
   logo: string
-  chainId: number
   address: string
+  chainId: number
+
   totalAmount: number
   claimableAmount: number
+  unclaimedAmount: number
   claimableUsdValue: number
+}
+
+export interface TokenInfo {
+  address: string
+  symbol: string
+  logo: string
+  decimals: number
+  chainId: number
 }

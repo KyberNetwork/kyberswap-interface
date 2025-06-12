@@ -20,7 +20,7 @@ export const PositionPageWrapper = styled(PoolPageWrapper)`
 export const PositionRow = styled(Link)`
   display: grid;
   grid-template-columns:
-    minmax(260px, 2fr) /* Position */
+    minmax(260px, 2.2fr) /* Position */
     minmax(80px, 1fr) /* Value */
     minmax(90px, 1fr) /* est. APR */
     minmax(100px, 1fr) /* Unclaimed fees */
@@ -291,12 +291,6 @@ export const RewardBannerWrapper = styled(BannerWrapper)`
   padding: 14px 32px;
 `
 
-export const ListClaimableTokens = styled.ul`
-  margin: 0;
-  padding-left: 24px;
-  margin-top: 2px;
-`
-
 export const BannerDivider = styled.div`
   background-color: ${({ theme }) => theme.tabActive};
   height: 60px;
@@ -324,7 +318,7 @@ export const BannerDataItem = styled.div`
 
 export const PositionTableHeader = styled(TableHeader)`
   grid-template-columns:
-    minmax(260px, 2fr) /* Position */
+    minmax(260px, 2.2fr) /* Position */
     minmax(80px, 1fr) /* Value */
     minmax(90px, 1fr) /* est. APR */
     minmax(100px, 1fr) /* Unclaimed fees */
@@ -444,4 +438,11 @@ export const CurrentPriceTooltip = styled.div<{ show?: boolean }>`
   width: max-content;
 
   ${({ show }) => show && 'opacity: 1;'}
+`
+
+export const HorizontalDivider = styled.div`
+  margin: 4px 0;
+  height: 1px;
+  width: 100%;
+  background: ${({ theme }) => rgba(theme.white, 0.08)};
 `

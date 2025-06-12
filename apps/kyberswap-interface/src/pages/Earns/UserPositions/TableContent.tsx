@@ -155,7 +155,7 @@ export default function TableContent({
   const handleClaimRewards = (e: React.MouseEvent, position: ParsedPosition) => {
     e.stopPropagation()
     e.preventDefault()
-    if (!position.pool.isFarming || rewardsClaiming || position.farming.unclaimedUsdValue === 0) return
+    if (!position.pool.isFarming || rewardsClaiming || position.rewards.unclaimedUsdValue === 0) return
     setPositionThatClaimingRewards(position)
     onOpenClaimRewards(position.tokenId, position.chain.id)
   }
@@ -211,12 +211,12 @@ export default function TableContent({
                 apr,
                 unclaimedFees,
                 status,
-                farming,
+                rewards,
               } = position
               const feesClaimDisabled =
                 !DEXES_SUPPORT_COLLECT_FEE[dex.id as EarnDex] || unclaimedFees === 0 || feesClaiming
               const rewardsClaimDisabled =
-                !position.pool.isFarming || rewardsClaiming || position.farming.claimableUsdValue === 0
+                !position.pool.isFarming || rewardsClaiming || position.rewards.claimableUsdValue === 0
 
               const actions = (
                 <DropdownAction
@@ -300,12 +300,11 @@ export default function TableContent({
                     <MouseoverTooltipDesktopOnly
                       text={
                         <>
-                          <Text>
-                            {formatDisplayNumber(token0.totalAmount, { significantDigits: 6 })} {token0.symbol}
-                          </Text>
-                          <Text>
-                            {formatDisplayNumber(token1.totalAmount, { significantDigits: 6 })} {token1.symbol}
-                          </Text>
+                          {position.totalValueTokens.map(token => (
+                            <Text key={token.address}>
+                              {formatDisplayNumber(token.amount, { significantDigits: 4 })} {token.symbol}
+                            </Text>
+                          ))}
                         </>
                       }
                       width="fit-content"
@@ -413,14 +412,14 @@ export default function TableContent({
                             <>
                               <Text>
                                 {t`Pending`}:{' '}
-                                {formatDisplayNumber(farming.pendingUsdValue, {
+                                {formatDisplayNumber(rewards.inProgressUsdValue, {
                                   significantDigits: 4,
                                   style: 'currency',
                                 })}
                               </Text>
                               <Text>
                                 {t`Claimable`}:{' '}
-                                {formatDisplayNumber(farming.claimableUsdValue, {
+                                {formatDisplayNumber(rewards.claimableUsdValue, {
                                   significantDigits: 4,
                                   style: 'currency',
                                 })}
@@ -431,7 +430,7 @@ export default function TableContent({
                           placement="bottom"
                         >
                           <Text>
-                            {formatDisplayNumber(farming.unclaimedUsdValue, {
+                            {formatDisplayNumber(rewards.unclaimedUsdValue, {
                               style: 'currency',
                               significantDigits: 4,
                             })}

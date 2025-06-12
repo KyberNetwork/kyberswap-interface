@@ -1,18 +1,18 @@
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useBatchClaimEncodeDataMutation, useClaimEncodeDataMutation, useRewardInfoQuery } from 'services/reward'
+import { useClaimEncodeDataMutation, useRewardInfoQuery } from 'services/reward'
 
 import { NotificationType } from 'components/Announcement/type'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { fetchListTokenByAddresses } from 'hooks/Tokens'
 import useChainsConfig from 'hooks/useChainsConfig'
+import ClaimAllModal from 'pages/Earns/components/ClaimAllModal'
 import ClaimModal, { ClaimInfo, ClaimType } from 'pages/Earns/components/ClaimModal'
 import { EarnDex, FARMING_SUPPORTED_CHAIN, KEM_REWARDS_CONTRACT } from 'pages/Earns/constants'
-import { RewardInfo } from 'pages/Earns/types'
+import { RewardInfo, TokenInfo } from 'pages/Earns/types'
 import { getNftManagerContractAddress, submitTransaction } from 'pages/Earns/utils'
 import { parseReward } from 'pages/Earns/utils/reward'
 import { useNotify } from 'state/application/hooks'
-import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useAllTransactions, useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 
@@ -31,16 +31,19 @@ const useKemRewards = () => {
     },
     { skip: !account, pollingInterval: 15_000 },
   )
-  const [batchClaimEncodeData] = useBatchClaimEncodeDataMutation()
   const [claimEncodeData] = useClaimEncodeDataMutation()
 
-  const [tokens, setTokens] = useState<WrappedTokenInfo[]>([])
+  const [tokens, setTokens] = useState<TokenInfo[]>([])
   const [claimInfo, setClaimInfo] = useState<ClaimInfo | null>(null)
   const [openClaimModal, setOpenClaimModal] = useState(false)
+  const [openClaimAllModal, setOpenClaimAllModal] = useState(false)
   const [claiming, setClaiming] = useState(false)
   const [txHash, setTxHash] = useState<string | null>(null)
 
-  const rewardInfo: RewardInfo | null = useMemo(() => parseReward(data, tokens), [data, tokens])
+  const rewardInfo: RewardInfo | null = useMemo(
+    () => parseReward({ data, tokens, supportedChains }),
+    [data, tokens, supportedChains],
+  )
 
   const handleClaim = useCallback(async () => {
     if (!account || !claimInfo) return
@@ -50,19 +53,12 @@ const useKemRewards = () => {
 
     const positionManagerContract = getNftManagerContractAddress(EarnDex.DEX_UNISWAP_V4_FAIRFLOW, chainId)
 
-    const encodeData = !claimInfo.nftId
-      ? await batchClaimEncodeData({
-          owner: account,
-          recipient: account,
-          chainId,
-        })
-      : await claimEncodeData({
-          recipient: account,
-          chainId,
-          campaignId: claimInfo.campaignId || '',
-          erc721Addr: positionManagerContract,
-          erc721Id: claimInfo.nftId,
-        })
+    const encodeData = await claimEncodeData({
+      recipient: account,
+      chainId,
+      erc721Addr: positionManagerContract,
+      erc721Id: claimInfo.nftId,
+    })
 
     if ('error' in encodeData) {
       notify({
@@ -106,43 +102,46 @@ const useKemRewards = () => {
       type: TRANSACTION_TYPE.COLLECT_FEE,
       hash: txHash,
     })
-  }, [account, addTransactionWithType, batchClaimEncodeData, chainId, claimEncodeData, claimInfo, library, notify])
+  }, [account, addTransactionWithType, chainId, claimEncodeData, claimInfo, library, notify])
 
   const onCloseClaim = useCallback(() => {
     setOpenClaimModal(false)
     setClaimInfo(null)
   }, [])
 
-  const onOpenClaim = (nftId?: string, positionChainId?: number) => {
+  const onOpenClaim = (nftId: string, positionChainId: number) => {
     if (!rewardInfo) {
       console.log('reward is not ready!')
       return
     }
     setOpenClaimModal(true)
 
-    const rewardInfoForChain = rewardInfo.chains.find(item => item.chainId === positionChainId || chainId)
+    const rewardNftInfo = rewardInfo.nfts.find(nft => nft.nftId === nftId)
 
-    if (!rewardInfoForChain) return
-
-    const rewardNftInfo = rewardInfoForChain.nfts.find(nft => nft.nftId === nftId)
-
-    if (nftId && !rewardNftInfo) {
+    if (!rewardNftInfo) {
       console.log('reward nft info is not existed!')
       return
     }
 
     setClaimInfo({
       nftId,
-      chainId: nftId && positionChainId ? positionChainId : chainId,
-      tokens: (rewardNftInfo?.tokens || rewardInfoForChain.claimableTokens || []).map(tokenReward => ({
+      chainId: positionChainId,
+      tokens: (rewardNftInfo.tokens || []).map(tokenReward => ({
         logo: tokenReward.logo,
         symbol: tokenReward.symbol,
         amount: tokenReward.claimableAmount,
         value: tokenReward.claimableUsdValue,
       })),
-      totalValue: rewardNftInfo ? rewardNftInfo.claimableUsdValue : rewardInfoForChain.claimableUsdValue,
-      campaignId: rewardNftInfo?.campaignId,
+      totalValue: rewardNftInfo.claimableUsdValue,
     })
+  }
+
+  const onOpenClaimAllRewards = () => {
+    if (!rewardInfo) {
+      console.log('reward is not ready!')
+      return
+    }
+    setOpenClaimAllModal(true)
   }
 
   useEffect(() => {
@@ -152,24 +151,40 @@ const useKemRewards = () => {
         return
       }
       const listTokenAddress: string[] = []
-      const propertyToCheck = ['claimableUSDValues', 'claimedAmounts', 'merkleAmounts', 'pendingAmounts'] as const
+      const propertyToCheck = [
+        'claimedAmounts',
+        'merkleAmounts',
+        'pendingAmounts',
+        'lmPendingAmounts',
+        'lmVestingAmounts',
+        'egPendingAmounts',
+        'egVestingAmounts',
+      ] as const
 
-      supportedChains.forEach(chainInfo => {
-        if (data[chainInfo.chainId.toString()]) {
-          Object.keys(data[chainInfo.chainId.toString()].campaigns).forEach(campaignId => {
-            data[chainInfo.chainId.toString()].campaigns[campaignId].tokens.forEach(rewardNftInfo => {
-              propertyToCheck.forEach(property => {
-                Object.keys(rewardNftInfo[property as keyof typeof rewardNftInfo]).forEach(address => {
-                  !listTokenAddress.includes(address) && listTokenAddress.push(address)
-                })
+      const listChainIds = Object.keys(data)
+
+      listChainIds.forEach(chainId => {
+        Object.keys(data[chainId].campaigns).forEach(campaignId => {
+          data[chainId].campaigns[campaignId].tokens.forEach(rewardNftInfo => {
+            propertyToCheck.forEach(property => {
+              Object.keys(rewardNftInfo[property as keyof typeof rewardNftInfo]).forEach(address => {
+                !listTokenAddress.includes(address) && listTokenAddress.push(address)
               })
             })
           })
-        }
+        })
       })
 
       const response = await fetchListTokenByAddresses(listTokenAddress, chainId)
-      setTokens(response)
+      setTokens(
+        response.map(token => ({
+          address: token.address,
+          symbol: token.symbol || '',
+          logo: token.logoURI || '',
+          decimals: token.decimals,
+          chainId: token.chainId,
+        })),
+      )
     }
     fetchTokens()
   }, [chainId, data, supportedChains])
@@ -197,7 +212,12 @@ const useKemRewards = () => {
       />
     ) : null
 
-  return { rewardInfo, claimModal, onOpenClaim, claiming }
+  const claimAllRewardsModal =
+    openClaimAllModal && rewardInfo ? (
+      <ClaimAllModal rewardInfo={rewardInfo} onClose={() => setOpenClaimAllModal(false)} />
+    ) : null
+
+  return { rewardInfo, claimModal, onOpenClaim, claiming, claimAllRewardsModal, onOpenClaimAllRewards }
 }
 
 export default useKemRewards
