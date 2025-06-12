@@ -301,7 +301,7 @@ export default function ConfirmSwapModalContent({
   const [searchParams, setSearchParams] = useSearchParams()
   const { data: loActiveMakingAmount } = useGetTotalActiveMakingAmountQuery(
     { chainId, tokenAddress: currencyIn?.wrapped.address ?? '', account: account ?? '' },
-    { skip: !currencyIn || !account },
+    { skip: !currencyIn || !account || currencyIn.isNative },
   )
   const { data: { orders = [] } = {} } = useGetListOrdersQuery(
     {
@@ -312,7 +312,7 @@ export default function ConfirmSwapModalContent({
       page: 1,
       pageSize: 20,
     },
-    { skip: !account, refetchOnFocus: true },
+    { skip: !account || currencyIn?.isNative, refetchOnFocus: true },
   )
 
   const ignoredOrders = useMemo(() => {
@@ -336,7 +336,7 @@ export default function ConfirmSwapModalContent({
 
   const remainAmount = BigInt(balance?.quotient.toString() || 0) - BigInt(buildResult?.data?.amountIn || 0)
 
-  const showLOWwarning = !!loActiveMakingAmount && remainAmount < activeMakingAmount
+  const showLOWwarning = currencyIn?.isNative ? false : !!loActiveMakingAmount && remainAmount < activeMakingAmount
 
   return (
     <>

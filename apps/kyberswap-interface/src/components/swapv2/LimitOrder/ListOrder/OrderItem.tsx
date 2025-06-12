@@ -410,7 +410,8 @@ export default function OrderItem({
 
   const highlight =
     searchParams.get('highlight') === 'true' &&
-    order.makerAsset.toLowerCase() === searchParams.get('search')?.toLowerCase()
+    order.makerAsset.toLowerCase() === searchParams.get('search')?.toLowerCase() &&
+    isOrderActive
 
   return (
     <>
