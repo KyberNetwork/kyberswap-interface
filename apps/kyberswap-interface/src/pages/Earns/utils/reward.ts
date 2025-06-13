@@ -3,6 +3,8 @@ import { RewardData, RewardType } from 'services/reward'
 import { NetworkInfo } from 'constants/networks/type'
 import { ChainRewardInfo, NftRewardInfo, TokenInfo, TokenRewardInfo } from 'pages/Earns/types'
 
+const deepClone = (obj: any) => JSON.parse(JSON.stringify(obj))
+
 export const parseReward = ({
   data,
   tokens,
@@ -82,8 +84,8 @@ export const parseReward = ({
           })
           .filter((token): token is TokenRewardInfo => !!token)
 
-        const egTokens: Array<TokenRewardInfo> = campaignType === RewardType.EG ? tokensByAddress : []
-        const lmTokens: Array<TokenRewardInfo> = campaignType === RewardType.LM ? tokensByAddress : []
+        const egTokens: Array<TokenRewardInfo> = campaignType === RewardType.EG ? deepClone(tokensByAddress) : []
+        const lmTokens: Array<TokenRewardInfo> = campaignType === RewardType.LM ? deepClone(tokensByAddress) : []
 
         nftsInChain.push({
           nftId,
@@ -95,7 +97,7 @@ export const parseReward = ({
           inProgressUsdValue,
           claimableUsdValue,
           unclaimedUsdValue,
-          tokens: tokensByAddress,
+          tokens: deepClone(tokensByAddress),
           egTokens,
           lmTokens,
         })
@@ -105,7 +107,7 @@ export const parseReward = ({
     nftsInChain.forEach(nft => {
       const existingNftIndex = listNft.findIndex(item => item.nftId === nft.nftId)
       if (existingNftIndex === -1) {
-        listNft.push(nft)
+        listNft.push(deepClone(nft))
       } else {
         listNft[existingNftIndex].totalUsdValue += nft.totalUsdValue
         listNft[existingNftIndex].claimedUsdValue += nft.claimedUsdValue
@@ -117,7 +119,7 @@ export const parseReward = ({
         nft.tokens.forEach(token => {
           const existingTokenIndex = listNft[existingNftIndex].tokens.findIndex(t => t.address === token.address)
           if (existingTokenIndex === -1) {
-            listNft[existingTokenIndex].tokens.push(token)
+            listNft[existingNftIndex].tokens.push(deepClone(token))
           } else {
             listNft[existingNftIndex].tokens[existingTokenIndex].totalAmount += token.totalAmount
             listNft[existingNftIndex].tokens[existingTokenIndex].claimableAmount += token.claimableAmount
@@ -128,7 +130,7 @@ export const parseReward = ({
         nft.egTokens.forEach(token => {
           const existingTokenIndex = listNft[existingNftIndex].egTokens.findIndex(t => t.address === token.address)
           if (existingTokenIndex === -1) {
-            listNft[existingNftIndex].egTokens.push(token)
+            listNft[existingNftIndex].egTokens.push(deepClone(token))
           } else {
             listNft[existingNftIndex].egTokens[existingTokenIndex].totalAmount += token.totalAmount
             listNft[existingNftIndex].egTokens[existingTokenIndex].claimableAmount += token.claimableAmount
@@ -139,7 +141,7 @@ export const parseReward = ({
         nft.lmTokens.forEach(token => {
           const existingTokenIndex = listNft[existingNftIndex].lmTokens.findIndex(t => t.address === token.address)
           if (existingTokenIndex === -1) {
-            listNft[existingNftIndex].lmTokens.push(token)
+            listNft[existingNftIndex].lmTokens.push(deepClone(token))
           } else {
             listNft[existingNftIndex].lmTokens[existingTokenIndex].totalAmount += token.totalAmount
             listNft[existingNftIndex].lmTokens[existingTokenIndex].claimableAmount += token.claimableAmount
@@ -166,7 +168,7 @@ export const parseReward = ({
           chainName: chain.name,
           chainLogo: chain.icon,
           claimableUsdValue: nft.claimableUsdValue,
-          tokens: nft.tokens,
+          tokens: deepClone(nft.tokens),
         })
       } else {
         chains[existingChainRewardIndex].claimableUsdValue += nft.claimableUsdValue
@@ -174,7 +176,7 @@ export const parseReward = ({
         nft.tokens.forEach(token => {
           const existingTokenIndex = chains[existingChainRewardIndex].tokens.findIndex(t => t.address === token.address)
           if (existingTokenIndex === -1) {
-            chains[existingChainRewardIndex].tokens.push(token)
+            chains[existingChainRewardIndex].tokens.push(deepClone(token))
           } else {
             chains[existingChainRewardIndex].tokens[existingTokenIndex].totalAmount += token.totalAmount
             chains[existingChainRewardIndex].tokens[existingTokenIndex].claimableAmount += token.claimableAmount
