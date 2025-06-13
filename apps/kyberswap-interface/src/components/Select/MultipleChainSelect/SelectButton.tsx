@@ -2,7 +2,7 @@ import { Trans } from '@lingui/macro'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
 
-import { ReactComponent as LogoKyber } from 'assets/svg/logo_kyber.svg'
+import { ReactComponent as LogoKyber } from 'assets/svg/kyber/logo_kyber.svg'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
 

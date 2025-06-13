@@ -9,9 +9,9 @@ import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import { DEFAULT_OUTPUT_TOKEN_BY_CHAIN, NativeCurrencies } from 'constants/tokens'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
+import { isNonEvmChain } from 'utils'
 
 import NetworkModal from './Header/web3/NetworkModal'
-import { isNonEvmChain } from 'utils'
 
 const SelectNetwork = styled.div`
   border: 999px;

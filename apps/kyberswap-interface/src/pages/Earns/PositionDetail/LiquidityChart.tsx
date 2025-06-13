@@ -1,15 +1,13 @@
+import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick } from '@kyber/utils/dist/uniswapv3'
 import { Bound, LiquidityChartRangeInput } from '@kyberswap/liquidity-chart'
 import '@kyberswap/liquidity-chart/style.css'
 import { useMemo } from 'react'
-import { MinusCircle, PlusCircle } from 'react-feather'
 import { useMedia } from 'react-use'
 import { usePoolDetailQuery } from 'services/poolService'
 
+import { ChartWrapper } from 'pages/Earns/PositionDetail/styles'
 import { MEDIA_WIDTHS } from 'theme'
 import { toString } from 'utils/numbers'
-
-import { ChartWrapper } from 'pages/Earns/PositionDetail/styles'
-import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick } from 'pages/Earns/uniswapv3'
 
 export default function LiquidityChart({
   chainId,
@@ -92,17 +90,17 @@ export default function LiquidityChart({
         price={{ current: price, lower: priceLower.toString(), upper: priceUpper.toString() }}
         ticksAtLimit={ticksAtLimit}
         revertPrice={revertPrice}
-        zoomInIcon={<PlusCircle size={20} />}
-        zoomOutIcon={<MinusCircle size={20} />}
         zoomPosition={{
-          top: undefined,
+          top: !upToSmall ? '0px' : '-16px',
           left: undefined,
-          right: '18px',
-          bottom: upToSmall ? '35px' : '60px',
+          right: !upToSmall ? '-32px' : '0px',
+          bottom: undefined,
           gap: '8px',
         }}
         dimensions={upToSmall ? { width: 400, height: 200 } : { width: 800, height: 400 }}
         margins={upToSmall ? { top: 0, right: 10, bottom: 20, left: 10 } : { top: 20, right: 20, bottom: 40, left: 20 }}
+        alwaysShowLabel
+        showLabelAsAmount
       />
     </ChartWrapper>
   )

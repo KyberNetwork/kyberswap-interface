@@ -11,6 +11,7 @@ import { ButtonPrimary } from 'components/Button'
 import InfoHelper from 'components/InfoHelper'
 import Select from 'components/Select'
 import { APP_PATHS, ZERO_ADDRESS } from 'constants/index'
+import { KNC } from 'constants/tokens'
 import { useWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
@@ -18,14 +19,13 @@ import { MEDIA_WIDTHS, StyledInternalLink } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
 import loBanner from './assets/limit_order.png'
+import mayTradingBanner from './assets/may_trading.png'
 import referralBanner from './assets/referral.png'
 import tradingBanner from './assets/trading.png'
-import mayTradingBanner from './assets/may_trading.png'
 import Information, { CampaignType } from './components/Information'
 import JoinReferral from './components/JoinReferral'
 import Leaderboard from './components/Leaderboard'
 import { StatCard, Tab, Tabs, Wrapper } from './styles'
-import { KNC } from 'constants/tokens'
 
 function getCurrentWeek(): number {
   const currentDate: Date = new Date()
@@ -432,20 +432,9 @@ export default function Aggregator() {
         </Text>
 
         {campaign === 'referral-program' && <JoinReferral />}
-        {type === CampaignType.MayTrading && (
-          <ButtonPrimary
-            width={upToExtraSmall ? '100%' : '160px'}
-            height="40px"
-            onClick={() => {
-              navigate(ctaLink)
-            }}
-          >
-            {ctaText}
-          </ButtonPrimary>
-        )}
       </Flex>
 
-      {campaign !== 'referral-program' && type != CampaignType.MayTrading && (
+      {campaign !== 'referral-program' && (
         <Flex
           justifyContent="space-between"
           marginTop="1.5rem"

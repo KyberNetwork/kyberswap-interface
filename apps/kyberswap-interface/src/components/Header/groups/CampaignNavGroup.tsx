@@ -1,17 +1,17 @@
 import { Trans } from '@lingui/macro'
-import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
+import { useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useMedia } from 'react-use'
+import { Flex } from 'rebass'
 import styled, { useTheme } from 'styled-components'
 
+import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import Column from 'components/Column'
+import { NewLabel } from 'components/Menu'
 import { APP_PATHS } from 'constants/index'
 
 import { DropdownTextAnchor, StyledNavLink } from '../styleds'
 import NavGroup from './NavGroup'
-import { NewLabel } from 'components/Menu'
-import { Flex } from 'rebass'
-import { useState } from 'react'
 
 const DropdownIcon = styled(DropdownSVG)<{ open: boolean }>`
   transform: ${({ open }) => (open ? 'rotate(180deg)' : 'rotate(0deg)')};

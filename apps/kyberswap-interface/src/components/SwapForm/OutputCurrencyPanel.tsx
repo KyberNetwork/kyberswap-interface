@@ -1,6 +1,7 @@
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import React from 'react'
+import Skeleton from 'react-loading-skeleton'
 import { Box, Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -8,10 +9,9 @@ import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { CHAINS_SUPPORT_FEE_CONFIGS, RESERVE_USD_DECIMALS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
+import useTheme from 'hooks/useTheme'
 import { WrapType } from 'hooks/useWrapCallback'
 import { formattedNum } from 'utils'
-import Skeleton from 'react-loading-skeleton'
-import useTheme from 'hooks/useTheme'
 
 export const Label = styled.div`
   font-weight: 500;

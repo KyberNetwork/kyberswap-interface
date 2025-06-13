@@ -1,6 +1,7 @@
 import { MaxUint256 } from '@ethersproject/constants'
 import { Currency, CurrencyAmount, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
+import { BigNumber } from 'ethers'
 import { Interface } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -20,7 +21,6 @@ import { paymasterExecute } from 'utils/sendTransaction'
 
 import { useActiveWeb3React } from './index'
 import { useTokenReadingContract, useTokenSigningContract } from './useContract'
-import { BigNumber } from 'ethers'
 
 const ERC20Interface = new Interface(ERC20_ABI)
 

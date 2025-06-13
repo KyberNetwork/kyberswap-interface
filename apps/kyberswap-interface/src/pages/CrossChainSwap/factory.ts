@@ -1,13 +1,13 @@
 import {
-  RelayAdapter,
   AcrossAdapter,
-  SwapProvider,
-  XYFinanceAdapter,
-  MayanAdapter,
-  SymbiosisAdapter,
   DeBridgeAdapter,
-  LifiAdapter,
   KyberSwapAdapter,
+  LifiAdapter,
+  MayanAdapter,
+  RelayAdapter,
+  SwapProvider,
+  SymbiosisAdapter,
+  XYFinanceAdapter,
 } from './adapters'
 import { NearIntentsAdapter } from './adapters/NearIntentsAdapter'
 import { OptimexAdapter } from './adapters/OptimexAdapter'
