@@ -12,6 +12,7 @@ import styled, { CSSProperties, DefaultTheme } from 'styled-components'
 import InfoHelper from 'components/InfoHelper'
 import Logo from 'components/Logo'
 import ProgressBar from 'components/ProgressBar'
+import { highlight } from 'components/swapv2/styleds'
 import useTheme from 'hooks/useTheme'
 import { useTokenBalance } from 'state/wallet/hooks'
 import { MEDIA_WIDTHS } from 'theme'
@@ -20,7 +21,6 @@ import { toCurrencyAmount } from 'utils/currencyAmount'
 import { calcPercentFilledOrder, formatAmountOrder, formatRateLimitOrder, isActiveStatus } from '../helpers'
 import { LimitOrder, LimitOrderStatus } from '../type'
 import ActionButtons from './ActionButtons'
-import { highlight } from 'components/swapv2/styleds'
 
 export const ItemWrapper = styled.div<{ hasBorder?: boolean; active?: boolean }>`
   border-bottom: 1px solid ${({ theme, hasBorder }) => (hasBorder ? theme.border : 'transparent')};
