@@ -633,14 +633,8 @@ export default function Preview({
                         key={index}
                       >
                         <div className="ml-3">
-                          {formatDisplayNumber(item.amountIn, {
-                            significantDigits: 4,
-                          })}{' '}
-                          {item.tokenInSymbol} {'→ '}
-                          {formatDisplayNumber(item.amountOut, {
-                            significantDigits: 4,
-                          })}{' '}
-                          {item.tokenOutSymbol}
+                          {item.amountIn} {item.tokenInSymbol} {'→ '}
+                          {item.amountOut} {item.tokenOutSymbol}
                         </div>
                         <div>{item.piRes.display}</div>
                       </div>
