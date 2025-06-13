@@ -8,9 +8,10 @@ import {
   NftRewardInfo,
   ParsedPosition,
   PositionStatus,
+  ProgramType,
   TokenRewardInfo,
 } from 'pages/Earns/types'
-import { isFarmingProtocol, isForkFrom, isNativeToken } from 'pages/Earns/utils'
+import { isForkFrom, isNativeToken } from 'pages/Earns/utils'
 
 export const parsePosition = ({
   position,
@@ -40,7 +41,9 @@ export const parsePosition = ({
 
   const dex = position.pool.project || ''
   const isUniv2 = isForkFrom(dex, CoreProtocol.UniswapV2)
-  const isFarming = isFarmingProtocol(dex)
+
+  const programs = position.programs || []
+  const isFarming = programs.includes(ProgramType.EG) || programs.includes(ProgramType.LM)
 
   const listDexesWithVersion = [
     EarnDex.DEX_UNISWAPV2,

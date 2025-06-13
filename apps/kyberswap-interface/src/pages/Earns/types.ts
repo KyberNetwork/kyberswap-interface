@@ -11,6 +11,11 @@ export enum PositionHistoryType {
   DEPOSIT = 'DEPOSIT',
 }
 
+export enum ProgramType {
+  EG = 'eg',
+  LM = 'lm',
+}
+
 export interface PositionFilter {
   chainIds?: string
   positionId?: string
@@ -39,6 +44,7 @@ export interface EarnPool {
     chainId: number
     isFavorite: boolean
   }
+  programs?: Array<ProgramType>
   tokens: Array<{
     address: string
     logoURI: string
@@ -83,6 +89,7 @@ export interface EarnPosition {
     project: EarnDex
     projectLogo: string
     category: PAIR_CATEGORY
+    programs?: Array<ProgramType>
   }
   suggestionPool: {
     address: string

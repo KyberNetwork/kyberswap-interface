@@ -16,6 +16,7 @@ interface PoolInfo {
   kemApr24h: number;
   kemEGApr: number;
   kemLMApr: number;
+  isFarming: boolean;
 }
 
 export default function PoolStat({
@@ -47,7 +48,7 @@ export default function PoolStat({
     (poolInfo?.kemEGApr || 0) +
     (poolInfo?.kemLMApr || 0);
 
-  const isFarming = poolType === PoolType.DEX_UNISWAP_V4_FAIRFLOW; // TODO: change this logic
+  const isFarming = poolInfo?.isFarming || false;
 
   useEffect(() => {
     const handleFetchPoolInfo = () => {
@@ -55,9 +56,17 @@ export default function PoolStat({
         `${PATHS.ZAP_EARN_API}/v1/pools?chainId=${chainId}&address=${poolAddress}&protocol=${poolType}`
       )
         .then((res) => res.json())
-        .then(
-          (data) => data?.data?.poolStats && setPoolInfo(data.data.poolStats)
-        )
+        .then((data) => {
+          const poolStatInfo = data?.data?.poolStats;
+          if (!poolStatInfo) return;
+          const programs = data?.data?.programs || [];
+          const isFarming = programs.includes("eg") || programs.includes("lm");
+
+          setPoolInfo({
+            ...poolStatInfo,
+            isFarming,
+          });
+        })
         .catch((e) => {
           console.log(e.message);
         });

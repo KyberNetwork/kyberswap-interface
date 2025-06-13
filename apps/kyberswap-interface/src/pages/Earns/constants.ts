@@ -126,8 +126,6 @@ export const NFT_MANAGER_CONTRACT: { [key in EarnDex]: { [key: string]: string }
   },
 }
 
-export const FARMING_DEXES = [EarnDex.DEX_UNISWAP_V4_FAIRFLOW, Exchange.DEX_UNISWAP_V4_FAIRFLOW]
-
 export const NATIVE_ADDRESSES: Record<EarnChain, string> = {
   [EarnChain.MAINNET]: ETHER_ADDRESS.toLowerCase(),
   [EarnChain.BASE]: ETHER_ADDRESS.toLowerCase(),

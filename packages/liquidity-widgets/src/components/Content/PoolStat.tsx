@@ -1,6 +1,6 @@
 import { useShallow } from 'zustand/shallow';
 
-import { PoolType, univ2Types } from '@kyber/schema';
+import { univ2Types } from '@kyber/schema';
 import { MouseoverTooltip } from '@kyber/ui';
 import { Skeleton } from '@kyber/ui';
 import { formatAprNumber, formatDisplayNumber } from '@kyber/utils/number';
@@ -40,7 +40,7 @@ export default function PoolStat() {
       : Number((BigInt(position.liquidity) * 10000n) / BigInt(position.totalSupply)) / 100;
 
   const poolApr = (poolStat?.apr24h || 0) + (poolStat?.kemEGApr || 0) + (poolStat?.kemLMApr || 0);
-  const isFarming = poolType === PoolType.DEX_UNISWAP_V4_FAIRFLOW; // TODO: change this logic
+  const isFarming = poolStat?.isFarming || false;
 
   return (
     <div

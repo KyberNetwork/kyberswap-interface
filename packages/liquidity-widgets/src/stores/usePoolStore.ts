@@ -3,11 +3,15 @@ import { create } from 'zustand';
 import { Pool, PoolType } from '@kyber/schema';
 import { POOL_ERROR, PoolStatInfo, fetchPoolStat, getPoolInfo, getPoolPrice } from '@kyber/utils';
 
+interface PoolStatExtended extends PoolStatInfo {
+  isFarming: boolean;
+}
+
 interface PoolState {
   poolLoading: boolean;
   poolError: string;
   pool: 'loading' | Pool;
-  poolStat: PoolStatInfo | null;
+  poolStat: PoolStatExtended | null;
   poolPrice: number | null;
   revertPrice: boolean;
   setRevertPrice: (revertPrice: boolean) => void;

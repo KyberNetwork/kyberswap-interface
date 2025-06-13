@@ -47,3 +47,8 @@ export enum POOL_CATEGORY {
   EXOTIC_PAIR = 'exoticPair',
   HIGH_VOLATILITY_PAIR = 'highVolatilityPair',
 }
+
+export enum FARMING_PROGRAM {
+  EG = 'eg',
+  LM = 'lm',
+}

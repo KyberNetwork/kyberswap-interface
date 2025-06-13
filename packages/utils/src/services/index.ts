@@ -1,4 +1,4 @@
-import { API_URLS, Token } from '@kyber/schema';
+import { API_URLS, FARMING_PROGRAM, Token } from '@kyber/schema';
 
 export const fetchTokenInfo = async (address: string, chainId: number) => {
   try {
@@ -40,6 +40,7 @@ export const fetchTokenPrice = async ({ addresses, chainId }: { addresses: strin
 interface PoolStatResponse {
   data: {
     poolStats: PoolStatInfo;
+    programs?: Array<FARMING_PROGRAM>;
   };
 }
 
@@ -58,5 +59,13 @@ export const fetchPoolStat = async ({ chainId, poolAddress }: { chainId: number;
     `${API_URLS.ZAP_EARN_API}/v1/pools?chainId=${chainId}&address=${poolAddress}`,
   ).then(res => res.json())) as PoolStatResponse;
 
-  return poolStatResponse?.data?.poolStats || null;
+  const poolStat = poolStatResponse?.data?.poolStats;
+  if (!poolStat) return null;
+
+  const programs = poolStatResponse?.data?.programs || [];
+
+  return {
+    ...poolStat,
+    isFarming: programs.includes(FARMING_PROGRAM.EG) || programs.includes(FARMING_PROGRAM.LM),
+  };
 };

@@ -27,8 +27,7 @@ import {
 } from 'pages/Earns/PoolExplorer/styles'
 import useFilter from 'pages/Earns/PoolExplorer/useFilter'
 import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
-import { ParsedEarnPool } from 'pages/Earns/types'
-import { isFarmingProtocol } from 'pages/Earns/utils'
+import { ParsedEarnPool, ProgramType } from 'pages/Earns/types'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -175,8 +174,11 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: ({ pool }: Zap
       </Text>
     )
 
-  const kemFarming = (pool: ParsedEarnPool) =>
-    isFarmingProtocol(pool.exchange) ? (
+  const kemFarming = (pool: ParsedEarnPool) => {
+    const programs = pool.programs || []
+    const isFarming = programs.includes(ProgramType.EG) || programs.includes(ProgramType.LM)
+
+    return isFarming ? (
       <MouseoverTooltipDesktopOnly
         placement="bottom"
         width="max-content"
@@ -193,6 +195,7 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: ({ pool }: Zap
         <IconFarmingPool width={24} height={24} style={{ marginLeft: 4 }} />
       </MouseoverTooltipDesktopOnly>
     ) : null
+  }
 
   if (upToMedium)
     return (
