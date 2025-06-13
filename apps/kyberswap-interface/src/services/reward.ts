@@ -38,8 +38,8 @@ interface TokenReward {
 }
 
 export enum RewardType {
-  EG = 'eg',
-  LM = 'lm',
+  EG = 'EG',
+  LM = 'LM',
 }
 
 export interface RewardData {

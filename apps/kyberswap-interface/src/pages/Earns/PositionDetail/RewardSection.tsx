@@ -86,7 +86,7 @@ const RewardSection = ({ position }: { position: ParsedPosition }) => {
             </Flex>
             <Text fontSize={20}>
               {formatDisplayNumber(rewardInfoThisPosition?.totalUsdValue || 0, {
-                significantDigits: 6,
+                significantDigits: 4,
                 style: 'currency',
               })}
             </Text>
@@ -99,7 +99,7 @@ const RewardSection = ({ position }: { position: ParsedPosition }) => {
                 {rewardInfoThisPosition?.tokens.map((item, index) => (
                   <Flex key={index} alignItems={'center'} sx={{ gap: '6px' }}>
                     <TokenLogo src={item.logo} size={16} />
-                    <Text fontSize={16}>{formatDisplayNumber(item.totalAmount, { significantDigits: 6 })}</Text>
+                    <Text fontSize={16}>{formatDisplayNumber(item.totalAmount, { significantDigits: 4 })}</Text>
                     <Text fontSize={16}>{item.symbol}</Text>
                   </Flex>
                 ))}
@@ -112,7 +112,7 @@ const RewardSection = ({ position }: { position: ParsedPosition }) => {
           <Flex width={'100%'} alignItems={'center'} justifyContent={'space-between'}>
             <Text fontSize={20}>
               {formatDisplayNumber(rewardInfoThisPosition?.claimedUsdValue || 0, {
-                significantDigits: 6,
+                significantDigits: 4,
                 style: 'currency',
               })}
             </Text>
@@ -125,7 +125,7 @@ const RewardSection = ({ position }: { position: ParsedPosition }) => {
             <Flex alignItems={'center'}>
               <Text fontSize={20}>
                 {formatDisplayNumber(rewardInfoThisPosition?.inProgressUsdValue || 0, {
-                  significantDigits: 6,
+                  significantDigits: 4,
                   style: 'currency',
                 })}
               </Text>
@@ -135,7 +135,7 @@ const RewardSection = ({ position }: { position: ParsedPosition }) => {
                     <li>
                       {t`Current Cycle`}:{' '}
                       {formatDisplayNumber(rewardInfoThisPosition?.pendingUsdValue || 0, {
-                        significantDigits: 6,
+                        significantDigits: 4,
                         style: 'currency',
                       })}{' '}
                       {t`will move to “Vesting” when this cycle ends.`}
@@ -143,7 +143,7 @@ const RewardSection = ({ position }: { position: ParsedPosition }) => {
                     <li style={{ marginTop: 4 }}>
                       {t`Vesting`}:{' '}
                       {formatDisplayNumber(rewardInfoThisPosition?.vestingUsdValue || 0, {
-                        significantDigits: 6,
+                        significantDigits: 4,
                         style: 'currency',
                       })}{' '}
                       {t`in a 2-day finalization period before they become claimable.`}
@@ -156,7 +156,7 @@ const RewardSection = ({ position }: { position: ParsedPosition }) => {
               />
             </Flex>
             <Text fontSize={14} color={theme.subText}>
-              {t`Pending`}
+              {t`In-Progress`}
             </Text>
           </Flex>
 
@@ -178,7 +178,7 @@ const RewardSection = ({ position }: { position: ParsedPosition }) => {
           <Flex width={'100%'} alignItems={'center'} justifyContent={'space-between'}>
             <Text fontSize={20}>
               {formatDisplayNumber(rewardInfoThisPosition?.claimableUsdValue || 0, {
-                significantDigits: 6,
+                significantDigits: 4,
                 style: 'currency',
               })}
             </Text>

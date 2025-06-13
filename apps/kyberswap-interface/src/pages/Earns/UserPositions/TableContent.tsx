@@ -411,7 +411,7 @@ export default function TableContent({
                           text={
                             <>
                               <Text>
-                                {t`Pending`}:{' '}
+                                {t`In-Progress`}:{' '}
                                 {formatDisplayNumber(rewards.inProgressUsdValue, {
                                   significantDigits: 4,
                                   style: 'currency',

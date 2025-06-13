@@ -203,9 +203,9 @@ export const aggregateRewardFromPositions = (positions: Array<ParsedPosition>) =
     claimableUsdValue += position.rewards.claimableUsdValue
 
     position.rewards.egTokens.forEach(token => {
-      const existingTokenIndex = egTokens.findIndex(t => t.address === token.address)
+      const existingTokenIndex = egTokens.findIndex(t => t.symbol === token.symbol)
       if (existingTokenIndex === -1) {
-        egTokens.push(token)
+        egTokens.push({ ...token })
       } else {
         egTokens[existingTokenIndex].totalAmount += token.totalAmount
         egTokens[existingTokenIndex].claimableAmount += token.claimableAmount
@@ -213,9 +213,9 @@ export const aggregateRewardFromPositions = (positions: Array<ParsedPosition>) =
       }
     })
     position.rewards.lmTokens.forEach(token => {
-      const existingTokenIndex = lmTokens.findIndex(t => t.address === token.address)
+      const existingTokenIndex = lmTokens.findIndex(t => t.symbol === token.symbol)
       if (existingTokenIndex === -1) {
-        lmTokens.push(token)
+        lmTokens.push({ ...token })
       } else {
         lmTokens[existingTokenIndex].totalAmount += token.totalAmount
         lmTokens[existingTokenIndex].claimableAmount += token.claimableAmount

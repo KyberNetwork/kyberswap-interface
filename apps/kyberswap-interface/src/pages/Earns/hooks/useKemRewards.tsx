@@ -1,6 +1,6 @@
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useClaimEncodeDataMutation, useRewardInfoQuery } from 'services/reward'
+import { useBatchClaimEncodeDataMutation, useClaimEncodeDataMutation, useRewardInfoQuery } from 'services/reward'
 
 import { NotificationType } from 'components/Announcement/type'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
@@ -31,6 +31,7 @@ const useKemRewards = () => {
     },
     { skip: !account, pollingInterval: 15_000 },
   )
+  const [batchClaimEncodeData] = useBatchClaimEncodeDataMutation()
   const [claimEncodeData] = useClaimEncodeDataMutation()
 
   const [tokens, setTokens] = useState<TokenInfo[]>([])
@@ -104,6 +105,58 @@ const useKemRewards = () => {
     })
   }, [account, addTransactionWithType, chainId, claimEncodeData, claimInfo, library, notify])
 
+  const handleClaimAll = useCallback(async () => {
+    if (!account || !FARMING_SUPPORTED_CHAIN.includes(chainId)) return
+    setClaiming(true)
+
+    const encodeData = await batchClaimEncodeData({
+      owner: account,
+      recipient: account,
+      chainId,
+    })
+
+    if ('error' in encodeData) {
+      notify({
+        title: t`Error`,
+        type: NotificationType.ERROR,
+        summary:
+          'data' in encodeData.error &&
+          encodeData.error.data &&
+          typeof encodeData.error.data === 'object' &&
+          'message' in encodeData.error.data
+            ? (encodeData.error.data.message as string)
+            : 'status' in encodeData.error && encodeData.error.status === 'CUSTOM_ERROR'
+            ? encodeData.error.error
+            : 'An error occurred while processing your request',
+      })
+      setClaiming(false)
+      return
+    }
+
+    const res = await submitTransaction({
+      library,
+      txData: {
+        to: KEM_REWARDS_CONTRACT[chainId as keyof typeof KEM_REWARDS_CONTRACT],
+        data: `0x${encodeData.data}`,
+      },
+      onError: (error: Error) => {
+        notify({
+          title: t`Error`,
+          type: NotificationType.ERROR,
+          summary: error.message,
+        })
+        setClaiming(false)
+      },
+    })
+    const { txHash, error } = res
+    if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
+    setTxHash(txHash)
+    addTransactionWithType({
+      type: TRANSACTION_TYPE.COLLECT_FEE,
+      hash: txHash,
+    })
+  }, [account, addTransactionWithType, batchClaimEncodeData, chainId, library, notify])
+
   const onCloseClaim = useCallback(() => {
     setOpenClaimModal(false)
     setClaimInfo(null)
@@ -155,10 +208,9 @@ const useKemRewards = () => {
         'claimedAmounts',
         'merkleAmounts',
         'pendingAmounts',
-        'lmPendingAmounts',
-        'lmVestingAmounts',
-        'egPendingAmounts',
-        'egVestingAmounts',
+        'vestingAmounts',
+        'claimableAmounts',
+        'claimableUSDValues',
       ] as const
 
       const listChainIds = Object.keys(data)
@@ -214,7 +266,13 @@ const useKemRewards = () => {
 
   const claimAllRewardsModal =
     openClaimAllModal && rewardInfo ? (
-      <ClaimAllModal rewardInfo={rewardInfo} onClose={() => setOpenClaimAllModal(false)} />
+      <ClaimAllModal
+        rewardInfo={rewardInfo}
+        onClaimAll={handleClaimAll}
+        onClose={() => setOpenClaimAllModal(false)}
+        claiming={claiming}
+        setClaiming={setClaiming}
+      />
     ) : null
 
   return { rewardInfo, claimModal, onOpenClaim, claiming, claimAllRewardsModal, onOpenClaimAllRewards }

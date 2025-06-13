@@ -120,8 +120,8 @@ export const parseReward = ({
             listNft[existingTokenIndex].tokens.push(token)
           } else {
             listNft[existingNftIndex].tokens[existingTokenIndex].totalAmount += token.totalAmount
-            listNft[existingTokenIndex].tokens[existingTokenIndex].claimableAmount += token.claimableAmount
-            listNft[existingTokenIndex].tokens[existingTokenIndex].claimableUsdValue += token.claimableUsdValue
+            listNft[existingNftIndex].tokens[existingTokenIndex].claimableAmount += token.claimableAmount
+            listNft[existingNftIndex].tokens[existingTokenIndex].claimableUsdValue += token.claimableUsdValue
           }
         })
 

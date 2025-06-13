@@ -17,194 +17,19 @@ import { RewardInfo } from 'pages/Earns/types'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
-// const fakeData = [
-//   {
-//     chainId: 56,
-//     chainName: 'BNB Chain',
-//     chainLogo:
-//       'https://storage.googleapis.com/ks-setting-1d682dca/14c1b7c4-b66e-4169-b82e-ea6237f15b461699420601184.png',
-//     claimableUsdValue: 1987.65,
-//     tokens: [
-//       {
-//         logo: 'https://storage.googleapis.com/ks-setting-1d682dca/72f65ba0-66c0-45ec-b46b-7b7ec80ca5051696326694583.png',
-//         symbol: 'KNC',
-//         claimableAmount: 237.56,
-//         claimableUsdValue: 240,
-//         address: '0x28fe69Ff6864C1C218878BDCA01482D36B9D57b1',
-//       },
-//       {
-//         logo: 'https://storage.googleapis.com/ks-setting-1d682dca/35f59a55-3d73-466e-80b0-2100213436d51748332616256.png',
-//         symbol: 'USDT',
-//         claimableAmount: 80,
-//         claimableUsdValue: 80,
-//         address: '0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2',
-//       },
-//       {
-//         logo: 'https://storage.googleapis.com/ks-setting-1d682dca/90bc5afa-3ea2-4cb3-8e76-9d4dff085b761693939652735.png',
-//         symbol: 'USDC',
-//         claimableAmount: 60,
-//         claimableUsdValue: 60,
-//         address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
-//       },
-//       {
-//         logo: 'https://storage.googleapis.com/ks-setting-1d682dca/5eb059a4-8c6c-4377-965e-2571077249931713784151226.png',
-//         symbol: 'Cake',
-//         claimableAmount: 172.67,
-//         claimableUsdValue: 20,
-//         address: '0x3055913c90Fcc1A6CE9a358911721eEb942013A1',
-//       },
-//     ],
-//   },
-//   {
-//     chainId: 137,
-//     chainName: 'Polygon',
-//     chainLogo:
-//       'https://storage.googleapis.com/ks-setting-1d682dca/369ad098-9f91-4827-92f9-ba18ece467dd1699540645337.png',
-//     claimableUsdValue: 400,
-//     tokens: [
-//       {
-//         logo: 'https://storage.googleapis.com/ks-setting-1d682dca/72f65ba0-66c0-45ec-b46b-7b7ec80ca5051696326694583.png',
-//         symbol: 'KNC',
-//         claimableAmount: 237.56,
-//         claimableUsdValue: 240,
-//         address: '0x28fe69Ff6864C1C218878BDCA01482D36B9D57b1',
-//       },
-//       {
-//         logo: 'https://storage.googleapis.com/ks-setting-1d682dca/35f59a55-3d73-466e-80b0-2100213436d51748332616256.png',
-//         symbol: 'USDT',
-//         claimableAmount: 80,
-//         claimableUsdValue: 80,
-//         address: '0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2',
-//       },
-//       {
-//         logo: 'https://storage.googleapis.com/ks-setting-1d682dca/90bc5afa-3ea2-4cb3-8e76-9d4dff085b761693939652735.png',
-//         symbol: 'USDC',
-//         claimableAmount: 60,
-//         claimableUsdValue: 60,
-//         address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
-//       },
-//       {
-//         logo: 'https://storage.googleapis.com/ks-setting-1d682dca/5eb059a4-8c6c-4377-965e-2571077249931713784151226.png',
-//         symbol: 'Cake',
-//         claimableAmount: 172.67,
-//         claimableUsdValue: 20,
-//         address: '0x3055913c90Fcc1A6CE9a358911721eEb942013A1',
-//       },
-//     ],
-//   },
-//   {
-//     chainId: 8453,
-//     chainName: 'Base',
-//     chainLogo:
-//       'https://storage.googleapis.com/ks-setting-1d682dca/a57f3983-8573-4f43-8b4c-f5217aee72b11697621136693.png',
-//     claimableUsdValue: 276.87,
-//     tokens: [
-//       {
-//         logo: 'https://storage.googleapis.com/ks-setting-1d682dca/72f65ba0-66c0-45ec-b46b-7b7ec80ca5051696326694583.png',
-//         symbol: 'KNC',
-//         claimableAmount: 237.56,
-//         claimableUsdValue: 240,
-//         address: '0x28fe69Ff6864C1C218878BDCA01482D36B9D57b1',
-//       },
-//       {
-//         logo: 'https://storage.googleapis.com/ks-setting-1d682dca/35f59a55-3d73-466e-80b0-2100213436d51748332616256.png',
-//         symbol: 'USDT',
-//         claimableAmount: 80,
-//         claimableUsdValue: 80,
-//         address: '0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2',
-//       },
-//       {
-//         logo: 'https://storage.googleapis.com/ks-setting-1d682dca/90bc5afa-3ea2-4cb3-8e76-9d4dff085b761693939652735.png',
-//         symbol: 'USDC',
-//         claimableAmount: 60,
-//         claimableUsdValue: 60,
-//         address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
-//       },
-//       {
-//         logo: 'https://storage.googleapis.com/ks-setting-1d682dca/5eb059a4-8c6c-4377-965e-2571077249931713784151226.png',
-//         symbol: 'Cake',
-//         claimableAmount: 172.67,
-//         claimableUsdValue: 20,
-//         address: '0x3055913c90Fcc1A6CE9a358911721eEb942013A1',
-//       },
-//     ],
-//   },
-//   {
-//     chainId: 1,
-//     chainName: 'Ethereum',
-//     chainLogo:
-//       'https://storage.googleapis.com/ks-setting-1d682dca/fd07cf5c-3ddf-4215-aa51-e6ee2c60afbc1697031732146.png',
-//     claimableUsdValue: 42.26,
-//     tokens: [
-//       {
-//         logo: 'https://storage.googleapis.com/ks-setting-1d682dca/72f65ba0-66c0-45ec-b46b-7b7ec80ca5051696326694583.png',
-//         symbol: 'KNC',
-//         claimableAmount: 237.56,
-//         claimableUsdValue: 240,
-//         address: '0x28fe69Ff6864C1C218878BDCA01482D36B9D57b1',
-//       },
-//       {
-//         logo: 'https://storage.googleapis.com/ks-setting-1d682dca/35f59a55-3d73-466e-80b0-2100213436d51748332616256.png',
-//         symbol: 'USDT',
-//         claimableAmount: 80,
-//         claimableUsdValue: 80,
-//         address: '0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2',
-//       },
-//       {
-//         logo: 'https://storage.googleapis.com/ks-setting-1d682dca/90bc5afa-3ea2-4cb3-8e76-9d4dff085b761693939652735.png',
-//         symbol: 'USDC',
-//         claimableAmount: 60,
-//         claimableUsdValue: 60,
-//         address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
-//       },
-//       {
-//         logo: 'https://storage.googleapis.com/ks-setting-1d682dca/5eb059a4-8c6c-4377-965e-2571077249931713784151226.png',
-//         symbol: 'Cake',
-//         claimableAmount: 172.67,
-//         claimableUsdValue: 20,
-//         address: '0x3055913c90Fcc1A6CE9a358911721eEb942013A1',
-//       },
-//     ],
-//   },
-//   {
-//     chainId: 42161,
-//     chainName: 'Arbitrum',
-//     chainLogo: 'https://storage.googleapis.com/ks-setting-1d682dca/e123a120-6556-4a72-83c8-af4cce475e43.png',
-//     claimableUsdValue: 7.4,
-//     tokens: [
-//       {
-//         logo: 'https://storage.googleapis.com/ks-setting-1d682dca/72f65ba0-66c0-45ec-b46b-7b7ec80ca5051696326694583.png',
-//         symbol: 'KNC',
-//         claimableAmount: 237.56,
-//         claimableUsdValue: 240,
-//         address: '0x28fe69Ff6864C1C218878BDCA01482D36B9D57b1',
-//       },
-//       {
-//         logo: 'https://storage.googleapis.com/ks-setting-1d682dca/35f59a55-3d73-466e-80b0-2100213436d51748332616256.png',
-//         symbol: 'USDT',
-//         claimableAmount: 80,
-//         claimableUsdValue: 80,
-//         address: '0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2',
-//       },
-//       {
-//         logo: 'https://storage.googleapis.com/ks-setting-1d682dca/90bc5afa-3ea2-4cb3-8e76-9d4dff085b761693939652735.png',
-//         symbol: 'USDC',
-//         claimableAmount: 60,
-//         claimableUsdValue: 60,
-//         address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
-//       },
-//       {
-//         logo: 'https://storage.googleapis.com/ks-setting-1d682dca/5eb059a4-8c6c-4377-965e-2571077249931713784151226.png',
-//         symbol: 'Cake',
-//         claimableAmount: 172.67,
-//         claimableUsdValue: 20,
-//         address: '0x3055913c90Fcc1A6CE9a358911721eEb942013A1',
-//       },
-//     ],
-//   },
-// ]
-
-export default function ClaimAllModal({ rewardInfo, onClose }: { rewardInfo: RewardInfo; onClose: () => void }) {
+export default function ClaimAllModal({
+  rewardInfo,
+  onClose,
+  claiming,
+  setClaiming,
+  onClaimAll,
+}: {
+  rewardInfo: RewardInfo
+  onClose: () => void
+  claiming: boolean
+  setClaiming: (claiming: boolean) => void
+  onClaimAll: () => void
+}) {
   const theme = useTheme()
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const { library, chainId } = useWeb3React()
@@ -212,7 +37,6 @@ export default function ClaimAllModal({ rewardInfo, onClose }: { rewardInfo: Rew
 
   const [autoClaim, setAutoClaim] = useState(false)
   const [selectedChainId, setSelectedChainId] = useState<number | null>(null)
-  const [claiming, _setClaiming] = useState(false)
 
   const selectedChain = selectedChainId ? rewardInfo.chains.find(c => c.chainId === selectedChainId) : null
 
@@ -225,8 +49,8 @@ export default function ClaimAllModal({ rewardInfo, onClose }: { rewardInfo: Rew
       return
     }
 
-    // TODO: Claim rewards
-  }, [chainId, changeNetwork, library, selectedChainId])
+    onClaimAll()
+  }, [chainId, changeNetwork, library, onClaimAll, selectedChainId])
 
   const handleSelectChain = (chainId: number) => {
     if (chainId === selectedChainId) setSelectedChainId(null)
@@ -239,6 +63,12 @@ export default function ClaimAllModal({ rewardInfo, onClose }: { rewardInfo: Rew
       setAutoClaim(false)
     }
   }, [autoClaim, chainId, handleClaim, selectedChainId])
+
+  useEffect(() => {
+    return () => {
+      setClaiming(false)
+    }
+  }, [setClaiming])
 
   return (
     <Modal isOpen onDismiss={onClose}>

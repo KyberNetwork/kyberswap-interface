@@ -86,6 +86,41 @@ export default function PositionBanner({ positions }: { positions: Array<ParsedP
     </ul>
   )
 
+  const totalRewardInfoHelper = (
+    <InfoHelper
+      text={
+        <Flex flexDirection={'column'} sx={{ gap: 1 }}>
+          <HorizontalDivider />
+          <Text lineHeight={'16px'} fontSize={12}>
+            {t`LM Reward:`}
+            {!lmTokens.length ? ' 0' : ''}
+          </Text>
+          {lmTokens.map(token => (
+            <Flex alignItems={'center'} sx={{ gap: 1 }} flexWrap={'wrap'} key={token.address}>
+              <TokenLogo src={token.logo} size={16} />
+              <Text color={theme.text}>{formatDisplayNumber(token.totalAmount, { significantDigits: 4 })}</Text>
+              <Text color={theme.text}>{token.symbol}</Text>
+            </Flex>
+          ))}
+          <Text lineHeight={'16px'} fontSize={12}>
+            {t`EG Sharing Reward:`}
+            {!egTokens.length ? ' 0' : ''}
+          </Text>
+          {egTokens.map(token => (
+            <Flex alignItems={'center'} sx={{ gap: 1 }} flexWrap={'wrap'} key={token.address}>
+              <TokenLogo src={token.logo} size={16} />
+              <Text color={theme.text}>{formatDisplayNumber(token.totalAmount, { significantDigits: 4 })}</Text>
+              <Text color={theme.text}>{token.symbol}</Text>
+            </Flex>
+          ))}
+        </Flex>
+      }
+      placement="bottom"
+      width="160px"
+      size={16}
+    />
+  )
+
   return (
     <>
       {claimAllRewardsModal}
@@ -187,38 +222,7 @@ export default function PositionBanner({ positions }: { positions: Array<ParsedP
                   <Text fontSize={upToSmall ? 20 : 24}>
                     {formatDisplayNumber(totalUsdValue, { significantDigits: 4, style: 'currency' })}
                   </Text>
-                  <InfoHelper
-                    text={
-                      <Flex flexDirection={'column'} sx={{ gap: 1 }}>
-                        <HorizontalDivider />
-                        <Text lineHeight={'16px'} fontSize={12}>
-                          {t`LM Reward:`}
-                          {!lmTokens.length ? ' 0' : ''}
-                        </Text>
-                        {lmTokens.map(token => (
-                          <Flex alignItems={'center'} sx={{ gap: 1 }} flexWrap={'wrap'} key={token.address}>
-                            <TokenLogo src={token.logo} size={16} />
-                            <Text color={theme.text}>{token.totalAmount}</Text>
-                            <Text color={theme.text}>{token.symbol}</Text>
-                          </Flex>
-                        ))}
-                        <Text lineHeight={'16px'} fontSize={12}>
-                          {t`EG Sharing Reward:`}
-                          {!egTokens.length ? ' 0' : ''}
-                        </Text>
-                        {egTokens.map(token => (
-                          <Flex alignItems={'center'} sx={{ gap: 1 }} flexWrap={'wrap'} key={token.address}>
-                            <TokenLogo src={token.logo} size={16} />
-                            <Text color={theme.text}>{token.totalAmount}</Text>
-                            <Text color={theme.text}>{token.symbol}</Text>
-                          </Flex>
-                        ))}
-                      </Flex>
-                    }
-                    placement="bottom"
-                    width="160px"
-                    size={16}
-                  />
+                  {totalRewardInfoHelper}
                 </Flex>
               </Flex>
               <Flex alignItems={'center'} flexWrap={'wrap'} justifyContent={'flex-start'} sx={{ gap: 4, rowGap: 2 }}>
@@ -230,10 +234,10 @@ export default function PositionBanner({ positions }: { positions: Array<ParsedP
                   </Text>
                 </BannerDataItem>
                 <BannerDivider />
-                {/* Pending */}
+                {/* In-Progress */}
                 <BannerDataItem>
                   <Flex alignItems={'center'} sx={{ gap: '2px' }}>
-                    <Text fontSize={14} color={theme.subText}>{t`Pending`}</Text>
+                    <Text fontSize={14} color={theme.subText}>{t`In-Progress`}</Text>
                     <InfoHelper text={inProgressTooltip} size={16} fontSize={12} width="280px" placement="top" />
                   </Flex>
                   <Text fontSize={20}>
