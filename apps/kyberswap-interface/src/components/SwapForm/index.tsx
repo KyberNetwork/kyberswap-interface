@@ -214,6 +214,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
                 amountOutUsd={routeSummary?.amountOutUsd}
                 onChangeCurrencyOut={onChangeCurrencyOut}
                 customChainId={customChainId}
+                routeLoading={routeLoading}
               />
             </Flex>
 

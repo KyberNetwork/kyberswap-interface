@@ -3,7 +3,7 @@ import { Trans } from '@lingui/macro'
 import { transparentize } from 'polished'
 import { useEffect, useMemo, useState } from 'react'
 import { Check, Info } from 'react-feather'
-import { useSearchParams } from 'react-router-dom'
+import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import { calculatePriceImpact } from 'services/route/utils'
 import styled from 'styled-components'
@@ -22,7 +22,7 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import WarningNote from 'components/WarningNote'
 import { Dots } from 'components/swapv2/styleds'
 import { TOKEN_API_URL } from 'constants/env'
-import { PAIR_CATEGORY } from 'constants/index'
+import { APP_PATHS, PAIR_CATEGORY } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
@@ -36,6 +36,10 @@ import { checkPriceImpact } from 'utils/prices'
 
 import SwapBrief from './SwapBrief'
 import SwapDetails, { Props as SwapDetailsProps } from './SwapDetails'
+import { useGetListOrdersQuery, useGetTotalActiveMakingAmountQuery } from 'services/limitOrder'
+import { useTokenBalance } from 'state/wallet/hooks'
+import { LimitOrderStatus, LimitOrderTab } from 'components/swapv2/LimitOrder/type'
+import { calcPercentFilledOrder } from 'components/swapv2/LimitOrder/helpers'
 
 const SHOW_ACCEPT_NEW_AMOUNT_THRESHOLD = -1
 const AMOUNT_OUT_FROM_BUILD_ERROR_THRESHOLD = -5
@@ -92,8 +96,9 @@ export default function ConfirmSwapModalContent({
 
   const shouldDisableConfirmButton = isBuildingRoute || !!errorWhileBuildRoute
 
+  const { currency: currencyParam } = useParams()
   const { currencyIn } = useCurrenciesByPage()
-  const { chainId } = useActiveWeb3React()
+  const { chainId, account, networkInfo } = useActiveWeb3React()
   const [honeypot, setHoneypot] = useState<{ isHoneypot: boolean; isFOT: boolean; tax: number } | null>(null)
   useEffect(() => {
     if (!currencyIn?.wrapped.address) return
@@ -294,6 +299,44 @@ export default function ConfirmSwapModalContent({
   }
 
   const [searchParams, setSearchParams] = useSearchParams()
+  const { data: loActiveMakingAmount } = useGetTotalActiveMakingAmountQuery(
+    { chainId, tokenAddress: currencyIn?.wrapped.address ?? '', account: account ?? '' },
+    { skip: !currencyIn || !account || currencyIn.isNative },
+  )
+  const { data: { orders = [] } = {} } = useGetListOrdersQuery(
+    {
+      chainId,
+      maker: account,
+      status: LimitOrderStatus.ACTIVE,
+      query: currencyIn?.wrapped.address,
+      page: 1,
+      pageSize: 20,
+    },
+    { skip: !account || currencyIn?.isNative, refetchOnFocus: true },
+  )
+
+  const ignoredOrders = useMemo(() => {
+    return orders.filter(order => {
+      const filledPercent = calcPercentFilledOrder(
+        order.filledTakingAmount,
+        order.takingAmount,
+        order.takerAssetDecimals,
+      )
+      return filledPercent === '99.99'
+    })
+  }, [orders])
+
+  const activeMakingAmount =
+    BigInt(loActiveMakingAmount || 0) -
+    ignoredOrders.reduce((acc, order) => {
+      return acc + BigInt(order.makingAmount) - BigInt(order.filledMakingAmount)
+    }, 0n)
+
+  const balance = useTokenBalance(currencyIn?.wrapped)
+
+  const remainAmount = BigInt(balance?.quotient.toString() || 0) - BigInt(buildResult?.data?.amountIn || 0)
+
+  const showLOWwarning = currencyIn?.isNative ? false : !!loActiveMakingAmount && remainAmount < activeMakingAmount
 
   return (
     <>
@@ -364,6 +407,19 @@ export default function ConfirmSwapModalContent({
           <PriceImpactNote isDegenMode={isAdvancedMode} priceImpact={priceImpactFromBuild} />
 
           {errorWhileBuildRoute && <WarningNote shortText={errorText} />}
+          {showLOWwarning && (
+            <Text fontStyle="italic" fontSize={12} color={theme.subText} fontWeight={500}>
+              <Text fontWeight="500" color={theme.text} as="span">
+                Notice
+              </Text>
+              : Some of your {currencyIn?.symbol} is already reserved by an open Limit Order—review it{' '}
+              <Link
+                to={`${APP_PATHS.LIMIT}/${networkInfo.route}/${currencyParam}?activeTab=${LimitOrderTab.MY_ORDER}&search=${currencyIn?.wrapped.address}&highlight=true`}
+              >
+                here.
+              </Link>
+            </Text>
+          )}
 
           {errorWhileBuildRoute ? (
             isSlippageNotEnough && slippage <= defaultSlp ? (

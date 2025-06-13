@@ -2,9 +2,9 @@ import { Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { rgba } from 'polished'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Repeat } from 'react-feather'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled, { CSSProperties, DefaultTheme } from 'styled-components'
@@ -20,6 +20,7 @@ import { toCurrencyAmount } from 'utils/currencyAmount'
 import { calcPercentFilledOrder, formatAmountOrder, formatRateLimitOrder, isActiveStatus } from '../helpers'
 import { LimitOrder, LimitOrderStatus } from '../type'
 import ActionButtons from './ActionButtons'
+import { highlight } from 'components/swapv2/styleds'
 
 export const ItemWrapper = styled.div<{ hasBorder?: boolean; active?: boolean }>`
   border-bottom: 1px solid ${({ theme, hasBorder }) => (hasBorder ? theme.border : 'transparent')};
@@ -39,6 +40,10 @@ export const ItemWrapper = styled.div<{ hasBorder?: boolean; active?: boolean }>
       display:none;
     }
   `}
+
+  &[data-highlight='true'] {
+    animation: ${({ theme }) => highlight(theme)} 2s 2 alternate ease-in-out;
+  }
 `
 
 const ItemWrapperMobile = styled.div`
@@ -285,6 +290,16 @@ export default function OrderItem({
     })
   }
 
+  const [searchParams, setSearchParams] = useSearchParams()
+  useEffect(() => {
+    const i = setTimeout(() => {
+      searchParams.delete('highlight')
+      setSearchParams(searchParams)
+    }, 5_000) // to ensure the searchParams is updated after the click
+
+    return () => clearTimeout(i)
+  }, [searchParams, setSearchParams])
+
   const renderProgressComponent = () => {
     const getTooltipText = () => {
       const texts = [<Trans key={0}>Insufficient {order.makerAssetSymbol} balance for order execution.</Trans>]
@@ -392,9 +407,16 @@ export default function OrderItem({
       </ItemWrapperMobile>
     )
   }
+
+  const highlight =
+    searchParams.get('highlight') === 'true' &&
+    order.makerAsset.toLowerCase() === searchParams.get('search')?.toLowerCase() &&
+    isOrderActive
+
   return (
     <>
       <ItemWrapper
+        data-highlight={highlight}
         hasBorder={isLast ? false : !transactions.length || !expand}
         active={hasOrderCancelling}
         onClick={onClickOrder}
