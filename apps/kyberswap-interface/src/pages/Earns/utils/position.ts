@@ -42,7 +42,7 @@ export const parsePosition = ({
   const dex = position.pool.project || ''
   const isUniv2 = isForkFrom(dex, CoreProtocol.UniswapV2)
 
-  const programs = position.programs || []
+  const programs = position.pool.programs || []
   const isFarming = programs.includes(ProgramType.EG) || programs.includes(ProgramType.LM)
 
   const listDexesWithVersion = [
