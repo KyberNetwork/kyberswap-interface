@@ -25,13 +25,15 @@ export const NETWORKS_INFO = new Proxy(NETWORKS_INFO_HARDCODE, {
 })
 
 const defaultData = MAINNET_NETWORKS.map(chainId => NETWORKS_INFO_HARDCODE[chainId])
+
 export default function useChainsConfig() {
   const { data } = useGetChainsConfigurationQuery()
   const globalConfig = useKyberswapGlobalConfig()
 
   return useMemo(() => {
-    const hasConfig = !!data
-    const chains: NetworkInfo[] = (data || defaultData).map(chain => {
+    const hasConfig = false // !!data
+    // const chains: NetworkInfo[] = (data || defaultData).map(chain => {
+    const chains: NetworkInfo[] = defaultData.map(chain => {
       const chainId = +chain.chainId as ChainId
       const chainState = hasConfig ? globalConfig?.chainStates?.[chainId] : ChainState.ACTIVE
       const info = {
@@ -43,6 +45,7 @@ export default function useChainsConfig() {
       cacheInfo[chainId] = info
       return info
     })
+    console.log(chains)
 
     return {
       activeChains: chains.filter(e => [ChainState.ACTIVE, ChainState.NEW].includes(e.state)),
