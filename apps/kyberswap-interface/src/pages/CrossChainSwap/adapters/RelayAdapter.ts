@@ -6,6 +6,7 @@ import {
   NormalizedTxResponse,
   SwapStatus,
   EvmQuoteParams,
+  NOT_SUPPORTED_CHAINS_PRICE_SERVICE,
 } from './BaseSwapAdapter'
 import { MAINNET_RELAY_API, getClient, createClient, convertViemChainToRelayChain } from '@reservoir0x/relay-sdk'
 import { WalletClient, formatUnits } from 'viem'
@@ -96,8 +97,12 @@ export class RelayAdapter extends BaseSwapAdapter {
 
     const formattedOutputAmount = formatUnits(BigInt(resp.details?.currencyOut?.amount || '0'), params.toToken.decimals)
     const formattedInputAmount = formatUnits(BigInt(params.amount), params.fromToken.decimals)
-    const inputUsd = params.tokenInUsd * +formattedInputAmount
-    const outputUsd = params.tokenOutUsd * +formattedOutputAmount
+    const inputUsd = NOT_SUPPORTED_CHAINS_PRICE_SERVICE.includes(params.fromChain)
+      ? Number(resp.details?.currencyIn?.amountUsd || 0)
+      : params.tokenInUsd * +formattedInputAmount
+    const outputUsd = NOT_SUPPORTED_CHAINS_PRICE_SERVICE.includes(params.toChain)
+      ? Number(resp.details?.currencyOut?.amountUsd || 0)
+      : params.tokenOutUsd * +formattedOutputAmount
 
     return {
       quoteParams: params,

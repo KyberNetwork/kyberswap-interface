@@ -31,11 +31,11 @@ export default function useChainsConfig() {
   const globalConfig = useKyberswapGlobalConfig()
 
   return useMemo(() => {
-    const hasConfig = false // !!data
+    const hasBeConfig = !!data
     // const chains: NetworkInfo[] = (data || defaultData).map(chain => {
     const chains: NetworkInfo[] = defaultData.map(chain => {
       const chainId = +chain.chainId as ChainId
-      const chainState = hasConfig ? globalConfig?.chainStates?.[chainId] : ChainState.ACTIVE
+      const chainState = hasBeConfig ? globalConfig?.chainStates?.[chainId] : ChainState.ACTIVE
       const info = {
         ...NETWORKS_INFO_HARDCODE[chainId],
         ...chain, // BE config
@@ -45,13 +45,13 @@ export default function useChainsConfig() {
       cacheInfo[chainId] = info
       return info
     })
-    console.log(chains)
 
     return {
       activeChains: chains.filter(e => [ChainState.ACTIVE, ChainState.NEW].includes(e.state)),
       supportedChains: chains.filter(e =>
         [ChainState.ACTIVE, ChainState.NEW, ChainState.MAINTENANCE].includes(e.state),
       ),
+      allChains: chains,
     }
   }, [data, globalConfig])
 }

@@ -1,8 +1,8 @@
 import { Trans, t } from '@lingui/macro'
 import { LayoutGroup } from 'framer-motion'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { X } from 'react-feather'
-import { Text } from 'rebass'
+import { Flex, Text } from 'rebass'
 import { useUpdateProfileMutation } from 'services/identity'
 
 import { ButtonAction } from 'components/Button'
@@ -26,6 +26,7 @@ import { useDragAndDrop } from './hooks'
 import { NetworkList, Wrapper } from './styleds'
 import { Chain, NonEvmChainInfo, NonEvmChain } from 'pages/CrossChainSwap/adapters'
 import { useFavoriteChains } from 'state/user/hooks'
+import SearchInput from 'components/SearchInput'
 
 const FAVORITE_DROPZONE_ID = 'favorite-dropzone'
 
@@ -57,9 +58,16 @@ export default function NetworkModal({
   const networkModalOpen = useModalOpen(ApplicationModal.NETWORK)
   const toggleNetworkModalGlobal = useNetworkModalToggle()
   const toggleNetworkModal = customToggleModal || toggleNetworkModalGlobal
+  const [searchText, setSearchText] = useState('')
 
   const favoriteDropRef = useRef<HTMLDivElement>(null)
-  const { supportedChains } = useChainsConfig()
+  const { allChains } = useChainsConfig()
+  const chainsToDisplay = allChains.filter(
+    item => activeChainIds?.includes(item.chainId) && item.name.toLowerCase().includes(searchText.trim().toLowerCase()),
+  )
+  const nonEvmChainsToDisplay = Object.values(NonEvmChain).filter(
+    n => NonEvmChainInfo[n].name.toLowerCase().includes(searchText.trim().toLowerCase()) && !favoriteChains.includes(n),
+  )
 
   const updateOder = (newOrders: string[], droppedItem: string) => {
     saveFavoriteChains(newOrders, droppedItem)
@@ -78,7 +86,7 @@ export default function NetworkModal({
     const uniqueArray = Array.from(new Set(chains))
     requestSaveProfile({ data: { favouriteChainIds: uniqueArray } })
     setFavoriteChains(uniqueArray)
-    const chainInfo = supportedChains.find(chain => chain.chainId.toString() === draggingItem)
+    const chainInfo = allChains.find(chain => chain.chainId.toString() === draggingItem)
 
     if (!chainInfo) return
     if (chains.includes(updatedChain) && !favoriteChains.includes(updatedChain)) {
@@ -113,7 +121,6 @@ export default function NetworkModal({
   useEffect(() => {
     if (userInfo?.data?.favouriteChainIds?.length) setFavoriteChains(userInfo?.data?.favouriteChainIds || [])
   }, [userInfo, setFavoriteChains])
-
   return (
     <Modal
       isOpen={isOpen !== undefined ? isOpen : networkModalOpen}
@@ -124,13 +131,25 @@ export default function NetworkModal({
       bgColor={theme.background}
     >
       <Wrapper ref={wrapperRef}>
-        <RowBetween>
+        <RowBetween alignItems="center">
           <Text fontWeight="500" fontSize={20}>
             {isWrongNetwork ? <Trans>Wrong Chain</Trans> : <Trans>Select a Chain</Trans>}
           </Text>
-          <ButtonAction onClick={toggleNetworkModal}>
-            <X />
-          </ButtonAction>
+          <Flex alignItems="center" sx={{ gap: '8px' }}>
+            <SearchInput
+              value={searchText}
+              placeholder="Search by chain name"
+              onChange={val => {
+                setSearchText(val)
+              }}
+              style={{
+                backgroundColor: theme.buttonBlack,
+              }}
+            />
+            <ButtonAction onClick={toggleNetworkModal}>
+              <X />
+            </ButtonAction>
+          </Flex>
         </RowBetween>
 
         <Column marginTop="16px" gap="8px" flexGrow={1}>
@@ -166,15 +185,19 @@ export default function NetworkModal({
                         />
                       )
                     }
-                    const chainInfo = supportedChains.find(item => item.chainId.toString() === chainId)
+                    const chainInfo = allChains.find(item => item.chainId.toString() === chainId)
 
-                    if (chainInfo) {
+                    if (chainInfo && chainInfo.name.toLowerCase().includes(searchText.trim().toLowerCase())) {
                       return renderNetworkButton(chainInfo)
                     }
 
                     if (activeChainIds?.length && !activeChainIds.includes(chainId)) return null
 
-                    if (NonEvmChainInfo[chainId as NonEvmChain]) {
+                    const nonEvmChainInfo = NonEvmChainInfo[chainId as NonEvmChain]
+                    if (
+                      nonEvmChainInfo &&
+                      nonEvmChainInfo.name.toLowerCase().includes(searchText.trim().toLowerCase())
+                    ) {
                       return renderNetworkButton({
                         chainId: chainId as any,
                         name: NonEvmChainInfo[chainId as NonEvmChain].name,
@@ -197,7 +220,8 @@ export default function NetworkModal({
           </Row>
           <div style={{ position: 'relative', marginBottom: '12px', flexGrow: 1 }}>
             <DropzoneOverlay show={isDraggingRemoveFavorite} text={t`Remove from favorite`} />
-            {supportedChains.filter(chain => !favoriteChains.some(_ => _ === chain.chainId.toString())).length === 0 ? (
+            {!nonEvmChainsToDisplay.length &&
+            chainsToDisplay.filter(chain => !favoriteChains.some(_ => _ === chain.chainId.toString())).length === 0 ? (
               <Row
                 border={'1px dashed ' + theme.text + '32'}
                 borderRadius="16px"
@@ -212,8 +236,8 @@ export default function NetworkModal({
             ) : (
               <NetworkList data-testid="network-list">
                 <>
-                  {/*Ethereum and BTC should render first*/}
-                  {supportedChains
+                  {/*Hardedcode for Ethereum and BTC render first*/}
+                  {chainsToDisplay
 
                     .filter(chain => chain.chainId === 1 && !favoriteChains.some(_ => _ === chain.chainId.toString()))
                     .map(renderNetworkButton)}
@@ -221,6 +245,7 @@ export default function NetworkModal({
                   {!favoriteChains.includes('bitcoin') &&
                     activeChainIds?.length &&
                     activeChainIds.includes('bitcoin') &&
+                    'bitcoin'.includes(searchText.trim().toLowerCase().toString()) &&
                     renderNetworkButton({
                       chainId: 'bitcoin' as any,
                       name: NonEvmChainInfo[NonEvmChain.Bitcoin].name,
@@ -228,13 +253,18 @@ export default function NetworkModal({
                       state: ChainState.ACTIVE,
                     })}
 
-                  {supportedChains
+                  {chainsToDisplay
                     .filter(chain => chain.chainId !== 1 && !favoriteChains.some(_ => _ === chain.chainId.toString()))
                     .map((networkInfo: NetworkInfo) => {
                       return renderNetworkButton(networkInfo)
                     })}
+
                   {Object.values(NonEvmChain)
-                    .filter(n => n !== NonEvmChain.Bitcoin)
+                    .filter(
+                      n =>
+                        n !== NonEvmChain.Bitcoin &&
+                        NonEvmChainInfo[n as NonEvmChain].name.toLowerCase().includes(searchText.trim().toLowerCase()),
+                    )
                     .map((network: NonEvmChain) => {
                       if (
                         favoriteChains.includes(network) ||
