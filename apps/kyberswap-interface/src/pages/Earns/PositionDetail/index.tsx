@@ -173,6 +173,7 @@ const PositionDetail = () => {
         {position?.pool.isFarming && (
           <InfoHelper
             size={16}
+            fontSize={14}
             placement="top"
             width="fit-content"
             text={
