@@ -17,6 +17,7 @@ import {
   BannerDivider,
   BannerWrapper,
   HorizontalDivider,
+  RewardBannerDetailWrapper,
   RewardBannerWrapper,
 } from 'pages/Earns/UserPositions/styles'
 import { LIMIT_TEXT_STYLES } from 'pages/Earns/constants'
@@ -215,7 +216,7 @@ export default function PositionBanner({ positions }: { positions: Array<ParsedP
                   {totalRewardInfoHelper}
                 </Flex>
               </Flex>
-              <Flex alignItems={'center'} flexWrap={'wrap'} justifyContent={'flex-start'} sx={{ gap: 4, rowGap: 2 }}>
+              <RewardBannerDetailWrapper>
                 {/* Claimed */}
                 <BannerDataItem>
                   <Text fontSize={14} color={theme.subText}>{t`Claimed`}</Text>
@@ -254,7 +255,7 @@ export default function PositionBanner({ positions }: { positions: Array<ParsedP
 
                 {/* Claim */}
                 {claimRewardButton}
-              </Flex>
+              </RewardBannerDetailWrapper>
             </RewardBannerWrapper>
           </BannerContainer>
         )}
