@@ -2,7 +2,7 @@ import { Currency, CurrencyAmount, Price } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { transparentize } from 'polished'
 import { useEffect, useMemo, useState } from 'react'
-import { Check, Info } from 'react-feather'
+import { Check, Info, Repeat } from 'react-feather'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import { calculatePriceImpact } from 'services/route/utils'
@@ -20,7 +20,7 @@ import SwapModalAreYouSure from 'components/SwapForm/SwapModal/SwapModalAreYouSu
 import { BuildRouteResult } from 'components/SwapForm/hooks/useBuildRoute'
 import { MouseoverTooltip } from 'components/Tooltip'
 import WarningNote from 'components/WarningNote'
-import { Dots } from 'components/swapv2/styleds'
+import { Dots, StyledBalanceMaxMini } from 'components/swapv2/styleds'
 import { TOKEN_API_URL } from 'constants/env'
 import { APP_PATHS, PAIR_CATEGORY } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
@@ -40,6 +40,8 @@ import { useGetListOrdersQuery, useGetTotalActiveMakingAmountQuery } from 'servi
 import { useTokenBalance } from 'state/wallet/hooks'
 import { LimitOrderStatus, LimitOrderTab } from 'components/swapv2/LimitOrder/type'
 import { calcPercentFilledOrder } from 'components/swapv2/LimitOrder/helpers'
+import ValueWithLoadingSkeleton from './SwapDetails/ValueWithLoadingSkeleton'
+import { TYPE } from 'theme'
 
 const SHOW_ACCEPT_NEW_AMOUNT_THRESHOLD = -1
 const AMOUNT_OUT_FROM_BUILD_ERROR_THRESHOLD = -5
@@ -53,6 +55,32 @@ const Wrapper = styled.div`
   gap: 16px;
   border-radius: 20px;
 `
+
+function ExecutionPrice({
+  executionPrice,
+  showInverted,
+}: {
+  executionPrice?: Price<Currency, Currency>
+  showInverted?: boolean
+}) {
+  if (!executionPrice) {
+    return null
+  }
+
+  const inputSymbol = executionPrice.baseCurrency?.symbol
+  const outputSymbol = executionPrice.quoteCurrency?.symbol
+
+  const formattedPrice = showInverted ? executionPrice?.invert()?.toSignificant(6) : executionPrice?.toSignificant(6)
+  const value = showInverted
+    ? `1 ${outputSymbol} = ${formattedPrice} ${inputSymbol}`
+    : `1 ${inputSymbol} = ${formattedPrice} ${outputSymbol}`
+
+  return (
+    <Text fontWeight={500} style={{ whiteSpace: 'nowrap', minWidth: 'max-content' }}>
+      {value}
+    </Text>
+  )
+}
 
 const PriceUpdateWarning = styled.div<{ isAccepted: boolean; $level: 'warning' | 'error' }>`
   margin-top: 1rem;
@@ -338,6 +366,8 @@ export default function ConfirmSwapModalContent({
 
   const showLOWwarning = currencyIn?.isNative ? false : !!loActiveMakingAmount && remainAmount < activeMakingAmount
 
+  const [showInverted, setShowInverted] = useState<boolean>(false)
+
   return (
     <>
       <SwapModalAreYouSure
@@ -358,7 +388,7 @@ export default function ConfirmSwapModalContent({
             <CloseIcon onClick={onDismiss} />
           </RowBetween>
 
-          <RowBetween mt="12px">
+          <RowBetween mt="4px">
             <Text fontWeight={400} fontSize={12} color={theme.subText}>
               <Trans>Please review the details of your swap:</Trans>
             </Text>
@@ -395,6 +425,40 @@ export default function ConfirmSwapModalContent({
               </Text>
             </PriceUpdateWarning>
           )}
+
+          <Flex alignItems="center" sx={{ gap: '4px' }} mt="12px">
+            <Text fontWeight={400} fontSize={12} color={theme.subText} minWidth="max-content">
+              <Trans>Rate:</Trans>
+            </Text>
+            <ValueWithLoadingSkeleton
+              skeletonStyle={{
+                width: '160px',
+                height: '19px',
+              }}
+              isShowingSkeleton={isBuildingRoute}
+              content={
+                getSwapDetailsProps().executionPrice ? (
+                  <Flex
+                    fontWeight={500}
+                    fontSize={12}
+                    color={theme.text}
+                    sx={{
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      textAlign: 'right',
+                    }}
+                  >
+                    <ExecutionPrice executionPrice={getSwapDetailsProps().executionPrice} showInverted={showInverted} />
+                    <StyledBalanceMaxMini onClick={() => setShowInverted(!showInverted)}>
+                      <Repeat size={14} color={theme.text} />
+                    </StyledBalanceMaxMini>
+                  </Flex>
+                ) : (
+                  <TYPE.black fontSize={12}>--</TYPE.black>
+                )
+              }
+            />
+          </Flex>
 
           {renderSwapBrief()}
         </AutoColumn>
