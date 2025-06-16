@@ -157,36 +157,40 @@ export const parseReward = ({
 
   const chains: Array<ChainRewardInfo> = []
 
-  listNft.forEach(nft => {
-    const chainId = nft.chainId
-    const chain = supportedChains.find(chain => chain.chainId === chainId)
-    if (chain) {
-      const existingChainRewardIndex = chains.findIndex(chain => chain.chainId === chainId)
-      if (existingChainRewardIndex === -1) {
-        chains.push({
-          chainId,
-          chainName: chain.name,
-          chainLogo: chain.icon,
-          claimableUsdValue: nft.claimableUsdValue,
-          tokens: deepClone(nft.tokens),
-        })
-      } else {
-        chains[existingChainRewardIndex].claimableUsdValue += nft.claimableUsdValue
+  listNft
+    .filter(nft => nft.claimableUsdValue > 0)
+    .forEach(nft => {
+      const chainId = nft.chainId
+      const chain = supportedChains.find(chain => chain.chainId === chainId)
+      if (chain) {
+        const existingChainRewardIndex = chains.findIndex(chain => chain.chainId === chainId)
+        if (existingChainRewardIndex === -1) {
+          chains.push({
+            chainId,
+            chainName: chain.name,
+            chainLogo: chain.icon,
+            claimableUsdValue: nft.claimableUsdValue,
+            tokens: deepClone(nft.tokens),
+          })
+        } else {
+          chains[existingChainRewardIndex].claimableUsdValue += nft.claimableUsdValue
 
-        nft.tokens.forEach(token => {
-          const existingTokenIndex = chains[existingChainRewardIndex].tokens.findIndex(t => t.address === token.address)
-          if (existingTokenIndex === -1) {
-            chains[existingChainRewardIndex].tokens.push(deepClone(token))
-          } else {
-            chains[existingChainRewardIndex].tokens[existingTokenIndex].totalAmount += token.totalAmount
-            chains[existingChainRewardIndex].tokens[existingTokenIndex].claimableAmount += token.claimableAmount
-            chains[existingChainRewardIndex].tokens[existingTokenIndex].claimableUsdValue += token.claimableUsdValue
-            chains[existingChainRewardIndex].tokens[existingTokenIndex].unclaimedAmount += token.unclaimedAmount
-          }
-        })
+          nft.tokens.forEach(token => {
+            const existingTokenIndex = chains[existingChainRewardIndex].tokens.findIndex(
+              t => t.address === token.address,
+            )
+            if (existingTokenIndex === -1) {
+              chains[existingChainRewardIndex].tokens.push(deepClone(token))
+            } else {
+              chains[existingChainRewardIndex].tokens[existingTokenIndex].totalAmount += token.totalAmount
+              chains[existingChainRewardIndex].tokens[existingTokenIndex].claimableAmount += token.claimableAmount
+              chains[existingChainRewardIndex].tokens[existingTokenIndex].claimableUsdValue += token.claimableUsdValue
+              chains[existingChainRewardIndex].tokens[existingTokenIndex].unclaimedAmount += token.unclaimedAmount
+            }
+          })
+        }
       }
-    }
-  })
+    })
 
   return {
     totalUsdValue,
