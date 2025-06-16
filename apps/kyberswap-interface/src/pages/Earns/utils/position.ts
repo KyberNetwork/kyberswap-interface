@@ -12,6 +12,7 @@ import {
   TokenRewardInfo,
 } from 'pages/Earns/types'
 import { isForkFrom, isNativeToken } from 'pages/Earns/utils'
+import { deepClone } from 'pages/Earns/utils/reward'
 
 export const parsePosition = ({
   position,
@@ -123,6 +124,7 @@ export const parsePosition = ({
       claimableUsdValue: nftRewardInfo?.claimableUsdValue || 0,
       egTokens: nftRewardInfo?.egTokens || [],
       lmTokens: nftRewardInfo?.lmTokens || [],
+      tokens: nftRewardInfo?.tokens || [],
     },
     totalValueTokens,
     token0: {
@@ -196,6 +198,7 @@ export const aggregateRewardFromPositions = (positions: Array<ParsedPosition>) =
   let claimableUsdValue = 0
   const egTokens: Array<TokenRewardInfo> = []
   const lmTokens: Array<TokenRewardInfo> = []
+  const tokens: Array<TokenRewardInfo> = []
 
   positions.forEach(position => {
     totalUsdValue += position.rewards.totalUsdValue
@@ -208,7 +211,7 @@ export const aggregateRewardFromPositions = (positions: Array<ParsedPosition>) =
     position.rewards.egTokens.forEach(token => {
       const existingTokenIndex = egTokens.findIndex(t => t.symbol === token.symbol)
       if (existingTokenIndex === -1) {
-        egTokens.push({ ...token })
+        egTokens.push(deepClone(token))
       } else {
         egTokens[existingTokenIndex].totalAmount += token.totalAmount
         egTokens[existingTokenIndex].claimableAmount += token.claimableAmount
@@ -218,11 +221,21 @@ export const aggregateRewardFromPositions = (positions: Array<ParsedPosition>) =
     position.rewards.lmTokens.forEach(token => {
       const existingTokenIndex = lmTokens.findIndex(t => t.symbol === token.symbol)
       if (existingTokenIndex === -1) {
-        lmTokens.push({ ...token })
+        lmTokens.push(deepClone(token))
       } else {
         lmTokens[existingTokenIndex].totalAmount += token.totalAmount
         lmTokens[existingTokenIndex].claimableAmount += token.claimableAmount
         lmTokens[existingTokenIndex].claimableUsdValue += token.claimableUsdValue
+      }
+    })
+    position.rewards.tokens.forEach(token => {
+      const existingTokenIndex = tokens.findIndex(t => t.symbol === token.symbol)
+      if (existingTokenIndex === -1) {
+        tokens.push(deepClone(token))
+      } else {
+        tokens[existingTokenIndex].totalAmount += token.totalAmount
+        tokens[existingTokenIndex].claimableAmount += token.claimableAmount
+        tokens[existingTokenIndex].claimableUsdValue += token.claimableUsdValue
       }
     })
   })
@@ -236,5 +249,6 @@ export const aggregateRewardFromPositions = (positions: Array<ParsedPosition>) =
     claimableUsdValue,
     egTokens,
     lmTokens,
+    tokens,
   }
 }

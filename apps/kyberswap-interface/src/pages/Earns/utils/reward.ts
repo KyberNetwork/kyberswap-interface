@@ -3,7 +3,7 @@ import { RewardData, RewardType } from 'services/reward'
 import { NetworkInfo } from 'constants/networks/type'
 import { ChainRewardInfo, NftRewardInfo, TokenInfo, TokenRewardInfo } from 'pages/Earns/types'
 
-const deepClone = (obj: any) => JSON.parse(JSON.stringify(obj))
+export const deepClone = (obj: any) => JSON.parse(JSON.stringify(obj))
 
 export const parseReward = ({
   data,
@@ -69,6 +69,10 @@ export const parseReward = ({
                 Number(nft.pendingAmounts?.[address] || 0) +
                 Number(nft.vestingAmounts?.[address] || 0)) /
               10 ** decimals
+
+            const pendingAmount = Number(nft.pendingAmounts?.[address] || 0) / 10 ** decimals
+            const vestingAmount = Number(nft.vestingAmounts?.[address] || 0) / 10 ** decimals
+
             const claimableUsdValue = Number(nft.claimableUSDValues?.[address] || 0)
 
             return {
@@ -79,6 +83,8 @@ export const parseReward = ({
               totalAmount,
               claimableAmount,
               unclaimedAmount,
+              pendingAmount,
+              vestingAmount,
               claimableUsdValue,
             }
           })

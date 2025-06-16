@@ -9,6 +9,7 @@ import InfoHelper from 'components/InfoHelper'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
+import { inProgressRewardTooltip } from 'pages/Earns/PositionDetail/RewardSection'
 import { PositionAction } from 'pages/Earns/PositionDetail/styles'
 import {
   BannerContainer,
@@ -41,6 +42,7 @@ export default function PositionBanner({ positions }: { positions: Array<ParsedP
     claimableUsdValue,
     egTokens,
     lmTokens,
+    tokens,
   } = useMemo(() => aggregateRewardFromPositions(positions), [positions])
 
   const {
@@ -63,27 +65,6 @@ export default function PositionBanner({ positions }: { positions: Array<ParsedP
         <Text>{t`Claim`}</Text>
       </PositionAction>
     </MouseoverTooltipDesktopOnly>
-  )
-
-  const inProgressTooltip = (
-    <ul style={{ marginTop: 4, marginBottom: 4, paddingLeft: 20 }}>
-      <li>
-        {t`Current Cycle`}:{' '}
-        {formatDisplayNumber(pendingUsdValue, {
-          significantDigits: 4,
-          style: 'currency',
-        })}{' '}
-        {t`will move to “Vesting” when this cycle ends.`}
-      </li>
-      <li style={{ marginTop: 4 }}>
-        {t`Vesting`}:{' '}
-        {formatDisplayNumber(vestingUsdValue, {
-          significantDigits: 4,
-          style: 'currency',
-        })}{' '}
-        {t`in a 2-day finalization period before they become claimable.`}
-      </li>
-    </ul>
   )
 
   const totalRewardInfoHelper = (
@@ -186,7 +167,16 @@ export default function PositionBanner({ positions }: { positions: Array<ParsedP
                   <BannerDataItem>
                     <Flex alignItems={'center'} sx={{ gap: 1 }}>
                       <Text fontSize={14} color={theme.subText}>{t`In-Progress`}</Text>
-                      <InfoHelper text={inProgressTooltip} size={16} fontSize={12} width="280px" />
+                      <InfoHelper
+                        text={inProgressRewardTooltip({
+                          pendingUsdValue,
+                          vestingUsdValue,
+                          tokens,
+                        })}
+                        size={16}
+                        fontSize={12}
+                        width="290px"
+                      />
                     </Flex>
                     <Text fontSize={20}>
                       {formatDisplayNumber(inProgressUsdValue, { style: 'currency', significantDigits: 4 })}
@@ -238,7 +228,16 @@ export default function PositionBanner({ positions }: { positions: Array<ParsedP
                 <BannerDataItem>
                   <Flex alignItems={'center'} sx={{ gap: '2px' }}>
                     <Text fontSize={14} color={theme.subText}>{t`In-Progress`}</Text>
-                    <InfoHelper text={inProgressTooltip} size={16} fontSize={12} width="280px" placement="top" />
+                    <InfoHelper
+                      text={inProgressRewardTooltip({
+                        pendingUsdValue,
+                        vestingUsdValue,
+                        tokens,
+                      })}
+                      size={16}
+                      fontSize={12}
+                      width="290px"
+                    />
                   </Flex>
                   <Text fontSize={20}>
                     {formatDisplayNumber(inProgressUsdValue, { style: 'currency', significantDigits: 4 })}

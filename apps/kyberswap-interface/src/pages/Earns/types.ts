@@ -141,6 +141,7 @@ export interface ParsedPosition {
     claimableUsdValue: number
     egTokens: Array<TokenRewardInfo>
     lmTokens: Array<TokenRewardInfo>
+    tokens: Array<TokenRewardInfo>
   }
   totalValueTokens: Array<{
     address: string
@@ -257,6 +258,8 @@ export interface TokenRewardInfo {
   totalAmount: number
   claimableAmount: number
   unclaimedAmount: number
+  pendingAmount: number
+  vestingAmount: number
   claimableUsdValue: number
 }
 

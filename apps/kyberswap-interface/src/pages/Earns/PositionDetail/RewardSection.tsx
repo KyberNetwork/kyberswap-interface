@@ -16,7 +16,7 @@ import {
   VerticalDivider,
 } from 'pages/Earns/PositionDetail/styles'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
-import { ParsedPosition } from 'pages/Earns/types'
+import { ParsedPosition, TokenRewardInfo } from 'pages/Earns/types'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const getNextWednesdayMidnightUTC = () => {
@@ -130,27 +130,12 @@ const RewardSection = ({ position }: { position: ParsedPosition }) => {
                 })}
               </Text>
               <InfoHelper
-                text={
-                  <ul style={{ marginTop: 4, marginBottom: 4, paddingLeft: 20 }}>
-                    <li>
-                      {t`Current Cycle`}:{' '}
-                      {formatDisplayNumber(rewardInfoThisPosition?.pendingUsdValue || 0, {
-                        significantDigits: 4,
-                        style: 'currency',
-                      })}{' '}
-                      {t`will move to “Vesting” when this cycle ends.`}
-                    </li>
-                    <li style={{ marginTop: 4 }}>
-                      {t`Vesting`}:{' '}
-                      {formatDisplayNumber(rewardInfoThisPosition?.vestingUsdValue || 0, {
-                        significantDigits: 4,
-                        style: 'currency',
-                      })}{' '}
-                      {t`in a 2-day finalization period before they become claimable.`}
-                    </li>
-                  </ul>
-                }
-                width="280px"
+                text={inProgressRewardTooltip({
+                  pendingUsdValue: rewardInfoThisPosition?.pendingUsdValue || 0,
+                  vestingUsdValue: rewardInfoThisPosition?.vestingUsdValue || 0,
+                  tokens: rewardInfoThisPosition?.tokens || [],
+                })}
+                width="290px"
                 placement="top"
                 color={theme.text}
               />
@@ -204,6 +189,63 @@ const RewardSection = ({ position }: { position: ParsedPosition }) => {
         </RewardDetailInfo>
       </RewardsSection>
     </>
+  )
+}
+
+export const inProgressRewardTooltip = ({
+  pendingUsdValue,
+  vestingUsdValue,
+  tokens,
+}: {
+  pendingUsdValue: number
+  vestingUsdValue: number
+  tokens: Array<TokenRewardInfo>
+}) => {
+  const pendingTokens =
+    pendingUsdValue === 0
+      ? ''
+      : '(' +
+        tokens
+          .filter(token => token.pendingAmount > 0)
+          .map(token => `${formatDisplayNumber(token.pendingAmount, { significantDigits: 4 })} ${token.symbol}`)
+          .join(' + ') +
+        ') '
+
+  const vestingTokens =
+    vestingUsdValue === 0
+      ? ''
+      : '(' +
+        tokens
+          .filter(token => token.vestingAmount > 0)
+          .map(token => `${formatDisplayNumber(token.vestingAmount, { significantDigits: 4 })} ${token.symbol}`)
+          .join(' + ') +
+        ') '
+
+  return (
+    <ul style={{ marginTop: 4, marginBottom: 4, paddingLeft: 20 }}>
+      <li>
+        {t`Current Cycle`}:{' '}
+        <b>
+          {formatDisplayNumber(pendingUsdValue, {
+            significantDigits: 4,
+            style: 'currency',
+          })}
+        </b>{' '}
+        {pendingTokens}
+        {t`will move to “Vesting” when this cycle ends.`}
+      </li>
+      <li style={{ marginTop: 4 }}>
+        {t`Vesting`}:{' '}
+        <b>
+          {formatDisplayNumber(vestingUsdValue, {
+            significantDigits: 4,
+            style: 'currency',
+          })}
+        </b>{' '}
+        {vestingTokens}
+        {t`in a 2-day finalization period before they become claimable.`}
+      </li>
+    </ul>
   )
 }
 
