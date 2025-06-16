@@ -1,6 +1,14 @@
 import { useShallow } from 'zustand/shallow';
 
-import { DEXES_INFO, NETWORKS_INFO, PoolType, defaultToken, univ3PoolNormalize, univ3Position } from '@kyber/schema';
+import {
+  DEXES_INFO,
+  NATIVE_TOKEN_ADDRESS,
+  NETWORKS_INFO,
+  PoolType,
+  defaultToken,
+  univ3PoolNormalize,
+  univ3Position,
+} from '@kyber/schema';
 import { InfoHelper, MouseoverTooltip, Skeleton, TokenLogo } from '@kyber/ui';
 
 import SettingIcon from '@/assets/svg/setting.svg';
@@ -46,6 +54,9 @@ const Header = ({ refetchData }: { refetchData: () => void }) => {
   });
 
   const { token0 = defaultToken, token1 = defaultToken, fee = 0 } = !initializing ? pool : {};
+
+  const isToken0Native = token0.address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase();
+  const isToken1Native = token1.address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase();
 
   const { icon: dexLogo, name: rawName } = DEXES_INFO[poolType as PoolType];
   const dexName = typeof rawName === 'string' ? rawName : rawName[chainId];
@@ -125,13 +136,13 @@ const Header = ({ refetchData }: { refetchData: () => void }) => {
                     <div className="flex flex-col text-xs text-subText gap-2">
                       <div className="flex items-center gap-3">
                         <span>{token0.symbol}: </span>
-                        <span>{shortenAddress(token0.address, 4)}</span>
-                        <span>{Token0Copy}</span>
+                        <span>{isToken0Native ? 'Native token' : shortenAddress(token0.address, 4)}</span>
+                        {!isToken0Native && <span>{Token0Copy}</span>}
                       </div>
                       <div className="flex items-center gap-1">
                         <span>{token1.symbol}: </span>
-                        <span>{shortenAddress(token1.address, 4)}</span>
-                        <span>{Token1Copy}</span>
+                        <span>{isToken1Native ? 'Native token' : shortenAddress(token1.address, 4)}</span>
+                        {!isToken1Native && <span>{Token1Copy}</span>}
                       </div>
                       <div className="flex items-center gap-1">
                         <span>Pool Address: </span>

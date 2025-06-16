@@ -9,6 +9,7 @@ import { DEXES_INFO, NETWORKS_INFO } from "@/constants";
 import Setting from "@/components/Setting";
 import { shortenAddress } from "@/components/TokenInfo/utils";
 import useCopy from "@/hooks/useCopy";
+import { NATIVE_TOKEN_ADDRESS } from "@/constants";
 
 export const Header = () => {
   const {
@@ -45,6 +46,17 @@ export const Header = () => {
 
   const { icon: dexLogo, name: rawName } = DEXES_INFO[poolType];
   const dexName = typeof rawName === "string" ? rawName : rawName[chainId];
+
+  const isToken0Native =
+    pool === "loading"
+      ? false
+      : pool.token0.address.toLowerCase() ===
+        NATIVE_TOKEN_ADDRESS.toLowerCase();
+  const isToken1Native =
+    pool === "loading"
+      ? false
+      : pool.token1.address.toLowerCase() ===
+        NATIVE_TOKEN_ADDRESS.toLowerCase();
 
   return (
     <>
@@ -120,13 +132,21 @@ export const Header = () => {
                   <div className="flex flex-col text-xs text-subText gap-2">
                     <div className="flex items-center gap-3">
                       <span>{pool.token0.symbol}: </span>
-                      <span>{shortenAddress(pool.token0.address, 4)}</span>
-                      <span>{Token0Copy}</span>
+                      <span>
+                        {isToken0Native
+                          ? "Native token"
+                          : shortenAddress(pool.token0.address, 4)}
+                      </span>
+                      {!isToken0Native && <span>{Token0Copy}</span>}
                     </div>
                     <div className="flex items-center gap-1">
                       <span>{pool.token1.symbol}: </span>
-                      <span>{shortenAddress(pool.token1.address, 4)}</span>
-                      <span>{Token1Copy}</span>
+                      <span>
+                        {isToken1Native
+                          ? "Native token"
+                          : shortenAddress(pool.token1.address, 4)}
+                      </span>
+                      {!isToken1Native && <span>{Token1Copy}</span>}
                     </div>
                     <div className="flex items-center gap-1">
                       <span>Pool Address: </span>
