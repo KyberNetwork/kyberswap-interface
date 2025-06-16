@@ -8,13 +8,8 @@ import InfoHelper from 'components/InfoHelper'
 import Loader from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
 import useTheme from 'hooks/useTheme'
-import {
-  NextDistribution,
-  PositionAction,
-  RewardDetailInfo,
-  RewardsSection,
-  VerticalDivider,
-} from 'pages/Earns/PositionDetail/styles'
+import { NextDistribution, PositionAction, RewardDetailInfo, RewardsSection } from 'pages/Earns/PositionDetail/styles'
+import { HorizontalDivider } from 'pages/Earns/UserPositions/styles'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
 import { ParsedPosition, TokenRewardInfo } from 'pages/Earns/types'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -76,36 +71,31 @@ const RewardSection = ({ position }: { position: ParsedPosition }) => {
       {claimRewardsModal}
 
       <RewardsSection>
-        <Flex alignItems={'center'} sx={{ gap: '20px' }}>
-          <Flex flexDirection={'column'} sx={{ gap: 2 }}>
-            <Flex alignItems={'center'} sx={{ gap: 1 }}>
-              <Text fontSize={14} color={theme.subText} lineHeight={'20PX'}>
-                {t`Total Rewards`}
-              </Text>
-              <KemIcon width={20} height={20} />
-            </Flex>
+        <Flex alignItems={'center'} justifyContent={'space-between'} sx={{ gap: '20px' }}>
+          <Flex alignItems={'center'} sx={{ gap: 1 }}>
+            <Text fontSize={14} color={theme.subText} lineHeight={'20PX'}>
+              {t`Total Rewards`}
+            </Text>
+            <KemIcon width={20} height={20} />
+          </Flex>
+          <Flex alignItems={'center'} sx={{ gap: 1 }}>
             <Text fontSize={20}>
               {formatDisplayNumber(rewardInfoThisPosition?.totalUsdValue || 0, {
                 significantDigits: 4,
                 style: 'currency',
               })}
             </Text>
+            <InfoHelper
+              text={totalRewardTooltip({
+                lmTokens: rewardInfoThisPosition?.lmTokens || [],
+                egTokens: rewardInfoThisPosition?.egTokens || [],
+                textColor: theme.text,
+              })}
+              placement="top"
+              width="160px"
+              size={14}
+            />
           </Flex>
-
-          {rewardInfoThisPosition?.totalUsdValue ? (
-            <>
-              <VerticalDivider height="44px" />
-              <Flex flexDirection={'column'} maxHeight={65} sx={{ gap: 1, overflow: 'auto' }}>
-                {rewardInfoThisPosition?.tokens.map((item, index) => (
-                  <Flex key={index} alignItems={'center'} sx={{ gap: '6px' }}>
-                    <TokenLogo src={item.logo} size={16} />
-                    <Text fontSize={16}>{formatDisplayNumber(item.totalAmount, { significantDigits: 4 })}</Text>
-                    <Text fontSize={16}>{item.symbol}</Text>
-                  </Flex>
-                ))}
-              </Flex>
-            </>
-          ) : null}
         </Flex>
 
         <RewardDetailInfo>
@@ -248,5 +238,41 @@ export const inProgressRewardTooltip = ({
     </ul>
   )
 }
+
+export const totalRewardTooltip = ({
+  lmTokens,
+  egTokens,
+  textColor,
+}: {
+  lmTokens: Array<TokenRewardInfo>
+  egTokens: Array<TokenRewardInfo>
+  textColor: string
+}) => (
+  <Flex flexDirection={'column'} sx={{ gap: 1 }}>
+    <HorizontalDivider />
+    <Text lineHeight={'16px'} fontSize={12}>
+      {t`LM Reward:`}
+      {!lmTokens.length ? ' 0' : ''}
+    </Text>
+    {lmTokens.map(token => (
+      <Flex alignItems={'center'} sx={{ gap: 1 }} flexWrap={'wrap'} key={token.address}>
+        <TokenLogo src={token.logo} size={16} />
+        <Text color={textColor}>{formatDisplayNumber(token.totalAmount, { significantDigits: 4 })}</Text>
+        <Text color={textColor}>{token.symbol}</Text>
+      </Flex>
+    ))}
+    <Text lineHeight={'16px'} fontSize={12}>
+      {t`EG Sharing Reward:`}
+      {!egTokens.length ? ' 0' : ''}
+    </Text>
+    {egTokens.map(token => (
+      <Flex alignItems={'center'} sx={{ gap: 1 }} flexWrap={'wrap'} key={token.address}>
+        <TokenLogo src={token.logo} size={16} />
+        <Text color={textColor}>{formatDisplayNumber(token.totalAmount, { significantDigits: 4 })}</Text>
+        <Text color={textColor}>{token.symbol}</Text>
+      </Flex>
+    ))}
+  </Flex>
+)
 
 export default RewardSection

@@ -6,17 +6,15 @@ import { Flex, Text } from 'rebass'
 
 import { ReactComponent as IconKem } from 'assets/svg/kyber/kem.svg'
 import InfoHelper from 'components/InfoHelper'
-import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
-import { inProgressRewardTooltip } from 'pages/Earns/PositionDetail/RewardSection'
+import { inProgressRewardTooltip, totalRewardTooltip } from 'pages/Earns/PositionDetail/RewardSection'
 import { PositionAction } from 'pages/Earns/PositionDetail/styles'
 import {
   BannerContainer,
   BannerDataItem,
   BannerDivider,
   BannerWrapper,
-  HorizontalDivider,
   RewardBannerDetailWrapper,
   RewardBannerWrapper,
 } from 'pages/Earns/UserPositions/styles'
@@ -66,41 +64,6 @@ export default function PositionBanner({ positions }: { positions: Array<ParsedP
         <Text>{t`Claim`}</Text>
       </PositionAction>
     </MouseoverTooltipDesktopOnly>
-  )
-
-  const totalRewardInfoHelper = (
-    <InfoHelper
-      text={
-        <Flex flexDirection={'column'} sx={{ gap: 1 }}>
-          <HorizontalDivider />
-          <Text lineHeight={'16px'} fontSize={12}>
-            {t`LM Reward:`}
-            {!lmTokens.length ? ' 0' : ''}
-          </Text>
-          {lmTokens.map(token => (
-            <Flex alignItems={'center'} sx={{ gap: 1 }} flexWrap={'wrap'} key={token.address}>
-              <TokenLogo src={token.logo} size={16} />
-              <Text color={theme.text}>{formatDisplayNumber(token.totalAmount, { significantDigits: 4 })}</Text>
-              <Text color={theme.text}>{token.symbol}</Text>
-            </Flex>
-          ))}
-          <Text lineHeight={'16px'} fontSize={12}>
-            {t`EG Sharing Reward:`}
-            {!egTokens.length ? ' 0' : ''}
-          </Text>
-          {egTokens.map(token => (
-            <Flex alignItems={'center'} sx={{ gap: 1 }} flexWrap={'wrap'} key={token.address}>
-              <TokenLogo src={token.logo} size={16} />
-              <Text color={theme.text}>{formatDisplayNumber(token.totalAmount, { significantDigits: 4 })}</Text>
-              <Text color={theme.text}>{token.symbol}</Text>
-            </Flex>
-          ))}
-        </Flex>
-      }
-      placement="bottom"
-      width="160px"
-      size={16}
-    />
   )
 
   return (
@@ -213,7 +176,16 @@ export default function PositionBanner({ positions }: { positions: Array<ParsedP
                   <Text fontSize={upToSmall ? 20 : 24}>
                     {formatDisplayNumber(totalUsdValue, { significantDigits: 4, style: 'currency' })}
                   </Text>
-                  {totalRewardInfoHelper}
+                  <InfoHelper
+                    text={totalRewardTooltip({
+                      lmTokens,
+                      egTokens,
+                      textColor: theme.text,
+                    })}
+                    placement="bottom"
+                    width="160px"
+                    size={16}
+                  />
                 </Flex>
               </Flex>
               <RewardBannerDetailWrapper>
