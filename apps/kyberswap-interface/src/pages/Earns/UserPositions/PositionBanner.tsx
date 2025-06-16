@@ -185,6 +185,7 @@ export default function PositionBanner({ positions }: { positions: Array<ParsedP
                     placement="bottom"
                     width="160px"
                     size={16}
+                    fontSize={14}
                   />
                 </Flex>
               </Flex>
