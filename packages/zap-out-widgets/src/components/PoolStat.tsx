@@ -12,8 +12,7 @@ interface PoolInfo {
   tvl: number;
   volume24h: number;
   fees24h: number;
-  apr24h: number;
-  kemApr24h: number;
+  apr: number;
   kemEGApr: number;
   kemLMApr: number;
   isFarming: boolean;
@@ -44,7 +43,7 @@ export default function PoolStat({
         ) / 100;
 
   const poolApr =
-    (poolInfo?.apr24h || 0) +
+    (poolInfo?.apr || 0) +
     (poolInfo?.kemEGApr || 0) +
     (poolInfo?.kemLMApr || 0);
 
@@ -141,7 +140,7 @@ export default function PoolStat({
                 <MouseoverTooltip
                   text={
                     <div>
-                      LP Fee APR: {formatAprNumber(poolInfo?.apr24h || 0)}%
+                      LP Fee APR: {formatAprNumber(poolInfo?.apr || 0)}%
                       <br />
                       EG Sharing Reward:{" "}
                       {formatAprNumber(poolInfo?.kemEGApr || 0)}%

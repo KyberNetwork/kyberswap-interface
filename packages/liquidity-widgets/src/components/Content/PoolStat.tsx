@@ -39,7 +39,7 @@ export default function PoolStat() {
       ? null
       : Number((BigInt(position.liquidity) * 10000n) / BigInt(position.totalSupply)) / 100;
 
-  const poolApr = (poolStat?.apr24h || 0) + (poolStat?.kemEGApr || 0) + (poolStat?.kemLMApr || 0);
+  const poolApr = (poolStat?.apr || 0) + (poolStat?.kemEGApr || 0) + (poolStat?.kemLMApr || 0);
   const isFarming = poolStat?.isFarming || false;
 
   return (
@@ -106,7 +106,7 @@ export default function PoolStat() {
                 <MouseoverTooltip
                   text={
                     <div>
-                      LP Fee APR: {formatAprNumber(poolStat?.apr24h || 0)}%
+                      LP Fee APR: {formatAprNumber(poolStat?.apr || 0)}%
                       <br />
                       EG Sharing Reward: {formatAprNumber(poolStat?.kemEGApr || 0)}%
                       <br />

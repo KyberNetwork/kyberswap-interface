@@ -48,8 +48,7 @@ export interface PoolStatInfo {
   tvl: number;
   volume24h: number;
   fees24h: number;
-  apr24h: number;
-  kemApr24h: number;
+  apr: number;
   kemLMApr: number;
   kemEGApr: number;
 }

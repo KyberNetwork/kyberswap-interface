@@ -190,11 +190,11 @@ export const Preview = () => {
         <div className="flex flex-col items-center">
           <div className="flex items-center justify-center gap-2 text-xl font-medium my-8">
             {txStatus === "success" ? (
-              <CheckIcon className="w-6 h-6 text-success" />
+              <CheckIcon className="w-7 h-7 text-success" />
             ) : txStatus === "failed" ? (
-              <AlertIcon className="w-6 h-6 text-error" />
+              <AlertIcon className="w-7 h-7 text-error" />
             ) : (
-              <LoadingIcon className="w-6 h-6 text-primary animate-spin" />
+              <LoadingIcon className="w-7 h-7 text-primary animate-spin" />
             )}
             {txStatus === "success"
               ? "Zap Out Success!"

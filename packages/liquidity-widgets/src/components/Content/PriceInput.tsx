@@ -110,71 +110,74 @@ export default function PriceInput({ type }: { type: PriceType }) {
   }, [tickUpper, tickLower, pool, revertPrice, isMaxTick, isMinTick, type, priceLower, priceUpper, positionId]);
 
   return (
-    <div className="mt-[0.6rem] w-1/2 p-3 justify-between flex items-center border rounded-md border-stroke">
-      <button
-        className="w-6 h-6 rounded-[4px] border border-stroke bg-layer2 text-subText flex items-center justify-center cursor-pointer hover:enabled:brightness-150 active:enabled:scale-95 disabled:cursor-not-allowed disabled:opacity-60 outline-none"
-        role="button"
-        onClick={() => {
-          if (type === PriceType.PriceLower) {
-            revertPrice ? increaseTickUpper() : decreaseTickLower();
-          } else {
-            revertPrice ? increaseTickLower() : decreaseTickUpper();
-          }
-        }}
-        disabled={isFullRange || positionId !== undefined}
-      >
-        -
-      </button>
+    <div className="mt-[0.6rem] w-1/2 p-3 border rounded-md border-stroke flex flex-col gap-1 items-center">
+      <div className="flex justify-between items-end">
+        <button
+          className="w-6 h-6 rounded-[4px] border border-stroke bg-layer2 text-subText flex items-center justify-center cursor-pointer hover:enabled:brightness-150 active:enabled:scale-95 disabled:cursor-not-allowed disabled:opacity-60 outline-none"
+          role="button"
+          onClick={() => {
+            if (type === PriceType.PriceLower) {
+              revertPrice ? increaseTickUpper() : decreaseTickLower();
+            } else {
+              revertPrice ? increaseTickLower() : decreaseTickUpper();
+            }
+          }}
+          disabled={isFullRange || positionId !== undefined}
+        >
+          -
+        </button>
 
-      <div className="flex flex-col items-center gap-[6px] w-fit text-sm font-medium text-subText">
-        <span>{type === PriceType.PriceLower ? 'Min' : 'Max'} price</span>
-        {initializing ? (
-          <Skeleton className="w-20 h-6" />
-        ) : (
-          <input
-            className="bg-transparent w-[90px] text-center text-text text-base p-0 border-none outline-none disabled:cursor-not-allowed disabled:opacity-60"
-            value={localValue}
-            autoFocus={false}
-            onChange={onPriceChange}
-            onBlur={e => wrappedCorrectPrice(e.target.value)}
-            inputMode="decimal"
-            autoComplete="off"
-            autoCorrect="off"
-            disabled={positionId !== undefined}
-            type="text"
-            pattern="^[0-9]*[.,]?[0-9]*$"
-            placeholder="0.0"
-            minLength={1}
-            maxLength={79}
-            spellCheck="false"
-          />
-        )}
-        {initializing ? (
-          <Skeleton className="w-24 h-5" />
-        ) : (
-          <span className="w-max">
-            {pool !== 'loading'
-              ? !revertPrice
-                ? `${pool?.token1.symbol} per ${pool?.token0.symbol}`
-                : `${pool?.token0.symbol} per ${pool?.token1.symbol}`
-              : '--'}
-          </span>
-        )}
+        <div className="flex flex-col items-center gap-[6px] w-fit text-sm font-medium text-subText">
+          <span>{type === PriceType.PriceLower ? 'Min' : 'Max'} price</span>
+          {initializing ? (
+            <Skeleton className="w-20 h-6 mx-4" />
+          ) : (
+            <input
+              className="bg-transparent w-[110px] text-center text-text text-base p-0 border-none outline-none disabled:cursor-not-allowed disabled:opacity-60"
+              value={localValue}
+              autoFocus={false}
+              onChange={onPriceChange}
+              onBlur={e => wrappedCorrectPrice(e.target.value)}
+              inputMode="decimal"
+              autoComplete="off"
+              autoCorrect="off"
+              disabled={positionId !== undefined}
+              type="text"
+              pattern="^[0-9]*[.,]?[0-9]*$"
+              placeholder="0.0"
+              minLength={1}
+              maxLength={79}
+              spellCheck="false"
+            />
+          )}
+        </div>
+
+        <button
+          className="w-6 h-6 rounded-[4px] border border-stroke bg-layer2 text-subText flex items-center justify-center cursor-pointer hover:enabled:brightness-150 active:enabled:scale-95 disabled:cursor-not-allowed disabled:opacity-60 outline-none"
+          onClick={() => {
+            if (type === PriceType.PriceLower) {
+              revertPrice ? decreaseTickUpper() : increaseTickLower();
+            } else {
+              revertPrice ? decreaseTickLower() : increaseTickUpper();
+            }
+          }}
+          disabled={isFullRange || positionId !== undefined}
+        >
+          +
+        </button>
       </div>
 
-      <button
-        className="w-6 h-6 rounded-[4px] border border-stroke bg-layer2 text-subText flex items-center justify-center cursor-pointer hover:enabled:brightness-150 active:enabled:scale-95 disabled:cursor-not-allowed disabled:opacity-60 outline-none"
-        onClick={() => {
-          if (type === PriceType.PriceLower) {
-            revertPrice ? decreaseTickUpper() : increaseTickLower();
-          } else {
-            revertPrice ? decreaseTickLower() : increaseTickUpper();
-          }
-        }}
-        disabled={isFullRange || positionId !== undefined}
-      >
-        +
-      </button>
+      {initializing ? (
+        <Skeleton className="w-24 h-5 mt-1" />
+      ) : (
+        <span className="w-max text-sm font-medium text-subText">
+          {pool !== 'loading'
+            ? !revertPrice
+              ? `${pool?.token1.symbol} per ${pool?.token0.symbol}`
+              : `${pool?.token0.symbol} per ${pool?.token1.symbol}`
+            : '--'}
+        </span>
+      )}
     </div>
   );
 }

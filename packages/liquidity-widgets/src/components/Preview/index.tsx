@@ -280,13 +280,13 @@ export default function Preview({
         <div className="flex justify-center gap-3 flex-col items-center flex-1">
           <div className="flex items-center justify-center gap-2 text-xl font-medium">
             {txStatus === 'success' ? (
-              <SuccessIcon className="w-6 h-6 text-success" />
+              <SuccessIcon className="w-6 h-6 text-success rounded-full border border-success p-[2px]" />
             ) : txStatus === 'failed' ? (
               <ErrorIcon className="w-6 h-6 text-error" />
             ) : (
               <Spinner className="w-6 h-6 text-success animate-spin" />
             )}
-            <div className="text-xl font-medium my-4">{txStatusText}</div>
+            <div className="text-xl my-4">{txStatusText}</div>
           </div>
 
           {!txHash && (
@@ -774,9 +774,12 @@ export default function Preview({
 
         <button
           className={`ks-primary-btn mt-4 w-full ${
-            zapImpact.level === PI_LEVEL.VERY_HIGH
+            zapImpact.level === PI_LEVEL.VERY_HIGH ||
+            zapImpact.level === PI_LEVEL.INVALID ||
+            swapPriceImpact.piRes.level === PI_LEVEL.VERY_HIGH ||
+            swapPriceImpact.piRes.level === PI_LEVEL.INVALID
               ? 'bg-error border-error'
-              : zapImpact.level === PI_LEVEL.HIGH
+              : zapImpact.level === PI_LEVEL.HIGH || swapPriceImpact.piRes.level === PI_LEVEL.HIGH
                 ? 'bg-warning border-warning'
                 : ''
           }`}

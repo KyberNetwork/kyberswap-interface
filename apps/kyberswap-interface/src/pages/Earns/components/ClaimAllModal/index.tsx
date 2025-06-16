@@ -83,7 +83,7 @@ export default function ClaimAllModal({
           <Flex alignItems={'center'} justifyContent={'space-between'}>
             <Text>{t`Claimable Rewards`}</Text>
             <Text>
-              {formatDisplayNumber(rewardInfo.claimableUsdValue, { significantDigits: 6, style: 'currency' })}
+              {formatDisplayNumber(rewardInfo.claimableUsdValue, { significantDigits: 4, style: 'currency' })}
             </Text>
           </Flex>
 
@@ -112,7 +112,7 @@ export default function ClaimAllModal({
                       <Text>{chain.chainName}</Text>
                     </Flex>
                     <Text fontSize={upToExtraSmall ? 16 : 18}>
-                      {formatDisplayNumber(chain.claimableUsdValue, { significantDigits: 6, style: 'currency' })}
+                      {formatDisplayNumber(chain.claimableUsdValue, { significantDigits: 4, style: 'currency' })}
                     </Text>
                   </Flex>
                   <ChainDetailInfo isOpen={isSelected}>
@@ -127,12 +127,12 @@ export default function ClaimAllModal({
                             style={{ position: 'relative', top: 4, border: `1px solid ${theme.black}` }}
                           />
                           <Text marginLeft={1}>
-                            {formatDisplayNumber(token.claimableAmount, { significantDigits: 6 })}
+                            {formatDisplayNumber(token.claimableAmount, { significantDigits: 4 })}
                           </Text>
                           <Text>{token.symbol}</Text>
                         </Flex>
                         <Text color={theme.subText}>
-                          {formatDisplayNumber(token.claimableUsdValue, { significantDigits: 6, style: 'currency' })}
+                          {formatDisplayNumber(token.claimableUsdValue, { significantDigits: 4, style: 'currency' })}
                         </Text>
                       </Flex>
                     ))}
