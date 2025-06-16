@@ -89,7 +89,7 @@ export default function Setting() {
           </div>
         </div>
       </Modal>
-      <div className="absolute right-6 top-[116px] bg-layer2 p-5 rounded-md min-w-[320px]" ref={ref}>
+      <div className="absolute right-6 top-[116px] bg-layer2 p-5 rounded-md min-w-[330px]" ref={ref}>
         <div className="text-base font-medium mb-5">Advanced Setting</div>
         <MouseoverTooltip
           text="Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price. Please use with caution!"
