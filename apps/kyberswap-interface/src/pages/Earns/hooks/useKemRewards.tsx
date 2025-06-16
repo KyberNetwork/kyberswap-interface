@@ -179,12 +179,14 @@ const useKemRewards = () => {
     setClaimInfo({
       nftId,
       chainId: positionChainId,
-      tokens: (rewardNftInfo.tokens || []).map(tokenReward => ({
-        logo: tokenReward.logo,
-        symbol: tokenReward.symbol,
-        amount: tokenReward.claimableAmount,
-        value: tokenReward.claimableUsdValue,
-      })),
+      tokens: (rewardNftInfo.tokens || [])
+        .filter(tokenReward => tokenReward.claimableAmount > 0)
+        .map(tokenReward => ({
+          logo: tokenReward.logo,
+          symbol: tokenReward.symbol,
+          amount: tokenReward.claimableAmount,
+          value: tokenReward.claimableUsdValue,
+        })),
       totalValue: rewardNftInfo.claimableUsdValue,
     })
   }
