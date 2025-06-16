@@ -15,6 +15,7 @@ import { parseReward } from 'pages/Earns/utils/reward'
 import { useNotify } from 'state/application/hooks'
 import { useAllTransactions, useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
+import { formatDisplayNumber } from 'utils/numbers'
 
 const useKemRewards = () => {
   const notify = useNotify()
@@ -100,8 +101,13 @@ const useKemRewards = () => {
     if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
     setTxHash(txHash)
     addTransactionWithType({
-      type: TRANSACTION_TYPE.COLLECT_FEE,
+      type: TRANSACTION_TYPE.CLAIM_REWARD,
       hash: txHash,
+      extraInfo: {
+        summary: `rewards: ${claimInfo.tokens
+          .map(token => `${formatDisplayNumber(token.amount, { significantDigits: 4 })} ${token.symbol}`)
+          .join(', ')}`,
+      },
     })
   }, [account, addTransactionWithType, chainId, claimEncodeData, claimInfo, library, notify])
 
@@ -152,10 +158,17 @@ const useKemRewards = () => {
     if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
     setTxHash(txHash)
     addTransactionWithType({
-      type: TRANSACTION_TYPE.COLLECT_FEE,
+      type: TRANSACTION_TYPE.CLAIM_REWARD,
       hash: txHash,
+      extraInfo: {
+        summary: `rewards: ${rewardInfo?.chains
+          ?.find(chain => chain.chainId === chainId)
+          ?.tokens?.filter(token => token.claimableAmount > 0)
+          .map(token => `${formatDisplayNumber(token.claimableAmount, { significantDigits: 4 })} ${token.symbol}`)
+          .join(', ')}`,
+      },
     })
-  }, [account, addTransactionWithType, batchClaimEncodeData, chainId, library, notify])
+  }, [account, addTransactionWithType, batchClaimEncodeData, chainId, library, notify, rewardInfo?.chains])
 
   const onCloseClaim = useCallback(() => {
     setOpenClaimModal(false)

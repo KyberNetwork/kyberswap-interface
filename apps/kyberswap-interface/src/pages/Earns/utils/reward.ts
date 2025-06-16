@@ -176,24 +176,26 @@ export const parseReward = ({
             chainName: chain.name,
             chainLogo: chain.icon,
             claimableUsdValue: nft.claimableUsdValue,
-            tokens: deepClone(nft.tokens),
+            tokens: deepClone(nft.tokens.filter(token => token.claimableAmount > 0)),
           })
         } else {
           chains[existingChainRewardIndex].claimableUsdValue += nft.claimableUsdValue
 
-          nft.tokens.forEach(token => {
-            const existingTokenIndex = chains[existingChainRewardIndex].tokens.findIndex(
-              t => t.address === token.address,
-            )
-            if (existingTokenIndex === -1) {
-              chains[existingChainRewardIndex].tokens.push(deepClone(token))
-            } else {
-              chains[existingChainRewardIndex].tokens[existingTokenIndex].totalAmount += token.totalAmount
-              chains[existingChainRewardIndex].tokens[existingTokenIndex].claimableAmount += token.claimableAmount
-              chains[existingChainRewardIndex].tokens[existingTokenIndex].claimableUsdValue += token.claimableUsdValue
-              chains[existingChainRewardIndex].tokens[existingTokenIndex].unclaimedAmount += token.unclaimedAmount
-            }
-          })
+          nft.tokens
+            .filter(token => token.claimableAmount > 0)
+            .forEach(token => {
+              const existingTokenIndex = chains[existingChainRewardIndex].tokens.findIndex(
+                t => t.address === token.address,
+              )
+              if (existingTokenIndex === -1) {
+                chains[existingChainRewardIndex].tokens.push(deepClone(token))
+              } else {
+                chains[existingChainRewardIndex].tokens[existingTokenIndex].totalAmount += token.totalAmount
+                chains[existingChainRewardIndex].tokens[existingTokenIndex].claimableAmount += token.claimableAmount
+                chains[existingChainRewardIndex].tokens[existingTokenIndex].claimableUsdValue += token.claimableUsdValue
+                chains[existingChainRewardIndex].tokens[existingTokenIndex].unclaimedAmount += token.unclaimedAmount
+              }
+            })
         }
       }
     })
