@@ -105,9 +105,11 @@ const PoolExplorer = () => {
   const theme = useTheme()
   const notify = useNotify()
   const { filters, updateFilters } = useFilter(setSearch)
-  const { widget: zapMigrationWidget, handleOpenZapMigration } = useZapMigrationWidget()
+  const { widget: zapMigrationWidget, handleOpenZapMigration, triggerClose, setTriggerClose } = useZapMigrationWidget()
   const { widget: zapInWidget, handleOpenZapIn } = useZapInWidget({
     onOpenZapMigration: handleOpenZapMigration,
+    triggerClose,
+    setTriggerClose,
   })
   const { data: poolData, isError } = usePoolsExplorerQuery(filters, { pollingInterval: 5 * 60_000 })
   const { supportedDexes, supportedChains } = useSupportedDexesAndChains(filters)

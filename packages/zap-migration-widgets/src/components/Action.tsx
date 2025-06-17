@@ -26,6 +26,7 @@ export function Action({
   onClose,
   onSubmitTx,
   client,
+  onBack,
 }: {
   chainId: ChainId;
   connectedAccount: {
@@ -35,6 +36,7 @@ export function Action({
   onConnectWallet: () => void;
   onSwitchChain: () => void;
   onClose: () => void;
+  onBack?: () => void;
   onSubmitTx: (txData: {
     from: string;
     to: string;
@@ -274,7 +276,10 @@ export function Action({
     <div className="flex gap-5 mt-8">
       <button
         className="flex-1 h-[40px] rounded-full border border-stroke text-subText text-sm font-medium"
-        onClick={onClose}
+        onClick={() => {
+          if (onBack) onBack();
+          else onClose();
+        }}
       >
         Cancel
       </button>

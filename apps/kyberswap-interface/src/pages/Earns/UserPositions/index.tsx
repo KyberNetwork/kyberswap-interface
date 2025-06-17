@@ -71,10 +71,17 @@ const UserPositions = () => {
     pollingInterval: 15_000,
   })
 
-  const { widget: zapMigrationWidget, handleOpenZapMigration } = useZapMigrationWidget(refetch)
+  const {
+    widget: zapMigrationWidget,
+    handleOpenZapMigration,
+    triggerClose,
+    setTriggerClose,
+  } = useZapMigrationWidget(refetch)
   const { widget: zapInWidget, handleOpenZapIn } = useZapInWidget({
     onOpenZapMigration: handleOpenZapMigration,
     onRefreshPosition: refetch,
+    triggerClose,
+    setTriggerClose,
   })
   const { widget: zapOutWidget, handleOpenZapOut } = useZapOutWidget(() => {
     refetch()

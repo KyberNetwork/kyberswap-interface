@@ -4,7 +4,7 @@ import {
   PoolType as ZapInPoolType,
 } from '@kyberswap/liquidity-widgets'
 import '@kyberswap/liquidity-widgets/dist/style.css'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import { NotificationType } from 'components/Announcement/type'
@@ -74,9 +74,13 @@ const zapInDexMapping: Record<EarnDex | Exchange, ZapInPoolType> = {
 const useZapInWidget = ({
   onOpenZapMigration,
   onRefreshPosition,
+  triggerClose,
+  setTriggerClose,
 }: {
   onOpenZapMigration: (props: ZapMigrationInfo) => void
   onRefreshPosition?: () => void
+  triggerClose?: boolean
+  setTriggerClose?: (value: boolean) => void
 }) => {
   const toggleWalletModal = useWalletModalToggle()
   const notify = useNotify()
@@ -219,6 +223,13 @@ const useZapInWidget = ({
   )
 
   useAccountChanged(handleCloseZapInWidget)
+
+  useEffect(() => {
+    if (triggerClose && addLiquidityPureParams) {
+      handleCloseZapInWidget()
+      setTriggerClose?.(false)
+    }
+  }, [triggerClose, handleCloseZapInWidget, setTriggerClose, addLiquidityPureParams])
 
   const widget = addLiquidityParams ? (
     <Modal isOpen mobileFullWidth maxWidth={800} width={'800px'} onDismiss={handleCloseZapInWidget}>

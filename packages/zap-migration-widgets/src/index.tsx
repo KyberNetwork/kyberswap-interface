@@ -241,6 +241,7 @@ export const ZapMigration = (props: ZapMigrationProps) => {
           onConnectWallet={onConnectWallet}
           onSwitchChain={onSwitchChain}
           onClose={onClose}
+          onBack={onBack}
           onSubmitTx={onSubmitTx}
         />
 

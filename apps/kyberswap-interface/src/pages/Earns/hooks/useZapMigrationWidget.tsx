@@ -91,6 +91,7 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
   const { changeNetwork } = useChangeNetwork()
 
   const [migrateLiquidityPureParams, setMigrateLiquidityPureParams] = useState<MigrateLiquidityPureParams | null>(null)
+  const [triggerClose, setTriggerClose] = useState(false)
 
   const handleNavigateToPosition = useCallback(
     async (txHash: string, chainId: number, targetDex: ZapMigrationDex, targetPoolId: string) => {
@@ -160,6 +161,7 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
               handleNavigateToPosition(txHash, chainId, targetDex, targetPoolId)
             },
             onClose: () => {
+              setTriggerClose(true)
               setMigrateLiquidityPureParams(null)
               onRefreshPosition?.()
             },
@@ -208,7 +210,7 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
     </Modal>
   ) : null
 
-  return { widget, handleOpenZapMigration }
+  return { widget, handleOpenZapMigration, triggerClose, setTriggerClose }
 }
 
 export default useZapMigrationWidget

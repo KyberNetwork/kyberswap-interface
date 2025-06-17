@@ -16,9 +16,11 @@ import { formatDisplayNumber } from 'utils/numbers'
 
 const PoolItem = ({ pool, isFarming }: { pool: EarnPool; isFarming?: boolean }) => {
   const theme = useTheme()
-  const { widget: zapMigrationWidget, handleOpenZapMigration } = useZapMigrationWidget()
+  const { widget: zapMigrationWidget, handleOpenZapMigration, triggerClose, setTriggerClose } = useZapMigrationWidget()
   const { widget: zapInWidget, handleOpenZapIn } = useZapInWidget({
     onOpenZapMigration: handleOpenZapMigration,
+    triggerClose,
+    setTriggerClose,
   })
 
   return (
