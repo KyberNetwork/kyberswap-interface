@@ -153,7 +153,14 @@ export class OrbiterAdapter extends BaseSwapAdapter {
       txHash: res.result.targetId || '',
       // this is from orbiter source code, their docs dont have info for this
       // https://github.com/Orbiter-Finance/OrbiterFE-V2/blob/2b35399aad581e666c45a829e0151485f4007c93/src/views/statistics/LatestTransactions.vue#L115
-      status: res.result.opStatus !== 98 && res.result.opStatus !== 99 ? 'Processing' : 'Success',
+      status:
+        res.result.opStatus === -1
+          ? 'Failed'
+          : res.result.opStatus === 80
+          ? 'Refunded'
+          : res.result.opStatus !== 98 && res.result.opStatus !== 99
+          ? 'Processing'
+          : 'Success',
     }
   }
 }
