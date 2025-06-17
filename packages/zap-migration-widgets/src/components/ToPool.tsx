@@ -78,7 +78,7 @@ export function ToPool({ className }: { className?: string }) {
             </div>
 
             {fetchingRoute ? (
-              <div className="flex flex-col items-end h-[40px]">
+              <div className="flex flex-col items-end">
                 <Skeleton className="w-20 h-4" />
               </div>
             ) : (
@@ -113,7 +113,7 @@ export function ToPool({ className }: { className?: string }) {
             </div>
 
             {fetchingRoute ? (
-              <div className="flex flex-col items-end h-[40px]">
+              <div className="flex flex-col items-end">
                 <Skeleton className="w-20 h-4" />
               </div>
             ) : (

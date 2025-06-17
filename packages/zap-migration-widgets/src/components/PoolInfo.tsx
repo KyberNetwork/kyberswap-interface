@@ -5,7 +5,7 @@ import {
   Position,
   UniV3Pool,
   UniV3Position,
-  univ3Dexes,
+  univ2Dexes,
 } from "../schema";
 import { usePoolsStore } from "../stores/usePoolsStore";
 import { Image } from "./Image";
@@ -30,8 +30,10 @@ export function PoolInfo({
       </div>
     );
 
+  const isUniv2 = univ2Dexes.includes(pool.dex);
+
   const isOutOfRange =
-    position && univ3Dexes.includes(position.dex)
+    position && !isUniv2
       ? (pool as UniV3Pool).tick < (position as UniV3Position).tickLower ||
         (pool as UniV3Pool).tick > (position as UniV3Position).tickUpper
       : false;
@@ -64,10 +66,12 @@ export function PoolInfo({
         <div className="text-xl self-center">
           {pool.token0.symbol}/{pool.token1.symbol}
         </div>
-        <div className="text-base opacity-70 relative top-[2px]">
-          #{position?.id}
-        </div>
-        {position && univ3Dexes.includes(position.dex) && (
+        {!isUniv2 && position?.id && (
+          <div className="text-base opacity-70 relative top-[2px]">
+            #{position.id}
+          </div>
+        )}
+        {position && !isUniv2 && (
           <div
             className={`rounded-full text-xs px-2 py-1 font-normal ${
               isOutOfRange ? "text-warning" : "text-accent"

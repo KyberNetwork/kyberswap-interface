@@ -22,6 +22,13 @@ let hideCopied: ReturnType<typeof setTimeout>;
 
 const earnSupportedChains = enumToArrayOfValues(EarnChain, 'number');
 
+const listDexesWithVersion = [
+  EarnDex.DEX_UNISWAPV2,
+  EarnDex.DEX_UNISWAPV3,
+  EarnDex.DEX_UNISWAP_V4,
+  EarnDex.DEX_UNISWAP_V4_FAIRFLOW,
+];
+
 export const earnSupportedExchanges = enumToArrayOfValues(Exchange);
 
 const UserPositions = ({ search }: { search: string }) => {
@@ -155,17 +162,23 @@ const UserPositions = ({ search }: { search: string }) => {
     positions.map((position: EarnPosition, index: number) => {
       const isUniv2 = Univ2EarnDex.safeParse(position.pool.project).success;
       const posStatus = isUniv2 ? PositionStatus.IN_RANGE : position.status;
+      const version = listDexesWithVersion.includes(position.pool.project)
+        ? position.pool.project.split(' ')[position.pool.project.split(' ').length - 1] || ''
+        : '';
 
       return (
         <div key={index}>
           <div
             className="flex flex-col py-3 px-[26px] gap-2 cursor-pointer hover:bg-[#31cb9e33]"
-            onClick={() =>
+            onClick={() => {
+              const isUniV2 = Univ2EarnDex.safeParse(position.pool.project).success;
+              if (isUniV2 && !account) return;
+
               onOpenZapMigration(
                 {
                   exchange: position.pool.project,
                   poolId: position.pool.poolAddress,
-                  positionId: position.pool.project !== EarnDex.DEX_UNISWAPV2 ? position.tokenId : position.userAddress,
+                  positionId: !isUniV2 ? position.tokenId : account,
                 },
                 tickLower !== null && tickUpper !== null
                   ? {
@@ -173,8 +186,8 @@ const UserPositions = ({ search }: { search: string }) => {
                       tickUpper,
                     }
                   : undefined,
-              )
-            }
+              );
+            }}
           >
             <div className="flex items-center justify-between w-full">
               <div className="flex gap-2 items-center">
@@ -225,16 +238,19 @@ const UserPositions = ({ search }: { search: string }) => {
             </div>
             <div className="flex items-center justify-between w-full">
               <div className="flex gap-2 items-center">
-                <img
-                  src={position.pool.projectLogo}
-                  width={20}
-                  height={20}
-                  alt=""
-                  onError={({ currentTarget }) => {
-                    currentTarget.onerror = null;
-                    currentTarget.src = defaultTokenLogo;
-                  }}
-                />
+                <div className="flex gap-1 items-center">
+                  <img
+                    src={position.pool.projectLogo}
+                    width={16}
+                    height={16}
+                    alt=""
+                    onError={({ currentTarget }) => {
+                      currentTarget.onerror = null;
+                      currentTarget.src = defaultTokenLogo;
+                    }}
+                  />
+                  {version && <span className="text-subText text-xs">{version}</span>}
+                </div>
                 {!isUniv2 && <span className="text-subText">#{position.tokenId}</span>}
                 <div className="text-[#027BC7] bg-[#ffffff0a] rounded-full px-[10px] py-1 flex gap-1 text-sm">
                   {shortenAddress(position.pool.poolAddress, 4)}

@@ -137,7 +137,7 @@ const PositionDetail = () => {
       from: {
         dex: position.dex.id,
         poolId: position.pool.address,
-        positionId: position.tokenId,
+        positionId: position.pool.isUniv2 ? account || '' : position.tokenId,
       },
       to: {
         dex: position.suggestionPool?.poolExchange as Exchange,

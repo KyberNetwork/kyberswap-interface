@@ -33,6 +33,7 @@ export function FromPool({ className }: { className?: string }) {
   let amount1 = 0n;
   const isUniv3 = pools !== "loading" && univ3Dexes.includes(pools[0].dex);
   const isUniv2 = pools !== "loading" && univ2Dexes.includes(pools[0].dex);
+
   if (position !== "loading" && pools !== "loading") {
     if (isUniv3) {
       const p = position as UniV3Position;
@@ -47,6 +48,7 @@ export function FromPool({ className }: { className?: string }) {
     } else if (isUniv2) {
       const p = position as UniV2Position;
       const pool0 = pools[0] as UniV2Pool;
+
       amount0 =
         (BigInt(p.liquidity) * BigInt(pool0.reserves[0])) /
         BigInt(p.totalSupply);
