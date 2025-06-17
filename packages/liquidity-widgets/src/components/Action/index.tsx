@@ -153,7 +153,7 @@ export default function Action() {
     }
     if (zapLoading) return 'Loading...';
     if (loading) return 'Checking Allowance';
-    if (addressToApprove || nftApprovePendingTx) return 'Approving';
+    if (addressToApprove || nftApprovePendingTx) return 'Approving...';
     if (notApprove) return `Approve ${notApprove.symbol}`;
     if (isUniv4 && positionId && !nftApproved) return 'Approve NFT';
     if (isVeryHighPriceImpact || isVeryHighZapImpact || isInvalidZapImpact) return 'Zap anyway';
