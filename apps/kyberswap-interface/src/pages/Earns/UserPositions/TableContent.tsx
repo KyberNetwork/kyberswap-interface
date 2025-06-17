@@ -1,4 +1,5 @@
 import { formatAprNumber } from '@kyber/utils/dist/number'
+import { priceToClosestTick } from '@kyber/utils/dist/uniswapv3'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useCallback, useState } from 'react'
@@ -164,6 +165,19 @@ export default function TableContent({
     e.stopPropagation()
     e.preventDefault()
 
+    if (!position.suggestionPool) return
+
+    const tickLower = priceToClosestTick(
+      position.priceRange.min.toString(),
+      position.token0.decimals,
+      position.token1.decimals,
+    )
+    const tickUpper = priceToClosestTick(
+      position.priceRange.max.toString(),
+      position.token0.decimals,
+      position.token1.decimals,
+    )
+
     handleOpenZapMigration({
       chainId: position.chain.id,
       from: {
@@ -175,6 +189,13 @@ export default function TableContent({
         dex: position.suggestionPool?.poolExchange as Exchange,
         poolId: position.suggestionPool?.address || '',
       },
+      initialTick:
+        tickLower && tickUpper
+          ? {
+              tickLower: tickLower,
+              tickUpper: tickUpper,
+            }
+          : undefined,
     })
   }
 

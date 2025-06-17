@@ -1,4 +1,5 @@
 import { formatAprNumber } from '@kyber/utils/dist/number'
+import { priceToClosestTick } from '@kyber/utils/dist/uniswapv3'
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Skeleton from 'react-loading-skeleton'
@@ -120,6 +121,17 @@ const PositionDetail = () => {
 
     if (!position || !position.suggestionPool) return
 
+    const tickLower = priceToClosestTick(
+      position.priceRange.min.toString(),
+      position.token0.decimals,
+      position.token1.decimals,
+    )
+    const tickUpper = priceToClosestTick(
+      position.priceRange.max.toString(),
+      position.token0.decimals,
+      position.token1.decimals,
+    )
+
     handleOpenZapMigration({
       chainId: position.chain.id,
       from: {
@@ -131,6 +143,13 @@ const PositionDetail = () => {
         dex: position.suggestionPool?.poolExchange as Exchange,
         poolId: position.suggestionPool?.address || '',
       },
+      initialTick:
+        tickLower && tickUpper
+          ? {
+              tickLower: tickLower,
+              tickUpper: tickUpper,
+            }
+          : undefined,
     })
   }
 
