@@ -25,7 +25,6 @@ const bnbInfo: NetworkInfo = {
     name: 'BNB',
     logo: BnbLogo,
     decimal: 18,
-    minForGas: 10 ** 16,
   },
   defaultRpcUrl: 'https://bsc.kyberengineering.io',
   multicall: '0xed386Fe855C1EFf2f843B910923Dd8846E45C5A4',

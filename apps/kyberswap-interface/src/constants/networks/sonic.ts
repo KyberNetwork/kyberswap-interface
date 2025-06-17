@@ -25,7 +25,6 @@ const sonic: NetworkInfo = {
     name: 'S',
     logo: 'https://www.soniclabs.com/favicon.ico',
     decimal: 18,
-    minForGas: 2 * 10 ** 17,
   },
   defaultRpcUrl: 'https://rpc.soniclabs.com',
   multicall: '0xcA11bde05977b3631167028862bE2a173976CA11',

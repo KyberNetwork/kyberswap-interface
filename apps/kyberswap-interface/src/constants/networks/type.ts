@@ -22,7 +22,6 @@ export interface NetworkInfo {
     readonly name: string
     readonly logo: string
     readonly decimal: number
-    readonly minForGas: number
   }
   readonly coingeckoNetworkId: string | null //https://api.coingecko.com/api/v3/asset_platforms
   readonly coingeckoNativeTokenId: string | null //https://api.coingecko.com/api/v3/coins/list

@@ -28,7 +28,6 @@ const görliInfo: NetworkInfo = {
     name: 'GörliETH',
     logo: EthereumLogo,
     decimal: 18,
-    minForGas: 10 ** 16,
   },
   defaultRpcUrl: 'https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
   multicall: '0xD9bfE9979e9CA4b2fe84bA5d4Cf963bBcB376974',

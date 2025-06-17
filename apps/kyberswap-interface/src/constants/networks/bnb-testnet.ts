@@ -27,7 +27,6 @@ const bnbTestnetInfo: NetworkInfo = {
     name: 'BNB',
     logo: BnbLogo,
     decimal: 18,
-    minForGas: 10 ** 16,
   },
   defaultRpcUrl: 'https://data-seed-prebsc-1-s1.binance.org:8545',
   multicall: '0x8F3273Fb89B075b1645095ABaC6ed17B2d4Bc576',

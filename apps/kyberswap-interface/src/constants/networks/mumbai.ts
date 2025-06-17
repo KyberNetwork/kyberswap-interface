@@ -26,7 +26,6 @@ const mumbaiInfo: NetworkInfo = {
     name: 'Polygon',
     logo: 'https://storage.googleapis.com/ks-setting-1d682dca/8a936cf9-3e8f-4518-9fb2-8579c14fb8cd1699420035633.png',
     decimal: 18,
-    minForGas: 10 ** 16,
   },
   defaultRpcUrl: 'https://rpc-mumbai.maticvigil.com',
   multicall: '0xc535D6463D5Bf9843aFa73bBF49bF4644a3988bA',

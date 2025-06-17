@@ -28,7 +28,6 @@ const zkSyncInfo: NetworkInfo = {
     name: 'ETH',
     logo: EthereumLogo,
     decimal: 18,
-    minForGas: 10 ** 15,
   },
   defaultRpcUrl: 'https://mainnet.era.zksync.io',
   multicall: '0xF9cda624FBC7e059355ce98a31693d299FACd963',

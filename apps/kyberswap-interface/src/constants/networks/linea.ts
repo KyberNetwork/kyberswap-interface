@@ -26,7 +26,6 @@ const lineaInfo: NetworkInfo = {
     name: 'LineaETH',
     logo: EthereumLogo,
     decimal: 18,
-    minForGas: 10 ** 15,
   },
   defaultRpcUrl: 'https://rpc.linea.build',
   multicall: '0xcA11bde05977b3631167028862bE2a173976CA11',

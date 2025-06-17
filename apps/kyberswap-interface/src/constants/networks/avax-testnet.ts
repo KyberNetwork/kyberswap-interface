@@ -26,7 +26,6 @@ const avaxTestnetInfo: NetworkInfo = {
     name: 'AVAX',
     logo: 'https://storage.googleapis.com/ks-setting-1d682dca/e72081b5-cb5f-4fb6-b771-ac189bdfd7c81699420213175.png',
     decimal: 18,
-    minForGas: 10 ** 16,
   },
   defaultRpcUrl: 'https://api.avax-test.network/ext/bc/C/rpc',
   multicall: '0x5D605e78bc699fB565E6E6a1fa2d940C40F8ce25',

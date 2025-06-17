@@ -25,7 +25,6 @@ const ronin: NetworkInfo = {
     name: 'RONIN',
     logo: 'https://storage.googleapis.com/ks-setting-1d682dca/ba94566c-928c-4493-8de6-b00f5e5afea31742289463316.png',
     decimal: 18,
-    minForGas: 2 * 10 ** 17,
   },
   defaultRpcUrl: 'https://api.roninchain.com/rpc',
   multicall: '0xcA11bde05977b3631167028862bE2a173976CA11',

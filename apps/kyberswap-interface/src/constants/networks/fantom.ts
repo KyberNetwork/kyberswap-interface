@@ -26,7 +26,6 @@ const fantomInfo: NetworkInfo = {
     name: 'FTM',
     logo: 'https://storage.googleapis.com/ks-setting-1d682dca/2cd8adf9-b4b0-41f7-b83d-4a13b4e9ca6f1699420090962.png',
     decimal: 18,
-    minForGas: 10 ** 16,
   },
   defaultRpcUrl: 'https://fantom.kyberengineering.io',
   multicall: '0x878dFE971d44e9122048308301F540910Bbd934c',

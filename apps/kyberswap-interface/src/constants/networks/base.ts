@@ -26,7 +26,6 @@ const base: NetworkInfo = {
     name: 'ETH',
     logo: EthereumLogo,
     decimal: 18,
-    minForGas: 10 ** 14,
   },
   defaultRpcUrl: 'https://base.kyberengineering.io',
   multicall: '0xcA11bde05977b3631167028862bE2a173976CA11',

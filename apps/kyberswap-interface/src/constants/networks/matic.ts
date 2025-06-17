@@ -24,7 +24,6 @@ const maticInfo: NetworkInfo = {
     name: 'Polygon',
     logo: 'https://storage.googleapis.com/ks-setting-1d682dca/10d6d017-945d-470d-87eb-6a6f89ce8b7e.png',
     decimal: 18,
-    minForGas: 10 ** 17,
   },
   defaultRpcUrl: 'https://polygon.kyberengineering.io',
   multicall: '0xed386Fe855C1EFf2f843B910923Dd8846E45C5A4',
