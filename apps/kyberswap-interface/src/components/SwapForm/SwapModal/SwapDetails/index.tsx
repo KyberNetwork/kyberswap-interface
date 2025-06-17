@@ -215,7 +215,7 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
           <RowFixed>
             <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
               <MouseoverTooltip text={<Trans>Estimated network fee for your transaction.</Trans>} placement="right">
-                Est. {paymentToken ? 'Paymaster' : ''} Gas Fee
+                {paymentToken ? 'Est. Paymaster Gas Fee' : 'Estimated Total Gas'}
               </MouseoverTooltip>
             </TextDashed>
           </RowFixed>
