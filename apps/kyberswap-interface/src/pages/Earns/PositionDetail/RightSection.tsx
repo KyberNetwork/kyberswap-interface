@@ -2,6 +2,7 @@ import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick } from '@kybe
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useEffect, useMemo, useState } from 'react'
+import { useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { usePoolDetailQuery } from 'services/poolService'
@@ -11,9 +12,12 @@ import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useStableCoins } from 'hooks/Tokens'
 import useTheme from 'hooks/useTheme'
-import LiquidityChart from 'pages/Earns/PositionDetail/LiquidityChart'
+import { PositionSkeleton } from 'pages/Earns/PositionDetail'
+import LiquidityChart, { LiquidityChartSkeleton } from 'pages/Earns/PositionDetail/LiquidityChart'
 import PositionHistory from 'pages/Earns/PositionDetail/PositionHistory'
 import {
+  ChartPlaceholder,
+  ChartSkeletonWrapper,
   InfoRightColumn,
   MaxPriceSection,
   MinPriceSection,
@@ -22,7 +26,7 @@ import {
   PriceSection,
   RevertIconWrapper,
 } from 'pages/Earns/PositionDetail/styles'
-import { CoreProtocol } from 'pages/Earns/constants'
+import { CoreProtocol, Exchange, POSSIBLE_FARMING_PROTOCOLS } from 'pages/Earns/constants'
 import useZapInWidget from 'pages/Earns/hooks/useZapInWidget'
 import { ZapMigrationInfo } from 'pages/Earns/hooks/useZapMigrationWidget'
 import useZapOutWidget from 'pages/Earns/hooks/useZapOutWidget'
@@ -36,35 +40,43 @@ const RightSection = ({
   onOpenZapMigration,
   totalLiquiditySection,
   aprSection,
+  refetch,
+  initialLoading,
 }: {
-  position: ParsedPosition
+  position?: ParsedPosition
   onOpenZapMigration: (props: ZapMigrationInfo) => void
   totalLiquiditySection: React.ReactNode
   aprSection: React.ReactNode
+  refetch: () => void
+  initialLoading: boolean
 }) => {
   const theme = useTheme()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+  const { protocol, chainId } = useParams()
 
   const { account } = useActiveWeb3React()
-  const { stableCoins } = useStableCoins(position.chain.id)
-  const { data: pool } = usePoolDetailQuery({ chainId: position.chain.id, ids: position.pool.address })
+  const { stableCoins } = useStableCoins(Number(chainId) as ChainId)
+  const { data: pool } = usePoolDetailQuery(
+    { chainId: Number(chainId) as ChainId, ids: position?.pool.address || '' },
+    { skip: !position },
+  )
   const [revert, setRevert] = useState(false)
   const [defaultRevertChecked, setDefaultRevertChecked] = useState(false)
 
   const { widget: zapInWidget, handleOpenZapIn } = useZapInWidget({
     onOpenZapMigration,
   })
-  const { widget: zapOutWidget, handleOpenZapOut } = useZapOutWidget()
+  const { widget: zapOutWidget, handleOpenZapOut } = useZapOutWidget(refetch)
 
   const price = useMemo(
-    () => (!revert ? position.priceRange.current : 1 / position.priceRange.current),
-    [position.priceRange, revert],
+    () => (!position?.priceRange ? 0 : !revert ? position.priceRange.current : 1 / position.priceRange.current),
+    [position?.priceRange, revert],
   )
-  const isUniv2 = isForkFrom(position.dex.id, CoreProtocol.UniswapV2)
+  const isUniv2 = isForkFrom(protocol as Exchange, CoreProtocol.UniswapV2)
 
   const priceRange = useMemo(() => {
-    if (!pool) return
-    if (position.pool.isUniv2) return ['0', '∞']
+    if (!pool || !position) return
+    if (isUniv2) return ['0', '∞']
 
     const tickSpacing = pool?.positionInfo.tickSpacing
     const minTick = nearestUsableTick(MIN_TICK, tickSpacing)
@@ -72,8 +84,8 @@ const RightSection = ({
 
     if (minTick === undefined || maxTick === undefined) return
 
-    const minPrice = toString(Number(position.priceRange.min.toFixed(18)))
-    const maxPrice = toString(Number(position.priceRange.max.toFixed(18)))
+    const minPrice = toString(Number(position?.priceRange.min.toFixed(18)))
+    const maxPrice = toString(Number(position?.priceRange.max.toFixed(18)))
 
     const tickLower =
       minPrice === '0' ? minTick : priceToClosestTick(minPrice, pool.tokens[0].decimals, pool.tokens[1].decimals, false)
@@ -95,7 +107,7 @@ const RightSection = ({
         formatDisplayNumber(parsedMaxPrice, { significantDigits: 6 }),
       ]
     }
-  }, [pool, position, revert])
+  }, [isUniv2, pool, position, revert])
 
   const onOpenIncreaseLiquidityWidget = () => {
     if (!position) return
@@ -110,15 +122,17 @@ const RightSection = ({
   }
 
   useEffect(() => {
-    if (!pool || !position.chain.id || !pool.tokens?.[0] || defaultRevertChecked || !stableCoins.length) return
+    if (!pool || !chainId || !pool.tokens?.[0] || defaultRevertChecked || !stableCoins.length) return
     setDefaultRevertChecked(true)
     const isToken0Native =
       pool.tokens[0].address.toLowerCase() ===
-      NativeCurrencies[position.chain.id as ChainId].wrapped.address.toLowerCase()
+      NativeCurrencies[Number(chainId) as ChainId].wrapped.address.toLowerCase()
     const isToken0Stable = stableCoins.some(coin => coin.address === pool.tokens[0].address)
     const isToken1Stable = stableCoins.some(coin => coin.address === pool.tokens[1].address)
     if (isToken0Stable || (isToken0Native && !isToken1Stable)) setRevert(true)
-  }, [defaultRevertChecked, pool, position.chain.id, stableCoins])
+  }, [defaultRevertChecked, pool, chainId, stableCoins])
+
+  const isFarmingPossible = POSSIBLE_FARMING_PROTOCOLS.includes(protocol as Exchange)
 
   return (
     <>
@@ -126,26 +140,34 @@ const RightSection = ({
       {zapOutWidget}
 
       <InfoRightColumn halfWidth={isUniv2}>
-        {!upToSmall && position.pool.isFarming ? (
+        {!upToSmall && (position?.pool.isFarming || (initialLoading && isFarmingPossible)) ? (
           <Flex flexWrap={'wrap'} alignItems={'center'} sx={{ gap: '12px' }}>
             {totalLiquiditySection}
             {aprSection}
           </Flex>
         ) : null}
 
-        {price ? (
+        {price || initialLoading ? (
           <PriceSection>
             <Flex alignItems={'center'} sx={{ gap: 1 }} flexWrap={'wrap'}>
               <Text fontSize={14} color={theme.subText}>
                 {t`Current Price`}
               </Text>
-              <Text fontSize={14}>
-                1 {!revert ? position.token0.symbol : position.token1.symbol} ={' '}
-                {formatDisplayNumber(price, {
-                  significantDigits: 6,
-                })}{' '}
-                {!revert ? position.token1.symbol : position.token0.symbol}
-              </Text>
+              {initialLoading ? (
+                <PositionSkeleton width={160} height={16} />
+              ) : (
+                position && (
+                  <>
+                    <Text fontSize={14}>
+                      1 {!revert ? position.token0.symbol : position.token1.symbol} ={' '}
+                      {formatDisplayNumber(price, {
+                        significantDigits: 6,
+                      })}{' '}
+                      {!revert ? position.token1.symbol : position.token0.symbol}
+                    </Text>
+                  </>
+                )
+              )}
             </Flex>
             <RevertIconWrapper onClick={() => setRevert(!revert)}>
               <RevertPriceIcon width={12} height={12} />
@@ -153,52 +175,81 @@ const RightSection = ({
           </PriceSection>
         ) : null}
 
-        <LiquidityChart
-          chainId={position.chain.id}
-          poolAddress={position.pool.address}
-          price={price}
-          minPrice={position.priceRange.min}
-          maxPrice={position.priceRange.max}
-          revertPrice={revert}
-        />
+        {!isUniv2 &&
+          (initialLoading || !position ? (
+            <LiquidityChartSkeleton />
+          ) : (
+            <ChartPlaceholder>
+              <LiquidityChart
+                chainId={Number(chainId)}
+                poolAddress={position.pool.address}
+                price={price}
+                minPrice={position.priceRange.min}
+                maxPrice={position.priceRange.max}
+                revertPrice={revert}
+              />
+              <ChartSkeletonWrapper>
+                <LiquidityChartSkeleton />
+              </ChartSkeletonWrapper>
+            </ChartPlaceholder>
+          ))}
 
-        {priceRange ? (
-          <Flex sx={{ gap: '16px' }}>
-            <MinPriceSection>
-              <Text fontSize={14} color={theme.subText}>
-                {t`Min Price`}
-              </Text>
+        <Flex sx={{ gap: '16px' }}>
+          <MinPriceSection>
+            <Text fontSize={14} color={theme.subText}>
+              {t`Min Price`}
+            </Text>
+
+            {initialLoading ? (
+              <PositionSkeleton width={80} height={21} style={{ marginBottom: 8, marginTop: 8 }} />
+            ) : (
               <Text fontSize={18} marginBottom={2} marginTop={2}>
-                {priceRange[0]}
+                {priceRange?.[0] || ''}
               </Text>
+            )}
+
+            {initialLoading ? (
+              <PositionSkeleton width={110} height={16} />
+            ) : (
               <Text fontSize={14} color={theme.subText}>
-                {!revert ? position.token1.symbol : position.token0.symbol} per{' '}
-                {!revert ? position.token0.symbol : position.token1.symbol}
+                {!revert ? position?.token1.symbol : position?.token0.symbol} per{' '}
+                {!revert ? position?.token0.symbol : position?.token1.symbol}
               </Text>
-            </MinPriceSection>
-            <MaxPriceSection>
-              <Text fontSize={14} color={theme.subText}>
-                {t`Max Price`}
-              </Text>
+            )}
+          </MinPriceSection>
+          <MaxPriceSection>
+            <Text fontSize={14} color={theme.subText}>
+              {t`Max Price`}
+            </Text>
+
+            {initialLoading ? (
+              <PositionSkeleton width={80} height={21} style={{ marginBottom: 8, marginTop: 8 }} />
+            ) : (
               <Text fontSize={18} marginBottom={2} marginTop={2}>
-                {priceRange[1]}
+                {priceRange?.[1] || ''}
               </Text>
+            )}
+
+            {initialLoading ? (
+              <PositionSkeleton width={110} height={16} />
+            ) : (
               <Text fontSize={14} color={theme.subText}>
-                {!revert ? position.token1.symbol : position.token0.symbol} per{' '}
-                {!revert ? position.token0.symbol : position.token1.symbol}
+                {!revert ? position?.token1.symbol : position?.token0.symbol} per{' '}
+                {!revert ? position?.token0.symbol : position?.token1.symbol}
               </Text>
-            </MaxPriceSection>
-          </Flex>
-        ) : null}
+            )}
+          </MaxPriceSection>
+        </Flex>
 
         {isUniv2 && <PositionHistory position={position} />}
 
         <PositionActionWrapper>
           <PositionAction
             outlineDefault
-            disabled={position.status === PositionStatus.CLOSED}
+            disabled={initialLoading || !position || position?.status === PositionStatus.CLOSED}
             onClick={() => {
-              if (position.status === PositionStatus.CLOSED) return
+              if (initialLoading || position?.status === PositionStatus.CLOSED || !position) return
+
               handleOpenZapOut({
                 position: {
                   dex: position.dex.id,
@@ -209,8 +260,14 @@ const RightSection = ({
               })
             }}
           >{t`Remove Liquidity`}</PositionAction>
-          <PositionAction onClick={onOpenIncreaseLiquidityWidget}>
-            {position.status === PositionStatus.CLOSED ? t`Add Liquidity` : t`Increase Liquidity`}
+          <PositionAction
+            disabled={initialLoading}
+            onClick={() => {
+              if (!position || initialLoading) return
+              onOpenIncreaseLiquidityWidget()
+            }}
+          >
+            {!position || position.status === PositionStatus.CLOSED ? t`Add Liquidity` : t`Increase Liquidity`}
           </PositionAction>
         </PositionActionWrapper>
       </InfoRightColumn>

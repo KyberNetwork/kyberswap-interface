@@ -31,6 +31,7 @@ export const PositionDetailWrapper = styled.div`
   border-radius: 20px;
   background-color: ${({ theme }) => theme.background};
   width: 100%;
+  position: relative;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     padding: 24px;
@@ -232,6 +233,20 @@ export const ChartWrapper = styled.div`
   ${({ theme }) => theme.mediaWidth.upToSmall`
     padding: 0;
   `}
+`
+
+export const ChartPlaceholder = styled.div`
+  position: relative;
+`
+
+export const ChartSkeletonWrapper = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: ${({ theme }) => theme.background};
+  z-index: -1;
 `
 
 export const PositionHeader = styled.div`

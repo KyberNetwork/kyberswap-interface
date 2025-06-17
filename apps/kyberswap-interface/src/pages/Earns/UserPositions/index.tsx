@@ -76,7 +76,10 @@ const UserPositions = () => {
     onOpenZapMigration: handleOpenZapMigration,
     onRefreshPosition: refetch,
   })
-  const { widget: zapOutWidget, handleOpenZapOut } = useZapOutWidget(refetch)
+  const { widget: zapOutWidget, handleOpenZapOut } = useZapOutWidget(() => {
+    refetch()
+    setLoading(true)
+  })
 
   const { rewardInfo } = useKemRewards()
 
@@ -241,6 +244,8 @@ const UserPositions = () => {
     />
   )
 
+  const initialLoading = isFetching && loading
+
   return (
     <>
       {zapInWidget}
@@ -268,7 +273,7 @@ const UserPositions = () => {
           />
         </Flex>
 
-        {account && <PositionBanner positions={parsedPositions} />}
+        {account && <PositionBanner positions={parsedPositions} initialLoading={initialLoading} />}
 
         <Filter
           supportedChains={supportedChains}

@@ -189,6 +189,19 @@ export const DEXES_SUPPORT_COLLECT_FEE: Record<EarnDex, boolean> = {
   [EarnDex.DEX_UNISWAP_V4_FAIRFLOW]: true,
 }
 
+export const EXCHANGES_SUPPORT_COLLECT_FEE: Record<Exchange, boolean> = {
+  [Exchange.DEX_UNISWAPV3]: true,
+  [Exchange.DEX_PANCAKESWAPV3]: true,
+  [Exchange.DEX_SUSHISWAPV3]: true,
+  [Exchange.DEX_QUICKSWAPV3ALGEBRA]: true,
+  [Exchange.DEX_CAMELOTV3]: true,
+  [Exchange.DEX_THENAFUSION]: true,
+  [Exchange.DEX_KODIAK_V3]: true,
+  [Exchange.DEX_UNISWAPV2]: false,
+  [Exchange.DEX_UNISWAP_V4]: true,
+  [Exchange.DEX_UNISWAP_V4_FAIRFLOW]: true,
+}
+
 export enum CoreProtocol {
   UniswapV4,
   UniswapV3,
@@ -211,7 +224,22 @@ export const PROTOCOLS_CORE_MAPPING: Record<EarnDex, CoreProtocol> = {
   [EarnDex.DEX_UNISWAP_V4_FAIRFLOW]: CoreProtocol.UniswapV4,
 }
 
+export const EXCHANGES_CORE_PROTOCOL_MAPPING: Record<Exchange, CoreProtocol> = {
+  [Exchange.DEX_UNISWAPV3]: CoreProtocol.UniswapV3,
+  [Exchange.DEX_PANCAKESWAPV3]: CoreProtocol.UniswapV3,
+  [Exchange.DEX_SUSHISWAPV3]: CoreProtocol.UniswapV3,
+  [Exchange.DEX_QUICKSWAPV3ALGEBRA]: CoreProtocol.AlgebraV1,
+  [Exchange.DEX_CAMELOTV3]: CoreProtocol.AlgebraV19,
+  [Exchange.DEX_THENAFUSION]: CoreProtocol.AlgebraV1,
+  [Exchange.DEX_KODIAK_V3]: CoreProtocol.UniswapV3,
+  [Exchange.DEX_UNISWAPV2]: CoreProtocol.UniswapV2,
+  [Exchange.DEX_UNISWAP_V4]: CoreProtocol.UniswapV4,
+  [Exchange.DEX_UNISWAP_V4_FAIRFLOW]: CoreProtocol.UniswapV4,
+}
+
 export const FARMING_SUPPORTED_CHAIN = [ChainId.MAINNET, ChainId.BASE]
+
+export const POSSIBLE_FARMING_PROTOCOLS = [Exchange.DEX_UNISWAP_V4_FAIRFLOW]
 
 export const KEM_REWARDS_CONTRACT = {
   [ChainId.MAINNET]: '0xF268cd33C76E3ba6963CD080DcE74C7C71d57a60',

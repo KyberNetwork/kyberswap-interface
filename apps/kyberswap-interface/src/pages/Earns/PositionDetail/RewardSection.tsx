@@ -8,6 +8,7 @@ import InfoHelper from 'components/InfoHelper'
 import Loader from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
 import useTheme from 'hooks/useTheme'
+import { PositionSkeleton } from 'pages/Earns/PositionDetail'
 import { NextDistribution, PositionAction, RewardDetailInfo, RewardsSection } from 'pages/Earns/PositionDetail/styles'
 import { HorizontalDivider } from 'pages/Earns/UserPositions/styles'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
@@ -40,7 +41,7 @@ const formatTimeRemaining = (seconds: number) => {
   return `${days}d ${hours}h ${minutes}m ${secs}s`
 }
 
-const RewardSection = ({ position }: { position: ParsedPosition }) => {
+const RewardSection = ({ position, initialLoading }: { position?: ParsedPosition; initialLoading: boolean }) => {
   const theme = useTheme()
 
   const [timeRemaining, setTimeRemaining] = useState('')
@@ -52,7 +53,7 @@ const RewardSection = ({ position }: { position: ParsedPosition }) => {
     onOpenClaim: onOpenClaimRewards,
     claiming: rewardsClaiming,
   } = useKemRewards()
-  const rewardInfoThisPosition = rewardInfo?.nfts.find(item => item.nftId === position.tokenId)
+  const rewardInfoThisPosition = !position ? undefined : rewardInfo?.nfts.find(item => item.nftId === position.tokenId)
 
   useEffect(() => {
     const calculateTimeRemaining = () => {
@@ -78,58 +79,71 @@ const RewardSection = ({ position }: { position: ParsedPosition }) => {
             </Text>
             <KemIcon width={20} height={20} />
           </Flex>
-          <Flex alignItems={'center'} sx={{ gap: 1 }}>
-            <Text fontSize={20}>
-              {formatDisplayNumber(rewardInfoThisPosition?.totalUsdValue || 0, {
-                significantDigits: 4,
-                style: 'currency',
-              })}
-            </Text>
-            <InfoHelper
-              text={totalRewardTooltip({
-                lmTokens: rewardInfoThisPosition?.lmTokens || [],
-                egTokens: rewardInfoThisPosition?.egTokens || [],
-                textColor: theme.text,
-              })}
-              placement="top"
-              width="160px"
-              size={14}
-            />
-          </Flex>
+
+          {initialLoading ? (
+            <PositionSkeleton width={110} height={24} />
+          ) : (
+            <Flex alignItems={'center'} sx={{ gap: 1 }}>
+              <Text fontSize={20}>
+                {formatDisplayNumber(rewardInfoThisPosition?.totalUsdValue || 0, {
+                  significantDigits: 4,
+                  style: 'currency',
+                })}
+              </Text>
+              <InfoHelper
+                text={totalRewardTooltip({
+                  lmTokens: rewardInfoThisPosition?.lmTokens || [],
+                  egTokens: rewardInfoThisPosition?.egTokens || [],
+                  textColor: theme.text,
+                })}
+                placement="top"
+                width="160px"
+                size={14}
+              />
+            </Flex>
+          )}
         </Flex>
 
         <RewardDetailInfo>
           <Flex width={'100%'} alignItems={'center'} justifyContent={'space-between'}>
-            <Text fontSize={20}>
-              {formatDisplayNumber(rewardInfoThisPosition?.claimedUsdValue || 0, {
-                significantDigits: 4,
-                style: 'currency',
-              })}
-            </Text>
+            {initialLoading ? (
+              <PositionSkeleton width={90} height={24} />
+            ) : (
+              <Text fontSize={20}>
+                {formatDisplayNumber(rewardInfoThisPosition?.claimedUsdValue || 0, {
+                  significantDigits: 4,
+                  style: 'currency',
+                })}
+              </Text>
+            )}
             <Text fontSize={14} color={theme.subText}>
               {t`Claimed`}
             </Text>
           </Flex>
 
           <Flex width={'100%'} alignItems={'center'} justifyContent={'space-between'}>
-            <Flex alignItems={'center'}>
-              <Text fontSize={20}>
-                {formatDisplayNumber(rewardInfoThisPosition?.inProgressUsdValue || 0, {
-                  significantDigits: 4,
-                  style: 'currency',
-                })}
-              </Text>
-              <InfoHelper
-                text={inProgressRewardTooltip({
-                  pendingUsdValue: rewardInfoThisPosition?.pendingUsdValue || 0,
-                  vestingUsdValue: rewardInfoThisPosition?.vestingUsdValue || 0,
-                  tokens: rewardInfoThisPosition?.tokens || [],
-                })}
-                width="290px"
-                placement="top"
-                color={theme.text}
-              />
-            </Flex>
+            {initialLoading ? (
+              <PositionSkeleton width={105} height={24} />
+            ) : (
+              <Flex alignItems={'center'}>
+                <Text fontSize={20}>
+                  {formatDisplayNumber(rewardInfoThisPosition?.inProgressUsdValue || 0, {
+                    significantDigits: 4,
+                    style: 'currency',
+                  })}
+                </Text>
+                <InfoHelper
+                  text={inProgressRewardTooltip({
+                    pendingUsdValue: rewardInfoThisPosition?.pendingUsdValue || 0,
+                    vestingUsdValue: rewardInfoThisPosition?.vestingUsdValue || 0,
+                    tokens: rewardInfoThisPosition?.tokens || [],
+                  })}
+                  width="290px"
+                  placement="top"
+                  color={theme.text}
+                />
+              </Flex>
+            )}
             <Text fontSize={14} color={theme.subText}>
               {t`In-Progress`}
             </Text>
@@ -142,21 +156,30 @@ const RewardSection = ({ position }: { position: ParsedPosition }) => {
               </Text>
               <InfoHelper placement="top" width="fit-content" text={t`Rewards are distributed every 7 days`} />
             </Flex>
-            <Flex alignItems={'center'} sx={{ gap: 1 }}>
-              <Clock size={16} color={theme.subText} />
-              <Text fontSize={14} color={theme.subText}>
-                {timeRemaining}
-              </Text>
-            </Flex>
+
+            {initialLoading ? (
+              <PositionSkeleton width={112} height={16} />
+            ) : (
+              <Flex alignItems={'center'} sx={{ gap: 1 }}>
+                <Clock size={16} color={theme.subText} />
+                <Text fontSize={14} color={theme.subText}>
+                  {timeRemaining}
+                </Text>
+              </Flex>
+            )}
           </NextDistribution>
 
           <Flex width={'100%'} alignItems={'center'} justifyContent={'space-between'}>
-            <Text fontSize={20}>
-              {formatDisplayNumber(rewardInfoThisPosition?.claimableUsdValue || 0, {
-                significantDigits: 4,
-                style: 'currency',
-              })}
-            </Text>
+            {initialLoading ? (
+              <PositionSkeleton width={90} height={24} />
+            ) : (
+              <Text fontSize={20}>
+                {formatDisplayNumber(rewardInfoThisPosition?.claimableUsdValue || 0, {
+                  significantDigits: 4,
+                  style: 'currency',
+                })}
+              </Text>
+            )}
             <Text fontSize={14} color={theme.subText}>
               {t`Claimable`}
             </Text>
@@ -166,11 +189,12 @@ const RewardSection = ({ position }: { position: ParsedPosition }) => {
             small
             outline
             mobileAutoWidth
-            disabled={!rewardInfoThisPosition?.claimableUsdValue || rewardsClaiming}
+            disabled={initialLoading || !rewardInfoThisPosition?.claimableUsdValue || rewardsClaiming}
             onClick={() =>
+              !initialLoading &&
               rewardInfoThisPosition?.claimableUsdValue &&
               !rewardsClaiming &&
-              onOpenClaimRewards(rewardInfoThisPosition.nftId, position.chain.id)
+              onOpenClaimRewards(rewardInfoThisPosition.nftId, position?.chain.id || 0)
             }
           >
             {rewardsClaiming && <Loader size="14px" />}

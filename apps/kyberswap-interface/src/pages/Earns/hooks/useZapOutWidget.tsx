@@ -72,7 +72,9 @@ const useZapOutWidget = (onRefreshPosition?: () => void) => {
             },
             onClose: () => {
               setZapOutPureParams(null)
-              onRefreshPosition?.()
+              setTimeout(() => {
+                onRefreshPosition?.()
+              }, 500)
             },
             onConnectWallet: toggleWalletModal,
             onSwitchChain: () => changeNetwork(zapOutPureParams.chainId as number),

@@ -1,6 +1,7 @@
 import { formatAprNumber } from '@kyber/utils/dist/number'
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import Skeleton from 'react-loading-skeleton'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { usePreviousDistinct } from 'react-use'
 import { Flex, Text } from 'rebass'
@@ -11,7 +12,6 @@ import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_
 import { ReactComponent as IconKem } from 'assets/svg/kyber/kem.svg'
 import { ReactComponent as RocketIcon } from 'assets/svg/rocket.svg'
 import InfoHelper from 'components/InfoHelper'
-import LocalLoader from 'components/LocalLoader'
 import TokenLogo from 'components/TokenLogo'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
@@ -35,6 +35,29 @@ import { getUnclaimedFeesInfo } from 'pages/Earns/utils/fees'
 import { parsePosition } from 'pages/Earns/utils/position'
 import { formatDisplayNumber } from 'utils/numbers'
 
+export const PositionSkeleton = ({
+  width,
+  height,
+  style,
+}: {
+  width: number
+  height: number
+  style?: React.CSSProperties
+}) => {
+  const theme = useTheme()
+
+  return (
+    <Skeleton
+      width={width}
+      height={height}
+      baseColor={theme.background}
+      highlightColor={theme.buttonGray}
+      borderRadius="1rem"
+      style={style}
+    />
+  )
+}
+
 const PositionDetail = () => {
   const firstLoading = useRef(false)
   const navigate = useNavigate()
@@ -46,7 +69,12 @@ const PositionDetail = () => {
   const { positionId, chainId, protocol } = useParams()
   const { widget: zapMigrationWidget, handleOpenZapMigration } = useZapMigrationWidget()
 
-  const { data: userPosition, isLoading } = useUserPositionsQuery(
+  const {
+    data: userPosition,
+    isLoading,
+    isFetching,
+    refetch,
+  } = useUserPositionsQuery(
     {
       addresses: account || '',
       positionId: positionId,
@@ -59,6 +87,9 @@ const PositionDetail = () => {
   const currentWalletAddress = useRef(account)
   const hadForceLoading = useRef(forceLoading ? true : false)
   const [feeInfoFromRpc, setFeeInfoFromRpc] = useState<FeeInfo | undefined>()
+
+  const loadingInterval = isFetching
+  const initialLoading = !!(forceLoading || (isLoading && !firstLoading.current))
 
   const previousPosition = usePreviousDistinct(userPosition)
 
@@ -141,25 +172,38 @@ const PositionDetail = () => {
         <Text fontSize={14} color={theme.subText}>
           {t`Total Liquidity`}
         </Text>
-        <Text fontSize={20}>
-          {formatDisplayNumber(position?.totalProvidedValue, {
-            style: 'currency',
-            significantDigits: 4,
-          })}
-        </Text>
+        {initialLoading ? (
+          <PositionSkeleton width={95} height={24} />
+        ) : (
+          <Text fontSize={20}>
+            {formatDisplayNumber(position?.totalProvidedValue, {
+              style: 'currency',
+              significantDigits: 4,
+            })}
+          </Text>
+        )}
       </Flex>
       <VerticalDivider />
       <Flex flexDirection={'column'} alignContent={'flex-end'} sx={{ gap: 2 }}>
-        <Flex alignItems={'center'} sx={{ gap: '6px' }}>
-          <TokenLogo src={position?.token0.logo} size={16} />
-          <Text>{formatDisplayNumber(position?.token0.totalProvide, { significantDigits: 4 })}</Text>
-          <Text>{position?.token0.symbol}</Text>
-        </Flex>
-        <Flex alignItems={'center'} sx={{ gap: '6px' }}>
-          <TokenLogo src={position?.token1.logo} size={16} />
-          <Text>{formatDisplayNumber(position?.token1.totalProvide, { significantDigits: 4 })}</Text>
-          <Text>{position?.token1.symbol}</Text>
-        </Flex>
+        {initialLoading ? (
+          <PositionSkeleton width={120} height={19} />
+        ) : (
+          <Flex alignItems={'center'} sx={{ gap: '6px' }} fontSize={16}>
+            <TokenLogo src={position?.token0.logo} size={16} />
+            <Text>{formatDisplayNumber(position?.token0.totalProvide, { significantDigits: 4 })}</Text>
+            <Text>{position?.token0.symbol}</Text>
+          </Flex>
+        )}
+
+        {initialLoading ? (
+          <PositionSkeleton width={120} height={19} />
+        ) : (
+          <Flex alignItems={'center'} sx={{ gap: '6px' }} fontSize={16}>
+            <TokenLogo src={position?.token1.logo} size={16} />
+            <Text>{formatDisplayNumber(position?.token1.totalProvide, { significantDigits: 4 })}</Text>
+            <Text>{position?.token1.symbol}</Text>
+          </Flex>
+        )}
       </Flex>
     </TotalLiquiditySection>
   )
@@ -188,12 +232,17 @@ const PositionDetail = () => {
           />
         )}
       </Flex>
-      <Flex alignItems={'center'} sx={{ gap: 1 }}>
-        <Text fontSize={20} color={position?.apr && position.apr > 0 ? theme.primary : theme.text}>
-          {formatAprNumber(position?.apr || 0)}%
-        </Text>
-        {position?.pool.isFarming && <IconKem width={20} height={20} />}
-      </Flex>
+
+      {initialLoading ? (
+        <PositionSkeleton width={70} height={24} />
+      ) : (
+        <Flex alignItems={'center'} sx={{ gap: 1 }}>
+          <Text fontSize={20} color={position?.apr && position.apr > 0 ? theme.primary : theme.text}>
+            {formatAprNumber(position?.apr || 0)}%
+          </Text>
+          {position?.pool.isFarming && <IconKem width={20} height={20} />}
+        </Flex>
+      )}
     </AprSection>
   )
 
@@ -202,11 +251,14 @@ const PositionDetail = () => {
       {zapMigrationWidget}
 
       <PositionPageWrapper>
-        {forceLoading || (isLoading && !firstLoading.current) ? (
-          <LocalLoader />
-        ) : !!position ? (
+        {!!position || initialLoading ? (
           <>
-            <PositionDetailHeader position={position} hadForceLoading={hadForceLoading.current} />
+            <PositionDetailHeader
+              isLoading={loadingInterval}
+              initialLoading={initialLoading}
+              position={position}
+              hadForceLoading={hadForceLoading.current}
+            />
             {!!position?.suggestionPool && position.status !== PositionStatus.CLOSED && (
               <MigrationLiquidityRecommend>
                 <Text color={'#fafafa'} lineHeight={'18px'}>
@@ -222,6 +274,7 @@ const PositionDetail = () => {
             )}
             <PositionDetailWrapper>
               <LeftSection
+                initialLoading={initialLoading}
                 position={position}
                 onFetchUnclaimedFee={handleFetchUnclaimedFee}
                 totalLiquiditySection={totalLiquiditySection}
@@ -232,6 +285,8 @@ const PositionDetail = () => {
                 onOpenZapMigration={handleOpenZapMigration}
                 totalLiquiditySection={totalLiquiditySection}
                 aprSection={aprSection}
+                refetch={refetch}
+                initialLoading={initialLoading}
               />
             </PositionDetailWrapper>
           </>

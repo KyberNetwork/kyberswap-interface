@@ -1,6 +1,7 @@
 import { t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useMemo } from 'react'
+import Skeleton from 'react-loading-skeleton'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
@@ -25,7 +26,36 @@ import { aggregateFeeFromPositions, aggregateRewardFromPositions } from 'pages/E
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
-export default function PositionBanner({ positions }: { positions: Array<ParsedPosition> }) {
+export const BannerSkeleton = ({
+  width,
+  height,
+  style,
+}: {
+  width: number
+  height: number
+  style?: React.CSSProperties
+}) => {
+  const theme = useTheme()
+
+  return (
+    <Skeleton
+      width={width}
+      height={height}
+      baseColor={'#141d1b'}
+      highlightColor={rgba(theme.buttonGray, 0.5)}
+      borderRadius="1rem"
+      style={style}
+    />
+  )
+}
+
+export default function PositionBanner({
+  positions,
+  initialLoading,
+}: {
+  positions: Array<ParsedPosition>
+  initialLoading: boolean
+}) {
   const theme = useTheme()
   const { claimAllRewardsModal, onOpenClaimAllRewards } = useKemRewards()
 
@@ -79,27 +109,42 @@ export default function PositionBanner({ positions }: { positions: Array<ParsedP
           <BannerWrapper>
             <BannerDataItem>
               <Text color={theme.subText}>{t`Total Value`}</Text>
-              <Text
-                fontSize={24}
-                color={totalFeeValue && totalFeeValue > 0 ? theme.primary : theme.text}
-                sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '135px' }}
-              >
-                {formatDisplayNumber(totalFeeValue, { style: 'currency', significantDigits: 4 })}
-              </Text>
+
+              {initialLoading ? (
+                <BannerSkeleton width={90} height={28} />
+              ) : (
+                <Text
+                  fontSize={24}
+                  color={totalFeeValue && totalFeeValue > 0 ? theme.primary : theme.text}
+                  sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '135px' }}
+                >
+                  {formatDisplayNumber(totalFeeValue, { style: 'currency', significantDigits: 4 })}
+                </Text>
+              )}
             </BannerDataItem>
             <BannerDivider />
             <BannerDataItem>
               <Text color={theme.subText}>{t`Earned Fees`}</Text>
-              <Text fontSize={24} sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '140px' }}>
-                {formatDisplayNumber(totalEarnedFee, { style: 'currency', significantDigits: 4 })}
-              </Text>
+
+              {initialLoading ? (
+                <BannerSkeleton width={90} height={28} />
+              ) : (
+                <Text fontSize={24} sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '140px' }}>
+                  {formatDisplayNumber(totalEarnedFee, { style: 'currency', significantDigits: 4 })}
+                </Text>
+              )}
             </BannerDataItem>
             <BannerDivider />
             <BannerDataItem>
               <Text color={theme.subText}>{t`Total Unclaimed Fees`}</Text>
-              <Text fontSize={24} sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '140px' }}>
-                {formatDisplayNumber(totalUnclaimedFee, { style: 'currency', significantDigits: 4 })}
-              </Text>
+
+              {initialLoading ? (
+                <BannerSkeleton width={90} height={28} />
+              ) : (
+                <Text fontSize={24} sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '140px' }}>
+                  {formatDisplayNumber(totalUnclaimedFee, { style: 'currency', significantDigits: 4 })}
+                </Text>
+              )}
             </BannerDataItem>
             {upToSmall && (
               <>
@@ -114,17 +159,27 @@ export default function PositionBanner({ positions }: { positions: Array<ParsedP
                     <Text color={theme.subText}>{t`Total Rewards`}</Text>
                     <IconKem width={KemImageSize} height={KemImageSize} />
                   </Flex>
-                  <Text fontSize={24}>
-                    {formatDisplayNumber(totalUsdValue, { significantDigits: 4, style: 'currency' })}
-                  </Text>
+
+                  {initialLoading ? (
+                    <BannerSkeleton width={90} height={28} />
+                  ) : (
+                    <Text fontSize={24}>
+                      {formatDisplayNumber(totalUsdValue, { significantDigits: 4, style: 'currency' })}
+                    </Text>
+                  )}
                 </Flex>
                 <Flex flexDirection={'column'} sx={{ gap: '12px', width: '100%' }} paddingLeft={12} marginTop={'-8px'}>
                   {/* Claimed */}
                   <BannerDataItem>
                     <Text fontSize={14} color={theme.subText}>{t`Claimed`}</Text>
-                    <Text fontSize={20}>
-                      {formatDisplayNumber(claimedUsdValue, { style: 'currency', significantDigits: 4 })}
-                    </Text>
+
+                    {initialLoading ? (
+                      <BannerSkeleton width={80} height={24} />
+                    ) : (
+                      <Text fontSize={20}>
+                        {formatDisplayNumber(claimedUsdValue, { style: 'currency', significantDigits: 4 })}
+                      </Text>
+                    )}
                   </BannerDataItem>
 
                   {/* In Progress */}
@@ -142,18 +197,28 @@ export default function PositionBanner({ positions }: { positions: Array<ParsedP
                         width="290px"
                       />
                     </Flex>
-                    <Text fontSize={20}>
-                      {formatDisplayNumber(inProgressUsdValue, { style: 'currency', significantDigits: 4 })}
-                    </Text>
+
+                    {initialLoading ? (
+                      <BannerSkeleton width={80} height={24} />
+                    ) : (
+                      <Text fontSize={20}>
+                        {formatDisplayNumber(inProgressUsdValue, { style: 'currency', significantDigits: 4 })}
+                      </Text>
+                    )}
                   </BannerDataItem>
 
                   {/* Claimable */}
                   <Flex alignItems={'flex-end'} justifyContent={'space-between'}>
                     <Flex flexDirection={'column'} alignItems={'flex-start'} sx={{ gap: 2 }}>
                       <Text fontSize={14} color={theme.subText}>{t`Claimable`}</Text>
-                      <Text fontSize={20}>
-                        {formatDisplayNumber(claimableUsdValue, { significantDigits: 4, style: 'currency' })}
-                      </Text>
+
+                      {initialLoading ? (
+                        <BannerSkeleton width={80} height={24} />
+                      ) : (
+                        <Text fontSize={20}>
+                          {formatDisplayNumber(claimableUsdValue, { significantDigits: 4, style: 'currency' })}
+                        </Text>
+                      )}
                     </Flex>
                     {claimRewardButton}
                   </Flex>
@@ -172,30 +237,40 @@ export default function PositionBanner({ positions }: { positions: Array<ParsedP
                   <IconKem width={KemImageSize} height={KemImageSize} style={{ position: 'relative', top: 2 }} />
                   <Text color={theme.subText}>{t`Total Rewards`}</Text>
                 </Flex>
-                <Flex alignItems={'center'} sx={{ gap: 1 }}>
-                  <Text fontSize={upToSmall ? 20 : 24}>
-                    {formatDisplayNumber(totalUsdValue, { significantDigits: 4, style: 'currency' })}
-                  </Text>
-                  <InfoHelper
-                    text={totalRewardTooltip({
-                      lmTokens,
-                      egTokens,
-                      textColor: theme.text,
-                    })}
-                    placement="bottom"
-                    width="160px"
-                    size={16}
-                    fontSize={14}
-                  />
-                </Flex>
+
+                {initialLoading ? (
+                  <BannerSkeleton width={110} height={28} />
+                ) : (
+                  <Flex alignItems={'center'} sx={{ gap: 1 }}>
+                    <Text fontSize={upToSmall ? 20 : 24}>
+                      {formatDisplayNumber(totalUsdValue, { significantDigits: 4, style: 'currency' })}
+                    </Text>
+                    <InfoHelper
+                      text={totalRewardTooltip({
+                        lmTokens,
+                        egTokens,
+                        textColor: theme.text,
+                      })}
+                      placement="bottom"
+                      width="160px"
+                      size={16}
+                      fontSize={14}
+                    />
+                  </Flex>
+                )}
               </Flex>
               <RewardBannerDetailWrapper>
                 {/* Claimed */}
                 <BannerDataItem>
                   <Text fontSize={14} color={theme.subText}>{t`Claimed`}</Text>
-                  <Text fontSize={20}>
-                    {formatDisplayNumber(claimedUsdValue, { style: 'currency', significantDigits: 4 })}
-                  </Text>
+
+                  {initialLoading ? (
+                    <BannerSkeleton width={80} height={24} />
+                  ) : (
+                    <Text fontSize={20}>
+                      {formatDisplayNumber(claimedUsdValue, { style: 'currency', significantDigits: 4 })}
+                    </Text>
+                  )}
                 </BannerDataItem>
                 <BannerDivider />
                 {/* In-Progress */}
@@ -213,17 +288,27 @@ export default function PositionBanner({ positions }: { positions: Array<ParsedP
                       width="290px"
                     />
                   </Flex>
-                  <Text fontSize={20}>
-                    {formatDisplayNumber(inProgressUsdValue, { style: 'currency', significantDigits: 4 })}
-                  </Text>
+
+                  {initialLoading ? (
+                    <BannerSkeleton width={80} height={24} />
+                  ) : (
+                    <Text fontSize={20}>
+                      {formatDisplayNumber(inProgressUsdValue, { style: 'currency', significantDigits: 4 })}
+                    </Text>
+                  )}
                 </BannerDataItem>
                 <BannerDivider />
                 {/* Claimable */}
                 <BannerDataItem>
                   <Text fontSize={14} color={theme.subText}>{t`Claimable`}</Text>
-                  <Text fontSize={20}>
-                    {formatDisplayNumber(claimableUsdValue, { style: 'currency', significantDigits: 4 })}
-                  </Text>
+
+                  {initialLoading ? (
+                    <BannerSkeleton width={80} height={24} />
+                  ) : (
+                    <Text fontSize={20}>
+                      {formatDisplayNumber(claimableUsdValue, { style: 'currency', significantDigits: 4 })}
+                    </Text>
+                  )}
                 </BannerDataItem>
 
                 {/* Claim */}

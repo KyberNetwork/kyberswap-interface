@@ -4,8 +4,10 @@ import { ethers } from 'ethers'
 
 import {
   CoreProtocol,
+  EXCHANGES_CORE_PROTOCOL_MAPPING,
   EarnChain,
   EarnDex,
+  Exchange,
   NATIVE_ADDRESSES,
   NFT_MANAGER_ABI,
   NFT_MANAGER_CONTRACT,
@@ -30,8 +32,9 @@ export const getTokenId = async (provider: Web3Provider, txHash: string) => {
   }
 }
 
-export const isForkFrom = (protocol: EarnDex, coreProtocol: CoreProtocol) =>
-  PROTOCOLS_CORE_MAPPING[protocol] === coreProtocol
+export const isForkFrom = (protocol: EarnDex | Exchange, coreProtocol: CoreProtocol) =>
+  PROTOCOLS_CORE_MAPPING[protocol as EarnDex] === coreProtocol ||
+  EXCHANGES_CORE_PROTOCOL_MAPPING[protocol as Exchange] === coreProtocol
 
 export const isNativeToken = (tokenAddress: string, chainId: keyof typeof WETH) =>
   NATIVE_ADDRESSES[chainId as EarnChain] === tokenAddress.toLowerCase() ||
