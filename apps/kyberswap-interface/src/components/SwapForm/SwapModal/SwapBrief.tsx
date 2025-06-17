@@ -121,7 +121,7 @@ export default function SwapBrief({
   }
 
   return (
-    <AutoColumn gap="sm" style={{ marginTop: '16px', position: 'relative' }}>
+    <AutoColumn gap="sm" style={{ marginTop: '4px', position: 'relative' }}>
       <CurrencyInputAmountWrapper>
         <Text fontSize={12} fontWeight={500} color={theme.subText}>
           <Trans>Input Amount</Trans>
