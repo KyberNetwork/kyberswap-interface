@@ -346,3 +346,5 @@ export const SAFE_APP_FEE_RECEIVER_ADDRESS = '0x55602F3057be52BFB6F98fFE799CFDec
 export const SAFE_APP_CLIENT_ID = 'app.safe.global'
 
 export const CROSS_CHAIN_FEE_RECEIVER = '0x0891617fe27647731d6f1e764092b2f9f06130A0'
+// use a fake address in case user wallet is not connected. will reject if sign tx with this address
+export const BTC_DEFAULT_RECEIVER = 'bc1qmzgkj3hznt8heh4vp33v2cr2mvsyhc3lmfzz9p'

@@ -10,7 +10,7 @@ import {
   NearQuoteParams,
 } from './BaseSwapAdapter'
 import { WalletClient, formatUnits } from 'viem'
-import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
+import { BTC_DEFAULT_RECEIVER, CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
 import { Quote } from '../registry'
 import { OneClickService, OpenAPI, QuoteRequest } from '@defuse-protocol/one-click-sdk-typescript'
 
@@ -171,10 +171,19 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
 
     const refreshedQuote = await OneClickService.getQuote(quoteParams)
     const depositAddress = refreshedQuote?.quote?.depositAddress
+
     if (!depositAddress) {
       throw new Error('Deposit address not found')
     }
 
+    if (
+      refreshedQuote.quoteRequest.recipient === ZERO_ADDRESS ||
+      refreshedQuote.quoteRequest.refundTo === ZERO_ADDRESS ||
+      refreshedQuote.quoteRequest.recipient.toLowerCase() === BTC_DEFAULT_RECEIVER ||
+      refreshedQuote.quoteRequest.refundTo.toLowerCase() === BTC_DEFAULT_RECEIVER
+    ) {
+      throw new Error('Near Intent recipient or refundTo is ZERO ADDRESS')
+    }
     if (BigInt(refreshedQuote.quote.minAmountOut) < BigInt(quote.rawQuote.quote.minAmountOut)) {
       throw new Error('Quote amount out is less than expected')
     }
@@ -304,8 +313,10 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
     return new Promise<NormalizedTxResponse>(async (resolve, reject) => {
       try {
         if (!walletClient || !walletClient.account) reject('Not connected')
-        if (quote.quoteParams.sender === ZERO_ADDRESS || quote.quoteParams.recipient === ZERO_ADDRESS)
+        if (quote.quoteParams.sender === ZERO_ADDRESS || quote.quoteParams.recipient === ZERO_ADDRESS) {
           reject('Near Intent refundTo or recipient is ZERO ADDRESS')
+          return
+        }
 
         const account = walletClient.account?.address as `0x${string}`
 
