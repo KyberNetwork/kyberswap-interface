@@ -7,7 +7,7 @@ import { useWalletClient } from 'wagmi'
 
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import { TOKEN_API_URL } from 'constants/env'
-import { ZERO_ADDRESS } from 'constants/index'
+import { BTC_DEFAULT_RECEIVER, ZERO_ADDRESS } from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrencyV2 } from 'hooks/Tokens'
@@ -487,12 +487,12 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
       slippage,
       walletClient: walletClient?.data,
       sender: isFromBitcoin
-        ? btcAddress || 'bc1qmzgkj3hznt8heh4vp33v2cr2mvsyhc3lmfzz9p'
+        ? btcAddress || BTC_DEFAULT_RECEIVER
         : isFromNear
         ? signedAccountId || ZERO_ADDRESS
         : walletClient?.data?.account.address || ZERO_ADDRESS,
       recipient: isToBitcoin
-        ? recipient || 'bc1qmzgkj3hznt8heh4vp33v2cr2mvsyhc3lmfzz9p' // TODO: default address???
+        ? recipient || BTC_DEFAULT_RECEIVER
         : isToNear
         ? recipient || signedAccountId || ZERO_ADDRESS
         : recipient || walletClient?.data?.account.address || ZERO_ADDRESS,
