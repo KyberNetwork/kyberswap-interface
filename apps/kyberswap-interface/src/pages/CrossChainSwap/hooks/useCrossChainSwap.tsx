@@ -12,7 +12,7 @@ import { useUserSlippageTolerance } from 'state/user/hooks'
 import { isEvmChain, isNonEvmChain } from 'utils'
 import { BitcoinToken, Chain, Currency, NearQuoteParams, NonEvmChain, QuoteParams, SwapProvider } from '../adapters'
 import { NearToken, useNearTokens } from 'state/crossChainSwap'
-import { ZERO_ADDRESS } from 'constants/index'
+import { BTC_DEFAULT_RECEIVER, ZERO_ADDRESS } from 'constants/index'
 import { TOKEN_API_URL } from 'constants/env'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
@@ -485,12 +485,12 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
       slippage,
       walletClient: walletClient?.data,
       sender: isFromBitcoin
-        ? btcAddress || 'bc1qmzgkj3hznt8heh4vp33v2cr2mvsyhc3lmfzz9p'
+        ? btcAddress || BTC_DEFAULT_RECEIVER
         : isFromNear
         ? signedAccountId || ZERO_ADDRESS
         : walletClient?.data?.account.address || ZERO_ADDRESS,
       recipient: isToBitcoin
-        ? recipient || 'bc1qmzgkj3hznt8heh4vp33v2cr2mvsyhc3lmfzz9p' // TODO: default address???
+        ? recipient || BTC_DEFAULT_RECEIVER
         : isToNear
         ? recipient || signedAccountId || ZERO_ADDRESS
         : recipient || walletClient?.data?.account.address || ZERO_ADDRESS,

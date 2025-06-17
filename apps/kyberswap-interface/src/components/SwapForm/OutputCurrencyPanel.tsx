@@ -1,7 +1,7 @@
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import React from 'react'
-import { Text } from 'rebass'
+import { Box, Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
@@ -10,6 +10,8 @@ import { CHAINS_SUPPORT_FEE_CONFIGS, RESERVE_USD_DECIMALS } from 'constants/inde
 import { useActiveWeb3React } from 'hooks'
 import { WrapType } from 'hooks/useWrapCallback'
 import { formattedNum } from 'utils'
+import Skeleton from 'react-loading-skeleton'
+import useTheme from 'hooks/useTheme'
 
 export const Label = styled.div`
   font-weight: 500;
@@ -28,6 +30,7 @@ type Props = {
 
   onChangeCurrencyOut: (c: Currency) => void
   customChainId?: ChainId
+  routeLoading: boolean
 }
 
 const OutputCurrencyPanel: React.FC<Props> = ({
@@ -39,9 +42,11 @@ const OutputCurrencyPanel: React.FC<Props> = ({
   amountOutUsd,
   onChangeCurrencyOut,
   customChainId,
+  routeLoading,
 }) => {
   const { chainId: walletChainId } = useActiveWeb3React()
   const chainId = customChainId || walletChainId
+  const theme = useTheme()
 
   // showWrap = true if this swap is either WRAP or UNWRAP
   const showWrap: boolean = wrapType !== WrapType.NOT_APPLICABLE
@@ -63,49 +68,70 @@ const OutputCurrencyPanel: React.FC<Props> = ({
   }
 
   return (
-    <CurrencyInputPanel
-      disabledInput
-      value={getFormattedAmount()}
-      onMax={null}
-      onHalf={null}
-      currency={currencyOut}
-      onCurrencySelect={onChangeCurrencyOut}
-      otherCurrency={currencyIn}
-      id="swap-currency-output"
-      dataTestId="swap-currency-output"
-      showCommonBases={true}
-      estimatedUsd={getEstimatedUsd()}
-      label={
-        <Label>
-          <MouseoverTooltip
-            placement="right"
-            width="200px"
-            text={
-              <Text fontSize={12}>
-                {CHAINS_SUPPORT_FEE_CONFIGS.includes(chainId) ? (
-                  <Trans>
-                    This is the estimated output amount. It is inclusive of any applicable swap fees. Do review the
-                    actual output amount at the confirmation stage.
-                  </Trans>
-                ) : (
-                  <Trans>
-                    This is the estimated output amount. Do review the actual output amount at the confirmation stage.
-                  </Trans>
-                )}
-              </Text>
-            }
-          >
-            {CHAINS_SUPPORT_FEE_CONFIGS.includes(chainId) ? (
-              <Trans>Est. Output (incl. fee)</Trans>
-            ) : (
-              <Trans>Est. Output</Trans>
-            )}
-          </MouseoverTooltip>
-        </Label>
-      }
-      positionLabel="in"
-      customChainId={customChainId}
-    />
+    <Box sx={{ position: 'relative' }}>
+      {routeLoading && (
+        <Flex sx={{ position: 'absolute', bottom: '24px', left: '12px', zIndex: 10 }} alignItems="center">
+          <Skeleton
+            height="24px"
+            width="150px"
+            baseColor={theme.background}
+            highlightColor={theme.buttonGray}
+            borderRadius="1rem"
+          />
+          <Skeleton
+            height="16px"
+            width="60px"
+            baseColor={theme.background}
+            highlightColor={theme.buttonGray}
+            borderRadius="1rem"
+            style={{ marginLeft: '16px', marginTop: '2px' }}
+          />
+        </Flex>
+      )}
+      <CurrencyInputPanel
+        disabledInput
+        value={routeLoading ? '' : getFormattedAmount()}
+        onMax={null}
+        onHalf={null}
+        currency={currencyOut}
+        onCurrencySelect={onChangeCurrencyOut}
+        otherCurrency={currencyIn}
+        id="swap-currency-output"
+        dataTestId="swap-currency-output"
+        showCommonBases={true}
+        estimatedUsd={routeLoading ? '' : getEstimatedUsd()}
+        label={
+          <Label>
+            <MouseoverTooltip
+              placement="right"
+              width="200px"
+              text={
+                <Text fontSize={12}>
+                  {CHAINS_SUPPORT_FEE_CONFIGS.includes(chainId) ? (
+                    <Trans>
+                      This is the estimated output amount. It is inclusive of any applicable swap fees. Do review the
+                      actual output amount at the confirmation stage.
+                    </Trans>
+                  ) : (
+                    <Trans>
+                      This is the estimated output amount. Do review the actual output amount at the confirmation stage.
+                    </Trans>
+                  )}
+                </Text>
+              }
+            >
+              {CHAINS_SUPPORT_FEE_CONFIGS.includes(chainId) ? (
+                <Trans>Est. Output (incl. fee)</Trans>
+              ) : (
+                <Trans>Est. Output</Trans>
+              )}
+            </MouseoverTooltip>
+          </Label>
+        }
+        positionLabel="in"
+        customChainId={customChainId}
+      />
+    </Box>
   )
 }
 
