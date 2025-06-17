@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useBatchClaimEncodeDataMutation, useClaimEncodeDataMutation, useRewardInfoQuery } from 'services/reward'
@@ -218,7 +219,7 @@ const useKemRewards = () => {
         setTokens([])
         return
       }
-      const listTokenAddress: string[] = []
+      const listTokenAddress: { [key: number]: string[] } = {}
       const propertyToCheck = [
         'claimedAmounts',
         'merkleAmounts',
@@ -231,20 +232,30 @@ const useKemRewards = () => {
       const listChainIds = Object.keys(data)
 
       listChainIds.forEach(chainId => {
+        if (!listTokenAddress[Number(chainId)]) listTokenAddress[Number(chainId)] = []
         Object.keys(data[chainId].campaigns).forEach(campaignId => {
           data[chainId].campaigns[campaignId].tokens.forEach(rewardNftInfo => {
             propertyToCheck.forEach(property => {
               Object.keys(rewardNftInfo[property as keyof typeof rewardNftInfo]).forEach(address => {
-                !listTokenAddress.includes(address) && listTokenAddress.push(address)
+                !listTokenAddress[Number(chainId)].includes(address) && listTokenAddress[Number(chainId)].push(address)
               })
             })
           })
         })
       })
 
-      const response = await fetchListTokenByAddresses(listTokenAddress, chainId)
+      // Use Promise.all to fetch tokens from all chains in parallel
+      const fetchPromises = Object.entries(listTokenAddress).map(([chainId, addresses]) =>
+        fetchListTokenByAddresses(addresses, Number(chainId) as ChainId),
+      )
+
+      const responses = await Promise.all(fetchPromises)
+
+      // Combine all token responses into a single array
+      const allTokens = responses.flat()
+
       setTokens(
-        response.map(token => ({
+        allTokens.map(token => ({
           address: token.address,
           symbol: token.symbol || '',
           logo: token.logoURI || '',
@@ -254,7 +265,7 @@ const useKemRewards = () => {
       )
     }
     fetchTokens()
-  }, [chainId, data, supportedChains])
+  }, [data, supportedChains])
 
   useEffect(() => {
     if (txHash && allTransactions && allTransactions[txHash]) {

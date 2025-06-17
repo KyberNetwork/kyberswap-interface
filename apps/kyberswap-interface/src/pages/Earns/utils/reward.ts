@@ -53,10 +53,12 @@ export const parseReward = ({
         const tokensByAddress: Array<TokenRewardInfo> = tokenAddressesInNft
           .map(tokenAddress => {
             const address = tokenAddress.toLowerCase()
-            const token = tokens.find(token => token.address.toLowerCase() === address)
+            const token = tokens.find(
+              token => token.address.toLowerCase() === address && token.chainId === Number(chainId),
+            )
             if (!token) return null
 
-            const { symbol, logo, chainId, decimals } = token
+            const { symbol, logo, decimals } = token
 
             const totalAmount =
               (Number(nft.merkleAmounts?.[address] || 0) +
@@ -78,7 +80,7 @@ export const parseReward = ({
             return {
               symbol,
               logo,
-              chainId,
+              chainId: Number(chainId),
               address: tokenAddress,
               totalAmount,
               claimableAmount,

@@ -276,7 +276,7 @@ export const BannerWrapper = styled.div`
   position: relative;
   background: linear-gradient(119.08deg, rgba(20, 29, 27, 1) -0.89%, rgba(14, 14, 14, 1) 132.3%);
 
-  @media (min-width: 1200px) and (max-width: 1300px) {
+  @media (min-width: 1200px) and (max-width: 1330px) {
     gap: 18px;
   }
 
@@ -303,7 +303,7 @@ export const RewardBannerDetailWrapper = styled.div`
   gap: 32px;
   row-gap: 8px;
 
-  @media (min-width: 1200px) and (max-width: 1318px) {
+  @media (min-width: 1200px) and (max-width: 1330px) {
     gap: 18px;
   }
 `
