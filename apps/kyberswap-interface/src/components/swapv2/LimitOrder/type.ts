@@ -132,6 +132,7 @@ export type CreateOrderParam = {
   inputAmount: string
   outputAmount: string
   expiredAt: number
+  nativeOut: boolean
   orderId?: number
   signature?: string
   salt?: string
