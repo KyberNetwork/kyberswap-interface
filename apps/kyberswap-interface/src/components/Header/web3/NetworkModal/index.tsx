@@ -27,11 +27,37 @@ import { NetworkList, Wrapper } from './styleds'
 import { Chain, NonEvmChainInfo, NonEvmChain } from 'pages/CrossChainSwap/adapters'
 import { useFavoriteChains } from 'state/user/hooks'
 import SearchInput from 'components/SearchInput'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 
 const FAVORITE_DROPZONE_ID = 'favorite-dropzone'
 
+const l1Chains = [
+  ChainId.MAINNET,
+  NonEvmChain.Bitcoin,
+  ChainId.BSCMAINNET,
+  ChainId.AVAXMAINNET,
+  NonEvmChain.Near,
+  ChainId.BERA,
+  ChainId.SONIC,
+  ChainId.RONIN,
+  ChainId.FANTOM,
+]
+
+const l2Chains = [
+  ChainId.BASE,
+  ChainId.ARBITRUM,
+  ChainId.OPTIMISM,
+  ChainId.MATIC,
+  ChainId.UNICHAIN,
+  ChainId.LINEA,
+  ChainId.ZKSYNC,
+  ChainId.SCROLL,
+  ChainId.BLAST,
+  ChainId.MANTLE,
+]
+
 export default function NetworkModal({
-  activeChainIds,
+  activeChainIds: activeIds,
   selectedId,
   customOnSelectNetwork,
   isOpen,
@@ -64,23 +90,24 @@ export default function NetworkModal({
   }
 
   const favoriteDropRef = useRef<HTMLDivElement>(null)
-  const { allChains } = useChainsConfig()
-  const chainsToDisplay = allChains.filter(
-    item => activeChainIds?.includes(item.chainId) && item.name.toLowerCase().includes(searchText.trim().toLowerCase()),
-  )
-  const nonEvmChainsToDisplay = Object.values(NonEvmChain).filter(
-    n => NonEvmChainInfo[n].name.toLowerCase().includes(searchText.trim().toLowerCase()) && !favoriteChains.includes(n),
-  )
+  const { allChains, supportedChains } = useChainsConfig()
+
+  const activeChainIds = activeIds || supportedChains.map(chain => chain.chainId)
 
   const updateOder = (newOrders: string[], droppedItem: string) => {
     saveFavoriteChains(newOrders, droppedItem)
   }
 
-  const { orders, handleDrag, handleDrop, draggingItem, order } = useDragAndDrop(
-    favoriteChains,
-    favoriteDropRef,
-    updateOder,
-  )
+  const {
+    orders: allOrders,
+    handleDrag,
+    handleDrop,
+    draggingItem,
+    order,
+  } = useDragAndDrop(favoriteChains, favoriteDropRef, updateOder)
+
+  const orders = allOrders.filter(item => activeChainIds.map(i => i.toString()).includes(item))
+
   const isDraggingAddToFavorite =
     draggingItem !== undefined && !favoriteChains.includes(draggingItem) && order === undefined
   const isDraggingRemoveFavorite = favoriteChains.includes(draggingItem) && order === undefined
@@ -118,6 +145,70 @@ export default function NetworkModal({
         customOnSelectNetwork={customOnSelectNetwork}
         onChangedNetwork={toggleNetworkModal}
       />
+    )
+  }
+
+  const renderListChain = (chains: Chain[], title: string) => {
+    const displayChains = chains
+      .map(item => {
+        if (NonEvmChainInfo[item as NonEvmChain]) {
+          return {
+            chainId: item,
+            name: NonEvmChainInfo[item as NonEvmChain].name,
+            icon: NonEvmChainInfo[item as NonEvmChain].icon,
+            state: ChainState.ACTIVE,
+          }
+        }
+
+        const chainInfo = allChains.find(chain => chain.chainId === item)
+        return chainInfo
+      })
+      .filter(Boolean)
+      .filter((item: any) => {
+        return (
+          activeChainIds.includes(item.chainId) &&
+          item.name.toLowerCase().includes(searchText.trim().toLowerCase()) &&
+          favoriteChains.indexOf(item.chainId.toString()) === -1
+        )
+      }) as NetworkInfo[]
+
+    return (
+      <>
+        <Row gap="12px">
+          <Text fontSize="10px" lineHeight="24px" color={theme.subText} flexShrink={0}>
+            {title}
+          </Text>
+          <hr style={{ borderWidth: '0 0 1px 0', borderColor: theme.border, width: '100%' }} />
+        </Row>
+        <div style={{ position: 'relative', marginBottom: '12px', flexGrow: 1 }}>
+          <DropzoneOverlay show={isDraggingRemoveFavorite} text={t`Remove from favorite`} />
+          {displayChains.length === 0 ? (
+            <Row
+              border={'1px dashed ' + theme.text + '32'}
+              borderRadius="16px"
+              padding="16px 12px"
+              justify="center"
+              minHeight="60px"
+            >
+              <Text fontSize="10px" lineHeight="14px" color={theme.subText}>
+                <Trans>Drag here to unfavorite chain(s).</Trans>
+              </Text>
+            </Row>
+          ) : (
+            <NetworkList data-testid="network-list">
+              <>
+                {/*Hardedcode for Ethereum and BTC render first*/}
+                {displayChains.map(renderNetworkButton)}
+              </>
+            </NetworkList>
+          )}
+          {isWrongNetwork && (
+            <TYPE.main fontSize={16} marginTop={14}>
+              <Trans>Please connect to the appropriate chain.</Trans>
+            </TYPE.main>
+          )}
+        </div>
+      </>
     )
   }
 
@@ -164,7 +255,8 @@ export default function NetworkModal({
           </Row>
           <div ref={favoriteDropRef} id={FAVORITE_DROPZONE_ID} style={{ position: 'relative' }}>
             <DropzoneOverlay show={isDraggingAddToFavorite} text={t`Add to favorite`} />
-            {favoriteChains.length === 0 && !isDraggingAddToFavorite ? (
+            {favoriteChains.filter(item => activeChainIds.map(i => i.toString()).includes(item)).length === 0 &&
+            !isDraggingAddToFavorite ? (
               <Row
                 border={'1px dashed ' + theme.text + '32'}
                 borderRadius="16px"
@@ -214,82 +306,8 @@ export default function NetworkModal({
               </NetworkList>
             )}
           </div>
-
-          <Row gap="12px">
-            <Text fontSize="10px" lineHeight="24px" color={theme.subText} flexShrink={0}>
-              <Trans>Chain List</Trans>
-            </Text>
-            <hr style={{ borderWidth: '0 0 1px 0', borderColor: theme.border, width: '100%' }} />
-          </Row>
-          <div style={{ position: 'relative', marginBottom: '12px', flexGrow: 1 }}>
-            <DropzoneOverlay show={isDraggingRemoveFavorite} text={t`Remove from favorite`} />
-            {!nonEvmChainsToDisplay.length &&
-            chainsToDisplay.filter(chain => !favoriteChains.some(_ => _ === chain.chainId.toString())).length === 0 ? (
-              <Row
-                border={'1px dashed ' + theme.text + '32'}
-                borderRadius="16px"
-                padding="16px 12px"
-                justify="center"
-                minHeight="60px"
-              >
-                <Text fontSize="10px" lineHeight="14px" color={theme.subText}>
-                  <Trans>Drag here to unfavorite chain(s).</Trans>
-                </Text>
-              </Row>
-            ) : (
-              <NetworkList data-testid="network-list">
-                <>
-                  {/*Hardedcode for Ethereum and BTC render first*/}
-                  {chainsToDisplay
-
-                    .filter(chain => chain.chainId === 1 && !favoriteChains.some(_ => _ === chain.chainId.toString()))
-                    .map(renderNetworkButton)}
-
-                  {!favoriteChains.includes('bitcoin') &&
-                    activeChainIds?.length &&
-                    activeChainIds.includes('bitcoin') &&
-                    'bitcoin'.includes(searchText.trim().toLowerCase().toString()) &&
-                    renderNetworkButton({
-                      chainId: 'bitcoin' as any,
-                      name: NonEvmChainInfo[NonEvmChain.Bitcoin].name,
-                      icon: NonEvmChainInfo[NonEvmChain.Bitcoin].icon,
-                      state: ChainState.ACTIVE,
-                    })}
-
-                  {chainsToDisplay
-                    .filter(chain => chain.chainId !== 1 && !favoriteChains.some(_ => _ === chain.chainId.toString()))
-                    .map((networkInfo: NetworkInfo) => {
-                      return renderNetworkButton(networkInfo)
-                    })}
-
-                  {Object.values(NonEvmChain)
-                    .filter(
-                      n =>
-                        n !== NonEvmChain.Bitcoin &&
-                        NonEvmChainInfo[n as NonEvmChain].name.toLowerCase().includes(searchText.trim().toLowerCase()),
-                    )
-                    .map((network: NonEvmChain) => {
-                      if (
-                        favoriteChains.includes(network) ||
-                        (activeChainIds?.length && !activeChainIds.includes(network))
-                      )
-                        return null
-                      return renderNetworkButton({
-                        chainId: network as any,
-                        name: NonEvmChainInfo[network as NonEvmChain].name,
-                        icon: NonEvmChainInfo[network as NonEvmChain].icon,
-                        state: ChainState.ACTIVE,
-                      })
-                    })}
-                </>
-              </NetworkList>
-            )}
-            {isWrongNetwork && (
-              <TYPE.main fontSize={16} marginTop={14}>
-                <Trans>Please connect to the appropriate chain.</Trans>
-              </TYPE.main>
-            )}
-          </div>
+          {renderListChain(l1Chains, 'Layer-1 Networks')}
+          {renderListChain(l2Chains, 'Layer-2 Networks')}
         </Column>
       </Wrapper>
     </Modal>
