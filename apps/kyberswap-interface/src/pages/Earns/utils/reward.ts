@@ -123,6 +123,7 @@ export const parseReward = ({
         listNft[existingNftIndex].vestingUsdValue += nft.vestingUsdValue
         listNft[existingNftIndex].inProgressUsdValue += nft.inProgressUsdValue
         listNft[existingNftIndex].claimableUsdValue += nft.claimableUsdValue
+        listNft[existingNftIndex].unclaimedUsdValue += nft.unclaimedUsdValue
 
         nft.tokens.forEach(token => {
           const existingTokenIndex = listNft[existingNftIndex].tokens.findIndex(t => t.address === token.address)
