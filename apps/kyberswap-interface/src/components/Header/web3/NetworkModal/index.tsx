@@ -57,8 +57,11 @@ export default function NetworkModal({
 
   const networkModalOpen = useModalOpen(ApplicationModal.NETWORK)
   const toggleNetworkModalGlobal = useNetworkModalToggle()
-  const toggleNetworkModal = customToggleModal || toggleNetworkModalGlobal
   const [searchText, setSearchText] = useState('')
+  const toggleNetworkModal = () => {
+    setSearchText('')
+    ;(customToggleModal || toggleNetworkModalGlobal)()
+  }
 
   const favoriteDropRef = useRef<HTMLDivElement>(null)
   const { allChains } = useChainsConfig()
