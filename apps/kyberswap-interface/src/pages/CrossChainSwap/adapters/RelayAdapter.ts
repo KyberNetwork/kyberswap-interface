@@ -32,6 +32,7 @@ import {
   ronin,
   unichain,
 } from 'viem/chains'
+import { hyperevm } from 'components/Web3Provider'
 
 export class RelayAdapter extends BaseSwapAdapter {
   constructor() {
@@ -57,6 +58,7 @@ export class RelayAdapter extends BaseSwapAdapter {
         zksync,
         ronin,
         unichain,
+        hyperevm,
       ].map(convertViemChainToRelayChain),
     })
   }
