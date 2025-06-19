@@ -14,6 +14,7 @@ import useTheme from 'hooks/useTheme'
 
 import { formatAmountOrder, formatRateLimitOrder } from '../helpers'
 import { LimitOrder, RateInfo } from '../type'
+import { NativeCurrencies } from 'constants/tokens'
 
 export const Container = styled.div`
   padding: 20px 24px;
@@ -155,7 +156,11 @@ export const Rate = ({
   let symbolIn, symbolOut, rateStr
   if (order) {
     const { makerAssetSymbol, takerAssetSymbol } = order
-    symbolIn = takerAssetSymbol
+
+    const native = NativeCurrencies[Number(order.chainId)]
+    const isNative = order.nativeOutput && takerAssetSymbol.toLowerCase() === native?.wrapped.symbol?.toLowerCase()
+
+    symbolIn = isNative ? native?.symbol || takerAssetSymbol : takerAssetSymbol
     symbolOut = makerAssetSymbol
     rateStr = formatRateLimitOrder(order, invertRate)
   } else {
