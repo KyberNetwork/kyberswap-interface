@@ -51,6 +51,7 @@ export type LimitOrder = {
   isSuccessful: boolean
   uuid: string
   txHash: string
+  nativeOutput?: boolean
 }
 
 export type LimitOrderFromTokenPair = {
@@ -132,7 +133,7 @@ export type CreateOrderParam = {
   inputAmount: string
   outputAmount: string
   expiredAt: number
-  nativeOut: boolean
+  nativeOutput: boolean
   orderId?: number
   signature?: string
   salt?: string

@@ -597,7 +597,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
       inputAmount,
       outputAmount,
       expiredAt,
-      nativeOut: currencyOut?.isNative || false,
+      nativeOutput: currencyOut?.isNative || false,
     })
   }, [
     setOrderEditing,
@@ -675,7 +675,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
       inputAmount,
       outputAmount,
       expiredAt,
-      nativeOut: currencyOut?.isNative || false,
+      nativeOutput: currencyOut?.isNative || false,
     })
     if (order_id) trackingPlaceOrder(MIXPANEL_TYPE.LO_PLACE_ORDER_SUCCESS, { order_id })
   }

@@ -1,4 +1,4 @@
-import { Token } from '@kyberswap/ks-sdk-core'
+import { ChainId, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { rgba } from 'polished'
@@ -21,6 +21,8 @@ import { calcPercentFilledOrder, formatAmountOrder, formatRateLimitOrder, isActi
 import { LimitOrder, LimitOrderStatus } from '../type'
 import ActionButtons from './ActionButtons'
 import { highlight } from 'components/swapv2/styleds'
+import { NativeCurrencies } from 'constants/tokens'
+import { NETWORKS_INFO } from 'constants/networks'
 
 export const ItemWrapper = styled.div<{ hasBorder?: boolean; active?: boolean }>`
   border-bottom: 1px solid ${({ theme, hasBorder }) => (hasBorder ? theme.border : 'transparent')};
@@ -121,16 +123,20 @@ const AmountInfo = ({ order }: { order: LimitOrder }) => {
     takingAmount,
     makerAssetDecimals,
     takerAssetDecimals,
+    nativeOutput,
+    chainId,
   } = order
   const theme = useTheme()
+  const native = NativeCurrencies[Number(chainId) as ChainId]
+  const isNative = nativeOutput && takerAssetSymbol.toLowerCase() === native?.wrapped.symbol?.toLowerCase()
   return (
     <Colum>
       <SingleAmountInfo
         decimals={takerAssetDecimals}
         color={theme.primary}
-        logoUrl={takerAssetLogoURL}
+        logoUrl={isNative ? NETWORKS_INFO[order.chainId]?.nativeToken.logo || takerAssetLogoURL : takerAssetLogoURL}
         amount={takingAmount}
-        symbol={takerAssetSymbol}
+        symbol={isNative ? native?.symbol || takerAssetSymbol : takerAssetSymbol}
       />
       <SingleAmountInfo
         decimals={makerAssetDecimals}
