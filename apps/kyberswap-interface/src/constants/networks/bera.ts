@@ -16,7 +16,6 @@ const bera: NetworkInfo = {
 
   iconSelected: NOT_SUPPORT,
 
-  defaultBlockSubgraph: '',
   etherscanUrl: 'https://berascan.com',
   etherscanName: 'Berascan',
   bridgeURL: 'https://bridge.berachain.com/bridge/token',
@@ -25,7 +24,6 @@ const bera: NetworkInfo = {
     name: 'BERA',
     logo: 'https://storage.googleapis.com/ks-setting-1d682dca/68e11813-067b-42d7-8d7a-c1b7bf80714e1739239376230.png',
     decimal: 18,
-    minForGas: 2 * 10 ** 17,
   },
   defaultRpcUrl: 'https://rpc.berachain.com',
   multicall: '0xcA11bde05977b3631167028862bE2a173976CA11',

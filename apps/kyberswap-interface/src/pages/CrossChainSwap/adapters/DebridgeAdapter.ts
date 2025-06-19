@@ -6,6 +6,7 @@ import {
   NormalizedTxResponse,
   SwapStatus,
   EvmQuoteParams,
+  NOT_SUPPORTED_CHAINS_PRICE_SERVICE,
 } from './BaseSwapAdapter'
 import { WalletClient, formatUnits } from 'viem'
 import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
@@ -19,6 +20,7 @@ const mappingChainId: Record<string, number> = {
   [ChainId.SONIC]: 100000014,
   [ChainId.MANTLE]: 100000023,
   [ChainId.BERA]: 100000020,
+  [ChainId.HYPEREVM]: 100000022,
 }
 
 export class DeBridgeAdapter extends BaseSwapAdapter {
@@ -45,6 +47,7 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
       ChainId.MANTLE,
       ChainId.BERA,
       ChainId.SONIC,
+      ChainId.HYPEREVM,
     ]
   }
 
@@ -101,8 +104,12 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
       params.toToken.decimals,
     )
 
-    const inputUsd = params.tokenInUsd * +formattedInputAmount
-    const outputUsd = params.tokenOutUsd * +formattedOutputAmount
+    const inputUsd = NOT_SUPPORTED_CHAINS_PRICE_SERVICE.includes(params.fromChain)
+      ? r.estimation.srcChainTokenIn.approximateUsdValue
+      : params.tokenInUsd * +formattedInputAmount
+    const outputUsd = NOT_SUPPORTED_CHAINS_PRICE_SERVICE.includes(params.toChain)
+      ? r.estimation.dstChainTokenOut.recommendedApproximateUsdValue
+      : params.tokenOutUsd * +formattedOutputAmount
 
     const fixFee = r.fixFee
 
@@ -120,6 +127,9 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
 
     const protocolFee =
       Number(nativePrice) * (Number(fixFee) / 10 ** NativeCurrencies[params.fromChain as ChainId].decimals)
+    const protocolFeeString = `${Number(fixFee) / 10 ** NativeCurrencies[params.fromChain as ChainId].decimals} ${
+      NativeCurrencies[params.fromChain as ChainId].symbol
+    }`
 
     return {
       quoteParams: params,
@@ -139,6 +149,7 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
       rawQuote: r,
 
       protocolFee,
+      protocolFeeString,
       platformFeePercent: (params.feeBps * 100) / 10_000,
     }
   }

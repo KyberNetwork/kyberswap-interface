@@ -16,7 +16,6 @@ const scroll: NetworkInfo = {
 
   iconSelected: NOT_SUPPORT,
 
-  defaultBlockSubgraph: '',
   etherscanUrl: 'https://blastscan.io',
   etherscanName: 'Blastscan',
   bridgeURL: 'https://blast.io/en/bridge',
@@ -25,7 +24,6 @@ const scroll: NetworkInfo = {
     name: 'ETH',
     logo: 'https://storage.googleapis.com/ks-setting-1d682dca/9412b9e7-161f-472e-94b2-a62d2c386ab7.png',
     decimal: 18,
-    minForGas: 10 ** 16,
   },
   defaultRpcUrl: 'https://rpc.blast.io',
   multicall: '0xcA11bde05977b3631167028862bE2a173976CA11',

@@ -16,7 +16,6 @@ const optimismInfo: NetworkInfo = {
   icon: optimismIcon,
   iconSelected: NOT_SUPPORT,
 
-  defaultBlockSubgraph: 'https://api.thegraph.com/subgraphs/name/ianlapham/uni-testing-subgraph',
   etherscanUrl: 'https://optimistic.etherscan.io',
   etherscanName: 'Optimistic Ethereum Explorer',
   bridgeURL: 'https://app.optimism.io/bridge/deposit',
@@ -25,7 +24,6 @@ const optimismInfo: NetworkInfo = {
     name: 'ETH',
     logo: 'https://storage.googleapis.com/ks-setting-1d682dca/9412b9e7-161f-472e-94b2-a62d2c386ab7.png',
     decimal: 18,
-    minForGas: 10 ** 14,
   },
   defaultRpcUrl: 'https://optimism.kyberengineering.io',
   multicall: '0xD9bfE9979e9CA4b2fe84bA5d4Cf963bBcB376974',

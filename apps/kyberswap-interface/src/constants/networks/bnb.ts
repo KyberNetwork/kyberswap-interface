@@ -16,7 +16,6 @@ const bnbInfo: NetworkInfo = {
   icon: bnbIcon,
   iconSelected: NOT_SUPPORT,
 
-  defaultBlockSubgraph: 'https://api.thegraph.com/subgraphs/name/dynamic-amm/ethereum-blocks-bsc',
   etherscanUrl: 'https://bscscan.com',
   etherscanName: 'BscScan',
   bridgeURL: 'https://www.bnbchain.org/en/bridge',
@@ -25,7 +24,6 @@ const bnbInfo: NetworkInfo = {
     name: 'BNB',
     logo: BnbLogo,
     decimal: 18,
-    minForGas: 10 ** 16,
   },
   defaultRpcUrl: 'https://bsc.kyberengineering.io',
   multicall: '0xed386Fe855C1EFf2f843B910923Dd8846E45C5A4',
