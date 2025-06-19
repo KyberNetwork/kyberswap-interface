@@ -11,6 +11,7 @@ import {
 } from './adapters'
 import { NearIntentsAdapter } from './adapters/NearIntentsAdapter'
 import { OptimexAdapter } from './adapters/OptimexAdapter'
+import { OrbiterAdapter } from './adapters/OrbiterAdapter'
 
 // Factory for creating swap provider instances
 export class CrossChainSwapFactory {
@@ -25,6 +26,7 @@ export class CrossChainSwapFactory {
   private static lifiInstance: LifiAdapter
   private static optimexInstance: OptimexAdapter
   private static ksInstance: KyberSwapAdapter
+  private static orbiterInstance: OrbiterAdapter
 
   // Get or create Across adapter
   static getAcrossAdapter(): AcrossAdapter {
@@ -98,6 +100,13 @@ export class CrossChainSwapFactory {
     return CrossChainSwapFactory.ksInstance
   }
 
+  static getOrbiterAdapter(): OrbiterAdapter {
+    if (!CrossChainSwapFactory.orbiterInstance) {
+      CrossChainSwapFactory.orbiterInstance = new OrbiterAdapter()
+    }
+    return CrossChainSwapFactory.orbiterInstance
+  }
+
   // Get all registered adapters
   static getAllAdapters(): SwapProvider[] {
     return [
@@ -106,11 +115,12 @@ export class CrossChainSwapFactory {
       CrossChainSwapFactory.getXyFinanceAdapter(),
       CrossChainSwapFactory.getNearIntentsAdapter(),
       CrossChainSwapFactory.getMayanAdapter(),
-      //CrossChainSwapFactory.getSymbiosisAdapter(),
+      // CrossChainSwapFactory.getSymbiosisAdapter(),
       CrossChainSwapFactory.getDebridgeInstance(),
       CrossChainSwapFactory.getLifiInstance(),
       CrossChainSwapFactory.getOptimexAdapter(),
       CrossChainSwapFactory.getKsApdater(),
+      CrossChainSwapFactory.getOrbiterAdapter(),
     ]
   }
 
@@ -137,6 +147,8 @@ export class CrossChainSwapFactory {
         return CrossChainSwapFactory.getOptimexAdapter()
       case 'kyberswap':
         return CrossChainSwapFactory.getKsApdater()
+      case 'orbiter':
+        return CrossChainSwapFactory.getOrbiterAdapter()
       default:
         return undefined
     }

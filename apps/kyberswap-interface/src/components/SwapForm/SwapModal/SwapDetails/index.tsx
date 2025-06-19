@@ -410,7 +410,7 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
               <img src={networkInfo.icon} alt="network icon" width="12px" height="12px" />
               <ExternalLink
                 href={`${networkInfo.etherscanUrl}/address/${recipient}`}
-                style={{ textDecoration: 'underline', color: theme.text }}
+                style={{ textDecoration: 'underline', color: theme.text, textDecorationStyle: 'dotted' }}
               >
                 <Text fontSize={12}>{shortenAddress(chainId, recipient)}</Text>
               </ExternalLink>
@@ -435,7 +435,7 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
             <Flex alignItems="center">
               <ExternalLink
                 href={`${networkInfo.etherscanUrl}/address/${buildData.routerAddress}`}
-                style={{ textDecoration: 'underline', color: theme.text }}
+                style={{ textDecoration: 'underline', color: theme.text, textDecorationStyle: 'dotted' }}
               >
                 <Text fontSize={12}>{shortenAddress(chainId, buildData.routerAddress)}</Text>
               </ExternalLink>

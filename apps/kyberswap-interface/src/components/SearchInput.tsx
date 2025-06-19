@@ -1,4 +1,4 @@
-import { Search } from 'react-feather'
+import { Search, X } from 'react-feather'
 import styled, { CSSProperties } from 'styled-components'
 
 import useTheme from 'hooks/useTheme'
@@ -26,7 +26,7 @@ const Input = styled.input`
   border: none;
   flex: 1;
   color: ${({ theme }) => theme.text};
-  background: ${({ theme }) => theme.background};
+  background: inherit;
   text-overflow: ellipsis;
   max-width: calc(100% - 20px);
   :placeholder {
@@ -52,7 +52,11 @@ export default function SearchInput({
   return (
     <SearchContainer style={style} className={className}>
       <Input placeholder={placeholder} maxLength={maxLength} value={value} onChange={e => onChange(e.target.value)} />
-      <Search color={theme.subText} size={16} style={{ minWidth: 16 }} />
+      {value ? (
+        <X color={theme.subText} size={16} style={{ minWidth: 16, cursor: 'pointer' }} onClick={() => onChange('')} />
+      ) : (
+        <Search color={theme.subText} size={16} style={{ minWidth: 16 }} />
+      )}
     </SearchContainer>
   )
 }

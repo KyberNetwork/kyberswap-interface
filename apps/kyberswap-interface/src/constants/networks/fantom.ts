@@ -17,8 +17,7 @@ const fantomInfo: NetworkInfo = {
   icon: fantomIcon,
   iconSelected: NOT_SUPPORT,
 
-  defaultBlockSubgraph: 'https://api.thegraph.com/subgraphs/name/kybernetwork/fantom-blocks',
-  etherscanUrl: 'https://ftmscan.com',
+  etherscanUrl: 'https://explorer.fantom.network',
   etherscanName: 'Ftmscan',
   bridgeURL: EMPTY,
   nativeToken: {
@@ -26,9 +25,8 @@ const fantomInfo: NetworkInfo = {
     name: 'FTM',
     logo: 'https://storage.googleapis.com/ks-setting-1d682dca/2cd8adf9-b4b0-41f7-b83d-4a13b4e9ca6f1699420090962.png',
     decimal: 18,
-    minForGas: 10 ** 16,
   },
-  defaultRpcUrl: 'https://fantom.kyberengineering.io',
+  defaultRpcUrl: 'https://rpc.fantom.network',
   multicall: '0x878dFE971d44e9122048308301F540910Bbd934c',
   classic: {
     defaultSubgraph: 'https://api.thegraph.com/subgraphs/name/kybernetwork/kyberswap-exchange-fantom',

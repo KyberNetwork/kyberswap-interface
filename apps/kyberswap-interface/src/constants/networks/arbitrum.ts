@@ -17,7 +17,6 @@ const arbitrumInfo: NetworkInfo = {
   icon: arbitrumIcon,
   iconSelected: NOT_SUPPORT,
 
-  defaultBlockSubgraph: 'https://api.thegraph.com/subgraphs/name/kybernetwork/arbitrum-blocks',
   etherscanUrl: 'https://arbiscan.io',
   etherscanName: 'Arbiscan',
   bridgeURL: 'https://bridge.arbitrum.io/',
@@ -26,7 +25,6 @@ const arbitrumInfo: NetworkInfo = {
     name: 'ETH',
     logo: EthereumLogo,
     decimal: 18,
-    minForGas: 10 ** 14,
   },
   defaultRpcUrl: 'https://arbitrum.kyberengineering.io',
   multicall: '0x80C7DD17B01855a6D2347444a0FCC36136a314de', // must use this for arbitrum to get exactly block number instead of L1 block number

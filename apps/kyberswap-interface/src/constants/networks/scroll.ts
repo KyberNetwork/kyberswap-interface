@@ -17,7 +17,6 @@ const scroll: NetworkInfo = {
 
   iconSelected: NOT_SUPPORT,
 
-  defaultBlockSubgraph: 'https://scroll-graph.kyberengineering.io/subgraphs/name/kybernetwork/scroll-blocks',
   etherscanUrl: 'https://scrollscan.com',
   etherscanName: 'Scrollscan',
   bridgeURL: 'https://scroll.io/bridge',
@@ -26,7 +25,6 @@ const scroll: NetworkInfo = {
     name: 'ETH',
     logo: EthereumLogo,
     decimal: 18,
-    minForGas: 10 ** 15,
   },
   defaultRpcUrl: 'https://rpc.scroll.io',
   multicall: '0xcA11bde05977b3631167028862bE2a173976CA11',

@@ -185,9 +185,6 @@ function BuyCrypto() {
 
     [ChainId.ZKSYNC]: null,
     [ChainId.GÖRLI]: null,
-    [ChainId.MUMBAI]: null,
-    [ChainId.BSCTESTNET]: null,
-    [ChainId.AVAXTESTNET]: null,
   }
   const supportedCurrencies = [
     'AVAX',

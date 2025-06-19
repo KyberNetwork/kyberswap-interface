@@ -6,6 +6,7 @@ import {
   NormalizedTxResponse,
   SwapStatus,
   EvmQuoteParams,
+  NOT_SUPPORTED_CHAINS_PRICE_SERVICE,
 } from './BaseSwapAdapter'
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { WalletClient, formatUnits } from 'viem'
@@ -30,7 +31,7 @@ export class KyberSwapAdapter extends BaseSwapAdapter {
     return 'https://kyberswap.com/favicon.ico'
   }
   getSupportedChains(): Chain[] {
-    return [...MAINNET_NETWORKS]
+    return [...MAINNET_NETWORKS].filter(item => !NOT_SUPPORTED_CHAINS_PRICE_SERVICE.includes(item))
   }
 
   getSupportedTokens(_sourceChain: Chain, _destChain: Chain): Currency[] {
