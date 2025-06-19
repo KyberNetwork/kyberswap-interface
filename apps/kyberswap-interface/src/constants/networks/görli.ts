@@ -19,7 +19,6 @@ const görliInfo: NetworkInfo = {
   icon: ethereumIcon,
   iconSelected: NOT_SUPPORT,
 
-  defaultBlockSubgraph: 'https://api.thegraph.com/subgraphs/name/dramacrypto/goerli-blocks',
   etherscanUrl: 'https://goerli.etherscan.io',
   etherscanName: 'Goerli Explorer',
   bridgeURL: EMPTY,

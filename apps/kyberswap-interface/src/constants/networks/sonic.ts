@@ -16,7 +16,6 @@ const sonic: NetworkInfo = {
 
   iconSelected: NOT_SUPPORT,
 
-  defaultBlockSubgraph: '',
   etherscanUrl: 'https://sonicscan.org',
   etherscanName: 'Sonic scan',
   bridgeURL: 'https://gw.fantom.network',

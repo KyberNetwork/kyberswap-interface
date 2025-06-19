@@ -30,7 +30,13 @@ export const NonEvmChainInfo: { [key in NonEvmChain]: { name: string; icon: stri
   },
 }
 
-export const NOT_SUPPORTED_CHAINS_PRICE_SERVICE = [ChainId.FANTOM, ChainId.SCROLL, ChainId.BLAST]
+export const NOT_SUPPORTED_CHAINS_PRICE_SERVICE = [
+  ChainId.FANTOM,
+  ChainId.SCROLL,
+  ChainId.BLAST,
+  ChainId.ZKSYNC,
+  ChainId.HYPEREVM,
+]
 
 export interface QuoteParams {
   feeBps: number

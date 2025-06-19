@@ -17,7 +17,6 @@ const base: NetworkInfo = {
 
   iconSelected: NOT_SUPPORT,
 
-  defaultBlockSubgraph: 'https://base-graph.kyberengineering.io/subgraphs/name/kybernetwork/base-blocks',
   etherscanUrl: 'https://basescan.org',
   etherscanName: 'Base Explorer',
   bridgeURL: 'https://bridge.base.org/deposit',

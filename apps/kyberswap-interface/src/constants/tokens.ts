@@ -32,9 +32,6 @@ export const STABLE_COIN_ADDRESSES_TO_TAKE_FEE: Record<ChainId, string[]> = {
   [ChainId.MATIC]: [],
   [ChainId.OPTIMISM]: [],
   [ChainId.GÖRLI]: [],
-  [ChainId.MUMBAI]: [],
-  [ChainId.BSCTESTNET]: [],
-  [ChainId.AVAXTESTNET]: [],
   [ChainId.MAINNET]: [],
   [ChainId.AVAXMAINNET]: [],
   [ChainId.FANTOM]: [],
@@ -49,6 +46,7 @@ export const STABLE_COIN_ADDRESSES_TO_TAKE_FEE: Record<ChainId, string[]> = {
   [ChainId.BERA]: [],
   [ChainId.RONIN]: [],
   [ChainId.UNICHAIN]: [],
+  [ChainId.HYPEREVM]: [],
 }
 
 // This is basically the same as STABLE_COIN_ADDRESSES_TO_TAKE_FEE,
@@ -103,9 +101,6 @@ export const SUPER_STABLE_COINS_ADDRESS: { [chainId in ChainId]: string[] } = {
   ],
   [ChainId.ZKSYNC]: [],
   [ChainId.GÖRLI]: [],
-  [ChainId.MUMBAI]: [],
-  [ChainId.BSCTESTNET]: [],
-  [ChainId.AVAXTESTNET]: [],
   [ChainId.BASE]: [
     '0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA', // USDbC
     '0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb', // DAI
@@ -118,6 +113,7 @@ export const SUPER_STABLE_COINS_ADDRESS: { [chainId in ChainId]: string[] } = {
   [ChainId.BERA]: [],
   [ChainId.RONIN]: [],
   [ChainId.UNICHAIN]: [],
+  [ChainId.HYPEREVM]: [],
 }
 
 export const CORRELATED_COINS_ADDRESS: { [chainId in ChainId]: string[][] } = {
@@ -337,9 +333,6 @@ export const CORRELATED_COINS_ADDRESS: { [chainId in ChainId]: string[][] } = {
     ],
   ],
   [ChainId.GÖRLI]: [],
-  [ChainId.MUMBAI]: [],
-  [ChainId.BSCTESTNET]: [],
-  [ChainId.AVAXTESTNET]: [],
   [ChainId.LINEA]: [
     [
       // Eth/wstEth:
@@ -386,6 +379,7 @@ export const CORRELATED_COINS_ADDRESS: { [chainId in ChainId]: string[][] } = {
   [ChainId.BERA]: [],
   [ChainId.RONIN]: [],
   [ChainId.UNICHAIN]: [],
+  [ChainId.HYPEREVM]: [],
 }
 
 export const KNC_ADDRESS = '0xdeFA4e8a7bcBA345F687a2f1456F5Edd9CE97202'
@@ -396,7 +390,6 @@ export const KNC: { [chainId in ChainId]: Token } = {
   [ChainId.MAINNET]: new Token(ChainId.MAINNET, KNC_ADDRESS, 18, 'KNC', 'KNC'),
   [ChainId.GÖRLI]: new Token(ChainId.GÖRLI, '0xd19e5119Efc73FeA1e70f9fbbc105DaB89D914e4', 18, 'KNC', 'KNC'),
   [ChainId.MATIC]: new Token(ChainId.MATIC, '0x1C954E8fe737F99f68Fa1CCda3e51ebDB291948C', 18, 'KNC', 'KNC'),
-  [ChainId.BSCTESTNET]: new Token(ChainId.BSCTESTNET, '0x51E8D106C646cA58Caf32A47812e95887C071a62', 18, 'KNC', 'KNC'),
   [ChainId.BSCMAINNET]: new Token(ChainId.BSCMAINNET, '0xfe56d5892BDffC7BF58f2E84BE1b2C32D21C308b', 18, 'KNC', 'KNC'),
   [ChainId.AVAXMAINNET]: new Token(ChainId.AVAXMAINNET, '0x39fC9e94Caeacb435842FADeDeCB783589F50f5f', 18, 'KNC', 'KNC'),
   [ChainId.ARBITRUM]: new Token(ChainId.ARBITRUM, '0xe4DDDfe67E7164b0FE14E218d80dC4C08eDC01cB', 18, 'KNC', 'KNC'),
@@ -414,9 +407,7 @@ export const KNC: { [chainId in ChainId]: Token } = {
   [ChainId.BERA]: new Token(ChainId.BERA, KNC_ADDRESS, 18, 'KNC', 'KNC'),
   [ChainId.RONIN]: new Token(ChainId.RONIN, KNC_ADDRESS, 18, 'KNC', 'KNC'),
   [ChainId.UNICHAIN]: new Token(ChainId.RONIN, KNC_ADDRESS, 18, 'KNC', 'KNC'),
-
-  [ChainId.AVAXTESTNET]: new Token(ChainId.AVAXTESTNET, KNC_ADDRESS, 18, 'KNC', 'KNC'),
-  [ChainId.MUMBAI]: new Token(ChainId.MUMBAI, '0xFD1f9381Cb641Dc76Fe8087dbcf8ea84a2c77cbE', 18, 'KNC', 'KNC'),
+  [ChainId.HYPEREVM]: new Token(ChainId.RONIN, KNC_ADDRESS, 18, 'KNC', 'KNC'),
 }
 
 export const DEFAULT_OUTPUT_TOKEN_BY_CHAIN: Partial<Record<ChainId, Token>> = {

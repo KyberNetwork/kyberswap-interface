@@ -16,7 +16,6 @@ const ronin: NetworkInfo = {
 
   iconSelected: NOT_SUPPORT,
 
-  defaultBlockSubgraph: '',
   etherscanUrl: 'https://app.roninchain.com',
   etherscanName: 'Roninscan',
   bridgeURL: 'https://app.roninchain.com/bridge',

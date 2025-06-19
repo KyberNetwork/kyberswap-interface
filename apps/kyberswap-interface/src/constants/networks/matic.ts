@@ -15,7 +15,6 @@ const maticInfo: NetworkInfo = {
   icon: polygonIcon,
   iconSelected: NOT_SUPPORT,
 
-  defaultBlockSubgraph: 'https://api.thegraph.com/subgraphs/name/dynamic-amm/ethereum-blocks-polygon',
   etherscanUrl: 'https://polygonscan.com',
   etherscanName: 'Polygonscan',
   bridgeURL: 'https://wallet.polygon.technology/',

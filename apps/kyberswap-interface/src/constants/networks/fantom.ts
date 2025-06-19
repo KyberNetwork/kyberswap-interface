@@ -17,7 +17,6 @@ const fantomInfo: NetworkInfo = {
   icon: fantomIcon,
   iconSelected: NOT_SUPPORT,
 
-  defaultBlockSubgraph: 'https://api.thegraph.com/subgraphs/name/kybernetwork/fantom-blocks',
   etherscanUrl: 'https://explorer.fantom.network',
   etherscanName: 'Ftmscan',
   bridgeURL: EMPTY,

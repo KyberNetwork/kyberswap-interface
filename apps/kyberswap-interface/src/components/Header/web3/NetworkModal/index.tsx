@@ -41,6 +41,7 @@ const l1Chains = [
   ChainId.SONIC,
   ChainId.RONIN,
   ChainId.FANTOM,
+  ChainId.HYPEREVM,
 ]
 
 const l2Chains = [

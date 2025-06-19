@@ -17,7 +17,6 @@ const unichain: NetworkInfo = {
 
   iconSelected: NOT_SUPPORT,
 
-  defaultBlockSubgraph: '',
   etherscanUrl: 'https://uniscan.xyz',
   etherscanName: 'Uniscan',
   bridgeURL: 'https://www.brid.gg/unichain',

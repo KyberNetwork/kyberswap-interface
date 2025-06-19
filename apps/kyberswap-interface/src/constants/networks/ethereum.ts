@@ -19,7 +19,6 @@ const ethereumInfo: NetworkInfo = {
   icon: ethereumIcon,
   iconSelected: NOT_SUPPORT,
 
-  defaultBlockSubgraph: 'https://api.thegraph.com/subgraphs/name/dynamic-amm/ethereum-blocks-ethereum',
   etherscanUrl: 'https://etherscan.io',
   etherscanName: 'Etherscan',
   bridgeURL: EMPTY,
