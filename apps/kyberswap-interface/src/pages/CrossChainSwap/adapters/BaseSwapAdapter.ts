@@ -83,6 +83,7 @@ export interface NormalizedQuote {
   rawQuote: any
 
   protocolFee: number
+  protocolFeeString?: string
   platformFeePercent: number
 }
 
