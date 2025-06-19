@@ -1448,6 +1448,9 @@ importers:
       class-variance-authority:
         specifier: ^0.7.0
         version: 0.7.0
+      html2canvas:
+        specifier: ^1.4.1
+        version: 1.4.1
       react:
         specifier: '>=16.8.0'
         version: 18.3.1
@@ -1464,6 +1467,9 @@ importers:
       '@kyber/hooks':
         specifier: workspace:^
         version: link:../hooks
+      '@kyber/schema':
+        specifier: workspace:^
+        version: link:../schema
       '@kyber/svgr-esbuild-plugin':
         specifier: workspace:^
         version: link:../svgr-esbuild-plugin
@@ -1518,6 +1524,12 @@ importers:
       postcss:
         specifier: ^8.4.47
         version: 8.4.49
+      postcss-load-config:
+        specifier: ^5.1.0
+        version: 5.1.0(postcss@8.4.49)
+      postcss-prefix-selector:
+        specifier: ^2.1.0
+        version: 2.1.0(postcss@8.4.49)
       prettier:
         specifier: ^3.5.3
         version: 3.5.3
@@ -26483,6 +26495,26 @@ packages:
       postcss:
         optional: true
       ts-node:
+        optional: true
+    dependencies:
+      lilconfig: 3.1.2
+      postcss: 8.4.49
+      yaml: 2.6.0
+    dev: true
+
+  /postcss-load-config@5.1.0(postcss@8.4.49):
+    resolution: {integrity: sha512-G5AJ+IX0aD0dygOE0yFZQ/huFFMSNneyfp0e3/bT05a8OfPC5FUoZRPfGijUdGOJNMewJiwzcHJXFafFzeKFVA==}
+    engines: {node: '>= 18'}
+    peerDependencies:
+      jiti: '>=1.21.0'
+      postcss: '>=8.0.9'
+      tsx: ^4.8.1
+    peerDependenciesMeta:
+      jiti:
+        optional: true
+      postcss:
+        optional: true
+      tsx:
         optional: true
     dependencies:
       lilconfig: 3.1.2

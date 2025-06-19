@@ -102,7 +102,7 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
             }}
           >
             <WalletIcon />
-            {formatWei(balanceInWei, token?.decimals) || ''}
+            {formatDisplayNumber(formatWei(balanceInWei, token?.decimals), { significantDigits: 6 }) || ''}
           </div>
         </div>
 

@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 import { useShallow } from 'zustand/shallow';
 
 import {
@@ -9,8 +11,10 @@ import {
   univ3PoolNormalize,
   univ3Position,
 } from '@kyber/schema';
-import { InfoHelper, MouseoverTooltip, Skeleton, TokenLogo } from '@kyber/ui';
+import { InfoHelper, MouseoverTooltip, ShareModal, ShareType, Skeleton, TokenLogo } from '@kyber/ui';
+import { cn } from '@kyber/utils/tailwind-helpers';
 
+import ShareIcon from '@/assets/svg/ic_share.svg';
 import SettingIcon from '@/assets/svg/setting.svg';
 import X from '@/assets/svg/x.svg';
 import RefreshLoading from '@/components/Header/RefreshLoading';
@@ -31,12 +35,18 @@ const Header = ({ refetchData }: { refetchData: () => void }) => {
       positionId: s.positionId,
     })),
   );
-  const pool = usePoolStore(s => s.pool);
+  const { pool, poolStat } = usePoolStore(
+    useShallow(s => ({
+      pool: s.pool,
+      poolStat: s.poolStat,
+    })),
+  );
   const { position } = usePositionStore(
     useShallow(s => ({
       position: s.position,
     })),
   );
+  const [openShare, setOpenShare] = useState(false);
 
   const { toggleSetting, degenMode } = useZapState();
 
@@ -73,8 +83,41 @@ const Header = ({ refetchData }: { refetchData: () => void }) => {
     toggleSetting();
   };
 
+  const shareButton = (className?: string) => (
+    <div
+      className={cn(
+        'flex items-center justify-center cursor-pointer w-6 h-6 rounded-full bg-layer2 text-icons',
+        className,
+      )}
+      onClick={() => setOpenShare(true)}
+    >
+      <ShareIcon />
+    </div>
+  );
+
   return (
     <>
+      {openShare && !initializing && (
+        <ShareModal
+          onClose={() => setOpenShare(false)}
+          type={ShareType.POOL_INFO}
+          pool={{
+            address: pool.address,
+            chainId,
+            chainLogo: NETWORKS_INFO[chainId].logo,
+            dexId: poolType,
+            token0: {
+              symbol: token0.symbol,
+              logo: token0.logo || '',
+            },
+            token1: {
+              symbol: token1.symbol,
+              logo: token1.logo || '',
+            },
+            apr: (poolStat?.apr || 0) + (poolStat?.kemEGApr || 0) + (poolStat?.kemLMApr || 0),
+          }}
+        />
+      )}
       <div className="flex text-xl font-medium justify-between items-center">
         {initializing ? (
           <Skeleton className="w-[300px] h-7" />
@@ -106,7 +149,13 @@ const Header = ({ refetchData }: { refetchData: () => void }) => {
       </div>
       <div className="flex justify-between items-center mt-4">
         {initializing ? (
-          <Skeleton className="w-[400px] h-7" />
+          <>
+            <Skeleton className="hidden sm:block w-[400px] h-7" />
+            <div className="flex sm:hidden flex-col items-start w-full gap-2">
+              <Skeleton className="w-[100px] h-7" />
+              <Skeleton className="w-[200px] h-7" />
+            </div>
+          </>
         ) : (
           <div className="flex items-center flex-wrap gap-1 text-sm max-sm:gap-y-2">
             <div className="flex items-end">
@@ -122,6 +171,8 @@ const Header = ({ refetchData }: { refetchData: () => void }) => {
             <span className="text-xl">
               {token0.symbol}/{token1.symbol}
             </span>
+
+            {shareButton('flex sm:hidden ml-1')}
 
             <div className="flex flex-wrap ml-[2px] gap-[6px] text-subText items-center">
               <div className="rounded-full text-xs bg-layer2 text-subText px-[14px] py-1">Fee {fee}%</div>
@@ -157,6 +208,7 @@ const Header = ({ refetchData }: { refetchData: () => void }) => {
                 <TokenLogo src={dexLogo} size={16} />
                 <span>{dexName}</span>
               </div>
+              {shareButton('hidden sm:flex')}
             </div>
           </div>
         )}

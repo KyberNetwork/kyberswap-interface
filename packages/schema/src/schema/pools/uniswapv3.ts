@@ -5,7 +5,7 @@ import { PoolType, univ3Types } from '@/schema/dex';
 import { tick } from '@/schema/tick';
 import { token } from '@/schema/token';
 
-const dexMapping: Record<PoolType, string[]> = {
+export const dexMapping: Record<PoolType, string[]> = {
   [PoolType.DEX_UNISWAP_V4]: ['uniswap-v4'],
   [PoolType.DEX_UNISWAP_V4_FAIRFLOW]: ['uniswap-v4-fairflow'],
 

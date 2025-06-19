@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 import { univ2Types, univ3Types } from '@/schema/dex';
 import { UniV2Pool, univ2Pool, univ2PoolNormalize, univ2PoolResponse } from '@/schema/pools/uniswapv2';
-import { UniV3Pool, univ3Pool, univ3PoolNormalize, univ3PoolResponse } from '@/schema/pools/uniswapv3';
+import { UniV3Pool, dexMapping, univ3Pool, univ3PoolNormalize, univ3PoolResponse } from '@/schema/pools/uniswapv3';
 
 export const pool = z.discriminatedUnion('poolType', [
   univ3PoolNormalize.extend({
@@ -50,3 +50,5 @@ export type { UniV3Pool };
 
 export { univ2PoolResponse, univ2PoolNormalize, univ2Pool };
 export type { UniV2Pool };
+
+export { dexMapping };

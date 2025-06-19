@@ -24,3 +24,4 @@ export { default as TokenLogo } from './components/token-logo';
 export { Portal } from './portal';
 export { default as Loader } from './components/loader';
 export { default as Toggle, type ToggleProps } from './components/ui/toggle';
+export { default as ShareModal, type ShareModalProps, ShareType } from './components/ShareModal';

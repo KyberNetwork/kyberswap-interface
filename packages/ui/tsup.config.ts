@@ -19,5 +19,9 @@ export default defineConfig({
     options.supported = {
       bigint: true,
     };
+    options.loader = {
+      '.ttf': 'file',
+      '.png': 'file',
+    };
   },
 });
