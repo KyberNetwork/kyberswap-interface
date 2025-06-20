@@ -150,11 +150,18 @@ const AmountInfo = ({ order, takerSymbol }: { order: LimitOrder; takerSymbol: st
   )
 }
 
-const TradeRateOrder = ({ order, style = {} }: { order: LimitOrder; style?: CSSProperties }) => {
+const TradeRateOrder = ({
+  order,
+  symbolOut,
+  style = {},
+}: {
+  order: LimitOrder
+  symbolOut: string
+  style?: CSSProperties
+}) => {
   const [invert, setInvert] = useState(false)
   const theme = useTheme()
   const symbolIn = order.makerAssetSymbol || '???'
-  const symbolOut = order.takerAssetSymbol || '???'
 
   const onInvert = (event: React.MouseEvent<HTMLDivElement>) => {
     event.stopPropagation()
@@ -378,7 +385,7 @@ export default function OrderItem({
         </Flex>
         <Flex justifyContent={'space-between'}>
           {renderProgressComponent()}
-          <TradeRateOrder order={order} style={{ textAlign: 'right', cursor: 'default' }} />
+          <TradeRateOrder order={order} style={{ textAlign: 'right', cursor: 'default' }} symbolOut={takerSymbol} />
         </Flex>
         {expand && (
           <div>
@@ -438,7 +445,7 @@ export default function OrderItem({
           <AmountInfo order={order} takerSymbol={takerSymbol} />
         </Flex>
         <Colum className="rate">
-          <TradeRateOrder order={order} style={{ cursor: 'default' }} />
+          <TradeRateOrder order={order} style={{ cursor: 'default' }} symbolOut={takerSymbol} />
         </Colum>
         <Colum>
           <TimeText time={createdAt} />
