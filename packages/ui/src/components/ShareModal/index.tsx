@@ -249,14 +249,14 @@ export default function ShareModal({ pool, position, type, onClose }: ShareModal
         <DialogFooter className="block">
           <div className="flex justify-center gap-4">
             <button
-              className="flex items-center justify-center py-[6px] px-4 gap-2 rounded-[30px] text-subText bg-[#ffffff14] hover:brightness-150"
+              className="flex items-center justify-center py-[6px] px-4 gap-1 rounded-[30px] text-subText bg-[#ffffff14] hover:brightness-150 outline-none"
               onClick={handleCopyPath}
             >
               {isCopied ? <CircleCheckIcon className="w-4 h-4 text-primary" /> : <CopyIcon />}
               Copy URL
             </button>
             <button
-              className="flex items-center justify-center py-[6px] px-4 gap-2 rounded-[30px] text-subText bg-[#ffffff14] hover:brightness-150"
+              className="flex items-center justify-center py-[6px] px-4 gap-1 rounded-[30px] text-subText bg-[#ffffff14] hover:brightness-150 outline-none"
               onClick={handleDownloadImage}
             >
               {isDownloaded ? <CircleCheckIcon className="w-4 h-4 text-primary" /> : <DownloadIcon />}

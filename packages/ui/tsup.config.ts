@@ -21,7 +21,7 @@ export default defineConfig({
     };
     options.loader = {
       '.ttf': 'file',
-      '.png': 'file',
+      '.png': 'dataurl',
     };
   },
 });
