@@ -57,6 +57,7 @@ export class OrbiterAdapter extends BaseSwapAdapter {
         feeRecipient: CROSS_CHAIN_FEE_RECEIVER,
         feePercent: (params.feeBps / 10000).toString(),
       },
+      channel: 'kyberswap',
     }
     const res = await fetch(`https://api.orbiter.finance/sdk/swap/quote`, {
       method: 'POST',
