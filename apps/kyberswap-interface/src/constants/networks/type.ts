@@ -8,7 +8,6 @@ export interface NativeToken {
   readonly name: string
   readonly logo: string
   readonly decimal: number
-  readonly minForGas: number
 }
 
 export interface NetworkInfo {
