@@ -156,7 +156,7 @@ export default function TableContent({
   const handleClaimRewards = (e: React.MouseEvent, position: ParsedPosition) => {
     e.stopPropagation()
     e.preventDefault()
-    if (!position.pool.isFarming || rewardsClaiming || position.rewards.unclaimedUsdValue === 0) return
+    if (rewardsClaiming || position.rewards.unclaimedUsdValue === 0) return
     setPositionThatClaimingRewards(position)
     onOpenClaimRewards(position.tokenId, position.chain.id)
   }
@@ -236,8 +236,7 @@ export default function TableContent({
               } = position
               const feesClaimDisabled =
                 !DEXES_SUPPORT_COLLECT_FEE[dex.id as EarnDex] || unclaimedFees === 0 || feesClaiming
-              const rewardsClaimDisabled =
-                !position.pool.isFarming || rewardsClaiming || position.rewards.claimableUsdValue === 0
+              const rewardsClaimDisabled = rewardsClaiming || position.rewards.claimableUsdValue === 0
 
               const actions = (
                 <DropdownAction
@@ -425,7 +424,7 @@ export default function TableContent({
                   {/* Unclaimed rewards info */}
                   <PositionValueWrapper align={!upToLarge ? 'center' : ''}>
                     <PositionValueLabel>{t`Unclaimed rewards`}</PositionValueLabel>
-                    {position.pool.isFarming ? (
+                    {rewards.unclaimedUsdValue > 0 ? (
                       <Flex alignItems={'center'} sx={{ gap: 1 }}>
                         {upToSmall && <IconKem width={20} height={20} />}
                         <MouseoverTooltipDesktopOnly

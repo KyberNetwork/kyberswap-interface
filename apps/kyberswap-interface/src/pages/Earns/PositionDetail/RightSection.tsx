@@ -140,7 +140,10 @@ const RightSection = ({
       {zapOutWidget}
 
       <InfoRightColumn halfWidth={isUniv2}>
-        {!upToSmall && (position?.pool.isFarming || (initialLoading && isFarmingPossible)) ? (
+        {!upToSmall &&
+        (position?.pool.isFarming ||
+          (initialLoading && isFarmingPossible) ||
+          Number(position?.rewards.claimableUsdValue || 0) > 0) ? (
           <Flex flexWrap={'wrap'} alignItems={'center'} sx={{ gap: '12px' }}>
             {totalLiquiditySection}
             {aprSection}

@@ -91,7 +91,7 @@ const PositionDetail = () => {
   const { rewardInfo } = useKemRewards()
   const rewardInfoThisPosition = !userPosition
     ? undefined
-    : rewardInfo?.nfts.find(item => item.nftId === userPosition[0].tokenId)
+    : rewardInfo?.nfts.find(item => item.nftId === userPosition?.[0]?.tokenId)
 
   const currentWalletAddress = useRef(account)
   const hadForceLoading = useRef(forceLoading ? true : false)
@@ -199,7 +199,9 @@ const PositionDetail = () => {
   )
 
   const totalLiquiditySection = (
-    <TotalLiquiditySection showForFarming={position?.pool.isFarming}>
+    <TotalLiquiditySection
+      showForFarming={position?.pool.isFarming || Number(position?.rewards.claimableUsdValue || 0) > 0}
+    >
       <Flex flexDirection={'column'} alignContent={'flex-start'} sx={{ gap: '6px' }}>
         <Text fontSize={14} color={theme.subText}>
           {t`Total Liquidity`}
@@ -241,7 +243,7 @@ const PositionDetail = () => {
   )
 
   const aprSection = (
-    <AprSection showForFarming={position?.pool.isFarming}>
+    <AprSection showForFarming={position?.pool.isFarming || Number(position?.rewards.claimableUsdValue || 0) > 0}>
       <Flex alignItems={'center'} sx={{ gap: '2px' }}>
         <Text fontSize={14} color={theme.subText}>
           {t`Est. Position APR`}

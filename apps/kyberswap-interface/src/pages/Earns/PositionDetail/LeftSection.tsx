@@ -66,7 +66,7 @@ const LeftSection = ({
           ? !isFarmingPossible
             ? totalLiquiditySection
             : null
-          : !position?.pool.isFarming
+          : !position?.pool.isFarming && !position?.rewards.claimableUsdValue
           ? totalLiquiditySection
           : null}
 
@@ -77,7 +77,7 @@ const LeftSection = ({
           ? !isFarmingPossible
             ? aprSection
             : null
-          : !position?.pool.isFarming
+          : !position?.pool.isFarming && !position?.rewards.claimableUsdValue
           ? aprSection
           : null}
 
@@ -214,7 +214,9 @@ const LeftSection = ({
         ) : null}
 
         {/* Rewards */}
-        {(position?.pool.isFarming || (initialLoading && isFarmingPossible)) && (
+        {(position?.pool.isFarming ||
+          (initialLoading && isFarmingPossible) ||
+          Number(position?.rewards.claimableUsdValue || 0) > 0) && (
           <RewardSection position={position} initialLoading={initialLoading} shareBtn={shareBtn} />
         )}
 
