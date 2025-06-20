@@ -153,6 +153,7 @@ export const getPayloadCreateOrder = (params: CreateOrderParam) => {
     makingAmount: parseInputAmount?.quotient?.toString(),
     takingAmount: tryParseAmount(outputAmount, currencyOut)?.quotient?.toString(),
     expiredAt: Math.floor(expiredAt / 1000),
+    nativeOutput: currencyOut?.isNative || false,
     ...(referral ? { referral } : {}),
   }
 }
