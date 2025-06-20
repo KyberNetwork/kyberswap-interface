@@ -5,8 +5,8 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@kyber/ui/accordion";
-import { MouseoverTooltip } from "@kyber/ui/tooltip";
+  MouseoverTooltip,
+} from "@kyber/ui";
 import { formatDisplayNumber } from "@kyber/utils/number";
 import { PoolSwapAction } from "@/hooks/types/zapInTypes";
 import { AggregatorSwapAction, useZapOutUserState } from "@/stores/state";

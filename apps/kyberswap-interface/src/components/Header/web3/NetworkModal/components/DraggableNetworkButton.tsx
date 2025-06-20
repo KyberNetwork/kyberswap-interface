@@ -10,6 +10,7 @@ import styled, { css } from 'styled-components'
 import Icon from 'components/Icons/Icon'
 import Row from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
+import { APP_PATHS } from 'constants/index'
 import { NetworkInfo } from 'constants/networks/type'
 import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
@@ -18,7 +19,6 @@ import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { Chain, NonEvmChain } from 'pages/CrossChainSwap/adapters'
-import { APP_PATHS } from 'constants/index'
 
 const NewLabel = styled.span`
   font-size: 12px;

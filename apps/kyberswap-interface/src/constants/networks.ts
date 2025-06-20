@@ -11,6 +11,7 @@ import {
   ethereum,
   fantom,
   görli,
+  hyperevm,
   linea,
   mantle,
   matic,
@@ -20,7 +21,6 @@ import {
   sonic,
   unichain,
   zksync,
-  hyperevm,
 } from './networks/index'
 import { NetworkInfo } from './networks/type'
 

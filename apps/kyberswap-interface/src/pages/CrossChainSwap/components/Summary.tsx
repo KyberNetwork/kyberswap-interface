@@ -1,14 +1,16 @@
-import styled from 'styled-components'
-import { Quote } from '../registry'
 import { Flex, Text } from 'rebass'
-import { MouseoverTooltip } from 'components/Tooltip'
-import { useUserSlippageTolerance } from 'state/user/hooks'
+import styled from 'styled-components'
 import { formatUnits } from 'viem'
-import { formatDisplayNumber } from 'utils/numbers'
+
+import { MouseoverTooltip } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
-import { useCrossChainSwap } from '../hooks/useCrossChainSwap'
+import { useUserSlippageTolerance } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
+import { formatDisplayNumber } from 'utils/numbers'
+
 import { Currency } from '../adapters'
+import { useCrossChainSwap } from '../hooks/useCrossChainSwap'
+import { Quote } from '../registry'
 
 const Wrapper = styled.div`
   border-radius: 16px;

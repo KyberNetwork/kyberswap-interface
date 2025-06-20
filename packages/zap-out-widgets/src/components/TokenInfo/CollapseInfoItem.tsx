@@ -10,7 +10,7 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@kyber/ui/accordion";
+} from "@kyber/ui";
 import IconAlertOctagon from "@/assets/svg/alert-octagon.svg";
 import Loader from "@/components/Loader";
 

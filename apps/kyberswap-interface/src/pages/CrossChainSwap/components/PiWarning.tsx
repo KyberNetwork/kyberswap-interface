@@ -1,8 +1,10 @@
-import useTheme from 'hooks/useTheme'
-import { useCrossChainSwap } from '../hooks/useCrossChainSwap'
-import { Flex } from 'rebass'
-import WarningIcon from 'components/Icons/WarningIcon'
 import { rgba } from 'polished'
+import { Flex } from 'rebass'
+
+import WarningIcon from 'components/Icons/WarningIcon'
+import useTheme from 'hooks/useTheme'
+
+import { useCrossChainSwap } from '../hooks/useCrossChainSwap'
 
 export const PiWarning = () => {
   const { warning } = useCrossChainSwap()

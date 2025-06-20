@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { watchChainId } from '@wagmi/core'
 import { ReactNode, useEffect, useMemo } from 'react'
-import { createClient, http, defineChain } from 'viem'
+import { createClient, defineChain, http } from 'viem'
 import {
   arbitrum,
   avalanche,
@@ -15,11 +15,11 @@ import {
   mantle,
   optimism,
   polygon,
+  ronin,
   scroll,
   sonic,
-  zksync,
-  ronin,
   unichain,
+  zksync,
 } from 'viem/chains'
 import { Connector, WagmiProvider, createConfig, createConnector, useConnect } from 'wagmi'
 import { coinbaseWallet, injected, safe, walletConnect } from 'wagmi/connectors'

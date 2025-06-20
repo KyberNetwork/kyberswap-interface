@@ -11,8 +11,7 @@ import { usePositionStore } from "../stores/usePositionStore";
 import { useZapStateStore } from "../stores/useZapStateStore";
 import { Image } from "./Image";
 import { PoolFee } from "./PoolFee";
-import { Skeleton } from "@kyber/ui/skeleton";
-import { Slider } from "@kyber/ui/slider";
+import { Skeleton, Slider } from "@kyber/ui";
 import {
   formatDisplayNumber,
   formatTokenAmount,
@@ -68,7 +67,7 @@ export function SourcePoolState() {
   return (
     <div className="flex-1">
       <div className="border border-stroke rounded-md px-4 py-3 mb-4">
-        <span className="text-subText text-sm">Liquidity to Migrate</span>
+        <span className="text-subText text-sm">Liquidity to Remove</span>
         <div className="flex justify-between items-center mt-2 py-1.5">
           <div className="font-medium text-lg">{percent}%</div>
           <div className="flex gap-2">

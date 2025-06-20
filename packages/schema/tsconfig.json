@@ -1,0 +1,13 @@
+{
+  "extends": "@kyber/typescript-config/react-library.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    },
+    "typeRoots": ["./node_modules/@types", "./src/types"]
+  },
+  "include": ["src", "src/types/*.d.ts", "tsup.config.ts", ".eslintrc.cjs"],
+  "exclude": ["node_modules", "dist"]
+}

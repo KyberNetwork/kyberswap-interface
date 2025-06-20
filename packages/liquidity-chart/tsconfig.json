@@ -8,6 +8,6 @@
       "react": ["./node_modules/@types/react"]
     }
   },
-  "include": ["src"],
+  "include": ["src", ".eslintrc.cjs"],
   "exclude": ["node_modules", "dist"]
 }

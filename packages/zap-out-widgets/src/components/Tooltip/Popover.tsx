@@ -1,5 +1,5 @@
 import { Placement } from "@popperjs/core";
-import { Portal } from "@kyber/ui/portal";
+import { Portal } from "@kyber/ui";
 import React, { useCallback, useState } from "react";
 import { usePopper } from "react-popper";
 import useInterval from "@/hooks/useInterval";

@@ -104,11 +104,31 @@ const ksSettingApi = createApi({
     }),
 
     getDexList: builder.query<Dex[], { chainId: string }>({
-      query: ({ chainId }) => ({
-        url: `/dexes`,
-        params: { chain: chainId, isEnabled: true, pageSize: 100 },
-      }),
-      transformResponse: (res: CommonPagingRes<{ dexes: Dex[] }>) => res.data.dexes,
+      async queryFn({ chainId }, _api, _extra, fetchWithBQ) {
+        try {
+          const [page1Response, page2Response] = await Promise.all([
+            fetchWithBQ({
+              url: '/dexes',
+              params: { chain: chainId, pageSize: 100, page: 1 },
+            }),
+            fetchWithBQ({
+              url: '/dexes',
+              params: { chain: chainId, pageSize: 100, page: 2 },
+            }),
+          ])
+
+          if (page1Response.error || page2Response.error) {
+            return { error: page1Response.error || page2Response.error }
+          }
+
+          const page1Data = (page1Response.data as CommonPagingRes<{ dexes: Dex[] }>).data.dexes
+          const page2Data = (page2Response.data as CommonPagingRes<{ dexes: Dex[] }>).data.dexes
+
+          return { data: [...page1Data, ...page2Data] }
+        } catch (error) {
+          return { error: { status: 500, data: error } }
+        }
+      },
     }),
     getTokenList: builder.query<
       TokenListResponse,

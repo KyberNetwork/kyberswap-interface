@@ -1,8 +1,9 @@
-import type { Config } from "tailwindcss";
-import sharedConfig from "@kyber/tailwind-config";
+import type { Config } from 'tailwindcss';
 
-const config: Pick<Config, "presets" | "content"> = {
-  content: ["./src/**/*.tsx"],
+import sharedConfig from '@kyber/tailwind-config';
+
+const config: Pick<Config, 'presets' | 'content'> = {
+  content: ['./src/**/*.tsx'],
   presets: [sharedConfig],
 };
 

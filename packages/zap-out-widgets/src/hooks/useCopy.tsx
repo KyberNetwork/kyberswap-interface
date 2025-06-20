@@ -3,7 +3,7 @@ import CircleCheckBig from "@/assets/svg/circle-check-big.svg";
 import { useCallback, useState } from "react";
 import { cn } from "@kyber/utils/tailwind-helpers";
 
-const COPY_TIMEOUT = 2000;
+const COPY_TIMEOUT = 1000;
 let hideCopied: ReturnType<typeof setTimeout>;
 
 export default function useCopy({
