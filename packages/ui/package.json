@@ -4,6 +4,10 @@
   "version": "0.0.0",
   "private": true,
   "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
     "./styles.css": "./dist/index.css",
     "./portal": "./src/portal.tsx",
     "./skeleton": "./src/components/ui/skeleton.tsx",
@@ -20,9 +24,11 @@
     "./tabs": "./src/components/ui/tabs.tsx",
     "./card": "./src/components/ui/card.tsx",
     "./radio-group": "./src/components/ui/radio-group.tsx",
-    "./token-logo": "./src/components/token-logo.tsx",
-    ".": "./src/index.ts"
+    "./token-logo": "./src/components/token-logo.tsx"
   },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
     "build": "tsup && node build-css.mjs",
     "type-check": "tsc --noEmit"
@@ -49,7 +55,6 @@
     "@kyber/tailwind-config": "workspace:^",
     "@kyber/typescript-config": "workspace:*",
     "@kyber/utils": "workspace:^",
-    "@kyber/schema": "workspace:^",
     "@trivago/prettier-plugin-sort-imports": "^4.2.0",
     "@types/eslint": "^8.56.5",
     "@types/node": "^20.11.24",

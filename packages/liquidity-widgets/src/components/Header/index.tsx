@@ -8,6 +8,7 @@ import {
   NETWORKS_INFO,
   PoolType,
   defaultToken,
+  dexMapping,
   univ3PoolNormalize,
   univ3Position,
 } from '@kyber/schema';
@@ -105,7 +106,9 @@ const Header = ({ refetchData }: { refetchData: () => void }) => {
             address: pool.address,
             chainId,
             chainLogo: NETWORKS_INFO[chainId].logo,
-            dexId: poolType,
+            dexLogo,
+            dexName,
+            exchange: dexMapping[poolType]?.[0] || '',
             token0: {
               symbol: token0.symbol,
               logo: token0.logo || '',

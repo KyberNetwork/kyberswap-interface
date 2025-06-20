@@ -2,7 +2,6 @@ import { useRef, useState } from 'react';
 
 import html2canvas from 'html2canvas';
 
-import { DEXES_INFO, PoolType, dexMapping } from '@kyber/schema';
 import { formatAprNumber, formatDisplayNumber } from '@kyber/utils/number';
 
 import CircleCheckIcon from '../../assets/icons/circle-check.svg?react';
@@ -26,7 +25,9 @@ export interface ShareModalProps {
     address: string;
     chainId: number;
     chainLogo: string;
-    dexId: PoolType;
+    dexLogo: string;
+    dexName: string;
+    exchange: string;
     token0: {
       symbol: string;
       logo: string;
@@ -38,7 +39,7 @@ export interface ShareModalProps {
     apr?: number;
   };
   position?: {
-    apr24h: number;
+    apr: number;
     createdTime?: number;
     rewardApr?: number;
     earnings?: number;
@@ -95,10 +96,7 @@ const renderStaggeredNumber = (numberString: string, useReducedEffects = false) 
 };
 
 export default function ShareModal({ pool, position, type, onClose }: ShareModalProps) {
-  const dexName = String(DEXES_INFO[pool.dexId].name);
-  const dexLogo = DEXES_INFO[pool.dexId].icon;
-  const exchange = dexMapping[pool.dexId]?.[0] || '';
-  const path = `${window.location.origin || 'kyberswap.com'}/earn/pools?poolAddress=${pool.address}&poolChainId=${pool.chainId}&exchange=${exchange}`;
+  const path = `${window.location.origin || 'kyberswap.com'}/earn/pools?poolAddress=${pool.address}&poolChainId=${pool.chainId}&exchange=${pool.exchange}`;
 
   const [isCopied, setIsCopied] = useState(false);
   const [isDownloaded, setIsDownloaded] = useState(false);
@@ -178,8 +176,8 @@ export default function ShareModal({ pool, position, type, onClose }: ShareModal
         style={{ height: 'calc(100% - 48px)' }}
       >
         <div className="flex items-center gap-1">
-          <TokenLogo className={forDownload ? 'h-5 w-5' : 'h-[18px] sm:h-5 w-[18px] sm:w-5'} src={dexLogo} />
-          <p className={forDownload ? 'text-lg' : 'text-base sm:text-lg'}>{dexName}</p>
+          <TokenLogo className={forDownload ? 'h-5 w-5' : 'h-[18px] sm:h-5 w-[18px] sm:w-5'} src={pool.dexLogo} />
+          <p className={forDownload ? 'text-lg' : 'text-base sm:text-lg'}>{pool.dexName}</p>
         </div>
         <div className="flex flex-col gap-3">
           <div className="flex items-center">
@@ -215,7 +213,7 @@ export default function ShareModal({ pool, position, type, onClose }: ShareModal
               <div>
                 <p className="text-lg -mb-[2px]">APR</p>
                 <p className="text-primary font-semibold text-2xl tracking-wide">
-                  {renderStaggeredNumber(formatAprNumber(position?.apr24h || 0) + '%', forDownload)}
+                  {renderStaggeredNumber(formatAprNumber(position?.apr || 0) + '%', forDownload)}
                 </p>
               </div>
             </div>

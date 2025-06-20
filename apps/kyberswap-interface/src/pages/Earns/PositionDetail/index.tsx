@@ -1,7 +1,9 @@
+import { ShareModal, ShareModalProps, ShareType } from '@kyber/ui'
 import { formatAprNumber } from '@kyber/utils/dist/number'
 import { priceToClosestTick } from '@kyber/utils/dist/uniswapv3'
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Share2 } from 'react-feather'
 import Skeleton from 'react-loading-skeleton'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { usePreviousDistinct } from 'react-use'
@@ -25,11 +27,13 @@ import {
   AprSection,
   MigrationLiquidityRecommend,
   PositionDetailWrapper,
+  ShareButtonWrapper,
   TotalLiquiditySection,
   VerticalDivider,
 } from 'pages/Earns/PositionDetail/styles'
 import { EmptyPositionText, PositionPageWrapper } from 'pages/Earns/UserPositions/styles'
-import { Exchange } from 'pages/Earns/constants'
+import { EarnDex, Exchange, protocolGroupNameToExchangeMapping } from 'pages/Earns/constants'
+import useKemRewards from 'pages/Earns/hooks/useKemRewards'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import { FeeInfo, ParsedPosition, PositionStatus } from 'pages/Earns/types'
 import { getUnclaimedFeesInfo } from 'pages/Earns/utils/fees'
@@ -84,10 +88,15 @@ const PositionDetail = () => {
     },
     { skip: !account, pollingInterval: forceLoading ? 5_000 : 15_000 },
   )
+  const { rewardInfo } = useKemRewards()
+  const rewardInfoThisPosition = !userPosition
+    ? undefined
+    : rewardInfo?.nfts.find(item => item.nftId === userPosition[0].tokenId)
 
   const currentWalletAddress = useRef(account)
   const hadForceLoading = useRef(forceLoading ? true : false)
   const [feeInfoFromRpc, setFeeInfoFromRpc] = useState<FeeInfo | undefined>()
+  const [shareInfo, setShareInfo] = useState<ShareModalProps | undefined>()
 
   const loadingInterval = isFetching
   const initialLoading = !!(forceLoading || (isLoading && !firstLoading.current))
@@ -102,8 +111,12 @@ const PositionDetail = () => {
       positionToRender = previousPosition
     } else positionToRender = userPosition
 
-    return parsePosition({ position: positionToRender[0], feeInfo: feeInfoFromRpc })
-  }, [feeInfoFromRpc, userPosition, previousPosition])
+    return parsePosition({
+      position: positionToRender[0],
+      feeInfo: feeInfoFromRpc,
+      nftRewardInfo: rewardInfoThisPosition,
+    })
+  }, [feeInfoFromRpc, userPosition, previousPosition, rewardInfoThisPosition])
 
   const handleFetchUnclaimedFee = useCallback(async () => {
     if (!position) return
@@ -265,9 +278,52 @@ const PositionDetail = () => {
     </AprSection>
   )
 
+  const shareBtn = useCallback(
+    (type: ShareType) => (
+      <ShareButtonWrapper
+        onClick={() => {
+          if (!position) return
+
+          setShareInfo({
+            type,
+            onClose: () => setShareInfo(undefined),
+            pool: {
+              address: position.pool.address,
+              chainId: position.chain.id,
+              chainLogo: position.chain.logo,
+              dexLogo: position.dex.logo,
+              dexName: position.dex.id,
+              exchange: protocolGroupNameToExchangeMapping[position.dex.id as EarnDex],
+              token0: {
+                symbol: position.token0.symbol,
+                logo: position.token0.logo,
+              },
+              token1: {
+                symbol: position.token1.symbol,
+                logo: position.token1.logo,
+              },
+            },
+            position: {
+              apr: position.apr,
+              createdTime: position.createdTime,
+              rewardApr: (position.kemEGApr || 0) + (position.kemLMApr || 0),
+              earnings: position.earning.earned + position.rewards.totalUsdValue,
+            },
+          })
+        }}
+      >
+        <Share2 size={16} color={theme.subText} />
+      </ShareButtonWrapper>
+    ),
+    [theme.subText, position],
+  )
+
+  const shareModal = shareInfo ? <ShareModal {...shareInfo} /> : null
+
   return (
     <>
       {zapMigrationWidget}
+      {shareModal}
 
       <PositionPageWrapper>
         {!!position || initialLoading ? (
@@ -277,6 +333,7 @@ const PositionDetail = () => {
               initialLoading={initialLoading}
               position={position}
               hadForceLoading={hadForceLoading.current}
+              shareBtn={shareBtn}
             />
             {!!position?.suggestionPool && position.status !== PositionStatus.CLOSED && (
               <MigrationLiquidityRecommend>
@@ -298,6 +355,7 @@ const PositionDetail = () => {
                 onFetchUnclaimedFee={handleFetchUnclaimedFee}
                 totalLiquiditySection={totalLiquiditySection}
                 aprSection={aprSection}
+                shareBtn={shareBtn}
               />
               <RightSection
                 position={position}

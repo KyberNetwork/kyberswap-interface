@@ -274,3 +274,21 @@ export const MigrationLiquidityRecommend = styled.div`
     row-gap: 2px;
   `}
 `
+
+export const ShareButtonWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: ${({ theme }) => rgba(theme.white, 0.08)};
+  padding: 6px 8px 6px 6px;
+  cursor: pointer;
+
+  :hover {
+    filter: brightness(1.2);
+  }
+
+  :active {
+    filter: brightness(1.05);
+  }
+`

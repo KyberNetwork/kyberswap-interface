@@ -1,3 +1,4 @@
+import { ShareType } from '@kyber/ui'
 import { t } from '@lingui/macro'
 import { useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -28,12 +29,14 @@ const LeftSection = ({
   totalLiquiditySection,
   aprSection,
   initialLoading,
+  shareBtn,
 }: {
   position?: ParsedPosition
   onFetchUnclaimedFee: () => void
   totalLiquiditySection: React.ReactNode
   aprSection: React.ReactNode
   initialLoading: boolean
+  shareBtn: (type: ShareType) => React.ReactNode
 }) => {
   const theme = useTheme()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
@@ -212,7 +215,7 @@ const LeftSection = ({
 
         {/* Rewards */}
         {(position?.pool.isFarming || (initialLoading && isFarmingPossible)) && (
-          <RewardSection position={position} initialLoading={initialLoading} />
+          <RewardSection position={position} initialLoading={initialLoading} shareBtn={shareBtn} />
         )}
 
         {/* Position History */}

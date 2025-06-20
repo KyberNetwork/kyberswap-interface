@@ -1,3 +1,4 @@
+import { ShareType } from '@kyber/ui'
 import { t } from '@lingui/macro'
 import { useEffect, useState } from 'react'
 import { Clock } from 'react-feather'
@@ -41,7 +42,15 @@ const formatTimeRemaining = (seconds: number) => {
   return `${days}d ${hours}h ${minutes}m ${secs}s`
 }
 
-const RewardSection = ({ position, initialLoading }: { position?: ParsedPosition; initialLoading: boolean }) => {
+const RewardSection = ({
+  position,
+  initialLoading,
+  shareBtn,
+}: {
+  position?: ParsedPosition
+  initialLoading: boolean
+  shareBtn: (type: ShareType) => React.ReactNode
+}) => {
   const theme = useTheme()
 
   const [timeRemaining, setTimeRemaining] = useState('')
@@ -74,10 +83,11 @@ const RewardSection = ({ position, initialLoading }: { position?: ParsedPosition
       <RewardsSection>
         <Flex alignItems={'center'} justifyContent={'space-between'} sx={{ gap: '20px' }}>
           <Flex alignItems={'center'} sx={{ gap: 1 }}>
+            <KemIcon width={20} height={20} />
             <Text fontSize={14} color={theme.subText} lineHeight={'20PX'}>
               {t`Total Rewards`}
             </Text>
-            <KemIcon width={20} height={20} />
+            {shareBtn(ShareType.POSITION_REWARDS_INFO)}
           </Flex>
 
           {initialLoading ? (
