@@ -59,7 +59,7 @@ export class OrbiterAdapter extends BaseSwapAdapter {
       },
       channel: 'kyberswap',
     }
-    const res = await fetch(`https://api.orbiter.finance/sdk/swap/quote`, {
+    const res = await fetch(`https://api.orbiter.finance/quote`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
