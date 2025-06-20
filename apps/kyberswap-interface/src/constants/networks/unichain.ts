@@ -17,7 +17,6 @@ const unichain: NetworkInfo = {
 
   iconSelected: NOT_SUPPORT,
 
-  defaultBlockSubgraph: '',
   etherscanUrl: 'https://uniscan.xyz',
   etherscanName: 'Uniscan',
   bridgeURL: 'https://www.brid.gg/unichain',
@@ -26,7 +25,6 @@ const unichain: NetworkInfo = {
     name: 'ETH',
     logo: EthereumLogo,
     decimal: 18,
-    minForGas: 2 * 10 ** 17,
   },
   defaultRpcUrl: 'https://mainnet.unichain.org',
   multicall: '0xcA11bde05977b3631167028862bE2a173976CA11',

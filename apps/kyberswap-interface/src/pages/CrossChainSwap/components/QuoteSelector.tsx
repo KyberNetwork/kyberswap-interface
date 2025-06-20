@@ -174,7 +174,7 @@ export const QuoteSelector = ({
                   <Text ml="4px" mr="8px">
                     {formatTime(quote.quote.timeEstimate)}
                   </Text>
-                  {quote.quote.protocolFee > 0 && (
+                  {quote.quote.protocolFee > 0 ? (
                     <>
                       <Text ml="4px" mr="8px">
                         Protocol fee:{' '}
@@ -184,7 +184,11 @@ export const QuoteSelector = ({
                         })}
                       </Text>
                     </>
-                  )}
+                  ) : quote.quote.protocolFeeString ? (
+                    <Text ml="4px" mr="8px">
+                      Protocol fee: {quote.quote.protocolFeeString}
+                    </Text>
+                  ) : null}
 
                   {/*
                   <GasStation />

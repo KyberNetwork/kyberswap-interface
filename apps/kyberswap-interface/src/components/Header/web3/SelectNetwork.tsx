@@ -11,6 +11,7 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
+import useChainsConfig from 'hooks/useChainsConfig'
 import { useWalletSupportedChains } from 'hooks/web3/useWalletSupportedChains'
 import { NonEvmChain } from 'pages/CrossChainSwap/adapters'
 import { ApplicationModal } from 'state/application/actions'
@@ -80,6 +81,8 @@ function SelectNetwork(): JSX.Element | null {
   const walletSupportsChain = useWalletSupportedChains()
   const disableSelectNetwork = walletSupportsChain.length <= 1
 
+  const { supportedChains } = useChainsConfig()
+
   const button = (
     <NetworkCard
       onClick={() => (disableSelectNetwork ? null : toggleNetworkModal())}
@@ -97,7 +100,7 @@ function SelectNetwork(): JSX.Element | null {
       <NetworkModal
         selectedId={chainId}
         disabledMsg={t`Unsupported by your wallet.`}
-        activeChainIds={[NonEvmChain.Bitcoin, NonEvmChain.Near, ...walletSupportsChain]}
+        activeChainIds={[NonEvmChain.Bitcoin, NonEvmChain.Near, ...supportedChains.map(item => item.chainId)]}
       />
     </NetworkCard>
   )

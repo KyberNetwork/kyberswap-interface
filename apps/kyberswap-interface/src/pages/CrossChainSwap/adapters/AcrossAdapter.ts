@@ -11,6 +11,7 @@ import {
   BaseSwapAdapter,
   Chain,
   EvmQuoteParams,
+  NOT_SUPPORTED_CHAINS_PRICE_SERVICE,
   NormalizedQuote,
   NormalizedTxResponse,
   SwapStatus,
@@ -103,11 +104,21 @@ export class AcrossAdapter extends BaseSwapAdapter {
           fallbackRecipient: params.recipient as `0x${string}`,
         },
       })
-      const tokenInUsd = params.tokenInUsd
-      const tokenOutUsd = params.tokenOutUsd
+
+      // across only have bridge then we can treat token in and out price usd are the same in case price service is not supported
+      const isSameToken = params.fromToken.symbol === params.toToken.symbol
+      const tokenInUsd =
+        isSameToken && NOT_SUPPORTED_CHAINS_PRICE_SERVICE.includes(params.fromChain) && params.tokenOutUsd
+          ? params.tokenOutUsd
+          : params.tokenInUsd
+      const tokenOutUsd =
+        isSameToken && NOT_SUPPORTED_CHAINS_PRICE_SERVICE.includes(params.toChain) && params.tokenInUsd
+          ? params.tokenInUsd
+          : params.tokenOutUsd
       const feeAmount = (BigInt(resp.deposit.outputAmount) * BigInt(params.feeBps)) / 10_000n
       const formattedOutputAmount = formatUnits(BigInt(resp.deposit.outputAmount) - feeAmount, params.toToken.decimals)
       const formattedInputAmount = formatUnits(BigInt(params.amount), params.fromToken.decimals)
+
       const inputUsd = tokenInUsd * +formattedInputAmount
       const outputUsd = tokenOutUsd * +formattedOutputAmount
 

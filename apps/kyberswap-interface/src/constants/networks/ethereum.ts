@@ -19,7 +19,6 @@ const ethereumInfo: NetworkInfo = {
   icon: ethereumIcon,
   iconSelected: NOT_SUPPORT,
 
-  defaultBlockSubgraph: 'https://api.thegraph.com/subgraphs/name/dynamic-amm/ethereum-blocks-ethereum',
   etherscanUrl: 'https://etherscan.io',
   etherscanName: 'Etherscan',
   bridgeURL: EMPTY,
@@ -28,7 +27,6 @@ const ethereumInfo: NetworkInfo = {
     name: 'Ether',
     logo: EthereumLogo,
     decimal: 18,
-    minForGas: 10 ** 16,
   },
   defaultRpcUrl: 'https://ethereum.kyberengineering.io',
   multicall: '0x5BA1e12693Dc8F9c48aAD8770482f4739bEeD696',

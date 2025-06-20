@@ -10,6 +10,7 @@ import {
   BaseSwapAdapter,
   Chain,
   EvmQuoteParams,
+  NOT_SUPPORTED_CHAINS_PRICE_SERVICE,
   NormalizedQuote,
   NormalizedTxResponse,
   SwapStatus,
@@ -88,8 +89,12 @@ export class XYFinanceAdapter extends BaseSwapAdapter {
 
     const tokenInUsd = params.tokenInUsd
     const tokenOutUsd = params.tokenOutUsd
-    const inputUsd = tokenInUsd * +formattedInputAmount
-    const outputUsd = tokenOutUsd * +formattedOutputAmount
+    const inputUsd = NOT_SUPPORTED_CHAINS_PRICE_SERVICE.includes(params.fromChain)
+      ? Number(r.srcQuoteTokenUsdValue)
+      : tokenInUsd * +formattedInputAmount
+    const outputUsd = NOT_SUPPORTED_CHAINS_PRICE_SERVICE.includes(params.toChain)
+      ? Number(r.dstQuoteTokenUsdValue)
+      : tokenOutUsd * +formattedOutputAmount
 
     return {
       quoteParams: params,

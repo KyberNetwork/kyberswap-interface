@@ -10,6 +10,7 @@ import {
   BaseSwapAdapter,
   Chain,
   EvmQuoteParams,
+  NOT_SUPPORTED_CHAINS_PRICE_SERVICE,
   NormalizedQuote,
   NormalizedTxResponse,
   SwapStatus,
@@ -66,8 +67,12 @@ export class LifiAdapter extends BaseSwapAdapter {
     const formattedOutputAmount = formatUnits(BigInt(r.estimate.toAmount), params.toToken.decimals)
     const formattedInputAmount = formatUnits(BigInt(params.amount), params.fromToken.decimals)
 
-    const inputUsd = params.tokenInUsd * +formattedInputAmount
-    const outputUsd = params.tokenOutUsd * +formattedOutputAmount
+    const inputUsd = NOT_SUPPORTED_CHAINS_PRICE_SERVICE.includes(params.fromChain)
+      ? Number(r.estimate.fromAmountUSD)
+      : params.tokenInUsd * +formattedInputAmount
+    const outputUsd = NOT_SUPPORTED_CHAINS_PRICE_SERVICE.includes(params.toChain)
+      ? Number(r.estimate.toAmountUSD)
+      : params.tokenOutUsd * +formattedOutputAmount
 
     return {
       quoteParams: params,
