@@ -157,7 +157,7 @@ export const Rate = ({
   if (order) {
     const { makerAssetSymbol, takerAssetSymbol } = order
 
-    const native = NativeCurrencies[Number(order.chainId)]
+    const native = NativeCurrencies[order.chainId]
     const isNative = order.nativeOutput && takerAssetSymbol.toLowerCase() === native?.wrapped.symbol?.toLowerCase()
 
     symbolIn = isNative ? native?.symbol || takerAssetSymbol : takerAssetSymbol
