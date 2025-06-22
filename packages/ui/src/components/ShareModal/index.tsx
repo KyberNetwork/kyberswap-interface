@@ -48,6 +48,51 @@ export interface ShareModalProps {
   onClose: () => void;
 }
 
+// Convert timestamp to format like "3 days 4 hrs" or "1 month 3 days" when days > 30
+const formatTimeDurationFromTimestamp = (timestamp: number): string => {
+  const now = Date.now();
+  const targetTime = typeof timestamp === 'number' && timestamp < 1e12 ? timestamp * 1000 : timestamp;
+  const diffMs = Math.abs(now - targetTime);
+
+  const minutes = Math.floor(diffMs / (1000 * 60));
+  const hours = Math.floor(diffMs / (1000 * 60 * 60));
+  const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  const months = Math.floor(days / 30);
+
+  if (minutes < 60) {
+    return minutes === 1 ? '1 min' : `${minutes} mins`;
+  }
+
+  if (hours < 24) {
+    const remainingMinutes = minutes % 60;
+    if (remainingMinutes === 0) {
+      return hours === 1 ? '1 hr' : `${hours} hrs`;
+    }
+    const hrText = hours === 1 ? 'hr' : 'hrs';
+    const minText = remainingMinutes === 1 ? 'min' : 'mins';
+    return `${hours} ${hrText} ${remainingMinutes} ${minText}`;
+  }
+
+  if (days <= 30) {
+    const remainingHours = hours % 24;
+    if (remainingHours === 0) {
+      return days === 1 ? '1 day' : `${days} days`;
+    }
+    const dayText = days === 1 ? 'day' : 'days';
+    const hrText = remainingHours === 1 ? 'hr' : 'hrs';
+    return `${days} ${dayText} ${remainingHours} ${hrText}`;
+  }
+
+  // For days > 30, show months and remaining days
+  const remainingDays = days % 30;
+  if (remainingDays === 0) {
+    return months === 1 ? '1 month' : `${months} months`;
+  }
+  const monthText = months === 1 ? 'month' : 'months';
+  const dayText = remainingDays === 1 ? 'day' : 'days';
+  return `${months} ${monthText} ${remainingDays} ${dayText}`;
+};
+
 const getProxyImage = (url: string | undefined) =>
   !url ? '' : url.startsWith('data:') ? url : `https://proxy.kyberswap.com/token-logo?url=${url}`;
 
@@ -215,7 +260,9 @@ export default function ShareModal({ pool, position, type, onClose }: ShareModal
                   {renderStaggeredNumber(formatAprNumber(position?.rewardApr || 0) + '%')}
                 </p>
               </div>
-              <p className={forDownload ? 'text-xl' : 'text-lg sm:text-xl'}>Position age: 3 days 4 hrs</p>
+              <p className={forDownload ? 'text-xl' : 'text-lg sm:text-xl'}>
+                Position age: {formatTimeDurationFromTimestamp(position?.createdTime || 0)}
+              </p>
             </div>
           ) : null}
         </div>

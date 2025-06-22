@@ -32,7 +32,12 @@ import {
   VerticalDivider,
 } from 'pages/Earns/PositionDetail/styles'
 import { EmptyPositionText, PositionPageWrapper } from 'pages/Earns/UserPositions/styles'
-import { EarnDex, Exchange, protocolGroupNameToExchangeMapping } from 'pages/Earns/constants'
+import {
+  EarnDex,
+  Exchange,
+  POSSIBLE_FARMING_PROTOCOLS,
+  protocolGroupNameToExchangeMapping,
+} from 'pages/Earns/constants'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import { FeeInfo, ParsedPosition, PositionStatus } from 'pages/Earns/types'
@@ -183,6 +188,8 @@ const PositionDetail = () => {
     }
   }, [forceLoading, position, searchParams, setSearchParams])
 
+  const isFarmingPossible = POSSIBLE_FARMING_PROTOCOLS.includes(protocol as Exchange)
+
   const emptyPosition = (
     <EmptyPositionText>
       <IconEarnNotFound />
@@ -200,7 +207,11 @@ const PositionDetail = () => {
 
   const totalLiquiditySection = (
     <TotalLiquiditySection
-      showForFarming={position?.pool.isFarming || Number(position?.rewards.claimableUsdValue || 0) > 0}
+      showForFarming={
+        position?.pool.isFarming ||
+        (initialLoading && isFarmingPossible) ||
+        Number(position?.rewards.claimableUsdValue || 0) > 0
+      }
     >
       <Flex flexDirection={'column'} alignContent={'flex-start'} sx={{ gap: '6px' }}>
         <Text fontSize={14} color={theme.subText}>
@@ -243,7 +254,13 @@ const PositionDetail = () => {
   )
 
   const aprSection = (
-    <AprSection showForFarming={position?.pool.isFarming || Number(position?.rewards.claimableUsdValue || 0) > 0}>
+    <AprSection
+      showForFarming={
+        position?.pool.isFarming ||
+        (initialLoading && isFarmingPossible) ||
+        Number(position?.rewards.claimableUsdValue || 0) > 0
+      }
+    >
       <Flex alignItems={'center'} sx={{ gap: '2px' }}>
         <Text fontSize={14} color={theme.subText}>
           {t`Est. Position APR`}

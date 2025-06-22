@@ -87,7 +87,7 @@ const RewardSection = ({
             <Text fontSize={14} color={theme.subText} lineHeight={'20PX'}>
               {t`Total Rewards`}
             </Text>
-            {shareBtn(ShareType.POSITION_REWARDS_INFO)}
+            {!initialLoading && shareBtn(ShareType.POSITION_REWARDS_INFO)}
           </Flex>
 
           {initialLoading ? (
