@@ -6,7 +6,11 @@ import { cn } from '@kyber/utils/tailwind-helpers';
 
 import ChevronDownIcon from '../icons/chevron-down.svg?react';
 
-const Accordion = AccordionPrimitive.Root;
+const Accordion = ({ children, ...props }: React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Root>) => (
+  <div className="ks-ui-style">
+    <AccordionPrimitive.Root {...props}>{children}</AccordionPrimitive.Root>
+  </div>
+);
 
 const AccordionItem = React.forwardRef<
   React.ElementRef<typeof AccordionPrimitive.Item>,

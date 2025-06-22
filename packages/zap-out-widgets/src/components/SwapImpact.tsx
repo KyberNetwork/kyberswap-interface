@@ -175,8 +175,8 @@ export const SwapPI = () => {
                     swapPiRes.piRes.level === PI_LEVEL.NORMAL
                       ? "text-subText"
                       : swapPiRes.piRes.level === PI_LEVEL.HIGH
-                      ? "!text-warning !border-warning"
-                      : "!text-error !border-error"
+                        ? "!text-warning !border-warning"
+                        : "!text-error !border-error"
                   }`}
                 >
                   Swap Price Impact
@@ -190,8 +190,8 @@ export const SwapPI = () => {
                     item.piRes.level === PI_LEVEL.NORMAL
                       ? "text-subText brightness-125"
                       : item.piRes.level === PI_LEVEL.HIGH
-                      ? "text-warning"
-                      : "text-error"
+                        ? "text-warning"
+                        : "text-error"
                   }`}
                   key={index}
                 >

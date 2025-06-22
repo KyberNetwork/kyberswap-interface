@@ -15,7 +15,7 @@ const Toggle: React.FC<ToggleProps> = ({ id, isActive, toggle, style, icon }) =>
       onClick={toggle}
       style={style}
       data-active={isActive}
-      className="relative w-14 h-7 bg-layer1 rounded-full cursor-pointer transition-all duration-200 ease-in-out data-[active='true']:bg-[#18947033]"
+      className="relative w-14 h-7 bg-layer1 rounded-full cursor-pointer transition-all duration-200 ease-in-out data-[active='true']:bg-[#18947033] ks-ui-style"
     >
       <div
         data-active={isActive}

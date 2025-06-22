@@ -123,8 +123,8 @@ const CollapseInfoItem = ({
                         ? colorRiskyByAmount
                         : colorRiskyByType
                       : displayValue === "--"
-                      ? "text-subText"
-                      : "text-accent"
+                        ? "text-subText"
+                        : "text-accent"
                   }`}
                 >
                   {displayValue}

@@ -17,6 +17,7 @@ export default function Loader({
       width={size}
       height={size}
       stroke={stroke}
+      className="ks-ui-style"
       {...rest}
     >
       <path

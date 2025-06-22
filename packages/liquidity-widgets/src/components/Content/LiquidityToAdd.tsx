@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react';
 import { NATIVE_TOKEN_ADDRESS } from '@kyber/schema';
 import { Skeleton } from '@kyber/ui';
 import { formatUnits } from '@kyber/utils/crypto';
-import { formatDisplayNumber, formatWei } from '@kyber/utils/number';
+import { formatDisplayNumber } from '@kyber/utils/number';
 
 import DropdownIcon from '@/assets/svg/dropdown.svg';
 import defaultTokenLogo from '@/assets/svg/question.svg?url';
@@ -102,7 +102,7 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
             }}
           >
             <WalletIcon />
-            {formatDisplayNumber(formatWei(balanceInWei, token?.decimals), { significantDigits: 6 }) || ''}
+            {formatDisplayNumber(formatUnits(balanceInWei, token?.decimals), { significantDigits: 6 }) || ''}
           </div>
         </div>
 

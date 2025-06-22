@@ -147,7 +147,7 @@ export function ZapSummary() {
     >
       <AccordionItem value="item-1">
         <AccordionTrigger
-          className={`px-4 py-3 text-sm border border-stroke text-text rounded-md ${
+          className={`px-4 !py-3 text-sm border border-stroke text-text rounded-md ${
             expanded ? "!rounded-b-none !border-b-0 !pb-1" : ""
           }`}
           onClick={onExpand}

@@ -4,8 +4,7 @@ import { cn } from "@kyber/utils/tailwind-helpers";
 import { useEffect, useState } from "react";
 import { useZapOutContext } from "@/stores";
 import { PoolType, Univ2PoolType } from "@/schema";
-import { MouseoverTooltip } from "@kyber/ui";
-import { Skeleton } from "@kyber/ui";
+import { MouseoverTooltip, Skeleton } from "@kyber/ui";
 import FarmingIcon from "@/assets/svg/kem.svg";
 
 interface PoolInfo {

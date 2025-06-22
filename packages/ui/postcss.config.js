@@ -10,7 +10,9 @@ export default {
         if (prefixOverrideList.includes(selector)) {
           return prefix;
         } else {
-          return prefixedSelector;
+          // Create both descendant and same-element selectors for maximum compatibility
+          // This allows both .ks-ui-style .class and .ks-ui-style.class to work
+          return selector === '*' ? prefixedSelector : `${prefixedSelector}, ${prefix}${selector}`;
         }
       },
     },

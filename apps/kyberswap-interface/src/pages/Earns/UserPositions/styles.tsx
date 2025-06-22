@@ -361,6 +361,8 @@ export const PositionTableHeaderFlexItem = styled.div`
 `
 
 export const PositionTableWrapper = styled(TableWrapper)`
+  overflow: hidden;
+
   ${({ theme }) => theme.mediaWidth.upToLarge`
     background: transparent;
     margin: 0;

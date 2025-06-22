@@ -50,7 +50,7 @@ export default function Popover({
         {children}
       </div>
       <Portal>
-        <div className="ks-lw-style">
+        <div className="ks-ui-style">
           <div
             className="ks-lw-popover"
             data-visibility={show}

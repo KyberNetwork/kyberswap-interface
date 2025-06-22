@@ -27,6 +27,7 @@ export function InfoHelper({
 }) {
   return (
     <span
+      className="ks-ui-style"
       style={{
         display: 'inline-flex',
         justifyContent: 'center',

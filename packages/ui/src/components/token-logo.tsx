@@ -18,7 +18,7 @@ const TokenLogo = ({
   <img
     src={src || UnknownToken}
     style={style}
-    className={cn('rounded-full', className)}
+    className={cn('rounded-full', className, ' ks-ui-style')}
     width={size}
     height={size}
     alt={alt || ''}

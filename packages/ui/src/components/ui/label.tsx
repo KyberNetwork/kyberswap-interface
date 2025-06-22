@@ -13,7 +13,7 @@ const Label = React.forwardRef<
   React.ElementRef<typeof LabelPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root> & VariantProps<typeof labelVariants>
 >(({ className, ...props }, ref) => (
-  <LabelPrimitive.Root className={cn(labelVariants(), className)} ref={ref} {...props} />
+  <LabelPrimitive.Root className={cn(labelVariants(), 'ks-ui-style', className)} ref={ref} {...props} />
 ));
 Label.displayName = LabelPrimitive.Root.displayName;
 
