@@ -48,8 +48,8 @@ export interface ShareModalProps {
   onClose: () => void;
 }
 
-const getProxyTokenLogo = (logoUrl: string | undefined) =>
-  logoUrl ? `https://proxy.kyberswap.com/token-logo?url=${logoUrl}` : '';
+const getProxyImage = (url: string | undefined) =>
+  !url ? '' : url.startsWith('data:') ? url : `https://proxy.kyberswap.com/token-logo?url=${url}`;
 
 const renderStaggeredNumber = (numberString: string, useReducedEffects = false) => {
   const chars = numberString.split('');
@@ -182,20 +182,16 @@ export default function ShareModal({ pool, position, type, onClose }: ShareModal
         <div className="flex items-center gap-1">
           <TokenLogo
             className={forDownload ? 'h-5 w-5' : 'h-[18px] sm:h-5 w-[18px] sm:w-5'}
-            src={getProxyTokenLogo(pool.dexLogo)}
+            src={getProxyImage(pool.dexLogo)}
           />
           <p className={forDownload ? 'text-lg' : 'text-base sm:text-lg'}>{pool.dexName}</p>
         </div>
         <div className="flex flex-col gap-3">
           <div className="flex items-center">
             <div className="flex items-center">
-              <TokenLogo size={22} src={getProxyTokenLogo(pool.token0.logo)} />
-              <TokenLogo size={22} className="-ml-2" src={getProxyTokenLogo(pool.token1.logo)} />
-              <TokenLogo
-                size={12}
-                className="relative -left-[6px] -bottom-[6px]"
-                src={getProxyTokenLogo(pool.chainLogo)}
-              />
+              <TokenLogo size={22} src={getProxyImage(pool.token0.logo)} />
+              <TokenLogo size={22} className="-ml-2" src={getProxyImage(pool.token1.logo)} />
+              <TokenLogo size={12} className="relative -left-[6px] -bottom-[6px]" src={getProxyImage(pool.chainLogo)} />
             </div>
             <p className={forDownload ? 'text-2xl' : 'text-[22px] sm:text-2xl'}>
               {pool.token0.symbol} - {pool.token1.symbol}
