@@ -1,4 +1,4 @@
-import zkSyncLogo from '@/assets/networks/zksync.svg';
+import zkSyncLogo from '@/assets/networks/zkSync.svg';
 
 export default {
   name: 'ZkSync',
