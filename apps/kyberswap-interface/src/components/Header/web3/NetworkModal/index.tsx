@@ -58,6 +58,7 @@ const l2Chains = [
 ]
 
 export default function NetworkModal({
+  deprecatedSoons,
   activeChainIds: activeIds,
   selectedId,
   customOnSelectNetwork,
@@ -65,6 +66,7 @@ export default function NetworkModal({
   customToggleModal,
   disabledMsg,
 }: {
+  deprecatedSoons?: Chain[]
   activeChainIds?: Chain[]
   selectedId?: Chain
   isOpen?: boolean
@@ -128,11 +130,14 @@ export default function NetworkModal({
     }
   }
 
-  const renderNetworkButton = (networkInfo: Pick<NetworkInfo, 'state' | 'icon' | 'chainId' | 'name'>) => {
+  const renderNetworkButton = (
+    networkInfo: Pick<NetworkInfo, 'state' | 'icon' | 'chainId' | 'name'> & { deprecatedSoon: boolean },
+  ) => {
     const chainId = networkInfo.chainId.toString()
     return (
       <DraggableNetworkButton
         key={chainId}
+        deprecatedSoon={networkInfo.deprecatedSoon}
         dragConstraints={wrapperRef}
         networkInfo={networkInfo}
         activeChainIds={activeChainIds}
@@ -158,11 +163,15 @@ export default function NetworkModal({
             name: NonEvmChainInfo[item as NonEvmChain].name,
             icon: NonEvmChainInfo[item as NonEvmChain].icon,
             state: ChainState.ACTIVE,
+            deprecatedSoon: deprecatedSoons?.includes(item as Chain) || false,
           }
         }
 
         const chainInfo = allChains.find(chain => chain.chainId === item)
-        return chainInfo
+        return {
+          ...chainInfo,
+          deprecatedSoon: deprecatedSoons?.includes(item as Chain) || false,
+        }
       })
       .filter(Boolean)
       .filter((item: any) => {
@@ -171,7 +180,7 @@ export default function NetworkModal({
           item.name.toLowerCase().includes(searchText.trim().toLowerCase()) &&
           favoriteChains.indexOf(item.chainId.toString()) === -1
         )
-      }) as NetworkInfo[]
+      }) as (NetworkInfo & { deprecatedSoon: boolean })[]
 
     return (
       <>
@@ -284,7 +293,10 @@ export default function NetworkModal({
                     const chainInfo = allChains.find(item => item.chainId.toString() === chainId)
 
                     if (chainInfo && chainInfo.name.toLowerCase().includes(searchText.trim().toLowerCase())) {
-                      return renderNetworkButton(chainInfo)
+                      return renderNetworkButton({
+                        ...chainInfo,
+                        deprecatedSoon: deprecatedSoons?.includes(chainInfo.chainId) || false,
+                      })
                     }
 
                     if (activeChainIds?.length && !activeChainIds.includes(chainId)) return null
@@ -299,6 +311,7 @@ export default function NetworkModal({
                         name: NonEvmChainInfo[chainId as NonEvmChain].name,
                         icon: NonEvmChainInfo[chainId as NonEvmChain].icon,
                         state: ChainState.ACTIVE,
+                        deprecatedSoon: deprecatedSoons?.includes(chainId as Chain) || false,
                       })
                     }
                     return null

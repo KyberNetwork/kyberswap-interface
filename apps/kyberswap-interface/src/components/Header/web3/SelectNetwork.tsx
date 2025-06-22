@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { lighten } from 'polished'
 import { useMemo } from 'react'
@@ -98,6 +99,7 @@ function SelectNetwork(): JSX.Element | null {
         <DropdownIcon open={networkModalOpen} />
       </NetworkSwitchContainer>
       <NetworkModal
+        deprecatedSoons={[ChainId.ZKSYNC]}
         selectedId={chainId}
         disabledMsg={t`Unsupported by your wallet.`}
         activeChainIds={[NonEvmChain.Bitcoin, NonEvmChain.Near, ...supportedChains.map(item => item.chainId)]}
