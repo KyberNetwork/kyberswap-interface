@@ -39,7 +39,7 @@ function App() {
           className="w-[650px] mx-auto max-md:w-full"
           onValueChange={(value) => handleChangeTab(value as Zap)}
         >
-          <TabsList className="grid w-full grid-cols-4 p-1">
+          <TabsList className="grid h-auto w-full grid-cols-2 sm:grid-cols-4 p-1">
             <TabsTrigger value={Zap.ZAP_IN}>Zap in</TabsTrigger>
             <TabsTrigger value={Zap.ZAP_MIGRATION}>Zap migration</TabsTrigger>
             <TabsTrigger value={Zap.ZAP_OUT}>Zap out</TabsTrigger>

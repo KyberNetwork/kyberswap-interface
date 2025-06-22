@@ -153,8 +153,8 @@ const Header = ({ refetchData }: { refetchData: () => void }) => {
       <div className="flex justify-between items-center mt-4">
         {initializing ? (
           <>
-            <Skeleton className="hidden sm:block w-[400px] h-7" />
-            <div className="flex sm:hidden flex-col items-start w-full gap-2">
+            <Skeleton className="hidden sm:!block w-[400px] h-7" />
+            <div className="flex sm:!hidden flex-col items-start w-full gap-2">
               <Skeleton className="w-[100px] h-7" />
               <Skeleton className="w-[200px] h-7" />
             </div>
@@ -175,7 +175,7 @@ const Header = ({ refetchData }: { refetchData: () => void }) => {
               {token0.symbol}/{token1.symbol}
             </span>
 
-            {shareButton('flex sm:hidden ml-1')}
+            {shareButton('sm:!hidden ml-1')}
 
             <div className="flex flex-wrap ml-[2px] gap-[6px] text-subText items-center">
               <div className="rounded-full text-xs bg-layer2 text-subText px-[14px] py-1">Fee {fee}%</div>
