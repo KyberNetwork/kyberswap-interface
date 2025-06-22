@@ -19,7 +19,6 @@ const zkSyncInfo: NetworkInfo = {
 
   iconSelected: NOT_SUPPORT,
 
-  defaultBlockSubgraph: 'https://zksync-graph.kyberengineering.io/subgraphs/name/kybernetwork/zksync-blocks',
   etherscanUrl: 'https://era.zksync.network',
   etherscanName: 'zkSync Era Explorer',
   bridgeURL: 'https://portal.zksync.io/bridge/',

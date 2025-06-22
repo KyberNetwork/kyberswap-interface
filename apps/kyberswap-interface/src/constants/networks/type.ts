@@ -31,7 +31,6 @@ export interface NetworkInfo {
 
   readonly geckoTermialId: string | null
   readonly state?: ChainState
-  readonly defaultBlockSubgraph: string
   readonly multicall: string
   readonly classic: {
     readonly defaultSubgraph: string

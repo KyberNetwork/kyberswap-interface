@@ -17,7 +17,6 @@ const arbitrumInfo: NetworkInfo = {
   icon: arbitrumIcon,
   iconSelected: NOT_SUPPORT,
 
-  defaultBlockSubgraph: 'https://api.thegraph.com/subgraphs/name/kybernetwork/arbitrum-blocks',
   etherscanUrl: 'https://arbiscan.io',
   etherscanName: 'Arbiscan',
   bridgeURL: 'https://bridge.arbitrum.io/',

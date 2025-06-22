@@ -16,7 +16,6 @@ const bera: NetworkInfo = {
 
   iconSelected: NOT_SUPPORT,
 
-  defaultBlockSubgraph: '',
   etherscanUrl: 'https://berascan.com',
   etherscanName: 'Berascan',
   bridgeURL: 'https://bridge.berachain.com/bridge/token',

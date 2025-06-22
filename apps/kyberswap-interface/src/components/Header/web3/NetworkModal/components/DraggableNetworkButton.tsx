@@ -106,6 +106,7 @@ const WalletWrapper = styled.div`
 const DraggableNetworkButton = ({
   networkInfo,
   activeChainIds,
+  deprecatedSoon,
   isSelected,
   disabledMsg,
   dragConstraints,
@@ -116,6 +117,7 @@ const DraggableNetworkButton = ({
   onDrop,
   isComingSoon,
 }: {
+  deprecatedSoon: boolean
   networkInfo: Pick<NetworkInfo, 'state' | 'icon' | 'chainId' | 'name'>
   activeChainIds?: Chain[]
   isSelected?: boolean
@@ -288,9 +290,22 @@ const DraggableNetworkButton = ({
         >
           <img src={icon} alt="Switch Network" style={{ height: '20px', width: '20px' }} />
           <Row flexGrow={1} gap="6px">
-            <Text as="span" textAlign="left">
+            <Text as="span" textAlign="left" sx={{ position: 'relative' }}>
               {name}
+              {deprecatedSoon && (
+                <MaintainLabel
+                  style={{
+                    position: 'absolute',
+                    color: theme.subText,
+                    top: '50%',
+                    right: '-90%',
+                  }}
+                >
+                  Deprecated Soon
+                </MaintainLabel>
+              )}
             </Text>
+
             {isComingSoon && (
               <MaintainLabel>
                 <Trans>Coming Soon</Trans>

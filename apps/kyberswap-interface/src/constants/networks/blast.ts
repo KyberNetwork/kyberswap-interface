@@ -17,7 +17,6 @@ const scroll: NetworkInfo = {
 
   iconSelected: NOT_SUPPORT,
 
-  defaultBlockSubgraph: '',
   etherscanUrl: 'https://blastscan.io',
   etherscanName: 'Blastscan',
   bridgeURL: 'https://blast.io/en/bridge',

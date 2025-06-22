@@ -401,7 +401,10 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
               return cat?.category || 'exoticPair'
             }),
         ])
-        if (token0Cat === 'stablePair' && token1Cat === 'stablePair') {
+        if (
+          (token0Cat === 'stablePair' && token1Cat === 'stablePair') ||
+          ((currencyIn as any)?.wrapped?.isStable && (currencyOut as any)?.wrapped?.isStable)
+        ) {
           setCategory('stablePair')
           feeBps = 5
         } else if (token0Cat === 'commonPair' && token1Cat === 'commonPair') {

@@ -17,7 +17,6 @@ const optimismInfo: NetworkInfo = {
   icon: optimismIcon,
   iconSelected: NOT_SUPPORT,
 
-  defaultBlockSubgraph: 'https://api.thegraph.com/subgraphs/name/ianlapham/uni-testing-subgraph',
   etherscanUrl: 'https://optimistic.etherscan.io',
   etherscanName: 'Optimistic Ethereum Explorer',
   bridgeURL: 'https://app.optimism.io/bridge/deposit',

@@ -17,7 +17,6 @@ const scroll: NetworkInfo = {
 
   iconSelected: NOT_SUPPORT,
 
-  defaultBlockSubgraph: 'https://scroll-graph.kyberengineering.io/subgraphs/name/kybernetwork/scroll-blocks',
   etherscanUrl: 'https://scrollscan.com',
   etherscanName: 'Scrollscan',
   bridgeURL: 'https://scroll.io/bridge',
