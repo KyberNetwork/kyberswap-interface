@@ -1,6 +1,8 @@
+import mantleLogo from '@/assets/networks/mantle.png';
+
 export default {
   name: 'Mantle',
-  logo: 'https://storage.googleapis.com/ks-setting-1d682dca/2bccd96f-b100-4ca1-858e-d8353ab0d0861710387147471.png',
+  logo: mantleLogo,
   nativeLogo:
     'https://storage.googleapis.com/ks-setting-1d682dca/2bccd96f-b100-4ca1-858e-d8353ab0d0861710387147471.png',
   scanLink: 'https://mantlescan.info',

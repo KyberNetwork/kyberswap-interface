@@ -1,6 +1,8 @@
+import ethereumLogo from '@/assets/networks/ethereum.png';
+
 export default {
   name: 'Ethereum',
-  logo: 'https://storage.googleapis.com/ks-setting-1d682dca/fd07cf5c-3ddf-4215-aa51-e6ee2c60afbc1697031732146.png',
+  logo: ethereumLogo,
   nativeLogo:
     'https://storage.googleapis.com/ks-setting-1d682dca/8fca1ea5-2637-48bc-bb08-c734065442fe1693634037115.png',
   scanLink: 'https://etherscan.io',

@@ -1,6 +1,8 @@
+import sonicLogo from '@/assets/networks/sonic.png';
+
 export default {
   name: 'Sonic',
-  logo: 'https://www.soniclabs.com/favicon.ico',
+  logo: sonicLogo,
   nativeLogo: 'https://www.soniclabs.com/favicon.ico',
   scanLink: 'https://sonicscan.org',
   multiCall: '0xcA11bde05977b3631167028862bE2a173976CA11',

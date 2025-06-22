@@ -1,6 +1,8 @@
+import arbitrumLogo from '@/assets/networks/arbitrum.svg';
+
 export default {
   name: 'Arbitrum',
-  logo: 'https://raw.githubusercontent.com/KyberNetwork/kyberswap-interface/main/src/assets/networks/arbitrum.svg',
+  logo: arbitrumLogo,
   nativeLogo:
     'https://storage.googleapis.com/ks-setting-1d682dca/8fca1ea5-2637-48bc-bb08-c734065442fe1693634037115.png',
   scanLink: 'https://arbiscan.io',

@@ -1,6 +1,8 @@
+import baseLogo from '@/assets/networks/base.svg';
+
 export default {
   name: 'Base',
-  logo: 'https://raw.githubusercontent.com/base-org/brand-kit/001c0e9b40a67799ebe0418671ac4e02a0c683ce/logo/in-product/Base_Network_Logo.svg',
+  logo: baseLogo,
   nativeLogo:
     'https://storage.googleapis.com/ks-setting-1d682dca/8fca1ea5-2637-48bc-bb08-c734065442fe1693634037115.png',
   scanLink: 'https://basescan.org',

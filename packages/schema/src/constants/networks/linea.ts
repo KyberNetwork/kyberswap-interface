@@ -1,6 +1,8 @@
+import lineaLogo from '@/assets/networks/linea.svg';
+
 export default {
   name: 'Linea',
-  logo: 'https://storage.googleapis.com/ks-setting-1d682dca/12a257d3-65e3-4b16-8a84-03a4ca34a6bc1693378197244.svg',
+  logo: lineaLogo,
   nativeLogo:
     'https://storage.googleapis.com/ks-setting-1d682dca/8fca1ea5-2637-48bc-bb08-c734065442fe1693634037115.png',
   scanLink: 'https://lineascan.build',

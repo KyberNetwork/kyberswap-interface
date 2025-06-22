@@ -51,24 +51,10 @@ export interface ShareModalProps {
 const getProxyImage = (url: string | undefined) =>
   !url ? '' : url.startsWith('data:') ? url : `https://proxy.kyberswap.com/token-logo?url=${url}`;
 
-const renderStaggeredNumber = (numberString: string, useReducedEffects = false) => {
+const renderStaggeredNumber = (numberString: string) => {
   const chars = numberString.split('');
 
-  // Define different vertical offsets and scales for a staggered effect
-  const fullEffects = [
-    'translate-y-0 scale-100',
-    'translate-y-0 scale-100',
-    '-translate-y-1 scale-105',
-    '-translate-y-0.5 scale-102',
-    'translate-y-1 scale-95',
-    '-translate-y-1.5 scale-108',
-    'translate-y-0 scale-100',
-    '-translate-y-1 scale-95',
-    'translate-y-1 scale-105',
-  ];
-
-  // Reduced effects for download (smaller transforms that render better)
-  const reducedEffects = [
+  const effects = [
     'translate-y-0 scale-100',
     'translate-y-0 scale-100',
     '-translate-y-0.5 scale-103',
@@ -79,8 +65,6 @@ const renderStaggeredNumber = (numberString: string, useReducedEffects = false) 
     '-translate-y-0.5 scale-99',
     'translate-y-0.5 scale-101',
   ];
-
-  const effects = useReducedEffects ? reducedEffects : fullEffects;
 
   return (
     <span className="inline-flex items-baseline">
@@ -203,7 +187,7 @@ export default function ShareModal({ pool, position, type, onClose }: ShareModal
               <p
                 className={`text-primary font-semibold tracking-wide ${forDownload ? 'text-[68px]' : 'text-[60px] sm:text-[68px]'}`}
               >
-                {renderStaggeredNumber(formatAprNumber(pool.apr || 0) + '%', forDownload)}
+                {renderStaggeredNumber(formatAprNumber(pool.apr || 0) + '%')}
               </p>
             </div>
           ) : type === ShareType.POSITION_INFO ? (
@@ -213,14 +197,13 @@ export default function ShareModal({ pool, position, type, onClose }: ShareModal
                 <p className="text-primary font-semibold text-[54px] tracking-wide">
                   {renderStaggeredNumber(
                     formatDisplayNumber(position?.earnings || 0, { significantDigits: 4, style: 'currency' }),
-                    forDownload,
                   )}
                 </p>
               </div>
               <div>
                 <p className="text-lg -mb-[2px]">APR</p>
                 <p className="text-primary font-semibold text-2xl tracking-wide">
-                  {renderStaggeredNumber(formatAprNumber(position?.apr || 0) + '%', forDownload)}
+                  {renderStaggeredNumber(formatAprNumber(position?.apr || 0) + '%')}
                 </p>
               </div>
             </div>
@@ -229,7 +212,7 @@ export default function ShareModal({ pool, position, type, onClose }: ShareModal
               <div>
                 <p className={forDownload ? 'text-xl -mb-[6px]' : 'text-lg sm:text-xl -mb-[6px]'}>APR</p>
                 <p className="text-primary font-semibold text-[58px] tracking-wide">
-                  {renderStaggeredNumber(formatAprNumber(position?.rewardApr || 0) + '%', forDownload)}
+                  {renderStaggeredNumber(formatAprNumber(position?.rewardApr || 0) + '%')}
                 </p>
               </div>
               <p className={forDownload ? 'text-xl' : 'text-lg sm:text-xl'}>Position age: 3 days 4 hrs</p>

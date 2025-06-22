@@ -1,6 +1,8 @@
+import optimismLogo from '@/assets/networks/optimism.svg';
+
 export default {
   name: 'Optimism',
-  logo: 'https://raw.githubusercontent.com/KyberNetwork/kyberswap-interface/main/src/assets/networks/optimism.svg',
+  logo: optimismLogo,
   nativeLogo:
     'https://storage.googleapis.com/ks-setting-1d682dca/8fca1ea5-2637-48bc-bb08-c734065442fe1693634037115.png',
   scanLink: 'https://optimistic.etherscan.io',

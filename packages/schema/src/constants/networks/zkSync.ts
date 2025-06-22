@@ -1,6 +1,8 @@
+import zkSyncLogo from '@/assets/networks/zksync.svg';
+
 export default {
   name: 'ZkSync',
-  logo: 'https://storage.googleapis.com/ks-setting-1d682dca/bd11850b-6aef-48c6-a27d-f8ee833e0dbc1693378187666.svg',
+  logo: zkSyncLogo,
   nativeLogo:
     'https://storage.googleapis.com/ks-setting-1d682dca/8fca1ea5-2637-48bc-bb08-c734065442fe1693634037115.png',
   scanLink: 'https://era.zksync.network',

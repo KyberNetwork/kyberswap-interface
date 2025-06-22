@@ -1,6 +1,8 @@
+import blastLogo from '@/assets/networks/blast.png';
+
 export default {
   name: 'Blast',
-  logo: 'https://static.debank.com/image/project/logo_url/blast/c0e1eb5f4051bd62ca904cf2e3282f47.png',
+  logo: blastLogo,
   nativeLogo:
     'https://storage.googleapis.com/ks-setting-1d682dca/8fca1ea5-2637-48bc-bb08-c734065442fe1693634037115.png',
   scanLink: 'https://blastscan.io',
