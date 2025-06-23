@@ -253,6 +253,7 @@ const config: Pick<Config, 'presets' | 'content' | 'darkMode' | 'theme' | 'safel
     'transition-all',
 
     'h-auto',
+    'border-dotted',
   ],
   theme: {
     extend: {
