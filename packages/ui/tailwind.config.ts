@@ -254,6 +254,10 @@ const config: Pick<Config, 'presets' | 'content' | 'darkMode' | 'theme' | 'safel
 
     'h-auto',
     'border-dotted',
+    'w-[14px]',
+    'h-[14px]',
+    'cursor-pointer',
+    'hover:text-text',
   ],
   theme: {
     extend: {
