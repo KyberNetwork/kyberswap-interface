@@ -21,6 +21,15 @@ import { Quote } from '../registry'
 import { formatTime } from './Summary'
 import { TokenLogoWithChain } from './TokenLogoWithChain'
 
+export const Tag = styled.div`
+  background-color: ${({ theme }) => theme.subText + '33'};
+  color: ${({ theme }) => theme.text};
+  border-radius: 999px;
+  margin-left: 4px;
+  font-size: 10px;
+  padding: 2px 6px;
+`
+
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -159,12 +168,13 @@ export const QuoteSelector = ({
                 <Flex marginTop="8px" alignItems="center" color={theme.subText} fontSize="14px">
                   <img src={quote.adapter.getIcon()} alt={quote.adapter.getName()} width={14} height={14} />
                   <Text ml="4px">{quote.adapter.getName()}</Text>
+                  {quote.adapter.getName() === 'Optimex' && <Tag>Beta</Tag>}
                   <Text mx="8px">|</Text>
                   <Clock size={14} />
                   <Text ml="4px" mr="8px">
                     {formatTime(quote.quote.timeEstimate)}
                   </Text>
-                  {quote.quote.protocolFee > 0 && (
+                  {quote.quote.protocolFee > 0 ? (
                     <>
                       <Text ml="4px" mr="8px">
                         Protocol fee:{' '}
@@ -174,7 +184,11 @@ export const QuoteSelector = ({
                         })}
                       </Text>
                     </>
-                  )}
+                  ) : quote.quote.protocolFeeString ? (
+                    <Text ml="4px" mr="8px">
+                      Protocol fee: {quote.quote.protocolFeeString}
+                    </Text>
+                  ) : null}
 
                   {/*
                   <GasStation />

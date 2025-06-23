@@ -1,15 +1,15 @@
 import { useEffect, useState } from 'react';
 
-import { useTokenPrices } from '@kyber/hooks/use-token-prices';
+import { useDebounce } from '@kyber/hooks';
 
-import useDebounce from '@/hooks/useDebounce';
-import { useWidgetContext } from '@/stores';
+import { usePoolStore } from '@/stores/usePoolStore';
+import { useWidgetStore } from '@/stores/useWidgetStore';
 
 const INTERVAL_REFETCH_TIME = 10; // seconds
 let interval: ReturnType<typeof setInterval>;
 
 const Spin = ({ countdown }: { countdown: number }) => {
-  const theme = useWidgetContext((s) => s.theme);
+  const theme = useWidgetStore(s => s.theme);
 
   return (
     <svg
@@ -48,22 +48,16 @@ const Spin = ({ countdown }: { countdown: number }) => {
           stroke="currentColor"
           strokeWidth="16"
           strokeDasharray="30"
-          strokeDashoffset={
-            !countdown ? 0 : -30 + (countdown / (INTERVAL_REFETCH_TIME * 1_000)) * 30
-          }
+          strokeDashoffset={!countdown ? 0 : -30 + (countdown / (INTERVAL_REFETCH_TIME * 1_000)) * 30}
         />
       </g>
     </svg>
   );
 };
 
-export default function RefreshLoading() {
-  const { chainId, poolLoading, getPool } = useWidgetContext((s) => s);
+export default function RefreshLoading({ refetchData }: { refetchData: () => void }) {
+  const { poolLoading } = usePoolStore();
 
-  const { fetchPrices } = useTokenPrices({
-    addresses: [],
-    chainId,
-  });
   const [countdown, setCountdown] = useState(0);
 
   const debouncedRefetchLoading = useDebounce(poolLoading, 100);
@@ -79,7 +73,7 @@ export default function RefreshLoading() {
         const newCountdown = countdown - 10;
         setCountdown(newCountdown);
         if (newCountdown === 10) {
-          getPool(fetchPrices);
+          refetchData();
         }
       }, 10);
     }
@@ -87,7 +81,7 @@ export default function RefreshLoading() {
     return () => {
       clearInterval(interval);
     };
-  }, [countdown, fetchPrices, getPool]);
+  }, [countdown, refetchData]);
 
   return (
     <div className="flex items-center relative w-fit">

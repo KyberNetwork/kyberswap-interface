@@ -106,9 +106,9 @@ export default function Setting() {
             </div>
           </MouseoverTooltip>
 
-          <div className="flex py-[6px] px-2 gap-1 rounded-full bg-transparent text-[var(--ks-lw-text)] text-xs font-medium text-right">
+          <div className="flex py-[6px] px-2 gap-1 rounded-full bg-transparent text-[var(--pcs-lw-text)] text-xs font-medium text-right">
             <input
-              className="border-none outline-none w-12 p-0 bg-transparent text-right text-[var(--ks-lw-text)]"
+              className="border-none outline-none w-12 p-0 bg-transparent text-right text-[var(--pcs-lw-text)]"
               maxLength={5}
               placeholder="20"
               value={ttl ? ttl.toString() : ""}

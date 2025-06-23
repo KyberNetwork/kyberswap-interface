@@ -1,33 +1,34 @@
-import type { Config } from "tailwindcss";
-import sharedConfig from "@kyber/tailwind-config";
+import type { Config } from 'tailwindcss';
 
-const config: Pick<Config, "presets" | "content" | "darkMode" | "theme"> = {
-  darkMode: ["class"],
-  content: ["./src/**/*.tsx"],
+import sharedConfig from '@kyber/tailwind-config';
+
+const config: Pick<Config, 'presets' | 'content' | 'darkMode' | 'theme'> = {
+  darkMode: ['class'],
+  content: ['./src/**/*.tsx'],
   presets: [sharedConfig],
   theme: {
     extend: {
       keyframes: {
-        "accordion-down": {
+        'accordion-down': {
           from: {
-            height: "0",
+            height: '0',
           },
           to: {
-            height: "var(--radix-accordion-content-height)",
+            height: 'var(--radix-accordion-content-height)',
           },
         },
-        "accordion-up": {
+        'accordion-up': {
           from: {
-            height: "var(--radix-accordion-content-height)",
+            height: 'var(--radix-accordion-content-height)',
           },
           to: {
-            height: "0",
+            height: '0',
           },
         },
       },
       animation: {
-        "accordion-down": "accordion-down 0.2s ease-out",
-        "accordion-up": "accordion-up 0.2s ease-out",
+        'accordion-down': 'accordion-down 0.2s ease-out',
+        'accordion-up': 'accordion-up 0.2s ease-out',
       },
     },
   },

@@ -17,15 +17,12 @@ const Modal = ({
 
   return ReactDOM.createPortal(
     <div className="ks-lw-modal-overlay" onClick={onClick}>
-      <div
-        className={`ks-lw-modal-content ${modalContentClass || ''}`}
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className={`ks-lw-modal-content ${modalContentClass || ''}`} onClick={e => e.stopPropagation()}>
         {children}
       </div>
     </div>,
     // already created in Widget/index.ts
-    document.getElementById('ks-lw-modal-root')!
+    document.getElementById('ks-lw-modal-root')!,
   ) as ReactElement;
 };
 

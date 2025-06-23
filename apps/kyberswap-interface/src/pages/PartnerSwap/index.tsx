@@ -10,10 +10,8 @@ import { ReactComponent as RoutingIcon } from 'assets/svg/routing-icon.svg'
 import Banner from 'components/Banner'
 import SwapForm, { SwapFormProps } from 'components/SwapForm'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
-import { TutorialKeys } from 'components/Tutorial/TutorialSwap'
 import LimitOrderForm from 'components/swapv2/LimitOrder/LimitOrderForm'
 import ListLimitOrder from 'components/swapv2/LimitOrder/ListLimitOrder'
-import Tutorial from 'components/swapv2/LimitOrder/Tutorial'
 import LiquiditySourcesPanel from 'components/swapv2/LiquiditySourcesPanel'
 import SettingsPanel from 'components/swapv2/SwapSettingsPanel'
 import TokenInfoTab from 'components/swapv2/TokenInfo'
@@ -175,8 +173,6 @@ export default function PartnerSwap() {
     omniView: true,
   }
 
-  const [showTutorial, setShowTutorial] = useState(!localStorage.getItem(TutorialKeys.SHOWED_LO_GUIDE))
-
   // modal and loading
   const [flowState, setFlowState] = useState<TransactionFlowState>(TRANSACTION_STATE_DEFAULT)
 
@@ -204,30 +200,22 @@ export default function PartnerSwap() {
               {activeTab === TAB.LIQUIDITY_SOURCES && (
                 <LiquiditySourcesPanel onBack={() => setActiveTab(TAB.SETTINGS)} chainId={expectedChainId} />
               )}
-              {activeTab === TAB.LIMIT &&
-                (showTutorial ? (
-                  <Tutorial
-                    onClose={() => {
-                      setShowTutorial(false)
-                      localStorage.setItem(TutorialKeys.SHOWED_LO_GUIDE, '1')
-                    }}
+              {activeTab === TAB.LIMIT && (
+                <div style={{ padding: '16px' }}>
+                  <LimitOrderForm
+                    flowState={flowState}
+                    setFlowState={setFlowState}
+                    currencyIn={currencyIn}
+                    currencyOut={currencyOut}
+                    note={
+                      currencyOut?.isNative
+                        ? t`Note: Once your order is filled, you will receive ${currencyName} (${currencySymbol})`
+                        : undefined
+                    }
+                    useUrlParams
                   />
-                ) : (
-                  <div style={{ padding: '16px' }}>
-                    <LimitOrderForm
-                      flowState={flowState}
-                      setFlowState={setFlowState}
-                      currencyIn={currencyIn}
-                      currencyOut={currencyOut}
-                      note={
-                        currencyOut?.isNative
-                          ? t`Note: Once your order is filled, you will receive ${currencyName} (${currencySymbol})`
-                          : undefined
-                      }
-                      useUrlParams
-                    />
-                  </div>
-                ))}
+                </div>
+              )}
               {isCrossChainPage && <CrossChainSwap />}
             </AppBodyWrapped>
           </SwapFormWrapper>

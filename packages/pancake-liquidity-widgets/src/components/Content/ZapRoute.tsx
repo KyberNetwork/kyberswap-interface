@@ -15,7 +15,7 @@ import { PancakeToken } from "@/entities/Pool";
 
 export default function ZapRoute() {
   const { zapInfo, tokensIn } = useZapState();
-  const { pool } = useWidgetInfo();
+  const { pool, poolType } = useWidgetInfo();
   const { chainId } = useWeb3Provider();
 
   const tokens = useMemo(
@@ -72,12 +72,12 @@ export default function ZapRoute() {
           tokenOutSymbol: tokenOut?.symbol || "--",
           amountIn: formatWei(item.tokenIn.amount, tokenIn?.decimals),
           amountOut: formatWei(item.tokenOut.amount, tokenOut?.decimals),
-          pool: `${getDexName()} Pool`,
+          pool: `${getDexName(poolType)} Pool`,
         };
       }) || [];
 
     return parsedAggregatorSwapInfo.concat(parsedPoolSwapInfo);
-  }, [tokens, zapInfo?.zapDetails.actions]);
+  }, [tokens, zapInfo?.zapDetails.actions, poolType]);
 
   const addedLiquidityInfo = useMemo(() => {
     const data = zapInfo?.zapDetails.actions.find(
@@ -106,7 +106,7 @@ export default function ZapRoute() {
         Zap Route
         <InfoHelper text="The actual Zap Route could be adjusted with on-chain states" />
       </div>
-      <div className="ks-lw-card flex flex-col gap-4">
+      <div className="pcs-lw-card flex flex-col gap-4">
         {swapInfo.map((item, index) => (
           <div className="flex gap-3 items-center" key={index}>
             <div className="rounded-[50%] w-6 h-6 flex justify-center items-center text-sm font-medium bg-inputBackground text-textSecondary">
@@ -128,7 +128,9 @@ export default function ZapRoute() {
             Build LP using {addedLiquidityInfo.addedAmount0}{" "}
             {pool?.token0.symbol} and {addedLiquidityInfo.addedAmount1}{" "}
             {pool?.token1.symbol} on{" "}
-            <span className="text-textPrimary font-medium">{getDexName()}</span>
+            <span className="text-textPrimary font-medium">
+              {getDexName(poolType)}
+            </span>
           </div>
         </div>
       </div>

@@ -9,7 +9,6 @@ interface BatchClaimEncodeParams {
 
 interface ClaimEncodeParams {
   chainId: ChainId
-  campaignId: string
   erc721Addr: string
   erc721Id: string
   recipient: string
@@ -27,21 +26,27 @@ interface TokenReward {
   pendingUSDValue: string
   claimedUSDValue: string
   claimableUSDValue: string
+  vestingUSDValue: string
 
   claimedAmounts: { [tokenAddress: string]: string }
   merkleAmounts: { [tokenAddress: string]: string }
   pendingAmounts: { [tokenAddress: string]: string }
+  vestingAmounts: { [tokenAddress: string]: string }
+  claimableAmounts: { [tokenAddress: string]: string }
+
   claimableUSDValues: { [tokenAddress: string]: string }
 }
 
-export interface TokenRewardExtended extends TokenReward {
-  campaignId: string
+export enum RewardType {
+  EG = 'EG',
+  LM = 'LM',
 }
 
 export interface RewardData {
   [chainId: string]: {
     campaigns: {
       [campaignId: string]: {
+        type: RewardType
         tokens: Array<TokenReward>
       }
     }

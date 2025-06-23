@@ -1,4 +1,5 @@
 import { formatAprNumber } from '@kyber/utils/dist/number'
+import { priceToClosestTick } from '@kyber/utils/dist/uniswapv3'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useCallback, useState } from 'react'
@@ -37,6 +38,7 @@ import {
   DEXES_SUPPORT_COLLECT_FEE,
   EarnDex,
   Exchange,
+  LIMIT_TEXT_STYLES,
   protocolGroupNameToExchangeMapping,
 } from 'pages/Earns/constants'
 import useCollectFees from 'pages/Earns/hooks/useCollectFees'
@@ -154,7 +156,7 @@ export default function TableContent({
   const handleClaimRewards = (e: React.MouseEvent, position: ParsedPosition) => {
     e.stopPropagation()
     e.preventDefault()
-    if (!position.pool.isFarming || rewardsClaiming || position.farming.unclaimedUsdValue === 0) return
+    if (rewardsClaiming || position.rewards.unclaimedUsdValue === 0) return
     setPositionThatClaimingRewards(position)
     onOpenClaimRewards(position.tokenId, position.chain.id)
   }
@@ -163,17 +165,37 @@ export default function TableContent({
     e.stopPropagation()
     e.preventDefault()
 
+    if (!position.suggestionPool) return
+
+    const tickLower = priceToClosestTick(
+      position.priceRange.min.toString(),
+      position.token0.decimals,
+      position.token1.decimals,
+    )
+    const tickUpper = priceToClosestTick(
+      position.priceRange.max.toString(),
+      position.token0.decimals,
+      position.token1.decimals,
+    )
+
     handleOpenZapMigration({
       chainId: position.chain.id,
       from: {
         dex: position.dex.id,
         poolId: position.pool.address,
-        positionId: position.tokenId,
+        positionId: position.pool.isUniv2 ? account || '' : position.tokenId,
       },
       to: {
         dex: position.suggestionPool?.poolExchange as Exchange,
         poolId: position.suggestionPool?.address || '',
       },
+      initialTick:
+        tickLower && tickUpper
+          ? {
+              tickLower: tickLower,
+              tickUpper: tickUpper,
+            }
+          : undefined,
     })
   }
 
@@ -210,12 +232,11 @@ export default function TableContent({
                 apr,
                 unclaimedFees,
                 status,
-                farming,
+                rewards,
               } = position
               const feesClaimDisabled =
                 !DEXES_SUPPORT_COLLECT_FEE[dex.id as EarnDex] || unclaimedFees === 0 || feesClaiming
-              const rewardsClaimDisabled =
-                !position.pool.isFarming || rewardsClaiming || position.farming.claimableUsdValue === 0
+              const rewardsClaimDisabled = rewardsClaiming || position.rewards.claimableUsdValue === 0
 
               const actions = (
                 <DropdownAction
@@ -299,18 +320,17 @@ export default function TableContent({
                     <MouseoverTooltipDesktopOnly
                       text={
                         <>
-                          <Text>
-                            {formatDisplayNumber(token0.totalAmount, { significantDigits: 6 })} {token0.symbol}
-                          </Text>
-                          <Text>
-                            {formatDisplayNumber(token1.totalAmount, { significantDigits: 6 })} {token1.symbol}
-                          </Text>
+                          {position.totalValueTokens.map(token => (
+                            <Text key={token.address}>
+                              {formatDisplayNumber(token.amount, { significantDigits: 4 })} {token.symbol}
+                            </Text>
+                          ))}
                         </>
                       }
                       width="fit-content"
                       placement="bottom"
                     >
-                      <Text>
+                      <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '100px' }}>
                         {formatDisplayNumber(totalValue, {
                           style: 'currency',
                           significantDigits: 4,
@@ -331,18 +351,20 @@ export default function TableContent({
                                 {t`LP Fees APR`}: {formatAprNumber(position.feeApr)}%
                               </Text>
                               <Text>
-                                {t`Rewards APR`}: {formatAprNumber(position.kemApr)}%
+                                {t`EG Sharing Reward`}: {formatAprNumber(position.kemEGApr)}%
+                                <br />
+                                {t`LM Reward`}: {formatAprNumber(position.kemLMApr)}%
                               </Text>
                             </>
                           ) : null
                         }
                         width="fit-content"
-                        placement="bottom"
+                        placement="top"
                       >
                         <Text color={pool.isFarming ? theme.primary : theme.text}>{formatAprNumber(apr)}%</Text>
                       </MouseoverTooltipDesktopOnly>
 
-                      {!!position.suggestionPool && (
+                      {!!position.suggestionPool && position.status !== PositionStatus.CLOSED && (
                         <MouseoverTooltipDesktopOnly
                           text={
                             <>
@@ -393,29 +415,31 @@ export default function TableContent({
                       width="fit-content"
                       placement="bottom"
                     >
-                      <Text>{formatDisplayNumber(unclaimedFees, { style: 'currency', significantDigits: 4 })}</Text>
+                      <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '100px' }}>
+                        {formatDisplayNumber(unclaimedFees, { style: 'currency', significantDigits: 4 })}
+                      </Text>
                     </MouseoverTooltipDesktopOnly>
                   </PositionValueWrapper>
 
                   {/* Unclaimed rewards info */}
                   <PositionValueWrapper align={!upToLarge ? 'center' : ''}>
                     <PositionValueLabel>{t`Unclaimed rewards`}</PositionValueLabel>
-                    {position.pool.isFarming ? (
+                    {rewards.unclaimedUsdValue > 0 ? (
                       <Flex alignItems={'center'} sx={{ gap: 1 }}>
                         {upToSmall && <IconKem width={20} height={20} />}
                         <MouseoverTooltipDesktopOnly
                           text={
                             <>
                               <Text>
-                                {t`Pending`}:{' '}
-                                {formatDisplayNumber(farming.pendingUsdValue, {
+                                {t`In-Progress`}:{' '}
+                                {formatDisplayNumber(rewards.inProgressUsdValue, {
                                   significantDigits: 4,
                                   style: 'currency',
                                 })}
                               </Text>
                               <Text>
                                 {t`Claimable`}:{' '}
-                                {formatDisplayNumber(farming.claimableUsdValue, {
+                                {formatDisplayNumber(rewards.claimableUsdValue, {
                                   significantDigits: 4,
                                   style: 'currency',
                                 })}
@@ -426,7 +450,7 @@ export default function TableContent({
                           placement="bottom"
                         >
                           <Text>
-                            {formatDisplayNumber(farming.unclaimedUsdValue, {
+                            {formatDisplayNumber(rewards.unclaimedUsdValue, {
                               style: 'currency',
                               significantDigits: 4,
                             })}

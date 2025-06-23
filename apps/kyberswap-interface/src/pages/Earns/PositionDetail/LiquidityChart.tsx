@@ -4,6 +4,7 @@ import '@kyberswap/liquidity-chart/style.css'
 import { useMemo } from 'react'
 import { useMedia } from 'react-use'
 import { usePoolDetailQuery } from 'services/poolService'
+import styled, { keyframes } from 'styled-components'
 
 import { ChartWrapper } from 'pages/Earns/PositionDetail/styles'
 import { MEDIA_WIDTHS } from 'theme'
@@ -105,3 +106,79 @@ export default function LiquidityChart({
     </ChartWrapper>
   )
 }
+
+export const LiquidityChartSkeleton = () => {
+  const BAR_COUNT = 22
+  const barHeights = [5, 10, 15, 30, 45, 55, 60, 70, 85, 90, 100, 100, 80, 75, 55, 60, 30, 30, 25, 15, 10, 5]
+
+  return (
+    <SkeletonWrapper>
+      <BarsContainer>
+        {Array.from({ length: BAR_COUNT }).map((_, i) => (
+          <Bar key={i} height={barHeights[i]}>
+            <Shimmer />
+          </Bar>
+        ))}
+      </BarsContainer>
+    </SkeletonWrapper>
+  )
+}
+
+const shimmer = keyframes`
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+`
+
+const SkeletonWrapper = styled.div`
+  width: 100%;
+  height: 300px;
+  padding-top: 8px;
+  margin-top: 16px;
+  position: relative;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  overflow: hidden;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    height: 210px;
+  `}
+`
+
+const BarsContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 2px;
+  height: 100%;
+  width: 100%;
+  padding: 0 8px 4px 8px;
+  z-index: 2;
+`
+
+const Bar = styled.div<{ height: number }>`
+  flex: 1 1 0;
+  min-width: 2px;
+  max-width: 8px;
+  background: ${({ theme }) => theme.background};
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  height: ${({ height }) => height}%;
+`
+
+const Shimmer = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.6;
+  background: linear-gradient(90deg, transparent 0%, #292929 50%, transparent 100%);
+  z-index: 2;
+  animation: ${shimmer} 1.8s linear infinite;
+`

@@ -8,7 +8,6 @@ export interface NativeToken {
   readonly name: string
   readonly logo: string
   readonly decimal: number
-  readonly minForGas: number
 }
 
 export interface NetworkInfo {
@@ -25,7 +24,12 @@ export interface NetworkInfo {
   readonly etherscanUrl: string
   readonly etherscanName: string
   readonly bridgeURL: string
-  readonly nativeToken: NativeToken
+  readonly nativeToken: {
+    readonly symbol: string
+    readonly name: string
+    readonly logo: string
+    readonly decimal: number
+  }
   readonly coingeckoNetworkId: string | null //https://api.coingecko.com/api/v3/asset_platforms
   readonly coingeckoNativeTokenId: string | null //https://api.coingecko.com/api/v3/coins/list
   readonly dexToCompare: string | null
@@ -34,7 +38,6 @@ export interface NetworkInfo {
 
   readonly geckoTermialId: string | null
   readonly state?: ChainState
-  readonly defaultBlockSubgraph: string
   readonly multicall: string
   readonly classic: {
     readonly defaultSubgraph: string

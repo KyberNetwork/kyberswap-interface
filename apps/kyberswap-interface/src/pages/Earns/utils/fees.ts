@@ -215,8 +215,8 @@ export const getUniv4CollectCallData = async ({
   const token1 = claimInfo.tokens[1]
   if (!token0.address || !token1.address) return
 
-  const isToken0Native = token0.address === ETHER_ADDRESS
-  const isToken1Native = token1.address === ETHER_ADDRESS
+  const isToken0Native = token0.address.toLowerCase() === ETHER_ADDRESS.toLowerCase()
+  const isToken1Native = token1.address.toLowerCase() === ETHER_ADDRESS.toLowerCase()
 
   let token0Address: string
   let token1Address: string

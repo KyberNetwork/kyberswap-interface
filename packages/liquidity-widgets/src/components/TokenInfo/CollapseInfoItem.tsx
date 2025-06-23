@@ -1,9 +1,8 @@
 import { ReactNode, useState } from 'react';
 
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@kyber/ui/accordion';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Loader } from '@kyber/ui';
 
 import IconAlertOctagon from '@/assets/svg/alert-octagon.svg';
-import Loader from '@/components/Loader';
 import { ItemData, RISKY_THRESHOLD, WarningType, isItemRisky } from '@/components/TokenInfo/utils';
 
 const CollapseInfoItem = ({
@@ -27,7 +26,7 @@ const CollapseInfoItem = ({
 }) => {
   const [expanded, setExpanded] = useState(true);
 
-  const onExpand = () => setExpanded((prev) => !prev);
+  const onExpand = () => setExpanded(prev => !prev);
 
   return (
     <Accordion type="single" collapsible className="w-full" value={expanded ? 'item-1' : ''}>
@@ -42,9 +41,7 @@ const CollapseInfoItem = ({
               <span>{title}</span>
             </div>
             {(warning > 0 || danger > 0) && (
-              <div
-                className={`flex items-center gap-1 ${warning > 0 ? 'text-warning' : 'text-error'}`}
-              >
+              <div className={`flex items-center gap-1 ${warning > 0 ? 'text-warning' : 'text-error'}`}>
                 <IconAlertOctagon className="h-4 w-4" />
                 {warning > 0 ? warning : danger}
               </div>
@@ -68,12 +65,11 @@ const CollapseInfoItem = ({
             <span className="text-warning font-medium">{totalWarning}</span>
           </div>
 
-          {data.map((item) => {
+          {data.map(item => {
             const { label, value, type, isNumber } = item;
 
             const colorRiskyByType = type === WarningType.RISKY ? 'text-error' : 'text-warning';
-            const colorRiskyByAmount =
-              Number(value) > RISKY_THRESHOLD.RISKY ? 'text-error' : 'text-warning';
+            const colorRiskyByAmount = Number(value) > RISKY_THRESHOLD.RISKY ? 'text-error' : 'text-warning';
             const displayValue = loading ? (
               <Loader className="animate-spin w-[10px] h-[10px]" />
             ) : isNumber && value ? (
@@ -89,10 +85,7 @@ const CollapseInfoItem = ({
             );
 
             return (
-              <div
-                key={label}
-                className="flex items-center gap-[6px] justify-between basis-[45%] text-xs text-subText"
-              >
+              <div key={label} className="flex items-center gap-[6px] justify-between basis-[45%] text-xs text-subText">
                 <span>{label}</span>
                 <span
                   className={`font-medium ${

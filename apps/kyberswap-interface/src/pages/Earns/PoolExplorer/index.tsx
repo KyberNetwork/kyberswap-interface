@@ -1,6 +1,6 @@
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useState } from 'react'
-import { Info, Star } from 'react-feather'
+import { Star } from 'react-feather'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
@@ -69,7 +69,7 @@ const filterTags = [
     label: 'Highlighted Pools',
     value: FilterTag.HIGHLIGHTED_POOL,
     icon: <IconHighlightedPool width={20} color="#FF007A" />,
-    tooltip: 'Pools matching your wallet tokens or top 24h volume pools if no wallet is connected',
+    tooltip: 'Pools matching your wallet tokens or top volume pools if no wallet is connected',
   },
   {
     label: 'High APR',
@@ -105,9 +105,11 @@ const PoolExplorer = () => {
   const theme = useTheme()
   const notify = useNotify()
   const { filters, updateFilters } = useFilter(setSearch)
-  const { widget: zapMigrationWidget, handleOpenZapMigration } = useZapMigrationWidget()
+  const { widget: zapMigrationWidget, handleOpenZapMigration, triggerClose, setTriggerClose } = useZapMigrationWidget()
   const { widget: zapInWidget, handleOpenZapIn } = useZapInWidget({
     onOpenZapMigration: handleOpenZapMigration,
+    triggerClose,
+    setTriggerClose,
   })
   const { data: poolData, isError } = usePoolsExplorerQuery(filters, { pollingInterval: 5 * 60_000 })
   const { supportedDexes, supportedChains } = useSupportedDexesAndChains(filters)
@@ -287,7 +289,7 @@ const PoolExplorer = () => {
           <DropdownMenu width={30} options={timings} value={filters.interval} onChange={onIntervalChange} />
         </Flex>
         <Search
-          placeholder="Search by token symbol or address"
+          placeholder="Search by token symbol or pool/token address"
           searchValue={search}
           allowClear
           onSearch={val => setSearch(val)}
@@ -335,14 +337,6 @@ const PoolExplorer = () => {
                 onClick={() => onSortChange(SortBy.TVL)}
               >
                 {t`TVL`}
-                <MouseoverTooltipDesktopOnly
-                  text={t`Only pools with a Total Value Locked of $10,000 or more are displayed on this page`}
-                  placement="top"
-                >
-                  <Text marginRight={1} marginLeft={1} sx={{ position: 'relative', top: '2.5px' }}>
-                    <Info color={theme.subText} size={16} />
-                  </Text>
-                </MouseoverTooltipDesktopOnly>
                 <SortIcon sorted={filters.sortBy === SortBy.TVL ? (filters.orderBy as Direction) : undefined} />
               </Flex>
               <Flex

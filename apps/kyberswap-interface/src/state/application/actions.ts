@@ -23,12 +23,6 @@ export const addPopup = createAction<{
 }>('application/addPopup')
 export const removePopup = createAction<{ key: string }>('application/removePopup')
 
-export const updateETHPrice = createAction<{
-  currentPrice: string
-  oneDayBackPrice: string
-  pricePercentChange: number
-}>('application/updateETHPrice')
-
 export const updateServiceWorker = createAction<ServiceWorkerRegistration>('application/updateServiceWorker')
 
 export const setSubscribedNotificationTopic = createAction<{

@@ -33,9 +33,11 @@ const EarnLanding = () => {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
   const { isLoading, data } = useExplorerLandingQuery({ userAddress: account })
-  const { widget: zapMigrationWidget, handleOpenZapMigration } = useZapMigrationWidget()
+  const { widget: zapMigrationWidget, handleOpenZapMigration, triggerClose, setTriggerClose } = useZapMigrationWidget()
   const { widget: zapInWidget, handleOpenZapIn } = useZapInWidget({
     onOpenZapMigration: handleOpenZapMigration,
+    triggerClose,
+    setTriggerClose,
   })
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
@@ -136,7 +138,7 @@ const EarnLanding = () => {
 
         <PoolSection
           title={t`Highlighted Pools`}
-          tooltip={t`Pools matching your wallet tokens or top 24h volume pools if no wallet is connected`}
+          tooltip={t`Pools matching your wallet tokens or top volume pools if no wallet is connected`}
           icon={FireIcon}
           tag={FilterTag.HIGHLIGHTED_POOL}
           isLoading={isLoading}

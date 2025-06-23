@@ -11,6 +11,11 @@ export enum PositionHistoryType {
   DEPOSIT = 'DEPOSIT',
 }
 
+export enum ProgramType {
+  EG = 'eg',
+  LM = 'lm',
+}
+
 export interface PositionFilter {
   chainIds?: string
   positionId?: string
@@ -30,7 +35,8 @@ export interface EarnPool {
   feeTier: number
   volume: number
   apr: number
-  kemApr: number
+  kemEGApr: number
+  kemLMApr: number
   liquidity: number
   tvl: number
   chainId?: number
@@ -38,6 +44,7 @@ export interface EarnPool {
     chainId: number
     isFavorite: boolean
   }
+  programs?: Array<ProgramType>
   tokens: Array<{
     address: string
     logoURI: string
@@ -66,7 +73,8 @@ export interface EarnPosition {
   feesClaimed: Array<PositionAmount>
   createdTime: number
   apr: number
-  kemApr: number
+  kemEGApr: number
+  kemLMApr: number
   currentPositionValue: number
   earning24h: number
   earning7d: number
@@ -81,6 +89,7 @@ export interface EarnPosition {
     project: EarnDex
     projectLogo: string
     category: PAIR_CATEGORY
+    programs?: Array<ProgramType>
   }
   suggestionPool: {
     address: string
@@ -122,18 +131,32 @@ export interface ParsedPosition {
     in7d: number
     in24h: number
   }
-  farming: {
+  rewards: {
+    totalUsdValue: number
+    claimedUsdValue: number
     unclaimedUsdValue: number
+    inProgressUsdValue: number
     pendingUsdValue: number
+    vestingUsdValue: number
     claimableUsdValue: number
+    egTokens: Array<TokenRewardInfo>
+    lmTokens: Array<TokenRewardInfo>
+    tokens: Array<TokenRewardInfo>
   }
+  totalValueTokens: Array<{
+    address: string
+    symbol: string
+    amount: number
+  }>
   token0: Token
   token1: Token
   tokenAddress: string
   apr: number
-  kemApr: number
+  kemEGApr: number
+  kemLMApr: number
   feeApr: number
   totalValue: number
+  totalProvidedValue: number
   status: string
   createdTime: number
   unclaimedFees: number
@@ -197,51 +220,53 @@ export interface FeeInfo {
 
 export interface RewardInfo {
   totalUsdValue: number
-  pendingUsdValue: number
-  claimedUsdValue: number
   claimableUsdValue: number
-
-  totalAmount: number
-  claimableAmount: number
-
   nfts: Array<NftRewardInfo>
-  claimableTokens: Array<TokenRewardInfo>
+  chains: Array<ChainRewardInfo>
+}
 
-  chains: Array<{
-    chainId: number
-    totalUsdValue: number
-    pendingUsdValue: number
-    claimedUsdValue: number
-    claimableUsdValue: number
-
-    totalAmount: number
-    claimableAmount: number
-
-    nfts: Array<NftRewardInfo>
-    claimableTokens: Array<TokenRewardInfo>
-  }>
+export interface ChainRewardInfo {
+  chainId: number
+  chainName: string
+  chainLogo: string
+  claimableUsdValue: number
+  tokens: Array<TokenRewardInfo>
 }
 
 export interface NftRewardInfo {
   nftId: string
-  campaignId: string
+  chainId: number
   totalUsdValue: number
-  pendingUsdValue: number
   claimedUsdValue: number
+  inProgressUsdValue: number
+  pendingUsdValue: number
+  vestingUsdValue: number
   claimableUsdValue: number
-
-  totalAmount: number
-  claimableAmount: number
+  unclaimedUsdValue: number
 
   tokens: Array<TokenRewardInfo>
+  egTokens: Array<TokenRewardInfo>
+  lmTokens: Array<TokenRewardInfo>
 }
 
 export interface TokenRewardInfo {
   symbol: string
   logo: string
-  chainId: number
   address: string
+  chainId: number
+
   totalAmount: number
   claimableAmount: number
+  unclaimedAmount: number
+  pendingAmount: number
+  vestingAmount: number
   claimableUsdValue: number
+}
+
+export interface TokenInfo {
+  address: string
+  symbol: string
+  logo: string
+  decimals: number
+  chainId: number
 }

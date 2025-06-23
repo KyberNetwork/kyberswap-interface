@@ -1,21 +1,20 @@
-import { ChainId } from "@/schema/chain";
-import { Token } from "@/schema/token";
-
-import ethereum from "@/constants/networks/ethereum";
-import bsc from "@/constants/networks/bsc";
-import avalanche from "@/constants/networks/avalanche";
-import base from "@/constants/networks/base";
-import blast from "@/constants/networks/blast";
-import fantom from "@/constants/networks/fantom";
-import linea from "@/constants/networks/linea";
-import mantle from "@/constants/networks/mantle";
-import optimism from "@/constants/networks/optimism";
-import scroll from "@/constants/networks/scroll";
-import zkSync from "@/constants/networks/zkSync";
-import berachain from "@/constants/networks/berachain";
-import sonic from "@/constants/networks/sonic";
-import polygon from "@/constants/networks/polygon";
-import arbitrum from "@/constants/networks/arbitrum";
+import arbitrum from '@/constants/networks/arbitrum';
+import avalanche from '@/constants/networks/avalanche';
+import base from '@/constants/networks/base';
+import berachain from '@/constants/networks/berachain';
+import blast from '@/constants/networks/blast';
+import bsc from '@/constants/networks/bsc';
+import ethereum from '@/constants/networks/ethereum';
+import fantom from '@/constants/networks/fantom';
+import linea from '@/constants/networks/linea';
+import mantle from '@/constants/networks/mantle';
+import optimism from '@/constants/networks/optimism';
+import polygon from '@/constants/networks/polygon';
+import scroll from '@/constants/networks/scroll';
+import sonic from '@/constants/networks/sonic';
+import zkSync from '@/constants/networks/zkSync';
+import { ChainId } from '@/schema/chain';
+import { Token } from '@/schema/token';
 
 interface NetworkInfo {
   name: string;

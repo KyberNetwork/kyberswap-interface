@@ -1,6 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
-import EthereumLogo from 'assets/images/ethereum-logo.png'
 import { NetworkInfo } from 'constants/networks/type'
 
 const EMPTY_ARRAY: any[] = []
@@ -17,16 +16,14 @@ const base: NetworkInfo = {
 
   iconSelected: NOT_SUPPORT,
 
-  defaultBlockSubgraph: 'https://base-graph.kyberengineering.io/subgraphs/name/kybernetwork/base-blocks',
   etherscanUrl: 'https://basescan.org',
   etherscanName: 'Base Explorer',
   bridgeURL: 'https://bridge.base.org/deposit',
   nativeToken: {
     symbol: 'ETH',
     name: 'ETH',
-    logo: EthereumLogo,
+    logo: 'https://storage.googleapis.com/ks-setting-1d682dca/9412b9e7-161f-472e-94b2-a62d2c386ab7.png',
     decimal: 18,
-    minForGas: 10 ** 14,
   },
   defaultRpcUrl: 'https://base.kyberengineering.io',
   multicall: '0xcA11bde05977b3631167028862bE2a173976CA11',

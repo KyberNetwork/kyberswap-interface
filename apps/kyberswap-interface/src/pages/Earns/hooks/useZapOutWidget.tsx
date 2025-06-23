@@ -31,7 +31,7 @@ const zapOutDexMapping: Record<EarnDex | Exchange, ZapOutDex> = {
   [EarnDex.DEX_KODIAK_V3]: ZapOutDex.DEX_KODIAK_V3,
   [EarnDex.DEX_UNISWAPV2]: ZapOutDex.DEX_UNISWAPV2,
   [EarnDex.DEX_UNISWAP_V4]: ZapOutDex.DEX_UNISWAP_V4,
-  [EarnDex.DEX_KEM_UNISWAP_V4_FAIRFLOW]: ZapOutDex.DEX_KEM_UNISWAP_V4_FAIRFLOW,
+  [EarnDex.DEX_UNISWAP_V4_FAIRFLOW]: ZapOutDex.DEX_UNISWAP_V4_FAIRFLOW,
   [Exchange.DEX_UNISWAPV3]: ZapOutDex.DEX_UNISWAPV3,
   [Exchange.DEX_PANCAKESWAPV3]: ZapOutDex.DEX_PANCAKESWAPV3,
   [Exchange.DEX_SUSHISWAPV3]: ZapOutDex.DEX_SUSHISWAPV3,
@@ -41,7 +41,7 @@ const zapOutDexMapping: Record<EarnDex | Exchange, ZapOutDex> = {
   [Exchange.DEX_KODIAK_V3]: ZapOutDex.DEX_KODIAK_V3,
   [Exchange.DEX_UNISWAPV2]: ZapOutDex.DEX_UNISWAPV2,
   [Exchange.DEX_UNISWAP_V4]: ZapOutDex.DEX_UNISWAP_V4,
-  [Exchange.DEX_KEM_UNISWAP_V4_FAIRFLOW]: ZapOutDex.DEX_KEM_UNISWAP_V4_FAIRFLOW,
+  [Exchange.DEX_UNISWAP_V4_FAIRFLOW]: ZapOutDex.DEX_UNISWAP_V4_FAIRFLOW,
 }
 
 const useZapOutWidget = (onRefreshPosition?: () => void) => {
@@ -72,13 +72,16 @@ const useZapOutWidget = (onRefreshPosition?: () => void) => {
             },
             onClose: () => {
               setZapOutPureParams(null)
-              onRefreshPosition?.()
+              setTimeout(() => {
+                onRefreshPosition?.()
+              }, 500)
             },
             onConnectWallet: toggleWalletModal,
             onSwitchChain: () => changeNetwork(zapOutPureParams.chainId as number),
             onSubmitTx: async (txData: { from: string; to: string; value: string; data: string }) => {
-              const txHash = await submitTransaction({ library, txData })
-              if (!txHash) throw new Error('Transaction failed')
+              const res = await submitTransaction({ library, txData })
+              const { txHash, error } = res
+              if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
               return txHash
             },
           }

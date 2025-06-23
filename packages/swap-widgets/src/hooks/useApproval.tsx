@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 import { useActiveWeb3 } from './useWeb3Provider'
-import { useApprovals } from '@kyber/hooks/use-approval'
+import { useErc20Approvals } from '@kyber/hooks/use-approval'
 
 export enum APPROVAL_STATE {
   UNKNOWN = 'unknown',
@@ -8,16 +8,17 @@ export enum APPROVAL_STATE {
   APPROVED = 'approved',
   NOT_APPROVED = 'not_approved',
 }
+
 function useApproval(amountToApproveString: string, token: string, spender: string) {
   const { connectedAccount, rpcUrl, onSubmitTx } = useActiveWeb3()
-  const { approvalStates, approve, loading } = useApprovals(
-    [amountToApproveString],
-    [token],
-    connectedAccount.address || '',
+  const { approvalStates, approve, loading } = useErc20Approvals({
+    amounts: [amountToApproveString],
+    addreses: [token],
+    owner: connectedAccount.address || '',
     spender,
     rpcUrl,
     onSubmitTx,
-  )
+  })
 
   return {
     loading,

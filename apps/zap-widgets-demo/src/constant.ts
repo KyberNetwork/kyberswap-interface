@@ -1,10 +1,11 @@
 import { PoolType as ZapInDex } from "@kyberswap/liquidity-widgets";
 import { Dex as ZapMigrationDex } from "@kyberswap/zap-migration-widgets";
 import { PoolType as ZapOutDex } from "@kyberswap/zap-out-widgets";
+import { PoolType as PancakeZapInDex } from "@kyberswap/pancake-liquidity-widgets";
 
 export const zapInDexMapping: Record<ZapInDex, string> = {
   [ZapInDex.DEX_UNISWAP_V4]: "Uniswap V4",
-  [ZapInDex.DEX_KEM_UNISWAP_V4_FAIRFLOW]: "Uniswap V4 FairFlow",
+  [ZapInDex.DEX_UNISWAP_V4_FAIRFLOW]: "Uniswap V4 FairFlow",
   [ZapInDex.DEX_UNISWAPV3]: "Uniswap V3",
   [ZapInDex.DEX_PANCAKESWAPV3]: "PancakeSwap V3",
   [ZapInDex.DEX_METAVAULTV3]: "MetaVault V3",
@@ -31,7 +32,7 @@ export const zapInDexMapping: Record<ZapInDex, string> = {
 
 export const zapMigrationDexMapping: Record<ZapMigrationDex, string> = {
   [ZapMigrationDex.DEX_UNISWAP_V4]: "Uniswap V4",
-  [ZapMigrationDex.DEX_KEM_UNISWAP_V4_FAIRFLOW]: "Uniswap V4 FairFlow",
+  [ZapMigrationDex.DEX_UNISWAP_V4_FAIRFLOW]: "Uniswap V4 FairFlow",
   [ZapMigrationDex.DEX_UNISWAPV3]: "Uniswap V3",
   [ZapMigrationDex.DEX_PANCAKESWAPV3]: "PancakeSwap V3",
   [ZapMigrationDex.DEX_METAVAULTV3]: "MetaVault V3",
@@ -51,7 +52,7 @@ export const zapMigrationDexMapping: Record<ZapMigrationDex, string> = {
 
 export const zapOutDexMapping: Record<ZapOutDex, string> = {
   [ZapOutDex.DEX_UNISWAP_V4]: "Uniswap V4",
-  [ZapOutDex.DEX_KEM_UNISWAP_V4_FAIRFLOW]: "Uniswap V4 FairFlow",
+  [ZapOutDex.DEX_UNISWAP_V4_FAIRFLOW]: "Uniswap V4 FairFlow",
   [ZapOutDex.DEX_UNISWAPV3]: "Uniswap V3",
   [ZapOutDex.DEX_PANCAKESWAPV3]: "PancakeSwap V3",
   [ZapOutDex.DEX_METAVAULTV3]: "MetaVault V3",
@@ -74,4 +75,10 @@ export const zapOutDexMapping: Record<ZapOutDex, string> = {
   [ZapOutDex.DEX_KODIAK_V2]: "Kodiak V2",
   [ZapOutDex.DEX_SQUADSWAP_V3]: "Squad Swap V3",
   [ZapOutDex.DEX_SQUADSWAP_V2]: "Squad Swap V2",
+};
+
+export const pancakeZapInDexMapping: Record<PancakeZapInDex, string> = {
+  [PancakeZapInDex.DEX_PANCAKESWAPV3]: "PancakeSwap V3",
+  [PancakeZapInDex.DEX_PANCAKE_INFINITY_CL]: "Infinity CL",
+  [PancakeZapInDex.DEX_KEM_PANCAKE_INFINITY_CL]: "Kem Infinity CL",
 };

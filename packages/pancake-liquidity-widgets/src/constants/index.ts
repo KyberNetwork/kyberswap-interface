@@ -1,4 +1,5 @@
 import { Address } from "viem";
+import pancakeLogo from "@/assets/pancake.png";
 
 interface Token {
   chainId: number;
@@ -11,6 +12,9 @@ interface Token {
 
 export const NATIVE_TOKEN_ADDRESS =
   "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE";
+
+export const PANCAKE_NATIVE_TOKEN_ADDRESS =
+  "0x0000000000000000000000000000000000000000";
 
 export const NetworkInfo: {
   [chainId: number]: {
@@ -49,7 +53,7 @@ export const NetworkInfo: {
     logo: "https://storage.googleapis.com/ks-setting-1d682dca/14c1b7c4-b66e-4169-b82e-ea6237f15b461699420601184.png",
     scanLink: "https://bscscan.com",
     multiCall: "0xcA11bde05977b3631167028862bE2a173976CA11",
-    defaultRpc: "https://bsc.kyberengineering.io",
+    defaultRpc: "https://bsc-dataseed.bnbchain.org",
     wrappedToken: {
       chainId: 56,
       name: "WBNB",
@@ -239,22 +243,6 @@ export const NetworkInfo: {
   },
 };
 
-export const PANCAKE_NFT_MANAGER_CONTRACT: { [chainId: number]: Address } = {
-  1: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
-  56: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
-  137: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
-  42161: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
-  43114: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
-  8453: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
-  81457: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
-  250: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
-  59144: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
-  5000: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
-  10: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
-  534352: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
-  1101: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
-};
-
 export const MULTICALL_ADDRESS: { [chainId: number]: string } = {
   1: "0x5BA1e12693Dc8F9c48aAD8770482f4739bEeD696",
   137: "0xed386Fe855C1EFf2f843B910923Dd8846E45C5A4",
@@ -275,10 +263,6 @@ export const MULTICALL_ADDRESS: { [chainId: number]: string } = {
 
 export const BASE_BPS = 10_000;
 
-export const PATHS = {
-  KYBERSWAP_SETTING_API: "https://ks-setting.kyberswap.com/api/v1/tokens",
-};
-
 export const chainIdToChain: { [chainId: number]: string } = {
   1: "ethereum",
   137: "polygon",
@@ -296,3 +280,83 @@ export const chainIdToChain: { [chainId: number]: string } = {
 };
 
 export const MAX_ZAP_IN_TOKENS = 5;
+
+export enum PoolType {
+  DEX_PANCAKESWAPV3 = 3,
+  DEX_PANCAKE_INFINITY_CL = 75,
+  DEX_KEM_PANCAKE_INFINITY_CL = 74,
+}
+
+export const API_URL = {
+  KYBERSWAP_SETTING_API: "https://ks-setting.kyberswap.com/api/v1",
+  KYBERSWAP_BFF_API: "https://bff.kyberswap.com/api",
+};
+
+export const POOL_MANAGER_CONTRACT: {
+  [poolType in PoolType]: { [chainId: number]: string } | string;
+} = {
+  [PoolType.DEX_PANCAKESWAPV3]: "",
+  [PoolType.DEX_PANCAKE_INFINITY_CL]: {
+    56: "0xa0FfB9c1CE1Fe56963B0321B32E7A0302114058b",
+  },
+  [PoolType.DEX_KEM_PANCAKE_INFINITY_CL]: {
+    56: "0xa0FfB9c1CE1Fe56963B0321B32E7A0302114058b",
+  },
+};
+
+export const POSITION_MANAGER_CONTRACT: {
+  [poolType in PoolType]: { [chainId: number]: Address } | Address;
+} = {
+  [PoolType.DEX_PANCAKESWAPV3]: {
+    1: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
+    56: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
+    137: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
+    42161: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
+    43114: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
+    8453: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
+    81457: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
+    250: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
+    59144: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
+    5000: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
+    10: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
+    534352: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
+    1101: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
+  },
+  [PoolType.DEX_PANCAKE_INFINITY_CL]: {
+    56: "0x55f4c8abA71A1e923edC303eb4fEfF14608cC226",
+  },
+  [PoolType.DEX_KEM_PANCAKE_INFINITY_CL]: {
+    56: "0x55f4c8abA71A1e923edC303eb4fEfF14608cC226",
+  },
+};
+
+interface DexInfo {
+  name: string;
+  logo: string;
+}
+
+export const DEXES_INFO: { [poolType in PoolType]: DexInfo } = {
+  [PoolType.DEX_PANCAKESWAPV3]: {
+    name: "PancakeSwap V3",
+    logo: pancakeLogo,
+  },
+  [PoolType.DEX_PANCAKE_INFINITY_CL]: {
+    name: "Pancake Infinity CL",
+    logo: pancakeLogo,
+  },
+  [PoolType.DEX_KEM_PANCAKE_INFINITY_CL]: {
+    name: "Pancake Kem Infinity CL",
+    logo: pancakeLogo,
+  },
+};
+
+export enum CoreProtocol {
+  PancakeSwapV3,
+  PancakeInfinityCL,
+}
+
+export const PROTOCOLS_CORE_MAPPING: Record<PoolType, CoreProtocol> = {
+  [PoolType.DEX_PANCAKESWAPV3]: CoreProtocol.PancakeSwapV3,
+  [PoolType.DEX_PANCAKE_INFINITY_CL]: CoreProtocol.PancakeInfinityCL,
+  [PoolType.DEX_KEM_PANCAKE_INFINITY_CL]: CoreProtocol.PancakeInfinityCL,
+};

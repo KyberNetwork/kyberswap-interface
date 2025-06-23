@@ -71,12 +71,22 @@ const UserPositions = () => {
     pollingInterval: 15_000,
   })
 
-  const { widget: zapMigrationWidget, handleOpenZapMigration } = useZapMigrationWidget(refetch)
+  const {
+    widget: zapMigrationWidget,
+    handleOpenZapMigration,
+    triggerClose,
+    setTriggerClose,
+  } = useZapMigrationWidget(refetch)
   const { widget: zapInWidget, handleOpenZapIn } = useZapInWidget({
     onOpenZapMigration: handleOpenZapMigration,
     onRefreshPosition: refetch,
+    triggerClose,
+    setTriggerClose,
   })
-  const { widget: zapOutWidget, handleOpenZapOut } = useZapOutWidget(refetch)
+  const { widget: zapOutWidget, handleOpenZapOut } = useZapOutWidget(() => {
+    refetch()
+    setLoading(true)
+  })
 
   const { rewardInfo } = useKemRewards()
 
@@ -90,7 +100,7 @@ const UserPositions = () => {
   const parsedPositions: Array<ParsedPosition> = useMemo(() => {
     let positionToRender = []
     if (!userPosition || !userPosition.length) {
-      if (!previousPosition || !previousPosition.length) return []
+      if (!previousPosition || !previousPosition.length || !isError) return []
       positionToRender = previousPosition
     } else positionToRender = userPosition
 
@@ -137,8 +147,8 @@ const UserPositions = () => {
         })
       } else if (filters.sortBy === SortBy.UNCLAIMED_REWARDS) {
         parsedData.sort((a, b) => {
-          const aValue = a.farming.unclaimedUsdValue
-          const bValue = b.farming.unclaimedUsdValue
+          const aValue = a.rewards.unclaimedUsdValue
+          const bValue = b.rewards.unclaimedUsdValue
 
           return filters.orderBy === Direction.ASC ? aValue - bValue : bValue - aValue
         })
@@ -151,6 +161,7 @@ const UserPositions = () => {
     filters.orderBy,
     filters.sortBy,
     filters.status,
+    isError,
     previousPosition,
     rewardInfo?.nfts,
     userPosition,
@@ -240,6 +251,8 @@ const UserPositions = () => {
     />
   )
 
+  const initialLoading = isFetching && loading
+
   return (
     <>
       {zapInWidget}
@@ -267,7 +280,7 @@ const UserPositions = () => {
           />
         </Flex>
 
-        {account && <PositionBanner positions={parsedPositions} filters={filters} />}
+        {account && <PositionBanner positions={parsedPositions} initialLoading={initialLoading} />}
 
         <Filter
           supportedChains={supportedChains}

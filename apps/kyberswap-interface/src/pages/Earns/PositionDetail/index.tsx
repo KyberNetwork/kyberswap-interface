@@ -1,6 +1,10 @@
+import { ShareModal, ShareModalProps, ShareType } from '@kyber/ui'
 import { formatAprNumber } from '@kyber/utils/dist/number'
+import { priceToClosestTick } from '@kyber/utils/dist/uniswapv3'
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Share2 } from 'react-feather'
+import Skeleton from 'react-loading-skeleton'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { usePreviousDistinct } from 'react-use'
 import { Flex, Text } from 'rebass'
@@ -11,7 +15,6 @@ import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_
 import { ReactComponent as IconKem } from 'assets/svg/kyber/kem.svg'
 import { ReactComponent as RocketIcon } from 'assets/svg/rocket.svg'
 import InfoHelper from 'components/InfoHelper'
-import LocalLoader from 'components/LocalLoader'
 import TokenLogo from 'components/TokenLogo'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
@@ -24,16 +27,46 @@ import {
   AprSection,
   MigrationLiquidityRecommend,
   PositionDetailWrapper,
+  ShareButtonWrapper,
   TotalLiquiditySection,
   VerticalDivider,
 } from 'pages/Earns/PositionDetail/styles'
 import { EmptyPositionText, PositionPageWrapper } from 'pages/Earns/UserPositions/styles'
-import { Exchange } from 'pages/Earns/constants'
+import {
+  EarnDex,
+  Exchange,
+  POSSIBLE_FARMING_PROTOCOLS,
+  protocolGroupNameToExchangeMapping,
+} from 'pages/Earns/constants'
+import useKemRewards from 'pages/Earns/hooks/useKemRewards'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
-import { FeeInfo, ParsedPosition } from 'pages/Earns/types'
+import { FeeInfo, ParsedPosition, PositionStatus } from 'pages/Earns/types'
 import { getUnclaimedFeesInfo } from 'pages/Earns/utils/fees'
 import { parsePosition } from 'pages/Earns/utils/position'
 import { formatDisplayNumber } from 'utils/numbers'
+
+export const PositionSkeleton = ({
+  width,
+  height,
+  style,
+}: {
+  width: number
+  height: number
+  style?: React.CSSProperties
+}) => {
+  const theme = useTheme()
+
+  return (
+    <Skeleton
+      width={width}
+      height={height}
+      baseColor={theme.background}
+      highlightColor={theme.buttonGray}
+      borderRadius="1rem"
+      style={style}
+    />
+  )
+}
 
 const PositionDetail = () => {
   const firstLoading = useRef(false)
@@ -46,7 +79,12 @@ const PositionDetail = () => {
   const { positionId, chainId, protocol } = useParams()
   const { widget: zapMigrationWidget, handleOpenZapMigration } = useZapMigrationWidget()
 
-  const { data: userPosition, isLoading } = useUserPositionsQuery(
+  const {
+    data: userPosition,
+    isLoading,
+    isFetching,
+    refetch,
+  } = useUserPositionsQuery(
     {
       addresses: account || '',
       positionId: positionId,
@@ -55,10 +93,18 @@ const PositionDetail = () => {
     },
     { skip: !account, pollingInterval: forceLoading ? 5_000 : 15_000 },
   )
+  const { rewardInfo } = useKemRewards()
+  const rewardInfoThisPosition = !userPosition
+    ? undefined
+    : rewardInfo?.nfts.find(item => item.nftId === userPosition?.[0]?.tokenId)
 
   const currentWalletAddress = useRef(account)
   const hadForceLoading = useRef(forceLoading ? true : false)
   const [feeInfoFromRpc, setFeeInfoFromRpc] = useState<FeeInfo | undefined>()
+  const [shareInfo, setShareInfo] = useState<ShareModalProps | undefined>()
+
+  const loadingInterval = isFetching
+  const initialLoading = !!(forceLoading || (isLoading && !firstLoading.current))
 
   const previousPosition = usePreviousDistinct(userPosition)
 
@@ -70,8 +116,12 @@ const PositionDetail = () => {
       positionToRender = previousPosition
     } else positionToRender = userPosition
 
-    return parsePosition({ position: positionToRender[0], feeInfo: feeInfoFromRpc })
-  }, [feeInfoFromRpc, userPosition, previousPosition])
+    return parsePosition({
+      position: positionToRender[0],
+      feeInfo: feeInfoFromRpc,
+      nftRewardInfo: rewardInfoThisPosition,
+    })
+  }, [feeInfoFromRpc, userPosition, previousPosition, rewardInfoThisPosition])
 
   const handleFetchUnclaimedFee = useCallback(async () => {
     if (!position) return
@@ -89,17 +139,35 @@ const PositionDetail = () => {
 
     if (!position || !position.suggestionPool) return
 
+    const tickLower = priceToClosestTick(
+      position.priceRange.min.toString(),
+      position.token0.decimals,
+      position.token1.decimals,
+    )
+    const tickUpper = priceToClosestTick(
+      position.priceRange.max.toString(),
+      position.token0.decimals,
+      position.token1.decimals,
+    )
+
     handleOpenZapMigration({
       chainId: position.chain.id,
       from: {
         dex: position.dex.id,
         poolId: position.pool.address,
-        positionId: position.tokenId,
+        positionId: position.pool.isUniv2 ? account || '' : position.tokenId,
       },
       to: {
         dex: position.suggestionPool?.poolExchange as Exchange,
         poolId: position.suggestionPool?.address || '',
       },
+      initialTick:
+        tickLower && tickUpper
+          ? {
+              tickLower: tickLower,
+              tickUpper: tickUpper,
+            }
+          : undefined,
     })
   }
 
@@ -120,6 +188,8 @@ const PositionDetail = () => {
     }
   }, [forceLoading, position, searchParams, setSearchParams])
 
+  const isFarmingPossible = POSSIBLE_FARMING_PROTOCOLS.includes(protocol as Exchange)
+
   const emptyPosition = (
     <EmptyPositionText>
       <IconEarnNotFound />
@@ -136,36 +206,61 @@ const PositionDetail = () => {
   )
 
   const totalLiquiditySection = (
-    <TotalLiquiditySection showForFarming={position?.pool.isFarming}>
+    <TotalLiquiditySection
+      showForFarming={
+        position?.pool.isFarming ||
+        (initialLoading && isFarmingPossible) ||
+        Number(position?.rewards.claimableUsdValue || 0) > 0
+      }
+    >
       <Flex flexDirection={'column'} alignContent={'flex-start'} sx={{ gap: '6px' }}>
         <Text fontSize={14} color={theme.subText}>
           {t`Total Liquidity`}
         </Text>
-        <Text fontSize={20}>
-          {formatDisplayNumber(position?.totalValue, {
-            style: 'currency',
-            significantDigits: 4,
-          })}
-        </Text>
+        {initialLoading ? (
+          <PositionSkeleton width={95} height={24} />
+        ) : (
+          <Text fontSize={20}>
+            {formatDisplayNumber(position?.totalProvidedValue, {
+              style: 'currency',
+              significantDigits: 4,
+            })}
+          </Text>
+        )}
       </Flex>
       <VerticalDivider />
       <Flex flexDirection={'column'} alignContent={'flex-end'} sx={{ gap: 2 }}>
-        <Flex alignItems={'center'} sx={{ gap: '6px' }}>
-          <TokenLogo src={position?.token0.logo} size={16} />
-          <Text>{formatDisplayNumber(position?.token0.totalAmount, { significantDigits: 6 })}</Text>
-          <Text>{position?.token0.symbol}</Text>
-        </Flex>
-        <Flex alignItems={'center'} sx={{ gap: '6px' }}>
-          <TokenLogo src={position?.token1.logo} size={16} />
-          <Text>{formatDisplayNumber(position?.token1.totalAmount, { significantDigits: 6 })}</Text>
-          <Text>{position?.token1.symbol}</Text>
-        </Flex>
+        {initialLoading ? (
+          <PositionSkeleton width={120} height={19} />
+        ) : (
+          <Flex alignItems={'center'} sx={{ gap: '6px' }} fontSize={16}>
+            <TokenLogo src={position?.token0.logo} size={16} />
+            <Text>{formatDisplayNumber(position?.token0.totalProvide, { significantDigits: 4 })}</Text>
+            <Text>{position?.token0.symbol}</Text>
+          </Flex>
+        )}
+
+        {initialLoading ? (
+          <PositionSkeleton width={120} height={19} />
+        ) : (
+          <Flex alignItems={'center'} sx={{ gap: '6px' }} fontSize={16}>
+            <TokenLogo src={position?.token1.logo} size={16} />
+            <Text>{formatDisplayNumber(position?.token1.totalProvide, { significantDigits: 4 })}</Text>
+            <Text>{position?.token1.symbol}</Text>
+          </Flex>
+        )}
       </Flex>
     </TotalLiquiditySection>
   )
 
   const aprSection = (
-    <AprSection showForFarming={position?.pool.isFarming}>
+    <AprSection
+      showForFarming={
+        position?.pool.isFarming ||
+        (initialLoading && isFarmingPossible) ||
+        Number(position?.rewards.claimableUsdValue || 0) > 0
+      }
+    >
       <Flex alignItems={'center'} sx={{ gap: '2px' }}>
         <Text fontSize={14} color={theme.subText}>
           {t`Est. Position APR`}
@@ -173,38 +268,93 @@ const PositionDetail = () => {
         {position?.pool.isFarming && (
           <InfoHelper
             size={16}
+            fontSize={14}
             placement="top"
             width="fit-content"
             text={
               <div>
                 {t`LP Fee APR`}: {formatAprNumber(position?.feeApr || 0)}%
                 <br />
-                {t`Rewards APR`}: {formatAprNumber(position?.kemApr || 0)}%
+                {t`EG Sharing Reward`}: {formatAprNumber(position?.kemEGApr || 0)}%
+                <br />
+                {t`LM Reward`}: {formatAprNumber(position?.kemLMApr || 0)}%
               </div>
             }
           />
         )}
       </Flex>
-      <Flex alignItems={'center'} sx={{ gap: 1 }}>
-        <Text fontSize={20} color={position?.apr && position.apr > 0 ? theme.primary : theme.text}>
-          {formatAprNumber(position?.apr || 0)}%
-        </Text>
-        {position?.pool.isFarming && <IconKem width={20} height={20} />}
-      </Flex>
+
+      {initialLoading ? (
+        <PositionSkeleton width={70} height={24} />
+      ) : (
+        <Flex alignItems={'center'} sx={{ gap: 1 }}>
+          <Text fontSize={20} color={position?.apr && position.apr > 0 ? theme.primary : theme.text}>
+            {formatAprNumber(position?.apr || 0)}%
+          </Text>
+          {position?.pool.isFarming && <IconKem width={20} height={20} />}
+        </Flex>
+      )}
     </AprSection>
   )
+
+  const shareBtn = useCallback(
+    (type: ShareType) => (
+      <ShareButtonWrapper
+        onClick={() => {
+          if (!position) return
+
+          setShareInfo({
+            type,
+            onClose: () => setShareInfo(undefined),
+            pool: {
+              address: position.pool.address,
+              chainId: position.chain.id,
+              chainLogo: position.chain.logo,
+              dexLogo: position.dex.logo,
+              dexName: position.dex.id,
+              exchange: protocolGroupNameToExchangeMapping[position.dex.id as EarnDex],
+              token0: {
+                symbol: position.token0.symbol,
+                logo: position.token0.logo,
+              },
+              token1: {
+                symbol: position.token1.symbol,
+                logo: position.token1.logo,
+              },
+            },
+            position: {
+              apr: position.apr,
+              createdTime: position.createdTime,
+              rewardApr: (position.kemEGApr || 0) + (position.kemLMApr || 0),
+              earnings: position.earning.earned + position.rewards.totalUsdValue,
+            },
+          })
+        }}
+      >
+        <Share2 size={16} color={theme.subText} />
+      </ShareButtonWrapper>
+    ),
+    [theme.subText, position],
+  )
+
+  const shareModal = shareInfo ? <ShareModal {...shareInfo} /> : null
 
   return (
     <>
       {zapMigrationWidget}
+      {shareModal}
 
       <PositionPageWrapper>
-        {forceLoading || (isLoading && !firstLoading.current) ? (
-          <LocalLoader />
-        ) : !!position ? (
+        {!!position || initialLoading ? (
           <>
-            <PositionDetailHeader position={position} hadForceLoading={hadForceLoading.current} />
-            {!!position?.suggestionPool && (
+            <PositionDetailHeader
+              isLoading={loadingInterval}
+              initialLoading={initialLoading}
+              position={position}
+              hadForceLoading={hadForceLoading.current}
+              shareBtn={shareBtn}
+            />
+            {!!position?.suggestionPool && position.status !== PositionStatus.CLOSED && (
               <MigrationLiquidityRecommend>
                 <Text color={'#fafafa'} lineHeight={'18px'}>
                   {position.pool.fee === position.suggestionPool.feeTier
@@ -219,16 +369,20 @@ const PositionDetail = () => {
             )}
             <PositionDetailWrapper>
               <LeftSection
+                initialLoading={initialLoading}
                 position={position}
                 onFetchUnclaimedFee={handleFetchUnclaimedFee}
                 totalLiquiditySection={totalLiquiditySection}
                 aprSection={aprSection}
+                shareBtn={shareBtn}
               />
               <RightSection
                 position={position}
                 onOpenZapMigration={handleOpenZapMigration}
                 totalLiquiditySection={totalLiquiditySection}
                 aprSection={aprSection}
+                refetch={refetch}
+                initialLoading={initialLoading}
               />
             </PositionDetailWrapper>
           </>

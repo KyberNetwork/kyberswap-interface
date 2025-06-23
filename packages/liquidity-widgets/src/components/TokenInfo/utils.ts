@@ -97,45 +97,31 @@ export const parseMarketTokenInfo = (tokenInfo: TokenInfo | null) => {
     },
     {
       label: 'Market Cap Rank',
-      value: tokenInfo?.marketCapRank
-        ? `#${formattedNum(tokenInfo.marketCapRank.toString())}`
-        : NOT_AVAILABLE,
+      value: tokenInfo?.marketCapRank ? `#${formattedNum(tokenInfo.marketCapRank.toString())}` : NOT_AVAILABLE,
     },
     {
       label: 'Trading Volume (24H)',
-      value: tokenInfo?.tradingVolume
-        ? formatLongNumber(tokenInfo.tradingVolume.toString(), true)
-        : NOT_AVAILABLE,
+      value: tokenInfo?.tradingVolume ? formatLongNumber(tokenInfo.tradingVolume.toString(), true) : NOT_AVAILABLE,
     },
     {
       label: 'Market Cap',
-      value: tokenInfo?.marketCap
-        ? formatLongNumber(tokenInfo.marketCap.toString(), true)
-        : NOT_AVAILABLE,
+      value: tokenInfo?.marketCap ? formatLongNumber(tokenInfo.marketCap.toString(), true) : NOT_AVAILABLE,
     },
     {
       label: 'All-Time High',
-      value: tokenInfo?.allTimeHigh
-        ? formattedNum(tokenInfo.allTimeHigh.toString(), true)
-        : NOT_AVAILABLE,
+      value: tokenInfo?.allTimeHigh ? formattedNum(tokenInfo.allTimeHigh.toString(), true) : NOT_AVAILABLE,
     },
     {
       label: 'All-Time Low',
-      value: tokenInfo?.allTimeLow
-        ? formattedNum(tokenInfo.allTimeLow.toString(), true)
-        : NOT_AVAILABLE,
+      value: tokenInfo?.allTimeLow ? formattedNum(tokenInfo.allTimeLow.toString(), true) : NOT_AVAILABLE,
     },
     {
       label: 'Circulating Supply',
-      value: tokenInfo?.circulatingSupply
-        ? formatLongNumber(tokenInfo.circulatingSupply.toString())
-        : NOT_AVAILABLE,
+      value: tokenInfo?.circulatingSupply ? formatLongNumber(tokenInfo.circulatingSupply.toString()) : NOT_AVAILABLE,
     },
     {
       label: 'Total Supply',
-      value: tokenInfo?.totalSupply
-        ? formatLongNumber(tokenInfo.totalSupply.toString())
-        : NOT_AVAILABLE,
+      value: tokenInfo?.totalSupply ? formatLongNumber(tokenInfo.totalSupply.toString()) : NOT_AVAILABLE,
     },
   ];
 
@@ -144,9 +130,7 @@ export const parseMarketTokenInfo = (tokenInfo: TokenInfo | null) => {
 
 export const shortenAddress = (address: string, chars = 4): string => {
   const parsed = isAddress(address);
-  if (!parsed) {
-    throw Error(`Invalid 'address' parameter '${address}'`);
-  }
+  if (!parsed) return address;
   return `${address.substring(0, chars + 2)}...${address.substring(address.length - chars)}`;
 };
 
@@ -191,8 +175,7 @@ export const RISKY_THRESHOLD = {
 
 export const isItemRisky = ({ value, isNumber, riskyReverse }: ItemData) => {
   const isRisky =
-    (!isNumber && value === '0') ||
-    (isNumber && (Number(value) >= RISKY_THRESHOLD.WARNING || value === ''));
+    (!isNumber && value === '0') || (isNumber && (Number(value) >= RISKY_THRESHOLD.WARNING || value === ''));
   return value !== undefined && (riskyReverse ? !isRisky : isRisky);
 };
 
@@ -211,8 +194,7 @@ const calcTotalRisk = (data: ItemData[]) => {
   });
 };
 
-const reverseValue = (value: string | undefined) =>
-  !value ? undefined : value === '0' ? '1' : '0';
+const reverseValue = (value: string | undefined) => (!value ? undefined : value === '0' ? '1' : '0');
 
 export const getSecurityTokenInfo = (data: SecurityInfo | null) => {
   const contractData: ItemData[] = [
@@ -263,7 +245,7 @@ export const getSecurityTokenInfo = (data: SecurityInfo | null) => {
       type: WarningType.WARNING,
       riskyReverse: true,
     },
-  ].filter((el) => el.value !== undefined);
+  ].filter(el => el.value !== undefined);
 
   const tradingData: ItemData[] = [
     {
@@ -324,12 +306,10 @@ export const getSecurityTokenInfo = (data: SecurityInfo | null) => {
       type: WarningType.WARNING,
       riskyReverse: true,
     },
-  ].filter((el) => el.value !== undefined);
+  ].filter(el => el.value !== undefined);
 
-  const { totalRisk: totalRiskContract, totalWarning: totalWarningContract } =
-    calcTotalRisk(contractData);
-  const { totalRisk: totalRiskTrading, totalWarning: totalWarningTrading } =
-    calcTotalRisk(tradingData);
+  const { totalRisk: totalRiskContract, totalWarning: totalWarningContract } = calcTotalRisk(contractData);
+  const { totalRisk: totalRiskTrading, totalWarning: totalWarningTrading } = calcTotalRisk(tradingData);
 
   return {
     contractData,

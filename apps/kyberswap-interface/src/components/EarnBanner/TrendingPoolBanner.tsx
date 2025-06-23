@@ -54,7 +54,7 @@ export default function TrendingPoolBanner() {
       setTimeout(() => setIndex(prev => (prev >= 9 ? 0 : prev + 1)), 200)
       setTimeout(() => setAnimate(false), 1000)
     }
-    indexInterval = setInterval(handleIndexChange, 4000)
+    indexInterval = setInterval(handleIndexChange, 4_000)
 
     return () => indexInterval && clearInterval(indexInterval)
   }, [])
@@ -70,13 +70,13 @@ export default function TrendingPoolBanner() {
           <Flex alignItems="center">
             <TokenLogo src={pool.tokens[0].logoURI} boxShadowColor="#0b2e24" />
             <TokenLogo src={pool.tokens[1].logoURI} boxShadowColor="#0b2e24" />
-            <Text marginLeft={2}>
+            <Text marginLeft={2} sx={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
               {pool.tokens[0].symbol}/{pool.tokens[1].symbol}
             </Text>
           </Flex>
           <PoolAprWrapper>
             <PoolApr>
-              {formatAprNumber(pool.apr + pool.kemApr)}% <AprText>APR</AprText>
+              {formatAprNumber((pool.apr || 0) + (pool.kemEGApr || 0) + (pool.kemLMApr || 0))}% <AprText>APR</AprText>
             </PoolApr>
           </PoolAprWrapper>
         </PoolWrapper>

@@ -14,8 +14,8 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@kyber/ui/accordion";
-import { MouseoverTooltip } from "@kyber/ui/tooltip";
+  MouseoverTooltip
+} from "@kyber/ui";
 import { formatDisplayNumber } from "@kyber/utils/number";
 import { formatUnits } from "@kyber/utils/crypto";
 

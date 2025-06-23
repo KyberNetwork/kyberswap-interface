@@ -17,7 +17,7 @@ export enum EarnDex {
   DEX_KODIAK_V3 = 'Kodiak Concentrated',
   DEX_UNISWAPV2 = 'Uniswap V2',
   DEX_UNISWAP_V4 = 'Uniswap V4',
-  DEX_KEM_UNISWAP_V4_FAIRFLOW = 'Uniswap V4 FairFlow',
+  DEX_UNISWAP_V4_FAIRFLOW = 'Uniswap V4 FairFlow',
 }
 
 export enum Exchange {
@@ -30,7 +30,7 @@ export enum Exchange {
   DEX_KODIAK_V3 = 'kodiakcl',
   DEX_UNISWAPV2 = 'uniswapv2',
   DEX_UNISWAP_V4 = 'uniswap-v4',
-  DEX_KEM_UNISWAP_V4_FAIRFLOW = 'uniswap-v4-fairflow',
+  DEX_UNISWAP_V4_FAIRFLOW = 'uniswap-v4-fairflow',
 }
 
 export enum EarnChain {
@@ -59,7 +59,7 @@ export const protocolGroupNameToExchangeMapping: { [key in EarnDex]: Exchange } 
   [EarnDex.DEX_KODIAK_V3]: Exchange.DEX_KODIAK_V3,
   [EarnDex.DEX_UNISWAPV2]: Exchange.DEX_UNISWAPV2,
   [EarnDex.DEX_UNISWAP_V4]: Exchange.DEX_UNISWAP_V4,
-  [EarnDex.DEX_KEM_UNISWAP_V4_FAIRFLOW]: Exchange.DEX_KEM_UNISWAP_V4_FAIRFLOW,
+  [EarnDex.DEX_UNISWAP_V4_FAIRFLOW]: Exchange.DEX_UNISWAP_V4_FAIRFLOW,
 }
 
 export const NFT_MANAGER_CONTRACT: { [key in EarnDex]: { [key: string]: string } | string } = {
@@ -114,7 +114,7 @@ export const NFT_MANAGER_CONTRACT: { [key in EarnDex]: { [key: string]: string }
     [ChainId.BLAST]: '0x4ad2f4cca2682cbb5b950d660dd458a1d3f1baad',
     [ChainId.OPTIMISM]: '0x3c3ea4b57a46241e54610e5f022e5c45859a1017',
   },
-  [EarnDex.DEX_KEM_UNISWAP_V4_FAIRFLOW]: {
+  [EarnDex.DEX_UNISWAP_V4_FAIRFLOW]: {
     [ChainId.MAINNET]: '0xbd216513d74c8cf14cf4747e6aaa6420ff64ee9e',
     [ChainId.BSCMAINNET]: '0x7a4a5c919ae2541aed11041a1aeee68f1287f95b',
     [ChainId.MATIC]: '0x1ec2ebf4f37e7363fdfe3551602425af0b3ceef9',
@@ -125,8 +125,6 @@ export const NFT_MANAGER_CONTRACT: { [key in EarnDex]: { [key: string]: string }
     [ChainId.OPTIMISM]: '0x3c3ea4b57a46241e54610e5f022e5c45859a1017',
   },
 }
-
-export const FARMING_DEXES = [EarnDex.DEX_KEM_UNISWAP_V4_FAIRFLOW, Exchange.DEX_KEM_UNISWAP_V4_FAIRFLOW]
 
 export const NATIVE_ADDRESSES: Record<EarnChain, string> = {
   [EarnChain.MAINNET]: ETHER_ADDRESS.toLowerCase(),
@@ -149,7 +147,7 @@ export const NFT_MANAGER_ABI: { [key in EarnDex]: ContractInterface | null } = {
   [EarnDex.DEX_KODIAK_V3]: Univ3NftManagerABI,
   [EarnDex.DEX_UNISWAPV2]: null,
   [EarnDex.DEX_UNISWAP_V4]: Univ4NftManagerABI,
-  [EarnDex.DEX_KEM_UNISWAP_V4_FAIRFLOW]: Univ4NftManagerABI,
+  [EarnDex.DEX_UNISWAP_V4_FAIRFLOW]: Univ4NftManagerABI,
 }
 
 export const UNWRAP_WNATIVE_TOKEN_FUNC: { [key in EarnDex]: string | null } = {
@@ -162,7 +160,7 @@ export const UNWRAP_WNATIVE_TOKEN_FUNC: { [key in EarnDex]: string | null } = {
   [EarnDex.DEX_KODIAK_V3]: 'unwrapWETH9',
   [EarnDex.DEX_UNISWAPV2]: null,
   [EarnDex.DEX_UNISWAP_V4]: null,
-  [EarnDex.DEX_KEM_UNISWAP_V4_FAIRFLOW]: null,
+  [EarnDex.DEX_UNISWAP_V4_FAIRFLOW]: null,
 }
 
 export const PROTOCOL_POSITION_URL: Record<EarnDex, string> = {
@@ -175,7 +173,7 @@ export const PROTOCOL_POSITION_URL: Record<EarnDex, string> = {
   [EarnDex.DEX_KODIAK_V3]: 'https://app.kodiak.finance/#/liquidity/v3/$positionId',
   [EarnDex.DEX_UNISWAPV2]: 'https://app.uniswap.org/positions/v2/$chainName/$poolAddress',
   [EarnDex.DEX_UNISWAP_V4]: 'https://app.uniswap.org/positions/v4/$chainName/$positionId',
-  [EarnDex.DEX_KEM_UNISWAP_V4_FAIRFLOW]: 'https://app.uniswap.org/positions/v4/$chainName/$positionId',
+  [EarnDex.DEX_UNISWAP_V4_FAIRFLOW]: 'https://app.uniswap.org/positions/v4/$chainName/$positionId',
 }
 
 export const DEXES_SUPPORT_COLLECT_FEE: Record<EarnDex, boolean> = {
@@ -188,7 +186,20 @@ export const DEXES_SUPPORT_COLLECT_FEE: Record<EarnDex, boolean> = {
   [EarnDex.DEX_KODIAK_V3]: true,
   [EarnDex.DEX_UNISWAPV2]: false,
   [EarnDex.DEX_UNISWAP_V4]: true,
-  [EarnDex.DEX_KEM_UNISWAP_V4_FAIRFLOW]: true,
+  [EarnDex.DEX_UNISWAP_V4_FAIRFLOW]: true,
+}
+
+export const EXCHANGES_SUPPORT_COLLECT_FEE: Record<Exchange, boolean> = {
+  [Exchange.DEX_UNISWAPV3]: true,
+  [Exchange.DEX_PANCAKESWAPV3]: true,
+  [Exchange.DEX_SUSHISWAPV3]: true,
+  [Exchange.DEX_QUICKSWAPV3ALGEBRA]: true,
+  [Exchange.DEX_CAMELOTV3]: true,
+  [Exchange.DEX_THENAFUSION]: true,
+  [Exchange.DEX_KODIAK_V3]: true,
+  [Exchange.DEX_UNISWAPV2]: false,
+  [Exchange.DEX_UNISWAP_V4]: true,
+  [Exchange.DEX_UNISWAP_V4_FAIRFLOW]: true,
 }
 
 export enum CoreProtocol {
@@ -210,10 +221,25 @@ export const PROTOCOLS_CORE_MAPPING: Record<EarnDex, CoreProtocol> = {
   [EarnDex.DEX_KODIAK_V3]: CoreProtocol.UniswapV3,
   [EarnDex.DEX_UNISWAPV2]: CoreProtocol.UniswapV2,
   [EarnDex.DEX_UNISWAP_V4]: CoreProtocol.UniswapV4,
-  [EarnDex.DEX_KEM_UNISWAP_V4_FAIRFLOW]: CoreProtocol.UniswapV4,
+  [EarnDex.DEX_UNISWAP_V4_FAIRFLOW]: CoreProtocol.UniswapV4,
+}
+
+export const EXCHANGES_CORE_PROTOCOL_MAPPING: Record<Exchange, CoreProtocol> = {
+  [Exchange.DEX_UNISWAPV3]: CoreProtocol.UniswapV3,
+  [Exchange.DEX_PANCAKESWAPV3]: CoreProtocol.UniswapV3,
+  [Exchange.DEX_SUSHISWAPV3]: CoreProtocol.UniswapV3,
+  [Exchange.DEX_QUICKSWAPV3ALGEBRA]: CoreProtocol.AlgebraV1,
+  [Exchange.DEX_CAMELOTV3]: CoreProtocol.AlgebraV19,
+  [Exchange.DEX_THENAFUSION]: CoreProtocol.AlgebraV1,
+  [Exchange.DEX_KODIAK_V3]: CoreProtocol.UniswapV3,
+  [Exchange.DEX_UNISWAPV2]: CoreProtocol.UniswapV2,
+  [Exchange.DEX_UNISWAP_V4]: CoreProtocol.UniswapV4,
+  [Exchange.DEX_UNISWAP_V4_FAIRFLOW]: CoreProtocol.UniswapV4,
 }
 
 export const FARMING_SUPPORTED_CHAIN = [ChainId.MAINNET, ChainId.BASE]
+
+export const POSSIBLE_FARMING_PROTOCOLS = [Exchange.DEX_UNISWAP_V4_FAIRFLOW]
 
 export const KEM_REWARDS_CONTRACT = {
   [ChainId.MAINNET]: '0xF268cd33C76E3ba6963CD080DcE74C7C71d57a60',
@@ -229,4 +255,10 @@ export const UNISWAPV4_STATEVIEW_CONTRACT: Record<EarnChain, string> = {
   [EarnChain.OPTIMISM]: '0xc18a3169788f4f75a170290584eca6395c75ecdb',
   [EarnChain.MATIC]: '0x5ea1bd7974c8a611cbab0bdcafcb1d9cc9b3ba5a',
   [EarnChain.BERA]: '',
+}
+
+export const LIMIT_TEXT_STYLES = {
+  textOverflow: 'ellipsis',
+  overflow: 'hidden',
+  whiteSpace: 'nowrap',
 }

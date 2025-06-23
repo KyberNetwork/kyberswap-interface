@@ -1,7 +1,7 @@
-import { zapOutDexMapping } from "../constant";
-import Input from "./Input";
-import Modal from "./Modal";
-import SubmitButton from "./SubmitButton";
+import { zapOutDexMapping } from "@/constant";
+import Input from "@/components/Input";
+import Modal from "@/components/Modal";
+import SubmitButton from "@/components/SubmitButton";
 import {
   Card,
   CardContent,
@@ -9,10 +9,11 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@kyber/ui/card";
-import { Label } from "@kyber/ui/label";
-import { RadioGroup, RadioGroupItem } from "@kyber/ui/radio-group";
-import { TabsContent } from "@kyber/ui/tabs";
+  Label,
+  RadioGroup,
+  RadioGroupItem,
+  TabsContent,
+} from "@kyber/ui";
 import {
   PoolType as ZapOutDex,
   ChainId,
@@ -22,6 +23,7 @@ import "@kyberswap/zap-out-widgets/dist/style.css";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { useState } from "react";
 import { useAccount, useChainId, useSwitchChain, useWalletClient } from "wagmi";
+import { Zap } from "@/App";
 
 const ZapOut = () => {
   const { address } = useAccount();
@@ -87,7 +89,7 @@ const ZapOut = () => {
   };
 
   return (
-    <TabsContent value="zap-out">
+    <TabsContent value={Zap.ZAP_OUT}>
       <Card>
         <CardHeader>
           <CardTitle>Zap out widget</CardTitle>

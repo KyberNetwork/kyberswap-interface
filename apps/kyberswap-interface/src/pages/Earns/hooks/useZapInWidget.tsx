@@ -4,7 +4,7 @@ import {
   PoolType as ZapInPoolType,
 } from '@kyberswap/liquidity-widgets'
 import '@kyberswap/liquidity-widgets/dist/style.css'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import { NotificationType } from 'components/Announcement/type'
@@ -58,7 +58,7 @@ const zapInDexMapping: Record<EarnDex | Exchange, ZapInPoolType> = {
   [EarnDex.DEX_KODIAK_V3]: ZapInPoolType.DEX_KODIAK_V3,
   [EarnDex.DEX_UNISWAPV2]: ZapInPoolType.DEX_UNISWAPV2,
   [EarnDex.DEX_UNISWAP_V4]: ZapInPoolType.DEX_UNISWAP_V4,
-  [EarnDex.DEX_KEM_UNISWAP_V4_FAIRFLOW]: ZapInPoolType.DEX_KEM_UNISWAP_V4_FAIRFLOW,
+  [EarnDex.DEX_UNISWAP_V4_FAIRFLOW]: ZapInPoolType.DEX_UNISWAP_V4_FAIRFLOW,
   [Exchange.DEX_UNISWAPV3]: ZapInPoolType.DEX_UNISWAPV3,
   [Exchange.DEX_PANCAKESWAPV3]: ZapInPoolType.DEX_PANCAKESWAPV3,
   [Exchange.DEX_SUSHISWAPV3]: ZapInPoolType.DEX_SUSHISWAPV3,
@@ -68,15 +68,19 @@ const zapInDexMapping: Record<EarnDex | Exchange, ZapInPoolType> = {
   [Exchange.DEX_KODIAK_V3]: ZapInPoolType.DEX_KODIAK_V3,
   [Exchange.DEX_UNISWAPV2]: ZapInPoolType.DEX_UNISWAPV2,
   [Exchange.DEX_UNISWAP_V4]: ZapInPoolType.DEX_UNISWAP_V4,
-  [Exchange.DEX_KEM_UNISWAP_V4_FAIRFLOW]: ZapInPoolType.DEX_KEM_UNISWAP_V4_FAIRFLOW,
+  [Exchange.DEX_UNISWAP_V4_FAIRFLOW]: ZapInPoolType.DEX_UNISWAP_V4_FAIRFLOW,
 }
 
 const useZapInWidget = ({
   onOpenZapMigration,
   onRefreshPosition,
+  triggerClose,
+  setTriggerClose,
 }: {
   onOpenZapMigration: (props: ZapMigrationInfo) => void
   onRefreshPosition?: () => void
+  triggerClose?: boolean
+  setTriggerClose?: (value: boolean) => void
 }) => {
   const toggleWalletModal = useWalletModalToggle()
   const notify = useNotify()
@@ -194,8 +198,11 @@ const useZapInWidget = ({
             onSwitchChain: () => changeNetwork(addLiquidityPureParams.chainId as number),
             onOpenZapMigration: handleOpenZapMigration,
             onSubmitTx: async (txData: { from: string; to: string; data: string; value: string; gasLimit: string }) => {
-              const txHash = await submitTransaction({ library, txData })
-              if (!txHash) throw new Error('Transaction failed')
+              const res = await submitTransaction({ library, txData })
+              const { txHash, error } = res
+
+              if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
+
               return txHash
             },
           }
@@ -216,6 +223,13 @@ const useZapInWidget = ({
   )
 
   useAccountChanged(handleCloseZapInWidget)
+
+  useEffect(() => {
+    if (triggerClose && addLiquidityPureParams) {
+      handleCloseZapInWidget()
+      setTriggerClose?.(false)
+    }
+  }, [triggerClose, handleCloseZapInWidget, setTriggerClose, addLiquidityPureParams])
 
   const widget = addLiquidityParams ? (
     <Modal isOpen mobileFullWidth maxWidth={800} width={'800px'} onDismiss={handleCloseZapInWidget}>

@@ -2,12 +2,11 @@ import { useState } from 'react';
 
 import { Token } from '@kyber/schema';
 
-import { useZapState } from '@/hooks/useZapInState';
-
-import TokenSelector, { TOKEN_SELECT_MODE } from '.';
-import Modal from '../Modal';
-import TokenInfo from '../TokenInfo';
-import TokenImportConfirm from './TokenImportConfirm';
+import Modal from '@/components/Modal';
+import TokenInfo from '@/components/TokenInfo';
+import TokenSelector, { TOKEN_SELECT_MODE } from '@/components/TokenSelector';
+import TokenImportConfirm from '@/components/TokenSelector/TokenImportConfirm';
+import { useZapState } from '@/hooks/useZapState';
 
 const TokenSelectorModal = ({
   selectedTokenAddress,

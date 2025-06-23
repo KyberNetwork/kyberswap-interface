@@ -1,5 +1,6 @@
 import { Token } from '@kyber/schema';
-import { Button } from '@kyber/ui/button';
+import { Button } from '@kyber/ui';
+import { getEtherscanLink } from '@kyber/utils';
 
 import IconAlertTriangle from '@/assets/svg/alert-triangle.svg';
 import IconBack from '@/assets/svg/arrow-left.svg';
@@ -9,10 +10,9 @@ import X from '@/assets/svg/x.svg';
 import { shortenAddress } from '@/components/TokenInfo/utils';
 import { MAX_ZAP_IN_TOKENS } from '@/constants';
 import useCopy from '@/hooks/useCopy';
-import { useTokenList } from '@/hooks/useTokenList';
-import { useZapState } from '@/hooks/useZapInState';
-import { useWidgetContext } from '@/stores';
-import { getEtherscanLink } from '@/utils';
+import { useZapState } from '@/hooks/useZapState';
+import { useTokenStore } from '@/stores/useTokenStore';
+import { useWidgetStore } from '@/stores/useWidgetStore';
 
 import { TOKEN_SELECT_MODE } from '.';
 
@@ -33,10 +33,9 @@ const TokenImportConfirm = ({
   onGoBack: () => void;
   onClose: () => void;
 }) => {
-  const chainId = useWidgetContext((s) => s.chainId);
-
   const { tokensIn, setTokensIn, amountsIn, setAmountsIn } = useZapState();
-  const { addToken } = useTokenList();
+  const chainId = useWidgetStore(s => s.chainId);
+  const importToken = useTokenStore(s => s.importToken);
   const Copy = useCopy({ text: token.address });
 
   const handleOpenExternalLink = () => {
@@ -45,11 +44,9 @@ const TokenImportConfirm = ({
   };
 
   const handleAddToken = () => {
-    addToken(token);
+    importToken(token);
     if (mode === TOKEN_SELECT_MODE.SELECT) {
-      const index = tokensIn.findIndex(
-        (tokenIn: Token) => tokenIn.address === selectedTokenAddress
-      );
+      const index = tokensIn.findIndex((tokenIn: Token) => tokenIn.address === selectedTokenAddress);
       if (index > -1) {
         const clonedTokensIn = [...tokensIn];
         clonedTokensIn[index] = token;
@@ -80,9 +77,7 @@ const TokenImportConfirm = ({
       <div className="p-4 flex flex-col gap-4">
         <div className="bg-warning-200 p-[15px] flex rounded-md text-warning items-start gap-2">
           <IconAlertTriangle className="h-[18px]" />
-          <p className="text-sm">
-            This token isn’t frequently swapped. Please do your own research before trading.
-          </p>
+          <p className="text-sm">This token isn’t frequently swapped. Please do your own research before trading.</p>
         </div>
         <div className="bg-[#0f0f0f] rounded-md p-8 flex gap-[10px] items-start">
           <img
@@ -107,7 +102,9 @@ const TokenImportConfirm = ({
             </p>
           </div>
         </div>
-        <Button onClick={handleAddToken}>I understand</Button>
+        <Button className="ks-primary-btn" onClick={handleAddToken}>
+          I understand
+        </Button>
       </div>
     </div>
   );

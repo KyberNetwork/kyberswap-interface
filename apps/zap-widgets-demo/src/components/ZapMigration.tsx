@@ -1,7 +1,7 @@
-import { zapMigrationDexMapping } from "../constant";
-import Input from "./Input";
-import Modal from "./Modal";
-import SubmitButton from "./SubmitButton";
+import { zapMigrationDexMapping } from "@/constant";
+import Input from "@/components/Input";
+import Modal from "@/components/Modal";
+import SubmitButton from "@/components/SubmitButton";
 import {
   Card,
   CardContent,
@@ -9,10 +9,11 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@kyber/ui/card";
-import { Label } from "@kyber/ui/label";
-import { RadioGroup, RadioGroupItem } from "@kyber/ui/radio-group";
-import { TabsContent } from "@kyber/ui/tabs";
+  Label,
+  RadioGroup,
+  RadioGroupItem,
+  TabsContent,
+} from "@kyber/ui";
 import {
   Dex as ZapMigrationDex,
   ZapMigration as ZapMigrationWidget,
@@ -22,6 +23,7 @@ import "@kyberswap/zap-migration-widgets/dist/style.css";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { useState } from "react";
 import { useAccount, useChainId, useSwitchChain, useWalletClient } from "wagmi";
+import { Zap } from "@/App";
 
 const ZapMigration = () => {
   const { address } = useAccount();
@@ -108,7 +110,7 @@ const ZapMigration = () => {
   };
 
   return (
-    <TabsContent value="zap-migration">
+    <TabsContent value={Zap.ZAP_MIGRATION}>
       <Card>
         <CardHeader>
           <CardTitle>Zap migration widget</CardTitle>

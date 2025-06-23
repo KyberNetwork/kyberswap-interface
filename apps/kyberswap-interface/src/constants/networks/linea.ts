@@ -1,6 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
-import EthereumLogo from 'assets/images/ethereum-logo.png'
 import { NetworkInfo } from 'constants/networks/type'
 
 const EMPTY_ARRAY: any[] = []
@@ -17,16 +16,14 @@ const lineaInfo: NetworkInfo = {
 
   iconSelected: NOT_SUPPORT,
 
-  defaultBlockSubgraph: 'https://graph-query.linea.build/subgraphs/name/kybernetwork/linea-blocks',
   etherscanUrl: 'https://lineascan.build',
   etherscanName: 'Linea Explorer',
   bridgeURL: 'https://bridge.linea.build/',
   nativeToken: {
     symbol: 'ETH',
     name: 'LineaETH',
-    logo: EthereumLogo,
+    logo: 'https://storage.googleapis.com/ks-setting-1d682dca/9412b9e7-161f-472e-94b2-a62d2c386ab7.png',
     decimal: 18,
-    minForGas: 10 ** 15,
   },
   defaultRpcUrl: 'https://rpc.linea.build',
   multicall: '0xcA11bde05977b3631167028862bE2a173976CA11',

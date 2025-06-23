@@ -15,7 +15,7 @@ import { ParsedPosition, PositionHistoryType } from 'pages/Earns/types'
 
 const formatDateTime = (number: number) => (number < 10 ? `0${number}` : number)
 
-const PositionHistory = ({ position }: { position: ParsedPosition }) => {
+const PositionHistory = ({ position }: { position?: ParsedPosition }) => {
   const theme = useTheme()
 
   const style: CSSProperties = {
@@ -29,20 +29,25 @@ const PositionHistory = ({ position }: { position: ParsedPosition }) => {
 
   const { account } = useActiveWeb3React()
 
-  const { data: historyData } = usePositionHistoryQuery({
-    chainId: position.chain.id,
-    tokenAddress: position.tokenAddress,
-    tokenId: position.tokenId,
-    userAddress: account,
-  })
+  const { data: historyData } = usePositionHistoryQuery(
+    {
+      chainId: position?.chain.id || 0,
+      tokenAddress: position?.tokenAddress || '',
+      tokenId: position?.tokenId || '',
+      userAddress: account,
+    },
+    { skip: !position },
+  )
 
   const createdTime = useMemo(() => {
+    if (!position?.createdTime) return ''
+
     const data = new Date(position.createdTime * 1000)
     const hours = formatDateTime(data.getHours())
     const minutes = formatDateTime(data.getMinutes())
     const seconds = formatDateTime(data.getSeconds())
     return `${hours}:${minutes}:${seconds} ${data.toLocaleDateString()}`
-  }, [position.createdTime])
+  }, [position?.createdTime])
 
   const txHash = useMemo(() => {
     if (!historyData) return ''
@@ -77,7 +82,9 @@ const PositionHistory = ({ position }: { position: ParsedPosition }) => {
               <Text fontSize={14} color={theme.subText}>{t`Tnx Hash`}</Text>
               <Text
                 color={theme.blue2}
-                onClick={() => window.open(NETWORKS_INFO[position.chain.id as ChainId].etherscanUrl + '/tx/' + txHash)}
+                onClick={() =>
+                  window.open(NETWORKS_INFO[position?.chain.id as ChainId]?.etherscanUrl + '/tx/' + txHash, '_blank')
+                }
                 sx={{ cursor: 'pointer' }}
                 marginRight={-1}
               >{`${txHash.substring(0, 6)}...${txHash.substring(62)}`}</Text>

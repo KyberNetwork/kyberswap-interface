@@ -1,5 +1,5 @@
 import Modal from "@/components/Modal";
-import { ScrollArea } from "@kyber/ui/scroll-area";
+import { ScrollArea } from "@kyber/ui";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
 import X from "@/assets/svg/x.svg";
 import { RefundAction, useZapOutUserState } from "@/stores/state";
@@ -17,7 +17,6 @@ import {
   getCurrentGasPrice,
   isTransactionSuccessful,
 } from "@kyber/utils/crypto";
-import { useTokenPrices } from "@kyber/hooks/use-token-prices";
 import AlertIcon from "@/assets/svg/error.svg";
 import LoadingIcon from "@/assets/svg/loader.svg";
 import CheckIcon from "@/assets/svg/success.svg";
@@ -26,6 +25,7 @@ import { SlippageWarning } from "@/components/SlippageWarning";
 import { WarningMsg } from "@/components/WarningMsg";
 import { cn } from "@kyber/utils/tailwind-helpers";
 import { Univ3PoolType } from "@/schema";
+import { fetchTokenPrice } from "@kyber/utils";
 
 export const Preview = () => {
   const {
@@ -55,8 +55,6 @@ export const Preview = () => {
     value: string;
   } | null>(null);
   const [error, setError] = useState<string>("");
-
-  const { fetchPrices } = useTokenPrices({ addresses: [], chainId });
 
   useEffect(() => {
     if (!route?.route || !showPreview || !account) return;
@@ -103,7 +101,10 @@ export const Preview = () => {
           return "0";
         }),
         getCurrentGasPrice(rpcUrl).catch(() => 0),
-        fetchPrices([wethAddress])
+        fetchTokenPrice({
+          addresses: [wethAddress],
+          chainId,
+        })
           .then((prices) => {
             return prices[wethAddress]?.PriceBuy || 0;
           })
@@ -117,7 +118,7 @@ export const Preview = () => {
 
       setGasUsd(gasUsd);
     })();
-  }, [buildData, account, chainId, rpcUrl, fetchPrices]);
+  }, [buildData, account, chainId, rpcUrl]);
 
   const [showProcessing, setShowProcessing] = useState(false);
   const [submiting, setSubmiting] = useState(false);
@@ -189,25 +190,25 @@ export const Preview = () => {
         <div className="flex flex-col items-center">
           <div className="flex items-center justify-center gap-2 text-xl font-medium my-8">
             {txStatus === "success" ? (
-              <CheckIcon className="w-6 h-6 text-success" />
+              <CheckIcon className="w-7 h-7 text-success" />
             ) : txStatus === "failed" ? (
-              <AlertIcon className="w-6 h-6 text-error" />
+              <AlertIcon className="w-7 h-7 text-error" />
             ) : (
-              <LoadingIcon className="w-6 h-6 text-primary animate-spin" />
+              <LoadingIcon className="w-7 h-7 text-primary animate-spin" />
             )}
             {txStatus === "success"
               ? "Zap Out Success!"
               : txStatus === "failed"
-              ? "Transaction Failed!"
-              : "Processing Transaction"}
+                ? "Transaction Failed!"
+                : "Processing Transaction"}
           </div>
 
-          <div className="text-subText">
+          <div className="text-subText text-center">
             {txStatus === "success"
               ? "You have successfully added liquidity!"
               : txStatus === "failed"
-              ? "An error occurred during the liquidity migration."
-              : "Transaction submitted. Waiting for the transaction to be mined"}
+                ? "An error occurred during the liquidity migration."
+                : "Transaction submitted. Waiting for the transaction to be mined"}
           </div>
           <a
             className="text-primary text-xs mt-4"
@@ -269,8 +270,8 @@ export const Preview = () => {
     zapPiRes.level === PI_LEVEL.VERY_HIGH || zapPiRes.level === PI_LEVEL.INVALID
       ? theme.error
       : zapPiRes.level === PI_LEVEL.HIGH
-      ? theme.warning
-      : theme.subText;
+        ? theme.warning
+        : theme.subText;
 
   return (
     <Modal
@@ -379,8 +380,8 @@ export const Preview = () => {
                 zapPiRes.level === PI_LEVEL.INVALID
                   ? theme.error
                   : zapPiRes.level === PI_LEVEL.HIGH
-                  ? theme.warning
-                  : theme.text,
+                    ? theme.warning
+                    : theme.text,
             }}
           >
             {zapPiRes.display}
@@ -459,8 +460,8 @@ export const Preview = () => {
           pi.piVeryHigh
             ? "bg-error border-solid border-error text-white"
             : pi.piHigh
-            ? "bg-warning border-solid border-warning"
-            : ""
+              ? "bg-warning border-solid border-warning"
+              : ""
         )}
         onClick={async () => {
           if (!account) return;

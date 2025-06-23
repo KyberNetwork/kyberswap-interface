@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react';
 
 import { NATIVE_TOKEN_ADDRESS } from '@kyber/schema';
+import { Skeleton } from '@kyber/ui';
 import { formatUnits } from '@kyber/utils/crypto';
-import { formatDisplayNumber } from '@kyber/utils/number';
+import { formatDisplayNumber, formatWei } from '@kyber/utils/number';
 
 import DropdownIcon from '@/assets/svg/dropdown.svg';
 import defaultTokenLogo from '@/assets/svg/question.svg?url';
@@ -10,12 +11,10 @@ import WalletIcon from '@/assets/svg/wallet.svg';
 import X from '@/assets/svg/x.svg';
 import TokenSelectorModal from '@/components/TokenSelector/TokenSelectorModal';
 import { TOKEN_SELECT_MODE } from '@/components/TokenSelector/index';
-import { useZapState } from '@/hooks/useZapInState';
-import { formatWei } from '@/utils';
+import { useZapState } from '@/hooks/useZapState';
 
 export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
-  const { tokensIn, setTokensIn, amountsIn, setAmountsIn, balanceTokens, tokenPrices } =
-    useZapState();
+  const { tokensIn, setTokensIn, amountsIn, setAmountsIn, balanceTokens, tokenPrices } = useZapState();
 
   const [openTokenSelectModal, setOpenTokenSelectModal] = useState<boolean>(false);
 
@@ -24,18 +23,17 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
 
   const usdAmount = useMemo(
     () => tokenPrices[token.address.toLowerCase()] * parseFloat(amount || '0'),
-    [tokenPrices, token.address, amount]
+    [tokenPrices, token.address, amount],
   );
 
   const balanceInWei = useMemo(
     () =>
       balanceTokens[
-        token.address === NATIVE_TOKEN_ADDRESS ||
-        token.address === NATIVE_TOKEN_ADDRESS.toLowerCase()
-          ? NATIVE_TOKEN_ADDRESS
+        token.address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase()
+          ? NATIVE_TOKEN_ADDRESS.toLowerCase()
           : token.address.toLowerCase()
       ]?.toString() || '0',
-    [balanceTokens, token]
+    [balanceTokens, token],
   );
 
   const onChangeAmount = (e: any) => {
@@ -81,10 +79,7 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
             <button
               className="rounded-full outline-inherit cursor-pointer items-center flex gap-1 hover:brightness-150 active:scale-95 py-[2px] px-2 text-xs bg-transparent border-[1.8px] border-solid border-stroke font-normal text-subText brightness-150"
               onClick={() => {
-                if (balanceInWei)
-                  onChangeTokenAmount(
-                    formatUnits(BigInt(balanceInWei).toString(), token?.decimals)
-                  );
+                if (balanceInWei) onChangeTokenAmount(formatUnits(BigInt(balanceInWei).toString(), token?.decimals));
               }}
             >
               Max
@@ -93,9 +88,7 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
               className="rounded-full outline-inherit cursor-pointer items-center flex gap-1 hover:brightness-150 active:scale-95 py-[2px] px-2 text-xs bg-transparent border-[1.8px] border-solid border-stroke font-normal text-subText brightness-150"
               onClick={() => {
                 if (balanceInWei)
-                  onChangeTokenAmount(
-                    formatUnits((BigInt(balanceInWei) / 2n).toString(), token.decimals)
-                  );
+                  onChangeTokenAmount(formatUnits((BigInt(balanceInWei) / 2n).toString(), token.decimals));
               }}
             >
               Half
@@ -105,8 +98,7 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
           <div
             className="flex items-center gap-[6px] cursor-pointer"
             onClick={() => {
-              if (balanceInWei)
-                onChangeTokenAmount(formatUnits(BigInt(balanceInWei).toString(), token?.decimals));
+              if (balanceInWei) onChangeTokenAmount(formatUnits(BigInt(balanceInWei).toString(), token?.decimals));
             }}
           >
             <WalletIcon />
@@ -171,3 +163,30 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
     </>
   );
 }
+
+export const LiquidityToAddSkeleton = () => {
+  return (
+    <div className="mt-4 border border-stroke rounded-md p-3 brightness-85 bg-layer2 relative">
+      <div className="flex justify-between text-subText text-sm font-medium">
+        <div className="flex items-center gap-[6px]">
+          <button className="rounded-full outline-inherit cursor-pointer items-center flex gap-1 hover:brightness-150 active:scale-95 py-[2px] px-2 text-xs bg-transparent border-[1.8px] border-solid border-stroke font-normal text-subText brightness-150">
+            Max
+          </button>
+          <button className="rounded-full outline-inherit cursor-pointer items-center flex gap-1 hover:brightness-150 active:scale-95 py-[2px] px-2 text-xs bg-transparent border-[1.8px] border-solid border-stroke font-normal text-subText brightness-150">
+            Half
+          </button>
+        </div>
+
+        <div className="flex items-center gap-[6px] cursor-pointer">
+          <WalletIcon />
+          <Skeleton className="w-16 h-5" />
+        </div>
+      </div>
+
+      <div className="w-full flex mt-4 items-center gap-2">
+        <div className="flex-1" />
+        <Skeleton className="w-32 h-9" />
+      </div>
+    </div>
+  );
+};

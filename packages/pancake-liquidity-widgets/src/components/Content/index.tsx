@@ -13,9 +13,13 @@ import Preview, { ZapState } from "@/components/Preview";
 import Modal from "@/components/Modal";
 import InfoHelper from "@/components/InfoHelper";
 import { useWeb3Provider } from "@/hooks/useProvider";
-import { ImpactType, PI_LEVEL, getPriceImpact } from "@/utils";
-import { tryParseTick } from "@/utils/pancakev3";
-import { nearestUsableTick } from "@pancakeswap/v3-sdk";
+import {
+  ImpactType,
+  PI_LEVEL,
+  correctPrice,
+  getPriceImpact,
+  isForkFrom,
+} from "@/utils";
 import {
   ZapAction,
   AggregatorSwapAction,
@@ -25,8 +29,14 @@ import {
 } from "@/types/zapInTypes";
 import X from "@/assets/x.svg";
 import ErrorIcon from "@/assets/error.svg";
-import { MAX_ZAP_IN_TOKENS } from "@/constants";
-// import LiquidityChart from "./LiquidityChart";
+import {
+  MAX_ZAP_IN_TOKENS,
+  NetworkInfo,
+  POSITION_MANAGER_CONTRACT,
+  CoreProtocol,
+} from "@/constants";
+import { tickToPrice } from "@kyber/utils/uniswapv3";
+import { useNftApproval } from "@/hooks/useNftApproval";
 
 export default function Content({
   onDismiss,
@@ -60,11 +70,34 @@ export default function Content({
     error: loadPoolError,
     onConnectWallet,
     onOpenTokenSelectModal,
+    poolType,
   } = useWidgetInfo();
-  const { account } = useWeb3Provider();
+  const { account, chainId } = useWeb3Provider();
 
   const [clickedApprove, setClickedLoading] = useState(false);
   const [snapshotState, setSnapshotState] = useState<ZapState | null>(null);
+
+  const nftManager = POSITION_MANAGER_CONTRACT[poolType];
+  const nftManagerContract =
+    typeof nftManager === "string" ? nftManager : nftManager[chainId];
+
+  const {
+    isChecking,
+    isApproved: nftApproved,
+    approve: approveNft,
+    pendingTx: pendingTxNft,
+    checkApproval: checkNftApproval,
+  } = useNftApproval({
+    rpcUrl: NetworkInfo[chainId].defaultRpc,
+    nftManagerContract,
+    nftId: positionId ? +positionId : undefined,
+    spender: zapInfo?.routerAddress,
+  });
+
+  const isPancakeInfinityCL = isForkFrom(
+    poolType,
+    CoreProtocol.PancakeInfinityCL
+  );
 
   const amountsInWei: string[] = useMemo(
     () =>
@@ -153,16 +186,29 @@ export default function Content({
     if (error) return error;
     if (zapLoading) return "Loading...";
     if (loading) return "Checking Allowance";
-    if (addressToApprove) return "Approving";
+    if (addressToApprove || pendingTxNft) return "Approving";
     if (notApprove) return `Approve ${notApprove.symbol}`;
+    if (isPancakeInfinityCL && positionId && !nftApproved) return "Approve NFT";
     if (pi.piVeryHigh) return "Zap anyway";
 
     return "Preview";
-  }, [addressToApprove, error, loading, notApprove, pi, zapLoading]);
+  }, [
+    addressToApprove,
+    error,
+    isPancakeInfinityCL,
+    loading,
+    nftApproved,
+    notApprove,
+    pendingTxNft,
+    pi.piVeryHigh,
+    positionId,
+    zapLoading,
+  ]);
 
   const disabled = useMemo(
     () =>
       clickedApprove ||
+      (isPancakeInfinityCL && positionId && (pendingTxNft || isChecking)) ||
       loading ||
       zapLoading ||
       !!error ||
@@ -175,8 +221,12 @@ export default function Content({
       clickedApprove,
       degenMode,
       error,
+      isChecking,
+      isPancakeInfinityCL,
       loading,
+      pendingTxNft,
       pi.piVeryHigh,
+      positionId,
       zapLoading,
     ]
   );
@@ -185,6 +235,9 @@ export default function Content({
     if (notApprove) {
       setClickedLoading(true);
       approve(notApprove.address).finally(() => setClickedLoading(false));
+    } else if (isPancakeInfinityCL && positionId && !nftApproved) {
+      setClickedLoading(true);
+      approveNft().finally(() => setClickedLoading(false));
     } else if (
       pool &&
       amountsIn &&
@@ -221,47 +274,37 @@ export default function Content({
     }
   }, [snapshotState, onTogglePreview]);
 
-  const correctPrice = useCallback(
-    (value: string, type: Type) => {
-      if (!pool) return;
-      if (revertPrice) {
-        const defaultTick =
-          (type === Type.PriceLower ? tickLower : tickUpper) ||
-          pool?.tickCurrent;
-        const tick =
-          tryParseTick(pool?.token1, pool?.token0, pool?.fee, value) ??
-          defaultTick;
-        if (Number.isInteger(tick))
-          setTick(type, nearestUsableTick(tick, pool.tickSpacing));
-      } else {
-        const defaultTick =
-          (type === Type.PriceLower ? tickLower : tickUpper) ||
-          pool?.tickCurrent;
-        const tick =
-          tryParseTick(pool?.token0, pool?.token1, pool?.fee, value) ??
-          defaultTick;
-        if (Number.isInteger(tick))
-          setTick(type, nearestUsableTick(tick, pool.tickSpacing));
-      }
-    },
-    [pool, revertPrice, tickLower, tickUpper, setTick]
-  );
-
   const currentPoolPrice = pool
-    ? revertPrice
-      ? pool.priceOf(pool.token1)
-      : pool.priceOf(pool.token0)
+    ? tickToPrice(
+        pool.tickCurrent,
+        pool.token0.decimals,
+        pool.token1.decimals,
+        revertPrice
+      )
     : undefined;
 
   const selectPriceRange = useCallback(
     (percent: number) => {
       if (!currentPoolPrice) return;
-      const left = +currentPoolPrice.toSignificant(18) * (1 - percent);
-      const right = +currentPoolPrice.toSignificant(18) * (1 + percent);
-      correctPrice(left.toString(), Type.PriceLower);
-      correctPrice(right.toString(), Type.PriceUpper);
+      const left = +currentPoolPrice * (1 - percent);
+      const right = +currentPoolPrice * (1 + percent);
+
+      correctPrice({
+        value: left.toString(),
+        type: Type.PriceLower,
+        pool,
+        revertPrice,
+        setTick,
+      });
+      correctPrice({
+        value: right.toString(),
+        type: Type.PriceUpper,
+        pool,
+        revertPrice,
+        setTick,
+      });
     },
-    [correctPrice, currentPoolPrice]
+    [currentPoolPrice, pool, revertPrice, setTick]
   );
 
   useEffect(() => {
@@ -276,7 +319,7 @@ export default function Content({
             <ErrorIcon />
             <div className="text-center">{loadPoolError}</div>
             <button
-              className="ks-primary-btn w-[95%] bg-error border border-error"
+              className="pcs-primary-btn w-[95%] bg-error border border-error"
               onClick={onDismiss}
             >
               Close
@@ -299,6 +342,7 @@ export default function Content({
 
           <Preview
             onTxSubmit={onTxSubmit}
+            checkNftApproval={checkNftApproval}
             zapState={snapshotState}
             onDismiss={() => {
               setSnapshotState(null);
@@ -341,7 +385,7 @@ export default function Content({
             Set price ranges
           </div>
 
-          <div className="ks-lw-card">
+          <div className="pcs-lw-card">
             <PriceInfo />
 
             <div className="grid grid-cols-2 gap-2">
@@ -352,25 +396,25 @@ export default function Content({
             {positionId === undefined && (
               <div className="mt-[10px] w-full flex justify-between gap-2 text-xs">
                 <button
-                  className="ks-outline-btn medium"
+                  className="pcs-outline-btn medium"
                   onClick={() => selectPriceRange(0.1)}
                 >
                   10%
                 </button>
                 <button
-                  className="ks-outline-btn medium"
+                  className="pcs-outline-btn medium"
                   onClick={() => selectPriceRange(0.2)}
                 >
                   20%
                 </button>
                 <button
-                  className="ks-outline-btn medium"
+                  className="pcs-outline-btn medium"
                   onClick={() => selectPriceRange(0.75)}
                 >
                   75%
                 </button>
                 <button
-                  className="ks-outline-btn medium"
+                  className="pcs-outline-btn medium"
                   onClick={() => {
                     if (!pool) return;
                     setTick(
@@ -397,18 +441,18 @@ export default function Content({
       </div>
 
       <div className="flex gap-6 p-6">
-        <button className="ks-outline-btn flex-1" onClick={onDismiss}>
+        <button className="pcs-outline-btn flex-1" onClick={onDismiss}>
           Cancel
         </button>
 
         {!account ? (
-          <button className="ks-primary-btn flex-1" onClick={onConnectWallet}>
+          <button className="pcs-primary-btn flex-1" onClick={onConnectWallet}>
             Connect Wallet
           </button>
         ) : (
           <button
-            className="ks-primary-btn flex-1"
-            disabled={disabled}
+            className="pcs-primary-btn flex-1"
+            disabled={!!disabled}
             onClick={hanldeClick}
             style={
               !disabled &&
@@ -420,14 +464,14 @@ export default function Content({
                       pi.piVeryHigh && degenMode
                         ? theme.error
                         : pi.piHigh
-                        ? theme.warning
-                        : undefined,
+                          ? theme.warning
+                          : undefined,
                     border:
                       pi.piVeryHigh && degenMode
                         ? `1px solid ${theme.error}`
                         : pi.piHigh
-                        ? theme.warning
-                        : undefined,
+                          ? theme.warning
+                          : undefined,
                     color: pi.piVeryHigh && degenMode ? "fff" : undefined,
                   }
                 : {}

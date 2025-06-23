@@ -1,64 +1,8 @@
 import { useState } from 'react';
 
 import AlertIcon from '@/assets/svg/alert.svg';
-import { useZapState } from '@/hooks/useZapInState';
-
-export const parseSlippageInput = (str: string): number => Math.round(Number.parseFloat(str) * 100);
-
-export const validateSlippageInput = (
-  str: string,
-  suggestedSlippage: number
-): { isValid: boolean; message?: string } => {
-  if (str === '') {
-    return {
-      isValid: true,
-    };
-  }
-
-  const numberRegex = /^(\d+)\.?(\d{1,2})?$/;
-  if (!str.match(numberRegex)) {
-    return {
-      isValid: false,
-      message: `Enter a valid slippage percentage`,
-    };
-  }
-
-  const rawSlippage = parseSlippageInput(str);
-
-  if (Number.isNaN(rawSlippage)) {
-    return {
-      isValid: false,
-      message: `Enter a valid slippage percentage`,
-    };
-  }
-
-  if (rawSlippage < 0) {
-    return {
-      isValid: false,
-      message: `Enter a valid slippage percentage`,
-    };
-  } else if (rawSlippage < suggestedSlippage / 2) {
-    return {
-      isValid: true,
-      message: `Your slippage is set lower than usual, increasing the risk of transaction failure.`,
-    };
-    // max slippage
-  } else if (rawSlippage > 5000) {
-    return {
-      isValid: false,
-      message: `Enter a smaller slippage percentage`,
-    };
-  } else if (rawSlippage > 2 * suggestedSlippage) {
-    return {
-      isValid: true,
-      message: `Your slippage is set higher than usual, which may cause unexpected losses.`,
-    };
-  }
-
-  return {
-    isValid: true,
-  };
-};
+import { parseSlippageInput, validateSlippageInput } from '@/components/Setting/utils';
+import { useZapState } from '@/hooks/useZapState';
 
 const SlippageInput = () => {
   const { slippage, setSlippage, setManualSlippage, zapInfo } = useZapState();
@@ -71,10 +15,7 @@ const SlippageInput = () => {
 
   const [isFocus, setIsFocus] = useState(false);
   const { isValid, message } = validateSlippageInput(v, suggestedSlippage);
-  const { message: slpWarning } = validateSlippageInput(
-    ((slippage * 100) / 10_000).toString(),
-    suggestedSlippage
-  );
+  const { message: slpWarning } = validateSlippageInput(((slippage * 100) / 10_000).toString(), suggestedSlippage);
 
   const onCustomSlippageFocus = () => setIsFocus(true);
 
@@ -116,7 +57,7 @@ const SlippageInput = () => {
   return (
     <>
       <div className="rounded-full mt-2 bg-layer1 p-1 flex gap-[2px]">
-        {[5, 10, 50, 100].map((item) => (
+        {[5, 10, 50, 100].map(item => (
           <div
             className="relative border rounded-full text-subText text-sm p-1 font-medium w-12 flex border-solid border-transparent items-center gap-1 justify-center cursor-pointer hover:border-accent data-[active='true']:text-text data-[active='true']:border-accent"
             data-active={item === slippage}
@@ -142,9 +83,7 @@ const SlippageInput = () => {
           style={{ flex: 3 }}
         >
           {zapInfo && message && (
-            <AlertIcon
-              className={`absolute top-[5px] left-1 w-4 h-4 ${isValid ? 'text-warning' : 'text-error'}`}
-            />
+            <AlertIcon className={`absolute top-[5px] left-1 w-4 h-4 ${isValid ? 'text-warning' : 'text-error'}`} />
           )}
           <input
             className="bg-layer1 border-none outline-none text-right text-text w-full text-xs p-0 focus:bg-layer1"
@@ -160,9 +99,7 @@ const SlippageInput = () => {
         </div>
       </div>
       {zapInfo && (message || slippage) && (
-        <div
-          className={`text-xs text-left mt-1 max-w-[280px] ${isValid ? 'text-warning' : 'text-error'}`}
-        >
+        <div className={`text-xs text-left mt-1 max-w-[280px] ${isValid ? 'text-warning' : 'text-error'}`}>
           {message || slpWarning}
         </div>
       )}

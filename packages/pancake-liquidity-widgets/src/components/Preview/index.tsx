@@ -4,7 +4,6 @@ import { MouseoverTooltip } from "@/components/Tooltip";
 import { ZAP_URL, useZapState } from "@/hooks/useZapInState";
 import { useWeb3Provider } from "@/hooks/useProvider";
 import { useWidgetInfo } from "@/hooks/useWidgetInfo";
-import { useTokenPrices } from "@kyber/hooks/use-token-prices";
 import {
   ZapAction,
   AddLiquidityAction,
@@ -29,8 +28,7 @@ import {
   getPriceImpact,
   getWarningThreshold,
 } from "@/utils";
-import { Token, Price } from "@pancakeswap/sdk";
-import { PancakeToken, PancakeV3Pool } from "@/entities/Pool";
+import { PancakeToken, Pool } from "@/entities/Pool";
 import { PancakeTokenAdvanced } from "@/types/zapInTypes";
 import Info from "@/assets/info.svg";
 import DropdownIcon from "@/assets/dropdown.svg";
@@ -46,14 +44,17 @@ import {
   AccordionTrigger,
 } from "@kyber/ui/accordion";
 import defaultTokenLogo from "@/assets/question.svg?url";
+import { tickToPrice } from "@kyber/utils/uniswapv3";
+import { formatDisplayNumber } from "@kyber/utils/number";
+import { fetchTokenPrice } from "@kyber/utils";
 
 export interface ZapState {
-  pool: PancakeV3Pool;
+  pool: Pool;
   zapInfo: ZapRouteDetail;
   tokensIn: PancakeTokenAdvanced[];
   amountsIn: string;
-  priceLower: Price<Token, Token>;
-  priceUpper: Price<Token, Token>;
+  priceLower: string;
+  priceUpper: string;
   deadline: number;
   isFullRange: boolean;
   slippage: number;
@@ -65,6 +66,7 @@ export interface PreviewProps {
   zapState: ZapState;
   onDismiss: () => void;
   onTxSubmit?: (tx: string) => void;
+  checkNftApproval: () => void;
 }
 
 export default function Preview({
@@ -73,8 +75,6 @@ export default function Preview({
     zapInfo,
     tokensIn,
     amountsIn,
-    priceLower,
-    priceUpper,
     deadline,
     slippage,
     tickLower,
@@ -82,18 +82,23 @@ export default function Preview({
   },
   onDismiss,
   onTxSubmit,
+  checkNftApproval,
 }: PreviewProps) {
   const { chainId, account, publicClient, walletClient } = useWeb3Provider();
-  const { positionId, position } = useWidgetInfo();
-  const { source, revertPrice: revert, toggleRevertPrice } = useZapState();
+  const { positionId, position, poolType } = useWidgetInfo();
+  const {
+    source,
+    revertPrice: revert,
+    toggleRevertPrice,
+    priceLower,
+    priceUpper,
+  } = useZapState();
 
   const [txHash, setTxHash] = useState<Address | undefined>(undefined);
   const [attempTx, setAttempTx] = useState(false);
   const [txError, setTxError] = useState<Error | null>(null);
   const [txStatus, setTxStatus] = useState<"success" | "failed" | "">("");
   const [showErrorDetail, setShowErrorDetail] = useState(false);
-
-  const { fetchPrices } = useTokenPrices({ addresses: [], chainId });
 
   const token0 = pool.token0 as PancakeToken;
   const token1 = pool.token1 as PancakeToken;
@@ -138,12 +143,12 @@ export default function Preview({
   );
 
   const positionAmount0Usd =
-    (+(position?.amount0.toExact() || 0) *
+    (+(position?.amount0 || 0) *
       +(addedLiqInfo?.addLiquidity.token0.amountUsd || 0)) /
       +addedAmount0 || 0;
 
   const positionAmount1Usd =
-    (+(position?.amount1.toExact() || 0) *
+    (+(position?.amount1 || 0) *
       +(addedLiqInfo?.addLiquidity.token1.amountUsd || 0)) /
       +addedAmount1 || 0;
 
@@ -178,14 +183,13 @@ export default function Preview({
     0;
 
   const price = pool
-    ? (revert
-        ? pool.priceOf(pool.token1)
-        : pool.priceOf(pool.token0)
-      ).toSignificant(6)
+    ? tickToPrice(
+        pool.tickCurrent,
+        pool.token0.decimals,
+        pool.token1.decimals,
+        revert
+      )
     : "--";
-
-  const leftPrice = !revert ? priceLower : priceUpper?.invert();
-  const rightPrice = !revert ? priceUpper : priceLower?.invert();
 
   const quote = (
     <span>
@@ -250,7 +254,10 @@ export default function Preview({
               NetworkInfo[chainId].wrappedToken.address.toLowerCase();
             const [estimateGas, priceRes, gasPrice] = await Promise.all([
               publicClient.estimateGas(txData),
-              fetchPrices([wethAddress]),
+              fetchTokenPrice({
+                addresses: [wethAddress],
+                chainId,
+              }),
               publicClient.getGasPrice(),
             ]);
             const price = priceRes?.[wethAddress]?.PriceBuy || 0;
@@ -406,6 +413,28 @@ export default function Preview({
     return { piRes: { level: PI_LEVEL.NORMAL, msg: "" } };
   }, [swapPi]);
 
+  const priceRange = useMemo(() => {
+    if (!pool) return null;
+
+    const maxPrice = !revert
+      ? tickUpper === pool.maxTick
+        ? "∞"
+        : formatDisplayNumber(priceUpper, { significantDigits: 6 })
+      : tickLower === pool.minTick
+        ? "∞"
+        : formatDisplayNumber(priceLower, { significantDigits: 6 });
+
+    const minPrice = !revert
+      ? tickLower === pool.minTick
+        ? "0"
+        : formatDisplayNumber(priceLower, { significantDigits: 6 })
+      : tickUpper === pool.maxTick
+        ? "0"
+        : formatDisplayNumber(priceUpper, { significantDigits: 6 });
+
+    return [minPrice, maxPrice];
+  }, [pool, tickUpper, revert, priceUpper, tickLower, priceLower]);
+
   if (attempTx || txHash) {
     let txStatusText = "";
     if (txHash) {
@@ -433,7 +462,7 @@ export default function Preview({
               Confirm this transaction in your wallet - Zapping{" "}
               {positionId
                 ? `Position #${positionId}`
-                : `${getDexName()} ${pool.token0.symbol}/${
+                : `${getDexName(poolType)} ${pool.token0.symbol}/${
                     pool.token1.symbol
                   } ${pool.fee / 10_000}%`}
             </div>
@@ -456,7 +485,13 @@ export default function Preview({
             View transaction ↗
           </a>
         )}
-        <button className="ks-primary-btn w-full" onClick={onDismiss}>
+        <button
+          className="pcs-primary-btn w-full"
+          onClick={() => {
+            checkNftApproval();
+            onDismiss();
+          }}
+        >
           Close
         </button>
       </div>
@@ -491,7 +526,7 @@ export default function Preview({
           <div className="h-[1px] w-full bg-cardBorder" />
 
           <div
-            className={`ks-error-msg ${
+            className={`pcs-error-msg ${
               showErrorDetail ? "mt-3 max-h-[200px]" : ""
             }`}
           >
@@ -499,7 +534,7 @@ export default function Preview({
           </div>
         </div>
 
-        <button className="ks-primary-btn w-full" onClick={onDismiss}>
+        <button className="pcs-primary-btn w-full" onClick={onDismiss}>
           {txError ? "Dismiss" : "Close"}
         </button>
       </div>
@@ -510,8 +545,8 @@ export default function Preview({
     ? pool.tickCurrent < position.tickLower ||
       pool.tickCurrent >= position.tickUpper
     : false;
-  const logo = getDexLogo();
-  const name = getDexName();
+  const logo = getDexLogo(poolType);
+  const name = getDexName(poolType);
   const fee = pool.fee;
 
   const piVeryHigh =
@@ -555,7 +590,7 @@ export default function Preview({
             )}
           </span>
 
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             {positionId &&
               (!isOutOfRange ? (
                 <div className="rounded-full py-0 px-2 h-6 text-sm flex items-center gap-1 box-border border border-green20 text-green50 bg-green10">
@@ -585,7 +620,7 @@ export default function Preview({
         </div>
       </div>
 
-      <div className="ks-lw-card mt-4 border border-inputBorder bg-inputBackground">
+      <div className="pcs-lw-card mt-4 border border-inputBorder bg-inputBackground">
         <div>Zap-in Amount</div>
 
         {tokensIn.map((token: PancakeTokenAdvanced, index: number) => (
@@ -613,10 +648,12 @@ export default function Preview({
         ))}
       </div>
 
-      <div className="ks-lw-card mt-3 text-sm">
+      <div className="pcs-lw-card mt-3 text-sm">
         <div className="flex items-center gap-1 text-sm text-textSecondary">
           <div>Current pool price</div>
-          <span className="text-textPrimary">{price}</span>
+          <span className="text-textPrimary">
+            {formatDisplayNumber(price, { significantDigits: 6 })}
+          </span>
           {quote}
           <SwitchIcon
             className="cursor-pointer"
@@ -631,11 +668,7 @@ export default function Preview({
               MIN PRICE
             </div>
             <div className="w-full overflow-hidden text-ellipsis whitespace-nowrap text-center text-base font-semibold">
-              {(
-                revert ? tickUpper === pool.maxTick : tickLower === pool.minTick
-              )
-                ? "0"
-                : leftPrice?.toSignificant(6)}
+              {priceRange?.[0]}
             </div>
             <div className="text-textSecondary">{quote}</div>
           </div>
@@ -644,20 +677,14 @@ export default function Preview({
               MAX PRICE
             </div>
             <div className="text-center w-full overflow-hidden text-ellipsis whitespace-nowrap text-base font-semibold">
-              {(
-                !revert
-                  ? tickUpper === pool.maxTick
-                  : tickLower === pool.minTick
-              )
-                ? "∞"
-                : rightPrice?.toSignificant(6)}
+              {priceRange?.[1]}
             </div>
             <div className="text-textSecondary">{quote}</div>
           </div>
         </div>
       </div>
 
-      <div className="ks-lw-card flex flex-col gap-3 mt-3">
+      <div className="pcs-lw-card flex flex-col gap-3 mt-3">
         <div className="flex justify-between gap-4 w-full items-start">
           <div className="text-sm font-medium text-textSecondary">
             Est. Pooled {pool.token0.symbol}
@@ -677,8 +704,7 @@ export default function Preview({
               <div>
                 {position ? (
                   <div className="text-end">
-                    {formatNumber(+position.amount0.toExact(), 4)}{" "}
-                    {pool?.token0.symbol}
+                    {formatNumber(+position.amount0, 4)} {pool?.token0.symbol}
                   </div>
                 ) : (
                   <div className="text-end">
@@ -720,8 +746,7 @@ export default function Preview({
               )}
               {position ? (
                 <div className="text-end">
-                  {formatNumber(+position.amount1.toExact(), 4)}{" "}
-                  {pool?.token1.symbol}
+                  {formatNumber(+position.amount1, 4)} {pool?.token1.symbol}
                 </div>
               ) : (
                 <div className="text-end">
@@ -802,8 +827,8 @@ export default function Preview({
                         swapPiRes.piRes.level === PI_LEVEL.NORMAL
                           ? ""
                           : swapPiRes.piRes.level === PI_LEVEL.HIGH
-                          ? "!text-warning !border-warning"
-                          : "!text-error !border-error"
+                            ? "!text-warning !border-warning"
+                            : "!text-error !border-error"
                       }`}
                     >
                       Swap Impact
@@ -819,8 +844,8 @@ export default function Preview({
                         item.piRes.level === PI_LEVEL.NORMAL
                           ? "brightness-125"
                           : item.piRes.level === PI_LEVEL.HIGH
-                          ? "!text-warning"
-                          : "!text-error"
+                            ? "!text-warning"
+                            : "!text-error"
                       }`}
                       key={index}
                     >
@@ -865,8 +890,8 @@ export default function Preview({
                 piRes.level === PI_LEVEL.INVALID
                   ? "text-error"
                   : piRes.level === PI_LEVEL.HIGH
-                  ? "text-warning"
-                  : "text-textPrimary"
+                    ? "text-warning"
+                    : "text-textPrimary"
               }
             >
               {piRes.display}
@@ -932,28 +957,28 @@ export default function Preview({
       </div>
 
       {slippage > warningThreshold && (
-        <div className="ks-lw-card-warning mt-3">
+        <div className="pcs-lw-card-warning mt-3">
           Slippage is high, your transaction might be front-run!
         </div>
       )}
 
       {aggregatorSwapInfo && swapPiRes.piRes.level !== PI_LEVEL.NORMAL && (
-        <div className="ks-lw-card-warning mt-3">{swapPiRes.piRes.msg}</div>
+        <div className="pcs-lw-card-warning mt-3">{swapPiRes.piRes.msg}</div>
       )}
 
       {zapInfo && piRes.level !== PI_LEVEL.NORMAL && (
-        <div className="ks-lw-card-warning mt-3">{piRes.msg}</div>
+        <div className="pcs-lw-card-warning mt-3">{piRes.msg}</div>
       )}
 
       <button
-        className={`ks-primary-btn mt-4 w-full ${
+        className={`pcs-primary-btn mt-4 w-full ${
           piVeryHigh ? "bg-error" : piHigh ? "bg-warning" : ""
         } ${
           piVeryHigh
             ? "border border-error"
             : piHigh
-            ? "border border-warning"
-            : ""
+              ? "border border-warning"
+              : ""
         }`}
         onClick={handleClick}
       >

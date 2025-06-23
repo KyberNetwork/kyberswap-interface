@@ -2,6 +2,8 @@ import { useWidgetInfo } from "@/hooks/useWidgetInfo";
 import { useZapState } from "@/hooks/useZapInState";
 import { formatNumber } from "@/utils";
 import SwitchIcon from "@/assets/switch.svg";
+import { tickToPrice } from "@kyber/utils/uniswapv3";
+import { formatDisplayNumber } from "@kyber/utils/number";
 
 export default function PriceInfo() {
   const { loading, pool } = useWidgetInfo();
@@ -9,18 +11,28 @@ export default function PriceInfo() {
 
   if (loading) return <div className="text-textSecondary">Loading...</div>;
 
-  const price = pool
-    ? (revertPrice
-        ? pool.priceOf(pool.token1)
-        : pool.priceOf(pool.token0)
-      ).toSignificant(6)
+  const poolPrice = pool
+    ? tickToPrice(
+        pool.tickCurrent,
+        pool.token0?.decimals,
+        pool.token1?.decimals,
+        revertPrice
+      )
     : "--";
 
-  const isDevatied =
+  const isDeviated =
     !!marketPrice &&
     pool &&
-    Math.abs(marketPrice / +pool?.priceOf(pool.token0).toSignificant() - 1) >
-      0.02;
+    Math.abs(
+      marketPrice /
+        +tickToPrice(
+          pool.tickCurrent,
+          pool.token0.decimals,
+          pool.token1.decimals,
+          false
+        ) -
+        1
+    ) > 0.02;
 
   const marketRate = marketPrice
     ? formatNumber(revertPrice ? 1 / marketPrice : marketPrice)
@@ -31,7 +43,11 @@ export default function PriceInfo() {
       <div className="text-textSecondary">
         <div className="flex items-center gap-1 text-subText text-sm">
           <span>Pool price</span>
-          <span className="font-medium text-textPrimary">{price}</span>
+          <span className="font-medium text-textPrimary">
+            {formatDisplayNumber(poolPrice, {
+              significantDigits: 6,
+            })}
+          </span>
           <span>
             {revertPrice
               ? `${pool?.token0.symbol} per ${pool?.token1.symbol}`
@@ -46,13 +62,13 @@ export default function PriceInfo() {
       </div>
 
       {marketPrice === null && (
-        <div className="ks-lw-card-warning mt-4">
+        <div className="pcs-lw-card-warning mt-4">
           Unable to get the market price. Please be cautious!
         </div>
       )}
 
-      {isDevatied && (
-        <div className="ks-lw-card-warning mt-4">
+      {isDeviated && (
+        <div className="pcs-lw-card-warning mt-4">
           <div className="text-warning font-semibold">
             Pool price discrepancy:
           </div>

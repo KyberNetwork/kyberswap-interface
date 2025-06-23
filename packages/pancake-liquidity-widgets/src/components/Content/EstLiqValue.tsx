@@ -31,6 +31,7 @@ import {
 import { useMemo } from "react";
 import { NetworkInfo } from "@/constants";
 import defaultTokenLogo from "@/assets/question.svg?url";
+import { tickToPrice } from "@kyber/utils/uniswapv3";
 
 export default function EstLiqValue() {
   const { zapInfo, source, marketPrice, revertPrice, tokensIn } = useZapState();
@@ -213,12 +214,12 @@ export default function EstLiqValue() {
   );
 
   const positionAmount0Usd =
-    (+(position?.amount0.toExact() || 0) *
+    (+(position?.amount0 || 0) *
       +(addLiquidityInfo?.addLiquidity.token0.amountUsd || 0)) /
       +addedAmount0 || 0;
 
   const positionAmount1Usd =
-    (+(position?.amount1.toExact() || 0) *
+    (+(position?.amount1 || 0) *
       +(addLiquidityInfo?.addLiquidity.token1.amountUsd || 0)) /
       +addedAmount1 || 0;
 
@@ -236,16 +237,25 @@ export default function EstLiqValue() {
           sqrtRatioX96: newData.newSqrtP,
           tick: newData.newTick,
           liquidity: (
-            pool.liquidity + BigInt(zapInfo.positionDetails.addedLiquidity)
+            BigInt(pool.liquidity) +
+            BigInt(zapInfo.positionDetails.addedLiquidity)
           ).toString(),
+          tickSpacing: pool.tickSpacing,
         })
       : null;
 
-  const isDevatied =
+  const isDeviated =
     !!marketPrice &&
     newPool &&
     Math.abs(
-      marketPrice / +newPool.priceOf(newPool.token0).toSignificant() - 1
+      marketPrice /
+        +tickToPrice(
+          newPool.tickCurrent,
+          newPool.token0.decimals,
+          newPool.token1.decimals,
+          false
+        ) -
+        1
     ) > 0.02;
 
   const isOutOfRangeAfterZap =
@@ -255,10 +265,12 @@ export default function EstLiqValue() {
       : false;
 
   const price = newPool
-    ? (revertPrice
-        ? newPool.priceOf(newPool.token1)
-        : newPool.priceOf(newPool.token0)
-      ).toSignificant(6)
+    ? tickToPrice(
+        newPool.tickCurrent,
+        newPool.token0.decimals,
+        newPool.token1.decimals,
+        revertPrice
+      )
     : "--";
 
   const marketRate = marketPrice
@@ -270,7 +282,7 @@ export default function EstLiqValue() {
       <div className="text-xs font-medium text-secondary uppercase mt-6">
         Summary
       </div>
-      <div className="ks-lw-card mt-2 flex flex-col gap-[10px]">
+      <div className="pcs-lw-card mt-2 flex flex-col gap-[10px]">
         <div className="flex justify-between items-start text-sm">
           Est. Liquidity Value
           {!!addedAmountUsd && (
@@ -299,7 +311,7 @@ export default function EstLiqValue() {
                 )}
                 {position ? (
                   <div className="text-end">
-                    {formatNumber(+position.amount0.toExact())} {token0?.symbol}
+                    {formatNumber(+position.amount0)} {token0?.symbol}
                   </div>
                 ) : (
                   <div className="text-end">
@@ -346,7 +358,7 @@ export default function EstLiqValue() {
 
                 {position ? (
                   <div className="text-end">
-                    {formatNumber(+position.amount1.toExact())} {token1?.symbol}
+                    {formatNumber(+position.amount1)} {token1?.symbol}
                   </div>
                 ) : (
                   <div className="text-end">
@@ -414,8 +426,8 @@ export default function EstLiqValue() {
                         swapPiRes.piRes.level === PI_LEVEL.NORMAL
                           ? ""
                           : swapPiRes.piRes.level === PI_LEVEL.HIGH
-                          ? "!text-warning !border-warning"
-                          : "!text-error !border-error"
+                            ? "!text-warning !border-warning"
+                            : "!text-error !border-error"
                       }`}
                     >
                       Swap Impact
@@ -431,8 +443,8 @@ export default function EstLiqValue() {
                         item.piRes.level === PI_LEVEL.NORMAL
                           ? "brightness-125"
                           : item.piRes.level === PI_LEVEL.HIGH
-                          ? "!text-warning"
-                          : "!text-error"
+                            ? "!text-warning"
+                            : "!text-error"
                       }`}
                       key={index}
                     >
@@ -477,8 +489,8 @@ export default function EstLiqValue() {
                 piRes.level === PI_LEVEL.INVALID
                   ? "text-error"
                   : piRes.level === PI_LEVEL.HIGH
-                  ? "text-warning"
-                  : "text-textPrimary"
+                    ? "text-warning"
+                    : "text-textPrimary"
               }
             >
               {piRes.display}
@@ -538,23 +550,23 @@ export default function EstLiqValue() {
         </div>
 
         {aggregatorSwapInfo && swapPiRes.piRes.level !== PI_LEVEL.NORMAL && (
-          <div className="ks-lw-card-warning mt-3">{swapPiRes.piRes.msg}</div>
+          <div className="pcs-lw-card-warning mt-3">{swapPiRes.piRes.msg}</div>
         )}
 
         {zapInfo && piRes.level !== PI_LEVEL.NORMAL && (
-          <div className="ks-lw-card-warning mt-3">{piRes.msg}</div>
+          <div className="pcs-lw-card-warning mt-3">{piRes.msg}</div>
         )}
 
         {isOutOfRangeAfterZap && (
-          <div className="ks-lw-card-warning mt-3">
+          <div className="pcs-lw-card-warning mt-3">
             The position will be <span className="text-warning">inactive</span>{" "}
             after zapping and{" "}
             <span className="text-warning">won’t earn any fees</span> until the
             pool price moves back to select price range
           </div>
         )}
-        {isDevatied && (
-          <div className="ks-lw-card-warning mt-3">
+        {isDeviated && (
+          <div className="pcs-lw-card-warning mt-3">
             <div className="text">
               The pool's estimated price after zapping:{" "}
               <span className="font-medium text-warning ml-[2px] not-italic">
@@ -574,7 +586,7 @@ export default function EstLiqValue() {
         )}
 
         {isNotOwnByUser && !isOwnByFarmContract && (
-          <div className="ks-lw-card-warning mt-3">
+          <div className="pcs-lw-card-warning mt-3">
             You are not the current owner of the position{" "}
             <span className="text-warning">#{positionId}</span>, please double
             check before proceeding

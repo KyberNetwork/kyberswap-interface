@@ -21,6 +21,7 @@ import {
   zksync,
 } from 'viem/chains'
 
+import { hyperevm } from 'components/Web3Provider'
 import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
 import { MAINNET_NETWORKS } from 'constants/networks'
 
@@ -29,6 +30,7 @@ import {
   BaseSwapAdapter,
   Chain,
   EvmQuoteParams,
+  NOT_SUPPORTED_CHAINS_PRICE_SERVICE,
   NormalizedQuote,
   NormalizedTxResponse,
   SwapStatus,
@@ -58,6 +60,7 @@ export class RelayAdapter extends BaseSwapAdapter {
         zksync,
         ronin,
         unichain,
+        hyperevm,
       ].map(convertViemChainToRelayChain),
     })
   }
@@ -98,8 +101,12 @@ export class RelayAdapter extends BaseSwapAdapter {
 
     const formattedOutputAmount = formatUnits(BigInt(resp.details?.currencyOut?.amount || '0'), params.toToken.decimals)
     const formattedInputAmount = formatUnits(BigInt(params.amount), params.fromToken.decimals)
-    const inputUsd = params.tokenInUsd * +formattedInputAmount
-    const outputUsd = params.tokenOutUsd * +formattedOutputAmount
+    const inputUsd = NOT_SUPPORTED_CHAINS_PRICE_SERVICE.includes(params.fromChain)
+      ? Number(resp.details?.currencyIn?.amountUsd || 0)
+      : params.tokenInUsd * +formattedInputAmount
+    const outputUsd = NOT_SUPPORTED_CHAINS_PRICE_SERVICE.includes(params.toChain)
+      ? Number(resp.details?.currencyOut?.amountUsd || 0)
+      : params.tokenOutUsd * +formattedOutputAmount
 
     return {
       quoteParams: params,

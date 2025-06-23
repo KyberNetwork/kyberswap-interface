@@ -31,6 +31,7 @@ export const PositionDetailWrapper = styled.div`
   border-radius: 20px;
   background-color: ${({ theme }) => theme.background};
   width: 100%;
+  position: relative;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     padding: 24px;
@@ -234,6 +235,20 @@ export const ChartWrapper = styled.div`
   `}
 `
 
+export const ChartPlaceholder = styled.div`
+  position: relative;
+`
+
+export const ChartSkeletonWrapper = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: ${({ theme }) => theme.background};
+  z-index: -1;
+`
+
 export const PositionHeader = styled.div`
   display: flex;
   gap: 8px;
@@ -258,4 +273,22 @@ export const MigrationLiquidityRecommend = styled.div`
   ${({ theme }) => theme.mediaWidth.upToSmall`
     row-gap: 2px;
   `}
+`
+
+export const ShareButtonWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: ${({ theme }) => rgba(theme.white, 0.08)};
+  padding: 6px 8px 6px 6px;
+  cursor: pointer;
+
+  :hover {
+    filter: brightness(1.2);
+  }
+
+  :active {
+    filter: brightness(1.05);
+  }
 `

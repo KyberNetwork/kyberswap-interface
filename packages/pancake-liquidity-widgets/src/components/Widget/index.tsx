@@ -8,7 +8,7 @@ import { Web3Provider } from "@/hooks/useProvider";
 import { TokenProvider } from "@/hooks/useTokens";
 import { WidgetProvider } from "@/hooks/useWidgetInfo";
 import { ZapContextProvider } from "@/hooks/useZapInState";
-import { NetworkInfo } from "@/constants";
+import { PoolType, NetworkInfo } from "@/constants";
 import "./Widget.scss";
 import "../../globals.css";
 
@@ -33,6 +33,7 @@ export interface WidgetProps {
   excludedSources?: string;
   initDepositTokens: string;
   initAmounts: string;
+  poolType: PoolType;
   onDismiss: () => void;
   onTxSubmit?: (txHash: string) => void;
   onConnectWallet: () => void;
@@ -68,6 +69,7 @@ export default function Widget({
   onAmountChange,
   onOpenTokenSelectModal,
   farmContractAddresses = [],
+  poolType,
 }: WidgetProps) {
   const publicClient = useMemo(() => {
     const chain = getChainById(chainId);
@@ -90,17 +92,17 @@ export default function Widget({
     if (!theme) return;
     const r = document.querySelector<HTMLElement>(":root");
     Object.keys(theme).forEach((key) => {
-      r?.style.setProperty(`--ks-lw-${key}`, theme[key as keyof Theme]);
+      r?.style.setProperty(`--pcs-lw-${key}`, theme[key as keyof Theme]);
     });
   }, [theme]);
 
   useEffect(() => {
     const createModalRoot = () => {
-      let modalRoot = document.getElementById("ks-lw-modal-root");
+      let modalRoot = document.getElementById("pcs-lw-modal-root");
       if (!modalRoot) {
         modalRoot = document.createElement("div");
-        modalRoot.id = "ks-lw-modal-root";
-        modalRoot.className = "ks-lw-style";
+        modalRoot.id = "pcs-lw-modal-root";
+        modalRoot.className = "pcs-lw-style";
         document.body.appendChild(modalRoot);
       }
     };
@@ -134,6 +136,7 @@ export default function Widget({
           onAmountChange={onAmountChange}
           onOpenTokenSelectModal={onOpenTokenSelectModal}
           farmContractAddresses={farmContractAddresses}
+          poolType={poolType}
         >
           <ZapContextProvider
             includedSources={includedSources}
@@ -144,7 +147,7 @@ export default function Widget({
             initDepositTokens={initDepositTokens}
             initAmounts={initAmounts}
           >
-            <div className="ks-lw ks-lw-style">
+            <div className="pcs-lw pcs-lw-style">
               <WidgetContent onDismiss={onDismiss} onTxSubmit={onTxSubmit} />
               <Setting />
             </div>
@@ -154,3 +157,5 @@ export default function Widget({
     </Web3Provider>
   );
 }
+
+export { PoolType };

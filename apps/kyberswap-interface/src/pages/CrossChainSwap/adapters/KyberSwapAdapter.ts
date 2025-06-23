@@ -14,6 +14,7 @@ import {
   BaseSwapAdapter,
   Chain,
   EvmQuoteParams,
+  NOT_SUPPORTED_CHAINS_PRICE_SERVICE,
   NormalizedQuote,
   NormalizedTxResponse,
   SwapStatus,
@@ -31,7 +32,7 @@ export class KyberSwapAdapter extends BaseSwapAdapter {
     return 'https://kyberswap.com/favicon.ico'
   }
   getSupportedChains(): Chain[] {
-    return [...MAINNET_NETWORKS]
+    return [...MAINNET_NETWORKS].filter(item => !NOT_SUPPORTED_CHAINS_PRICE_SERVICE.includes(item))
   }
 
   getSupportedTokens(_sourceChain: Chain, _destChain: Chain): Currency[] {

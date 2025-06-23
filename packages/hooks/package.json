@@ -7,21 +7,32 @@
     "./use-interval": "./src/use-interval.ts",
     "./use-window-size": "./src/use-window-size.ts",
     "./use-token-prices": "./src/use-token-prices.ts",
-    "./use-approval": "./src/use-approval.ts"
+    "./use-approval": "./src/use-approval.ts",
+    ".": "./src/index.ts"
   },
   "scripts": {
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives",
     "type-check": "tsc --noEmit"
   },
   "devDependencies": {
     "@kyber/eslint-config": "workspace:*",
     "@kyber/utils": "workspace:*",
     "@kyber/typescript-config": "workspace:*",
+    "@kyber/schema": "workspace:*",
     "@types/eslint": "^8.56.5",
     "@types/node": "^20.11.24",
     "@types/react": "^18.0.17",
     "@types/react-dom": "^18.0.6",
     "eslint": "^8.57.0",
-    "typescript": "5.3.2"
+    "typescript": "5.3.2",
+    "@typescript-eslint/eslint-plugin": "^6.14.0",
+    "@typescript-eslint/parser": "^6.14.0",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.4.0",
+    "prettier": "^3.5.3",
+    "@trivago/prettier-plugin-sort-imports": "^4.2.0"
   },
   "peerDependencies": {
     "react": ">=16.8.0"

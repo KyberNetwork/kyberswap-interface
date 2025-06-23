@@ -1,4 +1,4 @@
-import { Skeleton } from "@kyber/ui/skeleton";
+import { Skeleton } from "@kyber/ui";
 import {
   formatDisplayNumber,
   formatTokenAmount,
@@ -49,65 +49,59 @@ export const PoolFee = () => {
 
   return (
     <div className="rounded-lg px-4 py-3 border border-stroke text-sm text-subText">
-      <div>Pool fee</div>
+      <div>Claim fee</div>
+      <div className="mt-2 h-[1px] w-full bg-stroke" />
+      <div className="mt-2 flex items-start justify-between">
+        <div>Pool fee</div>
 
-      <div className="flex justify-between mt-2 items-center">
-        {pool === "loading" ? (
-          <>
-            <Skeleton className="h-5 w-20 mt-2" />
-            <Skeleton className="h-4 w-14" />
-          </>
-        ) : (
-          <>
-            <div className="flex items-center text-base gap-1 text-text">
-              <img src={pool.token0.logo || ""} alt="" className="w-4 h-4" />
-              {formatTokenAmount(
-                feeAmount0Ref.current,
-                pool.token0.decimals,
-                8
-              )}{" "}
-              {pool.token0.symbol}
+        <div className="flex flex-col gap-2">
+          {pool === "loading" ? (
+            <Skeleton className="h-5 w-20" />
+          ) : (
+            <div className="flex items-center justify-end text-base gap-[6px] text-text">
+              <span>
+                {formatTokenAmount(
+                  feeAmount0Ref.current,
+                  pool.token0.decimals,
+                  8
+                )}
+              </span>
+              <span> {pool.token0.symbol}</span>
+              <div className="text-xs text-subText">
+                {formatDisplayNumber(
+                  (pool.token0.price || 0) *
+                    Number(
+                      toRawString(feeAmount0Ref.current, pool.token0.decimals)
+                    ),
+                  { style: "currency" }
+                )}
+              </div>
             </div>
-            <div className="text-xs text-subText">
-              {formatDisplayNumber(
-                (pool.token0.price || 0) *
-                  Number(
-                    toRawString(feeAmount0Ref.current, pool.token0.decimals)
-                  ),
-                { style: "currency" }
-              )}
+          )}
+          {pool === "loading" ? (
+            <Skeleton className="h-5 w-20" />
+          ) : (
+            <div className="flex items-center justify-end text-base gap-[6px] text-text">
+              <span>
+                {formatTokenAmount(
+                  feeAmount1Ref.current,
+                  pool.token1.decimals,
+                  8
+                )}
+              </span>
+              <span>{pool.token1.symbol}</span>
+              <div className="text-xs text-subText">
+                {formatDisplayNumber(
+                  (pool.token1.price || 0) *
+                    Number(
+                      toRawString(feeAmount1Ref.current, pool.token1.decimals)
+                    ),
+                  { style: "currency" }
+                )}
+              </div>
             </div>
-          </>
-        )}
-      </div>
-      <div className="flex justify-between mt-2 items-center">
-        {pool === "loading" ? (
-          <>
-            <Skeleton className="h-5 w-20 mt-2" />
-            <Skeleton className="h-4 w-14" />
-          </>
-        ) : (
-          <>
-            <div className="flex items-center text-base gap-1 text-text">
-              <img src={pool.token1.logo || ""} alt="" className="w-4 h-4" />
-              {formatTokenAmount(
-                feeAmount1Ref.current,
-                pool.token1.decimals,
-                8
-              )}{" "}
-              {pool.token1.symbol}
-            </div>
-            <div className="text-xs text-subText">
-              {formatDisplayNumber(
-                (pool.token1.price || 0) *
-                  Number(
-                    toRawString(feeAmount1Ref.current, pool.token1.decimals)
-                  ),
-                { style: "currency" }
-              )}
-            </div>
-          </>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );

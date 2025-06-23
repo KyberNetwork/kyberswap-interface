@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { watchChainId } from '@wagmi/core'
 import { ReactNode, useEffect, useMemo } from 'react'
-import { createClient, http } from 'viem'
+import { createClient, defineChain, http } from 'viem'
 import {
   arbitrum,
   avalanche,
@@ -35,6 +35,31 @@ import { WALLETCONNECT_PROJECT_ID } from 'constants/env'
 import { isSupportedChainId } from 'constants/networks'
 import { useAppDispatch } from 'state/hooks'
 import { updateChainId } from 'state/user/actions'
+
+export const hyperevm = defineChain({
+  id: 999,
+  name: 'HyperEVM',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'HYPE',
+    symbol: 'HYPE',
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://rpc.hyperliquid.xyz/evm'],
+      webSocket: ['wss://hyperliquid.drpc.org'],
+    },
+  },
+  blockExplorers: {
+    default: { name: 'Explorer', url: 'https://www.hyperscan.com' },
+  },
+  contracts: {
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 13051,
+    },
+  },
+})
 
 export const queryClient = new QueryClient()
 
@@ -206,6 +231,7 @@ const wagmiChains = [
   berachain,
   ronin,
   unichain,
+  hyperevm,
 ] as const
 
 export const wagmiConfig = createConfig({

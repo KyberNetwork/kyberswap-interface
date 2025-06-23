@@ -15,7 +15,6 @@ const avaxInfo: NetworkInfo = {
   icon: avalancheIcon,
   iconSelected: NOT_SUPPORT,
 
-  defaultBlockSubgraph: 'https://api.thegraph.com/subgraphs/name/ducquangkstn/avalache-blocks',
   etherscanUrl: 'https://snowscan.xyz',
   etherscanName: 'Snowtrace',
   bridgeURL: 'https://core.app/bridge',
@@ -24,7 +23,6 @@ const avaxInfo: NetworkInfo = {
     name: 'AVAX',
     logo: 'https://storage.googleapis.com/ks-setting-1d682dca/e72081b5-cb5f-4fb6-b771-ac189bdfd7c81699420213175.png',
     decimal: 18,
-    minForGas: 10 ** 16,
   },
   defaultRpcUrl: 'https://avalanche.kyberengineering.io',
   multicall: '0xF2FD8219609E28C61A998cc534681f95D2740f61',

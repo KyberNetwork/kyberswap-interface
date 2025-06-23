@@ -1,6 +1,9 @@
-import { isEvmChain } from 'utils'
-
-import { NearQuoteParams, NormalizedQuote, QuoteParams, SwapProvider } from './adapters'
+// import { isEvmChain } from 'utils'
+import {
+  // NearQuoteParams,
+  NormalizedQuote, // QuoteParams,
+  SwapProvider,
+} from './adapters'
 
 export interface Quote {
   adapter: SwapProvider
@@ -23,40 +26,40 @@ export class CrossChainSwapAdapterRegistry {
   }
 
   // get quotes from all adapters and sort them by output amount
-  async getQuotes(params: QuoteParams | NearQuoteParams): Promise<Quote[]> {
-    const quotes: { adapter: SwapProvider; quote: NormalizedQuote }[] = []
-
-    const adapters =
-      params.fromChain === params.toChain && isEvmChain(params.fromChain)
-        ? ([this.getAdapter('KyberSwap')] as SwapProvider[])
-        : this.getAllAdapters().filter(
-            adapter =>
-              adapter.getSupportedChains().includes(params.fromChain) &&
-              adapter.getSupportedChains().includes(params.toChain),
-          )
-
-    console.log(
-      'Available adapters',
-      params,
-      adapters.map(ad => ad.getName()),
-    )
-    // Get quotes from all compatible adapters
-    const quotePromises = adapters.map(async adapter => {
-      try {
-        const quote = await adapter.getQuote(params)
-        quotes.push({ adapter, quote })
-      } catch (err) {
-        console.error(`Failed to get quote from ${adapter.getName()}:`, err)
-      }
-    })
-
-    await Promise.all(quotePromises)
-
-    if (quotes.length === 0) {
-      throw new Error('No valid quotes found for the requested swap')
-    }
-
-    quotes.sort((a, b) => (a.quote.outputAmount < b.quote.outputAmount ? 1 : -1))
-    return quotes
-  }
+  // async getQuotes(params: QuoteParams | NearQuoteParams): Promise<Quote[]> {
+  //   const quotes: { adapter: SwapProvider; quote: NormalizedQuote }[] = []
+  //
+  //   const adapters =
+  //     params.fromChain === params.toChain && isEvmChain(params.fromChain)
+  //       ? ([this.getAdapter('KyberSwap')] as SwapProvider[])
+  //       : this.getAllAdapters().filter(
+  //           adapter =>
+  //             adapter.getSupportedChains().includes(params.fromChain) &&
+  //             adapter.getSupportedChains().includes(params.toChain),
+  //         )
+  //
+  //   console.log(
+  //     'Available adapters',
+  //     params,
+  //     adapters.map(ad => ad.getName()),
+  //   )
+  //   // Get quotes from all compatible adapters
+  //   const quotePromises = adapters.map(async adapter => {
+  //     try {
+  //       const quote = await adapter.getQuote(params)
+  //       quotes.push({ adapter, quote })
+  //     } catch (err) {
+  //       console.error(`Failed to get quote from ${adapter.getName()}:`, err)
+  //     }
+  //   })
+  //
+  //   await Promise.all(quotePromises)
+  //
+  //   if (quotes.length === 0) {
+  //     throw new Error('No valid quotes found for the requested swap')
+  //   }
+  //
+  //   quotes.sort((a, b) => (a.quote.outputAmount < b.quote.outputAmount ? 1 : -1))
+  //   return quotes
+  // }
 }

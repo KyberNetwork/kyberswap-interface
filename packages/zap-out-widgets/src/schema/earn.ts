@@ -3,7 +3,7 @@ import { z } from "zod";
 
 export enum EarnDex {
   DEX_UNISWAP_V4 = "Uniswap V4",
-  DEX_KEM_UNISWAP_V4_FAIRFLOW = "Uniswap V4 FairFlow",
+  DEX_UNISWAP_V4_FAIRFLOW = "Uniswap V4 FairFlow",
   DEX_UNISWAPV3 = "Uniswap V3",
   DEX_PANCAKESWAPV3 = "PancakeSwap V3",
   DEX_SUSHISWAPV3 = "SushiSwap V3",
@@ -38,6 +38,6 @@ const univ3Dexes = [
   EarnDex.DEX_QUICKSWAPV3ALGEBRA,
 
   EarnDex.DEX_UNISWAP_V4,
-  EarnDex.DEX_KEM_UNISWAP_V4_FAIRFLOW,
+  EarnDex.DEX_UNISWAP_V4_FAIRFLOW,
 ] as const;
 export const Univ3EarnDex = z.enum(univ3Dexes);

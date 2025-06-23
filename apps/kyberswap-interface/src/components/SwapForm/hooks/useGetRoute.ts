@@ -193,7 +193,7 @@ const useGetRoute = (args: ArgsGetRoute) => {
   const fetcher = useCallback(async () => {
     const amountIn = parsedAmount?.quotient?.toString() || ''
 
-    if (!currencyIn || !currencyOut || !amountIn || !parsedAmount?.currency?.equals(currencyIn)) {
+    if (isProcessingSwap || !currencyIn || !currencyOut || !amountIn || !parsedAmount?.currency?.equals(currencyIn)) {
       return undefined
     }
 
@@ -245,6 +245,7 @@ const useGetRoute = (args: ArgsGetRoute) => {
     parsedAmount?.quotient,
     triggerDebounced,
     feeConfigFromUrl,
+    isProcessingSwap,
   ])
 
   return { fetcher, result, isLoading }

@@ -118,10 +118,10 @@ jobs:
         run: |
           pnpm --filter "@kyber/svgr-esbuild-plugin" build
           pnpm --filter "@kyber/schema" build
+          pnpm --filter "@kyber/utils" build
           pnpm --filter "@kyber/ui" build
           pnpm --filter "@kyberswap/liquidity-chart" build
-          pnpm --filter "@kyber/utils" build
-          pnpm --parallel --filter "@kyberswap/liquidity-widgets" --filter "@kyberswap/zap-migration-widgets" --filter "@kyberswap/zap-out-widgets" build
+          pnpm --parallel --filter "@kyberswap/liquidity-widgets" --filter "@kyberswap/zap-migration-widgets" --filter "@kyberswap/zap-out-widgets" --filter "@kyberswap/pancake-liquidity-widgets" build
 
       - name: Build interface
         env:
@@ -182,8 +182,10 @@ jobs:
         run: |
           pnpm --filter "@kyber/svgr-esbuild-plugin" build
           pnpm --filter "@kyber/schema" build
+          pnpm --filter "@kyber/utils" build
           pnpm --filter "@kyber/ui" build
           pnpm --filter "@kyberswap/liquidity-chart" build
+          pnpm --parallel --filter "@kyberswap/liquidity-widgets" --filter "@kyberswap/zap-migration-widgets" --filter "@kyberswap/zap-out-widgets" --filter "@kyberswap/pancake-liquidity-widgets" build
 
       - name: Run lint
         run: pnpm lint && pnpm type-check

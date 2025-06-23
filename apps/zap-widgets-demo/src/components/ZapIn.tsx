@@ -1,7 +1,8 @@
-import { zapInDexMapping } from "../constant";
-import Input from "./Input";
-import Modal from "./Modal";
-import SubmitButton from "./SubmitButton";
+import { Zap } from "@/App";
+import { zapInDexMapping } from "@/constant";
+import Input from "@/components/Input";
+import Modal from "@/components/Modal";
+import SubmitButton from "@/components/SubmitButton";
 import {
   Card,
   CardContent,
@@ -9,10 +10,11 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@kyber/ui/card";
-import { Label } from "@kyber/ui/label";
-import { RadioGroup, RadioGroupItem } from "@kyber/ui/radio-group";
-import { TabsContent } from "@kyber/ui/tabs";
+  Label,
+  RadioGroup,
+  RadioGroupItem,
+  TabsContent,
+} from "@kyber/ui";
 import {
   PoolType as ZapInDex,
   LiquidityWidget as ZapInWidget,
@@ -41,7 +43,7 @@ const ZapIn = () => {
     positionId: "", // 22415
     poolAddress:
       "0xdbcba57c5681e063bd033c8f735f6b3e62f1a07947a731c61586c00863d0b613",
-    poolType: ZapInDex.DEX_KEM_UNISWAP_V4_FAIRFLOW,
+    poolType: ZapInDex.DEX_UNISWAP_V4_FAIRFLOW,
   });
 
   const widgetProps = {
@@ -89,7 +91,7 @@ const ZapIn = () => {
   };
 
   return (
-    <TabsContent value="zap-in">
+    <TabsContent value={Zap.ZAP_IN}>
       <Card>
         <CardHeader>
           <CardTitle>Zap in widget</CardTitle>
@@ -141,31 +143,33 @@ const ZapIn = () => {
             <Label>Protocols</Label>
             <RadioGroup
               className="grid grid-cols-3 gap-2 max-md:grid-cols-2"
-              value={params.poolType}
+              value={params.poolType.toString()}
               onValueChange={(value) =>
                 setParams((p) => ({
                   ...p,
-                  poolType: value as ZapInDex,
+                  poolType: Number(value) as ZapInDex,
                 }))
               }
             >
-              {Object.keys(ZapInDex).map((key: string, index: number) => (
-                <div className="flex items-center space-x-2" key={key}>
-                  <RadioGroupItem
-                    value={ZapInDex[key as keyof typeof ZapInDex]}
-                    id={`${index + 1}`}
-                  />
-                  <Label className="text-xs" htmlFor={`${index + 1}`}>
-                    {ZapInDex[key as keyof typeof ZapInDex] in zapInDexMapping
-                      ? zapInDexMapping[
-                          ZapInDex[
-                            key as keyof typeof ZapInDex
-                          ] as keyof typeof zapInDexMapping
-                        ]
-                      : ZapInDex[key as keyof typeof ZapInDex]}
-                  </Label>
-                </div>
-              ))}
+              {Object.keys(ZapInDex)
+                .filter((key) => isNaN(Number(key)))
+                .map((key: string, index: number) => (
+                  <div className="flex items-center space-x-2" key={key}>
+                    <RadioGroupItem
+                      value={ZapInDex[key as keyof typeof ZapInDex].toString()}
+                      id={`${index + 1}`}
+                    />
+                    <Label className="text-xs" htmlFor={`${index + 1}`}>
+                      {ZapInDex[key as keyof typeof ZapInDex] in zapInDexMapping
+                        ? zapInDexMapping[
+                            ZapInDex[
+                              key as keyof typeof ZapInDex
+                            ] as keyof typeof zapInDexMapping
+                          ]
+                        : ZapInDex[key as keyof typeof ZapInDex]}
+                    </Label>
+                  </div>
+                ))}
             </RadioGroup>
           </div>
         </CardContent>

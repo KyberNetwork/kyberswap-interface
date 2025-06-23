@@ -2,7 +2,6 @@ import { t } from '@lingui/macro'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
-import { ReactComponent as KyberIcon } from 'assets/images/KNC.svg'
 import PlayIcon from 'assets/svg/earn/play-icon.svg'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
@@ -41,34 +40,19 @@ const RewardSection = () => {
       flexDirection={upToSmall ? 'column' : 'row'}
       alignItems={upToSmall ? 'center' : 'flex-end'}
       justifyContent={'center'}
-      sx={{ gap: upToSmall ? '28px' : '32px' }}
+      sx={{ gap: upToSmall ? '28px' : 4 }}
     >
-      <Flex
-        flexDirection={'column'}
-        alignItems={upToSmall ? 'center' : 'flex-start'}
-        sx={{ gap: upToSmall ? '12px' : 2 }}
-      >
-        <Text color={theme.subText} sx={{ textTransform: 'uppercase' }}>
+      <Flex flexDirection={upToSmall ? 'column' : 'row'} alignItems={'center'} sx={{ gap: upToSmall ? 3 : '20px' }}>
+        <Text
+          fontSize={upToSmall ? 18 : 16}
+          color={theme.subText}
+          sx={{ textTransform: 'uppercase', position: 'relative', top: 1 }}
+        >
           {t`Total rewards`}
         </Text>
-        <Flex alignContent={'center'} sx={{ gap: upToSmall ? 3 : 2, fontSize: upToSmall ? '24px' : '28px' }}>
-          <KyberIcon
-            width={upToSmall ? 40 : 32}
-            height={upToSmall ? 40 : 32}
-            style={{ position: 'relative', top: upToSmall ? 4 : 0 }}
-          />
-          <Flex flexDirection={upToSmall ? 'column' : 'row'} alignContent={'center'} sx={{ gap: upToSmall ? 0 : 2 }}>
-            <Flex alignContent={'center'} sx={{ gap: 2 }}>
-              <Text>{formatDisplayNumber(rewardInfo?.totalAmount || 0, { significantDigits: 6 })}</Text>
-              <Text>KNC</Text>
-            </Flex>
-            {totalRewardUsdValue > 0 ? (
-              <Text width={'fit-content'} color={theme.subText} fontSize={upToSmall ? '16px' : undefined}>
-                {formatDisplayNumber(totalRewardUsdValue, { significantDigits: 6, style: 'currency' })}
-              </Text>
-            ) : null}
-          </Flex>
-        </Flex>
+        <Text fontSize={28}>
+          {formatDisplayNumber(totalRewardUsdValue, { significantDigits: 6, style: 'currency' })}
+        </Text>
       </Flex>
       <RewardsNavigateButton to={btnPath} onClick={handleClickBtn}>
         <Text fontSize={14} color={theme.primary} fontWeight={500} sx={{ textTransform: 'uppercase' }}>

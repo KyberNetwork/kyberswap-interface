@@ -20,7 +20,7 @@ export const PositionPageWrapper = styled(PoolPageWrapper)`
 export const PositionRow = styled(Link)`
   display: grid;
   grid-template-columns:
-    minmax(260px, 2fr) /* Position */
+    minmax(260px, 2.2fr) /* Position */
     minmax(80px, 1fr) /* Value */
     minmax(90px, 1fr) /* est. APR */
     minmax(100px, 1fr) /* Unclaimed fees */
@@ -276,6 +276,10 @@ export const BannerWrapper = styled.div`
   position: relative;
   background: linear-gradient(119.08deg, rgba(20, 29, 27, 1) -0.89%, rgba(14, 14, 14, 1) 132.3%);
 
+  @media (min-width: 1200px) and (max-width: 1330px) {
+    gap: 18px;
+  }
+
   ${({ theme }) => theme.mediaWidth.upToSmall`
     flex-direction: column;
     padding: 16px;
@@ -291,10 +295,17 @@ export const RewardBannerWrapper = styled(BannerWrapper)`
   padding: 14px 32px;
 `
 
-export const ListClaimableTokens = styled.ul`
-  margin: 0;
-  padding-left: 24px;
-  margin-top: 2px;
+export const RewardBannerDetailWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 32px;
+  row-gap: 8px;
+
+  @media (min-width: 1200px) and (max-width: 1330px) {
+    gap: 18px;
+  }
 `
 
 export const BannerDivider = styled.div`
@@ -324,7 +335,7 @@ export const BannerDataItem = styled.div`
 
 export const PositionTableHeader = styled(TableHeader)`
   grid-template-columns:
-    minmax(260px, 2fr) /* Position */
+    minmax(260px, 2.2fr) /* Position */
     minmax(80px, 1fr) /* Value */
     minmax(90px, 1fr) /* est. APR */
     minmax(100px, 1fr) /* Unclaimed fees */
@@ -333,6 +344,7 @@ export const PositionTableHeader = styled(TableHeader)`
     minmax(150px, 1.5fr) /* Balance */
     minmax(160px, 1.5fr) /* Price range */
     minmax(75px, auto); /* Actions */
+  overflow: hidden;
 `
 
 export const PositionTableHeaderItem = styled.div`
@@ -349,6 +361,8 @@ export const PositionTableHeaderFlexItem = styled.div`
 `
 
 export const PositionTableWrapper = styled(TableWrapper)`
+  overflow: hidden;
+
   ${({ theme }) => theme.mediaWidth.upToLarge`
     background: transparent;
     margin: 0;
@@ -443,4 +457,11 @@ export const CurrentPriceTooltip = styled.div<{ show?: boolean }>`
   width: max-content;
 
   ${({ show }) => show && 'opacity: 1;'}
+`
+
+export const HorizontalDivider = styled.div`
+  margin: 4px 0;
+  height: 1px;
+  width: 100%;
+  background: ${({ theme }) => rgba(theme.white, 0.08)};
 `
