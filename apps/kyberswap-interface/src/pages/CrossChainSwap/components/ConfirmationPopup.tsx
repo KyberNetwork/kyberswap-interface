@@ -174,7 +174,9 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
       onDismiss={dismiss}
       hash={txHash}
       scanLink={
-        fromChainId === NonEvmChain.Near
+        fromChainId === NonEvmChain.Solana
+          ? 'TODO'
+          : fromChainId === NonEvmChain.Near
           ? `https://nearblocks.io/address/${txHash}`
           : fromChainId === NonEvmChain.Bitcoin
           ? `https://mempool.space/tx/${txHash}`
@@ -250,7 +252,9 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
                 <ExternalLink
                   style={{ textDecoration: 'none', color: theme.text }}
                   href={
-                    toChainId === NonEvmChain.Near
+                    toChainId === NonEvmChain.Solana
+                      ? 'TODO'
+                      : toChainId === NonEvmChain.Near
                       ? `https://nearblocks.io/address/${recipient}`
                       : toChainId === NonEvmChain.Bitcoin
                       ? `https://mempool.space/address/${recipient}`

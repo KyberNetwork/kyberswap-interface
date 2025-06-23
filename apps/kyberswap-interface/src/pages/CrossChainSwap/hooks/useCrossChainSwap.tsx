@@ -137,12 +137,14 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     }
   }, [from, to, tokenIn, chainId, searchParams, setSearchParams, tokenOut])
 
+  const isFromSolana = from === 'solana'
   const isFromNear = from === 'near'
   const isFromBitcoin = from === 'bitcoin'
   const isFromEvm = isEvmChain(Number(from))
   const fromChainId = isFromEvm ? Number(from) : isNonEvmChain(from as NonEvmChain) ? (from as NonEvmChain) : chainId
 
   const isToNear = to === 'near'
+  const isToSolana = to === 'solana'
   const isToBitcoin = to === 'bitcoin'
   const isToEvm = isEvmChain(Number(to))
 
@@ -202,8 +204,16 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     if (isFromEvm) return currencyInEvm
     if (isFromBitcoin) return BitcoinToken
     if (isFromNear) return nearTokens.find(token => token.assetId === tokenIn)
+    if (isFromSolana)
+      return {
+        name: 'Solana',
+        symbol: 'SOL',
+        decimals: 9,
+        logo: 'https://solana.com/favicon.png',
+        assetId: 'sol',
+      } //TODO: handle Solana tokens
     throw new Error('Network is not supported')
-  }, [currencyInEvm, from, isFromBitcoin, isFromNear, isFromEvm, tokenIn, nearTokens])
+  }, [currencyInEvm, from, isFromBitcoin, isFromNear, isFromEvm, tokenIn, nearTokens, isFromSolana])
 
   const currencyOutEvm = useCurrencyV2(
     useMemo(() => (isToEvm ? tokenOut || undefined : undefined), [tokenOut, isToEvm]),
@@ -215,8 +225,17 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     if (isToEvm) return currencyOutEvm
     if (isToBitcoin) return BitcoinToken
     if (isToNear) return nearTokens.find(token => token.assetId === tokenOut)
+    if (isToSolana)
+      return {
+        name: 'Solana',
+        symbol: 'SOL',
+        decimals: 9,
+        logo: 'https://solana.com/favicon.png',
+        assetId: 'sol',
+      } //TODO: handle Solana tokens
+
     throw new Error('Network is not supported')
-  }, [currencyOutEvm, isToEvm, tokenOut, isToNear, isToBitcoin, nearTokens, toChainId])
+  }, [currencyOutEvm, isToEvm, tokenOut, isToNear, isToBitcoin, nearTokens, toChainId, isToSolana])
 
   useEffect(() => {
     localStorage.setItem('crossChainSwapLastChainOut', toChainId?.toString() || '')

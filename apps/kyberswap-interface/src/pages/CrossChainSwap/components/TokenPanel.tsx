@@ -34,6 +34,7 @@ import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useToggle from 'hooks/useToggle'
 import useDisconnectWallet from 'hooks/web3/useDisconnectWallet'
 import Skeleton from 'react-loading-skeleton'
+import { useWalletModal } from '@solana/wallet-adapter-react-ui'
 
 const TokenPanelWrapper = styled.div`
   padding: 12px;
@@ -69,6 +70,7 @@ export const TokenPanel = ({
   const [modalOpen, setModalOpen] = useState(false)
   const isEvm = isEvmChain(selectedChain as Chain)
   const { nearTokens } = useNearTokens()
+  const { setVisible: setModalVisible } = useWalletModal()
 
   const evmBalance = useCurrencyBalance(
     isEvm ? (selectedCurrency as EvmCurrency) : undefined,
@@ -105,8 +107,19 @@ export const TokenPanel = ({
     }
   }, [modalOpen])
 
-  const filteredNearTokens =
-    selectedChain === NonEvmChain.Bitcoin
+  const filteredTokens =
+    // TODO: add solana tokens
+    selectedChain === NonEvmChain.Solana
+      ? [
+          {
+            name: 'Solana',
+            symbol: 'SOL',
+            decimals: 9,
+            logo: 'https://solana.com/favicon.png',
+            assetId: 'sol',
+          },
+        ]
+      : selectedChain === NonEvmChain.Bitcoin
       ? [
           {
             ...BitcoinToken,
@@ -144,7 +157,10 @@ export const TokenPanel = ({
       toggleShowMenu()
       return
     }
-    if (selectedChain === NonEvmChain.Near) {
+
+    if (selectedChain === NonEvmChain.Solana) {
+      setModalVisible(true)
+    } else if (selectedChain === NonEvmChain.Near) {
       nearSignIn()
     } else if (selectedChain === NonEvmChain.Bitcoin) {
       setShowBtcConnect(true)
@@ -206,7 +222,7 @@ export const TokenPanel = ({
         <SelectNetwork
           onSelectNetwork={onSelectNetwork}
           selectedChainId={selectedChain}
-          chainIds={[NonEvmChain.Bitcoin, NonEvmChain.Near, ...MAINNET_NETWORKS]}
+          chainIds={[NonEvmChain.Solana, NonEvmChain.Bitcoin, NonEvmChain.Near, ...MAINNET_NETWORKS]}
           ref={ref}
         />
 
@@ -394,7 +410,7 @@ export const TokenPanel = ({
                 marginX: '-20px',
               }}
             >
-              {filteredNearTokens.map(item => {
+              {filteredTokens.map(item => {
                 return (
                   <CurrencyRowWrapper
                     key={item.assetId}

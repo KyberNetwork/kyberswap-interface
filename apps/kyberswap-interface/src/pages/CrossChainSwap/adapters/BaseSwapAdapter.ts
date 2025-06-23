@@ -7,6 +7,7 @@ import { useWalletSelector } from '@near-wallet-selector/react-hook'
 export enum NonEvmChain {
   Near = 'near',
   Bitcoin = 'bitcoin',
+  Solana = 'solana',
 }
 
 export const BitcoinToken = {
@@ -27,6 +28,10 @@ export const NonEvmChainInfo: { [key in NonEvmChain]: { name: string; icon: stri
   [NonEvmChain.Bitcoin]: {
     name: 'Bitcoin',
     icon: 'https://storage.googleapis.com/bitfi-static-35291d79/images/tokens/btc_network.svg',
+  },
+  [NonEvmChain.Solana]: {
+    name: 'Solana',
+    icon: 'https://solana.com/favicon.png',
   },
 }
 
