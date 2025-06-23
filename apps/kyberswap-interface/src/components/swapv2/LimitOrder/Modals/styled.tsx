@@ -9,6 +9,7 @@ import styled from 'styled-components'
 import Column from 'components/Column'
 import { Swap as SwapIcon } from 'components/Icons'
 import TradePrice from 'components/swapv2/LimitOrder/TradePrice'
+import { NativeCurrencies } from 'constants/tokens'
 import { BaseTradeInfo } from 'hooks/useBaseTradeInfo'
 import useTheme from 'hooks/useTheme'
 
@@ -155,7 +156,11 @@ export const Rate = ({
   let symbolIn, symbolOut, rateStr
   if (order) {
     const { makerAssetSymbol, takerAssetSymbol } = order
-    symbolIn = takerAssetSymbol
+
+    const native = NativeCurrencies[order.chainId]
+    const isNative = order.nativeOutput && takerAssetSymbol.toLowerCase() === native?.wrapped.symbol?.toLowerCase()
+
+    symbolIn = isNative ? native?.symbol || takerAssetSymbol : takerAssetSymbol
     symbolOut = makerAssetSymbol
     rateStr = formatRateLimitOrder(order, invertRate)
   } else {

@@ -1,4 +1,3 @@
-import { t } from '@lingui/macro'
 import { memo, useState } from 'react'
 
 import { TRANSACTION_STATE_DEFAULT } from 'constants/index'
@@ -13,9 +12,6 @@ function LimitOrderComp() {
   // modal and loading
   const [flowState, setFlowState] = useState<TransactionFlowState>(TRANSACTION_STATE_DEFAULT)
 
-  const name = currencyOut?.wrapped.name
-  const symbol = currencyOut?.wrapped.symbol
-
   return (
     <div style={{ padding: '16px' }}>
       <LimitOrderForm
@@ -23,9 +19,6 @@ function LimitOrderComp() {
         setFlowState={setFlowState}
         currencyIn={currencyIn}
         currencyOut={currencyOut}
-        note={
-          currencyOut?.isNative ? t`Note: Once your order is filled, you will receive ${name} (${symbol})` : undefined
-        }
       />
     </div>
   )

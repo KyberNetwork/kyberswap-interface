@@ -59,10 +59,6 @@ export default memo(function ConfirmOrderModal({
   const [confirmed, setConfirmed] = useState(false)
   const shouldShowConfirmFlow = percentDiff < WORSE_PRICE_DIFF_THRESHOLD
   const theme = useTheme()
-  const displayCurrencyOut = useMemo(() => {
-    return currencyOut?.isNative ? currencyOut.wrapped : currencyOut
-  }, [currencyOut])
-
   const { cancelType, gasFee, isEdit } = editOrderInfo || {}
 
   const listData = useMemo(() => {
@@ -80,18 +76,18 @@ export default memo(function ConfirmOrderModal({
       },
       {
         label: t`and receive`,
-        content: displayCurrencyOut && outputAmount && (
+        content: outputAmount && (
           <Value>
-            <CurrencyLogo currency={displayCurrencyOut} style={styleLogo} />
+            <CurrencyLogo currency={currencyOut} style={styleLogo} size={'20px'} />
             <Text>
-              {formatAmountOrder(outputAmount)} {displayCurrencyOut?.symbol}
+              {formatAmountOrder(outputAmount)} {currencyOut?.symbol}
             </Text>
           </Value>
         ),
       },
       {
         label: t`at`,
-        content: account && <Rate rateInfo={rateInfo} currencyIn={currencyIn} currencyOut={displayCurrencyOut} />,
+        content: account && <Rate rateInfo={rateInfo} currencyIn={currencyIn} currencyOut={currencyOut} />,
       },
       {
         label: t`before the order expires on`,
@@ -127,7 +123,7 @@ export default memo(function ConfirmOrderModal({
   }, [
     account,
     currencyIn,
-    displayCurrencyOut,
+    currencyOut,
     inputAmount,
     rateInfo,
     outputAmount,
@@ -199,7 +195,7 @@ export default memo(function ConfirmOrderModal({
         listData={listData}
         marketPrice={marketPrice}
         symbolIn={currencyIn?.symbol}
-        symbolOut={displayCurrencyOut?.symbol}
+        symbolOut={currencyOut?.symbol}
       />
       <Note note={note} />
 
