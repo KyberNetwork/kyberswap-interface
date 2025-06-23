@@ -54,18 +54,20 @@ export const parsePosition = ({
   ]
 
   const unclaimedRewardTokens = nftRewardInfo?.tokens.filter(token => token.unclaimedAmount > 0) || []
-  const totalValueTokens = [
-    {
-      address: token0Address,
-      symbol: position.pool.tokenAmounts[0]?.token.symbol || '',
-      amount: token0TotalProvide + token0EarnedAmount,
-    },
-    {
-      address: token1Address,
-      symbol: position.pool.tokenAmounts[1]?.token.symbol || '',
-      amount: token1TotalProvide + token1EarnedAmount,
-    },
-  ]
+  const totalValueTokens = !position.currentPositionValue
+    ? []
+    : [
+        {
+          address: token0Address,
+          symbol: position.pool.tokenAmounts[0]?.token.symbol || '',
+          amount: token0TotalProvide + token0EarnedAmount,
+        },
+        {
+          address: token1Address,
+          symbol: position.pool.tokenAmounts[1]?.token.symbol || '',
+          amount: token1TotalProvide + token1EarnedAmount,
+        },
+      ]
 
   unclaimedRewardTokens.forEach(token => {
     const tokenInfo = totalValueTokens.find(t => t.address.toLowerCase() === token.address.toLowerCase())

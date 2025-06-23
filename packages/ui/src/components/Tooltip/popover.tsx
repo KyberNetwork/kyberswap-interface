@@ -44,7 +44,7 @@ export default function Popover({
 
   return (
     <>
-      <div className={className + 'inline-block'} ref={setReferenceElement}>
+      <div className={className + ' inline-block'} ref={setReferenceElement}>
         {children}
       </div>
       <Portal>
