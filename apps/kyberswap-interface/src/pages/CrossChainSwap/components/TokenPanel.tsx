@@ -21,7 +21,7 @@ import { isEvmChain, shortenHash } from 'utils'
 import Modal from 'components/Modal'
 import { CloseIcon } from 'theme'
 import { SearchIcon, SearchInput, SearchWrapper, Separator } from 'components/SearchModal/styleds'
-import { useNearTokens } from 'state/crossChainSwap'
+import { useNearTokens, useSolanaTokens } from 'state/crossChainSwap'
 import { isMobile } from 'react-device-detect'
 import { rgba } from 'polished'
 import { formatUnits } from 'viem'
@@ -35,6 +35,7 @@ import useToggle from 'hooks/useToggle'
 import useDisconnectWallet from 'hooks/web3/useDisconnectWallet'
 import Skeleton from 'react-loading-skeleton'
 import { useWalletModal } from '@solana/wallet-adapter-react-ui'
+import { useWallet } from '@solana/wallet-adapter-react'
 
 const TokenPanelWrapper = styled.div`
   padding: 12px;
@@ -70,6 +71,7 @@ export const TokenPanel = ({
   const [modalOpen, setModalOpen] = useState(false)
   const isEvm = isEvmChain(selectedChain as Chain)
   const { nearTokens } = useNearTokens()
+  const { solanaTokens } = useSolanaTokens()
   const { setVisible: setModalVisible } = useWalletModal()
 
   const evmBalance = useCurrencyBalance(
@@ -99,6 +101,16 @@ export const TokenPanel = ({
     [nearTokens],
   )
 
+  const {
+    publicKey: solanaAddress,
+    connected: solanaConnected,
+    wallet: solanaWallet,
+    disconnect: solanaDisconnect,
+  } = useWallet()
+  console.log(solanaConnected, solanaWallet)
+
+  // const { connection } = useConnection()
+
   // clear the input on open
   useEffect(() => {
     if (modalOpen) {
@@ -108,17 +120,14 @@ export const TokenPanel = ({
   }, [modalOpen])
 
   const filteredTokens =
-    // TODO: add solana tokens
     selectedChain === NonEvmChain.Solana
-      ? [
-          {
-            name: 'Solana',
-            symbol: 'SOL',
-            decimals: 9,
-            logo: 'https://solana.com/favicon.png',
-            assetId: 'sol',
-          },
-        ]
+      ? solanaTokens
+          .map(token => ({ ...token, assetId: token.id }))
+          .filter(
+            token =>
+              token.symbol.toLowerCase().includes(searchQuery.trim().toLowerCase()) ||
+              token.id.toLowerCase().includes(searchQuery.trim().toLowerCase()),
+          )
       : selectedChain === NonEvmChain.Bitcoin
       ? [
           {
@@ -142,7 +151,13 @@ export const TokenPanel = ({
   const { account: evmAddress } = useActiveWeb3React()
 
   const connectedAddress =
-    selectedChain === NonEvmChain.Bitcoin ? btcAddress : selectedChain === NonEvmChain.Near ? nearAddress : evmAddress
+    selectedChain === NonEvmChain.Solana
+      ? solanaAddress?.toString()
+      : selectedChain === NonEvmChain.Bitcoin
+      ? btcAddress
+      : selectedChain === NonEvmChain.Near
+      ? nearAddress
+      : evmAddress
 
   const toggleWalletModal = useWalletModalToggle()
   const [showMenu, toggleShowMenu] = useToggle(false)
@@ -265,7 +280,9 @@ export const TokenPanel = ({
                     if (selectedChain === NonEvmChain.Near) nearSignOut()
                     else if (selectedChain === NonEvmChain.Bitcoin)
                       await availableWallets.find(wallet => wallet.type === walletInfo.walletType)?.disconnect?.()
-                    else disconnectWallet()
+                    else if (selectedChain === NonEvmChain.Solana) {
+                      solanaDisconnect()
+                    } else disconnectWallet()
 
                     toggleShowMenu()
                   }}

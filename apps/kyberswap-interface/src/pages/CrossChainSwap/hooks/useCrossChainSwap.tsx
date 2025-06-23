@@ -11,7 +11,7 @@ import useDebounce from 'hooks/useDebounce'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { isEvmChain, isNonEvmChain } from 'utils'
 import { BitcoinToken, Chain, Currency, NearQuoteParams, NonEvmChain, QuoteParams, SwapProvider } from '../adapters'
-import { NearToken, useNearTokens } from 'state/crossChainSwap'
+import { NearToken, useNearTokens, useSolanaTokens } from 'state/crossChainSwap'
 import { BTC_DEFAULT_RECEIVER, ZERO_ADDRESS } from 'constants/index'
 import { TOKEN_API_URL } from 'constants/env'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
@@ -199,21 +199,16 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     useMemo(() => (isFromEvm ? (fromChainId as ChainId) : undefined), [fromChainId, isFromEvm]),
   )
 
+  const { solanaTokens } = useSolanaTokens()
+
   const currencyIn = useMemo(() => {
     if (!from) return
     if (isFromEvm) return currencyInEvm
     if (isFromBitcoin) return BitcoinToken
     if (isFromNear) return nearTokens.find(token => token.assetId === tokenIn)
-    if (isFromSolana)
-      return {
-        name: 'Solana',
-        symbol: 'SOL',
-        decimals: 9,
-        logo: 'https://solana.com/favicon.png',
-        assetId: 'sol',
-      } //TODO: handle Solana tokens
+    if (isFromSolana) return solanaTokens.find(token => token.id === tokenIn)
     throw new Error('Network is not supported')
-  }, [currencyInEvm, from, isFromBitcoin, isFromNear, isFromEvm, tokenIn, nearTokens, isFromSolana])
+  }, [currencyInEvm, from, isFromBitcoin, isFromNear, isFromEvm, tokenIn, nearTokens, isFromSolana, solanaTokens])
 
   const currencyOutEvm = useCurrencyV2(
     useMemo(() => (isToEvm ? tokenOut || undefined : undefined), [tokenOut, isToEvm]),
