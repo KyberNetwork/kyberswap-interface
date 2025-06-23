@@ -1,0 +1,70 @@
+{
+  "name": "@kyberswap/zap-migration-widgets",
+  "license": "MIT",
+  "version": "1.0.13",
+  "type": "module",
+  "scripts": {
+    "dev": "tsup --watch",
+    "type-check": "tsc --noEmit",
+    "build": "tsup",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives",
+    "prepublishOnly": "tsc && tsup"
+  },
+  "dependencies": {
+    "@popperjs/core": "^2.11.8",
+    "react-popper": "^2.3.0",
+    "zod": "^3.23.8",
+    "zustand": "^5.0.0"
+  },
+  "devDependencies": {
+    "@kyber/hooks": "workspace:*",
+    "@kyber/svgr-esbuild-plugin": "workspace:^",
+    "@kyber/tailwind-config": "workspace:*",
+    "@kyber/typescript-config": "workspace:*",
+    "@kyber/ui": "workspace:^",
+    "@kyber/utils": "workspace:*",
+    "@types/react": "^18.0.17",
+    "@types/react-dom": "^18.2.17",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^8.55.0",
+    "postcss": "^8.4.47",
+    "postcss-prefix-selector": "^2.1.0",
+    "tailwindcss": "^3.4.13",
+    "tsup": "^8.3.0",
+    "esbuild-sass-plugin": "^3.3.1",
+    "sass": "^1.70.0",
+    "typescript": "5.3.2"
+  },
+  "peerDependencies": {
+    "react": ">=16.8.0",
+    "react-dom": ">=16.8.0"
+  },
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/zap-migration-widget.cjs",
+  "module": "./dist/zap-migration-widget.js",
+  "types": "./dist/zap-migration-widget.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/zap-migration-widget.js",
+      "require": "./dist/zap-migration-widget.cjs"
+    },
+    "./dist/style.css": "./dist/zap-migration-widget.css"
+  },
+  "description": "Kyber Zap Migration Widgets",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KyberNetwork/kyberswap-widgets.git"
+  },
+  "keywords": [
+    "zap",
+    "web3",
+    "liquidity"
+  ],
+  "author": "",
+  "bugs": {
+    "url": "https://github.com/KyberNetwork/kyberswap-widgets/issues"
+  },
+  "homepage": "https://github.com/KyberNetwork/kyberswap-widgets#readme"
+}

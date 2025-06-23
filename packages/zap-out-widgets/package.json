@@ -1,0 +1,73 @@
+{
+  "name": "@kyberswap/zap-out-widgets",
+  "version": "1.0.0",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/zap-out-widget.js",
+      "require": "./dist/zap-out-widget.cjs"
+    },
+    "./dist/style.css": "./dist/zap-out-widget.css"
+  },
+  "main": "./dist/zap-out-widget.cjs",
+  "module": "./dist/zap-out-widget.js",
+  "types": "./dist/zap-out-widget.d.ts",
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives",
+    "prepublishOnly": "tsc && tsup",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@popperjs/core": "^2.11.8",
+    "@radix-ui/react-accordion": "^1.2.1",
+    "@radix-ui/react-icons": "^1.3.0",
+    "@radix-ui/react-scroll-area": "^1.1.0",
+    "@radix-ui/react-slot": "^1.1.0",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
+    "jsbi": "^3.2.5",
+    "numeral": "^2.0.6",
+    "polished": "^4.3.1",
+    "react-popper": "^2.3.0",
+    "zod": "^3.23.8",
+    "zustand": "^5.0.0"
+  },
+  "devDependencies": {
+    "@kyber/svgr-esbuild-plugin": "workspace:^",
+    "@kyber/tailwind-config": "workspace:^",
+    "@kyber/ui": "workspace:^",
+    "@kyberswap/liquidity-chart": "workspace:^",
+    "@kyber/hooks": "workspace:^",
+    "@kyber/utils": "workspace:^",
+    "@types/lodash": "^4.14.196",
+    "@types/numeral": "^2.0.5",
+    "@types/react": "^18.0.17",
+    "@types/react-dom": "^18.2.17",
+    "@typescript-eslint/eslint-plugin": "^6.14.0",
+    "@typescript-eslint/parser": "^6.14.0",
+    "autoprefixer": "^10.4.20",
+    "esbuild-sass-plugin": "^3.3.1",
+    "eslint": "^8.55.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.5",
+    "postcss": "^8.4.47",
+    "postcss-prefix-selector": "^2.1.0",
+    "sass": "^1.70.0",
+    "tailwindcss": "^3.4.13",
+    "tsup": "^8.3.0",
+    "typescript": "5.3.2"
+  },
+  "peerDependencies": {
+    "react": ">=16.8.0",
+    "react-dom": ">=16.8.0"
+  }
+}

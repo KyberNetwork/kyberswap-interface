@@ -1,9 +1,9 @@
 # KyberSwap Interface
 
-An open source interface for KyberSwap -- a protocol for decentralized exchange.
+KyberSwap Interface is the unified frontend for the entire Kyber Network suite of products. This monorepo houses all KyberSwap frontend projects, allowing for a modular, scalable, and collaborative development environment.
 
 - Website: [kyberswap.com](https://kyberswap.com/)
-- Whitepaper: [Link](https://files.kyber.network/DMM-Feb21.pdf)
+- Document: [docs.kyberswap.com](https://docs.kyberswap.com/)
 
 ## Accessing the KyberSwap Interface
 
@@ -14,16 +14,17 @@ To access the KyberSwap Interface, visit [kyberswap.com](https://kyberswap.com/)
 ### Install Dependencies
 
 ```bash
-yarn
+pnpm i
 ```
 
 ### Run
 
 ```bash
-yarn start
+cd apps/kyberswap-interface && pnpm start
 ```
 
 ## Contributions
 
 **Please open all pull requests against the `main` branch.**
 CI checks will run against all PRs.
+
