@@ -57,7 +57,7 @@ const RightSection = ({
   const { stableCoins } = useStableCoins(Number(chainId) as ChainId)
   const { data: pool } = usePoolDetailQuery(
     { chainId: Number(chainId) as ChainId, ids: position?.pool.address || '' },
-    { skip: !position },
+    { skip: !position, pollingInterval: 15_000 },
   )
   const [revert, setRevert] = useState(false)
   const [defaultRevertChecked, setDefaultRevertChecked] = useState(false)
