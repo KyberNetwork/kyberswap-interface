@@ -155,7 +155,7 @@ export default function ClaimAllModal({
             <Text mt={2} color={theme.subText}>{t`Please select a chain to claim rewards`}</Text>
           )}
         </ClaimInfoWrapper>
-        <Row gap="16px" flexDirection={upToExtraSmall ? 'column' : 'row'}>
+        <Row gap="16px" flexDirection={upToExtraSmall ? 'column-reverse' : 'row'}>
           <ButtonOutlined onClick={onClose}>{t`Cancel`}</ButtonOutlined>
           <ButtonPrimary gap="4px" disabled={claiming || !selectedChain} onClick={handleClaim}>
             {claiming && <Loader stroke={'#505050'} />}

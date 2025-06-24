@@ -28,6 +28,8 @@ import {
   MigrationLiquidityRecommend,
   PositionDetailWrapper,
   ShareButtonWrapper,
+  SkeletonText,
+  SkeletonWrapper,
   TotalLiquiditySection,
   VerticalDivider,
 } from 'pages/Earns/PositionDetail/styles'
@@ -49,14 +51,16 @@ export const PositionSkeleton = ({
   width,
   height,
   style,
+  text,
 }: {
   width: number
   height: number
   style?: React.CSSProperties
+  text?: string
 }) => {
   const theme = useTheme()
 
-  return (
+  return !text ? (
     <Skeleton
       width={width}
       height={height}
@@ -65,6 +69,18 @@ export const PositionSkeleton = ({
       borderRadius="1rem"
       style={style}
     />
+  ) : (
+    <SkeletonWrapper>
+      <Skeleton
+        width={width}
+        height={height}
+        baseColor={theme.background}
+        highlightColor={theme.buttonGray}
+        borderRadius="1rem"
+        style={style}
+      />
+      <SkeletonText>{text}</SkeletonText>
+    </SkeletonWrapper>
   )
 }
 
@@ -189,6 +205,7 @@ const PositionDetail = () => {
   }, [forceLoading, position, searchParams, setSearchParams])
 
   const isFarmingPossible = POSSIBLE_FARMING_PROTOCOLS.includes(protocol as Exchange)
+  const isUnfinalized = position?.isUnfinalized
 
   const emptyPosition = (
     <EmptyPositionText>
@@ -219,6 +236,8 @@ const PositionDetail = () => {
         </Text>
         {initialLoading ? (
           <PositionSkeleton width={95} height={24} />
+        ) : isUnfinalized ? (
+          <PositionSkeleton width={95} height={24} text="Finalizing..." />
         ) : (
           <Text fontSize={20}>
             {formatDisplayNumber(position?.totalProvidedValue, {
@@ -232,6 +251,8 @@ const PositionDetail = () => {
       <Flex flexDirection={'column'} alignContent={'flex-end'} sx={{ gap: 2 }}>
         {initialLoading ? (
           <PositionSkeleton width={120} height={19} />
+        ) : isUnfinalized ? (
+          <PositionSkeleton width={120} height={19} text="Finalizing..." />
         ) : (
           <Flex alignItems={'center'} sx={{ gap: '6px' }} fontSize={16}>
             <TokenLogo src={position?.token0.logo} size={16} />
@@ -242,6 +263,8 @@ const PositionDetail = () => {
 
         {initialLoading ? (
           <PositionSkeleton width={120} height={19} />
+        ) : isUnfinalized ? (
+          <PositionSkeleton width={120} height={19} text="Finalizing..." />
         ) : (
           <Flex alignItems={'center'} sx={{ gap: '6px' }} fontSize={16}>
             <TokenLogo src={position?.token1.logo} size={16} />
@@ -265,7 +288,7 @@ const PositionDetail = () => {
         <Text fontSize={14} color={theme.subText}>
           {t`Est. Position APR`}
         </Text>
-        {position?.pool.isFarming && (
+        {position?.pool.isFarming && !isUnfinalized && (
           <InfoHelper
             size={16}
             fontSize={14}
@@ -286,6 +309,8 @@ const PositionDetail = () => {
 
       {initialLoading ? (
         <PositionSkeleton width={70} height={24} />
+      ) : isUnfinalized ? (
+        <PositionSkeleton width={70} height={24} text="Finalizing..." />
       ) : (
         <Flex alignItems={'center'} sx={{ gap: 1 }}>
           <Text fontSize={20} color={position?.apr && position.apr > 0 ? theme.primary : theme.text}>

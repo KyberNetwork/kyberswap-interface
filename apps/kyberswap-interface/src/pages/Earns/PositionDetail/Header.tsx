@@ -80,6 +80,8 @@ const PositionDetailHeader = ({
     </Badge>
   )
 
+  const isUnfinalized = position?.isUnfinalized
+
   return (
     <Flex sx={{ gap: 3 }} marginBottom={1}>
       <PositionHeader>
@@ -127,7 +129,8 @@ const PositionDetailHeader = ({
           )}
         </Flex>
         <Flex alignItems={'center'} sx={{ gap: '10px' }} flexWrap={'wrap'}>
-          {!upToSmall && (initialLoading ? <PositionSkeleton width={112} height={23} /> : statusBadge)}
+          {!upToSmall &&
+            (initialLoading ? <PositionSkeleton width={112} height={23} /> : isUnfinalized ? null : statusBadge)}
 
           {isUniv2 ? null : initialLoading ? (
             <PositionSkeleton width={50} height={16} />
@@ -137,7 +140,8 @@ const PositionDetailHeader = ({
             </Text>
           )}
 
-          {upToSmall && (initialLoading ? <PositionSkeleton width={112} height={23} /> : statusBadge)}
+          {upToSmall &&
+            (initialLoading ? <PositionSkeleton width={112} height={23} /> : isUnfinalized ? null : statusBadge)}
 
           {initialLoading ? (
             <PositionSkeleton width={150} height={16} />
@@ -157,7 +161,7 @@ const PositionDetailHeader = ({
           )}
 
           {isLoading && !initialLoading && <Loader />}
-          {!initialLoading && shareBtn(ShareType.POSITION_INFO)}
+          {!initialLoading && !isUnfinalized && shareBtn(ShareType.POSITION_INFO)}
         </Flex>
       </PositionHeader>
     </Flex>

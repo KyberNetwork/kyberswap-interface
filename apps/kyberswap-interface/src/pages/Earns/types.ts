@@ -97,6 +97,8 @@ export interface EarnPosition {
     feeTier: number
     poolExchange: Exchange
   } | null
+  latestBlock: number
+  createdAtBlock: number
 }
 
 export interface ParsedPosition {
@@ -166,6 +168,7 @@ export interface ParsedPosition {
     feeTier: number
     poolExchange: Exchange
   } | null
+  isUnfinalized: boolean
 }
 
 interface Token {

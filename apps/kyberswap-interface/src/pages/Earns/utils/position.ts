@@ -82,6 +82,9 @@ export const parsePosition = ({
     }
   })
 
+  const isNewPosition = position.createdTime >= Date.now() - 2 * 60 * 1000
+  const isUnfinalized = isNewPosition && (position.latestBlock || 0) - (position.createdAtBlock || 0) <= 10
+
   return {
     id: position.id,
     tokenId: position.tokenId,
@@ -170,6 +173,7 @@ export const parsePosition = ({
     unclaimedFees,
     status: isUniv2 ? PositionStatus.IN_RANGE : position.status,
     createdTime: position.createdTime,
+    isUnfinalized,
   }
 }
 

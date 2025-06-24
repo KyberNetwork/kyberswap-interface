@@ -97,6 +97,7 @@ const RightSection = ({
   }, [defaultRevertChecked, pool, chainId, stableCoins])
 
   const isFarmingPossible = POSSIBLE_FARMING_PROTOCOLS.includes(protocol as Exchange)
+  const isUnfinalized = position?.isUnfinalized
 
   return (
     <>
@@ -122,6 +123,8 @@ const RightSection = ({
               </Text>
               {initialLoading ? (
                 <PositionSkeleton width={160} height={16} />
+              ) : isUnfinalized ? (
+                <PositionSkeleton width={160} height={16} text="Finalizing..." />
               ) : (
                 position && (
                   <>
@@ -143,7 +146,7 @@ const RightSection = ({
         ) : null}
 
         {!isUniv2 &&
-          (initialLoading || !position ? (
+          (initialLoading || !position || isUnfinalized ? (
             <LiquidityChartSkeleton />
           ) : (
             <ChartPlaceholder>
@@ -169,6 +172,8 @@ const RightSection = ({
 
             {initialLoading ? (
               <PositionSkeleton width={80} height={21} style={{ marginBottom: 8, marginTop: 8 }} />
+            ) : isUnfinalized ? (
+              <PositionSkeleton width={80} height={21} style={{ marginBottom: 8, marginTop: 8 }} text="Finalizing..." />
             ) : (
               <Text fontSize={18} marginBottom={2} marginTop={2}>
                 {position?.priceRange?.min && position?.priceRange?.max
@@ -195,6 +200,8 @@ const RightSection = ({
 
             {initialLoading ? (
               <PositionSkeleton width={80} height={21} style={{ marginBottom: 8, marginTop: 8 }} />
+            ) : isUnfinalized ? (
+              <PositionSkeleton width={80} height={21} style={{ marginBottom: 8, marginTop: 8 }} text="Finalizing..." />
             ) : (
               <Text fontSize={18} marginBottom={2} marginTop={2}>
                 {position?.priceRange?.min && position?.priceRange?.max

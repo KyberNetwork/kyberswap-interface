@@ -64,6 +64,8 @@ const RewardSection = ({
   } = useKemRewards()
   const rewardInfoThisPosition = !position ? undefined : rewardInfo?.nfts.find(item => item.nftId === position.tokenId)
 
+  const isUnfinalized = position?.isUnfinalized
+
   useEffect(() => {
     const calculateTimeRemaining = () => {
       const now = Math.floor(Date.now() / 1000)
@@ -87,11 +89,13 @@ const RewardSection = ({
             <Text fontSize={14} color={theme.subText} lineHeight={'20PX'}>
               {t`Total Rewards`}
             </Text>
-            {!initialLoading && shareBtn(ShareType.POSITION_REWARDS_INFO)}
+            {!initialLoading && !isUnfinalized && shareBtn(ShareType.POSITION_REWARDS_INFO)}
           </Flex>
 
           {initialLoading ? (
             <PositionSkeleton width={110} height={24} />
+          ) : isUnfinalized ? (
+            <PositionSkeleton width={110} height={24} text="Finalizing..." />
           ) : (
             <Flex alignItems={'center'} sx={{ gap: 1 }}>
               <Text fontSize={20}>
@@ -118,6 +122,8 @@ const RewardSection = ({
           <Flex width={'100%'} alignItems={'center'} justifyContent={'space-between'}>
             {initialLoading ? (
               <PositionSkeleton width={90} height={24} />
+            ) : isUnfinalized ? (
+              <PositionSkeleton width={90} height={24} text="Finalizing..." />
             ) : (
               <Text fontSize={20}>
                 {formatDisplayNumber(rewardInfoThisPosition?.claimedUsdValue || 0, {
@@ -134,6 +140,8 @@ const RewardSection = ({
           <Flex width={'100%'} alignItems={'center'} justifyContent={'space-between'}>
             {initialLoading ? (
               <PositionSkeleton width={105} height={24} />
+            ) : isUnfinalized ? (
+              <PositionSkeleton width={105} height={24} text="Finalizing..." />
             ) : (
               <Flex alignItems={'center'}>
                 <Text fontSize={20}>
@@ -169,6 +177,8 @@ const RewardSection = ({
 
             {initialLoading ? (
               <PositionSkeleton width={112} height={16} />
+            ) : isUnfinalized ? (
+              <PositionSkeleton width={112} height={16} text="Finalizing..." />
             ) : (
               <Flex alignItems={'center'} sx={{ gap: 1 }}>
                 <Clock size={16} color={theme.subText} />
@@ -182,6 +192,8 @@ const RewardSection = ({
           <Flex width={'100%'} alignItems={'center'} justifyContent={'space-between'}>
             {initialLoading ? (
               <PositionSkeleton width={90} height={24} />
+            ) : isUnfinalized ? (
+              <PositionSkeleton width={90} height={24} text="Finalizing..." />
             ) : (
               <Text fontSize={20}>
                 {formatDisplayNumber(rewardInfoThisPosition?.claimableUsdValue || 0, {
@@ -199,9 +211,10 @@ const RewardSection = ({
             small
             outline
             mobileAutoWidth
-            disabled={initialLoading || !rewardInfoThisPosition?.claimableUsdValue || rewardsClaiming}
+            disabled={initialLoading || isUnfinalized || !rewardInfoThisPosition?.claimableUsdValue || rewardsClaiming}
             onClick={() =>
               !initialLoading &&
+              !isUnfinalized &&
               rewardInfoThisPosition?.claimableUsdValue &&
               !rewardsClaiming &&
               onOpenClaimRewards(rewardInfoThisPosition.nftId, position?.chain.id || 0)
