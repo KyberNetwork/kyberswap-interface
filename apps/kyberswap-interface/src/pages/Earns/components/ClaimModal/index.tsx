@@ -20,7 +20,7 @@ import {
   Wrapper,
   X,
 } from 'pages/Earns/components/ClaimModal/styles'
-import { EarnDex } from 'pages/Earns/constants'
+import { EarnDex, LIMIT_TEXT_STYLES } from 'pages/Earns/constants'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -102,7 +102,7 @@ const ClaimModal = ({
           <ClaimInfo>
             <Flex alignItems={'center'} justifyContent={'space-between'}>
               <Text fontSize={14} color={theme.subText}>{t`Total Value`}</Text>
-              <Text fontSize={18}>
+              <Text fontSize={18} sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '160px' }}>
                 {formatDisplayNumber(claimInfo.totalValue, { style: 'currency', significantDigits: 4 })}
               </Text>
             </Flex>

@@ -15,6 +15,7 @@ import {
   CoreProtocol,
   EXCHANGES_SUPPORT_COLLECT_FEE,
   Exchange,
+  LIMIT_TEXT_STYLES,
   POSSIBLE_FARMING_PROTOCOLS,
 } from 'pages/Earns/constants'
 import useCollectFees from 'pages/Earns/hooks/useCollectFees'
@@ -91,30 +92,32 @@ const LeftSection = ({
               <Text fontSize={14} color={theme.subText}>
                 1 {t`day`}
               </Text>
-              <Text>
-                {initialLoading ? (
-                  <PositionSkeleton width={90} height={19} />
-                ) : (position?.earning.in24h || position?.earning.in24h === 0) && !isUniv2 ? (
-                  formatDisplayNumber(position?.earning.in24h, { significantDigits: 4, style: 'currency' })
-                ) : (
-                  '--'
-                )}
-              </Text>
+
+              {initialLoading ? (
+                <PositionSkeleton width={90} height={19} />
+              ) : (position?.earning.in24h || position?.earning.in24h === 0) && !isUniv2 ? (
+                <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '120px' }}>
+                  {formatDisplayNumber(position?.earning.in24h, { significantDigits: 4, style: 'currency' })}
+                </Text>
+              ) : (
+                '--'
+              )}
             </Flex>
             <VerticalDivider />
             <Flex flexDirection={'column'} sx={{ gap: 2 }}>
               <Text fontSize={14} color={theme.subText}>
                 7 {t`days`}
               </Text>
-              <Text>
-                {initialLoading ? (
-                  <PositionSkeleton width={90} height={19} />
-                ) : (position?.earning.in7d || position?.earning.in7d === 0) && !isUniv2 ? (
-                  formatDisplayNumber(position?.earning.in7d, { significantDigits: 4, style: 'currency' })
-                ) : (
-                  '--'
-                )}
-              </Text>
+
+              {initialLoading ? (
+                <PositionSkeleton width={90} height={19} />
+              ) : (position?.earning.in7d || position?.earning.in7d === 0) && !isUniv2 ? (
+                <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '120px' }}>
+                  {formatDisplayNumber(position?.earning.in7d, { significantDigits: 4, style: 'currency' })}
+                </Text>
+              ) : (
+                '--'
+              )}
             </Flex>
             <VerticalDivider />
             <Flex flexDirection={'column'} sx={{ gap: 2 }}>
@@ -128,7 +131,9 @@ const LeftSection = ({
                 {initialLoading ? (
                   <PositionSkeleton width={90} height={21} />
                 ) : (position?.earning.earned || position?.earning.earned === 0) && position?.earning.earned >= 0 ? (
-                  formatDisplayNumber(position?.earning.earned, { style: 'currency', significantDigits: 4 })
+                  <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '140px' }}>
+                    {formatDisplayNumber(position?.earning.earned, { style: 'currency', significantDigits: 4 })}
+                  </Text>
                 ) : position?.earning.earned && position?.earning.earned < 0 ? (
                   0
                 ) : (
@@ -150,7 +155,7 @@ const LeftSection = ({
               {initialLoading ? (
                 <PositionSkeleton width={90} height={21} />
               ) : (
-                <Text fontSize={18}>
+                <Text fontSize={18} sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '160px' }}>
                   {position?.unclaimedFees
                     ? formatDisplayNumber(position?.unclaimedFees, {
                         significantDigits: 4,
@@ -166,9 +171,11 @@ const LeftSection = ({
                   <PositionSkeleton width={120} height={19} style={{ marginBottom: 4 }} />
                 ) : (
                   <Flex alignItems={'center'} sx={{ gap: '6px' }} marginBottom={1}>
-                    <Text>{formatDisplayNumber(position?.token0.unclaimedAmount, { significantDigits: 4 })}</Text>
+                    <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '100px' }}>
+                      {formatDisplayNumber(position?.token0.unclaimedAmount, { significantDigits: 4 })}
+                    </Text>
                     <Text>{position?.token0.isNative ? nativeToken?.symbol : position?.token0.symbol}</Text>
-                    <Text fontSize={14} color={theme.subText}>
+                    <Text fontSize={14} color={theme.subText} sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '100px' }}>
                       {formatDisplayNumber(position?.token0.unclaimedValue, {
                         style: 'currency',
                         significantDigits: 4,
@@ -181,9 +188,11 @@ const LeftSection = ({
                   <PositionSkeleton width={120} height={19} style={{ marginBottom: 1 }} />
                 ) : (
                   <Flex alignItems={'center'} sx={{ gap: '6px' }}>
-                    <Text>{formatDisplayNumber(position?.token1.unclaimedAmount, { significantDigits: 4 })}</Text>
+                    <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '100px' }}>
+                      {formatDisplayNumber(position?.token1.unclaimedAmount, { significantDigits: 4 })}
+                    </Text>
                     <Text>{position?.token1.isNative ? nativeToken?.symbol : position?.token1.symbol}</Text>
-                    <Text fontSize={14} color={theme.subText}>
+                    <Text fontSize={14} color={theme.subText} sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '100px' }}>
                       {formatDisplayNumber(position?.token1.unclaimedValue, {
                         style: 'currency',
                         significantDigits: 4,
