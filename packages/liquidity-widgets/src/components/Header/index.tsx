@@ -121,7 +121,7 @@ const Header = ({ refetchData }: { refetchData: () => void }) => {
           }}
         />
       )}
-      <div className="flex text-xl font-medium justify-between items-center">
+      <div className="flex text-xl font-medium justify-between items-start">
         {initializing ? (
           <Skeleton className="w-[300px] h-7" />
         ) : (
@@ -216,7 +216,10 @@ const Header = ({ refetchData }: { refetchData: () => void }) => {
           </div>
         )}
 
-        <MouseoverTooltip className="top-16 right-6 max-sm:absolute" text={degenMode ? 'Degen Mode is turned on!' : ''}>
+        <MouseoverTooltip
+          className="top-16 right-5 sm:right-6 max-sm:absolute"
+          text={degenMode ? 'Degen Mode is turned on!' : ''}
+        >
           <div
             className={`setting w-9 h-9 flex items-center justify-center rounded-full cursor-pointer bg-layer2 hover:brightness-125 active:scale-95 ${
               degenMode ? 'text-warning' : ''

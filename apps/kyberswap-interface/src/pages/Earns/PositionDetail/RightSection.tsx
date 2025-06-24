@@ -1,4 +1,3 @@
-import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick } from '@kyber/utils/dist/uniswapv3'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useEffect, useMemo, useState } from 'react'
@@ -33,7 +32,7 @@ import useZapOutWidget from 'pages/Earns/hooks/useZapOutWidget'
 import { ParsedPosition, PositionStatus } from 'pages/Earns/types'
 import { isForkFrom } from 'pages/Earns/utils'
 import { MEDIA_WIDTHS } from 'theme'
-import { formatDisplayNumber, toString } from 'utils/numbers'
+import { formatDisplayNumber } from 'utils/numbers'
 
 const RightSection = ({
   position,
@@ -73,41 +72,6 @@ const RightSection = ({
     [position?.priceRange, revert],
   )
   const isUniv2 = isForkFrom(protocol as Exchange, CoreProtocol.UniswapV2)
-
-  const priceRange = useMemo(() => {
-    if (!pool || !position) return
-    if (isUniv2) return ['0', '∞']
-
-    const tickSpacing = pool?.positionInfo.tickSpacing
-    const minTick = nearestUsableTick(MIN_TICK, tickSpacing)
-    const maxTick = nearestUsableTick(MAX_TICK, tickSpacing)
-
-    if (minTick === undefined || maxTick === undefined) return
-
-    const minPrice = toString(Number(position?.priceRange.min.toFixed(18)))
-    const maxPrice = toString(Number(position?.priceRange.max.toFixed(18)))
-
-    const tickLower =
-      minPrice === '0' ? minTick : priceToClosestTick(minPrice, pool.tokens[0].decimals, pool.tokens[1].decimals, false)
-    const tickUpper = priceToClosestTick(maxPrice, pool.tokens[0].decimals, pool.tokens[1].decimals, false)
-    const usableTickLower = nearestUsableTick(Number(tickLower), tickSpacing)
-    const usableTickUpper = nearestUsableTick(Number(tickUpper), tickSpacing)
-
-    if (usableTickLower === undefined || usableTickUpper === undefined) return
-    if (usableTickLower === minTick && usableTickUpper === maxTick) return ['0', '∞']
-    else {
-      const parsedMinPrice = toString(
-        Number((!revert ? position.priceRange.min : 1 / position.priceRange.max).toFixed(18)),
-      )
-      const parsedMaxPrice = toString(
-        Number((!revert ? position.priceRange.max : 1 / position.priceRange.min).toFixed(18)),
-      )
-      return [
-        formatDisplayNumber(parsedMinPrice, { significantDigits: 6 }),
-        formatDisplayNumber(parsedMaxPrice, { significantDigits: 6 }),
-      ]
-    }
-  }, [isUniv2, pool, position, revert])
 
   const onOpenIncreaseLiquidityWidget = () => {
     if (!position) return
@@ -207,7 +171,11 @@ const RightSection = ({
               <PositionSkeleton width={80} height={21} style={{ marginBottom: 8, marginTop: 8 }} />
             ) : (
               <Text fontSize={18} marginBottom={2} marginTop={2}>
-                {priceRange?.[0] || ''}
+                {position?.priceRange?.min && position?.priceRange?.max
+                  ? formatDisplayNumber(!revert ? position.priceRange.min : 1 / position.priceRange.max, {
+                      significantDigits: 6,
+                    })
+                  : ''}
               </Text>
             )}
 
@@ -229,7 +197,11 @@ const RightSection = ({
               <PositionSkeleton width={80} height={21} style={{ marginBottom: 8, marginTop: 8 }} />
             ) : (
               <Text fontSize={18} marginBottom={2} marginTop={2}>
-                {priceRange?.[1] || ''}
+                {position?.priceRange?.min && position?.priceRange?.max
+                  ? formatDisplayNumber(!revert ? position.priceRange.max : 1 / position.priceRange.min, {
+                      significantDigits: 6,
+                    })
+                  : ''}
               </Text>
             )}
 
