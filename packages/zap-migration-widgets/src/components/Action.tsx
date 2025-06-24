@@ -187,12 +187,12 @@ export function Action({
       btnText = "Select Price Range";
     else if (tickLower >= tickUpper) btnText = "Invalid Price Range";
   } else if (route === null) btnText = "No Route Found";
-  else if (!connectedAccount.address) btnText = "Connect Wallet";
-  else if (connectedAccount.chainId !== chainId) btnText = "Switch Network";
   else if (fromIsNotOwner) {
     if (fromIsFarming) btnText = "Your position is in farming";
     else btnText = "You are not the owner of this position";
-  } else if (isToUniv4 && toIsNotOwner)
+  } else if (!connectedAccount.address) btnText = "Connect Wallet";
+  else if (connectedAccount.chainId !== chainId) btnText = "Switch Network";
+  else if (isToUniv4 && toIsNotOwner)
     btnText = "You are not the owner of this position";
   else if (isChecking || (isToUniv4 && position1 && isTargetNftChecking))
     btnText = "Checking Allowance";
