@@ -116,7 +116,7 @@ export default function PositionBanner({
                 <Text
                   fontSize={24}
                   color={totalFeeValue && totalFeeValue > 0 ? theme.primary : theme.text}
-                  sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '120px' }}
+                  sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '140px' }}
                 >
                   {formatDisplayNumber(totalFeeValue, { style: 'currency', significantDigits: 4 })}
                 </Text>
@@ -129,7 +129,7 @@ export default function PositionBanner({
               {initialLoading ? (
                 <BannerSkeleton width={90} height={28} />
               ) : (
-                <Text fontSize={24} sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '120px' }}>
+                <Text fontSize={24} sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '140px' }}>
                   {formatDisplayNumber(totalEarnedFee, { style: 'currency', significantDigits: 4 })}
                 </Text>
               )}
@@ -141,7 +141,7 @@ export default function PositionBanner({
               {initialLoading ? (
                 <BannerSkeleton width={90} height={28} />
               ) : (
-                <Text fontSize={24} sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '120px' }}>
+                <Text fontSize={24} sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '140px' }}>
                   {formatDisplayNumber(totalUnclaimedFee, { style: 'currency', significantDigits: 4 })}
                 </Text>
               )}
