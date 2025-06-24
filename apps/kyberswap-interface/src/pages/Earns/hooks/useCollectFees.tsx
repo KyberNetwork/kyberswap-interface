@@ -46,10 +46,13 @@ const useCollectFees = ({ refetchAfterCollect }: { refetchAfterCollect: () => vo
 
     if (!txData) return
 
+    let errorMessage = ''
+
     const res = await submitTransaction({
       library,
       txData,
       onError: (error: Error) => {
+        errorMessage = error.message
         notify({
           title: t`Error`,
           type: NotificationType.ERROR,
@@ -60,11 +63,12 @@ const useCollectFees = ({ refetchAfterCollect }: { refetchAfterCollect: () => vo
     })
     const { txHash, error } = res
     if (!txHash || error) {
-      notify({
-        title: t`Error`,
-        type: NotificationType.ERROR,
-        summary: error?.message || 'Transaction failed',
-      })
+      if (error?.message && error.message !== errorMessage)
+        notify({
+          title: t`Error`,
+          type: NotificationType.ERROR,
+          summary: error?.message || 'Transaction failed',
+        })
       throw new Error(error?.message || 'Transaction failed')
     }
 
