@@ -330,7 +330,7 @@ export default function TableContent({
                       width="fit-content"
                       placement="bottom"
                     >
-                      <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '100px' }}>
+                      <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '80px' }}>
                         {formatDisplayNumber(totalValue, {
                           style: 'currency',
                           significantDigits: 4,

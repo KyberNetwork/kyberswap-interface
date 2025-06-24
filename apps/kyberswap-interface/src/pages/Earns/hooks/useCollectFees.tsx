@@ -59,7 +59,14 @@ const useCollectFees = ({ refetchAfterCollect }: { refetchAfterCollect: () => vo
       },
     })
     const { txHash, error } = res
-    if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
+    if (!txHash || error) {
+      notify({
+        title: t`Error`,
+        type: NotificationType.ERROR,
+        summary: error?.message || 'Transaction failed',
+      })
+      throw new Error(error?.message || 'Transaction failed')
+    }
 
     setTxHash(txHash)
 
