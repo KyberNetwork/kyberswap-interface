@@ -16,6 +16,7 @@ import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
+import { PositionSkeleton } from 'pages/Earns/PositionDetail'
 import { PositionAction as PositionActionBtn } from 'pages/Earns/PositionDetail/styles'
 import DropdownAction from 'pages/Earns/UserPositions/DropdownAction'
 import PriceRange from 'pages/Earns/UserPositions/PriceRange'
@@ -233,6 +234,7 @@ export default function TableContent({
                 unclaimedFees,
                 status,
                 rewards,
+                isUnfinalized,
               } = position
               const feesClaimDisabled =
                 !DEXES_SUPPORT_COLLECT_FEE[dex.id as EarnDex] || unclaimedFees === 0 || feesClaiming
@@ -312,119 +314,136 @@ export default function TableContent({
                   </PositionOverview>
 
                   {/* Actions for Tablet */}
-                  {upToLarge && <PositionActionWrapper>{actions}</PositionActionWrapper>}
+                  {upToLarge && !isUnfinalized && <PositionActionWrapper>{actions}</PositionActionWrapper>}
 
                   {/* Value info */}
                   <PositionValueWrapper>
                     <PositionValueLabel>{t`Value`}</PositionValueLabel>
-                    <MouseoverTooltipDesktopOnly
-                      text={
-                        <>
-                          {position.totalValueTokens.map(token => (
-                            <Text key={token.address}>
-                              {formatDisplayNumber(token.amount, { significantDigits: 4 })} {token.symbol}
-                            </Text>
-                          ))}
-                        </>
-                      }
-                      width="fit-content"
-                      placement="bottom"
-                    >
-                      <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '80px' }}>
-                        {formatDisplayNumber(totalValue, {
-                          style: 'currency',
-                          significantDigits: 4,
-                        })}
-                      </Text>
-                    </MouseoverTooltipDesktopOnly>
+
+                    {isUnfinalized ? (
+                      <PositionSkeleton width={80} height={19} text="Finalizing..." />
+                    ) : (
+                      <MouseoverTooltipDesktopOnly
+                        text={
+                          <>
+                            {position.totalValueTokens.map(token => (
+                              <Text key={token.address}>
+                                {formatDisplayNumber(token.amount, { significantDigits: 4 })} {token.symbol}
+                              </Text>
+                            ))}
+                          </>
+                        }
+                        width="fit-content"
+                        placement="bottom"
+                      >
+                        <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '80px' }}>
+                          {formatDisplayNumber(totalValue, {
+                            style: 'currency',
+                            significantDigits: 4,
+                          })}
+                        </Text>
+                      </MouseoverTooltipDesktopOnly>
+                    )}
                   </PositionValueWrapper>
 
                   {/* APR info */}
                   <PositionValueWrapper>
                     <PositionValueLabel>{t`APR`}</PositionValueLabel>
-                    <Flex alignItems={'center'} sx={{ gap: 1 }}>
-                      <MouseoverTooltipDesktopOnly
-                        text={
-                          pool.isFarming ? (
-                            <>
-                              <Text>
-                                {t`LP Fees APR`}: {formatAprNumber(position.feeApr)}%
-                              </Text>
-                              <Text>
-                                {t`EG Sharing Reward`}: {formatAprNumber(position.kemEGApr)}%
-                                <br />
-                                {t`LM Reward`}: {formatAprNumber(position.kemLMApr)}%
-                              </Text>
-                            </>
-                          ) : null
-                        }
-                        width="fit-content"
-                        placement="top"
-                      >
-                        <Text color={pool.isFarming ? theme.primary : theme.text}>{formatAprNumber(apr)}%</Text>
-                      </MouseoverTooltipDesktopOnly>
 
-                      {!!position.suggestionPool && position.status !== PositionStatus.CLOSED && (
+                    {isUnfinalized ? (
+                      <PositionSkeleton width={80} height={19} text="Finalizing..." />
+                    ) : (
+                      <Flex alignItems={'center'} sx={{ gap: 1 }}>
                         <MouseoverTooltipDesktopOnly
                           text={
-                            <>
-                              <Text>
-                                {pool.fee === position.suggestionPool.feeTier
-                                  ? t`Migrate to exact same pair and fee tier on Uniswap v4 hook to earn extra rewards from the
-                              Kyberswap Liquidity Mining Program.`
-                                  : t`We found a pool with the same pair having Liquidity Mining Program. Migrate to this pool on Uniswap v4 hook to start earning farming rewards.`}
-                              </Text>
-                              <Text
-                                color={theme.primary}
-                                sx={{ cursor: 'pointer' }}
-                                onClick={e => handleMigrateToKem(e, position)}
-                              >
-                                {t`Migrate`} →
-                              </Text>
-                            </>
+                            pool.isFarming ? (
+                              <>
+                                <Text>
+                                  {t`LP Fees APR`}: {formatAprNumber(position.feeApr)}%
+                                </Text>
+                                <Text>
+                                  {t`EG Sharing Reward`}: {formatAprNumber(position.kemEGApr)}%
+                                  <br />
+                                  {t`LM Reward`}: {formatAprNumber(position.kemLMApr)}%
+                                </Text>
+                              </>
+                            ) : null
                           }
-                          width="290px"
-                          placement="bottom"
+                          width="fit-content"
+                          placement="top"
                         >
-                          <ArrowRightCircle
-                            size={16}
-                            color={theme.primary}
-                            onClick={e => handleMigrateToKem(e, position)}
-                          />
+                          <Text color={pool.isFarming ? theme.primary : theme.text}>{formatAprNumber(apr)}%</Text>
                         </MouseoverTooltipDesktopOnly>
-                      )}
-                    </Flex>
+
+                        {!!position.suggestionPool && position.status !== PositionStatus.CLOSED && (
+                          <MouseoverTooltipDesktopOnly
+                            text={
+                              <>
+                                <Text>
+                                  {pool.fee === position.suggestionPool.feeTier
+                                    ? t`Migrate to exact same pair and fee tier on Uniswap v4 hook to earn extra rewards from the
+                             Kyberswap Liquidity Mining Program.`
+                                    : t`We found a pool with the same pair having Liquidity Mining Program. Migrate to this pool on Uniswap v4 hook to start earning farming rewards.`}
+                                </Text>
+                                <Text
+                                  color={theme.primary}
+                                  sx={{ cursor: 'pointer' }}
+                                  onClick={e => handleMigrateToKem(e, position)}
+                                >
+                                  {t`Migrate`} →
+                                </Text>
+                              </>
+                            }
+                            width="290px"
+                            placement="bottom"
+                          >
+                            <ArrowRightCircle
+                              size={16}
+                              color={theme.primary}
+                              onClick={e => handleMigrateToKem(e, position)}
+                            />
+                          </MouseoverTooltipDesktopOnly>
+                        )}
+                      </Flex>
+                    )}
                   </PositionValueWrapper>
 
                   {/* Unclaimed fees info */}
                   <PositionValueWrapper align={upToLarge ? 'flex-end' : ''}>
                     <PositionValueLabel>{t`Unclaimed Fee`}</PositionValueLabel>
-                    <MouseoverTooltipDesktopOnly
-                      text={
-                        <>
-                          <Text>
-                            {formatDisplayNumber(token0.unclaimedAmount, { significantDigits: 6 })}{' '}
-                            {token0.isNative ? pool.nativeToken.symbol : token0.symbol}
-                          </Text>
-                          <Text>
-                            {formatDisplayNumber(token1.unclaimedAmount, { significantDigits: 6 })}{' '}
-                            {token1.isNative ? pool.nativeToken.symbol : token1.symbol}
-                          </Text>
-                        </>
-                      }
-                      width="fit-content"
-                      placement="bottom"
-                    >
-                      <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '100px' }}>
-                        {formatDisplayNumber(unclaimedFees, { style: 'currency', significantDigits: 4 })}
-                      </Text>
-                    </MouseoverTooltipDesktopOnly>
+
+                    {isUnfinalized ? (
+                      <PositionSkeleton width={80} height={19} text="Finalizing..." />
+                    ) : (
+                      <MouseoverTooltipDesktopOnly
+                        text={
+                          <>
+                            <Text>
+                              {formatDisplayNumber(token0.unclaimedAmount, { significantDigits: 6 })}{' '}
+                              {token0.isNative ? pool.nativeToken.symbol : token0.symbol}
+                            </Text>
+                            <Text>
+                              {formatDisplayNumber(token1.unclaimedAmount, { significantDigits: 6 })}{' '}
+                              {token1.isNative ? pool.nativeToken.symbol : token1.symbol}
+                            </Text>
+                          </>
+                        }
+                        width="fit-content"
+                        placement="bottom"
+                      >
+                        <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '100px' }}>
+                          {formatDisplayNumber(unclaimedFees, { style: 'currency', significantDigits: 4 })}
+                        </Text>
+                      </MouseoverTooltipDesktopOnly>
+                    )}
                   </PositionValueWrapper>
 
                   {/* Unclaimed rewards info */}
                   <PositionValueWrapper align={!upToLarge ? 'center' : ''}>
                     <PositionValueLabel>{t`Unclaimed rewards`}</PositionValueLabel>
-                    {rewards.unclaimedUsdValue > 0 ? (
+                    {isUnfinalized ? (
+                      <PositionSkeleton width={80} height={19} text="Finalizing..." />
+                    ) : rewards.unclaimedUsdValue > 0 ? (
                       <Flex alignItems={'center'} sx={{ gap: 1 }}>
                         {upToSmall && <IconKem width={20} height={20} />}
                         <MouseoverTooltipDesktopOnly
@@ -467,32 +486,57 @@ export default function TableContent({
                   {/* Balance info */}
                   <PositionValueWrapper align={upToSmall ? 'flex-end' : ''}>
                     <PositionValueLabel>{t`Balance`}</PositionValueLabel>
-                    <Flex flexDirection={upToSmall ? 'row' : 'column'} sx={{ gap: 1.8 }}>
-                      <Text>
-                        {formatDisplayNumber(token0.totalProvide, { significantDigits: 4 })} {token0.symbol}
-                      </Text>
-                      {upToSmall && <Divider />}
-                      <Text>
-                        {formatDisplayNumber(token1.totalProvide, { significantDigits: 4 })} {token1.symbol}
-                      </Text>
-                    </Flex>
+
+                    {isUnfinalized ? (
+                      <PositionSkeleton width={80} height={19} text="Finalizing..." />
+                    ) : (
+                      <Flex flexDirection={upToSmall ? 'row' : 'column'} sx={{ gap: 1.8 }}>
+                        <Text>
+                          {formatDisplayNumber(token0.totalProvide, { significantDigits: 4 })} {token0.symbol}
+                        </Text>
+                        {upToSmall && <Divider />}
+                        <Text>
+                          {formatDisplayNumber(token1.totalProvide, { significantDigits: 4 })} {token1.symbol}
+                        </Text>
+                      </Flex>
+                    )}
                   </PositionValueWrapper>
 
                   {/* Price range info */}
                   <PositionValueWrapper align={upToLarge ? 'flex-end' : ''}>
-                    <PriceRange
-                      minPrice={priceRange.min}
-                      maxPrice={priceRange.max}
-                      currentPrice={priceRange.current}
-                      tickSpacing={pool.tickSpacing}
-                      token0Decimals={token0.decimals}
-                      token1Decimals={token1.decimals}
-                      dex={dex.id as EarnDex}
-                    />
+                    {upToLarge ? (
+                      isUnfinalized ? null : (
+                        <PriceRange
+                          minPrice={priceRange.min}
+                          maxPrice={priceRange.max}
+                          currentPrice={priceRange.current}
+                          tickSpacing={pool.tickSpacing}
+                          token0Decimals={token0.decimals}
+                          token1Decimals={token1.decimals}
+                          dex={dex.id as EarnDex}
+                        />
+                      )
+                    ) : isUnfinalized ? (
+                      <PositionSkeleton width={80} height={19} text="Finalizing..." />
+                    ) : (
+                      <PriceRange
+                        minPrice={priceRange.min}
+                        maxPrice={priceRange.max}
+                        currentPrice={priceRange.current}
+                        tickSpacing={pool.tickSpacing}
+                        token0Decimals={token0.decimals}
+                        token1Decimals={token1.decimals}
+                        dex={dex.id as EarnDex}
+                      />
+                    )}
                   </PositionValueWrapper>
 
                   {/* Actions info */}
-                  {!upToLarge && <PositionValueWrapper align="flex-end">{actions}</PositionValueWrapper>}
+                  {!upToLarge && (
+                    <PositionValueWrapper align="flex-end">
+                      {isUnfinalized ? <PositionSkeleton width={80} height={19} text="Finalizing..." /> : actions}
+                    </PositionValueWrapper>
+                  )}
                 </PositionRow>
               )
             })
