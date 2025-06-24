@@ -1,4 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import { adaptSolanaWallet } from '@reservoir0x/relay-solana-wallet-adapter'
 import { CrossChainSwapAdapterRegistry, Quote } from '../registry'
 import { CrossChainSwapFactory } from '../factory'
 import { useSearchParams } from 'react-router-dom'
@@ -18,6 +19,7 @@ import { useWalletSelector } from '@near-wallet-selector/react-hook'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import { isCanonicalPair } from '../utils'
 import { NativeCurrencies } from 'constants/tokens'
+import { useConnection, useWallet } from '@solana/wallet-adapter-react'
 
 export const registry = new CrossChainSwapAdapterRegistry()
 CrossChainSwapFactory.getAllAdapters().forEach(adapter => {
@@ -172,12 +174,16 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     }
   }, [btcAddress])
 
+  const { publicKey: solanaAddress } = useWallet()
+  const { connection } = useConnection()
+
   const recipient = useMemo(() => {
     if (isToNear) return nearRecipient
     if (isToBitcoin) return btcRecipient
     if (isToEvm) return evmRecipient
+    if (isToSolana) return solanaAddress?.toString() || ''
     return ''
-  }, [isToNear, isToBitcoin, isToEvm, nearRecipient, btcRecipient, evmRecipient])
+  }, [isToNear, isToBitcoin, isToEvm, nearRecipient, btcRecipient, evmRecipient, isToSolana, solanaAddress])
 
   const setRecipient = useCallback(
     (value: string) => {
@@ -220,17 +226,9 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     if (isToEvm) return currencyOutEvm
     if (isToBitcoin) return BitcoinToken
     if (isToNear) return nearTokens.find(token => token.assetId === tokenOut)
-    if (isToSolana)
-      return {
-        name: 'Solana',
-        symbol: 'SOL',
-        decimals: 9,
-        logo: 'https://solana.com/favicon.png',
-        assetId: 'sol',
-      } //TODO: handle Solana tokens
-
+    if (isToSolana) return solanaTokens.find(token => token.id === tokenOut)
     throw new Error('Network is not supported')
-  }, [currencyOutEvm, isToEvm, tokenOut, isToNear, isToBitcoin, nearTokens, toChainId, isToSolana])
+  }, [currencyOutEvm, isToEvm, tokenOut, isToNear, isToBitcoin, nearTokens, solanaTokens, toChainId, isToSolana])
 
   useEffect(() => {
     localStorage.setItem('crossChainSwapLastChainOut', toChainId?.toString() || '')
@@ -490,6 +488,13 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
       return quotes
     }
 
+    const adaptedWallet = adaptSolanaWallet(
+      solanaAddress?.toString() || '1nc1nerator11111111111111111111111111111111',
+      792703809, //chain id that Relay uses to identify solana
+      connection,
+      connection.sendTransaction as any,
+    )
+
     const q = await getQuotesWithCancellation({
       feeBps,
       tokenInUsd: tokenInUsd,
@@ -500,13 +505,17 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
       toToken: currencyOut,
       amount: inputAmount,
       slippage,
-      walletClient: walletClient?.data,
-      sender: isFromBitcoin
+      walletClient: fromChainId === 'solana' ? adaptedWallet : walletClient?.data,
+      sender: isFromSolana
+        ? solanaAddress?.toString() || '1nc1nerator11111111111111111111111111111111'
+        : isFromBitcoin
         ? btcAddress || BTC_DEFAULT_RECEIVER
         : isFromNear
         ? signedAccountId || ZERO_ADDRESS
         : walletClient?.data?.account.address || ZERO_ADDRESS,
-      recipient: isToBitcoin
+      recipient: isToSolana
+        ? recipient || solanaAddress?.toString() || '1nc1nerator11111111111111111111111111111111'
+        : isToBitcoin
         ? recipient || BTC_DEFAULT_RECEIVER
         : isToNear
         ? recipient || signedAccountId || ZERO_ADDRESS
@@ -540,6 +549,10 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     isFromNear,
     signedAccountId,
     showPreview,
+    solanaAddress,
+    isFromSolana,
+    isToSolana,
+    connection,
   ])
 
   return (

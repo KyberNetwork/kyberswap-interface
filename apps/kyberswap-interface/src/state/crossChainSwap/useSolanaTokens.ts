@@ -33,7 +33,22 @@ export const useSolanaTokens = () => {
     fetch(`https://datapi.jup.ag/v1/assets/search?query=`)
       .then(res => res.json())
       .then(res => {
-        dispatch(updateSolanaTokens(res?.map((item: SolanaToken) => ({ ...item, logo: item.icon })) || []))
+        const solTokens = res?.map((item: SolanaToken) => ({ ...item, logo: item.icon })) || []
+        dispatch(
+          updateSolanaTokens([
+            {
+              id: '11111111111111111111111111111111',
+              name: 'Solana',
+              symbol: 'SOL',
+              icon: 'https://solana.com/favicon.png',
+              logo: 'https://solana.com/favicon.png',
+              decimals: 9,
+              tokenProgram: '',
+            },
+            // filter out the  WSOL token if it exists
+            ...solTokens.filter((item: SolanaToken) => item.id !== 'So11111111111111111111111111111111111111112'),
+          ]),
+        )
       })
       .catch(error => {
         console.error('Failed to fetch near tokens:', error)

@@ -5,10 +5,17 @@ import {
   NormalizedQuote,
   NormalizedTxResponse,
   SwapStatus,
-  EvmQuoteParams,
   NOT_SUPPORTED_CHAINS_PRICE_SERVICE,
+  NonEvmChain,
+  QuoteParams,
 } from './BaseSwapAdapter'
-import { MAINNET_RELAY_API, getClient, createClient, convertViemChainToRelayChain } from '@reservoir0x/relay-sdk'
+import {
+  MAINNET_RELAY_API,
+  getClient,
+  createClient,
+  convertViemChainToRelayChain,
+  RelayChain,
+} from '@reservoir0x/relay-sdk'
 import { WalletClient, formatUnits } from 'viem'
 import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
 import { Quote } from '../registry'
@@ -33,6 +40,50 @@ import {
   unichain,
 } from 'viem/chains'
 import { hyperevm } from 'components/Web3Provider'
+import { SolanaToken } from 'state/crossChainSwap'
+
+const SolanaChainId = 792703809
+
+const solanaChain = {
+  id: SolanaChainId,
+  name: 'Solana',
+  displayName: 'Solana',
+  vmType: 'svm' as const,
+  // httpRpcUrl?: string;
+  // wsRpcUrl?: string;
+  // explorerUrl?: string;
+  // explorerQueryParams?: {
+  //     [key: string]: unknown;
+  // } | null;
+  // explorerPaths?: {
+  //     transaction?: string;
+  // } | null;
+  // icon?: {
+  //     dark?: string;
+  //     light?: string;
+  //     squaredDark?: string;
+  //     squaredLight?: string;
+  // };
+  // currency?: {
+  //     id?: string;
+  //     symbol?: string;
+  //     name?: string;
+  //     address?: string;
+  //     decimals?: number;
+  //     supportsBridging?: boolean;
+  // };
+  // depositEnabled?: boolean;
+  // blockProductionLagging?: boolean;
+  // erc20Currencies?: RelayAPIChain['erc20Currencies'];
+  // featuredTokens?: RelayAPIChain['featuredTokens'];
+  // tags?: RelayAPIChain['tags'];
+  // iconUrl?: string | null;
+  // logoUrl?: string | null;
+  // brandColor?: string | null;
+  // vmType?: ChainVM;
+  // viemChain?: Chain;
+  // baseChainId?: number | null;
+} as RelayChain
 
 export class RelayAdapter extends BaseSwapAdapter {
   constructor() {
@@ -59,7 +110,9 @@ export class RelayAdapter extends BaseSwapAdapter {
         ronin,
         unichain,
         hyperevm,
-      ].map(convertViemChainToRelayChain),
+      ]
+        .map(convertViemChainToRelayChain)
+        .concat(solanaChain as any),
     })
   }
 
@@ -70,19 +123,35 @@ export class RelayAdapter extends BaseSwapAdapter {
     return 'https://storage.googleapis.com/ks-setting-1d682dca/84e906bb-eaeb-45d3-a64c-2aa9c84eb3ea1747759080942.png'
   }
   getSupportedChains(): Chain[] {
-    return [...MAINNET_NETWORKS]
+    return [NonEvmChain.Solana, ...MAINNET_NETWORKS]
   }
 
   getSupportedTokens(_sourceChain: Chain, _destChain: Chain): Currency[] {
     return []
   }
 
-  async getQuote(params: EvmQuoteParams): Promise<NormalizedQuote> {
+  async getQuote(params: QuoteParams): Promise<NormalizedQuote> {
+    const evmFromToken = params.fromToken as Currency
+    const evmToToken = params.toToken as Currency
+    const currency =
+      params.fromChain === 'solana'
+        ? (params.fromToken as SolanaToken).id
+        : evmFromToken.isNative
+        ? ZERO_ADDRESS
+        : evmFromToken.wrapped.address
+
+    const toCurrency =
+      params.toChain === 'solana'
+        ? (params.toToken as SolanaToken).id
+        : evmToToken.isNative
+        ? ZERO_ADDRESS
+        : evmToToken.wrapped.address
+
     const resp = await getClient().actions.getQuote({
-      chainId: +params.fromChain,
-      toChainId: +params.toChain,
-      currency: params.fromToken.isNative ? ZERO_ADDRESS : params.fromToken.wrapped.address,
-      toCurrency: params.toToken.isNative ? ZERO_ADDRESS : params.toToken.wrapped.address,
+      chainId: params.fromChain === 'solana' ? SolanaChainId : +params.fromChain,
+      toChainId: params.toChain === 'solana' ? SolanaChainId : +params.toChain,
+      currency,
+      toCurrency,
       amount: params.amount,
       tradeType: 'EXACT_INPUT',
       wallet: params.walletClient,

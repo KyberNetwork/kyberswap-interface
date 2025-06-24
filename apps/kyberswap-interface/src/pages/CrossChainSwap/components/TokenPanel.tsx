@@ -36,6 +36,7 @@ import useDisconnectWallet from 'hooks/web3/useDisconnectWallet'
 import Skeleton from 'react-loading-skeleton'
 import { useWalletModal } from '@solana/wallet-adapter-react-ui'
 import { useWallet } from '@solana/wallet-adapter-react'
+import { useSolanaTokenBalances } from 'components/Web3Provider/SolanaProvider'
 
 const TokenPanelWrapper = styled.div`
   padding: 12px;
@@ -101,15 +102,9 @@ export const TokenPanel = ({
     [nearTokens],
   )
 
-  const {
-    publicKey: solanaAddress,
-    connected: solanaConnected,
-    wallet: solanaWallet,
-    disconnect: solanaDisconnect,
-  } = useWallet()
-  console.log(solanaConnected, solanaWallet)
+  const solanaBalances = useSolanaTokenBalances()
 
-  // const { connection } = useConnection()
+  const { publicKey: solanaAddress, disconnect: solanaDisconnect } = useWallet()
 
   // clear the input on open
   useEffect(() => {
@@ -128,6 +123,9 @@ export const TokenPanel = ({
               token.symbol.toLowerCase().includes(searchQuery.trim().toLowerCase()) ||
               token.id.toLowerCase().includes(searchQuery.trim().toLowerCase()),
           )
+          .sort((a, b) => {
+            return solanaBalances[a.id]?.balance > solanaBalances[b.id]?.balance ? -1 : 1
+          })
       : selectedChain === NonEvmChain.Bitcoin
       ? [
           {
@@ -208,6 +206,11 @@ export const TokenPanel = ({
           onUserInput(formatUnits(BigInt(btcBalance || '0'), 8))
           return
         }
+        if (selectedChain === NonEvmChain.Solana) {
+          const b = solanaBalances[(selectedCurrency as any)?.id]
+          if (b) onUserInput(formatUnits(BigInt(b.rawAmount), b.decimals))
+          return
+        }
 
         onUserInput(balance?.toExact() || '0')
       }}
@@ -215,6 +218,10 @@ export const TokenPanel = ({
       <Wallet color={theme.subText} />
       {!connectedAddress
         ? '--'
+        : selectedChain === NonEvmChain.Solana
+        ? formatDisplayNumber(solanaBalances[(selectedCurrency as any)?.id?.toString()]?.balance || 0, {
+            significantDigits: 8,
+          })
         : [NonEvmChain.Near, NonEvmChain.Bitcoin].includes(selectedChain)
         ? formatDisplayNumber(
             formatUnits(
@@ -449,12 +456,21 @@ export const TokenPanel = ({
                           currentTarget.src = HelpIcon
                         }}
                       />
-                      <Text fontWeight={500}>{item.symbol}</Text>
+                      <div>
+                        <Text fontWeight={500}>{item.symbol}</Text>
+                        {selectedChain === NonEvmChain.Solana && (
+                          <Text fontSize="10px" color={theme.subText} mt="2px">
+                            {shortenHash(item.assetId, 4)}
+                          </Text>
+                        )}
+                      </div>
                     </Flex>
                     <Text>
-                      {formatDisplayNumber(formatUnits(BigInt(balances[item.assetId] || '0'), item.decimals), {
-                        significantDigits: 8,
-                      })}
+                      {selectedChain === 'solana'
+                        ? formatDisplayNumber(solanaBalances[item.assetId]?.balance || 0, { significantDigits: 8 })
+                        : formatDisplayNumber(formatUnits(BigInt(balances[item.assetId] || '0'), item.decimals), {
+                            significantDigits: 8,
+                          })}
                     </Text>
                   </CurrencyRowWrapper>
                 )

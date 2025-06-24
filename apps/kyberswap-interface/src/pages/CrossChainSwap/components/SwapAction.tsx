@@ -14,6 +14,9 @@ import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { useNearBalances } from '../hooks/useNearBalances'
 import { NonEvmChain } from '../adapters'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
+import { useSolanaTokenBalances } from 'components/Web3Provider/SolanaProvider'
+import { useWallet } from '@solana/wallet-adapter-react'
+import { useWalletModal } from '@solana/wallet-adapter-react-ui'
 
 export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean) => void }) => {
   const { account, chainId } = useActiveWeb3React()
@@ -33,12 +36,14 @@ export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean
 
   const isFromEvm = isEvmChain(fromChainId)
   const isFromNear = fromChainId === NonEvmChain.Near
+  const isFromSol = fromChainId === NonEvmChain.Solana
   const isFromBitcoin = fromChainId === NonEvmChain.Bitcoin
   const balance = useCurrencyBalance(
     isFromEvm ? (currencyIn as Currency) : undefined,
     isFromEvm ? (fromChainId as ChainId) : undefined,
   )
   const { balances: nearBalances } = useNearBalances()
+  const solanaBalances = useSolanaTokenBalances()
   const { walletInfo, balance: btcBalance } = useBitcoinWallet()
   const btcAddress = walletInfo?.address
 
@@ -54,6 +59,8 @@ export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean
 
   const [approvalState, approve] = useApproveCallback(inputAmount, selectedQuote?.quote.contractAddress)
   const [clickedApprove, setClickedApprove] = useState(false)
+  const { publicKey: solanaAddress } = useWallet()
+  const { setVisible: setModalVisible } = useWalletModal()
 
   const {
     label,
@@ -115,6 +122,14 @@ export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean
         },
       }
     }
+    if (isFromSol && !solanaAddress) {
+      return {
+        label: 'Connect Solana Wallet',
+        onClick: () => {
+          setModalVisible(true)
+        },
+      }
+    }
 
     if (!selectedQuote)
       return {
@@ -128,6 +143,8 @@ export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean
     if (isFromNear && BigInt(nearBalances[(currencyIn as any).assetId] || 0) < BigInt(amountInWei))
       notEnougBalance = true
     if (isFromBitcoin && BigInt(btcBalance || 0) < BigInt(amountInWei)) notEnougBalance = true
+    if (isFromSol && BigInt(solanaBalances[(currencyIn as any).id]?.rawAmount || '0') < BigInt(amountInWei))
+      notEnougBalance = true
 
     if (notEnougBalance) {
       return {

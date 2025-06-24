@@ -1,8 +1,9 @@
 import { ChainId, Currency as EvmCurrency } from '@kyberswap/ks-sdk-core'
 import { WalletClient } from 'viem'
 import { Quote } from '../registry'
-import { NearToken } from 'state/crossChainSwap'
+import { NearToken, SolanaToken } from 'state/crossChainSwap'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
+import { AdaptedWallet } from '@reservoir0x/relay-sdk'
 
 export enum NonEvmChain {
   Near = 'near',
@@ -18,7 +19,7 @@ export const BitcoinToken = {
 }
 
 export type Chain = ChainId | NonEvmChain
-export type Currency = EvmCurrency | NearToken | typeof BitcoinToken
+export type Currency = EvmCurrency | NearToken | typeof BitcoinToken | SolanaToken
 
 export const NonEvmChainInfo: { [key in NonEvmChain]: { name: string; icon: string } } = {
   [NonEvmChain.Near]: {
@@ -41,6 +42,7 @@ export const NOT_SUPPORTED_CHAINS_PRICE_SERVICE = [
   ChainId.BLAST,
   ChainId.ZKSYNC,
   ChainId.HYPEREVM,
+  NonEvmChain.Solana,
 ]
 
 export interface QuoteParams {
@@ -51,7 +53,7 @@ export interface QuoteParams {
   toToken: Currency
   amount: string
   slippage: number
-  walletClient?: WalletClient
+  walletClient?: AdaptedWallet | WalletClient
   tokenInUsd: number
   tokenOutUsd: number
   sender: string
