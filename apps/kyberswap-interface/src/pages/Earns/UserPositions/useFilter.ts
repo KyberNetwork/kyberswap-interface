@@ -1,7 +1,6 @@
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
-import { useActiveWeb3React } from 'hooks'
 import { PositionFilter, PositionStatus } from 'pages/Earns/types'
 import { Direction } from 'pages/MarketOverview/SortIcon'
 
@@ -14,7 +13,6 @@ export enum SortBy {
 
 export default function useFilter() {
   const [searchParams, setSearchParams] = useSearchParams()
-  const { account } = useActiveWeb3React()
 
   const filters: PositionFilter = useMemo(
     () => ({
@@ -59,12 +57,6 @@ export default function useFilter() {
     },
     [searchParams, setSearchParams],
   )
-
-  useEffect(() => {
-    const page = searchParams.get('page')
-    if (page && page !== '1') updateFilters('page', 1)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [account])
 
   return { filters, updateFilters }
 }

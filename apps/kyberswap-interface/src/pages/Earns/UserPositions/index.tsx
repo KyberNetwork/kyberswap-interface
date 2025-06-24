@@ -197,6 +197,11 @@ const UserPositions = () => {
   }, [isFetching])
 
   useEffect(() => {
+    if (filters.page && filters.page !== 1) updateFilters('page', 1)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [account])
+
+  useEffect(() => {
     const interval = setInterval(() => {
       setFeeInfoFromRpc(prev =>
         prev
