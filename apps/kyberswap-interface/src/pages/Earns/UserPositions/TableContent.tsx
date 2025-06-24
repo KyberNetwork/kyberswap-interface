@@ -487,19 +487,15 @@ export default function TableContent({
                   <PositionValueWrapper align={upToSmall ? 'flex-end' : ''}>
                     <PositionValueLabel>{t`Balance`}</PositionValueLabel>
 
-                    {isUnfinalized ? (
-                      <PositionSkeleton width={80} height={19} text="Finalizing..." />
-                    ) : (
-                      <Flex flexDirection={upToSmall ? 'row' : 'column'} sx={{ gap: 1.8 }}>
-                        <Text>
-                          {formatDisplayNumber(token0.totalProvide, { significantDigits: 4 })} {token0.symbol}
-                        </Text>
-                        {upToSmall && <Divider />}
-                        <Text>
-                          {formatDisplayNumber(token1.totalProvide, { significantDigits: 4 })} {token1.symbol}
-                        </Text>
-                      </Flex>
-                    )}
+                    <Flex flexDirection={upToSmall ? 'row' : 'column'} sx={{ gap: 1.8 }}>
+                      <Text>
+                        {formatDisplayNumber(token0.totalProvide, { significantDigits: 4 })} {token0.symbol}
+                      </Text>
+                      {upToSmall && <Divider />}
+                      <Text>
+                        {formatDisplayNumber(token1.totalProvide, { significantDigits: 4 })} {token1.symbol}
+                      </Text>
+                    </Flex>
                   </PositionValueWrapper>
 
                   {/* Price range info */}
