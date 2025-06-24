@@ -16,21 +16,21 @@ import useKemRewards from 'pages/Earns/hooks/useKemRewards'
 import { ParsedPosition, TokenRewardInfo } from 'pages/Earns/types'
 import { formatDisplayNumber } from 'utils/numbers'
 
-const getNextWednesdayMidnightUTC = () => {
+const getNextDistributionTime = () => {
   const now = new Date()
-  const nextWednesday = new Date(now)
+  const nextTuesday = new Date(now)
 
-  // Set to next Wednesday (3 is Wednesday in getUTCDay())
-  nextWednesday.setUTCDate(now.getUTCDate() + ((3 - now.getUTCDay() + 7) % 7))
-  // Set to 10:00 AM UTC
-  nextWednesday.setUTCHours(10, 0, 0, 0)
+  // Set to next Tuesday (2 is Tuesday in getUTCDay())
+  nextTuesday.setUTCDate(now.getUTCDate() + ((2 - now.getUTCDay() + 7) % 7))
+  // Set to 9:00 AM UTC
+  nextTuesday.setUTCHours(9, 0, 0, 0)
 
-  // If we're already past this Wednesday's midnight, get next week's
-  if (now > nextWednesday) {
-    nextWednesday.setUTCDate(nextWednesday.getUTCDate() + 7)
+  // If we're already past this Tuesday's time, get next week's
+  if (now > nextTuesday) {
+    nextTuesday.setUTCDate(nextTuesday.getUTCDate() + 7)
   }
 
-  return Math.floor(nextWednesday.getTime() / 1000)
+  return Math.floor(nextTuesday.getTime() / 1000)
 }
 
 const formatTimeRemaining = (seconds: number) => {
@@ -54,7 +54,7 @@ const RewardSection = ({
   const theme = useTheme()
 
   const [timeRemaining, setTimeRemaining] = useState('')
-  const [nextDistributionTime] = useState(getNextWednesdayMidnightUTC())
+  const [nextDistributionTime] = useState(getNextDistributionTime())
 
   const {
     rewardInfo,

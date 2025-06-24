@@ -16,14 +16,23 @@ import {
 import { calculateGasMargin } from 'utils'
 import { getReadingContractWithCustomChain } from 'utils/getContract'
 
-export const getTokenId = async (provider: Web3Provider, txHash: string) => {
+export const getTokenId = async (provider: Web3Provider, txHash: string, isUniV4: boolean) => {
   try {
     const receipt = await provider.getTransactionReceipt(txHash)
     if (!receipt || !receipt.logs) return
-    const increaseLidEventTopic = ethers.utils.id('IncreaseLiquidity(uint256,uint128,uint256,uint256)')
-    const increaseLidLogs = receipt.logs.filter((log: any) => log.topics[0] === increaseLidEventTopic)
-    const increaseLidEvent = increaseLidLogs?.length ? increaseLidLogs[0] : undefined
-    const hexTokenId = increaseLidEvent?.topics?.[1]
+
+    let hexTokenId
+    if (!isUniV4) {
+      const increaseLidEventTopic = ethers.utils.id('IncreaseLiquidity(uint256,uint128,uint256,uint256)')
+      const increaseLidLogs = receipt.logs.filter((log: any) => log.topics[0] === increaseLidEventTopic)
+      const increaseLidEvent = increaseLidLogs?.length ? increaseLidLogs[0] : undefined
+      hexTokenId = increaseLidEvent?.topics?.[1]
+    } else {
+      const transferEventTopic = ethers.utils.id('Transfer(address,address,uint256)')
+      const transferLogs = receipt.logs.filter((log: any) => log.topics[0] === transferEventTopic)
+      const transferEvent = transferLogs?.length ? transferLogs.find((log: any) => log.topics.length === 4) : undefined
+      hexTokenId = transferEvent?.topics?.[3]
+    }
     if (!hexTokenId) return
     return Number(hexTokenId)
   } catch (error) {
