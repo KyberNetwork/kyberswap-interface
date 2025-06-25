@@ -1,6 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
-import EthereumLogo from 'assets/images/ethereum-logo.png'
 import ethereumIcon from 'assets/networks/ethereum.svg'
 import { KYBER_DAO_STATS_API } from 'constants/env'
 import { NetworkInfo } from 'constants/networks/type'
@@ -19,16 +18,14 @@ const ethereumInfo: NetworkInfo = {
   icon: ethereumIcon,
   iconSelected: NOT_SUPPORT,
 
-  defaultBlockSubgraph: 'https://api.thegraph.com/subgraphs/name/dynamic-amm/ethereum-blocks-ethereum',
   etherscanUrl: 'https://etherscan.io',
   etherscanName: 'Etherscan',
   bridgeURL: EMPTY,
   nativeToken: {
     symbol: 'ETH',
     name: 'Ether',
-    logo: EthereumLogo,
+    logo: 'https://storage.googleapis.com/ks-setting-1d682dca/9412b9e7-161f-472e-94b2-a62d2c386ab7.png',
     decimal: 18,
-    minForGas: 10 ** 16,
   },
   defaultRpcUrl: 'https://ethereum.kyberengineering.io',
   multicall: '0x5BA1e12693Dc8F9c48aAD8770482f4739bEeD696',

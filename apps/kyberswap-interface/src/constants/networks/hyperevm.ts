@@ -5,27 +5,27 @@ import { NetworkInfo } from 'constants/networks/type'
 const EMPTY_ARRAY: any[] = []
 const NOT_SUPPORT = null
 
-const lineaInfo: NetworkInfo = {
-  chainId: ChainId.LINEA,
-  route: 'linea',
-  ksSettingRoute: 'linea',
-  priceRoute: 'linea',
-  aggregatorRoute: 'linea',
-  name: 'Linea',
-  icon: 'https://storage.googleapis.com/ks-setting-1d682dca/12a257d3-65e3-4b16-8a84-03a4ca34a6bc1693378197244.svg',
+const hyperevmInfo: NetworkInfo = {
+  chainId: ChainId.HYPEREVM,
+  route: 'hyperevm',
+  ksSettingRoute: 'hyperevm',
+  priceRoute: 'hyperevm',
+  aggregatorRoute: 'hyperevm',
+  name: 'HyperEVM',
+  icon: 'https://storage.googleapis.com/ks-setting-1d682dca/5735d731-d5da-4ba4-af94-2e945110130c1750316953655.png',
 
   iconSelected: NOT_SUPPORT,
 
-  etherscanUrl: 'https://lineascan.build',
-  etherscanName: 'Linea Explorer',
-  bridgeURL: 'https://bridge.linea.build/',
+  etherscanUrl: 'https://www.hyperscan.com',
+  etherscanName: 'HyperEVM',
+  bridgeURL: 'https://kyberswap.com/cross-chain?from=1&to=999&tokenIn=ETH&tokenOut=hype',
   nativeToken: {
-    symbol: 'ETH',
-    name: 'LineaETH',
-    logo: 'https://storage.googleapis.com/ks-setting-1d682dca/9412b9e7-161f-472e-94b2-a62d2c386ab7.png',
+    symbol: 'HYPE',
+    name: 'HYPE',
+    logo: 'https://storage.googleapis.com/ks-setting-1d682dca/5735d731-d5da-4ba4-af94-2e945110130c1750316953655.png',
     decimal: 18,
   },
-  defaultRpcUrl: 'https://rpc.linea.build',
+  defaultRpcUrl: 'https://rpc.hyperliquid.xyz/evm',
   multicall: '0xcA11bde05977b3631167028862bE2a173976CA11',
   classic: {
     defaultSubgraph: 'https://graph-query.linea.build/subgraphs/name/kybernetwork/kyberswap-classic-linea',
@@ -61,4 +61,4 @@ const lineaInfo: NetworkInfo = {
   geckoTermialId: NOT_SUPPORT,
 }
 
-export default lineaInfo
+export default hyperevmInfo

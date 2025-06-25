@@ -4,25 +4,23 @@ import { t } from '@lingui/macro'
 import {
   arbitrum,
   avax,
-  avaxTestnet,
   base,
   bera,
   blast,
   bnb,
-  bnbTestnet,
   ethereum,
   fantom,
   görli,
   linea,
   mantle,
   matic,
-  mumbai,
   optimism,
   ronin,
   scroll,
   sonic,
   unichain,
   zksync,
+  hyperevm,
 } from './networks/index'
 import { NetworkInfo } from './networks/type'
 
@@ -32,11 +30,8 @@ const NETWORKS_INFO_CONFIG: NETWORKS_INFO_CONFIG_TYPE = {
   [ChainId.MAINNET]: ethereum,
   [ChainId.GÖRLI]: görli,
   [ChainId.MATIC]: matic,
-  [ChainId.MUMBAI]: mumbai,
   [ChainId.BSCMAINNET]: bnb,
-  [ChainId.BSCTESTNET]: bnbTestnet,
   [ChainId.AVAXMAINNET]: avax,
-  [ChainId.AVAXTESTNET]: avaxTestnet,
   [ChainId.FANTOM]: fantom,
   [ChainId.ARBITRUM]: arbitrum,
   [ChainId.OPTIMISM]: optimism,
@@ -50,6 +45,7 @@ const NETWORKS_INFO_CONFIG: NETWORKS_INFO_CONFIG_TYPE = {
   [ChainId.BERA]: bera,
   [ChainId.RONIN]: ronin,
   [ChainId.UNICHAIN]: unichain,
+  [ChainId.HYPEREVM]: hyperevm,
 } as const
 
 //this Proxy helps fallback undefined ChainId by Ethereum info
@@ -81,6 +77,7 @@ export const MAINNET_NETWORKS = [
   ChainId.BERA,
   ChainId.RONIN,
   ChainId.UNICHAIN,
+  ChainId.HYPEREVM,
 ] as const
 
 // These option of walletconnect is not support by wallets properly
