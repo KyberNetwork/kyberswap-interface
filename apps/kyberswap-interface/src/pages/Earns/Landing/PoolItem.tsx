@@ -1,11 +1,12 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Flex, Text } from 'rebass'
-import { EarnPool } from 'pages/Earns/types'
+
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
+import { PoolRow, Tag } from 'pages/Earns/Landing/styles'
+import { EarnPool } from 'pages/Earns/types'
 import useLiquidityWidget from 'pages/Earns/useLiquidityWidget'
 import { formatAprNumber } from 'pages/Earns/utils'
-import { PoolRow, Tag } from 'pages/Earns/Landing/styles'
 
 const PoolItem = ({ pool }: { pool: EarnPool }) => {
   const theme = useTheme()

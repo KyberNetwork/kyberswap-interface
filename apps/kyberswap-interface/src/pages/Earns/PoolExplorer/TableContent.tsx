@@ -3,7 +3,6 @@ import { Star } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { useAddFavoriteMutation, usePoolsExplorerQuery, useRemoveFavoriteMutation } from 'services/zapEarn'
-import { EarnPool } from 'pages/Earns/types'
 
 import { NotificationType } from 'components/Announcement/type'
 import CopyHelper from 'components/Copy'
@@ -11,11 +10,6 @@ import { Image } from 'components/Image'
 import Loader from 'components/Loader'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import { useNotify, useWalletModalToggle } from 'state/application/hooks'
-import { MEDIA_WIDTHS } from 'theme'
-import { formatDisplayNumber } from 'utils/numbers'
-
-import { formatAprNumber } from 'pages/Earns/utils'
 import {
   Apr,
   CurrencyRoundedImage,
@@ -28,7 +22,12 @@ import {
   TableRow,
 } from 'pages/Earns/PoolExplorer/styles'
 import useFilter from 'pages/Earns/PoolExplorer/useFilter'
+import { EarnPool } from 'pages/Earns/types'
+import { formatAprNumber } from 'pages/Earns/utils'
+import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { useAppSelector } from 'state/hooks'
+import { MEDIA_WIDTHS } from 'theme'
+import { formatDisplayNumber } from 'utils/numbers'
 
 export const dexMapping: { [key: string]: string } = {
   uniswapv2: 'uniswap',

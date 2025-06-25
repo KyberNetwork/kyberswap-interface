@@ -9,15 +9,15 @@ import { useEstimateFee, useProcessCancelOrder } from 'components/swapv2/LimitOr
 import CancelButtons from 'components/swapv2/LimitOrder/Modals/CancelButtons'
 import CancelStatusCountDown from 'components/swapv2/LimitOrder/Modals/CancelStatusCountDown'
 import useAllActiveOrders, { useIsSupportSoftCancelOrder } from 'components/swapv2/LimitOrder/useFetchActiveAllOrders'
+import { NativeCurrencies } from 'constants/tokens'
 import { useCurrencyV2 } from 'hooks/Tokens'
 import { useBaseTradeInfoLimitOrder } from 'hooks/useBaseTradeInfo'
+import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import { TransactionFlowState } from 'types/TransactionFlowState'
 
 import { calcPercentFilledOrder, formatAmountOrder } from '../helpers'
 import { CancelOrderFunction, CancelOrderType, LimitOrder, LimitOrderStatus } from '../type'
 import { Container, Header, Label, ListInfo, Note, Rate, Value } from './styled'
-import { NativeCurrencies } from 'constants/tokens'
-import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 
 export enum CancelStatus {
   WAITING,

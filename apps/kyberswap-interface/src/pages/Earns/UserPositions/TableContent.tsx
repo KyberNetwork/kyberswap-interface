@@ -5,7 +5,6 @@ import { Minus, Plus } from 'react-feather'
 import { Link, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
-import { PositionStatus, EarnPosition } from 'pages/Earns/types'
 
 import { ReactComponent as IconClaim } from 'assets/svg/ic_claim.svg'
 import { ReactComponent as IconEarnNotFound } from 'assets/svg/ic_earn_not_found.svg'
@@ -16,26 +15,10 @@ import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import { useWalletModalToggle } from 'state/application/hooks'
-import { useAllTransactions } from 'state/transactions/hooks'
-import { MEDIA_WIDTHS } from 'theme'
-import { shortenAddress } from 'utils'
-import { getReadingContract } from 'utils/getContract'
-import { formatDisplayNumber } from 'utils/numbers'
-
+import ClaimFeeModal, { PositionToClaim, isNativeToken } from 'pages/Earns/ClaimFeeModal'
 import { CurrencyRoundedImage, CurrencySecondImage } from 'pages/Earns/PoolExplorer/styles'
 import { FeeInfo } from 'pages/Earns/PositionDetail/LeftSection'
 import { PositionAction as PositionActionBtn } from 'pages/Earns/PositionDetail/styles'
-import ClaimFeeModal, { PositionToClaim, isNativeToken } from 'pages/Earns/ClaimFeeModal'
-import {
-  DEXES_SUPPORT_COLLECT_FEE,
-  DEXES_HIDE_TOKEN_ID,
-  NFT_MANAGER_ABI,
-  NFT_MANAGER_CONTRACT,
-  EarnDex,
-  CoreProtocol,
-} from 'pages/Earns/constants'
-import { formatAprNumber, isForkFrom } from 'pages/Earns/utils'
 import PriceRange from 'pages/Earns/UserPositions/PriceRange'
 import {
   Badge,
@@ -52,6 +35,22 @@ import {
   PositionValueLabel,
   PositionValueWrapper,
 } from 'pages/Earns/UserPositions/styles'
+import {
+  CoreProtocol,
+  DEXES_HIDE_TOKEN_ID,
+  DEXES_SUPPORT_COLLECT_FEE,
+  EarnDex,
+  NFT_MANAGER_ABI,
+  NFT_MANAGER_CONTRACT,
+} from 'pages/Earns/constants'
+import { EarnPosition, PositionStatus } from 'pages/Earns/types'
+import { formatAprNumber, isForkFrom } from 'pages/Earns/utils'
+import { useWalletModalToggle } from 'state/application/hooks'
+import { useAllTransactions } from 'state/transactions/hooks'
+import { MEDIA_WIDTHS } from 'theme'
+import { shortenAddress } from 'utils'
+import { getReadingContract } from 'utils/getContract'
+import { formatDisplayNumber } from 'utils/numbers'
 
 export interface FeeInfoFromRpc extends FeeInfo {
   id: string

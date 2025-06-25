@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { PositionFilter } from 'pages/Earns/types'
 
 import { useActiveWeb3React } from 'hooks'
+import { PositionFilter } from 'pages/Earns/types'
 import { Direction } from 'pages/MarketOverview/SortIcon'
 
 export enum SortBy {

@@ -5,9 +5,9 @@ import { ImageProps } from 'rebass'
 import styled from 'styled-components'
 
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
+import { Chain, NonEvmChain, NonEvmChainInfo } from 'pages/CrossChainSwap/adapters'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { getNativeTokenLogo, isEvmChain } from 'utils'
-import { Chain, NonEvmChainInfo, NonEvmChain } from 'pages/CrossChainSwap/adapters'
 
 const BAD_SRCS: { [tokenAddress: string]: true } = {}
 

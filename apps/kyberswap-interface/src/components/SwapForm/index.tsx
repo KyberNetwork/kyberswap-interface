@@ -23,19 +23,19 @@ import useParsedAmount from 'components/SwapForm/hooks/useParsedAmount'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { Wrapper } from 'components/swapv2/styleds'
 import { TOKEN_API_URL } from 'constants/env'
+import { SAFE_APP_CLIENT_ID } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
 import { Field } from 'state/swap/actions'
 import { useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
 import { DetailedRouteSummary } from 'types/route'
+import { isInSafeApp } from 'utils'
 
 import MultichainKNCNote from './MultichainKNCNote'
 import ReverseTokenSelectionButton from './ReverseTokenSelectionButton'
 import SwapActionButton from './SwapActionButton'
 import TradeSummary from './TradeSummary'
-import { isInSafeApp } from 'utils'
-import { SAFE_APP_CLIENT_ID } from 'constants/index'
 
 export const RoutingIconWrapper = styled(RoutingIcon)`
   height: 20px;

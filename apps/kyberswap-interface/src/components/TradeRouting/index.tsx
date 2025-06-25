@@ -1,6 +1,7 @@
 import { ChainId, Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import React, { memo, useCallback, useEffect, useRef } from 'react'
 import ScrollContainer from 'react-indiana-drag-scroll'
+import { Box } from 'rebass'
 
 import CurrencyLogo from 'components/CurrencyLogo'
 import { getDexInfoByPool, getSwapPercent, onScroll, useShadow } from 'components/TradeRouting/helpers'
@@ -26,12 +27,12 @@ import {
 } from 'components/TradeRouting/styled'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrencyV2 } from 'hooks/Tokens'
+import useTheme from 'hooks/useTheme'
 import { useAllDexes } from 'state/customizeDexes/hooks'
 import { getEtherscanLink, isAddress } from 'utils'
 import { SwapRouteV2, SwapRouteV3 } from 'utils/aggregationRouting'
+
 import TradeRouteV3 from './TradeRouteV3'
-import { Box } from 'rebass'
-import useTheme from 'hooks/useTheme'
 
 interface RouteRowProps {
   route: SwapRouteV2

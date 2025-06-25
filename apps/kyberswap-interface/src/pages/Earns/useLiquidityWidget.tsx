@@ -1,13 +1,12 @@
-import { ChainId as ZapInChainId, LiquidityWidget, PoolType as ZapInPoolType } from '@kyberswap/liquidity-widgets'
+import { LiquidityWidget, ChainId as ZapInChainId, PoolType as ZapInPoolType } from '@kyberswap/liquidity-widgets'
 import '@kyberswap/liquidity-widgets/dist/style.css'
-import { ChainId as ZapOutChainId, PoolType as ZapOutPoolType, ZapOut } from '@kyberswap/zap-out-widgets'
-import '@kyberswap/zap-out-widgets/dist/style.css'
 import { ZapMigration, ChainId as ZapMigrationChainId, Dex as ZapMigrationDex } from '@kyberswap/zap-migration-widgets'
 import '@kyberswap/zap-migration-widgets/dist/style.css'
+import { ZapOut, ChainId as ZapOutChainId, PoolType as ZapOutPoolType } from '@kyberswap/zap-out-widgets'
+import '@kyberswap/zap-out-widgets/dist/style.css'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { usePreviousDistinct } from 'react-use'
-import { CoreProtocol, EarnDex, EarnDex2, NFT_MANAGER_CONTRACT } from 'pages/Earns/constants'
 
 import { NotificationType } from 'components/Announcement/type'
 import Modal from 'components/Modal'
@@ -15,11 +14,11 @@ import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
+import useFilter from 'pages/Earns/PoolExplorer/useFilter'
+import { CoreProtocol, EarnDex, EarnDex2, NFT_MANAGER_CONTRACT } from 'pages/Earns/constants'
+import { getTokenId, isForkFrom } from 'pages/Earns/utils'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { getCookieValue } from 'utils'
-
-import useFilter from 'pages/Earns/PoolExplorer/useFilter'
-import { getTokenId, isForkFrom } from 'pages/Earns/utils'
 
 interface AddLiquidityPureParams {
   poolAddress: string

@@ -4,16 +4,13 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import { useUserPositionsQuery } from 'services/zapEarn'
 
+import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_earn_position.svg'
 import { ReactComponent as IconEarnNotFound } from 'assets/svg/ic_earn_not_found.svg'
-import { ReactComponent as IconUserEarnPosition } from 'assets/svg/ic_user_earn_position.svg'
 import { ReactComponent as RocketIcon } from 'assets/svg/rocket.svg'
 import LocalLoader from 'components/LocalLoader'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-
 import { NavigateButton } from 'pages/Earns/PoolExplorer/styles'
-import { EmptyPositionText, PositionPageWrapper } from 'pages/Earns/UserPositions/styles'
-import useLiquidityWidget from 'pages/Earns/useLiquidityWidget'
 import PositionDetailHeader from 'pages/Earns/PositionDetail/Header'
 import LeftSection from 'pages/Earns/PositionDetail/LeftSection'
 import RightSection from 'pages/Earns/PositionDetail/RightSection'
@@ -23,8 +20,10 @@ import {
   PositionActionWrapper,
   PositionDetailWrapper,
 } from 'pages/Earns/PositionDetail/styles'
+import { EmptyPositionText, PositionPageWrapper } from 'pages/Earns/UserPositions/styles'
 import { CoreProtocol, EarnDex } from 'pages/Earns/constants'
 import { ParsedPosition } from 'pages/Earns/types'
+import useLiquidityWidget from 'pages/Earns/useLiquidityWidget'
 import { isForkFrom } from 'pages/Earns/utils'
 
 const PositionDetail = () => {

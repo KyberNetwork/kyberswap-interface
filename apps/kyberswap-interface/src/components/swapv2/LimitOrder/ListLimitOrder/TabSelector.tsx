@@ -1,13 +1,13 @@
-import { t, Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
+import { rgba } from 'polished'
+import { useGetNumberOfInsufficientFundOrdersQuery } from 'services/limitOrder'
 import styled from 'styled-components'
 
 import TabButton from 'components/TabButton'
-import { rgba } from 'polished'
+import { MouseoverTooltip } from 'components/Tooltip'
+import { useActiveWeb3React } from 'hooks'
 
 import { LimitOrderTab } from '../type'
-import { useGetNumberOfInsufficientFundOrdersQuery } from 'services/limitOrder'
-import { useActiveWeb3React } from 'hooks'
-import { MouseoverTooltip } from 'components/Tooltip'
 
 const TabSelectorWrapper = styled.div`
   display: flex;

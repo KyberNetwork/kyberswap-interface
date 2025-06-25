@@ -10,8 +10,8 @@ import { isAddress } from 'utils'
 import { getFormattedAddress } from 'utils/tokenInfo'
 
 import { setTokenList } from './actions'
-import { TokenInfo, WrappedTokenInfo } from './wrappedTokenInfo'
 import hyperTokens from './hyperevm.json'
+import { TokenInfo, WrappedTokenInfo } from './wrappedTokenInfo'
 
 function listToTokenMap(list: TokenInfo[], chainId: ChainId): TokenMap {
   const map = list.reduce<TokenMap>((tokenMap, tokenInfo) => {
