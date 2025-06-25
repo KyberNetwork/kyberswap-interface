@@ -40,7 +40,7 @@ export type KyberswapGlobalConfigurationResponse = {
   }
 }
 
-type Dex = {
+export type Dex = {
   id: number
   dexId: string
   name: string
@@ -103,10 +103,10 @@ const ksSettingApi = createApi({
         })),
     }),
 
-    getDexList: builder.query<Dex[], { chainId: string }>({
-      query: ({ chainId }) => ({
+    getDexList: builder.query<Dex[], { page: number; chainId: string }>({
+      query: ({ chainId, page }) => ({
         url: `/dexes`,
-        params: { chain: chainId, isEnabled: true, pageSize: 100 },
+        params: { page: page, chain: chainId, isEnabled: true, pageSize: 100 },
       }),
       transformResponse: (res: CommonPagingRes<{ dexes: Dex[] }>) => res.data.dexes,
     }),

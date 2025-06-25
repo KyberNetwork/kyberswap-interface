@@ -1,6 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
-import EthereumLogo from 'assets/images/ethereum-logo.png'
 import { NetworkInfo } from 'constants/networks/type'
 
 const EMPTY_ARRAY: any[] = []
@@ -23,7 +22,7 @@ const unichain: NetworkInfo = {
   nativeToken: {
     symbol: 'ETH',
     name: 'ETH',
-    logo: EthereumLogo,
+    logo: 'https://storage.googleapis.com/ks-setting-1d682dca/9412b9e7-161f-472e-94b2-a62d2c386ab7.png',
     decimal: 18,
   },
   defaultRpcUrl: 'https://mainnet.unichain.org',
