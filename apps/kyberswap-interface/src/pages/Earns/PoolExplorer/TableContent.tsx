@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from 'react'
 import { Star } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
-import { useGetDexListQuery } from 'services/ksSetting'
 import { useAddFavoriteMutation, usePoolsExplorerQuery, useRemoveFavoriteMutation } from 'services/zapEarn'
 import { EarnPool } from 'pages/Earns/types'
 
@@ -10,7 +9,6 @@ import { NotificationType } from 'components/Announcement/type'
 import CopyHelper from 'components/Copy'
 import { Image } from 'components/Image'
 import Loader from 'components/Loader'
-import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
@@ -30,6 +28,7 @@ import {
   TableRow,
 } from 'pages/Earns/PoolExplorer/styles'
 import useFilter from 'pages/Earns/PoolExplorer/useFilter'
+import { useAppSelector } from 'state/hooks'
 
 export const dexMapping: { [key: string]: string } = {
   uniswapv2: 'uniswap',
@@ -45,9 +44,10 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
   const notify = useNotify()
   const toggleWalletModal = useWalletModalToggle()
 
-  const dexList = useGetDexListQuery({
-    chainId: NETWORKS_INFO[filters.chainId].ksSettingRoute,
-  })
+  const allDexes = useAppSelector(state => state.customizeDexes.allDexes)
+  const dexList = useMemo(() => {
+    return allDexes[filters.chainId] || []
+  }, [allDexes, filters.chainId])
   const { data: poolData, refetch, isError } = usePoolsExplorerQuery(filters, { pollingInterval: 5 * 60_000 })
   const [addFavorite] = useAddFavoriteMutation()
   const [removeFavorite] = useRemoveFavoriteMutation()
@@ -60,8 +60,8 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
   const tablePoolData = useMemo(() => {
     return (poolData?.data?.pools || []).map(pool => ({
       ...pool,
-      dexLogo: dexList.data?.find(dex => dex.dexId === (dexMapping[pool.exchange] || pool.exchange))?.logoURL || '',
-      dexName: dexList.data?.find(dex => dex.dexId === (dexMapping[pool.exchange] || pool.exchange))?.name || '',
+      dexLogo: dexList.find(dex => dex.id === (dexMapping[pool.exchange] || pool.exchange))?.logoURL || '',
+      dexName: dexList.find(dex => dex.id === (dexMapping[pool.exchange] || pool.exchange))?.name || '',
     }))
   }, [poolData, dexList])
 
