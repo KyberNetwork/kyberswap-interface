@@ -1,7 +1,7 @@
 import { t } from '@lingui/macro'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useMedia, usePreviousDistinct } from 'react-use'
+import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { useUserPositionsQuery } from 'services/zapEarn'
 
@@ -53,13 +53,19 @@ const UserPositions = () => {
   const [loading, setLoading] = useState(false)
   const [feeInfoFromRpc, setFeeInfoFromRpc] = useState<FeeInfoFromRpc[]>([])
 
-  const positionQueryParams = {
-    addresses: account || '',
-    chainIds: filters.chainIds || earnSupportedChains.join(','),
-    protocols: filters.protocols || earnSupportedExchanges.join(','),
-    q: filters.q,
-    positionStatus: 'all',
-  }
+  const positionQueryParams = useMemo(() => {
+    const statusFilter = filters.status.split(',')
+    const isFilterOnlyClosedPosition = statusFilter.length === 1 && statusFilter[0] === PositionStatus.CLOSED
+    const isFilterOnlyOpenPosition = !statusFilter.includes(PositionStatus.CLOSED)
+
+    return {
+      addresses: account || '',
+      chainIds: filters.chainIds || earnSupportedChains.join(','),
+      protocols: filters.protocols || earnSupportedExchanges.join(','),
+      q: filters.q,
+      positionStatus: isFilterOnlyClosedPosition ? 'closed' : isFilterOnlyOpenPosition ? 'open' : 'all',
+    }
+  }, [account, filters.chainIds, filters.protocols, filters.q, filters.status])
 
   const {
     data: userPosition,
@@ -95,16 +101,10 @@ const UserPositions = () => {
     setLoading(true)
   })
 
-  const previousPosition = usePreviousDistinct(userPosition)
-
   const parsedPositions: Array<ParsedPosition> = useMemo(() => {
-    let positionToRender = []
-    if (!userPosition || !userPosition.length) {
-      if (!previousPosition || !previousPosition.length || !isError) return []
-      positionToRender = previousPosition
-    } else positionToRender = userPosition
+    if (!userPosition || !userPosition.length) return []
 
-    let parsedData = [...positionToRender].map(position => {
+    let parsedData = [...userPosition].map(position => {
       const feeInfo = feeInfoFromRpc.find(feeInfo => feeInfo.id === position.tokenId)
       const nftRewardInfo = rewardInfo?.nfts.find(item => item.nftId === position.tokenId)
 
@@ -156,16 +156,7 @@ const UserPositions = () => {
     }
 
     return parsedData
-  }, [
-    feeInfoFromRpc,
-    filters.orderBy,
-    filters.sortBy,
-    filters.status,
-    isError,
-    previousPosition,
-    rewardInfo?.nfts,
-    userPosition,
-  ])
+  }, [feeInfoFromRpc, filters.orderBy, filters.sortBy, filters.status, rewardInfo?.nfts, userPosition])
 
   const paginatedPositions: Array<ParsedPosition> = useMemo(() => {
     if (parsedPositions.length <= POSITIONS_TABLE_LIMIT) return parsedPositions

@@ -32,6 +32,7 @@ export default function useFilter() {
     (key: keyof PositionFilter, value: string | number) => {
       if (!value) searchParams.delete(key)
       else searchParams.set(key, value.toString())
+
       if ((key !== 'sortBy' && key !== 'orderBy' && key !== 'page') || (key === 'page' && value === 1))
         searchParams.delete('page')
 

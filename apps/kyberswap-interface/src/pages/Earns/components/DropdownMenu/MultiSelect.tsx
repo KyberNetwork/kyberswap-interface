@@ -1,8 +1,6 @@
-import { t } from '@lingui/macro'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Check } from 'react-feather'
 
-import { NotificationType } from 'components/Announcement/type'
 import { MenuOption } from 'pages/Earns/components/DropdownMenu'
 import {
   DropdownContent,
@@ -12,7 +10,6 @@ import {
   DropdownWrapper,
   MultiSelectDropdownContentItem,
 } from 'pages/Earns/components/DropdownMenu/styles'
-import { useNotify } from 'state/application/hooks'
 
 const MultiSelect = ({
   label,
@@ -33,8 +30,6 @@ const MultiSelect = ({
   mobileHalfWidth?: boolean
   onChange: (value: string | number) => void
 }) => {
-  const notify = useNotify()
-
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
@@ -50,16 +45,8 @@ const MultiSelect = ({
       arrValue.push(newValue)
     }
     if (arrValue.length === 0) {
-      notify(
-        {
-          title: t`Please select at least one item`,
-          type: NotificationType.ERROR,
-        },
-        8000,
-      )
-      return
-    }
-    onChange(arrValue.join(','))
+      onChange(options.map(option => option.value).join(','))
+    } else onChange(arrValue.join(','))
   }
 
   useEffect(() => {
