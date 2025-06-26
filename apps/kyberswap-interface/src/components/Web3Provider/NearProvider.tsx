@@ -1,6 +1,6 @@
+// import { setupHereWallet } from '@near-wallet-selector/here-wallet'
 import { NetworkId } from '@near-wallet-selector/core/src/lib/options.types'
 import { setupLedger } from '@near-wallet-selector/ledger'
-// import { setupHereWallet } from '@near-wallet-selector/here-wallet'
 import { setupMathWallet } from '@near-wallet-selector/math-wallet'
 import { setupMeteorWallet } from '@near-wallet-selector/meteor-wallet'
 import '@near-wallet-selector/modal-ui/styles.css'

@@ -5,9 +5,8 @@ import styled from 'styled-components'
 
 import TabButton from 'components/TabButton'
 import { MouseoverTooltip } from 'components/Tooltip'
+import { LimitOrderTab } from 'components/swapv2/LimitOrder/type'
 import { useActiveWeb3React } from 'hooks'
-
-import { LimitOrderTab } from '../type'
 
 const TabSelectorWrapper = styled.div`
   display: flex;

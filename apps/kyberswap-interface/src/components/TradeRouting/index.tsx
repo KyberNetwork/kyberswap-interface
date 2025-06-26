@@ -4,6 +4,7 @@ import ScrollContainer from 'react-indiana-drag-scroll'
 import { Box } from 'rebass'
 
 import CurrencyLogo from 'components/CurrencyLogo'
+import TradeRouteV3 from 'components/TradeRouting/TradeRouteV3'
 import { getDexInfoByPool, getSwapPercent, onScroll, useShadow } from 'components/TradeRouting/helpers'
 import {
   Shadow,
@@ -31,8 +32,6 @@ import useTheme from 'hooks/useTheme'
 import { useAllDexes } from 'state/customizeDexes/hooks'
 import { getEtherscanLink, isAddress } from 'utils'
 import { SwapRouteV2, SwapRouteV3 } from 'utils/aggregationRouting'
-
-import TradeRouteV3 from './TradeRouteV3'
 
 interface RouteRowProps {
   route: SwapRouteV2

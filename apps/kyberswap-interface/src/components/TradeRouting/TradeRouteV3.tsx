@@ -6,14 +6,13 @@ import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import CurrencyLogo from 'components/CurrencyLogo'
+import { getDexInfoByPool, selectPointsOnRectEdge } from 'components/TradeRouting/helpers'
+import { StyledDot } from 'components/TradeRouting/styled'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useAllDexes } from 'state/customizeDexes/hooks'
 import { getEtherscanLink, isAddress } from 'utils'
 import { SwapRouteV3 } from 'utils/aggregationRouting'
-
-import { getDexInfoByPool, selectPointsOnRectEdge } from './helpers'
-import { StyledDot } from './styled'
 
 interface SwapRouteV3Props {
   tradeComposition: SwapRouteV3[]
