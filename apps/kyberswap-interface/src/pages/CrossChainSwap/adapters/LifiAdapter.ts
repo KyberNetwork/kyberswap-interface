@@ -5,8 +5,9 @@ import {
   NormalizedQuote,
   NormalizedTxResponse,
   SwapStatus,
-  EvmQuoteParams,
   NOT_SUPPORTED_CHAINS_PRICE_SERVICE,
+  NonEvmChain,
+  QuoteParams,
 } from './BaseSwapAdapter'
 import { WalletClient, formatUnits } from 'viem'
 import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
@@ -14,6 +15,9 @@ import { Quote } from '../registry'
 import { MAINNET_NETWORKS } from 'constants/networks'
 
 import { getStatus, createConfig, getQuote } from '@lifi/sdk'
+import { SolanaToken } from 'state/crossChainSwap'
+import { Connection, Transaction, VersionedTransaction } from '@solana/web3.js'
+import { WalletAdapterProps } from '@solana/wallet-adapter-base'
 
 export class LifiAdapter extends BaseSwapAdapter {
   constructor() {
@@ -30,33 +34,32 @@ export class LifiAdapter extends BaseSwapAdapter {
     return 'https://storage.googleapis.com/ks-setting-1d682dca/aed3a971-48be-4c3c-9597-5ab78073fbf11745552578218.png'
   }
   getSupportedChains(): Chain[] {
-    return [...MAINNET_NETWORKS]
+    return [NonEvmChain.Solana, ...MAINNET_NETWORKS]
   }
 
   getSupportedTokens(_sourceChain: Chain, _destChain: Chain): Currency[] {
     return []
   }
 
-  async getQuote(params: EvmQuoteParams): Promise<NormalizedQuote> {
-    //const routesRequest: RoutesRequest = {
-    //  fromChainId: +params.fromChain, // Arbitrum
-    //  toChainId: +params.toChain, // Optimism
-    //  fromTokenAddress: params.fromToken.isNative ? ZERO_ADDRESS : params.fromToken.wrapped.address,
-    //  toTokenAddress: params.toToken.isNative ? ZERO_ADDRESS : params.toToken.wrapped.address,
-    //  fromAmount: params.amount,
-    //}
-    //
-    //const result = await getRoutes(routesRequest)
-    //
-    //const routes = result.routes
+  async getQuote(params: QuoteParams): Promise<NormalizedQuote> {
     const r = await getQuote({
-      fromChain: +params.fromChain, // Arbitrum
-      fromToken: params.fromToken.isNative ? ZERO_ADDRESS : params.fromToken.wrapped.address,
+      fromChain: params.fromChain === 'solana' ? 'SOL' : +params.fromChain, // Arbitrum
+      fromToken:
+        params.fromChain === 'solana'
+          ? (params.fromToken as SolanaToken).id
+          : (params.fromToken as any).isNative
+          ? ZERO_ADDRESS
+          : (params.fromToken as any).wrapped.address,
       fromAmount: params.amount,
       fromAddress: params.sender === ZERO_ADDRESS ? CROSS_CHAIN_FEE_RECEIVER : params.sender,
 
-      toChain: +params.toChain, // Optimism
-      toToken: params.toToken.isNative ? ZERO_ADDRESS : params.toToken.wrapped.address,
+      toChain: params.toChain === 'solana' ? 'SOL' : +params.toChain,
+      toToken:
+        params.toChain === 'solana'
+          ? (params.toToken as SolanaToken).id
+          : (params.toToken as any).isNative
+          ? ZERO_ADDRESS
+          : (params.toToken as any).wrapped.address,
       toAddress: params.recipient === ZERO_ADDRESS ? undefined : params.recipient,
       fee: params.feeBps / 10_000,
     })
@@ -94,7 +97,52 @@ export class LifiAdapter extends BaseSwapAdapter {
     }
   }
 
-  async executeSwap({ quote }: Quote, walletClient: WalletClient): Promise<NormalizedTxResponse> {
+  async executeSwap(
+    { quote }: Quote,
+    walletClient: WalletClient,
+    _nearWalletClient?: any,
+    _sendBtcFn?: (params: { recipient: string; amount: string | number }) => Promise<string>,
+    sendTransaction?: WalletAdapterProps['sendTransaction'],
+    connection?: Connection,
+  ): Promise<NormalizedTxResponse> {
+    if (quote.quoteParams.fromChain === NonEvmChain.Solana) {
+      if (!connection || !sendTransaction) throw new Error('Connection is not defined for Solana swap')
+      const txBuffer = Buffer.from(quote.rawQuote.transactionRequest.data, 'base64')
+
+      // Try to deserialize as VersionedTransaction first
+      let transaction
+      try {
+        transaction = VersionedTransaction.deserialize(txBuffer)
+        console.log('Parsed as VersionedTransaction')
+      } catch (versionedError) {
+        console.log('Failed to parse as VersionedTransaction, trying legacy Transaction')
+        try {
+          transaction = Transaction.from(txBuffer)
+          console.log('Parsed as legacy Transaction')
+        } catch (legacyError) {
+          throw new Error('Could not parse transaction as either VersionedTransaction or legacy Transaction')
+        }
+      }
+
+      console.log('Transaction parsed successfully:', transaction)
+
+      // Send through wallet adapter
+      const signature = await sendTransaction(transaction, connection)
+      return {
+        sender: quote.quoteParams.sender,
+        id: signature,
+        sourceTxHash: signature,
+        adapter: this.getName(),
+        sourceChain: quote.quoteParams.fromChain,
+        targetChain: quote.quoteParams.toChain,
+        inputAmount: quote.quoteParams.amount,
+        outputAmount: quote.outputAmount.toString(),
+        sourceToken: quote.quoteParams.fromToken,
+        targetToken: quote.quoteParams.toToken,
+        timestamp: new Date().getTime(),
+      }
+    }
+
     const account = walletClient.account?.address
     if (!account) throw new Error('WalletClient account is not defined')
     const tx = await walletClient.sendTransaction({
@@ -122,8 +170,8 @@ export class LifiAdapter extends BaseSwapAdapter {
 
   async getTransactionStatus(p: NormalizedTxResponse): Promise<SwapStatus> {
     const res = await getStatus({
-      fromChain: +p.sourceChain,
-      toChain: +p.targetChain,
+      fromChain: p.sourceChain === 'solana' ? 'SOL' : +p.sourceChain,
+      toChain: p.targetChain === 'solana' ? 'SOL' : +p.targetChain,
       txHash: p.sourceTxHash,
     })
 

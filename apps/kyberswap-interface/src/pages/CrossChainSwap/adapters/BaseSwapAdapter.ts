@@ -45,6 +45,8 @@ export const NOT_SUPPORTED_CHAINS_PRICE_SERVICE = [
   ChainId.ZKSYNC,
   ChainId.HYPEREVM,
   NonEvmChain.Solana,
+  NonEvmChain.Bitcoin,
+  NonEvmChain.Near,
 ]
 
 export interface QuoteParams {
