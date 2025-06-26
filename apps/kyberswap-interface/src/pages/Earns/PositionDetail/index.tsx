@@ -336,8 +336,7 @@ const PositionDetail = () => {
             position: {
               apr: position.apr,
               createdTime: position.createdTime,
-              rewardApr: (position.kemEGApr || 0) + (position.kemLMApr || 0),
-              earnings: position.earning.earned + position.rewards.totalUsdValue,
+              rewardEarnings: position.rewards.totalUsdValue,
             },
           })
         }}

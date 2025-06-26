@@ -41,8 +41,7 @@ export interface ShareModalProps {
   position?: {
     apr: number;
     createdTime?: number;
-    rewardApr?: number;
-    earnings?: number;
+    rewardEarnings?: number;
   };
   type: ShareType;
   onClose: () => void;
@@ -235,13 +234,13 @@ export default function ShareModal({ pool, position, type, onClose }: ShareModal
                 {renderStaggeredNumber(formatAprNumber(pool.apr || 0) + '%')}
               </p>
             </div>
-          ) : type === ShareType.POSITION_INFO ? (
+          ) : type === ShareType.POSITION_REWARDS_INFO ? (
             <div className="flex flex-col gap-2">
               <div>
-                <p className="text-lg -mb-[2px]">Earnings</p>
+                <p className="text-lg -mb-[2px]">Reward earnings</p>
                 <p className="text-primary font-semibold text-[54px] tracking-wide">
                   {renderStaggeredNumber(
-                    formatDisplayNumber(position?.earnings || 0, { significantDigits: 4, style: 'currency' }),
+                    formatDisplayNumber(position?.rewardEarnings || 0, { significantDigits: 4, style: 'currency' }),
                   )}
                 </p>
               </div>
@@ -252,12 +251,12 @@ export default function ShareModal({ pool, position, type, onClose }: ShareModal
                 </p>
               </div>
             </div>
-          ) : type === ShareType.POSITION_REWARDS_INFO ? (
+          ) : type === ShareType.POSITION_INFO ? (
             <div className={`flex flex-col ${forDownload ? 'gap-[6px]' : 'gap-[2px] sm:gap-[6px]'}`}>
               <div>
                 <p className={forDownload ? 'text-xl -mb-[6px]' : 'text-lg sm:text-xl -mb-[6px]'}>APR</p>
                 <p className="text-primary font-semibold text-[58px] tracking-wide">
-                  {renderStaggeredNumber(formatAprNumber(position?.rewardApr || 0) + '%')}
+                  {renderStaggeredNumber(formatAprNumber(position?.apr || 0) + '%')}
                 </p>
               </div>
               <p className={forDownload ? 'text-xl' : 'text-lg sm:text-xl'}>
