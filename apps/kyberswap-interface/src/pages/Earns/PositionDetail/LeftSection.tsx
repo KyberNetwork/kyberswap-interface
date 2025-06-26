@@ -2,7 +2,6 @@ import { CurrencyAmount, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useState } from 'react'
 import { Flex, Text } from 'rebass'
-import { ParsedPosition } from 'pages/Earns/types'
 
 import HelpIcon from 'assets/svg/help-circle.svg'
 import InfoHelper from 'components/InfoHelper'
@@ -10,19 +9,7 @@ import Loader from 'components/Loader'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useReadingContract } from 'hooks/useContract'
 import useTheme from 'hooks/useTheme'
-import { useAllTransactions } from 'state/transactions/hooks'
-import { formatDisplayNumber } from 'utils/numbers'
-
-import { DexImage } from 'pages/Earns/UserPositions/styles'
 import ClaimFeeModal, { isNativeToken } from 'pages/Earns/ClaimFeeModal'
-import {
-  CoreProtocol,
-  DEXES_SUPPORT_COLLECT_FEE,
-  EarnDex,
-  NFT_MANAGER_ABI,
-  NFT_MANAGER_CONTRACT,
-} from 'pages/Earns/constants'
-import { formatAprNumber, isForkFrom } from 'pages/Earns/utils'
 import {
   InfoLeftColumn,
   InfoRight,
@@ -31,6 +18,19 @@ import {
   PositionAction,
   VerticalDivider,
 } from 'pages/Earns/PositionDetail/styles'
+import { DexImage } from 'pages/Earns/UserPositions/styles'
+import {
+  CoreProtocol,
+  DEXES_SUPPORT_COLLECT_FEE,
+  EarnDex,
+  NFT_MANAGER_ABI,
+  NFT_MANAGER_CONTRACT,
+} from 'pages/Earns/constants'
+import { ParsedPosition } from 'pages/Earns/types'
+import { formatAprNumber, isForkFrom } from 'pages/Earns/utils'
+import { useAllTransactions } from 'state/transactions/hooks'
+import { formatDisplayNumber } from 'utils/numbers'
+
 import PositionHistory from './PositionHistory'
 
 const FEE_FETCHING_INTERVAL = 30_000

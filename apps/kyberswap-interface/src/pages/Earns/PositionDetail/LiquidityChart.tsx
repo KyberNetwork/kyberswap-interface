@@ -5,11 +5,10 @@ import { MinusCircle, PlusCircle } from 'react-feather'
 import { useMedia } from 'react-use'
 import { usePoolDetailQuery } from 'services/poolService'
 
-import { MEDIA_WIDTHS } from 'theme'
-import { toString } from 'utils/numbers'
-
 import { ChartWrapper } from 'pages/Earns/PositionDetail/styles'
 import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick } from 'pages/Earns/uniswapv3'
+import { MEDIA_WIDTHS } from 'theme'
+import { toString } from 'utils/numbers'
 
 export default function LiquidityChart({
   chainId,

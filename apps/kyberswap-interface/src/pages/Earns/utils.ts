@@ -1,8 +1,8 @@
 import { Web3Provider } from '@ethersproject/providers'
 import { ethers } from 'ethers'
 
-import { formatDisplayNumber } from 'utils/numbers'
 import { CoreProtocol, EarnDex, PROTOCOLS_CORE_MAPPING } from 'pages/Earns/constants'
+import { formatDisplayNumber } from 'utils/numbers'
 
 export const formatAprNumber = (apr: string | number): string => {
   const formattedApr = Number(apr)

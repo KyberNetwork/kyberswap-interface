@@ -3,14 +3,13 @@ import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex } from 'rebass'
-import { PositionStatus, PositionFilter } from 'pages/Earns/types'
 
 import Search from 'components/Search'
 import useDebounce from 'hooks/useDebounce'
-import { MEDIA_WIDTHS } from 'theme'
-
 import DropdownMenu, { MenuOption } from 'pages/Earns/PoolExplorer/DropdownMenu'
+import { PositionFilter, PositionStatus } from 'pages/Earns/types'
 import { AllChainsOption, AllProtocolsOption } from 'pages/Earns/useSupportedDexesAndChains'
+import { MEDIA_WIDTHS } from 'theme'
 
 const POSITION_STATUS = [
   { label: 'All Positions', value: '' },

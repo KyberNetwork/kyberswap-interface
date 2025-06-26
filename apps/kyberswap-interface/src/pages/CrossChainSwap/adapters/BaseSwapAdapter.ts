@@ -1,8 +1,10 @@
 import { ChainId, Currency as EvmCurrency } from '@kyberswap/ks-sdk-core'
-import { WalletClient } from 'viem'
-import { Quote } from '../registry'
-import { NearToken } from 'state/crossChainSwap'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
+import { WalletClient } from 'viem'
+
+import { NearToken } from 'state/crossChainSwap'
+
+import { Quote } from '../registry'
 
 export enum NonEvmChain {
   Near = 'near',

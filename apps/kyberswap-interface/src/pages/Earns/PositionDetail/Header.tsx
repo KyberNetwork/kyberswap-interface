@@ -3,22 +3,12 @@ import { t } from '@lingui/macro'
 import { useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
-import { PositionStatus, ParsedPosition } from 'pages/Earns/types'
-import {
-  EarnDex,
-  earnSupportedProtocols,
-  PROTOCOL_POSITION_URL,
-  DEXES_HIDE_TOKEN_ID,
-  CoreProtocol,
-} from 'pages/Earns/constants'
 
 import CopyHelper from 'components/Copy'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
-import { MEDIA_WIDTHS } from 'theme'
-import { shortenAddress } from 'utils'
-
 import { CurrencyRoundedImage, CurrencySecondImage } from 'pages/Earns/PoolExplorer/styles'
+import { DexInfo, IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
 import {
   Badge,
   BadgeType,
@@ -27,8 +17,17 @@ import {
   ImageContainer,
   PositionOverview,
 } from 'pages/Earns/UserPositions/styles'
-import { DexInfo, IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
+import {
+  CoreProtocol,
+  DEXES_HIDE_TOKEN_ID,
+  EarnDex,
+  PROTOCOL_POSITION_URL,
+  earnSupportedProtocols,
+} from 'pages/Earns/constants'
+import { ParsedPosition, PositionStatus } from 'pages/Earns/types'
 import { isForkFrom } from 'pages/Earns/utils'
+import { MEDIA_WIDTHS } from 'theme'
+import { shortenAddress } from 'utils'
 
 const PositionDetailHeader = ({
   position,

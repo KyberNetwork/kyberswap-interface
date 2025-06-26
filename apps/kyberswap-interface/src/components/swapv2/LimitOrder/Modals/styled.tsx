@@ -9,12 +9,12 @@ import styled from 'styled-components'
 import Column from 'components/Column'
 import { Swap as SwapIcon } from 'components/Icons'
 import TradePrice from 'components/swapv2/LimitOrder/TradePrice'
+import { NativeCurrencies } from 'constants/tokens'
 import { BaseTradeInfo } from 'hooks/useBaseTradeInfo'
 import useTheme from 'hooks/useTheme'
 
 import { formatAmountOrder, formatRateLimitOrder } from '../helpers'
 import { LimitOrder, RateInfo } from '../type'
-import { NativeCurrencies } from 'constants/tokens'
 
 export const Container = styled.div`
   padding: 20px 24px;
