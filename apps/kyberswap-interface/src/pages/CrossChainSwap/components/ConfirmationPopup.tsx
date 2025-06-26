@@ -180,6 +180,8 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
         fromChainId === 'solana' ? adaptedWallet : (walletClient as any),
         nearWallet,
         sendBtcFn,
+        sendTransaction,
+        connection,
       )
       .catch(e => {
         console.log(e)

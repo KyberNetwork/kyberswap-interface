@@ -4,6 +4,8 @@ import { Quote } from '../registry'
 import { NearToken, SolanaToken } from 'state/crossChainSwap'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
 import { AdaptedWallet } from '@reservoir0x/relay-sdk'
+import { Connection } from '@solana/web3.js'
+import { WalletAdapterProps } from '@solana/wallet-adapter-base'
 
 export enum NonEvmChain {
   Near = 'near',
@@ -127,6 +129,8 @@ export interface SwapProvider {
     walletClient: WalletClient,
     nearWallet?: ReturnType<typeof useWalletSelector>,
     sendBtcFn?: (params: { recipient: string; amount: string | number }) => Promise<string>,
+    sendSolanaTransaction?: WalletAdapterProps['sendTransaction'],
+    connection?: Connection,
   ): Promise<NormalizedTxResponse>
   getTransactionStatus(p: NormalizedTxResponse): Promise<SwapStatus>
 }

@@ -14,7 +14,7 @@ import { Summary } from './components/Summary'
 import { SwapAction } from './components/SwapAction'
 import ReverseTokenSelectionButton from 'components/SwapForm/ReverseTokenSelectionButton'
 import { isEvmChain } from 'utils'
-import { NearToken } from 'state/crossChainSwap'
+import { NearToken, SolanaToken } from 'state/crossChainSwap'
 import { Currency as EvmCurrency } from '@kyberswap/ks-sdk-core'
 import RefreshLoading from 'components/RefreshLoading'
 import { AddressInput } from 'components/AddressInputPanel'
@@ -188,7 +188,7 @@ function CrossChainSwap() {
                 ? cOut?.isNative
                   ? cOut.symbol || ''
                   : cOut?.wrapped.address || ''
-                : (currencyOut as NearToken)?.assetId || '',
+                : (currencyOut as NearToken)?.assetId || (currencyOut as SolanaToken)?.id || '',
             )
             searchParams.set(
               'tokenOut',
@@ -196,7 +196,7 @@ function CrossChainSwap() {
                 ? cIn?.isNative
                   ? cIn.symbol || ''
                   : cIn?.wrapped.address || ''
-                : (currencyIn as NearToken)?.assetId || '',
+                : (currencyIn as NearToken)?.assetId || (currencyIn as SolanaToken)?.id || '',
             )
             console.log(searchParams)
             setSearchParams(searchParams)
