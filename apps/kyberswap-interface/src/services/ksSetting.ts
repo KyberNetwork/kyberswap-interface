@@ -40,7 +40,7 @@ export type KyberswapGlobalConfigurationResponse = {
   }
 }
 
-type Dex = {
+export type Dex = {
   id: number
   dexId: string
   name: string
@@ -103,32 +103,12 @@ const ksSettingApi = createApi({
         })),
     }),
 
-    getDexList: builder.query<Dex[], { chainId: string }>({
-      async queryFn({ chainId }, _api, _extra, fetchWithBQ) {
-        try {
-          const [page1Response, page2Response] = await Promise.all([
-            fetchWithBQ({
-              url: '/dexes',
-              params: { chain: chainId, pageSize: 100, page: 1 },
-            }),
-            fetchWithBQ({
-              url: '/dexes',
-              params: { chain: chainId, pageSize: 100, page: 2 },
-            }),
-          ])
-
-          if (page1Response.error || page2Response.error) {
-            return { error: page1Response.error || page2Response.error }
-          }
-
-          const page1Data = (page1Response.data as CommonPagingRes<{ dexes: Dex[] }>).data.dexes
-          const page2Data = (page2Response.data as CommonPagingRes<{ dexes: Dex[] }>).data.dexes
-
-          return { data: [...page1Data, ...page2Data] }
-        } catch (error) {
-          return { error: { status: 500, data: error } }
-        }
-      },
+    getDexList: builder.query<Dex[], { page: number; chainId: string }>({
+      query: ({ chainId, page }) => ({
+        url: `/dexes`,
+        params: { page: page, chain: chainId, isEnabled: true, pageSize: 100 },
+      }),
+      transformResponse: (res: CommonPagingRes<{ dexes: Dex[] }>) => res.data.dexes,
     }),
     getTokenList: builder.query<
       TokenListResponse,

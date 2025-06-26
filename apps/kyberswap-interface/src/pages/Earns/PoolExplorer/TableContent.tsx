@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from 'react'
 import { Star } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
-import { useGetDexListQuery } from 'services/ksSetting'
 import { useAddFavoriteMutation, usePoolsExplorerQuery, useRemoveFavoriteMutation } from 'services/zapEarn'
 
 import { ReactComponent as IconFarmingPool } from 'assets/svg/kyber/kem.svg'
@@ -13,7 +12,6 @@ import CopyHelper from 'components/Copy'
 import Loader from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
-import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import {
@@ -29,6 +27,7 @@ import useFilter from 'pages/Earns/PoolExplorer/useFilter'
 import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import { ParsedEarnPool, ProgramType } from 'pages/Earns/types'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
+import { useAppSelector } from 'state/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -45,9 +44,10 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: ({ pool }: Zap
   const notify = useNotify()
   const toggleWalletModal = useWalletModalToggle()
 
-  const dexList = useGetDexListQuery({
-    chainId: NETWORKS_INFO[filters.chainId].ksSettingRoute,
-  })
+  const allDexes = useAppSelector(state => state.customizeDexes.allDexes)
+  const dexList = useMemo(() => {
+    return allDexes[filters.chainId] || []
+  }, [allDexes, filters.chainId])
   const { data: poolData, refetch, isError } = usePoolsExplorerQuery(filters, { pollingInterval: 5 * 60_000 })
   const [addFavorite] = useAddFavoriteMutation()
   const [removeFavorite] = useRemoveFavoriteMutation()
@@ -57,24 +57,15 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: ({ pool }: Zap
 
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
-  const tablePoolData: Array<ParsedEarnPool> = useMemo(
-    () =>
-      (poolData?.data?.pools || []).map(pool => {
-        const dexLogo =
-          dexList.data?.find(dex => dex.dexId === (dexKeyMapping[pool.exchange] || pool.exchange))?.logoURL || ''
-        const dexName =
-          dexList.data?.find(dex => dex.dexId === (dexKeyMapping[pool.exchange] || pool.exchange))?.name || ''
-
-        return {
-          ...pool,
-          dexLogo,
-          dexName,
-          feeApr: pool.apr,
-          apr: (pool.kemEGApr || 0) + (pool.kemLMApr || 0) + pool.apr,
-        }
-      }),
-    [poolData, dexList],
-  )
+  const tablePoolData = useMemo(() => {
+    return (poolData?.data?.pools || []).map(pool => ({
+      ...pool,
+      dexLogo: dexList.find(dex => dex.id === (dexKeyMapping[pool.exchange] || pool.exchange))?.logoURL || '',
+      dexName: dexList.find(dex => dex.id === (dexKeyMapping[pool.exchange] || pool.exchange))?.name || '',
+      feeApr: pool.apr,
+      apr: (pool.kemEGApr || 0) + (pool.kemLMApr || 0) + pool.apr,
+    }))
+  }, [poolData, dexList])
 
   const handleFavorite = async (e: React.MouseEvent<SVGElement, MouseEvent>, pool: ParsedEarnPool) => {
     e.stopPropagation()
