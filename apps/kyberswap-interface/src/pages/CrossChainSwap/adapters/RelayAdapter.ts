@@ -123,7 +123,7 @@ export class RelayAdapter extends BaseSwapAdapter {
       amount: params.amount,
       tradeType: 'EXACT_INPUT',
       wallet: params.walletClient,
-      recipient: params.recipient === ZERO_ADDRESS ? undefined : params.recipient,
+      recipient: params.recipient,
       options: {
         appFees: [
           {
