@@ -22,7 +22,8 @@ import {
 import { LIMIT_TEXT_STYLES } from 'pages/Earns/constants'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
 import { ParsedPosition } from 'pages/Earns/types'
-import { aggregateFeeFromPositions, aggregateRewardFromPositions } from 'pages/Earns/utils/position'
+import { aggregateFeeFromPositions } from 'pages/Earns/utils/position'
+import { defaultRewardInfo } from 'pages/Earns/utils/reward'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -57,10 +58,7 @@ export default function PositionBanner({
   initialLoading: boolean
 }) {
   const theme = useTheme()
-  const { claimAllRewardsModal, onOpenClaimAllRewards } = useKemRewards()
-
-  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
-  const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
+  const { claimAllRewardsModal, onOpenClaimAllRewards, rewardInfo } = useKemRewards()
 
   const {
     totalUsdValue,
@@ -69,10 +67,13 @@ export default function PositionBanner({
     pendingUsdValue,
     vestingUsdValue,
     claimableUsdValue,
+    tokens,
     egTokens,
     lmTokens,
-    tokens,
-  } = useMemo(() => aggregateRewardFromPositions(positions), [positions])
+  } = rewardInfo || defaultRewardInfo
+
+  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+  const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
 
   const {
     totalValue: totalFeeValue,

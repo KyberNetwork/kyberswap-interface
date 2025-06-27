@@ -1,7 +1,21 @@
 import { RewardData, RewardType } from 'services/reward'
 
 import { NetworkInfo } from 'constants/networks/type'
-import { ChainRewardInfo, NftRewardInfo, TokenInfo, TokenRewardInfo } from 'pages/Earns/types'
+import { ChainRewardInfo, NftRewardInfo, RewardInfo, TokenInfo, TokenRewardInfo } from 'pages/Earns/types'
+
+export const defaultRewardInfo: RewardInfo = {
+  totalUsdValue: 0,
+  claimableUsdValue: 0,
+  claimedUsdValue: 0,
+  inProgressUsdValue: 0,
+  pendingUsdValue: 0,
+  vestingUsdValue: 0,
+  nfts: [],
+  chains: [],
+  tokens: [],
+  egTokens: [],
+  lmTokens: [],
+}
 
 export const deepClone = (obj: any) => JSON.parse(JSON.stringify(obj))
 
@@ -163,6 +177,58 @@ export const parseReward = ({
 
   const totalUsdValue = listNft.reduce((acc, item) => acc + item.totalUsdValue, 0)
   const claimableUsdValue = listNft.reduce((acc, item) => acc + item.claimableUsdValue, 0)
+  const claimedUsdValue = listNft.reduce((acc, item) => acc + item.claimedUsdValue, 0)
+  const inProgressUsdValue = listNft.reduce((acc, item) => acc + item.inProgressUsdValue, 0)
+  const pendingUsdValue = listNft.reduce((acc, item) => acc + item.pendingUsdValue, 0)
+  const vestingUsdValue = listNft.reduce((acc, item) => acc + item.vestingUsdValue, 0)
+
+  const egTokens: Array<TokenRewardInfo> = []
+  const lmTokens: Array<TokenRewardInfo> = []
+  const aggregatedTokens: Array<TokenRewardInfo> = []
+
+  listNft.forEach(nft => {
+    nft.egTokens.forEach(token => {
+      const existingTokenIndex = egTokens.findIndex(t => t.symbol === token.symbol)
+      if (existingTokenIndex === -1) {
+        egTokens.push(deepClone(token))
+      } else {
+        egTokens[existingTokenIndex].totalAmount += token.totalAmount
+        egTokens[existingTokenIndex].claimableAmount += token.claimableAmount
+        egTokens[existingTokenIndex].claimableUsdValue += token.claimableUsdValue
+        egTokens[existingTokenIndex].unclaimedAmount += token.unclaimedAmount
+        egTokens[existingTokenIndex].pendingAmount += token.pendingAmount
+        egTokens[existingTokenIndex].vestingAmount += token.vestingAmount
+      }
+    })
+
+    nft.lmTokens.forEach(token => {
+      const existingTokenIndex = lmTokens.findIndex(t => t.symbol === token.symbol)
+      if (existingTokenIndex === -1) {
+        lmTokens.push(deepClone(token))
+      } else {
+        lmTokens[existingTokenIndex].totalAmount += token.totalAmount
+        lmTokens[existingTokenIndex].claimableAmount += token.claimableAmount
+        lmTokens[existingTokenIndex].claimableUsdValue += token.claimableUsdValue
+        lmTokens[existingTokenIndex].unclaimedAmount += token.unclaimedAmount
+        lmTokens[existingTokenIndex].pendingAmount += token.pendingAmount
+        lmTokens[existingTokenIndex].vestingAmount += token.vestingAmount
+      }
+    })
+
+    nft.tokens.forEach(token => {
+      const existingTokenIndex = aggregatedTokens.findIndex(t => t.symbol === token.symbol)
+      if (existingTokenIndex === -1) {
+        aggregatedTokens.push(deepClone(token))
+      } else {
+        aggregatedTokens[existingTokenIndex].totalAmount += token.totalAmount
+        aggregatedTokens[existingTokenIndex].claimableAmount += token.claimableAmount
+        aggregatedTokens[existingTokenIndex].claimableUsdValue += token.claimableUsdValue
+        aggregatedTokens[existingTokenIndex].unclaimedAmount += token.unclaimedAmount
+        aggregatedTokens[existingTokenIndex].pendingAmount += token.pendingAmount
+        aggregatedTokens[existingTokenIndex].vestingAmount += token.vestingAmount
+      }
+    })
+  })
 
   const chains: Array<ChainRewardInfo> = []
 
@@ -206,7 +272,14 @@ export const parseReward = ({
   return {
     totalUsdValue,
     claimableUsdValue,
+    claimedUsdValue,
+    inProgressUsdValue,
+    pendingUsdValue,
+    vestingUsdValue,
     nfts: listNft,
     chains,
+    tokens: aggregatedTokens,
+    egTokens,
+    lmTokens,
   }
 }

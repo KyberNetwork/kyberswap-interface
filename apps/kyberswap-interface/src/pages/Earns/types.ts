@@ -224,8 +224,15 @@ export interface FeeInfo {
 export interface RewardInfo {
   totalUsdValue: number
   claimableUsdValue: number
+  claimedUsdValue: number
+  inProgressUsdValue: number
+  pendingUsdValue: number
+  vestingUsdValue: number
   nfts: Array<NftRewardInfo>
   chains: Array<ChainRewardInfo>
+  tokens: Array<TokenRewardInfo>
+  egTokens: Array<TokenRewardInfo>
+  lmTokens: Array<TokenRewardInfo>
 }
 
 export interface ChainRewardInfo {

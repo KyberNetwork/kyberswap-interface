@@ -2,17 +2,8 @@ import { WETH } from '@kyberswap/ks-sdk-core'
 
 import { NETWORKS_INFO } from 'constants/networks'
 import { CoreProtocol, EarnDex } from 'pages/Earns/constants'
-import {
-  EarnPosition,
-  FeeInfo,
-  NftRewardInfo,
-  ParsedPosition,
-  PositionStatus,
-  ProgramType,
-  TokenRewardInfo,
-} from 'pages/Earns/types'
+import { EarnPosition, FeeInfo, NftRewardInfo, ParsedPosition, PositionStatus, ProgramType } from 'pages/Earns/types'
 import { isForkFrom, isNativeToken } from 'pages/Earns/utils'
-import { deepClone } from 'pages/Earns/utils/reward'
 
 export const parsePosition = ({
   position,
@@ -35,7 +26,7 @@ export const parsePosition = ({
 
   const totalValue = position.currentPositionValue + (nftRewardInfo?.unclaimedUsdValue || 0)
   const unclaimedFees = feeInfo ? feeInfo.totalValue : position.feePending.reduce((a, b) => a + b.quotes.usd.value, 0)
-  const totalProvidedValue = totalValue - unclaimedFees
+  const totalProvidedValue = position.currentPositionValue - unclaimedFees
 
   const token0Address = position.pool.tokenAmounts[0]?.token.address || ''
   const token1Address = position.pool.tokenAmounts[1]?.token.address || ''
@@ -192,69 +183,5 @@ export const aggregateFeeFromPositions = (positions: Array<ParsedPosition>) => {
     totalValue,
     totalEarnedFee,
     totalUnclaimedFee,
-  }
-}
-
-export const aggregateRewardFromPositions = (positions: Array<ParsedPosition>) => {
-  let totalUsdValue = 0
-  let claimedUsdValue = 0
-  let inProgressUsdValue = 0
-  let pendingUsdValue = 0
-  let vestingUsdValue = 0
-  let claimableUsdValue = 0
-  const egTokens: Array<TokenRewardInfo> = []
-  const lmTokens: Array<TokenRewardInfo> = []
-  const tokens: Array<TokenRewardInfo> = []
-
-  positions.forEach(position => {
-    totalUsdValue += position.rewards.totalUsdValue
-    claimedUsdValue += position.rewards.claimedUsdValue
-    inProgressUsdValue += position.rewards.inProgressUsdValue
-    pendingUsdValue += position.rewards.pendingUsdValue
-    vestingUsdValue += position.rewards.vestingUsdValue
-    claimableUsdValue += position.rewards.claimableUsdValue
-
-    position.rewards.egTokens.forEach(token => {
-      const existingTokenIndex = egTokens.findIndex(t => t.symbol === token.symbol)
-      if (existingTokenIndex === -1) {
-        egTokens.push(deepClone(token))
-      } else {
-        egTokens[existingTokenIndex].totalAmount += token.totalAmount
-        egTokens[existingTokenIndex].claimableAmount += token.claimableAmount
-        egTokens[existingTokenIndex].claimableUsdValue += token.claimableUsdValue
-      }
-    })
-    position.rewards.lmTokens.forEach(token => {
-      const existingTokenIndex = lmTokens.findIndex(t => t.symbol === token.symbol)
-      if (existingTokenIndex === -1) {
-        lmTokens.push(deepClone(token))
-      } else {
-        lmTokens[existingTokenIndex].totalAmount += token.totalAmount
-        lmTokens[existingTokenIndex].claimableAmount += token.claimableAmount
-        lmTokens[existingTokenIndex].claimableUsdValue += token.claimableUsdValue
-      }
-    })
-    position.rewards.tokens.forEach(token => {
-      const existingTokenIndex = tokens.findIndex(t => t.symbol === token.symbol)
-      if (existingTokenIndex === -1) {
-        tokens.push(deepClone(token))
-      } else {
-        tokens[existingTokenIndex].totalAmount += token.totalAmount
-        tokens[existingTokenIndex].claimableAmount += token.claimableAmount
-        tokens[existingTokenIndex].claimableUsdValue += token.claimableUsdValue
-      }
-    })
-  })
-
-  return {
-    totalUsdValue,
-    claimedUsdValue,
-    inProgressUsdValue,
-    pendingUsdValue,
-    vestingUsdValue,
-    claimableUsdValue,
-    egTokens,
-    lmTokens,
-    tokens,
   }
 }
