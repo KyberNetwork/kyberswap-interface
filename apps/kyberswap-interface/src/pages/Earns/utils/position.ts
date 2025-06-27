@@ -14,7 +14,6 @@ export const parsePosition = ({
   feeInfo?: FeeInfo
   nftRewardInfo?: NftRewardInfo
 }) => {
-  // Cache frequently accessed properties
   const currentAmounts = position.currentAmounts
   const feePending = position.feePending
   const feesClaimed = position.feesClaimed
@@ -23,7 +22,6 @@ export const parsePosition = ({
   const token0Data = tokenAmounts[0]?.token
   const token1Data = tokenAmounts[1]?.token
 
-  // Cache USD calculations to avoid repeated divisions
   const token0CurrentQuote = currentAmounts[0]?.quotes.usd
   const token1CurrentQuote = currentAmounts[1]?.quotes.usd
   const token0PendingQuote = feePending[0]?.quotes.usd
@@ -31,7 +29,6 @@ export const parsePosition = ({
   const token0ClaimedQuote = feesClaimed[0]?.quotes.usd
   const token1ClaimedQuote = feesClaimed[1]?.quotes.usd
 
-  // Calculate provided token amounts
   const token0TotalProvide = token0CurrentQuote ? token0CurrentQuote.value / token0CurrentQuote.price : 0
   const token1TotalProvide = token1CurrentQuote ? token1CurrentQuote.value / token1CurrentQuote.price : 0
 
@@ -42,7 +39,6 @@ export const parsePosition = ({
     (token1PendingQuote ? token1PendingQuote.value / token1PendingQuote.price : 0) +
     (token1ClaimedQuote ? token1ClaimedQuote.value / token1ClaimedQuote.price : 0)
 
-  // Cache other frequently used values
   const nftUnclaimedUsdValue = nftRewardInfo?.unclaimedUsdValue || 0
   const totalValue = position.currentPositionValue + nftUnclaimedUsdValue
   const unclaimedFees = feeInfo?.totalValue ?? feePending.reduce((sum, fee) => sum + fee.quotes.usd.value, 0)
@@ -66,7 +62,6 @@ export const parsePosition = ({
 
   const unclaimedRewardTokens = nftRewardInfo?.tokens.filter(token => token.unclaimedAmount > 0) || []
 
-  // Build totalValueTokens more efficiently
   const totalValueTokens = position.currentPositionValue
     ? [
         {
@@ -82,7 +77,6 @@ export const parsePosition = ({
       ]
     : []
 
-  // Process unclaimed reward tokens efficiently
   for (const token of unclaimedRewardTokens) {
     const existingToken = totalValueTokens.find(t => t.address.toLowerCase() === token.address.toLowerCase())
     if (existingToken) {
@@ -100,15 +94,12 @@ export const parsePosition = ({
   const isNewPosition = position.createdTime >= now - 2 * 60 * 1000
   const isUnfinalized = isNewPosition && (position.latestBlock || 0) - (position.createdAtBlock || 0) <= 10
 
-  // Calculate total earned fees once
   const totalEarnedFees =
     feePending.reduce((sum, fee) => sum + fee.quotes.usd.value, 0) +
     feesClaimed.reduce((sum, fee) => sum + fee.quotes.usd.value, 0)
 
-  // Extract dex version efficiently
   const dexVersion = listDexesWithVersion.includes(dex) ? dex.split(' ').pop() || '' : ''
 
-  // Cache chain info
   const chainId = position.chainId as keyof typeof NETWORKS_INFO
   const nativeToken = NETWORKS_INFO[chainId]?.nativeToken
 
