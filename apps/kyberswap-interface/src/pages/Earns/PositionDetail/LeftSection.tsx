@@ -166,7 +166,7 @@ const LeftSection = ({
                 <PositionSkeleton width={90} height={21} text="Finalizing..." />
               ) : (
                 <Text fontSize={18} sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '160px' }}>
-                  {position?.unclaimedFees
+                  {position?.unclaimedFees || position?.unclaimedFees === 0
                     ? formatDisplayNumber(position?.unclaimedFees, {
                         significantDigits: 4,
                         style: 'currency',

@@ -70,7 +70,7 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
       enableEstimate: false,
       prependOperatingExpenses: false,
 
-      affiliate: 31982,
+      referralCode: 31982,
       affiliateFeePercent: (params.feeBps * 100) / 10_000,
       affiliateFeeRecipient: CROSS_CHAIN_FEE_RECEIVER,
     }

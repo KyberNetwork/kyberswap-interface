@@ -443,7 +443,7 @@ export default function TableContent({
                     <PositionValueLabel>{t`Unclaimed rewards`}</PositionValueLabel>
                     {isUnfinalized ? (
                       <PositionSkeleton width={80} height={19} text="Finalizing..." />
-                    ) : rewards.unclaimedUsdValue > 0 ? (
+                    ) : (
                       <Flex alignItems={'center'} sx={{ gap: 1 }}>
                         {upToSmall && <IconKem width={20} height={20} />}
                         <MouseoverTooltipDesktopOnly
@@ -476,8 +476,6 @@ export default function TableContent({
                           </Text>
                         </MouseoverTooltipDesktopOnly>
                       </Flex>
-                    ) : (
-                      '$0'
                     )}
                   </PositionValueWrapper>
 

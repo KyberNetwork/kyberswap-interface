@@ -1,7 +1,7 @@
 import { t } from '@lingui/macro'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useMedia, usePreviousDistinct } from 'react-use'
+import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { useUserPositionsQuery } from 'services/zapEarn'
 
@@ -26,7 +26,7 @@ import {
   PositionTableWrapper,
 } from 'pages/Earns/UserPositions/styles'
 import useFilter, { SortBy } from 'pages/Earns/UserPositions/useFilter'
-import { earnSupportedChains, earnSupportedExchanges } from 'pages/Earns/constants'
+import { earnSupportedChains, earnSupportedExchanges, protocolGroupNameToExchangeMapping } from 'pages/Earns/constants'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
 import useSupportedDexesAndChains from 'pages/Earns/hooks/useSupportedDexesAndChains'
@@ -53,13 +53,19 @@ const UserPositions = () => {
   const [loading, setLoading] = useState(false)
   const [feeInfoFromRpc, setFeeInfoFromRpc] = useState<FeeInfoFromRpc[]>([])
 
-  const positionQueryParams = {
-    addresses: account || '',
-    chainIds: filters.chainIds || earnSupportedChains.join(','),
-    protocols: filters.protocols || earnSupportedExchanges.join(','),
-    q: filters.q,
-    positionStatus: 'all',
-  }
+  const positionQueryParams = useMemo(() => {
+    const statusFilter = filters.status.split(',')
+    const isFilterOnlyClosedPosition = statusFilter.length === 1 && statusFilter[0] === PositionStatus.CLOSED
+    const isFilterOnlyOpenPosition = !statusFilter.includes(PositionStatus.CLOSED)
+
+    return {
+      addresses: account || '',
+      chainIds: earnSupportedChains.join(','),
+      protocols: earnSupportedExchanges.join(','),
+      q: filters.q,
+      positionStatus: isFilterOnlyClosedPosition ? 'closed' : isFilterOnlyOpenPosition ? 'open' : 'all',
+    }
+  }, [account, filters.q, filters.status])
 
   const {
     data: userPosition,
@@ -95,58 +101,63 @@ const UserPositions = () => {
     setLoading(true)
   })
 
-  const previousPosition = usePreviousDistinct(userPosition)
+  const parsedPositions: Array<ParsedPosition> = useMemo(
+    () =>
+      [...(userPosition || [])].map(position => {
+        const feeInfo = feeInfoFromRpc.find(feeInfo => feeInfo.id === position.tokenId)
+        const nftRewardInfo = rewardInfo?.nfts.find(item => item.nftId === position.tokenId)
 
-  const parsedPositions: Array<ParsedPosition> = useMemo(() => {
-    let positionToRender = []
-    if (!userPosition || !userPosition.length) {
-      if (!previousPosition || !previousPosition.length || !isError) return []
-      positionToRender = previousPosition
-    } else positionToRender = userPosition
+        return parsePosition({
+          position,
+          feeInfo,
+          nftRewardInfo,
+        })
+      }),
+    [feeInfoFromRpc, rewardInfo?.nfts, userPosition],
+  )
 
-    let parsedData = [...positionToRender].map(position => {
-      const feeInfo = feeInfoFromRpc.find(feeInfo => feeInfo.id === position.tokenId)
-      const nftRewardInfo = rewardInfo?.nfts.find(item => item.nftId === position.tokenId)
-
-      return parsePosition({
-        position,
-        feeInfo,
-        nftRewardInfo,
-      })
-    })
+  const filteredPositions: Array<ParsedPosition> = useMemo(() => {
+    let result = []
 
     const arrStatus = filters.status.split(',')
-    parsedData = parsedData.filter(position => {
+    result = [...parsedPositions].filter(position => {
       if (filters.status === PositionStatus.OUT_RANGE)
         return !position.pool.isUniv2 && arrStatus.includes(position.status)
 
       return arrStatus.includes(position.status)
     })
 
+    if (filters.chainIds) result = result.filter(position => position.chain.id === Number(filters.chainIds))
+    if (filters.protocols) {
+      result = result.filter(position =>
+        filters.protocols?.split(',').includes(protocolGroupNameToExchangeMapping[position.dex.id]),
+      )
+    }
+
     if (filters.sortBy) {
       if (filters.sortBy === SortBy.VALUE) {
-        parsedData.sort((a, b) => {
+        result.sort((a, b) => {
           const aValue = a.totalValue
           const bValue = b.totalValue
 
           return filters.orderBy === Direction.ASC ? aValue - bValue : bValue - aValue
         })
       } else if (filters.sortBy === SortBy.APR) {
-        parsedData.sort((a, b) => {
+        result.sort((a, b) => {
           const aValue = a.apr
           const bValue = b.apr
 
           return filters.orderBy === Direction.ASC ? aValue - bValue : bValue - aValue
         })
       } else if (filters.sortBy === SortBy.UNCLAIMED_FEE) {
-        parsedData.sort((a, b) => {
+        result.sort((a, b) => {
           const aValue = a.unclaimedFees
           const bValue = b.unclaimedFees
 
           return filters.orderBy === Direction.ASC ? aValue - bValue : bValue - aValue
         })
       } else if (filters.sortBy === SortBy.UNCLAIMED_REWARDS) {
-        parsedData.sort((a, b) => {
+        result.sort((a, b) => {
           const aValue = a.rewards.unclaimedUsdValue
           const bValue = b.rewards.unclaimedUsdValue
 
@@ -155,22 +166,13 @@ const UserPositions = () => {
       }
     }
 
-    return parsedData
-  }, [
-    feeInfoFromRpc,
-    filters.orderBy,
-    filters.sortBy,
-    filters.status,
-    isError,
-    previousPosition,
-    rewardInfo?.nfts,
-    userPosition,
-  ])
+    return result
+  }, [filters.chainIds, filters.orderBy, filters.protocols, filters.sortBy, filters.status, parsedPositions])
 
   const paginatedPositions: Array<ParsedPosition> = useMemo(() => {
-    if (parsedPositions.length <= POSITIONS_TABLE_LIMIT) return parsedPositions
-    return parsedPositions.slice((filters.page - 1) * POSITIONS_TABLE_LIMIT, filters.page * POSITIONS_TABLE_LIMIT)
-  }, [parsedPositions, filters.page])
+    if (filteredPositions.length <= POSITIONS_TABLE_LIMIT) return filteredPositions
+    return filteredPositions.slice((filters.page - 1) * POSITIONS_TABLE_LIMIT, filters.page * POSITIONS_TABLE_LIMIT)
+  }, [filteredPositions, filters.page])
 
   const onSortChange = (sortBy: string) => {
     if (!filters.sortBy || filters.sortBy !== sortBy) {
@@ -376,7 +378,7 @@ const UserPositions = () => {
             <Pagination
               haveBg={false}
               onPageChange={(newPage: number) => updateFilters('page', newPage)}
-              totalCount={parsedPositions.length || 0}
+              totalCount={filteredPositions.length || 0}
               currentPage={filters.page}
               pageSize={POSITIONS_TABLE_LIMIT}
             />

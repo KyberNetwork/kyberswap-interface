@@ -420,6 +420,7 @@ export default function SelectTreasuryGrant({ userHaveVestingData }: { userHaveV
               <ButtonPrimary
                 width="fit-content"
                 style={{ minWidth: '116px', height: '36px' }}
+                disabled
                 onClick={() => {
                   if (chainId !== ChainId.MATIC) {
                     changeNetwork(ChainId.MATIC)
@@ -506,6 +507,11 @@ export default function SelectTreasuryGrant({ userHaveVestingData }: { userHaveV
             </ButtonPrimary>
           </Flex>
         </Flex>
+        <Text fontStyle="italic" fontSize={14} color={theme.subText} marginTop="8px">
+          KyberSwap Treasury Grant Completed on 1st Feb 2025 as announced in this{' '}
+          <ExternalLink href="https://x.com/kybernetwork/status/1886258729508831569">tweet</ExternalLink>. If there’s an
+          update, we will announce it on our official channels.
+        </Text>
 
         {(!userSelectedOption || userSelectedOption === 'C') && (
           <>

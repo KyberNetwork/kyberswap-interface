@@ -6,7 +6,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Share2 } from 'react-feather'
 import Skeleton from 'react-loading-skeleton'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { usePreviousDistinct } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { useUserPositionsQuery } from 'services/zapEarn'
 
@@ -122,22 +121,15 @@ const PositionDetail = () => {
   const loadingInterval = isFetching
   const initialLoading = !!(forceLoading || (isLoading && !firstLoading.current))
 
-  const previousPosition = usePreviousDistinct(userPosition)
-
   const position: ParsedPosition | undefined = useMemo(() => {
-    let positionToRender = []
-
-    if (!userPosition || !userPosition.length) {
-      if (!previousPosition || !previousPosition.length) return undefined
-      positionToRender = previousPosition
-    } else positionToRender = userPosition
+    if (!userPosition || !userPosition.length) return
 
     return parsePosition({
-      position: positionToRender[0],
+      position: userPosition[0],
       feeInfo: feeInfoFromRpc,
       nftRewardInfo: rewardInfoThisPosition,
     })
-  }, [feeInfoFromRpc, userPosition, previousPosition, rewardInfoThisPosition])
+  }, [feeInfoFromRpc, userPosition, rewardInfoThisPosition])
 
   const handleFetchUnclaimedFee = useCallback(async () => {
     if (!position) return
@@ -344,8 +336,7 @@ const PositionDetail = () => {
             position: {
               apr: position.apr,
               createdTime: position.createdTime,
-              rewardApr: (position.kemEGApr || 0) + (position.kemLMApr || 0),
-              earnings: position.earning.earned + position.rewards.totalUsdValue,
+              rewardEarnings: position.rewards.totalUsdValue,
             },
           })
         }}

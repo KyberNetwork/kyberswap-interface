@@ -270,7 +270,7 @@ export const BannerWrapper = styled.div`
   align-items: center;
   justify-content: flex-start;
   flex-wrap: wrap;
-  gap: 32px;
+  gap: 26px;
   padding: 32.5px 32px;
   border-radius: 12px;
   position: relative;
