@@ -14,27 +14,47 @@ export const parsePosition = ({
   feeInfo?: FeeInfo
   nftRewardInfo?: NftRewardInfo
 }) => {
-  const token0TotalProvide = position.currentAmounts[0]?.quotes.usd.value / position.currentAmounts[0]?.quotes.usd.price
-  const token1TotalProvide = position.currentAmounts[1]?.quotes.usd.value / position.currentAmounts[1]?.quotes.usd.price
+  // Cache frequently accessed properties
+  const currentAmounts = position.currentAmounts
+  const feePending = position.feePending
+  const feesClaimed = position.feesClaimed
+  const pool = position.pool
+  const tokenAmounts = pool.tokenAmounts
+  const token0Data = tokenAmounts[0]?.token
+  const token1Data = tokenAmounts[1]?.token
+
+  // Cache USD calculations to avoid repeated divisions
+  const token0CurrentQuote = currentAmounts[0]?.quotes.usd
+  const token1CurrentQuote = currentAmounts[1]?.quotes.usd
+  const token0PendingQuote = feePending[0]?.quotes.usd
+  const token1PendingQuote = feePending[1]?.quotes.usd
+  const token0ClaimedQuote = feesClaimed[0]?.quotes.usd
+  const token1ClaimedQuote = feesClaimed[1]?.quotes.usd
+
+  // Calculate provided token amounts
+  const token0TotalProvide = token0CurrentQuote ? token0CurrentQuote.value / token0CurrentQuote.price : 0
+  const token1TotalProvide = token1CurrentQuote ? token1CurrentQuote.value / token1CurrentQuote.price : 0
 
   const token0EarnedAmount =
-    position.feePending[0]?.quotes.usd.value / position.feePending[0]?.quotes.usd.price +
-    position.feesClaimed[0]?.quotes.usd.value / position.feesClaimed[0]?.quotes.usd.price
+    (token0PendingQuote ? token0PendingQuote.value / token0PendingQuote.price : 0) +
+    (token0ClaimedQuote ? token0ClaimedQuote.value / token0ClaimedQuote.price : 0)
   const token1EarnedAmount =
-    position.feePending[1]?.quotes.usd.value / position.feePending[1]?.quotes.usd.price +
-    position.feesClaimed[1]?.quotes.usd.value / position.feesClaimed[1]?.quotes.usd.price
+    (token1PendingQuote ? token1PendingQuote.value / token1PendingQuote.price : 0) +
+    (token1ClaimedQuote ? token1ClaimedQuote.value / token1ClaimedQuote.price : 0)
 
-  const totalValue = position.currentPositionValue + (nftRewardInfo?.unclaimedUsdValue || 0)
-  const unclaimedFees = feeInfo ? feeInfo.totalValue : position.feePending.reduce((a, b) => a + b.quotes.usd.value, 0)
+  // Cache other frequently used values
+  const nftUnclaimedUsdValue = nftRewardInfo?.unclaimedUsdValue || 0
+  const totalValue = position.currentPositionValue + nftUnclaimedUsdValue
+  const unclaimedFees = feeInfo?.totalValue ?? feePending.reduce((sum, fee) => sum + fee.quotes.usd.value, 0)
   const totalProvidedValue = position.currentPositionValue - unclaimedFees
 
-  const token0Address = position.pool.tokenAmounts[0]?.token.address || ''
-  const token1Address = position.pool.tokenAmounts[1]?.token.address || ''
+  const token0Address = token0Data?.address || ''
+  const token1Address = token1Data?.address || ''
 
-  const dex = position.pool.project || ''
+  const dex = pool.project || ''
   const isUniv2 = isForkFrom(dex, CoreProtocol.UniswapV2)
 
-  const programs = position.pool.programs || []
+  const programs = pool.programs || []
   const isFarming = programs.includes(ProgramType.EG) || programs.includes(ProgramType.LM)
 
   const listDexesWithVersion = [
@@ -45,25 +65,28 @@ export const parsePosition = ({
   ]
 
   const unclaimedRewardTokens = nftRewardInfo?.tokens.filter(token => token.unclaimedAmount > 0) || []
-  const totalValueTokens = !position.currentPositionValue
-    ? []
-    : [
+
+  // Build totalValueTokens more efficiently
+  const totalValueTokens = position.currentPositionValue
+    ? [
         {
           address: token0Address,
-          symbol: position.pool.tokenAmounts[0]?.token.symbol || '',
+          symbol: token0Data?.symbol || '',
           amount: token0TotalProvide + token0EarnedAmount,
         },
         {
           address: token1Address,
-          symbol: position.pool.tokenAmounts[1]?.token.symbol || '',
+          symbol: token1Data?.symbol || '',
           amount: token1TotalProvide + token1EarnedAmount,
         },
       ]
+    : []
 
-  unclaimedRewardTokens.forEach(token => {
-    const tokenInfo = totalValueTokens.find(t => t.address.toLowerCase() === token.address.toLowerCase())
-    if (tokenInfo) {
-      tokenInfo.amount += token.unclaimedAmount
+  // Process unclaimed reward tokens efficiently
+  for (const token of unclaimedRewardTokens) {
+    const existingToken = totalValueTokens.find(t => t.address.toLowerCase() === token.address.toLowerCase())
+    if (existingToken) {
+      existingToken.amount += token.unclaimedAmount
     } else {
       totalValueTokens.push({
         address: token.address,
@@ -71,27 +94,40 @@ export const parsePosition = ({
         amount: token.unclaimedAmount,
       })
     }
-  })
+  }
 
-  const isNewPosition = position.createdTime >= Date.now() - 2 * 60 * 1000
+  const now = Date.now()
+  const isNewPosition = position.createdTime >= now - 2 * 60 * 1000
   const isUnfinalized = isNewPosition && (position.latestBlock || 0) - (position.createdAtBlock || 0) <= 10
+
+  // Calculate total earned fees once
+  const totalEarnedFees =
+    feePending.reduce((sum, fee) => sum + fee.quotes.usd.value, 0) +
+    feesClaimed.reduce((sum, fee) => sum + fee.quotes.usd.value, 0)
+
+  // Extract dex version efficiently
+  const dexVersion = listDexesWithVersion.includes(dex) ? dex.split(' ').pop() || '' : ''
+
+  // Cache chain info
+  const chainId = position.chainId as keyof typeof NETWORKS_INFO
+  const nativeToken = NETWORKS_INFO[chainId]?.nativeToken
 
   return {
     id: position.id,
     tokenId: position.tokenId,
     pool: {
-      fee: position.pool.fees?.[0],
-      address: position.pool.poolAddress,
-      nativeToken: NETWORKS_INFO[position.chainId as keyof typeof NETWORKS_INFO].nativeToken,
-      tickSpacing: position.pool.tickSpacing,
-      category: position.pool.category,
+      fee: pool.fees?.[0],
+      address: pool.poolAddress,
+      nativeToken,
+      tickSpacing: pool.tickSpacing,
+      category: pool.category,
       isFarming,
       isUniv2,
     },
     dex: {
       id: dex,
-      logo: position.pool.projectLogo,
-      version: listDexesWithVersion.includes(dex) ? dex.split(' ')[dex.split(' ').length - 1] || '' : '',
+      logo: pool.projectLogo,
+      version: dexVersion,
     },
     chain: {
       id: position.chainId,
@@ -101,19 +137,17 @@ export const parsePosition = ({
     priceRange: {
       min: position.minPrice || 0,
       max: position.maxPrice || 0,
-      current: position.pool.price || 0,
+      current: pool.price || 0,
     },
     earning: {
-      earned:
-        position.feePending.reduce((a, b) => a + b.quotes.usd.value, 0) +
-        position.feesClaimed.reduce((a, b) => a + b.quotes.usd.value, 0),
+      earned: totalEarnedFees,
       in7d: position.earning7d || 0,
       in24h: position.earning24h || 0,
     },
     rewards: {
       totalUsdValue: nftRewardInfo?.totalUsdValue || 0,
       claimedUsdValue: nftRewardInfo?.claimedUsdValue || 0,
-      unclaimedUsdValue: nftRewardInfo?.unclaimedUsdValue || 0,
+      unclaimedUsdValue: nftUnclaimedUsdValue,
       inProgressUsdValue: nftRewardInfo?.inProgressUsdValue || 0,
       pendingUsdValue: nftRewardInfo?.pendingUsdValue || 0,
       vestingUsdValue: nftRewardInfo?.vestingUsdValue || 0,
@@ -125,33 +159,37 @@ export const parsePosition = ({
     totalValueTokens,
     token0: {
       address: token0Address,
-      logo: position.pool.tokenAmounts[0]?.token.logo || '',
-      symbol: position.pool.tokenAmounts[0]?.token.symbol || '',
-      decimals: position.pool.tokenAmounts[0]?.token.decimals,
-      price: position.currentAmounts[0]?.token.price,
-      isNative: isNativeToken(token0Address, position.chainId as keyof typeof WETH),
+      logo: token0Data?.logo || '',
+      symbol: token0Data?.symbol || '',
+      decimals: token0Data?.decimals,
+      price: currentAmounts[0]?.token.price,
+      isNative: isNativeToken(token0Address, chainId as keyof typeof WETH),
       totalProvide: token0TotalProvide,
       totalAmount: token0TotalProvide + token0EarnedAmount,
       unclaimedAmount: feeInfo
         ? Number(feeInfo.amount0)
-        : position.feePending[0]?.quotes.usd.value / position.feePending[0]?.quotes.usd.price,
-      unclaimedBalance: feeInfo ? Number(feeInfo.balance0) : Number(position.feePending[0].balance),
-      unclaimedValue: feeInfo ? Number(feeInfo.value0) : position.feePending[0]?.quotes.usd.value,
+        : token0PendingQuote
+        ? token0PendingQuote.value / token0PendingQuote.price
+        : 0,
+      unclaimedBalance: feeInfo ? Number(feeInfo.balance0) : Number(feePending[0]?.balance || 0),
+      unclaimedValue: feeInfo ? Number(feeInfo.value0) : token0PendingQuote?.value || 0,
     },
     token1: {
       address: token1Address,
-      logo: position.pool.tokenAmounts[1]?.token.logo || '',
-      symbol: position.pool.tokenAmounts[1]?.token.symbol || '',
-      decimals: position.pool.tokenAmounts[1]?.token.decimals,
-      price: position.currentAmounts[1]?.token.price,
-      isNative: isNativeToken(token1Address, position.chainId as keyof typeof WETH),
+      logo: token1Data?.logo || '',
+      symbol: token1Data?.symbol || '',
+      decimals: token1Data?.decimals,
+      price: currentAmounts[1]?.token.price,
+      isNative: isNativeToken(token1Address, chainId as keyof typeof WETH),
       totalProvide: token1TotalProvide,
       totalAmount: token1TotalProvide + token1EarnedAmount,
       unclaimedAmount: feeInfo
         ? Number(feeInfo.amount1)
-        : position.feePending[1]?.quotes.usd.value / position.feePending[1]?.quotes.usd.price,
-      unclaimedBalance: feeInfo ? Number(feeInfo.balance1) : Number(position.feePending[1].balance),
-      unclaimedValue: feeInfo ? Number(feeInfo.value1) : position.feePending[1]?.quotes.usd.value,
+        : token1PendingQuote
+        ? token1PendingQuote.value / token1PendingQuote.price
+        : 0,
+      unclaimedBalance: feeInfo ? Number(feeInfo.balance1) : Number(feePending[1]?.balance || 0),
+      unclaimedValue: feeInfo ? Number(feeInfo.value1) : token1PendingQuote?.value || 0,
     },
     suggestionPool: position.suggestionPool,
     tokenAddress: position.tokenAddress,
