@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 let fetchingQuery = ''
 
 const cached: Record<string, SolanaToken> = {}
+const cachedByQuery: Record<string, SolanaToken[]> = {}
 
 export interface SolanaToken {
   id: string
@@ -37,6 +38,10 @@ export const useSolanaTokens = (query: string) => {
       setSolanaTokens([cached[query]])
       return
     }
+    if (cachedByQuery[query]) {
+      setSolanaTokens(cachedByQuery[query])
+      return
+    }
     if (fetchingQuery === query) return
 
     // Set the module-level flag to prevent other components from starting a fetch
@@ -63,6 +68,7 @@ export const useSolanaTokens = (query: string) => {
         t.forEach(i => {
           cached[i.id] = i
         })
+        cachedByQuery[query] = t
       })
       .catch(error => {
         console.error('Failed to fetch near tokens:', error)

@@ -78,7 +78,6 @@ export const TokenPanel = ({
 
   const [searchQuery, setSearchQuery] = useState<string>('')
   const deboundcedSearchQuery = useDebounce(searchQuery, 300)
-  console.log(111, deboundcedSearchQuery)
 
   const { solanaTokens } = useSolanaTokens(deboundcedSearchQuery)
   const { setVisible: setModalVisible } = useWalletModal()
