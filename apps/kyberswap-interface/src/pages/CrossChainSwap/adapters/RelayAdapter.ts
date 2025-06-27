@@ -1,25 +1,12 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import {
-  BaseSwapAdapter,
-  Chain,
-  NormalizedQuote,
-  NormalizedTxResponse,
-  SwapStatus,
-  NOT_SUPPORTED_CHAINS_PRICE_SERVICE,
-  NonEvmChain,
-  QuoteParams,
-} from './BaseSwapAdapter'
-import {
   MAINNET_RELAY_API,
-  getClient,
-  createClient,
-  convertViemChainToRelayChain,
   RelayChain,
+  convertViemChainToRelayChain,
+  createClient,
+  getClient,
 } from '@reservoir0x/relay-sdk'
 import { WalletClient, formatUnits } from 'viem'
-import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
-import { Quote } from '../registry'
-import { MAINNET_NETWORKS } from 'constants/networks'
 import {
   arbitrum,
   avalanche,
@@ -33,14 +20,29 @@ import {
   mantle,
   optimism,
   polygon,
+  ronin,
   scroll,
   sonic,
-  zksync,
-  ronin,
   unichain,
+  zksync,
 } from 'viem/chains'
+
 import { hyperevm } from 'components/Web3Provider'
+import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
+import { MAINNET_NETWORKS } from 'constants/networks'
 import { SolanaToken } from 'state/crossChainSwap'
+
+import { Quote } from '../registry'
+import {
+  BaseSwapAdapter,
+  Chain,
+  NOT_SUPPORTED_CHAINS_PRICE_SERVICE,
+  NonEvmChain,
+  NormalizedQuote,
+  NormalizedTxResponse,
+  QuoteParams,
+  SwapStatus,
+} from './BaseSwapAdapter'
 
 const SolanaChainId = 792703809
 
@@ -49,40 +51,6 @@ const solanaChain = {
   name: 'Solana',
   displayName: 'Solana',
   vmType: 'svm' as const,
-  // httpRpcUrl?: string;
-  // wsRpcUrl?: string;
-  // explorerUrl?: string;
-  // explorerQueryParams?: {
-  //     [key: string]: unknown;
-  // } | null;
-  // explorerPaths?: {
-  //     transaction?: string;
-  // } | null;
-  // icon?: {
-  //     dark?: string;
-  //     light?: string;
-  //     squaredDark?: string;
-  //     squaredLight?: string;
-  // };
-  // currency?: {
-  //     id?: string;
-  //     symbol?: string;
-  //     name?: string;
-  //     address?: string;
-  //     decimals?: number;
-  //     supportsBridging?: boolean;
-  // };
-  // depositEnabled?: boolean;
-  // blockProductionLagging?: boolean;
-  // erc20Currencies?: RelayAPIChain['erc20Currencies'];
-  // featuredTokens?: RelayAPIChain['featuredTokens'];
-  // tags?: RelayAPIChain['tags'];
-  // iconUrl?: string | null;
-  // logoUrl?: string | null;
-  // brandColor?: string | null;
-  // vmType?: ChainVM;
-  // viemChain?: Chain;
-  // baseChainId?: number | null;
 } as RelayChain
 
 export class RelayAdapter extends BaseSwapAdapter {

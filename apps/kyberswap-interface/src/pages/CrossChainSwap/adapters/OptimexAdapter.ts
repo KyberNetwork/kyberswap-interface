@@ -1,16 +1,18 @@
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
+import { WalletClient, formatUnits } from 'viem'
+
+import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
+
+import { Quote } from '../registry'
 import {
   BaseSwapAdapter,
   Chain,
+  NonEvmChain,
   NormalizedQuote,
   NormalizedTxResponse,
-  SwapStatus,
-  NonEvmChain,
   QuoteParams,
+  SwapStatus,
 } from './BaseSwapAdapter'
-import { WalletClient, formatUnits } from 'viem'
-import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
-import { Quote } from '../registry'
 
 const OPTIMEX_API = 'https://ks-provider.optimex.xyz/v1'
 

@@ -15,6 +15,7 @@ import { useWeb3React } from 'hooks'
 import { useSigningContract } from 'hooks/useContract'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
+import { ClaimInfo, ClaimInfoRow, ClaimInfoWrapper, ModalHeader, Wrapper, X } from 'pages/Earns/ClaimFeeModal/styles'
 import { FeeInfo } from 'pages/Earns/PositionDetail/LeftSection'
 import {
   DEXES_SUPPORT_COLLECT_FEE,
@@ -30,8 +31,6 @@ import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
-
-import { ClaimInfo, ClaimInfoRow, ClaimInfoWrapper, ModalHeader, Wrapper, X } from 'pages/Earns/ClaimFeeModal/styles'
 
 export interface PositionToClaim {
   id: string

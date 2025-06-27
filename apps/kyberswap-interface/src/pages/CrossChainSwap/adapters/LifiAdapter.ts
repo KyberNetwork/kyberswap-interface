@@ -1,23 +1,24 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
+import { createConfig, getQuote, getStatus } from '@lifi/sdk'
+import { WalletAdapterProps } from '@solana/wallet-adapter-base'
+import { Connection, Transaction, VersionedTransaction } from '@solana/web3.js'
+import { WalletClient, formatUnits } from 'viem'
+
+import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
+import { MAINNET_NETWORKS } from 'constants/networks'
+import { SolanaToken } from 'state/crossChainSwap'
+
+import { Quote } from '../registry'
 import {
   BaseSwapAdapter,
   Chain,
-  NormalizedQuote,
-  NormalizedTxResponse,
-  SwapStatus,
   NOT_SUPPORTED_CHAINS_PRICE_SERVICE,
   NonEvmChain,
+  NormalizedQuote,
+  NormalizedTxResponse,
   QuoteParams,
+  SwapStatus,
 } from './BaseSwapAdapter'
-import { WalletClient, formatUnits } from 'viem'
-import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
-import { Quote } from '../registry'
-import { MAINNET_NETWORKS } from 'constants/networks'
-
-import { getStatus, createConfig, getQuote } from '@lifi/sdk'
-import { SolanaToken } from 'state/crossChainSwap'
-import { Connection, Transaction, VersionedTransaction } from '@solana/web3.js'
-import { WalletAdapterProps } from '@solana/wallet-adapter-base'
 
 export class LifiAdapter extends BaseSwapAdapter {
   constructor() {

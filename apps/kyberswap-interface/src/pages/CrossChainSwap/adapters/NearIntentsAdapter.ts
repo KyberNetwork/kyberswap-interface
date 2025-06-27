@@ -1,20 +1,6 @@
+import { OneClickService, OpenAPI, QuoteRequest } from '@defuse-protocol/one-click-sdk-typescript'
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
-import {
-  BaseSwapAdapter,
-  Chain,
-  NormalizedQuote,
-  NormalizedTxResponse,
-  SwapStatus,
-  NonEvmChain,
-  NearQuoteParams,
-} from './BaseSwapAdapter'
-import { WalletClient, formatUnits } from 'viem'
-import { BTC_DEFAULT_RECEIVER, CROSS_CHAIN_FEE_RECEIVER, SOLANA_NATIVE, ZERO_ADDRESS } from 'constants/index'
-import { Quote } from '../registry'
-import { OneClickService, OpenAPI, QuoteRequest } from '@defuse-protocol/one-click-sdk-typescript'
-import { SolanaToken } from 'state/crossChainSwap'
-import { Connection, PublicKey, SystemProgram, Transaction } from '@solana/web3.js'
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   TOKEN_PROGRAM_ID,
@@ -24,6 +10,22 @@ import {
   getAssociatedTokenAddress,
 } from '@solana/spl-token'
 import { WalletAdapterProps } from '@solana/wallet-adapter-base'
+import { Connection, PublicKey, SystemProgram, Transaction } from '@solana/web3.js'
+import { WalletClient, formatUnits } from 'viem'
+
+import { BTC_DEFAULT_RECEIVER, CROSS_CHAIN_FEE_RECEIVER, SOLANA_NATIVE, ZERO_ADDRESS } from 'constants/index'
+import { SolanaToken } from 'state/crossChainSwap'
+
+import { Quote } from '../registry'
+import {
+  BaseSwapAdapter,
+  Chain,
+  NearQuoteParams,
+  NonEvmChain,
+  NormalizedQuote,
+  NormalizedTxResponse,
+  SwapStatus,
+} from './BaseSwapAdapter'
 
 export const MappingChainIdToBlockChain: Record<string, string> = {
   [NonEvmChain.Bitcoin]: 'btc',

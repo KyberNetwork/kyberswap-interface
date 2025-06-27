@@ -1,5 +1,7 @@
 import { useEffect, useMemo } from 'react'
+
 import { useAppDispatch, useAppSelector } from 'state/hooks'
+
 import { setLoadingSolanaTokens, updateSolanaTokens } from '.'
 
 // A flag to ensure we only have one in-flight request

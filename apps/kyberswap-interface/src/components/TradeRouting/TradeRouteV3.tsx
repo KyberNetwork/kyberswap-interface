@@ -1,17 +1,18 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Token } from '@kyberswap/ks-sdk-core'
-import { SwapRouteV3 } from 'utils/aggregationRouting'
-import { StyledDot } from './styled'
+import { rgba } from 'polished'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
+import ScrollContainer from 'react-indiana-drag-scroll'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
-import { rgba } from 'polished'
+
 import CurrencyLogo from 'components/CurrencyLogo'
+import { getDexInfoByPool, selectPointsOnRectEdge } from 'components/TradeRouting/helpers'
+import { StyledDot } from 'components/TradeRouting/styled'
+import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useAllDexes } from 'state/customizeDexes/hooks'
-import { useActiveWeb3React } from 'hooks'
-import { getDexInfoByPool, selectPointsOnRectEdge } from './helpers'
 import { getEtherscanLink, isAddress } from 'utils'
-import ScrollContainer from 'react-indiana-drag-scroll'
+import { SwapRouteV3 } from 'utils/aggregationRouting'
 
 interface SwapRouteV3Props {
   tradeComposition: SwapRouteV3[]

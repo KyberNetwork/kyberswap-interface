@@ -1,9 +1,9 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-
-import AlgebraNftManagerABI from 'constants/abis/nft-manager-contract/algebraNftManagerContract.json'
-import Univ3NftManagerABI from 'constants/abis/nft-manager-contract/uniswapv3NftManagerContract.json'
-import { ETHER_ADDRESS } from 'constants/index'
 import { ContractInterface } from 'ethers'
+
+import AlgebraNftManagerABI from 'constants/abis/earn/algebraNftManagerContract.json'
+import Univ3NftManagerABI from 'constants/abis/earn/uniswapv3NftManagerContract.json'
+import { ETHER_ADDRESS } from 'constants/index'
 import { enumToArrayOfValues } from 'utils'
 
 export enum EarnDex {

@@ -1,9 +1,10 @@
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
+
 import useTheme from 'hooks/useTheme'
-import { MEDIA_WIDTHS } from 'theme'
-import { BorderWrapper, ButtonPrimaryStyled, CardWrapper } from 'pages/Earns/Landing/styles'
 import Icon from 'pages/Earns/Landing/Icon'
+import { BorderWrapper, ButtonPrimaryStyled, CardWrapper } from 'pages/Earns/Landing/styles'
+import { MEDIA_WIDTHS } from 'theme'
 
 const Card = ({
   title,

@@ -2,8 +2,7 @@ import { rgba } from 'polished'
 import styled from 'styled-components'
 
 import positionsBg from 'assets/banners/positions_background.png'
-import { ReactComponent as IconCurrentPrice } from 'assets/svg/ic_position_current_price.svg'
-
+import { ReactComponent as IconCurrentPrice } from 'assets/svg/earn/ic_position_current_price.svg'
 import { PoolPageWrapper, TableBody, TableHeader, TableWrapper } from 'pages/Earns/PoolExplorer/styles'
 
 export const PositionPageWrapper = styled(PoolPageWrapper)`

@@ -3,7 +3,6 @@ import { Star } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { useAddFavoriteMutation, usePoolsExplorerQuery, useRemoveFavoriteMutation } from 'services/zapEarn'
-import { EarnPool } from 'pages/Earns/types'
 
 import { NotificationType } from 'components/Announcement/type'
 import CopyHelper from 'components/Copy'
@@ -11,11 +10,6 @@ import { Image } from 'components/Image'
 import Loader from 'components/Loader'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import { useNotify, useWalletModalToggle } from 'state/application/hooks'
-import { MEDIA_WIDTHS } from 'theme'
-import { formatDisplayNumber } from 'utils/numbers'
-
-import { formatAprNumber } from 'pages/Earns/utils'
 import {
   Apr,
   CurrencyRoundedImage,
@@ -28,7 +22,13 @@ import {
   TableRow,
 } from 'pages/Earns/PoolExplorer/styles'
 import useFilter from 'pages/Earns/PoolExplorer/useFilter'
+import { EarnPool } from 'pages/Earns/types'
+import { formatAprNumber } from 'pages/Earns/utils'
+import { useNotify, useWalletModalToggle } from 'state/application/hooks'
+import Updater from 'state/customizeDexes/updater'
 import { useAppSelector } from 'state/hooks'
+import { MEDIA_WIDTHS } from 'theme'
+import { formatDisplayNumber } from 'utils/numbers'
 
 export const dexMapping: { [key: string]: string } = {
   uniswapv2: 'uniswap',
@@ -219,50 +219,53 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
     )
 
   return (
-    <TableBody>
-      {tablePoolData.map(pool => (
-        <TableRow key={pool.address} onClick={() => onOpenZapInWidget(pool)}>
-          <Flex fontSize={14} alignItems="center" sx={{ gap: 1 }}>
-            <Image src={pool.dexLogo} width="20px" height="20px" alt="" />
-            <Text color={theme.subText}>{pool.dexName}</Text>
-          </Flex>
-          <Flex alignItems="center" sx={{ gap: 2 }}>
-            <Flex alignItems="center">
-              <CurrencyRoundedImage src={pool.tokens?.[0]?.logoURI} alt="" />
-              <CurrencySecondImage src={pool.tokens?.[1]?.logoURI} alt="" />
+    <>
+      <TableBody>
+        {tablePoolData.map(pool => (
+          <TableRow key={pool.address} onClick={() => onOpenZapInWidget(pool)}>
+            <Flex fontSize={14} alignItems="center" sx={{ gap: 1 }}>
+              <Image src={pool.dexLogo} width="20px" height="20px" alt="" />
+              <Text color={theme.subText}>{pool.dexName}</Text>
             </Flex>
-            <SymbolText>
-              {pool.tokens?.[0]?.symbol}/{pool.tokens?.[1]?.symbol}
-            </SymbolText>
-            <FeeTier>{pool.feeTier}%</FeeTier>
-          </Flex>
-          <Apr positive={pool.apr > 0}>{formatAprNumber(pool.apr)}%</Apr>
-          <Flex justifyContent="flex-end">
-            {formatDisplayNumber(pool.earnFee, { style: 'currency', significantDigits: 6 })}
-          </Flex>
-          <Flex justifyContent="flex-end">
-            {formatDisplayNumber(pool.tvl, { style: 'currency', significantDigits: 6 })}
-          </Flex>
-          <Flex justifyContent="flex-end">
-            {formatDisplayNumber(pool.volume, { style: 'currency', significantDigits: 6 })}
-          </Flex>
-          <Flex justifyContent="center">
-            {favoriteLoading.includes(pool.address) ? (
-              <Loader />
-            ) : (
-              <Star
-                size={16}
-                color={pool.favorite?.isFavorite ? theme.primary : theme.subText}
-                fill={pool.favorite?.isFavorite ? theme.primary : 'none'}
-                role="button"
-                cursor="pointer"
-                onClick={e => handleFavorite(e, pool)}
-              />
-            )}
-          </Flex>
-        </TableRow>
-      ))}
-    </TableBody>
+            <Flex alignItems="center" sx={{ gap: 2 }}>
+              <Flex alignItems="center">
+                <CurrencyRoundedImage src={pool.tokens?.[0]?.logoURI} alt="" />
+                <CurrencySecondImage src={pool.tokens?.[1]?.logoURI} alt="" />
+              </Flex>
+              <SymbolText>
+                {pool.tokens?.[0]?.symbol}/{pool.tokens?.[1]?.symbol}
+              </SymbolText>
+              <FeeTier>{pool.feeTier}%</FeeTier>
+            </Flex>
+            <Apr positive={pool.apr > 0}>{formatAprNumber(pool.apr)}%</Apr>
+            <Flex justifyContent="flex-end">
+              {formatDisplayNumber(pool.earnFee, { style: 'currency', significantDigits: 6 })}
+            </Flex>
+            <Flex justifyContent="flex-end">
+              {formatDisplayNumber(pool.tvl, { style: 'currency', significantDigits: 6 })}
+            </Flex>
+            <Flex justifyContent="flex-end">
+              {formatDisplayNumber(pool.volume, { style: 'currency', significantDigits: 6 })}
+            </Flex>
+            <Flex justifyContent="center">
+              {favoriteLoading.includes(pool.address) ? (
+                <Loader />
+              ) : (
+                <Star
+                  size={16}
+                  color={pool.favorite?.isFavorite ? theme.primary : theme.subText}
+                  fill={pool.favorite?.isFavorite ? theme.primary : 'none'}
+                  role="button"
+                  cursor="pointer"
+                  onClick={e => handleFavorite(e, pool)}
+                />
+              )}
+            </Flex>
+          </TableRow>
+        ))}
+      </TableBody>
+      <Updater customChainId={filters.chainId} />
+    </>
   )
 }
 

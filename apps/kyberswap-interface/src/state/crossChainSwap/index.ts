@@ -1,7 +1,9 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { NormalizedTxResponse } from 'pages/CrossChainSwap/adapters'
 import { useEffect, useMemo } from 'react'
+
+import { NormalizedTxResponse } from 'pages/CrossChainSwap/adapters'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
+
 import { SolanaToken } from './useSolanaTokens'
 
 export * from './useSolanaTokens'

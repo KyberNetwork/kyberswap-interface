@@ -6,10 +6,10 @@ import styled from 'styled-components'
 
 import { APP_PATHS } from 'constants/index'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
+import { MEDIA_WIDTHS } from 'theme'
 
 import { DropdownTextAnchor, StyledNavExternalLink, StyledNavLink } from '../styleds'
 import NavGroup from './NavGroup'
-import { MEDIA_WIDTHS } from 'theme'
 
 const AboutWrapper = styled.span`
   display: inline-flex;

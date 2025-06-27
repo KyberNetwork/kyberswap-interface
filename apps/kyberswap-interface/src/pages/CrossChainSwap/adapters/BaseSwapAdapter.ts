@@ -1,11 +1,13 @@
 import { ChainId, Currency as EvmCurrency } from '@kyberswap/ks-sdk-core'
-import { WalletClient } from 'viem'
-import { Quote } from '../registry'
-import { NearToken, SolanaToken } from 'state/crossChainSwap'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
 import { AdaptedWallet } from '@reservoir0x/relay-sdk'
-import { Connection } from '@solana/web3.js'
 import { WalletAdapterProps } from '@solana/wallet-adapter-base'
+import { Connection } from '@solana/web3.js'
+import { WalletClient } from 'viem'
+
+import { NearToken, SolanaToken } from 'state/crossChainSwap'
+
+import { Quote } from '../registry'
 
 export enum NonEvmChain {
   Near = 'near',
