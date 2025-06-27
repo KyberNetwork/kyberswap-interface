@@ -84,7 +84,6 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
 
     // 1 hour for Bitcoin, 20 minutes for other chains
     deadline.setSeconds(deadline.getSeconds() + (params.fromChain === NonEvmChain.Bitcoin ? 60 * 60 : 60 * 20))
-    console.log(params.fromToken)
 
     const fromAssetId =
       'assetId' in params.fromToken

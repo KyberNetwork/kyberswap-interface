@@ -21,7 +21,7 @@ import { isEvmChain, isNonEvmChain } from 'utils'
 import { BitcoinToken, Chain, Currency, NearQuoteParams, NonEvmChain, QuoteParams, SwapProvider } from '../adapters'
 import { CrossChainSwapFactory } from '../factory'
 import { CrossChainSwapAdapterRegistry, Quote } from '../registry'
-import { isCanonicalPair } from '../utils'
+import { NEAR_STABLE_COINS, SOLANA_STABLE_COINS, isCanonicalPair } from '../utils'
 
 export const registry = new CrossChainSwapAdapterRegistry()
 CrossChainSwapFactory.getAllAdapters().forEach(adapter => {
@@ -432,8 +432,24 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
           feeBps = 15
         }
       }
-    } else if (isFromNear || isToNear) {
-      feeBps = 20
+    } else if (isFromNear || isToNear || isFromSolana || isToSolana) {
+      const isTokenInStable = isFromEvm
+        ? (currencyIn as any)?.wrapped?.isStable
+        : isFromSolana
+        ? SOLANA_STABLE_COINS.includes((currencyIn as any).id)
+        : isFromNear
+        ? NEAR_STABLE_COINS.includes((currencyIn as any).assetId)
+        : false
+      const isTokenOutStable = isToEvm
+        ? (currencyOut as any)?.wrapped?.isStable
+        : isToSolana
+        ? SOLANA_STABLE_COINS.includes((currencyOut as any).id)
+        : isToNear
+        ? NEAR_STABLE_COINS.includes((currencyOut as any).assetId)
+        : false
+
+      if (isTokenInStable && isTokenOutStable) feeBps = 10
+      else feeBps = 20
     }
 
     setLoading(true)

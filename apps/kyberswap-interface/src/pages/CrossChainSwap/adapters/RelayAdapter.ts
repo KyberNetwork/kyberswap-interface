@@ -28,7 +28,7 @@ import {
 } from 'viem/chains'
 
 import { hyperevm } from 'components/Web3Provider'
-import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
+import { CROSS_CHAIN_FEE_RECEIVER, CROSS_CHAIN_FEE_RECEIVER_SOLANA, ZERO_ADDRESS } from 'constants/index'
 import { MAINNET_NETWORKS } from 'constants/networks'
 import { SolanaToken } from 'state/crossChainSwap'
 
@@ -127,7 +127,7 @@ export class RelayAdapter extends BaseSwapAdapter {
       options: {
         appFees: [
           {
-            recipient: CROSS_CHAIN_FEE_RECEIVER,
+            recipient: params.fromChain === 'solana' ? CROSS_CHAIN_FEE_RECEIVER_SOLANA : CROSS_CHAIN_FEE_RECEIVER,
             fee: params.feeBps.toString(),
           },
         ],

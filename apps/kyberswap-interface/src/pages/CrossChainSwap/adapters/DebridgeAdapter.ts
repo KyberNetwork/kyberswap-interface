@@ -1,18 +1,23 @@
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
+import { useWalletSelector } from '@near-wallet-selector/react-hook'
+import { WalletAdapterProps } from '@solana/wallet-adapter-base'
+import { Connection, Transaction, VersionedTransaction } from '@solana/web3.js'
 import { WalletClient, formatUnits } from 'viem'
 
 import { TOKEN_API_URL } from 'constants/env'
-import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
+import { CROSS_CHAIN_FEE_RECEIVER, CROSS_CHAIN_FEE_RECEIVER_SOLANA, ZERO_ADDRESS } from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
+import { SolanaToken } from 'state/crossChainSwap'
 
 import { Quote } from '../registry'
 import {
   BaseSwapAdapter,
   Chain,
-  EvmQuoteParams,
   NOT_SUPPORTED_CHAINS_PRICE_SERVICE,
+  NonEvmChain,
   NormalizedQuote,
   NormalizedTxResponse,
+  QuoteParams,
   SwapStatus,
 } from './BaseSwapAdapter'
 
@@ -23,6 +28,7 @@ const mappingChainId: Record<string, number> = {
   [ChainId.MANTLE]: 100000023,
   [ChainId.BERA]: 100000020,
   [ChainId.HYPEREVM]: 100000022,
+  [NonEvmChain.Solana]: 7565164,
 }
 
 export class DeBridgeAdapter extends BaseSwapAdapter {
@@ -50,6 +56,7 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
       ChainId.BERA,
       ChainId.SONIC,
       ChainId.HYPEREVM,
+      NonEvmChain.Solana,
     ]
   }
 
@@ -57,14 +64,28 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
     return []
   }
 
-  async getQuote(params: EvmQuoteParams): Promise<NormalizedQuote> {
+  async getQuote(params: QuoteParams): Promise<NormalizedQuote> {
+    const fromToken = params.fromToken as any
+    const toToken = params.toToken as any
     let p: Record<string, string | boolean | number> = {
       srcChainId: mappingChainId[params.fromChain] || params.fromChain,
-      srcChainTokenIn: params.fromToken.isNative ? ZERO_ADDRESS : params.fromToken.address,
+      srcChainTokenIn:
+        params.fromChain === 'solana'
+          ? (params.fromToken as SolanaToken).id
+          : fromToken.isNative
+          ? ZERO_ADDRESS
+          : fromToken.address,
+
       srcChainTokenInAmount: params.amount,
 
       dstChainId: mappingChainId[params.toChain] || params.toChain,
-      dstChainTokenOut: params.toToken.isNative ? ZERO_ADDRESS : params.toToken.address,
+      dstChainTokenOut:
+        params.toChain === 'solana'
+          ? (params.toToken as SolanaToken).id
+          : toToken.isNative
+          ? ZERO_ADDRESS
+          : toToken.address,
+
       dstChainTokenOutAmount: 'auto',
 
       enableEstimate: false,
@@ -72,7 +93,7 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
 
       referralCode: 31982,
       affiliateFeePercent: (params.feeBps * 100) / 10_000,
-      affiliateFeeRecipient: CROSS_CHAIN_FEE_RECEIVER,
+      affiliateFeeRecipient: params.fromChain === 'solana' ? CROSS_CHAIN_FEE_RECEIVER_SOLANA : CROSS_CHAIN_FEE_RECEIVER,
     }
 
     let path = 'quote'
@@ -81,7 +102,7 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
       p = {
         ...p,
         srcChainOrderAuthorityAddress: params.sender,
-        dstChainOrderAuthorityAddress: params.sender,
+        dstChainOrderAuthorityAddress: params.recipient,
         dstChainTokenOutRecipient: params.recipient,
       }
     }
@@ -127,10 +148,10 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
         return res?.data?.[params.fromChain]?.[wrappedAddress]?.PriceBuy || 0
       })
 
-    const protocolFee =
-      Number(nativePrice) * (Number(fixFee) / 10 ** NativeCurrencies[params.fromChain as ChainId].decimals)
-    const protocolFeeString = `${Number(fixFee) / 10 ** NativeCurrencies[params.fromChain as ChainId].decimals} ${
-      NativeCurrencies[params.fromChain as ChainId].symbol
+    const nativeDecimals = params.fromChain === 'solana' ? 9 : NativeCurrencies[params.fromChain as ChainId].decimals
+    const protocolFee = Number(nativePrice) * (Number(fixFee) / 10 ** nativeDecimals)
+    const protocolFeeString = `${Number(fixFee) / 10 ** nativeDecimals} ${
+      params.fromChain === 'solana' ? 'SOL' : NativeCurrencies[params.fromChain as ChainId].symbol
     }`
 
     return {
@@ -156,7 +177,52 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
     }
   }
 
-  async executeSwap({ quote }: Quote, walletClient: WalletClient): Promise<NormalizedTxResponse> {
+  async executeSwap(
+    { quote }: Quote,
+    walletClient: WalletClient,
+    _nearWallet?: ReturnType<typeof useWalletSelector>,
+    _sendBtcFn?: (params: { recipient: string; amount: string | number }) => Promise<string>,
+    sendSolanaFn?: WalletAdapterProps['sendTransaction'],
+    solanaConnection?: Connection,
+  ): Promise<NormalizedTxResponse> {
+    if (quote.quoteParams.fromChain === 'solana') {
+      if (!solanaConnection || !sendSolanaFn) throw new Error('Connection is not defined for Solana swap')
+      const txBuffer = Buffer.from(quote.rawQuote.tx.data.slice(2), 'hex')
+
+      // Try to deserialize as VersionedTransaction first
+      let transaction
+      try {
+        transaction = VersionedTransaction.deserialize(txBuffer)
+        console.log('Parsed as VersionedTransaction')
+      } catch (versionedError) {
+        console.log('Failed to parse as VersionedTransaction, trying legacy Transaction')
+        try {
+          transaction = Transaction.from(txBuffer)
+          console.log('Parsed as legacy Transaction')
+        } catch (legacyError) {
+          throw new Error('Could not parse transaction as either VersionedTransaction or legacy Transaction')
+        }
+      }
+
+      console.log('Transaction parsed successfully:', transaction)
+
+      // Send through wallet adapter
+      const signature = await sendSolanaFn(transaction, solanaConnection)
+      return {
+        sender: quote.quoteParams.sender,
+        id: signature,
+        sourceTxHash: signature,
+        adapter: this.getName(),
+        sourceChain: quote.quoteParams.fromChain,
+        targetChain: quote.quoteParams.toChain,
+        inputAmount: quote.quoteParams.amount,
+        outputAmount: quote.outputAmount.toString(),
+        sourceToken: quote.quoteParams.fromToken,
+        targetToken: quote.quoteParams.toToken,
+        timestamp: new Date().getTime(),
+      }
+    }
+
     const account = walletClient.account?.address
     if (!account) throw new Error('WalletClient account is not defined')
 
