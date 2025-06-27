@@ -1,8 +1,5 @@
 import { useEffect, useState } from 'react'
 
-// A flag to ensure we only have one in-flight request
-let fetchingQuery = ''
-
 const cached: Record<string, SolanaToken> = {}
 const cachedByQuery: Record<string, SolanaToken[]> = {}
 
@@ -42,10 +39,6 @@ export const useSolanaTokens = (query: string) => {
       setSolanaTokens(cachedByQuery[query])
       return
     }
-    if (fetchingQuery === query) return
-
-    // Set the module-level flag to prevent other components from starting a fetch
-    fetchingQuery = query
 
     fetch(`https://datapi.jup.ag/v1/assets/search?query=${query}`)
       .then(res => res.json())
@@ -72,10 +65,6 @@ export const useSolanaTokens = (query: string) => {
       })
       .catch(error => {
         console.error('Failed to fetch near tokens:', error)
-      })
-      .finally(() => {
-        // Reset the in-flight flag
-        fetchingQuery = ''
       })
   }, [query])
 
