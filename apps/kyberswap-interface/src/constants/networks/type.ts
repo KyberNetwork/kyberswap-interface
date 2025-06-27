@@ -3,6 +3,13 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { EnvKeys } from 'constants/env'
 import { ChainState } from 'hooks/useChainsConfig'
 
+export interface NativeToken {
+  readonly symbol: string
+  readonly name: string
+  readonly logo: string
+  readonly decimal: number
+}
+
 export interface NetworkInfo {
   readonly chainId: ChainId
 

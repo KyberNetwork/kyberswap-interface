@@ -1,7 +1,6 @@
 import { useZapOutContext } from "@/stores";
 import { useZapOutUserState } from "@/stores/state";
-import { Skeleton } from "@kyber/ui/skeleton";
-import { Slider } from "@kyber/ui/slider";
+import { Skeleton, Slider } from "@kyber/ui";
 import questionImg from "@/assets/svg/question.svg?url";
 import {
   formatDisplayNumber,

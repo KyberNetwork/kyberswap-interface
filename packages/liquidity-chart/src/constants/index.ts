@@ -1,5 +1,5 @@
-import type { ZoomLevels } from "@/types";
-import { FeeAmount } from "@/types";
+import type { ZoomLevels } from '@/types';
+import { FeeAmount } from '@/types';
 
 export const PRICE_FIXED_DIGITS = 8;
 

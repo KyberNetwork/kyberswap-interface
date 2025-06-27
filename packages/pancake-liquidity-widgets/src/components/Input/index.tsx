@@ -8,7 +8,7 @@ export default function Input(
   return (
     <input
       className={cn(
-        "border-none outline-none bg-inputBackground text-[var(--ks-lw-text)] rounded-md w-full py-2 px-4 leading-6 placeholder-textSecondary",
+        "border-none outline-none bg-inputBackground text-[var(--pcs-lw-text)] rounded-md w-full py-2 px-4 leading-6 placeholder-textSecondary",
         className
       )}
       {...rest}
