@@ -25,6 +25,7 @@ import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import { useSolanaTokenBalances } from 'components/Web3Provider/SolanaProvider'
 import { MAINNET_NETWORKS } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
+import useDebounce from 'hooks/useDebounce'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import useToggle from 'hooks/useToggle'
@@ -74,7 +75,12 @@ export const TokenPanel = ({
   const [modalOpen, setModalOpen] = useState(false)
   const isEvm = isEvmChain(selectedChain as Chain)
   const { nearTokens } = useNearTokens()
-  const { solanaTokens } = useSolanaTokens()
+
+  const [searchQuery, setSearchQuery] = useState<string>('')
+  const deboundcedSearchQuery = useDebounce(searchQuery, 300)
+  console.log(111, deboundcedSearchQuery)
+
+  const { solanaTokens } = useSolanaTokens(deboundcedSearchQuery)
   const { setVisible: setModalVisible } = useWalletModal()
 
   const evmBalance = useCurrencyBalance(
@@ -93,7 +99,6 @@ export const TokenPanel = ({
     }
   }, [autoToggleTokenSelector, selectedChain])
 
-  const [searchQuery, setSearchQuery] = useState<string>('')
   const inputRef = useRef<HTMLInputElement>(null)
 
   const tokenOnNears = useMemo(
@@ -120,11 +125,6 @@ export const TokenPanel = ({
     selectedChain === NonEvmChain.Solana
       ? solanaTokens
           .map(token => ({ ...token, assetId: token.id }))
-          .filter(
-            token =>
-              token.symbol.toLowerCase().includes(searchQuery.trim().toLowerCase()) ||
-              token.id.toLowerCase().includes(searchQuery.trim().toLowerCase()),
-          )
           .sort((a, b) => {
             return solanaBalances[a.id]?.balance > solanaBalances[b.id]?.balance ? -1 : 1
           })

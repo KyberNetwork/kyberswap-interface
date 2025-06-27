@@ -4,17 +4,13 @@ import { useEffect, useMemo } from 'react'
 import { NormalizedTxResponse } from 'pages/CrossChainSwap/adapters'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 
-import { SolanaToken } from './useSolanaTokens'
-
 export * from './useSolanaTokens'
 
 // Add a loading state to track fetch status
 export interface CrossChainSwapState {
   transactions: NormalizedTxResponse[]
   nearTokens: NearToken[]
-  solanaTokens: SolanaToken[]
   isLoadingNearTokens: boolean
-  isLoadingSolanaTokens: boolean
 }
 
 export interface NearToken {
@@ -33,9 +29,7 @@ const slice = createSlice({
   initialState: {
     transactions: [] as NormalizedTxResponse[],
     nearTokens: [] as NearToken[],
-    solanaTokens: [] as SolanaToken[],
     isLoadingNearTokens: false,
-    isLoadingSolanaTokens: false,
   } as CrossChainSwapState,
   reducers: {
     updateTransactions: (state, { payload }: { payload: NormalizedTxResponse[] }) => {
@@ -48,23 +42,10 @@ const slice = createSlice({
     setLoadingNearTokens: (state, { payload }: { payload: boolean }) => {
       state.isLoadingNearTokens = payload
     },
-    updateSolanaTokens: (state, { payload }: { payload: SolanaToken[] }) => {
-      state.solanaTokens = payload
-      state.isLoadingSolanaTokens = false
-    },
-    setLoadingSolanaTokens: (state, { payload }: { payload: boolean }) => {
-      state.isLoadingSolanaTokens = payload
-    },
   },
 })
 
-export const {
-  updateTransactions,
-  updateNearTokens,
-  setLoadingNearTokens,
-  setLoadingSolanaTokens,
-  updateSolanaTokens,
-} = slice.actions
+export const { updateTransactions, updateNearTokens, setLoadingNearTokens } = slice.actions
 export default slice.reducer
 
 export const useCrossChainTransactions = (): [

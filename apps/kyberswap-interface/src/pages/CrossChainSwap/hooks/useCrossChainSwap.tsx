@@ -218,7 +218,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     useMemo(() => (isFromEvm ? (fromChainId as ChainId) : undefined), [fromChainId, isFromEvm]),
   )
 
-  const { solanaTokens } = useSolanaTokens()
+  const { solanaTokens } = useSolanaTokens((isFromSolana ? tokenIn : isToSolana ? tokenOut : '') || '')
 
   const currencyIn = useMemo(() => {
     if (!from) return
