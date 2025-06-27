@@ -13,6 +13,7 @@ import geckoTerminalApi from 'services/geckoTermial'
 import identifyApi from 'services/identity'
 import ksSettingApi from 'services/ksSetting'
 import kyberDAO from 'services/kyberDAO'
+import kyberdataServiceApi from 'services/kyberdata'
 import limitOrderApi from 'services/limitOrder'
 import marketOverviewApi from 'services/marketOverview'
 import poolServiceApi from 'services/poolService'
@@ -109,6 +110,7 @@ const store = configureStore({
     [tokenApi.reducerPath]: tokenApi.reducer,
     [zapEarnServiceApi.reducerPath]: zapEarnServiceApi.reducer,
     [rewardServiceApi.reducerPath]: rewardServiceApi.reducer,
+    [kyberdataServiceApi.reducerPath]: kyberdataServiceApi.reducer,
     [poolServiceApi.reducerPath]: poolServiceApi.reducer,
     [referralApi.reducerPath]: referralApi.reducer,
     [campaignApi.reducerPath]: campaignApi.reducer,
@@ -142,6 +144,7 @@ const store = configureStore({
       .concat(tokenApi.middleware)
       .concat(zapEarnServiceApi.middleware)
       .concat(rewardServiceApi.middleware)
+      .concat(kyberdataServiceApi.middleware)
       .concat(poolServiceApi.middleware)
       .concat(referralApi.middleware)
       .concat(campaignApi.middleware)
