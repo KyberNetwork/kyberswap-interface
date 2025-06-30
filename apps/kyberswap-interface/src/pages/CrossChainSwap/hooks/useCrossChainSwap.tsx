@@ -9,7 +9,7 @@ import { useWalletClient } from 'wagmi'
 
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import { TOKEN_API_URL } from 'constants/env'
-import { BTC_DEFAULT_RECEIVER, ZERO_ADDRESS } from 'constants/index'
+import { BTC_DEFAULT_RECEIVER, CROSS_CHAIN_FEE_RECEIVER_SOLANA, ZERO_ADDRESS } from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrencyV2 } from 'hooks/Tokens'
@@ -79,6 +79,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
   const [evmRecipient, setEvmRecipient] = useState('')
   const [nearRecipient, setNearRecipient] = useState('')
   const [btcRecipient, setBtcRecipient] = useState('')
+  const [solanaReceiver, setSolanaReceiver] = useState('')
 
   const [searchParams, setSearchParams] = useSearchParams()
   const from = searchParams.get('from')
@@ -183,17 +184,27 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     if (isToNear) return nearRecipient
     if (isToBitcoin) return btcRecipient
     if (isToEvm) return evmRecipient
-    if (isToSolana) return solanaAddress?.toString() || ''
+    if (isToSolana) return solanaReceiver
     return ''
-  }, [isToNear, isToBitcoin, isToEvm, nearRecipient, btcRecipient, evmRecipient, isToSolana, solanaAddress])
+  }, [isToNear, isToBitcoin, isToEvm, nearRecipient, btcRecipient, evmRecipient, solanaReceiver, isToSolana])
+
+  useEffect(() => {
+    if (solanaAddress?.toString()) {
+      setSolanaReceiver(solanaAddress.toString())
+    }
+  }, [solanaAddress])
 
   const setRecipient = useCallback(
     (value: string) => {
       if (isToNear) setNearRecipient(value)
       if (isToBitcoin) setBtcRecipient(value)
       if (isToEvm) setEvmRecipient(value)
+      if (isToSolana) {
+        setSolanaReceiver(value)
+        return
+      }
     },
-    [isToNear, isToBitcoin, isToEvm],
+    [isToNear, isToBitcoin, isToEvm, isToSolana],
   )
 
   const toChainId = isToEvm
@@ -207,7 +218,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     useMemo(() => (isFromEvm ? (fromChainId as ChainId) : undefined), [fromChainId, isFromEvm]),
   )
 
-  const { solanaTokens } = useSolanaTokens()
+  const { solanaTokens } = useSolanaTokens((isFromSolana ? tokenIn : isToSolana ? tokenOut : '') || '')
 
   const currencyIn = useMemo(() => {
     if (!from) return
@@ -509,7 +520,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     }
 
     const adaptedWallet = adaptSolanaWallet(
-      solanaAddress?.toString() || '1nc1nerator11111111111111111111111111111111',
+      solanaAddress?.toString() || CROSS_CHAIN_FEE_RECEIVER_SOLANA,
       792703809, //chain id that Relay uses to identify solana
       connection,
       connection.sendTransaction as any,
@@ -527,14 +538,14 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
       slippage,
       walletClient: fromChainId === 'solana' ? adaptedWallet : walletClient?.data,
       sender: isFromSolana
-        ? solanaAddress?.toString() || '1nc1nerator11111111111111111111111111111111'
+        ? solanaAddress?.toString() || CROSS_CHAIN_FEE_RECEIVER_SOLANA
         : isFromBitcoin
         ? btcAddress || BTC_DEFAULT_RECEIVER
         : isFromNear
         ? signedAccountId || ZERO_ADDRESS
         : walletClient?.data?.account.address || ZERO_ADDRESS,
       recipient: isToSolana
-        ? recipient || solanaAddress?.toString() || '1nc1nerator11111111111111111111111111111111'
+        ? recipient || solanaAddress?.toString() || CROSS_CHAIN_FEE_RECEIVER_SOLANA
         : isToBitcoin
         ? recipient || BTC_DEFAULT_RECEIVER
         : isToNear

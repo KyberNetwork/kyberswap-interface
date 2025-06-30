@@ -1,11 +1,7 @@
-import { useEffect, useMemo } from 'react'
+import { useEffect, useState } from 'react'
 
-import { useAppDispatch, useAppSelector } from 'state/hooks'
-
-import { setLoadingSolanaTokens, updateSolanaTokens } from '.'
-
-// A flag to ensure we only have one in-flight request
-let isSolanaTokensFetchInProgress = false
+const cached: Record<string, SolanaToken> = {}
+const cachedByQuery: Record<string, SolanaToken[]> = {}
 
 export interface SolanaToken {
   id: string
@@ -16,55 +12,63 @@ export interface SolanaToken {
   decimals: number
   tokenProgram: string
 }
-export const useSolanaTokens = () => {
-  const { solanaTokens, isLoadingSolanaTokens } = useAppSelector(state => state.crossChainSwap)
-  const dispatch = useAppDispatch()
-  const hasTokens = useMemo(() => solanaTokens?.length > 0, [solanaTokens?.length])
+
+export const useSolanaTokens = (query: string) => {
+  const [solanaTokens, setSolanaTokens] = useState<SolanaToken[]>(() =>
+    cached[query]
+      ? [cached[query]]
+      : [
+          {
+            id: '11111111111111111111111111111111',
+            name: 'Solana',
+            symbol: 'SOL',
+            icon: 'https://solana.com/favicon.png',
+            logo: 'https://solana.com/favicon.png',
+            decimals: 9,
+            tokenProgram: '',
+          },
+        ],
+  )
 
   useEffect(() => {
-    // Only fetch if we don't have tokens AND we're not already loading tokens
-    // AND there's not already a fetch in progress
-    if (hasTokens || isLoadingSolanaTokens || isSolanaTokensFetchInProgress) return
+    if (cached[query]) {
+      setSolanaTokens([cached[query]])
+      return
+    }
+    if (cachedByQuery[query]) {
+      setSolanaTokens(cachedByQuery[query])
+      return
+    }
 
-    // Set the module-level flag to prevent other components from starting a fetch
-    isSolanaTokensFetchInProgress = true
-
-    // Set loading state in Redux so other components can see we're loading
-    dispatch(setLoadingSolanaTokens(true))
-
-    fetch(`https://datapi.jup.ag/v1/assets/search?query=`)
+    fetch(`https://datapi.jup.ag/v1/assets/search?query=${query}`)
       .then(res => res.json())
       .then(res => {
         const solTokens = res?.map((item: SolanaToken) => ({ ...item, logo: item.icon })) || []
-        dispatch(
-          updateSolanaTokens([
-            {
-              id: '11111111111111111111111111111111',
-              name: 'Solana',
-              symbol: 'SOL',
-              icon: 'https://solana.com/favicon.png',
-              logo: 'https://solana.com/favicon.png',
-              decimals: 9,
-              tokenProgram: '',
-            },
-            // filter out the  WSOL token if it exists
-            ...solTokens.filter((item: SolanaToken) => item.id !== 'So11111111111111111111111111111111111111112'),
-          ]),
-        )
+        const t = [
+          {
+            id: '11111111111111111111111111111111',
+            name: 'Solana',
+            symbol: 'SOL',
+            icon: 'https://solana.com/favicon.png',
+            logo: 'https://solana.com/favicon.png',
+            decimals: 9,
+            tokenProgram: '',
+          },
+          ...solTokens,
+        ]
+
+        setSolanaTokens(t)
+        t.forEach(i => {
+          cached[i.id] = i
+        })
+        cachedByQuery[query] = t
       })
       .catch(error => {
         console.error('Failed to fetch near tokens:', error)
-        // Reset loading state on error
-        dispatch(setLoadingSolanaTokens(false))
       })
-      .finally(() => {
-        // Reset the in-flight flag
-        isSolanaTokensFetchInProgress = false
-      })
-  }, [hasTokens, isLoadingSolanaTokens, dispatch])
+  }, [query])
 
   return {
     solanaTokens: solanaTokens || [],
-    isLoadingSolanaTokens,
   }
 }

@@ -61,7 +61,7 @@ export class LifiAdapter extends BaseSwapAdapter {
           : (params.toToken as any).isNative
           ? ZERO_ADDRESS
           : (params.toToken as any).wrapped.address,
-      toAddress: params.recipient === ZERO_ADDRESS ? undefined : params.recipient,
+      toAddress: params.recipient,
       fee: params.feeBps / 10_000,
     })
 
