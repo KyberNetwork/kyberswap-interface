@@ -449,7 +449,9 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
         : false
 
       if (isTokenInStable && isTokenOutStable) feeBps = 10
-      else feeBps = 20
+      else if (!isFromEvm && !isToEvm) {
+        feeBps = 25
+      } else feeBps = 20
     }
 
     setLoading(true)
