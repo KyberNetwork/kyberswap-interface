@@ -1,14 +1,18 @@
 import { ChainId, Currency as EvmCurrency } from '@kyberswap/ks-sdk-core'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
+import { AdaptedWallet } from '@reservoir0x/relay-sdk'
+import { WalletAdapterProps } from '@solana/wallet-adapter-base'
+import { Connection } from '@solana/web3.js'
 import { WalletClient } from 'viem'
 
-import { NearToken } from 'state/crossChainSwap'
+import { NearToken, SolanaToken } from 'state/crossChainSwap'
 
 import { Quote } from '../registry'
 
 export enum NonEvmChain {
   Near = 'near',
   Bitcoin = 'bitcoin',
+  Solana = 'solana',
 }
 
 export const BitcoinToken = {
@@ -19,7 +23,7 @@ export const BitcoinToken = {
 }
 
 export type Chain = ChainId | NonEvmChain
-export type Currency = EvmCurrency | NearToken | typeof BitcoinToken
+export type Currency = EvmCurrency | NearToken | typeof BitcoinToken | SolanaToken
 
 export const NonEvmChainInfo: { [key in NonEvmChain]: { name: string; icon: string } } = {
   [NonEvmChain.Near]: {
@@ -30,6 +34,10 @@ export const NonEvmChainInfo: { [key in NonEvmChain]: { name: string; icon: stri
     name: 'Bitcoin',
     icon: 'https://storage.googleapis.com/bitfi-static-35291d79/images/tokens/btc_network.svg',
   },
+  [NonEvmChain.Solana]: {
+    name: 'Solana',
+    icon: 'https://solana.com/favicon.png',
+  },
 }
 
 export const NOT_SUPPORTED_CHAINS_PRICE_SERVICE = [
@@ -38,6 +46,9 @@ export const NOT_SUPPORTED_CHAINS_PRICE_SERVICE = [
   ChainId.BLAST,
   ChainId.ZKSYNC,
   ChainId.HYPEREVM,
+  NonEvmChain.Solana,
+  NonEvmChain.Bitcoin,
+  NonEvmChain.Near,
 ]
 
 export interface QuoteParams {
@@ -48,7 +59,7 @@ export interface QuoteParams {
   toToken: Currency
   amount: string
   slippage: number
-  walletClient?: WalletClient
+  walletClient?: AdaptedWallet | WalletClient
   tokenInUsd: number
   tokenOutUsd: number
   sender: string
@@ -122,6 +133,8 @@ export interface SwapProvider {
     walletClient: WalletClient,
     nearWallet?: ReturnType<typeof useWalletSelector>,
     sendBtcFn?: (params: { recipient: string; amount: string | number }) => Promise<string>,
+    sendSolanaTransaction?: WalletAdapterProps['sendTransaction'],
+    connection?: Connection,
   ): Promise<NormalizedTxResponse>
   getTransactionStatus(p: NormalizedTxResponse): Promise<SwapStatus>
 }

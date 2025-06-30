@@ -38,6 +38,7 @@ import UserUpdater from './state/user/updater'
 import ThemeProvider, { FixedGlobalStyle, ThemedGlobalStyle } from './theme'
 import NEARWalletProvider from 'components/Web3Provider/NearProvider'
 import { BitcoinWalletProvider } from 'components/Web3Provider/BitcoinProvider'
+import { SolanaProvider } from 'components/Web3Provider/SolanaProvider'
 
 dayjs.extend(utc)
 dayjs.extend(duration)
@@ -127,13 +128,15 @@ const ReactApp = () => {
           <LanguageProvider>
             <Web3Provider>
               <BitcoinWalletProvider>
-                <NEARWalletProvider>
-                  <Updaters />
-                  <ThemeProvider>
-                    <ThemedGlobalStyle />
-                    <App />
-                  </ThemeProvider>
-                </NEARWalletProvider>
+                <SolanaProvider>
+                  <NEARWalletProvider>
+                    <Updaters />
+                    <ThemeProvider>
+                      <ThemedGlobalStyle />
+                      <App />
+                    </ThemeProvider>
+                  </NEARWalletProvider>
+                </SolanaProvider>
               </BitcoinWalletProvider>
             </Web3Provider>
           </LanguageProvider>

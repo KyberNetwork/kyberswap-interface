@@ -37,6 +37,7 @@ const l1Chains = [
   ChainId.BSCMAINNET,
   ChainId.AVAXMAINNET,
   NonEvmChain.Near,
+  NonEvmChain.Solana,
   ChainId.BERA,
   ChainId.SONIC,
   ChainId.RONIN,
