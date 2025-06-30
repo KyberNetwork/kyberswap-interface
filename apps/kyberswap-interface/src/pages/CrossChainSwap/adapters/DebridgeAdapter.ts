@@ -210,7 +210,7 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
       const signature = await sendSolanaFn(transaction, solanaConnection)
       return {
         sender: quote.quoteParams.sender,
-        id: signature,
+        id: quote.rawQuote.orderId, // specific id for debridge
         sourceTxHash: signature,
         adapter: this.getName(),
         sourceChain: quote.quoteParams.fromChain,
