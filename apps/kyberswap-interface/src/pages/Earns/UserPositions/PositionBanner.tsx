@@ -86,7 +86,7 @@ export default function PositionBanner({
   const claimRewardButton = (
     <MouseoverTooltipDesktopOnly text={t`Claim all available farming rewards`} width="fit-content" placement="bottom">
       <PositionAction
-        disabled={!claimableUsdValue}
+        disabled={!claimableUsdValue || initialLoading}
         mobileAutoWidth
         outline
         onClick={onOpenClaimAllRewards}
