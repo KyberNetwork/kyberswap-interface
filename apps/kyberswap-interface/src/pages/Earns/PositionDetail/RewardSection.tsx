@@ -3,6 +3,7 @@ import { t } from '@lingui/macro'
 import { useEffect, useState } from 'react'
 import { Clock } from 'react-feather'
 import { Flex, Text } from 'rebass'
+import { useCycleConfigQuery } from 'services/kyberdata'
 
 import { ReactComponent as KemIcon } from 'assets/svg/kyber/kem.svg'
 import InfoHelper from 'components/InfoHelper'
@@ -15,23 +16,6 @@ import { HorizontalDivider } from 'pages/Earns/UserPositions/styles'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
 import { ParsedPosition, TokenRewardInfo } from 'pages/Earns/types'
 import { formatDisplayNumber } from 'utils/numbers'
-
-const getNextDistributionTime = () => {
-  const now = new Date()
-  const nextTuesday = new Date(now)
-
-  // Set to next Tuesday (2 is Tuesday in getUTCDay())
-  nextTuesday.setUTCDate(now.getUTCDate() + ((2 - now.getUTCDay() + 7) % 7))
-  // Set to 9:00 AM UTC
-  nextTuesday.setUTCHours(9, 0, 0, 0)
-
-  // If we're already past this Tuesday's time, get next week's
-  if (now > nextTuesday) {
-    nextTuesday.setUTCDate(nextTuesday.getUTCDate() + 7)
-  }
-
-  return Math.floor(nextTuesday.getTime() / 1000)
-}
 
 const formatTimeRemaining = (seconds: number) => {
   const days = Math.floor(seconds / 86400)
@@ -54,7 +38,6 @@ const RewardSection = ({
   const theme = useTheme()
 
   const [timeRemaining, setTimeRemaining] = useState('')
-  const [nextDistributionTime] = useState(getNextDistributionTime())
 
   const {
     rewardInfo,
@@ -64,19 +47,25 @@ const RewardSection = ({
   } = useKemRewards()
   const rewardInfoThisPosition = !position ? undefined : rewardInfo?.nfts.find(item => item.nftId === position.tokenId)
 
+  const { data: cycleConfig } = useCycleConfigQuery(
+    { poolAddress: position?.pool.address || '' },
+    { skip: !position?.pool.address },
+  )
+
   const isUnfinalized = position?.isUnfinalized
 
   useEffect(() => {
     const calculateTimeRemaining = () => {
+      if (!cycleConfig) return
       const now = Math.floor(Date.now() / 1000)
-      const remaining = nextDistributionTime - now
+      const remaining = cycleConfig.endTime - now
       setTimeRemaining(formatTimeRemaining(remaining))
     }
 
     calculateTimeRemaining()
     const interval = setInterval(calculateTimeRemaining, 1000)
     return () => clearInterval(interval)
-  }, [nextDistributionTime])
+  }, [cycleConfig])
 
   return (
     <>
@@ -170,12 +159,12 @@ const RewardSection = ({
           <NextDistribution>
             <Flex alignItems={'center'}>
               <Text fontSize={14} color={theme.subText}>
-                {t`Next Cycle In`}
+                {t`Cycle ends in`}
               </Text>
               <InfoHelper placement="top" width="fit-content" text={t`Rewards are distributed every 7 days`} />
             </Flex>
 
-            {initialLoading ? (
+            {initialLoading || !cycleConfig ? (
               <PositionSkeleton width={112} height={16} />
             ) : isUnfinalized ? (
               <PositionSkeleton width={112} height={16} text="Finalizing..." />

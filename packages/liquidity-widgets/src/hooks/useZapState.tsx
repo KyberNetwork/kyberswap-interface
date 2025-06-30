@@ -123,8 +123,8 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
       position: s.position,
     })),
   );
-  const { pool, revertPrice, setRevertPrice } = usePoolStore(
-    useShallow(s => ({ pool: s.pool, revertPrice: s.revertPrice, setRevertPrice: s.setRevertPrice })),
+  const { pool, revertPrice, toggleRevertPrice } = usePoolStore(
+    useShallow(s => ({ pool: s.pool, revertPrice: s.revertPrice, toggleRevertPrice: s.toggleRevertPrice })),
   );
   const { tokens, importedTokens } = useTokenStore(
     useShallow(s => ({
@@ -318,8 +318,8 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
     const isToken0Native = pool.token0.address.toLowerCase() === wrappedNativeToken?.address.toLowerCase();
     const isToken0Stable = pool.token0.isStable;
     const isToken1Stable = pool.token1.isStable;
-    if (isToken0Stable || (isToken0Native && !isToken1Stable)) setRevertPrice(true);
-  }, [defaultRevertChecked, initializing, pool, setRevertPrice, wrappedNativeToken?.address]);
+    if ((isToken0Stable || (isToken0Native && !isToken1Stable)) && !revertPrice) toggleRevertPrice();
+  }, [defaultRevertChecked, initializing, pool, revertPrice, toggleRevertPrice, wrappedNativeToken?.address]);
 
   useEffect(() => {
     if (
