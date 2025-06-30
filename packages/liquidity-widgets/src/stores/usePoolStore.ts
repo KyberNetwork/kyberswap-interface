@@ -14,7 +14,6 @@ interface PoolState {
   poolStat: PoolStatExtended | null;
   poolPrice: number | null;
   revertPrice: boolean;
-  setRevertPrice: (revertPrice: boolean) => void;
   toggleRevertPrice: () => void;
   getPool: (props: getPoolProps) => void;
   getPoolPrice: () => void;
@@ -22,10 +21,7 @@ interface PoolState {
   reset: () => void;
 }
 
-const initState: Omit<
-  PoolState,
-  'getPool' | 'getPoolStat' | 'getPoolPrice' | 'setRevertPrice' | 'toggleRevertPrice' | 'reset'
-> = {
+const initState: Omit<PoolState, 'getPool' | 'getPoolStat' | 'getPoolPrice' | 'toggleRevertPrice' | 'reset'> = {
   poolLoading: false,
   pool: 'loading',
   poolStat: null,
@@ -74,7 +70,6 @@ export const usePoolStore = create<PoolState>((set, get) => ({
 
     if (price !== null) set({ poolPrice: price });
   },
-  setRevertPrice: (revertPrice: boolean) => set({ revertPrice }),
   toggleRevertPrice: () => {
     set(state => ({ revertPrice: !state.revertPrice }));
     get().getPoolPrice();

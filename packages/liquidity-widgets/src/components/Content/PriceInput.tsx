@@ -111,7 +111,7 @@ export default function PriceInput({ type }: { type: PriceType }) {
 
   return (
     <div className="mt-[0.6rem] w-1/2 p-3 border rounded-md border-stroke flex flex-col gap-1 items-center">
-      <div className="flex justify-between items-end">
+      <div className="flex justify-between items-end gap-1">
         <button
           className="w-6 h-6 rounded-[4px] border border-stroke bg-layer2 text-subText flex items-center justify-center cursor-pointer hover:enabled:brightness-150 active:enabled:scale-95 disabled:cursor-not-allowed disabled:opacity-60 outline-none"
           role="button"
