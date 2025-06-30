@@ -1,4 +1,5 @@
 import { ShareType } from '@kyber/ui'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useEffect, useState } from 'react'
 import { Clock } from 'react-feather'
@@ -9,6 +10,7 @@ import { ReactComponent as KemIcon } from 'assets/svg/kyber/kem.svg'
 import InfoHelper from 'components/InfoHelper'
 import Loader from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
+import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
 import { PositionSkeleton } from 'pages/Earns/PositionDetail'
 import { NextDistribution, PositionAction, RewardDetailInfo, RewardsSection } from 'pages/Earns/PositionDetail/styles'
@@ -47,9 +49,10 @@ const RewardSection = ({
   } = useKemRewards()
   const rewardInfoThisPosition = !position ? undefined : rewardInfo?.nfts.find(item => item.nftId === position.tokenId)
 
+  const chain = position?.chain.id ? NETWORKS_INFO[position.chain.id as ChainId]?.route || '' : ''
   const { data: cycleConfig } = useCycleConfigQuery(
-    { poolAddress: position?.pool.address || '' },
-    { skip: !position?.pool.address },
+    { poolAddress: position?.pool.address || '', chain: chain },
+    { skip: !position?.pool.address || !chain },
   )
 
   const isUnfinalized = position?.isUnfinalized

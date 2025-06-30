@@ -2,6 +2,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 interface CycleConfigParams {
   poolAddress: string
+  chain: string
 }
 
 interface CycleConfigResponse {
@@ -29,7 +30,7 @@ const kyberdataServiceApi = createApi({
   endpoints: builder => ({
     cycleConfig: builder.query<CycleConfigResponse, CycleConfigParams>({
       query: params => ({
-        url: `/reward-config/${params.poolAddress}`,
+        url: `/${params.chain}/api/v1/reward-config/${params.poolAddress}`,
       }),
     }),
   }),
