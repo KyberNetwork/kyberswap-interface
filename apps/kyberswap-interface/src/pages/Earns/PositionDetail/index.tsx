@@ -32,6 +32,7 @@ import {
   TotalLiquiditySection,
   VerticalDivider,
 } from 'pages/Earns/PositionDetail/styles'
+import MigrationModal from 'pages/Earns/UserPositions/MigrationModal'
 import { EmptyPositionText, PositionPageWrapper } from 'pages/Earns/UserPositions/styles'
 import {
   EarnDex,
@@ -39,9 +40,10 @@ import {
   POSSIBLE_FARMING_PROTOCOLS,
   protocolGroupNameToExchangeMapping,
 } from 'pages/Earns/constants'
+import useFarmingStablePools from 'pages/Earns/hooks/useFarmingStablePools'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
-import { FeeInfo, ParsedPosition, PositionStatus } from 'pages/Earns/types'
+import { FeeInfo, PAIR_CATEGORY, ParsedPosition, PositionStatus, SuggestedPool } from 'pages/Earns/types'
 import { getUnclaimedFeesInfo } from 'pages/Earns/utils/fees'
 import { parsePosition } from 'pages/Earns/utils/position'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -117,6 +119,7 @@ const PositionDetail = () => {
   const hadForceLoading = useRef(forceLoading ? true : false)
   const [feeInfoFromRpc, setFeeInfoFromRpc] = useState<FeeInfo | undefined>()
   const [shareInfo, setShareInfo] = useState<ShareModalProps | undefined>()
+  const [positionToMigrate, setPositionToMigrate] = useState<ParsedPosition | null>(null)
 
   const loadingInterval = isFetching
   const initialLoading = !!(forceLoading || (isLoading && !firstLoading.current))
@@ -131,6 +134,8 @@ const PositionDetail = () => {
     })
   }, [feeInfoFromRpc, userPosition, rewardInfoThisPosition])
 
+  const farmingPoolsByChain = useFarmingStablePools({ chainIds: position ? [position.chain.id] : [] })
+
   const handleFetchUnclaimedFee = useCallback(async () => {
     if (!position) return
 
@@ -144,30 +149,43 @@ const PositionDetail = () => {
   const handleMigrateToKem = (e: React.MouseEvent) => {
     e.stopPropagation()
     e.preventDefault()
+    if (!position) return
 
-    if (!position || !position.suggestionPool) return
+    if (!!position.suggestionPool) {
+      handleOpenMigration(position, position.suggestionPool)
+    } else if (
+      position.pool.category === PAIR_CATEGORY.STABLE &&
+      farmingPoolsByChain[position.chain.id]?.pools.length > 0
+    )
+      setPositionToMigrate(position)
+  }
 
-    const tickLower = priceToClosestTick(
-      position.priceRange.min.toString(),
-      position.token0.decimals,
-      position.token1.decimals,
-    )
-    const tickUpper = priceToClosestTick(
-      position.priceRange.max.toString(),
-      position.token0.decimals,
-      position.token1.decimals,
-    )
+  const handleOpenMigration = (sourcePosition: ParsedPosition, targetPool: SuggestedPool) => {
+    const tickLower = sourcePosition.pool.isUniv2
+      ? undefined
+      : priceToClosestTick(
+          sourcePosition.priceRange.min.toString(),
+          sourcePosition.token0.decimals,
+          sourcePosition.token1.decimals,
+        )
+    const tickUpper = sourcePosition.pool.isUniv2
+      ? undefined
+      : priceToClosestTick(
+          sourcePosition.priceRange.max.toString(),
+          sourcePosition.token0.decimals,
+          sourcePosition.token1.decimals,
+        )
 
     handleOpenZapMigration({
-      chainId: position.chain.id,
+      chainId: sourcePosition.chain.id,
       from: {
-        dex: position.dex.id,
-        poolId: position.pool.address,
-        positionId: position.pool.isUniv2 ? account || '' : position.tokenId,
+        dex: sourcePosition.dex.id,
+        poolId: sourcePosition.pool.address,
+        positionId: sourcePosition.pool.isUniv2 ? account || '' : sourcePosition.tokenId,
       },
       to: {
-        dex: position.suggestionPool?.poolExchange as Exchange,
-        poolId: position.suggestionPool?.address || '',
+        dex: targetPool.poolExchange,
+        poolId: targetPool.address,
       },
       initialTick:
         tickLower && tickUpper
@@ -198,6 +216,7 @@ const PositionDetail = () => {
 
   const isFarmingPossible = POSSIBLE_FARMING_PROTOCOLS.includes(protocol as Exchange)
   const isUnfinalized = position?.isUnfinalized
+  const isStablePair = position?.pool.category === PAIR_CATEGORY.STABLE
 
   const emptyPosition = (
     <EmptyPositionText>
@@ -348,11 +367,21 @@ const PositionDetail = () => {
   )
 
   const shareModal = shareInfo ? <ShareModal {...shareInfo} /> : null
+  const migrationModal =
+    positionToMigrate && farmingPoolsByChain[positionToMigrate.chain.id]?.pools.length > 0 ? (
+      <MigrationModal
+        positionToMigrate={positionToMigrate}
+        farmingPools={farmingPoolsByChain[positionToMigrate.chain.id].pools}
+        onOpenMigration={handleOpenMigration}
+        onClose={() => setPositionToMigrate(null)}
+      />
+    ) : null
 
   return (
     <>
       {zapMigrationWidget}
       {shareModal}
+      {migrationModal}
 
       <PositionPageWrapper>
         {!!position || initialLoading ? (
@@ -364,19 +393,23 @@ const PositionDetail = () => {
               hadForceLoading={hadForceLoading.current}
               shareBtn={shareBtn}
             />
-            {!!position?.suggestionPool && position.status !== PositionStatus.CLOSED && (
-              <MigrationLiquidityRecommend>
-                <Text color={'#fafafa'} lineHeight={'18px'}>
-                  {position.pool.fee === position.suggestionPool.feeTier
-                    ? t`Migrate to exact same pair and fee tier on Uniswap v4 hook to earn extra rewards from the
+            {(!!position?.suggestionPool ||
+              (isStablePair && farmingPoolsByChain[position.chain.id]?.pools.length > 0)) &&
+              position.status !== PositionStatus.CLOSED && (
+                <MigrationLiquidityRecommend>
+                  <Text color={'#fafafa'} lineHeight={'18px'}>
+                    {!!position.suggestionPool
+                      ? position.pool.fee === position.suggestionPool.feeTier
+                        ? t`Migrate to exact same pair and fee tier on Uniswap v4 hook to earn extra rewards from the
               Kyberswap Liquidity Mining Program.`
-                    : t`We found a pool with the same pair having Liquidity Mining Program. Migrate to this pool on Uniswap v4 hook to start earning farming rewards.`}
-                </Text>
-                <Text color={theme.primary} sx={{ cursor: 'pointer' }} onClick={handleMigrateToKem}>
-                  Migrate →
-                </Text>
-              </MigrationLiquidityRecommend>
-            )}
+                        : t`We found a pool with the same pair having Liquidity Mining Program. Migrate to this pool on Uniswap v4 hook to start earning farming rewards.`
+                      : t`We found other stable pools participating in the Kyberswap Liquidity Mining Program. Explore and migrate to start earning farming rewards.`}
+                  </Text>
+                  <Text color={theme.primary} sx={{ cursor: 'pointer' }} onClick={handleMigrateToKem}>
+                    {!!position.suggestionPool ? t`Migrate` : t`View Pools`} →
+                  </Text>
+                </MigrationLiquidityRecommend>
+              )}
             <PositionDetailWrapper>
               <LeftSection
                 initialLoading={initialLoading}

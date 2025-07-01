@@ -2,7 +2,7 @@ import { formatAprNumber } from '@kyber/utils/dist/number'
 import { priceToClosestTick } from '@kyber/utils/dist/uniswapv3'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { ArrowRightCircle } from 'react-feather'
 import { Link } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -16,7 +16,6 @@ import { APP_PATHS, PAIR_CATEGORY } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import { FilterTag } from 'pages/Earns/PoolExplorer/index'
 import { PositionSkeleton } from 'pages/Earns/PositionDetail'
 import { PositionAction as PositionActionBtn } from 'pages/Earns/PositionDetail/styles'
 import DropdownAction from 'pages/Earns/UserPositions/DropdownAction'
@@ -44,11 +43,12 @@ import {
   protocolGroupNameToExchangeMapping,
 } from 'pages/Earns/constants'
 import useCollectFees from 'pages/Earns/hooks/useCollectFees'
+import useFarmingStablePools from 'pages/Earns/hooks/useFarmingStablePools'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
 import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import { ZapOutInfo } from 'pages/Earns/hooks/useZapOutWidget'
-import { EarnPool, FeeInfo, ParsedPosition, PositionStatus, SuggestedPool } from 'pages/Earns/types'
+import { FeeInfo, ParsedPosition, PositionStatus, SuggestedPool } from 'pages/Earns/types'
 import { isForkFrom } from 'pages/Earns/utils'
 import { getUnclaimedFeesInfo } from 'pages/Earns/utils/fees'
 import { useWalletModalToggle } from 'state/application/hooks'
@@ -101,58 +101,10 @@ export default function TableContent({
   const uniqueChainIds = useMemo(() => {
     if (!positions || positions.length === 0) return []
     const chainIds = positions.map(position => position.chain.id)
-    return [...new Set(chainIds)].sort() // Sort for consistent order
+    return [...new Set(chainIds)]
   }, [positions])
 
-  const chainIdsString = useMemo(() => uniqueChainIds.join(','), [uniqueChainIds])
-
-  const [farmingPoolsByChain, setFarmingPoolsByChain] = useState<Record<number, any>>({})
-
-  useEffect(() => {
-    const fetchPoolsForChains = async () => {
-      if (uniqueChainIds.length === 0) return
-
-      const poolsData: Record<number, any> = {}
-      const baseUrl = import.meta.env.VITE_ZAP_EARN_URL
-
-      for (const chainId of uniqueChainIds) {
-        try {
-          const params = new URLSearchParams({
-            chainId: chainId.toString(),
-            protocol: '',
-            interval: '7d',
-            tag: FilterTag.FARMING_POOL,
-            sortBy: 'apr',
-            orderBy: 'DESC',
-            page: '1',
-            limit: '100',
-          })
-
-          const response = await fetch(`${baseUrl}/v1/explorer/pools?${params.toString()}`)
-
-          if (response.ok) {
-            const data = await response.json()
-            poolsData[chainId] = {
-              chainId,
-              fetched: true,
-              pools: data?.data?.pools?.filter((pool: EarnPool) => pool.category === PAIR_CATEGORY.STABLE) || [],
-            }
-          } else {
-            poolsData[chainId] = { chainId, fetched: false, pools: [], error: 'Failed to fetch' }
-          }
-        } catch (error) {
-          console.error(`Error fetching pools for chain ${chainId}:`, error)
-          poolsData[chainId] = { chainId, fetched: false, pools: [], error: error.message }
-        }
-      }
-
-      setFarmingPoolsByChain(poolsData)
-    }
-
-    fetchPoolsForChains()
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chainIdsString])
+  const farmingPoolsByChain = useFarmingStablePools({ chainIds: uniqueChainIds })
 
   const handleFetchUnclaimedFee = useCallback(
     async (position: ParsedPosition | null) => {
@@ -235,16 +187,20 @@ export default function TableContent({
   }
 
   const handleOpenMigration = (sourcePosition: ParsedPosition, targetPool: SuggestedPool) => {
-    const tickLower = priceToClosestTick(
-      sourcePosition.priceRange.min.toString(),
-      sourcePosition.token0.decimals,
-      sourcePosition.token1.decimals,
-    )
-    const tickUpper = priceToClosestTick(
-      sourcePosition.priceRange.max.toString(),
-      sourcePosition.token0.decimals,
-      sourcePosition.token1.decimals,
-    )
+    const tickLower = sourcePosition.pool.isUniv2
+      ? undefined
+      : priceToClosestTick(
+          sourcePosition.priceRange.min.toString(),
+          sourcePosition.token0.decimals,
+          sourcePosition.token1.decimals,
+        )
+    const tickUpper = sourcePosition.pool.isUniv2
+      ? undefined
+      : priceToClosestTick(
+          sourcePosition.priceRange.max.toString(),
+          sourcePosition.token0.decimals,
+          sourcePosition.token1.decimals,
+        )
 
     handleOpenZapMigration({
       chainId: sourcePosition.chain.id,
