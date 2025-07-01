@@ -54,7 +54,7 @@ export class OrbiterAdapter extends BaseSwapAdapter {
       amount: params.amount.toString(),
       userAddress: params.sender,
       targetRecipient: params.recipient,
-      slippage: (params.slippage * 100) / 10_000,
+      slippage: params.slippage / 10_000,
       feeConfig: {
         feeRecipient: CROSS_CHAIN_FEE_RECEIVER,
         feePercent: (params.feeBps / 10000).toString(),
