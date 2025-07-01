@@ -56,7 +56,7 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
       ChainId.BERA,
       ChainId.SONIC,
       ChainId.HYPEREVM,
-      NonEvmChain.Solana,
+      // NonEvmChain.Solana,
     ]
   }
 
