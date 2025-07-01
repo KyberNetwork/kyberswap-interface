@@ -15,7 +15,6 @@ import {
   BaseSwapAdapter,
   Chain,
   NOT_SUPPORTED_CHAINS_PRICE_SERVICE,
-  NonEvmChain,
   NormalizedQuote,
   NormalizedTxResponse,
   QuoteParams,
@@ -43,7 +42,7 @@ export class OrbiterAdapter extends BaseSwapAdapter {
     return 'https://www.orbiter.finance/favicon.ico'
   }
   getSupportedChains(): Chain[] {
-    return [NonEvmChain.Solana, ...MAINNET_NETWORKS]
+    return [...MAINNET_NETWORKS]
   }
 
   getSupportedTokens(_sourceChain: Chain, _destChain: Chain): Currency[] {
