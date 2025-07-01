@@ -2,8 +2,9 @@ import { useCallback, useMemo, useState } from 'react';
 
 import { useShallow } from 'zustand/shallow';
 
-import { usePositionOwner } from '@kyber/hooks';
+import { useNftApproval, usePositionOwner } from '@kyber/hooks';
 import {
+  NETWORKS_INFO,
   Pool,
   Univ2PoolType,
   Univ3PoolType,
@@ -16,7 +17,7 @@ import {
   univ4Types,
 } from '@kyber/schema';
 import { InfoHelper } from '@kyber/ui';
-import { getPoolPrice } from '@kyber/utils';
+import { getNftManagerContractAddress, getPoolPrice } from '@kyber/utils';
 import { formatDisplayNumber } from '@kyber/utils/number';
 
 import ErrorIcon from '@/assets/svg/error.svg';
@@ -46,7 +47,7 @@ import { PriceType } from '@/types/index';
 import { checkDeviated } from '@/utils';
 
 export default function Widget() {
-  const { theme, poolType, chainId, poolAddress, connectedAccount, onClose, positionId } = useWidgetStore(
+  const { theme, poolType, chainId, poolAddress, connectedAccount, onClose, positionId, onSubmitTx } = useWidgetStore(
     useShallow(s => ({
       theme: s.theme,
       poolType: s.poolType,
@@ -55,6 +56,7 @@ export default function Widget() {
       connectedAccount: s.connectedAccount,
       onClose: s.onClose,
       positionId: s.positionId,
+      onSubmitTx: s.onSubmitTx,
     })),
   );
   const { position } = usePositionStore(useShallow(s => ({ position: s.position })));
@@ -82,6 +84,21 @@ export default function Widget() {
 
   const isUniV3 = univ3Types.includes(poolType as any);
   const isUniv4 = univ4Types.includes(poolType);
+
+  const nftManagerContract = getNftManagerContractAddress(poolType, chainId);
+  const {
+    isApproved: nftApproved,
+    approve: approveNft,
+    approvePendingTx: nftApprovePendingTx,
+    checkApproval: checkNftApproval,
+  } = useNftApproval({
+    tokenId: positionId ? +positionId : undefined,
+    spender: zapInfo?.routerAddress || '',
+    userAddress: connectedAccount?.address || '',
+    rpcUrl: NETWORKS_INFO[chainId].defaultRpc,
+    nftManagerContract,
+    onSubmitTx: onSubmitTx,
+  });
 
   const newPool: Pool | null = useMemo(() => {
     const { success: isUniV3, data: univ3PoolInfo } = univ3PoolNormalize.safeParse(pool);
@@ -189,7 +206,13 @@ export default function Widget() {
       )}
       {snapshotState && (
         <Modal isOpen onClick={() => setSnapshotState(null)} modalContentClass="!max-h-[96vh]">
-          <Preview zapState={snapshotState} onDismiss={() => setSnapshotState(null)} />
+          <Preview
+            zapState={snapshotState}
+            onDismiss={() => {
+              if (isUniv4) checkNftApproval();
+              setSnapshotState(null);
+            }}
+          />
         </Modal>
       )}
 
@@ -282,7 +305,7 @@ export default function Widget() {
             )}
           </div>
         </div>
-        <Action />
+        <Action nftApproved={nftApproved} nftApprovePendingTx={nftApprovePendingTx} approveNft={approveNft} />
       </div>
       <Setting />
     </div>

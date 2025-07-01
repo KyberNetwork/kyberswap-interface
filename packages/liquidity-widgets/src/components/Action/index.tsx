@@ -1,12 +1,12 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { useShallow } from 'zustand/react/shallow';
 
 import { usePositionOwner } from '@kyber/hooks';
-import { APPROVAL_STATE, useErc20Approvals, useNftApproval } from '@kyber/hooks';
+import { APPROVAL_STATE, useErc20Approvals } from '@kyber/hooks';
 import { FARMING_CONTRACTS, NETWORKS_INFO, defaultToken, univ3PoolNormalize, univ4Types } from '@kyber/schema';
 import { InfoHelper } from '@kyber/ui';
-import { PI_LEVEL, getNftManagerContractAddress, getPriceImpact, getSwapPriceImpactFromZapInfo } from '@kyber/utils';
+import { PI_LEVEL, getPriceImpact, getSwapPriceImpactFromZapInfo } from '@kyber/utils';
 import { parseUnits } from '@kyber/utils/crypto';
 
 import { ERROR_MESSAGE } from '@/constants';
@@ -14,7 +14,15 @@ import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
-export default function Action() {
+export default function Action({
+  nftApproved,
+  approveNft,
+  nftApprovePendingTx,
+}: {
+  nftApproved: boolean;
+  nftApprovePendingTx: string;
+  approveNft: () => Promise<void>;
+}) {
   const {
     poolType,
     chainId,
@@ -85,26 +93,23 @@ export default function Action() {
     onSubmitTx: onSubmitTx,
   });
 
-  const nftManagerContract = getNftManagerContractAddress(poolType, chainId);
-  const {
-    isApproved: nftApproved,
-    approve: approveNft,
-    approvePendingTx: nftApprovePendingTx,
-  } = useNftApproval({
-    tokenId: positionId ? +positionId : undefined,
-    spender: zapInfo?.routerAddress || '',
-    userAddress: connectedAccount?.address || '',
-    rpcUrl: NETWORKS_INFO[chainId].defaultRpc,
-    nftManagerContract,
-    onSubmitTx: onSubmitTx,
-  });
-
   const notApprove = useMemo(
     () => tokensIn.find(item => approvalStates[item?.address || ''] === APPROVAL_STATE.NOT_APPROVED),
     [approvalStates, tokensIn],
   );
 
   const [clickedApprove, setClickedLoading] = useState(false);
+  const [dots, setDots] = useState(1);
+
+  // Animate dots for approving and loading states
+  useEffect(() => {
+    if (addressToApprove || nftApprovePendingTx) {
+      const interval = setInterval(() => {
+        setDots(prev => (prev >= 3 ? 1 : prev + 1));
+      }, 500);
+      return () => clearInterval(interval);
+    }
+  }, [addressToApprove, nftApprovePendingTx, zapLoading]);
 
   const isUniv4 = univ4Types.includes(poolType);
   const isNotOwner =
@@ -151,9 +156,9 @@ export default function Action() {
       if (isFarming) return 'Your position is in farming';
       return 'Not the position owner';
     }
-    if (zapLoading) return 'Loading...';
+    if (zapLoading) return 'Fetching Route...';
     if (loading) return 'Checking Allowance';
-    if (addressToApprove || nftApprovePendingTx) return 'Approving...';
+    if (addressToApprove || nftApprovePendingTx) return `Approving${'.'.repeat(dots)}`;
     if (notApprove) return `Approve ${notApprove.symbol}`;
     if (isUniv4 && positionId && !nftApproved) return 'Approve NFT';
     if (isVeryHighPriceImpact || isVeryHighZapImpact || isInvalidZapImpact) return 'Zap anyway';
