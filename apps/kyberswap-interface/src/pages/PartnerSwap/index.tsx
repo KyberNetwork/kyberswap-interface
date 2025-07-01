@@ -227,7 +227,6 @@ export default function PartnerSwap() {
         </Container>
         <Flex justifyContent="center">
           <SwitchLocaleLinkWrapper>
-            kkkk
             <SwitchLocaleLink />
           </SwitchLocaleLinkWrapper>
         </Flex>
