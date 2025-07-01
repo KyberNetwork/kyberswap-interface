@@ -129,6 +129,38 @@ export class LifiAdapter extends BaseSwapAdapter {
 
       // Send through wallet adapter
       const signature = await sendTransaction(transaction, connection)
+
+      try {
+        const latestBlockhash = await connection.getLatestBlockhash()
+
+        // Wait for confirmation with timeout
+        const confirmation = await Promise.race([
+          connection.confirmTransaction(
+            {
+              signature,
+              blockhash: latestBlockhash.blockhash,
+              lastValidBlockHeight: latestBlockhash.lastValidBlockHeight,
+            },
+            'confirmed',
+          ),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Transaction confirmation timeout')), 60000)),
+        ])
+
+        const confirmationResult = confirmation as { value: { err: any } }
+        if (confirmationResult.value.err) {
+          throw new Error(`Transaction failed: ${JSON.stringify(confirmationResult.value.err)}`)
+        }
+
+        console.log('Transaction confirmed successfully!')
+      } catch (confirmError) {
+        console.error('Transaction confirmation failed:', confirmError)
+
+        // Check if transaction actually succeeded despite timeout
+        const txStatus = await connection.getSignatureStatus(signature)
+        if (txStatus?.value?.confirmationStatus !== 'confirmed') {
+          throw new Error(`Transaction was not confirmed: ${confirmError.message}`)
+        }
+      }
       return {
         sender: quote.quoteParams.sender,
         id: signature,
