@@ -1,8 +1,7 @@
 // import { isEvmChain } from 'utils'
 import {
   // NearQuoteParams,
-  NormalizedQuote,
-  // QuoteParams,
+  NormalizedQuote, // QuoteParams,
   SwapProvider,
 } from './adapters'
 

@@ -6,11 +6,11 @@ import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { usePoolsExplorerQuery } from 'services/zapEarn'
 
-import { ReactComponent as IconHighAprPool } from 'assets/svg/ic_pool_high_apr.svg'
-import { ReactComponent as IconHighlightedPool } from 'assets/svg/ic_pool_highlighted.svg'
-import { ReactComponent as IconLowVolatility } from 'assets/svg/ic_pool_low_volatility.svg'
-import { ReactComponent as IconSolidEarningPool } from 'assets/svg/ic_pool_solid_earning.svg'
-import { ReactComponent as IconUserEarnPosition } from 'assets/svg/ic_user_earn_position.svg'
+import { ReactComponent as IconHighAprPool } from 'assets/svg/earn/ic_pool_high_apr.svg'
+import { ReactComponent as IconHighlightedPool } from 'assets/svg/earn/ic_pool_highlighted.svg'
+import { ReactComponent as IconLowVolatility } from 'assets/svg/earn/ic_pool_low_volatility.svg'
+import { ReactComponent as IconSolidEarningPool } from 'assets/svg/earn/ic_pool_solid_earning.svg'
+import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_earn_position.svg'
 import { NotificationType } from 'components/Announcement/type'
 import Pagination from 'components/Pagination'
 import Search from 'components/Search'
@@ -19,13 +19,6 @@ import { BFF_API } from 'constants/env'
 import { APP_PATHS } from 'constants/index'
 import useDebounce from 'hooks/useDebounce'
 import useTheme from 'hooks/useTheme'
-import SortIcon, { Direction } from 'pages/MarketOverview/SortIcon'
-import { useNotify } from 'state/application/hooks'
-import { MEDIA_WIDTHS } from 'theme'
-
-import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
-import useLiquidityWidget from 'pages/Earns/useLiquidityWidget'
-import useSupportedDexesAndChains from 'pages/Earns/useSupportedDexesAndChains'
 import DropdownMenu, { MenuOption } from 'pages/Earns/PoolExplorer/DropdownMenu'
 import TableContent, { dexMapping } from 'pages/Earns/PoolExplorer/TableContent'
 import {
@@ -40,6 +33,12 @@ import {
   TagContainer,
 } from 'pages/Earns/PoolExplorer/styles'
 import useFilter from 'pages/Earns/PoolExplorer/useFilter'
+import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
+import useLiquidityWidget from 'pages/Earns/useLiquidityWidget'
+import useSupportedDexesAndChains from 'pages/Earns/useSupportedDexesAndChains'
+import SortIcon, { Direction } from 'pages/MarketOverview/SortIcon'
+import { useNotify } from 'state/application/hooks'
+import { MEDIA_WIDTHS } from 'theme'
 
 export enum FilterTag {
   HIGHLIGHTED_POOL = 'highlighted_pool',

@@ -597,6 +597,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
       inputAmount,
       outputAmount,
       expiredAt,
+      nativeOutput: currencyOut?.isNative || false,
     })
   }, [
     setOrderEditing,
@@ -677,6 +678,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
 
       // FIXME: Hardcode for Zohar
       allowedSenders: ['0xB2A2648Dc6962016501EeDbB47C32a50aB777B7A'],
+      nativeOutput: currencyOut?.isNative || false,
     })
     if (order_id) trackingPlaceOrder(MIXPANEL_TYPE.LO_PLACE_ORDER_SUCCESS, { order_id })
   }

@@ -9,8 +9,10 @@ import { useEstimateFee, useProcessCancelOrder } from 'components/swapv2/LimitOr
 import CancelButtons from 'components/swapv2/LimitOrder/Modals/CancelButtons'
 import CancelStatusCountDown from 'components/swapv2/LimitOrder/Modals/CancelStatusCountDown'
 import useAllActiveOrders, { useIsSupportSoftCancelOrder } from 'components/swapv2/LimitOrder/useFetchActiveAllOrders'
+import { NativeCurrencies } from 'constants/tokens'
 import { useCurrencyV2 } from 'hooks/Tokens'
 import { useBaseTradeInfoLimitOrder } from 'hooks/useBaseTradeInfo'
+import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import { TransactionFlowState } from 'types/TransactionFlowState'
 
 import { calcPercentFilledOrder, formatAmountOrder } from '../helpers'
@@ -100,36 +102,46 @@ function CancelOrderModal({
     )
   }
   const listData = useMemo(() => {
-    return !order
-      ? []
-      : [
-          {
-            label: t`I pay`,
-            content: (
-              <Value>
-                <Logo srcs={[makerAssetLogoURL]} style={styleLogo} />
-                <Text>
-                  {formatAmountOrder(makingAmount, makerAssetDecimals)} {makerAssetSymbol}
-                </Text>
-              </Value>
-            ),
-          },
-          {
-            label: t`and receive`,
-            content: (
-              <Value>
-                <Logo srcs={[takerAssetLogoURL]} style={styleLogo} />
-                <Text>
-                  {formatAmountOrder(takingAmount, takerAssetDecimals)} {takerAssetSymbol}
-                </Text>
-              </Value>
-            ),
-          },
-          {
-            label: t`at`,
-            content: <Rate order={order} />,
-          },
-        ]
+    if (!order) return []
+
+    const native = NativeCurrencies[Number(order.chainId) as ChainId]
+
+    const isNative = order.nativeOutput && takerAssetSymbol.toLowerCase() === native?.wrapped.symbol?.toLowerCase()
+    const takerSymbol = isNative ? native?.symbol || takerAssetSymbol : takerAssetSymbol
+
+    return [
+      {
+        label: t`I pay`,
+        content: (
+          <Value>
+            <Logo srcs={[makerAssetLogoURL]} style={styleLogo} />
+            <Text>
+              {formatAmountOrder(makingAmount, makerAssetDecimals)} {makerAssetSymbol}
+            </Text>
+          </Value>
+        ),
+      },
+      {
+        label: t`and receive`,
+        content: (
+          <Value>
+            <Logo
+              srcs={[
+                isNative ? NETWORKS_INFO[order.chainId]?.nativeToken.logo || takerAssetLogoURL : takerAssetLogoURL,
+              ]}
+              style={styleLogo}
+            />
+            <Text>
+              {formatAmountOrder(takingAmount, takerAssetDecimals)} {takerSymbol}
+            </Text>
+          </Value>
+        ),
+      },
+      {
+        label: t`at`,
+        content: <Rate order={order} />,
+      },
+    ]
   }, [
     makerAssetLogoURL,
     makerAssetSymbol,

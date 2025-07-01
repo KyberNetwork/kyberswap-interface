@@ -1,10 +1,12 @@
-import { APP_PATHS } from 'constants/index'
 import { ReactNode, createContext, useCallback, useContext, useEffect, useState } from 'react'
-import { BitcoinWalletBase, CreateProviderParams, WalletInfo, WalletType } from './types'
-import { createXverseProvider } from './providers/xverse'
+
+import { APP_PATHS } from 'constants/index'
+
+import { createLedgerProvider } from './providers/ledger'
 import { createOkxProvider } from './providers/okx'
 import { createUnisatProvider } from './providers/unisat'
-import { createLedgerProvider } from './providers/ledger'
+import { createXverseProvider } from './providers/xverse'
+import { BitcoinWalletBase, CreateProviderParams, WalletInfo, WalletType } from './types'
 
 // Context value interface
 interface BitcoinWalletContextValue {

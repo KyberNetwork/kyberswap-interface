@@ -1,19 +1,21 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
+import { getPublicClient } from '@wagmi/core'
+import { WalletClient, formatUnits } from 'viem'
+
+import { wagmiConfig } from 'components/Web3Provider'
+import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
+import { MAINNET_NETWORKS } from 'constants/networks'
+
+import { Quote } from '../registry'
 import {
   BaseSwapAdapter,
   Chain,
+  EvmQuoteParams,
+  NOT_SUPPORTED_CHAINS_PRICE_SERVICE,
   NormalizedQuote,
   NormalizedTxResponse,
   SwapStatus,
-  EvmQuoteParams,
-  NOT_SUPPORTED_CHAINS_PRICE_SERVICE,
 } from './BaseSwapAdapter'
-import { WalletClient, formatUnits } from 'viem'
-import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
-import { Quote } from '../registry'
-import { MAINNET_NETWORKS } from 'constants/networks'
-import { getPublicClient } from '@wagmi/core'
-import { wagmiConfig } from 'components/Web3Provider'
 
 interface Step {
   action: string
@@ -52,7 +54,7 @@ export class OrbiterAdapter extends BaseSwapAdapter {
       amount: params.amount.toString(),
       userAddress: params.sender,
       targetRecipient: params.recipient,
-      slippage: (params.slippage * 100) / 10_000,
+      slippage: params.slippage / 10_000,
       feeConfig: {
         feeRecipient: CROSS_CHAIN_FEE_RECEIVER,
         feePercent: (params.feeBps / 10000).toString(),

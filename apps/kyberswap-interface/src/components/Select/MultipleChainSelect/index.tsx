@@ -5,7 +5,7 @@ import { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import { Box, Flex } from 'rebass'
 import styled, { CSSProperties } from 'styled-components'
 
-import { ReactComponent as LogoKyber } from 'assets/svg/logo_kyber.svg'
+import { ReactComponent as LogoKyber } from 'assets/svg/kyber/logo_kyber.svg'
 import Checkbox from 'components/CheckBox'
 import Select from 'components/Select'
 import { MouseoverTooltip } from 'components/Tooltip'

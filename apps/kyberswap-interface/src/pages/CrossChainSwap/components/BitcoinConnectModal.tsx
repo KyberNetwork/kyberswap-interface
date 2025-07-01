@@ -1,7 +1,11 @@
-import Modal from 'components/Modal'
-import { ReactComponent as Close } from 'assets/images/x.svg'
+import dayjs from 'dayjs'
+import { darken } from 'polished'
+import { useEffect, useState } from 'react'
+import { Flex, Text } from 'rebass'
 import styled, { css } from 'styled-components'
-import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
+
+import { ReactComponent as Close } from 'assets/images/x.svg'
+import { NotificationType } from 'components/Announcement/type'
 import {
   CloseIcon,
   ContentWrapper,
@@ -9,19 +13,16 @@ import {
   TermAndCondition,
   UpperSection,
 } from 'components/Header/web3/WalletModal'
+import Loader from 'components/Loader'
+import Modal from 'components/Modal'
 import { RowBetween } from 'components/Row'
-import { Flex, Text } from 'rebass'
+import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
+import { DerivationPaths } from 'components/Web3Provider/BitcoinProvider/providers/ledger'
+import { TERM_FILES_PATH } from 'constants/index'
+import useTheme from 'hooks/useTheme'
+import { useNotify } from 'state/application/hooks'
 import { useIsAcceptedTerm } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
-import { TERM_FILES_PATH } from 'constants/index'
-import dayjs from 'dayjs'
-import useTheme from 'hooks/useTheme'
-import { darken } from 'polished'
-import Loader from 'components/Loader'
-import { useEffect, useState } from 'react'
-import { DerivationPaths } from 'components/Web3Provider/BitcoinProvider/providers/ledger'
-import { useNotify } from 'state/application/hooks'
-import { NotificationType } from 'components/Announcement/type'
 
 const Wrapper = styled.div`
   ${({ theme }) => theme.flexColumnNoWrap}

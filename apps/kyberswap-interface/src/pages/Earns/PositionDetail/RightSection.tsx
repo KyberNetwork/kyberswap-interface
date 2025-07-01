@@ -8,20 +8,19 @@ import { Swap as SwapIcon } from 'components/Icons'
 import { NativeCurrencies } from 'constants/tokens'
 import { useStableCoins } from 'hooks/Tokens'
 import useTheme from 'hooks/useTheme'
-import { formatDisplayNumber, toString } from 'utils/numbers'
-
-import { ParsedPosition } from 'pages/Earns/types'
 import LiquidityChart from 'pages/Earns/PositionDetail/LiquidityChart'
+import PositionHistory from 'pages/Earns/PositionDetail/PositionHistory'
 import {
   InfoRightColumn,
   InfoSection,
   InfoSectionSecondFormat,
   RevertIconWrapper,
 } from 'pages/Earns/PositionDetail/styles'
-import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick } from 'pages/Earns/uniswapv3'
 import { CoreProtocol, EarnDex } from 'pages/Earns/constants'
-import PositionHistory from 'pages/Earns/PositionDetail/PositionHistory'
+import { ParsedPosition } from 'pages/Earns/types'
+import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick } from 'pages/Earns/uniswapv3'
 import { isForkFrom } from 'pages/Earns/utils'
+import { formatDisplayNumber, toString } from 'utils/numbers'
 
 const RightSection = ({ position }: { position: ParsedPosition }) => {
   const theme = useTheme()

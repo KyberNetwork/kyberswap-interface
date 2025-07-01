@@ -6,6 +6,7 @@ import styled from 'styled-components'
 
 import { ReactComponent as RoutingIcon } from 'assets/svg/routing-icon.svg'
 import { AutoColumn } from 'components/Column'
+import RefreshLoading from 'components/RefreshLoading'
 import { RowBetween, RowFixed } from 'components/Row'
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
@@ -18,8 +19,6 @@ import { formattedNum, isInSafeApp } from 'utils'
 import { minimumAmountAfterSlippage } from 'utils/currencyAmount'
 import { formatDisplayNumber } from 'utils/numbers'
 import { checkPriceImpact, formatPriceImpact } from 'utils/prices'
-
-import RefreshLoading from 'components/RefreshLoading'
 
 type WrapperProps = {
   $visible: boolean

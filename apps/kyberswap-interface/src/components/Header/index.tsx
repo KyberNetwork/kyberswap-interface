@@ -18,10 +18,10 @@ import { useHolidayMode } from 'state/user/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 
 import AboutNavGroup from './groups/AboutNavGroup'
+import CampaignNavGroup from './groups/CampaignNavGroup'
 import KyberDAONavGroup from './groups/KyberDaoGroup'
 import SwapNavGroup from './groups/SwapNavGroup'
 import { StyledNavExternalLink, StyledNavLink } from './styleds'
-import CampaignNavGroup from './groups/CampaignNavGroup'
 
 const HeaderFrame = styled.div<{ hide?: boolean }>`
   height: ${({ hide }) => (hide ? 0 : undefined)};

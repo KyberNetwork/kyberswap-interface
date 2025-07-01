@@ -12,6 +12,9 @@ import styled, { CSSProperties, DefaultTheme } from 'styled-components'
 import InfoHelper from 'components/InfoHelper'
 import Logo from 'components/Logo'
 import ProgressBar from 'components/ProgressBar'
+import { highlight } from 'components/swapv2/styleds'
+import { NETWORKS_INFO } from 'constants/networks'
+import { NativeCurrencies } from 'constants/tokens'
 import useTheme from 'hooks/useTheme'
 import { useTokenBalance } from 'state/wallet/hooks'
 import { MEDIA_WIDTHS } from 'theme'
@@ -20,7 +23,6 @@ import { toCurrencyAmount } from 'utils/currencyAmount'
 import { calcPercentFilledOrder, formatAmountOrder, formatRateLimitOrder, isActiveStatus } from '../helpers'
 import { LimitOrder, LimitOrderStatus } from '../type'
 import ActionButtons from './ActionButtons'
-import { highlight } from 'components/swapv2/styleds'
 
 export const ItemWrapper = styled.div<{ hasBorder?: boolean; active?: boolean }>`
   border-bottom: 1px solid ${({ theme, hasBorder }) => (hasBorder ? theme.border : 'transparent')};
@@ -111,7 +113,7 @@ const SingleAmountInfo = ({
     </DeltaAmount>
   </Flex>
 )
-const AmountInfo = ({ order }: { order: LimitOrder }) => {
+const AmountInfo = ({ order, takerSymbol }: { order: LimitOrder; takerSymbol: string }) => {
   const {
     makerAssetSymbol,
     makerAssetLogoURL,
@@ -121,16 +123,20 @@ const AmountInfo = ({ order }: { order: LimitOrder }) => {
     takingAmount,
     makerAssetDecimals,
     takerAssetDecimals,
+    nativeOutput,
+    chainId,
   } = order
   const theme = useTheme()
+  const native = NativeCurrencies[chainId]
+  const isNative = nativeOutput && takerAssetSymbol.toLowerCase() === native?.wrapped.symbol?.toLowerCase()
   return (
     <Colum>
       <SingleAmountInfo
         decimals={takerAssetDecimals}
         color={theme.primary}
-        logoUrl={takerAssetLogoURL}
+        logoUrl={isNative ? NETWORKS_INFO[order.chainId]?.nativeToken.logo || takerAssetLogoURL : takerAssetLogoURL}
         amount={takingAmount}
-        symbol={takerAssetSymbol}
+        symbol={takerSymbol}
       />
       <SingleAmountInfo
         decimals={makerAssetDecimals}
@@ -144,11 +150,18 @@ const AmountInfo = ({ order }: { order: LimitOrder }) => {
   )
 }
 
-const TradeRateOrder = ({ order, style = {} }: { order: LimitOrder; style?: CSSProperties }) => {
+const TradeRateOrder = ({
+  order,
+  symbolOut,
+  style = {},
+}: {
+  order: LimitOrder
+  symbolOut: string
+  style?: CSSProperties
+}) => {
   const [invert, setInvert] = useState(false)
   const theme = useTheme()
   const symbolIn = order.makerAssetSymbol || '???'
-  const symbolOut = order.takerAssetSymbol || '???'
 
   const onInvert = (event: React.MouseEvent<HTMLDivElement>) => {
     event.stopPropagation()
@@ -258,7 +271,13 @@ export default function OrderItem({
     takerAssetDecimals,
     takerAsset,
     makerAsset,
+    nativeOutput,
+    chainId,
   } = order
+  const native = NativeCurrencies[chainId]
+  const isNative = nativeOutput && takerAssetSymbol.toLowerCase() === native?.wrapped.symbol?.toLowerCase()
+  const takerSymbol = isNative ? native?.symbol || takerAssetSymbol : takerAssetSymbol
+
   const status = isCancelling ? LimitOrderStatus.CANCELLING : order.status
   const isOrderActive = isActiveStatus(order.status)
   const filledPercent = calcPercentFilledOrder(filledTakingAmount, takingAmount, takerAssetDecimals)
@@ -353,7 +372,7 @@ export default function OrderItem({
     return (
       <ItemWrapperMobile onClick={onClickOrder}>
         <Flex justifyContent={'space-between'}>
-          <AmountInfo order={order} />
+          <AmountInfo order={order} takerSymbol={takerSymbol} />
           <ActionButtons
             order={order}
             txHash={txHash}
@@ -366,7 +385,7 @@ export default function OrderItem({
         </Flex>
         <Flex justifyContent={'space-between'}>
           {renderProgressComponent()}
-          <TradeRateOrder order={order} style={{ textAlign: 'right', cursor: 'default' }} />
+          <TradeRateOrder order={order} style={{ textAlign: 'right', cursor: 'default' }} symbolOut={takerSymbol} />
         </Flex>
         {expand && (
           <div>
@@ -378,7 +397,7 @@ export default function OrderItem({
                     color={theme.subText}
                     logoUrl={order.takerAssetLogoURL}
                     amount={txs.takingAmount}
-                    symbol={takerAssetSymbol}
+                    symbol={takerSymbol}
                     hideLogo
                   />
                   <Flex alignItems={'center'}>
@@ -423,10 +442,10 @@ export default function OrderItem({
       >
         <Flex alignItems={'center'} style={{ gap: 10 }}>
           <IndexText>{index + 1}</IndexText>
-          <AmountInfo order={order} />
+          <AmountInfo order={order} takerSymbol={takerSymbol} />
         </Flex>
         <Colum className="rate">
-          <TradeRateOrder order={order} style={{ cursor: 'default' }} />
+          <TradeRateOrder order={order} style={{ cursor: 'default' }} symbolOut={takerSymbol} />
         </Colum>
         <Colum>
           <TimeText time={createdAt} />
@@ -454,7 +473,7 @@ export default function OrderItem({
                   <Flex>
                     <div style={{ width: LOGO_SIZE, marginRight: 8 }} />
                     <DeltaAmount color={theme.subText}>
-                      + {formatAmountOrder(txs.takingAmount, takerAssetDecimals)} {takerAssetSymbol}
+                      + {formatAmountOrder(txs.takingAmount, takerAssetDecimals)} {takerSymbol}
                     </DeltaAmount>
                   </Flex>
                 </Flex>

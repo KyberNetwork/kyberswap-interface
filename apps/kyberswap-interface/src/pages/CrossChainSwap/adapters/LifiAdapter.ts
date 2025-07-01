@@ -1,19 +1,20 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
+import { createConfig, getQuote, getStatus } from '@lifi/sdk'
+import { WalletClient, formatUnits } from 'viem'
+
+import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
+import { MAINNET_NETWORKS } from 'constants/networks'
+
+import { Quote } from '../registry'
 import {
   BaseSwapAdapter,
   Chain,
+  EvmQuoteParams,
+  NOT_SUPPORTED_CHAINS_PRICE_SERVICE,
   NormalizedQuote,
   NormalizedTxResponse,
   SwapStatus,
-  EvmQuoteParams,
-  NOT_SUPPORTED_CHAINS_PRICE_SERVICE,
 } from './BaseSwapAdapter'
-import { WalletClient, formatUnits } from 'viem'
-import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
-import { Quote } from '../registry'
-import { MAINNET_NETWORKS } from 'constants/networks'
-
-import { getStatus, createConfig, getQuote } from '@lifi/sdk'
 
 export class LifiAdapter extends BaseSwapAdapter {
   constructor() {

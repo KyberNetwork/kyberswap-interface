@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { lighten } from 'polished'
 import { useMemo } from 'react'
@@ -11,14 +12,13 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
+import useChainsConfig from 'hooks/useChainsConfig'
 import { useWalletSupportedChains } from 'hooks/web3/useWalletSupportedChains'
+import { NonEvmChain } from 'pages/CrossChainSwap/adapters'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useNetworkModalToggle } from 'state/application/hooks'
 import { useNativeBalance } from 'state/wallet/hooks'
 import { formatDisplayNumber } from 'utils/numbers'
-import { NonEvmChain } from 'pages/CrossChainSwap/adapters'
-import useChainsConfig from 'hooks/useChainsConfig'
-import { ChainId } from '@kyberswap/ks-sdk-core'
 
 const NetworkSwitchContainer = styled.div`
   display: flex;

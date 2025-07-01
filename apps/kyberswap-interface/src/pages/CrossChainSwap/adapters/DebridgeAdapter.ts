@@ -1,18 +1,20 @@
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
+import { WalletClient, formatUnits } from 'viem'
+
+import { TOKEN_API_URL } from 'constants/env'
+import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
+import { NativeCurrencies } from 'constants/tokens'
+
+import { Quote } from '../registry'
 import {
   BaseSwapAdapter,
   Chain,
+  EvmQuoteParams,
+  NOT_SUPPORTED_CHAINS_PRICE_SERVICE,
   NormalizedQuote,
   NormalizedTxResponse,
   SwapStatus,
-  EvmQuoteParams,
-  NOT_SUPPORTED_CHAINS_PRICE_SERVICE,
 } from './BaseSwapAdapter'
-import { WalletClient, formatUnits } from 'viem'
-import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
-import { Quote } from '../registry'
-import { TOKEN_API_URL } from 'constants/env'
-import { NativeCurrencies } from 'constants/tokens'
 
 const DEBRIDGE_API = 'https://dln.debridge.finance/v1.0/dln/order'
 
@@ -68,7 +70,7 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
       enableEstimate: false,
       prependOperatingExpenses: false,
 
-      affiliate: 31982,
+      referralCode: 31982,
       affiliateFeePercent: (params.feeBps * 100) / 10_000,
       affiliateFeeRecipient: CROSS_CHAIN_FEE_RECEIVER,
     }

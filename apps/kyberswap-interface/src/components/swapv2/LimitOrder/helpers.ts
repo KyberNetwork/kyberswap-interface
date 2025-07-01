@@ -154,6 +154,7 @@ export const getPayloadCreateOrder = (params: CreateOrderParam) => {
     takingAmount: tryParseAmount(outputAmount, currencyOut)?.quotient?.toString(),
     expiredAt: Math.floor(expiredAt / 1000),
     allowedSenders: params.allowedSenders,
+    nativeOutput: currencyOut?.isNative || false,
     ...(referral ? { referral } : {}),
   }
 }

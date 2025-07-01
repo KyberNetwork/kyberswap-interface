@@ -1,11 +1,12 @@
+import { t } from '@lingui/macro'
 import { useEffect, useRef, useState } from 'react'
 
+import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import useDebounce from 'hooks/useDebounce'
 import useShowLoadingAtLeastTime from 'hooks/useShowLoadingAtLeastTime'
 import useTheme from 'hooks/useTheme'
+
 import { CountDown, SpinWrapper, WrappedSvg } from './styles'
-import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
-import { t } from '@lingui/macro'
 
 const INTERVAL_REFETCH_TIME = 10 // seconds
 const MIN_REFRESH_TIME = 2 // seconds

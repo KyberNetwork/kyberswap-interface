@@ -23,6 +23,8 @@ import { useActiveWeb3React } from 'hooks'
 import { useCurrencyV2 } from 'hooks/Tokens'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { BodyWrapper } from 'pages/AppBody'
+import CrossChainSwap from 'pages/CrossChainSwap'
+import { TransactionHistory } from 'pages/CrossChainSwap/components/TransactionHistory'
 import { TAB, isSettingTab } from 'pages/SwapV3'
 import Header from 'pages/SwapV3/Header'
 import Updater from 'state/customizeDexes/updater'
@@ -32,8 +34,6 @@ import { useDegenModeManager, useUserSlippageTolerance, useUserTransactionTTL } 
 import { useCurrencyBalances } from 'state/wallet/hooks'
 import { TransactionFlowState } from 'types/TransactionFlowState'
 import { DetailedRouteSummary } from 'types/route'
-import CrossChainSwap from 'pages/CrossChainSwap'
-import { TransactionHistory } from 'pages/CrossChainSwap/components/TransactionHistory'
 
 export const InfoComponents = ({ children }: { children: ReactNode[] }) => {
   return children.filter(Boolean).length ? <InfoComponentsWrapper>{children}</InfoComponentsWrapper> : null
@@ -227,7 +227,6 @@ export default function PartnerSwap() {
         </Container>
         <Flex justifyContent="center">
           <SwitchLocaleLinkWrapper>
-            kkkk
             <SwitchLocaleLink />
           </SwitchLocaleLinkWrapper>
         </Flex>

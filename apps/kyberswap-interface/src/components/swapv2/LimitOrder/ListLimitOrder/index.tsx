@@ -1,4 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
+import { useSearchParams } from 'react-router-dom'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
 
@@ -6,7 +7,6 @@ import ListMyOrder from '../ListOrder'
 import OrderBook from '../OrderBook'
 import { LimitOrderTab } from '../type'
 import TabSelector from './TabSelector'
-import { useSearchParams } from 'react-router-dom'
 
 const Wrapper = styled.div`
   display: flex;
