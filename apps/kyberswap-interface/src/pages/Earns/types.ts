@@ -44,6 +44,7 @@ export interface EarnPool {
     chainId: number
     isFavorite: boolean
   }
+  category?: PAIR_CATEGORY
   programs?: Array<ProgramType>
   tokens: Array<{
     address: string
@@ -91,12 +92,7 @@ export interface EarnPosition {
     category: PAIR_CATEGORY
     programs?: Array<ProgramType>
   }
-  suggestionPool: {
-    address: string
-    chainId: number
-    feeTier: number
-    poolExchange: Exchange
-  } | null
+  suggestionPool: SuggestedPool | null
   latestBlock: number
   createdAtBlock: number
 }
@@ -162,13 +158,15 @@ export interface ParsedPosition {
   status: string
   createdTime: number
   unclaimedFees: number
-  suggestionPool: {
-    address: string
-    chainId: number
-    feeTier: number
-    poolExchange: Exchange
-  } | null
+  suggestionPool: SuggestedPool | null
   isUnfinalized: boolean
+}
+
+export interface SuggestedPool {
+  address: string
+  // chainId: number
+  feeTier: number
+  poolExchange: Exchange
 }
 
 interface Token {

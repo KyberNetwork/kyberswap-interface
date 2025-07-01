@@ -2,7 +2,7 @@ import { formatAprNumber } from '@kyber/utils/dist/number'
 import { priceToClosestTick } from '@kyber/utils/dist/uniswapv3'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { ArrowRightCircle } from 'react-feather'
 import { Link } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -12,13 +12,15 @@ import { ReactComponent as IconEarnNotFound } from 'assets/svg/earn/ic_earn_not_
 import { ReactComponent as IconKem } from 'assets/svg/kyber/kem.svg'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
-import { APP_PATHS } from 'constants/index'
+import { APP_PATHS, PAIR_CATEGORY } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
+import { FilterTag } from 'pages/Earns/PoolExplorer/index'
 import { PositionSkeleton } from 'pages/Earns/PositionDetail'
 import { PositionAction as PositionActionBtn } from 'pages/Earns/PositionDetail/styles'
 import DropdownAction from 'pages/Earns/UserPositions/DropdownAction'
+import MigrationModal from 'pages/Earns/UserPositions/MigrationModal'
 import PriceRange from 'pages/Earns/UserPositions/PriceRange'
 import {
   Badge,
@@ -38,7 +40,6 @@ import {
   CoreProtocol,
   DEXES_SUPPORT_COLLECT_FEE,
   EarnDex,
-  Exchange,
   LIMIT_TEXT_STYLES,
   protocolGroupNameToExchangeMapping,
 } from 'pages/Earns/constants'
@@ -47,7 +48,7 @@ import useKemRewards from 'pages/Earns/hooks/useKemRewards'
 import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import { ZapOutInfo } from 'pages/Earns/hooks/useZapOutWidget'
-import { FeeInfo, ParsedPosition, PositionStatus } from 'pages/Earns/types'
+import { EarnPool, FeeInfo, ParsedPosition, PositionStatus, SuggestedPool } from 'pages/Earns/types'
 import { isForkFrom } from 'pages/Earns/utils'
 import { getUnclaimedFeesInfo } from 'pages/Earns/utils/fees'
 import { useWalletModalToggle } from 'state/application/hooks'
@@ -77,8 +78,10 @@ export default function TableContent({
   const theme = useTheme()
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+
   const [positionThatClaimingFees, setPositionThatClaimingFees] = useState<ParsedPosition | null>(null)
   const [positionThatClaimingRewards, setPositionThatClaimingRewards] = useState<ParsedPosition | null>(null)
+  const [positionToMigrate, setPositionToMigrate] = useState<ParsedPosition | null>(null)
 
   const {
     claimModal: claimFeesModal,
@@ -94,6 +97,62 @@ export default function TableContent({
   const { claimModal: claimRewardsModal, onOpenClaim: onOpenClaimRewards, claiming: rewardsClaiming } = useKemRewards()
 
   const { widget: zapMigrationWidget, handleOpenZapMigration } = useZapMigrationWidget()
+
+  const uniqueChainIds = useMemo(() => {
+    if (!positions || positions.length === 0) return []
+    const chainIds = positions.map(position => position.chain.id)
+    return [...new Set(chainIds)].sort() // Sort for consistent order
+  }, [positions])
+
+  const chainIdsString = useMemo(() => uniqueChainIds.join(','), [uniqueChainIds])
+
+  const [farmingPoolsByChain, setFarmingPoolsByChain] = useState<Record<number, any>>({})
+
+  useEffect(() => {
+    const fetchPoolsForChains = async () => {
+      if (uniqueChainIds.length === 0) return
+
+      const poolsData: Record<number, any> = {}
+      const baseUrl = import.meta.env.VITE_ZAP_EARN_URL
+
+      for (const chainId of uniqueChainIds) {
+        try {
+          const params = new URLSearchParams({
+            chainId: chainId.toString(),
+            protocol: '',
+            interval: '7d',
+            tag: FilterTag.FARMING_POOL,
+            sortBy: 'apr',
+            orderBy: 'DESC',
+            page: '1',
+            limit: '100',
+          })
+
+          const response = await fetch(`${baseUrl}/v1/explorer/pools?${params.toString()}`)
+
+          if (response.ok) {
+            const data = await response.json()
+            poolsData[chainId] = {
+              chainId,
+              fetched: true,
+              pools: data?.data?.pools?.filter((pool: EarnPool) => pool.category === PAIR_CATEGORY.STABLE) || [],
+            }
+          } else {
+            poolsData[chainId] = { chainId, fetched: false, pools: [], error: 'Failed to fetch' }
+          }
+        } catch (error) {
+          console.error(`Error fetching pools for chain ${chainId}:`, error)
+          poolsData[chainId] = { chainId, fetched: false, pools: [], error: error.message }
+        }
+      }
+
+      setFarmingPoolsByChain(poolsData)
+    }
+
+    fetchPoolsForChains()
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chainIdsString])
 
   const handleFetchUnclaimedFee = useCallback(
     async (position: ParsedPosition | null) => {
@@ -166,29 +225,37 @@ export default function TableContent({
     e.stopPropagation()
     e.preventDefault()
 
-    if (!position.suggestionPool) return
+    if (!!position.suggestionPool) {
+      handleOpenMigration(position, position.suggestionPool)
+    } else if (
+      position.pool.category === PAIR_CATEGORY.STABLE &&
+      farmingPoolsByChain[position.chain.id]?.pools.length > 0
+    )
+      setPositionToMigrate(position)
+  }
 
+  const handleOpenMigration = (sourcePosition: ParsedPosition, targetPool: SuggestedPool) => {
     const tickLower = priceToClosestTick(
-      position.priceRange.min.toString(),
-      position.token0.decimals,
-      position.token1.decimals,
+      sourcePosition.priceRange.min.toString(),
+      sourcePosition.token0.decimals,
+      sourcePosition.token1.decimals,
     )
     const tickUpper = priceToClosestTick(
-      position.priceRange.max.toString(),
-      position.token0.decimals,
-      position.token1.decimals,
+      sourcePosition.priceRange.max.toString(),
+      sourcePosition.token0.decimals,
+      sourcePosition.token1.decimals,
     )
 
     handleOpenZapMigration({
-      chainId: position.chain.id,
+      chainId: sourcePosition.chain.id,
       from: {
-        dex: position.dex.id,
-        poolId: position.pool.address,
-        positionId: position.pool.isUniv2 ? account || '' : position.tokenId,
+        dex: sourcePosition.dex.id,
+        poolId: sourcePosition.pool.address,
+        positionId: sourcePosition.pool.isUniv2 ? account || '' : sourcePosition.tokenId,
       },
       to: {
-        dex: position.suggestionPool?.poolExchange as Exchange,
-        poolId: position.suggestionPool?.address || '',
+        dex: targetPool.poolExchange,
+        poolId: targetPool.address,
       },
       initialTick:
         tickLower && tickUpper
@@ -211,11 +278,22 @@ export default function TableContent({
     </EmptyPositionText>
   )
 
+  const migrationModal =
+    positionToMigrate && farmingPoolsByChain[positionToMigrate.chain.id]?.pools.length > 0 ? (
+      <MigrationModal
+        positionToMigrate={positionToMigrate}
+        farmingPools={farmingPoolsByChain[positionToMigrate.chain.id].pools}
+        onOpenMigration={handleOpenMigration}
+        onClose={() => setPositionToMigrate(null)}
+      />
+    ) : null
+
   return (
     <>
       {claimFeesModal}
       {claimRewardsModal}
       {zapMigrationWidget}
+      {migrationModal}
 
       <PositionTableBody>
         {account && positions && positions.length > 0
@@ -239,6 +317,7 @@ export default function TableContent({
               const feesClaimDisabled =
                 !DEXES_SUPPORT_COLLECT_FEE[dex.id as EarnDex] || unclaimedFees === 0 || feesClaiming
               const rewardsClaimDisabled = rewardsClaiming || position.rewards.claimableUsdValue === 0
+              const isStablePair = pool.category === PAIR_CATEGORY.STABLE
 
               const actions = (
                 <DropdownAction
@@ -375,35 +454,40 @@ export default function TableContent({
                           <Text color={pool.isFarming ? theme.primary : theme.text}>{formatAprNumber(apr)}%</Text>
                         </MouseoverTooltipDesktopOnly>
 
-                        {!!position.suggestionPool && position.status !== PositionStatus.CLOSED && (
-                          <MouseoverTooltipDesktopOnly
-                            text={
-                              <>
-                                <Text>
-                                  {pool.fee === position.suggestionPool.feeTier
-                                    ? t`Migrate to exact same pair and fee tier on Uniswap v4 hook to earn extra rewards from the
+                        {!pool.isFarming &&
+                          (!!position.suggestionPool ||
+                            (isStablePair && farmingPoolsByChain[chain.id]?.pools.length > 0)) &&
+                          position.status !== PositionStatus.CLOSED && (
+                            <MouseoverTooltipDesktopOnly
+                              text={
+                                <>
+                                  <Text>
+                                    {!!position.suggestionPool
+                                      ? pool.fee === position.suggestionPool.feeTier
+                                        ? t`Migrate to exact same pair and fee tier on Uniswap v4 hook to earn extra rewards from the
                              Kyberswap Liquidity Mining Program.`
-                                    : t`We found a pool with the same pair having Liquidity Mining Program. Migrate to this pool on Uniswap v4 hook to start earning farming rewards.`}
-                                </Text>
-                                <Text
-                                  color={theme.primary}
-                                  sx={{ cursor: 'pointer' }}
-                                  onClick={e => handleMigrateToKem(e, position)}
-                                >
-                                  {t`Migrate`} →
-                                </Text>
-                              </>
-                            }
-                            width="290px"
-                            placement="bottom"
-                          >
-                            <ArrowRightCircle
-                              size={16}
-                              color={theme.primary}
-                              onClick={e => handleMigrateToKem(e, position)}
-                            />
-                          </MouseoverTooltipDesktopOnly>
-                        )}
+                                        : t`We found a pool with the same pair having Liquidity Mining Program. Migrate to this pool on Uniswap v4 hook to start earning farming rewards.`
+                                      : t`We found other stable pools participating in the Kyberswap Liquidity Mining Program. Explore and migrate to start earning farming rewards.`}
+                                  </Text>
+                                  <Text
+                                    color={theme.primary}
+                                    sx={{ cursor: 'pointer' }}
+                                    onClick={e => handleMigrateToKem(e, position)}
+                                  >
+                                    {!!position.suggestionPool ? t`Migrate` : t`View Pools`} →
+                                  </Text>
+                                </>
+                              }
+                              width={!!position.suggestionPool ? '290px' : '310px'}
+                              placement="bottom"
+                            >
+                              <ArrowRightCircle
+                                size={16}
+                                color={theme.primary}
+                                onClick={e => handleMigrateToKem(e, position)}
+                              />
+                            </MouseoverTooltipDesktopOnly>
+                          )}
                       </Flex>
                     )}
                   </PositionValueWrapper>

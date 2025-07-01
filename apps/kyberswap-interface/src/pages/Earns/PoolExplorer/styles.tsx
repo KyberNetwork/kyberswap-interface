@@ -116,6 +116,11 @@ export const TableWrapper = styled.div`
   `}
 `
 
+export const MigrateTableWrapper = styled(TableWrapper)`
+  width: 100%;
+  margin: 0 !important;
+`
+
 export const ContentWrapper = styled.div``
 
 export const TableHeader = styled.div`
@@ -133,9 +138,21 @@ export const TableHeader = styled.div`
   `}
 `
 
+export const MigrateTableHeader = styled(TableHeader)`
+  grid-template-columns: 2.5fr 0.8fr 1fr 1fr 1fr !important;
+`
+
 export const TableBody = styled.div`
   max-height: 740px;
   overflow-y: auto;
+`
+
+export const MigrateTableBody = styled(TableBody)`
+  max-height: 432px;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    max-height: 495px;
+  `}
 `
 
 export const TableRow = styled.div`
@@ -151,6 +168,10 @@ export const TableRow = styled.div`
   ${({ theme }) => theme.mediaWidth.upToLarge`
     grid-template-columns: 1fr 1.2fr 0.5fr 0.8fr 1fr 1fr 80px;
   `}
+`
+
+export const MigrateTableRow = styled(TableRow)`
+  grid-template-columns: 2.5fr 0.8fr 1fr 1fr 1fr !important;
 `
 
 export const FeeTier = styled.div`
