@@ -150,8 +150,44 @@ export class OrbiterAdapter extends BaseSwapAdapter {
 
       console.log('Transaction parsed successfully:', transaction)
 
+      const waitForConfirmation = async (txId: string) => {
+        try {
+          const latestBlockhash = await solanaConnection.getLatestBlockhash()
+
+          // Wait for confirmation with timeout
+          const confirmation = await Promise.race([
+            solanaConnection.confirmTransaction(
+              {
+                signature: txId,
+                blockhash: latestBlockhash.blockhash,
+                lastValidBlockHeight: latestBlockhash.lastValidBlockHeight,
+              },
+              'confirmed',
+            ),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('Transaction confirmation timeout')), 60000)),
+          ])
+
+          const confirmationResult = confirmation as { value: { err: any } }
+          if (confirmationResult.value.err) {
+            throw new Error(`Transaction failed: ${JSON.stringify(confirmationResult.value.err)}`)
+          }
+
+          console.log('Transaction confirmed successfully!')
+        } catch (confirmError) {
+          console.error('Transaction confirmation failed:', confirmError)
+
+          // Check if transaction actually succeeded despite timeout
+          const txStatus = await solanaConnection.getSignatureStatus(txId)
+          if (txStatus?.value?.confirmationStatus !== 'confirmed') {
+            throw new Error(`Transaction was not confirmed: ${confirmError.message}`)
+          }
+        }
+      }
+
       // Send through wallet adapter
       const signature = await sendSolanaFn(transaction, solanaConnection)
+      await waitForConfirmation(signature)
+
       return {
         sender: quote.quoteParams.sender,
         id: signature,
