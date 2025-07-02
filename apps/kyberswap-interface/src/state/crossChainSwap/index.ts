@@ -4,6 +4,8 @@ import { useEffect, useMemo } from 'react'
 import { NormalizedTxResponse } from 'pages/CrossChainSwap/adapters'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 
+export * from './useSolanaTokens'
+
 // Add a loading state to track fetch status
 export interface CrossChainSwapState {
   transactions: NormalizedTxResponse[]
