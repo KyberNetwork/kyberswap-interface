@@ -1,7 +1,19 @@
 import { useEffect, useState } from 'react'
 
+import { SOLANA_NATIVE } from 'constants/index'
+
 const cached: Record<string, SolanaToken> = {}
 const cachedByQuery: Record<string, SolanaToken[]> = {}
+
+const nativeSolana: SolanaToken = {
+  id: SOLANA_NATIVE,
+  name: 'Solana',
+  symbol: 'SOL',
+  icon: 'https://solana.com/favicon.png',
+  logo: 'https://solana.com/favicon.png',
+  decimals: 9,
+  tokenProgram: '',
+}
 
 export interface SolanaToken {
   id: string
@@ -15,19 +27,7 @@ export interface SolanaToken {
 
 export const useSolanaTokens = (query: string, skip = false) => {
   const [solanaTokens, setSolanaTokens] = useState<SolanaToken[]>(() =>
-    cached[query]
-      ? [cached[query]]
-      : [
-          {
-            id: '11111111111111111111111111111111',
-            name: 'Solana',
-            symbol: 'SOL',
-            icon: 'https://solana.com/favicon.png',
-            logo: 'https://solana.com/favicon.png',
-            decimals: 9,
-            tokenProgram: '',
-          },
-        ],
+    cached[query] ? [cached[query]] : [nativeSolana],
   )
 
   useEffect(() => {
@@ -46,16 +46,14 @@ export const useSolanaTokens = (query: string, skip = false) => {
       .then(res => {
         const solTokens = res?.map((item: SolanaToken) => ({ ...item, logo: item.icon })) || []
         const t = [
-          {
-            id: '11111111111111111111111111111111',
-            name: 'Solana',
-            symbol: 'SOL',
-            icon: 'https://solana.com/favicon.png',
-            logo: 'https://solana.com/favicon.png',
-            decimals: 9,
-            tokenProgram: '',
-          },
-          ...solTokens,
+          nativeSolana,
+          ...solTokens.map((item: SolanaToken) => {
+            // hardcode WSOL symbol
+            if (item.id === 'So11111111111111111111111111111111111111112') {
+              item.symbol = 'WSOL'
+            }
+            return item
+          }),
         ]
 
         setSolanaTokens(t)
