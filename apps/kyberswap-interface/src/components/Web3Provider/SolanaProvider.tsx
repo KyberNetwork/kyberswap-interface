@@ -7,6 +7,7 @@ import '@solana/wallet-adapter-react-ui/styles.css'
 import { FC, ReactNode, createContext, useContext, useEffect, useState } from 'react'
 
 import { SOLANA_RPC } from 'constants/env'
+import { SOLANA_NATIVE } from 'constants/index'
 
 interface SolanaProviderProps {
   children: ReactNode
@@ -62,8 +63,8 @@ const SolanaTokenBalances: FC<SolanaProviderProps> = ({ children }) => {
         })
         .reduce((acc, curr) => ({ ...acc, [curr.mint]: curr }), {} as Record<string, SolanaTokenBalance>)
       setBalances({
-        '11111111111111111111111111111111': {
-          mint: '11111111111111111111111111111111',
+        [SOLANA_NATIVE]: {
+          mint: SOLANA_NATIVE,
           balance: nativeBalance / 1e9, // Convert lamports to SOL
           decimals: 9,
           rawAmount: nativeBalance.toString(),

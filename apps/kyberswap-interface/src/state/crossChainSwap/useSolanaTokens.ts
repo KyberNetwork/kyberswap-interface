@@ -13,7 +13,7 @@ export interface SolanaToken {
   tokenProgram: string
 }
 
-export const useSolanaTokens = (query: string) => {
+export const useSolanaTokens = (query: string, skip = false) => {
   const [solanaTokens, setSolanaTokens] = useState<SolanaToken[]>(() =>
     cached[query]
       ? [cached[query]]
@@ -31,6 +31,7 @@ export const useSolanaTokens = (query: string) => {
   )
 
   useEffect(() => {
+    if (skip) return
     if (cached[query]) {
       setSolanaTokens([cached[query]])
       return
@@ -66,7 +67,7 @@ export const useSolanaTokens = (query: string) => {
       .catch(error => {
         console.error('Failed to fetch near tokens:', error)
       })
-  }, [query])
+  }, [query, skip])
 
   return {
     solanaTokens: solanaTokens || [],
