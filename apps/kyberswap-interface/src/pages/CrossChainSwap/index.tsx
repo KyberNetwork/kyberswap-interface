@@ -68,7 +68,8 @@ function CrossChainSwap() {
   const isToNear = toChainId === NonEvmChain.Near
   const isToBtc = toChainId === NonEvmChain.Bitcoin
   const isToEvm = toChainId && isEvmChain(toChainId)
-  const networkName = isToNear ? 'NEAR' : isToBtc ? 'Bitcoin' : 'EVM'
+  const isToSolana = toChainId === NonEvmChain.Solana
+  const networkName = isToNear ? 'NEAR' : isToBtc ? 'Bitcoin' : isToSolana ? 'Solana' : 'EVM'
 
   useEffect(() => {
     if (isEvmChain(fromChainId) && isToEvm && !showEvmRecipient) {
