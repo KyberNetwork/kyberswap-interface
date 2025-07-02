@@ -16,7 +16,7 @@ import SlippageSetting from 'components/SwapForm/SlippageSetting'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import { NearToken } from 'state/crossChainSwap'
+import { NearToken, SolanaToken } from 'state/crossChainSwap'
 import { isEvmChain } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -68,7 +68,8 @@ function CrossChainSwap() {
   const isToNear = toChainId === NonEvmChain.Near
   const isToBtc = toChainId === NonEvmChain.Bitcoin
   const isToEvm = toChainId && isEvmChain(toChainId)
-  const networkName = isToNear ? 'NEAR' : isToBtc ? 'Bitcoin' : 'EVM'
+  const isToSolana = toChainId === NonEvmChain.Solana
+  const networkName = isToNear ? 'NEAR' : isToBtc ? 'Bitcoin' : isToSolana ? 'Solana' : 'EVM'
 
   useEffect(() => {
     if (isEvmChain(fromChainId) && isToEvm && !showEvmRecipient) {
@@ -190,7 +191,7 @@ function CrossChainSwap() {
                 ? cOut?.isNative
                   ? cOut.symbol || ''
                   : cOut?.wrapped.address || ''
-                : (currencyOut as NearToken)?.assetId || '',
+                : (currencyOut as NearToken)?.assetId || (currencyOut as SolanaToken)?.id || '',
             )
             searchParams.set(
               'tokenOut',
@@ -198,7 +199,7 @@ function CrossChainSwap() {
                 ? cIn?.isNative
                   ? cIn.symbol || ''
                   : cIn?.wrapped.address || ''
-                : (currencyIn as NearToken)?.assetId || '',
+                : (currencyIn as NearToken)?.assetId || (currencyIn as SolanaToken)?.id || '',
             )
             console.log(searchParams)
             setSearchParams(searchParams)

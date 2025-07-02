@@ -1,19 +1,23 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
+import { useWalletSelector } from '@near-wallet-selector/react-hook'
+import { WalletAdapterProps } from '@solana/wallet-adapter-base'
+import { Connection, Transaction, VersionedTransaction } from '@solana/web3.js'
 import { getPublicClient } from '@wagmi/core'
 import { WalletClient, formatUnits } from 'viem'
 
 import { wagmiConfig } from 'components/Web3Provider'
-import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
+import { CROSS_CHAIN_FEE_RECEIVER, CROSS_CHAIN_FEE_RECEIVER_SOLANA, ZERO_ADDRESS } from 'constants/index'
 import { MAINNET_NETWORKS } from 'constants/networks'
+import { SolanaToken } from 'state/crossChainSwap'
 
 import { Quote } from '../registry'
 import {
   BaseSwapAdapter,
   Chain,
-  EvmQuoteParams,
   NOT_SUPPORTED_CHAINS_PRICE_SERVICE,
   NormalizedQuote,
   NormalizedTxResponse,
+  QuoteParams,
   SwapStatus,
 } from './BaseSwapAdapter'
 
@@ -45,18 +49,31 @@ export class OrbiterAdapter extends BaseSwapAdapter {
     return []
   }
 
-  async getQuote(params: EvmQuoteParams): Promise<NormalizedQuote> {
+  async getQuote(params: QuoteParams): Promise<NormalizedQuote> {
+    const fromToken = params.fromToken as any
+    const toToken = params.toToken as any
     const body = {
-      sourceChainId: params.fromChain.toString(),
-      destChainId: params.toChain.toString(),
-      sourceToken: params.fromToken.isNative ? ZERO_ADDRESS : params.fromToken.address,
-      destToken: params.toToken.isNative ? ZERO_ADDRESS : params.toToken.address,
+      sourceChainId: params.fromChain === 'solana' ? 'SOLANA_MAIN' : params.fromChain.toString(),
+      destChainId: params.toChain === 'solana' ? 'SOLANA_MAIN' : params.toChain.toString(),
+      sourceToken:
+        params.fromChain === 'solana'
+          ? (params.fromToken as SolanaToken).id
+          : fromToken.isNative
+          ? ZERO_ADDRESS
+          : fromToken.address,
+
+      destToken:
+        params.toChain === 'solana'
+          ? (params.toToken as SolanaToken).id
+          : toToken.isNative
+          ? ZERO_ADDRESS
+          : toToken.address,
       amount: params.amount.toString(),
       userAddress: params.sender,
       targetRecipient: params.recipient,
       slippage: params.slippage / 10_000,
       feeConfig: {
-        feeRecipient: CROSS_CHAIN_FEE_RECEIVER,
+        feeRecipient: params.fromChain === 'solana' ? CROSS_CHAIN_FEE_RECEIVER_SOLANA : CROSS_CHAIN_FEE_RECEIVER,
         feePercent: (params.feeBps / 10000).toString(),
       },
       channel: 'kyberswap',
@@ -102,7 +119,89 @@ export class OrbiterAdapter extends BaseSwapAdapter {
     }
   }
 
-  async executeSwap({ quote }: Quote, walletClient: WalletClient): Promise<NormalizedTxResponse> {
+  async executeSwap(
+    { quote }: Quote,
+    walletClient: WalletClient,
+    _nearWallet?: ReturnType<typeof useWalletSelector>,
+    _sendBtcFn?: (params: { recipient: string; amount: string | number }) => Promise<string>,
+    sendSolanaFn?: WalletAdapterProps['sendTransaction'],
+    solanaConnection?: Connection,
+  ): Promise<NormalizedTxResponse> {
+    if (quote.quoteParams.fromChain === 'solana') {
+      if (!solanaConnection || !sendSolanaFn) throw new Error('Connection is not defined for Solana swap')
+      const encodedData = quote.rawQuote.steps?.[0]?.tx?.data
+      const txBuffer = Buffer.from(encodedData, 'base64')
+
+      // Try to deserialize as VersionedTransaction first
+      let transaction
+      try {
+        transaction = VersionedTransaction.deserialize(txBuffer)
+        console.log('Parsed as VersionedTransaction')
+      } catch (versionedError) {
+        console.log('Failed to parse as VersionedTransaction, trying legacy Transaction')
+        try {
+          transaction = Transaction.from(txBuffer)
+          console.log('Parsed as legacy Transaction')
+        } catch (legacyError) {
+          throw new Error('Could not parse transaction as either VersionedTransaction or legacy Transaction')
+        }
+      }
+
+      console.log('Transaction parsed successfully:', transaction)
+
+      const waitForConfirmation = async (txId: string) => {
+        try {
+          const latestBlockhash = await solanaConnection.getLatestBlockhash()
+
+          // Wait for confirmation with timeout
+          const confirmation = await Promise.race([
+            solanaConnection.confirmTransaction(
+              {
+                signature: txId,
+                blockhash: latestBlockhash.blockhash,
+                lastValidBlockHeight: latestBlockhash.lastValidBlockHeight,
+              },
+              'confirmed',
+            ),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('Transaction confirmation timeout')), 60000)),
+          ])
+
+          const confirmationResult = confirmation as { value: { err: any } }
+          if (confirmationResult.value.err) {
+            throw new Error(`Transaction failed: ${JSON.stringify(confirmationResult.value.err)}`)
+          }
+
+          console.log('Transaction confirmed successfully!')
+        } catch (confirmError) {
+          console.error('Transaction confirmation failed:', confirmError)
+
+          // Check if transaction actually succeeded despite timeout
+          const txStatus = await solanaConnection.getSignatureStatus(txId)
+          if (txStatus?.value?.confirmationStatus !== 'confirmed') {
+            throw new Error(`Transaction was not confirmed: ${confirmError.message}`)
+          }
+        }
+      }
+
+      // Send through wallet adapter
+      const signature = await sendSolanaFn(transaction, solanaConnection)
+      await waitForConfirmation(signature)
+
+      return {
+        sender: quote.quoteParams.sender,
+        id: signature,
+        sourceTxHash: signature,
+        adapter: this.getName(),
+        sourceChain: quote.quoteParams.fromChain,
+        targetChain: quote.quoteParams.toChain,
+        inputAmount: quote.quoteParams.amount,
+        outputAmount: quote.outputAmount.toString(),
+        sourceToken: quote.quoteParams.fromToken,
+        targetToken: quote.quoteParams.toToken,
+        timestamp: new Date().getTime(),
+      }
+    }
+
     const steps = quote.rawQuote.steps.filter((st: Step) => st.action !== 'approve') // already approve before
 
     const account = walletClient.account?.address
@@ -138,16 +237,18 @@ export class OrbiterAdapter extends BaseSwapAdapter {
   }
 
   async getTransactionStatus(p: NormalizedTxResponse): Promise<SwapStatus> {
-    const publicClient = getPublicClient(wagmiConfig, {
-      chainId: p.sourceChain as any,
-    })
-    const receipt = await publicClient?.getTransactionReceipt({
-      hash: p.id as `0x${string}`,
-    })
-    if (receipt.status === 'reverted') {
-      return {
-        txHash: '',
-        status: 'Failed',
+    if (p.sourceChain !== 'solana') {
+      const publicClient = getPublicClient(wagmiConfig, {
+        chainId: p.sourceChain as any,
+      })
+      const receipt = await publicClient?.getTransactionReceipt({
+        hash: p.id as `0x${string}`,
+      })
+      if (receipt.status === 'reverted') {
+        return {
+          txHash: '',
+          status: 'Failed',
+        }
       }
     }
 

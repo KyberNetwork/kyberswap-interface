@@ -183,10 +183,10 @@ export const TransactionHistory = () => {
         </Text>
       )}
       {transactions.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE).map(tx => {
-        const sourceChainLogo = [NonEvmChain.Near, NonEvmChain.Bitcoin].includes(tx.sourceChain)
+        const sourceChainLogo = [NonEvmChain.Near, NonEvmChain.Bitcoin, NonEvmChain.Solana].includes(tx.sourceChain)
           ? NonEvmChainInfo[tx.sourceChain].icon
           : (NETWORKS_INFO as any)[tx.sourceChain]?.icon
-        const targetChainLogo = [NonEvmChain.Near, NonEvmChain.Bitcoin].includes(tx.targetChain)
+        const targetChainLogo = [NonEvmChain.Near, NonEvmChain.Bitcoin, NonEvmChain.Solana].includes(tx.targetChain)
           ? NonEvmChainInfo[tx.targetChain].icon
           : (NETWORKS_INFO as any)[tx.targetChain]?.icon
 
@@ -268,6 +268,8 @@ export const TransactionHistory = () => {
                   ? `https://nearblocks.io/address/${tx.id}`
                   : tx.sourceChain === NonEvmChain.Bitcoin
                   ? `https://mempool.space/tx/${tx.sourceTxHash}`
+                  : tx.sourceChain === NonEvmChain.Solana
+                  ? `https://solscan.io/tx/${tx.sourceTxHash}`
                   : getEtherscanLink(tx.sourceChain as any, tx.sourceTxHash, 'transaction')
               }
             />
@@ -286,6 +288,8 @@ export const TransactionHistory = () => {
                   ? `https://nearblocks.io/txns/${tx.targetTxHash}`
                   : tx.targetChain === NonEvmChain.Bitcoin
                   ? `https://mempool.space/tx/${tx.targetTxHash}`
+                  : tx.targetChain === NonEvmChain.Solana
+                  ? `https://solscan.io/tx/${tx.targetTxHash}`
                   : getEtherscanLink(tx.targetChain as any, tx.targetTxHash, 'transaction')
               }
             />

@@ -1,5 +1,11 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
-import { MAINNET_RELAY_API, convertViemChainToRelayChain, createClient, getClient } from '@reservoir0x/relay-sdk'
+import {
+  MAINNET_RELAY_API,
+  RelayChain,
+  convertViemChainToRelayChain,
+  createClient,
+  getClient,
+} from '@reservoir0x/relay-sdk'
 import { WalletClient, formatUnits } from 'viem'
 import {
   arbitrum,
@@ -24,17 +30,28 @@ import {
 import { hyperevm } from 'components/Web3Provider'
 import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
 import { MAINNET_NETWORKS } from 'constants/networks'
+import { SolanaToken } from 'state/crossChainSwap'
 
 import { Quote } from '../registry'
 import {
   BaseSwapAdapter,
   Chain,
-  EvmQuoteParams,
   NOT_SUPPORTED_CHAINS_PRICE_SERVICE,
+  NonEvmChain,
   NormalizedQuote,
   NormalizedTxResponse,
+  QuoteParams,
   SwapStatus,
 } from './BaseSwapAdapter'
+
+const SolanaChainId = 792703809
+
+const solanaChain = {
+  id: SolanaChainId,
+  name: 'Solana',
+  displayName: 'Solana',
+  vmType: 'svm' as const,
+} as RelayChain
 
 export class RelayAdapter extends BaseSwapAdapter {
   constructor() {
@@ -61,7 +78,9 @@ export class RelayAdapter extends BaseSwapAdapter {
         ronin,
         unichain,
         hyperevm,
-      ].map(convertViemChainToRelayChain),
+      ]
+        .map(convertViemChainToRelayChain)
+        .concat(solanaChain as any),
     })
   }
 
@@ -72,23 +91,39 @@ export class RelayAdapter extends BaseSwapAdapter {
     return 'https://storage.googleapis.com/ks-setting-1d682dca/84e906bb-eaeb-45d3-a64c-2aa9c84eb3ea1747759080942.png'
   }
   getSupportedChains(): Chain[] {
-    return [...MAINNET_NETWORKS]
+    return [NonEvmChain.Solana, ...MAINNET_NETWORKS]
   }
 
   getSupportedTokens(_sourceChain: Chain, _destChain: Chain): Currency[] {
     return []
   }
 
-  async getQuote(params: EvmQuoteParams): Promise<NormalizedQuote> {
+  async getQuote(params: QuoteParams): Promise<NormalizedQuote> {
+    const evmFromToken = params.fromToken as Currency
+    const evmToToken = params.toToken as Currency
+    const currency =
+      params.fromChain === 'solana'
+        ? (params.fromToken as SolanaToken).id
+        : evmFromToken.isNative
+        ? ZERO_ADDRESS
+        : evmFromToken.wrapped.address
+
+    const toCurrency =
+      params.toChain === 'solana'
+        ? (params.toToken as SolanaToken).id
+        : evmToToken.isNative
+        ? ZERO_ADDRESS
+        : evmToToken.wrapped.address
+
     const resp = await getClient().actions.getQuote({
-      chainId: +params.fromChain,
-      toChainId: +params.toChain,
-      currency: params.fromToken.isNative ? ZERO_ADDRESS : params.fromToken.wrapped.address,
-      toCurrency: params.toToken.isNative ? ZERO_ADDRESS : params.toToken.wrapped.address,
+      chainId: params.fromChain === 'solana' ? SolanaChainId : +params.fromChain,
+      toChainId: params.toChain === 'solana' ? SolanaChainId : +params.toChain,
+      currency,
+      toCurrency,
       amount: params.amount,
       tradeType: 'EXACT_INPUT',
       wallet: params.walletClient,
-      recipient: params.recipient === ZERO_ADDRESS ? undefined : params.recipient,
+      recipient: params.recipient,
       options: {
         appFees: [
           {

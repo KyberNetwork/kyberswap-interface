@@ -1,5 +1,8 @@
 import { ChainId, CurrencyAmount, Currency as EvmCurrency } from '@kyberswap/ks-sdk-core'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
+import { adaptSolanaWallet } from '@reservoir0x/relay-solana-wallet-adapter'
+import { useConnection, useWallet } from '@solana/wallet-adapter-react'
+import { Transaction, VersionedTransaction } from '@solana/web3.js'
 import { useEffect, useState } from 'react'
 import { ArrowDown, X } from 'react-feather'
 import { useSearchParams } from 'react-router-dom'
@@ -111,6 +114,9 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
 
   const { walletInfo, availableWallets } = useBitcoinWallet()
 
+  const { publicKey: solanaAddress, sendTransaction } = useWallet()
+  const { connection } = useConnection()
+
   const sendBtcFn = async (params: { recipient: string; amount: string | number }) => {
     const feeRate = await fetch('https://mempool.space/api/v1/fees/recommended').then(res => res.json())
 
@@ -149,9 +155,36 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
 
   const handleSwap = async () => {
     if (isEvmChain(fromChainId) && !walletClient) return
+    const adaptedWallet = adaptSolanaWallet(
+      solanaAddress?.toString() || '1nc1nerator11111111111111111111111111111111',
+      792703809, //chain id that Relay uses to identify solana
+      connection,
+      async (transaction, options) => {
+        try {
+          // Ensure transaction is properly formatted
+          if (transaction instanceof VersionedTransaction || transaction instanceof Transaction) {
+            const signature = await sendTransaction(transaction, connection, options)
+            return { signature }
+          } else {
+            throw new Error('Invalid transaction type')
+          }
+        } catch (error) {
+          console.error('Transaction sending failed:', error)
+          throw error
+        }
+      },
+    )
+
     setSubmittingTx(true)
     const res = await selectedQuote.adapter
-      .executeSwap(selectedQuote, walletClient as any, nearWallet, sendBtcFn)
+      .executeSwap(
+        selectedQuote,
+        fromChainId === 'solana' ? adaptedWallet : (walletClient as any),
+        nearWallet,
+        sendBtcFn,
+        sendTransaction,
+        connection,
+      )
       .catch(e => {
         console.log(e)
         setTxError(e?.message)
@@ -176,7 +209,9 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
       onDismiss={dismiss}
       hash={txHash}
       scanLink={
-        fromChainId === NonEvmChain.Near
+        fromChainId === NonEvmChain.Solana
+          ? `https://solscan.io/tx/${txHash}`
+          : fromChainId === NonEvmChain.Near
           ? `https://nearblocks.io/address/${txHash}`
           : fromChainId === NonEvmChain.Bitcoin
           ? `https://mempool.space/tx/${txHash}`
@@ -252,7 +287,9 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
                 <ExternalLink
                   style={{ textDecoration: 'none', color: theme.text }}
                   href={
-                    toChainId === NonEvmChain.Near
+                    toChainId === NonEvmChain.Solana
+                      ? `https://solscan.io/account/${recipient}`
+                      : toChainId === NonEvmChain.Near
                       ? `https://nearblocks.io/address/${recipient}`
                       : toChainId === NonEvmChain.Bitcoin
                       ? `https://mempool.space/address/${recipient}`

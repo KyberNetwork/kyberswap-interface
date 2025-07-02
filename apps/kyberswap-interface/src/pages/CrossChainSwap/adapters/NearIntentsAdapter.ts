@@ -1,9 +1,20 @@
 import { OneClickService, OpenAPI, QuoteRequest } from '@defuse-protocol/one-click-sdk-typescript'
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
+import {
+  ASSOCIATED_TOKEN_PROGRAM_ID,
+  TOKEN_PROGRAM_ID,
+  createAssociatedTokenAccountInstruction,
+  createTransferInstruction,
+  getAccount,
+  getAssociatedTokenAddress,
+} from '@solana/spl-token'
+import { WalletAdapterProps } from '@solana/wallet-adapter-base'
+import { Connection, PublicKey, SystemProgram, Transaction } from '@solana/web3.js'
 import { WalletClient, formatUnits } from 'viem'
 
-import { BTC_DEFAULT_RECEIVER, CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
+import { BTC_DEFAULT_RECEIVER, CROSS_CHAIN_FEE_RECEIVER, SOLANA_NATIVE, ZERO_ADDRESS } from 'constants/index'
+import { SolanaToken } from 'state/crossChainSwap'
 
 import { Quote } from '../registry'
 import {
@@ -18,6 +29,7 @@ import {
 
 export const MappingChainIdToBlockChain: Record<string, string> = {
   [NonEvmChain.Bitcoin]: 'btc',
+  [NonEvmChain.Solana]: 'sol',
   [ChainId.MAINNET]: 'eth',
   [ChainId.ARBITRUM]: 'arb',
   [ChainId.BSCMAINNET]: 'bsc',
@@ -55,7 +67,12 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
     return 'https://storage.googleapis.com/ks-setting-1d682dca/000c677f-2ebc-44cc-8d76-e4c6d07627631744962669170.png'
   }
   getSupportedChains(): Chain[] {
-    return [NonEvmChain.Bitcoin, NonEvmChain.Near, ...Object.keys(MappingChainIdToBlockChain).map(Number)]
+    return [
+      NonEvmChain.Solana,
+      NonEvmChain.Bitcoin,
+      NonEvmChain.Near,
+      ...Object.keys(MappingChainIdToBlockChain).map(Number),
+    ]
   }
 
   getSupportedTokens(_sourceChain: Chain, _destChain: Chain): Currency[] {
@@ -75,6 +92,12 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
           : params.fromToken.assetId
         : params.nearTokens.find(token => {
             const blockchain = MappingChainIdToBlockChain[params.fromChain as ChainId]
+
+            if (params.fromChain === 'solana')
+              return (params.fromToken as SolanaToken).id === SOLANA_NATIVE
+                ? token.symbol === 'SOL' && token.blockchain === 'sol'
+                : token.blockchain === blockchain && token.contractAddress === (params.fromToken as any).id
+
             return (
               token.blockchain === blockchain &&
               ((params.fromToken as any).isNative
@@ -91,6 +114,11 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
           : params.toToken.assetId
         : params.nearTokens.find(token => {
             const blockchain = MappingChainIdToBlockChain[params.toChain as ChainId]
+            if (params.toChain === 'solana')
+              return (params.toToken as SolanaToken).id === SOLANA_NATIVE
+                ? token.symbol === 'SOL' && token.blockchain === 'sol'
+                : token.blockchain === blockchain && token.contractAddress === (params.toToken as any).id
+
             return (
               token.blockchain === blockchain &&
               ((params.toToken as any).isNative
@@ -159,6 +187,8 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
     walletClient: WalletClient,
     nearWallet?: ReturnType<typeof useWalletSelector>,
     sendBtcFn?: (params: { recipient: string; amount: string | number }) => Promise<string>,
+    sendSolanaFn?: WalletAdapterProps['sendTransaction'],
+    solanaConnection?: Connection,
   ): Promise<NormalizedTxResponse> {
     const quoteParams = {
       ...quote.rawQuote.quoteRequest,
@@ -201,6 +231,139 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
       sourceToken: quote.quoteParams.fromToken,
       targetToken: quote.quoteParams.toToken,
       timestamp: new Date().getTime(),
+    }
+
+    if (quote.quoteParams.fromChain === NonEvmChain.Solana) {
+      return new Promise<NormalizedTxResponse>(async (resolve, reject) => {
+        if (!sendSolanaFn || !solanaConnection) {
+          reject('Not connected')
+          return
+        }
+        const waitForConfirmation = async (txId: string) => {
+          try {
+            const latestBlockhash = await solanaConnection.getLatestBlockhash()
+
+            // Wait for confirmation with timeout
+            const confirmation = await Promise.race([
+              solanaConnection.confirmTransaction(
+                {
+                  signature: txId,
+                  blockhash: latestBlockhash.blockhash,
+                  lastValidBlockHeight: latestBlockhash.lastValidBlockHeight,
+                },
+                'confirmed',
+              ),
+              new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('Transaction confirmation timeout')), 60000),
+              ),
+            ])
+
+            const confirmationResult = confirmation as { value: { err: any } }
+            if (confirmationResult.value.err) {
+              throw new Error(`Transaction failed: ${JSON.stringify(confirmationResult.value.err)}`)
+            }
+
+            console.log('Transaction confirmed successfully!')
+          } catch (confirmError) {
+            console.error('Transaction confirmation failed:', confirmError)
+
+            // Check if transaction actually succeeded despite timeout
+            const txStatus = await solanaConnection.getSignatureStatus(txId)
+            if (txStatus?.value?.confirmationStatus !== 'confirmed') {
+              throw new Error(`Transaction was not confirmed: ${confirmError.message}`)
+            }
+          }
+        }
+
+        const fromPubkey = new PublicKey(quote.quoteParams.sender)
+        const recipientPubkey = new PublicKey(depositAddress)
+
+        const fromToken = quote.quoteParams.fromToken as SolanaToken
+
+        // const latestBlockhash = await solanaConnection.getLatestBlockhash('confirmed')
+
+        if (fromToken.id === SOLANA_NATIVE) {
+          const transaction = new Transaction().add(
+            SystemProgram.transfer({
+              fromPubkey: fromPubkey,
+              toPubkey: recipientPubkey,
+              lamports: BigInt(quote.quoteParams.amount),
+            }),
+          )
+          try {
+            const signature = await sendSolanaFn(transaction, solanaConnection)
+            await waitForConfirmation(signature)
+
+            resolve({
+              ...params,
+              sourceTxHash: signature,
+            })
+          } catch (error) {
+            reject(error)
+          }
+        } else {
+          const mintPubkey = new PublicKey(fromToken.id)
+          // Get associated token addresses
+          const senderTokenAddress = await getAssociatedTokenAddress(
+            mintPubkey,
+            fromPubkey,
+            false,
+            TOKEN_PROGRAM_ID,
+            ASSOCIATED_TOKEN_PROGRAM_ID,
+          )
+          const recipientTokenAddress = await getAssociatedTokenAddress(
+            mintPubkey,
+            recipientPubkey,
+            false,
+            TOKEN_PROGRAM_ID,
+            ASSOCIATED_TOKEN_PROGRAM_ID,
+          )
+          const transaction = new Transaction()
+
+          try {
+            // Check if recipient's token account exists
+            await getAccount(solanaConnection, recipientTokenAddress)
+          } catch (err) {
+            // Account doesn't exist, create it
+            console.log('Creating recipient token account...')
+            transaction.add(
+              createAssociatedTokenAccountInstruction(
+                fromPubkey, // payer
+                recipientTokenAddress, // associated token account
+                recipientPubkey, // owner
+                mintPubkey, // mint
+                TOKEN_PROGRAM_ID,
+                ASSOCIATED_TOKEN_PROGRAM_ID,
+              ),
+            )
+          }
+
+          // Add transfer instruction
+          transaction.add(
+            createTransferInstruction(
+              senderTokenAddress, // source
+              recipientTokenAddress, // destination
+              fromPubkey, // owner
+              BigInt(quote.quoteParams.amount),
+              [],
+              TOKEN_PROGRAM_ID,
+            ),
+          )
+
+          try {
+            const signature = await sendSolanaFn(transaction, solanaConnection)
+            await waitForConfirmation(signature)
+
+            resolve({
+              ...params,
+              sourceTxHash: signature,
+            })
+          } catch (error) {
+            reject(error)
+          }
+        }
+        return
+      })
     }
 
     if (quote.quoteParams.fromChain === NonEvmChain.Bitcoin) {
