@@ -29,9 +29,12 @@ export const getTokenId = async (provider: Web3Provider, txHash: string, isUniV4
       hexTokenId = increaseLidEvent?.topics?.[1]
     } else {
       const transferEventTopic = ethers.utils.id('Transfer(address,address,uint256)')
-      const transferLogs = receipt.logs.filter((log: any) => log.topics[0] === transferEventTopic)
-      const transferEvent = transferLogs?.length ? transferLogs.find((log: any) => log.topics.length === 4) : undefined
-      hexTokenId = transferEvent?.topics?.[3]
+      const transferLogsWithTokenId = receipt.logs.filter(
+        (log: any) => log.topics[0] === transferEventTopic && log.topics.length === 4,
+      )
+      hexTokenId = !transferLogsWithTokenId.length
+        ? undefined
+        : transferLogsWithTokenId[transferLogsWithTokenId.length - 1].topics[3]
     }
     if (!hexTokenId) return
     return Number(hexTokenId)
