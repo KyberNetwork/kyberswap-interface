@@ -339,6 +339,7 @@ export default function App() {
               <Route path={APP_PATHS.ELASTIC_SNAPSHOT} element={<ElasticSnapshot />} />
               <Route path={APP_PATHS.MARKET_OVERVIEW} element={<MarketOverview />} />
 
+              <Route path={APP_PATHS.NEAR_INTENTS_CAMPAIGN} element={<Campaign />} />
               <Route path={APP_PATHS.MAY_TRADING_CAMPAIGN} element={<Campaign />} />
               <Route path={APP_PATHS.AGGREGATOR_CAMPAIGN} element={<Campaign />} />
               <Route path={APP_PATHS.LIMIT_ORDER_CAMPAIGN} element={<Campaign />} />

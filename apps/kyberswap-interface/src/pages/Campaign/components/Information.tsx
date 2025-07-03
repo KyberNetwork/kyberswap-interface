@@ -10,6 +10,7 @@ import { ButtonIcon } from 'pages/Pools/styleds'
 import { ExternalLink } from 'theme'
 
 export enum CampaignType {
+  NearIntents = 'NearIntents',
   MayTrading = 'MayTrading',
   Aggregator = 'Aggregator',
   LimitOrder = 'LimitOrder',
@@ -17,6 +18,7 @@ export enum CampaignType {
 }
 
 const howToEarnPoints = (week: number) => ({
+  [CampaignType.NearIntents]: <>TODO</>,
   [CampaignType.MayTrading]: (
     <>
       The campaign takes place entirely on Base chain.
@@ -189,6 +191,9 @@ const howToEarnPoints = (week: number) => ({
 })
 
 const timelines = {
+  //TODO: NearIntents
+  [CampaignType.NearIntents]: 'TODO',
+
   [CampaignType.MayTrading]: 'The campaign will start from 00h00, 27/05 - 23h59, 01/06 in UTC timezone',
   [CampaignType.Aggregator]:
     'The Campaign will take place over 10 weeks, from 8th July to 16th September 2024. Points and Rewards are reset to 0 each Monday at 0:00 UTC, after the end of each weekly event.',
@@ -198,6 +203,7 @@ const timelines = {
 }
 
 const rewards = {
+  [CampaignType.NearIntents]: <>TODO</>,
   [CampaignType.MayTrading]: (
     <>
       <li>
@@ -310,6 +316,9 @@ const rewards = {
 }
 
 const faq = {
+  [CampaignType.NearIntents]: [
+    // TODO: NearIntents
+  ],
   [CampaignType.MayTrading]: [
     {
       q: 'How can I be eligible for the campaign?',
