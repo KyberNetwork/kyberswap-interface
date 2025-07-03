@@ -69,7 +69,10 @@ const SelectNetwork = forwardRef<
     <>
       <NetworkSwitchContainer data-testid="network-button" onClick={() => chainIds.length && toggleNetworkModal()}>
         {selectedChainId && (
-          <NetworkLogo chainId={selectedChainId} style={{ width: 20, height: 20, marginRight: '8px' }} />
+          <NetworkLogo
+            chainId={selectedChainId}
+            style={{ width: 20, height: 20, marginRight: '8px', borderRadius: '4px' }}
+          />
         )}
         <NetworkLabel>{name}</NetworkLabel>
         <DropdownIcon open={isOpen} />
