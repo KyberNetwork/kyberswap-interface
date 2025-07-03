@@ -457,15 +457,12 @@ export const Preview = () => {
       <button
         className={cn(
           "ks-primary-btn w-full mt-4",
-          !buildData
-            ? ""
-            : pi.piVeryHigh
-              ? "bg-error border-solid border-error text-white"
-              : pi.piHigh
-                ? "bg-warning border-solid border-warning"
-                : ""
+          pi.piVeryHigh
+            ? "bg-error border-solid border-error text-white"
+            : pi.piHigh
+              ? "bg-warning border-solid border-warning"
+              : ""
         )}
-        disabled={!buildData}
         onClick={async () => {
           if (!account) return;
           if (!buildData) {
@@ -503,7 +500,7 @@ export const Preview = () => {
           }
         }}
       >
-        {buildData ? "Remove Liquidity" : "Build failed, close and try again"}
+        Remove Liquidity
       </button>
     </Modal>
   );
