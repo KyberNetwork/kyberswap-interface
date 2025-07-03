@@ -120,7 +120,7 @@ export class CrossChainSwapFactory {
       CrossChainSwapFactory.getLifiInstance(),
       CrossChainSwapFactory.getOptimexAdapter(),
       CrossChainSwapFactory.getKsApdater(),
-      CrossChainSwapFactory.getOrbiterAdapter(),
+      // CrossChainSwapFactory.getOrbiterAdapter(),
     ]
   }
 
