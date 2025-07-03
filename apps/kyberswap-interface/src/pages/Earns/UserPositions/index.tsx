@@ -28,6 +28,7 @@ import {
 import useFilter, { SortBy } from 'pages/Earns/UserPositions/useFilter'
 import { earnSupportedChains, earnSupportedExchanges, protocolGroupNameToExchangeMapping } from 'pages/Earns/constants'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
+import useClosedPositions from 'pages/Earns/hooks/useClosedPositions'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
 import useSupportedDexesAndChains from 'pages/Earns/hooks/useSupportedDexesAndChains'
 import useZapInWidget from 'pages/Earns/hooks/useZapInWidget'
@@ -52,6 +53,8 @@ const UserPositions = () => {
   const firstLoading = useRef(false)
   const [loading, setLoading] = useState(false)
   const [feeInfoFromRpc, setFeeInfoFromRpc] = useState<FeeInfoFromRpc[]>([])
+
+  const { closedPositionsFromRpc, checkClosedPosition } = useClosedPositions()
 
   const positionQueryParams = useMemo(() => {
     const statusFilter = filters.status.split(',')
@@ -89,8 +92,9 @@ const UserPositions = () => {
     triggerClose,
     setTriggerClose,
   })
-  const { widget: zapOutWidget, handleOpenZapOut } = useZapOutWidget(() => {
+  const { widget: zapOutWidget, handleOpenZapOut } = useZapOutWidget(({ tokenId, dex, poolAddress, chainId }) => {
     refetch()
+    checkClosedPosition({ tokenId, dex, poolAddress, chainId })
     setLoading(true)
   })
 
@@ -106,14 +110,18 @@ const UserPositions = () => {
       [...(userPosition || [])].map(position => {
         const feeInfo = feeInfoFromRpc.find(feeInfo => feeInfo.id === position.tokenId)
         const nftRewardInfo = rewardInfo?.nfts.find(item => item.nftId === position.tokenId)
+        const isClosedFromRpc = closedPositionsFromRpc.some(
+          closedPosition => closedPosition.tokenId === position.tokenId,
+        )
 
         return parsePosition({
           position,
           feeInfo,
           nftRewardInfo,
+          isClosedFromRpc,
         })
       }),
-    [feeInfoFromRpc, rewardInfo?.nfts, userPosition],
+    [feeInfoFromRpc, rewardInfo?.nfts, userPosition, closedPositionsFromRpc],
   )
 
   const filteredPositions: Array<ParsedPosition> = useMemo(() => {

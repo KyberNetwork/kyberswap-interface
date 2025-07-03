@@ -175,7 +175,6 @@ interface Token {
   decimals: number
   logo: string
   price: number
-  totalAmount: number
   isNative: boolean
   totalProvide: number
   unclaimedAmount: number

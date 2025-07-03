@@ -116,7 +116,7 @@ export default function TableContent({
       const feeInfoToAdd = {
         ...feeFromRpc,
         id: tokenId,
-        timeRemaining: 30,
+        timeRemaining: 60 * 2,
       }
 
       const feeInfoFromRpcClone = [...feeInfoFromRpc]

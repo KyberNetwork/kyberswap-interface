@@ -1,19 +1,26 @@
-import { WETH } from '@kyberswap/ks-sdk-core'
+import { encodeUint256, getFunctionSelector } from '@kyber/utils/dist/crypto'
+import { getUniv4PositionLiquidity } from '@kyber/utils/dist/liquidity/position'
+import { decodeAlgebraV1Position, decodePosition } from '@kyber/utils/dist/uniswapv3'
+import { ChainId, WETH } from '@kyberswap/ks-sdk-core'
 
 import { NETWORKS_INFO } from 'constants/networks'
 import { CoreProtocol, EarnDex } from 'pages/Earns/constants'
 import { EarnPosition, FeeInfo, NftRewardInfo, ParsedPosition, PositionStatus, ProgramType } from 'pages/Earns/types'
-import { isForkFrom, isNativeToken } from 'pages/Earns/utils'
+import { getNftManagerContractAddress, isForkFrom, isNativeToken } from 'pages/Earns/utils'
 
 export const parsePosition = ({
   position,
   feeInfo,
   nftRewardInfo,
+  isClosedFromRpc,
 }: {
   position: EarnPosition
   feeInfo?: FeeInfo
   nftRewardInfo?: NftRewardInfo
+  isClosedFromRpc?: boolean
 }) => {
+  const forceClosed = isClosedFromRpc && position.status !== PositionStatus.CLOSED
+
   const currentAmounts = position.currentAmounts
   const feePending = position.feePending
   const feesClaimed = position.feesClaimed
@@ -29,8 +36,10 @@ export const parsePosition = ({
   const token0ClaimedQuote = feesClaimed[0]?.quotes.usd
   const token1ClaimedQuote = feesClaimed[1]?.quotes.usd
 
-  const token0TotalProvide = token0CurrentQuote ? token0CurrentQuote.value / token0CurrentQuote.price : 0
-  const token1TotalProvide = token1CurrentQuote ? token1CurrentQuote.value / token1CurrentQuote.price : 0
+  const token0TotalProvide =
+    token0CurrentQuote && !forceClosed ? token0CurrentQuote.value / token0CurrentQuote.price : 0
+  const token1TotalProvide =
+    token1CurrentQuote && !forceClosed ? token1CurrentQuote.value / token1CurrentQuote.price : 0
 
   const token0EarnedAmount =
     (token0PendingQuote ? token0PendingQuote.value / token0PendingQuote.price : 0) +
@@ -40,9 +49,11 @@ export const parsePosition = ({
     (token1ClaimedQuote ? token1ClaimedQuote.value / token1ClaimedQuote.price : 0)
 
   const nftUnclaimedUsdValue = nftRewardInfo?.unclaimedUsdValue || 0
-  const totalValue = position.currentPositionValue + nftUnclaimedUsdValue
-  const unclaimedFees = feeInfo?.totalValue ?? feePending.reduce((sum, fee) => sum + fee.quotes.usd.value, 0)
-  const totalProvidedValue = position.currentPositionValue - unclaimedFees
+  const totalValue = (forceClosed ? 0 : position.currentPositionValue) + nftUnclaimedUsdValue
+  const unclaimedFees = forceClosed
+    ? 0
+    : feeInfo?.totalValue ?? feePending.reduce((sum, fee) => sum + fee.quotes.usd.value, 0)
+  const totalProvidedValue = forceClosed ? 0 : position.currentPositionValue - unclaimedFees
 
   const token0Address = token0Data?.address || ''
   const token1Address = token1Data?.address || ''
@@ -62,20 +73,21 @@ export const parsePosition = ({
 
   const unclaimedRewardTokens = nftRewardInfo?.tokens.filter(token => token.unclaimedAmount > 0) || []
 
-  const totalValueTokens = position.currentPositionValue
-    ? [
-        {
-          address: token0Address,
-          symbol: token0Data?.symbol || '',
-          amount: token0TotalProvide + token0EarnedAmount,
-        },
-        {
-          address: token1Address,
-          symbol: token1Data?.symbol || '',
-          amount: token1TotalProvide + token1EarnedAmount,
-        },
-      ]
-    : []
+  const totalValueTokens =
+    position.currentPositionValue && !forceClosed
+      ? [
+          {
+            address: token0Address,
+            symbol: token0Data?.symbol || '',
+            amount: token0TotalProvide + token0EarnedAmount,
+          },
+          {
+            address: token1Address,
+            symbol: token1Data?.symbol || '',
+            amount: token1TotalProvide + token1EarnedAmount,
+          },
+        ]
+      : []
 
   for (const token of unclaimedRewardTokens) {
     const existingToken = totalValueTokens.find(t => t.address.toLowerCase() === token.address.toLowerCase())
@@ -156,14 +168,15 @@ export const parsePosition = ({
       price: currentAmounts[0]?.token.price,
       isNative: isNativeToken(token0Address, chainId as keyof typeof WETH),
       totalProvide: token0TotalProvide,
-      totalAmount: token0TotalProvide + token0EarnedAmount,
-      unclaimedAmount: feeInfo
+      unclaimedAmount: forceClosed
+        ? 0
+        : feeInfo
         ? Number(feeInfo.amount0)
         : token0PendingQuote
         ? token0PendingQuote.value / token0PendingQuote.price
         : 0,
-      unclaimedBalance: feeInfo ? Number(feeInfo.balance0) : Number(feePending[0]?.balance || 0),
-      unclaimedValue: feeInfo ? Number(feeInfo.value0) : token0PendingQuote?.value || 0,
+      unclaimedBalance: forceClosed ? 0 : feeInfo ? Number(feeInfo.balance0) : Number(feePending[0]?.balance || 0),
+      unclaimedValue: forceClosed ? 0 : feeInfo ? Number(feeInfo.value0) : token0PendingQuote?.value || 0,
     },
     token1: {
       address: token1Address,
@@ -173,14 +186,15 @@ export const parsePosition = ({
       price: currentAmounts[1]?.token.price,
       isNative: isNativeToken(token1Address, chainId as keyof typeof WETH),
       totalProvide: token1TotalProvide,
-      totalAmount: token1TotalProvide + token1EarnedAmount,
-      unclaimedAmount: feeInfo
+      unclaimedAmount: forceClosed
+        ? 0
+        : feeInfo
         ? Number(feeInfo.amount1)
         : token1PendingQuote
         ? token1PendingQuote.value / token1PendingQuote.price
         : 0,
-      unclaimedBalance: feeInfo ? Number(feeInfo.balance1) : Number(feePending[1]?.balance || 0),
-      unclaimedValue: feeInfo ? Number(feeInfo.value1) : token1PendingQuote?.value || 0,
+      unclaimedBalance: forceClosed ? 0 : feeInfo ? Number(feeInfo.balance1) : Number(feePending[1]?.balance || 0),
+      unclaimedValue: forceClosed ? 0 : feeInfo ? Number(feeInfo.value1) : token1PendingQuote?.value || 0,
     },
     suggestionPool: position.suggestionPool,
     tokenAddress: position.tokenAddress,
@@ -191,7 +205,7 @@ export const parsePosition = ({
     totalValue,
     totalProvidedValue,
     unclaimedFees,
-    status: isUniv2 ? PositionStatus.IN_RANGE : position.status,
+    status: forceClosed ? PositionStatus.CLOSED : isUniv2 ? PositionStatus.IN_RANGE : position.status,
     createdTime: position.createdTime,
     isUnfinalized,
   }
@@ -213,4 +227,106 @@ export const aggregateFeeFromPositions = (positions: Array<ParsedPosition>) => {
     totalEarnedFee,
     totalUnclaimedFee,
   }
+}
+
+export const getPositionLiquidity = async ({
+  tokenId,
+  dex,
+  poolAddress,
+  chainId,
+}: {
+  tokenId: string
+  dex: EarnDex
+  poolAddress: string
+  chainId: ChainId
+}) => {
+  const isUniV2 = isForkFrom(dex, CoreProtocol.UniswapV2)
+  const isUniV3 = isForkFrom(dex, CoreProtocol.UniswapV3)
+  const isUniV4 = isForkFrom(dex, CoreProtocol.UniswapV4)
+  const isAlgebra = isForkFrom(dex, CoreProtocol.AlgebraV1) || isForkFrom(dex, CoreProtocol.AlgebraV19)
+
+  if (isUniV2) {
+    const balanceOfSelector = getFunctionSelector('balanceOf(address)')
+    const paddedAccount = tokenId.replace('0x', '').padStart(64, '0')
+
+    const getPayload = (d: string) => ({
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        jsonrpc: '2.0',
+        method: 'eth_call',
+        params: [
+          {
+            to: poolAddress,
+            data: d,
+          },
+          'latest',
+        ],
+        id: 1,
+      }),
+    })
+
+    const balanceRes = await fetch(
+      NETWORKS_INFO[chainId].defaultRpcUrl,
+      getPayload(`0x${balanceOfSelector}${paddedAccount}`),
+    ).then(res => res.json() as Promise<{ result: string }>)
+
+    const userBalance = BigInt(balanceRes?.result || '0')
+
+    return userBalance
+  }
+
+  const nftContractAddress = getNftManagerContractAddress(dex, chainId)
+  if (!nftContractAddress) return
+
+  const encodedTokenId = encodeUint256(BigInt(tokenId))
+
+  if (isUniV4) {
+    const liquidity = await getUniv4PositionLiquidity({
+      nftContractAddress,
+      encodedTokenId,
+      chainId: chainId as any,
+    })
+
+    return liquidity || BigInt(0)
+  }
+
+  if (isUniV3 || isAlgebra) {
+    const functionSignature = 'positions(uint256)'
+    const selector = getFunctionSelector(functionSignature)
+
+    const data = `0x${selector}${encodedTokenId}`
+
+    const payload = {
+      jsonrpc: '2.0',
+      method: 'eth_call',
+      params: [
+        {
+          to: nftContractAddress,
+          data: data,
+        },
+        'latest',
+      ],
+      id: 1,
+    }
+
+    const response = await fetch(NETWORKS_INFO[chainId].defaultRpcUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    })
+
+    const { result, error } = (await response.json()) as { result?: any; error?: any }
+    if (!result || result === '0x' || error) return
+
+    const decodedPosition = isAlgebra ? decodeAlgebraV1Position(result) : decodePosition(result)
+
+    return decodedPosition.liquidity
+  }
+
+  return
 }
