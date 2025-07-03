@@ -224,6 +224,78 @@ const getFormattedTime = (totalSeconds: number): string => {
 
   return `${totalDays}D ${hours}H ${minutes}M ${seconds}S`
 }
+const stipInfo = {
+  year: 2024,
+  rewardChain: ChainId.ARBITRUM,
+  rewardTokenSymbol: 'ARB',
+  rewardTokenLogo: 'https://s2.coinmarketcap.com/static/img/coins/64x64/11841.png',
+  rewardToken: '0x912CE59144191C1204E64559FE8253a0e49E6548', // ARB
+  weeks: stipWeeks,
+  program: 'stip' as const,
+}
+
+const campaignConfig = {
+  [CampaignType.Aggregator]: {
+    ...stipInfo,
+    ctaLink: '/swap/arbitrum/eth-to-arb',
+    ctaText: 'Trade Now',
+    type: CampaignType.Aggregator,
+    campaign: 'trading-incentive' as const,
+    banner: tradingBanner,
+    title: 'Aggregator Trading Campaign',
+  },
+  [CampaignType.LimitOrder]: {
+    ...stipInfo,
+    ctaLink: '/limit/arbitrum',
+    ctaText: 'Place order',
+    type: CampaignType.LimitOrder,
+    campaign: 'limit-order-farming' as const,
+    banner: loBanner,
+    title: 'Limit Order Campaign',
+  },
+  [CampaignType.Referrals]: {
+    ...stipInfo,
+    ctaText: 'Trade Now',
+    ctaLink: '/swap/arbitrum/eth-to-arb',
+    type: CampaignType.Referrals,
+    campaign: 'referral-program' as const,
+    banner: referralBanner,
+    title: 'Referral Program',
+  },
+  [CampaignType.MayTrading]: {
+    ctaLink: '/swap/base',
+    year: 2025,
+    rewardChain: ChainId.MAINNET,
+    rewardTokenSymbol: 'KNC',
+    ctaText: 'Trade Now',
+    rewardTokenLogo: 'https://s2.coinmarketcap.com/static/img/coins/64x64/9444.png',
+    type: CampaignType.MayTrading,
+    weeks: mayTradingWeeks,
+    rewardToken: KNC[ChainId.MAINNET].address,
+    program: 'grind/base' as const,
+    campaign: 'trading-incentive' as const,
+    banner: mayTradingBanner,
+    title: 'May Trading Campaign',
+  },
+  [CampaignType.NearIntents]: {
+    year: 2025,
+    // TODO: Update the reward chain and token details for Near Intents
+    rewardChain: ChainId.MAINNET,
+    rewardToken: KNC[ChainId.MAINNET].address,
+    rewardTokenSymbol: 'KNC',
+    rewardTokenLogo: 'https://s2.coinmarketcap.com/static/img/coins/64x64/9444.png',
+    type: CampaignType.NearIntents,
+    ctaText: 'Trade Now',
+    // TODO: update time for Near Intents
+    weeks: mayTradingWeeks,
+    // TODO: Update the program for Near Intents
+    program: 'grind/base' as const,
+    campaign: 'trading-incentive' as const,
+    banner: mayTradingBanner,
+    ctaLink: '/cross-chain',
+    title: 'Cross Chain Swap Campaign (x Near Intents)',
+  },
+}
 
 export default function Aggregator() {
   const theme = useTheme()
@@ -238,28 +310,25 @@ export default function Aggregator() {
       ? CampaignType.LimitOrder
       : pathname === APP_PATHS.MAY_TRADING_CAMPAIGN
       ? CampaignType.MayTrading
+      : pathname === APP_PATHS.NEAR_INTENTS_CAMPAIGN
+      ? CampaignType.NearIntents
       : CampaignType.Referrals
 
-  const year = type == CampaignType.MayTrading ? 2025 : 2024
+  const {
+    campaign,
+    weeks,
+    ctaText,
+    program,
+    ctaLink,
+    year,
+    rewardChain,
+    rewardTokenSymbol,
+    rewardTokenLogo,
+    rewardToken,
+    banner,
+    title,
+  } = campaignConfig[type]
 
-  const rewardChain = type == CampaignType.MayTrading ? ChainId.MAINNET : ChainId.ARBITRUM
-  const rewardToken =
-    type == CampaignType.MayTrading ? KNC[rewardChain].address : '0x912CE59144191C1204E64559FE8253a0e49E6548'
-  const rewardTokenSymbol = type == CampaignType.MayTrading ? 'KNC' : 'ARB'
-  const rewardTokenLogo =
-    type == CampaignType.MayTrading
-      ? 'https://s2.coinmarketcap.com/static/img/coins/64x64/9444.png'
-      : 'https://s2.coinmarketcap.com/static/img/coins/64x64/11841.png'
-
-  const ctaLink =
-    type == CampaignType.MayTrading
-      ? '/swap/base'
-      : type == CampaignType.Aggregator
-      ? '/swap/arbitrum/eth-to-arb'
-      : '/limit/arbitrum'
-  const ctaText = type == CampaignType.MayTrading || type == CampaignType.Aggregator ? 'Trade Now' : 'Place order'
-
-  const weeks = type === CampaignType.MayTrading ? mayTradingWeeks : stipWeeks
   const startWeek = weeks[0].value
   const endWeek = weeks[weeks.length - 1].value
   const [selectedWeek, setSelectedWeek] = useState(startWeek <= w && w <= endWeek ? w : endWeek)
@@ -270,13 +339,6 @@ export default function Aggregator() {
     }
   }, [selectedWeek, startWeek, endWeek])
 
-  const program = type === CampaignType.MayTrading ? 'grind/base' : 'stip'
-  const campaign =
-    type === CampaignType.Aggregator || type === CampaignType.MayTrading
-      ? 'trading-incentive'
-      : type === CampaignType.LimitOrder
-      ? 'limit-order-farming'
-      : 'referral-program'
   const { account } = useWeb3React()
   const { data: userData } = useGetUserRewardQuery(
     {
@@ -405,30 +467,10 @@ export default function Aggregator() {
 
   return (
     <Wrapper>
-      <img
-        src={
-          type === CampaignType.Aggregator
-            ? tradingBanner
-            : type === CampaignType.LimitOrder
-            ? loBanner
-            : type === CampaignType.MayTrading
-            ? mayTradingBanner
-            : referralBanner
-        }
-        width="100%"
-        alt="banner"
-        style={{ borderRadius: '12px' }}
-      />
+      <img src={banner} width="100%" alt="banner" style={{ borderRadius: '12px' }} />
       <Flex justifyContent="space-between" alignItems="center" marginTop="1.5rem">
         <Text fontSize={24} fontWeight="500">
-          {type === CampaignType.Aggregator
-            ? 'Aggregator Trading'
-            : type === CampaignType.LimitOrder
-            ? 'Limit Order'
-            : type === CampaignType.MayTrading
-            ? 'May Trading'
-            : 'Referral'}{' '}
-          Campaign
+          {title}
         </Text>
 
         {campaign === 'referral-program' && <JoinReferral />}
