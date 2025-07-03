@@ -19,7 +19,7 @@ export const BitcoinToken = {
   name: 'Bitcoin',
   symbol: 'BTC',
   decimals: 8,
-  logo: 'https://storage.googleapis.com/bitfi-static-35291d79/images/tokens/btc.svg',
+  logo: 'https://storage.googleapis.com/ks-setting-1d682dca/285205e7-a16d-421c-a794-67439cd6b54f1751515894455.png',
 }
 
 export type Chain = ChainId | NonEvmChain
@@ -32,7 +32,7 @@ export const NonEvmChainInfo: { [key in NonEvmChain]: { name: string; icon: stri
   },
   [NonEvmChain.Bitcoin]: {
     name: 'Bitcoin',
-    icon: 'https://storage.googleapis.com/bitfi-static-35291d79/images/tokens/btc_network.svg',
+    icon: 'https://storage.googleapis.com/ks-setting-1d682dca/285205e7-a16d-421c-a794-67439cd6b54f1751515894455.png',
   },
   [NonEvmChain.Solana]: {
     name: 'Solana',

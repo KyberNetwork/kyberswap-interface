@@ -288,7 +288,7 @@ const DraggableNetworkButton = ({
           onMouseUp={e => e.preventDefault()}
           $disabled={disabled}
         >
-          <img src={icon} alt="Switch Network" style={{ height: '20px', width: '20px' }} />
+          <img src={icon} alt="Switch Network" style={{ height: '20px', width: '20px', borderRadius: '4px' }} />
           <Row flexGrow={1} gap="6px">
             <Text as="span" textAlign="left" sx={{ position: 'relative' }}>
               {name}
