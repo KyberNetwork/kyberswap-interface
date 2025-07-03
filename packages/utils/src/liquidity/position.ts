@@ -183,7 +183,7 @@ export const getUniv3PositionInfo = async ({
   };
 };
 
-const getUniv4PositionLiquidity = async ({
+export const getUniv4PositionLiquidity = async ({
   nftContractAddress,
   encodedTokenId,
   chainId,

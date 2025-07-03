@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { ZapOut, ChainId as ZapOutChainId, PoolType as ZapOutDex } from '@kyberswap/zap-out-widgets'
 import '@kyberswap/zap-out-widgets/dist/style.css'
 import { useMemo, useState } from 'react'
@@ -6,8 +7,9 @@ import { NotificationType } from 'components/Announcement/type'
 import Modal from 'components/Modal'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import { EarnDex, Exchange } from 'pages/Earns/constants'
+import { EarnDex, Exchange, protocolGroupNameToExchangeMapping } from 'pages/Earns/constants'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
+import { CheckClosedPositionParams } from 'pages/Earns/hooks/useClosedPositions'
 import { submitTransaction } from 'pages/Earns/utils'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { getCookieValue } from 'utils'
@@ -44,7 +46,7 @@ const zapOutDexMapping: Record<EarnDex | Exchange, ZapOutDex> = {
   [Exchange.DEX_UNISWAP_V4_FAIRFLOW]: ZapOutDex.DEX_UNISWAP_V4_FAIRFLOW,
 }
 
-const useZapOutWidget = (onRefreshPosition?: () => void) => {
+const useZapOutWidget = (onRefreshPosition?: (props: CheckClosedPositionParams) => void) => {
   const toggleWalletModal = useWalletModalToggle()
   const notify = useNotify()
   const refCode = getCookieValue('refCode')
@@ -71,10 +73,26 @@ const useZapOutWidget = (onRefreshPosition?: () => void) => {
               chainId: chainId as unknown as ZapOutChainId,
             },
             onClose: () => {
-              setZapOutPureParams(null)
               setTimeout(() => {
-                onRefreshPosition?.()
+                const foundEntry = Object.entries(zapOutDexMapping).find(
+                  ([_, zapOutDex]) => zapOutDex === zapOutPureParams.poolType,
+                )
+                let dex = foundEntry?.[0] as EarnDex | Exchange
+
+                if (dex && Object.values(Exchange).includes(dex as Exchange)) {
+                  dex = Object.entries(protocolGroupNameToExchangeMapping).find(
+                    ([_, exchange]) => exchange === dex,
+                  )?.[0] as EarnDex
+                }
+
+                onRefreshPosition?.({
+                  tokenId: zapOutPureParams.positionId,
+                  dex: dex as EarnDex,
+                  poolAddress: zapOutPureParams.poolAddress,
+                  chainId: zapOutPureParams.chainId as unknown as ChainId,
+                })
               }, 500)
+              setZapOutPureParams(null)
             },
             onConnectWallet: toggleWalletModal,
             onSwitchChain: () => changeNetwork(zapOutPureParams.chainId as number),

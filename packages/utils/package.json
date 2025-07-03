@@ -21,7 +21,8 @@
     "./dist/tailwind-helpers": "./src/tailwind-helpers.ts",
     "./dist/uniswapv3": "./src/uniswapv3.ts",
     "./dist/crypto": "./src/crypto/index.ts",
-    "./dist/number": "./src/number.ts"
+    "./dist/number": "./src/number.ts",
+    "./dist/liquidity/position": "./src/liquidity/position.ts"
   },
   "devDependencies": {
     "@kyber/schema": "workspace:*",

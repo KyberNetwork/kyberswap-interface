@@ -40,6 +40,7 @@ import {
   POSSIBLE_FARMING_PROTOCOLS,
   protocolGroupNameToExchangeMapping,
 } from 'pages/Earns/constants'
+import useClosedPositions, { CheckClosedPositionParams } from 'pages/Earns/hooks/useClosedPositions'
 import useFarmingStablePools from 'pages/Earns/hooks/useFarmingStablePools'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
@@ -47,43 +48,6 @@ import { FeeInfo, PAIR_CATEGORY, ParsedPosition, PositionStatus, SuggestedPool }
 import { getUnclaimedFeesInfo } from 'pages/Earns/utils/fees'
 import { parsePosition } from 'pages/Earns/utils/position'
 import { formatDisplayNumber } from 'utils/numbers'
-
-export const PositionSkeleton = ({
-  width,
-  height,
-  style,
-  text,
-}: {
-  width: number
-  height: number
-  style?: React.CSSProperties
-  text?: string
-}) => {
-  const theme = useTheme()
-
-  return !text ? (
-    <Skeleton
-      width={width}
-      height={height}
-      baseColor={theme.background}
-      highlightColor={theme.buttonGray}
-      borderRadius="1rem"
-      style={style}
-    />
-  ) : (
-    <SkeletonWrapper>
-      <Skeleton
-        width={width}
-        height={height}
-        baseColor={theme.background}
-        highlightColor={theme.buttonGray}
-        borderRadius="1rem"
-        style={style}
-      />
-      <SkeletonText>{text}</SkeletonText>
-    </SkeletonWrapper>
-  )
-}
 
 const PositionDetail = () => {
   const firstLoading = useRef(false)
@@ -95,6 +59,8 @@ const PositionDetail = () => {
   const { account } = useActiveWeb3React()
   const { positionId, chainId, protocol } = useParams()
   const { widget: zapMigrationWidget, handleOpenZapMigration } = useZapMigrationWidget()
+
+  const { closedPositionsFromRpc, checkClosedPosition } = useClosedPositions()
 
   const {
     data: userPosition,
@@ -127,12 +93,17 @@ const PositionDetail = () => {
   const position: ParsedPosition | undefined = useMemo(() => {
     if (!userPosition || !userPosition.length) return
 
+    const isClosedFromRpc = closedPositionsFromRpc.some(
+      (closedPosition: { tokenId: string }) => closedPosition.tokenId === userPosition[0].tokenId,
+    )
+
     return parsePosition({
       position: userPosition[0],
       feeInfo: feeInfoFromRpc,
       nftRewardInfo: rewardInfoThisPosition,
+      isClosedFromRpc,
     })
-  }, [feeInfoFromRpc, userPosition, rewardInfoThisPosition])
+  }, [feeInfoFromRpc, userPosition, rewardInfoThisPosition, closedPositionsFromRpc])
 
   const farmingPoolsByChain = useFarmingStablePools({ chainIds: position ? [position.chain.id] : [] })
 
@@ -140,9 +111,7 @@ const PositionDetail = () => {
     if (!position) return
 
     const feeFromRpc = await getUnclaimedFeesInfo(position)
-
     setFeeInfoFromRpc(feeFromRpc)
-
     setTimeout(() => setFeeInfoFromRpc(undefined), 60_000)
   }, [position])
 
@@ -213,6 +182,14 @@ const PositionDetail = () => {
       setSearchParams(searchParams)
     }
   }, [forceLoading, position, searchParams, setSearchParams])
+
+  const onRefreshPosition = useCallback(
+    ({ tokenId, dex, poolAddress, chainId }: CheckClosedPositionParams) => {
+      refetch()
+      checkClosedPosition({ tokenId, dex, poolAddress, chainId })
+    },
+    [checkClosedPosition, refetch],
+  )
 
   const isFarmingPossible = POSSIBLE_FARMING_PROTOCOLS.includes(protocol as Exchange)
   const isUnfinalized = position?.isUnfinalized
@@ -424,7 +401,7 @@ const PositionDetail = () => {
                 onOpenZapMigration={handleOpenZapMigration}
                 totalLiquiditySection={totalLiquiditySection}
                 aprSection={aprSection}
-                refetch={refetch}
+                onRefreshPosition={onRefreshPosition}
                 initialLoading={initialLoading}
               />
             </PositionDetailWrapper>
@@ -438,3 +415,40 @@ const PositionDetail = () => {
 }
 
 export default PositionDetail
+
+export const PositionSkeleton = ({
+  width,
+  height,
+  style,
+  text,
+}: {
+  width: number
+  height: number
+  style?: React.CSSProperties
+  text?: string
+}) => {
+  const theme = useTheme()
+
+  return !text ? (
+    <Skeleton
+      width={width}
+      height={height}
+      baseColor={theme.background}
+      highlightColor={theme.buttonGray}
+      borderRadius="1rem"
+      style={style}
+    />
+  ) : (
+    <SkeletonWrapper>
+      <Skeleton
+        width={width}
+        height={height}
+        baseColor={theme.background}
+        highlightColor={theme.buttonGray}
+        borderRadius="1rem"
+        style={style}
+      />
+      <SkeletonText>{text}</SkeletonText>
+    </SkeletonWrapper>
+  )
+}

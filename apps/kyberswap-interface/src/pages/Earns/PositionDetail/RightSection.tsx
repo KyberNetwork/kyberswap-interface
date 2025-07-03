@@ -26,6 +26,7 @@ import {
   RevertIconWrapper,
 } from 'pages/Earns/PositionDetail/styles'
 import { CoreProtocol, Exchange, POSSIBLE_FARMING_PROTOCOLS } from 'pages/Earns/constants'
+import { CheckClosedPositionParams } from 'pages/Earns/hooks/useClosedPositions'
 import useZapInWidget from 'pages/Earns/hooks/useZapInWidget'
 import { ZapMigrationInfo } from 'pages/Earns/hooks/useZapMigrationWidget'
 import useZapOutWidget from 'pages/Earns/hooks/useZapOutWidget'
@@ -39,14 +40,14 @@ const RightSection = ({
   onOpenZapMigration,
   totalLiquiditySection,
   aprSection,
-  refetch,
+  onRefreshPosition,
   initialLoading,
 }: {
   position?: ParsedPosition
   onOpenZapMigration: (props: ZapMigrationInfo) => void
   totalLiquiditySection: React.ReactNode
   aprSection: React.ReactNode
-  refetch: () => void
+  onRefreshPosition: (props: CheckClosedPositionParams) => void
   initialLoading: boolean
 }) => {
   const theme = useTheme()
@@ -65,7 +66,7 @@ const RightSection = ({
   const { widget: zapInWidget, handleOpenZapIn } = useZapInWidget({
     onOpenZapMigration,
   })
-  const { widget: zapOutWidget, handleOpenZapOut } = useZapOutWidget(refetch)
+  const { widget: zapOutWidget, handleOpenZapOut } = useZapOutWidget(onRefreshPosition)
 
   const price = useMemo(
     () => (!position?.priceRange ? 0 : !revert ? position.priceRange.current : 1 / position.priceRange.current),
