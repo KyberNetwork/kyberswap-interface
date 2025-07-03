@@ -95,6 +95,7 @@ export default function Preview({
   const [txError, setTxError] = useState<Error | null>(null);
   const [txStatus, setTxStatus] = useState<'success' | 'failed' | ''>('');
   const [gasUsd, setGasUsd] = useState<number | null>(null);
+  const [buildFailed, setBuildFailed] = useState(false);
 
   const { success: isUniV3, data: univ3Pool } = univ3PoolNormalize.safeParse(pool);
   const isOutOfRange = isUniV3 ? tickLower > univ3Pool.tick || univ3Pool.tick >= tickUpper : false;
@@ -214,6 +215,7 @@ export default function Preview({
             setGasUsd(gasUsd);
           } catch (e) {
             console.log('Estimate gas failed', e);
+            setBuildFailed(true);
           }
         }
       });
@@ -223,6 +225,8 @@ export default function Preview({
     typeof DEXES_INFO[poolType].name === 'string' ? DEXES_INFO[poolType].name : DEXES_INFO[poolType].name[chainId];
 
   const handleClick = async () => {
+    if (buildFailed) return;
+
     setAttempTx(true);
     setTxHash('');
     setTxError(null);
@@ -774,18 +778,21 @@ export default function Preview({
 
         <button
           className={`ks-primary-btn mt-4 w-full ${
-            zapImpact.level === PI_LEVEL.VERY_HIGH ||
-            zapImpact.level === PI_LEVEL.INVALID ||
-            swapPriceImpact.piRes.level === PI_LEVEL.VERY_HIGH ||
-            swapPriceImpact.piRes.level === PI_LEVEL.INVALID
-              ? 'bg-error border-error'
-              : zapImpact.level === PI_LEVEL.HIGH || swapPriceImpact.piRes.level === PI_LEVEL.HIGH
-                ? 'bg-warning border-warning'
-                : ''
+            buildFailed
+              ? ''
+              : zapImpact.level === PI_LEVEL.VERY_HIGH ||
+                  zapImpact.level === PI_LEVEL.INVALID ||
+                  swapPriceImpact.piRes.level === PI_LEVEL.VERY_HIGH ||
+                  swapPriceImpact.piRes.level === PI_LEVEL.INVALID
+                ? 'bg-error border-error'
+                : zapImpact.level === PI_LEVEL.HIGH || swapPriceImpact.piRes.level === PI_LEVEL.HIGH
+                  ? 'bg-warning border-warning'
+                  : ''
           }`}
+          disabled={buildFailed}
           onClick={handleClick}
         >
-          {positionId ? 'Increase' : 'Add'} Liquidity
+          {buildFailed ? 'Build failed, close and try again' : positionId ? 'Increase liquidity' : 'Add liquidity'}
         </button>
       </div>
     </>

@@ -177,10 +177,11 @@ const PositionDetail = () => {
   }, [account, navigate])
 
   useEffect(() => {
-    if (position && forceLoading) {
+    if (position && position.tokenId === positionId?.split('-')[1] && forceLoading) {
       searchParams.delete('forceLoading')
       setSearchParams(searchParams)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [forceLoading, position, searchParams, setSearchParams])
 
   const onRefreshPosition = useCallback(
