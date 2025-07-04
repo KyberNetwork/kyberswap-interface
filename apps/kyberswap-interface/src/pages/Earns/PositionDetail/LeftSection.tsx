@@ -108,7 +108,7 @@ const LeftSection = ({ position }: { position: ParsedPosition }) => {
             <InfoHelper text={t`Estimated 7 days APR`} placement="top" />
           </Flex>
           <Text fontSize={20} color={position.apr > 0 ? theme.primary : theme.text}>
-            {formatAprNumber(position.apr * 100)}%
+            {formatAprNumber(position.apr)}%
           </Text>
         </InfoSectionFirstFormat>
         <InfoSection>

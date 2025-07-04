@@ -296,7 +296,7 @@ export default function TableContent({
                 </PositionValueWrapper>
                 <PositionValueWrapper>
                   <PositionValueLabel>{t`APR`}</PositionValueLabel>
-                  <Text>{formatAprNumber(apr7d * 100)}%</Text>
+                  <Text>{formatAprNumber(apr7d)}%</Text>
                 </PositionValueWrapper>
                 <PositionValueWrapper align={upToLarge ? 'center' : ''}>
                   {!isUniv2 ? (
