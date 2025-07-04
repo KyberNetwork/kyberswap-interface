@@ -17,10 +17,10 @@ import PositionBanner from 'pages/Earns/UserPositions/PositionBanner'
 import TableContent, { FeeInfoFromRpc } from 'pages/Earns/UserPositions/TableContent'
 import { PositionPageWrapper, PositionTableHeader, PositionTableWrapper } from 'pages/Earns/UserPositions/styles'
 import useFilter, { SortBy } from 'pages/Earns/UserPositions/useFilter'
-import { CoreProtocol, EarnDex, earnSupportedChains, earnSupportedProtocols } from 'pages/Earns/constants'
+import { CoreProtocol, EarnDex, earnSupportedChains, earnSupportedExchanges } from 'pages/Earns/constants'
+import useLiquidityWidget from 'pages/Earns/hooks/useLiquidityWidget'
+import useSupportedDexesAndChains from 'pages/Earns/hooks/useSupportedDexesAndChains'
 import { PositionStatus } from 'pages/Earns/types'
-import useLiquidityWidget from 'pages/Earns/useLiquidityWidget'
-import useSupportedDexesAndChains from 'pages/Earns/useSupportedDexesAndChains'
 import { isForkFrom } from 'pages/Earns/utils'
 import SortIcon, { Direction } from 'pages/MarketOverview/SortIcon'
 import { MEDIA_WIDTHS } from 'theme'
@@ -43,7 +43,7 @@ const UserPositions = () => {
   const positionQueryParams = {
     addresses: account || '',
     chainIds: filters.chainIds || earnSupportedChains.join(','),
-    protocols: filters.protocols || earnSupportedProtocols.join(','),
+    protocols: filters.protocols || earnSupportedExchanges.join(','),
     q: filters.q,
   }
 

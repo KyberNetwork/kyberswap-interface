@@ -4,8 +4,8 @@ import { Flex, Text } from 'rebass'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
 import { PoolRow, Tag } from 'pages/Earns/Landing/styles'
+import useLiquidityWidget from 'pages/Earns/hooks/useLiquidityWidget'
 import { EarnPool } from 'pages/Earns/types'
-import useLiquidityWidget from 'pages/Earns/useLiquidityWidget'
 import { formatAprNumber } from 'pages/Earns/utils'
 
 const PoolItem = ({ pool }: { pool: EarnPool }) => {

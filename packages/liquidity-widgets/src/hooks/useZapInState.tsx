@@ -382,6 +382,9 @@ export const ZapContextProvider = ({
       let formattedAmountsInWeis = '';
       const listAmountsIn = amountsIn.split(',');
 
+      const existEmptyAmount = listAmountsIn.some(amount => !Number(amount));
+      if (existEmptyAmount) return;
+
       try {
         formattedTokensIn = tokensIn.map((token: Token) => token.address).join(',');
 

@@ -258,7 +258,7 @@ const cacheConfig: {
   rpc: {},
 }
 
-const cacheCalc: <T extends keyof typeof cacheConfig, U extends (typeof cacheConfig)[T][string]>(
+export const cacheCalc: <T extends keyof typeof cacheConfig, U extends (typeof cacheConfig)[T][string]>(
   type: T,
   value: string,
   fallback: (value: string) => U,
@@ -273,7 +273,7 @@ const cacheCalc: <T extends keyof typeof cacheConfig, U extends (typeof cacheCon
   return cacheConfig[type][value] as U
 }
 
-function getDefaultConfig(chainId: ChainId): KyberSwapConfigResponse {
+export function getDefaultConfig(chainId: ChainId): KyberSwapConfigResponse {
   return {
     rpc: NETWORKS_INFO[chainId].defaultRpcUrl,
     isEnableKNProtocol: false,

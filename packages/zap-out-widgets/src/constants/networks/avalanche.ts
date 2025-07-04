@@ -1,6 +1,6 @@
 export default {
   name: "Avalanche",
-  logo: "https://raw.githubusercontent.com/KyberNetwork/kyberswap-interface/main/src/assets/networks/avalanche.svg",
+  logo: "https://raw.githubusercontent.com/KyberNetwork/kyberswap-interface/main/apps/kyberswap-interface/src/assets/networks/avalanche.svg",
   nativeLogo:
     "https://storage.googleapis.com/ks-setting-1d682dca/e72081b5-cb5f-4fb6-b771-ac189bdfd7c81699420213175.png",
   scanLink: "https://snowscan.xyz",

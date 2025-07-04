@@ -184,7 +184,7 @@ export const SymbolText = styled.div`
 export const Apr = styled.div<{ positive: boolean }>`
   display: flex;
   justify-content: flex-end;
-  color: ${({ positive, theme }) => (positive ? theme.primary : theme.red)};
+  color: ${({ positive, theme }) => (positive ? theme.primary : theme.text)};
 `
 
 export const MobileTableRow = styled.div`
