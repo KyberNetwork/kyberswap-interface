@@ -6,9 +6,9 @@ import { Flex } from 'rebass'
 
 import Search from 'components/Search'
 import useDebounce from 'hooks/useDebounce'
-import DropdownMenu, { MenuOption } from 'pages/Earns/PoolExplorer/DropdownMenu'
+import DropdownMenu, { MenuOption } from 'pages/Earns/components/DropdownMenu'
+import { AllChainsOption, AllProtocolsOption } from 'pages/Earns/hooks/useSupportedDexesAndChains'
 import { PositionFilter, PositionStatus } from 'pages/Earns/types'
-import { AllChainsOption, AllProtocolsOption } from 'pages/Earns/useSupportedDexesAndChains'
 import { MEDIA_WIDTHS } from 'theme'
 
 const POSITION_STATUS = [

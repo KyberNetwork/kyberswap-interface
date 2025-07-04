@@ -3,6 +3,7 @@ import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import useTheme from 'hooks/useTheme'
+import { LIMIT_TEXT_STYLES } from 'pages/Earns/constants'
 import { formatDisplayNumber } from 'utils/numbers'
 
 export const Wrapper = styled.div`
@@ -60,7 +61,7 @@ export const Image = styled.img`
   border-radius: 50%;
 `
 
-export const DexImage = styled(Image)`
+const DexImage = styled(Image)`
   width: 14px;
   height: 14px;
   margin-left: -6px;
@@ -76,7 +77,7 @@ export const ClaimInfoRow = ({
 }: {
   tokenImage: string
   dexImage: string
-  tokenAmount: string
+  tokenAmount: string | number
   tokenSymbol: string
   tokenUsdValue: number
 }) => {
@@ -88,13 +89,13 @@ export const ClaimInfoRow = ({
         <Image src={tokenImage} alt="tokenImage" />
         <DexImage src={dexImage} alt="dexImage" />
       </Flex>
-      <Text>
+      <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '80px' }}>
         {formatDisplayNumber(tokenAmount, {
           significantDigits: 4,
         })}
       </Text>
       <Text>{tokenSymbol}</Text>
-      <Text color={theme.subText}>
+      <Text color={theme.subText} sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '80px' }}>
         {formatDisplayNumber(tokenUsdValue, {
           style: 'currency',
           significantDigits: 4,

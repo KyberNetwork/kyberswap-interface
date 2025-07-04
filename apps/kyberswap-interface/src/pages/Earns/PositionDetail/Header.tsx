@@ -1,4 +1,3 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -25,9 +24,8 @@ import {
   earnSupportedProtocols,
 } from 'pages/Earns/constants'
 import { ParsedPosition, PositionStatus } from 'pages/Earns/types'
-import { isForkFrom } from 'pages/Earns/utils'
+import { isForkFrom, shortenAddress } from 'pages/Earns/utils'
 import { MEDIA_WIDTHS } from 'theme'
-import { shortenAddress } from 'utils'
 
 const PositionDetailHeader = ({
   position,
@@ -86,9 +84,7 @@ const PositionDetailHeader = ({
             ● {posStatus === PositionStatus.IN_RANGE ? t`In range` : t`Out of range`}
           </Badge>
           <Badge type={BadgeType.SECONDARY}>
-            <Text fontSize={14}>
-              {position.poolAddress ? shortenAddress(position.chainId as ChainId, position.poolAddress, 4) : ''}
-            </Text>
+            <Text fontSize={14}>{position.poolAddress ? shortenAddress(position.poolAddress, 4) : ''}</Text>
             <CopyHelper size={16} toCopy={position.poolAddress} />
           </Badge>
           <MouseoverTooltipDesktopOnly
