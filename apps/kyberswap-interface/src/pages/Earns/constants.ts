@@ -31,6 +31,18 @@ export enum EarnDex2 {
   DEX_UNISWAP_V4 = 'uniswap-v4',
 }
 
+export const protocolGroupNameToExchangeMapping: { [key in EarnDex]: EarnDex2 } = {
+  [EarnDex.DEX_UNISWAPV3]: EarnDex2.DEX_UNISWAPV3,
+  [EarnDex.DEX_PANCAKESWAPV3]: EarnDex2.DEX_PANCAKESWAPV3,
+  [EarnDex.DEX_SUSHISWAPV3]: EarnDex2.DEX_SUSHISWAPV3,
+  [EarnDex.DEX_QUICKSWAPV3ALGEBRA]: EarnDex2.DEX_QUICKSWAPV3ALGEBRA,
+  [EarnDex.DEX_CAMELOTV3]: EarnDex2.DEX_CAMELOTV3,
+  [EarnDex.DEX_THENAFUSION]: EarnDex2.DEX_THENAFUSION,
+  [EarnDex.DEX_KODIAK_V3]: EarnDex2.DEX_KODIAK_V3,
+  [EarnDex.DEX_UNISWAPV2]: EarnDex2.DEX_UNISWAPV2,
+  [EarnDex.DEX_UNISWAP_V4]: EarnDex2.DEX_UNISWAP_V4,
+}
+
 export enum EarnChain {
   MAINNET = ChainId.MAINNET,
   BASE = ChainId.BASE,

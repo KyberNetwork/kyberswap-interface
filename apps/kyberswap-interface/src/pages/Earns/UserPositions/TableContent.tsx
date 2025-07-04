@@ -34,7 +34,13 @@ import {
   PositionValueLabel,
   PositionValueWrapper,
 } from 'pages/Earns/UserPositions/styles'
-import { CoreProtocol, DEXES_HIDE_TOKEN_ID, DEXES_SUPPORT_COLLECT_FEE, EarnDex } from 'pages/Earns/constants'
+import {
+  CoreProtocol,
+  DEXES_HIDE_TOKEN_ID,
+  DEXES_SUPPORT_COLLECT_FEE,
+  EarnDex,
+  protocolGroupNameToExchangeMapping,
+} from 'pages/Earns/constants'
 import useCollectFees from 'pages/Earns/hooks/useCollectFees'
 import { EarnPosition, ParsedPosition, PositionStatus } from 'pages/Earns/types'
 import { formatAprNumber, isForkFrom, isNativeToken, shortenAddress } from 'pages/Earns/utils'
@@ -210,7 +216,7 @@ export default function TableContent({
                   navigate({
                     pathname: APP_PATHS.EARN_POSITION_DETAIL.replace(':positionId', !isUniv2 ? id : poolAddress)
                       .replace(':chainId', poolChainId.toString())
-                      .replace(':protocol', dex),
+                      .replace(':protocol', protocolGroupNameToExchangeMapping[dex]),
                   })
                 }
               >

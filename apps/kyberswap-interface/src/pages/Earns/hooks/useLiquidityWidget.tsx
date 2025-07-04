@@ -15,7 +15,13 @@ import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import useFilter from 'pages/Earns/PoolExplorer/useFilter'
-import { CoreProtocol, EarnDex, EarnDex2, NFT_MANAGER_CONTRACT } from 'pages/Earns/constants'
+import {
+  CoreProtocol,
+  EarnDex,
+  EarnDex2,
+  NFT_MANAGER_CONTRACT,
+  protocolGroupNameToExchangeMapping,
+} from 'pages/Earns/constants'
 import { getTokenId, isForkFrom } from 'pages/Earns/utils'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { getCookieValue } from 'utils'
@@ -174,14 +180,15 @@ const useLiquidityWidget = () => {
       const dexIndex = Object.values(zapInDexMapping).findIndex(item => item === addLiquidityPureParams.poolType)
       const dex = Object.keys(zapInDexMapping)[dexIndex] as EarnDex
       const isUniv2 = isForkFrom(dex, CoreProtocol.UniswapV2)
+      const isUniv4 = isForkFrom(dex, CoreProtocol.UniswapV4)
       if (isUniv2) {
         const poolAddress = addLiquidityPureParams.poolAddress
         url =
           APP_PATHS.EARN_POSITION_DETAIL.replace(':positionId', poolAddress)
             .replace(':chainId', chainId.toString())
-            .replace(':protocol', dex) + '?forceLoading=true'
+            .replace(':protocol', protocolGroupNameToExchangeMapping[dex]) + '?forceLoading=true'
       } else {
-        const tokenId = await getTokenId(library, txHash)
+        const tokenId = await getTokenId(library, txHash, isUniv4)
         if (!tokenId) {
           navigate(APP_PATHS.EARN_POSITIONS)
           return
@@ -194,7 +201,7 @@ const useLiquidityWidget = () => {
         url =
           APP_PATHS.EARN_POSITION_DETAIL.replace(':positionId', `${nftContract}-${tokenId}`)
             .replace(':chainId', chainId.toString())
-            .replace(':protocol', dex) + '?forceLoading=true'
+            .replace(':protocol', protocolGroupNameToExchangeMapping[dex]) + '?forceLoading=true'
       }
 
       navigate(url)
