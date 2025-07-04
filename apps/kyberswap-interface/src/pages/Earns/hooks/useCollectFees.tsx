@@ -46,7 +46,6 @@ const useCollectFees = ({ refetchAfterCollect }: { refetchAfterCollect: () => vo
       : await getUniv3CollectCallData({ claimInfo, recipient: account })
 
     if (!txData) return
-    console.log('txData', txData)
 
     let errorMessage = ''
 
