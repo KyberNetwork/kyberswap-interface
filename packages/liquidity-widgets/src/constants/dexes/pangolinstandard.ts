@@ -1,7 +1,7 @@
-import pangolinLogo from "@/assets/dexes/pangolin.png";
+import pangolinLogo from '@/assets/dexes/pangolin.png';
 
 export default {
   icon: pangolinLogo,
-  name: "Pangolin Standard",
+  name: 'Pangolin Standard',
   nftManagerContract: {},
 };

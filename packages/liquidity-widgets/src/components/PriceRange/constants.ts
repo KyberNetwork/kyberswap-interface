@@ -13,7 +13,7 @@ export const DEFAULT_PRICE_RANGE = {
   [FeeAmount.HIGH]: 0.5,
 };
 
-export const FULL_PRICE_RANGE = "Full Range";
+export const FULL_PRICE_RANGE = 'Full Range';
 
 export const PRICE_RANGE = {
   [FeeAmount.LOWEST]: [FULL_PRICE_RANGE, 0.01, 0.005, 0.001],

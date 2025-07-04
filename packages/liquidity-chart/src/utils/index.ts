@@ -1,8 +1,10 @@
-import { tickToPrice } from "@kyber/utils/uniswapv3";
-import type { ScaleLinear } from "d3";
-import type { TickDataRaw, TickProcessed } from "@/types";
-import { FeeAmount } from "@/types";
-import { PRICE_FIXED_DIGITS } from "@/constants";
+import type { ScaleLinear } from 'd3';
+
+import { tickToPrice } from '@kyber/utils/uniswapv3';
+
+import { PRICE_FIXED_DIGITS } from '@/constants';
+import type { TickDataRaw, TickProcessed } from '@/types';
+import { FeeAmount } from '@/types';
 
 // Computes the numSurroundingTicks above or below the active tick.
 export const computeSurroundingTicks = (
@@ -12,7 +14,7 @@ export const computeSurroundingTicks = (
   sortedTickData: TickDataRaw[],
   pivot: number,
   ascending: boolean,
-  revert: boolean
+  revert: boolean,
 ): TickProcessed[] => {
   let previousTickProcessed: TickProcessed = {
     ...activeTickProcessed,
@@ -22,19 +24,13 @@ export const computeSurroundingTicks = (
   // building active liquidity for every tick.
   let processedTicks: TickProcessed[] = [];
 
-  for (
-    let i = pivot + (ascending ? 1 : -1);
-    ascending ? i < sortedTickData.length : i >= 0;
-    ascending ? i++ : i--
-  ) {
+  for (let i = pivot + (ascending ? 1 : -1); ascending ? i < sortedTickData.length : i >= 0; ascending ? i++ : i--) {
     const tick = Number(sortedTickData[i].index);
     const currentTickProcessed: TickProcessed = {
       liquidityActive: previousTickProcessed.liquidityActive,
       tick,
       liquidityNet: BigInt(sortedTickData[i].liquidityNet),
-      price: Number(
-        tickToPrice(tick, token0decimals, token1decimal, revert)
-      ).toFixed(PRICE_FIXED_DIGITS),
+      price: Number(tickToPrice(tick, token0decimals, token1decimal, revert)).toFixed(PRICE_FIXED_DIGITS),
     };
 
     // Update the active liquidity.
@@ -43,13 +39,10 @@ export const computeSurroundingTicks = (
     // If we are iterating descending, we don't want to apply the net liquidity until the following tick.
     if (ascending) {
       currentTickProcessed.liquidityActive =
-        previousTickProcessed.liquidityActive +
-        BigInt(sortedTickData[i].liquidityNet);
+        previousTickProcessed.liquidityActive + BigInt(sortedTickData[i].liquidityNet);
     } else if (previousTickProcessed.liquidityNet !== 0n) {
       // We are iterating descending, so look at the previous tick and apply any net liquidity.
-      currentTickProcessed.liquidityActive =
-        previousTickProcessed.liquidityActive -
-        previousTickProcessed.liquidityNet;
+      currentTickProcessed.liquidityActive = previousTickProcessed.liquidityActive - previousTickProcessed.liquidityNet;
     }
 
     processedTicks.push(currentTickProcessed);
@@ -65,20 +58,16 @@ export const computeSurroundingTicks = (
  * Returns true if every element in `a` maps to the
  * same pixel coordinate as elements in `b`
  */
-export const compare = (
-  a: [number, number],
-  b: [number, number],
-  xScale: ScaleLinear<number, number>
-): boolean => {
+export const compare = (a: [number, number], b: [number, number], xScale: ScaleLinear<number, number>): boolean => {
   // normalize pixels to 1 decimals
-  const aNorm = a.map((x) => xScale(x).toFixed(1));
-  const bNorm = b.map((x) => xScale(x).toFixed(1));
+  const aNorm = a.map(x => xScale(x).toFixed(1));
+  const bNorm = b.map(x => xScale(x).toFixed(1));
   return aNorm.every((v, i) => v === bNorm[i]);
 };
 
 export const getFeeRange = (fee: number): FeeAmount =>
-  (Object.values(FeeAmount).find((f) => f === fee) as FeeAmount) ||
+  (Object.values(FeeAmount).find(f => f === fee) as FeeAmount) ||
   [FeeAmount.HIGH, FeeAmount.MEDIUM, FeeAmount.LOW, FeeAmount.LOWEST].reduce(
     (range, current) => (current >= fee ? current : range),
-    FeeAmount.HIGH
+    FeeAmount.HIGH,
   );

@@ -1,13 +1,16 @@
-import { useCallback, useMemo } from "react";
-import { format } from "d3";
-import type { LiquidityChartRangeInputProps } from "./types";
-import { Bound } from "@/types";
-import { DEFAULT_DIMENSIONS, DEFAULT_MARGINS, ZOOM_LEVELS } from "@/constants";
-import Chart from "@/components/Chart";
-import InfoBox from "@/components/InfoBox";
-import useDensityChartData from "@/hooks/useDensityChartData";
-import "./styles.css";
-import { getFeeRange } from "./utils";
+import { useCallback, useMemo } from 'react';
+
+import { format } from 'd3';
+
+import Chart from '@/components/Chart';
+import InfoBox from '@/components/InfoBox';
+import { DEFAULT_DIMENSIONS, DEFAULT_MARGINS, ZOOM_LEVELS } from '@/constants';
+import useDensityChartData from '@/hooks/useDensityChartData';
+import { Bound } from '@/types';
+
+import './styles.css';
+import type { LiquidityChartRangeInputProps } from './types';
+import { getFeeRange } from './utils';
 
 export default function LiquidityChartRangeInput({
   id,
@@ -34,54 +37,37 @@ export default function LiquidityChartRangeInput({
     const rightPrice = !revertPrice ? priceUpper : priceLower;
 
     return leftPrice && rightPrice
-      ? [
-          parseFloat(leftPrice.toString().replace(/,/g, "")),
-          parseFloat(rightPrice.toString().replace(/,/g, "")),
-        ]
+      ? [parseFloat(leftPrice.toString().replace(/,/g, '')), parseFloat(rightPrice.toString().replace(/,/g, ''))]
       : undefined;
   }, [priceLower, priceUpper, revertPrice]);
 
   const brushLabel = useCallback(
-    (d: "w" | "e", x: number) => {
-      if (!currentPrice) return "";
+    (d: 'w' | 'e', x: number) => {
+      if (!currentPrice) return '';
 
-      if (d === "w" && ticksAtLimit[!revertPrice ? Bound.LOWER : Bound.UPPER])
-        return "0";
-      if (d === "e" && ticksAtLimit[!revertPrice ? Bound.UPPER : Bound.LOWER])
-        return "∞";
+      if (d === 'w' && ticksAtLimit[!revertPrice ? Bound.LOWER : Bound.UPPER]) return '0';
+      if (d === 'e' && ticksAtLimit[!revertPrice ? Bound.UPPER : Bound.LOWER]) return '∞';
 
       const percent =
-        (x < currentPrice ? -1 : 1) *
-        ((Math.max(x, currentPrice) - Math.min(x, currentPrice)) /
-          currentPrice) *
-        100;
+        (x < currentPrice ? -1 : 1) * ((Math.max(x, currentPrice) - Math.min(x, currentPrice)) / currentPrice) * 100;
 
-      return currentPrice
-        ? `${format(Math.abs(percent) > 1 ? ".2~s" : ".2~f")(percent)}%`
-        : "";
+      return currentPrice ? `${format(Math.abs(percent) > 1 ? '.2~s' : '.2~f')(percent)}%` : '';
     },
-    [currentPrice, ticksAtLimit, revertPrice]
+    [currentPrice, ticksAtLimit, revertPrice],
   );
 
   const defaultZoomLevels = useMemo(() => {
     if (onBrushDomainChange) return ZOOM_LEVELS[feeRange];
     if (!priceLower || !priceUpper || !currentPrice) return;
 
-    const leftPrice = parseFloat(
-      (!revertPrice ? priceLower : priceUpper).toString().replace(/,/g, "")
-    );
-    const rightPrice = parseFloat(
-      (!revertPrice ? priceUpper : priceLower).toString().replace(/,/g, "")
-    );
+    const leftPrice = parseFloat((!revertPrice ? priceLower : priceUpper).toString().replace(/,/g, ''));
+    const rightPrice = parseFloat((!revertPrice ? priceUpper : priceLower).toString().replace(/,/g, ''));
     const priceToCalculate =
-      ticksAtLimit[Bound.UPPER] ||
-      Math.abs(currentPrice - leftPrice) > Math.abs(currentPrice - rightPrice)
+      ticksAtLimit[Bound.UPPER] || Math.abs(currentPrice - leftPrice) > Math.abs(currentPrice - rightPrice)
         ? leftPrice
         : rightPrice;
 
-    const ratio = Math.abs(
-      (7 * (currentPrice - priceToCalculate)) / (5 * currentPrice)
-    );
+    const ratio = Math.abs((7 * (currentPrice - priceToCalculate)) / (5 * currentPrice));
 
     return {
       initialMin: 1 - ratio,
@@ -89,18 +75,10 @@ export default function LiquidityChartRangeInput({
       min: 0.00001,
       max: 20,
     };
-  }, [
-    onBrushDomainChange,
-    priceLower,
-    priceUpper,
-    currentPrice,
-    revertPrice,
-    ticksAtLimit,
-    feeRange,
-  ]);
+  }, [onBrushDomainChange, priceLower, priceUpper, currentPrice, revertPrice, ticksAtLimit, feeRange]);
 
   return (
-    <div className="ks-lc-style" style={{ width: "100%" }}>
+    <div className="ks-lc-style" style={{ width: '100%' }}>
       <div className="flex items-center min-h-52 w-full gap-4 justify-center">
         {!chartData || !defaultZoomLevels ? (
           <InfoBox message="Your position will appear here." />

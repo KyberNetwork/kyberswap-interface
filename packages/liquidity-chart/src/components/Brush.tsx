@@ -1,10 +1,12 @@
-import type { BrushBehavior, D3BrushEvent } from "d3";
-import { brushX, select } from "d3";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { brushHandlePath, OffScreenHandle } from "@/components/svg";
-import { compare } from "@/utils";
-import type { BrushProps } from "@/types";
-import usePreviousValue from "@/hooks/usePreviousValue";
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+
+import type { BrushBehavior, D3BrushEvent } from 'd3';
+import { brushX, select } from 'd3';
+
+import { OffScreenHandle, brushHandlePath } from '@/components/svg';
+import usePreviousValue from '@/hooks/usePreviousValue';
+import type { BrushProps } from '@/types';
+import { compare } from '@/utils';
 
 // flips the handles draggers when close to the container edges
 const FLIP_HANDLE_THRESHOLD_PX = 20;
@@ -26,9 +28,7 @@ export default function Brush({
   const brushBehavior = useRef<BrushBehavior<SVGGElement> | null>(null);
 
   // only used to drag the handles on brush for performance
-  const [localBrushExtent, setLocalBrushExtent] = useState<
-    [number, number] | null
-  >(brushExtent);
+  const [localBrushExtent, setLocalBrushExtent] = useState<[number, number] | null>(brushExtent);
   const [showLabels, setShowLabels] = useState(false);
   const [hovering, setHovering] = useState(false);
 
@@ -43,24 +43,16 @@ export default function Brush({
         return;
       }
 
-      const scaled = (selection as [number, number]).map(xScale.invert) as [
-        number,
-        number
-      ];
+      const scaled = (selection as [number, number]).map(xScale.invert) as [number, number];
 
       // avoid infinite render loop by checking for change
-      if (
-        type === "end" &&
-        !compare(brushExtent, scaled, xScale) &&
-        zoomInited &&
-        setBrushExtent
-      ) {
+      if (type === 'end' && !compare(brushExtent, scaled, xScale) && zoomInited && setBrushExtent) {
         setBrushExtent(scaled, mode);
       }
 
       setLocalBrushExtent(scaled);
     },
-    [xScale, brushExtent, setBrushExtent, zoomInited]
+    [xScale, brushExtent, setBrushExtent, zoomInited],
   );
 
   // keep local and external brush extent in sync
@@ -79,7 +71,7 @@ export default function Brush({
         [innerWidth - BRUSH_EXTENT_MARGIN_PX, innerHeight],
       ])
       .handleSize(30)
-      .on("brush end", brushed);
+      .on('brush end', brushed);
 
     brushBehavior.current(select(brushRef.current));
 
@@ -97,39 +89,27 @@ export default function Brush({
     // brush linear gradient
     if (!setBrushExtent) {
       select(brushRef.current)
-        .selectAll(".selection")
-        .attr("stroke", "none")
-        .attr("fill-opacity", "0.1")
-        .attr("fill", `url(#${id}-gradient-selection)`)
-        .attr("cursor", "default");
-      select(brushRef.current).selectAll(".overlay").attr("cursor", "default");
-      select(brushRef.current).selectAll(".handle").attr("cursor", "default");
+        .selectAll('.selection')
+        .attr('stroke', 'none')
+        .attr('fill-opacity', '0.1')
+        .attr('fill', `url(#${id}-gradient-selection)`)
+        .attr('cursor', 'default');
+      select(brushRef.current).selectAll('.overlay').attr('cursor', 'default');
+      select(brushRef.current).selectAll('.handle').attr('cursor', 'default');
     } else {
       select(brushRef.current)
-        .selectAll(".selection")
-        .attr("stroke", "none")
-        .attr("fill-opacity", "0.1")
-        .attr("fill", `url(#${id}-gradient-selection)`);
+        .selectAll('.selection')
+        .attr('stroke', 'none')
+        .attr('fill-opacity', '0.1')
+        .attr('fill', `url(#${id}-gradient-selection)`);
     }
-  }, [
-    brushExtent,
-    brushed,
-    id,
-    innerHeight,
-    innerWidth,
-    previousBrushExtent,
-    setBrushExtent,
-    xScale,
-  ]);
+  }, [brushExtent, brushed, id, innerHeight, innerWidth, previousBrushExtent, setBrushExtent, xScale]);
 
   // respond to xScale changes only
   useEffect(() => {
     if (!brushRef.current || !brushBehavior.current) return;
 
-    brushBehavior.current.move(
-      select(brushRef.current),
-      brushExtent.map(xScale) as [number, number]
-    );
+    brushBehavior.current.move(select(brushRef.current), brushExtent.map(xScale) as [number, number]);
   }, [brushExtent, xScale]);
 
   // show labels when local brush changes
@@ -140,40 +120,23 @@ export default function Brush({
   }, [localBrushExtent]);
 
   // variables to help render the SVGs
-  const flipWestHandle =
-    localBrushExtent && xScale(localBrushExtent[0]) > FLIP_HANDLE_THRESHOLD_PX;
-  const flipEastHandle =
-    localBrushExtent &&
-    xScale(localBrushExtent[1]) > innerWidth - FLIP_HANDLE_THRESHOLD_PX;
+  const flipWestHandle = localBrushExtent && xScale(localBrushExtent[0]) > FLIP_HANDLE_THRESHOLD_PX;
+  const flipEastHandle = localBrushExtent && xScale(localBrushExtent[1]) > innerWidth - FLIP_HANDLE_THRESHOLD_PX;
 
-  const showWestArrow =
-    localBrushExtent &&
-    (xScale(localBrushExtent[0]) < 0 || xScale(localBrushExtent[1]) < 0);
+  const showWestArrow = localBrushExtent && (xScale(localBrushExtent[0]) < 0 || xScale(localBrushExtent[1]) < 0);
   const showEastArrow =
-    localBrushExtent &&
-    (xScale(localBrushExtent[0]) > innerWidth ||
-      xScale(localBrushExtent[1]) > innerWidth);
+    localBrushExtent && (xScale(localBrushExtent[0]) > innerWidth || xScale(localBrushExtent[1]) > innerWidth);
 
   const westHandleInView =
-    localBrushExtent &&
-    xScale(localBrushExtent[0]) >= 0 &&
-    xScale(localBrushExtent[0]) <= innerWidth;
+    localBrushExtent && xScale(localBrushExtent[0]) >= 0 && xScale(localBrushExtent[0]) <= innerWidth;
   const eastHandleInView =
-    localBrushExtent &&
-    xScale(localBrushExtent[1]) >= 0 &&
-    xScale(localBrushExtent[1]) <= innerWidth;
+    localBrushExtent && xScale(localBrushExtent[1]) >= 0 && xScale(localBrushExtent[1]) <= innerWidth;
 
   return useMemo(
     () => (
       <>
         <defs>
-          <linearGradient
-            id={`${id}-gradient-selection`}
-            x1="0%"
-            x2="100%"
-            y1="100%"
-            y2="100%"
-          >
+          <linearGradient id={`${id}-gradient-selection`} x1="0%" x2="100%" y1="100%" y2="100%">
             <stop stopColor="transparent" />
             <stop offset="1" stopColor="transparent" />
           </linearGradient>
@@ -201,8 +164,8 @@ export default function Brush({
               <g
                 transform={`translate(${Math.max(
                   0,
-                  xScale(localBrushExtent[0])
-                )}, 0), scale(${flipWestHandle ? "-1" : "1"}, 1)`}
+                  xScale(localBrushExtent[0]),
+                )}, 0), scale(${flipWestHandle ? '-1' : '1'}, 1)`}
               >
                 <g>
                   <path
@@ -217,18 +180,9 @@ export default function Brush({
                 <g
                   className="transition-opacity duration-300"
                   opacity={showLabels || hovering ? 1 : 0}
-                  transform={`translate(50,0), scale(${
-                    flipWestHandle ? "1" : "-1"
-                  }, 1)`}
+                  transform={`translate(50,0), scale(${flipWestHandle ? '1' : '-1'}, 1)`}
                 >
-                  <rect
-                    fill="transparent"
-                    height="30"
-                    rx="8"
-                    width="60"
-                    x="-30"
-                    y="0"
-                  />
+                  <rect fill="transparent" height="30" rx="8" width="60" x="-30" y="0" />
 
                   <text
                     dominantBaseline="middle"
@@ -238,18 +192,14 @@ export default function Brush({
                     transform="scale(-1, 1)"
                     y="15"
                   >
-                    {brushLabelValue("w", localBrushExtent[0])}
+                    {brushLabelValue('w', localBrushExtent[0])}
                   </text>
                 </g>
               </g>
             ) : null}
 
             {eastHandleInView ? (
-              <g
-                transform={`translate(${xScale(
-                  localBrushExtent[1]
-                )}, 0), scale(${flipEastHandle ? "-1" : "1"}, 1)`}
-              >
+              <g transform={`translate(${xScale(localBrushExtent[1])}, 0), scale(${flipEastHandle ? '-1' : '1'}, 1)`}>
                 <g>
                   <path
                     d={brushHandlePath(innerHeight)}
@@ -263,27 +213,12 @@ export default function Brush({
                 <g
                   className="transition-opacity duration-300"
                   opacity={showLabels || hovering ? 1 : 0}
-                  transform={`translate(50,0), scale(${
-                    flipEastHandle ? "-1" : "1"
-                  }, 1)`}
+                  transform={`translate(50,0), scale(${flipEastHandle ? '-1' : '1'}, 1)`}
                 >
-                  <rect
-                    fill="transparent"
-                    height="30"
-                    rx="8"
-                    width="60"
-                    x="-30"
-                    y="0"
-                  />
+                  <rect fill="transparent" height="30" rx="8" width="60" x="-30" y="0" />
 
-                  <text
-                    dominantBaseline="middle"
-                    fill="#979797"
-                    fontSize="13px"
-                    textAnchor="middle"
-                    y="15"
-                  >
-                    {brushLabelValue("e", localBrushExtent[1])}
+                  <text dominantBaseline="middle" fill="#979797" fontSize="13px" textAnchor="middle" y="15">
+                    {brushLabelValue('e', localBrushExtent[1])}
                   </text>
                 </g>
               </g>
@@ -316,6 +251,6 @@ export default function Brush({
       flipEastHandle,
       showWestArrow,
       showEastArrow,
-    ]
+    ],
   );
 }

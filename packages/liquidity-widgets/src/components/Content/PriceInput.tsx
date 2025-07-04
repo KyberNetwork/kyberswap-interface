@@ -1,107 +1,74 @@
-import { useEffect, useMemo, useState } from "react";
-import { useZapState } from "@/hooks/useZapInState";
-import { Type } from "@/hooks/types/zapInTypes";
-import { NO_DATA } from "@/constants";
-import { useWidgetContext } from "@/stores";
-import {
-  MAX_TICK,
-  MIN_TICK,
-  nearestUsableTick,
-  priceToClosestTick,
-  tickToPrice,
-} from "@kyber/utils/uniswapv3";
-import { univ3PoolNormalize } from "@/schema";
-import { formatNumber } from "@/utils";
+import { useEffect, useMemo, useState } from 'react';
+
+import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick, tickToPrice } from '@kyber/utils/uniswapv3';
+
+import { NO_DATA } from '@/constants';
+import { Type } from '@/hooks/types/zapInTypes';
+import { useZapState } from '@/hooks/useZapInState';
+import { univ3PoolNormalize } from '@/schema';
+import { useWidgetContext } from '@/stores';
+import { formatNumber } from '@/utils';
 
 export default function PriceInput({ type }: { type: Type }) {
-  const {
-    tickLower,
-    tickUpper,
-    revertPrice,
-    setTickLower,
-    setTickUpper,
-    positionId,
-  } = useZapState();
-  const { pool: rawPool } = useWidgetContext((s) => s);
-  const [localValue, setLocalValue] = useState("");
+  const { tickLower, tickUpper, revertPrice, setTickLower, setTickUpper, positionId } = useZapState();
+  const { pool: rawPool } = useWidgetContext(s => s);
+  const [localValue, setLocalValue] = useState('');
 
   const pool = useMemo(() => {
-    if (rawPool === "loading") return rawPool;
+    if (rawPool === 'loading') return rawPool;
     const { success, data } = univ3PoolNormalize.safeParse(rawPool);
     if (success) return data;
     // TODO: check if return loading here ok?
-    return "loading";
+    return 'loading';
   }, [rawPool]);
 
-  const isFullRange =
-    pool !== "loading" &&
-    tickLower === pool.minTick &&
-    tickUpper === pool.maxTick;
+  const isFullRange = pool !== 'loading' && tickLower === pool.minTick && tickUpper === pool.maxTick;
 
   const poolTick =
-    pool === "loading"
+    pool === 'loading'
       ? undefined
       : pool.tick % pool.tickSpacing === 0
-      ? pool.tick
-      : nearestUsableTick(pool.tick, pool.tickSpacing);
+        ? pool.tick
+        : nearestUsableTick(pool.tick, pool.tickSpacing);
 
   const increaseTickLower = () => {
-    if (pool === "loading" || poolTick === undefined) return;
-    const newTick =
-      tickLower !== null
-        ? tickLower + pool.tickSpacing
-        : poolTick + pool.tickSpacing;
+    if (pool === 'loading' || poolTick === undefined) return;
+    const newTick = tickLower !== null ? tickLower + pool.tickSpacing : poolTick + pool.tickSpacing;
     if (newTick <= MAX_TICK) setTickLower(newTick);
   };
 
   const increaseTickUpper = () => {
-    if (pool === "loading" || poolTick === undefined) return;
-    const newTick =
-      tickUpper !== null
-        ? tickUpper + pool.tickSpacing
-        : poolTick + pool.tickSpacing;
+    if (pool === 'loading' || poolTick === undefined) return;
+    const newTick = tickUpper !== null ? tickUpper + pool.tickSpacing : poolTick + pool.tickSpacing;
     if (newTick <= MAX_TICK) setTickUpper(newTick);
   };
 
   const decreaseTickLower = () => {
-    if (pool === "loading" || poolTick === undefined) return;
-    const newTick =
-      (tickLower !== null ? tickLower : pool.tick) - pool.tickSpacing;
+    if (pool === 'loading' || poolTick === undefined) return;
+    const newTick = (tickLower !== null ? tickLower : pool.tick) - pool.tickSpacing;
 
     if (newTick >= MIN_TICK) setTickLower(newTick);
   };
   const decreaseTickUpper = () => {
-    if (pool === "loading" || poolTick === undefined) return;
-    const newTick =
-      (tickUpper !== null ? tickUpper : poolTick) - pool.tickSpacing;
+    if (pool === 'loading' || poolTick === undefined) return;
+    const newTick = (tickUpper !== null ? tickUpper : poolTick) - pool.tickSpacing;
 
     if (newTick >= MIN_TICK) setTickUpper(newTick);
   };
 
   const onPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/,/g, "");
+    const value = e.target.value.replace(/,/g, '');
     const inputRegex = RegExp(`^\\d*(?:\\\\[.])?\\d*$`); // match escaped "." characters via in a non-capturing group
-    if (
-      value === "" ||
-      inputRegex.test(value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
-    ) {
+    if (value === '' || inputRegex.test(value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))) {
       setLocalValue(value);
     }
   };
 
   const wrappedCorrectPrice = (value: string) => {
-    if (pool === "loading") return;
-    const tick = priceToClosestTick(
-      value,
-      pool.token0?.decimals,
-      pool.token1?.decimals,
-      revertPrice
-    );
+    if (pool === 'loading') return;
+    const tick = priceToClosestTick(value, pool.token0?.decimals, pool.token1?.decimals, revertPrice);
     if (tick !== undefined) {
-      const t =
-        tick % pool.tickSpacing === 0
-          ? tick
-          : nearestUsableTick(tick, pool.tickSpacing);
+      const t = tick % pool.tickSpacing === 0 ? tick : nearestUsableTick(tick, pool.tickSpacing);
       if (type === Type.PriceLower) {
         revertPrice ? setTickUpper(t) : setTickLower(t);
       } else {
@@ -110,46 +77,32 @@ export default function PriceInput({ type }: { type: Type }) {
     }
   };
 
-  const isMinTick = pool !== "loading" && tickLower === pool.minTick;
-  const isMaxTick = pool !== "loading" && tickUpper === pool.maxTick;
+  const isMinTick = pool !== 'loading' && tickLower === pool.minTick;
+  const isMaxTick = pool !== 'loading' && tickUpper === pool.maxTick;
 
   useEffect(() => {
-    if (pool !== "loading") {
+    if (pool !== 'loading') {
       let minPrice = localValue;
       let maxPrice = localValue;
       if (tickUpper !== null)
         maxPrice = isMaxTick
           ? revertPrice
-            ? "0"
-            : "∞"
-          : tickToPrice(
-              tickUpper,
-              pool.token0?.decimals,
-              pool.token1?.decimals,
-              revertPrice
-            );
+            ? '0'
+            : '∞'
+          : tickToPrice(tickUpper, pool.token0?.decimals, pool.token1?.decimals, revertPrice);
       if (tickLower !== null)
         minPrice = isMinTick
           ? revertPrice
-            ? "∞"
-            : "0"
-          : tickToPrice(
-              tickLower,
-              pool.token0?.decimals,
-              pool.token1?.decimals,
-              revertPrice
-            );
+            ? '∞'
+            : '0'
+          : tickToPrice(tickLower, pool.token0?.decimals, pool.token1?.decimals, revertPrice);
 
       if (type === Type.PriceLower) {
         const valueToSet = revertPrice ? maxPrice : minPrice;
-        setLocalValue(
-          valueToSet === "∞" ? valueToSet : formatNumber(parseFloat(valueToSet))
-        );
+        setLocalValue(valueToSet === '∞' ? valueToSet : formatNumber(parseFloat(valueToSet)));
       } else {
         const valueToSet = revertPrice ? minPrice : maxPrice;
-        setLocalValue(
-          valueToSet === "∞" ? valueToSet : formatNumber(parseFloat(valueToSet))
-        );
+        setLocalValue(valueToSet === '∞' ? valueToSet : formatNumber(parseFloat(valueToSet)));
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -167,17 +120,17 @@ export default function PriceInput({ type }: { type: Type }) {
   return (
     <div
       className={`mt-[0.6rem] py-[10px] px-[14px] gap-[10px] flex border ${
-        type === Type.PriceLower ? "border-accent" : "border-[#7289DA]"
+        type === Type.PriceLower ? 'border-accent' : 'border-[#7289DA]'
       } rounded-md`}
     >
       <div className="flex flex-col gap-2 flex-1 text-xs font-medium text-subText">
-        <span>{type === Type.PriceLower ? "Min" : "Max"} price</span>
+        <span>{type === Type.PriceLower ? 'Min' : 'Max'} price</span>
         <input
           className="bg-transparent text-text text-base p-0 border-none outline-none disabled:cursor-not-allowed disabled:opacity-60"
           value={localValue}
           autoFocus={false}
           onChange={onPriceChange}
-          onBlur={(e) => wrappedCorrectPrice(e.target.value)}
+          onBlur={e => wrappedCorrectPrice(e.target.value)}
           inputMode="decimal"
           autoComplete="off"
           autoCorrect="off"
@@ -190,7 +143,7 @@ export default function PriceInput({ type }: { type: Type }) {
           spellCheck="false"
         />
         <span>
-          {pool !== "loading"
+          {pool !== 'loading'
             ? !revertPrice
               ? `${pool?.token1.symbol}/${pool?.token0.symbol}`
               : `${pool?.token0.symbol}/${pool?.token1.symbol}`
