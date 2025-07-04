@@ -13,7 +13,6 @@ const removeLiquidityAction = z.object({
   }),
 });
 
-// eslint-disable-next-line
 export type RemoveLiquidityAction = z.infer<typeof removeLiquidityAction>;
 
 const aggregatorSwapAction = z.object({
@@ -28,7 +27,6 @@ const aggregatorSwapAction = z.object({
   }),
 });
 
-// eslint-disable-next-line
 export type AggregatorSwapAction = z.infer<typeof aggregatorSwapAction>;
 
 const addliquidtyAction = z.object({
@@ -39,7 +37,6 @@ const addliquidtyAction = z.object({
   }),
 });
 
-// eslint-disable-next-line
 export type AddLiquidityAction = z.infer<typeof addliquidtyAction>;
 
 const poolSwapAction = z.object({
@@ -53,7 +50,6 @@ const poolSwapAction = z.object({
     ),
   }),
 });
-// eslint-disable-next-line
 export type PoolSwapAction = z.infer<typeof poolSwapAction>;
 
 const protocolFeeAction = z.object({
@@ -64,7 +60,6 @@ const protocolFeeAction = z.object({
   }),
 });
 
-// eslint-disable-next-line
 export type ProtocolFeeAction = z.infer<typeof protocolFeeAction>;
 
 const refundAction = z.object({
@@ -74,7 +69,6 @@ const refundAction = z.object({
   }),
 });
 
-// eslint-disable-next-line
 export type RefundAction = z.infer<typeof refundAction>;
 
 const apiResponse = z.object({
@@ -115,5 +109,4 @@ const apiResponse = z.object({
   routerAddress: z.string(),
 });
 
-// eslint-disable-next-line
 export type GetRouteResponse = z.infer<typeof apiResponse>;

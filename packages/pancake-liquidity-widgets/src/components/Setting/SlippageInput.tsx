@@ -117,7 +117,7 @@ const SlippageInput = () => {
         </div>
 
         <div
-          className="rounded-md mt-[10px] bg-inputBackground border border-inputBackground h-10 flex flex-1 w-[100px] data-[error='true']:border-[var(--ks-lw-error)] data-[warning='true']:border-warning"
+          className="rounded-md mt-[10px] bg-inputBackground border border-inputBackground h-10 flex flex-1 w-[100px] data-[error='true']:border-[var(--pcs-lw-error)] data-[warning='true']:border-warning"
           style={{ boxShadow: "0 2px 0 -1px #0000000f inset" }}
           data-error={!!message && !isValid}
           data-warning={!!message && isValid}
@@ -127,12 +127,12 @@ const SlippageInput = () => {
               <AlertIcon
                 className={cn(
                   "absolute top-2 left-1 w-4 h-3",
-                  isValid ? "text-warning" : "text-[var(--ks-lw-error)]"
+                  isValid ? "text-warning" : "text-[var(--pcs-lw-error)]"
                 )}
               />
             )}
             <input
-              className="bg-inputBackground text-[var(--ks-lw-text)] font-semibold border-none outline-none text-right w-full text-base p-0"
+              className="bg-inputBackground text-[var(--pcs-lw-text)] font-semibold border-none outline-none text-right w-full text-base p-0"
               placeholder="Custom"
               onBlur={onCustomSlippageBlur}
               onChange={handleCustomSlippageChange}
@@ -148,7 +148,7 @@ const SlippageInput = () => {
         <div
           className={cn(
             "text-xs text-left mt-1",
-            isValid ? "text-warning" : "text-[var(--ks-lw-error)]"
+            isValid ? "text-warning" : "text-[var(--pcs-lw-error)]"
           )}
         >
           {message}

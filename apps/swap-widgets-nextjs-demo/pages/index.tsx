@@ -296,7 +296,12 @@ export default function Home() {
           client="widget-nextjs-demo"
           theme={theme}
           tokenList={[]}
-          provider={ethersProvider}
+          rpcUrl="https://ethereum.kyberengineering.io"
+          chainId={chainId}
+          connectedAccount={{
+            address: wallet?.accounts?.[0]?.address,
+            chainId: chainId,
+          }}
           defaultTokenOut={defaultTokenOut[chainId]}
           feeSetting={
             feeSetting.feeAmount && feeSetting.feeReceiver
@@ -304,6 +309,12 @@ export default function Home() {
               : undefined
           }
           enableRoute
+          onSubmitTx={async (data) => {
+            if (!wallet) throw new Error("No wallet connected");
+            const signer = ethersProvider.getSigner();
+            const tx = await signer.sendTransaction(data);
+            return tx.hash;
+          }}
         />
       </div>
     </>

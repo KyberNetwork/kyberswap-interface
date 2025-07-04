@@ -3,7 +3,7 @@ import { svgrPlugin } from "@kyber/svgr-esbuild-plugin";
 import { sassPlugin } from "esbuild-sass-plugin";
 
 export default defineConfig({
-  entry: { "liquidity-widget": "src/components/index.ts" },
+  entry: { "pancake-liquidity-widget": "src/components/index.ts" },
   format: ["esm", "cjs"],
   outDir: "dist",
   target: "esnext",

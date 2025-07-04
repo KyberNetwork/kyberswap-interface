@@ -132,6 +132,12 @@ export const FixedGlobalStyle = createGlobalStyle`
     }
   }
 
+  @property --border-angle {
+    syntax: "<angle>";
+    initial-value: 0deg;
+    inherits: false;
+  }
+
   html,
   body {
     margin: 0;

@@ -9,7 +9,7 @@ import questionImg from "@/assets/svg/question.svg?url";
 import { useZapOutContext } from "@/stores";
 import DropdownIcon from "@/assets/svg/dropdown.svg";
 import { assertUnreachable } from "@/utils";
-import { Skeleton } from "@kyber/ui/skeleton";
+import { Skeleton } from "@kyber/ui";
 import { getPositionAmounts } from "@kyber/utils/uniswapv3";
 import {
   formatDisplayNumber,

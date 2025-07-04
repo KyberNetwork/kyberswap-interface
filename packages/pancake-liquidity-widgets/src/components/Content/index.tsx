@@ -319,7 +319,7 @@ export default function Content({
             <ErrorIcon />
             <div className="text-center">{loadPoolError}</div>
             <button
-              className="ks-primary-btn w-[95%] bg-error border border-error"
+              className="pcs-primary-btn w-[95%] bg-error border border-error"
               onClick={onDismiss}
             >
               Close
@@ -385,7 +385,7 @@ export default function Content({
             Set price ranges
           </div>
 
-          <div className="ks-lw-card">
+          <div className="pcs-lw-card">
             <PriceInfo />
 
             <div className="grid grid-cols-2 gap-2">
@@ -396,25 +396,25 @@ export default function Content({
             {positionId === undefined && (
               <div className="mt-[10px] w-full flex justify-between gap-2 text-xs">
                 <button
-                  className="ks-outline-btn medium"
+                  className="pcs-outline-btn medium"
                   onClick={() => selectPriceRange(0.1)}
                 >
                   10%
                 </button>
                 <button
-                  className="ks-outline-btn medium"
+                  className="pcs-outline-btn medium"
                   onClick={() => selectPriceRange(0.2)}
                 >
                   20%
                 </button>
                 <button
-                  className="ks-outline-btn medium"
+                  className="pcs-outline-btn medium"
                   onClick={() => selectPriceRange(0.75)}
                 >
                   75%
                 </button>
                 <button
-                  className="ks-outline-btn medium"
+                  className="pcs-outline-btn medium"
                   onClick={() => {
                     if (!pool) return;
                     setTick(
@@ -441,17 +441,17 @@ export default function Content({
       </div>
 
       <div className="flex gap-6 p-6">
-        <button className="ks-outline-btn flex-1" onClick={onDismiss}>
+        <button className="pcs-outline-btn flex-1" onClick={onDismiss}>
           Cancel
         </button>
 
         {!account ? (
-          <button className="ks-primary-btn flex-1" onClick={onConnectWallet}>
+          <button className="pcs-primary-btn flex-1" onClick={onConnectWallet}>
             Connect Wallet
           </button>
         ) : (
           <button
-            className="ks-primary-btn flex-1"
+            className="pcs-primary-btn flex-1"
             disabled={!!disabled}
             onClick={hanldeClick}
             style={
@@ -464,14 +464,14 @@ export default function Content({
                       pi.piVeryHigh && degenMode
                         ? theme.error
                         : pi.piHigh
-                        ? theme.warning
-                        : undefined,
+                          ? theme.warning
+                          : undefined,
                     border:
                       pi.piVeryHigh && degenMode
                         ? `1px solid ${theme.error}`
                         : pi.piHigh
-                        ? theme.warning
-                        : undefined,
+                          ? theme.warning
+                          : undefined,
                     color: pi.piVeryHigh && degenMode ? "fff" : undefined,
                   }
                 : {}

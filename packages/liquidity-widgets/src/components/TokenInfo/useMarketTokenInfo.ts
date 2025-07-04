@@ -1,14 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
 
+import { API_URLS, NETWORKS_INFO } from '@kyber/schema';
+
 import { TokenInfo, parseMarketTokenInfo } from '@/components/TokenInfo/utils';
-import { NETWORKS_INFO, PATHS } from '@/constants';
-import { useWidgetContext } from '@/stores';
+import { useWidgetStore } from '@/stores/useWidgetStore';
 
 const FETCH_INTERVAL = 60_000;
 let fetchInterval: ReturnType<typeof setInterval>;
 
 export default function useMarketTokenInfo(tokenAddress: string) {
-  const chainId = useWidgetContext(s => s.chainId);
+  const chainId = useWidgetStore(s => s.chainId);
   const [marketTokenInfo, setMarketTokenInfo] = useState<TokenInfo | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -19,8 +20,8 @@ export default function useMarketTokenInfo(tokenAddress: string) {
     setLoading(true);
     fetch(
       tokenAddress === NETWORKS_INFO[chainId].wrappedToken.address.toLowerCase()
-        ? `${PATHS.COINGECKO_API_URL}/coins/${NETWORKS_INFO[chainId].coingeckoNativeTokenId}`
-        : `${PATHS.COINGECKO_API_URL}/coins/${NETWORKS_INFO[chainId].coingeckoNetworkId}/contract/${tokenAddress}`,
+        ? `${API_URLS.COINGECKO_API_URL}/coins/${NETWORKS_INFO[chainId].coingeckoNativeTokenId}`
+        : `${API_URLS.COINGECKO_API_URL}/coins/${NETWORKS_INFO[chainId].coingeckoNetworkId}/contract/${tokenAddress}`,
     )
       .then(res => res.json())
       .then(data =>

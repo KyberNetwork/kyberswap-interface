@@ -10,6 +10,9 @@ import KS_ROUTER_STATIC_FEE_ABI from 'constants/abis/ks-router-static-fee.json'
 import ZAP_STATIC_FEE_ABI from 'constants/abis/zap-static-fee.json'
 import ZAP_ABI from 'constants/abis/zap.json'
 import { NETWORKS_INFO } from 'constants/networks'
+import { AppJsonRpcProvider } from 'constants/providers'
+import { cacheCalc, getDefaultConfig } from 'state/application/hooks'
+import store from 'state/index'
 import { isAddress } from 'utils'
 
 // account is not optional
@@ -46,6 +49,23 @@ export function getReadingContract(
   }
 
   return new Contract(address, ABI, library)
+}
+
+export const getReadingContractWithCustomChain = (
+  address: string,
+  ABI: ContractInterface,
+  chainId: ChainId,
+): Contract => {
+  if (!isAddress(ChainId.MAINNET, address) || address === AddressZero) {
+    throw Error(`Invalid 'address' parameter '${address}'.`)
+  }
+
+  const state = store.getState()
+  const config = state.application.config[chainId] || getDefaultConfig(chainId)
+
+  const readProvider = cacheCalc('rpc', config.rpc, rpc => new AppJsonRpcProvider(rpc, chainId))
+
+  return getReadingContract(address, ABI, readProvider)
 }
 
 // account is optional

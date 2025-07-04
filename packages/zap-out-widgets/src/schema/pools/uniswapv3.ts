@@ -1,9 +1,10 @@
 import { z } from "zod";
-import { PoolType, Univ3PoolType } from "@/schema/protocol";
+import { PoolType, Univ3PoolType } from "@/schema/dex";
 import { token } from "@/schema/token";
 
 const dexMapping: Record<PoolType, string[]> = {
   [PoolType.DEX_UNISWAP_V4]: ["uniswap-v4"],
+  [PoolType.DEX_UNISWAP_V4_FAIRFLOW]: ["uniswap-v4-fairflow"],
 
   [PoolType.DEX_UNISWAPV3]: ["uniswapv3"],
   [PoolType.DEX_PANCAKESWAPV3]: ["pancake-v3"],
@@ -85,8 +86,9 @@ export const univ3Pool = z.object({
     sqrtPriceX96: z.string(),
     tickSpacing: z.number(),
     tick: z.number(),
-    ticks: z.array(tick),
+    ticks: z.array(tick).optional(),
   }),
+  staticExtra: z.string().optional(),
 });
 
 export const univ3PoolResponse = z.object({

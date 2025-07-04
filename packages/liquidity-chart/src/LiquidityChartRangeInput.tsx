@@ -2,6 +2,8 @@ import { useCallback, useMemo } from 'react';
 
 import { format } from 'd3';
 
+import { formatDisplayNumber } from '@kyber/utils/number';
+
 import Chart from '@/components/Chart';
 import InfoBox from '@/components/InfoBox';
 import { DEFAULT_DIMENSIONS, DEFAULT_MARGINS, ZOOM_LEVELS } from '@/constants';
@@ -23,6 +25,8 @@ export default function LiquidityChartRangeInput({
   zoomPosition,
   zoomInIcon,
   zoomOutIcon,
+  showLabelAsAmount = false,
+  alwaysShowLabel = false,
   onBrushDomainChange,
 }: LiquidityChartRangeInputProps) {
   const chartData = useDensityChartData({ pool, revertPrice });
@@ -48,11 +52,14 @@ export default function LiquidityChartRangeInput({
       if (d === 'w' && ticksAtLimit[!revertPrice ? Bound.LOWER : Bound.UPPER]) return '0';
       if (d === 'e' && ticksAtLimit[!revertPrice ? Bound.UPPER : Bound.LOWER]) return '∞';
 
+      if (showLabelAsAmount) return formatDisplayNumber(x, { significantDigits: 6 });
+
       const percent =
         (x < currentPrice ? -1 : 1) * ((Math.max(x, currentPrice) - Math.min(x, currentPrice)) / currentPrice) * 100;
 
       return currentPrice ? `${format(Math.abs(percent) > 1 ? '.2~s' : '.2~f')(percent)}%` : '';
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [currentPrice, ticksAtLimit, revertPrice],
   );
 
@@ -98,6 +105,7 @@ export default function LiquidityChartRangeInput({
               zoomLevels={defaultZoomLevels}
               zoomOutIcon={zoomOutIcon}
               zoomPosition={zoomPosition}
+              alwaysShowLabel={alwaysShowLabel}
             />
           </div>
         )}
