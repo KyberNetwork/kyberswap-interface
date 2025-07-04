@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 export enum ChainId {
   Ethereum = 1,
@@ -8,13 +8,10 @@ export enum ChainId {
   Avalanche = 43114,
   Base = 8453,
   Blast = 81457,
-  // Fantom = 250,
   Linea = 59144,
-  // Mantle = 5000,
   Optimism = 10,
   Scroll = 534352,
   PolygonZkEVM = 1101,
-  // ZkSync = 324,
 }
 
 export const chainId = z.nativeEnum(ChainId);
@@ -28,6 +25,7 @@ export const token = z.object({
   price: z.number().optional(),
 });
 
+// eslint-disable-next-line
 export type Token = z.infer<typeof token>;
 
 export const chain = z.object({

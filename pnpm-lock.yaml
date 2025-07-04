@@ -1233,7 +1233,7 @@ importers:
         specifier: 5.3.2
         version: 5.3.2
 
-  packages/shema:
+  packages/schema:
     dependencies:
       react:
         specifier: '>=16.8.0'
@@ -1254,6 +1254,9 @@ importers:
       '@kyber/utils':
         specifier: workspace:^
         version: link:../utils
+      '@trivago/prettier-plugin-sort-imports':
+        specifier: ^3.3.1
+        version: 3.4.0(prettier@3.6.2)
       '@types/eslint':
         specifier: ^8.56.5
         version: 8.56.12
@@ -1266,15 +1269,36 @@ importers:
       '@types/react-dom':
         specifier: ^18.0.6
         version: 18.3.1
+      '@typescript-eslint/eslint-plugin':
+        specifier: ^6.14.0
+        version: 6.21.0(@typescript-eslint/parser@6.21.0)(eslint@8.57.0)(typescript@5.3.2)
+      '@typescript-eslint/parser':
+        specifier: ^6.14.0
+        version: 6.21.0(eslint@8.57.0)(typescript@5.3.2)
       autoprefixer:
         specifier: ^10.4.20
         version: 10.4.20(postcss@8.4.49)
       eslint:
         specifier: ^8.57.0
         version: 8.57.0
+      eslint-config-prettier:
+        specifier: ^9.1.0
+        version: 9.1.0(eslint@8.57.0)
+      eslint-plugin-prettier:
+        specifier: ^5.4.0
+        version: 5.5.1(@types/eslint@8.56.12)(eslint-config-prettier@9.1.0)(eslint@8.57.0)(prettier@3.6.2)
+      eslint-plugin-react:
+        specifier: ^7.33.2
+        version: 7.37.2(eslint@8.57.0)
+      eslint-plugin-react-hooks:
+        specifier: ^4.6.0
+        version: 4.6.2(eslint@8.57.0)
       postcss:
         specifier: ^8.4.47
         version: 8.4.49
+      prettier:
+        specifier: ^3.5.3
+        version: 3.6.2
       tailwindcss:
         specifier: ^3.4.13
         version: 3.4.14
@@ -1442,7 +1466,7 @@ importers:
         version: link:../hooks
       '@kyber/schema':
         specifier: workspace:^
-        version: link:../shema
+        version: link:../schema
       '@kyber/tailwind-config':
         specifier: workspace:^
         version: link:../config-tailwind
