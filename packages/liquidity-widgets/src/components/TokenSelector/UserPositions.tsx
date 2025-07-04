@@ -1,36 +1,27 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { shortenAddress } from "../TokenInfo/utils";
-import { PATHS } from "@/constants";
-import { useZapState } from "@/hooks/useZapInState";
-import { useWidgetContext } from "@/stores";
-import { EarnPosition, PositionStatus } from "@/types/index";
-import { isAddress } from "@kyber/utils/crypto";
-import { formatDisplayNumber } from "@kyber/utils/number";
-import CircleCheckBig from "@/assets/svg/circle-check-big.svg";
-import IconCopy from "@/assets/svg/copy.svg";
-import IconPositionConnectWallet from "@/assets/svg/ic_position_connect_wallet.svg";
-import IconPositionNotFound from "@/assets/svg/ic_position_not_found.svg";
-import defaultTokenLogo from "@/assets/svg/question.svg?url";
-import {
-  EarnDex,
-  Univ2EarnDex,
-  EARN_SUPPORTED_CHAINS,
-  EARN_SUPPORTED_PROTOCOLS,
-} from "@/schema";
+import { useCallback, useEffect, useMemo, useState } from 'react';
+
+import { isAddress } from '@kyber/utils/crypto';
+import { formatDisplayNumber } from '@kyber/utils/number';
+
+import CircleCheckBig from '@/assets/svg/circle-check-big.svg';
+import IconCopy from '@/assets/svg/copy.svg';
+import IconPositionConnectWallet from '@/assets/svg/ic_position_connect_wallet.svg';
+import IconPositionNotFound from '@/assets/svg/ic_position_not_found.svg';
+import defaultTokenLogo from '@/assets/svg/question.svg?url';
+import { PATHS } from '@/constants';
+import { useZapState } from '@/hooks/useZapInState';
+import { EARN_SUPPORTED_CHAINS, EARN_SUPPORTED_PROTOCOLS, EarnDex, Univ2EarnDex } from '@/schema';
+import { useWidgetContext } from '@/stores';
+import { EarnPosition, PositionStatus } from '@/types/index';
+
+import { shortenAddress } from '../TokenInfo/utils';
 
 const COPY_TIMEOUT = 2000;
 let hideCopied: ReturnType<typeof setTimeout>;
 
 const UserPositions = ({ search }: { search: string }) => {
-  const {
-    theme,
-    connectedAccount,
-    chainId,
-    positionId,
-    onOpenZapMigration,
-    onConnectWallet,
-    poolAddress,
-  } = useWidgetContext((s) => s);
+  const { theme, connectedAccount, chainId, positionId, onOpenZapMigration, onConnectWallet, poolAddress } =
+    useWidgetContext(s => s);
   const { address: account } = connectedAccount || {};
   const { tickLower, tickUpper } = useZapState();
 
@@ -43,25 +34,19 @@ const UserPositions = ({ search }: { search: string }) => {
       ? userPositions.filter((position: EarnPosition) =>
           position.pool.project !== EarnDex.DEX_UNISWAPV2
             ? position.tokenId !== positionId
-            : position.pool.poolAddress !== poolAddress
+            : position.pool.poolAddress !== poolAddress,
         )
       : userPositions;
     if (!search) return positions;
 
     return positions.filter((position: EarnPosition) => {
       const poolAddress = position.pool.poolAddress.toLowerCase();
-      const token0Symbol =
-        position.pool.tokenAmounts[0]?.token.symbol.toLowerCase();
-      const token1Symbol =
-        position.pool.tokenAmounts[1]?.token.symbol.toLowerCase();
-      const token0Name =
-        position.pool.tokenAmounts[0]?.token.name.toLowerCase();
-      const token1Name =
-        position.pool.tokenAmounts[1]?.token.name.toLowerCase();
-      const token0Address =
-        position.pool.tokenAmounts[0]?.token.address.toLowerCase();
-      const token1Address =
-        position.pool.tokenAmounts[1]?.token.address.toLowerCase();
+      const token0Symbol = position.pool.tokenAmounts[0]?.token.symbol.toLowerCase();
+      const token1Symbol = position.pool.tokenAmounts[1]?.token.symbol.toLowerCase();
+      const token0Name = position.pool.tokenAmounts[0]?.token.name.toLowerCase();
+      const token1Name = position.pool.tokenAmounts[1]?.token.name.toLowerCase();
+      const token0Address = position.pool.tokenAmounts[0]?.token.address.toLowerCase();
+      const token1Address = position.pool.tokenAmounts[1]?.token.address.toLowerCase();
 
       return isAddress(search)
         ? poolAddress.includes(search.toLowerCase()) ||
@@ -91,24 +76,24 @@ const UserPositions = ({ search }: { search: string }) => {
     try {
       const response = await fetch(
         `${PATHS.ZAP_EARN_API}/v1/userPositions` +
-          "?" +
+          '?' +
           new URLSearchParams({
             addresses: account,
             chainIds: chainId.toString(),
-            protocols: EARN_SUPPORTED_PROTOCOLS.join(","),
-            quoteSymbol: "usd",
-            offset: "0",
-            orderBy: "liquidity",
-            orderASC: "false",
-            positionStatus: "open",
-          }).toString()
+            protocols: EARN_SUPPORTED_PROTOCOLS.join(','),
+            quoteSymbol: 'usd',
+            offset: '0',
+            orderBy: 'liquidity',
+            orderASC: 'false',
+            positionStatus: 'open',
+          }).toString(),
       );
       const data = await response.json();
       if (data?.data?.positions) {
         setUserPositions(data.data.positions);
       }
     } catch (error) {
-      console.log("fetch user positions error", error);
+      console.log('fetch user positions error', error);
     } finally {
       setLoading(false);
     }
@@ -125,10 +110,7 @@ const UserPositions = ({ search }: { search: string }) => {
       <div className="flex flex-col items-center justify-center gap-3 text-subText font-medium h-[260px] relative mx-6">
         <IconPositionConnectWallet />
         No positions found. Connect your wallet first.
-        <button
-          className="ks-primary-btn w-full absolute -bottom-14 left-0"
-          onClick={onConnectWallet}
-        >
+        <button className="ks-primary-btn w-full absolute -bottom-14 left-0" onClick={onConnectWallet}>
           Connect
         </button>
       </div>
@@ -167,17 +149,14 @@ const UserPositions = ({ search }: { search: string }) => {
                 {
                   exchange: position.pool.project,
                   poolId: position.pool.poolAddress,
-                  positionId:
-                    position.pool.project !== EarnDex.DEX_UNISWAPV2
-                      ? position.tokenId
-                      : position.userAddress,
+                  positionId: position.pool.project !== EarnDex.DEX_UNISWAPV2 ? position.tokenId : position.userAddress,
                 },
                 tickLower !== null && tickUpper !== null
                   ? {
                       tickLower,
                       tickUpper,
                     }
-                  : undefined
+                  : undefined,
               )
             }
           >
@@ -212,8 +191,8 @@ const UserPositions = ({ search }: { search: string }) => {
                   />
                 </div>
                 <span>
-                  {position.pool.tokenAmounts[0]?.token.symbol || ""}/
-                  {position.pool.tokenAmounts[1]?.token.symbol || ""}
+                  {position.pool.tokenAmounts[0]?.token.symbol || ''}/
+                  {position.pool.tokenAmounts[1]?.token.symbol || ''}
                 </span>
                 {position.pool.fees?.length > 0 && (
                   <div className="rounded-full text-sm bg-[#ffffff14] text-subText px-[10px] py-1">
@@ -223,7 +202,7 @@ const UserPositions = ({ search }: { search: string }) => {
               </div>
               <div>
                 {formatDisplayNumber(position.currentPositionValue, {
-                  style: "currency",
+                  style: 'currency',
                   significantDigits: 4,
                 })}
               </div>
@@ -240,15 +219,13 @@ const UserPositions = ({ search }: { search: string }) => {
                     currentTarget.src = defaultTokenLogo;
                   }}
                 />
-                {!isUniv2 && (
-                  <span className="text-subText">#{position.tokenId}</span>
-                )}
+                {!isUniv2 && <span className="text-subText">#{position.tokenId}</span>}
                 <div className="text-[#027BC7] bg-[#ffffff0a] rounded-full px-[10px] py-1 flex gap-1 text-sm">
                   {shortenAddress(position.pool.poolAddress, 4)}
                   {copied !== position.tokenId ? (
                     <IconCopy
                       className="w-[14px] h-[14px] text-[#027BC7] hover:brightness-125 relative top-[3px] cursor-pointer"
-                      onClick={(e) => {
+                      onClick={e => {
                         e.stopPropagation();
                         copy(position);
                       }}
@@ -260,25 +237,17 @@ const UserPositions = ({ search }: { search: string }) => {
               </div>
               <div
                 className={`rounded-full text-xs px-2 py-1 font-normal text-${
-                  posStatus === PositionStatus.OUT_RANGE ? "warning" : "accent"
+                  posStatus === PositionStatus.OUT_RANGE ? 'warning' : 'accent'
                 }`}
                 style={{
-                  background: `${
-                    posStatus === PositionStatus.OUT_RANGE
-                      ? theme.warning
-                      : theme.accent
-                  }33`,
+                  background: `${posStatus === PositionStatus.OUT_RANGE ? theme.warning : theme.accent}33`,
                 }}
               >
-                {posStatus === PositionStatus.OUT_RANGE
-                  ? "● Out of range"
-                  : "● In range"}
+                {posStatus === PositionStatus.OUT_RANGE ? '● Out of range' : '● In range'}
               </div>
             </div>
           </div>
-          {index !== userPositions.length - 1 && (
-            <div className="h-[1px] bg-[#ffffff14] mx-[26px]" />
-          )}
+          {index !== userPositions.length - 1 && <div className="h-[1px] bg-[#ffffff14] mx-[26px]" />}
         </div>
       );
     })

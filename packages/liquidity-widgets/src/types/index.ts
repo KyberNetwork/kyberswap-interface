@@ -1,8 +1,8 @@
-import { Token } from "@/schema";
+import { Token } from '@/schema';
 
 export enum PositionStatus {
-  IN_RANGE = "IN_RANGE",
-  OUT_RANGE = "OUT_RANGE",
+  IN_RANGE = 'IN_RANGE',
+  OUT_RANGE = 'OUT_RANGE',
 }
 
 export interface NetworkInfo {
@@ -19,7 +19,7 @@ export interface NetworkInfo {
 
 export interface EarnPosition {
   [x: string]: any;
-  chainName: "eth";
+  chainName: 'eth';
   chainId: number;
   chainLogo: string;
   userAddress: string;
