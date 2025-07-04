@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from 'react';
 
-const TOKEN_API_URL = "https://token-api.kyberengineering.io/api";
+const TOKEN_API_URL = 'https://token-api.kyberengineering.io/api';
 
 interface PriceResponse {
   data: {
@@ -10,13 +10,7 @@ interface PriceResponse {
   };
 }
 
-export function useTokenPrices({
-  addresses,
-  chainId,
-}: {
-  addresses: string[];
-  chainId: number;
-}) {
+export function useTokenPrices({ addresses, chainId }: { addresses: string[]; chainId: number }) {
   const [loading, setLoading] = useState(false);
   const [prices, setPrices] = useState<{ [key: string]: number }>(() => {
     return addresses.reduce((acc, address) => {
@@ -29,19 +23,16 @@ export function useTokenPrices({
 
   const fetchPrices = useCallback(
     async (_addresses: string[]) => {
-      const r: PriceResponse = await fetch(
-        `${TOKEN_API_URL}/v1/public/tokens/prices`,
-        {
-          method: "POST",
-          body: JSON.stringify({
-            [chainId]: _addresses,
-          }),
-        }
-      ).then((res) => res.json());
+      const r: PriceResponse = await fetch(`${TOKEN_API_URL}/v1/public/tokens/prices`, {
+        method: 'POST',
+        body: JSON.stringify({
+          [chainId]: _addresses,
+        }),
+      }).then(res => res.json());
 
       return r?.data?.[chainId] || {};
     },
-    [chainId]
+    [chainId],
   );
 
   useEffect(() => {
@@ -51,20 +42,21 @@ export function useTokenPrices({
     }
 
     fetchPrices(addresses)
-      .then((prices) => {
+      .then(prices => {
         setPrices(
           addresses.reduce((acc, address) => {
             return {
               ...acc,
               [address]: prices[address]?.PriceBuy || 0,
             };
-          }, {})
+          }, {}),
         );
       })
       .finally(() => {
         setLoading(false);
       });
-  }, [fetchPrices, addresses.join(",")]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetchPrices, addresses.join(',')]);
 
   return {
     loading,

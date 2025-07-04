@@ -1,27 +1,17 @@
-import { useMemo } from "react";
-import usePoolActiveLiquidity from "./usePoolActiveLiquidity";
-import type { ChartEntry, PoolInfo } from "@/types";
+import { useMemo } from 'react';
 
-export default function useDensityChartData({
-  pool,
-  revertPrice,
-}: {
-  pool: PoolInfo;
-  revertPrice: boolean;
-}) {
+import type { ChartEntry, PoolInfo } from '@/types';
+
+import usePoolActiveLiquidity from './usePoolActiveLiquidity';
+
+export default function useDensityChartData({ pool, revertPrice }: { pool: PoolInfo; revertPrice: boolean }) {
   const ticksProcessed = usePoolActiveLiquidity({
     pool,
     revertPrice,
   });
 
   return useMemo(() => {
-    if (
-      (!pool.tickCurrent && pool.tickCurrent !== 0) ||
-      !pool.tickSpacing ||
-      !pool.token0 ||
-      !pool.token1
-    )
-      return;
+    if ((!pool.tickCurrent && pool.tickCurrent !== 0) || !pool.tickSpacing || !pool.token0 || !pool.token1) return;
     if (!ticksProcessed.length) return [];
 
     const newData: ChartEntry[] = [];
@@ -38,11 +28,5 @@ export default function useDensityChartData({
     }
 
     return newData;
-  }, [
-    pool.tickCurrent,
-    pool.tickSpacing,
-    pool.token0,
-    pool.token1,
-    ticksProcessed,
-  ]);
+  }, [pool.tickCurrent, pool.tickSpacing, pool.token0, pool.token1, ticksProcessed]);
 }

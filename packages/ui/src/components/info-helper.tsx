@@ -1,8 +1,9 @@
-import { Placement } from "@popperjs/core";
-import { CSSProperties, ReactNode, useCallback, useState } from "react";
-import Info from "../assets/icons/info.svg";
+import { CSSProperties, ReactNode, useCallback, useState } from 'react';
 
-import Tooltip from "./tooltip";
+import { Placement } from '@popperjs/core';
+
+import Info from '../assets/icons/info.svg';
+import Tooltip from './tooltip';
 
 export function InfoHelper({
   text,
@@ -28,22 +29,16 @@ export function InfoHelper({
   return (
     <span
       style={{
-        display: "inline-flex",
-        justifyContent: "center",
-        marginLeft: "0.25rem",
-        alignItems: "center",
-        lineHeight: "100%",
-        verticalAlign: "middle",
+        display: 'inline-flex',
+        justifyContent: 'center',
+        marginLeft: '0.25rem',
+        alignItems: 'center',
+        lineHeight: '100%',
+        verticalAlign: 'middle',
         ...style,
       }}
     >
-      <Tooltip
-        text={text}
-        show={show}
-        placement={placement}
-        size={size}
-        width={width}
-      >
+      <Tooltip text={text} show={show} placement={placement} size={size} width={width}>
         <div
           onClick={open}
           onMouseEnter={open}

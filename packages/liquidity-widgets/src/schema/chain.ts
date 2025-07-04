@@ -1,5 +1,6 @@
-import { z } from "zod";
-import { token } from "@/schema/token";
+import { z } from 'zod';
+
+import { token } from '@/schema/token';
 
 export enum ChainId {
   Ethereum = 1,

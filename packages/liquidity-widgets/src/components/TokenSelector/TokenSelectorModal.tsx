@@ -1,10 +1,12 @@
-import { useState } from "react";
-import { useZapState } from "@/hooks/useZapInState";
-import TokenImportConfirm from "./TokenImportConfirm";
-import TokenInfo from "../TokenInfo";
-import TokenSelector, { TOKEN_SELECT_MODE } from ".";
-import Modal from "../Modal";
-import { Token } from "@/schema";
+import { useState } from 'react';
+
+import { useZapState } from '@/hooks/useZapInState';
+import { Token } from '@/schema';
+
+import TokenSelector, { TOKEN_SELECT_MODE } from '.';
+import Modal from '../Modal';
+import TokenInfo from '../TokenInfo';
+import TokenImportConfirm from './TokenImportConfirm';
 
 const TokenSelectorModal = ({
   selectedTokenAddress,
@@ -26,8 +28,8 @@ const TokenSelectorModal = ({
       isOpen
       onClick={onClose}
       modalContentClass={`bg-layer2 p-0 !max-h-[80vh] ${
-        tokenToShow || tokenToImport ? "" : "pb-6"
-      } ${tokenToImport ? "max-w-[420px]" : "max-w-[435px]"}`}
+        tokenToShow || tokenToImport ? '' : 'pb-6'
+      } ${tokenToImport ? 'max-w-[420px]' : 'max-w-[435px]'}`}
     >
       {tokenToShow ? (
         <TokenInfo token={tokenToShow} onGoBack={() => setTokenToShow(null)} />

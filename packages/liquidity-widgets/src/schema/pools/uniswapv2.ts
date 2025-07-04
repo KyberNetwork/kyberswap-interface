@@ -1,19 +1,14 @@
-import { z } from "zod";
-import { token } from "@/schema/token";
-import { Univ2PoolType } from "@/schema/protocol";
+import { z } from 'zod';
+
+import { Univ2PoolType } from '@/schema/protocol';
+import { token } from '@/schema/token';
 
 export const univ2PoolNormalize = z.object({
   token0: token,
   token1: token,
   fee: z.number(),
   reserves: z.tuple([z.string(), z.string()]),
-  category: z.enum([
-    "stablePair",
-    "correlatedPair",
-    "commonPair",
-    "exoticPair",
-    "highVolatilityPair",
-  ]),
+  category: z.enum(['stablePair', 'correlatedPair', 'commonPair', 'exoticPair', 'highVolatilityPair']),
 });
 
 export type UniV2Pool = z.infer<typeof univ2PoolNormalize>;
@@ -31,7 +26,7 @@ export const univ2Pool = z.object({
     z.object({
       address: z.string(),
       swappable: z.boolean(),
-    })
+    }),
   ),
   //extraFields: z.object({
   //  fee: z.number(),
