@@ -11,6 +11,7 @@ import styled from 'styled-components'
 
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import { AutoColumn } from 'components/Column'
+import InfoHelper from 'components/InfoHelper'
 import Loader from 'components/Loader'
 import { RowBetween } from 'components/Row'
 import SlippageWarningNote from 'components/SlippageWarningNote'
@@ -20,6 +21,7 @@ import { Level } from 'components/SwapForm/SwapModal/SwapDetails/UpdatedBadge'
 import SwapModalAreYouSure from 'components/SwapForm/SwapModal/SwapModalAreYouSure'
 import { BuildRouteResult } from 'components/SwapForm/hooks/useBuildRoute'
 import { MouseoverTooltip } from 'components/Tooltip'
+import { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import WarningNote from 'components/WarningNote'
 import { calcPercentFilledOrder } from 'components/swapv2/LimitOrder/helpers'
 import { LimitOrderStatus, LimitOrderTab } from 'components/swapv2/LimitOrder/type'
@@ -107,6 +109,20 @@ type Props = {
   onSwap: () => void
 }
 
+const buffer = {
+  [PAIR_CATEGORY.STABLE]: 1,
+  [PAIR_CATEGORY.CORRELATED]: 3,
+  [PAIR_CATEGORY.EXOTIC]: 10,
+  [PAIR_CATEGORY.HIGH_VOLATILITY]: 30,
+}
+
+const cap = {
+  [PAIR_CATEGORY.STABLE]: 20,
+  [PAIR_CATEGORY.CORRELATED]: 50,
+  [PAIR_CATEGORY.EXOTIC]: 150,
+  [PAIR_CATEGORY.HIGH_VOLATILITY]: 500,
+}
+
 export default function ConfirmSwapModalContent({
   buildResult,
   isBuildingRoute,
@@ -144,6 +160,8 @@ export default function ConfirmSwapModalContent({
     (errorWhileBuildRoute.includes('enough') ||
       errorWhileBuildRoute.includes('min') ||
       errorWhileBuildRoute.includes('smaller'))
+  const apiSuggestedSlp = buildResult && 'suggestedSlippage' in buildResult ? buildResult?.suggestedSlippage : undefined
+  const dynamicSuggestedSlippage = apiSuggestedSlp && Math.min(apiSuggestedSlp + buffer[cat], cap[cat])
 
   const errorText = useMemo(() => {
     if (!errorWhileBuildRoute) return
@@ -367,6 +385,37 @@ export default function ConfirmSwapModalContent({
   const showLOWwarning = currencyIn?.isNative ? false : !!loActiveMakingAmount && remainAmount < activeMakingAmount
 
   const [showInverted, setShowInverted] = useState<boolean>(false)
+  const [retry, setRetry] = useState(0)
+
+  if (errorWhileBuildRoute && dynamicSuggestedSlippage) {
+    return (
+      <TransactionErrorContent
+        onDismiss={onDismiss}
+        confirmAction={() => {
+          if (retry < 2) {
+            setRetry(prev => prev + 1)
+            setRawSlippage(dynamicSuggestedSlippage)
+          }
+        }}
+        confirmText={retry < 2 ? 'Use Suggested Slippage' : undefined}
+        message={
+          retry < 2
+            ? errorWhileBuildRoute
+            : 'This route may currently be too volatile to execute. Try refreshing or attempting again later.'
+        }
+        confirmBtnStyle={{ flex: 2 }}
+        dismissBtnStyle={{ flex: 1 }}
+        suggestionMessage={
+          retry < 2 && (
+            <Text marginTop="8px" fontSize={16} color={theme.text}>
+              New Suggested Slippage: {(dynamicSuggestedSlippage * 100) / 10_000}%{' '}
+              <InfoHelper text="This suggestion is based on your trade’s estimated slippage and token pair volatility, with a cap applied." />{' '}
+            </Text>
+          )
+        }
+      />
+    )
+  }
 
   return (
     <>
