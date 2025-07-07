@@ -109,13 +109,6 @@ type Props = {
   onSwap: () => void
 }
 
-const buffer = {
-  [PAIR_CATEGORY.STABLE]: 1,
-  [PAIR_CATEGORY.CORRELATED]: 3,
-  [PAIR_CATEGORY.EXOTIC]: 10,
-  [PAIR_CATEGORY.HIGH_VOLATILITY]: 30,
-}
-
 const cap = {
   [PAIR_CATEGORY.STABLE]: 20,
   [PAIR_CATEGORY.CORRELATED]: 50,
@@ -161,7 +154,7 @@ export default function ConfirmSwapModalContent({
       errorWhileBuildRoute.includes('min') ||
       errorWhileBuildRoute.includes('smaller'))
   const apiSuggestedSlp = buildResult && 'suggestedSlippage' in buildResult ? buildResult?.suggestedSlippage : undefined
-  const dynamicSuggestedSlippage = apiSuggestedSlp && Math.min(apiSuggestedSlp + buffer[cat], cap[cat])
+  const dynamicSuggestedSlippage = apiSuggestedSlp && Math.min(apiSuggestedSlp, cap[cat])
 
   const errorText = useMemo(() => {
     if (!errorWhileBuildRoute) return
