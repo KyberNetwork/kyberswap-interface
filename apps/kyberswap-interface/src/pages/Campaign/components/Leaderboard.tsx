@@ -9,13 +9,12 @@ import styled from 'styled-components'
 import Divider from 'components/Divider'
 import LocalLoader from 'components/LocalLoader'
 import Pagination from 'components/Pagination'
-import { ZERO_ADDRESS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
-import { CampaignType } from './Information'
+import { CampaignType, campaignConfig } from '../constants'
 
 const Wrapper = styled.div`
   border-radius: 20px;
@@ -32,18 +31,12 @@ export default function Leaderboard({ type, week, year }: { type: CampaignType; 
   const [searchParams, setSearchParams] = useSearchParams()
   const page = +(searchParams.get('page') || '1')
 
-  const program = type === CampaignType.MayTrading ? 'grind/base' : 'stip'
-  const campaign =
-    type === CampaignType.Aggregator || type === CampaignType.MayTrading
-      ? 'trading-incentive'
-      : type === CampaignType.LimitOrder
-      ? 'limit-order-farming'
-      : 'referral-program'
+  const { campaign, program, url, reward } = campaignConfig[type]
 
-  const rewardAmount = (reward?: string): string => {
+  const rewardAmount = (amount?: string): string => {
     const rewardAmount = CurrencyAmount.fromRawAmount(
-      new Token(1, ZERO_ADDRESS, 18, 'mock'),
-      reward?.split('.')[0] || '0',
+      new Token(reward.chainId, reward.address, reward.decimals, reward.symbol),
+      amount?.split('.')[0] || '0',
     )
     return rewardAmount ? rewardAmount.toSignificant(4) : '0'
   }
@@ -56,6 +49,7 @@ export default function Leaderboard({ type, week, year }: { type: CampaignType; 
       campaign,
       pageSize: 10,
       pageNumber: page,
+      url,
     },
     {
       skip: campaign === 'referral-program',
@@ -72,6 +66,7 @@ export default function Leaderboard({ type, week, year }: { type: CampaignType; 
       year,
       wallet: account || '',
       campaign,
+      url,
     },
     {
       skip: !account,
@@ -79,6 +74,7 @@ export default function Leaderboard({ type, week, year }: { type: CampaignType; 
   )
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+  const showReward = [CampaignType.MayTrading, CampaignType.NearIntents].includes(type)
 
   return (
     <Wrapper>
@@ -110,7 +106,7 @@ export default function Leaderboard({ type, week, year }: { type: CampaignType; 
           {campaign === 'referral-program' ? 'NUMBER OF REFERRALS' : 'POINTS'}
         </Text>
 
-        {type === CampaignType.MayTrading && (
+        {showReward && (
           <Text width={!upToSmall ? '150px' : '80px'} marginLeft="1.25rem" textAlign="right">
             REWARDS
           </Text>
@@ -136,9 +132,9 @@ export default function Leaderboard({ type, week, year }: { type: CampaignType; 
               {formatDisplayNumber(Math.floor(item.point), { significantDigits: 4 })}
             </Text>
 
-            {type === CampaignType.MayTrading && (
+            {showReward && (
               <Text width={!upToSmall ? '150px' : '70px'} marginLeft="1.25rem" textAlign="right">
-                {formatDisplayNumber(rewardAmount(item.reward), { significantDigits: 4 })} KNC
+                {formatDisplayNumber(rewardAmount(item.reward), { significantDigits: 4 })} {reward.symbol}
               </Text>
             )}
           </Flex>

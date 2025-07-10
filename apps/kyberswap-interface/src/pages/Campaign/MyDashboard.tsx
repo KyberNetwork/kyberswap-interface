@@ -1,7 +1,5 @@
-import { ChainId, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
+import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import dayjs from 'dayjs'
-// import { rgba } from 'polished'
-// import { Share2 } from 'react-feather'
 import { useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
@@ -14,17 +12,15 @@ import InfoHelper from 'components/InfoHelper'
 import { TokenLogoWithChain } from 'components/Logo'
 import { NewLabel } from 'components/Menu'
 import { ZERO_ADDRESS } from 'constants/index'
-import { KNC } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { MEDIA_WIDTHS, StyledInternalLink } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
-import banner from './assets/banner.png'
-import mayTradingBanner from './assets/may_trading.png'
 import ClaimBtn from './components/ClaimBtn'
 import MyReferralDashboard from './components/MyReferralDashboard'
+import { CampaignType, campaignConfig } from './constants'
 import { Tab, Tabs, Wrapper } from './styles'
 
 const TableHeader = styled.div`
@@ -49,8 +45,6 @@ const ELabel = styled.span`
   margin-left: 4px;
 `
 
-const mockToken = new Token(1, ZERO_ADDRESS, 18, 'mock')
-
 function getDateOfWeek(w: number, y: number) {
   const first = y === 2025 ? -1 : 1 // 1st of January
   const d = first + (w - 1) * 7 // 1st of January + 7 days for each week
@@ -61,33 +55,37 @@ const MyDashboard = () => {
   const { account } = useActiveWeb3React()
   const theme = useTheme()
   const [searchParams, setSearchParams] = useSearchParams()
-  const tab = searchParams.get('tab') || 'may-trading'
-  const changeTab = (t: string) => {
+  const tab: CampaignType = (searchParams.get('tab') || CampaignType.NearIntents) as CampaignType
+  const changeTab = (t: CampaignType) => {
     searchParams.set('tab', t)
     setSearchParams(searchParams)
   }
 
-  const stipReward = {
-    chainId: ChainId.ARBITRUM,
-    address: '0x912CE59144191C1204E64559FE8253a0e49E6548',
-    decimals: 18,
-    symbol: 'ARB',
-    logo: 'https://storage.googleapis.com/ks-setting-1d682dca/e123a120-6556-4a72-83c8-af4cce475e43.png',
-  }
-  const mayTradingReward = {
-    chainId: ChainId.MAINNET,
-    address: KNC[ChainId.MAINNET].address,
-    decimals: 18,
-    symbol: 'KNC',
-    logo: 'https://s2.coinmarketcap.com/static/img/coins/64x64/9444.png',
-  }
+  const { url, reward, baseWeek, banner } = campaignConfig[tab]
 
-  const rewardTokenLogo = tab === 'may-trading' ? mayTradingReward.logo : stipReward.logo
-  const rewardTokenSymbol = tab === 'may-trading' ? mayTradingReward.symbol : stipReward.symbol
+  const mockToken = new Token(1, ZERO_ADDRESS, reward.decimals, 'mock')
+
+  const stipReward = campaignConfig[CampaignType.Aggregator].reward
+  const mayTradingReward = campaignConfig[CampaignType.MayTrading].reward
+
+  const rewardTokenLogo = reward.logo
+  const rewardTokenSymbol = reward.symbol
 
   const stipRewardPrice = useTokenPrices([stipReward.address], stipReward.chainId)?.[stipReward.address] || 0
   const mayTradingRewardPrice =
     useTokenPrices([mayTradingReward.address], mayTradingReward.chainId)?.[mayTradingReward.address] || 0
+
+  const { data: nearIntents } = useGetUserWeeklyRewardQuery(
+    {
+      program: 'grind/base',
+      campaign: 'trading-incentive',
+      wallet: account || '',
+      url,
+    },
+    {
+      skip: !account,
+    },
+  )
 
   const { data: mayTrading } = useGetUserWeeklyRewardQuery(
     {
@@ -122,9 +120,14 @@ const MyDashboard = () => {
     },
   )
 
-  const data = tab === 'may-trading' ? mayTrading : tab === 'trading-incentive' ? stipTrading : stipLoData
-
-  const BASE_WEEK = tab === 'may-trading' ? 21 : 27
+  const data =
+    tab === CampaignType.NearIntents
+      ? nearIntents
+      : tab === CampaignType.MayTrading
+      ? mayTrading
+      : tab === CampaignType.Aggregator
+      ? stipTrading
+      : stipLoData
 
   const stipTradingRw = CurrencyAmount.fromRawAmount(mockToken, stipTrading?.data?.totalReward?.split('.')[0] || '0')
   const stipLoRw = CurrencyAmount.fromRawAmount(mockToken, stipLoData?.data?.totalReward?.split('.')[0] || '0')
@@ -203,7 +206,7 @@ const MyDashboard = () => {
     mockToken,
     data?.data?.totalClaimableReward?.split('.')[0] || '0',
   )
-  const price = tab === 'may-trading' ? mayTradingRewardPrice : stipRewardPrice
+  const price = tab === CampaignType.MayTrading ? mayTradingRewardPrice : stipRewardPrice
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
@@ -215,11 +218,13 @@ const MyDashboard = () => {
           week. Check out how they are calculated in the{' '}
           <StyledInternalLink
             to={
-              tab === 'may-trading'
+              tab === CampaignType.NearIntents
+                ? '/campaigns/near-intents?tab=information'
+                : tab === CampaignType.MayTrading
                 ? '/campaigns/may-trading?tab=information'
-                : tab === 'trading-incentive'
+                : tab === CampaignType.Aggregator
                 ? '/campaigns/aggregator?tab=information'
-                : tab === 'limit-order-farming'
+                : CampaignType.LimitOrder === tab
                 ? '/campaigns/limit-order?tab=information'
                 : '/campaigns/referrals?tab=information'
             }
@@ -234,12 +239,7 @@ const MyDashboard = () => {
 
   return (
     <Wrapper>
-      <img
-        src={tab === 'may-trading' ? mayTradingBanner : banner}
-        width="100%"
-        alt="banner"
-        style={{ borderRadius: '12px' }}
-      />
+      <img src={banner} width="100%" alt="banner" style={{ borderRadius: '12px' }} />
       <Text fontSize={24} fontWeight="500" marginTop="1.5rem" mb="1.5rem">
         My Dashboard
       </Text>
@@ -333,19 +333,28 @@ const MyDashboard = () => {
       </Flex>
 
       <Tabs>
-        <Tab role="button" active={tab === 'may-trading'} onClick={() => changeTab('may-trading')}>
+        <Tab
+          role="button"
+          active={tab === CampaignType.NearIntents}
+          onClick={() => changeTab(CampaignType.NearIntents)}
+        >
           {upToExtraSmall && <NewLabel style={{ marginLeft: '0' }}>New</NewLabel>}
-          <Flex>May Trading {!upToExtraSmall && <NewLabel>NEW</NewLabel>}</Flex>
+          <Flex>Cross Chain {!upToExtraSmall && <NewLabel>NEW</NewLabel>}</Flex>
         </Tab>
-        <Tab role="button" active={tab === 'trading-incentive'} onClick={() => changeTab('trading-incentive')}>
+
+        <Tab role="button" active={tab === CampaignType.MayTrading} onClick={() => changeTab(CampaignType.MayTrading)}>
+          {upToExtraSmall && <NewLabel style={{ marginLeft: '0' }}>New</NewLabel>}
+          <Flex>May Trading {!upToExtraSmall && <ELabel>ENDED</ELabel>}</Flex>
+        </Tab>
+        <Tab role="button" active={tab === CampaignType.Aggregator} onClick={() => changeTab(CampaignType.Aggregator)}>
           {upToExtraSmall && <ELabel style={{ marginLeft: 0 }}>ENDED</ELabel>}
           <Flex>Trading {!upToExtraSmall && <ELabel>ENDED</ELabel>}</Flex>
         </Tab>
-        <Tab role="button" active={tab === 'limit-order-farming'} onClick={() => changeTab('limit-order-farming')}>
+        <Tab role="button" active={tab === CampaignType.LimitOrder} onClick={() => changeTab(CampaignType.LimitOrder)}>
           {upToExtraSmall && <ELabel></ELabel>}
           <Flex>Limit Order {!upToExtraSmall && <ELabel>ENDED</ELabel>}</Flex>
         </Tab>
-        <Tab role="button" active={tab === 'referral-program'} onClick={() => changeTab('referral-program')}>
+        <Tab role="button" active={tab === CampaignType.Referrals} onClick={() => changeTab(CampaignType.Referrals)}>
           {upToExtraSmall && <ELabel></ELabel>}
           <Flex>Referral {!upToExtraSmall && <ELabel>ENDED</ELabel>}</Flex>
         </Tab>
@@ -355,7 +364,7 @@ const MyDashboard = () => {
         <Text marginTop="30px" textAlign="center" color={theme.subText}>
           Please connect wallet to view your Dashboard
         </Text>
-      ) : tab === 'referral-program' ? (
+      ) : tab === CampaignType.Referrals ? (
         <MyReferralDashboard price={stipRewardPrice} infor={infor} />
       ) : (
         <Box marginTop="1.25rem" sx={{ borderRadius: '20px', background: theme.background }} padding="1.5rem">
@@ -441,7 +450,7 @@ const MyDashboard = () => {
             const rw = item.reward.split('.')[0]
             const totalRw = CurrencyAmount.fromRawAmount(mockToken, rw)
 
-            const claimable = item.claimableReward.split('.')[0]
+            const claimable = item.claimableReward?.split('.')?.[0] || '0'
             const claimableRw = CurrencyAmount.fromRawAmount(mockToken, claimable)
             const canClaim = claimable !== '0' && !item.isClaimed
 
@@ -454,7 +463,7 @@ const MyDashboard = () => {
                 <Box paddingY="1rem" sx={{ borderBottom: `1px solid ${theme.border}` }} key={idx}>
                   <Flex justifyContent="space-between" alignItems="center">
                     <Text color={theme.subText}>
-                      Week {item.week - BASE_WEEK}: {dayjs(date).format('MMM DD')} - {dayjs(end).format('MMM DD')}
+                      Week {item.week - baseWeek}: {dayjs(date).format('MMM DD')} - {dayjs(end).format('MMM DD')}
                     </Text>
                     {!canClaim ? (
                       <ButtonOutlined width="88px" height="32px" disabled>
@@ -512,7 +521,7 @@ const MyDashboard = () => {
             return (
               <TableRow key={`${item.year}-${item.week}`}>
                 <Text color={theme.subText}>
-                  Week {item.week - BASE_WEEK}: {dayjs(date).format('MMM DD')} - {dayjs(end).format('MMM DD')}
+                  Week {item.week - baseWeek}: {dayjs(date).format('MMM DD')} - {dayjs(end).format('MMM DD')}
                 </Text>
                 <Text textAlign="right">{formatDisplayNumber(Math.floor(item.point), { significantDigits: 4 })}</Text>
                 <Flex justifyContent="flex-end" alignItems="flex-end" flexDirection="column">
