@@ -1,5 +1,6 @@
-import { z } from "zod";
-import { Univ2PoolType, Univ3PoolType } from "@/schema/protocol";
+import { z } from 'zod';
+
+import { Univ2PoolType, Univ3PoolType } from '@/schema/protocol';
 
 export const univ3Position = z.object({
   id: z.number(),
@@ -19,7 +20,7 @@ export const univ2Position = z.object({
 });
 export type UniV2Position = z.infer<typeof univ2Position>;
 
-export const position = z.discriminatedUnion("poolType", [
+export const position = z.discriminatedUnion('poolType', [
   univ3Position.extend({
     poolType: Univ3PoolType,
   }),

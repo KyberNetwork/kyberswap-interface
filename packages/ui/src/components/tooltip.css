@@ -4,7 +4,7 @@
   @apply transition-all duration-150 ease-linear z-[9999];
   @apply invisible opacity-0;
   box-shadow: 0px 4px 12px 0px #00000052;
-  font-family: var(--ks-lw-fontFamily, "Work Sans");
+  font-family: var(--ks-lw-fontFamily, 'Work Sans');
 
   @apply data-[visibility='true']:visible data-[visibility='true']:opacity-100;
 }
@@ -34,5 +34,3 @@
   @apply -left-[7px];
   @apply before:border-t-0 before:border-l-0;
 }
-
-
