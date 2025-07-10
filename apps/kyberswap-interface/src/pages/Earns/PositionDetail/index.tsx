@@ -371,8 +371,9 @@ const PositionDetail = () => {
               hadForceLoading={hadForceLoading.current}
               shareBtn={shareBtn}
             />
-            {(!!position?.suggestionPool ||
-              (isStablePair && farmingPoolsByChain[position.chain.id]?.pools.length > 0)) &&
+            {!position?.pool.isFarming &&
+              (!!position?.suggestionPool ||
+                (isStablePair && farmingPoolsByChain[position.chain.id]?.pools.length > 0)) &&
               position.status !== PositionStatus.CLOSED && (
                 <MigrationLiquidityRecommend>
                   <Text color={'#fafafa'} lineHeight={'18px'}>
