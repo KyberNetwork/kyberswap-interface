@@ -9,16 +9,85 @@ import useTheme from 'hooks/useTheme'
 import { ButtonIcon } from 'pages/Pools/styleds'
 import { ExternalLink } from 'theme'
 
-export enum CampaignType {
-  NearIntents = 'NearIntents',
-  MayTrading = 'MayTrading',
-  Aggregator = 'Aggregator',
-  LimitOrder = 'LimitOrder',
-  Referrals = 'Referrals',
-}
+import { CampaignType } from '../constants'
 
 const howToEarnPoints = (week: number) => ({
-  [CampaignType.NearIntents]: <>TODO</>,
+  [CampaignType.NearIntents]: (
+    <>
+      <li>
+        Users bridge assets cross-chain using <Link to="/cross-chain">KyberSwap Cross-Chain</Link> and Near Intent
+        routes to earn points.
+      </li>
+      <li>For every $1 bridged, users earn points based on the following scale:</li>
+      <table>
+        <thead>
+          <tr>
+            <th></th>
+            <th>Stable Pair</th>
+            <th>Any Other Pairs</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              Non-EVM <span>→</span> Near L1 (exl same chain)
+            </td>
+            <td>6</td>
+            <td>6</td>
+          </tr>
+          <tr>
+            <td>
+              Non-EVM <span>←</span> Near L1 (exl same chain)
+            </td>
+            <td>4</td>
+            <td>4</td>
+          </tr>
+          <tr>
+            <td>
+              EVM <span>→</span> Near L1
+            </td>
+            <td>2.5</td>
+            <td>5</td>
+          </tr>
+          <tr>
+            <td>
+              EVM <span>←</span> Near L1
+            </td>
+            <td>1.5</td>
+            <td>3</td>
+          </tr>
+          <tr>
+            <td>
+              EVM <span>⇄</span> Bitcoin L1
+            </td>
+            <td>5</td>
+            <td>5</td>
+          </tr>
+          <tr>
+            <td>
+              EVM <span>⇄</span> Solana L1
+            </td>
+            <td>2</td>
+            <td>4</td>
+          </tr>
+          <tr>
+            <td>
+              Bitcoin L1 <span>⇄</span> Solana L1
+            </td>
+            <td>5</td>
+            <td>5</td>
+          </tr>
+          <tr>
+            <td>
+              EVM <span>⇄</span> EVM (exl same chain)
+            </td>
+            <td>1</td>
+            <td>3</td>
+          </tr>
+        </tbody>
+      </table>
+    </>
+  ),
   [CampaignType.MayTrading]: (
     <>
       The campaign takes place entirely on Base chain.
@@ -191,8 +260,8 @@ const howToEarnPoints = (week: number) => ({
 })
 
 const timelines = {
-  //TODO: NearIntents
-  [CampaignType.NearIntents]: 'TODO',
+  [CampaignType.NearIntents]:
+    'The campaign will take place over 2 weeks, from 0:00 UTC 18th July to 23:59 UTC 1st August.',
 
   [CampaignType.MayTrading]: 'The campaign will start from 00h00, 27/05 - 23h59, 01/06 in UTC timezone',
   [CampaignType.Aggregator]:

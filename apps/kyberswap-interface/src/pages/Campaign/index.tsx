@@ -1,4 +1,4 @@
-import { ChainId, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
+import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import dayjs from 'dayjs'
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
@@ -11,20 +11,16 @@ import { ButtonPrimary } from 'components/Button'
 import InfoHelper from 'components/InfoHelper'
 import Select from 'components/Select'
 import { APP_PATHS, ZERO_ADDRESS } from 'constants/index'
-import { KNC } from 'constants/tokens'
 import { useWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { MEDIA_WIDTHS, StyledInternalLink } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
-import loBanner from './assets/limit_order.png'
-import mayTradingBanner from './assets/may_trading.png'
-import referralBanner from './assets/referral.png'
-import tradingBanner from './assets/trading.png'
-import Information, { CampaignType } from './components/Information'
+import Information from './components/Information'
 import JoinReferral from './components/JoinReferral'
 import Leaderboard from './components/Leaderboard'
+import { CampaignType, campaignConfig } from './constants'
 import { StatCard, Tab, Tabs, Wrapper } from './styles'
 
 function getCurrentWeek(): number {
@@ -52,168 +48,6 @@ function getCurrentWeek(): number {
   return weekNumber
 }
 
-const stipWeeks = [
-  {
-    value: 37,
-    label: (
-      <Text>
-        <Text as="span" color="#ffffff">
-          Week 10
-        </Text>{' '}
-        Sep 09 - Sep 15
-      </Text>
-    ),
-    start: 1725840000,
-    end: 1726444800,
-  },
-  {
-    value: 36,
-    label: (
-      <Text>
-        <Text as="span" color="#ffffff">
-          Week 9
-        </Text>{' '}
-        Sep 02 - Sep 08
-      </Text>
-    ),
-    start: 1725235200,
-    end: 1725840000,
-  },
-  {
-    value: 35,
-    label: (
-      <Text>
-        <Text as="span" color="#ffffff">
-          Week 8
-        </Text>{' '}
-        Aug 26 - Sep 01
-      </Text>
-    ),
-    start: 1724630400,
-    end: 1725235200,
-  },
-  {
-    value: 34,
-    label: (
-      <Text>
-        <Text as="span" color="#ffffff">
-          Week 7
-        </Text>{' '}
-        Aug 19 - Aug 25
-      </Text>
-    ),
-    start: 1724025600,
-    end: 1724630400,
-  },
-  {
-    value: 33,
-    label: (
-      <Text>
-        <Text as="span" color="#ffffff">
-          Week 6
-        </Text>{' '}
-        Aug 12 - Aug 18
-      </Text>
-    ),
-    start: 1723420800,
-    end: 1724025600,
-  },
-  {
-    value: 32,
-    label: (
-      <Text>
-        <Text as="span" color="#ffffff">
-          Week 5
-        </Text>{' '}
-        Aug 05 - Aug 11
-      </Text>
-    ),
-    start: 1722816000,
-    end: 1723420800,
-  },
-  {
-    value: 31,
-    label: (
-      <Text>
-        <Text as="span" color="#ffffff">
-          Week 4
-        </Text>{' '}
-        July 29 - Aug 04
-      </Text>
-    ),
-    start: 1722211200,
-    end: 1722816000,
-  },
-  {
-    value: 30,
-    label: (
-      <Text>
-        <Text as="span" color="#ffffff">
-          Week 3
-        </Text>{' '}
-        July 22 - July 28
-      </Text>
-    ),
-    start: 1721606400,
-    end: 1722211200,
-  },
-  {
-    value: 29,
-    label: (
-      <Text>
-        <Text as="span" color="#ffffff">
-          Week 2
-        </Text>{' '}
-        July 15 - July 21
-      </Text>
-    ),
-    start: 1721001600,
-    end: 1721606400,
-  },
-  {
-    value: 28,
-    label: (
-      <Text>
-        <Text as="span" color="#ffffff">
-          Week 1
-        </Text>{' '}
-        July 08 - July 14
-      </Text>
-    ),
-    start: 1720396800,
-    end: 1721001600,
-  },
-].reverse()
-
-const mayTradingWeeks = [
-  // {
-  //   value: 22,
-  //   label: (
-  //     <Text>
-  //       <Text as="span" color="#ffffff">
-  //         Week 3
-  //       </Text>{' '}
-  //       May 26 - Jun 1
-  //     </Text>
-  //   ),
-  //   start: 1748131200,
-  //   end: 1748736000,
-  // },
-  {
-    value: 22,
-    label: (
-      <Text>
-        <Text as="span" color="#ffffff">
-          Week 1
-        </Text>{' '}
-        May 19 - May 25
-      </Text>
-    ),
-    start: 1748304000,
-    end: 1748822400,
-  },
-].reverse()
-
 const getFormattedTime = (totalSeconds: number): string => {
   // const totalSeconds = Math.floor(milliseconds / 1000);
   const totalDays = Math.floor(totalSeconds / 86400)
@@ -223,78 +57,6 @@ const getFormattedTime = (totalSeconds: number): string => {
   const minutes = (totalMinutes % 60).toString().padStart(2, '0')
 
   return `${totalDays}D ${hours}H ${minutes}M ${seconds}S`
-}
-const stipInfo = {
-  year: 2024,
-  rewardChain: ChainId.ARBITRUM,
-  rewardTokenSymbol: 'ARB',
-  rewardTokenLogo: 'https://s2.coinmarketcap.com/static/img/coins/64x64/11841.png',
-  rewardToken: '0x912CE59144191C1204E64559FE8253a0e49E6548', // ARB
-  weeks: stipWeeks,
-  program: 'stip' as const,
-}
-
-const campaignConfig = {
-  [CampaignType.Aggregator]: {
-    ...stipInfo,
-    ctaLink: '/swap/arbitrum/eth-to-arb',
-    ctaText: 'Trade Now',
-    type: CampaignType.Aggregator,
-    campaign: 'trading-incentive' as const,
-    banner: tradingBanner,
-    title: 'Aggregator Trading Campaign',
-  },
-  [CampaignType.LimitOrder]: {
-    ...stipInfo,
-    ctaLink: '/limit/arbitrum',
-    ctaText: 'Place order',
-    type: CampaignType.LimitOrder,
-    campaign: 'limit-order-farming' as const,
-    banner: loBanner,
-    title: 'Limit Order Campaign',
-  },
-  [CampaignType.Referrals]: {
-    ...stipInfo,
-    ctaText: 'Trade Now',
-    ctaLink: '/swap/arbitrum/eth-to-arb',
-    type: CampaignType.Referrals,
-    campaign: 'referral-program' as const,
-    banner: referralBanner,
-    title: 'Referral Program',
-  },
-  [CampaignType.MayTrading]: {
-    ctaLink: '/swap/base',
-    year: 2025,
-    rewardChain: ChainId.MAINNET,
-    rewardTokenSymbol: 'KNC',
-    ctaText: 'Trade Now',
-    rewardTokenLogo: 'https://s2.coinmarketcap.com/static/img/coins/64x64/9444.png',
-    type: CampaignType.MayTrading,
-    weeks: mayTradingWeeks,
-    rewardToken: KNC[ChainId.MAINNET].address,
-    program: 'grind/base' as const,
-    campaign: 'trading-incentive' as const,
-    banner: mayTradingBanner,
-    title: 'May Trading Campaign',
-  },
-  [CampaignType.NearIntents]: {
-    year: 2025,
-    // TODO: Update the reward chain and token details for Near Intents
-    rewardChain: ChainId.MAINNET,
-    rewardToken: KNC[ChainId.MAINNET].address,
-    rewardTokenSymbol: 'KNC',
-    rewardTokenLogo: 'https://s2.coinmarketcap.com/static/img/coins/64x64/9444.png',
-    type: CampaignType.NearIntents,
-    ctaText: 'Trade Now',
-    // TODO: update time for Near Intents
-    weeks: mayTradingWeeks,
-    // TODO: Update the program for Near Intents
-    program: 'grind/base' as const,
-    campaign: 'trading-incentive' as const,
-    banner: mayTradingBanner,
-    ctaLink: '/cross-chain',
-    title: 'Cross Chain Swap Campaign (x Near Intents)',
-  },
 }
 
 export default function Aggregator() {
@@ -314,20 +76,7 @@ export default function Aggregator() {
       ? CampaignType.NearIntents
       : CampaignType.Referrals
 
-  const {
-    campaign,
-    weeks,
-    ctaText,
-    program,
-    ctaLink,
-    year,
-    rewardChain,
-    rewardTokenSymbol,
-    rewardTokenLogo,
-    rewardToken,
-    banner,
-    title,
-  } = campaignConfig[type]
+  const { campaign, weeks, ctaText, program, ctaLink, year, reward, banner, title, url } = campaignConfig[type]
 
   const startWeek = weeks[0].value
   const endWeek = weeks[weeks.length - 1].value
@@ -347,6 +96,7 @@ export default function Aggregator() {
       year: year,
       wallet: account || '',
       campaign,
+      url,
     },
     {
       skip: !account,
@@ -356,6 +106,7 @@ export default function Aggregator() {
 
   const { data } = useGetLeaderboardQuery(
     {
+      url,
       program,
       week: selectedWeek,
       year: year,
@@ -398,11 +149,11 @@ export default function Aggregator() {
 
   const tab = searchParams.get('tab') || 'information'
 
-  const marketPriceMap = useTokenPrices([rewardToken], rewardChain)
-  const price = marketPriceMap?.[rewardToken] || 0
+  const marketPriceMap = useTokenPrices([reward.address], reward.chainId)
+  const price = marketPriceMap?.[reward.address] || 0
 
   const rewardAmount = CurrencyAmount.fromRawAmount(
-    new Token(1, ZERO_ADDRESS, 18, 'mock'),
+    new Token(1, ZERO_ADDRESS, reward.decimals, 'mock'),
     userData?.data?.reward?.split('.')[0] || '0',
   )
   const rewardNumber = rewardAmount ? rewardAmount.toSignificant(4) : '0'
@@ -426,8 +177,6 @@ export default function Aggregator() {
   const referralRewardUsd = price * +referralRewardAmount?.toExact() || 0
 
   const usd = campaign === 'referral-program' ? referralRewardUsd : rewardUsd
-
-  const dashboardTab = type === CampaignType.MayTrading ? 'may-trading' : campaign
 
   const startEndIn =
     type === CampaignType.MayTrading
@@ -592,15 +341,9 @@ export default function Aggregator() {
             {estRewardText} {info}
           </Text>
           <Flex marginTop="8px" fontSize={20} fontWeight="500" alignItems="center">
-            <img
-              src={rewardTokenLogo}
-              alt={rewardTokenSymbol}
-              width="20px"
-              height="20px"
-              style={{ borderRadius: '50%' }}
-            />
+            <img src={reward.logo} alt={reward.symbol} width="20px" height="20px" style={{ borderRadius: '50%' }} />
             <Text marginLeft="4px" fontSize={16}>
-              {campaign === 'referral-program' ? referralReward : rewardNumber} {rewardTokenSymbol}
+              {campaign === 'referral-program' ? referralReward : rewardNumber} {reward.symbol}
             </Text>
             <Text ml="4px" fontSize={14} color={theme.subText}>
               {formatDisplayNumber(usd, { style: 'currency', significantDigits: 4 })}
@@ -633,7 +376,7 @@ export default function Aggregator() {
           </Tab>
         </Tabs>
 
-        <StyledInternalLink to={`${APP_PATHS.MY_DASHBOARD}?tab=${dashboardTab}`}>[ My Dashboard ]</StyledInternalLink>
+        <StyledInternalLink to={`${APP_PATHS.MY_DASHBOARD}?tab=${type}`}>[ My Dashboard ]</StyledInternalLink>
       </Flex>
 
       {tab === 'information' && <Information type={type} week={selectedWeek} />}
