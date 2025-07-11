@@ -388,9 +388,13 @@ export default function ConfirmSwapModalContent({
           if (retry < 2) {
             setRetry(prev => prev + 1)
             setRawSlippage(dynamicSuggestedSlippage)
+          } else {
+            searchParams.set('tab', 'settings')
+            setSearchParams(searchParams)
+            onDismiss()
           }
         }}
-        confirmText={retry < 2 ? 'Use Suggested Slippage' : undefined}
+        confirmText={retry < 2 ? 'Use Suggested Slippage' : 'Set Custom Slippage'}
         message={
           retry < 2
             ? errorWhileBuildRoute
