@@ -385,7 +385,7 @@ export default function ConfirmSwapModalContent({
       <TransactionErrorContent
         onDismiss={onDismiss}
         confirmAction={() => {
-          if (retry < 2) {
+          if (retry < 1) {
             setRetry(prev => prev + 1)
             setRawSlippage(dynamicSuggestedSlippage)
           } else {
@@ -394,16 +394,16 @@ export default function ConfirmSwapModalContent({
             onDismiss()
           }
         }}
-        confirmText={retry < 2 ? 'Use Suggested Slippage' : 'Set Custom Slippage'}
+        confirmText={retry < 1 ? 'Use Suggested Slippage' : 'Set Custom Slippage'}
         message={
-          retry < 2
+          retry < 1
             ? errorWhileBuildRoute
-            : 'This route may currently be too volatile to execute. Try refreshing or attempting again later.'
+            : 'This route may currently be too volatile to execute. Try to custom your own slippage to continue.'
         }
         confirmBtnStyle={{ flex: 2 }}
         dismissBtnStyle={{ flex: 1 }}
         suggestionMessage={
-          retry < 2 && (
+          retry < 1 && (
             <Text marginTop="8px" fontSize={16} color={theme.text}>
               New Suggested Slippage: {(dynamicSuggestedSlippage * 100) / 10_000}%{' '}
               <InfoHelper text="This suggestion is based on your trade’s estimated slippage and token pair volatility, with a cap applied." />{' '}
