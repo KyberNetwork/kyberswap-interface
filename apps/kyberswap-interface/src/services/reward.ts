@@ -65,14 +65,14 @@ const rewardServiceApi = createApi({
         url: `/kem/batch-claim/erc721`,
         params,
       }),
-      transformResponse: (response: { data: string }) => response.data,
+      transformResponse: (response: { data: { calldata: string } }) => response.data.calldata,
     }),
     claimEncodeData: builder.mutation<string, ClaimEncodeParams>({
       query: params => ({
         url: `/kem/claim/erc721`,
         params,
       }),
-      transformResponse: (response: { data: string }) => response.data,
+      transformResponse: (response: { data: { calldata: string } }) => response.data.calldata,
     }),
     rewardInfo: builder.query<RewardData, RewardInfoParams>({
       query: params => ({
