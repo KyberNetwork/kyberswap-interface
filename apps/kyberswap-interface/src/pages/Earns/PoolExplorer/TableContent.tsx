@@ -191,71 +191,74 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: ({ pool }: Zap
 
   if (upToMedium)
     return (
-      <TableBody>
-        {tablePoolData.map((pool, index) => (
-          <MobileTableRow
-            key={pool.address}
-            onClick={() =>
-              onOpenZapInWidget({
-                pool: {
-                  dex: pool.exchange,
-                  chainId: pool.chainId || filters.chainId,
-                  address: pool.address,
-                },
-              })
-            }
-          >
-            <Flex alignItems="flex-start" justifyContent="space-between">
-              <Flex sx={{ gap: 1 }}>
-                <Flex sx={{ position: 'relative', top: -1 }}>
-                  <TokenLogo src={pool.tokens?.[0]?.logoURI} />
-                  <TokenLogo src={pool.tokens?.[1]?.logoURI} />
-                </Flex>
-                <Flex flexDirection={'column'} sx={{ gap: 2 }}>
-                  <Flex sx={{ gap: 1 }}>
-                    <SymbolText>
-                      {pool.tokens?.[0]?.symbol}/{pool.tokens?.[1]?.symbol}
-                    </SymbolText>
-                    <CopyHelper size={16} toCopy={pool.address?.toLowerCase()} />
+      <>
+        <TableBody>
+          {tablePoolData.map((pool, index) => (
+            <MobileTableRow
+              key={pool.address}
+              onClick={() =>
+                onOpenZapInWidget({
+                  pool: {
+                    dex: pool.exchange,
+                    chainId: pool.chainId || filters.chainId,
+                    address: pool.address,
+                  },
+                })
+              }
+            >
+              <Flex alignItems="flex-start" justifyContent="space-between">
+                <Flex sx={{ gap: 1 }}>
+                  <Flex sx={{ position: 'relative', top: -1 }}>
+                    <TokenLogo src={pool.tokens?.[0]?.logoURI} />
+                    <TokenLogo src={pool.tokens?.[1]?.logoURI} />
                   </Flex>
-                  <Flex sx={{ gap: 2 }}>
-                    <TokenLogo src={pool.dexLogo} size={22} />
-                    <FeeTier>{formatDisplayNumber(pool.feeTier, { significantDigits: 4 })}%</FeeTier>
+                  <Flex flexDirection={'column'} sx={{ gap: 2 }}>
+                    <Flex sx={{ gap: 1 }}>
+                      <SymbolText>
+                        {pool.tokens?.[0]?.symbol}/{pool.tokens?.[1]?.symbol}
+                      </SymbolText>
+                      <CopyHelper size={16} toCopy={pool.address?.toLowerCase()} />
+                    </Flex>
+                    <Flex sx={{ gap: 2 }}>
+                      <TokenLogo src={pool.dexLogo} size={22} />
+                      <FeeTier>{formatDisplayNumber(pool.feeTier, { significantDigits: 4 })}%</FeeTier>
+                    </Flex>
                   </Flex>
                 </Flex>
-              </Flex>
-              <Flex alignItems="center" sx={{ gap: '12px' }}>
-                <Flex alignItems="center" sx={{ gap: '2px' }}>
-                  <Apr value={pool.apr}>{formatAprNumber(pool.apr)}%</Apr>
-                  {kemFarming(pool)}
+                <Flex alignItems="center" sx={{ gap: '12px' }}>
+                  <Flex alignItems="center" sx={{ gap: '2px' }}>
+                    <Apr value={pool.apr}>{formatAprNumber(pool.apr)}%</Apr>
+                    {kemFarming(pool)}
+                  </Flex>
+                  <Star
+                    size={16}
+                    color={pool.favorite?.isFavorite ? theme.primary : theme.subText}
+                    fill={pool.favorite?.isFavorite ? theme.primary : 'none'}
+                    role="button"
+                    cursor="pointer"
+                    onClick={e => handleFavorite(e, pool)}
+                  />
                 </Flex>
-                <Star
-                  size={16}
-                  color={pool.favorite?.isFavorite ? theme.primary : theme.subText}
-                  fill={pool.favorite?.isFavorite ? theme.primary : 'none'}
-                  role="button"
-                  cursor="pointer"
-                  onClick={e => handleFavorite(e, pool)}
-                />
               </Flex>
-            </Flex>
-            <MobileTableBottomRow withoutBorder={index === tablePoolData.length - 1}>
-              <Flex justifyContent="space-between" sx={{ gap: 1 }}>
-                <Text color={theme.subText}>Earn Fees</Text>
-                <Text>{formatDisplayNumber(pool.earnFee, { style: 'currency', significantDigits: 6 })}</Text>
-              </Flex>
-              <Flex justifyContent="space-between" sx={{ gap: 1 }}>
-                <Text color={theme.subText}>TVL</Text>
-                <Text>{formatDisplayNumber(pool.tvl, { style: 'currency', significantDigits: 6 })}</Text>
-              </Flex>
-              <Flex justifyContent="space-between" sx={{ gap: 1 }}>
-                <Text color={theme.subText}>Volume</Text>
-                <Text>{formatDisplayNumber(pool.volume, { style: 'currency', significantDigits: 6 })}</Text>
-              </Flex>
-            </MobileTableBottomRow>
-          </MobileTableRow>
-        ))}
-      </TableBody>
+              <MobileTableBottomRow withoutBorder={index === tablePoolData.length - 1}>
+                <Flex justifyContent="space-between" sx={{ gap: 1 }}>
+                  <Text color={theme.subText}>Earn Fees</Text>
+                  <Text>{formatDisplayNumber(pool.earnFee, { style: 'currency', significantDigits: 6 })}</Text>
+                </Flex>
+                <Flex justifyContent="space-between" sx={{ gap: 1 }}>
+                  <Text color={theme.subText}>TVL</Text>
+                  <Text>{formatDisplayNumber(pool.tvl, { style: 'currency', significantDigits: 6 })}</Text>
+                </Flex>
+                <Flex justifyContent="space-between" sx={{ gap: 1 }}>
+                  <Text color={theme.subText}>Volume</Text>
+                  <Text>{formatDisplayNumber(pool.volume, { style: 'currency', significantDigits: 6 })}</Text>
+                </Flex>
+              </MobileTableBottomRow>
+            </MobileTableRow>
+          ))}
+        </TableBody>
+        <Updater customChainId={filters.chainId} />
+      </>
     )
 
   return (
