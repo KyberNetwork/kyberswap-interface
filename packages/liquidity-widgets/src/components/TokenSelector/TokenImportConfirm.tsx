@@ -1,4 +1,6 @@
-import { Button } from '@kyber/ui/button';
+import { Token } from '@kyber/schema';
+import { Button } from '@kyber/ui';
+import { getEtherscanLink } from '@kyber/utils';
 
 import IconAlertTriangle from '@/assets/svg/alert-triangle.svg';
 import IconBack from '@/assets/svg/arrow-left.svg';
@@ -8,11 +10,9 @@ import X from '@/assets/svg/x.svg';
 import { shortenAddress } from '@/components/TokenInfo/utils';
 import { MAX_ZAP_IN_TOKENS } from '@/constants';
 import useCopy from '@/hooks/useCopy';
-import { useTokenList } from '@/hooks/useTokenList';
-import { useZapState } from '@/hooks/useZapInState';
-import { Token } from '@/schema';
-import { useWidgetContext } from '@/stores';
-import { getEtherscanLink } from '@/utils';
+import { useZapState } from '@/hooks/useZapState';
+import { useTokenStore } from '@/stores/useTokenStore';
+import { useWidgetStore } from '@/stores/useWidgetStore';
 
 import { TOKEN_SELECT_MODE } from '.';
 
@@ -33,10 +33,9 @@ const TokenImportConfirm = ({
   onGoBack: () => void;
   onClose: () => void;
 }) => {
-  const chainId = useWidgetContext(s => s.chainId);
-
   const { tokensIn, setTokensIn, amountsIn, setAmountsIn } = useZapState();
-  const { addToken } = useTokenList();
+  const chainId = useWidgetStore(s => s.chainId);
+  const importToken = useTokenStore(s => s.importToken);
   const Copy = useCopy({ text: token.address });
 
   const handleOpenExternalLink = () => {
@@ -45,7 +44,7 @@ const TokenImportConfirm = ({
   };
 
   const handleAddToken = () => {
-    addToken(token);
+    importToken(token);
     if (mode === TOKEN_SELECT_MODE.SELECT) {
       const index = tokensIn.findIndex((tokenIn: Token) => tokenIn.address === selectedTokenAddress);
       if (index > -1) {
@@ -103,7 +102,9 @@ const TokenImportConfirm = ({
             </p>
           </div>
         </div>
-        <Button onClick={handleAddToken}>I understand</Button>
+        <Button className="ks-primary-btn" onClick={handleAddToken}>
+          I understand
+        </Button>
       </div>
     </div>
   );

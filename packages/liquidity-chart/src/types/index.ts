@@ -92,6 +92,8 @@ export interface LiquidityChartRangeInputProps {
   zoomPosition?: ZoomPosition;
   zoomInIcon?: JSX.Element;
   zoomOutIcon?: JSX.Element;
+  showLabelAsAmount?: boolean;
+  alwaysShowLabel?: boolean;
   onBrushDomainChange?: (domain: [number, number], mode: string | undefined) => void;
 }
 
@@ -108,6 +110,7 @@ export interface ChartProps {
   zoomPosition?: ZoomPosition;
   zoomInIcon?: JSX.Element;
   zoomOutIcon?: JSX.Element;
+  alwaysShowLabel?: boolean;
   brushLabels: (d: 'w' | 'e', x: number) => string;
   onBrushDomainChange?: (domain: [number, number], mode: string | undefined) => void;
 }
@@ -135,6 +138,7 @@ export interface BrushProps {
   innerWidth: number;
   innerHeight: number;
   zoomInited: boolean;
+  alwaysShowLabel?: boolean;
   brushLabelValue: (d: 'w' | 'e', x: number) => string;
   setBrushExtent?: (extent: [number, number], mode: string | undefined) => void;
 }

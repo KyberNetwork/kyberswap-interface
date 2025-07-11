@@ -6,9 +6,15 @@ import { Flex } from 'rebass'
 import styled from 'styled-components'
 
 import Announcement from 'components/Announcement'
+import AboutNavGroup from 'components/Header/groups/AboutNavGroup'
+import CampaignNavGroup from 'components/Header/groups/CampaignNavGroup'
+import EarnNavGroup from 'components/Header/groups/EarnNavGroup'
+import KyberDAONavGroup from 'components/Header/groups/KyberDaoGroup'
+import SwapNavGroup from 'components/Header/groups/SwapNavGroup'
+import { StyledNavExternalLink, StyledNavLink } from 'components/Header/styleds'
 import SelectNetwork from 'components/Header/web3/SelectNetwork'
 import SelectWallet from 'components/Header/web3/SelectWallet'
-import Menu, { NewLabel } from 'components/Menu'
+import Menu from 'components/Menu'
 import Row, { RowFixed } from 'components/Row'
 import { AGGREGATOR_ANALYTICS_URL, APP_PATHS } from 'constants/index'
 import { Z_INDEXS } from 'constants/styles'
@@ -16,12 +22,6 @@ import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useHolidayMode } from 'state/user/hooks'
 import { MEDIA_WIDTHS } from 'theme'
-
-import AboutNavGroup from './groups/AboutNavGroup'
-import CampaignNavGroup from './groups/CampaignNavGroup'
-import KyberDAONavGroup from './groups/KyberDaoGroup'
-import SwapNavGroup from './groups/SwapNavGroup'
-import { StyledNavExternalLink, StyledNavLink } from './styleds'
 
 const HeaderFrame = styled.div<{ hide?: boolean }>`
   height: ${({ hide }) => (hide ? 0 : undefined)};
@@ -210,12 +210,8 @@ export default function Header() {
         {!isPartnerSwap && (
           <HeaderLinks>
             <SwapNavGroup />
-            <StyledNavLink to={`${APP_PATHS.EARN}`}>
-              <Flex>
-                Earn
-                <NewLabel>New</NewLabel>
-              </Flex>
-            </StyledNavLink>
+            <EarnNavGroup />
+
             {!upToExtraSmall && <StyledNavLink to={`${APP_PATHS.MARKET_OVERVIEW}`}>Market</StyledNavLink>}
             <CampaignNavGroup />
             <KyberDAONavGroup />

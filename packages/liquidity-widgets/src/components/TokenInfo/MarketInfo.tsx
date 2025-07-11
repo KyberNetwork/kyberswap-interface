@@ -1,20 +1,21 @@
 import { useMemo, useState } from 'react';
 
+import { useShallow } from 'zustand/shallow';
+
+import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, Token } from '@kyber/schema';
+import { Loader } from '@kyber/ui';
+
 import LogoCoingecko from '@/assets/svg/coingecko.svg';
 import IconDown from '@/assets/svg/down.svg';
 import defaultTokenLogo from '@/assets/svg/question.svg?url';
 import IconZiczac from '@/assets/svg/ziczac.svg';
-import Loader from '@/components/Loader';
 import useMarketTokenInfo from '@/components/TokenInfo/useMarketTokenInfo';
 import { shortenAddress } from '@/components/TokenInfo/utils';
-import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO } from '@/constants';
 import useCopy from '@/hooks/useCopy';
-import { Token } from '@/schema';
-import { useWidgetContext } from '@/stores';
+import { useWidgetStore } from '@/stores/useWidgetStore';
 
 const MarketInfo = ({ token }: { token: Token }) => {
-  const theme = useWidgetContext(s => s.theme);
-  const chainId = useWidgetContext(s => s.chainId);
+  const { theme, chainId } = useWidgetStore(useShallow(s => ({ theme: s.theme, chainId: s.chainId })));
 
   const tokenAddress = useMemo(
     () =>

@@ -9,10 +9,11 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@kyber/ui/card";
-import { Label } from "@kyber/ui/label";
-import { RadioGroup, RadioGroupItem } from "@kyber/ui/radio-group";
-import { TabsContent } from "@kyber/ui/tabs";
+  Label,
+  RadioGroup,
+  RadioGroupItem,
+  TabsContent,
+} from "@kyber/ui";
 import {
   Dex as ZapMigrationDex,
   ZapMigration as ZapMigrationWidget,
@@ -84,7 +85,7 @@ const ZapMigration = () => {
       openConnectModal?.();
     },
     onSwitchChain: () => {
-      switchChain?.({ chainId: ChainId.Bsc });
+      switchChain?.({ chainId: Number(params.chainId) });
     },
     onSubmitTx: async (txData: {
       from: string;

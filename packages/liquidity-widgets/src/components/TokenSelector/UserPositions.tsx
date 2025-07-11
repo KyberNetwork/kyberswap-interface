@@ -1,5 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
+import { useShallow } from 'zustand/shallow';
+
+import { API_URLS, EarnChain, EarnDex, Exchange, Univ2EarnDex } from '@kyber/schema';
+import { enumToArrayOfValues } from '@kyber/utils';
 import { isAddress } from '@kyber/utils/crypto';
 import { formatDisplayNumber } from '@kyber/utils/number';
 
@@ -8,20 +12,39 @@ import IconCopy from '@/assets/svg/copy.svg';
 import IconPositionConnectWallet from '@/assets/svg/ic_position_connect_wallet.svg';
 import IconPositionNotFound from '@/assets/svg/ic_position_not_found.svg';
 import defaultTokenLogo from '@/assets/svg/question.svg?url';
-import { PATHS } from '@/constants';
-import { useZapState } from '@/hooks/useZapInState';
-import { EARN_SUPPORTED_CHAINS, EARN_SUPPORTED_PROTOCOLS, EarnDex, Univ2EarnDex } from '@/schema';
-import { useWidgetContext } from '@/stores';
+import { shortenAddress } from '@/components/TokenInfo/utils';
+import { useZapState } from '@/hooks/useZapState';
+import { useWidgetStore } from '@/stores/useWidgetStore';
 import { EarnPosition, PositionStatus } from '@/types/index';
-
-import { shortenAddress } from '../TokenInfo/utils';
 
 const COPY_TIMEOUT = 2000;
 let hideCopied: ReturnType<typeof setTimeout>;
 
+const earnSupportedChains = enumToArrayOfValues(EarnChain, 'number');
+
+const listDexesWithVersion = [
+  EarnDex.DEX_UNISWAPV2,
+  EarnDex.DEX_UNISWAPV3,
+  EarnDex.DEX_UNISWAP_V4,
+  EarnDex.DEX_UNISWAP_V4_FAIRFLOW,
+];
+
+export const earnSupportedExchanges = enumToArrayOfValues(Exchange);
+
 const UserPositions = ({ search }: { search: string }) => {
   const { theme, connectedAccount, chainId, positionId, onOpenZapMigration, onConnectWallet, poolAddress } =
-    useWidgetContext(s => s);
+    useWidgetStore(
+      useShallow(s => ({
+        theme: s.theme,
+        connectedAccount: s.connectedAccount,
+        chainId: s.chainId,
+        positionId: s.positionId,
+        onOpenZapMigration: s.onOpenZapMigration,
+        onConnectWallet: s.onConnectWallet,
+        poolAddress: s.poolAddress,
+      })),
+    );
+
   const { address: account } = connectedAccount || {};
   const { tickLower, tickUpper } = useZapState();
 
@@ -71,16 +94,16 @@ const UserPositions = ({ search }: { search: string }) => {
   };
 
   const handleGetUserPositions = useCallback(async () => {
-    if (!account || !EARN_SUPPORTED_CHAINS.includes(chainId)) return;
+    if (!account || !earnSupportedChains.includes(chainId)) return;
     setLoading(true);
     try {
       const response = await fetch(
-        `${PATHS.ZAP_EARN_API}/v1/userPositions` +
+        `${API_URLS.ZAP_EARN_API}/v1/userPositions` +
           '?' +
           new URLSearchParams({
             addresses: account,
             chainIds: chainId.toString(),
-            protocols: EARN_SUPPORTED_PROTOCOLS.join(','),
+            protocols: earnSupportedExchanges.join(','),
             quoteSymbol: 'usd',
             offset: '0',
             orderBy: 'liquidity',
@@ -139,17 +162,23 @@ const UserPositions = ({ search }: { search: string }) => {
     positions.map((position: EarnPosition, index: number) => {
       const isUniv2 = Univ2EarnDex.safeParse(position.pool.project).success;
       const posStatus = isUniv2 ? PositionStatus.IN_RANGE : position.status;
+      const version = listDexesWithVersion.includes(position.pool.project)
+        ? position.pool.project.split(' ')[position.pool.project.split(' ').length - 1] || ''
+        : '';
 
       return (
         <div key={index}>
           <div
             className="flex flex-col py-3 px-[26px] gap-2 cursor-pointer hover:bg-[#31cb9e33]"
-            onClick={() =>
+            onClick={() => {
+              const isUniV2 = Univ2EarnDex.safeParse(position.pool.project).success;
+              if (isUniV2 && !account) return;
+
               onOpenZapMigration(
                 {
                   exchange: position.pool.project,
                   poolId: position.pool.poolAddress,
-                  positionId: position.pool.project !== EarnDex.DEX_UNISWAPV2 ? position.tokenId : position.userAddress,
+                  positionId: !isUniV2 ? position.tokenId : account,
                 },
                 tickLower !== null && tickUpper !== null
                   ? {
@@ -157,8 +186,8 @@ const UserPositions = ({ search }: { search: string }) => {
                       tickUpper,
                     }
                   : undefined,
-              )
-            }
+              );
+            }}
           >
             <div className="flex items-center justify-between w-full">
               <div className="flex gap-2 items-center">
@@ -200,7 +229,7 @@ const UserPositions = ({ search }: { search: string }) => {
                   </div>
                 )}
               </div>
-              <div>
+              <div className="max-w-[100px] overflow-hidden text-ellipsis whitespace-nowrap">
                 {formatDisplayNumber(position.currentPositionValue, {
                   style: 'currency',
                   significantDigits: 4,
@@ -209,16 +238,19 @@ const UserPositions = ({ search }: { search: string }) => {
             </div>
             <div className="flex items-center justify-between w-full">
               <div className="flex gap-2 items-center">
-                <img
-                  src={position.pool.projectLogo}
-                  width={20}
-                  height={20}
-                  alt=""
-                  onError={({ currentTarget }) => {
-                    currentTarget.onerror = null;
-                    currentTarget.src = defaultTokenLogo;
-                  }}
-                />
+                <div className="flex gap-1 items-center">
+                  <img
+                    src={position.pool.projectLogo}
+                    width={16}
+                    height={16}
+                    alt=""
+                    onError={({ currentTarget }) => {
+                      currentTarget.onerror = null;
+                      currentTarget.src = defaultTokenLogo;
+                    }}
+                  />
+                  {version && <span className="text-subText text-xs">{version}</span>}
+                </div>
                 {!isUniv2 && <span className="text-subText">#{position.tokenId}</span>}
                 <div className="text-[#027BC7] bg-[#ffffff0a] rounded-full px-[10px] py-1 flex gap-1 text-sm">
                   {shortenAddress(position.pool.poolAddress, 4)}

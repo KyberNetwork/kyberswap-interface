@@ -1,5 +1,5 @@
 import { Placement } from "@popperjs/core";
-import { Portal } from "@kyber/ui/portal";
+import { Portal } from "@kyber/ui";
 import React, { useCallback, useState } from "react";
 import { usePopper } from "react-popper";
 import useInterval from "@/hooks/useInterval";
@@ -50,7 +50,7 @@ export default function Popover({
         {children}
       </div>
       <Portal>
-        <div className="ks-lw-style">
+        <div className="ks-ui-style">
           <div
             className="ks-lw-popover"
             data-visibility={show}

@@ -13,13 +13,16 @@ const Modal = ({
   if (!isOpen) return <></>;
 
   return ReactDOM.createPortal(
-    <div className="ks-lw-modal-overlay" onClick={onClick}>
-      <div className="ks-lw-modal-content" onClick={(e) => e.stopPropagation()}>
+    <div className="pcs-lw-modal-overlay" onClick={onClick}>
+      <div
+        className="pcs-lw-modal-content"
+        onClick={(e) => e.stopPropagation()}
+      >
         {children}
       </div>
     </div>,
     // already created in Widget/index.ts
-    document.getElementById("ks-lw-modal-root")!
+    document.getElementById("pcs-lw-modal-root")!
   ) as ReactElement;
 };
 

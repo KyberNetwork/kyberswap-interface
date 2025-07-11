@@ -1,11 +1,9 @@
 import { ReactNode, useState } from 'react';
 
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@kyber/ui/accordion';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Loader } from '@kyber/ui';
 
 import IconAlertOctagon from '@/assets/svg/alert-octagon.svg';
-import Loader from '@/components/Loader';
 import { ItemData, RISKY_THRESHOLD, WarningType, isItemRisky } from '@/components/TokenInfo/utils';
-import { NO_DATA } from '@/constants';
 
 const CollapseInfoItem = ({
   icon,
@@ -83,7 +81,7 @@ const CollapseInfoItem = ({
             ) : isNumber ? (
               `Unknown`
             ) : (
-              NO_DATA
+              '--'
             );
 
             return (
@@ -95,7 +93,7 @@ const CollapseInfoItem = ({
                       ? isNumber
                         ? colorRiskyByAmount
                         : colorRiskyByType
-                      : displayValue === NO_DATA
+                      : displayValue === '--'
                         ? 'text-subText'
                         : 'text-accent'
                   }`}

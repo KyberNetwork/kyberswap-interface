@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 
+import { NATIVE_TOKEN_ADDRESS } from '@kyber/schema';
 import {
   calculateGasMargin,
   checkApproval,
@@ -16,16 +17,21 @@ export enum APPROVAL_STATE {
   NOT_APPROVED = 'not_approved',
 }
 
-export const NATIVE_TOKEN_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
-
-export const useApprovals = (
-  amounts: string[],
-  addreses: string[],
-  owner: string,
-  spender: string,
-  rpcUrl: string,
-  onSubmitTx: (txData: { from: string; to: string; value: string; data: string; gasLimit: string }) => Promise<string>,
-) => {
+export const useErc20Approvals = ({
+  amounts,
+  addreses,
+  owner,
+  spender,
+  rpcUrl,
+  onSubmitTx,
+}: {
+  amounts: string[];
+  addreses: string[];
+  owner: string;
+  spender: string;
+  rpcUrl: string;
+  onSubmitTx: (txData: { from: string; to: string; value: string; data: string; gasLimit: string }) => Promise<string>;
+}) => {
   const [loading, setLoading] = useState(false);
   const [approvalStates, setApprovalStates] = useState<{
     [address: string]: APPROVAL_STATE;

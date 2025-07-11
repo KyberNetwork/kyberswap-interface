@@ -8,7 +8,7 @@ import {
   formatTokenAmount,
   toRawString,
 } from "@kyber/utils/number";
-import { Skeleton } from "@kyber/ui/skeleton";
+import { Skeleton } from "@kyber/ui";
 import { cn } from "@kyber/utils/tailwind-helpers";
 import { univ2Dexes, UniV2Pool } from "../schema";
 
@@ -60,7 +60,7 @@ export function ToPool({ className }: { className?: string }) {
       )}
     >
       <div className="text-subText text-sm">Your New Position Liquidity</div>
-      <div className="mt-2 flex items-start justify-between">
+      <div className="mt-2 flex items-center justify-between">
         {pools === "loading" ? (
           <LiquiditySkeleton />
         ) : (
@@ -71,32 +71,31 @@ export function ToPool({ className }: { className?: string }) {
                 alt={pools[1].token0.symbol}
                 className="w-4 h-4"
               />
+              <span className="text-base">
+                {formatTokenAmount(amount0, pools[1].token0.decimals, 10)}
+              </span>
               <span className="text-base">{pools[1].token0.symbol}</span>
             </div>
 
             {fetchingRoute ? (
-              <div className="flex flex-col items-end h-[40px]">
+              <div className="flex flex-col items-end">
                 <Skeleton className="w-20 h-4" />
-                <Skeleton className="w-10 h-3 mt-1" />
               </div>
             ) : (
-              <div className="text-base flex flex-col items-end">
-                {formatTokenAmount(amount0, pools[1].token0.decimals, 10)}{" "}
-                <div className="text-subText text-xs">
-                  ~
-                  {formatDisplayNumber(
-                    (pools[1].token0.price || 0) *
-                      Number(toRawString(amount0, pools[1].token0.decimals)),
-                    { style: "currency" }
-                  )}
-                </div>
+              <div className="text-xs flex flex-col items-end text-subText">
+                ~
+                {formatDisplayNumber(
+                  (pools[1].token0.price || 0) *
+                    Number(toRawString(amount0, pools[1].token0.decimals)),
+                  { style: "currency" }
+                )}
               </div>
             )}
           </>
         )}
       </div>
 
-      <div className="mt-2 flex items-start justify-between">
+      <div className="mt-2 flex items-center justify-between">
         {pools === "loading" ? (
           <LiquiditySkeleton />
         ) : (
@@ -107,25 +106,24 @@ export function ToPool({ className }: { className?: string }) {
                 alt={pools[1].token1.symbol}
                 className="w-4 h-4"
               />
+              <span className="text-base">
+                {formatTokenAmount(amount1, pools[1].token1.decimals, 10)}
+              </span>
               <span className="text-base">{pools[1].token1.symbol}</span>
             </div>
 
             {fetchingRoute ? (
-              <div className="flex flex-col items-end h-[40px]">
+              <div className="flex flex-col items-end">
                 <Skeleton className="w-20 h-4" />
-                <Skeleton className="w-10 h-3 mt-1" />
               </div>
             ) : (
-              <div className="text-base flex flex-col items-end">
-                {formatTokenAmount(amount1, pools[1].token1.decimals, 10)}{" "}
-                <div className="text-subText text-xs">
-                  ~
-                  {formatDisplayNumber(
-                    (pools[1].token1.price || 0) *
-                      Number(toRawString(amount1, pools[1].token1.decimals)),
-                    { style: "currency" }
-                  )}
-                </div>
+              <div className="text-xs text-subText flex flex-col items-end">
+                ~
+                {formatDisplayNumber(
+                  (pools[1].token1.price || 0) *
+                    Number(toRawString(amount1, pools[1].token1.decimals)),
+                  { style: "currency" }
+                )}
               </div>
             )}
           </>
