@@ -66,11 +66,15 @@ export function useSwapActionHandlers(): {
         }
       }
 
-      navigate(
-        `/${window.location.pathname.startsWith('/limit') ? 'limit' : 'swap'}/${
-          NETWORKS_INFO[chainId].route
-        }/${encodeURIComponent(f)}-to-${encodeURIComponent(to)}`,
-      )
+      // Preserve existing search params
+      const currentSearchParams = new URLSearchParams(window.location.search)
+      const searchString = currentSearchParams.toString()
+
+      const newPath = `/${window.location.pathname.startsWith('/limit') ? 'limit' : 'swap'}/${
+        NETWORKS_INFO[chainId].route
+      }/${encodeURIComponent(f)}-to-${encodeURIComponent(to)}`
+
+      navigate(searchString ? `${newPath}?${searchString}` : newPath)
     },
     [fromCurrency, chainId, toCurrency, navigate, allTokens],
   )
