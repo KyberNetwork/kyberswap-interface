@@ -23,9 +23,7 @@ export default function PriceInfo() {
     if (pool === 'loading') return '--';
     const { success, data } = univ3PoolNormalize.safeParse(pool);
     if (success) {
-      return formatDisplayNumber(tickToPrice(data.tick, data.token0?.decimals, data.token1?.decimals, revertPrice), {
-        significantDigits: 6,
-      });
+      return tickToPrice(data.tick, data.token0?.decimals, data.token1?.decimals, revertPrice);
     }
 
     const { success: isUniV2, data: uniV2Pool } = univ2PoolNormalize.safeParse(pool);
@@ -36,26 +34,19 @@ export default function PriceInfo() {
         BigInt(uniV2Pool.reserves[0]) * 10n ** BigInt(uniV2Pool.token1?.decimals),
         18,
       );
-      return formatDisplayNumber(revertPrice ? 1 / +p : p, {
-        significantDigits: 6,
-      });
+      return revertPrice ? 1 / +p : p;
     }
     return assertUnreachable(poolType as never, 'poolType is not handled');
   }, [pool, poolType, revertPrice]);
 
-  const isDeviated = useMemo(
-    () => !!marketPrice && Math.abs(marketPrice / (revertPrice ? 1 / +price : +price) - 1) > 0.02,
-    [marketPrice, price, revertPrice],
+  const marketRate = useMemo(
+    () => (marketPrice ? (revertPrice ? 1 / marketPrice : marketPrice) : 0),
+    [marketPrice, revertPrice],
   );
 
-  const marketRate = useMemo(
-    () =>
-      marketPrice
-        ? formatDisplayNumber(revertPrice ? 1 / marketPrice : marketPrice, {
-            significantDigits: 6,
-          })
-        : null,
-    [marketPrice, revertPrice],
+  const isDeviated = useMemo(
+    () => !!marketPrice && Math.abs(marketRate / +price - 1) > 0.02,
+    [marketPrice, price, revertPrice],
   );
 
   if (loading) return <div className="rounded-md border border-stroke py-3 px-4">Loading...</div>;
@@ -71,7 +62,7 @@ export default function PriceInfo() {
       <div className="rounded-md border border-stroke py-3 px-4 mt-[6px]">
         <div className="flex items-center justify-start gap-1 text-subText text-sm flex-wrap">
           <span>Pool price</span>
-          <span className="font-medium text-text">{price}</span>
+          <span className="font-medium text-text">{formatDisplayNumber(price, { significantDigits: 6 })}</span>
 
           <MouseoverTooltip
             text={secondTokenShortenSymbol !== secondToken?.symbol ? secondToken?.symbol : ''}
@@ -107,11 +98,11 @@ export default function PriceInfo() {
           <div className="italic text-text">
             The pool's current price of{' '}
             <span className="font-medium text-warning not-italic">
-              1 {secondToken.symbol} = {price} {firstToken.symbol}
+              1 {firstToken.symbol} = {formatDisplayNumber(price, { significantDigits: 6 })} {secondToken.symbol}
             </span>{' '}
             deviates from the market price{' '}
             <span className="font-medium text-warning not-italic">
-              (1 {secondToken.symbol} = {marketRate} {firstToken.symbol})
+              (1 {firstToken.symbol} = {formatDisplayNumber(marketRate, { significantDigits: 6 })} {secondToken.symbol})
             </span>
             . You might have high impermanent loss after you add liquidity to this pool
           </div>

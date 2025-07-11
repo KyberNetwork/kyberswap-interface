@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { PoolQueryParams, useSupportedProtocolsQuery } from 'services/zapEarn'
 
 import useChainsConfig from 'hooks/useChainsConfig'
-import { MenuOption } from 'pages/Earns/PoolExplorer/DropdownMenu'
+import { MenuOption } from 'pages/Earns/components/DropdownMenu'
 import { earnSupportedChains, earnSupportedProtocols } from 'pages/Earns/constants'
 import { PositionFilter } from 'pages/Earns/types'
 

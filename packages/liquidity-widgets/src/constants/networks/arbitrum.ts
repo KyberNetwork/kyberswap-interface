@@ -1,6 +1,6 @@
 export default {
   name: 'Arbitrum',
-  logo: 'https://raw.githubusercontent.com/KyberNetwork/kyberswap-interface/main/src/assets/networks/arbitrum.svg',
+  logo: 'https://raw.githubusercontent.com/KyberNetwork/kyberswap-interface/main/apps/kyberswap-interface/src/assets/networks/arbitrum.svg',
   nativeLogo:
     'https://storage.googleapis.com/ks-setting-1d682dca/8fca1ea5-2637-48bc-bb08-c734065442fe1693634037115.png',
   scanLink: 'https://arbiscan.io',

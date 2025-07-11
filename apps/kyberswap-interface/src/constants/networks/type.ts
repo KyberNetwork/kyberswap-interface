@@ -3,6 +3,13 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { EnvKeys } from 'constants/env'
 import { ChainState } from 'hooks/useChainsConfig'
 
+export interface NativeToken {
+  readonly symbol: string
+  readonly name: string
+  readonly logo: string
+  readonly decimal: number
+}
+
 export interface NetworkInfo {
   readonly chainId: ChainId
 
@@ -17,12 +24,7 @@ export interface NetworkInfo {
   readonly etherscanUrl: string
   readonly etherscanName: string
   readonly bridgeURL: string
-  readonly nativeToken: {
-    readonly symbol: string
-    readonly name: string
-    readonly logo: string
-    readonly decimal: number
-  }
+  readonly nativeToken: NativeToken
   readonly coingeckoNetworkId: string | null //https://api.coingecko.com/api/v3/asset_platforms
   readonly coingeckoNativeTokenId: string | null //https://api.coingecko.com/api/v3/coins/list
   readonly dexToCompare: string | null
