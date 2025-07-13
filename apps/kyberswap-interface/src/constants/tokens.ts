@@ -413,7 +413,7 @@ export const KNC: { [chainId in ChainId]: Token } = {
 export const DEFAULT_OUTPUT_TOKEN_BY_CHAIN: Partial<Record<ChainId, Token>> = {
   [ChainId.MAINNET]: new Token(ChainId.MAINNET, '0xdAC17F958D2ee523a2206206994597C13D831ec7', 6, 'USDT', 'Tether USD'),
   [ChainId.MATIC]: new Token(ChainId.MATIC, '0xc2132D05D31c914a87C6611C10748AEb04B58e8F', 6, 'USDT', 'Tether USD'),
-  [ChainId.BSCMAINNET]: new Token(ChainId.BSCMAINNET, '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56', 18, 'BUSD', 'BUSD'),
+  [ChainId.BSCMAINNET]: new Token(ChainId.BSCMAINNET, '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d', 18, 'USDC', 'USDC'),
   [ChainId.AVAXMAINNET]: new Token(
     ChainId.AVAXMAINNET,
     '0xA7D7079b0FEaD91F3e65f86E8915Cb59c1a4C664',
@@ -435,6 +435,7 @@ export const DEFAULT_OUTPUT_TOKEN_BY_CHAIN: Partial<Record<ChainId, Token>> = {
   [ChainId.BERA]: new Token(ChainId.BERA, '0x549943e04f40284185054145c6E4e9568C1D3241', 6, 'USDC.e', 'USDC.e'),
   [ChainId.RONIN]: new Token(ChainId.RONIN, '0x0b7007c13325c48911f73a2dad5fa5dcbf808adc', 6, 'USDC', 'USD Coin'),
   [ChainId.UNICHAIN]: new Token(ChainId.UNICHAIN, '0x078D782b760474a361dDA0AF3839290b0EF57AD6', 6, 'USDC', 'USD Coin'),
+  [ChainId.HYPEREVM]: new Token(ChainId.HYPEREVM, '0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb', 6, 'USD₮0', 'USD₮0'),
 }
 
 export const DEFAULT_SWAP_FEE_STABLE_PAIRS = 4
