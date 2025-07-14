@@ -42,8 +42,6 @@ const Consent = lazy(() => import('./Oauth/Consent'))
 const ElasticSnapshot = lazy(() => import('./ElasticSnapshot'))
 const MarketOverview = lazy(() => import('./MarketOverview'))
 
-// test page for swap only through elastic
-const ElasticSwap = lazy(() => import('./ElasticSwap'))
 const SwapV3 = lazy(() => import('./SwapV3'))
 const PartnerSwap = lazy(() => import('./PartnerSwap'))
 const MyPool = lazy(() => import('./MyPool'))
@@ -331,8 +329,6 @@ export default function App() {
                   </ProtectedRoute>
                 }
               />
-
-              <Route path={`elastic-swap`} element={<ElasticSwap />} />
 
               <Route path={`/:network/*`} element={<RoutesWithNetworkPrefix />} />
 
