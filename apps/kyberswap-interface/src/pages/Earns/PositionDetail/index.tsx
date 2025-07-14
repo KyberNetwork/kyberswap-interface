@@ -70,7 +70,7 @@ const PositionDetail = () => {
   } = useUserPositionsQuery(
     {
       addresses: account || '',
-      positionId: positionId,
+      positionId: positionId?.toLowerCase(),
       chainIds: chainId || '',
       protocols: protocol || '',
     },
