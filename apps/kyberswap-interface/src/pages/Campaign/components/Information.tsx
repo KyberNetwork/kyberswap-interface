@@ -3,6 +3,7 @@ import { Minus, Plus, Star } from 'react-feather'
 import { Link } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
+import styled from 'styled-components'
 
 import Divider from 'components/Divider'
 import useTheme from 'hooks/useTheme'
@@ -10,6 +11,77 @@ import { ButtonIcon } from 'pages/Pools/styleds'
 import { ExternalLink } from 'theme'
 
 import { CampaignType } from '../constants'
+
+const nearIntentTableData = [
+  {
+    pair: 'Non-EVM → Near L1 (excl same chain)',
+    stable: 6,
+    other: 6,
+  },
+  {
+    pair: 'Non-EVM ← Near L1 (excl same chain)',
+    stable: 4,
+    other: 4,
+  },
+  {
+    pair: 'EVM → Near L1',
+    stable: 2.5,
+    other: 5,
+  },
+  {
+    pair: 'EVM ← Near L1',
+    stable: 1.5,
+    other: 3,
+  },
+  {
+    pair: 'EVM ↔ Bitcoin L1',
+    stable: 5,
+    other: 5,
+  },
+  {
+    pair: 'EVM ↔ Solana L1',
+    stable: 2,
+    other: 4,
+  },
+  {
+    pair: 'Bitcoin L1 ↔ Solana L1',
+    stable: 5,
+    other: 5,
+  },
+  {
+    pair: 'EVM ↔ EVM (excl same chain)',
+    stable: 1,
+    other: 3,
+  },
+]
+
+const TableWrapper = styled.div`
+  overflow-x: auto;
+`
+
+const StyledTable = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+`
+
+const Th = styled.th`
+  border: 1px solid ${({ theme }) => theme.border};
+  padding: 8px 12px;
+  text-align: center;
+`
+
+const Td = styled.td<{ center?: boolean }>`
+  border: 1px solid ${({ theme }) => theme.border};
+  padding: 8px 12px;
+  text-align: ${props => (props.center ? 'center' : 'left')};
+`
+
+const Tr = styled.tr`
+  &:hover {
+    background-color: ${props => props.theme.buttonBlack};
+  }
+`
 
 const howToEarnPoints = (week: number) => ({
   [CampaignType.NearIntents]: (
@@ -19,73 +91,26 @@ const howToEarnPoints = (week: number) => ({
         routes to earn points.
       </li>
       <li>For every $1 bridged, users earn points based on the following scale:</li>
-      <table>
-        <thead>
-          <tr>
-            <th></th>
-            <th>Stable Pair</th>
-            <th>Any Other Pairs</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              Non-EVM <span>→</span> Near L1 (exl same chain)
-            </td>
-            <td>6</td>
-            <td>6</td>
-          </tr>
-          <tr>
-            <td>
-              Non-EVM <span>←</span> Near L1 (exl same chain)
-            </td>
-            <td>4</td>
-            <td>4</td>
-          </tr>
-          <tr>
-            <td>
-              EVM <span>→</span> Near L1
-            </td>
-            <td>2.5</td>
-            <td>5</td>
-          </tr>
-          <tr>
-            <td>
-              EVM <span>←</span> Near L1
-            </td>
-            <td>1.5</td>
-            <td>3</td>
-          </tr>
-          <tr>
-            <td>
-              EVM <span>⇄</span> Bitcoin L1
-            </td>
-            <td>5</td>
-            <td>5</td>
-          </tr>
-          <tr>
-            <td>
-              EVM <span>⇄</span> Solana L1
-            </td>
-            <td>2</td>
-            <td>4</td>
-          </tr>
-          <tr>
-            <td>
-              Bitcoin L1 <span>⇄</span> Solana L1
-            </td>
-            <td>5</td>
-            <td>5</td>
-          </tr>
-          <tr>
-            <td>
-              EVM <span>⇄</span> EVM (exl same chain)
-            </td>
-            <td>1</td>
-            <td>3</td>
-          </tr>
-        </tbody>
-      </table>
+      <TableWrapper>
+        <StyledTable>
+          <thead>
+            <Tr>
+              <Th></Th>
+              <Th>Stable Pair</Th>
+              <Th>Any Other Pairs</Th>
+            </Tr>
+          </thead>
+          <tbody>
+            {nearIntentTableData.map((row, index) => (
+              <Tr key={index}>
+                <Td>{row.pair}</Td>
+                <Td center>{row.stable}</Td>
+                <Td center>{row.other}</Td>
+              </Tr>
+            ))}
+          </tbody>
+        </StyledTable>
+      </TableWrapper>
     </>
   ),
   [CampaignType.MayTrading]: (
@@ -272,7 +297,33 @@ const timelines = {
 }
 
 const rewards = {
-  [CampaignType.NearIntents]: <>TODO</>,
+  [CampaignType.NearIntents]: (
+    <>
+      <li>
+        Week 1:{' '}
+        <Text as="span" color="#fff">
+          20,000 USDT
+        </Text>
+      </li>
+      <li>
+        Week 2:{' '}
+        <Text as="span" color="#fff">
+          30,000 USDT
+        </Text>
+      </li>
+      <li>The reward will be airdropped directly to winner wallet untill 12th August</li>
+      <ul style={{ margin: 0 }}>
+        <li>
+          <b>EVM, Near L1, Solana L1 winning wallets</b> will receive the airdrop <b>regardless of reward value</b>,
+          with prizes distributed in <b>USDT</b>.
+        </li>
+        <li>
+          <b>Bitcoin L1 winning wallets</b> will only receive an airdrop <b>if the reward value exceeds $10</b>, and the
+          prize will be sent in <b>BTC</b>, calculated at the airdrop date exchange rate.
+        </li>
+      </ul>
+    </>
+  ),
   [CampaignType.MayTrading]: (
     <>
       <li>
@@ -386,7 +437,26 @@ const rewards = {
 
 const faq = {
   [CampaignType.NearIntents]: [
-    // TODO: NearIntents
+    {
+      q: 'If I swap $1 volume from EVM to Near L1, is the volume counted for my EVM wallet or my Near wallet?',
+      a: 'The volume is counted for the Near wallet (destination wallet), not the EVM wallet.',
+    },
+    {
+      q: 'My Bitcoin wallet has a reward share of $5. Will I receive the airdrop?',
+      a: 'No. Bitcoin wallets will only receive an airdrop if the reward share is ≥ $10.',
+    },
+    {
+      q: 'If I swap a stablecoin pair that includes a token outside the stabelcoin supported list between EVM chains, do I get 1 or 3 points?',
+      a: 'You will receive 3 points, since at least one of the tokens is a stablecoin not in the supported list.',
+    },
+    {
+      q: 'Are pairs that include the same POL, ETH, or BNB counted as stable pairs in this campaign?',
+      a: 'Yes. Pairs of the same native asset - POL, ETH, or BNB - and their official wrapped versions are counted as stable pairs, along with stablecoin pairs.',
+    },
+    {
+      q: 'If I swap a derivatives pair of ETH, POL, or BNB, do I receive 1 or 3 points?',
+      a: 'You will receive 3 points for swapping these derivatives pairs.',
+    },
   ],
   [CampaignType.MayTrading]: [
     {
@@ -707,6 +777,40 @@ const stipTerms = (week: number, type: CampaignType) => (
   </>
 )
 
+const nearIntentsTerms = (
+  <>
+    <li>
+      These Terms and Conditions{' '}
+      <a
+        href="https://kyberswap.com/files/Kyber%20-%20Terms%20of%20Use%20-%2020%20November%202023.pdf"
+        target="_blank"
+        rel="noreferrer noopenner"
+      >
+        {`"Terms"`}
+      </a>{' '}
+      should be read in conjunction with the KyberSwap Terms of Use, which lay out the terms and conditions that apply
+      to all KyberSwap promotional activities ({`"Campaign"`}).
+    </li>
+    <li>
+      Points & Rewards on the Leaderboard are subject to change during the buffer period before the distribution of
+      rewards. Any wallet that tries to sybil or cheat in any way will have all their points and rewards forfeited.
+    </li>
+    <li>
+      KyberSwap reserves the right to disqualify any address found to engage in the following: wash trading, sybil
+      attacks, flashloan-based volume inflation, just-in-time liquidity attack and any other behavior deemed
+      manipulative or abusive by the KyberSwap team.
+    </li>
+    <li>
+      KyberSwap may modify the campaign mechanics, eligibility, or rewards at any time without prior notice. All
+      decisions regarding rewards and disqualification are final and at the sole discretion of the KyberSwap team.
+    </li>
+    <li>
+      KyberSwap Cross-Chain leverages Near Intent infrastructure. Please note that any infrastructure-related issues are
+      not under KyberSwap’s responsibility.
+    </li>
+  </>
+)
+
 const mayTradingTerms = (
   <>
     <li>
@@ -731,7 +835,11 @@ const mayTradingTerms = (
 )
 
 const termAndConds = (week: number, type: CampaignType) =>
-  type === CampaignType.MayTrading ? mayTradingTerms : stipTerms(week, type)
+  type === CampaignType.NearIntents
+    ? nearIntentsTerms
+    : type === CampaignType.MayTrading
+    ? mayTradingTerms
+    : stipTerms(week, type)
 
 export default function Information({ type, week }: { type: CampaignType; week: number }) {
   const theme = useTheme()
@@ -771,7 +879,7 @@ export default function Information({ type, week }: { type: CampaignType; week: 
         paddingLeft="12px"
         width="95%"
         sx={{
-          maxHeight: isShowRule ? '1000px' : 0,
+          maxHeight: isShowRule ? '2000px' : 0,
           opacity: isShowRule ? 1 : 0,
           marginTop: isShowRule ? '1rem' : 0,
           transition: 'all 0.3s ease',

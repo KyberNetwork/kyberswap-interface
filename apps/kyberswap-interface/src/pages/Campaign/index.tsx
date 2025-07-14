@@ -20,6 +20,7 @@ import { formatDisplayNumber } from 'utils/numbers'
 import Information from './components/Information'
 import JoinReferral from './components/JoinReferral'
 import Leaderboard from './components/Leaderboard'
+import { NearIntentCampaignStats } from './components/NearIntentCampaignStats'
 import { CampaignType, campaignConfig } from './constants'
 import { StatCard, Tab, Tabs, Wrapper } from './styles'
 
@@ -292,6 +293,8 @@ export default function Aggregator() {
             ? '1fr'
             : upToSmall
             ? '1fr 1fr'
+            : type === CampaignType.NearIntents
+            ? '1fr 1fr 2fr'
             : campaign !== 'referral-program'
             ? '1fr 1fr 1fr 1fr'
             : '1fr 1fr 1fr',
@@ -323,33 +326,38 @@ export default function Aggregator() {
           </Text>
         </StatCard>
 
-        <StatCard>
-          <Text fontSize={14} color={theme.subText}>
-            {campaign === 'referral-program' ? 'My referrals' : 'My Earned Points'}
-          </Text>
-          <Text marginTop="8px" fontSize={20} fontWeight="500">
-            {campaign === 'referral-program'
-              ? formatDisplayNumber(myTotalRefer || 0, { significantDigits: 4 })
-              : userData?.data?.point
-              ? formatDisplayNumber(Math.floor(userData?.data.point), { significantDigits: 6 })
-              : '--'}
-          </Text>
-        </StatCard>
-
-        <StatCard>
-          <Text fontSize={14} color={theme.subText}>
-            {estRewardText} {info}
-          </Text>
-          <Flex marginTop="8px" fontSize={20} fontWeight="500" alignItems="center">
-            <img src={reward.logo} alt={reward.symbol} width="20px" height="20px" style={{ borderRadius: '50%' }} />
-            <Text marginLeft="4px" fontSize={16}>
-              {campaign === 'referral-program' ? referralReward : rewardNumber} {reward.symbol}
-            </Text>
-            <Text ml="4px" fontSize={14} color={theme.subText}>
-              {formatDisplayNumber(usd, { style: 'currency', significantDigits: 4 })}
-            </Text>
-          </Flex>
-        </StatCard>
+        {type === CampaignType.NearIntents ? (
+          <NearIntentCampaignStats selectedWeek={selectedWeek} year={year} reward={reward} />
+        ) : (
+          <>
+            <StatCard>
+              <Text fontSize={14} color={theme.subText}>
+                {campaign === 'referral-program' ? 'My referrals' : 'My Earned Points'}
+              </Text>
+              <Text marginTop="8px" fontSize={20} fontWeight="500">
+                {campaign === 'referral-program'
+                  ? formatDisplayNumber(myTotalRefer || 0, { significantDigits: 4 })
+                  : userData?.data?.point
+                  ? formatDisplayNumber(Math.floor(userData?.data.point), { significantDigits: 6 })
+                  : '--'}
+              </Text>
+            </StatCard>
+            <StatCard>
+              <Text fontSize={14} color={theme.subText}>
+                {estRewardText} {info}
+              </Text>
+              <Flex marginTop="8px" fontSize={20} fontWeight="500" alignItems="center">
+                <img src={reward.logo} alt={reward.symbol} width="20px" height="20px" style={{ borderRadius: '50%' }} />
+                <Text marginLeft="4px" fontSize={16}>
+                  {campaign === 'referral-program' ? referralReward : rewardNumber} {reward.symbol}
+                </Text>
+                <Text ml="4px" fontSize={14} color={theme.subText}>
+                  {formatDisplayNumber(usd, { style: 'currency', significantDigits: 4 })}
+                </Text>
+              </Flex>
+            </StatCard>
+          </>
+        )}
       </Box>
 
       <Flex justifyContent="space-between" alignItems="center" marginTop="1rem">
