@@ -294,7 +294,6 @@ export default function TokenSelector({
 
     if (!filteredTokens.length && isAddress(search)) {
       fetchTokenInfo(search, chainId).then(res => {
-        console.log('res', res);
         setUnImportedTokens(res);
       });
     }

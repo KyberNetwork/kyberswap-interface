@@ -50,13 +50,17 @@ const ClaimModal = ({
   claimType,
   claiming,
   claimInfo,
+  compoundable,
   onClaim,
+  onCompound,
   onClose,
 }: {
   claimType: ClaimType
   claiming: boolean
   claimInfo: ClaimInfo
+  compoundable?: boolean
   onClaim: () => void
+  onCompound?: () => void
   onClose: () => void
 }) => {
   const theme = useTheme()
@@ -120,7 +124,14 @@ const ClaimModal = ({
           </ClaimInfo>
         </ClaimInfoWrapper>
         <Row gap="16px" flexDirection={upToExtraSmall ? 'column-reverse' : 'row'}>
-          <ButtonOutlined onClick={onClose}>{t`Cancel`}</ButtonOutlined>
+          {compoundable && onCompound ? (
+            <ButtonPrimary gap="4px" disabled={claiming} onClick={onCompound}>
+              {claiming && <Loader stroke={'#505050'} />}
+              {claiming ? t`Claiming` : t`Claim & Compound`}
+            </ButtonPrimary>
+          ) : (
+            <ButtonOutlined onClick={onClose}>{t`Cancel`}</ButtonOutlined>
+          )}
           <ButtonPrimary gap="4px" disabled={claiming} onClick={handleClaim}>
             {claiming && <Loader stroke={'#505050'} />}
             {claiming ? t`Claiming` : t`Claim`}
