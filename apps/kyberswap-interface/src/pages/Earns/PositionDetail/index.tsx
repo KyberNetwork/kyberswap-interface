@@ -39,7 +39,7 @@ const PositionDetail = () => {
   const { data: userPosition, isLoading } = useUserPositionsQuery(
     {
       addresses: account || '',
-      positionId: positionId,
+      positionId: positionId?.toLowerCase(),
       chainIds: chainId || '',
       protocols: protocol || '',
     },
