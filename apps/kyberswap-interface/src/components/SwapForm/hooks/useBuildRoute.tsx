@@ -22,6 +22,7 @@ export type BuildRouteResult =
   | {
       data?: never
       error: string
+      suggestedSlippage?: number
     }
 
 type Args = {
@@ -100,8 +101,10 @@ const useBuildRoute = (args: Args) => {
           error: e.data.errorEntities.join(' | '),
         }
       }
+
       return {
         error: e?.data?.errorEntities?.[0] || e.message || e?.data?.message || t`Something went wrong`,
+        suggestedSlippage: e?.data?.suggestedSlippage,
       }
     }
   }, [
