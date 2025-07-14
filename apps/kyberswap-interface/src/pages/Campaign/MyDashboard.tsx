@@ -1,5 +1,7 @@
 import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import dayjs from 'dayjs'
+import { useState } from 'react'
+import { MoreHorizontal } from 'react-feather'
 import { useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
@@ -11,16 +13,20 @@ import Divider from 'components/Divider'
 import InfoHelper from 'components/InfoHelper'
 import { TokenLogoWithChain } from 'components/Logo'
 import { NewLabel } from 'components/Menu'
+import Modal from 'components/Modal'
 import { ZERO_ADDRESS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
+import { ButtonIcon } from 'pages/Pools/styleds'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { MEDIA_WIDTHS, StyledInternalLink } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
 import ClaimBtn from './components/ClaimBtn'
+import { MyNearIntentDashboard } from './components/MyNearIntentDashboard'
 import MyReferralDashboard from './components/MyReferralDashboard'
 import { CampaignType, campaignConfig } from './constants'
+import { useNearIntentCampaignReward } from './hooks/useNearIntentCampaignReward'
 import { Tab, Tabs, Wrapper } from './styles'
 
 const TableHeader = styled.div`
@@ -61,9 +67,9 @@ const MyDashboard = () => {
     setSearchParams(searchParams)
   }
 
-  const { url, reward, baseWeek, banner } = campaignConfig[tab]
+  const { reward, baseWeek, banner } = campaignConfig[tab]
 
-  const mockToken = new Token(1, ZERO_ADDRESS, reward.decimals, 'mock')
+  const mockToken = new Token(1, ZERO_ADDRESS, 18, 'mock')
 
   const stipReward = campaignConfig[CampaignType.Aggregator].reward
   const mayTradingReward = campaignConfig[CampaignType.MayTrading].reward
@@ -74,18 +80,6 @@ const MyDashboard = () => {
   const stipRewardPrice = useTokenPrices([stipReward.address], stipReward.chainId)?.[stipReward.address] || 0
   const mayTradingRewardPrice =
     useTokenPrices([mayTradingReward.address], mayTradingReward.chainId)?.[mayTradingReward.address] || 0
-
-  const { data: nearIntents } = useGetUserWeeklyRewardQuery(
-    {
-      program: 'grind/base',
-      campaign: 'trading-incentive',
-      wallet: account || '',
-      url,
-    },
-    {
-      skip: !account,
-    },
-  )
 
   const { data: mayTrading } = useGetUserWeeklyRewardQuery(
     {
@@ -120,14 +114,18 @@ const MyDashboard = () => {
     },
   )
 
-  const data =
-    tab === CampaignType.NearIntents
-      ? nearIntents
-      : tab === CampaignType.MayTrading
-      ? mayTrading
-      : tab === CampaignType.Aggregator
-      ? stipTrading
-      : stipLoData
+  const nearIntentCampaingReward = useNearIntentCampaignReward()
+  const totalNearCampaignReward = Object.values(nearIntentCampaingReward).reduce(
+    (acc, cur) => acc + BigInt(cur?.totalReward || 0),
+    0n,
+  )
+  const nearCampaignReward = campaignConfig[CampaignType.NearIntents].reward
+  const nearIntentReward = CurrencyAmount.fromRawAmount(
+    new Token(nearCampaignReward.chainId, nearCampaignReward.address, nearCampaignReward.decimals, 'mock'),
+    totalNearCampaignReward.toString(),
+  )
+
+  const data = tab === CampaignType.MayTrading ? mayTrading : tab === CampaignType.Aggregator ? stipTrading : stipLoData
 
   const stipTradingRw = CurrencyAmount.fromRawAmount(mockToken, stipTrading?.data?.totalReward?.split('.')[0] || '0')
   const stipLoRw = CurrencyAmount.fromRawAmount(mockToken, stipLoData?.data?.totalReward?.split('.')[0] || '0')
@@ -207,9 +205,29 @@ const MyDashboard = () => {
     data?.data?.totalClaimableReward?.split('.')[0] || '0',
   )
   const price = tab === CampaignType.MayTrading ? mayTradingRewardPrice : stipRewardPrice
+  const [showModal, setShowModal] = useState(false)
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
-  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
+
+  const endedCampaigns = [
+    {
+      type: CampaignType.MayTrading,
+      label: 'May Trading',
+    },
+    {
+      type: CampaignType.Aggregator,
+      label: 'Trading',
+    },
+    {
+      type: CampaignType.LimitOrder,
+      label: 'Limit Order',
+    },
+    {
+      type: CampaignType.Referrals,
+      label: 'Referral',
+    },
+  ]
+
   const infor = (
     <InfoHelper
       text={
@@ -255,20 +273,6 @@ const MyDashboard = () => {
         >
           <Flex justifyContent="space-between" alignItems="center">
             <Text>My total estimated rewards {infor}</Text>
-            {/* TODO 
-            <Flex
-              role="button"
-              alignItems="center"
-              color={theme.primary}
-              backgroundColor={rgba(theme.buttonBlack, 0.48)}
-              padding="8px 16px"
-              sx={{ borderRadius: '999px', gap: '4px', cursor: 'pointer' }}
-              fontSize={14}
-              fontWeight="500"
-            >
-              <Share2 size={14} /> Share
-            </Flex>
-            */}
           </Flex>
           {stipTradingRw?.greaterThan('0') && (
             <Flex alignItems="center" sx={{ gap: '4px' }} fontSize={24} marginTop="0.5rem">
@@ -290,6 +294,15 @@ const MyDashboard = () => {
               {totalMayTradingRwUsd}
             </Text>
           </Flex>
+          {totalNearCampaignReward > 0n && (
+            <Flex alignItems="center" sx={{ gap: '4px' }} fontSize={24} marginTop="0.5rem">
+              <TokenLogoWithChain chainId={nearCampaignReward.chainId} tokenLogo={nearCampaignReward.logo} size={24} />
+              <Text fontWeight="500" ml="6px">
+                {nearIntentReward.toSignificant(4)} {nearCampaignReward.symbol}
+              </Text>
+              <Text color="#FAFAFA80" fontSize={16} marginTop="2px"></Text>
+            </Flex>
+          )}
           <Text fontStyle="italic" color={theme.subText} mt="12px">
             The current rewards are based on your current rank. See Information for details.
           </Text>
@@ -338,29 +351,84 @@ const MyDashboard = () => {
           active={tab === CampaignType.NearIntents}
           onClick={() => changeTab(CampaignType.NearIntents)}
         >
-          {upToExtraSmall && <NewLabel style={{ marginLeft: '0' }}>New</NewLabel>}
-          <Flex>Cross Chain {!upToExtraSmall && <NewLabel>NEW</NewLabel>}</Flex>
+          <Flex>
+            Cross Chain <NewLabel>NEW</NewLabel>
+          </Flex>
         </Tab>
-
-        <Tab role="button" active={tab === CampaignType.MayTrading} onClick={() => changeTab(CampaignType.MayTrading)}>
-          {upToExtraSmall && <NewLabel style={{ marginLeft: '0' }}>New</NewLabel>}
-          <Flex>May Trading {!upToExtraSmall && <ELabel>ENDED</ELabel>}</Flex>
-        </Tab>
-        <Tab role="button" active={tab === CampaignType.Aggregator} onClick={() => changeTab(CampaignType.Aggregator)}>
-          {upToExtraSmall && <ELabel style={{ marginLeft: 0 }}>ENDED</ELabel>}
-          <Flex>Trading {!upToExtraSmall && <ELabel>ENDED</ELabel>}</Flex>
-        </Tab>
-        <Tab role="button" active={tab === CampaignType.LimitOrder} onClick={() => changeTab(CampaignType.LimitOrder)}>
-          {upToExtraSmall && <ELabel></ELabel>}
-          <Flex>Limit Order {!upToExtraSmall && <ELabel>ENDED</ELabel>}</Flex>
-        </Tab>
-        <Tab role="button" active={tab === CampaignType.Referrals} onClick={() => changeTab(CampaignType.Referrals)}>
-          {upToExtraSmall && <ELabel></ELabel>}
-          <Flex>Referral {!upToExtraSmall && <ELabel>ENDED</ELabel>}</Flex>
-        </Tab>
+        {!upToSmall ? (
+          <>
+            {endedCampaigns.map(campaign => (
+              <Tab
+                key={campaign.type}
+                role="button"
+                active={tab === campaign.type}
+                onClick={() => changeTab(campaign.type)}
+              >
+                <Flex>
+                  {campaign.label}
+                  <ELabel>ENDED</ELabel>
+                </Flex>
+              </Tab>
+            ))}
+          </>
+        ) : (
+          <Flex justifyContent="space-between" sx={{ gap: '8px' }} flex={1}>
+            <Tab
+              active={tab !== CampaignType.NearIntents}
+              onClick={() => {
+                //
+              }}
+            >
+              <Flex>
+                {tab === CampaignType.Referrals
+                  ? 'Referral'
+                  : tab === CampaignType.Aggregator
+                  ? 'Trading'
+                  : tab === CampaignType.LimitOrder
+                  ? 'Limit Order'
+                  : 'May Trading'}
+                <ELabel>ENDED</ELabel>
+              </Flex>
+            </Tab>
+            <ButtonIcon onClick={() => setShowModal(true)}>
+              <MoreHorizontal size={16} />
+            </ButtonIcon>
+            <Modal
+              isOpen={showModal}
+              onDismiss={() => setShowModal(false)}
+              maxHeight={90}
+              maxWidth={600}
+              bypassScrollLock={true}
+              bypassFocusLock={true}
+              zindex={99999}
+              width="240px"
+            >
+              <Flex width="100%" flexDirection="column" padding="24px" sx={{ gap: '24px' }}>
+                {endedCampaigns.map(campaign => (
+                  <Tab
+                    key={campaign.type}
+                    role="button"
+                    active={tab === campaign.type}
+                    onClick={() => {
+                      changeTab(campaign.type)
+                      setShowModal(false)
+                    }}
+                  >
+                    <Flex>
+                      {campaign.label}
+                      <ELabel>ENDED</ELabel>
+                    </Flex>
+                  </Tab>
+                ))}
+              </Flex>
+            </Modal>
+          </Flex>
+        )}
       </Tabs>
 
-      {!account ? (
+      {tab === CampaignType.NearIntents ? (
+        <MyNearIntentDashboard reward={reward} />
+      ) : !account ? (
         <Text marginTop="30px" textAlign="center" color={theme.subText}>
           Please connect wallet to view your Dashboard
         </Text>

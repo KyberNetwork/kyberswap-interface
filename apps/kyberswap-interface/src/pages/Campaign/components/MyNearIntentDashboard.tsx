@@ -1,11 +1,11 @@
 import { ChainId, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
-import { useGetUserRewardQuery } from 'services/campaign'
+import { Box, Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ButtonLight } from 'components/Button'
 import Column from 'components/Column'
+import Divider from 'components/Divider'
 import NavGroup from 'components/Header/groups/NavGroup'
 import useTheme from 'hooks/useTheme'
 import { BitcoinConnectModal } from 'pages/CrossChainSwap/components/BitcoinConnectModal'
@@ -13,8 +13,9 @@ import { ButtonText, MEDIA_WIDTHS } from 'theme'
 import { shortenHash } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
+import { CampaignType, campaignConfig } from '../constants'
+import { useNearIntentCampaignReward } from '../hooks/useNearIntentCampaignReward'
 import { useNearIntentSelectedWallet } from '../hooks/useNearIntentSelectedWallet'
-import { StatCard } from '../styles'
 import { SelectChainModal } from './SelectChainModal'
 
 const AddressText = styled(Text)`
@@ -22,21 +23,27 @@ const AddressText = styled(Text)`
     color: ${({ theme }) => theme.primary};
   }
 `
+const TableHeader = styled.div`
+  display: grid;
+  grid-template-columns: 40px 2fr 2fr;
+  font-size: 12px;
+  color: ${({ theme }) => theme.subText};
+  padding: 1rem 0;
+  gap: 1rem;
+  font-weight: 500;
+`
 
-export const NearIntentCampaignStats = ({
-  year,
-  selectedWeek,
+const TableRow = styled(TableHeader)`
+  font-size: 1rem;
+  font-weight: 400;
+  color: ${({ theme }) => theme.text};
+  align-items: center;
+`
+
+export const MyNearIntentDashboard = ({
   reward,
 }: {
-  year: number
-  selectedWeek: number
-  reward: {
-    chainId: ChainId
-    address: string
-    symbol: string
-    decimals: number
-    logo: string
-  }
+  reward: { logo: string; decimals: number; symbol: string; address: string; chainId: ChainId }
 }) => {
   const theme = useTheme()
   const {
@@ -57,71 +64,18 @@ export const NearIntentCampaignStats = ({
     setSelectedWallet,
   } = useNearIntentSelectedWallet()
 
-  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
-
-  const params = {
-    program: 'stip' as const,
-    week: selectedWeek,
-    year: year,
-    campaign: 'trading-incentive' as const,
-    url: 'https://kyberswap-near-intents.kyberengineering.io/api/v1',
-  }
-
-  const { data: evmData } = useGetUserRewardQuery(
-    {
-      ...params,
-      wallet: evmWallet || '',
-    },
-    {
-      skip: !evmWallet,
-    },
-  )
-  const { data: btcData } = useGetUserRewardQuery(
-    {
-      ...params,
-      wallet: btcAddress || '',
-    },
-    {
-      skip: !btcAddress,
-    },
-  )
-
-  const { data: nearData } = useGetUserRewardQuery(
-    {
-      ...params,
-      wallet: nearAddress || '',
-    },
-    {
-      skip: !nearAddress,
-    },
-  )
-
-  const { data: solanaData } = useGetUserRewardQuery(
-    {
-      ...params,
-      wallet: solanaWallet || '',
-    },
-    {
-      skip: !solanaWallet,
-    },
-  )
-
-  const data = {
-    EVM: evmData?.data,
-    Solana: solanaData?.data,
-    Bitcoin: btcData?.data,
-    Near: nearData?.data,
-  }
+  const data = useNearIntentCampaignReward()
 
   const rewardAmount =
     selectedWallet &&
     CurrencyAmount.fromRawAmount(
       new Token(reward.chainId, reward.address, reward.decimals, reward.symbol),
-      data[selectedWallet]?.reward?.split('.')[0] || '0',
+      data[selectedWallet]?.totalReward?.split('.')[0] || '0',
     )
 
+  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   return (
-    <StatCard>
+    <Box marginTop="1.25rem" sx={{ borderRadius: '20px', background: theme.background }} padding="1.5rem">
       <Flex alignItems="center" justifyContent="space-between" height="100%">
         {selectedWallet && address[selectedWallet] ? (
           <Flex
@@ -131,7 +85,7 @@ export const NearIntentCampaignStats = ({
             flexDirection={upToSmall ? 'column' : 'row'}
             justifyContent={upToSmall ? 'flex-start' : 'space-around'}
           >
-            <Flex flex={1.1} justifyContent="flex-start" width="100%">
+            <Flex flex={1.1} justifyContent="flex-start">
               <NavGroup
                 isActive={false}
                 anchor={
@@ -213,7 +167,7 @@ export const NearIntentCampaignStats = ({
               <Column gap="4px" style={{ flex: 1.3 }}>
                 <Text color={theme.subText}>My Earned Points</Text>
                 <Text fontSize={18} fontWeight={500}>
-                  {formatDisplayNumber(Math.floor(data[selectedWallet]?.point || 0), { significantDigits: 6 })}
+                  {formatDisplayNumber(Math.floor(data[selectedWallet]?.totalPoint || 0), { significantDigits: 6 })}
                 </Text>
               </Column>
 
@@ -249,6 +203,37 @@ export const NearIntentCampaignStats = ({
       />
 
       <SelectChainModal showSelect={showSelect} connect={connect} setShowSelect={setShowSelect} logo={logo} />
-    </StatCard>
+
+      <Divider mt="1rem" />
+      <TableHeader>
+        <Text>WEEK</Text>
+        <Text textAlign="right">POINTS EARNED</Text>
+        <Text textAlign="right">ESTIMATED REWARDS </Text>
+      </TableHeader>
+      <Divider />
+      {selectedWallet && data[selectedWallet]?.weeklyRewards?.length ? (
+        data[selectedWallet]?.weeklyRewards.map((item, index) => {
+          return (
+            <TableRow key={index}>
+              <Text>{item.week - campaignConfig[CampaignType.NearIntents].baseWeek}</Text>
+              <Text textAlign="right">{formatDisplayNumber(item.point.toString(), { significantDigits: 6 })}</Text>
+              <Flex alignItems="center" justifyContent="flex-end" sx={{ gap: '4px' }}>
+                <img src={reward.logo} width={20} height={20} style={{ borderRadius: '50%' }} alt="" />
+                <Text textAlign="right">
+                  {formatDisplayNumber(BigInt(item.reward.toString()) / 10n ** BigInt(reward.decimals), {
+                    significantDigits: 6,
+                  })}{' '}
+                  {reward.symbol}
+                </Text>
+              </Flex>
+            </TableRow>
+          )
+        })
+      ) : (
+        <Text textAlign="center" color={theme.subText} mt="24px">
+          No data found
+        </Text>
+      )}
+    </Box>
   )
 }
