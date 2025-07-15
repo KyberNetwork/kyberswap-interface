@@ -18,7 +18,7 @@ type Props = {
   chainId?: ChainId
 }
 
-const BackIconWrapper = styled(ArrowLeft)`
+export const BackIconWrapper = styled(ArrowLeft)`
   height: 20px;
   width: 20px;
   margin-right: 10px;
@@ -34,7 +34,7 @@ const BackText = styled.span`
   color: ${({ theme }) => theme.text};
 `
 
-const SourceList = styled.div`
+export const SourceList = styled.div`
   width: 100%;
   height: 300px;
   max-height: 300px;
@@ -65,7 +65,7 @@ const SourceList = styled.div`
   }
 `
 
-const LiquiditySourceHeader = styled.div`
+export const LiquiditySourceHeader = styled.div`
   border-top-right-radius: 8px;
   border-top-left-radius: 8px;
   background: ${({ theme }) => theme.tableHeader};

@@ -24,6 +24,7 @@ import { useCurrencyV2 } from 'hooks/Tokens'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { BodyWrapper } from 'pages/AppBody'
 import CrossChainSwap from 'pages/CrossChainSwap'
+import { CrossChainSwapSources } from 'pages/CrossChainSwap/components/CrossChainSwapSources'
 import { TransactionHistory } from 'pages/CrossChainSwap/components/TransactionHistory'
 import { TAB, isSettingTab } from 'pages/SwapV3'
 import Header from 'pages/SwapV3/Header'
@@ -195,6 +196,7 @@ export default function PartnerSwap() {
                   isSwapPage={isSwapPage}
                   onBack={onBackToSwapTab}
                   onClickLiquiditySources={() => setActiveTab(TAB.LIQUIDITY_SOURCES)}
+                  onClickCrossChainSources={() => setActiveTab(TAB.CROSS_CHAIN_SOURCES)}
                 />
               )}
               {activeTab === TAB.LIQUIDITY_SOURCES && (
@@ -216,7 +218,10 @@ export default function PartnerSwap() {
                   />
                 </div>
               )}
-              {isCrossChainPage && <CrossChainSwap />}
+              {activeTab === TAB.CROSS_CHAIN && <CrossChainSwap />}
+              {activeTab === TAB.CROSS_CHAIN_SOURCES && (
+                <CrossChainSwapSources onBack={() => setActiveTab(TAB.SETTINGS)} />
+              )}
             </AppBodyWrapped>
           </SwapFormWrapper>
 
