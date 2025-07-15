@@ -122,6 +122,8 @@ export interface ParsedPosition {
   priceRange: {
     min: number
     max: number
+    isMinPrice: boolean
+    isMaxPrice: boolean
     current: number
   }
   earning: {

@@ -177,7 +177,9 @@ const RightSection = ({
               <PositionSkeleton width={80} height={21} style={{ marginBottom: 8, marginTop: 8 }} text="Finalizing..." />
             ) : (
               <Text fontSize={18} marginBottom={2} marginTop={2}>
-                {position?.priceRange?.min && position?.priceRange?.max
+                {(!revert && position?.priceRange.isMinPrice) || (revert && position?.priceRange.isMaxPrice)
+                  ? '0'
+                  : position?.priceRange?.min && position?.priceRange?.max
                   ? formatDisplayNumber(!revert ? position.priceRange.min : 1 / position.priceRange.max, {
                       significantDigits: 6,
                     })
@@ -205,7 +207,9 @@ const RightSection = ({
               <PositionSkeleton width={80} height={21} style={{ marginBottom: 8, marginTop: 8 }} text="Finalizing..." />
             ) : (
               <Text fontSize={18} marginBottom={2} marginTop={2}>
-                {position?.priceRange?.min && position?.priceRange?.max
+                {(!revert && position?.priceRange.isMaxPrice) || (revert && position?.priceRange.isMinPrice)
+                  ? '∞'
+                  : position?.priceRange?.min && position?.priceRange?.max
                   ? formatDisplayNumber(!revert ? position.priceRange.max : 1 / position.priceRange.min, {
                       significantDigits: 6,
                     })
