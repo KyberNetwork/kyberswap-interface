@@ -89,7 +89,7 @@ export const ClaimInfoRow = ({
         <Image src={tokenImage} alt="tokenImage" />
         <DexImage src={dexImage} alt="dexImage" />
       </Flex>
-      <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '80px' }}>
+      <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '100px' }}>
         {formatDisplayNumber(tokenAmount, {
           significantDigits: 4,
         })}

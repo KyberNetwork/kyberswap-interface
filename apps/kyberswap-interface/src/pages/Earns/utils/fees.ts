@@ -175,7 +175,7 @@ export const getUniv3CollectCallData = async ({
   if (involvesETH) {
     const ethAmount = token0.isNative ? token0.balance : token1.balance
     const token = token0.isNative ? token1.address : token0.address
-    const tokenAmount = token0.isNative ? token1.balance : token0.balance
+    // const tokenAmount = token0.isNative ? token1.balance : token0.balance
 
     const unwrapWNativeTokenFuncName =
       UNWRAP_WNATIVE_TOKEN_FUNC[claimInfo.dex as keyof typeof UNWRAP_WNATIVE_TOKEN_FUNC]
@@ -185,7 +185,8 @@ export const getUniv3CollectCallData = async ({
       recipient,
     ])
 
-    const sweepTokenCallData = contract.interface.encodeFunctionData('sweepToken', [token, tokenAmount, recipient])
+    // Use 0 as minimum amount for sweepToken to avoid overflow with large balance values
+    const sweepTokenCallData = contract.interface.encodeFunctionData('sweepToken', [token, 0, recipient])
 
     calldatas.push(unwrapWETH9CallData)
     calldatas.push(sweepTokenCallData)
