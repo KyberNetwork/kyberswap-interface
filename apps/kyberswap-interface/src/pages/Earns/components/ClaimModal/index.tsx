@@ -126,8 +126,7 @@ const ClaimModal = ({
         <Row gap="16px" flexDirection={upToExtraSmall ? 'column-reverse' : 'row'}>
           {compoundable && onCompound ? (
             <ButtonPrimary gap="4px" disabled={claiming} onClick={onCompound}>
-              {claiming && <Loader stroke={'#505050'} />}
-              {claiming ? t`Claiming` : t`Claim & Compound`}
+              {t`Claim & Compound`}
             </ButtonPrimary>
           ) : (
             <ButtonOutlined onClick={onClose}>{t`Cancel`}</ButtonOutlined>
