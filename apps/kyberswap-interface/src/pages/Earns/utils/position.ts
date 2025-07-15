@@ -1,6 +1,13 @@
 import { encodeUint256, getFunctionSelector } from '@kyber/utils/dist/crypto'
 import { getUniv4PositionLiquidity } from '@kyber/utils/dist/liquidity/position'
-import { decodeAlgebraV1Position, decodePosition } from '@kyber/utils/dist/uniswapv3'
+import { toString } from '@kyber/utils/dist/number'
+import {
+  MAX_TICK,
+  MIN_TICK,
+  decodeAlgebraV1Position,
+  decodePosition,
+  priceToClosestTick,
+} from '@kyber/utils/dist/uniswapv3'
 import { ChainId, WETH } from '@kyberswap/ks-sdk-core'
 
 import { NETWORKS_INFO } from 'constants/networks'
@@ -115,6 +122,13 @@ export const parsePosition = ({
   const chainId = position.chainId as keyof typeof NETWORKS_INFO
   const nativeToken = NETWORKS_INFO[chainId]?.nativeToken
 
+  const tickLower = isUniv2
+    ? undefined
+    : priceToClosestTick(toString(position.minPrice), token0Data?.decimals, token1Data?.decimals)
+  const tickUpper = isUniv2
+    ? undefined
+    : priceToClosestTick(toString(position.maxPrice), token0Data?.decimals, token1Data?.decimals)
+
   return {
     id: position.id,
     tokenId: position.tokenId,
@@ -140,6 +154,8 @@ export const parsePosition = ({
     priceRange: {
       min: position.minPrice || 0,
       max: position.maxPrice || 0,
+      isMinPrice: tickLower === MIN_TICK,
+      isMaxPrice: tickUpper === MAX_TICK,
       current: pool.price || 0,
     },
     earning: {

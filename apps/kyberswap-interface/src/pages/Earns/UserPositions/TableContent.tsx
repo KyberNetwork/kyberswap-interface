@@ -1,4 +1,4 @@
-import { formatAprNumber } from '@kyber/utils/dist/number'
+import { formatAprNumber, toString } from '@kyber/utils/dist/number'
 import { priceToClosestTick } from '@kyber/utils/dist/uniswapv3'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
@@ -190,14 +190,14 @@ export default function TableContent({
     const tickLower = sourcePosition.pool.isUniv2
       ? undefined
       : priceToClosestTick(
-          sourcePosition.priceRange.min.toString(),
+          toString(sourcePosition.priceRange.min),
           sourcePosition.token0.decimals,
           sourcePosition.token1.decimals,
         )
     const tickUpper = sourcePosition.pool.isUniv2
       ? undefined
       : priceToClosestTick(
-          sourcePosition.priceRange.max.toString(),
+          toString(sourcePosition.priceRange.max),
           sourcePosition.token0.decimals,
           sourcePosition.token1.decimals,
         )
