@@ -13,6 +13,7 @@ import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import useTheme from 'hooks/useTheme'
 import { useShowTradeRoutes, useToggleTradeRoutes } from 'state/user/hooks'
 
+import { CrossChainSourceSetting } from './CrossChainSourceSetting'
 import DegenModeSetting from './DegenModeSetting'
 import LiquiditySourcesSetting from './LiquiditySourcesSetting'
 import SlippageSetting from './SlippageSetting'
@@ -22,6 +23,7 @@ type Props = {
   className?: string
   onBack: () => void
   onClickLiquiditySources: () => void
+  onClickCrossChainSources: () => void
   isSwapPage?: boolean
   isCrossChainPage?: boolean
 }
@@ -38,6 +40,7 @@ const SettingsPanel: React.FC<Props> = ({
   className,
   onBack,
   onClickLiquiditySources,
+  onClickCrossChainSources,
 }) => {
   const theme = useTheme()
 
@@ -71,41 +74,44 @@ const SettingsPanel: React.FC<Props> = ({
               {isSwapPage && <TransactionTimeLimitSetting />}
               <DegenModeSetting showConfirmation={showConfirmation} setShowConfirmation={setShowConfirmation} />
               {isSwapPage && <LiquiditySourcesSetting onClick={onClickLiquiditySources} />}
+              {isCrossChainPage && <CrossChainSourceSetting onClick={onClickCrossChainSources} />}
             </>
           )}
 
-          <Flex
-            sx={{
-              flexDirection: 'column',
-              rowGap: '12px',
-              paddingTop: '16px',
-              borderTop: `1px solid ${theme.border}`,
-            }}
-          >
-            <Text
-              as="span"
+          {isSwapPage && (
+            <Flex
               sx={{
-                fontSize: '16px',
-                fontWeight: 500,
+                flexDirection: 'column',
+                rowGap: '12px',
+                paddingTop: '16px',
+                borderTop: `1px solid ${theme.border}`,
               }}
             >
-              <Trans>Display Settings</Trans>
-            </Text>
-            <AutoColumn gap="md">
-              {(isSwapPage || isCrossChainPage) && (
-                <RowBetween>
-                  <RowFixed>
-                    <TextDashed fontSize={12} fontWeight={400} color={theme.subText} underlineColor={theme.border}>
-                      <MouseoverTooltip text={<Trans>Turn on to display trade route.</Trans>} placement="right">
-                        <Trans>Trade Route</Trans>
-                      </MouseoverTooltip>
-                    </TextDashed>
-                  </RowFixed>
-                  <Toggle isActive={isShowTradeRoutes} toggle={toggleTradeRoutes} />
-                </RowBetween>
-              )}
-            </AutoColumn>
-          </Flex>
+              <Text
+                as="span"
+                sx={{
+                  fontSize: '16px',
+                  fontWeight: 500,
+                }}
+              >
+                <Trans>Display Settings</Trans>
+              </Text>
+              <AutoColumn gap="md">
+                {(isSwapPage || isCrossChainPage) && (
+                  <RowBetween>
+                    <RowFixed>
+                      <TextDashed fontSize={12} fontWeight={400} color={theme.subText} underlineColor={theme.border}>
+                        <MouseoverTooltip text={<Trans>Turn on to display trade route.</Trans>} placement="right">
+                          <Trans>Trade Route</Trans>
+                        </MouseoverTooltip>
+                      </TextDashed>
+                    </RowFixed>
+                    <Toggle isActive={isShowTradeRoutes} toggle={toggleTradeRoutes} />
+                  </RowBetween>
+                )}
+              </AutoColumn>
+            </Flex>
+          )}
         </Flex>
       </Flex>
     </Box>

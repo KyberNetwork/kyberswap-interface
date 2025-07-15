@@ -15,6 +15,7 @@ import { useActiveWeb3React } from 'hooks'
 import { useCurrencyV2 } from 'hooks/Tokens'
 import useDebounce from 'hooks/useDebounce'
 import { NearToken, useNearTokens, useSolanaTokens } from 'state/crossChainSwap'
+import { useAppSelector } from 'state/hooks'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { isEvmChain, isNonEvmChain } from 'utils'
 
@@ -85,6 +86,11 @@ const RegistryContext = createContext<
 >(undefined)
 
 export const CrossChainSwapRegistryProvider = ({ children }: { children: React.ReactNode }) => {
+  const excluded = useAppSelector(state => state.crossChainSwap.excludedSources)
+  const excludedSources = useMemo(() => {
+    return excluded || []
+  }, [excluded])
+
   const [evmRecipient, setEvmRecipient] = useState('')
   const [nearRecipient, setNearRecipient] = useState('')
   const [btcRecipient, setBtcRecipient] = useState('')
@@ -487,6 +493,13 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     setAllLoading(true)
 
     const getQuotesWithCancellation = async (params: QuoteParams | NearQuoteParams) => {
+      let allAdapters = registry.getAllAdapters().filter(a => !excludedSources.includes(a.getName()))
+
+      if (allAdapters.length === 0) {
+        //  if use uncheck all, using all change
+        allAdapters = registry.getAllAdapters()
+      }
+
       // Create a modified version of getQuotes that can be cancelled
       const quotes: Quote[] = []
       const adapters =
@@ -497,14 +510,12 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
           ? registry.getAdapter('KyberSwap')
             ? ([registry.getAdapter('KyberSwap')] as SwapProvider[])
             : ([] as SwapProvider[])
-          : registry
-              .getAllAdapters()
-              .filter(
-                adapter =>
-                  adapter.getName() !== 'KyberSwap' &&
-                  adapter.getSupportedChains().includes(params.fromChain) &&
-                  adapter.getSupportedChains().includes(params.toChain),
-              )
+          : allAdapters.filter(
+              adapter =>
+                adapter.getName() !== 'KyberSwap' &&
+                adapter.getSupportedChains().includes(params.fromChain) &&
+                adapter.getSupportedChains().includes(params.toChain),
+            )
       // Map each adapter to a promise that can be cancelled
       const quotePromises = adapters.map(async adapter => {
         try {
@@ -604,6 +615,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     isFromSolana,
     isToSolana,
     connection,
+    excludedSources,
   ])
 
   return (
