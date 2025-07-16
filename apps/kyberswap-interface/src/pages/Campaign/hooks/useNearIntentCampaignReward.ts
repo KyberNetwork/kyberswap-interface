@@ -61,10 +61,10 @@ export const useNearIntentCampaignReward = () => {
   )
 
   const data = {
-    EVM: evmData?.data,
-    Solana: solanaData?.data,
-    Bitcoin: btcData?.data,
-    Near: nearData?.data,
+    EVM: account ? evmData?.data : undefined,
+    Solana: solanaWallet ? solanaData?.data : undefined,
+    Bitcoin: btcAddress ? btcData?.data : undefined,
+    Near: nearAddress ? nearData?.data : undefined,
   }
 
   return data
