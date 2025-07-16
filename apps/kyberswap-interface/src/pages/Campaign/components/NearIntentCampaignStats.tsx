@@ -127,11 +127,11 @@ export const NearIntentCampaignStats = ({
           <Flex
             width="100%"
             alignItems="center"
-            sx={{ gap: '8px' }}
+            sx={{ gap: '12px' }}
             flexDirection={upToSmall ? 'column' : 'row'}
             justifyContent={upToSmall ? 'flex-start' : 'space-around'}
           >
-            <Flex flex={1.1} justifyContent="flex-start" width="100%">
+            <Flex width="100%" flex="0.8">
               <NavGroup
                 isActive={false}
                 anchor={
@@ -208,25 +208,34 @@ export const NearIntentCampaignStats = ({
                 }
               />
             </Flex>
+            <Flex
+              flexDirection={upToSmall ? 'row' : 'column'}
+              width="100%"
+              sx={{ gap: '4px' }}
+              justifyContent={upToSmall ? 'space-between' : 'flex-start'}
+              style={{ flex: 1 }}
+            >
+              <Text color={theme.subText}>My Earned Points</Text>
+              <Text fontSize={16} fontWeight={500}>
+                {formatDisplayNumber(Math.floor(data[selectedWallet]?.point || 0), { significantDigits: 6 })}
+              </Text>
+            </Flex>
 
-            <Flex flex={2} justifyContent="space-between" alignItems="center" sx={{ gap: '8px' }} width="100%">
-              <Column gap="4px" style={{ flex: 1.3 }}>
-                <Text color={theme.subText}>My Earned Points</Text>
-                <Text fontSize={18} fontWeight={500}>
-                  {formatDisplayNumber(Math.floor(data[selectedWallet]?.point || 0), { significantDigits: 6 })}
+            <Flex
+              flexDirection={upToSmall ? 'row' : 'column'}
+              width="100%"
+              sx={{ gap: '4px' }}
+              justifyContent={upToSmall ? 'space-between' : 'flex-start'}
+              style={{ flex: 1 }}
+            >
+              <Text color={theme.subText}>My Rewards</Text>
+
+              <Flex alignItems="center" sx={{ gap: '4px' }}>
+                <img src={reward.logo} width={18} height={18} style={{ borderRadius: '50%' }} alt="" />
+                <Text fontWeight={500} fontSize={16}>
+                  {rewardAmount?.toSignificant(4) || '0'} {reward.symbol}
                 </Text>
-              </Column>
-
-              <Column gap="4px" style={{ flex: 1 }}>
-                <Text color={theme.subText}>My Rewards</Text>
-
-                <Flex alignItems="center" sx={{ gap: '4px' }}>
-                  <img src={reward.logo} width={20} height={20} style={{ borderRadius: '50%' }} alt="" />
-                  <Text fontWeight={500} fontSize={18}>
-                    {rewardAmount?.toSignificant(4) || '0'} {reward.symbol}
-                  </Text>
-                </Flex>
-              </Column>
+              </Flex>
             </Flex>
           </Flex>
         ) : (

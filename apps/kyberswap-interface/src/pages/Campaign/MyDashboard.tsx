@@ -51,7 +51,7 @@ const ELabel = styled.span`
   margin-left: 4px;
 `
 
-function getDateOfWeek(w: number, y: number) {
+export function getDateOfWeek(w: number, y: number) {
   const first = y === 2025 ? -1 : 1 // 1st of January
   const d = first + (w - 1) * 7 // 1st of January + 7 days for each week
   return new Date(y, 0, d)

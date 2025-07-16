@@ -1,4 +1,5 @@
 import { ChainId, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
+import dayjs from 'dayjs'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -13,6 +14,7 @@ import { ButtonText, MEDIA_WIDTHS } from 'theme'
 import { shortenHash } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
+import { getDateOfWeek } from '../MyDashboard'
 import { CampaignType, campaignConfig } from '../constants'
 import { useNearIntentCampaignReward } from '../hooks/useNearIntentCampaignReward'
 import { useNearIntentSelectedWallet } from '../hooks/useNearIntentSelectedWallet'
@@ -85,7 +87,7 @@ export const MyNearIntentDashboard = ({
             flexDirection={upToSmall ? 'column' : 'row'}
             justifyContent={upToSmall ? 'flex-start' : 'space-around'}
           >
-            <Flex flex={1.1} justifyContent="flex-start">
+            <Flex flex={1} width="100%">
               <NavGroup
                 isActive={false}
                 anchor={
@@ -163,24 +165,34 @@ export const MyNearIntentDashboard = ({
               />
             </Flex>
 
-            <Flex flex={2} justifyContent="space-between" alignItems="center" sx={{ gap: '8px' }} width="100%">
-              <Column gap="4px" style={{ flex: 1.3 }}>
-                <Text color={theme.subText}>My Earned Points</Text>
-                <Text fontSize={18} fontWeight={500}>
-                  {formatDisplayNumber(Math.floor(data[selectedWallet]?.totalPoint || 0), { significantDigits: 6 })}
+            <Flex
+              flexDirection={upToSmall ? 'row' : 'column'}
+              width="100%"
+              sx={{ gap: '4px' }}
+              justifyContent={upToSmall ? 'space-between' : 'flex-start'}
+              style={{ flex: 1 }}
+            >
+              <Text color={theme.subText}>My Earned Points</Text>
+              <Text fontSize={18} fontWeight={500}>
+                {formatDisplayNumber(Math.floor(data[selectedWallet]?.totalPoint || 0), { significantDigits: 6 })}
+              </Text>
+            </Flex>
+
+            <Flex
+              flexDirection={upToSmall ? 'row' : 'column'}
+              width="100%"
+              sx={{ gap: '4px' }}
+              justifyContent={upToSmall ? 'space-between' : 'flex-start'}
+              style={{ flex: 1 }}
+            >
+              <Text color={theme.subText}>My Rewards</Text>
+
+              <Flex alignItems="center" sx={{ gap: '4px' }}>
+                <img src={reward.logo} width={20} height={20} style={{ borderRadius: '50%' }} alt="" />
+                <Text fontWeight={500} fontSize={18}>
+                  {rewardAmount?.toSignificant(4) || '0'} {reward.symbol}
                 </Text>
-              </Column>
-
-              <Column gap="4px" style={{ flex: 1 }}>
-                <Text color={theme.subText}>My Rewards</Text>
-
-                <Flex alignItems="center" sx={{ gap: '4px' }}>
-                  <img src={reward.logo} width={20} height={20} style={{ borderRadius: '50%' }} alt="" />
-                  <Text fontWeight={500} fontSize={18}>
-                    {rewardAmount?.toSignificant(4) || '0'} {reward.symbol}
-                  </Text>
-                </Flex>
-              </Column>
+              </Flex>
             </Flex>
           </Flex>
         ) : (
@@ -205,24 +217,79 @@ export const MyNearIntentDashboard = ({
       <SelectChainModal showSelect={showSelect} connect={connect} setShowSelect={setShowSelect} logo={logo} />
 
       <Divider mt="1rem" />
-      <TableHeader>
-        <Text>WEEK</Text>
-        <Text textAlign="right">POINTS EARNED</Text>
-        <Text textAlign="right">ESTIMATED REWARDS </Text>
-      </TableHeader>
-      <Divider />
+
+      {!upToSmall && (
+        <>
+          <TableHeader>
+            <Text>WEEK</Text>
+            <Text textAlign="right">POINTS EARNED</Text>
+            <Text textAlign="right">ESTIMATED REWARDS </Text>
+          </TableHeader>
+          <Divider />
+        </>
+      )}
       {selectedWallet && data[selectedWallet]?.weeklyRewards?.length ? (
         data[selectedWallet]?.weeklyRewards.map((item, index) => {
+          if (upToSmall) {
+            const baseWeek = campaignConfig[CampaignType.NearIntents].baseWeek
+            const date = getDateOfWeek(item.week, item.year)
+            const end = getDateOfWeek(item.week + 1, item.year)
+            end.setHours(end.getHours() - 1)
+
+            return (
+              <Box paddingY="1rem" sx={{ borderBottom: `1px solid ${theme.border}` }} key={index}>
+                <Flex justifyContent="space-between" alignItems="center">
+                  <Text color={theme.subText}>
+                    Week {item.week - baseWeek}: {dayjs(date).format('MMM DD')} - {dayjs(end).format('MMM DD')}
+                  </Text>
+                </Flex>
+
+                <Flex justifyContent="space-between" alignItems="center" mt="1rem">
+                  <Text color={theme.subText} fontSize={12} fontWeight={500}>
+                    POINTS EARNED
+                  </Text>
+                  <Text textAlign="right">{formatDisplayNumber(item.point.toFixed(0), { significantDigits: 6 })}</Text>
+                </Flex>
+
+                <Flex justifyContent="space-between" alignItems="center" mt="0.5rem">
+                  <Text color={theme.subText} fontSize={12} fontWeight={500}>
+                    ESTIMATED REWARDS
+                  </Text>
+                  <Flex justifyContent="flex-end" alignItems="flex-end" sx={{ gap: '4px' }}>
+                    <img src={reward.logo} width={20} height={20} style={{ borderRadius: '50%' }} alt="" />
+                    <Text textAlign="right">
+                      {formatDisplayNumber(
+                        CurrencyAmount.fromRawAmount(
+                          new Token(reward.chainId, reward.address, reward.decimals, ''),
+                          item.reward.toString(),
+                        ),
+                        {
+                          significantDigits: 4,
+                        },
+                      )}{' '}
+                      {reward.symbol}
+                    </Text>
+                  </Flex>
+                </Flex>
+              </Box>
+            )
+          }
           return (
             <TableRow key={index}>
               <Text>{item.week - campaignConfig[CampaignType.NearIntents].baseWeek}</Text>
-              <Text textAlign="right">{formatDisplayNumber(item.point.toString(), { significantDigits: 6 })}</Text>
+              <Text textAlign="right">{formatDisplayNumber(item.point.toFixed(0), { significantDigits: 6 })}</Text>
               <Flex alignItems="center" justifyContent="flex-end" sx={{ gap: '4px' }}>
                 <img src={reward.logo} width={20} height={20} style={{ borderRadius: '50%' }} alt="" />
                 <Text textAlign="right">
-                  {formatDisplayNumber(BigInt(item.reward.toString()) / 10n ** BigInt(reward.decimals), {
-                    significantDigits: 6,
-                  })}{' '}
+                  {formatDisplayNumber(
+                    CurrencyAmount.fromRawAmount(
+                      new Token(reward.chainId, reward.address, reward.decimals, ''),
+                      item.reward.toString(),
+                    ),
+                    {
+                      significantDigits: 4,
+                    },
+                  )}{' '}
                   {reward.symbol}
                 </Text>
               </Flex>

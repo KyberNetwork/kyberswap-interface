@@ -111,6 +111,50 @@ const howToEarnPoints = (week: number) => ({
           </tbody>
         </StyledTable>
       </TableWrapper>
+      <ul>
+        <li>
+          <b>Stable Pairs:</b> Both tokens must be stablecoins on{' '}
+          <a
+            target="_blank"
+            href="https://docs.google.com/spreadsheets/u/1/d/1ASuf0R4EqNslY7RYbKUIqaBmia0ASdYGF_eZCcDK0d4/edit?gid=0#gid=0"
+            rel="noreferrer"
+          ></a>{' '}
+          (e.g., USDC–USDC, USDT–USDT, USDC–USDT…) or the same native asset (e.g., ETH–ETH, BNB–BNB, POL–POL). <br />
+          Wrapped versions are also eligible (e.g., ETH–WETH, BNB–WBNB).
+        </li>
+        <li>
+          <b>Any Other Pairs:</b> Refers to any trading pairs that are not classified as Stable Pairs.
+        </li>
+      </ul>
+      <i>Note:</i> Volume is measured based on the value of tokens received on the <b>destination chain</b>, and
+      attributed to the <b>destination wallet.</b>
+      <li>
+        Each user has a maximum eligible volume cap of 100,000 USD per week. For example:
+        <ul style={{ margin: 0 }}>
+          <li>
+            If a user trades $150,000 between EVM Chains and Stable Pairs, only $100,000 will be counted, earning
+            100,000 points, not 150,000 points.
+          </li>
+        </ul>
+      </li>
+      <li>
+        Users can freely choose pairs and routes to optimize their points within the $100,000 volume cap. For example:
+        <ul style={{ margin: 0 }}>
+          <li>Bridging $100,000 between EVM Chains and Stable Pairs earns 100,000 points.</li>
+          <li>Bridging $100,000 from Arbitrum to Near L1 and Stable Pairs earns 250,000 points.</li>
+        </ul>
+      </li>
+      <li>
+        User reward = (User Points/Total Points) * Weekly Prize Pool
+        <ul style={{ margin: 0 }}>
+          <li>User Points: Points earned within the $100,000 volume cap</li>
+          <li>Total Points: Combined points from all participants</li>
+          <li>
+            Example: A user earns 100 points. Total participant points = 1,000. Weekly reward pool = $20,000. User
+            reward = (100 / 1,000) × 20,000 = $2,000.
+          </li>
+        </ul>
+      </li>
     </>
   ),
   [CampaignType.MayTrading]: (
@@ -779,18 +823,6 @@ const stipTerms = (week: number, type: CampaignType) => (
 
 const nearIntentsTerms = (
   <>
-    <li>
-      These Terms and Conditions{' '}
-      <a
-        href="https://kyberswap.com/files/Kyber%20-%20Terms%20of%20Use%20-%2020%20November%202023.pdf"
-        target="_blank"
-        rel="noreferrer noopenner"
-      >
-        {`"Terms"`}
-      </a>{' '}
-      should be read in conjunction with the KyberSwap Terms of Use, which lay out the terms and conditions that apply
-      to all KyberSwap promotional activities ({`"Campaign"`}).
-    </li>
     <li>
       Points & Rewards on the Leaderboard are subject to change during the buffer period before the distribution of
       rewards. Any wallet that tries to sybil or cheat in any way will have all their points and rewards forfeited.

@@ -162,6 +162,7 @@ export default function Aggregator() {
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
+  const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
   const { data: referralData } = useGetUserReferralTotalRewardQuery(
     { program, wallet: account || '' },
@@ -289,48 +290,51 @@ export default function Aggregator() {
       <Box
         sx={{
           display: 'grid',
-          gridTemplateColumns: upToExtraSmall
-            ? '1fr'
-            : upToSmall
-            ? '1fr 1fr'
-            : type === CampaignType.NearIntents
-            ? '1fr 1fr 2fr'
-            : campaign !== 'referral-program'
-            ? '1fr 1fr 1fr 1fr'
-            : '1fr 1fr 1fr',
+          gridTemplateColumns:
+            type === CampaignType.NearIntents
+              ? upToMedium
+                ? '1fr'
+                : '1fr 1.2fr'
+              : upToSmall
+              ? '1fr'
+              : campaign !== 'referral-program'
+              ? '1fr 1fr'
+              : '1fr 2fr',
           marginTop: '1rem',
           gap: '12px',
         }}
       >
-        {campaign !== 'referral-program' && (
-          <StatCard>
+        <Flex width="100%" sx={{ gap: '12px' }} flexDirection={upToSmall ? 'column' : 'row'}>
+          {campaign !== 'referral-program' && (
+            <StatCard style={{ flex: 1 }}>
+              <Text fontSize={14} color={theme.subText}>
+                {startEndIn}
+              </Text>
+              <Text marginTop="8px" fontSize={20} fontWeight="500">
+                {isEnd ? dayjs(week.end * 1000).format('MMM DD YYYY') : getFormattedTime(duration)}
+              </Text>
+            </StatCard>
+          )}
+
+          <StatCard style={{ flex: 1 }}>
             <Text fontSize={14} color={theme.subText}>
-              {startEndIn}
+              Participants
             </Text>
             <Text marginTop="8px" fontSize={20} fontWeight="500">
-              {isEnd ? dayjs(week.end * 1000).format('MMM DD YYYY') : getFormattedTime(duration)}
+              {campaign === 'referral-program'
+                ? formatDisplayNumber(totalParticipant, { significantDigits: 6 })
+                : data?.data?.participantCount
+                ? formatDisplayNumber(data?.data.participantCount, { significantDigits: 6 })
+                : '--'}
             </Text>
           </StatCard>
-        )}
-
-        <StatCard>
-          <Text fontSize={14} color={theme.subText}>
-            Participants
-          </Text>
-          <Text marginTop="8px" fontSize={20} fontWeight="500">
-            {campaign === 'referral-program'
-              ? formatDisplayNumber(totalParticipant, { significantDigits: 6 })
-              : data?.data?.participantCount
-              ? formatDisplayNumber(data?.data.participantCount, { significantDigits: 6 })
-              : '--'}
-          </Text>
-        </StatCard>
+        </Flex>
 
         {type === CampaignType.NearIntents ? (
           <NearIntentCampaignStats selectedWeek={selectedWeek} year={year} reward={reward} />
         ) : (
-          <>
-            <StatCard>
+          <Flex width="100%" sx={{ gap: '12px' }} flexDirection={upToSmall ? 'column' : 'row'}>
+            <StatCard style={{ flex: 1 }}>
               <Text fontSize={14} color={theme.subText}>
                 {campaign === 'referral-program' ? 'My referrals' : 'My Earned Points'}
               </Text>
@@ -342,7 +346,7 @@ export default function Aggregator() {
                   : '--'}
               </Text>
             </StatCard>
-            <StatCard>
+            <StatCard style={{ flex: 1 }}>
               <Text fontSize={14} color={theme.subText}>
                 {estRewardText} {info}
               </Text>
@@ -356,7 +360,7 @@ export default function Aggregator() {
                 </Text>
               </Flex>
             </StatCard>
-          </>
+          </Flex>
         )}
       </Box>
 
