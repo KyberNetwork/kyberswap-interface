@@ -45,7 +45,8 @@ const PositionDetailHeader = ({
     if (!position || !earnSupportedProtocols.includes(position.dex)) return
 
     const chainName =
-      [EarnDex.DEX_UNISWAPV3, EarnDex.DEX_UNISWAP_V4].includes(position.dex) && position.chainId === 1
+      [EarnDex.DEX_UNISWAPV3, EarnDex.DEX_UNISWAP_V4, EarnDex.DEX_UNISWAPV2].includes(position.dex) &&
+      position.chainId === 1
         ? 'ethereum'
         : position.chainName
     const positionId = position.id

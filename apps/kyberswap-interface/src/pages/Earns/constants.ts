@@ -156,7 +156,7 @@ export const PROTOCOL_POSITION_URL: Record<EarnDex, string> = {
   [EarnDex.DEX_CAMELOTV3]: 'https://app.camelot.exchange/positions',
   [EarnDex.DEX_THENAFUSION]: 'https://thena.fi/pools/$poolAddress',
   [EarnDex.DEX_KODIAK_V3]: 'https://app.kodiak.finance/#/liquidity/v3/$positionId',
-  [EarnDex.DEX_UNISWAPV2]: 'https://app.uniswap.org/positions/v2/base/$poolAddress',
+  [EarnDex.DEX_UNISWAPV2]: 'https://app.uniswap.org/positions/v2/$chainName/$poolAddress',
   [EarnDex.DEX_UNISWAP_V4]: 'https://app.uniswap.org/positions/v4/$chainName/$positionId',
 }
 
