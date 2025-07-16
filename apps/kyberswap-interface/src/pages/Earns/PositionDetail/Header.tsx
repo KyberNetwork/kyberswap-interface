@@ -47,7 +47,12 @@ const PositionDetailHeader = ({
 
     if (!positionDetailUrl) return
 
-    const protocolThatNeedParseEth = [EarnDex.DEX_UNISWAPV3, EarnDex.DEX_UNISWAP_V4, EarnDex.DEX_UNISWAP_V4_FAIRFLOW]
+    const protocolThatNeedParseEth = [
+      EarnDex.DEX_UNISWAPV2,
+      EarnDex.DEX_UNISWAPV3,
+      EarnDex.DEX_UNISWAP_V4,
+      EarnDex.DEX_UNISWAP_V4_FAIRFLOW,
+    ]
     const parsedUrl = positionDetailUrl
       .replace(
         '$chainName',
