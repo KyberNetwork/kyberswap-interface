@@ -248,7 +248,7 @@ export const MyNearIntentDashboard = ({
                   <Text color={theme.subText} fontSize={12} fontWeight={500}>
                     POINTS EARNED
                   </Text>
-                  <Text textAlign="right">{formatDisplayNumber(item.point.toFixed(0), { significantDigits: 6 })}</Text>
+                  <Text textAlign="right">{formatDisplayNumber(Math.floor(item.point), { significantDigits: 6 })}</Text>
                 </Flex>
 
                 <Flex justifyContent="space-between" alignItems="center" mt="0.5rem">
@@ -277,7 +277,7 @@ export const MyNearIntentDashboard = ({
           return (
             <TableRow key={index}>
               <Text>{item.week - campaignConfig[CampaignType.NearIntents].baseWeek}</Text>
-              <Text textAlign="right">{formatDisplayNumber(item.point.toFixed(0), { significantDigits: 6 })}</Text>
+              <Text textAlign="right">{formatDisplayNumber(Math.floor(item.point), { significantDigits: 6 })}</Text>
               <Flex alignItems="center" justifyContent="flex-end" sx={{ gap: '4px' }}>
                 <img src={reward.logo} width={20} height={20} style={{ borderRadius: '50%' }} alt="" />
                 <Text textAlign="right">
