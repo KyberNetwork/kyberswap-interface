@@ -281,8 +281,8 @@ export const campaignConfig: Record<CampaignType, CampaignConfig> = {
     year: 2025,
     baseWeek: 27,
     reward: {
-      chainId: ChainId.MAINNET,
-      address: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+      chainId: ChainId.BASE,
+      address: '0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2',
       symbol: 'USDT',
       logo: 'https://storage.googleapis.com/ks-setting-1d682dca/c4a56ed4-79bd-4af9-9ea5-c691fd560ef8.png',
       decimals: 6,

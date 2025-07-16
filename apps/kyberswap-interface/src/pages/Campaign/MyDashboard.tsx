@@ -169,15 +169,15 @@ const MyDashboard = () => {
 
   const stipTradingClaimableRw = CurrencyAmount.fromRawAmount(
     mockToken,
-    stipTrading?.data?.totalClaimableReward?.split('.')[0] || '0',
+    account ? stipTrading?.data?.totalClaimableReward?.split('.')[0] || '0' : '0',
   )
   const stipLoClaimableRw = CurrencyAmount.fromRawAmount(
     mockToken,
-    stipLoData?.data?.totalClaimableReward?.split('.')[0] || '0',
+    account ? stipLoData?.data?.totalClaimableReward?.split('.')[0] || '0' : '0',
   )
   const mayTradingClaimableRw = CurrencyAmount.fromRawAmount(
     mockToken,
-    mayTrading?.data?.totalClaimableReward?.split('.')[0] || '0',
+    account ? mayTrading?.data?.totalClaimableReward?.split('.')[0] || '0' : '0',
   )
 
   const totalClaimableRw = formatDisplayNumber(
@@ -274,7 +274,7 @@ const MyDashboard = () => {
           <Flex justifyContent="space-between" alignItems="center">
             <Text>My total estimated rewards {infor}</Text>
           </Flex>
-          {stipTradingRw?.greaterThan('0') && (
+          {account && stipTradingRw?.greaterThan('0') && (
             <Flex alignItems="center" sx={{ gap: '4px' }} fontSize={24} marginTop="0.5rem">
               <TokenLogoWithChain chainId={stipReward.chainId} tokenLogo={stipReward.logo} size={24} />
               <Text fontWeight="500" ml="6px">
@@ -318,7 +318,7 @@ const MyDashboard = () => {
         >
           <Text>My claim-able rewards</Text>
 
-          {stipTradingRw?.greaterThan('0') && (
+          {account && stipTradingRw?.greaterThan('0') && (
             <Flex alignItems="center" sx={{ gap: '4px' }} fontSize={24} marginTop="0.5rem">
               <TokenLogoWithChain chainId={stipReward.chainId} tokenLogo={stipReward.logo} size={24} />
               <Text fontWeight="500" ml="6px">
