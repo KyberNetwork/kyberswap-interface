@@ -3,14 +3,13 @@ import { ChangeEvent, MouseEvent, useEffect, useMemo, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { NATIVE_TOKEN_ADDRESS, Token, defaultToken } from '@kyber/schema';
-import { Button, Input } from '@kyber/ui';
+import { Button, Input, TokenLogo } from '@kyber/ui';
 import { fetchTokenInfo } from '@kyber/utils';
 import { formatUnits, isAddress } from '@kyber/utils/crypto';
 import { formatWei } from '@kyber/utils/number';
 
 import Check from '@/assets/svg/check.svg';
 import Info from '@/assets/svg/info.svg';
-import defaultTokenLogo from '@/assets/svg/question.svg?url';
 import IconSearch from '@/assets/svg/search.svg';
 import TrashIcon from '@/assets/svg/trash.svg';
 import X from '@/assets/svg/x.svg';
@@ -404,15 +403,7 @@ export default function TokenSelector({
                     className="flex items-center justify-between py-2 px-6 text-red"
                   >
                     <div className="flex items-center gap-2">
-                      <img
-                        className="h-6 w-6"
-                        src={token.logo}
-                        alt=""
-                        onError={({ currentTarget }) => {
-                          currentTarget.onerror = null;
-                          currentTarget.src = defaultTokenLogo;
-                        }}
-                      />
+                      <TokenLogo src={token.logo} size={24} />
                       <p className="ml-2 text-subText">{token.symbol}</p>
                       <p className="text-xs text-[#6C7284]">{token.name}</p>
                     </div>
@@ -451,15 +442,7 @@ export default function TokenSelector({
                           )}
                         </div>
                       )}
-                      <img
-                        className="h-6 w-6"
-                        src={token.logo ? token.logo : defaultTokenLogo}
-                        alt=""
-                        onError={({ currentTarget }) => {
-                          currentTarget.onerror = null;
-                          currentTarget.src = defaultTokenLogo;
-                        }}
-                      />
+                      <TokenLogo src={token.logo} size={24} />
                       <div>
                         <p className="leading-6">{token.symbol}</p>
                         <p className={`${tabSelected === TOKEN_TAB.ALL ? 'text-xs' : ''} text-subText`}>

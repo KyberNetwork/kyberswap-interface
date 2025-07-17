@@ -38,6 +38,7 @@ const config: Omit<Config, "content"> = {
         },
         icon: {
           DEFAULT: "var(--ks-lw-icons)",
+          200: "#a9a9a933",
         },
         accent: {
           DEFAULT: "var(--ks-lw-accent)",

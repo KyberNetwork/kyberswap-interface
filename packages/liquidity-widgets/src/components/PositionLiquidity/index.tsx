@@ -1,7 +1,6 @@
-import { Skeleton } from '@kyber/ui';
+import { Skeleton, TokenLogo } from '@kyber/ui';
 import { formatCurrency, formatTokenAmount } from '@kyber/utils/number';
 
-import defaultTokenLogo from '@/assets/svg/question.svg?url';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
 
@@ -23,15 +22,7 @@ const PositionLiquidity = () => {
           <Skeleton className="w-32 h-5" />
         ) : (
           <div className="flex items-center gap-2">
-            <img
-              className="w-4 h-4"
-              src={pool.token0.logo}
-              alt="token0 logo"
-              onError={({ currentTarget }) => {
-                currentTarget.onerror = null;
-                currentTarget.src = defaultTokenLogo;
-              }}
-            />
+            <TokenLogo src={pool.token0.logo} />
             <span>{amount0}</span>
             <span>{pool?.token0.symbol}</span>
           </div>
@@ -49,15 +40,7 @@ const PositionLiquidity = () => {
           <Skeleton className="w-32 h-5" />
         ) : (
           <div className="flex items-center gap-2">
-            <img
-              className="w-4 h-4"
-              src={pool?.token1.logo}
-              alt="token0 logo"
-              onError={({ currentTarget }) => {
-                currentTarget.onerror = null;
-                currentTarget.src = defaultTokenLogo;
-              }}
-            />
+            <TokenLogo src={pool.token1.logo} />
             <span>{amount1}</span>
             <span>{pool?.token1.symbol}</span>
           </div>

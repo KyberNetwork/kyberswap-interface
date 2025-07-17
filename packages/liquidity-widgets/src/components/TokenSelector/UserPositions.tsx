@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { API_URLS, EarnChain, EarnDex, Exchange, Univ2EarnDex } from '@kyber/schema';
+import { TokenLogo } from '@kyber/ui';
 import { enumToArrayOfValues } from '@kyber/utils';
 import { isAddress } from '@kyber/utils/crypto';
 import { formatDisplayNumber } from '@kyber/utils/number';
@@ -11,7 +12,6 @@ import CircleCheckBig from '@/assets/svg/circle-check-big.svg';
 import IconCopy from '@/assets/svg/copy.svg';
 import IconPositionConnectWallet from '@/assets/svg/ic_position_connect_wallet.svg';
 import IconPositionNotFound from '@/assets/svg/ic_position_not_found.svg';
-import defaultTokenLogo from '@/assets/svg/question.svg?url';
 import { shortenAddress } from '@/components/TokenInfo/utils';
 import { useZapState } from '@/hooks/useZapState';
 import { useWidgetStore } from '@/stores/useWidgetStore';
@@ -192,31 +192,20 @@ const UserPositions = ({ search }: { search: string }) => {
             <div className="flex items-center justify-between w-full">
               <div className="flex gap-2 items-center">
                 <div className="flex items-end">
-                  <img
-                    className="rounded-full w-[26px] h-[26px] border-[2px] border-transparent"
+                  <TokenLogo
                     src={position.pool.tokenAmounts[0]?.token.logo}
-                    alt="token0 logo"
-                    onError={({ currentTarget }) => {
-                      currentTarget.onerror = null;
-                      currentTarget.src = defaultTokenLogo;
-                    }}
+                    size={26}
+                    className="border-[2px] border-transparent"
                   />
-                  <img
-                    className="ml-[-8px] rounded-full w-[26px] h-[26px] border-[2px] border-transparent"
+                  <TokenLogo
                     src={position.pool.tokenAmounts[1]?.token.logo}
-                    alt="token1 logo"
-                    onError={({ currentTarget }) => {
-                      currentTarget.onerror = null;
-                      currentTarget.src = defaultTokenLogo;
-                    }}
+                    size={26}
+                    className="ml-[-8px] border-[2px] border-transparent"
                   />
-                  <img
-                    className="ml-[-6px] rounded-full w-[14px] h-[14px] border-[2px] border-transparent relative top-1"
+                  <TokenLogo
                     src={position.chainLogo}
-                    onError={({ currentTarget }) => {
-                      currentTarget.onerror = null;
-                      currentTarget.src = defaultTokenLogo;
-                    }}
+                    size={14}
+                    className="ml-[-6px] border-[2px] border-transparent  relative top-1"
                   />
                 </div>
                 <span>
@@ -239,16 +228,7 @@ const UserPositions = ({ search }: { search: string }) => {
             <div className="flex items-center justify-between w-full">
               <div className="flex gap-2 items-center">
                 <div className="flex gap-1 items-center">
-                  <img
-                    src={position.pool.projectLogo}
-                    width={16}
-                    height={16}
-                    alt=""
-                    onError={({ currentTarget }) => {
-                      currentTarget.onerror = null;
-                      currentTarget.src = defaultTokenLogo;
-                    }}
-                  />
+                  <TokenLogo src={position.pool.projectLogo} />
                   {version && <span className="text-subText text-xs">{version}</span>}
                 </div>
                 {!isUniv2 && <span className="text-subText">#{position.tokenId}</span>}

@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { ChainId, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, Theme, Token } from '@kyber/schema';
+import { ChainId, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, Token } from '@kyber/schema';
 import { MouseoverTooltip } from '@kyber/ui';
 
 import LogoGoPlus from '@/assets/svg/goplus.svg';
@@ -10,7 +10,7 @@ import IconSecurity from '@/assets/svg/security.svg';
 import CollapseInfoItem from '@/components/TokenInfo/CollapseInfoItem';
 import useSecurityTokenInfo from '@/components/TokenInfo/useSecurityTokenInfo';
 
-const SecurityInfo = ({ token, theme, chainId }: { token: Token; theme: Theme; chainId: ChainId }) => {
+const SecurityInfo = ({ token, chainId }: { token: Token; chainId: ChainId }) => {
   const tokenAddress = useMemo(
     () =>
       (token?.address
@@ -26,9 +26,8 @@ const SecurityInfo = ({ token, theme, chainId }: { token: Token; theme: Theme; c
 
   return (
     <>
-      <div className="flex items-center justify-between px-4 py-2 text-text" style={{ background: `${theme.icons}33` }}>
+      <div className="flex items-center justify-between px-4 py-2 text-text bg-icon-200">
         <div className="flex items-center gap-2">
-          {' '}
           <IconSecurity className="h-6 w-6" />
           <MouseoverTooltip
             text="Token security info provided by Goplus. Please conduct your own research before trading"

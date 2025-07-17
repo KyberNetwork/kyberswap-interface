@@ -260,6 +260,7 @@ const config: Pick<Config, 'presets' | 'content' | 'darkMode' | 'theme' | 'safel
     'hover:text-text',
     'right-5',
     'sm:right-6',
+    'rounded-b-none',
   ],
   theme: {
     extend: {

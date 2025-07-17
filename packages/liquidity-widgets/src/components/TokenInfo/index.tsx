@@ -8,7 +8,7 @@ import SecurityInfo from '@/components/TokenInfo/SecurityInfo';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
 const TokenInfo = ({ token, onGoBack }: { token: Token; onGoBack: () => void }) => {
-  const { theme, chainId } = useWidgetStore(useShallow(s => ({ theme: s.theme, chainId: s.chainId })));
+  const { chainId } = useWidgetStore(useShallow(s => ({ chainId: s.chainId })));
 
   return (
     <div className="w-full mx-auto text-white overflow-hidden">
@@ -18,7 +18,7 @@ const TokenInfo = ({ token, onGoBack }: { token: Token; onGoBack: () => void }) 
         <span className="text-xs text-subText mt-1">{token.name || ''}</span>
       </div>
       <MarketInfo token={token} />
-      <SecurityInfo token={token} theme={theme} chainId={chainId} />
+      <SecurityInfo token={token} chainId={chainId} />
     </div>
   );
 };
