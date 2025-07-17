@@ -22,6 +22,7 @@ import JoinReferral from './components/JoinReferral'
 import Leaderboard from './components/Leaderboard'
 import { NearIntentCampaignStats } from './components/NearIntentCampaignStats'
 import { CampaignType, campaignConfig } from './constants'
+import { useNearIntentSelectedWallet } from './hooks/useNearIntentSelectedWallet'
 import { StatCard, Tab, Tabs, Wrapper } from './styles'
 
 function getCurrentWeek(): number {
@@ -191,6 +192,9 @@ export default function Aggregator() {
     setSearchParams(searchParams)
     // eslint-disable-next-line
   }, [campaign])
+
+  const params = useNearIntentSelectedWallet()
+
   const info = (
     <InfoHelper
       text={
@@ -331,7 +335,12 @@ export default function Aggregator() {
         </Flex>
 
         {type === CampaignType.NearIntents ? (
-          <NearIntentCampaignStats selectedWeek={selectedWeek} year={year} reward={reward} />
+          <NearIntentCampaignStats
+            selectedWeek={selectedWeek}
+            year={year}
+            reward={reward}
+            selectedWalletParams={params}
+          />
         ) : (
           <Flex width="100%" sx={{ gap: '12px' }} flexDirection={upToSmall ? 'column' : 'row'}>
             <StatCard style={{ flex: 1 }}>
@@ -393,7 +402,18 @@ export default function Aggregator() {
 
       {tab === 'information' && <Information type={type} week={selectedWeek} />}
 
-      {tab === 'leaderboard' && <Leaderboard type={type} week={selectedWeek} year={year} />}
+      {tab === 'leaderboard' && (
+        <Leaderboard
+          type={type}
+          week={selectedWeek}
+          year={year}
+          wallet={
+            type === CampaignType.NearIntents && params.selectedWallet && params.address[params.selectedWallet]
+              ? params.address[params.selectedWallet] || undefined
+              : undefined
+          }
+        />
+      )}
     </Wrapper>
   )
 }

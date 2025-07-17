@@ -26,7 +26,17 @@ const Wrapper = styled.div`
   `}
 `
 
-export default function Leaderboard({ type, week, year }: { type: CampaignType; week: number; year: number }) {
+export default function Leaderboard({
+  type,
+  week,
+  year,
+  wallet,
+}: {
+  type: CampaignType
+  week: number
+  year: number
+  wallet?: string
+}) {
   const theme = useTheme()
   const [searchParams, setSearchParams] = useSearchParams()
   const page = +(searchParams.get('page') || '1')
@@ -64,12 +74,12 @@ export default function Leaderboard({ type, week, year }: { type: CampaignType; 
       program,
       week,
       year,
-      wallet: account || '',
+      wallet: wallet || account || '',
       campaign,
       url,
     },
     {
-      skip: !account,
+      skip: !wallet && !account,
     },
   )
 

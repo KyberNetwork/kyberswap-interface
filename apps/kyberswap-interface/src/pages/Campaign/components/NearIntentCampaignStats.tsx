@@ -27,6 +27,7 @@ export const NearIntentCampaignStats = ({
   year,
   selectedWeek,
   reward,
+  selectedWalletParams,
 }: {
   year: number
   selectedWeek: number
@@ -37,6 +38,7 @@ export const NearIntentCampaignStats = ({
     decimals: number
     logo: string
   }
+  selectedWalletParams: ReturnType<typeof useNearIntentSelectedWallet>
 }) => {
   const theme = useTheme()
   const {
@@ -55,7 +57,7 @@ export const NearIntentCampaignStats = ({
     solanaWallet,
     nearAddress,
     setSelectedWallet,
-  } = useNearIntentSelectedWallet()
+  } = selectedWalletParams
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
