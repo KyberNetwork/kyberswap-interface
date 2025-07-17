@@ -5,7 +5,7 @@ import { useShallow } from 'zustand/shallow';
 import { defaultToken, univ2PoolNormalize, univ3PoolNormalize } from '@kyber/schema';
 import { MouseoverTooltip, Skeleton } from '@kyber/ui';
 import { assertUnreachable } from '@kyber/utils';
-import { divideBigIntToString } from '@kyber/utils/number';
+import { divideBigIntToString, formatDisplayNumber } from '@kyber/utils/number';
 import { tickToPrice } from '@kyber/utils/uniswapv3';
 
 import RevertPriceIcon from '@/assets/svg/ic_revert_price.svg';
@@ -70,7 +70,7 @@ export default function PriceInfo() {
                   {firstTokenShortenSymbol}
                 </MouseoverTooltip>
                 <span>=</span>
-                <span>{price}</span>
+                <span>{formatDisplayNumber(price, { significantDigits: 6 })}</span>
 
                 <MouseoverTooltip
                   text={secondTokenShortenSymbol !== token1.symbol ? token1.symbol : ''}
