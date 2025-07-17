@@ -5,7 +5,7 @@ import { useShallow } from 'zustand/shallow';
 import { defaultToken, univ2PoolNormalize, univ3PoolNormalize } from '@kyber/schema';
 import { MouseoverTooltip, Skeleton } from '@kyber/ui';
 import { assertUnreachable } from '@kyber/utils';
-import { divideBigIntToString, formatDisplayNumber } from '@kyber/utils/number';
+import { divideBigIntToString } from '@kyber/utils/number';
 import { tickToPrice } from '@kyber/utils/uniswapv3';
 
 import RevertPriceIcon from '@/assets/svg/ic_revert_price.svg';
@@ -33,9 +33,7 @@ export default function PriceInfo() {
     if (initializing) return '--';
     const { success, data } = univ3PoolNormalize.safeParse(pool);
     if (success) {
-      return formatDisplayNumber(tickToPrice(data.tick, data.token0?.decimals, data.token1?.decimals, revertPrice), {
-        significantDigits: 6,
-      });
+      return tickToPrice(data.tick, data.token0?.decimals, data.token1?.decimals, revertPrice);
     }
 
     const { success: isUniV2, data: uniV2Pool } = univ2PoolNormalize.safeParse(pool);
@@ -46,9 +44,7 @@ export default function PriceInfo() {
         BigInt(uniV2Pool.reserves[0]) * 10n ** BigInt(uniV2Pool.token1?.decimals),
         18,
       );
-      return formatDisplayNumber(revertPrice ? 1 / +p : p, {
-        significantDigits: 6,
-      });
+      return revertPrice ? 1 / +p : p;
     }
     return assertUnreachable(poolType as never, 'poolType is not handled');
   }, [initializing, pool, poolType, revertPrice]);

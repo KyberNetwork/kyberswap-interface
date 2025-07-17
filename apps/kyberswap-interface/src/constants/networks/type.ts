@@ -24,12 +24,7 @@ export interface NetworkInfo {
   readonly etherscanUrl: string
   readonly etherscanName: string
   readonly bridgeURL: string
-  readonly nativeToken: {
-    readonly symbol: string
-    readonly name: string
-    readonly logo: string
-    readonly decimal: number
-  }
+  readonly nativeToken: NativeToken
   readonly coingeckoNetworkId: string | null //https://api.coingecko.com/api/v3/asset_platforms
   readonly coingeckoNativeTokenId: string | null //https://api.coingecko.com/api/v3/coins/list
   readonly dexToCompare: string | null

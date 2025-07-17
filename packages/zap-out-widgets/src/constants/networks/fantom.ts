@@ -1,6 +1,6 @@
 export default {
   name: "Fantom",
-  logo: "https://raw.githubusercontent.com/KyberNetwork/kyberswap-interface/main/src/assets/networks/fantom.svg",
+  logo: "https://raw.githubusercontent.com/KyberNetwork/kyberswap-interface/main/apps/kyberswap-interface/src/assets/networks/fantom.svg",
   nativeLogo:
     "https://storage.googleapis.com/ks-setting-1d682dca/2cd8adf9-b4b0-41f7-b83d-4a13b4e9ca6f1699420090962.png",
   scanLink: "https://ftmscan.com",

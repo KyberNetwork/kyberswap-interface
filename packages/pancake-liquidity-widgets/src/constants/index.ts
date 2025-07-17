@@ -81,7 +81,7 @@ export const NetworkInfo: {
 
   42161: {
     name: "Arbitrum",
-    logo: "https://raw.githubusercontent.com/KyberNetwork/kyberswap-interface/main/src/assets/networks/arbitrum.svg",
+    logo: "https://raw.githubusercontent.com/KyberNetwork/kyberswap-interface/main/apps/kyberswap-interface/src/assets/networks/arbitrum.svg",
     nativeLogo:
       "https://storage.googleapis.com/ks-setting-1d682dca/8fca1ea5-2637-48bc-bb08-c734065442fe1693634037115.png",
     scanLink: "https://arbiscan.io",
@@ -98,7 +98,7 @@ export const NetworkInfo: {
 
   43114: {
     name: "Avalanche",
-    logo: "https://raw.githubusercontent.com/KyberNetwork/kyberswap-interface/main/src/assets/networks/avalanche.svg",
+    logo: "https://raw.githubusercontent.com/KyberNetwork/kyberswap-interface/main/apps/kyberswap-interface/src/assets/networks/avalanche.svg",
     nativeLogo:
       "https://storage.googleapis.com/ks-setting-1d682dca/e72081b5-cb5f-4fb6-b771-ac189bdfd7c81699420213175.png",
     scanLink: "https://snowscan.xyz",
@@ -146,7 +146,7 @@ export const NetworkInfo: {
   },
   250: {
     name: "Fantom",
-    logo: "https://raw.githubusercontent.com/KyberNetwork/kyberswap-interface/main/src/assets/networks/fantom.svg",
+    logo: "https://raw.githubusercontent.com/KyberNetwork/kyberswap-interface/main/apps/kyberswap-interface/src/assets/networks/fantom.svg",
     nativeLogo:
       "https://storage.googleapis.com/ks-setting-1d682dca/2cd8adf9-b4b0-41f7-b83d-4a13b4e9ca6f1699420090962.png",
     scanLink: "https://ftmscan.com",
@@ -194,7 +194,7 @@ export const NetworkInfo: {
   },
   10: {
     name: "Optimism",
-    logo: "https://raw.githubusercontent.com/KyberNetwork/kyberswap-interface/main/src/assets/networks/optimism.svg",
+    logo: "https://raw.githubusercontent.com/KyberNetwork/kyberswap-interface/main/apps/kyberswap-interface/src/assets/networks/optimism.svg",
     nativeLogo:
       "https://storage.googleapis.com/ks-setting-1d682dca/8fca1ea5-2637-48bc-bb08-c734065442fe1693634037115.png",
     scanLink: "https://optimistic.etherscan.io",
