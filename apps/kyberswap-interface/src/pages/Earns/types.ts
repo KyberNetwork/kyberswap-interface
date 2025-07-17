@@ -1,3 +1,6 @@
+import { NativeToken } from 'constants/networks/type'
+import { EarnDex } from 'pages/Earns/constants'
+
 export enum PositionStatus {
   IN_RANGE = 'IN_RANGE',
   OUT_RANGE = 'OUT_RANGE',
@@ -98,7 +101,7 @@ export interface EarnPosition {
     fees: Array<number>
     rewards24h: Array<PositionAmount>
     tickSpacing: number
-    project: string
+    project: EarnDex
     projectLogo: string
     projectAddress: string
     showWarning: boolean
@@ -110,7 +113,7 @@ export interface EarnPosition {
 
 export interface ParsedPosition {
   id: string
-  dex: string
+  dex: EarnDex
   dexImage: string
   chainId: number
   chainName: string
@@ -140,6 +143,15 @@ export interface ParsedPosition {
   earning7d: number
   totalEarnedFee: number
   createdTime: number
+  token0UnclaimedAmount: number
+  token1UnclaimedAmount: number
+  token0UnclaimedValue: number
+  token1UnclaimedValue: number
+  token0UnclaimedBalance: string
+  token1UnclaimedBalance: string
+  unclaimedFees: number
+  isUniv2: boolean
+  nativeToken: NativeToken
 }
 
 interface PositionAmount {

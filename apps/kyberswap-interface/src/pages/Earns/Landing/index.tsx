@@ -23,7 +23,7 @@ import Icon from 'pages/Earns/Landing/Icon'
 import PoolItem from 'pages/Earns/Landing/PoolItem'
 import { Container, ListPoolWrapper, OverviewWrapper, PoolWrapper, WrapperBg } from 'pages/Earns/Landing/styles'
 import { FilterTag } from 'pages/Earns/PoolExplorer'
-import useLiquidityWidget from 'pages/Earns/useLiquidityWidget'
+import useLiquidityWidget from 'pages/Earns/hooks/useLiquidityWidget'
 import { MEDIA_WIDTHS } from 'theme'
 
 const EarnLanding = () => {

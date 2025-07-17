@@ -22,9 +22,10 @@ import {
 } from 'pages/Earns/PositionDetail/styles'
 import { EmptyPositionText, PositionPageWrapper } from 'pages/Earns/UserPositions/styles'
 import { CoreProtocol, EarnDex } from 'pages/Earns/constants'
+import useLiquidityWidget from 'pages/Earns/hooks/useLiquidityWidget'
 import { ParsedPosition } from 'pages/Earns/types'
-import useLiquidityWidget from 'pages/Earns/useLiquidityWidget'
 import { isForkFrom } from 'pages/Earns/utils'
+import { parsePosition } from 'pages/Earns/utils/positions'
 
 const PositionDetail = () => {
   const firstLoading = useRef(false)
@@ -38,7 +39,7 @@ const PositionDetail = () => {
   const { data: userPosition, isLoading } = useUserPositionsQuery(
     {
       addresses: account || '',
-      positionId: positionId,
+      positionId: positionId?.toLowerCase(),
       chainIds: chainId || '',
       protocols: protocol || '',
     },
@@ -51,45 +52,7 @@ const PositionDetail = () => {
     if (!userPosition?.[0]) return
     const position = userPosition?.[0]
 
-    return {
-      id: position.tokenId,
-      dex: position.pool.project || '',
-      dexImage: position.pool.projectLogo || '',
-      chainId: position.chainId,
-      chainName: position.chainName,
-      chainLogo: position.chainLogo || '',
-      poolAddress: position.pool.poolAddress || '',
-      tokenAddress: position.tokenAddress,
-      token0Address: position.pool.tokenAmounts[0]?.token.address || '',
-      token1Address: position.pool.tokenAmounts[1]?.token.address || '',
-      token0Logo: position.pool.tokenAmounts[0]?.token.logo || '',
-      token1Logo: position.pool.tokenAmounts[1]?.token.logo || '',
-      token0Symbol: position.pool.tokenAmounts[0]?.token.symbol || '',
-      token1Symbol: position.pool.tokenAmounts[1]?.token.symbol || '',
-      token0Decimals: position.pool.tokenAmounts[0]?.token.decimals,
-      token1Decimals: position.pool.tokenAmounts[1]?.token.decimals,
-      token0Price: position.currentAmounts[0]?.token.price,
-      token1Price: position.currentAmounts[1]?.token.price,
-      poolFee: position.pool.fees?.[0],
-      status: position.status,
-      totalValue: position.currentPositionValue,
-      apr: position.apr || 0,
-      token0TotalAmount: position
-        ? position.currentAmounts[0]?.quotes.usd.value / position.currentAmounts[0]?.quotes.usd.price
-        : 0,
-      token1TotalAmount: position
-        ? position.currentAmounts[1]?.quotes.usd.value / position.currentAmounts[1]?.quotes.usd.price
-        : 0,
-      minPrice: position.minPrice || 0,
-      maxPrice: position.maxPrice || 0,
-      pairRate: position.pool.price || 0,
-      earning24h: position.earning24h,
-      earning7d: position.earning7d,
-      totalEarnedFee:
-        position.feePending.reduce((a, b) => a + b.quotes.usd.value, 0) +
-        position.feesClaimed.reduce((a, b) => a + b.quotes.usd.value, 0),
-      createdTime: position.createdTime,
-    }
+    return parsePosition(position)
   }, [userPosition])
 
   const isUniv2 = useMemo(() => position && isForkFrom(position.dex as EarnDex, CoreProtocol.UniswapV2), [position])
