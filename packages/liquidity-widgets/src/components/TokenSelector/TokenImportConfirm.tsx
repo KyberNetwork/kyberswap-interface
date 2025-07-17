@@ -1,11 +1,10 @@
 import { Token } from '@kyber/schema';
-import { Button } from '@kyber/ui';
+import { Button, TokenLogo } from '@kyber/ui';
 import { getEtherscanLink } from '@kyber/utils';
 
 import IconAlertTriangle from '@/assets/svg/alert-triangle.svg';
 import IconBack from '@/assets/svg/arrow-left.svg';
 import IconExternalLink from '@/assets/svg/external-link.svg';
-import defaultTokenLogo from '@/assets/svg/question.svg?url';
 import X from '@/assets/svg/x.svg';
 import { shortenAddress } from '@/components/TokenInfo/utils';
 import { MAX_ZAP_IN_TOKENS } from '@/constants';
@@ -80,15 +79,7 @@ const TokenImportConfirm = ({
           <p className="text-sm">This token isn’t frequently swapped. Please do your own research before trading.</p>
         </div>
         <div className="bg-[#0f0f0f] rounded-md p-8 flex gap-[10px] items-start">
-          <img
-            className="w-[44px] h-[44px]"
-            src={token.logo}
-            alt="token logo"
-            onError={({ currentTarget }) => {
-              currentTarget.onerror = null;
-              currentTarget.src = defaultTokenLogo;
-            }}
-          />
+          <TokenLogo src={token.logo} size={44} />
           <div className="flex flex-col gap-1">
             <p className="text-lg">{token.symbol}</p>
             <p className="text-subText text-sm">{token.name}</p>

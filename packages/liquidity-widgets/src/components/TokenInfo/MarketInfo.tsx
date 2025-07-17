@@ -3,11 +3,10 @@ import { useMemo, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, Token } from '@kyber/schema';
-import { Loader } from '@kyber/ui';
+import { Loader, TokenLogo } from '@kyber/ui';
 
 import LogoCoingecko from '@/assets/svg/coingecko.svg';
 import IconDown from '@/assets/svg/down.svg';
-import defaultTokenLogo from '@/assets/svg/question.svg?url';
 import IconZiczac from '@/assets/svg/ziczac.svg';
 import useMarketTokenInfo from '@/components/TokenInfo/useMarketTokenInfo';
 import { shortenAddress } from '@/components/TokenInfo/utils';
@@ -68,15 +67,7 @@ const MarketInfo = ({ token }: { token: Token }) => {
           <div className="flex items-center gap-1">
             {token ? (
               <>
-                <img
-                  className="w-4 h-4"
-                  src={token.logo}
-                  alt="token-logo"
-                  onError={({ currentTarget }) => {
-                    currentTarget.onerror = null;
-                    currentTarget.src = defaultTokenLogo;
-                  }}
-                />
+                <TokenLogo src={token.logo} />
                 <span>{shortenAddress(tokenAddress, 3)}</span>
                 {Copy}
               </>

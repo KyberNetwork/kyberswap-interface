@@ -11,12 +11,12 @@ import {
   InfoHelper,
   MouseoverTooltip,
   Skeleton,
+  TokenLogo,
 } from '@kyber/ui';
 import { PI_LEVEL, getSwapPriceImpactFromActions, parseSwapActions, parseZapInfo } from '@kyber/utils';
 import { formatCurrency, formatNumber } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
-import defaultTokenLogo from '@/assets/svg/question.svg?url';
 import { SlippageWarning } from '@/components/SlippageWarning';
 import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
@@ -81,17 +81,7 @@ export default function EstLiqValue() {
           ) : zapInfo ? (
             <div>
               <div className="flex justify-end items-start gap-1">
-                {token0.logo && (
-                  <img
-                    src={token0.logo}
-                    width="14px"
-                    className="mt-[2px] rounded-full"
-                    onError={({ currentTarget }) => {
-                      currentTarget.onerror = null;
-                      currentTarget.src = defaultTokenLogo;
-                    }}
-                  />
-                )}
+                {token0.logo && <TokenLogo src={token0.logo} size={14} className="mt-[2px]" />}
                 <div className="text-end">
                   {formatNumber(positionId !== undefined ? positionAmountInfo.amount0 : addedAmountInfo.addedAmount0)}{' '}
                   {token0.symbol}
@@ -121,17 +111,7 @@ export default function EstLiqValue() {
           ) : zapInfo ? (
             <div>
               <div className="flex justify-end items-start gap-1">
-                {token1.logo && (
-                  <img
-                    src={token1.logo}
-                    width="14px"
-                    className="mt-[2px] rounded-full"
-                    onError={({ currentTarget }) => {
-                      currentTarget.onerror = null;
-                      currentTarget.src = defaultTokenLogo;
-                    }}
-                  />
-                )}
+                {token1.logo && <TokenLogo src={token1.logo} size={14} className="mt-[2px]" />}
                 <div className="text-end">
                   {formatNumber(positionId !== undefined ? positionAmountInfo.amount1 : addedAmountInfo.addedAmount1)}{' '}
                   {token1.symbol}

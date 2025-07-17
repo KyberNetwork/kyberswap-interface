@@ -11,6 +11,7 @@ import {
   InfoHelper,
   MouseoverTooltip,
   ScrollArea,
+  TokenLogo,
 } from '@kyber/ui';
 import { fetchTokenPrice, getSwapPriceImpactFromActions, parseSwapActions, parseZapInfo } from '@kyber/utils';
 import { friendlyError } from '@kyber/utils';
@@ -29,7 +30,6 @@ import { tickToPrice } from '@kyber/utils/uniswapv3';
 import ErrorIcon from '@/assets/svg/error.svg';
 import Info from '@/assets/svg/info.svg';
 import Spinner from '@/assets/svg/loader.svg';
-import defaultTokenLogo from '@/assets/svg/question.svg?url';
 import SuccessIcon from '@/assets/svg/success.svg';
 import SwitchIcon from '@/assets/svg/switch.svg';
 import X from '@/assets/svg/x.svg';
@@ -342,10 +342,6 @@ export default function Preview({
             {friendlyError(txError) || txError?.message || JSON.stringify(txError)}
           </div>
         </ScrollArea>
-
-        {/* <button className="ks-primary-btn w-full" onClick={onDismiss}>
-          {txError ? 'Dismiss' : 'Close'}
-        </button> */}
       </div>
     );
   }
@@ -361,38 +357,12 @@ export default function Preview({
       <div className="ks-lw-preview">
         <div className="flex items-center h-9 gap-4 mt-4 text-base">
           <div className="relative flex items-center">
-            <img
-              src={pool.token0.logo}
-              alt=""
-              width="36px"
-              height="36px"
-              className="rounded-full border-2 border-layer1"
-              onError={({ currentTarget }) => {
-                currentTarget.onerror = null;
-                currentTarget.src = defaultTokenLogo;
-              }}
-            />
-            <img
-              src={pool.token1.logo}
-              alt=""
-              width="36px"
-              height="36px"
-              className="rounded-full border-2 border-layer1 relative -left-2"
-              onError={({ currentTarget }) => {
-                currentTarget.onerror = null;
-                currentTarget.src = defaultTokenLogo;
-              }}
-            />
-
-            <img
-              className="rounded-full border-2 border-layer1 absolute bottom-0 -right-1"
+            <TokenLogo src={pool.token0.logo} size={36} className="border-2 border-layer1" />
+            <TokenLogo src={pool.token1.logo} size={36} className="border-2 border-layer1 relative -left-2" />
+            <TokenLogo
               src={NETWORKS_INFO[chainId].logo}
-              width="18px"
-              height="18px"
-              onError={({ currentTarget }) => {
-                currentTarget.onerror = null;
-                currentTarget.src = defaultTokenLogo;
-              }}
+              size={18}
+              className="border-2 border-layer1 absolute bottom-0 -right-1"
             />
           </div>
 
@@ -441,14 +411,7 @@ export default function Preview({
           <div className="mt-2">
             {listValidTokensIn.map((token, index: number) => (
               <div className="flex items-center gap-2 mt-1" key={token.address}>
-                <img
-                  src={token.logo}
-                  className="w-[18px] h-[18px]"
-                  onError={({ currentTarget }) => {
-                    currentTarget.onerror = null;
-                    currentTarget.src = defaultTokenLogo;
-                  }}
-                />
+                <TokenLogo src={token.logo} size={18} />
                 <span>
                   {formatDisplayNumber(listValidAmountsIn[index], {
                     significantDigits: 6,
@@ -505,14 +468,7 @@ export default function Preview({
               <div className="flex flex-col gap-1">
                 <div className="flex gap-1">
                   {pool?.token0?.logo && (
-                    <img
-                      src={pool.token0.logo}
-                      className={`w-4 h-4 rounded-full relative ${positionId ? '' : 'mt-1 -top-1'}`}
-                      onError={({ currentTarget }) => {
-                        currentTarget.onerror = null;
-                        currentTarget.src = defaultTokenLogo;
-                      }}
-                    />
+                    <TokenLogo src={pool.token0.logo} className={`relative ${positionId ? '' : 'mt-1 -top-1'}`} />
                   )}
                   <div>
                     {formatDisplayNumber(
@@ -538,14 +494,7 @@ export default function Preview({
               <div className="flex flex-col gap-1">
                 <div className="flex gap-1">
                   {pool?.token1?.logo && (
-                    <img
-                      src={pool.token1.logo}
-                      className={`w-4 h-4 rounded-full relative ${positionId ? '' : 'mt-1 -top-1'}`}
-                      onError={({ currentTarget }) => {
-                        currentTarget.onerror = null;
-                        currentTarget.src = defaultTokenLogo;
-                      }}
-                    />
+                    <TokenLogo src={pool.token1.logo} className={`relative ${positionId ? '' : 'mt-1 -top-1'}`} />
                   )}
                   <div>
                     {formatDisplayNumber(

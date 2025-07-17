@@ -1,12 +1,11 @@
 import { useMemo, useState } from 'react';
 
 import { NATIVE_TOKEN_ADDRESS } from '@kyber/schema';
-import { Skeleton } from '@kyber/ui';
+import { Skeleton, TokenLogo } from '@kyber/ui';
 import { formatUnits } from '@kyber/utils/crypto';
 import { formatDisplayNumber, formatWei } from '@kyber/utils/number';
 
 import DropdownIcon from '@/assets/svg/dropdown.svg';
-import defaultTokenLogo from '@/assets/svg/question.svg?url';
 import WalletIcon from '@/assets/svg/wallet.svg';
 import X from '@/assets/svg/x.svg';
 import TokenSelectorModal from '@/components/TokenSelector/TokenSelectorModal';
@@ -136,16 +135,7 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
             className="bg-layer2 border-none rounded-full outline-inherit cursor-pointer py-[6px] px-3 items-center text-text brightness-150 flex gap-1 hover:brightness-150 active:scale-95"
             onClick={onOpenTokenSelectModal}
           >
-            <img
-              src={token.logo ? token.logo : defaultTokenLogo}
-              alt="TokenLogo"
-              width="20px"
-              className="rounded-full brightness-75"
-              onError={({ currentTarget }) => {
-                currentTarget.onerror = null;
-                currentTarget.src = defaultTokenLogo;
-              }}
-            />
+            <TokenLogo src={token.logo} size={20} className="brightness-75" alt="TokenLogo" />
             <span>{token.symbol}</span>
             <DropdownIcon />
           </button>
