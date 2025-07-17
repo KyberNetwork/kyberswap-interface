@@ -5,6 +5,7 @@ import { KNC } from 'constants/tokens'
 
 import loBanner from './assets/limit_order.png'
 import mayTradingBanner from './assets/may_trading.png'
+import nearIntentBanner from './assets/near_intents.png'
 import referralBanner from './assets/referral.png'
 import tradingBanner from './assets/trading.png'
 
@@ -159,32 +160,32 @@ export const mayTradingWeeks = [
 
 export const nearIntentWeeks = [
   {
-    value: 28,
-    label: (
-      <Text>
-        <Text as="span" color="#ffffff">
-          Week 1
-        </Text>{' '}
-        Jul 7 - Jul 13
-      </Text>
-    ),
-    start: 1751846400,
-    end: 1752451200,
-  },
-  {
-    value: 29,
+    value: 31,
     label: (
       <Text>
         <Text as="span" color="#ffffff">
           Week 2
         </Text>{' '}
-        Jul 14 - Jul 20
+        Jul 28 - Aug 03
       </Text>
     ),
-    start: 1752451200,
-    end: 1753056000,
+    start: 1753660800,
+    end: 1754265600,
   },
-]
+  {
+    value: 30,
+    label: (
+      <Text>
+        <Text as="span" color="#ffffff">
+          Week 1
+        </Text>{' '}
+        Jul 21 - Jul 27
+      </Text>
+    ),
+    start: 1753056000,
+    end: 1753660800,
+  },
+].reverse()
 
 export enum CampaignType {
   NearIntents = 'NearIntents',
@@ -279,7 +280,7 @@ export const campaignConfig: Record<CampaignType, CampaignConfig> = {
   },
   [CampaignType.NearIntents]: {
     year: 2025,
-    baseWeek: 27,
+    baseWeek: 29,
     reward: {
       chainId: ChainId.BASE,
       address: '0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2',
@@ -295,10 +296,8 @@ export const campaignConfig: Record<CampaignType, CampaignConfig> = {
     // dont use too
     campaign: 'trading-incentive' as const,
     url: 'https://kyberswap-near-intents.kyberengineering.io/api/v1',
-
-    // TODO: change banner
-    banner: mayTradingBanner,
+    banner: nearIntentBanner,
     ctaLink: '/cross-chain',
-    title: 'Cross Chain Swap Campaign (x Near Intents)',
+    title: 'Cross-Chain Race x NEAR Intents',
   },
 }

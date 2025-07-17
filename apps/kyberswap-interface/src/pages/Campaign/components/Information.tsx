@@ -87,10 +87,12 @@ const howToEarnPoints = (week: number) => ({
   [CampaignType.NearIntents]: (
     <>
       <li>
-        Users bridge assets cross-chain using <Link to="/cross-chain">KyberSwap Cross-Chain</Link> and Near Intent
-        routes to earn points.
+        Go to <Link to="/cross-chain">KyberSwap Cross-Chain</Link> feature.
       </li>
-      <li>For every $1 bridged, users earn points based on the following scale:</li>
+      <li>
+        Click on <b>{'Route Options'}</b> and select <b>NEAR Intents.</b>
+      </li>
+      <li>For every $1 bridged via NEAR Intents on KyberSwap, users earn points based on the following scale:</li>
       <TableWrapper>
         <StyledTable>
           <thead>
@@ -111,23 +113,25 @@ const howToEarnPoints = (week: number) => ({
           </tbody>
         </StyledTable>
       </TableWrapper>
-      <ul>
+      <ul style={{ marginBottom: 0 }}>
         <li>
-          <b>Stable Pairs:</b> Both tokens must be stablecoins on{' '}
-          <a
-            target="_blank"
-            href="https://docs.google.com/spreadsheets/u/1/d/1ASuf0R4EqNslY7RYbKUIqaBmia0ASdYGF_eZCcDK0d4/edit?gid=0#gid=0"
-            rel="noreferrer"
-          ></a>{' '}
-          (e.g., USDC–USDC, USDT–USDT, USDC–USDT…) or the same native asset (e.g., ETH–ETH, BNB–BNB, POL–POL). <br />
-          Wrapped versions are also eligible (e.g., ETH–WETH, BNB–WBNB).
+          <b>Stable Pairs:</b>
+          <ul>
+            <li>Both tokens must be stablecoins (e.g., USDC–USDC, USDT–USDT, USDC–USDT…)</li>
+            <li>
+              Both tokens must be the same native tokens including ETH–ETH, BNB–BNB, POL–POL. Wrapped versions of ETH,
+              BNB, and POL are also eligible (e.g., ETH–WETH, WETH–WETH, BNB–WBNB…)
+            </li>
+          </ul>
         </li>
         <li>
           <b>Any Other Pairs:</b> Refers to any trading pairs that are not classified as Stable Pairs.
         </li>
       </ul>
-      <i>Note:</i> Volume is measured based on the value of tokens received on the <b>destination chain</b>, and
-      attributed to the <b>destination wallet.</b>
+      <span>
+        <i>Note:</i> Volume is measured based on the value of tokens received on the <b>destination chain</b>, and
+        attributed to the <b>destination wallet.</b>
+      </span>
       <li>
         Each user has a maximum eligible volume cap of 100,000 USD per week. For example:
         <ul style={{ margin: 0 }}>
@@ -140,8 +144,8 @@ const howToEarnPoints = (week: number) => ({
       <li>
         Users can freely choose pairs and routes to optimize their points within the $100,000 volume cap. For example:
         <ul style={{ margin: 0 }}>
-          <li>Bridging $100,000 between EVM Chains and Stable Pairs earns 100,000 points.</li>
-          <li>Bridging $100,000 from Arbitrum to Near L1 and Stable Pairs earns 250,000 points.</li>
+          <li>Trade $100,000 between EVM Chains and Stable Pairs earns 100,000 points.</li>
+          <li>Trade $100,000 from Arbitrum to Near L1 and Stable Pairs earns 250,000 points.</li>
         </ul>
       </li>
       <li>
@@ -329,8 +333,13 @@ const howToEarnPoints = (week: number) => ({
 })
 
 const timelines = {
-  [CampaignType.NearIntents]:
-    'The campaign will take place over 2 weeks, from 0:00 UTC 18th July to 23:59 UTC 1st August.',
+  [CampaignType.NearIntents]: (
+    <>
+      The campaign will take place over 2 weeks:
+      <li>Week 1: 0h00 UTC 21st July - 23h59 UTC 27th August.</li>
+      <li>Week 2: 0h00 UTC 28th July - 23h59 UTC 3rd August.</li>
+    </>
+  ),
 
   [CampaignType.MayTrading]: 'The campaign will start from 00h00, 27/05 - 23h59, 01/06 in UTC timezone',
   [CampaignType.Aggregator]:
@@ -355,15 +364,15 @@ const rewards = {
           30,000 USDT
         </Text>
       </li>
-      <li>The reward will be airdropped directly to winner wallet untill 12th August</li>
+      <li>{"Rewards will be airdropped directly to the winners' wallets by August 12th."}</li>
       <ul style={{ margin: 0 }}>
         <li>
-          <b>EVM, Near L1, Solana L1 winning wallets</b> will receive the airdrop <b>regardless of reward value</b>,
-          with prizes distributed in <b>USDT</b>.
+          <b>EVM, Near L1, Solana L1 winning wallets</b> will receive the airdrop <b>if the reward value is ≥ $5</b>,
+          distributed in <b>USDT</b>. For EVM wallets, the reward will be sent on the Base chain.
         </li>
         <li>
-          <b>Bitcoin L1 winning wallets</b> will only receive an airdrop <b>if the reward value exceeds $10</b>, and the
-          prize will be sent in <b>BTC</b>, calculated at the airdrop date exchange rate.
+          <b>Bitcoin L1 winning wallets</b> will only receive an airdrop <b>if the reward value ≥ $10</b>, and the prize
+          distributed in <b>BTC</b>, calculated at the airdrop date exchange rate.
         </li>
       </ul>
     </>
@@ -488,10 +497,6 @@ const faq = {
     {
       q: 'My Bitcoin wallet has a reward share of $5. Will I receive the airdrop?',
       a: 'No. Bitcoin wallets will only receive an airdrop if the reward share is ≥ $10.',
-    },
-    {
-      q: 'If I swap a stablecoin pair that includes a token outside the stabelcoin supported list between EVM chains, do I get 1 or 3 points?',
-      a: 'You will receive 3 points, since at least one of the tokens is a stablecoin not in the supported list.',
     },
     {
       q: 'Are pairs that include the same POL, ETH, or BNB counted as stable pairs in this campaign?',

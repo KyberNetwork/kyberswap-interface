@@ -82,7 +82,8 @@ export default function Aggregator() {
 
   const startWeek = weeks[0].value
   const endWeek = weeks[weeks.length - 1].value
-  const [selectedWeek, setSelectedWeek] = useState(startWeek <= w && w <= endWeek ? w : endWeek)
+
+  const [selectedWeek, setSelectedWeek] = useState(startWeek <= w && w <= endWeek ? w : startWeek)
 
   useEffect(() => {
     if (selectedWeek < startWeek || selectedWeek > endWeek) {
@@ -270,7 +271,7 @@ export default function Aggregator() {
                 alignItems="center"
               >
                 {value?.label}{' '}
-                {value?.value === w ? (
+                {value?.value === w && year === new Date().getFullYear() ? (
                   <Text as="span" color={theme.red1} fontSize={12} ml="4px">
                     Active
                   </Text>
