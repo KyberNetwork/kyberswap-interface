@@ -6,6 +6,7 @@ import {
   MIN_TICK,
   decodeAlgebraV1Position,
   decodePosition,
+  nearestUsableTick,
   priceToClosestTick,
 } from '@kyber/utils/dist/uniswapv3'
 import { ChainId, WETH } from '@kyberswap/ks-sdk-core'
@@ -122,12 +123,23 @@ export const parsePosition = ({
   const chainId = position.chainId as keyof typeof NETWORKS_INFO
   const nativeToken = NETWORKS_INFO[chainId]?.nativeToken
 
-  const tickLower = isUniv2
-    ? undefined
-    : priceToClosestTick(toString(position.minPrice), token0Data?.decimals, token1Data?.decimals)
-  const tickUpper = isUniv2
-    ? undefined
-    : priceToClosestTick(toString(position.maxPrice), token0Data?.decimals, token1Data?.decimals)
+  const tickLower =
+    pool.tickSpacing === 0 || isUniv2
+      ? undefined
+      : nearestUsableTick(
+          priceToClosestTick(toString(position.minPrice), token0Data?.decimals, token1Data?.decimals) || 0,
+          pool.tickSpacing,
+        )
+  const tickUpper =
+    pool.tickSpacing === 0 || isUniv2
+      ? undefined
+      : nearestUsableTick(
+          priceToClosestTick(toString(position.maxPrice), token0Data?.decimals, token1Data?.decimals) || 0,
+          pool.tickSpacing,
+        )
+
+  const minTick = pool.tickSpacing === 0 ? MIN_TICK : nearestUsableTick(MIN_TICK, pool.tickSpacing)
+  const maxTick = pool.tickSpacing === 0 ? MAX_TICK : nearestUsableTick(MAX_TICK, pool.tickSpacing)
 
   return {
     id: position.id,
@@ -154,8 +166,8 @@ export const parsePosition = ({
     priceRange: {
       min: position.minPrice || 0,
       max: position.maxPrice || 0,
-      isMinPrice: tickLower === MIN_TICK,
-      isMaxPrice: tickUpper === MAX_TICK,
+      isMinPrice: tickLower === minTick,
+      isMaxPrice: tickUpper === maxTick,
       current: pool.price || 0,
     },
     earning: {
