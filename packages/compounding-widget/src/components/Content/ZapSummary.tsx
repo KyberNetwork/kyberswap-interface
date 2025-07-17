@@ -74,9 +74,6 @@ export default function ZapSummary() {
     const addedAmount0 = formatWei(data?.addLiquidity.token0.amount, pool?.token0?.decimals).replace(/,/g, '');
     const addedAmount1 = formatWei(data?.addLiquidity.token1.amount, pool?.token1?.decimals).replace(/,/g, '');
 
-    console.log('addedAmount0', addedAmount0);
-    console.log('addedAmount1', addedAmount1);
-
     return { addedAmount0, addedAmount1 };
   }, [pool, zapInfo?.zapDetails.actions]);
 
