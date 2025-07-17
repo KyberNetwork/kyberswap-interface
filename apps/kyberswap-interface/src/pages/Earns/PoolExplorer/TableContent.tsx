@@ -165,57 +165,60 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
 
   if (upToMedium)
     return (
-      <TableBody>
-        {tablePoolData.map((pool, index) => (
-          <MobileTableRow key={pool.address} onClick={() => onOpenZapInWidget(pool)}>
-            <Flex alignItems="flex-start" justifyContent="space-between">
-              <Flex sx={{ gap: 1 }}>
-                <Flex sx={{ position: 'relative', top: -1 }}>
-                  <CurrencyRoundedImage src={pool.tokens?.[0]?.logoURI} alt="" />
-                  <CurrencySecondImage src={pool.tokens?.[1]?.logoURI} alt="" />
-                </Flex>
-                <Flex flexDirection={'column'} sx={{ gap: 2 }}>
-                  <Flex sx={{ gap: 1 }}>
-                    <SymbolText>
-                      {pool.tokens?.[0]?.symbol}/{pool.tokens?.[1]?.symbol}
-                    </SymbolText>
-                    <CopyHelper size={16} toCopy={pool.address?.toLowerCase()} />
+      <>
+        <TableBody>
+          {tablePoolData.map((pool, index) => (
+            <MobileTableRow key={pool.address} onClick={() => onOpenZapInWidget(pool)}>
+              <Flex alignItems="flex-start" justifyContent="space-between">
+                <Flex sx={{ gap: 1 }}>
+                  <Flex sx={{ position: 'relative', top: -1 }}>
+                    <CurrencyRoundedImage src={pool.tokens?.[0]?.logoURI} alt="" />
+                    <CurrencySecondImage src={pool.tokens?.[1]?.logoURI} alt="" />
                   </Flex>
-                  <Flex sx={{ gap: 2 }}>
-                    <Image src={pool.dexLogo} width="22px" height="22px" alt="" />
-                    <FeeTier>{pool.feeTier}%</FeeTier>
+                  <Flex flexDirection={'column'} sx={{ gap: 2 }}>
+                    <Flex sx={{ gap: 1 }}>
+                      <SymbolText>
+                        {pool.tokens?.[0]?.symbol}/{pool.tokens?.[1]?.symbol}
+                      </SymbolText>
+                      <CopyHelper size={16} toCopy={pool.address?.toLowerCase()} />
+                    </Flex>
+                    <Flex sx={{ gap: 2 }}>
+                      <Image src={pool.dexLogo} width="22px" height="22px" alt="" />
+                      <FeeTier>{pool.feeTier}%</FeeTier>
+                    </Flex>
                   </Flex>
                 </Flex>
+                <Flex alignItems="center" sx={{ gap: 3 }}>
+                  <Apr positive={pool.apr > 0}>{formatAprNumber(pool.apr)}%</Apr>
+                  <Star
+                    size={16}
+                    color={pool.favorite?.isFavorite ? theme.primary : theme.subText}
+                    fill={pool.favorite?.isFavorite ? theme.primary : 'none'}
+                    role="button"
+                    cursor="pointer"
+                    onClick={e => handleFavorite(e, pool)}
+                  />
+                </Flex>
               </Flex>
-              <Flex alignItems="center" sx={{ gap: 3 }}>
-                <Apr positive={pool.apr > 0}>{formatAprNumber(pool.apr)}%</Apr>
-                <Star
-                  size={16}
-                  color={pool.favorite?.isFavorite ? theme.primary : theme.subText}
-                  fill={pool.favorite?.isFavorite ? theme.primary : 'none'}
-                  role="button"
-                  cursor="pointer"
-                  onClick={e => handleFavorite(e, pool)}
-                />
-              </Flex>
-            </Flex>
-            <MobileTableBottomRow withoutBorder={index === tablePoolData.length - 1}>
-              <Flex flexDirection="column" sx={{ gap: 1 }}>
-                <Text color={theme.subText}>Earn Fees</Text>
-                <Text>{formatDisplayNumber(pool.earnFee, { style: 'currency', significantDigits: 6 })}</Text>
-              </Flex>
-              <Flex flexDirection="column" sx={{ gap: 1 }}>
-                <Text color={theme.subText}>TVL</Text>
-                <Text>{formatDisplayNumber(pool.tvl, { style: 'currency', significantDigits: 6 })}</Text>
-              </Flex>
-              <Flex flexDirection="column" alignItems={'flex-end'} sx={{ gap: 1 }}>
-                <Text color={theme.subText}>Volume</Text>
-                <Text>{formatDisplayNumber(pool.volume, { style: 'currency', significantDigits: 6 })}</Text>
-              </Flex>
-            </MobileTableBottomRow>
-          </MobileTableRow>
-        ))}
-      </TableBody>
+              <MobileTableBottomRow withoutBorder={index === tablePoolData.length - 1}>
+                <Flex flexDirection="column" sx={{ gap: 1 }}>
+                  <Text color={theme.subText}>Earn Fees</Text>
+                  <Text>{formatDisplayNumber(pool.earnFee, { style: 'currency', significantDigits: 6 })}</Text>
+                </Flex>
+                <Flex flexDirection="column" sx={{ gap: 1 }}>
+                  <Text color={theme.subText}>TVL</Text>
+                  <Text>{formatDisplayNumber(pool.tvl, { style: 'currency', significantDigits: 6 })}</Text>
+                </Flex>
+                <Flex flexDirection="column" alignItems={'flex-end'} sx={{ gap: 1 }}>
+                  <Text color={theme.subText}>Volume</Text>
+                  <Text>{formatDisplayNumber(pool.volume, { style: 'currency', significantDigits: 6 })}</Text>
+                </Flex>
+              </MobileTableBottomRow>
+            </MobileTableRow>
+          ))}
+        </TableBody>
+        <Updater customChainId={filters.chainId} />
+      </>
     )
 
   return (
