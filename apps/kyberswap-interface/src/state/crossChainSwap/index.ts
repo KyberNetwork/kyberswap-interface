@@ -6,11 +6,11 @@ import { useAppDispatch, useAppSelector } from 'state/hooks'
 
 export * from './useSolanaTokens'
 
-// Add a loading state to track fetch status
 export interface CrossChainSwapState {
   transactions: NormalizedTxResponse[]
   nearTokens: NearToken[]
   isLoadingNearTokens: boolean
+  excludedSources: string[]
 }
 
 export interface NearToken {
@@ -30,6 +30,7 @@ const slice = createSlice({
     transactions: [] as NormalizedTxResponse[],
     nearTokens: [] as NearToken[],
     isLoadingNearTokens: false,
+    excludedSources: [] as string[],
   } as CrossChainSwapState,
   reducers: {
     updateTransactions: (state, { payload }: { payload: NormalizedTxResponse[] }) => {
@@ -42,10 +43,13 @@ const slice = createSlice({
     setLoadingNearTokens: (state, { payload }: { payload: boolean }) => {
       state.isLoadingNearTokens = payload
     },
+    updateExcludedSources: (state, { payload }: { payload: string[] }) => {
+      state.excludedSources = payload
+    },
   },
 })
 
-export const { updateTransactions, updateNearTokens, setLoadingNearTokens } = slice.actions
+export const { updateTransactions, updateNearTokens, setLoadingNearTokens, updateExcludedSources } = slice.actions
 export default slice.reducer
 
 export const useCrossChainTransactions = (): [

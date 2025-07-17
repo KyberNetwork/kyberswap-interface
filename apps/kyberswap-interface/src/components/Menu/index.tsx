@@ -371,6 +371,7 @@ export default function Menu() {
                   }
                   link="/campaigns"
                   options={[
+                    { link: APP_PATHS.NEAR_INTENTS_CAMPAIGN, label: t`Cross Chain Campaign` },
                     { link: APP_PATHS.MAY_TRADING_CAMPAIGN, label: t`May Trading` },
                     { link: APP_PATHS.AGGREGATOR_CAMPAIGN, label: t`Aggregator Trading` },
                     { link: APP_PATHS.LIMIT_ORDER_CAMPAIGN, label: t`Limit Order` },
