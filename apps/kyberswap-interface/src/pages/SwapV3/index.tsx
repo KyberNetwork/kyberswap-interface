@@ -28,6 +28,7 @@ import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import CrossChainSwap from 'pages/CrossChainSwap'
+import { CrossChainSwapSources } from 'pages/CrossChainSwap/components/CrossChainSwapSources'
 import { TransactionHistory } from 'pages/CrossChainSwap/components/TransactionHistory'
 import Header from 'pages/SwapV3/Header'
 import {
@@ -60,6 +61,7 @@ export enum TAB {
   LIMIT = 'limit',
   CROSS_CHAIN = 'cross_chain',
   GAS_TOKEN = 'gas_token',
+  CROSS_CHAIN_SOURCES = 'cross_chain_sources',
 }
 
 export const isSettingTab = (tab: TAB) => [TAB.INFO, TAB.SETTINGS, TAB.LIQUIDITY_SOURCES].includes(tab)
@@ -163,6 +165,7 @@ export default function Swap() {
                   isSwapPage={isSwapPage}
                   onBack={onBackToSwapTab}
                   onClickLiquiditySources={() => setActiveTab(TAB.LIQUIDITY_SOURCES)}
+                  onClickCrossChainSources={() => setActiveTab(TAB.CROSS_CHAIN_SOURCES)}
                 />
               )}
               {activeTab === TAB.LIQUIDITY_SOURCES && (
@@ -171,6 +174,9 @@ export default function Swap() {
               {activeTab === TAB.LIMIT && <LimitOrder />}
               {activeTab === TAB.GAS_TOKEN && <GasTokenSetting onBack={() => setActiveTab(TAB.SWAP)} />}
               {activeTab === TAB.CROSS_CHAIN && <CrossChainSwap />}
+              {activeTab === TAB.CROSS_CHAIN_SOURCES && (
+                <CrossChainSwapSources onBack={() => setActiveTab(TAB.SETTINGS)} />
+              )}
             </AppBodyWrapped>
           </SwapFormWrapper>
 

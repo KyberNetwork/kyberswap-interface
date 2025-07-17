@@ -7,7 +7,7 @@ import styled, { useTheme } from 'styled-components'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import Column from 'components/Column'
-// import { NewLabel } from 'components/Menu'
+import { NewLabel } from 'components/Menu'
 import { APP_PATHS } from 'constants/index'
 
 import { DropdownTextAnchor, StyledNavLink } from '../styleds'
@@ -55,12 +55,17 @@ const CampaignNavGroup = () => {
           <DropdownTextAnchor style={{ position: 'relative', width: 'max-content' }}>
             <Flex>
               Campaigns
-              {/*<NewLabel>New</NewLabel>*/}
+              <NewLabel>New</NewLabel>
             </Flex>
           </DropdownTextAnchor>
         }
         dropdownContent={
           <Column>
+            <StyledNavLink to={APP_PATHS.NEAR_INTENTS_CAMPAIGN}>
+              <Trans>Cross Chain Campaign</Trans>
+              <NewLabel>New</NewLabel>
+            </StyledNavLink>
+
             <StyledNavLink to={APP_PATHS.MAY_TRADING_CAMPAIGN}>
               <Trans>May Trading</Trans>
               <ELabel>ENDED</ELabel>
