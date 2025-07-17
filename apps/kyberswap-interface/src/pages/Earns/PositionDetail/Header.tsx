@@ -47,7 +47,7 @@ const PositionDetailHeader = ({
 
     if (!positionDetailUrl) return
 
-    const protocolThatNeedParseEth = [
+    const protocolThatNeedParse = [
       EarnDex.DEX_UNISWAPV2,
       EarnDex.DEX_UNISWAPV3,
       EarnDex.DEX_UNISWAP_V4,
@@ -56,8 +56,10 @@ const PositionDetailHeader = ({
     const parsedUrl = positionDetailUrl
       .replace(
         '$chainName',
-        protocolThatNeedParseEth.includes(position.dex.id) && position.chain.name === 'eth'
+        protocolThatNeedParse.includes(position.dex.id) && position.chain.name === 'eth'
           ? 'ethereum'
+          : protocolThatNeedParse.includes(position.dex.id) && position.chain.name === 'bsc'
+          ? 'bnb'
           : position.chain.name,
       )
       .replace('$positionId', position.tokenId)
