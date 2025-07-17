@@ -1,4 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
+import { isMobile } from 'react-device-detect'
 import { Text } from 'rebass'
 
 import { KNC } from 'constants/tokens'
@@ -6,6 +7,7 @@ import { KNC } from 'constants/tokens'
 import loBanner from './assets/limit_order.png'
 import mayTradingBanner from './assets/may_trading.png'
 import nearIntentBanner from './assets/near_intents.png'
+import nearIntentBannerMobile from './assets/near_intents_mobile.png'
 import referralBanner from './assets/referral.png'
 import tradingBanner from './assets/trading.png'
 
@@ -296,7 +298,7 @@ export const campaignConfig: Record<CampaignType, CampaignConfig> = {
     // dont use too
     campaign: 'trading-incentive' as const,
     url: 'https://kyberswap-near-intents.kyberengineering.io/api/v1',
-    banner: nearIntentBanner,
+    banner: isMobile ? nearIntentBannerMobile : nearIntentBanner,
     ctaLink: '/cross-chain',
     title: 'Cross-Chain Race x NEAR Intents',
   },
