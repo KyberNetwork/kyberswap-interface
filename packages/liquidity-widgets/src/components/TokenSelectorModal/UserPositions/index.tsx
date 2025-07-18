@@ -1,26 +1,21 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useState } from 'react';
 
-import { useShallow } from 'zustand/shallow';
-
-import { API_URLS, EarnChain, EarnDex, Exchange, Univ2EarnDex } from '@kyber/schema';
+import { ChainId, EarnDex, Exchange, Univ2EarnDex } from '@kyber/schema';
 import { TokenLogo } from '@kyber/ui';
 import { enumToArrayOfValues } from '@kyber/utils';
-import { isAddress } from '@kyber/utils/crypto';
+import { shortenAddress } from '@kyber/utils/crypto';
 import { formatDisplayNumber } from '@kyber/utils/number';
 
+import { PositionToMigrate } from '@/Widget';
 import CircleCheckBig from '@/assets/svg/circle-check-big.svg';
 import IconCopy from '@/assets/svg/copy.svg';
 import IconPositionConnectWallet from '@/assets/svg/ic_position_connect_wallet.svg';
 import IconPositionNotFound from '@/assets/svg/ic_position_not_found.svg';
-import { shortenAddress } from '@/components/TokenInfo/utils';
-import { useZapState } from '@/hooks/useZapState';
-import { useWidgetStore } from '@/stores/useWidgetStore';
+import usePositions from '@/components/TokenSelectorModal/UserPositions/usePositions';
 import { EarnPosition, PositionStatus } from '@/types/index';
 
 const COPY_TIMEOUT = 2000;
 let hideCopied: ReturnType<typeof setTimeout>;
-
-const earnSupportedChains = enumToArrayOfValues(EarnChain, 'number');
 
 const listDexesWithVersion = [
   EarnDex.DEX_UNISWAPV2,
@@ -31,56 +26,32 @@ const listDexesWithVersion = [
 
 export const earnSupportedExchanges = enumToArrayOfValues(Exchange);
 
-const UserPositions = ({ search }: { search: string }) => {
-  const { theme, connectedAccount, chainId, positionId, onOpenZapMigration, onConnectWallet, poolAddress } =
-    useWidgetStore(
-      useShallow(s => ({
-        theme: s.theme,
-        connectedAccount: s.connectedAccount,
-        chainId: s.chainId,
-        positionId: s.positionId,
-        onOpenZapMigration: s.onOpenZapMigration,
-        onConnectWallet: s.onConnectWallet,
-        poolAddress: s.poolAddress,
-      })),
-    );
-
-  const { address: account } = connectedAccount || {};
-  const { tickLower, tickUpper } = useZapState();
-
-  const [userPositions, setUserPositions] = useState([]);
-  const [loading, setLoading] = useState(false);
+const UserPositions = ({
+  search,
+  chainId,
+  account,
+  positionId,
+  poolAddress,
+  onConnectWallet,
+  onOpenZapMigration,
+}: {
+  search: string;
+  chainId: ChainId;
+  account?: string;
+  positionId?: string;
+  poolAddress: string;
+  onConnectWallet: () => void;
+  onOpenZapMigration: (position: PositionToMigrate) => void;
+}) => {
   const [copied, setCopied] = useState<string | null>(null);
 
-  const positions = useMemo(() => {
-    const positions = positionId
-      ? userPositions.filter((position: EarnPosition) =>
-          position.pool.project !== EarnDex.DEX_UNISWAPV2
-            ? position.tokenId !== positionId
-            : position.pool.poolAddress !== poolAddress,
-        )
-      : userPositions;
-    if (!search) return positions;
-
-    return positions.filter((position: EarnPosition) => {
-      const poolAddress = position.pool.poolAddress.toLowerCase();
-      const token0Symbol = position.pool.tokenAmounts[0]?.token.symbol.toLowerCase();
-      const token1Symbol = position.pool.tokenAmounts[1]?.token.symbol.toLowerCase();
-      const token0Name = position.pool.tokenAmounts[0]?.token.name.toLowerCase();
-      const token1Name = position.pool.tokenAmounts[1]?.token.name.toLowerCase();
-      const token0Address = position.pool.tokenAmounts[0]?.token.address.toLowerCase();
-      const token1Address = position.pool.tokenAmounts[1]?.token.address.toLowerCase();
-
-      return isAddress(search)
-        ? poolAddress.includes(search.toLowerCase()) ||
-            token0Address.includes(search.toLowerCase()) ||
-            token1Address.includes(search.toLowerCase())
-        : token0Symbol.includes(search.toLowerCase()) ||
-            token1Symbol.includes(search.toLowerCase()) ||
-            token0Name.includes(search.toLowerCase()) ||
-            token1Name.includes(search.toLowerCase());
-    });
-  }, [poolAddress, positionId, search, userPositions]);
+  const { positions, loading } = usePositions({
+    positionId,
+    poolAddress,
+    search,
+    account,
+    chainId,
+  });
 
   const copy = (position: EarnPosition) => {
     if (!navigator?.clipboard) return;
@@ -92,39 +63,6 @@ const UserPositions = ({ search }: { search: string }) => {
       setCopied(null);
     }, COPY_TIMEOUT);
   };
-
-  const handleGetUserPositions = useCallback(async () => {
-    if (!account || !earnSupportedChains.includes(chainId)) return;
-    setLoading(true);
-    try {
-      const response = await fetch(
-        `${API_URLS.ZAP_EARN_API}/v1/userPositions` +
-          '?' +
-          new URLSearchParams({
-            addresses: account,
-            chainIds: chainId.toString(),
-            protocols: earnSupportedExchanges.join(','),
-            quoteSymbol: 'usd',
-            offset: '0',
-            orderBy: 'liquidity',
-            orderASC: 'false',
-            positionStatus: 'open',
-          }).toString(),
-      );
-      const data = await response.json();
-      if (data?.data?.positions) {
-        setUserPositions(data.data.positions);
-      }
-    } catch (error) {
-      console.log('fetch user positions error', error);
-    } finally {
-      setLoading(false);
-    }
-  }, [account, chainId]);
-
-  useEffect(() => {
-    handleGetUserPositions();
-  }, [handleGetUserPositions]);
 
   if (!onOpenZapMigration) return null;
 
@@ -174,19 +112,11 @@ const UserPositions = ({ search }: { search: string }) => {
               const isUniV2 = Univ2EarnDex.safeParse(position.pool.project).success;
               if (isUniV2 && !account) return;
 
-              onOpenZapMigration(
-                {
-                  exchange: position.pool.project,
-                  poolId: position.pool.poolAddress,
-                  positionId: !isUniV2 ? position.tokenId : account,
-                },
-                tickLower !== null && tickUpper !== null
-                  ? {
-                      tickLower,
-                      tickUpper,
-                    }
-                  : undefined,
-              );
+              onOpenZapMigration({
+                exchange: position.pool.project,
+                poolId: position.pool.poolAddress,
+                positionId: !isUniV2 ? position.tokenId : account,
+              });
             }}
           >
             <div className="flex items-center justify-between w-full">
@@ -248,18 +178,15 @@ const UserPositions = ({ search }: { search: string }) => {
                 </div>
               </div>
               <div
-                className={`rounded-full text-xs px-2 py-1 font-normal text-${
-                  posStatus === PositionStatus.OUT_RANGE ? 'warning' : 'accent'
+                className={`rounded-full text-xs px-2 py-1 font-normal ${
+                  posStatus === PositionStatus.OUT_RANGE ? 'text-warning bg-warning-200' : 'text-accent bg-accent-200'
                 }`}
-                style={{
-                  background: `${posStatus === PositionStatus.OUT_RANGE ? theme.warning : theme.accent}33`,
-                }}
               >
                 {posStatus === PositionStatus.OUT_RANGE ? '● Out of range' : '● In range'}
               </div>
             </div>
           </div>
-          {index !== userPositions.length - 1 && <div className="h-[1px] bg-[#ffffff14] mx-[26px]" />}
+          {index !== positions.length - 1 && <div className="h-[1px] bg-[#ffffff14] mx-[26px]" />}
         </div>
       );
     })

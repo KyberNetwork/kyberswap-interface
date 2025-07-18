@@ -1,8 +1,6 @@
 import { ChangeEvent, MouseEvent, useEffect, useMemo, useState } from 'react';
 
-import { useShallow } from 'zustand/shallow';
-
-import { NATIVE_TOKEN_ADDRESS, Token, defaultToken } from '@kyber/schema';
+import { NATIVE_TOKEN_ADDRESS, Token } from '@kyber/schema';
 import { Button, Input, TokenLogo } from '@kyber/ui';
 import { fetchTokenInfo } from '@kyber/utils';
 import { formatUnits, isAddress } from '@kyber/utils/crypto';
@@ -13,12 +11,10 @@ import Info from '@/assets/svg/info.svg';
 import IconSearch from '@/assets/svg/search.svg';
 import TrashIcon from '@/assets/svg/trash.svg';
 import X from '@/assets/svg/x.svg';
-import UserPositions from '@/components/TokenSelector/UserPositions';
+import { TokenModalProps } from '@/components/TokenSelectorModal/TokenModal';
+import UserPositions from '@/components/TokenSelectorModal/UserPositions';
+import { useTokenState } from '@/components/TokenSelectorModal/useTokenState';
 import { MAX_ZAP_IN_TOKENS } from '@/constants';
-import { useZapState } from '@/hooks/useZapState';
-import { usePoolStore } from '@/stores/usePoolStore';
-import { useTokenStore } from '@/stores/useTokenStore';
-import { useWidgetStore } from '@/stores/useWidgetStore';
 
 export enum TOKEN_SELECT_MODE {
   SELECT = 'SELECT',
@@ -46,45 +42,37 @@ interface CustomizeToken extends Token {
 const MESSAGE_TIMEOUT = 4_000;
 let messageTimeout: ReturnType<typeof setTimeout>;
 
-export default function TokenSelector({
-  selectedTokenAddress,
-  mode,
-  selectedTokens,
-  setSelectedTokens,
-  setTokenToShow,
-  setTokenToImport,
-  onClose,
-}: {
-  selectedTokenAddress?: string;
-  mode: TOKEN_SELECT_MODE;
+interface TokenSelectorProps extends TokenModalProps {
   selectedTokens: Token[];
   setSelectedTokens: (tokens: Token[]) => void;
   setTokenToShow: (token: Token) => void;
   setTokenToImport: (token: Token) => void;
-  onClose: () => void;
-}) {
-  const { theme, onOpenZapMigration, chainId } = useWidgetStore(
-    useShallow(s => ({
-      theme: s.theme,
-      onOpenZapMigration: s.onOpenZapMigration,
-      chainId: s.chainId,
-    })),
-  );
-  const pool = usePoolStore(s => s.pool);
-  const { importedTokens, tokens, removeImportedToken } = useTokenStore(
-    useShallow(s => ({
-      importedTokens: s.importedTokens,
-      tokens: s.tokens,
-      removeImportedToken: s.removeImportedToken,
-    })),
-  );
-  const { balanceTokens, tokensIn, setTokensIn, amountsIn, setAmountsIn } = useZapState();
+}
 
-  const initializing = pool === 'loading';
+export default function TokenSelector({
+  tokensIn,
+  amountsIn,
+  account,
+  selectedTokenAddress,
+  mode,
+  chainId,
+  positionId,
+  poolAddress,
+  token0Address,
+  token1Address,
+  selectedTokens,
+  setTokensIn,
+  setAmountsIn,
+  onConnectWallet,
+  onOpenZapMigration,
+  setSelectedTokens,
+  setTokenToShow,
+  setTokenToImport,
+  onClose,
+}: TokenSelectorProps) {
+  const { importedTokens, tokens, removeImportedToken, tokenBalances } = useTokenState();
+
   const allTokens = useMemo(() => [...tokens, ...importedTokens], [tokens, importedTokens]);
-
-  const { address: token0Address } = initializing ? defaultToken : pool.token0;
-  const { address: token1Address } = initializing ? defaultToken : pool.token1;
 
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [unImportedTokens, setUnImportedTokens] = useState<Token[]>([]);
@@ -107,7 +95,7 @@ export default function TokenSelector({
             (tokenIn: Token) => tokenIn.address.toLowerCase() === token.address.toLowerCase(),
           );
           const balanceInWei =
-            balanceTokens[
+            tokenBalances[
               token.address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase()
                 ? NATIVE_TOKEN_ADDRESS.toLowerCase()
                 : token.address.toLowerCase()
@@ -145,7 +133,7 @@ export default function TokenSelector({
       allTokens,
       importedTokens,
       tokensIn,
-      // balanceTokens,
+      // tokenBalances,
       mode,
       selectedTokenAddress,
       token0Address,
@@ -317,8 +305,6 @@ export default function TokenSelector({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tokensIn, amountsIn]);
 
-  if (initializing) return null;
-
   return (
     <div className="w-full mx-auto text-white overflow-hidden">
       <div className="space-y-4">
@@ -330,10 +316,7 @@ export default function TokenSelector({
         </div>
 
         {onOpenZapMigration && (
-          <div
-            className="border rounded-full p-[2px] flex mx-6 text-sm gap-1"
-            style={{ borderColor: `${theme.icons}33` }}
-          >
+          <div className="border rounded-full p-[2px] flex mx-6 text-sm gap-1 border-icon-200">
             <div
               className={`rounded-full w-full text-center py-2 cursor-pointer hover:bg-[#ffffff33] ${
                 modalTabSelected === MODAL_TAB.TOKENS ? 'bg-[#ffffff33]' : ''
@@ -387,6 +370,10 @@ export default function TokenSelector({
             tabSelected={tabSelected}
             mode={mode}
             selectedTokenAddress={selectedTokenAddress}
+            tokensIn={tokensIn}
+            setTokensIn={setTokensIn}
+            amountsIn={amountsIn}
+            setAmountsIn={setAmountsIn}
             setTabSelected={setTabSelected}
             setMessage={setMessage}
             setSelectedTokens={setSelectedTokens}
@@ -475,7 +462,17 @@ export default function TokenSelector({
             </>
           )}
 
-          {modalTabSelected === MODAL_TAB.POSITIONS && <UserPositions search={searchTerm} />}
+          {modalTabSelected === MODAL_TAB.POSITIONS && onOpenZapMigration && (
+            <UserPositions
+              search={searchTerm}
+              chainId={chainId}
+              account={account}
+              positionId={positionId}
+              poolAddress={poolAddress}
+              onConnectWallet={onConnectWallet}
+              onOpenZapMigration={onOpenZapMigration}
+            />
+          )}
         </div>
 
         {message && (
@@ -513,6 +510,10 @@ const TokenFeature = ({
   tabSelected,
   mode,
   selectedTokenAddress,
+  tokensIn,
+  setTokensIn,
+  amountsIn,
+  setAmountsIn,
   setTabSelected,
   setMessage,
   setSelectedTokens,
@@ -521,13 +522,16 @@ const TokenFeature = ({
   tabSelected: TOKEN_TAB;
   mode: TOKEN_SELECT_MODE;
   selectedTokenAddress?: string;
+  tokensIn: Token[];
+  setTokensIn: (tokens: Token[]) => void;
+  amountsIn: string;
+  setAmountsIn: (amounts: string) => void;
   setTabSelected: (tab: TOKEN_TAB) => void;
   setMessage: (message: string) => void;
   setSelectedTokens: (tokens: Token[]) => void;
   onClose: () => void;
 }) => {
-  const { tokensIn, setTokensIn, amountsIn, setAmountsIn } = useZapState();
-  const { importedTokens, removeAllImportedTokens } = useTokenStore();
+  const { importedTokens, removeAllImportedTokens } = useTokenState();
 
   const handleRemoveAllImportedToken = () => {
     if (

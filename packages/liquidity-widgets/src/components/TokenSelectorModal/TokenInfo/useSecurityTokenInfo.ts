@@ -1,12 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 
-import { API_URLS } from '@kyber/schema';
+import { API_URLS, ChainId } from '@kyber/schema';
 
-import { SecurityInfo, getSecurityTokenInfo } from '@/components/TokenInfo/utils';
-import { useWidgetStore } from '@/stores/useWidgetStore';
+import { SecurityInfo, getSecurityTokenInfo } from '@/components/TokenSelectorModal/TokenInfo/utils';
 
-export default function useSecurityTokenInfo(tokenAddress: string) {
-  const chainId = useWidgetStore(s => s.chainId);
+export default function useSecurityTokenInfo({ tokenAddress, chainId }: { tokenAddress: string; chainId: ChainId }) {
   const [securityRawInfo, setSecurityRawInfo] = useState<SecurityInfo | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 

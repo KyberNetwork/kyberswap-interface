@@ -7,8 +7,8 @@ import LogoGoPlus from '@/assets/svg/goplus.svg';
 import IconSecurityContract from '@/assets/svg/security-contract.svg';
 import IconSecurityTrading from '@/assets/svg/security-trading.svg';
 import IconSecurity from '@/assets/svg/security.svg';
-import CollapseInfoItem from '@/components/TokenInfo/CollapseInfoItem';
-import useSecurityTokenInfo from '@/components/TokenInfo/useSecurityTokenInfo';
+import CollapseInfoItem from '@/components/TokenSelectorModal/TokenInfo/CollapseInfoItem';
+import useSecurityTokenInfo from '@/components/TokenSelectorModal/TokenInfo/useSecurityTokenInfo';
 
 const SecurityInfo = ({ token, chainId }: { token: Token; chainId: ChainId }) => {
   const tokenAddress = useMemo(
@@ -22,7 +22,7 @@ const SecurityInfo = ({ token, chainId }: { token: Token; chainId: ChainId }) =>
     [token, chainId],
   );
 
-  const { securityInfo, loading } = useSecurityTokenInfo(tokenAddress);
+  const { securityInfo, loading } = useSecurityTokenInfo({ tokenAddress, chainId });
 
   return (
     <>

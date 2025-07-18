@@ -1,7 +1,5 @@
 import Numeral from 'numeral';
 
-import { isAddress } from '@kyber/utils/crypto';
-
 export interface TokenInfo {
   price: number;
   marketCap: number;
@@ -126,12 +124,6 @@ export const parseMarketTokenInfo = (tokenInfo: TokenInfo | null) => {
   ];
 
   return listData;
-};
-
-export const shortenAddress = (address: string, chars = 4): string => {
-  const parsed = isAddress(address);
-  if (!parsed) return address;
-  return `${address.substring(0, chars + 2)}...${address.substring(address.length - chars)}`;
 };
 
 export enum WarningType {

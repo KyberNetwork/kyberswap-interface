@@ -1,15 +1,10 @@
-import { useShallow } from 'zustand/shallow';
-
-import { Token } from '@kyber/schema';
+import { ChainId, Token } from '@kyber/schema';
 
 import ChevronLeft from '@/assets/svg/chevron-left.svg';
-import MarketInfo from '@/components/TokenInfo/MarketInfo';
-import SecurityInfo from '@/components/TokenInfo/SecurityInfo';
-import { useWidgetStore } from '@/stores/useWidgetStore';
+import MarketInfo from '@/components/TokenSelectorModal/TokenInfo/MarketInfo';
+import SecurityInfo from '@/components/TokenSelectorModal/TokenInfo/SecurityInfo';
 
-const TokenInfo = ({ token, onGoBack }: { token: Token; onGoBack: () => void }) => {
-  const { chainId } = useWidgetStore(useShallow(s => ({ chainId: s.chainId })));
-
+const TokenInfo = ({ token, chainId, onGoBack }: { token: Token; chainId: ChainId; onGoBack: () => void }) => {
   return (
     <div className="w-full mx-auto text-white overflow-hidden">
       <div className="flex items-center gap-1 p-4 pb-[14px]">
@@ -17,7 +12,7 @@ const TokenInfo = ({ token, onGoBack }: { token: Token; onGoBack: () => void }) 
         <span className="ml-1">{token.symbol || ''}</span>
         <span className="text-xs text-subText mt-1">{token.name || ''}</span>
       </div>
-      <MarketInfo token={token} />
+      <MarketInfo token={token} chainId={chainId} />
       <SecurityInfo token={token} chainId={chainId} />
     </div>
   );

@@ -1,15 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 
-import { API_URLS, NETWORKS_INFO } from '@kyber/schema';
+import { API_URLS, ChainId, NETWORKS_INFO } from '@kyber/schema';
 
-import { TokenInfo, parseMarketTokenInfo } from '@/components/TokenInfo/utils';
-import { useWidgetStore } from '@/stores/useWidgetStore';
+import { TokenInfo, parseMarketTokenInfo } from '@/components/TokenSelectorModal/TokenInfo/utils';
 
 const FETCH_INTERVAL = 60_000;
 let fetchInterval: ReturnType<typeof setInterval>;
 
-export default function useMarketTokenInfo(tokenAddress: string) {
-  const chainId = useWidgetStore(s => s.chainId);
+export default function useMarketTokenInfo({ tokenAddress, chainId }: { tokenAddress: string; chainId: ChainId }) {
   const [marketTokenInfo, setMarketTokenInfo] = useState<TokenInfo | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 

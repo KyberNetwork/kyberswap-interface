@@ -18,6 +18,24 @@ export const fetchTokenInfo = async (address: string, chainId: number) => {
   }
 };
 
+export const fetchTokens = async (addresses: string[], chainId: number) => {
+  try {
+    // Make parallel requests for all addresses
+    const promises = addresses.map(address => fetchTokenInfo(address, chainId));
+    const results = await Promise.all(promises);
+
+    // Flatten and deduplicate results
+    const allTokens = results.flat();
+    const uniqueTokens = allTokens.filter(
+      (token, index, arr) => arr.findIndex(t => t.address.toLowerCase() === token.address.toLowerCase()) === index,
+    );
+
+    return uniqueTokens;
+  } catch (error) {
+    return [];
+  }
+};
+
 interface PriceResponse {
   data: {
     [chainId: string]: {
