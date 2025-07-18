@@ -40,6 +40,8 @@ interface ZapOutUserState {
   manualSlippage: boolean;
   setManualSlippage: (value: boolean) => void;
   resetState: () => void;
+  mode: "zapOut" | "withdrawOnly";
+  setMode: (mode: "zapOut" | "withdrawOnly") => void;
 }
 
 const initState = {
@@ -55,6 +57,7 @@ const initState = {
   fetchingRoute: false,
   route: null,
   manualSlippage: false,
+  mode: "zapOut" as const,
 };
 
 export const useZapOutUserState = create<ZapOutUserState>((set, get) => ({
@@ -83,23 +86,29 @@ export const useZapOutUserState = create<ZapOutUserState>((set, get) => ({
 
   setLiquidityOut: (liquidityOut: bigint) => set({ liquidityOut }),
 
+  setMode: (mode: "zapOut" | "withdrawOnly") => set({ mode }),
+
   togglePreview: () => set((state) => ({ showPreview: !state.showPreview })),
 
   fetchZapOutRoute: async ({ chainId, poolType, positionId, poolAddress }) => {
-    const { tokenOut, liquidityOut, slippage } = get();
+    const { tokenOut, liquidityOut, slippage, mode } = get();
 
-    if (!tokenOut?.address || liquidityOut === 0n) {
+    if ((mode === "zapOut" && !tokenOut?.address) || liquidityOut === 0n) {
       set({ fetchingRoute: false, route: null });
       return;
     }
 
+    set({ fetchingRoute: true });
     const params: { [key: string]: string | number | boolean } = {
       dexFrom: poolTypeToDexId[poolType],
       "poolFrom.id": poolAddress,
       "positionFrom.id": positionId,
       liquidityOut: liquidityOut.toString(),
-      tokenOut: tokenOut.address,
       slippage,
+      ...(mode === "zapOut" &&
+        tokenOut?.address && {
+          tokenOut: tokenOut.address,
+        }),
     };
 
     let search = "";

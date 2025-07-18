@@ -1,6 +1,6 @@
+import InfoHelper from "@/components/InfoHelper";
 import { useSwapPI } from "@/components/SwapImpact";
 import { WarningMsg } from "@/components/WarningMsg";
-import InfoHelper from "@/components/InfoHelper";
 import { DEXES_INFO, FARMING_CONTRACTS, NETWORKS_INFO } from "@/constants";
 import { useNftApproval } from "@/hooks/useNftApproval";
 import usePositionOwner from "@/hooks/usePositionOwner";
@@ -20,10 +20,17 @@ export const Action = () => {
     poolType,
     positionId,
   } = useZapOutContext((s) => s);
+
   const { address: account, chainId: walletChainId } = connectedAccount;
 
-  const { fetchingRoute, togglePreview, route, degenMode, toggleSetting } =
-    useZapOutUserState();
+  const {
+    fetchingRoute,
+    togglePreview,
+    route,
+    degenMode,
+    toggleSetting,
+    mode,
+  } = useZapOutUserState();
 
   const nftManager = DEXES_INFO[poolType].nftManagerContract;
   const nftManagerContract =
@@ -41,7 +48,8 @@ export const Action = () => {
     spender: route?.routerAddress,
   });
 
-  const isApproved = approved && !isChecking;
+  // TODO: still need approve for uni v2
+  const isApproved = mode === "withdrawOnly" || (approved && !isChecking);
 
   const [clickedApprove, setClickedApprove] = useState(false);
 

@@ -14,7 +14,7 @@ import { useMemo } from "react";
 
 export function ZapSummary() {
   const { pool, chainId, poolType } = useZapOutContext((s) => s);
-  const { route, tokenOut } = useZapOutUserState();
+  const { route, tokenOut, mode } = useZapOutUserState();
 
   const actionRefund = route?.zapDetails.actions.find(
     (item) => item.type === "ACTION_TYPE_REFUND"
@@ -129,9 +129,13 @@ export function ZapSummary() {
     return parsedAggregatorSwapInfo.concat(parsedPoolSwapInfo);
   }, [chainId, dexName, pool, route?.zapDetails.actions, tokenOut]);
 
+  if (mode == "withdrawOnly") {
+    return null;
+  }
+
   return (
     <div className="rounded-lg border border-stroke px-4 py-3 text-sm">
-      <div>Est. Received Value</div>
+      <div>Zap Summary</div>
       <div className="text-xs italic text-subText mt-1">
         The actual Zap Routes could be adjusted with on-chain states
       </div>
