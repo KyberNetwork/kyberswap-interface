@@ -7,7 +7,7 @@ import { formatWei } from '@kyber/utils/number';
 
 import { MAX_TOKENS, TOKEN_SELECT_MODE } from '@/components/TokenSelectorModal';
 import { TokenModalProps } from '@/components/TokenSelectorModal/TokenModal';
-import UserPositions from '@/components/TokenSelectorModal/UserPositions';
+import UserPositions, { Loading } from '@/components/TokenSelectorModal/UserPositions';
 import Check from '@/components/TokenSelectorModal/assets/check.svg?react';
 import Info from '@/components/TokenSelectorModal/assets/info.svg?react';
 import IconSearch from '@/components/TokenSelectorModal/assets/search.svg?react';
@@ -67,7 +67,7 @@ export default function TokenSelector({
   setTokenToImport,
   onClose,
 }: TokenSelectorProps) {
-  const { importedTokens, tokens, removeImportedToken, tokenBalances } = useTokenState();
+  const { importedTokens, tokens, removeImportedToken, tokenBalances, isLoading } = useTokenState();
 
   const allTokens = useMemo(() => [...tokens, ...importedTokens], [tokens, importedTokens]);
 
@@ -401,7 +401,9 @@ export default function TokenSelector({
                   </div>
                 ))}
 
-              {filteredTokens?.length > 0 && !unImportedTokens.length ? (
+              {isLoading ? (
+                <Loading />
+              ) : filteredTokens?.length > 0 && !unImportedTokens.length ? (
                 filteredTokens.map((token: CustomizeToken, index) => (
                   <div
                     key={`${token.symbol}-${index}`}

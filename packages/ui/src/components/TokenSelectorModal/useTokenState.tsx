@@ -4,12 +4,15 @@ import { useTokenBalances } from '@kyber/hooks';
 import { API_URLS, ChainId, Token } from '@kyber/schema';
 import { fetchTokenInfo } from '@kyber/utils';
 
+import { getCachedTokens, setCachedTokens } from './tokenCache';
+
 const TOKEN_API = `${API_URLS.KYBERSWAP_SETTING_API}/v1/tokens`;
 
 interface TokenState {
   tokens: Token[];
   importedTokens: Token[];
   tokenBalances: { [key: string]: bigint };
+  isLoading: boolean;
   importToken: (token: Token) => void;
   removeImportedToken: (token: Token) => void;
   removeAllImportedTokens: () => void;
@@ -19,6 +22,7 @@ const initState = {
   tokens: [],
   importedTokens: [],
   tokenBalances: {},
+  isLoading: false,
   importToken: () => {},
   removeImportedToken: () => {},
   removeAllImportedTokens: () => {},
@@ -39,6 +43,7 @@ export const TokenContextProvider = ({
 }) => {
   const [importedTokens, setImportedTokens] = useState<Token[]>([]);
   const [tokens, setTokens] = useState<Token[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const { balances: tokenBalances } = useTokenBalances(
     chainId,
@@ -86,13 +91,24 @@ export const TokenContextProvider = ({
   }, []);
 
   const fetchTokens = useCallback(async () => {
-    Promise.all([
-      fetch(`${TOKEN_API}?pageSize=100&isWhitelisted=true&chainIds=${chainId}&page=1`).then(res => res.json()),
-      fetch(`${TOKEN_API}?pageSize=100&isWhitelisted=true&chainIds=${chainId}&page=2`).then(res => res.json()),
-      ...(additionalTokenAddresses
-        ? additionalTokenAddresses.split(',').map(address => fetchTokenInfo(address, chainId))
-        : []),
-    ]).then(results => {
+    // Check cache first
+    const cachedTokens = getCachedTokens(chainId, additionalTokenAddresses);
+
+    if (cachedTokens) {
+      setTokens(cachedTokens);
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const results = await Promise.all([
+        fetch(`${TOKEN_API}?pageSize=100&isWhitelisted=true&chainIds=${chainId}&page=1`).then(res => res.json()),
+        fetch(`${TOKEN_API}?pageSize=100&isWhitelisted=true&chainIds=${chainId}&page=2`).then(res => res.json()),
+        ...(additionalTokenAddresses
+          ? additionalTokenAddresses.split(',').map(address => fetchTokenInfo(address, chainId))
+          : []),
+      ]);
+
       const [res1, res2, ...defaultTokensResults] = results;
       const tokens1 = res1.data.tokens.map((item: Token & { logoURI: string }) => ({
         ...item,
@@ -110,8 +126,15 @@ export const TokenContextProvider = ({
         const newDefaultTokens = allDefaultTokens.filter(t => !existingAddresses.has(t.address.toLowerCase()));
         mergedTokens = [...mergedTokens, ...newDefaultTokens];
       }
+
+      // Cache the fetched tokens
+      setCachedTokens(chainId, mergedTokens, additionalTokenAddresses);
       setTokens(mergedTokens);
-    });
+    } catch (error) {
+      console.error('Failed to fetch tokens:', error);
+    } finally {
+      setIsLoading(false);
+    }
   }, [additionalTokenAddresses, chainId]);
 
   useEffect(() => fetchImportedTokens(), [fetchImportedTokens]);
@@ -125,6 +148,7 @@ export const TokenContextProvider = ({
         tokens,
         importedTokens,
         tokenBalances,
+        isLoading,
         importToken,
         removeImportedToken,
         removeAllImportedTokens,
