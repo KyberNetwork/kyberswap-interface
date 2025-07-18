@@ -10,6 +10,7 @@ import useTheme from 'hooks/useTheme'
 import { ButtonIcon } from 'pages/Pools/styleds'
 import { ExternalLink } from 'theme'
 
+import nearCampaignGuide from '../assets/near_campaign_guide.png'
 import { CampaignType } from '../constants'
 
 const nearIntentTableData = [
@@ -91,6 +92,7 @@ const howToEarnPoints = (week: number) => ({
       </li>
       <li>
         Click on <b>{'Route Options'}</b> and select <b>NEAR Intents.</b>
+        <img src={nearCampaignGuide} width="100%" />
       </li>
       <li>For every $1 bridged via NEAR Intents on KyberSwap, users earn points based on the following scale:</li>
       <TableWrapper>
@@ -916,7 +918,7 @@ export default function Information({ type, week }: { type: CampaignType; week: 
         paddingLeft="12px"
         width="95%"
         sx={{
-          maxHeight: isShowRule ? '2000px' : 0,
+          maxHeight: isShowRule ? '10000px' : 0,
           opacity: isShowRule ? 1 : 0,
           marginTop: isShowRule ? '1rem' : 0,
           transition: 'all 0.3s ease',

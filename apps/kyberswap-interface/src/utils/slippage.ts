@@ -49,7 +49,8 @@ export const checkRangeSlippage = (slippage: number, pairCategory: PAIR_CATEGORY
   //   return SLIPPAGE_STATUS.LOW
   // }
 
-  if (slippage > 150) {
+  // Exotic pairs
+  if (slippage > 200) {
     return SLIPPAGE_STATUS.HIGH
   }
   if (slippage < 10) {
