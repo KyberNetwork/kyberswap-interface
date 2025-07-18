@@ -1,23 +1,22 @@
-import "./globals.css";
 import "./Widget.scss";
-import "@kyber/ui/styles.css";
-
-import { ReactNode, useEffect, useMemo } from "react";
-import PoolStat from "@/components/PoolStat";
+import "./globals.css";
 import { Action } from "@/components/Action";
 import { EstLiqValue } from "@/components/EstLiqValue";
 import { Header } from "@/components/Header";
 import { LiquidityToRemove } from "@/components/LiquidityToRemove";
 import { PoolFee } from "@/components/PoolFee";
 import { PoolPrice } from "@/components/PoolPrice";
+import PoolStat from "@/components/PoolStat";
 import { PositionPriceRange } from "@/components/PositionPriceRange";
 import { Preview } from "@/components/Preview";
 import { ZapSummary } from "@/components/ZapSummary";
 import { ZapTo } from "@/components/ZapTo";
 import { TokenListProvider } from "@/hooks/useTokenList";
+import { ChainId, PoolType } from "@/schema";
 import { ZapOutProps, ZapOutProvider, useZapOutContext } from "@/stores";
 import { defaultTheme, Theme } from "@/theme";
-import { ChainId, PoolType } from "@/schema";
+import "@kyber/ui/styles.css";
+import { ReactNode, useEffect, useMemo } from "react";
 
 const ZapOut = (props: ZapOutProps) => {
   const { theme, chainId, poolType, positionId, poolAddress } = props;

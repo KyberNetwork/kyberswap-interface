@@ -1,15 +1,26 @@
-import Modal from "@/components/Modal";
-import { ScrollArea } from "@kyber/ui/scroll-area";
+import AlertIcon from "@/assets/svg/error.svg";
+import LoadingIcon from "@/assets/svg/loader.svg";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
+import CheckIcon from "@/assets/svg/success.svg";
 import X from "@/assets/svg/x.svg";
-import { RefundAction, useZapOutUserState } from "@/stores/state";
-import { useZapOutContext } from "@/stores";
-import { NETWORKS_INFO, PATHS, CHAIN_ID_TO_CHAIN } from "@/constants";
-import { SyntheticEvent, useEffect, useState } from "react";
-import { formatDisplayNumber, formatTokenAmount } from "@kyber/utils/number";
-import { PI_LEVEL, formatCurrency } from "@/utils";
+import { Image } from "@/components/Image";
+import Modal from "@/components/Modal";
+import { SlippageWarning } from "@/components/SlippageWarning";
+import { SwapPI, useSwapPI } from "@/components/SwapImpact";
 import { MouseoverTooltip } from "@/components/Tooltip";
+import { WarningMsg } from "@/components/WarningMsg";
+import { NETWORKS_INFO, PATHS, CHAIN_ID_TO_CHAIN } from "@/constants";
 import { ProtocolFeeAction, ZapAction } from "@/hooks/types/zapInTypes";
+import { Univ3PoolType } from "@/schema";
+import { useZapOutContext } from "@/stores";
+import {
+  RefundAction,
+  RemoveLiquidityAction,
+  useZapOutUserState,
+} from "@/stores/state";
+import { PI_LEVEL, formatCurrency } from "@/utils";
+import { useTokenPrices } from "@kyber/hooks/use-token-prices";
+import { ScrollArea } from "@kyber/ui/scroll-area";
 import {
   calculateGasMargin,
   estimateGas,
@@ -17,15 +28,9 @@ import {
   getCurrentGasPrice,
   isTransactionSuccessful,
 } from "@kyber/utils/crypto";
-import { useTokenPrices } from "@kyber/hooks/use-token-prices";
-import AlertIcon from "@/assets/svg/error.svg";
-import LoadingIcon from "@/assets/svg/loader.svg";
-import CheckIcon from "@/assets/svg/success.svg";
-import { SwapPI, useSwapPI } from "@/components/SwapImpact";
-import { SlippageWarning } from "@/components/SlippageWarning";
-import { WarningMsg } from "@/components/WarningMsg";
+import { formatDisplayNumber, formatTokenAmount } from "@kyber/utils/number";
 import { cn } from "@kyber/utils/tailwind-helpers";
-import { Univ3PoolType } from "@/schema";
+import { SyntheticEvent, useEffect, useState } from "react";
 
 export const Preview = () => {
   const {
@@ -45,7 +50,7 @@ export const Preview = () => {
   const { address: account } = connectedAccount;
   const isUniV3 = Univ3PoolType.safeParse(poolType).success;
 
-  const { showPreview, slippage, togglePreview, tokenOut, route } =
+  const { showPreview, slippage, togglePreview, tokenOut, route, mode } =
     useZapOutUserState();
 
   const [gasUsd, setGasUsd] = useState<number | null>(null);
@@ -182,6 +187,41 @@ export const Preview = () => {
   };
   const suggestedSlippage = route?.zapDetails.suggestedSlippage || 100;
 
+  const actionRemoveLiq = route?.zapDetails.actions.find(
+    (item) => item.type === "ACTION_TYPE_REMOVE_LIQUIDITY"
+  ) as RemoveLiquidityAction | undefined;
+
+  const { tokens, fees } = actionRemoveLiq?.removeLiquidity || {};
+
+  const token0 = tokens?.find(
+    (f) => f.address.toLowerCase() === pool.token0.address.toLowerCase()
+  );
+
+  const token1 = tokens?.find(
+    (f) => f.address.toLowerCase() === pool.token1.address.toLowerCase()
+  );
+
+  const withdrawAmount0 = BigInt(token0 ? token0.amount : 0);
+  const withdrawAmount1 = BigInt(token1 ? token1.amount : 0);
+
+  const fee0 = fees?.find(
+    (f) => f.address.toLowerCase() === pool.token0.address.toLowerCase()
+  );
+
+  const fee1 = fees?.find(
+    (f) => f.address.toLowerCase() === pool.token1.address.toLowerCase()
+  );
+
+  const feeAmount0 = BigInt(fee0?.amount || 0);
+  const feeAmount1 = BigInt(fee1?.amount || 0);
+
+  const receiveAmount0 = withdrawAmount0 + feeAmount0;
+  const receiveAmount1 = withdrawAmount1 + feeAmount1;
+  const receiveUsd0 =
+    Number(token0?.amountUsd || 0) + Number(fee0?.amountUsd || 0);
+  const receiveUsd1 =
+    Number(token1?.amountUsd || 0) + Number(fee1?.amountUsd || 0);
+
   if (showProcessing) {
     let content = <></>;
     if (txHash) {
@@ -279,7 +319,7 @@ export const Preview = () => {
       modalContentClass="!max-h-[96vh]"
     >
       <div className="flex justify-between text-[20px] font-medium">
-        <div>Remove Liquidity via Zap</div>
+        <div>Remove Liquidity {mode === "zapOut" ? "via Zap" : ""}</div>
         <div
           role="button"
           onClick={() => togglePreview()}
@@ -318,141 +358,213 @@ export const Preview = () => {
       </div>
 
       <div className="mt-4 rounded-xl p-4 bg-layer2">
-        <div className="text-subText text-sm">Zap-out Amount</div>
-        <div className="flex mt-3 text-base items-center">
-          <img src={tokenOut.logo} alt="" className="w-5 h-5" />
-          <div className="ml-1">
-            {formatTokenAmount(amountOut, tokenOut.decimals)} {tokenOut.symbol}
-          </div>
-          <div className="ml-2 text-subText">
-            ~{formatCurrency(+amountOutUsdt)}
-          </div>
+        <div className="text-subText text-sm">
+          {mode === "zapOut" ? "Zap-out" : "Receiving"} Amount
         </div>
+        {mode === "zapOut" && (
+          <div className="flex mt-3 text-base items-center">
+            <img src={tokenOut.logo} alt="" className="w-5 h-5" />
+            <div className="ml-1">
+              {formatTokenAmount(amountOut, tokenOut.decimals)}{" "}
+              {tokenOut.symbol}
+            </div>
+            <div className="ml-2 text-subText">
+              ~{formatCurrency(+amountOutUsdt)}
+            </div>
+          </div>
+        )}
+        {mode === "withdrawOnly" && (
+          <>
+            <div className="flex gap-1 items-center mt-3">
+              <Image src={pool.token0.logo || ""} className="w-5 h-5" />
+              <span className="text-lg font-medium">
+                {formatTokenAmount(receiveAmount0, pool.token0.decimals, 8)}{" "}
+                {pool.token0.symbol}
+              </span>
+              <span className="text-subText ml-1">
+                ~{formatDisplayNumber(receiveUsd0, { style: "currency" })}
+              </span>
+            </div>
+            <div className="flex gap-1 items-center mt-3">
+              <Image src={pool.token1.logo || ""} className="w-5 h-5" />
+              <span className="text-lg font-medium">
+                {formatTokenAmount(receiveAmount1, pool.token1.decimals, 8)}{" "}
+                {pool.token0.symbol}
+              </span>
+              <span className="text-subText ml-1">
+                ~{formatDisplayNumber(receiveUsd1, { style: "currency" })}
+              </span>
+            </div>
+          </>
+        )}
       </div>
 
-      <div className="flex flex-col mt-4 gap-3 text-sm">
-        <div className="flex items-center justify-between">
-          <div className="text-subText text-xs ">
-            Est. Received {tokenOut.symbol}
-          </div>
-          <div className="flex items-center gap-1">
-            <img src={tokenOut.logo} className="w-4 h-4 rounded-full" alt="" />
-            {formatTokenAmount(amountOut, tokenOut?.decimals || 18)}{" "}
-            {tokenOut.symbol}
-          </div>
-        </div>
-
-        <SlippageWarning
-          slippage={slippage}
-          suggestedSlippage={suggestedSlippage}
-          className="mt-0"
-          showWarning={!!route}
-        />
-
-        <div className="flex items-center justify-between">
-          <SwapPI />
-        </div>
-
-        <div className="flex items-center justify-between">
-          <MouseoverTooltip
-            text="The difference between input and estimated received (including remaining amount). Be careful with high value!"
-            width="220px"
-          >
-            <div
-              className="text-subText text-xs border-b border-dotted border-subText"
-              style={
-                route
-                  ? {
-                      color,
-                      borderColor: color,
-                    }
-                  : {}
-              }
-            >
-              Zap Impact
-            </div>
-          </MouseoverTooltip>
-          <div
-            style={{
-              color:
-                zapPiRes.level === PI_LEVEL.VERY_HIGH ||
-                zapPiRes.level === PI_LEVEL.INVALID
-                  ? theme.error
-                  : zapPiRes.level === PI_LEVEL.HIGH
-                  ? theme.warning
-                  : theme.text,
-            }}
-          >
-            {zapPiRes.display}
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between">
-          <MouseoverTooltip
-            text="Estimated network fee for your transaction."
-            width="220px"
-          >
-            <div className="text-subText text-xs border-b border-dotted border-subText">
-              Est. Gas Fee
-            </div>
-          </MouseoverTooltip>
-          <div>
-            {gasUsd
-              ? formatDisplayNumber(gasUsd, {
-                  significantDigits: 4,
-                  style: "currency",
-                })
-              : "--"}
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between">
-          <MouseoverTooltip
-            text={
-              <div>
-                Fees charged for automatically zapping into a liquidity pool.
-                You still have to pay the standard gas fees.{" "}
-                <a
-                  style={{ color: theme.accent }}
-                  href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-zap-as-a-service/zap-fee-model"
-                  target="_blank"
-                  rel="noopener norefferer"
-                >
-                  More details.
-                </a>
+      {mode === "zapOut" && (
+        <>
+          <div className="flex flex-col mt-4 gap-3 text-sm">
+            <div className="flex items-center justify-between">
+              <div className="text-subText text-xs ">
+                Est. Received {tokenOut.symbol}
               </div>
-            }
-            width="220px"
-          >
-            <div className="text-subText text-xs border-b border-dotted border-subText">
-              Zap Fee
+              <div className="flex items-center gap-1">
+                <img
+                  src={tokenOut.logo}
+                  className="w-4 h-4 rounded-full"
+                  alt=""
+                />
+                {formatTokenAmount(amountOut, tokenOut?.decimals || 18)}{" "}
+                {tokenOut.symbol}
+              </div>
             </div>
-          </MouseoverTooltip>
-          <div>{parseFloat(zapFee.toFixed(3))}%</div>
-        </div>
-      </div>
 
-      {(slippage > 2 * suggestedSlippage ||
-        slippage < suggestedSlippage / 2) && (
-        <div
-          className="rounded-md text-xs px-4 py-3 mt-4 font-normal text-warning"
-          style={{
-            backgroundColor: `${theme.warning}33`,
-          }}
-        >
-          {slippage > 2 * suggestedSlippage
-            ? "Your slippage is set higher than usual, which may cause unexpected losses."
-            : "Your slippage is set lower than usual, increasing the risk of transaction failure."}
-        </div>
+            <SlippageWarning
+              slippage={slippage}
+              suggestedSlippage={suggestedSlippage}
+              className="mt-0"
+              showWarning={!!route}
+            />
+
+            <div className="flex items-center justify-between">
+              <SwapPI />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <MouseoverTooltip
+                text="The difference between input and estimated received (including remaining amount). Be careful with high value!"
+                width="220px"
+              >
+                <div
+                  className="text-subText text-xs border-b border-dotted border-subText"
+                  style={
+                    route
+                      ? {
+                          color,
+                          borderColor: color,
+                        }
+                      : {}
+                  }
+                >
+                  Zap Impact
+                </div>
+              </MouseoverTooltip>
+              <div
+                style={{
+                  color:
+                    zapPiRes.level === PI_LEVEL.VERY_HIGH ||
+                    zapPiRes.level === PI_LEVEL.INVALID
+                      ? theme.error
+                      : zapPiRes.level === PI_LEVEL.HIGH
+                      ? theme.warning
+                      : theme.text,
+                }}
+              >
+                {zapPiRes.display}
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <MouseoverTooltip
+                text="Estimated network fee for your transaction."
+                width="220px"
+              >
+                <div className="text-subText text-xs border-b border-dotted border-subText">
+                  Est. Gas Fee
+                </div>
+              </MouseoverTooltip>
+              <div>
+                {gasUsd
+                  ? formatDisplayNumber(gasUsd, {
+                      significantDigits: 4,
+                      style: "currency",
+                    })
+                  : "--"}
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <MouseoverTooltip
+                text={
+                  <div>
+                    Fees charged for automatically zapping into a liquidity
+                    pool. You still have to pay the standard gas fees.{" "}
+                    <a
+                      style={{ color: theme.accent }}
+                      href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-zap-as-a-service/zap-fee-model"
+                      target="_blank"
+                      rel="noopener norefferer"
+                    >
+                      More details.
+                    </a>
+                  </div>
+                }
+                width="220px"
+              >
+                <div className="text-subText text-xs border-b border-dotted border-subText">
+                  Zap Fee
+                </div>
+              </MouseoverTooltip>
+              <div>{parseFloat(zapFee.toFixed(3))}%</div>
+            </div>
+          </div>
+
+          {(slippage > 2 * suggestedSlippage ||
+            slippage < suggestedSlippage / 2) && (
+            <div
+              className="rounded-md text-xs px-4 py-3 mt-4 font-normal text-warning"
+              style={{
+                backgroundColor: `${theme.warning}33`,
+              }}
+            >
+              {slippage > 2 * suggestedSlippage
+                ? "Your slippage is set higher than usual, which may cause unexpected losses."
+                : "Your slippage is set lower than usual, increasing the risk of transaction failure."}
+            </div>
+          )}
+
+          <div className="text-xs italic mt-4 text-subText">
+            The information is intended solely for your reference at the time
+            you are viewing. It is your responsibility to verify all information
+            before making decisions
+          </div>
+
+          <WarningMsg />
+        </>
       )}
 
-      <div className="text-xs italic mt-4 text-subText">
-        The information is intended solely for your reference at the time you
-        are viewing. It is your responsibility to verify all information before
-        making decisions
-      </div>
+      {mode === "withdrawOnly" && (
+        <>
+          <div className="flex flex-col mt-4 gap-3 text-sm">
+            <div className="flex items-start justify-between">
+              <div className="text-subText">Slippage</div>
+              <span>{((slippage * 100) / 10_000).toFixed(2)}%</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <MouseoverTooltip
+                text="Estimated network fee for your transaction."
+                width="220px"
+              >
+                <div className="text-subText text-xs border-b border-dotted border-subText">
+                  Est. Gas Fee
+                </div>
+              </MouseoverTooltip>
+              <div>
+                {gasUsd
+                  ? formatDisplayNumber(gasUsd, {
+                      significantDigits: 4,
+                      style: "currency",
+                    })
+                  : "--"}
+              </div>
+            </div>
+          </div>
+          <div className="text-xs italic mt-4 text-subText">
+            The information is intended solely for your reference at the time
+            you are viewing. It is your responsibility to verify all information
+            before making decisions
+          </div>
+        </>
+      )}
 
-      <WarningMsg />
       <button
         className={cn(
           "ks-primary-btn w-full mt-4",
