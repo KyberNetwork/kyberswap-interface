@@ -1,7 +1,7 @@
 import { useShallow } from 'zustand/shallow';
 
 import { useNftApproval } from '@kyber/hooks';
-import { NETWORKS_INFO, univ4Types } from '@kyber/schema';
+import { NETWORKS_INFO } from '@kyber/schema';
 import { getNftManagerContractAddress } from '@kyber/utils';
 
 import ChevronLeftIcon from '@/assets/svg/chevron-left.svg';
@@ -38,8 +38,6 @@ export default function Widget() {
   );
   const { zapInfo, snapshotState, setSnapshotState } = useZapState();
 
-  const isUniv4 = univ4Types.includes(poolType);
-
   const nftManagerContract = getNftManagerContractAddress(poolType, chainId);
   const {
     isApproved: nftApproved,
@@ -47,7 +45,7 @@ export default function Widget() {
     approvePendingTx: nftApprovePendingTx,
     checkApproval: checkNftApproval,
   } = useNftApproval({
-    tokenId: positionId ? +positionId : undefined,
+    tokenId: +positionId,
     spender: zapInfo?.routerAddress || '',
     userAddress: connectedAccount?.address || '',
     rpcUrl: NETWORKS_INFO[chainId].defaultRpc,
@@ -73,7 +71,7 @@ export default function Widget() {
           <Preview
             zapState={snapshotState}
             onDismiss={() => {
-              if (isUniv4) checkNftApproval();
+              checkNftApproval();
               setSnapshotState(null);
             }}
           />

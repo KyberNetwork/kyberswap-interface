@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 
 import { usePositionOwner } from '@kyber/hooks';
-import { FARMING_CONTRACTS, defaultToken, univ3PoolNormalize, univ4Types } from '@kyber/schema';
+import { FARMING_CONTRACTS, defaultToken, univ3PoolNormalize } from '@kyber/schema';
 import { InfoHelper } from '@kyber/ui';
 import { PI_LEVEL, getPriceImpact, getSwapPriceImpactFromZapInfo } from '@kyber/utils';
 
@@ -83,12 +83,8 @@ export default function Action({
     }
   }, [nftApprovePendingTx, zapLoading]);
 
-  const isUniv4 = univ4Types.includes(poolType);
   const isNotOwner =
-    positionId &&
-    positionOwner &&
-    connectedAccount?.address &&
-    positionOwner !== connectedAccount?.address?.toLowerCase()
+    positionOwner && connectedAccount?.address && positionOwner !== connectedAccount?.address?.toLowerCase()
       ? true
       : false;
   const isWrongNetwork = error === ERROR_MESSAGE.WRONG_NETWORK;
@@ -99,7 +95,7 @@ export default function Action({
     FARMING_CONTRACTS[poolType]?.[chainId]?.toLowerCase() === positionOwner?.toLowerCase();
 
   const disabled =
-    (isUniv4 && isNotOwner) ||
+    isNotOwner ||
     clickedApprove ||
     nftApprovePendingTx ||
     zapLoading ||
@@ -122,13 +118,13 @@ export default function Action({
 
   const btnText = (() => {
     if (error) return error;
-    if (isUniv4 && isNotOwner) {
+    if (isNotOwner) {
       if (isFarming) return 'Your position is in farming';
       return 'Not the position owner';
     }
     if (zapLoading) return 'Fetching Route...';
     if (nftApprovePendingTx) return `Approving${'.'.repeat(dots)}`;
-    if (isUniv4 && positionId && !nftApproved) return 'Approve NFT';
+    if (positionId && !nftApproved) return 'Approve NFT';
     if (isVeryHighPriceImpact || isVeryHighZapImpact || isInvalidZapImpact) return 'Zap anyway';
 
     return 'Preview';
@@ -144,7 +140,7 @@ export default function Action({
       onSwitchChain();
       return;
     }
-    if (isUniv4 && !nftApproved) {
+    if (!nftApproved) {
       setClickedLoading(true);
       approveNft().finally(() => setClickedLoading(false));
     } else if (
