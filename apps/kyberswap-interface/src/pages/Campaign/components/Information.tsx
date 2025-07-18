@@ -161,17 +161,6 @@ const howToEarnPoints = (week: number) => ({
           <li>Trade $100,000 from Arbitrum to Near L1 and Stable Pairs earns 250,000 points.</li>
         </ul>
       </li>
-      <li>
-        User reward = (User Points/Total Points) * Weekly Prize Pool
-        <ul style={{ margin: 0 }}>
-          <li>User Points: Points earned within the $100,000 volume cap</li>
-          <li>Total Points: Combined points from all participants</li>
-          <li>
-            Example: A user earns 100 points. Total participant points = 1,000. Weekly reward pool = $20,000. User
-            reward = (100 / 1,000) × 20,000 = $2,000.
-          </li>
-        </ul>
-      </li>
     </>
   ),
   [CampaignType.MayTrading]: (
