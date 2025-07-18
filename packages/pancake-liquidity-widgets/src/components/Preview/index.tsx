@@ -42,7 +42,7 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@kyber/ui/accordion";
+} from "@kyber/ui";
 import defaultTokenLogo from "@/assets/question.svg?url";
 import { tickToPrice } from "@kyber/utils/uniswapv3";
 import { formatDisplayNumber } from "@kyber/utils/number";

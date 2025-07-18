@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { API_URLS, ChainId, NETWORKS_INFO } from '@kyber/schema';
 
-import { TokenInfo, parseMarketTokenInfo } from './utils';
+import { TokenInfo, parseMarketTokenInfo } from '@/components/TokenSelectorModal/TokenInfo/utils';
 
 const FETCH_INTERVAL = 60_000;
 let fetchInterval: ReturnType<typeof setInterval>;

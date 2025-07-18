@@ -1,8 +1,8 @@
 import { ChainId, Token } from '@kyber/schema';
 
-import ChevronLeft from '../assets/chevron-left.svg?react';
-import MarketInfo from './MarketInfo';
-import SecurityInfo from './SecurityInfo';
+import MarketInfo from '@/components/TokenSelectorModal/TokenInfo/MarketInfo';
+import SecurityInfo from '@/components/TokenSelectorModal/TokenInfo/SecurityInfo';
+import ChevronLeft from '@/components/TokenSelectorModal/assets/chevron-left.svg?react';
 
 const TokenInfo = ({ token, chainId, onGoBack }: { token: Token; chainId: ChainId; onGoBack: () => void }) => {
   return (

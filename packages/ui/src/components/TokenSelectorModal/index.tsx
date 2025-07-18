@@ -1,5 +1,5 @@
-import TokenModal, { TokenModalProps } from './TokenModal';
-import { TokenContextProvider } from './useTokenState';
+import TokenModal, { TokenModalProps } from '@/components/TokenSelectorModal/TokenModal';
+import { TokenContextProvider } from '@/components/TokenSelectorModal/useTokenState';
 
 export enum TOKEN_SELECT_MODE {
   SELECT = 'SELECT',

@@ -1,9 +1,9 @@
 import { ReactNode, useState } from 'react';
 
-import Loader from '../../loader';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../../ui/accordion';
-import IconAlertOctagon from '../assets/alert-octagon.svg?react';
-import { ItemData, RISKY_THRESHOLD, WarningType, isItemRisky } from './utils';
+import { ItemData, RISKY_THRESHOLD, WarningType, isItemRisky } from '@/components/TokenSelectorModal/TokenInfo/utils';
+import IconAlertOctagon from '@/components/TokenSelectorModal/assets/alert-octagon.svg?react';
+import Loader from '@/components/loader';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 const CollapseInfoItem = ({
   icon,

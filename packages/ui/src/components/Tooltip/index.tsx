@@ -1,6 +1,6 @@
 import { ReactNode, useCallback, useRef, useState } from 'react';
 
-import Popover, { PopoverProps } from './popover';
+import Popover, { PopoverProps } from '@/components/Tooltip/popover';
 
 interface TooltipProps extends Omit<PopoverProps, 'content'> {
   text: string | ReactNode;

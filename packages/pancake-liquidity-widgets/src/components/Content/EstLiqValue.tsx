@@ -27,7 +27,7 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@kyber/ui/accordion";
+} from "@kyber/ui";
 import { useMemo } from "react";
 import { NetworkInfo } from "@/constants";
 import defaultTokenLogo from "@/assets/question.svg?url";

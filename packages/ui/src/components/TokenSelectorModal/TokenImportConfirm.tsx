@@ -3,12 +3,12 @@ import { ChainId, Token } from '@kyber/schema';
 import { getEtherscanLink } from '@kyber/utils';
 import { shortenAddress } from '@kyber/utils/crypto';
 
-import TokenLogo from '../token-logo';
-import { Button } from '../ui/button';
-import IconAlertTriangle from './assets/alert-triangle.svg?react';
-import IconBack from './assets/arrow-left.svg?react';
-import IconExternalLink from './assets/external-link.svg?react';
-import X from './assets/x.svg?react';
+import IconAlertTriangle from '@/components/TokenSelectorModal/assets/alert-triangle.svg?react';
+import IconBack from '@/components/TokenSelectorModal/assets/arrow-left.svg?react';
+import IconExternalLink from '@/components/TokenSelectorModal/assets/external-link.svg?react';
+import X from '@/components/TokenSelectorModal/assets/x.svg?react';
+import TokenLogo from '@/components/token-logo';
+import { Button } from '@/components/ui/button';
 
 const TokenImportConfirm = ({
   chainId,

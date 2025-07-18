@@ -4,7 +4,7 @@ import { API_URLS, ChainId, EarnChain, EarnDex, Exchange } from '@kyber/schema';
 import { enumToArrayOfValues } from '@kyber/utils';
 import { isAddress } from '@kyber/utils/crypto';
 
-import { EarnPosition } from '../types';
+import { EarnPosition } from '@/components/TokenSelectorModal/types';
 
 const earnSupportedChains = enumToArrayOfValues(EarnChain, 'number');
 export const earnSupportedExchanges = enumToArrayOfValues(Exchange);

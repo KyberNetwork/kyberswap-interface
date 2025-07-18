@@ -4,14 +4,14 @@ import html2canvas from 'html2canvas';
 
 import { formatAprNumber, formatDisplayNumber } from '@kyber/utils/number';
 
-import CircleCheckIcon from '../../assets/icons/circle-check.svg?react';
-import CopyIcon from '../../assets/icons/ic_copy.svg?react';
-import DownloadIcon from '../../assets/icons/ic_download.svg?react';
-import KyberLogo from '../../assets/icons/kyber_logo.svg?react';
-import ShareBanner from '../../assets/share-banner.png';
-import '../../styles.css';
-import TokenLogo from '../token-logo';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '../ui/dialog';
+import CircleCheckIcon from '@/assets/icons/circle-check.svg?react';
+import CopyIcon from '@/assets/icons/ic_copy.svg?react';
+import DownloadIcon from '@/assets/icons/ic_download.svg?react';
+import KyberLogo from '@/assets/icons/kyber_logo.svg?react';
+import ShareBanner from '@/assets/share-banner.png';
+import TokenLogo from '@/components/token-logo';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import '@/styles.css';
 
 export enum ShareType {
   POOL_INFO,

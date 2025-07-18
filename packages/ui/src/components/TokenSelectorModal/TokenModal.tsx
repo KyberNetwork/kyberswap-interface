@@ -2,12 +2,12 @@ import { useCallback, useState } from 'react';
 
 import { ChainId, Token } from '@kyber/schema';
 
-import { MAX_TOKENS, TOKEN_SELECT_MODE } from '.';
-import { Dialog, DialogContent } from '../ui/dialog';
-import TokenImportConfirm from './TokenImportConfirm';
-import TokenInfo from './TokenInfo';
-import TokenSelector from './TokenSelector';
-import { useTokenState } from './useTokenState';
+import { MAX_TOKENS, TOKEN_SELECT_MODE } from '@/components/TokenSelectorModal';
+import TokenImportConfirm from '@/components/TokenSelectorModal/TokenImportConfirm';
+import TokenInfo from '@/components/TokenSelectorModal/TokenInfo';
+import TokenSelector from '@/components/TokenSelectorModal/TokenSelector';
+import { useTokenState } from '@/components/TokenSelectorModal/useTokenState';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 
 export interface TokenModalProps {
   tokensIn: Token[];
@@ -96,6 +96,7 @@ const TokenModal = ({
         skipClose
         aria-describedby={undefined}
       >
+        <DialogTitle className="hidden" />
         {tokenToShow ? (
           <TokenInfo token={tokenToShow} chainId={chainId} onGoBack={() => setTokenToShow(null)} />
         ) : tokenToImport ? (

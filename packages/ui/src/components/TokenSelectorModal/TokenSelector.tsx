@@ -5,18 +5,18 @@ import { fetchTokenInfo } from '@kyber/utils';
 import { formatUnits, isAddress } from '@kyber/utils/crypto';
 import { formatWei } from '@kyber/utils/number';
 
-import { MAX_TOKENS, TOKEN_SELECT_MODE } from '.';
-import TokenLogo from '../token-logo';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { TokenModalProps } from './TokenModal';
-import UserPositions from './UserPositions';
-import Check from './assets/check.svg?react';
-import Info from './assets/info.svg?react';
-import IconSearch from './assets/search.svg?react';
-import TrashIcon from './assets/trash.svg?react';
-import X from './assets/x.svg?react';
-import { useTokenState } from './useTokenState';
+import { MAX_TOKENS, TOKEN_SELECT_MODE } from '@/components/TokenSelectorModal';
+import { TokenModalProps } from '@/components/TokenSelectorModal/TokenModal';
+import UserPositions from '@/components/TokenSelectorModal/UserPositions';
+import Check from '@/components/TokenSelectorModal/assets/check.svg?react';
+import Info from '@/components/TokenSelectorModal/assets/info.svg?react';
+import IconSearch from '@/components/TokenSelectorModal/assets/search.svg?react';
+import TrashIcon from '@/components/TokenSelectorModal/assets/trash.svg?react';
+import X from '@/components/TokenSelectorModal/assets/x.svg?react';
+import { useTokenState } from '@/components/TokenSelectorModal/useTokenState';
+import TokenLogo from '@/components/token-logo';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 export enum TOKEN_TAB {
   ALL,

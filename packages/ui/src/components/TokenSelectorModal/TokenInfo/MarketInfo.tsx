@@ -4,12 +4,12 @@ import { useCopy } from '@kyber/hooks';
 import { ChainId, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, Token } from '@kyber/schema';
 import { shortenAddress } from '@kyber/utils/crypto';
 
-import Loader from '../../loader';
-import TokenLogo from '../../token-logo';
-import LogoCoingecko from '../assets/coingecko.svg?react';
-import IconDown from '../assets/down.svg?react';
-import IconZiczac from '../assets/ziczac.svg?react';
-import useMarketTokenInfo from './useMarketTokenInfo';
+import useMarketTokenInfo from '@/components/TokenSelectorModal/TokenInfo/useMarketTokenInfo';
+import LogoCoingecko from '@/components/TokenSelectorModal/assets/coingecko.svg?react';
+import IconDown from '@/components/TokenSelectorModal/assets/down.svg?react';
+import IconZiczac from '@/components/TokenSelectorModal/assets/ziczac.svg?react';
+import Loader from '@/components/loader';
+import TokenLogo from '@/components/token-logo';
 
 const MarketInfo = ({ token, chainId }: { token: Token; chainId: ChainId }) => {
   const tokenAddress = useMemo(

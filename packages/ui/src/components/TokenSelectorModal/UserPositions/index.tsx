@@ -5,13 +5,13 @@ import { enumToArrayOfValues } from '@kyber/utils';
 import { shortenAddress } from '@kyber/utils/crypto';
 import { formatDisplayNumber } from '@kyber/utils/number';
 
-import TokenLogo from '../../token-logo';
-import CircleCheckBig from '../assets/circle-check-big.svg?react';
-import IconCopy from '../assets/copy.svg?react';
-import IconPositionConnectWallet from '../assets/ic_position_connect_wallet.svg?react';
-import IconPositionNotFound from '../assets/ic_position_not_found.svg?react';
-import { EarnPosition, PositionStatus } from '../types';
-import usePositions from './usePositions';
+import usePositions from '@/components/TokenSelectorModal/UserPositions/usePositions';
+import CircleCheckBig from '@/components/TokenSelectorModal/assets/circle-check-big.svg?react';
+import IconCopy from '@/components/TokenSelectorModal/assets/copy.svg?react';
+import IconPositionConnectWallet from '@/components/TokenSelectorModal/assets/ic_position_connect_wallet.svg?react';
+import IconPositionNotFound from '@/components/TokenSelectorModal/assets/ic_position_not_found.svg?react';
+import { EarnPosition, PositionStatus } from '@/components/TokenSelectorModal/types';
+import TokenLogo from '@/components/token-logo';
 
 const COPY_TIMEOUT = 2000;
 let hideCopied: ReturnType<typeof setTimeout>;
