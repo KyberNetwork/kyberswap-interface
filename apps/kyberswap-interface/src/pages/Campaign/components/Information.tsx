@@ -135,6 +135,17 @@ const howToEarnPoints = (week: number) => ({
         attributed to the <b>destination wallet.</b>
       </span>
       <li>
+        <b>User reward = (User Points/Total Points) * Weekly Prize Pool</b>
+        <ul style={{ margin: 0 }}>
+          <li>User Points: Points earned within the $100,000 volume cap</li>
+          <li>Total Points: Combined points from all participants </li>
+          <li>
+            Example: A user earns 100 points. Total participant points = 1,000. Weekly reward pool = $20,000. User
+            reward = (100 / 1,000) × 20,000 = $2,000.
+          </li>
+        </ul>
+      </li>
+      <li>
         Each user has a maximum eligible volume cap of 100,000 USD per week. For example:
         <ul style={{ margin: 0 }}>
           <li>
@@ -338,7 +349,7 @@ const timelines = {
   [CampaignType.NearIntents]: (
     <>
       The campaign will take place over 2 weeks:
-      <li>Week 1: 0h00 UTC 21st July - 23h59 UTC 27th August.</li>
+      <li>Week 1: 0h00 UTC 21st July - 23h59 UTC 27th July.</li>
       <li>Week 2: 0h00 UTC 28th July - 23h59 UTC 3rd August.</li>
     </>
   ),
@@ -904,7 +915,7 @@ export default function Information({ type, week }: { type: CampaignType; week: 
       <Flex justifyContent="space-between">
         <Flex fontSize={20} sx={{ gap: '4px' }} alignItems="center">
           <Star color={theme.warning} fill={theme.warning} />
-          How to earn points
+          {type === CampaignType.NearIntents ? 'How to participate?' : 'How to earn points'}
         </Flex>
 
         <ButtonIcon onClick={() => setIsShowRule(prev => !prev)}>
