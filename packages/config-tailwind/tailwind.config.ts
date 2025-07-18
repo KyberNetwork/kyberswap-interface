@@ -42,6 +42,7 @@ const config: Omit<Config, "content"> = {
         },
         accent: {
           DEFAULT: "var(--ks-lw-accent)",
+          200: "#31cb9e33",
         },
         foreground: "hsl(var(--foreground))",
       },

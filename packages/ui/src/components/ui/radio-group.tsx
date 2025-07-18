@@ -4,7 +4,7 @@ import * as RadioGroupPrimitive from '@radix-ui/react-radio-group';
 
 import { cn } from '@kyber/utils/tailwind-helpers';
 
-import Circle from '../icons/circle.svg?react';
+import Circle from '@/assets/icons/circle.svg?react';
 
 const RadioGroup = React.forwardRef<
   React.ElementRef<typeof RadioGroupPrimitive.Root>,

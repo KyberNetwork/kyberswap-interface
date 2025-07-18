@@ -16,7 +16,7 @@ import {
   univ3Types,
   univ4Types,
 } from '@kyber/schema';
-import { InfoHelper } from '@kyber/ui';
+import { InfoHelper, MAX_TOKENS, TOKEN_SELECT_MODE, TokenSelectorModal } from '@kyber/ui';
 import { getNftManagerContractAddress, getPoolPrice } from '@kyber/utils';
 import { formatDisplayNumber } from '@kyber/utils/number';
 
@@ -36,9 +36,6 @@ import PositionLiquidity from '@/components/PositionLiquidity';
 import Preview from '@/components/Preview';
 import PriceRange from '@/components/PriceRange';
 import Setting from '@/components/Setting';
-import { TOKEN_SELECT_MODE } from '@/components/TokenSelector';
-import TokenSelectorModal from '@/components/TokenSelector/TokenSelectorModal';
-import { MAX_ZAP_IN_TOKENS } from '@/constants';
 import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
@@ -47,7 +44,18 @@ import { PriceType } from '@/types/index';
 import { checkDeviated } from '@/utils';
 
 export default function Widget() {
-  const { theme, poolType, chainId, poolAddress, connectedAccount, onClose, positionId, onSubmitTx } = useWidgetStore(
+  const {
+    theme,
+    poolType,
+    chainId,
+    poolAddress,
+    connectedAccount,
+    onClose,
+    positionId,
+    onSubmitTx,
+    onConnectWallet,
+    onOpenZapMigration,
+  } = useWidgetStore(
     useShallow(s => ({
       theme: s.theme,
       poolType: s.poolType,
@@ -57,6 +65,8 @@ export default function Widget() {
       onClose: s.onClose,
       positionId: s.positionId,
       onSubmitTx: s.onSubmitTx,
+      onConnectWallet: s.onConnectWallet,
+      onOpenZapMigration: s.onOpenZapMigration,
     })),
   );
   const { position } = usePositionStore(useShallow(s => ({ position: s.position })));
@@ -75,9 +85,20 @@ export default function Widget() {
     chainId,
     poolType,
   });
-  const { zapInfo, tickLower, tickUpper, tokensIn, snapshotState, setSnapshotState } = useZapState();
+  const {
+    zapInfo,
+    tickLower,
+    tickUpper,
+    tokensIn,
+    amountsIn,
+    setTokensIn,
+    setAmountsIn,
+    snapshotState,
+    setSnapshotState,
+  } = useZapState();
 
   const [openTokenSelectModal, setOpenTokenSelectModal] = useState(false);
+  const [tokenAddressSelected, setTokenAddressSelected] = useState<string | undefined>();
 
   const initializing = pool === 'loading';
   const { token0 = defaultToken, token1 = defaultToken } = !initializing ? pool : {};
@@ -159,8 +180,26 @@ export default function Widget() {
     getPoolStat({ poolAddress, chainId });
   }, [getPool, poolAddress, chainId, poolType, getPoolStat]);
 
-  const onOpenTokenSelectModal = () => setOpenTokenSelectModal(true);
-  const onCloseTokenSelectModal = () => setOpenTokenSelectModal(false);
+  const handleOpenZapMigration = useCallback(
+    (position: { exchange: string; poolId: string; positionId: string | number }) =>
+      onOpenZapMigration
+        ? onOpenZapMigration(
+            position,
+            tickLower !== null && tickUpper !== null
+              ? {
+                  tickLower,
+                  tickUpper,
+                }
+              : undefined,
+          )
+        : undefined,
+    [onOpenZapMigration, tickLower, tickUpper],
+  );
+
+  const onCloseTokenSelectModal = () => {
+    setOpenTokenSelectModal(false);
+    setTokenAddressSelected(undefined);
+  };
 
   const addLiquiditySection = (
     <>
@@ -169,15 +208,22 @@ export default function Widget() {
         {initializing || !tokensIn.length ? (
           <LiquidityToAddSkeleton />
         ) : (
-          tokensIn.map((_, tokenIndex: number) => <LiquidityToAdd tokenIndex={tokenIndex} key={tokenIndex} />)
+          tokensIn.map((_, tokenIndex: number) => (
+            <LiquidityToAdd
+              tokenIndex={tokenIndex}
+              key={tokenIndex}
+              setOpenTokenSelectModal={setOpenTokenSelectModal}
+              setTokenAddressSelected={setTokenAddressSelected}
+            />
+          ))
         )}
       </div>
 
-      <div className="my-3 text-accent cursor-pointer w-fit text-sm" onClick={onOpenTokenSelectModal}>
+      <div className="my-3 text-accent cursor-pointer w-fit text-sm" onClick={() => setOpenTokenSelectModal(true)}>
         + Add Token(s) or Use Existing Position
         <InfoHelper
           placement="bottom"
-          text={`You can either zap in with up to ${MAX_ZAP_IN_TOKENS} tokens or select an existing position as the liquidity source`}
+          text={`You can either zap in with up to ${MAX_TOKENS} tokens or select an existing position as the liquidity source`}
           color={theme.accent}
           width="300px"
           style={{
@@ -216,7 +262,25 @@ export default function Widget() {
         </Modal>
       )}
 
-      {openTokenSelectModal && <TokenSelectorModal mode={TOKEN_SELECT_MODE.ADD} onClose={onCloseTokenSelectModal} />}
+      {openTokenSelectModal && (
+        <TokenSelectorModal
+          tokensIn={tokensIn}
+          amountsIn={amountsIn}
+          setTokensIn={setTokensIn}
+          setAmountsIn={setAmountsIn}
+          account={connectedAccount?.address}
+          chainId={chainId}
+          mode={tokenAddressSelected ? TOKEN_SELECT_MODE.SELECT : TOKEN_SELECT_MODE.ADD}
+          selectedTokenAddress={tokenAddressSelected}
+          positionId={positionId}
+          poolAddress={poolAddress}
+          onConnectWallet={onConnectWallet}
+          onOpenZapMigration={handleOpenZapMigration}
+          onClose={onCloseTokenSelectModal}
+          token0Address={token0.address}
+          token1Address={token1.address}
+        />
+      )}
 
       <div className={`p-6 ${snapshotState ? 'hidden' : ''}`}>
         <Header refetchData={refetchData} />

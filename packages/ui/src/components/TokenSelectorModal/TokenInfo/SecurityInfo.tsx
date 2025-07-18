@@ -1,14 +1,14 @@
 import { useMemo } from 'react';
 
 import { ChainId, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, Token } from '@kyber/schema';
-import { MouseoverTooltip } from '@kyber/ui';
 
-import LogoGoPlus from '@/assets/svg/goplus.svg';
-import IconSecurityContract from '@/assets/svg/security-contract.svg';
-import IconSecurityTrading from '@/assets/svg/security-trading.svg';
-import IconSecurity from '@/assets/svg/security.svg';
-import CollapseInfoItem from '@/components/TokenInfo/CollapseInfoItem';
-import useSecurityTokenInfo from '@/components/TokenInfo/useSecurityTokenInfo';
+import CollapseInfoItem from '@/components/TokenSelectorModal/TokenInfo/CollapseInfoItem';
+import useSecurityTokenInfo from '@/components/TokenSelectorModal/TokenInfo/useSecurityTokenInfo';
+import LogoGoPlus from '@/components/TokenSelectorModal/assets/goplus.svg?react';
+import IconSecurityContract from '@/components/TokenSelectorModal/assets/security-contract.svg?react';
+import IconSecurityTrading from '@/components/TokenSelectorModal/assets/security-trading.svg?react';
+import IconSecurity from '@/components/TokenSelectorModal/assets/security.svg?react';
+import { MouseoverTooltip } from '@/components/Tooltip';
 
 const SecurityInfo = ({ token, chainId }: { token: Token; chainId: ChainId }) => {
   const tokenAddress = useMemo(
@@ -22,7 +22,7 @@ const SecurityInfo = ({ token, chainId }: { token: Token; chainId: ChainId }) =>
     [token, chainId],
   );
 
-  const { securityInfo, loading } = useSecurityTokenInfo(tokenAddress);
+  const { securityInfo, loading } = useSecurityTokenInfo({ tokenAddress, chainId });
 
   return (
     <>

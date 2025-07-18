@@ -2,6 +2,7 @@ import { useState } from 'react';
 
 import { useShallow } from 'zustand/shallow';
 
+import { useCopy } from '@kyber/hooks';
 import {
   DEXES_INFO,
   NATIVE_TOKEN_ADDRESS,
@@ -13,14 +14,13 @@ import {
   univ3Position,
 } from '@kyber/schema';
 import { InfoHelper, MouseoverTooltip, ShareModal, ShareType, Skeleton, TokenLogo } from '@kyber/ui';
+import { shortenAddress } from '@kyber/utils/crypto';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
 import ShareIcon from '@/assets/svg/ic_share.svg';
 import SettingIcon from '@/assets/svg/setting.svg';
 import X from '@/assets/svg/x.svg';
 import RefreshLoading from '@/components/Header/RefreshLoading';
-import { shortenAddress } from '@/components/TokenInfo/utils';
-import useCopy from '@/hooks/useCopy';
 import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';

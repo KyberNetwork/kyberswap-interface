@@ -1,6 +1,6 @@
 import { cn } from '@kyber/utils/tailwind-helpers';
 
-import UnknownToken from '../assets/unknown-token.svg?url';
+import UnknownToken from '@/assets/unknown-token.svg?url';
 
 const TokenLogo = ({
   src,

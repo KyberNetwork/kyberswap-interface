@@ -13,7 +13,7 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@kyber/ui/accordion";
+} from "@kyber/ui";
 import { formatUnits } from "@kyber/utils/crypto";
 import { formatDisplayNumber, formatTokenAmount } from "@kyber/utils/number";
 import { useMemo, useState } from "react";

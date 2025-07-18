@@ -1,4 +1,4 @@
-import { ReactNode, createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 import { useShallow } from 'zustand/shallow';
 
@@ -14,14 +14,14 @@ import {
   univ3Position,
   univ3Types,
 } from '@kyber/schema';
-import { parseUnits } from '@kyber/utils/crypto';
+import { fetchTokens } from '@kyber/utils';
+import { getTokenBalances, parseUnits } from '@kyber/utils/crypto';
 import { formatNumber, formatWei } from '@kyber/utils/number';
 import { tickToPrice } from '@kyber/utils/uniswapv3';
 
 import { ERROR_MESSAGE } from '@/constants';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
-import { useTokenStore } from '@/stores/useTokenStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 import { ZapState } from '@/types/index';
 import { parseTokensAndAmounts, validateData } from '@/utils';
@@ -41,7 +41,7 @@ const ZapContext = createContext<{
   highlightDegenMode: boolean;
   showSetting: boolean;
   degenMode: boolean;
-  balanceTokens: {
+  tokenBalances: {
     [key: string]: bigint;
   };
   tokenPrices: { [key: string]: number };
@@ -72,7 +72,7 @@ const ZapContext = createContext<{
   ttl: 20, // 20min
   showSetting: false,
   degenMode: false,
-  balanceTokens: {},
+  tokenBalances: {},
   tokenPrices: {},
   snapshotState: null,
   setTokensIn: (_value: Token[]) => {},
@@ -126,25 +126,12 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
   const { pool, revertPrice, toggleRevertPrice } = usePoolStore(
     useShallow(s => ({ pool: s.pool, revertPrice: s.revertPrice, toggleRevertPrice: s.toggleRevertPrice })),
   );
-  const { tokens, importedTokens } = useTokenStore(
-    useShallow(s => ({
-      tokens: s.tokens,
-      importedTokens: s.importedTokens,
-    })),
-  );
 
-  const allTokens = useMemo(() => [...tokens, ...importedTokens], [tokens, importedTokens]);
   const excludedSources = aggregatorOptions?.excludedSources?.join(',');
   const includedSources = aggregatorOptions?.includedSources?.join(',');
   const account = connectedAccount?.address;
   const networkChainId = connectedAccount?.chainId;
   const { feePcm, feeAddress } = feeConfig || {};
-
-  const { balances } = useTokenBalances(
-    chainId,
-    allTokens.map(item => item.address),
-    account,
-  );
 
   const [showSetting, setShowSeting] = useState(false);
   const [slippage, setSlippage] = useState(50);
@@ -161,6 +148,12 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
   const [highlightDegenMode, setHighlightDegenMode] = useState(false);
   const [defaultRevertChecked, setDefaultRevertChecked] = useState(false);
   const [snapshotState, setSnapshotState] = useState<ZapState | null>(null);
+
+  const { balances } = useTokenBalances(
+    chainId,
+    tokensIn.map(item => item.address),
+    account,
+  );
 
   const debounceTickLower = useDebounce(tickLower, 300);
   const debounceTickUpper = useDebounce(tickUpper, 300);
@@ -244,6 +237,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // set tick if position exists
   useEffect(() => {
     if (position) {
       const { success: isUniV3Position, data } = univ3Position.safeParse(position);
@@ -255,24 +249,21 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [position]);
 
-  // set default tokens in
-  useEffect(() => {
+  const setDefaultTokensIn = useCallback(async () => {
     if (!pool || initializing || tokensIn.length) return;
 
     // with params
-    if (initDepositTokens && allTokens.length) {
-      const listInitTokens = initDepositTokens
-        .split(',')
-        .map((address: string) => allTokens.find(token => token.address.toLowerCase() === address.toLowerCase()))
-        .filter(item => !!item);
+    if (initDepositTokens) {
+      const tokens = await fetchTokens(initDepositTokens?.split(',') || [], chainId);
+
       const listInitAmounts = initAmounts?.split(',') || [];
       const parseListAmountsIn: string[] = [];
 
-      if (listInitTokens.length) {
-        listInitTokens.forEach((_, index: number) => {
+      if (tokens.length) {
+        tokens.forEach((_, index: number) => {
           parseListAmountsIn.push(listInitAmounts[index] || '');
         });
-        setTokensIn(listInitTokens as Token[]);
+        setTokensIn(tokens as Token[]);
         setAmountsIn(parseListAmountsIn.join(','));
         return;
       }
@@ -284,34 +275,32 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
     }
 
     // with balance
-    const token0Address = pool.token0.address.toLowerCase();
-    const token1Address = pool.token1.address.toLowerCase();
-
-    if (!initDepositTokens && token0Address in balances && token1Address in balances) {
+    if (!initDepositTokens && account) {
       const tokensToSet = [];
 
-      const token0Balance = formatWei(balances[token0Address]?.toString() || '0', pool.token0.decimals);
-      const token1Balance = formatWei(balances[token1Address]?.toString() || '0', pool.token1.decimals);
+      const token0Address = pool.token0.address.toLowerCase();
+      const token1Address = pool.token1.address.toLowerCase();
+      const pairBalance = await getTokenBalances({
+        tokenAddresses: [token0Address, token1Address],
+        chainId,
+        account,
+      });
+
+      const token0Balance = formatWei(pairBalance[token0Address]?.toString() || '0', pool.token0.decimals);
+      const token1Balance = formatWei(pairBalance[token1Address]?.toString() || '0', pool.token1.decimals);
       if (parseFloat(token0Balance) > 0) tokensToSet.push(pool.token0);
       if (parseFloat(token1Balance) > 0) tokensToSet.push(pool.token1);
       if (!tokensToSet.length) tokensToSet.push(nativeToken);
 
       setTokensIn(tokensToSet as Token[]);
     }
-  }, [
-    pool,
-    tokensIn,
-    nativeToken,
-    chainId,
-    balances,
-    initDepositTokens,
-    allTokens,
-    initAmounts,
-    account,
-    wrappedNativeToken?.address,
-    initializing,
-  ]);
+  }, [account, chainId, initAmounts, initDepositTokens, initializing, nativeToken, pool, tokensIn.length]);
 
+  useEffect(() => {
+    setDefaultTokensIn();
+  }, [setDefaultTokensIn]);
+
+  // check pair to revert
   useEffect(() => {
     if (initializing || defaultRevertChecked) return;
     setDefaultRevertChecked(true);
@@ -453,7 +442,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
         showSetting,
         degenMode,
         setDegenMode,
-        balanceTokens: balances,
+        tokenBalances: balances,
         tokenPrices,
         highlightDegenMode,
         setManualSlippage,

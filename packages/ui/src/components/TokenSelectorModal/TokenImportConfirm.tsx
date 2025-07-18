@@ -1,69 +1,33 @@
-import { Token } from '@kyber/schema';
-import { Button, TokenLogo } from '@kyber/ui';
+import { useCopy } from '@kyber/hooks';
+import { ChainId, Token } from '@kyber/schema';
 import { getEtherscanLink } from '@kyber/utils';
+import { shortenAddress } from '@kyber/utils/crypto';
 
-import IconAlertTriangle from '@/assets/svg/alert-triangle.svg';
-import IconBack from '@/assets/svg/arrow-left.svg';
-import IconExternalLink from '@/assets/svg/external-link.svg';
-import X from '@/assets/svg/x.svg';
-import { shortenAddress } from '@/components/TokenInfo/utils';
-import { MAX_ZAP_IN_TOKENS } from '@/constants';
-import useCopy from '@/hooks/useCopy';
-import { useZapState } from '@/hooks/useZapState';
-import { useTokenStore } from '@/stores/useTokenStore';
-import { useWidgetStore } from '@/stores/useWidgetStore';
-
-import { TOKEN_SELECT_MODE } from '.';
+import IconAlertTriangle from '@/components/TokenSelectorModal/assets/alert-triangle.svg?react';
+import IconBack from '@/components/TokenSelectorModal/assets/arrow-left.svg?react';
+import IconExternalLink from '@/components/TokenSelectorModal/assets/external-link.svg?react';
+import X from '@/components/TokenSelectorModal/assets/x.svg?react';
+import TokenLogo from '@/components/token-logo';
+import { Button } from '@/components/ui/button';
 
 const TokenImportConfirm = ({
+  chainId,
   token,
-  mode,
-  selectedTokenAddress,
-  selectedTokens,
-  setTokenToImport,
+  handleConfirmImportToken,
   onGoBack,
   onClose,
 }: {
+  chainId: ChainId;
   token: Token;
-  mode: TOKEN_SELECT_MODE;
-  selectedTokenAddress?: string;
-  selectedTokens?: Token[];
-  setTokenToImport: (token: Token | null) => void;
+  handleConfirmImportToken: () => void;
   onGoBack: () => void;
   onClose: () => void;
 }) => {
-  const { tokensIn, setTokensIn, amountsIn, setAmountsIn } = useZapState();
-  const chainId = useWidgetStore(s => s.chainId);
-  const importToken = useTokenStore(s => s.importToken);
   const Copy = useCopy({ text: token.address });
 
   const handleOpenExternalLink = () => {
     const externalLink = getEtherscanLink(chainId, token.address, 'address');
     if (externalLink && window) window.open(externalLink, '_blank');
-  };
-
-  const handleAddToken = () => {
-    importToken(token);
-    if (mode === TOKEN_SELECT_MODE.SELECT) {
-      const index = tokensIn.findIndex((tokenIn: Token) => tokenIn.address === selectedTokenAddress);
-      if (index > -1) {
-        const clonedTokensIn = [...tokensIn];
-        clonedTokensIn[index] = token;
-        setTokensIn(clonedTokensIn);
-
-        const listAmountsIn = amountsIn.split(',');
-        listAmountsIn[index] = '';
-        setAmountsIn(listAmountsIn.join(','));
-
-        onClose();
-      }
-    } else if ((selectedTokens || []).length < MAX_ZAP_IN_TOKENS) {
-      const clonedTokensIn = [...tokensIn];
-      clonedTokensIn.push(token);
-      setTokensIn(clonedTokensIn);
-      setAmountsIn(`${amountsIn},`);
-    }
-    setTokenToImport(null);
   };
 
   return (
@@ -93,7 +57,7 @@ const TokenImportConfirm = ({
             </p>
           </div>
         </div>
-        <Button className="ks-primary-btn" onClick={handleAddToken}>
+        <Button className="ks-primary-btn" onClick={handleConfirmImportToken}>
           I understand
         </Button>
       </div>

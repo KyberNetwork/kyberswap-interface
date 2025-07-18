@@ -1,21 +1,17 @@
 import { useMemo, useState } from 'react';
 
-import { useShallow } from 'zustand/shallow';
+import { useCopy } from '@kyber/hooks';
+import { ChainId, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, Token } from '@kyber/schema';
+import { shortenAddress } from '@kyber/utils/crypto';
 
-import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, Token } from '@kyber/schema';
-import { Loader, TokenLogo } from '@kyber/ui';
+import useMarketTokenInfo from '@/components/TokenSelectorModal/TokenInfo/useMarketTokenInfo';
+import LogoCoingecko from '@/components/TokenSelectorModal/assets/coingecko.svg?react';
+import IconDown from '@/components/TokenSelectorModal/assets/down.svg?react';
+import IconZiczac from '@/components/TokenSelectorModal/assets/ziczac.svg?react';
+import Loader from '@/components/loader';
+import TokenLogo from '@/components/token-logo';
 
-import LogoCoingecko from '@/assets/svg/coingecko.svg';
-import IconDown from '@/assets/svg/down.svg';
-import IconZiczac from '@/assets/svg/ziczac.svg';
-import useMarketTokenInfo from '@/components/TokenInfo/useMarketTokenInfo';
-import { shortenAddress } from '@/components/TokenInfo/utils';
-import useCopy from '@/hooks/useCopy';
-import { useWidgetStore } from '@/stores/useWidgetStore';
-
-const MarketInfo = ({ token }: { token: Token }) => {
-  const { theme, chainId } = useWidgetStore(useShallow(s => ({ theme: s.theme, chainId: s.chainId })));
-
+const MarketInfo = ({ token, chainId }: { token: Token; chainId: ChainId }) => {
   const tokenAddress = useMemo(
     () =>
       (token?.address
@@ -32,14 +28,14 @@ const MarketInfo = ({ token }: { token: Token }) => {
     successClassName: 'w-3 h-3',
   });
 
-  const { marketTokenInfo, loading } = useMarketTokenInfo(tokenAddress);
+  const { marketTokenInfo, loading } = useMarketTokenInfo({ tokenAddress, chainId });
   const [expand, setExpand] = useState<boolean>(false);
 
   const handleChangeExpand = () => setExpand(prev => !prev);
 
   return (
     <>
-      <div className="flex items-center justify-between px-4 py-2 text-text" style={{ background: `${theme.icons}33` }}>
+      <div className="flex items-center justify-between px-4 py-2 text-text bg-icon-200">
         <div className="flex items-center gap-2">
           {' '}
           <IconZiczac className="h-6 w-6" />
@@ -54,7 +50,7 @@ const MarketInfo = ({ token }: { token: Token }) => {
           expand ? 'h-[226px]' : 'h-[86px]'
         }`}
       >
-        {(marketTokenInfo || []).map(item => (
+        {(marketTokenInfo || []).map((item: any) => (
           <div key={item.label} className="flex items-center justify-between text-xs">
             <span className="text-subText">{item.label}</span>
             <span>{loading ? <Loader className="animate-spin w-[10px] h-[10px]" /> : item.value}</span>

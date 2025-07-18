@@ -9,7 +9,6 @@ import Widget from '@/Widget';
 import { ZapContextProvider } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
-import { useTokenStore } from '@/stores/useTokenStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 import { WidgetProps } from '@/types/index';
 
@@ -50,17 +49,7 @@ const LiquidityWidget = (widgetProps: WidgetProps) => {
     getPoolStat,
     reset: resetPoolStore,
   } = usePoolStore(useShallow(s => ({ pool: s.pool, getPool: s.getPool, getPoolStat: s.getPoolStat, reset: s.reset })));
-  const {
-    fetchImportedTokens,
-    fetchTokens,
-    reset: resetTokenStore,
-  } = useTokenStore(
-    useShallow(s => ({
-      fetchImportedTokens: s.fetchImportedTokens,
-      fetchTokens: s.fetchTokens,
-      reset: s.reset,
-    })),
-  );
+
   const { getPosition, reset: resetPositionStore } = usePositionStore(
     useShallow(s => ({ getPosition: s.getPosition, reset: s.reset })),
   );
@@ -69,10 +58,9 @@ const LiquidityWidget = (widgetProps: WidgetProps) => {
 
   const resetStore = useCallback(() => {
     resetPoolStore();
-    resetTokenStore();
     resetPositionStore();
     resetWidgetStore();
-  }, [resetPoolStore, resetTokenStore, resetPositionStore, resetWidgetStore]);
+  }, [resetPoolStore, resetPositionStore, resetWidgetStore]);
 
   useEffect(() => {
     return () => resetStore();
@@ -81,10 +69,6 @@ const LiquidityWidget = (widgetProps: WidgetProps) => {
   useEffect(() => {
     setInitiaWidgetState(widgetProps, resetStore);
   }, [widgetProps, setInitiaWidgetState, resetStore]);
-
-  useEffect(() => {
-    fetchImportedTokens();
-  }, [fetchImportedTokens]);
 
   useEffect(() => {
     getPool({ poolAddress, chainId, poolType });
@@ -97,10 +81,6 @@ const LiquidityWidget = (widgetProps: WidgetProps) => {
   useEffect(() => {
     if (firstFetch || pool === 'loading' || !pool) return;
 
-    fetchTokens({
-      chainId,
-      defaultAddresses: `${pool.token0.address},${pool.token1.address}`,
-    });
     getPosition({
       positionId,
       chainId,
@@ -111,7 +91,7 @@ const LiquidityWidget = (widgetProps: WidgetProps) => {
     });
     if (positionId) setPositionId(positionId);
     setFirstFetch(true);
-  }, [chainId, connectedAccount, fetchTokens, firstFetch, getPosition, pool, poolType, positionId, setPositionId]);
+  }, [chainId, connectedAccount, firstFetch, getPosition, pool, poolType, positionId, setPositionId]);
 
   useEffect(() => {
     if (!theme) return;

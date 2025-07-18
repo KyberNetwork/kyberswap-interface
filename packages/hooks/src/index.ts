@@ -9,3 +9,4 @@ export * from './use-on-click-outside';
 export * from './use-token-balances';
 export * from './use-nft-approval';
 export * from './use-previous';
+export * from './use-copy';
