@@ -16,7 +16,7 @@ import {
   univ3Types,
   univ4Types,
 } from '@kyber/schema';
-import { InfoHelper } from '@kyber/ui';
+import { InfoHelper, MAX_TOKENS, TOKEN_SELECT_MODE, TokenSelectorModal } from '@kyber/ui';
 import { getNftManagerContractAddress, getPoolPrice } from '@kyber/utils';
 import { formatDisplayNumber } from '@kyber/utils/number';
 
@@ -36,21 +36,12 @@ import PositionLiquidity from '@/components/PositionLiquidity';
 import Preview from '@/components/Preview';
 import PriceRange from '@/components/PriceRange';
 import Setting from '@/components/Setting';
-import TokenSelectorModal from '@/components/TokenSelectorModal';
-import { TOKEN_SELECT_MODE } from '@/components/TokenSelectorModal/TokenSelector';
-import { MAX_ZAP_IN_TOKENS } from '@/constants';
 import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 import { PriceType } from '@/types/index';
 import { checkDeviated } from '@/utils';
-
-export interface PositionToMigrate {
-  exchange: string;
-  poolId: string;
-  positionId: string | number;
-}
 
 export default function Widget() {
   const {
@@ -190,7 +181,7 @@ export default function Widget() {
   }, [getPool, poolAddress, chainId, poolType, getPoolStat]);
 
   const handleOpenZapMigration = useCallback(
-    (position: PositionToMigrate) =>
+    (position: { exchange: string; poolId: string; positionId: string | number }) =>
       onOpenZapMigration
         ? onOpenZapMigration(
             position,
@@ -232,7 +223,7 @@ export default function Widget() {
         + Add Token(s) or Use Existing Position
         <InfoHelper
           placement="bottom"
-          text={`You can either zap in with up to ${MAX_ZAP_IN_TOKENS} tokens or select an existing position as the liquidity source`}
+          text={`You can either zap in with up to ${MAX_TOKENS} tokens or select an existing position as the liquidity source`}
           color={theme.accent}
           width="300px"
           style={{
