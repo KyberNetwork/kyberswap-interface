@@ -11,8 +11,7 @@ import KyberLogo from '../../assets/icons/kyber_logo.svg?react';
 import ShareBanner from '../../assets/share-banner.png';
 import '../../styles.css';
 import TokenLogo from '../token-logo';
-import { DialogContent, DialogFooter, DialogHeader, DialogTitle } from '../ui/dialog';
-import { Dialog } from '../ui/dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '../ui/dialog';
 
 export enum ShareType {
   POOL_INFO,
