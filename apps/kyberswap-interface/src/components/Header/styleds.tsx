@@ -11,21 +11,29 @@ interface Props extends NavLinkProps {
   activeClassName?: string
   activeStyle?: CSSProperties
   $disabled?: boolean
+  customActive?: boolean
+  isCustomActive?: boolean
 }
 // fix warning of activeClassName: https://reactrouter.com/en/6.4.5/upgrading/v5#remove-activeclassname-and-activestyle-props-from-navlink-
-const NavLink = forwardRef(({ activeClassName, activeStyle, ...props }: Props, ref: any) => {
-  return (
-    <BaseNavLink
-      ref={ref}
-      {...props}
-      className={({ isActive }) => [props.className, isActive ? activeClassName : null].filter(Boolean).join(' ')}
-      style={({ isActive }) => ({
-        ...props.style,
-        ...(isActive ? activeStyle : null),
-      })}
-    />
-  )
-})
+const NavLink = forwardRef(
+  ({ activeClassName, activeStyle, customActive, isCustomActive, ...props }: Props, ref: any) => {
+    return (
+      <BaseNavLink
+        ref={ref}
+        {...props}
+        className={({ isActive }) =>
+          [props.className, (customActive ? isCustomActive : isActive) ? activeClassName : null]
+            .filter(Boolean)
+            .join(' ')
+        }
+        style={({ isActive }) => ({
+          ...props.style,
+          ...((customActive ? isCustomActive : isActive) ? activeStyle : null),
+        })}
+      />
+    )
+  },
+)
 
 NavLink.displayName = 'NavLink'
 

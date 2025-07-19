@@ -1,35 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
+import { useOnClickOutside } from '@kyber/hooks';
+import { MouseoverTooltip, Toggle } from '@kyber/ui';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
 import X from '@/assets/svg/x.svg';
 import Modal from '@/components/Modal';
 import SlippageInput from '@/components/Setting/SlippageInput';
-import Toggle from '@/components/Toggle';
-import { MouseoverTooltip } from '@/components/Tooltip';
-import { useOnClickOutside } from '@/hooks/useOnClickOutside';
-import { useZapState } from '@/hooks/useZapInState';
-
-const validateDeadlineString = (str: string): boolean => {
-  const value = Number.parseInt(str, 10);
-
-  // must not be longer than 10000 (5 chars)
-  if (str.length > '10000'.length) {
-    return false;
-  }
-
-  // must be an integer
-  if (Number.isNaN(value) || String(Math.floor(value)) !== str) {
-    return false;
-  }
-
-  // must be in (0, 1000)
-  if (0 < value && value < 10000) {
-    return true;
-  }
-
-  return false;
-};
+import { validateDeadlineString } from '@/components/Setting/utils';
+import { useZapState } from '@/hooks/useZapState';
 
 export default function Setting() {
   const { showSetting, ttl, setTtl, toggleSetting, degenMode, setDegenMode, highlightDegenMode } = useZapState();
@@ -53,7 +32,7 @@ export default function Setting() {
       if (!isValid) setDeadline(20);
       toggleSetting();
     }
-  });
+  }, ['setting', 'ks-lw-modal-overlay', 'kyber-portal']);
 
   if (!showSetting) return null;
 
@@ -110,11 +89,12 @@ export default function Setting() {
           </div>
         </div>
       </Modal>
-      <div className="absolute right-6 top-[116px] bg-layer2 p-5 rounded-md min-w-[320px]" ref={ref}>
+      <div className="absolute right-6 top-[116px] bg-layer2 p-5 rounded-md min-w-[330px]" ref={ref}>
         <div className="text-base font-medium mb-5">Advanced Setting</div>
         <MouseoverTooltip
           text="Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price. Please use with caution!"
           width="220px"
+          className="w-fit"
         >
           <div className="text-sm border-b border-dotted border-subText">Slippage Tolerance</div>
         </MouseoverTooltip>

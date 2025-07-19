@@ -1,4 +1,4 @@
-import { Input as KyberInput, InputProps } from "@kyber/ui/input";
+import { Input as KyberInput, InputProps } from "@kyber/ui";
 import { cn } from "@kyber/utils/tailwind-helpers";
 
 const Input = ({ className, ...props }: InputProps) => (

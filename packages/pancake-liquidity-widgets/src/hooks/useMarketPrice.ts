@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { NATIVE_TOKEN_ADDRESS, NetworkInfo } from "@/constants";
 import { useWeb3Provider } from "@/hooks/useProvider";
 import { PancakeTokenAdvanced } from "@/types/zapInTypes";
-import { useTokenPrices } from "@kyber/hooks/use-token-prices";
+import { fetchTokenPrice } from "@kyber/utils";
 
 export interface Price {
   address: string;
@@ -15,7 +15,6 @@ export default function useMarketPrice({
   tokens: PancakeTokenAdvanced[];
 }) {
   const { chainId } = useWeb3Provider();
-  const { fetchPrices } = useTokenPrices({ addresses: [], chainId });
   const [prices, setPrices] = useState<Array<Price>>([]);
 
   const tokensAddress = useMemo(
@@ -34,9 +33,10 @@ export default function useMarketPrice({
     const getPrices = () => {
       if (!tokensAddress) return;
 
-      fetchPrices(
-        tokensAddress.split(",").map((item) => item.toLowerCase())
-      ).then((prices) => {
+      fetchTokenPrice({
+        addresses: tokensAddress.split(",").map((item) => item.toLowerCase()),
+        chainId,
+      }).then((prices) => {
         const newPrices: Array<Price> = [];
         Object.keys(prices).forEach((key) => {
           newPrices.push({
@@ -52,7 +52,7 @@ export default function useMarketPrice({
     const i = setInterval(() => getPrices, 30 * 1_000);
 
     return () => clearInterval(i);
-  }, [fetchPrices, tokensAddress]);
+  }, [chainId, tokensAddress]);
 
   return prices;
 }

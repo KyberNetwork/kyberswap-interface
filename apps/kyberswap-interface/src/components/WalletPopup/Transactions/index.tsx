@@ -221,7 +221,7 @@ function ListTransaction({ isMinimal }: { isMinimal: boolean }) {
 
   useEffect(() => {
     if (!isLoadedTokenDefault) return
-    const list: string[] = listTokenAddress.current.filter(address => !findCacheToken(address))
+    const list: string[] = listTokenAddress.current.filter(address => !findCacheToken(address, chainId))
     if (list.length) fetchListTokenByAddresses(list, chainId).catch(console.error)
   }, [total, isLoadedTokenDefault, chainId])
 

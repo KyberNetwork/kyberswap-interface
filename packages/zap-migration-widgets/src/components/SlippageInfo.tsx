@@ -1,4 +1,4 @@
-import { MouseoverTooltip } from "@kyber/ui/tooltip";
+import { MouseoverTooltip } from "@kyber/ui";
 import { cn } from "@kyber/utils/tailwind-helpers";
 
 export const SlippageInfo = ({
@@ -20,6 +20,7 @@ export const SlippageInfo = ({
       <MouseoverTooltip
         text="Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price. Please use with caution!"
         width="220px"
+        className="w-fit"
       >
         <div
           className={cn(

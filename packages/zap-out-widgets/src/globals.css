@@ -37,7 +37,9 @@
     @apply w-full max-w-[500px] max-h-[96vh] p-6 rounded-md;
     @apply bg-layer1 text-text;
     @apply transition-all duration-200;
-    font-family: var(--ks-lw-fontFamily) "Work Sans", Sans-serif;
+    font-family:
+      var(--ks-lw-fontFamily) "Work Sans",
+      Sans-serif;
   }
 
   .ks-lw-modal-content::-webkit-scrollbar {
@@ -138,7 +140,7 @@
     }
   }
 
-  .degen-mode[data-highlight='true'] {
+  .degen-mode[data-highlight="true"] {
     animation: highlight 2s 2 alternate ease-in-out;
   }
 }

@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useMedia } from 'react-use'
 
 import {
   DropdownContent,
@@ -10,7 +9,6 @@ import {
   DropdownWrapper,
   ItemIcon,
 } from 'pages/Earns/components/DropdownMenu/styles'
-import { MEDIA_WIDTHS } from 'theme'
 
 export interface MenuOption {
   label: string
@@ -35,8 +33,6 @@ const DropdownMenu = ({
   mobileHalfWidth?: boolean
   onChange: (value: string | number) => void
 }) => {
-  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
-
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
@@ -66,7 +62,8 @@ const DropdownMenu = ({
       <DropdownTitleWrapper onClick={handleOpenChange}>
         <DropdownTitle width={width}>
           {optionValue?.icon && <ItemIcon src={optionValue.icon} alt={optionValue.label} />}
-          {(!upToExtraSmall || !optionValue?.icon) && optionValue?.label}
+          {/* {(!upToExtraSmall || !optionValue?.icon) && optionValue?.label} */}
+          {optionValue?.label}
         </DropdownTitle>
         <DropdownIcon open={open} />
       </DropdownTitleWrapper>

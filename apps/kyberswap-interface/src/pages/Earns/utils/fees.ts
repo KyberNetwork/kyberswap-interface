@@ -11,36 +11,28 @@ import { getNftManagerContract, getNftManagerContractAddress, isForkFrom } from 
 import { getReadingContractWithCustomChain } from 'utils/getContract'
 
 export const getUnclaimedFeesInfo = async (position: ParsedPosition) => {
-  const {
-    id: tokenId,
-    dex,
-    chainId,
-    token0Address,
-    token1Address,
-    token0Decimals,
-    token1Decimals,
-    token0Price,
-    token1Price,
-    poolAddress,
-  } = position
-
-  const isUniv4 = isForkFrom(dex, CoreProtocol.UniswapV4)
+  const { tokenId, dex, chain, token0, token1 } = position
+  const chainId = chain.id
+  const isUniv4 = isForkFrom(dex.id, CoreProtocol.UniswapV4)
 
   const { balance0, balance1 } = isUniv4
     ? await getUniv4UnclaimedFees({
         tokenId,
-        dex,
+        dex: dex.id,
         chainId,
-        poolAddress,
+        poolAddress: position.pool.address,
       })
     : await getUniv3UnclaimedFees({
         tokenId,
-        dex,
+        dex: dex.id,
         chainId,
       })
 
-  const amount0 = CurrencyAmount.fromRawAmount(new Token(chainId, token0Address, token0Decimals), balance0).toExact()
-  const amount1 = CurrencyAmount.fromRawAmount(new Token(chainId, token1Address, token1Decimals), balance1).toExact()
+  const amount0 = CurrencyAmount.fromRawAmount(new Token(chainId, token0.address, token0.decimals), balance0).toExact()
+  const amount1 = CurrencyAmount.fromRawAmount(new Token(chainId, token1.address, token1.decimals), balance1).toExact()
+
+  const token0Price = token0.price
+  const token1Price = token1.price
 
   return {
     balance0,
@@ -183,17 +175,19 @@ export const getUniv3CollectCallData = async ({
   if (involvesETH) {
     const ethAmount = token0.isNative ? token0.balance : token1.balance
     const token = token0.isNative ? token1.address : token0.address
-    const tokenAmount = token0.isNative ? token1.balance : token0.balance
+    // const tokenAmount = token0.isNative ? token1.balance : token0.balance
 
     const unwrapWNativeTokenFuncName =
       UNWRAP_WNATIVE_TOKEN_FUNC[claimInfo.dex as keyof typeof UNWRAP_WNATIVE_TOKEN_FUNC]
     if (!unwrapWNativeTokenFuncName) return
-
     const unwrapWETH9CallData = contract.interface.encodeFunctionData(unwrapWNativeTokenFuncName, [
       ethAmount,
       recipient,
     ])
-    const sweepTokenCallData = contract.interface.encodeFunctionData('sweepToken', [token, tokenAmount, recipient])
+
+    // Use 0 as minimum amount for sweepToken to avoid overflow with large balance values
+    const sweepTokenCallData = contract.interface.encodeFunctionData('sweepToken', [token, 0, recipient])
+
     calldatas.push(unwrapWETH9CallData)
     calldatas.push(sweepTokenCallData)
   }
