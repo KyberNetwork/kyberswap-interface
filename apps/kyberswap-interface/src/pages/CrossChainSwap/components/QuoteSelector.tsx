@@ -11,6 +11,7 @@ import MenuFlyout from 'components/MenuFlyout'
 import Modal from 'components/Modal'
 import { MouseoverTooltip } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
+import { CampaignType, campaignConfig } from 'pages/Campaign/constants'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -95,6 +96,11 @@ export const QuoteSelector = ({
 
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
 
+  const { weeks, year } = campaignConfig[CampaignType.NearIntents]
+  const now = Date.now() / 1000
+  const currentYear = new Date().getFullYear()
+  const nearIntentCampaignOnGoing = year === currentYear && weeks.some(week => week.start <= now && week.end > now)
+
   const content = (
     <Wrapper>
       <Flex justifyContent="space-between">
@@ -111,6 +117,7 @@ export const QuoteSelector = ({
       >
         <ListRoute>
           {quotes.map((quote, index) => {
+            const ongoingTag = nearIntentCampaignOnGoing && quote.adapter.getName() === 'Near Intents'
             return (
               <Row
                 key={quote.adapter.getName()}
@@ -149,7 +156,23 @@ export const QuoteSelector = ({
                     })}
                   </Text>
 
-                  {index === 0 && (
+                  {ongoingTag && (
+                    <Box
+                      sx={{
+                        backgroundColor: theme.primary + '33',
+                        color: theme.primary,
+                        padding: '2px 6px',
+                        borderRadius: '999px',
+                        fontSize: '10px',
+                        fontWeight: 500,
+                        marginLeft: 'auto',
+                      }}
+                    >
+                      On-Going Campaign
+                    </Box>
+                  )}
+
+                  {index === 0 && !ongoingTag && (
                     <Box
                       sx={{
                         backgroundColor: theme.darkGreen,
