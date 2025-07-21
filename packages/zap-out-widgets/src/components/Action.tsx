@@ -23,14 +23,8 @@ export const Action = () => {
 
   const { address: account, chainId: walletChainId } = connectedAccount;
 
-  const {
-    fetchingRoute,
-    togglePreview,
-    route,
-    degenMode,
-    toggleSetting,
-    mode,
-  } = useZapOutUserState();
+  const { fetchingRoute, togglePreview, route, degenMode, toggleSetting } =
+    useZapOutUserState();
 
   const nftManager = DEXES_INFO[poolType].nftManagerContract;
   const nftManagerContract =
@@ -48,8 +42,7 @@ export const Action = () => {
     spender: route?.routerAddress,
   });
 
-  // TODO: still need approve for uni v2
-  const isApproved = mode === "withdrawOnly" || (approved && !isChecking);
+  const isApproved = approved && !isChecking;
 
   const [clickedApprove, setClickedApprove] = useState(false);
 

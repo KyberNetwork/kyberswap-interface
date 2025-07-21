@@ -243,7 +243,7 @@ export function EstLiqValue() {
                   <div className="flex items-center gap-1 mt-1">
                     <Image src={pool.token1.logo} />
                     {formatTokenAmount(feeAmount1, pool.token1.decimals, 4)}
-                    <span>{pool.token0.symbol}</span>
+                    <span>{pool.token1.symbol}</span>
                     {fee1 && (
                       <span className="text-xs text-subText">
                         ~
@@ -260,6 +260,23 @@ export function EstLiqValue() {
           <div className="flex items-start justify-between mt-2">
             <div className="text-subText text-xs ">Slippage</div>
             <span>{((slippage * 100) / 10_000).toFixed(2)}%</span>
+          </div>
+
+          <div className="flex items-start justify-between mt-2">
+            <MouseoverTooltip
+              text="Estimated network fee for your transaction."
+              width="220px"
+            >
+              <div className="text-subText text-xs border-b border-dotted border-subText">
+                Est. Gas Fee
+              </div>
+            </MouseoverTooltip>
+
+            <span>
+              {route?.gasUsd
+                ? formatDisplayNumber(route.gasUsd, { style: "currency" })
+                : "--"}
+            </span>
           </div>
         </>
       )}

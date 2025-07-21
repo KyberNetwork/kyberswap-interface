@@ -18,7 +18,7 @@ import {
   RemoveLiquidityAction,
   useZapOutUserState,
 } from "@/stores/state";
-import { assertUnreachable } from "@/utils";
+import { assertUnreachable, sameToken } from "@/utils";
 import { Skeleton } from "@kyber/ui/skeleton";
 import {
   formatDisplayNumber,
@@ -60,14 +60,22 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
 
   const token0 =
     pool !== "loading" &&
-    tokens?.find(
-      (f) => f.address.toLowerCase() === pool.token0.address.toLowerCase()
+    tokens?.find((f) =>
+      sameToken(
+        f.address,
+        pool.token0.address,
+        NETWORKS_INFO[chainId].wrappedToken.address
+      )
     );
 
   const token1 =
     pool !== "loading" &&
-    tokens?.find(
-      (f) => f.address.toLowerCase() === pool.token1.address.toLowerCase()
+    tokens?.find((f) =>
+      sameToken(
+        f.address,
+        pool.token1.address,
+        NETWORKS_INFO[chainId].wrappedToken.address
+      )
     );
 
   const withdrawAmount0 = BigInt(token0 ? token0.amount : 0);

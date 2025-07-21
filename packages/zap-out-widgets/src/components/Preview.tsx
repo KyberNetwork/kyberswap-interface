@@ -389,7 +389,7 @@ export const Preview = () => {
               <Image src={pool.token1.logo || ""} className="w-5 h-5" />
               <span className="text-lg font-medium">
                 {formatTokenAmount(receiveAmount1, pool.token1.decimals, 8)}{" "}
-                {pool.token0.symbol}
+                {pool.token1.symbol}
               </span>
               <span className="text-subText ml-1">
                 ~{formatDisplayNumber(receiveUsd1, { style: "currency" })}
