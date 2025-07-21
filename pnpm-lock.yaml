@@ -125,6 +125,9 @@ importers:
       '@near-wallet-selector/here-wallet':
         specifier: ^8.10.2
         version: 8.10.2(bn.js@5.2.1)(borsh@0.7.0)(near-api-js@5.1.1)
+      '@near-wallet-selector/hot-wallet':
+        specifier: ^8.10.2
+        version: 8.10.2(near-api-js@5.1.1)(typescript@5.3.3)
       '@near-wallet-selector/ledger':
         specifier: ^8.10.2
         version: 8.10.2(typescript@5.3.3)
@@ -6293,6 +6296,26 @@ packages:
       - utf-8-validate
     dev: false
 
+  /@hot-wallet/sdk@1.0.8(near-api-js@5.1.1)(typescript@5.3.3):
+    resolution: {integrity: sha512-HPS/y8NNhT9mUw1xLYQUlENn1F8NULqNYAiy25idGGreGJUbSEiHmCPVed7MSJbxEAli+b4GnhbNmirfhA12og==}
+    dependencies:
+      '@near-js/crypto': 1.4.2
+      '@near-js/utils': 1.1.0
+      '@near-wallet-selector/core': 8.10.2(near-api-js@5.1.1)
+      '@solana/wallet-adapter-base': 0.9.27(@solana/web3.js@1.98.2)
+      '@solana/web3.js': 1.98.2(typescript@5.3.3)
+      borsh: 2.0.0
+      js-sha256: 0.11.0
+      sha1: 1.1.1
+      uuid4: 2.0.3
+    transitivePeerDependencies:
+      - bufferutil
+      - encoding
+      - near-api-js
+      - typescript
+      - utf-8-validate
+    dev: false
+
   /@humanfs/core@0.19.1:
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
     engines: {node: '>=18.18.0'}
@@ -7971,6 +7994,19 @@ packages:
       - borsh
       - encoding
       - near-api-js
+    dev: false
+
+  /@near-wallet-selector/hot-wallet@8.10.2(near-api-js@5.1.1)(typescript@5.3.3):
+    resolution: {integrity: sha512-j6PZlW3TE10YRgRiNu7Fz0wJGUXXM4ouxNBtlsqpTcqH007fLjq0YMqXKYPjjhcRJelzWSwNcXp8hMJpUi2BfQ==}
+    dependencies:
+      '@hot-wallet/sdk': 1.0.8(near-api-js@5.1.1)(typescript@5.3.3)
+      '@near-wallet-selector/core': 8.10.2(near-api-js@5.1.1)
+    transitivePeerDependencies:
+      - bufferutil
+      - encoding
+      - near-api-js
+      - typescript
+      - utf-8-validate
     dev: false
 
   /@near-wallet-selector/ledger@8.10.2(typescript@5.3.3):
