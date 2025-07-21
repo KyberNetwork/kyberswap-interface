@@ -14,13 +14,15 @@ import InfoHelper from 'components/InfoHelper'
 import { TokenLogoWithChain } from 'components/Logo'
 import { NewLabel } from 'components/Menu'
 import Modal from 'components/Modal'
-import { ZERO_ADDRESS } from 'constants/index'
+import { APP_PATHS, ZERO_ADDRESS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
+import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
 import { ButtonIcon } from 'pages/Pools/styleds'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { MEDIA_WIDTHS, StyledInternalLink } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
+import { useNavigateToUrl } from 'utils/redirect'
 
 import ClaimBtn from './components/ClaimBtn'
 import { MyNearIntentDashboard } from './components/MyNearIntentDashboard'
@@ -59,6 +61,7 @@ export function getDateOfWeek(w: number, y: number) {
 
 const MyDashboard = () => {
   const { account } = useActiveWeb3React()
+  const navigate = useNavigateToUrl()
   const theme = useTheme()
   const [searchParams, setSearchParams] = useSearchParams()
   const tab: CampaignType = (searchParams.get('tab') || CampaignType.NearIntents) as CampaignType
@@ -226,7 +229,21 @@ const MyDashboard = () => {
       type: CampaignType.Referrals,
       label: 'Referral',
     },
-  ]
+  ].filter(item =>
+    item.type === CampaignType.MayTrading
+      ? Number(mayTrading?.data?.totalClaimableReward || '0') > 0
+        ? true
+        : false
+      : item.type === CampaignType.Aggregator
+      ? Number(stipTrading?.data?.totalClaimableReward || '0') > 0
+        ? true
+        : false
+      : item.type === CampaignType.LimitOrder
+      ? Number(stipLoData?.data?.totalClaimableReward || '0') > 0
+        ? true
+        : false
+      : true,
+  )
 
   const infor = (
     <InfoHelper
@@ -258,9 +275,15 @@ const MyDashboard = () => {
   return (
     <Wrapper>
       <img src={banner} width="100%" alt="banner" style={{ borderRadius: '12px' }} />
-      <Text fontSize={24} fontWeight="500" marginTop="1.5rem" mb="1.5rem">
-        My Dashboard
-      </Text>
+      <Flex marginTop="1.5rem" mb="1.5rem" sx={{ gap: '10px' }}>
+        <IconArrowLeft
+          style={{ cursor: 'pointer', position: 'relative', top: '7px' }}
+          onClick={() => navigate(APP_PATHS.NEAR_INTENTS_CAMPAIGN)}
+        />
+        <Text fontSize={24} fontWeight="500">
+          My Dashboard
+        </Text>
+      </Flex>
 
       <Flex sx={{ gap: '1rem', marginY: '24px' }} flexDirection={upToSmall ? 'column' : 'row'}>
         <Box
@@ -272,7 +295,7 @@ const MyDashboard = () => {
           }}
         >
           <Flex justifyContent="space-between" alignItems="center">
-            <Text>My total estimated rewards {infor}</Text>
+            <Text>My Est. Rewards {infor}</Text>
           </Flex>
           {account && stipTradingRw?.greaterThan('0') && (
             <Flex alignItems="center" sx={{ gap: '4px' }} fontSize={24} marginTop="0.5rem">
@@ -386,7 +409,7 @@ const MyDashboard = () => {
                   ? 'Trading'
                   : tab === CampaignType.LimitOrder
                   ? 'Limit Order'
-                  : 'May Trading'}
+                  : endedCampaigns?.[0]?.label || ''}
                 <ELabel>ENDED</ELabel>
               </Flex>
             </Tab>
@@ -451,7 +474,7 @@ const MyDashboard = () => {
               </Text>
             </div>
             <div>
-              <Text color={theme.subText}>Total Estimated rewards {infor}</Text>
+              <Text color={theme.subText}>Total est. rewards {infor}</Text>
               <Flex sx={{ gap: '4px' }} marginTop="8px" alignItems="center">
                 <img
                   src={rewardTokenLogo}
@@ -461,9 +484,9 @@ const MyDashboard = () => {
                   style={{ borderRadius: '50%' }}
                 />
                 <Text fontSize={18} fontWeight="500">
-                  {formatDisplayNumber(totalRewardByCampaign.toFixed(3), { significantDigits: 6 })} {rewardTokenSymbol}{' '}
+                  {formatDisplayNumber(totalRewardByCampaign.toFixed(4), { significantDigits: 6 })} {rewardTokenSymbol}{' '}
                   <Text color={theme.subText} as="span">
-                    {formatDisplayNumber((+totalRewardByCampaign.toExact() * price).toFixed(3), {
+                    {formatDisplayNumber((+totalRewardByCampaign.toExact() * price).toFixed(4), {
                       significantDigits: 4,
                       style: 'currency',
                     })}
@@ -483,10 +506,10 @@ const MyDashboard = () => {
                 />
 
                 <Text fontSize={18} fontWeight="500">
-                  {formatDisplayNumber(claimableRewardByCampaign.toFixed(3), { significantDigits: 6 })}{' '}
+                  {formatDisplayNumber(claimableRewardByCampaign.toFixed(4), { significantDigits: 6 })}{' '}
                   {rewardTokenSymbol}{' '}
                   <Text color={theme.subText} as="span">
-                    {formatDisplayNumber((+claimableRewardByCampaign.toExact() * price).toFixed(3), {
+                    {formatDisplayNumber((+claimableRewardByCampaign.toExact() * price).toFixed(4), {
                       significantDigits: 4,
                       style: 'currency',
                     })}
@@ -557,10 +580,10 @@ const MyDashboard = () => {
                     </Text>
                     <Flex justifyContent="flex-end" alignItems="flex-end" flexDirection="column">
                       <Text>
-                        {formatDisplayNumber(totalRw.toFixed(3), { significantDigits: 6 })} {rewardTokenSymbol}
+                        {formatDisplayNumber(totalRw.toFixed(4), { significantDigits: 6 })} {rewardTokenSymbol}
                       </Text>
                       <Text color={theme.subText}>
-                        {formatDisplayNumber((+totalRw.toExact() * price).toFixed(3), {
+                        {formatDisplayNumber((+totalRw.toExact() * price).toFixed(4), {
                           significantDigits: 4,
                           style: 'currency',
                         })}
@@ -573,10 +596,10 @@ const MyDashboard = () => {
                     </Text>
                     <Flex justifyContent="flex-end" alignItems="flex-end" flexDirection="column">
                       <Text>
-                        {formatDisplayNumber(claimableRw.toFixed(3), { significantDigits: 6 })} {rewardTokenSymbol}
+                        {formatDisplayNumber(claimableRw.toFixed(4), { significantDigits: 6 })} {rewardTokenSymbol}
                       </Text>
                       <Text color={theme.subText}>
-                        {formatDisplayNumber((+claimableRw.toExact() * price).toFixed(3), {
+                        {formatDisplayNumber((+claimableRw.toExact() * price).toFixed(4), {
                           significantDigits: 4,
                           style: 'currency',
                         })}
@@ -591,13 +614,15 @@ const MyDashboard = () => {
                 <Text color={theme.subText}>
                   Week {item.week - baseWeek}: {dayjs(date).format('MMM DD')} - {dayjs(end).format('MMM DD')}
                 </Text>
-                <Text textAlign="right">{formatDisplayNumber(Math.floor(item.point), { significantDigits: 4 })}</Text>
+                <Text textAlign="right">
+                  {formatDisplayNumber(Math.floor(item.point * 10) / 10, { significantDigits: 4 })}
+                </Text>
                 <Flex justifyContent="flex-end" alignItems="flex-end" flexDirection="column">
                   <Text>
-                    {formatDisplayNumber(totalRw.toFixed(3), { significantDigits: 6 })} {rewardTokenSymbol}
+                    {formatDisplayNumber(totalRw.toFixed(4), { significantDigits: 6 })} {rewardTokenSymbol}
                   </Text>
                   <Text color={theme.subText}>
-                    {formatDisplayNumber((+totalRw.toExact() * price).toFixed(3), {
+                    {formatDisplayNumber((+totalRw.toExact() * price).toFixed(4), {
                       significantDigits: 4,
                       style: 'currency',
                     })}
@@ -606,10 +631,10 @@ const MyDashboard = () => {
 
                 <Flex justifyContent="flex-end" alignItems="flex-end" flexDirection="column">
                   <Text>
-                    {formatDisplayNumber(claimableRw.toFixed(3), { significantDigits: 6 })} {rewardTokenSymbol}
+                    {formatDisplayNumber(claimableRw.toFixed(4), { significantDigits: 6 })} {rewardTokenSymbol}
                   </Text>
                   <Text color={theme.subText}>
-                    {formatDisplayNumber((+claimableRw.toExact() * price).toFixed(3), {
+                    {formatDisplayNumber((+claimableRw.toExact() * price).toFixed(4), {
                       significantDigits: 4,
                       style: 'currency',
                     })}
