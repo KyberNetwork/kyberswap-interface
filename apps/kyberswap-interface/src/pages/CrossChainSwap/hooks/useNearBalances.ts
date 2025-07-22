@@ -1,7 +1,7 @@
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import { useNearTokens } from 'state/crossChainSwap'
+import { useCrossChainTransactions, useNearTokens } from 'state/crossChainSwap'
 
 const TTL = 30 // 30s
 let lastUpdated = Date.now() / 1000
@@ -12,6 +12,8 @@ let isBalanceFetchInProgress = false
 
 export const useNearBalances = () => {
   const { nearTokens } = useNearTokens()
+  const [transactions] = useCrossChainTransactions()
+
   const tokenOnNears = useMemo(
     () =>
       nearTokens.filter(token => {
@@ -23,6 +25,9 @@ export const useNearBalances = () => {
   const { signedAccountId, viewFunction, getBalance } = useWalletSelector()
 
   const [balances, setBalances] = useState<Record<string, string>>({})
+
+  // Track completed transactions to avoid multiple refreshes
+  const completedTxsRef = useRef<Set<string>>(new Set())
 
   const getBalances = useCallback(
     async (options: { nocache: boolean }) => {
@@ -66,11 +71,31 @@ export const useNearBalances = () => {
     [signedAccountId, viewFunction, tokenOnNears, getBalance],
   )
 
+  // Watch for completed cross-chain swap transactions and refresh balances
+  useEffect(() => {
+    if (!signedAccountId || !transactions.length) return
+
+    const completedTxs = transactions.filter(tx => tx.status === 'Success')
+    const newlyCompletedTxs = completedTxs.filter(tx => !completedTxsRef.current.has(tx.id))
+
+    if (newlyCompletedTxs.length > 0) {
+      // Check if any of the completed transactions involve NEAR tokens
+      const nearRelatedTxs = newlyCompletedTxs.filter(tx => tx.targetChain === 'near' || tx.sourceChain === 'near')
+
+      if (nearRelatedTxs.length > 0) {
+        getBalances({ nocache: true })
+      }
+
+      // Mark these transactions as processed
+      newlyCompletedTxs.forEach(tx => completedTxsRef.current.add(tx.id))
+    }
+  }, [transactions, signedAccountId, getBalances])
+
   useEffect(() => {
     getBalances({ nocache: false })
     const i = setInterval(() => {
       getBalances({ nocache: false })
-    }, 10_000) // refresh every 20s
+    }, 10_000) // refresh every 10s
     return () => {
       clearInterval(i)
     }
