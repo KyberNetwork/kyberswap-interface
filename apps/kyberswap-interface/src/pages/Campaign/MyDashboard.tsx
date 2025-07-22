@@ -242,6 +242,10 @@ const MyDashboard = () => {
       ? Number(stipLoData?.data?.totalClaimableReward || '0') > 0
         ? true
         : false
+      : item.type === CampaignType.Referrals
+      ? Number(referralReward || '0') > 0
+        ? true
+        : false
       : true,
   )
 
