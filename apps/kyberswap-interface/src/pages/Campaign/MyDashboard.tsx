@@ -414,12 +414,14 @@ const MyDashboard = () => {
                   : tab === CampaignType.LimitOrder
                   ? 'Limit Order'
                   : endedCampaigns?.[0]?.label || ''}
-                <ELabel>ENDED</ELabel>
+                {endedCampaigns.length > 0 && <ELabel>ENDED</ELabel>}
               </Flex>
             </Tab>
-            <ButtonIcon onClick={() => setShowModal(true)}>
-              <MoreHorizontal size={16} />
-            </ButtonIcon>
+            {endedCampaigns.length > 0 && (
+              <ButtonIcon onClick={() => setShowModal(true)}>
+                <MoreHorizontal size={16} />
+              </ButtonIcon>
+            )}
             <Modal
               isOpen={showModal}
               onDismiss={() => setShowModal(false)}
