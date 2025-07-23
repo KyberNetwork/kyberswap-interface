@@ -1,5 +1,5 @@
 import { formatAprNumber, toString } from '@kyber/utils/dist/number'
-import { priceToClosestTick } from '@kyber/utils/dist/uniswapv3'
+import { MAX_TICK, MIN_TICK, priceToClosestTick } from '@kyber/utils/dist/uniswapv3'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useCallback, useMemo, useState } from 'react'
@@ -187,20 +187,36 @@ export default function TableContent({
   }
 
   const handleOpenMigration = (sourcePosition: ParsedPosition, targetPool: SuggestedPool) => {
+    const sourceMinPrice = sourcePosition.priceRange.min
+    const sourceMaxPrice = sourcePosition.priceRange.max
+    const targetToken0Decimals = targetPool.token0.decimals
+    const targetToken1Decimals = targetPool.token1.decimals
+
+    const dontNeedRevert =
+      sourcePosition.token0.decimals === targetToken0Decimals && sourcePosition.token1.decimals === targetToken1Decimals
+
+    const isMinPrice = sourcePosition.priceRange.isMinPrice
+    const isMaxPrice = sourcePosition.priceRange.isMaxPrice
+
     const tickLower = sourcePosition.pool.isUniv2
       ? undefined
-      : priceToClosestTick(
-          toString(sourcePosition.priceRange.min),
-          sourcePosition.token0.decimals,
-          sourcePosition.token1.decimals,
-        )
+      : dontNeedRevert
+      ? isMinPrice
+        ? MIN_TICK
+        : priceToClosestTick(toString(sourceMinPrice), targetToken0Decimals, targetToken1Decimals)
+      : isMaxPrice
+      ? MAX_TICK
+      : priceToClosestTick(toString(1 / sourceMaxPrice), targetToken0Decimals, targetToken1Decimals)
+
     const tickUpper = sourcePosition.pool.isUniv2
       ? undefined
-      : priceToClosestTick(
-          toString(sourcePosition.priceRange.max),
-          sourcePosition.token0.decimals,
-          sourcePosition.token1.decimals,
-        )
+      : dontNeedRevert
+      ? isMaxPrice
+        ? MAX_TICK
+        : priceToClosestTick(toString(sourceMaxPrice), targetToken0Decimals, targetToken1Decimals)
+      : isMinPrice
+      ? MIN_TICK
+      : priceToClosestTick(toString(1 / sourceMinPrice), targetToken0Decimals, targetToken1Decimals)
 
     handleOpenZapMigration({
       chainId: sourcePosition.chain.id,

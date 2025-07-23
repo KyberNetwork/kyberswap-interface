@@ -1,6 +1,6 @@
 import { ShareModal, ShareModalProps, ShareType } from '@kyber/ui'
 import { formatAprNumber } from '@kyber/utils/dist/number'
-import { priceToClosestTick } from '@kyber/utils/dist/uniswapv3'
+import { MAX_TICK, MIN_TICK, priceToClosestTick } from '@kyber/utils/dist/uniswapv3'
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Share2 } from 'react-feather'
@@ -47,7 +47,7 @@ import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import { FeeInfo, PAIR_CATEGORY, ParsedPosition, PositionStatus, SuggestedPool } from 'pages/Earns/types'
 import { getUnclaimedFeesInfo } from 'pages/Earns/utils/fees'
 import { parsePosition } from 'pages/Earns/utils/position'
-import { formatDisplayNumber } from 'utils/numbers'
+import { formatDisplayNumber, toString } from 'utils/numbers'
 
 const PositionDetail = () => {
   const firstLoading = useRef(false)
@@ -130,20 +130,36 @@ const PositionDetail = () => {
   }
 
   const handleOpenMigration = (sourcePosition: ParsedPosition, targetPool: SuggestedPool) => {
+    const sourceMinPrice = sourcePosition.priceRange.min
+    const sourceMaxPrice = sourcePosition.priceRange.max
+    const targetToken0Decimals = targetPool.token0.decimals
+    const targetToken1Decimals = targetPool.token1.decimals
+
+    const dontNeedRevert =
+      sourcePosition.token0.decimals === targetToken0Decimals && sourcePosition.token1.decimals === targetToken1Decimals
+
+    const isMinPrice = sourcePosition.priceRange.isMinPrice
+    const isMaxPrice = sourcePosition.priceRange.isMaxPrice
+
     const tickLower = sourcePosition.pool.isUniv2
       ? undefined
-      : priceToClosestTick(
-          sourcePosition.priceRange.min.toString(),
-          sourcePosition.token0.decimals,
-          sourcePosition.token1.decimals,
-        )
+      : dontNeedRevert
+      ? isMinPrice
+        ? MIN_TICK
+        : priceToClosestTick(toString(sourceMinPrice), targetToken0Decimals, targetToken1Decimals)
+      : isMaxPrice
+      ? MAX_TICK
+      : priceToClosestTick(toString(1 / sourceMaxPrice), targetToken0Decimals, targetToken1Decimals)
+
     const tickUpper = sourcePosition.pool.isUniv2
       ? undefined
-      : priceToClosestTick(
-          sourcePosition.priceRange.max.toString(),
-          sourcePosition.token0.decimals,
-          sourcePosition.token1.decimals,
-        )
+      : dontNeedRevert
+      ? isMaxPrice
+        ? MAX_TICK
+        : priceToClosestTick(toString(sourceMaxPrice), targetToken0Decimals, targetToken1Decimals)
+      : isMinPrice
+      ? MIN_TICK
+      : priceToClosestTick(toString(1 / sourceMinPrice), targetToken0Decimals, targetToken1Decimals)
 
     handleOpenZapMigration({
       chainId: sourcePosition.chain.id,
