@@ -229,24 +229,12 @@ const MyDashboard = () => {
       type: CampaignType.Referrals,
       label: 'Referral',
     },
-  ].filter(item =>
-    item.type === CampaignType.MayTrading
-      ? Number(mayTrading?.data?.totalClaimableReward || '0') > 0
-        ? true
-        : false
-      : item.type === CampaignType.Aggregator
-      ? Number(stipTrading?.data?.totalClaimableReward || '0') > 0
-        ? true
-        : false
-      : item.type === CampaignType.LimitOrder
-      ? Number(stipLoData?.data?.totalClaimableReward || '0') > 0
-        ? true
-        : false
-      : item.type === CampaignType.Referrals
-      ? Number(referralReward || '0') > 0
-        ? true
-        : false
-      : true,
+  ].filter(
+    item =>
+      (item.type === CampaignType.MayTrading && Number(mayTrading?.data?.totalClaimableReward || '0') > 0) ||
+      (item.type === CampaignType.Aggregator && Number(stipTrading?.data?.totalClaimableReward || '0') > 0) ||
+      (item.type === CampaignType.LimitOrder && Number(stipLoData?.data?.totalClaimableReward || '0') > 0) ||
+      (item.type === CampaignType.Referrals && Number(referralReward || '0') > 0),
   )
 
   const infor = (
