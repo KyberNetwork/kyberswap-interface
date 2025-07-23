@@ -6,7 +6,7 @@ import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
-import { ReactComponent as IconClaimRewards } from 'assets/svg/earn/ic_claim.svg'
+// import { ReactComponent as IconClaimRewards } from 'assets/svg/earn/ic_claim.svg'
 import { ReactComponent as IconClaimFees } from 'assets/svg/earn/ic_earn_claim_fees.svg'
 import Loader from 'components/Loader'
 import useTheme from 'hooks/useTheme'
@@ -113,8 +113,8 @@ const DropdownAction = ({
   onOpenIncreaseLiquidityWidget,
   onOpenZapOut,
   claimFees: { onClaimFee, feesClaimDisabled, feesClaiming, positionThatClaimingFees },
-  claimRewards: { onClaimRewards, rewardsClaimDisabled, rewardsClaiming, positionThatClaimingRewards },
-}: {
+}: // claimRewards: { onClaimRewards, rewardsClaimDisabled, rewardsClaiming, positionThatClaimingRewards },
+{
   position: ParsedPosition
   onOpenIncreaseLiquidityWidget: (e: React.MouseEvent, position: ParsedPosition) => void
   onOpenZapOut: (e: React.MouseEvent, position: ParsedPosition) => void
@@ -124,12 +124,12 @@ const DropdownAction = ({
     feesClaiming: boolean
     positionThatClaimingFees: ParsedPosition | null
   }
-  claimRewards: {
-    onClaimRewards: (e: React.MouseEvent, position: ParsedPosition) => void
-    rewardsClaimDisabled: boolean
-    rewardsClaiming: boolean
-    positionThatClaimingRewards: ParsedPosition | null
-  }
+  // claimRewards: {
+  //   onClaimRewards: (e: React.MouseEvent, position: ParsedPosition) => void
+  //   rewardsClaimDisabled: boolean
+  //   rewardsClaiming: boolean
+  //   positionThatClaimingRewards: ParsedPosition | null
+  // }
 }) => {
   const theme = useTheme()
   const [open, setOpen] = useState(false)
@@ -223,7 +223,7 @@ const DropdownAction = ({
         )}
         <Text>{t`Claim Fees`}</Text>
       </DropdownContentItem>
-      <DropdownContentItem
+      {/* <DropdownContentItem
         disabled={rewardsClaimDisabled}
         onClick={e => {
           e.stopPropagation()
@@ -238,7 +238,7 @@ const DropdownAction = ({
           <IconClaimRewards width={14} style={{ marginRight: '2px' }} />
         )}
         <Text>{t`Claim Rewards`}</Text>
-      </DropdownContentItem>
+      </DropdownContentItem> */}
     </>
   )
 

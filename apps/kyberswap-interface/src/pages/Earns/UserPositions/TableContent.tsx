@@ -9,7 +9,7 @@ import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
 import { ReactComponent as IconEarnNotFound } from 'assets/svg/earn/ic_earn_not_found.svg'
-import { ReactComponent as IconKem } from 'assets/svg/kyber/kem.svg'
+// import { ReactComponent as IconKem } from 'assets/svg/kyber/kem.svg'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { APP_PATHS, PAIR_CATEGORY } from 'constants/index'
@@ -44,7 +44,7 @@ import {
 } from 'pages/Earns/constants'
 import useCollectFees from 'pages/Earns/hooks/useCollectFees'
 import useFarmingStablePools from 'pages/Earns/hooks/useFarmingStablePools'
-import useKemRewards from 'pages/Earns/hooks/useKemRewards'
+// import useKemRewards from 'pages/Earns/hooks/useKemRewards'
 import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import { ZapOutInfo } from 'pages/Earns/hooks/useZapOutWidget'
@@ -80,7 +80,7 @@ export default function TableContent({
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   const [positionThatClaimingFees, setPositionThatClaimingFees] = useState<ParsedPosition | null>(null)
-  const [positionThatClaimingRewards, setPositionThatClaimingRewards] = useState<ParsedPosition | null>(null)
+  // const [positionThatClaimingRewards, setPositionThatClaimingRewards] = useState<ParsedPosition | null>(null)
   const [positionToMigrate, setPositionToMigrate] = useState<ParsedPosition | null>(null)
 
   const {
@@ -94,7 +94,7 @@ export default function TableContent({
     },
   })
 
-  const { claimModal: claimRewardsModal, onOpenClaim: onOpenClaimRewards, claiming: rewardsClaiming } = useKemRewards()
+  // const { claimModal: claimRewardsModal, onOpenClaim: onOpenClaimRewards, claiming: rewardsClaiming } = useKemRewards()
 
   const { widget: zapMigrationWidget, handleOpenZapMigration } = useZapMigrationWidget()
 
@@ -165,13 +165,13 @@ export default function TableContent({
     onOpenClaimFees(position)
   }
 
-  const handleClaimRewards = (e: React.MouseEvent, position: ParsedPosition) => {
-    e.stopPropagation()
-    e.preventDefault()
-    if (rewardsClaiming || position.rewards.unclaimedUsdValue === 0) return
-    setPositionThatClaimingRewards(position)
-    onOpenClaimRewards(position.tokenId, position.chain.id)
-  }
+  // const handleClaimRewards = (e: React.MouseEvent, position: ParsedPosition) => {
+  //   e.stopPropagation()
+  //   e.preventDefault()
+  //   if (rewardsClaiming || position.rewards.unclaimedUsdValue === 0) return
+  //   setPositionThatClaimingRewards(position)
+  //   onOpenClaimRewards(position.tokenId, position.chain.id)
+  // }
 
   const handleMigrateToKem = (e: React.MouseEvent, position: ParsedPosition) => {
     e.stopPropagation()
@@ -263,7 +263,7 @@ export default function TableContent({
   return (
     <>
       {claimFeesModal}
-      {claimRewardsModal}
+      {/* {claimRewardsModal} */}
       {zapMigrationWidget}
       {migrationModal}
 
@@ -283,12 +283,12 @@ export default function TableContent({
                 apr,
                 unclaimedFees,
                 status,
-                rewards,
+                // rewards,
                 isUnfinalized,
               } = position
               const feesClaimDisabled =
                 !DEXES_SUPPORT_COLLECT_FEE[dex.id as EarnDex] || unclaimedFees === 0 || feesClaiming
-              const rewardsClaimDisabled = rewardsClaiming || position.rewards.claimableUsdValue === 0
+              // const rewardsClaimDisabled = rewardsClaiming || position.rewards.claimableUsdValue === 0
               const isStablePair = pool.category === PAIR_CATEGORY.STABLE
 
               const actions = (
@@ -302,12 +302,12 @@ export default function TableContent({
                     feesClaiming,
                     positionThatClaimingFees,
                   }}
-                  claimRewards={{
-                    onClaimRewards: handleClaimRewards,
-                    rewardsClaimDisabled,
-                    rewardsClaiming,
-                    positionThatClaimingRewards,
-                  }}
+                  // claimRewards={{
+                  //   onClaimRewards: handleClaimRewards,
+                  //   rewardsClaimDisabled,
+                  //   rewardsClaiming,
+                  //   positionThatClaimingRewards,
+                  // }}
                 />
               )
 
@@ -495,7 +495,7 @@ export default function TableContent({
                   </PositionValueWrapper>
 
                   {/* Unclaimed rewards info */}
-                  <PositionValueWrapper align={!upToLarge ? 'center' : ''}>
+                  {/* <PositionValueWrapper align={!upToLarge ? 'center' : ''}>
                     <PositionValueLabel>{t`Unclaimed rewards`}</PositionValueLabel>
                     {isUnfinalized ? (
                       <PositionSkeleton width={80} height={19} text="Finalizing..." />
@@ -533,9 +533,9 @@ export default function TableContent({
                         </MouseoverTooltipDesktopOnly>
                       </Flex>
                     )}
-                  </PositionValueWrapper>
+                  </PositionValueWrapper> */}
 
-                  {!upToLarge && <div />}
+                  {/* {!upToLarge && <div />} */}
 
                   {/* Balance info */}
                   <PositionValueWrapper align={upToSmall ? 'flex-end' : ''}>
