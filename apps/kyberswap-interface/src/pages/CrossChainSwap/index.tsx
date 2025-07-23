@@ -201,7 +201,6 @@ function CrossChainSwap() {
                   : cIn?.wrapped.address || ''
                 : (currencyIn as NearToken)?.assetId || (currencyIn as SolanaToken)?.id || '',
             )
-            console.log(searchParams)
             setSearchParams(searchParams)
           }}
         />
