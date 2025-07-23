@@ -130,7 +130,7 @@ export default function TokenSelector({
       allTokens,
       importedTokens,
       tokensIn,
-      // tokenBalances,
+      tokenBalances,
       mode,
       selectedTokenAddress,
       token0Address,
@@ -378,7 +378,9 @@ export default function TokenSelector({
           />
         )}
 
-        <div className={`!mt-0 ${modalTabSelected === MODAL_TAB.TOKENS ? 'h-[280px]' : 'h-[356px]'} overflow-y-auto`}>
+        <div
+          className={`token-scroll-container !mt-0 ${modalTabSelected === MODAL_TAB.TOKENS ? 'h-[280px]' : 'h-[356px]'} overflow-y-auto`}
+        >
           {modalTabSelected === MODAL_TAB.TOKENS && (
             <>
               {tabSelected === TOKEN_TAB.ALL &&

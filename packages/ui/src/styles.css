@@ -44,6 +44,10 @@
     @apply -left-[7px];
     @apply before:border-t-0 before:border-l-0;
   }
+
+  .token-scroll-container::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 @layer base {
