@@ -1,3 +1,53 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+  .font-cera {
+    font-family: 'Cera Pro', sans-serif;
+  }
+
+  /* Tooltip/Popover styles */
+  .ks-lw-popover {
+    @apply text-subText bg-layer2;
+    @apply border border-transparent rounded-md;
+    @apply transition-all duration-150 ease-linear z-[9999];
+    @apply invisible opacity-0;
+    box-shadow: 0px 4px 12px 0px #00000052;
+    font-family: var(--ks-lw-fontFamily, 'Work Sans');
+
+    @apply data-[visibility='true']:visible data-[visibility='true']:opacity-100;
+  }
+
+  .ks-lw-popover .arrow {
+    @apply w-3 h-3 z-[9998];
+    @apply before:absolute before:w-3 before:h-3 before:z-[9998];
+    @apply before:content-[''] before:border before:border-transparent before:rotate-45 before:bg-layer2;
+  }
+
+  .ks-lw-popover .arrow-top {
+    @apply -bottom-[7px];
+    @apply before:border-t-0 before:border-l-0;
+  }
+
+  .ks-lw-popover .arrow-bottom {
+    @apply -top-[7px];
+    @apply before:border-t-0 before:border-l-0;
+  }
+
+  .ks-lw-popover .arrow-left {
+    @apply -right-[7px];
+    @apply before:border-t-0 before:border-l-0;
+  }
+
+  .ks-lw-popover .arrow-right {
+    @apply -left-[7px];
+    @apply before:border-t-0 before:border-l-0;
+  }
+}
+
+@layer base {
+  html {
+    font-family: var(--ks-lw-fontFamily), sans-serif;
+  }
+}

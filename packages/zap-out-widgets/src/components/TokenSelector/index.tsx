@@ -1,16 +1,13 @@
 import { ChangeEvent, MouseEvent, useEffect, useMemo, useState } from "react";
-import { Input } from "@kyber/ui/input";
-import { ScrollArea } from "@kyber/ui/scroll-area";
+import { Input, ScrollArea, Button, TokenLogo } from "@kyber/ui";
 import { formatWei } from "@/utils";
 import { NATIVE_TOKEN_ADDRESS } from "@/constants";
-import defaultTokenLogo from "@/assets/svg/question.svg?url";
 import TrashIcon from "@/assets/svg/trash.svg";
 import IconSearch from "@/assets/svg/search.svg";
 import Info from "@/assets/svg/info.svg";
 import X from "@/assets/svg/x.svg";
 import { Token } from "@/schema";
 import { formatUnits, isAddress } from "@kyber/utils/crypto";
-import { Button } from "@kyber/ui/button";
 import { useZapOutUserState } from "@/stores/state";
 import { useTokenList } from "@/hooks/useTokenList";
 import { useZapOutContext } from "@/stores";
@@ -228,15 +225,13 @@ export default function TokenSelector({
                   className="flex items-center justify-between py-2 px-6 text-red"
                 >
                   <div className="flex items-center gap-2">
-                    <img
-                      className="h-6 w-6"
-                      src={token.logo}
-                      alt=""
-                      onError={({ currentTarget }) => {
-                        currentTarget.onerror = null;
-                        currentTarget.src = defaultTokenLogo;
-                      }}
-                    />
+                    <div>
+                      <TokenLogo
+                        src={token.logo}
+                        alt={token.symbol}
+                        size={24}
+                      />
+                    </div>
                     <p className="ml-2 text-subText">{token.symbol}</p>
                     <p className="text-xs text-[#6C7284]">{token.name}</p>
                   </div>
@@ -266,15 +261,13 @@ export default function TokenSelector({
                   onClick={() => !token.disabled && handleClickToken(token)}
                 >
                   <div className="flex items-center space-x-3">
-                    <img
-                      className="h-6 w-6"
-                      src={token.logo ? token.logo : defaultTokenLogo}
-                      alt=""
-                      onError={({ currentTarget }) => {
-                        currentTarget.onerror = null;
-                        currentTarget.src = defaultTokenLogo;
-                      }}
-                    />
+                    <div>
+                      <TokenLogo
+                        src={token.logo}
+                        alt={token.symbol}
+                        size={24}
+                      />
+                    </div>
                     <div>
                       <p className="leading-6">{token.symbol}</p>
                       <p

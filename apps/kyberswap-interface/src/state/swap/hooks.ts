@@ -327,7 +327,7 @@ export const useDefaultSlippageByPair = (customChainId?: ChainId) => {
     // case PAIR_CATEGORY.EXOTIC:
     // return 100
     case PAIR_CATEGORY.HIGH_VOLATILITY:
-      return 200
+      return 150
     default:
       return 50
   }

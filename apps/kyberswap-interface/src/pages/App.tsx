@@ -1,3 +1,4 @@
+import '@kyber/ui/styles.css'
 import * as Sentry from '@sentry/react'
 import { Suspense, lazy, useEffect } from 'react'
 import { Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom'

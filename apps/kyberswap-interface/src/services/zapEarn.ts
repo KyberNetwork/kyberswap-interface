@@ -5,6 +5,7 @@ import { EarnPool, EarnPosition, PositionHistoryType } from 'pages/Earns/types'
 
 interface LandingResponse {
   data: {
+    farmingPools: Array<EarnPool>
     highlightedPools: Array<EarnPool>
     solidEarning: Array<EarnPool>
     highAPR: Array<EarnPool>

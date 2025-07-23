@@ -1,5 +1,10 @@
 import { useZapOutUserState } from "@/stores/state";
-import { DEXES_INFO, NETWORKS_INFO, PATHS } from "@/constants";
+import {
+  DEXES_INFO,
+  NATIVE_TOKEN_ADDRESS,
+  NETWORKS_INFO,
+  PATHS,
+} from "@/constants";
 import {
   ChainId,
   Pool,
@@ -15,7 +20,6 @@ import {
   univ4Types,
 } from "@/schema";
 import { Theme } from "@/theme";
-import { useTokenPrices } from "@kyber/hooks/use-token-prices";
 import { encodeUint256, getFunctionSelector } from "@kyber/utils/crypto";
 import {
   MAX_TICK,
@@ -28,6 +32,7 @@ import {
 } from "@kyber/utils/uniswapv3";
 import { createContext, useContext, useEffect, useRef } from "react";
 import { createStore, useStore } from "zustand";
+import { fetchTokenPrice } from "@kyber/utils";
 
 export interface ZapOutProps {
   theme?: Theme;
@@ -63,11 +68,7 @@ interface ZapOutState extends ZapOutProps {
   position: "loading" | Position;
   errorMsg: string;
 
-  getPool: (
-    fetchPrices: (
-      address: string[]
-    ) => Promise<{ [key: string]: { PriceBuy: number } }>
-  ) => void;
+  getPool: () => void;
 }
 
 interface InnerZapOutProps extends ZapOutProps {
@@ -84,7 +85,7 @@ const createZapOutStore = (initProps: InnerZapOutProps) => {
     position: "loading" as "loading" | Position,
     errorMsg: "",
 
-    getPool: async (fetchPrices) => {
+    getPool: async () => {
       const { poolAddress, chainId, poolType, positionId } = get();
 
       const res = await fetch(
@@ -110,8 +111,25 @@ const createZapOutStore = (initProps: InnerZapOutProps) => {
         firstLoad && set({ errorMsg: `Can't get pool info, address: ${pool}` });
         return;
       }
-      const token0Address = pool.tokens[0].address;
-      const token1Address = pool.tokens[1].address;
+
+      const isUniV4 = univ4Types.includes(poolType);
+
+      const staticExtra =
+        "staticExtra" in pool && pool.staticExtra
+          ? JSON.parse(pool.staticExtra)
+          : null;
+
+      const isToken0Native =
+        isUniV4 && staticExtra && staticExtra?.["0x0"]?.[0];
+      const isToken1Native =
+        isUniV4 && staticExtra && staticExtra?.["0x0"]?.[1];
+
+      const token0Address = isToken0Native
+        ? NATIVE_TOKEN_ADDRESS.toLowerCase()
+        : pool.tokens[0].address;
+      const token1Address = isToken1Native
+        ? NATIVE_TOKEN_ADDRESS.toLowerCase()
+        : pool.tokens[1].address;
 
       // check category pair
       const pairCheck = await fetch(
@@ -119,10 +137,10 @@ const createZapOutStore = (initProps: InnerZapOutProps) => {
       ).then((res) => res.json());
       const cat = pairCheck?.data?.category || "commonPair";
 
-      const prices = await fetchPrices([
-        token0Address.toLowerCase(),
-        token1Address.toLowerCase(),
-      ]);
+      const prices = await fetchTokenPrice({
+        addresses: [token0Address.toLowerCase(), token1Address.toLowerCase()],
+        chainId,
+      });
 
       const token0Price = prices[token0Address.toLowerCase()]?.PriceBuy || 0;
       const token1Price = prices[token1Address.toLowerCase()]?.PriceBuy || 0;
@@ -190,7 +208,6 @@ const createZapOutStore = (initProps: InnerZapOutProps) => {
 
       const { success: isUniV3, data: poolUniv3 } = univ3Pool.safeParse(pool);
       const { success: isUniV2, data: poolUniv2 } = univ2Pool.safeParse(pool);
-      const isUniv4 = univ4Types.includes(poolType);
 
       let p: Pool;
 
@@ -219,7 +236,7 @@ const createZapOutStore = (initProps: InnerZapOutProps) => {
           sqrtPriceX96: poolUniv3.positionInfo.sqrtPriceX96,
           tick: poolUniv3.positionInfo.tick,
           tickSpacing: poolUniv3.positionInfo.tickSpacing,
-          ticks: poolUniv3.positionInfo.ticks,
+          ticks: poolUniv3.positionInfo.ticks || [],
           minTick: nearestUsableTick(
             MIN_TICK,
             poolUniv3.positionInfo.tickSpacing
@@ -241,7 +258,7 @@ const createZapOutStore = (initProps: InnerZapOutProps) => {
           return;
         }
         // Function signature and encoded token ID
-        const functionSignature = !isUniv4
+        const functionSignature = !isUniV4
           ? "positions(uint256)"
           : "positionInfo(uint256)";
         const selector = getFunctionSelector(functionSignature);
@@ -275,13 +292,13 @@ const createZapOutStore = (initProps: InnerZapOutProps) => {
         const { result, error } = await response.json();
 
         if (result && result !== "0x") {
-          const data = isUniv4
+          const data = isUniV4
             ? decodeUniswapV4PositionInfo(result)
             : algebraTypes.includes(pt)
-            ? decodeAlgebraV1Position(result)
-            : decodePosition(result);
+              ? decodeAlgebraV1Position(result)
+              : decodePosition(result);
 
-          if (isUniv4) {
+          if (isUniV4) {
             const liquidityFunctionSignature = "getPositionLiquidity(uint256)";
             const liquiditySelector = getFunctionSelector(
               liquidityFunctionSignature
@@ -437,19 +454,14 @@ export function ZapOutProvider({ children, ...props }: ZapOutProviderState) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props]);
 
-  const { fetchPrices } = useTokenPrices({
-    addresses: [],
-    chainId: store.getState().chainId,
-  });
-
   const { resetState } = useZapOutUserState();
 
   useEffect(() => {
     resetState();
     // get Pool and position then update store here
-    store.getState().getPool(fetchPrices);
+    store.getState().getPool();
     const i = setInterval(() => {
-      store.getState().getPool(fetchPrices);
+      store.getState().getPool();
     }, 15_000);
     return () => clearInterval(i);
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -76,8 +76,8 @@ export function EstLiqValue() {
     piRes.level === PI_LEVEL.VERY_HIGH || piRes.level === PI_LEVEL.INVALID
       ? theme.error
       : piRes.level === PI_LEVEL.HIGH
-      ? theme.warning
-      : theme.subText;
+        ? theme.warning
+        : theme.subText;
 
   const actionRemoveLiq = route?.zapDetails.actions.find(
     (item) => item.type === "ACTION_TYPE_REMOVE_LIQUIDITY"
@@ -162,9 +162,9 @@ export function EstLiqValue() {
                 style={
                   route
                     ? {
-                        color,
-                        borderColor: color,
-                      }
+                      color,
+                      borderColor: color,
+                    }
                     : {}
                 }
               >
@@ -176,11 +176,11 @@ export function EstLiqValue() {
                 style={{
                   color:
                     piRes.level === PI_LEVEL.VERY_HIGH ||
-                    piRes.level === PI_LEVEL.INVALID
+                      piRes.level === PI_LEVEL.INVALID
                       ? theme.error
                       : piRes.level === PI_LEVEL.HIGH
-                      ? theme.warning
-                      : theme.text,
+                        ? theme.warning
+                        : theme.text,
                 }}
               >
                 {piRes.display}

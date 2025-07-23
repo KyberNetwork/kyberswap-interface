@@ -20,13 +20,13 @@ import {
 } from "@/stores/state";
 import { assertUnreachable, sameToken } from "@/utils";
 import { Skeleton } from "@kyber/ui/skeleton";
+import { getPositionAmounts } from "@kyber/utils/uniswapv3";
 import {
   formatDisplayNumber,
   formatTokenAmount,
   toRawString,
 } from "@kyber/utils/number";
 import { cn } from "@kyber/utils/tailwind-helpers";
-import { getPositionAmounts } from "@kyber/utils/uniswapv3";
 import { useEffect, useState } from "react";
 
 export function ZapTo({ chainId }: { chainId: ChainId }) {
@@ -179,7 +179,7 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
                 </div>
                 {formatDisplayNumber(
                   (pool.token0.price || 0) *
-                    Number(toRawString(amount0, pool.token0.decimals)),
+                  Number(toRawString(amount0, pool.token0.decimals)),
                   { style: "currency" }
                 )}
               </div>
@@ -213,7 +213,7 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
                 </div>
                 {formatDisplayNumber(
                   (pool.token1.price || 0) *
-                    Number(toRawString(amount1, pool.token1.decimals)),
+                  Number(toRawString(amount1, pool.token1.decimals)),
                   { style: "currency" }
                 )}
               </div>
@@ -316,9 +316,9 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
                     </div>
                     {formatDisplayNumber(
                       (pool.token0.price || 0) *
-                        Number(
-                          toRawString(withdrawAmount0, pool.token0.decimals)
-                        ),
+                      Number(
+                        toRawString(withdrawAmount0, pool.token0.decimals)
+                      ),
                       { style: "currency" }
                     )}
                   </div>
@@ -356,9 +356,9 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
                     </div>
                     {formatDisplayNumber(
                       (pool.token1.price || 0) *
-                        Number(
-                          toRawString(withdrawAmount1, pool.token1.decimals)
-                        ),
+                      Number(
+                        toRawString(withdrawAmount1, pool.token1.decimals)
+                      ),
                       { style: "currency" }
                     )}
                   </div>

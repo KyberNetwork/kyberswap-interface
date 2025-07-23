@@ -51,8 +51,8 @@ const ZapOut = (props: ZapOutProps) => {
         <div className="ks-lw ks-lw-style">
           <div className="px-4 py-6 sm:px-6">
             <Header />
-            <div className="grid grid-cols-1 gap-6 mt-4 sm:grid-cols-2">
-              <div className="flex flex-col gap-4">
+            <div className="mt-4 flex gap-5 max-sm:flex-col">
+              <div className="flex flex-col gap-4 w-[55%] max-sm:w-full">
                 <div className="-mb-4">
                   <PoolStat
                     chainId={chainId}
@@ -67,7 +67,7 @@ const ZapOut = (props: ZapOutProps) => {
                 <PoolFee />
               </div>
 
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-4 w-[45%] max-sm:w-full">
                 <ZapTo chainId={chainId} />
                 <EstLiqValue />
                 <ZapSummary />

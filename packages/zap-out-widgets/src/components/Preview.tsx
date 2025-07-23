@@ -1,10 +1,11 @@
 import AlertIcon from "@/assets/svg/error.svg";
 import LoadingIcon from "@/assets/svg/loader.svg";
+import Modal from "@/components/Modal";
+import { ScrollArea } from "@kyber/ui";
 import defaultTokenLogo from "@/assets/svg/question.svg?url";
 import CheckIcon from "@/assets/svg/success.svg";
 import X from "@/assets/svg/x.svg";
 import { Image } from "@/components/Image";
-import Modal from "@/components/Modal";
 import { SlippageWarning } from "@/components/SlippageWarning";
 import { SwapPI, useSwapPI } from "@/components/SwapImpact";
 import { MouseoverTooltip } from "@/components/Tooltip";
@@ -19,8 +20,6 @@ import {
   useZapOutUserState,
 } from "@/stores/state";
 import { PI_LEVEL, formatCurrency } from "@/utils";
-import { useTokenPrices } from "@kyber/hooks/use-token-prices";
-import { ScrollArea } from "@kyber/ui/scroll-area";
 import {
   calculateGasMargin,
   estimateGas,
@@ -31,6 +30,7 @@ import {
 import { formatDisplayNumber, formatTokenAmount } from "@kyber/utils/number";
 import { cn } from "@kyber/utils/tailwind-helpers";
 import { SyntheticEvent, useEffect, useState } from "react";
+import { fetchTokenPrice } from "@kyber/utils";
 
 export const Preview = () => {
   const {
@@ -60,8 +60,6 @@ export const Preview = () => {
     value: string;
   } | null>(null);
   const [error, setError] = useState<string>("");
-
-  const { fetchPrices } = useTokenPrices({ addresses: [], chainId });
 
   useEffect(() => {
     if (!route?.route || !showPreview || !account) return;
@@ -108,7 +106,10 @@ export const Preview = () => {
           return "0";
         }),
         getCurrentGasPrice(rpcUrl).catch(() => 0),
-        fetchPrices([wethAddress])
+        fetchTokenPrice({
+          addresses: [wethAddress],
+          chainId,
+        })
           .then((prices) => {
             return prices[wethAddress]?.PriceBuy || 0;
           })
@@ -122,7 +123,7 @@ export const Preview = () => {
 
       setGasUsd(gasUsd);
     })();
-  }, [buildData, account, chainId, rpcUrl, fetchPrices]);
+  }, [buildData, account, chainId, rpcUrl]);
 
   const [showProcessing, setShowProcessing] = useState(false);
   const [submiting, setSubmiting] = useState(false);
@@ -229,25 +230,25 @@ export const Preview = () => {
         <div className="flex flex-col items-center">
           <div className="flex items-center justify-center gap-2 text-xl font-medium my-8">
             {txStatus === "success" ? (
-              <CheckIcon className="w-6 h-6 text-success" />
+              <CheckIcon className="w-7 h-7 text-success" />
             ) : txStatus === "failed" ? (
-              <AlertIcon className="w-6 h-6 text-error" />
+              <AlertIcon className="w-7 h-7 text-error" />
             ) : (
-              <LoadingIcon className="w-6 h-6 text-primary animate-spin" />
+              <LoadingIcon className="w-7 h-7 text-primary animate-spin" />
             )}
             {txStatus === "success"
               ? "Zap Out Success!"
               : txStatus === "failed"
-              ? "Transaction Failed!"
-              : "Processing Transaction"}
+                ? "Transaction Failed!"
+                : "Processing Transaction"}
           </div>
 
-          <div className="text-subText">
+          <div className="text-subText text-center">
             {txStatus === "success"
-              ? "You have successfully added liquidity!"
+              ? "You have successfully removed liquidity!"
               : txStatus === "failed"
-              ? "An error occurred during the liquidity migration."
-              : "Transaction submitted. Waiting for the transaction to be mined"}
+                ? "An error occurred during the liquidity migration."
+                : "Transaction submitted. Waiting for the transaction to be mined"}
           </div>
           <a
             className="text-primary text-xs mt-4"
@@ -309,8 +310,8 @@ export const Preview = () => {
     zapPiRes.level === PI_LEVEL.VERY_HIGH || zapPiRes.level === PI_LEVEL.INVALID
       ? theme.error
       : zapPiRes.level === PI_LEVEL.HIGH
-      ? theme.warning
-      : theme.subText;
+        ? theme.warning
+        : theme.subText;
 
   return (
     <Modal
@@ -399,137 +400,138 @@ export const Preview = () => {
         )}
       </div>
 
-      {mode === "zapOut" && (
-        <>
-          <div className="flex flex-col mt-4 gap-3 text-sm">
-            <div className="flex items-center justify-between">
-              <div className="text-subText text-xs ">
-                Est. Received {tokenOut.symbol}
+      {
+        mode === "zapOut" && (
+          <>
+            <div className="flex flex-col mt-4 gap-3 text-sm">
+              <div className="flex items-center justify-between">
+                <div className="text-subText text-xs ">
+                  Est. Received {tokenOut.symbol}
+                </div>
+                <div className="flex items-center gap-1">
+                  <img
+                    src={tokenOut.logo}
+                    className="w-4 h-4 rounded-full"
+                    alt=""
+                  />
+                  {formatTokenAmount(amountOut, tokenOut?.decimals || 18)}{" "}
+                  {tokenOut.symbol}
+                </div>
               </div>
-              <div className="flex items-center gap-1">
-                <img
-                  src={tokenOut.logo}
-                  className="w-4 h-4 rounded-full"
-                  alt=""
-                />
-                {formatTokenAmount(amountOut, tokenOut?.decimals || 18)}{" "}
-                {tokenOut.symbol}
+
+              <SlippageWarning
+                slippage={slippage}
+                suggestedSlippage={suggestedSlippage}
+                className="mt-0"
+                showWarning={!!route}
+              />
+
+              <div className="flex items-center justify-between">
+                <SwapPI />
               </div>
-            </div>
 
-            <SlippageWarning
-              slippage={slippage}
-              suggestedSlippage={suggestedSlippage}
-              className="mt-0"
-              showWarning={!!route}
-            />
-
-            <div className="flex items-center justify-between">
-              <SwapPI />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <MouseoverTooltip
-                text="The difference between input and estimated received (including remaining amount). Be careful with high value!"
-                width="220px"
-              >
-                <div
-                  className="text-subText text-xs border-b border-dotted border-subText"
-                  style={
-                    route
-                      ? {
+              <div className="flex items-center justify-between">
+                <MouseoverTooltip
+                  text="The difference between input and estimated received (including remaining amount). Be careful with high value!"
+                  width="220px"
+                >
+                  <div
+                    className="text-subText text-xs border-b border-dotted border-subText"
+                    style={
+                      route
+                        ? {
                           color,
                           borderColor: color,
                         }
-                      : {}
-                  }
+                        : {}
+                    }
+                  >
+                    Zap Impact
+                  </div>
+                </MouseoverTooltip>
+                <div
+                  style={{
+                    color:
+                      zapPiRes.level === PI_LEVEL.VERY_HIGH ||
+                        zapPiRes.level === PI_LEVEL.INVALID
+                        ? theme.error
+                        : zapPiRes.level === PI_LEVEL.HIGH
+                          ? theme.warning
+                          : theme.text,
+                  }}
                 >
-                  Zap Impact
+                  {zapPiRes.display}
                 </div>
-              </MouseoverTooltip>
-              <div
-                style={{
-                  color:
-                    zapPiRes.level === PI_LEVEL.VERY_HIGH ||
-                    zapPiRes.level === PI_LEVEL.INVALID
-                      ? theme.error
-                      : zapPiRes.level === PI_LEVEL.HIGH
-                      ? theme.warning
-                      : theme.text,
-                }}
-              >
-                {zapPiRes.display}
               </div>
-            </div>
 
-            <div className="flex items-center justify-between">
-              <MouseoverTooltip
-                text="Estimated network fee for your transaction."
-                width="220px"
-              >
-                <div className="text-subText text-xs border-b border-dotted border-subText">
-                  Est. Gas Fee
-                </div>
-              </MouseoverTooltip>
-              <div>
-                {gasUsd
-                  ? formatDisplayNumber(gasUsd, {
+              <div className="flex items-center justify-between">
+                <MouseoverTooltip
+                  text="Estimated network fee for your transaction."
+                  width="220px"
+                >
+                  <div className="text-subText text-xs border-b border-dotted border-subText">
+                    Est. Gas Fee
+                  </div>
+                </MouseoverTooltip>
+                <div>
+                  {gasUsd
+                    ? formatDisplayNumber(gasUsd, {
                       significantDigits: 4,
                       style: "currency",
                     })
-                  : "--"}
+                    : "--"}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <MouseoverTooltip
+                  text={
+                    <div>
+                      Fees charged for automatically zapping into a liquidity
+                      pool. You still have to pay the standard gas fees.{" "}
+                      <a
+                        style={{ color: theme.accent }}
+                        href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-zap-as-a-service/zap-fee-model"
+                        target="_blank"
+                        rel="noopener norefferer"
+                      >
+                        More details.
+                      </a>
+                    </div>
+                  }
+                  width="220px"
+                >
+                  <div className="text-subText text-xs border-b border-dotted border-subText">
+                    Zap Fee
+                  </div>
+                </MouseoverTooltip>
+                <div>{parseFloat(zapFee.toFixed(3))}%</div>
               </div>
             </div>
 
-            <div className="flex items-center justify-between">
-              <MouseoverTooltip
-                text={
-                  <div>
-                    Fees charged for automatically zapping into a liquidity
-                    pool. You still have to pay the standard gas fees.{" "}
-                    <a
-                      style={{ color: theme.accent }}
-                      href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-zap-as-a-service/zap-fee-model"
-                      target="_blank"
-                      rel="noopener norefferer"
-                    >
-                      More details.
-                    </a>
-                  </div>
-                }
-                width="220px"
-              >
-                <div className="text-subText text-xs border-b border-dotted border-subText">
-                  Zap Fee
+            {(slippage > 2 * suggestedSlippage ||
+              slippage < suggestedSlippage / 2) && (
+                <div
+                  className="rounded-md text-xs px-4 py-3 mt-4 font-normal text-warning"
+                  style={{
+                    backgroundColor: `${theme.warning}33`,
+                  }}
+                >
+                  {slippage > 2 * suggestedSlippage
+                    ? "Your slippage is set higher than usual, which may cause unexpected losses."
+                    : "Your slippage is set lower than usual, increasing the risk of transaction failure."}
                 </div>
-              </MouseoverTooltip>
-              <div>{parseFloat(zapFee.toFixed(3))}%</div>
+              )}
+
+            <div className="text-xs italic mt-4 text-subText">
+              The information is intended solely for your reference at the time
+              you are viewing. It is your responsibility to verify all information
+              before making decisions
             </div>
-          </div>
 
-          {(slippage > 2 * suggestedSlippage ||
-            slippage < suggestedSlippage / 2) && (
-            <div
-              className="rounded-md text-xs px-4 py-3 mt-4 font-normal text-warning"
-              style={{
-                backgroundColor: `${theme.warning}33`,
-              }}
-            >
-              {slippage > 2 * suggestedSlippage
-                ? "Your slippage is set higher than usual, which may cause unexpected losses."
-                : "Your slippage is set lower than usual, increasing the risk of transaction failure."}
-            </div>
-          )}
-
-          <div className="text-xs italic mt-4 text-subText">
-            The information is intended solely for your reference at the time
-            you are viewing. It is your responsibility to verify all information
-            before making decisions
-          </div>
-
-          <WarningMsg />
-        </>
-      )}
+            <WarningMsg />
+          </>
+        )}
 
       {mode === "withdrawOnly" && (
         <>
@@ -550,9 +552,9 @@ export const Preview = () => {
               <div>
                 {gasUsd
                   ? formatDisplayNumber(gasUsd, {
-                      significantDigits: 4,
-                      style: "currency",
-                    })
+                    significantDigits: 4,
+                    style: "currency",
+                  })
                   : "--"}
               </div>
             </div>
@@ -571,8 +573,8 @@ export const Preview = () => {
           pi.piVeryHigh
             ? "bg-error border-solid border-error text-white"
             : pi.piHigh
-            ? "bg-warning border-solid border-warning"
-            : ""
+              ? "bg-warning border-solid border-warning"
+              : ""
         )}
         onClick={async () => {
           if (!account) return;
