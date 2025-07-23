@@ -45,7 +45,7 @@ export const TokenContextProvider = ({
   const [tokens, setTokens] = useState<Token[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const { balances: tokenBalances } = useTokenBalances(
+  const { balances: tokenBalances, loading: tokenBalancesLoading } = useTokenBalances(
     chainId,
     [...tokens, ...importedTokens].map(item => item.address),
     account,
@@ -148,7 +148,7 @@ export const TokenContextProvider = ({
         tokens,
         importedTokens,
         tokenBalances,
-        isLoading,
+        isLoading: isLoading || tokenBalancesLoading,
         importToken,
         removeImportedToken,
         removeAllImportedTokens,
