@@ -225,7 +225,9 @@ export const Preview = () => {
               <LoadingIcon className="w-7 h-7 text-primary animate-spin" />
             )}
             {txStatus === "success"
-              ? "Zap Out Success!"
+              ? mode === "zapOut"
+                ? "Zap Out Success!"
+                : "Remove Liquidity Success!"
               : txStatus === "failed"
               ? "Transaction Failed!"
               : "Processing Transaction"}
