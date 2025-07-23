@@ -1,5 +1,3 @@
-import { Image } from "./Image";
-import questionImg from "@/assets/svg/question.svg?url";
 import { SlippageWarning } from "@/components/SlippageWarning";
 import { SwapPI } from "@/components/SwapImpact";
 import { MouseoverTooltip } from "@/components/Tooltip";
@@ -12,7 +10,7 @@ import {
 } from "@/stores/state";
 import { PI_LEVEL, formatCurrency, getPriceImpact } from "@/utils";
 import { useDebounce } from "@kyber/hooks/use-debounce";
-import { Skeleton } from "@kyber/ui/skeleton";
+import { Skeleton, TokenLogo } from "@kyber/ui";
 import { formatDisplayNumber, formatTokenAmount } from "@kyber/utils/number";
 import { useEffect } from "react";
 
@@ -76,8 +74,8 @@ export function EstLiqValue() {
     piRes.level === PI_LEVEL.VERY_HIGH || piRes.level === PI_LEVEL.INVALID
       ? theme.error
       : piRes.level === PI_LEVEL.HIGH
-        ? theme.warning
-        : theme.subText;
+      ? theme.warning
+      : theme.subText;
 
   const actionRemoveLiq = route?.zapDetails.actions.find(
     (item) => item.type === "ACTION_TYPE_REMOVE_LIQUIDITY"
@@ -127,15 +125,7 @@ export function EstLiqValue() {
               <Skeleton className="w-20 h-4" />
             ) : (
               <div className="flex items-center gap-1">
-                <img
-                  src={tokenOut?.logo}
-                  className="w-4 h-4 rounded-full"
-                  alt=""
-                  onError={({ currentTarget }) => {
-                    currentTarget.onerror = null; // prevents looping
-                    currentTarget.src = questionImg;
-                  }}
-                />
+                <TokenLogo src={tokenOut?.logo} size={16} />
                 {formatTokenAmount(amountOut, tokenOut?.decimals || 18, 6)}{" "}
                 {tokenOut?.symbol}
               </div>
@@ -162,9 +152,9 @@ export function EstLiqValue() {
                 style={
                   route
                     ? {
-                      color,
-                      borderColor: color,
-                    }
+                        color,
+                        borderColor: color,
+                      }
                     : {}
                 }
               >
@@ -176,11 +166,11 @@ export function EstLiqValue() {
                 style={{
                   color:
                     piRes.level === PI_LEVEL.VERY_HIGH ||
-                      piRes.level === PI_LEVEL.INVALID
+                    piRes.level === PI_LEVEL.INVALID
                       ? theme.error
                       : piRes.level === PI_LEVEL.HIGH
-                        ? theme.warning
-                        : theme.text,
+                      ? theme.warning
+                      : theme.text,
                 }}
               >
                 {piRes.display}
@@ -228,7 +218,7 @@ export function EstLiqValue() {
               ) : (
                 <>
                   <div className="flex items-center gap-1">
-                    <Image src={pool.token0.logo} />
+                    <TokenLogo src={pool.token0.logo} size={16} />
                     {formatTokenAmount(feeAmount0, pool.token0.decimals, 4)}
                     <span>{pool.token0.symbol}</span>
                     {fee0 && (
@@ -241,7 +231,7 @@ export function EstLiqValue() {
                     )}
                   </div>
                   <div className="flex items-center gap-1 mt-1">
-                    <Image src={pool.token1.logo} />
+                    <TokenLogo src={pool.token1.logo} size={16} />
                     {formatTokenAmount(feeAmount1, pool.token1.decimals, 4)}
                     <span>{pool.token1.symbol}</span>
                     {fee1 && (

@@ -1,14 +1,13 @@
 import { useZapOutContext } from "@/stores";
 import { useZapOutUserState } from "@/stores/state";
-import { Skeleton, Slider } from "@kyber/ui";
-import questionImg from "@/assets/svg/question.svg?url";
+import { Skeleton, Slider, TokenLogo } from "@kyber/ui";
 import {
   formatDisplayNumber,
   formatTokenAmount,
   toRawString,
 } from "@kyber/utils/number";
 import { cn } from "@kyber/utils/tailwind-helpers";
-import { SyntheticEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   UniV2Position,
   UniV3Position,
@@ -58,12 +57,6 @@ export function LiquidityToRemove() {
         (position as UniV2Position).totalSupply;
     } else assertUnreachable(poolType as never, `${poolType} is not handled`);
   }
-  const onError = ({
-    currentTarget,
-  }: SyntheticEvent<HTMLImageElement, Event>) => {
-    currentTarget.onerror = null; // prevents looping
-    currentTarget.src = questionImg;
-  };
 
   return (
     <div className="rounded-lg px-4 py-3 border border-stroke text-sm text-subText">
@@ -106,12 +99,7 @@ export function LiquidityToRemove() {
         ) : (
           <>
             <div className="flex items-center text-base gap-1 text-text">
-              <img
-                src={pool.token0.logo || ""}
-                alt=""
-                className="w-4 h-4"
-                onError={onError}
-              />
+              <TokenLogo src={pool.token0.logo || ''} />
               {formatTokenAmount(amount0, pool.token0.decimals, 8)}{" "}
               {pool.token0.symbol}
             </div>
@@ -134,12 +122,7 @@ export function LiquidityToRemove() {
         ) : (
           <>
             <div className="flex items-center text-base gap-1 text-text">
-              <img
-                src={pool.token1.logo || ""}
-                alt=""
-                className="w-4 h-4"
-                onError={onError}
-              />
+              <TokenLogo src={pool.token1.logo || ''} />
               {formatTokenAmount(amount1, pool.token1.decimals, 8)}{" "}
               {pool.token1.symbol}
             </div>

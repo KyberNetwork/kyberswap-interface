@@ -1,7 +1,6 @@
 import CircleChevronRight from "@/assets/svg/circle-chevron-right.svg";
 import DropdownIcon from "@/assets/svg/dropdown.svg";
 import HandIcon from "@/assets/svg/hand.svg";
-import questionImg from "@/assets/svg/question.svg?url";
 import ZapIcon from "@/assets/svg/zapout.svg";
 import TokenSelectorModal from "@/components/TokenSelector/TokenSelectorModal";
 import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO } from "@/constants";
@@ -19,14 +18,14 @@ import {
   useZapOutUserState,
 } from "@/stores/state";
 import { assertUnreachable, sameToken } from "@/utils";
-import { Skeleton } from "@kyber/ui/skeleton";
-import { getPositionAmounts } from "@kyber/utils/uniswapv3";
+import { Skeleton, TokenLogo } from "@kyber/ui";
 import {
   formatDisplayNumber,
   formatTokenAmount,
   toRawString,
 } from "@kyber/utils/number";
 import { cn } from "@kyber/utils/tailwind-helpers";
+import { getPositionAmounts } from "@kyber/utils/uniswapv3";
 import { useEffect, useState } from "react";
 
 export function ZapTo({ chainId }: { chainId: ChainId }) {
@@ -162,14 +161,9 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
           ) : (
             <>
               <div className="flex items-center text-base gap-1 text-text">
-                <img
+                <TokenLogo
                   src={pool.token0.logo || ""}
-                  alt=""
-                  className="w-4 h-4"
-                  onError={({ currentTarget }) => {
-                    currentTarget.onerror = null; // prevents looping
-                    currentTarget.src = questionImg;
-                  }}
+                  alt={pool.token0.symbol}
                 />
                 {pool.token0.symbol}
               </div>
@@ -179,7 +173,7 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
                 </div>
                 {formatDisplayNumber(
                   (pool.token0.price || 0) *
-                  Number(toRawString(amount0, pool.token0.decimals)),
+                    Number(toRawString(amount0, pool.token0.decimals)),
                   { style: "currency" }
                 )}
               </div>
@@ -196,14 +190,9 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
           ) : (
             <>
               <div className="flex items-center text-base gap-1 text-text">
-                <img
+                <TokenLogo
                   src={pool.token1.logo || ""}
-                  alt=""
-                  className="w-4 h-4"
-                  onError={({ currentTarget }) => {
-                    currentTarget.onerror = null; // prevents looping
-                    currentTarget.src = questionImg;
-                  }}
+                  alt={pool.token1.symbol}
                 />
                 {pool.token1.symbol}
               </div>
@@ -213,7 +202,7 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
                 </div>
                 {formatDisplayNumber(
                   (pool.token1.price || 0) *
-                  Number(toRawString(amount1, pool.token1.decimals)),
+                    Number(toRawString(amount1, pool.token1.decimals)),
                   { style: "currency" }
                 )}
               </div>
@@ -267,15 +256,10 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
                 setShowTokenSelect(true);
               }}
             >
-              <img
-                src={tokenOut?.logo ? tokenOut.logo : questionImg}
-                alt="TokenLogo"
-                width="20px"
+              <TokenLogo
+                src={tokenOut?.logo}
+                size={20}
                 className="rounded-full brightness-75"
-                onError={({ currentTarget }) => {
-                  currentTarget.onerror = null;
-                  currentTarget.src = questionImg;
-                }}
               />
               <span>{tokenOut?.symbol}</span>
               <DropdownIcon />
@@ -295,15 +279,7 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
               ) : (
                 <>
                   <div className="flex items-center text-base gap-1 text-text">
-                    <img
-                      src={pool.token0.logo || ""}
-                      alt=""
-                      className="w-4 h-4"
-                      onError={({ currentTarget }) => {
-                        currentTarget.onerror = null; // prevents looping
-                        currentTarget.src = questionImg;
-                      }}
-                    />
+                    <TokenLogo src={pool.token0.logo} size={16} />
                     {pool.token0.symbol}
                   </div>
                   <div className="text-xs text-subText text-right">
@@ -316,9 +292,9 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
                     </div>
                     {formatDisplayNumber(
                       (pool.token0.price || 0) *
-                      Number(
-                        toRawString(withdrawAmount0, pool.token0.decimals)
-                      ),
+                        Number(
+                          toRawString(withdrawAmount0, pool.token0.decimals)
+                        ),
                       { style: "currency" }
                     )}
                   </div>
@@ -335,15 +311,7 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
               ) : (
                 <>
                   <div className="flex items-center text-base gap-1 text-text">
-                    <img
-                      src={pool.token1.logo || ""}
-                      alt=""
-                      className="w-4 h-4"
-                      onError={({ currentTarget }) => {
-                        currentTarget.onerror = null; // prevents looping
-                        currentTarget.src = questionImg;
-                      }}
-                    />
+                    <TokenLogo src={pool.token1.logo} size={16} />
                     {pool.token1.symbol}
                   </div>
                   <div className="text-xs text-subText text-right">
@@ -356,9 +324,9 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
                     </div>
                     {formatDisplayNumber(
                       (pool.token1.price || 0) *
-                      Number(
-                        toRawString(withdrawAmount1, pool.token1.decimals)
-                      ),
+                        Number(
+                          toRawString(withdrawAmount1, pool.token1.decimals)
+                        ),
                       { style: "currency" }
                     )}
                   </div>
