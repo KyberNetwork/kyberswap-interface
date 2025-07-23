@@ -2,6 +2,7 @@ import { X as Xsvg } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
+import TokenLogo from 'components/TokenLogo'
 import useTheme from 'hooks/useTheme'
 import { LIMIT_TEXT_STYLES } from 'pages/Earns/constants'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -55,19 +56,6 @@ export const ClaimInfo = styled.div`
   gap: 10px;
 `
 
-export const Image = styled.img`
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-`
-
-const DexImage = styled(Image)`
-  width: 14px;
-  height: 14px;
-  margin-left: -6px;
-  border: 1px solid #0f0f0f;
-`
-
 export const ClaimInfoRow = ({
   tokenImage,
   dexImage,
@@ -86,8 +74,8 @@ export const ClaimInfoRow = ({
   return (
     <Flex alignItems={'center'} sx={{ gap: '6px' }}>
       <Flex alignItems={'flex-end'}>
-        <Image src={tokenImage} alt="tokenImage" />
-        <DexImage src={dexImage} alt="dexImage" />
+        <TokenLogo src={tokenImage} alt="tokenImage" />
+        <TokenLogo src={dexImage} size={14} alt="dexImage" />
       </Flex>
       <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '100px' }}>
         {formatDisplayNumber(tokenAmount, {

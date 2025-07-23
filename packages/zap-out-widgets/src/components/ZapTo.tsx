@@ -5,11 +5,10 @@ import {
   univ2PoolNormalize,
   univ3PoolNormalize,
 } from "@/schema";
-import questionImg from "@/assets/svg/question.svg?url";
 import { useZapOutContext } from "@/stores";
 import DropdownIcon from "@/assets/svg/dropdown.svg";
 import { assertUnreachable } from "@/utils";
-import { Skeleton } from "@kyber/ui";
+import { Skeleton, TokenLogo } from "@kyber/ui";
 import { getPositionAmounts } from "@kyber/utils/uniswapv3";
 import {
   formatDisplayNumber,
@@ -123,15 +122,7 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
           ) : (
             <>
               <div className="flex items-center text-base gap-1 text-text">
-                <img
-                  src={pool.token0.logo || ""}
-                  alt=""
-                  className="w-4 h-4"
-                  onError={({ currentTarget }) => {
-                    currentTarget.onerror = null; // prevents looping
-                    currentTarget.src = questionImg;
-                  }}
-                />
+                <TokenLogo src={pool.token0.logo || ''} alt={pool.token0.symbol} />
                 {pool.token0.symbol}
               </div>
               <div className="text-xs text-subText text-right">
@@ -157,15 +148,7 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
           ) : (
             <>
               <div className="flex items-center text-base gap-1 text-text">
-                <img
-                  src={pool.token1.logo || ""}
-                  alt=""
-                  className="w-4 h-4"
-                  onError={({ currentTarget }) => {
-                    currentTarget.onerror = null; // prevents looping
-                    currentTarget.src = questionImg;
-                  }}
-                />
+                <TokenLogo src={pool.token1.logo || ''} alt={pool.token1.symbol} />
                 {pool.token1.symbol}
               </div>
               <div className="text-xs text-subText text-right">
@@ -194,16 +177,7 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
               setShowTokenSelect(true);
             }}
           >
-            <img
-              src={tokenOut?.logo ? tokenOut.logo : questionImg}
-              alt="TokenLogo"
-              width="20px"
-              className="rounded-full brightness-75"
-              onError={({ currentTarget }) => {
-                currentTarget.onerror = null;
-                currentTarget.src = questionImg;
-              }}
-            />
+            <TokenLogo size={20} className="brightness-75" src={tokenOut?.logo || ''} alt={tokenOut?.symbol || ''} />
             <span>{tokenOut?.symbol}</span>
             <DropdownIcon />
           </button>

@@ -1,11 +1,10 @@
 import { MouseoverTooltip } from "@/components/Tooltip";
-import questionImg from "@/assets/svg/question.svg?url";
 import { ProtocolFeeAction, ZapAction } from "@/hooks/types/zapInTypes";
 import { useDebounce } from "@kyber/hooks/use-debounce";
 import { useZapOutContext } from "@/stores";
 import { RefundAction, useZapOutUserState } from "@/stores/state";
 import { PI_LEVEL, formatCurrency, getPriceImpact } from "@/utils";
-import { Skeleton } from "@kyber/ui";
+import { Skeleton, TokenLogo } from "@kyber/ui";
 import { formatTokenAmount } from "@kyber/utils/number";
 import { useEffect } from "react";
 import { SwapPI } from "@/components/SwapImpact";
@@ -91,15 +90,7 @@ export function EstLiqValue() {
           <Skeleton className="w-20 h-4" />
         ) : (
           <div className="flex items-center gap-1">
-            <img
-              src={tokenOut?.logo}
-              className="w-4 h-4 rounded-full"
-              alt=""
-              onError={({ currentTarget }) => {
-                currentTarget.onerror = null; // prevents looping
-                currentTarget.src = questionImg;
-              }}
-            />
+            <TokenLogo src={tokenOut?.logo} />
             {formatTokenAmount(amountOut, tokenOut?.decimals || 18, 6)}{" "}
             {tokenOut?.symbol}
           </div>
