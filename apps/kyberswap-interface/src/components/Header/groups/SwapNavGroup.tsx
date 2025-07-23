@@ -48,7 +48,9 @@ const SwapNavGroup = () => {
 
   const [{ show: isShowTutorial = false, stepInfo }] = useTutorialSwapGuide()
 
-  const isActive = [APP_PATHS.SWAP, APP_PATHS.BUY_CRYPTO, APP_PATHS.LIMIT].some(path => pathname.startsWith(path))
+  const isActive = [APP_PATHS.SWAP, APP_PATHS.BUY_CRYPTO, APP_PATHS.LIMIT, APP_PATHS.CROSS_CHAIN].some(path =>
+    pathname.startsWith(path),
+  )
 
   return (
     <NavGroup
