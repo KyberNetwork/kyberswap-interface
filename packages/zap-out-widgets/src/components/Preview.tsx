@@ -1,11 +1,10 @@
 import Modal from "@/components/Modal";
-import { ScrollArea } from "@kyber/ui";
-import defaultTokenLogo from "@/assets/svg/question.svg?url";
+import { ScrollArea, TokenLogo } from "@kyber/ui";
 import X from "@/assets/svg/x.svg";
 import { RefundAction, useZapOutUserState } from "@/stores/state";
 import { useZapOutContext } from "@/stores";
 import { NETWORKS_INFO, PATHS, CHAIN_ID_TO_CHAIN } from "@/constants";
-import { SyntheticEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { formatDisplayNumber, formatTokenAmount } from "@kyber/utils/number";
 import { PI_LEVEL, formatCurrency } from "@/utils";
 import { MouseoverTooltip } from "@/components/Tooltip";
@@ -171,16 +170,6 @@ export const Preview = () => {
   };
 
   const zapFee = ((feeInfo?.protocolFee.pcm || 0) / 100_000) * 100;
-
-  const imgProps = {
-    width: "36px",
-    height: "36px",
-    alt: "",
-    onError: ({ currentTarget }: SyntheticEvent<HTMLImageElement, Event>) => {
-      currentTarget.onerror = null;
-      currentTarget.src = defaultTokenLogo;
-    },
-  };
   const suggestedSlippage = route?.zapDetails.suggestedSlippage || 100;
 
   if (showProcessing) {
@@ -292,19 +281,9 @@ export const Preview = () => {
 
       <div className="flex gap-3 items-center mt-4">
         <div className="flex items-end">
-          <img src={pool.token0.logo} {...imgProps} />
-          <img
-            src={pool.token1.logo}
-            {...imgProps}
-            className="rounded-full -ml-2"
-          />
-          <img
-            {...imgProps}
-            src={NETWORKS_INFO[chainId].logo}
-            width="18px"
-            height="18px"
-            className="rounded-full -ml-2"
-          />
+          <TokenLogo src={pool.token0.logo} size={36} alt={pool.token0.symbol} />
+          <TokenLogo src={pool.token1.logo} size={36} alt={pool.token1.symbol} className="-ml-2" />
+          <TokenLogo src={NETWORKS_INFO[chainId].logo} size={18} alt={NETWORKS_INFO[chainId].name} className="-ml-2" />
         </div>
 
         <div>
@@ -321,7 +300,7 @@ export const Preview = () => {
       <div className="mt-4 rounded-xl p-4 bg-layer2">
         <div className="text-subText text-sm">Zap-out Amount</div>
         <div className="flex mt-3 text-base items-center">
-          <img src={tokenOut.logo} alt="" className="w-5 h-5" />
+          <TokenLogo src={tokenOut.logo} size={20} alt={tokenOut.symbol} />
           <div className="ml-1">
             {formatTokenAmount(amountOut, tokenOut.decimals)} {tokenOut.symbol}
           </div>
@@ -337,7 +316,7 @@ export const Preview = () => {
             Est. Received {tokenOut.symbol}
           </div>
           <div className="flex items-center gap-1">
-            <img src={tokenOut.logo} className="w-4 h-4 rounded-full" alt="" />
+            <TokenLogo src={tokenOut.logo} alt={tokenOut.symbol} />
             {formatTokenAmount(amountOut, tokenOut?.decimals || 18)}{" "}
             {tokenOut.symbol}
           </div>
