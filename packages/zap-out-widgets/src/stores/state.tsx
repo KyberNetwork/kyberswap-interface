@@ -35,6 +35,7 @@ interface ZapOutUserState {
     poolType: PoolType;
     poolAddress: string;
     positionId: string;
+    signal?: AbortSignal;
   }) => Promise<void>;
   highlightDegenMode: boolean;
   manualSlippage: boolean;
@@ -90,7 +91,13 @@ export const useZapOutUserState = create<ZapOutUserState>((set, get) => ({
 
   togglePreview: () => set((state) => ({ showPreview: !state.showPreview })),
 
-  fetchZapOutRoute: async ({ chainId, poolType, positionId, poolAddress }) => {
+  fetchZapOutRoute: async ({
+    chainId,
+    poolType,
+    positionId,
+    poolAddress,
+    signal,
+  }) => {
     const { tokenOut, liquidityOut, slippage, mode } = get();
 
     if ((mode === "zapOut" && !tokenOut?.address) || liquidityOut === 0n) {
@@ -120,7 +127,8 @@ export const useZapOutUserState = create<ZapOutUserState>((set, get) => ({
       const res = await fetch(
         `${PATHS.ZAP_API}/${
           CHAIN_ID_TO_CHAIN[chainId]
-        }/api/v1/out/route?${search.slice(1)}`
+        }/api/v1/out/route?${search.slice(1)}`,
+        { signal },
       ).then((res) => res.json());
 
       if (!res.data) {
@@ -130,6 +138,9 @@ export const useZapOutUserState = create<ZapOutUserState>((set, get) => ({
       apiResponse.parse(res.data);
       set({ route: res.data, fetchingRoute: false });
     } catch (e) {
+      if (signal?.aborted || (e as any)?.name === "AbortError") {
+        return;
+      }
       console.log(e);
       set({ fetchingRoute: false, route: null });
     }
@@ -161,7 +172,7 @@ const aggregatorSwapAction = z.object({
       z.object({
         tokenIn: token,
         tokenOut: token,
-      })
+      }),
     ),
   }),
 });
@@ -198,7 +209,7 @@ const apiResponse = z.object({
               z.object({
                 tokenIn: token,
                 tokenOut: token,
-              })
+              }),
             ),
           }),
         }),
@@ -220,7 +231,7 @@ const apiResponse = z.object({
         //    tokens: z.array(token),
         //  }),
         //}),
-      ])
+      ]),
     ),
   }),
   route: z.string(),

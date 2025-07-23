@@ -12,7 +12,7 @@ import { PI_LEVEL, formatCurrency, getPriceImpact } from "@/utils";
 import { useDebounce } from "@kyber/hooks/use-debounce";
 import { Skeleton, TokenLogo } from "@kyber/ui";
 import { formatDisplayNumber, formatTokenAmount } from "@kyber/utils/number";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 export function EstLiqValue() {
   const { chainId, positionId, poolAddress, poolType, pool, theme, position } =
@@ -29,6 +29,7 @@ export function EstLiqValue() {
   } = useZapOutUserState();
 
   const debounceLiquidityOut = useDebounce(liquidityOut, 500);
+  const abortControllerRef = useRef<AbortController>();
 
   const actionRefund = route?.zapDetails.actions.find(
     (item) => item.type === "ACTION_TYPE_REFUND"
@@ -52,7 +53,27 @@ export function EstLiqValue() {
 
   useEffect(() => {
     if (showPreview) return;
-    fetchZapOutRoute({ chainId, positionId, poolAddress, poolType });
+
+    // Cancel previous request if exists
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+
+    // Create new AbortController for this request
+    const abortController = new AbortController();
+    abortControllerRef.current = abortController;
+
+    fetchZapOutRoute({
+      chainId,
+      positionId,
+      poolAddress,
+      poolType,
+      signal: abortController.signal,
+    });
+
+    return () => {
+      abortController.abort();
+    };
   }, [
     mode,
     showPreview,
