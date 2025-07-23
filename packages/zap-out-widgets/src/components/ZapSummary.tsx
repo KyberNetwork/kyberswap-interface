@@ -20,7 +20,7 @@ import { useMemo, useState } from "react";
 
 export function ZapSummary() {
   const { pool, chainId, poolType } = useZapOutContext((s) => s);
-  const { route, tokenOut } = useZapOutUserState();
+  const { route, tokenOut, mode } = useZapOutUserState();
   const [expanded, setExpanded] = useState(false);
 
   const onExpand = () => setExpanded((prev) => !prev);
@@ -138,6 +138,10 @@ export function ZapSummary() {
     return parsedAggregatorSwapInfo.concat(parsedPoolSwapInfo);
   }, [chainId, dexName, pool, route?.zapDetails.actions, tokenOut]);
 
+  if (mode == "withdrawOnly") {
+    return null;
+  }
+
   return (
     <Accordion
       type="single"
@@ -147,9 +151,8 @@ export function ZapSummary() {
     >
       <AccordionItem value="item-1">
         <AccordionTrigger
-          className={`px-4 !py-3 text-sm border border-stroke text-text rounded-md ${
-            expanded ? "!rounded-b-none !border-b-0 !pb-1" : ""
-          }`}
+          className={`px-4 !py-3 text-sm border border-stroke text-text rounded-md ${expanded ? "!rounded-b-none !border-b-0 !pb-1" : ""
+            }`}
           onClick={onExpand}
         >
           Zap Summary
@@ -172,9 +175,8 @@ export function ZapSummary() {
                 : ""}{" "}
               {token0?.symbol}
               {amountToken1 !== 0n
-                ? `+ ${formatTokenAmount(amountToken1, token1?.decimals || 18)} ${
-                    token1?.symbol
-                  }`
+                ? `+ ${formatTokenAmount(amountToken1, token1?.decimals || 18)} ${token1?.symbol
+                }`
                 : ""}{" "}
               {feeAmount0 !== 0n || feeAmount1 !== 0n ? (
                 <>
@@ -185,9 +187,9 @@ export function ZapSummary() {
                   {feeAmount0 !== 0n ? feeToken0?.symbol : ""}{" "}
                   {feeAmount1 !== 0n
                     ? `+ ${formatTokenAmount(
-                        feeAmount1,
-                        feeToken1?.decimals || 18
-                      )} ${feeToken1?.symbol}`
+                      feeAmount1,
+                      feeToken1?.decimals || 18
+                    )} ${feeToken1?.symbol}`
                     : ""}{" "}
                 </>
               ) : (

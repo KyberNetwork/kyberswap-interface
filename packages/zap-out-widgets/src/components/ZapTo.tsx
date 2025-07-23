@@ -1,3 +1,9 @@
+import CircleChevronRight from "@/assets/svg/circle-chevron-right.svg";
+import DropdownIcon from "@/assets/svg/dropdown.svg";
+import HandIcon from "@/assets/svg/hand.svg";
+import ZapIcon from "@/assets/svg/zapout.svg";
+import TokenSelectorModal from "@/components/TokenSelector/TokenSelectorModal";
+import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO } from "@/constants";
 import {
   ChainId,
   UniV2Position,
@@ -6,23 +12,24 @@ import {
   univ3PoolNormalize,
 } from "@/schema";
 import { useZapOutContext } from "@/stores";
-import DropdownIcon from "@/assets/svg/dropdown.svg";
-import { assertUnreachable } from "@/utils";
+import {
+  RefundAction,
+  RemoveLiquidityAction,
+  useZapOutUserState,
+} from "@/stores/state";
+import { assertUnreachable, sameToken } from "@/utils";
 import { Skeleton, TokenLogo } from "@kyber/ui";
-import { getPositionAmounts } from "@kyber/utils/uniswapv3";
 import {
   formatDisplayNumber,
   formatTokenAmount,
   toRawString,
 } from "@kyber/utils/number";
-import CircleChevronRight from "@/assets/svg/circle-chevron-right.svg";
-import { RefundAction, useZapOutUserState } from "@/stores/state";
+import { cn } from "@kyber/utils/tailwind-helpers";
+import { getPositionAmounts } from "@kyber/utils/uniswapv3";
 import { useEffect, useState } from "react";
-import TokenSelectorModal from "@/components/TokenSelector/TokenSelectorModal";
-import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO } from "@/constants";
 
 export function ZapTo({ chainId }: { chainId: ChainId }) {
-  const { position, pool, poolType } = useZapOutContext((s) => s);
+  const { theme, position, pool, poolType } = useZapOutContext((s) => s);
 
   const loading = position === "loading" || pool === "loading";
   const [showTokenSelect, setShowTokenSelect] = useState(false);
@@ -34,12 +41,44 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
     route,
     setSlippage,
     manualSlippage,
+    mode,
+    setMode,
+    fetchingRoute,
   } = useZapOutUserState();
 
   const actionRefund = route?.zapDetails.actions.find(
     (item) => item.type === "ACTION_TYPE_REFUND"
   ) as RefundAction | undefined;
   const amountOut = BigInt(actionRefund?.refund.tokens[0].amount || 0);
+
+  const actionRemoveLiq = route?.zapDetails.actions.find(
+    (item) => item.type === "ACTION_TYPE_REMOVE_LIQUIDITY"
+  ) as RemoveLiquidityAction | undefined;
+
+  const { tokens } = actionRemoveLiq?.removeLiquidity || {};
+
+  const token0 =
+    pool !== "loading" &&
+    tokens?.find((f) =>
+      sameToken(
+        f.address,
+        pool.token0.address,
+        NETWORKS_INFO[chainId].wrappedToken.address
+      )
+    );
+
+  const token1 =
+    pool !== "loading" &&
+    tokens?.find((f) =>
+      sameToken(
+        f.address,
+        pool.token1.address,
+        NETWORKS_INFO[chainId].wrappedToken.address
+      )
+    );
+
+  const withdrawAmount0 = BigInt(token0 ? token0.amount : 0);
+  const withdrawAmount1 = BigInt(token1 ? token1.amount : 0);
 
   useEffect(() => {
     if (pool === "loading" || !tokenOut || manualSlippage) return;
@@ -122,7 +161,10 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
           ) : (
             <>
               <div className="flex items-center text-base gap-1 text-text">
-                <TokenLogo src={pool.token0.logo || ''} alt={pool.token0.symbol} />
+                <TokenLogo
+                  src={pool.token0.logo || ""}
+                  alt={pool.token0.symbol}
+                />
                 {pool.token0.symbol}
               </div>
               <div className="text-xs text-subText text-right">
@@ -148,7 +190,10 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
           ) : (
             <>
               <div className="flex items-center text-base gap-1 text-text">
-                <TokenLogo src={pool.token1.logo || ''} alt={pool.token1.symbol} />
+                <TokenLogo
+                  src={pool.token1.logo || ""}
+                  alt={pool.token1.symbol}
+                />
                 {pool.token1.symbol}
               </div>
               <div className="text-xs text-subText text-right">
@@ -168,23 +213,128 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
 
       <CircleChevronRight className="text-subText w-8 h-8 p-1 rotate-90 -mt-3 -mb-3 mx-auto" />
 
-      <div className="rounded-lg border border-stroke px-4 py-3 text-subText text-sm">
-        <div>Zap to </div>
-        <div className="flex justify-between items-center mt-2">
-          <button
-            className="bg-layer2 border-none rounded-full outline-inherit cursor-pointer py-[6px] px-3 items-center text-text brightness-150 flex gap-1 hover:brightness-150 active:scale-95"
-            onClick={() => {
-              setShowTokenSelect(true);
+      <div className="overflow-hidden rounded-lg border border-stroke px-4 pb-3 text-subText text-sm">
+        <div className="flex -mx-4 border-b border-border">
+          <div
+            className={cn(
+              "flex justify-center items-center gap-1 flex-1 p-2 text-subText",
+              mode === "zapOut" && "text-text"
+            )}
+            role="button"
+            style={{
+              background: mode === "zapOut" ? theme.success + "33" : undefined,
             }}
+            onClick={() => setMode("zapOut")}
           >
-            <TokenLogo size={20} className="brightness-75" src={tokenOut?.logo || ''} alt={tokenOut?.symbol || ''} />
-            <span>{tokenOut?.symbol}</span>
-            <DropdownIcon />
-          </button>
-          <div className="text-text text-xl font-medium">
-            {formatTokenAmount(amountOut, tokenOut?.decimals || 18)}{" "}
+            <ZapIcon />
+            <div>Zap Out</div>
+          </div>
+          <div
+            className={cn(
+              "flex justify-center items-center gap-1 flex-1 p-2 text-subText",
+              mode === "withdrawOnly" && "text-text"
+            )}
+            role="button"
+            style={{
+              background:
+                mode === "withdrawOnly" ? theme.success + "33" : undefined,
+            }}
+            onClick={() => setMode("withdrawOnly")}
+          >
+            <HandIcon />
+            <div>Manually</div>
           </div>
         </div>
+        <div className="mt-2">
+          {mode === "zapOut" ? "Zap to" : "Remove Liquidity"}
+        </div>
+        {mode === "zapOut" ? (
+          <div className="flex justify-between items-center mt-2">
+            <button
+              className="bg-layer2 border-none rounded-full outline-inherit cursor-pointer py-[6px] px-3 items-center text-text brightness-150 flex gap-1 hover:brightness-150 active:scale-95"
+              onClick={() => {
+                setShowTokenSelect(true);
+              }}
+            >
+              <TokenLogo
+                src={tokenOut?.logo}
+                size={20}
+                className="rounded-full brightness-75"
+              />
+              <span>{tokenOut?.symbol}</span>
+              <DropdownIcon />
+            </button>
+            <div className="text-text text-xl font-medium">
+              {formatTokenAmount(amountOut, tokenOut?.decimals || 18)}{" "}
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="flex justify-between mt-4 items-start">
+              {loading || fetchingRoute ? (
+                <>
+                  <Skeleton className="h-5 w-20" />
+                  <Skeleton className="h-4 w-14" />
+                </>
+              ) : (
+                <>
+                  <div className="flex items-center text-base gap-1 text-text">
+                    <TokenLogo src={pool.token0.logo} size={16} />
+                    {pool.token0.symbol}
+                  </div>
+                  <div className="text-xs text-subText text-right">
+                    <div className="text-text text-base">
+                      {formatTokenAmount(
+                        withdrawAmount0,
+                        pool.token0.decimals,
+                        8
+                      )}
+                    </div>
+                    {formatDisplayNumber(
+                      (pool.token0.price || 0) *
+                        Number(
+                          toRawString(withdrawAmount0, pool.token0.decimals)
+                        ),
+                      { style: "currency" }
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+
+            <div className="flex justify-between mt-2 items-start">
+              {loading || fetchingRoute ? (
+                <>
+                  <Skeleton className="h-5 w-20" />
+                  <Skeleton className="h-4 w-14" />
+                </>
+              ) : (
+                <>
+                  <div className="flex items-center text-base gap-1 text-text">
+                    <TokenLogo src={pool.token1.logo} size={16} />
+                    {pool.token1.symbol}
+                  </div>
+                  <div className="text-xs text-subText text-right">
+                    <div className="text-text text-base">
+                      {formatTokenAmount(
+                        withdrawAmount1,
+                        pool.token1.decimals,
+                        8
+                      )}
+                    </div>
+                    {formatDisplayNumber(
+                      (pool.token1.price || 0) *
+                        Number(
+                          toRawString(withdrawAmount1, pool.token1.decimals)
+                        ),
+                      { style: "currency" }
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+          </>
+        )}
       </div>
     </>
   );
