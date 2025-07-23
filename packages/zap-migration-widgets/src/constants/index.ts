@@ -77,8 +77,8 @@ export const DEXES_INFO: Record<Dex, DexInfo> = {
 export const PATHS = {
   BFF_API: "https://bff.kyberswap.com/api",
   KYBERSWAP_SETTING_API: "https://ks-setting.kyberswap.com/api",
-  // ZAP_API: "https://zap-api.kyberswap.com",
-  ZAP_API: "https://pre-zap-api.kyberengineering.io",
+  ZAP_API: "https://zap-api.kyberswap.com",
+  // ZAP_API: "https://pre-zap-api.kyberengineering.io",
   TOKEN_API: "https://token-api.kyberengineering.io/api",
   DOCUMENT: {
     ZAP_FEE_MODEL:
