@@ -46,6 +46,12 @@ const PriceRange = () => {
   const isUniv3 = univ3Types.includes(poolType as any);
   if (!isUniv3) return null;
 
+  const quote = initializing
+    ? ''
+    : revertPrice
+      ? `${pool?.token0.symbol} per ${pool?.token1.symbol}`
+      : `${pool?.token1.symbol} per ${pool?.token0.symbol}`;
+
   return (
     <div className="px-4 py-3 text-sm border border-stroke rounded-md">
       <p className="text-subText mb-3">Your Position Price Ranges</p>
@@ -56,16 +62,16 @@ const PriceRange = () => {
             <Skeleton className="w-14 h-5" />
           ) : (
             <p className="max-w-full truncate" title={minPrice?.toString()}>
-              {formatDisplayNumber(minPrice?.replace(/,/g, ''), { significantDigits: 6 })}
+              {minPrice === '0' || minPrice === '∞'
+                ? minPrice
+                : formatDisplayNumber(minPrice?.replace(/,/g, ''), { significantDigits: 6 })}
             </p>
           )}
           {initializing ? (
             <Skeleton className="w-20 h-5" />
           ) : (
-            <p className="text-subText">
-              {revertPrice
-                ? `${pool?.token0.symbol} per ${pool?.token1.symbol}`
-                : `${pool?.token1.symbol} per ${pool?.token0.symbol}`}
+            <p className="text-subText truncate" title={quote}>
+              {quote}
             </p>
           )}
         </div>
@@ -75,16 +81,16 @@ const PriceRange = () => {
             <Skeleton className="w-14 h-5" />
           ) : (
             <p className="max-w-full truncate" title={maxPrice?.toString()}>
-              {formatDisplayNumber(maxPrice?.replace(/,/g, ''), { significantDigits: 6 })}
+              {maxPrice === '0' || maxPrice === '∞'
+                ? maxPrice
+                : formatDisplayNumber(maxPrice?.replace(/,/g, ''), { significantDigits: 6 })}
             </p>
           )}
           {initializing ? (
             <Skeleton className="w-20 h-5" />
           ) : (
-            <p className="text-subText">
-              {revertPrice
-                ? `${pool?.token0.symbol} per ${pool?.token1.symbol}`
-                : `${pool?.token1.symbol} per ${pool?.token0.symbol}`}
+            <p className="text-subText truncate" title={quote}>
+              {quote}
             </p>
           )}
         </div>

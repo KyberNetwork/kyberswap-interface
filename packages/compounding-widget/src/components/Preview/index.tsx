@@ -442,7 +442,9 @@ export default function Preview({
                     title={priceRange[0]}
                     className="overflow-hidden text-ellipsis whitespace-nowrap w-full text-center"
                   >
-                    {formatDisplayNumber(priceRange[0]?.replace(/,/g, ''), { significantDigits: 6 })}
+                    {priceRange[0] === '0' || priceRange[0] === '∞'
+                      ? priceRange[0]
+                      : formatDisplayNumber(priceRange[0]?.replace(/,/g, ''), { significantDigits: 6 })}
                   </div>
                   <div className="ks-cw-card-title">{quote}</div>
                 </div>
@@ -452,7 +454,9 @@ export default function Preview({
                     title={priceRange[1]}
                     className="text-center w-full overflow-hidden text-ellipsis whitespace-nowrap"
                   >
-                    {formatDisplayNumber(priceRange[1]?.replace(/,/g, ''), { significantDigits: 6 })}
+                    {priceRange[1] === '0' || priceRange[1] === '∞'
+                      ? priceRange[1]
+                      : formatDisplayNumber(priceRange[1]?.replace(/,/g, ''), { significantDigits: 6 })}
                   </div>
                   <div className="ks-cw-card-title">{quote}</div>
                 </div>
