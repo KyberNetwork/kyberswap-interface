@@ -50,6 +50,7 @@ export interface EarnPool {
     address: string
     logoURI: string
     symbol: string
+    decimals: number
   }>
 }
 
@@ -169,6 +170,12 @@ export interface SuggestedPool {
   // chainId: number
   feeTier: number
   poolExchange: Exchange
+  token0: {
+    decimals: number
+  }
+  token1: {
+    decimals: number
+  }
 }
 
 interface Token {
