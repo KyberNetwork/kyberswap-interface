@@ -1,44 +1,46 @@
-import camelotv3 from "@/constants/dexes/camelotv3";
-import kodiakv2 from "@/constants/dexes/kodiakv2";
-// import bladeswap from "@/constants/dexes/bladeswap";
-import kodiakv3 from "@/constants/dexes/kodiakv3";
-import koicl from "@/constants/dexes/koicl";
-import linehubv3 from "@/constants/dexes/linehubv3";
-import metavaultv3 from "@/constants/dexes/metavaultv3";
-import pancakeswapv2 from "@/constants/dexes/pancakeswapv2";
-import pancakeswapv3 from "@/constants/dexes/pancakeswapv3";
-import pangolinstandard from "@/constants/dexes/pangolinstandard";
-import quickswapv2 from "@/constants/dexes/quickswapv2";
-import quickswapv3algebra from "@/constants/dexes/quickswapv3algebra";
-import squadswapv2 from "@/constants/dexes/squadswapv2";
-import squadswapv3 from "@/constants/dexes/squadswapv3";
-import sushiswapv2 from "@/constants/dexes/sushiswapv2";
-import sushiswapv3 from "@/constants/dexes/sushiswapv3";
-import swapmodev2 from "@/constants/dexes/swapmodev2";
-import swapmodev3 from "@/constants/dexes/swapmodev3";
-import thenafusion from "@/constants/dexes/thenafusion";
-import thrusterv2 from "@/constants/dexes/thrusterv2";
-import thrusterv3 from "@/constants/dexes/thrusterv3";
-import uniswapv2 from "@/constants/dexes/uniswapv2";
-import uniswapv3 from "@/constants/dexes/uniswapv3";
-import uniswapv4 from "@/constants/dexes/uniswapv4";
-import arbitrum from "@/constants/networks/arbitrum";
+import ethereum from "@/constants/networks/ethereum";
+import bsc from "@/constants/networks/bsc";
 import avalanche from "@/constants/networks/avalanche";
 import base from "@/constants/networks/base";
-import berachain from "@/constants/networks/berachain";
 import blast from "@/constants/networks/blast";
-import bsc from "@/constants/networks/bsc";
-import ethereum from "@/constants/networks/ethereum";
 import fantom from "@/constants/networks/fantom";
 import linea from "@/constants/networks/linea";
 import mantle from "@/constants/networks/mantle";
 import optimism from "@/constants/networks/optimism";
-import polygon from "@/constants/networks/polygon";
 import scroll from "@/constants/networks/scroll";
-import sonic from "@/constants/networks/sonic";
 import zkSync from "@/constants/networks/zkSync";
+import berachain from "@/constants/networks/berachain";
+import sonic from "@/constants/networks/sonic";
+import polygon from "@/constants/networks/polygon";
+import arbitrum from "@/constants/networks/arbitrum";
+
+import uniswapv4 from "@/constants/dexes/uniswapv4";
+import uniswapv3 from "@/constants/dexes/uniswapv3";
+import pancakeswapv3 from "@/constants/dexes/pancakeswapv3";
+import metavaultv3 from "@/constants/dexes/metavaultv3";
+import linehubv3 from "@/constants/dexes/linehubv3";
+import swapmodev3 from "@/constants/dexes/swapmodev3";
+import koicl from "@/constants/dexes/koicl";
+import thrusterv3 from "@/constants/dexes/thrusterv3";
+import sushiswapv3 from "@/constants/dexes/sushiswapv3";
+import pancakeswapv2 from "@/constants/dexes/pancakeswapv2";
+import uniswapv2 from "@/constants/dexes/uniswapv2";
+import pangolinstandard from "@/constants/dexes/pangolinstandard";
+import sushiswapv2 from "@/constants/dexes/sushiswapv2";
+import quickswapv2 from "@/constants/dexes/quickswapv2";
+import thrusterv2 from "@/constants/dexes/thrusterv2";
+import swapmodev2 from "@/constants/dexes/swapmodev2";
+import kodiakv2 from "@/constants/dexes/kodiakv2";
+import thenafusion from "@/constants/dexes/thenafusion";
+import camelotv3 from "@/constants/dexes/camelotv3";
+import quickswapv3algebra from "@/constants/dexes/quickswapv3algebra";
+// import bladeswap from "@/constants/dexes/bladeswap";
+import kodiakv3 from "@/constants/dexes/kodiakv3";
+import squadswapv3 from "@/constants/dexes/squadswapv3";
+import squadswapv2 from "@/constants/dexes/squadswapv2";
+
+import { DexInfo, PoolType } from "@/schema/dex";
 import { ChainId } from "@/schema/chain";
-import { DexInfo, PoolType } from "@/schema/protocol";
 import { NetworkInfo } from "@/types/index";
 
 export const NATIVE_TOKEN_ADDRESS =
@@ -64,6 +66,10 @@ export const NETWORKS_INFO: Record<ChainId, NetworkInfo> = {
 
 export const DEXES_INFO: Record<PoolType, DexInfo> = {
   [PoolType.DEX_UNISWAP_V4]: uniswapv4,
+  [PoolType.DEX_UNISWAP_V4_FAIRFLOW]: {
+    ...uniswapv4,
+    name: "Uniswap V4 FairFlow",
+  },
   [PoolType.DEX_UNISWAPV3]: uniswapv3,
   [PoolType.DEX_PANCAKESWAPV3]: pancakeswapv3,
   [PoolType.DEX_METAVAULTV3]: metavaultv3,
@@ -122,6 +128,7 @@ export const CHAIN_ID_TO_CHAIN: { [chainId in ChainId]: string } = {
 
 export const poolTypeToDexId: { [poolType in PoolType]: number } = {
   DEX_UNISWAP_V4: 68,
+  DEX_UNISWAP_V4_FAIRFLOW: 73,
 
   DEX_UNISWAPV3: 2,
   DEX_PANCAKESWAPV3: 3,
@@ -154,7 +161,8 @@ export const poolTypeToDexId: { [poolType in PoolType]: number } = {
 export const PATHS = {
   BFF_API: "https://bff.kyberswap.com/api",
   KYBERSWAP_SETTING_API: "https://ks-setting.kyberswap.com/api",
-  ZAP_API: "https://zap-api.kyberswap.com", // https://pre-zap-api.kyberengineering.io  https://zap-api.kyberswap.com
+  ZAP_API: "https://zap-api.kyberswap.com",
+  // ZAP_API: "https://pre-zap-api.kyberengineering.io",
   COINGECKO_API_URL: "https://api.coingecko.com/api/v3",
   GO_PLUS_API: "https://api.gopluslabs.io/api/v1/token_security",
   ZAP_EARN_API: "https://zap-earn-service-v3.kyberengineering.io/api",

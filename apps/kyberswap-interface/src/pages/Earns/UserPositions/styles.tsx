@@ -1,7 +1,7 @@
 import { rgba } from 'polished'
+import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 
-import positionsBg from 'assets/banners/positions_background.png'
 import { ReactComponent as IconCurrentPrice } from 'assets/svg/earn/ic_position_current_price.svg'
 import { PoolPageWrapper, TableBody, TableHeader, TableWrapper } from 'pages/Earns/PoolExplorer/styles'
 
@@ -17,12 +17,24 @@ export const PositionPageWrapper = styled(PoolPageWrapper)`
   `}
 `
 
-export const PositionRow = styled.div`
+export const PositionRow = styled(Link)`
   display: grid;
-  grid-template-columns: 3fr 1fr 1fr 1.2fr 1.2fr 1.6fr 1fr;
+  grid-template-columns:
+    minmax(260px, 2.2fr) /* Position */
+    minmax(80px, 1fr) /* Value */
+    minmax(90px, 1fr) /* est. APR */
+    minmax(100px, 1fr) /* Unclaimed fees */
+    minmax(120px, 1fr) /* Unclaimed rewards */
+    24px /* Spacer column for better visual separation */
+    minmax(150px, 1.5fr) /* Balance */
+    minmax(160px, 1.5fr) /* Price range */
+    minmax(75px, auto); /* Actions */
+  grid-template-columns: 3fr 1fr 1fr 1.2fr 1.2fr 1.6fr 0.5fr;
   grid-template-rows: 1fr;
   padding: 16px 28px;
   row-gap: 8px;
+  text-decoration: none;
+  color: inherit !important;
 
   ${({ theme }) => theme.mediaWidth.upToLarge`
     justify-content: flex-start;
@@ -38,6 +50,8 @@ export const PositionRow = styled.div`
     flex-direction: column;
     row-gap: 16px;
     padding: 16px;
+    background: ${rgba(theme.background, 0.8)} !important;
+    position: relative;
   `}
 
   &:last-child {
@@ -70,20 +84,16 @@ export const ChainImage = styled.img`
   height: 12px;
   border-radius: 50%;
   position: relative;
-  left: -14px;
+  left: -8px;
   top: 4px;
-`
-
-export const DexImage = styled.img`
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
 `
 
 export enum BadgeType {
   PRIMARY = 'primary',
   WARNING = 'warning',
   SECONDARY = 'secondary',
+  ROUNDED = 'rounded',
+  DISABLED = 'disabled',
 }
 
 export const Badge = styled.div<{ type?: BadgeType }>`
@@ -111,6 +121,12 @@ export const Badge = styled.div<{ type?: BadgeType }>`
         return `
             color: ${theme.blue2};
             `
+      case BadgeType.DISABLED:
+        return ''
+      case BadgeType.ROUNDED:
+        return `
+            padding: 8px;
+            `
       default:
         return ''
     }
@@ -133,6 +149,16 @@ export const PositionValueWrapper = styled.div<{ align?: string }>`
   ${({ theme }) => theme.mediaWidth.upToSmall`
     justify-content: space-between;
     padding-top: 0;
+  `}
+`
+
+export const PositionActionWrapper = styled(PositionValueWrapper)`
+  justify-content: flex-end;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    position: absolute !important;
+    right: 16px;
+    top: 10px;
   `}
 `
 
@@ -212,10 +238,13 @@ export const EmptyPositionText = styled.div`
 
 export const BannerContainer = styled.div`
   padding: 1px;
-  position: relative;
   background-clip: padding-box;
   overflow: hidden;
   border-radius: 12px;
+  width: 100%;
+  height: auto;
+  position: relative;
+  overflow: hidden;
 
   ::before {
     content: '';
@@ -225,47 +254,59 @@ export const BannerContainer = styled.div`
     right: 0;
     bottom: 0;
     padding: 1px;
-    background: linear-gradient(306.9deg, #262525 38.35%, rgba(148, 117, 203, 0.2) 104.02%),
-      radial-gradient(58.61% 54.58% at 30.56% 0%, rgba(130, 71, 229, 0.6) 0%, rgba(130, 71, 229, 0) 100%);
+    background: linear-gradient(
+        90deg,
+        rgba(162, 89, 255, 0.6) 0%,
+        rgba(162, 89, 255, 0) 50%,
+        rgba(162, 89, 255, 0.6) 100%
+      ),
+      radial-gradient(58.61% 54.58% at 30.56% 0%, rgba(162, 89, 255, 0.3) 0%, rgba(0, 0, 0, 0) 100%);
     mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
     -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
-    z-index: -1;
   }
 `
 
 export const BannerWrapper = styled.div`
-  width: 100%;
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  gap: 3rem;
-  padding: 18px 28px;
+  flex-wrap: wrap;
+  gap: 26px;
+  padding: 32.5px 32px;
+  border-radius: 12px;
   position: relative;
   background: linear-gradient(119.08deg, rgba(20, 29, 27, 1) -0.89%, rgba(14, 14, 14, 1) 132.3%);
 
-  ::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image: url(${positionsBg});
-    background-position: right-top;
-    background-size: cover;
+  @media (min-width: 1200px) and (max-width: 1330px) {
+    gap: 18px;
   }
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    justify-content: space-between;
-    gap: 0;
-  `}
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     flex-direction: column;
     padding: 16px;
     align-items: flex-start;
-    gap: 0.5rem;
+    gap: 16px;
   `}
+`
+
+export const RewardBannerWrapper = styled(BannerWrapper)`
+  gap: 8px;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 14px 32px;
+`
+
+export const RewardBannerDetailWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 32px;
+  row-gap: 8px;
+
+  @media (min-width: 1200px) and (max-width: 1330px) {
+    gap: 18px;
+  }
 `
 
 export const BannerDivider = styled.div`
@@ -282,20 +323,48 @@ export const BannerDataItem = styled.div`
   display: flex;
   flex-direction: column;
   gap: 8px;
+  z-index: 1;
 
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    width: 100%;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-  `}
+  ${({ theme }) =>
+    theme.mediaWidth.upToSmall`
+      width: 100%;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+    `}
 `
 
 export const PositionTableHeader = styled(TableHeader)`
-  grid-template-columns: 3fr 1fr 1fr 1.2fr 1.2fr 1.6fr 1fr;
+  grid-template-columns:
+    minmax(260px, 2.2fr) /* Position */
+    minmax(80px, 1fr) /* Value */
+    minmax(90px, 1fr) /* est. APR */
+    minmax(100px, 1fr) /* Unclaimed fees */
+    minmax(120px, 1fr) /* Unclaimed rewards */
+    24px /* Spacer column for better visual separation */
+    minmax(150px, 1.5fr) /* Balance */
+    minmax(160px, 1.5fr) /* Price range */
+    minmax(75px, auto); /* Actions */
+  grid-template-columns: 3fr 1fr 1fr 1.2fr 1.2fr 1.6fr 0.5fr;
+  overflow: hidden;
+`
+
+export const PositionTableHeaderItem = styled.div`
+  height: 100%;
+`
+
+export const PositionTableHeaderFlexItem = styled.div`
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  height: 100%;
+  gap: 4px;
+  cursor: pointer;
 `
 
 export const PositionTableWrapper = styled(TableWrapper)`
+  overflow: hidden;
+
   ${({ theme }) => theme.mediaWidth.upToLarge`
     background: transparent;
     margin: 0;
@@ -320,7 +389,7 @@ export const PriceRangeWrapper = styled.div<{ outOfRange: boolean }>`
   `}
 `
 
-export const PriceRangeEl = styled.div<{ isLowestPrice: boolean; isHighestPrice: boolean }>`
+export const PriceRangeEl = styled.div<{ isLowestPrice: boolean; isHighestPrice: boolean; outOfRange: boolean }>`
   display: flex;
   position: absolute;
   justify-content: space-between;
@@ -331,6 +400,12 @@ export const PriceRangeEl = styled.div<{ isLowestPrice: boolean; isHighestPrice:
   left: ${({ isLowestPrice }) => (isLowestPrice ? 0 : '20%')};
   border-radius: 4px;
   background: linear-gradient(90deg, #09ae7d 0%, #6368f1 100%);
+
+  ${({ outOfRange }) =>
+    outOfRange &&
+    `
+      background: #737373;
+    `}
 `
 
 export const PriceIndicator = styled.div`
@@ -340,12 +415,12 @@ export const PriceIndicator = styled.div`
   position: relative;
 `
 
-export const LowerPriceIndicator = styled(PriceIndicator)`
-  background: #09ae7d;
+export const LowerPriceIndicator = styled(PriceIndicator)<{ outOfRange: boolean }>`
+  background: ${({ outOfRange }) => (outOfRange ? '#737373' : '#09ae7d')};
 `
 
-export const UpperPriceIndicator = styled(PriceIndicator)`
-  background: #6368f1;
+export const UpperPriceIndicator = styled(PriceIndicator)<{ outOfRange: boolean }>`
+  background: ${({ outOfRange }) => (outOfRange ? '#737373' : '#6368f1')};
 `
 
 export const IndicatorLabel = styled.div`
@@ -354,6 +429,10 @@ export const IndicatorLabel = styled.div`
   transform: translateX(-42%);
   font-size: 12px;
   color: #fafafa;
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `
 
 export const CurrentPriceWrapper = styled.div<{ lower?: boolean }>`
@@ -380,4 +459,11 @@ export const CurrentPriceTooltip = styled.div<{ show?: boolean }>`
   width: max-content;
 
   ${({ show }) => show && 'opacity: 1;'}
+`
+
+export const HorizontalDivider = styled.div`
+  margin: 4px 0;
+  height: 1px;
+  width: 100%;
+  background: ${({ theme }) => rgba(theme.white, 0.08)};
 `

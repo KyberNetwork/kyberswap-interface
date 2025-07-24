@@ -5,9 +5,9 @@ const MaxUint256 = BigInt('0xfffffffffffffffffffffffffffffffffffffffffffffffffff
 
 // TODO: check if other dex type have the same
 // The minimum tick that can be used on any pool.
-export const MIN_TICK: number = -887272;
+export const MIN_TICK = -887272;
 // The maximum tick that can be used on any pool.
-export const MAX_TICK: number = -MIN_TICK;
+export const MAX_TICK = -MIN_TICK;
 const MIN_SQRT_RATIO = 4295128739n;
 const MAX_SQRT_RATIO = 1461446703485210103287273052203988822378723970342n;
 
@@ -317,7 +317,7 @@ function sqrt(y: bigint): bigint {
   if (y < 0n) {
     throw new Error('sqrt: negative value');
   }
-  let z: bigint = 0n;
+  let z = 0n;
   let x: bigint;
   if (y > 3n) {
     z = y;

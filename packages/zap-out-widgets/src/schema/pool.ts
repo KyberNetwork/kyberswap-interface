@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { Univ2PoolType, Univ3PoolType } from "@/schema/protocol";
+import { Univ2PoolType, Univ3PoolType } from "@/schema/dex";
 import {
   univ3PoolResponse,
   univ3PoolNormalize,

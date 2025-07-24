@@ -24,18 +24,29 @@ const Card = ({
   return (
     <BorderWrapper onClick={() => !action.disabled && action.onClick()}>
       <CardWrapper>
-        <Flex flexDirection="column" width="80px" alignItems="center">
-          <Box width="1px" height="36px" backgroundColor="#258166" />
-          <Icon icon={icon} size="medium" />
+        <Flex
+          flexDirection="column"
+          width={upToSmall ? undefined : '80px'}
+          alignItems="center"
+          minWidth={upToSmall ? 'unset' : undefined}
+        >
+          {!upToSmall && <Box width="1px" height="36px" backgroundColor="#258166" />}
+          <Icon icon={icon} size={upToSmall ? 'small' : 'medium'} customSize={upToSmall ? 48 : undefined} />
         </Flex>
 
-        <Text fontSize={18} fontWeight={500} marginTop={upToSmall ? 22 : 28}>
-          {title}
-        </Text>
-        <Text fontSize={upToMedium ? 14 : 16} color={theme.subText} marginTop="12px">
-          {desc}
-        </Text>
-        <ButtonPrimaryStyled disabled={action.disabled}>{action.text}</ButtonPrimaryStyled>
+        <Flex flexDirection="column" justifyContent="space-between" height="100%">
+          <div>
+            <Text fontSize={18} fontWeight={500} marginTop={upToSmall ? 0 : 28}>
+              {title}
+            </Text>
+            <Text fontSize={upToMedium ? 14 : 16} color={theme.subText} marginTop="12px">
+              {desc}
+            </Text>
+          </div>
+          {(!upToSmall || !action.disabled) && (
+            <ButtonPrimaryStyled disabled={action.disabled}>{action.text}</ButtonPrimaryStyled>
+          )}
+        </Flex>
       </CardWrapper>
     </BorderWrapper>
   )

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { Univ2PoolType, Univ3PoolType } from "@/schema/protocol";
+import { Univ2PoolType, Univ3PoolType } from "@/schema/dex";
 
 export const univ3Position = z.object({
   id: z.number(),

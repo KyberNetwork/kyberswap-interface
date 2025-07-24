@@ -1,11 +1,12 @@
 import { univ2PoolNormalize, univ3PoolNormalize } from "@/schema";
-import SwitchIcon from "@/assets/svg/switch.svg";
+import RevertPriceIcon from "@/assets/svg/ic_revert_price.svg";
 import { useZapOutContext } from "@/stores";
 import { useZapOutUserState } from "@/stores/state";
 import { assertUnreachable } from "@/utils";
 import { divideBigIntToString, formatDisplayNumber } from "@kyber/utils/number";
 import { tickToPrice } from "@kyber/utils/uniswapv3";
 import { useMemo } from "react";
+import { Skeleton } from "@kyber/ui";
 
 export function PoolPrice() {
   const { pool, poolType } = useZapOutContext((s) => s);
@@ -46,22 +47,24 @@ export function PoolPrice() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pool, revertPrice]);
 
-  return (
-    <div className="rounded-lg flex items-center border border-stroke px-4 py-3 text-subText text-sm">
-      Pool Price{" "}
-      <span className="text-text mx-2 max-w-[96px] truncate" title={price}>
-        {price}
-      </span>{" "}
-      {pool === "loading"
-        ? ""
-        : `${revertPrice ? pool.token0.symbol : pool.token1.symbol} per ${
-            revertPrice ? pool.token1.symbol : pool.token0.symbol
-          }`}
-      <SwitchIcon
-        style={{ cursor: "pointer", marginLeft: "4px" }}
+  return pool === "loading" || !price ? (
+    <Skeleton className="w-[200px] h-3.5" />
+  ) : (
+    <div className="rounded-lg flex items-center justify-between flex-wrap border border-stroke px-4 py-3 text-subText text-sm">
+      <div className="flex items-center gap-1">
+        <span> Current Price</span>
+        <div className="text-text">
+          1 {revertPrice ? pool.token1.symbol : pool.token0.symbol} = {price}{" "}
+          {revertPrice ? pool.token0.symbol : pool.token1.symbol}
+        </div>
+      </div>
+
+      <div
+        className="flex items-center justify-center rounded-full bg-[#ffffff14] w-6 h-6"
         onClick={() => toggleRevertPrice()}
-        role="button"
-      />
+      >
+        <RevertPriceIcon className="cursor-pointer" role="button" />
+      </div>
     </div>
   );
 }

@@ -1,4 +1,3 @@
-import { WETH } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useState } from 'react'
 
@@ -7,7 +6,7 @@ import { useActiveWeb3React, useWeb3React } from 'hooks'
 import ClaimModal, { ClaimInfo, ClaimType } from 'pages/Earns/components/ClaimModal'
 import { CoreProtocol, DEXES_SUPPORT_COLLECT_FEE } from 'pages/Earns/constants'
 import { ParsedPosition } from 'pages/Earns/types'
-import { getNftManagerContract, isForkFrom, isNativeToken, submitTransaction } from 'pages/Earns/utils'
+import { getNftManagerContract, isForkFrom, submitTransaction } from 'pages/Earns/utils'
 import { getUniv3CollectCallData, getUniv4CollectCallData } from 'pages/Earns/utils/fees'
 import { useNotify } from 'state/application/hooks'
 import { useAllTransactions, useTransactionAdder } from 'state/transactions/hooks'
@@ -102,62 +101,42 @@ const useCollectFees = ({ refetchAfterCollect }: { refetchAfterCollect: () => vo
 
   const onOpenClaim = (position: ParsedPosition) => {
     setOpenClaimModal(true)
+    const isUniV3 = isForkFrom(position.dex.id, CoreProtocol.UniswapV3)
+    const { token0, token1, pool } = position
+    const { nativeToken } = pool
 
-    const {
-      dex,
-      chainId,
-      id,
-      token0Address,
-      token1Address,
-      token0Logo: parsedToken0Logo,
-      token1Logo: parsedToken1Logo,
-      token0Symbol: parsedToken0Symbol,
-      token1Symbol: parsedToken1Symbol,
-      nativeToken,
-      token0UnclaimedAmount,
-      token1UnclaimedAmount,
-      token0UnclaimedValue,
-      token1UnclaimedValue,
-      token0UnclaimedBalance,
-      token1UnclaimedBalance,
-    } = position
-    const isUniV3 = isForkFrom(dex, CoreProtocol.UniswapV3)
+    const token0Logo = isUniV3 && token0.isNative ? nativeToken.logo : token0.logo
+    const token1Logo = isUniV3 && token1.isNative ? nativeToken.logo : token1.logo
 
-    const isToken0Native = isNativeToken(token0Address, chainId as keyof typeof WETH)
-    const isToken1Native = isNativeToken(token1Address, chainId as keyof typeof WETH)
-
-    const token0Logo = isUniV3 && isToken0Native ? nativeToken.logo : parsedToken0Logo
-    const token1Logo = isUniV3 && isToken1Native ? nativeToken.logo : parsedToken1Logo
-
-    const token0Symbol = isUniV3 && isToken0Native ? nativeToken.symbol : parsedToken0Symbol
-    const token1Symbol = isUniV3 && isToken1Native ? nativeToken.symbol : parsedToken1Symbol
+    const token0Symbol = isUniV3 && token0.isNative ? nativeToken.symbol : token0.symbol
+    const token1Symbol = isUniV3 && token1.isNative ? nativeToken.symbol : token1.symbol
 
     setClaimInfo({
-      nftId: id,
-      dex,
-      chainId,
+      nftId: position.tokenId,
+      dex: position.dex.id,
+      chainId: position.chain.id,
       tokens: [
         {
           logo: token0Logo,
           symbol: token0Symbol,
-          amount: token0UnclaimedAmount,
-          value: token0UnclaimedValue,
-          address: token0Address,
-          isNative: isToken0Native,
-          balance: token0UnclaimedBalance,
+          amount: position.token0.unclaimedAmount,
+          value: position.token0.unclaimedValue,
+          address: position.token0.address,
+          isNative: position.token0.isNative,
+          balance: position.token0.unclaimedBalance,
         },
         {
           logo: token1Logo,
           symbol: token1Symbol,
-          amount: token1UnclaimedAmount,
-          value: token1UnclaimedValue,
-          address: token1Address,
-          isNative: isToken1Native,
-          balance: token1UnclaimedBalance,
+          amount: position.token1.unclaimedAmount,
+          value: position.token1.unclaimedValue,
+          address: position.token1.address,
+          isNative: position.token1.isNative,
+          balance: position.token1.unclaimedBalance,
         },
       ],
-      nativeToken,
-      totalValue: token0UnclaimedValue + token1UnclaimedValue,
+      nativeToken: position.pool.nativeToken,
+      totalValue: position.token0.unclaimedValue + position.token1.unclaimedValue,
     })
   }
 

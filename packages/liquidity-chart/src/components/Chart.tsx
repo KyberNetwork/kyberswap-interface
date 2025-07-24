@@ -27,6 +27,7 @@ export default function Chart({
   zoomInIcon,
   zoomOutIcon,
   brushLabels,
+  alwaysShowLabel,
   onBrushDomainChange,
 }: ChartProps) {
   const zoomRef = useRef<SVGRectElement | null>(null);
@@ -191,6 +192,7 @@ export default function Chart({
             setBrushExtent={onBrushDomainChange}
             xScale={xScale}
             zoomInited={zoomInited}
+            alwaysShowLabel={alwaysShowLabel}
           />
         </g>
       </svg>

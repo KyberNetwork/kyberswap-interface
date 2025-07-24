@@ -8,13 +8,22 @@ import {
   RemoveLiquidityAction,
   useZapOutUserState,
 } from "@/stores/state";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@kyber/ui";
 import { formatUnits } from "@kyber/utils/crypto";
 import { formatDisplayNumber, formatTokenAmount } from "@kyber/utils/number";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 export function ZapSummary() {
   const { pool, chainId, poolType } = useZapOutContext((s) => s);
-  const { route, tokenOut } = useZapOutUserState();
+  const { route, tokenOut, mode } = useZapOutUserState();
+  const [expanded, setExpanded] = useState(false);
+
+  const onExpand = () => setExpanded((prev) => !prev);
 
   const actionRefund = route?.zapDetails.actions.find(
     (item) => item.type === "ACTION_TYPE_REFUND"
@@ -129,82 +138,100 @@ export function ZapSummary() {
     return parsedAggregatorSwapInfo.concat(parsedPoolSwapInfo);
   }, [chainId, dexName, pool, route?.zapDetails.actions, tokenOut]);
 
+  if (mode == "withdrawOnly") {
+    return null;
+  }
+
   return (
-    <div className="rounded-lg border border-stroke px-4 py-3 text-sm">
-      <div>Est. Received Value</div>
-      <div className="text-xs italic text-subText mt-1">
-        The actual Zap Routes could be adjusted with on-chain states
-      </div>
+    <Accordion
+      type="single"
+      collapsible
+      className="w-full"
+      value={expanded ? "item-1" : ""}
+    >
+      <AccordionItem value="item-1">
+        <AccordionTrigger
+          className={`px-4 !py-3 text-sm border border-stroke text-text rounded-md ${expanded ? "!rounded-b-none !border-b-0 !pb-1" : ""
+            }`}
+          onClick={onExpand}
+        >
+          Zap Summary
+        </AccordionTrigger>
+        <AccordionContent className="px-4 pb-4 pt-0 border border-stroke !border-t-0 rounded-b-md">
+          <p className="text-subText text-xs italic">
+            The actual Zap Routes could be adjusted with on-chain states
+          </p>
 
-      <div className="mt-2 h-[1px] w-full bg-stroke"></div>
+          <div className="h-[1px] w-full bg-stroke mt-1 mb-3" />
 
-      <div className="flex gap-2 mt-2">
-        <div className="w-6 h-6 rounded-full flex items-center justify-center bg-layer2 text-xs font-medium">
-          1
-        </div>
-        <div className="flex-1 text-subText text-xs">
-          Remove{" "}
-          {amountToken0 !== 0n
-            ? formatTokenAmount(amountToken0, token0?.decimals || 18)
-            : ""}{" "}
-          {token0?.symbol}
-          {amountToken1 !== 0n
-            ? `+ ${formatTokenAmount(amountToken1, token1?.decimals || 18)} ${
-                token1?.symbol
-              }`
-            : ""}{" "}
-          {feeAmount0 !== 0n || feeAmount1 !== 0n ? (
-            <>
-              and claim fee{" "}
-              {feeAmount0 !== 0n
-                ? formatTokenAmount(feeAmount0, feeToken0?.decimals || 18)
+          <div className="flex gap-2 mt-2">
+            <div className="w-6 h-6 rounded-full flex items-center justify-center bg-layer2 text-xs font-medium">
+              1
+            </div>
+            <div className="flex-1 text-subText text-xs">
+              Remove{" "}
+              {amountToken0 !== 0n
+                ? formatTokenAmount(amountToken0, token0?.decimals || 18)
                 : ""}{" "}
-              {feeAmount0 !== 0n ? feeToken0?.symbol : ""}{" "}
-              {feeAmount1 !== 0n
-                ? `+ ${formatTokenAmount(
-                    feeAmount1,
-                    feeToken1?.decimals || 18
-                  )} ${feeToken1?.symbol}`
+              {token0?.symbol}
+              {amountToken1 !== 0n
+                ? `+ ${formatTokenAmount(amountToken1, token1?.decimals || 18)} ${token1?.symbol
+                }`
                 : ""}{" "}
-            </>
-          ) : (
-            ""
-          )}
-        </div>
-      </div>
-
-      {swapInfo.length > 0 && (
-        <div className="flex gap-2 mt-3">
-          <div className="w-6 h-6 rounded-full flex items-center justify-center bg-layer2 text-xs font-medium">
-            2
+              {feeAmount0 !== 0n || feeAmount1 !== 0n ? (
+                <>
+                  and claim fee{" "}
+                  {feeAmount0 !== 0n
+                    ? formatTokenAmount(feeAmount0, feeToken0?.decimals || 18)
+                    : ""}{" "}
+                  {feeAmount0 !== 0n ? feeToken0?.symbol : ""}{" "}
+                  {feeAmount1 !== 0n
+                    ? `+ ${formatTokenAmount(
+                      feeAmount1,
+                      feeToken1?.decimals || 18
+                    )} ${feeToken1?.symbol}`
+                    : ""}{" "}
+                </>
+              ) : (
+                ""
+              )}
+            </div>
           </div>
-          <div className="text-xs text-subText flex-1">
-            {swapInfo.map((item, index) => (
-              <div className="flex gap-3 items-center text-xs" key={index}>
-                <div className="flex-1 text-subText leading-4">
-                  <span>
-                    Swap {formatDisplayNumber(item.amountIn)}{" "}
-                    {item.tokenInSymbol} for{" "}
-                    {formatDisplayNumber(item.amountOut)}{" "}
-                  </span>
-                  {item.tokenOutSymbol} via{" "}
-                  <span className="font-medium text-text">{item.pool}</span>
-                </div>
+
+          {swapInfo.length > 0 && (
+            <div className="flex gap-2 mt-3">
+              <div className="w-6 h-6 rounded-full flex items-center justify-center bg-layer2 text-xs font-medium">
+                2
               </div>
-            ))}
-          </div>
-        </div>
-      )}
+              <div className="text-xs text-subText flex-1">
+                {swapInfo.map((item, index) => (
+                  <div className="flex gap-3 items-center text-xs" key={index}>
+                    <div className="flex-1 text-subText leading-4">
+                      <span>
+                        Swap {formatDisplayNumber(item.amountIn)}{" "}
+                        {item.tokenInSymbol} for{" "}
+                        {formatDisplayNumber(item.amountOut)}{" "}
+                      </span>
+                      {item.tokenOutSymbol} via{" "}
+                      <span className="font-medium text-text">{item.pool}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
-      <div className="flex gap-2 mt-3 items-center">
-        <div className="w-6 h-6 rounded-full flex items-center justify-center bg-layer2 text-xs font-medium">
-          {swapInfo.length > 0 ? 3 : 2}
-        </div>
-        <div className="text-xs text-subText">
-          Receive {formatTokenAmount(amountOut, tokenOut?.decimals || 18)}{" "}
-          {tokenOut?.symbol}
-        </div>
-      </div>
-    </div>
+          <div className="flex gap-2 mt-3 items-center">
+            <div className="w-6 h-6 rounded-full flex items-center justify-center bg-layer2 text-xs font-medium">
+              {swapInfo.length > 0 ? 3 : 2}
+            </div>
+            <div className="text-xs text-subText">
+              Receive {formatTokenAmount(amountOut, tokenOut?.decimals || 18)}{" "}
+              {tokenOut?.symbol}
+            </div>
+          </div>
+        </AccordionContent>
+      </AccordionItem>
+    </Accordion>
   );
 }

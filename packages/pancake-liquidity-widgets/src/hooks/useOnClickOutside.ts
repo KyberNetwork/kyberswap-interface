@@ -13,7 +13,7 @@ export function useOnClickOutside<T extends HTMLElement>(
       if (
         [
           ...document.getElementsByClassName("setting"),
-          ...document.getElementsByClassName("ks-lw-modal-overlay"),
+          ...document.getElementsByClassName("pcs-lw-modal-overlay"),
         ].some((el: Element) => el.contains(e.target as Node))
       ) {
         return;

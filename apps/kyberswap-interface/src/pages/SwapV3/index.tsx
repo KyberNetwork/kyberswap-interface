@@ -3,11 +3,10 @@ import { ReactNode, Suspense, lazy, useCallback, useEffect, useMemo, useState } 
 import Skeleton from 'react-loading-skeleton'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
-import { ReactComponent as RoutingIcon } from 'assets/svg/routing-icon.svg'
 import Banner from 'components/Banner'
-import EarnBanner from 'components/EarnBanner'
+// import { FarmingPoolBanner, TrendingPoolBanner } from 'components/EarnBanner'
+import EarnBanner from 'components/EarnBanner/ExBanner'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import GasTokenSetting from 'components/swapv2/GasTokenSetting'
@@ -22,7 +21,6 @@ import {
   PageWrapper,
   RoutesWrapper,
   SwapFormWrapper,
-  highlight,
 } from 'components/swapv2/styleds'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
@@ -30,11 +28,16 @@ import { useAllTokens } from 'hooks/Tokens'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
-import { BodyWrapper } from 'pages/AppBody'
 import CrossChainSwap from 'pages/CrossChainSwap'
 import { CrossChainSwapSources } from 'pages/CrossChainSwap/components/CrossChainSwapSources'
 import { TransactionHistory } from 'pages/CrossChainSwap/components/TransactionHistory'
 import Header from 'pages/SwapV3/Header'
+import {
+  AppBodyWrapped, // BannerWrapper,
+  // FarmingWrapper,
+  RoutingIconWrapper,
+  SwitchLocaleLinkWrapper, // TrendingWrapper,
+} from 'pages/SwapV3/styles'
 import useCurrenciesByPage from 'pages/SwapV3/useCurrenciesByPage'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
 import { useShowTradeRoutes } from 'state/user/hooks'
@@ -45,7 +48,7 @@ import PopulatedSwapForm from './PopulatedSwapForm'
 
 const TradeRouting = lazy(() => import('components/TradeRouting'))
 
-export const InfoComponents = ({ children }: { children: ReactNode[] }) => {
+const InfoComponents = ({ children }: { children: ReactNode[] }) => {
   return children.filter(Boolean).length ? <InfoComponentsWrapper>{children}</InfoComponentsWrapper> : null
 }
 
@@ -61,32 +64,6 @@ export enum TAB {
 }
 
 export const isSettingTab = (tab: TAB) => [TAB.INFO, TAB.SETTINGS, TAB.LIQUIDITY_SOURCES].includes(tab)
-
-export const AppBodyWrapped = styled(BodyWrapper)`
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
-  padding: 16px;
-  margin-top: 0;
-
-  &[data-highlight='true'] {
-    animation: ${({ theme }) => highlight(theme)} 2s 2 alternate ease-in-out;
-  }
-`
-
-export const SwitchLocaleLinkWrapper = styled.div`
-  margin-bottom: 30px;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-  margin-bottom: 0px;
-`}
-`
-
-export const RoutingIconWrapper = styled(RoutingIcon)`
-  height: 27px;
-  width: 27px;
-  margin-right: 10px;
-  path {
-    fill: ${({ theme }) => theme.subText} !important;
-  }
-`
 
 export default function Swap() {
   const { chainId } = useActiveWeb3React()
@@ -203,7 +180,17 @@ export default function Swap() {
           </SwapFormWrapper>
 
           <InfoComponents>
-            {(isSwapPage || isLimitPage) && !isPartnerSwap && <EarnBanner />}
+            {/* {(isSwapPage || isLimitPage || isCrossChainPage) && !isPartnerSwap && (
+              <BannerWrapper>
+                <TrendingWrapper>
+                  <TrendingPoolBanner />
+                </TrendingWrapper>
+                <FarmingWrapper>
+                  <FarmingPoolBanner />
+                </FarmingWrapper>
+              </BannerWrapper>
+            )} */}
+            {(isSwapPage || isLimitPage || isCrossChainPage) && !isPartnerSwap && <EarnBanner />}
             {isShowTradeRoutes && isSwapPage && (
               <RoutesWrapper isOpenChart={false}>
                 <Flex flexDirection="column" width="100%">

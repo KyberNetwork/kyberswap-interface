@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { token } from "@/schema/token";
-import { Univ2PoolType } from "@/schema/protocol";
+import { Univ2PoolType } from "@/schema/dex";
 
 export const univ2PoolNormalize = z.object({
   token0: token,

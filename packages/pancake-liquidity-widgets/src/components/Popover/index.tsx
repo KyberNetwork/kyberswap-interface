@@ -48,9 +48,9 @@ export default function Popover({
         {children}
       </div>
       <Portal>
-        <div className="ks-lw-style">
+        <div className="pcs-lw-style">
           <div
-            className="ks-lw-popover"
+            className="pcs-lw-popover"
             data-visibility={show}
             ref={setPopperElement}
             style={styles.popper}

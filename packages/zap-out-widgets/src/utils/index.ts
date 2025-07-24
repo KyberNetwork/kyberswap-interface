@@ -1,4 +1,4 @@
-import { NETWORKS_INFO } from "@/constants";
+import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO } from "@/constants";
 import { ChainId } from "@/schema";
 import { formatUnits } from "@kyber/utils/number";
 
@@ -114,4 +114,16 @@ export const assertUnreachable = (x: never, errorMsg?: string) => {
     throw new Error(errorMsg);
   }
   throw new Error("Unhandled case: " + x);
+};
+
+export const sameToken = (address0: string, address1: string, weth: string) => {
+  const normalizeAddress0 =
+    address0.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase()
+      ? weth.toLowerCase()
+      : address0.toLowerCase();
+  const normalizeAddress1 =
+    address1.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase()
+      ? weth.toLowerCase()
+      : address1.toLowerCase();
+  return normalizeAddress0 === normalizeAddress1;
 };
