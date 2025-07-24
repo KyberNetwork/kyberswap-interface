@@ -1,15 +1,20 @@
 {
   "name": "@kyber/ui",
+  "type": "module",
   "version": "0.0.0",
   "private": true,
   "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
     "./styles.css": "./dist/index.css",
     "./portal": "./src/portal.tsx",
     "./skeleton": "./src/components/ui/skeleton.tsx",
     "./dialog": "./src/components/ui/dialog.tsx",
     "./slider": "./src/components/ui/slider.tsx",
     "./accordion": "./src/components/ui/accordion.tsx",
-    "./tooltip": "./src/components/tooltip.tsx",
+    "./tooltip": "./src/components/Tooltip/index.tsx",
     "./toggle": "./src/components/toggle.tsx",
     "./scroll-area": "./src/components/ui/scroll-area.tsx",
     "./info-helper": "./src/components/info-helper.tsx",
@@ -18,10 +23,14 @@
     "./label": "./src/components/ui/label.tsx",
     "./tabs": "./src/components/ui/tabs.tsx",
     "./card": "./src/components/ui/card.tsx",
-    "./radio-group": "./src/components/ui/radio-group.tsx"
+    "./radio-group": "./src/components/ui/radio-group.tsx",
+    "./token-logo": "./src/components/token-logo.tsx"
   },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "tailwindcss -i ./src/styles.css -o ./dist/index.css",
+    "build": "tsup && node build-css.mjs",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
@@ -36,34 +45,42 @@
     "@radix-ui/react-tabs": "^1.1.3",
     "@radix-ui/react-tooltip": "^1.1.3",
     "class-variance-authority": "^0.7.0",
+    "html2canvas": "^1.4.1",
+    "numeral": "^2.0.6",
     "react-popper": "^2.3.0"
   },
   "devDependencies": {
     "@kyber/eslint-config": "workspace:*",
     "@kyber/hooks": "workspace:^",
     "@kyber/schema": "workspace:^",
+    "@kyber/svgr-esbuild-plugin": "workspace:^",
     "@kyber/tailwind-config": "workspace:^",
     "@kyber/typescript-config": "workspace:*",
     "@kyber/utils": "workspace:^",
+    "@trivago/prettier-plugin-sort-imports": "^4.2.0",
+    "@types/numeral": "^2.0.5",
     "@types/eslint": "^8.56.5",
     "@types/node": "^20.11.24",
     "@types/react": "^18.0.17",
     "@types/react-dom": "^18.0.6",
-    "autoprefixer": "^10.4.20",
-    "eslint": "^8.57.0",
-    "postcss": "^8.4.47",
-    "tailwindcss": "^3.4.13",
-    "typescript": "5.3.2",
     "@typescript-eslint/eslint-plugin": "^6.14.0",
     "@typescript-eslint/parser": "^6.14.0",
-    "eslint-plugin-react": "^7.33.2",
-    "eslint-plugin-react-hooks": "^4.6.0",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.4.0",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "postcss": "^8.4.47",
+    "postcss-load-config": "^5.1.0",
+    "postcss-prefix-selector": "^2.1.0",
     "prettier": "^3.5.3",
-    "@trivago/prettier-plugin-sort-imports": "^3.3.1"
+    "tailwindcss": "^3.4.13",
+    "tsup": "^8.0.2",
+    "typescript": "5.3.2"
   },
   "peerDependencies": {
-    "react": ">=16.8.0"
+    "react": ">=16.8.0",
+    "react-dom": ">=16.8.0"
   }
 }

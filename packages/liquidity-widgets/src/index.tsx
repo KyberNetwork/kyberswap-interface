@@ -1,12 +1,16 @@
-import { ReactNode, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
-import WidgetContent from '@/components/Content';
-import Setting from '@/components/Setting';
-import { TokenListProvider } from '@/hooks/useTokenList';
-import { ZapContextProvider } from '@/hooks/useZapInState';
-import { ChainId, PoolType } from '@/schema';
-import { WidgetProps, WidgetProvider, useWidgetContext } from '@/stores';
-import { Theme, defaultTheme } from '@/theme';
+import { useShallow } from 'zustand/shallow';
+
+import { ChainId, PoolType, Theme } from '@kyber/schema';
+import '@kyber/ui/styles.css';
+
+import Widget from '@/Widget';
+import { ZapContextProvider } from '@/hooks/useZapState';
+import { usePoolStore } from '@/stores/usePoolStore';
+import { usePositionStore } from '@/stores/usePositionStore';
+import { useWidgetStore } from '@/stores/useWidgetStore';
+import { WidgetProps } from '@/types/index';
 
 import './Widget.scss';
 import './globals.css';
@@ -23,59 +27,85 @@ const createModalRoot = () => {
 
 createModalRoot();
 
-const LiquidityWidget = (props: WidgetProps) => {
-  const { theme, aggregatorOptions, source, initDepositTokens, initAmounts, chainId } = props;
+const LiquidityWidget = (widgetProps: WidgetProps) => {
+  const { chainId, poolAddress, poolType, positionId, connectedAccount } = widgetProps;
 
-  const themeToApply = useMemo(
-    () =>
-      theme && typeof theme === 'object'
-        ? {
-            ...defaultTheme,
-            ...theme,
-          }
-        : defaultTheme,
-    [theme],
+  const {
+    theme,
+    setInitiaWidgetState,
+    reset: resetWidgetStore,
+    setPositionId,
+  } = useWidgetStore(
+    useShallow(s => ({
+      theme: s.theme,
+      setInitiaWidgetState: s.setInitiaWidgetState,
+      reset: s.reset,
+      setPositionId: s.setPositionId,
+    })),
   );
+  const {
+    pool,
+    getPool,
+    getPoolStat,
+    reset: resetPoolStore,
+  } = usePoolStore(useShallow(s => ({ pool: s.pool, getPool: s.getPool, getPoolStat: s.getPoolStat, reset: s.reset })));
+
+  const { getPosition, reset: resetPositionStore } = usePositionStore(
+    useShallow(s => ({ getPosition: s.getPosition, reset: s.reset })),
+  );
+
+  const [firstFetch, setFirstFetch] = useState(false);
+
+  const resetStore = useCallback(() => {
+    resetPoolStore();
+    resetPositionStore();
+    resetWidgetStore();
+  }, [resetPoolStore, resetPositionStore, resetWidgetStore]);
 
   useEffect(() => {
-    if (!themeToApply) return;
-    const r = document.querySelector<HTMLElement>(':root');
-    Object.keys(themeToApply).forEach(key => {
-      r?.style.setProperty(`--ks-lw-${key}`, themeToApply[key as keyof Theme]);
+    return () => resetStore();
+  }, [resetStore]);
+
+  useEffect(() => {
+    setInitiaWidgetState(widgetProps, resetStore);
+  }, [widgetProps, setInitiaWidgetState, resetStore]);
+
+  useEffect(() => {
+    getPool({ poolAddress, chainId, poolType });
+  }, [chainId, getPool, poolAddress, poolType]);
+
+  useEffect(() => {
+    getPoolStat({ poolAddress, chainId });
+  }, [chainId, getPoolStat, poolAddress]);
+
+  useEffect(() => {
+    if (firstFetch || pool === 'loading' || !pool) return;
+
+    getPosition({
+      positionId,
+      chainId,
+      poolType,
+      connectedAccount,
+      pool,
+      setPositionId,
     });
-  }, [themeToApply]);
+    if (positionId) setPositionId(positionId);
+    setFirstFetch(true);
+  }, [chainId, connectedAccount, firstFetch, getPosition, pool, poolType, positionId, setPositionId]);
 
-  const widgetProps = {
-    ...props,
-    theme: themeToApply,
-  };
+  useEffect(() => {
+    if (!theme) return;
+
+    const root = document.querySelector<HTMLElement>(':root');
+    Object.keys(theme).forEach(key => {
+      root?.style.setProperty(`--ks-lw-${key}`, theme[key as keyof Theme]);
+    });
+  }, [theme]);
 
   return (
-    <WidgetProvider {...widgetProps}>
-      <TokenProvider chainId={chainId}>
-        <ZapContextProvider
-          includedSources={aggregatorOptions?.includedSources?.join(',')}
-          excludedSources={aggregatorOptions?.excludedSources?.join(',')}
-          source={source}
-          initDepositTokens={initDepositTokens}
-          initAmounts={initAmounts}
-        >
-          <div className="ks-lw ks-lw-style">
-            <WidgetContent />
-            <Setting />
-          </div>
-        </ZapContextProvider>
-      </TokenProvider>
-    </WidgetProvider>
-  );
-};
-
-const TokenProvider = ({ children, chainId }: { children: ReactNode; chainId: ChainId }) => {
-  const pool = useWidgetContext(s => s.pool);
-  return (
-    <TokenListProvider chainId={chainId} pool={pool}>
-      {children}
-    </TokenListProvider>
+    <ZapContextProvider>
+      <Widget />
+    </ZapContextProvider>
   );
 };
 

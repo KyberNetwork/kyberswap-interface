@@ -1,18 +1,22 @@
 import { useCallback, useMemo } from 'react';
 
+import { useShallow } from 'zustand/shallow';
+
+import { univ3PoolNormalize } from '@kyber/schema';
 import { toString } from '@kyber/utils/number';
 import { nearestUsableTick, priceToClosestTick, tickToPrice } from '@kyber/utils/uniswapv3';
 
 import { Bound, LiquidityChartRangeInput } from '@kyberswap/liquidity-chart';
 import '@kyberswap/liquidity-chart/style.css';
 
-import { useZapState } from '@/hooks/useZapInState';
-import { univ3PoolNormalize } from '@/schema';
-import { useWidgetContext } from '@/stores';
+import { useZapState } from '@/hooks/useZapState';
+import { usePoolStore } from '@/stores/usePoolStore';
+import { useWidgetStore } from '@/stores/useWidgetStore';
 
 export default function LiquidityChart() {
-  const { pool: rawPool, positionId } = useWidgetContext(s => s);
-  const { tickLower, tickUpper, revertPrice, setTickLower, setTickUpper, priceLower, priceUpper } = useZapState();
+  const { positionId } = useWidgetStore(useShallow(s => ({ positionId: s.positionId })));
+  const { pool: rawPool, revertPrice } = usePoolStore(useShallow(s => ({ pool: s.pool, revertPrice: s.revertPrice })));
+  const { tickLower, tickUpper, setTickLower, setTickUpper, priceLower, priceUpper } = useZapState();
 
   const pool = useMemo(() => {
     if (rawPool === 'loading') return rawPool;
@@ -135,6 +139,13 @@ export default function LiquidityChart() {
         ticksAtLimit={ticksAtLimit}
         revertPrice={revertPrice}
         onBrushDomainChange={onBrushDomainChange}
+        zoomPosition={{
+          top: '0px',
+          left: undefined,
+          right: '0px',
+          bottom: undefined,
+          gap: '8px',
+        }}
       />
     </div>
   );

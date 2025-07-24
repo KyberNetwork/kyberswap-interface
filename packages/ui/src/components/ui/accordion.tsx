@@ -4,9 +4,17 @@ import * as AccordionPrimitive from '@radix-ui/react-accordion';
 
 import { cn } from '@kyber/utils/tailwind-helpers';
 
-import ChevronDownIcon from '../icons/chevron-down.svg';
+import ChevronDownIcon from '@/assets/icons/chevron-down.svg?react';
 
-const Accordion = AccordionPrimitive.Root;
+const Accordion = ({
+  children,
+  className,
+  ...props
+}: React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Root>) => (
+  <AccordionPrimitive.Root className={cn('ks-ui-style', className)} {...props}>
+    {children}
+  </AccordionPrimitive.Root>
+);
 
 const AccordionItem = React.forwardRef<
   React.ElementRef<typeof AccordionPrimitive.Item>,

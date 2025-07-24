@@ -126,18 +126,21 @@ export const TokenListProvider = ({
 
   const fetchTokenList = useCallback(() => {
     setLoading(true);
-    fetch(
-      `${PATHS.KYBERSWAP_SETTING_API}/v1/tokens?page=1&pageSize=100&isWhitelisted=true&chainIds=${chainId}`
-    )
-      .then((res) => res.json())
-      .then((res) =>
-        setTokens(
+    const urls = [1, 2].map(
+      (page) =>
+        `${PATHS.KYBERSWAP_SETTING_API}/v1/tokens?page=${page}&pageSize=100&isWhitelisted=true&chainIds=${chainId}`
+    );
+
+    Promise.all(urls.map((url) => fetch(url).then((res) => res.json())))
+      .then((responses) => {
+        const allTokens = responses.flatMap((res) =>
           res.data.tokens.map((item: Token & { logoURI: string }) => ({
             ...item,
             logo: item.logoURI,
           }))
-        )
-      )
+        );
+        setTokens(allTokens);
+      })
       .finally(() => {
         setLoading(false);
       });

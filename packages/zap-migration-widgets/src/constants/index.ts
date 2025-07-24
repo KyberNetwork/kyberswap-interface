@@ -53,6 +53,10 @@ export const NETWORKS_INFO: Record<ChainId, Chain> = {
 
 export const DEXES_INFO: Record<Dex, DexInfo> = {
   [Dex.DEX_UNISWAP_V4]: uniswapv4,
+  [Dex.DEX_UNISWAP_V4_FAIRFLOW]: {
+    ...uniswapv4,
+    name: "Uniswap V4 FairFlow",
+  },
   [Dex.DEX_UNISWAPV3]: uniswapv3,
   [Dex.DEX_UNISWAPV2]: uniswapv2,
   [Dex.DEX_PANCAKESWAPV3]: pancakeswapv3,
@@ -73,7 +77,8 @@ export const DEXES_INFO: Record<Dex, DexInfo> = {
 export const PATHS = {
   BFF_API: "https://bff.kyberswap.com/api",
   KYBERSWAP_SETTING_API: "https://ks-setting.kyberswap.com/api",
-  ZAP_API: "https://zap-api.kyberswap.com", // https://pre-zap-api.kyberengineering.io  https://zap-api.kyberswap.com
+  ZAP_API: "https://zap-api.kyberswap.com",
+  // ZAP_API: "https://pre-zap-api.kyberengineering.io",
   TOKEN_API: "https://token-api.kyberengineering.io/api",
   DOCUMENT: {
     ZAP_FEE_MODEL:

@@ -5,7 +5,7 @@ export default {
   icon: sushiLogo,
   name: "SushiSwap V3",
   nftManagerContract: {
-    [ChainId.Arbitrum]: "0x96E04591579f298681361C6122Dc4Ef405c19385",
+    [ChainId.Arbitrum]: "0xF0cBce1942A68BEB3d1b73F0dd86C8DCc363eF49",
     [ChainId.Avalanche]: "0x18350b048AB366ed601fFDbC669110Ecb36016f3",
     [ChainId.Base]: "0x80C7DD17B01855a6D2347444a0FCC36136a314de",
     [ChainId.Blast]: "0x51edb3e5bcE8618B77b60215F84aD3DB14709051",
