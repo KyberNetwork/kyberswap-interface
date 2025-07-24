@@ -134,7 +134,14 @@ export class MayanAdapter extends BaseSwapAdapter {
 
     return {
       txHash: res.fulfillTxHash || '',
-      status: res.status === 'ORDER_SETTLED' ? 'Success' : 'Processing',
+      status:
+        res.status === 'ORDER_SETTLED'
+          ? 'Success'
+          : res.status === 'ORDER_REFUNDED'
+          ? 'Refunded'
+          : res.status === 'ORDER_CANCELED'
+          ? 'Failed'
+          : 'Processing',
     }
   }
 }
