@@ -165,68 +165,80 @@ const RightSection = ({
             </ChartPlaceholder>
           ))}
 
-        <Flex sx={{ gap: '16px' }}>
-          <MinPriceSection>
-            <Text fontSize={14} color={theme.subText}>
-              {t`Min Price`}
-            </Text>
-
-            {initialLoading ? (
-              <PositionSkeleton width={80} height={21} style={{ marginBottom: 8, marginTop: 8 }} />
-            ) : isUnfinalized ? (
-              <PositionSkeleton width={80} height={21} style={{ marginBottom: 8, marginTop: 8 }} text="Finalizing..." />
-            ) : (
-              <Text fontSize={18} marginBottom={2} marginTop={2}>
-                {(!revert && position?.priceRange.isMinPrice) || (revert && position?.priceRange.isMaxPrice)
-                  ? '0'
-                  : position?.priceRange?.min && position?.priceRange?.max
-                  ? formatDisplayNumber(!revert ? position.priceRange.min : 1 / position.priceRange.max, {
-                      significantDigits: 6,
-                    })
-                  : ''}
-              </Text>
-            )}
-
-            {initialLoading ? (
-              <PositionSkeleton width={110} height={16} />
-            ) : (
+        {!isUniv2 && (
+          <Flex sx={{ gap: '16px' }}>
+            <MinPriceSection>
               <Text fontSize={14} color={theme.subText}>
-                {!revert ? position?.token1.symbol : position?.token0.symbol} per{' '}
-                {!revert ? position?.token0.symbol : position?.token1.symbol}
+                {t`Min Price`}
               </Text>
-            )}
-          </MinPriceSection>
-          <MaxPriceSection>
-            <Text fontSize={14} color={theme.subText}>
-              {t`Max Price`}
-            </Text>
 
-            {initialLoading ? (
-              <PositionSkeleton width={80} height={21} style={{ marginBottom: 8, marginTop: 8 }} />
-            ) : isUnfinalized ? (
-              <PositionSkeleton width={80} height={21} style={{ marginBottom: 8, marginTop: 8 }} text="Finalizing..." />
-            ) : (
-              <Text fontSize={18} marginBottom={2} marginTop={2}>
-                {(!revert && position?.priceRange.isMaxPrice) || (revert && position?.priceRange.isMinPrice)
-                  ? '∞'
-                  : position?.priceRange?.min && position?.priceRange?.max
-                  ? formatDisplayNumber(!revert ? position.priceRange.max : 1 / position.priceRange.min, {
-                      significantDigits: 6,
-                    })
-                  : ''}
-              </Text>
-            )}
+              {initialLoading ? (
+                <PositionSkeleton width={80} height={21} style={{ marginBottom: 8, marginTop: 8 }} />
+              ) : isUnfinalized ? (
+                <PositionSkeleton
+                  width={80}
+                  height={21}
+                  style={{ marginBottom: 8, marginTop: 8 }}
+                  text="Finalizing..."
+                />
+              ) : (
+                <Text fontSize={18} marginBottom={2} marginTop={2}>
+                  {(!revert && position?.priceRange.isMinPrice) || (revert && position?.priceRange.isMaxPrice)
+                    ? '0'
+                    : position?.priceRange?.min && position?.priceRange?.max
+                    ? formatDisplayNumber(!revert ? position.priceRange.min : 1 / position.priceRange.max, {
+                        significantDigits: 6,
+                      })
+                    : ''}
+                </Text>
+              )}
 
-            {initialLoading ? (
-              <PositionSkeleton width={110} height={16} />
-            ) : (
+              {initialLoading ? (
+                <PositionSkeleton width={110} height={16} />
+              ) : (
+                <Text fontSize={14} color={theme.subText}>
+                  {!revert ? position?.token1.symbol : position?.token0.symbol} per{' '}
+                  {!revert ? position?.token0.symbol : position?.token1.symbol}
+                </Text>
+              )}
+            </MinPriceSection>
+            <MaxPriceSection>
               <Text fontSize={14} color={theme.subText}>
-                {!revert ? position?.token1.symbol : position?.token0.symbol} per{' '}
-                {!revert ? position?.token0.symbol : position?.token1.symbol}
+                {t`Max Price`}
               </Text>
-            )}
-          </MaxPriceSection>
-        </Flex>
+
+              {initialLoading ? (
+                <PositionSkeleton width={80} height={21} style={{ marginBottom: 8, marginTop: 8 }} />
+              ) : isUnfinalized ? (
+                <PositionSkeleton
+                  width={80}
+                  height={21}
+                  style={{ marginBottom: 8, marginTop: 8 }}
+                  text="Finalizing..."
+                />
+              ) : (
+                <Text fontSize={18} marginBottom={2} marginTop={2}>
+                  {(!revert && position?.priceRange.isMaxPrice) || (revert && position?.priceRange.isMinPrice)
+                    ? '∞'
+                    : position?.priceRange?.min && position?.priceRange?.max
+                    ? formatDisplayNumber(!revert ? position.priceRange.max : 1 / position.priceRange.min, {
+                        significantDigits: 6,
+                      })
+                    : ''}
+                </Text>
+              )}
+
+              {initialLoading ? (
+                <PositionSkeleton width={110} height={16} />
+              ) : (
+                <Text fontSize={14} color={theme.subText}>
+                  {!revert ? position?.token1.symbol : position?.token0.symbol} per{' '}
+                  {!revert ? position?.token0.symbol : position?.token1.symbol}
+                </Text>
+              )}
+            </MaxPriceSection>
+          </Flex>
+        )}
 
         {isUniv2 && <PositionHistory position={position} />}
 
