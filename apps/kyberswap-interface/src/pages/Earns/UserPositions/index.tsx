@@ -252,12 +252,12 @@ const UserPositions = () => {
             </Text>
             : {t`Claim your unclaimed fees from this position.`}
           </Text>
-          <Text fontSize={14}>
+          {/* <Text fontSize={14}>
             <Text as="u" color={theme.primary}>
               {t`Claim rewards`}
             </Text>
             : {t`Claim your claimable farming rewards from a position.`}
-          </Text>
+          </Text> */}
         </Flex>
       }
       noArrow
