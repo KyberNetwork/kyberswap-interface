@@ -1,4 +1,4 @@
-import SwapIcon from "../assets/icons/swap.svg";
+import RevertPriceIcon from "../assets/icons/ic_revert_price.svg";
 import {
   ChainId,
   UniV2Pool,
@@ -11,7 +11,7 @@ import {
 import { usePoolsStore } from "../stores/usePoolsStore";
 import { usePositionStore } from "../stores/usePositionStore";
 import { useZapStateStore } from "../stores/useZapStateStore";
-import { Skeleton } from "@kyber/ui/skeleton";
+import { Skeleton } from "@kyber/ui";
 import {
   divideBigIntToString,
   formatDisplayNumber,
@@ -161,13 +161,13 @@ export function TargetPoolState({
   const poolTick = !isUniV3
     ? undefined
     : pool === "loading"
-    ? undefined
-    : (pool as UniV3Pool).tick % (pool as UniV3Pool).tickSpacing === 0
-    ? (pool as UniV3Pool).tick
-    : nearestUsableTick(
-        (pool as UniV3Pool).tick,
-        (pool as UniV3Pool).tickSpacing
-      );
+      ? undefined
+      : (pool as UniV3Pool).tick % (pool as UniV3Pool).tickSpacing === 0
+        ? (pool as UniV3Pool).tick
+        : nearestUsableTick(
+            (pool as UniV3Pool).tick,
+            (pool as UniV3Pool).tickSpacing
+          );
 
   const increaseTickLower = () => {
     if (!isUniV3) return;
@@ -346,24 +346,29 @@ export function TargetPoolState({
 
   return (
     <div className="flex-1">
-      <div className="border border-stroke rounded-md px-4 py-3 text-subText text-sm flex items-center gap-1 flex-wrap">
-        Pool Price{" "}
-        {pool === "loading" && poolPrice ? (
+      <div className="border border-stroke rounded-md px-4 py-3 text-subText text-sm flex items-center gap-1 flex-wrap justify-between">
+        {pool === "loading" || !poolPrice ? (
           <Skeleton className="w-[200px] h-3.5" />
         ) : (
           <>
-            <div className="text-text">{poolPrice}</div>
-            <div>{priceLabel}</div>
+            <div className="flex items-center gap-1">
+              <span> Current Price</span>
+              <div className="text-text">
+                1 {revertDisplay ? pool.token1.symbol : pool.token0.symbol} ={" "}
+                {poolPrice}{" "}
+                {revertDisplay ? pool.token0.symbol : pool.token1.symbol}
+              </div>
+            </div>
 
-            <SwapIcon
-              role="button"
+            <div
+              className="flex items-center justify-center rounded-full bg-[#ffffff14] w-6 h-6"
               onClick={() => setRevertDisplay(!revertDisplay)}
-            />
+            >
+              <RevertPriceIcon className="cursor-pointer" role="button" />
+            </div>
           </>
         )}
       </div>
-
-      {isUniV2 && <EstimateLiqValue chainId={chainId} />}
 
       {isUniV3 &&
         (toPosition !== "loading" && toPosition !== null ? (
@@ -379,8 +384,8 @@ export function TargetPoolState({
                   {pool === "loading"
                     ? ""
                     : revertDisplay
-                    ? `${pool?.token0.symbol}/${pool?.token1.symbol}`
-                    : `${pool?.token1.symbol}/${pool?.token0.symbol}`}
+                      ? `${pool?.token0.symbol} per ${pool?.token1.symbol}`
+                      : `${pool?.token1.symbol} per ${pool?.token0.symbol}`}
                 </p>
               </div>
               <div className="bg-white bg-opacity-[0.04] rounded-md py-3 w-1/2 flex flex-col items-center justify-center gap-1">
@@ -390,8 +395,8 @@ export function TargetPoolState({
                   {pool === "loading"
                     ? ""
                     : revertDisplay
-                    ? `${pool?.token0.symbol}/${pool?.token1.symbol}`
-                    : `${pool?.token1.symbol}/${pool?.token0.symbol}`}
+                      ? `${pool?.token0.symbol} per ${pool?.token1.symbol}`
+                      : `${pool?.token1.symbol} per ${pool?.token0.symbol}`}
                 </p>
               </div>
             </div>
@@ -579,6 +584,8 @@ export function TargetPoolState({
             </div>
           </>
         ))}
+
+      <EstimateLiqValue chainId={chainId} />
     </div>
   );
 }

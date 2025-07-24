@@ -35,11 +35,14 @@ interface ZapOutUserState {
     poolType: PoolType;
     poolAddress: string;
     positionId: string;
+    signal?: AbortSignal;
   }) => Promise<void>;
   highlightDegenMode: boolean;
   manualSlippage: boolean;
   setManualSlippage: (value: boolean) => void;
   resetState: () => void;
+  mode: "zapOut" | "withdrawOnly";
+  setMode: (mode: "zapOut" | "withdrawOnly") => void;
 }
 
 const initState = {
@@ -55,6 +58,7 @@ const initState = {
   fetchingRoute: false,
   route: null,
   manualSlippage: false,
+  mode: "zapOut" as const,
 };
 
 export const useZapOutUserState = create<ZapOutUserState>((set, get) => ({
@@ -83,23 +87,35 @@ export const useZapOutUserState = create<ZapOutUserState>((set, get) => ({
 
   setLiquidityOut: (liquidityOut: bigint) => set({ liquidityOut }),
 
+  setMode: (mode: "zapOut" | "withdrawOnly") => set({ mode }),
+
   togglePreview: () => set((state) => ({ showPreview: !state.showPreview })),
 
-  fetchZapOutRoute: async ({ chainId, poolType, positionId, poolAddress }) => {
-    const { tokenOut, liquidityOut, slippage } = get();
+  fetchZapOutRoute: async ({
+    chainId,
+    poolType,
+    positionId,
+    poolAddress,
+    signal,
+  }) => {
+    const { tokenOut, liquidityOut, slippage, mode } = get();
 
-    if (!tokenOut?.address || liquidityOut === 0n) {
+    if ((mode === "zapOut" && !tokenOut?.address) || liquidityOut === 0n) {
       set({ fetchingRoute: false, route: null });
       return;
     }
 
+    set({ fetchingRoute: true });
     const params: { [key: string]: string | number | boolean } = {
       dexFrom: poolTypeToDexId[poolType],
       "poolFrom.id": poolAddress,
       "positionFrom.id": positionId,
       liquidityOut: liquidityOut.toString(),
-      tokenOut: tokenOut.address,
       slippage,
+      ...(mode === "zapOut" &&
+        tokenOut?.address && {
+          tokenOut: tokenOut.address,
+        }),
     };
 
     let search = "";
@@ -111,7 +127,8 @@ export const useZapOutUserState = create<ZapOutUserState>((set, get) => ({
       const res = await fetch(
         `${PATHS.ZAP_API}/${
           CHAIN_ID_TO_CHAIN[chainId]
-        }/api/v1/out/route?${search.slice(1)}`
+        }/api/v1/out/route?${search.slice(1)}`,
+        { signal },
       ).then((res) => res.json());
 
       if (!res.data) {
@@ -121,6 +138,9 @@ export const useZapOutUserState = create<ZapOutUserState>((set, get) => ({
       apiResponse.parse(res.data);
       set({ route: res.data, fetchingRoute: false });
     } catch (e) {
+      if (signal?.aborted || (e as any)?.name === "AbortError") {
+        return;
+      }
       console.log(e);
       set({ fetchingRoute: false, route: null });
     }
@@ -152,7 +172,7 @@ const aggregatorSwapAction = z.object({
       z.object({
         tokenIn: token,
         tokenOut: token,
-      })
+      }),
     ),
   }),
 });
@@ -189,7 +209,7 @@ const apiResponse = z.object({
               z.object({
                 tokenIn: token,
                 tokenOut: token,
-              })
+              }),
             ),
           }),
         }),
@@ -211,7 +231,7 @@ const apiResponse = z.object({
         //    tokens: z.array(token),
         //  }),
         //}),
-      ])
+      ]),
     ),
   }),
   route: z.string(),

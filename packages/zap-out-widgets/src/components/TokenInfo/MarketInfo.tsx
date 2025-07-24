@@ -5,11 +5,11 @@ import useMarketTokenInfo from "@/components/TokenInfo/useMarketTokenInfo";
 import IconZiczac from "@/assets/svg/ziczac.svg";
 import LogoCoingecko from "@/assets/svg/coingecko.svg";
 import IconDown from "@/assets/svg/down.svg";
-import defaultTokenLogo from "@/assets/svg/question.svg?url";
 import Loader from "@/components/Loader";
 import { useZapOutContext } from "@/stores";
 import { Token } from "@/schema";
 import useCopy from "@/hooks/useCopy";
+import { TokenLogo } from "@kyber/ui";
 
 const MarketInfo = ({ token }: { token: Token }) => {
   const theme = useZapOutContext((s) => s.theme);
@@ -79,15 +79,7 @@ const MarketInfo = ({ token }: { token: Token }) => {
           <div className="flex items-center gap-1">
             {token ? (
               <>
-                <img
-                  className="w-4 h-4"
-                  src={token.logo}
-                  alt="token-logo"
-                  onError={({ currentTarget }) => {
-                    currentTarget.onerror = null;
-                    currentTarget.src = defaultTokenLogo;
-                  }}
-                />
+                <TokenLogo src={token.logo} alt={token.symbol} />
                 <span>{shortenAddress(tokenAddress, 3)}</span>
                 {Copy}
               </>

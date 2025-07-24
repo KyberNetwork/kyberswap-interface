@@ -3,7 +3,7 @@ import { CSSProperties, ReactNode, useCallback, useState } from 'react'
 import { Info } from 'react-feather'
 import styled from 'styled-components'
 
-import Tooltip from 'components/Tooltip'
+import Tooltip, { MouseoverTooltip } from 'components/Tooltip'
 import { Z_INDEXS } from 'constants/styles'
 
 const InfoWrapper = styled.div<{ isActive?: boolean }>`
@@ -42,6 +42,7 @@ export default function InfoHelper({
   width,
   style,
   zIndexTooltip = Z_INDEXS.POPOVER_CONTAINER,
+  noArrow = false,
 }: {
   text: string | ReactNode
   size?: number
@@ -52,6 +53,7 @@ export default function InfoHelper({
   width?: string
   style?: CSSProperties
   zIndexTooltip?: number
+  noArrow?: boolean
 }) {
   const [show, setShow] = useState<boolean>(false)
 
@@ -75,6 +77,7 @@ export default function InfoHelper({
         width={width}
         size={fontSize || size}
         style={{ zIndex: zIndexTooltip }}
+        noArrow={noArrow}
       >
         <InfoWrapper isActive={isActive}>
           <Info size={size || 12} color={color || 'currentcolor'} />
@@ -83,3 +86,21 @@ export default function InfoHelper({
     </InfoHelperWrapper>
   )
 }
+
+export const InfoHelperWithDelay = ({
+  text,
+  size,
+  color,
+  placement,
+  width,
+}: {
+  text: string | ReactNode
+  size?: number
+  color?: string
+  placement?: Placement
+  width?: string
+}) => (
+  <MouseoverTooltip text={text} width={width} placement={placement}>
+    <Info size={size || 12} color={color || 'currentcolor'} />
+  </MouseoverTooltip>
+)

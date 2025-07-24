@@ -5,7 +5,6 @@ import {
   ZERO_ADDRESS,
 } from "../constants";
 import { useNftApproval } from "../hooks/use-nft-approval";
-import { useTargetNftApproval } from "../hooks/use-target-nft-approval";
 import usePositionOwner from "../hooks/usePositionOwner";
 import { ChainId, Token, univ2Dexes, univ4Dexes } from "../schema";
 import { usePoolsStore } from "../stores/usePoolsStore";
@@ -14,7 +13,7 @@ import { RefundAction, useZapStateStore } from "../stores/useZapStateStore";
 import { PI_LEVEL } from "../utils";
 import { useSwapPI } from "./SwapImpact";
 import { useDebounce } from "@kyber/hooks/use-debounce";
-import { InfoHelper } from "@kyber/ui/info-helper";
+import { InfoHelper } from "@kyber/ui";
 import { formatTokenAmount } from "@kyber/utils/number";
 import { cn } from "@kyber/utils/tailwind-helpers";
 import { useEffect, useState } from "react";
@@ -27,6 +26,7 @@ export function Action({
   onClose,
   onSubmitTx,
   client,
+  onBack,
 }: {
   chainId: ChainId;
   connectedAccount: {
@@ -36,6 +36,7 @@ export function Action({
   onConnectWallet: () => void;
   onSwitchChain: () => void;
   onClose: () => void;
+  onBack?: () => void;
   onSubmitTx: (txData: {
     from: string;
     to: string;
@@ -133,7 +134,7 @@ export function Action({
     isApproved: targetNftApproved,
     approve: targetNftApprove,
     pendingTx: targetNftPendingTx,
-  } = useTargetNftApproval({
+  } = useNftApproval({
     rpcUrl: NETWORKS_INFO[chainId].defaultRpc,
     nftManagerContract: targetNftManager
       ? typeof targetNftManager === "string"
@@ -186,7 +187,6 @@ export function Action({
       btnText = "Select Price Range";
     else if (tickLower >= tickUpper) btnText = "Invalid Price Range";
   } else if (route === null) btnText = "No Route Found";
-  
   else if (fromIsNotOwner) {
     if (fromIsFarming) btnText = "Your position is in farming";
     else btnText = "You are not the owner of this position";
@@ -276,7 +276,10 @@ export function Action({
     <div className="flex gap-5 mt-8">
       <button
         className="flex-1 h-[40px] rounded-full border border-stroke text-subText text-sm font-medium"
-        onClick={onClose}
+        onClick={() => {
+          if (onBack) onBack();
+          else onClose();
+        }}
       >
         Cancel
       </button>
@@ -288,8 +291,8 @@ export function Action({
             ? pi.piVeryHigh
               ? "bg-error border-solid border-error text-white"
               : pi.piHigh
-              ? "bg-warning border-solid border-warning"
-              : ""
+                ? "bg-warning border-solid border-warning"
+                : ""
             : ""
         )}
         disabled={disableBtn}

@@ -23,7 +23,7 @@ export function useNftApproval({
 }) {
   const { onSubmitTx, connectedAccount, poolType, poolAddress } =
     useZapOutContext((s) => s);
-  const { liquidityOut } = useZapOutUserState();
+  const { liquidityOut, mode } = useZapOutUserState();
 
   const [isChecking, setIsChecking] = useState(true);
   const [isApproved, setIsApproved] = useState(false);
@@ -100,6 +100,12 @@ export function useNftApproval({
 
     const encodedSpenderAddress = spender.slice(2).padStart(64, "0");
     let data;
+
+    if (mode === "withdrawOnly" && !isUniv2) {
+      setIsApproved(true);
+      setIsChecking(false);
+      return;
+    }
 
     if (isUniv2) {
       const methodSignature = getFunctionSelector("allowance(address,address)");

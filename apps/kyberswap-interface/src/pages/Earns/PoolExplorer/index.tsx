@@ -1,6 +1,6 @@
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useState } from 'react'
-import { Info, Star } from 'react-feather'
+import { Star } from 'react-feather'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
@@ -11,6 +11,7 @@ import { ReactComponent as IconHighlightedPool } from 'assets/svg/earn/ic_pool_h
 import { ReactComponent as IconLowVolatility } from 'assets/svg/earn/ic_pool_low_volatility.svg'
 import { ReactComponent as IconSolidEarningPool } from 'assets/svg/earn/ic_pool_solid_earning.svg'
 import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_earn_position.svg'
+import { ReactComponent as IconFarmingPool } from 'assets/svg/kyber/kem.svg'
 import { NotificationType } from 'components/Announcement/type'
 import Pagination from 'components/Pagination'
 import Search from 'components/Search'
@@ -19,7 +20,7 @@ import { BFF_API } from 'constants/env'
 import { APP_PATHS } from 'constants/index'
 import useDebounce from 'hooks/useDebounce'
 import useTheme from 'hooks/useTheme'
-import TableContent, { dexMapping } from 'pages/Earns/PoolExplorer/TableContent'
+import TableContent, { dexKeyMapping } from 'pages/Earns/PoolExplorer/TableContent'
 import {
   ContentWrapper,
   Disclaimer,
@@ -34,13 +35,16 @@ import {
 import useFilter from 'pages/Earns/PoolExplorer/useFilter'
 import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
 import DropdownMenu, { MenuOption } from 'pages/Earns/components/DropdownMenu'
-import useLiquidityWidget from 'pages/Earns/hooks/useLiquidityWidget'
+import { Exchange } from 'pages/Earns/constants'
 import useSupportedDexesAndChains from 'pages/Earns/hooks/useSupportedDexesAndChains'
+import useZapInWidget, { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
+import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import SortIcon, { Direction } from 'pages/MarketOverview/SortIcon'
 import { useNotify } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 
 export enum FilterTag {
+  FARMING_POOL = 'farming_pool',
   HIGHLIGHTED_POOL = 'highlighted_pool',
   HIGH_APR = 'high_apr',
   SOLID_EARNING = 'solid_earning',
@@ -56,10 +60,16 @@ export enum SortBy {
 
 const filterTags = [
   {
+    label: 'Farming Pools',
+    value: FilterTag.FARMING_POOL,
+    icon: <IconFarmingPool width={24} />,
+    tooltip: 'No staking is required to earn rewards in these pools',
+  },
+  {
     label: 'Highlighted Pools',
     value: FilterTag.HIGHLIGHTED_POOL,
     icon: <IconHighlightedPool width={20} color="#FF007A" />,
-    tooltip: 'Pools matching your wallet tokens or top 24h volume pools if no wallet is connected',
+    tooltip: 'Pools matching your wallet tokens or top volume pools if no wallet is connected',
   },
   {
     label: 'High APR',
@@ -95,11 +105,15 @@ const PoolExplorer = () => {
   const theme = useTheme()
   const notify = useNotify()
   const { filters, updateFilters } = useFilter(setSearch)
-  const { liquidityWidget, handleOpenZapInWidget } = useLiquidityWidget()
+  const { widget: zapMigrationWidget, handleOpenZapMigration, triggerClose, setTriggerClose } = useZapMigrationWidget()
+  const { widget: zapInWidget, handleOpenZapIn } = useZapInWidget({
+    onOpenZapMigration: handleOpenZapMigration,
+    triggerClose,
+    setTriggerClose,
+  })
   const { data: poolData, isError } = usePoolsExplorerQuery(filters, { pollingInterval: 5 * 60_000 })
   const { supportedDexes, supportedChains } = useSupportedDexesAndChains(filters)
 
-  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
 
@@ -144,13 +158,13 @@ const PoolExplorer = () => {
     }
   }
 
-  const handleOpenZapInWidgetWithParams = (pool: { exchange: string; chainId?: number; address: string }) => {
-    const { exchange, chainId, address } = pool
-    searchParams.set('exchange', exchange)
-    searchParams.set('poolChainId', chainId ? chainId.toString() : filters.chainId.toString())
+  const handleOpenZapInWithParams = ({ pool }: ZapInInfo) => {
+    const { dex, chainId, address } = pool
+    searchParams.set('exchange', dex)
+    searchParams.set('poolChainId', chainId.toString())
     searchParams.set('poolAddress', address)
     setSearchParams(searchParams)
-    handleOpenZapInWidget(pool)
+    handleOpenZapIn({ pool })
   }
 
   const handleRemoveUrlParams = useCallback(() => {
@@ -174,21 +188,22 @@ const PoolExplorer = () => {
   }, [deboundedSearch, filters.q, updateFilters])
 
   useEffect(() => {
-    const exchange = searchParams.get('exchange')
+    const dex = searchParams.get('exchange')
     const chainId = searchParams.get('poolChainId')
     const address = searchParams.get('poolAddress')
-    if (!exchange || !chainId || !address) {
+    if (!dex || !chainId || !address) {
       handleRemoveUrlParams()
       return
     }
     ;(async () => {
       const pool = await handleFetchPoolData({ chainId: Number(chainId), address })
-      if (pool && (pool.exchange === exchange || pool.exchange === dexMapping[exchange]))
-        handleOpenZapInWidget({ exchange, chainId: Number(chainId), address: pool.address })
+
+      if (pool && (pool.exchange === dex || pool.exchange === dexKeyMapping[dex]))
+        handleOpenZapIn({ pool: { dex: dex as Exchange, chainId: Number(chainId), address: pool.address } })
       else {
         notify(
           {
-            title: `Open pool detail failed`,
+            title: t`Open pool detail failed`,
             summary: `Invalid pool info`,
             type: NotificationType.ERROR,
           },
@@ -202,17 +217,18 @@ const PoolExplorer = () => {
 
   return (
     <PoolPageWrapper>
-      {liquidityWidget}
+      {zapInWidget}
+      {zapMigrationWidget}
 
       <div>
-        <Flex sx={{ gap: 3 }}>
+        <Flex alignItems="center" sx={{ gap: 3 }}>
           <IconArrowLeft onClick={() => navigate(-1)} />
           <Text as="h1" fontSize={24} fontWeight="500">
             {t`Earning with Smart Liquidity Providing`}
           </Text>
         </Flex>
         <Text color={theme.subText} marginTop="8px" fontStyle={'italic'}>
-          {t`KyberSwap Zap: Instantly add liquidity to high-APY pools using any token(s) or your existing liquidity position with KyberZap`}
+          {t`Kyberswap Zap: Instantly and easily add liquidity to high-APY pools using any token or a combination of tokens.`}
         </Text>
       </div>
       <HeadSection>
@@ -227,17 +243,17 @@ const PoolExplorer = () => {
           </MouseoverTooltip>
           {filterTags.map((item, index) =>
             !upToMedium ? (
-              <MouseoverTooltip text={item.tooltip} placement="top" key={index}>
+              <MouseoverTooltipDesktopOnly text={item.tooltip} placement="top" key={index}>
                 <Tag
                   active={filters.tag === item.value}
                   key={item.value}
                   role="button"
                   onClick={() => updateFilters('tag', item.value)}
                 >
-                  {!upToExtraSmall && item.icon}
+                  {item.icon}
                   {item.label}
                 </Tag>
-              </MouseoverTooltip>
+              </MouseoverTooltipDesktopOnly>
             ) : (
               <Tag
                 active={filters.tag === item.value}
@@ -245,7 +261,7 @@ const PoolExplorer = () => {
                 role="button"
                 onClick={() => updateFilters('tag', item.value)}
               >
-                {!upToExtraSmall && item.icon}
+                {item.icon}
                 {item.label}
               </Tag>
             ),
@@ -273,7 +289,7 @@ const PoolExplorer = () => {
           <DropdownMenu width={30} options={timings} value={filters.interval} onChange={onIntervalChange} />
         </Flex>
         <Search
-          placeholder="Search by token symbol or address"
+          placeholder="Search by token symbol or pool/token address"
           searchValue={search}
           allowClear
           onSearch={val => setSearch(val)}
@@ -282,7 +298,12 @@ const PoolExplorer = () => {
       </Flex>
 
       {upToLarge && (
-        <NavigateButton icon={<IconUserEarnPosition />} text={t`My Positions`} to={APP_PATHS.EARN_POSITIONS} />
+        <NavigateButton
+          mobileFullWidth
+          icon={<IconUserEarnPosition />}
+          text={t`My Positions`}
+          to={APP_PATHS.EARN_POSITIONS}
+        />
       )}
 
       <TableWrapper>
@@ -292,12 +313,12 @@ const PoolExplorer = () => {
               <Text>Protocol</Text>
               <Text>Pair</Text>
               <Flex
-                justifyContent="flex-end"
+                justifyContent="flex-start"
                 sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
                 role="button"
                 onClick={() => onSortChange(SortBy.APR)}
               >
-                APR
+                {t`APR`}
                 <SortIcon sorted={filters.sortBy === SortBy.APR ? (filters.orderBy as Direction) : undefined} />
               </Flex>
               <Flex
@@ -306,7 +327,7 @@ const PoolExplorer = () => {
                 role="button"
                 onClick={() => onSortChange(SortBy.EARN_FEE)}
               >
-                Earn Fees
+                {t`Earn Fees`}
                 <SortIcon sorted={filters.sortBy === SortBy.EARN_FEE ? (filters.orderBy as Direction) : undefined} />
               </Flex>
               <Flex
@@ -315,15 +336,7 @@ const PoolExplorer = () => {
                 role="button"
                 onClick={() => onSortChange(SortBy.TVL)}
               >
-                TVL
-                <MouseoverTooltipDesktopOnly
-                  text={t`Only pools with a Total Value Locked of $10,000 or more are displayed on this page`}
-                  placement="top"
-                >
-                  <Text marginRight={1} marginLeft={1} sx={{ position: 'relative', top: '2.5px' }}>
-                    <Info color={theme.subText} size={16} />
-                  </Text>
-                </MouseoverTooltipDesktopOnly>
+                {t`TVL`}
                 <SortIcon sorted={filters.sortBy === SortBy.TVL ? (filters.orderBy as Direction) : undefined} />
               </Flex>
               <Flex
@@ -332,13 +345,13 @@ const PoolExplorer = () => {
                 role="button"
                 onClick={() => onSortChange(SortBy.VOLUME)}
               >
-                Volume
+                {t`Volume`}
                 <SortIcon sorted={filters.sortBy === SortBy.VOLUME ? (filters.orderBy as Direction) : undefined} />
               </Flex>
               <div />
             </TableHeader>
           )}
-          <TableContent onOpenZapInWidget={handleOpenZapInWidgetWithParams} />
+          <TableContent onOpenZapInWidget={handleOpenZapInWithParams} />
         </ContentWrapper>
         {!isError && (
           <Pagination

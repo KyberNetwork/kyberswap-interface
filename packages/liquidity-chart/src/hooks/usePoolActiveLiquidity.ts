@@ -17,13 +17,8 @@ export default function usePoolActiveLiquidity({ pool, revertPrice }: { pool: Po
     // find where the active tick would be to partition the array
     // if the active tick is initialized, the pivot will be an element
     // if not, take the previous tick as pivot
-    const pivot = ticks.findIndex(({ index: tick }) => Number(tick) > activeTick) - 1;
-
-    if (pivot < 0) {
-      // consider setting a local error
-      // TickData pivot not found
-      return [];
-    }
+    let pivot = ticks.findIndex(({ index: tick }) => Number(tick) > activeTick) - 1;
+    pivot = pivot <= -1 ? ticks.length - 1 : pivot === 0 ? 0 : pivot - 1;
 
     const activeTickProcessed: TickProcessed = {
       liquidityActive: BigInt(liquidity),

@@ -289,13 +289,16 @@ export function useFetchERC20TokenFromRPC(customChainId?: ChainId) {
 }
 
 const cacheTokens: TokenMap = {}
-export const findCacheToken = (address: string) => {
+export const findCacheToken = (address: string, chainId?: ChainId) => {
   if (!address) return
-  return cacheTokens[address] || cacheTokens[address.toLowerCase()]
+  let cachedToken: WrappedTokenInfo | undefined = cacheTokens[address] || cacheTokens[address.toLowerCase()]
+  if (chainId && cachedToken && cachedToken.chainId !== chainId) cachedToken = undefined
+
+  return cachedToken
 }
 
 export const fetchListTokenByAddresses = async (address: string[], chainId: ChainId) => {
-  const cached = filterTruthy(address.map(addr => findCacheToken(addr)))
+  const cached = filterTruthy(address.map(addr => findCacheToken(addr, chainId)))
   if (cached.length === address.length) return cached
 
   const response = await axios.get(`${KS_SETTING_API}/v1/tokens?addresses=${address}&chainIds=${chainId}`)

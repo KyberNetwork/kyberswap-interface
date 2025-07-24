@@ -1,7 +1,10 @@
 {
   "extends": "@kyber/typescript-config/react-library.json",
   "compilerOptions": {
-    "outDir": "dist"
+    "outDir": "dist",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
   "include": ["src", ".eslintrc.cjs"],
   "exclude": ["node_modules", "dist"]

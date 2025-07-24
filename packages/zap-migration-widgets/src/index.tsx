@@ -1,6 +1,6 @@
+import { fetchTokenPrice } from "@kyber/utils";
 import CircleChevronRight from "./assets/icons/circle-chevron-right.svg";
 import { Action } from "./components/Action";
-import { EstimateLiqValue } from "./components/EstimateLiqValue";
 import { FromPool } from "./components/FromPool";
 import { Header } from "./components/Header";
 import { PoolInfo } from "./components/PoolInfo";
@@ -10,19 +10,18 @@ import { TargetPoolState } from "./components/TargetPoolState";
 import { ToPool } from "./components/ToPool";
 import "./index.css";
 import "./index.scss";
-import { ChainId, Dex, DexFrom, DexTo, univ2Dexes } from "./schema";
+import { ChainId, Dex, DexFrom, DexTo } from "./schema";
 import { usePoolsStore } from "./stores/usePoolsStore";
 import { usePositionStore } from "./stores/usePositionStore";
 import { useZapStateStore } from "./stores/useZapStateStore";
 import { defaultTheme, Theme } from "./theme";
-import { useTokenPrices } from "@kyber/hooks/use-token-prices";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@kyber/ui/dialog";
+} from "@kyber/ui";
 import "@kyber/ui/styles.css";
 import { cn } from "@kyber/utils/tailwind-helpers";
 import { useEffect } from "react";
@@ -111,9 +110,6 @@ export const ZapMigration = (props: ZapMigrationProps) => {
   const { reset } = useZapStateStore();
   const { reset: resetPos, toPosition } = usePositionStore();
 
-  const isTargetUniv2 =
-    pools !== "loading" && univ2Dexes.includes(pools[1].dex);
-
   const onClose = () => {
     resetPos();
     resetPools();
@@ -128,7 +124,6 @@ export const ZapMigration = (props: ZapMigrationProps) => {
   } = usePositionStore();
 
   const { showPreview, manualSlippage, setSlippage } = useZapStateStore();
-  const { fetchPrices } = useTokenPrices({ addresses: [], chainId });
 
   useEffect(() => {
     if (!theme) return;
@@ -160,7 +155,7 @@ export const ZapMigration = (props: ZapMigrationProps) => {
       poolTo: to.poolId,
       dexFrom: from.dex,
       dexTo: to.dex,
-      fetchPrices,
+      fetchPrices: fetchTokenPrice,
     };
     getPools(params);
 
@@ -238,7 +233,6 @@ export const ZapMigration = (props: ZapMigrationProps) => {
 
           <TargetPoolState initialTick={initialTick} chainId={chainId} />
         </div>
-        {!isTargetUniv2 && <EstimateLiqValue chainId={chainId} />}
 
         <Action
           client={client}
@@ -247,6 +241,7 @@ export const ZapMigration = (props: ZapMigrationProps) => {
           onConnectWallet={onConnectWallet}
           onSwitchChain={onSwitchChain}
           onClose={onClose}
+          onBack={onBack}
           onSubmitTx={onSubmitTx}
         />
 

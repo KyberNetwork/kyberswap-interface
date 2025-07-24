@@ -80,3 +80,7 @@ export const DropdownContentItem = styled.div`
     background: ${({ theme }) => theme.tableHeader};
   }
 `
+
+export const MultiSelectDropdownContentItem = styled(DropdownContentItem)`
+  justify-content: space-between;
+`

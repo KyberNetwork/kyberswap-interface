@@ -1,19 +1,21 @@
+import { formatAprNumber } from '@kyber/utils/dist/number'
+import { t } from '@lingui/macro'
 import { useEffect, useMemo, useState } from 'react'
 import { Star } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { useAddFavoriteMutation, usePoolsExplorerQuery, useRemoveFavoriteMutation } from 'services/zapEarn'
 
+import { ReactComponent as IconFarmingPool } from 'assets/svg/kyber/kem.svg'
 import { NotificationType } from 'components/Announcement/type'
 import CopyHelper from 'components/Copy'
-import { Image } from 'components/Image'
 import Loader from 'components/Loader'
+import TokenLogo from 'components/TokenLogo'
+import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import {
   Apr,
-  CurrencyRoundedImage,
-  CurrencySecondImage,
   FeeTier,
   MobileTableBottomRow,
   MobileTableRow,
@@ -22,21 +24,20 @@ import {
   TableRow,
 } from 'pages/Earns/PoolExplorer/styles'
 import useFilter from 'pages/Earns/PoolExplorer/useFilter'
-import { EarnPool } from 'pages/Earns/types'
-import { formatAprNumber } from 'pages/Earns/utils'
+import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
+import { ParsedEarnPool, ProgramType } from 'pages/Earns/types'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import Updater from 'state/customizeDexes/updater'
 import { useAppSelector } from 'state/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
-export const dexMapping: { [key: string]: string } = {
+export const dexKeyMapping: { [key: string]: string } = {
   uniswapv2: 'uniswap',
   kodiakcl: 'kodiak-v3',
-  uniswapv4: 'uniswap-v4',
 }
 
-const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPool) => void }) => {
+const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: ({ pool }: ZapInInfo) => void }) => {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
   const { library } = useWeb3React()
@@ -60,12 +61,14 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
   const tablePoolData = useMemo(() => {
     return (poolData?.data?.pools || []).map(pool => ({
       ...pool,
-      dexLogo: dexList.find(dex => dex.id === (dexMapping[pool.exchange] || pool.exchange))?.logoURL || '',
-      dexName: dexList.find(dex => dex.id === (dexMapping[pool.exchange] || pool.exchange))?.name || '',
+      dexLogo: dexList.find(dex => dex.id === (dexKeyMapping[pool.exchange] || pool.exchange))?.logoURL || '',
+      dexName: dexList.find(dex => dex.id === (dexKeyMapping[pool.exchange] || pool.exchange))?.name || '',
+      feeApr: pool.apr,
+      apr: (pool.kemEGApr || 0) + (pool.kemLMApr || 0) + pool.apr,
     }))
   }, [poolData, dexList])
 
-  const handleFavorite = async (e: React.MouseEvent<SVGElement, MouseEvent>, pool: EarnPool) => {
+  const handleFavorite = async (e: React.MouseEvent<SVGElement, MouseEvent>, pool: ParsedEarnPool) => {
     e.stopPropagation()
     if (favoriteLoading.includes(pool.address) || delayFavorite) return
     handleAddFavoriteLoading(pool.address)
@@ -163,17 +166,51 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
       </Text>
     )
 
+  const kemFarming = (pool: ParsedEarnPool) => {
+    const programs = pool.programs || []
+    const isFarming = programs.includes(ProgramType.EG) || programs.includes(ProgramType.LM)
+
+    return isFarming ? (
+      <MouseoverTooltipDesktopOnly
+        placement="bottom"
+        width="max-content"
+        text={
+          <div>
+            {t`LP Fee APR`}: {formatAprNumber(pool.feeApr)}%
+            <br />
+            {t`EG Sharing Reward`}: {formatAprNumber(pool.kemEGApr || 0)}%
+            <br />
+            {t`LM Reward`}: {formatAprNumber(pool.kemLMApr || 0)}%
+          </div>
+        }
+      >
+        <IconFarmingPool width={24} height={24} style={{ marginLeft: 4 }} />
+      </MouseoverTooltipDesktopOnly>
+    ) : null
+  }
+
   if (upToMedium)
     return (
       <>
         <TableBody>
           {tablePoolData.map((pool, index) => (
-            <MobileTableRow key={pool.address} onClick={() => onOpenZapInWidget(pool)}>
+            <MobileTableRow
+              key={pool.address}
+              onClick={() =>
+                onOpenZapInWidget({
+                  pool: {
+                    dex: pool.exchange,
+                    chainId: pool.chainId || filters.chainId,
+                    address: pool.address,
+                  },
+                })
+              }
+            >
               <Flex alignItems="flex-start" justifyContent="space-between">
                 <Flex sx={{ gap: 1 }}>
                   <Flex sx={{ position: 'relative', top: -1 }}>
-                    <CurrencyRoundedImage src={pool.tokens?.[0]?.logoURI} alt="" />
-                    <CurrencySecondImage src={pool.tokens?.[1]?.logoURI} alt="" />
+                    <TokenLogo src={pool.tokens?.[0]?.logoURI} />
+                    <TokenLogo src={pool.tokens?.[1]?.logoURI} />
                   </Flex>
                   <Flex flexDirection={'column'} sx={{ gap: 2 }}>
                     <Flex sx={{ gap: 1 }}>
@@ -183,13 +220,16 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
                       <CopyHelper size={16} toCopy={pool.address?.toLowerCase()} />
                     </Flex>
                     <Flex sx={{ gap: 2 }}>
-                      <Image src={pool.dexLogo} width="22px" height="22px" alt="" />
-                      <FeeTier>{pool.feeTier}%</FeeTier>
+                      <TokenLogo src={pool.dexLogo} size={22} />
+                      <FeeTier>{formatDisplayNumber(pool.feeTier, { significantDigits: 4 })}%</FeeTier>
                     </Flex>
                   </Flex>
                 </Flex>
-                <Flex alignItems="center" sx={{ gap: 3 }}>
-                  <Apr positive={pool.apr > 0}>{formatAprNumber(pool.apr)}%</Apr>
+                <Flex alignItems="center" sx={{ gap: '12px' }}>
+                  <Flex alignItems="center" sx={{ gap: '2px' }}>
+                    <Apr value={pool.apr}>{formatAprNumber(pool.apr)}%</Apr>
+                    {kemFarming(pool)}
+                  </Flex>
                   <Star
                     size={16}
                     color={pool.favorite?.isFavorite ? theme.primary : theme.subText}
@@ -201,15 +241,15 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
                 </Flex>
               </Flex>
               <MobileTableBottomRow withoutBorder={index === tablePoolData.length - 1}>
-                <Flex flexDirection="column" sx={{ gap: 1 }}>
+                <Flex justifyContent="space-between" sx={{ gap: 1 }}>
                   <Text color={theme.subText}>Earn Fees</Text>
                   <Text>{formatDisplayNumber(pool.earnFee, { style: 'currency', significantDigits: 6 })}</Text>
                 </Flex>
-                <Flex flexDirection="column" sx={{ gap: 1 }}>
+                <Flex justifyContent="space-between" sx={{ gap: 1 }}>
                   <Text color={theme.subText}>TVL</Text>
                   <Text>{formatDisplayNumber(pool.tvl, { style: 'currency', significantDigits: 6 })}</Text>
                 </Flex>
-                <Flex flexDirection="column" alignItems={'flex-end'} sx={{ gap: 1 }}>
+                <Flex justifyContent="space-between" sx={{ gap: 1 }}>
                   <Text color={theme.subText}>Volume</Text>
                   <Text>{formatDisplayNumber(pool.volume, { style: 'currency', significantDigits: 6 })}</Text>
                 </Flex>
@@ -225,22 +265,35 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: (pool: EarnPoo
     <>
       <TableBody>
         {tablePoolData.map(pool => (
-          <TableRow key={pool.address} onClick={() => onOpenZapInWidget(pool)}>
+          <TableRow
+            key={pool.address}
+            onClick={() =>
+              onOpenZapInWidget({
+                pool: {
+                  dex: pool.exchange,
+                  chainId: pool.chainId || filters.chainId,
+                  address: pool.address,
+                },
+              })
+            }
+          >
             <Flex fontSize={14} alignItems="center" sx={{ gap: 1 }}>
-              <Image src={pool.dexLogo} width="20px" height="20px" alt="" />
+              <TokenLogo src={pool.dexLogo} size={20} />
               <Text color={theme.subText}>{pool.dexName}</Text>
             </Flex>
             <Flex alignItems="center" sx={{ gap: 2 }}>
               <Flex alignItems="center">
-                <CurrencyRoundedImage src={pool.tokens?.[0]?.logoURI} alt="" />
-                <CurrencySecondImage src={pool.tokens?.[1]?.logoURI} alt="" />
+                <TokenLogo src={pool.tokens?.[0]?.logoURI} />
+                <TokenLogo src={pool.tokens?.[1]?.logoURI} />
               </Flex>
               <SymbolText>
                 {pool.tokens?.[0]?.symbol}/{pool.tokens?.[1]?.symbol}
               </SymbolText>
-              <FeeTier>{pool.feeTier}%</FeeTier>
+              <FeeTier>{formatDisplayNumber(pool.feeTier, { significantDigits: 4 })}%</FeeTier>
             </Flex>
-            <Apr positive={pool.apr > 0}>{formatAprNumber(pool.apr)}%</Apr>
+            <Apr value={pool.apr}>
+              {formatAprNumber(pool.apr)}% {kemFarming(pool)}
+            </Apr>
             <Flex justifyContent="flex-end">
               {formatDisplayNumber(pool.earnFee, { style: 'currency', significantDigits: 6 })}
             </Flex>

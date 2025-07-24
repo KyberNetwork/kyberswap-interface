@@ -21,6 +21,7 @@ export default function Brush({
   innerWidth,
   innerHeight,
   zoomInited,
+  alwaysShowLabel,
   brushLabelValue,
   setBrushExtent,
 }: BrushProps) {
@@ -29,7 +30,7 @@ export default function Brush({
 
   // only used to drag the handles on brush for performance
   const [localBrushExtent, setLocalBrushExtent] = useState<[number, number] | null>(brushExtent);
-  const [showLabels, setShowLabels] = useState(false);
+  const [showLabels, setShowLabels] = useState(true);
   const [hovering, setHovering] = useState(false);
 
   const previousBrushExtent = usePreviousValue(brushExtent);
@@ -179,7 +180,7 @@ export default function Brush({
 
                 <g
                   className="transition-opacity duration-300"
-                  opacity={showLabels || hovering ? 1 : 0}
+                  opacity={alwaysShowLabel || showLabels || hovering ? 1 : 0}
                   transform={`translate(50,0), scale(${flipWestHandle ? '1' : '-1'}, 1)`}
                 >
                   <rect fill="transparent" height="30" rx="8" width="60" x="-30" y="0" />
@@ -212,7 +213,7 @@ export default function Brush({
 
                 <g
                   className="transition-opacity duration-300"
-                  opacity={showLabels || hovering ? 1 : 0}
+                  opacity={alwaysShowLabel || showLabels || hovering ? 1 : 0}
                   transform={`translate(50,0), scale(${flipEastHandle ? '-1' : '1'}, 1)`}
                 >
                   <rect fill="transparent" height="30" rx="8" width="60" x="-30" y="0" />
@@ -235,6 +236,7 @@ export default function Brush({
         ) : null}
       </>
     ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       id,
       innerWidth,

@@ -62,13 +62,13 @@ export default function PriceInfo() {
       </div>
 
       {marketPrice === null && (
-        <div className="ks-lw-card-warning mt-4">
+        <div className="pcs-lw-card-warning mt-4">
           Unable to get the market price. Please be cautious!
         </div>
       )}
 
       {isDeviated && (
-        <div className="ks-lw-card-warning mt-4">
+        <div className="pcs-lw-card-warning mt-4">
           <div className="text-warning font-semibold">
             Pool price discrepancy:
           </div>

@@ -1,64 +1,8 @@
 import { useState } from 'react';
 
 import AlertIcon from '@/assets/svg/alert.svg';
-import { useZapState } from '@/hooks/useZapInState';
-
-export const parseSlippageInput = (str: string): number => Math.round(Number.parseFloat(str) * 100);
-
-export const validateSlippageInput = (
-  str: string,
-  suggestedSlippage: number,
-): { isValid: boolean; message?: string } => {
-  if (str === '') {
-    return {
-      isValid: true,
-    };
-  }
-
-  const numberRegex = /^(\d+)\.?(\d{1,2})?$/;
-  if (!str.match(numberRegex)) {
-    return {
-      isValid: false,
-      message: `Enter a valid slippage percentage`,
-    };
-  }
-
-  const rawSlippage = parseSlippageInput(str);
-
-  if (Number.isNaN(rawSlippage)) {
-    return {
-      isValid: false,
-      message: `Enter a valid slippage percentage`,
-    };
-  }
-
-  if (rawSlippage < 0) {
-    return {
-      isValid: false,
-      message: `Enter a valid slippage percentage`,
-    };
-  } else if (rawSlippage < suggestedSlippage / 2) {
-    return {
-      isValid: true,
-      message: `Your slippage is set lower than usual, increasing the risk of transaction failure.`,
-    };
-    // max slippage
-  } else if (rawSlippage > 5000) {
-    return {
-      isValid: false,
-      message: `Enter a smaller slippage percentage`,
-    };
-  } else if (rawSlippage > 2 * suggestedSlippage) {
-    return {
-      isValid: true,
-      message: `Your slippage is set higher than usual, which may cause unexpected losses.`,
-    };
-  }
-
-  return {
-    isValid: true,
-  };
-};
+import { parseSlippageInput, validateSlippageInput } from '@/components/Setting/utils';
+import { useZapState } from '@/hooks/useZapState';
 
 const SlippageInput = () => {
   const { slippage, setSlippage, setManualSlippage, zapInfo } = useZapState();
