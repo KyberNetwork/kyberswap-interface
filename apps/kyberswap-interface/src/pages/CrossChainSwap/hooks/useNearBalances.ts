@@ -1,4 +1,5 @@
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
+import * as nearAPI from 'near-api-js'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useCrossChainTransactions, useNearTokens } from 'state/crossChainSwap'
@@ -9,6 +10,39 @@ let cached: Record<string, string> = {}
 
 // A flag to ensure we only have one in-flight request
 let isBalanceFetchInProgress = false
+
+// Add this for sleep/delay
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+
+// Public RPCs to rotate (add more if needed)
+const RPC_URLS = [
+  'https://rpc.mainnet.near.org',
+  'https://near.drpc.org',
+  'https://near.lava.build',
+  'https://nearinner.deltarpc.com',
+]
+
+// Helper to get next RPC URL
+let rpcIndex = 0
+const getNextRpcUrl = (): string => {
+  const url = RPC_URLS[rpcIndex]
+  rpcIndex = (rpcIndex + 1) % RPC_URLS.length
+  return url
+}
+
+// Reusable custom view function with dynamic RPC
+const customViewFunction = async (
+  rpcUrl: string,
+  contractId: string,
+  method: string,
+  args: Record<string, any>,
+): Promise<string> => {
+  const near = await nearAPI.connect({ networkId: 'mainnet', nodeUrl: rpcUrl })
+  const account = await near.account('') // Empty account for view-only calls
+  const result = await account.viewFunction({ contractId, methodName: method, args })
+
+  return result
+}
 
 export const useNearBalances = () => {
   const { nearTokens } = useNearTokens()
@@ -22,7 +56,7 @@ export const useNearBalances = () => {
     [nearTokens],
   )
 
-  const { signedAccountId, viewFunction, getBalance } = useWalletSelector()
+  const { signedAccountId, getBalance } = useWalletSelector()
 
   const [balances, setBalances] = useState<Record<string, string>>({})
 
@@ -43,20 +77,57 @@ export const useNearBalances = () => {
       }
       isBalanceFetchInProgress = true
 
-      const nativeBalance = await getBalance(signedAccountId)
-      const res: string[] = await Promise.all(
-        tokenOnNears.map(async token => {
+      let nativeBalance: string
+      try {
+        nativeBalance = (await getBalance(signedAccountId)).toString()
+      } catch (error) {
+        nativeBalance = '0'
+      }
+
+      const res: string[] = []
+      const maxRetries = 3
+      const batchSize = 5 // Process 5 tokens at a time to avoid burst
+
+      for (let i = 0; i < tokenOnNears.length; i += batchSize) {
+        const batch = tokenOnNears.slice(i, i + batchSize)
+        const batchPromises = batch.map(async token => {
           if (token.contractAddress === '') {
-            return nativeBalance.toString()
+            return nativeBalance
           }
-          const tokenBalance = await viewFunction({
-            contractId: token.contractAddress,
-            method: 'ft_balance_of',
-            args: { account_id: signedAccountId },
-          }).catch(() => '0')
-          return tokenBalance as string
-        }),
-      )
+
+          let tokenBalance = '0'
+          let localRetries = 0
+          while (localRetries <= maxRetries) {
+            try {
+              // Rotate RPC per token call to distribute load
+              const rpcUrl = getNextRpcUrl()
+              tokenBalance = await customViewFunction(rpcUrl, token.contractAddress, 'ft_balance_of', {
+                account_id: signedAccountId,
+              })
+              break
+            } catch (error: any) {
+              if (error.message?.includes('429') && localRetries < maxRetries) {
+                // Exponential backoff on 429 (1s, 2s, 4s)
+                await sleep(1000 * Math.pow(2, localRetries))
+                localRetries++
+              } else {
+                console.error(`Error fetching ${token.contractAddress}:`, error)
+                break
+              }
+            }
+          }
+          return tokenBalance
+        })
+
+        const batchResults = await Promise.all(batchPromises)
+        res.push(...batchResults)
+
+        // Delay between batches for throttling (~500ms)
+        if (i + batchSize < tokenOnNears.length) {
+          await sleep(500)
+        }
+      }
+
       const b = tokenOnNears.reduce((acc, token, index) => {
         return {
           ...acc,
@@ -68,7 +139,7 @@ export const useNearBalances = () => {
       setBalances(b)
       isBalanceFetchInProgress = false
     },
-    [signedAccountId, viewFunction, tokenOnNears, getBalance],
+    [signedAccountId, tokenOnNears, getBalance],
   )
 
   // Watch for completed cross-chain swap transactions and refresh balances
@@ -93,9 +164,11 @@ export const useNearBalances = () => {
 
   useEffect(() => {
     getBalances({ nocache: false })
+
     const i = setInterval(() => {
       getBalances({ nocache: false })
-    }, 10_000) // refresh every 10s
+    }, 30_000) // refresh every 30s
+
     return () => {
       clearInterval(i)
     }
