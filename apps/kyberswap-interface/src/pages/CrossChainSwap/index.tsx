@@ -16,19 +16,19 @@ import SlippageSetting from 'components/SwapForm/SlippageSetting'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
+import { NonEvmChain } from 'pages/CrossChainSwap/adapters'
+import { BitcoinConnectModal } from 'pages/CrossChainSwap/components/BitcoinConnectModal'
+import { PiWarning } from 'pages/CrossChainSwap/components/PiWarning'
+import { QuoteSelector, Tag } from 'pages/CrossChainSwap/components/QuoteSelector'
+import { Summary } from 'pages/CrossChainSwap/components/Summary'
+import { SwapAction } from 'pages/CrossChainSwap/components/SwapAction'
+import { TokenLogoWithChain } from 'pages/CrossChainSwap/components/TokenLogoWithChain'
+import { TokenPanel } from 'pages/CrossChainSwap/components/TokenPanel'
+import useAcceptTermAndPolicy from 'pages/CrossChainSwap/hooks/useAcceptTermAndPolicy'
+import { CrossChainSwapRegistryProvider, useCrossChainSwap } from 'pages/CrossChainSwap/hooks/useCrossChainSwap'
 import { NearToken, SolanaToken } from 'state/crossChainSwap'
 import { isEvmChain } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
-
-import { NonEvmChain } from './adapters'
-import { BitcoinConnectModal } from './components/BitcoinConnectModal'
-import { PiWarning } from './components/PiWarning'
-import { QuoteSelector, Tag } from './components/QuoteSelector'
-import { Summary } from './components/Summary'
-import { SwapAction } from './components/SwapAction'
-import { TokenLogoWithChain } from './components/TokenLogoWithChain'
-import { TokenPanel } from './components/TokenPanel'
-import { CrossChainSwapRegistryProvider, useCrossChainSwap } from './hooks/useCrossChainSwap'
 
 const Wrapper = styled.div`
   display: flex;
@@ -81,6 +81,8 @@ function CrossChainSwap() {
   const { walletInfo } = useBitcoinWallet()
   const btcAddress = walletInfo?.address
 
+  const { termAndPolicyModal, onOpenWallet } = useAcceptTermAndPolicy()
+
   const isDifferentRecipient = isToNear
     ? nearWallet.signedAccountId && recipient !== nearWallet.signedAccountId
     : isToEvm
@@ -94,15 +96,17 @@ function CrossChainSwap() {
       if (fromChainId === NonEvmChain.Bitcoin && !btcAddress) {
         setShowBtcConnect(true)
       } else if (fromChainId === NonEvmChain.Near && !nearWallet.signedAccountId) {
-        nearWallet.signIn()
+        onOpenWallet('near')
       }
       searchParams.delete('showConnect')
       setSearchParams(searchParams)
     }
-  }, [showConnect, searchParams, setSearchParams, fromChainId, btcAddress, nearWallet])
+  }, [showConnect, searchParams, setSearchParams, fromChainId, btcAddress, nearWallet, onOpenWallet])
 
   return (
     <Wrapper>
+      {termAndPolicyModal}
+
       <TokenPanel
         evmLayout={isEvmChain(fromChainId) && isToEvm}
         setShowBtcConnect={setShowBtcConnect}
