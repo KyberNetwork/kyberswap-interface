@@ -1,7 +1,6 @@
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
 import { useWallet } from '@solana/wallet-adapter-react'
-import { useWalletModal } from '@solana/wallet-adapter-react-ui'
 import { useState } from 'react'
 
 import { ButtonPrimary } from 'components/Button'
@@ -11,14 +10,14 @@ import { ZERO_ADDRESS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
+import { NonEvmChain } from 'pages/CrossChainSwap/adapters'
+import { ConfirmationPopup } from 'pages/CrossChainSwap/components/ConfirmationPopup'
+import useAcceptTermAndPolicy from 'pages/CrossChainSwap/hooks/useAcceptTermAndPolicy'
+import { useCrossChainSwap } from 'pages/CrossChainSwap/hooks/useCrossChainSwap'
+import { useNearBalances } from 'pages/CrossChainSwap/hooks/useNearBalances'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { isEvmChain } from 'utils'
-
-import { NonEvmChain } from '../adapters'
-import { useCrossChainSwap } from '../hooks/useCrossChainSwap'
-import { useNearBalances } from '../hooks/useNearBalances'
-import { ConfirmationPopup } from './ConfirmationPopup'
 
 export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean) => void }) => {
   const { account, chainId } = useActiveWeb3React()
@@ -52,7 +51,7 @@ export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean
   const toggleWalletModal = useWalletModalToggle()
   const { changeNetwork } = useChangeNetwork()
 
-  const { signedAccountId, signIn } = useWalletSelector()
+  const { signedAccountId } = useWalletSelector()
 
   const inputAmount =
     isEvmChain(fromChainId) && currencyIn
@@ -62,7 +61,8 @@ export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean
   const [approvalState, approve] = useApproveCallback(inputAmount, selectedQuote?.quote.contractAddress)
   const [clickedApprove, setClickedApprove] = useState(false)
   const { publicKey: solanaAddress } = useWallet()
-  const { setVisible: setModalVisible } = useWalletModal()
+
+  const { termAndPolicyModal, onOpenWallet } = useAcceptTermAndPolicy()
 
   const {
     label,
@@ -120,7 +120,7 @@ export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean
       return {
         label: 'Connect NEAR Wallet',
         onClick: () => {
-          signIn()
+          onOpenWallet('near')
         },
       }
     }
@@ -128,7 +128,7 @@ export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean
       return {
         label: 'Connect Solana Wallet',
         onClick: () => {
-          setModalVisible(true)
+          onOpenWallet('solana')
         },
       }
     }
@@ -195,6 +195,7 @@ export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean
 
   return (
     <>
+      {termAndPolicyModal}
       <ConfirmationPopup
         isOpen={showPreview}
         onDismiss={() => {

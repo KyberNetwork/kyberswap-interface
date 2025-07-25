@@ -9,16 +9,15 @@ import Column from 'components/Column'
 import Divider from 'components/Divider'
 import NavGroup from 'components/Header/groups/NavGroup'
 import useTheme from 'hooks/useTheme'
+import { getDateOfWeek } from 'pages/Campaign/MyDashboard'
+import { SelectChainModal } from 'pages/Campaign/components/SelectChainModal'
+import { CampaignType, campaignConfig } from 'pages/Campaign/constants'
+import { useNearIntentCampaignReward } from 'pages/Campaign/hooks/useNearIntentCampaignReward'
+import { useNearIntentSelectedWallet } from 'pages/Campaign/hooks/useNearIntentSelectedWallet'
 import { BitcoinConnectModal } from 'pages/CrossChainSwap/components/BitcoinConnectModal'
 import { ButtonText, MEDIA_WIDTHS } from 'theme'
 import { shortenHash } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
-
-import { getDateOfWeek } from '../MyDashboard'
-import { CampaignType, campaignConfig } from '../constants'
-import { useNearIntentCampaignReward } from '../hooks/useNearIntentCampaignReward'
-import { useNearIntentSelectedWallet } from '../hooks/useNearIntentSelectedWallet'
-import { SelectChainModal } from './SelectChainModal'
 
 const AddressText = styled(Text)`
   :hover {
@@ -64,6 +63,7 @@ export const MyNearIntentDashboard = ({
     solanaWallet,
     nearAddress,
     setSelectedWallet,
+    termAndPolicyModal,
   } = useNearIntentSelectedWallet()
 
   const data = useNearIntentCampaignReward()
@@ -76,8 +76,10 @@ export const MyNearIntentDashboard = ({
     )
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+
   return (
     <Box marginTop="1.25rem" sx={{ borderRadius: '20px', background: theme.background }} padding="1.5rem">
+      {termAndPolicyModal}
       <Flex alignItems="center" justifyContent="space-between" height="100%">
         {selectedWallet && address[selectedWallet] ? (
           <Flex

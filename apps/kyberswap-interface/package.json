@@ -73,6 +73,7 @@
     "@near-wallet-selector/core": "^8.10.2",
     "@near-wallet-selector/ethereum-wallets": "^9.0.0",
     "@near-wallet-selector/here-wallet": "^8.10.2",
+    "@near-wallet-selector/hot-wallet": "^8.10.2",
     "@near-wallet-selector/ledger": "^8.10.2",
     "@near-wallet-selector/math-wallet": "^8.10.2",
     "@near-wallet-selector/meteor-wallet": "^8.10.2",

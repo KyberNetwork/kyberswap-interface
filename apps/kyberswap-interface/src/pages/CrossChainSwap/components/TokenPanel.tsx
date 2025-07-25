@@ -1,7 +1,6 @@
 import { ChainId, Currency as EvmCurrency } from '@kyberswap/ks-sdk-core'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
 import { useWallet } from '@solana/wallet-adapter-react'
-import { useWalletModal } from '@solana/wallet-adapter-react-ui'
 import { rgba } from 'polished'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
@@ -31,15 +30,15 @@ import useTheme from 'hooks/useTheme'
 import useToggle from 'hooks/useToggle'
 import useDisconnectWallet from 'hooks/web3/useDisconnectWallet'
 import SelectNetwork from 'pages/Bridge/SelectNetwork'
+import { BitcoinToken, Chain, Currency, NonEvmChain } from 'pages/CrossChainSwap/adapters'
+import useAcceptTermAndPolicy from 'pages/CrossChainSwap/hooks/useAcceptTermAndPolicy'
+import { useNearBalances } from 'pages/CrossChainSwap/hooks/useNearBalances'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { useNearTokens, useSolanaTokens } from 'state/crossChainSwap'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { CloseIcon } from 'theme'
 import { isEvmChain, shortenHash } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
-
-import { BitcoinToken, Chain, Currency, NonEvmChain } from '../adapters'
-import { useNearBalances } from '../hooks/useNearBalances'
 
 const TokenPanelWrapper = styled.div`
   padding: 12px;
@@ -80,12 +79,13 @@ export const TokenPanel = ({
   const deboundcedSearchQuery = useDebounce(searchQuery, 300)
 
   const { solanaTokens } = useSolanaTokens(deboundcedSearchQuery)
-  const { setVisible: setModalVisible } = useWalletModal()
 
   const evmBalance = useCurrencyBalance(
     isEvm ? (selectedCurrency as EvmCurrency) : undefined,
     isEvm ? (selectedChain as ChainId) : undefined,
   )
+
+  const { termAndPolicyModal, onOpenWallet } = useAcceptTermAndPolicy()
 
   const balance = evmBalance
 
@@ -146,7 +146,7 @@ export const TokenPanel = ({
 
   const { balance: btcBalance, walletInfo, availableWallets } = useBitcoinWallet()
   const { address: btcAddress } = walletInfo || {}
-  const { signedAccountId: nearAddress, signIn: nearSignIn, signOut: nearSignOut } = useWalletSelector()
+  const { signedAccountId: nearAddress, signOut: nearSignOut } = useWalletSelector()
   const { account: evmAddress } = useActiveWeb3React()
 
   const connectedAddress =
@@ -173,9 +173,9 @@ export const TokenPanel = ({
     }
 
     if (selectedChain === NonEvmChain.Solana) {
-      setModalVisible(true)
+      onOpenWallet('solana')
     } else if (selectedChain === NonEvmChain.Near) {
-      nearSignIn()
+      onOpenWallet('near')
     } else if (selectedChain === NonEvmChain.Bitcoin) {
       setShowBtcConnect(true)
     } else {
@@ -241,6 +241,8 @@ export const TokenPanel = ({
 
   return (
     <TokenPanelWrapper>
+      {termAndPolicyModal}
+
       <Flex justifyContent="space-between" marginBottom="12px">
         <SelectNetwork
           onSelectNetwork={onSelectNetwork}

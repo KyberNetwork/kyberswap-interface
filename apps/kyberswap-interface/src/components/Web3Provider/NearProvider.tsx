@@ -1,5 +1,6 @@
 // import { setupHereWallet } from '@near-wallet-selector/here-wallet'
 import { NetworkId } from '@near-wallet-selector/core/src/lib/options.types'
+import { setupHotWallet } from '@near-wallet-selector/hot-wallet'
 import { setupLedger } from '@near-wallet-selector/ledger'
 import { setupMathWallet } from '@near-wallet-selector/math-wallet'
 import { setupMeteorWallet } from '@near-wallet-selector/meteor-wallet'
@@ -20,7 +21,7 @@ const walletSelectorConfig = {
     // }),
     setupMeteorWallet(),
     // setupBitteWallet(),
-    // setupHotWallet(),
+    setupHotWallet(),
     setupMyNearWallet(),
     setupLedger(),
     setupSender(),
