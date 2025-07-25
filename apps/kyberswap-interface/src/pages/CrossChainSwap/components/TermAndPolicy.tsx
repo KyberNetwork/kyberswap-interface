@@ -102,7 +102,7 @@ export default function TermAndPolicy({
             <Text color={theme.subText}>
               <span>{t`Accept`}</span>{' '}
               <ExternalLink href={TERM_FILES_PATH.KYBERSWAP_TERMS} onClick={e => e.stopPropagation()}>
-                <span>{t`KyberSwap&lsquo;s Terms of Use`}</span>
+                <span>{t`KyberSwap's Terms of Use`}</span>
               </ExternalLink>{' '}
               <span>{t`and`}</span>{' '}
               <ExternalLink href={TERM_FILES_PATH.PRIVACY_POLICY} onClick={e => e.stopPropagation()}>
@@ -115,7 +115,7 @@ export default function TermAndPolicy({
             </Text>
           </TermAndCondition>
           <ButtonWrapper>
-            <ButtonPrimary width={'120px'} disabled={!isAcceptedTerm} onClick={onConfirm}>{t`Confirm`}</ButtonPrimary>
+            <ButtonPrimary width={'120px'} disabled={!isAcceptedTerm} onClick={onConfirm}>{t`Continue`}</ButtonPrimary>
           </ButtonWrapper>
         </UpperSection>
       </Wrapper>
