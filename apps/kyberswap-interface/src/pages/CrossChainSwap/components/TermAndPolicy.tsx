@@ -55,9 +55,9 @@ const TermAndCondition = styled.div`
 `
 
 const ButtonWrapper = styled.div`
-  margin-top: 16px;
+  margin-top: 24px;
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
 `
 
 export default function TermAndPolicy({
@@ -78,7 +78,7 @@ export default function TermAndPolicy({
       onDismiss={onClose}
       minHeight={false}
       maxHeight={90}
-      maxWidth={600}
+      maxWidth={430}
       bypassScrollLock
       bypassFocusLock
       zindex={99999}
