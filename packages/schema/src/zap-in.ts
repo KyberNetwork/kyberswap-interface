@@ -1,10 +1,22 @@
 export enum ZapAction {
+  REMOVE_LIQUIDITY = 'ACTION_TYPE_REMOVE_LIQUIDITY',
   AGGREGATOR_SWAP = 'ACTION_TYPE_AGGREGATOR_SWAP',
   POOL_SWAP = 'ACTION_TYPE_POOL_SWAP',
   ADD_LIQUIDITY = 'ACTION_TYPE_ADD_LIQUIDITY',
   REFUND = 'ACTION_TYPE_REFUND',
   PARTNET_FEE = 'ACTION_TYPE_PARTNER_FEE',
   PROTOCOL_FEE = 'ACTION_TYPE_PROTOCOL_FEE',
+}
+
+export interface RemoveLiquidityAction {
+  type: ZapAction.REMOVE_LIQUIDITY;
+  removeLiquidity: {
+    fees: Array<{
+      address: string;
+      amount: string;
+      amountUsd: string;
+    }>;
+  };
 }
 
 export interface AddLiquidityAction {
@@ -120,7 +132,13 @@ export interface ZapRouteDetail {
   zapDetails: {
     initialAmountUsd: string;
     actions: Array<
-      ProtocolFeeAction | AggregatorSwapAction | PoolSwapAction | AddLiquidityAction | RefundAction | PartnerFeeAction
+      | ProtocolFeeAction
+      | AggregatorSwapAction
+      | PoolSwapAction
+      | AddLiquidityAction
+      | RefundAction
+      | PartnerFeeAction
+      | RemoveLiquidityAction
     >;
     finalAmountUsd: string;
     priceImpact: number | null | undefined;
