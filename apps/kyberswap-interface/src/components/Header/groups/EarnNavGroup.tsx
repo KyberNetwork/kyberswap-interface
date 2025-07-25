@@ -3,11 +3,11 @@ import { useLocation } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex } from 'rebass'
 
-// import { ReactComponent as FarmingIcon } from 'assets/svg/earn/ic_claim.svg'
+import { ReactComponent as FarmingIcon } from 'assets/svg/earn/ic_claim.svg'
 import { ReactComponent as OverviewIcon } from 'assets/svg/earn/ic_earn_overview.svg'
 import { ReactComponent as PoolsIcon } from 'assets/svg/earn/ic_earn_pools.svg'
 import { ReactComponent as PositionsIcon } from 'assets/svg/earn/ic_earn_positions.svg'
-// import { ReactComponent as KemIcon } from 'assets/svg/kyber/kem.svg'
+import { ReactComponent as KemIcon } from 'assets/svg/kyber/kem.svg'
 import NavGroup from 'components/Header/groups/NavGroup'
 import { DropdownTextAnchor, StyledNavLink } from 'components/Header/styleds'
 import { APP_PATHS } from 'constants/index'
@@ -33,7 +33,7 @@ const EarnNavGroup = () => {
       anchor={
         <DropdownTextAnchor>
           <Flex sx={{ gap: 1 }} alignItems="center">
-            {/* <KemIcon width={20} height={20} /> */}
+            <KemIcon width={20} height={20} />
             {upToSmall ? (
               t`Earn`
             ) : (
@@ -75,7 +75,7 @@ const EarnNavGroup = () => {
             </Flex>
           </StyledNavLink>
 
-          {/* <StyledNavLink
+          <StyledNavLink
             id="earn-farming-pools-nav-link"
             data-testid="earn-farming-pools-nav-link"
             to={{ pathname: `${APP_PATHS.EARN_POOLS}`, search: `tag=${FilterTag.FARMING_POOL}` }}
@@ -86,7 +86,7 @@ const EarnNavGroup = () => {
               <FarmingIcon width={16} height={16} />
               {t`Farming Pools`}
             </Flex>
-          </StyledNavLink> */}
+          </StyledNavLink>
 
           <StyledNavLink
             id="earn-positions-nav-link"
