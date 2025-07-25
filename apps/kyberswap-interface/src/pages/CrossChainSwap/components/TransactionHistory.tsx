@@ -259,7 +259,7 @@ export const TransactionHistory = () => {
 
         const sourceTx = (
           <Flex alignItems="center" sx={{ gap: '8px' }}>
-            {tx.sourceTxHash}
+            {shortenHash(tx.sourceTxHash)}
             <ExternalLinkIcon
               color={theme.subText}
               size={14}
