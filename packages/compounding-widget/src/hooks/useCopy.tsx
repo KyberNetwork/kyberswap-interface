@@ -2,12 +2,12 @@ import { useCallback, useState } from 'react';
 
 import { cn } from '@kyber/utils/tailwind-helpers';
 
-import CircleCheckBig from '@/assets/svg/circle-check-big.svg';
-import IconCopy from '@/assets/svg/copy.svg';
+import CircleCheckBig from './assets/svg/circle-check-big.svg';
+import IconCopy from './assets/svg/copy.svg';
 
 const COPY_TIMEOUT = 2000;
 
-export default function useCopy({
+export function useCopy({
   text,
   copyClassName,
   successClassName,

@@ -24,7 +24,7 @@ export const Header = () => {
   } = useZapOutContext((s) => s);
   const isUniV3 = Univ3PoolType.safeParse(poolType).success;
 
-  const { degenMode, toggleSetting } = useZapOutUserState();
+  const { degenMode, toggleSetting, mode } = useZapOutUserState();
 
   const loading = pool === "loading" || position === "loading";
 
@@ -65,7 +65,8 @@ export const Header = () => {
           <Skeleton className="w-[400px] h-7" />
         ) : (
           <div className="flex items-center gap-2 flex-1 flex-wrap">
-            Zap Out {pool.token0.symbol}/{pool.token1.symbol}{" "}
+            {mode === "zapOut" ? "Zap Out" : "Remove Liquidity"}{" "}
+            {pool.token0.symbol}/{pool.token1.symbol}{" "}
             {isUniV3 && (
               <div className="flex items-center gap-1">
                 #{positionId}

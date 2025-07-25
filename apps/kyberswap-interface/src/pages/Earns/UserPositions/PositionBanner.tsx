@@ -149,7 +149,6 @@ export default function PositionBanner({
             </BannerDataItem>
             {upToSmall && (
               <>
-                {/* Total Rewards */}
                 <Flex
                   justifyContent={'space-between'}
                   width={'100%'}
@@ -170,7 +169,6 @@ export default function PositionBanner({
                   )}
                 </Flex>
                 <Flex flexDirection={'column'} sx={{ gap: '12px', width: '100%' }} paddingLeft={12} marginTop={'-8px'}>
-                  {/* Claimed */}
                   <BannerDataItem>
                     <Text fontSize={14} color={theme.subText}>{t`Claimed`}</Text>
 
@@ -183,7 +181,6 @@ export default function PositionBanner({
                     )}
                   </BannerDataItem>
 
-                  {/* In Progress */}
                   <BannerDataItem>
                     <Flex alignItems={'center'} sx={{ gap: 1 }}>
                       <Text fontSize={14} color={theme.subText}>{t`In-Progress`}</Text>
@@ -208,7 +205,6 @@ export default function PositionBanner({
                     )}
                   </BannerDataItem>
 
-                  {/* Claimable */}
                   <Flex alignItems={'flex-end'} justifyContent={'space-between'}>
                     <Flex flexDirection={'column'} alignItems={'flex-start'} sx={{ gap: 2 }}>
                       <Text fontSize={14} color={theme.subText}>{t`Claimable`}</Text>
@@ -232,7 +228,6 @@ export default function PositionBanner({
         {!upToSmall && (
           <BannerContainer>
             <RewardBannerWrapper>
-              {/* Total Rewards */}
               <Flex alignItems={'center'} sx={{ gap: 3 }}>
                 <Flex alignItems={'center'} sx={{ gap: 2 }}>
                   <IconKem width={KemImageSize} height={KemImageSize} style={{ position: 'relative', top: 2 }} />
@@ -261,7 +256,6 @@ export default function PositionBanner({
                 )}
               </Flex>
               <RewardBannerDetailWrapper>
-                {/* Claimed */}
                 <BannerDataItem>
                   <Text fontSize={14} color={theme.subText}>{t`Claimed`}</Text>
 
@@ -274,7 +268,6 @@ export default function PositionBanner({
                   )}
                 </BannerDataItem>
                 <BannerDivider />
-                {/* In-Progress */}
                 <BannerDataItem>
                   <Flex alignItems={'center'} sx={{ gap: '2px' }}>
                     <Text fontSize={14} color={theme.subText}>{t`In-Progress`}</Text>
@@ -299,7 +292,6 @@ export default function PositionBanner({
                   )}
                 </BannerDataItem>
                 <BannerDivider />
-                {/* Claimable */}
                 <BannerDataItem>
                   <Text fontSize={14} color={theme.subText}>{t`Claimable`}</Text>
 
@@ -312,7 +304,6 @@ export default function PositionBanner({
                   )}
                 </BannerDataItem>
 
-                {/* Claim */}
                 {claimRewardButton}
               </RewardBannerDetailWrapper>
             </RewardBannerWrapper>

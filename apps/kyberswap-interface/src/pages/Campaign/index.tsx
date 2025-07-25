@@ -186,7 +186,7 @@ export default function Aggregator() {
     type === CampaignType.MayTrading
       ? `${isNotStart ? 'Starting in' : isEnd ? 'Ended at' : 'Ending in'}`
       : `Week ${selectedWeek - startWeek + 1} ${isNotStart ? 'starting in' : isEnd ? 'ended at' : 'ending in'}`
-  const estRewardText = 'My Estimated Rewards'
+  const estRewardText = 'My Est. Rewards'
 
   useEffect(() => {
     searchParams.set('page', '1')

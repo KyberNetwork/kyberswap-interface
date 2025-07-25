@@ -56,7 +56,7 @@ export interface RewardData {
 const rewardServiceApi = createApi({
   reducerPath: 'rewardServiceApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: import.meta.env.VITE_REWARD_API,
+    baseUrl: import.meta.env.VITE_REWARD_SERVICE_API,
   }),
   keepUnusedDataFor: 1,
   endpoints: builder => ({
