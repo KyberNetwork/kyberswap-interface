@@ -5,7 +5,7 @@ import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { useUserPositionsQuery } from 'services/zapEarn'
 
-// import { ReactComponent as IconKem } from 'assets/svg/kyber/kem.svg'
+import { ReactComponent as IconKem } from 'assets/svg/kyber/kem.svg'
 import { ReactComponent as RocketIcon } from 'assets/svg/rocket.svg'
 import InfoHelper from 'components/InfoHelper'
 import LocalLoader from 'components/LocalLoader'
@@ -29,7 +29,7 @@ import useFilter, { SortBy } from 'pages/Earns/UserPositions/useFilter'
 import { earnSupportedChains, earnSupportedExchanges, protocolGroupNameToExchangeMapping } from 'pages/Earns/constants'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import useClosedPositions from 'pages/Earns/hooks/useClosedPositions'
-// import useKemRewards from 'pages/Earns/hooks/useKemRewards'
+import useKemRewards from 'pages/Earns/hooks/useKemRewards'
 import useSupportedDexesAndChains from 'pages/Earns/hooks/useSupportedDexesAndChains'
 import useZapInWidget from 'pages/Earns/hooks/useZapInWidget'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
@@ -98,7 +98,7 @@ const UserPositions = () => {
     setLoading(true)
   })
 
-  // const { rewardInfo } = useKemRewards()
+  const { rewardInfo } = useKemRewards()
 
   useAccountChanged(() => {
     refetch()
@@ -109,8 +109,7 @@ const UserPositions = () => {
     () =>
       [...(userPosition || [])].map(position => {
         const feeInfo = feeInfoFromRpc.find(feeInfo => feeInfo.id === position.tokenId)
-        // const nftRewardInfo = rewardInfo?.nfts.find(item => item.nftId === position.tokenId)
-        const nftRewardInfo = undefined
+        const nftRewardInfo = rewardInfo?.nfts.find(item => item.nftId === position.tokenId)
         const isClosedFromRpc = closedPositionsFromRpc.some(
           closedPosition => closedPosition.tokenId === position.tokenId,
         )
@@ -122,8 +121,7 @@ const UserPositions = () => {
           isClosedFromRpc,
         })
       }),
-    // [feeInfoFromRpc, rewardInfo?.nfts, userPosition, closedPositionsFromRpc],
-    [feeInfoFromRpc, userPosition, closedPositionsFromRpc],
+    [feeInfoFromRpc, rewardInfo?.nfts, userPosition, closedPositionsFromRpc],
   )
 
   const filteredPositions: Array<ParsedPosition> = useMemo(() => {
@@ -252,12 +250,12 @@ const UserPositions = () => {
             </Text>
             : {t`Claim your unclaimed fees from this position.`}
           </Text>
-          {/* <Text fontSize={14}>
+          <Text fontSize={14}>
             <Text as="u" color={theme.primary}>
               {t`Claim rewards`}
             </Text>
             : {t`Claim your claimable farming rewards from a position.`}
-          </Text> */}
+          </Text>
         </Flex>
       }
       noArrow
@@ -347,7 +345,7 @@ const UserPositions = () => {
                   </Flex>
                 </Flex>
 
-                {/* <PositionTableHeaderFlexItem role="button" onClick={() => onSortChange(SortBy.UNCLAIMED_REWARDS)}>
+                <PositionTableHeaderFlexItem role="button" onClick={() => onSortChange(SortBy.UNCLAIMED_REWARDS)}>
                   <Flex alignItems={'flex-start'} sx={{ gap: '4px' }}>
                     <IconKem width={24} height={24} />
                     <Text>Unclaimed</Text>
@@ -358,9 +356,9 @@ const UserPositions = () => {
                       sorted={filters.sortBy === SortBy.UNCLAIMED_REWARDS ? (filters.orderBy as Direction) : undefined}
                     />
                   </Flex>
-                </PositionTableHeaderFlexItem> */}
+                </PositionTableHeaderFlexItem>
 
-                {/* {!upToLarge && <div />} */}
+                {!upToLarge && <div />}
 
                 <PositionTableHeaderItem>{t`Balance`}</PositionTableHeaderItem>
 

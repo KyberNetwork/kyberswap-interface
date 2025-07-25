@@ -12,7 +12,7 @@ import LiquidityPosIcon from 'assets/svg/earn/liquidity-positions.svg'
 import LowVolatilityIcon from 'assets/svg/earn/low-volatility.svg'
 import PlayIcon from 'assets/svg/earn/play-icon.svg'
 import SolidEarningIcon from 'assets/svg/earn/solid-earning.svg'
-// import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
+import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import RocketIcon from 'assets/svg/rocket.svg'
 import StakingIcon from 'assets/svg/staking.svg'
 import { APP_PATHS } from 'constants/index'
@@ -20,7 +20,7 @@ import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import Card from 'pages/Earns/Landing/Card'
 import PoolSection from 'pages/Earns/Landing/PoolSection'
-// import RewardSection from 'pages/Earns/Landing/RewardSection'
+import RewardSection from 'pages/Earns/Landing/RewardSection'
 import { Container, OverviewWrapper, WrapperBg } from 'pages/Earns/Landing/styles'
 import { FilterTag } from 'pages/Earns/PoolExplorer'
 import useZapInWidget from 'pages/Earns/hooks/useZapInWidget'
@@ -91,7 +91,7 @@ const EarnLanding = () => {
             technology—to help you maximize earnings from your liquidity across various DeFi protocols.`}
         </Text>
 
-        {/* <RewardSection /> */}
+        <RewardSection />
 
         <OverviewWrapper>
           <Card
@@ -124,7 +124,7 @@ const EarnLanding = () => {
           />
         </OverviewWrapper>
 
-        {/* <PoolSection
+        <PoolSection
           title={t`Farming Pools`}
           tooltip={t`No staking is required to earn rewards in these pools`}
           icon={<FarmingIcon width={28} height={28} />}
@@ -134,7 +134,7 @@ const EarnLanding = () => {
           size="large"
           isFarming
           styles={{ marginTop: upToSmall ? '40px' : '64px' }}
-        /> */}
+        />
 
         <PoolSection
           title={t`Highlighted Pools`}

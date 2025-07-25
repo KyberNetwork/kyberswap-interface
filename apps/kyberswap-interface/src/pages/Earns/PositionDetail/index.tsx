@@ -42,7 +42,7 @@ import {
 } from 'pages/Earns/constants'
 import useClosedPositions, { CheckClosedPositionParams } from 'pages/Earns/hooks/useClosedPositions'
 import useFarmingStablePools from 'pages/Earns/hooks/useFarmingStablePools'
-// import useKemRewards from 'pages/Earns/hooks/useKemRewards'
+import useKemRewards from 'pages/Earns/hooks/useKemRewards'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import { FeeInfo, PAIR_CATEGORY, ParsedPosition, PositionStatus, SuggestedPool } from 'pages/Earns/types'
 import { getUnclaimedFeesInfo } from 'pages/Earns/utils/fees'
@@ -76,10 +76,10 @@ const PositionDetail = () => {
     },
     { skip: !account, pollingInterval: forceLoading ? 5_000 : 15_000 },
   )
-  // const { rewardInfo } = useKemRewards()
-  // const rewardInfoThisPosition = !userPosition
-  //   ? undefined
-  //   : rewardInfo?.nfts.find(item => item.nftId === userPosition?.[0]?.tokenId)
+  const { rewardInfo } = useKemRewards()
+  const rewardInfoThisPosition = !userPosition
+    ? undefined
+    : rewardInfo?.nfts.find(item => item.nftId === userPosition?.[0]?.tokenId)
 
   const currentWalletAddress = useRef(account)
   const hadForceLoading = useRef(forceLoading ? true : false)
@@ -100,12 +100,10 @@ const PositionDetail = () => {
     return parsePosition({
       position: userPosition[0],
       feeInfo: feeInfoFromRpc,
-      // nftRewardInfo: rewardInfoThisPosition,
-      nftRewardInfo: undefined,
+      nftRewardInfo: rewardInfoThisPosition,
       isClosedFromRpc,
     })
-    // }, [feeInfoFromRpc, userPosition, rewardInfoThisPosition, closedPositionsFromRpc])
-  }, [feeInfoFromRpc, userPosition, closedPositionsFromRpc])
+  }, [feeInfoFromRpc, userPosition, rewardInfoThisPosition, closedPositionsFromRpc])
 
   const farmingPoolsByChain = useFarmingStablePools({ chainIds: position ? [position.chain.id] : [] })
 
@@ -414,7 +412,7 @@ const PositionDetail = () => {
                 onFetchUnclaimedFee={handleFetchUnclaimedFee}
                 totalLiquiditySection={totalLiquiditySection}
                 aprSection={aprSection}
-                // shareBtn={shareBtn}
+                shareBtn={shareBtn}
               />
               <RightSection
                 position={position}
