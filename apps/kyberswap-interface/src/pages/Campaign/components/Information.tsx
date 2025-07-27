@@ -146,19 +146,15 @@ const howToEarnPoints = (week: number) => ({
         </ul>
       </li>
       <li>
-        Each user has a maximum eligible volume cap of 100,000 USD per week. For example:
-        <ul style={{ margin: 0 }}>
-          <li>
-            If a user trades $150,000 between EVM Chains and Stable Pairs, only $100,000 will be counted, earning
-            100,000 points, not 150,000 points.
-          </li>
-        </ul>
+        {`Each user’s eligible trading volume is capped at $100,000 per week in Week 1 and `}
+        <b>$50,000 per week in Week 2</b>
       </li>
       <li>
-        Users can freely choose pairs and routes to optimize their points within the $100,000 volume cap. For example:
+        Users can freely choose pairs and routes to optimize their points within the $50,000 volume cap in Week 2. For
+        example:
         <ul style={{ margin: 0 }}>
-          <li>Trade $100,000 between EVM Chains and Stable Pairs earns 100,000 points.</li>
-          <li>Trade $100,000 from Arbitrum to Near L1 and Stable Pairs earns 250,000 points.</li>
+          <li>Trade $50,000 between EVM Chains and Stable Pairs earns 50,000 points.</li>
+          <li>Trade $50,000 from Arbitrum to Near L1 and Stable Pairs earns 125,000 points.</li>
         </ul>
       </li>
     </>
