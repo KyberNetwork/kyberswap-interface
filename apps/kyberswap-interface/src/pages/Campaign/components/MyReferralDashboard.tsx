@@ -62,7 +62,7 @@ export default function MyReferralDashboard({ price, infor }: { price: number; i
 
         <Box flex={upToSmall ? 1 : 2}>
           <Text color={theme.subText} fontSize={14}>
-            My total estimated rewards {infor}
+            My Est. Rewards {infor}
           </Text>
           <Flex
             fontSize={18}

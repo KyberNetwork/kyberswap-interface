@@ -185,7 +185,7 @@ export const MyNearIntentDashboard = ({
               justifyContent={upToSmall ? 'space-between' : 'flex-start'}
               style={{ flex: 1 }}
             >
-              <Text color={theme.subText}>My Rewards</Text>
+              <Text color={theme.subText}>My Est. Rewards</Text>
 
               <Flex alignItems="center" sx={{ gap: '4px' }}>
                 <img src={reward.logo} width={20} height={20} style={{ borderRadius: '50%' }} alt="" />
