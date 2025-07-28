@@ -4,11 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-patchedDependencies:
-  '@solana/wallet-adapter-react@0.15.39':
-    hash: sjdkbek2fizfwaiqxnv3ngsehy
-    path: patches/@solana__wallet-adapter-react@0.15.39.patch
-
 importers:
 
   .:
@@ -204,7 +199,7 @@ importers:
         version: 0.9.27(@solana/web3.js@1.98.2)
       '@solana/wallet-adapter-react':
         specifier: ^0.15.39
-        version: 0.15.39(patch_hash=sjdkbek2fizfwaiqxnv3ngsehy)(@solana/web3.js@1.98.2)(bs58@5.0.0)(react-native@0.76.1)(react@18.3.1)
+        version: 0.15.39(@solana/web3.js@1.98.2)(bs58@5.0.0)(react-native@0.76.1)(react@18.3.1)
       '@solana/wallet-adapter-react-ui':
         specifier: ^0.9.39
         version: 0.9.39(@solana/web3.js@1.98.2)(bs58@5.0.0)(react-dom@18.3.1)(react-native@0.76.1)(react@18.3.1)
@@ -11876,7 +11871,7 @@ packages:
       '@solana/web3.js': ^1.98.0
       react: '*'
     dependencies:
-      '@solana/wallet-adapter-react': 0.15.39(patch_hash=sjdkbek2fizfwaiqxnv3ngsehy)(@solana/web3.js@1.98.2)(bs58@5.0.0)(react-native@0.76.1)(react@18.3.1)
+      '@solana/wallet-adapter-react': 0.15.39(@solana/web3.js@1.98.2)(bs58@5.0.0)(react-native@0.76.1)(react@18.3.1)
       '@solana/web3.js': 1.98.2(typescript@5.3.3)
       react: 18.3.1
     transitivePeerDependencies:
@@ -12119,7 +12114,7 @@ packages:
     dependencies:
       '@solana/wallet-adapter-base': 0.9.27(@solana/web3.js@1.98.2)
       '@solana/wallet-adapter-base-ui': 0.1.6(@solana/web3.js@1.98.2)(bs58@5.0.0)(react-native@0.76.1)(react@18.3.1)
-      '@solana/wallet-adapter-react': 0.15.39(patch_hash=sjdkbek2fizfwaiqxnv3ngsehy)(@solana/web3.js@1.98.2)(bs58@5.0.0)(react-native@0.76.1)(react@18.3.1)
+      '@solana/wallet-adapter-react': 0.15.39(@solana/web3.js@1.98.2)(bs58@5.0.0)(react-native@0.76.1)(react@18.3.1)
       '@solana/web3.js': 1.98.2(typescript@5.3.3)
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
@@ -12128,7 +12123,7 @@ packages:
       - react-native
     dev: false
 
-  /@solana/wallet-adapter-react@0.15.39(patch_hash=sjdkbek2fizfwaiqxnv3ngsehy)(@solana/web3.js@1.98.2)(bs58@5.0.0)(react-native@0.76.1)(react@18.3.1):
+  /@solana/wallet-adapter-react@0.15.39(@solana/web3.js@1.98.2)(bs58@5.0.0)(react-native@0.76.1)(react@18.3.1):
     resolution: {integrity: sha512-WXtlo88ith5m22qB+qiGw301/Zb9r5pYr4QdXWmlXnRNqwST5MGmJWhG+/RVrzc+OG7kSb3z1gkVNv+2X/Y0Gg==}
     engines: {node: '>=20'}
     peerDependencies:
@@ -12144,7 +12139,6 @@ packages:
       - bs58
       - react-native
     dev: false
-    patched: true
 
   /@solana/wallet-adapter-safepal@0.5.22(@solana/web3.js@1.98.2):
     resolution: {integrity: sha512-K1LlQIPoKgg3rdDIVUtMV218+uUM1kCtmuVKq2N+e+ZC8zK05cW3w7++nakDtU97AOmg+y4nsSFRCFsWBWmhTw==}
