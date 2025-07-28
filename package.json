@@ -20,5 +20,10 @@
     "lint": "turbo lint",
     "dev": "turbo dev",
     "type-check": "turbo type-check"
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "@solana/wallet-adapter-react@0.15.39": "patches/@solana__wallet-adapter-react@0.15.39.patch"
+    }
   }
 }
