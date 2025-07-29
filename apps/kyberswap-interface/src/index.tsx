@@ -20,6 +20,9 @@ import 'swiper/swiper-bundle.min.css'
 import 'swiper/swiper.min.css'
 
 import Web3Provider from 'components/Web3Provider'
+import { BitcoinWalletProvider } from 'components/Web3Provider/BitcoinProvider'
+import NEARWalletProvider from 'components/Web3Provider/NearProvider'
+import { SolanaProvider } from 'components/Web3Provider/SolanaProvider'
 import { ENV_LEVEL, GTM_ID, MIXPANEL_PROJECT_TOKEN, SENTRY_DNS, TAG } from 'constants/env'
 import { ENV_TYPE } from 'constants/type'
 import { useAffiliate } from 'hooks/useAffiliate'
@@ -36,9 +39,6 @@ import MulticallUpdater from './state/multicall/updater'
 import TransactionUpdater from './state/transactions/updater'
 import UserUpdater from './state/user/updater'
 import ThemeProvider, { FixedGlobalStyle, ThemedGlobalStyle } from './theme'
-import NEARWalletProvider from 'components/Web3Provider/NearProvider'
-import { BitcoinWalletProvider } from 'components/Web3Provider/BitcoinProvider'
-import { SolanaProvider } from 'components/Web3Provider/SolanaProvider'
 
 dayjs.extend(utc)
 dayjs.extend(duration)
@@ -128,15 +128,15 @@ const ReactApp = () => {
           <LanguageProvider>
             <Web3Provider>
               <BitcoinWalletProvider>
-                <SolanaProvider>
-                  <NEARWalletProvider>
-                    <Updaters />
-                    <ThemeProvider>
-                      <ThemedGlobalStyle />
+                <NEARWalletProvider>
+                  <Updaters />
+                  <ThemeProvider>
+                    <ThemedGlobalStyle />
+                    <SolanaProvider>
                       <App />
-                    </ThemeProvider>
-                  </NEARWalletProvider>
-                </SolanaProvider>
+                    </SolanaProvider>
+                  </ThemeProvider>
+                </NEARWalletProvider>
               </BitcoinWalletProvider>
             </Web3Provider>
           </LanguageProvider>

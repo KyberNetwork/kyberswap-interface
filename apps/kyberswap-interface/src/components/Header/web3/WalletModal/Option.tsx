@@ -9,7 +9,7 @@ import { useCloseModal } from 'state/application/hooks'
 import { ApplicationModal } from 'state/application/types'
 import { useIsAcceptedTerm } from 'state/user/hooks'
 
-const IconWrapper = styled.div`
+export const IconWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -25,13 +25,13 @@ const IconWrapper = styled.div`
   `};
 `
 
-const HeaderText = styled.div`
+export const HeaderText = styled.div`
   ${({ theme }) => theme.flexRowNoWrap};
   color: ${({ theme }) => theme.subText};
   font-weight: 500;
 `
 
-const OptionCardClickable = styled.div<{
+export const OptionCardClickable = styled.div<{
   connected: boolean
   installLink?: string
   isDisabled?: boolean
@@ -85,7 +85,7 @@ const OptionCardClickable = styled.div<{
       : ''}
 `
 
-const OptionCardLeft = styled.div`
+export const OptionCardLeft = styled.div`
   ${({ theme }) => theme.flexColumnNoWrap};
   justify-content: center;
   height: 100%;

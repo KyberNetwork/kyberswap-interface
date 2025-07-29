@@ -8,14 +8,13 @@ import { ButtonLight } from 'components/Button'
 import Column from 'components/Column'
 import NavGroup from 'components/Header/groups/NavGroup'
 import useTheme from 'hooks/useTheme'
+import { SelectChainModal } from 'pages/Campaign/components/SelectChainModal'
+import { useNearIntentSelectedWallet } from 'pages/Campaign/hooks/useNearIntentSelectedWallet'
+import { StatCard } from 'pages/Campaign/styles'
 import { BitcoinConnectModal } from 'pages/CrossChainSwap/components/BitcoinConnectModal'
 import { ButtonText, MEDIA_WIDTHS } from 'theme'
 import { shortenHash } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
-
-import { useNearIntentSelectedWallet } from '../hooks/useNearIntentSelectedWallet'
-import { StatCard } from '../styles'
-import { SelectChainModal } from './SelectChainModal'
 
 const AddressText = styled(Text)`
   :hover {
@@ -57,6 +56,7 @@ export const NearIntentCampaignStats = ({
     solanaWallet,
     nearAddress,
     setSelectedWallet,
+    termAndPolicyModal,
   } = selectedWalletParams
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
@@ -124,6 +124,7 @@ export const NearIntentCampaignStats = ({
 
   return (
     <StatCard>
+      {termAndPolicyModal}
       <Flex alignItems="center" justifyContent="space-between" height="100%">
         {selectedWallet && address[selectedWallet] ? (
           <Flex

@@ -1,12 +1,13 @@
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
 import { useWallet } from '@solana/wallet-adapter-react'
-import { useWalletModal } from '@solana/wallet-adapter-react-ui'
 import { useEffect, useMemo, useState } from 'react'
 
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import { useActiveWeb3React } from 'hooks'
 import useDisconnectWallet from 'hooks/web3/useDisconnectWallet'
 import { NonEvmChainInfo } from 'pages/CrossChainSwap/adapters'
+import useAcceptTermAndPolicy from 'pages/CrossChainSwap/hooks/useAcceptTermAndPolicy'
+import { useSolanaConnectModal } from 'pages/CrossChainSwap/provider/SolanaConnectModalProvider'
 import { useWalletModalToggle } from 'state/application/hooks'
 
 export const useNearIntentSelectedWallet = () => {
@@ -15,8 +16,10 @@ export const useNearIntentSelectedWallet = () => {
   const { address: btcAddress } = walletInfo || {}
   const { publicKey: solanaAddress, disconnect: solanaDisconnect } = useWallet()
   const solanaWallet = solanaAddress?.toBase58() || null
-  const { signedAccountId: nearAddress, signIn: nearSignIn, signOut: nearSignOut } = useWalletSelector()
-  const { setVisible: setSolanaModalVisible } = useWalletModal()
+  const { signedAccountId: nearAddress, signOut: nearSignOut } = useWalletSelector()
+
+  const { termAndPolicyModal, onOpenWallet } = useAcceptTermAndPolicy()
+  const { setIsOpen } = useSolanaConnectModal()
 
   const toggleWalletModal = useWalletModalToggle()
   const [showBtcModal, setShowBtcConnect] = useState(false)
@@ -27,8 +30,8 @@ export const useNearIntentSelectedWallet = () => {
   const connect = {
     EVM: () => toggleWalletModal(),
     Bitcoin: () => setShowBtcConnect(true),
-    Solana: () => setSolanaModalVisible(true),
-    Near: () => nearSignIn(),
+    Solana: () => setIsOpen(true),
+    Near: () => onOpenWallet('near'),
   }
 
   const disconnect = {
@@ -112,5 +115,6 @@ export const useNearIntentSelectedWallet = () => {
     btcAddress,
     solanaWallet,
     nearAddress,
+    termAndPolicyModal,
   }
 }
