@@ -214,8 +214,7 @@ const PositionDetail = () => {
   )
 
   const isFarmingPossible = POSSIBLE_FARMING_PROTOCOLS.includes(protocol as Exchange)
-  // const isUnfinalized = position?.isUnfinalized
-  const isUnfinalized = true
+  const isUnfinalized = position?.isUnfinalized
   const isStablePair = position?.pool.category === PAIR_CATEGORY.STABLE
 
   const emptyPosition = (
