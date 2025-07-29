@@ -1,13 +1,12 @@
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token'
 import { ConnectionProvider, WalletProvider, useConnection, useWallet } from '@solana/wallet-adapter-react'
 // import { WalletAdapterNetwork } from '@solana/wallet-adapter-base'
-import { WalletModalProvider } from '@solana/wallet-adapter-react-ui'
 // import { clusterApiUrl } from '@solana/web3.js'
-import '@solana/wallet-adapter-react-ui/styles.css'
 import { FC, ReactNode, createContext, useContext, useEffect, useState } from 'react'
 
 import { SOLANA_RPC } from 'constants/env'
 import { SOLANA_NATIVE } from 'constants/index'
+import { SolanaConnectModalProvider } from 'pages/CrossChainSwap/provider/SolanaConnectModalProvider'
 
 interface SolanaProviderProps {
   children: ReactNode
@@ -22,9 +21,9 @@ export const SolanaProvider: FC<SolanaProviderProps> = ({ children }) => {
   return (
     <ConnectionProvider endpoint={SOLANA_RPC}>
       <WalletProvider wallets={[]} autoConnect>
-        <WalletModalProvider>
+        <SolanaConnectModalProvider>
           <SolanaTokenBalances>{children}</SolanaTokenBalances>
-        </WalletModalProvider>
+        </SolanaConnectModalProvider>
       </WalletProvider>
     </ConnectionProvider>
   )
