@@ -15,6 +15,7 @@ import { ConfirmationPopup } from 'pages/CrossChainSwap/components/ConfirmationP
 import useAcceptTermAndPolicy from 'pages/CrossChainSwap/hooks/useAcceptTermAndPolicy'
 import { useCrossChainSwap } from 'pages/CrossChainSwap/hooks/useCrossChainSwap'
 import { useNearBalances } from 'pages/CrossChainSwap/hooks/useNearBalances'
+import { useSolanaConnectModal } from 'pages/CrossChainSwap/provider/SolanaConnectModalProvider'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { isEvmChain } from 'utils'
@@ -63,6 +64,7 @@ export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean
   const { publicKey: solanaAddress } = useWallet()
 
   const { termAndPolicyModal, onOpenWallet } = useAcceptTermAndPolicy()
+  const { setIsOpen } = useSolanaConnectModal()
 
   const {
     label,
@@ -128,7 +130,7 @@ export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean
       return {
         label: 'Connect Solana Wallet',
         onClick: () => {
-          onOpenWallet('solana')
+          setIsOpen(true)
         },
       }
     }

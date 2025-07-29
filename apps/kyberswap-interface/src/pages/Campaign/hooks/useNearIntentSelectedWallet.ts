@@ -7,6 +7,7 @@ import { useActiveWeb3React } from 'hooks'
 import useDisconnectWallet from 'hooks/web3/useDisconnectWallet'
 import { NonEvmChainInfo } from 'pages/CrossChainSwap/adapters'
 import useAcceptTermAndPolicy from 'pages/CrossChainSwap/hooks/useAcceptTermAndPolicy'
+import { useSolanaConnectModal } from 'pages/CrossChainSwap/provider/SolanaConnectModalProvider'
 import { useWalletModalToggle } from 'state/application/hooks'
 
 export const useNearIntentSelectedWallet = () => {
@@ -18,6 +19,7 @@ export const useNearIntentSelectedWallet = () => {
   const { signedAccountId: nearAddress, signOut: nearSignOut } = useWalletSelector()
 
   const { termAndPolicyModal, onOpenWallet } = useAcceptTermAndPolicy()
+  const { setIsOpen } = useSolanaConnectModal()
 
   const toggleWalletModal = useWalletModalToggle()
   const [showBtcModal, setShowBtcConnect] = useState(false)
@@ -28,7 +30,7 @@ export const useNearIntentSelectedWallet = () => {
   const connect = {
     EVM: () => toggleWalletModal(),
     Bitcoin: () => setShowBtcConnect(true),
-    Solana: () => onOpenWallet('solana'),
+    Solana: () => setIsOpen(true),
     Near: () => onOpenWallet('near'),
   }
 

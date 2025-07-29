@@ -1,7 +1,6 @@
 import { t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { rgba } from 'polished'
-import { useState } from 'react'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -11,21 +10,22 @@ import Modal from 'components/Modal'
 import { RowBetween } from 'components/Row'
 import { TERM_FILES_PATH } from 'constants/index'
 import useTheme from 'hooks/useTheme'
+import { useIsAcceptedTerm } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
 
-const Wrapper = styled.div`
+export const Wrapper = styled.div`
   ${({ theme }) => theme.flexColumnNoWrap}
   margin: 0;
   padding: 0;
   width: 100%;
 `
 
-const UpperSection = styled.div`
+export const UpperSection = styled.div`
   position: relative;
   padding: 24px;
 `
 
-const CloseIcon = styled.div`
+export const CloseIcon = styled.div`
   height: 24px;
   align-self: flex-end;
   color: ${({ theme }) => theme.text};
@@ -36,7 +36,7 @@ const CloseIcon = styled.div`
   }
 `
 
-const TermAndCondition = styled.div`
+export const TermAndCondition = styled.div`
   padding: 8px;
   font-size: 12px;
   font-weight: 500;
@@ -54,7 +54,7 @@ const TermAndCondition = styled.div`
   }
 `
 
-const ButtonWrapper = styled.div`
+export const ButtonWrapper = styled.div`
   margin-top: 24px;
   display: flex;
   justify-content: center;
@@ -70,7 +70,7 @@ export default function TermAndPolicy({
   onConfirm: () => void
 }) {
   const theme = useTheme()
-  const [isAcceptedTerm, setIsAcceptedTerm] = useState(true)
+  const [isAcceptedTerm, setIsAcceptedTerm] = useIsAcceptedTerm()
 
   return (
     <Modal

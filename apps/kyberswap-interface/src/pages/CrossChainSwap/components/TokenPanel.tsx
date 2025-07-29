@@ -33,6 +33,7 @@ import SelectNetwork from 'pages/Bridge/SelectNetwork'
 import { BitcoinToken, Chain, Currency, NonEvmChain } from 'pages/CrossChainSwap/adapters'
 import useAcceptTermAndPolicy from 'pages/CrossChainSwap/hooks/useAcceptTermAndPolicy'
 import { useNearBalances } from 'pages/CrossChainSwap/hooks/useNearBalances'
+import { useSolanaConnectModal } from 'pages/CrossChainSwap/provider/SolanaConnectModalProvider'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { useNearTokens, useSolanaTokens } from 'state/crossChainSwap'
 import { useCurrencyBalance } from 'state/wallet/hooks'
@@ -86,6 +87,7 @@ export const TokenPanel = ({
   )
 
   const { termAndPolicyModal, onOpenWallet } = useAcceptTermAndPolicy()
+  const { setIsOpen } = useSolanaConnectModal()
 
   const balance = evmBalance
 
@@ -173,7 +175,7 @@ export const TokenPanel = ({
     }
 
     if (selectedChain === NonEvmChain.Solana) {
-      onOpenWallet('solana')
+      setIsOpen(true)
     } else if (selectedChain === NonEvmChain.Near) {
       onOpenWallet('near')
     } else if (selectedChain === NonEvmChain.Bitcoin) {
