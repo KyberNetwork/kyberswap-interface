@@ -186,7 +186,7 @@ export const useNearTokens = () => {
   }, [hasTokens, isLoadingNearTokens, dispatch])
 
   return {
-    nearTokens: nearTokens || [],
+    nearTokens: useMemo(() => nearTokens || [], [nearTokens]),
     isLoadingNearTokens,
   }
 }
