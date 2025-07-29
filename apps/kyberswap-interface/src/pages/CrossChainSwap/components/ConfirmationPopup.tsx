@@ -190,6 +190,17 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
         setTxError(e?.message)
         setSubmittingTx(false)
       })
+
+    if (
+      res?.sourceTxHash === 'GasRefuel cancelled' ||
+      res?.sourceTxHash === 'Rejected' ||
+      res?.sourceTxHash?.includes('Not enough ETH for gas')
+    ) {
+      setTxError(res?.sourceTxHash || '')
+      setSubmittingTx(false)
+      return
+    }
+
     if (res) setTransactions([res, ...transactions].slice(0, 30))
     setTxHash(res?.sourceTxHash || '')
     setSubmittingTx(false)
