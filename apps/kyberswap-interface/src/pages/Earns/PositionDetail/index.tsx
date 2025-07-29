@@ -47,6 +47,7 @@ import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import { FeeInfo, PAIR_CATEGORY, ParsedPosition, PositionStatus, SuggestedPool } from 'pages/Earns/types'
 import { getUnclaimedFeesInfo } from 'pages/Earns/utils/fees'
 import { parsePosition } from 'pages/Earns/utils/position'
+import { getUnfinalizedPositions } from 'pages/Earns/utils/unfinalizedPosition'
 import { formatDisplayNumber, toString } from 'utils/numbers'
 
 const PositionDetail = () => {
@@ -91,7 +92,11 @@ const PositionDetail = () => {
   const initialLoading = !!(forceLoading || (isLoading && !firstLoading.current))
 
   const position: ParsedPosition | undefined = useMemo(() => {
-    if (!userPosition || !userPosition.length) return
+    if (!userPosition || !userPosition.length) {
+      const unfinalizedPositions = getUnfinalizedPositions([])
+      if (unfinalizedPositions.length > 0) return unfinalizedPositions[0]
+      return
+    }
 
     const isClosedFromRpc = closedPositionsFromRpc.some(
       (closedPosition: { tokenId: string }) => closedPosition.tokenId === userPosition[0].tokenId,
@@ -209,7 +214,8 @@ const PositionDetail = () => {
   )
 
   const isFarmingPossible = POSSIBLE_FARMING_PROTOCOLS.includes(protocol as Exchange)
-  const isUnfinalized = position?.isUnfinalized
+  // const isUnfinalized = position?.isUnfinalized
+  const isUnfinalized = true
   const isStablePair = position?.pool.category === PAIR_CATEGORY.STABLE
 
   const emptyPosition = (
