@@ -38,7 +38,7 @@
     @apply bg-layer1 text-text;
     @apply transition-all duration-200;
     font-family:
-      var(--ks-lw-fontFamily) "Work Sans",
+      var(--ks-lw-fontFamily) 'Work Sans',
       Sans-serif;
   }
 
@@ -140,7 +140,7 @@
     }
   }
 
-  .degen-mode[data-highlight="true"] {
+  .degen-mode[data-highlight='true'] {
     animation: highlight 2s 2 alternate ease-in-out;
   }
 }

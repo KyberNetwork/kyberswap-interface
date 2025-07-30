@@ -1,11 +1,11 @@
-import { ChainId } from "@/schema";
-import thenaLogo from "@/assets/dexes/thena.png";
+import thenaLogo from '@/assets/dexes/thena.png';
+import { ChainId } from '@/schema';
 
 export default {
   icon: thenaLogo,
-  name: "Thena",
+  name: 'Thena',
   nftManagerContract: {
     //[ChainId.Bsc]: "0x643B68Bf3f855B8475C0A700b6D1020bfc21d02e",
-    [ChainId.Bsc]: "0xa51ADb08Cbe6Ae398046A23bec013979816B77Ab",
+    [ChainId.Bsc]: '0xa51ADb08Cbe6Ae398046A23bec013979816B77Ab',
   },
 };

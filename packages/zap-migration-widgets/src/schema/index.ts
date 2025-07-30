@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 export enum ChainId {
   Ethereum = 1,
@@ -118,13 +118,7 @@ export const univ3PoolCommonField = z.object({
   ticks: z.array(tick),
   minTick: z.number(),
   maxTick: z.number(),
-  category: z.enum([
-    "stablePair",
-    "correlatedPair",
-    "commonPair",
-    "exoticPair",
-    "highVolatilityPair",
-  ]),
+  category: z.enum(['stablePair', 'correlatedPair', 'commonPair', 'exoticPair', 'highVolatilityPair']),
 });
 export type UniV3Pool = z.infer<typeof univ3PoolCommonField>;
 
@@ -134,27 +128,14 @@ export const univ2PoolNormalize = z.object({
   token1: token,
   fee: z.number(),
   reserves: z.tuple([z.string(), z.string()]),
-  category: z.enum([
-    "stablePair",
-    "correlatedPair",
-    "commonPair",
-    "exoticPair",
-    "highVolatilityPair",
-  ]),
+  category: z.enum(['stablePair', 'correlatedPair', 'commonPair', 'exoticPair', 'highVolatilityPair']),
   totalSupply: z.bigint().optional(),
 });
 export type UniV2Pool = z.infer<typeof univ2PoolNormalize>;
 
-export const algebraTypes: Dex[] = [
-  Dex.DEX_THENAFUSION,
-  Dex.DEX_CAMELOTV3,
-  Dex.DEX_QUICKSWAPV3ALGEBRA,
-] as const;
+export const algebraTypes: Dex[] = [Dex.DEX_THENAFUSION, Dex.DEX_CAMELOTV3, Dex.DEX_QUICKSWAPV3ALGEBRA] as const;
 
-export const univ4Dexes: Dex[] = [
-  Dex.DEX_UNISWAP_V4,
-  Dex.DEX_UNISWAP_V4_FAIRFLOW,
-] as const;
+export const univ4Dexes: Dex[] = [Dex.DEX_UNISWAP_V4, Dex.DEX_UNISWAP_V4_FAIRFLOW] as const;
 
 export const univ3Dexes: Dex[] = [
   Dex.DEX_UNISWAPV3,
@@ -175,29 +156,26 @@ export const univ3Dexes: Dex[] = [
 ] as const;
 export type Univ3Dex = (typeof univ3Dexes)[number];
 
-export const univ2Dexes: Dex[] = [
-  Dex.DEX_UNISWAPV2,
-  Dex.DEX_SQUADSWAP_V2,
-] as const;
+export const univ2Dexes: Dex[] = [Dex.DEX_UNISWAPV2, Dex.DEX_SQUADSWAP_V2] as const;
 export type Univ2Dex = (typeof univ2Dexes)[number];
 
 // Create the discriminated union with the correct structure
-export const pool = z.discriminatedUnion("dex", [
+export const pool = z.discriminatedUnion('dex', [
   univ3PoolCommonField.extend({
     dex: z.literal(univ3Dexes[0]),
   }),
-  ...univ3Dexes.slice(1).map((dex) =>
+  ...univ3Dexes.slice(1).map(dex =>
     univ3PoolCommonField.extend({
       dex: z.literal(dex),
-    })
+    }),
   ),
   univ2PoolNormalize.extend({
     dex: z.literal(univ2Dexes[0]),
   }),
-  ...univ2Dexes.slice(1).map((dex) =>
+  ...univ2Dexes.slice(1).map(dex =>
     univ2PoolNormalize.extend({
       dex: z.literal(dex),
-    })
+    }),
   ),
 ]);
 export type Pool = z.infer<typeof pool>;
@@ -218,23 +196,23 @@ const univ2Position = z.object({
 export type UniV2Position = z.infer<typeof univ2Position>;
 
 const createUniV3PositionSchemas = () =>
-  univ3Dexes.map((dex) =>
+  univ3Dexes.map(dex =>
     univ3Position.extend({
       dex: z.literal(dex),
-    })
+    }),
   );
 
 const createUniV2PositionSchemas = () =>
-  univ2Dexes.map((dex) =>
+  univ2Dexes.map(dex =>
     univ2Position.extend({
       dex: z.literal(dex),
-    })
+    }),
   );
 
 const uniV3Schemas = createUniV3PositionSchemas();
 const uniV2Schemas = createUniV2PositionSchemas();
 
-export const position = z.discriminatedUnion("dex", [
+export const position = z.discriminatedUnion('dex', [
   uniV3Schemas[0],
   ...uniV3Schemas.slice(1),
   uniV2Schemas[0],
