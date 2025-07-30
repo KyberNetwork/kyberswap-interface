@@ -1725,6 +1725,9 @@ importers:
         specifier: ^5.0.0
         version: 5.0.1(@types/react@18.3.12)(react@18.3.1)
     devDependencies:
+      '@kyber/eslint-config':
+        specifier: workspace:*
+        version: link:../config-eslint
       '@kyber/hooks':
         specifier: workspace:*
         version: link:../hooks
@@ -1743,12 +1746,21 @@ importers:
       '@kyber/utils':
         specifier: workspace:*
         version: link:../utils
+      '@trivago/prettier-plugin-sort-imports':
+        specifier: ^3.3.1
+        version: 3.4.0(prettier@3.5.3)
       '@types/react':
         specifier: ^18.0.17
         version: 18.3.12
       '@types/react-dom':
         specifier: ^18.2.17
         version: 18.3.1
+      '@typescript-eslint/eslint-plugin':
+        specifier: ^6.14.0
+        version: 6.21.0(@typescript-eslint/parser@6.21.0)(eslint@8.57.0)(typescript@5.3.2)
+      '@typescript-eslint/parser':
+        specifier: ^6.14.0
+        version: 6.21.0(eslint@8.57.0)(typescript@5.3.2)
       autoprefixer:
         specifier: ^10.4.20
         version: 10.4.20(postcss@8.4.49)
@@ -1758,12 +1770,27 @@ importers:
       eslint:
         specifier: ^8.55.0
         version: 8.57.0
+      eslint-config-prettier:
+        specifier: ^9.1.0
+        version: 9.1.0(eslint@8.57.0)
+      eslint-plugin-prettier:
+        specifier: ^5.4.0
+        version: 5.4.0(@types/eslint@8.56.12)(eslint-config-prettier@9.1.0)(eslint@8.57.0)(prettier@3.5.3)
+      eslint-plugin-react:
+        specifier: ^7.33.2
+        version: 7.37.2(eslint@8.57.0)
+      eslint-plugin-react-hooks:
+        specifier: ^4.6.0
+        version: 4.6.2(eslint@8.57.0)
       postcss:
         specifier: ^8.4.47
         version: 8.4.49
       postcss-prefix-selector:
         specifier: ^2.1.0
         version: 2.1.0(postcss@8.4.49)
+      prettier:
+        specifier: ^3.5.3
+        version: 3.5.3
       sass:
         specifier: ^1.70.0
         version: 1.80.7
@@ -1801,6 +1828,9 @@ importers:
         specifier: ^5.0.0
         version: 5.0.1(@types/react@18.3.12)(react@18.3.1)
     devDependencies:
+      '@kyber/eslint-config':
+        specifier: workspace:*
+        version: link:../config-eslint
       '@kyber/hooks':
         specifier: workspace:^
         version: link:../hooks
@@ -1819,6 +1849,9 @@ importers:
       '@kyberswap/liquidity-chart':
         specifier: workspace:^
         version: link:../liquidity-chart
+      '@trivago/prettier-plugin-sort-imports':
+        specifier: ^3.3.1
+        version: 3.4.0(prettier@3.5.3)
       '@types/lodash':
         specifier: ^4.14.196
         version: 4.17.13
@@ -1846,6 +1879,15 @@ importers:
       eslint:
         specifier: ^8.55.0
         version: 8.57.0
+      eslint-config-prettier:
+        specifier: ^9.1.0
+        version: 9.1.0(eslint@8.57.0)
+      eslint-plugin-prettier:
+        specifier: ^5.4.0
+        version: 5.4.0(@types/eslint@8.56.12)(eslint-config-prettier@9.1.0)(eslint@8.57.0)(prettier@3.5.3)
+      eslint-plugin-react:
+        specifier: ^7.33.2
+        version: 7.37.2(eslint@8.57.0)
       eslint-plugin-react-hooks:
         specifier: ^4.6.0
         version: 4.6.2(eslint@8.57.0)
@@ -1858,6 +1900,9 @@ importers:
       postcss-prefix-selector:
         specifier: ^2.1.0
         version: 2.1.0(postcss@8.4.49)
+      prettier:
+        specifier: ^3.5.3
+        version: 3.5.3
       sass:
         specifier: ^1.70.0
         version: 1.80.7

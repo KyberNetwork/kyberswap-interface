@@ -1,16 +1,18 @@
-import { ChangeEvent, MouseEvent, useEffect, useMemo, useState } from "react";
-import { Input, ScrollArea, Button, TokenLogo } from "@kyber/ui";
-import { formatWei } from "@/utils";
-import { NATIVE_TOKEN_ADDRESS } from "@/constants";
-import TrashIcon from "@/assets/svg/trash.svg";
-import IconSearch from "@/assets/svg/search.svg";
-import Info from "@/assets/svg/info.svg";
-import X from "@/assets/svg/x.svg";
-import { Token } from "@/schema";
-import { formatUnits, isAddress } from "@kyber/utils/crypto";
-import { useZapOutUserState } from "@/stores/state";
-import { useTokenList } from "@/hooks/useTokenList";
-import { useZapOutContext } from "@/stores";
+import { ChangeEvent, MouseEvent, useEffect, useMemo, useState } from 'react';
+
+import { Button, Input, ScrollArea, TokenLogo } from '@kyber/ui';
+import { formatUnits, isAddress } from '@kyber/utils/crypto';
+
+import Info from '@/assets/svg/info.svg';
+import IconSearch from '@/assets/svg/search.svg';
+import TrashIcon from '@/assets/svg/trash.svg';
+import X from '@/assets/svg/x.svg';
+import { NATIVE_TOKEN_ADDRESS } from '@/constants';
+import { useTokenList } from '@/hooks/useTokenList';
+import { Token } from '@/schema';
+import { useZapOutContext } from '@/stores';
+import { useZapOutUserState } from '@/stores/state';
+import { formatWei } from '@/utils';
 
 export enum TOKEN_TAB {
   ALL,
@@ -37,28 +39,25 @@ export default function TokenSelector({
   onClose: () => void;
   balanceTokens: { [key: string]: bigint };
 }) {
-  const { pool } = useZapOutContext((s) => s);
+  const { pool } = useZapOutContext(s => s);
 
   const { tokenOut, setTokenOut } = useZapOutUserState();
-  const { importedTokens, allTokens, fetchTokenInfo, removeToken } =
-    useTokenList();
+  const { importedTokens, allTokens, fetchTokenInfo, removeToken } = useTokenList();
 
   const defaultToken = {
     decimals: undefined,
-    address: "",
-    logo: "",
-    symbol: "",
+    address: '',
+    logo: '',
+    symbol: '',
   };
-  const { address: token0Address } =
-    pool === "loading" ? defaultToken : pool.token0;
-  const { address: token1Address } =
-    pool === "loading" ? defaultToken : pool.token1;
+  const { address: token0Address } = pool === 'loading' ? defaultToken : pool.token0;
+  const { address: token1Address } = pool === 'loading' ? defaultToken : pool.token1;
 
-  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [searchTerm, setSearchTerm] = useState<string>('');
   const [unImportedTokens, setUnImportedTokens] = useState<Token[]>([]);
   const [tabSelected, setTabSelected] = useState<TOKEN_TAB>(TOKEN_TAB.ALL);
 
-  const [message, setMessage] = useState<string>("");
+  const [message, setMessage] = useState<string>('');
 
   const listTokens = useMemo(
     () =>
@@ -66,32 +65,19 @@ export default function TokenSelector({
         .map((token: Token) => {
           const balanceInWei =
             balanceTokens[
-              token.address === NATIVE_TOKEN_ADDRESS.toLowerCase()
-                ? NATIVE_TOKEN_ADDRESS
-                : token.address.toLowerCase()
-            ]?.toString() || "0";
+              token.address === NATIVE_TOKEN_ADDRESS.toLowerCase() ? NATIVE_TOKEN_ADDRESS : token.address.toLowerCase()
+            ]?.toString() || '0';
 
           return {
             ...token,
             balance: formatWei(balanceInWei, token?.decimals),
             balanceToSort: formatUnits(balanceInWei, token?.decimals),
-            disabled:
-              tokenOut?.address.toLowerCase() === token.address.toLowerCase(),
+            disabled: tokenOut?.address.toLowerCase() === token.address.toLowerCase(),
           };
         })
-        .sort(
-          (a: CustomizeToken, b: CustomizeToken) =>
-            parseFloat(b.balanceToSort) - parseFloat(a.balanceToSort)
-        ),
+        .sort((a: CustomizeToken, b: CustomizeToken) => parseFloat(b.balanceToSort) - parseFloat(a.balanceToSort)),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [
-      tabSelected,
-      allTokens,
-      importedTokens,
-      balanceTokens,
-      token0Address,
-      token1Address,
-    ]
+    [tabSelected, allTokens, importedTokens, balanceTokens, token0Address, token1Address],
   );
 
   const filteredTokens = useMemo(() => {
@@ -101,7 +87,7 @@ export default function TokenSelector({
       (item: CustomizeToken) =>
         item.name?.toLowerCase().includes(search) ||
         item.symbol?.toLowerCase().includes(search) ||
-        item.address?.toLowerCase().includes(search)
+        item.address?.toLowerCase().includes(search),
     );
   }, [listTokens, searchTerm]);
 
@@ -115,19 +101,13 @@ export default function TokenSelector({
     if (unImportedTokens.length) setUnImportedTokens([]);
   };
 
-  const handleRemoveImportedToken = (
-    e: MouseEvent<SVGSVGElement>,
-    token: Token
-  ) => {
+  const handleRemoveImportedToken = (e: MouseEvent<SVGSVGElement>, token: Token) => {
     e.stopPropagation();
 
-    const isSelected =
-      tokenOut?.address.toLowerCase() === token.address.toLowerCase();
+    const isSelected = tokenOut?.address.toLowerCase() === token.address.toLowerCase();
 
     if (isSelected) {
-      setMessage(
-        "You cannot remove the selected token, please select another token first."
-      );
+      setMessage('You cannot remove the selected token, please select another token first.');
       return;
     }
 
@@ -146,7 +126,7 @@ export default function TokenSelector({
   useEffect(() => {
     if (message) {
       if (messageTimeout) clearTimeout(messageTimeout);
-      messageTimeout = setTimeout(() => setMessage(""), MESSAGE_TIMEOUT);
+      messageTimeout = setTimeout(() => setMessage(''), MESSAGE_TIMEOUT);
     }
 
     return () => {
@@ -157,13 +137,10 @@ export default function TokenSelector({
   useEffect(() => {
     if (unImportedTokens?.length) {
       const cloneUnImportedTokens = [...unImportedTokens].filter(
-        (token) =>
-          !importedTokens.find(
-            (importedToken) => importedToken.address === token.address
-          )
+        token => !importedTokens.find(importedToken => importedToken.address === token.address),
       );
       setUnImportedTokens(cloneUnImportedTokens);
-      setSearchTerm("");
+      setSearchTerm('');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [importedTokens]);
@@ -172,29 +149,25 @@ export default function TokenSelector({
     const search = searchTerm.toLowerCase().trim();
 
     if (!filteredTokens.length && isAddress(search)) {
-      fetchTokenInfo(search).then((res) => setUnImportedTokens(res));
+      fetchTokenInfo(search).then(res => setUnImportedTokens(res));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filteredTokens]);
 
-  if (pool === "loading") return null;
+  if (pool === 'loading') return null;
 
   return (
     <div className="w-full mx-auto text-white overflow-hidden">
       <div className="space-y-4">
         <div className="flex justify-between items-center px-6 pt-6 pb-0">
           <h2 className="text-xl">Select Token Out</h2>
-          <div
-            className="text-subText hover:text-white cursor-pointer"
-            onClick={onClose}
-          >
+          <div className="text-subText hover:text-white cursor-pointer" onClick={onClose}>
             <X className="h-6 w-6" />
           </div>
         </div>
 
         <p className="text-sm text-subText px-6">
-          You can search and select{" "}
-          <span className="text-text">any token(s)</span> on KyberSwap
+          You can search and select <span className="text-text">any token(s)</span> on KyberSwap
         </p>
 
         <div className={`px-6`}>
@@ -210,27 +183,16 @@ export default function TokenSelector({
           </div>
         </div>
 
-        <TokenFeature
-          tabSelected={tabSelected}
-          setTabSelected={setTabSelected}
-          setMessage={setMessage}
-        />
+        <TokenFeature tabSelected={tabSelected} setTabSelected={setTabSelected} setMessage={setMessage} />
 
         <ScrollArea className={`custom-scrollbar !mt-0 h-[360px]`}>
           <>
             {tabSelected === TOKEN_TAB.ALL &&
               unImportedTokens.map((token: Token, index) => (
-                <div
-                  key={`${token.symbol}-${index}`}
-                  className="flex items-center justify-between py-2 px-6 text-red"
-                >
+                <div key={`${token.symbol}-${index}`} className="flex items-center justify-between py-2 px-6 text-red">
                   <div className="flex items-center gap-2">
                     <div>
-                      <TokenLogo
-                        src={token.logo}
-                        alt={token.symbol}
-                        size={24}
-                      />
+                      <TokenLogo src={token.logo} alt={token.symbol} size={24} />
                     </div>
                     <p className="ml-2 text-subText">{token.symbol}</p>
                     <p className="text-xs text-[#6C7284]">{token.name}</p>
@@ -249,35 +211,18 @@ export default function TokenSelector({
                 <div
                   key={`${token.symbol}-${index}`}
                   className={`flex items-center justify-between py-2 px-6 cursor-pointer hover:bg-[#0f0f0f] ${
-                    token.address?.toLowerCase() ===
-                    tokenOut?.address.toLowerCase()
-                      ? "bg-[#1d7a5f26]"
-                      : ""
-                  } ${
-                    token.disabled
-                      ? "!bg-stroke !cursor-not-allowed brightness-50"
-                      : ""
-                  }`}
+                    token.address?.toLowerCase() === tokenOut?.address.toLowerCase() ? 'bg-[#1d7a5f26]' : ''
+                  } ${token.disabled ? '!bg-stroke !cursor-not-allowed brightness-50' : ''}`}
                   onClick={() => !token.disabled && handleClickToken(token)}
                 >
                   <div className="flex items-center space-x-3">
                     <div>
-                      <TokenLogo
-                        src={token.logo}
-                        alt={token.symbol}
-                        size={24}
-                      />
+                      <TokenLogo src={token.logo} alt={token.symbol} size={24} />
                     </div>
                     <div>
                       <p className="leading-6">{token.symbol}</p>
-                      <p
-                        className={`${
-                          tabSelected === TOKEN_TAB.ALL ? "text-xs" : ""
-                        } text-subText`}
-                      >
-                        {tabSelected === TOKEN_TAB.ALL
-                          ? token.name
-                          : token.balance}
+                      <p className={`${tabSelected === TOKEN_TAB.ALL ? 'text-xs' : ''} text-subText`}>
+                        {tabSelected === TOKEN_TAB.ALL ? token.name : token.balance}
                       </p>
                     </div>
                   </div>
@@ -287,21 +232,18 @@ export default function TokenSelector({
                     ) : (
                       <TrashIcon
                         className="w-[18px] text-subText hover:text-text !cursor-pointer"
-                        onClick={(e) => handleRemoveImportedToken(e, token)}
+                        onClick={e => handleRemoveImportedToken(e, token)}
                       />
                     )}
                     <Info
                       className="w-[18px] h-[18px] text-subText hover:text-text !cursor-pointer"
-                      onClick={(e) => handleShowTokenInfo(e, token)}
+                      onClick={e => handleShowTokenInfo(e, token)}
                     />
                   </div>
                 </div>
               ))
-            ) : !unImportedTokens.length ||
-              (tabSelected === TOKEN_TAB.IMPORTED && !importedTokens.length) ? (
-              <div className="text-center text-[#6C7284] font-medium mt-4">
-                No results found.
-              </div>
+            ) : !unImportedTokens.length || (tabSelected === TOKEN_TAB.IMPORTED && !importedTokens.length) ? (
+              <div className="text-center text-[#6C7284] font-medium mt-4">No results found.</div>
             ) : (
               <></>
             )}
@@ -335,16 +277,8 @@ const TokenFeature = ({
   const { importedTokens, removeAllTokens } = useTokenList();
 
   const handleRemoveAllImportedToken = () => {
-    if (
-      importedTokens.find(
-        (importedToken) =>
-          tokenOut?.address.toLowerCase() ===
-          importedToken.address.toLowerCase()
-      )
-    ) {
-      setMessage(
-        "You cannot remove the only selected token, please select another token first."
-      );
+    if (importedTokens.find(importedToken => tokenOut?.address.toLowerCase() === importedToken.address.toLowerCase())) {
+      setMessage('You cannot remove the only selected token, please select another token first.');
       return;
     }
 
@@ -355,17 +289,13 @@ const TokenFeature = ({
     <>
       <div className="px-6 pb-3 flex gap-4 border-b border-[#505050]">
         <div
-          className={`text-sm cursor-pointer ${
-            tabSelected === TOKEN_TAB.ALL ? "text-accent" : ""
-          }`}
+          className={`text-sm cursor-pointer ${tabSelected === TOKEN_TAB.ALL ? 'text-accent' : ''}`}
           onClick={() => setTabSelected(TOKEN_TAB.ALL)}
         >
           All
         </div>
         <div
-          className={`text-sm cursor-pointer ${
-            tabSelected === TOKEN_TAB.IMPORTED ? "text-accent" : ""
-          }`}
+          className={`text-sm cursor-pointer ${tabSelected === TOKEN_TAB.IMPORTED ? 'text-accent' : ''}`}
           onClick={() => setTabSelected(TOKEN_TAB.IMPORTED)}
         >
           Imported
@@ -374,9 +304,7 @@ const TokenFeature = ({
 
       {tabSelected === TOKEN_TAB.IMPORTED && importedTokens.length ? (
         <div className="flex items-center justify-between px-6 !mt-0 py-[10px]">
-          <span className="text-xs text-icon">
-            {importedTokens.length} Custom Tokens
-          </span>
+          <span className="text-xs text-icon">{importedTokens.length} Custom Tokens</span>
           <Button
             className="rounded-full !text-icon flex items-center gap-2 text-xs px-[10px] py-[5px] h-fit font-normal !bg-[#a9a9a933]"
             onClick={handleRemoveAllImportedToken}
