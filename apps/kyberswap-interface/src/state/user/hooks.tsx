@@ -3,7 +3,7 @@ import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { TERM_FILES_PATH } from 'constants/index'
-import { SupportedLocale } from 'constants/locales'
+import { LOCALE_INFO, SupportedLocale } from 'constants/locales'
 import { GAS_TOKENS } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import {
@@ -79,8 +79,8 @@ function deserializeToken(serializedToken: SerializedToken): Token {
 }
 
 export function useUserLocale(): SupportedLocale | null {
-  // const userLocale = useAppSelector(state => state.user.userLocale)
-  // if (Object.keys(LOCALE_INFO).includes(userLocale)) return userLocale
+  const userLocale = useAppSelector(state => state.user.userLocale)
+  if (Object.keys(LOCALE_INFO).includes(userLocale)) return userLocale
   return 'en-US'
 }
 
