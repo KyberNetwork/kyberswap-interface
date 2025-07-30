@@ -205,6 +205,7 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
       width={'760px'}
       onDismiss={() => setMigrateLiquidityPureParams(null)}
       zindex={9999}
+      bypassFocusLock={true}
     >
       <ZapMigration {...migrateLiquidityParams} />
     </Modal>

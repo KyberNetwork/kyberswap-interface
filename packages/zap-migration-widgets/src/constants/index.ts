@@ -1,39 +1,37 @@
-import { ChainId, Chain, Dex, DexInfo } from "../schema";
+import camelotv3 from '@/constants/dexes/camelotv3';
+import kodiakv3 from '@/constants/dexes/kodiakv3';
+import koicl from '@/constants/dexes/koicl';
+import linehubv3 from '@/constants/dexes/linehubv3';
+import metavaultv3 from '@/constants/dexes/metavaultv3';
+import pancakeswapv3 from '@/constants/dexes/pancakeswapv3';
+import quickswapv3algebra from '@/constants/dexes/quickswapv3algebra';
+import squadswapv2 from '@/constants/dexes/squadswapv2';
+import squadswapv3 from '@/constants/dexes/squadswapv3';
+import sushiswapv3 from '@/constants/dexes/sushiswapv3';
+import swapmodev3 from '@/constants/dexes/swapmodev3';
+import thenafusion from '@/constants/dexes/thenafusion';
+import thrusterv3 from '@/constants/dexes/thrusterv3';
+import uniswapv2 from '@/constants/dexes/uniswapv2';
+import uniswapv3 from '@/constants/dexes/uniswapv3';
+import uniswapv4 from '@/constants/dexes/uniswapv4';
+import arbitrum from '@/constants/networks/arbitrum';
+import avalanche from '@/constants/networks/avalanche';
+import base from '@/constants/networks/base';
+import berachain from '@/constants/networks/berachain';
+import blast from '@/constants/networks/blast';
+import bsc from '@/constants/networks/bsc';
+import ethereum from '@/constants/networks/ethereum';
+import linea from '@/constants/networks/linea';
+import optimism from '@/constants/networks/optimism';
+import polygon from '@/constants/networks/polygon';
+import scroll from '@/constants/networks/scroll';
+import sonic from '@/constants/networks/sonic';
+import zkSync from '@/constants/networks/zkSync';
+import { Chain, ChainId, Dex, DexInfo } from '@/schema';
 
-import arbitrum from "./networks/arbitrum";
-import avalanche from "./networks/avalanche";
-import base from "./networks/base";
-import berachain from "./networks/berachain";
-import blast from "./networks/blast";
-import bsc from "./networks/bsc";
-import ethereum from "./networks/ethereum";
-import linea from "./networks/linea";
-import optimism from "./networks/optimism";
-import polygon from "./networks/polygon";
-import scroll from "./networks/scroll";
-import sonic from "./networks/sonic";
-import zkSync from "./networks/zkSync";
-import uniswapv3 from "./dexes/uniswapv3";
-import pancakeswapv3 from "./dexes/pancakeswapv3";
-import sushiswapv3 from "./dexes/sushiswapv3";
-import metavaultv3 from "./dexes/metavaultv3";
-import linehubv3 from "./dexes/linehubv3";
-import swapmodev3 from "./dexes/swapmodev3";
-import koicl from "./dexes/koicl";
-import thrusterv3 from "./dexes/thrusterv3";
-import thenafusion from "./dexes/thenafusion";
-import camelotv3 from "./dexes/camelotv3";
-import quickswapv3algebra from "./dexes/quickswapv3algebra";
-import kodiakv3 from "./dexes/kodiakv3";
-import squadswapv3 from "./dexes/squadswapv3";
-import uniswapv2 from "./dexes/uniswapv2";
-import squadswapv2 from "./dexes/squadswapv2";
-import uniswapv4 from "./dexes/uniswapv4";
+export const NATIVE_TOKEN_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
 
-export const NATIVE_TOKEN_ADDRESS =
-  "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE";
-
-export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
+export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
 export const NETWORKS_INFO: Record<ChainId, Chain> = {
   [ChainId.Ethereum]: ethereum,
@@ -55,7 +53,7 @@ export const DEXES_INFO: Record<Dex, DexInfo> = {
   [Dex.DEX_UNISWAP_V4]: uniswapv4,
   [Dex.DEX_UNISWAP_V4_FAIRFLOW]: {
     ...uniswapv4,
-    name: "Uniswap V4 FairFlow",
+    name: 'Uniswap V4 FairFlow',
   },
   [Dex.DEX_UNISWAPV3]: uniswapv3,
   [Dex.DEX_UNISWAPV2]: uniswapv2,
@@ -75,26 +73,23 @@ export const DEXES_INFO: Record<Dex, DexInfo> = {
 };
 
 export const PATHS = {
-  BFF_API: "https://bff.kyberswap.com/api",
-  KYBERSWAP_SETTING_API: "https://ks-setting.kyberswap.com/api",
-  ZAP_API: "https://zap-api.kyberswap.com",
+  BFF_API: 'https://bff.kyberswap.com/api',
+  KYBERSWAP_SETTING_API: 'https://ks-setting.kyberswap.com/api',
+  ZAP_API: 'https://zap-api.kyberswap.com',
   // ZAP_API: "https://pre-zap-api.kyberengineering.io",
-  TOKEN_API: "https://token-api.kyberengineering.io/api",
+  TOKEN_API: 'https://token-api.kyberengineering.io/api',
   DOCUMENT: {
-    ZAP_FEE_MODEL:
-      "https://docs.kyberswap.com/kyberswap-solutions/kyberswap-zap-as-a-service/zap-fee-model",
+    ZAP_FEE_MODEL: 'https://docs.kyberswap.com/kyberswap-solutions/kyberswap-zap-as-a-service/zap-fee-model',
   },
 };
 
-export const FARMING_CONTRACTS: Partial<
-  Record<Dex, Partial<Record<ChainId, string>>>
-> = {
+export const FARMING_CONTRACTS: Partial<Record<Dex, Partial<Record<ChainId, string>>>> = {
   [Dex.DEX_PANCAKESWAPV3]: {
-    [ChainId.Ethereum]: "0x556B9306565093C855AEA9AE92A594704c2Cd59e",
-    [ChainId.Bsc]: "0x556B9306565093C855AEA9AE92A594704c2Cd59e",
-    [ChainId.Arbitrum]: "0x5e09ACf80C0296740eC5d6F643005a4ef8DaA694",
-    [ChainId.ZkSync]: "0x4c615E78c5fCA1Ad31e4d66eb0D8688d84307463",
-    [ChainId.Base]: "0xC6A2Db661D5a5690172d8eB0a7DEA2d3008665A3",
-    [ChainId.Linea]: "0x22E2f236065B780FA33EC8C4E58b99ebc8B55c57",
+    [ChainId.Ethereum]: '0x556B9306565093C855AEA9AE92A594704c2Cd59e',
+    [ChainId.Bsc]: '0x556B9306565093C855AEA9AE92A594704c2Cd59e',
+    [ChainId.Arbitrum]: '0x5e09ACf80C0296740eC5d6F643005a4ef8DaA694',
+    [ChainId.ZkSync]: '0x4c615E78c5fCA1Ad31e4d66eb0D8688d84307463',
+    [ChainId.Base]: '0xC6A2Db661D5a5690172d8eB0a7DEA2d3008665A3',
+    [ChainId.Linea]: '0x22E2f236065B780FA33EC8C4E58b99ebc8B55c57',
   },
 };

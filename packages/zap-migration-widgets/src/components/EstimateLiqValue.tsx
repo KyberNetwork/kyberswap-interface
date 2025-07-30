@@ -1,16 +1,5 @@
-import { useState } from "react";
-import { PATHS } from "../constants";
-import { ChainId, Token, univ2Dexes, UniV2Pool } from "../schema";
-import { usePoolsStore } from "../stores/usePoolsStore";
-import {
-  ProtocolFeeAction,
-  RefundAction,
-  useZapStateStore,
-} from "../stores/useZapStateStore";
-import { PI_LEVEL, formatCurrency } from "../utils";
-import { Image } from "./Image";
-import { SlippageInfo } from "./SlippageInfo";
-import { SwapPI, useSwapPI } from "./SwapImpact";
+import { useState } from 'react';
+
 import {
   Accordion,
   AccordionContent,
@@ -19,84 +8,67 @@ import {
   InfoHelper,
   MouseoverTooltip,
   Skeleton,
-} from "@kyber/ui";
-import {
-  formatDisplayNumber,
-  formatTokenAmount,
-  toRawString,
-} from "@kyber/utils/number";
-import { cn } from "@kyber/utils/tailwind-helpers";
-import { getPositionAmounts } from "@kyber/utils/uniswapv3";
+} from '@kyber/ui';
+import { formatDisplayNumber, formatTokenAmount, toRawString } from '@kyber/utils/number';
+import { cn } from '@kyber/utils/tailwind-helpers';
+import { getPositionAmounts } from '@kyber/utils/uniswapv3';
+
+import { Image } from '@/components/Image';
+import { SlippageInfo } from '@/components/SlippageInfo';
+import { SwapPI, useSwapPI } from '@/components/SwapImpact';
+import { PATHS } from '@/constants';
+import { ChainId, Token, UniV2Pool, univ2Dexes } from '@/schema';
+import { usePoolsStore } from '@/stores/usePoolsStore';
+import { ProtocolFeeAction, RefundAction, useZapStateStore } from '@/stores/useZapStateStore';
+import { PI_LEVEL, formatCurrency } from '@/utils';
 
 export function EstimateLiqValue({ chainId }: { chainId: ChainId }) {
   const { pools, theme } = usePoolsStore();
   const [expanded, setExpanded] = useState(false);
 
-  const onExpand = () => setExpanded((prev) => !prev);
+  const onExpand = () => setExpanded(prev => !prev);
 
-  const { tickUpper, tickLower, route, fetchingRoute, slippage } =
-    useZapStateStore();
+  const { tickUpper, tickLower, route, fetchingRoute, slippage } = useZapStateStore();
 
-  const isTargetUniv2 =
-    pools !== "loading" && univ2Dexes.includes(pools[1].dex);
+  const isTargetUniv2 = pools !== 'loading' && univ2Dexes.includes(pools[1].dex);
 
   let amount0 = 0n;
   let amount1 = 0n;
   const newUniv2PoolDetail = route?.poolDetails.uniswapV2;
-  const newOtherPoolDetail =
-    route?.poolDetails.uniswapV3 || route?.poolDetails.algebraV1;
+  const newOtherPoolDetail = route?.poolDetails.uniswapV3 || route?.poolDetails.algebraV1;
 
   if (isTargetUniv2 && newUniv2PoolDetail) {
     const p = pools[1] as UniV2Pool;
     amount0 =
-      (BigInt(route.positionDetails.addedLiquidity) *
-        BigInt(newUniv2PoolDetail.newReserve0)) /
+      (BigInt(route.positionDetails.addedLiquidity) * BigInt(newUniv2PoolDetail.newReserve0)) /
       BigInt(p.totalSupply || 0n);
     amount1 =
-      (BigInt(route.positionDetails.addedLiquidity) *
-        BigInt(newUniv2PoolDetail.newReserve1)) /
+      (BigInt(route.positionDetails.addedLiquidity) * BigInt(newUniv2PoolDetail.newReserve1)) /
       BigInt(p.totalSupply || 0n);
-  } else if (
-    !isTargetUniv2 &&
-    route !== null &&
-    tickLower !== null &&
-    tickUpper !== null &&
-    newOtherPoolDetail
-  ) {
+  } else if (!isTargetUniv2 && route !== null && tickLower !== null && tickUpper !== null && newOtherPoolDetail) {
     ({ amount0, amount1 } = getPositionAmounts(
       newOtherPoolDetail.newTick,
       tickLower,
       tickUpper,
       BigInt(newOtherPoolDetail.newSqrtP),
-      BigInt(route.positionDetails.addedLiquidity)
+      BigInt(route.positionDetails.addedLiquidity),
     ));
   }
 
   const { swapPiRes, zapPiRes } = useSwapPI(chainId);
 
-  const refundInfo = route?.zapDetails.actions.find(
-    (item) => item.type === "ACTION_TYPE_REFUND"
-  ) as RefundAction | null;
+  const refundInfo = route?.zapDetails.actions.find(item => item.type === 'ACTION_TYPE_REFUND') as RefundAction | null;
 
-  const refundUsd =
-    refundInfo?.refund.tokens.reduce((acc, cur) => acc + +cur.amountUsd, 0) ||
-    0;
+  const refundUsd = refundInfo?.refund.tokens.reduce((acc, cur) => acc + +cur.amountUsd, 0) || 0;
   const initUsd = Number(route?.zapDetails.initialAmountUsd || 0);
-  const suggestedSlippage =
-    (route?.zapDetails.suggestedSlippage || 100) / 10_000;
-  const isHighRemainingAmount = initUsd
-    ? refundUsd / initUsd >= suggestedSlippage
-    : false;
+  const suggestedSlippage = (route?.zapDetails.suggestedSlippage || 100) / 10_000;
+  const isHighRemainingAmount = initUsd ? refundUsd / initUsd >= suggestedSlippage : false;
 
   const tokens: Token[] =
-    pools === "loading"
-      ? []
-      : [pools[0].token0, pools[0].token1, pools[1].token0, pools[1].token1];
+    pools === 'loading' ? [] : [pools[0].token0, pools[0].token1, pools[1].token0, pools[1].token1];
   const refunds: { amount: string; symbol: string }[] = [];
-  refundInfo?.refund.tokens.forEach((refund) => {
-    const token = tokens.find(
-      (t) => t.address.toLowerCase() === refund.address.toLowerCase()
-    );
+  refundInfo?.refund.tokens.forEach(refund => {
+    const token = tokens.find(t => t.address.toLowerCase() === refund.address.toLowerCase());
     if (token) {
       refunds.push({
         amount: formatTokenAmount(BigInt(refund.amount), token.decimals),
@@ -105,22 +77,17 @@ export function EstimateLiqValue({ chainId }: { chainId: ChainId }) {
     }
   });
 
-  const feeInfo = route?.zapDetails.actions.find(
-    (item) => item.type === "ACTION_TYPE_PROTOCOL_FEE"
-  ) as ProtocolFeeAction | undefined;
+  const feeInfo = route?.zapDetails.actions.find(item => item.type === 'ACTION_TYPE_PROTOCOL_FEE') as
+    | ProtocolFeeAction
+    | undefined;
   const zapFee = ((feeInfo?.protocolFee.pcm || 0) / 100_000) * 100;
 
   return (
-    <Accordion
-      type="single"
-      collapsible
-      className="w-full mt-4"
-      value={expanded ? "item-1" : ""}
-    >
+    <Accordion type="single" collapsible className="w-full mt-4" value={expanded ? 'item-1' : ''}>
       <AccordionItem value="item-1">
         <AccordionTrigger
           className={`px-4 py-3 text-sm border border-stroke text-text rounded-md ${
-            expanded ? "!rounded-b-none !border-b-0 !pb-1" : ""
+            expanded ? '!rounded-b-none !border-b-0 !pb-1' : ''
           }`}
           onClick={onExpand}
         >
@@ -131,7 +98,7 @@ export function EstimateLiqValue({ chainId }: { chainId: ChainId }) {
             ) : (
               <div>
                 {formatDisplayNumber(route?.zapDetails.finalAmountUsd || 0, {
-                  style: "currency",
+                  style: 'currency',
                 })}
               </div>
             )}
@@ -143,15 +110,10 @@ export function EstimateLiqValue({ chainId }: { chainId: ChainId }) {
           <div className="py-2 flex gap-2 md:gap-6 flex-col">
             <div className="flex justify-between items-start">
               <div className="text-subText text-xs flex items-center gap-2">
-                Est. Pooled{" "}
-                {pools === "loading" ? (
-                  <Skeleton className="w-8 h-2.5" />
-                ) : (
-                  pools[1].token0.symbol
-                )}
+                Est. Pooled {pools === 'loading' ? <Skeleton className="w-8 h-2.5" /> : pools[1].token0.symbol}
               </div>
               <div className="flex flex-col items-end">
-                {pools === "loading" ? (
+                {pools === 'loading' ? (
                   <>
                     <Skeleton className="w-20 h-4" />
                     <Skeleton className="w-10 h-3 mt-1" />
@@ -164,22 +126,14 @@ export function EstimateLiqValue({ chainId }: { chainId: ChainId }) {
                 ) : (
                   <>
                     <div className="flex items-center gap-1 text-xs">
-                      <Image
-                        className="w-4 h-4"
-                        src={pools[1].token0.logo || ""}
-                        alt=""
-                      />
-                      {formatTokenAmount(amount0, pools[1].token0.decimals, 10)}{" "}
-                      {pools[1].token0.symbol}
+                      <Image className="w-4 h-4" src={pools[1].token0.logo || ''} alt="" />
+                      {formatTokenAmount(amount0, pools[1].token0.decimals, 10)} {pools[1].token0.symbol}
                     </div>
                     <div className="text-subText text-xs">
                       ~
                       {formatDisplayNumber(
-                        (pools[1].token0.price || 0) *
-                          Number(
-                            toRawString(amount0, pools[1].token0.decimals)
-                          ),
-                        { style: "currency" }
+                        (pools[1].token0.price || 0) * Number(toRawString(amount0, pools[1].token0.decimals)),
+                        { style: 'currency' },
                       )}
                     </div>
                   </>
@@ -189,15 +143,10 @@ export function EstimateLiqValue({ chainId }: { chainId: ChainId }) {
 
             <div className="flex justify-between items-start mt-2">
               <div className="text-subText text-xs flex items-center gap-2">
-                Est. Pooled{" "}
-                {pools === "loading" ? (
-                  <Skeleton className="w-8 h-2.5" />
-                ) : (
-                  pools[1].token1.symbol
-                )}
+                Est. Pooled {pools === 'loading' ? <Skeleton className="w-8 h-2.5" /> : pools[1].token1.symbol}
               </div>
               <div className="flex flex-col items-end">
-                {pools === "loading" ? (
+                {pools === 'loading' ? (
                   <>
                     <Skeleton className="w-20 h-4" />
                     <Skeleton className="w-10 h-3 mt-1" />
@@ -210,22 +159,14 @@ export function EstimateLiqValue({ chainId }: { chainId: ChainId }) {
                 ) : (
                   <>
                     <div className="flex items-center gap-1 text-xs">
-                      <Image
-                        className="w-4 h-4"
-                        src={pools[1].token1.logo || ""}
-                        alt=""
-                      />
-                      {formatTokenAmount(amount1, pools[1].token1.decimals, 10)}{" "}
-                      {pools[1].token1.symbol}
+                      <Image className="w-4 h-4" src={pools[1].token1.logo || ''} alt="" />
+                      {formatTokenAmount(amount1, pools[1].token1.decimals, 10)} {pools[1].token1.symbol}
                     </div>
                     <div className="text-subText text-xs">
                       ~
                       {formatDisplayNumber(
-                        (pools[1].token1.price || 0) *
-                          Number(
-                            toRawString(amount1, pools[1].token1.decimals)
-                          ),
-                        { style: "currency" }
+                        (pools[1].token1.price || 0) * Number(toRawString(amount1, pools[1].token1.decimals)),
+                        { style: 'currency' },
                       )}
                     </div>
                   </>
@@ -252,9 +193,9 @@ export function EstimateLiqValue({ chainId }: { chainId: ChainId }) {
                     <InfoHelper
                       text={
                         <div>
-                          {refunds.map((refund) => (
+                          {refunds.map(refund => (
                             <div key={refund.symbol}>
-                              {refund.amount} {refund.symbol}{" "}
+                              {refund.amount} {refund.symbol}{' '}
                             </div>
                           ))}
                         </div>
@@ -269,10 +210,7 @@ export function EstimateLiqValue({ chainId }: { chainId: ChainId }) {
 
             <SwapPI chainId={chainId} />
 
-            <SlippageInfo
-              slippage={slippage}
-              suggestedSlippage={route?.zapDetails.suggestedSlippage || 100}
-            />
+            <SlippageInfo slippage={slippage} suggestedSlippage={route?.zapDetails.suggestedSlippage || 100} />
 
             <div className="flex justify-between items-start mt-2">
               <MouseoverTooltip
@@ -281,15 +219,14 @@ export function EstimateLiqValue({ chainId }: { chainId: ChainId }) {
               >
                 <span
                   className={cn(
-                    "text-subText border-b border-dotted border-subText",
+                    'text-subText border-b border-dotted border-subText',
                     route
-                      ? zapPiRes.level === PI_LEVEL.VERY_HIGH ||
-                        zapPiRes.level === PI_LEVEL.INVALID
-                        ? "text-error border-error"
+                      ? zapPiRes.level === PI_LEVEL.VERY_HIGH || zapPiRes.level === PI_LEVEL.INVALID
+                        ? 'text-error border-error'
                         : zapPiRes.level === PI_LEVEL.HIGH
-                          ? "text-warning border-warning"
-                          : "text-subText border-subText"
-                      : ""
+                          ? 'text-warning border-warning'
+                          : 'text-subText border-subText'
+                      : '',
                   )}
                 >
                   Zap Impact
@@ -300,18 +237,17 @@ export function EstimateLiqValue({ chainId }: { chainId: ChainId }) {
               ) : route ? (
                 <div
                   className={`text-xs  ${
-                    zapPiRes.level === PI_LEVEL.VERY_HIGH ||
-                    zapPiRes.level === PI_LEVEL.INVALID
-                      ? "text-error"
+                    zapPiRes.level === PI_LEVEL.VERY_HIGH || zapPiRes.level === PI_LEVEL.INVALID
+                      ? 'text-error'
                       : zapPiRes.level === PI_LEVEL.HIGH
-                        ? "text-warning"
-                        : "text-text"
+                        ? 'text-warning'
+                        : 'text-text'
                   }`}
                 >
                   {zapPiRes.display}
                 </div>
               ) : (
-                "--"
+                '--'
               )}
             </div>
 
@@ -319,13 +255,13 @@ export function EstimateLiqValue({ chainId }: { chainId: ChainId }) {
               <MouseoverTooltip
                 text={
                   <div>
-                    Fees charged for automatically zapping into a liquidity
-                    pool. You still have to pay the standard gas fees.{" "}
+                    Fees charged for automatically zapping into a liquidity pool. You still have to pay the standard gas
+                    fees.{' '}
                     <a
                       className="text-accent"
                       href={PATHS.DOCUMENT.ZAP_FEE_MODEL}
                       target="_blank"
-                      rel="noopener norefferer"
+                      rel="noopener noreferrer"
                     >
                       More details.
                     </a>
@@ -333,13 +269,9 @@ export function EstimateLiqValue({ chainId }: { chainId: ChainId }) {
                 }
                 width="220px"
               >
-                <div className="text-subText text-xs border-b border-dotted border-subText">
-                  Migration Fee
-                </div>
+                <div className="text-subText text-xs border-b border-dotted border-subText">Migration Fee</div>
               </MouseoverTooltip>
-              <div className="text-sm font-medium">
-                {parseFloat(zapFee.toFixed(3))}%
-              </div>
+              <div className="text-sm font-medium">{parseFloat(zapFee.toFixed(3))}%</div>
             </div>
           </div>
 
@@ -348,23 +280,18 @@ export function EstimateLiqValue({ chainId }: { chainId: ChainId }) {
               className="rounded-md text-xs py-3 px-4 mt-4 font-normal leading-[18px] text-warning"
               style={{ background: `${theme.warning}33` }}
             >
-              {((refundUsd * 100) / initUsd).toFixed(2)}% of your input remains
-              unused. Consider lowering your input amount
+              {((refundUsd * 100) / initUsd).toFixed(2)}% of your input remains unused. Consider lowering your input
+              amount
             </div>
           )}
 
           {route && swapPiRes.piRes.level !== PI_LEVEL.NORMAL && (
             <div
               className={`rounded-md text-xs py-3 px-4 mt-4 font-normal leading-[18px] ${
-                swapPiRes.piRes.level === PI_LEVEL.HIGH
-                  ? "text-warning"
-                  : "text-error"
+                swapPiRes.piRes.level === PI_LEVEL.HIGH ? 'text-warning' : 'text-error'
               }`}
               style={{
-                backgroundColor:
-                  swapPiRes.piRes.level === PI_LEVEL.HIGH
-                    ? `${theme.warning}33`
-                    : `${theme.error}33`,
+                backgroundColor: swapPiRes.piRes.level === PI_LEVEL.HIGH ? `${theme.warning}33` : `${theme.error}33`,
               }}
             >
               {swapPiRes.piRes.msg}
@@ -374,13 +301,10 @@ export function EstimateLiqValue({ chainId }: { chainId: ChainId }) {
           {route && zapPiRes.level !== PI_LEVEL.NORMAL && (
             <div
               className={`rounded-md text-xs py-3 px-4 mt-4 font-normal leading-[18px] ${
-                zapPiRes.level === PI_LEVEL.HIGH ? "text-warning" : "text-error"
+                zapPiRes.level === PI_LEVEL.HIGH ? 'text-warning' : 'text-error'
               }`}
               style={{
-                backgroundColor:
-                  zapPiRes.level === PI_LEVEL.HIGH
-                    ? `${theme.warning}33`
-                    : `${theme.error}33`,
+                backgroundColor: zapPiRes.level === PI_LEVEL.HIGH ? `${theme.warning}33` : `${theme.error}33`,
               }}
             >
               {zapPiRes.msg}

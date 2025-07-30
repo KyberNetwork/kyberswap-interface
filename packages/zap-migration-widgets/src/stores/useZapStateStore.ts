@@ -1,9 +1,10 @@
-import { NETWORKS_INFO, PATHS } from "../constants";
-import { ChainId, UniV3Position, univ3Dexes } from "../schema";
-import { usePoolsStore } from "./usePoolsStore";
-import { usePositionStore } from "./usePositionStore";
-import { z } from "zod";
-import { create } from "zustand";
+import { z } from 'zod';
+import { create } from 'zustand';
+
+import { NETWORKS_INFO, PATHS } from '@/constants';
+import { ChainId, UniV3Position, univ3Dexes } from '@/schema';
+import { usePoolsStore } from '@/stores/usePoolsStore';
+import { usePositionStore } from '@/stores/usePositionStore';
 
 interface ZapState {
   slippage: number;
@@ -14,11 +15,7 @@ interface ZapState {
   setTickLower: (tickLower: number) => void;
   setTickUpper: (tickUpper: number) => void;
   setLiquidityOut: (liquidity: bigint) => void;
-  fetchZapRoute: (
-    chainId: ChainId,
-    client: string,
-    account: string
-  ) => Promise<void>;
+  fetchZapRoute: (chainId: ChainId, client: string, account: string) => Promise<void>;
   fetchingRoute: boolean;
   route: GetRouteResponse | null;
   showPreview: boolean;
@@ -55,7 +52,7 @@ export const useZapStateStore = create<ZapState>((set, get) => ({
   reset: () => set(initState),
   setTtl: (value: number) => set({ ttl: value }),
   toggleSetting: (highlightDegenMode?: boolean) => {
-    set((state) => ({
+    set(state => ({
       showSetting: !state.showSetting,
       highlightDegenMode: Boolean(highlightDegenMode),
     }));
@@ -65,40 +62,32 @@ export const useZapStateStore = create<ZapState>((set, get) => ({
       }, 4000);
     }
   },
-  toggleDegenMode: () => set((state) => ({ degenMode: !state.degenMode })),
+  toggleDegenMode: () => set(state => ({ degenMode: !state.degenMode })),
   setSlippage: (value: number) => set({ slippage: value }),
-  togglePreview: () => set((state) => ({ showPreview: !state.showPreview })),
+  togglePreview: () => set(state => ({ showPreview: !state.showPreview })),
   setLiquidityOut: (liquidityOut: bigint) => set({ liquidityOut }),
   setTickLower: (tickLower: number) => set({ tickLower }),
   setTickUpper: (tickUpper: number) => set({ tickUpper }),
   fetchZapRoute: async (chainId: ChainId, client: string, account: string) => {
-    const {
-      liquidityOut,
-      tickLower: lower,
-      tickUpper: upper,
-      slippage,
-    } = get();
+    const { liquidityOut, tickLower: lower, tickUpper: upper, slippage } = get();
     const { pools } = usePoolsStore.getState();
     const { fromPosition: position, toPosition } = usePositionStore.getState();
 
-    const isUniv3Dest =
-      pools !== "loading" && univ3Dexes.includes(pools[1].dex);
+    const isUniv3Dest = pools !== 'loading' && univ3Dexes.includes(pools[1].dex);
 
     let tickLower = lower,
       tickUpper = upper;
-    if (toPosition !== "loading" && toPosition !== null && isUniv3Dest) {
+    if (toPosition !== 'loading' && toPosition !== null && isUniv3Dest) {
       tickLower = (toPosition as UniV3Position).tickLower;
       tickUpper = (toPosition as UniV3Position).tickUpper;
     }
 
     if (
-      pools === "loading" ||
-      position === "loading" ||
-      toPosition === "loading" ||
+      pools === 'loading' ||
+      position === 'loading' ||
+      toPosition === 'loading' ||
       liquidityOut === 0n ||
-      (isUniv3Dest
-        ? tickLower === null || tickUpper === null || tickLower >= tickUpper
-        : false)
+      (isUniv3Dest ? tickLower === null || tickUpper === null || tickLower >= tickUpper : false)
     ) {
       set({ route: null });
       return;
@@ -111,42 +100,39 @@ export const useZapStateStore = create<ZapState>((set, get) => ({
     } = {
       slippage,
       dexFrom: pools[0].dex,
-      "poolFrom.id": pools[0].address,
-      "positionFrom.id": position.id,
+      'poolFrom.id': pools[0].address,
+      'positionFrom.id': position.id,
       liquidityOut: liquidityOut.toString(),
       dexTo: pools[1].dex,
-      "poolTo.id": pools[1].address,
+      'poolTo.id': pools[1].address,
 
-      ...(!isUniv3Dest ? { "positionTo.id": account } : {}),
+      ...(!isUniv3Dest ? { 'positionTo.id': account } : {}),
 
       ...(toPosition?.id
         ? {
-            "positionTo.id": toPosition.id,
+            'positionTo.id': toPosition.id,
           }
         : isUniv3Dest
-        ? {
-            "positionTo.tickLower": tickLower,
-            "positionTo.tickUpper": tickUpper,
-          }
-        : {}),
+          ? {
+              'positionTo.tickLower': tickLower,
+              'positionTo.tickUpper': tickUpper,
+            }
+          : {}),
     };
-    let tmp = "";
-    Object.keys(params).forEach((key) => {
-      if (params[key] !== undefined && params[key] !== null)
-        tmp = `${tmp}&${key}=${params[key]}`;
+    let tmp = '';
+    Object.keys(params).forEach(key => {
+      if (params[key] !== undefined && params[key] !== null) tmp = `${tmp}&${key}=${params[key]}`;
     });
 
     try {
       const res = await fetch(
-        `${PATHS.ZAP_API}/${
-          NETWORKS_INFO[chainId].zapPath
-        }/api/v1/migrate/route?${tmp.slice(1)}`,
+        `${PATHS.ZAP_API}/${NETWORKS_INFO[chainId].zapPath}/api/v1/migrate/route?${tmp.slice(1)}`,
         {
           headers: {
-            "x-client-id": client,
+            'x-client-id': client,
           },
-        }
-      ).then((res) => res.json());
+        },
+      ).then(res => res.json());
 
       apiResponse.parse(res.data);
       set({ route: res.data, fetchingRoute: false });
@@ -155,7 +141,7 @@ export const useZapStateStore = create<ZapState>((set, get) => ({
       set({ fetchingRoute: false, route: null });
     }
   },
-  setManualSlippage: (value) => set({ manualSlippage: value }),
+  setManualSlippage: value => set({ manualSlippage: value }),
 }));
 
 const token = z.object({
@@ -165,7 +151,7 @@ const token = z.object({
 });
 
 const removeLiquidityAction = z.object({
-  type: z.literal("ACTION_TYPE_REMOVE_LIQUIDITY"),
+  type: z.literal('ACTION_TYPE_REMOVE_LIQUIDITY'),
   removeLiquidity: z.object({
     tokens: z.array(token),
     fees: z.array(token).optional(),
@@ -175,13 +161,13 @@ const removeLiquidityAction = z.object({
 export type RemoveLiquidityAction = z.infer<typeof removeLiquidityAction>;
 
 const aggregatorSwapAction = z.object({
-  type: z.literal("ACTION_TYPE_AGGREGATOR_SWAP"),
+  type: z.literal('ACTION_TYPE_AGGREGATOR_SWAP'),
   aggregatorSwap: z.object({
     swaps: z.array(
       z.object({
         tokenIn: token,
         tokenOut: token,
-      })
+      }),
     ),
   }),
 });
@@ -189,7 +175,7 @@ const aggregatorSwapAction = z.object({
 export type AggregatorSwapAction = z.infer<typeof aggregatorSwapAction>;
 
 const addliquidtyAction = z.object({
-  type: z.literal("ACTION_TYPE_ADD_LIQUIDITY"),
+  type: z.literal('ACTION_TYPE_ADD_LIQUIDITY'),
   addLiquidity: z.object({
     token0: token,
     token1: token,
@@ -199,20 +185,20 @@ const addliquidtyAction = z.object({
 export type AddLiquidityAction = z.infer<typeof addliquidtyAction>;
 
 const poolSwapAction = z.object({
-  type: z.literal("ACTION_TYPE_POOL_SWAP"),
+  type: z.literal('ACTION_TYPE_POOL_SWAP'),
   poolSwap: z.object({
     swaps: z.array(
       z.object({
         tokenIn: token,
         tokenOut: token,
-      })
+      }),
     ),
   }),
 });
 export type PoolSwapAction = z.infer<typeof poolSwapAction>;
 
 const protocolFeeAction = z.object({
-  type: z.literal("ACTION_TYPE_PROTOCOL_FEE"),
+  type: z.literal('ACTION_TYPE_PROTOCOL_FEE'),
   protocolFee: z.object({
     pcm: z.number(),
     tokens: z.array(token).optional(),
@@ -222,7 +208,7 @@ const protocolFeeAction = z.object({
 export type ProtocolFeeAction = z.infer<typeof protocolFeeAction>;
 
 const refundAction = z.object({
-  type: z.literal("ACTION_TYPE_REFUND"),
+  type: z.literal('ACTION_TYPE_REFUND'),
   refund: z.object({
     tokens: z.array(token),
   }),
@@ -267,7 +253,7 @@ const apiResponse = z.object({
   zapDetails: z.object({
     initialAmountUsd: z.string(),
     actions: z.array(
-      z.discriminatedUnion("type", [
+      z.discriminatedUnion('type', [
         removeLiquidityAction,
         protocolFeeAction,
         aggregatorSwapAction,
@@ -276,7 +262,7 @@ const apiResponse = z.object({
 
         addliquidtyAction,
         refundAction,
-      ])
+      ]),
     ),
 
     finalAmountUsd: z.string(),
