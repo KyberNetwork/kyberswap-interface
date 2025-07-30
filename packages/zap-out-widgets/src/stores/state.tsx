@@ -1,7 +1,8 @@
-import { PATHS, CHAIN_ID_TO_CHAIN, poolTypeToDexId } from "@/constants";
-import { ChainId, PoolType, Token } from "@/schema";
-import { z } from "zod";
-import { create } from "zustand";
+import { z } from 'zod';
+import { create } from 'zustand';
+
+import { CHAIN_ID_TO_CHAIN, PATHS, poolTypeToDexId } from '@/constants';
+import { ChainId, PoolType, Token } from '@/schema';
 
 interface ZapOutUserState {
   ttl: number;
@@ -41,8 +42,8 @@ interface ZapOutUserState {
   manualSlippage: boolean;
   setManualSlippage: (value: boolean) => void;
   resetState: () => void;
-  mode: "zapOut" | "withdrawOnly";
-  setMode: (mode: "zapOut" | "withdrawOnly") => void;
+  mode: 'zapOut' | 'withdrawOnly';
+  setMode: (mode: 'zapOut' | 'withdrawOnly') => void;
 }
 
 const initState = {
@@ -58,16 +59,16 @@ const initState = {
   fetchingRoute: false,
   route: null,
   manualSlippage: false,
-  mode: "zapOut" as const,
+  mode: 'zapOut' as const,
 };
 
 export const useZapOutUserState = create<ZapOutUserState>((set, get) => ({
   ...initState,
   resetState: () => set({ ...initState }),
   setTtl: (value: number) => set({ ttl: value }),
-  setTokenOut: (token) => set({ tokenOut: token }),
-  toggleSetting: (highlightDegenMode) => {
-    set((state) => ({
+  setTokenOut: token => set({ tokenOut: token }),
+  toggleSetting: highlightDegenMode => {
+    set(state => ({
       showSetting: !state.showSetting,
       highlightDegenMode: Boolean(highlightDegenMode),
     }));
@@ -78,29 +79,22 @@ export const useZapOutUserState = create<ZapOutUserState>((set, get) => ({
     }
   },
 
-  toggleDegenMode: () => set((state) => ({ degenMode: !state.degenMode })),
+  toggleDegenMode: () => set(state => ({ degenMode: !state.degenMode })),
 
-  toggleRevertPrice: () =>
-    set((state) => ({ revertPrice: !state.revertPrice })),
+  toggleRevertPrice: () => set(state => ({ revertPrice: !state.revertPrice })),
 
   setSlippage: (value: number) => set({ slippage: value }),
 
   setLiquidityOut: (liquidityOut: bigint) => set({ liquidityOut }),
 
-  setMode: (mode: "zapOut" | "withdrawOnly") => set({ mode }),
+  setMode: (mode: 'zapOut' | 'withdrawOnly') => set({ mode }),
 
-  togglePreview: () => set((state) => ({ showPreview: !state.showPreview })),
+  togglePreview: () => set(state => ({ showPreview: !state.showPreview })),
 
-  fetchZapOutRoute: async ({
-    chainId,
-    poolType,
-    positionId,
-    poolAddress,
-    signal,
-  }) => {
+  fetchZapOutRoute: async ({ chainId, poolType, positionId, poolAddress, signal }) => {
     const { tokenOut, liquidityOut, slippage, mode } = get();
 
-    if ((mode === "zapOut" && !tokenOut?.address) || liquidityOut === 0n) {
+    if ((mode === 'zapOut' && !tokenOut?.address) || liquidityOut === 0n) {
       set({ fetchingRoute: false, route: null });
       return;
     }
@@ -108,28 +102,25 @@ export const useZapOutUserState = create<ZapOutUserState>((set, get) => ({
     set({ fetchingRoute: true });
     const params: { [key: string]: string | number | boolean } = {
       dexFrom: poolTypeToDexId[poolType],
-      "poolFrom.id": poolAddress,
-      "positionFrom.id": positionId,
+      'poolFrom.id': poolAddress,
+      'positionFrom.id': positionId,
       liquidityOut: liquidityOut.toString(),
       slippage,
-      ...(mode === "zapOut" &&
+      ...(mode === 'zapOut' &&
         tokenOut?.address && {
           tokenOut: tokenOut.address,
         }),
     };
 
-    let search = "";
-    Object.keys(params).forEach((key) => {
+    let search = '';
+    Object.keys(params).forEach(key => {
       search = `${search}&${key}=${params[key]}`;
     });
 
     try {
-      const res = await fetch(
-        `${PATHS.ZAP_API}/${
-          CHAIN_ID_TO_CHAIN[chainId]
-        }/api/v1/out/route?${search.slice(1)}`,
-        { signal },
-      ).then((res) => res.json());
+      const res = await fetch(`${PATHS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/out/route?${search.slice(1)}`, {
+        signal,
+      }).then(res => res.json());
 
       if (!res.data) {
         set({ route: null, fetchingRoute: false });
@@ -138,7 +129,7 @@ export const useZapOutUserState = create<ZapOutUserState>((set, get) => ({
       apiResponse.parse(res.data);
       set({ route: res.data, fetchingRoute: false });
     } catch (e) {
-      if (signal?.aborted || (e as any)?.name === "AbortError") {
+      if (signal?.aborted || (e as any)?.name === 'AbortError') {
         return;
       }
       console.log(e);
@@ -146,7 +137,7 @@ export const useZapOutUserState = create<ZapOutUserState>((set, get) => ({
     }
   },
 
-  setManualSlippage: (value) => set({ manualSlippage: value }),
+  setManualSlippage: value => set({ manualSlippage: value }),
 }));
 
 const token = z.object({
@@ -156,7 +147,7 @@ const token = z.object({
 });
 
 const removeLiquidityAction = z.object({
-  type: z.literal("ACTION_TYPE_REMOVE_LIQUIDITY"),
+  type: z.literal('ACTION_TYPE_REMOVE_LIQUIDITY'),
   removeLiquidity: z.object({
     tokens: z.array(token),
     fees: z.array(token).optional(),
@@ -166,7 +157,7 @@ const removeLiquidityAction = z.object({
 export type RemoveLiquidityAction = z.infer<typeof removeLiquidityAction>;
 
 const aggregatorSwapAction = z.object({
-  type: z.literal("ACTION_TYPE_AGGREGATOR_SWAP"),
+  type: z.literal('ACTION_TYPE_AGGREGATOR_SWAP'),
   aggregatorSwap: z.object({
     swaps: z.array(
       z.object({
@@ -180,7 +171,7 @@ const aggregatorSwapAction = z.object({
 export type AggregatorSwapAction = z.infer<typeof aggregatorSwapAction>;
 
 const refundAction = z.object({
-  type: z.literal("ACTION_TYPE_REFUND"),
+  type: z.literal('ACTION_TYPE_REFUND'),
   refund: z.object({
     tokens: z.array(token),
   }),
@@ -197,13 +188,13 @@ const apiResponse = z.object({
     priceImpact: z.number().nullable().optional(),
     suggestedSlippage: z.number(),
     actions: z.array(
-      z.discriminatedUnion("type", [
+      z.discriminatedUnion('type', [
         removeLiquidityAction,
 
         aggregatorSwapAction,
 
         z.object({
-          type: z.literal("ACTION_TYPE_POOL_SWAP"),
+          type: z.literal('ACTION_TYPE_POOL_SWAP'),
           poolSwap: z.object({
             swaps: z.array(
               z.object({
@@ -217,7 +208,7 @@ const apiResponse = z.object({
         refundAction,
 
         z.object({
-          type: z.literal("ACTION_TYPE_PROTOCOL_FEE"),
+          type: z.literal('ACTION_TYPE_PROTOCOL_FEE'),
           protocolFee: z.object({
             pcm: z.number(),
             tokens: z.array(token).optional(),
