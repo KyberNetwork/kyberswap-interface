@@ -244,7 +244,9 @@ export function EstimateLiqValue({ chainId }: { chainId: ChainId }) {
                   </div>
                 </MouseoverTooltip>
 
-                {refunds.length > 0 ? (
+                {fetchingRoute ? (
+                  <Skeleton className="w-[60px] h-3" />
+                ) : refunds.length > 0 ? (
                   <div>
                     {formatCurrency(refundUsd)}
                     <InfoHelper
@@ -293,7 +295,9 @@ export function EstimateLiqValue({ chainId }: { chainId: ChainId }) {
                   Zap Impact
                 </span>
               </MouseoverTooltip>
-              {route ? (
+              {fetchingRoute ? (
+                <Skeleton className="w-[60px] h-3" />
+              ) : route ? (
                 <div
                   className={`text-xs  ${
                     zapPiRes.level === PI_LEVEL.VERY_HIGH ||

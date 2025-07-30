@@ -14,7 +14,7 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-  MouseoverTooltip
+  MouseoverTooltip,
 } from "@kyber/ui";
 import { formatDisplayNumber } from "@kyber/utils/number";
 import { formatUnits } from "@kyber/utils/crypto";
@@ -165,7 +165,7 @@ export const SwapPI = ({ chainId }: { chainId: ChainId }) => {
   const { swapPi, swapPiRes } = useSwapPI(chainId);
 
   return (
-    <div className="flex justify-between items-start w-full">
+    <div className="flex justify-between items-start w-full mt-2">
       {swapPi.length ? (
         <Accordion type="single" collapsible className="w-full">
           <AccordionItem value="item-1">
@@ -179,8 +179,8 @@ export const SwapPI = ({ chainId }: { chainId: ChainId }) => {
                     swapPiRes.piRes.level === PI_LEVEL.NORMAL
                       ? "text-subText"
                       : swapPiRes.piRes.level === PI_LEVEL.HIGH
-                      ? "!text-warning !border-warning"
-                      : "!text-error !border-error"
+                        ? "!text-warning !border-warning"
+                        : "!text-error !border-error"
                   }`}
                 >
                   Swap Price Impact
@@ -194,8 +194,8 @@ export const SwapPI = ({ chainId }: { chainId: ChainId }) => {
                     item.piRes.level === PI_LEVEL.NORMAL
                       ? "text-subText brightness-125"
                       : item.piRes.level === PI_LEVEL.HIGH
-                      ? "text-warning"
-                      : "text-error"
+                        ? "text-warning"
+                        : "text-error"
                   }`}
                   key={index}
                 >
