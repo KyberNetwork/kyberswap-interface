@@ -1,20 +1,12 @@
-import { getFunctionSelector } from "@kyber/utils/crypto";
-import {
-  ChainId,
-  Dex,
-  Pool,
-  Token,
-  tick,
-  token,
-  univ2Dexes,
-  univ3Dexes,
-  univ4Dexes,
-} from "../schema";
-import { Theme, defaultTheme } from "../theme";
-import { z } from "zod";
-import { create } from "zustand";
-import { NETWORKS_INFO, NATIVE_TOKEN_ADDRESS, PATHS } from "../constants";
-import { MAX_TICK, MIN_TICK, nearestUsableTick } from "@kyber/utils/uniswapv3";
+import { z } from 'zod';
+import { create } from 'zustand';
+
+import { getFunctionSelector } from '@kyber/utils/crypto';
+import { MAX_TICK, MIN_TICK, nearestUsableTick } from '@kyber/utils/uniswapv3';
+
+import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, PATHS } from '@/constants';
+import { ChainId, Dex, Pool, Token, tick, token, univ2Dexes, univ3Dexes, univ4Dexes } from '@/schema';
+import { Theme, defaultTheme } from '@/theme';
 
 interface GetPoolParams {
   chainId: ChainId;
@@ -22,13 +14,10 @@ interface GetPoolParams {
   dexFrom: Dex;
   poolTo: string;
   dexTo: Dex;
-  fetchPrices: (params: {
-    addresses: string[];
-    chainId: ChainId;
-  }) => Promise<{ [key: string]: { PriceBuy: number } }>;
+  fetchPrices: (params: { addresses: string[]; chainId: ChainId }) => Promise<{ [key: string]: { PriceBuy: number } }>;
 }
 interface PoolsState {
-  pools: "loading" | [Pool, Pool];
+  pools: 'loading' | [Pool, Pool];
   error: string;
   getPools: (params: GetPoolParams) => void;
   theme: Theme;
@@ -39,26 +28,26 @@ interface PoolsState {
 // Create a mapping object for string to Dex enum
 const dexMapping: Record<Dex, string[]> = {
   // uni v3 forks
-  [Dex.DEX_UNISWAPV3]: ["uniswapv3"],
-  [Dex.DEX_PANCAKESWAPV3]: ["pancake-v3"],
-  [Dex.DEX_METAVAULTV3]: ["metavault-v3"],
-  [Dex.DEX_LINEHUBV3]: ["linehub-v3"],
-  [Dex.DEX_SWAPMODEV3]: ["baseswap-v3", "arbidex-v3", "superswap-v3"],
-  [Dex.DEX_KOICL]: ["koi-cl"],
-  [Dex.DEX_THRUSTERV3]: ["thruster-v3"],
-  [Dex.DEX_SUSHISWAPV3]: ["sushiswap-v3"],
+  [Dex.DEX_UNISWAPV3]: ['uniswapv3'],
+  [Dex.DEX_PANCAKESWAPV3]: ['pancake-v3'],
+  [Dex.DEX_METAVAULTV3]: ['metavault-v3'],
+  [Dex.DEX_LINEHUBV3]: ['linehub-v3'],
+  [Dex.DEX_SWAPMODEV3]: ['baseswap-v3', 'arbidex-v3', 'superswap-v3'],
+  [Dex.DEX_KOICL]: ['koi-cl'],
+  [Dex.DEX_THRUSTERV3]: ['thruster-v3'],
+  [Dex.DEX_SUSHISWAPV3]: ['sushiswap-v3'],
 
-  [Dex.DEX_THENAFUSION]: ["thena-fusion"],
-  [Dex.DEX_CAMELOTV3]: ["camelot-v3"],
-  [Dex.DEX_QUICKSWAPV3ALGEBRA]: ["quickswap-v3"],
-  [Dex.DEX_KODIAK_V3]: ["kodiak-v3"],
-  [Dex.DEX_SQUADSWAP_V3]: ["squadswap-v3"],
+  [Dex.DEX_THENAFUSION]: ['thena-fusion'],
+  [Dex.DEX_CAMELOTV3]: ['camelot-v3'],
+  [Dex.DEX_QUICKSWAPV3ALGEBRA]: ['quickswap-v3'],
+  [Dex.DEX_KODIAK_V3]: ['kodiak-v3'],
+  [Dex.DEX_SQUADSWAP_V3]: ['squadswap-v3'],
 
-  [Dex.DEX_UNISWAPV2]: ["uniswap"],
-  [Dex.DEX_SQUADSWAP_V2]: ["squadswap"],
+  [Dex.DEX_UNISWAPV2]: ['uniswap'],
+  [Dex.DEX_SQUADSWAP_V2]: ['squadswap'],
 
-  [Dex.DEX_UNISWAP_V4]: ["uniswap-v4"],
-  [Dex.DEX_UNISWAP_V4_FAIRFLOW]: ["uniswap-v4-fairflow"],
+  [Dex.DEX_UNISWAP_V4]: ['uniswap-v4'],
+  [Dex.DEX_UNISWAP_V4_FAIRFLOW]: ['uniswap-v4-fairflow'],
 } as const;
 
 const poolResponse = z.object({
@@ -68,22 +57,15 @@ const poolResponse = z.object({
         .object({
           address: z.string(),
           swapFee: z.number(),
-          exchange: z
-            .enum(Object.values(dexMapping).flat() as [string, ...string[]])
-            .transform((val) => {
-              // Reverse lookup in the enum
-              const dexEnumKey = Object.keys(dexMapping).find((key) =>
-                dexMapping[+key as Dex].includes(val)
-              );
-              if (!dexEnumKey) {
-                throw new Error(`No enum value for exchange: ${val}`);
-              }
-              return parseInt(dexEnumKey, 10) as Dex;
-            }),
-          tokens: z.tuple([
-            token.pick({ address: true }),
-            token.pick({ address: true }),
-          ]),
+          exchange: z.enum(Object.values(dexMapping).flat() as [string, ...string[]]).transform(val => {
+            // Reverse lookup in the enum
+            const dexEnumKey = Object.keys(dexMapping).find(key => dexMapping[+key as Dex].includes(val));
+            if (!dexEnumKey) {
+              throw new Error(`No enum value for exchange: ${val}`);
+            }
+            return parseInt(dexEnumKey, 10) as Dex;
+          }),
+          tokens: z.tuple([token.pick({ address: true }), token.pick({ address: true })]),
           positionInfo: z.object({
             liquidity: z.string(),
             sqrtPriceX96: z.string(),
@@ -107,60 +89,48 @@ const poolResponse = z.object({
               z.object({
                 address: z.string(),
                 swappable: z.boolean(),
-              })
+              }),
             ),
             extraFields: z.object({
               fee: z.number(),
               feePrecision: z.number(),
             }),
-          })
-        )
+          }),
+        ),
     ),
   }),
 });
 
 const initState = {
-  pools: "loading" as "loading" | [Pool, Pool],
-  error: "",
+  pools: 'loading' as 'loading' | [Pool, Pool],
+  error: '',
   theme: defaultTheme,
 };
 export const usePoolsStore = create<PoolsState>((set, get) => ({
   ...initState,
   reset: () => set(initState),
   setTheme: (theme: Theme) => set({ theme }),
-  getPools: async ({
-    chainId,
-    poolFrom,
-    poolTo,
-    dexFrom,
-    dexTo,
-    fetchPrices,
-  }: GetPoolParams) => {
+  getPools: async ({ chainId, poolFrom, poolTo, dexFrom, dexTo, fetchPrices }: GetPoolParams) => {
     try {
       const res = await fetch(
-        `${PATHS.BFF_API}/v1/pools?chainId=${chainId}&ids=${poolFrom},${poolTo}&protocol=${Dex[dexFrom]}`
-      ).then((res) => res.json());
+        `${PATHS.BFF_API}/v1/pools?chainId=${chainId}&ids=${poolFrom},${poolTo}&protocol=${Dex[dexFrom]}`,
+      ).then(res => res.json());
 
       const isUniV3 = univ3Dexes.includes(dexFrom);
       const isUniV2 = univ2Dexes.includes(dexFrom);
 
       const { success, data, error } = poolResponse.safeParse(res);
 
-      const firstLoad = get().pools === "loading";
+      const firstLoad = get().pools === 'loading';
       if (!success) {
         firstLoad && set({ error: `Can't get pool info ${error.toString()}` });
         return;
       }
 
-      const fromPool = data.data.pools.find(
-        (item) => item.address.toLowerCase() === poolFrom.toLowerCase()
-      );
-      const toPool = data.data.pools.find(
-        (item) => item.address.toLowerCase() === poolTo.toLowerCase()
-      );
+      const fromPool = data.data.pools.find(item => item.address.toLowerCase() === poolFrom.toLowerCase());
+      const toPool = data.data.pools.find(item => item.address.toLowerCase() === poolTo.toLowerCase());
       if (!fromPool) {
-        firstLoad &&
-          set({ error: `Can't get pool info, address: ${poolFrom}` });
+        firstLoad && set({ error: `Can't get pool info, address: ${poolFrom}` });
         return;
       }
       if (!toPool) {
@@ -172,18 +142,13 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
       const isToUniV4 = univ4Dexes.includes(dexTo);
 
       const sourceStaticExtra =
-        "staticExtra" in fromPool && fromPool.staticExtra
-          ? JSON.parse(fromPool.staticExtra)
-          : null;
-      const targetStaticExtra =
-        "staticExtra" in toPool && toPool.staticExtra
-          ? JSON.parse(toPool.staticExtra)
-          : null;
+        'staticExtra' in fromPool && fromPool.staticExtra ? JSON.parse(fromPool.staticExtra) : null;
+      const targetStaticExtra = 'staticExtra' in toPool && toPool.staticExtra ? JSON.parse(toPool.staticExtra) : null;
 
-      const isFromToken0Native = isFromUniV4 && sourceStaticExtra?.["0x0"]?.[0];
-      const isFromToken1Native = isFromUniV4 && sourceStaticExtra?.["0x0"]?.[1];
-      const isToToken0Native = isToUniV4 && targetStaticExtra?.["0x0"]?.[0];
-      const isToToken1Native = isToUniV4 && targetStaticExtra?.["0x0"]?.[1];
+      const isFromToken0Native = isFromUniV4 && sourceStaticExtra?.['0x0']?.[0];
+      const isFromToken1Native = isFromUniV4 && sourceStaticExtra?.['0x0']?.[1];
+      const isToToken0Native = isToUniV4 && targetStaticExtra?.['0x0']?.[0];
+      const isToToken1Native = isToUniV4 && targetStaticExtra?.['0x0']?.[1];
 
       const fromPoolToken0Address = isFromToken0Native
         ? NATIVE_TOKEN_ADDRESS.toLowerCase()
@@ -191,19 +156,10 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
       const fromPoolToken1Address = isFromToken1Native
         ? NATIVE_TOKEN_ADDRESS.toLowerCase()
         : fromPool.tokens[1].address;
-      const toPoolToken0Address = isToToken0Native
-        ? NATIVE_TOKEN_ADDRESS.toLowerCase()
-        : toPool.tokens[0].address;
-      const toPoolToken1Address = isToToken1Native
-        ? NATIVE_TOKEN_ADDRESS.toLowerCase()
-        : toPool.tokens[1].address;
+      const toPoolToken0Address = isToToken0Native ? NATIVE_TOKEN_ADDRESS.toLowerCase() : toPool.tokens[0].address;
+      const toPoolToken1Address = isToToken1Native ? NATIVE_TOKEN_ADDRESS.toLowerCase() : toPool.tokens[1].address;
 
-      const addresses = [
-        fromPoolToken0Address,
-        fromPoolToken1Address,
-        toPoolToken0Address,
-        toPoolToken1Address,
-      ];
+      const addresses = [fromPoolToken0Address, fromPoolToken1Address, toPoolToken0Address, toPoolToken1Address];
 
       const tokens: {
         address: string;
@@ -211,45 +167,33 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
         name: string;
         symbol: string;
         decimals: number;
-      }[] = await fetch(
-        `${PATHS.KYBERSWAP_SETTING_API}/v1/tokens?chainIds=${chainId}&addresses=${addresses}`
-      )
-        .then((res) => res.json())
-        .then((res) => res?.data?.tokens || [])
+      }[] = await fetch(`${PATHS.KYBERSWAP_SETTING_API}/v1/tokens?chainIds=${chainId}&addresses=${addresses}`)
+        .then(res => res.json())
+        .then(res => res?.data?.tokens || [])
         .catch(() => []);
 
       const prices = await fetchPrices({
-        addresses: addresses.map((item) => item.toLowerCase()),
+        addresses: addresses.map(item => item.toLowerCase()),
         chainId,
       });
 
-      const enrichLogoAndPrice = async (
-        token: Pick<Token, "address">
-      ): Promise<Token | undefined> => {
+      const enrichLogoAndPrice = async (token: Pick<Token, 'address'>): Promise<Token | undefined> => {
         const price = prices[token.address.toLowerCase()];
-        let tk = tokens.find(
-          (item) => item.address.toLowerCase() === token.address.toLowerCase()
-        );
+        let tk = tokens.find(item => item.address.toLowerCase() === token.address.toLowerCase());
 
         if (!tk) {
-          const res = await fetch(
-            `${PATHS.KYBERSWAP_SETTING_API}/v1/tokens/import`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                tokens: [
-                  { chainId: chainId.toString(), address: token.address },
-                ],
-              }),
-            }
-          ).then((res) => res.json());
+          const res = await fetch(`${PATHS.KYBERSWAP_SETTING_API}/v1/tokens/import`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              tokens: [{ chainId: chainId.toString(), address: token.address }],
+            }),
+          }).then(res => res.json());
 
           tk = res?.data.tokens?.find(
-            (item: { data: Token }) =>
-              item.data.address.toLowerCase() === token.address.toLowerCase()
+            (item: { data: Token }) => item.data.address.toLowerCase() === token.address.toLowerCase(),
           )?.data;
           if (!tk) return;
         }
@@ -274,9 +218,9 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
       }
       // check category pair
       const pairCheck0 = await fetch(
-        `${PATHS.TOKEN_API}/v1/public/category/pair?chainId=${chainId}&tokenIn=${tokenFrom0.address}&tokenOut=${tokenFrom1.address}`
-      ).then((res) => res.json());
-      const cat = pairCheck0?.data?.category || "commonPair";
+        `${PATHS.TOKEN_API}/v1/public/category/pair?chainId=${chainId}&tokenIn=${tokenFrom0.address}&tokenOut=${tokenFrom1.address}`,
+      ).then(res => res.json());
+      const cat = pairCheck0?.data?.category || 'commonPair';
 
       let pool0: Pool;
       const p = fromPool as any;
@@ -324,9 +268,9 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
 
       // check category pair
       const pairCheck1 = await fetch(
-        `${PATHS.TOKEN_API}/v1/public/category/pair?chainId=${chainId}&tokenIn=${tokenTo0.address}&tokenOut=${tokenTo1.address}`
-      ).then((res) => res.json());
-      const cat1 = pairCheck1?.data?.category || "commonPair";
+        `${PATHS.TOKEN_API}/v1/public/category/pair?chainId=${chainId}&tokenIn=${tokenTo0.address}&tokenOut=${tokenTo1.address}`,
+      ).then(res => res.json());
+      const cat1 = pairCheck1?.data?.category || 'commonPair';
 
       const isPoolToUniV3 = univ3Dexes.includes(dexTo);
       const isPoolToUniV2 = univ2Dexes.includes(dexTo);
@@ -349,22 +293,22 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
           maxTick: nearestUsableTick(MAX_TICK, p1.positionInfo.tickSpacing),
         } as Pool;
       } else if (isPoolToUniV2) {
-        const totalSupplySelector = getFunctionSelector("totalSupply()");
+        const totalSupplySelector = getFunctionSelector('totalSupply()');
         const getPayload = (d: string) => {
           return {
-            method: "POST",
+            method: 'POST',
             headers: {
-              "Content-Type": "application/json",
+              'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              jsonrpc: "2.0",
-              method: "eth_call",
+              jsonrpc: '2.0',
+              method: 'eth_call',
               params: [
                 {
                   to: poolTo,
                   data: d,
                 },
-                "latest",
+                'latest',
               ],
               id: 1,
             }),
@@ -372,9 +316,9 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
         };
         const totalSupplyRes = await fetch(
           NETWORKS_INFO[chainId].defaultRpc,
-          getPayload(`0x${totalSupplySelector}`)
-        ).then((res) => res.json());
-        const totalSupply = BigInt(totalSupplyRes?.result || "0");
+          getPayload(`0x${totalSupplySelector}`),
+        ).then(res => res.json());
+        const totalSupply = BigInt(totalSupplyRes?.result || '0');
         pool1 = {
           address: poolTo,
           category: cat,
@@ -390,9 +334,9 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
         return;
       }
 
-      set({ pools: [pool0, pool1], error: "" });
+      set({ pools: [pool0, pool1], error: '' });
     } catch (e) {
-      if (get().pools === "loading") set({ error: "Can't get pool info" });
+      if (get().pools === 'loading') set({ error: "Can't get pool info" });
     }
   },
 }));

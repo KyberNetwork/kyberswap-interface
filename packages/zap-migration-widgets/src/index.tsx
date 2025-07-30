@@ -1,30 +1,27 @@
-import { fetchTokenPrice } from "@kyber/utils";
-import CircleChevronRight from "./assets/icons/circle-chevron-right.svg";
-import { Action } from "./components/Action";
-import { FromPool } from "./components/FromPool";
-import { Header } from "./components/Header";
-import { PoolInfo } from "./components/PoolInfo";
-import { Preview } from "./components/Preview";
-import { SourcePoolState } from "./components/SourcePoolState";
-import { TargetPoolState } from "./components/TargetPoolState";
-import { ToPool } from "./components/ToPool";
-import "./index.css";
-import "./index.scss";
-import { ChainId, Dex, DexFrom, DexTo } from "./schema";
-import { usePoolsStore } from "./stores/usePoolsStore";
-import { usePositionStore } from "./stores/usePositionStore";
-import { useZapStateStore } from "./stores/useZapStateStore";
-import { defaultTheme, Theme } from "./theme";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@kyber/ui";
-import "@kyber/ui/styles.css";
-import { cn } from "@kyber/utils/tailwind-helpers";
-import { useEffect } from "react";
+import { useEffect } from 'react';
+
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@kyber/ui';
+import '@kyber/ui/styles.css';
+import { fetchTokenPrice } from '@kyber/utils';
+import { cn } from '@kyber/utils/tailwind-helpers';
+
+import CircleChevronRight from '@/assets/icons/circle-chevron-right.svg';
+import { Action } from '@/components/Action';
+import { FromPool } from '@/components/FromPool';
+import { Header } from '@/components/Header';
+import { PoolInfo } from '@/components/PoolInfo';
+import { Preview } from '@/components/Preview';
+import { SourcePoolState } from '@/components/SourcePoolState';
+import { TargetPoolState } from '@/components/TargetPoolState';
+import { ToPool } from '@/components/ToPool';
+import { ChainId, Dex, DexFrom, DexTo } from '@/schema';
+import { usePoolsStore } from '@/stores/usePoolsStore';
+import { usePositionStore } from '@/stores/usePositionStore';
+import { useZapStateStore } from '@/stores/useZapStateStore';
+import { Theme, defaultTheme } from '@/theme';
+
+import './index.css';
+import './index.scss';
 
 export { Dex, ChainId };
 
@@ -50,13 +47,7 @@ export interface ZapMigrationProps {
   };
   onConnectWallet: () => void;
   onSwitchChain: () => void;
-  onSubmitTx: (txData: {
-    from: string;
-    to: string;
-    value: string;
-    data: string;
-    gasLimit: string;
-  }) => Promise<string>;
+  onSubmitTx: (txData: { from: string; to: string; value: string; data: string; gasLimit: string }) => Promise<string>;
   onViewPosition?: (txHash: string) => void;
   onBack?: () => void;
   initialTick?: {
@@ -68,11 +59,11 @@ export interface ZapMigrationProps {
 
 // createModalRoot.js
 const createModalRoot = () => {
-  let modalRoot = document.getElementById("ks-lw-migration-modal-root");
+  let modalRoot = document.getElementById('ks-lw-migration-modal-root');
   if (!modalRoot) {
-    modalRoot = document.createElement("div");
-    modalRoot.id = "ks-lw-migration-modal-root";
-    modalRoot.className = "ks-lw-migration-style";
+    modalRoot = document.createElement('div');
+    modalRoot.id = 'ks-lw-migration-modal-root';
+    modalRoot.className = 'ks-lw-migration-style';
     document.body.appendChild(modalRoot);
   }
 };
@@ -100,13 +91,7 @@ export const ZapMigration = (props: ZapMigrationProps) => {
     //feeConfig,
   } = props;
 
-  const {
-    getPools,
-    error: poolError,
-    setTheme,
-    pools,
-    reset: resetPools,
-  } = usePoolsStore();
+  const { getPools, error: poolError, setTheme, pools, reset: resetPools } = usePoolsStore();
   const { reset } = useZapStateStore();
   const { reset: resetPos, toPosition } = usePositionStore();
 
@@ -117,11 +102,7 @@ export const ZapMigration = (props: ZapMigrationProps) => {
     rawClose();
   };
 
-  const {
-    fetchPosition,
-    error: posError,
-    setToPositionNull,
-  } = usePositionStore();
+  const { fetchPosition, error: posError, setToPositionNull } = usePositionStore();
 
   const { showPreview, manualSlippage, setSlippage } = useZapStateStore();
 
@@ -132,8 +113,8 @@ export const ZapMigration = (props: ZapMigrationProps) => {
       ...theme,
     };
     setTheme(themeToApply);
-    const r = document.querySelector<HTMLElement>(":root");
-    Object.keys(themeToApply).forEach((key) => {
+    const r = document.querySelector<HTMLElement>(':root');
+    Object.keys(themeToApply).forEach(key => {
       r?.style.setProperty(`--ks-lw-${key}`, themeToApply[key as keyof Theme]);
     });
   }, [setTheme, theme]);
@@ -145,8 +126,7 @@ export const ZapMigration = (props: ZapMigrationProps) => {
     reset();
 
     fetchPosition(from.dex, chainId, from.positionId, from.poolId, true);
-    if (to.positionId)
-      fetchPosition(to.dex, chainId, to.positionId, to.poolId, false);
+    if (to.positionId) fetchPosition(to.dex, chainId, to.positionId, to.poolId, false);
     else setToPositionNull();
 
     const params = {
@@ -169,15 +149,11 @@ export const ZapMigration = (props: ZapMigrationProps) => {
   }, [chainId, from.poolId, to.poolId, from.dex, to.dex, getPools]);
 
   useEffect(() => {
-    if (pools === "loading" || manualSlippage) return;
-    if (
-      pools[0].category === "stablePair" &&
-      pools[1].category === "stablePair"
-    )
-      setSlippage(10);
+    if (pools === 'loading' || manualSlippage) return;
+    if (pools[0].category === 'stablePair' && pools[1].category === 'stablePair') setSlippage(10);
     else if (
-      pools[0].category === "correlatedPair" &&
-      pools[1].category === "correlatedPair" &&
+      pools[0].category === 'correlatedPair' &&
+      pools[1].category === 'correlatedPair' &&
       pools[0].address.toLowerCase() === pools[1].address.toLowerCase()
     ) {
       setSlippage(25);
@@ -185,26 +161,21 @@ export const ZapMigration = (props: ZapMigrationProps) => {
   }, [pools, manualSlippage]);
 
   return (
-    <div
-      className="ks-lw-migration-style"
-      style={{ width: "100%", height: "100%" }}
-    >
+    <div className="ks-lw-migration-style" style={{ width: '100%', height: '100%' }}>
       <Dialog onOpenChange={onClose} open={Boolean(poolError || posError)}>
         <DialogContent containerClassName="ks-lw-migration-style">
           <DialogHeader>
             <DialogTitle>Error</DialogTitle>
-            <DialogDescription className="text-red-500 mt-4">
-              {poolError || posError}
-            </DialogDescription>
+            <DialogDescription className="text-red-500 mt-4">{poolError || posError}</DialogDescription>
           </DialogHeader>
         </DialogContent>
       </Dialog>
 
       <div
         className={cn(
-          "bg-background w-full h-full max-w-[800px] border rounded-md p-6 border-stroke",
-          "text-text",
-          className
+          'bg-background w-full h-full max-w-[800px] border rounded-md p-6 border-stroke',
+          'text-text',
+          className,
         )}
       >
         <Header onClose={onClose} onBack={onBack} chainId={chainId} />
@@ -222,11 +193,7 @@ export const ZapMigration = (props: ZapMigrationProps) => {
 
           <div className="block md:!hidden">
             <CircleChevronRight className="text-primary w-8 h-8 p-1 rotate-90 mx-auto mb-4" />
-            <PoolInfo
-              pool={pools === "loading" ? "loading" : pools[1]}
-              chainId={chainId}
-              position={toPosition}
-            />
+            <PoolInfo pool={pools === 'loading' ? 'loading' : pools[1]} chainId={chainId} position={toPosition} />
           </div>
 
           <ToPool className="block md:!hidden" />

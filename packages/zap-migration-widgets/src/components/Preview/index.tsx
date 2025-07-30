@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react';
+
 import {
   Dialog,
   DialogContent,
@@ -5,43 +7,35 @@ import {
   DialogHeader,
   DialogPortal,
   DialogTitle,
-  ScrollArea,
-  MouseoverTooltip,
   InfoHelper,
-} from "@kyber/ui";
-import {
-  ProtocolFeeAction,
-  RefundAction,
-  useZapStateStore,
-} from "../../stores/useZapStateStore";
-import {
-  formatDisplayNumber,
-  formatTokenAmount,
-  toRawString,
-} from "@kyber/utils/number";
-import { usePoolsStore } from "../../stores/usePoolsStore";
-import AlertIcon from "../../assets/icons/circle-alert.svg";
-import LoadingIcon from "../../assets/icons/loader-circle.svg";
-import CheckIcon from "../../assets/icons/circle-check.svg";
-import { Image } from "../Image";
-import { DEXES_INFO, NETWORKS_INFO, PATHS } from "../../constants";
-import { ChainId, Token, univ2Dexes, UniV2Pool } from "../../schema";
-import { getPositionAmounts } from "@kyber/utils/uniswapv3";
-import { cn } from "@kyber/utils/tailwind-helpers";
-import { useEffect, useState } from "react";
+  MouseoverTooltip,
+  ScrollArea,
+} from '@kyber/ui';
+import { fetchTokenPrice } from '@kyber/utils';
 import {
   calculateGasMargin,
   estimateGas,
   formatUnits,
   getCurrentGasPrice,
   isTransactionSuccessful,
-} from "@kyber/utils/crypto";
-import { MigrationSummary } from "./MigrationSummary";
-import { SwapPI, useSwapPI } from "../SwapImpact";
-import { PI_LEVEL, formatCurrency } from "../../utils";
-import useCopy from "../../hooks/use-copy";
-import { SlippageInfo } from "../SlippageInfo";
-import { fetchTokenPrice } from "@kyber/utils";
+} from '@kyber/utils/crypto';
+import { formatDisplayNumber, formatTokenAmount, toRawString } from '@kyber/utils/number';
+import { cn } from '@kyber/utils/tailwind-helpers';
+import { getPositionAmounts } from '@kyber/utils/uniswapv3';
+
+import AlertIcon from '@/assets/icons/circle-alert.svg';
+import CheckIcon from '@/assets/icons/circle-check.svg';
+import LoadingIcon from '@/assets/icons/loader-circle.svg';
+import { Image } from '@/components/Image';
+import { MigrationSummary } from '@/components/Preview/MigrationSummary';
+import { SlippageInfo } from '@/components/SlippageInfo';
+import { SwapPI, useSwapPI } from '@/components/SwapImpact';
+import { DEXES_INFO, NETWORKS_INFO, PATHS } from '@/constants';
+import useCopy from '@/hooks/use-copy';
+import { ChainId, Token, UniV2Pool, univ2Dexes } from '@/schema';
+import { usePoolsStore } from '@/stores/usePoolsStore';
+import { ProtocolFeeAction, RefundAction, useZapStateStore } from '@/stores/useZapStateStore';
+import { PI_LEVEL, formatCurrency } from '@/utils';
 
 export function Preview({
   chainId,
@@ -54,32 +48,25 @@ export function Preview({
 }: {
   client: string;
   chainId: ChainId;
-  onSubmitTx: (txData: {
-    from: string;
-    to: string;
-    value: string;
-    data: string;
-    gasLimit: string;
-  }) => Promise<string>;
+  onSubmitTx: (txData: { from: string; to: string; value: string; data: string; gasLimit: string }) => Promise<string>;
   account: string | undefined;
   onClose: () => void;
   onViewPosition?: (txHash: string) => void;
   referral?: string;
 }) {
-  const { showPreview, togglePreview, tickLower, tickUpper, route, slippage } =
-    useZapStateStore();
+  const { showPreview, togglePreview, tickLower, tickUpper, route, slippage } = useZapStateStore();
   const { pools, theme } = usePoolsStore();
 
   const copyPoolAddress0 = useCopy({
-    text: pools === "loading" ? "" : pools[0].address,
-    copyClassName: "text-subText w-4 h-4",
-    successClassName: "w-4 h-4",
+    text: pools === 'loading' ? '' : pools[0].address,
+    copyClassName: 'text-subText w-4 h-4',
+    successClassName: 'w-4 h-4',
   });
 
   const copyPoolAddress1 = useCopy({
-    text: pools === "loading" ? "" : pools[1].address,
-    copyClassName: "text-subText w-4 h-4",
-    successClassName: "w-4 h-4",
+    text: pools === 'loading' ? '' : pools[1].address,
+    copyClassName: 'text-subText w-4 h-4',
+    successClassName: 'w-4 h-4',
   });
 
   const [buildData, setBuildData] = useState<{
@@ -87,32 +74,29 @@ export function Preview({
     routerAddress: string;
     value: string;
   } | null>(null);
-  const [error, setError] = useState<string>("");
+  const [error, setError] = useState<string>('');
 
   useEffect(() => {
     if (!route?.route || !showPreview) return;
-    fetch(
-      `${PATHS.ZAP_API}/${NETWORKS_INFO[chainId].zapPath}/api/v1/migrate/route/build`,
-      {
-        method: "POST",
-        body: JSON.stringify({
-          sender: account,
-          route: route.route,
-          burnNft: false,
-          source: client,
-          referral,
-        }),
-        headers: {
-          "x-client-id": client,
-        },
-      }
-    )
-      .then((res) => res.json())
-      .then((res) => {
+    fetch(`${PATHS.ZAP_API}/${NETWORKS_INFO[chainId].zapPath}/api/v1/migrate/route/build`, {
+      method: 'POST',
+      body: JSON.stringify({
+        sender: account,
+        route: route.route,
+        burnNft: false,
+        source: client,
+        referral,
+      }),
+      headers: {
+        'x-client-id': client,
+      },
+    })
+      .then(res => res.json())
+      .then(res => {
         if (res.data) setBuildData(res.data);
-        else setError(res.message || "build failed");
+        else setError(res.message || 'build failed');
       })
-      .catch((err) => {
+      .catch(err => {
         setError(err.message || JSON.stringify(err));
       });
   }, [route?.route, showPreview]);
@@ -124,31 +108,27 @@ export function Preview({
   useEffect(() => {
     if (!buildData || !account) return;
     (async () => {
-      const wethAddress =
-        NETWORKS_INFO[chainId].wrappedToken.address.toLowerCase();
+      const wethAddress = NETWORKS_INFO[chainId].wrappedToken.address.toLowerCase();
       const [gasEstimation, gasPrice, nativeTokenPrice] = await Promise.all([
         estimateGas(rpcUrl, {
           from: account,
           to: buildData.routerAddress,
-          value: "0x0", // alway use WETH when remove this this is alway 0
+          value: '0x0', // alway use WETH when remove this this is alway 0
           data: buildData.callData,
         }).catch(() => {
-          return "0";
+          return '0';
         }),
         getCurrentGasPrice(rpcUrl).catch(() => 0),
         fetchTokenPrice({
           addresses: [wethAddress],
           chainId,
         })
-          .then((prices) => {
+          .then(prices => {
             return prices[wethAddress]?.PriceBuy || 0;
           })
           .catch(() => 0),
       ]);
-      const gasUsd =
-        +formatUnits(gasPrice, 18) *
-        +gasEstimation.toString() *
-        nativeTokenPrice;
+      const gasUsd = +formatUnits(gasPrice, 18) * +gasEstimation.toString() * nativeTokenPrice;
 
       setGasUsd(gasUsd);
     })();
@@ -157,7 +137,7 @@ export function Preview({
   const [showProcessing, setShowProcessing] = useState(false);
   const [submiting, setSubmiting] = useState(false);
   const [txHash, setTxHash] = useState<string | null>(null);
-  const [txStatus, setTxStatus] = useState<"success" | "failed" | "">("");
+  const [txStatus, setTxStatus] = useState<'success' | 'failed' | ''>('');
 
   useEffect(() => {
     if (!txHash) return;
@@ -165,78 +145,57 @@ export function Preview({
       async () => {
         const res = await isTransactionSuccessful(rpcUrl, txHash);
         const isSuccess = res && res.status;
-        setTxStatus(isSuccess ? "success" : "failed");
+        setTxStatus(isSuccess ? 'success' : 'failed');
       },
-      chainId === ChainId.Ethereum ? 10_000 : 5_000
+      chainId === ChainId.Ethereum ? 10_000 : 5_000,
     );
     return () => clearInterval(i);
   }, [txHash, chainId]);
 
   const { zapPiRes } = useSwapPI(chainId);
 
-  const isTargetUniv2 =
-    pools !== "loading" && univ2Dexes.includes(pools[1].dex);
+  const isTargetUniv2 = pools !== 'loading' && univ2Dexes.includes(pools[1].dex);
 
-  if (route === null || pools === "loading" || !account) return null;
+  if (route === null || pools === 'loading' || !account) return null;
   let amount0 = 0n;
   let amount1 = 0n;
 
   const newUniv2PoolDetail = route?.poolDetails.uniswapV2;
-  const newOtherPoolDetail =
-    route?.poolDetails.uniswapV3 || route?.poolDetails.algebraV1;
+  const newOtherPoolDetail = route?.poolDetails.uniswapV3 || route?.poolDetails.algebraV1;
 
   if (isTargetUniv2 && newUniv2PoolDetail) {
     const p = pools[1] as UniV2Pool;
     amount0 =
-      (BigInt(route.positionDetails.addedLiquidity) *
-        BigInt(newUniv2PoolDetail.newReserve0)) /
+      (BigInt(route.positionDetails.addedLiquidity) * BigInt(newUniv2PoolDetail.newReserve0)) /
       BigInt(p.totalSupply || 0n);
     amount1 =
-      (BigInt(route.positionDetails.addedLiquidity) *
-        BigInt(newUniv2PoolDetail.newReserve1)) /
+      (BigInt(route.positionDetails.addedLiquidity) * BigInt(newUniv2PoolDetail.newReserve1)) /
       BigInt(p.totalSupply || 0n);
-  } else if (
-    !isTargetUniv2 &&
-    route !== null &&
-    tickLower !== null &&
-    tickUpper !== null &&
-    newOtherPoolDetail
-  ) {
+  } else if (!isTargetUniv2 && route !== null && tickLower !== null && tickUpper !== null && newOtherPoolDetail) {
     ({ amount0, amount1 } = getPositionAmounts(
       newOtherPoolDetail.newTick,
       tickLower,
       tickUpper,
       BigInt(newOtherPoolDetail.newSqrtP),
-      BigInt(route.positionDetails.addedLiquidity)
+      BigInt(route.positionDetails.addedLiquidity),
     ));
   }
 
-  const feeInfo = route?.zapDetails.actions.find(
-    (item) => item.type === "ACTION_TYPE_PROTOCOL_FEE"
-  ) as ProtocolFeeAction | undefined;
+  const feeInfo = route?.zapDetails.actions.find(item => item.type === 'ACTION_TYPE_PROTOCOL_FEE') as
+    | ProtocolFeeAction
+    | undefined;
 
   const zapFee = ((feeInfo?.protocolFee.pcm || 0) / 100_000) * 100;
 
-  const tokens: Token[] = [
-    pools[0].token0,
-    pools[0].token1,
-    pools[1].token0,
-    pools[1].token1,
-  ];
+  const tokens: Token[] = [pools[0].token0, pools[0].token1, pools[1].token0, pools[1].token1];
 
-  const refundInfo = route?.zapDetails.actions.find(
-    (item) => item.type === "ACTION_TYPE_REFUND"
-  ) as RefundAction | null;
+  const refundInfo = route?.zapDetails.actions.find(item => item.type === 'ACTION_TYPE_REFUND') as RefundAction | null;
 
-  const refundUsd =
-    refundInfo?.refund.tokens.reduce((acc, cur) => acc + +cur.amountUsd, 0) ||
-    0;
+  const refundUsd = refundInfo?.refund.tokens.reduce((acc, cur) => acc + +cur.amountUsd, 0) || 0;
 
   const refunds: { amount: string; symbol: string }[] = [];
-  refundInfo?.refund.tokens.forEach((refund) => {
-    const token = tokens.find(
-      (t) => t.address.toLowerCase() === refund.address.toLowerCase()
-    );
+  refundInfo?.refund.tokens.forEach(refund => {
+    const token = tokens.find(t => t.address.toLowerCase() === refund.address.toLowerCase());
     if (token) {
       refunds.push({
         amount: formatTokenAmount(BigInt(refund.amount), token.decimals),
@@ -251,26 +210,26 @@ export function Preview({
       content = (
         <div className="flex flex-col items-center">
           <div className="flex items-center justify-center gap-2 text-xl font-medium my-8">
-            {txStatus === "success" ? (
+            {txStatus === 'success' ? (
               <CheckIcon className="w-6 h-6 text-success" />
-            ) : txStatus === "failed" ? (
+            ) : txStatus === 'failed' ? (
               <AlertIcon className="w-6 h-6 text-error" />
             ) : (
               <LoadingIcon className="w-6 h-6 text-primary animate-spin" />
             )}
-            {txStatus === "success"
-              ? "Migrate Success!"
-              : txStatus === "failed"
-                ? "Transaction Failed!"
-                : "Processing Transaction"}
+            {txStatus === 'success'
+              ? 'Migrate Success!'
+              : txStatus === 'failed'
+                ? 'Transaction Failed!'
+                : 'Processing Transaction'}
           </div>
 
           <div className="text-subText">
-            {txStatus === "success"
-              ? "You have successfully added liquidity!"
-              : txStatus === "failed"
-                ? "An error occurred during the liquidity migration."
-                : "Transaction submitted. Waiting for the transaction to be mined"}
+            {txStatus === 'success'
+              ? 'You have successfully added liquidity!'
+              : txStatus === 'failed'
+                ? 'An error occurred during the liquidity migration.'
+                : 'Transaction submitted. Waiting for the transaction to be mined'}
           </div>
           <a
             className="text-primary text-xs mt-4"
@@ -283,16 +242,14 @@ export function Preview({
           <div className="flex gap-4 w-full mt-4">
             <button
               className={cn(
-                "flex-1 h-[40px] rounded-full border font-medium text-sm",
-                onViewPosition
-                  ? "border-stroke text-subText"
-                  : "border-primary bg-primary text-textRevert"
+                'flex-1 h-[40px] rounded-full border font-medium text-sm',
+                onViewPosition ? 'border-stroke text-subText' : 'border-primary bg-primary text-textRevert',
               )}
               onClick={onClose}
             >
               Close
             </button>
-            {txStatus === "success" && onViewPosition && (
+            {txStatus === 'success' && onViewPosition && (
               <button
                 className="flex-1 h-[40px] rounded-full border border-primary bg-primary text-textRevert text-sm font-medium"
                 onClick={() => onViewPosition(txHash)}
@@ -318,10 +275,7 @@ export function Preview({
             Failed to migrate
           </div>
           <ScrollArea className="mt-4">
-            <div
-              className="text-subText mt-6 break-all	text-center max-h-[200px]"
-              style={{ wordBreak: "break-word" }}
-            >
+            <div className="text-subText mt-6 break-all	text-center max-h-[200px]" style={{ wordBreak: 'break-word' }}>
               {error}
             </div>
           </ScrollArea>
@@ -332,12 +286,12 @@ export function Preview({
       <Dialog
         open={showProcessing}
         onOpenChange={() => {
-          if (txStatus === "success") {
+          if (txStatus === 'success') {
             onClose();
           }
           togglePreview();
           setShowProcessing(false);
-          setError("");
+          setError('');
           setSubmiting(false);
         }}
       >
@@ -348,12 +302,12 @@ export function Preview({
     );
   }
   const dexFrom =
-    typeof DEXES_INFO[pools[0].dex].name === "string"
+    typeof DEXES_INFO[pools[0].dex].name === 'string'
       ? (DEXES_INFO[pools[0].dex].name as string)
       : DEXES_INFO[pools[0].dex].name[chainId];
 
   const dexTo =
-    typeof DEXES_INFO[pools[1].dex].name === "string"
+    typeof DEXES_INFO[pools[1].dex].name === 'string'
       ? (DEXES_INFO[pools[1].dex].name as string)
       : DEXES_INFO[pools[1].dex].name[chainId];
 
@@ -361,34 +315,23 @@ export function Preview({
     <>
       <Dialog open={showPreview} onOpenChange={() => togglePreview()}>
         <DialogPortal>
-          <DialogContent
-            className="max-h-[700px] overflow-auto"
-            containerClassName="ks-lw-migration-style"
-          >
+          <DialogContent className="max-h-[700px] overflow-auto" containerClassName="ks-lw-migration-style">
             <DialogHeader>
               <DialogTitle>Migrate Liquidity via Zap</DialogTitle>
             </DialogHeader>
 
             <DialogDescription>
               <div>
-                Migrate{" "}
+                Migrate{' '}
                 {formatDisplayNumber(route.zapDetails.initialAmountUsd, {
-                  style: "currency",
-                })}{" "}
+                  style: 'currency',
+                })}{' '}
                 value
               </div>
               <div className="border border-stroke rounded-md p-4 mt-4 flex gap-2 items-start">
                 <div className="flex items-end">
-                  <Image
-                    src={pools[0].token0.logo || ""}
-                    alt={pools[0].token0.symbol}
-                    className="w-9 h-9 z-0"
-                  />
-                  <Image
-                    src={pools[0].token1.logo || ""}
-                    alt={pools[0].token1.symbol}
-                    className="w-9 h-9 -ml-3 z-10"
-                  />
+                  <Image src={pools[0].token0.logo || ''} alt={pools[0].token0.symbol} className="w-9 h-9 z-0" />
+                  <Image src={pools[0].token1.logo || ''} alt={pools[0].token1.symbol} className="w-9 h-9 -ml-3 z-10" />
                   <Image
                     src={NETWORKS_INFO[chainId].logo}
                     alt={NETWORKS_INFO[chainId].name}
@@ -397,35 +340,20 @@ export function Preview({
                 </div>
                 <div>
                   <div className="flex gap-1 items-center">
-                    {pools[0].token0.symbol}/{pools[0].token1.symbol}{" "}
-                    {copyPoolAddress0}
+                    {pools[0].token0.symbol}/{pools[0].token1.symbol} {copyPoolAddress0}
                   </div>
                   <div className="flex gap-1 items-center text-subText mt-1">
-                    <Image
-                      src={DEXES_INFO[pools[0].dex].icon}
-                      alt={dexFrom}
-                      className="w-3 h-3"
-                    />
+                    <Image src={DEXES_INFO[pools[0].dex].icon} alt={dexFrom} className="w-3 h-3" />
                     <div className="text-sm opacity-70">{dexFrom}</div>
-                    <div className="rounded-xl bg-layer2 px-2 py-1 text-xs">
-                      Fee {pools[0].fee}%
-                    </div>
+                    <div className="rounded-xl bg-layer2 px-2 py-1 text-xs">Fee {pools[0].fee}%</div>
                   </div>
                 </div>
               </div>
 
               <div className="border border-stroke rounded-md p-4 mt-4 flex gap-2 items-start">
                 <div className="flex items-end">
-                  <Image
-                    src={pools[1].token0.logo || ""}
-                    alt={pools[1].token0.symbol}
-                    className="w-9 h-9 z-0"
-                  />
-                  <Image
-                    src={pools[1].token1.logo || ""}
-                    alt={pools[1].token1.symbol}
-                    className="w-9 h-9 -ml-3 z-10"
-                  />
+                  <Image src={pools[1].token0.logo || ''} alt={pools[1].token0.symbol} className="w-9 h-9 z-0" />
+                  <Image src={pools[1].token1.logo || ''} alt={pools[1].token1.symbol} className="w-9 h-9 -ml-3 z-10" />
                   <Image
                     src={NETWORKS_INFO[chainId].logo}
                     alt={NETWORKS_INFO[chainId].name}
@@ -434,19 +362,12 @@ export function Preview({
                 </div>
                 <div>
                   <div className="flex gap-1 items-center">
-                    {pools[1].token0.symbol}/{pools[1].token1.symbol}{" "}
-                    {copyPoolAddress1}
+                    {pools[1].token0.symbol}/{pools[1].token1.symbol} {copyPoolAddress1}
                   </div>
                   <div className="flex gap-1 items-center text-subText mt-1">
-                    <Image
-                      src={DEXES_INFO[pools[1].dex].icon}
-                      alt={dexTo}
-                      className="w-3 h-3"
-                    />
+                    <Image src={DEXES_INFO[pools[1].dex].icon} alt={dexTo} className="w-3 h-3" />
                     <div className="text-sm opacity-70">{dexTo}</div>
-                    <div className="rounded-xl bg-layer2 px-2 py-1 text-xs">
-                      Fee {pools[1].fee}%
-                    </div>
+                    <div className="rounded-xl bg-layer2 px-2 py-1 text-xs">Fee {pools[1].fee}%</div>
                   </div>
                 </div>
               </div>
@@ -455,40 +376,28 @@ export function Preview({
                 <span className="text-subText text-sm">New Pool Liquidity</span>
                 <div className="flex justify-between items-start text-base mt-2">
                   <div className="flex items-center gap-1">
-                    <Image
-                      className="w-4 h-4"
-                      src={pools[1].token0.logo || ""}
-                      alt=""
-                    />
-                    {formatTokenAmount(amount0, pools[1].token0.decimals, 10)}{" "}
-                    {pools[1].token0.symbol}
+                    <Image className="w-4 h-4" src={pools[1].token0.logo || ''} alt="" />
+                    {formatTokenAmount(amount0, pools[1].token0.decimals, 10)} {pools[1].token0.symbol}
                   </div>
                   <div className="text-subText">
                     ~
                     {formatDisplayNumber(
-                      (pools[1].token0.price || 0) *
-                        Number(toRawString(amount0, pools[1].token0.decimals)),
-                      { style: "currency" }
+                      (pools[1].token0.price || 0) * Number(toRawString(amount0, pools[1].token0.decimals)),
+                      { style: 'currency' },
                     )}
                   </div>
                 </div>
 
                 <div className="flex justify-between items-start text-base mt-2">
                   <div className="flex items-center gap-1">
-                    <Image
-                      className="w-4 h-4"
-                      src={pools[1].token1.logo || ""}
-                      alt=""
-                    />
-                    {formatTokenAmount(amount1, pools[1].token1.decimals, 10)}{" "}
-                    {pools[1].token1.symbol}
+                    <Image className="w-4 h-4" src={pools[1].token1.logo || ''} alt="" />
+                    {formatTokenAmount(amount1, pools[1].token1.decimals, 10)} {pools[1].token1.symbol}
                   </div>
                   <div className="text-subText">
                     ~
                     {formatDisplayNumber(
-                      (pools[1].token1.price || 0) *
-                        Number(toRawString(amount1, pools[1].token1.decimals)),
-                      { style: "currency" }
+                      (pools[1].token1.price || 0) * Number(toRawString(amount1, pools[1].token1.decimals)),
+                      { style: 'currency' },
                     )}
                   </div>
                 </div>
@@ -511,9 +420,9 @@ export function Preview({
                       <InfoHelper
                         text={
                           <div>
-                            {refunds.map((refund) => (
+                            {refunds.map(refund => (
                               <div key={refund.symbol}>
-                                {refund.amount} {refund.symbol}{" "}
+                                {refund.amount} {refund.symbol}{' '}
                               </div>
                             ))}
                           </div>
@@ -526,10 +435,7 @@ export function Preview({
                 </div>
               )}
 
-              <SlippageInfo
-                slippage={slippage}
-                suggestedSlippage={route?.zapDetails.suggestedSlippage || 100}
-              />
+              <SlippageInfo slippage={slippage} suggestedSlippage={route?.zapDetails.suggestedSlippage || 100} />
 
               <div className="flex items-center justify-between mt-2">
                 <SwapPI chainId={chainId} />
@@ -542,13 +448,12 @@ export function Preview({
                 >
                   <span
                     className={cn(
-                      "text-subText border-b border-dotted border-subText text-xs",
-                      zapPiRes.level === PI_LEVEL.VERY_HIGH ||
-                        zapPiRes.level === PI_LEVEL.INVALID
-                        ? "text-error border-error"
+                      'text-subText border-b border-dotted border-subText text-xs',
+                      zapPiRes.level === PI_LEVEL.VERY_HIGH || zapPiRes.level === PI_LEVEL.INVALID
+                        ? 'text-error border-error'
                         : zapPiRes.level === PI_LEVEL.HIGH
-                          ? "text-warning border-warning"
-                          : "text-subText border-subText"
+                          ? 'text-warning border-warning'
+                          : 'text-subText border-subText',
                     )}
                   >
                     Zap Impact
@@ -557,48 +462,38 @@ export function Preview({
                 {route ? (
                   <div
                     className={`text-sm font-medium ${
-                      zapPiRes.level === PI_LEVEL.VERY_HIGH ||
-                      zapPiRes.level === PI_LEVEL.INVALID
-                        ? "text-error"
+                      zapPiRes.level === PI_LEVEL.VERY_HIGH || zapPiRes.level === PI_LEVEL.INVALID
+                        ? 'text-error'
                         : zapPiRes.level === PI_LEVEL.HIGH
-                          ? "text-warning"
-                          : "text-text"
+                          ? 'text-warning'
+                          : 'text-text'
                     }`}
                   >
                     {zapPiRes.display}
                   </div>
                 ) : (
-                  "--"
+                  '--'
                 )}
               </div>
 
               <div className="flex items-center justify-between mt-2">
-                <MouseoverTooltip
-                  text="Estimated network fee for your transaction."
-                  width="220px"
-                >
-                  <div className="text-subText text-xs border-b border-dotted border-subText">
-                    Est. Gas Fee
-                  </div>
+                <MouseoverTooltip text="Estimated network fee for your transaction." width="220px">
+                  <div className="text-subText text-xs border-b border-dotted border-subText">Est. Gas Fee</div>
                 </MouseoverTooltip>
-                <div className="text-sm">
-                  {gasUsd
-                    ? formatDisplayNumber(gasUsd, { style: "currency" })
-                    : "--"}
-                </div>
+                <div className="text-sm">{gasUsd ? formatDisplayNumber(gasUsd, { style: 'currency' }) : '--'}</div>
               </div>
 
               <div className="flex items-center justify-between mt-2">
                 <MouseoverTooltip
                   text={
                     <div>
-                      Fees charged for automatically zapping into a liquidity
-                      pool. You still have to pay the standard gas fees.{" "}
+                      Fees charged for automatically zapping into a liquidity pool. You still have to pay the standard
+                      gas fees.{' '}
                       <a
                         className="text-accent"
                         href={PATHS.DOCUMENT.ZAP_FEE_MODEL}
                         target="_blank"
-                        rel="noopener norefferer"
+                        rel="noopener noreferrer"
                       >
                         More details.
                       </a>
@@ -606,13 +501,9 @@ export function Preview({
                   }
                   width="220px"
                 >
-                  <div className="text-subText text-xs border-b border-dotted border-subText">
-                    Migration Fee
-                  </div>
+                  <div className="text-subText text-xs border-b border-dotted border-subText">Migration Fee</div>
                 </MouseoverTooltip>
-                <div className="text-sm font-medium">
-                  {parseFloat(zapFee.toFixed(3))}%
-                </div>
+                <div className="text-sm font-medium">{parseFloat(zapFee.toFixed(3))}%</div>
               </div>
 
               {(slippage > 2 * route.zapDetails.suggestedSlippage ||
@@ -624,8 +515,8 @@ export function Preview({
                   }}
                 >
                   {slippage > route.zapDetails.suggestedSlippage * 2
-                    ? "Your slippage is set higher than usual, which may cause unexpected losses."
-                    : "Your slippage is set lower than usual, increasing the risk of transaction failure."}
+                    ? 'Your slippage is set higher than usual, which may cause unexpected losses.'
+                    : 'Your slippage is set lower than usual, increasing the risk of transaction failure.'}
                 </div>
               )}
 
@@ -638,8 +529,8 @@ export function Preview({
                 </button>
                 <button
                   className={cn(
-                    "flex-1 h-[40px] rounded-full border border-primary bg-primary text-textRevert text-sm font-medium",
-                    "disabled:bg-stroke disabled:text-subText disabled:border-stroke disabled:cursor-not-allowed"
+                    'flex-1 h-[40px] rounded-full border border-primary bg-primary text-textRevert text-sm font-medium',
+                    'disabled:bg-stroke disabled:text-subText disabled:border-stroke disabled:cursor-not-allowed',
                   )}
                   onClick={async () => {
                     if (!buildData) {
@@ -650,20 +541,18 @@ export function Preview({
                     const txData = {
                       from: account,
                       to: buildData.routerAddress,
-                      value: "0x0", // alway use WETH when remove this this is alway 0
+                      value: '0x0', // alway use WETH when remove this this is alway 0
                       data: buildData.callData,
                     };
 
                     setShowProcessing(true);
                     setSubmiting(true);
-                    const gas = await estimateGas(rpcUrl, txData).catch(
-                      (err) => {
-                        console.log(err.message);
-                        setSubmiting(false);
-                        setError(`Estimate Gas Failed: ${err.message}`);
-                        return 0n;
-                      }
-                    );
+                    const gas = await estimateGas(rpcUrl, txData).catch(err => {
+                      console.log(err.message);
+                      setSubmiting(false);
+                      setError(`Estimate Gas Failed: ${err.message}`);
+                      return 0n;
+                    });
 
                     if (gas === 0n) return;
 
