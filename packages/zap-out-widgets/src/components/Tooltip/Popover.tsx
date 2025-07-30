@@ -1,8 +1,12 @@
-import { Placement } from "@popperjs/core";
-import { Portal } from "@kyber/ui";
-import React, { useCallback, useState } from "react";
-import { usePopper } from "react-popper";
-import useInterval from "@/hooks/useInterval";
+import React, { useCallback, useState } from 'react';
+
+import { usePopper } from 'react-popper';
+
+import { Placement } from '@popperjs/core';
+
+import { Portal } from '@kyber/ui';
+
+import useInterval from '@/hooks/useInterval';
 
 export interface PopoverProps {
   content: React.ReactNode;
@@ -17,28 +21,21 @@ export default function Popover({
   content,
   show,
   children,
-  placement = "auto",
+  placement = 'auto',
   noArrow = false,
-  className = "",
+  className = '',
 }: PopoverProps) {
-  const [referenceElement, setReferenceElement] =
-    useState<HTMLDivElement | null>(null);
-  const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(
-    null
-  );
+  const [referenceElement, setReferenceElement] = useState<HTMLDivElement | null>(null);
+  const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);
   const [arrowElement, setArrowElement] = useState<HTMLDivElement | null>(null);
-  const { styles, update, attributes } = usePopper(
-    referenceElement,
-    popperElement,
-    {
-      placement,
-      strategy: "fixed",
-      modifiers: [
-        { name: "offset", options: { offset: [8, 8] } },
-        { name: "arrow", options: { element: arrowElement } },
-      ],
-    }
-  );
+  const { styles, update, attributes } = usePopper(referenceElement, popperElement, {
+    placement,
+    strategy: 'fixed',
+    modifiers: [
+      { name: 'offset', options: { offset: [8, 8] } },
+      { name: 'arrow', options: { element: arrowElement } },
+    ],
+  });
   const updateCallback = useCallback(() => {
     update && update();
   }, [update]);
@@ -46,7 +43,7 @@ export default function Popover({
 
   return (
     <>
-      <div className={className + "inline-block"} ref={setReferenceElement}>
+      <div className={className + 'inline-block'} ref={setReferenceElement}>
         {children}
       </div>
       <Portal>
@@ -61,9 +58,7 @@ export default function Popover({
             {content}
             {noArrow || (
               <div
-                className={`arrow arrow-${
-                  attributes.popper?.["data-popper-placement"] ?? ""
-                }`}
+                className={`arrow arrow-${attributes.popper?.['data-popper-placement'] ?? ''}`}
                 ref={setArrowElement}
                 style={styles.arrow}
                 {...attributes.arrow}

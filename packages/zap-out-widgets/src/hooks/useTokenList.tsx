@@ -1,14 +1,7 @@
-import {
-  ReactNode,
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-import { PATHS } from "@/constants";
-import { ChainId, Pool, Token } from "@/schema";
+import { ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+
+import { PATHS } from '@/constants';
+import { ChainId, Pool, Token } from '@/schema';
 
 type TokenListContextState = {
   tokens: Token[];
@@ -39,17 +32,15 @@ export const TokenListProvider = ({
 }: {
   children: ReactNode;
   chainId: ChainId;
-  pool: "loading" | Pool;
+  pool: 'loading' | Pool;
 }) => {
   const [loading, setLoading] = useState(false);
   const [tokens, setTokens] = useState<Token[]>([]);
 
   const [importedTokens, setImportedTokens] = useState<Token[]>(() => {
-    if (typeof window !== "undefined") {
+    if (typeof window !== 'undefined') {
       try {
-        const localStorageTokens = JSON.parse(
-          localStorage.getItem("importedTokens") || "[]"
-        );
+        const localStorageTokens = JSON.parse(localStorage.getItem('importedTokens') || '[]');
 
         return localStorageTokens;
       } catch (e) {
@@ -62,31 +53,19 @@ export const TokenListProvider = ({
 
   const defaultToken = {
     decimals: undefined,
-    address: "",
-    logo: "",
-    symbol: "",
+    address: '',
+    logo: '',
+    symbol: '',
   };
-  const { address: token0Address } =
-    pool === "loading" ? defaultToken : pool.token0;
-  const { address: token1Address } =
-    pool === "loading" ? defaultToken : pool.token1;
+  const { address: token0Address } = pool === 'loading' ? defaultToken : pool.token0;
+  const { address: token1Address } = pool === 'loading' ? defaultToken : pool.token1;
 
   const allTokens = useMemo(() => {
     const mergedTokens = [...tokens, ...importedTokens];
-    if (
-      pool !== "loading" &&
-      !mergedTokens.find(
-        (t) => t.address.toLowerCase() === token0Address.toLowerCase()
-      )
-    )
+    if (pool !== 'loading' && !mergedTokens.find(t => t.address.toLowerCase() === token0Address.toLowerCase()))
       mergedTokens.push(pool.token0);
 
-    if (
-      pool !== "loading" &&
-      !mergedTokens.find(
-        (t) => t.address.toLowerCase() === token1Address.toLowerCase()
-      )
-    )
+    if (pool !== 'loading' && !mergedTokens.find(t => t.address.toLowerCase() === token1Address.toLowerCase()))
       mergedTokens.push(pool.token1);
 
     return mergedTokens;
@@ -94,50 +73,42 @@ export const TokenListProvider = ({
 
   const addToken = useCallback(
     (token: Token) => {
-      const newTokens = [
-        ...importedTokens.filter((t) => t.address !== token.address),
-        token,
-      ];
+      const newTokens = [...importedTokens.filter(t => t.address !== token.address), token];
       setImportedTokens(newTokens);
-      if (typeof window !== "undefined")
-        localStorage.setItem("importedTokens", JSON.stringify(newTokens));
+      if (typeof window !== 'undefined') localStorage.setItem('importedTokens', JSON.stringify(newTokens));
     },
-    [importedTokens]
+    [importedTokens],
   );
 
   const removeToken = useCallback(
     (token: Token) => {
-      const newTokens = importedTokens.filter(
-        (t) => t.address.toLowerCase() !== token.address.toLowerCase()
-      );
+      const newTokens = importedTokens.filter(t => t.address.toLowerCase() !== token.address.toLowerCase());
 
       setImportedTokens(newTokens);
-      if (typeof window !== "undefined")
-        localStorage.setItem("importedTokens", JSON.stringify(newTokens));
+      if (typeof window !== 'undefined') localStorage.setItem('importedTokens', JSON.stringify(newTokens));
     },
-    [importedTokens]
+    [importedTokens],
   );
 
   const removeAllTokens = useCallback(() => {
     setImportedTokens([]);
-    if (typeof window !== "undefined")
-      localStorage.removeItem("importedTokens");
+    if (typeof window !== 'undefined') localStorage.removeItem('importedTokens');
   }, []);
 
   const fetchTokenList = useCallback(() => {
     setLoading(true);
     const urls = [1, 2].map(
-      (page) =>
-        `${PATHS.KYBERSWAP_SETTING_API}/v1/tokens?page=${page}&pageSize=100&isWhitelisted=true&chainIds=${chainId}`
+      page =>
+        `${PATHS.KYBERSWAP_SETTING_API}/v1/tokens?page=${page}&pageSize=100&isWhitelisted=true&chainIds=${chainId}`,
     );
 
-    Promise.all(urls.map((url) => fetch(url).then((res) => res.json())))
-      .then((responses) => {
-        const allTokens = responses.flatMap((res) =>
+    Promise.all(urls.map(url => fetch(url).then(res => res.json())))
+      .then(responses => {
+        const allTokens = responses.flatMap(res =>
           res.data.tokens.map((item: Token & { logoURI: string }) => ({
             ...item,
             logo: item.logoURI,
-          }))
+          })),
         );
         setTokens(allTokens);
       })
@@ -151,7 +122,7 @@ export const TokenListProvider = ({
       setLoading(true);
       try {
         const res = await fetch(
-          `${PATHS.KYBERSWAP_SETTING_API}/v1/tokens?query=${address}&page=1&pageSize=100&chainIds=${chainId}`
+          `${PATHS.KYBERSWAP_SETTING_API}/v1/tokens?query=${address}&page=1&pageSize=100&chainIds=${chainId}`,
         );
         const { data } = await res.json();
 
@@ -162,7 +133,7 @@ export const TokenListProvider = ({
         setLoading(false);
       }
     },
-    [chainId]
+    [chainId],
   );
 
   useEffect(() => {
@@ -190,7 +161,7 @@ export const TokenListProvider = ({
 export const useTokenList = () => {
   const context = useContext(TokenListContext);
   if (context === undefined) {
-    throw new Error("useTokenList must be used within a TokenListProvider");
+    throw new Error('useTokenList must be used within a TokenListProvider');
   }
   return context;
 };
