@@ -74,13 +74,14 @@ export default function Action({
 
   // Animate dots for approving and loading states
   useEffect(() => {
-    if (nftApprovePendingTx) {
+    if (nftApprovePendingTx || initializing || zapLoading) {
       const interval = setInterval(() => {
         setDots(prev => (prev >= 3 ? 1 : prev + 1));
       }, 500);
       return () => clearInterval(interval);
     }
-  }, [nftApprovePendingTx, zapLoading]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nftApprovePendingTx, zapLoading, initializing, zapLoading]);
 
   const isNotOwner =
     positionOwner && connectedAccount?.address && positionOwner !== connectedAccount?.address?.toLowerCase()
@@ -94,6 +95,7 @@ export default function Action({
     FARMING_CONTRACTS[poolType]?.[chainId]?.toLowerCase() === positionOwner?.toLowerCase();
 
   const disabled =
+    initializing ||
     isNotOwner ||
     clickedApprove ||
     nftApprovePendingTx ||
@@ -117,11 +119,12 @@ export default function Action({
 
   const btnText = (() => {
     if (error) return error;
+    if (initializing) return `Loading${'.'.repeat(dots)}`;
     if (isNotOwner) {
       if (isFarming) return 'Your position is in farming';
       return 'Not the position owner';
     }
-    if (zapLoading) return 'Fetching Route...';
+    if (zapLoading) return `Fetching Route${'.'.repeat(dots)}`;
     if (nftApprovePendingTx) return `Approving${'.'.repeat(dots)}`;
     if (positionId && !nftApproved) return 'Approve NFT';
     if (isVeryHighPriceImpact || isVeryHighZapImpact || isInvalidZapImpact) return 'Zap anyway';

@@ -130,12 +130,13 @@ export default function Widget() {
             });
             setTxHash(txHash);
           } catch (e) {
-            setAttempTx(false);
+            // setAttempTx(false);
+            setTxStatus('failed');
             setTxError(e as Error);
           }
         }
-      })
-      .finally(() => setAttempTx(false));
+      });
+    // .finally(() => setAttempTx(false));
   }, [account, attempTx, chainId, onSubmitTx, rpcUrl, snapshotState, txError]);
 
   useEffect(() => {
@@ -144,12 +145,12 @@ export default function Widget() {
 
   let txStatusText = '';
   if (txHash) {
-    if (txError) txStatusText = 'Transaction failed';
-    else if (txStatus === 'success') txStatusText = 'Compound Completed';
-    else if (txStatus === 'failed') txStatusText = 'Transaction failed';
+    if (txStatus === 'success') txStatusText = 'Compound Completed';
+    else if (txStatus === 'failed' || txError) txStatusText = 'Transaction failed';
     else txStatusText = 'Processing transaction';
   } else {
-    txStatusText = 'Waiting For Confirmation';
+    if (txError) txStatusText = 'Transaction failed';
+    else txStatusText = 'Waiting For Confirmation';
   }
 
   const onCloseConfirm = () => {
@@ -190,7 +191,7 @@ export default function Widget() {
                 <div className="text-xl my-4">{txStatusText}</div>
               </div>
 
-              {!txHash && (
+              {!txHash && !txError && (
                 <div className="text-sm text-subText text-center">
                   Confirm this transaction in your wallet - Zapping{' '}
                   {positionId && isUniV3
