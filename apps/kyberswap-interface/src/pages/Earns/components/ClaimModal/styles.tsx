@@ -75,7 +75,7 @@ export const ClaimInfoRow = ({
     <Flex alignItems={'center'} sx={{ gap: '6px' }}>
       <Flex alignItems={'flex-end'}>
         <TokenLogo src={tokenImage} alt="tokenImage" />
-        <TokenLogo src={dexImage} size={14} alt="dexImage" />
+        <TokenLogo src={dexImage} size={14} alt="dexImage" translateLeft />
       </Flex>
       <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '100px' }}>
         {formatDisplayNumber(tokenAmount, {
