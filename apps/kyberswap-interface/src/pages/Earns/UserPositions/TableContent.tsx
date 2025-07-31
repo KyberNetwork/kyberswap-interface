@@ -323,7 +323,7 @@ export default function TableContent({
                     <Flex alignItems={'center'} sx={{ gap: 2 }} flexWrap={'wrap'}>
                       <ImageContainer>
                         <TokenLogo src={token0.logo} />
-                        <TokenLogo src={token1.logo} />
+                        <TokenLogo src={token1.logo} translateLeft />
                         <ChainImage src={NETWORKS_INFO[chain.id as ChainId]?.icon || chain.logo} alt="" />
                       </ImageContainer>
                       <Text marginLeft={-2} fontSize={upToSmall ? 15 : 16}>

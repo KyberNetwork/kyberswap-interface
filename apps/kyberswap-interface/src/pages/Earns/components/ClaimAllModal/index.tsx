@@ -124,6 +124,7 @@ export default function ClaimAllModal({
                             src={chain.chainLogo}
                             size={10}
                             alt={chain.chainName}
+                            translateLeft
                             style={{ position: 'relative', top: 4, border: `1px solid ${theme.black}` }}
                           />
                           <Text marginLeft={1}>
