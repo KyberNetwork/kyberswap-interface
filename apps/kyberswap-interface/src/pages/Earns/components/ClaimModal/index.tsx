@@ -115,16 +115,18 @@ const ClaimModal = ({
               </Text>
             </Flex>
 
-            {claimInfo.tokens.map((token, index) => (
-              <ClaimInfoRow
-                key={index}
-                dexImage={chainLogo}
-                tokenImage={token.logo}
-                tokenAmount={token.amount}
-                tokenSymbol={token.symbol}
-                tokenUsdValue={token.value}
-              />
-            ))}
+            {claimInfo.tokens
+              .sort((a, b) => b.value - a.value)
+              .map((token, index) => (
+                <ClaimInfoRow
+                  key={index}
+                  dexImage={chainLogo}
+                  tokenImage={token.logo}
+                  tokenAmount={token.amount}
+                  tokenSymbol={token.symbol}
+                  tokenUsdValue={token.value}
+                />
+              ))}
           </ClaimInfo>
         </ClaimInfoWrapper>
         <Row gap="16px" flexDirection={upToExtraSmall ? 'column-reverse' : 'row'}>
