@@ -159,27 +159,29 @@ const RewardSection = ({
             </Text>
           </Flex>
 
-          <NextDistribution>
-            <Flex alignItems={'center'}>
-              <Text fontSize={14} color={theme.subText}>
-                {t`Cycle ends in`}
-              </Text>
-              <InfoHelper placement="top" width="fit-content" text={t`Rewards are distributed every 7 days`} />
-            </Flex>
-
-            {initialLoading || !cycleConfig ? (
-              <PositionSkeleton width={112} height={16} />
-            ) : isUnfinalized ? (
-              <PositionSkeleton width={112} height={16} text="Finalizing..." />
-            ) : (
-              <Flex alignItems={'center'} sx={{ gap: 1 }}>
-                <Clock size={16} color={theme.subText} />
+          {!!cycleConfig && (
+            <NextDistribution>
+              <Flex alignItems={'center'}>
                 <Text fontSize={14} color={theme.subText}>
-                  {timeRemaining}
+                  {t`Cycle ends in`}
                 </Text>
+                <InfoHelper placement="top" width="fit-content" text={t`Rewards are distributed every 7 days`} />
               </Flex>
-            )}
-          </NextDistribution>
+
+              {initialLoading || !cycleConfig ? (
+                <PositionSkeleton width={112} height={16} />
+              ) : isUnfinalized ? (
+                <PositionSkeleton width={112} height={16} text="Finalizing..." />
+              ) : (
+                <Flex alignItems={'center'} sx={{ gap: 1 }}>
+                  <Clock size={16} color={theme.subText} />
+                  <Text fontSize={14} color={theme.subText}>
+                    {timeRemaining}
+                  </Text>
+                </Flex>
+              )}
+            </NextDistribution>
+          )}
 
           <Flex width={'100%'} alignItems={'center'} justifyContent={'space-between'}>
             {initialLoading ? (
