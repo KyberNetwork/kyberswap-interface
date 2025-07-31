@@ -59,7 +59,6 @@ export default function Action({
     loading: zapLoading,
     tickLower,
     tickUpper,
-    slippage,
     degenMode,
     tokensIn,
     amountsIn,
@@ -127,11 +126,11 @@ export default function Action({
     if (positionId && !nftApproved) return 'Approve NFT';
     if (isVeryHighPriceImpact || isVeryHighZapImpact || isInvalidZapImpact) return 'Zap anyway';
 
-    return 'Preview';
+    return 'Confirm';
   })();
 
   const hanldeClick = () => {
-    const { success: isUniV3Pool, data: univ3Pool } = univ3PoolNormalize.safeParse(pool);
+    const { success: isUniV3Pool } = univ3PoolNormalize.safeParse(pool);
     if (isNotConnected) {
       onConnectWallet();
       return;
@@ -161,15 +160,9 @@ export default function Action({
       date.setMinutes(date.getMinutes() + (ttl || 20));
 
       setSnapshotState({
-        tokensIn: tokensIn,
-        amountsIn,
         pool,
         zapInfo,
-        slippage,
         deadline: Math.floor(date.getTime() / 1000),
-        isFullRange: isUniV3Pool ? univ3Pool.minTick === tickUpper && univ3Pool.maxTick === tickLower : true,
-        tickUpper: tickUpper !== null ? tickUpper : 0,
-        tickLower: tickLower !== null ? tickLower : 0,
       });
     }
   };

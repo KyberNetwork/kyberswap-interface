@@ -1,4 +1,4 @@
-import { ChainId, Pool, PoolType, Token, ZapRouteDetail } from '@kyber/schema';
+import { ChainId, Pool, PoolType, ZapRouteDetail } from '@kyber/schema';
 
 export interface WidgetProps {
   poolAddress: string;
@@ -21,11 +21,5 @@ export interface WidgetProps {
 export interface ZapState {
   pool: Pool;
   zapInfo: ZapRouteDetail;
-  tokensIn: Token[];
-  amountsIn: string;
   deadline: number;
-  isFullRange: boolean;
-  slippage: number;
-  tickLower: number;
-  tickUpper: number;
 }

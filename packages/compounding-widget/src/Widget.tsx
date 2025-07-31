@@ -1,27 +1,35 @@
+import { useCallback, useEffect, useState } from 'react';
+
 import { useShallow } from 'zustand/shallow';
 
 import { useNftApproval } from '@kyber/hooks';
-import { NETWORKS_INFO } from '@kyber/schema';
-import { getNftManagerContractAddress } from '@kyber/utils';
+import { API_URLS, CHAIN_ID_TO_CHAIN, DEXES_INFO, NETWORKS_INFO, defaultToken, univ3Types } from '@kyber/schema';
+import { ScrollArea } from '@kyber/ui';
+import { friendlyError, getNftManagerContractAddress } from '@kyber/utils';
+import { calculateGasMargin, estimateGas, isTransactionSuccessful } from '@kyber/utils/crypto';
+import { cn } from '@kyber/utils/tailwind-helpers';
 
 import ChevronLeftIcon from '@/assets/svg/chevron-left.svg';
 import ErrorIcon from '@/assets/svg/error.svg';
+import Spinner from '@/assets/svg/loader.svg';
+import SuccessIcon from '@/assets/svg/success.svg';
 import Action from '@/components/Action';
 import EstLiqValue from '@/components/Content/EstLiqValue';
 import PriceInfo from '@/components/Content/PriceInfo';
+import ZapSummary from '@/components/Content/ZapSummary';
 import Header from '@/components/Header';
 import Modal from '@/components/Modal';
 import PositionLiquidity from '@/components/PositionLiquidity';
-import Preview from '@/components/Preview';
 import PriceRange from '@/components/PriceRange';
 import ReInvest from '@/components/ReInvest';
 import Setting from '@/components/Setting';
+import { ZAP_SOURCE } from '@/constants';
 import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
 export default function Widget() {
-  const { poolType, chainId, connectedAccount, onClose, positionId, onSubmitTx } = useWidgetStore(
+  const { poolType, chainId, connectedAccount, onClose, positionId, onSubmitTx, onViewPosition } = useWidgetStore(
     useShallow(s => ({
       poolType: s.poolType,
       chainId: s.chainId,
@@ -29,6 +37,7 @@ export default function Widget() {
       onClose: s.onClose,
       positionId: s.positionId,
       onSubmitTx: s.onSubmitTx,
+      onViewPosition: s.onViewPosition,
     })),
   );
   const { poolError } = usePoolStore(
@@ -53,6 +62,105 @@ export default function Widget() {
     onSubmitTx: onSubmitTx,
   });
 
+  const { address: account } = connectedAccount;
+  const rpcUrl = NETWORKS_INFO[chainId].defaultRpc;
+  const isUniV3 = univ3Types.includes(poolType as any);
+  const { token0 = defaultToken, token1 = defaultToken, fee: poolFee = 0 } = snapshotState ? snapshotState.pool : {};
+
+  const dexName =
+    typeof DEXES_INFO[poolType].name === 'string' ? DEXES_INFO[poolType].name : DEXES_INFO[poolType].name[chainId];
+
+  const [txHash, setTxHash] = useState('');
+  const [attempTx, setAttempTx] = useState(false);
+  const [txError, setTxError] = useState<Error | null>(null);
+  const [txStatus, setTxStatus] = useState<'success' | 'failed' | ''>('');
+
+  useEffect(() => {
+    if (txHash) {
+      const i = setInterval(() => {
+        isTransactionSuccessful(NETWORKS_INFO[chainId].defaultRpc, txHash).then(res => {
+          if (!res) return;
+
+          if (res.status) {
+            setTxStatus('success');
+          } else setTxStatus('failed');
+        });
+      }, 10_000);
+
+      return () => {
+        clearInterval(i);
+      };
+    }
+  }, [chainId, txHash]);
+
+  const handleClick = useCallback(async () => {
+    if (!snapshotState || attempTx || txError) return;
+    setAttempTx(true);
+    setTxHash('');
+    setTxError(null);
+
+    const { zapInfo, deadline } = snapshotState;
+
+    fetch(`${API_URLS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/in/route/build`, {
+      method: 'POST',
+      body: JSON.stringify({
+        sender: account,
+        recipient: account,
+        route: zapInfo?.route,
+        deadline,
+        source: ZAP_SOURCE,
+      }),
+    })
+      .then(res => res.json())
+      .then(async res => {
+        const { data } = res || {};
+        if (data.callData && account) {
+          const txData = {
+            from: account,
+            to: data.routerAddress,
+            data: data.callData,
+            value: `0x${BigInt(data.value).toString(16)}`,
+          };
+
+          try {
+            const gasEstimation = await estimateGas(rpcUrl, txData);
+            const txHash = await onSubmitTx({
+              ...txData,
+              gasLimit: calculateGasMargin(gasEstimation),
+            });
+            setTxHash(txHash);
+          } catch (e) {
+            setAttempTx(false);
+            setTxError(e as Error);
+          }
+        }
+      })
+      .finally(() => setAttempTx(false));
+  }, [account, attempTx, chainId, onSubmitTx, rpcUrl, snapshotState, txError]);
+
+  useEffect(() => {
+    handleClick();
+  }, [handleClick]);
+
+  let txStatusText = '';
+  if (txHash) {
+    if (txStatus === 'success') txStatusText = 'Transaction successful';
+    else if (txStatus === 'failed') txStatusText = 'Transaction failed';
+    else txStatusText = 'Processing transaction';
+  } else {
+    txStatusText = 'Waiting For Confirmation';
+  }
+
+  const onCloseConfirm = () => {
+    setSnapshotState(null);
+    checkNftApproval();
+    txStatusText = '';
+    setTxHash('');
+    setTxError(null);
+    setTxStatus('');
+    setAttempTx(false);
+  };
+
   return (
     <div className="ks-cw ks-cw-style">
       {poolError && (
@@ -66,15 +174,74 @@ export default function Widget() {
           </div>
         </Modal>
       )}
-      {snapshotState && (
-        <Modal isOpen onClick={() => setSnapshotState(null)} modalContentClass="!max-h-[96vh]">
-          <Preview
-            zapState={snapshotState}
-            onDismiss={() => {
-              checkNftApproval();
-              setSnapshotState(null);
-            }}
-          />
+      {(attempTx || txHash) && !txError && (
+        <Modal isOpen onClick={onCloseConfirm}>
+          <div className="mt-4 gap-4 flex flex-col justify-center items-center text-base font-medium">
+            <div className="flex justify-center gap-3 flex-col items-center flex-1">
+              <div className="flex items-center justify-center gap-2 text-xl font-medium">
+                {txStatus === 'success' ? (
+                  <SuccessIcon className="w-6 h-6 text-success rounded-full border border-success p-[2px]" />
+                ) : txStatus === 'failed' ? (
+                  <ErrorIcon className="w-6 h-6 text-error" />
+                ) : (
+                  <Spinner className="w-6 h-6 text-success animate-spin" />
+                )}
+                <div className="text-xl my-4">{txStatusText}</div>
+              </div>
+
+              {!txHash && (
+                <div className="text-sm text-subText text-center">
+                  Confirm this transaction in your wallet - Zapping{' '}
+                  {positionId && isUniV3
+                    ? `Position #${positionId}`
+                    : `${dexName} ${token0.symbol}/${token1.symbol} ${poolFee}%`}
+                </div>
+              )}
+              {txHash && txStatus === '' && (
+                <div className="text-sm text-subText">Waiting for the transaction to be mined</div>
+              )}
+            </div>
+
+            {txHash && (
+              <a
+                className="flex justify-end items-center text-accent text-sm gap-1"
+                href={`${NETWORKS_INFO[chainId].scanLink}/tx/${txHash}`}
+                target="_blank"
+                rel="noopener norefferer noreferrer"
+              >
+                View transaction ↗
+              </a>
+            )}
+            <div className="flex gap-4 w-full mt-2">
+              <button
+                className={cn(onViewPosition ? 'ks-outline-btn flex-1' : 'ks-primary-btn flex-1')}
+                onClick={onCloseConfirm}
+              >
+                Close
+              </button>
+              {txStatus === 'success' && onViewPosition && (
+                <button className="ks-primary-btn flex-1" onClick={() => onViewPosition(txHash)}>
+                  View position
+                </button>
+              )}
+            </div>
+          </div>
+        </Modal>
+      )}
+      {txError && (
+        <Modal isOpen onClick={onCloseConfirm}>
+          <div className="gap-2 flex flex-col justify-center items-center text-base font-medium">
+            <div className="flex pt-1 items-center justify-center gap-2 font-medium">
+              <ErrorIcon className="w-6 h-6 text-error" />
+              <div className="max-w-[86%] font-medium my-3">Failed to add liquidity</div>
+            </div>
+
+            <ScrollArea>
+              <div className="text-subText break-all	text-center max-h-[200px]" style={{ wordBreak: 'break-word' }}>
+                {friendlyError(txError) || txError?.message || JSON.stringify(txError)}
+              </div>
+            </ScrollArea>
+          </div>
         </Modal>
       )}
 
@@ -93,6 +260,7 @@ export default function Widget() {
 
           <div className="w-1/2 max-sm:w-full">
             <EstLiqValue />
+            <ZapSummary />
           </div>
         </div>
         <Action nftApproved={nftApproved} nftApprovePendingTx={nftApprovePendingTx} approveNft={approveNft} />
