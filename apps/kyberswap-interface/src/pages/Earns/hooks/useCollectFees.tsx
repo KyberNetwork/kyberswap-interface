@@ -28,8 +28,16 @@ const useCollectFees = ({ refetchAfterCollect }: { refetchAfterCollect: () => vo
   const [txHash, setTxHash] = useState<string | null>(null)
 
   const [position, setPosition] = useState<ParsedPosition | null>(null)
+
+  const onCloseClaim = useCallback(() => {
+    setOpenClaimModal(false)
+    setClaimInfo(null)
+    setPosition(null)
+  }, [])
+
   const { widget: compoundingWidget, handleOpenCompounding } = useCompounding({
     onRefreshPosition: refetchAfterCollect,
+    onCloseClaimModal: onCloseClaim,
   })
 
   const handleClaim = useCallback(async () => {
@@ -99,12 +107,6 @@ const useCollectFees = ({ refetchAfterCollect }: { refetchAfterCollect: () => vo
       },
     })
   }, [account, addTransactionWithType, claimInfo, library, notify])
-
-  const onCloseClaim = useCallback(() => {
-    setOpenClaimModal(false)
-    setClaimInfo(null)
-    setPosition(null)
-  }, [])
 
   const onOpenClaim = (position: ParsedPosition) => {
     setOpenClaimModal(true)

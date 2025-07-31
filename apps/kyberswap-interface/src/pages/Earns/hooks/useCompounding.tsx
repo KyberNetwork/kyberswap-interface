@@ -72,7 +72,13 @@ const compoundingDexMapping: Record<EarnDex | Exchange, CompoundingPoolType> = {
   [Exchange.DEX_UNISWAP_V4_FAIRFLOW]: CompoundingPoolType.DEX_UNISWAP_V4_FAIRFLOW,
 }
 
-const useCompounding = ({ onRefreshPosition }: { onRefreshPosition?: () => void }) => {
+const useCompounding = ({
+  onRefreshPosition,
+  onCloseClaimModal,
+}: {
+  onRefreshPosition?: () => void
+  onCloseClaimModal: () => void
+}) => {
   const toggleWalletModal = useWalletModalToggle()
   const notify = useNotify()
   const navigate = useNavigate()
@@ -145,6 +151,7 @@ const useCompounding = ({ onRefreshPosition }: { onRefreshPosition?: () => void 
               const { chainId, poolType, poolAddress, positionId } = compoundingPureParams
               handleCloseCompounding()
               handleNavigateToPosition(txHash, chainId, poolType, poolAddress, Number(positionId))
+              onCloseClaimModal()
             },
             onClose: () => {
               handleCloseCompounding()
@@ -170,6 +177,7 @@ const useCompounding = ({ onRefreshPosition }: { onRefreshPosition?: () => void 
       library,
       onRefreshPosition,
       toggleWalletModal,
+      onCloseClaimModal,
     ],
   )
 
