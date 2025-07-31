@@ -20,12 +20,22 @@ export default function usePoolActiveLiquidity({ pool, revertPrice }: { pool: Po
     let pivot = ticks.findIndex(({ index: tick }) => Number(tick) > activeTick) - 1;
     pivot = pivot <= -1 ? ticks.length - 1 : pivot === 0 ? 0 : pivot - 1;
 
-    const activeTickProcessed: TickProcessed = {
-      liquidityActive: BigInt(liquidity),
-      tick: activeTick,
-      liquidityNet: Number(ticks[pivot].index) === activeTick ? BigInt(ticks[pivot].liquidityNet) : 0n,
-      price: Number(tickToPrice(activeTick, token0.decimals, token1.decimals, revertPrice)).toFixed(PRICE_FIXED_DIGITS),
-    };
+    let activeTickProcessed: TickProcessed | undefined;
+
+    try {
+      activeTickProcessed = {
+        liquidityActive: BigInt(liquidity),
+        tick: activeTick,
+        liquidityNet: Number(ticks[pivot].index) === activeTick ? BigInt(ticks[pivot].liquidityNet) : 0n,
+        price: Number(tickToPrice(activeTick, token0.decimals, token1.decimals, revertPrice)).toFixed(
+          PRICE_FIXED_DIGITS,
+        ),
+      };
+    } catch (error) {
+      console.error(error);
+    }
+
+    if (!activeTickProcessed) return [];
 
     const subsequentTicks = computeSurroundingTicks(
       token0.decimals,
