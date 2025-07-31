@@ -54,6 +54,7 @@ const UserPositions = ({
   poolAddress,
   onConnectWallet,
   onOpenZapMigration,
+  onClose,
 }: {
   search: string;
   chainId: ChainId;
@@ -62,6 +63,7 @@ const UserPositions = ({
   poolAddress: string;
   onConnectWallet: () => void;
   onOpenZapMigration: (position: { exchange: string; poolId: string; positionId: string | number }) => void;
+  onClose: () => void;
 }) => {
   const [copied, setCopied] = useState<string | null>(null);
 
@@ -115,6 +117,7 @@ const UserPositions = ({
               const isUniV2 = Univ2EarnDex.safeParse(position.pool.project).success;
               if (isUniV2 && !account) return;
 
+              onClose();
               onOpenZapMigration({
                 exchange: position.pool.project,
                 poolId: position.pool.poolAddress,

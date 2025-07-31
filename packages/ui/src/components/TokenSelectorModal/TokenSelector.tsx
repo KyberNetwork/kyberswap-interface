@@ -472,6 +472,7 @@ export default function TokenSelector({
               poolAddress={poolAddress}
               onConnectWallet={onConnectWallet}
               onOpenZapMigration={onOpenZapMigration}
+              onClose={onClose}
             />
           )}
         </div>
