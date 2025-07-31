@@ -2,8 +2,8 @@ import { ChangeEvent, MouseEvent, useEffect, useMemo, useState } from 'react';
 
 import { NATIVE_TOKEN_ADDRESS, Token } from '@kyber/schema';
 import { fetchTokenInfo } from '@kyber/utils';
-import { formatUnits, isAddress } from '@kyber/utils/crypto';
-import { formatWei } from '@kyber/utils/number';
+import { isAddress } from '@kyber/utils/crypto';
+import { formatUnits } from '@kyber/utils/number';
 
 import { MAX_TOKENS, TOKEN_SELECT_MODE } from '@/components/TokenSelectorModal';
 import { TokenModalProps } from '@/components/TokenSelectorModal/TokenModal';
@@ -100,7 +100,7 @@ export default function TokenSelector({
 
           return {
             ...token,
-            balance: formatWei(balanceInWei, token?.decimals),
+            balance: formatUnits(balanceInWei, token?.decimals, 4),
             balanceToSort: formatUnits(balanceInWei, token?.decimals),
             disabled:
               mode === TOKEN_SELECT_MODE.ADD ||
