@@ -4,12 +4,12 @@ import { useShallow } from 'zustand/shallow';
 
 import { useNftApproval } from '@kyber/hooks';
 import { API_URLS, CHAIN_ID_TO_CHAIN, DEXES_INFO, NETWORKS_INFO, defaultToken, univ3Types } from '@kyber/schema';
-import { ScrollArea } from '@kyber/ui';
 import { friendlyError, getNftManagerContractAddress } from '@kyber/utils';
 import { calculateGasMargin, estimateGas, isTransactionSuccessful } from '@kyber/utils/crypto';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
 import ChevronLeftIcon from '@/assets/svg/chevron-left.svg';
+import ErrorIcon2 from '@/assets/svg/error2.svg';
 import ErrorIcon from '@/assets/svg/error.svg';
 import Spinner from '@/assets/svg/loader.svg';
 import SuccessIcon from '@/assets/svg/success.svg';
@@ -144,7 +144,8 @@ export default function Widget() {
 
   let txStatusText = '';
   if (txHash) {
-    if (txStatus === 'success') txStatusText = 'Transaction successful';
+    if (txError) txStatusText = 'Transaction failed';
+    else if (txStatus === 'success') txStatusText = 'Compound Completed';
     else if (txStatus === 'failed') txStatusText = 'Transaction failed';
     else txStatusText = 'Processing transaction';
   } else {
@@ -174,17 +175,17 @@ export default function Widget() {
           </div>
         </Modal>
       )}
-      {(attempTx || txHash) && !txError && (
+      {(attempTx || txHash) && (
         <Modal isOpen onClick={onCloseConfirm}>
           <div className="mt-4 gap-4 flex flex-col justify-center items-center text-base font-medium">
             <div className="flex justify-center gap-3 flex-col items-center flex-1">
               <div className="flex items-center justify-center gap-2 text-xl font-medium">
                 {txStatus === 'success' ? (
-                  <SuccessIcon className="w-6 h-6 text-success rounded-full border border-success p-[2px]" />
-                ) : txStatus === 'failed' ? (
-                  <ErrorIcon className="w-6 h-6 text-error" />
+                  <SuccessIcon className="w-6 h-6" />
+                ) : txStatus === 'failed' || txError ? (
+                  <ErrorIcon className="w-6 h-6" />
                 ) : (
-                  <Spinner className="w-6 h-6 text-success animate-spin" />
+                  <Spinner className="w-6 h-6 animate-spin-reverse" />
                 )}
                 <div className="text-xl my-4">{txStatusText}</div>
               </div>
@@ -197,8 +198,14 @@ export default function Widget() {
                     : `${dexName} ${token0.symbol}/${token1.symbol} ${poolFee}%`}
                 </div>
               )}
-              {txHash && txStatus === '' && (
-                <div className="text-sm text-subText">Waiting for the transaction to be mined</div>
+              {txHash && txStatus === '' && !txError && (
+                <div className="text-sm text-subText">It may take a few minutes to proceed.</div>
+              )}
+              {txHash && txStatus === 'success' && (
+                <div className="text-sm text-subText">You have successfully added liquidity!</div>
+              )}
+              {txHash && (txStatus === 'failed' || txError) && (
+                <div className="text-sm text-subText">An error occurred during the liquidity migration.</div>
               )}
             </div>
 
@@ -212,35 +219,31 @@ export default function Widget() {
                 View transaction ↗
               </a>
             )}
-            <div className="flex gap-4 w-full mt-2">
-              <button
-                className={cn(onViewPosition ? 'ks-outline-btn flex-1' : 'ks-primary-btn flex-1')}
-                onClick={onCloseConfirm}
-              >
-                Close
-              </button>
-              {txStatus === 'success' && onViewPosition && (
-                <button className="ks-primary-btn flex-1" onClick={() => onViewPosition(txHash)}>
-                  View position
-                </button>
-              )}
-            </div>
-          </div>
-        </Modal>
-      )}
-      {txError && (
-        <Modal isOpen onClick={onCloseConfirm}>
-          <div className="gap-2 flex flex-col justify-center items-center text-base font-medium">
-            <div className="flex pt-1 items-center justify-center gap-2 font-medium">
-              <ErrorIcon className="w-6 h-6 text-error" />
-              <div className="max-w-[86%] font-medium my-3">Failed to add liquidity</div>
-            </div>
 
-            <ScrollArea>
-              <div className="text-subText break-all	text-center max-h-[200px]" style={{ wordBreak: 'break-word' }}>
-                {friendlyError(txError) || txError?.message || JSON.stringify(txError)}
+            {txError && (
+              <div className="flex items-start gap-[6px] px-3 py-2 rounded-[24px] bg-[#e42f5933] w-full">
+                <ErrorIcon2 className="w-4 h-4 relative top-[2px]" />
+                <span className="text-sm" style={{ maxWidth: 'calc(100% - 22px)' }}>
+                  {friendlyError(txError) || txError?.message || JSON.stringify(txError)}
+                </span>
               </div>
-            </ScrollArea>
+            )}
+
+            {!txError && (
+              <div className="flex gap-4 w-full mt-2">
+                <button
+                  className={cn(onViewPosition ? 'ks-outline-btn flex-1' : 'ks-primary-btn flex-1')}
+                  onClick={onCloseConfirm}
+                >
+                  Close
+                </button>
+                {txStatus === 'success' && onViewPosition && (
+                  <button className="ks-primary-btn flex-1" onClick={() => onViewPosition(txHash)}>
+                    View position
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         </Modal>
       )}
