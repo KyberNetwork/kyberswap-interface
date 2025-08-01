@@ -37,51 +37,59 @@ export const parsePosition = ({
   const token0Data = tokenAmounts[0]?.token
   const token1Data = tokenAmounts[1]?.token
 
-  const token0CurrentQuote = currentAmounts[0]?.quotes.usd
-  const token1CurrentQuote = currentAmounts[1]?.quotes.usd
-  const token0PendingQuote = feePending[0]?.quotes.usd
-  const token1PendingQuote = feePending[1]?.quotes.usd
-  const token0ClaimedQuote = feesClaimed[0]?.quotes.usd
-  const token1ClaimedQuote = feesClaimed[1]?.quotes.usd
+  const currentAmount0 = currentAmounts[0]
+  const currentAmount1 = currentAmounts[1]
+
+  const feePending0 = feePending[0]
+  const feePending1 = feePending[1]
+  const feesClaimed0 = feesClaimed[0]
+  const feesClaimed1 = feesClaimed[1]
+
+  const token0CurrentQuote = currentAmount0?.quotes.usd
+  const token1CurrentQuote = currentAmount1?.quotes.usd
+  const token0PendingQuote = feePending0?.quotes.usd
+  const token1PendingQuote = feePending1?.quotes.usd
+  const token0ClaimedQuote = feesClaimed0?.quotes.usd
+  const token1ClaimedQuote = feesClaimed1?.quotes.usd
 
   const token0TotalProvide = forceClosed
     ? 0
-    : Number(currentAmounts[0]?.balance || 0) && token0Data?.decimals
-    ? Number(currentAmounts[0]?.balance) / 10 ** token0Data?.decimals
+    : Number(currentAmount0?.balance || 0) && token0Data?.decimals
+    ? Number(currentAmount0?.balance) / 10 ** token0Data?.decimals
     : token0CurrentQuote
     ? token0CurrentQuote.value / token0CurrentQuote.price
     : 0
 
   const token1TotalProvide = forceClosed
     ? 0
-    : Number(currentAmounts[1]?.balance || 0) && token1Data?.decimals
-    ? Number(currentAmounts[1]?.balance) / 10 ** token1Data?.decimals
+    : Number(currentAmount1?.balance || 0) && token1Data?.decimals
+    ? Number(currentAmount1?.balance) / 10 ** token1Data?.decimals
     : token1CurrentQuote
     ? token1CurrentQuote.value / token1CurrentQuote.price
     : 0
 
   const token0PendingEarned =
-    Number(feePending[0]?.balance || 0) && token0Data?.decimals
-      ? Number(feePending[0]?.balance) / 10 ** token0Data?.decimals
+    Number(feePending0?.balance || 0) && token0Data?.decimals
+      ? Number(feePending0?.balance) / 10 ** token0Data?.decimals
       : token0PendingQuote
       ? token0PendingQuote.value / token0PendingQuote.price
       : 0
   const token1PendingEarned =
-    Number(feePending[1]?.balance || 0) && token1Data?.decimals
-      ? Number(feePending[1]?.balance) / 10 ** token1Data?.decimals
+    Number(feePending1?.balance || 0) && token1Data?.decimals
+      ? Number(feePending1?.balance) / 10 ** token1Data?.decimals
       : token1PendingQuote
       ? token1PendingQuote.value / token1PendingQuote.price
       : 0
 
   const token0ClaimedEarned =
-    Number(feesClaimed[0]?.balance || 0) && token0Data?.decimals
-      ? Number(feesClaimed[0]?.balance) / 10 ** token0Data?.decimals
+    Number(feesClaimed0?.balance || 0) && token0Data?.decimals
+      ? Number(feesClaimed0?.balance) / 10 ** token0Data?.decimals
       : token0ClaimedQuote
       ? token0ClaimedQuote.value / token0ClaimedQuote.price
       : 0
   const token1ClaimedEarned =
-    Number(feesClaimed[1]?.balance || 0) && token1Data?.decimals
-      ? Number(feesClaimed[1]?.balance) / 10 ** token1Data?.decimals
+    Number(feesClaimed1?.balance || 0) && token1Data?.decimals
+      ? Number(feesClaimed1?.balance) / 10 ** token1Data?.decimals
       : token1ClaimedQuote
       ? token1ClaimedQuote.value / token1ClaimedQuote.price
       : 0
@@ -232,14 +240,8 @@ export const parsePosition = ({
       price: currentAmounts[0]?.token.price,
       isNative: isNativeToken(token0Address, chainId as keyof typeof WETH),
       totalProvide: token0TotalProvide,
-      unclaimedAmount: forceClosed
-        ? 0
-        : feeInfo
-        ? Number(feeInfo.amount0)
-        : token0PendingQuote
-        ? token0PendingQuote.value / token0PendingQuote.price
-        : 0,
-      unclaimedBalance: forceClosed ? 0 : feeInfo ? Number(feeInfo.balance0) : Number(feePending[0]?.balance || 0),
+      unclaimedAmount: forceClosed ? 0 : feeInfo ? Number(feeInfo.amount0) : token0PendingEarned,
+      unclaimedBalance: forceClosed ? 0 : feeInfo ? Number(feeInfo.balance0) : Number(feePending0?.balance || 0),
       unclaimedValue: forceClosed ? 0 : feeInfo ? Number(feeInfo.value0) : token0PendingQuote?.value || 0,
     },
     token1: {
@@ -250,14 +252,8 @@ export const parsePosition = ({
       price: currentAmounts[1]?.token.price,
       isNative: isNativeToken(token1Address, chainId as keyof typeof WETH),
       totalProvide: token1TotalProvide,
-      unclaimedAmount: forceClosed
-        ? 0
-        : feeInfo
-        ? Number(feeInfo.amount1)
-        : token1PendingQuote
-        ? token1PendingQuote.value / token1PendingQuote.price
-        : 0,
-      unclaimedBalance: forceClosed ? 0 : feeInfo ? Number(feeInfo.balance1) : Number(feePending[1]?.balance || 0),
+      unclaimedAmount: forceClosed ? 0 : feeInfo ? Number(feeInfo.amount1) : token1PendingEarned,
+      unclaimedBalance: forceClosed ? 0 : feeInfo ? Number(feeInfo.balance1) : Number(feePending1?.balance || 0),
       unclaimedValue: forceClosed ? 0 : feeInfo ? Number(feeInfo.value1) : token1PendingQuote?.value || 0,
     },
     suggestionPool: position.suggestionPool,
