@@ -1,10 +1,9 @@
-import { Skeleton } from '@kyber/ui';
+import { Skeleton, TokenLogo } from '@kyber/ui';
 import { formatDisplayNumber, formatTokenAmount, toRawString } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
 import { getPositionAmounts } from '@kyber/utils/uniswapv3';
 
 import { LiquiditySkeleton } from '@/components/FromPool';
-import { Image } from '@/components/Image';
 import { UniV2Pool, univ2Dexes } from '@/schema';
 import { usePoolsStore } from '@/stores/usePoolsStore';
 import { useZapStateStore } from '@/stores/useZapStateStore';
@@ -48,7 +47,7 @@ export function ToPool({ className }: { className?: string }) {
         ) : (
           <>
             <div className="flex gap-1 items-center">
-              <Image src={pools[1].token0.logo || ''} alt={pools[1].token0.symbol} className="w-4 h-4" />
+              <TokenLogo src={pools[1].token0.logo || ''} alt={pools[1].token0.symbol} />
               <span className="text-base">{formatTokenAmount(amount0, pools[1].token0.decimals, 10)}</span>
               <span className="text-base">{pools[1].token0.symbol}</span>
             </div>
@@ -76,7 +75,7 @@ export function ToPool({ className }: { className?: string }) {
         ) : (
           <>
             <div className="flex gap-1 items-center">
-              <Image src={pools[1].token1.logo || ''} alt={pools[1].token1.symbol} className="w-4 h-4" />
+              <TokenLogo src={pools[1].token1.logo || ''} alt={pools[1].token1.symbol} />
               <span className="text-base">{formatTokenAmount(amount1, pools[1].token1.decimals, 10)}</span>
               <span className="text-base">{pools[1].token1.symbol}</span>
             </div>
