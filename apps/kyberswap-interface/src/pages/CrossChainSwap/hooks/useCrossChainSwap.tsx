@@ -117,26 +117,27 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
 
   useEffect(() => {
     let hasUpdate = false
-    // let newFrom = from
+    let newFrom = from
     if (!from) {
       const defaultFrom = !account ? NonEvmChain.Bitcoin : chainId?.toString() || ''
       searchParams.set('from', defaultFrom)
-      // newFrom = defaultFrom
+      newFrom = defaultFrom
       hasUpdate = true
     }
 
     let newTo = to
     if (!to) {
-      const defaultTo = !account || !!btcAddress ? ChainId.MAINNET.toString() : NonEvmChain.Bitcoin
-      searchParams.set('to', defaultTo)
-      newTo = defaultTo
-      hasUpdate = true
-      // const lastChainId = localStorage.getItem('crossChainSwapLastChainOut')
-      // if (lastChainId && lastChainId !== newFrom) {
-      //   searchParams.set('to', lastChainId)
-      //   newTo = lastChainId
-      //   hasUpdate = true
-      // }
+      const lastChainId = localStorage.getItem('crossChainSwapLastChainOut')
+      if (lastChainId && lastChainId !== newFrom) {
+        searchParams.set('to', lastChainId)
+        newTo = lastChainId
+        hasUpdate = true
+      } else {
+        const defaultTo = !account || !!btcAddress ? ChainId.MAINNET.toString() : NonEvmChain.Bitcoin
+        searchParams.set('to', defaultTo)
+        newTo = defaultTo
+        hasUpdate = true
+      }
     }
 
     if (!tokenIn) {
