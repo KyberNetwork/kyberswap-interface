@@ -107,10 +107,6 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
 
   const { chainId, account } = useActiveWeb3React()
 
-  const { walletInfo } = useBitcoinWallet()
-  const btcAddress = walletInfo?.address
-  const btcPublicKey = walletInfo?.publicKey
-
   useEffect(() => {
     setLoading(true)
   }, [amount])
@@ -173,7 +169,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     if (hasUpdate) {
       setSearchParams(searchParams)
     }
-  }, [from, to, tokenIn, chainId, searchParams, setSearchParams, tokenOut, account, btcAddress])
+  }, [from, to, tokenIn, chainId, searchParams, setSearchParams, tokenOut, account])
 
   const isFromSolana = from === 'solana'
   const isFromNear = from === 'near'
@@ -199,6 +195,10 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
       setNearRecipient(signedAccountId)
     }
   }, [signedAccountId])
+
+  const { walletInfo } = useBitcoinWallet()
+  const btcAddress = walletInfo?.address
+  const btcPublicKey = walletInfo?.publicKey
 
   useEffect(() => {
     if (btcAddress) {
