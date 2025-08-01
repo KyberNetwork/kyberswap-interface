@@ -44,17 +44,50 @@ export const parsePosition = ({
   const token0ClaimedQuote = feesClaimed[0]?.quotes.usd
   const token1ClaimedQuote = feesClaimed[1]?.quotes.usd
 
-  const token0TotalProvide =
-    token0CurrentQuote && !forceClosed ? token0CurrentQuote.value / token0CurrentQuote.price : 0
-  const token1TotalProvide =
-    token1CurrentQuote && !forceClosed ? token1CurrentQuote.value / token1CurrentQuote.price : 0
+  const token0TotalProvide = forceClosed
+    ? 0
+    : Number(currentAmounts[0]?.balance || 0) && token0Data?.decimals
+    ? Number(currentAmounts[0]?.balance) / 10 ** token0Data?.decimals
+    : token0CurrentQuote
+    ? token0CurrentQuote.value / token0CurrentQuote.price
+    : 0
 
-  const token0EarnedAmount =
-    (token0PendingQuote ? token0PendingQuote.value / token0PendingQuote.price : 0) +
-    (token0ClaimedQuote ? token0ClaimedQuote.value / token0ClaimedQuote.price : 0)
-  const token1EarnedAmount =
-    (token1PendingQuote ? token1PendingQuote.value / token1PendingQuote.price : 0) +
-    (token1ClaimedQuote ? token1ClaimedQuote.value / token1ClaimedQuote.price : 0)
+  const token1TotalProvide = forceClosed
+    ? 0
+    : Number(currentAmounts[1]?.balance || 0) && token1Data?.decimals
+    ? Number(currentAmounts[1]?.balance) / 10 ** token1Data?.decimals
+    : token1CurrentQuote
+    ? token1CurrentQuote.value / token1CurrentQuote.price
+    : 0
+
+  const token0PendingEarned =
+    Number(feePending[0]?.balance || 0) && token0Data?.decimals
+      ? Number(feePending[0]?.balance) / 10 ** token0Data?.decimals
+      : token0PendingQuote
+      ? token0PendingQuote.value / token0PendingQuote.price
+      : 0
+  const token1PendingEarned =
+    Number(feePending[1]?.balance || 0) && token1Data?.decimals
+      ? Number(feePending[1]?.balance) / 10 ** token1Data?.decimals
+      : token1PendingQuote
+      ? token1PendingQuote.value / token1PendingQuote.price
+      : 0
+
+  const token0ClaimedEarned =
+    Number(feesClaimed[0]?.balance || 0) && token0Data?.decimals
+      ? Number(feesClaimed[0]?.balance) / 10 ** token0Data?.decimals
+      : token0ClaimedQuote
+      ? token0ClaimedQuote.value / token0ClaimedQuote.price
+      : 0
+  const token1ClaimedEarned =
+    Number(feesClaimed[1]?.balance || 0) && token1Data?.decimals
+      ? Number(feesClaimed[1]?.balance) / 10 ** token1Data?.decimals
+      : token1ClaimedQuote
+      ? token1ClaimedQuote.value / token1ClaimedQuote.price
+      : 0
+
+  const token0EarnedAmount = token0PendingEarned + token0ClaimedEarned
+  const token1EarnedAmount = token1PendingEarned + token1ClaimedEarned
 
   const nftUnclaimedUsdValue = nftRewardInfo?.unclaimedUsdValue || 0
   const totalValue = (forceClosed ? 0 : position.currentPositionValue) + nftUnclaimedUsdValue
@@ -170,7 +203,7 @@ export const parsePosition = ({
       min: position.minPrice || 0,
       max: position.maxPrice || 0,
       isMinPrice: tickLower === minTick,
-      isMaxPrice: tickUpper === maxTick,
+      isMaxPrice: position.maxPrice === 0 ? true : tickUpper === maxTick,
       current: pool.price || 0,
     },
     earning: {

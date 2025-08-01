@@ -111,14 +111,16 @@ const useCollectFees = ({ refetchAfterCollect }: { refetchAfterCollect: () => vo
   const onOpenClaim = (position: ParsedPosition) => {
     setOpenClaimModal(true)
     const isUniV3 = isForkFrom(position.dex.id, CoreProtocol.UniswapV3)
+    const isAlgebra =
+      isForkFrom(position.dex.id, CoreProtocol.AlgebraV1) || isForkFrom(position.dex.id, CoreProtocol.AlgebraV19)
     const { token0, token1, pool } = position
     const { nativeToken } = pool
 
-    const token0Logo = isUniV3 && token0.isNative ? nativeToken.logo : token0.logo
-    const token1Logo = isUniV3 && token1.isNative ? nativeToken.logo : token1.logo
+    const token0Logo = (isUniV3 || isAlgebra) && token0.isNative ? nativeToken.logo : token0.logo
+    const token1Logo = (isUniV3 || isAlgebra) && token1.isNative ? nativeToken.logo : token1.logo
 
-    const token0Symbol = isUniV3 && token0.isNative ? nativeToken.symbol : token0.symbol
-    const token1Symbol = isUniV3 && token1.isNative ? nativeToken.symbol : token1.symbol
+    const token0Symbol = (isUniV3 || isAlgebra) && token0.isNative ? nativeToken.symbol : token0.symbol
+    const token1Symbol = (isUniV3 || isAlgebra) && token1.isNative ? nativeToken.symbol : token1.symbol
 
     setClaimInfo({
       nftId: position.tokenId,

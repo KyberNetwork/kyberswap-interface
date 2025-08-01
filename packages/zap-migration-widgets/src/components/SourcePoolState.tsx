@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
 
-import { Skeleton, Slider } from '@kyber/ui';
+import { Skeleton, Slider, TokenLogo } from '@kyber/ui';
 import { formatDisplayNumber, formatTokenAmount, toRawString } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
 import { getPositionAmounts } from '@kyber/utils/uniswapv3';
 
-import { Image } from '@/components/Image';
 import { PoolFee } from '@/components/PoolFee';
 import { UniV2Pool, UniV2Position, UniV3Pool, UniV3Position, univ2Dexes, univ3Dexes } from '@/schema';
 import { usePoolsStore } from '@/stores/usePoolsStore';
@@ -93,7 +92,7 @@ export function SourcePoolState() {
           ) : (
             <>
               <div className="flex items-center text-base gap-1">
-                <Image src={pools[0].token0.logo || ''} alt="" className="w-4 h-4" />
+                <TokenLogo src={pools[0].token0.logo || ''} />
                 {formatTokenAmount(amount0, pools[0].token0.decimals, 8)} {pools[0].token0.symbol}
               </div>
               <div className="text-xs text-subText">
@@ -114,7 +113,7 @@ export function SourcePoolState() {
           ) : (
             <>
               <div className="flex items-center text-base gap-1">
-                <Image src={pools[0].token1.logo || ''} alt="" className="w-4 h-4" />
+                <TokenLogo src={pools[0].token1.logo || ''} />
                 {formatTokenAmount(amount1, pools[0].token1.decimals, 8)} {pools[0].token1.symbol}
               </div>
               <div className="text-xs text-subText">
