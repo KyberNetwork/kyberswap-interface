@@ -133,7 +133,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
         newTo = lastChainId
         hasUpdate = true
       } else {
-        const defaultTo = !account || !!btcAddress ? ChainId.MAINNET.toString() : NonEvmChain.Bitcoin
+        const defaultTo = !account || newFrom === NonEvmChain.Bitcoin ? ChainId.MAINNET.toString() : NonEvmChain.Bitcoin
         searchParams.set('to', defaultTo)
         newTo = defaultTo
         hasUpdate = true
