@@ -203,7 +203,7 @@ export const parsePosition = ({
       min: position.minPrice || 0,
       max: position.maxPrice || 0,
       isMinPrice: tickLower === minTick,
-      isMaxPrice: tickUpper === maxTick,
+      isMaxPrice: position.maxPrice === 0 ? true : tickUpper === maxTick,
       current: pool.price || 0,
     },
     earning: {
