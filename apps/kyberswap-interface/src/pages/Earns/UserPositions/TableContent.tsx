@@ -345,22 +345,24 @@ export default function TableContent({
                           #{tokenId}
                         </Text>
                       )}
-                      <Badge
-                        type={
-                          status === PositionStatus.IN_RANGE
-                            ? BadgeType.PRIMARY
+                      {!isUnfinalized && (
+                        <Badge
+                          type={
+                            status === PositionStatus.IN_RANGE
+                              ? BadgeType.PRIMARY
+                              : status === PositionStatus.OUT_RANGE
+                              ? BadgeType.WARNING
+                              : BadgeType.DISABLED
+                          }
+                        >
+                          ●{' '}
+                          {status === PositionStatus.IN_RANGE
+                            ? t`In range`
                             : status === PositionStatus.OUT_RANGE
-                            ? BadgeType.WARNING
-                            : BadgeType.DISABLED
-                        }
-                      >
-                        ●{' '}
-                        {status === PositionStatus.IN_RANGE
-                          ? t`In range`
-                          : status === PositionStatus.OUT_RANGE
-                          ? t`Out of range`
-                          : t`Closed`}
-                      </Badge>
+                            ? t`Out of range`
+                            : t`Closed`}
+                        </Badge>
+                      )}
                     </Flex>
                   </PositionOverview>
 
@@ -371,30 +373,26 @@ export default function TableContent({
                   <PositionValueWrapper>
                     <PositionValueLabel>{t`Value`}</PositionValueLabel>
 
-                    {isUnfinalized ? (
-                      <PositionSkeleton width={80} height={19} text="Finalizing..." />
-                    ) : (
-                      <MouseoverTooltipDesktopOnly
-                        text={
-                          <>
-                            {position.totalValueTokens.map(token => (
-                              <Text key={token.address}>
-                                {formatDisplayNumber(token.amount, { significantDigits: 4 })} {token.symbol}
-                              </Text>
-                            ))}
-                          </>
-                        }
-                        width="fit-content"
-                        placement="bottom"
-                      >
-                        <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '80px' }}>
-                          {formatDisplayNumber(totalValue, {
-                            style: 'currency',
-                            significantDigits: 4,
-                          })}
-                        </Text>
-                      </MouseoverTooltipDesktopOnly>
-                    )}
+                    <MouseoverTooltipDesktopOnly
+                      text={
+                        <>
+                          {position.totalValueTokens.map(token => (
+                            <Text key={`${token.address}-${token.symbol}`}>
+                              {formatDisplayNumber(token.amount, { significantDigits: 4 })} {token.symbol}
+                            </Text>
+                          ))}
+                        </>
+                      }
+                      width="fit-content"
+                      placement="bottom"
+                    >
+                      <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '80px' }}>
+                        {formatDisplayNumber(totalValue, {
+                          style: 'currency',
+                          significantDigits: 4,
+                        })}
+                      </Text>
+                    </MouseoverTooltipDesktopOnly>
                   </PositionValueWrapper>
 
                   {/* APR info */}

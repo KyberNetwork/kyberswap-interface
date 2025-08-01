@@ -16,6 +16,16 @@ import { CoreProtocol, EarnDex } from 'pages/Earns/constants'
 import { EarnPosition, FeeInfo, NftRewardInfo, ParsedPosition, PositionStatus, ProgramType } from 'pages/Earns/types'
 import { getNftManagerContractAddress, isForkFrom, isNativeToken } from 'pages/Earns/utils'
 
+export const listDexesWithVersion = [
+  EarnDex.DEX_UNISWAPV2,
+  EarnDex.DEX_UNISWAPV3,
+  EarnDex.DEX_UNISWAP_V4,
+  EarnDex.DEX_UNISWAP_V4_FAIRFLOW,
+  EarnDex.DEX_SUSHISWAPV3,
+  EarnDex.DEX_QUICKSWAPV3ALGEBRA,
+  EarnDex.DEX_CAMELOTV3,
+]
+
 export const parsePosition = ({
   position,
   feeInfo,
@@ -112,16 +122,6 @@ export const parsePosition = ({
 
   const programs = pool.programs || []
   const isFarming = programs.includes(ProgramType.EG) || programs.includes(ProgramType.LM)
-
-  const listDexesWithVersion = [
-    EarnDex.DEX_UNISWAPV2,
-    EarnDex.DEX_UNISWAPV3,
-    EarnDex.DEX_UNISWAP_V4,
-    EarnDex.DEX_UNISWAP_V4_FAIRFLOW,
-    EarnDex.DEX_SUSHISWAPV3,
-    EarnDex.DEX_QUICKSWAPV3ALGEBRA,
-    EarnDex.DEX_CAMELOTV3,
-  ]
 
   const unclaimedRewardTokens = nftRewardInfo?.tokens.filter(token => token.unclaimedAmount > 0) || []
 

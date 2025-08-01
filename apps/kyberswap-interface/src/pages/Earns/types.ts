@@ -98,6 +98,105 @@ export interface EarnPosition {
   createdAtBlock: number
 }
 
+export enum PAIR_CATEGORY {
+  STABLE = 'stablePair',
+  CORRELATED = 'correlatedPair',
+  EXOTIC = 'exoticPair',
+  HIGH_VOLATILITY = 'highVolatilityPair',
+  DEFAULT_EMPTY = '', // For Krystal data
+}
+
+export const DEFAULT_PARSED_POSITION: ParsedPosition = {
+  id: '',
+  tokenId: '',
+  pool: {
+    fee: 0,
+    address: '',
+    isUniv2: false,
+    isFarming: false,
+    nativeToken: {
+      symbol: '',
+      decimal: 18,
+      name: '',
+      logo: '',
+    },
+    tickSpacing: 0,
+    category: PAIR_CATEGORY.DEFAULT_EMPTY,
+  },
+  dex: {
+    id: EarnDex.DEX_UNISWAPV3,
+    logo: '',
+    version: '',
+  },
+  chain: {
+    id: 1,
+    name: 'Ethereum',
+    logo: '',
+  },
+  priceRange: {
+    min: 0,
+    max: 0,
+    isMinPrice: false,
+    isMaxPrice: false,
+    current: 0,
+  },
+  earning: {
+    earned: 0,
+    in7d: 0,
+    in24h: 0,
+  },
+  rewards: {
+    totalUsdValue: 0,
+    claimedUsdValue: 0,
+    unclaimedUsdValue: 0,
+    inProgressUsdValue: 0,
+    pendingUsdValue: 0,
+    vestingUsdValue: 0,
+    claimableUsdValue: 0,
+    egTokens: [],
+    lmTokens: [],
+    tokens: [],
+  },
+  totalValueTokens: [],
+  token0: {
+    address: '',
+    symbol: '',
+    decimals: 18,
+    logo: '',
+    price: 0,
+    isNative: false,
+    totalProvide: 0,
+    unclaimedAmount: 0,
+    unclaimedBalance: 0,
+    unclaimedValue: 0,
+  },
+  token1: {
+    address: '',
+    symbol: '',
+    decimals: 18,
+    logo: '',
+    price: 0,
+    isNative: false,
+    totalProvide: 0,
+    unclaimedAmount: 0,
+    unclaimedBalance: 0,
+    unclaimedValue: 0,
+  },
+  tokenAddress: '',
+  apr: 0,
+  kemEGApr: 0,
+  kemLMApr: 0,
+  feeApr: 0,
+  totalValue: 0,
+  totalProvidedValue: 0,
+  status: PositionStatus.IN_RANGE,
+  createdTime: 0,
+  unclaimedFees: 0,
+  suggestionPool: null,
+  isUnfinalized: false,
+  txHash: '',
+}
+
 export interface ParsedPosition {
   id: string
   tokenId: string
@@ -163,6 +262,7 @@ export interface ParsedPosition {
   unclaimedFees: number
   suggestionPool: SuggestedPool | null
   isUnfinalized: boolean
+  txHash?: string
 }
 
 export interface SuggestedPool {
@@ -207,14 +307,6 @@ interface PositionAmount {
       value: number
     }
   }
-}
-
-export enum PAIR_CATEGORY {
-  STABLE = 'stablePair',
-  CORRELATED = 'correlatedPair',
-  EXOTIC = 'exoticPair',
-  HIGH_VOLATILITY = 'highVolatilityPair',
-  DEFAULT_EMPTY = '', // For Krystal data
 }
 
 export interface FeeInfo {

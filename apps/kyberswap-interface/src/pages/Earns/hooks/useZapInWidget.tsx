@@ -1,4 +1,5 @@
 import {
+  OnSuccessProps,
   LiquidityWidget as ZapIn,
   ChainId as ZapInChainId,
   PoolType as ZapInPoolType,
@@ -9,12 +10,16 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import { NotificationType } from 'components/Announcement/type'
 import Modal from 'components/Modal'
+import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import { EarnDex, Exchange, earnSupportedProtocols } from 'pages/Earns/constants'
+import { CoreProtocol, EarnDex, Exchange, earnSupportedProtocols } from 'pages/Earns/constants'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import { ZapMigrationInfo } from 'pages/Earns/hooks/useZapMigrationWidget'
-import { submitTransaction } from 'pages/Earns/utils'
+import { DEFAULT_PARSED_POSITION } from 'pages/Earns/types'
+import { getNftManagerContractAddress, getTokenId, isForkFrom, submitTransaction } from 'pages/Earns/utils'
+import { listDexesWithVersion } from 'pages/Earns/utils/position'
+import { updateUnfinalizedPosition } from 'pages/Earns/utils/unfinalizedPosition'
 import { navigateToPositionAfterZap } from 'pages/Earns/utils/zap'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { getCookieValue } from 'utils'
@@ -71,6 +76,19 @@ const zapInDexMapping: Record<EarnDex | Exchange, ZapInPoolType> = {
   [Exchange.DEX_UNISWAP_V4_FAIRFLOW]: ZapInPoolType.DEX_UNISWAP_V4_FAIRFLOW,
 }
 
+const getEarnDexFromPoolType = (poolType: ZapInPoolType) => {
+  const dexIndex = Object.values(zapInDexMapping).findIndex(
+    (item, index) => item === poolType && earnSupportedProtocols.includes(Object.keys(zapInDexMapping)[index]),
+  )
+  if (dexIndex === -1) {
+    console.error('Cannot find dex')
+    return
+  }
+  const dex = Object.keys(zapInDexMapping)[dexIndex] as EarnDex
+
+  return dex
+}
+
 const useZapInWidget = ({
   onOpenZapMigration,
   onRefreshPosition,
@@ -105,14 +123,8 @@ const useZapInWidget = ({
     async (txHash: string, chainId: number, poolType: ZapInPoolType, poolId: string) => {
       if (!library) return
 
-      const dexIndex = Object.values(zapInDexMapping).findIndex(
-        (item, index) => item === poolType && earnSupportedProtocols.includes(Object.keys(zapInDexMapping)[index]),
-      )
-      if (dexIndex === -1) {
-        console.error('Cannot find dex')
-        return
-      }
-      const dex = Object.keys(zapInDexMapping)[dexIndex] as EarnDex
+      const dex = getEarnDexFromPoolType(poolType)
+      if (!dex) return
 
       navigateToPositionAfterZap(library, txHash, chainId, dex, poolId, navigate)
     },
@@ -197,6 +209,74 @@ const useZapInWidget = ({
             onConnectWallet: toggleWalletModal,
             onSwitchChain: () => changeNetwork(addLiquidityPureParams.chainId as number),
             onOpenZapMigration: handleOpenZapMigration,
+            onSuccess: async (data: OnSuccessProps) => {
+              if (data.position.positionId || !library) return
+
+              const dex = getEarnDexFromPoolType(data.position.poolType)
+              if (!dex) return
+
+              const isUniv2 = isForkFrom(dex, CoreProtocol.UniswapV2)
+              const isUniV4 = isForkFrom(dex, CoreProtocol.UniswapV4)
+
+              const nftId = isUniv2
+                ? account || ''
+                : ((await getTokenId(library, data.txHash, isUniV4)) || '').toString()
+
+              const dexVersion = listDexesWithVersion.includes(dex) ? dex.split(' ').pop() || '' : ''
+
+              const contract = getNftManagerContractAddress(dex, chainId)
+
+              updateUnfinalizedPosition({
+                ...DEFAULT_PARSED_POSITION,
+                id: `${contract}-${nftId}`,
+                tokenId: nftId,
+                chain: {
+                  id: chainId,
+                  name: NETWORKS_INFO[chainId].name,
+                  logo: NETWORKS_INFO[chainId].icon,
+                },
+                dex: {
+                  id: dex,
+                  logo: data.position.dexLogo,
+                  version: dexVersion,
+                },
+                pool: {
+                  ...DEFAULT_PARSED_POSITION.pool,
+                  address: data.position.pool.address,
+                  fee: data.position.pool.fee,
+                  isUniv2: isUniv2,
+                },
+                token0: {
+                  ...DEFAULT_PARSED_POSITION.token0,
+                  totalProvide: data.position.token0.amount,
+                  logo: data.position.token0.logo,
+                  symbol: data.position.token0.symbol,
+                },
+                token1: {
+                  ...DEFAULT_PARSED_POSITION.token1,
+                  totalProvide: data.position.token1.amount,
+                  logo: data.position.token1.logo,
+                  symbol: data.position.token1.symbol,
+                },
+                totalValueTokens: [
+                  {
+                    address: '',
+                    symbol: data.position.token0.symbol,
+                    amount: data.position.token0.amount,
+                  },
+                  {
+                    address: '',
+                    symbol: data.position.token1.symbol,
+                    amount: data.position.token1.amount,
+                  },
+                ],
+                totalProvidedValue: data.position.value,
+                totalValue: data.position.value,
+                createdTime: data.position.createdAt,
+                txHash: data.txHash,
+                isUnfinalized: true,
+              })
+            },
             onSubmitTx: async (txData: { from: string; to: string; data: string; value: string; gasLimit: string }) => {
               const res = await submitTransaction({ library, txData })
               const { txHash, error } = res

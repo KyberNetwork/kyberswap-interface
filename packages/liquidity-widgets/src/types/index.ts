@@ -33,8 +33,35 @@ export interface WidgetProps {
     },
     initialTick?: { tickLower: number; tickUpper: number },
   ) => void;
+  onSuccess?: ({ txHash, position }: OnSuccessProps) => void;
   onSubmitTx: (txData: { from: string; to: string; value: string; data: string; gasLimit: string }) => Promise<string>;
   onViewPosition?: (txHash: string) => void;
+}
+
+export interface OnSuccessProps {
+  txHash: string;
+  position: {
+    positionId?: string;
+    chainId: number;
+    poolType: PoolType;
+    dexLogo: string;
+    token0: {
+      symbol: string;
+      logo: string;
+      amount: number;
+    };
+    token1: {
+      symbol: string;
+      logo: string;
+      amount: number;
+    };
+    pool: {
+      address: string;
+      fee: number;
+    };
+    value: number;
+    createdAt: number;
+  };
 }
 
 export enum PriceType {

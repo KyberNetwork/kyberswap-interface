@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { useShallow } from 'zustand/shallow';
 
-import { API_URLS, CHAIN_ID_TO_CHAIN, DEXES_INFO, NETWORKS_INFO, univ3PoolNormalize } from '@kyber/schema';
+import { API_URLS, CHAIN_ID_TO_CHAIN, DEXES_INFO, NETWORKS_INFO, PoolType, univ3PoolNormalize } from '@kyber/schema';
 import {
   Accordion,
   AccordionContent,
@@ -62,6 +62,7 @@ export default function Preview({
     wrappedNativeToken,
     nativeToken,
     positionId,
+    onSuccess,
   } = useWidgetStore(
     useShallow(s => ({
       poolType: s.poolType,
@@ -75,6 +76,7 @@ export default function Preview({
       wrappedNativeToken: s.wrappedNativeToken,
       nativeToken: s.nativeToken,
       positionId: s.positionId,
+      onSuccess: s.onSuccess,
     })),
   );
   const { position } = usePositionStore(
@@ -95,9 +97,12 @@ export default function Preview({
   const [txError, setTxError] = useState<Error | null>(null);
   const [txStatus, setTxStatus] = useState<'success' | 'failed' | ''>('');
   const [gasUsd, setGasUsd] = useState<number | null>(null);
+  const [onSuccessTriggered, setOnSuccessTriggered] = useState(false);
 
   const { success: isUniV3, data: univ3Pool } = univ3PoolNormalize.safeParse(pool);
   const isOutOfRange = isUniV3 ? tickLower > univ3Pool.tick || univ3Pool.tick >= tickUpper : false;
+
+  const { icon: dexLogo } = DEXES_INFO[poolType as PoolType];
 
   useEffect(() => {
     if (txHash) {
@@ -218,6 +223,58 @@ export default function Preview({
         }
       });
   }, [account, chainId, deadline, rpcUrl, source, zapInfo.route]);
+
+  useEffect(() => {
+    if (!txHash || txStatus !== 'success' || !onSuccess || onSuccessTriggered) return;
+
+    setOnSuccessTriggered(true);
+
+    onSuccess({
+      txHash,
+      position: {
+        positionId,
+        chainId,
+        poolType,
+        dexLogo,
+        token0: {
+          symbol: pool.token0.symbol,
+          logo: pool.token0.logo || '',
+          amount: positionId !== undefined ? positionAmountInfo.amount0 : addedAmountInfo.addedAmount0,
+        },
+        token1: {
+          symbol: pool.token1.symbol,
+          logo: pool.token1.logo || '',
+          amount: positionId !== undefined ? positionAmountInfo.amount1 : addedAmountInfo.addedAmount1,
+        },
+        pool: {
+          address: pool.address,
+          fee: pool.fee,
+        },
+        value: +zapInfo.zapDetails.initialAmountUsd,
+        createdAt: Date.now(),
+      },
+    });
+  }, [
+    addedAmountInfo.addedAmount0,
+    addedAmountInfo.addedAmount1,
+    chainId,
+    dexLogo,
+    onSuccess,
+    onSuccessTriggered,
+    pool.address,
+    pool.fee,
+    pool.token0.logo,
+    pool.token0.symbol,
+    pool.token1.logo,
+    pool.token1.symbol,
+    poolType,
+    positionAmountInfo.amount0,
+    positionAmountInfo.amount1,
+    positionId,
+    txHash,
+    txStatus,
+    zapInfo.zapDetails.initialAmountUsd,
+  ]);
 
   const dexName =
     typeof DEXES_INFO[poolType].name === 'string' ? DEXES_INFO[poolType].name : DEXES_INFO[poolType].name[chainId];

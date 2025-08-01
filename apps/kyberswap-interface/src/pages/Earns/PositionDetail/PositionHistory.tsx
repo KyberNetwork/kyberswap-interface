@@ -50,9 +50,13 @@ const PositionHistory = ({ position }: { position?: ParsedPosition }) => {
   }, [position?.createdTime])
 
   const txHash = useMemo(() => {
-    if (!historyData) return ''
-    return [...historyData].reverse().find(item => item.type === PositionHistoryType.DEPOSIT)?.txHash || ''
-  }, [historyData])
+    if (!historyData) return position?.txHash || ''
+    return (
+      [...historyData].reverse().find(item => item.type === PositionHistoryType.DEPOSIT)?.txHash ||
+      position?.txHash ||
+      ''
+    )
+  }, [historyData, position?.txHash])
 
   return (
     <CollapseItem
