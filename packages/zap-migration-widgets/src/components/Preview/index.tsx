@@ -10,6 +10,7 @@ import {
   InfoHelper,
   MouseoverTooltip,
   ScrollArea,
+  TokenLogo,
 } from '@kyber/ui';
 import { fetchTokenPrice } from '@kyber/utils';
 import {
@@ -26,7 +27,6 @@ import { getPositionAmounts } from '@kyber/utils/uniswapv3';
 import AlertIcon from '@/assets/icons/circle-alert.svg';
 import CheckIcon from '@/assets/icons/circle-check.svg';
 import LoadingIcon from '@/assets/icons/loader-circle.svg';
-import { Image } from '@/components/Image';
 import { MigrationSummary } from '@/components/Preview/MigrationSummary';
 import { SlippageInfo } from '@/components/SlippageInfo';
 import { SwapPI, useSwapPI } from '@/components/SwapImpact';
@@ -330,12 +330,17 @@ export function Preview({
               </div>
               <div className="border border-stroke rounded-md p-4 mt-4 flex gap-2 items-start">
                 <div className="flex items-end">
-                  <Image src={pools[0].token0.logo || ''} alt={pools[0].token0.symbol} className="w-9 h-9 z-0" />
-                  <Image src={pools[0].token1.logo || ''} alt={pools[0].token1.symbol} className="w-9 h-9 -ml-3 z-10" />
-                  <Image
+                  <TokenLogo src={pools[0].token0.logo || ''} size={36} alt={pools[0].token0.symbol} className="z-0" />
+                  <TokenLogo
+                    src={pools[0].token1.logo || ''}
+                    size={36}
+                    alt={pools[0].token1.symbol}
+                    className="-ml-3 z-10"
+                  />
+                  <TokenLogo
                     src={NETWORKS_INFO[chainId].logo}
                     alt={NETWORKS_INFO[chainId].name}
-                    className="w-4 h-4 -ml-1.5 z-20"
+                    className="-ml-1.5 z-20"
                   />
                 </div>
                 <div>
@@ -343,7 +348,7 @@ export function Preview({
                     {pools[0].token0.symbol}/{pools[0].token1.symbol} {copyPoolAddress0}
                   </div>
                   <div className="flex gap-1 items-center text-subText mt-1">
-                    <Image src={DEXES_INFO[pools[0].dex].icon} alt={dexFrom} className="w-3 h-3" />
+                    <TokenLogo src={DEXES_INFO[pools[0].dex].icon} size={12} alt={dexFrom} />
                     <div className="text-sm opacity-70">{dexFrom}</div>
                     <div className="rounded-xl bg-layer2 px-2 py-1 text-xs">Fee {pools[0].fee}%</div>
                   </div>
@@ -352,12 +357,17 @@ export function Preview({
 
               <div className="border border-stroke rounded-md p-4 mt-4 flex gap-2 items-start">
                 <div className="flex items-end">
-                  <Image src={pools[1].token0.logo || ''} alt={pools[1].token0.symbol} className="w-9 h-9 z-0" />
-                  <Image src={pools[1].token1.logo || ''} alt={pools[1].token1.symbol} className="w-9 h-9 -ml-3 z-10" />
-                  <Image
+                  <TokenLogo src={pools[1].token0.logo || ''} size={36} alt={pools[1].token0.symbol} className="z-0" />
+                  <TokenLogo
+                    src={pools[1].token1.logo || ''}
+                    size={36}
+                    alt={pools[1].token1.symbol}
+                    className="-ml-3 z-10"
+                  />
+                  <TokenLogo
                     src={NETWORKS_INFO[chainId].logo}
                     alt={NETWORKS_INFO[chainId].name}
-                    className="w-4 h-4 -ml-1.5 z-20"
+                    className="-ml-1.5 z-20"
                   />
                 </div>
                 <div>
@@ -365,7 +375,7 @@ export function Preview({
                     {pools[1].token0.symbol}/{pools[1].token1.symbol} {copyPoolAddress1}
                   </div>
                   <div className="flex gap-1 items-center text-subText mt-1">
-                    <Image src={DEXES_INFO[pools[1].dex].icon} alt={dexTo} className="w-3 h-3" />
+                    <TokenLogo src={DEXES_INFO[pools[1].dex].icon} size={12} alt={dexTo} />
                     <div className="text-sm opacity-70">{dexTo}</div>
                     <div className="rounded-xl bg-layer2 px-2 py-1 text-xs">Fee {pools[1].fee}%</div>
                   </div>
@@ -376,7 +386,7 @@ export function Preview({
                 <span className="text-subText text-sm">New Pool Liquidity</span>
                 <div className="flex justify-between items-start text-base mt-2">
                   <div className="flex items-center gap-1">
-                    <Image className="w-4 h-4" src={pools[1].token0.logo || ''} alt="" />
+                    <TokenLogo src={pools[1].token0.logo || ''} />
                     {formatTokenAmount(amount0, pools[1].token0.decimals, 10)} {pools[1].token0.symbol}
                   </div>
                   <div className="text-subText">
@@ -390,7 +400,7 @@ export function Preview({
 
                 <div className="flex justify-between items-start text-base mt-2">
                   <div className="flex items-center gap-1">
-                    <Image className="w-4 h-4" src={pools[1].token1.logo || ''} alt="" />
+                    <TokenLogo src={pools[1].token1.logo || ''} />
                     {formatTokenAmount(amount1, pools[1].token1.decimals, 10)} {pools[1].token1.symbol}
                   </div>
                   <div className="text-subText">
