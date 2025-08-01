@@ -5,6 +5,7 @@ import { NotificationType } from 'components/Announcement/type'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import ClaimModal, { ClaimInfo, ClaimType } from 'pages/Earns/components/ClaimModal'
 import { CoreProtocol, DEXES_SUPPORT_COLLECT_FEE } from 'pages/Earns/constants'
+import useCompounding from 'pages/Earns/hooks/useCompounding'
 import { ParsedPosition } from 'pages/Earns/types'
 import { getNftManagerContract, isForkFrom, submitTransaction } from 'pages/Earns/utils'
 import { getUniv3CollectCallData, getUniv4CollectCallData } from 'pages/Earns/utils/fees'
@@ -25,6 +26,19 @@ const useCollectFees = ({ refetchAfterCollect }: { refetchAfterCollect: () => vo
   const [openClaimModal, setOpenClaimModal] = useState(false)
   const [claiming, setClaiming] = useState(false)
   const [txHash, setTxHash] = useState<string | null>(null)
+
+  const [position, setPosition] = useState<ParsedPosition | null>(null)
+
+  const onCloseClaim = useCallback(() => {
+    setOpenClaimModal(false)
+    setClaimInfo(null)
+    setPosition(null)
+  }, [])
+
+  const { widget: compoundingWidget, handleOpenCompounding } = useCompounding({
+    onRefreshPosition: refetchAfterCollect,
+    onCloseClaimModal: onCloseClaim,
+  })
 
   const handleClaim = useCallback(async () => {
     if (!library || !claimInfo?.dex || !DEXES_SUPPORT_COLLECT_FEE[claimInfo.dex]) return
@@ -94,11 +108,6 @@ const useCollectFees = ({ refetchAfterCollect }: { refetchAfterCollect: () => vo
     })
   }, [account, addTransactionWithType, claimInfo, library, notify])
 
-  const onCloseClaim = useCallback(() => {
-    setOpenClaimModal(false)
-    setClaimInfo(null)
-  }, [])
-
   const onOpenClaim = (position: ParsedPosition) => {
     setOpenClaimModal(true)
     const isUniV3 = isForkFrom(position.dex.id, CoreProtocol.UniswapV3)
@@ -140,7 +149,22 @@ const useCollectFees = ({ refetchAfterCollect }: { refetchAfterCollect: () => vo
       nativeToken: position.pool.nativeToken,
       totalValue: position.token0.unclaimedValue + position.token1.unclaimedValue,
     })
+    setPosition(position)
   }
+
+  const onCompound = useCallback(() => {
+    if (!position) return
+    handleOpenCompounding({
+      pool: {
+        chainId: position.chain.id,
+        address: position.pool.address,
+        dex: position.dex.id,
+      },
+      positionId: position.tokenId,
+      initDepositTokens: position.token0.address + ',' + position.token1.address,
+      initAmounts: position.token0.unclaimedAmount + ',' + position.token1.unclaimedAmount,
+    })
+  }, [handleOpenCompounding, position])
 
   useEffect(() => {
     if (txHash && allTransactions && allTransactions[txHash]) {
@@ -156,13 +180,18 @@ const useCollectFees = ({ refetchAfterCollect }: { refetchAfterCollect: () => vo
 
   const claimModal =
     openClaimModal && claimInfo ? (
-      <ClaimModal
-        claimType={ClaimType.FEES}
-        claiming={claiming}
-        claimInfo={claimInfo}
-        onClaim={handleClaim}
-        onClose={onCloseClaim}
-      />
+      <>
+        <ClaimModal
+          claimType={ClaimType.FEES}
+          claiming={claiming}
+          claimInfo={claimInfo}
+          compoundable
+          onCompound={onCompound}
+          onClaim={handleClaim}
+          onClose={onCloseClaim}
+        />
+        {compoundingWidget}
+      </>
     ) : null
 
   return { claiming, claimModal, onOpenClaim }
