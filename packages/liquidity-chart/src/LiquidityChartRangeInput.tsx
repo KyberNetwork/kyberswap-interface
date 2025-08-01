@@ -35,15 +35,13 @@ export default function LiquidityChartRangeInput({
   const feeRange = getFeeRange(pool.fee || 0);
 
   const brushDomain: [number, number] | undefined = useMemo(() => {
-    if (!priceLower || !priceUpper) return;
+    if (priceLower === undefined || priceUpper === undefined || priceLower === null || priceUpper === null) return;
 
-    const leftPrice = !revertPrice ? priceLower : priceUpper;
-    const rightPrice = !revertPrice ? priceUpper : priceLower;
+    const leftPrice = priceLower;
+    const rightPrice = priceUpper;
 
-    return leftPrice && rightPrice
-      ? [parseFloat(leftPrice.toString().replace(/,/g, '')), parseFloat(rightPrice.toString().replace(/,/g, ''))]
-      : undefined;
-  }, [priceLower, priceUpper, revertPrice]);
+    return [parseFloat(leftPrice.toString().replace(/,/g, '')), parseFloat(rightPrice.toString().replace(/,/g, ''))];
+  }, [priceLower, priceUpper]);
 
   const brushLabel = useCallback(
     (d: 'w' | 'e', x: number) => {
@@ -65,10 +63,17 @@ export default function LiquidityChartRangeInput({
 
   const defaultZoomLevels = useMemo(() => {
     if (onBrushDomainChange) return ZOOM_LEVELS[feeRange];
-    if (!priceLower || !priceUpper || !currentPrice) return;
+    if (
+      priceLower === undefined ||
+      priceUpper === undefined ||
+      priceLower === null ||
+      priceUpper === null ||
+      !currentPrice
+    )
+      return;
 
-    const leftPrice = parseFloat((!revertPrice ? priceLower : priceUpper).toString().replace(/,/g, ''));
-    const rightPrice = parseFloat((!revertPrice ? priceUpper : priceLower).toString().replace(/,/g, ''));
+    const leftPrice = parseFloat(priceLower.toString().replace(/,/g, ''));
+    const rightPrice = parseFloat(priceUpper.toString().replace(/,/g, ''));
     const priceToCalculate =
       ticksAtLimit[Bound.UPPER] || Math.abs(currentPrice - leftPrice) > Math.abs(currentPrice - rightPrice)
         ? leftPrice
@@ -82,7 +87,7 @@ export default function LiquidityChartRangeInput({
       min: 0.00001,
       max: 20,
     };
-  }, [onBrushDomainChange, priceLower, priceUpper, currentPrice, revertPrice, ticksAtLimit, feeRange]);
+  }, [onBrushDomainChange, priceLower, priceUpper, currentPrice, ticksAtLimit, feeRange]);
 
   return (
     <div className="ks-lc-style" style={{ width: '100%' }}>

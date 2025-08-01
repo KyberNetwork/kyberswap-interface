@@ -73,7 +73,7 @@ export default function MigrationModal({
                   <Flex alignItems="center" sx={{ gap: 2 }}>
                     <Flex alignItems="center">
                       <TokenLogo src={pool.tokens?.[0]?.logoURI} />
-                      <TokenLogo src={pool.tokens?.[1]?.logoURI} />
+                      <TokenLogo src={pool.tokens?.[1]?.logoURI} translateLeft />
                     </Flex>
                     <SymbolText>
                       {pool.tokens?.[0]?.symbol}/{pool.tokens?.[1]?.symbol}
@@ -132,7 +132,7 @@ export default function MigrationModal({
                     <Flex sx={{ gap: 1 }}>
                       <Flex sx={{ position: 'relative', top: -1 }}>
                         <TokenLogo src={pool.tokens?.[0]?.logoURI} />
-                        <TokenLogo src={pool.tokens?.[1]?.logoURI} />
+                        <TokenLogo src={pool.tokens?.[1]?.logoURI} translateLeft />
                       </Flex>
                       <SymbolText>
                         {pool.tokens?.[0]?.symbol}/{pool.tokens?.[1]?.symbol}

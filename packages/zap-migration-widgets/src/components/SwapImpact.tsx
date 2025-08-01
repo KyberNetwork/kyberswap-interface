@@ -125,7 +125,7 @@ export const SwapPI = ({ chainId }: { chainId: ChainId }) => {
   const { swapPi, swapPiRes } = useSwapPI(chainId);
 
   return (
-    <div className="flex justify-between items-start w-full">
+    <div className="flex justify-between items-start w-full mt-2">
       {swapPi.length ? (
         <Accordion type="single" collapsible className="w-full">
           <AccordionItem value="item-1">

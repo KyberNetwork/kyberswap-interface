@@ -100,8 +100,8 @@ export const parseSwapActions = ({
       const amountOut = formatWei(item.tokenOut.amount, tokenOut?.decimals);
 
       const pi =
-        parseFloat(item.tokenIn.amountUsd) === 0
-          ? 0
+        parseFloat(item.tokenIn.amountUsd) === 0 || parseFloat(item.tokenOut.amountUsd) === 0
+          ? undefined
           : ((parseFloat(item.tokenIn.amountUsd) - parseFloat(item.tokenOut.amountUsd)) /
               parseFloat(item.tokenIn.amountUsd)) *
             100;
@@ -126,8 +126,8 @@ export const parseSwapActions = ({
       const amountOut = formatWei(item.tokenOut.amount, tokenOut?.decimals);
 
       const pi =
-        parseFloat(item.tokenIn.amountUsd) === 0
-          ? 0
+        parseFloat(item.tokenIn.amountUsd) === 0 || parseFloat(item.tokenOut.amountUsd) === 0
+          ? undefined
           : ((parseFloat(item.tokenIn.amountUsd) - parseFloat(item.tokenOut.amountUsd)) /
               parseFloat(item.tokenIn.amountUsd)) *
             100;

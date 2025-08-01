@@ -34,7 +34,7 @@ export default function PriceRange({
   dex: EarnDex
 }) {
   const isUniv2 = isForkFrom(dex, CoreProtocol.UniswapV2)
-  const outOfRange = isUniv2 ? false : currentPrice < minPrice || currentPrice > maxPrice
+  const outOfRange = isUniv2 ? false : currentPrice < minPrice || (currentPrice > maxPrice && maxPrice !== 0)
 
   const ticksAtLimit: { lower: boolean; upper: boolean } | undefined = useMemo(() => {
     if (isUniv2) return { lower: true, upper: true }
@@ -51,7 +51,7 @@ export default function PriceRange({
     const tickLower =
       parsedMinPrice === '0' ? minTick : priceToClosestTick(parsedMinPrice, token0Decimals, token1Decimals, false)
     const tickUpper =
-      Number(parsedMaxPrice) === Infinity
+      Number(parsedMaxPrice) === Infinity || Number(parsedMaxPrice) === 0
         ? maxTick
         : priceToClosestTick(parsedMaxPrice, token0Decimals, token1Decimals, false)
 

@@ -29,7 +29,6 @@ export const PositionRow = styled(Link)`
     minmax(150px, 1.5fr) /* Balance */
     minmax(160px, 1.5fr) /* Price range */
     minmax(75px, auto); /* Actions */
-  grid-template-columns: 3fr 1fr 1fr 1.2fr 1.2fr 1.6fr 0.5fr;
   grid-template-rows: 1fr;
   padding: 16px 28px;
   row-gap: 8px;
@@ -345,7 +344,6 @@ export const PositionTableHeader = styled(TableHeader)`
     minmax(150px, 1.5fr) /* Balance */
     minmax(160px, 1.5fr) /* Price range */
     minmax(75px, auto); /* Actions */
-  grid-template-columns: 3fr 1fr 1fr 1.2fr 1.2fr 1.6fr 0.5fr;
   overflow: hidden;
 `
 

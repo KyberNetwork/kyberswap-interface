@@ -11,7 +11,7 @@ import { ReactComponent as IconHighlightedPool } from 'assets/svg/earn/ic_pool_h
 import { ReactComponent as IconLowVolatility } from 'assets/svg/earn/ic_pool_low_volatility.svg'
 import { ReactComponent as IconSolidEarningPool } from 'assets/svg/earn/ic_pool_solid_earning.svg'
 import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_earn_position.svg'
-// import { ReactComponent as IconFarmingPool } from 'assets/svg/kyber/kem.svg'
+import { ReactComponent as IconFarmingPool } from 'assets/svg/kyber/kem.svg'
 import { NotificationType } from 'components/Announcement/type'
 import Pagination from 'components/Pagination'
 import Search from 'components/Search'
@@ -59,12 +59,12 @@ export enum SortBy {
 }
 
 const filterTags = [
-  // {
-  //   label: 'Farming Pools',
-  //   value: FilterTag.FARMING_POOL,
-  //   icon: <IconFarmingPool width={24} />,
-  //   tooltip: 'No staking is required to earn rewards in these pools',
-  // },
+  {
+    label: 'Farming Pools',
+    value: FilterTag.FARMING_POOL,
+    icon: <IconFarmingPool width={24} />,
+    tooltip: 'No staking is required to earn rewards in these pools',
+  },
   {
     label: 'Highlighted Pools',
     value: FilterTag.HIGHLIGHTED_POOL,

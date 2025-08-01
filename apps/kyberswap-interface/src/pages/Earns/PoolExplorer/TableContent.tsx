@@ -210,7 +210,7 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: ({ pool }: Zap
                 <Flex sx={{ gap: 1 }}>
                   <Flex sx={{ position: 'relative', top: -1 }}>
                     <TokenLogo src={pool.tokens?.[0]?.logoURI} />
-                    <TokenLogo src={pool.tokens?.[1]?.logoURI} />
+                    <TokenLogo src={pool.tokens?.[1]?.logoURI} translateLeft />
                   </Flex>
                   <Flex flexDirection={'column'} sx={{ gap: 2 }}>
                     <Flex sx={{ gap: 1 }}>
@@ -284,7 +284,7 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: ({ pool }: Zap
             <Flex alignItems="center" sx={{ gap: 2 }}>
               <Flex alignItems="center">
                 <TokenLogo src={pool.tokens?.[0]?.logoURI} />
-                <TokenLogo src={pool.tokens?.[1]?.logoURI} />
+                <TokenLogo src={pool.tokens?.[1]?.logoURI} translateLeft />
               </Flex>
               <SymbolText>
                 {pool.tokens?.[0]?.symbol}/{pool.tokens?.[1]?.symbol}
