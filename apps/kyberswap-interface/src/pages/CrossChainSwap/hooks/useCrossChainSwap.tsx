@@ -107,35 +107,44 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
 
   const { chainId, account } = useActiveWeb3React()
 
+  const { walletInfo } = useBitcoinWallet()
+  const btcAddress = walletInfo?.address
+  const btcPublicKey = walletInfo?.publicKey
+
   useEffect(() => {
     setLoading(true)
   }, [amount])
 
   useEffect(() => {
     let hasUpdate = false
-    let newFrom = from
+    // let newFrom = from
     if (!from) {
-      searchParams.set('from', chainId?.toString() || '')
-      newFrom = chainId?.toString() || ''
+      const defaultFrom = !account ? NonEvmChain.Bitcoin : chainId?.toString() || ''
+      searchParams.set('from', defaultFrom)
+      // newFrom = defaultFrom
       hasUpdate = true
     }
 
     let newTo = to
     if (!to) {
-      const lastChainId = localStorage.getItem('crossChainSwapLastChainOut')
-      if (lastChainId && lastChainId !== newFrom) {
-        searchParams.set('to', lastChainId)
-        newTo = lastChainId
-        hasUpdate = true
-      }
+      const defaultTo = !account || !!btcAddress ? ChainId.MAINNET.toString() : NonEvmChain.Bitcoin
+      searchParams.set('to', defaultTo)
+      newTo = defaultTo
+      hasUpdate = true
+      // const lastChainId = localStorage.getItem('crossChainSwapLastChainOut')
+      // if (lastChainId && lastChainId !== newFrom) {
+      //   searchParams.set('to', lastChainId)
+      //   newTo = lastChainId
+      //   hasUpdate = true
+      // }
     }
 
     if (!tokenIn) {
-      if (from === 'near') {
+      if (from === NonEvmChain.Near) {
         searchParams.set('tokenIn', 'near')
         hasUpdate = true
       }
-      if (from === 'solana') {
+      if (from === NonEvmChain.Solana) {
         searchParams.set('tokenIn', SOLANA_NATIVE)
         hasUpdate = true
       }
@@ -146,11 +155,11 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     }
 
     if (!tokenOut) {
-      if (to === 'near') {
+      if (to === NonEvmChain.Near) {
         searchParams.set('tokenOut', 'near')
         hasUpdate = true
       }
-      if (to === 'solana') {
+      if (to === NonEvmChain.Solana) {
         searchParams.set('tokenOut', SOLANA_NATIVE)
         hasUpdate = true
       }
@@ -163,7 +172,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     if (hasUpdate) {
       setSearchParams(searchParams)
     }
-  }, [from, to, tokenIn, chainId, searchParams, setSearchParams, tokenOut])
+  }, [from, to, tokenIn, chainId, searchParams, setSearchParams, tokenOut, account, btcAddress])
 
   const isFromSolana = from === 'solana'
   const isFromNear = from === 'near'
@@ -189,10 +198,6 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
       setNearRecipient(signedAccountId)
     }
   }, [signedAccountId])
-
-  const { walletInfo } = useBitcoinWallet()
-  const btcAddress = walletInfo?.address
-  const btcPublicKey = walletInfo?.publicKey
 
   useEffect(() => {
     if (btcAddress) {
