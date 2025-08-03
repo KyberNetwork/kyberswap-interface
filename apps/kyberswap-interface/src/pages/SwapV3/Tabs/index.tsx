@@ -8,7 +8,6 @@ import { ButtonEmpty } from 'components/Button'
 import { NewLabel } from 'components/Menu'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import useParsedQueryString from 'hooks/useParsedQueryString'
 import { TAB } from 'pages/SwapV3'
 import LimitTab from 'pages/SwapV3/Tabs/LimitTab'
 import { isSupportLimitOrder } from 'utils'
@@ -77,11 +76,6 @@ export default function Tabs({ activeTab, setActiveTab, customChainId }: Props) 
   const { networkInfo, chainId: walletChainId } = useActiveWeb3React()
   const chainId = customChainId || walletChainId
 
-  const qs = useParsedQueryString<{
-    outputCurrency: string
-    inputCurrency: string
-  }>()
-
   const { pathname } = useLocation()
   const { currency: currencyParam } = useParams()
 
@@ -108,13 +102,11 @@ export default function Tabs({ activeTab, setActiveTab, customChainId }: Props) 
     if (tab === TAB.SWAP && pathname.includes('/swap')) {
       return
     }
-    const { inputCurrency, outputCurrency, ...newQs } = qs
     navigateFn({
       pathname:
         tab === TAB.CROSS_CHAIN
           ? APP_PATHS.CROSS_CHAIN
           : `${tab === TAB.LIMIT ? APP_PATHS.LIMIT : APP_PATHS.SWAP}/${networkInfo.route}/${currencyParam || ''}`,
-      search: new URLSearchParams(newQs).toString(),
     })
   }
 
