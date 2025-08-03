@@ -132,6 +132,7 @@ export const BitcoinConnectModal = ({ isOpen, onDismiss }: { isOpen: boolean; on
               <input
                 type="checkbox"
                 checked={isAcceptedTerm}
+                onChange={() => {}}
                 data-testid="accept-term"
                 style={{ marginRight: '12px', height: '14px', width: '14px', minWidth: '14px', cursor: 'pointer' }}
               />

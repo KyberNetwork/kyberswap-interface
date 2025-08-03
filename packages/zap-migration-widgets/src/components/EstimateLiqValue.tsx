@@ -8,12 +8,12 @@ import {
   InfoHelper,
   MouseoverTooltip,
   Skeleton,
+  TokenLogo,
 } from '@kyber/ui';
 import { formatDisplayNumber, formatTokenAmount, toRawString } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
 import { getPositionAmounts } from '@kyber/utils/uniswapv3';
 
-import { Image } from '@/components/Image';
 import { SlippageInfo } from '@/components/SlippageInfo';
 import { SwapPI, useSwapPI } from '@/components/SwapImpact';
 import { PATHS } from '@/constants';
@@ -126,7 +126,7 @@ export function EstimateLiqValue({ chainId }: { chainId: ChainId }) {
                 ) : (
                   <>
                     <div className="flex items-center gap-1 text-xs">
-                      <Image className="w-4 h-4" src={pools[1].token0.logo || ''} alt="" />
+                      <TokenLogo src={pools[1].token0.logo || ''} />
                       {formatTokenAmount(amount0, pools[1].token0.decimals, 10)} {pools[1].token0.symbol}
                     </div>
                     <div className="text-subText text-xs">
@@ -159,7 +159,7 @@ export function EstimateLiqValue({ chainId }: { chainId: ChainId }) {
                 ) : (
                   <>
                     <div className="flex items-center gap-1 text-xs">
-                      <Image className="w-4 h-4" src={pools[1].token1.logo || ''} alt="" />
+                      <TokenLogo src={pools[1].token1.logo || ''} />
                       {formatTokenAmount(amount1, pools[1].token1.decimals, 10)} {pools[1].token1.symbol}
                     </div>
                     <div className="text-subText text-xs">

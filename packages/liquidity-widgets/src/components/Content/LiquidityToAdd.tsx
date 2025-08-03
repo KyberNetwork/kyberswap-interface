@@ -2,8 +2,7 @@ import { useMemo } from 'react';
 
 import { NATIVE_TOKEN_ADDRESS } from '@kyber/schema';
 import { Skeleton, TokenLogo } from '@kyber/ui';
-import { formatUnits } from '@kyber/utils/crypto';
-import { formatDisplayNumber, formatWei } from '@kyber/utils/number';
+import { formatDisplayNumber, formatUnits } from '@kyber/utils/number';
 
 import DropdownIcon from '@/assets/svg/dropdown.svg';
 import WalletIcon from '@/assets/svg/wallet.svg';
@@ -99,7 +98,7 @@ export default function LiquidityToAdd({
           }}
         >
           <WalletIcon />
-          {formatWei(balanceInWei, token?.decimals) || ''}
+          {formatUnits(balanceInWei, token?.decimals, 4) || ''}
         </div>
       </div>
 

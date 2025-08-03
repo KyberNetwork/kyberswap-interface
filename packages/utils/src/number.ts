@@ -110,15 +110,25 @@ export const formatDisplayNumber = (
   return formatter.format(v);
 };
 
-export function formatUnits(value: string, decimals = 18) {
+export function formatUnits(value: string, decimals = 18, maxDisplayDecimals?: number) {
   const factor = BigInt(10) ** BigInt(decimals);
   const wholePart = BigInt(value) / factor;
   const fractionalPart = BigInt(value) % factor;
 
   // Convert fractional part to string and pad with leading zeros
-  const fractionalStr = fractionalPart.toString().padStart(Number(decimals), '0');
+  let fractionalStr = fractionalPart.toString().padStart(Number(decimals), '0');
 
-  // Remove trailing zeros in the fractional part
+  // If fractionalPart has more digits than decimals, truncate to decimals
+  if (fractionalStr.length > decimals) {
+    fractionalStr = fractionalStr.slice(0, decimals);
+  }
+
+  // If maxDisplayDecimals is specified, limit the displayed decimals
+  if (maxDisplayDecimals !== undefined && fractionalStr.length > maxDisplayDecimals) {
+    fractionalStr = fractionalStr.slice(0, maxDisplayDecimals);
+  }
+
+  // Remove trailing zeros in the fractional part, but keep at least some significant digits
   const formattedFractionalStr = fractionalStr.replace(/0+$/, '');
 
   // If no fractional part, return only the whole part
