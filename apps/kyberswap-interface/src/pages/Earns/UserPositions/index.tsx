@@ -36,6 +36,7 @@ import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import useZapOutWidget from 'pages/Earns/hooks/useZapOutWidget'
 import { ParsedPosition, PositionStatus } from 'pages/Earns/types'
 import { parsePosition } from 'pages/Earns/utils/position'
+import { getUnfinalizedPositions } from 'pages/Earns/utils/unfinalizedPosition'
 import SortIcon, { Direction } from 'pages/MarketOverview/SortIcon'
 import { MEDIA_WIDTHS } from 'theme'
 
@@ -127,6 +128,8 @@ const UserPositions = () => {
   const filteredPositions: Array<ParsedPosition> = useMemo(() => {
     let result = []
 
+    const nftIds = parsedPositions.map(position => position.tokenId)
+
     const arrStatus = filters.status.split(',')
     result = [...parsedPositions].filter(position => {
       if (filters.status === PositionStatus.OUT_RANGE)
@@ -174,7 +177,16 @@ const UserPositions = () => {
       }
     }
 
-    return result
+    const unfinalizedPositions = getUnfinalizedPositions(nftIds).filter(
+      position =>
+        (filters.chainIds ? Number(filters.chainIds) === position.chain.id : true) &&
+        (filters.protocols
+          ? filters.protocols.split(',').includes(protocolGroupNameToExchangeMapping[position.dex.id])
+          : true) &&
+        (filters.status.includes(PositionStatus.IN_RANGE) || filters.status.includes(PositionStatus.OUT_RANGE)),
+    )
+
+    return [...result, ...unfinalizedPositions]
   }, [filters.chainIds, filters.orderBy, filters.protocols, filters.sortBy, filters.status, parsedPositions])
 
   const paginatedPositions: Array<ParsedPosition> = useMemo(() => {
