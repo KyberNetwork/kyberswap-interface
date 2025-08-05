@@ -194,6 +194,7 @@ export const DEFAULT_PARSED_POSITION: ParsedPosition = {
   unclaimedFees: 0,
   suggestionPool: null,
   isUnfinalized: false,
+  isValueUpdating: false,
   txHash: '',
 }
 
@@ -262,6 +263,7 @@ export interface ParsedPosition {
   unclaimedFees: number
   suggestionPool: SuggestedPool | null
   isUnfinalized: boolean
+  isValueUpdating: boolean
   txHash?: string
 }
 

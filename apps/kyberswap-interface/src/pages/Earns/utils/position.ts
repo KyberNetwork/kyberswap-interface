@@ -268,6 +268,7 @@ export const parsePosition = ({
     status: forceClosed ? PositionStatus.CLOSED : isUniv2 ? PositionStatus.IN_RANGE : position.status,
     createdTime: position.createdTime,
     isUnfinalized,
+    isValueUpdating: false,
   }
 }
 
