@@ -139,7 +139,7 @@ const ClaimModal = ({
           )}
           <ButtonPrimary gap="4px" disabled={claiming} onClick={handleClaim}>
             {claiming && <Loader stroke={'#505050'} />}
-            {claiming ? t`Claiming` : claimType === ClaimType.FEES ? t`Claim only` : t`Claim`}
+            {claiming ? t`Claiming` : t`Claim only`}
           </ButtonPrimary>
         </Row>
       </Wrapper>

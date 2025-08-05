@@ -32,10 +32,12 @@ const RewardSection = ({
   position,
   initialLoading,
   shareBtn,
+  refetchPositions,
 }: {
   position?: ParsedPosition
   initialLoading: boolean
   shareBtn: (type: ShareType) => React.ReactNode
+  refetchPositions: () => void
 }) => {
   const theme = useTheme()
 
@@ -46,7 +48,7 @@ const RewardSection = ({
     claimModal: claimRewardsModal,
     onOpenClaim: onOpenClaimRewards,
     claiming: rewardsClaiming,
-  } = useKemRewards()
+  } = useKemRewards(refetchPositions)
   const rewardInfoThisPosition = !position ? undefined : rewardInfo?.nfts.find(item => item.nftId === position.tokenId)
 
   const chain = position?.chain.id ? NETWORKS_INFO[position.chain.id as ChainId]?.route || '' : ''
@@ -211,7 +213,7 @@ const RewardSection = ({
               !isUnfinalized &&
               rewardInfoThisPosition?.claimableUsdValue &&
               !rewardsClaiming &&
-              onOpenClaimRewards(rewardInfoThisPosition.nftId, position?.chain.id || 0)
+              onOpenClaimRewards(position)
             }
           >
             {rewardsClaiming && <Loader size="14px" />}
