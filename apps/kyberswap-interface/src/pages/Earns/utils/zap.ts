@@ -11,6 +11,7 @@ export const navigateToPositionAfterZap = async (
   dex: EarnDex,
   poolId: string,
   navigateFunc: (url: string) => void,
+  defaultTokenId?: number,
 ) => {
   let url
   const isUniv2 = isForkFrom(dex, CoreProtocol.UniswapV2)
@@ -24,7 +25,7 @@ export const navigateToPositionAfterZap = async (
         .replace(':chainId', chainId.toString())
         .replace(':protocol', exchange) + '?forceLoading=true'
   } else {
-    const tokenId = await getTokenId(library, txHash, isUniV4)
+    const tokenId = defaultTokenId || (await getTokenId(library, txHash, isUniV4))
     if (!tokenId) {
       navigateFunc(APP_PATHS.EARN_POSITIONS)
       return

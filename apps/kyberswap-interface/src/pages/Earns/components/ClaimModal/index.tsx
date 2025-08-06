@@ -50,13 +50,17 @@ const ClaimModal = ({
   claimType,
   claiming,
   claimInfo,
+  compoundable: _compoundable,
   onClaim,
+  onCompound: _onCompound,
   onClose,
 }: {
   claimType: ClaimType
   claiming: boolean
   claimInfo: ClaimInfo
+  compoundable?: boolean
   onClaim: () => void
+  onCompound?: () => void
   onClose: () => void
 }) => {
   const theme = useTheme()
@@ -98,7 +102,11 @@ const ClaimModal = ({
           <X onClick={onClose} />
         </ModalHeader>
         <ClaimInfoWrapper>
-          <Text color={theme.subText}>{t`You are currently claiming`}</Text>
+          <Text
+            fontSize={14}
+            color={theme.subText}
+            marginBottom={2}
+          >{t`Choose to reinvest your earnings back into this position or send them to your wallet.`}</Text>
           <ClaimInfo>
             <Flex alignItems={'center'} justifyContent={'space-between'}>
               <Text fontSize={14} color={theme.subText}>{t`Total Value`}</Text>
@@ -122,9 +130,17 @@ const ClaimModal = ({
           </ClaimInfo>
         </ClaimInfoWrapper>
         <Row gap="16px" flexDirection={upToExtraSmall ? 'column-reverse' : 'row'}>
+          {/* {compoundable && onCompound ? (
+            <ButtonOutlined color={theme.primary} gap="4px" disabled={claiming} onClick={onCompound}>
+              {t`Compound`}
+            </ButtonOutlined>
+          ) : (
+            <ButtonOutlined onClick={onClose}>{t`Cancel`}</ButtonOutlined>
+          )} */}
           <ButtonOutlined onClick={onClose}>{t`Cancel`}</ButtonOutlined>
           <ButtonPrimary gap="4px" disabled={claiming} onClick={handleClaim}>
             {claiming && <Loader stroke={'#505050'} />}
+            {/* {claiming ? t`Claiming` : claimType === ClaimType.FEES ? t`Claim only` : t`Claim`} */}
             {claiming ? t`Claiming` : t`Claim`}
           </ButtonPrimary>
         </Row>
