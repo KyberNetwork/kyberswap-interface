@@ -61,7 +61,7 @@ const PositionDetail = () => {
 
   const { account } = useActiveWeb3React()
   const { positionId, chainId, protocol } = useParams()
-  const { widget: zapMigrationWidget, handleOpenZapMigration } = useZapMigrationWidget()
+  const { widget: zapMigrationWidget, handleOpenZapMigration, triggerClose, setTriggerClose } = useZapMigrationWidget()
 
   const { closedPositionsFromRpc, checkClosedPosition } = useClosedPositions()
 
@@ -441,6 +441,8 @@ const PositionDetail = () => {
                 aprSection={aprSection}
                 onRefreshPosition={onRefreshPosition}
                 initialLoading={initialLoading}
+                triggerClose={triggerClose}
+                setTriggerClose={setTriggerClose}
               />
             </PositionDetailWrapper>
           </>
