@@ -42,6 +42,8 @@ const RightSection = ({
   aprSection,
   onRefreshPosition,
   initialLoading,
+  triggerClose,
+  setTriggerClose,
 }: {
   position?: ParsedPosition
   onOpenZapMigration: (props: ZapMigrationInfo) => void
@@ -49,6 +51,8 @@ const RightSection = ({
   aprSection: React.ReactNode
   onRefreshPosition: (props: CheckClosedPositionParams) => void
   initialLoading: boolean
+  triggerClose: boolean
+  setTriggerClose: (value: boolean) => void
 }) => {
   const theme = useTheme()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
@@ -65,6 +69,8 @@ const RightSection = ({
 
   const { widget: zapInWidget, handleOpenZapIn } = useZapInWidget({
     onOpenZapMigration,
+    triggerClose,
+    setTriggerClose,
   })
   const { widget: zapOutWidget, handleOpenZapOut } = useZapOutWidget(onRefreshPosition)
 
