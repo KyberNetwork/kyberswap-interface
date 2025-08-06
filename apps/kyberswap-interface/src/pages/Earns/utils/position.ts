@@ -80,6 +80,7 @@ export const parsePosition = ({
     EarnDex.DEX_SUSHISWAPV3,
     EarnDex.DEX_QUICKSWAPV3ALGEBRA,
     EarnDex.DEX_CAMELOTV3,
+    EarnDex.DEX_PANCAKESWAPV3,
   ]
 
   const unclaimedRewardTokens = nftRewardInfo?.tokens.filter(token => token.unclaimedAmount > 0) || []
