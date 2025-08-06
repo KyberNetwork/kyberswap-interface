@@ -15,7 +15,9 @@ export default function useFilter(setSearch?: (search: string) => void) {
 
   const filters: PoolQueryParams = useMemo(() => {
     return {
-      chainId: +(searchParams.get('chainId') || defaultChainId),
+      chainId: +(searchParams.get('chainId') || searchParams.get('tag') === FilterTag.FARMING_POOL
+        ? ChainId.MAINNET
+        : defaultChainId),
       page: +(searchParams.get('page') || 1),
       limit: 10,
       interval: searchParams.get('interval') || (timings[1].value as string),
@@ -42,6 +44,8 @@ export default function useFilter(setSearch?: (search: string) => void) {
           if (value === FilterTag.LOW_VOLATILITY) {
             searchParams.set('sortBy', SortBy.APR)
             searchParams.set('orderBy', Direction.DESC)
+          } else if (value === FilterTag.FARMING_POOL) {
+            searchParams.set('chainId', ChainId.MAINNET.toString())
           }
         }
       }
