@@ -91,8 +91,10 @@ const formatTimeDurationFromTimestamp = (timestamp: number): string => {
   return `${months} ${monthText} ${remainingDays} ${dayText}`;
 };
 
-const getProxyImage = (url: string | undefined) =>
-  !url ? '' : url.startsWith('data:') ? url : `https://proxy.kyberswap.com/token-logo?url=${url}`;
+// const getProxyImage = (url: string | undefined) =>
+//   !url ? '' : url.startsWith('data:') ? url : `https://proxy.kyberswap.com/token-logo?url=${url}`;
+
+const getProxyImage = (url: string | undefined) => (!url ? '' : url);
 
 const renderStaggeredNumber = (numberString: string) => {
   const chars = numberString.split('');
