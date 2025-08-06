@@ -24,6 +24,7 @@ export const listDexesWithVersion = [
   EarnDex.DEX_SUSHISWAPV3,
   EarnDex.DEX_QUICKSWAPV3ALGEBRA,
   EarnDex.DEX_CAMELOTV3,
+  EarnDex.DEX_PANCAKESWAPV3,
 ]
 
 export const parsePosition = ({
@@ -268,6 +269,7 @@ export const parsePosition = ({
     status: forceClosed ? PositionStatus.CLOSED : isUniv2 ? PositionStatus.IN_RANGE : position.status,
     createdTime: position.createdTime,
     isUnfinalized,
+    isValueUpdating: false,
   }
 }
 

@@ -10,6 +10,7 @@ import { Flex, Text } from 'rebass'
 
 import { ReactComponent as IconEarnNotFound } from 'assets/svg/earn/ic_earn_not_found.svg'
 import { ReactComponent as IconKem } from 'assets/svg/kyber/kem.svg'
+import { Loader2 } from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { APP_PATHS, PAIR_CATEGORY } from 'constants/index'
@@ -386,12 +387,19 @@ export default function TableContent({
                       width="fit-content"
                       placement="bottom"
                     >
-                      <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '80px' }}>
-                        {formatDisplayNumber(totalValue, {
-                          style: 'currency',
-                          significantDigits: 4,
-                        })}
-                      </Text>
+                      <Flex alignItems={'center'} sx={{ gap: '6px' }}>
+                        <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '80px' }}>
+                          {formatDisplayNumber(totalValue, {
+                            style: 'currency',
+                            significantDigits: 4,
+                          })}
+                        </Text>
+                        {position.isValueUpdating && (
+                          <MouseoverTooltipDesktopOnly text={t`Value is updating`} placement="top" width="fit-content">
+                            <Loader2 size={12} />
+                          </MouseoverTooltipDesktopOnly>
+                        )}
+                      </Flex>
                     </MouseoverTooltipDesktopOnly>
                   </PositionValueWrapper>
 
