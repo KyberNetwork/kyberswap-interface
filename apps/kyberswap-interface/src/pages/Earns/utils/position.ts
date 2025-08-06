@@ -24,6 +24,7 @@ export const listDexesWithVersion = [
   EarnDex.DEX_SUSHISWAPV3,
   EarnDex.DEX_QUICKSWAPV3ALGEBRA,
   EarnDex.DEX_CAMELOTV3,
+  EarnDex.DEX_PANCAKESWAPV3,
 ]
 
 export const parsePosition = ({
