@@ -15,9 +15,10 @@ export default function useFilter(setSearch?: (search: string) => void) {
 
   const filters: PoolQueryParams = useMemo(() => {
     return {
-      chainId: +(searchParams.get('chainId') || searchParams.get('tag') === FilterTag.FARMING_POOL
-        ? ChainId.MAINNET
-        : defaultChainId),
+      chainId: +(
+        searchParams.get('chainId') ||
+        (searchParams.get('tag') === FilterTag.FARMING_POOL ? ChainId.MAINNET : defaultChainId)
+      ),
       page: +(searchParams.get('page') || 1),
       limit: 10,
       interval: searchParams.get('interval') || (timings[1].value as string),
