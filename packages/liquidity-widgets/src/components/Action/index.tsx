@@ -236,7 +236,8 @@ export default function Action({
           !error &&
           !isWrongNetwork &&
           !isNotConnected &&
-          Object.values(approvalStates).every(item => item === APPROVAL_STATE.APPROVED) && (
+          Object.values(approvalStates).every(item => item === APPROVAL_STATE.APPROVED) &&
+          (isUniv4 ? nftApproved : true) && (
             <InfoHelper
               width="300px"
               color="#ffffff"

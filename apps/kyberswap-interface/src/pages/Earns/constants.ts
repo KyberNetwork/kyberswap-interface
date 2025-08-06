@@ -241,11 +241,6 @@ export const FARMING_SUPPORTED_CHAIN = [ChainId.MAINNET, ChainId.BASE]
 
 export const POSSIBLE_FARMING_PROTOCOLS = [Exchange.DEX_UNISWAP_V4_FAIRFLOW]
 
-export const KEM_REWARDS_CONTRACT = {
-  [ChainId.MAINNET]: '0xF268cd33C76E3ba6963CD080DcE74C7C71d57a60',
-  [ChainId.BASE]: '0x0bd49FdEa9e8c3Fc410f37A643377C45659297cc',
-}
-
 export const UNISWAPV4_STATEVIEW_CONTRACT: Record<EarnChain, string> = {
   [EarnChain.MAINNET]: '0x7ffe42c4a5deea5b0fec41c94c136cf115597227',
   [EarnChain.BASE]: '0xa3c0c9b65bad0b08107aa264b0f3db444b867a71',

@@ -9,7 +9,8 @@ import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
 import { ReactComponent as IconEarnNotFound } from 'assets/svg/earn/ic_earn_not_found.svg'
-// import { ReactComponent as IconKem } from 'assets/svg/kyber/kem.svg'
+import { ReactComponent as IconKem } from 'assets/svg/kyber/kem.svg'
+import { Loader2 } from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { APP_PATHS, PAIR_CATEGORY } from 'constants/index'
@@ -44,7 +45,7 @@ import {
 } from 'pages/Earns/constants'
 import useCollectFees from 'pages/Earns/hooks/useCollectFees'
 import useFarmingStablePools from 'pages/Earns/hooks/useFarmingStablePools'
-// import useKemRewards from 'pages/Earns/hooks/useKemRewards'
+import useKemRewards from 'pages/Earns/hooks/useKemRewards'
 import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import { ZapOutInfo } from 'pages/Earns/hooks/useZapOutWidget'
@@ -80,7 +81,7 @@ export default function TableContent({
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   const [positionThatClaimingFees, setPositionThatClaimingFees] = useState<ParsedPosition | null>(null)
-  // const [positionThatClaimingRewards, setPositionThatClaimingRewards] = useState<ParsedPosition | null>(null)
+  const [positionThatClaimingRewards, setPositionThatClaimingRewards] = useState<ParsedPosition | null>(null)
   const [positionToMigrate, setPositionToMigrate] = useState<ParsedPosition | null>(null)
 
   const {
@@ -94,7 +95,7 @@ export default function TableContent({
     },
   })
 
-  // const { claimModal: claimRewardsModal, onOpenClaim: onOpenClaimRewards, claiming: rewardsClaiming } = useKemRewards()
+  const { claimModal: claimRewardsModal, onOpenClaim: onOpenClaimRewards, claiming: rewardsClaiming } = useKemRewards()
 
   const { widget: zapMigrationWidget, handleOpenZapMigration } = useZapMigrationWidget()
 
@@ -165,13 +166,13 @@ export default function TableContent({
     onOpenClaimFees(position)
   }
 
-  // const handleClaimRewards = (e: React.MouseEvent, position: ParsedPosition) => {
-  //   e.stopPropagation()
-  //   e.preventDefault()
-  //   if (rewardsClaiming || position.rewards.unclaimedUsdValue === 0) return
-  //   setPositionThatClaimingRewards(position)
-  //   onOpenClaimRewards(position.tokenId, position.chain.id)
-  // }
+  const handleClaimRewards = (e: React.MouseEvent, position: ParsedPosition) => {
+    e.stopPropagation()
+    e.preventDefault()
+    if (rewardsClaiming || position.rewards.unclaimedUsdValue === 0) return
+    setPositionThatClaimingRewards(position)
+    onOpenClaimRewards(position.tokenId, position.chain.id)
+  }
 
   const handleMigrateToKem = (e: React.MouseEvent, position: ParsedPosition) => {
     e.stopPropagation()
@@ -263,7 +264,7 @@ export default function TableContent({
   return (
     <>
       {claimFeesModal}
-      {/* {claimRewardsModal} */}
+      {claimRewardsModal}
       {zapMigrationWidget}
       {migrationModal}
 
@@ -283,12 +284,12 @@ export default function TableContent({
                 apr,
                 unclaimedFees,
                 status,
-                // rewards,
+                rewards,
                 isUnfinalized,
               } = position
               const feesClaimDisabled =
                 !DEXES_SUPPORT_COLLECT_FEE[dex.id as EarnDex] || unclaimedFees === 0 || feesClaiming
-              // const rewardsClaimDisabled = rewardsClaiming || position.rewards.claimableUsdValue === 0
+              const rewardsClaimDisabled = rewardsClaiming || position.rewards.claimableUsdValue === 0
               const isStablePair = pool.category === PAIR_CATEGORY.STABLE
 
               const actions = (
@@ -302,12 +303,12 @@ export default function TableContent({
                     feesClaiming,
                     positionThatClaimingFees,
                   }}
-                  // claimRewards={{
-                  //   onClaimRewards: handleClaimRewards,
-                  //   rewardsClaimDisabled,
-                  //   rewardsClaiming,
-                  //   positionThatClaimingRewards,
-                  // }}
+                  claimRewards={{
+                    onClaimRewards: handleClaimRewards,
+                    rewardsClaimDisabled,
+                    rewardsClaiming,
+                    positionThatClaimingRewards,
+                  }}
                 />
               )
 
@@ -323,7 +324,7 @@ export default function TableContent({
                     <Flex alignItems={'center'} sx={{ gap: 2 }} flexWrap={'wrap'}>
                       <ImageContainer>
                         <TokenLogo src={token0.logo} />
-                        <TokenLogo src={token1.logo} />
+                        <TokenLogo src={token1.logo} translateLeft />
                         <ChainImage src={NETWORKS_INFO[chain.id as ChainId]?.icon || chain.logo} alt="" />
                       </ImageContainer>
                       <Text marginLeft={-2} fontSize={upToSmall ? 15 : 16}>
@@ -345,22 +346,24 @@ export default function TableContent({
                           #{tokenId}
                         </Text>
                       )}
-                      <Badge
-                        type={
-                          status === PositionStatus.IN_RANGE
-                            ? BadgeType.PRIMARY
+                      {!isUnfinalized && (
+                        <Badge
+                          type={
+                            status === PositionStatus.IN_RANGE
+                              ? BadgeType.PRIMARY
+                              : status === PositionStatus.OUT_RANGE
+                              ? BadgeType.WARNING
+                              : BadgeType.DISABLED
+                          }
+                        >
+                          ●{' '}
+                          {status === PositionStatus.IN_RANGE
+                            ? t`In range`
                             : status === PositionStatus.OUT_RANGE
-                            ? BadgeType.WARNING
-                            : BadgeType.DISABLED
-                        }
-                      >
-                        ●{' '}
-                        {status === PositionStatus.IN_RANGE
-                          ? t`In range`
-                          : status === PositionStatus.OUT_RANGE
-                          ? t`Out of range`
-                          : t`Closed`}
-                      </Badge>
+                            ? t`Out of range`
+                            : t`Closed`}
+                        </Badge>
+                      )}
                     </Flex>
                   </PositionOverview>
 
@@ -371,30 +374,33 @@ export default function TableContent({
                   <PositionValueWrapper>
                     <PositionValueLabel>{t`Value`}</PositionValueLabel>
 
-                    {isUnfinalized ? (
-                      <PositionSkeleton width={80} height={19} text="Finalizing..." />
-                    ) : (
-                      <MouseoverTooltipDesktopOnly
-                        text={
-                          <>
-                            {position.totalValueTokens.map(token => (
-                              <Text key={token.address}>
-                                {formatDisplayNumber(token.amount, { significantDigits: 4 })} {token.symbol}
-                              </Text>
-                            ))}
-                          </>
-                        }
-                        width="fit-content"
-                        placement="bottom"
-                      >
+                    <MouseoverTooltipDesktopOnly
+                      text={
+                        <>
+                          {position.totalValueTokens.map(token => (
+                            <Text key={`${token.address}-${token.symbol}`}>
+                              {formatDisplayNumber(token.amount, { significantDigits: 4 })} {token.symbol}
+                            </Text>
+                          ))}
+                        </>
+                      }
+                      width="fit-content"
+                      placement="bottom"
+                    >
+                      <Flex alignItems={'center'} sx={{ gap: '6px' }}>
                         <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '80px' }}>
                           {formatDisplayNumber(totalValue, {
                             style: 'currency',
                             significantDigits: 4,
                           })}
                         </Text>
-                      </MouseoverTooltipDesktopOnly>
-                    )}
+                        {position.isValueUpdating && (
+                          <MouseoverTooltipDesktopOnly text={t`Value is updating`} placement="top" width="fit-content">
+                            <Loader2 size={12} />
+                          </MouseoverTooltipDesktopOnly>
+                        )}
+                      </Flex>
+                    </MouseoverTooltipDesktopOnly>
                   </PositionValueWrapper>
 
                   {/* APR info */}
@@ -495,7 +501,7 @@ export default function TableContent({
                   </PositionValueWrapper>
 
                   {/* Unclaimed rewards info */}
-                  {/* <PositionValueWrapper align={!upToLarge ? 'center' : ''}>
+                  <PositionValueWrapper align={!upToLarge ? 'center' : ''}>
                     <PositionValueLabel>{t`Unclaimed rewards`}</PositionValueLabel>
                     {isUnfinalized ? (
                       <PositionSkeleton width={80} height={19} text="Finalizing..." />
@@ -533,9 +539,9 @@ export default function TableContent({
                         </MouseoverTooltipDesktopOnly>
                       </Flex>
                     )}
-                  </PositionValueWrapper> */}
+                  </PositionValueWrapper>
 
-                  {/* {!upToLarge && <div />} */}
+                  {!upToLarge && <div />}
 
                   {/* Balance info */}
                   <PositionValueWrapper align={upToSmall ? 'flex-end' : ''}>

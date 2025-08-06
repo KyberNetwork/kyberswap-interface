@@ -2,13 +2,15 @@ import styled from 'styled-components'
 
 import UnknownToken from 'assets/svg/kyber/unknown-token.svg'
 
-const Image = styled.img<{ boxShadowColor?: string }>`
+const Image = styled.img<{ boxShadowColor?: string; translateLeft?: boolean }>`
   border-radius: 50%;
   filter: drop-shadow(0px 4px 8px ${({ boxShadowColor }) => (boxShadowColor ? boxShadowColor : 'none')});
 
-  & ~ & {
-    margin-left: -8px;
-  }
+  ${({ translateLeft }) =>
+    translateLeft &&
+    `{
+      margin-left: -8px;
+    }`}
 `
 
 const TokenLogo = ({
@@ -17,6 +19,7 @@ const TokenLogo = ({
   className,
   size = 24,
   boxShadowColor,
+  translateLeft,
   style,
 }: {
   src?: string
@@ -24,6 +27,7 @@ const TokenLogo = ({
   className?: string
   size?: number
   boxShadowColor?: string
+  translateLeft?: boolean
   style?: React.CSSProperties
 }) => (
   <Image
@@ -38,6 +42,7 @@ const TokenLogo = ({
       currentTarget.src = UnknownToken
     }}
     boxShadowColor={boxShadowColor}
+    translateLeft={translateLeft}
   />
 )
 

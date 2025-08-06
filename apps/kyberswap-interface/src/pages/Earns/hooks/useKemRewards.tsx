@@ -9,7 +9,7 @@ import { fetchListTokenByAddresses } from 'hooks/Tokens'
 import useChainsConfig from 'hooks/useChainsConfig'
 import ClaimAllModal from 'pages/Earns/components/ClaimAllModal'
 import ClaimModal, { ClaimInfo, ClaimType } from 'pages/Earns/components/ClaimModal'
-import { EarnDex, FARMING_SUPPORTED_CHAIN, KEM_REWARDS_CONTRACT } from 'pages/Earns/constants'
+import { EarnDex, FARMING_SUPPORTED_CHAIN } from 'pages/Earns/constants'
 import { RewardInfo, TokenInfo } from 'pages/Earns/types'
 import { getNftManagerContractAddress, submitTransaction } from 'pages/Earns/utils'
 import { parseReward } from 'pages/Earns/utils/reward'
@@ -82,11 +82,13 @@ const useKemRewards = () => {
       return
     }
 
+    const { calldata, contractAddress } = encodeData.data
+
     const res = await submitTransaction({
       library,
       txData: {
-        to: KEM_REWARDS_CONTRACT[chainId as keyof typeof KEM_REWARDS_CONTRACT],
-        data: `0x${encodeData.data}`,
+        to: contractAddress,
+        data: `0x${calldata}`,
       },
       onError: (error: Error) => {
         notify({
@@ -140,11 +142,13 @@ const useKemRewards = () => {
       return
     }
 
+    const { calldata, contractAddress } = encodeData.data
+
     const res = await submitTransaction({
       library,
       txData: {
-        to: KEM_REWARDS_CONTRACT[chainId as keyof typeof KEM_REWARDS_CONTRACT],
-        data: `0x${encodeData.data}`,
+        to: contractAddress,
+        data: `0x${calldata}`,
       },
       onError: (error: Error) => {
         notify({

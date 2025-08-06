@@ -22,8 +22,8 @@ export default function useFilter(setSearch?: (search: string) => void) {
       protocol: searchParams.get('protocol') || '',
       userAddress: account,
       tag: searchParams.get('tag') || '',
-      sortBy: searchParams.get('sortBy') || (!searchParams.get('tag') ? SortBy.TVL : ''),
-      orderBy: searchParams.get('orderBy') || (!searchParams.get('tag') ? Direction.DESC : ''),
+      sortBy: searchParams.get('sortBy') || '',
+      orderBy: searchParams.get('orderBy') || '',
       q: searchParams.get('q')?.trim() || '',
     }
   }, [searchParams, defaultChainId, account])
@@ -32,10 +32,6 @@ export default function useFilter(setSearch?: (search: string) => void) {
     (key: keyof PoolQueryParams, value: string) => {
       if (!value) {
         searchParams.delete(key)
-        if (key === 'tag') {
-          searchParams.set('sortBy', SortBy.TVL)
-          searchParams.set('orderBy', Direction.DESC)
-        }
       } else {
         searchParams.set(key, value)
         if (key === 'chainId') searchParams.delete('protocol')

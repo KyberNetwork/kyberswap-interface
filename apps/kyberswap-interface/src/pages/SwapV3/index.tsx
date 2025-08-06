@@ -5,8 +5,7 @@ import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 
 import Banner from 'components/Banner'
-// import { FarmingPoolBanner, TrendingPoolBanner } from 'components/EarnBanner'
-import EarnBanner from 'components/EarnBanner/ExBanner'
+import { FarmingPoolBanner, TrendingPoolBanner } from 'components/EarnBanner'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import GasTokenSetting from 'components/swapv2/GasTokenSetting'
@@ -33,10 +32,12 @@ import { CrossChainSwapSources } from 'pages/CrossChainSwap/components/CrossChai
 import { TransactionHistory } from 'pages/CrossChainSwap/components/TransactionHistory'
 import Header from 'pages/SwapV3/Header'
 import {
-  AppBodyWrapped, // BannerWrapper,
-  // FarmingWrapper,
+  AppBodyWrapped,
+  BannerWrapper,
+  FarmingWrapper,
   RoutingIconWrapper,
-  SwitchLocaleLinkWrapper, // TrendingWrapper,
+  SwitchLocaleLinkWrapper,
+  TrendingWrapper,
 } from 'pages/SwapV3/styles'
 import useCurrenciesByPage from 'pages/SwapV3/useCurrenciesByPage'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
@@ -180,7 +181,7 @@ export default function Swap() {
           </SwapFormWrapper>
 
           <InfoComponents>
-            {/* {(isSwapPage || isLimitPage || isCrossChainPage) && !isPartnerSwap && (
+            {(isSwapPage || isLimitPage || isCrossChainPage) && !isPartnerSwap && (
               <BannerWrapper>
                 <TrendingWrapper>
                   <TrendingPoolBanner />
@@ -189,8 +190,7 @@ export default function Swap() {
                   <FarmingPoolBanner />
                 </FarmingWrapper>
               </BannerWrapper>
-            )} */}
-            {(isSwapPage || isLimitPage || isCrossChainPage) && !isPartnerSwap && <EarnBanner />}
+            )}
             {isShowTradeRoutes && isSwapPage && (
               <RoutesWrapper isOpenChart={false}>
                 <Flex flexDirection="column" width="100%">

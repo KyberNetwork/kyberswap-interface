@@ -1,4 +1,4 @@
-// import { ShareType } from '@kyber/ui'
+import { ShareType } from '@kyber/ui'
 import { t } from '@lingui/macro'
 import { useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -9,7 +9,7 @@ import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
 import { PositionSkeleton } from 'pages/Earns/PositionDetail'
 import PositionHistory from 'pages/Earns/PositionDetail/PositionHistory'
-// import RewardSection from 'pages/Earns/PositionDetail/RewardSection'
+import RewardSection from 'pages/Earns/PositionDetail/RewardSection'
 import { InfoLeftColumn, InfoSection, PositionAction, VerticalDivider } from 'pages/Earns/PositionDetail/styles'
 import {
   CoreProtocol,
@@ -30,14 +30,14 @@ const LeftSection = ({
   totalLiquiditySection,
   aprSection,
   initialLoading,
-}: // shareBtn,
-{
+  shareBtn,
+}: {
   position?: ParsedPosition
   onFetchUnclaimedFee: () => void
   totalLiquiditySection: React.ReactNode
   aprSection: React.ReactNode
   initialLoading: boolean
-  // shareBtn: (type: ShareType) => React.ReactNode
+  shareBtn: (type: ShareType) => React.ReactNode
 }) => {
   const theme = useTheme()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
@@ -238,11 +238,11 @@ const LeftSection = ({
         ) : null}
 
         {/* Rewards */}
-        {/* {(position?.pool.isFarming ||
+        {(position?.pool.isFarming ||
           (initialLoading && isFarmingPossible) ||
           Number(position?.rewards.claimableUsdValue || 0) > 0) && (
           <RewardSection position={position} initialLoading={initialLoading} shareBtn={shareBtn} />
-        )} */}
+        )}
 
         {/* Position History */}
         {!isUniv2 && <PositionHistory position={position} />}

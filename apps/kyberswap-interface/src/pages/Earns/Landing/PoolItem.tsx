@@ -43,14 +43,14 @@ const PoolItem = ({ pool, isFarming }: { pool: EarnPool; isFarming?: boolean }) 
       {zapMigrationWidget}
       <Flex alignItems="center" sx={{ gap: '4px', flex: 1 }}>
         <TokenLogo src={pool.tokens?.[0].logoURI} size={24} />
-        <TokenLogo src={pool.tokens?.[1].logoURI} size={24} />
-        <img
+        <TokenLogo src={pool.tokens?.[1].logoURI} size={24} translateLeft />
+        <TokenLogo
           src={NETWORKS_INFO[pool.chainId as ChainId].icon}
-          width={12}
-          height={12}
-          alt=""
-          style={{ marginLeft: '-4px', alignSelf: 'flex-end' }}
+          size={12}
+          translateLeft
+          style={{ alignSelf: 'flex-end', position: 'relative', top: 1 }}
         />
+
         <Text
           textAlign="left"
           sx={{

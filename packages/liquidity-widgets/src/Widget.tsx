@@ -43,6 +43,8 @@ import { useWidgetStore } from '@/stores/useWidgetStore';
 import { PriceType } from '@/types/index';
 import { checkDeviated } from '@/utils';
 
+import { PositionFee } from './components/PositionFee';
+
 export default function Widget() {
   const {
     theme,
@@ -298,7 +300,10 @@ export default function Widget() {
                 </div>
               )
             ) : (
-              <PositionLiquidity />
+              <>
+                <PositionLiquidity />
+                {isUniv4 && <PositionFee />}
+              </>
             )}
             {!isUniV3 ? (
               <>
