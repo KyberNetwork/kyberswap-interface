@@ -1,6 +1,6 @@
 import { ParsedPosition } from 'pages/Earns/types'
 
-const CACHE_EXPIRY_MS = 2 * 60 * 1000 // 2 minutes
+const CACHE_EXPIRY_MS = 4 * 60 * 1000 // 4 minutes
 const CACHE_KEY = 'kyber_earn_unfinalized_positions'
 
 export const updateUnfinalizedPosition = (data: ParsedPosition) => {
