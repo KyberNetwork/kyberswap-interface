@@ -9,6 +9,12 @@ import { EarnPosition } from '@/components/TokenSelectorModal/types';
 const earnSupportedChains = enumToArrayOfValues(EarnChain, 'number');
 export const earnSupportedExchanges = enumToArrayOfValues(Exchange);
 
+const sortPositions = (positions: EarnPosition[]) => {
+  return positions.sort((a, b) => {
+    return b.currentPositionValue - a.currentPositionValue;
+  });
+};
+
 export default function usePositions({
   positionId,
   poolAddress,
@@ -33,26 +39,28 @@ export default function usePositions({
             : position.pool.poolAddress !== poolAddress,
         )
       : userPositions;
-    if (!search) return positions;
+    if (!search) return sortPositions(positions);
 
-    return positions.filter((position: EarnPosition) => {
-      const poolAddress = position.pool.poolAddress.toLowerCase();
-      const token0Symbol = position.pool.tokenAmounts[0]?.token.symbol.toLowerCase();
-      const token1Symbol = position.pool.tokenAmounts[1]?.token.symbol.toLowerCase();
-      const token0Name = position.pool.tokenAmounts[0]?.token.name.toLowerCase();
-      const token1Name = position.pool.tokenAmounts[1]?.token.name.toLowerCase();
-      const token0Address = position.pool.tokenAmounts[0]?.token.address.toLowerCase();
-      const token1Address = position.pool.tokenAmounts[1]?.token.address.toLowerCase();
+    return sortPositions(
+      positions.filter((position: EarnPosition) => {
+        const poolAddress = position.pool.poolAddress.toLowerCase();
+        const token0Symbol = position.pool.tokenAmounts[0]?.token.symbol.toLowerCase();
+        const token1Symbol = position.pool.tokenAmounts[1]?.token.symbol.toLowerCase();
+        const token0Name = position.pool.tokenAmounts[0]?.token.name.toLowerCase();
+        const token1Name = position.pool.tokenAmounts[1]?.token.name.toLowerCase();
+        const token0Address = position.pool.tokenAmounts[0]?.token.address.toLowerCase();
+        const token1Address = position.pool.tokenAmounts[1]?.token.address.toLowerCase();
 
-      return isAddress(search)
-        ? poolAddress.includes(search.toLowerCase()) ||
-            token0Address.includes(search.toLowerCase()) ||
-            token1Address.includes(search.toLowerCase())
-        : token0Symbol.includes(search.toLowerCase()) ||
-            token1Symbol.includes(search.toLowerCase()) ||
-            token0Name.includes(search.toLowerCase()) ||
-            token1Name.includes(search.toLowerCase());
-    });
+        return isAddress(search)
+          ? poolAddress.includes(search.toLowerCase()) ||
+              token0Address.includes(search.toLowerCase()) ||
+              token1Address.includes(search.toLowerCase())
+          : token0Symbol.includes(search.toLowerCase()) ||
+              token1Symbol.includes(search.toLowerCase()) ||
+              token0Name.includes(search.toLowerCase()) ||
+              token1Name.includes(search.toLowerCase());
+      }),
+    );
   }, [poolAddress, positionId, search, userPositions]);
 
   const handleGetUserPositions = useCallback(async () => {
