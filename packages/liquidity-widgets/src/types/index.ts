@@ -46,11 +46,13 @@ export interface OnSuccessProps {
     poolType: PoolType;
     dexLogo: string;
     token0: {
+      address: string;
       symbol: string;
       logo: string;
       amount: number;
     };
     token1: {
+      address: string;
       symbol: string;
       logo: string;
       amount: number;

@@ -128,15 +128,19 @@ const UserPositions = () => {
   const filteredPositions: Array<ParsedPosition> = useMemo(() => {
     let result = []
 
-    const nftIds = parsedPositions.map(position => position.tokenId)
+    const positionsToCheckWithCache = [...parsedPositions]
+
+    const unfinalizedPositions = getUnfinalizedPositions(positionsToCheckWithCache)
 
     const arrStatus = filters.status.split(',')
-    result = [...parsedPositions].filter(position => {
-      if (filters.status === PositionStatus.OUT_RANGE)
-        return !position.pool.isUniv2 && arrStatus.includes(position.status)
+    result = [...parsedPositions]
+      .filter(position => !unfinalizedPositions.some(p => p.tokenId === position.tokenId))
+      .filter(position => {
+        if (filters.status === PositionStatus.OUT_RANGE)
+          return !position.pool.isUniv2 && arrStatus.includes(position.status)
 
-      return arrStatus.includes(position.status)
-    })
+        return arrStatus.includes(position.status)
+      })
 
     if (filters.chainIds) result = result.filter(position => position.chain.id === Number(filters.chainIds))
     if (filters.protocols) {
@@ -177,7 +181,7 @@ const UserPositions = () => {
       }
     }
 
-    const unfinalizedPositions = getUnfinalizedPositions(nftIds).filter(
+    unfinalizedPositions.filter(
       position =>
         (filters.chainIds ? Number(filters.chainIds) === position.chain.id : true) &&
         (filters.protocols

@@ -302,7 +302,7 @@ export default function Widget() {
             ) : (
               <>
                 <PositionLiquidity />
-                <PositionFee />
+                {isUniv4 && <PositionFee />}
               </>
             )}
             {!isUniV3 ? (

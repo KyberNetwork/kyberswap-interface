@@ -157,6 +157,7 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
             onViewPosition: (txHash: string) => {
               const { chainId } = migrateLiquidityPureParams
               const { dex: targetDex, poolId: targetPoolId } = migrateLiquidityPureParams.to
+              setTriggerClose(true)
               setMigrateLiquidityPureParams(null)
               handleNavigateToPosition(txHash, chainId, targetDex, targetPoolId)
             },

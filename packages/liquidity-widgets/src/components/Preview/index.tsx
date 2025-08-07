@@ -237,11 +237,13 @@ export default function Preview({
         poolType,
         dexLogo,
         token0: {
+          address: pool.token0.address,
           symbol: pool.token0.symbol,
           logo: pool.token0.logo || '',
           amount: positionId !== undefined ? positionAmountInfo.amount0 : addedAmountInfo.addedAmount0,
         },
         token1: {
+          address: pool.token1.address,
           symbol: pool.token1.symbol,
           logo: pool.token1.logo || '',
           amount: positionId !== undefined ? positionAmountInfo.amount1 : addedAmountInfo.addedAmount1,
@@ -250,7 +252,13 @@ export default function Preview({
           address: pool.address,
           fee: pool.fee,
         },
-        value: +zapInfo.zapDetails.initialAmountUsd,
+        value:
+          position !== undefined
+            ? addedAmountInfo.addedAmount0Usd +
+              positionAmountInfo.positionAmount0Usd +
+              addedAmountInfo.addedAmount1Usd +
+              positionAmountInfo.positionAmount1Usd
+            : +zapInfo.zapDetails.initialAmountUsd,
         createdAt: Date.now(),
       },
     });
@@ -263,6 +271,8 @@ export default function Preview({
     onSuccessTriggered,
     pool.address,
     pool.fee,
+    pool.token0.address,
+    pool.token1.address,
     pool.token0.logo,
     pool.token0.symbol,
     pool.token1.logo,
@@ -274,6 +284,11 @@ export default function Preview({
     txHash,
     txStatus,
     zapInfo.zapDetails.initialAmountUsd,
+    positionAmountInfo.positionAmount0Usd,
+    positionAmountInfo.positionAmount1Usd,
+    addedAmountInfo.addedAmount0Usd,
+    addedAmountInfo.addedAmount1Usd,
+    position,
   ]);
 
   const dexName =

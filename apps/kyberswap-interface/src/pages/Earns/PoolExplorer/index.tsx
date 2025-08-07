@@ -183,8 +183,19 @@ const PoolExplorer = () => {
 
   useEffect(() => {
     if (filters.q !== deboundedSearch) {
+      const shouldUpdateSort = !filters.q && deboundedSearch.length > 0
+      const shouldResetSort = filters.q && !deboundedSearch
       updateFilters('q', deboundedSearch || '')
+      if (shouldUpdateSort) {
+        updateFilters('sortBy', SortBy.VOLUME)
+        updateFilters('orderBy', Direction.DESC)
+      }
+      if (shouldResetSort) {
+        updateFilters('sortBy', '')
+        updateFilters('orderBy', '')
+      }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deboundedSearch, filters.q, updateFilters])
 
   useEffect(() => {

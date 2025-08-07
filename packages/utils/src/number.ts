@@ -111,6 +111,19 @@ export const formatDisplayNumber = (
 };
 
 export function formatUnits(value: string, decimals = 18, maxDisplayDecimals?: number) {
+  // Regex to check if value is a valid positive integer string
+  const isValidNumber = /^\d+$/.test(value);
+  if (!isValidNumber) {
+    console.error(`formatUnits: Invalid number string "${value}". Expected a string containing only digits.`);
+    return '0';
+  }
+
+  const isValidDecimals = typeof decimals === 'number' && Number.isInteger(decimals) && decimals >= 0;
+  if (!isValidDecimals) {
+    console.error(`formatUnits: Invalid decimals "${decimals}". Expected a non-negative integer.`);
+    return '0';
+  }
+
   const factor = BigInt(10) ** BigInt(decimals);
   const wholePart = BigInt(value) / factor;
   const fractionalPart = BigInt(value) % factor;

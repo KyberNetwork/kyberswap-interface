@@ -14,7 +14,9 @@ import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_
 import { ReactComponent as IconKem } from 'assets/svg/kyber/kem.svg'
 import { ReactComponent as RocketIcon } from 'assets/svg/rocket.svg'
 import InfoHelper from 'components/InfoHelper'
+import { Loader2 } from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
+import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
@@ -59,7 +61,7 @@ const PositionDetail = () => {
 
   const { account } = useActiveWeb3React()
   const { positionId, chainId, protocol } = useParams()
-  const { widget: zapMigrationWidget, handleOpenZapMigration } = useZapMigrationWidget()
+  const { widget: zapMigrationWidget, handleOpenZapMigration, triggerClose, setTriggerClose } = useZapMigrationWidget()
 
   const { closedPositionsFromRpc, checkClosedPosition } = useClosedPositions()
 
@@ -102,12 +104,18 @@ const PositionDetail = () => {
       (closedPosition: { tokenId: string }) => closedPosition.tokenId === userPosition[0].tokenId,
     )
 
-    return parsePosition({
+    const parsedPosition = parsePosition({
       position: userPosition[0],
       feeInfo: feeInfoFromRpc,
       nftRewardInfo: rewardInfoThisPosition,
       isClosedFromRpc,
     })
+
+    const unfinalizedPositions = getUnfinalizedPositions([parsedPosition])
+
+    if (unfinalizedPositions.length > 0) return unfinalizedPositions[0]
+
+    return parsedPosition
   }, [feeInfoFromRpc, userPosition, rewardInfoThisPosition, closedPositionsFromRpc])
 
   const farmingPoolsByChain = useFarmingStablePools({ chainIds: position ? [position.chain.id] : [] })
@@ -241,9 +249,16 @@ const PositionDetail = () => {
       }
     >
       <Flex flexDirection={'column'} alignContent={'flex-start'} sx={{ gap: '6px' }}>
-        <Text fontSize={14} color={theme.subText}>
-          {t`Total Liquidity`}
-        </Text>
+        <Flex alignItems={'center'} sx={{ gap: '6px' }}>
+          <Text fontSize={14} color={theme.subText}>
+            {t`Total Liquidity`}
+          </Text>
+          {position?.isValueUpdating && (
+            <MouseoverTooltipDesktopOnly text={t`Value is updating`} placement="top" width="fit-content">
+              <Loader2 size={12} />
+            </MouseoverTooltipDesktopOnly>
+          )}
+        </Flex>
         {initialLoading ? (
           <PositionSkeleton width={95} height={24} />
         ) : (
@@ -427,6 +442,8 @@ const PositionDetail = () => {
                 aprSection={aprSection}
                 onRefreshPosition={onRefreshPosition}
                 initialLoading={initialLoading}
+                triggerClose={triggerClose}
+                setTriggerClose={setTriggerClose}
               />
             </PositionDetailWrapper>
           </>

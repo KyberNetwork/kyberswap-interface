@@ -15,15 +15,18 @@ export default function useFilter(setSearch?: (search: string) => void) {
 
   const filters: PoolQueryParams = useMemo(() => {
     return {
-      chainId: +(searchParams.get('chainId') || defaultChainId),
+      chainId: +(
+        searchParams.get('chainId') ||
+        (searchParams.get('tag') === FilterTag.FARMING_POOL ? ChainId.MAINNET : defaultChainId)
+      ),
       page: +(searchParams.get('page') || 1),
       limit: 10,
       interval: searchParams.get('interval') || (timings[1].value as string),
       protocol: searchParams.get('protocol') || '',
       userAddress: account,
       tag: searchParams.get('tag') || '',
-      sortBy: searchParams.get('sortBy') || (!searchParams.get('tag') ? SortBy.TVL : ''),
-      orderBy: searchParams.get('orderBy') || (!searchParams.get('tag') ? Direction.DESC : ''),
+      sortBy: searchParams.get('sortBy') || '',
+      orderBy: searchParams.get('orderBy') || '',
       q: searchParams.get('q')?.trim() || '',
     }
   }, [searchParams, defaultChainId, account])
@@ -32,10 +35,6 @@ export default function useFilter(setSearch?: (search: string) => void) {
     (key: keyof PoolQueryParams, value: string) => {
       if (!value) {
         searchParams.delete(key)
-        if (key === 'tag') {
-          searchParams.set('sortBy', SortBy.TVL)
-          searchParams.set('orderBy', Direction.DESC)
-        }
       } else {
         searchParams.set(key, value)
         if (key === 'chainId') searchParams.delete('protocol')
@@ -46,6 +45,8 @@ export default function useFilter(setSearch?: (search: string) => void) {
           if (value === FilterTag.LOW_VOLATILITY) {
             searchParams.set('sortBy', SortBy.APR)
             searchParams.set('orderBy', Direction.DESC)
+          } else if (value === FilterTag.FARMING_POOL) {
+            searchParams.set('chainId', ChainId.MAINNET.toString())
           }
         }
       }

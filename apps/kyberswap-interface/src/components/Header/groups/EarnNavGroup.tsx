@@ -3,13 +3,14 @@ import { useLocation } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex } from 'rebass'
 
-import { ReactComponent as FarmingIcon } from 'assets/svg/earn/ic_claim.svg'
 import { ReactComponent as OverviewIcon } from 'assets/svg/earn/ic_earn_overview.svg'
 import { ReactComponent as PoolsIcon } from 'assets/svg/earn/ic_earn_pools.svg'
 import { ReactComponent as PositionsIcon } from 'assets/svg/earn/ic_earn_positions.svg'
+import { ReactComponent as FarmingIcon } from 'assets/svg/earn/ic_farming.svg'
 import { ReactComponent as KemIcon } from 'assets/svg/kyber/kem.svg'
 import NavGroup from 'components/Header/groups/NavGroup'
 import { DropdownTextAnchor, StyledNavLink } from 'components/Header/styleds'
+import { BetaLabel } from 'components/Menu'
 import { APP_PATHS } from 'constants/index'
 import { FilterTag } from 'pages/Earns/PoolExplorer'
 import { MEDIA_WIDTHS } from 'theme'
@@ -84,7 +85,10 @@ const EarnNavGroup = () => {
           >
             <Flex sx={{ gap: '12px' }} alignItems="center">
               <FarmingIcon width={16} height={16} />
-              {t`Farming Pools`}
+              <Flex sx={{ gap: '2px' }}>
+                {t`Farming Pools`}
+                <BetaLabel>BETA</BetaLabel>
+              </Flex>
             </Flex>
           </StyledNavLink>
 
