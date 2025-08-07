@@ -146,9 +146,11 @@ const Header = ({ refetchData }: { refetchData: () => void }) => {
             <RefreshLoading refetchData={refetchData} />
           </div>
         )}
-        <div className="cursor-pointer text-subText" role="button" onClick={onClose}>
-          <X />
-        </div>
+        {onClose && (
+          <div className="cursor-pointer text-subText" role="button" onClick={onClose}>
+            <X />
+          </div>
+        )}
       </div>
       <div className="flex justify-between items-center mt-4">
         {initializing ? (
