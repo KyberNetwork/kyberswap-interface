@@ -44,6 +44,7 @@ const initState = {
   onSubmitTx: (_txData: { from: string; to: string; value: string; data: string; gasLimit: string }) =>
     Promise.resolve(''),
   onOpenZapMigration: undefined,
+  onSuccess: undefined,
   onViewPosition: undefined,
   nativeToken: defaultToken,
   wrappedNativeToken: defaultToken,

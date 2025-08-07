@@ -37,6 +37,11 @@ interface TokenReward {
   claimableUSDValues: { [tokenAddress: string]: string }
 }
 
+interface ClaimResponse {
+  calldata: string
+  contractAddress: string
+}
+
 export enum RewardType {
   EG = 'EG',
   LM = 'LM',
@@ -60,19 +65,19 @@ const rewardServiceApi = createApi({
   }),
   keepUnusedDataFor: 1,
   endpoints: builder => ({
-    batchClaimEncodeData: builder.mutation<string, BatchClaimEncodeParams>({
+    batchClaimEncodeData: builder.mutation<ClaimResponse, BatchClaimEncodeParams>({
       query: params => ({
         url: `/kem/batch-claim/erc721`,
         params,
       }),
-      transformResponse: (response: { data: { calldata: string } }) => response.data.calldata,
+      transformResponse: (response: { data: ClaimResponse }) => response.data,
     }),
-    claimEncodeData: builder.mutation<string, ClaimEncodeParams>({
+    claimEncodeData: builder.mutation<ClaimResponse, ClaimEncodeParams>({
       query: params => ({
         url: `/kem/claim/erc721`,
         params,
       }),
-      transformResponse: (response: { data: { calldata: string } }) => response.data.calldata,
+      transformResponse: (response: { data: ClaimResponse }) => response.data,
     }),
     rewardInfo: builder.query<RewardData, RewardInfoParams>({
       query: params => ({

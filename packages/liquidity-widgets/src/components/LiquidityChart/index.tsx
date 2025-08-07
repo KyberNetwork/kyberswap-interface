@@ -135,7 +135,11 @@ export default function LiquidityChart() {
           token0,
           token1,
         }}
-        price={{ current: price, lower: priceLower, upper: priceUpper }}
+        price={{
+          current: price,
+          lower: revertPrice ? priceUpper : priceLower,
+          upper: revertPrice ? priceLower : priceUpper,
+        }}
         ticksAtLimit={ticksAtLimit}
         revertPrice={revertPrice}
         onBrushDomainChange={onBrushDomainChange}

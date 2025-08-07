@@ -38,8 +38,14 @@ export default function LiquidityChart({
   const token0 = isUninitialized ? undefined : pool.tokens?.[0]
   const token1 = isUninitialized ? undefined : pool.tokens?.[1]
 
-  const priceLower = !revertPrice ? minPrice : 1 / minPrice
-  const priceUpper = !revertPrice ? maxPrice : 1 / maxPrice
+  const priceLower = !revertPrice ? minPrice : maxPrice === 0 ? 0 : 1 / maxPrice
+  const priceUpper = !revertPrice
+    ? maxPrice === 0
+      ? Number.MAX_SAFE_INTEGER
+      : maxPrice
+    : minPrice === 0
+    ? Number.MAX_SAFE_INTEGER
+    : 1 / minPrice
 
   const ticksAtLimit: { [bound in Bound]?: boolean } | undefined = useMemo(() => {
     if (!tickSpacing || !token0 || !token1) return
@@ -56,7 +62,7 @@ export default function LiquidityChart({
         ? minTick
         : priceToClosestTick(parsedMinPrice, token0.decimals, token1.decimals, revertPrice)
     const tickUpper =
-      Number(parsedMaxPrice) === Infinity
+      Number(parsedMaxPrice) === Infinity || Number(parsedMaxPrice) === 0
         ? maxTick
         : priceToClosestTick(parsedMaxPrice, token0.decimals, token1.decimals, revertPrice)
 

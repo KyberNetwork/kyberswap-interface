@@ -5,18 +5,25 @@ import Skeleton from 'react-loading-skeleton'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
-// import { ReactComponent as IconKem } from 'assets/svg/kyber/kem.svg'
-// import InfoHelper from 'components/InfoHelper'
-// import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
+import { ReactComponent as IconKem } from 'assets/svg/kyber/kem.svg'
+import InfoHelper from 'components/InfoHelper'
+import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
-// import { inProgressRewardTooltip } from 'pages/Earns/PositionDetail/RewardSection'
-// import { PositionAction } from 'pages/Earns/PositionDetail/styles'
-import { BannerContainer, BannerDataItem, BannerDivider, BannerWrapper } from 'pages/Earns/UserPositions/styles'
+import { inProgressRewardTooltip, totalRewardTooltip } from 'pages/Earns/PositionDetail/RewardSection'
+import { PositionAction } from 'pages/Earns/PositionDetail/styles'
+import {
+  BannerContainer,
+  BannerDataItem,
+  BannerDivider,
+  BannerWrapper,
+  RewardBannerDetailWrapper,
+  RewardBannerWrapper,
+} from 'pages/Earns/UserPositions/styles'
 import { LIMIT_TEXT_STYLES } from 'pages/Earns/constants'
-// import useKemRewards from 'pages/Earns/hooks/useKemRewards'
+import useKemRewards from 'pages/Earns/hooks/useKemRewards'
 import { ParsedPosition } from 'pages/Earns/types'
 import { aggregateFeeFromPositions } from 'pages/Earns/utils/position'
-// import { defaultRewardInfo } from 'pages/Earns/utils/reward'
+import { defaultRewardInfo } from 'pages/Earns/utils/reward'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -51,21 +58,21 @@ export default function PositionBanner({
   initialLoading: boolean
 }) {
   const theme = useTheme()
-  // const { claimAllRewardsModal, onOpenClaimAllRewards, rewardInfo } = useKemRewards()
+  const { claimAllRewardsModal, onOpenClaimAllRewards, rewardInfo } = useKemRewards()
 
-  // const {
-  //   totalUsdValue,
-  //   claimedUsdValue,
-  //   inProgressUsdValue,
-  //   pendingUsdValue,
-  //   vestingUsdValue,
-  //   claimableUsdValue,
-  //   tokens,
-  //   egTokens,
-  //   lmTokens,
-  // } = rewardInfo || defaultRewardInfo
+  const {
+    totalUsdValue,
+    claimedUsdValue,
+    inProgressUsdValue,
+    pendingUsdValue,
+    vestingUsdValue,
+    claimableUsdValue,
+    tokens,
+    egTokens,
+    lmTokens,
+  } = rewardInfo || defaultRewardInfo
 
-  // const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
 
   const {
@@ -74,25 +81,25 @@ export default function PositionBanner({
     totalUnclaimedFee,
   } = useMemo(() => aggregateFeeFromPositions(positions), [positions])
 
-  // const KemImageSize = upToSmall ? 20 : 24
+  const KemImageSize = upToSmall ? 20 : 24
 
-  // const claimRewardButton = (
-  //   <MouseoverTooltipDesktopOnly text={t`Claim all available farming rewards`} width="fit-content" placement="bottom">
-  //     <PositionAction
-  //       disabled={!claimableUsdValue || initialLoading}
-  //       mobileAutoWidth
-  //       outline
-  //       onClick={onOpenClaimAllRewards}
-  //       style={{ position: 'relative', top: 2 }}
-  //     >
-  //       <Text>{t`Claim`}</Text>
-  //     </PositionAction>
-  //   </MouseoverTooltipDesktopOnly>
-  // )
+  const claimRewardButton = (
+    <MouseoverTooltipDesktopOnly text={t`Claim all available farming rewards`} width="fit-content" placement="bottom">
+      <PositionAction
+        disabled={!claimableUsdValue || initialLoading}
+        mobileAutoWidth
+        outline
+        onClick={onOpenClaimAllRewards}
+        style={{ position: 'relative', top: 2 }}
+      >
+        <Text>{t`Claim`}</Text>
+      </PositionAction>
+    </MouseoverTooltipDesktopOnly>
+  )
 
   return (
     <>
-      {/* {claimAllRewardsModal} */}
+      {claimAllRewardsModal}
 
       <Flex
         flexDirection={!upToLarge ? 'row' : 'column'}
@@ -140,7 +147,7 @@ export default function PositionBanner({
                 </Text>
               )}
             </BannerDataItem>
-            {/* {upToSmall && (
+            {upToSmall && (
               <>
                 <Flex
                   justifyContent={'space-between'}
@@ -214,11 +221,11 @@ export default function PositionBanner({
                   </Flex>
                 </Flex>
               </>
-            )} */}
+            )}
           </BannerWrapper>
         </BannerContainer>
 
-        {/* {!upToSmall && (
+        {!upToSmall && (
           <BannerContainer>
             <RewardBannerWrapper>
               <Flex alignItems={'center'} sx={{ gap: 3 }}>
@@ -301,7 +308,7 @@ export default function PositionBanner({
               </RewardBannerDetailWrapper>
             </RewardBannerWrapper>
           </BannerContainer>
-        )} */}
+        )}
       </Flex>
     </>
   )

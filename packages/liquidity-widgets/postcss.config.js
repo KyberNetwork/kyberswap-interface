@@ -11,7 +11,7 @@ export default {
         if (prefixOverrideList.includes(selector)) {
           return prefix;
         } else {
-          return prefixedSelector;
+          return selector === '*' ? prefixedSelector : `${prefixedSelector}, ${prefix}${selector}`;
         }
       },
     },

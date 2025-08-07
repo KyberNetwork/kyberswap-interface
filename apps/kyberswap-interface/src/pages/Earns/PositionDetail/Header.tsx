@@ -101,7 +101,7 @@ const PositionDetailHeader = ({
             <Flex alignItems={'center'} sx={{ gap: 2 }}>
               <ImageContainer>
                 <TokenLogo src={position?.token0.logo} />
-                <TokenLogo src={position?.token1.logo} />
+                <TokenLogo src={position?.token1.logo} translateLeft />
                 <ChainImage src={position?.chain.logo} alt="" />
               </ImageContainer>
               <Text marginLeft={-3} fontSize={upToSmall ? 20 : 16}>

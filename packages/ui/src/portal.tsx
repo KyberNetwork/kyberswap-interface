@@ -8,7 +8,7 @@ export const Portal: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   // Dynamically create a new div element for each instance of Portal
   useEffect(() => {
     const kyberPortal = document.createElement('kyber-portal');
-    kyberPortal.className = 'ks-ui-style';
+    kyberPortal.className = 'ks-ui-style ks-lw-style pcs-lw-style ks-lw-migration-style';
     document.body.appendChild(kyberPortal);
     portalContainer.current = kyberPortal;
 
