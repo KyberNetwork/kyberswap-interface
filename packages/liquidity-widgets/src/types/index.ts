@@ -22,7 +22,7 @@ export interface WidgetProps {
     feeAddress: string;
   };
   referral?: string;
-  onClose: () => void;
+  onClose?: () => void;
   onConnectWallet: () => void;
   onSwitchChain: () => void;
   onOpenZapMigration?: (
