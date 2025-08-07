@@ -177,7 +177,7 @@ export default function TableContent({
     e.preventDefault()
     if (rewardsClaiming || position.rewards.unclaimedUsdValue === 0) return
     setPositionThatClaimingRewards(position)
-    onOpenClaimRewards(position.tokenId, position.chain.id)
+    onOpenClaimRewards(position)
   }
 
   const handleMigrateToKem = (e: React.MouseEvent, position: ParsedPosition) => {
