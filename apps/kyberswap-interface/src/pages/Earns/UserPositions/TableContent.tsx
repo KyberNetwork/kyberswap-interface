@@ -547,15 +547,19 @@ export default function TableContent({
                   <PositionValueWrapper align={upToSmall ? 'flex-end' : ''}>
                     <PositionValueLabel>{t`Balance`}</PositionValueLabel>
 
-                    <Flex flexDirection={upToSmall ? 'row' : 'column'} sx={{ gap: 1.8 }}>
-                      <Text>
-                        {formatDisplayNumber(token0.totalProvide, { significantDigits: 4 })} {token0.symbol}
-                      </Text>
-                      {upToSmall && <Divider />}
-                      <Text>
-                        {formatDisplayNumber(token1.totalProvide, { significantDigits: 4 })} {token1.symbol}
-                      </Text>
-                    </Flex>
+                    {token0.symbol && token1.symbol ? (
+                      <Flex flexDirection={upToSmall ? 'row' : 'column'} sx={{ gap: 1.8 }}>
+                        <Text>
+                          {formatDisplayNumber(token0.totalProvide, { significantDigits: 4 })} {token0.symbol}
+                        </Text>
+                        {upToSmall && <Divider />}
+                        <Text>
+                          {formatDisplayNumber(token1.totalProvide, { significantDigits: 4 })} {token1.symbol}
+                        </Text>
+                      </Flex>
+                    ) : (
+                      '--'
+                    )}
                   </PositionValueWrapper>
 
                   {/* Price range info */}
