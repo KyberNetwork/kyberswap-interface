@@ -73,11 +73,13 @@ export const parseSwapActions = ({
   tokens,
   poolType,
   chainId,
+  poolAddress = '',
 }: {
   zapInfo: ZapRouteDetail | undefined | null;
   tokens: Token[];
   poolType: PoolType;
   chainId: ChainId;
+  poolAddress?: string;
 }) => {
   if (!zapInfo) return [];
 
@@ -125,6 +127,11 @@ export const parseSwapActions = ({
       const amountIn = formatWei(item.tokenIn.amount, tokenIn?.decimals);
       const amountOut = formatWei(item.tokenOut.amount, tokenOut?.decimals);
 
+      const displayPool =
+        item.poolAddress && poolAddress && item.poolAddress !== poolAddress
+          ? `${tokenIn?.symbol}-${tokenOut?.symbol}`
+          : dexName;
+
       const pi =
         parseFloat(item.tokenIn.amountUsd) === 0 || parseFloat(item.tokenOut.amountUsd) === 0
           ? undefined
@@ -138,7 +145,7 @@ export const parseSwapActions = ({
         tokenOutSymbol: tokenOut?.symbol || '--',
         amountIn,
         amountOut,
-        pool: `${dexName} Pool`,
+        pool: `${displayPool} Pool`,
         piRes,
       };
     }) || [];

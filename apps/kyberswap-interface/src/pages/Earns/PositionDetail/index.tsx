@@ -79,7 +79,7 @@ const PositionDetail = () => {
     },
     { skip: !account, pollingInterval: forceLoading ? 5_000 : 15_000 },
   )
-  const { rewardInfo } = useKemRewards()
+  const { rewardInfo } = useKemRewards(refetch)
   const rewardInfoThisPosition = !userPosition
     ? undefined
     : rewardInfo?.nfts.find(item => item.nftId === userPosition?.[0]?.tokenId)
@@ -433,6 +433,7 @@ const PositionDetail = () => {
                 totalLiquiditySection={totalLiquiditySection}
                 aprSection={aprSection}
                 shareBtn={shareBtn}
+                refetchPositions={refetch}
               />
               <RightSection
                 position={position}

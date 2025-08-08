@@ -93,6 +93,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
     positionId,
     initDepositTokens,
     initAmounts,
+    compoundType,
   } = useWidgetStore(
     useShallow(s => ({
       chainId: s.chainId,
@@ -103,6 +104,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
       positionId: s.positionId,
       initDepositTokens: s.initDepositTokens,
       initAmounts: s.initAmounts,
+      compoundType: s.compoundType,
     })),
   );
   const { position } = usePositionStore(
@@ -248,6 +250,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
         'pool.id': poolAddress,
         'position.id': positionId,
         slippage,
+        ...(compoundType ? { compoundType } : {}),
       };
 
       let tmp = '';
@@ -284,7 +287,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
     return () => {
       if (fetchRouteInterval) clearInterval(fetchRouteInterval);
     };
-  }, [chainId, initializing, poolAddress, poolType, positionId, slippage]);
+  }, [chainId, compoundType, initializing, poolAddress, poolType, positionId, slippage]);
 
   return (
     <ZapContext.Provider

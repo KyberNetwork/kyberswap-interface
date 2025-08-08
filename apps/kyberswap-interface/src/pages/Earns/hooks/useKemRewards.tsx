@@ -10,7 +10,8 @@ import useChainsConfig from 'hooks/useChainsConfig'
 import ClaimAllModal from 'pages/Earns/components/ClaimAllModal'
 import ClaimModal, { ClaimInfo, ClaimType } from 'pages/Earns/components/ClaimModal'
 import { EarnDex, FARMING_SUPPORTED_CHAIN } from 'pages/Earns/constants'
-import { RewardInfo, TokenInfo } from 'pages/Earns/types'
+import useCompounding from 'pages/Earns/hooks/useCompounding'
+import { ParsedPosition, RewardInfo, TokenInfo } from 'pages/Earns/types'
 import { getNftManagerContractAddress, submitTransaction } from 'pages/Earns/utils'
 import { parseReward } from 'pages/Earns/utils/reward'
 import { useNotify } from 'state/application/hooks'
@@ -18,7 +19,7 @@ import { useAllTransactions, useTransactionAdder } from 'state/transactions/hook
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { formatDisplayNumber } from 'utils/numbers'
 
-const useKemRewards = () => {
+const useKemRewards = (refetchAfterCollect?: () => void) => {
   const notify = useNotify()
   const addTransactionWithType = useTransactionAdder()
   const allTransactions = useAllTransactions(true)
@@ -42,6 +43,20 @@ const useKemRewards = () => {
   const [openClaimAllModal, setOpenClaimAllModal] = useState(false)
   const [claiming, setClaiming] = useState(false)
   const [txHash, setTxHash] = useState<string | null>(null)
+  const [position, setPosition] = useState<ParsedPosition | null>(null)
+
+  const onCloseClaim = useCallback(() => {
+    setOpenClaimModal(false)
+    setClaimInfo(null)
+  }, [])
+
+  const { widget: compoundingWidget, handleOpenCompounding } = useCompounding({
+    onRefreshPosition: () => {
+      refetchAfterCollect?.()
+      refetchRewardInfo()
+    },
+    onCloseClaimModal: onCloseClaim,
+  })
 
   const rewardInfo: RewardInfo | null = useMemo(
     () => parseReward({ data, tokens, supportedChains }),
@@ -175,12 +190,11 @@ const useKemRewards = () => {
     })
   }, [account, addTransactionWithType, batchClaimEncodeData, chainId, library, notify, rewardInfo?.chains])
 
-  const onCloseClaim = useCallback(() => {
-    setOpenClaimModal(false)
-    setClaimInfo(null)
-  }, [])
+  const onOpenClaim = (position?: ParsedPosition) => {
+    if (!position) return
+    const nftId = position.tokenId
+    const positionChainId = position.chain.id
 
-  const onOpenClaim = (nftId: string, positionChainId: number) => {
     if (!rewardInfo) {
       console.log('reward is not ready!')
       return
@@ -207,6 +221,7 @@ const useKemRewards = () => {
         })),
       totalValue: rewardNftInfo.claimableUsdValue,
     })
+    setPosition(position)
   }
 
   const onOpenClaimAllRewards = () => {
@@ -271,6 +286,24 @@ const useKemRewards = () => {
     fetchTokens()
   }, [data, supportedChains])
 
+  const onCompound = useCallback(() => {
+    if (!position) return
+    const claimableTokens = position.rewards.tokens.filter(token => token.claimableUsdValue > 0)
+    const initDepositTokens = claimableTokens.map(token => token.address).join(',')
+    const initAmounts = claimableTokens.map(token => token.claimableAmount).join(',')
+    handleOpenCompounding({
+      pool: {
+        chainId: position.chain.id,
+        address: position.pool.address,
+        dex: position.dex.id,
+      },
+      positionId: position.tokenId,
+      initDepositTokens,
+      initAmounts,
+      compoundType: 'COMPOUND_TYPE_REWARD',
+    })
+  }, [handleOpenCompounding, position])
+
   useEffect(() => {
     if (txHash && allTransactions && allTransactions[txHash]) {
       const tx = allTransactions[txHash]
@@ -289,20 +322,25 @@ const useKemRewards = () => {
         claimType={ClaimType.REWARDS}
         claiming={claiming}
         claimInfo={claimInfo}
+        compoundable
         onClaim={handleClaim}
+        onCompound={onCompound}
         onClose={onCloseClaim}
       />
     ) : null
 
   const claimAllRewardsModal =
     openClaimAllModal && rewardInfo ? (
-      <ClaimAllModal
-        rewardInfo={rewardInfo}
-        onClaimAll={handleClaimAll}
-        onClose={() => setOpenClaimAllModal(false)}
-        claiming={claiming}
-        setClaiming={setClaiming}
-      />
+      <>
+        <ClaimAllModal
+          rewardInfo={rewardInfo}
+          onClaimAll={handleClaimAll}
+          onClose={() => setOpenClaimAllModal(false)}
+          claiming={claiming}
+          setClaiming={setClaiming}
+        />
+        {compoundingWidget}
+      </>
     ) : null
 
   return { rewardInfo, claimModal, onOpenClaim, claiming, claimAllRewardsModal, onOpenClaimAllRewards }
