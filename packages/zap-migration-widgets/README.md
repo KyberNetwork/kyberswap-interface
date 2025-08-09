@@ -37,5 +37,5 @@ feePcm | fee percentage in per cent mille (0.001% or 1 in 100,000). Ignored if f
 includedSources | List of liquidty sources you want to include from your zap, separate by comma | [KyberSwap Aggregator Dex Ids](https://docs.kyberswap.com/kyberswap-solutions/kyberswap-aggregator/dex-ids) | 
 excludedSources | List of liquidty sources you want to exclude from your zap, separate by comma | [KyberSwap Aggregator Dex Ids](https://docs.kyberswap.com/kyberswap-solutions/kyberswap-aggregator/dex-ids) | 
 onDismiss | Callback function when click cancel or close widget | () => void | 
-onTxSubmit | Callback function when tx was submited  | (txHash: string) => void | 
+onTxSubmit | Callback function when tx was submitted  | (txHash: string) => void | 
 onConnectWallet | function when user click connect wallet  | () => void | 

@@ -29,7 +29,7 @@ export const isAddress = (address: string): boolean => {
  * Checks if the given string is a checksummed address
  *
  * @method isChecksumAddress
- * @param {string} addr the given HEX adress
+ * @param {string} addr the given HEX address
  * @return {boolean}
  */
 export const isChecksumAddress = (addr: string): boolean => {
