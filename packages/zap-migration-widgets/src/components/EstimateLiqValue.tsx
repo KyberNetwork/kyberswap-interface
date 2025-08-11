@@ -280,8 +280,8 @@ export function EstimateLiqValue({ chainId }: { chainId: ChainId }) {
               className="rounded-md text-xs py-3 px-4 mt-4 font-normal leading-[18px] text-warning"
               style={{ background: `${theme.warning}33` }}
             >
-              {((refundUsd * 100) / initUsd).toFixed(2)}% of your input remains unused. Consider lowering your input
-              amount
+              {((refundUsd * 100) / initUsd).toFixed(2)}% of your input remains unused and will be returned to your
+              wallet. Consider refreshing or changing your input amount to get updated routes.
             </div>
           )}
 

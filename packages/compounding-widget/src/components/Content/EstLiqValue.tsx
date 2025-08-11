@@ -269,8 +269,8 @@ export default function EstLiqValue() {
           className="rounded-md text-xs py-3 px-4 mt-4 font-normal leading-[18px] text-warning"
           style={{ background: `${theme.warning}33` }}
         >
-          {((refundInfo.refundUsd * 100) / initUsd).toFixed(2)}% of your input remains unused. Consider refreshing or
-          changing your input amount to get updated routes.
+          {((refundInfo.refundUsd * 100) / initUsd).toFixed(2)}% of your input remains unused and will be returned to
+          your wallet. Consider refreshing or changing your input amount to get updated routes.
         </div>
       )}
 
