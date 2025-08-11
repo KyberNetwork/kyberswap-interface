@@ -248,33 +248,35 @@ const RightSection = ({
 
         {isUniv2 && <PositionHistory position={position} />}
 
-        <PositionActionWrapper>
-          <PositionAction
-            outlineDefault
-            disabled={initialLoading || !position || position?.status === PositionStatus.CLOSED}
-            onClick={() => {
-              if (initialLoading || position?.status === PositionStatus.CLOSED || !position) return
+        {position?.status !== PositionStatus.CLOSED && (
+          <PositionActionWrapper>
+            <PositionAction
+              outlineDefault
+              disabled={initialLoading || !position}
+              onClick={() => {
+                if (initialLoading || !position) return
 
-              handleOpenZapOut({
-                position: {
-                  dex: position.dex.id,
-                  chainId: position.chain.id,
-                  poolAddress: position.pool.address,
-                  id: isUniv2 ? account || '' : position.tokenId,
-                },
-              })
-            }}
-          >{t`Remove Liquidity`}</PositionAction>
-          <PositionAction
-            disabled={initialLoading}
-            onClick={() => {
-              if (!position || initialLoading) return
-              onOpenIncreaseLiquidityWidget()
-            }}
-          >
-            {!position || position.status === PositionStatus.CLOSED ? t`Add Liquidity` : t`Increase Liquidity`}
-          </PositionAction>
-        </PositionActionWrapper>
+                handleOpenZapOut({
+                  position: {
+                    dex: position.dex.id,
+                    chainId: position.chain.id,
+                    poolAddress: position.pool.address,
+                    id: isUniv2 ? account || '' : position.tokenId,
+                  },
+                })
+              }}
+            >{t`Remove Liquidity`}</PositionAction>
+            <PositionAction
+              disabled={initialLoading}
+              onClick={() => {
+                if (!position || initialLoading) return
+                onOpenIncreaseLiquidityWidget()
+              }}
+            >
+              {!position ? t`Add Liquidity` : t`Increase Liquidity`}
+            </PositionAction>
+          </PositionActionWrapper>
+        )}
       </InfoRightColumn>
     </>
   )
