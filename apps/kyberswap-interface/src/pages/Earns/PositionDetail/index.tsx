@@ -295,6 +295,45 @@ const PositionDetail = () => {
     </TotalLiquiditySection>
   )
 
+  const shareBtn = useCallback(
+    (type: ShareType, size?: number) => (
+      <ShareButtonWrapper
+        onClick={() => {
+          if (!position) return
+
+          setShareInfo({
+            type,
+            onClose: () => setShareInfo(undefined),
+            pool: {
+              address: position.pool.address,
+              chainId: position.chain.id,
+              chainLogo: position.chain.logo,
+              dexLogo: position.dex.logo,
+              dexName: position.dex.id,
+              exchange: protocolGroupNameToExchangeMapping[position.dex.id as EarnDex],
+              token0: {
+                symbol: position.token0.symbol,
+                logo: position.token0.logo,
+              },
+              token1: {
+                symbol: position.token1.symbol,
+                logo: position.token1.logo,
+              },
+            },
+            position: {
+              apr: position.apr,
+              createdTime: position.createdTime,
+              rewardEarnings: position.rewards.totalUsdValue,
+            },
+          })
+        }}
+      >
+        <Share2 size={size || 16} color={theme.subText} />
+      </ShareButtonWrapper>
+    ),
+    [theme.subText, position],
+  )
+
   const aprSection = (
     <AprSection
       showForFarming={
@@ -332,52 +371,14 @@ const PositionDetail = () => {
         <PositionSkeleton width={70} height={24} text="Finalizing..." />
       ) : (
         <Flex alignItems={'center'} sx={{ gap: 1 }}>
-          <Text fontSize={20} color={position?.apr && position.apr > 0 ? theme.primary : theme.text}>
+          {position?.pool.isFarming && <IconKem width={20} height={20} />}
+          <Text fontSize={20} marginRight={1} color={position?.apr && position.apr > 0 ? theme.primary : theme.text}>
             {formatAprNumber(position?.apr || 0)}%
           </Text>
-          {position?.pool.isFarming && <IconKem width={20} height={20} />}
+          {!initialLoading && !isUnfinalized && shareBtn(ShareType.POSITION_INFO, 12)}
         </Flex>
       )}
     </AprSection>
-  )
-
-  const shareBtn = useCallback(
-    (type: ShareType) => (
-      <ShareButtonWrapper
-        onClick={() => {
-          if (!position) return
-
-          setShareInfo({
-            type,
-            onClose: () => setShareInfo(undefined),
-            pool: {
-              address: position.pool.address,
-              chainId: position.chain.id,
-              chainLogo: position.chain.logo,
-              dexLogo: position.dex.logo,
-              dexName: position.dex.id,
-              exchange: protocolGroupNameToExchangeMapping[position.dex.id as EarnDex],
-              token0: {
-                symbol: position.token0.symbol,
-                logo: position.token0.logo,
-              },
-              token1: {
-                symbol: position.token1.symbol,
-                logo: position.token1.logo,
-              },
-            },
-            position: {
-              apr: position.apr,
-              createdTime: position.createdTime,
-              rewardEarnings: position.rewards.totalUsdValue,
-            },
-          })
-        }}
-      >
-        <Share2 size={16} color={theme.subText} />
-      </ShareButtonWrapper>
-    ),
-    [theme.subText, position],
   )
 
   const shareModal = shareInfo ? <ShareModal {...shareInfo} /> : null
@@ -405,7 +406,6 @@ const PositionDetail = () => {
               initialLoading={initialLoading}
               position={position}
               hadForceLoading={hadForceLoading.current}
-              shareBtn={shareBtn}
             />
             {!position?.pool.isFarming &&
               (!!position?.suggestionPool ||

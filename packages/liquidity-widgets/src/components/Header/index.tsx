@@ -77,6 +77,7 @@ const Header = ({ refetchData }: { refetchData: () => void }) => {
 
   const isOutOfRange =
     !!positionId && success && isUniV3 ? univ3Pool.tick < data.tickLower || univ3Pool.tick >= data.tickUpper : false;
+  const isClosed = !!positionId && !position;
 
   const handleToggleSetting = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
@@ -134,12 +135,12 @@ const Header = ({ refetchData }: { refetchData: () => void }) => {
               <>
                 <div>#{positionId}</div>
                 <div
-                  className={`rounded-full text-xs px-2 py-1 font-normal text-${isOutOfRange ? 'warning' : 'accent'}`}
+                  className={`rounded-full text-xs px-2 py-1 font-normal text-${isClosed ? 'icons' : isOutOfRange ? 'warning' : 'accent'}`}
                   style={{
-                    background: `${isOutOfRange ? theme.warning : theme.accent}33`,
+                    background: `${isClosed ? theme.icons : isOutOfRange ? theme.warning : theme.accent}33`,
                   }}
                 >
-                  {isOutOfRange ? '● Out of range' : '● In range'}
+                  {isClosed ? '● Closed' : isOutOfRange ? '● Out of range' : '● In range'}
                 </div>
               </>
             )}

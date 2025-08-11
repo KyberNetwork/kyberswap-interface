@@ -14,7 +14,7 @@ export default function AxisBottom({ xScale, innerHeight, offset = 0 }: AxisBott
         <Axis
           axisGenerator={axisBottom(xScale)
             .ticks(6)
-            .tickFormat(value => formatDisplayNumber(Number(value), { significantDigits: 6 }))}
+            .tickFormat(value => formatDisplayNumber(Number(value), { significantDigits: 8 }))}
         />
       </g>
     ),
