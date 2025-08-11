@@ -293,7 +293,7 @@ export default function TableContent({
               const rewardsClaimDisabled = rewardsClaiming || position.rewards.claimableUsdValue === 0
               const isStablePair = pool.category === PAIR_CATEGORY.STABLE
               const isEarlyPosition = checkEarlyPosition(position)
-              const isWaitingForRewards = pool.isFarming && rewards.totalUsdValue > 0 && isEarlyPosition
+              const isWaitingForRewards = pool.isFarming && rewards.totalUsdValue === 0 && isEarlyPosition
 
               const actions = (
                 <DropdownAction
@@ -515,7 +515,7 @@ export default function TableContent({
                     <PositionValueLabel>{t`Unclaimed rewards`}</PositionValueLabel>
                     {isUnfinalized ? (
                       <PositionSkeleton width={80} height={19} text="Finalizing..." />
-                    ) : isEarlyPosition ? (
+                    ) : isWaitingForRewards ? (
                       <PositionSkeleton
                         width={80}
                         height={19}

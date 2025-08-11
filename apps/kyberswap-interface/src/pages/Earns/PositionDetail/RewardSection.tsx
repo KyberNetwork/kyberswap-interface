@@ -58,7 +58,7 @@ const RewardSection = ({
 
   const isUnfinalized = position?.isUnfinalized
   const isEarlyPosition = !!position && checkEarlyPosition(position)
-  const isWaitingForRewards = position?.pool.isFarming && position.rewards.totalUsdValue > 0 && isEarlyPosition
+  const isWaitingForRewards = position?.pool.isFarming && position.rewards.totalUsdValue === 0 && isEarlyPosition
 
   useEffect(() => {
     const calculateTimeRemaining = () => {
@@ -198,7 +198,7 @@ const RewardSection = ({
               <PositionSkeleton width={90} height={24} />
             ) : isUnfinalized ? (
               <PositionSkeleton width={90} height={24} text="Finalizing..." />
-            ) : isEarlyPosition ? (
+            ) : isWaitingForRewards ? (
               <PositionSkeleton
                 width={90}
                 height={24}

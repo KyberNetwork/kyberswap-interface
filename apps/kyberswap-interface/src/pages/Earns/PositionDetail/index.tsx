@@ -223,7 +223,7 @@ const PositionDetail = () => {
   const isUnfinalized = position?.isUnfinalized
   const isStablePair = position?.pool.category === PAIR_CATEGORY.STABLE
   const isEarlyPosition = !!position && checkEarlyPosition(position)
-  const isWaitingForRewards = position?.pool.isFarming && position.rewards.totalUsdValue > 0 && isEarlyPosition
+  const isWaitingForRewards = position?.pool.isFarming && position.rewards.totalUsdValue === 0 && isEarlyPosition
 
   const emptyPosition = (
     <EmptyPositionText>
