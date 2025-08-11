@@ -1,4 +1,3 @@
-import { ShareType } from '@kyber/ui'
 import { shortenAddress } from '@kyber/utils/dist/crypto'
 import { t } from '@lingui/macro'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -24,13 +23,11 @@ const PositionDetailHeader = ({
   hadForceLoading,
   isLoading,
   initialLoading,
-  shareBtn,
 }: {
   position?: ParsedPosition
   hadForceLoading: boolean
   isLoading: boolean
   initialLoading: boolean
-  shareBtn: (type: ShareType) => React.ReactNode
 }) => {
   const theme = useTheme()
   const navigate = useNavigate()
@@ -168,7 +165,6 @@ const PositionDetailHeader = ({
           )}
 
           {isLoading && !initialLoading && <Loader />}
-          {!initialLoading && !isUnfinalized && shareBtn(ShareType.POSITION_INFO)}
         </Flex>
       </PositionHeader>
     </Flex>
