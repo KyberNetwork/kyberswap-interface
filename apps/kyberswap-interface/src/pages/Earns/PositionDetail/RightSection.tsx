@@ -11,7 +11,6 @@ import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useStableCoins } from 'hooks/Tokens'
 import useTheme from 'hooks/useTheme'
-import { PositionSkeleton } from 'pages/Earns/PositionDetail'
 import LiquidityChart, { LiquidityChartSkeleton } from 'pages/Earns/PositionDetail/LiquidityChart'
 import PositionHistory from 'pages/Earns/PositionDetail/PositionHistory'
 import {
@@ -25,6 +24,7 @@ import {
   PriceSection,
   RevertIconWrapper,
 } from 'pages/Earns/PositionDetail/styles'
+import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import { CoreProtocol, Exchange, POSSIBLE_FARMING_PROTOCOLS } from 'pages/Earns/constants'
 import { CheckClosedPositionParams } from 'pages/Earns/hooks/useClosedPositions'
 import useZapInWidget from 'pages/Earns/hooks/useZapInWidget'
