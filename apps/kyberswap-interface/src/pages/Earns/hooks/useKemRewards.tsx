@@ -318,29 +318,29 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
 
   const claimModal =
     openClaimModal && claimInfo ? (
-      <ClaimModal
-        claimType={ClaimType.REWARDS}
-        claiming={claiming}
-        claimInfo={claimInfo}
-        compoundable
-        onClaim={handleClaim}
-        onCompound={onCompound}
-        onClose={onCloseClaim}
-      />
+      <>
+        <ClaimModal
+          claimType={ClaimType.REWARDS}
+          claiming={claiming}
+          claimInfo={claimInfo}
+          compoundable
+          onClaim={handleClaim}
+          onCompound={onCompound}
+          onClose={onCloseClaim}
+        />
+        {compoundingWidget}
+      </>
     ) : null
 
   const claimAllRewardsModal =
     openClaimAllModal && rewardInfo ? (
-      <>
-        <ClaimAllModal
-          rewardInfo={rewardInfo}
-          onClaimAll={handleClaimAll}
-          onClose={() => setOpenClaimAllModal(false)}
-          claiming={claiming}
-          setClaiming={setClaiming}
-        />
-        {compoundingWidget}
-      </>
+      <ClaimAllModal
+        rewardInfo={rewardInfo}
+        onClaimAll={handleClaimAll}
+        onClose={() => setOpenClaimAllModal(false)}
+        claiming={claiming}
+        setClaiming={setClaiming}
+      />
     ) : null
 
   return { rewardInfo, claimModal, onOpenClaim, claiming, claimAllRewardsModal, onOpenClaimAllRewards }
