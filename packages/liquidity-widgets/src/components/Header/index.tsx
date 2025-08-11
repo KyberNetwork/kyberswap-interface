@@ -51,7 +51,7 @@ const Header = ({ refetchData }: { refetchData: () => void }) => {
 
   const { toggleSetting, degenMode } = useZapState();
 
-  const initializing = pool === 'loading' || !pool;
+  const initializing = pool === 'loading' || !pool || position === 'loading';
   const poolAddress = initializing ? '' : pool.address;
 
   const PoolCopy = useCopy({
@@ -76,8 +76,10 @@ const Header = ({ refetchData }: { refetchData: () => void }) => {
   const { success: isUniV3, data: univ3Pool } = univ3PoolNormalize.safeParse(pool);
 
   const isOutOfRange =
-    !!positionId && success && isUniV3 ? univ3Pool.tick < data.tickLower || univ3Pool.tick >= data.tickUpper : false;
-  const isClosed = !!positionId && !position;
+    !!positionId && position && success && isUniV3
+      ? univ3Pool.tick < data.tickLower || univ3Pool.tick >= data.tickUpper
+      : false;
+  const isClosed = !!position && position !== 'loading' && position.liquidity.toString() === '0';
 
   const handleToggleSetting = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
@@ -131,7 +133,7 @@ const Header = ({ refetchData }: { refetchData: () => void }) => {
             <span>
               {token0.symbol}/{token1.symbol}{' '}
             </span>
-            {!!positionId && isUniV3 && (
+            {!initializing && !!positionId && isUniV3 && (
               <>
                 <div>#{positionId}</div>
                 <div
