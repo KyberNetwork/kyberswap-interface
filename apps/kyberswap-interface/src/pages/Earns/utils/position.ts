@@ -395,5 +395,8 @@ export const getPositionLiquidity = async ({
 
 export const checkEarlyPosition = (position: ParsedPosition) => {
   const now = Date.now()
-  return position.createdTime >= now - 5 * 60 * 1000 // 5 minutes in milliseconds
+  const createdTime = position.createdTime
+  const parsedCreatedTime = typeof createdTime === 'number' && createdTime < 1e12 ? createdTime * 1000 : createdTime
+
+  return parsedCreatedTime >= now - 5 * 60 * 1000 // 5 minutes in milliseconds
 }
