@@ -53,6 +53,8 @@ export function TargetPoolState({
   const [revertDisplay, setRevertDisplay] = useState(false);
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
+  const [minPriceTyping, setMinPriceTyping] = useState(false);
+  const [maxPriceTyping, setMaxPriceTyping] = useState(false);
 
   const isMinTick =
     pool !== 'loading' && isUniV3 && tickLower === nearestUsableTick(MIN_TICK, (pool as UniV3Pool).tickSpacing);
@@ -62,7 +64,7 @@ export function TargetPoolState({
   const [selectedRange, setSelectedRange] = useState<SelectedRange | null>(null);
 
   useEffect(() => {
-    if (pool !== 'loading' && tickUpper && tickLower) {
+    if (pool !== 'loading' && tickUpper && tickLower && !minPriceTyping && !maxPriceTyping) {
       const maxPrice = isMaxTick
         ? revertDisplay
           ? '0'
@@ -77,6 +79,7 @@ export function TargetPoolState({
       setMaxPrice(toPosition && toPosition !== 'loading' ? (revertDisplay ? minPrice : maxPrice) : maxPrice);
       setMinPrice(toPosition && toPosition !== 'loading' ? (revertDisplay ? maxPrice : minPrice) : minPrice);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tickLower, pool, revertDisplay, isMinTick, isMaxTick, tickUpper, toPosition]);
 
   const priceLabel =
@@ -311,6 +314,7 @@ export function TargetPoolState({
                     maxLength={79}
                     value={revertDisplay ? maxPrice : minPrice}
                     onChange={e => {
+                      if (!minPriceTyping) setMinPriceTyping(true);
                       const value = e.target.value.replace(/,/g, '');
                       const inputRegex = RegExp(`^\\d*(?:\\\\[.])?\\d*$`); // match escaped "." characters via in a non-capturing group
                       if (value === '' || inputRegex.test(value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))) {
@@ -319,6 +323,7 @@ export function TargetPoolState({
                       }
                     }}
                     onBlur={e => {
+                      if (minPriceTyping) setMinPriceTyping(false);
                       if (pool === 'loading') return;
                       const tick = priceToClosestTick(
                         e.target.value,
@@ -379,6 +384,7 @@ export function TargetPoolState({
                     maxLength={79}
                     value={revertDisplay ? minPrice : maxPrice}
                     onChange={e => {
+                      if (!maxPriceTyping) setMaxPriceTyping(true);
                       const value = e.target.value.replace(/,/g, '');
                       const inputRegex = RegExp(`^\\d*(?:\\\\[.])?\\d*$`); // match escaped "." characters via in a non-capturing group
                       if (value === '' || inputRegex.test(value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))) {
@@ -387,6 +393,7 @@ export function TargetPoolState({
                       }
                     }}
                     onBlur={e => {
+                      if (maxPriceTyping) setMaxPriceTyping(false);
                       if (pool === 'loading') return;
                       const tick = priceToClosestTick(
                         e.target.value,
