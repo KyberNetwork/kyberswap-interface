@@ -50,9 +50,9 @@ const ClaimModal = ({
   claimType,
   claiming,
   claimInfo,
-  compoundable: _compoundable,
+  compoundable,
   onClaim,
-  onCompound: _onCompound,
+  onCompound,
   onClose,
 }: {
   claimType: ClaimType
@@ -130,18 +130,16 @@ const ClaimModal = ({
           </ClaimInfo>
         </ClaimInfoWrapper>
         <Row gap="16px" flexDirection={upToExtraSmall ? 'column-reverse' : 'row'}>
-          {/* {compoundable && onCompound ? (
+          {compoundable && onCompound ? (
             <ButtonOutlined color={theme.primary} gap="4px" disabled={claiming} onClick={onCompound}>
               {t`Compound`}
             </ButtonOutlined>
           ) : (
             <ButtonOutlined onClick={onClose}>{t`Cancel`}</ButtonOutlined>
-          )} */}
-          <ButtonOutlined onClick={onClose}>{t`Cancel`}</ButtonOutlined>
+          )}
           <ButtonPrimary gap="4px" disabled={claiming} onClick={handleClaim}>
             {claiming && <Loader stroke={'#505050'} />}
-            {/* {claiming ? t`Claiming` : claimType === ClaimType.FEES ? t`Claim only` : t`Claim`} */}
-            {claiming ? t`Claiming` : t`Claim`}
+            {claiming ? t`Claiming` : claimType === ClaimType.FEES ? t`Claim only` : t`Claim`}
           </ButtonPrimary>
         </Row>
       </Wrapper>
