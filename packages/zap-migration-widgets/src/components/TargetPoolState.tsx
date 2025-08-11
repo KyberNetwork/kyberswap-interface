@@ -319,7 +319,7 @@ export function TargetPoolState({
                       const inputRegex = RegExp(`^\\d*(?:\\\\[.])?\\d*$`); // match escaped "." characters via in a non-capturing group
                       if (value === '' || inputRegex.test(value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))) {
                         setSelectedRange(null);
-                        revertDisplay ? setMaxPrice(value) : setMinPrice(value);
+                        revertDisplay ? setMaxPrice('0') : setMinPrice('0');
                       }
                     }}
                     onBlur={e => {
@@ -389,7 +389,7 @@ export function TargetPoolState({
                       const inputRegex = RegExp(`^\\d*(?:\\\\[.])?\\d*$`); // match escaped "." characters via in a non-capturing group
                       if (value === '' || inputRegex.test(value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))) {
                         setSelectedRange(null);
-                        revertDisplay ? setMinPrice(value) : setMaxPrice(value);
+                        revertDisplay ? setMinPrice('0') : setMaxPrice('0');
                       }
                     }}
                     onBlur={e => {
