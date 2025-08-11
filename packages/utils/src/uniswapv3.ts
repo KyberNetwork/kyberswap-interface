@@ -345,7 +345,7 @@ export function priceToClosestTick(
   token1Decimal: number,
   revert = false,
 ): number | undefined {
-  if (!value.match(/^\d*\.?\d+$/)) return;
+  if (!value.match(/^\d*\.?\d+$/) || !token0Decimal || !token1Decimal) return;
   const [whole, fraction] = value.split('.');
 
   const decimals = fraction?.length ?? 0;
