@@ -293,7 +293,7 @@ export default function TableContent({
               const rewardsClaimDisabled = rewardsClaiming || position.rewards.claimableUsdValue === 0
               const isStablePair = pool.category === PAIR_CATEGORY.STABLE
               const isEarlyPosition = checkEarlyPosition(position)
-              const isWaitingForRewards = pool.isFarming && isEarlyPosition
+              const isWaitingForRewards = pool.isFarming && rewards.totalUsdValue > 0 && isEarlyPosition
 
               const actions = (
                 <DropdownAction

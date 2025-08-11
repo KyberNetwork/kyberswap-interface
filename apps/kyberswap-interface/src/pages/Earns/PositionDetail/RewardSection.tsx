@@ -58,7 +58,7 @@ const RewardSection = ({
 
   const isUnfinalized = position?.isUnfinalized
   const isEarlyPosition = !!position && checkEarlyPosition(position)
-  const isWaitingForRewards = position?.pool.isFarming && isEarlyPosition
+  const isWaitingForRewards = position?.pool.isFarming && position.rewards.totalUsdValue > 0 && isEarlyPosition
 
   useEffect(() => {
     const calculateTimeRemaining = () => {
