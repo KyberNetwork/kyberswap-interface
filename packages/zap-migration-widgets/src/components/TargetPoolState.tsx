@@ -67,16 +67,12 @@ export function TargetPoolState({
         ? revertDisplay
           ? '0'
           : '∞'
-        : formatDisplayNumber(+tickToPrice(tickUpper, pool.token0.decimals, pool.token1.decimals, revertDisplay), {
-            significantDigits: 8,
-          });
+        : tickToPrice(tickUpper, pool.token0.decimals, pool.token1.decimals, revertDisplay);
       const minPrice = isMinTick
         ? revertDisplay
           ? '∞'
           : '0'
-        : formatDisplayNumber(+tickToPrice(tickLower, pool.token0.decimals, pool.token1.decimals, revertDisplay), {
-            significantDigits: 8,
-          });
+        : tickToPrice(tickLower, pool.token0.decimals, pool.token1.decimals, revertDisplay);
 
       setMaxPrice(toPosition && toPosition !== 'loading' ? (revertDisplay ? minPrice : maxPrice) : maxPrice);
       setMinPrice(toPosition && toPosition !== 'loading' ? (revertDisplay ? maxPrice : minPrice) : minPrice);
