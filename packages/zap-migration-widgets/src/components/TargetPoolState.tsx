@@ -256,7 +256,7 @@ export function TargetPoolState({
             <div className="flex items-center gap-4 mt-3 text-sm">
               <div className="bg-white bg-opacity-[0.04] rounded-md py-3 w-1/2 flex flex-col items-center justify-center gap-1">
                 <p className="text-subText">Min Price</p>
-                <p className="text-base font-medium">{minPrice}</p>
+                <p className="text-base font-medium">{formatDisplayNumber(minPrice, { significantDigits: 6 })}</p>
                 <p className="text-subText">
                   {pool === 'loading'
                     ? ''
@@ -267,7 +267,7 @@ export function TargetPoolState({
               </div>
               <div className="bg-white bg-opacity-[0.04] rounded-md py-3 w-1/2 flex flex-col items-center justify-center gap-1">
                 <p className="text-subText">Max Price</p>
-                <p className="text-base font-medium">{maxPrice}</p>
+                <p className="text-base font-medium">{formatDisplayNumber(maxPrice, { significantDigits: 6 })}</p>
                 <p className="text-subText">
                   {pool === 'loading'
                     ? ''
