@@ -5,10 +5,10 @@ import '@kyber/ui/styles.css';
 import { Action } from '@/components/Action';
 import { EstLiqValue } from '@/components/EstLiqValue';
 import { Header } from '@/components/Header';
-import { LiquidityToRemove } from '@/components/LiquidityToRemove';
 import { PoolFee } from '@/components/PoolFee';
 import { PoolPrice } from '@/components/PoolPrice';
 import PoolStat from '@/components/PoolStat';
+import PositionLiquidity from '@/components/PositionLiquidity';
 import { PositionPriceRange } from '@/components/PositionPriceRange';
 import { Preview } from '@/components/Preview';
 import { ZapSummary } from '@/components/ZapSummary';
@@ -59,9 +59,9 @@ const ZapOut = (props: ZapOutProps) => {
                 <div className="-mb-4">
                   <PoolStat chainId={chainId} poolType={poolType} positionId={positionId} poolAddress={poolAddress} />
                 </div>
+                <PositionLiquidity />
                 <PoolPrice />
                 <PositionPriceRange />
-                <LiquidityToRemove />
                 <PoolFee />
               </div>
 
