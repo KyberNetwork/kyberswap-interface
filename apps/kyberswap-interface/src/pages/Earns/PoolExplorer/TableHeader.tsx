@@ -1,0 +1,65 @@
+import { t } from '@lingui/macro'
+import { useMedia } from 'react-use'
+import { Flex, Text } from 'rebass'
+import { PoolQueryParams } from 'services/zapEarn'
+
+import { SortBy } from 'pages/Earns/PoolExplorer'
+import { TableHeader as TableHeaderComponent } from 'pages/Earns/PoolExplorer/styles'
+import SortIcon, { Direction } from 'pages/MarketOverview/SortIcon'
+import { MEDIA_WIDTHS } from 'theme'
+
+const TableHeader = ({
+  onSortChange,
+  filters,
+}: {
+  onSortChange: (sortBy: string) => void
+  filters: PoolQueryParams
+}) => {
+  const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
+
+  return !upToMedium ? (
+    <TableHeaderComponent>
+      <Text>Protocol</Text>
+      <Text>Pair</Text>
+      <Flex
+        justifyContent="flex-start"
+        sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
+        role="button"
+        onClick={() => onSortChange(SortBy.APR)}
+      >
+        {t`APR`}
+        <SortIcon sorted={filters.sortBy === SortBy.APR ? (filters.orderBy as Direction) : undefined} />
+      </Flex>
+      <Flex
+        justifyContent="flex-end"
+        sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
+        role="button"
+        onClick={() => onSortChange(SortBy.EARN_FEE)}
+      >
+        {t`Earn Fees`}
+        <SortIcon sorted={filters.sortBy === SortBy.EARN_FEE ? (filters.orderBy as Direction) : undefined} />
+      </Flex>
+      <Flex
+        justifyContent="flex-end"
+        sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
+        role="button"
+        onClick={() => onSortChange(SortBy.TVL)}
+      >
+        {t`TVL`}
+        <SortIcon sorted={filters.sortBy === SortBy.TVL ? (filters.orderBy as Direction) : undefined} />
+      </Flex>
+      <Flex
+        justifyContent="flex-end"
+        sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
+        role="button"
+        onClick={() => onSortChange(SortBy.VOLUME)}
+      >
+        {t`Volume`}
+        <SortIcon sorted={filters.sortBy === SortBy.VOLUME ? (filters.orderBy as Direction) : undefined} />
+      </Flex>
+      <div />
+    </TableHeaderComponent>
+  ) : null
+}
+
+export default TableHeader

@@ -1,18 +1,16 @@
 import { formatAprNumber } from '@kyber/utils/dist/number'
 import { t } from '@lingui/macro'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { Star } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
-import { useAddFavoriteMutation, usePoolsExplorerQuery, useRemoveFavoriteMutation } from 'services/zapEarn'
+import { usePoolsExplorerQuery } from 'services/zapEarn'
 
 import { ReactComponent as IconFarmingPool } from 'assets/svg/kyber/kem.svg'
-import { NotificationType } from 'components/Announcement/type'
 import CopyHelper from 'components/Copy'
 import Loader from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import {
   Apr,
@@ -23,10 +21,10 @@ import {
   TableBody,
   TableRow,
 } from 'pages/Earns/PoolExplorer/styles'
+import useFavoritePool from 'pages/Earns/PoolExplorer/useFavoritePool'
 import useFilter from 'pages/Earns/PoolExplorer/useFilter'
 import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import { ParsedEarnPool, ProgramType } from 'pages/Earns/types'
-import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import Updater from 'state/customizeDexes/updater'
 import { useAppSelector } from 'state/hooks'
 import { MEDIA_WIDTHS } from 'theme'
@@ -37,24 +35,41 @@ export const dexKeyMapping: { [key: string]: string } = {
   kodiakcl: 'kodiak-v3',
 }
 
+const POLLING_INTERVAL_MS = 5 * 60_000
+
+const kemFarming = (pool: ParsedEarnPool) => {
+  const programs = pool.programs || []
+  const isFarming = programs.includes(ProgramType.EG) || programs.includes(ProgramType.LM)
+
+  return isFarming ? (
+    <MouseoverTooltipDesktopOnly
+      placement="bottom"
+      width="max-content"
+      text={
+        <div>
+          {t`LP Fee APR`}: {formatAprNumber(pool.feeApr)}%
+          <br />
+          {t`EG Sharing Reward`}: {formatAprNumber(pool.kemEGApr || 0)}%
+          <br />
+          {t`LM Reward`}: {formatAprNumber(pool.kemLMApr || 0)}%
+        </div>
+      }
+    >
+      <IconFarmingPool width={24} height={24} style={{ marginLeft: 4 }} />
+    </MouseoverTooltipDesktopOnly>
+  ) : null
+}
+
 const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: ({ pool }: ZapInInfo) => void }) => {
   const theme = useTheme()
-  const { account } = useActiveWeb3React()
-  const { library } = useWeb3React()
   const { filters } = useFilter()
-  const notify = useNotify()
-  const toggleWalletModal = useWalletModalToggle()
 
   const allDexes = useAppSelector(state => state.customizeDexes.allDexes)
   const dexList = useMemo(() => {
     return allDexes[filters.chainId] || []
   }, [allDexes, filters.chainId])
-  const { data: poolData, refetch, isError } = usePoolsExplorerQuery(filters, { pollingInterval: 5 * 60_000 })
-  const [addFavorite] = useAddFavoriteMutation()
-  const [removeFavorite] = useRemoveFavoriteMutation()
-
-  const [favoriteLoading, setFavoriteLoading] = useState<string[]>([])
-  const [delayFavorite, setDelayFavorite] = useState(false)
+  const { data: poolData, refetch, isError } = usePoolsExplorerQuery(filters, { pollingInterval: POLLING_INTERVAL_MS })
+  const { handleFavorite, favoriteLoading } = useFavoritePool({ filters, refetch })
 
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
@@ -68,126 +83,12 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: ({ pool }: Zap
     }))
   }, [poolData, dexList])
 
-  const handleFavorite = async (e: React.MouseEvent<SVGElement, MouseEvent>, pool: ParsedEarnPool) => {
-    e.stopPropagation()
-    if (favoriteLoading.includes(pool.address) || delayFavorite) return
-    handleAddFavoriteLoading(pool.address)
-
-    if (!account) {
-      toggleWalletModal()
-      handleRemoveFavoriteLoading(pool.address)
-      return
-    }
-
-    let signature = ''
-    let msg = ''
-
-    const key = `poolExplorer_${account}`
-    try {
-      const data = JSON.parse(localStorage.getItem(key) || '')
-      if (data.issuedAt) {
-        const expire = new Date(data.issuedAt)
-        expire.setDate(expire.getDate() + 7)
-        const now = new Date()
-        if (expire > now) {
-          signature = data.signature
-          msg = data.msg
-        }
-      }
-    } catch {
-      handleRemoveFavoriteLoading(pool.address)
-    }
-    if (!signature) {
-      const issuedAt = new Date().toISOString()
-      msg = `Click sign to add favorite pools at Kyberswap.com without logging in.\nThis request won’t trigger any blockchain transaction or cost any gas fee. Expires in 7 days. \n\nIssued at: ${issuedAt}`
-      signature = await library?.send('personal_sign', [`0x${Buffer.from(msg, 'utf8').toString('hex')}`, account])
-      localStorage.setItem(
-        key,
-        JSON.stringify({
-          signature,
-          msg,
-          issuedAt,
-        }),
-      )
-    }
-
-    const isPoolFavorite = !!pool.favorite?.isFavorite
-    setDelayFavorite(true)
-    await (isPoolFavorite ? removeFavorite : addFavorite)({
-      chainId: filters.chainId,
-      userAddress: account,
-      poolAddress: pool.address,
-      message: msg,
-      signature,
-    })
-      .then(res => {
-        if ((res as any).error) {
-          notify(
-            {
-              title: `${!isPoolFavorite ? 'Add' : 'Remove'} failed`,
-              summary: (res as any).error.data.message || 'Some thing went wrong',
-              type: NotificationType.ERROR,
-            },
-            8000,
-          )
-        } else refetch()
-      })
-      .catch(err => {
-        // localStorage.removeItem(key)
-        console.log(err)
-        notify(
-          {
-            title: `${!isPoolFavorite ? 'Add' : 'Remove'} failed`,
-            summary: err.message || 'Some thing went wrong',
-            type: NotificationType.ERROR,
-          },
-          8000,
-        )
-      })
-      .finally(() => handleRemoveFavoriteLoading(pool.address))
-  }
-  const handleAddFavoriteLoading = (poolAddress: string) => {
-    if (!favoriteLoading.includes(poolAddress)) setFavoriteLoading([...favoriteLoading, poolAddress])
-  }
-  const handleRemoveFavoriteLoading = (poolAddress: string) =>
-    setFavoriteLoading(favoriteLoading.filter(address => address !== poolAddress))
-
-  useEffect(() => {
-    if (delayFavorite)
-      setTimeout(() => {
-        setDelayFavorite(false)
-      }, 500)
-  }, [delayFavorite])
-
   if (!tablePoolData?.length || isError)
     return (
       <Text color={theme.subText} margin="3rem" marginTop="4rem" textAlign="center">
         No data found
       </Text>
     )
-
-  const kemFarming = (pool: ParsedEarnPool) => {
-    const programs = pool.programs || []
-    const isFarming = programs.includes(ProgramType.EG) || programs.includes(ProgramType.LM)
-
-    return isFarming ? (
-      <MouseoverTooltipDesktopOnly
-        placement="bottom"
-        width="max-content"
-        text={
-          <div>
-            {t`LP Fee APR`}: {formatAprNumber(pool.feeApr)}%
-            <br />
-            {t`EG Sharing Reward`}: {formatAprNumber(pool.kemEGApr || 0)}%
-            <br />
-            {t`LM Reward`}: {formatAprNumber(pool.kemLMApr || 0)}%
-          </div>
-        }
-      >
-        <IconFarmingPool width={24} height={24} style={{ marginLeft: 4 }} />
-      </MouseoverTooltipDesktopOnly>
-    ) : null
-  }
 
   if (upToMedium)
     return (
@@ -237,6 +138,7 @@ const TableContent = ({ onOpenZapInWidget }: { onOpenZapInWidget: ({ pool }: Zap
                     role="button"
                     cursor="pointer"
                     onClick={e => handleFavorite(e, pool)}
+                    aria-label={pool.favorite?.isFavorite ? 'Remove from favorites' : 'Add to favorites'}
                   />
                 </Flex>
               </Flex>
