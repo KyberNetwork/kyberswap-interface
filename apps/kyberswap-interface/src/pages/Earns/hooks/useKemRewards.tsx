@@ -288,7 +288,9 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
 
   const onCompound = useCallback(() => {
     if (!position) return
-    const claimableTokens = position.rewards.tokens.filter(token => token.claimableUsdValue > 0)
+    const claimableTokens = position.rewards.tokens.filter(
+      token => token.claimableUsdValue > 0 || token.claimableAmount > 0,
+    )
     const initDepositTokens = claimableTokens.map(token => token.address).join(',')
     const initAmounts = claimableTokens.map(token => token.claimableAmount).join(',')
     handleOpenCompounding({
