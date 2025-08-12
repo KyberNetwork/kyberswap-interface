@@ -33,47 +33,43 @@ export const PoolFee = () => {
   if (isUniv2) return null;
 
   return (
-    <div className="rounded-lg px-4 py-3 border border-stroke text-sm text-subText">
-      <div>Claim fee</div>
-      <div className="mt-2 h-[1px] w-full bg-stroke" />
-      <div className=" mt-2 flex items-start justify-between">
-        <div>Pool fee</div>
+    <div className="rounded-lg px-4 py-3 border border-stroke text-sm text-subText flex items-start justify-between">
+      <div>Fees to Claim</div>
 
-        <div className="flex flex-col gap-2">
-          <div className="flex justify-between items-center gap-2">
-            {pool === 'loading' ? (
-              <Skeleton className="h-5 w-20" />
-            ) : (
-              <>
-                <div className="flex items-center text-base gap-1 text-text">
-                  {formatTokenAmount(feeAmount0Ref.current, pool.token0.decimals, 8)} {pool.token0.symbol}
-                </div>
-                <div className="text-xs text-subText">
-                  {formatDisplayNumber(
-                    (pool.token0.price || 0) * Number(toRawString(feeAmount0Ref.current, pool.token0.decimals)),
-                    { style: 'currency' },
-                  )}
-                </div>
-              </>
-            )}
-          </div>
-          <div className="flex justify-between items-center gap-2">
-            {pool === 'loading' ? (
-              <Skeleton className="h-5 w-20" />
-            ) : (
-              <>
-                <div className="flex items-center text-base gap-1 text-text">
-                  {formatTokenAmount(feeAmount1Ref.current, pool.token1.decimals, 8)} {pool.token1.symbol}
-                </div>
-                <div className="text-xs text-subText">
-                  {formatDisplayNumber(
-                    (pool.token1.price || 0) * Number(toRawString(feeAmount1Ref.current, pool.token1.decimals)),
-                    { style: 'currency' },
-                  )}
-                </div>
-              </>
-            )}
-          </div>
+      <div className="flex flex-col gap-2">
+        <div className="flex justify-end items-center gap-2">
+          {pool === 'loading' ? (
+            <Skeleton className="h-5 w-20" />
+          ) : (
+            <>
+              <div className="flex items-center text-base gap-1 text-text">
+                {formatTokenAmount(feeAmount0Ref.current, pool.token0.decimals, 8)} {pool.token0.symbol}
+              </div>
+              <div className="text-xs text-subText">
+                {formatDisplayNumber(
+                  (pool.token0.price || 0) * Number(toRawString(feeAmount0Ref.current, pool.token0.decimals)),
+                  { style: 'currency' },
+                )}
+              </div>
+            </>
+          )}
+        </div>
+        <div className="flex justify-end items-center gap-2">
+          {pool === 'loading' ? (
+            <Skeleton className="h-5 w-20" />
+          ) : (
+            <>
+              <div className="flex items-center text-base gap-1 text-text">
+                {formatTokenAmount(feeAmount1Ref.current, pool.token1.decimals, 8)} {pool.token1.symbol}
+              </div>
+              <div className="text-xs text-subText">
+                {formatDisplayNumber(
+                  (pool.token1.price || 0) * Number(toRawString(feeAmount1Ref.current, pool.token1.decimals)),
+                  { style: 'currency' },
+                )}
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>

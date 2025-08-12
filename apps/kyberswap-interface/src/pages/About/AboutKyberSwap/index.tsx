@@ -15,16 +15,7 @@ import KyberDark from 'assets/svg/kyber/about_icon_kyber.svg'
 import { ReactComponent as KNCSVG } from 'assets/svg/kyber/knc_black.svg'
 import Banner from 'components/Banner'
 import { FooterSocialLink } from 'components/Footer/Footer'
-import {
-  BestPrice,
-  Clock,
-  FantomLogoFull,
-  LineaFull,
-  LowestSlippage,
-  OptimismLogoFull,
-  PolygonLogoFull,
-} from 'components/Icons'
-import ZkSyncFull from 'components/Icons/ZkSyncFull'
+import { BestPrice, Clock, LineaFull, LowestSlippage, OptimismLogoFull, PolygonLogoFull } from 'components/Icons'
 import Loader from 'components/Loader'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
@@ -336,23 +327,14 @@ function AboutKyberSwap() {
               <img src={BSC} alt="bsc_icon" width="100%" />
               <PolygonLogoFull />
               <img src={AboutAvalanche} alt="avalanche_icon" width="100%" />
-              <FantomLogoFull color={'#fff'} width="100%" height="unset" />
               <img src={ArbitrumDark} alt="" width="100%" />
               <OptimismLogoFull />
-              <ZkSyncFull color={theme.text} />
               <LineaFull />
               <img
                 src="https://raw.githubusercontent.com/base-org/brand-kit/001c0e9b40a67799ebe0418671ac4e02a0c683ce/logo/wordmark/Base_Wordmark_Blue.svg"
                 alt="Base"
                 width="100%"
               />
-              <img
-                src="https://storage.googleapis.com/ks-setting-1d682dca/8f4656a9-aaeb-438c-a6c2-3af30cca26db1697596014388.png"
-                alt="Sroll"
-                width="100%"
-              />
-
-              <img src="https://i.imgur.com/kG2lDVA.png" alt="Blast" width="100%" />
 
               <img src="https://www.mantle.xyz/logo-lockup.svg" alt="mantle" width="100%" />
 
