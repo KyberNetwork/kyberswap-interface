@@ -17,7 +17,6 @@ import { APP_PATHS, PAIR_CATEGORY } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import { PositionSkeleton } from 'pages/Earns/PositionDetail'
 import { PositionAction as PositionActionBtn } from 'pages/Earns/PositionDetail/styles'
 import DropdownAction from 'pages/Earns/UserPositions/DropdownAction'
 import MigrationModal from 'pages/Earns/UserPositions/MigrationModal'
@@ -36,6 +35,7 @@ import {
   PositionValueLabel,
   PositionValueWrapper,
 } from 'pages/Earns/UserPositions/styles'
+import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import {
   CoreProtocol,
   DEXES_SUPPORT_COLLECT_FEE,
@@ -52,6 +52,7 @@ import { ZapOutInfo } from 'pages/Earns/hooks/useZapOutWidget'
 import { FeeInfo, ParsedPosition, PositionStatus, SuggestedPool } from 'pages/Earns/types'
 import { isForkFrom } from 'pages/Earns/utils'
 import { getUnclaimedFeesInfo } from 'pages/Earns/utils/fees'
+import { checkEarlyPosition } from 'pages/Earns/utils/position'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -291,6 +292,8 @@ export default function TableContent({
                 !DEXES_SUPPORT_COLLECT_FEE[dex.id as EarnDex] || unclaimedFees === 0 || feesClaiming
               const rewardsClaimDisabled = rewardsClaiming || position.rewards.claimableUsdValue === 0
               const isStablePair = pool.category === PAIR_CATEGORY.STABLE
+              const isEarlyPosition = checkEarlyPosition(position)
+              const isWaitingForRewards = pool.isFarming && rewards.totalUsdValue === 0 && isEarlyPosition
 
               const actions = (
                 <DropdownAction
@@ -409,6 +412,13 @@ export default function TableContent({
 
                     {isUnfinalized ? (
                       <PositionSkeleton width={80} height={19} text="Finalizing..." />
+                    ) : isWaitingForRewards ? (
+                      <PositionSkeleton
+                        width={70}
+                        height={19}
+                        tooltip={t`Data is still syncing — takes up to 5 minutes.`}
+                        tooltipWidth={195}
+                      />
                     ) : (
                       <Flex alignItems={'center'} sx={{ gap: 1 }}>
                         <MouseoverTooltipDesktopOnly
@@ -505,6 +515,13 @@ export default function TableContent({
                     <PositionValueLabel>{t`Unclaimed rewards`}</PositionValueLabel>
                     {isUnfinalized ? (
                       <PositionSkeleton width={80} height={19} text="Finalizing..." />
+                    ) : isWaitingForRewards ? (
+                      <PositionSkeleton
+                        width={80}
+                        height={19}
+                        tooltip={t`Data is still syncing — takes up to 5 minutes.`}
+                        tooltipWidth={195}
+                      />
                     ) : (
                       <Flex alignItems={'center'} sx={{ gap: 1 }}>
                         {upToSmall && <IconKem width={20} height={20} />}
