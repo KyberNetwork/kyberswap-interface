@@ -92,13 +92,13 @@ const PoolExplorer = () => {
   }
 
   const handleOpenZapInWithParams = useCallback(
-    ({ pool }: ZapInInfo) => {
+    ({ pool, initialTick }: ZapInInfo) => {
       const { dex, chainId, address } = pool
       searchParams.set('exchange', dex)
       searchParams.set('poolChainId', chainId.toString())
       searchParams.set('poolAddress', address)
       setSearchParams(searchParams)
-      handleOpenZapIn({ pool })
+      handleOpenZapIn({ pool, initialTick })
     },
     [handleOpenZapIn, searchParams, setSearchParams],
   )
@@ -193,7 +193,7 @@ const PoolExplorer = () => {
       <TableWrapper>
         <ContentWrapper>
           <TableHeader onSortChange={onSortChange} filters={filters} />
-          <TableContent onOpenZapInWidget={handleOpenZapInWithParams} />
+          <TableContent onOpenZapInWidget={handleOpenZapInWithParams} filters={filters} />
         </ContentWrapper>
         {!isError && (
           <Pagination

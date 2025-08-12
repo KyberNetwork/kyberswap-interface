@@ -57,17 +57,10 @@ export interface EarnPool {
     tickUpper: number
     minPrice: string
     maxPrice: string
-    apr: MaxAprInfo
-    aprEg: MaxAprInfo
-    aprLm: MaxAprInfo
+    apr: string
+    kemEGApr: string
+    kemLMApr: string
   }
-}
-
-interface MaxAprInfo {
-  all: string
-  '24h': string
-  '7d': string
-  '30d': string
 }
 
 export interface ParsedEarnPool extends EarnPool {
