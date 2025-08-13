@@ -12,11 +12,12 @@ import Loader from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
 import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
-import { PositionSkeleton } from 'pages/Earns/PositionDetail'
 import { NextDistribution, PositionAction, RewardDetailInfo, RewardsSection } from 'pages/Earns/PositionDetail/styles'
 import { HorizontalDivider } from 'pages/Earns/UserPositions/styles'
+import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
 import { ParsedPosition, TokenRewardInfo } from 'pages/Earns/types'
+import { checkEarlyPosition } from 'pages/Earns/utils/position'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const formatTimeRemaining = (seconds: number) => {
@@ -58,6 +59,8 @@ const RewardSection = ({
   )
 
   const isUnfinalized = position?.isUnfinalized
+  const isEarlyPosition = !!position && checkEarlyPosition(position)
+  const isWaitingForRewards = position?.pool.isFarming && position.rewards.totalUsdValue === 0 && isEarlyPosition
 
   useEffect(() => {
     const calculateTimeRemaining = () => {
@@ -136,6 +139,13 @@ const RewardSection = ({
               <PositionSkeleton width={105} height={24} />
             ) : isUnfinalized ? (
               <PositionSkeleton width={105} height={24} text="Finalizing..." />
+            ) : isWaitingForRewards ? (
+              <PositionSkeleton
+                width={105}
+                height={24}
+                tooltip={t`Data is still syncing — takes up to 5 minutes.`}
+                tooltipWidth={195}
+              />
             ) : (
               <Flex alignItems={'center'}>
                 <Text fontSize={20}>
@@ -190,6 +200,13 @@ const RewardSection = ({
               <PositionSkeleton width={90} height={24} />
             ) : isUnfinalized ? (
               <PositionSkeleton width={90} height={24} text="Finalizing..." />
+            ) : isWaitingForRewards ? (
+              <PositionSkeleton
+                width={90}
+                height={24}
+                tooltip={t`Data is still syncing — takes up to 5 minutes.`}
+                tooltipWidth={195}
+              />
             ) : (
               <Text fontSize={20}>
                 {formatDisplayNumber(rewardInfoThisPosition?.claimableUsdValue || 0, {

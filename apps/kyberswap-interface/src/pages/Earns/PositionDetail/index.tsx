@@ -4,7 +4,6 @@ import { MAX_TICK, MIN_TICK, priceToClosestTick } from '@kyber/utils/dist/uniswa
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Share2 } from 'react-feather'
-import Skeleton from 'react-loading-skeleton'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import { useUserPositionsQuery } from 'services/zapEarn'
@@ -29,13 +28,12 @@ import {
   MigrationLiquidityRecommend,
   PositionDetailWrapper,
   ShareButtonWrapper,
-  SkeletonText,
-  SkeletonWrapper,
   TotalLiquiditySection,
   VerticalDivider,
 } from 'pages/Earns/PositionDetail/styles'
 import MigrationModal from 'pages/Earns/UserPositions/MigrationModal'
 import { EmptyPositionText, PositionPageWrapper } from 'pages/Earns/UserPositions/styles'
+import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import {
   EarnDex,
   Exchange,
@@ -48,7 +46,7 @@ import useKemRewards from 'pages/Earns/hooks/useKemRewards'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import { FeeInfo, PAIR_CATEGORY, ParsedPosition, PositionStatus, SuggestedPool } from 'pages/Earns/types'
 import { getUnclaimedFeesInfo } from 'pages/Earns/utils/fees'
-import { parsePosition } from 'pages/Earns/utils/position'
+import { checkEarlyPosition, parsePosition } from 'pages/Earns/utils/position'
 import { getUnfinalizedPositions } from 'pages/Earns/utils/unfinalizedPosition'
 import { formatDisplayNumber, toString } from 'utils/numbers'
 
@@ -224,6 +222,8 @@ const PositionDetail = () => {
   const isFarmingPossible = POSSIBLE_FARMING_PROTOCOLS.includes(protocol as Exchange)
   const isUnfinalized = position?.isUnfinalized
   const isStablePair = position?.pool.category === PAIR_CATEGORY.STABLE
+  const isEarlyPosition = !!position && checkEarlyPosition(position)
+  const isWaitingForRewards = position?.pool.isFarming && position.rewards.totalUsdValue === 0 && isEarlyPosition
 
   const emptyPosition = (
     <EmptyPositionText>
@@ -369,6 +369,13 @@ const PositionDetail = () => {
         <PositionSkeleton width={70} height={24} />
       ) : isUnfinalized ? (
         <PositionSkeleton width={70} height={24} text="Finalizing..." />
+      ) : isWaitingForRewards ? (
+        <PositionSkeleton
+          width={70}
+          height={24}
+          tooltip={t`Data is still syncing — takes up to 5 minutes.`}
+          tooltipWidth={195}
+        />
       ) : (
         <Flex alignItems={'center'} sx={{ gap: 1 }}>
           {position?.pool.isFarming && <IconKem width={20} height={20} />}
@@ -456,40 +463,3 @@ const PositionDetail = () => {
 }
 
 export default PositionDetail
-
-export const PositionSkeleton = ({
-  width,
-  height,
-  style,
-  text,
-}: {
-  width: number
-  height: number
-  style?: React.CSSProperties
-  text?: string
-}) => {
-  const theme = useTheme()
-
-  return !text ? (
-    <Skeleton
-      width={width}
-      height={height}
-      baseColor={theme.background}
-      highlightColor={theme.buttonGray}
-      borderRadius="1rem"
-      style={style}
-    />
-  ) : (
-    <SkeletonWrapper>
-      <Skeleton
-        width={width}
-        height={height}
-        baseColor={theme.background}
-        highlightColor={theme.buttonGray}
-        borderRadius="1rem"
-        style={style}
-      />
-      <SkeletonText>{text}</SkeletonText>
-    </SkeletonWrapper>
-  )
-}
