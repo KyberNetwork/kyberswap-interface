@@ -88,7 +88,7 @@ const RightSection = ({
         chainId: position.chain.id,
         address: position.pool.address,
       },
-      positionId: position.status === PositionStatus.CLOSED ? undefined : isUniv2 ? account || '' : position.tokenId,
+      positionId: isUniv2 ? account || '' : position.tokenId,
     })
   }
 
@@ -138,7 +138,7 @@ const RightSection = ({
                     <Text fontSize={14}>
                       1 {!revert ? position.token0.symbol : position.token1.symbol} ={' '}
                       {formatDisplayNumber(price, {
-                        significantDigits: 6,
+                        significantDigits: 8,
                       })}{' '}
                       {!revert ? position.token1.symbol : position.token0.symbol}
                     </Text>
@@ -193,7 +193,7 @@ const RightSection = ({
                     ? '0'
                     : position?.priceRange?.min && position?.priceRange?.max
                     ? formatDisplayNumber(!revert ? position.priceRange.min : 1 / position.priceRange.max, {
-                        significantDigits: 6,
+                        significantDigits: 8,
                       })
                     : ''}
                 </Text>
@@ -228,7 +228,7 @@ const RightSection = ({
                     ? '∞'
                     : position?.priceRange?.min && position?.priceRange?.max
                     ? formatDisplayNumber(!revert ? position.priceRange.max : 1 / position.priceRange.min, {
-                        significantDigits: 6,
+                        significantDigits: 8,
                       })
                     : ''}
                 </Text>
@@ -272,7 +272,7 @@ const RightSection = ({
               onOpenIncreaseLiquidityWidget()
             }}
           >
-            {!position || position.status === PositionStatus.CLOSED ? t`Add Liquidity` : t`Increase Liquidity`}
+            {t`Increase Liquidity`}
           </PositionAction>
         </PositionActionWrapper>
       </InfoRightColumn>

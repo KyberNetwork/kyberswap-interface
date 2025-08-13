@@ -68,12 +68,14 @@ export default function TableContent({
   setFeeInfoFromRpc,
   onOpenZapInWidget,
   onOpenZapOut,
+  refetchPositions,
 }: {
   positions: Array<ParsedPosition>
   feeInfoFromRpc: FeeInfoFromRpc[]
   setFeeInfoFromRpc: (feeInfo: FeeInfoFromRpc[]) => void
   onOpenZapInWidget: ({ pool, positionId }: ZapInInfo) => void
   onOpenZapOut: ({ position }: ZapOutInfo) => void
+  refetchPositions: () => void
 }) {
   const { account } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
@@ -96,7 +98,11 @@ export default function TableContent({
     },
   })
 
-  const { claimModal: claimRewardsModal, onOpenClaim: onOpenClaimRewards, claiming: rewardsClaiming } = useKemRewards()
+  const {
+    claimModal: claimRewardsModal,
+    onOpenClaim: onOpenClaimRewards,
+    claiming: rewardsClaiming,
+  } = useKemRewards(refetchPositions)
 
   const { widget: zapMigrationWidget, handleOpenZapMigration } = useZapMigrationWidget()
 
@@ -172,7 +178,7 @@ export default function TableContent({
     e.preventDefault()
     if (rewardsClaiming || position.rewards.unclaimedUsdValue === 0) return
     setPositionThatClaimingRewards(position)
-    onOpenClaimRewards(position.tokenId, position.chain.id)
+    onOpenClaimRewards(position)
   }
 
   const handleMigrateToKem = (e: React.MouseEvent, position: ParsedPosition) => {

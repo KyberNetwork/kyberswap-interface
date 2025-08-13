@@ -30,6 +30,7 @@ export function PoolInfo({
       ? (pool as UniV3Pool).tick < (position as UniV3Position).tickLower ||
         (pool as UniV3Pool).tick > (position as UniV3Position).tickUpper
       : false;
+  const isClosed = !!position && position.liquidity.toString() === '0';
 
   const dexName =
     typeof DEXES_INFO[pool.dex].name === 'string'
@@ -55,12 +56,12 @@ export function PoolInfo({
         {!isUniv2 && position?.id && <div className="text-base opacity-70 relative top-[2px]">#{position.id}</div>}
         {position && !isUniv2 && (
           <div
-            className={`rounded-full text-xs px-2 py-1 font-normal ${isOutOfRange ? 'text-warning' : 'text-accent'}`}
+            className={`rounded-full text-xs px-2 py-1 font-normal ${isClosed ? 'text-icons' : isOutOfRange ? 'text-warning' : 'text-accent'}`}
             style={{
-              background: `${isOutOfRange ? theme.warning : theme.accent}33`,
+              background: `${isClosed ? theme.icons : isOutOfRange ? theme.warning : theme.accent}33`,
             }}
           >
-            {isOutOfRange ? '● Out of range' : '● In range'}
+            {isClosed ? '● Closed' : isOutOfRange ? '● Out of range' : '● In range'}
           </div>
         )}
       </div>

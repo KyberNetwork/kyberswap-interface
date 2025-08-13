@@ -179,7 +179,7 @@ const UserPositions = ({
                       }}
                     />
                   ) : (
-                    <CircleCheckBig className="w-[14px] h-[14px] text-accent" />
+                    <CircleCheckBig className="w-[14px] h-[14px] text-accent relative top-1" />
                   )}
                 </div>
               </div>
