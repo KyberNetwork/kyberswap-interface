@@ -61,7 +61,10 @@ export const TransactionHistory = () => {
       tx =>
         (!tx.targetTxHash || !tx.status || tx.status === 'Processing') &&
         tx.status !== 'Refunded' &&
-        tx.status !== 'Failed',
+        // hardcode to update status for a failed tx, if user checked again, we can remove this in next release
+        (tx.sourceTxHash.toLowerCase() !== '0xb321c90b203b9641cc6b7039eade7a6d212a9e133b6817b593f4b9408ca55d87'
+          ? tx.status !== 'Failed'
+          : true),
     )
   }, [transactions])
 

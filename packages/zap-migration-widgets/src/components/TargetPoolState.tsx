@@ -53,6 +53,8 @@ export function TargetPoolState({
   const [revertDisplay, setRevertDisplay] = useState(false);
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
+  const [minPriceTyping, setMinPriceTyping] = useState(false);
+  const [maxPriceTyping, setMaxPriceTyping] = useState(false);
 
   const isMinTick =
     pool !== 'loading' && isUniV3 && tickLower === nearestUsableTick(MIN_TICK, (pool as UniV3Pool).tickSpacing);
@@ -62,25 +64,22 @@ export function TargetPoolState({
   const [selectedRange, setSelectedRange] = useState<SelectedRange | null>(null);
 
   useEffect(() => {
-    if (pool !== 'loading' && tickUpper && tickLower) {
+    if (pool !== 'loading' && tickUpper && tickLower && !minPriceTyping && !maxPriceTyping) {
       const maxPrice = isMaxTick
         ? revertDisplay
           ? '0'
           : '∞'
-        : formatDisplayNumber(+tickToPrice(tickUpper, pool.token0.decimals, pool.token1.decimals, revertDisplay), {
-            significantDigits: 8,
-          });
+        : tickToPrice(tickUpper, pool.token0.decimals, pool.token1.decimals, revertDisplay);
       const minPrice = isMinTick
         ? revertDisplay
           ? '∞'
           : '0'
-        : formatDisplayNumber(+tickToPrice(tickLower, pool.token0.decimals, pool.token1.decimals, revertDisplay), {
-            significantDigits: 8,
-          });
+        : tickToPrice(tickLower, pool.token0.decimals, pool.token1.decimals, revertDisplay);
 
       setMaxPrice(toPosition && toPosition !== 'loading' ? (revertDisplay ? minPrice : maxPrice) : maxPrice);
       setMinPrice(toPosition && toPosition !== 'loading' ? (revertDisplay ? maxPrice : minPrice) : minPrice);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tickLower, pool, revertDisplay, isMinTick, isMaxTick, tickUpper, toPosition]);
 
   const priceLabel =
@@ -257,7 +256,7 @@ export function TargetPoolState({
             <div className="flex items-center gap-4 mt-3 text-sm">
               <div className="bg-white bg-opacity-[0.04] rounded-md py-3 w-1/2 flex flex-col items-center justify-center gap-1">
                 <p className="text-subText">Min Price</p>
-                <p className="text-base font-medium">{minPrice}</p>
+                <p className="text-base font-medium">{formatDisplayNumber(minPrice, { significantDigits: 6 })}</p>
                 <p className="text-subText">
                   {pool === 'loading'
                     ? ''
@@ -268,7 +267,7 @@ export function TargetPoolState({
               </div>
               <div className="bg-white bg-opacity-[0.04] rounded-md py-3 w-1/2 flex flex-col items-center justify-center gap-1">
                 <p className="text-subText">Max Price</p>
-                <p className="text-base font-medium">{maxPrice}</p>
+                <p className="text-base font-medium">{formatDisplayNumber(maxPrice, { significantDigits: 6 })}</p>
                 <p className="text-subText">
                   {pool === 'loading'
                     ? ''
@@ -315,14 +314,16 @@ export function TargetPoolState({
                     maxLength={79}
                     value={revertDisplay ? maxPrice : minPrice}
                     onChange={e => {
+                      if (!minPriceTyping) setMinPriceTyping(true);
                       const value = e.target.value.replace(/,/g, '');
                       const inputRegex = RegExp(`^\\d*(?:\\\\[.])?\\d*$`); // match escaped "." characters via in a non-capturing group
                       if (value === '' || inputRegex.test(value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))) {
                         setSelectedRange(null);
-                        revertDisplay ? setMaxPrice(value) : setMinPrice(value);
+                        revertDisplay ? setMaxPrice('0') : setMinPrice('0');
                       }
                     }}
                     onBlur={e => {
+                      if (minPriceTyping) setMinPriceTyping(false);
                       if (pool === 'loading') return;
                       const tick = priceToClosestTick(
                         e.target.value,
@@ -383,14 +384,16 @@ export function TargetPoolState({
                     maxLength={79}
                     value={revertDisplay ? minPrice : maxPrice}
                     onChange={e => {
+                      if (!maxPriceTyping) setMaxPriceTyping(true);
                       const value = e.target.value.replace(/,/g, '');
                       const inputRegex = RegExp(`^\\d*(?:\\\\[.])?\\d*$`); // match escaped "." characters via in a non-capturing group
                       if (value === '' || inputRegex.test(value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))) {
                         setSelectedRange(null);
-                        revertDisplay ? setMinPrice(value) : setMaxPrice(value);
+                        revertDisplay ? setMinPrice('0') : setMaxPrice('0');
                       }
                     }}
                     onBlur={e => {
+                      if (maxPriceTyping) setMaxPriceTyping(false);
                       if (pool === 'loading') return;
                       const tick = priceToClosestTick(
                         e.target.value,

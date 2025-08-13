@@ -24,6 +24,7 @@ interface CompoundingPureParams {
   chainId: CompoundingChainId
   initDepositTokens: string
   initAmounts: string
+  compoundType?: 'COMPOUND_TYPE_REWARD'
 }
 
 interface CompoundingParams extends CompoundingPureParams {
@@ -47,6 +48,7 @@ export interface CompoundingInfo {
   positionId: string
   initDepositTokens: string
   initAmounts: string
+  compoundType?: 'COMPOUND_TYPE_REWARD'
 }
 
 const compoundingDexMapping: Record<EarnDex | Exchange, CompoundingPoolType> = {
@@ -112,7 +114,7 @@ const useCompounding = ({
   )
 
   const handleOpenCompounding = useCallback(
-    ({ pool, positionId, initDepositTokens, initAmounts }: CompoundingInfo) => {
+    ({ pool, positionId, initDepositTokens, initAmounts, compoundType }: CompoundingInfo) => {
       const dex = compoundingDexMapping[pool.dex]
       if (!dex) {
         notify(
@@ -131,6 +133,7 @@ const useCompounding = ({
         positionId,
         initDepositTokens,
         initAmounts,
+        compoundType,
       })
     },
     [notify],

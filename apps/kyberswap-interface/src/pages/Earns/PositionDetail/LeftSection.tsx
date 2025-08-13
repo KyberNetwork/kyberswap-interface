@@ -7,10 +7,10 @@ import { Flex, Text } from 'rebass'
 import Loader from 'components/Loader'
 import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
-import { PositionSkeleton } from 'pages/Earns/PositionDetail'
 import PositionHistory from 'pages/Earns/PositionDetail/PositionHistory'
 import RewardSection from 'pages/Earns/PositionDetail/RewardSection'
 import { InfoLeftColumn, InfoSection, PositionAction, VerticalDivider } from 'pages/Earns/PositionDetail/styles'
+import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import {
   CoreProtocol,
   EXCHANGES_SUPPORT_COLLECT_FEE,
@@ -31,6 +31,7 @@ const LeftSection = ({
   aprSection,
   initialLoading,
   shareBtn,
+  refetchPositions,
 }: {
   position?: ParsedPosition
   onFetchUnclaimedFee: () => void
@@ -38,6 +39,7 @@ const LeftSection = ({
   aprSection: React.ReactNode
   initialLoading: boolean
   shareBtn: (type: ShareType) => React.ReactNode
+  refetchPositions: () => void
 }) => {
   const theme = useTheme()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
@@ -241,7 +243,12 @@ const LeftSection = ({
         {(position?.pool.isFarming ||
           (initialLoading && isFarmingPossible) ||
           Number(position?.rewards.claimableUsdValue || 0) > 0) && (
-          <RewardSection position={position} initialLoading={initialLoading} shareBtn={shareBtn} />
+          <RewardSection
+            position={position}
+            initialLoading={initialLoading}
+            shareBtn={shareBtn}
+            refetchPositions={refetchPositions}
+          />
         )}
 
         {/* Position History */}

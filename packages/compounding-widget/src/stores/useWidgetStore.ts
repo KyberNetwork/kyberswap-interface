@@ -38,6 +38,7 @@ const initState = {
   aggregatorOptions: undefined,
   feeConfig: undefined,
   referral: undefined,
+  compoundType: undefined,
   onClose: () => {},
   onConnectWallet: () => {},
   onSwitchChain: () => {},

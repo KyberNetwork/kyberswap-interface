@@ -1,4 +1,3 @@
-import { ShareType } from '@kyber/ui'
 import { shortenAddress } from '@kyber/utils/dist/crypto'
 import { t } from '@lingui/macro'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -11,9 +10,9 @@ import Loader from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
-import { PositionSkeleton } from 'pages/Earns/PositionDetail'
 import { DexInfo, IconArrowLeft, PositionHeader } from 'pages/Earns/PositionDetail/styles'
 import { Badge, BadgeType, ChainImage, ImageContainer } from 'pages/Earns/UserPositions/styles'
+import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import { CoreProtocol, EarnDex, Exchange, PROTOCOL_POSITION_URL, earnSupportedProtocols } from 'pages/Earns/constants'
 import { ParsedPosition, PositionStatus } from 'pages/Earns/types'
 import { isForkFrom } from 'pages/Earns/utils'
@@ -24,13 +23,11 @@ const PositionDetailHeader = ({
   hadForceLoading,
   isLoading,
   initialLoading,
-  shareBtn,
 }: {
   position?: ParsedPosition
   hadForceLoading: boolean
   isLoading: boolean
   initialLoading: boolean
-  shareBtn: (type: ShareType) => React.ReactNode
 }) => {
   const theme = useTheme()
   const navigate = useNavigate()
@@ -168,7 +165,6 @@ const PositionDetailHeader = ({
           )}
 
           {isLoading && !initialLoading && <Loader />}
-          {!initialLoading && !isUnfinalized && shareBtn(ShareType.POSITION_INFO)}
         </Flex>
       </PositionHeader>
     </Flex>

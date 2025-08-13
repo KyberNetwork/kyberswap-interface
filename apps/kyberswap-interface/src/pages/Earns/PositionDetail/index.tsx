@@ -4,7 +4,6 @@ import { MAX_TICK, MIN_TICK, priceToClosestTick } from '@kyber/utils/dist/uniswa
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Share2 } from 'react-feather'
-import Skeleton from 'react-loading-skeleton'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import { useUserPositionsQuery } from 'services/zapEarn'
@@ -29,13 +28,12 @@ import {
   MigrationLiquidityRecommend,
   PositionDetailWrapper,
   ShareButtonWrapper,
-  SkeletonText,
-  SkeletonWrapper,
   TotalLiquiditySection,
   VerticalDivider,
 } from 'pages/Earns/PositionDetail/styles'
 import MigrationModal from 'pages/Earns/UserPositions/MigrationModal'
 import { EmptyPositionText, PositionPageWrapper } from 'pages/Earns/UserPositions/styles'
+import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import {
   EarnDex,
   Exchange,
@@ -48,7 +46,7 @@ import useKemRewards from 'pages/Earns/hooks/useKemRewards'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import { FeeInfo, PAIR_CATEGORY, ParsedPosition, PositionStatus, SuggestedPool } from 'pages/Earns/types'
 import { getUnclaimedFeesInfo } from 'pages/Earns/utils/fees'
-import { parsePosition } from 'pages/Earns/utils/position'
+import { checkEarlyPosition, parsePosition } from 'pages/Earns/utils/position'
 import { getUnfinalizedPositions } from 'pages/Earns/utils/unfinalizedPosition'
 import { formatDisplayNumber, toString } from 'utils/numbers'
 
@@ -79,7 +77,7 @@ const PositionDetail = () => {
     },
     { skip: !account, pollingInterval: forceLoading ? 5_000 : 15_000 },
   )
-  const { rewardInfo } = useKemRewards()
+  const { rewardInfo } = useKemRewards(refetch)
   const rewardInfoThisPosition = !userPosition
     ? undefined
     : rewardInfo?.nfts.find(item => item.nftId === userPosition?.[0]?.tokenId)
@@ -224,6 +222,8 @@ const PositionDetail = () => {
   const isFarmingPossible = POSSIBLE_FARMING_PROTOCOLS.includes(protocol as Exchange)
   const isUnfinalized = position?.isUnfinalized
   const isStablePair = position?.pool.category === PAIR_CATEGORY.STABLE
+  const isEarlyPosition = !!position && checkEarlyPosition(position)
+  const isWaitingForRewards = position?.pool.isFarming && position.rewards.totalUsdValue === 0 && isEarlyPosition
 
   const emptyPosition = (
     <EmptyPositionText>
@@ -295,6 +295,45 @@ const PositionDetail = () => {
     </TotalLiquiditySection>
   )
 
+  const shareBtn = useCallback(
+    (type: ShareType, size?: number) => (
+      <ShareButtonWrapper
+        onClick={() => {
+          if (!position) return
+
+          setShareInfo({
+            type,
+            onClose: () => setShareInfo(undefined),
+            pool: {
+              address: position.pool.address,
+              chainId: position.chain.id,
+              chainLogo: position.chain.logo,
+              dexLogo: position.dex.logo,
+              dexName: position.dex.id,
+              exchange: protocolGroupNameToExchangeMapping[position.dex.id as EarnDex],
+              token0: {
+                symbol: position.token0.symbol,
+                logo: position.token0.logo,
+              },
+              token1: {
+                symbol: position.token1.symbol,
+                logo: position.token1.logo,
+              },
+            },
+            position: {
+              apr: position.apr,
+              createdTime: position.createdTime,
+              rewardEarnings: position.rewards.totalUsdValue,
+            },
+          })
+        }}
+      >
+        <Share2 size={size || 16} color={theme.subText} />
+      </ShareButtonWrapper>
+    ),
+    [theme.subText, position],
+  )
+
   const aprSection = (
     <AprSection
       showForFarming={
@@ -330,54 +369,23 @@ const PositionDetail = () => {
         <PositionSkeleton width={70} height={24} />
       ) : isUnfinalized ? (
         <PositionSkeleton width={70} height={24} text="Finalizing..." />
+      ) : isWaitingForRewards ? (
+        <PositionSkeleton
+          width={70}
+          height={24}
+          tooltip={t`Data is still syncing — takes up to 5 minutes.`}
+          tooltipWidth={195}
+        />
       ) : (
         <Flex alignItems={'center'} sx={{ gap: 1 }}>
-          <Text fontSize={20} color={position?.apr && position.apr > 0 ? theme.primary : theme.text}>
+          {position?.pool.isFarming && <IconKem width={20} height={20} />}
+          <Text fontSize={20} marginRight={1} color={position?.apr && position.apr > 0 ? theme.primary : theme.text}>
             {formatAprNumber(position?.apr || 0)}%
           </Text>
-          {position?.pool.isFarming && <IconKem width={20} height={20} />}
+          {!initialLoading && !isUnfinalized && shareBtn(ShareType.POSITION_INFO, 12)}
         </Flex>
       )}
     </AprSection>
-  )
-
-  const shareBtn = useCallback(
-    (type: ShareType) => (
-      <ShareButtonWrapper
-        onClick={() => {
-          if (!position) return
-
-          setShareInfo({
-            type,
-            onClose: () => setShareInfo(undefined),
-            pool: {
-              address: position.pool.address,
-              chainId: position.chain.id,
-              chainLogo: position.chain.logo,
-              dexLogo: position.dex.logo,
-              dexName: position.dex.id,
-              exchange: protocolGroupNameToExchangeMapping[position.dex.id as EarnDex],
-              token0: {
-                symbol: position.token0.symbol,
-                logo: position.token0.logo,
-              },
-              token1: {
-                symbol: position.token1.symbol,
-                logo: position.token1.logo,
-              },
-            },
-            position: {
-              apr: position.apr,
-              createdTime: position.createdTime,
-              rewardEarnings: position.rewards.totalUsdValue,
-            },
-          })
-        }}
-      >
-        <Share2 size={16} color={theme.subText} />
-      </ShareButtonWrapper>
-    ),
-    [theme.subText, position],
   )
 
   const shareModal = shareInfo ? <ShareModal {...shareInfo} /> : null
@@ -405,7 +413,6 @@ const PositionDetail = () => {
               initialLoading={initialLoading}
               position={position}
               hadForceLoading={hadForceLoading.current}
-              shareBtn={shareBtn}
             />
             {!position?.pool.isFarming &&
               (!!position?.suggestionPool ||
@@ -433,6 +440,7 @@ const PositionDetail = () => {
                 totalLiquiditySection={totalLiquiditySection}
                 aprSection={aprSection}
                 shareBtn={shareBtn}
+                refetchPositions={refetch}
               />
               <RightSection
                 position={position}
@@ -455,40 +463,3 @@ const PositionDetail = () => {
 }
 
 export default PositionDetail
-
-export const PositionSkeleton = ({
-  width,
-  height,
-  style,
-  text,
-}: {
-  width: number
-  height: number
-  style?: React.CSSProperties
-  text?: string
-}) => {
-  const theme = useTheme()
-
-  return !text ? (
-    <Skeleton
-      width={width}
-      height={height}
-      baseColor={theme.background}
-      highlightColor={theme.buttonGray}
-      borderRadius="1rem"
-      style={style}
-    />
-  ) : (
-    <SkeletonWrapper>
-      <Skeleton
-        width={width}
-        height={height}
-        baseColor={theme.background}
-        highlightColor={theme.buttonGray}
-        borderRadius="1rem"
-        style={style}
-      />
-      <SkeletonText>{text}</SkeletonText>
-    </SkeletonWrapper>
-  )
-}
