@@ -125,7 +125,7 @@ export const AprSection = styled(InfoSection)<{ showForFarming?: boolean }>`
   ${({ showForFarming }) => showForFarming && 'align-items: flex-start;'}
   ${({ showForFarming }) => showForFarming && 'justify-content: center;'}
   ${({ showForFarming }) => showForFarming && 'padding: 16px 24px;'}
-  ${({ showForFarming }) => showForFarming && 'gap: 4px;'}
+  ${({ showForFarming }) => showForFarming && 'gap: 6px;'}
   ${({ showForFarming }) => showForFarming && 'align-self: stretch;'}
 `
 
@@ -291,17 +291,4 @@ export const ShareButtonWrapper = styled.div`
   :active {
     filter: brightness(1.05);
   }
-`
-
-export const SkeletonWrapper = styled.div`
-  position: relative;
-`
-
-export const SkeletonText = styled.div`
-  position: absolute;
-  font-size: 10px;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: ${({ theme }) => theme.subText};
 `

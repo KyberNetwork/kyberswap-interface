@@ -48,8 +48,15 @@ export default function ZapSummary() {
     [tokensIn, token0, token1, wrappedNativeToken, nativeToken],
   );
   const swapActions = useMemo(
-    () => parseSwapActions({ zapInfo, tokens: tokensToCheck, poolType, chainId }),
-    [chainId, poolType, tokensToCheck, zapInfo],
+    () =>
+      parseSwapActions({
+        zapInfo,
+        tokens: tokensToCheck,
+        poolType,
+        chainId,
+        poolAddress: pool === 'loading' ? '' : pool.address,
+      }),
+    [chainId, poolType, tokensToCheck, zapInfo, pool],
   );
 
   const addedLiquidityInfo = useMemo(() => {

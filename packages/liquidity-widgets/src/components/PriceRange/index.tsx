@@ -136,8 +136,6 @@ const PriceRange = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [feeRange, priceRanges]);
 
-  // console.log('priceRanges', priceRanges?.[2]);
-
   const isUniv3 = univ3Types.includes(poolType as any);
   if (!isUniv3) return null;
 

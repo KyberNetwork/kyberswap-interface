@@ -9,6 +9,7 @@ import CircleChevronRight from '@/assets/svg/circle-chevron-right.svg';
 import DropdownIcon from '@/assets/svg/dropdown.svg';
 import HandIcon from '@/assets/svg/hand.svg';
 import ZapIcon from '@/assets/svg/zapout.svg';
+import { LiquidityToRemove } from '@/components/LiquidityToRemove';
 import TokenSelectorModal from '@/components/TokenSelector/TokenSelectorModal';
 import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO } from '@/constants';
 import { ChainId, UniV2Position, UniV3Position, univ2PoolNormalize, univ3PoolNormalize } from '@/schema';
@@ -98,53 +99,7 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
   return (
     <>
       {showTokenSelect && <TokenSelectorModal onClose={() => setShowTokenSelect(false)} chainId={chainId} />}
-      <div className="rounded-lg border border-stroke px-4 py-3 text-subText text-sm">
-        <div>Your Position Liquidity</div>
-
-        <div className="flex justify-between mt-4 items-start">
-          {loading ? (
-            <>
-              <Skeleton className="h-5 w-20" />
-              <Skeleton className="h-4 w-14" />
-            </>
-          ) : (
-            <>
-              <div className="flex items-center text-base gap-1 text-text">
-                <TokenLogo src={pool.token0.logo || ''} alt={pool.token0.symbol} />
-                {pool.token0.symbol}
-              </div>
-              <div className="text-xs text-subText text-right">
-                <div className="text-text text-base">{formatTokenAmount(amount0, pool.token0.decimals, 8)}</div>
-                {formatDisplayNumber((pool.token0.price || 0) * Number(toRawString(amount0, pool.token0.decimals)), {
-                  style: 'currency',
-                })}
-              </div>
-            </>
-          )}
-        </div>
-
-        <div className="flex justify-between mt-2 items-start">
-          {loading ? (
-            <>
-              <Skeleton className="h-5 w-20" />
-              <Skeleton className="h-4 w-14" />
-            </>
-          ) : (
-            <>
-              <div className="flex items-center text-base gap-1 text-text">
-                <TokenLogo src={pool.token1.logo || ''} alt={pool.token1.symbol} />
-                {pool.token1.symbol}
-              </div>
-              <div className="text-xs text-subText text-right">
-                <div className="text-text text-base">{formatTokenAmount(amount1, pool.token1.decimals, 8)}</div>
-                {formatDisplayNumber((pool.token1.price || 0) * Number(toRawString(amount1, pool.token1.decimals)), {
-                  style: 'currency',
-                })}
-              </div>
-            </>
-          )}
-        </div>
-      </div>
+      <LiquidityToRemove />
 
       <CircleChevronRight className="text-subText w-8 h-8 p-1 rotate-90 -mt-3 -mb-3 mx-auto" />
 

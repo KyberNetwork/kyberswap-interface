@@ -161,5 +161,6 @@ export const PATHS = {
   COINGECKO_API_URL: 'https://api.coingecko.com/api/v3',
   GO_PLUS_API: 'https://api.gopluslabs.io/api/v1/token_security',
   ZAP_EARN_API: 'https://zap-earn-service-v3.kyberengineering.io/api',
+  // ZAP_EARN_API: 'https://pre-zap-earn-service.kyberengineering.io/api',
   TOKEN_API: 'https://token-api.kyberengineering.io/api',
 };

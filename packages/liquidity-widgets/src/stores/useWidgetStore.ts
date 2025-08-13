@@ -38,7 +38,7 @@ const initState = {
   aggregatorOptions: undefined,
   feeConfig: undefined,
   referral: undefined,
-  onClose: () => {},
+  onClose: undefined,
   onConnectWallet: () => {},
   onSwitchChain: () => {},
   onSubmitTx: (_txData: { from: string; to: string; value: string; data: string; gasLimit: string }) =>
@@ -68,10 +68,12 @@ export const useWidgetStore = create<WidgetState>((set, _get) => ({
     set({
       ...props,
       theme: themeToApply,
-      onClose: () => {
-        resetStore();
-        onClose();
-      },
+      onClose: onClose
+        ? () => {
+            resetStore();
+            onClose();
+          }
+        : undefined,
     });
 
     set({

@@ -99,7 +99,7 @@ const LIST_WALLETS = [
   { logo: Trust, lightLogo: TrustLight },
   { logo: Enjin, lightLogo: Enjin },
   { logo: Argent, lightLogo: ArgentLight },
-  { logo: 'https://rabby.io/assets/images/logo-white.svg', lightLogo: 'https://rabby.io/assets/images/logo-white.svg' },
+  { logo: 'https://rabby.io/assets/images/logo-new.svg', lightLogo: 'https://rabby.io/assets/images/logo-new.svg' },
   {
     logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Coinbase.svg/1024px-Coinbase.svg.png',
     lightLogo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Coinbase.svg/1024px-Coinbase.svg.png',
@@ -210,13 +210,13 @@ function AboutKNC() {
           <SupportedChain>
             {[
               ChainId.MAINNET,
+              ChainId.BASE,
               ChainId.MATIC,
               ChainId.BSCMAINNET,
               ChainId.AVAXMAINNET,
               ChainId.ARBITRUM,
               ChainId.OPTIMISM,
               ChainId.LINEA,
-              ChainId.SCROLL,
             ].map(item => (
               <img
                 src={NETWORKS_INFO[item].icon}

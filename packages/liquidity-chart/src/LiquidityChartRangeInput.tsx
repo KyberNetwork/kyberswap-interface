@@ -50,7 +50,7 @@ export default function LiquidityChartRangeInput({
       if (d === 'w' && ticksAtLimit[!revertPrice ? Bound.LOWER : Bound.UPPER]) return '0';
       if (d === 'e' && ticksAtLimit[!revertPrice ? Bound.UPPER : Bound.LOWER]) return '∞';
 
-      if (showLabelAsAmount) return formatDisplayNumber(x, { significantDigits: 6 });
+      if (showLabelAsAmount) return formatDisplayNumber(x, { significantDigits: 8 });
 
       const percent =
         (x < currentPrice ? -1 : 1) * ((Math.max(x, currentPrice) - Math.min(x, currentPrice)) / currentPrice) * 100;

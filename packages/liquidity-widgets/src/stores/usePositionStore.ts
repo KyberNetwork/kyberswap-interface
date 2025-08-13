@@ -49,7 +49,7 @@ export const usePositionStore = create<PositionState>((set, get) => ({
           sqrtPriceX96: univ3PoolInfo.sqrtPriceX96,
         });
 
-        if (positionInfo.error) set({ positionError: positionInfo.error });
+        if (positionInfo.error) set({ positionError: positionInfo.error, position: null });
         else set({ position: positionInfo.position as Position });
       }
 
@@ -69,7 +69,7 @@ export const usePositionStore = create<PositionState>((set, get) => ({
         });
 
         if (positionInfo.error) {
-          set({ positionError: positionInfo.error });
+          set({ positionError: positionInfo.error, position: null });
           return;
         }
 

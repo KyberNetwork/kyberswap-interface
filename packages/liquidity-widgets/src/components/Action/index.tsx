@@ -215,9 +215,11 @@ export default function Action({
 
   return (
     <div className="flex justify-center gap-5 mt-6">
-      <button className="ks-outline-btn w-[190px]" onClick={onClose}>
-        Cancel
-      </button>
+      {onClose && (
+        <button className="ks-outline-btn w-[190px]" onClick={onClose}>
+          Cancel
+        </button>
+      )}
       <button
         className={`ks-primary-btn min-w-[190px] w-fit ${
           !disabled && Object.values(approvalStates).some(item => item !== APPROVAL_STATE.NOT_APPROVED)

@@ -85,12 +85,12 @@ export default function PriceRange({
         )}
         <LowerPriceIndicator outOfRange={outOfRange}>
           <IndicatorLabel>
-            {ticksAtLimit.lower ? '0' : formatDisplayNumber(minPrice, { significantDigits: 4 })}
+            {ticksAtLimit.lower ? '0' : formatDisplayNumber(minPrice, { significantDigits: 6 })}
           </IndicatorLabel>
         </LowerPriceIndicator>
         <UpperPriceIndicator outOfRange={outOfRange}>
           <IndicatorLabel>
-            {ticksAtLimit.upper ? '∞' : formatDisplayNumber(maxPrice, { significantDigits: 4 })}
+            {ticksAtLimit.upper ? '∞' : formatDisplayNumber(maxPrice, { significantDigits: 6 })}
           </IndicatorLabel>
         </UpperPriceIndicator>
       </PriceRangeEl>
@@ -135,7 +135,7 @@ const CurrentPriceIndicator = ({
         onMouseLeave={() => setCurrentPriceHover(false)}
       />
       <CurrentPriceTooltip show={currentPriceHover}>
-        {t`Current Price`}: {formatDisplayNumber(currentPrice, { significantDigits: 4 })}
+        {t`Current Price`}: {formatDisplayNumber(currentPrice, { significantDigits: 6 })}
       </CurrentPriceTooltip>
     </CurrentPriceWrapper>
   )

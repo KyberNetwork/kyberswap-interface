@@ -83,7 +83,7 @@ export const ClaimInfoRow = ({
         })}
       </Text>
       <Text>{tokenSymbol}</Text>
-      <Text color={theme.subText} sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '80px' }}>
+      <Text color={theme.subText} sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '85px' }}>
         {formatDisplayNumber(tokenUsdValue, {
           style: 'currency',
           significantDigits: 4,

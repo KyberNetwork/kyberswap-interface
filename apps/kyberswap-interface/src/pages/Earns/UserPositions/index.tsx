@@ -395,6 +395,7 @@ const UserPositions = () => {
                 setFeeInfoFromRpc={setFeeInfoFromRpc}
                 onOpenZapInWidget={handleOpenZapIn}
                 onOpenZapOut={handleOpenZapOut}
+                refetchPositions={refetch}
               />
             )}
           </ContentWrapper>

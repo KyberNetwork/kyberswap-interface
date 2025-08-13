@@ -242,11 +242,11 @@ export default function Widget() {
   return (
     <div className="ks-lw ks-lw-style">
       {poolError && (
-        <Modal isOpen onClick={() => onClose()}>
+        <Modal isOpen onClick={() => onClose?.()}>
           <div className="flex flex-col items-center gap-8 text-error">
             <ErrorIcon className="text-error" />
             <div className="text-center">{poolError}</div>
-            <button className="ks-primary-btn w-[95%] bg-error border-solid border-error" onClick={onClose}>
+            <button className="ks-primary-btn w-[95%] bg-error border-solid border-error" onClick={() => onClose?.()}>
               Close
             </button>
           </div>
@@ -277,7 +277,7 @@ export default function Widget() {
           positionId={positionId}
           poolAddress={poolAddress}
           onConnectWallet={onConnectWallet}
-          onOpenZapMigration={handleOpenZapMigration}
+          onOpenZapMigration={onOpenZapMigration ? handleOpenZapMigration : undefined}
           onClose={onCloseTokenSelectModal}
           token0Address={token0.address}
           token1Address={token1.address}

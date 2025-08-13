@@ -31,6 +31,14 @@ export function divideBigIntToString(numerator: bigint, denominator: bigint, dec
     remainder %= denominator;
   }
 
+  // Remove trailing zeros from decimal part
+  decimalStr = decimalStr.replace(/0+$/, '');
+
+  // If decimal part is empty after removing zeros, return just the integer part
+  if (decimalStr === '') {
+    return integerPart.toString();
+  }
+
   return `${integerPart.toString()}.${decimalStr}`;
 }
 
