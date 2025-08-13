@@ -112,7 +112,9 @@ const DesktopTableRow = ({
           >
             {pool.maxAprInfo
               ? formatAprNumber(
-                  Number(pool.maxAprInfo.apr || 0) + Number(pool.kemEGApr || 0) + Number(pool.kemLMApr || 0),
+                  Number(pool.maxAprInfo.apr || 0) +
+                    Number(pool.maxAprInfo.kemEGApr || 0) +
+                    Number(pool.maxAprInfo.kemLMApr || 0),
                 ) + '%'
               : ''}
           </MouseoverTooltipDesktopOnly>
