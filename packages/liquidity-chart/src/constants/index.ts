@@ -14,8 +14,8 @@ export const DEFAULT_MARGINS = {
 
 export const ZOOM_LEVELS: Record<FeeAmount, ZoomLevels> = {
   [FeeAmount.LOWEST]: {
-    initialMin: 0.99,
-    initialMax: 1.01,
+    initialMin: 0.999,
+    initialMax: 1.001,
     min: 0.00001,
     max: 20,
   },
