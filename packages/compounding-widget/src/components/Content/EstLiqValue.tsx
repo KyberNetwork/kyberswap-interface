@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 
 import { useShallow } from 'zustand/shallow';
 
-import { defaultToken } from '@kyber/schema';
+import { API_URLS, defaultToken } from '@kyber/schema';
 import {
   Accordion,
   AccordionContent,
@@ -52,6 +52,7 @@ export default function EstLiqValue() {
     isHighRemainingAmount,
     positionAmountInfo,
     zapImpact,
+    feeInfo,
   } = parseZapInfo({ zapInfo, token0, token1, position });
 
   const tokensToCheck = useMemo(
@@ -260,6 +261,34 @@ export default function EstLiqValue() {
             </div>
           ) : (
             '--'
+          )}
+        </div>
+
+        <div className="flex justify-between items-start mt-3 text-xs">
+          <MouseoverTooltip
+            text={
+              <div>
+                Fees charged for automatically zapping into a liquidity pool. You still have to pay the standard gas
+                fees.{' '}
+                <a
+                  className="text-accent"
+                  href={API_URLS.DOCUMENT.ZAP_FEE_MODEL}
+                  target="_blank"
+                  rel="noopener norefferer noreferrer"
+                >
+                  More details.
+                </a>
+              </div>
+            }
+            width="220px"
+          >
+            <div className="text-subText mt-[2px] w-fit border-b border-dotted border-subText">Zap Fee</div>
+          </MouseoverTooltip>
+
+          {initializing ? (
+            <Skeleton className="w-14 h-4" />
+          ) : (
+            <div>{parseFloat(feeInfo.protocolFee.toFixed(3)) + '%'}</div>
           )}
         </div>
       </div>
