@@ -34,17 +34,11 @@ const TableHeader = ({
         <SortIcon sorted={filters.sortBy === SortBy.APR ? (filters.orderBy as Direction) : undefined} />
       </Flex>
       {isFarmingFiltered && (
-        <Flex
-          justifyContent="flex-end"
-          sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
-          role="button"
-          onClick={() => {}}
-        >
+        <Flex justifyContent="flex-end" sx={{ gap: '4px', alignItems: 'center' }} role="button">
           {t`Max APR`}
           <InfoHelper
             text={t`Max APR is the highest position APR in this pool recently. Click to the apr number to open the pre-filled same price range`}
           />
-          <SortIcon sorted={filters.sortBy === SortBy.APR ? (filters.orderBy as Direction) : undefined} />
         </Flex>
       )}
       <Flex
