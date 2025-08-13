@@ -87,9 +87,9 @@ export const Action = () => {
       if (isFarming) return 'Your position is in farming';
       return 'Not the position owner';
     }
+    if (!route) return 'No route found';
     if (isChecking) return 'Checking Approval...';
     if (fetchingRoute) return 'Fetching Route...';
-    if (!route) return 'No route found';
     if (chainId !== walletChainId) return 'Switch Network';
     if (clickedApprove || pendingTx) return 'Approving...';
     if (!isApproved) return 'Approve';
