@@ -51,7 +51,7 @@ const Header = ({ refetchData }: { refetchData: () => void }) => {
 
   const { toggleSetting, degenMode } = useZapState();
 
-  const initializing = pool === 'loading' || !pool;
+  const initializing = pool === 'loading' || !pool || position === 'loading';
   const poolAddress = initializing ? '' : pool.address;
 
   const PoolCopy = useCopy({
@@ -76,7 +76,10 @@ const Header = ({ refetchData }: { refetchData: () => void }) => {
   const { success: isUniV3, data: univ3Pool } = univ3PoolNormalize.safeParse(pool);
 
   const isOutOfRange =
-    !!positionId && success && isUniV3 ? univ3Pool.tick < data.tickLower || univ3Pool.tick >= data.tickUpper : false;
+    !!positionId && position && success && isUniV3
+      ? univ3Pool.tick < data.tickLower || univ3Pool.tick >= data.tickUpper
+      : false;
+  const isClosed = !!position && position !== 'loading' && position.liquidity.toString() === '0';
 
   const handleToggleSetting = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
@@ -130,16 +133,16 @@ const Header = ({ refetchData }: { refetchData: () => void }) => {
             <span>
               {token0.symbol}/{token1.symbol}{' '}
             </span>
-            {!!positionId && isUniV3 && (
+            {!initializing && !!positionId && isUniV3 && (
               <>
                 <div>#{positionId}</div>
                 <div
-                  className={`rounded-full text-xs px-2 py-1 font-normal text-${isOutOfRange ? 'warning' : 'accent'}`}
+                  className={`rounded-full text-xs px-2 py-1 font-normal text-${isClosed ? 'icons' : isOutOfRange ? 'warning' : 'accent'}`}
                   style={{
-                    background: `${isOutOfRange ? theme.warning : theme.accent}33`,
+                    background: `${isClosed ? theme.icons : isOutOfRange ? theme.warning : theme.accent}33`,
                   }}
                 >
-                  {isOutOfRange ? '● Out of range' : '● In range'}
+                  {isClosed ? '● Closed' : isOutOfRange ? '● Out of range' : '● In range'}
                 </div>
               </>
             )}

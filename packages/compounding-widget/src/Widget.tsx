@@ -101,7 +101,7 @@ export default function Widget() {
 
     const { zapInfo, deadline } = snapshotState;
 
-    fetch(`${API_URLS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/in/route/build`, {
+    fetch(`${API_URLS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/compound/route/build`, {
       method: 'POST',
       body: JSON.stringify({
         sender: account,

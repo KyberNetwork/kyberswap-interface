@@ -67,6 +67,7 @@ export interface PoolSwapAction {
         amount: string;
         amountUsd: string;
       };
+      poolAddress?: string;
     }>;
   };
 }

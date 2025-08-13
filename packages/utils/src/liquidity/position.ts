@@ -146,7 +146,7 @@ export const getUniv3PositionInfo = async ({
         chainId,
       });
 
-      if (!liquidity)
+      if (liquidity === null)
         return {
           error: 'Position not found',
           position: null,

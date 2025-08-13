@@ -125,7 +125,7 @@ export const AprSection = styled(InfoSection)<{ showForFarming?: boolean }>`
   ${({ showForFarming }) => showForFarming && 'align-items: flex-start;'}
   ${({ showForFarming }) => showForFarming && 'justify-content: center;'}
   ${({ showForFarming }) => showForFarming && 'padding: 16px 24px;'}
-  ${({ showForFarming }) => showForFarming && 'gap: 4px;'}
+  ${({ showForFarming }) => showForFarming && 'gap: 6px;'}
   ${({ showForFarming }) => showForFarming && 'align-self: stretch;'}
 `
 

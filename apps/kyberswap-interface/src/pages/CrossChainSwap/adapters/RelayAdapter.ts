@@ -6,6 +6,7 @@ import {
   createClient,
   getClient,
 } from '@reservoir0x/relay-sdk'
+import { getPublicClient } from '@wagmi/core'
 import { WalletClient, formatUnits } from 'viem'
 import {
   arbitrum,
@@ -27,7 +28,7 @@ import {
   zksync,
 } from 'viem/chains'
 
-import { hyperevm } from 'components/Web3Provider'
+import { hyperevm, wagmiConfig } from 'components/Web3Provider'
 import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
 import { MAINNET_NETWORKS } from 'constants/networks'
 import { SolanaToken } from 'state/crossChainSwap'
@@ -194,6 +195,19 @@ export class RelayAdapter extends BaseSwapAdapter {
   }
 
   async getTransactionStatus(p: NormalizedTxResponse): Promise<SwapStatus> {
+    const publicClient = getPublicClient(wagmiConfig, {
+      chainId: p.sourceChain as any,
+    })
+    const receipt = await publicClient?.getTransactionReceipt({
+      hash: p.sourceTxHash as `0x${string}`,
+    })
+    if (receipt.status === 'reverted') {
+      return {
+        txHash: '',
+        status: 'Failed',
+      }
+    }
+
     const res = await fetch(`https://api.relay.link/intents/status/v2?requestId=${p.id}`).then(r => r.json())
 
     return {

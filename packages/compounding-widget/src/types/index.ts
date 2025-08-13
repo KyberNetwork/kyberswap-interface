@@ -11,6 +11,7 @@ export interface WidgetProps {
   };
   initDepositTokens?: string;
   initAmounts?: string;
+  compoundType?: 'COMPOUND_TYPE_REWARD';
   onClose: () => void;
   onConnectWallet: () => void;
   onSwitchChain: () => void;

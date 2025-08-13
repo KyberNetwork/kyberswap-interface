@@ -132,13 +132,15 @@ export function useNftApproval({
         setIsChecking(false);
         if (isUniv2) {
           setIsApproved(res?.result && BigInt(res?.result) >= BigInt(liquidityOut));
-        } else if (decodeAddress((res?.result || '').slice(2))?.toLowerCase() === spender.toLowerCase())
-          setIsApproved(true);
+        } else {
+          if (decodeAddress((res?.result || '').slice(2))?.toLowerCase() === spender.toLowerCase()) setIsApproved(true);
+          else setIsApproved(false);
+        }
       })
       .finally(() => {
         setIsChecking(false);
       });
-  }, [nftManagerContract, nftId, spender, rpcUrl, account, isUniv2, poolAddress, liquidityOut]);
+  }, [nftManagerContract, nftId, spender, rpcUrl, account, isUniv2, poolAddress, liquidityOut, mode]);
 
   return { isChecking, isApproved, approve, pendingTx };
 }
