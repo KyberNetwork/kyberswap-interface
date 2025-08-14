@@ -23,9 +23,7 @@ export const univ2Pool = z.object({
 
 export const univ2PoolResponse = z.object({
   poolType: z.nativeEnum(PoolType).refine((val): val is Univ2PoolType => univ2Types.includes(val as Univ2PoolType)),
-  data: z.object({
-    pools: z.array(univ2Pool),
-  }),
+  data: univ2Pool,
 });
 
 type Univ2PoolType = (typeof univ2Types)[number];
