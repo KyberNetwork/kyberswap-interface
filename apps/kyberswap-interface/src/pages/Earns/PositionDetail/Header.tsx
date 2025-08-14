@@ -4,12 +4,15 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
+import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_earn_position.svg'
 import CopyHelper from 'components/Copy'
 import { InfoHelperWithDelay } from 'components/InfoHelper'
 import Loader from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
+import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
+import { NavigateButton } from 'pages/Earns/PoolExplorer/styles'
 import { DexInfo, IconArrowLeft, PositionHeader } from 'pages/Earns/PositionDetail/styles'
 import { Badge, BadgeType, ChainImage, ImageContainer } from 'pages/Earns/UserPositions/styles'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
@@ -32,6 +35,8 @@ const PositionDetailHeader = ({
   const theme = useTheme()
   const navigate = useNavigate()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+  const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
+
   const { protocol } = useParams()
 
   const isUniv2 = isForkFrom(protocol as Exchange, CoreProtocol.UniswapV2)
@@ -87,7 +92,13 @@ const PositionDetailHeader = ({
   const isUnfinalized = position?.isUnfinalized
 
   return (
-    <Flex sx={{ gap: 3 }} marginBottom={1}>
+    <Flex
+      sx={{ gap: 3 }}
+      flexDirection={upToLarge ? 'column' : 'row'}
+      alignItems="center"
+      justifyContent="space-between"
+      marginBottom={1}
+    >
       <PositionHeader>
         <Flex alignItems={'center'} sx={{ gap: 2 }}>
           <IconArrowLeft onClick={() => navigate(hadForceLoading ? -2 : -1)} />
@@ -167,6 +178,12 @@ const PositionDetailHeader = ({
           {isLoading && !initialLoading && <Loader />}
         </Flex>
       </PositionHeader>
+      <NavigateButton
+        mobileFullWidth
+        icon={<IconUserEarnPosition />}
+        text={t`My Positions`}
+        to={APP_PATHS.EARN_POSITIONS}
+      />
     </Flex>
   )
 }
