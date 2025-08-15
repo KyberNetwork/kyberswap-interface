@@ -4,7 +4,8 @@ import { useSearchParams } from 'react-router-dom'
 import { PoolQueryParams } from 'services/zapEarn'
 
 import { useActiveWeb3React } from 'hooks'
-import { FilterTag, SortBy, timings } from 'pages/Earns/PoolExplorer'
+import { SortBy } from 'pages/Earns/PoolExplorer'
+import { FilterTag, timings } from 'pages/Earns/PoolExplorer/Filter'
 import { earnSupportedChains } from 'pages/Earns/constants'
 import { Direction } from 'pages/MarketOverview/SortIcon'
 
