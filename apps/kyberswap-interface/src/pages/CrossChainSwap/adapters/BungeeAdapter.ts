@@ -61,7 +61,7 @@ export class BungeeAdapter extends BaseSwapAdapter {
 
       feeBps: params.feeBps.toString(),
       feeTakerAddress: CROSS_CHAIN_FEE_RECEIVER,
-      // useInbox: 'true', // using approval flow instead of permit 2
+      useInbox: 'true', // using approval flow instead of permit 2
     }
     // Build the URL with query parameters
     const url = `${BUNGEE_API_BASE_URL}/api/v1/bungee/quote`
@@ -96,7 +96,7 @@ export class BungeeAdapter extends BaseSwapAdapter {
 
     return {
       quoteParams: params,
-      outputAmount: 1n,
+      outputAmount: BigInt(autoRoute.output.amount),
       formattedOutputAmount,
       inputUsd,
       outputUsd,
