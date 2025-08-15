@@ -22,6 +22,7 @@ export interface WidgetProps {
     feeAddress: string;
   };
   referral?: string;
+  initialTick?: { tickLower: number; tickUpper: number };
   onClose?: () => void;
   onConnectWallet: () => void;
   onSwitchChain: () => void;
