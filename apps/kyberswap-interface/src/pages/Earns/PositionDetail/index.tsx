@@ -371,7 +371,7 @@ const PositionDetail = () => {
       ) : isUnfinalized ? (
         <PositionSkeleton width={70} height={24} text="Finalizing..." />
       ) : isWaitingForRewards ? (
-        <RewardSyncing />
+        <RewardSyncing width={70} height={24} />
       ) : (
         <Flex alignItems={'center'} sx={{ gap: 1 }}>
           {position?.pool.isFarming && <IconKem width={20} height={20} />}

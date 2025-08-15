@@ -420,7 +420,7 @@ export default function TableContent({
                     {isUnfinalized ? (
                       <PositionSkeleton width={80} height={19} text="Finalizing..." />
                     ) : isWaitingForRewards ? (
-                      <RewardSyncing />
+                      <RewardSyncing width={70} height={19} />
                     ) : (
                       <Flex alignItems={'center'} sx={{ gap: 1 }}>
                         <MouseoverTooltipDesktopOnly
@@ -518,7 +518,7 @@ export default function TableContent({
                     {isUnfinalized ? (
                       <PositionSkeleton width={80} height={19} text="Finalizing..." />
                     ) : isWaitingForRewards ? (
-                      <RewardSyncing />
+                      <RewardSyncing width={80} height={19} />
                     ) : (
                       <Flex alignItems={'center'} sx={{ gap: 1 }}>
                         {upToSmall && <IconKem width={20} height={20} />}

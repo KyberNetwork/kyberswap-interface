@@ -141,7 +141,7 @@ const RewardSection = ({
             ) : isUnfinalized ? (
               <PositionSkeleton width={105} height={24} text="Finalizing..." />
             ) : isWaitingForRewards ? (
-              <RewardSyncing />
+              <RewardSyncing width={105} height={24} />
             ) : (
               <Flex alignItems={'center'}>
                 <Text fontSize={20}>
@@ -197,7 +197,7 @@ const RewardSection = ({
             ) : isUnfinalized ? (
               <PositionSkeleton width={90} height={24} text="Finalizing..." />
             ) : isWaitingForRewards ? (
-              <RewardSyncing />
+              <RewardSyncing width={90} height={24} />
             ) : (
               <Text fontSize={20}>
                 {formatDisplayNumber(rewardInfoThisPosition?.claimableUsdValue || 0, {
