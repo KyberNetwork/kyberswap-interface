@@ -36,6 +36,7 @@ import {
   PositionValueWrapper,
 } from 'pages/Earns/UserPositions/styles'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
+import RewardSyncing from 'pages/Earns/components/RewardSyncing'
 import {
   CoreProtocol,
   DEXES_SUPPORT_COLLECT_FEE,
@@ -419,12 +420,7 @@ export default function TableContent({
                     {isUnfinalized ? (
                       <PositionSkeleton width={80} height={19} text="Finalizing..." />
                     ) : isWaitingForRewards ? (
-                      <PositionSkeleton
-                        width={70}
-                        height={19}
-                        tooltip={t`Data is still syncing — takes up to 5 minutes.`}
-                        tooltipWidth={195}
-                      />
+                      <RewardSyncing />
                     ) : (
                       <Flex alignItems={'center'} sx={{ gap: 1 }}>
                         <MouseoverTooltipDesktopOnly
@@ -522,12 +518,7 @@ export default function TableContent({
                     {isUnfinalized ? (
                       <PositionSkeleton width={80} height={19} text="Finalizing..." />
                     ) : isWaitingForRewards ? (
-                      <PositionSkeleton
-                        width={80}
-                        height={19}
-                        tooltip={t`Data is still syncing — takes up to 5 minutes.`}
-                        tooltipWidth={195}
-                      />
+                      <RewardSyncing />
                     ) : (
                       <Flex alignItems={'center'} sx={{ gap: 1 }}>
                         {upToSmall && <IconKem width={20} height={20} />}
