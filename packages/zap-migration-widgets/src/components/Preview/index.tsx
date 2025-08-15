@@ -144,8 +144,11 @@ export function Preview({
     const i = setInterval(
       async () => {
         const res = await isTransactionSuccessful(rpcUrl, txHash);
-        const isSuccess = res && res.status;
-        setTxStatus(isSuccess ? 'success' : 'failed');
+        if (!res) return;
+
+        if (res.status) {
+          setTxStatus('success');
+        } else setTxStatus('failed');
       },
       chainId === ChainId.Ethereum ? 10_000 : 5_000,
     );
