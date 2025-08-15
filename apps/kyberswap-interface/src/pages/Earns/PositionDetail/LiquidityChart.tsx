@@ -3,7 +3,7 @@ import { Bound, LiquidityChartRangeInput } from '@kyberswap/liquidity-chart'
 import '@kyberswap/liquidity-chart/style.css'
 import { useMemo } from 'react'
 import { useMedia } from 'react-use'
-import { usePoolDetailQuery } from 'services/poolService'
+import { usePoolDetailQuery } from 'services/zapEarn'
 import styled, { keyframes } from 'styled-components'
 
 import { ChartWrapper } from 'pages/Earns/PositionDetail/styles'
@@ -27,7 +27,7 @@ export default function LiquidityChart({
 }) {
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
-  const { data: pool } = usePoolDetailQuery({ chainId, ids: poolAddress })
+  const { data: pool } = usePoolDetailQuery({ chainId, address: poolAddress })
   const isUninitialized = !pool || Object.keys(pool).length === 0
 
   const fee = isUninitialized ? undefined : pool.swapFee * 10_000

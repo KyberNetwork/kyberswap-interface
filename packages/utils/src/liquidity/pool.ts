@@ -37,7 +37,7 @@ export const getPoolInfo = async ({
   poolType: PoolType;
 }) => {
   const poolServiceResponse = await fetch(
-    `${API_URLS.BFF_API}/v1/pools?chainId=${chainId}&ids=${poolAddress}&protocol=${poolType}`,
+    `${API_URLS.ZAP_EARN_API}/v1/pools?chainId=${chainId}&address=${poolAddress}`,
   ).then(res => res.json() as Promise<Record<string, any>>);
 
   const { success, data, error } = poolResponse.safeParse({
@@ -51,22 +51,20 @@ export const getPoolInfo = async ({
       pool: null,
     };
 
-  const pool = (
-    data.data.pools as Array<{
-      address: string;
-      swapFee: number;
-      exchange: string;
-      tokens: [{ address: string }, { address: string }];
-      positionInfo: {
-        tick: number;
-        liquidity: string;
-        sqrtPriceX96: string;
-        tickSpacing: number;
-        ticks?: any[];
-      };
-      staticExtra?: string;
-    }>
-  ).find(item => item.address.toLowerCase() === poolAddress.toLowerCase());
+  const pool = data.data as {
+    address: string;
+    swapFee: number;
+    exchange: string;
+    tokens: [{ address: string }, { address: string }];
+    positionInfo: {
+      tick: number;
+      liquidity: string;
+      sqrtPriceX96: string;
+      tickSpacing: number;
+      ticks?: any[];
+    };
+    staticExtra?: string;
+  };
 
   if (!pool)
     return {
