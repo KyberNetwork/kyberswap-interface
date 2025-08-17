@@ -2,7 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useEffect, useMemo, useState } from 'react'
 
 import { PAIR_CATEGORY } from 'constants/index'
-import { FilterTag } from 'pages/Earns/PoolExplorer/index'
+import { FilterTag } from 'pages/Earns/PoolExplorer/Filter'
 import { EarnPool } from 'pages/Earns/types'
 
 const useFarmingStablePools = ({ chainIds }: { chainIds: ChainId[] }) => {

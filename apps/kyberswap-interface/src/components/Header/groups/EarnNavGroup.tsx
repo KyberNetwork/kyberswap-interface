@@ -12,7 +12,7 @@ import NavGroup from 'components/Header/groups/NavGroup'
 import { DropdownTextAnchor, StyledNavLink } from 'components/Header/styleds'
 import { BetaLabel } from 'components/Menu'
 import { APP_PATHS } from 'constants/index'
-import { FilterTag } from 'pages/Earns/PoolExplorer'
+import { FilterTag } from 'pages/Earns/PoolExplorer/Filter'
 import { MEDIA_WIDTHS } from 'theme'
 
 const EarnNavGroup = () => {

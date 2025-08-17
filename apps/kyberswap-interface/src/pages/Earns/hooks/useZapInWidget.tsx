@@ -29,6 +29,7 @@ interface AddLiquidityPureParams {
   chainId: ZapInChainId
   poolType: ZapInPoolType
   positionId?: string
+  initialTick?: { tickUpper: number; tickLower: number }
 }
 
 interface AddLiquidityParams extends AddLiquidityPureParams {
@@ -51,6 +52,7 @@ export interface ZapInInfo {
     dex: EarnDex | Exchange
   }
   positionId?: string
+  initialTick?: { tickUpper: number; tickLower: number }
 }
 
 const zapInDexMapping: Record<EarnDex | Exchange, ZapInPoolType> = {
@@ -131,7 +133,7 @@ const useZapInWidget = ({
     [library, navigate],
   )
 
-  const handleOpenZapIn = ({ pool, positionId }: ZapInInfo) => {
+  const handleOpenZapIn = ({ pool, positionId, initialTick }: ZapInInfo) => {
     const dex = zapInDexMapping[pool.dex]
     if (!dex) {
       notify(
@@ -148,6 +150,7 @@ const useZapInWidget = ({
       chainId: pool.chainId as ZapInChainId,
       poolType: dex,
       positionId,
+      initialTick,
     })
   }
 

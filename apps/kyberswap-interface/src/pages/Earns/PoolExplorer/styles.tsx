@@ -123,19 +123,16 @@ export const MigrateTableWrapper = styled(TableWrapper)`
 
 export const ContentWrapper = styled.div``
 
-export const TableHeader = styled.div`
+export const TableHeader = styled.div<{ expandColumn?: boolean }>`
   display: grid;
-  grid-template-columns: 1fr 1.4fr 0.5fr 0.8fr 1fr 1fr 80px;
+  grid-template-columns: ${({ expandColumn }) =>
+    expandColumn ? '1.2fr 1.4fr 0.5fr 0.8fr 0.9fr 0.9fr 0.9fr 80px' : '1.2fr 1.4fr 0.5fr 0.8fr 1fr 1fr 80px'};
   align-items: center;
   color: ${({ theme }) => theme.subText};
   border-bottom: 1px solid ${({ theme }) => theme.tableHeader};
   padding-bottom: 24px;
   margin: 24px;
   margin-bottom: 0;
-
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    grid-template-columns: 1fr 1.2fr 0.5fr 0.8fr 1fr 1fr 80px;
-  `}
 `
 
 export const MigrateTableHeader = styled(TableHeader)`
@@ -155,19 +152,16 @@ export const MigrateTableBody = styled(TableBody)`
   `}
 `
 
-export const TableRow = styled.div`
+export const TableRow = styled.div<{ expandColumn?: boolean }>`
   display: grid;
-  grid-template-columns: 1fr 1.4fr 0.5fr 0.8fr 1fr 1fr 80px;
+  grid-template-columns: ${({ expandColumn }) =>
+    expandColumn ? '1.2fr 1.4fr 0.5fr 0.8fr 0.9fr 0.9fr 0.9fr 80px' : '1.2fr 1.4fr 0.5fr 0.8fr 1fr 1fr 80px'};
   padding: 24px;
   cursor: pointer;
 
   :hover {
     background: #31cb9e1a;
   }
-
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    grid-template-columns: 1fr 1.2fr 0.5fr 0.8fr 1fr 1fr 80px;
-  `}
 `
 
 export const MigrateTableRow = styled(TableRow)`

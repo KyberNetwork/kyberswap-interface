@@ -34,6 +34,7 @@ import {
 import MigrationModal from 'pages/Earns/UserPositions/MigrationModal'
 import { EmptyPositionText, PositionPageWrapper } from 'pages/Earns/UserPositions/styles'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
+import RewardSyncing from 'pages/Earns/components/RewardSyncing'
 import {
   EarnDex,
   Exchange,
@@ -370,12 +371,7 @@ const PositionDetail = () => {
       ) : isUnfinalized ? (
         <PositionSkeleton width={70} height={24} text="Finalizing..." />
       ) : isWaitingForRewards ? (
-        <PositionSkeleton
-          width={70}
-          height={24}
-          tooltip={t`Data is still syncing — takes up to 5 minutes.`}
-          tooltipWidth={195}
-        />
+        <RewardSyncing width={70} height={24} />
       ) : (
         <Flex alignItems={'center'} sx={{ gap: 1 }}>
           {position?.pool.isFarming && <IconKem width={20} height={20} />}

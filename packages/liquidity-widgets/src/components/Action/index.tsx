@@ -84,9 +84,14 @@ export default function Action({
     [tokensIn, amountsIn],
   );
 
+  const tokenAddressesToApprove = tokensIn
+    .filter((_, index) => Number(amountsInWei[index]) > 0)
+    .map(token => token?.address || '');
+  const amountsToApprove = amountsInWei.filter(amount => Number(amount) > 0);
+
   const { loading, approvalStates, approve, addressToApprove } = useErc20Approvals({
-    amounts: amountsInWei,
-    addreses: tokensIn.map(token => token?.address || ''),
+    amounts: amountsToApprove,
+    addreses: tokenAddressesToApprove,
     owner: connectedAccount?.address || '',
     rpcUrl: NETWORKS_INFO[chainId].defaultRpc,
     spender: zapInfo?.routerAddress || '',

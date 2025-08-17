@@ -52,6 +52,15 @@ export interface EarnPool {
     symbol: string
     decimals: number
   }>
+  maxAprInfo?: {
+    tickLower: number
+    tickUpper: number
+    minPrice: string
+    maxPrice: string
+    apr: string
+    kemEGApr: string
+    kemLMApr: string
+  }
 }
 
 export interface ParsedEarnPool extends EarnPool {
