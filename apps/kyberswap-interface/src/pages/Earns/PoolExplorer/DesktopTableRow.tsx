@@ -9,7 +9,7 @@ import Loader from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
-// import { FilterTag } from 'pages/Earns/PoolExplorer/Filter'
+import { FilterTag } from 'pages/Earns/PoolExplorer/Filter'
 import { Apr, FeeTier, SymbolText, TableRow } from 'pages/Earns/PoolExplorer/styles'
 import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import { ParsedEarnPool, ProgramType } from 'pages/Earns/types'
@@ -52,7 +52,7 @@ const DesktopTableRow = ({
   favoriteLoading: string[]
 }) => {
   const theme = useTheme()
-  // const isFarmingFiltered = filters.tag === FilterTag.FARMING_POOL
+  const isFarmingFiltered = filters.tag === FilterTag.FARMING_POOL
 
   return (
     <TableRow
@@ -64,13 +64,13 @@ const DesktopTableRow = ({
             chainId: pool.chainId || filters.chainId,
             address: pool.address,
           },
-          // initialTick:
-          //   pool.maxAprInfo && pool.maxAprInfo.tickLower && pool.maxAprInfo.tickUpper
-          //     ? {
-          //         tickLower: pool.maxAprInfo.tickLower,
-          //         tickUpper: pool.maxAprInfo.tickUpper,
-          //       }
-          //     : undefined,
+          initialTick:
+            pool.maxAprInfo && pool.maxAprInfo.tickLower && pool.maxAprInfo.tickUpper
+              ? {
+                  tickLower: pool.maxAprInfo.tickLower,
+                  tickUpper: pool.maxAprInfo.tickUpper,
+                }
+              : undefined,
         })
       }
     >
@@ -91,7 +91,7 @@ const DesktopTableRow = ({
       <Apr value={pool.apr}>
         {formatAprNumber(pool.apr)}% {kemFarming(pool)}
       </Apr>
-      {/* {isFarmingFiltered && (
+      {isFarmingFiltered && (
         <Flex justifyContent="flex-end">
           <MouseoverTooltipDesktopOnly
             text={
@@ -119,7 +119,7 @@ const DesktopTableRow = ({
               : ''}
           </MouseoverTooltipDesktopOnly>
         </Flex>
-      )} */}
+      )}
       <Flex justifyContent="flex-end">
         {formatDisplayNumber(pool.earnFee, { style: 'currency', significantDigits: 6 })}
       </Flex>
