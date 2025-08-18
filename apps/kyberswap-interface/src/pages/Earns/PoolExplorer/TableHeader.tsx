@@ -21,7 +21,7 @@ const TableHeader = ({
   const isFarmingFiltered = filters.tag === FilterTag.FARMING_POOL
 
   return !upToMedium ? (
-    <TableHeaderComponent expandColumn={false}>
+    <TableHeaderComponent expandColumn={isFarmingFiltered}>
       <Text>Protocol</Text>
       <Text>Pair</Text>
       <Flex

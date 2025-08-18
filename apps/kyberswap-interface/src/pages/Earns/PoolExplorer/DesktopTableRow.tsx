@@ -56,7 +56,7 @@ const DesktopTableRow = ({
 
   return (
     <TableRow
-      expandColumn={false}
+      expandColumn={isFarmingFiltered}
       onClick={() =>
         onOpenZapInWidget({
           pool: {
