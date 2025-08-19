@@ -8,7 +8,7 @@ import CopyHelper from 'components/Copy'
 import TokenLogo from 'components/TokenLogo'
 import useTheme from 'hooks/useTheme'
 import { kemFarming } from 'pages/Earns/PoolExplorer/DesktopTableRow'
-// import { FilterTag } from 'pages/Earns/PoolExplorer/Filter'
+import { FilterTag } from 'pages/Earns/PoolExplorer/Filter'
 import {
   Apr,
   FeeTier,
@@ -34,7 +34,7 @@ const MobileTableRow = ({
   withoutBorder: boolean
 }) => {
   const theme = useTheme()
-  // const isFarmingFiltered = filters.tag === FilterTag.FARMING_POOL
+  const isFarmingFiltered = filters.tag === FilterTag.FARMING_POOL
 
   return (
     <MobileTableRowComponent
@@ -45,13 +45,13 @@ const MobileTableRow = ({
             chainId: pool.chainId || filters.chainId,
             address: pool.address,
           },
-          // initialTick:
-          //   pool.maxAprInfo && pool.maxAprInfo.tickLower && pool.maxAprInfo.tickUpper
-          //     ? {
-          //         tickLower: pool.maxAprInfo.tickLower,
-          //         tickUpper: pool.maxAprInfo.tickUpper,
-          //       }
-          //     : undefined,
+          initialTick:
+            pool.maxAprInfo && pool.maxAprInfo.tickLower && pool.maxAprInfo.tickUpper
+              ? {
+                  tickLower: pool.maxAprInfo.tickLower,
+                  tickUpper: pool.maxAprInfo.tickUpper,
+                }
+              : undefined,
         })
       }
     >
@@ -91,7 +91,7 @@ const MobileTableRow = ({
         </Flex>
       </Flex>
       <MobileTableBottomRow withoutBorder={withoutBorder}>
-        {/* {isFarmingFiltered && (
+        {isFarmingFiltered && (
           <Flex justifyContent="space-between" sx={{ gap: 1 }}>
             <Text color={theme.subText}>Max APR</Text>
             <Text>
@@ -104,7 +104,7 @@ const MobileTableRow = ({
                 : '--'}
             </Text>
           </Flex>
-        )} */}
+        )}
         <Flex justifyContent="space-between" sx={{ gap: 1 }}>
           <Text color={theme.subText}>{t`Earn Fees`}</Text>
           <Text>{formatDisplayNumber(pool.earnFee, { style: 'currency', significantDigits: 6 })}</Text>
