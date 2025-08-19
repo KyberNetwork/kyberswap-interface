@@ -115,7 +115,7 @@ export default function Actions({ type, pool, shareBannerRef, selectedOptions }:
   };
 
   return (
-    <div className="flex justify-center gap-4">
+    <div className="flex justify-center flex-wrap gap-4">
       <button
         className={cn(
           'flex items-center justify-center py-[6px] px-4 gap-1 rounded-[30px] bg-[#ffffff14] hover:brightness-120 outline-none text-subText transition-all duration-200',
