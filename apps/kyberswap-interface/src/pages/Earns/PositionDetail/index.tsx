@@ -1,4 +1,4 @@
-import { ShareModal, ShareModalProps, ShareType } from '@kyber/ui'
+import { ShareModal, ShareModalProps, ShareOption, ShareType } from '@kyber/ui'
 import { formatAprNumber } from '@kyber/utils/dist/number'
 import { MAX_TICK, MIN_TICK, priceToClosestTick } from '@kyber/utils/dist/uniswapv3'
 import { t } from '@lingui/macro'
@@ -297,13 +297,15 @@ const PositionDetail = () => {
   )
 
   const shareBtn = useCallback(
-    (type: ShareType, size?: number) => (
+    (size?: number, defaultOptions?: ShareOption[]) => (
       <ShareButtonWrapper
         onClick={() => {
           if (!position) return
 
           setShareInfo({
-            type,
+            isFarming: position.pool.isFarming,
+            defaultOptions,
+            type: ShareType.POSITION_INFO,
             onClose: () => setShareInfo(undefined),
             pool: {
               address: position.pool.address,
@@ -322,17 +324,21 @@ const PositionDetail = () => {
               },
             },
             position: {
-              apr: position.apr,
+              apr: {
+                fees: position.apr,
+                eg: position.kemEGApr,
+                lm: position.kemLMApr,
+              },
               createdTime: position.createdTime,
-              rewardEarnings: position.rewards.totalUsdValue,
+              totalEarnings: position.rewards.totalUsdValue + position.earning.earned,
             },
           })
         }}
       >
-        <Share2 size={size || 16} color={theme.subText} />
+        <Share2 size={size || 16} color={theme.primary} />
       </ShareButtonWrapper>
     ),
-    [theme.subText, position],
+    [theme.primary, position],
   )
 
   const aprSection = (
@@ -378,7 +384,10 @@ const PositionDetail = () => {
           <Text fontSize={20} marginRight={1} color={position?.apr && position.apr > 0 ? theme.primary : theme.text}>
             {formatAprNumber(position?.apr || 0)}%
           </Text>
-          {!initialLoading && !isUnfinalized && shareBtn(ShareType.POSITION_INFO, 12)}
+          {!initialLoading &&
+            !isUnfinalized &&
+            position?.status !== PositionStatus.CLOSED &&
+            shareBtn(12, [ShareOption.TOTAL_APR])}
         </Flex>
       )}
     </AprSection>
