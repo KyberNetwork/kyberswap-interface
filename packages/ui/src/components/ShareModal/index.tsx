@@ -1,40 +1,22 @@
 import { useRef, useState } from 'react';
 
-import html2canvas from 'html2canvas';
-
-import { cn } from '@kyber/utils/tailwind-helpers';
-
-import CircleCheckIcon from '@/assets/icons/circle-check.svg?react';
-// import CopyIcon from '@/assets/icons/ic_copy.svg?react';
-import DownloadIcon from '@/assets/icons/ic_download.svg?react';
-import LinkIcon from '@/assets/icons/ic_link.svg?react';
 import KyberLogo from '@/assets/icons/kyber_logo.svg?react';
 import ShareBanner from '@/assets/images/share-banner.png';
-import {
-  DEFAULT_SHARE_OPTION,
-  MAX_SELECTED_OPTIONS,
-  NON_FARMING_EXCLUDED_OPTIONS,
-  conflictOptions,
-  shareOptions,
-} from '@/components/ShareModal/constants';
+import Actions from '@/components/ShareModal/Actions';
+import Options from '@/components/ShareModal/Options';
+import { DEFAULT_SHARE_OPTION } from '@/components/ShareModal/constants';
 import { ShareModalProps, ShareOption, ShareType } from '@/components/ShareModal/types';
 import {
   formatTimeDurationFromTimestamp,
   getProxyImage,
-  getSharePath,
   getValueByOption,
   renderStaggeredNumber,
 } from '@/components/ShareModal/utils';
-import { MouseoverTooltip } from '@/components/Tooltip';
-import Loading from '@/components/loading';
 import TokenLogo from '@/components/token-logo';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import '@/styles.css';
 
 export { ShareType, ShareOption, type ShareModalProps };
-
-const SuccessIcon = () => <CircleCheckIcon className="w-4 h-4 relative top-[1px] text-primary" />;
 
 export default function ShareModal({
   pool,
@@ -49,78 +31,11 @@ export default function ShareModal({
   const isPositionSharing = type === ShareType.POSITION_INFO;
   const isRewardSharing = type === ShareType.REWARD_INFO;
 
-  const path = getSharePath(type, pool);
-
-  const [isCopied, setIsCopied] = useState(false);
-  const [isDownloaded, setIsDownloaded] = useState(false);
-  const [isDownloading, setIsDownloading] = useState(false);
   const [selectedOptions, setSelectedOptions] = useState<Set<ShareOption>>(
     new Set(defaultOptions || DEFAULT_SHARE_OPTION[type]),
   );
 
   const shareBannerRef = useRef<HTMLDivElement>(null);
-
-  const handleCopyPath = () => {
-    if (navigator?.clipboard) {
-      navigator.clipboard.writeText(path);
-      setIsCopied(true);
-      setTimeout(() => {
-        setIsCopied(false);
-      }, 1500);
-    }
-  };
-
-  const handleDownloadImage = async () => {
-    if (shareBannerRef.current) {
-      setIsDownloading(true);
-      html2canvas(shareBannerRef.current, {
-        allowTaint: true,
-        useCORS: true,
-        scale: 2,
-        backgroundColor: null,
-      })
-        .then(canvas => {
-          const link = document.createElement('a');
-          link.href = canvas.toDataURL('image/png');
-          link.download = 'kyberswap-earn-info.png';
-          link.click();
-
-          setIsDownloaded(true);
-          setTimeout(() => {
-            setIsDownloaded(false);
-          }, 1500);
-        })
-        .finally(() => {
-          setIsDownloading(false);
-        });
-    }
-  };
-
-  const handleOptionChange = (option: ShareOption, checked: boolean) => {
-    const newSelectedOptions = new Set(selectedOptions);
-    if (checked) {
-      newSelectedOptions.add(option);
-    } else {
-      newSelectedOptions.delete(option);
-    }
-
-    const sortedOptions = new Set<ShareOption>();
-
-    // Always add TOTAL_EARNINGS first if it exists in the selected options
-    if (newSelectedOptions.has(ShareOption.TOTAL_EARNINGS)) {
-      sortedOptions.add(ShareOption.TOTAL_EARNINGS);
-    }
-
-    // Add remaining options in the order they appear in shareOptions[type]
-    const typeOptions = shareOptions[type];
-    typeOptions.forEach(optionType => {
-      if (newSelectedOptions.has(optionType) && optionType !== ShareOption.TOTAL_EARNINGS) {
-        sortedOptions.add(optionType);
-      }
-    });
-
-    setSelectedOptions(sortedOptions);
-  };
 
   const banner = (bannerRef?: React.RefObject<HTMLDivElement>, forDownload = false) => {
     const options = [...selectedOptions];
@@ -257,60 +172,16 @@ export default function ShareModal({
           {/* Hidden desktop-sized banner for download */}
           <div className="fixed -top-[9999px] -left-[9999px] pointer-events-none">{banner(shareBannerRef, true)}</div>
 
-          <div className="flex items-center justify-center flex-wrap gap-6 py-3">
-            {shareOptions[type].map(option => {
-              const isExcluded = !isFarming && NON_FARMING_EXCLUDED_OPTIONS.includes(option);
-              const isMaxSelected = selectedOptions.size === MAX_SELECTED_OPTIONS && !selectedOptions.has(option);
-              const isConflict = conflictOptions[type][option]?.some(o => selectedOptions.has(o));
-              const isDisabled = isExcluded || isMaxSelected || isConflict;
-
-              const message = isExcluded
-                ? `This option is not available for non-farming pools`
-                : isMaxSelected
-                  ? `You can only select up to ${MAX_SELECTED_OPTIONS} options`
-                  : isConflict
-                    ? `This option is not available when you select ${conflictOptions[type][option]?.join(', ')}`
-                    : undefined;
-
-              return (
-                <MouseoverTooltip text={message} placement="top" key={option}>
-                  <Checkbox
-                    label={option}
-                    disabled={isDisabled}
-                    checked={selectedOptions.has(option)}
-                    onChange={checked => handleOptionChange(option, checked)}
-                  />
-                </MouseoverTooltip>
-              );
-            })}
-          </div>
+          <Options
+            type={type}
+            selectedOptions={selectedOptions}
+            setSelectedOptions={setSelectedOptions}
+            isFarming={isFarming}
+          />
         </div>
 
         <DialogFooter className="block">
-          <div className="flex justify-center gap-4">
-            <button
-              className={cn(
-                'flex items-center justify-center py-[6px] px-4 gap-1 rounded-[30px] bg-[#ffffff14] hover:brightness-120 outline-none text-subText transition-all duration-200',
-                isCopied && 'text-primary bg-primary-200',
-              )}
-              onClick={handleCopyPath}
-            >
-              {isCopied ? <SuccessIcon /> : <LinkIcon />}
-              Copy URL
-            </button>
-            <button
-              className={cn(
-                'flex items-center justify-center py-[6px] px-4 gap-1 rounded-[30px] text-subText bg-[#ffffff14] hover:brightness-120 outline-none transition-all duration-200',
-                isDownloaded && 'text-primary bg-primary-200',
-                selectedOptions.size === 0 && 'opacity-50 cursor-not-allowed !brightness-100',
-              )}
-              disabled={selectedOptions.size === 0}
-              onClick={handleDownloadImage}
-            >
-              {isDownloaded ? <SuccessIcon /> : isDownloading ? <Loading className="text-subText" /> : <DownloadIcon />}
-              Download Image
-            </button>
-          </div>
+          <Actions type={type} pool={pool} shareBannerRef={shareBannerRef} selectedOptions={selectedOptions} />
         </DialogFooter>
       </DialogContent>
     </Dialog>

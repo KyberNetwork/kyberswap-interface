@@ -12,7 +12,7 @@ const TIME_CONSTANTS = {
 } as const;
 
 // Types for better type safety
-interface Pool {
+export interface Pool {
   address?: string;
   chainId?: number;
   exchange?: string;
