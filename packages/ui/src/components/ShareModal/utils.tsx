@@ -25,7 +25,7 @@ export interface Pool {
 
 interface Position {
   apr: {
-    fees: number;
+    total: number;
     eg: number;
     lm: number;
   };
@@ -136,7 +136,7 @@ export const getValueByOption = ({ type, option, pool, position, reward }: GetVa
           style: 'currency',
         });
       case ShareOption.TOTAL_APR:
-        return `${formatAprNumber((position?.apr?.fees || 0) + (position?.apr?.eg || 0) + (position?.apr?.lm || 0))}%`;
+        return `${formatAprNumber(position?.apr?.total || 0)}%`;
       case ShareOption.LM_APR:
         return `${formatAprNumber(position?.apr?.lm || 0)}%`;
       case ShareOption.EG_APR:

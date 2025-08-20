@@ -326,7 +326,7 @@ const PositionDetail = () => {
             },
             position: {
               apr: {
-                fees: position.apr,
+                total: position.apr,
                 eg: position.kemEGApr,
                 lm: position.kemLMApr,
               },
