@@ -42,7 +42,7 @@ export interface ShareModalProps {
   };
   position?: {
     apr: {
-      fees: number;
+      total: number;
       eg: number;
       lm: number;
     };
