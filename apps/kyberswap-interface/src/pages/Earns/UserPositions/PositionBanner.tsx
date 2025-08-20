@@ -1,6 +1,8 @@
+import { ShareModal, ShareModalProps, ShareType } from '@kyber/ui'
 import { t } from '@lingui/macro'
 import { rgba } from 'polished'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
+import { Share2 } from 'react-feather'
 import Skeleton from 'react-loading-skeleton'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
@@ -10,7 +12,7 @@ import InfoHelper from 'components/InfoHelper'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
 import { inProgressRewardTooltip, totalRewardTooltip } from 'pages/Earns/PositionDetail/RewardSection'
-import { PositionAction } from 'pages/Earns/PositionDetail/styles'
+import { PositionAction, ShareButtonWrapper } from 'pages/Earns/PositionDetail/styles'
 import {
   BannerContainer,
   BannerDataItem,
@@ -59,9 +61,12 @@ export default function PositionBanner({
 }) {
   const theme = useTheme()
   const { claimAllRewardsModal, onOpenClaimAllRewards, rewardInfo } = useKemRewards()
+  const [shareInfo, setShareInfo] = useState<ShareModalProps | undefined>()
 
   const {
     totalUsdValue,
+    totalLmUsdValue,
+    totalEgUsdValue,
     claimedUsdValue,
     inProgressUsdValue,
     pendingUsdValue,
@@ -97,9 +102,35 @@ export default function PositionBanner({
     </MouseoverTooltipDesktopOnly>
   )
 
+  const shareBtn = (
+    <ShareButtonWrapper
+      onClick={() =>
+        setShareInfo({
+          type: ShareType.REWARD_INFO,
+          onClose: () => setShareInfo(undefined),
+          pool: {
+            dexLogo:
+              'https://storage.googleapis.com/ks-setting-1d682dca/c044ba9d-9bff-4f4a-b8b5-fad07861d5561738568061182.png',
+            dexName: 'Uniswap V4 FairFlow',
+          },
+          reward: {
+            total: totalUsdValue,
+            lm: totalLmUsdValue,
+            eg: totalEgUsdValue,
+          },
+        })
+      }
+    >
+      <Share2 size={14} color={theme.primary} />
+    </ShareButtonWrapper>
+  )
+
+  const shareModal = shareInfo ? <ShareModal isFarming {...shareInfo} /> : null
+
   return (
     <>
       {claimAllRewardsModal}
+      {shareModal}
 
       <Flex
         flexDirection={!upToLarge ? 'row' : 'column'}
@@ -156,8 +187,9 @@ export default function PositionBanner({
                   sx={{ borderTop: `1px solid ${rgba(theme.white, 0.08)}` }}
                 >
                   <Flex alignItems="center" sx={{ gap: 1 }}>
-                    <Text color={theme.subText}>{t`Total Rewards`}</Text>
                     <IconKem width={KemImageSize} height={KemImageSize} />
+                    <Text color={theme.subText} marginRight={1}>{t`Total Rewards`}</Text>
+                    {shareBtn}
                   </Flex>
 
                   {initialLoading ? (
@@ -251,7 +283,9 @@ export default function PositionBanner({
                       width="160px"
                       size={16}
                       fontSize={14}
+                      style={{ marginRight: 12 }}
                     />
+                    {shareBtn}
                   </Flex>
                 )}
               </Flex>

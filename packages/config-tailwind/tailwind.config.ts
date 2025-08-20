@@ -35,6 +35,7 @@ const config: Omit<Config, "content"> = {
         "primary-20": "var(--ks-lw-accent-20)",
         primary: {
           DEFAULT: "var(--ks-lw-accent)",
+          200: "#31cb9e33",
         },
         icon: {
           DEFAULT: "var(--ks-lw-icons)",

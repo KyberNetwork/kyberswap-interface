@@ -332,6 +332,8 @@ export interface FeeInfo {
 
 export interface RewardInfo {
   totalUsdValue: number
+  totalLmUsdValue: number
+  totalEgUsdValue: number
   claimableUsdValue: number
   claimedUsdValue: number
   inProgressUsdValue: number
@@ -356,6 +358,8 @@ export interface NftRewardInfo {
   nftId: string
   chainId: number
   totalUsdValue: number
+  totalLmUsdValue: number
+  totalEgUsdValue: number
   claimedUsdValue: number
   inProgressUsdValue: number
   pendingUsdValue: number

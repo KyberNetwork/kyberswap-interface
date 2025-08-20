@@ -1,4 +1,3 @@
-import { ShareType } from '@kyber/ui'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useEffect, useState } from 'react'
@@ -17,7 +16,7 @@ import { HorizontalDivider } from 'pages/Earns/UserPositions/styles'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import RewardSyncing from 'pages/Earns/components/RewardSyncing'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
-import { ParsedPosition, TokenRewardInfo } from 'pages/Earns/types'
+import { ParsedPosition, PositionStatus, TokenRewardInfo } from 'pages/Earns/types'
 import { checkEarlyPosition } from 'pages/Earns/utils/position'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -38,7 +37,7 @@ const RewardSection = ({
 }: {
   position?: ParsedPosition
   initialLoading: boolean
-  shareBtn: (type: ShareType) => React.ReactNode
+  shareBtn: (size?: number) => React.ReactNode
   refetchPositions: () => void
 }) => {
   const theme = useTheme()
@@ -87,7 +86,7 @@ const RewardSection = ({
             <Text fontSize={14} color={theme.subText} lineHeight={'20PX'}>
               {t`Total Rewards`}
             </Text>
-            {!initialLoading && !isUnfinalized && shareBtn(ShareType.POSITION_REWARDS_INFO)}
+            {!initialLoading && !isUnfinalized && position?.status !== PositionStatus.CLOSED && shareBtn()}
           </Flex>
 
           {initialLoading ? (
