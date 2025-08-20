@@ -37,7 +37,7 @@ const TableHeader = ({
         <Flex justifyContent="flex-end" sx={{ gap: '4px', alignItems: 'center' }} role="button">
           {t`Max APR`}
           <InfoHelper
-            text={t`Max APR is the highest position APR in this pool recently. Click to the apr number to open the pre-filled same price range`}
+            text={t`Max APR is the highest active position APR in this pool recently. Click to the apr number to open the pre-filled same price range`}
           />
         </Flex>
       )}
