@@ -90,7 +90,7 @@ const Header = ({ refetchData }: { refetchData: () => void }) => {
   const shareButton = (className?: string) => (
     <div
       className={cn(
-        'flex items-center justify-center cursor-pointer w-6 h-6 rounded-full bg-layer2 text-icons',
+        'flex items-center justify-center cursor-pointer w-6 h-6 rounded-full text-primary bg-primary-200',
         className,
       )}
       onClick={() => setOpenShare(true)}
@@ -103,9 +103,11 @@ const Header = ({ refetchData }: { refetchData: () => void }) => {
     <>
       {openShare && !initializing && (
         <ShareModal
+          isFarming={poolStat?.isFarming}
           onClose={() => setOpenShare(false)}
           type={ShareType.POOL_INFO}
           pool={{
+            feeTier: fee,
             address: pool.address,
             chainId,
             chainLogo: NETWORKS_INFO[chainId].logo,
@@ -120,7 +122,11 @@ const Header = ({ refetchData }: { refetchData: () => void }) => {
               symbol: token1.symbol,
               logo: token1.logo || '',
             },
-            apr: (poolStat?.apr || 0) + (poolStat?.kemEGApr || 0) + (poolStat?.kemLMApr || 0),
+            apr: {
+              fees: poolStat?.apr || 0,
+              eg: poolStat?.kemEGApr || 0,
+              lm: poolStat?.kemLMApr || 0,
+            },
           }}
         />
       )}

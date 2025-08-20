@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
-import { usePoolDetailQuery } from 'services/poolService'
+import { usePoolDetailQuery } from 'services/zapEarn'
 
 import { ReactComponent as RevertPriceIcon } from 'assets/svg/earn/ic_revert_price.svg'
 import { NativeCurrencies } from 'constants/tokens'
@@ -61,7 +61,7 @@ const RightSection = ({
   const { account } = useActiveWeb3React()
   const { stableCoins } = useStableCoins(Number(chainId) as ChainId)
   const { data: pool } = usePoolDetailQuery(
-    { chainId: Number(chainId) as ChainId, ids: position?.pool.address || '' },
+    { chainId: Number(chainId) as ChainId, address: position?.pool.address || '' },
     { skip: !position, pollingInterval: 15_000 },
   )
   const [revert, setRevert] = useState(false)

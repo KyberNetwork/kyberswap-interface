@@ -1,4 +1,3 @@
-import { ShareType } from '@kyber/ui'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useEffect, useState } from 'react'
@@ -15,8 +14,9 @@ import useTheme from 'hooks/useTheme'
 import { NextDistribution, PositionAction, RewardDetailInfo, RewardsSection } from 'pages/Earns/PositionDetail/styles'
 import { HorizontalDivider } from 'pages/Earns/UserPositions/styles'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
+import RewardSyncing from 'pages/Earns/components/RewardSyncing'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
-import { ParsedPosition, TokenRewardInfo } from 'pages/Earns/types'
+import { ParsedPosition, PositionStatus, TokenRewardInfo } from 'pages/Earns/types'
 import { checkEarlyPosition } from 'pages/Earns/utils/position'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -37,7 +37,7 @@ const RewardSection = ({
 }: {
   position?: ParsedPosition
   initialLoading: boolean
-  shareBtn: (type: ShareType) => React.ReactNode
+  shareBtn: (size?: number) => React.ReactNode
   refetchPositions: () => void
 }) => {
   const theme = useTheme()
@@ -86,7 +86,7 @@ const RewardSection = ({
             <Text fontSize={14} color={theme.subText} lineHeight={'20PX'}>
               {t`Total Rewards`}
             </Text>
-            {!initialLoading && !isUnfinalized && shareBtn(ShareType.POSITION_REWARDS_INFO)}
+            {!initialLoading && !isUnfinalized && position?.status !== PositionStatus.CLOSED && shareBtn()}
           </Flex>
 
           {initialLoading ? (
@@ -140,12 +140,7 @@ const RewardSection = ({
             ) : isUnfinalized ? (
               <PositionSkeleton width={105} height={24} text="Finalizing..." />
             ) : isWaitingForRewards ? (
-              <PositionSkeleton
-                width={105}
-                height={24}
-                tooltip={t`Data is still syncing — takes up to 5 minutes.`}
-                tooltipWidth={195}
-              />
+              <RewardSyncing width={105} height={24} />
             ) : (
               <Flex alignItems={'center'}>
                 <Text fontSize={20}>
@@ -201,12 +196,7 @@ const RewardSection = ({
             ) : isUnfinalized ? (
               <PositionSkeleton width={90} height={24} text="Finalizing..." />
             ) : isWaitingForRewards ? (
-              <PositionSkeleton
-                width={90}
-                height={24}
-                tooltip={t`Data is still syncing — takes up to 5 minutes.`}
-                tooltipWidth={195}
-              />
+              <RewardSyncing width={90} height={24} />
             ) : (
               <Text fontSize={20}>
                 {formatDisplayNumber(rewardInfoThisPosition?.claimableUsdValue || 0, {

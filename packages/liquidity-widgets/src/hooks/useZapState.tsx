@@ -102,6 +102,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
     nativeToken,
     wrappedNativeToken,
     positionId,
+    initialTick,
   } = useWidgetStore(
     useShallow(s => ({
       chainId: s.chainId,
@@ -116,6 +117,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
       nativeToken: s.nativeToken,
       wrappedNativeToken: s.wrappedNativeToken,
       positionId: s.positionId,
+      initialTick: s.initialTick,
     })),
   );
   const { position } = usePositionStore(
@@ -248,6 +250,13 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
       }
     }
   }, [position]);
+
+  useEffect(() => {
+    if (initialTick && !tickLower && !tickUpper) {
+      setTickLower(initialTick.tickLower);
+      setTickUpper(initialTick.tickUpper);
+    }
+  }, [initialTick, tickLower, tickUpper]);
 
   const setDefaultTokensIn = useCallback(async () => {
     if (!pool || initializing || tokensIn.length) return;

@@ -30,8 +30,8 @@ const getFeeRange = (fee: number): FeeAmount | undefined => {
 const PriceRange = () => {
   const { priceLower, priceUpper, setTickLower, setTickUpper, tickLower, tickUpper } = useZapState();
 
-  const { poolType, positionId } = useWidgetStore(
-    useShallow(s => ({ poolType: s.poolType, positionId: s.positionId })),
+  const { poolType, positionId, initialTick } = useWidgetStore(
+    useShallow(s => ({ poolType: s.poolType, positionId: s.positionId, initialTick: s.initialTick })),
   );
   const { pool, revertPrice, poolPrice } = usePoolStore(
     useShallow(s => ({ pool: s.pool, revertPrice: s.revertPrice, poolPrice: s.poolPrice })),
@@ -131,7 +131,7 @@ const PriceRange = () => {
 
   // Set default price range depending on protocol fee
   useEffect(() => {
-    if (!feeRange || !priceRanges.length) return;
+    if (!feeRange || !priceRanges.length || initialTick) return;
     if (!tickLower || !tickUpper) handleSelectPriceRange(DEFAULT_PRICE_RANGE[feeRange]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [feeRange, priceRanges]);
