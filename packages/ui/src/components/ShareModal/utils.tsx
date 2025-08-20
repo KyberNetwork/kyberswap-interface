@@ -120,7 +120,7 @@ export const getValueByOption = ({ type, option, pool, position, reward }: GetVa
   if (isPoolSharing) {
     switch (option) {
       case ShareOption.TOTAL_APR:
-        return `${formatAprNumber(pool.apr?.fees || 0)}%`;
+        return `${formatAprNumber((pool.apr?.fees || 0) + (pool.apr?.eg || 0) + (pool.apr?.lm || 0))}%`;
       case ShareOption.LM_APR:
         return `${formatAprNumber(pool.apr?.lm || 0)}%`;
       case ShareOption.EG_APR:
@@ -136,7 +136,7 @@ export const getValueByOption = ({ type, option, pool, position, reward }: GetVa
           style: 'currency',
         });
       case ShareOption.TOTAL_APR:
-        return `${formatAprNumber(position?.apr?.fees || 0)}%`;
+        return `${formatAprNumber((position?.apr?.fees || 0) + (position?.apr?.eg || 0) + (position?.apr?.lm || 0))}%`;
       case ShareOption.LM_APR:
         return `${formatAprNumber(position?.apr?.lm || 0)}%`;
       case ShareOption.EG_APR:
