@@ -210,7 +210,6 @@ export default function Actions({ type, pool, shareBannerRef, selectedOptions }:
           'flex items-center justify-center py-[6px] px-4 gap-1 rounded-[30px] bg-[#ffffff14] hover:brightness-120 outline-none text-subText transition-all duration-200',
           isImageCopied && 'text-primary bg-primary-200',
         )}
-        disabled={selectedOptions.size === 0}
         onClick={handleCopyImage}
       >
         {isImageCopied ? <SuccessIcon /> : isCopyingImage ? <Loading className="text-subText" /> : <CopyIcon />}
@@ -220,9 +219,7 @@ export default function Actions({ type, pool, shareBannerRef, selectedOptions }:
         className={cn(
           'flex items-center justify-center py-[6px] px-4 gap-1 rounded-[30px] text-subText bg-[#ffffff14] hover:brightness-120 outline-none transition-all duration-200',
           isDownloaded && 'text-primary bg-primary-200',
-          selectedOptions.size === 0 && 'opacity-50 cursor-not-allowed !brightness-100',
         )}
-        disabled={selectedOptions.size === 0}
         onClick={handleDownloadImage}
       >
         {isDownloaded ? <SuccessIcon /> : isDownloading ? <Loading className="text-subText" /> : <DownloadIcon />}
