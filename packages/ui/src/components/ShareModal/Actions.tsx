@@ -8,7 +8,7 @@ import CircleCheckIcon from '@/assets/icons/circle-check.svg?react';
 import CopyIcon from '@/assets/icons/ic_copy.svg?react';
 import DownloadIcon from '@/assets/icons/ic_download.svg?react';
 import LinkIcon from '@/assets/icons/ic_link.svg?react';
-import { ShareOption, ShareType } from '@/components/ShareModal/types';
+import { ShareType } from '@/components/ShareModal/types';
 import { Pool, getSharePath } from '@/components/ShareModal/utils';
 import Loading from '@/components/loading';
 
@@ -16,7 +16,6 @@ interface ActionsProps {
   type: ShareType;
   pool: Pool;
   shareBannerRef: React.RefObject<HTMLDivElement>;
-  selectedOptions: Set<ShareOption>;
 }
 
 const SuccessIcon = () => <CircleCheckIcon className="w-4 h-4 relative top-[1px] text-primary" />;
@@ -82,7 +81,7 @@ const convertModernColorsToLegacy = (element: HTMLElement) => {
   };
 };
 
-export default function Actions({ type, pool, shareBannerRef, selectedOptions }: ActionsProps) {
+export default function Actions({ type, pool, shareBannerRef }: ActionsProps) {
   const [isCopied, setIsCopied] = useState(false);
   const [isDownloaded, setIsDownloaded] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);

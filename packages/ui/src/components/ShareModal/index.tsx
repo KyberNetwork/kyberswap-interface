@@ -182,7 +182,7 @@ export default function ShareModal({
         </div>
 
         <DialogFooter className="block">
-          <Actions type={type} pool={pool} shareBannerRef={shareBannerRef} selectedOptions={selectedOptions} />
+          <Actions type={type} pool={pool} shareBannerRef={shareBannerRef} />
         </DialogFooter>
       </DialogContent>
     </Dialog>
