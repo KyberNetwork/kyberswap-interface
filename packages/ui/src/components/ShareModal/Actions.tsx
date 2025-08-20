@@ -21,6 +21,67 @@ interface ActionsProps {
 
 const SuccessIcon = () => <CircleCheckIcon className="w-4 h-4 relative top-[1px] text-primary" />;
 
+// Helper function to convert oklch/modern colors to hex/rgb
+const convertModernColorsToLegacy = (element: HTMLElement) => {
+  const walker = document.createTreeWalker(element, NodeFilter.SHOW_ELEMENT, null);
+
+  const elements: HTMLElement[] = [];
+  let node;
+  while ((node = walker.nextNode())) {
+    elements.push(node as HTMLElement);
+  }
+
+  const originalStyles: Array<{ element: HTMLElement; property: string; value: string }> = [];
+
+  elements.forEach(el => {
+    const computedStyle = window.getComputedStyle(el);
+    const styleProperties = [
+      'color',
+      'backgroundColor',
+      'borderColor',
+      'borderTopColor',
+      'borderRightColor',
+      'borderBottomColor',
+      'borderLeftColor',
+    ];
+
+    styleProperties.forEach(prop => {
+      const value = computedStyle.getPropertyValue(prop);
+      if (
+        value &&
+        (value.includes('oklch') || value.includes('oklab') || value.includes('lch') || value.includes('lab'))
+      ) {
+        // Store original value
+        originalStyles.push({
+          element: el,
+          property: prop,
+          value: (el.style as any)[prop] || '',
+        });
+
+        // Convert to rgb
+        const tempDiv = document.createElement('div');
+        tempDiv.style.color = value;
+        document.body.appendChild(tempDiv);
+        const rgbValue = window.getComputedStyle(tempDiv).color;
+        document.body.removeChild(tempDiv);
+
+        (el.style as any)[prop] = rgbValue;
+      }
+    });
+  });
+
+  return () => {
+    // Restore original styles
+    originalStyles.forEach(({ element, property, value }) => {
+      if (value) {
+        (element.style as any)[property] = value;
+      } else {
+        element.style.removeProperty(property);
+      }
+    });
+  };
+};
+
 export default function Actions({ type, pool, shareBannerRef, selectedOptions }: ActionsProps) {
   const [isCopied, setIsCopied] = useState(false);
   const [isDownloaded, setIsDownloaded] = useState(false);
@@ -40,29 +101,52 @@ export default function Actions({ type, pool, shareBannerRef, selectedOptions }:
     }
   };
 
-  const handleDownloadImage = async () => {
-    if (shareBannerRef.current) {
-      setIsDownloading(true);
-      html2canvas(shareBannerRef.current, {
+  const generateCanvas = async (element: HTMLElement) => {
+    const restoreStyles = convertModernColorsToLegacy(element);
+
+    try {
+      const canvas = await html2canvas(element, {
         allowTaint: true,
         useCORS: true,
         scale: 2,
         backgroundColor: null,
-      })
-        .then(canvas => {
-          const link = document.createElement('a');
-          link.href = canvas.toDataURL('image/png');
-          link.download = 'kyberswap-earn-info.png';
-          link.click();
+        ignoreElements: element => {
+          // Ignore elements that might cause issues
+          return element.tagName === 'IFRAME' || element.tagName === 'OBJECT';
+        },
+        onclone: clonedDoc => {
+          // Additional cleanup for cloned document
+          const clonedElement = clonedDoc.querySelector('[data-html2canvas-ignore]');
+          if (clonedElement) {
+            clonedElement.remove();
+          }
+        },
+      });
+      return canvas;
+    } finally {
+      restoreStyles();
+    }
+  };
 
-          setIsDownloaded(true);
-          setTimeout(() => {
-            setIsDownloaded(false);
-          }, 1500);
-        })
-        .finally(() => {
-          setIsDownloading(false);
-        });
+  const handleDownloadImage = async () => {
+    if (shareBannerRef.current) {
+      setIsDownloading(true);
+      try {
+        const canvas = await generateCanvas(shareBannerRef.current);
+        const link = document.createElement('a');
+        link.href = canvas.toDataURL('image/png');
+        link.download = 'kyberswap-earn-info.png';
+        link.click();
+
+        setIsDownloaded(true);
+        setTimeout(() => {
+          setIsDownloaded(false);
+        }, 1500);
+      } catch (error) {
+        console.error('Failed to download image:', error);
+      } finally {
+        setIsDownloading(false);
+      }
     }
   };
 
@@ -70,12 +154,7 @@ export default function Actions({ type, pool, shareBannerRef, selectedOptions }:
     if (shareBannerRef.current && navigator?.clipboard) {
       setIsCopyingImage(true);
       try {
-        const canvas = await html2canvas(shareBannerRef.current, {
-          allowTaint: true,
-          useCORS: true,
-          scale: 2,
-          backgroundColor: null,
-        });
+        const canvas = await generateCanvas(shareBannerRef.current);
 
         canvas.toBlob(async blob => {
           if (blob) {
