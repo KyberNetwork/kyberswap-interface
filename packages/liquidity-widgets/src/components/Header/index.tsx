@@ -107,6 +107,7 @@ const Header = ({ refetchData }: { refetchData: () => void }) => {
           onClose={() => setOpenShare(false)}
           type={ShareType.POOL_INFO}
           pool={{
+            feeTier: fee,
             address: pool.address,
             chainId,
             chainLogo: NETWORKS_INFO[chainId].logo,

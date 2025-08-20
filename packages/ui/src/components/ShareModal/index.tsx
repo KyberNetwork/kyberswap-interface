@@ -101,6 +101,11 @@ export default function ShareModal({
                 <p className={forDownload ? 'text-2xl' : 'text-[22px] sm:text-2xl'}>
                   {pool.token0?.symbol} - {pool.token1?.symbol}
                 </p>
+                {pool.feeTier && (
+                  <p className="text-sm bg-[#ffffff14] rounded-full ml-2 px-2 py-[2px]">
+                    {pool.feeTier.toString() + '%'}
+                  </p>
+                )}
               </div>
             ) : (
               <div className="h-[12px]" />

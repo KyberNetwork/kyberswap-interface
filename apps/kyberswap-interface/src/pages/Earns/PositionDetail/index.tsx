@@ -308,6 +308,7 @@ const PositionDetail = () => {
             type: ShareType.POSITION_INFO,
             onClose: () => setShareInfo(undefined),
             pool: {
+              feeTier: position.pool.fee,
               address: position.pool.address,
               chainId: position.chain.id,
               chainLogo: position.chain.logo,

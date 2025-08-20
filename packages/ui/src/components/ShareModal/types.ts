@@ -19,6 +19,7 @@ export interface ShareModalProps {
   isFarming?: boolean;
   defaultOptions?: ShareOption[];
   pool: {
+    feeTier?: number;
     address?: string;
     chainId?: number;
     chainLogo?: string;
