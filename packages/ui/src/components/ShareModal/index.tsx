@@ -57,7 +57,7 @@ export default function ShareModal({
       >
         {/* Banner header */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center -ml-2">
+          <div className="flex items-center">
             <KyberLogo className="h-8" />
             <p className="text-sm">KyberSwap</p>
           </div>
@@ -76,7 +76,7 @@ export default function ShareModal({
 
         {/* Banner content */}
         <div
-          className={`flex flex-col ${forDownload ? 'ml-9' : 'ml-4 sm:ml-9'} ${forDownload ? 'gap-5' : 'gap-3 sm:gap-5'}`}
+          className={`flex flex-col ${forDownload ? 'ml-10' : 'ml-4 sm:ml-10'} ${forDownload ? 'gap-5' : 'gap-3 sm:gap-5'}`}
           style={{ height: 'calc(100% - 48px)' }}
         >
           <div className="flex items-center gap-1">
@@ -133,18 +133,14 @@ export default function ShareModal({
             ) : selectedOptions.size === 2 ? (
               <div className="flex flex-col gap-2">
                 <div>
-                  <p className="text-lg -mb-[2px]">{option1Label}</p>
-                  <p
-                    className={`text-primary font-semibold ${option1Label === ShareOption.TOTAL_EARNINGS ? 'text-[54px]' : 'text-3xl'} tracking-wide`}
-                  >
+                  <p className="text-lg">{option1Label}</p>
+                  <p className={`text-primary font-semibold text-5xl tracking-wide`}>
                     {renderStaggeredNumber(option1Value)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-lg -mb-[2px]">{option2Label}</p>
-                  <p
-                    className={`text-primary font-semibold ${option1Label === ShareOption.TOTAL_EARNINGS ? 'text-2xl' : 'text-3xl'} tracking-wide`}
-                  >
+                  <p className="text-lg">{option2Label}</p>
+                  <p className={`text-primary font-semibold text-5xl tracking-wide`}>
                     {renderStaggeredNumber(option2Value)}
                   </p>
                 </div>
