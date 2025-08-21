@@ -22,16 +22,17 @@ import { formatDisplayNumber } from '@kyber/utils/number';
 
 import ErrorIcon from '@/assets/svg/error.svg';
 import Action from '@/components/Action';
-import EstLiqValue from '@/components/Content/EstLiqValue';
 import LiquidityToAdd, { LiquidityToAddSkeleton } from '@/components/Content/LiquidityToAdd';
 import PoolStat from '@/components/Content/PoolStat';
 import PriceInfo from '@/components/Content/PriceInfo';
 import PriceInput from '@/components/Content/PriceInput';
 import ZapSummary from '@/components/Content/ZapSummary';
+import Estimated from '@/components/Estimated';
 import Header from '@/components/Header';
 import LiquidityChart from '@/components/LiquidityChart';
 import LiquidityChartSkeleton from '@/components/LiquidityChart/LiquidityChartSkeleton';
 import Modal from '@/components/Modal';
+import { PositionFee } from '@/components/PositionFee';
 import PositionLiquidity from '@/components/PositionLiquidity';
 import Preview from '@/components/Preview';
 import PriceRange from '@/components/PriceRange';
@@ -42,8 +43,6 @@ import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 import { PriceType } from '@/types/index';
 import { checkDeviated } from '@/utils';
-
-import { PositionFee } from './components/PositionFee';
 
 export default function Widget() {
   const {
@@ -316,7 +315,7 @@ export default function Widget() {
           <div className="w-[45%] max-sm:w-full">
             {isUniV3 ? addLiquiditySection : null}
 
-            <EstLiqValue />
+            <Estimated />
             <ZapSummary />
 
             {isOutOfRangeAfterZap && (
