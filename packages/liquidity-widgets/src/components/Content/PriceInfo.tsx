@@ -70,7 +70,7 @@ export default function PriceInfo() {
                   {firstTokenShortenSymbol}
                 </MouseoverTooltip>
                 <span>=</span>
-                <span>{formatDisplayNumber(price, { significantDigits: 6 })}</span>
+                <span>{formatDisplayNumber(price, { significantDigits: 8 })}</span>
 
                 <MouseoverTooltip
                   text={secondTokenShortenSymbol !== token1.symbol ? token1.symbol : ''}

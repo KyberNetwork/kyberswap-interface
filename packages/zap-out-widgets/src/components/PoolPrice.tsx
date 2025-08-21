@@ -20,7 +20,7 @@ export function PoolPrice() {
     const { success, data } = univ3PoolNormalize.safeParse(pool);
     if (success) {
       return formatDisplayNumber(tickToPrice(data.tick, data.token0.decimals, data.token1.decimals, revertPrice), {
-        significantDigits: 5,
+        significantDigits: 8,
       });
     }
 
@@ -33,7 +33,7 @@ export function PoolPrice() {
         18,
       );
       return formatDisplayNumber(revertPrice ? 1 / +p : p, {
-        significantDigits: 5,
+        significantDigits: 8,
       });
     }
     return assertUnreachable(poolType as never, 'poolType is not handled');
