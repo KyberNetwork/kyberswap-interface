@@ -81,10 +81,13 @@ export const formatSlippage = (slp: number, withPercent = true) => {
   return text
 }
 
+const COMMON_PAIR = 'commonPair'
+
 export const SLIPPAGE_WARNING_MESSAGES: { [key: string]: { [key: string]: string } } = {
   [SLIPPAGE_STATUS.LOW]: {
     [PAIR_CATEGORY.HIGH_VOLATILITY]: 'is quite low and may cause failed transactions in volatile markets.',
     [PAIR_CATEGORY.EXOTIC]: 'is quite low and may cause failed transactions in highly volatile markets.',
+    [COMMON_PAIR]: 'is quite low and may cause failed transactions in highly volatile markets.',
   },
   [SLIPPAGE_STATUS.HIGH]: {
     [PAIR_CATEGORY.STABLE]:
