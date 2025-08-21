@@ -81,7 +81,7 @@ export const formatSlippage = (slp: number, withPercent = true) => {
   return text
 }
 
-const COMMON_PAIR = 'commonPair'
+const COMMON_PAIR = 'commonPair' // temporary solution, should have config for common pair soon
 
 export const SLIPPAGE_WARNING_MESSAGES: { [key: string]: { [key: string]: string } } = {
   [SLIPPAGE_STATUS.LOW]: {
