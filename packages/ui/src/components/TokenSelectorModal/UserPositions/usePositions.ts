@@ -60,8 +60,6 @@ export default function usePositions({
         const token1Address = position.pool.tokenAmounts[1]?.token.address.toLowerCase();
         const positionId = position.tokenId;
 
-        console.log('position', position);
-
         return isAddress(search)
           ? poolAddress.includes(search.toLowerCase()) ||
               token0Address.includes(search.toLowerCase()) ||
