@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 
 import { Skeleton } from '@kyber/ui';
 import { divideBigIntToString, formatDisplayNumber } from '@kyber/utils/number';
-import { tickToPrice } from '@kyber/utils/uniswapv3';
+import { sqrtToPrice } from '@kyber/utils/uniswapv3';
 
 import RevertPriceIcon from '@/assets/svg/ic_revert_price.svg';
 import { univ2PoolNormalize, univ3PoolNormalize } from '@/schema';
@@ -19,9 +19,12 @@ export function PoolPrice() {
     if (pool === 'loading') return '--';
     const { success, data } = univ3PoolNormalize.safeParse(pool);
     if (success) {
-      return formatDisplayNumber(tickToPrice(data.tick, data.token0.decimals, data.token1.decimals, revertPrice), {
-        significantDigits: 8,
-      });
+      return formatDisplayNumber(
+        sqrtToPrice(BigInt(data.sqrtPriceX96 || 0), data.token0.decimals, data.token1.decimals, revertPrice),
+        {
+          significantDigits: 8,
+        },
+      );
     }
 
     const { success: isUniV2, data: uniV2Pool } = univ2PoolNormalize.safeParse(pool);

@@ -3,7 +3,14 @@ import { useEffect, useMemo, useState } from 'react';
 import { Skeleton } from '@kyber/ui';
 import { divideBigIntToString, formatDisplayNumber, toString } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
-import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick, tickToPrice } from '@kyber/utils/uniswapv3';
+import {
+  MAX_TICK,
+  MIN_TICK,
+  nearestUsableTick,
+  priceToClosestTick,
+  sqrtToPrice,
+  tickToPrice,
+} from '@kyber/utils/uniswapv3';
 
 import RevertPriceIcon from '@/assets/icons/ic_revert_price.svg';
 import { EstimateLiqValue } from '@/components/EstimateLiqValue';
@@ -148,7 +155,12 @@ export function TargetPoolState({
             tickUpper: data.maxTick,
           };
 
-        const currentPoolPrice = tickToPrice(data.tick, pool.token0?.decimals, pool.token1?.decimals, false);
+        const currentPoolPrice = sqrtToPrice(
+          BigInt(data.sqrtPriceX96 || 0),
+          pool.token0?.decimals,
+          pool.token1?.decimals,
+          false,
+        );
 
         if (!currentPoolPrice) return;
 
@@ -207,7 +219,12 @@ export function TargetPoolState({
   let poolPrice;
   if (isUniV3 && pool !== 'loading') {
     poolPrice = formatDisplayNumber(
-      tickToPrice((pool as UniV3Pool).tick, pool.token0.decimals, pool.token1.decimals, revertDisplay),
+      sqrtToPrice(
+        BigInt((pool as UniV3Pool).sqrtPriceX96 || 0),
+        pool.token0.decimals,
+        pool.token1.decimals,
+        revertDisplay,
+      ),
       { significantDigits: 8 },
     );
   } else if (isUniV2 && pool !== 'loading') {

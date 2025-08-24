@@ -55,7 +55,7 @@ export default function LiquidityChartRangeInput({
       const percent =
         (x < currentPrice ? -1 : 1) * ((Math.max(x, currentPrice) - Math.min(x, currentPrice)) / currentPrice) * 100;
 
-      return currentPrice ? `${format(Math.abs(percent) > 1 ? '.2~s' : '.2~f')(percent)}%` : '';
+      return currentPrice ? `${format(Math.abs(percent) > 1 ? '.4~s' : '.4~f')(percent)}%` : '';
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [currentPrice, ticksAtLimit, revertPrice],

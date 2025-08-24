@@ -4,7 +4,7 @@ import { useShallow } from 'zustand/shallow';
 
 import { univ3PoolNormalize } from '@kyber/schema';
 import { toString } from '@kyber/utils/number';
-import { nearestUsableTick, priceToClosestTick, tickToPrice } from '@kyber/utils/uniswapv3';
+import { nearestUsableTick, priceToClosestTick, sqrtToPrice } from '@kyber/utils/uniswapv3';
 
 import { Bound, LiquidityChartRangeInput } from '@kyberswap/liquidity-chart';
 import '@kyberswap/liquidity-chart/style.css';
@@ -34,9 +34,9 @@ export default function LiquidityChart() {
   const token1 = pool === 'loading' ? undefined : pool.token1;
 
   const price =
-    tickCurrent !== undefined && token0 && token1
-      ? +tickToPrice(tickCurrent, token0.decimals, token1.decimals, revertPrice)
-      : undefined;
+    pool === 'loading' || !token0 || !token1
+      ? undefined
+      : +sqrtToPrice(BigInt(pool.sqrtPriceX96 || 0), token0.decimals, token1.decimals, revertPrice);
 
   const ticksAtLimit = useMemo(
     () => ({
