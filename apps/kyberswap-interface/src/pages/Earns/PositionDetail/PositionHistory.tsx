@@ -46,7 +46,10 @@ const PositionHistory = ({ position }: { position?: ParsedPosition }) => {
     const hours = formatDateTime(data.getHours())
     const minutes = formatDateTime(data.getMinutes())
     const seconds = formatDateTime(data.getSeconds())
-    return `${hours}:${minutes}:${seconds} ${data.toLocaleDateString()}`
+    const day = data.getDate()
+    const month = data.toLocaleString('en-US', { month: 'short' })
+    const year = data.getFullYear()
+    return `${hours}:${minutes}:${seconds} ${month} ${day}, ${year}`
   }, [position?.createdTime])
 
   const txHash = useMemo(() => {
