@@ -208,7 +208,7 @@ export function TargetPoolState({
   if (isUniV3 && pool !== 'loading') {
     poolPrice = formatDisplayNumber(
       tickToPrice((pool as UniV3Pool).tick, pool.token0.decimals, pool.token1.decimals, revertDisplay),
-      { significantDigits: 6 },
+      { significantDigits: 8 },
     );
   } else if (isUniV2 && pool !== 'loading') {
     const po = pool as UniV2Pool;
@@ -256,7 +256,7 @@ export function TargetPoolState({
             <div className="flex items-center gap-4 mt-3 text-sm">
               <div className="bg-white bg-opacity-[0.04] rounded-md py-3 w-1/2 flex flex-col items-center justify-center gap-1">
                 <p className="text-subText">Min Price</p>
-                <p className="text-base font-medium">{formatDisplayNumber(minPrice, { significantDigits: 6 })}</p>
+                <p className="text-base font-medium">{formatDisplayNumber(minPrice, { significantDigits: 8 })}</p>
                 <p className="text-subText">
                   {pool === 'loading'
                     ? ''
@@ -267,7 +267,7 @@ export function TargetPoolState({
               </div>
               <div className="bg-white bg-opacity-[0.04] rounded-md py-3 w-1/2 flex flex-col items-center justify-center gap-1">
                 <p className="text-subText">Max Price</p>
-                <p className="text-base font-medium">{formatDisplayNumber(maxPrice, { significantDigits: 6 })}</p>
+                <p className="text-base font-medium">{formatDisplayNumber(maxPrice, { significantDigits: 8 })}</p>
                 <p className="text-subText">
                   {pool === 'loading'
                     ? ''
@@ -300,7 +300,7 @@ export function TargetPoolState({
 
             <div className="border border-stroke rounded-md px-4 py-3 text-subText text-sm mt-4">
               <div className="flex justify-between items-center">
-                <div className="flex flex-col gap-2 flex-1">
+                <div className="flex flex-col gap-2">
                   <div>Min Price</div>
                   <input
                     className="bg-transparent text-text text-[18px] font-medium border-none outline-none w-full"

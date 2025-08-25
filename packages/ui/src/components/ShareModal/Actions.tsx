@@ -8,15 +8,14 @@ import CircleCheckIcon from '@/assets/icons/circle-check.svg?react';
 import CopyIcon from '@/assets/icons/ic_copy.svg?react';
 import DownloadIcon from '@/assets/icons/ic_download.svg?react';
 import LinkIcon from '@/assets/icons/ic_link.svg?react';
-import { ShareOption, ShareType } from '@/components/ShareModal/types';
-import { Pool, getSharePath } from '@/components/ShareModal/utils';
+import { ShareType } from '@/components/ShareModal/types';
+import { Pool, getSharePath, isSafari } from '@/components/ShareModal/utils';
 import Loading from '@/components/loading';
 
 interface ActionsProps {
   type: ShareType;
   pool: Pool;
   shareBannerRef: React.RefObject<HTMLDivElement>;
-  selectedOptions: Set<ShareOption>;
 }
 
 const SuccessIcon = () => <CircleCheckIcon className="w-4 h-4 relative top-[1px] text-primary" />;
@@ -82,7 +81,7 @@ const convertModernColorsToLegacy = (element: HTMLElement) => {
   };
 };
 
-export default function Actions({ type, pool, shareBannerRef, selectedOptions }: ActionsProps) {
+export default function Actions({ type, pool, shareBannerRef }: ActionsProps) {
   const [isCopied, setIsCopied] = useState(false);
   const [isDownloaded, setIsDownloaded] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -205,24 +204,23 @@ export default function Actions({ type, pool, shareBannerRef, selectedOptions }:
         {isCopied ? <SuccessIcon /> : <LinkIcon />}
         Copy URL
       </button>
-      <button
-        className={cn(
-          'flex items-center justify-center py-[6px] px-4 gap-1 rounded-[30px] bg-[#ffffff14] hover:brightness-120 outline-none text-subText transition-all duration-200',
-          isImageCopied && 'text-primary bg-primary-200',
-        )}
-        disabled={selectedOptions.size === 0}
-        onClick={handleCopyImage}
-      >
-        {isImageCopied ? <SuccessIcon /> : isCopyingImage ? <Loading className="text-subText" /> : <CopyIcon />}
-        Copy Image
-      </button>
+      {!isSafari() && (
+        <button
+          className={cn(
+            'flex items-center justify-center py-[6px] px-4 gap-1 rounded-[30px] bg-[#ffffff14] hover:brightness-120 outline-none text-subText transition-all duration-200',
+            isImageCopied && 'text-primary bg-primary-200',
+          )}
+          onClick={handleCopyImage}
+        >
+          {isImageCopied ? <SuccessIcon /> : isCopyingImage ? <Loading className="text-subText" /> : <CopyIcon />}
+          Copy Image
+        </button>
+      )}
       <button
         className={cn(
           'flex items-center justify-center py-[6px] px-4 gap-1 rounded-[30px] text-subText bg-[#ffffff14] hover:brightness-120 outline-none transition-all duration-200',
           isDownloaded && 'text-primary bg-primary-200',
-          selectedOptions.size === 0 && 'opacity-50 cursor-not-allowed !brightness-100',
         )}
-        disabled={selectedOptions.size === 0}
         onClick={handleDownloadImage}
       >
         {isDownloaded ? <SuccessIcon /> : isDownloading ? <Loading className="text-subText" /> : <DownloadIcon />}
