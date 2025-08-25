@@ -8,11 +8,10 @@ import { cn } from '@kyber/utils/tailwind-helpers';
 
 import EstimatedRow from '@/components/Estimated/EstimatedRow';
 import EstimatedTokenRow from '@/components/Estimated/EstimatedTokenRow';
+import SlippageRow from '@/components/Estimated/SlippageRow';
 import SwapImpactCollapse from '@/components/Estimated/SwapImpactCollapse';
 import WarningMessage from '@/components/Estimated/WarningMessage';
 import useEstimated from '@/components/Estimated/useEstimated';
-import { SlippageWarning } from '@/components/SlippageWarning';
-import { useZapState } from '@/hooks/useZapState';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
 export default function Estimated() {
@@ -22,7 +21,6 @@ export default function Estimated() {
       positionId: s.positionId,
     })),
   );
-  const { slippage } = useZapState();
   const {
     initializing,
     token0,
@@ -112,12 +110,7 @@ export default function Estimated() {
 
         <SwapImpactCollapse initializing={initializing} swapActions={swapActions} swapPriceImpact={swapPriceImpact} />
 
-        <SlippageWarning
-          className="mt-3 text-xs"
-          slippage={slippage}
-          suggestedSlippage={suggestedSlippage}
-          showWarning={!!zapInfo}
-        />
+        <SlippageRow suggestedSlippage={suggestedSlippage} />
 
         <EstimatedRow
           initializing={initializing}

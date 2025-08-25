@@ -172,6 +172,7 @@ export default function Action({
   })();
 
   const hanldeClick = () => {
+    if (!slippage) return;
     const { success: isUniV3Pool, data: univ3Pool } = univ3PoolNormalize.safeParse(pool);
     if (isNotConnected) {
       onConnectWallet();

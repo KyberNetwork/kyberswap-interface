@@ -6,8 +6,7 @@ import { useDebounce, useTokenBalances, useTokenPrices } from '@kyber/hooks';
 import {
   API_URLS,
   CHAIN_ID_TO_CHAIN,
-  NATIVE_TOKEN_ADDRESS,
-  NETWORKS_INFO,
+  POOL_CATEGORY,
   Token,
   ZERO_ADDRESS,
   ZapRouteDetail,
@@ -19,7 +18,7 @@ import { getTokenBalances, parseUnits } from '@kyber/utils/crypto';
 import { formatNumber, formatWei } from '@kyber/utils/number';
 import { tickToPrice } from '@kyber/utils/uniswapv3';
 
-import { ERROR_MESSAGE } from '@/constants';
+import { DEFAULT_SLIPPAGE, ERROR_MESSAGE, getSlippageStorageKey } from '@/constants';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
@@ -34,7 +33,7 @@ const ZapContext = createContext<{
   error: string;
   zapInfo: ZapRouteDetail | null;
   loading: boolean;
-  slippage: number;
+  slippage?: number;
   priceLower: string | null;
   priceUpper: string | null;
   ttl: number;
@@ -55,7 +54,6 @@ const ZapContext = createContext<{
   toggleSetting: (_highlightDegenMode?: boolean) => void;
   setShowSeting: (_val: boolean) => void;
   setDegenMode: (_val: boolean) => void;
-  setManualSlippage: (_val: boolean) => void;
   setSnapshotState: (_val: ZapState | null) => void;
 }>({
   highlightDegenMode: false,
@@ -68,7 +66,7 @@ const ZapContext = createContext<{
   error: '',
   zapInfo: null,
   loading: false,
-  slippage: 50,
+  slippage: undefined,
   ttl: 20, // 20min
   showSetting: false,
   degenMode: false,
@@ -84,7 +82,6 @@ const ZapContext = createContext<{
   toggleSetting: (_highlightDegenMode?: boolean) => {},
   setShowSeting: (_val: boolean) => {},
   setDegenMode: (_val: boolean) => {},
-  setManualSlippage: (_val: boolean) => {},
   setSnapshotState: (_val: ZapState | null) => {},
 });
 
@@ -136,8 +133,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
   const { feePcm, feeAddress } = feeConfig || {};
 
   const [showSetting, setShowSeting] = useState(false);
-  const [slippage, setSlippage] = useState(50);
-  const [manualSlippage, setManualSlippage] = useState(false);
+  const [slippage, setSlippage] = useState<number | undefined>(undefined);
   const [ttl, setTtl] = useState(20);
   const [tickLower, setTickLower] = useState<number | null>(null);
   const [tickUpper, setTickUpper] = useState<number | null>(null);
@@ -167,24 +163,37 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
 
   const isTokensStable = tokensIn.every(tk => tk.isStable);
 
-  const isTokensInPair = tokensIn.every(tk => {
-    const addr =
-      tk.address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase()
-        ? NETWORKS_INFO[chainId].wrappedToken.address.toLowerCase()
-        : tk.address.toLowerCase();
-    return (
-      pool !== 'loading' && (pool.token0.address.toLowerCase() === addr || pool.token1.address.toLowerCase() === addr)
-    );
-  });
-
   useEffect(() => {
-    if (pool === 'loading' || manualSlippage) return;
-    if (pool.category === 'stablePair' && isTokensStable) setSlippage(10);
-    else if (pool.category === 'correlatedPair' && isTokensInPair) setSlippage(25);
-    else {
-      setSlippage(50);
+    if (pool === 'loading' || slippage) return;
+
+    // First, try to load from localStorage
+    if (pool.token0?.symbol && pool.token1?.symbol) {
+      try {
+        const storageKey = getSlippageStorageKey(pool.token0.symbol, pool.token1.symbol);
+        const savedSlippage = localStorage.getItem(storageKey);
+        if (savedSlippage) {
+          const parsedSlippage = parseInt(savedSlippage, 10);
+          if (!isNaN(parsedSlippage) && parsedSlippage > 0) {
+            // Only set if it's different from current slippage
+            if (parsedSlippage !== slippage) {
+              setSlippage(parsedSlippage);
+              return; // Exit early if we loaded from localStorage
+            }
+          }
+        }
+      } catch (error) {
+        // Silently handle localStorage errors
+        console.warn('Failed to load slippage from localStorage:', error);
+      }
     }
-  }, [isTokensStable, pool, manualSlippage, isTokensInPair]);
+
+    if (pool.category === POOL_CATEGORY.STABLE_PAIR && isTokensStable) setSlippage(10);
+    else
+      setSlippage(
+        DEFAULT_SLIPPAGE[pool.category || POOL_CATEGORY.EXOTIC_PAIR] || DEFAULT_SLIPPAGE[POOL_CATEGORY.EXOTIC_PAIR],
+      );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pool]);
 
   const { prices: tokenPrices } = useTokenPrices({
     addresses: tokensIn.map(token => token.address.toLowerCase()),
@@ -321,6 +330,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     if (
+      slippage !== undefined &&
       (isUniV3 ? debounceTickLower !== null && debounceTickUpper !== null : true) &&
       !initializing &&
       (!error ||
@@ -454,7 +464,6 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
         tokenBalances: balances,
         tokenPrices,
         highlightDegenMode,
-        setManualSlippage,
         snapshotState,
         setSnapshotState,
       }}

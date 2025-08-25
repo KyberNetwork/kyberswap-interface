@@ -34,6 +34,7 @@ import SuccessIcon from '@/assets/svg/success.svg';
 import SwitchIcon from '@/assets/svg/switch.svg';
 import X from '@/assets/svg/x.svg';
 import { SlippageWarning } from '@/components/SlippageWarning';
+import { getSlippageStorageKey } from '@/constants';
 import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
@@ -103,6 +104,8 @@ export default function Preview({
   const isOutOfRange = isUniV3 ? tickLower > univ3Pool.tick || univ3Pool.tick >= tickUpper : false;
 
   const { icon: dexLogo } = DEXES_INFO[poolType as PoolType];
+
+  const suggestedSlippage = zapInfo?.zapDetails.suggestedSlippage || 0;
 
   useEffect(() => {
     if (txHash) {
@@ -298,6 +301,16 @@ export default function Preview({
     setAttempTx(true);
     setTxHash('');
     setTxError(null);
+
+    if (suggestedSlippage > 0 && slippage !== suggestedSlippage) {
+      try {
+        const storageKey = getSlippageStorageKey(pool.token0.symbol, pool.token1.symbol);
+        localStorage.setItem(storageKey, slippage.toString());
+      } catch (error) {
+        // Silently handle localStorage errors
+        console.warn('Failed to save slippage to localStorage:', error);
+      }
+    }
 
     fetch(`${API_URLS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/in/route/build`, {
       method: 'POST',
