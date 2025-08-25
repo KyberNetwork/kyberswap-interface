@@ -6,6 +6,8 @@ import { useDebounce, useTokenBalances, useTokenPrices } from '@kyber/hooks';
 import {
   API_URLS,
   CHAIN_ID_TO_CHAIN,
+  NATIVE_TOKEN_ADDRESS,
+  NETWORKS_INFO,
   POOL_CATEGORY,
   Token,
   ZERO_ADDRESS,
@@ -18,7 +20,7 @@ import { getTokenBalances, parseUnits } from '@kyber/utils/crypto';
 import { formatNumber, formatWei } from '@kyber/utils/number';
 import { tickToPrice } from '@kyber/utils/uniswapv3';
 
-import { DEFAULT_SLIPPAGE, ERROR_MESSAGE, getSlippageStorageKey } from '@/constants';
+import { ERROR_MESSAGE, getSlippageStorageKey } from '@/constants';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
@@ -168,6 +170,16 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
 
   const isTokensStable = tokensIn.every(tk => tk.isStable);
 
+  const isTokensInPair = tokensIn.every(tk => {
+    const addr =
+      tk.address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase()
+        ? NETWORKS_INFO[chainId].wrappedToken.address.toLowerCase()
+        : tk.address.toLowerCase();
+    return (
+      pool !== 'loading' && (pool.token0.address.toLowerCase() === addr || pool.token1.address.toLowerCase() === addr)
+    );
+  });
+
   useEffect(() => {
     if (pool === 'loading' || slippage) return;
 
@@ -192,12 +204,9 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
       }
     }
 
-    if (pool.category === POOL_CATEGORY.STABLE_PAIR && isTokensStable)
-      setSlippage(DEFAULT_SLIPPAGE[POOL_CATEGORY.STABLE_PAIR]);
-    else
-      setSlippage(
-        DEFAULT_SLIPPAGE[pool.category || POOL_CATEGORY.EXOTIC_PAIR] || DEFAULT_SLIPPAGE[POOL_CATEGORY.EXOTIC_PAIR],
-      );
+    if (pool.category === POOL_CATEGORY.STABLE_PAIR && isTokensStable) setSlippage(1);
+    else if (pool.category === POOL_CATEGORY.CORRELATED_PAIR && isTokensInPair) setSlippage(5);
+    else setSlippage(50);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pool]);
 
