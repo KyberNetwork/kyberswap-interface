@@ -86,8 +86,18 @@ const TokenBoxInfo = ({
 
 export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDismiss: () => void }) => {
   const theme = useTheme()
-  const { selectedQuote, currencyIn, currencyOut, amountInWei, fromChainId, toChainId, warning, recipient } =
-    useCrossChainSwap()
+  const {
+    selectedQuote,
+    currencyIn,
+    currencyOut,
+    amountInWei,
+    fromChainId,
+    toChainId,
+    warning,
+    recipient,
+    sender,
+    receiver,
+  } = useCrossChainSwap()
   const { data: walletClient } = useWalletClient()
   const [submittingTx, setSubmittingTx] = useState(false)
   const [txHash, setTxHash] = useState('')
@@ -201,7 +211,31 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
       return
     }
 
-    if (res) setTransactions([res, ...transactions].slice(0, 30))
+    if (res) {
+      setTransactions([res, ...transactions].slice(0, 30))
+
+      // Fire GA event for successful cross-chain swap
+      if (window.dataLayer) {
+        window.dataLayer.push({
+          event: 'cross_chain_swap_init',
+          event_category: 'cross_chain_swap',
+          swap_details: {
+            from_chain: fromChainId,
+            to_chain: toChainId,
+            from_token: currencyIn,
+            to_token: currencyOut,
+            amount_in: amount,
+            amount_out: selectedQuote.quote.outputAmount.toString(),
+            parter: selectedQuote.adapter.getName(),
+            source_tx_hash: res.sourceTxHash,
+            sender,
+            recipient: receiver,
+            status: 'init',
+            fee_percent: selectedQuote.quote.platformFeePercent,
+          },
+        })
+      }
+    }
     setTxHash(res?.sourceTxHash || '')
     setSubmittingTx(false)
   }
