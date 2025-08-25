@@ -828,7 +828,7 @@ export default function Preview({
             zapImpact.level === PI_LEVEL.INVALID ||
             swapPriceImpact.piRes.level === PI_LEVEL.VERY_HIGH ||
             swapPriceImpact.piRes.level === PI_LEVEL.INVALID
-              ? 'bg-error border-error'
+              ? 'bg-error border-error text-white'
               : zapImpact.level === PI_LEVEL.HIGH || swapPriceImpact.piRes.level === PI_LEVEL.HIGH
                 ? 'bg-warning border-warning'
                 : ''
