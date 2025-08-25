@@ -7,7 +7,15 @@ import AlertIcon from '@/assets/svg/alert.svg';
 import { parseSlippageInput, validateSlippageInput } from '@/components/Setting/utils';
 import { useZapState } from '@/hooks/useZapState';
 
-const SlippageInput = ({ className, inputClassName }: { className?: string; inputClassName?: string }) => {
+const SlippageInput = ({
+  className,
+  inputClassName,
+  suggestionClassName,
+}: {
+  className?: string;
+  inputClassName?: string;
+  suggestionClassName?: string;
+}) => {
   const { slippage, setSlippage, zapInfo } = useZapState();
   const [v, setV] = useState(() => {
     if (!slippage) return '';
@@ -108,7 +116,7 @@ const SlippageInput = ({ className, inputClassName }: { className?: string; inpu
       </div>
       {zapInfo && (message || slpWarning) && (
         <div
-          className="flex items-center gap-1 mt-1 text-primary cursor-pointer text-sm"
+          className={cn('flex items-center gap-1 mt-1 text-primary cursor-pointer text-sm', suggestionClassName)}
           onClick={() => {
             if (suggestedSlippage > 0) {
               setSlippage(suggestedSlippage);

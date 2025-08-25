@@ -1,3 +1,6 @@
+import { useEffect } from 'react';
+
+import { usePrevious } from '@kyber/hooks';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, MouseoverTooltip } from '@kyber/ui';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
@@ -8,11 +11,20 @@ const MAX_SLIPPAGE_LABEL_TEXT =
   'Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price. Please use with caution!';
 
 export default function SlippageRow({ suggestedSlippage }: { suggestedSlippage: number }) {
-  const { slippage, slippageOpen } = useZapState();
+  const { slippage, slippageOpen, setSlippageOpen } = useZapState();
 
   const isHighSlippage = suggestedSlippage > 0 ? slippage && slippage > 2 * suggestedSlippage : false;
   const isLowSlippage = suggestedSlippage > 0 ? slippage && slippage < suggestedSlippage / 2 : false;
   const isSlippageWarning = isHighSlippage || isLowSlippage;
+
+  const previousSuggestedSlippage = usePrevious(suggestedSlippage);
+
+  useEffect(() => {
+    if (previousSuggestedSlippage !== suggestedSlippage && slippage !== suggestedSlippage && suggestedSlippage > 0) {
+      setSlippageOpen(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [suggestedSlippage]);
 
   return (
     <div className="flex justify-between items-start mt-3 text-xs">
@@ -36,7 +48,11 @@ export default function SlippageRow({ suggestedSlippage }: { suggestedSlippage: 
             </div>
           </AccordionTrigger>
           <AccordionContent>
-            <SlippageInput className="bg-black border border-icon-300" inputClassName="bg-black focus:bg-black" />
+            <SlippageInput
+              className="bg-black border border-icon-300"
+              inputClassName="bg-black focus:bg-black"
+              suggestionClassName="text-xs"
+            />
           </AccordionContent>
         </AccordionItem>
       </Accordion>
