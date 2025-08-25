@@ -45,6 +45,7 @@ const ZapContext = createContext<{
   };
   tokenPrices: { [key: string]: number };
   snapshotState: ZapState | null;
+  slippageOpen: boolean;
   setTokensIn: (_value: Token[]) => void;
   setAmountsIn: (_value: string) => void;
   setTickLower: (_value: number) => void;
@@ -55,6 +56,7 @@ const ZapContext = createContext<{
   setShowSeting: (_val: boolean) => void;
   setDegenMode: (_val: boolean) => void;
   setSnapshotState: (_val: ZapState | null) => void;
+  setSlippageOpen: (_val: boolean) => void;
 }>({
   highlightDegenMode: false,
   tickLower: null,
@@ -73,6 +75,7 @@ const ZapContext = createContext<{
   tokenBalances: {},
   tokenPrices: {},
   snapshotState: null,
+  slippageOpen: false,
   setTokensIn: (_value: Token[]) => {},
   setAmountsIn: (_value: string) => {},
   setTickLower: (_value: number) => {},
@@ -83,6 +86,7 @@ const ZapContext = createContext<{
   setShowSeting: (_val: boolean) => {},
   setDegenMode: (_val: boolean) => {},
   setSnapshotState: (_val: ZapState | null) => {},
+  setSlippageOpen: (_val: boolean) => {},
 });
 
 export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
@@ -146,6 +150,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
   const [highlightDegenMode, setHighlightDegenMode] = useState(false);
   const [defaultRevertChecked, setDefaultRevertChecked] = useState(false);
   const [snapshotState, setSnapshotState] = useState<ZapState | null>(null);
+  const [slippageOpen, setSlippageOpen] = useState(false);
 
   const { balances } = useTokenBalances(
     chainId,
@@ -466,6 +471,8 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
         highlightDegenMode,
         snapshotState,
         setSnapshotState,
+        slippageOpen,
+        setSlippageOpen,
       }}
     >
       {children}

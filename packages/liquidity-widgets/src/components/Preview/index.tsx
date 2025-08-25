@@ -10,7 +10,6 @@ import {
   AccordionTrigger,
   InfoHelper,
   MouseoverTooltip,
-  ScrollArea,
   TokenLogo,
 } from '@kyber/ui';
 import { fetchTokenPrice, getSwapPriceImpactFromActions, parseSwapActions, parseZapInfo } from '@kyber/utils';
@@ -90,7 +89,7 @@ export default function Preview({
   );
 
   const { address: account } = connectedAccount;
-  const { tokensIn, amountsIn } = useZapState();
+  const { tokensIn, amountsIn, setSlippage, setSlippageOpen } = useZapState();
   const { tokensIn: listValidTokensIn, amountsIn: listValidAmountsIn } = parseTokensAndAmounts(tokensIn, amountsIn);
 
   const [txHash, setTxHash] = useState('');
@@ -296,6 +295,7 @@ export default function Preview({
 
   const dexName =
     typeof DEXES_INFO[poolType].name === 'string' ? DEXES_INFO[poolType].name : DEXES_INFO[poolType].name[chainId];
+  const errorMessage = txError ? friendlyError(txError) || txError.message || JSON.stringify(txError) : '';
 
   const handleClick = async () => {
     setAttempTx(true);
@@ -348,6 +348,12 @@ export default function Preview({
         }
       })
       .finally(() => setAttempTx(false));
+  };
+
+  const handleSlippage = () => {
+    setSlippageOpen(true);
+    if (slippage !== suggestedSlippage) setSlippage(suggestedSlippage);
+    onDismiss();
   };
 
   if (attempTx || txHash) {
@@ -422,11 +428,21 @@ export default function Preview({
           <div className="max-w-[86%] font-medium my-3">Failed to add liquidity</div>
         </div>
 
-        <ScrollArea>
+        <div>
           <div className="text-subText break-all	text-center max-h-[200px]" style={{ wordBreak: 'break-word' }}>
-            {friendlyError(txError) || txError?.message || JSON.stringify(txError)}
+            {errorMessage}
           </div>
-        </ScrollArea>
+          <div className="flex gap-4 w-full mt-4">
+            <button className="ks-outline-btn flex-1" onClick={onDismiss}>
+              Close
+            </button>
+            {errorMessage.includes('slippage') && (
+              <button className="ks-primary-btn flex-1" onClick={handleSlippage}>
+                {slippage !== suggestedSlippage ? 'Use Suggested Slippage' : 'Set Custom Slippage'}
+              </button>
+            )}
+          </div>{' '}
+        </div>
       </div>
     );
   }

@@ -24,8 +24,8 @@ export const univ2RawPool = z.object({
     volume24h: z.number(),
     fees24h: z.number(),
     apr: z.number(),
-    kemLMApr: z.number(),
-    kemEGApr: z.number(),
+    kemLMApr: z.number().optional(),
+    kemEGApr: z.number().optional(),
   }),
   programs: z.array(z.enum(['eg', 'lm'])).optional(),
 });
@@ -47,5 +47,5 @@ export const univ2PoolNormalize = z.object({
     kemLMApr: z.number(),
     kemEGApr: z.number(),
   }),
-  isFarming: z.boolean(),
+  isFarming: z.boolean().optional(),
 });
