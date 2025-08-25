@@ -202,8 +202,8 @@ export const formatCurrency = (value: number) =>
     //maximumFractionDigits: 0, // (causes 2500.99 to be printed as $2,501)
   }).format(value);
 
-export const formatNumber = (value: number) =>
-  new Intl.NumberFormat('en-US', { maximumSignificantDigits: 6 }).format(value);
+export const formatNumber = (value: number, significantDigits = 6) =>
+  new Intl.NumberFormat('en-US', { maximumSignificantDigits: significantDigits }).format(value);
 
 export const formatWei = (value?: string, decimals?: number) => {
   if (value && decimals) return formatNumber(+formatUnits(value, decimals).toString());

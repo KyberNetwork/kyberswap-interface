@@ -202,12 +202,12 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
 
   const priceLower = useMemo(() => {
     if (initializing || tickLower == null) return null;
-    return formatNumber(+tickToPrice(tickLower, pool.token0.decimals, pool.token1.decimals, revertPrice));
+    return formatNumber(+tickToPrice(tickLower, pool.token0.decimals, pool.token1.decimals, revertPrice), 8);
   }, [pool, tickLower, revertPrice, initializing]);
 
   const priceUpper = useMemo(() => {
     if (initializing || tickUpper === null) return null;
-    return formatNumber(+tickToPrice(tickUpper, pool.token0.decimals, pool.token1.decimals, revertPrice));
+    return formatNumber(+tickToPrice(tickUpper, pool.token0.decimals, pool.token1.decimals, revertPrice), 8);
   }, [pool, tickUpper, revertPrice, initializing]);
 
   const error = useMemo(

@@ -9,7 +9,7 @@ import CopyIcon from '@/assets/icons/ic_copy.svg?react';
 import DownloadIcon from '@/assets/icons/ic_download.svg?react';
 import LinkIcon from '@/assets/icons/ic_link.svg?react';
 import { ShareType } from '@/components/ShareModal/types';
-import { Pool, getSharePath } from '@/components/ShareModal/utils';
+import { Pool, getSharePath, isSafari } from '@/components/ShareModal/utils';
 import Loading from '@/components/loading';
 
 interface ActionsProps {
@@ -204,16 +204,18 @@ export default function Actions({ type, pool, shareBannerRef }: ActionsProps) {
         {isCopied ? <SuccessIcon /> : <LinkIcon />}
         Copy URL
       </button>
-      <button
-        className={cn(
-          'flex items-center justify-center py-[6px] px-4 gap-1 rounded-[30px] bg-[#ffffff14] hover:brightness-120 outline-none text-subText transition-all duration-200',
-          isImageCopied && 'text-primary bg-primary-200',
-        )}
-        onClick={handleCopyImage}
-      >
-        {isImageCopied ? <SuccessIcon /> : isCopyingImage ? <Loading className="text-subText" /> : <CopyIcon />}
-        Copy Image
-      </button>
+      {!isSafari() && (
+        <button
+          className={cn(
+            'flex items-center justify-center py-[6px] px-4 gap-1 rounded-[30px] bg-[#ffffff14] hover:brightness-120 outline-none text-subText transition-all duration-200',
+            isImageCopied && 'text-primary bg-primary-200',
+          )}
+          onClick={handleCopyImage}
+        >
+          {isImageCopied ? <SuccessIcon /> : isCopyingImage ? <Loading className="text-subText" /> : <CopyIcon />}
+          Copy Image
+        </button>
+      )}
       <button
         className={cn(
           'flex items-center justify-center py-[6px] px-4 gap-1 rounded-[30px] text-subText bg-[#ffffff14] hover:brightness-120 outline-none transition-all duration-200',

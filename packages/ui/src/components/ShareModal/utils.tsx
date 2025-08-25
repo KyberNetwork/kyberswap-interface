@@ -204,3 +204,5 @@ export const renderStaggeredNumber = (numberString: string): JSX.Element => {
     </span>
   );
 };
+
+export const isSafari = () => /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
