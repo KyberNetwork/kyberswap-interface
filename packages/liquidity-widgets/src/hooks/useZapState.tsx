@@ -192,7 +192,8 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
       }
     }
 
-    if (pool.category === POOL_CATEGORY.STABLE_PAIR && isTokensStable) setSlippage(10);
+    if (pool.category === POOL_CATEGORY.STABLE_PAIR && isTokensStable)
+      setSlippage(DEFAULT_SLIPPAGE[POOL_CATEGORY.STABLE_PAIR]);
     else
       setSlippage(
         DEFAULT_SLIPPAGE[pool.category || POOL_CATEGORY.EXOTIC_PAIR] || DEFAULT_SLIPPAGE[POOL_CATEGORY.EXOTIC_PAIR],
