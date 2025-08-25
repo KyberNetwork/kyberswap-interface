@@ -23,10 +23,9 @@ export default function PoolStat() {
       position: s.position,
     })),
   );
-  const { pool, poolStat } = usePoolStore(
+  const { pool } = usePoolStore(
     useShallow(s => ({
       pool: s.pool,
-      poolStat: s.poolStat,
     })),
   );
 
@@ -39,8 +38,9 @@ export default function PoolStat() {
       ? null
       : Number((BigInt(position.liquidity) * 10000n) / BigInt(position.totalSupply)) / 100;
 
+  const poolStat = initializing ? null : pool?.stats;
   const poolApr = (poolStat?.apr || 0) + (poolStat?.kemEGApr || 0) + (poolStat?.kemLMApr || 0);
-  const isFarming = poolStat?.isFarming || false;
+  const isFarming = initializing ? false : pool?.isFarming || false;
 
   return (
     <div

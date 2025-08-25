@@ -38,7 +38,7 @@ export const parseZapInfo = ({
         addedAmount1Usd: 0,
       },
       initUsd: 0,
-      suggestedSlippage: 100,
+      suggestedSlippage: 0,
       isHighRemainingAmount: false,
       feeInfo: {
         protocolFee: 0,

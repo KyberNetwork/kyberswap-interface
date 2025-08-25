@@ -46,9 +46,8 @@ const LiquidityWidget = (widgetProps: WidgetProps) => {
   const {
     pool,
     getPool,
-    getPoolStat,
     reset: resetPoolStore,
-  } = usePoolStore(useShallow(s => ({ pool: s.pool, getPool: s.getPool, getPoolStat: s.getPoolStat, reset: s.reset })));
+  } = usePoolStore(useShallow(s => ({ pool: s.pool, getPool: s.getPool, reset: s.reset })));
 
   const { getPosition, reset: resetPositionStore } = usePositionStore(
     useShallow(s => ({ getPosition: s.getPosition, reset: s.reset })),
@@ -73,10 +72,6 @@ const LiquidityWidget = (widgetProps: WidgetProps) => {
   useEffect(() => {
     getPool({ poolAddress, chainId, poolType });
   }, [chainId, getPool, poolAddress, poolType]);
-
-  useEffect(() => {
-    getPoolStat({ poolAddress, chainId });
-  }, [chainId, getPoolStat, poolAddress]);
 
   useEffect(() => {
     if (firstFetch || pool === 'loading' || !pool) return;

@@ -10,7 +10,6 @@ import {
   AccordionTrigger,
   InfoHelper,
   MouseoverTooltip,
-  ScrollArea,
   TokenLogo,
 } from '@kyber/ui';
 import { fetchTokenPrice, getSwapPriceImpactFromActions, parseSwapActions, parseZapInfo } from '@kyber/utils';
@@ -34,6 +33,7 @@ import SuccessIcon from '@/assets/svg/success.svg';
 import SwitchIcon from '@/assets/svg/switch.svg';
 import X from '@/assets/svg/x.svg';
 import { SlippageWarning } from '@/components/SlippageWarning';
+import { getSlippageStorageKey } from '@/constants';
 import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
@@ -89,7 +89,7 @@ export default function Preview({
   );
 
   const { address: account } = connectedAccount;
-  const { tokensIn, amountsIn } = useZapState();
+  const { tokensIn, amountsIn, setSlippage, setSlippageOpen } = useZapState();
   const { tokensIn: listValidTokensIn, amountsIn: listValidAmountsIn } = parseTokensAndAmounts(tokensIn, amountsIn);
 
   const [txHash, setTxHash] = useState('');
@@ -103,6 +103,8 @@ export default function Preview({
   const isOutOfRange = isUniV3 ? tickLower > univ3Pool.tick || univ3Pool.tick >= tickUpper : false;
 
   const { icon: dexLogo } = DEXES_INFO[poolType as PoolType];
+
+  const suggestedSlippage = zapInfo?.zapDetails.suggestedSlippage || 0;
 
   useEffect(() => {
     if (txHash) {
@@ -293,11 +295,22 @@ export default function Preview({
 
   const dexName =
     typeof DEXES_INFO[poolType].name === 'string' ? DEXES_INFO[poolType].name : DEXES_INFO[poolType].name[chainId];
+  const errorMessage = txError ? friendlyError(txError) || txError.message || JSON.stringify(txError) : '';
 
   const handleClick = async () => {
     setAttempTx(true);
     setTxHash('');
     setTxError(null);
+
+    if (suggestedSlippage > 0 && slippage !== suggestedSlippage) {
+      try {
+        const storageKey = getSlippageStorageKey(pool.token0.symbol, pool.token1.symbol);
+        localStorage.setItem(storageKey, slippage.toString());
+      } catch (error) {
+        // Silently handle localStorage errors
+        console.warn('Failed to save slippage to localStorage:', error);
+      }
+    }
 
     fetch(`${API_URLS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/in/route/build`, {
       method: 'POST',
@@ -335,6 +348,12 @@ export default function Preview({
         }
       })
       .finally(() => setAttempTx(false));
+  };
+
+  const handleSlippage = () => {
+    setSlippageOpen(true);
+    if (slippage !== suggestedSlippage) setSlippage(suggestedSlippage);
+    onDismiss();
   };
 
   if (attempTx || txHash) {
@@ -409,11 +428,21 @@ export default function Preview({
           <div className="max-w-[86%] font-medium my-3">Failed to add liquidity</div>
         </div>
 
-        <ScrollArea>
+        <div>
           <div className="text-subText break-all	text-center max-h-[200px]" style={{ wordBreak: 'break-word' }}>
-            {friendlyError(txError) || txError?.message || JSON.stringify(txError)}
+            {errorMessage}
           </div>
-        </ScrollArea>
+          <div className="flex gap-4 w-full mt-4">
+            <button className="ks-outline-btn flex-1" onClick={onDismiss}>
+              Close
+            </button>
+            {errorMessage.includes('slippage') && (
+              <button className="ks-primary-btn flex-1" onClick={handleSlippage}>
+                {slippage !== suggestedSlippage ? 'Use Suggested Slippage' : 'Set Custom Slippage'}
+              </button>
+            )}
+          </div>{' '}
+        </div>
       </div>
     );
   }
@@ -799,7 +828,7 @@ export default function Preview({
             zapImpact.level === PI_LEVEL.INVALID ||
             swapPriceImpact.piRes.level === PI_LEVEL.VERY_HIGH ||
             swapPriceImpact.piRes.level === PI_LEVEL.INVALID
-              ? 'bg-error border-error'
+              ? 'bg-error border-error text-white'
               : zapImpact.level === PI_LEVEL.HIGH || swapPriceImpact.piRes.level === PI_LEVEL.HIGH
                 ? 'bg-warning border-warning'
                 : ''

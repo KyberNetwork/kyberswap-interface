@@ -36,12 +36,7 @@ const Header = ({ refetchData }: { refetchData: () => void }) => {
       positionId: s.positionId,
     })),
   );
-  const { pool, poolStat } = usePoolStore(
-    useShallow(s => ({
-      pool: s.pool,
-      poolStat: s.poolStat,
-    })),
-  );
+  const pool = usePoolStore(s => s.pool);
   const { position } = usePositionStore(
     useShallow(s => ({
       position: s.position,
@@ -103,7 +98,7 @@ const Header = ({ refetchData }: { refetchData: () => void }) => {
     <>
       {openShare && !initializing && (
         <ShareModal
-          isFarming={poolStat?.isFarming}
+          isFarming={pool?.isFarming}
           onClose={() => setOpenShare(false)}
           type={ShareType.POOL_INFO}
           pool={{
@@ -123,9 +118,9 @@ const Header = ({ refetchData }: { refetchData: () => void }) => {
               logo: token1.logo || '',
             },
             apr: {
-              fees: poolStat?.apr || 0,
-              eg: poolStat?.kemEGApr || 0,
-              lm: poolStat?.kemLMApr || 0,
+              fees: pool?.stats?.apr || 0,
+              eg: pool?.stats?.kemEGApr || 0,
+              lm: pool?.stats?.kemLMApr || 0,
             },
           }}
         />
