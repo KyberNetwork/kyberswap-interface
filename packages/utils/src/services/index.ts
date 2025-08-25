@@ -1,4 +1,4 @@
-import { API_URLS, FARMING_PROGRAM, Token } from '@kyber/schema';
+import { API_URLS, Token } from '@kyber/schema';
 
 export const fetchTokenInfo = async (address: string, chainId: number) => {
   try {
@@ -53,36 +53,4 @@ export const fetchTokenPrice = async ({ addresses, chainId }: { addresses: strin
   }).then(res => res.json() as Promise<PriceResponse>);
 
   return priceResponse?.data?.[chainId] || {};
-};
-
-interface PoolStatResponse {
-  data: {
-    poolStats: PoolStatInfo;
-    programs?: Array<FARMING_PROGRAM>;
-  };
-}
-
-export interface PoolStatInfo {
-  tvl: number;
-  volume24h: number;
-  fees24h: number;
-  apr: number;
-  kemLMApr: number;
-  kemEGApr: number;
-}
-
-export const fetchPoolStat = async ({ chainId, poolAddress }: { chainId: number; poolAddress: string }) => {
-  const poolStatResponse: PoolStatResponse = (await fetch(
-    `${API_URLS.ZAP_EARN_API}/v1/pools?chainId=${chainId}&address=${poolAddress}`,
-  ).then(res => res.json())) as PoolStatResponse;
-
-  const poolStat = poolStatResponse?.data?.poolStats;
-  if (!poolStat) return null;
-
-  const programs = poolStatResponse?.data?.programs || [];
-
-  return {
-    ...poolStat,
-    isFarming: programs.includes(FARMING_PROGRAM.EG) || programs.includes(FARMING_PROGRAM.LM),
-  };
 };

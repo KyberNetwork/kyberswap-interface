@@ -71,12 +71,11 @@ export default function Widget() {
     })),
   );
   const { position } = usePositionStore(useShallow(s => ({ position: s.position })));
-  const { pool, poolError, getPool, getPoolStat, poolPrice, revertPrice } = usePoolStore(
+  const { pool, poolError, getPool, poolPrice, revertPrice } = usePoolStore(
     useShallow(s => ({
       pool: s.pool,
       poolError: s.poolError,
       getPool: s.getPool,
-      getPoolStat: s.getPoolStat,
       poolPrice: s.poolPrice,
       revertPrice: s.revertPrice,
     })),
@@ -178,8 +177,7 @@ export default function Widget() {
 
   const refetchData = useCallback(() => {
     getPool({ poolAddress, chainId, poolType });
-    getPoolStat({ poolAddress, chainId });
-  }, [getPool, poolAddress, chainId, poolType, getPoolStat]);
+  }, [getPool, poolAddress, chainId, poolType]);
 
   const handleOpenZapMigration = useCallback(
     (position: { exchange: string; poolId: string; positionId: string | number }) =>

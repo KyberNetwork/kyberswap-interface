@@ -4,7 +4,7 @@ import { POOL_CATEGORY } from '@/constants';
 import { PoolType, univ2Types } from '@/schema/dex';
 import { token } from '@/schema/token';
 
-export const univ2Pool = z.object({
+export const univ2RawPool = z.object({
   address: z.string(),
   reserveUsd: z.string(),
   amplifiedTvl: z.string(),
@@ -19,15 +19,18 @@ export const univ2Pool = z.object({
       swappable: z.boolean(),
     }),
   ),
-});
-
-export const univ2PoolResponse = z.object({
-  poolType: z.nativeEnum(PoolType).refine((val): val is Univ2PoolType => univ2Types.includes(val as Univ2PoolType)),
-  data: univ2Pool,
+  poolStats: z.object({
+    tvl: z.number(),
+    volume24h: z.number(),
+    fees24h: z.number(),
+    apr: z.number(),
+    kemLMApr: z.number(),
+    kemEGApr: z.number(),
+  }),
+  programs: z.array(z.enum(['eg', 'lm'])).optional(),
 });
 
 type Univ2PoolType = (typeof univ2Types)[number];
-
 export const univ2PoolNormalize = z.object({
   poolType: z.nativeEnum(PoolType).refine((val): val is Univ2PoolType => univ2Types.includes(val as Univ2PoolType)),
   address: z.string(),
@@ -36,6 +39,13 @@ export const univ2PoolNormalize = z.object({
   fee: z.number(),
   reserves: z.tuple([z.string(), z.string()]),
   category: z.nativeEnum(POOL_CATEGORY),
+  stats: z.object({
+    tvl: z.number(),
+    volume24h: z.number(),
+    fees24h: z.number(),
+    apr: z.number(),
+    kemLMApr: z.number(),
+    kemEGApr: z.number(),
+  }),
+  isFarming: z.boolean(),
 });
-
-export type UniV2Pool = z.infer<typeof univ2PoolNormalize>;
