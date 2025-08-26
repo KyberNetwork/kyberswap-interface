@@ -206,7 +206,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
 
     if (pool.category === POOL_CATEGORY.STABLE_PAIR && isTokensStable) setSlippage(1);
     else if (pool.category === POOL_CATEGORY.CORRELATED_PAIR && isTokensInPair) setSlippage(5);
-    else setSlippage(50);
+    else setSlippage(10);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pool]);
 

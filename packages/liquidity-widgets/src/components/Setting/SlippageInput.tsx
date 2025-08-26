@@ -1,11 +1,13 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { MouseoverTooltip } from '@kyber/ui';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
 import AlertIcon from '@/assets/svg/alert.svg';
 import { parseSlippageInput, validateSlippageInput } from '@/components/Setting/utils';
+import { getSlippageStorageKey } from '@/constants';
 import { useZapState } from '@/hooks/useZapState';
+import { usePoolStore } from '@/stores/usePoolStore';
 
 const SlippageInput = ({
   className,
@@ -17,6 +19,7 @@ const SlippageInput = ({
   suggestionClassName?: string;
 }) => {
   const { slippage, setSlippage, zapInfo } = useZapState();
+  const pool = usePoolStore(s => s.pool);
   const [v, setV] = useState(() => {
     if (!slippage) return '';
     if ([5, 10, 50, 100].includes(slippage)) return '';
@@ -67,6 +70,19 @@ const SlippageInput = ({
     }
     setV(value);
   };
+
+  useEffect(() => {
+    if (pool !== 'loading' && slippage && suggestedSlippage > 0 && slippage !== suggestedSlippage) {
+      try {
+        const storageKey = getSlippageStorageKey(pool.token0.symbol, pool.token1.symbol);
+        localStorage.setItem(storageKey, slippage.toString());
+      } catch (error) {
+        // Silently handle localStorage errors
+        console.warn('Failed to save slippage to localStorage:', error);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slippage, suggestedSlippage]);
 
   return (
     <>
@@ -120,8 +136,8 @@ const SlippageInput = ({
           onClick={() => {
             if (suggestedSlippage > 0) {
               setSlippage(suggestedSlippage);
-              if (![5, 10, 50, 100].includes(suggestedSlippage)) {
-                setV(suggestedSlippage.toString());
+              if (![5, 10, 50, 100].includes((suggestedSlippage * 100) / 10_000)) {
+                setV(((suggestedSlippage * 100) / 10_000).toString());
               }
             }
           }}
