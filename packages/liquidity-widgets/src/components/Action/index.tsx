@@ -64,11 +64,11 @@ export default function Action({
     tickLower,
     tickUpper,
     slippage,
-    degenMode,
     tokensIn,
     amountsIn,
     toggleSetting,
     setSnapshotState,
+    uiState,
   } = useZapState();
 
   const initializing = pool === 'loading';
@@ -195,7 +195,7 @@ export default function Action({
       zapInfo &&
       (isUniV3Pool ? tickLower !== null && tickUpper !== null && priceLower && priceUpper : true)
     ) {
-      if ((isVeryHighPriceImpact || isVeryHighZapImpact || isInvalidZapImpact) && !degenMode) {
+      if ((isVeryHighPriceImpact || isVeryHighZapImpact || isInvalidZapImpact) && !uiState.degenMode) {
         toggleSetting(true);
         document.getElementById('zapin-setting')?.scrollIntoView({ behavior: 'smooth' });
 
@@ -250,7 +250,7 @@ export default function Action({
               width="300px"
               color="#ffffff"
               text={
-                degenMode
+                uiState.degenMode
                   ? 'You have turned on Degen Mode from settings. Trades with very high price impact can be executed'
                   : 'To ensure you dont lose funds due to very high price impact, swap has been disabled for this trade. If you still wish to continue, you can turn on Degen Mode from Settings.'
               }

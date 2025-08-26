@@ -11,7 +11,7 @@ const MAX_SLIPPAGE_LABEL_TEXT =
   'Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price. Please use with caution!';
 
 export default function SlippageRow({ suggestedSlippage }: { suggestedSlippage: number }) {
-  const { slippage, slippageOpen, setSlippageOpen } = useZapState();
+  const { slippage, uiState, setUiState } = useZapState();
 
   const isHighSlippage = suggestedSlippage > 0 ? slippage && slippage > 2 * suggestedSlippage : false;
   const isLowSlippage = suggestedSlippage > 0 ? slippage && slippage < suggestedSlippage / 2 : false;
@@ -21,14 +21,14 @@ export default function SlippageRow({ suggestedSlippage }: { suggestedSlippage: 
 
   useEffect(() => {
     if (previousSuggestedSlippage !== suggestedSlippage && slippage !== suggestedSlippage && suggestedSlippage > 0) {
-      setSlippageOpen(true);
+      setUiState(prev => ({ ...prev, slippageOpen: true }));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [suggestedSlippage]);
 
   return (
     <div className="flex justify-between items-start mt-3 text-xs">
-      <Accordion type="single" collapsible className="w-full" value={slippageOpen ? 'item-1' : undefined}>
+      <Accordion type="single" collapsible className="w-full" value={uiState.slippageOpen ? 'item-1' : undefined}>
         <AccordionItem value="item-1">
           <AccordionTrigger iconClassName={isSlippageWarning ? 'text-warning' : ''}>
             <div className="flex items-center justify-between w-full">

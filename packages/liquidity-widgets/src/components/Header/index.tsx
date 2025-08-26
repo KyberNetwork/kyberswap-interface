@@ -44,7 +44,7 @@ const Header = ({ refetchData }: { refetchData: () => void }) => {
   );
   const [openShare, setOpenShare] = useState(false);
 
-  const { toggleSetting, degenMode } = useZapState();
+  const { toggleSetting, uiState } = useZapState();
 
   const initializing = pool === 'loading' || !pool || position === 'loading';
   const poolAddress = initializing ? '' : pool.address;
@@ -224,11 +224,11 @@ const Header = ({ refetchData }: { refetchData: () => void }) => {
 
         <MouseoverTooltip
           className="top-16 right-5 sm:right-6 max-sm:absolute"
-          text={degenMode ? 'Degen Mode is turned on!' : ''}
+          text={uiState.degenMode ? 'Degen Mode is turned on!' : ''}
         >
           <div
             className={`setting w-9 h-9 flex items-center justify-center rounded-full cursor-pointer bg-layer2 hover:brightness-125 active:scale-95 ${
-              degenMode ? 'text-warning' : ''
+              uiState.degenMode ? 'text-warning' : ''
             }`}
             role="button"
             id="zapin-setting"

@@ -88,7 +88,7 @@ export default function Preview({
   );
 
   const { address: account } = connectedAccount;
-  const { tokensIn, amountsIn, setSlippage, setSlippageOpen } = useZapState();
+  const { tokensIn, amountsIn, setSlippage, setUiState } = useZapState();
   const { tokensIn: listValidTokensIn, amountsIn: listValidAmountsIn } = parseTokensAndAmounts(tokensIn, amountsIn);
 
   const [txHash, setTxHash] = useState('');
@@ -340,7 +340,7 @@ export default function Preview({
   };
 
   const handleSlippage = () => {
-    setSlippageOpen(true);
+    setUiState(prev => ({ ...prev, slippageOpen: true }));
     if (slippage !== suggestedSlippage) setSlippage(suggestedSlippage);
     onDismiss();
   };
