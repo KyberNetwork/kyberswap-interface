@@ -4,7 +4,7 @@ import { useShallow } from 'zustand/shallow';
 
 import { univ3PoolNormalize } from '@kyber/schema';
 import { toString } from '@kyber/utils/number';
-import { nearestUsableTick, priceToClosestTick, sqrtToPrice } from '@kyber/utils/uniswapv3';
+import { nearestUsableTick, priceToClosestTick } from '@kyber/utils/uniswapv3';
 
 import { Bound, LiquidityChartRangeInput } from '@kyberswap/liquidity-chart';
 import '@kyberswap/liquidity-chart/style.css';
@@ -15,8 +15,12 @@ import { useWidgetStore } from '@/stores/useWidgetStore';
 
 export default function LiquidityChart() {
   const { positionId } = useWidgetStore(useShallow(s => ({ positionId: s.positionId })));
-  const { pool: rawPool, revertPrice } = usePoolStore(useShallow(s => ({ pool: s.pool, revertPrice: s.revertPrice })));
-  const { tickLower, tickUpper, setTickLower, setTickUpper, priceLower, priceUpper } = useZapState();
+  const {
+    pool: rawPool,
+    poolPrice,
+    revertPrice,
+  } = usePoolStore(useShallow(s => ({ pool: s.pool, poolPrice: s.poolPrice, revertPrice: s.revertPrice })));
+  const { tickLower, tickUpper, setTickLower, setTickUpper, minPrice, maxPrice } = useZapState();
 
   const pool = useMemo(() => {
     if (rawPool === 'loading') return rawPool;
@@ -32,11 +36,6 @@ export default function LiquidityChart() {
   const liquidity = pool === 'loading' ? '0' : pool.liquidity;
   const token0 = pool === 'loading' ? undefined : pool.token0;
   const token1 = pool === 'loading' ? undefined : pool.token1;
-
-  const price =
-    pool === 'loading' || !token0 || !token1
-      ? undefined
-      : +sqrtToPrice(BigInt(pool.sqrtPriceX96 || 0), token0.decimals, token1.decimals, revertPrice);
 
   const ticksAtLimit = useMemo(
     () => ({
@@ -65,6 +64,7 @@ export default function LiquidityChart() {
     (value: string) => {
       if (!token0 || !token1 || positionId || !tickSpacing) return;
       const tickFromPrice = priceToClosestTick(value, token0.decimals, token1.decimals, revertPrice);
+
       if (!tickFromPrice) return;
       const tick = nearestUsableTick(Number(tickFromPrice), tickSpacing);
       if (tick) revertPrice ? setTickUpper(tick) : setTickLower(tick);
@@ -76,6 +76,7 @@ export default function LiquidityChart() {
     (value: string) => {
       if (!token0 || !token1 || positionId || !tickSpacing) return;
       const tickFromPrice = priceToClosestTick(value, token0.decimals, token1.decimals, revertPrice);
+
       if (!tickFromPrice) return;
       const tick = nearestUsableTick(Number(tickFromPrice), tickSpacing);
       if (tick) revertPrice ? setTickLower(tick) : setTickUpper(tick);
@@ -85,9 +86,9 @@ export default function LiquidityChart() {
 
   const onBrushDomainChange = useCallback(
     (domain: [number, number], mode: string | undefined) => {
-      if (!priceLower || !priceUpper) return;
-      const leftPrice = parseFloat(!revertPrice ? priceLower : priceUpper.toString().replace(/,/g, ''));
-      const rightPrice = parseFloat(!revertPrice ? priceUpper : priceLower.toString().replace(/,/g, ''));
+      if (!minPrice || !maxPrice) return;
+      const leftPrice = parseFloat(!revertPrice ? minPrice : maxPrice.toString().replace(/,/g, ''));
+      const rightPrice = parseFloat(!revertPrice ? maxPrice : minPrice.toString().replace(/,/g, ''));
 
       let leftRangeValue = Number(domain[0]);
       const rightRangeValue = Number(domain[1]);
@@ -119,7 +120,7 @@ export default function LiquidityChart() {
         onRightRangeInput(rightRangeValue.toFixed(18));
       }
     },
-    [priceLower, priceUpper, revertPrice, ticksAtLimit, onBothRangeInput, onLeftRangeInput, onRightRangeInput],
+    [minPrice, maxPrice, revertPrice, ticksAtLimit, onBothRangeInput, onLeftRangeInput, onRightRangeInput],
   );
 
   return (
@@ -136,9 +137,9 @@ export default function LiquidityChart() {
           token1,
         }}
         price={{
-          current: price,
-          lower: revertPrice ? priceUpper : priceLower,
-          upper: revertPrice ? priceLower : priceUpper,
+          current: poolPrice ?? undefined,
+          lower: minPrice,
+          upper: maxPrice,
         }}
         ticksAtLimit={ticksAtLimit}
         revertPrice={revertPrice}

@@ -34,6 +34,7 @@ import LiquidityChartSkeleton from '@/components/LiquidityChart/LiquidityChartSk
 import Modal from '@/components/Modal';
 import { PositionFee } from '@/components/PositionFee';
 import PositionLiquidity from '@/components/PositionLiquidity';
+import PositionPriceRange from '@/components/PositionPriceRange';
 import Preview from '@/components/Preview';
 import PriceRange from '@/components/PriceRange';
 import Setting from '@/components/Setting';
@@ -288,12 +289,12 @@ export default function Widget() {
             <PoolStat />
             <PriceInfo />
             {!positionId && isUniV3 && (initializing ? <LiquidityChartSkeleton /> : <LiquidityChart />)}
-            <PriceRange />
+            {positionId ? <PositionPriceRange /> : <PriceRange />}
             {!positionId ? (
               isUniV3 && (
                 <div className="flex gap-4 w-full">
-                  <PriceInput type={PriceType.PriceLower} />
-                  <PriceInput type={PriceType.PriceUpper} />
+                  <PriceInput type={PriceType.MinPrice} />
+                  <PriceInput type={PriceType.MaxPrice} />
                 </div>
               )
             ) : (

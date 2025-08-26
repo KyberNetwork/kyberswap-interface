@@ -1,4 +1,4 @@
-import { ChainId, NATIVE_TOKEN_ADDRESS, Token } from '@kyber/schema';
+import { ChainId, NATIVE_TOKEN_ADDRESS, Pool, Token, univ3PoolNormalize } from '@kyber/schema';
 import { formatUnits } from '@kyber/utils/number';
 
 import { ERROR_MESSAGE } from '@/constants';
@@ -92,5 +92,52 @@ export const parseTokensAndAmounts = (tokensIn: Token[], amountsIn: string) => {
     tokensIn: listValidTokensIn,
     amountsIn: listValidAmountsIn,
     tokenAddresses: (listValidTokensIn || []).map(token => token.address).join(','),
+  };
+};
+
+export const getPriceRangeToShow = ({
+  pool,
+  revertPrice,
+  tickLower,
+  tickUpper,
+  minPrice,
+  maxPrice,
+}: {
+  pool: Pool | 'loading';
+  revertPrice: boolean;
+  tickLower: number | null;
+  tickUpper: number | null;
+  minPrice: string | null;
+  maxPrice: string | null;
+}) => {
+  if (pool === 'loading') return;
+
+  const { success: isUniV3, data: uniV3Pool } = univ3PoolNormalize.safeParse(pool);
+
+  if (!isUniV3)
+    return {
+      minPrice: '0',
+      maxPrice: '∞',
+    };
+
+  const isMinTick = uniV3Pool.minTick === tickLower;
+  const isMaxTick = uniV3Pool.maxTick === tickUpper;
+
+  let minPriceToShow = minPrice;
+  let maxPriceToShow = maxPrice;
+
+  if (isMinTick) {
+    if (!revertPrice) minPriceToShow = '0';
+    else maxPriceToShow = '∞';
+  }
+
+  if (isMaxTick) {
+    if (!revertPrice) maxPriceToShow = '∞';
+    else minPriceToShow = '0';
+  }
+
+  return {
+    minPrice: minPriceToShow,
+    maxPrice: maxPriceToShow,
   };
 };

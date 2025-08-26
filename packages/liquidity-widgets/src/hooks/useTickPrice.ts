@@ -24,15 +24,21 @@ export default function useTickPrice({
   const debounceTickLower = useDebounce(tickLower, 300);
   const debounceTickUpper = useDebounce(tickUpper, 300);
 
-  const priceLower = useMemo(() => {
-    if (!token0 || !token1 || tickLower == null) return null;
-    return formatNumber(+tickToPrice(tickLower, token0.decimals, token1.decimals, revertPrice), 8);
-  }, [token0, token1, tickLower, revertPrice]);
+  const minPrice = useMemo(() => {
+    if (!token0 || !token1 || !tickLower || !tickUpper) return null;
+    return formatNumber(
+      +tickToPrice(!revertPrice ? tickLower : tickUpper, token0.decimals, token1.decimals, revertPrice),
+      8,
+    );
+  }, [token0, token1, tickLower, tickUpper, revertPrice]);
 
-  const priceUpper = useMemo(() => {
-    if (!token0 || !token1 || tickUpper === null) return null;
-    return formatNumber(+tickToPrice(tickUpper, token0.decimals, token1.decimals, revertPrice), 8);
-  }, [token0, token1, tickUpper, revertPrice]);
+  const maxPrice = useMemo(() => {
+    if (!token0 || !token1 || !tickUpper || !tickLower) return null;
+    return formatNumber(
+      +tickToPrice(!revertPrice ? tickUpper : tickLower, token0.decimals, token1.decimals, revertPrice),
+      8,
+    );
+  }, [token0, token1, tickUpper, tickLower, revertPrice]);
 
   // set tick if position exists
   useEffect(() => {
@@ -60,7 +66,7 @@ export default function useTickPrice({
     setTickUpper,
     debounceTickLower,
     debounceTickUpper,
-    priceLower,
-    priceUpper,
+    minPrice,
+    maxPrice,
   };
 }

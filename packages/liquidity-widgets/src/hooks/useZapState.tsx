@@ -33,8 +33,8 @@ const defaultUiState = {
 const defaultZapState = {
   tickLower: null,
   tickUpper: null,
-  priceLower: null,
-  priceUpper: null,
+  minPrice: null,
+  maxPrice: null,
   tokensIn: [],
   amountsIn: '',
   error: '',
@@ -66,8 +66,8 @@ const ZapContext = createContext<{
   zapInfo: ZapRouteDetail | null;
   loading: boolean;
   slippage?: number;
-  priceLower: string | null;
-  priceUpper: string | null;
+  minPrice: string | null;
+  maxPrice: string | null;
   ttl: number;
   tokenBalances: {
     [key: string]: bigint;
@@ -160,22 +160,14 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
     account,
   );
 
-  const {
-    tickLower,
-    tickUpper,
-    setTickLower,
-    setTickUpper,
-    debounceTickLower,
-    debounceTickUpper,
-    priceLower,
-    priceUpper,
-  } = useTickPrice({
-    token0,
-    token1,
-    revertPrice,
-    position,
-    initialTick,
-  });
+  const { tickLower, tickUpper, setTickLower, setTickUpper, debounceTickLower, debounceTickUpper, minPrice, maxPrice } =
+    useTickPrice({
+      token0,
+      token1,
+      revertPrice,
+      position,
+      initialTick,
+    });
   const { slippage, setSlippage } = useSlippageManager({ pool, tokensIn, chainId });
   const { prices: tokenPrices } = useTokenPrices({
     addresses: tokensIn.map(token => token.address.toLowerCase()),
@@ -353,8 +345,8 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
         error,
         zapInfo,
         loading,
-        priceLower,
-        priceUpper,
+        minPrice,
+        maxPrice,
         slippage,
         setSlippage,
         ttl,

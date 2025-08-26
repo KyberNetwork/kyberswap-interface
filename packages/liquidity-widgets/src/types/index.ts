@@ -68,8 +68,8 @@ export interface OnSuccessProps {
 }
 
 export enum PriceType {
-  PriceLower = 'PriceLower',
-  PriceUpper = 'PriceUpper',
+  MinPrice = 'MinPrice',
+  MaxPrice = 'MaxPrice',
 }
 
 export interface ZapState {

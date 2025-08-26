@@ -22,9 +22,8 @@ import {
   getCurrentGasPrice,
   isTransactionSuccessful,
 } from '@kyber/utils/crypto';
-import { formatCurrency, formatDisplayNumber, formatNumber } from '@kyber/utils/number';
+import { formatCurrency, formatDisplayNumber } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
-import { tickToPrice } from '@kyber/utils/uniswapv3';
 
 import ErrorIcon from '@/assets/svg/error.svg';
 import Info from '@/assets/svg/info.svg';
@@ -38,7 +37,7 @@ import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 import { ZapState } from '@/types/index';
-import { parseTokensAndAmounts } from '@/utils';
+import { getPriceRangeToShow, parseTokensAndAmounts } from '@/utils';
 
 export interface PreviewProps {
   zapState: ZapState;
@@ -88,7 +87,7 @@ export default function Preview({
   );
 
   const { address: account } = connectedAccount;
-  const { tokensIn, amountsIn, setSlippage, setUiState } = useZapState();
+  const { tokensIn, amountsIn, setSlippage, setUiState, minPrice, maxPrice } = useZapState();
   const { tokensIn: listValidTokensIn, amountsIn: listValidAmountsIn } = parseTokensAndAmounts(tokensIn, amountsIn);
 
   const [txHash, setTxHash] = useState('');
@@ -131,41 +130,14 @@ export default function Preview({
     position,
   });
 
-  const priceRange = useMemo(() => {
-    if (!univ3Pool) return null;
-    const maxPrice =
-      tickUpper === univ3Pool.maxTick
-        ? revertPrice
-          ? '0'
-          : '∞'
-        : formatNumber(
-            parseFloat(
-              tickToPrice(
-                !revertPrice ? tickUpper : tickLower,
-                pool.token0?.decimals,
-                pool.token1?.decimals,
-                revertPrice,
-              ),
-            ),
-          );
-    const minPrice =
-      tickLower === univ3Pool.minTick
-        ? revertPrice
-          ? '∞'
-          : '0'
-        : formatNumber(
-            parseFloat(
-              tickToPrice(
-                !revertPrice ? tickLower : tickUpper,
-                pool.token0?.decimals,
-                pool.token1?.decimals,
-                revertPrice,
-              ),
-            ),
-          );
-
-    return [minPrice, maxPrice];
-  }, [univ3Pool, tickUpper, revertPrice, pool.token0?.decimals, pool.token1?.decimals, tickLower]);
+  const priceRange = getPriceRangeToShow({
+    pool,
+    revertPrice,
+    tickLower,
+    tickUpper,
+    minPrice,
+    maxPrice,
+  });
 
   const quote = (
     <span>
@@ -529,20 +501,20 @@ export default function Preview({
                 <div className="ks-lw-card flex flex-col gap-[6px] items-center flex-1 w-1/2">
                   <div className="ks-lw-card-title">Min Price</div>
                   <div
-                    title={priceRange[0]}
+                    title={priceRange?.minPrice?.toString()}
                     className="overflow-hidden text-ellipsis whitespace-nowrap w-full text-center"
                   >
-                    {priceRange[0]}
+                    {priceRange?.minPrice}
                   </div>
                   <div className="ks-lw-card-title">{quote}</div>
                 </div>
                 <div className="ks-lw-card flex flex-col gap-[6px] items-center flex-1 w-1/2">
                   <div className="ks-lw-card-title">Max Price</div>
                   <div
-                    title={priceRange[1]}
+                    title={priceRange?.maxPrice?.toString()}
                     className="text-center w-full overflow-hidden text-ellipsis whitespace-nowrap"
                   >
-                    {priceRange[1]}
+                    {priceRange?.maxPrice}
                   </div>
                   <div className="ks-lw-card-title">{quote}</div>
                 </div>

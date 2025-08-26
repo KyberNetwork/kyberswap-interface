@@ -57,8 +57,6 @@ export default function Action({
   const {
     zapInfo,
     error,
-    priceLower,
-    priceUpper,
     ttl,
     loading: zapLoading,
     tickLower,
@@ -193,7 +191,7 @@ export default function Action({
       amountsIn &&
       tokensIn.every(Boolean) &&
       zapInfo &&
-      (isUniV3Pool ? tickLower !== null && tickUpper !== null && priceLower && priceUpper : true)
+      (isUniV3Pool ? tickLower !== null && tickUpper !== null : true)
     ) {
       if ((isVeryHighPriceImpact || isVeryHighZapImpact || isInvalidZapImpact) && !uiState.degenMode) {
         toggleSetting(true);
