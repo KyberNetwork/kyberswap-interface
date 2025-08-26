@@ -186,7 +186,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
     // First, try to load from localStorage
     if (pool.token0?.symbol && pool.token1?.symbol) {
       try {
-        const storageKey = getSlippageStorageKey(pool.token0.symbol, pool.token1.symbol);
+        const storageKey = getSlippageStorageKey(pool.token0.symbol, pool.token1.symbol, chainId);
         const savedSlippage = localStorage.getItem(storageKey);
         if (savedSlippage) {
           const parsedSlippage = parseInt(savedSlippage, 10);
