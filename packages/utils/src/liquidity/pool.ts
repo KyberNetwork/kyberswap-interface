@@ -17,7 +17,7 @@ import {
 
 import { divideBigIntToString } from '../number';
 import { fetchTokenPrice } from '../services';
-import { MAX_TICK, MIN_TICK, nearestUsableTick, tickToPrice } from '../uniswapv3';
+import { MAX_TICK, MIN_TICK, nearestUsableTick, sqrtToPrice } from '../uniswapv3';
 
 export enum POOL_ERROR {
   CANT_GET_POOL_INFO = "Can't get pool info",
@@ -254,9 +254,14 @@ export const getPoolPrice = ({ pool, revertPrice }: { pool: Pool | 'loading' | n
   const { success: isUniV3, data: uniV3PoolInfo } = univ3PoolNormalize.safeParse(pool);
   const { success: isUniV2, data: uniV2PoolInfo } = univ2PoolNormalize.safeParse(pool);
 
-  if (isUniV3)
-    return +tickToPrice(uniV3PoolInfo.tick, uniV3PoolInfo.token0.decimals, uniV3PoolInfo.token1.decimals, revertPrice);
-
+  if (isUniV3) {
+    return +sqrtToPrice(
+      BigInt(uniV3PoolInfo.sqrtPriceX96 || 0),
+      uniV3PoolInfo.token0.decimals,
+      uniV3PoolInfo.token1.decimals,
+      revertPrice,
+    );
+  }
   if (isUniV2) {
     const price = +divideBigIntToString(
       BigInt(uniV2PoolInfo.reserves[1]) * 10n ** BigInt(uniV2PoolInfo.token0.decimals),
