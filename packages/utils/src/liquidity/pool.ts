@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 import {
   API_URLS,
   ChainId,
@@ -47,7 +49,7 @@ export const getPoolInfo = async ({
 
   if (!success)
     return {
-      error: `${POOL_ERROR.CANT_GET_POOL_INFO} ${error.toString()}`,
+      error: `${POOL_ERROR.CANT_GET_POOL_INFO}: ${z.prettifyError(error)}`,
       pool: null,
     };
 
