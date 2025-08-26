@@ -168,7 +168,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
 
   const isUniV3 = !initializing && univ3Types.includes(poolType as any);
 
-  const isTokensStable = tokensIn.every(tk => tk.isStable);
+  const isTokensStable = tokensIn.length > 0 && tokensIn.every(tk => tk.isStable);
 
   const isTokensInPair = tokensIn.every(tk => {
     const addr =
@@ -208,7 +208,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
     else if (pool.category === POOL_CATEGORY.CORRELATED_PAIR && isTokensInPair) setSlippage(5);
     else setSlippage(10);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pool]);
+  }, [pool, isTokensStable, isTokensInPair]);
 
   const { prices: tokenPrices } = useTokenPrices({
     addresses: tokensIn.map(token => token.address.toLowerCase()),
