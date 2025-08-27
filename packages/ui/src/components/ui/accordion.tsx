@@ -26,8 +26,9 @@ const AccordionTrigger = React.forwardRef<
   React.ElementRef<typeof AccordionPrimitive.Trigger>,
   React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger> & {
     iconClassName?: string;
+    enableHighlight?: boolean;
   }
->(({ className, iconClassName, children, ...props }, ref) => (
+>(({ className, iconClassName, children, enableHighlight, ...props }, ref) => (
   <AccordionPrimitive.Header className="flex">
     <AccordionPrimitive.Trigger
       className={cn(
@@ -39,7 +40,11 @@ const AccordionTrigger = React.forwardRef<
     >
       {children}
       <ChevronDownIcon
-        className={cn('h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200', iconClassName)}
+        className={cn(
+          'h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200',
+          enableHighlight ? 'animate-highlight rounded-full bg-[#31cb9e80]' : '',
+          iconClassName,
+        )}
       />
     </AccordionPrimitive.Trigger>
   </AccordionPrimitive.Header>

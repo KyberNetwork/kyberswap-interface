@@ -31,7 +31,7 @@ export default function SlippageRow({ suggestedSlippage }: { suggestedSlippage: 
       <Accordion type="single" collapsible className="w-full" value={slippageOpen ? 'item-1' : undefined}>
         <AccordionItem value="item-1">
           <AccordionTrigger
-            iconClassName={isSlippageWarning ? 'text-warning' : ''}
+            enableHighlight={!slippageOpen && suggestedSlippage > 0 && slippage !== suggestedSlippage}
             onClick={e => {
               e.preventDefault();
               setSlippageOpen(!slippageOpen);

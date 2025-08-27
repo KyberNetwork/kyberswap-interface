@@ -7,6 +7,25 @@
     font-family: 'Cera Pro', sans-serif;
   }
 
+  /* Highlight animation */
+  @keyframes highlight {
+    0% {
+      box-shadow: 0 0 0 0 #31cb9e66;
+    }
+
+    70% {
+      box-shadow: 0 0 0 3px #31cb9e66;
+    }
+
+    100% {
+      box-shadow: 0 0 0 0 #31cb9e66;
+    }
+  }
+
+  .animate-highlight {
+    animation: highlight 2s infinite alternate ease-in-out !important;
+  }
+
   /* Tooltip/Popover styles */
   .ks-lw-popover {
     @apply text-subText bg-layer2;
