@@ -30,7 +30,13 @@ export default function SlippageRow({ suggestedSlippage }: { suggestedSlippage: 
     <div className="flex justify-between items-start mt-3 text-xs">
       <Accordion type="single" collapsible className="w-full" value={slippageOpen ? 'item-1' : undefined}>
         <AccordionItem value="item-1">
-          <AccordionTrigger iconClassName={isSlippageWarning ? 'text-warning' : ''}>
+          <AccordionTrigger
+            iconClassName={isSlippageWarning ? 'text-warning' : ''}
+            onClick={e => {
+              e.preventDefault();
+              setSlippageOpen(!slippageOpen);
+            }}
+          >
             <div className="flex items-center justify-between w-full">
               <MouseoverTooltip text={MAX_SLIPPAGE_LABEL_TEXT} width="220px">
                 <div
