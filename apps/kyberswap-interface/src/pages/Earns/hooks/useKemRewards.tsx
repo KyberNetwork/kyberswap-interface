@@ -313,6 +313,7 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
         setClaiming(false)
         setTxHash(null)
         setOpenClaimModal(false)
+        setOpenClaimAllModal(false)
         refetchRewardInfo()
       }
     }

@@ -48,6 +48,7 @@ export default function useFilter(setSearch?: (search: string) => void) {
             searchParams.set('orderBy', Direction.DESC)
           } else if (value === FilterTag.FARMING_POOL) {
             searchParams.set('chainId', ChainId.MAINNET.toString())
+            searchParams.delete('protocol')
           }
         }
       }
