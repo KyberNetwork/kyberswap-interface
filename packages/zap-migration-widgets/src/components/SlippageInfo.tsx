@@ -6,7 +6,7 @@ export const SlippageInfo = ({
   suggestedSlippage,
   className,
 }: {
-  slippage: number;
+  slippage?: number;
   suggestedSlippage: number;
   className?: string;
 }) => {
@@ -20,7 +20,9 @@ export const SlippageInfo = ({
         <div
           className={cn(
             'text-subText text-xs border-b border-dotted border-subText',
-            slippage > 2 * suggestedSlippage || slippage < suggestedSlippage / 2 ? 'text-warning border-warning' : '',
+            slippage && (slippage > 2 * suggestedSlippage || slippage < suggestedSlippage / 2)
+              ? 'text-warning border-warning'
+              : '',
           )}
         >
           Swap Max Slippage
@@ -28,9 +30,9 @@ export const SlippageInfo = ({
       </MouseoverTooltip>
       <MouseoverTooltip
         text={
-          slippage > 2 * suggestedSlippage
+          slippage && slippage > 2 * suggestedSlippage
             ? 'Your slippage is set higher than usual, which may cause unexpected losses.'
-            : slippage < suggestedSlippage / 2
+            : slippage && slippage < suggestedSlippage / 2
               ? 'Your slippage is set lower than usual, increasing the risk of transaction failure.'
               : ''
         }
@@ -38,12 +40,12 @@ export const SlippageInfo = ({
       >
         <span
           className={`font-medium ${
-            slippage > 2 * suggestedSlippage || slippage < suggestedSlippage / 2
+            slippage && (slippage > 2 * suggestedSlippage || slippage < suggestedSlippage / 2)
               ? 'text-warning border-b border-warning border-dotted'
               : 'text-text'
           }`}
         >
-          {((slippage * 100) / 10_000).toFixed(2)}%
+          {slippage ? ((slippage * 100) / 10_000).toFixed(2) : ''}%
         </span>
       </MouseoverTooltip>
     </div>

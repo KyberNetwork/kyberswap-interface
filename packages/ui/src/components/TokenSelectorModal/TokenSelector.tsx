@@ -65,6 +65,7 @@ export default function TokenSelector({
   setTokenToShow,
   setTokenToImport,
   onClose,
+  initialSlippage,
 }: TokenSelectorProps) {
   const { importedTokens, tokens, removeImportedToken, tokenBalances, isLoading } = useTokenState();
 
@@ -470,6 +471,7 @@ export default function TokenSelector({
               onConnectWallet={onConnectWallet}
               onOpenZapMigration={onOpenZapMigration}
               onClose={onClose}
+              initialSlippage={initialSlippage}
             />
           )}
         </div>
