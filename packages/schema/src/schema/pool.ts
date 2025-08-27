@@ -1,8 +1,22 @@
 import { z } from 'zod';
 
-import { univ2Types, univ3Types } from '@/schema/dex';
-import { UniV2Pool, univ2Pool, univ2PoolNormalize, univ2PoolResponse } from '@/schema/pools/uniswapv2';
-import { UniV3Pool, dexMapping, univ3Pool, univ3PoolNormalize, univ3PoolResponse } from '@/schema/pools/uniswapv3';
+import { dexMapping } from '@/constants';
+import { PoolType, univ2Types, univ3Types } from '@/schema/dex';
+import { univ2PoolNormalize, univ2RawPool } from '@/schema/pools/uniswapv2';
+import { univ3PoolNormalize, univ3RawPool } from '@/schema/pools/uniswapv3';
+
+type Univ2PoolType = (typeof univ2Types)[number];
+type Univ3PoolType = (typeof univ3Types)[number];
+
+const univ2PoolResponse = z.object({
+  poolType: z.nativeEnum(PoolType).refine((val): val is Univ2PoolType => univ2Types.includes(val as Univ2PoolType)),
+  data: univ2RawPool,
+});
+
+const univ3PoolResponse = z.object({
+  poolType: z.nativeEnum(PoolType).refine((val): val is Univ3PoolType => univ3Types.includes(val as Univ3PoolType)),
+  data: univ3RawPool,
+});
 
 export const pool = z.discriminatedUnion('poolType', [
   univ3PoolNormalize.extend({
@@ -43,12 +57,4 @@ export const poolResponse = z.discriminatedUnion('poolType', [
   ),
 ]);
 
-export type PoolResponse = z.infer<typeof poolResponse>;
-
-export { univ3PoolResponse, univ3PoolNormalize, univ3Pool };
-export type { UniV3Pool };
-
-export { univ2PoolResponse, univ2PoolNormalize, univ2Pool };
-export type { UniV2Pool };
-
-export { dexMapping };
+export { univ2RawPool, univ2PoolNormalize, univ3RawPool, univ3PoolNormalize, dexMapping };

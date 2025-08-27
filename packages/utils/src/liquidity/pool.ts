@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 import {
   API_URLS,
   ChainId,
@@ -6,11 +8,11 @@ import {
   PoolType,
   Token,
   poolResponse,
-  univ2Pool,
   univ2PoolNormalize,
+  univ2RawPool,
   univ2Types,
-  univ3Pool,
   univ3PoolNormalize,
+  univ3RawPool,
   univ3Types,
   univ4Types,
 } from '@kyber/schema';
@@ -47,7 +49,7 @@ export const getPoolInfo = async ({
 
   if (!success)
     return {
-      error: `${POOL_ERROR.CANT_GET_POOL_INFO} ${error.toString()}`,
+      error: `${POOL_ERROR.CANT_GET_POOL_INFO}: ${z.prettifyError(error)}`,
       pool: null,
     };
 
@@ -91,8 +93,8 @@ export const getPoolInfo = async ({
 
   const category = await getPoolCategory({ token0Address, token1Address, chainId });
 
-  const { success: isUniV3, data: univ3PoolInfo } = univ3Pool.safeParse(pool);
-  const { success: isUniV2, data: univ2PoolInfo } = univ2Pool.safeParse(pool);
+  const { success: isUniV3, data: univ3PoolInfo } = univ3RawPool.safeParse(pool);
+  const { success: isUniV2, data: univ2PoolInfo } = univ2RawPool.safeParse(pool);
 
   if (isUniV3) {
     const isUniV3PoolType = univ3Types.includes(poolType as any);
@@ -118,6 +120,12 @@ export const getPoolInfo = async ({
         ticks: univ3PoolInfo.positionInfo.ticks || [],
         minTick: nearestUsableTick(MIN_TICK, univ3PoolInfo.positionInfo.tickSpacing),
         maxTick: nearestUsableTick(MAX_TICK, univ3PoolInfo.positionInfo.tickSpacing),
+        stats: {
+          ...univ3PoolInfo.poolStats,
+          kemLMApr: univ3PoolInfo.poolStats.kemLMApr || 0,
+          kemEGApr: univ3PoolInfo.poolStats.kemEGApr || 0,
+        },
+        isFarming: univ3PoolInfo.programs?.includes('eg') || univ3PoolInfo.programs?.includes('lm'),
       },
     };
   }
@@ -140,6 +148,12 @@ export const getPoolInfo = async ({
         token1,
         fee: univ2PoolInfo.swapFee,
         reserves: univ2PoolInfo.reserves,
+        stats: {
+          ...univ2PoolInfo.poolStats,
+          kemLMApr: univ2PoolInfo.poolStats.kemLMApr || 0,
+          kemEGApr: univ2PoolInfo.poolStats.kemEGApr || 0,
+        },
+        isFarming: univ2PoolInfo.programs?.includes('eg') || univ2PoolInfo.programs?.includes('lm'),
       },
     };
   }
