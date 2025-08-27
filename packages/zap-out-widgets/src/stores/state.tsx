@@ -17,7 +17,7 @@ interface ZapOutUserState {
   revertPrice: boolean;
   toggleRevertPrice: () => void;
 
-  slippage: number;
+  slippage: number | undefined;
   setSlippage: (value: number) => void;
 
   liquidityOut: bigint;
@@ -53,7 +53,7 @@ const initState = {
   highlightDegenMode: false,
   degenMode: false,
   revertPrice: false,
-  slippage: 50,
+  slippage: undefined,
   liquidityOut: 0n,
   showPreview: false,
   fetchingRoute: false,
@@ -94,7 +94,7 @@ export const useZapOutUserState = create<ZapOutUserState>((set, get) => ({
   fetchZapOutRoute: async ({ chainId, poolType, positionId, poolAddress, signal }) => {
     const { tokenOut, liquidityOut, slippage, mode } = get();
 
-    if ((mode === 'zapOut' && !tokenOut?.address) || liquidityOut === 0n) {
+    if ((mode === 'zapOut' && !tokenOut?.address) || liquidityOut === 0n || !slippage) {
       set({ fetchingRoute: false, route: null });
       return;
     }

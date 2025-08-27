@@ -95,6 +95,7 @@ export default function Widget() {
     setAmountsIn,
     snapshotState,
     setSnapshotState,
+    slippage,
   } = useZapState();
 
   const [openTokenSelectModal, setOpenTokenSelectModal] = useState(false);
@@ -180,7 +181,7 @@ export default function Widget() {
   }, [getPool, poolAddress, chainId, poolType]);
 
   const handleOpenZapMigration = useCallback(
-    (position: { exchange: string; poolId: string; positionId: string | number }) =>
+    (position: { exchange: string; poolId: string; positionId: string | number }, initialSlippage?: number) =>
       onOpenZapMigration
         ? onOpenZapMigration(
             position,
@@ -190,6 +191,7 @@ export default function Widget() {
                   tickUpper,
                 }
               : undefined,
+            initialSlippage,
           )
         : undefined,
     [onOpenZapMigration, tickLower, tickUpper],
@@ -278,6 +280,7 @@ export default function Widget() {
           onClose={onCloseTokenSelectModal}
           token0Address={token0.address}
           token1Address={token1.address}
+          initialSlippage={slippage}
         />
       )}
 

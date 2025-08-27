@@ -421,7 +421,7 @@ export const Preview = () => {
             </div>
           </div>
 
-          {(slippage > 2 * suggestedSlippage || slippage < suggestedSlippage / 2) && (
+          {slippage && (slippage > 2 * suggestedSlippage || slippage < suggestedSlippage / 2) && (
             <div
               className="rounded-md text-xs px-4 py-3 mt-4 font-normal text-warning"
               style={{
@@ -448,7 +448,7 @@ export const Preview = () => {
           <div className="flex flex-col mt-4 gap-3 text-sm">
             <div className="flex items-start justify-between">
               <div className="text-subText">Slippage</div>
-              <span>{((slippage * 100) / 10_000).toFixed(2)}%</span>
+              <span>{slippage ? ((slippage * 100) / 10_000).toFixed(2) + '%' : '--'}</span>
             </div>
             <div className="flex items-center justify-between">
               <MouseoverTooltip text="Estimated network fee for your transaction." width="220px">

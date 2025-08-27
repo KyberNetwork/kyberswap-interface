@@ -52,6 +52,7 @@ const UserPositions = ({
   account,
   positionId,
   poolAddress,
+  initialSlippage,
   onConnectWallet,
   onOpenZapMigration,
   onClose,
@@ -61,8 +62,12 @@ const UserPositions = ({
   account?: string;
   positionId?: string;
   poolAddress: string;
+  initialSlippage?: number;
   onConnectWallet: () => void;
-  onOpenZapMigration: (position: { exchange: string; poolId: string; positionId: string | number }) => void;
+  onOpenZapMigration: (
+    position: { exchange: string; poolId: string; positionId: string | number },
+    initialSlippage?: number,
+  ) => void;
   onClose: () => void;
 }) => {
   const [copied, setCopied] = useState<string | null>(null);
@@ -118,11 +123,14 @@ const UserPositions = ({
               if (isUniV2 && !account) return;
 
               onClose();
-              onOpenZapMigration({
-                exchange: position.pool.project,
-                poolId: position.pool.poolAddress,
-                positionId: !isUniV2 ? position.tokenId : account,
-              });
+              onOpenZapMigration(
+                {
+                  exchange: position.pool.project,
+                  poolId: position.pool.poolAddress,
+                  positionId: !isUniV2 ? position.tokenId : account,
+                },
+                initialSlippage,
+              );
             }}
           >
             <div className="flex items-center justify-between w-full">
