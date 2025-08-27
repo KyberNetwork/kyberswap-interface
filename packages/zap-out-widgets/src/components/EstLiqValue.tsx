@@ -231,7 +231,7 @@ export function EstLiqValue() {
           </div>
           <div className="flex items-start justify-between mt-2">
             <div className="text-subText text-xs ">Slippage</div>
-            <span>{((slippage * 100) / 10_000).toFixed(2)}%</span>
+            <span>{slippage ? (((slippage || 0) * 100) / 10_000).toFixed(2) + '%' : '--'}</span>
           </div>
 
           <div className="flex items-start justify-between mt-2">
