@@ -1,7 +1,5 @@
 import { useState } from 'react';
 
-import { useShallow } from 'zustand/shallow';
-
 import { useCopy } from '@kyber/hooks';
 import {
   DEXES_INFO,
@@ -27,21 +25,15 @@ import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
 const Header = ({ refetchData }: { refetchData: () => void }) => {
-  const { theme, chainId, onClose, poolType, positionId } = useWidgetStore(
-    useShallow(s => ({
-      theme: s.theme,
-      chainId: s.chainId,
-      onClose: s.onClose,
-      poolType: s.poolType,
-      positionId: s.positionId,
-    })),
-  );
-  const pool = usePoolStore(s => s.pool);
-  const { position } = usePositionStore(
-    useShallow(s => ({
-      position: s.position,
-    })),
-  );
+  const { theme, chainId, onClose, poolType, positionId } = useWidgetStore([
+    'theme',
+    'chainId',
+    'onClose',
+    'poolType',
+    'positionId',
+  ]);
+  const { pool } = usePoolStore(['pool']);
+  const { position } = usePositionStore(['position']);
   const [openShare, setOpenShare] = useState(false);
 
   const { toggleSetting, uiState } = useZapState();

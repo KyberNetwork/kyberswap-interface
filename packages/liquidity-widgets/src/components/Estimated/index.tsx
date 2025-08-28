@@ -1,5 +1,3 @@
-import { useShallow } from 'zustand/shallow';
-
 import { API_URLS } from '@kyber/schema';
 import { InfoHelper } from '@kyber/ui';
 import { PI_LEVEL } from '@kyber/utils';
@@ -15,12 +13,7 @@ import useEstimated from '@/components/Estimated/useEstimated';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
 export default function Estimated() {
-  const { source, positionId } = useWidgetStore(
-    useShallow(s => ({
-      source: s.source,
-      positionId: s.positionId,
-    })),
-  );
+  const { source, positionId } = useWidgetStore(['source', 'positionId']);
   const {
     initializing,
     token0,

@@ -1,7 +1,5 @@
 import { ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
-import { useShallow } from 'zustand/shallow';
-
 import { useTokenBalances, useTokenPrices } from '@kyber/hooks';
 import { API_URLS, CHAIN_ID_TO_CHAIN, Token, ZERO_ADDRESS, ZapRouteDetail, univ3Types } from '@kyber/schema';
 import { parseUnits } from '@kyber/utils/crypto';
@@ -101,31 +99,23 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
     wrappedNativeToken,
     positionId,
     initialTick,
-  } = useWidgetStore(
-    useShallow(s => ({
-      chainId: s.chainId,
-      source: s.source,
-      aggregatorOptions: s.aggregatorOptions,
-      initDepositTokens: s.initDepositTokens,
-      initAmounts: s.initAmounts,
-      feeConfig: s.feeConfig,
-      poolType: s.poolType,
-      poolAddress: s.poolAddress,
-      connectedAccount: s.connectedAccount,
-      nativeToken: s.nativeToken,
-      wrappedNativeToken: s.wrappedNativeToken,
-      positionId: s.positionId,
-      initialTick: s.initialTick,
-    })),
-  );
-  const { position } = usePositionStore(
-    useShallow(s => ({
-      position: s.position,
-    })),
-  );
-  const { pool, revertPrice, toggleRevertPrice } = usePoolStore(
-    useShallow(s => ({ pool: s.pool, revertPrice: s.revertPrice, toggleRevertPrice: s.toggleRevertPrice })),
-  );
+  } = useWidgetStore([
+    'chainId',
+    'source',
+    'aggregatorOptions',
+    'initDepositTokens',
+    'initAmounts',
+    'feeConfig',
+    'poolType',
+    'poolAddress',
+    'connectedAccount',
+    'nativeToken',
+    'wrappedNativeToken',
+    'positionId',
+    'initialTick',
+  ]);
+  const { position } = usePositionStore(['position']);
+  const { pool, revertPrice, toggleRevertPrice } = usePoolStore(['pool', 'revertPrice', 'toggleRevertPrice']);
 
   const excludedSources = aggregatorOptions?.excludedSources?.join(',');
   const includedSources = aggregatorOptions?.includedSources?.join(',');

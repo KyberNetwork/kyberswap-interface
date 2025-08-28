@@ -1,7 +1,5 @@
 import { useEffect, useMemo } from 'react';
 
-import { useShallow } from 'zustand/shallow';
-
 import { usePrevious } from '@kyber/hooks';
 import { univ3PoolNormalize, univ3Types } from '@kyber/schema';
 import { Button, Skeleton } from '@kyber/ui';
@@ -30,12 +28,8 @@ const getFeeRange = (fee: number): FeeAmount | undefined => {
 const PriceRange = () => {
   const { setTickLower, setTickUpper, tickLower, tickUpper } = useZapState();
 
-  const { poolType, initialTick } = useWidgetStore(
-    useShallow(s => ({ poolType: s.poolType, initialTick: s.initialTick })),
-  );
-  const { pool, revertPrice, poolPrice } = usePoolStore(
-    useShallow(s => ({ pool: s.pool, revertPrice: s.revertPrice, poolPrice: s.poolPrice })),
-  );
+  const { poolType, initialTick } = useWidgetStore(['poolType', 'initialTick']);
+  const { pool, revertPrice, poolPrice } = usePoolStore(['pool', 'revertPrice', 'poolPrice']);
 
   const initializing = pool === 'loading';
 

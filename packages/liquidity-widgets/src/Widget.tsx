@@ -1,7 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
 
-import { useShallow } from 'zustand/shallow';
-
 import { useNftApproval, usePositionOwner } from '@kyber/hooks';
 import {
   NETWORKS_INFO,
@@ -57,30 +55,26 @@ export default function Widget() {
     onSubmitTx,
     onConnectWallet,
     onOpenZapMigration,
-  } = useWidgetStore(
-    useShallow(s => ({
-      theme: s.theme,
-      poolType: s.poolType,
-      chainId: s.chainId,
-      poolAddress: s.poolAddress,
-      connectedAccount: s.connectedAccount,
-      onClose: s.onClose,
-      positionId: s.positionId,
-      onSubmitTx: s.onSubmitTx,
-      onConnectWallet: s.onConnectWallet,
-      onOpenZapMigration: s.onOpenZapMigration,
-    })),
-  );
-  const { position } = usePositionStore(useShallow(s => ({ position: s.position })));
-  const { pool, poolError, getPool, poolPrice, revertPrice } = usePoolStore(
-    useShallow(s => ({
-      pool: s.pool,
-      poolError: s.poolError,
-      getPool: s.getPool,
-      poolPrice: s.poolPrice,
-      revertPrice: s.revertPrice,
-    })),
-  );
+  } = useWidgetStore([
+    'theme',
+    'poolType',
+    'chainId',
+    'poolAddress',
+    'connectedAccount',
+    'onClose',
+    'positionId',
+    'onSubmitTx',
+    'onConnectWallet',
+    'onOpenZapMigration',
+  ]);
+  const { position } = usePositionStore(['position']);
+  const { pool, poolError, getPool, poolPrice, revertPrice } = usePoolStore([
+    'pool',
+    'poolError',
+    'getPool',
+    'poolPrice',
+    'revertPrice',
+  ]);
   const positionOwner = usePositionOwner({
     positionId: positionId || '',
     chainId,

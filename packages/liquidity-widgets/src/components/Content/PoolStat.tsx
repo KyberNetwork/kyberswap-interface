@@ -1,5 +1,3 @@
-import { useShallow } from 'zustand/shallow';
-
 import { univ2Types } from '@kyber/schema';
 import { MouseoverTooltip } from '@kyber/ui';
 import { Skeleton } from '@kyber/ui';
@@ -12,22 +10,9 @@ import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
 export default function PoolStat() {
-  const { poolType, positionId } = useWidgetStore(
-    useShallow(s => ({
-      poolType: s.poolType,
-      positionId: s.positionId,
-    })),
-  );
-  const { position } = usePositionStore(
-    useShallow(s => ({
-      position: s.position,
-    })),
-  );
-  const { pool } = usePoolStore(
-    useShallow(s => ({
-      pool: s.pool,
-    })),
-  );
+  const { poolType, positionId } = useWidgetStore(['poolType', 'positionId']);
+  const { position } = usePositionStore(['position']);
+  const { pool } = usePoolStore(['pool']);
 
   const initializing = pool === 'loading';
 

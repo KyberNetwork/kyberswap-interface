@@ -1,5 +1,3 @@
-import { useShallow } from 'zustand/shallow';
-
 import { defaultToken } from '@kyber/schema';
 import { MouseoverTooltip, Skeleton } from '@kyber/ui';
 import { formatDisplayNumber } from '@kyber/utils/number';
@@ -12,15 +10,13 @@ const shortenSymbol = (symbol: string, characterNumber = 8) =>
   symbol.length > characterNumber + 2 ? symbol.slice(0, characterNumber) + '...' : symbol;
 
 export default function PriceInfo() {
-  const theme = useWidgetStore(s => s.theme);
-  const { pool, poolPrice, revertPrice, toggleRevertPrice } = usePoolStore(
-    useShallow(s => ({
-      pool: s.pool,
-      poolPrice: s.poolPrice,
-      revertPrice: s.revertPrice,
-      toggleRevertPrice: s.toggleRevertPrice,
-    })),
-  );
+  const { theme } = useWidgetStore(['theme']);
+  const { pool, poolPrice, revertPrice, toggleRevertPrice } = usePoolStore([
+    'pool',
+    'poolPrice',
+    'revertPrice',
+    'toggleRevertPrice',
+  ]);
 
   const initializing = pool === 'loading';
 

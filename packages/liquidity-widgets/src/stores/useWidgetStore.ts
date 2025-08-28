@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { useShallow } from 'zustand/shallow';
 
 import {
   ChainId,
@@ -50,7 +51,7 @@ const initState = {
   wrappedNativeToken: defaultToken,
 };
 
-export const useWidgetStore = create<WidgetState>((set, _get) => ({
+const useWidgetRawStore = create<WidgetState>((set, _get) => ({
   ...initState,
   reset: () => set(initState),
   setInitiaWidgetState: (props: WidgetProps, resetStore: () => void) => {
@@ -90,3 +91,19 @@ export const useWidgetStore = create<WidgetState>((set, _get) => ({
   },
   setPositionId: (positionId: string) => set({ positionId }),
 }));
+
+type WidgetStoreKeys = keyof ReturnType<typeof useWidgetRawStore.getState>;
+
+export const useWidgetStore = <K extends WidgetStoreKeys>(keys: K[]) => {
+  return useWidgetRawStore(
+    useShallow(s =>
+      keys.reduce(
+        (acc, key) => {
+          acc[key] = s[key];
+          return acc;
+        },
+        {} as Pick<typeof s, K>,
+      ),
+    ),
+  );
+};

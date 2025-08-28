@@ -1,7 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
 
-import { useShallow } from 'zustand/shallow';
-
 import { API_URLS, CHAIN_ID_TO_CHAIN, DEXES_INFO, NETWORKS_INFO, PoolType, univ3PoolNormalize } from '@kyber/schema';
 import {
   Accordion,
@@ -61,30 +59,22 @@ export default function Preview({
     nativeToken,
     positionId,
     onSuccess,
-  } = useWidgetStore(
-    useShallow(s => ({
-      poolType: s.poolType,
-      chainId: s.chainId,
-      connectedAccount: s.connectedAccount,
-      theme: s.theme,
-      onSubmitTx: s.onSubmitTx,
-      onViewPosition: s.onViewPosition,
-      referral: s.referral,
-      source: s.source,
-      wrappedNativeToken: s.wrappedNativeToken,
-      nativeToken: s.nativeToken,
-      positionId: s.positionId,
-      onSuccess: s.onSuccess,
-    })),
-  );
-  const { position } = usePositionStore(
-    useShallow(s => ({
-      position: s.position,
-    })),
-  );
-  const { revertPrice, toggleRevertPrice, poolPrice } = usePoolStore(
-    useShallow(s => ({ revertPrice: s.revertPrice, toggleRevertPrice: s.toggleRevertPrice, poolPrice: s.poolPrice })),
-  );
+  } = useWidgetStore([
+    'poolType',
+    'chainId',
+    'connectedAccount',
+    'theme',
+    'onSubmitTx',
+    'onViewPosition',
+    'referral',
+    'source',
+    'wrappedNativeToken',
+    'nativeToken',
+    'positionId',
+    'onSuccess',
+  ]);
+  const { position } = usePositionStore(['position']);
+  const { revertPrice, toggleRevertPrice, poolPrice } = usePoolStore(['revertPrice', 'toggleRevertPrice', 'poolPrice']);
 
   const { address: account } = connectedAccount;
   const { tokensIn, amountsIn, setSlippage, setUiState, minPrice, maxPrice } = useZapState();

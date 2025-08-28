@@ -1,7 +1,5 @@
 import { useCallback, useMemo } from 'react';
 
-import { useShallow } from 'zustand/shallow';
-
 import { univ3PoolNormalize } from '@kyber/schema';
 import { toString } from '@kyber/utils/number';
 import { nearestUsableTick, priceToClosestTick } from '@kyber/utils/uniswapv3';
@@ -14,12 +12,8 @@ import { usePoolStore } from '@/stores/usePoolStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
 export default function LiquidityChart() {
-  const { positionId } = useWidgetStore(useShallow(s => ({ positionId: s.positionId })));
-  const {
-    pool: rawPool,
-    poolPrice,
-    revertPrice,
-  } = usePoolStore(useShallow(s => ({ pool: s.pool, poolPrice: s.poolPrice, revertPrice: s.revertPrice })));
+  const { positionId } = useWidgetStore(['positionId']);
+  const { pool: rawPool, poolPrice, revertPrice } = usePoolStore(['pool', 'poolPrice', 'revertPrice']);
   const { tickLower, tickUpper, setTickLower, setTickUpper, minPrice, maxPrice } = useZapState();
 
   const pool = useMemo(() => {

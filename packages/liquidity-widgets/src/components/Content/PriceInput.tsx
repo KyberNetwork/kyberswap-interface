@@ -1,7 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
 
-import { useShallow } from 'zustand/shallow';
-
 import { univ3PoolNormalize } from '@kyber/schema';
 import { Skeleton } from '@kyber/ui';
 import { formatNumber } from '@kyber/utils/number';
@@ -14,8 +12,8 @@ import { PriceType } from '@/types/index';
 
 export default function PriceInput({ type }: { type: PriceType }) {
   const { tickLower, tickUpper, setTickLower, setTickUpper, minPrice, maxPrice } = useZapState();
-  const { pool: rawPool, revertPrice } = usePoolStore(useShallow(s => ({ pool: s.pool, revertPrice: s.revertPrice })));
-  const { positionId } = useWidgetStore(useShallow(s => ({ positionId: s.positionId })));
+  const { pool: rawPool, revertPrice } = usePoolStore(['pool', 'revertPrice']);
+  const { positionId } = useWidgetStore(['positionId']);
 
   const [localValue, setLocalValue] = useState('');
 

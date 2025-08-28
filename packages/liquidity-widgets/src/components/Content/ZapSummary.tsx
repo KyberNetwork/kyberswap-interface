@@ -1,7 +1,5 @@
 import { useMemo, useState } from 'react';
 
-import { useShallow } from 'zustand/shallow';
-
 import {
   AddLiquidityAction,
   DEXES_INFO,
@@ -20,16 +18,14 @@ import { usePoolStore } from '@/stores/usePoolStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
 export default function ZapSummary() {
-  const { nativeToken, wrappedNativeToken, chainId, poolType } = useWidgetStore(
-    useShallow(s => ({
-      nativeToken: s.nativeToken,
-      wrappedNativeToken: s.wrappedNativeToken,
-      chainId: s.chainId,
-      poolType: s.poolType,
-    })),
-  );
+  const { nativeToken, wrappedNativeToken, chainId, poolType } = useWidgetStore([
+    'nativeToken',
+    'wrappedNativeToken',
+    'chainId',
+    'poolType',
+  ]);
   const { zapInfo, tokensIn } = useZapState();
-  const pool = usePoolStore(s => s.pool);
+  const { pool } = usePoolStore(['pool']);
   const [expanded, setExpanded] = useState(false);
 
   const initializing = pool === 'loading';

@@ -9,7 +9,7 @@ const INTERVAL_REFETCH_TIME = 10; // seconds
 let interval: ReturnType<typeof setInterval>;
 
 const Spin = ({ countdown }: { countdown: number }) => {
-  const theme = useWidgetStore(s => s.theme);
+  const { theme } = useWidgetStore(['theme']);
 
   return (
     <svg
@@ -56,7 +56,7 @@ const Spin = ({ countdown }: { countdown: number }) => {
 };
 
 export default function RefreshLoading({ refetchData }: { refetchData: () => void }) {
-  const { poolLoading } = usePoolStore();
+  const { poolLoading } = usePoolStore(['poolLoading']);
 
   const [countdown, setCountdown] = useState(0);
 

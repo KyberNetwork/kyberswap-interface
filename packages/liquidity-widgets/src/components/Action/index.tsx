@@ -1,7 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
 
-import { useShallow } from 'zustand/react/shallow';
-
 import { usePositionOwner } from '@kyber/hooks';
 import { APPROVAL_STATE, useErc20Approvals } from '@kyber/hooks';
 import { FARMING_CONTRACTS, NETWORKS_INFO, defaultToken, univ3PoolNormalize, univ4Types } from '@kyber/schema';
@@ -34,21 +32,19 @@ export default function Action({
     nativeToken,
     wrappedNativeToken,
     positionId,
-  } = useWidgetStore(
-    useShallow(s => ({
-      poolType: s.poolType,
-      chainId: s.chainId,
-      connectedAccount: s.connectedAccount,
-      onClose: s.onClose,
-      onConnectWallet: s.onConnectWallet,
-      onSwitchChain: s.onSwitchChain,
-      onSubmitTx: s.onSubmitTx,
-      nativeToken: s.nativeToken,
-      wrappedNativeToken: s.wrappedNativeToken,
-      positionId: s.positionId,
-    })),
-  );
-  const pool = usePoolStore(s => s.pool);
+  } = useWidgetStore([
+    'poolType',
+    'chainId',
+    'connectedAccount',
+    'onClose',
+    'onConnectWallet',
+    'onSwitchChain',
+    'onSubmitTx',
+    'nativeToken',
+    'wrappedNativeToken',
+    'positionId',
+  ]);
+  const { pool } = usePoolStore(['pool']);
   const positionOwner = usePositionOwner({
     positionId: positionId || '',
     chainId,

@@ -1,5 +1,3 @@
-import { useShallow } from 'zustand/shallow';
-
 import { Skeleton } from '@kyber/ui';
 
 import { useZapState } from '@/hooks/useZapState';
@@ -9,7 +7,7 @@ import { getPriceRangeToShow } from '@/utils';
 export default function PositionPriceRange() {
   const { minPrice, maxPrice, tickLower, tickUpper } = useZapState();
 
-  const { pool, revertPrice } = usePoolStore(useShallow(s => ({ pool: s.pool, revertPrice: s.revertPrice })));
+  const { pool, revertPrice } = usePoolStore(['pool', 'revertPrice']);
 
   const initializing = pool === 'loading';
 

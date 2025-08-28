@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { useShallow } from 'zustand/shallow';
 
 import { Pool, PoolType } from '@kyber/schema';
 import { POOL_ERROR, getPoolInfo, getPoolPrice } from '@kyber/utils';
@@ -28,7 +29,7 @@ interface getPoolProps {
   poolType: PoolType;
 }
 
-export const usePoolStore = create<PoolState>((set, get) => ({
+const usePoolRawStore = create<PoolState>((set, get) => ({
   ...initState,
   reset: () => set(initState),
   getPool: async ({ poolAddress, chainId, poolType }: getPoolProps) => {
@@ -57,3 +58,19 @@ export const usePoolStore = create<PoolState>((set, get) => ({
     if (price !== null) set({ poolPrice: price });
   },
 }));
+
+type PoolStoreKeys = keyof ReturnType<typeof usePoolRawStore.getState>;
+
+export const usePoolStore = <K extends PoolStoreKeys>(keys: K[]) => {
+  return usePoolRawStore(
+    useShallow(s =>
+      keys.reduce(
+        (acc, key) => {
+          acc[key] = s[key];
+          return acc;
+        },
+        {} as Pick<typeof s, K>,
+      ),
+    ),
+  );
+};
