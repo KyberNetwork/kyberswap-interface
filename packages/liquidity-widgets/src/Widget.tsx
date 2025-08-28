@@ -68,13 +68,7 @@ export default function Widget() {
     'onOpenZapMigration',
   ]);
   const { position } = usePositionStore(['position']);
-  const { pool, poolError, getPool, poolPrice, revertPrice } = usePoolStore([
-    'pool',
-    'poolError',
-    'getPool',
-    'poolPrice',
-    'revertPrice',
-  ]);
+  const { pool, poolError, poolPrice, revertPrice } = usePoolStore(['pool', 'poolError', 'poolPrice', 'revertPrice']);
   const positionOwner = usePositionOwner({
     positionId: positionId || '',
     chainId,
@@ -170,10 +164,6 @@ export default function Widget() {
       : false;
 
   const isDeviated = checkDeviated(poolPrice, newPoolPrice);
-
-  const refetchData = useCallback(() => {
-    getPool({ poolAddress, chainId, poolType });
-  }, [getPool, poolAddress, chainId, poolType]);
 
   const handleOpenZapMigration = useCallback(
     (position: { exchange: string; poolId: string; positionId: string | number }, initialSlippage?: number) =>
@@ -280,7 +270,7 @@ export default function Widget() {
       )}
 
       <div className={`p-6 ${snapshotState ? 'hidden' : ''}`}>
-        <Header refetchData={refetchData} />
+        <Header />
         <div className="mt-5 flex gap-5 max-sm:flex-col">
           <div className="w-[55%] max-sm:w-full">
             <PoolStat />

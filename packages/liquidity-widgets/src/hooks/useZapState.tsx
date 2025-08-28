@@ -44,6 +44,7 @@ const defaultZapState = {
   tokenPrices: {},
   snapshotState: null,
   uiState: defaultUiState,
+  zapRouteDisabled: false,
   setTokensIn: (_value: Token[]) => {},
   setAmountsIn: (_value: string) => {},
   setTickLower: (_value: number) => {},
@@ -53,6 +54,7 @@ const defaultZapState = {
   toggleSetting: (_highlightDegenMode?: boolean) => {},
   setSnapshotState: (_val: ZapState | null) => {},
   setUiState: (_val: UiState | ((_prev: UiState) => UiState)) => {},
+  getZapRoute: () => {},
 };
 
 const ZapContext = createContext<{
@@ -73,6 +75,7 @@ const ZapContext = createContext<{
   tokenPrices: { [key: string]: number };
   snapshotState: ZapState | null;
   uiState: UiState;
+  zapRouteDisabled: boolean;
   setTokensIn: (_value: Token[]) => void;
   setAmountsIn: (_value: string) => void;
   setTickLower: (_value: number) => void;
@@ -82,6 +85,7 @@ const ZapContext = createContext<{
   toggleSetting: (_highlightDegenMode?: boolean) => void;
   setSnapshotState: (_val: ZapState | null) => void;
   setUiState: (_val: UiState | ((_prev: UiState) => UiState)) => void;
+  getZapRoute: () => void;
 }>(defaultZapState);
 
 export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
@@ -192,6 +196,20 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
     ],
   );
 
+  const zapRouteDisabled = useMemo(() => {
+    const shouldGetRoute =
+      slippage !== undefined &&
+      (isUniV3 ? debounceTickLower !== null && debounceTickUpper !== null : true) &&
+      !initializing &&
+      (!error ||
+        error === zapApiError ||
+        error === ERROR_MESSAGE.INSUFFICIENT_BALANCE ||
+        error === ERROR_MESSAGE.CONNECT_WALLET ||
+        error === ERROR_MESSAGE.WRONG_NETWORK);
+
+    return !shouldGetRoute;
+  }, [debounceTickLower, debounceTickUpper, error, zapApiError, initializing, isUniV3, slippage]);
+
   const toggleSetting = useCallback((highlight?: boolean) => {
     setUiState(prev => ({ ...prev, showSetting: !prev.showSetting }));
     if (highlight) {
@@ -212,114 +230,102 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
     if ((isToken0Stable || (isToken0Native && !isToken1Stable)) && !revertPrice) toggleRevertPrice();
   }, [defaultRevertChecked, initializing, pool, revertPrice, toggleRevertPrice, wrappedNativeToken?.address]);
 
-  useEffect(() => {
-    if (
-      slippage !== undefined &&
-      (isUniV3 ? debounceTickLower !== null && debounceTickUpper !== null : true) &&
-      !initializing &&
-      (!error ||
-        error === zapApiError ||
-        error === ERROR_MESSAGE.INSUFFICIENT_BALANCE ||
-        error === ERROR_MESSAGE.CONNECT_WALLET ||
-        error === ERROR_MESSAGE.WRONG_NETWORK)
-    ) {
-      let formattedAmountsInWeis = '';
+  const getZapRoute = useCallback(() => {
+    if (zapRouteDisabled || !slippage || initializing) return;
 
-      const {
-        tokensIn: listValidTokensIn,
-        amountsIn: listValidAmountsIn,
-        tokenAddresses: validTokenInAddresses,
-      } = parseTokensAndAmounts(tokensIn, amountsIn);
+    let formattedAmountsInWeis = '';
 
-      try {
-        formattedAmountsInWeis = listValidTokensIn
-          .map((token: Token, index: number) => parseUnits(listValidAmountsIn[index] || '0', token.decimals).toString())
-          .join(',');
-      } catch (error) {
-        console.log(error);
-      }
+    const {
+      tokensIn: listValidTokensIn,
+      amountsIn: listValidAmountsIn,
+      tokenAddresses: validTokenInAddresses,
+    } = parseTokensAndAmounts(tokensIn, amountsIn);
 
-      if (
-        !validTokenInAddresses ||
-        !formattedAmountsInWeis ||
-        formattedAmountsInWeis === '0' ||
-        formattedAmountsInWeis === '00'
-      ) {
-        setZapInfo(null);
-        return;
-      }
-
-      setLoading(true);
-      const params: { [key: string]: string | number | boolean } = {
-        dex: poolType,
-        'pool.id': poolAddress,
-        'pool.token0': pool.token0.address,
-        'pool.token1': pool.token1.address,
-        'pool.fee': pool.fee * 10_000,
-        ...(isUniV3 && debounceTickUpper !== null && debounceTickLower !== null && !positionId
-          ? {
-              'position.tickUpper': debounceTickUpper,
-              'position.tickLower': debounceTickLower,
-            }
-          : { 'position.id': account || ZERO_ADDRESS }),
-        tokensIn: validTokenInAddresses,
-        amountsIn: formattedAmountsInWeis,
-        slippage,
-        ...(positionId ? { 'position.id': positionId } : {}),
-        ...(feeAddress ? { feeAddress, feePcm } : {}),
-        ...(includedSources ? { 'aggregatorOptions.includedSources': includedSources } : {}),
-        ...(excludedSources ? { 'aggregatorOptions.excludedSources': excludedSources } : {}),
-      };
-
-      let tmp = '';
-      Object.keys(params).forEach(key => {
-        tmp = `${tmp}&${key}=${params[key]}`;
-      });
-
-      fetch(`${API_URLS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/in/route?${tmp.slice(1)}`, {
-        headers: {
-          'X-Client-Id': source,
-        },
-      })
-        .then(res => res.json())
-        .then(res => {
-          if (res.data) {
-            setZapApiError('');
-            setZapInfo(res.data);
-          } else {
-            setZapInfo(null);
-            setZapApiError(res.message || 'Something went wrong');
-          }
-        })
-        .catch(e => {
-          const errorMessage = e instanceof Error ? e.message : 'Something went wrong';
-          setZapApiError(errorMessage);
-          console.error('Zap API error:', e);
-        })
-        .finally(() => {
-          setLoading(false);
-        });
+    try {
+      formattedAmountsInWeis = listValidTokensIn
+        .map((token: Token, index: number) => parseUnits(listValidAmountsIn[index] || '0', token.decimals).toString())
+        .join(',');
+    } catch (error) {
+      console.log(error);
     }
+
+    if (
+      !validTokenInAddresses ||
+      !formattedAmountsInWeis ||
+      formattedAmountsInWeis === '0' ||
+      formattedAmountsInWeis === '00'
+    ) {
+      setZapInfo(null);
+      return;
+    }
+
+    setLoading(true);
+    const params: { [key: string]: string | number | boolean } = {
+      dex: poolType,
+      'pool.id': poolAddress,
+      'pool.token0': pool.token0.address,
+      'pool.token1': pool.token1.address,
+      'pool.fee': pool.fee * 10_000,
+      ...(isUniV3 && debounceTickUpper !== null && debounceTickLower !== null && !positionId
+        ? {
+            'position.tickUpper': debounceTickUpper,
+            'position.tickLower': debounceTickLower,
+          }
+        : { 'position.id': account || ZERO_ADDRESS }),
+      tokensIn: validTokenInAddresses,
+      amountsIn: formattedAmountsInWeis,
+      slippage,
+      ...(positionId ? { 'position.id': positionId } : {}),
+      ...(feeAddress ? { feeAddress, feePcm } : {}),
+      ...(includedSources ? { 'aggregatorOptions.includedSources': includedSources } : {}),
+      ...(excludedSources ? { 'aggregatorOptions.excludedSources': excludedSources } : {}),
+    };
+
+    let tmp = '';
+    Object.keys(params).forEach(key => {
+      tmp = `${tmp}&${key}=${params[key]}`;
+    });
+
+    fetch(`${API_URLS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/in/route?${tmp.slice(1)}`, {
+      headers: {
+        'X-Client-Id': source,
+      },
+    })
+      .then(res => res.json())
+      .then(res => {
+        if (res.data) {
+          setZapApiError('');
+          setZapInfo(res.data);
+        } else {
+          setZapInfo(null);
+          setZapApiError(res.message || 'Something went wrong');
+        }
+      })
+      .catch(e => {
+        const errorMessage = e instanceof Error ? e.message : 'Something went wrong';
+        setZapApiError(errorMessage);
+        console.error('Zap API error:', e);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    chainId,
-    poolType,
     debounceTickLower,
     debounceTickUpper,
     feeAddress,
     feePcm,
-    poolAddress,
-    pool,
     slippage,
-    positionId,
     includedSources,
     excludedSources,
     source,
     tokensIn,
     debounceAmountsIn,
-    error,
-    zapApiError,
   ]);
+
+  useEffect(() => {
+    getZapRoute();
+  }, [getZapRoute]);
 
   return (
     <ZapContext.Provider
@@ -348,6 +354,8 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
         tokenPrices,
         snapshotState,
         setSnapshotState,
+        getZapRoute,
+        zapRouteDisabled,
       }}
     >
       {children}

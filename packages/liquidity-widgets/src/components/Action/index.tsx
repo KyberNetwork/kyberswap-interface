@@ -150,12 +150,12 @@ export default function Action({
   const isInvalidZapImpact = zapImpact?.level === PI_LEVEL.INVALID;
 
   const btnText = (() => {
+    if (zapLoading) return 'Fetching Route...';
     if (error) return error;
     if (isUniv4 && isNotOwner) {
       if (isFarming) return 'Your position is in farming';
       return 'Not the position owner';
     }
-    if (zapLoading) return 'Fetching Route...';
     if (loading) return 'Checking Allowance';
     if (addressToApprove || nftApprovePendingTx) return `Approving${'.'.repeat(dots)}`;
     if (notApprove) return `Approve ${notApprove.symbol}`;

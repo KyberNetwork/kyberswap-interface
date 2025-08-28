@@ -11,20 +11,19 @@ import {
   univ3PoolNormalize,
   univ3Position,
 } from '@kyber/schema';
-import { InfoHelper, MouseoverTooltip, ShareModal, ShareType, Skeleton, TokenLogo } from '@kyber/ui';
+import { InfoHelper, LoadingCounter, MouseoverTooltip, ShareModal, ShareType, Skeleton, TokenLogo } from '@kyber/ui';
 import { shortenAddress } from '@kyber/utils/crypto';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
 import ShareIcon from '@/assets/svg/ic_share.svg';
 import SettingIcon from '@/assets/svg/setting.svg';
 import X from '@/assets/svg/x.svg';
-import RefreshLoading from '@/components/Header/RefreshLoading';
 import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
-const Header = ({ refetchData }: { refetchData: () => void }) => {
+const Header = () => {
   const { theme, chainId, onClose, poolType, positionId } = useWidgetStore([
     'theme',
     'chainId',
@@ -36,7 +35,7 @@ const Header = ({ refetchData }: { refetchData: () => void }) => {
   const { position } = usePositionStore(['position']);
   const [openShare, setOpenShare] = useState(false);
 
-  const { toggleSetting, uiState } = useZapState();
+  const { toggleSetting, uiState, loading: zapLoading, getZapRoute, zapRouteDisabled } = useZapState();
 
   const initializing = pool === 'loading' || !pool || position === 'loading';
   const poolAddress = initializing ? '' : pool.address;
@@ -139,7 +138,14 @@ const Header = ({ refetchData }: { refetchData: () => void }) => {
                 </div>
               </>
             )}
-            <RefreshLoading refetchData={refetchData} />
+            {!zapRouteDisabled && (
+              <LoadingCounter
+                clickable
+                refetchLoading={zapLoading}
+                onRefresh={getZapRoute}
+                disableRefresh={zapRouteDisabled}
+              />
+            )}
           </div>
         )}
         {onClose && (
