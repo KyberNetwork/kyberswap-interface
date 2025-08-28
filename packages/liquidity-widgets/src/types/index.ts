@@ -33,6 +33,7 @@ export interface WidgetProps {
       positionId: string | number;
     },
     initialTick?: { tickLower: number; tickUpper: number },
+    initialSlippage?: number,
   ) => void;
   onSuccess?: ({ txHash, position }: OnSuccessProps) => void;
   onSubmitTx: (txData: { from: string; to: string; value: string; data: string; gasLimit: string }) => Promise<string>;

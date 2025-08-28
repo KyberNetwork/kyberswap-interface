@@ -62,6 +62,7 @@ export const validateSlippageInput = (
 const SlippageInput = () => {
   const { slippage, setSlippage, route, setManualSlippage } = useZapStateStore();
   const [v, setV] = useState(() => {
+    if (!slippage) return '';
     if ([5, 10, 50, 100].includes(slippage)) return '';
     return ((slippage * 100) / 10_000).toString();
   });
@@ -70,7 +71,10 @@ const SlippageInput = () => {
 
   const [isFocus, setIsFocus] = useState(false);
   const { isValid, message } = validateSlippageInput(v, suggestedSlippage);
-  const { message: slpWarning } = validateSlippageInput(((slippage * 100) / 10_000).toString(), suggestedSlippage);
+  const { message: slpWarning } = validateSlippageInput(
+    slippage ? ((slippage * 100) / 10_000).toString() : '',
+    suggestedSlippage,
+  );
 
   const onCustomSlippageFocus = () => setIsFocus(true);
 
@@ -131,7 +135,7 @@ const SlippageInput = () => {
 
         <div
           className="relative border w-[72px] rounded-full text-subText text-sm p-1 font-medium flex border-solid border-transparent items-center gap-1 justify-center cursor-pointer hover:border-accent data-[active='true']:text-text data-[active='true']:border-accent data-[error='true']:border-error data-[warning='true']:border-warning data-[focus='true']:border-accent"
-          data-active={![5, 10, 50, 100].includes(slippage)}
+          data-active={slippage && ![5, 10, 50, 100].includes(slippage)}
           data-error={!!message && !isValid}
           data-warning={route && !!message && isValid}
           data-focus={isFocus}
@@ -142,7 +146,7 @@ const SlippageInput = () => {
           )}
           <input
             className="bg-layer1 border-none outline-none text-right text-text w-full text-xs p-0 focus:bg-layer1"
-            data-active={![5, 10, 50, 100].includes(slippage)}
+            data-active={slippage && ![5, 10, 50, 100].includes(slippage)}
             placeholder="Custom"
             onFocus={onCustomSlippageFocus}
             onBlur={onCustomSlippageBlur}
