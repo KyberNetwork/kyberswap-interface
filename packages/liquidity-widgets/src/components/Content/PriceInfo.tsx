@@ -6,7 +6,7 @@ import { defaultToken, univ2PoolNormalize, univ3PoolNormalize } from '@kyber/sch
 import { MouseoverTooltip, Skeleton } from '@kyber/ui';
 import { assertUnreachable } from '@kyber/utils';
 import { divideBigIntToString, formatDisplayNumber } from '@kyber/utils/number';
-import { tickToPrice } from '@kyber/utils/uniswapv3';
+import { sqrtToPrice } from '@kyber/utils/uniswapv3';
 
 import RevertPriceIcon from '@/assets/svg/ic_revert_price.svg';
 import { usePoolStore } from '@/stores/usePoolStore';
@@ -33,7 +33,7 @@ export default function PriceInfo() {
     if (initializing) return '--';
     const { success, data } = univ3PoolNormalize.safeParse(pool);
     if (success) {
-      return tickToPrice(data.tick, data.token0?.decimals, data.token1?.decimals, revertPrice);
+      return sqrtToPrice(BigInt(data.sqrtPriceX96 || 0), data.token0?.decimals, data.token1?.decimals, revertPrice);
     }
 
     const { success: isUniV2, data: uniV2Pool } = univ2PoolNormalize.safeParse(pool);
@@ -70,7 +70,7 @@ export default function PriceInfo() {
                   {firstTokenShortenSymbol}
                 </MouseoverTooltip>
                 <span>=</span>
-                <span>{formatDisplayNumber(price, { significantDigits: 6 })}</span>
+                <span>{formatDisplayNumber(price, { significantDigits: 8 })}</span>
 
                 <MouseoverTooltip
                   text={secondTokenShortenSymbol !== token1.symbol ? token1.symbol : ''}

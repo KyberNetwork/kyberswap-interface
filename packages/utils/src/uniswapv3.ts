@@ -303,14 +303,19 @@ export const decodeUniswapV4PositionInfo = (rawData: string) => {
   };
 };
 
-export function tickToPrice(tick: number, baseDecimal: number, quoteDecimal: number, revert = false): string {
-  const sqrtRatioX96 = getSqrtRatioAtTick(tick);
+export function sqrtToPrice(sqrtRatioX96: bigint, baseDecimal: number, quoteDecimal: number, revert = false): string {
   const ratioX192 = sqrtRatioX96 * sqrtRatioX96; // 1.0001 ** tick * Q192
 
   const numerator = ratioX192 * 10n ** BigInt(baseDecimal);
   const denominator = Q192 * 10n ** BigInt(quoteDecimal);
 
   return revert ? divideBigIntToString(denominator, numerator, 18) : divideBigIntToString(numerator, denominator, 18);
+}
+
+export function tickToPrice(tick: number, baseDecimal: number, quoteDecimal: number, revert = false): string {
+  const sqrtRatioX96 = getSqrtRatioAtTick(tick);
+
+  return sqrtToPrice(sqrtRatioX96, baseDecimal, quoteDecimal, revert);
 }
 
 function sqrt(y: bigint): bigint {

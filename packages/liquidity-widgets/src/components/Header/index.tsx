@@ -36,12 +36,7 @@ const Header = ({ refetchData }: { refetchData: () => void }) => {
       positionId: s.positionId,
     })),
   );
-  const { pool, poolStat } = usePoolStore(
-    useShallow(s => ({
-      pool: s.pool,
-      poolStat: s.poolStat,
-    })),
-  );
+  const pool = usePoolStore(s => s.pool);
   const { position } = usePositionStore(
     useShallow(s => ({
       position: s.position,
@@ -90,7 +85,7 @@ const Header = ({ refetchData }: { refetchData: () => void }) => {
   const shareButton = (className?: string) => (
     <div
       className={cn(
-        'flex items-center justify-center cursor-pointer w-6 h-6 rounded-full bg-layer2 text-icons',
+        'flex items-center justify-center cursor-pointer w-6 h-6 rounded-full text-primary bg-primary-200',
         className,
       )}
       onClick={() => setOpenShare(true)}
@@ -103,9 +98,11 @@ const Header = ({ refetchData }: { refetchData: () => void }) => {
     <>
       {openShare && !initializing && (
         <ShareModal
+          isFarming={pool?.isFarming}
           onClose={() => setOpenShare(false)}
           type={ShareType.POOL_INFO}
           pool={{
+            feeTier: fee,
             address: pool.address,
             chainId,
             chainLogo: NETWORKS_INFO[chainId].logo,
@@ -120,7 +117,11 @@ const Header = ({ refetchData }: { refetchData: () => void }) => {
               symbol: token1.symbol,
               logo: token1.logo || '',
             },
-            apr: (poolStat?.apr || 0) + (poolStat?.kemEGApr || 0) + (poolStat?.kemLMApr || 0),
+            apr: {
+              fees: pool?.stats?.apr || 0,
+              eg: pool?.stats?.kemEGApr || 0,
+              lm: pool?.stats?.kemLMApr || 0,
+            },
           }}
         />
       )}

@@ -28,6 +28,7 @@ interface MigrateLiquidityPureParams {
   }
   chainId: ZapMigrationChainId
   initialTick?: { tickUpper: number; tickLower: number }
+  initialSlippage?: number
 }
 
 interface MigrateLiquidityParams extends MigrateLiquidityPureParams {
@@ -55,6 +56,7 @@ export interface ZapMigrationInfo {
   }
   chainId: number
   initialTick?: { tickUpper: number; tickLower: number }
+  initialSlippage?: number
 }
 
 const zapMigrationDexMapping: Record<EarnDex | Exchange, ZapMigrationDex | null> = {
@@ -112,7 +114,7 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
     [library, navigate],
   )
 
-  const handleOpenZapMigration = ({ from, to, chainId, initialTick }: ZapMigrationInfo) => {
+  const handleOpenZapMigration = ({ from, to, chainId, initialTick, initialSlippage }: ZapMigrationInfo) => {
     const sourceDex = zapMigrationDexMapping[from.dex]
     const targetDex = zapMigrationDexMapping[to.dex]
 
@@ -140,6 +142,7 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
       },
       chainId: chainId as ZapMigrationChainId,
       initialTick,
+      initialSlippage,
     })
   }
 

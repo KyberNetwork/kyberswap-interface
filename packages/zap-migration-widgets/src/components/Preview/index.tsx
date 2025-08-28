@@ -519,19 +519,20 @@ export function Preview({
                 <div className="text-sm font-medium">{parseFloat(zapFee.toFixed(3))}%</div>
               </div>
 
-              {(slippage > 2 * route.zapDetails.suggestedSlippage ||
-                slippage < route.zapDetails.suggestedSlippage / 2) && (
-                <div
-                  className="rounded-md text-xs px-4 py-3 mt-4 font-normal text-warning"
-                  style={{
-                    backgroundColor: `${theme.warning}33`,
-                  }}
-                >
-                  {slippage > route.zapDetails.suggestedSlippage * 2
-                    ? 'Your slippage is set higher than usual, which may cause unexpected losses.'
-                    : 'Your slippage is set lower than usual, increasing the risk of transaction failure.'}
-                </div>
-              )}
+              {slippage &&
+                (slippage > 2 * route.zapDetails.suggestedSlippage ||
+                  slippage < route.zapDetails.suggestedSlippage / 2) && (
+                  <div
+                    className="rounded-md text-xs px-4 py-3 mt-4 font-normal text-warning"
+                    style={{
+                      backgroundColor: `${theme.warning}33`,
+                    }}
+                  >
+                    {slippage > route.zapDetails.suggestedSlippage * 2
+                      ? 'Your slippage is set higher than usual, which may cause unexpected losses.'
+                      : 'Your slippage is set lower than usual, increasing the risk of transaction failure.'}
+                  </div>
+                )}
 
               <div className="flex gap-5 mt-8">
                 <button

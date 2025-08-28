@@ -30,7 +30,6 @@ enum MODAL_TAB {
 
 interface CustomizeToken extends Token {
   balance: string;
-  balanceToSort: string;
   selected: number;
   inPair: number;
   disabled: boolean;
@@ -66,6 +65,7 @@ export default function TokenSelector({
   setTokenToShow,
   setTokenToImport,
   onClose,
+  initialSlippage,
 }: TokenSelectorProps) {
   const { importedTokens, tokens, removeImportedToken, tokenBalances, isLoading } = useTokenState();
 
@@ -100,8 +100,7 @@ export default function TokenSelector({
 
           return {
             ...token,
-            balance: formatUnits(balanceInWei, token?.decimals, 4),
-            balanceToSort: formatUnits(balanceInWei, token?.decimals),
+            balance: formatUnits(balanceInWei, token?.decimals, 8),
             disabled:
               mode === TOKEN_SELECT_MODE.ADD ||
               !foundTokenSelected ||
@@ -121,7 +120,7 @@ export default function TokenSelector({
                   : 0,
           };
         })
-        .sort((a: CustomizeToken, b: CustomizeToken) => parseFloat(b.balanceToSort) - parseFloat(a.balanceToSort))
+        .sort((a: CustomizeToken, b: CustomizeToken) => parseFloat(b.balance) - parseFloat(a.balance))
         .sort((a: CustomizeToken, b: CustomizeToken) => b.inPair - a.inPair)
         .sort((a: CustomizeToken, b: CustomizeToken) => b.selected - a.selected),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -472,6 +471,7 @@ export default function TokenSelector({
               onConnectWallet={onConnectWallet}
               onOpenZapMigration={onOpenZapMigration}
               onClose={onClose}
+              initialSlippage={initialSlippage}
             />
           )}
         </div>

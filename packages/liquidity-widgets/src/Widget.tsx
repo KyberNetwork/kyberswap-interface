@@ -22,16 +22,17 @@ import { formatDisplayNumber } from '@kyber/utils/number';
 
 import ErrorIcon from '@/assets/svg/error.svg';
 import Action from '@/components/Action';
-import EstLiqValue from '@/components/Content/EstLiqValue';
 import LiquidityToAdd, { LiquidityToAddSkeleton } from '@/components/Content/LiquidityToAdd';
 import PoolStat from '@/components/Content/PoolStat';
 import PriceInfo from '@/components/Content/PriceInfo';
 import PriceInput from '@/components/Content/PriceInput';
 import ZapSummary from '@/components/Content/ZapSummary';
+import Estimated from '@/components/Estimated';
 import Header from '@/components/Header';
 import LiquidityChart from '@/components/LiquidityChart';
 import LiquidityChartSkeleton from '@/components/LiquidityChart/LiquidityChartSkeleton';
 import Modal from '@/components/Modal';
+import { PositionFee } from '@/components/PositionFee';
 import PositionLiquidity from '@/components/PositionLiquidity';
 import Preview from '@/components/Preview';
 import PriceRange from '@/components/PriceRange';
@@ -42,8 +43,6 @@ import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 import { PriceType } from '@/types/index';
 import { checkDeviated } from '@/utils';
-
-import { PositionFee } from './components/PositionFee';
 
 export default function Widget() {
   const {
@@ -72,12 +71,11 @@ export default function Widget() {
     })),
   );
   const { position } = usePositionStore(useShallow(s => ({ position: s.position })));
-  const { pool, poolError, getPool, getPoolStat, poolPrice, revertPrice } = usePoolStore(
+  const { pool, poolError, getPool, poolPrice, revertPrice } = usePoolStore(
     useShallow(s => ({
       pool: s.pool,
       poolError: s.poolError,
       getPool: s.getPool,
-      getPoolStat: s.getPoolStat,
       poolPrice: s.poolPrice,
       revertPrice: s.revertPrice,
     })),
@@ -97,6 +95,7 @@ export default function Widget() {
     setAmountsIn,
     snapshotState,
     setSnapshotState,
+    slippage,
   } = useZapState();
 
   const [openTokenSelectModal, setOpenTokenSelectModal] = useState(false);
@@ -179,11 +178,10 @@ export default function Widget() {
 
   const refetchData = useCallback(() => {
     getPool({ poolAddress, chainId, poolType });
-    getPoolStat({ poolAddress, chainId });
-  }, [getPool, poolAddress, chainId, poolType, getPoolStat]);
+  }, [getPool, poolAddress, chainId, poolType]);
 
   const handleOpenZapMigration = useCallback(
-    (position: { exchange: string; poolId: string; positionId: string | number }) =>
+    (position: { exchange: string; poolId: string; positionId: string | number }, initialSlippage?: number) =>
       onOpenZapMigration
         ? onOpenZapMigration(
             position,
@@ -193,6 +191,7 @@ export default function Widget() {
                   tickUpper,
                 }
               : undefined,
+            initialSlippage,
           )
         : undefined,
     [onOpenZapMigration, tickLower, tickUpper],
@@ -281,6 +280,7 @@ export default function Widget() {
           onClose={onCloseTokenSelectModal}
           token0Address={token0.address}
           token1Address={token1.address}
+          initialSlippage={slippage}
         />
       )}
 
@@ -316,7 +316,7 @@ export default function Widget() {
           <div className="w-[45%] max-sm:w-full">
             {isUniV3 ? addLiquiditySection : null}
 
-            <EstLiqValue />
+            <Estimated />
             <ZapSummary />
 
             {isOutOfRangeAfterZap && (

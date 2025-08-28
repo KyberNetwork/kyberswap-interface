@@ -5,6 +5,8 @@ import { ChainRewardInfo, NftRewardInfo, RewardInfo, TokenInfo, TokenRewardInfo 
 
 export const defaultRewardInfo: RewardInfo = {
   totalUsdValue: 0,
+  totalLmUsdValue: 0,
+  totalEgUsdValue: 0,
   claimableUsdValue: 0,
   claimedUsdValue: 0,
   inProgressUsdValue: 0,
@@ -65,6 +67,8 @@ const mergeTokenRewards = (target: TokenRewardInfo, source: TokenRewardInfo): vo
 
 const mergeNftRewards = (target: NftRewardInfo, source: NftRewardInfo): void => {
   target.totalUsdValue += source.totalUsdValue
+  target.totalLmUsdValue += source.totalLmUsdValue
+  target.totalEgUsdValue += source.totalEgUsdValue
   target.claimedUsdValue += source.claimedUsdValue
   target.pendingUsdValue += source.pendingUsdValue
   target.vestingUsdValue += source.vestingUsdValue
@@ -131,6 +135,8 @@ export const parseReward = ({
 
         // Calculate USD values
         const totalUsdValue = Number(nft.totalUSDValue || 0)
+        const totalLmUsdValue = campaignType === RewardType.LM ? totalUsdValue : 0
+        const totalEgUsdValue = campaignType === RewardType.EG ? totalUsdValue : 0
         const claimedUsdValue = Number(nft.claimedUSDValue || 0)
         const pendingUsdValue = Number(nft.pendingUSDValue || 0)
         const vestingUsdValue = Number(nft.vestingUSDValue || 0)
@@ -162,6 +168,8 @@ export const parseReward = ({
           nftId,
           chainId: numericChainId,
           totalUsdValue,
+          totalLmUsdValue,
+          totalEgUsdValue,
           claimedUsdValue,
           pendingUsdValue,
           vestingUsdValue,
@@ -191,6 +199,8 @@ export const parseReward = ({
 
   // Calculate totals in single pass
   let totalUsdValue = 0
+  let totalLmUsdValue = 0
+  let totalEgUsdValue = 0
   let claimableUsdValue = 0
   let claimedUsdValue = 0
   let inProgressUsdValue = 0
@@ -199,6 +209,8 @@ export const parseReward = ({
 
   listNft.forEach(nft => {
     totalUsdValue += nft.totalUsdValue
+    totalLmUsdValue += nft.totalLmUsdValue
+    totalEgUsdValue += nft.totalEgUsdValue
     claimableUsdValue += nft.claimableUsdValue
     claimedUsdValue += nft.claimedUsdValue
     inProgressUsdValue += nft.inProgressUsdValue
@@ -269,6 +281,8 @@ export const parseReward = ({
 
   return {
     totalUsdValue,
+    totalLmUsdValue,
+    totalEgUsdValue,
     claimableUsdValue,
     claimedUsdValue,
     inProgressUsdValue,

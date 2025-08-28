@@ -1,4 +1,5 @@
 export { Button, type ButtonProps } from '@/components/ui/button';
+export { Checkbox, type CheckboxProps } from '@/components/ui/checkbox';
 export { Input, type InputProps } from '@/components/ui/input';
 export { Label } from '@/components/ui/label';
 export { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -24,5 +25,5 @@ export { default as TokenLogo } from '@/components/token-logo';
 export { Portal } from '@/portal';
 export { default as Loader } from '@/components/loader';
 export { default as Toggle, type ToggleProps } from '@/components/ui/toggle';
-export { default as ShareModal, type ShareModalProps, ShareType } from '@/components/ShareModal';
+export { default as ShareModal, type ShareModalProps, ShareType, ShareOption } from '@/components/ShareModal';
 export { default as TokenSelectorModal, MAX_TOKENS, TOKEN_SELECT_MODE } from '@/components/TokenSelectorModal';

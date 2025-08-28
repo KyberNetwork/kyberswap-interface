@@ -105,6 +105,8 @@ const RightSection = ({
 
   const isFarmingPossible = POSSIBLE_FARMING_PROTOCOLS.includes(protocol as Exchange)
   const isUnfinalized = position?.isUnfinalized
+  const isUniV4 = isForkFrom(protocol as Exchange, CoreProtocol.UniswapV4)
+  const isClosed = position?.status === PositionStatus.CLOSED
 
   return (
     <>
@@ -251,9 +253,9 @@ const RightSection = ({
         <PositionActionWrapper>
           <PositionAction
             outlineDefault
-            disabled={initialLoading || !position || position?.status === PositionStatus.CLOSED}
+            disabled={initialLoading || !position || isClosed}
             onClick={() => {
-              if (initialLoading || position?.status === PositionStatus.CLOSED || !position) return
+              if (initialLoading || isClosed || !position) return
 
               handleOpenZapOut({
                 position: {
@@ -266,9 +268,9 @@ const RightSection = ({
             }}
           >{t`Remove Liquidity`}</PositionAction>
           <PositionAction
-            disabled={initialLoading}
+            disabled={initialLoading || (isUniV4 && isClosed)}
             onClick={() => {
-              if (!position || initialLoading) return
+              if (!position || initialLoading || (isUniV4 && isClosed)) return
               onOpenIncreaseLiquidityWidget()
             }}
           >
