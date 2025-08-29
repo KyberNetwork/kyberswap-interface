@@ -19,14 +19,14 @@ const routeApi = createApi({
         clientId?: string
       }
     >({
-      query: ({ params, url, authentication, clientId: _ }) => {
+      query: ({ params, url, authentication, clientId }) => {
         const { chainId, tokenInDecimals, tokenOutDecimals, ...rest } = params
         return {
           url,
           params: rest,
           authentication,
           headers: {
-            'x-client-id': 'unibot-tg',
+            'x-client-id': clientId || 'kyberswap',
           },
         }
       },
@@ -44,7 +44,7 @@ const routeApi = createApi({
           signal,
           authentication,
           headers: {
-            'x-client-id': 'unibot-tg',
+            'x-client-id': payload.source || 'kyberswap',
           },
         }
       },
