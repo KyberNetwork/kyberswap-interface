@@ -23,8 +23,18 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
   const loading = position === 'loading' || pool === 'loading';
   const [showTokenSelect, setShowTokenSelect] = useState(false);
 
-  const { liquidityOut, tokenOut, setTokenOut, route, setSlippage, manualSlippage, mode, setMode, fetchingRoute } =
-    useZapOutUserState();
+  const {
+    liquidityOut,
+    tokenOut,
+    setTokenOut,
+    route,
+    setSlippage,
+    manualSlippage,
+    mode,
+    setMode,
+    fetchingRoute,
+    slippage,
+  } = useZapOutUserState();
 
   const actionRefund = route?.zapDetails.actions.find(item => item.type === 'ACTION_TYPE_REFUND') as
     | RefundAction
@@ -49,7 +59,7 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
   const withdrawAmount1 = BigInt(token1 ? token1.amount : 0);
 
   useEffect(() => {
-    if (pool === 'loading' || !tokenOut || manualSlippage) return;
+    if (pool === 'loading' || !tokenOut || manualSlippage || slippage) return;
 
     if (pool.category === 'stablePair' && tokenOut.isStable) {
       setSlippage(10);
@@ -65,7 +75,7 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
     } else {
       setSlippage(50);
     }
-  }, [tokenOut, manualSlippage, pool, chainId, setSlippage]);
+  }, [tokenOut, manualSlippage, pool, chainId, setSlippage, slippage]);
 
   let amount0 = 0n;
   let amount1 = 0n;

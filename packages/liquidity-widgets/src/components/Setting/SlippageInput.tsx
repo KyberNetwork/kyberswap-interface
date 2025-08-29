@@ -132,7 +132,7 @@ const SlippageInput = ({
           <span>%</span>
         </div>
       </div>
-      {zapInfo && (message || slpWarning) && (
+      {suggestedSlippage > 0 && slippage !== suggestedSlippage && (
         <div
           className={cn('flex items-center gap-1 mt-1 text-primary cursor-pointer text-sm', suggestionClassName)}
           onClick={() => {

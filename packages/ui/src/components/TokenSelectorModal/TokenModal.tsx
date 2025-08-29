@@ -20,10 +20,14 @@ export interface TokenModalProps {
   poolAddress: string;
   token0Address: string;
   token1Address: string;
+  initialSlippage?: number;
   setTokensIn: (tokens: Token[]) => void;
   setAmountsIn: (amounts: string) => void;
   onConnectWallet: () => void;
-  onOpenZapMigration?: (position: { exchange: string; poolId: string; positionId: string | number }) => void;
+  onOpenZapMigration?: (
+    position: { exchange: string; poolId: string; positionId: string | number },
+    initialSlippage?: number,
+  ) => void;
   onClose: () => void;
 }
 
@@ -43,6 +47,7 @@ const TokenModal = ({
   onConnectWallet,
   onOpenZapMigration,
   onClose,
+  initialSlippage,
 }: TokenModalProps) => {
   const { importToken } = useTokenState();
 
@@ -128,6 +133,7 @@ const TokenModal = ({
             setTokenToShow={setTokenToShow}
             setTokenToImport={setTokenToImport}
             onClose={onClose}
+            initialSlippage={initialSlippage}
           />
         )}
       </DialogContent>

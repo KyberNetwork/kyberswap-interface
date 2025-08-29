@@ -7,7 +7,7 @@ import { usePoolsStore } from '@/stores/usePoolsStore';
 import { usePositionStore } from '@/stores/usePositionStore';
 
 interface ZapState {
-  slippage: number;
+  slippage?: number;
   setSlippage: (value: number) => void;
   liquidityOut: bigint;
   tickLower: number | null;
@@ -36,7 +36,7 @@ const initState = {
   showSetting: false,
   ttl: 20,
   degenMode: false,
-  slippage: 50,
+  slippage: undefined,
   showPreview: false,
   liquidityOut: 0n,
   tickLower: null,

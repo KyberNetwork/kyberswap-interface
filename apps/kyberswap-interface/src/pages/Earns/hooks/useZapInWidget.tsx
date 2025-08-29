@@ -158,6 +158,7 @@ const useZapInWidget = ({
     (
       position: { exchange: string; poolId: string; positionId: string | number },
       initialTick?: { tickUpper: number; tickLower: number },
+      initialSlippage?: number,
     ) => {
       if (!addLiquidityPureParams) return
 
@@ -184,6 +185,7 @@ const useZapInWidget = ({
         },
         chainId: addLiquidityPureParams.chainId,
         initialTick,
+        initialSlippage,
       })
     },
     [addLiquidityPureParams, onOpenZapMigration],

@@ -100,11 +100,46 @@ export const TransactionHistory = () => {
                 const txIndex = updatedTransactions.findIndex(t => t.id === tx.id)
 
                 if (txIndex !== -1) {
+                  const oldStatus = updatedTransactions[txIndex].status
                   updatedTransactions[txIndex] = {
                     ...updatedTransactions[txIndex],
                     targetTxHash: txHash || updatedTransactions[txIndex].targetTxHash,
                     status: status || updatedTransactions[txIndex].status,
                   }
+
+                  // Fire specific GA events for success/failure
+                  if (status && status !== oldStatus && window.dataLayer) {
+                    const baseEventData = {
+                      swap_details: {
+                        from_chain: tx.sourceChain,
+                        to_chain: tx.targetChain,
+                        from_token: tx.sourceToken,
+                        to_token: tx.targetToken,
+                        amount_in: tx.inputAmount,
+                        amount_out: tx.outputAmount,
+                        partner: tx.adapter,
+                        source_tx_hash: tx.sourceTxHash,
+                        target_tx_hash: txHash || tx.targetTxHash,
+                        sender: tx.sender,
+                        status: status,
+                      },
+                    }
+
+                    if (status === 'Success') {
+                      window.dataLayer.push({
+                        event: 'cross_chain_swap_success',
+                        event_category: 'cross_chain_swap',
+                        ...baseEventData,
+                      })
+                    } else if (status === 'Failed') {
+                      window.dataLayer.push({
+                        event: 'cross_chain_swap_failed',
+                        event_category: 'cross_chain_swap',
+                        ...baseEventData,
+                      })
+                    }
+                  }
+
                   hasUpdates = true
                 }
               }

@@ -181,7 +181,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
   });
 
   useEffect(() => {
-    if (pool === 'loading' || slippage) return;
+    if (pool === 'loading' || slippage || !tokensIn.length) return;
 
     // First, try to load from localStorage
     if (pool.token0?.symbol && pool.token1?.symbol) {
@@ -208,7 +208,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
     else if (pool.category === POOL_CATEGORY.CORRELATED_PAIR && isTokensInPair) setSlippage(5);
     else setSlippage(10);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pool, isTokensStable, isTokensInPair]);
+  }, [pool, isTokensStable, isTokensInPair, tokensIn.length]);
 
   const { prices: tokenPrices } = useTokenPrices({
     addresses: tokensIn.map(token => token.address.toLowerCase()),

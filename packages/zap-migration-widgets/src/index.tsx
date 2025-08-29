@@ -55,6 +55,7 @@ export interface ZapMigrationProps {
     tickUpper: number;
   };
   referral?: string;
+  initialSlippage?: number;
 }
 
 // createModalRoot.js
@@ -87,6 +88,7 @@ export const ZapMigration = (props: ZapMigrationProps) => {
     onBack,
     initialTick,
     referral,
+    initialSlippage,
     //aggregatorOptions,
     //feeConfig,
   } = props;
@@ -104,7 +106,7 @@ export const ZapMigration = (props: ZapMigrationProps) => {
 
   const { fetchPosition, error: posError, setToPositionNull } = usePositionStore();
 
-  const { showPreview, manualSlippage, setSlippage } = useZapStateStore();
+  const { showPreview, manualSlippage, setSlippage, slippage } = useZapStateStore();
 
   useEffect(() => {
     if (!theme) return;
@@ -149,7 +151,7 @@ export const ZapMigration = (props: ZapMigrationProps) => {
   }, [chainId, from.poolId, to.poolId, from.dex, to.dex, getPools]);
 
   useEffect(() => {
-    if (pools === 'loading' || manualSlippage) return;
+    if (pools === 'loading' || manualSlippage || initialSlippage || slippage) return;
     if (pools[0].category === 'stablePair' && pools[1].category === 'stablePair') setSlippage(10);
     else if (
       pools[0].category === 'correlatedPair' &&
@@ -158,7 +160,11 @@ export const ZapMigration = (props: ZapMigrationProps) => {
     ) {
       setSlippage(25);
     } else setSlippage(50);
-  }, [pools, manualSlippage]);
+  }, [pools, manualSlippage, slippage, initialSlippage, setSlippage]);
+
+  useEffect(() => {
+    if (initialSlippage && !slippage) setSlippage(initialSlippage);
+  }, [initialSlippage, setSlippage, slippage]);
 
   return (
     <div className="ks-lw-migration-style" style={{ width: '100%', height: '100%' }}>
