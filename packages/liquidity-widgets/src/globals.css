@@ -12,7 +12,7 @@
 
     @apply hover:enabled:brightness-110;
     @apply active:enabled:scale-99;
-    @apply disabled:cursor-not-allowed disabled:text-subText disabled:bg-layer2 disabled:border-layer2 disabled:brightness-105;
+    @apply disabled:cursor-not-allowed disabled:!text-subText disabled:!bg-layer2 disabled:!border-layer2 disabled:!brightness-105;
   }
 
   .ks-outline-btn {

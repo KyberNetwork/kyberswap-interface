@@ -41,14 +41,14 @@ export default function StatusDialog({
       <Loading className="w-6 h-6 text-accent" />
     );
 
-  const statusText = title || getStatusText(type);
-  const statusDescription = description || getStatusDescription(type);
+  const statusText = title === undefined ? getStatusText(type) : title;
+  const statusDescription = description === undefined ? getStatusDescription(type) : description;
 
   return (
     <Dialog onOpenChange={onClose} open={true}>
       <DialogContent
         containerClassName="ks-ui-style"
-        className="bg-layer1 p-6 max-w-[500px]"
+        className="bg-layer1 p-6 max-w-[420px]"
         aria-describedby={undefined}
       >
         <DialogTitle className="hidden" />
@@ -58,7 +58,7 @@ export default function StatusDialog({
             <p className="text-xl font-medium text-center">{statusText}</p>
           </div>
 
-          <p className="text-sm text-subText text-center py-2">{statusDescription}</p>
+          {statusDescription ? <p className="text-sm text-subText text-center py-2">{statusDescription}</p> : null}
 
           {transactionExplorerUrl ? (
             <div className="flex w-full justify-center">

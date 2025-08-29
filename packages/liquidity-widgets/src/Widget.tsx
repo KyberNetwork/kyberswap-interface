@@ -14,11 +14,17 @@ import {
   univ3Types,
   univ4Types,
 } from '@kyber/schema';
-import { InfoHelper, MAX_TOKENS, TOKEN_SELECT_MODE, TokenSelectorModal } from '@kyber/ui';
+import {
+  InfoHelper,
+  MAX_TOKENS,
+  StatusDialog,
+  StatusDialogType,
+  TOKEN_SELECT_MODE,
+  TokenSelectorModal,
+} from '@kyber/ui';
 import { getNftManagerContractAddress, getPoolPrice } from '@kyber/utils';
 import { formatDisplayNumber } from '@kyber/utils/number';
 
-import ErrorIcon from '@/assets/svg/error.svg';
 import Action from '@/components/Action';
 import LiquidityToAdd, { LiquidityToAddSkeleton } from '@/components/Content/LiquidityToAdd';
 import PoolStat from '@/components/Content/PoolStat';
@@ -228,12 +234,20 @@ export default function Widget() {
   return (
     <div className="ks-lw ks-lw-style">
       {(poolError || widgetError) && (
-        <Modal isOpen onClick={() => onClose?.()}>
-          <div className="flex flex-col items-center gap-8 text-error">
-            <ErrorIcon className="text-error" />
-            <div className="text-center">{poolError || widgetError}</div>
+        <StatusDialog
+          type={StatusDialogType.ERROR}
+          title={poolError ? 'Failed to load pool' : widgetError ? 'Failed to build zap route' : ''}
+          description={poolError || widgetError}
+          onClose={() => {
+            if (poolError) onClose?.();
+            else {
+              setWidgetError(undefined);
+              getZapRoute();
+            }
+          }}
+          action={
             <button
-              className="ks-primary-btn w-[95%] bg-error border-solid border-error"
+              className="ks-outline-btn flex-1"
               onClick={() => {
                 if (poolError) onClose?.();
                 else {
@@ -244,8 +258,8 @@ export default function Widget() {
             >
               Close
             </button>
-          </div>
-        </Modal>
+          }
+        />
       )}
       {snapshotState && (
         <Modal isOpen onClick={() => setSnapshotState(null)} modalContentClass="!max-h-[96vh]">
