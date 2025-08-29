@@ -37,7 +37,7 @@ const dexMapping: Record<Dex, string[]> = {
   [Dex.DEX_THRUSTERV3]: ['thruster-v3'],
   [Dex.DEX_SUSHISWAPV3]: ['sushiswap-v3'],
 
-  [Dex.DEX_THENAFUSION]: ['thena-fusion'],
+  [Dex.DEX_THENAFUSION]: ['thena'],
   [Dex.DEX_CAMELOTV3]: ['camelot-v3'],
   [Dex.DEX_QUICKSWAPV3ALGEBRA]: ['quickswap-v3'],
   [Dex.DEX_KODIAK_V3]: ['kodiak-v3'],
