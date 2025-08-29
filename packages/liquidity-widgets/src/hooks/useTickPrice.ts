@@ -46,6 +46,7 @@ export default function useTickPrice({
       const { success: isUniV3Position, data } = univ3Position.safeParse(position);
 
       if (isUniV3Position && data.tickUpper !== undefined && data.tickLower !== undefined) {
+        console.log('set tick from position', data.tickLower, data.tickUpper);
         setTickLower(data.tickLower);
         setTickUpper(data.tickUpper);
       }
@@ -54,6 +55,7 @@ export default function useTickPrice({
 
   useEffect(() => {
     if (initialTick && !tickLower && !tickUpper) {
+      console.log('set tick from initialTick', initialTick.tickLower, initialTick.tickUpper);
       setTickLower(initialTick.tickLower);
       setTickUpper(initialTick.tickUpper);
     }

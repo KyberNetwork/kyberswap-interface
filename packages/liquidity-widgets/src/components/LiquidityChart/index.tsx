@@ -48,8 +48,14 @@ export default function LiquidityChart() {
       const tickLower = nearestUsableTick(Number(tickLowerFromPrice), tickSpacing);
       const tickUpper = nearestUsableTick(Number(tickUpperFromPrice), tickSpacing);
 
-      if (tickUpper) revertPrice ? setTickLower(tickUpper) : setTickUpper(tickUpper);
-      if (tickLower) revertPrice ? setTickUpper(tickLower) : setTickLower(tickLower);
+      if (tickUpper) {
+        console.log('set tick from both range input', tickUpper);
+        revertPrice ? setTickLower(tickUpper) : setTickUpper(tickUpper);
+      }
+      if (tickLower) {
+        console.log('set tick from both range input', tickLower);
+        revertPrice ? setTickUpper(tickLower) : setTickLower(tickLower);
+      }
     },
     [positionId, revertPrice, setTickLower, setTickUpper, tickSpacing, token0, token1],
   );
@@ -61,7 +67,10 @@ export default function LiquidityChart() {
 
       if (!tickFromPrice) return;
       const tick = nearestUsableTick(Number(tickFromPrice), tickSpacing);
-      if (tick) revertPrice ? setTickUpper(tick) : setTickLower(tick);
+      if (tick) {
+        console.log('set tick from left range input', tick);
+        revertPrice ? setTickUpper(tick) : setTickLower(tick);
+      }
     },
     [positionId, revertPrice, setTickLower, setTickUpper, tickSpacing, token0, token1],
   );
@@ -73,7 +82,10 @@ export default function LiquidityChart() {
 
       if (!tickFromPrice) return;
       const tick = nearestUsableTick(Number(tickFromPrice), tickSpacing);
-      if (tick) revertPrice ? setTickLower(tick) : setTickUpper(tick);
+      if (tick) {
+        console.log('set tick from right range input', tick);
+        revertPrice ? setTickLower(tick) : setTickUpper(tick);
+      }
     },
     [positionId, revertPrice, setTickLower, setTickUpper, tickSpacing, token0, token1],
   );
