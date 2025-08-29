@@ -1,22 +1,15 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, MouseoverTooltip, Skeleton } from '@kyber/ui';
-import { PI_LEVEL, SwapAction } from '@kyber/utils';
+import { PI_LEVEL } from '@kyber/utils';
 
-export default function SwapImpactCollapse({
-  initializing,
-  swapActions,
-  swapPriceImpact,
-}: {
-  initializing: boolean;
-  swapActions: SwapAction[];
-  swapPriceImpact:
-    | SwapAction
-    | {
-        piRes: {
-          level: PI_LEVEL;
-          msg: string;
-        };
-      };
-}) {
+import useSwapPi from '@/hooks/useSwapPi';
+import { usePoolStore } from '@/stores/usePoolStore';
+
+export default function SwapImpactCollapse() {
+  const { pool } = usePoolStore(['pool']);
+
+  const initializing = pool === 'loading';
+  const { swapActions, swapPriceImpact } = useSwapPi();
+
   return (
     <div className="flex justify-between items-start mt-3 text-xs">
       {swapActions.length ? (

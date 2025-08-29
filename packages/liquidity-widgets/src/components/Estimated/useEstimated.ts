@@ -1,21 +1,14 @@
 import { useMemo } from 'react';
 
 import { defaultToken } from '@kyber/schema';
-import { getSwapPriceImpactFromActions, parseSwapActions, parseZapInfo } from '@kyber/utils';
+import { parseZapInfo } from '@kyber/utils';
 
 import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
-import { useWidgetStore } from '@/stores/useWidgetStore';
 
 export default function useEstimated() {
-  const { chainId, poolType, wrappedNativeToken, nativeToken } = useWidgetStore([
-    'chainId',
-    'poolType',
-    'wrappedNativeToken',
-    'nativeToken',
-  ]);
-  const { zapInfo, tokensIn } = useZapState();
+  const { zapInfo } = useZapState();
   const { pool } = usePoolStore(['pool']);
   const { position } = usePositionStore(['position']);
 
@@ -33,10 +26,6 @@ export default function useEstimated() {
       zapImpact,
     } = parseZapInfo({ zapInfo, token0, token1, position });
 
-    const tokensToCheck = [...tokensIn, token0, token1, wrappedNativeToken, nativeToken];
-    const swapActions = parseSwapActions({ zapInfo, tokens: tokensToCheck, poolType, chainId });
-    const swapPriceImpact = getSwapPriceImpactFromActions(swapActions);
-
     return {
       initializing,
       token0,
@@ -48,10 +37,8 @@ export default function useEstimated() {
       refundInfo,
       initUsd,
       suggestedSlippage,
-      swapActions,
-      swapPriceImpact,
       zapImpact,
       feeInfo,
     };
-  }, [chainId, nativeToken, pool, poolType, position, tokensIn, wrappedNativeToken, zapInfo]);
+  }, [pool, position, zapInfo]);
 }

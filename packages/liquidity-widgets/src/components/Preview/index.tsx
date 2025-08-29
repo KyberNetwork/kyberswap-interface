@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { API_URLS, CHAIN_ID_TO_CHAIN, DEXES_INFO, NETWORKS_INFO, PoolType, univ3PoolNormalize } from '@kyber/schema';
 import {
@@ -10,7 +10,7 @@ import {
   MouseoverTooltip,
   TokenLogo,
 } from '@kyber/ui';
-import { getSwapPriceImpactFromActions, parseSwapActions, parseZapInfo } from '@kyber/utils';
+import { parseZapInfo } from '@kyber/utils';
 import { friendlyError } from '@kyber/utils';
 import { PI_LEVEL } from '@kyber/utils';
 import { calculateGasMargin, estimateGas, isTransactionSuccessful } from '@kyber/utils/crypto';
@@ -24,6 +24,7 @@ import SuccessIcon from '@/assets/svg/success.svg';
 import SwitchIcon from '@/assets/svg/switch.svg';
 import X from '@/assets/svg/x.svg';
 import { SlippageWarning } from '@/components/SlippageWarning';
+import useSwapPi from '@/hooks/useSwapPi';
 import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
@@ -49,8 +50,6 @@ export default function Preview({
     onViewPosition,
     referral,
     source,
-    wrappedNativeToken,
-    nativeToken,
     positionId,
     onSuccess,
   } = useWidgetStore([
@@ -62,8 +61,6 @@ export default function Preview({
     'onViewPosition',
     'referral',
     'source',
-    'wrappedNativeToken',
-    'nativeToken',
     'positionId',
     'onSuccess',
   ]);
@@ -128,12 +125,7 @@ export default function Preview({
     </span>
   );
 
-  const tokensToCheck = useMemo(
-    () => [...tokensIn, token0, token1, wrappedNativeToken, nativeToken],
-    [tokensIn, token0, token1, wrappedNativeToken, nativeToken],
-  );
-  const swapActions = parseSwapActions({ zapInfo, tokens: tokensToCheck, poolType, chainId });
-  const swapPriceImpact = getSwapPriceImpactFromActions(swapActions);
+  const { swapActions, swapPriceImpact } = useSwapPi();
   const rpcUrl = NETWORKS_INFO[chainId].defaultRpc;
 
   useEffect(() => {

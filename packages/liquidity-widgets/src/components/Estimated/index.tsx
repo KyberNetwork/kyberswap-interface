@@ -10,6 +10,7 @@ import SlippageRow from '@/components/Estimated/SlippageRow';
 import SwapImpactCollapse from '@/components/Estimated/SwapImpactCollapse';
 import WarningMessage from '@/components/Estimated/WarningMessage';
 import useEstimated from '@/components/Estimated/useEstimated';
+import useSwapPi from '@/hooks/useSwapPi';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
 export default function Estimated() {
@@ -25,11 +26,10 @@ export default function Estimated() {
     refundInfo,
     initUsd,
     suggestedSlippage,
-    swapActions,
-    swapPriceImpact,
     zapImpact,
     feeInfo,
   } = useEstimated();
+  const { swapPriceImpact } = useSwapPi();
 
   const addedValue = !!positionAmountInfo.addedAmountUsd && (
     <span>{formatCurrency(positionAmountInfo.addedAmountUsd)}</span>
@@ -101,7 +101,7 @@ export default function Estimated() {
           hasRoute={!!zapInfo}
         />
 
-        <SwapImpactCollapse initializing={initializing} swapActions={swapActions} swapPriceImpact={swapPriceImpact} />
+        <SwapImpactCollapse />
 
         <SlippageRow suggestedSlippage={suggestedSlippage} />
 

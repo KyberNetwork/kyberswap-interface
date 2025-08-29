@@ -1,19 +1,7 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 
-import { useNftApproval, usePositionOwner } from '@kyber/hooks';
-import {
-  NETWORKS_INFO,
-  Pool,
-  Univ2PoolType,
-  Univ3PoolType,
-  defaultToken,
-  univ2PoolNormalize,
-  univ2Types,
-  univ3PoolNormalize,
-  univ3Position,
-  univ3Types,
-  univ4Types,
-} from '@kyber/schema';
+import { useNftApproval } from '@kyber/hooks';
+import { NETWORKS_INFO, defaultToken, univ3Types, univ4Types } from '@kyber/schema';
 import {
   InfoHelper,
   MAX_TOKENS,
@@ -22,8 +10,7 @@ import {
   TOKEN_SELECT_MODE,
   TokenSelectorModal,
 } from '@kyber/ui';
-import { getNftManagerContractAddress, getPoolPrice } from '@kyber/utils';
-import { formatDisplayNumber } from '@kyber/utils/number';
+import { getNftManagerContractAddress } from '@kyber/utils';
 
 import Action from '@/components/Action';
 import LiquidityToAdd, { LiquidityToAddSkeleton } from '@/components/Content/LiquidityToAdd';
@@ -42,12 +29,11 @@ import PositionPriceRange from '@/components/PositionPriceRange';
 import Preview from '@/components/Preview';
 import PriceRange from '@/components/PriceRange';
 import Setting from '@/components/Setting';
+import Warning from '@/components/Warning';
 import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
-import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 import { PriceType } from '@/types/index';
-import { checkDeviated } from '@/utils';
 
 export default function Widget() {
   const {
@@ -73,13 +59,8 @@ export default function Widget() {
     'onConnectWallet',
     'onOpenZapMigration',
   ]);
-  const { position } = usePositionStore(['position']);
-  const { pool, poolError, poolPrice, revertPrice } = usePoolStore(['pool', 'poolError', 'poolPrice', 'revertPrice']);
-  const positionOwner = usePositionOwner({
-    positionId: positionId || '',
-    chainId,
-    poolType,
-  });
+  const { pool, poolError } = usePoolStore(['pool', 'poolError']);
+
   const {
     zapInfo,
     tickLower,
@@ -118,60 +99,6 @@ export default function Widget() {
     nftManagerContract,
     onSubmitTx: onSubmitTx,
   });
-
-  const newPool: Pool | null = useMemo(() => {
-    const { success: isUniV3, data: univ3PoolInfo } = univ3PoolNormalize.safeParse(pool);
-    const { success: isUniV2, data: uniV2PoolInfo } = univ2PoolNormalize.safeParse(pool);
-
-    const isUniV3PoolType = univ3Types.includes(poolType as any);
-    const isUniV2PoolType = univ2Types.includes(poolType as any);
-
-    if (zapInfo) {
-      if (isUniV3 && isUniV3PoolType) {
-        const newInfo = zapInfo?.poolDetails.uniswapV3 || zapInfo?.poolDetails.algebraV1;
-        return {
-          ...univ3PoolInfo,
-          poolType: poolType as Univ3PoolType,
-          sqrtRatioX96: newInfo?.newSqrtP,
-          tick: newInfo.newTick,
-          liquidity: (BigInt(univ3PoolInfo.liquidity) + BigInt(zapInfo.positionDetails.addedLiquidity)).toString(),
-        };
-      }
-      if (isUniV2 && isUniV2PoolType)
-        return {
-          ...uniV2PoolInfo,
-          poolType: poolType as Univ2PoolType,
-          reverses: [zapInfo.poolDetails.uniswapV2.newReserve0, zapInfo.poolDetails.uniswapV2.newReserve1],
-        };
-    }
-    return null;
-  }, [pool, poolType, zapInfo]);
-
-  const isOutOfRangeAfterZap = useMemo(() => {
-    const { success, data } = univ3Position.safeParse(position);
-    const { success: isUniV3Pool, data: newPoolUniv3 } = univ3PoolNormalize.safeParse(newPool);
-
-    return newPool && success && isUniV3Pool
-      ? newPoolUniv3.tick < data.tickLower || newPoolUniv3.tick >= data.tickUpper
-      : false;
-  }, [newPool, position]);
-
-  const isFullRange = useMemo(
-    () => pool !== 'loading' && 'minTick' in pool && tickLower === pool.minTick && tickUpper === pool.maxTick,
-    [pool, tickLower, tickUpper],
-  );
-
-  const newPoolPrice = useMemo(() => getPoolPrice({ pool: newPool, revertPrice }), [newPool, revertPrice]);
-
-  const isNotOwner =
-    positionId &&
-    positionOwner &&
-    connectedAccount?.address &&
-    positionOwner !== connectedAccount?.address?.toLowerCase()
-      ? true
-      : false;
-
-  const isDeviated = checkDeviated(poolPrice, newPoolPrice);
 
   const handleOpenZapMigration = useCallback(
     (position: { exchange: string; poolId: string; positionId: string | number }, initialSlippage?: number) =>
@@ -329,60 +256,7 @@ export default function Widget() {
 
             <Estimated />
             <ZapSummary />
-
-            {isOutOfRangeAfterZap && (
-              <div
-                className="py-3 px-4 text-sm rounded-md font-normal text-blue mt-4"
-                style={{
-                  backgroundColor: `${theme.blue}33`,
-                }}
-              >
-                Your liquidity is outside the current market range and will not be used/earn fees until the market price
-                enters your specified range.
-              </div>
-            )}
-            {isFullRange && (
-              <div
-                className="py-3 px-4 text-sm rounded-md font-normal text-blue mt-4"
-                style={{
-                  backgroundColor: `${theme.blue}33`,
-                }}
-              >
-                Your liquidity is active across the full price range. However, this may result in a lower APR than
-                estimated due to less concentration of liquidity.
-              </div>
-            )}
-            {isDeviated && (
-              <div
-                className="py-3 px-4 text-subText text-sm rounded-md mt-4 font-normal"
-                style={{ backgroundColor: `${theme.warning}33` }}
-              >
-                <div className="italic text-text">
-                  The pool's estimated price after zapping of{' '}
-                  <span className="font-medium text-warning not-italic ml-[2px]">
-                    1 {revertPrice ? token1.symbol : token0.symbol} ={' '}
-                    {formatDisplayNumber(newPoolPrice, { significantDigits: 6 })}{' '}
-                    {revertPrice ? token0.symbol : token1.symbol}
-                  </span>{' '}
-                  deviates from the market price{' '}
-                  <span className="font-medium text-warning not-italic">
-                    (1 {revertPrice ? token1.symbol : token0.symbol} ={' '}
-                    {formatDisplayNumber(poolPrice, { significantDigits: 6 })}{' '}
-                    {revertPrice ? token0.symbol : token1.symbol})
-                  </span>
-                  . You might have high impermanent loss after you add liquidity to this pool
-                </div>
-              </div>
-            )}
-
-            {isUniv4 && isNotOwner && (
-              <div
-                className="py-3 px-4 text-subText text-sm rounded-md mt-4 font-normal"
-                style={{ backgroundColor: `${theme.warning}33` }}
-              >
-                You are not the current owner of the position #{positionId}, please double check before proceeding
-              </div>
-            )}
+            <Warning />
           </div>
         </div>
         <Action
