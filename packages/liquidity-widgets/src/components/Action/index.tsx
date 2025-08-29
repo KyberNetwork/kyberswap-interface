@@ -1,11 +1,19 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import { usePositionOwner } from '@kyber/hooks';
 import { APPROVAL_STATE, useErc20Approvals } from '@kyber/hooks';
-import { FARMING_CONTRACTS, NETWORKS_INFO, defaultToken, univ3PoolNormalize, univ4Types } from '@kyber/schema';
-import { InfoHelper } from '@kyber/ui';
-import { PI_LEVEL, getPriceImpact, getSwapPriceImpactFromZapInfo } from '@kyber/utils';
-import { parseUnits } from '@kyber/utils/crypto';
+import {
+  API_URLS,
+  CHAIN_ID_TO_CHAIN,
+  FARMING_CONTRACTS,
+  NETWORKS_INFO,
+  defaultToken,
+  univ3PoolNormalize,
+  univ4Types,
+} from '@kyber/schema';
+import { InfoHelper, Loading } from '@kyber/ui';
+import { PI_LEVEL, fetchTokenPrice, friendlyError, getPriceImpact, getSwapPriceImpactFromZapInfo } from '@kyber/utils';
+import { estimateGas, formatUnits, getCurrentGasPrice, parseUnits } from '@kyber/utils/crypto';
 
 import { ERROR_MESSAGE } from '@/constants';
 import { useZapState } from '@/hooks/useZapState';
@@ -16,10 +24,12 @@ export default function Action({
   nftApproved,
   approveNft,
   nftApprovePendingTx,
+  setWidgetError,
 }: {
   nftApproved: boolean;
   nftApprovePendingTx: string;
   approveNft: () => Promise<void>;
+  setWidgetError: (_value: string | undefined) => void;
 }) {
   const {
     poolType,
@@ -32,6 +42,7 @@ export default function Action({
     nativeToken,
     wrappedNativeToken,
     positionId,
+    source,
   } = useWidgetStore([
     'poolType',
     'chainId',
@@ -43,6 +54,7 @@ export default function Action({
     'nativeToken',
     'wrappedNativeToken',
     'positionId',
+    'source',
   ]);
   const { pool } = usePoolStore(['pool']);
   const positionOwner = usePositionOwner({
@@ -67,6 +79,7 @@ export default function Action({
 
   const initializing = pool === 'loading';
   const { token0 = defaultToken, token1 = defaultToken } = !initializing ? pool : {};
+  const { address: account } = connectedAccount;
 
   const amountsInWei: string[] = useMemo(
     () =>
@@ -98,17 +111,7 @@ export default function Action({
   );
 
   const [clickedApprove, setClickedLoading] = useState(false);
-  const [dots, setDots] = useState(1);
-
-  // Animate dots for approving and loading states
-  useEffect(() => {
-    if (addressToApprove || nftApprovePendingTx) {
-      const interval = setInterval(() => {
-        setDots(prev => (prev >= 3 ? 1 : prev + 1));
-      }, 500);
-      return () => clearInterval(interval);
-    }
-  }, [addressToApprove, nftApprovePendingTx, zapLoading]);
+  const [gasLoading, setGasLoading] = useState(false);
 
   const isUniv4 = univ4Types.includes(poolType);
   const isNotOwner =
@@ -131,6 +134,7 @@ export default function Action({
     nftApprovePendingTx ||
     loading ||
     zapLoading ||
+    gasLoading ||
     (!!error && !isWrongNetwork && !isNotConnected) ||
     Object.values(approvalStates).some(item => item === APPROVAL_STATE.PENDING);
 
@@ -150,14 +154,15 @@ export default function Action({
   const isInvalidZapImpact = zapImpact?.level === PI_LEVEL.INVALID;
 
   const btnText = (() => {
-    if (zapLoading) return 'Fetching Route...';
+    if (zapLoading) return 'Fetching Route';
+    if (gasLoading) return 'Estimating Gas';
     if (error) return error;
     if (isUniv4 && isNotOwner) {
       if (isFarming) return 'Your position is in farming';
       return 'Not the position owner';
     }
     if (loading) return 'Checking Allowance';
-    if (addressToApprove || nftApprovePendingTx) return `Approving${'.'.repeat(dots)}`;
+    if (addressToApprove || nftApprovePendingTx) return 'Approving';
     if (notApprove) return `Approve ${notApprove.symbol}`;
     if (isUniv4 && positionId && !nftApproved) return 'Approve NFT';
     if (isVeryHighPriceImpact || isVeryHighZapImpact || isInvalidZapImpact) return 'Zap anyway';
@@ -165,7 +170,61 @@ export default function Action({
     return 'Preview';
   })();
 
-  const hanldeClick = () => {
+  const getGasEstimation = async ({ deadline }: { deadline: number }) => {
+    if (!zapInfo) return;
+    setGasLoading(true);
+    const rpcUrl = NETWORKS_INFO[chainId].defaultRpc;
+
+    const res = await fetch(`${API_URLS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/in/route/build`, {
+      method: 'POST',
+      body: JSON.stringify({
+        sender: account,
+        recipient: account,
+        route: zapInfo.route,
+        deadline,
+        source,
+      }),
+    })
+      .then(res => res.json())
+      .then(async res => {
+        const { data } = res || {};
+        if (data?.callData && account) {
+          const txData = {
+            from: account,
+            to: data.routerAddress,
+            data: data.callData,
+            value: `0x${BigInt(data.value).toString(16)}`,
+          };
+
+          try {
+            const wethAddress = NETWORKS_INFO[chainId].wrappedToken.address.toLowerCase();
+            const [gasEstimation, nativeTokenPrice, gasPrice] = await Promise.all([
+              estimateGas(rpcUrl, txData),
+              fetchTokenPrice({ addresses: [wethAddress], chainId })
+                .then((prices: { [x: string]: { PriceBuy: number } }) => {
+                  return prices[wethAddress]?.PriceBuy || 0;
+                })
+                .catch(() => 0),
+              getCurrentGasPrice(rpcUrl),
+            ]);
+
+            const gasUsd = +formatUnits(gasPrice, 18) * +gasEstimation.toString() * nativeTokenPrice;
+
+            return gasUsd;
+          } catch (e) {
+            const message = e instanceof Error ? e.message : String(e);
+            setWidgetError(friendlyError(message));
+            console.log('Estimate gas failed', message);
+          } finally {
+            setGasLoading(false);
+          }
+        }
+      });
+
+    return res;
+  };
+
+  const hanldeClick = async () => {
     if (!slippage) return;
     const { success: isUniV3Pool, data: univ3Pool } = univ3PoolNormalize.safeParse(pool);
     if (isNotConnected) {
@@ -198,6 +257,10 @@ export default function Action({
 
       const date = new Date();
       date.setMinutes(date.getMinutes() + (ttl || 20));
+      const deadline = Math.floor(date.getTime() / 1000);
+
+      const gasUsd = await getGasEstimation({ deadline });
+      if (!gasUsd) return;
 
       setSnapshotState({
         tokensIn: tokensIn,
@@ -205,13 +268,23 @@ export default function Action({
         pool,
         zapInfo,
         slippage,
-        deadline: Math.floor(date.getTime() / 1000),
+        deadline,
         isFullRange: isUniV3Pool ? univ3Pool.minTick === tickUpper && univ3Pool.maxTick === tickLower : true,
         tickUpper: tickUpper !== null ? tickUpper : 0,
         tickLower: tickLower !== null ? tickLower : 0,
+        gasUsd,
       });
     }
   };
+
+  const btnLoading = zapLoading || loading || addressToApprove || nftApprovePendingTx || gasLoading;
+  const btnWarning =
+    (isVeryHighPriceImpact || isVeryHighZapImpact || isInvalidZapImpact) &&
+    !error &&
+    !isWrongNetwork &&
+    !isNotConnected &&
+    Object.values(approvalStates).every(item => item === APPROVAL_STATE.APPROVED) &&
+    (isUniv4 ? nftApproved : true);
 
   return (
     <div className="flex justify-center gap-5 mt-6">
@@ -234,22 +307,18 @@ export default function Action({
         onClick={hanldeClick}
       >
         {btnText}
-        {(isVeryHighPriceImpact || isVeryHighZapImpact || isInvalidZapImpact) &&
-          !error &&
-          !isWrongNetwork &&
-          !isNotConnected &&
-          Object.values(approvalStates).every(item => item === APPROVAL_STATE.APPROVED) &&
-          (isUniv4 ? nftApproved : true) && (
-            <InfoHelper
-              width="300px"
-              color="#ffffff"
-              text={
-                uiState.degenMode
-                  ? 'You have turned on Degen Mode from settings. Trades with very high price impact can be executed'
-                  : 'To ensure you dont lose funds due to very high price impact, swap has been disabled for this trade. If you still wish to continue, you can turn on Degen Mode from Settings.'
-              }
-            />
-          )}
+        {btnLoading && <Loading className="ml-[6px]" />}
+        {btnWarning && (
+          <InfoHelper
+            width="300px"
+            color="#ffffff"
+            text={
+              uiState.degenMode
+                ? 'You have turned on Degen Mode from settings. Trades with very high price impact can be executed'
+                : 'To ensure you dont lose funds due to very high price impact, swap has been disabled for this trade. If you still wish to continue, you can turn on Degen Mode from Settings.'
+            }
+          />
+        )}
       </button>
     </div>
   );

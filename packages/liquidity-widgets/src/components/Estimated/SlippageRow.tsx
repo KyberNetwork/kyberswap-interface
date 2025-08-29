@@ -55,7 +55,7 @@ export default function SlippageRow({ suggestedSlippage }: { suggestedSlippage: 
           </AccordionTrigger>
           <AccordionContent>
             <SlippageInput
-              className="bg-black border border-icon-300"
+              className="bg-black border border-[#a9a9a94d]"
               inputClassName="bg-black focus:bg-black"
               suggestionClassName="text-xs"
             />

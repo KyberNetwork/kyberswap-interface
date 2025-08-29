@@ -83,4 +83,5 @@ export interface ZapState {
   slippage: number;
   tickLower: number;
   tickUpper: number;
+  gasUsd: number;
 }

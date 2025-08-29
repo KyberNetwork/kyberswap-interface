@@ -10,16 +10,10 @@ import {
   MouseoverTooltip,
   TokenLogo,
 } from '@kyber/ui';
-import { fetchTokenPrice, getSwapPriceImpactFromActions, parseSwapActions, parseZapInfo } from '@kyber/utils';
+import { getSwapPriceImpactFromActions, parseSwapActions, parseZapInfo } from '@kyber/utils';
 import { friendlyError } from '@kyber/utils';
 import { PI_LEVEL } from '@kyber/utils';
-import {
-  calculateGasMargin,
-  estimateGas,
-  formatUnits,
-  getCurrentGasPrice,
-  isTransactionSuccessful,
-} from '@kyber/utils/crypto';
+import { calculateGasMargin, estimateGas, isTransactionSuccessful } from '@kyber/utils/crypto';
 import { formatCurrency, formatDisplayNumber } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
@@ -43,7 +37,7 @@ export interface PreviewProps {
 }
 
 export default function Preview({
-  zapState: { pool, zapInfo, deadline, slippage, tickLower, tickUpper },
+  zapState: { pool, zapInfo, deadline, slippage, tickLower, tickUpper, gasUsd },
   onDismiss,
 }: PreviewProps) {
   const {
@@ -84,7 +78,6 @@ export default function Preview({
   const [attempTx, setAttempTx] = useState(false);
   const [txError, setTxError] = useState<Error | null>(null);
   const [txStatus, setTxStatus] = useState<'success' | 'failed' | ''>('');
-  const [gasUsd, setGasUsd] = useState<number | null>(null);
   const [onSuccessTriggered, setOnSuccessTriggered] = useState(false);
 
   const { success: isUniV3, data: univ3Pool } = univ3PoolNormalize.safeParse(pool);
@@ -142,50 +135,6 @@ export default function Preview({
   const swapActions = parseSwapActions({ zapInfo, tokens: tokensToCheck, poolType, chainId });
   const swapPriceImpact = getSwapPriceImpactFromActions(swapActions);
   const rpcUrl = NETWORKS_INFO[chainId].defaultRpc;
-
-  useEffect(() => {
-    fetch(`${API_URLS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/in/route/build`, {
-      method: 'POST',
-      body: JSON.stringify({
-        sender: account,
-        recipient: account,
-        route: zapInfo.route,
-        deadline,
-        source,
-      }),
-    })
-      .then(res => res.json())
-      .then(async res => {
-        const { data } = res || {};
-        if (data?.callData && account) {
-          const txData = {
-            from: account,
-            to: data.routerAddress,
-            data: data.callData,
-            value: `0x${BigInt(data.value).toString(16)}`,
-          };
-
-          try {
-            const wethAddress = NETWORKS_INFO[chainId].wrappedToken.address.toLowerCase();
-            const [gasEstimation, nativeTokenPrice, gasPrice] = await Promise.all([
-              estimateGas(rpcUrl, txData),
-              fetchTokenPrice({ addresses: [wethAddress], chainId })
-                .then((prices: { [x: string]: { PriceBuy: number } }) => {
-                  return prices[wethAddress]?.PriceBuy || 0;
-                })
-                .catch(() => 0),
-              getCurrentGasPrice(rpcUrl),
-            ]);
-
-            const gasUsd = +formatUnits(gasPrice, 18) * +gasEstimation.toString() * nativeTokenPrice;
-
-            setGasUsd(gasUsd);
-          } catch (e) {
-            console.log('Estimate gas failed', e);
-          }
-        }
-      });
-  }, [account, chainId, deadline, rpcUrl, source, zapInfo.route]);
 
   useEffect(() => {
     if (!txHash || txStatus !== 'success' || !onSuccess || onSuccessTriggered) return;

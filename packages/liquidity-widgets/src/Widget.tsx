@@ -85,10 +85,12 @@ export default function Widget() {
     snapshotState,
     setSnapshotState,
     slippage,
+    getZapRoute,
   } = useZapState();
 
   const [openTokenSelectModal, setOpenTokenSelectModal] = useState(false);
   const [tokenAddressSelected, setTokenAddressSelected] = useState<string | undefined>();
+  const [widgetError, setWidgetError] = useState<string | undefined>();
 
   const initializing = pool === 'loading';
   const { token0 = defaultToken, token1 = defaultToken } = !initializing ? pool : {};
@@ -225,12 +227,21 @@ export default function Widget() {
 
   return (
     <div className="ks-lw ks-lw-style">
-      {poolError && (
+      {(poolError || widgetError) && (
         <Modal isOpen onClick={() => onClose?.()}>
           <div className="flex flex-col items-center gap-8 text-error">
             <ErrorIcon className="text-error" />
-            <div className="text-center">{poolError}</div>
-            <button className="ks-primary-btn w-[95%] bg-error border-solid border-error" onClick={() => onClose?.()}>
+            <div className="text-center">{poolError || widgetError}</div>
+            <button
+              className="ks-primary-btn w-[95%] bg-error border-solid border-error"
+              onClick={() => {
+                if (poolError) onClose?.();
+                else {
+                  setWidgetError(undefined);
+                  getZapRoute();
+                }
+              }}
+            >
               Close
             </button>
           </div>
@@ -243,6 +254,7 @@ export default function Widget() {
             onDismiss={() => {
               if (isUniv4) checkNftApproval();
               setSnapshotState(null);
+              getZapRoute();
             }}
           />
         </Modal>
@@ -359,7 +371,12 @@ export default function Widget() {
             )}
           </div>
         </div>
-        <Action nftApproved={nftApproved} nftApprovePendingTx={nftApprovePendingTx} approveNft={approveNft} />
+        <Action
+          nftApproved={nftApproved}
+          nftApprovePendingTx={nftApprovePendingTx}
+          approveNft={approveNft}
+          setWidgetError={setWidgetError}
+        />
       </div>
       <Setting />
     </div>
