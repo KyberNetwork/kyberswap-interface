@@ -26,7 +26,7 @@ const routeApi = createApi({
           params: rest,
           authentication,
           headers: {
-            'x-client-id': '',
+            'x-client-id': 'unibot-tg',
           },
         }
       },
@@ -44,7 +44,7 @@ const routeApi = createApi({
           signal,
           authentication,
           headers: {
-            'x-client-id': '',
+            'x-client-id': 'unibot-tg',
           },
         }
       },
