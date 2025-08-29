@@ -29,3 +29,4 @@ export { default as ShareModal, type ShareModalProps, ShareType, ShareOption } f
 export { default as TokenSelectorModal, MAX_TOKENS, TOKEN_SELECT_MODE } from '@/components/TokenSelectorModal';
 export { default as LoadingCounter } from '@/components/LoadingCounter';
 export { default as Loading } from '@/components/loading';
+export { default as StatusDialog, StatusDialogType, type StatusDialogProps } from '@/components/StatusDialog';

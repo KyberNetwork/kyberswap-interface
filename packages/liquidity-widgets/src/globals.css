@@ -7,8 +7,8 @@
   .ks-primary-btn {
     @apply flex justify-center items-center justify-self-end;
     @apply border border-accent rounded-md;
-    @apply text-sm font-medium bg-accent text-layer1;
-    @apply px-3 py-[10px] cursor-pointer;
+    @apply text-sm font-medium !bg-accent !text-layer1;
+    @apply !px-3 !py-[10px] cursor-pointer;
 
     @apply hover:enabled:brightness-110;
     @apply active:enabled:scale-99;
@@ -19,7 +19,7 @@
     @apply flex justify-center items-center justify-self-end;
     @apply border border-[#ffffffb3] rounded-md;
     @apply text-sm font-medium bg-transparent text-[#ffffffb3];
-    @apply px-3 py-[10px] cursor-pointer;
+    @apply !px-3 !py-[10px] cursor-pointer;
 
     @apply hover:border-accent hover:text-accent;
     @apply active:scale-99;
