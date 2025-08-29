@@ -64,11 +64,11 @@ export const dexMapping: Record<PoolType, string[]> = {
   [PoolType.DEX_THRUSTERV2]: ['thruster-v2'],
   [PoolType.DEX_SWAPMODEV2]: ['baseswap, arbidex, superswap'],
   [PoolType.DEX_KODIAK_V3]: ['kodiak-v3'],
-  [PoolType.DEX_KODIAK_V2]: ['kodiak'],
+  [PoolType.DEX_KODIAK_V2]: ['kodiakcl'],
   [PoolType.DEX_SQUADSWAP_V3]: ['squadswap-v3'],
   [PoolType.DEX_SQUADSWAP_V2]: ['squadswap'],
 
-  [PoolType.DEX_THENAFUSION]: ['thena-fusion'],
+  [PoolType.DEX_THENAFUSION]: ['thena'],
   [PoolType.DEX_CAMELOTV3]: ['camelot-v3'],
   [PoolType.DEX_QUICKSWAPV3ALGEBRA]: ['quickswap-v3'],
 } as const;
