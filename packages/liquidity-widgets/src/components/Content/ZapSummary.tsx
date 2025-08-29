@@ -12,7 +12,7 @@ import {
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@kyber/ui';
 import { formatTokenAmount, formatWei } from '@kyber/utils/number';
 
-import useSwapPi from '@/hooks/useSwapPi';
+import useSwapPI from '@/hooks/useSwapPI';
 import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
@@ -33,7 +33,7 @@ export default function ZapSummary() {
 
   const onExpand = () => setExpanded(prev => !prev);
 
-  const { swapActions } = useSwapPi();
+  const { swapActions } = useSwapPI();
 
   const addedLiquidityInfo = useMemo(() => {
     if (pool === 'loading') return { addedAmount0: '0', addedAmount1: '0' };

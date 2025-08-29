@@ -55,10 +55,10 @@ export default function StatusDialog({
         <DialogDescription>
           <div className="w-full flex items-center justify-center gap-2 py-4">
             {statusIcon}
-            <p className="text-xl font-medium text-center">{statusText}</p>
+            <div className="text-xl font-medium text-center">{statusText}</div>
           </div>
 
-          {statusDescription ? <p className="text-sm text-subText text-center py-2">{statusDescription}</p> : null}
+          {statusDescription ? <div className="text-sm text-subText text-center py-2">{statusDescription}</div> : null}
 
           {transactionExplorerUrl ? (
             <div className="flex w-full justify-center">

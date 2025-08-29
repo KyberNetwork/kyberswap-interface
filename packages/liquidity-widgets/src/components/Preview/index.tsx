@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
-import { API_URLS, CHAIN_ID_TO_CHAIN, DEXES_INFO, NETWORKS_INFO, PoolType, univ3PoolNormalize } from '@kyber/schema';
+import { API_URLS, CHAIN_ID_TO_CHAIN, DEXES_INFO, NETWORKS_INFO, univ3PoolNormalize } from '@kyber/schema';
 import {
   Accordion,
   AccordionContent,
@@ -8,23 +8,25 @@ import {
   AccordionTrigger,
   InfoHelper,
   MouseoverTooltip,
+  StatusDialog,
+  StatusDialogType,
   TokenLogo,
 } from '@kyber/ui';
 import { parseZapInfo } from '@kyber/utils';
 import { friendlyError } from '@kyber/utils';
 import { PI_LEVEL } from '@kyber/utils';
-import { calculateGasMargin, estimateGas, isTransactionSuccessful } from '@kyber/utils/crypto';
+import { calculateGasMargin, estimateGas } from '@kyber/utils/crypto';
 import { formatCurrency, formatDisplayNumber } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
-import ErrorIcon from '@/assets/svg/error.svg';
 import Info from '@/assets/svg/info.svg';
-import Spinner from '@/assets/svg/loader.svg';
-import SuccessIcon from '@/assets/svg/success.svg';
 import SwitchIcon from '@/assets/svg/switch.svg';
 import X from '@/assets/svg/x.svg';
+import Warning from '@/components/Preview/Warning';
+import useOnSuccess from '@/components/Preview/useOnSuccess';
+import useTxStatus from '@/components/Preview/useTxStatus';
 import { SlippageWarning } from '@/components/SlippageWarning';
-import useSwapPi from '@/hooks/useSwapPi';
+import useSwapPI from '@/hooks/useSwapPI';
 import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
@@ -41,69 +43,36 @@ export default function Preview({
   zapState: { pool, zapInfo, deadline, slippage, tickLower, tickUpper, gasUsd },
   onDismiss,
 }: PreviewProps) {
-  const {
-    poolType,
-    chainId,
-    connectedAccount,
-    theme,
-    onSubmitTx,
-    onViewPosition,
-    referral,
-    source,
-    positionId,
-    onSuccess,
-  } = useWidgetStore([
-    'poolType',
-    'chainId',
-    'connectedAccount',
-    'theme',
-    'onSubmitTx',
-    'onViewPosition',
-    'referral',
-    'source',
-    'positionId',
-    'onSuccess',
-  ]);
+  const { poolType, chainId, connectedAccount, theme, onSubmitTx, onViewPosition, referral, source, positionId } =
+    useWidgetStore([
+      'poolType',
+      'chainId',
+      'connectedAccount',
+      'theme',
+      'onSubmitTx',
+      'onViewPosition',
+      'referral',
+      'source',
+      'positionId',
+    ]);
   const { position } = usePositionStore(['position']);
   const { revertPrice, toggleRevertPrice, poolPrice } = usePoolStore(['revertPrice', 'toggleRevertPrice', 'poolPrice']);
+  const { tokensIn, amountsIn, setSlippage, setUiState, minPrice, maxPrice } = useZapState();
 
   const { address: account } = connectedAccount;
-  const { tokensIn, amountsIn, setSlippage, setUiState, minPrice, maxPrice } = useZapState();
   const { tokensIn: listValidTokensIn, amountsIn: listValidAmountsIn } = parseTokensAndAmounts(tokensIn, amountsIn);
 
   const [txHash, setTxHash] = useState('');
   const [attempTx, setAttempTx] = useState(false);
   const [txError, setTxError] = useState<Error | null>(null);
-  const [txStatus, setTxStatus] = useState<'success' | 'failed' | ''>('');
-  const [onSuccessTriggered, setOnSuccessTriggered] = useState(false);
+  const { txStatus } = useTxStatus({ txHash });
 
   const { success: isUniV3, data: univ3Pool } = univ3PoolNormalize.safeParse(pool);
   const isOutOfRange = isUniV3 ? tickLower > univ3Pool.tick || univ3Pool.tick >= tickUpper : false;
 
-  const { icon: dexLogo } = DEXES_INFO[poolType as PoolType];
-
-  const suggestedSlippage = zapInfo?.zapDetails.suggestedSlippage || 0;
-
-  useEffect(() => {
-    if (txHash) {
-      const i = setInterval(() => {
-        isTransactionSuccessful(NETWORKS_INFO[chainId].defaultRpc, txHash).then(res => {
-          if (!res) return;
-
-          if (res.status) {
-            setTxStatus('success');
-          } else setTxStatus('failed');
-        });
-      }, 10_000);
-
-      return () => {
-        clearInterval(i);
-      };
-    }
-  }, [chainId, txHash]);
-
   const { token0, token1 } = pool;
-  const { refundInfo, addedAmountInfo, feeInfo, positionAmountInfo, zapImpact } = parseZapInfo({
+  const { swapActions, swapPriceImpact } = useSwapPI(zapInfo);
+  const { refundInfo, addedAmountInfo, feeInfo, positionAmountInfo, zapImpact, suggestedSlippage } = parseZapInfo({
     zapInfo,
     token0,
     token1,
@@ -118,83 +87,19 @@ export default function Preview({
     minPrice,
     maxPrice,
   });
-
-  const quote = (
-    <span>
-      {!revertPrice ? `${pool?.token1.symbol}/${pool?.token0.symbol}` : `${pool?.token0.symbol}/${pool?.token1.symbol}`}
-    </span>
-  );
-
-  const { swapActions, swapPriceImpact } = useSwapPi();
-  const rpcUrl = NETWORKS_INFO[chainId].defaultRpc;
-
-  useEffect(() => {
-    if (!txHash || txStatus !== 'success' || !onSuccess || onSuccessTriggered) return;
-
-    setOnSuccessTriggered(true);
-
-    onSuccess({
-      txHash,
-      position: {
-        positionId,
-        chainId,
-        poolType,
-        dexLogo,
-        token0: {
-          address: pool.token0.address,
-          symbol: pool.token0.symbol,
-          logo: pool.token0.logo || '',
-          amount: positionId !== undefined ? positionAmountInfo.amount0 : addedAmountInfo.addedAmount0,
-        },
-        token1: {
-          address: pool.token1.address,
-          symbol: pool.token1.symbol,
-          logo: pool.token1.logo || '',
-          amount: positionId !== undefined ? positionAmountInfo.amount1 : addedAmountInfo.addedAmount1,
-        },
-        pool: {
-          address: pool.address,
-          fee: pool.fee,
-        },
-        value:
-          position !== undefined
-            ? addedAmountInfo.addedAmount0Usd +
-              positionAmountInfo.positionAmount0Usd +
-              addedAmountInfo.addedAmount1Usd +
-              positionAmountInfo.positionAmount1Usd
-            : +zapInfo.zapDetails.initialAmountUsd,
-        createdAt: Date.now(),
-      },
-    });
-  }, [
-    addedAmountInfo.addedAmount0,
-    addedAmountInfo.addedAmount1,
-    chainId,
-    dexLogo,
-    onSuccess,
-    onSuccessTriggered,
-    pool.address,
-    pool.fee,
-    pool.token0.address,
-    pool.token1.address,
-    pool.token0.logo,
-    pool.token0.symbol,
-    pool.token1.logo,
-    pool.token1.symbol,
-    poolType,
-    positionAmountInfo.amount0,
-    positionAmountInfo.amount1,
-    positionId,
+  useOnSuccess({
+    pool,
     txHash,
     txStatus,
-    zapInfo.zapDetails.initialAmountUsd,
-    positionAmountInfo.positionAmount0Usd,
-    positionAmountInfo.positionAmount1Usd,
-    addedAmountInfo.addedAmount0Usd,
-    addedAmountInfo.addedAmount1Usd,
-    position,
-  ]);
+    positionAmountInfo,
+    addedAmountInfo,
+    zapInfo,
+  });
+  const quote = !revertPrice
+    ? `${pool?.token1.symbol}/${pool?.token0.symbol}`
+    : `${pool?.token0.symbol}/${pool?.token1.symbol}`;
 
+  const rpcUrl = NETWORKS_INFO[chainId].defaultRpc;
   const dexName =
     typeof DEXES_INFO[poolType].name === 'string' ? DEXES_INFO[poolType].name : DEXES_INFO[poolType].name[chainId];
   const errorMessage = txError ? friendlyError(txError) || txError.message || JSON.stringify(txError) : '';
@@ -248,94 +153,49 @@ export default function Preview({
     onDismiss();
   };
 
-  if (attempTx || txHash) {
-    let txStatusText = '';
-    if (txHash) {
-      if (txStatus === 'success') txStatusText = 'Transaction successful';
-      else if (txStatus === 'failed') txStatusText = 'Transaction failed';
-      else txStatusText = 'Processing transaction';
-    } else {
-      txStatusText = 'Waiting For Confirmation';
-    }
-
+  if (attempTx || txHash || txError) {
     return (
-      <div className="mt-4 gap-4 flex flex-col justify-center items-center text-base font-medium">
-        <div className="flex justify-center gap-3 flex-col items-center flex-1">
-          <div className="flex items-center justify-center gap-2 text-xl font-medium">
-            {txStatus === 'success' ? (
-              <SuccessIcon className="w-6 h-6 text-success rounded-full border border-success p-[2px]" />
-            ) : txStatus === 'failed' ? (
-              <ErrorIcon className="w-6 h-6 text-error" />
-            ) : (
-              <Spinner className="w-6 h-6 text-success animate-spin" />
-            )}
-            <div className="text-xl my-4">{txStatusText}</div>
-          </div>
-
-          {!txHash && (
-            <div className="text-sm text-subText text-center">
-              Confirm this transaction in your wallet - Zapping{' '}
-              {positionId && isUniV3
-                ? `Position #${positionId}`
-                : `${dexName} ${pool.token0.symbol}/${pool.token1.symbol} ${pool.fee}%`}
-            </div>
-          )}
-          {txHash && txStatus === '' && (
-            <div className="text-sm text-subText">Waiting for the transaction to be mined</div>
-          )}
-        </div>
-
-        {txHash && (
-          <a
-            className="flex justify-end items-center text-accent text-sm gap-1"
-            href={`${NETWORKS_INFO[chainId].scanLink}/tx/${txHash}`}
-            target="_blank"
-            rel="noopener norefferer noreferrer"
-          >
-            View transaction ↗
-          </a>
-        )}
-        <div className="flex gap-4 w-full mt-2">
-          <button
-            className={cn(onViewPosition ? 'ks-outline-btn flex-1' : 'ks-primary-btn flex-1')}
-            onClick={onDismiss}
-          >
-            Close
-          </button>
-          {txStatus === 'success' && onViewPosition && (
-            <button className="ks-primary-btn flex-1" onClick={() => onViewPosition(txHash)}>
-              View position
-            </button>
-          )}
-        </div>
-      </div>
-    );
-  }
-
-  if (txError) {
-    return (
-      <div className="gap-2 flex flex-col justify-center items-center text-base font-medium">
-        <div className="flex pt-1 items-center justify-center gap-2 font-medium">
-          <ErrorIcon className="w-6 h-6 text-error" />
-          <div className="max-w-[86%] font-medium my-3">Failed to add liquidity</div>
-        </div>
-
-        <div>
-          <div className="text-subText break-all	text-center max-h-[200px]" style={{ wordBreak: 'break-word' }}>
-            {errorMessage}
-          </div>
-          <div className="flex gap-4 w-full mt-4">
+      <StatusDialog
+        type={
+          txStatus === 'success'
+            ? StatusDialogType.SUCCESS
+            : txStatus === 'failed' || txError
+              ? StatusDialogType.ERROR
+              : txHash
+                ? StatusDialogType.PROCESSING
+                : StatusDialogType.WAITING
+        }
+        description={
+          txStatus !== 'success' && txStatus !== 'failed' && !txError && !txHash
+            ? `Confirm this transaction in your wallet - Zapping ${
+                positionId && isUniV3
+                  ? `Position #${positionId}`
+                  : `${dexName} ${pool.token0.symbol}/${pool.token1.symbol} ${pool.fee}%`
+              }`
+            : undefined
+        }
+        errorMessage={txError ? errorMessage : undefined}
+        transactionExplorerUrl={txHash ? `${NETWORKS_INFO[chainId].scanLink}/tx/${txHash}` : undefined}
+        action={
+          <>
             <button className="ks-outline-btn flex-1" onClick={onDismiss}>
               Close
             </button>
-            {errorMessage.includes('slippage') && (
+            {txStatus === 'success' ? (
+              onViewPosition ? (
+                <button className="ks-primary-btn flex-1" onClick={() => onViewPosition(txHash)}>
+                  View position
+                </button>
+              ) : null
+            ) : errorMessage.includes('slippage') ? (
               <button className="ks-primary-btn flex-1" onClick={handleSlippage}>
                 {slippage !== suggestedSlippage ? 'Use Suggested Slippage' : 'Set Custom Slippage'}
               </button>
-            )}
-          </div>{' '}
-        </div>
-      </div>
+            ) : null}
+          </>
+        }
+        onClose={onDismiss}
+      />
     );
   }
 
@@ -422,7 +282,7 @@ export default function Preview({
               <div className="ks-lw-card-title">Current pool price</div>
               <div className="flex items-center gap-1 text-sm">
                 <span>{formatDisplayNumber(poolPrice, { significantDigits: 6 })}</span>
-                {quote}
+                <span>{quote}</span>
                 <SwitchIcon className="cursor-pointer" onClick={() => toggleRevertPrice()} role="button" />
               </div>
             </div>
@@ -437,7 +297,9 @@ export default function Preview({
                   >
                     {priceRange?.minPrice}
                   </div>
-                  <div className="ks-lw-card-title">{quote}</div>
+                  <div className="ks-lw-card-title">
+                    <span>{quote}</span>
+                  </div>
                 </div>
                 <div className="ks-lw-card flex flex-col gap-[6px] items-center flex-1 w-1/2">
                   <div className="ks-lw-card-title">Max Price</div>
@@ -447,7 +309,9 @@ export default function Preview({
                   >
                     {priceRange?.maxPrice}
                   </div>
-                  <div className="ks-lw-card-title">{quote}</div>
+                  <div className="ks-lw-card-title">
+                    <span>{quote}</span>
+                  </div>
                 </div>
               </div>
             )}
@@ -670,44 +534,7 @@ export default function Preview({
           </div>
         </div>
 
-        {(slippage > 2 * zapInfo.zapDetails.suggestedSlippage ||
-          slippage < zapInfo.zapDetails.suggestedSlippage / 2) && (
-          <div
-            className="rounded-md text-xs px-4 py-3 mt-4 font-normal text-warning"
-            style={{
-              backgroundColor: `${theme.warning}33`,
-            }}
-          >
-            {slippage > zapInfo.zapDetails.suggestedSlippage * 2
-              ? 'Your slippage is set higher than usual, which may cause unexpected losses.'
-              : 'Your slippage is set lower than usual, increasing the risk of transaction failure.'}
-          </div>
-        )}
-
-        {zapInfo && swapPriceImpact.piRes.level !== PI_LEVEL.NORMAL && (
-          <div
-            className={`rounded-md text-xs px-4 py-3 mt-4 font-normal ${
-              swapPriceImpact.piRes.level === PI_LEVEL.HIGH ? 'text-warning' : 'text-error'
-            }`}
-            style={{
-              backgroundColor:
-                swapPriceImpact.piRes.level === PI_LEVEL.HIGH ? `${theme.warning}33` : `${theme.error}33`,
-            }}
-          >
-            {swapPriceImpact.piRes.msg}
-          </div>
-        )}
-
-        {zapInfo && zapImpact.level !== PI_LEVEL.NORMAL && (
-          <div
-            className={`rounded-md text-xs px-4 py-3 mt-4 font-normal ${zapImpact.level === PI_LEVEL.HIGH ? 'text-warning' : 'text-error'}`}
-            style={{
-              backgroundColor: zapImpact.level === PI_LEVEL.HIGH ? `${theme.warning}33` : `${theme.error}33`,
-            }}
-          >
-            {zapImpact.msg}
-          </div>
-        )}
+        <Warning zapInfo={zapInfo} slippage={slippage} zapImpact={zapImpact} />
 
         <p className="text-[#737373] italic text-xs mt-4">
           The information is intended solely for your reference at the time you are viewing. It is your responsibility

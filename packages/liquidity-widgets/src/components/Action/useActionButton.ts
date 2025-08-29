@@ -7,7 +7,7 @@ import { PI_LEVEL, getPriceImpact } from '@kyber/utils';
 import { parseUnits } from '@kyber/utils/crypto';
 
 import { ERROR_MESSAGE } from '@/constants';
-import useSwapPi from '@/hooks/useSwapPi';
+import useSwapPI from '@/hooks/useSwapPI';
 import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
@@ -111,7 +111,7 @@ export default function useActionButton({
     (!!error && !isWrongNetwork && !isNotConnected) ||
     Object.values(approvalStates).some(item => item === APPROVAL_STATE.PENDING);
 
-  const { swapPriceImpact } = useSwapPi();
+  const { swapPriceImpact } = useSwapPI();
 
   const zapImpact = !zapInfo
     ? null
