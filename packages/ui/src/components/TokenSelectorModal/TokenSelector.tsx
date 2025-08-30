@@ -7,7 +7,7 @@ import { formatUnits } from '@kyber/utils/number';
 
 import { MAX_TOKENS, TOKEN_SELECT_MODE } from '@/components/TokenSelectorModal';
 import { TokenModalProps } from '@/components/TokenSelectorModal/TokenModal';
-import UserPositions, { Loading } from '@/components/TokenSelectorModal/UserPositions';
+import UserPositions, { TokenLoader } from '@/components/TokenSelectorModal/UserPositions';
 import Check from '@/components/TokenSelectorModal/assets/check.svg?react';
 import Info from '@/components/TokenSelectorModal/assets/info.svg?react';
 import IconSearch from '@/components/TokenSelectorModal/assets/search.svg?react';
@@ -402,7 +402,7 @@ export default function TokenSelector({
                 ))}
 
               {isLoading ? (
-                <Loading />
+                <TokenLoader />
               ) : filteredTokens?.length > 0 && !unImportedTokens.length ? (
                 filteredTokens.map((token: CustomizeToken, index) => (
                   <div

@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react';
 
-import { useShallow } from 'zustand/shallow';
-
 import { API_URLS, CHAIN_ID_TO_CHAIN, RemoveLiquidityAction, Token } from '@kyber/schema';
 import { TokenLogo } from '@kyber/ui';
 import { formatCurrency, formatTokenAmount } from '@kyber/utils/number';
@@ -10,15 +8,13 @@ import { usePoolStore } from '@/stores/usePoolStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
 export const PositionFee = () => {
-  const pool = usePoolStore(s => s.pool);
-  const { chainId, poolAddress, positionId, poolType } = useWidgetStore(
-    useShallow(s => ({
-      chainId: s.chainId,
-      poolAddress: s.poolAddress,
-      positionId: s.positionId,
-      poolType: s.poolType,
-    })),
-  );
+  const { pool } = usePoolStore(['pool']);
+  const { chainId, poolAddress, positionId, poolType } = useWidgetStore([
+    'chainId',
+    'poolAddress',
+    'positionId',
+    'poolType',
+  ]);
 
   const [feeInfo, setFees] = useState<RemoveLiquidityAction | null>(null);
   useEffect(() => {

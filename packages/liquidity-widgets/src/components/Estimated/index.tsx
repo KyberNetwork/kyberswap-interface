@@ -1,5 +1,3 @@
-import { useShallow } from 'zustand/shallow';
-
 import { API_URLS } from '@kyber/schema';
 import { InfoHelper } from '@kyber/ui';
 import { PI_LEVEL } from '@kyber/utils';
@@ -12,15 +10,11 @@ import SlippageRow from '@/components/Estimated/SlippageRow';
 import SwapImpactCollapse from '@/components/Estimated/SwapImpactCollapse';
 import WarningMessage from '@/components/Estimated/WarningMessage';
 import useEstimated from '@/components/Estimated/useEstimated';
+import useSwapPI from '@/hooks/useSwapPI';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
 export default function Estimated() {
-  const { source, positionId } = useWidgetStore(
-    useShallow(s => ({
-      source: s.source,
-      positionId: s.positionId,
-    })),
-  );
+  const { source, positionId } = useWidgetStore(['source', 'positionId']);
   const {
     initializing,
     token0,
@@ -32,11 +26,10 @@ export default function Estimated() {
     refundInfo,
     initUsd,
     suggestedSlippage,
-    swapActions,
-    swapPriceImpact,
     zapImpact,
     feeInfo,
   } = useEstimated();
+  const { swapPriceImpact } = useSwapPI();
 
   const addedValue = !!positionAmountInfo.addedAmountUsd && (
     <span>{formatCurrency(positionAmountInfo.addedAmountUsd)}</span>
@@ -108,7 +101,7 @@ export default function Estimated() {
           hasRoute={!!zapInfo}
         />
 
-        <SwapImpactCollapse initializing={initializing} swapActions={swapActions} swapPriceImpact={swapPriceImpact} />
+        <SwapImpactCollapse initializing={initializing} />
 
         <SlippageRow suggestedSlippage={suggestedSlippage} />
 

@@ -5,8 +5,8 @@ import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
 
 const PositionLiquidity = () => {
-  const pool = usePoolStore(s => s.pool);
-  const position = usePositionStore(s => s.position);
+  const { pool } = usePoolStore(['pool']);
+  const { position } = usePositionStore(['position']);
 
   const initializing = pool === 'loading' || position === 'loading';
   const positionNotExist = position === 'loading' || !position || initializing;

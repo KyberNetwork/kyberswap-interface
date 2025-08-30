@@ -1,7 +1,5 @@
 import { useState } from 'react';
 
-import { useShallow } from 'zustand/shallow';
-
 import { useCopy } from '@kyber/hooks';
 import {
   DEXES_INFO,
@@ -13,38 +11,31 @@ import {
   univ3PoolNormalize,
   univ3Position,
 } from '@kyber/schema';
-import { InfoHelper, MouseoverTooltip, ShareModal, ShareType, Skeleton, TokenLogo } from '@kyber/ui';
+import { InfoHelper, LoadingCounter, MouseoverTooltip, ShareModal, ShareType, Skeleton, TokenLogo } from '@kyber/ui';
 import { shortenAddress } from '@kyber/utils/crypto';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
 import ShareIcon from '@/assets/svg/ic_share.svg';
 import SettingIcon from '@/assets/svg/setting.svg';
 import X from '@/assets/svg/x.svg';
-import RefreshLoading from '@/components/Header/RefreshLoading';
 import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
-const Header = ({ refetchData }: { refetchData: () => void }) => {
-  const { theme, chainId, onClose, poolType, positionId } = useWidgetStore(
-    useShallow(s => ({
-      theme: s.theme,
-      chainId: s.chainId,
-      onClose: s.onClose,
-      poolType: s.poolType,
-      positionId: s.positionId,
-    })),
-  );
-  const pool = usePoolStore(s => s.pool);
-  const { position } = usePositionStore(
-    useShallow(s => ({
-      position: s.position,
-    })),
-  );
+const Header = () => {
+  const { theme, chainId, onClose, poolType, positionId } = useWidgetStore([
+    'theme',
+    'chainId',
+    'onClose',
+    'poolType',
+    'positionId',
+  ]);
+  const { pool } = usePoolStore(['pool']);
+  const { position } = usePositionStore(['position']);
   const [openShare, setOpenShare] = useState(false);
 
-  const { toggleSetting, degenMode } = useZapState();
+  const { toggleSetting, uiState, loading: zapLoading, getZapRoute, zapRouteDisabled } = useZapState();
 
   const initializing = pool === 'loading' || !pool || position === 'loading';
   const poolAddress = initializing ? '' : pool.address;
@@ -147,7 +138,14 @@ const Header = ({ refetchData }: { refetchData: () => void }) => {
                 </div>
               </>
             )}
-            <RefreshLoading refetchData={refetchData} />
+            {!zapRouteDisabled && (
+              <LoadingCounter
+                clickable
+                refetchLoading={zapLoading}
+                onRefresh={getZapRoute}
+                disableRefresh={zapRouteDisabled}
+              />
+            )}
           </div>
         )}
         {onClose && (
@@ -224,11 +222,11 @@ const Header = ({ refetchData }: { refetchData: () => void }) => {
 
         <MouseoverTooltip
           className="top-16 right-5 sm:right-6 max-sm:absolute"
-          text={degenMode ? 'Degen Mode is turned on!' : ''}
+          text={uiState.degenMode ? 'Degen Mode is turned on!' : ''}
         >
           <div
             className={`setting w-9 h-9 flex items-center justify-center rounded-full cursor-pointer bg-layer2 hover:brightness-125 active:scale-95 ${
-              degenMode ? 'text-warning' : ''
+              uiState.degenMode ? 'text-warning' : ''
             }`}
             role="button"
             id="zapin-setting"

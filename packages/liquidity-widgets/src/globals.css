@@ -4,7 +4,8 @@
 
 @layer components {
   /* button */
-  .ks-primary-btn {
+  .ks-primary-btn,
+  .ks-ui-style .ks-primary-btn {
     @apply flex justify-center items-center justify-self-end;
     @apply border border-accent rounded-md;
     @apply text-sm font-medium bg-accent text-layer1;
@@ -15,7 +16,8 @@
     @apply disabled:cursor-not-allowed disabled:text-subText disabled:bg-layer2 disabled:border-layer2 disabled:brightness-105;
   }
 
-  .ks-outline-btn {
+  .ks-outline-btn,
+  .ks-ui-style .ks-outline-btn {
     @apply flex justify-center items-center justify-self-end;
     @apply border border-[#ffffffb3] rounded-md;
     @apply text-sm font-medium bg-transparent text-[#ffffffb3];
