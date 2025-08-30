@@ -126,7 +126,7 @@ export default function LoadingCounter({
 
   return (
     <div
-      className={cn('flex items-center relative w-fit', clickable && 'cursor-pointer')}
+      className={cn('ks-ui-style flex items-center relative w-fit', clickable && 'cursor-pointer')}
       role={clickable ? 'button' : undefined}
       onClick={handleManualRefresh}
     >
