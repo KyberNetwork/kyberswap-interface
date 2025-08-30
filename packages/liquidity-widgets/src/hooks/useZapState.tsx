@@ -34,7 +34,7 @@ const defaultZapState = {
   maxPrice: null,
   tokensIn: [],
   amountsIn: '',
-  error: '',
+  errors: [],
   zapInfo: null,
   loading: false,
   slippage: undefined,
@@ -59,7 +59,7 @@ const ZapContext = createContext<{
   tickUpper: number | null;
   tokensIn: Token[];
   amountsIn: string;
-  error: string;
+  errors: string[];
   zapInfo: ZapRouteDetail | null;
   loading: boolean;
   slippage?: number;
@@ -162,7 +162,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
     chainId,
   });
 
-  const error = useMemo(
+  const errors = useMemo(
     () =>
       validateData({
         account,
@@ -190,19 +190,22 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
     ],
   );
 
-  const zapRouteDisabled = useMemo(() => {
-    const shouldGetRoute =
-      slippage !== undefined &&
-      (isUniV3 ? debounceTickLower !== null && debounceTickUpper !== null : true) &&
-      !initializing &&
-      (!error ||
-        error === zapApiError ||
-        error === ERROR_MESSAGE.INSUFFICIENT_BALANCE ||
-        error === ERROR_MESSAGE.CONNECT_WALLET ||
-        error === ERROR_MESSAGE.WRONG_NETWORK);
-
-    return !shouldGetRoute;
-  }, [debounceTickLower, debounceTickUpper, error, zapApiError, initializing, isUniV3, slippage]);
+  const zapRouteDisabled = useMemo(
+    () =>
+      Boolean(
+        !slippage ||
+          (isUniV3 && !debounceTickLower && !debounceTickUpper) ||
+          initializing ||
+          (errors.length > 0 &&
+            (errors.includes(ERROR_MESSAGE.SELECT_TOKEN_IN) ||
+              errors.includes(ERROR_MESSAGE.ENTER_MIN_PRICE) ||
+              errors.includes(ERROR_MESSAGE.ENTER_MAX_PRICE) ||
+              errors.includes(ERROR_MESSAGE.INVALID_PRICE_RANGE) ||
+              errors.includes(ERROR_MESSAGE.ENTER_AMOUNT) ||
+              errors.includes(ERROR_MESSAGE.INVALID_INPUT_AMOUNT))),
+      ),
+    [debounceTickLower, debounceTickUpper, errors, initializing, isUniV3, slippage],
+  );
 
   const toggleSetting = useCallback((highlight?: boolean) => {
     setUiState(prev => ({ ...prev, showSetting: !prev.showSetting }));
@@ -332,7 +335,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
         setAmountsIn,
         setTickLower,
         setTickUpper,
-        error,
+        errors,
         zapInfo,
         loading,
         minPrice,

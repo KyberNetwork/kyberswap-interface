@@ -42,18 +42,19 @@ export const validateData = ({
   };
   zapApiError: string;
 }) => {
-  if (!account) return ERROR_MESSAGE.CONNECT_WALLET;
-  if (chainId !== networkChainId) return ERROR_MESSAGE.WRONG_NETWORK;
-  if (!tokensIn.length) return ERROR_MESSAGE.SELECT_TOKEN_IN;
+  const errors = [];
+  if (!account) errors.push(ERROR_MESSAGE.CONNECT_WALLET);
+  if (chainId !== networkChainId) errors.push(ERROR_MESSAGE.WRONG_NETWORK);
+  if (!tokensIn.length) errors.push(ERROR_MESSAGE.SELECT_TOKEN_IN);
   if (isUniV3) {
-    if (tickLower === null) return ERROR_MESSAGE.ENTER_MIN_PRICE;
-    if (tickUpper === null) return ERROR_MESSAGE.ENTER_MAX_PRICE;
-    if (tickLower >= tickUpper) return ERROR_MESSAGE.INVALID_PRICE_RANGE;
+    if (tickLower === null) errors.push(ERROR_MESSAGE.ENTER_MIN_PRICE);
+    if (tickUpper === null) errors.push(ERROR_MESSAGE.ENTER_MAX_PRICE);
+    if (tickLower >= tickUpper) errors.push(ERROR_MESSAGE.INVALID_PRICE_RANGE);
   }
 
   const listAmountsIn = amountsIn.split(',');
   const isAmountEntered = tokensIn.some((_, index) => isValidNumber(listAmountsIn[index]));
-  if (!isAmountEntered) return ERROR_MESSAGE.ENTER_AMOUNT;
+  if (!isAmountEntered) errors.push(ERROR_MESSAGE.ENTER_AMOUNT);
 
   const { tokensIn: listValidTokensIn, amountsIn: listValidAmountsIn } = parseTokensAndAmounts(tokensIn, amountsIn);
 
@@ -65,17 +66,22 @@ export const validateData = ({
           : listValidTokensIn[i].address.toLowerCase();
       const balance = formatUnits(balances[tokenAddress]?.toString() || '0', listValidTokensIn[i].decimals);
 
-      if (countDecimals(listValidAmountsIn[i]) > listValidTokensIn[i].decimals)
-        return ERROR_MESSAGE.INVALID_INPUT_AMOUNT;
-      if (parseFloat(listValidAmountsIn[i]) > parseFloat(balance)) return ERROR_MESSAGE.INSUFFICIENT_BALANCE;
+      if (countDecimals(listValidAmountsIn[i]) > listValidTokensIn[i].decimals) {
+        errors.push(ERROR_MESSAGE.INVALID_INPUT_AMOUNT);
+        break;
+      }
+      if (parseFloat(listValidAmountsIn[i]) > parseFloat(balance)) {
+        errors.push(ERROR_MESSAGE.INSUFFICIENT_BALANCE);
+        break;
+      }
     }
   } catch (e) {
-    return ERROR_MESSAGE.INVALID_INPUT_AMOUNT;
+    errors.push(ERROR_MESSAGE.INVALID_INPUT_AMOUNT);
   }
 
-  if (zapApiError) return zapApiError;
+  if (zapApiError) errors.push(zapApiError);
 
-  return '';
+  return errors;
 };
 
 export const parseTokensAndAmounts = (tokensIn: Token[], amountsIn: string) => {

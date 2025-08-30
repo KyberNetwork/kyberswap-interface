@@ -46,7 +46,7 @@ export default function useActionButton({
   });
   const {
     zapInfo,
-    error,
+    errors,
     ttl,
     loading: zapLoading,
     tickLower,
@@ -100,8 +100,8 @@ export default function useActionButton({
     positionOwner !== connectedAccount?.address?.toLowerCase()
       ? true
       : false;
-  const isWrongNetwork = error === ERROR_MESSAGE.WRONG_NETWORK;
-  const isNotConnected = error === ERROR_MESSAGE.CONNECT_WALLET;
+  const isWrongNetwork = errors.includes(ERROR_MESSAGE.WRONG_NETWORK);
+  const isNotConnected = errors.includes(ERROR_MESSAGE.CONNECT_WALLET);
 
   const btnDisabled =
     (isUniv4 && isNotOwner) ||
@@ -110,7 +110,7 @@ export default function useActionButton({
     loading ||
     zapLoading ||
     gasLoading ||
-    (!!error && !isWrongNetwork && !isNotConnected) ||
+    (errors.length > 0 && !isWrongNetwork && !isNotConnected) ||
     Object.values(approvalStates).some(item => item === APPROVAL_STATE.PENDING);
 
   const { swapPriceImpact } = useSwapPI();
@@ -128,7 +128,7 @@ export default function useActionButton({
   const buttonStates = [
     { condition: zapLoading, text: 'Fetching Route' },
     { condition: gasLoading, text: 'Estimating Gas' },
-    { condition: error, text: error },
+    { condition: errors.length > 0, text: errors[0] },
     { condition: isUniv4 && isNotOwner, text: 'Not the position owner' },
     { condition: loading, text: 'Checking Allowance' },
     { condition: addressToApprove || nftApprovePendingTx, text: 'Approving' },
@@ -227,7 +227,7 @@ export default function useActionButton({
   const btnLoading = zapLoading || loading || addressToApprove || nftApprovePendingTx || gasLoading;
   const btnWarning =
     (isVeryHighPriceImpact || isVeryHighZapImpact || isInvalidZapImpact) &&
-    !error &&
+    !errors.length &&
     !isWrongNetwork &&
     !isNotConnected &&
     Object.values(approvalStates).every(item => item === APPROVAL_STATE.APPROVED) &&
