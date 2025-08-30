@@ -4,17 +4,20 @@ import { InfoHelper, Loading } from '@kyber/ui';
 import useActionButton from '@/components/Action/useActionButton';
 import { useZapState } from '@/hooks/useZapState';
 import { useWidgetStore } from '@/stores/useWidgetStore';
+import { ZapSnapshotState } from '@/types/index';
 
 export default function Action({
   nftApproved,
   approveNft,
   nftApprovePendingTx,
   setWidgetError,
+  setZapSnapshotState,
 }: {
   nftApproved: boolean;
   nftApprovePendingTx: string;
   approveNft: () => Promise<void>;
   setWidgetError: (_value: string | undefined) => void;
+  setZapSnapshotState: (_value: ZapSnapshotState | null) => void;
 }) {
   const {
     btnText,
@@ -30,6 +33,7 @@ export default function Action({
     approveNft,
     nftApprovePendingTx,
     setWidgetError,
+    setZapSnapshotState,
   });
   const { onClose } = useWidgetStore(['onClose']);
   const { uiState } = useZapState();

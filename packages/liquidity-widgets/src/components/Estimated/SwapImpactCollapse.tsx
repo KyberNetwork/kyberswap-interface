@@ -1,17 +1,23 @@
+import { ZapRouteDetail } from '@kyber/schema';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, MouseoverTooltip, Skeleton } from '@kyber/ui';
 import { PI_LEVEL } from '@kyber/utils';
+import { cn } from '@kyber/utils/tailwind-helpers';
 
 import useSwapPI from '@/hooks/useSwapPI';
-import { usePoolStore } from '@/stores/usePoolStore';
 
-export default function SwapImpactCollapse() {
-  const { pool } = usePoolStore(['pool']);
-
-  const initializing = pool === 'loading';
-  const { swapActions, swapPriceImpact } = useSwapPI();
+export default function SwapImpactCollapse({
+  zapInfo,
+  initializing,
+  className,
+}: {
+  zapInfo?: ZapRouteDetail;
+  initializing: boolean;
+  className?: string;
+}) {
+  const { swapActions, swapPriceImpact } = useSwapPI(zapInfo);
 
   return (
-    <div className="flex justify-between items-start mt-3 text-xs">
+    <div className={cn('flex justify-between items-start mt-3 text-xs', className)}>
       {swapActions.length ? (
         <Accordion type="single" collapsible className="w-full">
           <AccordionItem value="item-1">

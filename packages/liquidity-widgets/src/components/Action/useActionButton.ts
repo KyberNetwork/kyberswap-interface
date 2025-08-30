@@ -11,6 +11,7 @@ import useSwapPI from '@/hooks/useSwapPI';
 import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
+import { ZapSnapshotState } from '@/types/index';
 import { estimateGasForTx } from '@/utils';
 
 export default function useActionButton({
@@ -18,11 +19,13 @@ export default function useActionButton({
   approveNft,
   nftApprovePendingTx,
   setWidgetError,
+  setZapSnapshotState,
 }: {
   nftApproved: boolean;
   nftApprovePendingTx: string;
   approveNft: () => Promise<void>;
   setWidgetError: (_value: string | undefined) => void;
+  setZapSnapshotState: (_value: ZapSnapshotState | null) => void;
 }) {
   const { poolType, chainId, connectedAccount, onConnectWallet, onSwitchChain, onSubmitTx, positionId, source } =
     useWidgetStore([
@@ -52,7 +55,6 @@ export default function useActionButton({
     tokensIn,
     amountsIn,
     toggleSetting,
-    setSnapshotState,
     uiState,
   } = useZapState();
 
@@ -178,7 +180,7 @@ export default function useActionButton({
 
   const hanldeClick = async () => {
     if (!slippage) return;
-    const { success: isUniV3Pool, data: univ3Pool } = univ3PoolNormalize.safeParse(pool);
+    const { success: isUniV3Pool } = univ3PoolNormalize.safeParse(pool);
     if (isNotConnected) {
       onConnectWallet();
       return;
@@ -214,16 +216,9 @@ export default function useActionButton({
       const gasUsd = await getGasEstimation({ deadline });
       if (!gasUsd) return;
 
-      setSnapshotState({
-        tokensIn: tokensIn,
-        amountsIn,
-        pool,
+      setZapSnapshotState({
         zapInfo,
-        slippage,
         deadline,
-        isFullRange: isUniV3Pool ? univ3Pool.minTick === tickUpper && univ3Pool.maxTick === tickLower : true,
-        tickUpper: tickUpper !== null ? tickUpper : 0,
-        tickLower: tickLower !== null ? tickLower : 0,
         gasUsd,
       });
     }

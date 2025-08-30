@@ -1,4 +1,5 @@
 import { MouseoverTooltip, Skeleton } from '@kyber/ui';
+import { cn } from '@kyber/utils/tailwind-helpers';
 
 export default function EstimatedRow({
   initializing,
@@ -7,6 +8,7 @@ export default function EstimatedRow({
   value,
   valueTooltip,
   hasRoute,
+  className,
 }: {
   initializing: boolean;
   label: string | React.ReactNode;
@@ -14,9 +16,10 @@ export default function EstimatedRow({
   value: React.ReactNode;
   valueTooltip?: string;
   hasRoute: boolean;
+  className?: string;
 }) {
   return (
-    <div className="flex justify-between items-start mt-3 text-xs">
+    <div className={cn('flex justify-between items-start mt-3 text-xs', className)}>
       <MouseoverTooltip text={labelTooltip} width="220px">
         {typeof label === 'string' ? (
           <div className="text-subText mt-[2px] w-fit border-b border-dotted border-subText">{label}</div>

@@ -33,7 +33,7 @@ import Warning from '@/components/Warning';
 import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
-import { PriceType } from '@/types/index';
+import { PriceType, ZapSnapshotState } from '@/types/index';
 
 export default function Widget() {
   const {
@@ -61,23 +61,13 @@ export default function Widget() {
   ]);
   const { pool, poolError } = usePoolStore(['pool', 'poolError']);
 
-  const {
-    zapInfo,
-    tickLower,
-    tickUpper,
-    tokensIn,
-    amountsIn,
-    setTokensIn,
-    setAmountsIn,
-    snapshotState,
-    setSnapshotState,
-    slippage,
-    getZapRoute,
-  } = useZapState();
+  const { zapInfo, tickLower, tickUpper, tokensIn, amountsIn, setTokensIn, setAmountsIn, slippage, getZapRoute } =
+    useZapState();
 
   const [openTokenSelectModal, setOpenTokenSelectModal] = useState(false);
   const [tokenAddressSelected, setTokenAddressSelected] = useState<string | undefined>();
   const [widgetError, setWidgetError] = useState<string | undefined>();
+  const [zapSnapshotState, setZapSnapshotState] = useState<ZapSnapshotState | null>(null);
 
   const initializing = pool === 'loading';
   const { token0 = defaultToken, token1 = defaultToken } = !initializing ? pool : {};
@@ -188,13 +178,14 @@ export default function Widget() {
           }
         />
       )}
-      {snapshotState && (
-        <Modal isOpen onClick={() => setSnapshotState(null)} modalContentClass="!max-h-[96vh]">
+      {zapSnapshotState && pool && pool !== 'loading' && (
+        <Modal isOpen onClick={() => setZapSnapshotState(null)} modalContentClass="!max-h-[96vh]">
           <Preview
-            zapState={snapshotState}
+            zapState={zapSnapshotState}
+            pool={pool}
             onDismiss={() => {
               if (isUniv4) checkNftApproval();
-              setSnapshotState(null);
+              setZapSnapshotState(null);
               getZapRoute();
             }}
           />
@@ -222,7 +213,7 @@ export default function Widget() {
         />
       )}
 
-      <div className={`p-6 ${snapshotState ? 'hidden' : ''}`}>
+      <div className={`p-6 ${zapSnapshotState ? 'hidden' : ''}`}>
         <Header />
         <div className="mt-5 flex gap-5 max-sm:flex-col">
           <div className="w-[55%] max-sm:w-full">
@@ -264,6 +255,7 @@ export default function Widget() {
           nftApprovePendingTx={nftApprovePendingTx}
           approveNft={approveNft}
           setWidgetError={setWidgetError}
+          setZapSnapshotState={setZapSnapshotState}
         />
       </div>
       <Setting />

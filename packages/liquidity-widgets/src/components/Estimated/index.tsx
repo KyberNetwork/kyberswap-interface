@@ -101,7 +101,7 @@ export default function Estimated() {
           hasRoute={!!zapInfo}
         />
 
-        <SwapImpactCollapse />
+        <SwapImpactCollapse initializing={initializing} />
 
         <SlippageRow suggestedSlippage={suggestedSlippage} />
 

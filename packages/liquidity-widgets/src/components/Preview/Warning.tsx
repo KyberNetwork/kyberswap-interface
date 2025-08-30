@@ -56,6 +56,10 @@ export default function Warning({
           {zapImpact.msg}
         </div>
       )}
+      <p className="text-[#737373] italic text-xs mt-4">
+        The information is intended solely for your reference at the time you are viewing. It is your responsibility to
+        verify all information before making decisions
+      </p>
     </>
   );
 }

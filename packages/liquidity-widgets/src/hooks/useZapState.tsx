@@ -11,7 +11,6 @@ import useTickPrice from '@/hooks/useTickPrice';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
-import { ZapState } from '@/types/index';
 import { parseTokensAndAmounts, validateData } from '@/utils';
 
 interface UiState {
@@ -42,7 +41,6 @@ const defaultZapState = {
   ttl: 20, // 20min
   tokenBalances: {},
   tokenPrices: {},
-  snapshotState: null,
   uiState: defaultUiState,
   zapRouteDisabled: false,
   setTokensIn: (_value: Token[]) => {},
@@ -52,7 +50,6 @@ const defaultZapState = {
   setSlippage: (_val: number) => {},
   setTtl: (_val: number) => {},
   toggleSetting: (_highlightDegenMode?: boolean) => {},
-  setSnapshotState: (_val: ZapState | null) => {},
   setUiState: (_val: UiState | ((_prev: UiState) => UiState)) => {},
   getZapRoute: () => {},
 };
@@ -73,7 +70,6 @@ const ZapContext = createContext<{
     [key: string]: bigint;
   };
   tokenPrices: { [key: string]: number };
-  snapshotState: ZapState | null;
   uiState: UiState;
   zapRouteDisabled: boolean;
   setTokensIn: (_value: Token[]) => void;
@@ -83,7 +79,6 @@ const ZapContext = createContext<{
   setSlippage: (_val: number) => void;
   setTtl: (_val: number) => void;
   toggleSetting: (_highlightDegenMode?: boolean) => void;
-  setSnapshotState: (_val: ZapState | null) => void;
   setUiState: (_val: UiState | ((_prev: UiState) => UiState)) => void;
   getZapRoute: () => void;
 }>(defaultZapState);
@@ -133,7 +128,6 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
   const [zapApiError, setZapApiError] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [defaultRevertChecked, setDefaultRevertChecked] = useState(false);
-  const [snapshotState, setSnapshotState] = useState<ZapState | null>(null);
 
   const initializing = pool === 'loading';
   const isUniV3 = !initializing && univ3Types.includes(poolType as any);
@@ -352,8 +346,6 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
         setUiState,
         tokenBalances: balances,
         tokenPrices,
-        snapshotState,
-        setSnapshotState,
         getZapRoute,
         zapRouteDisabled,
       }}
