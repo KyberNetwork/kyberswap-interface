@@ -93,7 +93,6 @@ const PriceRange = () => {
     if (!priceRanges.length) return;
     const priceRange = priceRanges.find(item => item?.range === range);
     if (!priceRange?.tickLower || !priceRange?.tickUpper) return;
-    console.log('set tick from price range', priceRange.tickLower, priceRange.tickUpper, range);
     setTickLower(priceRange.tickLower);
     setTickUpper(priceRange.tickUpper);
   };

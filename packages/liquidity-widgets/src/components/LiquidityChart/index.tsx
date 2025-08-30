@@ -49,11 +49,9 @@ export default function LiquidityChart() {
       const tickUpper = nearestUsableTick(Number(tickUpperFromPrice), tickSpacing);
 
       if (tickUpper) {
-        console.log('set tick from both range input', tickUpper);
         revertPrice ? setTickLower(tickUpper) : setTickUpper(tickUpper);
       }
       if (tickLower) {
-        console.log('set tick from both range input', tickLower);
         revertPrice ? setTickUpper(tickLower) : setTickLower(tickLower);
       }
     },
@@ -68,7 +66,6 @@ export default function LiquidityChart() {
       if (!tickFromPrice) return;
       const tick = nearestUsableTick(Number(tickFromPrice), tickSpacing);
       if (tick) {
-        console.log('set tick from left range input', tick);
         revertPrice ? setTickUpper(tick) : setTickLower(tick);
       }
     },
@@ -83,7 +80,6 @@ export default function LiquidityChart() {
       if (!tickFromPrice) return;
       const tick = nearestUsableTick(Number(tickFromPrice), tickSpacing);
       if (tick) {
-        console.log('set tick from right range input', tick);
         revertPrice ? setTickLower(tick) : setTickUpper(tick);
       }
     },

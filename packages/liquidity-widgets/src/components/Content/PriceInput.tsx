@@ -34,37 +34,25 @@ export default function PriceInput({ type }: { type: PriceType }) {
   const increaseTickLower = () => {
     if (initializing || !tickLower) return;
     const newTick = tickLower + pool.tickSpacing;
-    if (newTick <= MAX_TICK) {
-      console.log('increase tick lower', newTick);
-      setTickLower(newTick);
-    }
+    if (newTick <= MAX_TICK) setTickLower(newTick);
   };
 
   const increaseTickUpper = () => {
     if (initializing || !tickUpper) return;
     const newTick = tickUpper + pool.tickSpacing;
-    if (newTick <= MAX_TICK) {
-      console.log('increase tick upper', newTick);
-      setTickUpper(newTick);
-    }
+    if (newTick <= MAX_TICK) setTickUpper(newTick);
   };
 
   const decreaseTickLower = () => {
     if (initializing || !tickLower) return;
     const newTick = tickLower - pool.tickSpacing;
-    if (newTick >= MIN_TICK) {
-      console.log('decrease tick lower', newTick);
-      setTickLower(newTick);
-    }
+    if (newTick >= MIN_TICK) setTickLower(newTick);
   };
 
   const decreaseTickUpper = () => {
     if (initializing || !tickUpper) return;
     const newTick = tickUpper - pool.tickSpacing;
-    if (newTick >= MIN_TICK) {
-      console.log('decrease tick upper', newTick);
-      setTickUpper(newTick);
-    }
+    if (newTick >= MIN_TICK) setTickUpper(newTick);
   };
 
   const onPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -80,7 +68,6 @@ export default function PriceInput({ type }: { type: PriceType }) {
     const tick = priceToClosestTick(value, pool.token0?.decimals, pool.token1?.decimals, revertPrice);
     if (tick !== undefined) {
       const t = tick % pool.tickSpacing === 0 ? tick : nearestUsableTick(tick, pool.tickSpacing);
-      console.log('set tick from price input', type, t);
       if (type === PriceType.MinPrice) {
         revertPrice ? setTickUpper(t) : setTickLower(t);
       } else {
