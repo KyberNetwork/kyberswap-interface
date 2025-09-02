@@ -115,7 +115,7 @@ export const useSwapPI = (chainId: ChainId) => {
   const zapPiRes = getPriceImpact(
     route?.zapDetails.priceImpact,
     'Zap Impact',
-    route?.zapDetails.suggestedSlippage || 100,
+    route?.zapDetails.suggestedSlippage || 0,
   );
 
   return { swapPi, swapPiRes, zapPiRes };

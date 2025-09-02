@@ -13,7 +13,7 @@ import {
 } from '@kyber/utils/uniswapv3';
 
 import RevertPriceIcon from '@/assets/icons/ic_revert_price.svg';
-import { EstimateLiqValue } from '@/components/EstimateLiqValue';
+import { Estimated } from '@/components/Estimated';
 import { DEFAULT_PRICE_RANGE, FULL_PRICE_RANGE, FeeAmount, PRICE_RANGE } from '@/constants/priceRanges';
 import { ChainId, UniV2Pool, UniV3Pool, UniV3Position, univ2Dexes, univ3Dexes, univ3PoolCommonField } from '@/schema';
 import { usePoolsStore } from '@/stores/usePoolsStore';
@@ -457,7 +457,7 @@ export function TargetPoolState({
           </>
         ))}
 
-      <EstimateLiqValue chainId={chainId} />
+      <Estimated chainId={chainId} />
     </div>
   );
 }

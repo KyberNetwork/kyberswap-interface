@@ -14,6 +14,7 @@ import { Preview } from '@/components/Preview';
 import { SourcePoolState } from '@/components/SourcePoolState';
 import { TargetPoolState } from '@/components/TargetPoolState';
 import { ToPool } from '@/components/ToPool';
+import useSlippageManager from '@/hooks/useSlippageManager';
 import { ChainId, Dex, DexFrom, DexTo } from '@/schema';
 import { usePoolsStore } from '@/stores/usePoolsStore';
 import { usePositionStore } from '@/stores/usePositionStore';
@@ -106,7 +107,8 @@ export const ZapMigration = (props: ZapMigrationProps) => {
 
   const { fetchPosition, error: posError, setToPositionNull } = usePositionStore();
 
-  const { showPreview, manualSlippage, setSlippage, slippage } = useZapStateStore();
+  const { showPreview } = useZapStateStore();
+  useSlippageManager({ chainId, initialSlippage });
 
   useEffect(() => {
     if (!theme) return;
@@ -149,22 +151,6 @@ export const ZapMigration = (props: ZapMigrationProps) => {
 
     return () => clearInterval(interval);
   }, [chainId, from.poolId, to.poolId, from.dex, to.dex, getPools]);
-
-  useEffect(() => {
-    if (pools === 'loading' || manualSlippage || initialSlippage || slippage) return;
-    if (pools[0].category === 'stablePair' && pools[1].category === 'stablePair') setSlippage(10);
-    else if (
-      pools[0].category === 'correlatedPair' &&
-      pools[1].category === 'correlatedPair' &&
-      pools[0].address.toLowerCase() === pools[1].address.toLowerCase()
-    ) {
-      setSlippage(25);
-    } else setSlippage(50);
-  }, [pools, manualSlippage, slippage, initialSlippage, setSlippage]);
-
-  useEffect(() => {
-    if (initialSlippage && !slippage) setSlippage(initialSlippage);
-  }, [initialSlippage, setSlippage, slippage]);
 
   return (
     <div className="ks-lw-migration-style" style={{ width: '100%', height: '100%' }}>

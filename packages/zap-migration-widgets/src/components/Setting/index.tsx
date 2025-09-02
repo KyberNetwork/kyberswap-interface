@@ -8,6 +8,7 @@ import Modal from '@/components/Modal';
 import SlippageInput from '@/components/Setting/SlippageInput';
 import Toggle from '@/components/Toggle';
 import { useOnClickOutside } from '@/hooks/use-on-click-outside';
+import { ChainId } from '@/schema';
 import { useZapStateStore } from '@/stores/useZapStateStore';
 
 const validateDeadlineString = (str: string): boolean => {
@@ -31,7 +32,7 @@ const validateDeadlineString = (str: string): boolean => {
   return false;
 };
 
-export default function Setting() {
+export default function Setting({ chainId }: { chainId: ChainId }) {
   const { showSetting, ttl, setTtl, toggleSetting, degenMode, toggleDegenMode, highlightDegenMode } =
     useZapStateStore();
   const ref = useRef(null);
@@ -113,15 +114,19 @@ export default function Setting() {
           </div>
         </div>
       </Modal>
-      <div className="absolute right-0 top-[98px] bg-layer2 p-5 rounded-md z-[1000] min-w-[330px]" ref={ref}>
+      <div
+        className="absolute right-0 top-[98px] bg-layer2 p-5 rounded-md z-[1000] min-w-[330px] sm:max-w-[330px]"
+        ref={ref}
+      >
         <div className="text-base font-medium mb-5">Advanced Setting</div>
         <MouseoverTooltip
           text="Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price. Please use with caution!"
           width="220px"
+          className="w-fit"
         >
           <div className="text-sm border-b border-dotted border-subText w-fit">Slippage Tolerance</div>
         </MouseoverTooltip>
-        <SlippageInput />
+        <SlippageInput chainId={chainId} className="mt-2" />
 
         <div className="flex items-center justify-between mt-3">
           <MouseoverTooltip
