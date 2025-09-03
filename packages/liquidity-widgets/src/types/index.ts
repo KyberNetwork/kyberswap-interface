@@ -1,4 +1,4 @@
-import { ChainId, Pool, PoolType, Theme, Token, ZapRouteDetail } from '@kyber/schema';
+import { ChainId, PoolType, Theme, ZapRouteDetail } from '@kyber/schema';
 
 export interface WidgetProps {
   theme?: Theme;
@@ -69,18 +69,12 @@ export interface OnSuccessProps {
 }
 
 export enum PriceType {
-  PriceLower = 'PriceLower',
-  PriceUpper = 'PriceUpper',
+  MinPrice = 'MinPrice',
+  MaxPrice = 'MaxPrice',
 }
 
-export interface ZapState {
-  pool: Pool;
+export interface ZapSnapshotState {
   zapInfo: ZapRouteDetail;
-  tokensIn: Token[];
-  amountsIn: string;
   deadline: number;
-  isFullRange: boolean;
-  slippage: number;
-  tickLower: number;
-  tickUpper: number;
+  gasUsd: number;
 }

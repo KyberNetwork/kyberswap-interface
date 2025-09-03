@@ -1,7 +1,5 @@
 import { useMemo, useState } from 'react';
 
-import { useShallow } from 'zustand/shallow';
-
 import {
   AddLiquidityAction,
   DEXES_INFO,
@@ -12,52 +10,30 @@ import {
   defaultToken,
 } from '@kyber/schema';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@kyber/ui';
-import { parseSwapActions } from '@kyber/utils';
 import { formatTokenAmount, formatWei } from '@kyber/utils/number';
 
+import useSwapPI from '@/hooks/useSwapPI';
 import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
 export default function ZapSummary() {
-  const { nativeToken, wrappedNativeToken, chainId, poolType } = useWidgetStore(
-    useShallow(s => ({
-      nativeToken: s.nativeToken,
-      wrappedNativeToken: s.wrappedNativeToken,
-      chainId: s.chainId,
-      poolType: s.poolType,
-    })),
-  );
-  const { zapInfo, tokensIn } = useZapState();
-  const pool = usePoolStore(s => s.pool);
+  const { chainId, poolType } = useWidgetStore(['chainId', 'poolType']);
+  const { zapInfo } = useZapState();
+  const { pool } = usePoolStore(['pool']);
   const [expanded, setExpanded] = useState(false);
 
   const initializing = pool === 'loading';
 
   const { symbol: symbol0 } = initializing ? defaultToken : pool.token0;
   const { symbol: symbol1 } = initializing ? defaultToken : pool.token1;
-  const { token0 = defaultToken, token1 = defaultToken } = !initializing ? pool : {};
 
   const dexNameObj = DEXES_INFO[poolType as PoolType].name;
   const dexName = !dexNameObj ? '' : typeof dexNameObj === 'string' ? dexNameObj : dexNameObj[chainId];
 
   const onExpand = () => setExpanded(prev => !prev);
 
-  const tokensToCheck = useMemo(
-    () => [...tokensIn, token0, token1, wrappedNativeToken, nativeToken],
-    [tokensIn, token0, token1, wrappedNativeToken, nativeToken],
-  );
-  const swapActions = useMemo(
-    () =>
-      parseSwapActions({
-        zapInfo,
-        tokens: tokensToCheck,
-        poolType,
-        chainId,
-        poolAddress: pool === 'loading' ? '' : pool.address,
-      }),
-    [chainId, poolType, tokensToCheck, zapInfo, pool],
-  );
+  const { swapActions } = useSwapPI();
 
   const addedLiquidityInfo = useMemo(() => {
     if (pool === 'loading') return { addedAmount0: '0', addedAmount1: '0' };

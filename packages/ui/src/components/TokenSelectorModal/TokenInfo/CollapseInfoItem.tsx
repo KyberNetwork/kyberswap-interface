@@ -2,7 +2,7 @@ import { ReactNode, useState } from 'react';
 
 import { ItemData, RISKY_THRESHOLD, WarningType, isItemRisky } from '@/components/TokenSelectorModal/TokenInfo/utils';
 import IconAlertOctagon from '@/components/TokenSelectorModal/assets/alert-octagon.svg?react';
-import Loader from '@/components/loader';
+import Loading from '@/components/loading';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 const CollapseInfoItem = ({
@@ -71,7 +71,7 @@ const CollapseInfoItem = ({
             const colorRiskyByType = type === WarningType.RISKY ? 'text-error' : 'text-warning';
             const colorRiskyByAmount = Number(value) > RISKY_THRESHOLD.RISKY ? 'text-error' : 'text-warning';
             const displayValue = loading ? (
-              <Loader className="animate-spin w-[10px] h-[10px]" />
+              <Loading className="text-accent w-[10px] h-[10px]" />
             ) : isNumber && value ? (
               `${+value * 100}%`
             ) : value === '0' ? (
