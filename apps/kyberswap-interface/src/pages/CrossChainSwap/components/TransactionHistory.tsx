@@ -109,33 +109,45 @@ export const TransactionHistory = () => {
 
                   // Fire specific GA events for success/failure
                   if (status && status !== oldStatus && window.dataLayer) {
-                    const baseEventData = {
-                      swap_details: {
-                        from_chain: tx.sourceChain,
-                        to_chain: tx.targetChain,
-                        from_token: tx.sourceToken,
-                        to_token: tx.targetToken,
-                        amount_in: tx.inputAmount,
-                        amount_out: tx.outputAmount,
-                        partner: tx.adapter,
-                        source_tx_hash: tx.sourceTxHash,
-                        target_tx_hash: txHash || tx.targetTxHash,
-                        sender: tx.sender,
-                        status: status,
-                      },
+                    const swap_details = {
+                      from_chain: tx.sourceChain,
+                      to_chain: tx.targetChain,
+                      from_token:
+                        tx.sourceChain === NonEvmChain.Bitcoin
+                          ? tx.sourceToken.symbol
+                          : tx.sourceChain === NonEvmChain.Solana
+                          ? (tx.sourceToken as any).id
+                          : tx.sourceChain === NonEvmChain.Near
+                          ? (tx.sourceToken as any).assetId
+                          : (tx.sourceToken as any)?.address || tx.sourceToken?.symbol,
+                      to_token:
+                        tx.targetChain === NonEvmChain.Bitcoin
+                          ? tx.targetToken.symbol
+                          : tx.targetChain === NonEvmChain.Solana
+                          ? (tx.targetToken as any).id
+                          : tx.targetChain === NonEvmChain.Near
+                          ? (tx.targetToken as any).assetId
+                          : (tx.targetToken as any)?.address || tx.targetToken?.symbol,
+                      amount_in: tx.inputAmount,
+                      amount_out: tx.outputAmount,
+                      partner: tx.adapter,
+                      source_tx_hash: tx.sourceTxHash,
+                      target_tx_hash: txHash || tx.targetTxHash,
+                      sender: tx.sender,
+                      status: status,
                     }
 
                     if (status === 'Success') {
                       window.dataLayer.push({
                         event: 'cross_chain_swap_success',
                         event_category: 'cross_chain_swap',
-                        ...baseEventData,
+                        page_location: btoa(JSON.stringify(swap_details)),
                       })
                     } else if (status === 'Failed') {
                       window.dataLayer.push({
                         event: 'cross_chain_swap_failed',
                         event_category: 'cross_chain_swap',
-                        ...baseEventData,
+                        page_location: btoa(JSON.stringify(swap_details)),
                       })
                     }
                   }
