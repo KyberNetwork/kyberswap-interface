@@ -40,7 +40,7 @@ const routeApi = createApi({
         return {
           url,
           method: 'POST',
-          body: rest,
+          body: { ...rest, source: 'unibot-tg', enableGasEstimation: false },
           signal,
           authentication,
           headers: {
