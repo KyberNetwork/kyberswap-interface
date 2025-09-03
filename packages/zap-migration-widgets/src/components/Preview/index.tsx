@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 
+import { useCopy } from '@kyber/hooks';
 import {
   Dialog,
   DialogContent,
@@ -31,7 +32,6 @@ import { MigrationSummary } from '@/components/Preview/MigrationSummary';
 import { SlippageInfo } from '@/components/SlippageInfo';
 import { SwapPI, useSwapPI } from '@/components/SwapImpact';
 import { DEXES_INFO, NETWORKS_INFO, PATHS } from '@/constants';
-import useCopy from '@/hooks/use-copy';
 import { ChainId, Token, UniV2Pool, univ2Dexes } from '@/schema';
 import { usePoolsStore } from '@/stores/usePoolsStore';
 import { ProtocolFeeAction, RefundAction, useZapStateStore } from '@/stores/useZapStateStore';

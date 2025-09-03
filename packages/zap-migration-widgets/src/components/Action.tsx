@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 
+import { usePositionOwner } from '@kyber/hooks';
 import { useDebounce } from '@kyber/hooks/use-debounce';
 import { InfoHelper } from '@kyber/ui';
 import { formatTokenAmount } from '@kyber/utils/number';
@@ -8,7 +9,6 @@ import { cn } from '@kyber/utils/tailwind-helpers';
 import { useSwapPI } from '@/components/SwapImpact';
 import { DEXES_INFO, FARMING_CONTRACTS, NETWORKS_INFO, ZERO_ADDRESS } from '@/constants';
 import { useNftApproval } from '@/hooks/use-nft-approval';
-import usePositionOwner from '@/hooks/usePositionOwner';
 import { ChainId, Token, univ2Dexes, univ4Dexes } from '@/schema';
 import { usePoolsStore } from '@/stores/usePoolsStore';
 import { usePositionStore } from '@/stores/usePositionStore';
@@ -56,12 +56,15 @@ export function Action({
   const dex0 = pools !== 'loading' ? pools[0].dex : undefined;
   const dex1 = pools !== 'loading' ? pools[1].dex : undefined;
 
-  const { positionOwner, positionOwner1 } = usePositionOwner({
-    positionId0: position === 'loading' ? undefined : position?.id.toString(),
+  const positionOwner = usePositionOwner({
+    positionId: position === 'loading' ? '' : position?.id.toString(),
     chainId,
-    dex0,
-    positionId1: position1 === 'loading' ? undefined : position1?.id?.toString(),
-    dex1,
+    poolType: dex0 as any,
+  });
+  const positionOwner1 = usePositionOwner({
+    positionId: position1 === 'loading' ? '' : position1?.id?.toString() || '',
+    chainId,
+    poolType: dex1 as any,
   });
 
   const isToUniv4 = pools !== 'loading' && univ4Dexes.includes(pools[1].dex);
