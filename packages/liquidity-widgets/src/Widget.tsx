@@ -148,6 +148,12 @@ export default function Widget() {
     </>
   );
 
+  const onClosePreview = () => {
+    if (isUniv4) checkNftApproval();
+    setZapSnapshotState(null);
+    getZapRoute();
+  };
+
   return (
     <div className="ks-lw ks-lw-style">
       {(poolError || widgetError) && (
@@ -179,16 +185,8 @@ export default function Widget() {
         />
       )}
       {zapSnapshotState && pool && pool !== 'loading' && (
-        <Modal isOpen onClick={() => setZapSnapshotState(null)} modalContentClass="!max-h-[96vh]">
-          <Preview
-            zapState={zapSnapshotState}
-            pool={pool}
-            onDismiss={() => {
-              if (isUniv4) checkNftApproval();
-              setZapSnapshotState(null);
-              getZapRoute();
-            }}
-          />
+        <Modal isOpen onClick={onClosePreview} modalContentClass="!max-h-[96vh]">
+          <Preview zapState={zapSnapshotState} pool={pool} onDismiss={onClosePreview} />
         </Modal>
       )}
 
