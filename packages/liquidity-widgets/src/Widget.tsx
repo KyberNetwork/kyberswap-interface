@@ -154,6 +154,14 @@ export default function Widget() {
     getZapRoute();
   };
 
+  const onCloseErrorDialog = () => {
+    if (poolError) onClose?.();
+    else {
+      setWidgetError(undefined);
+      getZapRoute();
+    }
+  };
+
   return (
     <div className="ks-lw ks-lw-style">
       {(poolError || widgetError) && (
@@ -161,25 +169,10 @@ export default function Widget() {
           type={StatusDialogType.ERROR}
           title={poolError ? 'Failed to load pool' : widgetError ? 'Failed to build zap route' : ''}
           description={poolError || widgetError}
-          onClose={() => {
-            if (poolError) onClose?.();
-            else {
-              setWidgetError(undefined);
-              getZapRoute();
-            }
-          }}
+          onClose={onCloseErrorDialog}
           action={
-            <button
-              className="ks-outline-btn flex-1"
-              onClick={() => {
-                if (poolError) onClose?.();
-                else {
-                  setWidgetError(undefined);
-                  getZapRoute();
-                }
-              }}
-            >
-              Close
+            <button className="ks-outline-btn flex-1" onClick={onCloseErrorDialog}>
+              {poolError ? 'Close' : 'Close & Refresh'}
             </button>
           }
         />
