@@ -16,7 +16,7 @@ export const usePositionOwner = ({
 
   const rpcUrl = NETWORKS_INFO[chainId].defaultRpc;
 
-  const contract = !!poolType ? DEXES_INFO[poolType].nftManagerContract : undefined;
+  const contract = poolType ? DEXES_INFO[poolType].nftManagerContract : undefined;
   const nftManagerContract = !contract ? undefined : typeof contract === 'string' ? contract : contract[chainId];
 
   useEffect(() => {
