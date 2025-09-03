@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { useShallow } from 'zustand/shallow';
 
 import { Pool, PoolType, Position, univ2PoolNormalize, univ3PoolNormalize } from '@kyber/schema';
 import { getUniv2PositionInfo, getUniv3PositionInfo } from '@kyber/utils';
@@ -29,7 +30,7 @@ interface getPositionProps {
   setPositionId: (positionId: string) => void;
 }
 
-export const usePositionStore = create<PositionState>((set, get) => ({
+const usePositionRawStore = create<PositionState>((set, get) => ({
   ...initState,
   reset: () => set(initState),
   getPosition: async ({ pool, positionId, chainId, poolType, connectedAccount, setPositionId }: getPositionProps) => {
@@ -83,3 +84,19 @@ export const usePositionStore = create<PositionState>((set, get) => ({
     set({ positionError: 'Invalid pool type' });
   },
 }));
+
+type PositionStoreKeys = keyof ReturnType<typeof usePositionRawStore.getState>;
+
+export const usePositionStore = <K extends PositionStoreKeys>(keys: K[]) => {
+  return usePositionRawStore(
+    useShallow(s =>
+      keys.reduce(
+        (acc, key) => {
+          acc[key] = s[key];
+          return acc;
+        },
+        {} as Pick<typeof s, K>,
+      ),
+    ),
+  );
+};

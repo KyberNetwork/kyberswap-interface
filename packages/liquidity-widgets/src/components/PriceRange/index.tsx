@@ -1,7 +1,5 @@
 import { useEffect, useMemo } from 'react';
 
-import { useShallow } from 'zustand/shallow';
-
 import { usePrevious } from '@kyber/hooks';
 import { univ3PoolNormalize, univ3Types } from '@kyber/schema';
 import { Button, Skeleton } from '@kyber/ui';
@@ -28,14 +26,10 @@ const getFeeRange = (fee: number): FeeAmount | undefined => {
 };
 
 const PriceRange = () => {
-  const { priceLower, priceUpper, setTickLower, setTickUpper, tickLower, tickUpper } = useZapState();
+  const { setTickLower, setTickUpper, tickLower, tickUpper } = useZapState();
 
-  const { poolType, positionId, initialTick } = useWidgetStore(
-    useShallow(s => ({ poolType: s.poolType, positionId: s.positionId, initialTick: s.initialTick })),
-  );
-  const { pool, revertPrice, poolPrice } = usePoolStore(
-    useShallow(s => ({ pool: s.pool, revertPrice: s.revertPrice, poolPrice: s.poolPrice })),
-  );
+  const { poolType, initialTick } = useWidgetStore(['poolType', 'initialTick']);
+  const { pool, revertPrice, poolPrice } = usePoolStore(['pool', 'revertPrice', 'poolPrice']);
 
   const initializing = pool === 'loading';
 
@@ -95,25 +89,6 @@ const PriceRange = () => {
   );
   const previousRangeSelected = usePrevious(rangeSelected);
 
-  const minPrice = useMemo(() => {
-    if (!initializing) {
-      const { success, data } = univ3PoolNormalize.safeParse(pool);
-      if (success && ((!revertPrice && data.minTick === tickLower) || (revertPrice && data.maxTick === tickUpper)))
-        return '0';
-
-      return !revertPrice ? priceLower : priceUpper;
-    }
-  }, [revertPrice, pool, tickLower, tickUpper, priceLower, priceUpper, initializing]);
-
-  const maxPrice = useMemo(() => {
-    if (pool !== 'loading') {
-      const { success, data } = univ3PoolNormalize.safeParse(pool);
-      if (success && ((!revertPrice && data.maxTick === tickUpper) || (revertPrice && data.minTick === tickLower)))
-        return '∞';
-      return !revertPrice ? priceUpper : priceLower;
-    }
-  }, [revertPrice, pool, tickUpper, tickLower, priceUpper, priceLower]);
-
   const handleSelectPriceRange = (range: string | number) => {
     if (!priceRanges.length) return;
     const priceRange = priceRanges.find(item => item?.range === range);
@@ -139,7 +114,7 @@ const PriceRange = () => {
   const isUniv3 = univ3Types.includes(poolType as any);
   if (!isUniv3) return null;
 
-  return !positionId ? (
+  return (
     <div className="flex mt-6 gap-[6px] my-[10px] border border-stroke rounded-md">
       {initializing ? (
         <>
@@ -168,50 +143,6 @@ const PriceRange = () => {
           </Button>
         ))
       )}
-    </div>
-  ) : (
-    <div className="px-4 py-3 mt-4 text-sm border border-stroke rounded-md">
-      <p className="text-subText mb-3">Your Position Price Ranges</p>
-      <div className="flex items-center gap-4">
-        <div className="bg-white bg-opacity-[0.04] rounded-md py-3 w-1/2 flex flex-col items-center justify-center gap-1">
-          <p className="text-subText">Min Price</p>
-          {initializing ? (
-            <Skeleton className="w-14 h-5" />
-          ) : (
-            <p className="max-w-full truncate" title={minPrice?.toString()}>
-              {minPrice}
-            </p>
-          )}
-          {initializing ? (
-            <Skeleton className="w-20 h-5" />
-          ) : (
-            <p className="text-subText">
-              {revertPrice
-                ? `${pool?.token0.symbol} per ${pool?.token1.symbol}`
-                : `${pool?.token1.symbol} per ${pool?.token0.symbol}`}
-            </p>
-          )}
-        </div>
-        <div className="bg-white bg-opacity-[0.04] rounded-md px-2 py-3 w-1/2 flex flex-col items-center justify-center gap-1">
-          <p className="text-subText">Max Price</p>
-          {initializing ? (
-            <Skeleton className="w-14 h-5" />
-          ) : (
-            <p className="max-w-full truncate" title={maxPrice?.toString()}>
-              {maxPrice}
-            </p>
-          )}
-          {initializing ? (
-            <Skeleton className="w-20 h-5" />
-          ) : (
-            <p className="text-subText">
-              {revertPrice
-                ? `${pool?.token0.symbol} per ${pool?.token1.symbol}`
-                : `${pool?.token1.symbol} per ${pool?.token0.symbol}`}
-            </p>
-          )}
-        </div>
-      </div>
     </div>
   );
 };
