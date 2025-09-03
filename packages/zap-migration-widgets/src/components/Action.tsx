@@ -62,7 +62,7 @@ export function Action({
     poolType: dex0 as any,
   });
   const positionOwner1 = usePositionOwner({
-    positionId: position1 === 'loading' ? '' : position1?.id?.toString() || '',
+    positionId: position1 === 'loading' ? '' : position1?.id?.toString(),
     chainId,
     poolType: dex1 as any,
   });

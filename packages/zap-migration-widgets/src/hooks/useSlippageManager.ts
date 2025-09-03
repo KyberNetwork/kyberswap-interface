@@ -16,7 +16,12 @@ export default function useSlippageManager({
   const { setSlippage, slippage } = useZapStateStore();
 
   useEffect(() => {
-    if (pools === 'loading' || initialSlippage || slippage) return;
+    if (initialSlippage) {
+      if (!slippage) setSlippage(initialSlippage);
+      return;
+    }
+
+    if (pools === 'loading' || slippage) return;
     const targetPool = pools[1];
 
     // First, try to load from localStorage
@@ -56,8 +61,4 @@ export default function useSlippageManager({
       setSlippage(5);
     } else setSlippage(10);
   }, [pools, slippage, initialSlippage, setSlippage, chainId]);
-
-  useEffect(() => {
-    if (initialSlippage && !slippage) setSlippage(initialSlippage);
-  }, [initialSlippage, setSlippage, slippage]);
 }

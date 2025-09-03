@@ -8,16 +8,16 @@ export const usePositionOwner = ({
   chainId,
   poolType,
 }: {
-  positionId: string;
+  positionId?: string;
   chainId: ChainId;
-  poolType: PoolType;
+  poolType?: PoolType;
 }) => {
   const [positionOwner, setPositionOwner] = useState<string | null>(null);
 
   const rpcUrl = NETWORKS_INFO[chainId].defaultRpc;
 
-  const contract = DEXES_INFO[poolType].nftManagerContract;
-  const nftManagerContract = typeof contract === 'string' ? contract : contract[chainId];
+  const contract = !!poolType ? DEXES_INFO[poolType].nftManagerContract : undefined;
+  const nftManagerContract = !contract ? undefined : typeof contract === 'string' ? contract : contract[chainId];
 
   useEffect(() => {
     if (!positionId || !nftManagerContract) return;
