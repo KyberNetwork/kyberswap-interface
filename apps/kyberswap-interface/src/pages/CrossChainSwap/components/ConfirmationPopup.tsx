@@ -216,23 +216,39 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
 
       // Fire GA event for successful cross-chain swap
       if (window.dataLayer) {
+        const swapDetails = {
+          from_chain: fromChainId,
+          to_chain: toChainId,
+          from_token:
+            fromChainId === NonEvmChain.Bitcoin
+              ? currencyIn.symbol
+              : fromChainId === NonEvmChain.Solana
+              ? (currencyIn as any).id
+              : fromChainId === NonEvmChain.Near
+              ? (currencyIn as any).assetId
+              : (currencyIn as any)?.address || currencyIn?.symbol,
+          to_token:
+            toChainId === NonEvmChain.Bitcoin
+              ? currencyOut.symbol
+              : toChainId === NonEvmChain.Solana
+              ? (currencyOut as any).id
+              : toChainId === NonEvmChain.Near
+              ? (currencyOut as any).assetId
+              : (currencyOut as any)?.address || currencyOut?.symbol,
+          amount_in: amount,
+          amount_out: selectedQuote.quote.outputAmount.toString(),
+          parter: selectedQuote.adapter.getName(),
+          source_tx_hash: res.sourceTxHash,
+          sender,
+          recipient: receiver,
+          status: 'init',
+          fee_percent: selectedQuote.quote.platformFeePercent,
+        }
+
         window.dataLayer.push({
           event: 'cross_chain_swap_init',
           event_category: 'cross_chain_swap',
-          swap_details: {
-            from_chain: fromChainId,
-            to_chain: toChainId,
-            from_token: currencyIn,
-            to_token: currencyOut,
-            amount_in: amount,
-            amount_out: selectedQuote.quote.outputAmount.toString(),
-            parter: selectedQuote.adapter.getName(),
-            source_tx_hash: res.sourceTxHash,
-            sender,
-            recipient: receiver,
-            status: 'init',
-            fee_percent: selectedQuote.quote.platformFeePercent,
-          },
+          page_location: btoa(JSON.stringify(swapDetails)),
         })
       }
     }
