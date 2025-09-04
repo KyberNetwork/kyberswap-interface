@@ -93,3 +93,14 @@ export const FARMING_CONTRACTS: Partial<Record<Dex, Partial<Record<ChainId, stri
     [ChainId.Linea]: '0x22E2f236065B780FA33EC8C4E58b99ebc8B55c57',
   },
 };
+
+export const getSlippageStorageKey = (
+  token0Symbol: string,
+  token1Symbol: string,
+  chainId: number | number,
+  feeTier: number,
+): string => {
+  // Sort symbols alphabetically to ensure consistent key generation regardless of token order
+  const sortedSymbols = [token0Symbol, token1Symbol].sort();
+  return `kyber_liquidity_widget_slippage_${sortedSymbols[0]}_${sortedSymbols[1]}_${chainId}_${feeTier}`;
+};
