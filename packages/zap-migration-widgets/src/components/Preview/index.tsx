@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 
+import { useCopy } from '@kyber/hooks';
 import {
   Dialog,
   DialogContent,
@@ -12,7 +13,7 @@ import {
   ScrollArea,
   TokenLogo,
 } from '@kyber/ui';
-import { fetchTokenPrice } from '@kyber/utils';
+import { fetchTokenPrice, friendlyError } from '@kyber/utils';
 import {
   calculateGasMargin,
   estimateGas,
@@ -31,7 +32,6 @@ import { MigrationSummary } from '@/components/Preview/MigrationSummary';
 import { SlippageInfo } from '@/components/SlippageInfo';
 import { SwapPI, useSwapPI } from '@/components/SwapImpact';
 import { DEXES_INFO, NETWORKS_INFO, PATHS } from '@/constants';
-import useCopy from '@/hooks/use-copy';
 import { ChainId, Token, UniV2Pool, univ2Dexes } from '@/schema';
 import { usePoolsStore } from '@/stores/usePoolsStore';
 import { ProtocolFeeAction, RefundAction, useZapStateStore } from '@/stores/useZapStateStore';
@@ -54,7 +54,8 @@ export function Preview({
   onViewPosition?: (txHash: string) => void;
   referral?: string;
 }) {
-  const { showPreview, togglePreview, tickLower, tickUpper, route, slippage } = useZapStateStore();
+  const { showPreview, togglePreview, tickLower, tickUpper, route, slippage, setSlippageOpen, setSlippage } =
+    useZapStateStore();
   const { pools, theme } = usePoolsStore();
 
   const copyPoolAddress0 = useCopy({
@@ -97,8 +98,9 @@ export function Preview({
         else setError(res.message || 'build failed');
       })
       .catch(err => {
-        setError(err.message || JSON.stringify(err));
+        setError(friendlyError(err) || err.message || JSON.stringify(err));
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [route?.route, showPreview]);
 
   const rpcUrl = NETWORKS_INFO[chainId].defaultRpc;
@@ -132,7 +134,7 @@ export function Preview({
 
       setGasUsd(gasUsd);
     })();
-  }, [buildData, account]);
+  }, [buildData, account, chainId, rpcUrl]);
 
   const [showProcessing, setShowProcessing] = useState(false);
   const [submiting, setSubmiting] = useState(false);
@@ -153,7 +155,7 @@ export function Preview({
       chainId === ChainId.Ethereum ? 10_000 : 5_000,
     );
     return () => clearInterval(i);
-  }, [txHash, chainId]);
+  }, [txHash, chainId, rpcUrl]);
 
   const { zapPiRes } = useSwapPI(chainId);
 
@@ -206,6 +208,13 @@ export function Preview({
       });
     }
   });
+
+  const handleSlippage = () => {
+    setSlippageOpen(true);
+    const suggestedSlippage = route?.zapDetails.suggestedSlippage || 0;
+    if (slippage !== suggestedSlippage) setSlippage(suggestedSlippage);
+    togglePreview();
+  };
 
   if (showProcessing) {
     let content = <></>;
@@ -282,6 +291,19 @@ export function Preview({
               {error}
             </div>
           </ScrollArea>
+          <div className="flex gap-4 w-full mt-4">
+            <button
+              className="flex-1 h-[40px] rounded-full border font-medium text-sm border-stroke text-subText"
+              onClick={togglePreview}
+            >
+              Close
+            </button>
+            {error.includes('slippage') && (
+              <button className="ks-primary-btn flex-1" onClick={handleSlippage}>
+                {slippage !== route?.zapDetails.suggestedSlippage ? 'Use Suggested Slippage' : 'Set Custom Slippage'}
+              </button>
+            )}
+          </div>
         </>
       );
     }
