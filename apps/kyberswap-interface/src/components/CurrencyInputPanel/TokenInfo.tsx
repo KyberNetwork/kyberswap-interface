@@ -96,7 +96,7 @@ export default function TokenInfo({
   }, [nativeCurrency.address, nativeCurrency.chainId])
 
   useEffect(() => {
-    if (!nativeCurrency || tokenCategory) return
+    if (!nativeCurrency) return
 
     const getTokenCategory = async () => {
       const r = await fetch(
@@ -111,7 +111,8 @@ export default function TokenInfo({
     }
 
     getTokenCategory()
-  }, [nativeCurrency, tokenCategory])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nativeCurrency.address])
 
   const tooltipContent = (
     <Flex flexDirection="column" sx={{ gap: '2px' }}>
