@@ -370,7 +370,7 @@ export default function CurrencyInputPanel({
                     </StyledTokenName>
                   </RowFixed>
                   {!!nativeCurrency && (
-                    <TokenInfo nativeCurrency={nativeCurrency.wrapped} isNativeToken={nativeCurrency.isNative} />
+                    <TokenInfo token={nativeCurrency.wrapped} isNativeToken={nativeCurrency.isNative} />
                   )}
                   {!disableCurrencySelect && !isSwitchMode && (
                     <DropdownSVG style={{ marginLeft: tight ? '-8px' : undefined }} />

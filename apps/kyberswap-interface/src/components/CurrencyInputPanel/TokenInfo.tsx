@@ -48,13 +48,7 @@ const SPREAD_THRESHOLD = {
   [TOKEN_CATEGORY.HIGH_VOLATILITY]: 5,
 }
 
-export default function TokenInfo({
-  nativeCurrency,
-  isNativeToken = false,
-}: {
-  nativeCurrency: Token
-  isNativeToken?: boolean
-}) {
+export default function TokenInfo({ token, isNativeToken = false }: { token: Token; isNativeToken?: boolean }) {
   const theme = useTheme()
 
   const [tokenCategory, setTokenCategory] = useState<TOKEN_CATEGORY | null>(null)
@@ -78,12 +72,12 @@ export default function TokenInfo({
       const r: PriceResponse = await fetch(`${TOKEN_API_URL}/v1/public/tokens/prices`, {
         method: 'POST',
         body: JSON.stringify({
-          [nativeCurrency.chainId]: [nativeCurrency.address],
+          [token.chainId]: [token.address],
         }),
       }).then(res => res.json())
 
-      const buyPrice = r.data[nativeCurrency.chainId][nativeCurrency.address]?.PriceBuy
-      const sellPrice = r.data[nativeCurrency.chainId][nativeCurrency.address]?.PriceSell
+      const buyPrice = r.data[token.chainId][token.address]?.PriceBuy
+      const sellPrice = r.data[token.chainId][token.address]?.PriceSell
 
       const spread =
         buyPrice === undefined || sellPrice === undefined
@@ -97,32 +91,30 @@ export default function TokenInfo({
     const fetchPriceInterval = setInterval(getOnChainPrice, 15_000)
 
     return () => clearInterval(fetchPriceInterval)
-  }, [nativeCurrency.address, nativeCurrency.chainId])
+  }, [token.address, token.chainId])
 
   useEffect(() => {
-    if (!nativeCurrency) return
+    if (!token) return
 
     const getTokenCategory = async () => {
       const r = await fetch(
-        `${TOKEN_API_URL}/v1/public/category/token?tokens=${nativeCurrency.address}&chainId=${nativeCurrency.chainId}`,
+        `${TOKEN_API_URL}/v1/public/category/token?tokens=${token.address}&chainId=${token.chainId}`,
       ).then(res => res.json())
 
-      const cat = r.data.find(
-        (item: any) => item.token.toLowerCase() === nativeCurrency.address.toLowerCase(),
-      )?.category
+      const cat = r.data.find((item: any) => item.token.toLowerCase() === token.address.toLowerCase())?.category
 
       if (cat) setTokenCategory(cat as TOKEN_CATEGORY)
     }
 
     getTokenCategory()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [nativeCurrency.address])
+  }, [token.address])
 
   const tooltipContent = (
     <Flex flexDirection="column" sx={{ gap: '2px' }}>
       <Flex alignItems="center" sx={{ gap: '2px' }}>
-        <Text>{isNativeToken ? 'Native token' : shortenAddress(nativeCurrency?.wrapped.address || '', 6)}</Text>
-        {!isNativeToken ? <CopyHelper size={14} toCopy={nativeCurrency?.wrapped.address} /> : null}
+        <Text>{isNativeToken ? 'Native token' : shortenAddress(token?.wrapped.address || '', 6)}</Text>
+        {!isNativeToken ? <CopyHelper size={14} toCopy={token?.wrapped.address} /> : null}
       </Flex>
       <Flex alignItems="center" sx={{ gap: '4px' }}>
         <Text>{t`Buy`}:</Text>
