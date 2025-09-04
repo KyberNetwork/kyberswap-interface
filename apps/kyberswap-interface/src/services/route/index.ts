@@ -59,18 +59,17 @@ const routeApi = createApi({
                 ? (tokenOutPrices.PriceBuy + tokenOutPrices.PriceSell) / 2
                 : null
 
+            const tokenInBalance = BigInt(amountIn || 0) / BigInt(10 ** tokenInDecimals)
+            const tokenOutBalance = BigInt(amountOut || 0) / BigInt(10 ** tokenOutDecimals)
+
             return {
               ...baseResponse,
               data: {
                 ...baseResponse.data,
                 routeSummary: {
                   ...routeSummary,
-                  amountInUsd: tokenInMidPrice
-                    ? ((Number(amountIn || 0) / 10 ** tokenInDecimals) * tokenInMidPrice).toString()
-                    : '',
-                  amountOutUsd: tokenOutMidPrice
-                    ? ((Number(amountOut || 0) / 10 ** tokenOutDecimals) * tokenOutMidPrice).toString()
-                    : '',
+                  amountInUsd: tokenInMidPrice ? (tokenInBalance * BigInt(tokenInMidPrice)).toString() : '',
+                  amountOutUsd: tokenOutMidPrice ? (tokenOutBalance * BigInt(tokenOutMidPrice)).toString() : '',
                 },
               },
             }
