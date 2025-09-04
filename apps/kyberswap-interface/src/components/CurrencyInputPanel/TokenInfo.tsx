@@ -12,7 +12,6 @@ import { TOKEN_API_URL } from 'constants/env'
 import { PAIR_CATEGORY } from 'constants/index'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
-import { usePairCategory } from 'state/swap/hooks'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const glow = keyframes`
@@ -35,11 +34,18 @@ interface PriceResponse {
   data: { [chainId: string]: { [address: string]: { PriceBuy: number; PriceSell: number } } }
 }
 
+enum TOKEN_CATEGORY {
+  STABLE = 'stablePair',
+  COMMON = 'commonPair',
+  EXOTIC = 'exoticPair',
+  HIGH_VOLATILITY = 'highVolatilityPair',
+}
+
 const SPREAD_THRESHOLD = {
-  [PAIR_CATEGORY.STABLE]: 0.1,
-  ['commonPair']: 0.5,
-  [PAIR_CATEGORY.HIGH_VOLATILITY]: 5,
-  [PAIR_CATEGORY.EXOTIC]: 2,
+  [TOKEN_CATEGORY.STABLE]: 0.1,
+  [TOKEN_CATEGORY.COMMON]: 0.5,
+  [TOKEN_CATEGORY.EXOTIC]: 2,
+  [TOKEN_CATEGORY.HIGH_VOLATILITY]: 5,
 }
 
 export default function TokenInfo({
@@ -50,20 +56,20 @@ export default function TokenInfo({
   isNativeToken?: boolean
 }) {
   const theme = useTheme()
-  const cat = usePairCategory()
 
+  const [tokenCategory, setTokenCategory] = useState<TOKEN_CATEGORY | null>(null)
   const [priceInfo, setPriceInfo] = useState<{ buyPrice: number; sellPrice: number; spread: number } | null>(null)
   const [showTooltip, setShowTooltip] = useState(false)
   const infoRef = useRef<HTMLDivElement>(null)
   useOnClickOutside(infoRef, () => setShowTooltip(false))
 
   const spreadThreshold = useMemo(
-    () => SPREAD_THRESHOLD[cat as keyof typeof SPREAD_THRESHOLD] || SPREAD_THRESHOLD[PAIR_CATEGORY.EXOTIC],
-    [cat],
+    () => (!tokenCategory ? null : SPREAD_THRESHOLD[tokenCategory] || SPREAD_THRESHOLD[PAIR_CATEGORY.EXOTIC]),
+    [tokenCategory],
   )
 
   const spreadWarning = useMemo(
-    () => priceInfo?.spread && priceInfo.spread > spreadThreshold,
+    () => (spreadThreshold && priceInfo?.spread ? priceInfo.spread > spreadThreshold : false),
     [priceInfo?.spread, spreadThreshold],
   )
 
@@ -87,11 +93,28 @@ export default function TokenInfo({
     const fetchPriceInterval = setInterval(getOnChainPrice, 15_000)
 
     return () => clearInterval(fetchPriceInterval)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [nativeCurrency.address, nativeCurrency.chainId])
+
+  useEffect(() => {
+    if (!nativeCurrency || tokenCategory) return
+
+    const getTokenCategory = async () => {
+      const r = await fetch(
+        `${TOKEN_API_URL}/v1/public/category/token?tokens=${nativeCurrency.address}&chainId=${nativeCurrency.chainId}`,
+      ).then(res => res.json())
+
+      const cat = r.data.find(
+        (item: any) => item.token.toLowerCase() === nativeCurrency.address.toLowerCase(),
+      )?.category
+
+      if (cat) setTokenCategory(cat as TOKEN_CATEGORY)
+    }
+
+    getTokenCategory()
+  }, [nativeCurrency, tokenCategory])
 
   const tooltipContent = (
-    <Flex flexDirection="column" fontSize="14px" sx={{ gap: '2px' }}>
+    <Flex flexDirection="column" sx={{ gap: '2px' }}>
       <Flex alignItems="center" sx={{ gap: '2px' }}>
         <Text>{isNativeToken ? 'Native token' : shortenAddress(nativeCurrency?.wrapped.address || '', 6)}</Text>
         {!isNativeToken ? <CopyHelper size={14} toCopy={nativeCurrency?.wrapped.address} /> : null}
@@ -114,12 +137,12 @@ export default function TokenInfo({
       </Flex>
       <Flex alignItems="center" sx={{ gap: '4px' }}>
         <Text>{t`Spread`}:</Text>
-        <Text color={spreadWarning ? theme.red : theme.text}>
+        <Text color={spreadWarning ? theme.warning : theme.text}>
           {priceInfo?.spread ? formatDisplayNumber(priceInfo?.spread, { significantDigits: 2 }) + '%' : '--'}
         </Text>
       </Flex>
       {spreadWarning ? (
-        <Text color={theme.warning}>
+        <Text color={theme.warning} fontStyle="italic">
           {`The current difference between buy and sell is ${formatDisplayNumber(priceInfo?.spread, {
             significantDigits: 2,
           })}%, which might be higher than usual for similar tokens.`}
@@ -147,7 +170,7 @@ export default function TokenInfo({
         delay={200}
         placement="top"
         width="fit-content"
-        maxWidth="400px"
+        maxWidth="340px"
       >
         <StyledInfo color={spreadWarning ? theme.warning : theme.subText} size={18} $warning={!!spreadWarning} />
       </Tooltip>
