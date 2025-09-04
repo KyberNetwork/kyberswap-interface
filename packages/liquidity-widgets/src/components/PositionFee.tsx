@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { API_URLS, CHAIN_ID_TO_CHAIN, RemoveLiquidityAction, Token } from '@kyber/schema';
-import { TokenLogo } from '@kyber/ui';
+import { TokenLogo, TokenSymbol } from '@kyber/ui';
 import { formatCurrency, formatTokenAmount } from '@kyber/utils/number';
 
 import { usePoolStore } from '@/stores/usePoolStore';
@@ -50,7 +50,7 @@ export const PositionFee = () => {
         <div className="flex items-center gap-2">
           <TokenLogo src={feeToken0?.logo} />
           <span>{formatTokenAmount(feeAmount0, feeToken0.decimals, 6)}</span>
-          <span>{feeToken0.symbol}</span>
+          <TokenSymbol symbol={feeToken0.symbol} maxWidth={80} />
         </div>
         <p className="text-subText text-xs">{formatCurrency(+fees?.[0].amountUsd || 0)}</p>
       </div>
@@ -59,7 +59,7 @@ export const PositionFee = () => {
         <div className="flex items-center gap-2">
           <TokenLogo src={feeToken1.logo} />
           <span>{formatTokenAmount(feeAmount1, feeToken1.decimals, 6)}</span>
-          <span>{feeToken1.symbol}</span>
+          <TokenSymbol symbol={feeToken1.symbol} maxWidth={80} />
         </div>
         <p className="text-subText text-xs">{formatCurrency(+fees?.[1].amountUsd || 0)}</p>
       </div>

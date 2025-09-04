@@ -1,5 +1,5 @@
 import { Pool } from '@kyber/schema';
-import { TokenLogo } from '@kyber/ui';
+import { TokenLogo, TokenSymbol } from '@kyber/ui';
 import { formatCurrency, formatDisplayNumber } from '@kyber/utils/number';
 
 import { useWidgetStore } from '@/stores/useWidgetStore';
@@ -24,20 +24,21 @@ export default function PooledAmount({
             {pool?.token0?.logo && (
               <TokenLogo src={pool.token0.logo} className={`relative ${positionId ? '' : 'mt-1 -top-1'}`} />
             )}
-            <div>
+            <div className="flex items-center gap-1">
               {formatDisplayNumber(
                 positionId !== undefined ? positionAmountInfo.amount0 : addedAmountInfo.addedAmount0,
                 {
                   significantDigits: 4,
                 },
               )}{' '}
-              {pool?.token0.symbol}
+              <TokenSymbol symbol={pool?.token0.symbol} maxWidth={60} />
             </div>
           </div>
 
           {positionId && (
             <div className="text-end">
-              + {formatDisplayNumber(addedAmountInfo.addedAmount0, { significantDigits: 4 })} {pool?.token0.symbol}
+              + {formatDisplayNumber(addedAmountInfo.addedAmount0, { significantDigits: 4 })}{' '}
+              <TokenSymbol symbol={pool?.token0.symbol} maxWidth={60} />
             </div>
           )}
           <div className="ml-auto w-fit text-subText">
@@ -49,19 +50,20 @@ export default function PooledAmount({
             {pool?.token1?.logo && (
               <TokenLogo src={pool.token1.logo} className={`relative ${positionId ? '' : 'mt-1 -top-1'}`} />
             )}
-            <div>
+            <div className="flex items-center gap-1">
               {formatDisplayNumber(
                 positionId !== undefined ? positionAmountInfo.amount1 : addedAmountInfo.addedAmount1,
                 {
                   significantDigits: 4,
                 },
               )}{' '}
-              {pool?.token1.symbol}
+              <TokenSymbol symbol={pool?.token1.symbol} maxWidth={60} />
             </div>
           </div>
           {positionId && (
             <div className="text-end">
-              + {formatDisplayNumber(addedAmountInfo.addedAmount1, { significantDigits: 4 })} {pool?.token1.symbol}
+              + {formatDisplayNumber(addedAmountInfo.addedAmount1, { significantDigits: 4 })}{' '}
+              <TokenSymbol symbol={pool?.token1.symbol} maxWidth={60} />
             </div>
           )}
           <div className="ml-auto w-fit text-subText">

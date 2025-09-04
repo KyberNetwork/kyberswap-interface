@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import { univ3PoolNormalize } from '@kyber/schema';
-import { Skeleton } from '@kyber/ui';
+import { Skeleton, TokenSymbol } from '@kyber/ui';
 import { formatNumber } from '@kyber/utils/number';
 import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick } from '@kyber/utils/uniswapv3';
 
@@ -152,11 +152,11 @@ export default function PriceInput({ type }: { type: PriceType }) {
       {initializing ? (
         <Skeleton className="w-24 h-5 mt-1" />
       ) : (
-        <span className="w-max text-sm font-medium text-subText">
-          {!revertPrice
-            ? `${pool.token1.symbol} per ${pool.token0.symbol}`
-            : `${pool.token0.symbol} per ${pool.token1.symbol}`}
-        </span>
+        <div className="w-max text-sm font-medium text-subText flex items-center gap-1">
+          <TokenSymbol symbol={!revertPrice ? pool.token1.symbol : pool.token0.symbol} maxWidth={80} />
+          <span>per</span>
+          <TokenSymbol symbol={!revertPrice ? pool.token0.symbol : pool.token1.symbol} maxWidth={80} />
+        </div>
       )}
     </div>
   );

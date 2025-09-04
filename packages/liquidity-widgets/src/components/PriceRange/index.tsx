@@ -72,7 +72,7 @@ const PriceRange = () => {
           revertPrice,
         );
 
-        if (!lower || !upper) return null;
+        if (lower === undefined || upper === undefined) return null;
 
         return {
           range: item,
@@ -92,7 +92,7 @@ const PriceRange = () => {
   const handleSelectPriceRange = (range: string | number) => {
     if (!priceRanges.length) return;
     const priceRange = priceRanges.find(item => item?.range === range);
-    if (!priceRange?.tickLower || !priceRange?.tickUpper) return;
+    if (priceRange?.tickLower === undefined || priceRange?.tickUpper === undefined) return;
     setTickLower(priceRange.tickLower);
     setTickUpper(priceRange.tickUpper);
   };
