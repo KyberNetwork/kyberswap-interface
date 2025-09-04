@@ -63,8 +63,8 @@ const routeApi = createApi({
             const currencyIn = new Token(chainId, tokenIn, tokenInDecimals)
             const currencyOut = new Token(chainId, tokenOut, tokenOutDecimals)
 
-            const tokenInBalance = CurrencyAmount.fromRawAmount(currencyIn, amountIn).toSignificant(8)
-            const tokenOutBalance = CurrencyAmount.fromRawAmount(currencyOut, amountOut).toSignificant(8)
+            const tokenInBalance = CurrencyAmount.fromRawAmount(currencyIn, amountIn).toExact()
+            const tokenOutBalance = CurrencyAmount.fromRawAmount(currencyOut, amountOut).toExact()
 
             return {
               ...baseResponse,
@@ -134,8 +134,8 @@ const routeApi = createApi({
             const currencyIn = new Token(chainId, tokenIn, tokenInDecimals)
             const currencyOut = new Token(chainId, tokenOut, tokenOutDecimals)
 
-            const tokenInBalance = CurrencyAmount.fromRawAmount(currencyIn, amountIn).toSignificant(8)
-            const tokenOutBalance = CurrencyAmount.fromRawAmount(currencyOut, amountOut).toSignificant(8)
+            const tokenInBalance = CurrencyAmount.fromRawAmount(currencyIn, amountIn).toExact()
+            const tokenOutBalance = CurrencyAmount.fromRawAmount(currencyOut, amountOut).toExact()
 
             return {
               ...baseResponse,
