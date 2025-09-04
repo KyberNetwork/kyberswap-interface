@@ -171,7 +171,7 @@ export default function TokenInfo({ token, isNativeToken = false }: { token: Tok
         delay={200}
         placement="top"
         width="fit-content"
-        maxWidth={upToSmall ? '280px' : '390px'}
+        maxWidth={upToSmall ? '280px' : '400px'}
       >
         <StyledInfo color={spreadWarning ? theme.warning : theme.subText} size={18} $warning={!!spreadWarning} />
       </Tooltip>
