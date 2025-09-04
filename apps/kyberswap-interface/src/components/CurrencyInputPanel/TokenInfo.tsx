@@ -3,6 +3,7 @@ import { Token } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Info } from 'react-feather'
+import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import styled, { keyframes } from 'styled-components'
 
@@ -12,6 +13,7 @@ import { TOKEN_API_URL } from 'constants/env'
 import { PAIR_CATEGORY } from 'constants/index'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
+import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const glow = keyframes`
@@ -56,6 +58,8 @@ export default function TokenInfo({ token, isNativeToken = false }: { token: Tok
   const [showTooltip, setShowTooltip] = useState(false)
   const infoRef = useRef<HTMLDivElement>(null)
   useOnClickOutside(infoRef, () => setShowTooltip(false))
+
+  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   const spreadThreshold = useMemo(
     () => (!tokenCategory ? null : SPREAD_THRESHOLD[tokenCategory] || SPREAD_THRESHOLD[PAIR_CATEGORY.EXOTIC]),
@@ -121,7 +125,7 @@ export default function TokenInfo({ token, isNativeToken = false }: { token: Tok
         <Text color={priceInfo?.buyPrice ? theme.primary : theme.text}>
           {priceInfo?.buyPrice
             ? formatDisplayNumber(priceInfo?.buyPrice, { significantDigits: 8, style: 'currency' })
-            : '--'}
+            : 'N/A'}
         </Text>
       </Flex>
       <Flex alignItems="center" sx={{ gap: '4px' }}>
@@ -129,20 +133,20 @@ export default function TokenInfo({ token, isNativeToken = false }: { token: Tok
         <Text color={priceInfo?.sellPrice ? theme.blue : theme.text}>
           {priceInfo?.sellPrice
             ? formatDisplayNumber(priceInfo?.sellPrice, { significantDigits: 8, style: 'currency' })
-            : '--'}
+            : 'N/A'}
         </Text>
       </Flex>
       <Flex alignItems="center" sx={{ gap: '4px' }}>
         <Text>{t`Spread`}:</Text>
         <Text color={spreadWarning ? theme.warning : theme.text}>
-          {priceInfo?.spread ? formatDisplayNumber(priceInfo?.spread, { significantDigits: 2 }) + '%' : '--'}
+          {priceInfo?.spread ? formatDisplayNumber(priceInfo?.spread, { significantDigits: 2 }) + '%' : 'N/A'}
         </Text>
       </Flex>
       {spreadWarning ? (
         <Text color={theme.warning} fontStyle="italic">
           {`The current difference between buy and sell is ${formatDisplayNumber(priceInfo?.spread, {
             significantDigits: 2,
-          })}%, which might be higher than usual for similar tokens.`}
+          })}% of the mid point, which might be higher than usual for similar tokens.`}
         </Text>
       ) : null}
     </Flex>
@@ -167,7 +171,7 @@ export default function TokenInfo({ token, isNativeToken = false }: { token: Tok
         delay={200}
         placement="top"
         width="fit-content"
-        maxWidth="340px"
+        maxWidth={upToSmall ? '280px' : '390px'}
       >
         <StyledInfo color={spreadWarning ? theme.warning : theme.subText} size={18} $warning={!!spreadWarning} />
       </Tooltip>

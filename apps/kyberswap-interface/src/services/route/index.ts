@@ -1,6 +1,5 @@
 import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { createApi } from '@reduxjs/toolkit/query/react'
-import JSBI from 'jsbi'
 import { baseQueryOauthDynamic } from 'services/baseQueryOauth'
 import { BuildRoutePayload, BuildRouteResponse } from 'services/route/types/buildRoute'
 
@@ -64,8 +63,8 @@ const routeApi = createApi({
             const currencyIn = new Token(chainId, tokenIn, tokenInDecimals)
             const currencyOut = new Token(chainId, tokenOut, tokenOutDecimals)
 
-            const tokenInBalance = CurrencyAmount.fromRawAmount(currencyIn, JSBI.BigInt(amountIn)).toSignificant(8)
-            const tokenOutBalance = CurrencyAmount.fromRawAmount(currencyOut, JSBI.BigInt(amountOut)).toSignificant(8)
+            const tokenInBalance = CurrencyAmount.fromRawAmount(currencyIn, amountIn).toSignificant(8)
+            const tokenOutBalance = CurrencyAmount.fromRawAmount(currencyOut, amountOut).toSignificant(8)
 
             return {
               ...baseResponse,
@@ -132,16 +131,18 @@ const routeApi = createApi({
                 ? (tokenOutPrices.PriceBuy + tokenOutPrices.PriceSell) / 2
                 : null
 
+            const currencyIn = new Token(chainId, tokenIn, tokenInDecimals)
+            const currencyOut = new Token(chainId, tokenOut, tokenOutDecimals)
+
+            const tokenInBalance = CurrencyAmount.fromRawAmount(currencyIn, amountIn).toSignificant(8)
+            const tokenOutBalance = CurrencyAmount.fromRawAmount(currencyOut, amountOut).toSignificant(8)
+
             return {
               ...baseResponse,
               data: {
                 ...data,
-                amountInUsd: tokenInMidPrice
-                  ? ((Number(amountIn || 0) / 10 ** tokenInDecimals) * tokenInMidPrice).toString()
-                  : '',
-                amountOutUsd: tokenOutMidPrice
-                  ? ((Number(amountOut || 0) / 10 ** tokenOutDecimals) * tokenOutMidPrice).toString()
-                  : '',
+                amountInUsd: tokenInMidPrice ? (+tokenInBalance * tokenInMidPrice).toString() : '',
+                amountOutUsd: tokenOutMidPrice ? (+tokenOutBalance * tokenOutMidPrice).toString() : '',
               },
             }
           } catch (error) {
