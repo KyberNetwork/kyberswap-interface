@@ -58,7 +58,7 @@ export default function TokenInfo({
   const theme = useTheme()
 
   const [tokenCategory, setTokenCategory] = useState<TOKEN_CATEGORY | null>(null)
-  const [priceInfo, setPriceInfo] = useState<{ buyPrice: number; sellPrice: number; spread: number } | null>(null)
+  const [priceInfo, setPriceInfo] = useState<{ buyPrice?: number; sellPrice?: number; spread?: number } | null>(null)
   const [showTooltip, setShowTooltip] = useState(false)
   const infoRef = useRef<HTMLDivElement>(null)
   useOnClickOutside(infoRef, () => setShowTooltip(false))
@@ -82,9 +82,13 @@ export default function TokenInfo({
         }),
       }).then(res => res.json())
 
-      const buyPrice = r.data[nativeCurrency.chainId][nativeCurrency.address].PriceBuy
-      const sellPrice = r.data[nativeCurrency.chainId][nativeCurrency.address].PriceSell
-      const spread = (Math.abs(buyPrice - sellPrice) / ((buyPrice + sellPrice) / 2)) * 100
+      const buyPrice = r.data[nativeCurrency.chainId][nativeCurrency.address]?.PriceBuy
+      const sellPrice = r.data[nativeCurrency.chainId][nativeCurrency.address]?.PriceSell
+
+      const spread =
+        buyPrice === undefined || sellPrice === undefined
+          ? undefined
+          : (Math.abs(buyPrice - sellPrice) / ((buyPrice + sellPrice) / 2)) * 100
 
       setPriceInfo({ buyPrice, sellPrice, spread })
     }
@@ -122,7 +126,7 @@ export default function TokenInfo({
       </Flex>
       <Flex alignItems="center" sx={{ gap: '4px' }}>
         <Text>{t`Buy`}:</Text>
-        <Text color={theme.primary}>
+        <Text color={priceInfo?.buyPrice ? theme.primary : theme.text}>
           {priceInfo?.buyPrice
             ? formatDisplayNumber(priceInfo?.buyPrice, { significantDigits: 8, style: 'currency' })
             : '--'}
@@ -130,7 +134,7 @@ export default function TokenInfo({
       </Flex>
       <Flex alignItems="center" sx={{ gap: '4px' }}>
         <Text>{t`Sell`}:</Text>
-        <Text color={theme.blue}>
+        <Text color={priceInfo?.sellPrice ? theme.blue : theme.text}>
           {priceInfo?.sellPrice
             ? formatDisplayNumber(priceInfo?.sellPrice, { significantDigits: 8, style: 'currency' })
             : '--'}
