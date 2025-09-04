@@ -1,4 +1,6 @@
+import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { createApi } from '@reduxjs/toolkit/query/react'
+import JSBI from 'jsbi'
 import { baseQueryOauthDynamic } from 'services/baseQueryOauth'
 import { BuildRoutePayload, BuildRouteResponse } from 'services/route/types/buildRoute'
 
@@ -59,8 +61,11 @@ const routeApi = createApi({
                 ? (tokenOutPrices.PriceBuy + tokenOutPrices.PriceSell) / 2
                 : null
 
-            const tokenInBalance = BigInt(amountIn || 0) / BigInt(10 ** tokenInDecimals)
-            const tokenOutBalance = BigInt(amountOut || 0) / BigInt(10 ** tokenOutDecimals)
+            const currencyIn = new Token(chainId, tokenIn, tokenInDecimals)
+            const currencyOut = new Token(chainId, tokenOut, tokenOutDecimals)
+
+            const tokenInBalance = CurrencyAmount.fromRawAmount(currencyIn, JSBI.BigInt(amountIn)).toSignificant(8)
+            const tokenOutBalance = CurrencyAmount.fromRawAmount(currencyOut, JSBI.BigInt(amountOut)).toSignificant(8)
 
             return {
               ...baseResponse,
@@ -68,8 +73,8 @@ const routeApi = createApi({
                 ...baseResponse.data,
                 routeSummary: {
                   ...routeSummary,
-                  amountInUsd: tokenInMidPrice ? (tokenInBalance * BigInt(tokenInMidPrice)).toString() : '',
-                  amountOutUsd: tokenOutMidPrice ? (tokenOutBalance * BigInt(tokenOutMidPrice)).toString() : '',
+                  amountInUsd: tokenInMidPrice ? (+tokenInBalance * tokenInMidPrice).toString() : '',
+                  amountOutUsd: tokenOutMidPrice ? (+tokenOutBalance * tokenOutMidPrice).toString() : '',
                 },
               },
             }
