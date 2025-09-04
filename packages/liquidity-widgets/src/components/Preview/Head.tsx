@@ -1,5 +1,5 @@
 import { NETWORKS_INFO, Pool, univ3PoolNormalize } from '@kyber/schema';
-import { InfoHelper, TokenLogo } from '@kyber/ui';
+import { InfoHelper, TokenLogo, TokenSymbol } from '@kyber/ui';
 
 import Info from '@/assets/svg/info.svg';
 import { useZapState } from '@/hooks/useZapState';
@@ -27,7 +27,9 @@ export default function Head({ pool }: { pool: Pool }) {
 
       <div>
         <div className="flex items-center gap-2">
-          {pool.token0.symbol}/{pool.token1.symbol}
+          <TokenSymbol symbol={pool.token0.symbol} maxWidth={100} />
+          <span>/</span>
+          <TokenSymbol symbol={pool.token1.symbol} maxWidth={100} />
         </div>
         <div className="flex flex-wrap items-center gap-1 mt-[2px]">
           <div className="rounded-full text-xs leading-5 bg-layer2 px-2 py-0 h-max text-text flex items-center gap-1 brightness-75">

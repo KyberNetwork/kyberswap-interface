@@ -30,3 +30,4 @@ export { default as TokenSelectorModal, MAX_TOKENS, TOKEN_SELECT_MODE } from '@/
 export { default as LoadingCounter } from '@/components/LoadingCounter';
 export { default as Loading } from '@/components/loading';
 export { default as StatusDialog, StatusDialogType, type StatusDialogProps } from '@/components/StatusDialog';
+export { default as TokenSymbol } from '@/components/token-symbol';

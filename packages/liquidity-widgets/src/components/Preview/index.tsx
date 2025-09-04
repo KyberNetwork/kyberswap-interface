@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 import { API_URLS, CHAIN_ID_TO_CHAIN, DEXES_INFO, NETWORKS_INFO, Pool, univ3PoolNormalize } from '@kyber/schema';
-import { InfoHelper, StatusDialog, StatusDialogType } from '@kyber/ui';
+import { InfoHelper, StatusDialog, StatusDialogType, TokenSymbol } from '@kyber/ui';
 import { parseZapInfo } from '@kyber/utils';
 import { friendlyError } from '@kyber/utils';
 import { PI_LEVEL } from '@kyber/utils';
@@ -202,10 +202,10 @@ export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool,
                     text={
                       <div>
                         <div>
-                          {refundInfo.refundAmount0} {token0.symbol}
+                          {refundInfo.refundAmount0} <TokenSymbol symbol={token0.symbol} maxWidth={80} />
                         </div>
                         <div>
-                          {refundInfo.refundAmount1} {token1.symbol}
+                          {refundInfo.refundAmount1} <TokenSymbol symbol={token1.symbol} maxWidth={80} />
                         </div>
                       </div>
                     }

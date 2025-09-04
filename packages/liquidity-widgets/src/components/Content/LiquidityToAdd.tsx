@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
 import { NATIVE_TOKEN_ADDRESS } from '@kyber/schema';
-import { Skeleton, TokenLogo } from '@kyber/ui';
+import { Skeleton, TokenLogo, TokenSymbol } from '@kyber/ui';
 import { formatDisplayNumber, formatUnits } from '@kyber/utils/number';
 
 import DropdownIcon from '@/assets/svg/dropdown.svg';
@@ -133,7 +133,7 @@ export default function LiquidityToAdd({
           onClick={onOpenTokenSelectModal}
         >
           <TokenLogo src={token.logo} size={20} className="brightness-75" alt="TokenLogo" />
-          <span>{token.symbol}</span>
+          <TokenSymbol symbol={token.symbol} maxWidth={100} />
           <DropdownIcon />
         </button>
       </div>
