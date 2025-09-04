@@ -1,13 +1,10 @@
 import { defaultToken } from '@kyber/schema';
-import { MouseoverTooltip, Skeleton } from '@kyber/ui';
+import { Skeleton, TokenSymbol } from '@kyber/ui';
 import { formatDisplayNumber } from '@kyber/utils/number';
 
 import RevertPriceIcon from '@/assets/svg/ic_revert_price.svg';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
-
-const shortenSymbol = (symbol: string, characterNumber = 8) =>
-  symbol.length > characterNumber + 2 ? symbol.slice(0, characterNumber) + '...' : symbol;
 
 export default function PriceInfo() {
   const { theme } = useWidgetStore(['theme']);
@@ -23,9 +20,6 @@ export default function PriceInfo() {
   const token0 = initializing ? defaultToken : revertPrice ? pool.token1 : pool.token0;
   const token1 = initializing ? defaultToken : revertPrice ? pool.token0 : pool.token1;
 
-  const firstTokenShortenSymbol = shortenSymbol(token0.symbol);
-  const secondTokenShortenSymbol = shortenSymbol(token1.symbol);
-
   return (
     <>
       <div className="rounded-md border border-stroke py-3 px-4 mt-[6px]">
@@ -37,18 +31,11 @@ export default function PriceInfo() {
             ) : (
               <>
                 <span>1</span>
-                <MouseoverTooltip text={firstTokenShortenSymbol !== token0.symbol ? token0.symbol : ''} placement="top">
-                  {firstTokenShortenSymbol}
-                </MouseoverTooltip>
+                <TokenSymbol symbol={token0.symbol} maxWidth={100} />
                 <span>=</span>
                 <span>{formatDisplayNumber(poolPrice, { significantDigits: 8 })}</span>
 
-                <MouseoverTooltip
-                  text={secondTokenShortenSymbol !== token1.symbol ? token1.symbol : ''}
-                  placement="top"
-                >
-                  {secondTokenShortenSymbol}
-                </MouseoverTooltip>
+                <TokenSymbol symbol={token1.symbol} maxWidth={100} />
               </>
             )}
           </div>

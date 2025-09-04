@@ -1,5 +1,13 @@
 import { ZapRouteDetail } from '@kyber/schema';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, MouseoverTooltip, Skeleton } from '@kyber/ui';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+  MouseoverTooltip,
+  Skeleton,
+  TokenSymbol,
+} from '@kyber/ui';
 import { PI_LEVEL } from '@kyber/utils';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
@@ -48,9 +56,12 @@ export default function SwapImpactCollapse({
                   }`}
                   key={index}
                 >
-                  <div className="ml-3">
-                    {item.amountIn} {item.tokenInSymbol} {'→ '}
-                    {item.amountOut} {item.tokenOutSymbol}
+                  <div className="ml-3 flex items-center gap-1">
+                    <p>{item.amountIn}</p>
+                    <TokenSymbol symbol={item.tokenInSymbol} maxWidth={60} />
+                    <p>→</p>
+                    <p>{item.amountOut}</p>
+                    <TokenSymbol symbol={item.tokenOutSymbol} maxWidth={60} />
                   </div>
                   <div>{item.piRes.display}</div>
                 </div>

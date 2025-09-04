@@ -11,7 +11,16 @@ import {
   univ3PoolNormalize,
   univ3Position,
 } from '@kyber/schema';
-import { InfoHelper, LoadingCounter, MouseoverTooltip, ShareModal, ShareType, Skeleton, TokenLogo } from '@kyber/ui';
+import {
+  InfoHelper,
+  LoadingCounter,
+  MouseoverTooltip,
+  ShareModal,
+  ShareType,
+  Skeleton,
+  TokenLogo,
+  TokenSymbol,
+} from '@kyber/ui';
 import { shortenAddress } from '@kyber/utils/crypto';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
@@ -122,9 +131,11 @@ const Header = () => {
         ) : (
           <div className="flex items-center flex-wrap gap-[6px]">
             {positionId ? 'Increase Liquidity' : 'Add Liquidity'}
-            <span>
-              {token0.symbol}/{token1.symbol}{' '}
-            </span>
+            <div className="flex items-center gap-1">
+              <TokenSymbol symbol={token0.symbol} />
+              <span>/</span>
+              <TokenSymbol symbol={token1.symbol} />
+            </div>
             {!initializing && !!positionId && isUniV3 && (
               <>
                 <div>#{positionId}</div>
@@ -175,9 +186,11 @@ const Header = () => {
               />
             </div>
 
-            <span className="text-xl">
-              {token0.symbol}/{token1.symbol}
-            </span>
+            <div className="text-xl flex items-center gap-1">
+              <TokenSymbol symbol={token0.symbol} />
+              <span>/</span>
+              <TokenSymbol symbol={token1.symbol} />
+            </div>
 
             {shareButton('sm:!hidden ml-1')}
 

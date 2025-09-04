@@ -1,4 +1,5 @@
 import { Pool, univ3PoolNormalize } from '@kyber/schema';
+import { TokenSymbol } from '@kyber/ui';
 import { formatDisplayNumber } from '@kyber/utils/number';
 
 import SwitchIcon from '@/assets/svg/switch.svg';
@@ -20,9 +21,13 @@ export default function PriceInfo({ pool }: { pool: Pool }) {
     maxPrice,
   });
 
-  const quote = !revertPrice
-    ? `${pool?.token1.symbol} per ${pool?.token0.symbol}`
-    : `${pool?.token0.symbol} per ${pool?.token1.symbol}`;
+  const quoteTokenSymbol = (
+    <>
+      <TokenSymbol symbol={!revertPrice ? pool?.token1.symbol : pool?.token0.symbol} maxWidth={80} />
+      <span>per</span>
+      <TokenSymbol symbol={!revertPrice ? pool?.token0.symbol : pool?.token1.symbol} maxWidth={80} />
+    </>
+  );
 
   return isUniV3 ? (
     <div className="ks-lw-card border border-stroke bg-transparent mt-4 text-sm">
@@ -30,7 +35,7 @@ export default function PriceInfo({ pool }: { pool: Pool }) {
         <div className="ks-lw-card-title">Current pool price</div>
         <div className="flex items-center gap-1 text-sm">
           <span>{formatDisplayNumber(poolPrice, { significantDigits: 6 })}</span>
-          <span>{quote}</span>
+          <div className="flex items-center gap-1">{quoteTokenSymbol}</div>
           <SwitchIcon className="cursor-pointer" onClick={() => toggleRevertPrice()} role="button" />
         </div>
       </div>
@@ -46,7 +51,7 @@ export default function PriceInfo({ pool }: { pool: Pool }) {
               {priceRange?.minPrice}
             </div>
             <div className="ks-lw-card-title">
-              <span>{quote}</span>
+              <div className="flex items-center gap-1">{quoteTokenSymbol}</div>
             </div>
           </div>
           <div className="ks-lw-card flex flex-col gap-[6px] items-center flex-1 w-1/2">
@@ -58,7 +63,7 @@ export default function PriceInfo({ pool }: { pool: Pool }) {
               {priceRange?.maxPrice}
             </div>
             <div className="ks-lw-card-title">
-              <span>{quote}</span>
+              <div className="flex items-center gap-1">{quoteTokenSymbol}</div>
             </div>
           </div>
         </div>
