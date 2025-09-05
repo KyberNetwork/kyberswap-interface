@@ -1,11 +1,15 @@
-import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
+import { ChainId, CurrencyAmount, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { createApi } from '@reduxjs/toolkit/query/react'
 import { baseQueryOauthDynamic } from 'services/baseQueryOauth'
 import { BuildRoutePayload, BuildRouteResponse } from 'services/route/types/buildRoute'
 
 import { TOKEN_API_URL } from 'constants/env'
+import { ETHER_ADDRESS } from 'constants/index'
 
 import { GetRouteParams, GetRouteResponse } from './types/getRoute'
+
+const getWrappedToken = (token: string, chainId: ChainId) =>
+  token.toLowerCase() === ETHER_ADDRESS.toLowerCase() ? WETH[chainId].address : token
 
 const routeApi = createApi({
   reducerPath: 'routeApi',
@@ -42,19 +46,22 @@ const routeApi = createApi({
           const { amountIn, amountOut } = routeSummary
 
           try {
+            const wrappedTokenIn = getWrappedToken(tokenIn, chainId)
+            const wrappedTokenOut = getWrappedToken(tokenOut, chainId)
+
             const priceResponse = await fetch(`${TOKEN_API_URL}/v1/public/tokens/prices`, {
               method: 'POST',
               body: JSON.stringify({
-                [chainId]: [tokenIn, tokenOut],
+                [chainId]: [wrappedTokenIn, wrappedTokenOut],
               }),
             }).then(res => res.json())
 
-            const tokenInPrices = priceResponse?.data?.[chainId]?.[tokenIn]
+            const tokenInPrices = priceResponse?.data?.[chainId]?.[wrappedTokenIn]
             const tokenInMidPrice =
               tokenInPrices?.PriceBuy && tokenInPrices?.PriceSell
                 ? (tokenInPrices.PriceBuy + tokenInPrices.PriceSell) / 2
                 : null
-            const tokenOutPrices = priceResponse?.data?.[chainId]?.[tokenOut]
+            const tokenOutPrices = priceResponse?.data?.[chainId]?.[wrappedTokenOut]
             const tokenOutMidPrice =
               tokenOutPrices?.PriceBuy && tokenOutPrices?.PriceSell
                 ? (tokenOutPrices.PriceBuy + tokenOutPrices.PriceSell) / 2
