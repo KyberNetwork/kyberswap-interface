@@ -39,8 +39,8 @@ interface ZapOutUserState {
     signal?: AbortSignal;
   }) => Promise<void>;
   highlightDegenMode: boolean;
-  manualSlippage: boolean;
-  setManualSlippage: (value: boolean) => void;
+  slippageOpen: boolean;
+  setSlippageOpen: (value: boolean) => void;
   resetState: () => void;
   mode: 'zapOut' | 'withdrawOnly';
   setMode: (mode: 'zapOut' | 'withdrawOnly') => void;
@@ -58,7 +58,7 @@ const initState = {
   showPreview: false,
   fetchingRoute: false,
   route: null,
-  manualSlippage: false,
+  slippageOpen: false,
   mode: 'zapOut' as const,
 };
 
@@ -137,7 +137,7 @@ export const useZapOutUserState = create<ZapOutUserState>((set, get) => ({
     }
   },
 
-  setManualSlippage: value => set({ manualSlippage: value }),
+  setSlippageOpen: value => set({ slippageOpen: value }),
 }));
 
 const token = z.object({

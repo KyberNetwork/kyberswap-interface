@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
+import { MouseoverTooltip } from '@kyber/ui';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
 import X from '@/assets/svg/x.svg';
 import Modal from '@/components/Modal';
 import SlippageInput from '@/components/Setting/SlippageInput';
 import Toggle from '@/components/Toggle';
-import { MouseoverTooltip } from '@/components/Tooltip';
 import { useOnClickOutside } from '@/hooks/useOnClickOutside';
 import { useZapOutUserState } from '@/stores/state';
 
@@ -112,7 +112,10 @@ export default function Setting() {
           </div>
         </div>
       </Modal>
-      <div className="absolute right-0 top-[46px] bg-layer2 p-5 rounded-md z-[1000] min-w-[330px]" ref={ref}>
+      <div
+        className="absolute right-0 top-[46px] bg-layer2 p-5 rounded-md z-[1000] min-w-[330px] sm:max-w-[330px]"
+        ref={ref}
+      >
         <div className="text-base font-medium mb-5">Advanced Setting</div>
         <MouseoverTooltip
           text="Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price. Please use with caution!"
@@ -121,12 +124,13 @@ export default function Setting() {
         >
           <div className="text-sm border-b border-dotted border-subText">Slippage Tolerance</div>
         </MouseoverTooltip>
-        <SlippageInput />
+        <SlippageInput className="mt-2" />
 
         <div className="flex items-center justify-between mt-3">
           <MouseoverTooltip
             text="Transaction will revert if it is pending for longer than the indicated time."
             width="220px"
+            className="w-fit"
           >
             <div className="text-sm border-b border-dotted border-subText">Transaction Time Limit</div>
           </MouseoverTooltip>
@@ -161,6 +165,7 @@ export default function Setting() {
           <MouseoverTooltip
             text="Turn this on to make trades with very high price impact or to set very high slippage tolerance. This can result in bad rates and loss of funds. Be cautious."
             width="220px"
+            className="w-fit"
           >
             <div className="text-sm border-b border-dotted border-subText">Degen Mode</div>
           </MouseoverTooltip>
