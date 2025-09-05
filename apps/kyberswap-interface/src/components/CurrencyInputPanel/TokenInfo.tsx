@@ -66,9 +66,18 @@ export default function TokenInfo({ token, isNativeToken = false }: { token: Tok
     [tokenCategory],
   )
 
-  const spreadWarning = useMemo(
-    () => (spreadThreshold && priceInfo?.spread ? priceInfo.spread > spreadThreshold : false),
-    [priceInfo?.spread, spreadThreshold],
+  const spreadCheck = useMemo(
+    () => ({
+      warning:
+        spreadThreshold && priceInfo?.spread && priceInfo?.buyPrice && priceInfo?.sellPrice
+          ? priceInfo.spread > spreadThreshold && priceInfo.buyPrice > priceInfo.sellPrice
+          : false,
+      display:
+        priceInfo?.spread && priceInfo?.buyPrice && priceInfo?.sellPrice
+          ? priceInfo.buyPrice > priceInfo.sellPrice
+          : false,
+    }),
+    [priceInfo?.buyPrice, priceInfo?.sellPrice, priceInfo?.spread, spreadThreshold],
   )
 
   useEffect(() => {
@@ -136,13 +145,15 @@ export default function TokenInfo({ token, isNativeToken = false }: { token: Tok
             : 'N/A'}
         </Text>
       </Flex>
-      <Flex alignItems="center" sx={{ gap: '4px' }}>
-        <Text>{t`Spread`}:</Text>
-        <Text color={spreadWarning ? theme.warning : theme.text}>
-          {priceInfo?.spread ? formatDisplayNumber(priceInfo?.spread, { significantDigits: 2 }) + '%' : 'N/A'}
-        </Text>
-      </Flex>
-      {spreadWarning ? (
+      {spreadCheck.display ? (
+        <Flex alignItems="center" sx={{ gap: '4px' }}>
+          <Text>{t`Spread`}:</Text>
+          <Text color={spreadCheck.warning ? theme.warning : theme.text}>
+            {priceInfo?.spread ? formatDisplayNumber(priceInfo?.spread, { significantDigits: 2 }) + '%' : 'N/A'}
+          </Text>
+        </Flex>
+      ) : null}
+      {spreadCheck.warning ? (
         <Text color={theme.warning} fontStyle="italic">
           {`The current difference between buy and sell is ${formatDisplayNumber(priceInfo?.spread, {
             significantDigits: 2,
@@ -173,7 +184,11 @@ export default function TokenInfo({ token, isNativeToken = false }: { token: Tok
         width="fit-content"
         maxWidth={upToSmall ? '280px' : '400px'}
       >
-        <StyledInfo color={spreadWarning ? theme.warning : theme.subText} size={18} $warning={!!spreadWarning} />
+        <StyledInfo
+          color={spreadCheck.warning ? theme.warning : theme.subText}
+          size={18}
+          $warning={!!spreadCheck.warning}
+        />
       </Tooltip>
     </Flex>
   )
