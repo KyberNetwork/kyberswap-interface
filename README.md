@@ -17,6 +17,12 @@ To access the KyberSwap Interface, visit [kyberswap.com](https://kyberswap.com/)
 pnpm i
 ```
 
+### Build Dependencies
+
+```bash
+pnpm build-package
+```
+
 ### Run
 
 ```bash
