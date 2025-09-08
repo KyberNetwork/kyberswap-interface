@@ -48,6 +48,7 @@ const dexMapping: Record<Dex, string[]> = {
 
   [Dex.DEX_UNISWAP_V4]: ['uniswap-v4'],
   [Dex.DEX_UNISWAP_V4_FAIRFLOW]: ['uniswap-v4-fairflow'],
+  [Dex.DEX_PANCAKE_INFINITY_CL]: ['pancake-infinity-cl'],
 } as const;
 
 const poolResponse = z.object({

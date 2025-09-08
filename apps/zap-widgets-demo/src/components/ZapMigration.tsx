@@ -46,17 +46,17 @@ const ZapMigration = () => {
       positionId: number | string | undefined;
     };
   }>({
-    chainId: ChainId.Base.toString(),
+    chainId: ChainId.Bsc.toString(),
     from: {
-      dex: ZapMigrationDex.DEX_UNISWAP_V4,
+      dex: ZapMigrationDex.DEX_PANCAKE_INFINITY_CL,
       poolId:
-        "0x96d4b53a38337a5733179751781178a2613306063c511b78cd02684739288c0a",
-      positionId: 40150,
+        "0x752e76950f6167b8dbb0495b957d264d61724dfa26e3dd6fad1ba820862ce9cf",
+      positionId: 24853,
     },
     to: {
-      dex: ZapMigrationDex.DEX_UNISWAP_V4,
+      dex: ZapMigrationDex.DEX_PANCAKE_INFINITY_CL,
       poolId:
-        "0x841c1a22d9a505cbba3e9bf90fd43e1201a09932ca0a90816579346be5f092af",
+        "0xc4c38b2b57c75945547f7355b67f53cff46eec211c65c22c3e8215f1603b59ff",
       positionId: undefined,
     },
   });
