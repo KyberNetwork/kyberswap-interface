@@ -196,7 +196,7 @@ const SlippageInput = ({
       </div>
       {route && (message || slpWarning) && (
         <div
-          className={cn('flex items-center gap-1 mt-2 text-primary cursor-pointer text-sm', suggestionClassName)}
+          className={cn('flex items-center gap-1 mt-2 text-primary cursor-pointer text-sm w-fit', suggestionClassName)}
           onClick={() => {
             if (suggestedSlippage > 0) {
               setSlippage(suggestedSlippage);
