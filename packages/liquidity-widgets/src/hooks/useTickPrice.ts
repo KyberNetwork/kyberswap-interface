@@ -25,7 +25,7 @@ export default function useTickPrice({
   const debounceTickUpper = useDebounce(tickUpper, 300);
 
   const minPrice = useMemo(() => {
-    if (!token0 || !token1 || !tickLower || !tickUpper) return null;
+    if (!token0 || !token1 || tickLower === null || tickUpper === null) return null;
     return formatNumber(
       +tickToPrice(!revertPrice ? tickLower : tickUpper, token0.decimals, token1.decimals, revertPrice),
       8,
@@ -33,7 +33,7 @@ export default function useTickPrice({
   }, [token0, token1, tickLower, tickUpper, revertPrice]);
 
   const maxPrice = useMemo(() => {
-    if (!token0 || !token1 || !tickUpper || !tickLower) return null;
+    if (!token0 || !token1 || tickUpper === null || tickLower === null) return null;
     return formatNumber(
       +tickToPrice(!revertPrice ? tickUpper : tickLower, token0.decimals, token1.decimals, revertPrice),
       8,

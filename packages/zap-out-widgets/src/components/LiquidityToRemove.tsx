@@ -7,7 +7,7 @@ import { getPositionAmounts } from '@kyber/utils/uniswapv3';
 
 import { UniV2Position, UniV3Position, univ2PoolNormalize, univ3PoolNormalize } from '@/schema';
 import { useZapOutContext } from '@/stores';
-import { useZapOutUserState } from '@/stores/state';
+import { RemoveLiquidityAction, useZapOutUserState } from '@/stores/state';
 import { assertUnreachable } from '@/utils';
 
 export function LiquidityToRemove() {
@@ -15,7 +15,7 @@ export function LiquidityToRemove() {
   const [percent, setPercent] = useState(100);
   const loading = position === 'loading' || pool === 'loading';
 
-  const { liquidityOut, setLiquidityOut } = useZapOutUserState();
+  const { liquidityOut, setLiquidityOut, route } = useZapOutUserState();
 
   useEffect(() => {
     if (position === 'loading') return;
@@ -42,6 +42,20 @@ export function LiquidityToRemove() {
       amount1 = (BigInt(liquidityOut) * BigInt(univ2Pool.reserves[1])) / (position as UniV2Position).totalSupply;
     } else assertUnreachable(poolType as never, `${poolType} is not handled`);
   }
+
+  const actionRemoveLiq = route?.zapDetails.actions.find(item => item.type === 'ACTION_TYPE_REMOVE_LIQUIDITY') as
+    | RemoveLiquidityAction
+    | undefined;
+  const { fees } = actionRemoveLiq?.removeLiquidity || {};
+
+  const fee0 = pool !== 'loading' && fees?.find(f => f.address.toLowerCase() === pool.token0.address.toLowerCase());
+  const fee1 = pool !== 'loading' && fees?.find(f => f.address.toLowerCase() === pool.token1.address.toLowerCase());
+
+  const feeAmount0 = BigInt(fee0 ? fee0.amount : 0);
+  const feeAmount1 = BigInt(fee1 ? fee1.amount : 0);
+
+  const amount0ToRemove = amount0 + feeAmount0;
+  const amount1ToRemove = amount1 + feeAmount1;
 
   return (
     <div className="rounded-lg px-4 py-3 border border-stroke text-sm text-subText">
@@ -85,12 +99,15 @@ export function LiquidityToRemove() {
           <>
             <div className="flex items-center text-base gap-1 text-text">
               <TokenLogo src={pool.token0.logo || ''} />
-              {formatTokenAmount(amount0, pool.token0.decimals, 8)} {pool.token0.symbol}
+              {formatTokenAmount(amount0ToRemove, pool.token0.decimals, 8)} {pool.token0.symbol}
             </div>
             <div className="text-xs text-subText">
-              {formatDisplayNumber((pool.token0.price || 0) * Number(toRawString(amount0, pool.token0.decimals)), {
-                style: 'currency',
-              })}
+              {formatDisplayNumber(
+                (pool.token0.price || 0) * Number(toRawString(amount0ToRemove, pool.token0.decimals)),
+                {
+                  style: 'currency',
+                },
+              )}
             </div>
           </>
         )}
@@ -105,12 +122,15 @@ export function LiquidityToRemove() {
           <>
             <div className="flex items-center text-base gap-1 text-text">
               <TokenLogo src={pool.token1.logo || ''} />
-              {formatTokenAmount(amount1, pool.token1.decimals, 8)} {pool.token1.symbol}
+              {formatTokenAmount(amount1ToRemove, pool.token1.decimals, 8)} {pool.token1.symbol}
             </div>
             <div className="text-xs text-subText">
-              {formatDisplayNumber((pool.token1.price || 0) * Number(toRawString(amount1, pool.token1.decimals)), {
-                style: 'currency',
-              })}
+              {formatDisplayNumber(
+                (pool.token1.price || 0) * Number(toRawString(amount1ToRemove, pool.token1.decimals)),
+                {
+                  style: 'currency',
+                },
+              )}
             </div>
           </>
         )}

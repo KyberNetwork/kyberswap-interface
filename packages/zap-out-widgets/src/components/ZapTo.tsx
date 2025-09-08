@@ -11,7 +11,8 @@ import HandIcon from '@/assets/svg/hand.svg';
 import ZapIcon from '@/assets/svg/zapout.svg';
 import { LiquidityToRemove } from '@/components/LiquidityToRemove';
 import TokenSelectorModal from '@/components/TokenSelector/TokenSelectorModal';
-import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO } from '@/constants';
+import { NETWORKS_INFO } from '@/constants';
+import useSlippageManager from '@/hooks/useSlippageManager';
 import { ChainId, UniV2Position, UniV3Position, univ2PoolNormalize, univ3PoolNormalize } from '@/schema';
 import { useZapOutContext } from '@/stores';
 import { RefundAction, RemoveLiquidityAction, useZapOutUserState } from '@/stores/state';
@@ -23,18 +24,8 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
   const loading = position === 'loading' || pool === 'loading';
   const [showTokenSelect, setShowTokenSelect] = useState(false);
 
-  const {
-    liquidityOut,
-    tokenOut,
-    setTokenOut,
-    route,
-    setSlippage,
-    manualSlippage,
-    mode,
-    setMode,
-    fetchingRoute,
-    slippage,
-  } = useZapOutUserState();
+  const { liquidityOut, tokenOut, setTokenOut, route, mode, setMode, fetchingRoute } = useZapOutUserState();
+  useSlippageManager();
 
   const actionRefund = route?.zapDetails.actions.find(item => item.type === 'ACTION_TYPE_REFUND') as
     | RefundAction
@@ -57,25 +48,6 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
 
   const withdrawAmount0 = BigInt(token0 ? token0.amount : 0);
   const withdrawAmount1 = BigInt(token1 ? token1.amount : 0);
-
-  useEffect(() => {
-    if (pool === 'loading' || !tokenOut || manualSlippage || slippage) return;
-
-    if (pool.category === 'stablePair' && tokenOut.isStable) {
-      setSlippage(10);
-    } else if (
-      pool.category === 'correlatedPair' &&
-      [pool.token0.address.toLowerCase(), pool.token1.address.toLowerCase()].includes(
-        tokenOut.address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase()
-          ? NETWORKS_INFO[chainId].wrappedToken.address.toLowerCase()
-          : tokenOut.address.toLowerCase(),
-      )
-    ) {
-      setSlippage(25);
-    } else {
-      setSlippage(50);
-    }
-  }, [tokenOut, manualSlippage, pool, chainId, setSlippage, slippage]);
 
   let amount0 = 0n;
   let amount1 = 0n;

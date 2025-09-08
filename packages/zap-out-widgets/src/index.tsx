@@ -3,7 +3,7 @@ import { ReactNode, useEffect, useMemo } from 'react';
 import '@kyber/ui/styles.css';
 
 import { Action } from '@/components/Action';
-import { EstLiqValue } from '@/components/EstLiqValue';
+import Estimated from '@/components/Estimated';
 import { Header } from '@/components/Header';
 import { PoolFee } from '@/components/PoolFee';
 import { PoolPrice } from '@/components/PoolPrice';
@@ -67,7 +67,7 @@ const ZapOut = (props: ZapOutProps) => {
 
               <div className="flex flex-col gap-4 w-[45%] max-sm:w-full">
                 <ZapTo chainId={chainId} />
-                <EstLiqValue />
+                <Estimated />
                 <ZapSummary />
               </div>
             </div>

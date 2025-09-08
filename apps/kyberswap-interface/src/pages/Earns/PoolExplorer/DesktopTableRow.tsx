@@ -54,26 +54,26 @@ const DesktopTableRow = ({
   const theme = useTheme()
   const isFarmingFiltered = filters.tag === FilterTag.FARMING_POOL
 
+  const handleOpenZapInWidget = (e: React.MouseEvent<HTMLDivElement>, withPriceRange?: boolean) => {
+    e.stopPropagation()
+    onOpenZapInWidget({
+      pool: {
+        dex: pool.exchange,
+        chainId: pool.chainId || filters.chainId,
+        address: pool.address,
+      },
+      initialTick:
+        withPriceRange && pool.maxAprInfo && pool.maxAprInfo.tickLower && pool.maxAprInfo.tickUpper
+          ? {
+              tickLower: pool.maxAprInfo.tickLower,
+              tickUpper: pool.maxAprInfo.tickUpper,
+            }
+          : undefined,
+    })
+  }
+
   return (
-    <TableRow
-      expandColumn={isFarmingFiltered}
-      onClick={() =>
-        onOpenZapInWidget({
-          pool: {
-            dex: pool.exchange,
-            chainId: pool.chainId || filters.chainId,
-            address: pool.address,
-          },
-          initialTick:
-            pool.maxAprInfo && pool.maxAprInfo.tickLower && pool.maxAprInfo.tickUpper
-              ? {
-                  tickLower: pool.maxAprInfo.tickLower,
-                  tickUpper: pool.maxAprInfo.tickUpper,
-                }
-              : undefined,
-        })
-      }
-    >
+    <TableRow expandColumn={isFarmingFiltered} onClick={e => handleOpenZapInWidget(e)}>
       <Flex fontSize={14} alignItems="center" sx={{ gap: 1 }}>
         <TokenLogo src={pool.dexLogo} size={20} />
         <Text color={theme.subText}>{pool.dexName}</Text>
@@ -92,11 +92,11 @@ const DesktopTableRow = ({
         {formatAprNumber(pool.apr)}% {kemFarming(pool)}
       </Apr>
       {isFarmingFiltered && (
-        <Flex justifyContent="flex-end">
+        <Flex justifyContent="flex-end" onClick={e => handleOpenZapInWidget(e, true)}>
           <MouseoverTooltipDesktopOnly
             text={
               pool.maxAprInfo
-                ? `Price Range: ${
+                ? `Add liquidity with price range: ${
                     pool.maxAprInfo.minPrice
                       ? formatDisplayNumber(pool.maxAprInfo.minPrice, { significantDigits: 6 })
                       : '--'

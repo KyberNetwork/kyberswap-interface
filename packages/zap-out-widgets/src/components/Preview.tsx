@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { ScrollArea, TokenLogo } from '@kyber/ui';
-import { fetchTokenPrice } from '@kyber/utils';
+import { fetchTokenPrice, friendlyError } from '@kyber/utils';
 import {
   calculateGasMargin,
   estimateGas,
@@ -46,7 +46,8 @@ export const Preview = () => {
   const { address: account } = connectedAccount;
   const isUniV3 = Univ3PoolType.safeParse(poolType).success;
 
-  const { showPreview, slippage, togglePreview, tokenOut, route, mode } = useZapOutUserState();
+  const { showPreview, slippage, togglePreview, tokenOut, route, mode, setSlippageOpen, setSlippage } =
+    useZapOutUserState();
 
   const [gasUsd, setGasUsd] = useState<number | null>(null);
   const [buildData, setBuildData] = useState<{
@@ -74,10 +75,10 @@ export const Preview = () => {
       .then(res => res.json())
       .then(res => {
         if (res.data) setBuildData(res.data);
-        else setError(res.message || 'build failed');
+        else setError(friendlyError(res.message) || 'build failed');
       })
       .catch(err => {
-        setError(err.message || JSON.stringify(err));
+        setError(friendlyError(err.message) || JSON.stringify(err));
       });
   }, [route?.route, showPreview, account, chainId, source, referral]);
 
@@ -184,6 +185,13 @@ export const Preview = () => {
   const receiveUsd0 = Number(token0?.amountUsd || 0) + Number(fee0?.amountUsd || 0);
   const receiveUsd1 = Number(token1?.amountUsd || 0) + Number(fee1?.amountUsd || 0);
 
+  const handleSlippage = () => {
+    setSlippageOpen(true);
+    const suggestedSlippage = route?.zapDetails.suggestedSlippage || 0;
+    if (slippage !== suggestedSlippage) setSlippage(suggestedSlippage);
+    togglePreview();
+  };
+
   if (showProcessing) {
     let content = <></>;
     if (txHash) {
@@ -245,6 +253,19 @@ export const Preview = () => {
               {error}
             </div>
           </ScrollArea>
+          <div className="flex gap-4 w-full mt-4">
+            <button
+              className="flex-1 h-[40px] rounded-full border font-medium text-sm border-stroke text-subText"
+              onClick={togglePreview}
+            >
+              Close
+            </button>
+            {error.includes('slippage') && (
+              <button className="ks-primary-btn flex-1" onClick={handleSlippage}>
+                {slippage !== route?.zapDetails.suggestedSlippage ? 'Use Suggested Slippage' : 'Set Custom Slippage'}
+              </button>
+            )}
+          </div>
         </>
       );
     }
@@ -499,7 +520,7 @@ export const Preview = () => {
           const gas = await estimateGas(rpcUrl, txData).catch(err => {
             console.log(err.message);
             setSubmiting(false);
-            setError(`Estimate Gas Failed: ${err.message}`);
+            setError(`Estimate Gas Failed: ${friendlyError(err.message)}`);
             return 0n;
           });
 
@@ -513,7 +534,7 @@ export const Preview = () => {
             setTxHash(txHash);
           } catch (err) {
             setSubmiting(false);
-            setError(`Submit Tx Failed: ${JSON.stringify(err)}`);
+            setError(`Submit Tx Failed: ${friendlyError(err as Error)}`);
           }
         }}
       >
