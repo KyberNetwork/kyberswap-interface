@@ -6,6 +6,7 @@ import { PoolType as PancakeZapInDex } from "@kyberswap/pancake-liquidity-widget
 export const zapInDexMapping: Record<ZapInDex, string> = {
   [ZapInDex.DEX_UNISWAP_V4]: "Uniswap V4",
   [ZapInDex.DEX_UNISWAP_V4_FAIRFLOW]: "Uniswap V4 FairFlow",
+  [ZapInDex.DEX_PANCAKE_INFINITY_CL]: "Pancake Infinity CL",
   [ZapInDex.DEX_UNISWAPV3]: "Uniswap V3",
   [ZapInDex.DEX_PANCAKESWAPV3]: "PancakeSwap V3",
   [ZapInDex.DEX_METAVAULTV3]: "MetaVault V3",

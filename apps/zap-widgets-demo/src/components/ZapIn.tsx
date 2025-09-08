@@ -39,11 +39,11 @@ const ZapIn = () => {
     poolAddress: string;
     poolType: ZapInDex;
   }>({
-    chainId: ChainId.Ethereum.toString(),
+    chainId: ChainId.Bsc.toString(),
     positionId: "", // 22415
     poolAddress:
-      "0xdbcba57c5681e063bd033c8f735f6b3e62f1a07947a731c61586c00863d0b613",
-    poolType: ZapInDex.DEX_UNISWAP_V4_FAIRFLOW,
+      "0x752e76950f6167b8dbb0495b957d264d61724dfa26e3dd6fad1ba820862ce9cf",
+    poolType: ZapInDex.DEX_PANCAKE_INFINITY_CL,
   });
 
   const widgetProps = {

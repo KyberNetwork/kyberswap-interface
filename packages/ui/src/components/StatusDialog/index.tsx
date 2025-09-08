@@ -4,7 +4,7 @@ import ErrorIcon from '@/assets/icons/ic-error.svg?react';
 import SuccessIcon from '@/assets/icons/ic-success.svg?react';
 import { getStatusDescription, getStatusText } from '@/components/StatusDialog/utils';
 import Loading from '@/components/loading';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogFooter, DialogTitle } from '@/components/ui/dialog';
 
 export enum StatusDialogType {
   WAITING = 'WAITING',
@@ -52,7 +52,7 @@ export default function StatusDialog({
         aria-describedby={undefined}
       >
         <DialogTitle className="hidden" />
-        <DialogDescription>
+        <div className="text-sm text-muted-foreground">
           <div className="w-full flex items-center justify-center gap-2 py-4">
             {statusIcon}
             <div className="text-xl font-medium text-center">{statusText}</div>
@@ -82,7 +82,7 @@ export default function StatusDialog({
               </span>
             </div>
           ) : null}
-        </DialogDescription>
+        </div>
 
         {action ? <DialogFooter className="sm:space-x-4">{action}</DialogFooter> : null}
       </DialogContent>

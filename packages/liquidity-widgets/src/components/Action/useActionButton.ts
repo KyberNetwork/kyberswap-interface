@@ -126,12 +126,12 @@ export default function useActionButton({
   const isInvalidZapImpact = zapImpact?.level === PI_LEVEL.INVALID;
 
   const buttonStates = [
+    { condition: addressToApprove || nftApprovePendingTx, text: 'Approving' },
     { condition: zapLoading, text: 'Fetching Route' },
     { condition: gasLoading, text: 'Estimating Gas' },
     { condition: errors.length > 0, text: errors[0] },
     { condition: isUniv4 && isNotOwner, text: 'Not the position owner' },
     { condition: loading, text: 'Checking Allowance' },
-    { condition: addressToApprove || nftApprovePendingTx, text: 'Approving' },
     { condition: notApprove, text: `Approve ${notApprove?.symbol}` },
     { condition: isUniv4 && positionId && !nftApproved, text: 'Approve NFT' },
     { condition: isVeryHighPriceImpact || isVeryHighZapImpact || isInvalidZapImpact, text: 'Zap anyway' },
