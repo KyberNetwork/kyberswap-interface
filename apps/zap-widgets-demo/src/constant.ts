@@ -54,6 +54,7 @@ export const zapMigrationDexMapping: Record<ZapMigrationDex, string> = {
 export const zapOutDexMapping: Record<ZapOutDex, string> = {
   [ZapOutDex.DEX_UNISWAP_V4]: "Uniswap V4",
   [ZapOutDex.DEX_UNISWAP_V4_FAIRFLOW]: "Uniswap V4 FairFlow",
+  [ZapOutDex.DEX_PANCAKE_INFINITY_CL]: "Pancake Infinity CL",
   [ZapOutDex.DEX_UNISWAPV3]: "Uniswap V3",
   [ZapOutDex.DEX_PANCAKESWAPV3]: "PancakeSwap V3",
   [ZapOutDex.DEX_METAVAULTV3]: "MetaVault V3",
