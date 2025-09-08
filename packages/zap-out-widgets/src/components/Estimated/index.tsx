@@ -4,7 +4,7 @@ import { useDebounce } from '@kyber/hooks/use-debounce';
 import { Skeleton, TokenLogo } from '@kyber/ui';
 import { formatDisplayNumber, formatTokenAmount } from '@kyber/utils/number';
 
-import { SlippageWarning } from '@/components/SlippageWarning';
+import SlippageRow from '@/components/Estimated/SlippageRow';
 import { SwapPI } from '@/components/SwapImpact';
 import { MouseoverTooltip } from '@/components/Tooltip';
 import { ProtocolFeeAction, ZapAction } from '@/hooks/types/zapInTypes';
@@ -12,7 +12,7 @@ import { useZapOutContext } from '@/stores';
 import { RefundAction, RemoveLiquidityAction, useZapOutUserState } from '@/stores/state';
 import { PI_LEVEL, formatCurrency, getPriceImpact } from '@/utils';
 
-export function EstLiqValue() {
+export default function Estimated() {
   const { chainId, positionId, poolAddress, poolType, pool, theme, position } = useZapOutContext(s => s);
   const { slippage, fetchingRoute, fetchZapOutRoute, route, showPreview, liquidityOut, tokenOut, mode } =
     useZapOutUserState();
@@ -33,6 +33,8 @@ export function EstLiqValue() {
   const feeInfo = route?.zapDetails.actions.find(item => item.type === ZapAction.PROTOCOL_FEE) as
     | ProtocolFeeAction
     | undefined;
+
+  const suggestedSlippage = route?.zapDetails.suggestedSlippage || 0;
 
   const piRes = getPriceImpact(route?.zapDetails.priceImpact, 'Zap Impact', route?.zapDetails.suggestedSlippage || 100);
 
@@ -71,8 +73,6 @@ export function EstLiqValue() {
     poolAddress,
     poolType,
   ]);
-
-  const suggestedSlippage = route?.zapDetails.suggestedSlippage || 100;
 
   const zapFee = ((feeInfo?.protocolFee.pcm || 0) / 100_000) * 100;
 
@@ -121,7 +121,7 @@ export function EstLiqValue() {
             )}
           </div>
 
-          <SlippageWarning slippage={slippage} suggestedSlippage={suggestedSlippage} showWarning={!!route} />
+          <SlippageRow suggestedSlippage={suggestedSlippage} />
 
           <div className="flex items-center justify-between mt-2">
             <SwapPI />
