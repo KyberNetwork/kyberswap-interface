@@ -33,14 +33,14 @@ export default function useSlippageManager() {
 
     if (!tokenOut) return;
 
+    const tokenAddressInPair = [pool.token0.address.toLowerCase(), pool.token1.address.toLowerCase()];
+    const tokenOutAddress = tokenOut.address.toLowerCase();
+    const isTokenOutNative = tokenOutAddress === NATIVE_TOKEN_ADDRESS.toLowerCase();
+
     if (pool.category === 'stablePair' && tokenOut.isStable) setSlippage(1);
     else if (
-      pool.category === 'correlatedPair' &&
-      [pool.token0.address.toLowerCase(), pool.token1.address.toLowerCase()].includes(
-        tokenOut.address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase()
-          ? NETWORKS_INFO[chainId].wrappedToken.address.toLowerCase()
-          : tokenOut.address.toLowerCase(),
-      )
+      (pool.category === 'correlatedPair' && tokenAddressInPair.includes(tokenOutAddress)) ||
+      (isTokenOutNative && tokenAddressInPair.includes(NETWORKS_INFO[chainId].wrappedToken.address.toLowerCase()))
     )
       setSlippage(5);
     else setSlippage(10);
