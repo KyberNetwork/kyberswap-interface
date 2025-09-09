@@ -52,6 +52,8 @@ import { checkEarlyPosition, parsePosition } from 'pages/Earns/utils/position'
 import { getUnfinalizedPositions } from 'pages/Earns/utils/unfinalizedPosition'
 import { formatDisplayNumber, toString } from 'utils/numbers'
 
+import useReduceFetchInterval from '../hooks/useReduceFetchInterval'
+
 const PositionDetail = () => {
   const firstLoading = useRef(false)
   const navigate = useNavigate()
@@ -64,6 +66,7 @@ const PositionDetail = () => {
   const { widget: zapMigrationWidget, handleOpenZapMigration, triggerClose, setTriggerClose } = useZapMigrationWidget()
 
   const { closedPositionsFromRpc, checkClosedPosition } = useClosedPositions()
+  const { reduceFetchInterval, setReduceFetchInterval } = useReduceFetchInterval()
 
   const {
     data: userPosition,
@@ -77,7 +80,7 @@ const PositionDetail = () => {
       chainIds: chainId || '',
       protocols: protocol || '',
     },
-    { skip: !account, pollingInterval: forceLoading ? 5_000 : 15_000 },
+    { skip: !account, pollingInterval: forceLoading || reduceFetchInterval ? 5_000 : 15_000 },
   )
   const { rewardInfo } = useKemRewards(refetch)
   const rewardInfoThisPosition = !userPosition
@@ -452,6 +455,7 @@ const PositionDetail = () => {
                 initialLoading={initialLoading}
                 triggerClose={triggerClose}
                 setTriggerClose={setTriggerClose}
+                setReduceFetchInterval={setReduceFetchInterval}
               />
             </PositionDetailWrapper>
           </>
