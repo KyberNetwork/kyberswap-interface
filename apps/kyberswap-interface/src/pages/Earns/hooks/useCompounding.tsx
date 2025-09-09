@@ -62,6 +62,7 @@ const compoundingDexMapping: Record<EarnDex | Exchange, CompoundingPoolType> = {
   [EarnDex.DEX_UNISWAPV2]: CompoundingPoolType.DEX_UNISWAPV2,
   [EarnDex.DEX_UNISWAP_V4]: CompoundingPoolType.DEX_UNISWAP_V4,
   [EarnDex.DEX_UNISWAP_V4_FAIRFLOW]: CompoundingPoolType.DEX_UNISWAP_V4_FAIRFLOW,
+  [EarnDex.DEX_PANCAKE_INFINITY_CL]: CompoundingPoolType.DEX_PANCAKE_INFINITY_CL,
   [Exchange.DEX_UNISWAPV3]: CompoundingPoolType.DEX_UNISWAPV3,
   [Exchange.DEX_PANCAKESWAPV3]: CompoundingPoolType.DEX_PANCAKESWAPV3,
   [Exchange.DEX_SUSHISWAPV3]: CompoundingPoolType.DEX_SUSHISWAPV3,
@@ -72,6 +73,7 @@ const compoundingDexMapping: Record<EarnDex | Exchange, CompoundingPoolType> = {
   [Exchange.DEX_UNISWAPV2]: CompoundingPoolType.DEX_UNISWAPV2,
   [Exchange.DEX_UNISWAP_V4]: CompoundingPoolType.DEX_UNISWAP_V4,
   [Exchange.DEX_UNISWAP_V4_FAIRFLOW]: CompoundingPoolType.DEX_UNISWAP_V4_FAIRFLOW,
+  [Exchange.DEX_PANCAKE_INFINITY_CL]: CompoundingPoolType.DEX_PANCAKE_INFINITY_CL,
 }
 
 const useCompounding = ({
