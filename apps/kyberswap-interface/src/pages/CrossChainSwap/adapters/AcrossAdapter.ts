@@ -4,7 +4,7 @@ import { ethers } from 'ethers'
 import { WalletClient, formatUnits } from 'viem'
 import { arbitrum, base, blast, linea, mainnet, optimism, polygon, scroll, unichain, zksync } from 'viem/chains'
 
-import { CROSS_CHAIN_FEE_RECEIVER } from 'constants/index'
+import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
 
 import { Quote } from '../registry'
 import {
@@ -77,6 +77,20 @@ export class AcrossAdapter extends BaseSwapAdapter {
 
   async getQuote(params: EvmQuoteParams): Promise<NormalizedQuote> {
     try {
+      // const res = await this.acrossClient.getSwapQuote({
+      //   route: {
+      //     originChainId: +params.fromChain,
+      //     destinationChainId: +params.toChain,
+      //     inputToken: (params.fromToken.isNative ? ZERO_ADDRESS : params.fromToken.wrapped.address) as `0x${string}`,
+      //     outputToken: (params.toToken.isNative ? ZERO_ADDRESS : params.toToken.wrapped.address) as `0x${string}`,
+      //   },
+      //   amount: params.amount,
+      //   appFee: (params.feeBps * 100) / 10_000,
+      //   appFeeRecipient: CROSS_CHAIN_FEE_RECEIVER,
+      //   slippage: (params.slippage * 100) / 10_000,
+      //   depositor: params.sender,
+      // })
+      console.log(res)
       const resp = await this.acrossClient.getQuote({
         route: {
           originChainId: +params.fromChain,

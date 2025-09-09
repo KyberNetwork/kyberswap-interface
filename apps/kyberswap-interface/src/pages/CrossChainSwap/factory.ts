@@ -130,7 +130,7 @@ export class CrossChainSwapFactory {
       CrossChainSwapFactory.getOptimexAdapter(),
       CrossChainSwapFactory.getKsApdater(),
       // CrossChainSwapFactory.getOrbiterAdapter(),
-      // CrossChainSwapFactory.getBungeeAdapter(),
+      CrossChainSwapFactory.getBungeeAdapter(),
     ]
   }
 
