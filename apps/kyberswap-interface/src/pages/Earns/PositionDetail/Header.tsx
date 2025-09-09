@@ -17,18 +17,17 @@ import { DexInfo, IconArrowLeft, PositionHeader } from 'pages/Earns/PositionDeta
 import { Badge, BadgeType, ChainImage, ImageContainer } from 'pages/Earns/UserPositions/styles'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import { CoreProtocol, EarnDex, Exchange, PROTOCOL_POSITION_URL, earnSupportedProtocols } from 'pages/Earns/constants'
+import useForceLoading from 'pages/Earns/hooks/useForceLoading'
 import { ParsedPosition, PositionStatus } from 'pages/Earns/types'
 import { isForkFrom } from 'pages/Earns/utils'
 import { MEDIA_WIDTHS } from 'theme'
 
 const PositionDetailHeader = ({
   position,
-  hadForceLoading,
   isLoading,
   initialLoading,
 }: {
   position?: ParsedPosition
-  hadForceLoading: boolean
   isLoading: boolean
   initialLoading: boolean
 }) => {
@@ -38,6 +37,7 @@ const PositionDetailHeader = ({
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
 
   const { protocol } = useParams()
+  const { hadForceLoading } = useForceLoading()
 
   const isUniv2 = isForkFrom(protocol as Exchange, CoreProtocol.UniswapV2)
   const posStatus = isUniv2 ? PositionStatus.IN_RANGE : position?.status

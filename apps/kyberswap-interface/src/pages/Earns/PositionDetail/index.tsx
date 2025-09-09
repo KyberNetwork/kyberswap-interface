@@ -43,6 +43,7 @@ import {
 } from 'pages/Earns/constants'
 import useClosedPositions, { CheckClosedPositionParams } from 'pages/Earns/hooks/useClosedPositions'
 import useFarmingStablePools from 'pages/Earns/hooks/useFarmingStablePools'
+import useForceLoading from 'pages/Earns/hooks/useForceLoading'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import { FeeInfo, PAIR_CATEGORY, ParsedPosition, PositionStatus, SuggestedPool } from 'pages/Earns/types'
@@ -56,9 +57,9 @@ const PositionDetail = () => {
   const navigate = useNavigate()
   const theme = useTheme()
   const [searchParams, setSearchParams] = useSearchParams()
-  const forceLoading = searchParams.get('forceLoading')
 
   const { account } = useActiveWeb3React()
+  const { forceLoading, removeForceLoading } = useForceLoading()
   const { positionId, chainId, protocol } = useParams()
   const { widget: zapMigrationWidget, handleOpenZapMigration, triggerClose, setTriggerClose } = useZapMigrationWidget()
 
@@ -84,7 +85,6 @@ const PositionDetail = () => {
     : rewardInfo?.nfts.find(item => item.nftId === userPosition?.[0]?.tokenId)
 
   const currentWalletAddress = useRef(account)
-  const hadForceLoading = useRef(forceLoading ? true : false)
   const [feeInfoFromRpc, setFeeInfoFromRpc] = useState<FeeInfo | undefined>()
   const [shareInfo, setShareInfo] = useState<ShareModalProps | undefined>()
   const [positionToMigrate, setPositionToMigrate] = useState<ParsedPosition | null>(null)
@@ -205,9 +205,9 @@ const PositionDetail = () => {
   }, [account, navigate])
 
   useEffect(() => {
-    if (position && position.tokenId === positionId?.split('-')[1] && forceLoading) {
-      searchParams.delete('forceLoading')
-      setSearchParams(searchParams)
+    if (!position || !forceLoading) return
+    if (position.pool.isUniv2 ? position.id === positionId : position.tokenId === positionId?.split('-')[1]) {
+      removeForceLoading()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [forceLoading, position, searchParams, setSearchParams])
@@ -414,12 +414,7 @@ const PositionDetail = () => {
       <PositionPageWrapper>
         {!!position || initialLoading ? (
           <>
-            <PositionDetailHeader
-              isLoading={loadingInterval}
-              initialLoading={initialLoading}
-              position={position}
-              hadForceLoading={hadForceLoading.current}
-            />
+            <PositionDetailHeader isLoading={loadingInterval} initialLoading={initialLoading} position={position} />
             {!position?.pool.isFarming &&
               (!!position?.suggestionPool ||
                 (isStablePair && farmingPoolsByChain[position.chain.id]?.pools.length > 0)) &&
