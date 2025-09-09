@@ -45,14 +45,13 @@ import useClosedPositions, { CheckClosedPositionParams } from 'pages/Earns/hooks
 import useFarmingStablePools from 'pages/Earns/hooks/useFarmingStablePools'
 import useForceLoading from 'pages/Earns/hooks/useForceLoading'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
+import useReduceFetchInterval from 'pages/Earns/hooks/useReduceFetchInterval'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import { FeeInfo, PAIR_CATEGORY, ParsedPosition, PositionStatus, SuggestedPool } from 'pages/Earns/types'
 import { getUnclaimedFeesInfo } from 'pages/Earns/utils/fees'
 import { checkEarlyPosition, parsePosition } from 'pages/Earns/utils/position'
 import { getUnfinalizedPositions } from 'pages/Earns/utils/unfinalizedPosition'
 import { formatDisplayNumber, toString } from 'utils/numbers'
-
-import useReduceFetchInterval from '../hooks/useReduceFetchInterval'
 
 const PositionDetail = () => {
   const firstLoading = useRef(false)
