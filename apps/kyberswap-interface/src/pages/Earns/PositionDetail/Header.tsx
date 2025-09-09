@@ -1,6 +1,6 @@
 import { shortenAddress } from '@kyber/utils/dist/crypto'
 import { t } from '@lingui/macro'
-import { useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
@@ -112,9 +112,13 @@ const PositionDetailHeader = ({
                 <TokenLogo src={position?.token1.logo} translateLeft />
                 <ChainImage src={position?.chain.logo} alt="" />
               </ImageContainer>
-              <Text marginLeft={-3} fontSize={upToSmall ? 20 : 16}>
-                {position?.token0.symbol}/{position?.token1.symbol}
-              </Text>
+              <Link
+                to={`${APP_PATHS.EARN_POOLS}?exchange=${position?.dex.id}&poolChainId=${position?.chain.id}&poolAddress=${position?.pool.address}`}
+              >
+                <Text color={theme.text} marginLeft={-3} fontSize={upToSmall ? 20 : 16}>
+                  {position?.token0.symbol}/{position?.token1.symbol}
+                </Text>
+              </Link>
             </Flex>
           )}
 
