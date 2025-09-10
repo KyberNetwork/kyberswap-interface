@@ -1,23 +1,17 @@
-export enum FeeAmount {
-  LOWEST = 0.01,
-  LOW = 0.05,
-  //   MIDDLE = 0.25,
-  MEDIUM = 0.3,
-  HIGH = 1,
-}
-
-export const DEFAULT_PRICE_RANGE = {
-  [FeeAmount.LOWEST]: 0.0005,
-  [FeeAmount.LOW]: 0.05,
-  [FeeAmount.MEDIUM]: 0.2,
-  [FeeAmount.HIGH]: 0.5,
-};
+import { POOL_CATEGORY } from '@kyber/schema';
 
 export const FULL_PRICE_RANGE = 'Full Range';
 
+export const DEFAULT_PRICE_RANGE = {
+  [POOL_CATEGORY.STABLE_PAIR]: 0.0005,
+  [POOL_CATEGORY.CORRELATED_PAIR]: 0.001,
+  [POOL_CATEGORY.COMMON_PAIR]: 0.1,
+  [POOL_CATEGORY.EXOTIC_PAIR]: 0.3,
+};
+
 export const PRICE_RANGE = {
-  [FeeAmount.LOWEST]: [FULL_PRICE_RANGE, 0.01, 0.001, 0.0005],
-  [FeeAmount.LOW]: [FULL_PRICE_RANGE, 0.1, 0.05, 0.01],
-  [FeeAmount.MEDIUM]: [FULL_PRICE_RANGE, 0.3, 0.2, 0.1],
-  [FeeAmount.HIGH]: [FULL_PRICE_RANGE, 0.8, 0.5, 0.2],
+  [POOL_CATEGORY.STABLE_PAIR]: [FULL_PRICE_RANGE, 0.01, 0.001, 0.0005],
+  [POOL_CATEGORY.CORRELATED_PAIR]: [FULL_PRICE_RANGE, 0.05, 0.01, 0.001],
+  [POOL_CATEGORY.COMMON_PAIR]: [FULL_PRICE_RANGE, 0.2, 0.1, 0.05],
+  [POOL_CATEGORY.EXOTIC_PAIR]: [FULL_PRICE_RANGE, 0.5, 0.3, 0.2],
 };

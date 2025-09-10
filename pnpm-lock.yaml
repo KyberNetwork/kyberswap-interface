@@ -1737,6 +1737,9 @@ importers:
       '@kyber/hooks':
         specifier: workspace:*
         version: link:../hooks
+      '@kyber/schema':
+        specifier: workspace:^
+        version: link:../schema
       '@kyber/svgr-esbuild-plugin':
         specifier: workspace:^
         version: link:../svgr-esbuild-plugin
