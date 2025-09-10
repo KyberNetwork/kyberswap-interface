@@ -48,6 +48,7 @@ export class AcrossAdapter extends BaseSwapAdapter {
       ChainId.SCROLL,
       ChainId.BLAST,
       ChainId.UNICHAIN,
+      ChainId.BSCMAINNET,
     ]
   }
 
