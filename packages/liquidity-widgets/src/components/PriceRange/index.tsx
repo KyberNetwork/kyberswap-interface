@@ -1,10 +1,10 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { usePrevious } from '@kyber/hooks';
 import { univ3PoolNormalize, univ3Types } from '@kyber/schema';
 import { Button, Skeleton } from '@kyber/ui';
 import { toString } from '@kyber/utils/number';
-import { nearestUsableTick, priceToClosestTick } from '@kyber/utils/uniswapv3';
+import { nearestUsableTick, priceToClosestTick, tickToPrice } from '@kyber/utils/uniswapv3';
 
 import { DEFAULT_PRICE_RANGE, FULL_PRICE_RANGE, FeeAmount, PRICE_RANGE } from '@/components/PriceRange/constants';
 import { useZapState } from '@/hooks/useZapState';
@@ -37,6 +37,8 @@ const PriceRange = () => {
 
   const fee = initializing ? 0 : pool.fee;
   const feeRange = getFeeRange(fee);
+
+  const [lastSelected, setLastSelected] = useState<number | string>('');
 
   const priceRanges = useMemo(() => {
     if (initializing || !poolPrice) return [];
@@ -74,25 +76,48 @@ const PriceRange = () => {
 
         if (lower === undefined || upper === undefined) return null;
 
+        const nearestLowerTick = nearestUsableTick(lower, data.tickSpacing);
+        const nearestUpperTick = nearestUsableTick(upper, data.tickSpacing);
+
+        let validLowerTick = nearestLowerTick;
+        let validUpperTick = nearestUpperTick;
+        if (nearestLowerTick === nearestUpperTick) {
+          const lowerPriceFromTick = tickToPrice(
+            nearestLowerTick,
+            pool.token0?.decimals,
+            pool.token1?.decimals,
+            revertPrice,
+          );
+          if (Number(lowerPriceFromTick) > poolPrice) {
+            validLowerTick = validLowerTick - data.tickSpacing;
+          } else {
+            validUpperTick = validLowerTick + data.tickSpacing;
+          }
+        }
+
         return {
           range: item,
-          tickLower: nearestUsableTick(lower, data.tickSpacing),
-          tickUpper: nearestUsableTick(upper, data.tickSpacing),
+          tickLower: validLowerTick,
+          tickUpper: validUpperTick,
         };
       })
       .filter(item => !!item) as PriceRange[];
   }, [feeRange, initializing, pool, poolPrice, revertPrice]);
 
-  const rangeSelected = useMemo(
-    () => (priceRanges || []).find(item => item.tickLower === tickLower && item.tickUpper === tickUpper)?.range,
-    [priceRanges, tickLower, tickUpper],
-  );
+  const rangeSelected = useMemo(() => {
+    const selecteds = (priceRanges || []).filter(item => item.tickLower === tickLower && item.tickUpper === tickUpper);
+    if (selecteds.length === 1) return selecteds[0].range;
+    if (selecteds.length > 1 && lastSelected && selecteds.find(item => item.range === lastSelected))
+      return lastSelected;
+    return;
+  }, [priceRanges, tickLower, tickUpper, lastSelected]);
   const previousRangeSelected = usePrevious(rangeSelected);
 
   const handleSelectPriceRange = (range: string | number) => {
     if (!priceRanges.length) return;
     const priceRange = priceRanges.find(item => item?.range === range);
     if (priceRange?.tickLower === undefined || priceRange?.tickUpper === undefined) return;
+    setLastSelected(range);
     setTickLower(priceRange.tickLower);
     setTickUpper(priceRange.tickUpper);
   };
@@ -107,7 +132,7 @@ const PriceRange = () => {
   // Set default price range depending on protocol fee
   useEffect(() => {
     if (!feeRange || !priceRanges.length || initialTick) return;
-    if (!tickLower || !tickUpper) handleSelectPriceRange(DEFAULT_PRICE_RANGE[feeRange]);
+    if (tickLower === null || tickUpper === null) handleSelectPriceRange(DEFAULT_PRICE_RANGE[feeRange]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [feeRange, priceRanges]);
 
