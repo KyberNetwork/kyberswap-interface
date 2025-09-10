@@ -82,7 +82,7 @@ export const formatDisplayNumber = (
   const v = Number(value?.toString());
   if (value === undefined || value === null || Number.isNaN(value)) return fallbackResult;
 
-  if (v < 1) {
+  if (v < 1 && v > 0) {
     const decimal = value.toString().split('.')[1] || '0';
     const numberOfLeadingZeros = -Math.floor(Math.log10(v) + 1);
     const slicedDecimal = decimal
@@ -183,9 +183,11 @@ export const formatAprNumber = (apr: string | number): string => {
   if (apr === 0) return '0';
 
   const formattedApr = Number(apr);
+  const absApr = Math.abs(formattedApr);
+
   let n = 0;
   while (n < 4) {
-    if (formattedApr - 10 ** n < 0) break;
+    if (absApr - 10 ** n < 0) break;
     n++;
   }
 
