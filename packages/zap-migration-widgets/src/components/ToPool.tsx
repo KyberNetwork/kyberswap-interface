@@ -66,7 +66,16 @@ export function ToPool({ className }: { className?: string }) {
 
   return (
     <div className={cn('flex-1 border border-stroke rounded-md px-4 py-3', className)}>
-      <div className="text-subText text-sm">Est. Updated Position Liquidity</div>
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div className="text-subText text-sm">Est. Updated Position Liquidity</div>
+        {fetchingRoute || targetPool === 'loading' ? (
+          <Skeleton className="w-16 h-4" />
+        ) : (
+          <div className="text-xs font-medium">
+            {formatDisplayNumber(totalValue0 + totalValue1, { style: 'currency' })}
+          </div>
+        )}
+      </div>
       <div className="mt-2 flex items-center justify-between">
         {targetPool === 'loading' ? (
           <LiquiditySkeleton />
