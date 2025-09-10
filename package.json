@@ -2,8 +2,7 @@
   "name": "root",
   "private": true,
   "workspaces": [
-    "packages/*",
-    "apps/**"
+    "packages/*"
   ],
   "packageManager": "pnpm@8.9.2",
   "devDependencies": {

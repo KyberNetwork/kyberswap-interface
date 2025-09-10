@@ -1,0 +1,12 @@
+{
+  "buildCommand": "pnpm install && pnpm run build-package && cd apps/kyberswap-interface && pnpm run build",
+  "outputDirectory": "apps/kyberswap-interface/build",
+  "installCommand": "pnpm install",
+  "routes": [
+    {
+      "src": "/[^.]+",
+      "dest": "/",
+      "status": 200
+    }
+  ]
+}
