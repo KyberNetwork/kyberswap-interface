@@ -44,6 +44,7 @@ const RightSection = ({
   initialLoading,
   triggerClose,
   setTriggerClose,
+  setReduceFetchInterval,
 }: {
   position?: ParsedPosition
   onOpenZapMigration: (props: ZapMigrationInfo) => void
@@ -53,6 +54,7 @@ const RightSection = ({
   initialLoading: boolean
   triggerClose: boolean
   setTriggerClose: (value: boolean) => void
+  setReduceFetchInterval: (value: boolean) => void
 }) => {
   const theme = useTheme()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
@@ -72,7 +74,10 @@ const RightSection = ({
     triggerClose,
     setTriggerClose,
   })
-  const { widget: zapOutWidget, handleOpenZapOut } = useZapOutWidget(onRefreshPosition)
+  const { widget: zapOutWidget, handleOpenZapOut } = useZapOutWidget((props: CheckClosedPositionParams) => {
+    onRefreshPosition(props)
+    setReduceFetchInterval(true)
+  })
 
   const price = useMemo(
     () => (!position?.priceRange ? 0 : !revert ? position.priceRange.current : 1 / position.priceRange.current),

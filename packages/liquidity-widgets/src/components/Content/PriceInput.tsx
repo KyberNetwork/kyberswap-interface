@@ -32,25 +32,25 @@ export default function PriceInput({ type }: { type: PriceType }) {
   const isFullRange = isMinTick && isMaxTick;
 
   const increaseTickLower = () => {
-    if (initializing || !tickLower) return;
+    if (initializing || tickLower === null) return;
     const newTick = tickLower + pool.tickSpacing;
     if (newTick <= MAX_TICK) setTickLower(newTick);
   };
 
   const increaseTickUpper = () => {
-    if (initializing || !tickUpper) return;
+    if (initializing || tickUpper === null) return;
     const newTick = tickUpper + pool.tickSpacing;
     if (newTick <= MAX_TICK) setTickUpper(newTick);
   };
 
   const decreaseTickLower = () => {
-    if (initializing || !tickLower) return;
+    if (initializing || tickLower === null) return;
     const newTick = tickLower - pool.tickSpacing;
     if (newTick >= MIN_TICK) setTickLower(newTick);
   };
 
   const decreaseTickUpper = () => {
-    if (initializing || !tickUpper) return;
+    if (initializing || tickUpper === null) return;
     const newTick = tickUpper - pool.tickSpacing;
     if (newTick >= MIN_TICK) setTickUpper(newTick);
   };

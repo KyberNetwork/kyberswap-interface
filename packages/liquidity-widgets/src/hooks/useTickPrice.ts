@@ -53,7 +53,7 @@ export default function useTickPrice({
   }, [position]);
 
   useEffect(() => {
-    if (initialTick && !tickLower && !tickUpper) {
+    if (initialTick && tickLower === null && tickUpper === null) {
       setTickLower(initialTick.tickLower);
       setTickUpper(initialTick.tickUpper);
     }

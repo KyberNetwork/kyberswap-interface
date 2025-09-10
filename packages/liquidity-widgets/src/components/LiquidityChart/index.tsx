@@ -45,7 +45,7 @@ export default function LiquidityChart() {
       if (!token0 || !token1 || positionId || !tickSpacing) return;
       const tickLowerFromPrice = priceToClosestTick(l, token0.decimals, token1.decimals, revertPrice);
       const tickUpperFromPrice = priceToClosestTick(r, token0.decimals, token1.decimals, revertPrice);
-      if (!tickLowerFromPrice || !tickUpperFromPrice) return;
+      if (tickLowerFromPrice === undefined || tickUpperFromPrice === undefined) return;
       const tickLower = nearestUsableTick(Number(tickLowerFromPrice), tickSpacing);
       const tickUpper = nearestUsableTick(Number(tickUpperFromPrice), tickSpacing);
 
@@ -64,11 +64,9 @@ export default function LiquidityChart() {
       if (!token0 || !token1 || positionId || !tickSpacing) return;
       const tickFromPrice = priceToClosestTick(value, token0.decimals, token1.decimals, revertPrice);
 
-      if (!tickFromPrice) return;
+      if (tickFromPrice === undefined) return;
       const tick = nearestUsableTick(Number(tickFromPrice), tickSpacing);
-      if (tick) {
-        revertPrice ? setTickUpper(tick) : setTickLower(tick);
-      }
+      if (tick) revertPrice ? setTickUpper(tick) : setTickLower(tick);
     },
     [positionId, revertPrice, setTickLower, setTickUpper, tickSpacing, token0, token1],
   );
@@ -78,11 +76,9 @@ export default function LiquidityChart() {
       if (!token0 || !token1 || positionId || !tickSpacing) return;
       const tickFromPrice = priceToClosestTick(value, token0.decimals, token1.decimals, revertPrice);
 
-      if (!tickFromPrice) return;
+      if (tickFromPrice === undefined) return;
       const tick = nearestUsableTick(Number(tickFromPrice), tickSpacing);
-      if (tick) {
-        revertPrice ? setTickLower(tick) : setTickUpper(tick);
-      }
+      if (tick) revertPrice ? setTickLower(tick) : setTickUpper(tick);
     },
     [positionId, revertPrice, setTickLower, setTickUpper, tickSpacing, token0, token1],
   );
