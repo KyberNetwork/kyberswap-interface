@@ -30,6 +30,7 @@ export default function LiquidityChart() {
   const liquidity = pool === 'loading' ? '0' : pool.liquidity;
   const token0 = pool === 'loading' ? undefined : pool.token0;
   const token1 = pool === 'loading' ? undefined : pool.token1;
+  const category = pool === 'loading' ? undefined : pool.category;
 
   const ticksAtLimit = useMemo(
     () => ({
@@ -133,6 +134,7 @@ export default function LiquidityChart() {
           liquidity,
           token0,
           token1,
+          category,
         }}
         price={{
           current: poolPrice ?? undefined,
