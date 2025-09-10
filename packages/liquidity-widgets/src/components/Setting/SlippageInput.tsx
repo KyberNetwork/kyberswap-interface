@@ -134,7 +134,7 @@ const SlippageInput = ({
       </div>
       {suggestedSlippage > 0 && slippage !== suggestedSlippage && (
         <div
-          className={cn('flex items-center gap-1 mt-1 text-primary cursor-pointer text-sm', suggestionClassName)}
+          className={cn('flex items-center gap-1 mt-1 text-primary cursor-pointer text-sm w-fit', suggestionClassName)}
           onClick={() => {
             if (suggestedSlippage > 0) {
               setSlippage(suggestedSlippage);
