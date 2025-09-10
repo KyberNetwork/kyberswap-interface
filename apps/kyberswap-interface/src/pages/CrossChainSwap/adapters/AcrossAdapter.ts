@@ -1,7 +1,7 @@
 import { AcrossClient, createAcrossClient } from '@across-protocol/app-sdk'
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { WalletClient, formatUnits } from 'viem'
-import { arbitrum, base, blast, linea, mainnet, optimism, polygon, scroll, unichain, zksync } from 'viem/chains'
+import { arbitrum, base, blast, bsc, linea, mainnet, optimism, polygon, scroll, unichain, zksync } from 'viem/chains'
 
 import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
 
@@ -23,7 +23,7 @@ export class AcrossAdapter extends BaseSwapAdapter {
     super()
     this.acrossClient = createAcrossClient({
       integratorId: `0x008a`,
-      chains: [mainnet, arbitrum, optimism, linea, polygon, zksync, base, scroll, blast, unichain],
+      chains: [mainnet, arbitrum, bsc, optimism, linea, polygon, zksync, base, scroll, blast, unichain],
       rpcUrls: {
         [ChainId.BASE]: 'https://base.drpc.org',
       },
