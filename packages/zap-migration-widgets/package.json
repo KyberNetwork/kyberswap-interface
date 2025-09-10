@@ -17,6 +17,7 @@
     "zustand": "^5.0.0"
   },
   "devDependencies": {
+    "@kyber/schema": "workspace:^",
     "@kyber/eslint-config": "workspace:*",
     "@kyber/hooks": "workspace:*",
     "@kyber/svgr-esbuild-plugin": "workspace:^",

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 
+import { POOL_CATEGORY } from '@kyber/schema';
 import { Skeleton } from '@kyber/ui';
 import { divideBigIntToString, formatDisplayNumber, toString } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
@@ -14,7 +15,7 @@ import {
 
 import RevertPriceIcon from '@/assets/icons/ic_revert_price.svg';
 import { Estimated } from '@/components/Estimated';
-import { DEFAULT_PRICE_RANGE, FULL_PRICE_RANGE, FeeAmount, PRICE_RANGE } from '@/constants/priceRanges';
+import { DEFAULT_PRICE_RANGE, FULL_PRICE_RANGE, PRICE_RANGE } from '@/constants/priceRanges';
 import { ChainId, UniV2Pool, UniV3Pool, UniV3Position, univ2Dexes, univ3Dexes, univ3PoolCommonField } from '@/schema';
 import { usePoolsStore } from '@/stores/usePoolsStore';
 import { usePositionStore } from '@/stores/usePositionStore';
@@ -26,14 +27,6 @@ interface SelectedRange {
   tickUpper: number;
 }
 
-const getFeeRange = (fee: number): FeeAmount | undefined => {
-  if (!fee) return;
-  return [FeeAmount.HIGH, FeeAmount.MEDIUM, FeeAmount.LOW, FeeAmount.LOWEST].reduce(
-    (range, current) => (current >= fee ? current : range),
-    FeeAmount.HIGH,
-  );
-};
-
 export function TargetPoolState({
   initialTick,
   chainId,
@@ -41,7 +34,7 @@ export function TargetPoolState({
   initialTick?: { tickLower: number; tickUpper: number };
   chainId: ChainId;
 }) {
-  const { pools } = usePoolsStore();
+  const { pools, pairCategory } = usePoolsStore();
   const { tickLower, tickUpper, setTickLower, setTickUpper } = useZapStateStore();
 
   const { toPosition } = usePositionStore();
@@ -138,9 +131,13 @@ export function TargetPoolState({
     if (newTick >= MIN_TICK) setTickUpper(newTick);
   };
 
-  const fee = pool === 'loading' ? 0 : pool.fee;
-  const feeRange = getFeeRange(fee);
-  const priceRanges = useMemo(() => (feeRange ? PRICE_RANGE[feeRange] : []), [feeRange]);
+  const priceRanges = useMemo(
+    () =>
+      pairCategory
+        ? PRICE_RANGE[pairCategory as keyof typeof PRICE_RANGE] || PRICE_RANGE[POOL_CATEGORY.EXOTIC_PAIR]
+        : [],
+    [pairCategory],
+  );
 
   const priceRangeCalculated = useMemo(() => {
     if (!priceRanges.length || pool === 'loading') return;
@@ -202,10 +199,14 @@ export function TargetPoolState({
 
   // Set default price range depending on protocol fee
   useEffect(() => {
-    if (!feeRange || (toPosition !== 'loading' && toPosition !== null)) return;
-    if (!selectedRange) handleSelectPriceRange(DEFAULT_PRICE_RANGE[feeRange]);
+    if (!pairCategory || (toPosition !== 'loading' && toPosition !== null)) return;
+    if (!selectedRange)
+      handleSelectPriceRange(
+        DEFAULT_PRICE_RANGE[pairCategory as keyof typeof DEFAULT_PRICE_RANGE] ||
+          DEFAULT_PRICE_RANGE[POOL_CATEGORY.EXOTIC_PAIR],
+      );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [feeRange, toPosition]);
+  }, [pairCategory, toPosition]);
 
   useEffect(() => {
     if (pools === 'loading' || !initialTick || !isUniV3 || !('tickSpacing' in pools[1]) || tickLower || tickUpper)
