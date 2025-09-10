@@ -93,6 +93,7 @@ export default function LiquidityChart({
           liquidity,
           token0,
           token1,
+          category: undefined,
         }}
         price={{ current: price, lower: priceLower.toString(), upper: priceUpper.toString() }}
         ticksAtLimit={ticksAtLimit}
