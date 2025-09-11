@@ -1,7 +1,6 @@
 import { ZapRouteDetail } from '@kyber/schema';
 import { PI_LEVEL } from '@kyber/utils';
 
-import useSwapPI from '@/hooks/useSwapPI';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
 export default function Warning({
@@ -18,8 +17,6 @@ export default function Warning({
 }) {
   const { theme } = useWidgetStore(['theme']);
 
-  const { swapPriceImpact } = useSwapPI(zapInfo);
-
   return (
     <>
       {(slippage > 2 * zapInfo.zapDetails.suggestedSlippage || slippage < zapInfo.zapDetails.suggestedSlippage / 2) && (
@@ -34,18 +31,7 @@ export default function Warning({
             : 'Your slippage is set lower than usual, increasing the risk of transaction failure.'}
         </div>
       )}
-      {zapInfo && swapPriceImpact.piRes.level !== PI_LEVEL.NORMAL && (
-        <div
-          className={`rounded-md text-xs px-4 py-3 mt-4 font-normal ${
-            swapPriceImpact.piRes.level === PI_LEVEL.HIGH ? 'text-warning' : 'text-error'
-          }`}
-          style={{
-            backgroundColor: swapPriceImpact.piRes.level === PI_LEVEL.HIGH ? `${theme.warning}33` : `${theme.error}33`,
-          }}
-        >
-          {swapPriceImpact.piRes.msg}
-        </div>
-      )}
+
       {zapInfo && zapImpact.level !== PI_LEVEL.NORMAL && (
         <div
           className={`rounded-md text-xs px-4 py-3 mt-4 font-normal ${zapImpact.level === PI_LEVEL.HIGH ? 'text-warning' : 'text-error'}`}
