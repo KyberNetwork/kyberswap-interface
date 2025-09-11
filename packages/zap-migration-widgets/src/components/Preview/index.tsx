@@ -30,7 +30,7 @@ import CheckIcon from '@/assets/icons/circle-check.svg';
 import LoadingIcon from '@/assets/icons/loader-circle.svg';
 import { MigrationSummary } from '@/components/Preview/MigrationSummary';
 import { SlippageInfo } from '@/components/SlippageInfo';
-import { SwapPI, useSwapPI } from '@/components/SwapImpact';
+import { useSwapPI } from '@/components/SwapImpact';
 import { DEXES_INFO, NETWORKS_INFO, PATHS } from '@/constants';
 import { ChainId, Token, UniV2Pool, univ2Dexes } from '@/schema';
 import { usePoolsStore } from '@/stores/usePoolsStore';
@@ -471,10 +471,6 @@ export function Preview({
               )}
 
               <SlippageInfo slippage={slippage} suggestedSlippage={route?.zapDetails.suggestedSlippage || 100} />
-
-              <div className="flex items-center justify-between mt-2">
-                <SwapPI chainId={chainId} />
-              </div>
 
               <div className="flex justify-between items-start mt-2">
                 <MouseoverTooltip

@@ -47,7 +47,20 @@ export function FromPool({ className }: { className?: string }) {
 
   return (
     <div className={cn('flex-1 border border-stroke rounded-md px-4 py-3', className)}>
-      <div className="text-subText text-sm">Your Current Position Liquidity</div>
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div className="text-subText text-sm">Your Current Position Liquidity</div>
+        {pools === 'loading' || position === 'loading' ? (
+          <Skeleton className="w-16 h-4" />
+        ) : (
+          <div className="text-xs font-medium">
+            {formatDisplayNumber(
+              (pools[0].token0.price || 0) * Number(toRawString(amount0, pools[0].token0.decimals)) +
+                (pools[0].token1.price || 0) * Number(toRawString(amount1, pools[0].token1.decimals)),
+              { style: 'currency' },
+            )}
+          </div>
+        )}
+      </div>
       <div className="mt-2 flex items-center justify-between">
         {pools === 'loading' || position === 'loading' ? (
           <LiquiditySkeleton />
