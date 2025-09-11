@@ -4,6 +4,7 @@ import { WalletClient, formatUnits } from 'viem'
 import { arbitrum, base, blast, bsc, linea, mainnet, optimism, polygon, scroll, unichain, zksync } from 'viem/chains'
 
 import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
+import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 
 import { Quote } from '../registry'
 import {
@@ -24,9 +25,21 @@ export class AcrossAdapter extends BaseSwapAdapter {
     this.acrossClient = createAcrossClient({
       integratorId: `0x008a`,
       chains: [mainnet, arbitrum, bsc, optimism, linea, polygon, zksync, base, scroll, blast, unichain],
-      rpcUrls: {
-        [ChainId.BASE]: 'https://base.drpc.org',
-      },
+      rpcUrls: [
+        ChainId.MAINNET,
+        ChainId.ARBITRUM,
+        ChainId.BSCMAINNET,
+        ChainId.OPTIMISM,
+        ChainId.LINEA,
+        ChainId.MATIC,
+        ChainId.ZKSYNC,
+        ChainId.BASE,
+        ChainId.SCROLL,
+        ChainId.BLAST,
+        ChainId.UNICHAIN,
+      ].reduce((acc, cur) => {
+        return { ...acc, [cur]: NETWORKS_INFO[cur].defaultRpcUrl }
+      }, {}),
     })
   }
 
