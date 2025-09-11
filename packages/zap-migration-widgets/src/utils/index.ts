@@ -1,7 +1,7 @@
-import { AddLiquidityAction, ZapAction } from '@kyber/schema';
+import { ZapAction } from '@kyber/schema';
 import { formatUnits } from '@kyber/utils/crypto';
 
-import { GetRouteResponse } from '@/stores/useZapStateStore';
+import { AddLiquidityAction, GetRouteResponse } from '@/stores/useZapStateStore';
 
 export const formatCurrency = (value: number) =>
   new Intl.NumberFormat('en-US', {
@@ -35,3 +35,40 @@ export enum PI_LEVEL {
   NORMAL = 'NORMAL',
   INVALID = 'INVALID',
 }
+
+const defaultZapRoute = {
+  addedLiquidity: {
+    addedAmount0: '0',
+    addedAmount1: '0',
+    addedValue0: 0,
+    addedValue1: 0,
+  },
+};
+
+export const parseZapRoute = (route?: GetRouteResponse) => {
+  if (!route) return defaultZapRoute;
+
+  const addedLiquidity = parseAddedLiquidity(route);
+
+  return {
+    addedLiquidity,
+  };
+};
+
+const parseAddedLiquidity = (route: GetRouteResponse) => {
+  const addLiquidityInfo = route.zapDetails.actions.find(
+    item => item.type === ZapAction.ADD_LIQUIDITY,
+  ) as AddLiquidityAction;
+
+  const addedAmount0 = addLiquidityInfo?.addLiquidity.token0.amount || '0';
+  const addedAmount1 = addLiquidityInfo?.addLiquidity.token1.amount || '0';
+  const addedValue0 = +(addLiquidityInfo?.addLiquidity.token0.amountUsd || 0);
+  const addedValue1 = +(addLiquidityInfo?.addLiquidity.token1.amountUsd || 0);
+
+  return {
+    addedAmount0,
+    addedAmount1,
+    addedValue0,
+    addedValue1,
+  };
+};
