@@ -74,11 +74,11 @@ export const Action = () => {
     togglePreview();
   };
 
-  const { swapPiRes, zapPiRes } = useSwapPI();
+  const { zapPiRes } = useSwapPI();
 
   const pi = {
-    piHigh: swapPiRes.piRes.level === PI_LEVEL.HIGH || zapPiRes.level === PI_LEVEL.HIGH,
-    piVeryHigh: swapPiRes.piRes.level === PI_LEVEL.VERY_HIGH || zapPiRes.level === PI_LEVEL.VERY_HIGH,
+    piHigh: zapPiRes.level === PI_LEVEL.HIGH,
+    piVeryHigh: zapPiRes.level === PI_LEVEL.VERY_HIGH,
   };
 
   const btnText = useMemo(() => {
