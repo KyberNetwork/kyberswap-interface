@@ -155,7 +155,7 @@ const UserPositions = ({
                 })}
               </div>
             </div>
-            <div className="flex items-center justify-between w-full">
+            <div className="flex items-center justify-between w-full flex-wrap">
               <div className="flex gap-2 items-center">
                 <div className="flex gap-1 items-center">
                   <TokenLogo src={position.pool.projectLogo} />

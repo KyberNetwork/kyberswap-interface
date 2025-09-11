@@ -92,7 +92,7 @@ export function Estimated({ chainId }: { chainId: ChainId }) {
           onClick={onExpand}
         >
           <div className="flex items-center justify-between w-full">
-            <div>Est. Liquidity Value</div>
+            <div>Est. Migrating Liquidity</div>
             {fetchingRoute ? (
               <Skeleton className="w-[60px] h-3" />
             ) : (
