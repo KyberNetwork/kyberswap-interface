@@ -1,10 +1,12 @@
 import { AcrossClient, createAcrossClient } from '@across-protocol/app-sdk'
-import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
 import { WalletClient, formatUnits } from 'viem'
 import { arbitrum, base, blast, bsc, linea, mainnet, optimism, polygon, scroll, unichain, zksync } from 'viem/chains'
 
 import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
+import { SolanaToken } from 'state/crossChainSwap'
+import { isEvmChain } from 'utils'
 
 import { Quote } from '../registry'
 import {
@@ -12,10 +14,14 @@ import {
   Chain,
   EvmQuoteParams,
   NOT_SUPPORTED_CHAINS_PRICE_SERVICE,
+  NonEvmChain,
   NormalizedQuote,
   NormalizedTxResponse,
+  QuoteParams,
   SwapStatus,
 } from './BaseSwapAdapter'
+
+const API_URL = 'https://app.across.to/api/suggested-fees'
 
 export class AcrossAdapter extends BaseSwapAdapter {
   private acrossClient: AcrossClient
@@ -62,6 +68,7 @@ export class AcrossAdapter extends BaseSwapAdapter {
       ChainId.BLAST,
       ChainId.UNICHAIN,
       ChainId.BSCMAINNET,
+      NonEvmChain.Solana,
     ]
   }
 
@@ -69,50 +76,38 @@ export class AcrossAdapter extends BaseSwapAdapter {
     return []
   }
 
-  async getQuote(params: EvmQuoteParams): Promise<NormalizedQuote> {
+  async getQuote(params: QuoteParams): Promise<NormalizedQuote> {
     try {
-      const res = await this.acrossClient.getSwapQuote({
-        route: {
-          originChainId: +params.fromChain,
-          destinationChainId: +params.toChain,
-          inputToken: (params.fromToken.isNative ? ZERO_ADDRESS : params.fromToken.wrapped.address) as `0x${string}`,
-          outputToken: (params.toToken.isNative ? ZERO_ADDRESS : params.toToken.wrapped.address) as `0x${string}`,
-        },
-        amount: params.amount,
-        appFee: params.feeBps / 10_000,
-        appFeeRecipient: CROSS_CHAIN_FEE_RECEIVER,
-        slippage: (params.slippage * 100) / 10_000,
-        depositor: params.sender,
-      })
+      let res
+      const isFromSol = params.fromChain === NonEvmChain.Solana
+      if (isFromSol && isEvmChain(params.toChain)) {
+        const reqParams = new URLSearchParams({
+          inputToken: (params.fromToken as SolanaToken).id,
+          outputToken: (params.toToken as Token).wrapped.address,
+          destinationChainId: params.toChain.toString(),
+          originChainId: '34268394551451',
+          amount: params.amount,
+          skipAmountLimit: 'true',
+          allowUnmatchedDecimals: 'true',
+        })
 
-      // console.log(res)
-      // const resp = await this.acrossClient.getQuote({
-      //   route: {
-      //     originChainId: +params.fromChain,
-      //     destinationChainId: +params.toChain,
-      //     inputToken: params.fromToken.wrapped.address as `0x${string}`,
-      //     outputToken: params.toToken.wrapped.address as `0x${string}`,
-      //     isNative: params.fromToken.isNative,
-      //   },
-      //   inputAmount: params.amount,
-      //   recipient: multicalHandlerContract[params.toChain],
-      //   crossChainMessage: {
-      //     actions: [
-      //       {
-      //         target: params.toToken.wrapped.address as `0x${string}`,
-      //         callData: erc20Interface.encodeFunctionData('transfer', [CROSS_CHAIN_FEE_RECEIVER, 0n]) as `0x${string}`,
-      //         value: '0',
-      //         update: updatedAmount => ({
-      //           callData: erc20Interface.encodeFunctionData('transfer', [
-      //             CROSS_CHAIN_FEE_RECEIVER,
-      //             (updatedAmount * BigInt(params.feeBps)) / 10_000n,
-      //           ]) as `0x${string}`,
-      //         }),
-      //       },
-      //     ],
-      //     fallbackRecipient: params.recipient as `0x${string}`,
-      //   },
-      // })
+        res = await fetch(`${API_URL}?${reqParams}`).then(res => res.json())
+      } else {
+        const p = params as EvmQuoteParams
+        res = await this.acrossClient.getSwapQuote({
+          route: {
+            originChainId: +params.fromChain,
+            destinationChainId: +params.toChain,
+            inputToken: (p.fromToken.isNative ? ZERO_ADDRESS : p.fromToken.wrapped.address) as `0x${string}`,
+            outputToken: (p.toToken.isNative ? ZERO_ADDRESS : p.toToken.wrapped.address) as `0x${string}`,
+          },
+          amount: params.amount,
+          appFee: params.feeBps / 10_000,
+          appFeeRecipient: CROSS_CHAIN_FEE_RECEIVER,
+          slippage: (params.slippage * 100) / 10_000,
+          depositor: params.sender,
+        })
+      }
 
       // across only have bridge then we can treat token in and out price usd are the same in case price service is not supported
       const isSameToken = params.fromToken.symbol === params.toToken.symbol
@@ -125,7 +120,8 @@ export class AcrossAdapter extends BaseSwapAdapter {
           ? params.tokenInUsd
           : params.tokenOutUsd
 
-      const formattedOutputAmount = formatUnits(BigInt(res.expectedOutputAmount), params.toToken.decimals)
+      const outputAmount = BigInt(isFromSol ? res.outputAmount : res.expectedOutputAmount)
+      const formattedOutputAmount = formatUnits(outputAmount, params.toToken.decimals)
       const formattedInputAmount = formatUnits(BigInt(params.amount), params.fromToken.decimals)
 
       const inputUsd = tokenInUsd * +formattedInputAmount
@@ -133,16 +129,16 @@ export class AcrossAdapter extends BaseSwapAdapter {
 
       return {
         quoteParams: params,
-        outputAmount: BigInt(res.expectedOutputAmount),
+        outputAmount,
         formattedOutputAmount,
         inputUsd: tokenInUsd * +formatUnits(BigInt(params.amount), params.fromToken.decimals),
         outputUsd: tokenOutUsd * +formattedOutputAmount,
         rate: +formattedOutputAmount / +formattedInputAmount,
-        timeEstimate: res.expectedFillTime,
+        timeEstimate: isFromSol ? res.estimatedFillTimeSec : res.expectedFillTime,
         priceImpact: !inputUsd || !outputUsd ? NaN : ((inputUsd - outputUsd) * 100) / inputUsd,
         // TODO: what is gas fee for across
         gasFeeUsd: 0,
-        contractAddress: res.checks.allowance.spender,
+        contractAddress: isFromSol ? ZERO_ADDRESS : res.checks.allowance.spender,
         rawQuote: res,
 
         protocolFee: 0,
