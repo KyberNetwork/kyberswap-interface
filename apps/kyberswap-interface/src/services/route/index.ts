@@ -28,6 +28,7 @@ const routeApi = createApi({
     >({
       query: ({ params, url, authentication, clientId }) => {
         const { chainId, tokenInDecimals, tokenOutDecimals, ...rest } = params
+        ;(rest as any).index = 'composite'
         return {
           url,
           params: rest,
