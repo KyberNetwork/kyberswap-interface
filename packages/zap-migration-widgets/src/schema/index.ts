@@ -66,6 +66,7 @@ export enum Dex {
 
   DEX_UNISWAP_V4 = 68,
   DEX_UNISWAP_V4_FAIRFLOW = 73,
+  DEX_PANCAKE_INFINITY_CL = 75,
 }
 
 export const dex = z.nativeEnum(Dex);
@@ -135,7 +136,11 @@ export type UniV2Pool = z.infer<typeof univ2PoolNormalize>;
 
 export const algebraTypes: Dex[] = [Dex.DEX_THENAFUSION, Dex.DEX_CAMELOTV3, Dex.DEX_QUICKSWAPV3ALGEBRA] as const;
 
-export const univ4Dexes: Dex[] = [Dex.DEX_UNISWAP_V4, Dex.DEX_UNISWAP_V4_FAIRFLOW] as const;
+export const univ4Dexes: Dex[] = [
+  Dex.DEX_UNISWAP_V4,
+  Dex.DEX_UNISWAP_V4_FAIRFLOW,
+  Dex.DEX_PANCAKE_INFINITY_CL,
+] as const;
 
 export const univ3Dexes: Dex[] = [
   Dex.DEX_UNISWAPV3,
@@ -153,6 +158,7 @@ export const univ3Dexes: Dex[] = [
   Dex.DEX_SQUADSWAP_V3,
   Dex.DEX_UNISWAP_V4,
   Dex.DEX_UNISWAP_V4_FAIRFLOW,
+  Dex.DEX_PANCAKE_INFINITY_CL,
 ] as const;
 export type Univ3Dex = (typeof univ3Dexes)[number];
 

@@ -138,9 +138,9 @@ const SlippageInput = ({
           onClick={() => {
             if (suggestedSlippage > 0) {
               setSlippage(suggestedSlippage);
-              if (![5, 10, 50, 100].includes((suggestedSlippage * 100) / 10_000)) {
+              if (![5, 10, 50, 100].includes(suggestedSlippage)) {
                 setV(((suggestedSlippage * 100) / 10_000).toString());
-              }
+              } else setV('');
             }
           }}
         >

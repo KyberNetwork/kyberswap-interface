@@ -39,11 +39,11 @@ const ZapOut = () => {
     poolAddress: string;
     poolType: ZapOutDex;
   }>({
-    chainId: ChainId.Base.toString(),
-    positionId: "35636",
+    chainId: ChainId.Bsc.toString(),
+    positionId: "24853",
     poolAddress:
-      "0x96d4b53a38337a5733179751781178a2613306063c511b78cd02684739288c0a",
-    poolType: ZapOutDex.DEX_UNISWAP_V4,
+      "0x752e76950f6167b8dbb0495b957d264d61724dfa26e3dd6fad1ba820862ce9cf",
+    poolType: ZapOutDex.DEX_PANCAKE_INFINITY_CL,
   });
 
   const widgetProps = {
