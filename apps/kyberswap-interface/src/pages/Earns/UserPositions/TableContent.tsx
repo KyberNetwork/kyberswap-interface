@@ -58,6 +58,8 @@ import { useWalletModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
+import { SmartExit } from '../components/SmartExit'
+
 export interface FeeInfoFromRpc extends FeeInfo {
   id: string
   timeRemaining: number
@@ -87,6 +89,7 @@ export default function TableContent({
   const [positionThatClaimingFees, setPositionThatClaimingFees] = useState<ParsedPosition | null>(null)
   const [positionThatClaimingRewards, setPositionThatClaimingRewards] = useState<ParsedPosition | null>(null)
   const [positionToMigrate, setPositionToMigrate] = useState<ParsedPosition | null>(null)
+  const [smartExitPosition, setSmartExitPosition] = useState<ParsedPosition | null>(null)
 
   const {
     claimModal: claimFeesModal,
@@ -275,6 +278,9 @@ export default function TableContent({
       {claimRewardsModal}
       {zapMigrationWidget}
       {migrationModal}
+      {smartExitPosition && (
+        <SmartExit position={smartExitPosition} isOpen onDismiss={() => setSmartExitPosition(null)} />
+      )}
 
       <PositionTableBody>
         {account && positions && positions.length > 0
@@ -307,6 +313,9 @@ export default function TableContent({
                   position={position}
                   onOpenIncreaseLiquidityWidget={handleOpenIncreaseLiquidityWidget}
                   onOpenZapOut={handleOpenZapOut}
+                  onOpenSmartExit={(_e: React.MouseEvent, position: ParsedPosition) => {
+                    setSmartExitPosition(position)
+                  }}
                   claimFees={{
                     onClaimFee: handleClaimFees,
                     feesClaimDisabled,

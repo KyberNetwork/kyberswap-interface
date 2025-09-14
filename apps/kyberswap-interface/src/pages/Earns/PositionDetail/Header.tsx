@@ -26,10 +26,16 @@ const PositionDetailHeader = ({
   position,
   isLoading,
   initialLoading,
+  rightComponent,
+  showBackIcon = true,
+  style = {},
 }: {
   position?: ParsedPosition
   isLoading: boolean
   initialLoading: boolean
+  rightComponent?: React.ReactNode
+  showBackIcon?: boolean
+  style?: React.CSSProperties
 }) => {
   const theme = useTheme()
   const navigate = useNavigate()
@@ -98,10 +104,11 @@ const PositionDetailHeader = ({
       alignItems="center"
       justifyContent="space-between"
       marginBottom={1}
+      style={style}
     >
       <PositionHeader>
         <Flex alignItems={'center'} sx={{ gap: 2 }}>
-          <IconArrowLeft onClick={() => navigate(hadForceLoading ? -2 : -1)} />
+          {showBackIcon && <IconArrowLeft onClick={() => navigate(hadForceLoading ? -2 : -1)} />}
 
           {initialLoading ? (
             <PositionSkeleton width={125} height={28} />
@@ -182,12 +189,16 @@ const PositionDetailHeader = ({
           {isLoading && !initialLoading && <Loader />}
         </Flex>
       </PositionHeader>
-      <NavigateButton
-        mobileFullWidth
-        icon={<IconUserEarnPosition />}
-        text={t`My Positions`}
-        to={APP_PATHS.EARN_POSITIONS}
-      />
+      {rightComponent ? (
+        rightComponent
+      ) : (
+        <NavigateButton
+          mobileFullWidth
+          icon={<IconUserEarnPosition />}
+          text={t`My Positions`}
+          to={APP_PATHS.EARN_POSITIONS}
+        />
+      )}
     </Flex>
   )
 }
