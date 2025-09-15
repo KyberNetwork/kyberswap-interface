@@ -23,7 +23,7 @@ export enum Exchange {
   DEX_SUSHISWAPV3 = 'sushiswap-v3',
   DEX_QUICKSWAPV3ALGEBRA = 'quickswap-v3',
   DEX_CAMELOTV3 = 'camelot-v3',
-  DEX_THENAFUSION = 'thena',
+  DEX_THENAFUSION = 'thena-fusion',
   DEX_KODIAK_V3 = 'kodiakcl',
   DEX_UNISWAPV2 = 'uniswapv2',
 }

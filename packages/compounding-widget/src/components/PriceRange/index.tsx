@@ -64,7 +64,7 @@ const PriceRange = () => {
             <p className="max-w-full truncate" title={minPrice?.toString()}>
               {minPrice === '0' || minPrice === '∞'
                 ? minPrice
-                : formatDisplayNumber(minPrice?.replace(/,/g, ''), { significantDigits: 6 })}
+                : formatDisplayNumber(minPrice?.replace(/,/g, ''), { significantDigits: 8 })}
             </p>
           )}
           {initializing ? (
@@ -83,7 +83,7 @@ const PriceRange = () => {
             <p className="max-w-full truncate" title={maxPrice?.toString()}>
               {maxPrice === '0' || maxPrice === '∞'
                 ? maxPrice
-                : formatDisplayNumber(maxPrice?.replace(/,/g, ''), { significantDigits: 6 })}
+                : formatDisplayNumber(maxPrice?.replace(/,/g, ''), { significantDigits: 8 })}
             </p>
           )}
           {initializing ? (

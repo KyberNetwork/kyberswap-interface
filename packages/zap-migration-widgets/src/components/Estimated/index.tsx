@@ -14,21 +14,21 @@ import { formatDisplayNumber, formatTokenAmount, toRawString } from '@kyber/util
 import { cn } from '@kyber/utils/tailwind-helpers';
 import { getPositionAmounts } from '@kyber/utils/uniswapv3';
 
-import { SlippageInfo } from '@/components/SlippageInfo';
-import { SwapPI, useSwapPI } from '@/components/SwapImpact';
+import SlippageRow from '@/components/Estimated/SlippageRow';
+import { useSwapPI } from '@/components/SwapImpact';
 import { PATHS } from '@/constants';
 import { ChainId, Token, UniV2Pool, univ2Dexes } from '@/schema';
 import { usePoolsStore } from '@/stores/usePoolsStore';
 import { ProtocolFeeAction, RefundAction, useZapStateStore } from '@/stores/useZapStateStore';
 import { PI_LEVEL, formatCurrency } from '@/utils';
 
-export function EstimateLiqValue({ chainId }: { chainId: ChainId }) {
+export function Estimated({ chainId }: { chainId: ChainId }) {
   const { pools, theme } = usePoolsStore();
   const [expanded, setExpanded] = useState(false);
 
   const onExpand = () => setExpanded(prev => !prev);
 
-  const { tickUpper, tickLower, route, fetchingRoute, slippage } = useZapStateStore();
+  const { tickUpper, tickLower, route, fetchingRoute } = useZapStateStore();
 
   const isTargetUniv2 = pools !== 'loading' && univ2Dexes.includes(pools[1].dex);
 
@@ -55,7 +55,7 @@ export function EstimateLiqValue({ chainId }: { chainId: ChainId }) {
     ));
   }
 
-  const { swapPiRes, zapPiRes } = useSwapPI(chainId);
+  const { zapPiRes } = useSwapPI(chainId);
 
   const refundInfo = route?.zapDetails.actions.find(item => item.type === 'ACTION_TYPE_REFUND') as RefundAction | null;
 
@@ -92,7 +92,7 @@ export function EstimateLiqValue({ chainId }: { chainId: ChainId }) {
           onClick={onExpand}
         >
           <div className="flex items-center justify-between w-full">
-            <div>Est. Liquidity Value</div>
+            <div>Est. Migrating Liquidity</div>
             {fetchingRoute ? (
               <Skeleton className="w-[60px] h-3" />
             ) : (
@@ -208,9 +208,7 @@ export function EstimateLiqValue({ chainId }: { chainId: ChainId }) {
               </div>
             )}
 
-            <SwapPI chainId={chainId} />
-
-            <SlippageInfo slippage={slippage} suggestedSlippage={route?.zapDetails.suggestedSlippage || 100} />
+            <SlippageRow chainId={chainId} suggestedSlippage={route?.zapDetails.suggestedSlippage || 0} />
 
             <div className="flex justify-between items-start mt-2">
               <MouseoverTooltip
@@ -282,19 +280,6 @@ export function EstimateLiqValue({ chainId }: { chainId: ChainId }) {
             >
               {((refundUsd * 100) / initUsd).toFixed(2)}% remains unused and will be returned to your wallet. Refresh or
               change your amount to get updated routes.
-            </div>
-          )}
-
-          {route && swapPiRes.piRes.level !== PI_LEVEL.NORMAL && (
-            <div
-              className={`rounded-md text-xs py-3 px-4 mt-4 font-normal leading-[18px] ${
-                swapPiRes.piRes.level === PI_LEVEL.HIGH ? 'text-warning' : 'text-error'
-              }`}
-              style={{
-                backgroundColor: swapPiRes.piRes.level === PI_LEVEL.HIGH ? `${theme.warning}33` : `${theme.error}33`,
-              }}
-            >
-              {swapPiRes.piRes.msg}
             </div>
           )}
 

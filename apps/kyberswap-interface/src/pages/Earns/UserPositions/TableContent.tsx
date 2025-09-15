@@ -36,6 +36,7 @@ import {
   PositionValueWrapper,
 } from 'pages/Earns/UserPositions/styles'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
+import RewardSyncing from 'pages/Earns/components/RewardSyncing'
 import {
   CoreProtocol,
   DEXES_SUPPORT_COLLECT_FEE,
@@ -419,12 +420,7 @@ export default function TableContent({
                     {isUnfinalized ? (
                       <PositionSkeleton width={80} height={19} text="Finalizing..." />
                     ) : isWaitingForRewards ? (
-                      <PositionSkeleton
-                        width={70}
-                        height={19}
-                        tooltip={t`Data is still syncing — takes up to 5 minutes.`}
-                        tooltipWidth={195}
-                      />
+                      <RewardSyncing width={70} height={19} />
                     ) : (
                       <Flex alignItems={'center'} sx={{ gap: 1 }}>
                         <MouseoverTooltipDesktopOnly
@@ -458,10 +454,9 @@ export default function TableContent({
                                   <Text>
                                     {!!position.suggestionPool
                                       ? pool.fee === position.suggestionPool.feeTier
-                                        ? t`Migrate to exact same pair and fee tier on Uniswap v4 hook to earn extra rewards from the
-                             Kyberswap Liquidity Mining Program.`
-                                        : t`We found a pool with the same pair having Liquidity Mining Program. Migrate to this pool on Uniswap v4 hook to start earning farming rewards.`
-                                      : t`We found other stable pools participating in the Kyberswap Liquidity Mining Program. Explore and migrate to start earning farming rewards.`}
+                                        ? t`Earn extra rewards with exact same pair and fee tier on Uniswap v4 hook.`
+                                        : t`We found a pool with the same pair offering extra rewards. Migrate to this pool on Uniswap v4 hook to start earning farming rewards.`
+                                      : t`We found other stable pools offering extra rewards. Explore and migrate to start earning.`}
                                   </Text>
                                   <Text
                                     color={theme.primary}
@@ -522,12 +517,7 @@ export default function TableContent({
                     {isUnfinalized ? (
                       <PositionSkeleton width={80} height={19} text="Finalizing..." />
                     ) : isWaitingForRewards ? (
-                      <PositionSkeleton
-                        width={80}
-                        height={19}
-                        tooltip={t`Data is still syncing — takes up to 5 minutes.`}
-                        tooltipWidth={195}
-                      />
+                      <RewardSyncing width={80} height={19} />
                     ) : (
                       <Flex alignItems={'center'} sx={{ gap: 1 }}>
                         {upToSmall && <IconKem width={20} height={20} />}

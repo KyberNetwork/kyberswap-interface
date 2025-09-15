@@ -2,6 +2,7 @@ import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import React from 'react'
 import Skeleton from 'react-loading-skeleton'
+import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -11,6 +12,7 @@ import { CHAINS_SUPPORT_FEE_CONFIGS, RESERVE_USD_DECIMALS } from 'constants/inde
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { WrapType } from 'hooks/useWrapCallback'
+import { MEDIA_WIDTHS } from 'theme'
 import { formattedNum } from 'utils'
 
 export const Label = styled.div`
@@ -48,6 +50,8 @@ const OutputCurrencyPanel: React.FC<Props> = ({
   const chainId = customChainId || walletChainId
   const theme = useTheme()
 
+  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+
   // showWrap = true if this swap is either WRAP or UNWRAP
   const showWrap: boolean = wrapType !== WrapType.NOT_APPLICABLE
 
@@ -73,18 +77,18 @@ const OutputCurrencyPanel: React.FC<Props> = ({
         <Flex sx={{ position: 'absolute', bottom: '24px', left: '12px', zIndex: 10 }} alignItems="center">
           <Skeleton
             height="24px"
-            width="150px"
+            width={upToSmall ? '110px' : '150px'}
             baseColor={theme.background}
             highlightColor={theme.buttonGray}
             borderRadius="1rem"
           />
           <Skeleton
             height="16px"
-            width="60px"
+            width={upToSmall ? '50px' : '60px'}
             baseColor={theme.background}
             highlightColor={theme.buttonGray}
             borderRadius="1rem"
-            style={{ marginLeft: '16px', marginTop: '2px' }}
+            style={{ marginLeft: upToSmall ? '8px' : '16px', marginTop: '2px' }}
           />
         </Flex>
       )}

@@ -61,7 +61,7 @@ export function Header({ onClose, onBack, chainId }: { onClose: () => void; onBa
         </div>
       </div>
 
-      <Setting />
+      <Setting chainId={chainId} />
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { ChainId, Pool, PoolType, Theme, Token, ZapRouteDetail } from '@kyber/schema';
+import { ChainId, PoolType, Theme, ZapRouteDetail } from '@kyber/schema';
 
 export interface WidgetProps {
   theme?: Theme;
@@ -22,6 +22,7 @@ export interface WidgetProps {
     feeAddress: string;
   };
   referral?: string;
+  initialTick?: { tickLower: number; tickUpper: number };
   onClose?: () => void;
   onConnectWallet: () => void;
   onSwitchChain: () => void;
@@ -32,6 +33,7 @@ export interface WidgetProps {
       positionId: string | number;
     },
     initialTick?: { tickLower: number; tickUpper: number },
+    initialSlippage?: number,
   ) => void;
   onSuccess?: ({ txHash, position }: OnSuccessProps) => void;
   onSubmitTx: (txData: { from: string; to: string; value: string; data: string; gasLimit: string }) => Promise<string>;
@@ -67,18 +69,12 @@ export interface OnSuccessProps {
 }
 
 export enum PriceType {
-  PriceLower = 'PriceLower',
-  PriceUpper = 'PriceUpper',
+  MinPrice = 'MinPrice',
+  MaxPrice = 'MaxPrice',
 }
 
-export interface ZapState {
-  pool: Pool;
+export interface ZapSnapshotState {
   zapInfo: ZapRouteDetail;
-  tokensIn: Token[];
-  amountsIn: string;
   deadline: number;
-  isFullRange: boolean;
-  slippage: number;
-  tickLower: number;
-  tickUpper: number;
+  gasUsd: number;
 }

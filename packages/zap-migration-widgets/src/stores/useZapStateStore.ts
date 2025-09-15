@@ -7,7 +7,7 @@ import { usePoolsStore } from '@/stores/usePoolsStore';
 import { usePositionStore } from '@/stores/usePositionStore';
 
 interface ZapState {
-  slippage: number;
+  slippage?: number;
   setSlippage: (value: number) => void;
   liquidityOut: bigint;
   tickLower: number | null;
@@ -28,15 +28,15 @@ interface ZapState {
   setTtl: (value: number) => void;
   reset: () => void;
   highlightDegenMode: boolean;
-  manualSlippage: boolean;
-  setManualSlippage: (value: boolean) => void;
+  slippageOpen: boolean;
+  setSlippageOpen: (value: boolean) => void;
 }
 
 const initState = {
   showSetting: false,
   ttl: 20,
   degenMode: false,
-  slippage: 50,
+  slippage: undefined,
   showPreview: false,
   liquidityOut: 0n,
   tickLower: null,
@@ -44,7 +44,7 @@ const initState = {
   fetchingRoute: false,
   route: null,
   highlightDegenMode: false,
-  manualSlippage: false,
+  slippageOpen: false,
 };
 
 export const useZapStateStore = create<ZapState>((set, get) => ({
@@ -141,7 +141,7 @@ export const useZapStateStore = create<ZapState>((set, get) => ({
       set({ fetchingRoute: false, route: null });
     }
   },
-  setManualSlippage: value => set({ manualSlippage: value }),
+  setSlippageOpen: value => set({ slippageOpen: value }),
 }));
 
 const token = z.object({

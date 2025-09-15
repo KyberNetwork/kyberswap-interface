@@ -1,4 +1,3 @@
-import { ShareType } from '@kyber/ui'
 import { t } from '@lingui/macro'
 import { useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -38,7 +37,7 @@ const LeftSection = ({
   totalLiquiditySection: React.ReactNode
   aprSection: React.ReactNode
   initialLoading: boolean
-  shareBtn: (type: ShareType) => React.ReactNode
+  shareBtn: (size?: number) => React.ReactNode
   refetchPositions: () => void
 }) => {
   const theme = useTheme()

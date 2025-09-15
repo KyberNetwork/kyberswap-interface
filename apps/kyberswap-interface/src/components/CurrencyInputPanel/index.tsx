@@ -1,10 +1,7 @@
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { darken, lighten, rgba } from 'polished'
-import { ReactNode, useCallback, useRef, useState } from 'react'
-import { isMobile } from 'react-device-detect'
-import { Info } from 'react-feather'
-import { useMedia } from 'react-use'
+import { ReactNode, useCallback, useState } from 'react'
 import { Box, Flex, Text } from 'rebass'
 import styled, { CSSProperties, css } from 'styled-components'
 
@@ -12,17 +9,15 @@ import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import { ReactComponent as Lock } from 'assets/svg/ic_lock.svg'
 import { ReactComponent as SwitchIcon } from 'assets/svg/switch.svg'
 import Card from 'components/Card'
+import TokenInfo from 'components/CurrencyInputPanel/TokenInfo'
 import CurrencyLogo from 'components/CurrencyLogo'
 import Wallet from 'components/Icons/Wallet'
 import { Input as NumericalInput } from 'components/NumericalInput'
 import { RowFixed } from 'components/Row'
 import CurrencySearchModal from 'components/SearchModal/CurrencySearchModal'
-import Tooltip from 'components/Tooltip'
 import { useActiveWeb3React } from 'hooks'
-import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import { useCurrencyBalance } from 'state/wallet/hooks'
-import { MEDIA_WIDTHS } from 'theme'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { shortString } from 'utils/string'
 
@@ -256,14 +251,10 @@ export default function CurrencyInputPanel({
   const tight = Boolean(tightProp && !currency)
   const [modalOpen, setModalOpen] = useState(false)
   const { account } = useActiveWeb3React()
-  const [showTooltip, setShowTooltip] = useState(false)
-  const infoRef = useRef<HTMLDivElement>(null)
-  useOnClickOutside(infoRef, () => setShowTooltip(false))
 
   const selectedCurrencyBalance = useCurrencyBalance(currency ?? undefined, customChainId)
 
   const theme = useTheme()
-  const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
   const handleDismissSearch = useCallback(() => {
     setModalOpen(false)
@@ -378,29 +369,8 @@ export default function CurrencyInputPanel({
                         loadingText || <Trans>Select a token</Trans>}
                     </StyledTokenName>
                   </RowFixed>
-                  {!!nativeCurrency && !isMobile && !upToMedium && (
-                    <Flex
-                      width="fit-content"
-                      height="fit-content"
-                      marginTop="6px"
-                      marginLeft="4px"
-                      role="button"
-                      ref={infoRef}
-                      onClick={e => {
-                        e.stopPropagation()
-                        setShowTooltip(prev => !prev)
-                      }}
-                    >
-                      <Tooltip
-                        show={showTooltip}
-                        text={nativeCurrency?.isNative ? 'Native token' : nativeCurrency?.wrapped.address}
-                        delay={200}
-                        placement="top"
-                        width="fit-content"
-                      >
-                        <Info color={theme.subText} size={18} />
-                      </Tooltip>
-                    </Flex>
+                  {!!nativeCurrency && (
+                    <TokenInfo token={nativeCurrency.wrapped} isNativeToken={nativeCurrency.isNative} />
                   )}
                   {!disableCurrencySelect && !isSwitchMode && (
                     <DropdownSVG style={{ marginLeft: tight ? '-8px' : undefined }} />

@@ -29,6 +29,7 @@ interface AddLiquidityPureParams {
   chainId: ZapInChainId
   poolType: ZapInPoolType
   positionId?: string
+  initialTick?: { tickUpper: number; tickLower: number }
 }
 
 interface AddLiquidityParams extends AddLiquidityPureParams {
@@ -51,6 +52,7 @@ export interface ZapInInfo {
     dex: EarnDex | Exchange
   }
   positionId?: string
+  initialTick?: { tickUpper: number; tickLower: number }
 }
 
 const zapInDexMapping: Record<EarnDex | Exchange, ZapInPoolType> = {
@@ -131,7 +133,7 @@ const useZapInWidget = ({
     [library, navigate],
   )
 
-  const handleOpenZapIn = ({ pool, positionId }: ZapInInfo) => {
+  const handleOpenZapIn = ({ pool, positionId, initialTick }: ZapInInfo) => {
     const dex = zapInDexMapping[pool.dex]
     if (!dex) {
       notify(
@@ -148,6 +150,7 @@ const useZapInWidget = ({
       chainId: pool.chainId as ZapInChainId,
       poolType: dex,
       positionId,
+      initialTick,
     })
   }
 
@@ -155,6 +158,7 @@ const useZapInWidget = ({
     (
       position: { exchange: string; poolId: string; positionId: string | number },
       initialTick?: { tickUpper: number; tickLower: number },
+      initialSlippage?: number,
     ) => {
       if (!addLiquidityPureParams) return
 
@@ -181,6 +185,7 @@ const useZapInWidget = ({
         },
         chainId: addLiquidityPureParams.chainId,
         initialTick,
+        initialSlippage,
       })
     },
     [addLiquidityPureParams, onOpenZapMigration],
@@ -228,8 +233,8 @@ const useZapInWidget = ({
 
               updateUnfinalizedPosition({
                 ...DEFAULT_PARSED_POSITION,
-                id: `${contract}-${nftId}`,
-                tokenId: nftId,
+                id: !isUniv2 ? `${contract}-${nftId}` : data.position.pool.address,
+                tokenId: !isUniv2 ? nftId : '-1',
                 chain: {
                   id: chainId,
                   name: NETWORKS_INFO[chainId].name,

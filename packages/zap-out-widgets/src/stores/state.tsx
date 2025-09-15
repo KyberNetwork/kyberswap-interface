@@ -17,7 +17,7 @@ interface ZapOutUserState {
   revertPrice: boolean;
   toggleRevertPrice: () => void;
 
-  slippage: number;
+  slippage: number | undefined;
   setSlippage: (value: number) => void;
 
   liquidityOut: bigint;
@@ -39,8 +39,8 @@ interface ZapOutUserState {
     signal?: AbortSignal;
   }) => Promise<void>;
   highlightDegenMode: boolean;
-  manualSlippage: boolean;
-  setManualSlippage: (value: boolean) => void;
+  slippageOpen: boolean;
+  setSlippageOpen: (value: boolean) => void;
   resetState: () => void;
   mode: 'zapOut' | 'withdrawOnly';
   setMode: (mode: 'zapOut' | 'withdrawOnly') => void;
@@ -53,12 +53,12 @@ const initState = {
   highlightDegenMode: false,
   degenMode: false,
   revertPrice: false,
-  slippage: 50,
+  slippage: undefined,
   liquidityOut: 0n,
   showPreview: false,
   fetchingRoute: false,
   route: null,
-  manualSlippage: false,
+  slippageOpen: false,
   mode: 'zapOut' as const,
 };
 
@@ -94,7 +94,7 @@ export const useZapOutUserState = create<ZapOutUserState>((set, get) => ({
   fetchZapOutRoute: async ({ chainId, poolType, positionId, poolAddress, signal }) => {
     const { tokenOut, liquidityOut, slippage, mode } = get();
 
-    if ((mode === 'zapOut' && !tokenOut?.address) || liquidityOut === 0n) {
+    if ((mode === 'zapOut' && !tokenOut?.address) || liquidityOut === 0n || !slippage) {
       set({ fetchingRoute: false, route: null });
       return;
     }
@@ -137,7 +137,7 @@ export const useZapOutUserState = create<ZapOutUserState>((set, get) => ({
     }
   },
 
-  setManualSlippage: value => set({ manualSlippage: value }),
+  setSlippageOpen: value => set({ slippageOpen: value }),
 }));
 
 const token = z.object({

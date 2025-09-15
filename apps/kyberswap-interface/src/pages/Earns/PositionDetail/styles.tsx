@@ -280,8 +280,9 @@ export const ShareButtonWrapper = styled.div`
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background-color: ${({ theme }) => rgba(theme.white, 0.08)};
+  background-color: ${({ theme }) => rgba(theme.primary, 0.2)};
   padding: 6px 8px 6px 6px;
+  transition: all 0.1s ease-in-out;
   cursor: pointer;
 
   :hover {

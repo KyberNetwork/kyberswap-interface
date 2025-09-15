@@ -2,17 +2,17 @@ import { useEffect, useRef } from 'react';
 
 import { useDebounce } from '@kyber/hooks/use-debounce';
 import { Skeleton, TokenLogo } from '@kyber/ui';
+import { getZapImpact } from '@kyber/utils';
 import { formatDisplayNumber, formatTokenAmount } from '@kyber/utils/number';
 
-import { SlippageWarning } from '@/components/SlippageWarning';
-import { SwapPI } from '@/components/SwapImpact';
+import SlippageRow from '@/components/Estimated/SlippageRow';
 import { MouseoverTooltip } from '@/components/Tooltip';
 import { ProtocolFeeAction, ZapAction } from '@/hooks/types/zapInTypes';
 import { useZapOutContext } from '@/stores';
 import { RefundAction, RemoveLiquidityAction, useZapOutUserState } from '@/stores/state';
-import { PI_LEVEL, formatCurrency, getPriceImpact } from '@/utils';
+import { PI_LEVEL, formatCurrency } from '@/utils';
 
-export function EstLiqValue() {
+export default function Estimated() {
   const { chainId, positionId, poolAddress, poolType, pool, theme, position } = useZapOutContext(s => s);
   const { slippage, fetchingRoute, fetchZapOutRoute, route, showPreview, liquidityOut, tokenOut, mode } =
     useZapOutUserState();
@@ -34,7 +34,9 @@ export function EstLiqValue() {
     | ProtocolFeeAction
     | undefined;
 
-  const piRes = getPriceImpact(route?.zapDetails.priceImpact, 'Zap Impact', route?.zapDetails.suggestedSlippage || 100);
+  const suggestedSlippage = route?.zapDetails.suggestedSlippage || 0;
+
+  const piRes = getZapImpact(route?.zapDetails.priceImpact, route?.zapDetails.suggestedSlippage || 100);
 
   useEffect(() => {
     if (showPreview) return;
@@ -71,8 +73,6 @@ export function EstLiqValue() {
     poolAddress,
     poolType,
   ]);
-
-  const suggestedSlippage = route?.zapDetails.suggestedSlippage || 100;
 
   const zapFee = ((feeInfo?.protocolFee.pcm || 0) / 100_000) * 100;
 
@@ -121,11 +121,7 @@ export function EstLiqValue() {
             )}
           </div>
 
-          <SlippageWarning slippage={slippage} suggestedSlippage={suggestedSlippage} showWarning={!!route} />
-
-          <div className="flex items-center justify-between mt-2">
-            <SwapPI />
-          </div>
+          <SlippageRow suggestedSlippage={suggestedSlippage} />
 
           <div className="flex items-center justify-between mt-2">
             <MouseoverTooltip
@@ -231,7 +227,7 @@ export function EstLiqValue() {
           </div>
           <div className="flex items-start justify-between mt-2">
             <div className="text-subText text-xs ">Slippage</div>
-            <span>{((slippage * 100) / 10_000).toFixed(2)}%</span>
+            <span>{slippage ? (((slippage || 0) * 100) / 10_000).toFixed(2) + '%' : '--'}</span>
           </div>
 
           <div className="flex items-start justify-between mt-2">

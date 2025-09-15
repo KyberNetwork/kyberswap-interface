@@ -1,38 +1,43 @@
 import { shortenAddress } from '@kyber/utils/dist/crypto'
 import { t } from '@lingui/macro'
-import { useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
+import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_earn_position.svg'
 import CopyHelper from 'components/Copy'
 import { InfoHelperWithDelay } from 'components/InfoHelper'
 import Loader from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
+import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
+import { NavigateButton } from 'pages/Earns/PoolExplorer/styles'
 import { DexInfo, IconArrowLeft, PositionHeader } from 'pages/Earns/PositionDetail/styles'
 import { Badge, BadgeType, ChainImage, ImageContainer } from 'pages/Earns/UserPositions/styles'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import { CoreProtocol, EarnDex, Exchange, PROTOCOL_POSITION_URL, earnSupportedProtocols } from 'pages/Earns/constants'
+import useForceLoading from 'pages/Earns/hooks/useForceLoading'
 import { ParsedPosition, PositionStatus } from 'pages/Earns/types'
 import { isForkFrom } from 'pages/Earns/utils'
 import { MEDIA_WIDTHS } from 'theme'
 
 const PositionDetailHeader = ({
   position,
-  hadForceLoading,
   isLoading,
   initialLoading,
 }: {
   position?: ParsedPosition
-  hadForceLoading: boolean
   isLoading: boolean
   initialLoading: boolean
 }) => {
   const theme = useTheme()
   const navigate = useNavigate()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+  const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
+
   const { protocol } = useParams()
+  const { hadForceLoading } = useForceLoading()
 
   const isUniv2 = isForkFrom(protocol as Exchange, CoreProtocol.UniswapV2)
   const posStatus = isUniv2 ? PositionStatus.IN_RANGE : position?.status
@@ -87,7 +92,13 @@ const PositionDetailHeader = ({
   const isUnfinalized = position?.isUnfinalized
 
   return (
-    <Flex sx={{ gap: 3 }} marginBottom={1}>
+    <Flex
+      sx={{ gap: 3 }}
+      flexDirection={upToLarge ? 'column' : 'row'}
+      alignItems="center"
+      justifyContent="space-between"
+      marginBottom={1}
+    >
       <PositionHeader>
         <Flex alignItems={'center'} sx={{ gap: 2 }}>
           <IconArrowLeft onClick={() => navigate(hadForceLoading ? -2 : -1)} />
@@ -101,9 +112,13 @@ const PositionDetailHeader = ({
                 <TokenLogo src={position?.token1.logo} translateLeft />
                 <ChainImage src={position?.chain.logo} alt="" />
               </ImageContainer>
-              <Text marginLeft={-3} fontSize={upToSmall ? 20 : 16}>
-                {position?.token0.symbol}/{position?.token1.symbol}
-              </Text>
+              <Link
+                to={`${APP_PATHS.EARN_POOLS}?exchange=${position?.dex.id}&poolChainId=${position?.chain.id}&poolAddress=${position?.pool.address}`}
+              >
+                <Text color={theme.text} marginLeft={-3} fontSize={upToSmall ? 20 : 16}>
+                  {position?.token0.symbol}/{position?.token1.symbol}
+                </Text>
+              </Link>
             </Flex>
           )}
 
@@ -167,6 +182,12 @@ const PositionDetailHeader = ({
           {isLoading && !initialLoading && <Loader />}
         </Flex>
       </PositionHeader>
+      <NavigateButton
+        mobileFullWidth
+        icon={<IconUserEarnPosition />}
+        text={t`My Positions`}
+        to={APP_PATHS.EARN_POSITIONS}
+      />
     </Flex>
   )
 }

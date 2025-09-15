@@ -80,6 +80,35 @@ interface AddRemoveFavoriteParams {
   userAddress: string
 }
 
+export interface PoolDetail {
+  address: string
+  reserveUsd: string
+  amplifiedTvl: string
+  swapFee: number
+  exchange: string
+  type: string
+  reserves: Array<string>
+  tokens: Array<{
+    address: string
+    name: string
+    symbol: string
+    decimals: number
+    weight: number
+    swappable: boolean
+  }>
+  positionInfo: {
+    liquidity: string
+    sqrtPriceX96: string
+    tickSpacing: number
+    tick: number
+    ticks: Array<{
+      index: number
+      liquidityGross: number
+      liquidityNet: number
+    }>
+  }
+}
+
 const zapEarnServiceApi = createApi({
   reducerPath: 'zapEarnServiceApi',
   baseQuery: fetchBaseQuery({
@@ -153,6 +182,13 @@ const zapEarnServiceApi = createApi({
         }
       },
     }),
+    poolDetail: builder.query<PoolDetail, { chainId: number; address: string }>({
+      query: params => ({
+        url: `/v1/pools`,
+        params,
+      }),
+      transformResponse: (response: { data: PoolDetail }) => response.data,
+    }),
     addFavorite: builder.mutation<void, AddRemoveFavoriteParams>({
       query: body => ({
         method: 'POST',
@@ -178,6 +214,7 @@ export const {
   usePositionHistoryQuery,
   useAddFavoriteMutation,
   useRemoveFavoriteMutation,
+  usePoolDetailQuery,
 } = zapEarnServiceApi
 
 export default zapEarnServiceApi

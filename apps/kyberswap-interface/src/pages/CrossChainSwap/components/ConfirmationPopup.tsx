@@ -17,6 +17,7 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import { NETWORKS_INFO } from 'constants/networks'
+import { CROSS_CHAIN_MIXPANEL_TYPE, useCrossChainMixpanel } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { useCrossChainTransactions } from 'state/crossChainSwap'
 import { ExternalLink } from 'theme'
@@ -85,9 +86,20 @@ const TokenBoxInfo = ({
 }
 
 export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDismiss: () => void }) => {
+  const { crossChainMixpanelHandler } = useCrossChainMixpanel()
   const theme = useTheme()
-  const { selectedQuote, currencyIn, currencyOut, amountInWei, fromChainId, toChainId, warning, recipient } =
-    useCrossChainSwap()
+  const {
+    selectedQuote,
+    currencyIn,
+    currencyOut,
+    amountInWei,
+    fromChainId,
+    toChainId,
+    warning,
+    recipient,
+    sender,
+    receiver,
+  } = useCrossChainSwap()
   const { data: walletClient } = useWalletClient()
   const [submittingTx, setSubmittingTx] = useState(false)
   const [txHash, setTxHash] = useState('')
@@ -201,7 +213,45 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
       return
     }
 
-    if (res) setTransactions([res, ...transactions].slice(0, 30))
+    if (res) {
+      setTransactions([res, ...transactions].slice(0, 30))
+
+      const swapDetails = {
+        from_chain: fromChainId,
+        to_chain: toChainId,
+        from_token:
+          fromChainId === NonEvmChain.Bitcoin
+            ? currencyIn.symbol
+            : fromChainId === NonEvmChain.Solana
+            ? (currencyIn as any).id
+            : fromChainId === NonEvmChain.Near
+            ? (currencyIn as any).assetId
+            : (currencyIn as any)?.address || currencyIn?.symbol,
+        to_token:
+          toChainId === NonEvmChain.Bitcoin
+            ? currencyOut.symbol
+            : toChainId === NonEvmChain.Solana
+            ? (currencyOut as any).id
+            : toChainId === NonEvmChain.Near
+            ? (currencyOut as any).assetId
+            : (currencyOut as any)?.address || currencyOut?.symbol,
+        amount_in: amount,
+        amount_out: selectedQuote.quote.outputAmount.toString(),
+        partner: selectedQuote.adapter.getName(),
+        source_tx_hash: res.sourceTxHash,
+        sender,
+        recipient: receiver,
+        status: 'init',
+        fee_percent: selectedQuote.quote.platformFeePercent,
+        time: Date.now(),
+        timestamp: Date.now(),
+        amount_in_usd: selectedQuote.quote.inputUsd,
+        amount_out_usd: selectedQuote.quote.outputUsd,
+        currency: 'USD',
+        platform: 'KyberSwap Cross-Chain',
+      }
+      crossChainMixpanelHandler(CROSS_CHAIN_MIXPANEL_TYPE.CROSS_CHAIN_SWAP_INIT, swapDetails)
+    }
     setTxHash(res?.sourceTxHash || '')
     setSubmittingTx(false)
   }

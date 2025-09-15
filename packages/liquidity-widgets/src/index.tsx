@@ -1,7 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { useShallow } from 'zustand/shallow';
-
 import { ChainId, PoolType, Theme } from '@kyber/schema';
 import '@kyber/ui/styles.css';
 
@@ -35,24 +33,10 @@ const LiquidityWidget = (widgetProps: WidgetProps) => {
     setInitiaWidgetState,
     reset: resetWidgetStore,
     setPositionId,
-  } = useWidgetStore(
-    useShallow(s => ({
-      theme: s.theme,
-      setInitiaWidgetState: s.setInitiaWidgetState,
-      reset: s.reset,
-      setPositionId: s.setPositionId,
-    })),
-  );
-  const {
-    pool,
-    getPool,
-    getPoolStat,
-    reset: resetPoolStore,
-  } = usePoolStore(useShallow(s => ({ pool: s.pool, getPool: s.getPool, getPoolStat: s.getPoolStat, reset: s.reset })));
+  } = useWidgetStore(['theme', 'setInitiaWidgetState', 'reset', 'setPositionId']);
+  const { pool, getPool, reset: resetPoolStore } = usePoolStore(['pool', 'getPool', 'reset']);
 
-  const { getPosition, reset: resetPositionStore } = usePositionStore(
-    useShallow(s => ({ getPosition: s.getPosition, reset: s.reset })),
-  );
+  const { getPosition, reset: resetPositionStore } = usePositionStore(['getPosition', 'reset']);
 
   const [firstFetch, setFirstFetch] = useState(false);
 
@@ -73,10 +57,6 @@ const LiquidityWidget = (widgetProps: WidgetProps) => {
   useEffect(() => {
     getPool({ poolAddress, chainId, poolType });
   }, [chainId, getPool, poolAddress, poolType]);
-
-  useEffect(() => {
-    getPoolStat({ poolAddress, chainId });
-  }, [chainId, getPoolStat, poolAddress]);
 
   useEffect(() => {
     if (firstFetch || pool === 'loading' || !pool) return;

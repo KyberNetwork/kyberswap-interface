@@ -16,7 +16,6 @@ import kyberDAO from 'services/kyberDAO'
 import kyberdataServiceApi from 'services/kyberdata'
 import limitOrderApi from 'services/limitOrder'
 import marketOverviewApi from 'services/marketOverview'
-import poolServiceApi from 'services/poolService'
 import priceAlertApi from 'services/priceAlert'
 import referralApi from 'services/referral'
 import rewardServiceApi from 'services/reward'
@@ -111,7 +110,6 @@ const store = configureStore({
     [zapEarnServiceApi.reducerPath]: zapEarnServiceApi.reducer,
     [rewardServiceApi.reducerPath]: rewardServiceApi.reducer,
     [kyberdataServiceApi.reducerPath]: kyberdataServiceApi.reducer,
-    [poolServiceApi.reducerPath]: poolServiceApi.reducer,
     [referralApi.reducerPath]: referralApi.reducer,
     [campaignApi.reducerPath]: campaignApi.reducer,
     [commonServiceApi.reducerPath]: commonServiceApi.reducer,
@@ -145,7 +143,6 @@ const store = configureStore({
       .concat(zapEarnServiceApi.middleware)
       .concat(rewardServiceApi.middleware)
       .concat(kyberdataServiceApi.middleware)
-      .concat(poolServiceApi.middleware)
       .concat(referralApi.middleware)
       .concat(campaignApi.middleware)
       .concat(commonServiceApi.middleware)

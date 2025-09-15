@@ -7,7 +7,7 @@ import { formatUnits } from '@kyber/utils/number';
 
 import { MAX_TOKENS, TOKEN_SELECT_MODE } from '@/components/TokenSelectorModal';
 import { TokenModalProps } from '@/components/TokenSelectorModal/TokenModal';
-import UserPositions, { Loading } from '@/components/TokenSelectorModal/UserPositions';
+import UserPositions, { TokenLoader } from '@/components/TokenSelectorModal/UserPositions';
 import Check from '@/components/TokenSelectorModal/assets/check.svg?react';
 import Info from '@/components/TokenSelectorModal/assets/info.svg?react';
 import IconSearch from '@/components/TokenSelectorModal/assets/search.svg?react';
@@ -15,6 +15,7 @@ import TrashIcon from '@/components/TokenSelectorModal/assets/trash.svg?react';
 import X from '@/components/TokenSelectorModal/assets/x.svg?react';
 import { useTokenState } from '@/components/TokenSelectorModal/useTokenState';
 import TokenLogo from '@/components/token-logo';
+import TokenSymbol from '@/components/token-symbol';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -30,7 +31,6 @@ enum MODAL_TAB {
 
 interface CustomizeToken extends Token {
   balance: string;
-  balanceToSort: string;
   selected: number;
   inPair: number;
   disabled: boolean;
@@ -66,6 +66,7 @@ export default function TokenSelector({
   setTokenToShow,
   setTokenToImport,
   onClose,
+  initialSlippage,
 }: TokenSelectorProps) {
   const { importedTokens, tokens, removeImportedToken, tokenBalances, isLoading } = useTokenState();
 
@@ -100,8 +101,7 @@ export default function TokenSelector({
 
           return {
             ...token,
-            balance: formatUnits(balanceInWei, token?.decimals, 4),
-            balanceToSort: formatUnits(balanceInWei, token?.decimals),
+            balance: formatUnits(balanceInWei, token?.decimals, 8),
             disabled:
               mode === TOKEN_SELECT_MODE.ADD ||
               !foundTokenSelected ||
@@ -121,7 +121,7 @@ export default function TokenSelector({
                   : 0,
           };
         })
-        .sort((a: CustomizeToken, b: CustomizeToken) => parseFloat(b.balanceToSort) - parseFloat(a.balanceToSort))
+        .sort((a: CustomizeToken, b: CustomizeToken) => parseFloat(b.balance) - parseFloat(a.balance))
         .sort((a: CustomizeToken, b: CustomizeToken) => b.inPair - a.inPair)
         .sort((a: CustomizeToken, b: CustomizeToken) => b.selected - a.selected),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -390,7 +390,7 @@ export default function TokenSelector({
                   >
                     <div className="flex items-center gap-2">
                       <TokenLogo src={token.logo} size={24} />
-                      <p className="ml-2 text-subText">{token.symbol}</p>
+                      <TokenSymbol className="ml-2 text-subText" symbol={token.symbol} maxWidth={120} />
                       <p className="text-xs text-[#6C7284]">{token.name}</p>
                     </div>
                     <Button
@@ -403,7 +403,7 @@ export default function TokenSelector({
                 ))}
 
               {isLoading ? (
-                <Loading />
+                <TokenLoader />
               ) : filteredTokens?.length > 0 && !unImportedTokens.length ? (
                 filteredTokens.map((token: CustomizeToken, index) => (
                   <div
@@ -432,7 +432,7 @@ export default function TokenSelector({
                       )}
                       <TokenLogo src={token.logo} size={24} />
                       <div>
-                        <p className="leading-6">{token.symbol}</p>
+                        <TokenSymbol className="leading-6" symbol={token.symbol} maxWidth={120} />
                         <p className={`${tabSelected === TOKEN_TAB.ALL ? 'text-xs' : ''} text-subText`}>
                           {tabSelected === TOKEN_TAB.ALL ? token.name : token.balance}
                         </p>
@@ -472,6 +472,7 @@ export default function TokenSelector({
               onConnectWallet={onConnectWallet}
               onOpenZapMigration={onOpenZapMigration}
               onClose={onClose}
+              initialSlippage={initialSlippage}
             />
           )}
         </div>

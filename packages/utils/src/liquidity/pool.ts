@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 import {
   API_URLS,
   ChainId,
@@ -6,18 +8,18 @@ import {
   PoolType,
   Token,
   poolResponse,
-  univ2Pool,
   univ2PoolNormalize,
+  univ2RawPool,
   univ2Types,
-  univ3Pool,
   univ3PoolNormalize,
+  univ3RawPool,
   univ3Types,
   univ4Types,
 } from '@kyber/schema';
 
 import { divideBigIntToString } from '../number';
 import { fetchTokenPrice } from '../services';
-import { MAX_TICK, MIN_TICK, nearestUsableTick, tickToPrice } from '../uniswapv3';
+import { MAX_TICK, MIN_TICK, nearestUsableTick, sqrtToPrice } from '../uniswapv3';
 
 export enum POOL_ERROR {
   CANT_GET_POOL_INFO = "Can't get pool info",
@@ -37,7 +39,7 @@ export const getPoolInfo = async ({
   poolType: PoolType;
 }) => {
   const poolServiceResponse = await fetch(
-    `${API_URLS.BFF_API}/v1/pools?chainId=${chainId}&ids=${poolAddress}&protocol=${poolType}`,
+    `${API_URLS.ZAP_EARN_API}/v1/pools?chainId=${chainId}&address=${poolAddress}`,
   ).then(res => res.json() as Promise<Record<string, any>>);
 
   const { success, data, error } = poolResponse.safeParse({
@@ -47,26 +49,24 @@ export const getPoolInfo = async ({
 
   if (!success)
     return {
-      error: `${POOL_ERROR.CANT_GET_POOL_INFO} ${error.toString()}`,
+      error: `${POOL_ERROR.CANT_GET_POOL_INFO}: ${z.prettifyError(error)}`,
       pool: null,
     };
 
-  const pool = (
-    data.data.pools as Array<{
-      address: string;
-      swapFee: number;
-      exchange: string;
-      tokens: [{ address: string }, { address: string }];
-      positionInfo: {
-        tick: number;
-        liquidity: string;
-        sqrtPriceX96: string;
-        tickSpacing: number;
-        ticks?: any[];
-      };
-      staticExtra?: string;
-    }>
-  ).find(item => item.address.toLowerCase() === poolAddress.toLowerCase());
+  const pool = data.data as {
+    address: string;
+    swapFee: number;
+    exchange: string;
+    tokens: [{ address: string }, { address: string }];
+    positionInfo: {
+      tick: number;
+      liquidity: string;
+      sqrtPriceX96: string;
+      tickSpacing: number;
+      ticks?: any[];
+    };
+    staticExtra?: string;
+  };
 
   if (!pool)
     return {
@@ -93,8 +93,8 @@ export const getPoolInfo = async ({
 
   const category = await getPoolCategory({ token0Address, token1Address, chainId });
 
-  const { success: isUniV3, data: univ3PoolInfo } = univ3Pool.safeParse(pool);
-  const { success: isUniV2, data: univ2PoolInfo } = univ2Pool.safeParse(pool);
+  const { success: isUniV3, data: univ3PoolInfo } = univ3RawPool.safeParse(pool);
+  const { success: isUniV2, data: univ2PoolInfo } = univ2RawPool.safeParse(pool);
 
   if (isUniV3) {
     const isUniV3PoolType = univ3Types.includes(poolType as any);
@@ -120,6 +120,12 @@ export const getPoolInfo = async ({
         ticks: univ3PoolInfo.positionInfo.ticks || [],
         minTick: nearestUsableTick(MIN_TICK, univ3PoolInfo.positionInfo.tickSpacing),
         maxTick: nearestUsableTick(MAX_TICK, univ3PoolInfo.positionInfo.tickSpacing),
+        stats: {
+          ...univ3PoolInfo.poolStats,
+          kemLMApr: univ3PoolInfo.poolStats.kemLMApr || 0,
+          kemEGApr: univ3PoolInfo.poolStats.kemEGApr || 0,
+        },
+        isFarming: univ3PoolInfo.programs?.includes('eg') || univ3PoolInfo.programs?.includes('lm'),
       },
     };
   }
@@ -142,6 +148,12 @@ export const getPoolInfo = async ({
         token1,
         fee: univ2PoolInfo.swapFee,
         reserves: univ2PoolInfo.reserves,
+        stats: {
+          ...univ2PoolInfo.poolStats,
+          kemLMApr: univ2PoolInfo.poolStats.kemLMApr || 0,
+          kemEGApr: univ2PoolInfo.poolStats.kemEGApr || 0,
+        },
+        isFarming: univ2PoolInfo.programs?.includes('eg') || univ2PoolInfo.programs?.includes('lm'),
       },
     };
   }
@@ -256,9 +268,14 @@ export const getPoolPrice = ({ pool, revertPrice }: { pool: Pool | 'loading' | n
   const { success: isUniV3, data: uniV3PoolInfo } = univ3PoolNormalize.safeParse(pool);
   const { success: isUniV2, data: uniV2PoolInfo } = univ2PoolNormalize.safeParse(pool);
 
-  if (isUniV3)
-    return +tickToPrice(uniV3PoolInfo.tick, uniV3PoolInfo.token0.decimals, uniV3PoolInfo.token1.decimals, revertPrice);
-
+  if (isUniV3) {
+    return +sqrtToPrice(
+      BigInt(uniV3PoolInfo.sqrtPriceX96 || 0),
+      uniV3PoolInfo.token0.decimals,
+      uniV3PoolInfo.token1.decimals,
+      revertPrice,
+    );
+  }
   if (isUniV2) {
     const price = +divideBigIntToString(
       BigInt(uniV2PoolInfo.reserves[1]) * 10n ** BigInt(uniV2PoolInfo.token0.decimals),

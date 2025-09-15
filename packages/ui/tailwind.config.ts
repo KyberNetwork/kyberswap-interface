@@ -261,6 +261,8 @@ const config: Pick<Config, 'presets' | 'content' | 'darkMode' | 'theme' | 'safel
     'right-5',
     'sm:right-6',
     'rounded-b-none',
+    'border-[#a9a9a94d]',
+    'ml-[6px]',
   ],
   theme: {
     extend: {

@@ -1,13 +1,21 @@
 import { useEffect, useMemo, useState } from 'react';
 
+import { POOL_CATEGORY } from '@kyber/schema';
 import { Skeleton } from '@kyber/ui';
 import { divideBigIntToString, formatDisplayNumber, toString } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
-import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick, tickToPrice } from '@kyber/utils/uniswapv3';
+import {
+  MAX_TICK,
+  MIN_TICK,
+  nearestUsableTick,
+  priceToClosestTick,
+  sqrtToPrice,
+  tickToPrice,
+} from '@kyber/utils/uniswapv3';
 
 import RevertPriceIcon from '@/assets/icons/ic_revert_price.svg';
-import { EstimateLiqValue } from '@/components/EstimateLiqValue';
-import { DEFAULT_PRICE_RANGE, FULL_PRICE_RANGE, FeeAmount, PRICE_RANGE } from '@/constants/priceRanges';
+import { Estimated } from '@/components/Estimated';
+import { DEFAULT_PRICE_RANGE, FULL_PRICE_RANGE, PRICE_RANGE } from '@/constants/priceRanges';
 import { ChainId, UniV2Pool, UniV3Pool, UniV3Position, univ2Dexes, univ3Dexes, univ3PoolCommonField } from '@/schema';
 import { usePoolsStore } from '@/stores/usePoolsStore';
 import { usePositionStore } from '@/stores/usePositionStore';
@@ -19,14 +27,6 @@ interface SelectedRange {
   tickUpper: number;
 }
 
-const getFeeRange = (fee: number): FeeAmount | undefined => {
-  if (!fee) return;
-  return [FeeAmount.HIGH, FeeAmount.MEDIUM, FeeAmount.LOW, FeeAmount.LOWEST].reduce(
-    (range, current) => (current >= fee ? current : range),
-    FeeAmount.HIGH,
-  );
-};
-
 export function TargetPoolState({
   initialTick,
   chainId,
@@ -34,7 +34,7 @@ export function TargetPoolState({
   initialTick?: { tickLower: number; tickUpper: number };
   chainId: ChainId;
 }) {
-  const { pools } = usePoolsStore();
+  const { pools, pairCategory } = usePoolsStore();
   const { tickLower, tickUpper, setTickLower, setTickUpper } = useZapStateStore();
 
   const { toPosition } = usePositionStore();
@@ -131,9 +131,13 @@ export function TargetPoolState({
     if (newTick >= MIN_TICK) setTickUpper(newTick);
   };
 
-  const fee = pool === 'loading' ? 0 : pool.fee;
-  const feeRange = getFeeRange(fee);
-  const priceRanges = useMemo(() => (feeRange ? PRICE_RANGE[feeRange] : []), [feeRange]);
+  const priceRanges = useMemo(
+    () =>
+      pairCategory
+        ? PRICE_RANGE[pairCategory as keyof typeof PRICE_RANGE] || PRICE_RANGE[POOL_CATEGORY.EXOTIC_PAIR]
+        : [],
+    [pairCategory],
+  );
 
   const priceRangeCalculated = useMemo(() => {
     if (!priceRanges.length || pool === 'loading') return;
@@ -148,7 +152,12 @@ export function TargetPoolState({
             tickUpper: data.maxTick,
           };
 
-        const currentPoolPrice = tickToPrice(data.tick, pool.token0?.decimals, pool.token1?.decimals, false);
+        const currentPoolPrice = sqrtToPrice(
+          BigInt(data.sqrtPriceX96 || 0),
+          pool.token0?.decimals,
+          pool.token1?.decimals,
+          false,
+        );
 
         if (!currentPoolPrice) return;
 
@@ -190,10 +199,14 @@ export function TargetPoolState({
 
   // Set default price range depending on protocol fee
   useEffect(() => {
-    if (!feeRange || (toPosition !== 'loading' && toPosition !== null)) return;
-    if (!selectedRange) handleSelectPriceRange(DEFAULT_PRICE_RANGE[feeRange]);
+    if (!pairCategory || (toPosition !== 'loading' && toPosition !== null)) return;
+    if (!selectedRange)
+      handleSelectPriceRange(
+        DEFAULT_PRICE_RANGE[pairCategory as keyof typeof DEFAULT_PRICE_RANGE] ||
+          DEFAULT_PRICE_RANGE[POOL_CATEGORY.EXOTIC_PAIR],
+      );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [feeRange, toPosition]);
+  }, [pairCategory, toPosition]);
 
   useEffect(() => {
     if (pools === 'loading' || !initialTick || !isUniV3 || !('tickSpacing' in pools[1]) || tickLower || tickUpper)
@@ -207,8 +220,13 @@ export function TargetPoolState({
   let poolPrice;
   if (isUniV3 && pool !== 'loading') {
     poolPrice = formatDisplayNumber(
-      tickToPrice((pool as UniV3Pool).tick, pool.token0.decimals, pool.token1.decimals, revertDisplay),
-      { significantDigits: 6 },
+      sqrtToPrice(
+        BigInt((pool as UniV3Pool).sqrtPriceX96 || 0),
+        pool.token0.decimals,
+        pool.token1.decimals,
+        revertDisplay,
+      ),
+      { significantDigits: 8 },
     );
   } else if (isUniV2 && pool !== 'loading') {
     const po = pool as UniV2Pool;
@@ -256,7 +274,7 @@ export function TargetPoolState({
             <div className="flex items-center gap-4 mt-3 text-sm">
               <div className="bg-white bg-opacity-[0.04] rounded-md py-3 w-1/2 flex flex-col items-center justify-center gap-1">
                 <p className="text-subText">Min Price</p>
-                <p className="text-base font-medium">{formatDisplayNumber(minPrice, { significantDigits: 6 })}</p>
+                <p className="text-base font-medium">{formatDisplayNumber(minPrice, { significantDigits: 8 })}</p>
                 <p className="text-subText">
                   {pool === 'loading'
                     ? ''
@@ -267,7 +285,7 @@ export function TargetPoolState({
               </div>
               <div className="bg-white bg-opacity-[0.04] rounded-md py-3 w-1/2 flex flex-col items-center justify-center gap-1">
                 <p className="text-subText">Max Price</p>
-                <p className="text-base font-medium">{formatDisplayNumber(maxPrice, { significantDigits: 6 })}</p>
+                <p className="text-base font-medium">{formatDisplayNumber(maxPrice, { significantDigits: 8 })}</p>
                 <p className="text-subText">
                   {pool === 'loading'
                     ? ''
@@ -300,7 +318,7 @@ export function TargetPoolState({
 
             <div className="border border-stroke rounded-md px-4 py-3 text-subText text-sm mt-4">
               <div className="flex justify-between items-center">
-                <div className="flex flex-col gap-2 flex-1">
+                <div className="flex flex-col gap-2">
                   <div>Min Price</div>
                   <input
                     className="bg-transparent text-text text-[18px] font-medium border-none outline-none w-full"
@@ -440,7 +458,7 @@ export function TargetPoolState({
           </>
         ))}
 
-      <EstimateLiqValue chainId={chainId} />
+      <Estimated chainId={chainId} />
     </div>
   );
 }

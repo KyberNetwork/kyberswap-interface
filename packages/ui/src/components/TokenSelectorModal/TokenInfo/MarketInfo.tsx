@@ -8,7 +8,7 @@ import useMarketTokenInfo from '@/components/TokenSelectorModal/TokenInfo/useMar
 import LogoCoingecko from '@/components/TokenSelectorModal/assets/coingecko.svg?react';
 import IconDown from '@/components/TokenSelectorModal/assets/down.svg?react';
 import IconZiczac from '@/components/TokenSelectorModal/assets/ziczac.svg?react';
-import Loader from '@/components/loader';
+import Loading from '@/components/loading';
 import TokenLogo from '@/components/token-logo';
 
 const MarketInfo = ({ token, chainId }: { token: Token; chainId: ChainId }) => {
@@ -53,7 +53,7 @@ const MarketInfo = ({ token, chainId }: { token: Token; chainId: ChainId }) => {
         {(marketTokenInfo || []).map((item: any) => (
           <div key={item.label} className="flex items-center justify-between text-xs">
             <span className="text-subText">{item.label}</span>
-            <span>{loading ? <Loader className="animate-spin w-[10px] h-[10px]" /> : item.value}</span>
+            <span>{loading ? <Loading className="text-accent w-[10px] h-[10px]" /> : item.value}</span>
           </div>
         ))}
       </div>
@@ -68,7 +68,7 @@ const MarketInfo = ({ token, chainId }: { token: Token; chainId: ChainId }) => {
                 {Copy}
               </>
             ) : (
-              <Loader className="animate-spin w-[10px] h-[10px]" />
+              <Loading className="text-accent w-[10px] h-[10px]" />
             )}
           </div>
         </div>

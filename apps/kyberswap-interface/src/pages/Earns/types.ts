@@ -52,6 +52,15 @@ export interface EarnPool {
     symbol: string
     decimals: number
   }>
+  maxAprInfo?: {
+    tickLower: number
+    tickUpper: number
+    minPrice: string
+    maxPrice: string
+    apr: string
+    kemEGApr: string
+    kemLMApr: string
+  }
 }
 
 export interface ParsedEarnPool extends EarnPool {
@@ -323,6 +332,8 @@ export interface FeeInfo {
 
 export interface RewardInfo {
   totalUsdValue: number
+  totalLmUsdValue: number
+  totalEgUsdValue: number
   claimableUsdValue: number
   claimedUsdValue: number
   inProgressUsdValue: number
@@ -347,6 +358,8 @@ export interface NftRewardInfo {
   nftId: string
   chainId: number
   totalUsdValue: number
+  totalLmUsdValue: number
+  totalEgUsdValue: number
   claimedUsdValue: number
   inProgressUsdValue: number
   pendingUsdValue: number

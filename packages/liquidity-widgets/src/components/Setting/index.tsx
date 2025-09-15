@@ -11,7 +11,7 @@ import { validateDeadlineString } from '@/components/Setting/utils';
 import { useZapState } from '@/hooks/useZapState';
 
 export default function Setting() {
-  const { showSetting, ttl, setTtl, toggleSetting, degenMode, setDegenMode, highlightDegenMode } = useZapState();
+  const { uiState, ttl, setTtl, toggleSetting, setUiState } = useZapState();
   const ref = useRef(null);
   const [deadline, setDeadline] = useState(ttl);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -28,13 +28,13 @@ export default function Setting() {
   }, [deadline, isValid, setTtl]);
 
   useOnClickOutside(ref, () => {
-    if (showSetting) {
+    if (uiState.showSetting) {
       if (!isValid) setDeadline(20);
       toggleSetting();
     }
   }, ['setting', 'ks-lw-modal-overlay', 'kyber-portal']);
 
-  if (!showSetting) return null;
+  if (!uiState.showSetting) return null;
 
   return (
     <>
@@ -78,7 +78,7 @@ export default function Setting() {
               className="ks-primary-btn bg-warning border-none flex-1"
               onClick={() => {
                 if (confirm.toLowerCase() === 'confirm') {
-                  setDegenMode(true);
+                  setUiState(prev => ({ ...prev, degenMode: true }));
                   setShowConfirm(false);
                   setConfirm('');
                 }
@@ -89,7 +89,7 @@ export default function Setting() {
           </div>
         </div>
       </Modal>
-      <div className="absolute right-6 top-[116px] bg-layer2 p-5 rounded-md min-w-[330px]" ref={ref}>
+      <div className="absolute right-6 top-[116px] bg-layer2 p-5 rounded-md min-w-[330px] sm:max-w-[330px]" ref={ref}>
         <div className="text-base font-medium mb-5">Advanced Setting</div>
         <MouseoverTooltip
           text="Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price. Please use with caution!"
@@ -98,7 +98,7 @@ export default function Setting() {
         >
           <div className="text-sm border-b border-dotted border-subText">Slippage Tolerance</div>
         </MouseoverTooltip>
-        <SlippageInput />
+        <SlippageInput className="mt-2" />
 
         <div className="flex items-center justify-between mt-3">
           <MouseoverTooltip
@@ -131,9 +131,9 @@ export default function Setting() {
         <div
           className={cn(
             'flex items-center justify-between degen-mode rounded-xl mt-2 py-1',
-            highlightDegenMode ? '-mx-2 px-2' : '',
+            uiState.highlightDegenMode ? '-mx-2 px-2' : '',
           )}
-          data-highlight={highlightDegenMode}
+          data-highlight={uiState.highlightDegenMode}
         >
           <MouseoverTooltip
             text="Turn this on to make trades with very high price impact or to set very high slippage tolerance. This can result in bad rates and loss of funds. Be cautious."
@@ -142,10 +142,10 @@ export default function Setting() {
             <div className="text-sm border-b border-dotted border-subText">Degen Mode</div>
           </MouseoverTooltip>
           <Toggle
-            isActive={degenMode}
+            isActive={uiState.degenMode}
             toggle={() => {
-              if (!degenMode) setShowConfirm(true);
-              else setDegenMode(false);
+              if (!uiState.degenMode) setShowConfirm(true);
+              else setUiState(prev => ({ ...prev, degenMode: false }));
             }}
           />
         </div>

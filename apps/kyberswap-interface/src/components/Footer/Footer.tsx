@@ -4,6 +4,7 @@ import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import ChainSecurity from 'assets/svg/chainsecurity.svg'
+import Omniscia from 'assets/svg/omniscia.svg'
 import { Telegram } from 'components/Icons'
 import Discord from 'components/Icons/Discord'
 import PoweredByIconDark from 'components/Icons/PoweredByIconDark'
@@ -97,6 +98,7 @@ export const FooterSocialLink = () => {
 
 function Footer() {
   const above768 = useMedia('(min-width: 768px)')
+  const theme = useTheme()
 
   return (
     <FooterWrapper>
@@ -119,6 +121,18 @@ function Footer() {
             </Text>
             <ExternalLink href="https://chainsecurity.com/security-audit/kyberswap-elastic" style={{ display: 'flex' }}>
               <img src={ChainSecurity} alt="" width="98px" />
+            </ExternalLink>
+            {above768 && (
+              <Text marginRight="6px" marginLeft="6px">
+                &
+              </Text>
+            )}
+            <ExternalLink
+              href="https://omniscia.io/"
+              style={{ display: 'flex', alignItems: 'center', gap: '4px', textDecoration: 'none' }}
+            >
+              <img src={Omniscia} alt="" width={20} />
+              <Text color={theme.subText}>Omniscia</Text>
             </ExternalLink>
             {above768 && <InfoHelper size={14} text={t`Covers smart-contracts`} placement="top" />}
           </Item>

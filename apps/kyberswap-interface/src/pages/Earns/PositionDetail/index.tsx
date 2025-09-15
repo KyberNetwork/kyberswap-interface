@@ -1,4 +1,4 @@
-import { ShareModal, ShareModalProps, ShareType } from '@kyber/ui'
+import { ShareModal, ShareModalProps, ShareOption, ShareType } from '@kyber/ui'
 import { formatAprNumber } from '@kyber/utils/dist/number'
 import { MAX_TICK, MIN_TICK, priceToClosestTick } from '@kyber/utils/dist/uniswapv3'
 import { t } from '@lingui/macro'
@@ -34,6 +34,7 @@ import {
 import MigrationModal from 'pages/Earns/UserPositions/MigrationModal'
 import { EmptyPositionText, PositionPageWrapper } from 'pages/Earns/UserPositions/styles'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
+import RewardSyncing from 'pages/Earns/components/RewardSyncing'
 import {
   EarnDex,
   Exchange,
@@ -42,7 +43,9 @@ import {
 } from 'pages/Earns/constants'
 import useClosedPositions, { CheckClosedPositionParams } from 'pages/Earns/hooks/useClosedPositions'
 import useFarmingStablePools from 'pages/Earns/hooks/useFarmingStablePools'
+import useForceLoading from 'pages/Earns/hooks/useForceLoading'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
+import useReduceFetchInterval from 'pages/Earns/hooks/useReduceFetchInterval'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import { FeeInfo, PAIR_CATEGORY, ParsedPosition, PositionStatus, SuggestedPool } from 'pages/Earns/types'
 import { getUnclaimedFeesInfo } from 'pages/Earns/utils/fees'
@@ -55,13 +58,14 @@ const PositionDetail = () => {
   const navigate = useNavigate()
   const theme = useTheme()
   const [searchParams, setSearchParams] = useSearchParams()
-  const forceLoading = searchParams.get('forceLoading')
 
   const { account } = useActiveWeb3React()
+  const { forceLoading, removeForceLoading } = useForceLoading()
   const { positionId, chainId, protocol } = useParams()
   const { widget: zapMigrationWidget, handleOpenZapMigration, triggerClose, setTriggerClose } = useZapMigrationWidget()
 
   const { closedPositionsFromRpc, checkClosedPosition } = useClosedPositions()
+  const { reduceFetchInterval, setReduceFetchInterval } = useReduceFetchInterval()
 
   const {
     data: userPosition,
@@ -75,7 +79,7 @@ const PositionDetail = () => {
       chainIds: chainId || '',
       protocols: protocol || '',
     },
-    { skip: !account, pollingInterval: forceLoading ? 5_000 : 15_000 },
+    { skip: !account, pollingInterval: forceLoading || reduceFetchInterval ? 5_000 : 15_000 },
   )
   const { rewardInfo } = useKemRewards(refetch)
   const rewardInfoThisPosition = !userPosition
@@ -83,7 +87,6 @@ const PositionDetail = () => {
     : rewardInfo?.nfts.find(item => item.nftId === userPosition?.[0]?.tokenId)
 
   const currentWalletAddress = useRef(account)
-  const hadForceLoading = useRef(forceLoading ? true : false)
   const [feeInfoFromRpc, setFeeInfoFromRpc] = useState<FeeInfo | undefined>()
   const [shareInfo, setShareInfo] = useState<ShareModalProps | undefined>()
   const [positionToMigrate, setPositionToMigrate] = useState<ParsedPosition | null>(null)
@@ -204,9 +207,9 @@ const PositionDetail = () => {
   }, [account, navigate])
 
   useEffect(() => {
-    if (position && position.tokenId === positionId?.split('-')[1] && forceLoading) {
-      searchParams.delete('forceLoading')
-      setSearchParams(searchParams)
+    if (!position || !forceLoading) return
+    if (position.pool.isUniv2 ? position.id === positionId : position.tokenId === positionId?.split('-')[1]) {
+      removeForceLoading()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [forceLoading, position, searchParams, setSearchParams])
@@ -296,15 +299,18 @@ const PositionDetail = () => {
   )
 
   const shareBtn = useCallback(
-    (type: ShareType, size?: number) => (
+    (size?: number, defaultOptions?: ShareOption[]) => (
       <ShareButtonWrapper
         onClick={() => {
           if (!position) return
 
           setShareInfo({
-            type,
+            isFarming: position.pool.isFarming,
+            defaultOptions,
+            type: ShareType.POSITION_INFO,
             onClose: () => setShareInfo(undefined),
             pool: {
+              feeTier: position.pool.fee,
               address: position.pool.address,
               chainId: position.chain.id,
               chainLogo: position.chain.logo,
@@ -321,17 +327,21 @@ const PositionDetail = () => {
               },
             },
             position: {
-              apr: position.apr,
+              apr: {
+                total: position.apr,
+                eg: position.kemEGApr,
+                lm: position.kemLMApr,
+              },
               createdTime: position.createdTime,
-              rewardEarnings: position.rewards.totalUsdValue,
+              totalEarnings: position.rewards.totalUsdValue + position.earning.earned,
             },
           })
         }}
       >
-        <Share2 size={size || 16} color={theme.subText} />
+        <Share2 size={size || 16} color={theme.primary} />
       </ShareButtonWrapper>
     ),
-    [theme.subText, position],
+    [theme.primary, position],
   )
 
   const aprSection = (
@@ -370,19 +380,17 @@ const PositionDetail = () => {
       ) : isUnfinalized ? (
         <PositionSkeleton width={70} height={24} text="Finalizing..." />
       ) : isWaitingForRewards ? (
-        <PositionSkeleton
-          width={70}
-          height={24}
-          tooltip={t`Data is still syncing — takes up to 5 minutes.`}
-          tooltipWidth={195}
-        />
+        <RewardSyncing width={70} height={24} />
       ) : (
         <Flex alignItems={'center'} sx={{ gap: 1 }}>
           {position?.pool.isFarming && <IconKem width={20} height={20} />}
           <Text fontSize={20} marginRight={1} color={position?.apr && position.apr > 0 ? theme.primary : theme.text}>
             {formatAprNumber(position?.apr || 0)}%
           </Text>
-          {!initialLoading && !isUnfinalized && shareBtn(ShareType.POSITION_INFO, 12)}
+          {!initialLoading &&
+            !isUnfinalized &&
+            position?.status !== PositionStatus.CLOSED &&
+            shareBtn(12, [ShareOption.TOTAL_APR])}
         </Flex>
       )}
     </AprSection>
@@ -408,12 +416,7 @@ const PositionDetail = () => {
       <PositionPageWrapper>
         {!!position || initialLoading ? (
           <>
-            <PositionDetailHeader
-              isLoading={loadingInterval}
-              initialLoading={initialLoading}
-              position={position}
-              hadForceLoading={hadForceLoading.current}
-            />
+            <PositionDetailHeader isLoading={loadingInterval} initialLoading={initialLoading} position={position} />
             {!position?.pool.isFarming &&
               (!!position?.suggestionPool ||
                 (isStablePair && farmingPoolsByChain[position.chain.id]?.pools.length > 0)) &&
@@ -422,10 +425,9 @@ const PositionDetail = () => {
                   <Text color={'#fafafa'} lineHeight={'18px'}>
                     {!!position.suggestionPool
                       ? position.pool.fee === position.suggestionPool.feeTier
-                        ? t`Migrate to exact same pair and fee tier on Uniswap v4 hook to earn extra rewards from the
-              Kyberswap Liquidity Mining Program.`
-                        : t`We found a pool with the same pair having Liquidity Mining Program. Migrate to this pool on Uniswap v4 hook to start earning farming rewards.`
-                      : t`We found other stable pools participating in the Kyberswap Liquidity Mining Program. Explore and migrate to start earning farming rewards.`}
+                        ? t`Earn extra rewards with exact same pair and fee tier on Uniswap v4 hook.`
+                        : t`We found a pool with the same pair offering extra rewards. Migrate to this pool on Uniswap v4 hook to start earning farming rewards.`
+                      : t`We found other stable pools offering extra rewards. Explore and migrate to start earning.`}
                   </Text>
                   <Text color={theme.primary} sx={{ cursor: 'pointer' }} onClick={handleMigrateToKem}>
                     {!!position.suggestionPool ? t`Migrate` : t`View Pools`} →
@@ -451,6 +453,7 @@ const PositionDetail = () => {
                 initialLoading={initialLoading}
                 triggerClose={triggerClose}
                 setTriggerClose={setTriggerClose}
+                setReduceFetchInterval={setReduceFetchInterval}
               />
             </PositionDetailWrapper>
           </>

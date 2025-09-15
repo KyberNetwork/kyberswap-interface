@@ -16,6 +16,7 @@
     "i18n:extract": "lingui extract",
     "lint": "eslint --ext ts,tsx src",
     "format": "prettier --write .",
+    "dev": "pnpm run start-prod",
     "start": "pnpm run start-prod",
     "start-dev": "vite --mode dev --host",
     "start-stg": "vite --mode stg --host",

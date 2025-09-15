@@ -19,6 +19,7 @@
     "./scroll-area": "./src/components/ui/scroll-area.tsx",
     "./info-helper": "./src/components/info-helper.tsx",
     "./button": "./src/components/ui/button.tsx",
+    "./checkbox": "./src/components/ui/checkbox.tsx",
     "./input": "./src/components/ui/input.tsx",
     "./label": "./src/components/ui/label.tsx",
     "./tabs": "./src/components/ui/tabs.tsx",

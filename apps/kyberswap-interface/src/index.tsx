@@ -9,7 +9,7 @@ import duration from 'dayjs/plugin/duration'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import utc from 'dayjs/plugin/utc'
 import 'inter-ui'
-import mixpanel from 'mixpanel-browser'
+import { initMixpanel } from 'libs/mixpanel'
 import { StrictMode, useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 import TagManager from 'react-gtm-module'
@@ -23,7 +23,7 @@ import Web3Provider from 'components/Web3Provider'
 import { BitcoinWalletProvider } from 'components/Web3Provider/BitcoinProvider'
 import NEARWalletProvider from 'components/Web3Provider/NearProvider'
 import { SolanaProvider } from 'components/Web3Provider/SolanaProvider'
-import { ENV_LEVEL, GTM_ID, MIXPANEL_PROJECT_TOKEN, SENTRY_DNS, TAG } from 'constants/env'
+import { ENV_LEVEL, GTM_ID, SENTRY_DNS, TAG } from 'constants/env'
 import { ENV_TYPE } from 'constants/type'
 import { useAffiliate } from 'hooks/useAffiliate'
 
@@ -44,9 +44,7 @@ dayjs.extend(utc)
 dayjs.extend(duration)
 dayjs.extend(relativeTime)
 
-mixpanel.init(MIXPANEL_PROJECT_TOKEN, {
-  debug: ENV_LEVEL < ENV_TYPE.PROD,
-})
+initMixpanel()
 
 if (ENV_LEVEL === ENV_TYPE.PROD) {
   Sentry.init({

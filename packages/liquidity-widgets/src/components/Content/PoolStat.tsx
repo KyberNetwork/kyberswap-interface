@@ -1,5 +1,3 @@
-import { useShallow } from 'zustand/shallow';
-
 import { univ2Types } from '@kyber/schema';
 import { MouseoverTooltip } from '@kyber/ui';
 import { Skeleton } from '@kyber/ui';
@@ -12,23 +10,9 @@ import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
 export default function PoolStat() {
-  const { poolType, positionId } = useWidgetStore(
-    useShallow(s => ({
-      poolType: s.poolType,
-      positionId: s.positionId,
-    })),
-  );
-  const { position } = usePositionStore(
-    useShallow(s => ({
-      position: s.position,
-    })),
-  );
-  const { pool, poolStat } = usePoolStore(
-    useShallow(s => ({
-      pool: s.pool,
-      poolStat: s.poolStat,
-    })),
-  );
+  const { poolType, positionId } = useWidgetStore(['poolType', 'positionId']);
+  const { position } = usePositionStore(['position']);
+  const { pool } = usePoolStore(['pool']);
 
   const initializing = pool === 'loading';
 
@@ -39,8 +23,9 @@ export default function PoolStat() {
       ? null
       : Number((BigInt(position.liquidity) * 10000n) / BigInt(position.totalSupply)) / 100;
 
+  const poolStat = initializing ? null : pool?.stats;
   const poolApr = (poolStat?.apr || 0) + (poolStat?.kemEGApr || 0) + (poolStat?.kemLMApr || 0);
-  const isFarming = poolStat?.isFarming || false;
+  const isFarming = initializing ? false : pool?.isFarming || false;
 
   return (
     <div

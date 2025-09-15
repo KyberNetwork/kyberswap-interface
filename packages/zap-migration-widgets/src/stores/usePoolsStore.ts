@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { create } from 'zustand';
 
+import { POOL_CATEGORY } from '@kyber/schema';
 import { getFunctionSelector } from '@kyber/utils/crypto';
 import { MAX_TICK, MIN_TICK, nearestUsableTick } from '@kyber/utils/uniswapv3';
 
@@ -18,6 +19,7 @@ interface GetPoolParams {
 }
 interface PoolsState {
   pools: 'loading' | [Pool, Pool];
+  pairCategory?: POOL_CATEGORY;
   error: string;
   getPools: (params: GetPoolParams) => void;
   theme: Theme;
@@ -104,6 +106,7 @@ const poolResponse = z.object({
 const initState = {
   pools: 'loading' as 'loading' | [Pool, Pool],
   error: '',
+  pairCategory: undefined,
   theme: defaultTheme,
 };
 export const usePoolsStore = create<PoolsState>((set, get) => ({
@@ -333,6 +336,15 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
         set({ error: `Can't get pool info ${poolTo}` });
         return;
       }
+
+      const targetToken0Address = pool1.token0.address.toLowerCase();
+      const targetToken1Address = pool1.token1.address.toLowerCase();
+      const pairCheck = await fetch(
+        `${PATHS.TOKEN_API}/v1/public/category/pair?chainId=${chainId}&tokenIn=${targetToken0Address}&tokenOut=${targetToken1Address}`,
+      ).then(res => res.json() as Promise<{ data: { category: string } }>);
+      const pairCategory = (pairCheck?.data?.category as POOL_CATEGORY) || POOL_CATEGORY.EXOTIC_PAIR;
+
+      set({ pairCategory });
 
       set({ pools: [pool0, pool1], error: '' });
     } catch (e) {

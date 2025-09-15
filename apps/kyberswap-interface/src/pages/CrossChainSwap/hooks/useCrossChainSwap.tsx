@@ -67,6 +67,8 @@ const RegistryContext = createContext<
       getQuote: () => Promise<void>
       recipient: string
       setRecipient: (value: string) => void
+      sender: string
+      receiver: string
       warning: {
         slippageInfo: {
           default: number
@@ -373,6 +375,22 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
 
   const abortControllerRef = useRef(new AbortController())
 
+  const sender = isFromSolana
+    ? solanaAddress?.toString() || CROSS_CHAIN_FEE_RECEIVER_SOLANA
+    : isFromBitcoin
+    ? btcAddress || BTC_DEFAULT_RECEIVER
+    : isFromNear
+    ? signedAccountId || ZERO_ADDRESS
+    : walletClient?.data?.account.address || ZERO_ADDRESS
+
+  const receiver = isToSolana
+    ? recipient || solanaAddress?.toString() || CROSS_CHAIN_FEE_RECEIVER_SOLANA
+    : isToBitcoin
+    ? recipient || BTC_DEFAULT_RECEIVER
+    : isToNear
+    ? recipient || signedAccountId || ZERO_ADDRESS
+    : recipient || walletClient?.data?.account.address || ZERO_ADDRESS
+
   const getQuote = useCallback(async () => {
     if (showPreview) return
     if (disable) {
@@ -574,20 +592,8 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
       amount: inputAmount,
       slippage,
       walletClient: fromChainId === 'solana' ? adaptedWallet : walletClient?.data,
-      sender: isFromSolana
-        ? solanaAddress?.toString() || CROSS_CHAIN_FEE_RECEIVER_SOLANA
-        : isFromBitcoin
-        ? btcAddress || BTC_DEFAULT_RECEIVER
-        : isFromNear
-        ? signedAccountId || ZERO_ADDRESS
-        : walletClient?.data?.account.address || ZERO_ADDRESS,
-      recipient: isToSolana
-        ? recipient || solanaAddress?.toString() || CROSS_CHAIN_FEE_RECEIVER_SOLANA
-        : isToBitcoin
-        ? recipient || BTC_DEFAULT_RECEIVER
-        : isToNear
-        ? recipient || signedAccountId || ZERO_ADDRESS
-        : recipient || walletClient?.data?.account.address || ZERO_ADDRESS,
+      sender,
+      recipient: receiver,
       nearTokens,
       publicKey: btcPublicKey || '',
     }).catch(e => {
@@ -598,12 +604,12 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     setLoading(false)
     setAllLoading(false)
   }, [
-    recipient,
+    sender,
+    receiver,
     isFromEvm,
     isToEvm,
     btcPublicKey,
     isFromBitcoin,
-    btcAddress,
     isToBitcoin,
     fromChainId,
     toChainId,
@@ -615,7 +621,6 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     slippage,
     nearTokens,
     isFromNear,
-    signedAccountId,
     showPreview,
     solanaAddress,
     isFromSolana,
@@ -648,6 +653,8 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
         recipient,
         setRecipient,
         warning,
+        sender,
+        receiver,
       }}
     >
       {children}

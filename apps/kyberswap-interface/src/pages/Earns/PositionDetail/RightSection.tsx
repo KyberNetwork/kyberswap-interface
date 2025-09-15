@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
-import { usePoolDetailQuery } from 'services/poolService'
+import { usePoolDetailQuery } from 'services/zapEarn'
 
 import { ReactComponent as RevertPriceIcon } from 'assets/svg/earn/ic_revert_price.svg'
 import { NativeCurrencies } from 'constants/tokens'
@@ -44,6 +44,7 @@ const RightSection = ({
   initialLoading,
   triggerClose,
   setTriggerClose,
+  setReduceFetchInterval,
 }: {
   position?: ParsedPosition
   onOpenZapMigration: (props: ZapMigrationInfo) => void
@@ -53,6 +54,7 @@ const RightSection = ({
   initialLoading: boolean
   triggerClose: boolean
   setTriggerClose: (value: boolean) => void
+  setReduceFetchInterval: (value: boolean) => void
 }) => {
   const theme = useTheme()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
@@ -61,7 +63,7 @@ const RightSection = ({
   const { account } = useActiveWeb3React()
   const { stableCoins } = useStableCoins(Number(chainId) as ChainId)
   const { data: pool } = usePoolDetailQuery(
-    { chainId: Number(chainId) as ChainId, ids: position?.pool.address || '' },
+    { chainId: Number(chainId) as ChainId, address: position?.pool.address || '' },
     { skip: !position, pollingInterval: 15_000 },
   )
   const [revert, setRevert] = useState(false)
@@ -72,7 +74,10 @@ const RightSection = ({
     triggerClose,
     setTriggerClose,
   })
-  const { widget: zapOutWidget, handleOpenZapOut } = useZapOutWidget(onRefreshPosition)
+  const { widget: zapOutWidget, handleOpenZapOut } = useZapOutWidget((props: CheckClosedPositionParams) => {
+    onRefreshPosition(props)
+    setReduceFetchInterval(true)
+  })
 
   const price = useMemo(
     () => (!position?.priceRange ? 0 : !revert ? position.priceRange.current : 1 / position.priceRange.current),
@@ -105,6 +110,8 @@ const RightSection = ({
 
   const isFarmingPossible = POSSIBLE_FARMING_PROTOCOLS.includes(protocol as Exchange)
   const isUnfinalized = position?.isUnfinalized
+  const isUniV4 = isForkFrom(protocol as Exchange, CoreProtocol.UniswapV4)
+  const isClosed = position?.status === PositionStatus.CLOSED
 
   return (
     <>
@@ -251,9 +258,9 @@ const RightSection = ({
         <PositionActionWrapper>
           <PositionAction
             outlineDefault
-            disabled={initialLoading || !position || position?.status === PositionStatus.CLOSED}
+            disabled={initialLoading || !position || isClosed}
             onClick={() => {
-              if (initialLoading || position?.status === PositionStatus.CLOSED || !position) return
+              if (initialLoading || isClosed || !position) return
 
               handleOpenZapOut({
                 position: {
@@ -266,9 +273,9 @@ const RightSection = ({
             }}
           >{t`Remove Liquidity`}</PositionAction>
           <PositionAction
-            disabled={initialLoading}
+            disabled={initialLoading || (isUniV4 && isClosed)}
             onClick={() => {
-              if (!position || initialLoading) return
+              if (!position || initialLoading || (isUniV4 && isClosed)) return
               onOpenIncreaseLiquidityWidget()
             }}
           >

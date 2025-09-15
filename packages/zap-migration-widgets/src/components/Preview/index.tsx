@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 
+import { useCopy } from '@kyber/hooks';
 import {
   Dialog,
   DialogContent,
@@ -12,7 +13,7 @@ import {
   ScrollArea,
   TokenLogo,
 } from '@kyber/ui';
-import { fetchTokenPrice } from '@kyber/utils';
+import { fetchTokenPrice, friendlyError } from '@kyber/utils';
 import {
   calculateGasMargin,
   estimateGas,
@@ -29,9 +30,8 @@ import CheckIcon from '@/assets/icons/circle-check.svg';
 import LoadingIcon from '@/assets/icons/loader-circle.svg';
 import { MigrationSummary } from '@/components/Preview/MigrationSummary';
 import { SlippageInfo } from '@/components/SlippageInfo';
-import { SwapPI, useSwapPI } from '@/components/SwapImpact';
+import { useSwapPI } from '@/components/SwapImpact';
 import { DEXES_INFO, NETWORKS_INFO, PATHS } from '@/constants';
-import useCopy from '@/hooks/use-copy';
 import { ChainId, Token, UniV2Pool, univ2Dexes } from '@/schema';
 import { usePoolsStore } from '@/stores/usePoolsStore';
 import { ProtocolFeeAction, RefundAction, useZapStateStore } from '@/stores/useZapStateStore';
@@ -54,7 +54,8 @@ export function Preview({
   onViewPosition?: (txHash: string) => void;
   referral?: string;
 }) {
-  const { showPreview, togglePreview, tickLower, tickUpper, route, slippage } = useZapStateStore();
+  const { showPreview, togglePreview, tickLower, tickUpper, route, slippage, setSlippageOpen, setSlippage } =
+    useZapStateStore();
   const { pools, theme } = usePoolsStore();
 
   const copyPoolAddress0 = useCopy({
@@ -97,8 +98,9 @@ export function Preview({
         else setError(res.message || 'build failed');
       })
       .catch(err => {
-        setError(err.message || JSON.stringify(err));
+        setError(friendlyError(err) || err.message || JSON.stringify(err));
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [route?.route, showPreview]);
 
   const rpcUrl = NETWORKS_INFO[chainId].defaultRpc;
@@ -132,7 +134,7 @@ export function Preview({
 
       setGasUsd(gasUsd);
     })();
-  }, [buildData, account]);
+  }, [buildData, account, chainId, rpcUrl]);
 
   const [showProcessing, setShowProcessing] = useState(false);
   const [submiting, setSubmiting] = useState(false);
@@ -144,13 +146,16 @@ export function Preview({
     const i = setInterval(
       async () => {
         const res = await isTransactionSuccessful(rpcUrl, txHash);
-        const isSuccess = res && res.status;
-        setTxStatus(isSuccess ? 'success' : 'failed');
+        if (!res) return;
+
+        if (res.status) {
+          setTxStatus('success');
+        } else setTxStatus('failed');
       },
       chainId === ChainId.Ethereum ? 10_000 : 5_000,
     );
     return () => clearInterval(i);
-  }, [txHash, chainId]);
+  }, [txHash, chainId, rpcUrl]);
 
   const { zapPiRes } = useSwapPI(chainId);
 
@@ -203,6 +208,13 @@ export function Preview({
       });
     }
   });
+
+  const handleSlippage = () => {
+    setSlippageOpen(true);
+    const suggestedSlippage = route?.zapDetails.suggestedSlippage || 0;
+    if (slippage !== suggestedSlippage) setSlippage(suggestedSlippage);
+    togglePreview();
+  };
 
   if (showProcessing) {
     let content = <></>;
@@ -279,6 +291,19 @@ export function Preview({
               {error}
             </div>
           </ScrollArea>
+          <div className="flex gap-4 w-full mt-4">
+            <button
+              className="flex-1 h-[40px] rounded-full border font-medium text-sm border-stroke text-subText"
+              onClick={togglePreview}
+            >
+              Close
+            </button>
+            {error.includes('slippage') && (
+              <button className="ks-primary-btn flex-1" onClick={handleSlippage}>
+                {slippage !== route?.zapDetails.suggestedSlippage ? 'Use Suggested Slippage' : 'Set Custom Slippage'}
+              </button>
+            )}
+          </div>
         </>
       );
     }
@@ -447,10 +472,6 @@ export function Preview({
 
               <SlippageInfo slippage={slippage} suggestedSlippage={route?.zapDetails.suggestedSlippage || 100} />
 
-              <div className="flex items-center justify-between mt-2">
-                <SwapPI chainId={chainId} />
-              </div>
-
               <div className="flex justify-between items-start mt-2">
                 <MouseoverTooltip
                   text="The difference between input and estimated received (including remaining amount). Be careful with high value!"
@@ -516,19 +537,20 @@ export function Preview({
                 <div className="text-sm font-medium">{parseFloat(zapFee.toFixed(3))}%</div>
               </div>
 
-              {(slippage > 2 * route.zapDetails.suggestedSlippage ||
-                slippage < route.zapDetails.suggestedSlippage / 2) && (
-                <div
-                  className="rounded-md text-xs px-4 py-3 mt-4 font-normal text-warning"
-                  style={{
-                    backgroundColor: `${theme.warning}33`,
-                  }}
-                >
-                  {slippage > route.zapDetails.suggestedSlippage * 2
-                    ? 'Your slippage is set higher than usual, which may cause unexpected losses.'
-                    : 'Your slippage is set lower than usual, increasing the risk of transaction failure.'}
-                </div>
-              )}
+              {slippage &&
+                (slippage > 2 * route.zapDetails.suggestedSlippage ||
+                  slippage < route.zapDetails.suggestedSlippage / 2) && (
+                  <div
+                    className="rounded-md text-xs px-4 py-3 mt-4 font-normal text-warning"
+                    style={{
+                      backgroundColor: `${theme.warning}33`,
+                    }}
+                  >
+                    {slippage > route.zapDetails.suggestedSlippage * 2
+                      ? 'Your slippage is set higher than usual, which may cause unexpected losses.'
+                      : 'Your slippage is set lower than usual, increasing the risk of transaction failure.'}
+                  </div>
+                )}
 
               <div className="flex gap-5 mt-8">
                 <button

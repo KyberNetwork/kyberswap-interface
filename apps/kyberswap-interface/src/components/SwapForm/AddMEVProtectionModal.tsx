@@ -30,7 +30,7 @@ const Wrapper = styled.div`
   justify-content: center;
   gap: 24px;
   width: 100%;
-  color: ${({ theme }) => theme.subText};
+  color: ${({ theme }) => theme.text};
 
   .time-frame-legend {
     display: none;
