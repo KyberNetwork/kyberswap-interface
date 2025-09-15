@@ -3,9 +3,9 @@ import { useEffect, useState } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 
 import { usePositionOwner } from '@kyber/hooks';
-import { FARMING_CONTRACTS, defaultToken, univ3PoolNormalize } from '@kyber/schema';
+import { FARMING_CONTRACTS, univ3PoolNormalize } from '@kyber/schema';
 import { InfoHelper } from '@kyber/ui';
-import { PI_LEVEL, getPriceImpact, getSwapPriceImpactFromZapInfo } from '@kyber/utils';
+import { PI_LEVEL, getZapImpact } from '@kyber/utils';
 
 import { ERROR_MESSAGE } from '@/constants';
 import { useZapState } from '@/hooks/useZapState';
@@ -21,17 +21,7 @@ export default function Action({
   nftApprovePendingTx: string;
   approveNft: () => Promise<void>;
 }) {
-  const {
-    poolType,
-    chainId,
-    connectedAccount,
-    onClose,
-    onConnectWallet,
-    onSwitchChain,
-    nativeToken,
-    wrappedNativeToken,
-    positionId,
-  } = useWidgetStore(
+  const { poolType, chainId, connectedAccount, onClose, onConnectWallet, onSwitchChain, positionId } = useWidgetStore(
     useShallow(s => ({
       poolType: s.poolType,
       chainId: s.chainId,
@@ -67,7 +57,6 @@ export default function Action({
   } = useZapState();
 
   const initializing = pool === 'loading';
-  const { token0 = defaultToken, token1 = defaultToken } = !initializing ? pool : {};
 
   const [clickedApprove, setClickedLoading] = useState(false);
   const [dots, setDots] = useState(1);
@@ -102,17 +91,10 @@ export default function Action({
     zapLoading ||
     (!!error && !isWrongNetwork && !isNotConnected);
 
-  const tokensToCheck = [...tokensIn, token0, token1, wrappedNativeToken, nativeToken];
-  const priceImpact = !zapInfo
-    ? null
-    : getSwapPriceImpactFromZapInfo({ zapInfo, tokens: tokensToCheck, poolType, chainId });
-
   const zapImpact = !zapInfo
     ? null
-    : getPriceImpact(zapInfo.zapDetails.priceImpact, 'Zap Impact', zapInfo.zapDetails.suggestedSlippage || 100);
+    : getZapImpact(zapInfo.zapDetails.priceImpact, zapInfo.zapDetails.suggestedSlippage || 100);
 
-  const isVeryHighPriceImpact = priceImpact?.piRes.level === PI_LEVEL.VERY_HIGH;
-  const isHighPriceImpact = priceImpact?.piRes.level === PI_LEVEL.HIGH;
   const isVeryHighZapImpact = zapImpact?.level === PI_LEVEL.VERY_HIGH;
   const isHighZapImpact = zapImpact?.level === PI_LEVEL.HIGH;
   const isInvalidZapImpact = zapImpact?.level === PI_LEVEL.INVALID;
@@ -127,7 +109,7 @@ export default function Action({
     if (zapLoading) return `Fetching Route${'.'.repeat(dots)}`;
     if (nftApprovePendingTx) return `Approving${'.'.repeat(dots)}`;
     if (positionId && !nftApproved) return 'Approve NFT';
-    if (isVeryHighPriceImpact || isVeryHighZapImpact || isInvalidZapImpact) return 'Zap anyway';
+    if (isVeryHighZapImpact || isInvalidZapImpact) return 'Zap anyway';
 
     return 'Confirm';
   })();
@@ -152,7 +134,7 @@ export default function Action({
       zapInfo &&
       (isUniV3Pool ? tickLower !== null && tickUpper !== null && priceLower && priceUpper : true)
     ) {
-      if ((isVeryHighPriceImpact || isVeryHighZapImpact || isInvalidZapImpact) && !degenMode) {
+      if ((isVeryHighZapImpact || isInvalidZapImpact) && !degenMode) {
         toggleSetting(true);
         document.getElementById('zapin-setting')?.scrollIntoView({ behavior: 'smooth' });
 
@@ -178,9 +160,9 @@ export default function Action({
       <button
         className={`ks-primary-btn min-w-[190px] w-fit ${
           !disabled
-            ? isVeryHighPriceImpact || isVeryHighZapImpact || isInvalidZapImpact
+            ? isVeryHighZapImpact || isInvalidZapImpact
               ? 'bg-error border-solid border-error text-white'
-              : isHighPriceImpact || isHighZapImpact
+              : isHighZapImpact
                 ? 'bg-warning border-solid border-warning'
                 : ''
             : ''
@@ -189,20 +171,17 @@ export default function Action({
         onClick={hanldeClick}
       >
         {btnText}
-        {(isVeryHighPriceImpact || isVeryHighZapImpact || isInvalidZapImpact) &&
-          !error &&
-          !isWrongNetwork &&
-          !isNotConnected && (
-            <InfoHelper
-              width="300px"
-              color="#ffffff"
-              text={
-                degenMode
-                  ? 'You have turned on Degen Mode from settings. Trades with very high price impact can be executed'
-                  : 'To ensure you dont lose funds due to very high price impact, swap has been disabled for this trade. If you still wish to continue, you can turn on Degen Mode from Settings.'
-              }
-            />
-          )}
+        {(isVeryHighZapImpact || isInvalidZapImpact) && !error && !isWrongNetwork && !isNotConnected && (
+          <InfoHelper
+            width="300px"
+            color="#ffffff"
+            text={
+              degenMode
+                ? 'You have turned on Degen Mode from settings. Trades with very high price impact can be executed'
+                : 'To ensure you dont lose funds due to very high price impact, swap has been disabled for this trade. If you still wish to continue, you can turn on Degen Mode from Settings.'
+            }
+          />
+        )}
       </button>
     </div>
   );

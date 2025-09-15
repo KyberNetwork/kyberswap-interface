@@ -1,5 +1,5 @@
 import { ZapRouteDetail, defaultToken } from '@kyber/schema';
-import { getSwapPriceImpactFromActions, parseSwapActions } from '@kyber/utils';
+import { parseSwapActions } from '@kyber/utils';
 
 import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
@@ -22,7 +22,6 @@ export default function useSwapPI(zapInfo?: ZapRouteDetail) {
 
   const tokensToCheck = [...tokensIn, token0, token1, wrappedNativeToken, nativeToken];
   const swapActions = parseSwapActions({ zapInfo: zapInfoToUse, tokens: tokensToCheck, poolType, chainId });
-  const swapPriceImpact = getSwapPriceImpactFromActions(swapActions);
 
-  return { swapActions, swapPriceImpact };
+  return { swapActions };
 }

@@ -18,7 +18,7 @@ import CheckIcon from '@/assets/svg/success.svg';
 import X from '@/assets/svg/x.svg';
 import Modal from '@/components/Modal';
 import { SlippageWarning } from '@/components/SlippageWarning';
-import { SwapPI, useSwapPI } from '@/components/SwapImpact';
+import { useSwapPI } from '@/components/SwapImpact';
 import { MouseoverTooltip } from '@/components/Tooltip';
 import { WarningMsg } from '@/components/WarningMsg';
 import { CHAIN_ID_TO_CHAIN, NETWORKS_INFO, PATHS } from '@/constants';
@@ -137,7 +137,7 @@ export const Preview = () => {
     }
   }, [chainId, txHash]);
 
-  const { swapPiRes, zapPiRes } = useSwapPI();
+  const { zapPiRes } = useSwapPI();
 
   if (pool === 'loading' || position === 'loading' || !tokenOut || !route) return null;
 
@@ -153,8 +153,8 @@ export const Preview = () => {
     | undefined;
 
   const pi = {
-    piHigh: swapPiRes.piRes.level === PI_LEVEL.HIGH || zapPiRes.level === PI_LEVEL.HIGH,
-    piVeryHigh: swapPiRes.piRes.level === PI_LEVEL.VERY_HIGH || zapPiRes.level === PI_LEVEL.VERY_HIGH,
+    piHigh: zapPiRes.level === PI_LEVEL.HIGH,
+    piVeryHigh: zapPiRes.level === PI_LEVEL.VERY_HIGH,
   };
 
   const zapFee = ((feeInfo?.protocolFee.pcm || 0) / 100_000) * 100;
@@ -366,10 +366,6 @@ export const Preview = () => {
               className="mt-0"
               showWarning={!!route}
             />
-
-            <div className="flex items-center justify-between">
-              <SwapPI />
-            </div>
 
             <div className="flex items-center justify-between">
               <MouseoverTooltip

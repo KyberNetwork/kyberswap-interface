@@ -1,6 +1,6 @@
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { formatUnits, isAddress } from 'ethers/lib/utils'
-import mixpanel from 'mixpanel-browser'
+import mixpanel, { crossChainMixpanel } from 'libs/mixpanel'
 import { useCallback, useEffect, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useLocation } from 'react-router-dom'
@@ -248,6 +248,33 @@ type FeeInfo = {
   tokenSymbol: string
   feeUsd: string
   feeAmount: string
+}
+
+export enum CROSS_CHAIN_MIXPANEL_TYPE {
+  CROSS_CHAIN_SWAP_INIT = 'cross_chain_swap_init',
+  CROSS_CHAIN_SWAP_SUCCESS = 'cross_chain_swap_success',
+  CROSS_CHAIN_SWAP_FAILED = 'cross_chain_swap_failed',
+}
+
+export const useCrossChainMixpanel = () => {
+  const crossChainMixpanelHandler = useCallback((type: CROSS_CHAIN_MIXPANEL_TYPE, payload?: any) => {
+    switch (type) {
+      case CROSS_CHAIN_MIXPANEL_TYPE.CROSS_CHAIN_SWAP_INIT: {
+        crossChainMixpanel?.track(type, payload)
+        break
+      }
+      case CROSS_CHAIN_MIXPANEL_TYPE.CROSS_CHAIN_SWAP_SUCCESS: {
+        crossChainMixpanel?.track(type, payload)
+        break
+      }
+      case CROSS_CHAIN_MIXPANEL_TYPE.CROSS_CHAIN_SWAP_FAILED: {
+        crossChainMixpanel?.track(type, payload)
+        break
+      }
+    }
+  }, [])
+
+  return { crossChainMixpanelHandler }
 }
 
 export default function useMixpanel(currencies?: { [field in Field]?: Currency }) {
@@ -1273,6 +1300,7 @@ export const useGlobalMixpanelEvents = () => {
   useEffect(() => {
     if (account && isAddress(account)) {
       mixpanel.identify(account)
+      crossChainMixpanel?.identify(account)
 
       const getQueryParam = (url: string, param: string) => {
         // eslint-disable-next-line
@@ -1307,11 +1335,16 @@ export const useGlobalMixpanelEvents = () => {
       mixpanel.people.set_once(first_params)
       mixpanel.register_once(params)
 
+      crossChainMixpanel?.people.set(params)
+      crossChainMixpanel?.people.set_once(first_params)
+      crossChainMixpanel?.register_once(params)
+
       mixpanelHandler(MIXPANEL_TYPE.WALLET_CONNECTED)
     }
     return () => {
       if (account) {
         mixpanel.reset()
+        crossChainMixpanel?.reset()
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1324,6 +1357,7 @@ export const useGlobalMixpanelEvents = () => {
         old_network: oldNetwork && NETWORKS_INFO[oldNetwork as ChainId].name,
       })
       mixpanel.register({ network: chainId && NETWORKS_INFO[chainId].name })
+      crossChainMixpanel?.register({ network: chainId && NETWORKS_INFO[chainId].name })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chainId])

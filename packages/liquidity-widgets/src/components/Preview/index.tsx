@@ -11,7 +11,6 @@ import { cn } from '@kyber/utils/tailwind-helpers';
 
 import X from '@/assets/svg/x.svg';
 import EstimatedRow from '@/components/Estimated/EstimatedRow';
-import SwapImpactCollapse from '@/components/Estimated/SwapImpactCollapse';
 import Head from '@/components/Preview/Head';
 import PooledAmount from '@/components/Preview/PooledAmount';
 import PriceInfo from '@/components/Preview/PriceInfo';
@@ -20,7 +19,6 @@ import ZapInAmount from '@/components/Preview/ZapInAmount';
 import useOnSuccess from '@/components/Preview/useOnSuccess';
 import useTxStatus from '@/components/Preview/useTxStatus';
 import { SlippageWarning } from '@/components/SlippageWarning';
-import useSwapPI from '@/hooks/useSwapPI';
 import { useZapState } from '@/hooks/useZapState';
 import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
@@ -55,7 +53,6 @@ export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool,
   const { success: isUniV3 } = univ3PoolNormalize.safeParse(pool);
 
   const { token0, token1 } = pool;
-  const { swapPriceImpact } = useSwapPI(zapInfo);
   const { refundInfo, addedAmountInfo, feeInfo, positionAmountInfo, zapImpact, suggestedSlippage } = parseZapInfo({
     zapInfo,
     token0,
@@ -224,8 +221,6 @@ export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool,
             showWarning
           />
 
-          <SwapImpactCollapse className="w-full mt-0" initializing={false} zapInfo={zapInfo} />
-
           <EstimatedRow
             initializing={false}
             label={
@@ -309,12 +304,9 @@ export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool,
         <button
           className={cn(
             'ks-primary-btn mt-4 w-full',
-            zapImpact.level === PI_LEVEL.VERY_HIGH ||
-              zapImpact.level === PI_LEVEL.INVALID ||
-              swapPriceImpact.piRes.level === PI_LEVEL.VERY_HIGH ||
-              swapPriceImpact.piRes.level === PI_LEVEL.INVALID
+            zapImpact.level === PI_LEVEL.VERY_HIGH || zapImpact.level === PI_LEVEL.INVALID
               ? 'bg-error border-error text-white'
-              : zapImpact.level === PI_LEVEL.HIGH || swapPriceImpact.piRes.level === PI_LEVEL.HIGH
+              : zapImpact.level === PI_LEVEL.HIGH
                 ? 'bg-warning border-warning'
                 : '',
           )}

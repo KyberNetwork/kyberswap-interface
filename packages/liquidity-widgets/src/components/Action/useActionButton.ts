@@ -3,11 +3,10 @@ import { useMemo, useState } from 'react';
 import { usePositionOwner } from '@kyber/hooks';
 import { APPROVAL_STATE, useErc20Approvals } from '@kyber/hooks';
 import { API_URLS, CHAIN_ID_TO_CHAIN, NETWORKS_INFO, univ3PoolNormalize, univ4Types } from '@kyber/schema';
-import { PI_LEVEL, getPriceImpact } from '@kyber/utils';
+import { PI_LEVEL, getZapImpact } from '@kyber/utils';
 import { parseUnits } from '@kyber/utils/crypto';
 
 import { ERROR_MESSAGE } from '@/constants';
-import useSwapPI from '@/hooks/useSwapPI';
 import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
@@ -113,14 +112,10 @@ export default function useActionButton({
     (errors.length > 0 && !isWrongNetwork && !isNotConnected) ||
     Object.values(approvalStates).some(item => item === APPROVAL_STATE.PENDING);
 
-  const { swapPriceImpact } = useSwapPI();
-
   const zapImpact = !zapInfo
     ? null
-    : getPriceImpact(zapInfo.zapDetails.priceImpact, 'Zap Impact', zapInfo.zapDetails.suggestedSlippage || 100);
+    : getZapImpact(zapInfo.zapDetails.priceImpact, zapInfo.zapDetails.suggestedSlippage || 100);
 
-  const isVeryHighPriceImpact = swapPriceImpact?.piRes.level === PI_LEVEL.VERY_HIGH;
-  const isHighPriceImpact = swapPriceImpact?.piRes.level === PI_LEVEL.HIGH;
   const isVeryHighZapImpact = zapImpact?.level === PI_LEVEL.VERY_HIGH;
   const isHighZapImpact = zapImpact?.level === PI_LEVEL.HIGH;
   const isInvalidZapImpact = zapImpact?.level === PI_LEVEL.INVALID;
@@ -134,7 +129,7 @@ export default function useActionButton({
     { condition: loading, text: 'Checking Allowance' },
     { condition: notApprove, text: `Approve ${notApprove?.symbol}` },
     { condition: isUniv4 && positionId && !nftApproved, text: 'Approve NFT' },
-    { condition: isVeryHighPriceImpact || isVeryHighZapImpact || isInvalidZapImpact, text: 'Zap anyway' },
+    { condition: isVeryHighZapImpact || isInvalidZapImpact, text: 'Zap anyway' },
   ];
   const btnText = buttonStates.find(state => state.condition)?.text || 'Preview';
 
@@ -202,7 +197,7 @@ export default function useActionButton({
       zapInfo &&
       (isUniV3Pool ? tickLower !== null && tickUpper !== null : true)
     ) {
-      if ((isVeryHighPriceImpact || isVeryHighZapImpact || isInvalidZapImpact) && !uiState.degenMode) {
+      if ((isVeryHighZapImpact || isInvalidZapImpact) && !uiState.degenMode) {
         toggleSetting(true);
         document.getElementById('zapin-setting')?.scrollIntoView({ behavior: 'smooth' });
 
@@ -226,15 +221,15 @@ export default function useActionButton({
 
   const btnLoading = zapLoading || loading || addressToApprove || nftApprovePendingTx || gasLoading;
   const btnWarning =
-    (isVeryHighPriceImpact || isVeryHighZapImpact || isInvalidZapImpact) &&
+    (isVeryHighZapImpact || isInvalidZapImpact) &&
     !errors.length &&
     !isWrongNetwork &&
     !isNotConnected &&
     Object.values(approvalStates).every(item => item === APPROVAL_STATE.APPROVED) &&
     (isUniv4 ? nftApproved : true);
 
-  const isVeryHighWarning = isVeryHighPriceImpact || isVeryHighZapImpact || isInvalidZapImpact;
-  const isHighWarning = isHighPriceImpact || isHighZapImpact;
+  const isVeryHighWarning = isVeryHighZapImpact || isInvalidZapImpact;
+  const isHighWarning = isHighZapImpact;
 
   return {
     btnText,
