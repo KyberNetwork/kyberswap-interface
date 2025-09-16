@@ -358,7 +358,7 @@ export const SCAN_LINK: { [chainId: number]: string } = {
 
 export const DefaultRpcUrl: { [chainId: number]: string } = {
   1: 'https://ethereum.kyberengineering.io',
-  137: 'https://polygon.kyberengineering.io',
+  137: 'https://polygon-rpc.com',
   56: 'https://bsc.kyberengineering.io',
   43114: 'https://avalanche.kyberengineering.io',
   250: 'https://rpc.fantom.network',
