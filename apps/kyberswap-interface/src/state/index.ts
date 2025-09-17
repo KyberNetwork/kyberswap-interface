@@ -20,6 +20,7 @@ import priceAlertApi from 'services/priceAlert'
 import referralApi from 'services/referral'
 import rewardServiceApi from 'services/reward'
 import routeApi from 'services/route'
+import smartExitApi from 'services/smartExit'
 import socialApi from 'services/social'
 import tokenApi from 'services/token'
 import zapEarnServiceApi from 'services/zapEarn'
@@ -115,6 +116,7 @@ const store = configureStore({
     [commonServiceApi.reducerPath]: commonServiceApi.reducer,
     [blackjackApi.reducerPath]: blackjackApi.reducer,
     [marketOverviewApi.reducerPath]: marketOverviewApi.reducer,
+    [smartExitApi.reducerPath]: smartExitApi.reducer,
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({ thunk: true, immutableCheck: false, serializableCheck: false })
@@ -147,7 +149,8 @@ const store = configureStore({
       .concat(campaignApi.middleware)
       .concat(commonServiceApi.middleware)
       .concat(blackjackApi.middleware)
-      .concat(marketOverviewApi.middleware),
+      .concat(marketOverviewApi.middleware)
+      .concat(smartExitApi.middleware),
   preloadedState,
 })
 
