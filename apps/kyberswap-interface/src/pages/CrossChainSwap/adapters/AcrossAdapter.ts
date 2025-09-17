@@ -263,7 +263,7 @@ export class AcrossAdapter extends BaseSwapAdapter {
       ChainId.BLAST,
       ChainId.UNICHAIN,
       ChainId.BSCMAINNET,
-      NonEvmChain.Solana,
+      // NonEvmChain.Solana,
     ]
   }
 
@@ -514,7 +514,7 @@ export class AcrossAdapter extends BaseSwapAdapter {
       )
       return {
         txHash: res.fillTx || '',
-        status: res.status === 'filled' ? 'Success' : 'Processing',
+        status: res.status === 'refunded' ? 'Refunded' : res.status === 'filled' ? 'Success' : 'Processing',
       }
     } catch (error) {
       console.error('Error fetching transaction status:', error)
