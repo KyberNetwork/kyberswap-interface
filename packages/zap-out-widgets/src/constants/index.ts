@@ -154,7 +154,6 @@ export const poolTypeToDexId: { [poolType in PoolType]: number } = {
 };
 
 export const PATHS = {
-  BFF_API: 'https://bff.kyberswap.com/api',
   KYBERSWAP_SETTING_API: 'https://ks-setting.kyberswap.com/api',
   ZAP_API: 'https://zap-api.kyberswap.com',
   // ZAP_API: 'https://pre-zap-api.kyberengineering.io',
