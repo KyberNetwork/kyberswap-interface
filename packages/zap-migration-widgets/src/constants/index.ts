@@ -78,6 +78,8 @@ export const PATHS = {
   ZAP_API: 'https://zap-api.kyberswap.com',
   // ZAP_API: 'https://pre-zap-api.kyberengineering.io',
   TOKEN_API: 'https://token-api.kyberengineering.io/api',
+  ZAP_EARN_API: 'https://zap-earn-service-v3.kyberengineering.io/api',
+  // ZAP_EARN_API: 'https://pre-zap-earn-service.kyberengineering.io/api',
   DOCUMENT: {
     ZAP_FEE_MODEL: 'https://docs.kyberswap.com/kyberswap-solutions/kyberswap-zap-as-a-service/zap-fee-model',
   },
