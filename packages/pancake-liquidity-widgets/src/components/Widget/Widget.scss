@@ -1,0 +1,32 @@
+:root {
+  --pcs-lw-cardBackground: #27262c;
+  --pcs-lw-cardBorder: #383241;
+  --pcs-lw-background: #08060b;
+  --pcs-lw-inputBackground: #372f47;
+  --pcs-lw-inputBorder: #55496e;
+  --pcs-lw-primary: #1fc7d4;
+  --pcs-lw-secondary: #a881fc;
+  --pcs-lw-tertiary: #353547;
+  --pcs-lw-textSecondary: #b8add2;
+  --pcs-lw-textPrimary: #f4eeff;
+  --pcs-lw-textReverse: #000000;
+  --pcs-lw-warningBackground: #3d2100;
+  --pcs-lw-warningBorder: #5b3400;
+  --pcs-lw-warning: #ff9d02;
+  --pcs-lw-green-10: #02382e;
+  --pcs-lw-green-20: #035345;
+  --pcs-lw-green-50: #129e7d;
+  --pcs-lw-disabled: #666171;
+  --pcs-lw-error: #ff3333;
+}
+
+.pcs-lw {
+  border-radius: 24px;
+  background: var(--pcs-lw-cardBackground);
+  color: var(--pcs-lw-textPrimary);
+  font-family: Kanit, Sans-serif;
+  position: relative;
+  transition: all 0.2s;
+  box-shadow: 0px 1px 2px 0px #00000014;
+  border: 1px solid var(--pcs-lw-cardBorder);
+}

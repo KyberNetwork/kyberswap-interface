@@ -1,0 +1,13 @@
+{
+  "extends": "@kyber/typescript-config/base.json",
+  "compilerOptions": {
+    "allowImportingTsExtensions": false,
+    "noEmit": false,
+    "outDir": "dist",
+    "rootDir": "src",
+    "target": "ESNext",
+    "lib": ["esnext"]
+  },
+  "include": ["src", ".eslintrc.cjs"],
+  "exclude": ["node_modules", "dist"]
+}

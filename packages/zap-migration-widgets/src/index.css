@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* modal */
+.ks-lw-modal-overlay {
+  @apply fixed top-0 left-0 right-0 bottom-0;
+  @apply flex justify-center items-center;
+  @apply bg-[#00000080] z-[10000];
+}
+
+.ks-lw-modal-content {
+  @apply relative overflow-y-scroll;
+  @apply w-full max-w-[480px] max-h-[96vh] p-6 rounded-md;
+  @apply bg-layer1 text-text;
+  @apply transition-all duration-200;
+  font-family:
+    var(--ks-lw-fontFamily) 'Work Sans',
+    Sans-serif;
+}
+
+.ks-lw-modal-content::-webkit-scrollbar {
+  @apply hidden;
+}
+
+.ks-lw-modal-close {
+  @apply absolute top-5 right-5 cursor-pointer;
+}
+
+@keyframes highlight {
+  0% {
+    box-shadow: 0 0 0 0 var(--ks-lw-accent);
+  }
+
+  70% {
+    box-shadow: 0 0 0 2px var(--ks-lw-accent);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 var(--ks-lw-accent);
+  }
+}
+
+.degen-mode[data-highlight='true'] {
+  animation: highlight 2s 2 alternate ease-in-out;
+}

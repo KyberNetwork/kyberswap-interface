@@ -1,0 +1,59 @@
+{
+  "name": "@kyberswap/pancake-liquidity-widgets",
+  "version": "2.0.1",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/pancake-liquidity-widget.js",
+      "require": "./dist/pancake-liquidity-widget.cjs"
+    },
+    "./dist/style.css": "./dist/pancake-liquidity-widget.css"
+  },
+  "main": "./dist/pancake-liquidity-widget.cjs",
+  "module": "./dist/pancake-liquidity-widget.js",
+  "types": "./dist/pancake-liquidity-widget.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives",
+    "prepublishOnly": "tsc && tsup",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@pancakeswap/sdk": "^5.8.2",
+    "@pancakeswap/swap-sdk-core": "^1.2.0",
+    "@pancakeswap/v3-sdk": "^3.8.3",
+    "@popperjs/core": "^2.11.8",
+    "react-popper": "^2.3.0"
+  },
+  "devDependencies": {
+    "@kyber/hooks": "workspace:*",
+    "@kyber/svgr-esbuild-plugin": "workspace:^",
+    "@kyber/ui": "workspace:*",
+    "@kyber/utils": "workspace:^",
+    "@types/react": "^18.0.17",
+    "@types/react-dom": "^18.2.17",
+    "@typescript-eslint/eslint-plugin": "^6.14.0",
+    "@typescript-eslint/parser": "^6.14.0",
+    "autoprefixer": "^10.4.20",
+    "esbuild-sass-plugin": "^3.3.1",
+    "eslint": "^8.55.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.5",
+    "postcss": "^8.4.47",
+    "postcss-prefix-selector": "^2.1.0",
+    "sass": "^1.70.0",
+    "tailwindcss": "^3.4.13",
+    "tsup": "^8.3.0",
+    "typescript": "5.3.2"
+  },
+  "peerDependencies": {
+    "react": ">=16.8.0",
+    "react-dom": ">=16.8.0",
+    "viem": ">=2.13.3"
+  }
+}

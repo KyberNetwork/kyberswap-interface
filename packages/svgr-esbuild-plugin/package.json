@@ -1,0 +1,29 @@
+{
+  "name": "@kyber/svgr-esbuild-plugin",
+  "type": "module",
+  "version": "0.0.1",
+  "description": "SVGR plugin for esbuild",
+  "scripts": {
+    "type-check": "tsc --noEmit",
+    "dev": "tsc --watch",
+    "build": "tsc"
+  },
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dis/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "devDependencies": {
+    "@kyber/eslint-config": "workspace:*",
+    "@kyber/typescript-config": "workspace:*",
+    "@types/node": "18.11.18",
+    "typescript": "5.3.2"
+  },
+  "dependencies": {
+    "@svgr/core": "^8.1.0",
+    "@svgr/plugin-jsx": "^8.1.0",
+    "esbuild": "^0.24.0"
+  }
+}

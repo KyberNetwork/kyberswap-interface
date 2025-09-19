@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+#root {
+  margin: auto;
+  background-color: rgb(15, 15, 15);
+  min-width: 100vw;
+  min-height: 100vh;
+}
+
+body {
+  margin: 0;
+  font-family: "Geist", sans-serif;
+}

@@ -1,0 +1,8 @@
+{
+  "extends": "@kyber/typescript-config/react-library.json",
+  "compilerOptions": {
+    "outDir": "dist"
+  },
+  "include": ["src", "turbo", "tailwind.config.ts", "tsup.config.ts", "src/**/*.ts", "src/**/*.tsx"],
+  "exclude": ["node_modules", "dist"]
+}
