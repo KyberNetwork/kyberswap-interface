@@ -1,8 +1,9 @@
 import { t } from '@lingui/macro'
 import { useCallback, useState } from 'react'
+import { useGetSmartExitSignMessageMutation } from 'services/smartExit'
 
 import { NotificationType } from 'components/Announcement/type'
-import { useActiveWeb3React } from 'hooks'
+import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { ParsedPosition } from 'pages/Earns/types'
 import { useNotify } from 'state/application/hooks'
 import { friendlyError } from 'utils/errorMessage'
@@ -69,9 +70,11 @@ export const useSmartExit = ({
   signature,
 }: UseSmartExitParams) => {
   const { account, chainId } = useActiveWeb3React()
+  const { library } = useWeb3React()
   const notify = useNotify()
   const [state, setState] = useState<SmartExitState>(SmartExitState.IDLE)
   const [orderId, setOrderId] = useState<string | null>(null)
+  const [getSignMessage] = useGetSmartExitSignMessageMutation()
 
   const buildConditions = useCallback(() => {
     const conditions: Array<{
@@ -90,7 +93,7 @@ export const useSmartExit = ({
               field: {
                 type: 'fee_yield',
                 value: {
-                  gte: parseFloat(feeYieldCondition) / 100,
+                  gte: parseFloat(feeYieldCondition),
                 },
               },
             })
@@ -156,7 +159,7 @@ export const useSmartExit = ({
   // }, [])
 
   const createSmartExitOrder = useCallback(async (): Promise<boolean> => {
-    if (!account || !chainId || !permitData || !signature) {
+    if (!account || !chainId || !permitData || !signature || !library) {
       console.error('Missing required data for smart exit order')
       return false
     }
@@ -165,10 +168,36 @@ export const useSmartExit = ({
     console.log(position)
 
     try {
+      // Step 1: Get sign message from API
+      const signMessageParams = {
+        chainId,
+        userWallet: account,
+        dexType: 'uniswap-v4',
+        poolId: position.pool.address,
+        positionId: position.tokenId,
+        removeLiquidity: '297580968795', // TODO: Calculate actual liquidity amount
+        unwrap: false,
+        permitData,
+        condition: buildConditions(),
+      }
+
+      console.log('Getting sign message with params:', signMessageParams)
+
+      const signMessageResult = await getSignMessage(signMessageParams).unwrap()
+      const typedData = signMessageResult.message
+
+      if (!typedData || !typedData.domain || !typedData.types || !typedData.message) {
+        throw new Error('Failed to get valid typed data from API')
+      }
+
+      // Step 2: Sign the typed data
+      console.log('Signing typed data:', typedData)
+      const orderSignature = await library.send('eth_signTypedData_v4', [account, JSON.stringify(typedData)])
+
+      // Step 3: Create the order with both signatures
       const orderParams: SmartExitOrderParams = {
         chainId,
         userWallet: account,
-        // TODO: dex type
         dexType: 'uniswap-v4',
         poolId: position.pool.address,
         positionId: position.tokenId,
@@ -176,7 +205,7 @@ export const useSmartExit = ({
         unwrap: false,
         permitData,
         condition: buildConditions(),
-        signature,
+        signature: orderSignature,
         deadline: expireTime,
       }
 
@@ -219,7 +248,7 @@ export const useSmartExit = ({
 
       return false
     }
-  }, [account, chainId, permitData, signature, position, buildConditions, notify, expireTime])
+  }, [account, chainId, permitData, signature, position, buildConditions, notify, expireTime, library, getSignMessage])
 
   const reset = useCallback(() => {
     setState(SmartExitState.IDLE)

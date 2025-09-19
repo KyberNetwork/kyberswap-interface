@@ -3,16 +3,19 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { Flex, Text } from 'rebass'
 import { useGetSmartExitOrdersQuery } from 'services/smartExit'
+import { useUserPositionsQuery } from 'services/zapEarn'
 import styled from 'styled-components'
 
+import TokenLogo from 'components/TokenLogo'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
+import { Badge, BadgeType, ChainImage, ImageContainer } from 'pages/Earns/UserPositions/styles'
 
 import { PoolPageWrapper, TableWrapper } from '../PoolExplorer/styles'
 import Filter from '../UserPositions/Filter'
-import { Badge, BadgeType } from '../UserPositions/styles'
 import useFilter from '../UserPositions/useFilter'
+import { earnSupportedChains, earnSupportedExchanges } from '../constants'
 import useSupportedDexesAndChains from '../hooks/useSupportedDexesAndChains'
 
 const TableHeader = styled.div`
@@ -25,6 +28,7 @@ const TableHeader = styled.div`
 `
 
 const TableRow = styled(TableHeader)`
+  align-items: center;
   color: ${({ theme }) => theme.text};
 `
 
@@ -45,7 +49,7 @@ const SmartExit = () => {
   } = useGetSmartExitOrdersQuery(
     {
       chainId: chainId,
-      userWallet: '0x0193a8a52D77E27bDd4f12E0cDd52d8Ff1d97d68',
+      userWallet: account || '',
     },
     {
       skip: !account || !chainId,
@@ -60,6 +64,14 @@ const SmartExit = () => {
       setLoading(false)
     }
   }, [ordersLoading])
+
+  const { data: userPosition } = useUserPositionsQuery(
+    { chainIds: earnSupportedChains.join(','), addresses: account || '', protocols: earnSupportedExchanges.join(',') },
+    {
+      skip: !account,
+      pollingInterval: 15_000,
+    },
+  )
 
   return (
     <PoolPageWrapper>
@@ -114,18 +126,44 @@ const SmartExit = () => {
           </Flex>
         ) : (
           orders.map(order => {
+            const posDetail = userPosition?.find(
+              us => us.tokenId === order.positionId && +us.chainId === +order.chainId,
+            )
+            if (!posDetail) return null
+            const token0 = posDetail.currentAmounts[0].token
+            const token1 = posDetail.currentAmounts[1].token
+
             const { conditions, op } = order.condition.logical
             return (
-              <TableRow>
-                <Text>{order.id}</Text>
+              <TableRow key={order.id}>
+                <div>
+                  <Flex mx="12px" alignItems="center">
+                    <ImageContainer>
+                      <TokenLogo src={token0.logo} />
+                      <TokenLogo src={token1.logo} translateLeft />
+                      <ChainImage src={posDetail.chainLogo} alt="" />
+                    </ImageContainer>
+                    <Text mr="8px">
+                      {token0.symbol}/{token1.symbol}
+                    </Text>
+                    <Badge>Fee {posDetail?.pool.tickSpacing / 10_0}%</Badge>
+                  </Flex>
+                  <Flex alignItems="center" sx={{ gap: '4px' }} mt="4px" ml="1rem">
+                    <TokenLogo src={posDetail.pool.projectLogo} size={16} />
+                    <Text color={theme.subText}>
+                      {posDetail.pool.project} #{order.positionId}
+                    </Text>
+                  </Flex>
+                </div>
+
                 <div>
                   {conditions.map((c, i) => {
                     if (c.field.type === 'fee_yield')
                       return (
-                        <Text color={theme.subText}>
+                        <Text color={theme.subText} key={i}>
                           The{' '}
                           <Text as="span" color={theme.text}>
-                            fee yield ≥ {Number((c.field.value.gte * 100).toFixed(2))}%
+                            fee yield ≥ {Number(c.field.value.gte.toFixed(2))}%
                           </Text>{' '}
                           {i !== conditions.length - 1 && (
                             <Text as="span" fontWeight={500} color={theme.text}>
@@ -137,7 +175,7 @@ const SmartExit = () => {
 
                     if (c.field.type === 'pool_price')
                       return (
-                        <Text color={theme.subText}>
+                        <Text color={theme.subText} key={i}>
                           Pool price is between{' '}
                           <Text as="span" color={theme.text}>
                             {c.field.value.gte}
@@ -154,12 +192,18 @@ const SmartExit = () => {
                         </Text>
                       )
 
-                    if (c.field.type === 'time') return <Text color={theme.subText}>Todo</Text>
+                    if (c.field.type === 'time')
+                      return (
+                        <Text key={i} color={theme.subText}>
+                          Todo
+                        </Text>
+                      )
                     return null
                   })}
                 </div>
                 <Flex justifyContent="center">
                   <Badge
+                    style={{ height: 'max-content' }}
                     type={
                       order.status === 'open'
                         ? BadgeType.PRIMARY

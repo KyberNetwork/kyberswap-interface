@@ -106,6 +106,50 @@ const smartExitApi = createApi({
       invalidatesTags: [RTK_QUERY_TAGS.GET_SMART_EXIT_ORDERS],
     }),
 
+    getSmartExitSignMessage: builder.mutation<
+      {
+        message: {
+          domain: any
+          types: any
+          message: any
+          primaryType: string
+        }
+      },
+      {
+        chainId: number
+        userWallet: string
+        dexType: string
+        poolId: string
+        positionId: string
+        removeLiquidity: string
+        unwrap: boolean
+        permitData: string
+        condition: {
+          logical: {
+            op: 'and' | 'or'
+            conditions: Array<{
+              field: {
+                type: 'time' | 'pool_price' | 'fee_yield'
+                value: any
+              }
+            }>
+          }
+        }
+      }
+    >({
+      query: body => ({
+        url: `${SMART_EXIT_API_URL}/sign-message`,
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body,
+      }),
+      transformResponse: (data: any) => ({
+        message: data?.data || data?.message,
+      }),
+    }),
+
     cancelSmartExitOrder: builder.mutation<
       any,
       {
@@ -132,8 +176,8 @@ export const {
   useGetSmartExitOrdersQuery,
   useLazyGetSmartExitOrdersQuery,
   useCreateSmartExitOrderMutation,
+  useGetSmartExitSignMessageMutation,
   useCancelSmartExitOrderMutation,
 } = smartExitApi
 
 export default smartExitApi
-
