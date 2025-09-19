@@ -40,8 +40,6 @@
   ],
   "dependencies": {
     "@across-protocol/app-sdk": "^0.4.0",
-    "@across-protocol/contracts": "^3.0.18",
-    "@coral-xyz/anchor": "^0.30.1",
     "@bitcoinerlab/secp256k1": "^1.2.0",
     "@defuse-protocol/one-click-sdk-typescript": "^0.1.2",
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
