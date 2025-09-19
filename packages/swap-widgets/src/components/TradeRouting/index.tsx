@@ -56,7 +56,7 @@ const RouteRow = ({ route, chainId, backgroundColor }: RouteRowProps) => {
 
   return (
     <StyledWrap ref={shadowRef} backgroundColor={backgroundColor}>
-      <ScrollContainer innerRef={scrollRef} vertical={false} onScroll={handleShadow}>
+      {React.createElement(ScrollContainer as any, { innerRef: scrollRef, vertical: false, onScroll: handleShadow },
         <StyledHops length={route?.subRoutes?.length} ref={contentRef}>
           {route.subRoutes.map((subRoute, index, arr) => {
             const token = route.path[index + 1]
@@ -126,7 +126,7 @@ const RouteRow = ({ route, chainId, backgroundColor }: RouteRowProps) => {
             )
           })}
         </StyledHops>
-      </ScrollContainer>
+      )}
     </StyledWrap>
   )
 }
