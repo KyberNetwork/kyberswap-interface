@@ -2,6 +2,17 @@ import { useEffect, useState } from 'react';
 
 import { useCopy } from '@kyber/hooks';
 import {
+  API_URLS,
+  CHAIN_ID_TO_CHAIN,
+  ChainId,
+  DEXES_INFO,
+  NETWORKS_INFO,
+  ProtocolFeeAction,
+  RefundAction,
+  Token,
+  univ2Types,
+} from '@kyber/schema';
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -29,16 +40,14 @@ import AlertIcon from '@/assets/icons/circle-alert.svg';
 import CheckIcon from '@/assets/icons/circle-check.svg';
 import LoadingIcon from '@/assets/icons/loader-circle.svg';
 import { MigrationSummary } from '@/components/Preview/MigrationSummary';
-import { SlippageInfo } from '@/components/SlippageInfo';
-import { useSwapPI } from '@/components/SwapImpact';
-import { DEXES_INFO, NETWORKS_INFO, PATHS } from '@/constants';
-import { ChainId, Token, UniV2Pool, univ2Dexes } from '@/schema';
-import { usePoolsStore } from '@/stores/usePoolsStore';
-import { ProtocolFeeAction, RefundAction, useZapStateStore } from '@/stores/useZapStateStore';
+import { SlippageInfo } from '@/components/Preview/SlippageInfo';
+import useZapRoute from '@/hooks/useZapRoute';
+import { usePoolStore } from '@/stores/usePoolStore';
+import { useWidgetStore } from '@/stores/useWidgetStore';
+import { useZapStore } from '@/stores/useZapStore';
 import { PI_LEVEL, formatCurrency } from '@/utils';
 
 export function Preview({
-  chainId,
   onSubmitTx,
   account,
   client,
@@ -47,25 +56,34 @@ export function Preview({
   referral,
 }: {
   client: string;
-  chainId: ChainId;
   onSubmitTx: (txData: { from: string; to: string; value: string; data: string; gasLimit: string }) => Promise<string>;
   account: string | undefined;
   onClose: () => void;
   onViewPosition?: (txHash: string) => void;
   referral?: string;
 }) {
+  const { chainId, theme } = useWidgetStore(['chainId', 'theme']);
   const { showPreview, togglePreview, tickLower, tickUpper, route, slippage, setSlippageOpen, setSlippage } =
-    useZapStateStore();
-  const { pools, theme } = usePoolsStore();
+    useZapStore([
+      'showPreview',
+      'togglePreview',
+      'tickLower',
+      'tickUpper',
+      'route',
+      'slippage',
+      'setSlippageOpen',
+      'setSlippage',
+    ]);
+  const { sourcePool, targetPool } = usePoolStore(['sourcePool', 'targetPool']);
 
   const copyPoolAddress0 = useCopy({
-    text: pools === 'loading' ? '' : pools[0].address,
+    text: sourcePool?.address || '',
     copyClassName: 'text-subText w-4 h-4',
     successClassName: 'w-4 h-4',
   });
 
   const copyPoolAddress1 = useCopy({
-    text: pools === 'loading' ? '' : pools[1].address,
+    text: targetPool?.address || '',
     copyClassName: 'text-subText w-4 h-4',
     successClassName: 'w-4 h-4',
   });
@@ -79,7 +97,7 @@ export function Preview({
 
   useEffect(() => {
     if (!route?.route || !showPreview) return;
-    fetch(`${PATHS.ZAP_API}/${NETWORKS_INFO[chainId].zapPath}/api/v1/migrate/route/build`, {
+    fetch(`${API_URLS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/migrate/route/build`, {
       method: 'POST',
       body: JSON.stringify({
         sender: account,
@@ -157,11 +175,11 @@ export function Preview({
     return () => clearInterval(i);
   }, [txHash, chainId, rpcUrl]);
 
-  const { zapPiRes } = useSwapPI(chainId);
+  const { zapImpact } = useZapRoute();
 
-  const isTargetUniv2 = pools !== 'loading' && univ2Dexes.includes(pools[1].dex);
+  const isTargetUniv2 = targetPool && univ2Types.includes(targetPool.poolType as any);
 
-  if (route === null || pools === 'loading' || !account) return null;
+  if (route === null || !sourcePool || !targetPool || !account) return null;
   let amount0 = 0n;
   let amount1 = 0n;
 
@@ -169,13 +187,13 @@ export function Preview({
   const newOtherPoolDetail = route?.poolDetails.uniswapV3 || route?.poolDetails.algebraV1;
 
   if (isTargetUniv2 && newUniv2PoolDetail) {
-    const p = pools[1] as UniV2Pool;
-    amount0 =
-      (BigInt(route.positionDetails.addedLiquidity) * BigInt(newUniv2PoolDetail.newReserve0)) /
-      BigInt(p.totalSupply || 0n);
-    amount1 =
-      (BigInt(route.positionDetails.addedLiquidity) * BigInt(newUniv2PoolDetail.newReserve1)) /
-      BigInt(p.totalSupply || 0n);
+    // const p = targetPool as UniV2Pool;
+    // amount0 =
+    //   (BigInt(route.positionDetails.addedLiquidity) * BigInt(newUniv2PoolDetail.newReserve0)) /
+    //   BigInt(p.totalSupply || 0n);
+    // amount1 =
+    //   (BigInt(route.positionDetails.addedLiquidity) * BigInt(newUniv2PoolDetail.newReserve1)) /
+    //   BigInt(p.totalSupply || 0n);
   } else if (!isTargetUniv2 && route !== null && tickLower !== null && tickUpper !== null && newOtherPoolDetail) {
     ({ amount0, amount1 } = getPositionAmounts(
       newOtherPoolDetail.newTick,
@@ -192,7 +210,7 @@ export function Preview({
 
   const zapFee = ((feeInfo?.protocolFee.pcm || 0) / 100_000) * 100;
 
-  const tokens: Token[] = [pools[0].token0, pools[0].token1, pools[1].token0, pools[1].token1];
+  const tokens: Token[] = [sourcePool.token0, sourcePool.token1, targetPool.token0, targetPool.token1];
 
   const refundInfo = route?.zapDetails.actions.find(item => item.type === 'ACTION_TYPE_REFUND') as RefundAction | null;
 
@@ -327,14 +345,14 @@ export function Preview({
     );
   }
   const dexFrom =
-    typeof DEXES_INFO[pools[0].dex].name === 'string'
-      ? (DEXES_INFO[pools[0].dex].name as string)
-      : DEXES_INFO[pools[0].dex].name[chainId];
+    typeof DEXES_INFO[sourcePool.poolType].name === 'string'
+      ? (DEXES_INFO[sourcePool.poolType].name as string)
+      : DEXES_INFO[sourcePool.poolType].name[chainId];
 
   const dexTo =
-    typeof DEXES_INFO[pools[1].dex].name === 'string'
-      ? (DEXES_INFO[pools[1].dex].name as string)
-      : DEXES_INFO[pools[1].dex].name[chainId];
+    typeof DEXES_INFO[targetPool.poolType].name === 'string'
+      ? (DEXES_INFO[targetPool.poolType].name as string)
+      : DEXES_INFO[targetPool.poolType].name[chainId];
 
   return (
     <>
@@ -355,11 +373,16 @@ export function Preview({
               </div>
               <div className="border border-stroke rounded-md p-4 mt-4 flex gap-2 items-start">
                 <div className="flex items-end">
-                  <TokenLogo src={pools[0].token0.logo || ''} size={36} alt={pools[0].token0.symbol} className="z-0" />
                   <TokenLogo
-                    src={pools[0].token1.logo || ''}
+                    src={sourcePool.token0.logo || ''}
                     size={36}
-                    alt={pools[0].token1.symbol}
+                    alt={sourcePool.token0.symbol}
+                    className="z-0"
+                  />
+                  <TokenLogo
+                    src={sourcePool.token1.logo || ''}
+                    size={36}
+                    alt={sourcePool.token1.symbol}
                     className="-ml-3 z-10"
                   />
                   <TokenLogo
@@ -370,23 +393,28 @@ export function Preview({
                 </div>
                 <div>
                   <div className="flex gap-1 items-center">
-                    {pools[0].token0.symbol}/{pools[0].token1.symbol} {copyPoolAddress0}
+                    {sourcePool.token0.symbol}/{sourcePool.token1.symbol} {copyPoolAddress0}
                   </div>
                   <div className="flex gap-1 items-center text-subText mt-1">
-                    <TokenLogo src={DEXES_INFO[pools[0].dex].icon} size={12} alt={dexFrom} />
+                    <TokenLogo src={DEXES_INFO[sourcePool.poolType].icon} size={12} alt={dexFrom} />
                     <div className="text-sm opacity-70">{dexFrom}</div>
-                    <div className="rounded-xl bg-layer2 px-2 py-1 text-xs">Fee {pools[0].fee}%</div>
+                    <div className="rounded-xl bg-layer2 px-2 py-1 text-xs">Fee {sourcePool.fee}%</div>
                   </div>
                 </div>
               </div>
 
               <div className="border border-stroke rounded-md p-4 mt-4 flex gap-2 items-start">
                 <div className="flex items-end">
-                  <TokenLogo src={pools[1].token0.logo || ''} size={36} alt={pools[1].token0.symbol} className="z-0" />
                   <TokenLogo
-                    src={pools[1].token1.logo || ''}
+                    src={targetPool.token0.logo || ''}
                     size={36}
-                    alt={pools[1].token1.symbol}
+                    alt={targetPool.token0.symbol}
+                    className="z-0"
+                  />
+                  <TokenLogo
+                    src={targetPool.token1.logo || ''}
+                    size={36}
+                    alt={targetPool.token1.symbol}
                     className="-ml-3 z-10"
                   />
                   <TokenLogo
@@ -397,12 +425,12 @@ export function Preview({
                 </div>
                 <div>
                   <div className="flex gap-1 items-center">
-                    {pools[1].token0.symbol}/{pools[1].token1.symbol} {copyPoolAddress1}
+                    {targetPool.token0.symbol}/{targetPool.token1.symbol} {copyPoolAddress1}
                   </div>
                   <div className="flex gap-1 items-center text-subText mt-1">
-                    <TokenLogo src={DEXES_INFO[pools[1].dex].icon} size={12} alt={dexTo} />
+                    <TokenLogo src={DEXES_INFO[targetPool.poolType].icon} size={12} alt={dexTo} />
                     <div className="text-sm opacity-70">{dexTo}</div>
-                    <div className="rounded-xl bg-layer2 px-2 py-1 text-xs">Fee {pools[1].fee}%</div>
+                    <div className="rounded-xl bg-layer2 px-2 py-1 text-xs">Fee {targetPool.fee}%</div>
                   </div>
                 </div>
               </div>
@@ -411,13 +439,13 @@ export function Preview({
                 <span className="text-subText text-sm">New Pool Liquidity</span>
                 <div className="flex justify-between items-start text-base mt-2">
                   <div className="flex items-center gap-1">
-                    <TokenLogo src={pools[1].token0.logo || ''} />
-                    {formatTokenAmount(amount0, pools[1].token0.decimals, 10)} {pools[1].token0.symbol}
+                    <TokenLogo src={targetPool.token0.logo || ''} />
+                    {formatTokenAmount(amount0, targetPool.token0.decimals, 10)} {targetPool.token0.symbol}
                   </div>
                   <div className="text-subText">
                     ~
                     {formatDisplayNumber(
-                      (pools[1].token0.price || 0) * Number(toRawString(amount0, pools[1].token0.decimals)),
+                      (targetPool.token0.price || 0) * Number(toRawString(amount0, targetPool.token0.decimals)),
                       { style: 'currency' },
                     )}
                   </div>
@@ -425,13 +453,13 @@ export function Preview({
 
                 <div className="flex justify-between items-start text-base mt-2">
                   <div className="flex items-center gap-1">
-                    <TokenLogo src={pools[1].token1.logo || ''} />
-                    {formatTokenAmount(amount1, pools[1].token1.decimals, 10)} {pools[1].token1.symbol}
+                    <TokenLogo src={targetPool.token1.logo || ''} />
+                    {formatTokenAmount(amount1, targetPool.token1.decimals, 10)} {targetPool.token1.symbol}
                   </div>
                   <div className="text-subText">
                     ~
                     {formatDisplayNumber(
-                      (pools[1].token1.price || 0) * Number(toRawString(amount1, pools[1].token1.decimals)),
+                      (targetPool.token1.price || 0) * Number(toRawString(amount1, targetPool.token1.decimals)),
                       { style: 'currency' },
                     )}
                   </div>
@@ -480,9 +508,9 @@ export function Preview({
                   <span
                     className={cn(
                       'text-subText border-b border-dotted border-subText text-xs',
-                      zapPiRes.level === PI_LEVEL.VERY_HIGH || zapPiRes.level === PI_LEVEL.INVALID
+                      zapImpact.level === PI_LEVEL.VERY_HIGH || zapImpact.level === PI_LEVEL.INVALID
                         ? 'text-error border-error'
-                        : zapPiRes.level === PI_LEVEL.HIGH
+                        : zapImpact.level === PI_LEVEL.HIGH
                           ? 'text-warning border-warning'
                           : 'text-subText border-subText',
                     )}
@@ -493,14 +521,14 @@ export function Preview({
                 {route ? (
                   <div
                     className={`text-sm font-medium ${
-                      zapPiRes.level === PI_LEVEL.VERY_HIGH || zapPiRes.level === PI_LEVEL.INVALID
+                      zapImpact.level === PI_LEVEL.VERY_HIGH || zapImpact.level === PI_LEVEL.INVALID
                         ? 'text-error'
-                        : zapPiRes.level === PI_LEVEL.HIGH
+                        : zapImpact.level === PI_LEVEL.HIGH
                           ? 'text-warning'
                           : 'text-text'
                     }`}
                   >
-                    {zapPiRes.display}
+                    {zapImpact.display}
                   </div>
                 ) : (
                   '--'
@@ -522,7 +550,7 @@ export function Preview({
                       gas fees.{' '}
                       <a
                         className="text-accent"
-                        href={PATHS.DOCUMENT.ZAP_FEE_MODEL}
+                        href={API_URLS.DOCUMENT.ZAP_FEE_MODEL}
                         target="_blank"
                         rel="noopener noreferrer"
                       >
@@ -604,7 +632,7 @@ export function Preview({
                 </button>
               </div>
 
-              <MigrationSummary route={route} chainId={chainId} />
+              <MigrationSummary route={route} />
             </DialogDescription>
           </DialogContent>
         </DialogPortal>

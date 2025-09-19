@@ -1,15 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { useOnClickOutside } from '@kyber/hooks';
-import { MouseoverTooltip } from '@kyber/ui';
+import { MouseoverTooltip, Toggle } from '@kyber/ui';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
 import X from '@/assets/icons/x.svg';
 import Modal from '@/components/Modal';
 import SlippageInput from '@/components/Setting/SlippageInput';
-import Toggle from '@/components/Toggle';
-import { ChainId } from '@/schema';
-import { useZapStateStore } from '@/stores/useZapStateStore';
+import { useZapStore } from '@/stores/useZapStore';
 
 const validateDeadlineString = (str: string): boolean => {
   const value = Number.parseInt(str, 10);
@@ -32,9 +30,16 @@ const validateDeadlineString = (str: string): boolean => {
   return false;
 };
 
-export default function Setting({ chainId }: { chainId: ChainId }) {
-  const { showSetting, ttl, setTtl, toggleSetting, degenMode, toggleDegenMode, highlightDegenMode } =
-    useZapStateStore();
+export default function Setting() {
+  const { showSetting, ttl, setTtl, toggleSetting, degenMode, toggleDegenMode, highlightDegenMode } = useZapStore([
+    'showSetting',
+    'ttl',
+    'setTtl',
+    'toggleSetting',
+    'degenMode',
+    'toggleDegenMode',
+    'highlightDegenMode',
+  ]);
   const ref = useRef(null);
   const [deadline, setDeadline] = useState(ttl);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -126,7 +131,7 @@ export default function Setting({ chainId }: { chainId: ChainId }) {
         >
           <div className="text-sm border-b border-dotted border-subText w-fit">Slippage Tolerance</div>
         </MouseoverTooltip>
-        <SlippageInput chainId={chainId} className="mt-2" />
+        <SlippageInput className="mt-2" />
 
         <div className="flex items-center justify-between mt-3">
           <MouseoverTooltip

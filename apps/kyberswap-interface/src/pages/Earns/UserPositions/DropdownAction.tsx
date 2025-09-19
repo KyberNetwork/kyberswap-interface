@@ -8,6 +8,7 @@ import styled from 'styled-components'
 
 import { ReactComponent as IconClaimRewards } from 'assets/svg/earn/ic_claim.svg'
 import { ReactComponent as IconClaimFees } from 'assets/svg/earn/ic_earn_claim_fees.svg'
+import { ReactComponent as IconReposition } from 'assets/svg/earn/ic_reposition.svg'
 import Loader from 'components/Loader'
 import useTheme from 'hooks/useTheme'
 import { ParsedPosition, PositionStatus } from 'pages/Earns/types'
@@ -112,12 +113,14 @@ const DropdownAction = ({
   position,
   onOpenIncreaseLiquidityWidget,
   onOpenZapOut,
+  onOpenReposition,
   claimFees: { onClaimFee, feesClaimDisabled, feesClaiming, positionThatClaimingFees },
   claimRewards: { onClaimRewards, rewardsClaimDisabled, rewardsClaiming, positionThatClaimingRewards },
 }: {
   position: ParsedPosition
   onOpenIncreaseLiquidityWidget: (e: React.MouseEvent, position: ParsedPosition) => void
   onOpenZapOut: (e: React.MouseEvent, position: ParsedPosition) => void
+  onOpenReposition: (e: React.MouseEvent, position: ParsedPosition) => void
   claimFees: {
     onClaimFee: (e: React.MouseEvent, position: ParsedPosition) => void
     feesClaimDisabled: boolean
@@ -238,6 +241,17 @@ const DropdownAction = ({
           <IconClaimRewards width={14} style={{ marginRight: '2px' }} />
         )}
         <Text>{t`Claim Rewards`}</Text>
+      </DropdownContentItem>
+      <DropdownContentItem
+        disabled={position.status === PositionStatus.CLOSED}
+        onClick={e => {
+          e.stopPropagation()
+          if (position.status === PositionStatus.CLOSED) return
+          handleAction(e, onOpenReposition)
+        }}
+      >
+        <IconReposition width={16} />
+        <Text>{t`Reposition`}</Text>
       </DropdownContentItem>
     </>
   )

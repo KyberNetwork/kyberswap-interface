@@ -1,112 +1,157 @@
-import { z } from 'zod';
+export enum ZapAction {
+  REMOVE_LIQUIDITY = 'ACTION_TYPE_REMOVE_LIQUIDITY',
+  AGGREGATOR_SWAP = 'ACTION_TYPE_AGGREGATOR_SWAP',
+  POOL_SWAP = 'ACTION_TYPE_POOL_SWAP',
+  ADD_LIQUIDITY = 'ACTION_TYPE_ADD_LIQUIDITY',
+  REFUND = 'ACTION_TYPE_REFUND',
+  PARTNET_FEE = 'ACTION_TYPE_PARTNER_FEE',
+  PROTOCOL_FEE = 'ACTION_TYPE_PROTOCOL_FEE',
+}
 
-const token = z.object({
-  address: z.string(),
-  amount: z.string(),
-  amountUsd: z.string(),
-});
+export interface RemoveLiquidityAction {
+  type: ZapAction.REMOVE_LIQUIDITY;
+  removeLiquidity: {
+    fees: Array<{
+      address: string;
+      amount: string;
+      amountUsd: string;
+    }>;
+    tokens: Array<{
+      address: string;
+      amount: string;
+      amountUsd: string;
+    }>;
+  };
+}
 
-const removeLiquidityAction = z.object({
-  type: z.literal('ACTION_TYPE_REMOVE_LIQUIDITY'),
-  removeLiquidity: z.object({
-    tokens: z.array(token),
-  }),
-});
+export interface AddLiquidityAction {
+  type: ZapAction.ADD_LIQUIDITY;
+  addLiquidity: {
+    token0: {
+      address: string;
+      amount: string;
+      amountUsd: string;
+    };
+    token1: {
+      address: string;
+      amount: string;
+      amountUsd: string;
+    };
+  };
+}
 
-export type RemoveLiquidityAction = z.infer<typeof removeLiquidityAction>;
+export interface AggregatorSwapAction {
+  type: ZapAction.AGGREGATOR_SWAP;
+  aggregatorSwap: {
+    swaps: Array<{
+      tokenIn: {
+        address: string;
+        amount: string;
+        amountUsd: string;
+      };
+      tokenOut: {
+        address: string;
+        amount: string;
+        amountUsd: string;
+      };
+    }>;
+  };
+}
 
-const aggregatorSwapAction = z.object({
-  type: z.literal('ACTION_TYPE_AGGREGATOR_SWAP'),
-  aggregatorSwap: z.object({
-    swaps: z.array(
-      z.object({
-        tokenIn: token,
-        tokenOut: token,
-      }),
-    ),
-  }),
-});
+export interface PoolSwapAction {
+  type: ZapAction.POOL_SWAP;
+  poolSwap: {
+    swaps: Array<{
+      tokenIn: {
+        address: string;
+        amount: string;
+        amountUsd: string;
+      };
+      tokenOut: {
+        address: string;
+        amount: string;
+        amountUsd: string;
+      };
+      poolAddress?: string;
+    }>;
+  };
+}
 
-export type AggregatorSwapAction = z.infer<typeof aggregatorSwapAction>;
+export interface RefundAction {
+  type: ZapAction.REFUND;
+  refund: {
+    tokens: Array<{
+      address: string;
+      amount: string;
+      amountUsd: string;
+    }>;
+  };
+}
 
-const addliquidtyAction = z.object({
-  type: z.literal('ACTION_TYPE_ADD_LIQUIDITY'),
-  addLiquidity: z.object({
-    token0: token,
-    token1: token,
-  }),
-});
+export interface PartnerFeeAction {
+  type: ZapAction.PARTNET_FEE;
+  partnerFee: {
+    pcm: number;
+    tokens: Array<{
+      address: string;
+      amount: string;
+      amountUsd: string;
+    }>;
+  };
+}
 
-export type AddLiquidityAction = z.infer<typeof addliquidtyAction>;
+export interface ProtocolFeeAction {
+  type: ZapAction.PROTOCOL_FEE;
+  protocolFee: {
+    pcm: number;
+    tokens: Array<{
+      address: string;
+      amount: string;
+      amountUsd: string;
+    }>;
+  };
+}
 
-const poolSwapAction = z.object({
-  type: z.literal('ACTION_TYPE_POOL_SWAP'),
-  poolSwap: z.object({
-    swaps: z.array(
-      z.object({
-        tokenIn: token,
-        tokenOut: token,
-      }),
-    ),
-  }),
-});
-export type PoolSwapAction = z.infer<typeof poolSwapAction>;
-
-const protocolFeeAction = z.object({
-  type: z.literal('ACTION_TYPE_PROTOCOL_FEE'),
-  protocolFee: z.object({
-    pcm: z.number(),
-    tokens: z.array(token),
-  }),
-});
-
-export type ProtocolFeeAction = z.infer<typeof protocolFeeAction>;
-
-const refundAction = z.object({
-  type: z.literal('ACTION_TYPE_REFUND'),
-  refund: z.object({
-    tokens: z.array(token),
-  }),
-});
-
-export type RefundAction = z.infer<typeof refundAction>;
-
-const apiResponse = z.object({
-  poolDetails: z.object({
-    category: z.string(), // TODO: "exotic_pair",
-    uniswapV3: z.object({
-      tick: z.number(),
-      newTick: z.number(),
-      sqrtP: z.string(),
-      newSqrtP: z.string(),
-    }),
-  }),
-
-  positionDetails: z.object({
-    addedLiquidity: z.string(),
-    addedAmountUsd: z.string(),
-  }),
-
-  zapDetails: z.object({
-    initialAmountUsd: z.string(),
-    actions: z.array(
-      z.discriminatedUnion('type', [
-        removeLiquidityAction,
-        protocolFeeAction,
-        aggregatorSwapAction,
-
-        poolSwapAction,
-
-        addliquidtyAction,
-        refundAction,
-      ]),
-    ),
-
-    finalAmountUsd: z.string(),
-    priceImpact: z.number(),
-  }),
-  route: z.string(),
-  routerAddress: z.string(),
-});
-
-export type GetRouteResponse = z.infer<typeof apiResponse>;
+export interface ZapRouteDetail {
+  poolDetails: {
+    uniswapV3: {
+      tick: number;
+      newTick: number;
+      sqrtP: string;
+      newSqrtP: string;
+    };
+    algebraV1: {
+      tick: number;
+      newTick: number;
+      sqrtP: string;
+      newSqrtP: string;
+    };
+    uniswapV2: {
+      newReserve0: string;
+      newReserve1: string;
+    };
+  };
+  positionDetails: {
+    addedLiquidity: string;
+    addedAmountUsd: string;
+  };
+  zapDetails: {
+    initialAmountUsd: string;
+    actions: Array<
+      | ProtocolFeeAction
+      | AggregatorSwapAction
+      | PoolSwapAction
+      | AddLiquidityAction
+      | RefundAction
+      | PartnerFeeAction
+      | RemoveLiquidityAction
+    >;
+    finalAmountUsd: string;
+    priceImpact: number | null | undefined;
+    suggestedSlippage: number;
+  };
+  route: string;
+  routerAddress: string;
+  gas: string;
+  gasUsd: string;
+}

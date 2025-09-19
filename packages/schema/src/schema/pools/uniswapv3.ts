@@ -62,3 +62,4 @@ export const univ3PoolNormalize = z.object({
   }),
   isFarming: z.boolean().optional(),
 });
+export type UniV3Pool = z.infer<typeof univ3PoolNormalize>;

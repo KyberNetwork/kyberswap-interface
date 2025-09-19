@@ -85,8 +85,6 @@ export const dexFrom = z.object({
   liquidityOut: z.string().optional(),
 });
 
-export type DexFrom = z.infer<typeof dexFrom>;
-
 export const dexTo = z.object({
   dex: dex,
   poolId: z.string(),
@@ -94,8 +92,6 @@ export const dexTo = z.object({
   tickLower: z.number().optional(),
   tickUpper: z.number().optional(),
 });
-
-export type DexTo = z.infer<typeof dexTo>;
 
 export type Chain = z.infer<typeof chain>;
 

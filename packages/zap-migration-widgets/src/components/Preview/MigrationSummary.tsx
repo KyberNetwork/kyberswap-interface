@@ -1,21 +1,23 @@
 import { useMemo } from 'react';
 
-import { formatTokenAmount } from '@kyber/utils/number';
-
-import { DEXES_INFO, NETWORKS_INFO } from '@/constants';
-import { ChainId } from '@/schema';
-import { usePoolsStore } from '@/stores/usePoolsStore';
 import {
   AddLiquidityAction,
   AggregatorSwapAction,
-  GetRouteResponse,
+  DEXES_INFO,
+  NETWORKS_INFO,
   PoolSwapAction,
   RemoveLiquidityAction,
-} from '@/stores/useZapStateStore';
+  ZapRouteDetail,
+} from '@kyber/schema';
+import { formatTokenAmount } from '@kyber/utils/number';
+
+import { usePoolStore } from '@/stores/usePoolStore';
+import { useWidgetStore } from '@/stores/useWidgetStore';
 import { formatWei } from '@/utils';
 
-export function MigrationSummary({ route, chainId }: { route: GetRouteResponse; chainId: ChainId }) {
-  const { pools } = usePoolsStore();
+export function MigrationSummary({ route }: { route: ZapRouteDetail }) {
+  const { chainId } = useWidgetStore(['chainId']);
+  const { sourcePool, targetPool } = usePoolStore(['sourcePool', 'targetPool']);
 
   const swaps = useMemo(() => {
     const aggregatorSwapInfo = route?.zapDetails.actions.find(
@@ -26,12 +28,12 @@ export function MigrationSummary({ route, chainId }: { route: GetRouteResponse; 
       item => item.type === 'ACTION_TYPE_POOL_SWAP',
     ) as PoolSwapAction | null;
 
-    if (pools === 'loading') return [];
+    if (!sourcePool || !targetPool) return [];
     const tokens = [
-      pools[0].token0,
-      pools[0].token1,
-      pools[1].token0,
-      pools[1].token1,
+      sourcePool.token0,
+      sourcePool.token1,
+      targetPool.token0,
+      targetPool.token1,
       NETWORKS_INFO[chainId].wrappedToken,
     ];
 
@@ -48,7 +50,7 @@ export function MigrationSummary({ route, chainId }: { route: GetRouteResponse; 
         };
       }) || [];
 
-    const dexNameObj = DEXES_INFO[pools[1].dex].name;
+    const dexNameObj = DEXES_INFO[targetPool.poolType].name;
     const dexName = typeof dexNameObj === 'string' ? dexNameObj : dexNameObj[chainId];
 
     const parsedPoolSwapInfo =
@@ -65,18 +67,20 @@ export function MigrationSummary({ route, chainId }: { route: GetRouteResponse; 
       }) || [];
 
     return parsedAggregatorSwapInfo.concat(parsedPoolSwapInfo);
-  }, [chainId, pools, route?.zapDetails.actions]);
+  }, [chainId, sourcePool, targetPool, route?.zapDetails.actions]);
 
-  if (pools === 'loading') return null;
+  if (!sourcePool || !targetPool) return null;
   const actionRemove = route.zapDetails.actions.find(action => action.type === 'ACTION_TYPE_REMOVE_LIQUIDITY') as
     | RemoveLiquidityAction
     | undefined;
   const amount0Removed =
-    actionRemove?.removeLiquidity.tokens.find(tk => tk.address.toLowerCase() === pools[0].token0.address.toLowerCase())
-      ?.amount || '0';
+    actionRemove?.removeLiquidity.tokens.find(
+      tk => tk.address.toLowerCase() === sourcePool.token0.address.toLowerCase(),
+    )?.amount || '0';
   const amount1Removed =
-    actionRemove?.removeLiquidity.tokens.find(tk => tk.address.toLowerCase() === pools[0].token1.address.toLowerCase())
-      ?.amount || '0';
+    actionRemove?.removeLiquidity.tokens.find(
+      tk => tk.address.toLowerCase() === sourcePool.token1.address.toLowerCase(),
+    )?.amount || '0';
 
   const addliquidityAction = route.zapDetails.actions.find(action => action.type === 'ACTION_TYPE_ADD_LIQUIDITY') as
     | AddLiquidityAction
@@ -85,14 +89,14 @@ export function MigrationSummary({ route, chainId }: { route: GetRouteResponse; 
   const addedAmount0 = BigInt(addliquidityAction?.addLiquidity.token0.amount || 0);
   const addedAmount1 = BigInt(addliquidityAction?.addLiquidity.token1.amount || 0);
   const dexFrom =
-    typeof DEXES_INFO[pools[0].dex].name === 'string'
-      ? DEXES_INFO[pools[0].dex].name
-      : DEXES_INFO[pools[0].dex].name[chainId];
+    typeof DEXES_INFO[sourcePool.poolType].name === 'string'
+      ? DEXES_INFO[sourcePool.poolType].name
+      : DEXES_INFO[sourcePool.poolType].name[chainId];
 
   const dexTo =
-    typeof DEXES_INFO[pools[1].dex].name === 'string'
-      ? DEXES_INFO[pools[1].dex].name
-      : DEXES_INFO[pools[1].dex].name[chainId];
+    typeof DEXES_INFO[targetPool.poolType].name === 'string'
+      ? DEXES_INFO[targetPool.poolType].name
+      : DEXES_INFO[targetPool.poolType].name[chainId];
 
   return (
     <div className="border border-stroke rounded-md px-4 py-3 mt-8">
@@ -102,8 +106,8 @@ export function MigrationSummary({ route, chainId }: { route: GetRouteResponse; 
       <div className="flex items-center text-subText gap-2 mt-3">
         <div className="rounded-full w-4 h-4 bg-layer2 text-xs text-center">1</div>
         <div className="text-xs">
-          Remove {formatTokenAmount(BigInt(amount0Removed), pools[0].token0.decimals, 8)} {pools[0].token0.symbol} and{' '}
-          {formatTokenAmount(BigInt(amount1Removed), pools[0].token1.decimals, 8)} {pools[0].token1.symbol} from{' '}
+          Remove {formatTokenAmount(BigInt(amount0Removed), sourcePool.token0.decimals, 8)} {sourcePool.token0.symbol}{' '}
+          and {formatTokenAmount(BigInt(amount1Removed), sourcePool.token1.decimals, 8)} {sourcePool.token1.symbol} from{' '}
           <span className="text-text">{dexFrom as string}</span>
         </div>
       </div>
@@ -125,9 +129,9 @@ export function MigrationSummary({ route, chainId }: { route: GetRouteResponse; 
         <div className="text-xs">
           Add{' '}
           {addedAmount0 !== 0n &&
-            `${formatTokenAmount(addedAmount0, pools[1].token0.decimals, 8)} ${pools[1].token0.symbol} and`}{' '}
+            `${formatTokenAmount(addedAmount0, targetPool.token0.decimals, 8)} ${targetPool.token0.symbol} and`}{' '}
           {addedAmount0 !== 0n &&
-            `${formatTokenAmount(addedAmount1, pools[1].token1.decimals, 8)} ${pools[1].token1.symbol}`}{' '}
+            `${formatTokenAmount(addedAmount1, targetPool.token1.decimals, 8)} ${targetPool.token1.symbol}`}{' '}
           into <span className="text-text">{dexTo as string}</span> in the selected fee pool
         </div>
       </div>
