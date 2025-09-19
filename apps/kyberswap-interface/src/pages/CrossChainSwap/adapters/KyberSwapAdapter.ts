@@ -111,7 +111,7 @@ export class KyberSwapAdapter extends BaseSwapAdapter {
           sender: quote.quoteParams.sender,
           recipient: quote.quoteParams.recipient,
           skipSimulateTx: true,
-          enableGasEstimation: true,
+          enableGasEstimation: false,
           source: 'kyberswap',
           slippageTolerance: quote.quoteParams.slippage,
         },
