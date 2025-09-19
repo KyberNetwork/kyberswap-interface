@@ -22,6 +22,7 @@ import { fetchTokenPrice } from '../services';
 import { MAX_TICK, MIN_TICK, nearestUsableTick, sqrtToPrice } from '../uniswapv3';
 
 export enum POOL_ERROR {
+  MISSING_TARGET_POOL = 'Missing target pool',
   CANT_GET_POOL_INFO = "Can't get pool info",
   CANT_GET_TOKEN_INFO = "Can't get token info",
   INVALID_POOL_TYPE = 'Invalid pool type',

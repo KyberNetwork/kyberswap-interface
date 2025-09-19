@@ -2,21 +2,29 @@ import { useEffect, useState } from 'react';
 
 import { usePositionOwner } from '@kyber/hooks';
 import { useDebounce } from '@kyber/hooks/use-debounce';
+import {
+  DEXES_INFO,
+  FARMING_CONTRACTS,
+  NETWORKS_INFO,
+  RefundAction,
+  Token,
+  ZERO_ADDRESS,
+  univ2Types,
+  univ4Types,
+} from '@kyber/schema';
 import { InfoHelper } from '@kyber/ui';
 import { formatTokenAmount } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
-import { useSwapPI } from '@/components/SwapImpact';
-import { DEXES_INFO, FARMING_CONTRACTS, NETWORKS_INFO, ZERO_ADDRESS } from '@/constants';
 import { useNftApproval } from '@/hooks/use-nft-approval';
-import { ChainId, Token, univ2Dexes, univ4Dexes } from '@/schema';
-import { usePoolsStore } from '@/stores/usePoolsStore';
+import useZapRoute from '@/hooks/useZapRoute';
+import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
-import { RefundAction, useZapStateStore } from '@/stores/useZapStateStore';
+import { useWidgetStore } from '@/stores/useWidgetStore';
+import { useZapStore } from '@/stores/useZapStore';
 import { PI_LEVEL } from '@/utils';
 
 export function Action({
-  chainId,
   onSwitchChain,
   onConnectWallet,
   connectedAccount,
@@ -25,10 +33,9 @@ export function Action({
   client,
   onBack,
 }: {
-  chainId: ChainId;
   connectedAccount: {
-    address: string | undefined; // check if account is connected
-    chainId: number; // check if wrong network
+    address: string | undefined;
+    chainId: number;
   };
   onConnectWallet: () => void;
   onSwitchChain: () => void;
@@ -37,8 +44,14 @@ export function Action({
   onSubmitTx: (txData: { from: string; to: string; value: string; data: string; gasLimit: string }) => Promise<string>;
   client: string;
 }) {
-  const { pools } = usePoolsStore();
-  const { fromPosition: position, toPosition: position1 } = usePositionStore();
+  const { chainId } = useWidgetStore(['chainId']);
+  const { sourcePool, targetPool } = usePoolStore(['sourcePool', 'targetPool']);
+  const { sourcePosition, targetPosition, sourcePositionId, targetPositionId } = usePositionStore([
+    'sourcePosition',
+    'targetPosition',
+    'sourcePositionId',
+    'targetPositionId',
+  ]);
 
   const {
     toggleSetting,
@@ -51,23 +64,34 @@ export function Action({
     togglePreview,
     showPreview,
     degenMode,
-  } = useZapStateStore();
+  } = useZapStore([
+    'toggleSetting',
+    'fetchZapRoute',
+    'tickUpper',
+    'tickLower',
+    'liquidityOut',
+    'route',
+    'fetchingRoute',
+    'togglePreview',
+    'showPreview',
+    'degenMode',
+  ]);
 
-  const dex0 = pools !== 'loading' ? pools[0].dex : undefined;
-  const dex1 = pools !== 'loading' ? pools[1].dex : undefined;
+  const dex0 = sourcePool?.poolType || undefined;
+  const dex1 = targetPool?.poolType || undefined;
 
   const positionOwner = usePositionOwner({
-    positionId: position === 'loading' ? '' : position?.id.toString(),
+    positionId: sourcePositionId,
     chainId,
     poolType: dex0 as any,
   });
   const positionOwner1 = usePositionOwner({
-    positionId: position1 === 'loading' ? '' : position1?.id?.toString(),
+    positionId: targetPositionId,
     chainId,
     poolType: dex1 as any,
   });
 
-  const isToUniv4 = pools !== 'loading' && univ4Dexes.includes(pools[1].dex);
+  const isToUniv4 = targetPool && univ4Types.includes(targetPool.poolType as any);
 
   const fromIsNotOwner = Boolean(
     positionOwner && connectedAccount.address && positionOwner.toLowerCase() !== connectedAccount.address.toLowerCase(),
@@ -87,11 +111,10 @@ export function Action({
     FARMING_CONTRACTS[dex0]?.[chainId] &&
     positionOwner.toLowerCase() === FARMING_CONTRACTS[dex0]?.[chainId]?.toLowerCase();
 
-  const isTargetUniv2 = pools !== 'loading' && univ2Dexes.includes(pools[1].dex);
+  const isTargetUniv2 = targetPool && univ2Types.includes(targetPool.poolType as any);
 
-  const nftManager = pools === 'loading' ? undefined : DEXES_INFO[pools[0].dex].nftManagerContract;
-
-  const targetNftManager = pools === 'loading' ? undefined : DEXES_INFO[pools[1].dex].nftManagerContract;
+  const nftManager = sourcePool ? DEXES_INFO[sourcePool.poolType].nftManagerContract : undefined;
+  const targetNftManager = targetPool ? DEXES_INFO[targetPool.poolType].nftManagerContract : undefined;
 
   const {
     isChecking,
@@ -101,7 +124,7 @@ export function Action({
   } = useNftApproval({
     rpcUrl: NETWORKS_INFO[chainId].defaultRpc,
     nftManagerContract: nftManager ? (typeof nftManager === 'string' ? nftManager : nftManager[chainId]) : undefined,
-    nftId: position === 'loading' ? undefined : +position.id,
+    nftId: +sourcePositionId,
     spender: route?.routerAddress,
     account: connectedAccount.address,
     onSubmitTx,
@@ -120,7 +143,7 @@ export function Action({
         ? targetNftManager
         : targetNftManager[chainId]
       : undefined,
-    nftId: position1 === 'loading' || !position1 ? undefined : +position1.id,
+    nftId: !targetPositionId ? undefined : +targetPositionId,
     spender: route?.routerAddress,
     account: connectedAccount.address,
     onSubmitTx,
@@ -135,8 +158,10 @@ export function Action({
     if (showPreview) return;
     fetchZapRoute(chainId, client, connectedAccount?.address || ZERO_ADDRESS);
   }, [
-    pools,
-    position,
+    sourcePool,
+    targetPool,
+    sourcePosition,
+    targetPosition,
     fetchZapRoute,
     debouncedTickUpper,
     debouncedTickLower,
@@ -147,10 +172,10 @@ export function Action({
     client,
   ]);
 
-  const { zapPiRes } = useSwapPI(chainId);
+  const { zapImpact } = useZapRoute();
   const pi = {
-    piHigh: zapPiRes.level === PI_LEVEL.HIGH,
-    piVeryHigh: zapPiRes.level === PI_LEVEL.VERY_HIGH,
+    piHigh: zapImpact.level === PI_LEVEL.HIGH,
+    piVeryHigh: zapImpact.level === PI_LEVEL.VERY_HIGH,
   };
 
   const [clickedApprove, setClickedApprove] = useState(false);
@@ -168,11 +193,10 @@ export function Action({
   } else if (!connectedAccount.address) btnText = 'Connect Wallet';
   else if (connectedAccount.chainId !== chainId) btnText = 'Switch Network';
   else if (isToUniv4 && toIsNotOwner) btnText = 'You are not the owner of this position';
-  else if (isChecking || (isToUniv4 && position1 && isTargetNftChecking)) btnText = 'Checking Allowance';
-  else if (pendingTx || clickedApprove || (isToUniv4 && position1 && targetNftPendingTx)) btnText = 'Approving...';
+  else if (isChecking || (isToUniv4 && targetPosition && isTargetNftChecking)) btnText = 'Checking Allowance';
+  else if (pendingTx || clickedApprove || (isToUniv4 && targetPosition && targetNftPendingTx)) btnText = 'Approving...';
   else if (!isApproved) btnText = 'Approve source position';
-  else if (isToUniv4 && position1 !== 'loading' && position1 && !isTargetNftApproved)
-    btnText = 'Approve target position';
+  else if (isToUniv4 && targetPosition && !isTargetNftApproved) btnText = 'Approve target position';
   else if (pi.piVeryHigh) btnText = 'Zap anyway';
   else if (!route) btnText = 'No Route Found';
   else btnText = 'Preview';
@@ -185,9 +209,9 @@ export function Action({
       fromIsNotOwner ||
       (isToUniv4 && toIsNotOwner) ||
       isChecking ||
-      (isToUniv4 && position1 && isTargetNftChecking) ||
+      (isToUniv4 && targetPosition && isTargetNftChecking) ||
       !!pendingTx ||
-      (isToUniv4 && position1 && targetNftPendingTx) ||
+      (isToUniv4 && targetPosition && targetNftPendingTx) ||
       clickedApprove,
   );
 
@@ -197,19 +221,21 @@ export function Action({
     else if (!isApproved) {
       setClickedApprove(true);
       await approve().finally(() => setClickedApprove(false));
-    } else if (isToUniv4 && position1 !== 'loading' && position1 && !isTargetNftApproved) {
+    } else if (isToUniv4 && targetPosition && !isTargetNftApproved) {
       setClickedApprove(true);
       await targetNftApprove().finally(() => setClickedApprove(false));
     } else if (pi.piVeryHigh && !degenMode) {
       toggleSetting(true);
-      document.getElementById('zapout-setting')?.scrollIntoView({ behavior: 'smooth' });
+      document.getElementById('zap-migration-setting')?.scrollIntoView({ behavior: 'smooth' });
     } else togglePreview();
   };
 
   const refundInfo = route?.zapDetails.actions.find(item => item.type === 'ACTION_TYPE_REFUND') as RefundAction | null;
 
-  const tokens: Token[] =
-    pools === 'loading' ? [] : [pools[0].token0, pools[0].token1, pools[1].token0, pools[1].token1];
+  const tokens: Token[] = [
+    ...(sourcePool ? [sourcePool.token0, sourcePool.token1] : []),
+    ...(targetPool ? [targetPool.token0, targetPool.token1] : []),
+  ];
   const refunds: { amount: string; symbol: string }[] = [];
   refundInfo?.refund.tokens.forEach(refund => {
     const token = tokens.find(t => t.address.toLowerCase() === refund.address.toLowerCase());

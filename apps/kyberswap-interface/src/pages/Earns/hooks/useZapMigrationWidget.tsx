@@ -1,4 +1,8 @@
-import { ZapMigration, ChainId as ZapMigrationChainId, Dex as ZapMigrationDex } from '@kyberswap/zap-migration-widgets'
+import {
+  ZapMigration,
+  ChainId as ZapMigrationChainId,
+  PoolType as ZapMigrationDex,
+} from '@kyberswap/zap-migration-widgets'
 import '@kyberswap/zap-migration-widgets/dist/style.css'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -17,18 +21,19 @@ import { getCookieValue } from 'utils'
 
 interface MigrateLiquidityPureParams {
   from: {
-    dex: ZapMigrationDex
-    poolId: string
-    positionId: string | number
+    poolType: ZapMigrationDex
+    poolAddress: string
+    positionId: string
   }
-  to: {
-    dex: ZapMigrationDex
-    poolId: string
-    positionId?: string | number
+  to?: {
+    poolType: ZapMigrationDex
+    poolAddress: string
+    positionId?: string
   }
   chainId: ZapMigrationChainId
   initialTick?: { tickUpper: number; tickLower: number }
   initialSlippage?: number
+  rePositionMode?: boolean
 }
 
 interface MigrateLiquidityParams extends MigrateLiquidityPureParams {
@@ -45,18 +50,19 @@ interface MigrateLiquidityParams extends MigrateLiquidityPureParams {
 
 export interface ZapMigrationInfo {
   from: {
-    dex: EarnDex | Exchange
-    poolId: string
-    positionId: string | number
+    poolType: EarnDex | Exchange
+    poolAddress: string
+    positionId: string
   }
-  to: {
-    dex: EarnDex | Exchange
-    poolId: string
-    positionId?: string | number
+  to?: {
+    poolType: EarnDex | Exchange
+    poolAddress: string
+    positionId?: string
   }
   chainId: number
   initialTick?: { tickUpper: number; tickLower: number }
   initialSlippage?: number
+  rePositionMode?: boolean
 }
 
 const zapMigrationDexMapping: Record<EarnDex | Exchange, ZapMigrationDex | null> = {
@@ -114,14 +120,21 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
     [library, navigate],
   )
 
-  const handleOpenZapMigration = ({ from, to, chainId, initialTick, initialSlippage }: ZapMigrationInfo) => {
-    const sourceDex = zapMigrationDexMapping[from.dex]
-    const targetDex = zapMigrationDexMapping[to.dex]
+  const handleOpenZapMigration = ({
+    from,
+    to,
+    chainId,
+    initialTick,
+    initialSlippage,
+    rePositionMode,
+  }: ZapMigrationInfo) => {
+    const sourceDex = zapMigrationDexMapping[from.poolType]
+    const targetDex = zapMigrationDexMapping[to?.poolType || from.poolType]
 
     if (!sourceDex || !targetDex) {
       notify(
         {
-          title: `Protocol ${!sourceDex ? from.dex : to.dex} is not supported!`,
+          title: `Protocol ${!sourceDex ? from.poolType : to?.poolType || from.poolType} is not supported!`,
           type: NotificationType.ERROR,
         },
         5_000,
@@ -131,18 +144,21 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
 
     setMigrateLiquidityPureParams({
       from: {
-        dex: sourceDex,
-        poolId: from.poolId,
+        poolType: sourceDex,
+        poolAddress: from.poolAddress,
         positionId: from.positionId,
       },
-      to: {
-        dex: targetDex,
-        poolId: to.poolId,
-        positionId: to.positionId,
-      },
+      to: to
+        ? {
+            poolType: targetDex,
+            poolAddress: to.poolAddress,
+            positionId: to.positionId,
+          }
+        : undefined,
       chainId: chainId as ZapMigrationChainId,
       initialTick,
       initialSlippage,
+      rePositionMode,
     })
   }
 
@@ -159,7 +175,8 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
             },
             onViewPosition: (txHash: string) => {
               const { chainId } = migrateLiquidityPureParams
-              const { dex: targetDex, poolId: targetPoolId } = migrateLiquidityPureParams.to
+              const { poolType: targetDex, poolAddress: targetPoolId } =
+                migrateLiquidityPureParams.to || migrateLiquidityPureParams.from
               setTriggerClose(true)
               setMigrateLiquidityPureParams(null)
               handleNavigateToPosition(txHash, chainId, targetDex, targetPoolId)

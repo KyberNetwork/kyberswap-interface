@@ -20,6 +20,7 @@
     "@kyber/schema": "workspace:^",
     "@kyber/eslint-config": "workspace:*",
     "@kyber/hooks": "workspace:*",
+    "@kyberswap/liquidity-chart": "workspace:*",
     "@kyber/svgr-esbuild-plugin": "workspace:^",
     "@kyber/tailwind-config": "workspace:*",
     "@kyber/typescript-config": "workspace:*",

@@ -5,9 +5,9 @@ import { cn } from '@kyber/utils/tailwind-helpers';
 
 import AlertIcon from '@/assets/icons/alert.svg';
 import { getSlippageStorageKey } from '@/constants';
-import { ChainId } from '@/schema';
-import { usePoolsStore } from '@/stores/usePoolsStore';
-import { useZapStateStore } from '@/stores/useZapStateStore';
+import { usePoolStore } from '@/stores/usePoolStore';
+import { useWidgetStore } from '@/stores/useWidgetStore';
+import { useZapStore } from '@/stores/useZapStore';
 
 export const parseSlippageInput = (str: string): number => Math.round(Number.parseFloat(str) * 100);
 
@@ -66,18 +66,17 @@ export const validateSlippageInput = (
 };
 
 const SlippageInput = ({
-  chainId,
   className,
   inputClassName,
   suggestionClassName,
 }: {
-  chainId: ChainId;
   className?: string;
   inputClassName?: string;
   suggestionClassName?: string;
 }) => {
-  const { slippage, setSlippage, route } = useZapStateStore();
-  const { pools } = usePoolsStore();
+  const { chainId } = useWidgetStore(['chainId']);
+  const { slippage, setSlippage, route } = useZapStore(['slippage', 'setSlippage', 'route']);
+  const { targetPool } = usePoolStore(['targetPool']);
   const [v, setV] = useState(() => {
     if (!slippage) return '';
     if ([5, 10, 50, 100].includes(slippage)) return '';
@@ -130,8 +129,7 @@ const SlippageInput = ({
   };
 
   useEffect(() => {
-    if (pools !== 'loading' && slippage && suggestedSlippage > 0 && slippage !== suggestedSlippage) {
-      const targetPool = pools[1];
+    if (targetPool && slippage && suggestedSlippage > 0 && slippage !== suggestedSlippage) {
       try {
         const storageKey = getSlippageStorageKey(
           targetPool.token0.symbol,

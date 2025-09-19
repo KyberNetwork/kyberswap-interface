@@ -1755,6 +1755,9 @@ importers:
       '@kyber/utils':
         specifier: workspace:*
         version: link:../utils
+      '@kyberswap/liquidity-chart':
+        specifier: workspace:*
+        version: link:../liquidity-chart
       '@trivago/prettier-plugin-sort-imports':
         specifier: ^3.3.1
         version: 3.4.0(prettier@3.5.3)

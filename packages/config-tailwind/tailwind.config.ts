@@ -22,6 +22,7 @@ const config: Omit<Config, "content"> = {
         warning: {
           DEFAULT: "var(--ks-lw-warning)",
           200: "#ff990133",
+          300: "#ff99014d",
         },
         error: "var(--ks-lw-error)",
         stroke: "var(--ks-lw-stroke)",

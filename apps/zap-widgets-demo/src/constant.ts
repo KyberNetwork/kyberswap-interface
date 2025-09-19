@@ -1,5 +1,5 @@
 import { PoolType as ZapInDex } from "@kyberswap/liquidity-widgets";
-import { Dex as ZapMigrationDex } from "@kyberswap/zap-migration-widgets";
+import { PoolType as ZapMigrationDex } from "@kyberswap/zap-migration-widgets";
 import { PoolType as ZapOutDex } from "@kyberswap/zap-out-widgets";
 import { PoolType as PancakeZapInDex } from "@kyberswap/pancake-liquidity-widgets";
 
@@ -41,13 +41,20 @@ export const zapMigrationDexMapping: Record<ZapMigrationDex, string> = {
   [ZapMigrationDex.DEX_SWAPMODEV3]: "SwapMode V3",
   [ZapMigrationDex.DEX_KOICL]: "KOI CL",
   [ZapMigrationDex.DEX_THRUSTERV3]: "Thruster V3",
+  [ZapMigrationDex.DEX_PANCAKESWAPV2]: "PancakeSwap V2",
   [ZapMigrationDex.DEX_UNISWAPV2]: "Uniswap V2",
-  [ZapMigrationDex.DEX_KODIAK_V3]: "Kodiak V3",
-  [ZapMigrationDex.DEX_SQUADSWAP_V3]: "Squad Swap V3",
-  [ZapMigrationDex.DEX_SQUADSWAP_V2]: "Squad Swap V2",
+  [ZapMigrationDex.DEX_SUSHISWAPV2]: "SushiSwap V2",
+  [ZapMigrationDex.DEX_QUICKSWAPV2]: "QuickSwap V2",
+  [ZapMigrationDex.DEX_THRUSTERV2]: "Thruster V2",
+  [ZapMigrationDex.DEX_SWAPMODEV2]: "SwapMode V2",
   [ZapMigrationDex.DEX_THENAFUSION]: "Thena",
   [ZapMigrationDex.DEX_CAMELOTV3]: "Camelot V3",
   [ZapMigrationDex.DEX_QUICKSWAPV3ALGEBRA]: "QuickSwap",
+  [ZapMigrationDex.DEX_PANGOLINSTANDARD]: "Pangolin Standard",
+  [ZapMigrationDex.DEX_KODIAK_V3]: "Kodiak V3",
+  [ZapMigrationDex.DEX_KODIAK_V2]: "Kodiak V2",
+  [ZapMigrationDex.DEX_SQUADSWAP_V3]: "Squad Swap V3",
+  [ZapMigrationDex.DEX_SQUADSWAP_V2]: "Squad Swap V2",
 };
 
 export const zapOutDexMapping: Record<ZapOutDex, string> = {

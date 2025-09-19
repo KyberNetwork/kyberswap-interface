@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
+import { univ2Types } from '@kyber/schema';
 import {
   calculateGasMargin,
   decodeAddress,
@@ -8,9 +9,8 @@ import {
   isTransactionSuccessful,
 } from '@kyber/utils/crypto';
 
-import { univ2Dexes } from '@/schema';
-import { usePoolsStore } from '@/stores/usePoolsStore';
-import { useZapStateStore } from '@/stores/useZapStateStore';
+import { usePoolStore } from '@/stores/usePoolStore';
+import { useZapStore } from '@/stores/useZapStore';
 
 export function useNftApproval({
   rpcUrl,
@@ -27,15 +27,15 @@ export function useNftApproval({
   account?: string;
   onSubmitTx: (txData: { from: string; to: string; value: string; data: string; gasLimit: string }) => Promise<string>;
 }) {
-  const { pools } = usePoolsStore();
-  const { liquidityOut } = useZapStateStore();
+  const { sourcePool } = usePoolStore(['sourcePool']);
+  const { liquidityOut } = useZapStore(['liquidityOut']);
 
   const [isChecking, setIsChecking] = useState(true);
   const [isApproved, setIsApproved] = useState(false);
   const [pendingTx, setPendingTx] = useState('');
 
-  const isFromUniv2 = pools !== 'loading' && univ2Dexes.includes(pools[0].dex);
-  const sourcePoolAddress = pools !== 'loading' ? pools[0].address : '';
+  const isFromUniv2 = sourcePool && univ2Types.includes(sourcePool.poolType as any);
+  const sourcePoolAddress = sourcePool?.address || '';
 
   const approve = useCallback(async () => {
     if (!account || !spender) return;
