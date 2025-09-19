@@ -86,8 +86,8 @@ export default function PriceInput() {
   const inputClassName = 'bg-transparent text-text text-center border-none outline-none max-w-[60px] md:max-w-[80px]';
 
   return (
-    <div className="flex items-center gap-3 w-full">
-      <div className={sectionClassName}>
+    <div className="flex flex-col sm:flex-row items-center gap-4 w-full">
+      <div className={`${sectionClassName} flex-1 min-w-0`}>
         <button
           className={buttonClassName}
           onClick={() => {
@@ -97,13 +97,13 @@ export default function PriceInput() {
         >
           -
         </button>
-        <div className="flex flex-col items-center py-2">
-          <p className="text-sm text-subText">Min Price</p>
+        <div className="flex flex-col items-center py-2 flex-1 min-w-0">
+          <p className="text-sm text-subText whitespace-nowrap">Min Price</p>
           {tickLower === null || tickUpper === null ? (
             <Skeleton className="h-5 w-20" />
           ) : (
             <input
-              className={inputClassName}
+              className={`${inputClassName} w-full`}
               inputMode="decimal"
               autoComplete="off"
               autoCorrect="off"
@@ -147,7 +147,7 @@ export default function PriceInput() {
         </button>
       </div>
 
-      <div className={sectionClassName}>
+      <div className={`${sectionClassName} flex-1 min-w-0`}>
         <button
           className={buttonClassName}
           onClick={() => {
@@ -157,13 +157,13 @@ export default function PriceInput() {
         >
           -
         </button>
-        <div className="flex flex-col items-center py-2">
-          <p className="text-sm text-subText">Max Price</p>
+        <div className="flex flex-col items-center py-2 flex-1 min-w-0">
+          <p className="text-sm text-subText whitespace-nowrap">Max Price</p>
           {tickLower === null || tickUpper === null ? (
             <Skeleton className="h-5 w-20" />
           ) : (
             <input
-              className={inputClassName}
+              className={`${inputClassName} w-full`}
               inputMode="decimal"
               autoComplete="off"
               autoCorrect="off"

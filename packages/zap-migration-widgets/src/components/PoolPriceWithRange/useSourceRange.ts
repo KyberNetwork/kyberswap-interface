@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 
 import { UniV3Pool, UniV3Position, univ3Types } from '@kyber/schema';
-import { formatNumber } from '@kyber/utils/number';
 import { MAX_TICK, MIN_TICK, nearestUsableTick, tickToPrice } from '@kyber/utils/uniswapv3';
 
 import { usePoolStore } from '@/stores/usePoolStore';
@@ -23,19 +22,13 @@ export default function useSourceRange() {
   const minPrice = useMemo(() => {
     if (!token0 || !token1 || !isUniV3 || tickLower === null || tickUpper === null) return null;
 
-    return formatNumber(
-      +tickToPrice(!revertPrice ? tickLower : tickUpper, token0.decimals, token1.decimals, revertPrice),
-      8,
-    );
+    return tickToPrice(!revertPrice ? tickLower : tickUpper, token0.decimals, token1.decimals, revertPrice);
   }, [isUniV3, revertPrice, tickLower, tickUpper, token0, token1]);
 
   const maxPrice = useMemo(() => {
     if (!token0 || !token1 || !isUniV3 || tickLower === null || tickUpper === null) return null;
 
-    return formatNumber(
-      +tickToPrice(!revertPrice ? tickUpper : tickLower, token0.decimals, token1.decimals, revertPrice),
-      8,
-    );
+    return tickToPrice(!revertPrice ? tickUpper : tickLower, token0.decimals, token1.decimals, revertPrice);
   }, [isUniV3, revertPrice, tickLower, tickUpper, token0, token1]);
 
   const isMinTick =

@@ -222,8 +222,8 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
     <Modal
       isOpen
       mobileFullWidth
-      maxWidth={760}
-      width={'760px'}
+      maxWidth={800}
+      width={'800px'}
       onDismiss={() => setMigrateLiquidityPureParams(null)}
       zindex={9999}
     >

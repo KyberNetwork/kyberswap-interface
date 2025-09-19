@@ -11,11 +11,11 @@ import useZapRoute from '@/hooks/useZapRoute';
 import { useZapStore } from '@/stores/useZapStore';
 import { PI_LEVEL } from '@/utils';
 
-export function Estimated() {
+export function Estimated({ expandable }: { expandable?: boolean }) {
   const { route, fetchingRoute } = useZapStore(['route', 'fetchingRoute']);
   const { zapFee, zapImpact } = useZapRoute();
 
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(expandable ? false : true);
   const toggleExpanded = () => setExpanded(prev => !prev);
 
   return (
@@ -87,11 +87,13 @@ export function Estimated() {
         </Accordion>
       </div>
 
-      <div className="flex items-center justify-center h-4 w-full bg-layer2 cursor-pointer" onClick={toggleExpanded}>
-        <ChevronDown
-          className={cn('text-subText w-4 h-4 transition-transform duration-200', expanded ? 'rotate-180' : '')}
-        />
-      </div>
+      {expandable ? (
+        <div className="flex items-center justify-center h-4 w-full bg-layer2 cursor-pointer" onClick={toggleExpanded}>
+          <ChevronDown
+            className={cn('text-subText w-4 h-4 transition-transform duration-200', expanded ? 'rotate-180' : '')}
+          />
+        </div>
+      ) : null}
     </div>
   );
 }
