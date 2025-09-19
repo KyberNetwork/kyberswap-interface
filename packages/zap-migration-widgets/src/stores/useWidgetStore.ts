@@ -9,6 +9,10 @@ interface WidgetProps {
   sourcePoolType?: PoolType;
   targetPoolType?: PoolType;
   rePositionMode?: boolean;
+  connectedAccount: {
+    address: string | undefined;
+    chainId: number;
+  };
 }
 
 interface WidgetState extends WidgetProps {
@@ -22,12 +26,23 @@ const initState = {
   sourcePoolType: undefined,
   targetPoolType: undefined,
   rePositionMode: false,
+  connectedAccount: {
+    address: undefined,
+    chainId: ChainId.Ethereum,
+  },
 };
 
 const useWidgetRawStore = create<WidgetState>((set, _get) => ({
   ...initState,
   reset: () => set(initState),
-  setInitiaWidgetState: ({ theme, chainId, rePositionMode, sourcePoolType, targetPoolType }: WidgetProps) => {
+  setInitiaWidgetState: ({
+    theme,
+    chainId,
+    rePositionMode,
+    sourcePoolType,
+    targetPoolType,
+    connectedAccount,
+  }: WidgetProps) => {
     const themeToApply =
       theme && typeof theme === 'object'
         ? {
@@ -42,6 +57,7 @@ const useWidgetRawStore = create<WidgetState>((set, _get) => ({
       rePositionMode,
       sourcePoolType,
       targetPoolType,
+      connectedAccount,
     });
   },
 }));

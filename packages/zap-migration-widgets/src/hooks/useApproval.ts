@@ -12,7 +12,7 @@ import {
 import { usePoolStore } from '@/stores/usePoolStore';
 import { useZapStore } from '@/stores/useZapStore';
 
-export function useNftApproval({
+export function useApproval({
   rpcUrl,
   nftManagerContract,
   nftId,

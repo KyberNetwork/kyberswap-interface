@@ -1,4 +1,7 @@
-import { ChainId, PoolType, Theme } from '@kyber/schema';
+import { useEffect } from 'react';
+
+import { useDebounce } from '@kyber/hooks';
+import { ChainId, PoolType, Theme, ZERO_ADDRESS } from '@kyber/schema';
 import { StatusDialog, StatusDialogType } from '@kyber/ui';
 import '@kyber/ui/styles.css';
 import { cn } from '@kyber/utils/tailwind-helpers';
@@ -93,14 +96,54 @@ export const ZapMigration = (widgetProps: ZapMigrationProps) => {
     onViewPosition,
     rePositionMode,
     to,
+    chainId,
   } = widgetProps;
 
   const { reset: resetWidgetStore } = useWidgetStore(['reset']);
-  const { error: poolError, reset: resetPoolStore } = usePoolStore(['error', 'reset']);
-  const { error: positionError, reset: resetPositionStore } = usePositionStore(['error', 'reset']);
-  const { reset, showPreview } = useZapStore(['reset', 'showPreview']);
+  const {
+    sourcePool,
+    targetPool,
+    error: poolError,
+    reset: resetPoolStore,
+  } = usePoolStore(['sourcePool', 'targetPool', 'error', 'reset']);
+  const {
+    sourcePosition,
+    targetPosition,
+    error: positionError,
+    reset: resetPositionStore,
+  } = usePositionStore(['sourcePosition', 'targetPosition', 'error', 'reset']);
+  const { reset, showPreview, fetchZapRoute, liquidityOut, tickUpper, tickLower } = useZapStore([
+    'reset',
+    'showPreview',
+    'fetchZapRoute',
+    'liquidityOut',
+    'tickUpper',
+    'tickLower',
+  ]);
 
   useInitWidget(widgetProps);
+
+  const debounceLiquidityOut = useDebounce(liquidityOut, 500);
+  const debouncedTickUpper = useDebounce(tickUpper, 500);
+  const debouncedTickLower = useDebounce(tickLower, 500);
+
+  useEffect(() => {
+    if (showPreview) return;
+    fetchZapRoute(chainId, client, connectedAccount?.address || ZERO_ADDRESS);
+  }, [
+    sourcePool,
+    targetPool,
+    sourcePosition,
+    targetPosition,
+    fetchZapRoute,
+    debouncedTickUpper,
+    debouncedTickLower,
+    debounceLiquidityOut,
+    showPreview,
+    connectedAccount?.address,
+    chainId,
+    client,
+  ]);
 
   const onClose = () => {
     resetWidgetStore();
@@ -164,8 +207,6 @@ export const ZapMigration = (widgetProps: ZapMigrationProps) => {
         </div>
 
         <Action
-          client={client}
-          connectedAccount={connectedAccount}
           onConnectWallet={onConnectWallet}
           onSwitchChain={onSwitchChain}
           onClose={onClose}

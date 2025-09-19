@@ -70,7 +70,7 @@ export default function RangeInput({ initialTick }: { initialTick?: { tickLower:
 
   if (targetPositionId) return null;
   return (
-    <div className="flex-1 border border-stroke rounded-md px-4 py-3 flex flex-col">
+    <div className="border border-stroke rounded-md px-4 py-3 flex flex-col">
       <PoolPrice />
       <LiquidityChart />
       <PriceInput />
