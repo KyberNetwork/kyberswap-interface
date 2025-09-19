@@ -1,6 +1,6 @@
 import { shortenAddress } from '@kyber/utils/dist/crypto'
 import { t } from '@lingui/macro'
-import { useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
@@ -17,18 +17,17 @@ import { DexInfo, IconArrowLeft, PositionHeader } from 'pages/Earns/PositionDeta
 import { Badge, BadgeType, ChainImage, ImageContainer } from 'pages/Earns/UserPositions/styles'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import { CoreProtocol, EarnDex, Exchange, PROTOCOL_POSITION_URL, earnSupportedProtocols } from 'pages/Earns/constants'
+import useForceLoading from 'pages/Earns/hooks/useForceLoading'
 import { ParsedPosition, PositionStatus } from 'pages/Earns/types'
 import { isForkFrom } from 'pages/Earns/utils'
 import { MEDIA_WIDTHS } from 'theme'
 
 const PositionDetailHeader = ({
   position,
-  hadForceLoading,
   isLoading,
   initialLoading,
 }: {
   position?: ParsedPosition
-  hadForceLoading: boolean
   isLoading: boolean
   initialLoading: boolean
 }) => {
@@ -38,6 +37,7 @@ const PositionDetailHeader = ({
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
 
   const { protocol } = useParams()
+  const { hadForceLoading } = useForceLoading()
 
   const isUniv2 = isForkFrom(protocol as Exchange, CoreProtocol.UniswapV2)
   const posStatus = isUniv2 ? PositionStatus.IN_RANGE : position?.status
@@ -112,9 +112,13 @@ const PositionDetailHeader = ({
                 <TokenLogo src={position?.token1.logo} translateLeft />
                 <ChainImage src={position?.chain.logo} alt="" />
               </ImageContainer>
-              <Text marginLeft={-3} fontSize={upToSmall ? 20 : 16}>
-                {position?.token0.symbol}/{position?.token1.symbol}
-              </Text>
+              <Link
+                to={`${APP_PATHS.EARN_POOLS}?exchange=${position?.dex.id}&poolChainId=${position?.chain.id}&poolAddress=${position?.pool.address}`}
+              >
+                <Text color={theme.text} marginLeft={-3} fontSize={upToSmall ? 20 : 16}>
+                  {position?.token0.symbol}/{position?.token1.symbol}
+                </Text>
+              </Link>
             </Flex>
           )}
 

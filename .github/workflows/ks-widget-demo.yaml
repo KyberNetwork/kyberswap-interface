@@ -1,4 +1,4 @@
-name: "KyberSwap Widget Demo - Manual Deploy"
+name: "KyberSwap Widget Demo"
 
 on:
   workflow_dispatch:

@@ -11,7 +11,7 @@ import {
 
 import { formatUnits } from '../crypto';
 import { formatDisplayNumber, toRawString } from '../number';
-import { PI_LEVEL, getPriceImpact } from './price-impact';
+import { PI_LEVEL, getZapImpact } from './price-impact';
 
 export const parseZapInfo = ({
   zapInfo,
@@ -99,11 +99,7 @@ export const parseZapInfo = ({
   const positionAmount1Usd = (amount1 * +(addLiquidityInfo?.addLiquidity.token1.amountUsd || 0)) / +addedAmount1 || 0;
   const addedAmountUsd = +(zapInfo?.positionDetails.addedAmountUsd || 0) + positionAmount0Usd + positionAmount1Usd || 0;
 
-  const zapImpact = getPriceImpact(
-    zapInfo.zapDetails.priceImpact,
-    'Zap Impact',
-    zapInfo.zapDetails.suggestedSlippage || 100,
-  );
+  const zapImpact = getZapImpact(zapInfo.zapDetails.priceImpact, zapInfo.zapDetails.suggestedSlippage || 100);
 
   return {
     refundInfo: {

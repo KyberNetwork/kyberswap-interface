@@ -30,8 +30,8 @@ importers:
   apps/kyberswap-interface:
     dependencies:
       '@across-protocol/app-sdk':
-        specifier: ^0.2.0
-        version: 0.2.0(viem@2.28.0)
+        specifier: ^0.4.0
+        version: 0.4.0(viem@2.28.0)
       '@bitcoinerlab/secp256k1':
         specifier: ^1.2.0
         version: 1.2.0
@@ -205,7 +205,7 @@ importers:
         version: 0.15.39(@solana/web3.js@1.98.2)(bs58@5.0.0)(react-native@0.76.1)(react@18.3.1)
       '@solana/wallet-adapter-wallets':
         specifier: ^0.19.37
-        version: 0.19.37(@babel/runtime@7.26.0)(@solana/sysvars@2.1.1)(@solana/web3.js@1.98.2)(@types/react@18.3.12)(bs58@5.0.0)(fastestsmallesttextencoderdecoder@1.0.22)(react-dom@18.3.1)(react-native@0.76.1)(react@18.3.1)(tslib@2.8.1)(typescript@5.3.3)(ws@8.18.1)
+        version: 0.19.37(@babel/runtime@7.27.0)(@solana/sysvars@2.1.1)(@solana/web3.js@1.98.2)(@types/react@18.3.12)(bs58@5.0.0)(fastestsmallesttextencoderdecoder@1.0.22)(react-dom@18.3.1)(react-native@0.76.1)(react@18.3.1)(tslib@2.8.1)(typescript@5.3.3)(ws@8.18.1)
       '@solana/wallet-standard-wallet-adapter-react':
         specifier: ^1.1.4
         version: 1.1.4(@solana/wallet-adapter-base@0.9.27)(@solana/web3.js@1.98.2)(bs58@5.0.0)(react@18.3.1)
@@ -1057,6 +1057,9 @@ importers:
       '@kyber/eslint-config':
         specifier: workspace:*
         version: link:../config-eslint
+      '@kyber/schema':
+        specifier: workspace:^
+        version: link:../schema
       '@kyber/svgr-esbuild-plugin':
         specifier: workspace:^
         version: link:../svgr-esbuild-plugin
@@ -1734,6 +1737,9 @@ importers:
       '@kyber/hooks':
         specifier: workspace:*
         version: link:../hooks
+      '@kyber/schema':
+        specifier: workspace:^
+        version: link:../schema
       '@kyber/svgr-esbuild-plugin':
         specifier: workspace:^
         version: link:../svgr-esbuild-plugin
@@ -1955,11 +1961,11 @@ packages:
       typescript: 5.3.3
     dev: true
 
-  /@across-protocol/app-sdk@0.2.0(viem@2.28.0):
-    resolution: {integrity: sha512-2evSZQHC+xBvH4gBMDwxwwAgCimjBRId0n/bOAW/EHZv179xdP1wQJu6/bfCbEeCrBwhQaGrZEsUtxrrJ+SJNg==}
+  /@across-protocol/app-sdk@0.4.0(viem@2.28.0):
+    resolution: {integrity: sha512-Sho2uul5D5vG5B5aVum3nDtFK6k+KUFMDKtEsJ4SIfjnMHmxYpffBUyvTQ1Clm/rnFFNxMCvbVv2rcQCEcMVEQ==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
-      viem: ^2.20.1
+      viem: ^2.31.2
     dependencies:
       viem: 2.28.0(typescript@5.3.3)(zod@3.22.4)
     dev: false
@@ -3499,6 +3505,13 @@ packages:
     engines: {node: '>=6.9.0'}
     dependencies:
       regenerator-runtime: 0.14.1
+
+  /@babel/runtime@7.27.0:
+    resolution: {integrity: sha512-VtPOkrdPHZsKc/clNqyi9WUA8TINkZ4cGk63UUE3u4pmB2k+ZMQRDuIOagv8UVd6j7k0T3+RRIb7beKTebNbcw==}
+    engines: {node: '>=6.9.0'}
+    dependencies:
+      regenerator-runtime: 0.14.1
+    dev: false
 
   /@babel/template@7.25.9:
     resolution: {integrity: sha512-9DGttpmPvIxBb/2uwpVo3dqJ+O6RooAFOS+lB+xDqoE2PVCE8nfoHMdZLpfCQRLwvohzXISPZcgxt80xLfsuwg==}
@@ -5206,10 +5219,10 @@ packages:
       '@ethersproject/bignumber': 5.8.0
       '@ethersproject/bytes': 5.8.0
       '@ethersproject/logger': 5.8.0
-      '@ethersproject/networks': 5.7.1
-      '@ethersproject/properties': 5.7.0
-      '@ethersproject/transactions': 5.7.0
-      '@ethersproject/web': 5.7.1
+      '@ethersproject/networks': 5.8.0
+      '@ethersproject/properties': 5.8.0
+      '@ethersproject/transactions': 5.8.0
+      '@ethersproject/web': 5.8.0
     dev: false
 
   /@ethersproject/abstract-provider@5.8.0:
@@ -5227,11 +5240,11 @@ packages:
   /@ethersproject/abstract-signer@5.7.0:
     resolution: {integrity: sha512-a16V8bq1/Cz+TGCkE2OPMTOUDLS3grCpdjoJCYNnVBbdYEMSgKrU0+B90s8b6H+ByYTBZN7a3g76jdIJi7UfKQ==}
     dependencies:
-      '@ethersproject/abstract-provider': 5.7.0
+      '@ethersproject/abstract-provider': 5.8.0
       '@ethersproject/bignumber': 5.8.0
       '@ethersproject/bytes': 5.8.0
       '@ethersproject/logger': 5.8.0
-      '@ethersproject/properties': 5.7.0
+      '@ethersproject/properties': 5.8.0
     dev: false
 
   /@ethersproject/abstract-signer@5.8.0:
@@ -5295,7 +5308,7 @@ packages:
     dependencies:
       '@ethersproject/bytes': 5.8.0
       '@ethersproject/logger': 5.8.0
-      bn.js: 5.2.1
+      bn.js: 5.2.2
     dev: false
 
   /@ethersproject/bignumber@5.8.0:
@@ -12352,7 +12365,7 @@ packages:
       '@solana/web3.js': 1.98.2(typescript@5.3.3)
     dev: false
 
-  /@solana/wallet-adapter-torus@0.11.32(@babel/runtime@7.26.0)(@solana/web3.js@1.98.2)(typescript@5.3.3):
+  /@solana/wallet-adapter-torus@0.11.32(@babel/runtime@7.27.0)(@solana/web3.js@1.98.2)(typescript@5.3.3):
     resolution: {integrity: sha512-LHvCNIL3tvD3q3EVJ1VrcvqIz7JbLBJcvpi5+PwG6DQzrRLHJ7oxOHFwc1SUX41WwifQHKI+lXWlTrVpIOgDOA==}
     engines: {node: '>=20'}
     peerDependencies:
@@ -12360,7 +12373,7 @@ packages:
     dependencies:
       '@solana/wallet-adapter-base': 0.9.27(@solana/web3.js@1.98.2)
       '@solana/web3.js': 1.98.2(typescript@5.3.3)
-      '@toruslabs/solana-embed': 2.1.0(@babel/runtime@7.26.0)(typescript@5.3.3)
+      '@toruslabs/solana-embed': 2.1.0(@babel/runtime@7.27.0)(typescript@5.3.3)
       assert: 2.1.0
       crypto-browserify: 3.12.1
       process: 0.11.10
@@ -12456,7 +12469,7 @@ packages:
       - zod
     dev: false
 
-  /@solana/wallet-adapter-wallets@0.19.37(@babel/runtime@7.26.0)(@solana/sysvars@2.1.1)(@solana/web3.js@1.98.2)(@types/react@18.3.12)(bs58@5.0.0)(fastestsmallesttextencoderdecoder@1.0.22)(react-dom@18.3.1)(react-native@0.76.1)(react@18.3.1)(tslib@2.8.1)(typescript@5.3.3)(ws@8.18.1):
+  /@solana/wallet-adapter-wallets@0.19.37(@babel/runtime@7.27.0)(@solana/sysvars@2.1.1)(@solana/web3.js@1.98.2)(@types/react@18.3.12)(bs58@5.0.0)(fastestsmallesttextencoderdecoder@1.0.22)(react-dom@18.3.1)(react-native@0.76.1)(react@18.3.1)(tslib@2.8.1)(typescript@5.3.3)(ws@8.18.1):
     resolution: {integrity: sha512-LUHK2Zh6gELt0+kt+viIMxqc/bree65xZgTPXXBzjhbJNKJaV4D4wanYG2LM9O35/avehZ5BTLMHltbkibE+GA==}
     engines: {node: '>=20'}
     peerDependencies:
@@ -12492,7 +12505,7 @@ packages:
       '@solana/wallet-adapter-spot': 0.1.19(@solana/web3.js@1.98.2)
       '@solana/wallet-adapter-tokenary': 0.1.16(@solana/web3.js@1.98.2)
       '@solana/wallet-adapter-tokenpocket': 0.4.23(@solana/web3.js@1.98.2)
-      '@solana/wallet-adapter-torus': 0.11.32(@babel/runtime@7.26.0)(@solana/web3.js@1.98.2)(typescript@5.3.3)
+      '@solana/wallet-adapter-torus': 0.11.32(@babel/runtime@7.27.0)(@solana/web3.js@1.98.2)(typescript@5.3.3)
       '@solana/wallet-adapter-trezor': 0.1.6(@solana/sysvars@2.1.1)(@solana/web3.js@1.98.2)(fastestsmallesttextencoderdecoder@1.0.22)(react-native@0.76.1)(tslib@2.8.1)(typescript@5.3.3)(ws@8.18.1)
       '@solana/wallet-adapter-trust': 0.1.17(@solana/web3.js@1.98.2)
       '@solana/wallet-adapter-unsafe-burner': 0.1.11(@solana/web3.js@1.98.2)
@@ -14267,18 +14280,18 @@ packages:
     resolution: {integrity: sha512-OvjF+z51L3ov0OyAU0duzsYuvO01PH7x4t6DJx+guahgTnBHkhJdG7soQeTSFLWN3efnHyibZ4Z8l2EuWwJN3A==}
     dev: false
 
-  /@toruslabs/base-controllers@5.11.0(@babel/runtime@7.26.0):
+  /@toruslabs/base-controllers@5.11.0(@babel/runtime@7.27.0):
     resolution: {integrity: sha512-5AsGOlpf3DRIsd6PzEemBoRq+o2OhgSFXj5LZD6gXcBlfe0OpF+ydJb7Q8rIt5wwpQLNJCs8psBUbqIv7ukD2w==}
     engines: {node: '>=18.x', npm: '>=9.x'}
     peerDependencies:
       '@babel/runtime': 7.x
     dependencies:
-      '@babel/runtime': 7.26.0
+      '@babel/runtime': 7.27.0
       '@ethereumjs/util': 9.1.0
       '@toruslabs/broadcast-channel': 10.0.2
-      '@toruslabs/http-helpers': 6.1.1(@babel/runtime@7.26.0)
-      '@toruslabs/openlogin-jrpc': 8.3.0(@babel/runtime@7.26.0)
-      '@toruslabs/openlogin-utils': 8.2.1(@babel/runtime@7.26.0)
+      '@toruslabs/http-helpers': 6.1.1(@babel/runtime@7.27.0)
+      '@toruslabs/openlogin-jrpc': 8.3.0(@babel/runtime@7.27.0)
+      '@toruslabs/openlogin-utils': 8.2.1(@babel/runtime@7.27.0)
       async-mutex: 0.5.0
       bignumber.js: 9.3.0
       bowser: 2.11.0
@@ -14309,13 +14322,13 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@toruslabs/constants@13.4.0(@babel/runtime@7.26.0):
+  /@toruslabs/constants@13.4.0(@babel/runtime@7.27.0):
     resolution: {integrity: sha512-CjmnMQ5Oj0bqSBGkhv7Xm3LciGJDHwe4AJ1LF6mijlP+QcCnUM5I6kVp60j7zZ/r0DT7nIEiuHHHczGpCZor0A==}
     engines: {node: '>=18.x', npm: '>=9.x'}
     peerDependencies:
       '@babel/runtime': 7.x
     dependencies:
-      '@babel/runtime': 7.26.0
+      '@babel/runtime': 7.27.0
     dev: false
 
   /@toruslabs/eccrypto@4.0.0:
@@ -14340,6 +14353,21 @@ packages:
       loglevel: 1.9.2
     dev: false
 
+  /@toruslabs/http-helpers@6.1.1(@babel/runtime@7.27.0):
+    resolution: {integrity: sha512-bJYOaltRzklzObhRdutT1wau17vXyrCCBKJOeN46F1t99MUXi5udQNeErFOcr9qBsvrq2q67eVBkU5XOeBMX5A==}
+    engines: {node: '>=18.x', npm: '>=9.x'}
+    peerDependencies:
+      '@babel/runtime': ^7.x
+      '@sentry/types': ^7.x
+    peerDependenciesMeta:
+      '@sentry/types':
+        optional: true
+    dependencies:
+      '@babel/runtime': 7.27.0
+      lodash.merge: 4.6.2
+      loglevel: 1.9.2
+    dev: false
+
   /@toruslabs/metadata-helpers@5.1.0(@babel/runtime@7.26.0):
     resolution: {integrity: sha512-7fdqKuWUaJT/ng+PlqrA4XKkn8Dij4JJozfv/4gHTi0f/6JFncpzIces09jTV70hCf0JIsTCvIDlzKOdJ+aeZg==}
     engines: {node: '>=18.x', npm: '>=9.x'}
@@ -14356,13 +14384,13 @@ packages:
       - '@sentry/types'
     dev: false
 
-  /@toruslabs/openlogin-jrpc@8.3.0(@babel/runtime@7.26.0):
+  /@toruslabs/openlogin-jrpc@8.3.0(@babel/runtime@7.27.0):
     resolution: {integrity: sha512-1OdSkUXGXJobkkMIJHuf+XzwmUB4ROy6uQfPEJ3NXvNj84+N4hNpvC4JPg7VoWBHdfCba9cv6QnQsVArlwai4A==}
     engines: {node: '>=18.x', npm: '>=9.x'}
     peerDependencies:
       '@babel/runtime': 7.x
     dependencies:
-      '@babel/runtime': 7.26.0
+      '@babel/runtime': 7.27.0
       end-of-stream: 1.4.4
       events: 3.3.0
       fast-safe-stringify: 2.1.1
@@ -14371,30 +14399,30 @@ packages:
       readable-stream: 4.7.0
     dev: false
 
-  /@toruslabs/openlogin-utils@8.2.1(@babel/runtime@7.26.0):
+  /@toruslabs/openlogin-utils@8.2.1(@babel/runtime@7.27.0):
     resolution: {integrity: sha512-NSOtj61NZe7w9qbd92cYwMlE/1UwPGtDH02NfUjoEEc3p1yD5U2cLZjdSwsnAgjGNgRqVomXpND4hii12lI/ew==}
     engines: {node: '>=18.x', npm: '>=9.x'}
     peerDependencies:
       '@babel/runtime': 7.x
     dependencies:
-      '@babel/runtime': 7.26.0
-      '@toruslabs/constants': 13.4.0(@babel/runtime@7.26.0)
+      '@babel/runtime': 7.27.0
+      '@toruslabs/constants': 13.4.0(@babel/runtime@7.27.0)
       base64url: 3.0.1
       color: 4.2.3
     dev: false
 
-  /@toruslabs/solana-embed@2.1.0(@babel/runtime@7.26.0)(typescript@5.3.3):
+  /@toruslabs/solana-embed@2.1.0(@babel/runtime@7.27.0)(typescript@5.3.3):
     resolution: {integrity: sha512-rgZniKy+yuqJp8/Z/RcqzhTL4iCH+4nP55XD5T2nEIajAClsmonsGp24AUqYwEqu+7x2hjumZEh+12rUv+Ippw==}
     engines: {node: '>=18.x', npm: '>=9.x'}
     deprecated: This sdk is now deprecated. Please use @web3auth/ws-embed instead
     peerDependencies:
       '@babel/runtime': 7.x
     dependencies:
-      '@babel/runtime': 7.26.0
+      '@babel/runtime': 7.27.0
       '@solana/web3.js': 1.98.2(typescript@5.3.3)
-      '@toruslabs/base-controllers': 5.11.0(@babel/runtime@7.26.0)
-      '@toruslabs/http-helpers': 6.1.1(@babel/runtime@7.26.0)
-      '@toruslabs/openlogin-jrpc': 8.3.0(@babel/runtime@7.26.0)
+      '@toruslabs/base-controllers': 5.11.0(@babel/runtime@7.27.0)
+      '@toruslabs/http-helpers': 6.1.1(@babel/runtime@7.27.0)
+      '@toruslabs/openlogin-jrpc': 8.3.0(@babel/runtime@7.27.0)
       eth-rpc-errors: 4.0.3
       fast-deep-equal: 3.1.3
       lodash-es: 4.17.21
@@ -19913,7 +19941,7 @@ packages:
     resolution: {integrity: sha512-YBjSAiTqM04ZVei6sXighu679a3SqWORA3qZTEqZImnlkDIFtKc6pNutpjyZ8RJTjQtuYfeetkxM11GwoYXMIQ==}
     engines: {node: '>= 0.10'}
     dependencies:
-      bn.js: 5.2.1
+      bn.js: 5.2.2
       randombytes: 2.1.0
       safe-buffer: 5.2.1
     dev: false
@@ -27791,7 +27819,7 @@ packages:
     resolution: {integrity: sha512-6oYB5HOt37RuGz2eV4A6yhcl+PUTwJYLDlY9vhT+aVjbUWI6MdBCf69vc4f5K5Vpt+yOkjy+2LDwLS0ykWFwYw==}
     engines: {node: '>=18.18'}
     dependencies:
-      '@babel/runtime': 7.26.0
+      '@babel/runtime': 7.27.0
       flow-enums-runtime: 0.0.6
     dev: false
 
@@ -30539,7 +30567,7 @@ packages:
       react-native:
         optional: true
     dependencies:
-      '@babel/runtime': 7.26.0
+      '@babel/runtime': 7.27.0
       html-parse-stringify: 3.0.1
       i18next: 22.5.1
       react: 18.3.1

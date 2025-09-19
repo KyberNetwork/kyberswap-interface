@@ -147,10 +147,10 @@ export function Action({
     client,
   ]);
 
-  const { swapPiRes } = useSwapPI(chainId);
+  const { zapPiRes } = useSwapPI(chainId);
   const pi = {
-    piHigh: swapPiRes.piRes.level === PI_LEVEL.HIGH,
-    piVeryHigh: swapPiRes.piRes.level === PI_LEVEL.VERY_HIGH,
+    piHigh: zapPiRes.level === PI_LEVEL.HIGH,
+    piVeryHigh: zapPiRes.level === PI_LEVEL.VERY_HIGH,
   };
 
   const [clickedApprove, setClickedApprove] = useState(false);

@@ -10,14 +10,10 @@ export enum PI_LEVEL {
   INVALID = 'INVALID',
 }
 
-export const getPriceImpact = (
-  pi: number | null | undefined,
-  type: 'Swap Price Impact' | 'Zap Impact',
-  suggestedSlippage: number,
-) => {
+export const getZapImpact = (pi: number | null | undefined, suggestedSlippage: number) => {
   if (pi === null || pi === undefined || isNaN(pi))
     return {
-      msg: `Unable to calculate ${type}`,
+      msg: `Unable to calculate zap impact`,
       level: PI_LEVEL.INVALID,
       display: '--',
     };
@@ -28,22 +24,15 @@ export const getPriceImpact = (
 
   if (pi > 2 * warningThreshold) {
     return {
-      msg:
-        type === 'Swap Price Impact'
-          ? 'The price impact for this swap is higher than usual, which may affect trade outcomes.'
-          : "Overall zap price impact is higher than expected. Click 'Zap Anyway' if you wish to proceed in Degen Mode.",
-
-      level: type === 'Swap Price Impact' ? PI_LEVEL.HIGH : PI_LEVEL.VERY_HIGH,
+      msg: "Overall zap price impact is higher than expected. Click 'Zap Anyway' if you wish to proceed in Degen Mode.",
+      level: PI_LEVEL.VERY_HIGH,
       display: piDisplay,
     };
   }
 
   if (pi > warningThreshold) {
     return {
-      msg:
-        type === 'Swap Price Impact'
-          ? 'The price impact for this swap is higher than usual, which may affect trade outcomes.'
-          : 'Overall zap price impact is higher than expected.',
+      msg: 'Overall zap price impact is higher than expected.',
       level: PI_LEVEL.HIGH,
       display: piDisplay,
     };
@@ -101,22 +90,12 @@ export const parseSwapActions = ({
       const amountIn = formatWei(item.tokenIn.amount, tokenIn?.decimals);
       const amountOut = formatWei(item.tokenOut.amount, tokenOut?.decimals);
 
-      const pi =
-        parseFloat(item.tokenIn.amountUsd) === 0 || parseFloat(item.tokenOut.amountUsd) === 0
-          ? undefined
-          : ((parseFloat(item.tokenIn.amountUsd) - parseFloat(item.tokenOut.amountUsd)) /
-              parseFloat(item.tokenIn.amountUsd)) *
-            100;
-
-      const piRes = getPriceImpact(pi, 'Swap Price Impact', zapInfo?.zapDetails.suggestedSlippage || 100);
-
       return {
         tokenInSymbol: tokenIn?.symbol || '--',
         tokenOutSymbol: tokenOut?.symbol || '--',
         amountIn,
         amountOut,
         pool: 'KyberSwap',
-        piRes,
       };
     }) || [];
 
@@ -132,51 +111,14 @@ export const parseSwapActions = ({
           ? `${tokenIn?.symbol}-${tokenOut?.symbol}`
           : dexName;
 
-      const pi =
-        parseFloat(item.tokenIn.amountUsd) === 0 || parseFloat(item.tokenOut.amountUsd) === 0
-          ? undefined
-          : ((parseFloat(item.tokenIn.amountUsd) - parseFloat(item.tokenOut.amountUsd)) /
-              parseFloat(item.tokenIn.amountUsd)) *
-            100;
-      const piRes = getPriceImpact(pi, 'Swap Price Impact', zapInfo?.zapDetails.suggestedSlippage || 100);
-
       return {
         tokenInSymbol: tokenIn?.symbol || '--',
         tokenOutSymbol: tokenOut?.symbol || '--',
         amountIn,
         amountOut,
         pool: `${displayPool} Pool`,
-        piRes,
       };
     }) || [];
 
   return parsedAggregatorSwapInfo.concat(parsedPoolSwapInfo);
-};
-
-export const getSwapPriceImpactFromActions = (swapActions: SwapAction[]) => {
-  const invalidRes = swapActions.find(item => item.piRes.level === PI_LEVEL.INVALID);
-  if (invalidRes) return invalidRes;
-
-  const highRes = swapActions.find(item => item.piRes.level === PI_LEVEL.HIGH);
-  if (highRes) return highRes;
-
-  const veryHighRes = swapActions.find(item => item.piRes.level === PI_LEVEL.VERY_HIGH);
-  if (veryHighRes) return veryHighRes;
-
-  return { piRes: { level: PI_LEVEL.NORMAL, msg: '' } };
-};
-
-export const getSwapPriceImpactFromZapInfo = ({
-  zapInfo,
-  tokens,
-  poolType,
-  chainId,
-}: {
-  zapInfo: ZapRouteDetail;
-  tokens: Token[];
-  poolType: PoolType;
-  chainId: ChainId;
-}) => {
-  const swapActions = parseSwapActions({ zapInfo, tokens, poolType, chainId });
-  return getSwapPriceImpactFromActions(swapActions);
 };

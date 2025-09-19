@@ -29,7 +29,6 @@ export const CHAIN_ID_TO_CHAIN: { [chainId in ChainId]: string } = {
 };
 
 export const API_URLS = {
-  BFF_API: 'https://bff.kyberswap.com/api',
   KYBERSWAP_SETTING_API: 'https://ks-setting.kyberswap.com/api',
   ZAP_API: 'https://zap-api.kyberswap.com',
   // ZAP_API: 'https://pre-zap-api.kyberengineering.io',
@@ -68,7 +67,7 @@ export const dexMapping: Record<PoolType, string[]> = {
   [PoolType.DEX_SQUADSWAP_V3]: ['squadswap-v3'],
   [PoolType.DEX_SQUADSWAP_V2]: ['squadswap'],
 
-  [PoolType.DEX_THENAFUSION]: ['thena'],
+  [PoolType.DEX_THENAFUSION]: ['thena-fusion'],
   [PoolType.DEX_CAMELOTV3]: ['camelot-v3'],
   [PoolType.DEX_QUICKSWAPV3ALGEBRA]: ['quickswap-v3'],
 } as const;

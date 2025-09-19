@@ -2,15 +2,15 @@ import { useEffect, useRef } from 'react';
 
 import { useDebounce } from '@kyber/hooks/use-debounce';
 import { Skeleton, TokenLogo } from '@kyber/ui';
+import { getZapImpact } from '@kyber/utils';
 import { formatDisplayNumber, formatTokenAmount } from '@kyber/utils/number';
 
 import SlippageRow from '@/components/Estimated/SlippageRow';
-import { SwapPI } from '@/components/SwapImpact';
 import { MouseoverTooltip } from '@/components/Tooltip';
 import { ProtocolFeeAction, ZapAction } from '@/hooks/types/zapInTypes';
 import { useZapOutContext } from '@/stores';
 import { RefundAction, RemoveLiquidityAction, useZapOutUserState } from '@/stores/state';
-import { PI_LEVEL, formatCurrency, getPriceImpact } from '@/utils';
+import { PI_LEVEL, formatCurrency } from '@/utils';
 
 export default function Estimated() {
   const { chainId, positionId, poolAddress, poolType, pool, theme, position } = useZapOutContext(s => s);
@@ -36,7 +36,7 @@ export default function Estimated() {
 
   const suggestedSlippage = route?.zapDetails.suggestedSlippage || 0;
 
-  const piRes = getPriceImpact(route?.zapDetails.priceImpact, 'Zap Impact', route?.zapDetails.suggestedSlippage || 100);
+  const piRes = getZapImpact(route?.zapDetails.priceImpact, route?.zapDetails.suggestedSlippage || 100);
 
   useEffect(() => {
     if (showPreview) return;
@@ -122,10 +122,6 @@ export default function Estimated() {
           </div>
 
           <SlippageRow suggestedSlippage={suggestedSlippage} />
-
-          <div className="flex items-center justify-between mt-2">
-            <SwapPI />
-          </div>
 
           <div className="flex items-center justify-between mt-2">
             <MouseoverTooltip

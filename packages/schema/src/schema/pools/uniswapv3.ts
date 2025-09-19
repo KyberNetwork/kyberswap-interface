@@ -33,7 +33,7 @@ export const univ3RawPool = z.object({
     kemLMApr: z.number().optional(),
     kemEGApr: z.number().optional(),
   }),
-  programs: z.array(z.enum(['eg', 'lm'])).optional(),
+  programs: z.array(z.string()).optional(),
   staticExtra: z.string().optional(),
 });
 

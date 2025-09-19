@@ -7,10 +7,8 @@ import { cn } from '@kyber/utils/tailwind-helpers';
 import EstimatedRow from '@/components/Estimated/EstimatedRow';
 import EstimatedTokenRow from '@/components/Estimated/EstimatedTokenRow';
 import SlippageRow from '@/components/Estimated/SlippageRow';
-import SwapImpactCollapse from '@/components/Estimated/SwapImpactCollapse';
 import WarningMessage from '@/components/Estimated/WarningMessage';
 import useEstimated from '@/components/Estimated/useEstimated';
-import useSwapPI from '@/hooks/useSwapPI';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
 export default function Estimated() {
@@ -29,7 +27,6 @@ export default function Estimated() {
     zapImpact,
     feeInfo,
   } = useEstimated();
-  const { swapPriceImpact } = useSwapPI();
 
   const addedValue = !!positionAmountInfo.addedAmountUsd && (
     <span>{formatCurrency(positionAmountInfo.addedAmountUsd)}</span>
@@ -40,9 +37,6 @@ export default function Estimated() {
       isWarning
       message={`${((refundInfo.refundUsd * 100) / initUsd).toFixed(2)}% remains unused and will be returned to your wallet. Refresh or change your amount to get updated routes.`}
     />
-  );
-  const swapPriceImpactWarning = zapInfo && swapPriceImpact.piRes.level !== PI_LEVEL.NORMAL && (
-    <WarningMessage isWarning={swapPriceImpact.piRes.level === PI_LEVEL.HIGH} message={swapPriceImpact.piRes.msg} />
   );
   const zapImpactWarning = zapInfo && zapImpact.level !== PI_LEVEL.NORMAL && (
     <WarningMessage isWarning={zapImpact.level === PI_LEVEL.HIGH} message={zapImpact.msg} />
@@ -100,8 +94,6 @@ export default function Estimated() {
           }
           hasRoute={!!zapInfo}
         />
-
-        <SwapImpactCollapse initializing={initializing} />
 
         <SlippageRow suggestedSlippage={suggestedSlippage} />
 
@@ -169,7 +161,6 @@ export default function Estimated() {
       </div>
 
       {remainingAmountWarning}
-      {swapPriceImpactWarning}
       {zapImpactWarning}
     </>
   );

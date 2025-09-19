@@ -24,7 +24,7 @@ import {
 } from 'pages/Earns/PoolExplorer/styles'
 import useFilter from 'pages/Earns/PoolExplorer/useFilter'
 import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
-import { Exchange } from 'pages/Earns/constants'
+import { EarnDex, Exchange, protocolGroupNameToExchangeMapping } from 'pages/Earns/constants'
 import useZapInWidget, { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import { Direction } from 'pages/MarketOverview/SortIcon'
@@ -145,7 +145,12 @@ const PoolExplorer = () => {
     ;(async () => {
       const pool = await handleFetchPoolData({ chainId: Number(chainId), address })
 
-      if (pool && (pool.exchange === dex || pool.exchange === dexKeyMapping[dex]))
+      if (
+        pool &&
+        (pool.exchange === dex ||
+          pool.exchange === dexKeyMapping[dex] ||
+          pool.exchange === protocolGroupNameToExchangeMapping[dex as EarnDex])
+      )
         handleOpenZapIn({ pool: { dex: dex as Exchange, chainId: Number(chainId), address: pool.address } })
       else {
         notify(

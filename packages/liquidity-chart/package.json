@@ -27,6 +27,7 @@
     "lodash.partition": "^4.6.0"
   },
   "devDependencies": {
+    "@kyber/schema": "workspace:^",
     "@kyber/svgr-esbuild-plugin": "workspace:^",
     "@kyber/eslint-config": "workspace:*",
     "@kyber/tailwind-config": "workspace:^",
