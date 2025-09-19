@@ -17,6 +17,7 @@ import {
   beraTokens,
   sonicTokens,
 } from './tokens'
+import hyperEvmTokens from './tokens/hyperevm'
 
 export enum ZIndex {
   UNDERLAYER = -1,
@@ -128,6 +129,14 @@ export const NATIVE_TOKEN: {
     address: NATIVE_TOKEN_ADDRESS,
     chainId: 146,
     logoURI: 'https://www.soniclabs.com/favicon.ico',
+  },
+  999: {
+    name: 'HYPE',
+    symbol: 'HYPE',
+    decimals: 18,
+    address: NATIVE_TOKEN_ADDRESS,
+    chainId: 199,
+    logoURI: 'https://storage.googleapis.com/ks-setting-1d682dca/5735d731-d5da-4ba4-af94-2e945110130c1750316953655.png',
   },
 }
 
@@ -270,6 +279,14 @@ export const WRAPPED_NATIVE_TOKEN: {
     chainId: 146,
     logoURI: 'https://sonicscan.org/token/images/wrappedsonic_32.svg',
   },
+  999: {
+    name: 'Wrapped HYPE',
+    decimals: 18,
+    symbol: 'WHYPE',
+    address: '0x5555555555555555555555555555555555555555',
+    chainId: 999,
+    logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/35881.png',
+  },
 }
 
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
@@ -294,6 +311,7 @@ export const DEFAULT_TOKENS: {
   5000: mantleTokens,
   80094: beraTokens,
   146: sonicTokens,
+  999: hyperEvmTokens,
 }
 
 export const MULTICALL_ADDRESS: { [chainId: number]: string } = {
@@ -314,6 +332,7 @@ export const MULTICALL_ADDRESS: { [chainId: number]: string } = {
   5000: '0xcA11bde05977b3631167028862bE2a173976CA11',
   80094: '0xcA11bde05977b3631167028862bE2a173976CA11',
   146: '0xcA11bde05977b3631167028862bE2a173976CA11',
+  999: '0xcA11bde05977b3631167028862bE2a173976CA11',
 }
 
 export const AGGREGATOR_PATH: { [chainId: number]: string } = {
@@ -334,6 +353,7 @@ export const AGGREGATOR_PATH: { [chainId: number]: string } = {
   5000: 'mantle',
   80094: 'berachain',
   146: 'sonic',
+  999: 'hyperevm',
 }
 
 export const SCAN_LINK: { [chainId: number]: string } = {
@@ -354,13 +374,14 @@ export const SCAN_LINK: { [chainId: number]: string } = {
   5000: 'https://explorer.mantle.xyz',
   80094: 'https://berascan.com',
   146: 'https://sonicscan.org',
+  999: 'https://hyperevmscan.io',
 }
 
 export const DefaultRpcUrl: { [chainId: number]: string } = {
   1: 'https://ethereum.kyberengineering.io',
   137: 'https://polygon-rpc.com',
   56: 'https://bsc.kyberengineering.io',
-  43114: 'https://avalanche.kyberengineering.io',
+  43114: 'https://api.avax.network/ext/bc/C/rpc',
   250: 'https://rpc.fantom.network',
   25: '', // cronos deprecated
   42161: 'https://arbitrum.kyberengineering.io',
@@ -374,6 +395,7 @@ export const DefaultRpcUrl: { [chainId: number]: string } = {
   5000: 'https://rpc.mantle.xyz',
   80094: 'https://rpc.berachain.com',
   146: 'https://rpc.soniclabs.com',
+  999: 'https://rpc.hyperliquid.xyz/evm',
 }
 
 export const SUPPORTED_NETWORKS = Object.keys(SCAN_LINK)
