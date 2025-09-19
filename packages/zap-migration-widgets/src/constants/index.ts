@@ -3,6 +3,7 @@ import kodiakv3 from '@/constants/dexes/kodiakv3';
 import koicl from '@/constants/dexes/koicl';
 import linehubv3 from '@/constants/dexes/linehubv3';
 import metavaultv3 from '@/constants/dexes/metavaultv3';
+import pancakeInfinityCl from '@/constants/dexes/pancake-infinity-cl';
 import pancakeswapv3 from '@/constants/dexes/pancakeswapv3';
 import quickswapv3algebra from '@/constants/dexes/quickswapv3algebra';
 import squadswapv2 from '@/constants/dexes/squadswapv2';
@@ -55,6 +56,7 @@ export const DEXES_INFO: Record<Dex, DexInfo> = {
     ...uniswapv4,
     name: 'Uniswap V4 FairFlow',
   },
+  [Dex.DEX_PANCAKE_INFINITY_CL]: pancakeInfinityCl,
   [Dex.DEX_UNISWAPV3]: uniswapv3,
   [Dex.DEX_UNISWAPV2]: uniswapv2,
   [Dex.DEX_PANCAKESWAPV3]: pancakeswapv3,
