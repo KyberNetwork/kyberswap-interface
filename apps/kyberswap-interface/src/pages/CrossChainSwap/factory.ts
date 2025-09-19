@@ -121,7 +121,7 @@ export class CrossChainSwapFactory {
     return [
       CrossChainSwapFactory.getAcrossAdapter(),
       CrossChainSwapFactory.getRelayAdapter(),
-      CrossChainSwapFactory.getXyFinanceAdapter(),
+      // CrossChainSwapFactory.getXyFinanceAdapter(),
       CrossChainSwapFactory.getNearIntentsAdapter(),
       CrossChainSwapFactory.getMayanAdapter(),
       // CrossChainSwapFactory.getSymbiosisAdapter(),
