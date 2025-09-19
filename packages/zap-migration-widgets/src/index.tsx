@@ -162,7 +162,7 @@ export const ZapMigration = (widgetProps: ZapMigrationProps) => {
             </div>
             <TargetPosition />
             <RangeInput initialTick={initialTick} />
-            {!rePositionMode && to?.positionId && <PoolPriceWithRange type={RangeType.Target} />}
+            {!rePositionMode && to?.positionId && <PoolPriceWithRange type={RangeType.Target} showPrice />}
             {!rePositionMode && <Estimated />}
             <div className="block md:hidden">
               <Warning />

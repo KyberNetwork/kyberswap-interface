@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 
-import { Skeleton } from '@kyber/ui';
+import { MouseoverTooltip, Skeleton } from '@kyber/ui';
 import { formatDisplayNumber } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
@@ -26,7 +26,9 @@ export default function PriceRange({
   if (!minPrice || !maxPrice || !currentPrice) return <Skeleton className="h-1 rounded w-full" />;
   return (
     <div className={cn('relative h-1 rounded w-full', isOutRange ? 'bg-warning-300' : 'bg-[#505050]')}>
-      {isOutRange && <CurrentPriceIndicator lower={currentPrice < minPrice} color="text-warning" />}
+      {isOutRange && (
+        <CurrentPriceIndicator lower={currentPrice < minPrice} color="text-warning" currentPrice={currentPrice} />
+      )}
       <div
         className={cn(
           'absolute flex justify-between items-center h-full rounded',
@@ -39,6 +41,7 @@ export default function PriceRange({
           <CurrentPriceIndicator
             color="text-primary"
             left={isUniV2 ? 0.2 : (currentPrice - minPrice) / (maxPrice - minPrice)}
+            currentPrice={currentPrice}
           />
         )}
         <div className={cn('h-4 w-1 rounded-[4px] relative', isOutRange ? 'bg-[#737373]' : 'bg-primary')}>
@@ -59,7 +62,17 @@ export default function PriceRange({
 const priceIndicatorWidth = 4;
 const currentPriceIndicatorWidth = 7.53;
 
-const CurrentPriceIndicator = ({ lower, color, left }: { lower?: boolean; color: string; left?: number }) => {
+const CurrentPriceIndicator = ({
+  lower,
+  color,
+  left,
+  currentPrice,
+}: {
+  lower?: boolean;
+  color: string;
+  left?: number;
+  currentPrice: number;
+}) => {
   const indicatorRef = useRef<HTMLDivElement>(null);
   const fullRangeElement = indicatorRef.current?.parentElement;
   const maxWidth = fullRangeElement ? fullRangeElement.offsetWidth - priceIndicatorWidth * 2 : 0; // 4 is width of lower & upper price indicator
@@ -75,7 +88,13 @@ const CurrentPriceIndicator = ({ lower, color, left }: { lower?: boolean; color:
             : undefined,
       }}
     >
-      <IconCurrentPrice className={color} />
+      <MouseoverTooltip
+        text={`Current Price: ${formatDisplayNumber(currentPrice, { significantDigits: 8 })}`}
+        placement="bottom"
+        width="max-content"
+      >
+        <IconCurrentPrice className={color} />
+      </MouseoverTooltip>
     </div>
   );
 };

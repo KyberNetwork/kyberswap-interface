@@ -1,4 +1,5 @@
 import { univ2Types } from '@kyber/schema';
+import { cn } from '@kyber/utils/tailwind-helpers';
 
 import PoolPrice from '@/components/PoolPrice';
 import PriceRange from '@/components/PoolPriceWithRange/PriceRange';
@@ -12,7 +13,7 @@ export enum RangeType {
   Target,
 }
 
-export default function PoolPriceWithRange({ type }: { type: RangeType }) {
+export default function PoolPriceWithRange({ type, showPrice }: { type: RangeType; showPrice?: boolean }) {
   const { targetPoolType } = useWidgetStore(['targetPoolType']);
   const { targetPoolPrice } = usePoolStore(['targetPoolPrice']);
   const { minPrice, maxPrice, isMinTick: targetIsMinTick, isMaxTick: targetIsMaxTick } = usePriceRange();
@@ -36,8 +37,8 @@ export default function PoolPriceWithRange({ type }: { type: RangeType }) {
 
   return (
     <div className="border border-stroke rounded-md px-4 py-3 flex flex-col">
-      <PoolPrice />
-      <div className="pb-3 pt-10">
+      {showPrice ? <PoolPrice /> : null}
+      <div className={cn('pb-3', showPrice ? 'pt-10' : 'pt-8')}>
         <PriceRange
           currentPrice={currentPrice}
           minPrice={parsedMinPrice}
