@@ -10,7 +10,7 @@ import { Flex, Text } from 'rebass'
 
 import { ReactComponent as IconEarnNotFound } from 'assets/svg/earn/ic_earn_not_found.svg'
 import { ReactComponent as IconKem } from 'assets/svg/kyber/kem.svg'
-import InfoHelper from 'components/InfoHelper'
+import { InfoHelperWithDelay } from 'components/InfoHelper'
 import { Loader2 } from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
@@ -389,7 +389,7 @@ export default function TableContent({
                             ? t`Out of range`
                             : t`Closed`}
                           {status === PositionStatus.OUT_RANGE ? (
-                            <InfoHelper
+                            <InfoHelperWithDelay
                               text={
                                 <Flex flexDirection={'column'} sx={{ gap: 1 }}>
                                   <Text>
@@ -409,6 +409,7 @@ export default function TableContent({
                               color={theme.warning}
                               placement="top"
                               width="280px"
+                              style={{ marginLeft: 4 }}
                             />
                           ) : null}
                         </Badge>
