@@ -80,7 +80,7 @@ const createZapOutStore = (initProps: InnerZapOutProps) => {
     getPool: async () => {
       const { poolAddress, chainId, poolType, positionId } = get();
 
-      const res = await fetch(`${PATHS.BFF_API}/v1/pools?chainId=${chainId}&ids=${poolAddress}`).then(res =>
+      const res = await fetch(`${PATHS.ZAP_EARN_API}/v1/pools?chainId=${chainId}&address=${poolAddress}`).then(res =>
         res.json(),
       );
 
@@ -95,7 +95,7 @@ const createZapOutStore = (initProps: InnerZapOutProps) => {
         console.error("Can't get pool info", error);
         return;
       }
-      const pool = data.data.pools.find(item => item.address.toLowerCase() === poolAddress.toLowerCase());
+      const pool = data.data;
       if (!pool) {
         firstLoad && set({ errorMsg: `Can't get pool info, address: ${pool}` });
         return;
