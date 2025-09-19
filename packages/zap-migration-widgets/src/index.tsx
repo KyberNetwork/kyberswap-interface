@@ -14,7 +14,6 @@ import PositionToMigrate from '@/components/PositionToMigrate';
 import { Preview } from '@/components/Preview';
 import RangeInput from '@/components/RangeInput';
 import TargetPosition from '@/components/TargetPosition';
-import Warning from '@/components/Warning';
 import useInitWidget from '@/hooks/useInitWidget';
 import '@/index.css';
 import '@/index.scss';
@@ -147,9 +146,6 @@ export const ZapMigration = (widgetProps: ZapMigrationProps) => {
             {rePositionMode && <PoolPriceWithRange type={RangeType.Source} />}
             <AmountToMigrate />
             {rePositionMode && <Estimated />}
-            <div className="hidden md:block">
-              <Warning />
-            </div>
           </div>
 
           <div className="block md:hidden rotate-90 w-fit mx-auto">
@@ -164,9 +160,6 @@ export const ZapMigration = (widgetProps: ZapMigrationProps) => {
             <RangeInput initialTick={initialTick} />
             {!rePositionMode && to?.positionId && <PoolPriceWithRange type={RangeType.Target} showPrice />}
             {!rePositionMode && <Estimated />}
-            <div className="block md:hidden">
-              <Warning />
-            </div>
           </div>
         </div>
 
