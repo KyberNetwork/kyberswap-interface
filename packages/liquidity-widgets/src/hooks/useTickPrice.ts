@@ -42,7 +42,7 @@ export default function useTickPrice({
 
   // set tick if position exists
   useEffect(() => {
-    if (position) {
+    if (position && position !== 'loading') {
       const { success: isUniV3Position, data } = univ3Position.safeParse(position);
 
       if (isUniV3Position && data.tickUpper !== undefined && data.tickLower !== undefined) {

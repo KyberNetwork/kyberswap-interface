@@ -81,6 +81,8 @@ const routeApi = createApi({
                   ...routeSummary,
                   amountInUsd: tokenInMidPrice ? (+tokenInBalance * tokenInMidPrice).toString() : '',
                   amountOutUsd: tokenOutMidPrice ? (+tokenOutBalance * tokenOutMidPrice).toString() : '',
+                  rawAmountInUsd: routeSummary.amountInUsd,
+                  rawAmountOutUsd: routeSummary.amountOutUsd,
                 },
               },
             }

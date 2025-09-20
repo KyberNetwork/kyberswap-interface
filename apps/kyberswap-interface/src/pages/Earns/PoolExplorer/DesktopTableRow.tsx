@@ -63,7 +63,10 @@ const DesktopTableRow = ({
         address: pool.address,
       },
       initialTick:
-        withPriceRange && pool.maxAprInfo && pool.maxAprInfo.tickLower && pool.maxAprInfo.tickUpper
+        withPriceRange &&
+        pool.maxAprInfo &&
+        pool.maxAprInfo.tickLower !== undefined &&
+        pool.maxAprInfo.tickUpper !== undefined
           ? {
               tickLower: pool.maxAprInfo.tickLower,
               tickUpper: pool.maxAprInfo.tickUpper,
