@@ -24,6 +24,7 @@ export interface PermitNftParams {
   tokenId: string
   spender: string
   deadline?: number
+  version?: 'v3' | 'v4' | 'auto' // specify version or auto-detect
 }
 
 export interface PermitNftResult {
@@ -36,25 +37,48 @@ export interface PermitNftResult {
 // NFT Position Manager ABI for permit functionality
 const NFT_PERMIT_ABI = [
   'function name() view returns (string)',
-  'function nonces(address owner, uint256 word) view returns (uint256 bitmap)',
+  'function nonces(address owner, uint256 word) view returns (uint256 bitmap)', // V4 unordered nonces
+  'function positions(uint256 tokenId) view returns (uint96 nonce, address operator, address token0, address token1, uint24 fee, int24 tickLower, int24 tickUpper, uint128 liquidity, uint256 feeGrowthInside0LastX128, uint256 feeGrowthInside1LastX128, uint128 tokensOwed0, uint128 tokensOwed1)', // V3 ordered nonces
   'function permit(address spender, uint256 tokenId, uint256 deadline, uint256 nonce, bytes signature) payable',
 ]
 
 // 30 days validity buffer
 const PERMIT_NFT_VALIDITY_BUFFER = 30 * 24 * 60 * 60
 
-export const usePermitNft = ({ contractAddress, tokenId, spender, deadline }: PermitNftParams) => {
+export const usePermitNft = ({ contractAddress, tokenId, spender, deadline, version = 'auto' }: PermitNftParams) => {
   const { account, chainId } = useActiveWeb3React()
   const { library } = useWeb3React()
   const notify = useNotify()
   const [isSigningInProgress, setIsSigningInProgress] = useState(false)
   const [permitData, setPermitData] = useState<PermitNftResult | null>(null)
+  const [detectedVersion, setDetectedVersion] = useState<'v3' | 'v4' | null>(null)
 
   const nftContract = useReadingContract(contractAddress, NFT_PERMIT_ABI)
 
-  // Get nonces bitmap for word 0
+  // Get nonces bitmap for word 0 (V4 style)
   const noncesState = useSingleCallResult(nftContract, 'nonces', [account, 0])
+  // Get position data (V3 style) - only call if we have a tokenId
+  const positionsState = useSingleCallResult(nftContract, 'positions', tokenId ? [tokenId] : undefined)
   const nameState = useSingleCallResult(nftContract, 'name', [])
+
+  // Auto-detect version based on available data
+  const actualVersion = useMemo(() => {
+    if (version !== 'auto') return version
+
+    if (detectedVersion) return detectedVersion
+
+    // Try to detect based on available data
+    if (positionsState?.result && !positionsState.error) {
+      setDetectedVersion('v3')
+      return 'v3'
+    }
+    if (noncesState?.result && !noncesState.error) {
+      setDetectedVersion('v4')
+      return 'v4'
+    }
+
+    return 'v4' // Default to v4 if uncertain
+  }, [version, detectedVersion, positionsState, noncesState])
 
   const permitState = useMemo(() => {
     if (!account || !contractAddress || !tokenId || !spender) {
@@ -79,9 +103,35 @@ export const usePermitNft = ({ contractAddress, tokenId, spender, deadline }: Pe
     throw new Error('No free nonce in word 0; pick a different word.')
   }, [])
 
+  // Get nonce based on version
+  const getNonce = useCallback((): BigNumber | null => {
+    if (actualVersion === 'v3') {
+      // Use ordered nonce from positions function
+      if (positionsState?.result?.[0] !== undefined) {
+        return BigNumber.from(positionsState.result[0]).add(1) // Next nonce is current + 1
+      }
+    } else {
+      // Use unordered nonce from bitmap (V4)
+      if (noncesState?.result?.[0]) {
+        return findFreeNonce(noncesState.result[0], 0)
+      }
+    }
+    return null
+  }, [actualVersion, positionsState?.result, noncesState?.result, findFreeNonce])
+
   const signPermitNft = useCallback(async (): Promise<PermitNftResult | null> => {
-    if (!library || !account || !chainId || !noncesState?.result?.[0] || !nameState?.result?.[0]) {
+    if (!library || !account || !chainId || !nameState?.result?.[0]) {
       console.error('Missing required data for NFT permit')
+      return null
+    }
+
+    // Check version-specific requirements
+    if (actualVersion === 'v3' && !positionsState?.result) {
+      console.error('Missing positions data for V3 NFT permit')
+      return null
+    }
+    if (actualVersion === 'v4' && !noncesState?.result?.[0]) {
+      console.error('Missing nonces data for V4 NFT permit')
       return null
     }
 
@@ -94,8 +144,12 @@ export const usePermitNft = ({ contractAddress, tokenId, spender, deadline }: Pe
 
     try {
       const contractName = nameState.result[0]
-      const bitmap = noncesState.result[0]
-      const nonce = findFreeNonce(bitmap, 0)
+      const nonce = getNonce()
+
+      if (!nonce) {
+        throw new Error(`Failed to get nonce for ${actualVersion}`)
+      }
+
       const permitDeadline = deadline || Math.floor(Date.now() / 1000) + PERMIT_NFT_VALIDITY_BUFFER
 
       // EIP-712 domain and types for NFT permit
@@ -135,17 +189,18 @@ export const usePermitNft = ({ contractAddress, tokenId, spender, deadline }: Pe
         message,
       })
 
-      console.log('Signing NFT permit with data:', typedData)
+      console.log(`Signing ${actualVersion} NFT permit with data:`, typedData)
 
       const signature = await library.send('eth_signTypedData_v4', [account.toLowerCase(), typedData])
 
       // Encode permit data for contract call
       const permitData = defaultAbiCoder.encode(['uint256', 'uint256', 'bytes'], [permitDeadline, nonce, signature])
 
+      const v = actualVersion.toUpperCase()
       notify({
         type: NotificationType.SUCCESS,
         title: t`NFT Permit Signed`,
-        summary: t`Successfully signed permit for NFT #${tokenId}`,
+        summary: t`Successfully signed ${v} permit for NFT #${tokenId}`,
       })
 
       const result = {
@@ -180,16 +235,32 @@ export const usePermitNft = ({ contractAddress, tokenId, spender, deadline }: Pe
     spender,
     deadline,
     permitState,
+    actualVersion,
     noncesState?.result,
+    positionsState?.result,
     nameState?.result,
-    findFreeNonce,
+    getNonce,
     notify,
   ])
+
+  // Check readiness based on version
+  const isReady = useMemo(() => {
+    if (permitState !== PermitNftState.READY_TO_SIGN || !nameState?.result) {
+      return false
+    }
+
+    if (actualVersion === 'v3') {
+      return !!positionsState?.result
+    } else {
+      return !!noncesState?.result
+    }
+  }, [permitState, nameState?.result, actualVersion, positionsState?.result, noncesState?.result])
 
   return {
     permitState,
     signPermitNft,
     permitData,
-    isReady: permitState === PermitNftState.READY_TO_SIGN && !!noncesState?.result && !!nameState?.result,
+    isReady,
+    version: actualVersion,
   }
 }

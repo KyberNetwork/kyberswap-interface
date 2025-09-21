@@ -4,6 +4,7 @@ import { useGetSmartExitSignMessageMutation } from 'services/smartExit'
 
 import { NotificationType } from 'components/Announcement/type'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useReadingContract } from 'hooks/useContract'
 import { ParsedPosition } from 'pages/Earns/types'
 import { useNotify } from 'state/application/hooks'
 import { friendlyError } from 'utils/errorMessage'
@@ -58,6 +59,12 @@ export enum SmartExitState {
 // TODO: move to env
 const SMART_EXIT_API_URL = 'https://pre-conditional-order.kyberengineering.io/api/v1/orders/smart-exit'
 
+// Position Manager ABI for liquidity fetching
+const POSITION_MANAGER_ABI = [
+  'function positions(uint256 tokenId) view returns (uint96 nonce, address operator, address token0, address token1, uint24 fee, int24 tickLower, int24 tickUpper, uint128 liquidity, uint256 feeGrowthInside0LastX128, uint256 feeGrowthInside1LastX128, uint128 tokensOwed0, uint128 tokensOwed1)', // V3
+  'function getPositionLiquidity(uint256 tokenId) view returns (uint128 liquidity)', // V4
+]
+
 export const useSmartExit = ({
   position,
   selectedMetrics,
@@ -75,6 +82,22 @@ export const useSmartExit = ({
   const [state, setState] = useState<SmartExitState>(SmartExitState.IDLE)
   const [orderId, setOrderId] = useState<string | null>(null)
   const [getSignMessage] = useGetSmartExitSignMessageMutation()
+
+  const getDexType = useCallback((dexId: string) => {
+    // Map dex IDs to API format
+    const dexMapping: Record<string, string> = {
+      'Uniswap V3': 'uniswap-v3',
+      'Uniswap V4': 'uniswap-v4',
+      'Uniswap V4 FairFlow': 'uniswap-v4-fairflow',
+    }
+    return dexMapping[dexId] || dexId
+  }, [])
+
+  // Detect version from dex type
+  const dexType = getDexType(position.dex.id)
+
+  // Contract setup for liquidity fetching
+  const positionContract = useReadingContract(position.id.split('-')[0], POSITION_MANAGER_ABI)
 
   const buildConditions = useCallback(() => {
     const conditions: Array<{
@@ -149,34 +172,37 @@ export const useSmartExit = ({
     }
   }, [selectedMetrics, conditionType, feeYieldCondition, priceCondition, timeCondition])
 
-  // const getDexType = useCallback((dexId: string) => {
-  //   // Map dex IDs to API format
-  //   const dexMapping: Record<string, string> = {
-  //     'uniswap-v3': 'uniswap-v3',
-  //     'uniswap-v4': 'uniswap-v4',
-  //   }
-  //   return dexMapping[dexId] || dexId
-  // }, [])
-
   const createSmartExitOrder = useCallback(async (): Promise<boolean> => {
-    if (!account || !chainId || !permitData || !signature || !library) {
+    if (!account || !chainId || !permitData || !signature || !library || !positionContract) {
       console.error('Missing required data for smart exit order')
+      return false
+    }
+    let liquidity = ''
+    if (dexType === 'uniswap-v3') {
+      const res = await positionContract.positions(position.tokenId)
+      liquidity = res.liquidity.toString()
+    } else {
+      const res = await positionContract.getPositionLiquidity(position.tokenId)
+      liquidity = res.toString()
+    }
+
+    if (!liquidity) {
+      console.log("Can't get liquidity of position")
       return false
     }
 
     setState(SmartExitState.CREATING)
-    console.log(position)
 
     try {
       // Step 1: Get sign message from API
       const signMessageParams = {
         chainId,
         userWallet: account,
-        dexType: 'uniswap-v4',
+        dexType: getDexType(position.dex.id),
         poolId: position.pool.address,
-        positionId: position.tokenId,
-        removeLiquidity: '297580968795', // TODO: Calculate actual liquidity amount
-        unwrap: false,
+        positionId: position.id,
+        removeLiquidity: liquidity,
+        unwrap: true,
         permitData,
         condition: buildConditions(),
       }
@@ -198,10 +224,10 @@ export const useSmartExit = ({
       const orderParams: SmartExitOrderParams = {
         chainId,
         userWallet: account,
-        dexType: 'uniswap-v4',
+        dexType: dexType,
         poolId: position.pool.address,
-        positionId: position.tokenId,
-        removeLiquidity: '43819796429', // TODO: Calculate actual liquidity amount
+        positionId: position.id,
+        removeLiquidity: liquidity,
         unwrap: false,
         permitData,
         condition: buildConditions(),
@@ -248,7 +274,21 @@ export const useSmartExit = ({
 
       return false
     }
-  }, [account, chainId, permitData, signature, position, buildConditions, notify, expireTime, library, getSignMessage])
+  }, [
+    account,
+    chainId,
+    permitData,
+    signature,
+    position,
+    buildConditions,
+    notify,
+    expireTime,
+    library,
+    getSignMessage,
+    getDexType,
+    dexType,
+    positionContract,
+  ])
 
   const reset = useCallback(() => {
     setState(SmartExitState.IDLE)

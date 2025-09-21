@@ -39,7 +39,7 @@ const smartExitApi = createApi({
     getSmartExitOrders: builder.query<
       SmartExitOrder[],
       {
-        chainId: ChainId
+        chainId?: ChainId
         userWallet: string
         status?: string
       }

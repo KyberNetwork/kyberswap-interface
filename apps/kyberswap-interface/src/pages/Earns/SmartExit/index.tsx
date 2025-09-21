@@ -1,11 +1,12 @@
 import { Trans } from '@lingui/macro'
-import { useEffect, useState } from 'react'
+import { Trash2 } from 'react-feather'
 import { useNavigate } from 'react-router'
 import { Flex, Text } from 'rebass'
 import { useGetSmartExitOrdersQuery } from 'services/smartExit'
 import { useUserPositionsQuery } from 'services/zapEarn'
 import styled from 'styled-components'
 
+import LocalLoader from 'components/LocalLoader'
 import TokenLogo from 'components/TokenLogo'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
@@ -17,6 +18,17 @@ import Filter from '../UserPositions/Filter'
 import useFilter from '../UserPositions/useFilter'
 import { earnSupportedChains, earnSupportedExchanges } from '../constants'
 import useSupportedDexesAndChains from '../hooks/useSupportedDexesAndChains'
+
+const Trash = styled.div`
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  color: ${({ theme }) => theme.subText};
+
+  :hover {
+    color: ${({ theme }) => theme.red};
+  }
+`
 
 const TableHeader = styled.div`
   display: grid;
@@ -35,43 +47,36 @@ const TableRow = styled(TableHeader)`
 const SmartExit = () => {
   const theme = useTheme()
   const navigate = useNavigate()
-  const { account, chainId } = useActiveWeb3React()
+  const { account } = useActiveWeb3React()
 
-  const [loading, setLoading] = useState(false)
   const { filters, updateFilters } = useFilter()
   const { supportedDexes, supportedChains } = useSupportedDexesAndChains(filters)
 
   // Fetch smart exit orders
   const {
     data: orders = [],
-    isLoading: ordersLoading,
+    isLoading: smartExitLoading,
     error: ordersError,
   } = useGetSmartExitOrdersQuery(
     {
-      chainId: chainId,
+      // chainId: chainId,
       userWallet: account || '',
     },
     {
-      skip: !account || !chainId,
+      skip: !account,
       pollingInterval: 30000, // Poll every 30 seconds
     },
   )
 
-  useEffect(() => {
-    if (ordersLoading) {
-      setLoading(true)
-    } else {
-      setLoading(false)
-    }
-  }, [ordersLoading])
-
-  const { data: userPosition } = useUserPositionsQuery(
+  const { data: userPosition, isLoading: userPosLoading } = useUserPositionsQuery(
     { chainIds: earnSupportedChains.join(','), addresses: account || '', protocols: earnSupportedExchanges.join(',') },
     {
       skip: !account,
       pollingInterval: 15_000,
     },
   )
+
+  const loading = smartExitLoading || userPosLoading
 
   return (
     <PoolPageWrapper>
@@ -88,7 +93,6 @@ const SmartExit = () => {
         filters={filters}
         updateFilters={(...args) => {
           updateFilters(...args)
-          setLoading(true)
         }}
       />
 
@@ -108,9 +112,7 @@ const SmartExit = () => {
 
         {loading ? (
           <Flex justifyContent="center" padding="20px">
-            <Text color="subText">
-              <Trans>Loading orders...</Trans>
-            </Text>
+            <LocalLoader />
           </Flex>
         ) : ordersError ? (
           <Flex justifyContent="center" padding="20px">
@@ -126,14 +128,27 @@ const SmartExit = () => {
           </Flex>
         ) : (
           orders.map(order => {
-            const posDetail = userPosition?.find(
-              us => us.tokenId === order.positionId && +us.chainId === +order.chainId,
-            )
+            const posDetail = userPosition?.find(us => order.positionId === us.id)
             if (!posDetail) return null
             const token0 = posDetail.currentAmounts[0].token
             const token1 = posDetail.currentAmounts[1].token
+            const tokenId = order.positionId.split('-')[1]
 
             const { conditions, op } = order.condition.logical
+
+            const protocol = (() => {
+              switch (posDetail.pool.project) {
+                case 'Uniswap V3':
+                  return
+                case 'Uniswap V4':
+                  return 'V4'
+                case 'Uniswap V4 FairFlow':
+                  return 'FairFlow'
+                default:
+                  return posDetail.pool.project
+              }
+            })()
+
             return (
               <TableRow key={order.id}>
                 <div>
@@ -151,7 +166,7 @@ const SmartExit = () => {
                   <Flex alignItems="center" sx={{ gap: '4px' }} mt="4px" ml="1rem">
                     <TokenLogo src={posDetail.pool.projectLogo} size={16} />
                     <Text color={theme.subText}>
-                      {posDetail.pool.project} #{order.positionId}
+                      {protocol} #{tokenId}
                     </Text>
                   </Flex>
                 </div>
@@ -221,7 +236,9 @@ const SmartExit = () => {
                       : order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                   </Badge>
                 </Flex>
-                <div></div>
+                <Trash>
+                  <Trash2 size={18} />
+                </Trash>
               </TableRow>
             )
           })
