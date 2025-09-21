@@ -1,4 +1,4 @@
-import { InfoHelper } from '@kyber/ui';
+import { InfoHelper, Loading } from '@kyber/ui';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
 import { useActionButton } from '@/components/Action/useActionButton';
@@ -17,7 +17,7 @@ export function Action({
   onBack?: () => void;
   onSubmitTx: (txData: { from: string; to: string; value: string; data: string; gasLimit: string }) => Promise<string>;
 }) {
-  const { btnText, disableBtn, handleClick, zapImpactLevel, isApproved } = useActionButton({
+  const { btnText, isButtonDisabled, isButtonLoading, handleClick, zapImpactLevel, isApproved } = useActionButton({
     onSubmitTx,
     onConnectWallet,
     onSwitchChain,
@@ -37,9 +37,9 @@ export function Action({
       </button>
       <button
         className={cn(
-          'flex-1 h-[40px] rounded-full border border-primary bg-primary text-textRevert text-sm font-medium',
+          'flex-1 flex items-center justify-center gap-1.5 h-[40px] rounded-full border border-primary bg-primary text-textRevert text-sm font-medium',
           'disabled:bg-stroke disabled:text-subText disabled:border-stroke disabled:cursor-not-allowed',
-          !disableBtn && isApproved
+          !isButtonDisabled && isApproved
             ? zapImpactLevel.isVeryHigh
               ? 'bg-error border-solid border-error text-white'
               : zapImpactLevel.isHigh
@@ -47,11 +47,11 @@ export function Action({
                 : ''
             : '',
         )}
-        disabled={disableBtn}
+        disabled={isButtonDisabled}
         onClick={handleClick}
       >
         {btnText}
-
+        {isButtonLoading && <Loading />}
         {zapImpactLevel.isVeryHigh && (
           <InfoHelper
             color="#ffffff"

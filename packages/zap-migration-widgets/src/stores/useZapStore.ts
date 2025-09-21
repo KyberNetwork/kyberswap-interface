@@ -5,6 +5,11 @@ import { API_URLS, CHAIN_ID_TO_CHAIN, ChainId, UniV3Position, ZapRouteDetail, un
 
 import { usePoolRawStore } from '@/stores/usePoolStore';
 import { usePositionRawStore } from '@/stores/usePositionStore';
+import { BuildRouteData } from '@/utils';
+
+interface BuildDataWithGas extends BuildRouteData {
+  gasUsd: number;
+}
 
 interface ZapState {
   slippage?: number;
@@ -22,8 +27,8 @@ interface ZapState {
   fetchingRoute: boolean;
   fetchZapRoute: (chainId: ChainId, client: string, account: string) => Promise<void>;
 
-  showPreview: boolean;
-  togglePreview: () => void;
+  buildData: BuildDataWithGas | undefined;
+  setBuildData: (buildData: BuildDataWithGas | undefined) => void;
 
   highlightDegenMode: boolean;
   degenMode: boolean;
@@ -46,7 +51,7 @@ const initState = {
   ttl: 20,
   degenMode: false,
   slippage: undefined,
-  showPreview: false,
+  buildData: undefined,
   liquidityOut: 0n,
   tickLower: null,
   tickUpper: null,
@@ -73,7 +78,7 @@ const useZapRawStore = create<ZapState>((set, get) => ({
   },
   toggleDegenMode: () => set(state => ({ degenMode: !state.degenMode })),
   setSlippage: (value: number) => set({ slippage: value }),
-  togglePreview: () => set(state => ({ showPreview: !state.showPreview })),
+  setBuildData: (buildData: BuildDataWithGas | undefined) => set({ buildData }),
   setLiquidityOut: (liquidityOut: bigint) => set({ liquidityOut }),
   setTickLower: (tickLower: number) => set({ tickLower }),
   setTickUpper: (tickUpper: number) => set({ tickUpper }),

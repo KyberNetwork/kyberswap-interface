@@ -88,7 +88,6 @@ export const ZapMigration = (widgetProps: ZapMigrationProps) => {
     onBack,
     initialTick,
     onSubmitTx,
-    referral,
     onConnectWallet,
     onSwitchChain,
     connectedAccount,
@@ -99,7 +98,11 @@ export const ZapMigration = (widgetProps: ZapMigrationProps) => {
     chainId,
   } = widgetProps;
 
-  const { reset: resetWidgetStore } = useWidgetStore(['reset']);
+  const {
+    reset: resetWidgetStore,
+    widgetError,
+    setWidgetError,
+  } = useWidgetStore(['reset', 'widgetError', 'setWidgetError']);
   const {
     sourcePool,
     targetPool,
@@ -112,9 +115,9 @@ export const ZapMigration = (widgetProps: ZapMigrationProps) => {
     error: positionError,
     reset: resetPositionStore,
   } = usePositionStore(['sourcePosition', 'targetPosition', 'error', 'reset']);
-  const { reset, showPreview, fetchZapRoute, liquidityOut, tickUpper, tickLower } = useZapStore([
+  const { reset, buildData, fetchZapRoute, liquidityOut, tickUpper, tickLower } = useZapStore([
     'reset',
-    'showPreview',
+    'buildData',
     'fetchZapRoute',
     'liquidityOut',
     'tickUpper',
@@ -128,7 +131,7 @@ export const ZapMigration = (widgetProps: ZapMigrationProps) => {
   const debouncedTickLower = useDebounce(tickLower, 500);
 
   useEffect(() => {
-    if (showPreview) return;
+    if (buildData) return;
     fetchZapRoute(chainId, client, connectedAccount?.address || ZERO_ADDRESS);
   }, [
     sourcePool,
@@ -139,7 +142,7 @@ export const ZapMigration = (widgetProps: ZapMigrationProps) => {
     debouncedTickUpper,
     debouncedTickLower,
     debounceLiquidityOut,
-    showPreview,
+    buildData,
     connectedAccount?.address,
     chainId,
     client,
@@ -155,18 +158,26 @@ export const ZapMigration = (widgetProps: ZapMigrationProps) => {
 
   const onCloseErrorDialog = () => {
     if (poolError || positionError) onClose();
-    // else {
-    //   setWidgetError(undefined);
-    //   getZapRoute();
-    // }
+    else {
+      setWidgetError('');
+      fetchZapRoute(chainId, client, connectedAccount?.address || ZERO_ADDRESS);
+    }
   };
 
   const errorDialog =
-    poolError || positionError ? (
+    poolError || positionError || widgetError ? (
       <StatusDialog
         type={StatusDialogType.ERROR}
-        title={poolError ? 'Failed to load pool' : positionError ? 'Failed to load position' : ''}
-        description={poolError || positionError}
+        title={
+          poolError
+            ? 'Failed to load pool'
+            : positionError
+              ? 'Failed to load position'
+              : widgetError
+                ? 'Failed to load zap route'
+                : ''
+        }
+        description={poolError || positionError || widgetError}
         onClose={onCloseErrorDialog}
         action={
           <button className="ks-outline-btn flex-1" onClick={onCloseErrorDialog}>
@@ -180,7 +191,13 @@ export const ZapMigration = (widgetProps: ZapMigrationProps) => {
     <div className="ks-lw-migration-style" style={{ width: '100%', height: '100%' }}>
       {errorDialog}
 
-      <div className={cn('bg-background text-text w-full h-full border rounded-md p-6 border-stroke', className)}>
+      <div
+        className={cn(
+          'bg-background text-text w-full h-full border rounded-md p-6 border-stroke',
+          className,
+          buildData && 'hidden',
+        )}
+      >
         <Header onClose={onClose} onBack={onBack} />
 
         <div className="grid md:grid-cols-2 grid-cols-1 gap-4 md:gap-14 mt-4">
@@ -213,18 +230,9 @@ export const ZapMigration = (widgetProps: ZapMigrationProps) => {
           onBack={onBack}
           onSubmitTx={onSubmitTx}
         />
-
-        {showPreview && (
-          <Preview
-            onSubmitTx={onSubmitTx}
-            account={connectedAccount.address}
-            client={client}
-            onClose={onClose}
-            onViewPosition={onViewPosition}
-            referral={referral}
-          />
-        )}
       </div>
+
+      {buildData && <Preview onSubmitTx={onSubmitTx} onClose={onClose} onViewPosition={onViewPosition} />}
     </div>
   );
 };

@@ -9,6 +9,8 @@ interface WidgetProps {
   sourcePoolType?: PoolType;
   targetPoolType?: PoolType;
   rePositionMode?: boolean;
+  client: string;
+  referral?: string;
   connectedAccount: {
     address: string | undefined;
     chainId: number;
@@ -16,6 +18,8 @@ interface WidgetProps {
 }
 
 interface WidgetState extends WidgetProps {
+  widgetError: string;
+  setWidgetError: (error: string) => void;
   reset: () => void;
   setInitiaWidgetState: (props: WidgetProps) => void;
 }
@@ -26,10 +30,13 @@ const initState = {
   sourcePoolType: undefined,
   targetPoolType: undefined,
   rePositionMode: false,
+  client: '',
+  referral: undefined,
   connectedAccount: {
     address: undefined,
     chainId: ChainId.Ethereum,
   },
+  widgetError: '',
 };
 
 const useWidgetRawStore = create<WidgetState>((set, _get) => ({
@@ -41,6 +48,8 @@ const useWidgetRawStore = create<WidgetState>((set, _get) => ({
     rePositionMode,
     sourcePoolType,
     targetPoolType,
+    client,
+    referral,
     connectedAccount,
   }: WidgetProps) => {
     const themeToApply =
@@ -57,9 +66,12 @@ const useWidgetRawStore = create<WidgetState>((set, _get) => ({
       rePositionMode,
       sourcePoolType,
       targetPoolType,
+      client,
+      referral,
       connectedAccount,
     });
   },
+  setWidgetError: (error: string) => set({ widgetError: error }),
 }));
 
 type WidgetStoreKeys = keyof ReturnType<typeof useWidgetRawStore.getState>;

@@ -10,7 +10,17 @@ import { useWidgetStore } from '@/stores/useWidgetStore';
 import { useZapStore } from '@/stores/useZapStore';
 
 export default function useInitWidget(widgetProps: ZapMigrationProps) {
-  const { chainId, from, to, theme: themeProps, rePositionMode, initialSlippage, connectedAccount } = widgetProps;
+  const {
+    chainId,
+    from,
+    to,
+    theme: themeProps,
+    rePositionMode,
+    initialSlippage,
+    connectedAccount,
+    client,
+    referral,
+  } = widgetProps;
 
   const [hasReseted, setHasReseted] = useState(false);
 
@@ -67,6 +77,8 @@ export default function useInitWidget(widgetProps: ZapMigrationProps) {
       sourcePoolType: from.poolType,
       targetPoolType: to?.poolType || from.poolType,
       connectedAccount,
+      client,
+      referral,
     });
   }, [
     themeProps,
@@ -77,6 +89,8 @@ export default function useInitWidget(widgetProps: ZapMigrationProps) {
     from.poolType,
     to?.poolType,
     connectedAccount,
+    client,
+    referral,
   ]);
 
   useEffect(() => {

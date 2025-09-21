@@ -1,11 +1,11 @@
 import { API_URLS } from '@kyber/schema';
+import { PI_LEVEL } from '@kyber/utils';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
 import EstimatedRow from '@/components/Estimated/EstimatedRow';
 import SlippageRow from '@/components/Estimated/SlippageRow';
 import useZapRoute from '@/hooks/useZapRoute';
 import { useZapStore } from '@/stores/useZapStore';
-import { PI_LEVEL } from '@/utils';
 
 export function Estimated() {
   const { route, fetchingRoute } = useZapStore(['route', 'fetchingRoute']);

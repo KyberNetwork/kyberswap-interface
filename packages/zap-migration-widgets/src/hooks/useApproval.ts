@@ -95,7 +95,10 @@ export function useApproval({
   }, [pendingTx, rpcUrl]);
 
   useEffect(() => {
-    if (!spender || !account || !nftId || !sourcePoolAddress) return;
+    if (!spender || !account || !nftId || !sourcePoolAddress) {
+      setIsChecking(false);
+      return;
+    }
 
     const encodedSpenderAddress = spender.slice(2).padStart(64, '0');
     let data;

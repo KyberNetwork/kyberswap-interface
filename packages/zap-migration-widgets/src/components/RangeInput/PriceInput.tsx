@@ -97,7 +97,7 @@ export default function PriceInput() {
         >
           -
         </button>
-        <div className="flex flex-col items-center py-2 flex-1 min-w-0">
+        <div className="flex flex-col items-center py-2 flex-1 min-w-0 gap-1">
           <p className="text-sm text-subText whitespace-nowrap">Min Price</p>
           {tickLower === null || tickUpper === null ? (
             <Skeleton className="h-5 w-20" />
@@ -157,7 +157,7 @@ export default function PriceInput() {
         >
           -
         </button>
-        <div className="flex flex-col items-center py-2 flex-1 min-w-0">
+        <div className="flex flex-col items-center py-2 flex-1 min-w-0 gap-1">
           <p className="text-sm text-subText whitespace-nowrap">Max Price</p>
           {tickLower === null || tickUpper === null ? (
             <Skeleton className="h-5 w-20" />

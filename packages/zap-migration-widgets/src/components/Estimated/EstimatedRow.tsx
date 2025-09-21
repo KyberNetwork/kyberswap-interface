@@ -10,7 +10,7 @@ export default function EstimatedRow({
   hasRoute,
   className,
 }: {
-  loading: boolean;
+  loading?: boolean;
   label: string | React.ReactNode;
   labelTooltip?: string | React.ReactNode;
   value: React.ReactNode;

@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 
 import { DEXES_INFO, NETWORKS_INFO, univ2Types, univ4Types } from '@kyber/schema';
 import { PI_LEVEL } from '@kyber/utils';
+import { estimateGasForTx } from '@kyber/utils/crypto/transaction';
 
 import { useOwner } from '@/components/Action/useOwner';
 import { useApproval } from '@/hooks/useApproval';
@@ -9,10 +10,12 @@ import useZapRoute from '@/hooks/useZapRoute';
 import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 import { useZapStore } from '@/stores/useZapStore';
+import { buildRouteData } from '@/utils';
 
 // Constants
 const BUTTON_TEXTS = {
-  FETCHING_ROUTE: 'Fetching Route...',
+  FETCHING_ROUTE: 'Fetching Route',
+  ESTIMATING_GAS: 'Estimating Gas',
   SELECT_LIQUIDITY: 'Select Liquidity to Migrate',
   SELECT_PRICE_RANGE: 'Select Price Range',
   INVALID_PRICE_RANGE: 'Invalid Price Range',
@@ -22,7 +25,7 @@ const BUTTON_TEXTS = {
   CONNECT_WALLET: 'Connect Wallet',
   SWITCH_NETWORK: 'Switch Network',
   CHECKING_ALLOWANCE: 'Checking Allowance',
-  APPROVING: 'Approving...',
+  APPROVING: 'Approving',
   APPROVE_SOURCE: 'Approve source position',
   APPROVE_TARGET: 'Approve target position',
   ZAP_ANYWAY: 'Zap anyway',
@@ -51,10 +54,11 @@ interface ZapImpactLevel {
 
 interface UseActionButtonReturn {
   btnText: string;
-  disableBtn: boolean;
-  handleClick: () => Promise<void>;
+  isButtonDisabled: boolean;
   zapImpactLevel: ZapImpactLevel;
   isApproved: boolean;
+  isButtonLoading: boolean;
+  handleClick: () => Promise<void>;
 }
 
 export function useActionButton({
@@ -62,19 +66,23 @@ export function useActionButton({
   onConnectWallet,
   onSwitchChain,
 }: UseActionButtonProps): UseActionButtonReturn {
-  const { chainId, connectedAccount, sourcePoolType, targetPoolType } = useWidgetStore([
-    'chainId',
-    'connectedAccount',
-    'sourcePoolType',
-    'targetPoolType',
-  ]);
+  const { chainId, connectedAccount, sourcePoolType, targetPoolType, client, setWidgetError, referral } =
+    useWidgetStore([
+      'chainId',
+      'connectedAccount',
+      'sourcePoolType',
+      'targetPoolType',
+      'client',
+      'setWidgetError',
+      'referral',
+    ]);
   const { targetPosition, sourcePositionId, targetPositionId } = usePositionStore([
     'targetPosition',
     'sourcePositionId',
     'targetPositionId',
   ]);
 
-  const { toggleSetting, tickUpper, tickLower, liquidityOut, route, fetchingRoute, togglePreview, degenMode } =
+  const { toggleSetting, tickUpper, tickLower, liquidityOut, route, fetchingRoute, setBuildData, degenMode, ttl } =
     useZapStore([
       'toggleSetting',
       'tickUpper',
@@ -82,8 +90,9 @@ export function useActionButton({
       'liquidityOut',
       'route',
       'fetchingRoute',
-      'togglePreview',
+      'setBuildData',
       'degenMode',
+      'ttl',
     ]);
   const { isNotSourceOwner, isNotTargetOwner, isSourceFarming } = useOwner();
 
@@ -93,13 +102,15 @@ export function useActionButton({
   const nftManager = sourcePoolType ? DEXES_INFO[sourcePoolType].nftManagerContract : undefined;
   const targetNftManager = targetPoolType ? DEXES_INFO[targetPoolType].nftManagerContract : undefined;
 
+  const rpcUrl = NETWORKS_INFO[chainId].defaultRpc;
+
   const {
     isChecking,
     isApproved: approved,
     approve,
     pendingTx,
   } = useApproval({
-    rpcUrl: NETWORKS_INFO[chainId].defaultRpc,
+    rpcUrl,
     nftManagerContract: nftManager ? (typeof nftManager === 'string' ? nftManager : nftManager[chainId]) : undefined,
     nftId: +sourcePositionId,
     spender: route?.routerAddress,
@@ -114,7 +125,7 @@ export function useActionButton({
     approve: targetNftApprove,
     pendingTx: targetNftPendingTx,
   } = useApproval({
-    rpcUrl: NETWORKS_INFO[chainId].defaultRpc,
+    rpcUrl,
     nftManagerContract: targetNftManager
       ? typeof targetNftManager === 'string'
         ? targetNftManager
@@ -137,6 +148,7 @@ export function useActionButton({
   );
 
   const [clickedApprove, setClickedApprove] = useState(false);
+  const [gasLoading, setGasLoading] = useState(false);
 
   // Helper functions
   const hasValidPriceRange = useMemo(() => {
@@ -157,6 +169,7 @@ export function useActionButton({
   }, [isChecking, isTargetUniV4, targetPosition, isTargetNftChecking]);
 
   const getButtonText = useMemo((): string => {
+    if (gasLoading) return BUTTON_TEXTS.ESTIMATING_GAS;
     if (fetchingRoute) return BUTTON_TEXTS.FETCHING_ROUTE;
     if (liquidityOut === 0n) return BUTTON_TEXTS.SELECT_LIQUIDITY;
 
@@ -165,7 +178,7 @@ export function useActionButton({
       if (tickLower >= tickUpper) return BUTTON_TEXTS.INVALID_PRICE_RANGE;
     }
 
-    if (route === null) return BUTTON_TEXTS.NO_ROUTE_FOUND;
+    if (!route) return BUTTON_TEXTS.NO_ROUTE_FOUND;
 
     if (isNotSourceOwner) {
       return isSourceFarming ? BUTTON_TEXTS.POSITION_IN_FARMING : BUTTON_TEXTS.NOT_POSITION_OWNER;
@@ -179,7 +192,6 @@ export function useActionButton({
     if (!isApproved) return BUTTON_TEXTS.APPROVE_SOURCE;
     if (isTargetUniV4 && targetPosition && !isTargetNftApproved) return BUTTON_TEXTS.APPROVE_TARGET;
     if (zapImpactLevel.isVeryHigh) return BUTTON_TEXTS.ZAP_ANYWAY;
-    if (!route) return BUTTON_TEXTS.NO_ROUTE_FOUND;
 
     return BUTTON_TEXTS.PREVIEW;
   }, [
@@ -203,12 +215,14 @@ export function useActionButton({
     targetPosition,
     isTargetNftApproved,
     zapImpactLevel.isVeryHigh,
+    gasLoading,
   ]);
 
   const isButtonDisabled = useMemo(() => {
     return Boolean(
       fetchingRoute ||
-        route === null ||
+        gasLoading ||
+        !route ||
         liquidityOut === 0n ||
         (isPriceRangeRequired && !hasValidPriceRange) ||
         isNotSourceOwner ||
@@ -218,6 +232,7 @@ export function useActionButton({
     );
   }, [
     fetchingRoute,
+    gasLoading,
     route,
     liquidityOut,
     isPriceRangeRequired,
@@ -228,6 +243,56 @@ export function useActionButton({
     isAnyChecking,
     isAnyApproving,
   ]);
+
+  const isButtonLoading = useMemo(() => {
+    return Boolean(fetchingRoute || gasLoading || isAnyApproving);
+  }, [fetchingRoute, gasLoading, isAnyApproving]);
+
+  const getBuildData = async () => {
+    if (!route || !connectedAccount.address) return;
+    setGasLoading(true);
+
+    try {
+      const date = new Date();
+      date.setMinutes(date.getMinutes() + (ttl || 20));
+      const deadline = Math.floor(date.getTime() / 1000);
+
+      const buildData = await buildRouteData({
+        sender: connectedAccount.address,
+        route: route.route,
+        source: client,
+        referral,
+        chainId,
+        deadline,
+      });
+      if (!buildData) {
+        setGasLoading(false);
+        return;
+      }
+
+      const txData = {
+        from: connectedAccount.address,
+        to: buildData.routerAddress,
+        data: buildData.callData,
+        value: `0x${BigInt(buildData.value).toString(16)}`,
+      };
+      const { gasUsd, error } = await estimateGasForTx({ rpcUrl, txData, chainId });
+      setGasLoading(false);
+
+      if (error || !gasUsd) {
+        setWidgetError(error || 'Estimate Gas Failed');
+        return;
+      }
+
+      return { ...buildData, gasUsd };
+    } catch (error) {
+      console.log('estimate gas error', error);
+    } finally {
+      setGasLoading(false);
+    }
+
+    return;
+  };
 
   const handleClick = async () => {
     try {
@@ -260,7 +325,11 @@ export function useActionButton({
         return;
       }
 
-      togglePreview();
+      if (!route) return;
+      const buildData = await getBuildData();
+      if (!buildData) return;
+
+      setBuildData(buildData);
     } catch (error) {
       console.error('Error in handleClick:', error);
     } finally {
@@ -272,9 +341,10 @@ export function useActionButton({
 
   return {
     btnText: getButtonText,
-    disableBtn: isButtonDisabled,
+    isButtonDisabled,
     handleClick,
     zapImpactLevel,
     isApproved,
+    isButtonLoading,
   };
 }

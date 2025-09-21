@@ -31,9 +31,7 @@ export default function PoolPriceWithRange({ type, showPrice }: { type: RangeTyp
 
   const parsedMinPrice = +((type === RangeType.Target ? minPrice : sourceMinPrice) || 0);
   const parsedMaxPrice = +((type === RangeType.Target ? maxPrice : sourceMaxPrice) || 0);
-  const isOutRange = isUniV2
-    ? false
-    : currentPrice < parsedMinPrice || (currentPrice > parsedMaxPrice && parsedMaxPrice !== 0);
+  const isOutRange = isUniV2 ? false : currentPrice < parsedMinPrice || currentPrice > parsedMaxPrice;
 
   return (
     <div className="border border-stroke rounded-md px-4 py-3 flex flex-col">
