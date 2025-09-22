@@ -83,7 +83,7 @@ export default function PriceInput() {
   const sectionClassName = 'flex items-center justify-center w-full gap-2 rounded-sm px-2 bg-[#ffffff0a]';
   const buttonClassName =
     'w-6 h-6 rounded-[4px] border border-stroke bg-layer2 text-subText flex items-center justify-center cursor-pointer hover:enabled:brightness-150 active:enabled:scale-95 disabled:cursor-not-allowed disabled:opacity-60 outline-none';
-  const inputClassName = 'bg-transparent text-text text-center border-none outline-none max-w-[60px] md:max-w-[80px]';
+  const inputClassName = 'bg-transparent text-text text-center border-none outline-none max-w-[200px] md:max-w-[80px]';
 
   return (
     <div className="flex flex-col sm:flex-row items-center gap-4 w-full">
@@ -100,7 +100,7 @@ export default function PriceInput() {
         <div className="flex flex-col items-center py-2 flex-1 min-w-0 gap-1">
           <p className="text-sm text-subText whitespace-nowrap">Min Price</p>
           {tickLower === null || tickUpper === null ? (
-            <Skeleton className="h-5 w-20" />
+            <Skeleton className="h-5 w-40 md:w-20" />
           ) : (
             <input
               className={`${inputClassName} w-full`}
@@ -160,7 +160,7 @@ export default function PriceInput() {
         <div className="flex flex-col items-center py-2 flex-1 min-w-0 gap-1">
           <p className="text-sm text-subText whitespace-nowrap">Max Price</p>
           {tickLower === null || tickUpper === null ? (
-            <Skeleton className="h-5 w-20" />
+            <Skeleton className="h-5 w-40 md:w-20" />
           ) : (
             <input
               className={`${inputClassName} w-full`}

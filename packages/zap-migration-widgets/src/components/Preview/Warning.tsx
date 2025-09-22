@@ -21,7 +21,7 @@ export default function Warning() {
     ((targetPool as UniV3Pool).tick < tickLower || (targetPool as UniV3Pool).tick > tickUpper);
 
   return (
-    <div className="mt-4">
+    <div className="mt-4 flex flex-col gap-2">
       {route && zapImpact.level !== PI_LEVEL.NORMAL && (
         <div
           className={cn(
