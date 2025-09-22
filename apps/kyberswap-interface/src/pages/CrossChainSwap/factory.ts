@@ -121,7 +121,7 @@ export class CrossChainSwapFactory {
     return [
       CrossChainSwapFactory.getAcrossAdapter(),
       CrossChainSwapFactory.getRelayAdapter(),
-      CrossChainSwapFactory.getXyFinanceAdapter(),
+      // CrossChainSwapFactory.getXyFinanceAdapter(),
       CrossChainSwapFactory.getNearIntentsAdapter(),
       CrossChainSwapFactory.getMayanAdapter(),
       // CrossChainSwapFactory.getSymbiosisAdapter(),
@@ -130,7 +130,7 @@ export class CrossChainSwapFactory {
       CrossChainSwapFactory.getOptimexAdapter(),
       CrossChainSwapFactory.getKsApdater(),
       // CrossChainSwapFactory.getOrbiterAdapter(),
-      // CrossChainSwapFactory.getBungeeAdapter(),
+      CrossChainSwapFactory.getBungeeAdapter(),
     ]
   }
 

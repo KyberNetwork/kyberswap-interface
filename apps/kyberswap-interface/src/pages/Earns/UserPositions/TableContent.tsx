@@ -240,7 +240,7 @@ export default function TableContent({
         poolAddress: targetPool.address,
       },
       initialTick:
-        tickLower && tickUpper
+        tickLower !== undefined && tickUpper !== undefined
           ? {
               tickLower: tickLower,
               tickUpper: tickUpper,

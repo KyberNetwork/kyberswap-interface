@@ -187,7 +187,7 @@ const PositionDetail = () => {
         poolAddress: targetPool.address,
       },
       initialTick:
-        tickLower && tickUpper
+        tickLower !== undefined && tickUpper !== undefined
           ? {
               tickLower: tickLower,
               tickUpper: tickUpper,
