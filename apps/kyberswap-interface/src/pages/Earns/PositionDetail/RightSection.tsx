@@ -264,25 +264,27 @@ const RightSection = ({
 
         {isUniv2 && <PositionHistory position={position} />}
 
-        <PositionActionWrapper>
-          <Flex
-            color={!subActionDisabled ? theme.primary : theme.subText}
-            alignItems={'center'}
-            marginBottom={-3}
-            sx={{ gap: 1, cursor: !subActionDisabled ? 'pointer' : 'not-allowed' }}
-            onClick={e => {
-              if (!isOutRange ? repositionDisabled : increaseDisabled) return
-              if (!isOutRange) {
-                onReposition(e, position as ParsedPosition)
-              } else {
-                onOpenIncreaseLiquidityWidget()
-              }
-            }}
-          >
-            {!isOutRange ? <IconReposition width={20} /> : <PlusCircle width={20} />}
-            <Text>{!isOutRange ? t`Reposition to new range` : t`Increase Liquidity`}</Text>
-          </Flex>
-        </PositionActionWrapper>
+        {!isUniv2 && (
+          <PositionActionWrapper>
+            <Flex
+              color={!subActionDisabled ? theme.primary : theme.subText}
+              alignItems={'center'}
+              marginBottom={-3}
+              sx={{ gap: 1, cursor: !subActionDisabled ? 'pointer' : 'not-allowed' }}
+              onClick={e => {
+                if (!isOutRange ? repositionDisabled : increaseDisabled) return
+                if (!isOutRange) {
+                  onReposition(e, position as ParsedPosition)
+                } else {
+                  onOpenIncreaseLiquidityWidget()
+                }
+              }}
+            >
+              {!isOutRange ? <IconReposition width={20} /> : <PlusCircle width={20} />}
+              <Text>{!isOutRange ? t`Reposition to new range` : t`Increase Liquidity`}</Text>
+            </Flex>
+          </PositionActionWrapper>
+        )}
         <PositionActionWrapper>
           <PositionAction
             outlineDefault

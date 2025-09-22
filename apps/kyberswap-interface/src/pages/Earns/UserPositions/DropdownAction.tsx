@@ -242,17 +242,19 @@ const DropdownAction = ({
         )}
         <Text>{t`Claim Rewards`}</Text>
       </DropdownContentItem>
-      <DropdownContentItem
-        disabled={position.status === PositionStatus.CLOSED}
-        onClick={e => {
-          e.stopPropagation()
-          if (position.status === PositionStatus.CLOSED) return
-          handleAction(e, onOpenReposition)
-        }}
-      >
-        <IconReposition width={16} />
-        <Text>{t`Reposition`}</Text>
-      </DropdownContentItem>
+      {!position.pool.isUniv2 ? (
+        <DropdownContentItem
+          disabled={position.status === PositionStatus.CLOSED}
+          onClick={e => {
+            e.stopPropagation()
+            if (position.status === PositionStatus.CLOSED) return
+            handleAction(e, onOpenReposition)
+          }}
+        >
+          <IconReposition width={16} />
+          <Text>{t`Reposition`}</Text>
+        </DropdownContentItem>
+      ) : null}
     </>
   )
 
