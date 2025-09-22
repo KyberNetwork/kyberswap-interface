@@ -58,7 +58,11 @@ export function Header({ onClose, onBack }: { onClose: () => void; onBack?: () =
       </div>
 
       {rePositionMode ? (
-        <div className="text-sm text-subText italic">Your current position will be closed and a new one created.</div>
+        !sourcePool || !targetPool ? null : (
+          <div className="text-sm text-subText w-fit italic">
+            Your current position will be closed and a new one created.
+          </div>
+        )
       ) : null}
 
       <div className="flex items-center gap-4 mt-6">
