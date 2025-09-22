@@ -19,7 +19,7 @@ export enum EarnDex {
   DEX_UNISWAPV2 = 'Uniswap V2',
   DEX_UNISWAP_V4 = 'Uniswap V4',
   DEX_UNISWAP_V4_FAIRFLOW = 'Uniswap V4 FairFlow',
-  DEX_PANCAKE_INFINITY_CL = 'Pancake Infinity CL',
+  DEX_PANCAKE_INFINITY_CL = 'Pancake ∞ CL',
 }
 
 export enum Exchange {
