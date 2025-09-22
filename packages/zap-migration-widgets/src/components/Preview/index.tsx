@@ -243,7 +243,7 @@ export function Preview({
                   )}
                   onClick={handleConfirm}
                 >
-                  Confirm migration
+                  {rePositionMode ? 'Confirm' : 'Confirm migration'}
                 </button>
               </div>
 

@@ -30,6 +30,7 @@ const BUTTON_TEXTS = {
   APPROVE_TARGET: 'Approve target position',
   ZAP_ANYWAY: 'Zap anyway',
   PREVIEW: 'Preview',
+  REPOSITION: 'Reposition to New Range',
 } as const;
 
 // Types
@@ -66,16 +67,25 @@ export function useActionButton({
   onConnectWallet,
   onSwitchChain,
 }: UseActionButtonProps): UseActionButtonReturn {
-  const { chainId, connectedAccount, sourcePoolType, targetPoolType, client, setWidgetError, referral } =
-    useWidgetStore([
-      'chainId',
-      'connectedAccount',
-      'sourcePoolType',
-      'targetPoolType',
-      'client',
-      'setWidgetError',
-      'referral',
-    ]);
+  const {
+    chainId,
+    connectedAccount,
+    sourcePoolType,
+    targetPoolType,
+    client,
+    setWidgetError,
+    referral,
+    rePositionMode,
+  } = useWidgetStore([
+    'chainId',
+    'connectedAccount',
+    'sourcePoolType',
+    'targetPoolType',
+    'client',
+    'setWidgetError',
+    'referral',
+    'rePositionMode',
+  ]);
   const { targetPosition, sourcePositionId, targetPositionId } = usePositionStore([
     'targetPosition',
     'sourcePositionId',
@@ -193,7 +203,7 @@ export function useActionButton({
     if (isTargetUniV4 && targetPosition && !isTargetNftApproved) return BUTTON_TEXTS.APPROVE_TARGET;
     if (zapImpactLevel.isVeryHigh) return BUTTON_TEXTS.ZAP_ANYWAY;
 
-    return BUTTON_TEXTS.PREVIEW;
+    return rePositionMode ? BUTTON_TEXTS.REPOSITION : BUTTON_TEXTS.PREVIEW;
   }, [
     fetchingRoute,
     liquidityOut,
@@ -216,6 +226,7 @@ export function useActionButton({
     isTargetNftApproved,
     zapImpactLevel.isVeryHigh,
     gasLoading,
+    rePositionMode,
   ]);
 
   const isButtonDisabled = useMemo(() => {

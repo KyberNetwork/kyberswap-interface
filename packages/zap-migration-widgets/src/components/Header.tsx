@@ -57,7 +57,11 @@ export function Header({ onClose, onBack }: { onClose: () => void; onBack?: () =
         </div>
       </div>
 
-      <div className="flex items-center gap-4 mt-8">
+      {rePositionMode ? (
+        <div className="text-sm text-subText italic">Your current position will be closed and a new one created.</div>
+      ) : null}
+
+      <div className="flex items-center gap-4 mt-6">
         <div className="flex-1">
           <PoolInfo type={PoolInfoType.Source} />
         </div>
