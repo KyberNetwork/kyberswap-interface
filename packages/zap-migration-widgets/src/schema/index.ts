@@ -102,8 +102,8 @@ export type Chain = z.infer<typeof chain>;
 
 export const tick = z.object({
   index: z.number(),
-  liquidityGross: z.number(),
-  liquidityNet: z.number(),
+  liquidityGross: z.string(),
+  liquidityNet: z.string(),
 });
 export type Tick = z.infer<typeof tick>;
 

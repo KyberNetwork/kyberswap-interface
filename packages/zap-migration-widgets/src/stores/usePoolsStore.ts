@@ -54,54 +54,50 @@ const dexMapping: Record<Dex, string[]> = {
 } as const;
 
 const poolResponse = z.object({
-  data: z.object({
-    pools: z.array(
-      z
-        .object({
-          address: z.string(),
-          swapFee: z.number(),
-          exchange: z.enum(Object.values(dexMapping).flat() as [string, ...string[]]).transform(val => {
-            // Reverse lookup in the enum
-            const dexEnumKey = Object.keys(dexMapping).find(key => dexMapping[+key as Dex].includes(val));
-            if (!dexEnumKey) {
-              throw new Error(`No enum value for exchange: ${val}`);
-            }
-            return parseInt(dexEnumKey, 10) as Dex;
-          }),
-          tokens: z.tuple([token.pick({ address: true }), token.pick({ address: true })]),
-          positionInfo: z.object({
-            liquidity: z.string(),
-            sqrtPriceX96: z.string(),
-            tickSpacing: z.number(),
-            tick: z.number(),
-            ticks: z.array(tick).optional(),
-          }),
-          staticExtra: z.string().optional(),
-        })
-        .or(
+  data: z
+    .object({
+      address: z.string(),
+      swapFee: z.number(),
+      exchange: z.enum(Object.values(dexMapping).flat() as [string, ...string[]]).transform(val => {
+        // Reverse lookup in the enum
+        const dexEnumKey = Object.keys(dexMapping).find(key => dexMapping[+key as Dex].includes(val));
+        if (!dexEnumKey) {
+          throw new Error(`No enum value for exchange: ${val}`);
+        }
+        return parseInt(dexEnumKey, 10) as Dex;
+      }),
+      tokens: z.tuple([token.pick({ address: true }), token.pick({ address: true })]),
+      positionInfo: z.object({
+        liquidity: z.string(),
+        sqrtPriceX96: z.string(),
+        tickSpacing: z.number(),
+        tick: z.number(),
+        ticks: z.array(tick).optional(),
+      }),
+      staticExtra: z.string().optional(),
+    })
+    .or(
+      z.object({
+        address: z.string(),
+        reserveUsd: z.string(),
+        amplifiedTvl: z.string(),
+        swapFee: z.number(),
+        exchange: z.string(),
+        type: z.string(),
+        timestamp: z.number(),
+        reserves: z.tuple([z.string(), z.string()]),
+        tokens: z.array(
           z.object({
             address: z.string(),
-            reserveUsd: z.string(),
-            amplifiedTvl: z.string(),
-            swapFee: z.number(),
-            exchange: z.string(),
-            type: z.string(),
-            timestamp: z.number(),
-            reserves: z.tuple([z.string(), z.string()]),
-            tokens: z.array(
-              z.object({
-                address: z.string(),
-                swappable: z.boolean(),
-              }),
-            ),
-            extraFields: z.object({
-              fee: z.number(),
-              feePrecision: z.number(),
-            }),
+            swappable: z.boolean(),
           }),
         ),
+        extraFields: z.object({
+          fee: z.number(),
+          feePrecision: z.number(),
+        }),
+      }),
     ),
-  }),
 });
 
 const initState = {
@@ -116,23 +112,27 @@ export const usePoolsStore = create<PoolsState>((set, get) => ({
   setTheme: (theme: Theme) => set({ theme }),
   getPools: async ({ chainId, poolFrom, poolTo, dexFrom, dexTo, fetchPrices }: GetPoolParams) => {
     try {
-      const res = await fetch(
-        `${PATHS.BFF_API}/v1/pools?chainId=${chainId}&ids=${poolFrom},${poolTo}&protocol=${Dex[dexFrom]}`,
-      ).then(res => res.json());
+      const poolFromRes = await fetch(`${PATHS.ZAP_EARN_API}/v1/pools?chainId=${chainId}&address=${poolFrom}`).then(
+        res => res.json(),
+      );
+      const poolToRes = await fetch(`${PATHS.ZAP_EARN_API}/v1/pools?chainId=${chainId}&address=${poolTo}`).then(res =>
+        res.json(),
+      );
 
       const isUniV3 = univ3Dexes.includes(dexFrom);
       const isUniV2 = univ2Dexes.includes(dexFrom);
 
-      const { success, data, error } = poolResponse.safeParse(res);
+      const { success: successFrom, data: dataFrom, error: errorFrom } = poolResponse.safeParse(poolFromRes);
+      const { success: successTo, data: dataTo, error: errorTo } = poolResponse.safeParse(poolToRes);
 
       const firstLoad = get().pools === 'loading';
-      if (!success) {
-        firstLoad && set({ error: `Can't get pool info ${error.toString()}` });
+      if (!successFrom || !successTo) {
+        firstLoad && set({ error: `Can't get pool info ${errorFrom?.toString() || errorTo?.toString()}` });
         return;
       }
 
-      const fromPool = data.data.pools.find(item => item.address.toLowerCase() === poolFrom.toLowerCase());
-      const toPool = data.data.pools.find(item => item.address.toLowerCase() === poolTo.toLowerCase());
+      const fromPool = dataFrom.data;
+      const toPool = dataTo.data;
       if (!fromPool) {
         firstLoad && set({ error: `Can't get pool info, address: ${poolFrom}` });
         return;

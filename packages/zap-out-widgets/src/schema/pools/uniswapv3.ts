@@ -39,8 +39,8 @@ const dexValues = Object.values(dexMapping).flat();
 
 const tick = z.object({
   index: z.number(),
-  liquidityGross: z.number(),
-  liquidityNet: z.number(),
+  liquidityGross: z.string(),
+  liquidityNet: z.string(),
 });
 
 export const univ3PoolNormalize = z.object({
@@ -84,7 +84,5 @@ export const univ3Pool = z.object({
 
 export const univ3PoolResponse = z.object({
   poolType: Univ3PoolType,
-  data: z.object({
-    pools: z.array(univ3Pool),
-  }),
+  data: univ3Pool,
 });

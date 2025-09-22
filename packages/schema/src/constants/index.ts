@@ -29,7 +29,6 @@ export const CHAIN_ID_TO_CHAIN: { [chainId in ChainId]: string } = {
 };
 
 export const API_URLS = {
-  BFF_API: 'https://bff.kyberswap.com/api',
   KYBERSWAP_SETTING_API: 'https://ks-setting.kyberswap.com/api',
   ZAP_API: 'https://zap-api.kyberswap.com',
   // ZAP_API: 'https://pre-zap-api.kyberengineering.io',
