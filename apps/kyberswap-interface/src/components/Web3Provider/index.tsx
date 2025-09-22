@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { watchChainId } from '@wagmi/core'
+import { porto } from 'porto/wagmi'
 import { ReactNode, useEffect, useMemo } from 'react'
 import { createClient, defineChain, http } from 'viem'
 import {
@@ -245,6 +246,7 @@ export const wagmiConfig = createConfig({
       reloadOnDisconnect: false,
       enableMobileWalletLink: true,
     }),
+    porto(),
     safe(),
     ...HardCodedConnectors.map(connector => createPriorityConnector(connector)),
   ],
