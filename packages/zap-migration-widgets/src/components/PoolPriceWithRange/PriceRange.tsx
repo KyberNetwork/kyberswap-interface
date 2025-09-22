@@ -23,7 +23,7 @@ export default function PriceRange({
   isMaxTick: boolean;
   isUniV2: boolean;
 }) {
-  if (!minPrice || !maxPrice || !currentPrice) return <Skeleton className="h-1 rounded w-full" />;
+  if (!currentPrice) return <Skeleton className="h-1 rounded w-full" />;
   return (
     <div className={cn('relative h-1 rounded w-full', isOutRange ? 'bg-warning-300' : 'bg-[#505050]')}>
       {isOutRange && (

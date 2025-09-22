@@ -41,8 +41,8 @@ export default function PoolPriceWithRange({ type, showPrice }: { type: RangeTyp
           currentPrice={currentPrice}
           minPrice={parsedMinPrice}
           maxPrice={parsedMaxPrice}
-          isMinTick={isMinTick}
-          isMaxTick={isMaxTick}
+          isMinTick={isUniV2 ? true : isMinTick}
+          isMaxTick={isUniV2 ? true : isMaxTick}
           isOutRange={isOutRange}
           isUniV2={isUniV2}
         />

@@ -205,12 +205,12 @@ const PositionDetail = () => {
         from: {
           poolType: position.dex.id,
           poolAddress: position.pool.address,
-          positionId: position.tokenId,
+          positionId: position.pool.isUniv2 ? account || '' : position.tokenId,
         },
         rePositionMode: true,
       })
     },
-    [handleOpenZapMigration],
+    [handleOpenZapMigration, account],
   )
 
   useEffect(() => {
