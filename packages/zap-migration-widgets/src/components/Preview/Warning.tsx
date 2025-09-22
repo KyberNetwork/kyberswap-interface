@@ -2,6 +2,7 @@ import { UniV3Pool, univ3Types } from '@kyber/schema';
 import { PI_LEVEL } from '@kyber/utils';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
+import usePriceRange from '@/components/RangeInput/usePriceRange';
 import useZapRoute from '@/hooks/useZapRoute';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
@@ -12,6 +13,7 @@ export default function Warning() {
   const { slippage, route, tickLower, tickUpper } = useZapStore(['slippage', 'route', 'tickLower', 'tickUpper']);
   const { targetPool } = usePoolStore(['targetPool']);
   const { suggestedSlippage, zapImpact } = useZapRoute();
+  const { isMinTick, isMaxTick } = usePriceRange();
 
   const isTargetUniV3 = univ3Types.includes(targetPoolType as any);
   const isAddToOutRange =
@@ -19,6 +21,8 @@ export default function Warning() {
     tickLower !== null &&
     tickUpper !== null &&
     ((targetPool as UniV3Pool).tick < tickLower || (targetPool as UniV3Pool).tick > tickUpper);
+
+  const isFullRange = isMinTick && isMaxTick;
 
   return (
     <div className="mt-4 flex flex-col gap-2">
@@ -45,6 +49,13 @@ export default function Warning() {
         <div className="rounded-md text-xs px-4 py-3 text-warning bg-warning-200">
           Your liquidity is outside the current market range and will not be used/earn fees until the market price
           enters your specified range.
+        </div>
+      ) : null}
+
+      {isFullRange ? (
+        <div className="rounded-md text-xs px-4 py-3 text-warning bg-warning-200">
+          Your liquidity is active across the full price range. However, this may result in a lower APR than estimated
+          due to less concentration of liquidity.
         </div>
       ) : null}
     </div>

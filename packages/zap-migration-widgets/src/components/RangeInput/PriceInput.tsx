@@ -28,11 +28,9 @@ export default function PriceInput() {
   const [maxPriceTyping, setMaxPriceTyping] = useState(false);
 
   useEffect(() => {
-    if (isMinTick) {
-      !revertPrice ? setLocalMinPrice('0') : setLocalMaxPrice('∞');
-    } else if (isMaxTick) {
-      !revertPrice ? setLocalMaxPrice('0') : setLocalMinPrice('∞');
-    } else if (minPrice && maxPrice) {
+    if (isMinTick) setLocalMinPrice('0');
+    if (isMaxTick) setLocalMaxPrice('∞');
+    if (!isMinTick && !isMaxTick && minPrice && maxPrice) {
       setLocalMinPrice(minPrice);
       setLocalMaxPrice(maxPrice);
     }
