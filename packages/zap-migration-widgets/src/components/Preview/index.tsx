@@ -130,128 +130,122 @@ export function Preview({
     const errorMessage = error ? friendlyError(error) || error.message || JSON.stringify(error) : '';
 
     return (
-      <Dialog
-        open={showProcessing}
-        onOpenChange={() => {
+      <StatusDialog
+        className="z-[1003]"
+        overlayClassName="z-[1003]"
+        type={
+          txStatus === 'success'
+            ? StatusDialogType.SUCCESS
+            : txStatus === 'failed' || error
+              ? StatusDialogType.ERROR
+              : txHash
+                ? StatusDialogType.PROCESSING
+                : StatusDialogType.WAITING
+        }
+        description={
+          txStatus !== 'success' && txStatus !== 'failed' && !error && !txHash
+            ? 'Confirm this transaction in your wallet'
+            : undefined
+        }
+        errorMessage={error ? errorMessage : undefined}
+        transactionExplorerUrl={txHash ? `${NETWORKS_INFO[chainId].scanLink}/tx/${txHash}` : undefined}
+        action={
+          <>
+            <button className="ks-outline-btn flex-1" onClick={onDismiss}>
+              Close
+            </button>
+            {txStatus === 'success' ? (
+              onViewPosition && txHash ? (
+                <button className="ks-primary-btn flex-1" onClick={() => onViewPosition(txHash)}>
+                  View position
+                </button>
+              ) : null
+            ) : errorMessage.includes('slippage') ? (
+              <button className="ks-primary-btn flex-1" onClick={handleSlippage}>
+                {slippage !== suggestedSlippage ? 'Use Suggested Slippage' : 'Set Custom Slippage'}
+              </button>
+            ) : null}
+          </>
+        }
+        onClose={() => {
           if (txStatus === 'success') onClose();
           onDismiss();
         }}
-      >
-        <DialogContent containerClassName="ks-lw-migration-style">
-          <StatusDialog
-            type={
-              txStatus === 'success'
-                ? StatusDialogType.SUCCESS
-                : txStatus === 'failed' || error
-                  ? StatusDialogType.ERROR
-                  : txHash
-                    ? StatusDialogType.PROCESSING
-                    : StatusDialogType.WAITING
-            }
-            description={
-              txStatus !== 'success' && txStatus !== 'failed' && !error && !txHash
-                ? 'Confirm this transaction in your wallet'
-                : undefined
-            }
-            errorMessage={error ? errorMessage : undefined}
-            transactionExplorerUrl={txHash ? `${NETWORKS_INFO[chainId].scanLink}/tx/${txHash}` : undefined}
-            action={
-              <>
-                <button className="ks-outline-btn flex-1" onClick={onDismiss}>
-                  Close
-                </button>
-                {txStatus === 'success' ? (
-                  onViewPosition && txHash ? (
-                    <button className="ks-primary-btn flex-1" onClick={() => onViewPosition(txHash)}>
-                      View position
-                    </button>
-                  ) : null
-                ) : errorMessage.includes('slippage') ? (
-                  <button className="ks-primary-btn flex-1" onClick={handleSlippage}>
-                    {slippage !== suggestedSlippage ? 'Use Suggested Slippage' : 'Set Custom Slippage'}
-                  </button>
-                ) : null}
-              </>
-            }
-            onClose={onDismiss}
-          />
-        </DialogContent>
-      </Dialog>
+      />
     );
   }
 
   return (
-    <>
-      <Dialog open={true} onOpenChange={onDismiss}>
-        <DialogPortal>
-          <DialogContent
-            className="max-h-[700px] max-w-[450px] overflow-auto"
-            aria-describedby={undefined}
-            containerClassName="ks-lw-migration-style"
-          >
-            <DialogHeader>
-              <DialogTitle>
-                {rePositionMode
-                  ? 'Reposition'
-                  : targetPositionId
-                    ? 'Migrate to increase position liquidity'
-                    : 'Migrate liquidity via Zap'}
-              </DialogTitle>
-            </DialogHeader>
+    <Dialog open={true} onOpenChange={onDismiss}>
+      <DialogPortal>
+        <DialogContent
+          className="max-h-[700px] max-w-[450px] overflow-auto z-[1002]"
+          overlayClassName="z-[1002]"
+          aria-describedby={undefined}
+          containerClassName="ks-lw-migration-style"
+        >
+          <DialogHeader>
+            <DialogTitle>
+              {rePositionMode
+                ? 'Reposition'
+                : targetPositionId
+                  ? 'Migrate to increase position liquidity'
+                  : 'Migrate liquidity via Zap'}
+            </DialogTitle>
+          </DialogHeader>
 
-            <div>
-              <div className="flex justify-between items-center">
-                <p>{rePositionMode ? 'Reposition liquidity' : 'Migrated liquidity'}</p>
-                <p>
-                  {formatDisplayNumber(route.zapDetails.initialAmountUsd, {
-                    style: 'currency',
-                  })}
-                </p>
-              </div>
-
-              <div className="mt-4 flex flex-col gap-2">
-                <PreviewPoolInfo pool={sourcePool} chainId={chainId} />
-
-                {rePositionMode ? null : (
-                  <>
-                    <div className="w-full flex justify-center">
-                      <CircleChevronDown className="text-stroke w-5 h-5" />
-                    </div>
-                    <PreviewPoolInfo pool={targetPool} chainId={chainId} />
-                  </>
-                )}
-              </div>
-
-              <div className="mt-5">
-                <UpdatedPosition />
-              </div>
-
-              <Estimated />
-              <Warning />
-
-              <div className="flex gap-5 mt-8 mb-4">
-                <button
-                  className="flex-1 h-[40px] rounded-full border border-stroke text-subText text-sm font-medium"
-                  onClick={onDismiss}
-                >
-                  Cancel
-                </button>
-                <button
-                  className={cn(
-                    'flex-1 h-[40px] rounded-full border border-primary bg-primary text-textRevert text-sm font-medium',
-                    'disabled:bg-stroke disabled:text-subText disabled:border-stroke disabled:cursor-not-allowed',
-                  )}
-                  onClick={handleConfirm}
-                >
-                  {rePositionMode ? 'Confirm' : 'Confirm migration'}
-                </button>
-              </div>
-
-              <MigrationSummary />
+          <div>
+            <div className="flex justify-between items-center">
+              <p>{rePositionMode ? 'Reposition liquidity' : 'Migrated liquidity'}</p>
+              <p>
+                {formatDisplayNumber(route.zapDetails.initialAmountUsd, {
+                  style: 'currency',
+                })}
+              </p>
             </div>
-          </DialogContent>
-        </DialogPortal>
-      </Dialog>
-    </>
+
+            <div className="mt-4 flex flex-col gap-2">
+              <PreviewPoolInfo pool={sourcePool} chainId={chainId} />
+
+              {rePositionMode ? null : (
+                <>
+                  <div className="w-full flex justify-center">
+                    <CircleChevronDown className="text-stroke w-5 h-5" />
+                  </div>
+                  <PreviewPoolInfo pool={targetPool} chainId={chainId} />
+                </>
+              )}
+            </div>
+
+            <div className="mt-5">
+              <UpdatedPosition />
+            </div>
+
+            <Estimated />
+            <Warning />
+
+            <div className="flex gap-5 mt-8 mb-4">
+              <button
+                className="flex-1 h-[40px] rounded-full border border-stroke text-subText text-sm font-medium"
+                onClick={onDismiss}
+              >
+                Cancel
+              </button>
+              <button
+                className={cn(
+                  'flex-1 h-[40px] rounded-full border border-primary bg-primary text-textRevert text-sm font-medium',
+                  'disabled:bg-stroke disabled:text-subText disabled:border-stroke disabled:cursor-not-allowed',
+                )}
+                onClick={handleConfirm}
+              >
+                {rePositionMode ? 'Confirm' : 'Confirm migration'}
+              </button>
+            </div>
+
+            <MigrationSummary />
+          </div>
+        </DialogContent>
+      </DialogPortal>
+    </Dialog>
   );
 }

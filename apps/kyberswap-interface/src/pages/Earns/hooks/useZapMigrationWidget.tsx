@@ -225,7 +225,7 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
       maxWidth={832}
       width={'832px'}
       onDismiss={() => setMigrateLiquidityPureParams(null)}
-      zindex={9999}
+      zindex={1001}
     >
       <ZapMigration {...migrateLiquidityParams} />
     </Modal>

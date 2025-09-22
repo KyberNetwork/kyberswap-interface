@@ -168,6 +168,8 @@ export const ZapMigration = (widgetProps: ZapMigrationProps) => {
   const errorDialog =
     poolError || positionError || widgetError ? (
       <StatusDialog
+        className="z-[1003]"
+        overlayClassName="z-[1003]"
         type={StatusDialogType.ERROR}
         title={
           poolError

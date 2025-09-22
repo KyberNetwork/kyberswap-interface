@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { useOnClickOutside } from '@kyber/hooks';
-import { Dialog, DialogContent, DialogFooter, DialogTitle, MouseoverTooltip, Toggle } from '@kyber/ui';
+import { MouseoverTooltip, Toggle } from '@kyber/ui';
+import { Dialog, DialogContent, DialogFooter, DialogTitle } from '@kyber/ui/dialog';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
 import SlippageInput from '@/components/Setting/SlippageInput';
@@ -65,7 +66,7 @@ export default function Setting() {
   return (
     <>
       <Dialog open={showConfirm} onOpenChange={() => setShowConfirm(prev => !prev)}>
-        <DialogContent className="confirm-dialog" aria-describedby={undefined}>
+        <DialogContent className="confirm-dialog z-[1002]" overlayClassName="z-[1002]" aria-describedby={undefined}>
           <DialogTitle>Are you sure?</DialogTitle>
           <div>
             <div className="text-sm text-subText">
