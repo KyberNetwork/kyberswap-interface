@@ -4,6 +4,7 @@ import { MouseoverTooltip } from '@kyber/ui';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
 import AlertIcon from '@/assets/icons/alert.svg';
+import { HIGH_SLIPPAGE_WARNING, LOW_SLIPPAGE_WARNING } from '@/components/Warning/SlippageWarning';
 import { getSlippageStorageKey } from '@/constants';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
@@ -46,7 +47,7 @@ export const validateSlippageInput = (
   } else if (rawSlippage < suggestedSlippage / 2) {
     return {
       isValid: true,
-      message: `Your slippage is set lower than usual, increasing the risk of transaction failure.`,
+      message: LOW_SLIPPAGE_WARNING,
     };
   } else if (rawSlippage > 5000) {
     return {
@@ -56,7 +57,7 @@ export const validateSlippageInput = (
   } else if (rawSlippage > 2 * suggestedSlippage) {
     return {
       isValid: true,
-      message: `Your slippage is set higher than usual, which may cause unexpected losses.`,
+      message: HIGH_SLIPPAGE_WARNING,
     };
   }
 

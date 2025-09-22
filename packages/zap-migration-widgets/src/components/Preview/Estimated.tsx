@@ -5,6 +5,7 @@ import { formatDisplayNumber } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
 import EstimatedRow from '@/components/Estimated/EstimatedRow';
+import { HIGH_SLIPPAGE_WARNING, LOW_SLIPPAGE_WARNING } from '@/components/Warning/SlippageWarning';
 import useZapRoute from '@/hooks/useZapRoute';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 import { useZapStore } from '@/stores/useZapStore';
@@ -64,9 +65,9 @@ export default function Estimated() {
         labelTooltip="Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price. Please use with caution!"
         valueTooltip={
           slippage && slippage > 2 * suggestedSlippage
-            ? 'Your slippage is set higher than usual, which may cause unexpected losses.'
+            ? HIGH_SLIPPAGE_WARNING
             : slippage && slippage < suggestedSlippage / 2
-              ? 'Your slippage is set lower than usual, increasing the risk of transaction failure.'
+              ? LOW_SLIPPAGE_WARNING
               : ''
         }
         value={
