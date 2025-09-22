@@ -10,6 +10,7 @@ import { usePreviousDistinct } from 'react-use'
 
 import { NotificationType } from 'components/Announcement/type'
 import Modal from 'components/Modal'
+import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { EarnDex, Exchange, earnSupportedProtocols } from 'pages/Earns/constants'
@@ -195,6 +196,9 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
               if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
               return txHash
             },
+            onExplorePools: () => {
+              navigate(APP_PATHS.EARN_POOLS)
+            },
           }
         : null,
     [
@@ -207,6 +211,7 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
       changeNetwork,
       library,
       onRefreshPosition,
+      navigate,
     ],
   )
 

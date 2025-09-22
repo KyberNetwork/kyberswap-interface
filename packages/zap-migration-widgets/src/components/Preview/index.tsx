@@ -32,10 +32,12 @@ export function Preview({
   onSubmitTx,
   onClose,
   onViewPosition,
+  onExplorePools,
 }: {
   onSubmitTx: (txData: { from: string; to: string; value: string; data: string; gasLimit: string }) => Promise<string>;
   onClose: () => void;
   onViewPosition?: (txHash: string) => void;
+  onExplorePools?: () => void;
 }) {
   const { chainId, connectedAccount, rePositionMode } = useWidgetStore([
     'chainId',
@@ -142,18 +144,27 @@ export function Preview({
                 ? StatusDialogType.PROCESSING
                 : StatusDialogType.WAITING
         }
+        title={txStatus === 'success' && rePositionMode ? 'Reposition Completed' : undefined}
         description={
           txStatus !== 'success' && txStatus !== 'failed' && !error && !txHash
             ? 'Confirm this transaction in your wallet'
-            : undefined
+            : txStatus === 'success'
+              ? 'You have successfully migrated your liquidity'
+              : undefined
         }
         errorMessage={error ? errorMessage : undefined}
         transactionExplorerUrl={txHash ? `${NETWORKS_INFO[chainId].scanLink}/tx/${txHash}` : undefined}
         action={
           <>
-            <button className="ks-outline-btn flex-1" onClick={onDismiss}>
-              Close
-            </button>
+            {txStatus === 'success' && onExplorePools && rePositionMode ? (
+              <button className="ks-outline-btn flex-1" onClick={onExplorePools}>
+                Explore pools
+              </button>
+            ) : (
+              <button className="ks-outline-btn flex-1" onClick={onDismiss}>
+                Close
+              </button>
+            )}
             {txStatus === 'success' ? (
               onViewPosition && txHash ? (
                 <button className="ks-primary-btn flex-1" onClick={() => onViewPosition(txHash)}>

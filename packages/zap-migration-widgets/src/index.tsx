@@ -62,6 +62,7 @@ export interface ZapMigrationProps {
   };
   client: string;
   referral?: string;
+  onExplorePools?: () => void;
   onConnectWallet: () => void;
   onSwitchChain: () => void;
   onSubmitTx: (txData: { from: string; to: string; value: string; data: string; gasLimit: string }) => Promise<string>;
@@ -97,6 +98,7 @@ export const ZapMigration = (widgetProps: ZapMigrationProps) => {
     rePositionMode,
     to,
     chainId,
+    onExplorePools,
   } = widgetProps;
 
   const {
@@ -236,7 +238,14 @@ export const ZapMigration = (widgetProps: ZapMigrationProps) => {
         />
       </div>
 
-      {buildData && <Preview onSubmitTx={onSubmitTx} onClose={onClose} onViewPosition={onViewPosition} />}
+      {buildData && (
+        <Preview
+          onSubmitTx={onSubmitTx}
+          onClose={onClose}
+          onViewPosition={onViewPosition}
+          onExplorePools={onExplorePools}
+        />
+      )}
     </div>
   );
 };
