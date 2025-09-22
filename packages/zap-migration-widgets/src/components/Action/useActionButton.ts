@@ -161,7 +161,7 @@ export function useActionButton({
   }, [isTargetUniV2]);
 
   const isAnyApproving = useMemo(() => {
-    return pendingTx || clickedApprove || (isTargetUniV4 && targetPosition && targetNftPendingTx);
+    return Boolean(pendingTx || clickedApprove || (isTargetUniV4 && targetPosition && targetNftPendingTx));
   }, [pendingTx, clickedApprove, isTargetUniV4, targetPosition, targetNftPendingTx]);
 
   const isAnyChecking = useMemo(() => {
@@ -308,13 +308,13 @@ export function useActionButton({
 
       if (!isApproved) {
         setClickedApprove(true);
-        await approve();
+        await approve().finally(() => setClickedApprove(false));
         return;
       }
 
       if (isTargetUniV4 && targetPosition && !isTargetNftApproved) {
         setClickedApprove(true);
-        await targetNftApprove();
+        await targetNftApprove().finally(() => setClickedApprove(false));
         return;
       }
 
