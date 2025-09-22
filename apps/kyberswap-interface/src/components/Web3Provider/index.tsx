@@ -74,6 +74,7 @@ export const CONNECTION = {
   METAMASK_RDNS: 'io.metamask',
   //UNISWAP_EXTENSION_RDNS: 'org.uniswap.app',
   SAFE_CONNECTOR_ID: 'safe',
+  PORTO: 'xyz.ithaca.porto',
 } as const
 
 export const CONNECTOR_ICON_OVERRIDE_MAP: { [id in string]?: string } = {
