@@ -54,6 +54,7 @@ const config: Pick<Config, 'presets' | 'content' | 'darkMode' | 'theme' | 'safel
     'w-[150px]',
     'w-[120px]',
     'mt-3',
+    'h-10',
 
     // Button classes
     'flex-1',

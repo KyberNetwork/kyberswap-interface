@@ -1,11 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { useOnClickOutside } from '@kyber/hooks';
-import { MouseoverTooltip, Toggle } from '@kyber/ui';
+import { Dialog, DialogContent, DialogFooter, DialogTitle, MouseoverTooltip, Toggle } from '@kyber/ui';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
-import X from '@/assets/icons/x.svg';
-import Modal from '@/components/Modal';
 import SlippageInput from '@/components/Setting/SlippageInput';
 import { useZapStore } from '@/stores/useZapStore';
 
@@ -60,41 +58,37 @@ export default function Setting() {
       if (!isValid) setDeadline(20);
       toggleSetting();
     }
-  }, ['setting', 'ks-lw-modal-overlay', 'kyber-portal']);
+  }, ['setting', 'ks-lw-modal-overlay', 'kyber-portal', 'confirm-dialog', 'dialog-overlay']);
 
   if (!showSetting) return null;
 
   return (
     <>
-      <Modal isOpen={showConfirm}>
-        <div>
-          <div className="flex justify-between text-xl items-center font-medium">
-            <div>Are you sure?</div>
+      <Dialog open={showConfirm} onOpenChange={() => setShowConfirm(prev => !prev)}>
+        <DialogContent className="confirm-dialog" aria-describedby={undefined}>
+          <DialogTitle>Are you sure?</DialogTitle>
+          <div>
+            <div className="text-sm text-subText">
+              Turn this on to make trades with very high price impact or to set very high slippage tolerance. This can
+              result in bad rates and loss of funds. Be cautious.
+            </div>
 
-            <X className="cursor-pointer" role="button" onClick={() => setShowConfirm(false)} />
+            <div className="text-sm text-subText mt-4">
+              Please type the word <span className="text-warning">Confirm</span> below to enable Degen Mode
+            </div>
+
+            <input
+              className="box-border mt-5 py-2 px-4 text-sm outline-none border-none w-full text-white bg-layer2 rounded-md"
+              placeholder="Confirm"
+              value={confirm}
+              onChange={e => {
+                setConfirm(e.target.value.trim());
+              }}
+            />
           </div>
-
-          <div className="text-sm text-subText mt-5">
-            Turn this on to make trades with very high price impact or to set very high slippage tolerance. This can
-            result in bad rates and loss of funds. Be cautious.
-          </div>
-
-          <div className="text-sm text-subText mt-5">
-            Please type the word <span className="text-warning">Confirm</span> below to enable Degen Mode
-          </div>
-
-          <input
-            className="box-border mt-5 py-2 px-4 text-sm outline-none border-none w-full text-white bg-layer2 rounded-md"
-            placeholder="Confirm"
-            value={confirm}
-            onChange={e => {
-              setConfirm(e.target.value.trim());
-            }}
-          />
-
-          <div className="flex gap-4 mt-6">
+          <DialogFooter className="flex gap-4 mt-2">
             <button
-              className="flex-1 h-[40px] rounded-full border border-stroke text-subText text-sm font-medium"
+              className="flex-1 h-10 rounded-full border border-stroke text-subText text-sm font-medium"
               onClick={() => {
                 setShowConfirm(false);
                 setConfirm('');
@@ -104,7 +98,7 @@ export default function Setting() {
             </button>
             <button
               className={cn(
-                'flex-1 h-[40px] rounded-full border border-warning text-textRevert text-sm font-medium bg-warning ',
+                'flex-1 h-10 rounded-full border border-warning text-textRevert text-sm font-medium bg-warning',
               )}
               onClick={() => {
                 if (confirm.toLowerCase() === 'confirm') {
@@ -116,11 +110,12 @@ export default function Setting() {
             >
               Confirm
             </button>
-          </div>
-        </div>
-      </Modal>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <div
-        className="absolute right-0 top-[98px] bg-layer2 p-5 rounded-md z-[1000] min-w-[330px] sm:max-w-[330px]"
+        className="absolute right-0 top-11 bg-layer2 p-5 rounded-md z-[1000] min-w-[330px] sm:max-w-[330px]"
         ref={ref}
       >
         <div className="text-base font-medium mb-5">Advanced Setting</div>
