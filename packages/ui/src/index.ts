@@ -16,6 +16,7 @@ export {
   DialogTitle,
   DialogTrigger,
   DialogPortal,
+  DialogOverlay,
 } from '@/components/ui/dialog';
 export { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 export { Skeleton } from '@/components/ui/skeleton';

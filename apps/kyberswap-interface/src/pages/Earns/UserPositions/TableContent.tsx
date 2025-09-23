@@ -3,13 +3,14 @@ import { MAX_TICK, MIN_TICK, priceToClosestTick } from '@kyber/utils/dist/uniswa
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useCallback, useMemo, useState } from 'react'
-import { ArrowRightCircle } from 'react-feather'
+import { ArrowRight, ArrowRightCircle } from 'react-feather'
 import { Link } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
 import { ReactComponent as IconEarnNotFound } from 'assets/svg/earn/ic_earn_not_found.svg'
 import { ReactComponent as IconKem } from 'assets/svg/kyber/kem.svg'
+import { InfoHelperWithDelay } from 'components/InfoHelper'
 import { Loader2 } from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
@@ -230,13 +231,13 @@ export default function TableContent({
     handleOpenZapMigration({
       chainId: sourcePosition.chain.id,
       from: {
-        dex: sourcePosition.dex.id,
-        poolId: sourcePosition.pool.address,
+        poolType: sourcePosition.dex.id,
+        poolAddress: sourcePosition.pool.address,
         positionId: sourcePosition.pool.isUniv2 ? account || '' : sourcePosition.tokenId,
       },
       to: {
-        dex: targetPool.poolExchange,
-        poolId: targetPool.address,
+        poolType: targetPool.poolExchange,
+        poolAddress: targetPool.address,
       },
       initialTick:
         tickLower !== undefined && tickUpper !== undefined
@@ -245,6 +246,20 @@ export default function TableContent({
               tickUpper: tickUpper,
             }
           : undefined,
+    })
+  }
+
+  const handleReposition = (e: React.MouseEvent, position: ParsedPosition) => {
+    e.stopPropagation()
+    e.preventDefault()
+    handleOpenZapMigration({
+      chainId: position.chain.id,
+      from: {
+        poolType: position.dex.id,
+        poolAddress: position.pool.address,
+        positionId: position.pool.isUniv2 ? account || '' : position.tokenId,
+      },
+      rePositionMode: true,
     })
   }
 
@@ -307,6 +322,7 @@ export default function TableContent({
                   position={position}
                   onOpenIncreaseLiquidityWidget={handleOpenIncreaseLiquidityWidget}
                   onOpenZapOut={handleOpenZapOut}
+                  onOpenReposition={handleReposition}
                   claimFees={{
                     onClaimFee: handleClaimFees,
                     feesClaimDisabled,
@@ -372,6 +388,30 @@ export default function TableContent({
                             : status === PositionStatus.OUT_RANGE
                             ? t`Out of range`
                             : t`Closed`}
+                          {status === PositionStatus.OUT_RANGE ? (
+                            <InfoHelperWithDelay
+                              text={
+                                <Flex flexDirection={'column'} sx={{ gap: 1 }}>
+                                  <Text>
+                                    {t`The position is inactive. Update to an action price range to earn fees/rewards.`}
+                                  </Text>
+                                  <Flex
+                                    color={theme.primary}
+                                    alignItems={'center'}
+                                    sx={{ gap: 1, cursor: 'pointer' }}
+                                    onClick={e => handleReposition(e, position)}
+                                  >
+                                    <Text>{t`Reposition to new range`}</Text>
+                                    <ArrowRight size={14} />
+                                  </Flex>
+                                </Flex>
+                              }
+                              color={theme.warning}
+                              placement="top"
+                              width="280px"
+                              style={{ marginLeft: 4 }}
+                            />
+                          ) : null}
                         </Badge>
                       )}
                     </Flex>
