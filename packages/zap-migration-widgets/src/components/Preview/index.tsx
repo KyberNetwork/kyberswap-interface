@@ -187,7 +187,7 @@ export function Preview({
     <Dialog open={true} onOpenChange={onDismiss}>
       <DialogPortal>
         <DialogContent
-          className="max-h-[700px] max-w-[450px] overflow-auto z-[1002]"
+          className="max-h-[800px] max-w-[450px] overflow-auto z-[1002]"
           overlayClassName="z-[1002]"
           aria-describedby={undefined}
           containerClassName="ks-lw-migration-style"
