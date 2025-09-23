@@ -9,6 +9,7 @@ import {
   SymbiosisAdapter,
   XYFinanceAdapter,
 } from './adapters'
+import { BungeeAdapter } from './adapters/BungeeAdapter'
 import { NearIntentsAdapter } from './adapters/NearIntentsAdapter'
 import { OptimexAdapter } from './adapters/OptimexAdapter'
 import { OrbiterAdapter } from './adapters/OrbiterAdapter'
@@ -27,6 +28,7 @@ export class CrossChainSwapFactory {
   private static optimexInstance: OptimexAdapter
   private static ksInstance: KyberSwapAdapter
   private static orbiterInstance: OrbiterAdapter
+  private static bungeeInstance: BungeeAdapter
 
   // Get or create Across adapter
   static getAcrossAdapter(): AcrossAdapter {
@@ -107,12 +109,19 @@ export class CrossChainSwapFactory {
     return CrossChainSwapFactory.orbiterInstance
   }
 
+  static getBungeeAdapter(): BungeeAdapter {
+    if (!CrossChainSwapFactory.bungeeInstance) {
+      CrossChainSwapFactory.bungeeInstance = new BungeeAdapter()
+    }
+    return CrossChainSwapFactory.bungeeInstance
+  }
+
   // Get all registered adapters
   static getAllAdapters(): SwapProvider[] {
     return [
       CrossChainSwapFactory.getAcrossAdapter(),
       CrossChainSwapFactory.getRelayAdapter(),
-      CrossChainSwapFactory.getXyFinanceAdapter(),
+      // CrossChainSwapFactory.getXyFinanceAdapter(),
       CrossChainSwapFactory.getNearIntentsAdapter(),
       CrossChainSwapFactory.getMayanAdapter(),
       // CrossChainSwapFactory.getSymbiosisAdapter(),
@@ -120,7 +129,8 @@ export class CrossChainSwapFactory {
       CrossChainSwapFactory.getLifiInstance(),
       CrossChainSwapFactory.getOptimexAdapter(),
       CrossChainSwapFactory.getKsApdater(),
-      CrossChainSwapFactory.getOrbiterAdapter(),
+      // CrossChainSwapFactory.getOrbiterAdapter(),
+      CrossChainSwapFactory.getBungeeAdapter(),
     ]
   }
 
@@ -149,6 +159,8 @@ export class CrossChainSwapFactory {
         return CrossChainSwapFactory.getKsApdater()
       case 'orbiter':
         return CrossChainSwapFactory.getOrbiterAdapter()
+      case 'bungee':
+        return CrossChainSwapFactory.getBungeeAdapter()
       default:
         return undefined
     }

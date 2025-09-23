@@ -1,3 +1,4 @@
+import '@kyber/ui/styles.css'
 import * as Sentry from '@sentry/react'
 import { Suspense, lazy, useEffect } from 'react'
 import { Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom'
@@ -41,8 +42,6 @@ const Consent = lazy(() => import('./Oauth/Consent'))
 const ElasticSnapshot = lazy(() => import('./ElasticSnapshot'))
 const MarketOverview = lazy(() => import('./MarketOverview'))
 
-// test page for swap only through elastic
-const ElasticSwap = lazy(() => import('./ElasticSwap'))
 const SwapV3 = lazy(() => import('./SwapV3'))
 const PartnerSwap = lazy(() => import('./PartnerSwap'))
 const MyPool = lazy(() => import('./MyPool'))
@@ -331,8 +330,6 @@ export default function App() {
                 }
               />
 
-              <Route path={`elastic-swap`} element={<ElasticSwap />} />
-
               <Route path={`/:network/*`} element={<RoutesWithNetworkPrefix />} />
 
               <Route path={APP_PATHS.VERIFY_AUTH} element={<VerifyAuth />} />
@@ -343,6 +340,7 @@ export default function App() {
               <Route path={APP_PATHS.ELASTIC_SNAPSHOT} element={<ElasticSnapshot />} />
               <Route path={APP_PATHS.MARKET_OVERVIEW} element={<MarketOverview />} />
 
+              <Route path={APP_PATHS.NEAR_INTENTS_CAMPAIGN} element={<Campaign />} />
               <Route path={APP_PATHS.MAY_TRADING_CAMPAIGN} element={<Campaign />} />
               <Route path={APP_PATHS.AGGREGATOR_CAMPAIGN} element={<Campaign />} />
               <Route path={APP_PATHS.LIMIT_ORDER_CAMPAIGN} element={<Campaign />} />

@@ -1,4 +1,4 @@
-import { keccak256 } from "js-sha3";
+import { keccak256 } from 'js-sha3';
 
 /**
  * Checks if the given string is a valid Ethereum address.
@@ -8,10 +8,7 @@ import { keccak256 } from "js-sha3";
  * @returns {boolean} `true` if the address is valid, otherwise `false`.
  */
 export const isAddress = (address: string): boolean => {
-  if (
-    !/^(0x)?[0-9a-f]{40}$/i.test(address) &&
-    !/^(0x)?[0-9a-f]{64}$/i.test(address)
-  ) {
+  if (!/^(0x)?[0-9a-f]{40}$/i.test(address) && !/^(0x)?[0-9a-f]{64}$/i.test(address)) {
     // check if it has the basic requirements of an address
     return false;
   } else if (
@@ -37,18 +34,24 @@ export const isAddress = (address: string): boolean => {
  */
 export const isChecksumAddress = (addr: string): boolean => {
   // Check each case
-  let address = addr.replace("0x", "");
+  const address = addr.replace('0x', '');
   const addressHash = keccak256(address.toLowerCase());
   for (let i = 0; i < 40; i++) {
     // the nth letter should be uppercase if the nth digit of casemap is 1
     if (
-      (parseInt(addressHash[i], 16) > 7 &&
-        address[i].toUpperCase() !== address[i]) ||
-      (parseInt(addressHash[i], 16) <= 7 &&
-        address[i].toLowerCase() !== address[i])
+      (parseInt(addressHash[i], 16) > 7 && address[i].toUpperCase() !== address[i]) ||
+      (parseInt(addressHash[i], 16) <= 7 && address[i].toLowerCase() !== address[i])
     ) {
       return false;
     }
   }
   return true;
+};
+
+export const shortenAddress = (address: string, chars = 4): string => {
+  const parsed = isAddress(address);
+  if (!parsed) {
+    throw Error(`Invalid 'address' parameter '${address}'`);
+  }
+  return `${address.substring(0, chars + 2)}...${address.substring(address.length - chars)}`;
 };

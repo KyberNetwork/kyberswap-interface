@@ -1,8 +1,9 @@
-import { Placement } from "@popperjs/core";
-import { CSSProperties, ReactNode, useCallback, useState } from "react";
-import Info from "../assets/icons/info.svg";
+import { CSSProperties, ReactNode } from 'react';
 
-import Tooltip from "./tooltip";
+import { Placement } from '@popperjs/core';
+
+import Info from '@/assets/icons/info.svg?react';
+import { MouseoverTooltip } from '@/components/Tooltip';
 
 export function InfoHelper({
   text,
@@ -11,6 +12,8 @@ export function InfoHelper({
   style = {},
   color,
   width,
+  noneMarginLeft,
+  delay,
 }: {
   text: string | ReactNode;
   size?: number;
@@ -19,40 +22,27 @@ export function InfoHelper({
   style?: CSSProperties;
   color?: string;
   width?: string;
+  noneMarginLeft?: boolean;
+  delay?: number;
 }) {
-  const [show, setShow] = useState<boolean>(false);
-
-  const open = useCallback(() => setShow(true), [setShow]);
-  const close = useCallback(() => setShow(false), [setShow]);
-
   return (
     <span
+      className="ks-ui-style"
       style={{
-        display: "inline-flex",
-        justifyContent: "center",
-        marginLeft: "0.25rem",
-        alignItems: "center",
-        lineHeight: "100%",
-        verticalAlign: "middle",
+        display: 'inline-flex',
+        justifyContent: 'center',
+        marginLeft: noneMarginLeft ? '0' : '0.25rem',
+        alignItems: 'center',
+        lineHeight: '100%',
+        verticalAlign: 'middle',
         ...style,
       }}
     >
-      <Tooltip
-        text={text}
-        show={show}
-        placement={placement}
-        size={size}
-        width={width}
-      >
-        <div
-          onClick={open}
-          onMouseEnter={open}
-          onMouseLeave={close}
-          className="flex items-center justify-center border-none bg-none outline-none cursor-default rounded-full text-subText"
-        >
+      <MouseoverTooltip text={text} placement={placement} size={size} width={width} delay={delay}>
+        <div className="flex items-center justify-center border-none bg-none outline-none cursor-default rounded-full text-subText">
           <Info style={{ color, width: size, height: size }} />
         </div>
-      </Tooltip>
+      </MouseoverTooltip>
     </span>
   );
 }

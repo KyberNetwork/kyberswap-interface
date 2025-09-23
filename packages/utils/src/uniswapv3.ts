@@ -1,15 +1,13 @@
-import { decodeAddress, decodeInt24, decodeUint } from "./crypto";
-import { divideBigIntToString } from "./number";
+import { decodeAddress, decodeInt24, decodeUint } from './crypto';
+import { divideBigIntToString } from './number';
 
-const MaxUint256 = BigInt(
-  "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
-);
+const MaxUint256 = BigInt('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff');
 
 // TODO: check if other dex type have the same
 // The minimum tick that can be used on any pool.
-export const MIN_TICK: number = -887272;
+export const MIN_TICK = -887272;
 // The maximum tick that can be used on any pool.
-export const MAX_TICK: number = -MIN_TICK;
+export const MAX_TICK = -MIN_TICK;
 const MIN_SQRT_RATIO = 4295128739n;
 const MAX_SQRT_RATIO = 1461446703485210103287273052203988822378723970342n;
 
@@ -24,54 +22,31 @@ function mulShift(val: bigint, mulBy: string): bigint {
 // Function to convert tick to sqrt(price) Q96
 export function getSqrtRatioAtTick(tick: number): bigint {
   if (tick < MIN_TICK || tick > MAX_TICK || !Number.isInteger(tick)) {
-    throw new Error(
-      `TICK ${tick}: must be within bounds MIN_TICK and MAX_TICK`
-    );
+    throw new Error(`TICK ${tick}: must be within bounds MIN_TICK and MAX_TICK`);
   }
   const absTick: number = tick < 0 ? tick * -1 : tick;
 
   let ratio: bigint =
-    (absTick & 0x1) != 0
-      ? BigInt("0xfffcb933bd6fad37aa2d162d1a594001")
-      : BigInt("0x100000000000000000000000000000000");
-  if ((absTick & 0x2) != 0)
-    ratio = mulShift(ratio, "0xfff97272373d413259a46990580e213a");
-  if ((absTick & 0x4) != 0)
-    ratio = mulShift(ratio, "0xfff2e50f5f656932ef12357cf3c7fdcc");
-  if ((absTick & 0x8) != 0)
-    ratio = mulShift(ratio, "0xffe5caca7e10e4e61c3624eaa0941cd0");
-  if ((absTick & 0x10) != 0)
-    ratio = mulShift(ratio, "0xffcb9843d60f6159c9db58835c926644");
-  if ((absTick & 0x20) != 0)
-    ratio = mulShift(ratio, "0xff973b41fa98c081472e6896dfb254c0");
-  if ((absTick & 0x40) != 0)
-    ratio = mulShift(ratio, "0xff2ea16466c96a3843ec78b326b52861");
-  if ((absTick & 0x80) != 0)
-    ratio = mulShift(ratio, "0xfe5dee046a99a2a811c461f1969c3053");
-  if ((absTick & 0x100) != 0)
-    ratio = mulShift(ratio, "0xfcbe86c7900a88aedcffc83b479aa3a4");
-  if ((absTick & 0x200) != 0)
-    ratio = mulShift(ratio, "0xf987a7253ac413176f2b074cf7815e54");
-  if ((absTick & 0x400) != 0)
-    ratio = mulShift(ratio, "0xf3392b0822b70005940c7a398e4b70f3");
-  if ((absTick & 0x800) != 0)
-    ratio = mulShift(ratio, "0xe7159475a2c29b7443b29c7fa6e889d9");
-  if ((absTick & 0x1000) != 0)
-    ratio = mulShift(ratio, "0xd097f3bdfd2022b8845ad8f792aa5825");
-  if ((absTick & 0x2000) != 0)
-    ratio = mulShift(ratio, "0xa9f746462d870fdf8a65dc1f90e061e5");
-  if ((absTick & 0x4000) != 0)
-    ratio = mulShift(ratio, "0x70d869a156d2a1b890bb3df62baf32f7");
-  if ((absTick & 0x8000) != 0)
-    ratio = mulShift(ratio, "0x31be135f97d08fd981231505542fcfa6");
-  if ((absTick & 0x10000) != 0)
-    ratio = mulShift(ratio, "0x9aa508b5b7a84e1c677de54f3e99bc9");
-  if ((absTick & 0x20000) != 0)
-    ratio = mulShift(ratio, "0x5d6af8dedb81196699c329225ee604");
-  if ((absTick & 0x40000) != 0)
-    ratio = mulShift(ratio, "0x2216e584f5fa1ea926041bedfe98");
-  if ((absTick & 0x80000) != 0)
-    ratio = mulShift(ratio, "0x48a170391f7dc42444e8fa2");
+    (absTick & 0x1) != 0 ? BigInt('0xfffcb933bd6fad37aa2d162d1a594001') : BigInt('0x100000000000000000000000000000000');
+  if ((absTick & 0x2) != 0) ratio = mulShift(ratio, '0xfff97272373d413259a46990580e213a');
+  if ((absTick & 0x4) != 0) ratio = mulShift(ratio, '0xfff2e50f5f656932ef12357cf3c7fdcc');
+  if ((absTick & 0x8) != 0) ratio = mulShift(ratio, '0xffe5caca7e10e4e61c3624eaa0941cd0');
+  if ((absTick & 0x10) != 0) ratio = mulShift(ratio, '0xffcb9843d60f6159c9db58835c926644');
+  if ((absTick & 0x20) != 0) ratio = mulShift(ratio, '0xff973b41fa98c081472e6896dfb254c0');
+  if ((absTick & 0x40) != 0) ratio = mulShift(ratio, '0xff2ea16466c96a3843ec78b326b52861');
+  if ((absTick & 0x80) != 0) ratio = mulShift(ratio, '0xfe5dee046a99a2a811c461f1969c3053');
+  if ((absTick & 0x100) != 0) ratio = mulShift(ratio, '0xfcbe86c7900a88aedcffc83b479aa3a4');
+  if ((absTick & 0x200) != 0) ratio = mulShift(ratio, '0xf987a7253ac413176f2b074cf7815e54');
+  if ((absTick & 0x400) != 0) ratio = mulShift(ratio, '0xf3392b0822b70005940c7a398e4b70f3');
+  if ((absTick & 0x800) != 0) ratio = mulShift(ratio, '0xe7159475a2c29b7443b29c7fa6e889d9');
+  if ((absTick & 0x1000) != 0) ratio = mulShift(ratio, '0xd097f3bdfd2022b8845ad8f792aa5825');
+  if ((absTick & 0x2000) != 0) ratio = mulShift(ratio, '0xa9f746462d870fdf8a65dc1f90e061e5');
+  if ((absTick & 0x4000) != 0) ratio = mulShift(ratio, '0x70d869a156d2a1b890bb3df62baf32f7');
+  if ((absTick & 0x8000) != 0) ratio = mulShift(ratio, '0x31be135f97d08fd981231505542fcfa6');
+  if ((absTick & 0x10000) != 0) ratio = mulShift(ratio, '0x9aa508b5b7a84e1c677de54f3e99bc9');
+  if ((absTick & 0x20000) != 0) ratio = mulShift(ratio, '0x5d6af8dedb81196699c329225ee604');
+  if ((absTick & 0x40000) != 0) ratio = mulShift(ratio, '0x2216e584f5fa1ea926041bedfe98');
+  if ((absTick & 0x80000) != 0) ratio = mulShift(ratio, '0x48a170391f7dc42444e8fa2');
 
   if (tick > 0) ratio = MaxUint256 / ratio;
 
@@ -80,13 +55,11 @@ export function getSqrtRatioAtTick(tick: number): bigint {
 }
 
 const TWO = 2n;
-const POWERS_OF_2 = [128, 64, 32, 16, 8, 4, 2, 1].map(
-  (pow: number): [number, bigint] => [pow, TWO ** BigInt(pow)]
-);
+const POWERS_OF_2 = [128, 64, 32, 16, 8, 4, 2, 1].map((pow: number): [number, bigint] => [pow, TWO ** BigInt(pow)]);
 
 export function mostSignificantBit(x: bigint): number {
-  if (x <= 0) throw new Error("x must be greater than 0");
-  if (x > MaxUint256) throw new Error("x must be less than MaxUint256");
+  if (x <= 0) throw new Error('x must be greater than 0');
+  if (x > MaxUint256) throw new Error('x must be less than MaxUint256');
 
   let msb = 0;
   for (const [power, min] of POWERS_OF_2) {
@@ -101,7 +74,7 @@ export function mostSignificantBit(x: bigint): number {
 
 function getTickAtSqrtRatio(sqrtRatioX96: bigint): number {
   if (sqrtRatioX96 < MIN_SQRT_RATIO || sqrtRatioX96 > MAX_SQRT_RATIO) {
-    throw new Error("SQRT_RATIO");
+    throw new Error('SQRT_RATIO');
   }
 
   const sqrtRatioX128 = sqrtRatioX96 << 32n;
@@ -128,18 +101,10 @@ function getTickAtSqrtRatio(sqrtRatioX96: bigint): number {
 
   const log_sqrt10001 = log_2 * 255738958999603826347141n;
 
-  const tickLow = Number(
-    (log_sqrt10001 - 3402992956809132418596140100660247210n) >> 128n
-  );
-  const tickHigh = Number(
-    (log_sqrt10001 + 291339464771989622907027621153398088495n) >> 128n
-  );
+  const tickLow = Number((log_sqrt10001 - 3402992956809132418596140100660247210n) >> 128n);
+  const tickHigh = Number((log_sqrt10001 + 291339464771989622907027621153398088495n) >> 128n);
 
-  return tickLow === tickHigh
-    ? tickLow
-    : getSqrtRatioAtTick(tickHigh) <= sqrtRatioX96
-    ? tickHigh
-    : tickLow;
+  return tickLow === tickHigh ? tickLow : getSqrtRatioAtTick(tickHigh) <= sqrtRatioX96 ? tickHigh : tickLow;
 }
 
 function mulDivRoundingUp(a: bigint, b: bigint, denominator: bigint): bigint {
@@ -150,12 +115,7 @@ function mulDivRoundingUp(a: bigint, b: bigint, denominator: bigint): bigint {
   return result;
 }
 
-function getAmount0Delta(
-  sqrtRatioAX96: bigint,
-  sqrtRatioBX96: bigint,
-  liquidity: bigint,
-  roundUp: boolean
-): bigint {
+function getAmount0Delta(sqrtRatioAX96: bigint, sqrtRatioBX96: bigint, liquidity: bigint, roundUp: boolean): bigint {
   if (sqrtRatioAX96 > sqrtRatioBX96) {
     [sqrtRatioAX96, sqrtRatioBX96] = [sqrtRatioBX96, sqrtRatioAX96];
   }
@@ -164,11 +124,7 @@ function getAmount0Delta(
   const numerator2 = sqrtRatioBX96 - sqrtRatioAX96;
 
   return roundUp
-    ? mulDivRoundingUp(
-        mulDivRoundingUp(numerator1, numerator2, sqrtRatioBX96),
-        1n,
-        sqrtRatioAX96
-      )
+    ? mulDivRoundingUp(mulDivRoundingUp(numerator1, numerator2, sqrtRatioBX96), 1n, sqrtRatioAX96)
     : (numerator1 * numerator2) / sqrtRatioBX96 / sqrtRatioAX96;
 }
 
@@ -177,33 +133,18 @@ function getToken0Amount(
   tickLower: number,
   tickUpper: number,
   sqrtRatioX96: bigint,
-  liquidity: bigint
+  liquidity: bigint,
 ): bigint {
   if (tickCurrent < tickLower) {
-    return getAmount0Delta(
-      getSqrtRatioAtTick(tickLower),
-      getSqrtRatioAtTick(tickUpper),
-      liquidity,
-      false
-    );
+    return getAmount0Delta(getSqrtRatioAtTick(tickLower), getSqrtRatioAtTick(tickUpper), liquidity, false);
   }
   if (tickCurrent < tickUpper) {
-    return getAmount0Delta(
-      sqrtRatioX96,
-      getSqrtRatioAtTick(tickUpper),
-      liquidity,
-      false
-    );
+    return getAmount0Delta(sqrtRatioX96, getSqrtRatioAtTick(tickUpper), liquidity, false);
   }
   return 0n;
 }
 
-function getAmount1Delta(
-  sqrtRatioAX96: bigint,
-  sqrtRatioBX96: bigint,
-  liquidity: bigint,
-  roundUp: boolean
-): bigint {
+function getAmount1Delta(sqrtRatioAX96: bigint, sqrtRatioBX96: bigint, liquidity: bigint, roundUp: boolean): bigint {
   if (sqrtRatioAX96 > sqrtRatioBX96) {
     [sqrtRatioAX96, sqrtRatioBX96] = [sqrtRatioBX96, sqrtRatioAX96];
   }
@@ -218,25 +159,15 @@ function getToken1Amount(
   tickLower: number,
   tickUpper: number,
   sqrtRatioX96: bigint,
-  liquidity: bigint
+  liquidity: bigint,
 ): bigint {
   if (tickCurrent < tickLower) {
     return 0n;
   }
   if (tickCurrent < tickUpper) {
-    return getAmount1Delta(
-      getSqrtRatioAtTick(tickLower),
-      sqrtRatioX96,
-      liquidity,
-      false
-    );
+    return getAmount1Delta(getSqrtRatioAtTick(tickLower), sqrtRatioX96, liquidity, false);
   }
-  return getAmount1Delta(
-    getSqrtRatioAtTick(tickLower),
-    getSqrtRatioAtTick(tickUpper),
-    liquidity,
-    false
-  );
+  return getAmount1Delta(getSqrtRatioAtTick(tickLower), getSqrtRatioAtTick(tickUpper), liquidity, false);
 }
 
 export function getPositionAmounts(
@@ -244,23 +175,11 @@ export function getPositionAmounts(
   tickLower: number,
   tickUpper: number,
   sqrtRatioX96: bigint,
-  liquidity: bigint
+  liquidity: bigint,
 ) {
   return {
-    amount0: getToken0Amount(
-      tickCurrent,
-      tickLower,
-      tickUpper,
-      sqrtRatioX96,
-      liquidity
-    ),
-    amount1: getToken1Amount(
-      tickCurrent,
-      tickLower,
-      tickUpper,
-      sqrtRatioX96,
-      liquidity
-    ),
+    amount0: getToken0Amount(tickCurrent, tickLower, tickUpper, sqrtRatioX96, liquidity),
+    amount1: getToken1Amount(tickCurrent, tickLower, tickUpper, sqrtRatioX96, liquidity),
   };
 }
 
@@ -284,7 +203,7 @@ struct Position {
 */
 export function decodePosition(rawData: string) {
   // Remove the "0x" prefix
-  let hexData = rawData.slice(2);
+  const hexData = rawData.slice(2);
 
   // Decode fields according to the ABI layout
   const nonce = decodeUint(hexData.slice(0, 64)); // uint96: first 12 bytes and padding (64 hex chars)
@@ -336,7 +255,7 @@ struct Position {
 
 export function decodeAlgebraV1Position(rawData: string) {
   // Remove the "0x" prefix
-  let hexData = rawData.slice(2);
+  const hexData = rawData.slice(2);
 
   // Decode fields according to the ABI layout
   const nonce = decodeUint(hexData.slice(0, 64)); // uint96: first 12 bytes and padding (64 hex chars)
@@ -384,28 +303,26 @@ export const decodeUniswapV4PositionInfo = (rawData: string) => {
   };
 };
 
-export function tickToPrice(
-  tick: number,
-  baseDecimal: number,
-  quoteDecimal: number,
-  revert = false
-): string {
-  const sqrtRatioX96 = getSqrtRatioAtTick(tick);
+export function sqrtToPrice(sqrtRatioX96: bigint, baseDecimal: number, quoteDecimal: number, revert = false): string {
   const ratioX192 = sqrtRatioX96 * sqrtRatioX96; // 1.0001 ** tick * Q192
 
   const numerator = ratioX192 * 10n ** BigInt(baseDecimal);
   const denominator = Q192 * 10n ** BigInt(quoteDecimal);
 
-  return revert
-    ? divideBigIntToString(denominator, numerator, 18)
-    : divideBigIntToString(numerator, denominator, 18);
+  return revert ? divideBigIntToString(denominator, numerator, 18) : divideBigIntToString(numerator, denominator, 18);
+}
+
+export function tickToPrice(tick: number, baseDecimal: number, quoteDecimal: number, revert = false): string {
+  const sqrtRatioX96 = getSqrtRatioAtTick(tick);
+
+  return sqrtToPrice(sqrtRatioX96, baseDecimal, quoteDecimal, revert);
 }
 
 function sqrt(y: bigint): bigint {
   if (y < 0n) {
-    throw new Error("sqrt: negative value");
+    throw new Error('sqrt: negative value');
   }
-  let z: bigint = 0n;
+  let z = 0n;
   let x: bigint;
   if (y > 3n) {
     z = y;
@@ -431,19 +348,16 @@ export function priceToClosestTick(
   value: string,
   token0Decimal: number,
   token1Decimal: number,
-  revert = false
+  revert = false,
 ): number | undefined {
-  if (!value.match(/^\d*\.?\d+$/)) return;
-  const [whole, fraction] = value.split(".");
+  if (!value.match(/^\d*\.?\d+$/) || !token0Decimal || !token1Decimal) return;
+  const [whole, fraction] = value.split('.');
 
   const decimals = fraction?.length ?? 0;
-  const withoutDecimals = BigInt((whole ?? "") + (fraction ?? ""));
+  const withoutDecimals = BigInt((whole ?? '') + (fraction ?? ''));
 
-  const denominator =
-    BigInt(10 ** decimals) *
-    10n ** BigInt(revert ? token1Decimal : token0Decimal);
-  const numerator =
-    withoutDecimals * 10n ** BigInt(revert ? token0Decimal : token1Decimal);
+  const denominator = BigInt(10 ** decimals) * 10n ** BigInt(revert ? token1Decimal : token0Decimal);
+  const numerator = withoutDecimals * 10n ** BigInt(revert ? token0Decimal : token1Decimal);
 
   //const sqrtRatioX96 = encodeSqrtRatioX96(numerator, denominator);
   const sqrtRatioX96 = !revert
@@ -463,12 +377,7 @@ export function priceToClosestTick(
 
   const tickPrice = tickToPrice(tick, token0Decimal, token1Decimal, revert);
 
-  const nextTickPrice = tickToPrice(
-    tick + 1,
-    token0Decimal,
-    token1Decimal,
-    revert
-  );
+  const nextTickPrice = tickToPrice(tick + 1, token0Decimal, token1Decimal, revert);
 
   const diffCurrent = Math.abs(+value - +tickPrice);
   const diffNext = Math.abs(+value - +nextTickPrice);
@@ -481,10 +390,9 @@ export function priceToClosestTick(
 }
 
 export function nearestUsableTick(tick: number, tickSpacing: number) {
-  if (!Number.isInteger(tick) || !Number.isInteger(tickSpacing))
-    throw new Error("INTEGERS");
-  if (tickSpacing <= 0) throw new Error("TICK_SPACING");
-  if (tick < MIN_TICK || tick > MAX_TICK) throw new Error("TICK_BOUND");
+  if (!Number.isInteger(tick) || !Number.isInteger(tickSpacing)) throw new Error('INTEGERS');
+  if (tickSpacing <= 0) throw new Error('TICK_SPACING');
+  if (tick < MIN_TICK || tick > MAX_TICK) throw new Error('TICK_BOUND');
   const rounded = Math.round(tick / tickSpacing) * tickSpacing;
   if (rounded < MIN_TICK) return rounded + tickSpacing;
   if (rounded > MAX_TICK) return rounded - tickSpacing;

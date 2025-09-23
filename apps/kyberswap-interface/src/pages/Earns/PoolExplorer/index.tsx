@@ -1,51 +1,35 @@
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useState } from 'react'
-import { Info, Star } from 'react-feather'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { usePoolsExplorerQuery } from 'services/zapEarn'
 
-import { ReactComponent as IconHighAprPool } from 'assets/svg/earn/ic_pool_high_apr.svg'
-import { ReactComponent as IconHighlightedPool } from 'assets/svg/earn/ic_pool_highlighted.svg'
-import { ReactComponent as IconLowVolatility } from 'assets/svg/earn/ic_pool_low_volatility.svg'
-import { ReactComponent as IconSolidEarningPool } from 'assets/svg/earn/ic_pool_solid_earning.svg'
 import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_earn_position.svg'
 import { NotificationType } from 'components/Announcement/type'
 import Pagination from 'components/Pagination'
-import Search from 'components/Search'
-import { MouseoverTooltip, MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { BFF_API } from 'constants/env'
 import { APP_PATHS } from 'constants/index'
 import useDebounce from 'hooks/useDebounce'
 import useTheme from 'hooks/useTheme'
-import DropdownMenu, { MenuOption } from 'pages/Earns/PoolExplorer/DropdownMenu'
-import TableContent, { dexMapping } from 'pages/Earns/PoolExplorer/TableContent'
+import Filter from 'pages/Earns/PoolExplorer/Filter'
+import TableContent, { dexKeyMapping } from 'pages/Earns/PoolExplorer/TableContent'
+import TableHeader from 'pages/Earns/PoolExplorer/TableHeader'
 import {
   ContentWrapper,
   Disclaimer,
-  HeadSection,
   NavigateButton,
   PoolPageWrapper,
-  TableHeader,
   TableWrapper,
-  Tag,
-  TagContainer,
 } from 'pages/Earns/PoolExplorer/styles'
 import useFilter from 'pages/Earns/PoolExplorer/useFilter'
 import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
-import useLiquidityWidget from 'pages/Earns/useLiquidityWidget'
-import useSupportedDexesAndChains from 'pages/Earns/useSupportedDexesAndChains'
-import SortIcon, { Direction } from 'pages/MarketOverview/SortIcon'
+import { EarnDex, Exchange, protocolGroupNameToExchangeMapping } from 'pages/Earns/constants'
+import useZapInWidget, { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
+import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
+import { Direction } from 'pages/MarketOverview/SortIcon'
 import { useNotify } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
-
-export enum FilterTag {
-  HIGHLIGHTED_POOL = 'highlighted_pool',
-  HIGH_APR = 'high_apr',
-  SOLID_EARNING = 'solid_earning',
-  LOW_VOLATILITY = 'low_volatility',
-}
 
 export enum SortBy {
   APR = 'apr',
@@ -54,64 +38,27 @@ export enum SortBy {
   VOLUME = 'volume',
 }
 
-const filterTags = [
-  {
-    label: 'Highlighted Pools',
-    value: FilterTag.HIGHLIGHTED_POOL,
-    icon: <IconHighlightedPool width={20} color="#FF007A" />,
-    tooltip: 'Pools matching your wallet tokens or top 24h volume pools if no wallet is connected',
-  },
-  {
-    label: 'High APR',
-    value: FilterTag.HIGH_APR,
-    icon: <IconHighAprPool width={20} color="#31CB9E" />,
-    tooltip: 'Top 100 Pools with assets that offer exceptionally high APRs',
-  },
-  {
-    label: 'Solid Earning',
-    value: FilterTag.SOLID_EARNING,
-    icon: <IconSolidEarningPool width={20} color="#FBB324" />,
-    tooltip: 'Top 100 pools that have the high total earned fee in the last 7 days',
-  },
-  {
-    label: 'Low Volatility',
-    value: FilterTag.LOW_VOLATILITY,
-    icon: <IconLowVolatility width={20} color="#2C9CE4" />,
-    tooltip: 'Top 100 highest TVL Pools consisting of stable coins or correlated pairs',
-  },
-]
-
-export const timings: MenuOption[] = [
-  { label: '24h', value: '24h' },
-  { label: '7d', value: '7d' },
-  { label: '30d', value: '30d' },
-]
+const POLLING_INTERVAL = 5 * 60_000
+const DEBOUNCE_DELAY = 300
 
 const PoolExplorer = () => {
   const [search, setSearch] = useState('')
-  const deboundedSearch = useDebounce(search, 300)
+  const deboundedSearch = useDebounce(search, DEBOUNCE_DELAY)
   const [searchParams, setSearchParams] = useSearchParams()
   const navigate = useNavigate()
   const theme = useTheme()
   const notify = useNotify()
   const { filters, updateFilters } = useFilter(setSearch)
-  const { liquidityWidget, handleOpenZapInWidget } = useLiquidityWidget()
-  const { data: poolData, isError } = usePoolsExplorerQuery(filters, { pollingInterval: 5 * 60_000 })
-  const { supportedDexes, supportedChains } = useSupportedDexesAndChains(filters)
+  const { widget: zapMigrationWidget, handleOpenZapMigration, triggerClose, setTriggerClose } = useZapMigrationWidget()
+  const { widget: zapInWidget, handleOpenZapIn } = useZapInWidget({
+    onOpenZapMigration: handleOpenZapMigration,
+    triggerClose,
+    setTriggerClose,
+  })
+  const { data: poolData, isError } = usePoolsExplorerQuery(filters, { pollingInterval: POLLING_INTERVAL })
 
-  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
-  const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
 
-  const onChainChange = (newChainId: string | number) => {
-    updateFilters('chainId', newChainId.toString())
-  }
-  const onProtocolChange = (newProtocol: string | number) => {
-    updateFilters('protocol', newProtocol.toString())
-  }
-  const onIntervalChange = (newInterval: string | number) => {
-    updateFilters('interval', newInterval.toString())
-  }
   const onSortChange = (sortBy: string) => {
     if (!filters.sortBy || filters.sortBy !== sortBy) {
       updateFilters('sortBy', sortBy)
@@ -144,14 +91,17 @@ const PoolExplorer = () => {
     }
   }
 
-  const handleOpenZapInWidgetWithParams = (pool: { exchange: string; chainId?: number; address: string }) => {
-    const { exchange, chainId, address } = pool
-    searchParams.set('exchange', exchange)
-    searchParams.set('poolChainId', chainId ? chainId.toString() : filters.chainId.toString())
-    searchParams.set('poolAddress', address)
-    setSearchParams(searchParams)
-    handleOpenZapInWidget(pool)
-  }
+  const handleOpenZapInWithParams = useCallback(
+    ({ pool, initialTick }: ZapInInfo) => {
+      const { dex, chainId, address } = pool
+      searchParams.set('exchange', dex)
+      searchParams.set('poolChainId', chainId.toString())
+      searchParams.set('poolAddress', address)
+      setSearchParams(searchParams)
+      handleOpenZapIn({ pool, initialTick })
+    },
+    [handleOpenZapIn, searchParams, setSearchParams],
+  )
 
   const handleRemoveUrlParams = useCallback(() => {
     searchParams.delete('exchange')
@@ -169,26 +119,43 @@ const PoolExplorer = () => {
 
   useEffect(() => {
     if (filters.q !== deboundedSearch) {
+      const shouldUpdateSort = !filters.q && deboundedSearch.length > 0
+      const shouldResetSort = filters.q && !deboundedSearch
       updateFilters('q', deboundedSearch || '')
+      if (shouldUpdateSort) {
+        updateFilters('sortBy', SortBy.VOLUME)
+        updateFilters('orderBy', Direction.DESC)
+      }
+      if (shouldResetSort) {
+        updateFilters('sortBy', '')
+        updateFilters('orderBy', '')
+      }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deboundedSearch, filters.q, updateFilters])
 
   useEffect(() => {
-    const exchange = searchParams.get('exchange')
+    const dex = searchParams.get('exchange')
     const chainId = searchParams.get('poolChainId')
     const address = searchParams.get('poolAddress')
-    if (!exchange || !chainId || !address) {
+    if (!dex || !chainId || !address) {
       handleRemoveUrlParams()
       return
     }
     ;(async () => {
       const pool = await handleFetchPoolData({ chainId: Number(chainId), address })
-      if (pool && (pool.exchange === exchange || pool.exchange === dexMapping[exchange]))
-        handleOpenZapInWidget({ exchange, chainId: Number(chainId), address: pool.address })
+
+      if (
+        pool &&
+        (pool.exchange === dex ||
+          pool.exchange === dexKeyMapping[dex] ||
+          pool.exchange === protocolGroupNameToExchangeMapping[dex as EarnDex])
+      )
+        handleOpenZapIn({ pool: { dex: dex as Exchange, chainId: Number(chainId), address: pool.address } })
       else {
         notify(
           {
-            title: `Open pool detail failed`,
+            title: t`Open pool detail failed`,
             summary: `Invalid pool info`,
             type: NotificationType.ERROR,
           },
@@ -202,143 +169,36 @@ const PoolExplorer = () => {
 
   return (
     <PoolPageWrapper>
-      {liquidityWidget}
+      {zapInWidget}
+      {zapMigrationWidget}
 
       <div>
-        <Flex sx={{ gap: 3 }}>
+        <Flex alignItems="center" sx={{ gap: 3 }}>
           <IconArrowLeft onClick={() => navigate(-1)} />
           <Text as="h1" fontSize={24} fontWeight="500">
             {t`Earning with Smart Liquidity Providing`}
           </Text>
         </Flex>
         <Text color={theme.subText} marginTop="8px" fontStyle={'italic'}>
-          {t`KyberSwap Zap: Instantly add liquidity to high-APY pools using any token(s) or your existing liquidity position with KyberZap`}
+          {t`Kyberswap Zap: Instantly and easily add liquidity to high-APY pools using any token or a combination of tokens.`}
         </Text>
       </div>
-      <HeadSection>
-        <TagContainer>
-          <Tag active={!filters.tag} role="button" onClick={() => updateFilters('tag', '')}>
-            {t`All pools`}
-          </Tag>
-          <MouseoverTooltip text="List of pools added as favorite" placement="top" width="fit-content">
-            <Tag active={filters.tag === 'favorite'} role="button" onClick={() => updateFilters('tag', 'favorite')}>
-              <Star size={16} />
-            </Tag>
-          </MouseoverTooltip>
-          {filterTags.map((item, index) =>
-            !upToMedium ? (
-              <MouseoverTooltip text={item.tooltip} placement="top" key={index}>
-                <Tag
-                  active={filters.tag === item.value}
-                  key={item.value}
-                  role="button"
-                  onClick={() => updateFilters('tag', item.value)}
-                >
-                  {!upToExtraSmall && item.icon}
-                  {item.label}
-                </Tag>
-              </MouseoverTooltip>
-            ) : (
-              <Tag
-                active={filters.tag === item.value}
-                key={item.value}
-                role="button"
-                onClick={() => updateFilters('tag', item.value)}
-              >
-                {!upToExtraSmall && item.icon}
-                {item.label}
-              </Tag>
-            ),
-          )}
-        </TagContainer>
-        {!upToLarge && (
-          <NavigateButton icon={<IconUserEarnPosition />} text={t`My Positions`} to={APP_PATHS.EARN_POSITIONS} />
-        )}
-      </HeadSection>
-      <Flex justifyContent="space-between" flexDirection={upToMedium ? 'column' : 'row'} sx={{ gap: '1rem' }}>
-        <Flex sx={{ gap: '1rem' }} flexWrap="wrap">
-          <DropdownMenu
-            options={supportedChains}
-            value={filters.chainId.toString()}
-            alignLeft
-            onChange={onChainChange}
-          />
-          <DropdownMenu
-            width={100}
-            options={supportedDexes}
-            value={filters.protocol}
-            alignLeft
-            onChange={onProtocolChange}
-          />
-          <DropdownMenu width={30} options={timings} value={filters.interval} onChange={onIntervalChange} />
-        </Flex>
-        <Search
-          placeholder="Search by token symbol or address"
-          searchValue={search}
-          allowClear
-          onSearch={val => setSearch(val)}
-          style={{ height: '36px' }}
-        />
-      </Flex>
+
+      <Filter filters={filters} updateFilters={updateFilters} search={search} setSearch={setSearch} />
 
       {upToLarge && (
-        <NavigateButton icon={<IconUserEarnPosition />} text={t`My Positions`} to={APP_PATHS.EARN_POSITIONS} />
+        <NavigateButton
+          mobileFullWidth
+          icon={<IconUserEarnPosition />}
+          text={t`My Positions`}
+          to={APP_PATHS.EARN_POSITIONS}
+        />
       )}
 
       <TableWrapper>
         <ContentWrapper>
-          {!upToMedium && (
-            <TableHeader>
-              <Text>Protocol</Text>
-              <Text>Pair</Text>
-              <Flex
-                justifyContent="flex-end"
-                sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
-                role="button"
-                onClick={() => onSortChange(SortBy.APR)}
-              >
-                APR
-                <SortIcon sorted={filters.sortBy === SortBy.APR ? (filters.orderBy as Direction) : undefined} />
-              </Flex>
-              <Flex
-                justifyContent="flex-end"
-                sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
-                role="button"
-                onClick={() => onSortChange(SortBy.EARN_FEE)}
-              >
-                Earn Fees
-                <SortIcon sorted={filters.sortBy === SortBy.EARN_FEE ? (filters.orderBy as Direction) : undefined} />
-              </Flex>
-              <Flex
-                justifyContent="flex-end"
-                sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
-                role="button"
-                onClick={() => onSortChange(SortBy.TVL)}
-              >
-                TVL
-                <MouseoverTooltipDesktopOnly
-                  text={t`Only pools with a Total Value Locked of $10,000 or more are displayed on this page`}
-                  placement="top"
-                >
-                  <Text marginRight={1} marginLeft={1} sx={{ position: 'relative', top: '2.5px' }}>
-                    <Info color={theme.subText} size={16} />
-                  </Text>
-                </MouseoverTooltipDesktopOnly>
-                <SortIcon sorted={filters.sortBy === SortBy.TVL ? (filters.orderBy as Direction) : undefined} />
-              </Flex>
-              <Flex
-                justifyContent="flex-end"
-                sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
-                role="button"
-                onClick={() => onSortChange(SortBy.VOLUME)}
-              >
-                Volume
-                <SortIcon sorted={filters.sortBy === SortBy.VOLUME ? (filters.orderBy as Direction) : undefined} />
-              </Flex>
-              <div />
-            </TableHeader>
-          )}
-          <TableContent onOpenZapInWidget={handleOpenZapInWidgetWithParams} />
+          <TableHeader onSortChange={onSortChange} filters={filters} />
+          <TableContent onOpenZapInWidget={handleOpenZapInWithParams} filters={filters} />
         </ContentWrapper>
         {!isError && (
           <Pagination

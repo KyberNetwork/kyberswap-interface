@@ -1,10 +1,15 @@
+import { ChainId, CurrencyAmount, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { createApi } from '@reduxjs/toolkit/query/react'
 import { baseQueryOauthDynamic } from 'services/baseQueryOauth'
 import { BuildRoutePayload, BuildRouteResponse } from 'services/route/types/buildRoute'
 
-import { BFF_API } from 'constants/env'
+import { TOKEN_API_URL } from 'constants/env'
+import { ETHER_ADDRESS } from 'constants/index'
 
 import { GetRouteParams, GetRouteResponse } from './types/getRoute'
+
+const getWrappedToken = (token: string, chainId: ChainId) =>
+  token.toLowerCase() === ETHER_ADDRESS.toLowerCase() ? WETH[chainId].address : token
 
 const routeApi = createApi({
   reducerPath: 'routeApi',
@@ -40,37 +45,49 @@ const routeApi = createApi({
         if (baseResponse?.data?.routeSummary && routeSummary && chainId && tokenInDecimals && tokenOutDecimals) {
           const { amountIn, amountOut } = routeSummary
 
-          // Build the URL for the price impact API request
-          const priceImpactUrl = new URL(`${BFF_API}/v1/price-impact`)
-          priceImpactUrl.searchParams.append('tokenIn', tokenIn)
-          priceImpactUrl.searchParams.append('tokenInDecimal', tokenInDecimals.toString())
-          priceImpactUrl.searchParams.append('tokenOut', tokenOut)
-          priceImpactUrl.searchParams.append('tokenOutDecimal', tokenOutDecimals.toString())
-          priceImpactUrl.searchParams.append('amountIn', amountIn)
-          priceImpactUrl.searchParams.append('amountOut', amountOut)
-          priceImpactUrl.searchParams.append('chainId', chainId.toString())
-
           try {
-            // Fetch price impact data
-            const priceImpactResponse = await fetch(priceImpactUrl.toString()).then(res => res.json())
-            const { amountInUSD, amountOutUSD } = priceImpactResponse?.data || {}
+            const wrappedTokenIn = getWrappedToken(tokenIn, chainId)
+            const wrappedTokenOut = getWrappedToken(tokenOut, chainId)
 
-            // Update routeSummary with USD values if available
-            if (amountInUSD && amountOutUSD) {
-              return {
-                ...baseResponse,
-                data: {
-                  ...baseResponse.data,
-                  routeSummary: {
-                    ...routeSummary,
-                    amountInUsd: amountInUSD,
-                    amountOutUsd: amountOutUSD,
-                  },
+            const priceResponse = await fetch(`${TOKEN_API_URL}/v1/public/tokens/prices`, {
+              method: 'POST',
+              body: JSON.stringify({
+                [chainId]: [wrappedTokenIn, wrappedTokenOut],
+              }),
+            }).then(res => res.json())
+
+            const tokenInPrices = priceResponse?.data?.[chainId]?.[wrappedTokenIn]
+            const tokenInMidPrice =
+              tokenInPrices?.PriceBuy && tokenInPrices?.PriceSell
+                ? (tokenInPrices.PriceBuy + tokenInPrices.PriceSell) / 2
+                : null
+            const tokenOutPrices = priceResponse?.data?.[chainId]?.[wrappedTokenOut]
+            const tokenOutMidPrice =
+              tokenOutPrices?.PriceBuy && tokenOutPrices?.PriceSell
+                ? (tokenOutPrices.PriceBuy + tokenOutPrices.PriceSell) / 2
+                : null
+
+            const currencyIn = new Token(chainId, tokenIn, tokenInDecimals)
+            const currencyOut = new Token(chainId, tokenOut, tokenOutDecimals)
+
+            const tokenInBalance = CurrencyAmount.fromRawAmount(currencyIn, amountIn).toExact()
+            const tokenOutBalance = CurrencyAmount.fromRawAmount(currencyOut, amountOut).toExact()
+
+            return {
+              ...baseResponse,
+              data: {
+                ...baseResponse.data,
+                routeSummary: {
+                  ...routeSummary,
+                  amountInUsd: tokenInMidPrice ? (+tokenInBalance * tokenInMidPrice).toString() : '',
+                  amountOutUsd: tokenOutMidPrice ? (+tokenOutBalance * tokenOutMidPrice).toString() : '',
+                  rawAmountInUsd: routeSummary.amountInUsd,
+                  rawAmountOutUsd: routeSummary.amountOutUsd,
                 },
-              }
+              },
             }
           } catch (error) {
-            console.error('Failed to fetch price impact:', error)
+            console.error('Failed to fetch on-chain price:', error)
           }
         }
 
@@ -104,34 +121,41 @@ const routeApi = createApi({
         if (data && routeSummary && chainId && tokenInDecimals && tokenOutDecimals) {
           const { amountIn, amountOut } = routeSummary
 
-          // Build the URL for the price impact API request
-          const priceImpactUrl = new URL(`${BFF_API}/v1/price-impact`)
-          priceImpactUrl.searchParams.append('tokenIn', tokenIn)
-          priceImpactUrl.searchParams.append('tokenInDecimal', tokenInDecimals.toString())
-          priceImpactUrl.searchParams.append('tokenOut', tokenOut)
-          priceImpactUrl.searchParams.append('tokenOutDecimal', tokenOutDecimals.toString())
-          priceImpactUrl.searchParams.append('amountIn', amountIn)
-          priceImpactUrl.searchParams.append('amountOut', amountOut)
-          priceImpactUrl.searchParams.append('chainId', chainId.toString())
-
           try {
-            // Fetch price impact data
-            const priceImpactResponse = await fetch(priceImpactUrl.toString()).then(res => res.json())
-            const { amountInUSD, amountOutUSD } = priceImpactResponse?.data || {}
+            const priceResponse = await fetch(`${TOKEN_API_URL}/v1/public/tokens/prices`, {
+              method: 'POST',
+              body: JSON.stringify({
+                [chainId]: [tokenIn, tokenOut],
+              }),
+            }).then(res => res.json())
 
-            // Update routeSummary with USD values if available
-            if (amountInUSD && amountOutUSD) {
-              return {
-                ...baseResponse,
-                data: {
-                  ...data,
-                  amountInUsd: amountInUSD,
-                  amountOutUsd: amountOutUSD,
-                },
-              }
+            const tokenInPrices = priceResponse?.data?.[chainId]?.[tokenIn]
+            const tokenInMidPrice =
+              tokenInPrices?.PriceBuy && tokenInPrices?.PriceSell
+                ? (tokenInPrices.PriceBuy + tokenInPrices.PriceSell) / 2
+                : null
+            const tokenOutPrices = priceResponse?.data?.[chainId]?.[tokenOut]
+            const tokenOutMidPrice =
+              tokenOutPrices?.PriceBuy && tokenOutPrices?.PriceSell
+                ? (tokenOutPrices.PriceBuy + tokenOutPrices.PriceSell) / 2
+                : null
+
+            const currencyIn = new Token(chainId, tokenIn, tokenInDecimals)
+            const currencyOut = new Token(chainId, tokenOut, tokenOutDecimals)
+
+            const tokenInBalance = CurrencyAmount.fromRawAmount(currencyIn, amountIn).toExact()
+            const tokenOutBalance = CurrencyAmount.fromRawAmount(currencyOut, amountOut).toExact()
+
+            return {
+              ...baseResponse,
+              data: {
+                ...data,
+                amountInUsd: tokenInMidPrice ? (+tokenInBalance * tokenInMidPrice).toString() : '',
+                amountOutUsd: tokenOutMidPrice ? (+tokenOutBalance * tokenOutMidPrice).toString() : '',
+              },
             }
           } catch (error) {
-            console.error('Failed to fetch price impact:', error)
+            console.error('Failed to fetch on-chain price:', error)
           }
         }
 

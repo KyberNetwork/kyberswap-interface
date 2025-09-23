@@ -1,4 +1,4 @@
-import { ChainId, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
+import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import dayjs from 'dayjs'
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
@@ -11,20 +11,18 @@ import { ButtonPrimary } from 'components/Button'
 import InfoHelper from 'components/InfoHelper'
 import Select from 'components/Select'
 import { APP_PATHS, ZERO_ADDRESS } from 'constants/index'
-import { KNC } from 'constants/tokens'
 import { useWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { MEDIA_WIDTHS, StyledInternalLink } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
-import loBanner from './assets/limit_order.png'
-import mayTradingBanner from './assets/may_trading.png'
-import referralBanner from './assets/referral.png'
-import tradingBanner from './assets/trading.png'
-import Information, { CampaignType } from './components/Information'
+import Information from './components/Information'
 import JoinReferral from './components/JoinReferral'
 import Leaderboard from './components/Leaderboard'
+import { NearIntentCampaignStats } from './components/NearIntentCampaignStats'
+import { CampaignType, campaignConfig } from './constants'
+import { useNearIntentSelectedWallet } from './hooks/useNearIntentSelectedWallet'
 import { StatCard, Tab, Tabs, Wrapper } from './styles'
 
 function getCurrentWeek(): number {
@@ -52,168 +50,6 @@ function getCurrentWeek(): number {
   return weekNumber
 }
 
-const stipWeeks = [
-  {
-    value: 37,
-    label: (
-      <Text>
-        <Text as="span" color="#ffffff">
-          Week 10
-        </Text>{' '}
-        Sep 09 - Sep 15
-      </Text>
-    ),
-    start: 1725840000,
-    end: 1726444800,
-  },
-  {
-    value: 36,
-    label: (
-      <Text>
-        <Text as="span" color="#ffffff">
-          Week 9
-        </Text>{' '}
-        Sep 02 - Sep 08
-      </Text>
-    ),
-    start: 1725235200,
-    end: 1725840000,
-  },
-  {
-    value: 35,
-    label: (
-      <Text>
-        <Text as="span" color="#ffffff">
-          Week 8
-        </Text>{' '}
-        Aug 26 - Sep 01
-      </Text>
-    ),
-    start: 1724630400,
-    end: 1725235200,
-  },
-  {
-    value: 34,
-    label: (
-      <Text>
-        <Text as="span" color="#ffffff">
-          Week 7
-        </Text>{' '}
-        Aug 19 - Aug 25
-      </Text>
-    ),
-    start: 1724025600,
-    end: 1724630400,
-  },
-  {
-    value: 33,
-    label: (
-      <Text>
-        <Text as="span" color="#ffffff">
-          Week 6
-        </Text>{' '}
-        Aug 12 - Aug 18
-      </Text>
-    ),
-    start: 1723420800,
-    end: 1724025600,
-  },
-  {
-    value: 32,
-    label: (
-      <Text>
-        <Text as="span" color="#ffffff">
-          Week 5
-        </Text>{' '}
-        Aug 05 - Aug 11
-      </Text>
-    ),
-    start: 1722816000,
-    end: 1723420800,
-  },
-  {
-    value: 31,
-    label: (
-      <Text>
-        <Text as="span" color="#ffffff">
-          Week 4
-        </Text>{' '}
-        July 29 - Aug 04
-      </Text>
-    ),
-    start: 1722211200,
-    end: 1722816000,
-  },
-  {
-    value: 30,
-    label: (
-      <Text>
-        <Text as="span" color="#ffffff">
-          Week 3
-        </Text>{' '}
-        July 22 - July 28
-      </Text>
-    ),
-    start: 1721606400,
-    end: 1722211200,
-  },
-  {
-    value: 29,
-    label: (
-      <Text>
-        <Text as="span" color="#ffffff">
-          Week 2
-        </Text>{' '}
-        July 15 - July 21
-      </Text>
-    ),
-    start: 1721001600,
-    end: 1721606400,
-  },
-  {
-    value: 28,
-    label: (
-      <Text>
-        <Text as="span" color="#ffffff">
-          Week 1
-        </Text>{' '}
-        July 08 - July 14
-      </Text>
-    ),
-    start: 1720396800,
-    end: 1721001600,
-  },
-].reverse()
-
-const mayTradingWeeks = [
-  // {
-  //   value: 22,
-  //   label: (
-  //     <Text>
-  //       <Text as="span" color="#ffffff">
-  //         Week 3
-  //       </Text>{' '}
-  //       May 26 - Jun 1
-  //     </Text>
-  //   ),
-  //   start: 1748131200,
-  //   end: 1748736000,
-  // },
-  {
-    value: 22,
-    label: (
-      <Text>
-        <Text as="span" color="#ffffff">
-          Week 1
-        </Text>{' '}
-        May 19 - May 25
-      </Text>
-    ),
-    start: 1748304000,
-    end: 1748822400,
-  },
-].reverse()
-
 const getFormattedTime = (totalSeconds: number): string => {
   // const totalSeconds = Math.floor(milliseconds / 1000);
   const totalDays = Math.floor(totalSeconds / 86400)
@@ -238,31 +74,16 @@ export default function Aggregator() {
       ? CampaignType.LimitOrder
       : pathname === APP_PATHS.MAY_TRADING_CAMPAIGN
       ? CampaignType.MayTrading
+      : pathname === APP_PATHS.NEAR_INTENTS_CAMPAIGN
+      ? CampaignType.NearIntents
       : CampaignType.Referrals
 
-  const year = type == CampaignType.MayTrading ? 2025 : 2024
+  const { campaign, weeks, ctaText, program, ctaLink, year, reward, banner, title, url } = campaignConfig[type]
 
-  const rewardChain = type == CampaignType.MayTrading ? ChainId.MAINNET : ChainId.ARBITRUM
-  const rewardToken =
-    type == CampaignType.MayTrading ? KNC[rewardChain].address : '0x912CE59144191C1204E64559FE8253a0e49E6548'
-  const rewardTokenSymbol = type == CampaignType.MayTrading ? 'KNC' : 'ARB'
-  const rewardTokenLogo =
-    type == CampaignType.MayTrading
-      ? 'https://s2.coinmarketcap.com/static/img/coins/64x64/9444.png'
-      : 'https://s2.coinmarketcap.com/static/img/coins/64x64/11841.png'
-
-  const ctaLink =
-    type == CampaignType.MayTrading
-      ? '/swap/base'
-      : type == CampaignType.Aggregator
-      ? '/swap/arbitrum/eth-to-arb'
-      : '/limit/arbitrum'
-  const ctaText = type == CampaignType.MayTrading || type == CampaignType.Aggregator ? 'Trade Now' : 'Place order'
-
-  const weeks = type === CampaignType.MayTrading ? mayTradingWeeks : stipWeeks
   const startWeek = weeks[0].value
   const endWeek = weeks[weeks.length - 1].value
-  const [selectedWeek, setSelectedWeek] = useState(startWeek <= w && w <= endWeek ? w : endWeek)
+
+  const [selectedWeek, setSelectedWeek] = useState(startWeek <= w && w <= endWeek ? w : startWeek)
 
   useEffect(() => {
     if (selectedWeek < startWeek || selectedWeek > endWeek) {
@@ -270,13 +91,6 @@ export default function Aggregator() {
     }
   }, [selectedWeek, startWeek, endWeek])
 
-  const program = type === CampaignType.MayTrading ? 'grind/base' : 'stip'
-  const campaign =
-    type === CampaignType.Aggregator || type === CampaignType.MayTrading
-      ? 'trading-incentive'
-      : type === CampaignType.LimitOrder
-      ? 'limit-order-farming'
-      : 'referral-program'
   const { account } = useWeb3React()
   const { data: userData } = useGetUserRewardQuery(
     {
@@ -285,6 +99,7 @@ export default function Aggregator() {
       year: year,
       wallet: account || '',
       campaign,
+      url,
     },
     {
       skip: !account,
@@ -294,6 +109,7 @@ export default function Aggregator() {
 
   const { data } = useGetLeaderboardQuery(
     {
+      url,
       program,
       week: selectedWeek,
       year: year,
@@ -336,11 +152,11 @@ export default function Aggregator() {
 
   const tab = searchParams.get('tab') || 'information'
 
-  const marketPriceMap = useTokenPrices([rewardToken], rewardChain)
-  const price = marketPriceMap?.[rewardToken] || 0
+  const marketPriceMap = useTokenPrices([reward.address], reward.chainId)
+  const price = marketPriceMap?.[reward.address] || 0
 
   const rewardAmount = CurrencyAmount.fromRawAmount(
-    new Token(1, ZERO_ADDRESS, 18, 'mock'),
+    new Token(1, ZERO_ADDRESS, reward.decimals, 'mock'),
     userData?.data?.reward?.split('.')[0] || '0',
   )
   const rewardNumber = rewardAmount ? rewardAmount.toSignificant(4) : '0'
@@ -348,6 +164,7 @@ export default function Aggregator() {
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
+  const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
   const { data: referralData } = useGetUserReferralTotalRewardQuery(
     { program, wallet: account || '' },
@@ -365,19 +182,20 @@ export default function Aggregator() {
 
   const usd = campaign === 'referral-program' ? referralRewardUsd : rewardUsd
 
-  const dashboardTab = type === CampaignType.MayTrading ? 'may-trading' : campaign
-
   const startEndIn =
     type === CampaignType.MayTrading
       ? `${isNotStart ? 'Starting in' : isEnd ? 'Ended at' : 'Ending in'}`
       : `Week ${selectedWeek - startWeek + 1} ${isNotStart ? 'starting in' : isEnd ? 'ended at' : 'ending in'}`
-  const estRewardText = 'My Estimated Rewards'
+  const estRewardText = 'My Est. Rewards'
 
   useEffect(() => {
     searchParams.set('page', '1')
     setSearchParams(searchParams)
     // eslint-disable-next-line
   }, [campaign])
+
+  const params = useNearIntentSelectedWallet()
+
   const info = (
     <InfoHelper
       text={
@@ -405,47 +223,16 @@ export default function Aggregator() {
 
   return (
     <Wrapper>
-      <img
-        src={
-          type === CampaignType.Aggregator
-            ? tradingBanner
-            : type === CampaignType.LimitOrder
-            ? loBanner
-            : type === CampaignType.MayTrading
-            ? mayTradingBanner
-            : referralBanner
-        }
-        width="100%"
-        alt="banner"
-        style={{ borderRadius: '12px' }}
-      />
+      <img src={banner} width="100%" alt="banner" style={{ borderRadius: '12px' }} />
       <Flex justifyContent="space-between" alignItems="center" marginTop="1.5rem">
         <Text fontSize={24} fontWeight="500">
-          {type === CampaignType.Aggregator
-            ? 'Aggregator Trading'
-            : type === CampaignType.LimitOrder
-            ? 'Limit Order'
-            : type === CampaignType.MayTrading
-            ? 'May Trading'
-            : 'Referral'}{' '}
-          Campaign
+          {title}
         </Text>
 
         {campaign === 'referral-program' && <JoinReferral />}
-        {type === CampaignType.MayTrading && (
-          <ButtonPrimary
-            width={upToExtraSmall ? '100%' : '160px'}
-            height="40px"
-            onClick={() => {
-              navigate(ctaLink)
-            }}
-          >
-            {ctaText}
-          </ButtonPrimary>
-        )}
       </Flex>
 
-      {campaign !== 'referral-program' && type != CampaignType.MayTrading && (
+      {campaign !== 'referral-program' && (
         <Flex
           justifyContent="space-between"
           marginTop="1.5rem"
@@ -473,7 +260,7 @@ export default function Aggregator() {
                 alignItems="center"
               >
                 {value?.label}{' '}
-                {value?.value === w ? (
+                {value?.value === w && year === new Date().getFullYear() ? (
                   <Text as="span" color={theme.red1} fontSize={12} ml="4px">
                     Active
                   </Text>
@@ -497,74 +284,83 @@ export default function Aggregator() {
       <Box
         sx={{
           display: 'grid',
-          gridTemplateColumns: upToExtraSmall
-            ? '1fr'
-            : upToSmall
-            ? '1fr 1fr'
-            : campaign !== 'referral-program'
-            ? '1fr 1fr 1fr 1fr'
-            : '1fr 1fr 1fr',
+          gridTemplateColumns:
+            type === CampaignType.NearIntents
+              ? upToMedium
+                ? '1fr'
+                : '1fr 1.2fr'
+              : upToSmall
+              ? '1fr'
+              : campaign !== 'referral-program'
+              ? '1fr 1fr'
+              : '1fr 2fr',
           marginTop: '1rem',
           gap: '12px',
         }}
       >
-        {campaign !== 'referral-program' && (
-          <StatCard>
+        <Flex width="100%" sx={{ gap: '12px' }} flexDirection={upToSmall ? 'column' : 'row'}>
+          {campaign !== 'referral-program' && (
+            <StatCard style={{ flex: 1 }}>
+              <Text fontSize={14} color={theme.subText}>
+                {startEndIn}
+              </Text>
+              <Text marginTop="8px" fontSize={20} fontWeight="500">
+                {isEnd ? dayjs(week.end * 1000).format('MMM DD YYYY') : getFormattedTime(duration)}
+              </Text>
+            </StatCard>
+          )}
+
+          <StatCard style={{ flex: 1 }}>
             <Text fontSize={14} color={theme.subText}>
-              {startEndIn}
+              Participants
             </Text>
             <Text marginTop="8px" fontSize={20} fontWeight="500">
-              {isEnd ? dayjs(week.end * 1000).format('MMM DD YYYY') : getFormattedTime(duration)}
+              {campaign === 'referral-program'
+                ? formatDisplayNumber(totalParticipant, { significantDigits: 6 })
+                : data?.data?.participantCount
+                ? formatDisplayNumber(data?.data.participantCount, { significantDigits: 6 })
+                : '--'}
             </Text>
           </StatCard>
-        )}
+        </Flex>
 
-        <StatCard>
-          <Text fontSize={14} color={theme.subText}>
-            Participants
-          </Text>
-          <Text marginTop="8px" fontSize={20} fontWeight="500">
-            {campaign === 'referral-program'
-              ? formatDisplayNumber(totalParticipant, { significantDigits: 6 })
-              : data?.data?.participantCount
-              ? formatDisplayNumber(data?.data.participantCount, { significantDigits: 6 })
-              : '--'}
-          </Text>
-        </StatCard>
-
-        <StatCard>
-          <Text fontSize={14} color={theme.subText}>
-            {campaign === 'referral-program' ? 'My referrals' : 'My Earned Points'}
-          </Text>
-          <Text marginTop="8px" fontSize={20} fontWeight="500">
-            {campaign === 'referral-program'
-              ? formatDisplayNumber(myTotalRefer || 0, { significantDigits: 4 })
-              : userData?.data?.point
-              ? formatDisplayNumber(Math.floor(userData?.data.point), { significantDigits: 6 })
-              : '--'}
-          </Text>
-        </StatCard>
-
-        <StatCard>
-          <Text fontSize={14} color={theme.subText}>
-            {estRewardText} {info}
-          </Text>
-          <Flex marginTop="8px" fontSize={20} fontWeight="500" alignItems="center">
-            <img
-              src={rewardTokenLogo}
-              alt={rewardTokenSymbol}
-              width="20px"
-              height="20px"
-              style={{ borderRadius: '50%' }}
-            />
-            <Text marginLeft="4px" fontSize={16}>
-              {campaign === 'referral-program' ? referralReward : rewardNumber} {rewardTokenSymbol}
-            </Text>
-            <Text ml="4px" fontSize={14} color={theme.subText}>
-              {formatDisplayNumber(usd, { style: 'currency', significantDigits: 4 })}
-            </Text>
+        {type === CampaignType.NearIntents ? (
+          <NearIntentCampaignStats
+            selectedWeek={selectedWeek}
+            year={year}
+            reward={reward}
+            selectedWalletParams={params}
+          />
+        ) : (
+          <Flex width="100%" sx={{ gap: '12px' }} flexDirection={upToSmall ? 'column' : 'row'}>
+            <StatCard style={{ flex: 1 }}>
+              <Text fontSize={14} color={theme.subText}>
+                {campaign === 'referral-program' ? 'My referrals' : 'My Earned Points'}
+              </Text>
+              <Text marginTop="8px" fontSize={20} fontWeight="500">
+                {campaign === 'referral-program'
+                  ? formatDisplayNumber(myTotalRefer || 0, { significantDigits: 4 })
+                  : userData?.data?.point
+                  ? formatDisplayNumber(Math.floor(userData?.data.point), { significantDigits: 6 })
+                  : '--'}
+              </Text>
+            </StatCard>
+            <StatCard style={{ flex: 1 }}>
+              <Text fontSize={14} color={theme.subText}>
+                {estRewardText} {info}
+              </Text>
+              <Flex marginTop="8px" fontSize={20} fontWeight="500" alignItems="center">
+                <img src={reward.logo} alt={reward.symbol} width="20px" height="20px" style={{ borderRadius: '50%' }} />
+                <Text marginLeft="4px" fontSize={16}>
+                  {campaign === 'referral-program' ? referralReward : rewardNumber} {reward.symbol}
+                </Text>
+                <Text ml="4px" fontSize={14} color={theme.subText}>
+                  {formatDisplayNumber(usd, { style: 'currency', significantDigits: 4 })}
+                </Text>
+              </Flex>
+            </StatCard>
           </Flex>
-        </StatCard>
+        )}
       </Box>
 
       <Flex justifyContent="space-between" alignItems="center" marginTop="1rem">
@@ -591,12 +387,23 @@ export default function Aggregator() {
           </Tab>
         </Tabs>
 
-        <StyledInternalLink to={`${APP_PATHS.MY_DASHBOARD}?tab=${dashboardTab}`}>[ My Dashboard ]</StyledInternalLink>
+        <StyledInternalLink to={`${APP_PATHS.MY_DASHBOARD}?tab=${type}`}>[ My Dashboard ]</StyledInternalLink>
       </Flex>
 
       {tab === 'information' && <Information type={type} week={selectedWeek} />}
 
-      {tab === 'leaderboard' && <Leaderboard type={type} week={selectedWeek} year={year} />}
+      {tab === 'leaderboard' && (
+        <Leaderboard
+          type={type}
+          week={selectedWeek}
+          year={year}
+          wallet={
+            type === CampaignType.NearIntents && params.selectedWallet && params.address[params.selectedWallet]
+              ? params.address[params.selectedWallet] || undefined
+              : undefined
+          }
+        />
+      )}
     </Wrapper>
   )
 }

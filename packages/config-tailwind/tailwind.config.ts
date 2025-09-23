@@ -22,8 +22,13 @@ const config: Omit<Config, "content"> = {
         warning: {
           DEFAULT: "var(--ks-lw-warning)",
           200: "#ff990133",
+          300: "#ff99014d",
         },
-        error: "var(--ks-lw-error)",
+        error: {
+          DEFAULT: "var(--ks-lw-error)",
+          200: "#ff537b33",
+          300: "#ff537b4d",
+        },
         stroke: "var(--ks-lw-stroke)",
         layer1: "var(--ks-lw-layer1)",
         layer2: "var(--ks-lw-layer2)",
@@ -31,16 +36,23 @@ const config: Omit<Config, "content"> = {
         chartRange: "var(--ks-lw-chart-range)",
         chartArea: "var(--ks-lw-chart-area)",
         success: "var(--ks-lw-success)",
-        blue: "var(--ks-lw-blue)",
+        blue: {
+          DEFAULT: "var(--ks-lw-blue)",
+          200: "#2c9ce433",
+        },
         "primary-20": "var(--ks-lw-accent-20)",
         primary: {
           DEFAULT: "var(--ks-lw-accent)",
+          200: "#31cb9e33",
         },
         icon: {
           DEFAULT: "var(--ks-lw-icons)",
+          200: "#a9a9a933",
+          300: "#a9a9a94d",
         },
         accent: {
           DEFAULT: "var(--ks-lw-accent)",
+          200: "#31cb9e33",
         },
         foreground: "hsl(var(--foreground))",
       },

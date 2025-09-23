@@ -9,11 +9,14 @@
   "devDependencies": {
     "eslint": "8.57",
     "eslint-config-turbo": "^1.12.4",
-    "turbo": "^2.1.1"
+    "eslint-plugin-prettier": "^5.4.0",
+    "prettier": "^3.5.3",
+    "turbo": "^2.1.1",
+    "typescript": "5.1"
   },
   "scripts": {
     "build": "turbo build",
-    "build-package": "pnpm --parallel -r --filter \"@kyber/svgr-esbuild-plugin\" --filter \"@kyber/ui\" build && pnpm --filter \"@kyberswap/liquidity-chart\" build && pnpm --parallel --filter \"@kyberswap/liquidity-widgets\" --filter \"@kyberswap/zap-migration-widgets\" --filter \"@kyberswap/zap-out-widgets\" build",
+    "build-package": "pnpm --parallel -r --filter \"@kyber/svgr-esbuild-plugin\" --filter \"@kyber/schema\" build && pnpm --parallel -r --filter \"@kyber/utils\" --filter \"@kyber/ui\" build && pnpm --filter \"@kyberswap/liquidity-chart\" build && pnpm --parallel --filter \"@kyberswap/liquidity-widgets\" --filter \"@kyberswap/zap-migration-widgets\" --filter \"@kyberswap/zap-out-widgets\" --filter \"@kyberswap/pancake-liquidity-widgets\" --filter \"@kyberswap/compounding-widget\" build",
     "lint": "turbo lint",
     "dev": "turbo dev",
     "type-check": "turbo type-check"

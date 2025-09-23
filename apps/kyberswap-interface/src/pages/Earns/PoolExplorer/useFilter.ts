@@ -4,8 +4,9 @@ import { useSearchParams } from 'react-router-dom'
 import { PoolQueryParams } from 'services/zapEarn'
 
 import { useActiveWeb3React } from 'hooks'
-import { FilterTag, SortBy, timings } from 'pages/Earns/PoolExplorer'
-import { earnSupportedChains } from 'pages/Earns/constants'
+import { SortBy } from 'pages/Earns/PoolExplorer'
+import { FilterTag, timings } from 'pages/Earns/PoolExplorer/Filter'
+import { FARMING_SUPPORTED_CHAIN, earnSupportedChains } from 'pages/Earns/constants'
 import { Direction } from 'pages/MarketOverview/SortIcon'
 
 export default function useFilter(setSearch?: (search: string) => void) {
@@ -15,15 +16,22 @@ export default function useFilter(setSearch?: (search: string) => void) {
 
   const filters: PoolQueryParams = useMemo(() => {
     return {
-      chainId: +(searchParams.get('chainId') || defaultChainId),
+      chainId: +(
+        searchParams.get('chainId') ||
+        (searchParams.get('tag') === FilterTag.FARMING_POOL
+          ? FARMING_SUPPORTED_CHAIN.find(chain => chain === defaultChainId)
+            ? defaultChainId
+            : ChainId.MAINNET
+          : defaultChainId)
+      ),
       page: +(searchParams.get('page') || 1),
       limit: 10,
-      interval: searchParams.get('interval') || (timings[0].value as string),
+      interval: searchParams.get('interval') || (timings[1].value as string),
       protocol: searchParams.get('protocol') || '',
       userAddress: account,
       tag: searchParams.get('tag') || '',
-      sortBy: searchParams.get('sortBy') || (!searchParams.get('tag') ? SortBy.TVL : ''),
-      orderBy: searchParams.get('orderBy') || (!searchParams.get('tag') ? Direction.DESC : ''),
+      sortBy: searchParams.get('sortBy') || '',
+      orderBy: searchParams.get('orderBy') || '',
       q: searchParams.get('q')?.trim() || '',
     }
   }, [searchParams, defaultChainId, account])
@@ -32,10 +40,6 @@ export default function useFilter(setSearch?: (search: string) => void) {
     (key: keyof PoolQueryParams, value: string) => {
       if (!value) {
         searchParams.delete(key)
-        if (key === 'tag') {
-          searchParams.set('sortBy', SortBy.TVL)
-          searchParams.set('orderBy', Direction.DESC)
-        }
       } else {
         searchParams.set(key, value)
         if (key === 'chainId') searchParams.delete('protocol')
@@ -46,6 +50,11 @@ export default function useFilter(setSearch?: (search: string) => void) {
           if (value === FilterTag.LOW_VOLATILITY) {
             searchParams.set('sortBy', SortBy.APR)
             searchParams.set('orderBy', Direction.DESC)
+          } else if (value === FilterTag.FARMING_POOL) {
+            if (FARMING_SUPPORTED_CHAIN.find(chain => chain === chainId))
+              searchParams.set('chainId', chainId.toString())
+            else searchParams.set('chainId', ChainId.MAINNET.toString())
+            searchParams.delete('protocol')
           }
         }
       }
@@ -53,7 +62,7 @@ export default function useFilter(setSearch?: (search: string) => void) {
 
       setSearchParams(searchParams)
     },
-    [setSearchParams, searchParams, setSearch],
+    [setSearchParams, searchParams, setSearch, chainId],
   )
 
   return {

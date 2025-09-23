@@ -1,225 +1,144 @@
-import { DEXES_INFO, NETWORKS_INFO } from "../constants";
-import {
-  algebraTypes,
-  ChainId,
-  Dex,
-  Position,
-  univ2Dexes,
-  univ3Dexes,
-  univ4Dexes,
-} from "../schema";
-import { getFunctionSelector, encodeUint256 } from "@kyber/utils/crypto";
-import {
-  decodeAlgebraV1Position,
-  decodePosition,
-  decodeUniswapV4PositionInfo,
-} from "@kyber/utils/uniswapv3";
-import { create } from "zustand";
+import { create } from 'zustand';
+import { useShallow } from 'zustand/shallow';
 
-const initState = {
-  fromPosition: "loading" as "loading" | Position,
-  toPosition: "loading" as "loading" | Position | null,
-  error: "",
+import { Pool, Position, univ2PoolNormalize, univ3PoolNormalize } from '@kyber/schema';
+import { POOL_ERROR, getUniv2PositionInfo, getUniv3PositionInfo } from '@kyber/utils';
+
+interface getPositionProps {
+  chainId: number;
+  positionId: string;
+  pool: Pool;
+}
+
+interface PositionState {
+  error: string;
+  sourcePositionLoading: boolean;
+  targetPositionLoading: boolean;
+  sourcePositionId: string;
+  targetPositionId?: string;
+  sourcePosition: Position | null;
+  targetPosition: Position | null;
+  getSourcePositions: (props: getPositionProps) => void;
+  getTargetPosition: (props: getPositionProps) => void;
+  setSourcePositionId: (positionId: string) => void;
+  setTargetPositionId: (positionId: string) => void;
+  reset: () => void;
+}
+
+const initState: Omit<
+  PositionState,
+  'getSourcePositions' | 'getTargetPosition' | 'reset' | 'setSourcePositionId' | 'setTargetPositionId'
+> = {
+  error: '',
+  sourcePositionLoading: false,
+  targetPositionLoading: false,
+  sourcePositionId: '',
+  targetPositionId: undefined,
+  sourcePosition: null,
+  targetPosition: null,
 };
 
-export const usePositionStore = create<{
-  fromPosition: "loading" | Position;
-  toPosition: "loading" | Position | null;
-  error: string;
-  setToPositionNull: () => void;
-  fetchPosition: (
-    dex: Dex,
-    chainId: ChainId,
-    positionId: number | string,
-    poolAddress: string,
-    isFromPos: boolean
-  ) => Promise<void>;
-  reset: () => void;
-}>((set) => ({
+export const usePositionRawStore = create<PositionState>((set, _get) => ({
   ...initState,
   reset: () => set(initState),
-  setToPositionNull: () => {
-    set({ toPosition: null });
-  },
-  fetchPosition: async (
-    dex: Dex,
-    chainId: ChainId,
-    positionId: number | string,
-    poolAddress: string,
-    isFromPos: boolean
-  ) => {
-    const isUniv3 = univ3Dexes.includes(dex);
-    const isUniv2 = univ2Dexes.includes(dex);
-    const isUniv4 = univ4Dexes.includes(dex);
+  getSourcePositions: async ({ chainId, positionId, pool }: getPositionProps) => {
+    const { success: isUniV3, data: univ3PoolInfo } = univ3PoolNormalize.safeParse(pool);
+    const { success: isUniV2, data: univ2PoolInfo } = univ2PoolNormalize.safeParse(pool);
 
-    if (isUniv3) {
-      const contract = DEXES_INFO[dex].nftManagerContract;
-      const contractAddress =
-        typeof contract === "string" ? contract : contract[chainId];
+    set({ sourcePositionLoading: true });
 
-      // Function signature and encoded token ID
-      const functionSignature = !isUniv4
-        ? "positions(uint256)"
-        : "positionInfo(uint256)";
-      const selector = getFunctionSelector(functionSignature);
-      const encodedTokenId = encodeUint256(BigInt(positionId));
-
-      const data = `0x${selector}${encodedTokenId}`;
-
-      // JSON-RPC payload
-      const payload = {
-        jsonrpc: "2.0",
-        method: "eth_call",
-        params: [
-          {
-            to: contractAddress,
-            data: data,
-          },
-          "latest",
-        ],
-        id: 1,
-      };
-
-      // Send JSON-RPC request via fetch
-      const response = await fetch(NETWORKS_INFO[chainId].defaultRpc, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
+    if (isUniV3) {
+      const positionInfo = await getUniv3PositionInfo({
+        poolType: pool.poolType,
+        positionId,
+        chainId,
+        tickCurrent: univ3PoolInfo.tick,
+        sqrtPriceX96: univ3PoolInfo.sqrtPriceX96,
       });
 
-      const { result, error } = await response.json();
-
-      if (result && result !== "0x") {
-        const data = isUniv4
-          ? decodeUniswapV4PositionInfo(result)
-          : algebraTypes.includes(dex)
-          ? decodeAlgebraV1Position(result)
-          : decodePosition(result);
-
-        if (isUniv4) {
-          const liquidityFunctionSignature = "getPositionLiquidity(uint256)";
-          const liquiditySelector = getFunctionSelector(
-            liquidityFunctionSignature
-          );
-          const liquidityData = `0x${liquiditySelector}${encodedTokenId}`;
-
-          const payload = {
-            jsonrpc: "2.0",
-            method: "eth_call",
-            params: [
-              {
-                to: contractAddress,
-                data: liquidityData,
-              },
-              "latest",
-            ],
-            id: 1,
-          };
-
-          const response = await fetch(NETWORKS_INFO[chainId].defaultRpc, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(payload),
-          });
-
-          const { result: liquidityResult, error: liquidityError } =
-            await response.json();
-
-          if (liquidityResult && liquidityResult !== "0x") {
-            data.liquidity = BigInt(liquidityResult);
-          } else {
-            set({
-              error: liquidityError.message || "Position not found",
-            });
-          }
-        }
-
-        if (isFromPos)
-          set({
-            fromPosition: {
-              id: positionId,
-              dex,
-              liquidity: data.liquidity,
-              tickLower: data.tickLower,
-              tickUpper: data.tickUpper,
-            } as Position,
-          });
-        else {
-          set({
-            toPosition: {
-              id: positionId,
-              dex,
-              liquidity: data.liquidity,
-              tickLower: data.tickLower,
-              tickUpper: data.tickUpper,
-            } as Position,
-          });
-        }
-        return;
-      }
-      set({ error: error.message || "Position not found" });
-      return;
-    }
-    if (isUniv2) {
-      // get pool total supply and user supply
-      const balanceOfSelector = getFunctionSelector("balanceOf(address)");
-      const totalSupplySelector = getFunctionSelector("totalSupply()");
-      const paddedAccount = positionId
-        .toString()
-        .replace("0x", "")
-        .padStart(64, "0");
-
-      const getPayload = (d: string) => {
-        return {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            jsonrpc: "2.0",
-            method: "eth_call",
-            params: [
-              {
-                to: poolAddress,
-                data: d,
-              },
-              "latest",
-            ],
-            id: 1,
-          }),
-        };
-      };
-
-      const balanceRes = await fetch(
-        NETWORKS_INFO[chainId].defaultRpc,
-        getPayload(`0x${balanceOfSelector}${paddedAccount}`)
-      ).then((res) => res.json());
-
-      const totalSupplyRes = await fetch(
-        NETWORKS_INFO[chainId].defaultRpc,
-        getPayload(`0x${totalSupplySelector}`)
-      ).then((res) => res.json());
-
-      const userBalance = BigInt(balanceRes?.result || "0");
-      const totalSupply = BigInt(totalSupplyRes?.result || "0");
-
-      const pos = {
-        id: positionId,
-        liquidity: userBalance.toString(),
-        dex,
-        totalSupply: totalSupply.toString(),
-      } as Position;
-
-      if (isFromPos) set({ fromPosition: pos });
-      else set({ toPosition: pos });
+      if (positionInfo.error || !positionInfo.position) set({ error: positionInfo.error, sourcePosition: null });
+      else set({ sourcePosition: positionInfo.position as Position });
+      set({ sourcePositionLoading: false });
 
       return;
     }
 
-    set({ error: `Pool Type is not supported` });
+    if (isUniV2) {
+      const positionInfo = await getUniv2PositionInfo({
+        poolType: pool.poolType,
+        positionId,
+        chainId,
+        poolAddress: univ2PoolInfo.address,
+        reserve0: univ2PoolInfo.reserves[0],
+        reserve1: univ2PoolInfo.reserves[1],
+      });
+
+      if (positionInfo.error || !positionInfo.position) set({ error: positionInfo.error, sourcePosition: null });
+      else set({ sourcePosition: positionInfo.position as Position });
+      set({ sourcePositionLoading: false });
+
+      return;
+    }
+
+    set({ error: POOL_ERROR.INVALID_POOL_TYPE, sourcePositionLoading: false });
   },
+  getTargetPosition: async ({ chainId, positionId, pool }: getPositionProps) => {
+    const { success: isUniV3, data: univ3PoolInfo } = univ3PoolNormalize.safeParse(pool);
+    const { success: isUniV2, data: univ2PoolInfo } = univ2PoolNormalize.safeParse(pool);
+
+    set({ targetPositionLoading: true });
+
+    if (isUniV3) {
+      const positionInfo = await getUniv3PositionInfo({
+        poolType: pool.poolType,
+        positionId,
+        chainId,
+        tickCurrent: univ3PoolInfo.tick,
+        sqrtPriceX96: univ3PoolInfo.sqrtPriceX96,
+      });
+
+      if (positionInfo.error || !positionInfo.position) set({ error: positionInfo.error, targetPosition: null });
+      else set({ targetPosition: positionInfo.position as Position });
+      set({ targetPositionLoading: false });
+
+      return;
+    }
+
+    if (isUniV2) {
+      const positionInfo = await getUniv2PositionInfo({
+        poolType: pool.poolType,
+        positionId,
+        chainId,
+        poolAddress: univ2PoolInfo.address,
+        reserve0: univ2PoolInfo.reserves[0],
+        reserve1: univ2PoolInfo.reserves[1],
+      });
+
+      if (positionInfo.error || !positionInfo.position) set({ error: positionInfo.error, targetPosition: null });
+      else set({ targetPosition: positionInfo.position as Position });
+      set({ targetPositionLoading: false });
+
+      return;
+    }
+
+    set({ error: POOL_ERROR.INVALID_POOL_TYPE, targetPositionLoading: false });
+  },
+  setSourcePositionId: (positionId: string) => set({ sourcePositionId: positionId }),
+  setTargetPositionId: (positionId: string) => set({ targetPositionId: positionId }),
 }));
+
+type PositionStoreKeys = keyof ReturnType<typeof usePositionRawStore.getState>;
+
+export const usePositionStore = <K extends PositionStoreKeys>(keys: K[]) => {
+  return usePositionRawStore(
+    useShallow(s =>
+      keys.reduce(
+        (acc, key) => {
+          acc[key] = s[key];
+          return acc;
+        },
+        {} as Pick<typeof s, K>,
+      ),
+    ),
+  );
+};

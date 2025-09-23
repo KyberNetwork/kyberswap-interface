@@ -1,42 +1,44 @@
-import "./globals.css";
-import "./Widget.scss";
-import "@kyber/ui/styles.css";
+import { ReactNode, useEffect, useMemo } from 'react';
 
-import { ReactNode, useEffect, useMemo } from "react";
-import PoolStat from "@/components/PoolStat";
-import { Action } from "@/components/Action";
-import { EstLiqValue } from "@/components/EstLiqValue";
-import { Header } from "@/components/Header";
-import { LiquidityToRemove } from "@/components/LiquidityToRemove";
-import { PoolFee } from "@/components/PoolFee";
-import { PoolPrice } from "@/components/PoolPrice";
-import { PositionPriceRange } from "@/components/PositionPriceRange";
-import { Preview } from "@/components/Preview";
-import { ZapSummary } from "@/components/ZapSummary";
-import { ZapTo } from "@/components/ZapTo";
-import { TokenListProvider } from "@/hooks/useTokenList";
-import { ZapOutProps, ZapOutProvider, useZapOutContext } from "@/stores";
-import { defaultTheme, Theme } from "@/theme";
-import { ChainId, PoolType } from "@/schema";
+import '@kyber/ui/styles.css';
+
+import { Action } from '@/components/Action';
+import Estimated from '@/components/Estimated';
+import { Header } from '@/components/Header';
+import { PoolFee } from '@/components/PoolFee';
+import { PoolPrice } from '@/components/PoolPrice';
+import PoolStat from '@/components/PoolStat';
+import PositionLiquidity from '@/components/PositionLiquidity';
+import { PositionPriceRange } from '@/components/PositionPriceRange';
+import { Preview } from '@/components/Preview';
+import { ZapSummary } from '@/components/ZapSummary';
+import { ZapTo } from '@/components/ZapTo';
+import { TokenListProvider } from '@/hooks/useTokenList';
+import { ChainId, PoolType } from '@/schema';
+import { ZapOutProps, ZapOutProvider, useZapOutContext } from '@/stores';
+import { Theme, defaultTheme } from '@/theme';
+
+import './Widget.scss';
+import './globals.css';
 
 const ZapOut = (props: ZapOutProps) => {
   const { theme, chainId, poolType, positionId, poolAddress } = props;
 
   const themeToApply = useMemo(
     () =>
-      theme && typeof theme === "object"
+      theme && typeof theme === 'object'
         ? {
             ...defaultTheme,
             ...theme,
           }
         : defaultTheme,
-    [theme]
+    [theme],
   );
 
   useEffect(() => {
     if (!themeToApply) return;
-    const r = document.querySelector<HTMLElement>(":root");
-    Object.keys(themeToApply).forEach((key) => {
+    const r = document.querySelector<HTMLElement>(':root');
+    Object.keys(themeToApply).forEach(key => {
       r?.style.setProperty(`--ks-lw-${key}`, themeToApply[key as keyof Theme]);
     });
   }, [themeToApply]);
@@ -52,25 +54,20 @@ const ZapOut = (props: ZapOutProps) => {
         <div className="ks-lw ks-lw-style">
           <div className="px-4 py-6 sm:px-6">
             <Header />
-            <div className="grid grid-cols-1 gap-6 mt-4 sm:grid-cols-2">
-              <div className="flex flex-col gap-4">
+            <div className="mt-4 flex gap-5 max-sm:flex-col">
+              <div className="flex flex-col gap-4 w-[55%] max-sm:w-full">
                 <div className="-mb-4">
-                  <PoolStat
-                    chainId={chainId}
-                    poolType={poolType}
-                    positionId={positionId}
-                    poolAddress={poolAddress}
-                  />
+                  <PoolStat chainId={chainId} poolType={poolType} positionId={positionId} poolAddress={poolAddress} />
                 </div>
+                <PositionLiquidity />
                 <PoolPrice />
                 <PositionPriceRange />
-                <LiquidityToRemove />
                 <PoolFee />
               </div>
 
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-4 w-[45%] max-sm:w-full">
                 <ZapTo chainId={chainId} />
-                <EstLiqValue />
+                <Estimated />
                 <ZapSummary />
               </div>
             </div>
@@ -83,14 +80,8 @@ const ZapOut = (props: ZapOutProps) => {
   );
 };
 
-const TokenProvider = ({
-  children,
-  chainId,
-}: {
-  children: ReactNode;
-  chainId: number;
-}) => {
-  const pool = useZapOutContext((s) => s.pool);
+const TokenProvider = ({ children, chainId }: { children: ReactNode; chainId: number }) => {
+  const pool = useZapOutContext(s => s.pool);
 
   return (
     <TokenListProvider chainId={chainId} pool={pool}>

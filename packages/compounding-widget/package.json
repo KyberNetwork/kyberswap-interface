@@ -1,0 +1,68 @@
+{
+  "name": "@kyberswap/compounding-widget",
+  "version": "0.0.1",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/compounding-widget.js",
+      "require": "./dist/compounding-widget.cjs"
+    },
+    "./dist/style.css": "./dist/compounding-widget.css"
+  },
+  "main": "./dist/compounding-widget.cjs",
+  "module": "./dist/compounding-widget.js",
+  "types": "./dist/compounding-widget.d.ts",
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives",
+    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css,scss}\"",
+    "prepublishOnly": "tsc && tsup",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "zustand": "^5.0.0"
+  },
+  "devDependencies": {
+    "@kyber/eslint-config": "workspace:*",
+    "@kyber/hooks": "workspace:^",
+    "@kyber/schema": "workspace:^",
+    "@kyber/svgr-esbuild-plugin": "workspace:^",
+    "@kyber/tailwind-config": "workspace:^",
+    "@kyber/ui": "workspace:^",
+    "@kyber/utils": "workspace:^",
+    "@trivago/prettier-plugin-sort-imports": "^4.2.0",
+    "@types/react": "^18.0.17",
+    "@types/react-dom": "^18.2.17",
+    "@typescript-eslint/eslint-plugin": "^6.14.0",
+    "@typescript-eslint/parser": "^6.14.0",
+    "autoprefixer": "^10.4.20",
+    "esbuild-sass-plugin": "^3.3.1",
+    "eslint": "^8.55.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.4.0",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.5",
+    "eslint-plugin-unused-imports": "^3.0.0",
+    "postcss": "^8.4.47",
+    "postcss-prefix-selector": "^2.1.0",
+    "prettier": "^3.5.3",
+    "sass": "^1.70.0",
+    "tailwindcss": "^3.4.13",
+    "tsup": "^8.3.0",
+    "typescript": "5.1.6"
+  },
+  "peerDependencies": {
+    "react": ">=16.8.0",
+    "react-dom": ">=16.8.0"
+  }
+}

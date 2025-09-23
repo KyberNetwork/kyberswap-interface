@@ -1,13 +1,18 @@
-import { useCallback, useMemo } from "react";
-import { format } from "d3";
-import type { LiquidityChartRangeInputProps } from "./types";
-import { Bound } from "@/types";
-import { DEFAULT_DIMENSIONS, DEFAULT_MARGINS, ZOOM_LEVELS } from "@/constants";
-import Chart from "@/components/Chart";
-import InfoBox from "@/components/InfoBox";
-import useDensityChartData from "@/hooks/useDensityChartData";
-import "./styles.css";
-import { getFeeRange } from "./utils";
+import { useCallback, useMemo } from 'react';
+
+import { format } from 'd3';
+
+import { POOL_CATEGORY } from '@kyber/schema';
+import { formatDisplayNumber } from '@kyber/utils/number';
+
+import Chart from '@/components/Chart';
+import InfoBox from '@/components/InfoBox';
+import { DEFAULT_DIMENSIONS, DEFAULT_MARGINS, ZOOM_LEVELS } from '@/constants';
+import useDensityChartData from '@/hooks/useDensityChartData';
+import { Bound } from '@/types';
+
+import './styles.css';
+import type { LiquidityChartRangeInputProps } from './types';
 
 export default function LiquidityChartRangeInput({
   id,
@@ -20,68 +25,63 @@ export default function LiquidityChartRangeInput({
   zoomPosition,
   zoomInIcon,
   zoomOutIcon,
+  showLabelAsAmount = false,
+  alwaysShowLabel = false,
   onBrushDomainChange,
 }: LiquidityChartRangeInputProps) {
   const chartData = useDensityChartData({ pool, revertPrice });
 
   const { current: currentPrice, lower: priceLower, upper: priceUpper } = price;
-  const feeRange = getFeeRange(pool.fee || 0);
 
   const brushDomain: [number, number] | undefined = useMemo(() => {
-    if (!priceLower || !priceUpper) return;
+    if (priceLower === undefined || priceUpper === undefined || priceLower === null || priceUpper === null) return;
 
-    const leftPrice = !revertPrice ? priceLower : priceUpper;
-    const rightPrice = !revertPrice ? priceUpper : priceLower;
+    const leftPrice = priceLower;
+    const rightPrice = priceUpper;
 
-    return leftPrice && rightPrice
-      ? [
-          parseFloat(leftPrice.toString().replace(/,/g, "")),
-          parseFloat(rightPrice.toString().replace(/,/g, "")),
-        ]
-      : undefined;
-  }, [priceLower, priceUpper, revertPrice]);
+    return [parseFloat(leftPrice.toString().replace(/,/g, '')), parseFloat(rightPrice.toString().replace(/,/g, ''))];
+  }, [priceLower, priceUpper]);
 
   const brushLabel = useCallback(
-    (d: "w" | "e", x: number) => {
-      if (!currentPrice) return "";
+    (d: 'w' | 'e', x: number) => {
+      if (!currentPrice) return '';
 
-      if (d === "w" && ticksAtLimit[!revertPrice ? Bound.LOWER : Bound.UPPER])
-        return "0";
-      if (d === "e" && ticksAtLimit[!revertPrice ? Bound.UPPER : Bound.LOWER])
-        return "∞";
+      if (d === 'w' && ticksAtLimit[!revertPrice ? Bound.LOWER : Bound.UPPER]) return '0';
+      if (d === 'e' && ticksAtLimit[!revertPrice ? Bound.UPPER : Bound.LOWER]) return '∞';
+
+      if (showLabelAsAmount) return formatDisplayNumber(x, { significantDigits: 8 });
 
       const percent =
-        (x < currentPrice ? -1 : 1) *
-        ((Math.max(x, currentPrice) - Math.min(x, currentPrice)) /
-          currentPrice) *
-        100;
+        (x < currentPrice ? -1 : 1) * ((Math.max(x, currentPrice) - Math.min(x, currentPrice)) / currentPrice) * 100;
 
-      return currentPrice
-        ? `${format(Math.abs(percent) > 1 ? ".2~s" : ".2~f")(percent)}%`
-        : "";
+      return currentPrice ? `${format(Math.abs(percent) > 1 ? '.4~s' : '.4~f')(percent)}%` : '';
     },
-    [currentPrice, ticksAtLimit, revertPrice]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [currentPrice, ticksAtLimit, revertPrice],
   );
 
   const defaultZoomLevels = useMemo(() => {
-    if (onBrushDomainChange) return ZOOM_LEVELS[feeRange];
-    if (!priceLower || !priceUpper || !currentPrice) return;
+    if (onBrushDomainChange)
+      return pool.category
+        ? ZOOM_LEVELS[pool.category as keyof typeof ZOOM_LEVELS] || ZOOM_LEVELS[POOL_CATEGORY.EXOTIC_PAIR]
+        : ZOOM_LEVELS[POOL_CATEGORY.EXOTIC_PAIR];
+    if (
+      priceLower === undefined ||
+      priceUpper === undefined ||
+      priceLower === null ||
+      priceUpper === null ||
+      !currentPrice
+    )
+      return;
 
-    const leftPrice = parseFloat(
-      (!revertPrice ? priceLower : priceUpper).toString().replace(/,/g, "")
-    );
-    const rightPrice = parseFloat(
-      (!revertPrice ? priceUpper : priceLower).toString().replace(/,/g, "")
-    );
+    const leftPrice = parseFloat(priceLower.toString().replace(/,/g, ''));
+    const rightPrice = parseFloat(priceUpper.toString().replace(/,/g, ''));
     const priceToCalculate =
-      ticksAtLimit[Bound.UPPER] ||
-      Math.abs(currentPrice - leftPrice) > Math.abs(currentPrice - rightPrice)
+      ticksAtLimit[Bound.UPPER] || Math.abs(currentPrice - leftPrice) > Math.abs(currentPrice - rightPrice)
         ? leftPrice
         : rightPrice;
 
-    const ratio = Math.abs(
-      (7 * (currentPrice - priceToCalculate)) / (5 * currentPrice)
-    );
+    const ratio = Math.abs((7 * (currentPrice - priceToCalculate)) / (5 * currentPrice));
 
     return {
       initialMin: 1 - ratio,
@@ -89,18 +89,10 @@ export default function LiquidityChartRangeInput({
       min: 0.00001,
       max: 20,
     };
-  }, [
-    onBrushDomainChange,
-    priceLower,
-    priceUpper,
-    currentPrice,
-    revertPrice,
-    ticksAtLimit,
-    feeRange,
-  ]);
+  }, [onBrushDomainChange, priceLower, priceUpper, currentPrice, ticksAtLimit, pool.category]);
 
   return (
-    <div className="ks-lc-style" style={{ width: "100%" }}>
+    <div className="ks-lc-style" style={{ width: '100%' }}>
       <div className="flex items-center min-h-52 w-full gap-4 justify-center">
         {!chartData || !defaultZoomLevels ? (
           <InfoBox message="Your position will appear here." />
@@ -120,6 +112,7 @@ export default function LiquidityChartRangeInput({
               zoomLevels={defaultZoomLevels}
               zoomOutIcon={zoomOutIcon}
               zoomPosition={zoomPosition}
+              alwaysShowLabel={alwaysShowLabel}
             />
           </div>
         )}

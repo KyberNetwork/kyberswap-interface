@@ -22,6 +22,7 @@ export type BuildRouteResult =
   | {
       data?: never
       error: string
+      suggestedSlippage?: number
     }
 
 type Args = {
@@ -61,8 +62,17 @@ const useBuildRoute = (args: Args) => {
 
     const refCode = getCookieValue('refCode')
 
+    const rawRouteSummary = {
+      ...routeSummary,
+      amountInUsd: routeSummary.rawAmountInUsd as string,
+      amountOutUsd: routeSummary.rawAmountOutUsd as string,
+    }
+
+    delete rawRouteSummary.rawAmountInUsd
+    delete rawRouteSummary.rawAmountOutUsd
+
     const payload: BuildRoutePayload = {
-      routeSummary,
+      routeSummary: rawRouteSummary,
       deadline: Math.floor(Date.now() / 1000) + transactionTimeout,
       slippageTolerance: slippage,
       sender: account,
@@ -100,8 +110,10 @@ const useBuildRoute = (args: Args) => {
           error: e.data.errorEntities.join(' | '),
         }
       }
+
       return {
         error: e?.data?.errorEntities?.[0] || e.message || e?.data?.message || t`Something went wrong`,
+        suggestedSlippage: e?.data?.suggestedSlippage,
       }
     }
   }, [

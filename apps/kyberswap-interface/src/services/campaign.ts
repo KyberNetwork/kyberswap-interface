@@ -36,6 +36,7 @@ const campaignApi = createApi({
         }
       },
       {
+        url?: string
         program: 'stip' | 'grind/base'
         campaign: 'trading-incentive' | 'limit-order-farming' | 'referral-program'
         week: number
@@ -44,17 +45,21 @@ const campaignApi = createApi({
         pageNumber: number
       }
     >({
-      query: ({ program, campaign, week, year, pageNumber, pageSize }) => ({
-        url: `/v1/${program}/leader-boards?campaign=${campaign}&week=${week}&year=${year}&pageNumber=${pageNumber}&pageSize=${pageSize}`,
+      query: ({ url, program, campaign, week, year, pageNumber, pageSize }) => ({
+        url: url
+          ? `${url}/leader-boards?week=${week}&year=${year}&pageNumber=${pageNumber}&pageSize=${pageSize}`
+          : `/v1/${program}/leader-boards?campaign=${campaign}&week=${week}&year=${year}&pageNumber=${pageNumber}&pageSize=${pageSize}`,
       }),
     }),
 
     getUserReward: builder.query<
       { data: { point: number; reward: string; rank: number } },
-      { program: 'stip' | 'grind/base'; wallet: string; campaign: string; year: number; week: number }
+      { url?: string; program: 'stip' | 'grind/base'; wallet: string; campaign: string; year: number; week: number }
     >({
-      query: ({ program, campaign, wallet, week, year }) => ({
-        url: `/v1/${program}/rewards/${wallet}/weekly?campaign=${campaign}&year=${year}&week=${week}`,
+      query: ({ url, program, campaign, wallet, week, year }) => ({
+        url: url
+          ? `${url}/rewards/${wallet}/weekly?campaign=${campaign}&year=${year}&week=${week}`
+          : `/v1/${program}/rewards/${wallet}/weekly?campaign=${campaign}&year=${year}&week=${week}`,
       }),
     }),
 
@@ -67,10 +72,10 @@ const campaignApi = createApi({
           totalPoint: number
         }
       },
-      { program: 'stip' | 'grind/base'; campaign: string; wallet: string }
+      { url?: string; program: 'stip' | 'grind/base'; campaign: string; wallet: string }
     >({
-      query: ({ program, campaign, wallet }) => ({
-        url: `/v1/${program}/rewards?campaign=${campaign}&wallet=${wallet}`,
+      query: ({ url, program, campaign, wallet }) => ({
+        url: url ? `${url}/rewards?wallet=${wallet}` : `/v1/${program}/rewards?campaign=${campaign}&wallet=${wallet}`,
       }),
     }),
 

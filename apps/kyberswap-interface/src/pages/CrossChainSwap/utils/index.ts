@@ -42,6 +42,15 @@ export const CANONICAL_TOKENS: Record<string, Record<number, string>> = {
   },
 }
 
+export const SOLANA_STABLE_COINS = [
+  'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', // usdc
+  'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB', // usdt
+]
+export const NEAR_STABLE_COINS = [
+  'nep141:17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1',
+  'nep141:usdt.tether-token.near',
+]
+
 export function isCanonicalPair(chainId0: number, address0: string, chainId1: number, address1: string) {
   for (const [, chainMapping] of Object.entries(CANONICAL_TOKENS)) {
     const add0 = chainMapping[chainId0]?.toLowerCase()

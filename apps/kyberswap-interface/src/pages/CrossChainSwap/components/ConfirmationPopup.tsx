@@ -1,5 +1,8 @@
 import { ChainId, CurrencyAmount, Currency as EvmCurrency } from '@kyberswap/ks-sdk-core'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
+import { adaptSolanaWallet } from '@reservoir0x/relay-solana-wallet-adapter'
+import { useConnection, useWallet } from '@solana/wallet-adapter-react'
+import { Transaction, VersionedTransaction } from '@solana/web3.js'
 import { useEffect, useState } from 'react'
 import { ArrowDown, X } from 'react-feather'
 import { useSearchParams } from 'react-router-dom'
@@ -14,6 +17,7 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import { NETWORKS_INFO } from 'constants/networks'
+import { CROSS_CHAIN_MIXPANEL_TYPE, useCrossChainMixpanel } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { useCrossChainTransactions } from 'state/crossChainSwap'
 import { ExternalLink } from 'theme'
@@ -82,9 +86,20 @@ const TokenBoxInfo = ({
 }
 
 export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDismiss: () => void }) => {
+  const { crossChainMixpanelHandler } = useCrossChainMixpanel()
   const theme = useTheme()
-  const { selectedQuote, currencyIn, currencyOut, amountInWei, fromChainId, toChainId, warning, recipient } =
-    useCrossChainSwap()
+  const {
+    selectedQuote,
+    currencyIn,
+    currencyOut,
+    amountInWei,
+    fromChainId,
+    toChainId,
+    warning,
+    recipient,
+    sender,
+    receiver,
+  } = useCrossChainSwap()
   const { data: walletClient } = useWalletClient()
   const [submittingTx, setSubmittingTx] = useState(false)
   const [txHash, setTxHash] = useState('')
@@ -110,6 +125,9 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
   const nearWallet = useWalletSelector()
 
   const { walletInfo, availableWallets } = useBitcoinWallet()
+
+  const { publicKey: solanaAddress, sendTransaction } = useWallet()
+  const { connection } = useConnection()
 
   const sendBtcFn = async (params: { recipient: string; amount: string | number }) => {
     const feeRate = await fetch('https://mempool.space/api/v1/fees/recommended').then(res => res.json())
@@ -149,15 +167,91 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
 
   const handleSwap = async () => {
     if (isEvmChain(fromChainId) && !walletClient) return
+    const adaptedWallet = adaptSolanaWallet(
+      solanaAddress?.toString() || '1nc1nerator11111111111111111111111111111111',
+      792703809, //chain id that Relay uses to identify solana
+      connection,
+      async (transaction, options) => {
+        try {
+          // Ensure transaction is properly formatted
+          if (transaction instanceof VersionedTransaction || transaction instanceof Transaction) {
+            const signature = await sendTransaction(transaction, connection, options)
+            return { signature }
+          } else {
+            throw new Error('Invalid transaction type')
+          }
+        } catch (error) {
+          console.error('Transaction sending failed:', error)
+          throw error
+        }
+      },
+    )
+
     setSubmittingTx(true)
     const res = await selectedQuote.adapter
-      .executeSwap(selectedQuote, walletClient as any, nearWallet, sendBtcFn)
+      .executeSwap(
+        selectedQuote,
+        fromChainId === 'solana' ? adaptedWallet : (walletClient as any),
+        nearWallet,
+        sendBtcFn,
+        sendTransaction,
+        connection,
+      )
       .catch(e => {
         console.log(e)
         setTxError(e?.message)
         setSubmittingTx(false)
       })
-    if (res) setTransactions([res, ...transactions].slice(0, 30))
+
+    if (
+      res?.sourceTxHash === 'GasRefuel cancelled' ||
+      res?.sourceTxHash === 'Rejected' ||
+      res?.sourceTxHash?.includes('Not enough ETH for gas')
+    ) {
+      setTxError(res?.sourceTxHash || '')
+      setSubmittingTx(false)
+      return
+    }
+
+    if (res) {
+      setTransactions([res, ...transactions].slice(0, 30))
+
+      const swapDetails = {
+        from_chain: fromChainId,
+        to_chain: toChainId,
+        from_token:
+          fromChainId === NonEvmChain.Bitcoin
+            ? currencyIn.symbol
+            : fromChainId === NonEvmChain.Solana
+            ? (currencyIn as any).id
+            : fromChainId === NonEvmChain.Near
+            ? (currencyIn as any).assetId
+            : (currencyIn as any)?.address || currencyIn?.symbol,
+        to_token:
+          toChainId === NonEvmChain.Bitcoin
+            ? currencyOut.symbol
+            : toChainId === NonEvmChain.Solana
+            ? (currencyOut as any).id
+            : toChainId === NonEvmChain.Near
+            ? (currencyOut as any).assetId
+            : (currencyOut as any)?.address || currencyOut?.symbol,
+        amount_in: amount,
+        amount_out: selectedQuote.quote.outputAmount.toString(),
+        partner: selectedQuote.adapter.getName(),
+        source_tx_hash: res.sourceTxHash,
+        sender,
+        recipient: receiver,
+        status: 'init',
+        fee_percent: selectedQuote.quote.platformFeePercent,
+        time: Date.now(),
+        timestamp: Date.now(),
+        amount_in_usd: selectedQuote.quote.inputUsd,
+        amount_out_usd: selectedQuote.quote.outputUsd,
+        currency: 'USD',
+        platform: 'KyberSwap Cross-Chain',
+      }
+      crossChainMixpanelHandler(CROSS_CHAIN_MIXPANEL_TYPE.CROSS_CHAIN_SWAP_INIT, swapDetails)
+    }
     setTxHash(res?.sourceTxHash || '')
     setSubmittingTx(false)
   }
@@ -176,7 +270,9 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
       onDismiss={dismiss}
       hash={txHash}
       scanLink={
-        fromChainId === NonEvmChain.Near
+        fromChainId === NonEvmChain.Solana
+          ? `https://solscan.io/tx/${txHash}`
+          : fromChainId === NonEvmChain.Near
           ? `https://nearblocks.io/address/${txHash}`
           : fromChainId === NonEvmChain.Bitcoin
           ? `https://mempool.space/tx/${txHash}`
@@ -252,7 +348,9 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
                 <ExternalLink
                   style={{ textDecoration: 'none', color: theme.text }}
                   href={
-                    toChainId === NonEvmChain.Near
+                    toChainId === NonEvmChain.Solana
+                      ? `https://solscan.io/account/${recipient}`
+                      : toChainId === NonEvmChain.Near
                       ? `https://nearblocks.io/address/${recipient}`
                       : toChainId === NonEvmChain.Bitcoin
                       ? `https://mempool.space/address/${recipient}`

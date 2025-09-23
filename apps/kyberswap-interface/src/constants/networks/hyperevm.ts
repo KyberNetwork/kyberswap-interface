@@ -16,7 +16,7 @@ const hyperevmInfo: NetworkInfo = {
 
   iconSelected: NOT_SUPPORT,
 
-  etherscanUrl: 'https://www.hyperscan.com',
+  etherscanUrl: 'https://www.hyperevmscan.io',
   etherscanName: 'HyperEVM',
   bridgeURL: 'https://kyberswap.com/cross-chain?from=1&to=999&tokenIn=ETH&tokenOut=hype',
   nativeToken: {

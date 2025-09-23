@@ -1,11 +1,10 @@
+import { rgba } from 'polished'
 import styled from 'styled-components'
 
 import { ReactComponent as IconArrowLeftSvg } from 'assets/svg/ic_left_arrow.svg'
 
 export const IconArrowLeft = styled(IconArrowLeftSvg)`
   cursor: pointer;
-  position: relative;
-  top: 5px;
   color: rgba(250, 250, 250, 1);
 
   :hover {
@@ -27,12 +26,12 @@ export const DexInfo = styled.div<{ openable: boolean }>`
 
 export const PositionDetailWrapper = styled.div`
   display: flex;
-  flex-direction: column;
   gap: 36px;
   padding: 36px;
   border-radius: 20px;
   background-color: ${({ theme }) => theme.background};
   width: 100%;
+  position: relative;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     padding: 24px;
@@ -43,14 +42,6 @@ export const PositionDetailWrapper = styled.div`
     margin: 0 -16px;
     width: calc(100% + 32px);
     padding: 20px 16px;
-  `}
-`
-
-export const MainSection = styled.div`
-  display: flex;
-  gap: 36px;
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
     flex-direction: column;
   `}
 `
@@ -79,35 +70,98 @@ export const InfoSection = styled.div`
   `}
 `
 
-export const InfoSectionFirstFormat = styled(InfoSection)`
+export const RewardsSection = styled(InfoSection)`
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 10px;
 `
 
-export const InfoSectionSecondFormat = styled(InfoSection)`
+export const NextDistribution = styled.div`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 10px;
+  background: ${({ theme }) => rgba(theme.white, 0.04)};
+  padding: 8px 12px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+  gap: 8px;
+`
+
+export const RewardDetailInfo = styled.div`
+  display: flex;
+  padding: 16px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  align-self: stretch;
+  border-radius: 16px;
+  background: ${({ theme }) => rgba(theme.white, 0.04)};
+`
+
+export const TotalLiquiditySection = styled(InfoSection)<{ showForFarming?: boolean }>`
+  display: flex;
+  align-items: center;
+  gap: 20px;
+
+  ${({ showForFarming }) => showForFarming && 'flex-grow: 1;'}
+`
+
+export const PriceSection = styled(InfoSection)`
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+`
+
+export const AprSection = styled(InfoSection)<{ showForFarming?: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  ${({ showForFarming }) => showForFarming && 'flex-direction: column;'}
+  ${({ showForFarming }) => showForFarming && 'align-items: flex-start;'}
+  ${({ showForFarming }) => showForFarming && 'justify-content: center;'}
+  ${({ showForFarming }) => showForFarming && 'padding: 16px 24px;'}
+  ${({ showForFarming }) => showForFarming && 'gap: 6px;'}
+  ${({ showForFarming }) => showForFarming && 'align-self: stretch;'}
+`
+
+const PriceRangeSection = styled(InfoSection)`
   flex: 1 1 50%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  padding: 12px 24px;
 `
 
-export const InfoRight = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 8px;
+export const MinPriceSection = styled(PriceRangeSection)`
+  border-color: rgba(49, 203, 158, 0.4);
 `
 
-export const VerticalDivider = styled.div`
+export const MaxPriceSection = styled(PriceRangeSection)`
+  border-color: rgba(143, 146, 255, 0.6);
+`
+
+export const VerticalDivider = styled.div<{ height?: string }>`
   width: 1px;
-  height: 32px;
+  height: ${({ height }) => height || '32px'};
   background: ${({ theme }) => theme.tabActive};
 `
 
 export const RevertIconWrapper = styled.div`
-  transform: rotate(90deg);
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  aspect-ratio: 1/1;
+  border-radius: 50%;
+  background: ${({ theme }) => rgba(theme.white, 0.08)};
   cursor: pointer;
 
   :hover {
@@ -120,6 +174,7 @@ export const PositionActionWrapper = styled.div`
   align-items: center;
   justify-content: flex-end;
   gap: 24px;
+  margin-top: 16px;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     gap: 16px;
@@ -128,6 +183,7 @@ export const PositionActionWrapper = styled.div`
 
 export const PositionAction = styled.button<{
   outline?: boolean
+  outlineDefault?: boolean
   small?: boolean
   disabled?: boolean
   load?: boolean
@@ -144,8 +200,10 @@ export const PositionAction = styled.button<{
   cursor: pointer;
 
   ${({ small }) => small && 'padding: 6px 16px;'}
-  ${({ outline }) => outline && 'background-color: transparent;'}
+  ${({ outline, outlineDefault }) => (outlineDefault || outline) && 'background-color: transparent;'}
   ${({ outline, theme }) => outline && `color: ${theme.primary};`}
+  ${({ outlineDefault, theme }) =>
+    outlineDefault && `color: ${rgba(theme.white, 0.7)}; border-color: ${rgba(theme.white, 0.7)};`}
 
   ${({ theme, mobileAutoWidth }) =>
     !mobileAutoWidth &&
@@ -160,7 +218,10 @@ export const PositionAction = styled.button<{
 
   ${({ disabled, theme }) =>
     disabled &&
-    `cursor: not-allowed; color: ${theme.subText}; border-color: ${theme.subText}; filter: brightness(0.6) !important;`}
+    `cursor: not-allowed; color: ${rgba(
+      theme.white,
+      0.4,
+    )}; border-color: transparent; filter: brightness(0.6) !important; background-color: ${rgba(theme.white, 0.12)};`}
   ${({ load }) => load && `cursor: not-allowed; filter: brightness(0.6) !important;`}
 `
 
@@ -172,4 +233,63 @@ export const ChartWrapper = styled.div`
   ${({ theme }) => theme.mediaWidth.upToSmall`
     padding: 0;
   `}
+`
+
+export const ChartPlaceholder = styled.div`
+  position: relative;
+`
+
+export const ChartSkeletonWrapper = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: ${({ theme }) => theme.background};
+  z-index: -1;
+`
+
+export const PositionHeader = styled.div`
+  display: flex;
+  gap: 8px;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    flex-direction: column;
+    gap: 12px;
+  `}
+`
+
+export const MigrationLiquidityRecommend = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  padding: 10px 20px;
+  align-items: center;
+  font-size: 14px;
+  gap: 8px;
+  row-gap: 4px;
+  border-radius: 16px;
+  background: rgba(15, 170, 162, 0.2);
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    row-gap: 2px;
+  `}
+`
+
+export const ShareButtonWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: ${({ theme }) => rgba(theme.primary, 0.2)};
+  padding: 6px 8px 6px 6px;
+  transition: all 0.1s ease-in-out;
+  cursor: pointer;
+
+  :hover {
+    filter: brightness(1.2);
+  }
+
+  :active {
+    filter: brightness(1.05);
+  }
 `

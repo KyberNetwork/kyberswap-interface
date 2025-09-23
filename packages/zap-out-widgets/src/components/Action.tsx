@@ -1,33 +1,28 @@
-import { useSwapPI } from "@/components/SwapImpact";
-import { WarningMsg } from "@/components/WarningMsg";
-import InfoHelper from "@/components/InfoHelper";
-import { DEXES_INFO, FARMING_CONTRACTS, NETWORKS_INFO } from "@/constants";
-import { useNftApproval } from "@/hooks/useNftApproval";
-import usePositionOwner from "@/hooks/usePositionOwner";
-import { useZapOutContext } from "@/stores";
-import { useZapOutUserState } from "@/stores/state";
-import { PI_LEVEL } from "@/utils";
-import { cn } from "@kyber/utils/tailwind-helpers";
-import { useMemo, useState } from "react";
+import { useMemo, useState } from 'react';
+
+import { cn } from '@kyber/utils/tailwind-helpers';
+
+import InfoHelper from '@/components/InfoHelper';
+import { useSwapPI } from '@/components/SwapImpact';
+import { WarningMsg } from '@/components/WarningMsg';
+import { DEXES_INFO, FARMING_CONTRACTS, NETWORKS_INFO } from '@/constants';
+import { useNftApproval } from '@/hooks/useNftApproval';
+import usePositionOwner from '@/hooks/usePositionOwner';
+import { useZapOutContext } from '@/stores';
+import { useZapOutUserState } from '@/stores/state';
+import { PI_LEVEL } from '@/utils';
 
 export const Action = () => {
-  const {
-    onClose,
-    connectedAccount,
-    chainId,
-    onConnectWallet,
-    onSwitchChain,
-    poolType,
-    positionId,
-  } = useZapOutContext((s) => s);
+  const { onClose, connectedAccount, chainId, onConnectWallet, onSwitchChain, poolType, positionId } = useZapOutContext(
+    s => s,
+  );
+
   const { address: account, chainId: walletChainId } = connectedAccount;
 
-  const { fetchingRoute, togglePreview, route, degenMode, toggleSetting } =
-    useZapOutUserState();
+  const { fetchingRoute, togglePreview, route, degenMode, toggleSetting } = useZapOutUserState();
 
   const nftManager = DEXES_INFO[poolType].nftManagerContract;
-  const nftManagerContract =
-    typeof nftManager === "string" ? nftManager : nftManager[chainId];
+  const nftManagerContract = typeof nftManager === 'string' ? nftManager : nftManager[chainId];
 
   const {
     isChecking,
@@ -47,24 +42,15 @@ export const Action = () => {
 
   const positionOwner = usePositionOwner({ positionId, chainId, poolType });
   const isNotOwner =
-    positionOwner &&
-    connectedAccount?.address &&
-    positionOwner !== connectedAccount?.address?.toLowerCase()
+    positionOwner && connectedAccount?.address && positionOwner !== connectedAccount?.address?.toLowerCase()
       ? true
       : false;
   const isFarming =
     isNotOwner &&
     FARMING_CONTRACTS[poolType]?.[chainId] &&
-    FARMING_CONTRACTS[poolType]?.[chainId]?.toLowerCase() ===
-      positionOwner?.toLowerCase();
+    FARMING_CONTRACTS[poolType]?.[chainId]?.toLowerCase() === positionOwner?.toLowerCase();
 
-  const disabled =
-    isNotOwner ||
-    clickedApprove ||
-    isChecking ||
-    fetchingRoute ||
-    Boolean(pendingTx) ||
-    !route;
+  const disabled = isNotOwner || clickedApprove || isChecking || fetchingRoute || Boolean(pendingTx) || !route;
 
   const handleClick = async () => {
     if (!account) {
@@ -82,39 +68,33 @@ export const Action = () => {
     }
     if (pi.piVeryHigh && !degenMode) {
       toggleSetting(true);
-      document
-        .getElementById("zapout-setting")
-        ?.scrollIntoView({ behavior: "smooth" });
+      document.getElementById('zapout-setting')?.scrollIntoView({ behavior: 'smooth' });
       return;
     }
     togglePreview();
   };
 
-  const { swapPiRes, zapPiRes } = useSwapPI();
+  const { zapPiRes } = useSwapPI();
 
   const pi = {
-    piHigh:
-      swapPiRes.piRes.level === PI_LEVEL.HIGH ||
-      zapPiRes.level === PI_LEVEL.HIGH,
-    piVeryHigh:
-      swapPiRes.piRes.level === PI_LEVEL.VERY_HIGH ||
-      zapPiRes.level === PI_LEVEL.VERY_HIGH,
+    piHigh: zapPiRes.level === PI_LEVEL.HIGH,
+    piVeryHigh: zapPiRes.level === PI_LEVEL.VERY_HIGH,
   };
 
   const btnText = useMemo(() => {
-    if (!account) return "Connect Wallet";
+    if (!account) return 'Connect Wallet';
     if (isNotOwner) {
-      if (isFarming) return "Your position is in farming";
-      return "Not the position owner";
+      if (isFarming) return 'Your position is in farming';
+      return 'Not the position owner';
     }
-    if (isChecking) return "Checking Approval...";
-    if (fetchingRoute) return "Fetching Route...";
-    if (!route) return "No route found";
-    if (chainId !== walletChainId) return "Switch Network";
-    if (clickedApprove || pendingTx) return "Approving...";
-    if (!isApproved) return "Approve";
-    if (pi.piVeryHigh) return "Remove anyway";
-    return "Preview";
+    if (!route) return 'No route found';
+    if (isChecking) return 'Checking Approval...';
+    if (fetchingRoute) return 'Fetching Route...';
+    if (chainId !== walletChainId) return 'Switch Network';
+    if (clickedApprove || pendingTx) return 'Approving...';
+    if (!isApproved) return 'Approve';
+    if (pi.piVeryHigh) return 'Remove anyway';
+    return 'Preview';
   }, [
     account,
     isNotOwner,
@@ -139,33 +119,30 @@ export const Action = () => {
         </button>
         <button
           className={cn(
-            "ks-primary-btn flex-1 w-full disabled:opacity-50 disabled:cursor-not-allowed",
+            'ks-primary-btn flex-1 w-full disabled:opacity-50 disabled:cursor-not-allowed',
             !disabled && isApproved
               ? pi.piVeryHigh
-                ? "bg-error border-solid border-error text-white"
+                ? 'bg-error border-solid border-error text-white'
                 : pi.piHigh
-                ? "bg-warning border-solid border-warning"
-                : ""
-              : ""
+                  ? 'bg-warning border-solid border-warning'
+                  : ''
+              : '',
           )}
           disabled={disabled}
           onClick={handleClick}
         >
           {btnText}
-          {pi.piVeryHigh &&
-            chainId === walletChainId &&
-            account &&
-            isApproved && (
-              <InfoHelper
-                color="#ffffff"
-                width="300px"
-                text={
-                  degenMode
-                    ? "You have turned on Degen Mode from settings. Trades with very high price impact can be executed"
-                    : "To ensure you dont lose funds due to very high price impact, swap has been disabled for this trade. If you still wish to continue, you can turn on Degen Mode from Settings."
-                }
-              />
-            )}
+          {pi.piVeryHigh && chainId === walletChainId && account && isApproved && (
+            <InfoHelper
+              color="#ffffff"
+              width="300px"
+              text={
+                degenMode
+                  ? 'You have turned on Degen Mode from settings. Trades with very high price impact can be executed'
+                  : 'To ensure you dont lose funds due to very high price impact, swap has been disabled for this trade. If you still wish to continue, you can turn on Degen Mode from Settings.'
+              }
+            />
+          )}
         </button>
       </div>
     </>

@@ -9,12 +9,14 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@kyber/ui/card";
-import { Label } from "@kyber/ui/label";
-import { RadioGroup, RadioGroupItem } from "@kyber/ui/radio-group";
-import { TabsContent } from "@kyber/ui/tabs";
+  Label,
+  RadioGroup,
+  RadioGroupItem,
+  TabsContent,
+  Checkbox,
+} from "@kyber/ui";
 import {
-  Dex as ZapMigrationDex,
+  PoolType as ZapMigrationDex,
   ZapMigration as ZapMigrationWidget,
   ChainId,
 } from "@kyberswap/zap-migration-widgets";
@@ -23,6 +25,7 @@ import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { useState } from "react";
 import { useAccount, useChainId, useSwitchChain, useWalletClient } from "wagmi";
 import { Zap } from "@/App";
+import { cn } from "@kyber/utils/tailwind-helpers";
 
 const ZapMigration = () => {
   const { address } = useAccount();
@@ -35,43 +38,49 @@ const ZapMigration = () => {
   const [params, setParams] = useState<{
     chainId: string;
     from: {
-      dex: ZapMigrationDex;
-      poolId: string;
+      poolType: ZapMigrationDex;
+      poolAddress: string;
       positionId: number | string | undefined;
     };
     to: {
-      dex: ZapMigrationDex;
-      poolId: string;
+      poolType: ZapMigrationDex;
+      poolAddress: string;
       positionId: number | string | undefined;
     };
+    rePositionMode: boolean;
   }>({
-    chainId: ChainId.Base.toString(),
+    chainId: ChainId.Ethereum.toString(),
     from: {
-      dex: ZapMigrationDex.DEX_UNISWAP_V4,
-      poolId:
-        "0x96d4b53a38337a5733179751781178a2613306063c511b78cd02684739288c0a",
-      positionId: 40150,
+      poolType: ZapMigrationDex.DEX_UNISWAP_V4_FAIRFLOW,
+      poolAddress:
+        "0xce93ea3914c62e0008348cf39fd006e130e7c503935fb01d154b971c8663f4fb",
+      positionId: "66205",
     },
     to: {
-      dex: ZapMigrationDex.DEX_UNISWAP_V4,
-      poolId:
-        "0x841c1a22d9a505cbba3e9bf90fd43e1201a09932ca0a90816579346be5f092af",
-      positionId: undefined,
+      poolType: ZapMigrationDex.DEX_UNISWAP_V4_FAIRFLOW,
+      poolAddress:
+        "0x3b1bd35a555160a9b60c7524db56029c2025ab93b69d97d33ca3f1c23b6494ad",
+      positionId: "32321",
+      // positionId: undefined,
     },
+    rePositionMode: false,
   });
 
   const widgetProps = {
     chainId: +params.chainId,
     from: {
-      dex: +params.from.dex,
-      poolId: params.from.poolId,
-      positionId: params.from.positionId || -1,
+      poolType: +params.from.poolType,
+      poolAddress: params.from.poolAddress,
+      positionId: (params.from.positionId || -1).toString(),
     },
-    to: {
-      dex: +params.to.dex,
-      poolId: params.to.poolId,
-      positionId: params.to.positionId,
-    },
+    to: !params.rePositionMode
+      ? {
+          poolType: +params.to.poolType,
+          poolAddress: params.to.poolAddress,
+          positionId: params.to.positionId?.toString(),
+        }
+      : undefined,
+    rePositionMode: params.rePositionMode,
     client: "zap-migration-demo",
     connectedAccount: {
       address,
@@ -84,7 +93,7 @@ const ZapMigration = () => {
       openConnectModal?.();
     },
     onSwitchChain: () => {
-      switchChain?.({ chainId: ChainId.Bsc });
+      switchChain?.({ chainId: Number(params.chainId) });
     },
     onSubmitTx: async (txData: {
       from: string;
@@ -120,6 +129,17 @@ const ZapMigration = () => {
         </CardHeader>
         <CardContent className="space-y-2">
           <div className="space-y-1">
+            <div className="flex items-center space-x-1.5">
+              <Checkbox
+                checked={params.rePositionMode}
+                onChange={(checked) =>
+                  setParams((p) => ({ ...p, rePositionMode: checked }))
+                }
+              />
+              <Label htmlFor="rePositionMode">Reposition</Label>
+            </div>
+          </div>
+          <div className="space-y-1">
             <Label htmlFor="chainId">Chain Id</Label>
             <Input
               id="chainId"
@@ -141,11 +161,11 @@ const ZapMigration = () => {
                 <Input
                   id="from-pool"
                   placeholder="Pool address"
-                  value={params.from.poolId}
+                  value={params.from.poolAddress}
                   onChange={(e) =>
                     setParams((p) => ({
                       ...p,
-                      from: { ...p.from, poolId: e.target.value },
+                      from: { ...p.from, poolAddress: e.target.value },
                     }))
                   }
                 />
@@ -174,34 +194,52 @@ const ZapMigration = () => {
               </Label>
               <RadioGroup
                 className="grid grid-cols-2 gap-2"
-                value={params.from.dex.toString()}
+                value={params.from.poolType.toString()}
                 onValueChange={(value) =>
                   setParams((p) => ({
                     ...p,
-                    from: { ...p.from, dex: value as any },
+                    from: { ...p.from, poolType: value as any },
                   }))
                 }
               >
-                {Object.entries(ZapMigrationDex)
-                  .filter((x) => isNaN(+x[0]))
-                  .map(([key, value]) => {
+                {Object.keys(ZapMigrationDex)
+                  .filter((key) => isNaN(Number(key)))
+                  .map((key: string, index: number) => {
                     return (
                       <div className="flex items-center space-x-2" key={key}>
                         <RadioGroupItem
-                          value={value.toString() as string}
-                          id={`from-${key}`}
+                          value={ZapMigrationDex[
+                            key as keyof typeof ZapMigrationDex
+                          ].toString()}
+                          id={`from-${index + 1}`}
                         />
-                        <Label className="text-xs" htmlFor={`from-${key}`}>
-                          {zapMigrationDexMapping[
-                            value as keyof typeof zapMigrationDexMapping
-                          ] || key}
+                        <Label
+                          className="text-xs"
+                          htmlFor={`from-${index + 1}`}
+                        >
+                          {ZapMigrationDex[
+                            key as keyof typeof ZapMigrationDex
+                          ] in zapMigrationDexMapping
+                            ? zapMigrationDexMapping[
+                                ZapMigrationDex[
+                                  key as keyof typeof ZapMigrationDex
+                                ] as keyof typeof zapMigrationDexMapping
+                              ]
+                            : ZapMigrationDex[
+                                key as keyof typeof ZapMigrationDex
+                              ]}
                         </Label>
                       </div>
                     );
                   })}
               </RadioGroup>
             </div>
-            <div className="space-y-1.5">
+            <div
+              className={cn(
+                "space-y-1.5",
+                params.rePositionMode && "opacity-50 cursor-not-allowed"
+              )}
+            >
               <Label>Zap to</Label>
               <div className="space-y-1">
                 <Label htmlFor="to-pool" className="text-xs text-[#ffffff66]">
@@ -210,11 +248,12 @@ const ZapMigration = () => {
                 <Input
                   id="to-pool"
                   placeholder="Pool address"
-                  value={params.to.poolId}
+                  disabled={params.rePositionMode}
+                  value={params.to.poolAddress}
                   onChange={(e) =>
                     setParams((p) => ({
                       ...p,
-                      to: { ...p.to, poolId: e.target.value },
+                      to: { ...p.to, poolAddress: e.target.value },
                     }))
                   }
                 />
@@ -229,6 +268,7 @@ const ZapMigration = () => {
                 <Input
                   id="to-position-id"
                   placeholder="Position Id"
+                  disabled={params.rePositionMode}
                   value={params.to.positionId}
                   onChange={(e) =>
                     setParams((p) => ({
@@ -243,27 +283,38 @@ const ZapMigration = () => {
               </Label>
               <RadioGroup
                 className="grid grid-cols-2 gap-2"
-                value={params.to.dex.toString()}
+                disabled={params.rePositionMode}
+                value={params.to.poolType.toString()}
                 onValueChange={(value) =>
                   setParams((p) => ({
                     ...p,
-                    to: { ...p.to, dex: value as any },
+                    to: { ...p.to, poolType: value as any },
                   }))
                 }
               >
-                {Object.entries(ZapMigrationDex)
-                  .filter((x) => isNaN(+x[0]))
-                  .map(([key, value]) => {
+                {Object.keys(ZapMigrationDex)
+                  .filter((key) => isNaN(Number(key)))
+                  .map((key: string, index: number) => {
                     return (
                       <div className="flex items-center space-x-2" key={key}>
                         <RadioGroupItem
-                          value={value.toString() as string}
-                          id={`to-${key}`}
+                          value={ZapMigrationDex[
+                            key as keyof typeof ZapMigrationDex
+                          ].toString()}
+                          id={`to-${index + 1}`}
                         />
-                        <Label className="text-xs" htmlFor={`to-${key}`}>
-                          {zapMigrationDexMapping[
-                            value as keyof typeof zapMigrationDexMapping
-                          ] || key}
+                        <Label className="text-xs" htmlFor={`to-${index + 1}`}>
+                          {ZapMigrationDex[
+                            key as keyof typeof ZapMigrationDex
+                          ] in zapMigrationDexMapping
+                            ? zapMigrationDexMapping[
+                                ZapMigrationDex[
+                                  key as keyof typeof ZapMigrationDex
+                                ] as keyof typeof zapMigrationDexMapping
+                              ]
+                            : ZapMigrationDex[
+                                key as keyof typeof ZapMigrationDex
+                              ]}
                         </Label>
                       </div>
                     );
@@ -275,8 +326,8 @@ const ZapMigration = () => {
         <CardFooter>
           <SubmitButton
             disabled={
-              !params.from.poolId ||
-              !params.to.poolId ||
+              !params.from.poolAddress ||
+              (!params.to.poolAddress && !params.rePositionMode) ||
               !params.from.positionId ||
               !params.chainId
             }
@@ -284,7 +335,10 @@ const ZapMigration = () => {
           />
 
           {openWidget && (
-            <Modal onClose={() => setOpenWidget(false)}>
+            <Modal
+              className="max-w-[850px]"
+              onClose={() => setOpenWidget(false)}
+            >
               <ZapMigrationWidget {...widgetProps} />
             </Modal>
           )}

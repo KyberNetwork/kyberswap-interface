@@ -1,5 +1,4 @@
-import type { ZoomLevels } from "@/types";
-import { FeeAmount } from "@/types";
+import { POOL_CATEGORY } from '@kyber/schema';
 
 export const PRICE_FIXED_DIGITS = 8;
 
@@ -12,34 +11,28 @@ export const DEFAULT_MARGINS = {
   left: 0,
 };
 
-export const ZOOM_LEVELS: Record<FeeAmount, ZoomLevels> = {
-  [FeeAmount.LOWEST]: {
-    initialMin: 0.99,
-    initialMax: 1.01,
+export const ZOOM_LEVELS = {
+  [POOL_CATEGORY.STABLE_PAIR]: {
+    initialMin: 0.999,
+    initialMax: 1.001,
     min: 0.00001,
     max: 20,
   },
-  [FeeAmount.LOW]: {
-    initialMin: 0.91,
-    initialMax: 1.09,
+  [POOL_CATEGORY.CORRELATED_PAIR]: {
+    initialMin: 0.998,
+    initialMax: 1.002,
     min: 0.00001,
     max: 20,
   },
-  [FeeAmount.MIDDLE]: {
-    initialMin: 0.6,
-    initialMax: 1.4,
+  [POOL_CATEGORY.COMMON_PAIR]: {
+    initialMin: 0.8,
+    initialMax: 1.2,
     min: 0.00001,
     max: 20,
   },
-  [FeeAmount.MEDIUM]: {
-    initialMin: 0.6,
-    initialMax: 1.4,
-    min: 0.00001,
-    max: 20,
-  },
-  [FeeAmount.HIGH]: {
-    initialMin: 0.1,
-    initialMax: 1.9,
+  [POOL_CATEGORY.EXOTIC_PAIR]: {
+    initialMin: 0.55,
+    initialMax: 1.45,
     min: 0.00001,
     max: 20,
   },

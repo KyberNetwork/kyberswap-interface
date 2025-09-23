@@ -1,15 +1,22 @@
-import { PATHS } from "@/constants";
-import { formatDisplayNumber } from "@kyber/utils/number";
-import { cn } from "@kyber/utils/tailwind-helpers";
-import { useEffect, useState } from "react";
-import { useZapOutContext } from "@/stores";
-import { PoolType, Univ2PoolType } from "@/schema";
+import { useEffect, useState } from 'react';
+
+import { MouseoverTooltip, Skeleton } from '@kyber/ui';
+import { formatAprNumber, formatDisplayNumber } from '@kyber/utils/number';
+import { cn } from '@kyber/utils/tailwind-helpers';
+
+import FarmingIcon from '@/assets/svg/kem.svg';
+import { PATHS } from '@/constants';
+import { PoolType, Univ2PoolType } from '@/schema';
+import { useZapOutContext } from '@/stores';
 
 interface PoolInfo {
   tvl: number;
   volume24h: number;
   fees24h: number;
-  apr24h: number;
+  apr: number;
+  kemEGApr: number;
+  kemLMApr: number;
+  isFarming: boolean;
 }
 
 export default function PoolStat({
@@ -23,29 +30,37 @@ export default function PoolStat({
   poolType: PoolType;
   positionId?: string;
 }) {
-  const { position } = useZapOutContext((s) => s);
+  const { position, pool } = useZapOutContext(s => s);
   const [poolInfo, setPoolInfo] = useState<PoolInfo | null>(null);
 
-  const isUniv2 =
-    position !== "loading" &&
-    Univ2PoolType.safeParse(position.poolType).success;
+  const initializing = pool === 'loading';
+
+  const isUniv2 = Univ2PoolType.safeParse(poolType).success;
   const poolShare =
-    position === "loading" || !isUniv2 || !("totalSupply" in position)
+    position === 'loading' || !isUniv2 || !('totalSupply' in position)
       ? null
-      : Number(
-          (BigInt(position.liquidity) * 10000n) / BigInt(position.totalSupply)
-        ) / 100;
+      : Number((BigInt(position.liquidity) * 10000n) / BigInt(position.totalSupply)) / 100;
+
+  const poolApr = (poolInfo?.apr || 0) + (poolInfo?.kemEGApr || 0) + (poolInfo?.kemLMApr || 0);
+
+  const isFarming = poolInfo?.isFarming || false;
 
   useEffect(() => {
     const handleFetchPoolInfo = () => {
-      fetch(
-        `${PATHS.ZAP_EARN_API}/v1/pools?chainId=${chainId}&address=${poolAddress}&protocol=${poolType}`
-      )
-        .then((res) => res.json())
-        .then(
-          (data) => data?.data?.poolStats && setPoolInfo(data.data.poolStats)
-        )
-        .catch((e) => {
+      fetch(`${PATHS.ZAP_EARN_API}/v1/pools?chainId=${chainId}&address=${poolAddress}&protocol=${poolType}`)
+        .then(res => res.json())
+        .then(data => {
+          const poolStatInfo = data?.data?.poolStats;
+          if (!poolStatInfo) return;
+          const programs = data?.data?.programs || [];
+          const isFarming = programs.includes('eg') || programs.includes('lm');
+
+          setPoolInfo({
+            ...poolStatInfo,
+            isFarming,
+          });
+        })
+        .catch(e => {
           console.log(e.message);
         });
     };
@@ -56,75 +71,89 @@ export default function PoolStat({
   return (
     <div
       className={cn(
-        "px-4 py-3 border border-stroke rounded-md text-subText text-sm flex flex-col gap-[6px]",
-        positionId ? "mb-4" : "mb-[10px]"
+        'px-4 py-3 border border-stroke rounded-md text-subText text-sm',
+        positionId ? 'mb-4' : 'mb-[10px]',
       )}
     >
-      <div className="flex justify-between">
-        <span>TVL</span>
-        <span className="text-text">
-          {poolInfo?.tvl || poolInfo?.tvl === 0
-            ? formatDisplayNumber(poolInfo.tvl, {
-                style: "currency",
-                significantDigits: 6,
-              })
-            : "--"}
-        </span>
+      <div className="flex max-sm:flex-col justify-between gap-[6px]">
+        <div className="flex flex-col max-sm:!flex-row max-sm:justify-between items-start gap-1">
+          <span>TVL</span>
+          {initializing ? (
+            <Skeleton className="w-16 h-5" />
+          ) : (
+            <span className="text-text">
+              {poolInfo?.tvl || poolInfo?.tvl === 0
+                ? formatDisplayNumber(poolInfo.tvl, {
+                    style: 'currency',
+                    significantDigits: 6,
+                  })
+                : '--'}
+            </span>
+          )}
+        </div>
+        <div className="flex flex-col max-sm:!flex-row max-sm:justify-between items-start gap-1">
+          <span>24h Volume</span>
+          {initializing ? (
+            <Skeleton className="w-16 h-5" />
+          ) : (
+            <span className="text-text">
+              {poolInfo?.volume24h || poolInfo?.volume24h === 0
+                ? formatDisplayNumber(poolInfo.volume24h, {
+                    style: 'currency',
+                    significantDigits: 6,
+                  })
+                : '--'}
+            </span>
+          )}
+        </div>
+        <div className="flex flex-col max-sm:!flex-row max-sm:justify-between items-start gap-1">
+          <span>24h Fees</span>
+          {initializing ? (
+            <Skeleton className="w-16 h-5" />
+          ) : (
+            <span className="text-text">
+              {poolInfo?.fees24h || poolInfo?.fees24h === 0
+                ? formatDisplayNumber(poolInfo.fees24h, {
+                    style: 'currency',
+                    significantDigits: 6,
+                  })
+                : '--'}
+            </span>
+          )}
+        </div>
+        <div className="flex flex-col max-sm:!flex-row max-sm:justify-between items-start gap-1">
+          <span>Est. APR</span>
+          {initializing ? (
+            <Skeleton className="w-16 h-5" />
+          ) : (
+            <div className={`flex items-center gap-1 ${poolApr > 0 ? 'text-accent' : 'text-text'}`}>
+              {formatAprNumber(poolApr) + '%'}
+              {isFarming ? (
+                <MouseoverTooltip
+                  text={
+                    <div>
+                      LP Fee APR: {formatAprNumber(poolInfo?.apr || 0)}%
+                      <br />
+                      EG Sharing Reward: {formatAprNumber(poolInfo?.kemEGApr || 0)}%
+                      <br />
+                      LM Reward: {formatAprNumber(poolInfo?.kemLMApr || 0)}%
+                    </div>
+                  }
+                  placement="top"
+                  width="fit-content"
+                >
+                  <FarmingIcon width={20} height={20} />
+                </MouseoverTooltip>
+              ) : null}
+            </div>
+          )}
+        </div>
       </div>
-      <div className="flex justify-between">
-        <span>24h Volume</span>
-        <span className="text-text">
-          {poolInfo?.volume24h || poolInfo?.volume24h === 0
-            ? formatDisplayNumber(poolInfo.volume24h, {
-                style: "currency",
-                significantDigits: 6,
-              })
-            : "--"}
-        </span>
-      </div>
-      <div className="flex justify-between">
-        <span>24h Fees</span>
-        <span className="text-text">
-          {poolInfo?.fees24h || poolInfo?.fees24h === 0
-            ? formatDisplayNumber(poolInfo.fees24h, {
-                style: "currency",
-                significantDigits: 6,
-              })
-            : "--"}
-        </span>
-      </div>
-      <div className="flex justify-between">
-        <span>Est. APR</span>
-        <span
-          className={
-            poolInfo?.apr24h && poolInfo.apr24h > 0
-              ? "text-accent"
-              : "text-text"
-          }
-        >
-          {poolInfo?.apr24h || poolInfo?.apr24h === 0
-            ? formatDisplayNumber(poolInfo.apr24h, {
-                significantDigits:
-                  poolInfo.apr24h < 1
-                    ? 2
-                    : poolInfo.apr24h < 10
-                    ? 3
-                    : poolInfo.apr24h < 100
-                    ? 4
-                    : 5,
-              }) + "%"
-            : "--"}
-        </span>
-      </div>
-      {isUniv2 && (
-        <div className="flex justify-between">
+      {isUniv2 && !!positionId && (
+        <div className="flex justify-between items-start gap-1 mt-3 border-t border-stroke pt-2">
           <span>Pool Share</span>
           <span className="text-text">
-            {poolShare || poolShare === 0
-              ? poolShare < 0.01
-                ? "<0.01%"
-                : poolShare + "%"
-              : "--"}
+            {poolShare || poolShare === 0 ? (poolShare < 0.01 ? '<0.01%' : poolShare + '%') : '--'}
           </span>
         </div>
       )}

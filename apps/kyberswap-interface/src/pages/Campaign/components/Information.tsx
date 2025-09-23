@@ -3,20 +3,162 @@ import { Minus, Plus, Star } from 'react-feather'
 import { Link } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
+import styled from 'styled-components'
 
 import Divider from 'components/Divider'
 import useTheme from 'hooks/useTheme'
 import { ButtonIcon } from 'pages/Pools/styleds'
 import { ExternalLink } from 'theme'
 
-export enum CampaignType {
-  MayTrading = 'MayTrading',
-  Aggregator = 'Aggregator',
-  LimitOrder = 'LimitOrder',
-  Referrals = 'Referrals',
-}
+import nearCampaignGuide from '../assets/near_campaign_guide.png'
+import { CampaignType } from '../constants'
+
+const nearIntentTableData = [
+  {
+    pair: 'Non-EVM → Near L1 (excl same chain)',
+    stable: 6,
+    other: 6,
+  },
+  {
+    pair: 'Non-EVM ← Near L1 (excl same chain)',
+    stable: 4,
+    other: 4,
+  },
+  {
+    pair: 'EVM → Near L1',
+    stable: 2.5,
+    other: 5,
+  },
+  {
+    pair: 'EVM ← Near L1',
+    stable: 1.5,
+    other: 3,
+  },
+  {
+    pair: 'EVM ↔ Bitcoin L1',
+    stable: 5,
+    other: 5,
+  },
+  {
+    pair: 'EVM ↔ Solana L1',
+    stable: 2,
+    other: 4,
+  },
+  {
+    pair: 'Bitcoin L1 ↔ Solana L1',
+    stable: 5,
+    other: 5,
+  },
+  {
+    pair: 'EVM ↔ EVM (excl same chain)',
+    stable: 1,
+    other: 3,
+  },
+]
+
+const TableWrapper = styled.div`
+  overflow-x: auto;
+`
+
+const StyledTable = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+`
+
+const Th = styled.th`
+  border: 1px solid ${({ theme }) => theme.border};
+  padding: 8px 12px;
+  text-align: center;
+`
+
+const Td = styled.td<{ center?: boolean }>`
+  border: 1px solid ${({ theme }) => theme.border};
+  padding: 8px 12px;
+  text-align: ${props => (props.center ? 'center' : 'left')};
+`
+
+const Tr = styled.tr`
+  &:hover {
+    background-color: ${props => props.theme.buttonBlack};
+  }
+`
 
 const howToEarnPoints = (week: number) => ({
+  [CampaignType.NearIntents]: (
+    <>
+      <li>
+        Go to <Link to="/cross-chain">KyberSwap Cross-Chain</Link> feature.
+      </li>
+      <li>
+        Click on <b>{'Route Options'}</b> and select <b>NEAR Intents.</b>
+        <img src={nearCampaignGuide} width="100%" />
+      </li>
+      <li>For every $1 bridged via NEAR Intents on KyberSwap, users earn points based on the following scale:</li>
+      <TableWrapper>
+        <StyledTable>
+          <thead>
+            <Tr>
+              <Th></Th>
+              <Th>Stable Pair</Th>
+              <Th>Any Other Pairs</Th>
+            </Tr>
+          </thead>
+          <tbody>
+            {nearIntentTableData.map((row, index) => (
+              <Tr key={index}>
+                <Td>{row.pair}</Td>
+                <Td center>{row.stable}</Td>
+                <Td center>{row.other}</Td>
+              </Tr>
+            ))}
+          </tbody>
+        </StyledTable>
+      </TableWrapper>
+      <ul style={{ marginBottom: 0 }}>
+        <li>
+          <b>Stable Pairs:</b>
+          <ul>
+            <li>Both tokens must be stablecoins (e.g., USDC–USDC, USDT–USDT, USDC–USDT…)</li>
+            <li>
+              Both tokens must be the same native tokens including ETH–ETH, BNB–BNB, POL–POL. Wrapped versions of ETH,
+              BNB, and POL are also eligible (e.g., ETH–WETH, WETH–WETH, BNB–WBNB…)
+            </li>
+          </ul>
+        </li>
+        <li>
+          <b>Any Other Pairs:</b> Refers to any trading pairs that are not classified as Stable Pairs.
+        </li>
+      </ul>
+      <span>
+        <i>Note:</i> Volume is measured based on the value of tokens received on the <b>destination chain</b>, and
+        attributed to the <b>destination wallet.</b>
+      </span>
+      <li>
+        <b>User reward = (User Points/Total Points) * Weekly Prize Pool</b>
+        <ul style={{ margin: 0 }}>
+          <li>User Points: Points earned within the $100,000 volume cap</li>
+          <li>Total Points: Combined points from all participants </li>
+          <li>
+            Example: A user earns 100 points. Total participant points = 1,000. Weekly reward pool = $20,000. User
+            reward = (100 / 1,000) × 20,000 = $2,000.
+          </li>
+        </ul>
+      </li>
+      <li>
+        {`Each user’s eligible trading volume is capped at $100,000 per week in Week 1 and `}
+        <b>$50,000 per week in Week 2</b>
+      </li>
+      <li>
+        Users can freely choose pairs and routes to optimize their points within the $50,000 volume cap in Week 2. For
+        example:
+        <ul style={{ margin: 0 }}>
+          <li>Trade $50,000 between EVM Chains and Stable Pairs earns 50,000 points.</li>
+          <li>Trade $50,000 from Arbitrum to Near L1 and Stable Pairs earns 125,000 points.</li>
+        </ul>
+      </li>
+    </>
+  ),
   [CampaignType.MayTrading]: (
     <>
       The campaign takes place entirely on Base chain.
@@ -189,6 +331,14 @@ const howToEarnPoints = (week: number) => ({
 })
 
 const timelines = {
+  [CampaignType.NearIntents]: (
+    <>
+      The campaign will take place over 2 weeks:
+      <li>Week 1: 0h00 UTC 21st July - 23h59 UTC 27th July.</li>
+      <li>Week 2: 0h00 UTC 28th July - 23h59 UTC 3rd August.</li>
+    </>
+  ),
+
   [CampaignType.MayTrading]: 'The campaign will start from 00h00, 27/05 - 23h59, 01/06 in UTC timezone',
   [CampaignType.Aggregator]:
     'The Campaign will take place over 10 weeks, from 8th July to 16th September 2024. Points and Rewards are reset to 0 each Monday at 0:00 UTC, after the end of each weekly event.',
@@ -198,6 +348,33 @@ const timelines = {
 }
 
 const rewards = {
+  [CampaignType.NearIntents]: (
+    <>
+      <li>
+        Week 1:{' '}
+        <Text as="span" color="#fff">
+          20,000 USDT
+        </Text>
+      </li>
+      <li>
+        Week 2:{' '}
+        <Text as="span" color="#fff">
+          30,000 USDT
+        </Text>
+      </li>
+      <li>{"Rewards will be airdropped directly to the winners' wallets by August 12th."}</li>
+      <ul style={{ margin: 0 }}>
+        <li>
+          <b>EVM, Near L1, Solana L1 winning wallets</b> will receive the airdrop <b>if the reward value is ≥ $5</b>,
+          distributed in <b>USDT</b>. For EVM wallets, the reward will be sent on the Base chain.
+        </li>
+        <li>
+          <b>Bitcoin L1 winning wallets</b> will only receive an airdrop <b>if the reward value ≥ $10</b>, and the prize
+          distributed in <b>BTC</b>, calculated at the airdrop date exchange rate.
+        </li>
+      </ul>
+    </>
+  ),
   [CampaignType.MayTrading]: (
     <>
       <li>
@@ -310,6 +487,24 @@ const rewards = {
 }
 
 const faq = {
+  [CampaignType.NearIntents]: [
+    {
+      q: 'If I swap $1 volume from EVM to Near L1, is the volume counted for my EVM wallet or my Near wallet?',
+      a: 'The volume is counted for the Near wallet (destination wallet), not the EVM wallet.',
+    },
+    {
+      q: 'My Bitcoin wallet has a reward share of $5. Will I receive the airdrop?',
+      a: 'No. Bitcoin wallets will only receive an airdrop if the reward share is ≥ $10.',
+    },
+    {
+      q: 'Are pairs that include the same POL, ETH, or BNB counted as stable pairs in this campaign?',
+      a: 'Yes. Pairs of the same native asset - POL, ETH, or BNB - and their official wrapped versions are counted as stable pairs, along with stablecoin pairs.',
+    },
+    {
+      q: 'If I swap a derivatives pair of ETH, POL, or BNB, do I receive 1 or 3 points?',
+      a: 'You will receive 3 points for swapping these derivatives pairs.',
+    },
+  ],
   [CampaignType.MayTrading]: [
     {
       q: 'How can I be eligible for the campaign?',
@@ -629,6 +824,28 @@ const stipTerms = (week: number, type: CampaignType) => (
   </>
 )
 
+const nearIntentsTerms = (
+  <>
+    <li>
+      Points & Rewards on the Leaderboard are subject to change during the buffer period before the distribution of
+      rewards. Any wallet that tries to sybil or cheat in any way will have all their points and rewards forfeited.
+    </li>
+    <li>
+      KyberSwap reserves the right to disqualify any address found to engage in the following: wash trading, sybil
+      attacks, flashloan-based volume inflation, just-in-time liquidity attack and any other behavior deemed
+      manipulative or abusive by the KyberSwap team.
+    </li>
+    <li>
+      KyberSwap may modify the campaign mechanics, eligibility, or rewards at any time without prior notice. All
+      decisions regarding rewards and disqualification are final and at the sole discretion of the KyberSwap team.
+    </li>
+    <li>
+      KyberSwap Cross-Chain leverages Near Intent infrastructure. Please note that any infrastructure-related issues are
+      not under KyberSwap’s responsibility.
+    </li>
+  </>
+)
+
 const mayTradingTerms = (
   <>
     <li>
@@ -653,7 +870,11 @@ const mayTradingTerms = (
 )
 
 const termAndConds = (week: number, type: CampaignType) =>
-  type === CampaignType.MayTrading ? mayTradingTerms : stipTerms(week, type)
+  type === CampaignType.NearIntents
+    ? nearIntentsTerms
+    : type === CampaignType.MayTrading
+    ? mayTradingTerms
+    : stipTerms(week, type)
 
 export default function Information({ type, week }: { type: CampaignType; week: number }) {
   const theme = useTheme()
@@ -679,7 +900,7 @@ export default function Information({ type, week }: { type: CampaignType; week: 
       <Flex justifyContent="space-between">
         <Flex fontSize={20} sx={{ gap: '4px' }} alignItems="center">
           <Star color={theme.warning} fill={theme.warning} />
-          How to earn points
+          {type === CampaignType.NearIntents ? 'How to participate?' : 'How to earn points'}
         </Flex>
 
         <ButtonIcon onClick={() => setIsShowRule(prev => !prev)}>
@@ -693,7 +914,7 @@ export default function Information({ type, week }: { type: CampaignType; week: 
         paddingLeft="12px"
         width="95%"
         sx={{
-          maxHeight: isShowRule ? '1000px' : 0,
+          maxHeight: isShowRule ? '10000px' : 0,
           opacity: isShowRule ? 1 : 0,
           marginTop: isShowRule ? '1rem' : 0,
           transition: 'all 0.3s ease',

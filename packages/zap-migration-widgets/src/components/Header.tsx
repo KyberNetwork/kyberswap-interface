@@ -1,84 +1,79 @@
-import { usePoolsStore } from "../stores/usePoolsStore";
-import SettingIcon from "../assets/icons/setting.svg";
-import X from "../assets/icons/x.svg";
-import { PoolInfo } from "./PoolInfo";
-import { ChainId } from "..";
-import { Skeleton } from "@kyber/ui/skeleton";
-import { usePositionStore } from "../stores/usePositionStore";
-import { MouseoverTooltip } from "@kyber/ui/tooltip";
-import { useZapStateStore } from "../stores/useZapStateStore";
-import ChevronLeft from "../assets/icons/chevron-left.svg";
-import Setting from "./Setting";
+import { MouseoverTooltip, Skeleton } from '@kyber/ui';
 
-export function Header({
-  onClose,
-  onBack,
-  chainId,
-}: {
-  onClose: () => void;
-  onBack?: () => void;
-  chainId: ChainId;
-}) {
-  const { pools, theme } = usePoolsStore();
-  const { fromPosition, toPosition } = usePositionStore();
-  const { degenMode, toggleSetting } = useZapStateStore();
+import ArrowLeft from '@/assets/icons/ic_left_arrow.svg';
+import ArrowRight from '@/assets/icons/ic_right_arrow.svg';
+import SettingIcon from '@/assets/icons/setting.svg';
+import X from '@/assets/icons/x.svg';
+import { PoolInfo, PoolInfoType } from '@/components/PoolInfo';
+import Setting from '@/components/Setting';
+import { usePoolStore } from '@/stores/usePoolStore';
+import { usePositionStore } from '@/stores/usePositionStore';
+import { useWidgetStore } from '@/stores/useWidgetStore';
+import { useZapStore } from '@/stores/useZapStore';
+
+export function Header({ onClose, onBack }: { onClose: () => void; onBack?: () => void }) {
+  const { theme, rePositionMode } = useWidgetStore(['theme', 'rePositionMode']);
+  const { sourcePool, targetPool } = usePoolStore(['sourcePool', 'targetPool']);
+  const { targetPositionId } = usePositionStore(['targetPositionId']);
+  const { degenMode, toggleSetting } = useZapStore(['degenMode', 'toggleSetting']);
 
   return (
     <div className="relative">
       <div className="flex items-center justify-between text-xl font-medium">
-        {pools === "loading" ? (
-          <Skeleton className="w-[300px] h-7" />
+        {!sourcePool || !targetPool ? (
+          <Skeleton className="w-[250px] sm:w-[400px] h-7" />
         ) : (
-          <div className="flex gap-1">
-            {onBack && (
-              <ChevronLeft
-                className="relative top-[2px] cursor-pointer text-subText hover:text-text"
-                onClick={onBack}
-              />
-            )}
-            Migrate from {pools[0].token0.symbol}/{pools[0].token1.symbol} to{" "}
-            {pools[1].token0.symbol}/{pools[1].token1.symbol}
+          <div className="flex items-center gap-2">
+            {onBack && <ArrowLeft className="cursor-pointer text-subText hover:text-text" onClick={onBack} />}
+            {rePositionMode
+              ? 'Reposition'
+              : targetPositionId
+                ? 'Migrate to increase position liquidity'
+                : 'Migrate liquidity'}
           </div>
         )}
-        <button onClick={onClose}>
-          <X className="text-subText" />
-        </button>
-      </div>
-
-      <div className="flex gap-4 md:!gap-12 mt-8">
-        <div className="flex-1">
-          <PoolInfo
-            pool={pools === "loading" ? "loading" : pools[0]}
-            chainId={chainId}
-            position={fromPosition}
-          />
-        </div>
-        <div className="flex md:flex-1 justify-between">
-          <div className="hidden md:block">
-            <PoolInfo
-              pool={pools === "loading" ? "loading" : pools[1]}
-              chainId={chainId}
-              position={toPosition}
-            />
-          </div>
-          <MouseoverTooltip text={degenMode ? "Degen Mode is turned on!" : ""}>
+        <div className="flex gap-2 items-center">
+          <MouseoverTooltip text={degenMode ? 'Degen Mode is turned on!' : ''}>
             <div
-              className="w-9 h-9 flex items-center justify-center rounded-full bg-layer2 hover:opacity-60 setting"
-              id="zapout-setting"
+              className="w-9 h-9 flex items-center justify-center rounded-full hover:opacity-60 setting"
+              id="zap-migration-setting"
               role="button"
-              onClick={(e) => {
+              onClick={e => {
                 e.stopPropagation();
                 e.preventDefault();
                 toggleSetting();
               }}
               style={{
-                background: degenMode ? theme.warning + "33" : undefined,
+                background: degenMode ? theme.warning + '33' : undefined,
                 color: degenMode ? theme.warning : undefined,
               }}
             >
               <SettingIcon />
             </div>
           </MouseoverTooltip>
+          <button onClick={onClose}>
+            <X className="text-subText" />
+          </button>
+        </div>
+      </div>
+
+      {rePositionMode ? (
+        !sourcePool || !targetPool ? null : (
+          <div className="text-sm text-subText w-fit italic">
+            Your current position will be closed and a new one created.
+          </div>
+        )
+      ) : null}
+
+      <div className="flex items-center gap-4 mt-6">
+        <div className="flex-1">
+          <PoolInfo type={PoolInfoType.Source} />
+        </div>
+        <div className="hidden md:block">
+          <ArrowRight className="text-primary w-6 h-6" />
+        </div>
+        <div className="hidden md:flex md:flex-1">
+          <PoolInfo type={PoolInfoType.Target} />
         </div>
       </div>
 

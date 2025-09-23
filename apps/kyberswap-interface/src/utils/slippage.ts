@@ -49,7 +49,8 @@ export const checkRangeSlippage = (slippage: number, pairCategory: PAIR_CATEGORY
   //   return SLIPPAGE_STATUS.LOW
   // }
 
-  if (slippage > 150) {
+  // Exotic pairs
+  if (slippage > 200) {
     return SLIPPAGE_STATUS.HIGH
   }
   if (slippage < 10) {
@@ -80,10 +81,13 @@ export const formatSlippage = (slp: number, withPercent = true) => {
   return text
 }
 
+const COMMON_PAIR = 'commonPair' // temporary solution, should have config for common pair soon
+
 export const SLIPPAGE_WARNING_MESSAGES: { [key: string]: { [key: string]: string } } = {
   [SLIPPAGE_STATUS.LOW]: {
     [PAIR_CATEGORY.HIGH_VOLATILITY]: 'is quite low and may cause failed transactions in volatile markets.',
     [PAIR_CATEGORY.EXOTIC]: 'is quite low and may cause failed transactions in highly volatile markets.',
+    [COMMON_PAIR]: 'is quite low and may cause failed transactions in highly volatile markets.',
   },
   [SLIPPAGE_STATUS.HIGH]: {
     [PAIR_CATEGORY.STABLE]:

@@ -1,55 +1,62 @@
-import { ChainId, CurrencyAmount, Token, WETH } from '@kyberswap/ks-sdk-core'
+import { formatAprNumber, toString } from '@kyber/utils/dist/number'
+import { MAX_TICK, MIN_TICK, priceToClosestTick } from '@kyber/utils/dist/uniswapv3'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { useCallback, useEffect, useState } from 'react'
-import { Minus, Plus } from 'react-feather'
-import { Link, useNavigate } from 'react-router-dom'
+import { useCallback, useMemo, useState } from 'react'
+import { ArrowRight, ArrowRightCircle } from 'react-feather'
+import { Link } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
-import { ReactComponent as IconClaim } from 'assets/svg/earn/ic_claim.svg'
 import { ReactComponent as IconEarnNotFound } from 'assets/svg/earn/ic_earn_not_found.svg'
-import CopyHelper from 'components/Copy'
-import Loader from 'components/Loader'
+import { ReactComponent as IconKem } from 'assets/svg/kyber/kem.svg'
+import { InfoHelperWithDelay } from 'components/InfoHelper'
+import { Loader2 } from 'components/Loader'
+import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
-import { APP_PATHS } from 'constants/index'
+import { APP_PATHS, PAIR_CATEGORY } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import ClaimFeeModal, { PositionToClaim, isNativeToken } from 'pages/Earns/ClaimFeeModal'
-import { CurrencyRoundedImage, CurrencySecondImage } from 'pages/Earns/PoolExplorer/styles'
-import { FeeInfo } from 'pages/Earns/PositionDetail/LeftSection'
 import { PositionAction as PositionActionBtn } from 'pages/Earns/PositionDetail/styles'
+import DropdownAction from 'pages/Earns/UserPositions/DropdownAction'
+import MigrationModal from 'pages/Earns/UserPositions/MigrationModal'
 import PriceRange from 'pages/Earns/UserPositions/PriceRange'
 import {
   Badge,
   BadgeType,
   ChainImage,
-  DexImage,
   Divider,
   EmptyPositionText,
   ImageContainer,
-  PositionAction,
+  PositionActionWrapper,
   PositionOverview,
   PositionRow,
   PositionTableBody,
   PositionValueLabel,
   PositionValueWrapper,
 } from 'pages/Earns/UserPositions/styles'
+import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
+import RewardSyncing from 'pages/Earns/components/RewardSyncing'
 import {
   CoreProtocol,
-  DEXES_HIDE_TOKEN_ID,
   DEXES_SUPPORT_COLLECT_FEE,
   EarnDex,
-  NFT_MANAGER_ABI,
-  NFT_MANAGER_CONTRACT,
+  LIMIT_TEXT_STYLES,
+  protocolGroupNameToExchangeMapping,
 } from 'pages/Earns/constants'
-import { EarnPosition, PositionStatus } from 'pages/Earns/types'
-import { formatAprNumber, isForkFrom } from 'pages/Earns/utils'
+import useCollectFees from 'pages/Earns/hooks/useCollectFees'
+import useFarmingStablePools from 'pages/Earns/hooks/useFarmingStablePools'
+import useKemRewards from 'pages/Earns/hooks/useKemRewards'
+import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
+import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
+import { ZapOutInfo } from 'pages/Earns/hooks/useZapOutWidget'
+import { FeeInfo, ParsedPosition, PositionStatus, SuggestedPool } from 'pages/Earns/types'
+import { isForkFrom } from 'pages/Earns/utils'
+import { getUnclaimedFeesInfo } from 'pages/Earns/utils/fees'
+import { checkEarlyPosition } from 'pages/Earns/utils/position'
 import { useWalletModalToggle } from 'state/application/hooks'
-import { useAllTransactions } from 'state/transactions/hooks'
 import { MEDIA_WIDTHS } from 'theme'
-import { shortenAddress } from 'utils'
-import { getReadingContract } from 'utils/getContract'
 import { formatDisplayNumber } from 'utils/numbers'
 
 export interface FeeInfoFromRpc extends FeeInfo {
@@ -63,434 +70,590 @@ export default function TableContent({
   setFeeInfoFromRpc,
   onOpenZapInWidget,
   onOpenZapOut,
+  refetchPositions,
 }: {
-  positions: Array<EarnPosition> | undefined
+  positions: Array<ParsedPosition>
   feeInfoFromRpc: FeeInfoFromRpc[]
   setFeeInfoFromRpc: (feeInfo: FeeInfoFromRpc[]) => void
-  onOpenZapInWidget: (pool: { exchange: string; chainId?: number; address: string }, positionId?: string) => void
-  onOpenZapOut: (position: { dex: string; chainId: number; poolAddress: string; id: string }) => void
+  onOpenZapInWidget: ({ pool, positionId }: ZapInInfo) => void
+  onOpenZapOut: ({ position }: ZapOutInfo) => void
+  refetchPositions: () => void
 }) {
   const { account } = useActiveWeb3React()
-  const { library } = useWeb3React()
-  const navigate = useNavigate()
   const toggleWalletModal = useWalletModalToggle()
   const theme = useTheme()
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
-  const allTransactions = useAllTransactions(true)
+  const [positionThatClaimingFees, setPositionThatClaimingFees] = useState<ParsedPosition | null>(null)
+  const [positionThatClaimingRewards, setPositionThatClaimingRewards] = useState<ParsedPosition | null>(null)
+  const [positionToMigrate, setPositionToMigrate] = useState<ParsedPosition | null>(null)
 
-  const [claiming, setClaiming] = useState(false)
-  const [claimTx, setClaimTx] = useState<string | null>(null)
-  const [positionToClaim, setPositionToClaim] = useState<PositionToClaim | null>(null)
-  const [feeInfoToClaim, setFeeInfoToClaim] = useState<FeeInfo | null>(null)
+  const {
+    claimModal: claimFeesModal,
+    onOpenClaim: onOpenClaimFees,
+    claiming: feesClaiming,
+  } = useCollectFees({
+    refetchAfterCollect: () => {
+      handleFetchUnclaimedFee(positionThatClaimingFees)
+      setPositionThatClaimingFees(null)
+    },
+  })
 
-  const handleOpenIncreaseLiquidityWidget = (e: React.MouseEvent, position: EarnPosition) => {
-    e.stopPropagation()
-    const isUniv2 = isForkFrom(position.pool.project as EarnDex, CoreProtocol.UniswapV2)
-    onOpenZapInWidget(
-      {
-        exchange: position.pool.project || '',
-        chainId: position.chainId,
-        address: position.pool.poolAddress,
-      },
-      isUniv2 ? account || '' : position.tokenId,
-    )
-  }
+  const {
+    claimModal: claimRewardsModal,
+    onOpenClaim: onOpenClaimRewards,
+    claiming: rewardsClaiming,
+  } = useKemRewards(refetchPositions)
 
-  const handleOpenZapOut = (e: React.MouseEvent, position: EarnPosition) => {
-    e.stopPropagation()
-    const isUniv2 = isForkFrom(position.pool.project as EarnDex, CoreProtocol.UniswapV2)
-    onOpenZapOut({
-      dex: position.pool.project || '',
-      chainId: position.chainId,
-      id: isUniv2 ? account || '' : position.tokenId,
-      poolAddress: position.pool.poolAddress,
-    })
-  }
+  const { widget: zapMigrationWidget, handleOpenZapMigration } = useZapMigrationWidget()
 
-  const handleClaimFee = (e: React.MouseEvent, position: EarnPosition) => {
-    e.stopPropagation()
-    const totalUnclaimedFees = position.feeInfo
-      ? position.feeInfo.totalValue
-      : position.feePending.reduce((a, b) => a + b.quotes.usd.value, 0)
-    const isUniv2 = isForkFrom(position.pool.project as EarnDex, CoreProtocol.UniswapV2)
-    if (isUniv2 || claiming || totalUnclaimedFees === 0) return
-    setPositionToClaim({
-      id: position.tokenId,
-      dex: position.pool.project || '',
-      chainId: position.chainId,
-      token0Address: position.pool.tokenAmounts[0]?.token.address || '',
-      token1Address: position.pool.tokenAmounts[1]?.token.address || '',
-      token0Symbol: position.pool.tokenAmounts[0]?.token.symbol || '',
-      token1Symbol: position.pool.tokenAmounts[1]?.token.symbol || '',
-      token0Logo: position.pool.tokenAmounts[0]?.token.logo || '',
-      token1Logo: position.pool.tokenAmounts[1]?.token.logo || '',
-      chainLogo: position.chainLogo || '',
-    })
-    setFeeInfoToClaim({
-      balance0: position.feeInfo ? position.feeInfo.balance0 : position.feePending[0].balance,
-      balance1: position.feeInfo ? position.feeInfo.balance1 : position.feePending[1].balance,
-      amount0: position.feeInfo
-        ? position.feeInfo.amount0
-        : (position.feePending[0]?.quotes.usd.value / position.feePending[0]?.quotes.usd.price).toString(),
-      amount1: position.feeInfo
-        ? position.feeInfo.amount1
-        : (position.feePending[1]?.quotes.usd.value / position.feePending[1]?.quotes.usd.price).toString(),
-      value0: position.feeInfo ? position.feeInfo.value0 : position.feePending[0]?.quotes.usd.value,
-      value1: position.feeInfo ? position.feeInfo.value1 : position.feePending[1]?.quotes.usd.value,
-      totalValue: totalUnclaimedFees,
-    })
-  }
+  const uniqueChainIds = useMemo(() => {
+    if (!positions || positions.length === 0) return []
+    const chainIds = positions.map(position => position.chain.id)
+    return [...new Set(chainIds)]
+  }, [positions])
+
+  const farmingPoolsByChain = useFarmingStablePools({ chainIds: uniqueChainIds })
 
   const handleFetchUnclaimedFee = useCallback(
-    async (id: string | undefined) => {
-      if (!id || !library) return
-      const position = positions?.find(position => position.tokenId === id)
-
+    async (position: ParsedPosition | null) => {
       if (!position) return
-      const nftManagerContractOfDex = NFT_MANAGER_CONTRACT[position.pool.project as keyof typeof NFT_MANAGER_CONTRACT]
-      const nftManagerContract =
-        typeof nftManagerContractOfDex === 'string'
-          ? nftManagerContractOfDex
-          : nftManagerContractOfDex[position.chainId as keyof typeof nftManagerContractOfDex]
-      const nftManagerAbi = NFT_MANAGER_ABI[position.dex as keyof typeof NFT_MANAGER_ABI]
 
-      if (!nftManagerAbi) return
-      const contract = getReadingContract(nftManagerContract, nftManagerAbi, library)
+      const feeFromRpc = await getUnclaimedFeesInfo(position)
 
-      if (!contract) return
-      const maxUnit = '0x' + (2n ** 128n - 1n).toString(16)
-      const token0Decimals = position.pool.tokenAmounts[0]?.token.decimals
-      const token1Decimals = position.pool.tokenAmounts[1]?.token.decimals
-      const token0Address = position.pool.tokenAmounts[0]?.token.address
-      const token1Address = position.pool.tokenAmounts[1]?.token.address
-
-      const owner = await contract.ownerOf(id)
-
-      const results = await contract.callStatic.collect(
-        {
-          tokenId: id,
-          recipient: owner,
-          amount0Max: maxUnit,
-          amount1Max: maxUnit,
-        },
-        { from: owner },
-      )
-      const balance0 = results.amount0.toString()
-      const balance1 = results.amount1.toString()
-      const amount0 = CurrencyAmount.fromRawAmount(
-        new Token(position.chainId, token0Address, token0Decimals),
-        balance0,
-      ).toExact()
-      const amount1 = CurrencyAmount.fromRawAmount(
-        new Token(position.chainId, token1Address, token1Decimals),
-        balance1,
-      ).toExact()
-
-      const token0Price = position.currentAmounts[0]?.token.price
-      const token1Price = position.currentAmounts[1]?.token.price
-
+      const { tokenId } = position
       const feeInfoToAdd = {
-        id,
-        balance0,
-        balance1,
-        amount0,
-        amount1,
-        value0: parseFloat(amount0) * token0Price,
-        value1: parseFloat(amount1) * token1Price,
-        totalValue: parseFloat(amount0) * token0Price + parseFloat(amount1) * token1Price,
-        timeRemaining: 30,
+        ...feeFromRpc,
+        id: tokenId,
+        timeRemaining: 60 * 2,
       }
 
       const feeInfoFromRpcClone = [...feeInfoFromRpc]
-      const index = feeInfoFromRpcClone.findIndex(feeInfo => feeInfo.id === id)
+      const index = feeInfoFromRpcClone.findIndex(feeInfo => feeInfo.id === tokenId)
       if (index !== -1) feeInfoFromRpcClone[index] = feeInfoToAdd
       else feeInfoFromRpcClone.push(feeInfoToAdd)
 
       setFeeInfoFromRpc(feeInfoFromRpcClone)
     },
-    [feeInfoFromRpc, library, positions, setFeeInfoFromRpc],
+    [feeInfoFromRpc, setFeeInfoFromRpc],
   )
 
-  useEffect(() => {
-    if (claimTx && allTransactions && allTransactions[claimTx]) {
-      const tx = allTransactions[claimTx]
-      if (tx?.[0].receipt && tx?.[0].receipt.status === 1) {
-        setClaiming(false)
-        setClaimTx(null)
-        handleFetchUnclaimedFee(positionToClaim?.id)
-        setPositionToClaim(null)
-        setFeeInfoToClaim(null)
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [allTransactions])
+  const handleOpenIncreaseLiquidityWidget = (e: React.MouseEvent, position: ParsedPosition) => {
+    e.stopPropagation()
+    e.preventDefault()
+    const isUniv2 = isForkFrom(position.dex.id, CoreProtocol.UniswapV2)
+    onOpenZapInWidget({
+      pool: {
+        dex: position.dex.id,
+        chainId: position.chain.id,
+        address: position.pool.address,
+      },
+      positionId: position.status === PositionStatus.CLOSED ? undefined : isUniv2 ? account || '' : position.tokenId,
+    })
+  }
+
+  const handleOpenZapOut = (e: React.MouseEvent, position: ParsedPosition) => {
+    e.stopPropagation()
+    e.preventDefault()
+    const isUniv2 = isForkFrom(position.dex.id, CoreProtocol.UniswapV2)
+    onOpenZapOut({
+      position: {
+        dex: position.dex.id,
+        chainId: position.chain.id,
+        id: isUniv2 ? account || '' : position.tokenId,
+        poolAddress: position.pool.address,
+      },
+    })
+  }
+
+  const handleClaimFees = (e: React.MouseEvent, position: ParsedPosition) => {
+    e.stopPropagation()
+    e.preventDefault()
+    if (position.pool.isUniv2 || feesClaiming || position.unclaimedFees === 0) return
+    setPositionThatClaimingFees(position)
+    onOpenClaimFees(position)
+  }
+
+  const handleClaimRewards = (e: React.MouseEvent, position: ParsedPosition) => {
+    e.stopPropagation()
+    e.preventDefault()
+    if (rewardsClaiming || position.rewards.unclaimedUsdValue === 0) return
+    setPositionThatClaimingRewards(position)
+    onOpenClaimRewards(position)
+  }
+
+  const handleMigrateToKem = (e: React.MouseEvent, position: ParsedPosition) => {
+    e.stopPropagation()
+    e.preventDefault()
+
+    if (!!position.suggestionPool) {
+      handleOpenMigration(position, position.suggestionPool)
+    } else if (
+      position.pool.category === PAIR_CATEGORY.STABLE &&
+      farmingPoolsByChain[position.chain.id]?.pools.length > 0
+    )
+      setPositionToMigrate(position)
+  }
+
+  const handleOpenMigration = (sourcePosition: ParsedPosition, targetPool: SuggestedPool) => {
+    const sourceMinPrice = sourcePosition.priceRange.min
+    const sourceMaxPrice = sourcePosition.priceRange.max
+    const targetToken0Decimals = targetPool.token0.decimals
+    const targetToken1Decimals = targetPool.token1.decimals
+
+    const dontNeedRevert =
+      sourcePosition.token0.decimals === targetToken0Decimals && sourcePosition.token1.decimals === targetToken1Decimals
+
+    const isMinPrice = sourcePosition.priceRange.isMinPrice
+    const isMaxPrice = sourcePosition.priceRange.isMaxPrice
+
+    const tickLower = sourcePosition.pool.isUniv2
+      ? undefined
+      : dontNeedRevert
+      ? isMinPrice
+        ? MIN_TICK
+        : priceToClosestTick(toString(sourceMinPrice), targetToken0Decimals, targetToken1Decimals)
+      : isMaxPrice
+      ? MAX_TICK
+      : priceToClosestTick(toString(1 / sourceMaxPrice), targetToken0Decimals, targetToken1Decimals)
+
+    const tickUpper = sourcePosition.pool.isUniv2
+      ? undefined
+      : dontNeedRevert
+      ? isMaxPrice
+        ? MAX_TICK
+        : priceToClosestTick(toString(sourceMaxPrice), targetToken0Decimals, targetToken1Decimals)
+      : isMinPrice
+      ? MIN_TICK
+      : priceToClosestTick(toString(1 / sourceMinPrice), targetToken0Decimals, targetToken1Decimals)
+
+    handleOpenZapMigration({
+      chainId: sourcePosition.chain.id,
+      from: {
+        poolType: sourcePosition.dex.id,
+        poolAddress: sourcePosition.pool.address,
+        positionId: sourcePosition.pool.isUniv2 ? account || '' : sourcePosition.tokenId,
+      },
+      to: {
+        poolType: targetPool.poolExchange,
+        poolAddress: targetPool.address,
+      },
+      initialTick:
+        tickLower !== undefined && tickUpper !== undefined
+          ? {
+              tickLower: tickLower,
+              tickUpper: tickUpper,
+            }
+          : undefined,
+    })
+  }
+
+  const handleReposition = (e: React.MouseEvent, position: ParsedPosition) => {
+    e.stopPropagation()
+    e.preventDefault()
+    handleOpenZapMigration({
+      chainId: position.chain.id,
+      from: {
+        poolType: position.dex.id,
+        poolAddress: position.pool.address,
+        positionId: position.pool.isUniv2 ? account || '' : position.tokenId,
+      },
+      rePositionMode: true,
+    })
+  }
+
+  const emptyPosition = (
+    <EmptyPositionText>
+      <IconEarnNotFound />
+      <Flex flexDirection={upToSmall ? 'column' : 'row'} sx={{ gap: 1 }} marginBottom={12}>
+        <Text color={theme.subText}>{t`You don't have any liquidity positions yet`}.</Text>
+        <Link to={APP_PATHS.EARN_POOLS}>{t`Explore Liquidity Pools to get started`}!</Link>
+      </Flex>
+      {!account && <PositionActionBtn onClick={toggleWalletModal}>Connect Wallet</PositionActionBtn>}
+    </EmptyPositionText>
+  )
+
+  const migrationModal =
+    positionToMigrate && farmingPoolsByChain[positionToMigrate.chain.id]?.pools.length > 0 ? (
+      <MigrationModal
+        positionToMigrate={positionToMigrate}
+        farmingPools={farmingPoolsByChain[positionToMigrate.chain.id].pools}
+        onOpenMigration={handleOpenMigration}
+        onClose={() => setPositionToMigrate(null)}
+      />
+    ) : null
 
   return (
     <>
-      {positionToClaim && feeInfoToClaim && (
-        <ClaimFeeModal
-          claiming={claiming}
-          setClaiming={setClaiming}
-          setClaimTx={setClaimTx}
-          position={positionToClaim}
-          feeInfo={feeInfoToClaim}
-          onClose={() => {
-            setPositionToClaim(null)
-            setFeeInfoToClaim(null)
-          }}
-        />
-      )}
+      {claimFeesModal}
+      {claimRewardsModal}
+      {zapMigrationWidget}
+      {migrationModal}
+
       <PositionTableBody>
-        {account && positions && positions.length > 0 ? (
-          positions.map((position, index) => {
-            const {
-              id,
-              status,
-              chainId: poolChainId,
-              minPrice,
-              maxPrice,
-              tokenId: positionId,
-              chainLogo: chainImage,
-            } = position
+        {account && positions && positions.length > 0
+          ? positions.map((position, index) => {
+              const {
+                id,
+                tokenId,
+                token0,
+                token1,
+                pool,
+                dex,
+                chain,
+                totalValue,
+                priceRange,
+                apr,
+                unclaimedFees,
+                status,
+                rewards,
+                isUnfinalized,
+              } = position
+              const feesClaimDisabled =
+                !DEXES_SUPPORT_COLLECT_FEE[dex.id as EarnDex] || unclaimedFees === 0 || feesClaiming
+              const rewardsClaimDisabled = rewardsClaiming || position.rewards.claimableUsdValue === 0
+              const isStablePair = pool.category === PAIR_CATEGORY.STABLE
+              const isEarlyPosition = checkEarlyPosition(position)
+              const isWaitingForRewards = pool.isFarming && rewards.totalUsdValue === 0 && isEarlyPosition
 
-            const currentPrice = position.pool.price
-            const tickSpacing = position.pool.tickSpacing
-            const dex = position.pool.project
-            const dexImage = position.pool.projectLogo
-            const dexVersion = position.pool.project?.split(' ')?.[1] || ''
-            const token0Logo = position.pool.tokenAmounts[0]?.token.logo
-            const token1Logo = position.pool.tokenAmounts[1]?.token.logo
-            const token0Symbol = position.pool.tokenAmounts[0]?.token.symbol
-            const token1Symbol = position.pool.tokenAmounts[1]?.token.symbol
-            const token0Decimals = position.pool.tokenAmounts[0]?.token.decimals
-            const token1Decimals = position.pool.tokenAmounts[1]?.token.decimals
-            const poolFee = position.pool.fees?.[0]
-            const poolAddress = position.pool.poolAddress
-            const totalValue = position.currentPositionValue
-            const token0TotalProvide =
-              position.currentAmounts[0]?.quotes.usd.value / position.currentAmounts[0]?.quotes.usd.price
-            const token1TotalProvide =
-              position.currentAmounts[1]?.quotes.usd.value / position.currentAmounts[1]?.quotes.usd.price
-            const token0EarnedAmount =
-              position.feePending[0]?.quotes.usd.value / position.feePending[0]?.quotes.usd.price +
-              position.feesClaimed[0]?.quotes.usd.value / position.feesClaimed[0]?.quotes.usd.price
-            const token1EarnedAmount =
-              position.feePending[1]?.quotes.usd.value / position.feePending[1]?.quotes.usd.price +
-              position.feesClaimed[1]?.quotes.usd.value / position.feesClaimed[1]?.quotes.usd.price
-            const token0TotalAmount = token0TotalProvide + token0EarnedAmount
-            const token1TotalAmount = token1TotalProvide + token1EarnedAmount
-            const apr7d = position.apr
-            const totalUnclaimedFee = position.feeInfo
-              ? position.feeInfo.totalValue
-              : position.feePending.reduce((a, b) => a + b.quotes.usd.value, 0)
-            const token0UnclaimedAmount = position.feeInfo
-              ? position.feeInfo.amount0
-              : position.feePending[0]?.quotes.usd.value / position.feePending[0]?.quotes.usd.price
-            const token1UnclaimedAmount = position.feeInfo
-              ? position.feeInfo.amount1
-              : position.feePending[1]?.quotes.usd.value / position.feePending[1]?.quotes.usd.price
+              const actions = (
+                <DropdownAction
+                  position={position}
+                  onOpenIncreaseLiquidityWidget={handleOpenIncreaseLiquidityWidget}
+                  onOpenZapOut={handleOpenZapOut}
+                  onOpenReposition={handleReposition}
+                  claimFees={{
+                    onClaimFee: handleClaimFees,
+                    feesClaimDisabled,
+                    feesClaiming,
+                    positionThatClaimingFees,
+                  }}
+                  claimRewards={{
+                    onClaimRewards: handleClaimRewards,
+                    rewardsClaimDisabled,
+                    rewardsClaiming,
+                    positionThatClaimingRewards,
+                  }}
+                />
+              )
 
-            const isUniv2 = isForkFrom(dex as EarnDex, CoreProtocol.UniswapV2)
-            const posStatus = isUniv2 ? PositionStatus.IN_RANGE : status
-            const claimDisabled = !DEXES_SUPPORT_COLLECT_FEE[dex as EarnDex] || totalUnclaimedFee === 0 || claiming
-
-            const token0Address = position.pool.tokenAmounts[0]?.token.address || ''
-            const token1Address = position.pool.tokenAmounts[1]?.token.address || ''
-
-            const isToken0Native = isNativeToken(token0Address, position.chainId as keyof typeof WETH)
-            const isToken1Native = isNativeToken(token1Address, position.chainId as keyof typeof WETH)
-            const nativeToken = NETWORKS_INFO[position.chainId as keyof typeof NETWORKS_INFO].nativeToken
-
-            return (
-              <PositionRow
-                key={`${positionId}-${poolAddress}-${index}`}
-                onClick={() =>
-                  navigate({
-                    pathname: APP_PATHS.EARN_POSITION_DETAIL.replace(':positionId', !isUniv2 ? id : poolAddress)
-                      .replace(':chainId', poolChainId.toString())
-                      .replace(':protocol', dex),
-                  })
-                }
-              >
-                <PositionOverview>
-                  <Flex alignItems={'center'} sx={{ gap: 2 }} flexWrap={'wrap'}>
-                    <ImageContainer>
-                      <CurrencyRoundedImage src={token0Logo} alt="" />
-                      <CurrencySecondImage src={token1Logo} alt="" />
-                      <ChainImage src={NETWORKS_INFO[poolChainId as ChainId]?.icon || chainImage} alt="" />
-                    </ImageContainer>
-                    <Text marginLeft={-3} fontSize={upToSmall ? 15 : 16}>
-                      {token0Symbol}/{token1Symbol}
-                    </Text>
-                    {poolFee && <Badge>{poolFee}%</Badge>}
-                    <Badge type={posStatus === PositionStatus.IN_RANGE ? BadgeType.PRIMARY : BadgeType.WARNING}>
-                      ● {posStatus === PositionStatus.IN_RANGE ? t`In range` : t`Out of range`}
-                    </Badge>
-                  </Flex>
-                  <Flex alignItems={'center'} sx={{ gap: '10px' }}>
-                    <Flex alignItems={'center'} sx={{ gap: 1 }}>
-                      <DexImage src={dexImage} alt="" />
-                      <Text fontSize={upToSmall ? 16 : 14} color={theme.subText}>
-                        {dexVersion}
+              return (
+                <PositionRow
+                  key={`${tokenId}-${pool.address}-${index}`}
+                  to={APP_PATHS.EARN_POSITION_DETAIL.replace(':positionId', !pool.isUniv2 ? id : pool.address)
+                    .replace(':chainId', chain.id.toString())
+                    .replace(':protocol', protocolGroupNameToExchangeMapping[dex.id] || dex.id)}
+                >
+                  {/* Overview info */}
+                  <PositionOverview>
+                    <Flex alignItems={'center'} sx={{ gap: 2 }} flexWrap={'wrap'}>
+                      <ImageContainer>
+                        <TokenLogo src={token0.logo} />
+                        <TokenLogo src={token1.logo} translateLeft />
+                        <ChainImage src={NETWORKS_INFO[chain.id as ChainId]?.icon || chain.logo} alt="" />
+                      </ImageContainer>
+                      <Text marginLeft={-2} fontSize={upToSmall ? 15 : 16}>
+                        {token0.symbol}/{token1.symbol}
                       </Text>
+                      {pool.fee ? <Badge>{pool.fee}%</Badge> : null}
                     </Flex>
-                    {DEXES_HIDE_TOKEN_ID[dex as EarnDex] ? null : (
-                      <Text fontSize={upToSmall ? 16 : 14} color={theme.subText}>
-                        #{positionId}
-                      </Text>
-                    )}
-                    <Badge type={BadgeType.SECONDARY}>
-                      <Text fontSize={14}>{shortenAddress(poolChainId, poolAddress, 4)}</Text>
-                      <CopyHelper size={16} toCopy={poolAddress} />
-                    </Badge>
-                  </Flex>
-                </PositionOverview>
-                {upToLarge && !upToSmall && (
-                  <Flex alignItems={'center'} justifyContent={'flex-end'} sx={{ gap: '16px' }}>
-                    <PositionAction primary onClick={e => handleOpenIncreaseLiquidityWidget(e, position)}>
-                      <Plus size={16} />
-                    </PositionAction>
-                    <PositionAction onClick={e => handleOpenZapOut(e, position)}>
-                      <Minus size={16} />
-                    </PositionAction>
-                    <PositionAction disabled={claimDisabled} onClick={e => handleClaimFee(e, position)}>
-                      {claiming && positionToClaim && positionToClaim.id === position.tokenId ? (
-                        <Loader size={'16px'} stroke={'#7a7a7a'} />
-                      ) : (
-                        <IconClaim width={16} style={{ margin: '0 7px' }} />
+                    <Flex flexWrap={'wrap'} alignItems={'center'} sx={{ gap: '10px' }}>
+                      <Flex alignItems={'center'} sx={{ gap: 1 }}>
+                        <MouseoverTooltipDesktopOnly text={dex.id} width="fit-content" placement="bottom">
+                          <TokenLogo src={dex.logo} size={16} />
+                        </MouseoverTooltipDesktopOnly>
+                        <Text fontSize={upToSmall ? 16 : 14} color={theme.subText}>
+                          {dex.version}
+                        </Text>
+                      </Flex>
+                      {pool.isUniv2 ? null : (
+                        <Text fontSize={upToSmall ? 16 : 14} color={theme.subText}>
+                          #{tokenId}
+                        </Text>
                       )}
-                    </PositionAction>
-                  </Flex>
-                )}
-                <PositionValueWrapper>
-                  <PositionValueLabel>{t`Value`}</PositionValueLabel>
-                  <MouseoverTooltipDesktopOnly
-                    text={
-                      <>
-                        <Text>
-                          {formatDisplayNumber(token0TotalAmount, { significantDigits: 6 })} {token0Symbol}
+                      {!isUnfinalized && (
+                        <Badge
+                          type={
+                            status === PositionStatus.IN_RANGE
+                              ? BadgeType.PRIMARY
+                              : status === PositionStatus.OUT_RANGE
+                              ? BadgeType.WARNING
+                              : BadgeType.DISABLED
+                          }
+                        >
+                          ●{' '}
+                          {status === PositionStatus.IN_RANGE
+                            ? t`In range`
+                            : status === PositionStatus.OUT_RANGE
+                            ? t`Out of range`
+                            : t`Closed`}
+                          {status === PositionStatus.OUT_RANGE ? (
+                            <InfoHelperWithDelay
+                              text={
+                                <Flex flexDirection={'column'} sx={{ gap: 1 }}>
+                                  <Text>
+                                    {t`The position is inactive. Update to an action price range to earn fees/rewards.`}
+                                  </Text>
+                                  <Flex
+                                    color={theme.primary}
+                                    alignItems={'center'}
+                                    sx={{ gap: 1, cursor: 'pointer' }}
+                                    onClick={e => handleReposition(e, position)}
+                                  >
+                                    <Text>{t`Reposition to new range`}</Text>
+                                    <ArrowRight size={14} />
+                                  </Flex>
+                                </Flex>
+                              }
+                              color={theme.warning}
+                              placement="top"
+                              width="280px"
+                              style={{ marginLeft: 4 }}
+                            />
+                          ) : null}
+                        </Badge>
+                      )}
+                    </Flex>
+                  </PositionOverview>
+
+                  {/* Actions for Tablet */}
+                  {upToLarge && !isUnfinalized && <PositionActionWrapper>{actions}</PositionActionWrapper>}
+
+                  {/* Value info */}
+                  <PositionValueWrapper>
+                    <PositionValueLabel>{t`Value`}</PositionValueLabel>
+
+                    <MouseoverTooltipDesktopOnly
+                      text={
+                        <>
+                          {position.totalValueTokens.map(token => (
+                            <Text key={`${token.address}-${token.symbol}`}>
+                              {formatDisplayNumber(token.amount, { significantDigits: 4 })} {token.symbol}
+                            </Text>
+                          ))}
+                        </>
+                      }
+                      width="fit-content"
+                      placement="bottom"
+                    >
+                      <Flex alignItems={'center'} sx={{ gap: '6px' }}>
+                        <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '80px' }}>
+                          {formatDisplayNumber(totalValue, {
+                            style: 'currency',
+                            significantDigits: 4,
+                          })}
                         </Text>
-                        <Text>
-                          {formatDisplayNumber(token1TotalAmount, { significantDigits: 6 })} {token1Symbol}
-                        </Text>
-                      </>
-                    }
-                    width="fit-content"
-                    placement="bottom"
-                  >
-                    <Text>
-                      {formatDisplayNumber(totalValue, {
-                        style: 'currency',
-                        significantDigits: 4,
-                      })}
-                    </Text>
-                  </MouseoverTooltipDesktopOnly>
-                </PositionValueWrapper>
-                <PositionValueWrapper>
-                  <PositionValueLabel>{t`APR`}</PositionValueLabel>
-                  <Text>{formatAprNumber(apr7d * 100)}%</Text>
-                </PositionValueWrapper>
-                <PositionValueWrapper align={upToLarge ? 'center' : ''}>
-                  {!isUniv2 ? (
-                    <>
-                      <PositionValueLabel>{t`Unclaimed Fee`}</PositionValueLabel>
+                        {position.isValueUpdating && (
+                          <MouseoverTooltipDesktopOnly text={t`Value is updating`} placement="top" width="fit-content">
+                            <Loader2 size={12} />
+                          </MouseoverTooltipDesktopOnly>
+                        )}
+                      </Flex>
+                    </MouseoverTooltipDesktopOnly>
+                  </PositionValueWrapper>
+
+                  {/* APR info */}
+                  <PositionValueWrapper>
+                    <PositionValueLabel>{t`APR`}</PositionValueLabel>
+
+                    {isUnfinalized ? (
+                      <PositionSkeleton width={80} height={19} text="Finalizing..." />
+                    ) : isWaitingForRewards ? (
+                      <RewardSyncing width={70} height={19} />
+                    ) : (
+                      <Flex alignItems={'center'} sx={{ gap: 1 }}>
+                        <MouseoverTooltipDesktopOnly
+                          text={
+                            pool.isFarming ? (
+                              <>
+                                <Text>
+                                  {t`LP Fees APR`}: {formatAprNumber(position.feeApr)}%
+                                </Text>
+                                <Text>
+                                  {t`EG Sharing Reward`}: {formatAprNumber(position.kemEGApr)}%
+                                  <br />
+                                  {t`LM Reward`}: {formatAprNumber(position.kemLMApr)}%
+                                </Text>
+                              </>
+                            ) : null
+                          }
+                          width="fit-content"
+                          placement="top"
+                        >
+                          <Text color={pool.isFarming ? theme.primary : theme.text}>{formatAprNumber(apr)}%</Text>
+                        </MouseoverTooltipDesktopOnly>
+
+                        {!pool.isFarming &&
+                          (!!position.suggestionPool ||
+                            (isStablePair && farmingPoolsByChain[chain.id]?.pools.length > 0)) &&
+                          position.status !== PositionStatus.CLOSED && (
+                            <MouseoverTooltipDesktopOnly
+                              text={
+                                <>
+                                  <Text>
+                                    {!!position.suggestionPool
+                                      ? pool.fee === position.suggestionPool.feeTier
+                                        ? t`Earn extra rewards with exact same pair and fee tier on Uniswap v4 hook.`
+                                        : t`We found a pool with the same pair offering extra rewards. Migrate to this pool on Uniswap v4 hook to start earning farming rewards.`
+                                      : t`We found other stable pools offering extra rewards. Explore and migrate to start earning.`}
+                                  </Text>
+                                  <Text
+                                    color={theme.primary}
+                                    sx={{ cursor: 'pointer' }}
+                                    onClick={e => handleMigrateToKem(e, position)}
+                                  >
+                                    {!!position.suggestionPool ? t`Migrate` : t`View Pools`} →
+                                  </Text>
+                                </>
+                              }
+                              width={!!position.suggestionPool ? '290px' : '310px'}
+                              placement="bottom"
+                            >
+                              <ArrowRightCircle
+                                size={16}
+                                color={theme.primary}
+                                onClick={e => handleMigrateToKem(e, position)}
+                              />
+                            </MouseoverTooltipDesktopOnly>
+                          )}
+                      </Flex>
+                    )}
+                  </PositionValueWrapper>
+
+                  {/* Unclaimed fees info */}
+                  <PositionValueWrapper align={upToLarge ? 'flex-end' : ''}>
+                    <PositionValueLabel>{t`Unclaimed Fee`}</PositionValueLabel>
+
+                    {isUnfinalized ? (
+                      <PositionSkeleton width={80} height={19} text="Finalizing..." />
+                    ) : (
                       <MouseoverTooltipDesktopOnly
                         text={
                           <>
                             <Text>
-                              {formatDisplayNumber(token0UnclaimedAmount, { significantDigits: 6 })}{' '}
-                              {isToken0Native ? nativeToken.symbol : token0Symbol}
+                              {formatDisplayNumber(token0.unclaimedAmount, { significantDigits: 6 })}{' '}
+                              {token0.isNative ? pool.nativeToken.symbol : token0.symbol}
                             </Text>
                             <Text>
-                              {formatDisplayNumber(token1UnclaimedAmount, { significantDigits: 6 })}{' '}
-                              {isToken1Native ? nativeToken.symbol : token1Symbol}
+                              {formatDisplayNumber(token1.unclaimedAmount, { significantDigits: 6 })}{' '}
+                              {token1.isNative ? pool.nativeToken.symbol : token1.symbol}
                             </Text>
                           </>
                         }
                         width="fit-content"
                         placement="bottom"
                       >
-                        <Text>
-                          {formatDisplayNumber(totalUnclaimedFee, { style: 'currency', significantDigits: 4 })}
+                        <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '100px' }}>
+                          {formatDisplayNumber(unclaimedFees, { style: 'currency', significantDigits: 4 })}
                         </Text>
                       </MouseoverTooltipDesktopOnly>
-                    </>
-                  ) : null}
-                </PositionValueWrapper>
-                <PositionValueWrapper align={upToSmall ? 'flex-end' : ''}>
-                  <PositionValueLabel>{t`Bal`}</PositionValueLabel>
-                  <Flex flexDirection={upToSmall ? 'row' : 'column'} sx={{ gap: 1.8 }}>
-                    <Text>
-                      {formatDisplayNumber(token0TotalProvide, { significantDigits: 4 })} {token0Symbol}
-                    </Text>
-                    {upToSmall && <Divider />}
-                    <Text>
-                      {formatDisplayNumber(token1TotalProvide, { significantDigits: 4 })} {token1Symbol}
-                    </Text>
-                  </Flex>
-                </PositionValueWrapper>
-                <PositionValueWrapper>
-                  <PriceRange
-                    minPrice={minPrice}
-                    maxPrice={maxPrice}
-                    currentPrice={currentPrice}
-                    tickSpacing={tickSpacing}
-                    token0Decimals={token0Decimals}
-                    token1Decimals={token1Decimals}
-                    dex={dex as EarnDex}
-                  />
-                </PositionValueWrapper>
-                {(upToSmall || !upToLarge) && (
-                  <Flex
-                    alignItems={'center'}
-                    justifyContent={upToSmall ? 'flex-end' : 'flex-start'}
-                    sx={{ gap: '12px', zIndex: 1 }}
-                  >
-                    <MouseoverTooltipDesktopOnly
-                      text={t`Add more liquidity to this position using any token(s) or migrate liquidity from your existing positions.`}
-                      placement="top"
-                    >
-                      <PositionAction primary onClick={e => handleOpenIncreaseLiquidityWidget(e, position)}>
-                        <Plus size={16} />
-                      </PositionAction>
-                    </MouseoverTooltipDesktopOnly>
-                    <MouseoverTooltipDesktopOnly
-                      text={t`Remove liquidity from this position by zapping out to any token(s) or migrating to another position.`}
-                      placement="top"
-                    >
-                      <PositionAction onClick={e => handleOpenZapOut(e, position)}>
-                        <Minus size={16} />
-                      </PositionAction>
-                    </MouseoverTooltipDesktopOnly>
-                    <MouseoverTooltipDesktopOnly
-                      text={!claimDisabled && t`Claim your unclaimed fees from this position.`}
-                      placement="top"
-                    >
-                      <PositionAction disabled={claimDisabled} onClick={e => handleClaimFee(e, position)}>
-                        {claiming && positionToClaim && positionToClaim.id === position.tokenId ? (
-                          <Loader size={'16px'} stroke={'#7a7a7a'} />
-                        ) : (
-                          <IconClaim width={16} style={{ margin: '0 7px' }} />
-                        )}
-                      </PositionAction>
-                    </MouseoverTooltipDesktopOnly>
-                  </Flex>
-                )}
-              </PositionRow>
-            )
-          })
-        ) : (
-          <EmptyPositionText>
-            <IconEarnNotFound />
-            <Flex flexDirection={upToSmall ? 'column' : 'row'} sx={{ gap: 1 }} marginBottom={12}>
-              <Text color={theme.subText}>{t`You don’t have any liquidity positions yet`}.</Text>
-              <Link to={APP_PATHS.EARN_POOLS}>{t`Explore Liquidity Pools to get started`}!</Link>
-            </Flex>
-            {!account && <PositionActionBtn onClick={toggleWalletModal}>Connect Wallet</PositionActionBtn>}
-          </EmptyPositionText>
-        )}
+                    )}
+                  </PositionValueWrapper>
+
+                  {/* Unclaimed rewards info */}
+                  <PositionValueWrapper align={!upToLarge ? 'center' : ''}>
+                    <PositionValueLabel>{t`Unclaimed rewards`}</PositionValueLabel>
+                    {isUnfinalized ? (
+                      <PositionSkeleton width={80} height={19} text="Finalizing..." />
+                    ) : isWaitingForRewards ? (
+                      <RewardSyncing width={80} height={19} />
+                    ) : (
+                      <Flex alignItems={'center'} sx={{ gap: 1 }}>
+                        {upToSmall && <IconKem width={20} height={20} />}
+                        <MouseoverTooltipDesktopOnly
+                          text={
+                            <>
+                              <Text>
+                                {t`In-Progress`}:{' '}
+                                {formatDisplayNumber(rewards.inProgressUsdValue, {
+                                  significantDigits: 4,
+                                  style: 'currency',
+                                })}
+                              </Text>
+                              <Text>
+                                {t`Claimable`}:{' '}
+                                {formatDisplayNumber(rewards.claimableUsdValue, {
+                                  significantDigits: 4,
+                                  style: 'currency',
+                                })}
+                              </Text>
+                            </>
+                          }
+                          width="fit-content"
+                          placement="bottom"
+                        >
+                          <Text>
+                            {formatDisplayNumber(rewards.unclaimedUsdValue, {
+                              style: 'currency',
+                              significantDigits: 4,
+                            })}
+                          </Text>
+                        </MouseoverTooltipDesktopOnly>
+                      </Flex>
+                    )}
+                  </PositionValueWrapper>
+
+                  {!upToLarge && <div />}
+
+                  {/* Balance info */}
+                  <PositionValueWrapper align={upToSmall ? 'flex-end' : ''}>
+                    <PositionValueLabel>{t`Balance`}</PositionValueLabel>
+
+                    {token0.symbol && token1.symbol ? (
+                      <Flex flexDirection={upToSmall ? 'row' : 'column'} sx={{ gap: 1.8 }}>
+                        <Text>
+                          {formatDisplayNumber(token0.totalProvide, { significantDigits: 4 })} {token0.symbol}
+                        </Text>
+                        {upToSmall && <Divider />}
+                        <Text>
+                          {formatDisplayNumber(token1.totalProvide, { significantDigits: 4 })} {token1.symbol}
+                        </Text>
+                      </Flex>
+                    ) : (
+                      '--'
+                    )}
+                  </PositionValueWrapper>
+
+                  {/* Price range info */}
+                  <PositionValueWrapper align={upToLarge ? 'flex-end' : ''}>
+                    {upToLarge ? (
+                      isUnfinalized ? null : (
+                        <PriceRange
+                          minPrice={priceRange.min}
+                          maxPrice={priceRange.max}
+                          currentPrice={priceRange.current}
+                          tickSpacing={pool.tickSpacing}
+                          token0Decimals={token0.decimals}
+                          token1Decimals={token1.decimals}
+                          dex={dex.id as EarnDex}
+                        />
+                      )
+                    ) : isUnfinalized ? (
+                      <PositionSkeleton width={80} height={19} text="Finalizing..." />
+                    ) : (
+                      <PriceRange
+                        minPrice={priceRange.min}
+                        maxPrice={priceRange.max}
+                        currentPrice={priceRange.current}
+                        tickSpacing={pool.tickSpacing}
+                        token0Decimals={token0.decimals}
+                        token1Decimals={token1.decimals}
+                        dex={dex.id as EarnDex}
+                      />
+                    )}
+                  </PositionValueWrapper>
+
+                  {/* Actions info */}
+                  {!upToLarge && (
+                    <PositionValueWrapper align="flex-end">
+                      {isUnfinalized ? <PositionSkeleton width={80} height={19} text="Finalizing..." /> : actions}
+                    </PositionValueWrapper>
+                  )}
+                </PositionRow>
+              )
+            })
+          : emptyPosition}
       </PositionTableBody>
     </>
   )

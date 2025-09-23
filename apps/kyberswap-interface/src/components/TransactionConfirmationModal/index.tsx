@@ -248,11 +248,17 @@ export function TransactionErrorContent({
   onDismiss,
   confirmAction,
   confirmText,
+  confirmBtnStyle,
+  dismissBtnStyle,
+  suggestionMessage,
 }: {
   message: string
   onDismiss: () => void
   confirmAction?: () => void
   confirmText?: string
+  confirmBtnStyle?: React.CSSProperties
+  dismissBtnStyle?: React.CSSProperties
+  suggestionMessage?: React.ReactNode
 }) {
   const theme = useTheme()
   const [showDetail, setShowDetail] = useState<boolean>(false)
@@ -292,20 +298,25 @@ export function TransactionErrorContent({
               )}
             </AutoColumn>
           )}
+          {suggestionMessage}
         </AutoColumn>
       </Section>
       <BottomSection gap="12px">
         <Flex sx={{ gap: '1rem' }}>
           {confirmAction && confirmText ? (
-            <ButtonOutlined onClick={onDismiss}>
+            <ButtonOutlined onClick={onDismiss} style={dismissBtnStyle}>
               <Trans>Dismiss</Trans>
             </ButtonOutlined>
           ) : (
-            <ButtonPrimary onClick={onDismiss}>
+            <ButtonPrimary onClick={onDismiss} style={dismissBtnStyle}>
               <Trans>Dismiss</Trans>
             </ButtonPrimary>
           )}
-          {confirmAction && confirmText && <ButtonPrimary onClick={confirmAction}>{confirmText}</ButtonPrimary>}
+          {confirmAction && confirmText && (
+            <ButtonPrimary onClick={confirmAction} style={confirmBtnStyle}>
+              {confirmText}
+            </ButtonPrimary>
+          )}
         </Flex>
       </BottomSection>
     </Wrapper>

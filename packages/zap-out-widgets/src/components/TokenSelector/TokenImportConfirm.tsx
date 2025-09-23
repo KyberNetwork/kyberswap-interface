@@ -1,15 +1,15 @@
-import X from "@/assets/svg/x.svg";
-import { Button } from "@kyber/ui/button";
-import { shortenAddress } from "@/components/TokenInfo/utils";
-import { getEtherscanLink } from "@/utils";
-import { useTokenList } from "@/hooks/useTokenList";
-import IconBack from "@/assets/svg/arrow-left.svg";
-import IconAlertTriangle from "@/assets/svg/alert-triangle.svg";
-import IconExternalLink from "@/assets/svg/external-link.svg";
-import defaultTokenLogo from "@/assets/svg/question.svg?url";
-import { ChainId, Token } from "@/schema";
-import useCopy from "@/hooks/useCopy";
-import { useZapOutUserState } from "@/stores/state";
+import { Button, TokenLogo } from '@kyber/ui';
+
+import IconAlertTriangle from '@/assets/svg/alert-triangle.svg';
+import IconBack from '@/assets/svg/arrow-left.svg';
+import IconExternalLink from '@/assets/svg/external-link.svg';
+import X from '@/assets/svg/x.svg';
+import { shortenAddress } from '@/components/TokenInfo/utils';
+import useCopy from '@/hooks/useCopy';
+import { useTokenList } from '@/hooks/useTokenList';
+import { ChainId, Token } from '@/schema';
+import { useZapOutUserState } from '@/stores/state';
+import { getEtherscanLink } from '@/utils';
 
 const TokenImportConfirm = ({
   token,
@@ -29,8 +29,8 @@ const TokenImportConfirm = ({
   const Copy = useCopy({ text: token.address });
 
   const handleOpenExternalLink = () => {
-    const externalLink = getEtherscanLink(chainId, token.address, "address");
-    if (externalLink && window) window.open(externalLink, "_blank");
+    const externalLink = getEtherscanLink(chainId, token.address, 'address');
+    if (externalLink && window) window.open(externalLink, '_blank');
   };
 
   const handleAddToken = () => {
@@ -46,31 +46,17 @@ const TokenImportConfirm = ({
   return (
     <div className="w-full text-white">
       <div className="flex items-center justify-between p-4 pb-2 border-b border-[#40444f]">
-        <IconBack
-          className="w-6 h-6 cursor-pointer hover:text-subText"
-          onClick={onGoBack}
-        />
+        <IconBack className="w-6 h-6 cursor-pointer hover:text-subText" onClick={onGoBack} />
         <span className="text-xl">Import Token</span>
         <X className="cursor-pointer hover:text-subText" onClick={onClose} />
       </div>
       <div className="p-4 flex flex-col gap-4">
         <div className="bg-warning-200 p-[15px] flex rounded-md text-warning items-start gap-2">
           <IconAlertTriangle className="h-[18px]" />
-          <p className="text-sm">
-            This token isn’t frequently swapped. Please do your own research
-            before trading.
-          </p>
+          <p className="text-sm">This token isn't frequently swapped. Please do your own research before trading.</p>
         </div>
         <div className="bg-[#0f0f0f] rounded-md p-8 flex gap-[10px] items-start">
-          <img
-            className="w-[44px] h-[44px]"
-            src={token.logo}
-            alt="token logo"
-            onError={({ currentTarget }) => {
-              currentTarget.onerror = null;
-              currentTarget.src = defaultTokenLogo;
-            }}
-          />
+          <TokenLogo src={token.logo} alt={token.symbol} size={44} />
           <div className="flex flex-col gap-1">
             <p className="text-lg">{token.symbol}</p>
             <p className="text-subText text-sm">{token.name}</p>
@@ -84,7 +70,9 @@ const TokenImportConfirm = ({
             </p>
           </div>
         </div>
-        <Button onClick={handleAddToken}>I understand</Button>
+        <Button className="w-full" onClick={handleAddToken}>
+          I understand
+        </Button>
       </div>
     </div>
   );

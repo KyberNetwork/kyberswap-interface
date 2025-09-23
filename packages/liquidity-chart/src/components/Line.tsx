@@ -1,5 +1,6 @@
-import { useMemo } from "react";
-import type { LineProps } from "@/types";
+import { useMemo } from 'react';
+
+import type { LineProps } from '@/types';
 
 export default function Line({ value, xScale, innerHeight }: LineProps) {
   return useMemo(
@@ -12,6 +13,6 @@ export default function Line({ value, xScale, innerHeight }: LineProps) {
         y2={innerHeight}
       />
     ),
-    [value, xScale, innerHeight]
+    [value, xScale, innerHeight],
   );
 }

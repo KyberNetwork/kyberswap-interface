@@ -1,20 +1,14 @@
 {
   "name": "@kyber/utils",
-  "version": "0.0.0",
-  "private": true,
+  "type": "module",
+  "version": "0.0.1",
+  "description": "Utility functions for KyberSwap",
   "scripts": {
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "dev": "tsc --watch",
+    "build": "tsc"
   },
-  "devDependencies": {
-    "@kyber/eslint-config": "workspace:*",
-    "@kyber/typescript-config": "workspace:*",
-    "@types/eslint": "^8.56.5",
-    "@types/node": "^20.11.24",
-    "@types/react": "^18.0.17",
-    "@types/react-dom": "^18.0.6",
-    "eslint": "^8.57.0",
-    "typescript": "5.3.2"
-  },
+  "types": "./dist/index.d.ts",
   "peerDependencies": {
     "react": ">=16.8.0"
   },
@@ -23,11 +17,38 @@
     "./uniswapv3": "./src/uniswapv3.ts",
     "./crypto": "./src/crypto/index.ts",
     "./number": "./src/number.ts",
-    ".": "./src/index.ts"
+    "./crypto/transaction": "./src/crypto/transaction.ts",
+    "./liquidity/zap": "./src/liquidity/zap.ts",
+    ".": "./src/index.ts",
+    "./dist/tailwind-helpers": "./src/tailwind-helpers.ts",
+    "./dist/uniswapv3": "./src/uniswapv3.ts",
+    "./dist/crypto": "./src/crypto/index.ts",
+    "./dist/number": "./src/number.ts",
+    "./dist/liquidity/position": "./src/liquidity/position.ts"
+  },
+  "devDependencies": {
+    "@kyber/eslint-config": "workspace:*",
+    "@kyber/schema": "workspace:*",
+    "@kyber/typescript-config": "workspace:*",
+    "@trivago/prettier-plugin-sort-imports": "^4.2.0",
+    "@types/eslint": "^8.56.5",
+    "@types/node": "^20.11.24",
+    "@types/react": "^18.0.17",
+    "@types/react-dom": "^18.0.6",
+    "@typescript-eslint/eslint-plugin": "^6.14.0",
+    "@typescript-eslint/parser": "^6.14.0",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.4.0",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "prettier": "^3.5.3",
+    "typescript": "5.3.2"
   },
   "dependencies": {
     "clsx": "^2.1.1",
     "js-sha3": "^0.9.3",
-    "tailwind-merge": "^2.5.2"
+    "tailwind-merge": "^2.5.2",
+    "zod": "^4.0.0"
   }
 }

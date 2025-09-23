@@ -12,6 +12,12 @@ const required = (envKey: string): string => {
   return envValue
 }
 
+const optional = (envKey: string): string | undefined => {
+  const key = 'VITE_' + envKey
+  const envValue = import.meta.env[key]
+  return envValue
+}
+
 export const AGGREGATOR_API = required('AGGREGATOR_API')
 export const SENTRY_DNS = required('SENTRY_DNS')
 export const REWARD_SERVICE_API = required('REWARD_SERVICE_API')
@@ -24,6 +30,7 @@ export const NOTIFICATION_API = required('NOTIFICATION_API')
 export const TRANSAK_URL = required('TRANSAK_URL')
 export const TRANSAK_API_KEY = required('TRANSAK_API_KEY')
 export const MIXPANEL_PROJECT_TOKEN = required('MIXPANEL_PROJECT_TOKEN')
+export const MIXPANEL_CROSS_CHAIN_PROJECT_TOKEN = optional('MIXPANEL_CROSS_CHAIN_PROJECT_TOKEN')
 export const GTM_ID = import.meta.env.VITE_GTM_ID
 export const TAG = import.meta.env.VITE_TAG || 'localhost'
 export const ENV_LEVEL = !import.meta.env.VITE_TAG
@@ -49,6 +56,7 @@ export const CAMPAIGN_URL = required('CAMPAIGN_URL')
 export const REFERRAL_URL = required('REFERRAL_URL')
 export const TOKEN_API_URL = required('TOKEN_API_URL')
 export const AFFILIATE_SERVICE_URL = required('AFFILIATE_SERVICE')
+export const SOLANA_RPC = required('SOLANA_RPC')
 
 type FirebaseConfig = {
   apiKey: string

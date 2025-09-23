@@ -12,6 +12,7 @@ import CopyHelper from 'components/Copy'
 import Divider from 'components/Divider'
 import Pagination from 'components/Pagination'
 import { NETWORKS_INFO } from 'constants/networks'
+import { CROSS_CHAIN_MIXPANEL_TYPE, useCrossChainMixpanel } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { useCrossChainTransactions } from 'state/crossChainSwap'
 import { ExternalLinkIcon, MEDIA_WIDTHS } from 'theme'
@@ -48,6 +49,7 @@ const TableRow = styled(TableHeader)`
 `
 
 export const TransactionHistory = () => {
+  const { crossChainMixpanelHandler } = useCrossChainMixpanel()
   const [transactions, setTransactions] = useCrossChainTransactions()
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
@@ -61,7 +63,10 @@ export const TransactionHistory = () => {
       tx =>
         (!tx.targetTxHash || !tx.status || tx.status === 'Processing') &&
         tx.status !== 'Refunded' &&
-        tx.status !== 'Failed',
+        // hardcode to update status for a failed tx, if user checked again, we can remove this in next release
+        (tx.sourceTxHash.toLowerCase() !== '0xb321c90b203b9641cc6b7039eade7a6d212a9e133b6817b593f4b9408ca55d87'
+          ? tx.status !== 'Failed'
+          : true),
     )
   }, [transactions])
 
@@ -97,11 +102,54 @@ export const TransactionHistory = () => {
                 const txIndex = updatedTransactions.findIndex(t => t.id === tx.id)
 
                 if (txIndex !== -1) {
+                  const oldStatus = updatedTransactions[txIndex].status
                   updatedTransactions[txIndex] = {
                     ...updatedTransactions[txIndex],
                     targetTxHash: txHash || updatedTransactions[txIndex].targetTxHash,
                     status: status || updatedTransactions[txIndex].status,
                   }
+
+                  // Fire specific GA events for success/failure
+                  if (status && status !== oldStatus) {
+                    const swap_details = {
+                      from_chain: tx.sourceChain,
+                      to_chain: tx.targetChain,
+                      from_token:
+                        tx.sourceChain === NonEvmChain.Bitcoin
+                          ? tx.sourceToken.symbol
+                          : tx.sourceChain === NonEvmChain.Solana
+                          ? (tx.sourceToken as any).id
+                          : tx.sourceChain === NonEvmChain.Near
+                          ? (tx.sourceToken as any).assetId
+                          : (tx.sourceToken as any)?.address || tx.sourceToken?.symbol,
+                      to_token:
+                        tx.targetChain === NonEvmChain.Bitcoin
+                          ? tx.targetToken.symbol
+                          : tx.targetChain === NonEvmChain.Solana
+                          ? (tx.targetToken as any).id
+                          : tx.targetChain === NonEvmChain.Near
+                          ? (tx.targetToken as any).assetId
+                          : (tx.targetToken as any)?.address || tx.targetToken?.symbol,
+                      amount_in: tx.inputAmount,
+                      amount_out: tx.outputAmount,
+                      partner: tx.adapter,
+                      source_tx_hash: tx.sourceTxHash,
+                      target_tx_hash: txHash || tx.targetTxHash,
+                      sender: tx.sender,
+                      status: status,
+                      time: Date.now(),
+                      timestamp: tx.timestamp,
+                      currency: 'USD',
+                      platform: 'KyberSwap Cross-Chain',
+                    }
+
+                    if (status === 'Success') {
+                      crossChainMixpanelHandler(CROSS_CHAIN_MIXPANEL_TYPE.CROSS_CHAIN_SWAP_SUCCESS, swap_details)
+                    } else if (status === 'Failed') {
+                      crossChainMixpanelHandler(CROSS_CHAIN_MIXPANEL_TYPE.CROSS_CHAIN_SWAP_FAILED, swap_details)
+                    }
+                  }
+
                   hasUpdates = true
                 }
               }
@@ -156,7 +204,7 @@ export const TransactionHistory = () => {
         intervalRef.current = null
       }
     }
-  }, [pendingTxs, transactions, setTransactions])
+  }, [pendingTxs, transactions, setTransactions, crossChainMixpanelHandler])
 
   const theme = useTheme()
 
@@ -183,10 +231,10 @@ export const TransactionHistory = () => {
         </Text>
       )}
       {transactions.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE).map(tx => {
-        const sourceChainLogo = [NonEvmChain.Near, NonEvmChain.Bitcoin].includes(tx.sourceChain)
+        const sourceChainLogo = [NonEvmChain.Near, NonEvmChain.Bitcoin, NonEvmChain.Solana].includes(tx.sourceChain)
           ? NonEvmChainInfo[tx.sourceChain].icon
           : (NETWORKS_INFO as any)[tx.sourceChain]?.icon
-        const targetChainLogo = [NonEvmChain.Near, NonEvmChain.Bitcoin].includes(tx.targetChain)
+        const targetChainLogo = [NonEvmChain.Near, NonEvmChain.Bitcoin, NonEvmChain.Solana].includes(tx.targetChain)
           ? NonEvmChainInfo[tx.targetChain].icon
           : (NETWORKS_INFO as any)[tx.targetChain]?.icon
 
@@ -268,6 +316,8 @@ export const TransactionHistory = () => {
                   ? `https://nearblocks.io/address/${tx.id}`
                   : tx.sourceChain === NonEvmChain.Bitcoin
                   ? `https://mempool.space/tx/${tx.sourceTxHash}`
+                  : tx.sourceChain === NonEvmChain.Solana
+                  ? `https://solscan.io/tx/${tx.sourceTxHash}`
                   : getEtherscanLink(tx.sourceChain as any, tx.sourceTxHash, 'transaction')
               }
             />
@@ -286,6 +336,8 @@ export const TransactionHistory = () => {
                   ? `https://nearblocks.io/txns/${tx.targetTxHash}`
                   : tx.targetChain === NonEvmChain.Bitcoin
                   ? `https://mempool.space/tx/${tx.targetTxHash}`
+                  : tx.targetChain === NonEvmChain.Solana
+                  ? `https://solscan.io/tx/${tx.targetTxHash}`
                   : getEtherscanLink(tx.targetChain as any, tx.targetTxHash, 'transaction')
               }
             />

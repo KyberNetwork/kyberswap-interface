@@ -139,7 +139,7 @@ export enum TRANSACTION_TYPE {
   UNSTAKE = 'Unstake From Farm',
 
   HARVEST = 'Harvest',
-  CLAIM_REWARD = 'Claim Reward',
+  CLAIM_REWARD = 'Claim Rewards',
   ELASTIC_DEPOSIT_LIQUIDITY = 'Elastic Deposit Liquidity',
   ELASTIC_WITHDRAW_LIQUIDITY = 'Elastic Withdraw Liquidity',
   ELASTIC_FORCE_WITHDRAW_LIQUIDITY = 'Elastic Force Withdraw Liquidity',

@@ -6,7 +6,7 @@ import styled, { css } from 'styled-components'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 
-type DropdownAlign = 'left' | 'right'
+type DropdownAlign = 'left' | 'right' | 'center'
 type DropdownProps = {
   $align: DropdownAlign
 }
@@ -20,6 +20,11 @@ const Dropdown = styled.div.attrs<DropdownProps>(props => ({
 
   &[data-align='left'] {
     left: 0;
+  }
+
+  &[data-align='center'] {
+    left: 50%;
+    transform: translateX(-50%);
   }
 
   &[data-align='right'] {

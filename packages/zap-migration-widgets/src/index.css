@@ -2,11 +2,37 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer components {
+  /* button */
+  .ks-primary-btn,
+  .ks-ui-style .ks-primary-btn {
+    @apply flex justify-center items-center justify-self-end;
+    @apply border border-accent rounded-md;
+    @apply text-sm font-medium bg-accent text-layer1;
+    @apply px-3 py-[10px] cursor-pointer;
+
+    @apply hover:enabled:brightness-110;
+    @apply active:enabled:scale-99;
+    @apply disabled:cursor-not-allowed disabled:text-subText disabled:bg-layer2 disabled:border-layer2 disabled:brightness-105;
+  }
+
+  .ks-outline-btn,
+  .ks-ui-style .ks-outline-btn {
+    @apply flex justify-center items-center justify-self-end;
+    @apply border border-[#ffffffb3] rounded-md;
+    @apply text-sm font-medium bg-transparent text-[#ffffffb3];
+    @apply px-3 py-[10px] cursor-pointer;
+
+    @apply hover:border-accent hover:text-accent;
+    @apply active:scale-99;
+  }
+}
+
 /* modal */
 .ks-lw-modal-overlay {
   @apply fixed top-0 left-0 right-0 bottom-0;
   @apply flex justify-center items-center;
-  @apply bg-[#00000080] z-[9999];
+  @apply bg-[#00000080] z-[10000];
 }
 
 .ks-lw-modal-content {
@@ -14,7 +40,9 @@
   @apply w-full max-w-[480px] max-h-[96vh] p-6 rounded-md;
   @apply bg-layer1 text-text;
   @apply transition-all duration-200;
-  font-family: var(--ks-lw-fontFamily) "Work Sans", Sans-serif;
+  font-family:
+    var(--ks-lw-fontFamily) 'Work Sans',
+    Sans-serif;
 }
 
 .ks-lw-modal-content::-webkit-scrollbar {
@@ -24,7 +52,6 @@
 .ks-lw-modal-close {
   @apply absolute top-5 right-5 cursor-pointer;
 }
-
 
 @keyframes highlight {
   0% {

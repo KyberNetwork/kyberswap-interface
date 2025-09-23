@@ -1,18 +1,12 @@
-import type { ScaleLinear, ZoomTransform } from "d3";
+import type { ScaleLinear, ZoomTransform } from 'd3';
+
+import { POOL_CATEGORY } from '@kyber/schema';
 
 type BigintIsh = bigint | number | string;
 
-export enum FeeAmount {
-  LOWEST = 0.01,
-  LOW = 0.05,
-  MIDDLE = 0.25,
-  MEDIUM = 0.3,
-  HIGH = 1,
-}
-
 export enum Bound {
-  LOWER = "LOWER",
-  UPPER = "UPPER",
+  LOWER = 'LOWER',
+  UPPER = 'UPPER',
 }
 
 export interface PoolInfo {
@@ -23,6 +17,7 @@ export interface PoolInfo {
   liquidity: string;
   token0: PoolTokenInfo | undefined;
   token1: PoolTokenInfo | undefined;
+  category: POOL_CATEGORY | undefined;
 }
 
 export interface PoolTokenInfo {
@@ -92,10 +87,9 @@ export interface LiquidityChartRangeInputProps {
   zoomPosition?: ZoomPosition;
   zoomInIcon?: JSX.Element;
   zoomOutIcon?: JSX.Element;
-  onBrushDomainChange?: (
-    domain: [number, number],
-    mode: string | undefined
-  ) => void;
+  showLabelAsAmount?: boolean;
+  alwaysShowLabel?: boolean;
+  onBrushDomainChange?: (domain: [number, number], mode: string | undefined) => void;
 }
 
 export interface ChartProps {
@@ -111,11 +105,9 @@ export interface ChartProps {
   zoomPosition?: ZoomPosition;
   zoomInIcon?: JSX.Element;
   zoomOutIcon?: JSX.Element;
-  brushLabels: (d: "w" | "e", x: number) => string;
-  onBrushDomainChange?: (
-    domain: [number, number],
-    mode: string | undefined
-  ) => void;
+  alwaysShowLabel?: boolean;
+  brushLabels: (d: 'w' | 'e', x: number) => string;
+  onBrushDomainChange?: (domain: [number, number], mode: string | undefined) => void;
 }
 
 export interface AreaProps {
@@ -141,7 +133,8 @@ export interface BrushProps {
   innerWidth: number;
   innerHeight: number;
   zoomInited: boolean;
-  brushLabelValue: (d: "w" | "e", x: number) => string;
+  alwaysShowLabel?: boolean;
+  brushLabelValue: (d: 'w' | 'e', x: number) => string;
   setBrushExtent?: (extent: [number, number], mode: string | undefined) => void;
 }
 
