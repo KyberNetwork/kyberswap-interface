@@ -33,7 +33,7 @@ const routeApi = createApi({
           params: rest,
           authentication,
           headers: {
-            'x-client-id': 'unibot-tg',
+            'x-client-id': 'kyberswap-internal',
           },
         }
       },
@@ -104,11 +104,11 @@ const routeApi = createApi({
         return {
           url,
           method: 'POST',
-          body: { ...rest, source: 'unibot-tg', enableGasEstimation: false },
+          body: { ...rest, source: 'kyberswap-internal', enableGasEstimation: false },
           signal,
           authentication,
           headers: {
-            'x-client-id': 'unibot-tg',
+            'x-client-id': 'kyberswap-internal',
           },
         }
       },
