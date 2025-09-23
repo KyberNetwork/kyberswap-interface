@@ -1,17 +1,28 @@
-import { Trans } from '@lingui/macro'
-import { Trash2 } from 'react-feather'
+import { Trans, t } from '@lingui/macro'
+import { useState } from 'react'
+import { Trash2, X } from 'react-feather'
 import { useNavigate } from 'react-router'
 import { Flex, Text } from 'rebass'
-import { useGetSmartExitOrdersQuery } from 'services/smartExit'
+import {
+  SmartExitOrder,
+  useCancelSmartExitOrderMutation,
+  useGetSmartExitCancelSignMessageMutation,
+  useGetSmartExitOrdersQuery,
+} from 'services/smartExit'
 import { useUserPositionsQuery } from 'services/zapEarn'
 import styled from 'styled-components'
 
+import { NotificationType } from 'components/Announcement/type'
+import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import LocalLoader from 'components/LocalLoader'
+import Modal from 'components/Modal'
 import TokenLogo from 'components/TokenLogo'
-import { useActiveWeb3React } from 'hooks'
+import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
 import { Badge, BadgeType, ChainImage, ImageContainer } from 'pages/Earns/UserPositions/styles'
+import { useNotify } from 'state/application/hooks'
+import { friendlyError } from 'utils/errorMessage'
 
 import { PoolPageWrapper, TableWrapper } from '../PoolExplorer/styles'
 import Filter from '../UserPositions/Filter'
@@ -48,9 +59,69 @@ const SmartExit = () => {
   const theme = useTheme()
   const navigate = useNavigate()
   const { account } = useActiveWeb3React()
+  const { library } = useWeb3React()
+  const notify = useNotify()
 
   const { filters, updateFilters } = useFilter()
   const { supportedDexes, supportedChains } = useSupportedDexesAndChains(filters)
+
+  const [showCancelConfirm, setShowCancelConfirm] = useState<SmartExitOrder | null>(null)
+  const [removing, setRemoving] = useState(false)
+
+  const [getCancelSignMsg] = useGetSmartExitCancelSignMessageMutation()
+  const [cancelOrder] = useCancelSmartExitOrderMutation()
+
+  const handleRemove = async () => {
+    if (!showCancelConfirm || !account || !library) return
+
+    setRemoving(true)
+
+    try {
+      // Step 1: Get sign message from API
+      const signMessageResult = await getCancelSignMsg({
+        chainId: showCancelConfirm.chainId,
+        userWallet: account,
+        orderId: +showCancelConfirm.id,
+      }).unwrap()
+
+      const typedData = signMessageResult.message
+
+      if (!typedData || !typedData.domain || !typedData.types || !typedData.message) {
+        throw new Error('Failed to get valid typed data from API')
+      }
+
+      // Step 2: Sign the typed data
+      console.log('Signing cancel typed data:', typedData)
+      const signature = await library.send('eth_signTypedData_v4', [account, JSON.stringify(typedData)])
+
+      // Step 3: Cancel the order with signature
+      await cancelOrder({
+        orderId: +showCancelConfirm.id,
+        chainId: showCancelConfirm.chainId,
+        userWallet: account,
+        signature,
+      }).unwrap()
+
+      notify({
+        type: NotificationType.SUCCESS,
+        title: t`Smart Exit Order Cancelled`,
+        summary: t`Your smart exit order has been successfully cancelled.`,
+      })
+
+      setShowCancelConfirm(null)
+    } catch (error) {
+      const message = friendlyError(error)
+      console.error('Cancel smart exit order error:', { message, error })
+
+      notify({
+        title: t`Cancel Smart Exit Error`,
+        summary: message,
+        type: NotificationType.ERROR,
+      })
+    } finally {
+      setRemoving(false)
+    }
+  }
 
   // Fetch smart exit orders
   const {
@@ -139,7 +210,7 @@ const SmartExit = () => {
             const protocol = (() => {
               switch (posDetail.pool.project) {
                 case 'Uniswap V3':
-                  return
+                  return 'V3'
                 case 'Uniswap V4':
                   return 'V4'
                 case 'Uniswap V4 FairFlow':
@@ -171,7 +242,7 @@ const SmartExit = () => {
                   </Flex>
                 </div>
 
-                <div>
+                <Flex flexDirection="column" sx={{ gap: '4px' }}>
                   {conditions.map((c, i) => {
                     if (c.field.type === 'fee_yield')
                       return (
@@ -215,7 +286,7 @@ const SmartExit = () => {
                       )
                     return null
                   })}
-                </div>
+                </Flex>
                 <Flex justifyContent="center">
                   <Badge
                     style={{ height: 'max-content' }}
@@ -236,14 +307,42 @@ const SmartExit = () => {
                       : order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                   </Badge>
                 </Flex>
-                <Trash>
-                  <Trash2 size={18} />
-                </Trash>
+                {order.status === 'open' ? (
+                  <Trash
+                    role="button"
+                    onClick={() => {
+                      setShowCancelConfirm(order)
+                    }}
+                  >
+                    <Trash2 size={18} />
+                  </Trash>
+                ) : (
+                  <div />
+                )}
               </TableRow>
             )
           })
         )}
       </TableWrapper>
+      <Modal isOpen={!!showCancelConfirm} onDismiss={() => setShowCancelConfirm(null)}>
+        <Flex width="100%" flexDirection="column" padding="20px" sx={{ gap: '24px' }}>
+          <Flex justifyContent="space-between" alignItems="center">
+            <Text fontSize={20} fontWeight={500}>
+              <Trans>Removing a Smart Exit</Trans>
+            </Text>
+            <X onClick={() => setShowCancelConfirm(null)} />
+          </Flex>
+          <Trans>Are you sure you want to remove this Smart Exit?</Trans>
+          <Flex sx={{ gap: '1rem' }}>
+            <ButtonOutlined onClick={() => setShowCancelConfirm(null)}>
+              <Trans>Cancel</Trans>
+            </ButtonOutlined>
+            <ButtonPrimary onClick={handleRemove} disabled={removing}>
+              {removing ? <Trans>Removing...</Trans> : <Trans>Remove</Trans>}
+            </ButtonPrimary>
+          </Flex>
+        </Flex>
+      </Modal>
     </PoolPageWrapper>
   )
 }

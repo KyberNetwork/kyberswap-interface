@@ -150,17 +150,45 @@ const smartExitApi = createApi({
       }),
     }),
 
+    getSmartExitCancelSignMessage: builder.mutation<
+      {
+        message: {
+          domain: any
+          types: any
+          message: any
+          primaryType: string
+        }
+      },
+      {
+        chainId: number
+        userWallet: string
+        orderId: number
+      }
+    >({
+      query: body => ({
+        url: `${SMART_EXIT_API_URL}/cancel/sign-message`,
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body,
+      }),
+      transformResponse: (data: any) => ({
+        message: data?.data || data?.message,
+      }),
+    }),
+
     cancelSmartExitOrder: builder.mutation<
       any,
       {
-        orderId: string
+        orderId: number
         chainId: number
         userWallet: string
         signature: string
       }
     >({
-      query: ({ orderId, ...body }) => ({
-        url: `${SMART_EXIT_API_URL}/${orderId}/cancel`,
+      query: body => ({
+        url: `${SMART_EXIT_API_URL}/cancel`,
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -177,6 +205,7 @@ export const {
   useLazyGetSmartExitOrdersQuery,
   useCreateSmartExitOrderMutation,
   useGetSmartExitSignMessageMutation,
+  useGetSmartExitCancelSignMessageMutation,
   useCancelSmartExitOrderMutation,
 } = smartExitApi
 
