@@ -44,10 +44,9 @@ export function Preview({
     'connectedAccount',
     'rePositionMode',
   ]);
-  const { route, slippage, setSlippageOpen, setSlippage, buildData, setBuildData } = useZapStore([
+  const { route, slippage, setSlippage, buildData, setBuildData } = useZapStore([
     'route',
     'slippage',
-    'setSlippageOpen',
     'setSlippage',
     'buildData',
     'setBuildData',
@@ -83,8 +82,6 @@ export function Preview({
   if (route === null || !sourcePool || !targetPool || !account || !buildData) return null;
 
   const handleSlippage = () => {
-    setSlippageOpen(true);
-    const suggestedSlippage = route?.zapDetails.suggestedSlippage || 0;
     if (slippage !== suggestedSlippage) setSlippage(suggestedSlippage);
     setBuildData(undefined);
   };

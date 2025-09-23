@@ -43,7 +43,7 @@ export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool,
       'positionId',
     ]);
   const { position } = usePositionStore(['position']);
-  const { setSlippage, setUiState, slippage } = useZapState();
+  const { setSlippage, slippage } = useZapState();
 
   const [txHash, setTxHash] = useState('');
   const [attempTx, setAttempTx] = useState(false);
@@ -121,7 +121,6 @@ export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool,
     const errorMessage = txError ? friendlyError(txError) || txError.message || JSON.stringify(txError) : '';
 
     const handleSlippage = () => {
-      setUiState(prev => ({ ...prev, slippageOpen: true }));
       if (slippage !== suggestedSlippage) setSlippage(suggestedSlippage);
       onDismiss();
     };
