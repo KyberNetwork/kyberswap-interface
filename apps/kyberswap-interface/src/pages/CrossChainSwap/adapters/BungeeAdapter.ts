@@ -59,7 +59,7 @@ export class BungeeAdapter extends BaseSwapAdapter {
       inputAmount: params.amount,
       receiverAddress: params.recipient,
       outputToken: params.toToken.isNative ? ETHER_ADDRESS : params.toToken.wrapped.address,
-      slippage: params.slippage.toString(),
+      slippage: ((params.slippage * 100) / 10_000).toString(),
       // delegateAddress: params.sender // optional
 
       feeBps: params.feeBps.toString(),
