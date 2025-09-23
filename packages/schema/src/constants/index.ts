@@ -29,7 +29,6 @@ export const CHAIN_ID_TO_CHAIN: { [chainId in ChainId]: string } = {
 };
 
 export const API_URLS = {
-  BFF_API: 'https://bff.kyberswap.com/api',
   KYBERSWAP_SETTING_API: 'https://ks-setting.kyberswap.com/api',
   ZAP_API: 'https://zap-api.kyberswap.com',
   // ZAP_API: 'https://pre-zap-api.kyberengineering.io',
@@ -64,7 +63,7 @@ export const dexMapping: Record<PoolType, string[]> = {
   [PoolType.DEX_THRUSTERV2]: ['thruster-v2'],
   [PoolType.DEX_SWAPMODEV2]: ['baseswap, arbidex, superswap'],
   [PoolType.DEX_KODIAK_V3]: ['kodiak-v3'],
-  [PoolType.DEX_KODIAK_V2]: ['kodiak'],
+  [PoolType.DEX_KODIAK_V2]: ['kodiakcl'],
   [PoolType.DEX_SQUADSWAP_V3]: ['squadswap-v3'],
   [PoolType.DEX_SQUADSWAP_V2]: ['squadswap'],
 

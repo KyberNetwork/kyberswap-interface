@@ -17,6 +17,8 @@
     "./uniswapv3": "./src/uniswapv3.ts",
     "./crypto": "./src/crypto/index.ts",
     "./number": "./src/number.ts",
+    "./crypto/transaction": "./src/crypto/transaction.ts",
+    "./liquidity/zap": "./src/liquidity/zap.ts",
     ".": "./src/index.ts",
     "./dist/tailwind-helpers": "./src/tailwind-helpers.ts",
     "./dist/uniswapv3": "./src/uniswapv3.ts",

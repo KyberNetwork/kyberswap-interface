@@ -1,11 +1,13 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useEffect, useMemo, useState } from 'react'
+import { PlusCircle } from 'react-feather'
 import { useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { usePoolDetailQuery } from 'services/zapEarn'
 
+import { ReactComponent as IconReposition } from 'assets/svg/earn/ic_reposition.svg'
 import { ReactComponent as RevertPriceIcon } from 'assets/svg/earn/ic_revert_price.svg'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
@@ -44,6 +46,8 @@ const RightSection = ({
   initialLoading,
   triggerClose,
   setTriggerClose,
+  setReduceFetchInterval,
+  onReposition,
 }: {
   position?: ParsedPosition
   onOpenZapMigration: (props: ZapMigrationInfo) => void
@@ -53,6 +57,8 @@ const RightSection = ({
   initialLoading: boolean
   triggerClose: boolean
   setTriggerClose: (value: boolean) => void
+  setReduceFetchInterval: (value: boolean) => void
+  onReposition: (e: React.MouseEvent, position: ParsedPosition) => void
 }) => {
   const theme = useTheme()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
@@ -72,7 +78,10 @@ const RightSection = ({
     triggerClose,
     setTriggerClose,
   })
-  const { widget: zapOutWidget, handleOpenZapOut } = useZapOutWidget(onRefreshPosition)
+  const { widget: zapOutWidget, handleOpenZapOut } = useZapOutWidget((props: CheckClosedPositionParams) => {
+    onRefreshPosition(props)
+    setReduceFetchInterval(true)
+  })
 
   const price = useMemo(
     () => (!position?.priceRange ? 0 : !revert ? position.priceRange.current : 1 / position.priceRange.current),
@@ -107,6 +116,11 @@ const RightSection = ({
   const isUnfinalized = position?.isUnfinalized
   const isUniV4 = isForkFrom(protocol as Exchange, CoreProtocol.UniswapV4)
   const isClosed = position?.status === PositionStatus.CLOSED
+  const isOutRange = position?.status === PositionStatus.OUT_RANGE
+
+  const repositionDisabled = initialLoading || !position || isClosed
+  const increaseDisabled = initialLoading || (isUniV4 && isClosed)
+  const subActionDisabled = isClosed || (!isOutRange ? repositionDisabled : increaseDisabled)
 
   return (
     <>
@@ -250,6 +264,27 @@ const RightSection = ({
 
         {isUniv2 && <PositionHistory position={position} />}
 
+        {!isUniv2 && (
+          <PositionActionWrapper>
+            <Flex
+              color={!subActionDisabled ? theme.primary : theme.subText}
+              alignItems={'center'}
+              marginBottom={-3}
+              sx={{ gap: 1, cursor: !subActionDisabled ? 'pointer' : 'not-allowed' }}
+              onClick={e => {
+                if (!isOutRange ? repositionDisabled : increaseDisabled) return
+                if (!isOutRange) {
+                  onReposition(e, position as ParsedPosition)
+                } else {
+                  onOpenIncreaseLiquidityWidget()
+                }
+              }}
+            >
+              {!isOutRange ? <IconReposition width={20} /> : <PlusCircle width={20} />}
+              <Text>{!isOutRange ? t`Reposition to new range` : t`Increase Liquidity`}</Text>
+            </Flex>
+          </PositionActionWrapper>
+        )}
         <PositionActionWrapper>
           <PositionAction
             outlineDefault
@@ -268,13 +303,17 @@ const RightSection = ({
             }}
           >{t`Remove Liquidity`}</PositionAction>
           <PositionAction
-            disabled={initialLoading || (isUniV4 && isClosed)}
-            onClick={() => {
-              if (!position || initialLoading || (isUniV4 && isClosed)) return
-              onOpenIncreaseLiquidityWidget()
+            disabled={!isOutRange ? increaseDisabled : repositionDisabled}
+            onClick={e => {
+              if (!isOutRange ? increaseDisabled : repositionDisabled) return
+              if (isOutRange) {
+                onReposition(e, position)
+              } else {
+                onOpenIncreaseLiquidityWidget()
+              }
             }}
           >
-            {t`Increase Liquidity`}
+            {!isOutRange ? t`Increase Liquidity` : t`Reposition to new range`}
           </PositionAction>
         </PositionActionWrapper>
       </InfoRightColumn>

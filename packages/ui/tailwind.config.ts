@@ -23,6 +23,8 @@ const config: Pick<Config, 'presets' | 'content' | 'darkMode' | 'theme' | 'safel
     '-bottom-[6px]',
     'sm:h-5',
     'sm:w-5',
+    'z-[1002]',
+    'z-[1003]',
 
     // Skeleton classes - dimensions
     'w-[300px]',
@@ -54,6 +56,7 @@ const config: Pick<Config, 'presets' | 'content' | 'darkMode' | 'theme' | 'safel
     'w-[150px]',
     'w-[120px]',
     'mt-3',
+    'h-10',
 
     // Button classes
     'flex-1',
@@ -261,6 +264,8 @@ const config: Pick<Config, 'presets' | 'content' | 'darkMode' | 'theme' | 'safel
     'right-5',
     'sm:right-6',
     'rounded-b-none',
+    'border-[#a9a9a94d]',
+    'ml-[6px]',
   ],
   theme: {
     extend: {

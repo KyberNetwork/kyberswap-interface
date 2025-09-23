@@ -1,4 +1,10 @@
 export function toRawString(amountInWei: bigint, decimals: number): string {
+  if (Number.isNaN(decimals)) return '0';
+  const isValidDecimals = typeof decimals === 'number' && Number.isInteger(decimals) && decimals >= 0;
+  if (!isValidDecimals) {
+    console.error(`toRawString: Invalid decimals "${decimals}". Expected a non-negative integer.`);
+    return '0';
+  }
   const factor = BigInt(10 ** decimals);
 
   // Calculate the whole and fractional parts
@@ -82,7 +88,7 @@ export const formatDisplayNumber = (
   const v = Number(value?.toString());
   if (value === undefined || value === null || Number.isNaN(value)) return fallbackResult;
 
-  if (v < 1) {
+  if (v < 1 && v > 0) {
     const decimal = value.toString().split('.')[1] || '0';
     const numberOfLeadingZeros = -Math.floor(Math.log10(v) + 1);
     const slicedDecimal = decimal
@@ -119,6 +125,7 @@ export const formatDisplayNumber = (
 };
 
 export function formatUnits(value: string, decimals = 18, maxDisplayDecimals?: number) {
+  if (Number.isNaN(decimals)) return '0';
   // Regex to check if value is a valid positive integer string
   const isValidNumber = /^\d+$/.test(value);
   if (!isValidNumber) {
@@ -183,9 +190,11 @@ export const formatAprNumber = (apr: string | number): string => {
   if (apr === 0) return '0';
 
   const formattedApr = Number(apr);
+  const absApr = Math.abs(formattedApr);
+
   let n = 0;
   while (n < 4) {
-    if (formattedApr - 10 ** n < 0) break;
+    if (absApr - 10 ** n < 0) break;
     n++;
   }
 

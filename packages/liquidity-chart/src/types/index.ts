@@ -1,14 +1,8 @@
 import type { ScaleLinear, ZoomTransform } from 'd3';
 
-type BigintIsh = bigint | number | string;
+import { POOL_CATEGORY } from '@kyber/schema';
 
-export enum FeeAmount {
-  LOWEST = 0.01,
-  LOW = 0.05,
-  MIDDLE = 0.25,
-  MEDIUM = 0.3,
-  HIGH = 1,
-}
+type BigintIsh = bigint | number | string;
 
 export enum Bound {
   LOWER = 'LOWER',
@@ -23,6 +17,7 @@ export interface PoolInfo {
   liquidity: string;
   token0: PoolTokenInfo | undefined;
   token1: PoolTokenInfo | undefined;
+  category: POOL_CATEGORY | undefined;
 }
 
 export interface PoolTokenInfo {

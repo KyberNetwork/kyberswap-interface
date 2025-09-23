@@ -28,6 +28,8 @@ export type RouteSummary = {
   tokenOut: string
   amountOut: string
   amountOutUsd: string
+  rawAmountInUsd?: string
+  rawAmountOutUsd?: string
   tokenOutMarketPriceAvailable: null
 
   gas: string

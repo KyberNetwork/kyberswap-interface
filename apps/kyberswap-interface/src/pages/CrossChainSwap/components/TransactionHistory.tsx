@@ -12,6 +12,7 @@ import CopyHelper from 'components/Copy'
 import Divider from 'components/Divider'
 import Pagination from 'components/Pagination'
 import { NETWORKS_INFO } from 'constants/networks'
+import { CROSS_CHAIN_MIXPANEL_TYPE, useCrossChainMixpanel } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { useCrossChainTransactions } from 'state/crossChainSwap'
 import { ExternalLinkIcon, MEDIA_WIDTHS } from 'theme'
@@ -48,6 +49,7 @@ const TableRow = styled(TableHeader)`
 `
 
 export const TransactionHistory = () => {
+  const { crossChainMixpanelHandler } = useCrossChainMixpanel()
   const [transactions, setTransactions] = useCrossChainTransactions()
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
@@ -108,35 +110,43 @@ export const TransactionHistory = () => {
                   }
 
                   // Fire specific GA events for success/failure
-                  if (status && status !== oldStatus && window.dataLayer) {
-                    const baseEventData = {
-                      swap_details: {
-                        from_chain: tx.sourceChain,
-                        to_chain: tx.targetChain,
-                        from_token: tx.sourceToken,
-                        to_token: tx.targetToken,
-                        amount_in: tx.inputAmount,
-                        amount_out: tx.outputAmount,
-                        partner: tx.adapter,
-                        source_tx_hash: tx.sourceTxHash,
-                        target_tx_hash: txHash || tx.targetTxHash,
-                        sender: tx.sender,
-                        status: status,
-                      },
+                  if (status && status !== oldStatus) {
+                    const swap_details = {
+                      from_chain: tx.sourceChain,
+                      to_chain: tx.targetChain,
+                      from_token:
+                        tx.sourceChain === NonEvmChain.Bitcoin
+                          ? tx.sourceToken.symbol
+                          : tx.sourceChain === NonEvmChain.Solana
+                          ? (tx.sourceToken as any).id
+                          : tx.sourceChain === NonEvmChain.Near
+                          ? (tx.sourceToken as any).assetId
+                          : (tx.sourceToken as any)?.address || tx.sourceToken?.symbol,
+                      to_token:
+                        tx.targetChain === NonEvmChain.Bitcoin
+                          ? tx.targetToken.symbol
+                          : tx.targetChain === NonEvmChain.Solana
+                          ? (tx.targetToken as any).id
+                          : tx.targetChain === NonEvmChain.Near
+                          ? (tx.targetToken as any).assetId
+                          : (tx.targetToken as any)?.address || tx.targetToken?.symbol,
+                      amount_in: tx.inputAmount,
+                      amount_out: tx.outputAmount,
+                      partner: tx.adapter,
+                      source_tx_hash: tx.sourceTxHash,
+                      target_tx_hash: txHash || tx.targetTxHash,
+                      sender: tx.sender,
+                      status: status,
+                      time: Date.now(),
+                      timestamp: tx.timestamp,
+                      currency: 'USD',
+                      platform: 'KyberSwap Cross-Chain',
                     }
 
                     if (status === 'Success') {
-                      window.dataLayer.push({
-                        event: 'cross_chain_swap_success',
-                        event_category: 'cross_chain_swap',
-                        ...baseEventData,
-                      })
+                      crossChainMixpanelHandler(CROSS_CHAIN_MIXPANEL_TYPE.CROSS_CHAIN_SWAP_SUCCESS, swap_details)
                     } else if (status === 'Failed') {
-                      window.dataLayer.push({
-                        event: 'cross_chain_swap_failed',
-                        event_category: 'cross_chain_swap',
-                        ...baseEventData,
-                      })
+                      crossChainMixpanelHandler(CROSS_CHAIN_MIXPANEL_TYPE.CROSS_CHAIN_SWAP_FAILED, swap_details)
                     }
                   }
 
@@ -194,7 +204,7 @@ export const TransactionHistory = () => {
         intervalRef.current = null
       }
     }
-  }, [pendingTxs, transactions, setTransactions])
+  }, [pendingTxs, transactions, setTransactions, crossChainMixpanelHandler])
 
   const theme = useTheme()
 

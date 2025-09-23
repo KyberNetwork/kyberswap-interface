@@ -1,4 +1,6 @@
-import { ChainId, NATIVE_TOKEN_ADDRESS, Token } from '@kyber/schema';
+import { ChainId, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, Pool, Token, univ3PoolNormalize } from '@kyber/schema';
+import { fetchTokenPrice, friendlyError } from '@kyber/utils';
+import { estimateGas, getCurrentGasPrice } from '@kyber/utils/crypto';
 import { formatUnits } from '@kyber/utils/number';
 
 import { ERROR_MESSAGE } from '@/constants';
@@ -40,18 +42,19 @@ export const validateData = ({
   };
   zapApiError: string;
 }) => {
-  if (!account) return ERROR_MESSAGE.CONNECT_WALLET;
-  if (chainId !== networkChainId) return ERROR_MESSAGE.WRONG_NETWORK;
-  if (!tokensIn.length) return ERROR_MESSAGE.SELECT_TOKEN_IN;
+  const errors = [];
+  if (!account) errors.push(ERROR_MESSAGE.CONNECT_WALLET);
+  if (chainId !== networkChainId) errors.push(ERROR_MESSAGE.WRONG_NETWORK);
+  if (!tokensIn.length) errors.push(ERROR_MESSAGE.SELECT_TOKEN_IN);
   if (isUniV3) {
-    if (tickLower === null) return ERROR_MESSAGE.ENTER_MIN_PRICE;
-    if (tickUpper === null) return ERROR_MESSAGE.ENTER_MAX_PRICE;
-    if (tickLower >= tickUpper) return ERROR_MESSAGE.INVALID_PRICE_RANGE;
+    if (tickLower === null) errors.push(ERROR_MESSAGE.ENTER_MIN_PRICE);
+    if (tickUpper === null) errors.push(ERROR_MESSAGE.ENTER_MAX_PRICE);
+    if (tickLower >= tickUpper) errors.push(ERROR_MESSAGE.INVALID_PRICE_RANGE);
   }
 
   const listAmountsIn = amountsIn.split(',');
   const isAmountEntered = tokensIn.some((_, index) => isValidNumber(listAmountsIn[index]));
-  if (!isAmountEntered) return ERROR_MESSAGE.ENTER_AMOUNT;
+  if (!isAmountEntered) errors.push(ERROR_MESSAGE.ENTER_AMOUNT);
 
   const { tokensIn: listValidTokensIn, amountsIn: listValidAmountsIn } = parseTokensAndAmounts(tokensIn, amountsIn);
 
@@ -63,17 +66,22 @@ export const validateData = ({
           : listValidTokensIn[i].address.toLowerCase();
       const balance = formatUnits(balances[tokenAddress]?.toString() || '0', listValidTokensIn[i].decimals);
 
-      if (countDecimals(listValidAmountsIn[i]) > listValidTokensIn[i].decimals)
-        return ERROR_MESSAGE.INVALID_INPUT_AMOUNT;
-      if (parseFloat(listValidAmountsIn[i]) > parseFloat(balance)) return ERROR_MESSAGE.INSUFFICIENT_BALANCE;
+      if (countDecimals(listValidAmountsIn[i]) > listValidTokensIn[i].decimals) {
+        errors.push(ERROR_MESSAGE.INVALID_INPUT_AMOUNT);
+        break;
+      }
+      if (parseFloat(listValidAmountsIn[i]) > parseFloat(balance)) {
+        errors.push(ERROR_MESSAGE.INSUFFICIENT_BALANCE);
+        break;
+      }
     }
   } catch (e) {
-    return ERROR_MESSAGE.INVALID_INPUT_AMOUNT;
+    errors.push(ERROR_MESSAGE.INVALID_INPUT_AMOUNT);
   }
 
-  if (zapApiError) return zapApiError;
+  if (zapApiError) errors.push(zapApiError);
 
-  return '';
+  return errors;
 };
 
 export const parseTokensAndAmounts = (tokensIn: Token[], amountsIn: string) => {
@@ -93,4 +101,94 @@ export const parseTokensAndAmounts = (tokensIn: Token[], amountsIn: string) => {
     amountsIn: listValidAmountsIn,
     tokenAddresses: (listValidTokensIn || []).map(token => token.address).join(','),
   };
+};
+
+export const getPriceRangeToShow = ({
+  pool,
+  revertPrice,
+  tickLower,
+  tickUpper,
+  minPrice,
+  maxPrice,
+}: {
+  pool: Pool | 'loading';
+  revertPrice: boolean;
+  tickLower: number | null;
+  tickUpper: number | null;
+  minPrice: string | null;
+  maxPrice: string | null;
+}) => {
+  if (pool === 'loading') return;
+
+  const { success: isUniV3, data: uniV3Pool } = univ3PoolNormalize.safeParse(pool);
+
+  if (!isUniV3)
+    return {
+      minPrice: '0',
+      maxPrice: '∞',
+    };
+
+  const isMinTick = uniV3Pool.minTick === tickLower;
+  const isMaxTick = uniV3Pool.maxTick === tickUpper;
+
+  let minPriceToShow = minPrice;
+  let maxPriceToShow = maxPrice;
+
+  if (isMinTick) {
+    if (!revertPrice) minPriceToShow = '0';
+    else maxPriceToShow = '∞';
+  }
+
+  if (isMaxTick) {
+    if (!revertPrice) maxPriceToShow = '∞';
+    else minPriceToShow = '0';
+  }
+
+  return {
+    minPrice: minPriceToShow,
+    maxPrice: maxPriceToShow,
+  };
+};
+
+export const estimateGasForTx = async ({
+  rpcUrl,
+  txData,
+  chainId,
+}: {
+  rpcUrl: string;
+  txData: {
+    from: string;
+    to: string;
+    value: string;
+    data: string;
+  };
+  chainId: ChainId;
+}) => {
+  try {
+    const wethAddress = NETWORKS_INFO[chainId].wrappedToken.address.toLowerCase();
+    const [gasEstimation, nativeTokenPrice, gasPrice] = await Promise.all([
+      estimateGas(rpcUrl, txData),
+      fetchTokenPrice({ addresses: [wethAddress], chainId })
+        .then((prices: { [x: string]: { PriceBuy: number } }) => {
+          return prices[wethAddress]?.PriceBuy || 0;
+        })
+        .catch(() => 0),
+      getCurrentGasPrice(rpcUrl),
+    ]);
+
+    const gasUsd = +formatUnits(gasPrice.toString(), 18) * +gasEstimation.toString() * nativeTokenPrice;
+
+    return {
+      gasUsd,
+      error: undefined,
+    };
+  } catch (e) {
+    const message = e instanceof Error ? e.message : String(e);
+    console.log('Estimate gas failed', message);
+
+    return {
+      gasUsd: undefined,
+      error: friendlyError(message),
+    };
+  }
 };

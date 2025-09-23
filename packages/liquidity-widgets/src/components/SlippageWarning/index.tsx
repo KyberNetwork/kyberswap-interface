@@ -14,7 +14,7 @@ export const SlippageWarning = ({
   className?: string;
   showWarning: boolean;
 }) => {
-  const pool = usePoolStore(s => s.pool);
+  const { pool } = usePoolStore(['pool']);
   const initializing = pool === 'loading';
 
   return (

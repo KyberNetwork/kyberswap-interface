@@ -185,6 +185,7 @@ export const SymbolText = styled.div`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  max-width: 140px;
 `
 
 export const Apr = styled.div<{ value: number }>`

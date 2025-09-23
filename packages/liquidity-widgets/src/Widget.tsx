@@ -1,26 +1,17 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 
-import { useShallow } from 'zustand/shallow';
-
-import { useNftApproval, usePositionOwner } from '@kyber/hooks';
+import { useNftApproval } from '@kyber/hooks';
+import { NETWORKS_INFO, defaultToken, univ3Types, univ4Types } from '@kyber/schema';
 import {
-  NETWORKS_INFO,
-  Pool,
-  Univ2PoolType,
-  Univ3PoolType,
-  defaultToken,
-  univ2PoolNormalize,
-  univ2Types,
-  univ3PoolNormalize,
-  univ3Position,
-  univ3Types,
-  univ4Types,
-} from '@kyber/schema';
-import { InfoHelper, MAX_TOKENS, TOKEN_SELECT_MODE, TokenSelectorModal } from '@kyber/ui';
-import { getNftManagerContractAddress, getPoolPrice } from '@kyber/utils';
-import { formatDisplayNumber } from '@kyber/utils/number';
+  InfoHelper,
+  MAX_TOKENS,
+  StatusDialog,
+  StatusDialogType,
+  TOKEN_SELECT_MODE,
+  TokenSelectorModal,
+} from '@kyber/ui';
+import { getNftManagerContractAddress } from '@kyber/utils';
 
-import ErrorIcon from '@/assets/svg/error.svg';
 import Action from '@/components/Action';
 import LiquidityToAdd, { LiquidityToAddSkeleton } from '@/components/Content/LiquidityToAdd';
 import PoolStat from '@/components/Content/PoolStat';
@@ -34,15 +25,15 @@ import LiquidityChartSkeleton from '@/components/LiquidityChart/LiquidityChartSk
 import Modal from '@/components/Modal';
 import { PositionFee } from '@/components/PositionFee';
 import PositionLiquidity from '@/components/PositionLiquidity';
+import PositionPriceRange from '@/components/PositionPriceRange';
 import Preview from '@/components/Preview';
 import PriceRange from '@/components/PriceRange';
 import Setting from '@/components/Setting';
+import Warning from '@/components/Warning';
 import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
-import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
-import { PriceType } from '@/types/index';
-import { checkDeviated } from '@/utils';
+import { PriceType, ZapSnapshotState } from '@/types/index';
 
 export default function Widget() {
   const {
@@ -56,50 +47,27 @@ export default function Widget() {
     onSubmitTx,
     onConnectWallet,
     onOpenZapMigration,
-  } = useWidgetStore(
-    useShallow(s => ({
-      theme: s.theme,
-      poolType: s.poolType,
-      chainId: s.chainId,
-      poolAddress: s.poolAddress,
-      connectedAccount: s.connectedAccount,
-      onClose: s.onClose,
-      positionId: s.positionId,
-      onSubmitTx: s.onSubmitTx,
-      onConnectWallet: s.onConnectWallet,
-      onOpenZapMigration: s.onOpenZapMigration,
-    })),
-  );
-  const { position } = usePositionStore(useShallow(s => ({ position: s.position })));
-  const { pool, poolError, getPool, poolPrice, revertPrice } = usePoolStore(
-    useShallow(s => ({
-      pool: s.pool,
-      poolError: s.poolError,
-      getPool: s.getPool,
-      poolPrice: s.poolPrice,
-      revertPrice: s.revertPrice,
-    })),
-  );
-  const positionOwner = usePositionOwner({
-    positionId: positionId || '',
-    chainId,
-    poolType,
-  });
-  const {
-    zapInfo,
-    tickLower,
-    tickUpper,
-    tokensIn,
-    amountsIn,
-    setTokensIn,
-    setAmountsIn,
-    snapshotState,
-    setSnapshotState,
-    slippage,
-  } = useZapState();
+  } = useWidgetStore([
+    'theme',
+    'poolType',
+    'chainId',
+    'poolAddress',
+    'connectedAccount',
+    'onClose',
+    'positionId',
+    'onSubmitTx',
+    'onConnectWallet',
+    'onOpenZapMigration',
+  ]);
+  const { pool, poolError } = usePoolStore(['pool', 'poolError']);
+
+  const { zapInfo, tickLower, tickUpper, tokensIn, amountsIn, setTokensIn, setAmountsIn, slippage, getZapRoute } =
+    useZapState();
 
   const [openTokenSelectModal, setOpenTokenSelectModal] = useState(false);
   const [tokenAddressSelected, setTokenAddressSelected] = useState<string | undefined>();
+  const [widgetError, setWidgetError] = useState<string | undefined>();
+  const [zapSnapshotState, setZapSnapshotState] = useState<ZapSnapshotState | null>(null);
 
   const initializing = pool === 'loading';
   const { token0 = defaultToken, token1 = defaultToken } = !initializing ? pool : {};
@@ -121,64 +89,6 @@ export default function Widget() {
     nftManagerContract,
     onSubmitTx: onSubmitTx,
   });
-
-  const newPool: Pool | null = useMemo(() => {
-    const { success: isUniV3, data: univ3PoolInfo } = univ3PoolNormalize.safeParse(pool);
-    const { success: isUniV2, data: uniV2PoolInfo } = univ2PoolNormalize.safeParse(pool);
-
-    const isUniV3PoolType = univ3Types.includes(poolType as any);
-    const isUniV2PoolType = univ2Types.includes(poolType as any);
-
-    if (zapInfo) {
-      if (isUniV3 && isUniV3PoolType) {
-        const newInfo = zapInfo?.poolDetails.uniswapV3 || zapInfo?.poolDetails.algebraV1;
-        return {
-          ...univ3PoolInfo,
-          poolType: poolType as Univ3PoolType,
-          sqrtRatioX96: newInfo?.newSqrtP,
-          tick: newInfo.newTick,
-          liquidity: (BigInt(univ3PoolInfo.liquidity) + BigInt(zapInfo.positionDetails.addedLiquidity)).toString(),
-        };
-      }
-      if (isUniV2 && isUniV2PoolType)
-        return {
-          ...uniV2PoolInfo,
-          poolType: poolType as Univ2PoolType,
-          reverses: [zapInfo.poolDetails.uniswapV2.newReserve0, zapInfo.poolDetails.uniswapV2.newReserve1],
-        };
-    }
-    return null;
-  }, [pool, poolType, zapInfo]);
-
-  const isOutOfRangeAfterZap = useMemo(() => {
-    const { success, data } = univ3Position.safeParse(position);
-    const { success: isUniV3Pool, data: newPoolUniv3 } = univ3PoolNormalize.safeParse(newPool);
-
-    return newPool && success && isUniV3Pool
-      ? newPoolUniv3.tick < data.tickLower || newPoolUniv3.tick >= data.tickUpper
-      : false;
-  }, [newPool, position]);
-
-  const isFullRange = useMemo(
-    () => pool !== 'loading' && 'minTick' in pool && tickLower === pool.minTick && tickUpper === pool.maxTick,
-    [pool, tickLower, tickUpper],
-  );
-
-  const newPoolPrice = useMemo(() => getPoolPrice({ pool: newPool, revertPrice }), [newPool, revertPrice]);
-
-  const isNotOwner =
-    positionId &&
-    positionOwner &&
-    connectedAccount?.address &&
-    positionOwner !== connectedAccount?.address?.toLowerCase()
-      ? true
-      : false;
-
-  const isDeviated = checkDeviated(poolPrice, newPoolPrice);
-
-  const refetchData = useCallback(() => {
-    getPool({ poolAddress, chainId, poolType });
-  }, [getPool, poolAddress, chainId, poolType]);
 
   const handleOpenZapMigration = useCallback(
     (position: { exchange: string; poolId: string; positionId: string | number }, initialSlippage?: number) =>
@@ -238,28 +148,38 @@ export default function Widget() {
     </>
   );
 
+  const onClosePreview = () => {
+    if (isUniv4) checkNftApproval();
+    setZapSnapshotState(null);
+    getZapRoute();
+  };
+
+  const onCloseErrorDialog = () => {
+    if (poolError) onClose?.();
+    else {
+      setWidgetError(undefined);
+      getZapRoute();
+    }
+  };
+
   return (
     <div className="ks-lw ks-lw-style">
-      {poolError && (
-        <Modal isOpen onClick={() => onClose?.()}>
-          <div className="flex flex-col items-center gap-8 text-error">
-            <ErrorIcon className="text-error" />
-            <div className="text-center">{poolError}</div>
-            <button className="ks-primary-btn w-[95%] bg-error border-solid border-error" onClick={() => onClose?.()}>
-              Close
+      {(poolError || widgetError) && (
+        <StatusDialog
+          type={StatusDialogType.ERROR}
+          title={poolError ? 'Failed to load pool' : widgetError ? 'Failed to build zap route' : ''}
+          description={poolError || widgetError}
+          onClose={onCloseErrorDialog}
+          action={
+            <button className="ks-outline-btn flex-1" onClick={onCloseErrorDialog}>
+              {poolError ? 'Close' : 'Close & Refresh'}
             </button>
-          </div>
-        </Modal>
+          }
+        />
       )}
-      {snapshotState && (
-        <Modal isOpen onClick={() => setSnapshotState(null)} modalContentClass="!max-h-[96vh]">
-          <Preview
-            zapState={snapshotState}
-            onDismiss={() => {
-              if (isUniv4) checkNftApproval();
-              setSnapshotState(null);
-            }}
-          />
+      {zapSnapshotState && pool && pool !== 'loading' && (
+        <Modal isOpen onClick={onClosePreview} modalContentClass="!max-h-[96vh]">
+          <Preview zapState={zapSnapshotState} pool={pool} onDismiss={onClosePreview} />
         </Modal>
       )}
 
@@ -284,19 +204,19 @@ export default function Widget() {
         />
       )}
 
-      <div className={`p-6 ${snapshotState ? 'hidden' : ''}`}>
-        <Header refetchData={refetchData} />
+      <div className={`p-6 ${zapSnapshotState ? 'hidden' : ''}`}>
+        <Header />
         <div className="mt-5 flex gap-5 max-sm:flex-col">
           <div className="w-[55%] max-sm:w-full">
             <PoolStat />
             <PriceInfo />
             {!positionId && isUniV3 && (initializing ? <LiquidityChartSkeleton /> : <LiquidityChart />)}
-            <PriceRange />
+            {positionId ? <PositionPriceRange /> : <PriceRange />}
             {!positionId ? (
               isUniV3 && (
                 <div className="flex gap-4 w-full">
-                  <PriceInput type={PriceType.PriceLower} />
-                  <PriceInput type={PriceType.PriceUpper} />
+                  <PriceInput type={PriceType.MinPrice} />
+                  <PriceInput type={PriceType.MaxPrice} />
                 </div>
               )
             ) : (
@@ -318,63 +238,16 @@ export default function Widget() {
 
             <Estimated />
             <ZapSummary />
-
-            {isOutOfRangeAfterZap && (
-              <div
-                className="py-3 px-4 text-sm rounded-md font-normal text-blue mt-4"
-                style={{
-                  backgroundColor: `${theme.blue}33`,
-                }}
-              >
-                Your liquidity is outside the current market range and will not be used/earn fees until the market price
-                enters your specified range.
-              </div>
-            )}
-            {isFullRange && (
-              <div
-                className="py-3 px-4 text-sm rounded-md font-normal text-blue mt-4"
-                style={{
-                  backgroundColor: `${theme.blue}33`,
-                }}
-              >
-                Your liquidity is active across the full price range. However, this may result in a lower APR than
-                estimated due to less concentration of liquidity.
-              </div>
-            )}
-            {isDeviated && (
-              <div
-                className="py-3 px-4 text-subText text-sm rounded-md mt-4 font-normal"
-                style={{ backgroundColor: `${theme.warning}33` }}
-              >
-                <div className="italic text-text">
-                  The pool's estimated price after zapping of{' '}
-                  <span className="font-medium text-warning not-italic ml-[2px]">
-                    1 {revertPrice ? token1.symbol : token0.symbol} ={' '}
-                    {formatDisplayNumber(newPoolPrice, { significantDigits: 6 })}{' '}
-                    {revertPrice ? token0.symbol : token1.symbol}
-                  </span>{' '}
-                  deviates from the market price{' '}
-                  <span className="font-medium text-warning not-italic">
-                    (1 {revertPrice ? token1.symbol : token0.symbol} ={' '}
-                    {formatDisplayNumber(poolPrice, { significantDigits: 6 })}{' '}
-                    {revertPrice ? token0.symbol : token1.symbol})
-                  </span>
-                  . You might have high impermanent loss after you add liquidity to this pool
-                </div>
-              </div>
-            )}
-
-            {isUniv4 && isNotOwner && (
-              <div
-                className="py-3 px-4 text-subText text-sm rounded-md mt-4 font-normal"
-                style={{ backgroundColor: `${theme.warning}33` }}
-              >
-                You are not the current owner of the position #{positionId}, please double check before proceeding
-              </div>
-            )}
+            <Warning />
           </div>
         </div>
-        <Action nftApproved={nftApproved} nftApprovePendingTx={nftApprovePendingTx} approveNft={approveNft} />
+        <Action
+          nftApproved={nftApproved}
+          nftApprovePendingTx={nftApprovePendingTx}
+          approveNft={approveNft}
+          setWidgetError={setWidgetError}
+          setZapSnapshotState={setZapSnapshotState}
+        />
       </div>
       <Setting />
     </div>

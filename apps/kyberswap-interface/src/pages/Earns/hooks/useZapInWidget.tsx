@@ -175,13 +175,14 @@ const useZapInWidget = ({
 
       onOpenZapMigration({
         from: {
-          ...position,
-          dex: position.exchange as EarnDex,
+          poolType: position.exchange as EarnDex,
+          poolAddress: position.poolId,
+          positionId: position.positionId.toString(),
         },
         to: {
-          poolId: addLiquidityPureParams.poolAddress,
+          poolAddress: addLiquidityPureParams.poolAddress,
           positionId: addLiquidityPureParams.positionId,
-          dex: dex,
+          poolType: dex,
         },
         chainId: addLiquidityPureParams.chainId,
         initialTick,
@@ -233,8 +234,8 @@ const useZapInWidget = ({
 
               updateUnfinalizedPosition({
                 ...DEFAULT_PARSED_POSITION,
-                id: `${contract}-${nftId}`,
-                tokenId: nftId,
+                id: !isUniv2 ? `${contract}-${nftId}` : data.position.pool.address,
+                tokenId: !isUniv2 ? nftId : '-1',
                 chain: {
                   id: chainId,
                   name: NETWORKS_INFO[chainId].name,

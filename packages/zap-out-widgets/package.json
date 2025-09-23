@@ -38,6 +38,7 @@
     "@kyber/svgr-esbuild-plugin": "workspace:^",
     "@kyber/tailwind-config": "workspace:^",
     "@kyber/ui": "workspace:^",
+    "@kyber/schema": "workspace:^",
     "@kyberswap/liquidity-chart": "workspace:^",
     "@kyber/hooks": "workspace:^",
     "@kyber/utils": "workspace:^",

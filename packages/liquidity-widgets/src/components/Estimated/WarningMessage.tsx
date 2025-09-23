@@ -3,7 +3,7 @@ import { cn } from '@kyber/utils/tailwind-helpers';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
 export default function WarningMessage({ isWarning, message }: { isWarning: boolean; message: string }) {
-  const { theme } = useWidgetStore();
+  const { theme } = useWidgetStore(['theme']);
 
   return (
     <div

@@ -1,14 +1,12 @@
 import { useMemo } from 'react';
 
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, MouseoverTooltip } from '@kyber/ui';
+import { getZapImpact } from '@kyber/utils';
 import { formatUnits } from '@kyber/utils/crypto';
-import { formatDisplayNumber } from '@kyber/utils/number';
 
 import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO } from '@/constants';
 import { PoolSwapAction } from '@/hooks/types/zapInTypes';
 import { useZapOutContext } from '@/stores';
 import { AggregatorSwapAction, useZapOutUserState } from '@/stores/state';
-import { PI_LEVEL, getPriceImpact } from '@/utils';
 
 export const useSwapPI = () => {
   const { route, tokenOut } = useZapOutUserState();
@@ -47,21 +45,11 @@ export const useSwapPI = () => {
         const amountIn = formatUnits(item.tokenIn.amount, tokenIn?.decimals);
         const amountOut = formatUnits(item.tokenOut.amount, tokenOut?.decimals);
 
-        const pi =
-          parseFloat(item.tokenIn.amountUsd) === 0 || parseFloat(item.tokenOut.amountUsd) === 0
-            ? null
-            : ((parseFloat(item.tokenIn.amountUsd) - parseFloat(item.tokenOut.amountUsd)) /
-                parseFloat(item.tokenIn.amountUsd)) *
-              100;
-
-        const piRes = getPriceImpact(pi, 'Swap Price Impact', route?.zapDetails.suggestedSlippage || 100);
-
         return {
           tokenInSymbol: tokenIn?.symbol || '--',
           tokenOutSymbol: tokenOut?.symbol || '--',
           amountIn,
           amountOut,
-          piRes,
         };
       }) || [];
 
@@ -74,110 +62,18 @@ export const useSwapPI = () => {
         const amountIn = formatUnits(item.tokenIn.amount, tokenIn?.decimals);
         const amountOut = formatUnits(item.tokenOut.amount, tokenOut?.decimals);
 
-        const pi =
-          parseFloat(item.tokenIn.amountUsd) === 0 || parseFloat(item.tokenOut.amountUsd) === 0
-            ? 0
-            : ((parseFloat(item.tokenIn.amountUsd) - parseFloat(item.tokenOut.amountUsd)) /
-                parseFloat(item.tokenIn.amountUsd)) *
-              100;
-        const piRes = getPriceImpact(pi, 'Swap Price Impact', route?.zapDetails.suggestedSlippage || 100);
-
         return {
           tokenInSymbol: tokenIn?.symbol || '--',
           tokenOutSymbol: tokenOut?.symbol || '--',
           amountIn,
           amountOut,
-          piRes,
         };
       }) || [];
 
     return parsedAggregatorSwapInfo.concat(parsedPoolSwapInfo);
-  }, [route?.zapDetails.actions, route?.zapDetails.suggestedSlippage, pool, tokensIn, chainId]);
+  }, [route?.zapDetails.actions, pool, tokensIn, chainId]);
 
-  const swapPiRes = useMemo(() => {
-    const invalidRes = swapPi.find(item => item.piRes.level === PI_LEVEL.INVALID);
-    if (invalidRes) return invalidRes;
+  const zapPiRes = getZapImpact(route?.zapDetails.priceImpact, route?.zapDetails.suggestedSlippage || 0);
 
-    const highRes = swapPi.find(item => item.piRes.level === PI_LEVEL.HIGH);
-    if (highRes) return highRes;
-
-    const veryHighRes = swapPi.find(item => item.piRes.level === PI_LEVEL.VERY_HIGH);
-    if (veryHighRes) return veryHighRes;
-
-    return { piRes: { level: PI_LEVEL.NORMAL, msg: '' } };
-  }, [swapPi]);
-
-  const zapPiRes = getPriceImpact(
-    route?.zapDetails.priceImpact,
-    'Zap Impact',
-    route?.zapDetails.suggestedSlippage || 100,
-  );
-
-  return { swapPi, swapPiRes, zapPiRes };
-};
-
-export const SwapPI = () => {
-  const { swapPi, swapPiRes } = useSwapPI();
-
-  return (
-    <div className="flex justify-between items-start w-full">
-      {swapPi.length ? (
-        <Accordion type="single" collapsible className="w-full">
-          <AccordionItem value="item-1">
-            <AccordionTrigger>
-              <MouseoverTooltip text="View all the detailed estimated price impact of each swap" width="220px">
-                <div
-                  className={`text-xs font-medium border-b border-dotted border-subText ${
-                    swapPiRes.piRes.level === PI_LEVEL.NORMAL
-                      ? 'text-subText'
-                      : swapPiRes.piRes.level === PI_LEVEL.HIGH
-                        ? '!text-warning !border-warning'
-                        : '!text-error !border-error'
-                  }`}
-                >
-                  Swap Price Impact
-                </div>
-              </MouseoverTooltip>
-            </AccordionTrigger>
-            <AccordionContent className="mt-2">
-              {swapPi.map((item, index: number) => (
-                <div
-                  className={`text-xs flex justify-between align-middle ${
-                    item.piRes.level === PI_LEVEL.NORMAL
-                      ? 'text-subText brightness-125'
-                      : item.piRes.level === PI_LEVEL.HIGH
-                        ? 'text-warning'
-                        : 'text-error'
-                  }`}
-                  key={index}
-                >
-                  <div className="ml-3">
-                    {formatDisplayNumber(item.amountIn, {
-                      significantDigits: 4,
-                    })}{' '}
-                    {item.tokenInSymbol} {'→ '}
-                    {formatDisplayNumber(item.amountOut, {
-                      significantDigits: 4,
-                    })}{' '}
-                    {item.tokenOutSymbol}
-                  </div>
-                  <div>{item.piRes.display}</div>
-                </div>
-              ))}
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
-      ) : (
-        <>
-          <MouseoverTooltip
-            text="Estimated change in price due to the size of your transaction. Applied to the Swap steps."
-            width="220px"
-          >
-            <div className="border-b border-dotted border-subText text-subText text-xs">Swap Impact</div>
-          </MouseoverTooltip>
-          <span>--</span>
-        </>
-      )}
-    </div>
-  );
+  return { swapPi, zapPiRes };
 };

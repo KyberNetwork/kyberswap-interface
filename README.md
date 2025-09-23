@@ -16,7 +16,11 @@ To access the KyberSwap Interface, visit [kyberswap.com](https://kyberswap.com/)
 ```bash
 pnpm i
 ```
+### Build packages
 
+```bash
+pnpm build-package
+```
 ### Run
 
 ```bash

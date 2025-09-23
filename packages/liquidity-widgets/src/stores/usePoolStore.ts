@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { useShallow } from 'zustand/shallow';
 
 import { Pool, PoolType } from '@kyber/schema';
 import { POOL_ERROR, getPoolInfo, getPoolPrice } from '@kyber/utils';
@@ -11,11 +12,10 @@ interface PoolState {
   revertPrice: boolean;
   toggleRevertPrice: () => void;
   getPool: (props: getPoolProps) => void;
-  getPoolPrice: () => void;
   reset: () => void;
 }
 
-const initState: Omit<PoolState, 'getPool' | 'getPoolPrice' | 'toggleRevertPrice' | 'reset'> = {
+const initState: Omit<PoolState, 'getPool' | 'toggleRevertPrice' | 'reset'> = {
   poolLoading: false,
   pool: 'loading',
   poolError: '',
@@ -29,7 +29,7 @@ interface getPoolProps {
   poolType: PoolType;
 }
 
-export const usePoolStore = create<PoolState>((set, get) => ({
+const usePoolRawStore = create<PoolState>((set, get) => ({
   ...initState,
   reset: () => set(initState),
   getPool: async ({ poolAddress, chainId, poolType }: getPoolProps) => {
@@ -43,20 +43,34 @@ export const usePoolStore = create<PoolState>((set, get) => ({
     else if (poolInfo.pool) {
       set({ pool: poolInfo.pool as Pool });
 
-      const { getPoolPrice } = get();
-      getPoolPrice();
+      const revertPrice = get().revertPrice;
+      const price = getPoolPrice({ pool: poolInfo.pool as Pool, revertPrice });
+      if (price !== null) set({ poolPrice: price });
     }
 
     set({ poolLoading: false });
   },
-  getPoolPrice: () => {
-    const { pool, revertPrice } = get();
-    const price = getPoolPrice({ pool, revertPrice });
-
-    if (price !== null) set({ poolPrice: price });
-  },
   toggleRevertPrice: () => {
     set(state => ({ revertPrice: !state.revertPrice }));
-    get().getPoolPrice();
+
+    const { pool, revertPrice } = get();
+    const price = getPoolPrice({ pool, revertPrice });
+    if (price !== null) set({ poolPrice: price });
   },
 }));
+
+type PoolStoreKeys = keyof ReturnType<typeof usePoolRawStore.getState>;
+
+export const usePoolStore = <K extends PoolStoreKeys>(keys: K[]) => {
+  return usePoolRawStore(
+    useShallow(s =>
+      keys.reduce(
+        (acc, key) => {
+          acc[key] = s[key];
+          return acc;
+        },
+        {} as Pick<typeof s, K>,
+      ),
+    ),
+  );
+};

@@ -1,7 +1,14 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+
+import { MouseoverTooltip } from '@kyber/ui';
+import { cn } from '@kyber/utils/tailwind-helpers';
 
 import AlertIcon from '@/assets/icons/alert.svg';
-import { useZapStateStore } from '@/stores/useZapStateStore';
+import { HIGH_SLIPPAGE_WARNING, LOW_SLIPPAGE_WARNING } from '@/components/Warning/SlippageWarning';
+import { getSlippageStorageKey } from '@/constants';
+import { usePoolStore } from '@/stores/usePoolStore';
+import { useWidgetStore } from '@/stores/useWidgetStore';
+import { useZapStore } from '@/stores/useZapStore';
 
 export const parseSlippageInput = (str: string): number => Math.round(Number.parseFloat(str) * 100);
 
@@ -40,7 +47,7 @@ export const validateSlippageInput = (
   } else if (rawSlippage < suggestedSlippage / 2) {
     return {
       isValid: true,
-      message: `Your slippage is set lower than usual, increasing the risk of transaction failure.`,
+      message: LOW_SLIPPAGE_WARNING,
     };
   } else if (rawSlippage > 5000) {
     return {
@@ -50,7 +57,7 @@ export const validateSlippageInput = (
   } else if (rawSlippage > 2 * suggestedSlippage) {
     return {
       isValid: true,
-      message: `Your slippage is set higher than usual, which may cause unexpected losses.`,
+      message: HIGH_SLIPPAGE_WARNING,
     };
   }
 
@@ -59,15 +66,25 @@ export const validateSlippageInput = (
   };
 };
 
-const SlippageInput = () => {
-  const { slippage, setSlippage, route, setManualSlippage } = useZapStateStore();
+const SlippageInput = ({
+  className,
+  inputClassName,
+  suggestionClassName,
+}: {
+  className?: string;
+  inputClassName?: string;
+  suggestionClassName?: string;
+}) => {
+  const { chainId } = useWidgetStore(['chainId']);
+  const { slippage, setSlippage, route } = useZapStore(['slippage', 'setSlippage', 'route']);
+  const { targetPool } = usePoolStore(['targetPool']);
   const [v, setV] = useState(() => {
     if (!slippage) return '';
     if ([5, 10, 50, 100].includes(slippage)) return '';
     return ((slippage * 100) / 10_000).toString();
   });
 
-  const suggestedSlippage = route?.zapDetails.suggestedSlippage || 100;
+  const suggestedSlippage = route?.zapDetails.suggestedSlippage || 0;
 
   const [isFocus, setIsFocus] = useState(false);
   const { isValid, message } = validateSlippageInput(v, suggestedSlippage);
@@ -82,7 +99,6 @@ const SlippageInput = () => {
     setIsFocus(false);
     if (!e.currentTarget.value) setSlippage(10);
     else if (isValid) {
-      setManualSlippage(true);
       setSlippage(parseSlippageInput(e.currentTarget.value));
     }
   };
@@ -113,9 +129,27 @@ const SlippageInput = () => {
     setV(value);
   };
 
+  useEffect(() => {
+    if (targetPool && slippage && suggestedSlippage > 0 && slippage !== suggestedSlippage) {
+      try {
+        const storageKey = getSlippageStorageKey(
+          targetPool.token0.symbol,
+          targetPool.token1.symbol,
+          chainId,
+          targetPool.fee,
+        );
+        localStorage.setItem(storageKey, slippage.toString());
+      } catch (error) {
+        // Silently handle localStorage errors
+        console.warn('Failed to save slippage to localStorage:', error);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slippage, suggestedSlippage]);
+
   return (
     <>
-      <div className="rounded-full mt-2 bg-layer1 p-1 flex gap-[2px]">
+      <div className={cn('rounded-full bg-layer1 p-1 flex gap-[2px]', className)}>
         {[5, 10, 50, 100].map(item => (
           <div
             className="relative border rounded-full text-subText text-sm p-1 font-medium w-12 flex border-solid border-transparent items-center gap-1 justify-center cursor-pointer hover:border-accent data-[active='true']:text-text data-[active='true']:border-accent"
@@ -123,7 +157,6 @@ const SlippageInput = () => {
             role="button"
             onClick={() => {
               setSlippage(item);
-              setManualSlippage(true);
               setV('');
             }}
             key={item}
@@ -145,7 +178,10 @@ const SlippageInput = () => {
             <AlertIcon className={`absolute top-[5px] left-1 w-4 h-4 ${isValid ? 'text-warning' : 'text-error'}`} />
           )}
           <input
-            className="bg-layer1 border-none outline-none text-right text-text w-full text-xs p-0 focus:bg-layer1"
+            className={cn(
+              'bg-layer1 border-none outline-none text-right text-text w-full text-xs p-0 focus:bg-layer1',
+              inputClassName,
+            )}
             data-active={slippage && ![5, 10, 50, 100].includes(slippage)}
             placeholder="Custom"
             onFocus={onCustomSlippageFocus}
@@ -157,8 +193,28 @@ const SlippageInput = () => {
           <span>%</span>
         </div>
       </div>
-      {route && (message || slippage) && (
-        <div className={`text-xs text-left mt-1 max-w-[280px] ${isValid ? 'text-warning' : 'text-error'}`}>
+      {suggestedSlippage > 0 && slippage !== suggestedSlippage && (
+        <div
+          className={cn('flex items-center gap-1 mt-2 text-primary cursor-pointer text-sm w-fit', suggestionClassName)}
+          onClick={() => {
+            if (suggestedSlippage > 0) {
+              setSlippage(suggestedSlippage);
+              if (![5, 10, 50, 100].includes(suggestedSlippage)) {
+                setV(((suggestedSlippage * 100) / 10_000).toString());
+              } else setV('');
+            }
+          }}
+        >
+          <MouseoverTooltip text="Dynamic entry based on trading pair." width="fit-content" placement="bottom">
+            <span className="border-b border-dotted border-primary">Suggestion</span>
+          </MouseoverTooltip>
+          <span>{((suggestedSlippage * 100) / 10_000).toFixed(2)}%</span>
+        </div>
+      )}
+      {route && (message || slpWarning) && (
+        <div
+          className={`text-xs text-left w-full rounded-2xl px-3 py-2 mt-3 ${isValid ? 'text-warning bg-warning-200' : 'text-error bg-error-200'}`}
+        >
           {message || slpWarning}
         </div>
       )}

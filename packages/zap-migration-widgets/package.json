@@ -1,7 +1,7 @@
 {
   "name": "@kyberswap/zap-migration-widgets",
   "license": "MIT",
-  "version": "1.0.13",
+  "version": "1.0.14",
   "type": "module",
   "scripts": {
     "dev": "tsup --watch",
@@ -17,8 +17,10 @@
     "zustand": "^5.0.0"
   },
   "devDependencies": {
+    "@kyber/schema": "workspace:^",
     "@kyber/eslint-config": "workspace:*",
     "@kyber/hooks": "workspace:*",
+    "@kyberswap/liquidity-chart": "workspace:*",
     "@kyber/svgr-esbuild-plugin": "workspace:^",
     "@kyber/tailwind-config": "workspace:*",
     "@kyber/typescript-config": "workspace:*",

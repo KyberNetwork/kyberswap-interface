@@ -36,7 +36,5 @@ export const univ2Pool = z.object({
 
 export const univ2PoolResponse = z.object({
   poolType: Univ2PoolType,
-  data: z.object({
-    pools: z.array(univ2Pool),
-  }),
+  data: univ2Pool,
 });

@@ -27,7 +27,7 @@ export const univ2RawPool = z.object({
     kemLMApr: z.number().optional(),
     kemEGApr: z.number().optional(),
   }),
-  programs: z.array(z.enum(['eg', 'lm'])).optional(),
+  programs: z.array(z.string()).optional(),
 });
 
 type Univ2PoolType = (typeof univ2Types)[number];
@@ -49,3 +49,4 @@ export const univ2PoolNormalize = z.object({
   }),
   isFarming: z.boolean().optional(),
 });
+export type UniV2Pool = z.infer<typeof univ2PoolNormalize>;

@@ -36,25 +36,29 @@ const MobileTableRow = ({
   const theme = useTheme()
   const isFarmingFiltered = filters.tag === FilterTag.FARMING_POOL
 
+  const handleOpenZapInWidget = (e: React.MouseEvent<HTMLDivElement>, withPriceRange?: boolean) => {
+    e.stopPropagation()
+    onOpenZapInWidget({
+      pool: {
+        dex: pool.exchange,
+        chainId: pool.chainId || filters.chainId,
+        address: pool.address,
+      },
+      initialTick:
+        withPriceRange &&
+        pool.maxAprInfo &&
+        pool.maxAprInfo.tickLower !== undefined &&
+        pool.maxAprInfo.tickUpper !== undefined
+          ? {
+              tickLower: pool.maxAprInfo.tickLower,
+              tickUpper: pool.maxAprInfo.tickUpper,
+            }
+          : undefined,
+    })
+  }
+
   return (
-    <MobileTableRowComponent
-      onClick={() =>
-        onOpenZapInWidget({
-          pool: {
-            dex: pool.exchange,
-            chainId: pool.chainId || filters.chainId,
-            address: pool.address,
-          },
-          initialTick:
-            pool.maxAprInfo && pool.maxAprInfo.tickLower && pool.maxAprInfo.tickUpper
-              ? {
-                  tickLower: pool.maxAprInfo.tickLower,
-                  tickUpper: pool.maxAprInfo.tickUpper,
-                }
-              : undefined,
-        })
-      }
-    >
+    <MobileTableRowComponent onClick={e => handleOpenZapInWidget(e)}>
       <Flex alignItems="flex-start" justifyContent="space-between">
         <Flex sx={{ gap: 1 }}>
           <Flex sx={{ position: 'relative', top: -1 }}>
@@ -92,7 +96,7 @@ const MobileTableRow = ({
       </Flex>
       <MobileTableBottomRow withoutBorder={withoutBorder}>
         {isFarmingFiltered && (
-          <Flex justifyContent="space-between" sx={{ gap: 1 }}>
+          <Flex justifyContent="space-between" sx={{ gap: 1 }} onClick={e => handleOpenZapInWidget(e, true)}>
             <Text color={theme.subText}>Max APR</Text>
             <Text>
               {pool.maxAprInfo

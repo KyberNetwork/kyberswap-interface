@@ -20,8 +20,8 @@ const SlippageInput = ({
   suggestionClassName?: string;
 }) => {
   const { slippage, setSlippage, zapInfo } = useZapState();
-  const pool = usePoolStore(s => s.pool);
-  const chainId = useWidgetStore(s => s.chainId);
+  const { pool } = usePoolStore(['pool']);
+  const { chainId } = useWidgetStore(['chainId']);
   const [v, setV] = useState(() => {
     if (!slippage) return '';
     if ([5, 10, 50, 100].includes(slippage)) return '';
@@ -134,7 +134,7 @@ const SlippageInput = ({
       </div>
       {suggestedSlippage > 0 && slippage !== suggestedSlippage && (
         <div
-          className={cn('flex items-center gap-1 mt-1 text-primary cursor-pointer text-sm', suggestionClassName)}
+          className={cn('flex items-center gap-1 mt-1 text-primary cursor-pointer text-sm w-fit', suggestionClassName)}
           onClick={() => {
             if (suggestedSlippage > 0) {
               setSlippage(suggestedSlippage);

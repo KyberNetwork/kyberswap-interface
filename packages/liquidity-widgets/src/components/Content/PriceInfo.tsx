@@ -1,59 +1,24 @@
-import { useMemo } from 'react';
-
-import { useShallow } from 'zustand/shallow';
-
-import { defaultToken, univ2PoolNormalize, univ3PoolNormalize } from '@kyber/schema';
-import { MouseoverTooltip, Skeleton } from '@kyber/ui';
-import { assertUnreachable } from '@kyber/utils';
-import { divideBigIntToString, formatDisplayNumber } from '@kyber/utils/number';
-import { sqrtToPrice } from '@kyber/utils/uniswapv3';
+import { defaultToken } from '@kyber/schema';
+import { Skeleton, TokenSymbol } from '@kyber/ui';
+import { formatDisplayNumber } from '@kyber/utils/number';
 
 import RevertPriceIcon from '@/assets/svg/ic_revert_price.svg';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
-const shortenSymbol = (symbol: string, characterNumber = 8) =>
-  symbol.length > characterNumber + 2 ? symbol.slice(0, characterNumber) + '...' : symbol;
-
 export default function PriceInfo() {
-  const theme = useWidgetStore(s => s.theme);
-  const poolType = useWidgetStore(s => s.poolType);
-  const { pool, poolPrice, revertPrice, toggleRevertPrice } = usePoolStore(
-    useShallow(s => ({
-      pool: s.pool,
-      poolPrice: s.poolPrice,
-      revertPrice: s.revertPrice,
-      toggleRevertPrice: s.toggleRevertPrice,
-    })),
-  );
+  const { theme } = useWidgetStore(['theme']);
+  const { pool, poolPrice, revertPrice, toggleRevertPrice } = usePoolStore([
+    'pool',
+    'poolPrice',
+    'revertPrice',
+    'toggleRevertPrice',
+  ]);
 
   const initializing = pool === 'loading';
 
-  const price = useMemo(() => {
-    if (initializing) return '--';
-    const { success, data } = univ3PoolNormalize.safeParse(pool);
-    if (success) {
-      return sqrtToPrice(BigInt(data.sqrtPriceX96 || 0), data.token0?.decimals, data.token1?.decimals, revertPrice);
-    }
-
-    const { success: isUniV2, data: uniV2Pool } = univ2PoolNormalize.safeParse(pool);
-
-    if (isUniV2) {
-      const p = divideBigIntToString(
-        BigInt(uniV2Pool.reserves[1]) * 10n ** BigInt(uniV2Pool.token0?.decimals),
-        BigInt(uniV2Pool.reserves[0]) * 10n ** BigInt(uniV2Pool.token1?.decimals),
-        18,
-      );
-      return revertPrice ? 1 / +p : p;
-    }
-    return assertUnreachable(poolType as never, 'poolType is not handled');
-  }, [initializing, pool, poolType, revertPrice]);
-
   const token0 = initializing ? defaultToken : revertPrice ? pool.token1 : pool.token0;
   const token1 = initializing ? defaultToken : revertPrice ? pool.token0 : pool.token1;
-
-  const firstTokenShortenSymbol = shortenSymbol(token0.symbol);
-  const secondTokenShortenSymbol = shortenSymbol(token1.symbol);
 
   return (
     <>
@@ -66,18 +31,11 @@ export default function PriceInfo() {
             ) : (
               <>
                 <span>1</span>
-                <MouseoverTooltip text={firstTokenShortenSymbol !== token0.symbol ? token0.symbol : ''} placement="top">
-                  {firstTokenShortenSymbol}
-                </MouseoverTooltip>
+                <TokenSymbol symbol={token0.symbol} maxWidth={100} />
                 <span>=</span>
-                <span>{formatDisplayNumber(price, { significantDigits: 8 })}</span>
+                <span>{formatDisplayNumber(poolPrice, { significantDigits: 8 })}</span>
 
-                <MouseoverTooltip
-                  text={secondTokenShortenSymbol !== token1.symbol ? token1.symbol : ''}
-                  placement="top"
-                >
-                  {secondTokenShortenSymbol}
-                </MouseoverTooltip>
+                <TokenSymbol symbol={token1.symbol} maxWidth={100} />
               </>
             )}
           </div>

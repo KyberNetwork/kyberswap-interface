@@ -24,7 +24,7 @@ const dexMapping: Record<PoolType, string[]> = {
   [PoolType.DEX_THRUSTERV2]: ['thruster-v2'],
   [PoolType.DEX_SWAPMODEV2]: ['baseswap, arbidex, superswap'],
   [PoolType.DEX_KODIAK_V3]: ['kodiak-v3'],
-  [PoolType.DEX_KODIAK_V2]: ['kodiak'],
+  [PoolType.DEX_KODIAK_V2]: ['kodiakcl'],
   [PoolType.DEX_SQUADSWAP_V3]: ['squadswap-v3'],
   [PoolType.DEX_SQUADSWAP_V2]: ['squadswap'],
 
@@ -38,8 +38,8 @@ const dexValues = Object.values(dexMapping).flat();
 
 const tick = z.object({
   index: z.number(),
-  liquidityGross: z.number(),
-  liquidityNet: z.number(),
+  liquidityGross: z.string(),
+  liquidityNet: z.string(),
 });
 
 export const univ3PoolNormalize = z.object({
@@ -83,7 +83,5 @@ export const univ3Pool = z.object({
 
 export const univ3PoolResponse = z.object({
   poolType: Univ3PoolType,
-  data: z.object({
-    pools: z.array(univ3Pool),
-  }),
+  data: univ3Pool,
 });

@@ -1,9 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 
-import { useShallow } from 'zustand/shallow';
-
 import { univ3PoolNormalize } from '@kyber/schema';
-import { Skeleton } from '@kyber/ui';
+import { Skeleton, TokenSymbol } from '@kyber/ui';
 import { formatNumber } from '@kyber/utils/number';
 import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick } from '@kyber/utils/uniswapv3';
 
@@ -13,13 +11,11 @@ import { useWidgetStore } from '@/stores/useWidgetStore';
 import { PriceType } from '@/types/index';
 
 export default function PriceInput({ type }: { type: PriceType }) {
-  const { tickLower, tickUpper, setTickLower, setTickUpper, priceLower, priceUpper } = useZapState();
-  const { pool: rawPool, revertPrice } = usePoolStore(useShallow(s => ({ pool: s.pool, revertPrice: s.revertPrice })));
-  const { positionId } = useWidgetStore(useShallow(s => ({ positionId: s.positionId })));
+  const { tickLower, tickUpper, setTickLower, setTickUpper, minPrice, maxPrice } = useZapState();
+  const { pool: rawPool, revertPrice } = usePoolStore(['pool', 'revertPrice']);
+  const { positionId } = useWidgetStore(['positionId']);
 
   const [localValue, setLocalValue] = useState('');
-
-  const initializing = rawPool === 'loading';
 
   const pool = useMemo(() => {
     if (rawPool === 'loading') return rawPool;
@@ -29,37 +25,33 @@ export default function PriceInput({ type }: { type: PriceType }) {
     return 'loading';
   }, [rawPool]);
 
-  const isFullRange = pool !== 'loading' && tickLower === pool.minTick && tickUpper === pool.maxTick;
+  const initializing = pool === 'loading';
 
-  const poolTick =
-    pool === 'loading'
-      ? undefined
-      : pool.tick % pool.tickSpacing === 0
-        ? pool.tick
-        : nearestUsableTick(pool.tick, pool.tickSpacing);
+  const isMinTick = !initializing && tickLower === pool.minTick;
+  const isMaxTick = !initializing && tickUpper === pool.maxTick;
+  const isFullRange = isMinTick && isMaxTick;
 
   const increaseTickLower = () => {
-    if (pool === 'loading' || poolTick === undefined) return;
-    const newTick = tickLower !== null ? tickLower + pool.tickSpacing : poolTick + pool.tickSpacing;
+    if (initializing || tickLower === null) return;
+    const newTick = tickLower + pool.tickSpacing;
     if (newTick <= MAX_TICK) setTickLower(newTick);
   };
 
   const increaseTickUpper = () => {
-    if (pool === 'loading' || poolTick === undefined) return;
-    const newTick = tickUpper !== null ? tickUpper + pool.tickSpacing : poolTick + pool.tickSpacing;
+    if (initializing || tickUpper === null) return;
+    const newTick = tickUpper + pool.tickSpacing;
     if (newTick <= MAX_TICK) setTickUpper(newTick);
   };
 
   const decreaseTickLower = () => {
-    if (pool === 'loading' || poolTick === undefined) return;
-    const newTick = (tickLower !== null ? tickLower : pool.tick) - pool.tickSpacing;
-
+    if (initializing || tickLower === null) return;
+    const newTick = tickLower - pool.tickSpacing;
     if (newTick >= MIN_TICK) setTickLower(newTick);
   };
-  const decreaseTickUpper = () => {
-    if (pool === 'loading' || poolTick === undefined) return;
-    const newTick = (tickUpper !== null ? tickUpper : poolTick) - pool.tickSpacing;
 
+  const decreaseTickUpper = () => {
+    if (initializing || tickUpper === null) return;
+    const newTick = tickUpper - pool.tickSpacing;
     if (newTick >= MIN_TICK) setTickUpper(newTick);
   };
 
@@ -76,7 +68,7 @@ export default function PriceInput({ type }: { type: PriceType }) {
     const tick = priceToClosestTick(value, pool.token0?.decimals, pool.token1?.decimals, revertPrice);
     if (tick !== undefined) {
       const t = tick % pool.tickSpacing === 0 ? tick : nearestUsableTick(tick, pool.tickSpacing);
-      if (type === PriceType.PriceLower) {
+      if (type === PriceType.MinPrice) {
         revertPrice ? setTickUpper(t) : setTickLower(t);
       } else {
         revertPrice ? setTickLower(t) : setTickUpper(t);
@@ -84,30 +76,32 @@ export default function PriceInput({ type }: { type: PriceType }) {
     }
   };
 
-  const isMinTick = pool !== 'loading' && tickLower === pool.minTick;
-  const isMaxTick = pool !== 'loading' && tickUpper === pool.maxTick;
+  const handleDecreasePrice = () => {
+    if (type === PriceType.MinPrice) revertPrice ? increaseTickUpper() : decreaseTickLower();
+    else revertPrice ? increaseTickLower() : decreaseTickUpper();
+  };
+
+  const handleIncreasePrice = () => {
+    if (type === PriceType.MinPrice) revertPrice ? decreaseTickUpper() : increaseTickLower();
+    else revertPrice ? decreaseTickLower() : increaseTickUpper();
+  };
 
   useEffect(() => {
     if (pool === 'loading') return;
-    if (type === PriceType.PriceLower && (!revertPrice ? pool?.minTick === tickLower : pool?.maxTick === tickUpper)) {
+    if (type === PriceType.MinPrice && (!revertPrice ? isMinTick : isMaxTick)) {
       setLocalValue('0');
-    } else if (
-      type === PriceType.PriceUpper &&
-      (!revertPrice ? pool?.maxTick === tickUpper : pool?.minTick === tickLower)
-    ) {
+    } else if (type === PriceType.MaxPrice && (!revertPrice ? isMaxTick : isMinTick)) {
       setLocalValue('∞');
-    } else if (priceLower && priceUpper) {
-      if (type === PriceType.PriceLower) {
-        const valueToSet = !revertPrice ? priceLower : priceUpper;
-        if (positionId) setLocalValue(formatNumber(parseFloat(valueToSet)));
-        else setLocalValue(valueToSet);
+    } else if (minPrice && maxPrice) {
+      if (type === PriceType.MinPrice) {
+        if (positionId) setLocalValue(formatNumber(parseFloat(minPrice)));
+        else setLocalValue(minPrice);
       } else {
-        const valueToSet = !revertPrice ? priceUpper : priceLower;
-        if (positionId) setLocalValue(formatNumber(parseFloat(valueToSet)));
-        else setLocalValue(valueToSet);
+        if (positionId) setLocalValue(formatNumber(parseFloat(maxPrice)));
+        else setLocalValue(maxPrice);
       }
     }
-  }, [tickUpper, tickLower, pool, revertPrice, isMaxTick, isMinTick, type, priceLower, priceUpper, positionId]);
+  }, [isMaxTick, isMinTick, maxPrice, minPrice, pool, positionId, revertPrice, type]);
 
   return (
     <div className="mt-[0.6rem] w-1/2 p-3 border rounded-md border-stroke flex flex-col gap-1 items-center">
@@ -115,20 +109,14 @@ export default function PriceInput({ type }: { type: PriceType }) {
         <button
           className="w-6 h-6 rounded-[4px] border border-stroke bg-layer2 text-subText flex items-center justify-center cursor-pointer hover:enabled:brightness-150 active:enabled:scale-95 disabled:cursor-not-allowed disabled:opacity-60 outline-none"
           role="button"
-          onClick={() => {
-            if (type === PriceType.PriceLower) {
-              revertPrice ? increaseTickUpper() : decreaseTickLower();
-            } else {
-              revertPrice ? increaseTickLower() : decreaseTickUpper();
-            }
-          }}
+          onClick={handleDecreasePrice}
           disabled={isFullRange || positionId !== undefined}
         >
           -
         </button>
 
         <div className="flex flex-col items-center gap-[6px] w-fit text-sm font-medium text-subText">
-          <span>{type === PriceType.PriceLower ? 'Min' : 'Max'} price</span>
+          <span>{type === PriceType.MinPrice ? 'Min' : PriceType.MaxPrice ? 'Max' : ''} price</span>
           {initializing ? (
             <Skeleton className="w-20 h-6 mx-4" />
           ) : (
@@ -154,13 +142,7 @@ export default function PriceInput({ type }: { type: PriceType }) {
 
         <button
           className="w-6 h-6 rounded-[4px] border border-stroke bg-layer2 text-subText flex items-center justify-center cursor-pointer hover:enabled:brightness-150 active:enabled:scale-95 disabled:cursor-not-allowed disabled:opacity-60 outline-none"
-          onClick={() => {
-            if (type === PriceType.PriceLower) {
-              revertPrice ? decreaseTickUpper() : increaseTickLower();
-            } else {
-              revertPrice ? decreaseTickLower() : increaseTickUpper();
-            }
-          }}
+          onClick={handleIncreasePrice}
           disabled={isFullRange || positionId !== undefined}
         >
           +
@@ -170,13 +152,11 @@ export default function PriceInput({ type }: { type: PriceType }) {
       {initializing ? (
         <Skeleton className="w-24 h-5 mt-1" />
       ) : (
-        <span className="w-max text-sm font-medium text-subText">
-          {pool !== 'loading'
-            ? !revertPrice
-              ? `${pool?.token1.symbol} per ${pool?.token0.symbol}`
-              : `${pool?.token0.symbol} per ${pool?.token1.symbol}`
-            : '--'}
-        </span>
+        <div className="w-max text-sm font-medium text-subText flex items-center gap-1">
+          <TokenSymbol symbol={!revertPrice ? pool.token1.symbol : pool.token0.symbol} maxWidth={80} />
+          <span>per</span>
+          <TokenSymbol symbol={!revertPrice ? pool.token0.symbol : pool.token1.symbol} maxWidth={80} />
+        </div>
       )}
     </div>
   );
