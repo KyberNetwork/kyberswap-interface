@@ -21,9 +21,9 @@ export const PositionRow = styled(Link)`
   display: grid;
   grid-template-columns:
     minmax(260px, 2.2fr) /* Position */
-    minmax(80px, 1fr) /* Value */
-    minmax(90px, 1fr) /* est. APR */
-    minmax(100px, 1fr) /* Unclaimed fees */
+    minmax(80px, 0.7fr) /* Value */
+    minmax(90px, 0.8fr) /* est. APR */
+    minmax(100px, 0.9fr) /* Unclaimed fees */
     minmax(120px, 1fr) /* Unclaimed rewards */
     24px /* Spacer column for better visual separation */
     minmax(150px, 1.5fr) /* Balance */
@@ -336,9 +336,9 @@ export const BannerDataItem = styled.div`
 export const PositionTableHeader = styled(TableHeader)`
   grid-template-columns:
     minmax(260px, 2.2fr) /* Position */
-    minmax(80px, 1fr) /* Value */
-    minmax(90px, 1fr) /* est. APR */
-    minmax(100px, 1fr) /* Unclaimed fees */
+    minmax(80px, 0.7fr) /* Value */
+    minmax(90px, 0.8fr) /* est. APR */
+    minmax(100px, 0.9fr) /* Unclaimed fees */
     minmax(120px, 1fr) /* Unclaimed rewards */
     24px /* Spacer column for better visual separation */
     minmax(150px, 1.5fr) /* Balance */

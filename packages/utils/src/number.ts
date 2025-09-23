@@ -1,4 +1,10 @@
 export function toRawString(amountInWei: bigint, decimals: number): string {
+  if (Number.isNaN(decimals)) return '0';
+  const isValidDecimals = typeof decimals === 'number' && Number.isInteger(decimals) && decimals >= 0;
+  if (!isValidDecimals) {
+    console.error(`toRawString: Invalid decimals "${decimals}". Expected a non-negative integer.`);
+    return '0';
+  }
   const factor = BigInt(10 ** decimals);
 
   // Calculate the whole and fractional parts
@@ -119,6 +125,7 @@ export const formatDisplayNumber = (
 };
 
 export function formatUnits(value: string, decimals = 18, maxDisplayDecimals?: number) {
+  if (Number.isNaN(decimals)) return '0';
   // Regex to check if value is a valid positive integer string
   const isValidNumber = /^\d+$/.test(value);
   if (!isValidNumber) {
