@@ -178,16 +178,16 @@ const PositionDetail = () => {
     handleOpenZapMigration({
       chainId: sourcePosition.chain.id,
       from: {
-        dex: sourcePosition.dex.id,
-        poolId: sourcePosition.pool.address,
+        poolType: sourcePosition.dex.id,
+        poolAddress: sourcePosition.pool.address,
         positionId: sourcePosition.pool.isUniv2 ? account || '' : sourcePosition.tokenId,
       },
       to: {
-        dex: targetPool.poolExchange,
-        poolId: targetPool.address,
+        poolType: targetPool.poolExchange,
+        poolAddress: targetPool.address,
       },
       initialTick:
-        tickLower && tickUpper
+        tickLower !== undefined && tickUpper !== undefined
           ? {
               tickLower: tickLower,
               tickUpper: tickUpper,
@@ -195,6 +195,23 @@ const PositionDetail = () => {
           : undefined,
     })
   }
+
+  const handleReposition = useCallback(
+    (e: React.MouseEvent, position: ParsedPosition) => {
+      e.stopPropagation()
+      e.preventDefault()
+      handleOpenZapMigration({
+        chainId: position.chain.id,
+        from: {
+          poolType: position.dex.id,
+          poolAddress: position.pool.address,
+          positionId: position.pool.isUniv2 ? account || '' : position.tokenId,
+        },
+        rePositionMode: true,
+      })
+    },
+    [handleOpenZapMigration, account],
+  )
 
   useEffect(() => {
     if (!firstLoading.current && !isLoading) {
@@ -454,6 +471,7 @@ const PositionDetail = () => {
                 triggerClose={triggerClose}
                 setTriggerClose={setTriggerClose}
                 setReduceFetchInterval={setReduceFetchInterval}
+                onReposition={handleReposition}
               />
             </PositionDetailWrapper>
           </>

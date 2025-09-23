@@ -214,6 +214,7 @@ export function parseUnits(value: string | number, decimals: number): string {
 }
 
 export function formatUnits(value: string | number, decimals = 18): string {
+  if (Number.isNaN(decimals)) return '0';
   if (typeof value !== 'string' && typeof value !== 'number') {
     throw new Error('Value must be a string or number');
   }
