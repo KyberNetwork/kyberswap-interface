@@ -1,48 +1,93 @@
-# Kyber Liquidity Widgets
+# Kyber Zap Out Widgets
 
-The `@kyberswap/liquidity-widgets` package is an npm package of React components used to provide subsets of the Zap Protocol functionality in a small and configurable user interface element.
-Demo: https://kyberswap.com/earn
+The `@kyberswap/zap-out-widgets` package provides a React component to zap out of an LP/NFT position into a single token using KyberSwap's Zap engine. It is small, configurable, and easy to embed in a modal or page.
+
+Exports: `ZapOut`, `ChainId`, `PoolType`.
 
 ## Installation
-Install the widgets library via npm or yarn.
+
+Install with your preferred package manager.
 
 ```
-yarn add @kyberswap/liquidity-widgets
+pnpm add @kyberswap/zap-out-widgets
 ```
 
 ```
-npm i --save @kyberswap/liquidity-widgets
+yarn add @kyberswap/zap-out-widgets
+```
+
+```
+npm i --save @kyberswap/zap-out-widgets
 ```
 
 ## Usage
-Example usage: https://github.com/KyberNetwork/kyberswap-widgets/blob/main/apps/liquidity-widgets-demo/src/App.tsx#L243
 
-### Params
+Minimal example:
 
-Property | Description | Type | Default Value
---- | --- | --- | --- |
-poolAddress | address of pool to zap | string | Required
-positionId | Optional, in case “Increasing Liquidity into an existing position”, pass the position id. The position should belong to the poolAddress. Otherwise, it considers as “Adding Liquidity into a new position” | number | undefined 
-poolType | supported protocol | [PoolType](https://github.com/KyberNetwork/kyberswap-widgets/blob/main/packages/liquidity-widgets/src/schema/index.ts#L21-L39) | Required
-chainId | network of selected pool | number | Required 
-connectedAccount | current network that user connected. if not connect, address should be undefined | { address?: string, chainId: number } | Required
-onClose | action when user close the widget | () => void | Required
-onConnectWallet | action to trigger connect wallet | () => void | Required 
-onSwitchChain | action to trigger switch chain if network of the pool is different with network from connected account | () => void | Required
-onSubmitTx | trigger submit transaction (approval or zap). Should return the tx hash | (txData: {from: string, to: string, value: string, data: string, gasLimit: string}) => Promise<string> | Required
-initDepositTokens | init tokens in to zap, list of address separate by "," | string | 
-initAmounts | init amounts of tokens in, list of amount separate by "," | string | 
-source | To identify the dapp that integrating with liquidity widget | string | 
+```tsx
+import { ChainId, PoolType, ZapOut } from '@kyberswap/zap-out-widgets';
+import '@kyberswap/zap-out-widgets/dist/style.css';
 
+export default function Example() {
+  // Provide these from your wallet/context (e.g. wagmi, web3-react, rainbowkit)
+  const connectedAccount = { address: '0xYourAddress', chainId: ChainId.Base };
 
-## Migrate from version 0.0.16 to 1.x.x 
-### Deprecated 
-Property | Description | Type | Default Value
---- | --- | --- | --- |
-<s>provider</s> | <s>Web3Provider to interact with blockchain</s> |  [Web3Provider](https://docs.ethers.org/v5/api/providers/) | undefined 
-<s>onTxSubmit</s> | <s>Callback function when tx was submitted</s> | (txHash: string) => void |
-### New 
-Property | Description | Type | Default Value
---- | --- | --- | --- |
-connectedAccount | Info of current account that user connect to your website | { address?: string, chainId: number } |  
-onTxSubmit | Function that trigger tx | (txData: {from: string, to: string, value: string, data: string, gasLimit: string}) => Promise<string>  |
+  const sendTx = async (txData: {
+    from: string;
+    to: string;
+    value: string;
+    data: string;
+    gasLimit: string;
+  }): Promise<string> => {
+    // Submit the transaction with your wallet/provider and return the tx hash
+    return '0xTransactionHash';
+  };
+
+  return (
+    <div style={{ width: 840, height: 680 }}>
+      <ZapOut
+        chainId={ChainId.Base}
+        poolType={PoolType.DEX_UNISWAP_V4}
+        poolAddress={'0xPoolAddressOrPoolId'}
+        positionId={'12345'}
+        connectedAccount={connectedAccount}
+        source="my-dapp"
+        onConnectWallet={() => {
+          /* open your wallet modal */
+        }}
+        onSwitchChain={() => {
+          /* switch network in your app */
+        }}
+        onSubmitTx={sendTx}
+        onClose={() => {
+          /* close modal */
+        }}
+      />
+    </div>
+  );
+}
+```
+
+For a more detailed example, refer to the demo component in this repository: [ZapOut.tsx (demo)](https://github.com/KyberNetwork/kyberswap-interface/blob/main/apps/zap-widgets-demo/src/components/ZapOut.tsx).
+
+### Props
+
+| Property         | Description                                                                                    | Type                                                                                                       | Required / Default |
+| ---------------- | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | ------------------ |
+| chainId          | Network for the zap-out workflow                                                               | `ChainId` \| `number`                                                                                      | Required           |
+| poolType         | Protocol/pool type                                                                             | `PoolType`                                                                                                 | Required           |
+| poolAddress      | Pool address (or pool id for certain protocols like Uniswap v4)                                | `string`                                                                                                   | Required           |
+| positionId       | Position identifier (NFT tokenId for v3/v4 or LP holder address for v2)                        | `string`                                                                                                   | Required           |
+| connectedAccount | Current connected account info                                                                 | `{ address?: string; chainId: number }`                                                                    | Required           |
+| source           | Identifier for your integration (used for attribution/analytics)                               | `string`                                                                                                   | Required           |
+| referral         | Referral code (if any)                                                                         | `string`                                                                                                   | Optional           |
+| theme            | Optional theme tokens to override widget styles (CSS variables)                                | `Theme`                                                                                                    | Optional           |
+| onConnectWallet  | Trigger your wallet connect flow                                                               | `() => void`                                                                                               | Required           |
+| onSwitchChain    | Trigger your chain switch flow                                                                 | `() => void`                                                                                               | Required           |
+| onSubmitTx       | Submit the provided transaction object and return the tx hash. A `gasLimit` value is provided. | `(txData: { from: string; to: string; value: string; data: string; gasLimit: string }) => Promise<string>` | Required           |
+| onClose          | Called when the widget is closed                                                               | `() => void`                                                                                               | Required           |
+
+### Styling
+
+- You must import the stylesheet once in your app: `@kyberswap/zap-out-widgets/dist/style.css`.
+- You can override the theme via the `theme` prop (CSS variables under the `--ks-lw-*` namespace). Example keys include `text`, `subText`, `icons`, `layer1`, `dialog`, `layer2`, `stroke`, `chartRange`, `chartArea`, `accent`, `warning`, `error`, `success`, `blue`, `fontFamily`, `borderRadius`, `buttonRadius`, `boxShadow`.
