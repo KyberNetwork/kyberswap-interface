@@ -1,19 +1,14 @@
 import { useEffect } from 'react';
 
 import { getSlippageStorageKey } from '@/constants';
-import { ChainId } from '@/schema';
-import { usePoolsStore } from '@/stores/usePoolsStore';
-import { useZapStateStore } from '@/stores/useZapStateStore';
+import { usePoolStore } from '@/stores/usePoolStore';
+import { useWidgetStore } from '@/stores/useWidgetStore';
+import { useZapStore } from '@/stores/useZapStore';
 
-export default function useSlippageManager({
-  chainId,
-  initialSlippage,
-}: {
-  chainId: ChainId;
-  initialSlippage?: number;
-}) {
-  const { pools } = usePoolsStore();
-  const { setSlippage, slippage } = useZapStateStore();
+export default function useSlippageManager({ initialSlippage }: { initialSlippage?: number }) {
+  const { chainId } = useWidgetStore(['chainId']);
+  const { sourcePool, targetPool } = usePoolStore(['sourcePool', 'targetPool']);
+  const { setSlippage, slippage } = useZapStore(['setSlippage', 'slippage']);
 
   useEffect(() => {
     if (initialSlippage) {
@@ -21,10 +16,8 @@ export default function useSlippageManager({
       return;
     }
 
-    if (pools === 'loading' || slippage) return;
-    const targetPool = pools[1];
+    if (!targetPool || slippage) return;
 
-    // First, try to load from localStorage
     if (targetPool.token0?.symbol && targetPool.token1?.symbol) {
       try {
         const storageKey = getSlippageStorageKey(
@@ -37,20 +30,18 @@ export default function useSlippageManager({
         if (savedSlippage) {
           const parsedSlippage = parseInt(savedSlippage, 10);
           if (!isNaN(parsedSlippage) && parsedSlippage > 0) {
-            // Only set if it's different from current slippage
             if (parsedSlippage !== slippage) {
               setSlippage(parsedSlippage);
-              return; // Exit early if we loaded from localStorage
+              return;
             }
           }
         }
       } catch (error) {
-        // Silently handle localStorage errors
         console.warn('Failed to load slippage from localStorage:', error);
       }
     }
 
-    const sourcePool = pools[0];
+    if (!sourcePool) return;
     if (sourcePool.category === 'stablePair' && targetPool.category === 'stablePair') setSlippage(1);
     else if (
       sourcePool.category === 'correlatedPair' &&
@@ -60,5 +51,5 @@ export default function useSlippageManager({
     ) {
       setSlippage(5);
     } else setSlippage(10);
-  }, [pools, slippage, initialSlippage, setSlippage, chainId]);
+  }, [chainId, initialSlippage, setSlippage, slippage, sourcePool, targetPool]);
 }
