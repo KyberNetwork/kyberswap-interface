@@ -46,8 +46,7 @@ export const Preview = () => {
   const { address: account } = connectedAccount;
   const isUniV3 = Univ3PoolType.safeParse(poolType).success;
 
-  const { showPreview, slippage, togglePreview, tokenOut, route, mode, setSlippageOpen, setSlippage } =
-    useZapOutUserState();
+  const { showPreview, slippage, togglePreview, tokenOut, route, mode, setSlippage } = useZapOutUserState();
 
   const [gasUsd, setGasUsd] = useState<number | null>(null);
   const [buildData, setBuildData] = useState<{
@@ -186,7 +185,6 @@ export const Preview = () => {
   const receiveUsd1 = Number(token1?.amountUsd || 0) + Number(fee1?.amountUsd || 0);
 
   const handleSlippage = () => {
-    setSlippageOpen(true);
     const suggestedSlippage = route?.zapDetails.suggestedSlippage || 0;
     if (slippage !== suggestedSlippage) setSlippage(suggestedSlippage);
     togglePreview();
