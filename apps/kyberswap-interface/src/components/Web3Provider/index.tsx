@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { watchChainId } from '@wagmi/core'
 import { ReactNode, useEffect, useMemo } from 'react'
@@ -9,6 +10,7 @@ import {
   berachain,
   blast,
   bsc,
+  etherlink,
   fantom,
   linea,
   mainnet,
@@ -35,6 +37,31 @@ import { WALLETCONNECT_PROJECT_ID } from 'constants/env'
 import { isSupportedChainId } from 'constants/networks'
 import { useAppDispatch } from 'state/hooks'
 import { updateChainId } from 'state/user/actions'
+
+export const plasma = defineChain({
+  id: ChainId.PLASMA,
+  name: 'Plasma',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'XPL',
+    symbol: 'XPL',
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://rpc.plasma.to'],
+      webSocket: ['wss://rpc.plasma.to'],
+    },
+  },
+  blockExplorers: {
+    default: { name: 'Explorer', url: 'https://plasmascan.to' },
+  },
+  contracts: {
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 1,
+    },
+  },
+})
 
 export const hyperevm = defineChain({
   id: 999,
@@ -232,6 +259,8 @@ const wagmiChains = [
   ronin,
   unichain,
   hyperevm,
+  etherlink,
+  plasma,
 ] as const
 
 export const wagmiConfig = createConfig({

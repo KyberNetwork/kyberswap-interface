@@ -56,7 +56,7 @@
     "@ethersproject/units": "^5.8.0",
     "@holdstation/paymaster-helper": "^2.0.20",
     "@kyberswap/ks-sdk-classic": "^1.0.3",
-    "@kyberswap/ks-sdk-core": "1.1.12",
+    "@kyberswap/ks-sdk-core": "1.1.13",
     "@kyberswap/ks-sdk-elastic": "^1.1.2",
     "@kyberswap/liquidity-chart": "workspace:*",
     "@kyberswap/liquidity-widgets": "workspace:*",

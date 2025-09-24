@@ -47,6 +47,8 @@ export const STABLE_COIN_ADDRESSES_TO_TAKE_FEE: Record<ChainId, string[]> = {
   [ChainId.RONIN]: [],
   [ChainId.UNICHAIN]: [],
   [ChainId.HYPEREVM]: [],
+  [ChainId.ETHERLINK]: [],
+  [ChainId.PLASMA]: [],
 }
 
 // This is basically the same as STABLE_COIN_ADDRESSES_TO_TAKE_FEE,
@@ -114,6 +116,8 @@ export const SUPER_STABLE_COINS_ADDRESS: { [chainId in ChainId]: string[] } = {
   [ChainId.RONIN]: [],
   [ChainId.UNICHAIN]: [],
   [ChainId.HYPEREVM]: [],
+  [ChainId.ETHERLINK]: [],
+  [ChainId.PLASMA]: [],
 }
 
 export const CORRELATED_COINS_ADDRESS: { [chainId in ChainId]: string[][] } = {
@@ -380,6 +384,8 @@ export const CORRELATED_COINS_ADDRESS: { [chainId in ChainId]: string[][] } = {
   [ChainId.RONIN]: [],
   [ChainId.UNICHAIN]: [],
   [ChainId.HYPEREVM]: [],
+  [ChainId.ETHERLINK]: [],
+  [ChainId.PLASMA]: [],
 }
 
 export const KNC_ADDRESS = '0xdeFA4e8a7bcBA345F687a2f1456F5Edd9CE97202'
@@ -408,6 +414,8 @@ export const KNC: { [chainId in ChainId]: Token } = {
   [ChainId.RONIN]: new Token(ChainId.RONIN, KNC_ADDRESS, 18, 'KNC', 'KNC'),
   [ChainId.UNICHAIN]: new Token(ChainId.RONIN, KNC_ADDRESS, 18, 'KNC', 'KNC'),
   [ChainId.HYPEREVM]: new Token(ChainId.RONIN, KNC_ADDRESS, 18, 'KNC', 'KNC'),
+  [ChainId.ETHERLINK]: new Token(ChainId.RONIN, KNC_ADDRESS, 18, 'KNC', 'KNC'),
+  [ChainId.PLASMA]: new Token(ChainId.RONIN, KNC_ADDRESS, 18, 'KNC', 'KNC'),
 }
 
 export const DEFAULT_OUTPUT_TOKEN_BY_CHAIN: Partial<Record<ChainId, Token>> = {
@@ -436,6 +444,8 @@ export const DEFAULT_OUTPUT_TOKEN_BY_CHAIN: Partial<Record<ChainId, Token>> = {
   [ChainId.RONIN]: new Token(ChainId.RONIN, '0x0b7007c13325c48911f73a2dad5fa5dcbf808adc', 6, 'USDC', 'USD Coin'),
   [ChainId.UNICHAIN]: new Token(ChainId.UNICHAIN, '0x078D782b760474a361dDA0AF3839290b0EF57AD6', 6, 'USDC', 'USD Coin'),
   [ChainId.HYPEREVM]: new Token(ChainId.HYPEREVM, '0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb', 6, 'USD₮0', 'USD₮0'),
+  [ChainId.ETHERLINK]: new Token(ChainId.ETHERLINK, '0x796Ea11Fa2dD751eD01b53C372fFDB4AAa8f00F9', 6, 'USDC', 'USDC'),
+  [ChainId.PLASMA]: new Token(ChainId.PLASMA, '0xB8CE59FC3717ada4C02eaDF9682A9e934F625ebb', 6, 'USD₮0', 'USD₮0'),
 }
 
 export const DEFAULT_SWAP_FEE_STABLE_PAIRS = 4

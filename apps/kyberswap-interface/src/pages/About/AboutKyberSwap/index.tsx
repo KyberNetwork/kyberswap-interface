@@ -341,13 +341,26 @@ function AboutKyberSwap() {
               <img src="https://www.soniclabs.com/sonic-logo.svg" alt="Sonic" width="100%" />
 
               <Flex sx={{ gap: '12px', width: 'auto' }} alignItems="center">
-                <img src="https://www.berachain.com/images/icons/berachain.svg" alt="Bera" width="80px" />
+                <img
+                  src="https://storage.googleapis.com/ks-setting-1d682dca/68e11813-067b-42d7-8d7a-c1b7bf80714e1739239376230.png"
+                  alt="Bera"
+                  width="80px"
+                />
                 <Text>Berachain</Text>
               </Flex>
 
               <Flex sx={{ gap: '12px', width: 'auto' }} alignItems="center">
                 <img src="https://docs.roninchain.com/img/logo.svg" alt="Ronin" height="80px" />
                 <Text>Roninchain</Text>
+              </Flex>
+              <img src="https://www.etherlink.com/logo-desktop.svg" alt="Etherlink" width="100%" />
+              <Flex sx={{ gap: '12px', width: 'auto' }} alignItems="center">
+                <img
+                  src="https://storage.googleapis.com/ks-setting-1d682dca/9cdb1542-1d9a-4cf0-b67b-b68b1a29b09d1758725874771.png"
+                  alt="Plasma"
+                  width="80px"
+                />
+                <Text>Plasma</Text>
               </Flex>
             </Powered>
           </Text>
