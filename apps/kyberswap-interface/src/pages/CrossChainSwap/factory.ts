@@ -119,7 +119,7 @@ export class CrossChainSwapFactory {
   // Get all registered adapters
   static getAllAdapters(): SwapProvider[] {
     return [
-      CrossChainSwapFactory.getAcrossAdapter(),
+      // CrossChainSwapFactory.getAcrossAdapter(),
       CrossChainSwapFactory.getRelayAdapter(),
       // CrossChainSwapFactory.getXyFinanceAdapter(),
       CrossChainSwapFactory.getNearIntentsAdapter(),
@@ -130,7 +130,7 @@ export class CrossChainSwapFactory {
       CrossChainSwapFactory.getOptimexAdapter(),
       CrossChainSwapFactory.getKsApdater(),
       // CrossChainSwapFactory.getOrbiterAdapter(),
-      // CrossChainSwapFactory.getBungeeAdapter(),
+      CrossChainSwapFactory.getBungeeAdapter(),
     ]
   }
 

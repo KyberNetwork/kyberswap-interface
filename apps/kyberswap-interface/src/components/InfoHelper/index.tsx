@@ -93,14 +93,16 @@ export const InfoHelperWithDelay = ({
   color,
   placement,
   width,
+  style,
 }: {
   text: string | ReactNode
   size?: number
   color?: string
   placement?: Placement
   width?: string
+  style?: CSSProperties
 }) => (
-  <MouseoverTooltip text={text} width={width} placement={placement}>
-    <Info size={size || 12} color={color || 'currentcolor'} />
+  <MouseoverTooltip text={text} width={width} placement={placement} delay={200}>
+    <Info size={size || 12} color={color || 'currentcolor'} style={style} />
   </MouseoverTooltip>
 )
