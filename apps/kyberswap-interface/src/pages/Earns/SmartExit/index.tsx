@@ -19,6 +19,7 @@ import Modal from 'components/Modal'
 import TokenLogo from 'components/TokenLogo'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
+import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
 import { Badge, BadgeType, ChainImage, ImageContainer } from 'pages/Earns/UserPositions/styles'
 import { useNotify } from 'state/application/hooks'
@@ -58,7 +59,7 @@ const TableRow = styled(TableHeader)`
 const SmartExit = () => {
   const theme = useTheme()
   const navigate = useNavigate()
-  const { account } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
   const { library } = useWeb3React()
   const notify = useNotify()
 
@@ -71,8 +72,14 @@ const SmartExit = () => {
   const [getCancelSignMsg] = useGetSmartExitCancelSignMessageMutation()
   const [cancelOrder] = useCancelSmartExitOrderMutation()
 
+  const { changeNetwork } = useChangeNetwork()
   const handleRemove = async () => {
     if (!showCancelConfirm || !account || !library) return
+
+    if (showCancelConfirm?.chainId && +chainId !== +showCancelConfirm.chainId) {
+      changeNetwork(+showCancelConfirm.chainId)
+      return
+    }
 
     setRemoving(true)
 
@@ -140,7 +147,12 @@ const SmartExit = () => {
   )
 
   const { data: userPosition, isLoading: userPosLoading } = useUserPositionsQuery(
-    { chainIds: earnSupportedChains.join(','), addresses: account || '', protocols: earnSupportedExchanges.join(',') },
+    {
+      chainIds: earnSupportedChains.join(','),
+      addresses: account || '',
+      protocols: earnSupportedExchanges.join(','),
+      positionStatus: 'all',
+    },
     {
       skip: !account,
       pollingInterval: 15_000,
@@ -338,7 +350,13 @@ const SmartExit = () => {
               <Trans>Cancel</Trans>
             </ButtonOutlined>
             <ButtonPrimary onClick={handleRemove} disabled={removing}>
-              {removing ? <Trans>Removing...</Trans> : <Trans>Remove</Trans>}
+              {removing ? (
+                <Trans>Removing...</Trans>
+              ) : showCancelConfirm?.chainId && +chainId !== +showCancelConfirm.chainId ? (
+                <Trans>Switch Chain</Trans>
+              ) : (
+                <Trans>Remove</Trans>
+              )}
             </ButtonPrimary>
           </Flex>
         </Flex>
