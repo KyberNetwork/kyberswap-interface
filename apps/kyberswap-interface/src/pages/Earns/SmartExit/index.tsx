@@ -1,7 +1,9 @@
 import { Trans, t } from '@lingui/macro'
-import { useState } from 'react'
+import dayjs from 'dayjs'
+import React, { useState } from 'react'
 import { Trash2, X } from 'react-feather'
 import { useNavigate } from 'react-router'
+import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import {
   SmartExitOrder,
@@ -23,6 +25,7 @@ import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
 import { Badge, BadgeType, ChainImage, ImageContainer } from 'pages/Earns/UserPositions/styles'
 import { useNotify } from 'state/application/hooks'
+import { MEDIA_WIDTHS } from 'theme'
 import { friendlyError } from 'utils/errorMessage'
 
 import { PoolPageWrapper, TableWrapper } from '../PoolExplorer/styles'
@@ -30,6 +33,7 @@ import Filter from '../UserPositions/Filter'
 import useFilter from '../UserPositions/useFilter'
 import { earnSupportedChains, earnSupportedExchanges } from '../constants'
 import useSupportedDexesAndChains from '../hooks/useSupportedDexesAndChains'
+import { PositionStatus } from '../types'
 
 const Trash = styled.div`
   width: 20px;
@@ -134,6 +138,7 @@ const SmartExit = () => {
   const {
     data: orders = [],
     isLoading: smartExitLoading,
+    isFetching,
     error: ordersError,
   } = useGetSmartExitOrdersQuery(
     {
@@ -159,7 +164,9 @@ const SmartExit = () => {
     },
   )
 
-  const loading = smartExitLoading || userPosLoading
+  const loading = smartExitLoading || userPosLoading || isFetching
+
+  const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
   return (
     <PoolPageWrapper>
@@ -179,19 +186,21 @@ const SmartExit = () => {
         }}
       />
 
-      <TableWrapper style={{ padding: '16px 20px' }}>
-        <TableHeader>
-          <Text>
-            <Trans>Position</Trans>
-          </Text>
-          <Text>
-            <Trans>Conditional</Trans>
-          </Text>
-          <Text textAlign="center">
-            <Trans>Status</Trans>
-          </Text>
-          <div></div>
-        </TableHeader>
+      <TableWrapper style={{ padding: '16px 20px', background: upToMedium ? 'transparent' : undefined }}>
+        {!upToMedium && (
+          <TableHeader>
+            <Text>
+              <Trans>Position</Trans>
+            </Text>
+            <Text>
+              <Trans>Conditional</Trans>
+            </Text>
+            <Text textAlign="center">
+              <Trans>Status</Trans>
+            </Text>
+            <div></div>
+          </TableHeader>
+        )}
 
         {loading ? (
           <Flex justifyContent="center" padding="20px">
@@ -231,106 +240,185 @@ const SmartExit = () => {
                   return posDetail.pool.project
               }
             })()
+            const posStatus = posDetail.status || PositionStatus.IN_RANGE
+            const title = (
+              <>
+                <Flex alignItems="center">
+                  <ImageContainer>
+                    <TokenLogo src={token0.logo} />
+                    <TokenLogo src={token1.logo} translateLeft />
+                    <ChainImage src={posDetail.chainLogo} alt="" />
+                  </ImageContainer>
+                  <Text mr="8px">
+                    {token0.symbol}/{token1.symbol}
+                  </Text>
+                  <Badge>Fee {posDetail?.pool.tickSpacing / 10_0}%</Badge>
+                </Flex>
+                <Flex alignItems="center" sx={{ gap: '4px' }} mt="4px" ml="1rem">
+                  <TokenLogo src={posDetail.pool.projectLogo} size={16} />
+                  <Text color={theme.subText}>
+                    {protocol} #{tokenId}
+                  </Text>
+                  <Badge
+                    type={
+                      posStatus === PositionStatus.IN_RANGE
+                        ? BadgeType.PRIMARY
+                        : posStatus === PositionStatus.OUT_RANGE
+                        ? BadgeType.WARNING
+                        : BadgeType.DISABLED
+                    }
+                  >
+                    ●{' '}
+                    {posStatus === PositionStatus.IN_RANGE
+                      ? t`In range`
+                      : posStatus === PositionStatus.OUT_RANGE
+                      ? t`Out of range`
+                      : t`Closed`}
+                  </Badge>
+                </Flex>
+              </>
+            )
+
+            const condition = (
+              <Flex flexDirection="column" sx={{ gap: '4px', fontSize: '14px' }}>
+                {conditions.map((c, i) => {
+                  if (c.field.type === 'fee_yield')
+                    return (
+                      <Text color={theme.subText} key={i}>
+                        The{' '}
+                        <Text as="span" color={theme.text}>
+                          fee yield ≥ {Number(c.field.value.gte.toFixed(2))}%
+                        </Text>{' '}
+                        {i !== conditions.length - 1 && (
+                          <Text as="span" fontWeight={500} color={theme.text}>
+                            {op.toUpperCase()}
+                          </Text>
+                        )}
+                      </Text>
+                    )
+
+                  if (c.field.type === 'pool_price')
+                    return (
+                      <Text color={theme.subText} key={i}>
+                        Pool price is between{' '}
+                        <Text as="span" color={theme.text}>
+                          {c.field.value.gte}
+                        </Text>{' '}
+                        and{' '}
+                        <Text as="span" color={theme.text}>
+                          {c.field.value.lte}
+                        </Text>{' '}
+                        {i !== conditions.length - 1 && (
+                          <Text as="span" fontWeight={500} color={theme.text}>
+                            {op.toUpperCase()}
+                          </Text>
+                        )}
+                      </Text>
+                    )
+
+                  if (c.field.type === 'time')
+                    return (
+                      <React.Fragment key={i}>
+                        <Text key={i} color={theme.subText} sx={{ gap: '4px' }}>
+                          {c.field.value.lte > 0 ? (
+                            <>
+                              <Trans>Before</Trans>{' '}
+                              <Text as="span" color={theme.text}>
+                                {dayjs(c.field.value.lte * 1000).format('DD/MM/YYYY HH:mm:ss')}
+                              </Text>
+                            </>
+                          ) : null}
+
+                          {c.field.value.gte > 0 ? (
+                            <Text>
+                              <Trans>After</Trans>{' '}
+                              <Text as="span" color={theme.text}>
+                                {dayjs(c.field.value.gte * 1000).format('DD/MM/YYYY HH:mm:ss')}
+                              </Text>
+                            </Text>
+                          ) : null}
+                        </Text>
+                        {i !== conditions.length - 1 && (
+                          <Text fontWeight={500} color={theme.text} mt="4px">
+                            {op.toUpperCase()}
+                          </Text>
+                        )}
+                      </React.Fragment>
+                    )
+                  return null
+                })}
+              </Flex>
+            )
+            const status = (
+              <Badge
+                style={{ height: 'max-content' }}
+                type={
+                  order.status === 'open'
+                    ? BadgeType.PRIMARY
+                    : order.status === 'done'
+                    ? BadgeType.SECONDARY
+                    : order.status === 'cancelled'
+                    ? BadgeType.DISABLED
+                    : BadgeType.WARNING
+                }
+              >
+                {order.status === 'open'
+                  ? 'Active'
+                  : order.status === 'done'
+                  ? 'Executed'
+                  : order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+              </Badge>
+            )
+
+            const actionDelete = (
+              <Flex
+                sx={{
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: '8px',
+                  backgroundColor: theme.subText + '33',
+                  padding: '8px',
+                  width: '32px',
+                  height: '32px',
+                }}
+                onClick={() => {
+                  setShowCancelConfirm(order)
+                }}
+                role="button"
+              >
+                <Trash>
+                  <Trash2 size={18} />
+                </Trash>
+              </Flex>
+            )
+
+            if (upToMedium)
+              return (
+                <Flex
+                  backgroundColor={theme.background}
+                  key={order.id}
+                  flexDirection="column"
+                  padding="1rem"
+                  mb="1rem"
+                  sx={{ borderRadius: '12px', gap: '12px' }}
+                >
+                  <div>{title}</div>
+                  {condition}
+                  <Flex justifyContent="space-between" alignItems="center">
+                    {status}
+                    {order.status === 'open' ? actionDelete : <div />}
+                  </Flex>
+                </Flex>
+              )
 
             return (
               <TableRow key={order.id}>
-                <div>
-                  <Flex mx="12px" alignItems="center">
-                    <ImageContainer>
-                      <TokenLogo src={token0.logo} />
-                      <TokenLogo src={token1.logo} translateLeft />
-                      <ChainImage src={posDetail.chainLogo} alt="" />
-                    </ImageContainer>
-                    <Text mr="8px">
-                      {token0.symbol}/{token1.symbol}
-                    </Text>
-                    <Badge>Fee {posDetail?.pool.tickSpacing / 10_0}%</Badge>
-                  </Flex>
-                  <Flex alignItems="center" sx={{ gap: '4px' }} mt="4px" ml="1rem">
-                    <TokenLogo src={posDetail.pool.projectLogo} size={16} />
-                    <Text color={theme.subText}>
-                      {protocol} #{tokenId}
-                    </Text>
-                  </Flex>
-                </div>
+                <div>{title}</div>
 
-                <Flex flexDirection="column" sx={{ gap: '4px' }}>
-                  {conditions.map((c, i) => {
-                    if (c.field.type === 'fee_yield')
-                      return (
-                        <Text color={theme.subText} key={i}>
-                          The{' '}
-                          <Text as="span" color={theme.text}>
-                            fee yield ≥ {Number(c.field.value.gte.toFixed(2))}%
-                          </Text>{' '}
-                          {i !== conditions.length - 1 && (
-                            <Text as="span" fontWeight={500} color={theme.text}>
-                              {op.toUpperCase()}
-                            </Text>
-                          )}
-                        </Text>
-                      )
+                {condition}
 
-                    if (c.field.type === 'pool_price')
-                      return (
-                        <Text color={theme.subText} key={i}>
-                          Pool price is between{' '}
-                          <Text as="span" color={theme.text}>
-                            {c.field.value.gte}
-                          </Text>{' '}
-                          and{' '}
-                          <Text as="span" color={theme.text}>
-                            {c.field.value.lte}
-                          </Text>{' '}
-                          {i !== conditions.length - 1 && (
-                            <Text as="span" fontWeight={500} color={theme.text}>
-                              {op.toUpperCase()}
-                            </Text>
-                          )}
-                        </Text>
-                      )
-
-                    if (c.field.type === 'time')
-                      return (
-                        <Text key={i} color={theme.subText}>
-                          Todo
-                        </Text>
-                      )
-                    return null
-                  })}
-                </Flex>
-                <Flex justifyContent="center">
-                  <Badge
-                    style={{ height: 'max-content' }}
-                    type={
-                      order.status === 'open'
-                        ? BadgeType.PRIMARY
-                        : order.status === 'done'
-                        ? BadgeType.SECONDARY
-                        : order.status === 'cancelled'
-                        ? BadgeType.DISABLED
-                        : BadgeType.WARNING
-                    }
-                  >
-                    {order.status === 'open'
-                      ? 'Active'
-                      : order.status === 'done'
-                      ? 'Executed'
-                      : order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                  </Badge>
-                </Flex>
-                {order.status === 'open' ? (
-                  <Trash
-                    role="button"
-                    onClick={() => {
-                      setShowCancelConfirm(order)
-                    }}
-                  >
-                    <Trash2 size={18} />
-                  </Trash>
-                ) : (
-                  <div />
-                )}
+                <Flex justifyContent="center">{status}</Flex>
+                {order.status === 'open' ? actionDelete : <div />}
               </TableRow>
             )
           })
