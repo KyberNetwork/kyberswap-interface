@@ -7,7 +7,6 @@ import { useDispatch } from 'react-redux'
 import { usePrevious } from 'react-use'
 
 import { NotificationType } from 'components/Announcement/type'
-import { CONNECTION } from 'components/Web3Provider'
 import EIP_2612 from 'constants/abis/eip2612.json'
 import { EIP712_DOMAIN_TYPE, EIP712_DOMAIN_TYPE_SALT, PermitType } from 'constants/permit'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
@@ -33,7 +32,7 @@ export enum PermitState {
 export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddress?: string) => {
   const currency = currencyAmount?.currency.wrapped
   const { account, chainId } = useActiveWeb3React()
-  const { library, connector } = useWeb3React()
+  const { library, isSmartConnector } = useWeb3React()
   const dispatch = useDispatch()
   const notify = useNotify()
   const eipContract = useReadingContract(currency?.address, EIP_2612)
@@ -54,8 +53,8 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
   )
 
   const permitState = useMemo(() => {
-    // Do not allow permit when connected with Porto connector
-    if (connector?.id === CONNECTION.PORTO) {
+    // Do not allow permit when connected with smart connector
+    if (isSmartConnector) {
       return PermitState.NOT_APPLICABLE
     }
     if (!overwritedPermitData) {
@@ -73,7 +72,7 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
       return PermitState.SIGNED
     }
     return PermitState.NOT_SIGNED
-  }, [permitData, currencyAmount, overwritedPermitData, connector])
+  }, [permitData, currencyAmount, overwritedPermitData, isSmartConnector])
   const prevErrorCount = usePrevious(permitData?.errorCount)
   useEffect(() => {
     if (prevErrorCount === 2 && permitData?.errorCount === 3) {

@@ -2,12 +2,12 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 
 import { ButtonEmpty } from 'components/Button'
 import { NewLabel } from 'components/Menu'
 import { APP_PATHS } from 'constants/index'
-import { useActiveWeb3React } from 'hooks'
+import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { TAB } from 'pages/SwapV3'
 import LimitTab from 'pages/SwapV3/Tabs/LimitTab'
 import { isSupportLimitOrder } from 'utils'
@@ -34,7 +34,7 @@ const TabWrapper = styled.div`
   }
 `
 
-export const Tab = styled(ButtonEmpty)<{ isActive: boolean }>`
+export const Tab = styled(ButtonEmpty)<{ isActive: boolean; isDisabled?: boolean }>`
   width: fit-content;
   font-weight: 500;
   padding: 0px 0.5rem;
@@ -60,6 +60,12 @@ export const Tab = styled(ButtonEmpty)<{ isActive: boolean }>`
     margin-right: 0;
   }
 
+  ${({ theme, isDisabled }) =>
+    isDisabled &&
+    css`
+      color: ${theme.border};
+    `};
+
   ${({ theme }) => theme.mediaWidth.upToSmall`
     font-size: 14px;
     padding: 0px 0.4rem;
@@ -74,6 +80,7 @@ type Props = {
 export default function Tabs({ activeTab, setActiveTab, customChainId }: Props) {
   const navigateFn = useNavigate()
   const { networkInfo, chainId: walletChainId } = useActiveWeb3React()
+  const { isSmartConnector } = useWeb3React()
   const chainId = customChainId || walletChainId
 
   const { pathname } = useLocation()
@@ -122,7 +129,7 @@ export default function Tabs({ activeTab, setActiveTab, customChainId }: Props) 
         )}
         {show(TAB.LIMIT) && isSupportLimitOrder(chainId) && (
           <LimitTab
-            onClick={() => onClickTab(TAB.LIMIT)}
+            onClick={() => !isSmartConnector && onClickTab(TAB.LIMIT)}
             active={activeTab === TAB.LIMIT}
             customChainId={customChainId}
           />

@@ -84,6 +84,13 @@ export const CONNECTOR_ICON_OVERRIDE_MAP: { [id in string]?: string } = {
   [CONNECTION.SAFE_CONNECTOR_ID]: SAFE_ICON,
 }
 
+export const SMART_WALLETS = [
+  CONNECTION.PORTO,
+  CONNECTION.COINBASE_RDNS,
+  CONNECTION.COINBASE_SDK_CONNECTOR_ID,
+  CONNECTION.SAFE_CONNECTOR_ID,
+]
+
 type ConnectorID = (typeof CONNECTION)[keyof typeof CONNECTION]
 
 export function getConnectorWithId(
