@@ -35,6 +35,7 @@ const zapOutDexMapping: Record<EarnDex | Exchange, ZapOutDex> = {
   [EarnDex.DEX_UNISWAP_V4]: ZapOutDex.DEX_UNISWAP_V4,
   [EarnDex.DEX_UNISWAP_V4_FAIRFLOW]: ZapOutDex.DEX_UNISWAP_V4_FAIRFLOW,
   [EarnDex.DEX_PANCAKE_INFINITY_CL]: ZapOutDex.DEX_PANCAKE_INFINITY_CL,
+  [EarnDex.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: ZapOutDex.DEX_PANCAKE_INFINITY_CL_FAIRFLOW,
   [Exchange.DEX_UNISWAPV3]: ZapOutDex.DEX_UNISWAPV3,
   [Exchange.DEX_PANCAKESWAPV3]: ZapOutDex.DEX_PANCAKESWAPV3,
   [Exchange.DEX_SUSHISWAPV3]: ZapOutDex.DEX_SUSHISWAPV3,
@@ -46,6 +47,7 @@ const zapOutDexMapping: Record<EarnDex | Exchange, ZapOutDex> = {
   [Exchange.DEX_UNISWAP_V4]: ZapOutDex.DEX_UNISWAP_V4,
   [Exchange.DEX_UNISWAP_V4_FAIRFLOW]: ZapOutDex.DEX_UNISWAP_V4_FAIRFLOW,
   [Exchange.DEX_PANCAKE_INFINITY_CL]: ZapOutDex.DEX_PANCAKE_INFINITY_CL,
+  [Exchange.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: ZapOutDex.DEX_PANCAKE_INFINITY_CL_FAIRFLOW,
 }
 
 const useZapOutWidget = (onRefreshPosition?: (props: CheckClosedPositionParams) => void) => {

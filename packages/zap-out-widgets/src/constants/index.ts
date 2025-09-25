@@ -69,6 +69,10 @@ export const DEXES_INFO: Record<PoolType, DexInfo> = {
     name: 'Uniswap V4 FairFlow',
   },
   [PoolType.DEX_PANCAKE_INFINITY_CL]: pancakeInfinityCl,
+  [PoolType.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: {
+    ...pancakeInfinityCl,
+    name: 'Pancake Infinity CL FairFlow',
+  },
   [PoolType.DEX_UNISWAPV3]: uniswapv3,
   [PoolType.DEX_PANCAKESWAPV3]: pancakeswapv3,
   [PoolType.DEX_METAVAULTV3]: metavaultv3,
@@ -127,6 +131,7 @@ export const poolTypeToDexId: { [poolType in PoolType]: number } = {
   DEX_UNISWAP_V4: 68,
   DEX_UNISWAP_V4_FAIRFLOW: 73,
   DEX_PANCAKE_INFINITY_CL: 75,
+  DEX_PANCAKE_INFINITY_CL_FAIRFLOW: 74,
 
   DEX_UNISWAPV3: 2,
   DEX_PANCAKESWAPV3: 3,

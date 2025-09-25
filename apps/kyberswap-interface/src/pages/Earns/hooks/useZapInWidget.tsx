@@ -67,6 +67,7 @@ const zapInDexMapping: Record<EarnDex | Exchange, ZapInPoolType> = {
   [EarnDex.DEX_UNISWAP_V4]: ZapInPoolType.DEX_UNISWAP_V4,
   [EarnDex.DEX_UNISWAP_V4_FAIRFLOW]: ZapInPoolType.DEX_UNISWAP_V4_FAIRFLOW,
   [EarnDex.DEX_PANCAKE_INFINITY_CL]: ZapInPoolType.DEX_PANCAKE_INFINITY_CL,
+  [EarnDex.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: ZapInPoolType.DEX_PANCAKE_INFINITY_CL_FAIRFLOW,
   [Exchange.DEX_UNISWAPV3]: ZapInPoolType.DEX_UNISWAPV3,
   [Exchange.DEX_PANCAKESWAPV3]: ZapInPoolType.DEX_PANCAKESWAPV3,
   [Exchange.DEX_SUSHISWAPV3]: ZapInPoolType.DEX_SUSHISWAPV3,
@@ -78,6 +79,7 @@ const zapInDexMapping: Record<EarnDex | Exchange, ZapInPoolType> = {
   [Exchange.DEX_UNISWAP_V4]: ZapInPoolType.DEX_UNISWAP_V4,
   [Exchange.DEX_UNISWAP_V4_FAIRFLOW]: ZapInPoolType.DEX_UNISWAP_V4_FAIRFLOW,
   [Exchange.DEX_PANCAKE_INFINITY_CL]: ZapInPoolType.DEX_PANCAKE_INFINITY_CL,
+  [Exchange.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: ZapInPoolType.DEX_PANCAKE_INFINITY_CL_FAIRFLOW,
 }
 
 const getEarnDexFromPoolType = (poolType: ZapInPoolType) => {

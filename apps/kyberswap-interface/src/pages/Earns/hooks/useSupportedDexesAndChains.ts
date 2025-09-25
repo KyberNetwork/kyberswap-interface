@@ -89,6 +89,8 @@ const useSupportedDexesAndChains = (filters: PoolQueryParams | PositionFilter) =
           if (!parsedProtocols.some(protocol => protocol.value === item.value)) parsedProtocols.push(item)
         })
 
+    console.log('parsedProtocols', parsedProtocols)
+
     parsedProtocols = parsedProtocols
       .filter(protocol => earnSupportedProtocols.includes(protocol.label))
       .sort((a, b) => {
@@ -103,6 +105,8 @@ const useSupportedDexesAndChains = (filters: PoolQueryParams | PositionFilter) =
         // If neither DEX is in priority order, sort alphabetically
         return a.label.localeCompare(b.label)
       })
+
+    // console.log('parsedProtocols', parsedProtocols)
 
     return [AllProtocolsOption].concat(parsedProtocols)
   }, [selectedChainId, supportedProtocols])

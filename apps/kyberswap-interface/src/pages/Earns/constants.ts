@@ -20,6 +20,7 @@ export enum EarnDex {
   DEX_UNISWAP_V4 = 'Uniswap V4',
   DEX_UNISWAP_V4_FAIRFLOW = 'Uniswap V4 FairFlow',
   DEX_PANCAKE_INFINITY_CL = 'Pancake ∞ CL',
+  DEX_PANCAKE_INFINITY_CL_FAIRFLOW = 'Pancake ∞ CL FairFlow',
 }
 
 export enum Exchange {
@@ -34,6 +35,7 @@ export enum Exchange {
   DEX_UNISWAP_V4 = 'uniswap-v4',
   DEX_UNISWAP_V4_FAIRFLOW = 'uniswap-v4-fairflow',
   DEX_PANCAKE_INFINITY_CL = 'pancake-infinity-cl',
+  DEX_PANCAKE_INFINITY_CL_FAIRFLOW = 'pancake-infinity-cl-fairflow',
 }
 
 export enum EarnChain {
@@ -64,6 +66,7 @@ export const protocolGroupNameToExchangeMapping: { [key in EarnDex]: Exchange } 
   [EarnDex.DEX_UNISWAP_V4]: Exchange.DEX_UNISWAP_V4,
   [EarnDex.DEX_UNISWAP_V4_FAIRFLOW]: Exchange.DEX_UNISWAP_V4_FAIRFLOW,
   [EarnDex.DEX_PANCAKE_INFINITY_CL]: Exchange.DEX_PANCAKE_INFINITY_CL,
+  [EarnDex.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: Exchange.DEX_PANCAKE_INFINITY_CL_FAIRFLOW,
 }
 
 export const NFT_MANAGER_CONTRACT: { [key in EarnDex]: { [key: string]: string } | string } = {
@@ -131,6 +134,9 @@ export const NFT_MANAGER_CONTRACT: { [key in EarnDex]: { [key: string]: string }
   [EarnDex.DEX_PANCAKE_INFINITY_CL]: {
     [ChainId.BSCMAINNET]: '0x55f4c8abA71A1e923edC303eb4fEfF14608cC226',
   },
+  [EarnDex.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: {
+    [ChainId.BSCMAINNET]: '0x55f4c8abA71A1e923edC303eb4fEfF14608cC226',
+  },
 }
 
 export const NATIVE_ADDRESSES: Record<EarnChain, string> = {
@@ -156,6 +162,7 @@ export const NFT_MANAGER_ABI: { [key in EarnDex]: ContractInterface | null } = {
   [EarnDex.DEX_UNISWAP_V4]: Univ4NftManagerABI,
   [EarnDex.DEX_UNISWAP_V4_FAIRFLOW]: Univ4NftManagerABI,
   [EarnDex.DEX_PANCAKE_INFINITY_CL]: PancakeInfinityClNftManagerABI,
+  [EarnDex.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: PancakeInfinityClNftManagerABI,
 }
 
 export const UNWRAP_WNATIVE_TOKEN_FUNC: { [key in EarnDex]: string | null } = {
@@ -170,6 +177,7 @@ export const UNWRAP_WNATIVE_TOKEN_FUNC: { [key in EarnDex]: string | null } = {
   [EarnDex.DEX_UNISWAP_V4]: null,
   [EarnDex.DEX_UNISWAP_V4_FAIRFLOW]: null,
   [EarnDex.DEX_PANCAKE_INFINITY_CL]: null,
+  [EarnDex.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: null,
 }
 
 export const PROTOCOL_POSITION_URL: Record<EarnDex, string> = {
@@ -184,6 +192,7 @@ export const PROTOCOL_POSITION_URL: Record<EarnDex, string> = {
   [EarnDex.DEX_UNISWAP_V4]: 'https://app.uniswap.org/positions/v4/$chainName/$positionId',
   [EarnDex.DEX_UNISWAP_V4_FAIRFLOW]: 'https://app.uniswap.org/positions/v4/$chainName/$positionId',
   [EarnDex.DEX_PANCAKE_INFINITY_CL]: 'https://pancakeswap.finance/liquidity/$positionId',
+  [EarnDex.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: 'https://pancakeswap.finance/liquidity/$positionId',
 }
 
 export const DEXES_SUPPORT_COLLECT_FEE: Record<EarnDex, boolean> = {
@@ -198,6 +207,7 @@ export const DEXES_SUPPORT_COLLECT_FEE: Record<EarnDex, boolean> = {
   [EarnDex.DEX_UNISWAP_V4]: true,
   [EarnDex.DEX_UNISWAP_V4_FAIRFLOW]: true,
   [EarnDex.DEX_PANCAKE_INFINITY_CL]: true,
+  [EarnDex.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: true,
 }
 
 export const EXCHANGES_SUPPORT_COLLECT_FEE: Record<Exchange, boolean> = {
@@ -212,6 +222,7 @@ export const EXCHANGES_SUPPORT_COLLECT_FEE: Record<Exchange, boolean> = {
   [Exchange.DEX_UNISWAP_V4]: true,
   [Exchange.DEX_UNISWAP_V4_FAIRFLOW]: true,
   [Exchange.DEX_PANCAKE_INFINITY_CL]: true,
+  [Exchange.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: true,
 }
 
 export enum CoreProtocol {
@@ -235,6 +246,7 @@ export const PROTOCOLS_CORE_MAPPING: Record<EarnDex, CoreProtocol> = {
   [EarnDex.DEX_UNISWAP_V4]: CoreProtocol.UniswapV4,
   [EarnDex.DEX_UNISWAP_V4_FAIRFLOW]: CoreProtocol.UniswapV4,
   [EarnDex.DEX_PANCAKE_INFINITY_CL]: CoreProtocol.UniswapV4,
+  [EarnDex.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: CoreProtocol.UniswapV4,
 }
 
 export const EXCHANGES_CORE_PROTOCOL_MAPPING: Record<Exchange, CoreProtocol> = {
@@ -249,6 +261,7 @@ export const EXCHANGES_CORE_PROTOCOL_MAPPING: Record<Exchange, CoreProtocol> = {
   [Exchange.DEX_UNISWAP_V4]: CoreProtocol.UniswapV4,
   [Exchange.DEX_UNISWAP_V4_FAIRFLOW]: CoreProtocol.UniswapV4,
   [Exchange.DEX_PANCAKE_INFINITY_CL]: CoreProtocol.UniswapV4,
+  [Exchange.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: CoreProtocol.UniswapV4,
 }
 
 export const FARMING_SUPPORTED_CHAIN = [ChainId.MAINNET, ChainId.BASE]

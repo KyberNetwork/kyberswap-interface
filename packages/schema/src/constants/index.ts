@@ -46,6 +46,7 @@ export const dexMapping: Record<PoolType, string[]> = {
   [PoolType.DEX_UNISWAP_V4]: ['uniswap-v4'],
   [PoolType.DEX_UNISWAP_V4_FAIRFLOW]: ['uniswap-v4-fairflow'],
   [PoolType.DEX_PANCAKE_INFINITY_CL]: ['pancake-infinity-cl'],
+  [PoolType.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: ['pancake-infinity-cl-fairflow'],
 
   [PoolType.DEX_UNISWAPV3]: ['uniswapv3'],
   [PoolType.DEX_PANCAKESWAPV3]: ['pancake-v3'],
