@@ -191,8 +191,8 @@ export const PROTOCOL_POSITION_URL: Record<EarnDex, string> = {
   [EarnDex.DEX_UNISWAPV2]: 'https://app.uniswap.org/positions/v2/$chainName/$poolAddress',
   [EarnDex.DEX_UNISWAP_V4]: 'https://app.uniswap.org/positions/v4/$chainName/$positionId',
   [EarnDex.DEX_UNISWAP_V4_FAIRFLOW]: 'https://app.uniswap.org/positions/v4/$chainName/$positionId',
-  [EarnDex.DEX_PANCAKE_INFINITY_CL]: 'https://pancakeswap.finance/liquidity/$positionId',
-  [EarnDex.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: 'https://pancakeswap.finance/liquidity/$positionId',
+  [EarnDex.DEX_PANCAKE_INFINITY_CL]: 'https://pancakeswap.finance/liquidity/position/infinityCl/$positionId',
+  [EarnDex.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: 'https://pancakeswap.finance/liquidity/position/infinityCl/$positionId',
 }
 
 export const DEXES_SUPPORT_COLLECT_FEE: Record<EarnDex, boolean> = {
