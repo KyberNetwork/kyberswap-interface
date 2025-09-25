@@ -106,7 +106,7 @@ export class AcrossAdapter extends BaseSwapAdapter {
           amount: params.amount,
           appFee: params.feeBps / 10_000,
           appFeeRecipient: CROSS_CHAIN_FEE_RECEIVER,
-          slippage: (params.slippage * 100) / 10_000,
+          slippage: params.slippage / 10_000, // https://docs.across.to/reference/api-reference#get-swap-approval
           depositor: params.sender,
         })
       }
