@@ -201,7 +201,7 @@ export class RelayAdapter extends BaseSwapAdapter {
     const receipt = await publicClient?.getTransactionReceipt({
       hash: p.sourceTxHash as `0x${string}`,
     })
-    if (receipt.status === 'reverted') {
+    if (receipt?.status === 'reverted') {
       return {
         txHash: '',
         status: 'Failed',
