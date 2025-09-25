@@ -18,6 +18,7 @@ import { NotificationType } from 'components/Announcement/type'
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import LocalLoader from 'components/LocalLoader'
 import Modal from 'components/Modal'
+import Pagination from 'components/Pagination'
 import TokenLogo from 'components/TokenLogo'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
@@ -29,11 +30,11 @@ import { MEDIA_WIDTHS } from 'theme'
 import { friendlyError } from 'utils/errorMessage'
 
 import { PoolPageWrapper, TableWrapper } from '../PoolExplorer/styles'
-import Filter from '../UserPositions/Filter'
-import useFilter from '../UserPositions/useFilter'
 import { earnSupportedChains, earnSupportedExchanges } from '../constants'
 import useSupportedDexesAndChains from '../hooks/useSupportedDexesAndChains'
 import { PositionStatus } from '../types'
+import Filter from './Filter'
+import useSmartExitFilter from './useSmartExitFilter'
 
 const Trash = styled.div`
   width: 20px;
@@ -67,11 +68,14 @@ const SmartExit = () => {
   const { library } = useWeb3React()
   const notify = useNotify()
 
-  const { filters, updateFilters } = useFilter()
+  const { filters, updateFilters } = useSmartExitFilter()
   const { supportedDexes, supportedChains } = useSupportedDexesAndChains(filters)
 
   const [showCancelConfirm, setShowCancelConfirm] = useState<SmartExitOrder | null>(null)
   const [removing, setRemoving] = useState(false)
+  const [currentPage, setCurrentPage] = useState(1)
+
+  const pageSize = 10 // Fixed page size
 
   const [getCancelSignMsg] = useGetSmartExitCancelSignMessageMutation()
   const [cancelOrder] = useCancelSmartExitOrderMutation()
@@ -136,20 +140,27 @@ const SmartExit = () => {
 
   // Fetch smart exit orders
   const {
-    data: orders = [],
+    data: ordersData,
     isLoading: smartExitLoading,
     isFetching,
     error: ordersError,
   } = useGetSmartExitOrdersQuery(
     {
-      // chainId: chainId,
+      chainIds: filters.chainIds || undefined,
       userWallet: account || '',
+      status: filters.status || undefined,
+      protocols: filters.protocols || undefined,
+      page: currentPage,
+      pageSize,
     },
     {
       skip: !account,
       pollingInterval: 30000, // Poll every 30 seconds
     },
   )
+
+  const orders = ordersData?.orders || []
+  const totalItems = ordersData?.totalItems || 0
 
   const { data: userPosition, isLoading: userPosLoading } = useUserPositionsQuery(
     {
@@ -186,7 +197,7 @@ const SmartExit = () => {
         }}
       />
 
-      <TableWrapper style={{ padding: '16px 20px', background: upToMedium ? 'transparent' : undefined }}>
+      <TableWrapper style={{ padding: '16px 20px 0', background: upToMedium ? 'transparent' : undefined }}>
         {!upToMedium && (
           <TableHeader>
             <Text>
@@ -320,7 +331,7 @@ const SmartExit = () => {
                     return (
                       <React.Fragment key={i}>
                         <Text key={i} color={theme.subText} sx={{ gap: '4px' }}>
-                          {c.field.value.lte > 0 ? (
+                          {c.field.value.lte > 0 && c.field.value.lte < 4914460753 ? (
                             <>
                               <Trans>Before</Trans>{' '}
                               <Text as="span" color={theme.text}>
@@ -329,7 +340,7 @@ const SmartExit = () => {
                             </>
                           ) : null}
 
-                          {c.field.value.gte > 0 ? (
+                          {c.field.value.gte > 0 && c.field.value.gte < 4914460753 ? (
                             <Text>
                               <Trans>After</Trans>{' '}
                               <Text as="span" color={theme.text}>
@@ -423,7 +434,15 @@ const SmartExit = () => {
             )
           })
         )}
+
+        <Pagination
+          onPageChange={setCurrentPage}
+          totalCount={totalItems}
+          currentPage={currentPage}
+          pageSize={pageSize}
+        />
       </TableWrapper>
+
       <Modal isOpen={!!showCancelConfirm} onDismiss={() => setShowCancelConfirm(null)}>
         <Flex width="100%" flexDirection="column" padding="20px" sx={{ gap: '24px' }}>
           <Flex justifyContent="space-between" alignItems="center">

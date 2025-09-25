@@ -37,30 +37,50 @@ const smartExitApi = createApi({
   tagTypes: [RTK_QUERY_TAGS.GET_SMART_EXIT_ORDERS],
   endpoints: builder => ({
     getSmartExitOrders: builder.query<
-      SmartExitOrder[],
       {
-        chainId?: ChainId
+        orders: SmartExitOrder[]
+        totalItems: number
+        totalPages: number
+        currentPage: number
+        pageSize: number
+      },
+      {
+        chainIds?: string
         userWallet: string
         status?: string
+        protocols?: string
+        page?: number
+        pageSize?: number
       }
     >({
-      query: ({ chainId, userWallet, status }) => ({
+      query: ({ chainIds, protocols, userWallet, status, page = 1, pageSize = 10 }) => ({
         url: SMART_EXIT_API_URL,
         params: {
-          chainId,
           userWallet,
           ...(status && { status }),
+          ...(protocols && { protocols }),
+          ...(chainIds && { chainIds }),
+          page,
+          pageSize,
         },
       }),
       transformResponse: (data: any) => {
-        const orders = data?.data?.orders || data?.orders || data || []
+        console.log(data)
+        const orders = data?.data?.orders || []
+        const totalItems = data?.data?.pagination?.totalItems || orders.length
 
         // Ensure chainId is properly typed
         orders.forEach((order: any) => {
           order.chainId = Number(order.chainId) as ChainId
         })
 
-        return orders
+        return {
+          orders,
+          totalItems,
+          totalPages: Math.ceil(totalItems / (data?.data?.pageSize || data?.pageSize || 10)),
+          currentPage: data?.data?.currentPage || data?.currentPage || 1,
+          pageSize: data?.data?.pageSize || data?.pageSize || 10,
+        }
       },
       providesTags: [RTK_QUERY_TAGS.GET_SMART_EXIT_ORDERS],
     }),

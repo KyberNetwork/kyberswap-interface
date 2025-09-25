@@ -4,7 +4,7 @@ import { PoolQueryParams, useSupportedProtocolsQuery } from 'services/zapEarn'
 import useChainsConfig from 'hooks/useChainsConfig'
 import { MenuOption } from 'pages/Earns/components/DropdownMenu'
 import { EarnDex, earnSupportedChains, earnSupportedProtocols } from 'pages/Earns/constants'
-import { PositionFilter } from 'pages/Earns/types'
+import { PositionFilter, SmartExitFilter } from 'pages/Earns/types'
 
 export const AllChainsOption = { label: 'All Chains', value: '' }
 export const AllProtocolsOption = { label: 'All Protocols', value: '' }
@@ -28,7 +28,7 @@ const DEX_PRIORITY_ORDER = [
   EarnDex.DEX_QUICKSWAPV3ALGEBRA,
 ]
 
-const useSupportedDexesAndChains = (filters: PoolQueryParams | PositionFilter) => {
+const useSupportedDexesAndChains = (filters: PoolQueryParams | PositionFilter | SmartExitFilter) => {
   const { supportedChains } = useChainsConfig()
   const { data: supportedProtocols } = useSupportedProtocolsQuery()
 

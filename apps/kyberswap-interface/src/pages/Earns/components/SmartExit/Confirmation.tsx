@@ -39,7 +39,7 @@ export const Confirmation = ({
   const today = new Date()
   today.setUTCHours(0, 0, 0, 0)
   const time = [7 * TIMES_IN_SECS.ONE_DAY, 30 * TIMES_IN_SECS.ONE_DAY, 90 * TIMES_IN_SECS.ONE_DAY].includes(expireTime)
-    ? today.getTime() + expireTime * 1000
+    ? Math.floor(today.getTime() / 1000) + expireTime
     : expireTime
 
   const { permitState, signPermitNft, permitData } = usePermitNft({

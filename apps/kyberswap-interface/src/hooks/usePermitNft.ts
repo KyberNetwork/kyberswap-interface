@@ -23,7 +23,7 @@ export interface PermitNftParams {
   contractAddress: string
   tokenId: string
   spender: string
-  deadline?: number
+  deadline: number
   version?: 'v3' | 'v4' | 'auto' // specify version or auto-detect
 }
 
@@ -39,11 +39,10 @@ const NFT_PERMIT_ABI = [
   'function name() view returns (string)',
   'function nonces(address owner, uint256 word) view returns (uint256 bitmap)', // V4 unordered nonces
   'function positions(uint256 tokenId) view returns (uint96 nonce, address operator, address token0, address token1, uint24 fee, int24 tickLower, int24 tickUpper, uint128 liquidity, uint256 feeGrowthInside0LastX128, uint256 feeGrowthInside1LastX128, uint128 tokensOwed0, uint128 tokensOwed1)', // V3 ordered nonces
+  'function DOMAIN_SEPARATOR() view returns (bytes32)', // V3 domain separator
+  'function PERMIT_TYPEHASH() view returns (bytes32)', // V3 permit typehash
   'function permit(address spender, uint256 tokenId, uint256 deadline, uint256 nonce, bytes signature) payable',
 ]
-
-// 30 days validity buffer
-const PERMIT_NFT_VALIDITY_BUFFER = 30 * 24 * 60 * 60
 
 export const usePermitNft = ({ contractAddress, tokenId, spender, deadline, version = 'auto' }: PermitNftParams) => {
   const { account, chainId } = useActiveWeb3React()
@@ -60,6 +59,9 @@ export const usePermitNft = ({ contractAddress, tokenId, spender, deadline, vers
   // Get position data (V3 style) - only call if we have a tokenId
   const positionsState = useSingleCallResult(nftContract, 'positions', tokenId ? [tokenId] : undefined)
   const nameState = useSingleCallResult(nftContract, 'name', [])
+  // Get V3 specific data
+  const domainSeparatorState = useSingleCallResult(nftContract, 'DOMAIN_SEPARATOR', [])
+  const permitTypehashState = useSingleCallResult(nftContract, 'PERMIT_TYPEHASH', [])
 
   // Auto-detect version based on available data
   const actualVersion = useMemo(() => {
@@ -126,8 +128,11 @@ export const usePermitNft = ({ contractAddress, tokenId, spender, deadline, vers
     }
 
     // Check version-specific requirements
-    if (actualVersion === 'v3' && !positionsState?.result) {
-      console.error('Missing positions data for V3 NFT permit')
+    if (
+      actualVersion === 'v3' &&
+      (!positionsState?.result || !domainSeparatorState?.result || !permitTypehashState?.result)
+    ) {
+      console.error('Missing V3 contract data for NFT permit')
       return null
     }
     if (actualVersion === 'v4' && !noncesState?.result?.[0]) {
@@ -143,58 +148,117 @@ export const usePermitNft = ({ contractAddress, tokenId, spender, deadline, vers
     setIsSigningInProgress(true)
 
     try {
-      const contractName = nameState.result[0]
       const nonce = getNonce()
 
       if (!nonce) {
         throw new Error(`Failed to get nonce for ${actualVersion}`)
       }
 
-      const permitDeadline = deadline || Math.floor(Date.now() / 1000) + PERMIT_NFT_VALIDITY_BUFFER
+      const permitDeadline = deadline
 
-      // EIP-712 domain and types for NFT permit
-      const domain = {
-        name: contractName,
-        chainId,
-        verifyingContract: contractAddress,
-      }
+      let signature: string
+      let permitData: string
 
-      const types = {
-        Permit: [
-          { name: 'spender', type: 'address' },
-          { name: 'tokenId', type: 'uint256' },
-          { name: 'nonce', type: 'uint256' },
-          { name: 'deadline', type: 'uint256' },
-        ],
-      }
+      if (actualVersion === 'v3') {
+        // V3 uses EIP-712 but with simpler domain structure
+        const contractName = nameState.result[0]
 
-      const message = {
-        spender,
-        tokenId,
-        nonce: nonce.toString(),
-        deadline: permitDeadline,
-      }
+        // V3 domain structure (simpler than V4)
+        const domain = {
+          name: contractName,
+          chainId,
+          verifyingContract: contractAddress,
+        }
 
-      const typedData = JSON.stringify({
-        types: {
-          EIP712Domain: [
-            { name: 'name', type: 'string' },
-            { name: 'chainId', type: 'uint256' },
-            { name: 'verifyingContract', type: 'address' },
+        const types = {
+          Permit: [
+            { name: 'spender', type: 'address' },
+            { name: 'tokenId', type: 'uint256' },
+            { name: 'nonce', type: 'uint256' },
+            { name: 'deadline', type: 'uint256' },
           ],
-          ...types,
-        },
-        domain,
-        primaryType: 'Permit',
-        message,
-      })
+        }
 
-      console.log(`Signing ${actualVersion} NFT permit with data:`, typedData)
+        const message = {
+          spender,
+          tokenId,
+          nonce: nonce.toString(),
+          deadline: permitDeadline,
+        }
 
-      const signature = await library.send('eth_signTypedData_v4', [account.toLowerCase(), typedData])
+        const typedData = JSON.stringify({
+          types: {
+            EIP712Domain: [
+              { name: 'name', type: 'string' },
+              { name: 'chainId', type: 'uint256' },
+              { name: 'verifyingContract', type: 'address' },
+            ],
+            ...types,
+          },
+          domain,
+          primaryType: 'Permit',
+          message,
+        })
 
-      // Encode permit data for contract call
-      const permitData = defaultAbiCoder.encode(['uint256', 'uint256', 'bytes'], [permitDeadline, nonce, signature])
+        console.log(`Signing ${actualVersion} NFT permit with data:`, typedData)
+
+        const flatSig = await library.send('eth_signTypedData_v4', [account.toLowerCase(), typedData])
+
+        // Split signature into v, r, s for V3 format
+        const r = flatSig.slice(0, 66)
+        const s = '0x' + flatSig.slice(66, 130)
+        const v = parseInt(flatSig.slice(130, 132), 16)
+
+        // V3 permit data: encode(deadline, v, r, s)
+        permitData = defaultAbiCoder.encode(['uint256', 'uint8', 'bytes32', 'bytes32'], [permitDeadline, v, r, s])
+        signature = flatSig
+      } else {
+        // V4 uses EIP-712 typed data signing (keep existing working implementation)
+        const contractName = nameState.result[0]
+
+        const domain = {
+          name: contractName,
+          chainId,
+          verifyingContract: contractAddress,
+        }
+
+        const types = {
+          Permit: [
+            { name: 'spender', type: 'address' },
+            { name: 'tokenId', type: 'uint256' },
+            { name: 'nonce', type: 'uint256' },
+            { name: 'deadline', type: 'uint256' },
+          ],
+        }
+
+        const message = {
+          spender,
+          tokenId,
+          nonce: nonce.toString(),
+          deadline: permitDeadline,
+        }
+
+        const typedData = JSON.stringify({
+          types: {
+            EIP712Domain: [
+              { name: 'name', type: 'string' },
+              { name: 'chainId', type: 'uint256' },
+              { name: 'verifyingContract', type: 'address' },
+            ],
+            ...types,
+          },
+          domain,
+          primaryType: 'Permit',
+          message,
+        })
+
+        console.log(`Signing ${actualVersion} NFT permit with data:`, typedData)
+
+        signature = await library.send('eth_signTypedData_v4', [account.toLowerCase(), typedData])
+
+        // V4 permit data: encode(deadline, nonce, signature) - keep existing working format
+        permitData = defaultAbiCoder.encode(['uint256', 'uint256', 'bytes'], [permitDeadline, nonce, signature])
+      }
 
       const v = actualVersion.toUpperCase()
       notify({
@@ -239,6 +303,8 @@ export const usePermitNft = ({ contractAddress, tokenId, spender, deadline, vers
     noncesState?.result,
     positionsState?.result,
     nameState?.result,
+    domainSeparatorState?.result,
+    permitTypehashState?.result,
     getNonce,
     notify,
   ])
