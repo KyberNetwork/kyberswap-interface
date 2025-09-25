@@ -16,20 +16,7 @@ import { CoreProtocol, DEXES_WITH_VERSION, EarnDex } from 'pages/Earns/constants
 import { EarnPosition, FeeInfo, NftRewardInfo, ParsedPosition, PositionStatus, ProgramType } from 'pages/Earns/types'
 import { getNftManagerContractAddress, isForkFrom, isNativeToken } from 'pages/Earns/utils'
 
-export const listDexesWithVersion = [
-  EarnDex.DEX_UNISWAPV2,
-  EarnDex.DEX_UNISWAPV3,
-  EarnDex.DEX_UNISWAP_V4,
-  EarnDex.DEX_UNISWAP_V4_FAIRFLOW,
-  EarnDex.DEX_PANCAKE_INFINITY_CL,
-  EarnDex.DEX_PANCAKE_INFINITY_CL_FAIRFLOW,
-  EarnDex.DEX_SUSHISWAPV3,
-  EarnDex.DEX_QUICKSWAPV3ALGEBRA,
-  EarnDex.DEX_CAMELOTV3,
-  EarnDex.DEX_PANCAKESWAPV3,
-]
-
-const getDexVersion = (dex: EarnDex) => {
+export const getDexVersion = (dex: EarnDex) => {
   if (!DEXES_WITH_VERSION[dex]) return ''
 
   const dexStringSplit = dex.split(' ')

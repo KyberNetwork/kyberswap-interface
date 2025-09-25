@@ -18,7 +18,7 @@ import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import { ZapMigrationInfo } from 'pages/Earns/hooks/useZapMigrationWidget'
 import { DEFAULT_PARSED_POSITION } from 'pages/Earns/types'
 import { getNftManagerContractAddress, getTokenId, isForkFrom, submitTransaction } from 'pages/Earns/utils'
-import { listDexesWithVersion } from 'pages/Earns/utils/position'
+import { getDexVersion } from 'pages/Earns/utils/position'
 import { updateUnfinalizedPosition } from 'pages/Earns/utils/unfinalizedPosition'
 import { navigateToPositionAfterZap } from 'pages/Earns/utils/zap'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
@@ -232,8 +232,7 @@ const useZapInWidget = ({
                 data.position.positionId ||
                 (isUniv2 ? account || '' : ((await getTokenId(library, data.txHash, isUniV4)) || '').toString())
 
-              const dexVersion = listDexesWithVersion.includes(dex) ? dex.split(' ').pop() || '' : ''
-
+              const dexVersion = getDexVersion(dex)
               const contract = getNftManagerContractAddress(dex, chainId)
 
               updateUnfinalizedPosition({
