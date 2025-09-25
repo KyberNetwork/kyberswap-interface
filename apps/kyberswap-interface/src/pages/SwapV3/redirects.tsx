@@ -1,18 +1,19 @@
 import { Navigate, useLocation } from 'react-router-dom'
 
 import { APP_PATHS } from 'constants/index'
-import { useActiveWeb3React } from 'hooks'
+import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { isSupportLimitOrder } from 'utils'
 
 // Redirects to swap-v3 but only replace the pathname
 export function RedirectPathToSwapV3Network() {
   const { networkInfo, chainId } = useActiveWeb3React()
+  const { isSmartConnector } = useWeb3React()
   const location = useLocation()
   const { pathname } = location
 
   let redirectTo = ''
 
-  if (pathname.startsWith(APP_PATHS.LIMIT) && isSupportLimitOrder(chainId)) {
+  if (pathname.startsWith(APP_PATHS.LIMIT) && isSupportLimitOrder(chainId) && !isSmartConnector) {
     redirectTo = APP_PATHS.LIMIT
   } else {
     redirectTo = APP_PATHS.SWAP

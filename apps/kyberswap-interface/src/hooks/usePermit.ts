@@ -32,7 +32,7 @@ export enum PermitState {
 export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddress?: string) => {
   const currency = currencyAmount?.currency.wrapped
   const { account, chainId } = useActiveWeb3React()
-  const { library } = useWeb3React()
+  const { library, isSmartConnector } = useWeb3React()
   const dispatch = useDispatch()
   const notify = useNotify()
   const eipContract = useReadingContract(currency?.address, EIP_2612)
@@ -53,6 +53,10 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
   )
 
   const permitState = useMemo(() => {
+    // Do not allow permit when connected with smart connector
+    if (isSmartConnector) {
+      return PermitState.NOT_APPLICABLE
+    }
     if (!overwritedPermitData) {
       return PermitState.NOT_APPLICABLE
     }
@@ -68,7 +72,7 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
       return PermitState.SIGNED
     }
     return PermitState.NOT_SIGNED
-  }, [permitData, currencyAmount, overwritedPermitData])
+  }, [permitData, currencyAmount, overwritedPermitData, isSmartConnector])
   const prevErrorCount = usePrevious(permitData?.errorCount)
   useEffect(() => {
     if (prevErrorCount === 2 && permitData?.errorCount === 3) {

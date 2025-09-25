@@ -56,6 +56,13 @@ export function useOrderedConnections(): InjectableConnector[] {
       return !hardcodedInjectedIds.includes(c.id)
     })
 
+    // Ensure Porto connector appears last among injected connectors
+    const portoIndex = injectedConnectorsWithoutHardcoded.findIndex(c => c.id === CONNECTION.PORTO)
+    if (portoIndex > -1) {
+      const [portoConnector] = injectedConnectorsWithoutHardcoded.splice(portoIndex, 1)
+      injectedConnectorsWithoutHardcoded.push(portoConnector)
+    }
+
     // remove hardcoded connectors if the real connector is present
     HardCodedConnectors.forEach(c => {
       const connector = getConnectorWithId(connectors, c.realId as any)
