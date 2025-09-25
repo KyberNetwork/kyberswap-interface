@@ -264,6 +264,21 @@ export const EXCHANGES_CORE_PROTOCOL_MAPPING: Record<Exchange, CoreProtocol> = {
   [Exchange.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: CoreProtocol.UniswapV4,
 }
 
+export const DEXES_WITH_VERSION: Record<EarnDex, boolean> = {
+  [EarnDex.DEX_UNISWAPV2]: true,
+  [EarnDex.DEX_UNISWAPV3]: true,
+  [EarnDex.DEX_UNISWAP_V4]: true,
+  [EarnDex.DEX_UNISWAP_V4_FAIRFLOW]: true,
+  [EarnDex.DEX_PANCAKE_INFINITY_CL]: true,
+  [EarnDex.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: true,
+  [EarnDex.DEX_PANCAKESWAPV3]: true,
+  [EarnDex.DEX_SUSHISWAPV3]: true,
+  [EarnDex.DEX_QUICKSWAPV3ALGEBRA]: true,
+  [EarnDex.DEX_CAMELOTV3]: true,
+  [EarnDex.DEX_THENAFUSION]: false,
+  [EarnDex.DEX_KODIAK_V3]: false,
+}
+
 export const FARMING_SUPPORTED_CHAIN = [ChainId.MAINNET, ChainId.BASE]
 
 export const POSSIBLE_FARMING_PROTOCOLS = [Exchange.DEX_UNISWAP_V4_FAIRFLOW]

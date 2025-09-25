@@ -12,7 +12,7 @@ import {
 import { ChainId, WETH } from '@kyberswap/ks-sdk-core'
 
 import { NETWORKS_INFO } from 'constants/networks'
-import { CoreProtocol, EarnDex } from 'pages/Earns/constants'
+import { CoreProtocol, DEXES_WITH_VERSION, EarnDex } from 'pages/Earns/constants'
 import { EarnPosition, FeeInfo, NftRewardInfo, ParsedPosition, PositionStatus, ProgramType } from 'pages/Earns/types'
 import { getNftManagerContractAddress, isForkFrom, isNativeToken } from 'pages/Earns/utils'
 
@@ -28,6 +28,13 @@ export const listDexesWithVersion = [
   EarnDex.DEX_CAMELOTV3,
   EarnDex.DEX_PANCAKESWAPV3,
 ]
+
+const getDexVersion = (dex: EarnDex) => {
+  if (!DEXES_WITH_VERSION[dex]) return ''
+
+  const dexStringSplit = dex.split(' ')
+  return dexStringSplit.length > 0 ? dexStringSplit.slice(1).join(' ') : ''
+}
 
 export const parsePosition = ({
   position,
@@ -165,13 +172,6 @@ export const parsePosition = ({
     feePending.reduce((sum, fee) => sum + fee.quotes.usd.value, 0) +
     feesClaimed.reduce((sum, fee) => sum + fee.quotes.usd.value, 0)
 
-  const dexStringSplit = dex.split(' ')
-  const dexVersion = listDexesWithVersion.includes(dex)
-    ? dexStringSplit.length > 0
-      ? dexStringSplit.slice(1).join(' ')
-      : ''
-    : ''
-
   const chainId = position.chainId as keyof typeof NETWORKS_INFO
   const nativeToken = NETWORKS_INFO[chainId]?.nativeToken
 
@@ -208,7 +208,7 @@ export const parsePosition = ({
     dex: {
       id: dex,
       logo: pool.projectLogo,
-      version: dexVersion,
+      version: getDexVersion(dex),
     },
     chain: {
       id: position.chainId,
