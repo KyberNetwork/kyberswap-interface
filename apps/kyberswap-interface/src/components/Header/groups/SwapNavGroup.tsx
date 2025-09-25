@@ -1,4 +1,4 @@
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { Repeat } from 'react-feather'
 import { useLocation } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -12,9 +12,10 @@ import { ReactComponent as CrossChainIcon } from 'assets/svg/cross_chain_icon.sv
 import { ReactComponent as LimitOrderIcon } from 'assets/svg/limit_order.svg'
 import { DropdownTextAnchor, StyledNavLink } from 'components/Header/styleds'
 import { NewLabel } from 'components/Menu'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { APP_PATHS, CHAINS_SUPPORT_CROSS_CHAIN } from 'constants/index'
-import { useActiveWeb3React } from 'hooks'
+import { useActiveWeb3React, useWeb3React } from 'hooks'
 //import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
 import { isInSafeApp, isSupportLimitOrder } from 'utils'
@@ -43,6 +44,7 @@ const IconWrapper = styled.div`
 
 const SwapNavGroup = () => {
   const { networkInfo, chainId } = useActiveWeb3React()
+  const { isSmartConnector } = useWeb3React()
   const { pathname } = useLocation()
   const upToXXSmall = useMedia('(max-width: 420px)')
 
@@ -78,20 +80,23 @@ const SwapNavGroup = () => {
           </StyledNavLink>
 
           {isSupportLimitOrder(chainId) && (
-            <StyledNavLink
-              id="limit-order-nav-link"
-              to={`${APP_PATHS.LIMIT}/${networkInfo.route}`}
-              style={{ flexDirection: 'column', width: '100%' }}
-            >
-              <Flex alignItems="center" sx={{ gap: '12px' }}>
-                <IconWrapper>
-                  <LimitOrderIcon />
-                </IconWrapper>
-                <Flex alignItems={'center'} sx={{ flex: 1 }} justifyContent={'space-between'}>
-                  <Trans>Limit Order</Trans>
+            <MouseoverTooltip text={isSmartConnector ? t`Limit Order doesn't support your current wallet type` : ''}>
+              <StyledNavLink
+                id="limit-order-nav-link"
+                to={`${APP_PATHS.LIMIT}/${networkInfo.route}`}
+                style={{ flexDirection: 'column', width: '100%' }}
+                $disabled={isSmartConnector}
+              >
+                <Flex alignItems="center" sx={{ gap: '12px' }}>
+                  <IconWrapper>
+                    <LimitOrderIcon />
+                  </IconWrapper>
+                  <Flex alignItems={'center'} sx={{ flex: 1 }} justifyContent={'space-between'}>
+                    <Trans>Limit Order</Trans>
+                  </Flex>
                 </Flex>
-              </Flex>
-            </StyledNavLink>
+              </StyledNavLink>
+            </MouseoverTooltip>
           )}
 
           {CHAINS_SUPPORT_CROSS_CHAIN.includes(chainId) && !isInSafeApp && (

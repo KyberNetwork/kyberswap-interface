@@ -1,6 +1,5 @@
-import { useEffect } from 'react';
+import { useState } from 'react';
 
-import { usePrevious } from '@kyber/hooks';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, MouseoverTooltip } from '@kyber/ui';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
@@ -11,30 +10,23 @@ const MAX_SLIPPAGE_LABEL_TEXT =
   'Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price. Please use with caution!';
 
 export default function SlippageRow({ suggestedSlippage }: { suggestedSlippage: number }) {
-  const { slippage, uiState, setUiState } = useZapState();
+  const { slippage } = useZapState();
 
   const isHighSlippage = suggestedSlippage > 0 ? slippage && slippage > 2 * suggestedSlippage : false;
   const isLowSlippage = suggestedSlippage > 0 ? slippage && slippage < suggestedSlippage / 2 : false;
   const isSlippageWarning = isHighSlippage || isLowSlippage;
 
-  const previousSuggestedSlippage = usePrevious(suggestedSlippage);
-
-  useEffect(() => {
-    if (previousSuggestedSlippage !== suggestedSlippage && slippage !== suggestedSlippage && suggestedSlippage > 0) {
-      setUiState(prev => ({ ...prev, slippageOpen: true }));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [suggestedSlippage]);
+  const [slippageOpen, setSlippageOpen] = useState(false);
 
   return (
     <div className="flex justify-between items-start mt-3 text-xs">
-      <Accordion type="single" collapsible className="w-full" value={uiState.slippageOpen ? 'item-1' : undefined}>
+      <Accordion type="single" collapsible className="w-full" value={slippageOpen ? 'item-1' : undefined}>
         <AccordionItem value="item-1">
           <AccordionTrigger
-            enableHighlight={!uiState.slippageOpen && suggestedSlippage > 0 && slippage !== suggestedSlippage}
+            enableHighlight={!slippageOpen && suggestedSlippage > 0 && slippage !== suggestedSlippage}
             onClick={e => {
               e.preventDefault();
-              setUiState(prev => ({ ...prev, slippageOpen: !prev.slippageOpen }));
+              setSlippageOpen(!slippageOpen);
             }}
           >
             <div className="flex items-center justify-between w-full">
