@@ -144,9 +144,9 @@ const UserPositions = () => {
 
     if (filters.chainIds) result = result.filter(position => position.chain.id === Number(filters.chainIds))
     if (filters.protocols) {
-      result = result.filter(position =>
-        filters.protocols?.split(',').includes(protocolGroupNameToExchangeMapping[position.dex.id]),
-      )
+      result = result.filter(position => {
+        return filters.protocols?.split(',').includes(protocolGroupNameToExchangeMapping[position.dex.id])
+      })
     }
 
     if (filters.sortBy) {
