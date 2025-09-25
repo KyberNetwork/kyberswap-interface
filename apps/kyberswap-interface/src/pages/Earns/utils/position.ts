@@ -21,6 +21,8 @@ export const listDexesWithVersion = [
   EarnDex.DEX_UNISWAPV3,
   EarnDex.DEX_UNISWAP_V4,
   EarnDex.DEX_UNISWAP_V4_FAIRFLOW,
+  EarnDex.DEX_PANCAKE_INFINITY_CL,
+  EarnDex.DEX_PANCAKE_INFINITY_CL_FAIRFLOW,
   EarnDex.DEX_SUSHISWAPV3,
   EarnDex.DEX_QUICKSWAPV3ALGEBRA,
   EarnDex.DEX_CAMELOTV3,
@@ -163,7 +165,12 @@ export const parsePosition = ({
     feePending.reduce((sum, fee) => sum + fee.quotes.usd.value, 0) +
     feesClaimed.reduce((sum, fee) => sum + fee.quotes.usd.value, 0)
 
-  const dexVersion = listDexesWithVersion.includes(dex) ? dex.split(' ').pop() || '' : ''
+  const dexStringSplit = dex.split(' ')
+  const dexVersion = listDexesWithVersion.includes(dex)
+    ? dexStringSplit.length > 0
+      ? dexStringSplit.slice(1).join(' ')
+      : ''
+    : ''
 
   const chainId = position.chainId as keyof typeof NETWORKS_INFO
   const nativeToken = NETWORKS_INFO[chainId]?.nativeToken
