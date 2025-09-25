@@ -115,9 +115,10 @@ export const ZapMigration = (widgetProps: ZapMigrationProps) => {
   const {
     sourcePosition,
     targetPosition,
+    targetPositionId,
     error: positionError,
     reset: resetPositionStore,
-  } = usePositionStore(['sourcePosition', 'targetPosition', 'error', 'reset']);
+  } = usePositionStore(['sourcePosition', 'targetPosition', 'targetPositionId', 'error', 'reset']);
   const { reset, buildData, fetchZapRoute, liquidityOut, tickUpper, tickLower } = useZapStore([
     'reset',
     'buildData',
@@ -210,7 +211,7 @@ export const ZapMigration = (widgetProps: ZapMigrationProps) => {
             <PositionToMigrate />
             {rePositionMode && <PoolPriceWithRange type={RangeType.Source} />}
             <AmountToMigrate />
-            {rePositionMode && <Estimated />}
+            {!targetPositionId && <Estimated />}
           </div>
 
           <div className="block md:hidden rotate-90 w-fit mx-auto">
@@ -224,7 +225,7 @@ export const ZapMigration = (widgetProps: ZapMigrationProps) => {
             <TargetPosition />
             <RangeInput initialTick={initialTick} />
             {!rePositionMode && to?.positionId && <PoolPriceWithRange type={RangeType.Target} showPrice />}
-            {!rePositionMode && <Estimated />}
+            {targetPositionId && <Estimated />}
             <Warning />
           </div>
         </div>

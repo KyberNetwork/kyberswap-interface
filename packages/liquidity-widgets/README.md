@@ -1,10 +1,16 @@
 # Kyber Liquidity Widgets
 
-The `@kyberswap/liquidity-widgets` package is an npm package of React components used to provide subsets of the Zap Protocol functionality in a small and configurable user interface element.
-Demo: https://kyberswap.com/earn
+The `@kyberswap/liquidity-widgets` package provides a React component to add or increase LP liquidity using KyberSwap's Zap engine (multi-token in, route + add liquidity). It is small, configurable, and easy to embed in a modal or page.
+
+Exports: `LiquidityWidget`, `ChainId`, `PoolType`.
 
 ## Installation
-Install the widgets library via npm or yarn.
+
+Install with your preferred package manager.
+
+```
+pnpm add @kyberswap/liquidity-widgets
+```
 
 ```
 yarn add @kyberswap/liquidity-widgets
@@ -15,34 +21,87 @@ npm i --save @kyberswap/liquidity-widgets
 ```
 
 ## Usage
-Example usage: https://github.com/KyberNetwork/kyberswap-widgets/blob/main/apps/liquidity-widgets-demo/src/App.tsx#L243
 
-### Params
+Minimal example:
 
-Property | Description | Type | Default Value
---- | --- | --- | --- |
-poolAddress | address of pool to zap | string | Required
-positionId | Optional, in case “Increasing Liquidity into an existing position”, pass the position id. The position should belong to the poolAddress. Otherwise, it considers as “Adding Liquidity into a new position” | number | undefined 
-poolType | supported protocol | [PoolType](https://github.com/KyberNetwork/kyberswap-widgets/blob/main/packages/liquidity-widgets/src/schema/index.ts#L21-L39) | Required
-chainId | network of selected pool | number | Required 
-connectedAccount | current network that user connected. if not connect, address should be undefined | { address?: string, chainId: number } | Required
-onClose | action when user close the widget | () => void | Required
-onConnectWallet | action to trigger connect wallet | () => void | Required 
-onSwitchChain | action to trigger switch chain if network of the pool is different with network from connected account | () => void | Required
-onSubmitTx | trigger submit transaction (approval or zap). Should return the tx hash | (txData: {from: string, to: string, value: string, data: string, gasLimit: string}) => Promise<string> | Required
-initDepositTokens | init tokens in to zap, list of address separate by "," | string | 
-initAmounts | init amounts of tokens in, list of amount separate by "," | string | 
-source | To identify the dapp that integrating with liquidity widget | string | 
+```tsx
+import { ChainId, LiquidityWidget, PoolType } from '@kyberswap/liquidity-widgets';
+import '@kyberswap/liquidity-widgets/dist/style.css';
 
+export default function Example() {
+  // Provide these from your wallet/context (e.g. wagmi, web3-react, rainbowkit)
+  const connectedAccount = { address: '0xYourAddress', chainId: ChainId.MAINNET };
 
-## Migrate from version 0.0.16 to 1.x.x 
-### Deprecated 
-Property | Description | Type | Default Value
---- | --- | --- | --- |
-<s>provider</s> | <s>Web3Provider to interact with blockchain</s> |  [Web3Provider](https://docs.ethers.org/v5/api/providers/) | undefined 
-<s>onTxSubmit</s> | <s>Callback function when tx was submitted</s> | (txHash: string) => void |
-### New 
-Property | Description | Type | Default Value
---- | --- | --- | --- |
-connectedAccount | Info of current account that user connect to your website | { address?: string, chainId: number } |  
-onTxSubmit | Function that trigger tx | (txData: {from: string, to: string, value: string, data: string, gasLimit: string}) => Promise<string>  |
+  const sendTx = async (txData: {
+    from: string;
+    to: string;
+    value: string;
+    data: string;
+    gasLimit: string;
+  }): Promise<string> => {
+    // Submit the transaction with your wallet/provider and return the tx hash
+    return '0xTransactionHash';
+  };
+
+  return (
+    <div style={{ width: 840, height: 720 }}>
+      <LiquidityWidget
+        chainId={ChainId.MAINNET}
+        poolType={PoolType.DEX_UNISWAPV3}
+        poolAddress={'0xPoolAddress'}
+        // Optional: pass to increase liquidity on an existing position
+        positionId={'12345'}
+        connectedAccount={connectedAccount}
+        source="my-dapp"
+        onConnectWallet={() => {
+          /* open your wallet modal */
+        }}
+        onSwitchChain={() => {
+          /* switch network in your app */
+        }}
+        onSubmitTx={sendTx}
+        onClose={() => {
+          /* close modal */
+        }}
+      />
+    </div>
+  );
+}
+```
+
+For a more detailed example, refer to the demo in the widgets repo.
+
+### Props
+
+| Property           | Description                                                                                    | Type                                                                                                       | Required / Default |
+| ------------------ | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | ------------------ |
+| chainId            | Network for the add-liquidity workflow                                                         | `ChainId` \| `number`                                                                                      | Required           |
+| poolType           | Protocol/pool type                                                                             | `PoolType`                                                                                                 | Required           |
+| poolAddress        | Pool address                                                                                   | `string`                                                                                                   | Required           |
+| positionId         | Existing position to increase liquidity into                                                   | `string`                                                                                                   | Optional           |
+| connectedAccount   | Current connected account info                                                                 | `{ address?: string; chainId: number }`                                                                    | Required           |
+| source             | Identifier for your integration (used for attribution/analytics)                               | `string`                                                                                                   | Required           |
+| aggregatorOptions  | Restrict/allow specific liquidity sources for routes                                           | `{ includedSources?: string[]; excludedSources?: string[] }`                                               | Optional           |
+| feeConfig          | Integration fee in per cent mille. `1` = 0.001% (1 in 100,000). Ignored if no `feeAddress`     | `{ feePcm: number; feeAddress: string }`                                                                   | Optional           |
+| referral           | Referral code (if any)                                                                         | `string`                                                                                                   | Optional           |
+| initialTick        | Initial tick range when creating a new position                                                | `{ tickLower: number; tickUpper: number }`                                                                 | Optional           |
+| initDepositTokens  | Initial deposit token addresses, separated by commas                                           | `string`                                                                                                   | Optional           |
+| initAmounts        | Initial deposit amounts for tokens, separated by commas                                        | `string`                                                                                                   | Optional           |
+| theme              | Optional theme tokens to override widget styles (CSS variables)                                | `Theme`                                                                                                    | Optional           |
+| onConnectWallet    | Trigger your wallet connect flow                                                               | `() => void`                                                                                               | Required           |
+| onSwitchChain      | Trigger your chain switch flow                                                                 | `() => void`                                                                                               | Required           |
+| onOpenZapMigration | Trigger opening the Zap Migration widget (if you implement it in host app)                     | `(position, initialTick?, initialSlippage?) => void`                                                       | Optional           |
+| onSubmitTx         | Submit the provided transaction object and return the tx hash. A `gasLimit` value is provided. | `(txData: { from: string; to: string; value: string; data: string; gasLimit: string }) => Promise<string>` | Required           |
+| onSuccess          | Called after success with tx hash and position info                                            | `({ txHash, position }: OnSuccessProps) => void`                                                           | Optional           |
+| onViewPosition     | Called after success with tx hash                                                              | `(txHash: string) => void`                                                                                 | Optional           |
+| onClose            | Called when the widget is closed                                                               | `() => void`                                                                                               | Optional           |
+
+Notes:
+
+- Included/Excluded sources use KyberSwap Aggregator DEX IDs. See: https://docs.kyberswap.com/kyberswap-solutions/kyberswap-aggregator/dex-ids
+- `PoolType` enumerates supported protocols (e.g. Uniswap V3, PancakeSwap V3, Sushi V3, Algebra forks, Uniswap V2, Uniswap V4, etc.). Import it from this package and pick the one matching your pools.
+
+### Styling
+
+- You must import the stylesheet once in your app: `@kyberswap/liquidity-widgets/dist/style.css`.
+- You can override the theme via the `theme` prop (CSS variables under the `--ks-lw-*` namespace). Example keys include `text`, `subText`, `icons`, `layer1`, `dialog`, `layer2`, `stroke`, `chartRange`, `chartArea`, `accent`, `warning`, `error`, `success`, `blue`, `fontFamily`, `borderRadius`, `buttonRadius`, `boxShadow`.

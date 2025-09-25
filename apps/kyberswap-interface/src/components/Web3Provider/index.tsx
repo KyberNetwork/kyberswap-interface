@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { watchChainId } from '@wagmi/core'
+import { porto } from 'porto/wagmi'
 import { ReactNode, useEffect, useMemo } from 'react'
 import { createClient, defineChain, http } from 'viem'
 import {
@@ -73,6 +74,7 @@ export const CONNECTION = {
   METAMASK_RDNS: 'io.metamask',
   //UNISWAP_EXTENSION_RDNS: 'org.uniswap.app',
   SAFE_CONNECTOR_ID: 'safe',
+  PORTO: 'xyz.ithaca.porto',
 } as const
 
 export const CONNECTOR_ICON_OVERRIDE_MAP: { [id in string]?: string } = {
@@ -81,6 +83,8 @@ export const CONNECTOR_ICON_OVERRIDE_MAP: { [id in string]?: string } = {
   [CONNECTION.WALLET_CONNECT_CONNECTOR_ID]: WALLET_CONNECT_ICON,
   [CONNECTION.SAFE_CONNECTOR_ID]: SAFE_ICON,
 }
+
+export const SMART_WALLETS = [CONNECTION.PORTO, CONNECTION.SAFE_CONNECTOR_ID]
 
 type ConnectorID = (typeof CONNECTION)[keyof typeof CONNECTION]
 
@@ -245,6 +249,7 @@ export const wagmiConfig = createConfig({
       reloadOnDisconnect: false,
       enableMobileWalletLink: true,
     }),
+    porto(),
     safe(),
     ...HardCodedConnectors.map(connector => createPriorityConnector(connector)),
   ],

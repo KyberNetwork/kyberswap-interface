@@ -319,6 +319,10 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
     }
   }, [allTransactions, refetchRewardInfo, txHash])
 
+  useEffect(() => {
+    if (!rewardInfo?.chains.length) setOpenClaimAllModal(false)
+  }, [rewardInfo?.chains.length])
+
   const claimModal =
     openClaimModal && claimInfo ? (
       <>

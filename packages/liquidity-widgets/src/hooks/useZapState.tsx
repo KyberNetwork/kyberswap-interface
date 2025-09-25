@@ -15,14 +15,12 @@ import { parseTokensAndAmounts, validateData } from '@/utils';
 
 interface UiState {
   showSetting: boolean;
-  slippageOpen: boolean;
   highlightDegenMode: boolean;
   degenMode: boolean;
 }
 
 const defaultUiState = {
   showSetting: false,
-  slippageOpen: false,
   highlightDegenMode: false,
   degenMode: false,
 };
