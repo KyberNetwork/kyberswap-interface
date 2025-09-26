@@ -164,7 +164,7 @@ export class KyberSwapAdapter extends BaseSwapAdapter {
 
     return {
       txHash: params.id,
-      status: !receipt.status ? 'Processing' : receipt?.status === 'success' ? 'Success' : 'Failed',
+      status: !receipt?.status ? 'Processing' : receipt?.status === 'success' ? 'Success' : 'Failed',
     }
   }
 }
