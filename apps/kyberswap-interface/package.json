@@ -169,7 +169,7 @@
     "ua-parser-js": "^1.0.33",
     "util": "^0.12.5",
     "uuid": "^11.1.0",
-    "viem": "^2.23.7",
+    "viem": "^2.37.8",
     "vite-plugin-env-compatible": "^1.1.1",
     "wagmi": "^2.14.11",
     "walktour": "^5.2.0",
