@@ -6,7 +6,7 @@ import { PoolQueryParams } from 'services/zapEarn'
 import { useActiveWeb3React } from 'hooks'
 import { SortBy } from 'pages/Earns/PoolExplorer'
 import { FilterTag, timings } from 'pages/Earns/PoolExplorer/Filter'
-import { FARMING_SUPPORTED_CHAIN, earnSupportedChains } from 'pages/Earns/constants'
+import { EarnChain, FARMING_SUPPORTED_CHAINS, earnSupportedChains } from 'pages/Earns/constants'
 import { Direction } from 'pages/MarketOverview/SortIcon'
 
 export default function useFilter(setSearch?: (search: string) => void) {
@@ -19,7 +19,7 @@ export default function useFilter(setSearch?: (search: string) => void) {
       chainId: +(
         searchParams.get('chainId') ||
         (searchParams.get('tag') === FilterTag.FARMING_POOL
-          ? FARMING_SUPPORTED_CHAIN.find(chain => chain === defaultChainId)
+          ? FARMING_SUPPORTED_CHAINS[defaultChainId as unknown as EarnChain]
             ? defaultChainId
             : ChainId.MAINNET
           : defaultChainId)
@@ -51,7 +51,7 @@ export default function useFilter(setSearch?: (search: string) => void) {
             searchParams.set('sortBy', SortBy.APR)
             searchParams.set('orderBy', Direction.DESC)
           } else if (value === FilterTag.FARMING_POOL) {
-            if (FARMING_SUPPORTED_CHAIN.find(chain => chain === chainId))
+            if (FARMING_SUPPORTED_CHAINS[chainId as unknown as EarnChain])
               searchParams.set('chainId', chainId.toString())
             else searchParams.set('chainId', ChainId.MAINNET.toString())
             searchParams.delete('protocol')

@@ -279,7 +279,16 @@ export const DEXES_WITH_VERSION: Record<EarnDex, boolean> = {
   [EarnDex.DEX_KODIAK_V3]: false,
 }
 
-export const FARMING_SUPPORTED_CHAIN = [ChainId.MAINNET, ChainId.BASE]
+export const FARMING_SUPPORTED_CHAINS: Record<EarnChain, boolean> = {
+  [EarnChain.MAINNET]: true,
+  [EarnChain.BASE]: true,
+  [EarnChain.BSC]: true,
+  [EarnChain.ARBITRUM]: false,
+  [EarnChain.AVAX]: false,
+  [EarnChain.OPTIMISM]: false,
+  [EarnChain.MATIC]: false,
+  [EarnChain.BERA]: false,
+}
 
 export const POSSIBLE_FARMING_PROTOCOLS = [Exchange.DEX_UNISWAP_V4_FAIRFLOW]
 
