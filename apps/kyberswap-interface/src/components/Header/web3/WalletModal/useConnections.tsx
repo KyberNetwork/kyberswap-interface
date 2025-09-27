@@ -76,7 +76,11 @@ export function useOrderedConnections(): InjectableConnector[] {
     }
 
     // Special-case: Only display the injected connector for in-wallet browsers.
-    if (isMobile && injectedConnectorsWithoutHardcoded.length === 1) {
+    if (
+      isMobile &&
+      injectedConnectorsWithoutHardcoded.length === 1 &&
+      injectedConnectorsWithoutHardcoded[0].id !== CONNECTION.PORTO
+    ) {
       return injectedConnectorsWithoutHardcoded
     }
 
