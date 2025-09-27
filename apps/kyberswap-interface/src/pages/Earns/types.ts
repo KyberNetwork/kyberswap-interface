@@ -16,6 +16,13 @@ export enum ProgramType {
   LM = 'lm',
 }
 
+export interface SmartExitFilter {
+  chainIds?: string
+  status?: string
+  protocols?: string
+  page: number
+}
+
 export interface PositionFilter {
   chainIds?: string
   positionId?: string
