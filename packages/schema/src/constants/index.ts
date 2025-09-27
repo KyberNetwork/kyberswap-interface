@@ -34,8 +34,8 @@ export const API_URLS = {
   // ZAP_API: 'https://pre-zap-api.kyberengineering.io',
   COINGECKO_API_URL: 'https://api.coingecko.com/api/v3',
   GO_PLUS_API: 'https://api.gopluslabs.io/api/v1/token_security',
-  ZAP_EARN_API: 'https://zap-earn-service-v3.kyberengineering.io/api',
-  // ZAP_EARN_API: 'https://pre-zap-earn-service.kyberengineering.io/api',
+  // ZAP_EARN_API: 'https://zap-earn-service-v3.kyberengineering.io/api',
+  ZAP_EARN_API: 'https://pre-zap-earn-service.kyberengineering.io/api',
   TOKEN_API: 'https://token-api.kyberengineering.io/api',
   DOCUMENT: {
     ZAP_FEE_MODEL: 'https://docs.kyberswap.com/kyberswap-solutions/kyberswap-zap-as-a-service/zap-fee-model',
@@ -45,6 +45,8 @@ export const API_URLS = {
 export const dexMapping: Record<PoolType, string[]> = {
   [PoolType.DEX_UNISWAP_V4]: ['uniswap-v4'],
   [PoolType.DEX_UNISWAP_V4_FAIRFLOW]: ['uniswap-v4-fairflow'],
+  [PoolType.DEX_PANCAKE_INFINITY_CL]: ['pancake-infinity-cl'],
+  [PoolType.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: ['pancake-infinity-cl-fairflow'],
 
   [PoolType.DEX_UNISWAPV3]: ['uniswapv3'],
   [PoolType.DEX_PANCAKESWAPV3]: ['pancake-v3'],

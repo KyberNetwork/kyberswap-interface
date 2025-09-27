@@ -5,6 +5,7 @@ import kodiakv3 from '@/constants/dexes/kodiakv3';
 import koicl from '@/constants/dexes/koicl';
 import linehubv3 from '@/constants/dexes/linehubv3';
 import metavaultv3 from '@/constants/dexes/metavaultv3';
+import pancakeInfinityCl from '@/constants/dexes/pancake-infinity-cl';
 import pancakeswapv2 from '@/constants/dexes/pancakeswapv2';
 import pancakeswapv3 from '@/constants/dexes/pancakeswapv3';
 import pangolinstandard from '@/constants/dexes/pangolinstandard';
@@ -29,6 +30,11 @@ export const DEXES_INFO: Record<PoolType, DexInfo> = {
   [PoolType.DEX_UNISWAP_V4_FAIRFLOW]: {
     ...uniswapv4,
     name: 'Uniswap V4 FairFlow',
+  },
+  [PoolType.DEX_PANCAKE_INFINITY_CL]: pancakeInfinityCl,
+  [PoolType.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: {
+    ...pancakeInfinityCl,
+    name: 'Pancake Infinity CL FairFlow',
   },
   [PoolType.DEX_UNISWAPV3]: uniswapv3,
   [PoolType.DEX_PANCAKESWAPV3]: pancakeswapv3,

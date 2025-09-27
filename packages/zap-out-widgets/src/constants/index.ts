@@ -5,6 +5,7 @@ import kodiakv3 from '@/constants/dexes/kodiakv3';
 import koicl from '@/constants/dexes/koicl';
 import linehubv3 from '@/constants/dexes/linehubv3';
 import metavaultv3 from '@/constants/dexes/metavaultv3';
+import pancakeInfinityCl from '@/constants/dexes/pancake-infinity-cl';
 import pancakeswapv2 from '@/constants/dexes/pancakeswapv2';
 import pancakeswapv3 from '@/constants/dexes/pancakeswapv3';
 import pangolinstandard from '@/constants/dexes/pangolinstandard';
@@ -67,6 +68,11 @@ export const DEXES_INFO: Record<PoolType, DexInfo> = {
     ...uniswapv4,
     name: 'Uniswap V4 FairFlow',
   },
+  [PoolType.DEX_PANCAKE_INFINITY_CL]: pancakeInfinityCl,
+  [PoolType.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: {
+    ...pancakeInfinityCl,
+    name: 'Pancake Infinity CL FairFlow',
+  },
   [PoolType.DEX_UNISWAPV3]: uniswapv3,
   [PoolType.DEX_PANCAKESWAPV3]: pancakeswapv3,
   [PoolType.DEX_METAVAULTV3]: metavaultv3,
@@ -124,6 +130,8 @@ export const CHAIN_ID_TO_CHAIN: { [chainId in ChainId]: string } = {
 export const poolTypeToDexId: { [poolType in PoolType]: number } = {
   DEX_UNISWAP_V4: 68,
   DEX_UNISWAP_V4_FAIRFLOW: 73,
+  DEX_PANCAKE_INFINITY_CL: 75,
+  DEX_PANCAKE_INFINITY_CL_FAIRFLOW: 74,
 
   DEX_UNISWAPV3: 2,
   DEX_PANCAKESWAPV3: 3,
@@ -159,7 +167,7 @@ export const PATHS = {
   // ZAP_API: 'https://pre-zap-api.kyberengineering.io',
   COINGECKO_API_URL: 'https://api.coingecko.com/api/v3',
   GO_PLUS_API: 'https://api.gopluslabs.io/api/v1/token_security',
-  ZAP_EARN_API: 'https://zap-earn-service-v3.kyberengineering.io/api',
-  // ZAP_EARN_API: 'https://pre-zap-earn-service.kyberengineering.io/api',
+  // ZAP_EARN_API: 'https://zap-earn-service-v3.kyberengineering.io/api',
+  ZAP_EARN_API: 'https://pre-zap-earn-service.kyberengineering.io/api',
   TOKEN_API: 'https://token-api.kyberengineering.io/api',
 };
