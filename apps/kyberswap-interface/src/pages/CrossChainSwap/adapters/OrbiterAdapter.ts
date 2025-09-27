@@ -244,7 +244,7 @@ export class OrbiterAdapter extends BaseSwapAdapter {
       const receipt = await publicClient?.getTransactionReceipt({
         hash: p.id as `0x${string}`,
       })
-      if (receipt.status === 'reverted') {
+      if (receipt?.status === 'reverted') {
         return {
           txHash: '',
           status: 'Failed',

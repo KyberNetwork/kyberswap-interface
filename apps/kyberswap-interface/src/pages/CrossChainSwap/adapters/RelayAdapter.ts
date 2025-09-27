@@ -1,4 +1,4 @@
-import { Currency } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import {
   MAINNET_RELAY_API,
   RelayChain,
@@ -20,6 +20,7 @@ import {
   mainnet,
   mantle,
   optimism,
+  plasma,
   polygon,
   ronin,
   scroll,
@@ -30,7 +31,6 @@ import {
 
 import { hyperevm, wagmiConfig } from 'components/Web3Provider'
 import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
-import { MAINNET_NETWORKS } from 'constants/networks'
 import { SolanaToken } from 'state/crossChainSwap'
 
 import { Quote } from '../registry'
@@ -79,6 +79,7 @@ export class RelayAdapter extends BaseSwapAdapter {
         ronin,
         unichain,
         hyperevm,
+        plasma,
       ]
         .map(convertViemChainToRelayChain)
         .concat(solanaChain as any),
@@ -92,7 +93,28 @@ export class RelayAdapter extends BaseSwapAdapter {
     return 'https://storage.googleapis.com/ks-setting-1d682dca/84e906bb-eaeb-45d3-a64c-2aa9c84eb3ea1747759080942.png'
   }
   getSupportedChains(): Chain[] {
-    return [NonEvmChain.Solana, ...MAINNET_NETWORKS]
+    return [
+      NonEvmChain.Solana,
+      ChainId.ARBITRUM,
+      ChainId.AVAXMAINNET,
+      ChainId.BASE,
+      ChainId.BERA,
+      ChainId.BLAST,
+      ChainId.BSCMAINNET,
+      ChainId.FANTOM,
+      ChainId.LINEA,
+      ChainId.MAINNET,
+      ChainId.MANTLE,
+      ChainId.OPTIMISM,
+      ChainId.MATIC,
+      ChainId.SCROLL,
+      ChainId.SONIC,
+      ChainId.ZKSYNC,
+      ChainId.RONIN,
+      ChainId.UNICHAIN,
+      ChainId.HYPEREVM,
+      ChainId.PLASMA,
+    ]
   }
 
   getSupportedTokens(_sourceChain: Chain, _destChain: Chain): Currency[] {
@@ -201,7 +223,7 @@ export class RelayAdapter extends BaseSwapAdapter {
     const receipt = await publicClient?.getTransactionReceipt({
       hash: p.sourceTxHash as `0x${string}`,
     })
-    if (receipt.status === 'reverted') {
+    if (receipt?.status === 'reverted') {
       return {
         txHash: '',
         status: 'Failed',
