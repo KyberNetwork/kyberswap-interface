@@ -76,8 +76,12 @@ export function useOrderedConnections(): InjectableConnector[] {
     }
 
     // Special-case: Only display the injected connector for in-wallet browsers.
-    if (isMobile && injectedConnectorsWithoutHardcoded.length === 1) {
-      return injectedConnectorsWithoutHardcoded
+    if (
+      isMobile &&
+      injectedConnectorsWithoutHardcoded.length === 2 &&
+      injectedConnectorsWithoutHardcoded.some(c => c.id === CONNECTION.PORTO)
+    ) {
+      return injectedConnectorsWithoutHardcoded.filter(c => c.id !== CONNECTION.PORTO)
     }
 
     // Special-case: Only display the Coinbase connector in the Coinbase Wallet.
