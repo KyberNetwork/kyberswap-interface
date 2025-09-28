@@ -167,6 +167,10 @@ const PoolExplorer = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  useEffect(() => {
+    console.log('test prod')
+  }, [])
+
   return (
     <PoolPageWrapper>
       {zapInWidget}
