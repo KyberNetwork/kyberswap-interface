@@ -71,7 +71,7 @@ export const DEXES_INFO: Record<PoolType, DexInfo> = {
   [PoolType.DEX_PANCAKE_INFINITY_CL]: pancakeInfinityCl,
   [PoolType.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: {
     ...pancakeInfinityCl,
-    name: 'Pancake Infinity CL FairFlow',
+    name: 'Pancake ∞ CL FairFlow',
   },
   [PoolType.DEX_UNISWAPV3]: uniswapv3,
   [PoolType.DEX_PANCAKESWAPV3]: pancakeswapv3,
