@@ -13,6 +13,8 @@ export enum EarnDex {
   DEX_THENAFUSION = 'THENA',
   DEX_KODIAK_V3 = 'Kodiak Concentrated',
   DEX_UNISWAPV2 = 'Uniswap V2',
+  DEX_PANCAKE_INFINITY_CL = 'Pancake ∞ CL',
+  DEX_PANCAKE_INFINITY_CL_FAIRFLOW = 'Pancake ∞ CL FairFlow',
 }
 
 export enum Exchange {
@@ -26,6 +28,8 @@ export enum Exchange {
   DEX_THENAFUSION = 'thena-fusion',
   DEX_KODIAK_V3 = 'kodiakcl',
   DEX_UNISWAPV2 = 'uniswapv2',
+  DEX_PANCAKE_INFINITY_CL = 'pancake-infinity-cl',
+  DEX_PANCAKE_INFINITY_CL_FAIRFLOW = 'pancake-infinity-cl-fairflow',
 }
 
 export enum EarnChain {
