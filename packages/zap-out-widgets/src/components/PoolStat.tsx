@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react';
 
+import { API_URLS, PoolType, univ2Types } from '@kyber/schema';
 import { MouseoverTooltip, Skeleton } from '@kyber/ui';
 import { formatAprNumber, formatDisplayNumber } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
 import FarmingIcon from '@/assets/svg/kem.svg';
-import { PATHS } from '@/constants';
-import { PoolType, Univ2PoolType } from '@/schema';
 import { useZapOutContext } from '@/stores';
 
 interface PoolInfo {
@@ -33,11 +32,11 @@ export default function PoolStat({
   const { position, pool } = useZapOutContext(s => s);
   const [poolInfo, setPoolInfo] = useState<PoolInfo | null>(null);
 
-  const initializing = pool === 'loading';
+  const initializing = !pool;
 
-  const isUniv2 = Univ2PoolType.safeParse(poolType).success;
+  const isUniV2 = univ2Types.includes(poolType as any);
   const poolShare =
-    position === 'loading' || !isUniv2 || !('totalSupply' in position)
+    !position || !isUniV2 || !('totalSupply' in position)
       ? null
       : Number((BigInt(position.liquidity) * 10000n) / BigInt(position.totalSupply)) / 100;
 
@@ -47,7 +46,7 @@ export default function PoolStat({
 
   useEffect(() => {
     const handleFetchPoolInfo = () => {
-      fetch(`${PATHS.ZAP_EARN_API}/v1/pools?chainId=${chainId}&address=${poolAddress}&protocol=${poolType}`)
+      fetch(`${API_URLS.ZAP_EARN_API}/v1/pools?chainId=${chainId}&address=${poolAddress}&protocol=${poolType}`)
         .then(res => res.json())
         .then(data => {
           const poolStatInfo = data?.data?.poolStats;
@@ -149,7 +148,7 @@ export default function PoolStat({
           )}
         </div>
       </div>
-      {isUniv2 && !!positionId && (
+      {isUniV2 && !!positionId && (
         <div className="flex justify-between items-start gap-1 mt-3 border-t border-stroke pt-2">
           <span>Pool Share</span>
           <span className="text-text">

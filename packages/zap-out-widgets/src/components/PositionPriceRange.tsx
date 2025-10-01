@@ -1,13 +1,13 @@
+import { univ3PoolNormalize, univ3Position } from '@kyber/schema';
 import { Skeleton } from '@kyber/ui';
 import { formatDisplayNumber } from '@kyber/utils/number';
 import { tickToPrice } from '@kyber/utils/uniswapv3';
 
-import { Univ3PoolType, univ3PoolNormalize, univ3Position } from '@/schema';
 import { useZapOutContext } from '@/stores';
 import { useZapOutUserState } from '@/stores/state';
 
 export function PositionPriceRange() {
-  const { position, pool, poolType } = useZapOutContext(s => s);
+  const { position, pool } = useZapOutContext(s => s);
 
   const { revertPrice } = useZapOutUserState();
 
@@ -15,11 +15,10 @@ export function PositionPriceRange() {
 
   const { success: isUniv3Pool, data: univ3Pool } = univ3PoolNormalize.safeParse(pool);
 
-  const isUniV3PoolType = Univ3PoolType.safeParse(poolType).success;
   const isUniV3 = isUniv3 && isUniv3Pool;
-  if (!isUniV3PoolType) return null;
+  if (!isUniV3) return null;
 
-  const initializing = pool === 'loading' || position === 'loading' || !univ3Pool || !univ3Pos;
+  const initializing = !pool || !position || !univ3Pool || !univ3Pos;
 
   const minPrice =
     isUniV3 && !initializing

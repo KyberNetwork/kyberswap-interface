@@ -1,5 +1,6 @@
 import { ReactNode, useEffect, useMemo } from 'react';
 
+import { ChainId, PoolType, Theme, defaultTheme } from '@kyber/schema';
 import '@kyber/ui/styles.css';
 
 import { Action } from '@/components/Action';
@@ -14,9 +15,7 @@ import { Preview } from '@/components/Preview';
 import { ZapSummary } from '@/components/ZapSummary';
 import { ZapTo } from '@/components/ZapTo';
 import { TokenListProvider } from '@/hooks/useTokenList';
-import { ChainId, PoolType } from '@/schema';
 import { ZapOutProps, ZapOutProvider, useZapOutContext } from '@/stores';
-import { Theme, defaultTheme } from '@/theme';
 
 import './Widget.scss';
 import './globals.css';

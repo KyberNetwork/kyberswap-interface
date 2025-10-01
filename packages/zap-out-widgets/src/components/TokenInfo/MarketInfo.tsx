@@ -1,5 +1,8 @@
 import { useMemo, useState } from 'react';
 
+import { useCopy } from '@kyber/hooks';
+import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO } from '@kyber/schema';
+import { Token } from '@kyber/schema';
 import { TokenLogo } from '@kyber/ui';
 
 import LogoCoingecko from '@/assets/svg/coingecko.svg';
@@ -8,9 +11,6 @@ import IconZiczac from '@/assets/svg/ziczac.svg';
 import Loader from '@/components/Loader';
 import useMarketTokenInfo from '@/components/TokenInfo/useMarketTokenInfo';
 import { shortenAddress } from '@/components/TokenInfo/utils';
-import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO } from '@/constants';
-import useCopy from '@/hooks/useCopy';
-import { Token } from '@/schema';
 import { useZapOutContext } from '@/stores';
 
 const MarketInfo = ({ token }: { token: Token }) => {

@@ -1,6 +1,17 @@
 import { useEffect, useState } from 'react';
 
+import {
+  ChainId,
+  NETWORKS_INFO,
+  RefundAction,
+  RemoveLiquidityAction,
+  UniV2Position,
+  UniV3Position,
+  univ2PoolNormalize,
+  univ3PoolNormalize,
+} from '@kyber/schema';
 import { Skeleton, TokenLogo } from '@kyber/ui';
+import { assertUnreachable } from '@kyber/utils';
 import { formatDisplayNumber, formatTokenAmount, toRawString } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
 import { getPositionAmounts } from '@kyber/utils/uniswapv3';
@@ -11,17 +22,15 @@ import HandIcon from '@/assets/svg/hand.svg';
 import ZapIcon from '@/assets/svg/zapout.svg';
 import { LiquidityToRemove } from '@/components/LiquidityToRemove';
 import TokenSelectorModal from '@/components/TokenSelector/TokenSelectorModal';
-import { NETWORKS_INFO } from '@/constants';
 import useSlippageManager from '@/hooks/useSlippageManager';
-import { ChainId, UniV2Position, UniV3Position, univ2PoolNormalize, univ3PoolNormalize } from '@/schema';
 import { useZapOutContext } from '@/stores';
-import { RefundAction, RemoveLiquidityAction, useZapOutUserState } from '@/stores/state';
-import { assertUnreachable, sameToken } from '@/utils';
+import { useZapOutUserState } from '@/stores/state';
+import { sameToken } from '@/utils';
 
 export function ZapTo({ chainId }: { chainId: ChainId }) {
   const { theme, position, pool, poolType } = useZapOutContext(s => s);
 
-  const loading = position === 'loading' || pool === 'loading';
+  const loading = !position || !pool;
   const [showTokenSelect, setShowTokenSelect] = useState(false);
 
   const { liquidityOut, tokenOut, setTokenOut, route, mode, setMode, fetchingRoute } = useZapOutUserState();
@@ -39,11 +48,11 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
   const { tokens } = actionRemoveLiq?.removeLiquidity || {};
 
   const token0 =
-    pool !== 'loading' &&
+    pool !== null &&
     tokens?.find(f => sameToken(f.address, pool.token0.address, NETWORKS_INFO[chainId].wrappedToken.address));
 
   const token1 =
-    pool !== 'loading' &&
+    pool !== null &&
     tokens?.find(f => sameToken(f.address, pool.token1.address, NETWORKS_INFO[chainId].wrappedToken.address));
 
   const withdrawAmount0 = BigInt(token0 ? token0.amount : 0);
@@ -71,7 +80,7 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
   }
 
   useEffect(() => {
-    if (!tokenOut && pool !== 'loading' && (!!amount0 || !!amount1)) {
+    if (!tokenOut && pool !== null && (!!amount0 || !!amount1)) {
       const usdValue0 = (pool.token0.price || 0) * Number(toRawString(amount0, pool.token0.decimals));
       const usdValue1 = (pool.token1.price || 0) * Number(toRawString(amount1, pool.token1.decimals));
       setTokenOut(usdValue1 > usdValue0 ? pool.token1 : pool.token0);

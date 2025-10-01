@@ -1,7 +1,8 @@
+import { PI_LEVEL } from '@kyber/utils';
+
 import { useSwapPI } from '@/components/SwapImpact';
 import { useZapOutContext } from '@/stores';
 import { useZapOutUserState } from '@/stores/state';
-import { PI_LEVEL } from '@/utils';
 
 export const WarningMsg = () => {
   const { theme } = useZapOutContext(s => s);

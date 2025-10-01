@@ -1,11 +1,11 @@
 import { useRef } from 'react';
 
+import { RemoveLiquidityAction, univ2PoolNormalize } from '@kyber/schema';
 import { Skeleton } from '@kyber/ui';
 import { formatDisplayNumber, formatTokenAmount, toRawString } from '@kyber/utils/number';
 
-import { univ2PoolNormalize } from '@/schema';
 import { useZapOutContext } from '@/stores';
-import { RemoveLiquidityAction, useZapOutUserState } from '@/stores/state';
+import { useZapOutUserState } from '@/stores/state';
 
 export const PoolFee = () => {
   const { route } = useZapOutUserState();
@@ -18,8 +18,8 @@ export const PoolFee = () => {
 
   const { fees } = actionRemoveLiq?.removeLiquidity || {};
 
-  const fee0 = pool !== 'loading' && fees?.find(f => f.address.toLowerCase() === pool.token0.address.toLowerCase());
-  const fee1 = pool !== 'loading' && fees?.find(f => f.address.toLowerCase() === pool.token1.address.toLowerCase());
+  const fee0 = pool !== null && fees?.find(f => f.address.toLowerCase() === pool.token0.address.toLowerCase());
+  const fee1 = pool !== null && fees?.find(f => f.address.toLowerCase() === pool.token1.address.toLowerCase());
 
   const feeAmount0 = BigInt(fee0 ? fee0.amount : 0);
   const feeAmount1 = BigInt(fee1 ? fee1.amount : 0);
@@ -38,7 +38,7 @@ export const PoolFee = () => {
 
       <div className="flex flex-col gap-2">
         <div className="flex justify-end items-center gap-2">
-          {pool === 'loading' ? (
+          {!pool ? (
             <Skeleton className="h-5 w-20" />
           ) : (
             <>
@@ -55,7 +55,7 @@ export const PoolFee = () => {
           )}
         </div>
         <div className="flex justify-end items-center gap-2">
-          {pool === 'loading' ? (
+          {!pool ? (
             <Skeleton className="h-5 w-20" />
           ) : (
             <>

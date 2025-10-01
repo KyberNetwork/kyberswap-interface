@@ -1,19 +1,18 @@
 import { useMemo } from 'react';
 
+import { AggregatorSwapAction, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, PoolSwapAction } from '@kyber/schema';
 import { getZapImpact } from '@kyber/utils';
 import { formatUnits } from '@kyber/utils/crypto';
 
-import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO } from '@/constants';
-import { PoolSwapAction } from '@/hooks/types/zapInTypes';
 import { useZapOutContext } from '@/stores';
-import { AggregatorSwapAction, useZapOutUserState } from '@/stores/state';
+import { useZapOutUserState } from '@/stores/state';
 
 export const useSwapPI = () => {
   const { route, tokenOut } = useZapOutUserState();
   const { pool, chainId } = useZapOutContext(s => s);
 
   const tokensIn = useMemo(
-    () => (pool === 'loading' || !tokenOut ? [] : [pool.token0, pool.token1, pool.token0, pool.token1, tokenOut]),
+    () => (!pool || !tokenOut ? [] : [pool.token0, pool.token1, pool.token0, pool.token1, tokenOut]),
     [pool, tokenOut],
   );
 
@@ -26,7 +25,7 @@ export const useSwapPI = () => {
       item => item.type === 'ACTION_TYPE_POOL_SWAP',
     ) as PoolSwapAction | null;
 
-    if (pool === 'loading') return [];
+    if (!pool) return [];
 
     const tokens = [
       ...tokensIn,

@@ -1,8 +1,6 @@
-import { z } from 'zod';
 import { create } from 'zustand';
 
-import { CHAIN_ID_TO_CHAIN, PATHS, poolTypeToDexId } from '@/constants';
-import { ChainId, PoolType, Token } from '@/schema';
+import { API_URLS, CHAIN_ID_TO_CHAIN, ChainId, PoolType, Token, ZapRouteDetail } from '@kyber/schema';
 
 interface ZapOutUserState {
   ttl: number;
@@ -30,7 +28,7 @@ interface ZapOutUserState {
   togglePreview: () => void;
 
   fetchingRoute: boolean;
-  route: GetZapOutRouteResponse | null;
+  route: ZapRouteDetail | null;
   fetchZapOutRoute: (params: {
     chainId: ChainId;
     poolType: PoolType;
@@ -98,7 +96,7 @@ export const useZapOutUserState = create<ZapOutUserState>((set, get) => ({
 
     set({ fetchingRoute: true });
     const params: { [key: string]: string | number | boolean } = {
-      dexFrom: poolTypeToDexId[poolType],
+      dexFrom: poolType,
       'poolFrom.id': poolAddress,
       'positionFrom.id': positionId,
       liquidityOut: liquidityOut.toString(),
@@ -115,7 +113,7 @@ export const useZapOutUserState = create<ZapOutUserState>((set, get) => ({
     });
 
     try {
-      const res = await fetch(`${PATHS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/out/route?${search.slice(1)}`, {
+      const res = await fetch(`${API_URLS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/out/route?${search.slice(1)}`, {
         signal,
       }).then(res => res.json());
 
@@ -123,8 +121,7 @@ export const useZapOutUserState = create<ZapOutUserState>((set, get) => ({
         set({ route: null, fetchingRoute: false });
         return;
       }
-      apiResponse.parse(res.data);
-      set({ route: res.data, fetchingRoute: false });
+      set({ route: res.data as ZapRouteDetail, fetchingRoute: false });
     } catch (e) {
       if (signal?.aborted || (e as any)?.name === 'AbortError') {
         return;
@@ -134,94 +131,3 @@ export const useZapOutUserState = create<ZapOutUserState>((set, get) => ({
     }
   },
 }));
-
-const token = z.object({
-  address: z.string(),
-  amount: z.string(),
-  amountUsd: z.string(),
-});
-
-const removeLiquidityAction = z.object({
-  type: z.literal('ACTION_TYPE_REMOVE_LIQUIDITY'),
-  removeLiquidity: z.object({
-    tokens: z.array(token),
-    fees: z.array(token).optional(),
-  }),
-});
-
-export type RemoveLiquidityAction = z.infer<typeof removeLiquidityAction>;
-
-const aggregatorSwapAction = z.object({
-  type: z.literal('ACTION_TYPE_AGGREGATOR_SWAP'),
-  aggregatorSwap: z.object({
-    swaps: z.array(
-      z.object({
-        tokenIn: token,
-        tokenOut: token,
-      }),
-    ),
-  }),
-});
-
-export type AggregatorSwapAction = z.infer<typeof aggregatorSwapAction>;
-
-const refundAction = z.object({
-  type: z.literal('ACTION_TYPE_REFUND'),
-  refund: z.object({
-    tokens: z.array(token),
-  }),
-});
-
-export type RefundAction = z.infer<typeof refundAction>;
-
-const apiResponse = z.object({
-  gas: z.string(),
-  gasUsd: z.string(),
-  zapDetails: z.object({
-    finalAmountUsd: z.string(),
-    initialAmountUsd: z.string(),
-    priceImpact: z.number().nullable().optional(),
-    suggestedSlippage: z.number(),
-    actions: z.array(
-      z.discriminatedUnion('type', [
-        removeLiquidityAction,
-
-        aggregatorSwapAction,
-
-        z.object({
-          type: z.literal('ACTION_TYPE_POOL_SWAP'),
-          poolSwap: z.object({
-            swaps: z.array(
-              z.object({
-                tokenIn: token,
-                tokenOut: token,
-              }),
-            ),
-          }),
-        }),
-
-        refundAction,
-
-        z.object({
-          type: z.literal('ACTION_TYPE_PROTOCOL_FEE'),
-          protocolFee: z.object({
-            pcm: z.number(),
-            tokens: z.array(token).optional(),
-          }),
-        }),
-
-        //z.object({
-        //  type: z.literal("ACTION_TYPE_PARTNER_FEE"),
-        //  protocolFee: z.object({
-        //    pcm: z.number(),
-        //    tokens: z.array(token),
-        //  }),
-        //}),
-      ]),
-    ),
-  }),
-  route: z.string(),
-  routerAddress: z.string(),
-});
-
-export type GetZapOutRouteResponse = z.infer<typeof apiResponse>;

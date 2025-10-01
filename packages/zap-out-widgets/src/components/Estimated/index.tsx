@@ -1,16 +1,15 @@
 import { useEffect, useRef } from 'react';
 
 import { useDebounce } from '@kyber/hooks/use-debounce';
+import { ProtocolFeeAction, RefundAction, RemoveLiquidityAction, ZapAction } from '@kyber/schema';
 import { Skeleton, TokenLogo } from '@kyber/ui';
-import { getZapImpact } from '@kyber/utils';
-import { formatDisplayNumber, formatTokenAmount } from '@kyber/utils/number';
+import { PI_LEVEL, getZapImpact } from '@kyber/utils';
+import { formatCurrency, formatDisplayNumber, formatTokenAmount } from '@kyber/utils/number';
 
 import SlippageRow from '@/components/Estimated/SlippageRow';
 import { MouseoverTooltip } from '@/components/Tooltip';
-import { ProtocolFeeAction, ZapAction } from '@/hooks/types/zapInTypes';
 import { useZapOutContext } from '@/stores';
-import { RefundAction, RemoveLiquidityAction, useZapOutUserState } from '@/stores/state';
-import { PI_LEVEL, formatCurrency } from '@/utils';
+import { useZapOutUserState } from '@/stores/state';
 
 export default function Estimated() {
   const { chainId, positionId, poolAddress, poolType, pool, theme, position } = useZapOutContext(s => s);
@@ -89,13 +88,13 @@ export default function Estimated() {
 
   const { fees } = actionRemoveLiq?.removeLiquidity || {};
 
-  const fee0 = pool !== 'loading' && fees?.find(f => f.address.toLowerCase() === pool.token0.address.toLowerCase());
-  const fee1 = pool !== 'loading' && fees?.find(f => f.address.toLowerCase() === pool.token1.address.toLowerCase());
+  const fee0 = pool !== null && fees?.find(f => f.address.toLowerCase() === pool.token0.address.toLowerCase());
+  const fee1 = pool !== null && fees?.find(f => f.address.toLowerCase() === pool.token1.address.toLowerCase());
 
   const feeAmount0 = BigInt(fee0 ? fee0.amount : 0);
   const feeAmount1 = BigInt(fee1 ? fee1.amount : 0);
 
-  const loading = position === 'loading' || pool === 'loading' || fetchingRoute;
+  const loading = !position || !pool || fetchingRoute;
 
   return (
     <div className="rounded-lg border border-stroke px-4 py-3 text-sm">

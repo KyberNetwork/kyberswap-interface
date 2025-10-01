@@ -1,14 +1,14 @@
 import { useMemo } from 'react';
 
+import { univ2PoolNormalize, univ3PoolNormalize } from '@kyber/schema';
 import { Skeleton } from '@kyber/ui';
+import { assertUnreachable } from '@kyber/utils';
 import { divideBigIntToString, formatDisplayNumber } from '@kyber/utils/number';
 import { sqrtToPrice } from '@kyber/utils/uniswapv3';
 
 import RevertPriceIcon from '@/assets/svg/ic_revert_price.svg';
-import { univ2PoolNormalize, univ3PoolNormalize } from '@/schema';
 import { useZapOutContext } from '@/stores';
 import { useZapOutUserState } from '@/stores/state';
-import { assertUnreachable } from '@/utils';
 
 export function PoolPrice() {
   const { pool, poolType } = useZapOutContext(s => s);
@@ -16,7 +16,7 @@ export function PoolPrice() {
   const { revertPrice, toggleRevertPrice } = useZapOutUserState();
 
   const price = useMemo(() => {
-    if (pool === 'loading') return '--';
+    if (!pool) return '--';
     const { success, data } = univ3PoolNormalize.safeParse(pool);
     if (success) {
       return formatDisplayNumber(
@@ -43,7 +43,7 @@ export function PoolPrice() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pool, revertPrice]);
 
-  return pool === 'loading' || !price ? (
+  return !pool || !price ? (
     <Skeleton className="w-[200px] h-3.5" />
   ) : (
     <div className="rounded-lg flex items-center justify-between flex-wrap border border-stroke px-4 py-3 text-subText text-sm">

@@ -1,7 +1,17 @@
 import { useEffect, useState } from 'react';
 
+import {
+  API_URLS,
+  CHAIN_ID_TO_CHAIN,
+  NETWORKS_INFO,
+  ProtocolFeeAction,
+  RefundAction,
+  RemoveLiquidityAction,
+  ZapAction,
+  univ3Types,
+} from '@kyber/schema';
 import { ScrollArea, TokenLogo } from '@kyber/ui';
-import { fetchTokenPrice, friendlyError } from '@kyber/utils';
+import { PI_LEVEL, fetchTokenPrice, friendlyError } from '@kyber/utils';
 import {
   calculateGasMargin,
   estimateGas,
@@ -9,7 +19,7 @@ import {
   getCurrentGasPrice,
   isTransactionSuccessful,
 } from '@kyber/utils/crypto';
-import { formatDisplayNumber, formatTokenAmount } from '@kyber/utils/number';
+import { formatCurrency, formatDisplayNumber, formatTokenAmount } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
 import AlertIcon from '@/assets/svg/error.svg';
@@ -21,12 +31,8 @@ import { SlippageWarning } from '@/components/SlippageWarning';
 import { useSwapPI } from '@/components/SwapImpact';
 import { MouseoverTooltip } from '@/components/Tooltip';
 import { WarningMsg } from '@/components/WarningMsg';
-import { CHAIN_ID_TO_CHAIN, NETWORKS_INFO, PATHS } from '@/constants';
-import { ProtocolFeeAction, ZapAction } from '@/hooks/types/zapInTypes';
-import { Univ3PoolType } from '@/schema';
 import { useZapOutContext } from '@/stores';
-import { RefundAction, RemoveLiquidityAction, useZapOutUserState } from '@/stores/state';
-import { PI_LEVEL, formatCurrency } from '@/utils';
+import { useZapOutUserState } from '@/stores/state';
 
 export const Preview = () => {
   const {
@@ -44,7 +50,7 @@ export const Preview = () => {
   } = useZapOutContext(s => s);
 
   const { address: account } = connectedAccount;
-  const isUniV3 = Univ3PoolType.safeParse(poolType).success;
+  const isUniV3 = univ3Types.includes(poolType as any);
 
   const { showPreview, slippage, togglePreview, tokenOut, route, mode, setSlippage } = useZapOutUserState();
 
@@ -58,7 +64,7 @@ export const Preview = () => {
 
   useEffect(() => {
     if (!route?.route || !showPreview || !account) return;
-    fetch(`${PATHS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/out/route/build`, {
+    fetch(`${API_URLS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/out/route/build`, {
       method: 'POST',
       body: JSON.stringify({
         sender: account,
@@ -138,7 +144,7 @@ export const Preview = () => {
 
   const { zapPiRes } = useSwapPI();
 
-  if (pool === 'loading' || position === 'loading' || !tokenOut || !route) return null;
+  if (!pool || !position || !tokenOut || !route) return null;
 
   const actionRefund = route?.zapDetails.actions.find(item => item.type === 'ACTION_TYPE_REFUND') as
     | RefundAction

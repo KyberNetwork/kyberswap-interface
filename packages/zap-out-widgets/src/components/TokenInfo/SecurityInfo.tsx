@@ -1,5 +1,8 @@
 import { useMemo } from 'react';
 
+import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO } from '@kyber/schema';
+import { Token } from '@kyber/schema';
+
 import LogoGoPlus from '@/assets/svg/goplus.svg';
 import IconSecurityContract from '@/assets/svg/security-contract.svg';
 import IconSecurityTrading from '@/assets/svg/security-trading.svg';
@@ -7,8 +10,6 @@ import IconSecurity from '@/assets/svg/security.svg';
 import CollapseInfoItem from '@/components/TokenInfo/CollapseInfoItem';
 import useSecurityTokenInfo from '@/components/TokenInfo/useSecurityTokenInfo';
 import { MouseoverTooltip } from '@/components/Tooltip';
-import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO } from '@/constants';
-import { Token } from '@/schema';
 import { useZapOutContext } from '@/stores';
 
 const SecurityInfo = ({ token }: { token: Token }) => {

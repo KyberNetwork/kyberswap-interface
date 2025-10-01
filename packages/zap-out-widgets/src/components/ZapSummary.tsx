@@ -1,14 +1,21 @@
 import { useMemo, useState } from 'react';
 
+import {
+  AggregatorSwapAction,
+  DEXES_INFO,
+  NETWORKS_INFO,
+  PoolSwapAction,
+  RefundAction,
+  RemoveLiquidityAction,
+  Token,
+  ZapAction,
+} from '@kyber/schema';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@kyber/ui';
 import { formatUnits } from '@kyber/utils/crypto';
 import { formatDisplayNumber, formatTokenAmount } from '@kyber/utils/number';
 
-import { DEXES_INFO, NETWORKS_INFO } from '@/constants';
-import { PoolSwapAction, ZapAction } from '@/hooks/types/zapInTypes';
-import { Token } from '@/schema';
 import { useZapOutContext } from '@/stores';
-import { AggregatorSwapAction, RefundAction, RemoveLiquidityAction, useZapOutUserState } from '@/stores/state';
+import { useZapOutUserState } from '@/stores/state';
 
 export function ZapSummary() {
   const { pool, chainId, poolType } = useZapOutContext(s => s);
@@ -29,7 +36,7 @@ export function ZapSummary() {
 
   const { tokens, fees } = actionRemoveLiq?.removeLiquidity || {};
 
-  const poolTokens: Token[] = pool === 'loading' ? [] : [pool.token0, pool.token1];
+  const poolTokens: Token[] = !pool ? [] : [pool.token0, pool.token1];
 
   const token0 = poolTokens.find(item => item.address.toLowerCase() === tokens?.[0]?.address.toLowerCase());
   const token1 = poolTokens.find(item => item.address.toLowerCase() === tokens?.[1]?.address.toLowerCase());
@@ -69,7 +76,7 @@ export function ZapSummary() {
       item => item.type === ZapAction.POOL_SWAP,
     ) as PoolSwapAction | null;
 
-    if (pool === 'loading') return [];
+    if (!pool) return [];
     const tokens = [pool.token0, pool.token1, NETWORKS_INFO[chainId].wrappedToken];
     if (tokenOut) tokens.push(tokenOut);
 
