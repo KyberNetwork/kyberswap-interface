@@ -68,6 +68,7 @@ const UserPositions = () => {
       protocols: earnSupportedExchanges.join(','),
       q: filters.q,
       positionStatus: isFilterOnlyClosedPosition ? 'closed' : isFilterOnlyOpenPosition ? 'open' : 'all',
+      limit: 200,
     }
   }, [account, filters.q, filters.status])
 
