@@ -20,6 +20,7 @@ import PriceInput from '@/components/Content/PriceInput';
 import ZapSummary from '@/components/Content/ZapSummary';
 import Estimated from '@/components/Estimated';
 import Header from '@/components/Header';
+import LeftWarning from '@/components/LeftWarning';
 import LiquidityChart from '@/components/LiquidityChart';
 import LiquidityChartSkeleton from '@/components/LiquidityChart/LiquidityChartSkeleton';
 import Modal from '@/components/Modal';
@@ -231,6 +232,7 @@ export default function Widget() {
                 {addLiquiditySection}
               </>
             ) : null}
+            <LeftWarning />
           </div>
 
           <div className="w-[45%] max-sm:w-full">
