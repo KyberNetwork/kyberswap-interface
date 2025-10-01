@@ -2,12 +2,11 @@ import { useEffect, useRef } from 'react';
 
 import { useDebounce } from '@kyber/hooks/use-debounce';
 import { ProtocolFeeAction, RefundAction, RemoveLiquidityAction, ZapAction } from '@kyber/schema';
-import { Skeleton, TokenLogo } from '@kyber/ui';
+import { MouseoverTooltip, Skeleton, TokenLogo } from '@kyber/ui';
 import { PI_LEVEL, getZapImpact } from '@kyber/utils';
 import { formatCurrency, formatDisplayNumber, formatTokenAmount } from '@kyber/utils/number';
 
 import SlippageRow from '@/components/Estimated/SlippageRow';
-import { MouseoverTooltip } from '@/components/Tooltip';
 import { useZapOutContext } from '@/stores';
 import { useZapOutUserState } from '@/stores/state';
 

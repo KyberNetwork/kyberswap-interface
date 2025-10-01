@@ -2,10 +2,10 @@ import { useMemo, useState } from 'react';
 
 import { usePositionOwner } from '@kyber/hooks';
 import { DEXES_INFO, FARMING_CONTRACTS, NETWORKS_INFO } from '@kyber/schema';
+import { InfoHelper } from '@kyber/ui';
 import { PI_LEVEL } from '@kyber/utils';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
-import InfoHelper from '@/components/InfoHelper';
 import { useSwapPI } from '@/components/SwapImpact';
 import { WarningMsg } from '@/components/WarningMsg';
 import { useNftApproval } from '@/hooks/useNftApproval';

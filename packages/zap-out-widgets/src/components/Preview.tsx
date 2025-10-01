@@ -10,7 +10,7 @@ import {
   ZapAction,
   univ3Types,
 } from '@kyber/schema';
-import { ScrollArea, TokenLogo } from '@kyber/ui';
+import { MouseoverTooltip, ScrollArea, TokenLogo } from '@kyber/ui';
 import { PI_LEVEL, fetchTokenPrice, friendlyError } from '@kyber/utils';
 import {
   calculateGasMargin,
@@ -29,7 +29,6 @@ import X from '@/assets/svg/x.svg';
 import Modal from '@/components/Modal';
 import { SlippageWarning } from '@/components/SlippageWarning';
 import { useSwapPI } from '@/components/SwapImpact';
-import { MouseoverTooltip } from '@/components/Tooltip';
 import { WarningMsg } from '@/components/WarningMsg';
 import { useZapOutContext } from '@/stores';
 import { useZapOutUserState } from '@/stores/state';

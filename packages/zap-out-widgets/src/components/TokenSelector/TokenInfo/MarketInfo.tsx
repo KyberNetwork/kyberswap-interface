@@ -3,14 +3,13 @@ import { useMemo, useState } from 'react';
 import { useCopy } from '@kyber/hooks';
 import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO } from '@kyber/schema';
 import { Token } from '@kyber/schema';
-import { TokenLogo } from '@kyber/ui';
+import { Loading, TokenLogo } from '@kyber/ui';
 
 import LogoCoingecko from '@/assets/svg/coingecko.svg';
 import IconDown from '@/assets/svg/down.svg';
 import IconZiczac from '@/assets/svg/ziczac.svg';
-import Loader from '@/components/Loader';
-import useMarketTokenInfo from '@/components/TokenInfo/useMarketTokenInfo';
-import { shortenAddress } from '@/components/TokenInfo/utils';
+import useMarketTokenInfo from '@/components/TokenSelector/TokenInfo/useMarketTokenInfo';
+import { shortenAddress } from '@/components/TokenSelector/TokenInfo/utils';
 import { useZapOutContext } from '@/stores';
 
 const MarketInfo = ({ token }: { token: Token }) => {
@@ -58,7 +57,7 @@ const MarketInfo = ({ token }: { token: Token }) => {
         {(marketTokenInfo || []).map(item => (
           <div key={item.label} className="flex items-center justify-between text-xs">
             <span className="text-subText">{item.label}</span>
-            <span>{loading ? <Loader className="animate-spin w-[10px] h-[10px]" /> : item.value}</span>
+            <span>{loading ? <Loading className="w-[10px] h-[10px]" /> : item.value}</span>
           </div>
         ))}
       </div>
@@ -73,7 +72,7 @@ const MarketInfo = ({ token }: { token: Token }) => {
                 {Copy}
               </>
             ) : (
-              <Loader className="animate-spin w-[10px] h-[10px]" />
+              <Loading className="w-[10px] h-[10px]" />
             )}
           </div>
         </div>

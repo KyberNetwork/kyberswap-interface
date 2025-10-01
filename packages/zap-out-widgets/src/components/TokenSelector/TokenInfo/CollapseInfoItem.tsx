@@ -1,10 +1,9 @@
 import { ReactNode, useState } from 'react';
 
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@kyber/ui';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Loading } from '@kyber/ui';
 
 import IconAlertOctagon from '@/assets/svg/alert-octagon.svg';
-import Loader from '@/components/Loader';
-import { ItemData, RISKY_THRESHOLD, WarningType, isItemRisky } from '@/components/TokenInfo/utils';
+import { ItemData, RISKY_THRESHOLD, WarningType, isItemRisky } from '@/components/TokenSelector/TokenInfo/utils';
 
 const CollapseInfoItem = ({
   icon,
@@ -72,7 +71,7 @@ const CollapseInfoItem = ({
             const colorRiskyByType = type === WarningType.RISKY ? 'text-error' : 'text-warning';
             const colorRiskyByAmount = Number(value) > RISKY_THRESHOLD.RISKY ? 'text-error' : 'text-warning';
             const displayValue = loading ? (
-              <Loader className="animate-spin w-[10px] h-[10px]" />
+              <Loading className="w-[10px] h-[10px]" />
             ) : isNumber && value ? (
               `${+value * 100}%`
             ) : value === '0' ? (

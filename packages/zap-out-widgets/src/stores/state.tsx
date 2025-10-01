@@ -12,9 +12,6 @@ interface ZapOutUserState {
   degenMode: boolean;
   toggleDegenMode: () => void;
 
-  revertPrice: boolean;
-  toggleRevertPrice: () => void;
-
   slippage: number | undefined;
   setSlippage: (value: number) => void;
 
@@ -48,7 +45,6 @@ const initState = {
   showSetting: false,
   highlightDegenMode: false,
   degenMode: false,
-  revertPrice: false,
   slippage: undefined,
   liquidityOut: 0n,
   showPreview: false,
@@ -75,8 +71,6 @@ export const useZapOutUserState = create<ZapOutUserState>((set, get) => ({
   },
 
   toggleDegenMode: () => set(state => ({ degenMode: !state.degenMode })),
-
-  toggleRevertPrice: () => set(state => ({ revertPrice: !state.revertPrice })),
 
   setSlippage: (value: number) => set({ slippage: value }),
 

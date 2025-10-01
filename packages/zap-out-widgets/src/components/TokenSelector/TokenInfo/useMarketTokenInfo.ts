@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { API_URLS, NETWORKS_INFO } from '@kyber/schema';
 
-import { TokenInfo, parseMarketTokenInfo } from '@/components/TokenInfo/utils';
+import { TokenInfo, parseMarketTokenInfo } from '@/components/TokenSelector/TokenInfo/utils';
 import { useZapOutContext } from '@/stores';
 
 const FETCH_INTERVAL = 60_000;

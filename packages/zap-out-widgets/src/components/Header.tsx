@@ -6,7 +6,7 @@ import { cn } from '@kyber/utils/tailwind-helpers';
 import SettingIcon from '@/assets/svg/setting.svg';
 import X from '@/assets/svg/x.svg';
 import Setting from '@/components/Setting';
-import { shortenAddress } from '@/components/TokenInfo/utils';
+import { shortenAddress } from '@/components/TokenSelector/TokenInfo/utils';
 import { useZapOutContext } from '@/stores';
 import { useZapOutUserState } from '@/stores/state';
 

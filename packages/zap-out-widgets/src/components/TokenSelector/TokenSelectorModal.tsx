@@ -3,9 +3,9 @@ import { useState } from 'react';
 import { ChainId, Token } from '@kyber/schema';
 
 import Modal from '@/components/Modal';
-import TokenInfo from '@/components/TokenInfo';
 import TokenSelector from '@/components/TokenSelector';
 import TokenImportConfirm from '@/components/TokenSelector/TokenImportConfirm';
+import TokenInfo from '@/components/TokenSelector/TokenInfo';
 import useTokenBalances from '@/hooks/useTokenBalances';
 import { useTokenList } from '@/hooks/useTokenList';
 import { useZapOutContext } from '@/stores';

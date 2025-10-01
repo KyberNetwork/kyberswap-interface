@@ -7,7 +7,7 @@ import IconAlertTriangle from '@/assets/svg/alert-triangle.svg';
 import IconBack from '@/assets/svg/arrow-left.svg';
 import IconExternalLink from '@/assets/svg/external-link.svg';
 import X from '@/assets/svg/x.svg';
-import { shortenAddress } from '@/components/TokenInfo/utils';
+import { shortenAddress } from '@/components/TokenSelector/TokenInfo/utils';
 import { useTokenList } from '@/hooks/useTokenList';
 import { useZapOutUserState } from '@/stores/state';
 

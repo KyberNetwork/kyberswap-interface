@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { API_URLS } from '@kyber/schema';
 
-import { SecurityInfo, getSecurityTokenInfo } from '@/components/TokenInfo/utils';
+import { SecurityInfo, getSecurityTokenInfo } from '@/components/TokenSelector/TokenInfo/utils';
 import { useZapOutContext } from '@/stores';
 
 export default function useSecurityTokenInfo(tokenAddress: string) {

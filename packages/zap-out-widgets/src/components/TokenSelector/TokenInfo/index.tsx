@@ -1,8 +1,8 @@
 import { Token } from '@kyber/schema';
 
 import ChevronLeft from '@/assets/svg/chevron-left.svg';
-import MarketInfo from '@/components/TokenInfo/MarketInfo';
-import SecurityInfo from '@/components/TokenInfo/SecurityInfo';
+import MarketInfo from '@/components/TokenSelector/TokenInfo/MarketInfo';
+import SecurityInfo from '@/components/TokenSelector/TokenInfo/SecurityInfo';
 
 const TokenInfo = ({ token, onGoBack }: { token: Token; onGoBack: () => void }) => {
   return (

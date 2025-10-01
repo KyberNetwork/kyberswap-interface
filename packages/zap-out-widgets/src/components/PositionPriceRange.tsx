@@ -4,12 +4,9 @@ import { formatDisplayNumber } from '@kyber/utils/number';
 import { tickToPrice } from '@kyber/utils/uniswapv3';
 
 import { useZapOutContext } from '@/stores';
-import { useZapOutUserState } from '@/stores/state';
 
 export function PositionPriceRange() {
-  const { position, pool } = useZapOutContext(s => s);
-
-  const { revertPrice } = useZapOutUserState();
+  const { position, pool, revertPrice } = useZapOutContext(s => s);
 
   const { success: isUniv3, data: univ3Pos } = univ3Position.safeParse(position);
 
