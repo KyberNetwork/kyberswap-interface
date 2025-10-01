@@ -7,6 +7,7 @@ import { WalletClient, formatUnits } from 'viem'
 import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
 import { MAINNET_NETWORKS } from 'constants/networks'
 import { SolanaToken } from 'state/crossChainSwap'
+import { toBigIntSafe } from 'utils/bigint'
 
 import { Quote } from '../registry'
 import {
@@ -67,8 +68,11 @@ export class LifiAdapter extends BaseSwapAdapter {
 
     //const inputUsd = Number(r.estimate.fromAmountUSD || '0')
     //const outputUsd = Number(r.estimate.toAmountUSD || '0')
-    const formattedOutputAmount = formatUnits(BigInt(r.estimate.toAmount), params.toToken.decimals)
-    const formattedInputAmount = formatUnits(BigInt(params.amount), params.fromToken.decimals)
+    const outputAmount = toBigIntSafe(r.estimate.toAmount)
+    const inputAmount = toBigIntSafe(params.amount)
+
+    const formattedOutputAmount = formatUnits(outputAmount, params.toToken.decimals)
+    const formattedInputAmount = formatUnits(inputAmount, params.fromToken.decimals)
 
     const inputUsd = NOT_SUPPORTED_CHAINS_PRICE_SERVICE.includes(params.fromChain)
       ? Number(r.estimate.fromAmountUSD)
@@ -79,8 +83,8 @@ export class LifiAdapter extends BaseSwapAdapter {
 
     return {
       quoteParams: params,
-      outputAmount: BigInt(r.estimate.toAmount),
-      formattedOutputAmount: formatUnits(BigInt(r.estimate.toAmount), params.toToken.decimals),
+      outputAmount,
+      formattedOutputAmount,
       inputUsd,
       outputUsd,
 
