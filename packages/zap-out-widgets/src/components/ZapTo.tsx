@@ -127,10 +127,10 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
                   </div>
                   <div className="text-xs text-subText text-right">
                     <div className="text-text text-base">
-                      {formatTokenAmount(BigInt(removedAmount0), pool.token0.decimals, 8)}
+                      {formatTokenAmount(removedAmount0, pool.token0.decimals, 8)}
                     </div>
                     {formatDisplayNumber(
-                      (pool.token0.price || 0) * Number(toRawString(BigInt(removedAmount0), pool.token0.decimals)),
+                      (pool.token0.price || 0) * Number(toRawString(removedAmount0, pool.token0.decimals)),
                       { style: 'currency' },
                     )}
                   </div>
@@ -152,10 +152,10 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
                   </div>
                   <div className="text-xs text-subText text-right">
                     <div className="text-text text-base">
-                      {formatTokenAmount(BigInt(removedAmount1), pool.token1.decimals, 8)}
+                      {formatTokenAmount(removedAmount1, pool.token1.decimals, 8)}
                     </div>
                     {formatDisplayNumber(
-                      (pool.token1.price || 0) * Number(toRawString(BigInt(removedAmount1), pool.token1.decimals)),
+                      (pool.token1.price || 0) * Number(toRawString(removedAmount1, pool.token1.decimals)),
                       { style: 'currency' },
                     )}
                   </div>

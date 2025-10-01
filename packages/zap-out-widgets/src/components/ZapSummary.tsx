@@ -44,11 +44,10 @@ export function ZapSummary() {
           <div className="flex gap-2 mt-2">
             <div className="w-6 h-6 rounded-full flex items-center justify-center bg-layer2 text-xs font-medium">1</div>
             <div className="flex-1 text-subText text-xs">
-              Remove{' '}
-              {BigInt(removedAmount0) !== 0n ? formatTokenAmount(BigInt(removedAmount0), token0?.decimals || 18) : ''}{' '}
+              Remove {removedAmount0 !== 0n ? formatTokenAmount(removedAmount0, token0?.decimals || 18) : ''}{' '}
               {token0?.symbol}
-              {BigInt(removedAmount1) !== 0n
-                ? `+ ${formatTokenAmount(BigInt(removedAmount1), token1?.decimals || 18)} ${token1?.symbol}`
+              {removedAmount1 !== 0n
+                ? `+ ${formatTokenAmount(removedAmount1, token1?.decimals || 18)} ${token1?.symbol}`
                 : ''}{' '}
               {earnedFee0 !== 0n || earnedFee1 !== 0n ? (
                 <>

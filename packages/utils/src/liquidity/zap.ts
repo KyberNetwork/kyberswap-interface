@@ -143,16 +143,16 @@ const defaultZapImpact = {
 
 const defaultZapRoute = {
   addedLiquidity: {
-    addedAmount0: '0',
-    addedAmount1: '0',
+    addedAmount0: 0n,
+    addedAmount1: 0n,
     addedValue0: 0,
     addedValue1: 0,
   },
   removeLiquidity: {
     token0Address: '',
     token1Address: '',
-    removedAmount0: '0',
-    removedAmount1: '0',
+    removedAmount0: 0n,
+    removedAmount1: 0n,
     removedValue0: 0,
     removedValue1: 0,
   },
@@ -210,8 +210,8 @@ const parseAddedLiquidity = (route: ZapRouteDetail) => {
     item => item.type === ZapAction.ADD_LIQUIDITY,
   ) as AddLiquidityAction;
 
-  const addedAmount0 = addLiquidityInfo?.addLiquidity.token0.amount || '0';
-  const addedAmount1 = addLiquidityInfo?.addLiquidity.token1.amount || '0';
+  const addedAmount0 = BigInt(addLiquidityInfo?.addLiquidity.token0.amount || '0');
+  const addedAmount1 = BigInt(addLiquidityInfo?.addLiquidity.token1.amount || '0');
   const addedValue0 = +(addLiquidityInfo?.addLiquidity.token0.amountUsd || 0);
   const addedValue1 = +(addLiquidityInfo?.addLiquidity.token1.amountUsd || 0);
 
@@ -228,8 +228,8 @@ const parseRemoveLiquidity = (route: ZapRouteDetail) => {
     | RemoveLiquidityAction
     | undefined;
 
-  const removedAmount0 = actionRemoveLiquidity?.removeLiquidity.tokens[0]?.amount || '0';
-  const removedAmount1 = actionRemoveLiquidity?.removeLiquidity.tokens[1]?.amount || '0';
+  const removedAmount0 = BigInt(actionRemoveLiquidity?.removeLiquidity.tokens[0]?.amount || '0');
+  const removedAmount1 = BigInt(actionRemoveLiquidity?.removeLiquidity.tokens[1]?.amount || '0');
   const removedValue0 = +(actionRemoveLiquidity?.removeLiquidity.tokens[0]?.amountUsd || 0);
   const removedValue1 = +(actionRemoveLiquidity?.removeLiquidity.tokens[1]?.amountUsd || 0);
 

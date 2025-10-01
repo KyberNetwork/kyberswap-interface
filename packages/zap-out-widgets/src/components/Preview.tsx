@@ -197,11 +197,7 @@ export const Preview = () => {
             <div className="flex gap-1 items-center mt-3">
               <TokenLogo src={pool.token0.logo || ''} className="w-5 h-5" />
               <span className="text-lg font-medium">
-                {formatTokenAmount(
-                  BigInt(removeLiquidity.removedAmount0) + earnedFee.earnedFee0,
-                  pool.token0.decimals,
-                  8,
-                )}{' '}
+                {formatTokenAmount(removeLiquidity.removedAmount0 + earnedFee.earnedFee0, pool.token0.decimals, 8)}{' '}
                 {pool.token0.symbol}
               </span>
               <span className="text-subText ml-1">
@@ -211,11 +207,7 @@ export const Preview = () => {
             <div className="flex gap-1 items-center mt-3">
               <TokenLogo src={pool.token1.logo || ''} className="w-5 h-5" />
               <span className="text-lg font-medium">
-                {formatTokenAmount(
-                  BigInt(removeLiquidity.removedAmount1) + earnedFee.earnedFee1,
-                  pool.token1.decimals,
-                  8,
-                )}{' '}
+                {formatTokenAmount(removeLiquidity.removedAmount1 + earnedFee.earnedFee1, pool.token1.decimals, 8)}{' '}
                 {pool.token1.symbol}
               </span>
               <span className="text-subText ml-1">

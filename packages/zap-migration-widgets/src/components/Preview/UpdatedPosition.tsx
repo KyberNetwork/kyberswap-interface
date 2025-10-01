@@ -40,8 +40,7 @@ export default function UpdatedPosition() {
       <div className="flex items-center text-base mt-2 gap-1.5">
         <TokenLogo src={targetPool.token0.logo} size={20} alt={targetPool.token0.symbol} />
         <div>
-          {formatTokenAmount(BigInt(addedLiquidity.addedAmount0) || 0n, targetPool.token0.decimals, 8)}{' '}
-          {targetPool.token0.symbol}
+          {formatTokenAmount(addedLiquidity.addedAmount0, targetPool.token0.decimals, 8)} {targetPool.token0.symbol}
         </div>
         <div className="text-subText">
           ~{formatDisplayNumber(addedLiquidity.addedValue0, { style: 'currency', significantDigits: 6 })}
@@ -51,8 +50,7 @@ export default function UpdatedPosition() {
       <div className="flex items-center text-base mt-1 gap-1.5">
         <TokenLogo src={targetPool.token1.logo} size={20} alt={targetPool.token1.symbol} />
         <div>
-          {formatTokenAmount(BigInt(addedLiquidity.addedAmount1) || 0n, targetPool.token1.decimals, 10)}{' '}
-          {targetPool.token1.symbol}
+          {formatTokenAmount(addedLiquidity.addedAmount1, targetPool.token1.decimals, 10)} {targetPool.token1.symbol}
         </div>
         <div className="text-subText">
           ~{formatDisplayNumber(addedLiquidity.addedValue1, { style: 'currency', significantDigits: 6 })}

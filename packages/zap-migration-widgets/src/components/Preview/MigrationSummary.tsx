@@ -45,9 +45,9 @@ export function MigrationSummary() {
           <div className="flex items-start text-subText gap-2 mt-3">
             <div className="rounded-full w-4 h-4 bg-layer2 text-xs text-center">1</div>
             <div className="flex-1 text-xs">
-              Remove {formatTokenAmount(BigInt(removeLiquidity.removedAmount0), sourcePool.token0.decimals, 8)}{' '}
+              Remove {formatTokenAmount(removeLiquidity.removedAmount0, sourcePool.token0.decimals, 8)}{' '}
               {sourcePool.token0.symbol} and{' '}
-              {formatTokenAmount(BigInt(removeLiquidity.removedAmount1), sourcePool.token1.decimals, 8)}{' '}
+              {formatTokenAmount(removeLiquidity.removedAmount1, sourcePool.token1.decimals, 8)}{' '}
               {sourcePool.token1.symbol} from <span className="text-text">{sourceDexName as string}</span>
             </div>
           </div>
@@ -68,8 +68,8 @@ export function MigrationSummary() {
             <div className="rounded-full w-4 h-4 bg-layer2 text-xs text-center">3</div>
             <div className="flex-1 text-xs">
               Add{' '}
-              {`${formatTokenAmount(BigInt(addedLiquidity.addedAmount0) || 0n, targetPool.token0.decimals, 8)} ${targetPool.token0.symbol} and`}{' '}
-              {`${formatTokenAmount(BigInt(addedLiquidity.addedAmount1) || 0n, targetPool.token1.decimals, 8)} ${targetPool.token1.symbol}`}{' '}
+              {`${formatTokenAmount(addedLiquidity.addedAmount0, targetPool.token0.decimals, 8)} ${targetPool.token0.symbol} and`}{' '}
+              {`${formatTokenAmount(addedLiquidity.addedAmount1, targetPool.token1.decimals, 8)} ${targetPool.token1.symbol}`}{' '}
               into <span className="text-text">{targetDexName as string}</span> in the selected fee pool
             </div>
           </div>
