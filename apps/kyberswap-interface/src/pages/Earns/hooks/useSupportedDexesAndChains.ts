@@ -6,8 +6,8 @@ import { MenuOption } from 'pages/Earns/components/DropdownMenu'
 import { EarnDex, earnSupportedChains, earnSupportedProtocols } from 'pages/Earns/constants'
 import { PositionFilter } from 'pages/Earns/types'
 
-export const AllChainsOption = { label: 'All Chains', value: '' }
-export const AllProtocolsOption = { label: 'All Protocols', value: '' }
+export const AllChainsOption: MenuOption = { label: 'All Chains', value: '' }
+export const AllProtocolsOption: MenuOption = { label: 'All Protocols', value: '' }
 
 const CHAIN_PRIORITY_ORDER = [
   '1', // Ethereum

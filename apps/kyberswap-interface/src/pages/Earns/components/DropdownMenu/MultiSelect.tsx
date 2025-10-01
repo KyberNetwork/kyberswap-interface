@@ -8,6 +8,7 @@ import {
   DropdownTitle,
   DropdownTitleWrapper,
   DropdownWrapper,
+  ItemIcon,
   MultiSelectDropdownContentItem,
 } from 'pages/Earns/components/DropdownMenu/styles'
 
@@ -71,6 +72,7 @@ const MultiSelect = ({
         <DropdownContent alignLeft={alignLeft}>
           {options.map((option: MenuOption) => (
             <MultiSelectDropdownContentItem key={option.value} onClick={() => handleSelectItem(option.value)}>
+              {option.icon && <ItemIcon src={option.icon} alt={option.label} />}
               {option.label}
               {parsedValue.includes(option.value) && <Check size={14} />}
             </MultiSelectDropdownContentItem>
