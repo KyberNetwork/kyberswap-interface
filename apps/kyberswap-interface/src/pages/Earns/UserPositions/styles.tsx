@@ -20,7 +20,7 @@ export const PositionPageWrapper = styled(PoolPageWrapper)`
 export const PositionRow = styled(Link)`
   display: grid;
   grid-template-columns:
-    minmax(260px, 2.8fr) /* Position */
+    minmax(260px, 2.6fr) /* Position */
     minmax(80px, 0.8fr) /* Value */
     minmax(90px, 0.8fr) /* est. APR */
     minmax(100px, 1fr) /* Unclaimed fees */
@@ -335,7 +335,7 @@ export const BannerDataItem = styled.div`
 
 export const PositionTableHeader = styled(TableHeader)`
   grid-template-columns:
-    minmax(260px, 2.8fr) /* Position */
+    minmax(260px, 2.6fr) /* Position */
     minmax(80px, 0.8fr) /* Value */
     minmax(90px, 0.8fr) /* est. APR */
     minmax(100px, 1fr) /* Unclaimed fees */
