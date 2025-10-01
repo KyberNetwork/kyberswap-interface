@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { API_URLS, ChainId } from '@kyber/schema';
 
@@ -16,24 +16,68 @@ const checkTokenHoneypot = async (tokenAddress: string, chainId: ChainId) => {
   return response.data;
 };
 
+// Cache and in-flight request registry to deduplicate network calls across renders/mounts
+const honeypotCache = new Map<string, Honeypot[]>();
+const inFlightRequests = new Map<string, Promise<Honeypot[]>>();
+
+const makeKey = (addresses: string[], chainId: ChainId) =>
+  `${chainId}:${addresses.map(a => a.toLowerCase()).join(',')}`;
+
 export function usePairHoneypot(tokenAddresses: string[], chainId: ChainId) {
   const [honeypots, setHoneypots] = useState<Honeypot[]>([]);
-  const [loading, setLoading] = useState(false);
+
+  const normalizedAddresses = useMemo(() => tokenAddresses.map(addr => addr.toLowerCase()), [tokenAddresses]);
+  const key = useMemo(() => makeKey(normalizedAddresses, chainId), [normalizedAddresses, chainId]);
 
   useEffect(() => {
-    const fetchHoneypots = async () => {
-      if (tokenAddresses.length === 0 || honeypots.length > 0 || loading) return;
-      setLoading(true);
+    let cancelled = false;
 
-      const newHoneypots = await Promise.all(
-        tokenAddresses.map(tokenAddress => checkTokenHoneypot(tokenAddress, chainId)),
-      );
-      setHoneypots(newHoneypots);
-      setLoading(false);
+    // Parse fetch params from the stable key so this effect depends only on `key`
+    const [chainIdPart, addressesPart = ''] = key.split(':');
+    const addresses = addressesPart ? addressesPart.split(',').filter(Boolean) : [];
+    const chainIdForFetch = Number(chainIdPart) as ChainId;
+
+    // If there are no addresses, reset and bail out
+    if (addresses.length === 0) {
+      setHoneypots([]);
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    const load = async () => {
+      // Serve from cache if available
+      if (honeypotCache.has(key)) {
+        if (!cancelled) setHoneypots(honeypotCache.get(key)!);
+        return;
+      }
+
+      // Join existing in-flight request or create a new one
+      let promise = inFlightRequests.get(key);
+      if (!promise) {
+        promise = Promise.all(addresses.map(tokenAddress => checkTokenHoneypot(tokenAddress, chainIdForFetch)))
+          .then(result => {
+            honeypotCache.set(key, result);
+            return result;
+          })
+          .finally(() => {
+            inFlightRequests.delete(key);
+          });
+        inFlightRequests.set(key, promise);
+      }
+
+      const result = await promise;
+      if (!cancelled) {
+        setHoneypots(result);
+      }
     };
 
-    fetchHoneypots();
-  }, [chainId, tokenAddresses, honeypots, loading]);
+    load();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [key]);
 
   return honeypots;
 }
