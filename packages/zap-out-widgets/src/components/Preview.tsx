@@ -1,15 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import {
-  API_URLS,
-  CHAIN_ID_TO_CHAIN,
-  NETWORKS_INFO,
-  ProtocolFeeAction,
-  RefundAction,
-  RemoveLiquidityAction,
-  ZapAction,
-  univ3Types,
-} from '@kyber/schema';
+import { API_URLS, CHAIN_ID_TO_CHAIN, NETWORKS_INFO, univ3Types } from '@kyber/schema';
 import { MouseoverTooltip, ScrollArea, TokenLogo } from '@kyber/ui';
 import { PI_LEVEL, fetchTokenPrice, friendlyError } from '@kyber/utils';
 import {
@@ -28,8 +19,8 @@ import CheckIcon from '@/assets/svg/success.svg';
 import X from '@/assets/svg/x.svg';
 import Modal from '@/components/Modal';
 import { SlippageWarning } from '@/components/SlippageWarning';
-import { useSwapPI } from '@/components/SwapImpact';
 import { WarningMsg } from '@/components/WarningMsg';
+import useZapRoute from '@/hooks/useZapRoute';
 import { useZapOutContext } from '@/stores';
 import { useZapOutUserState } from '@/stores/state';
 
@@ -52,6 +43,7 @@ export const Preview = () => {
   const isUniV3 = univ3Types.includes(poolType as any);
 
   const { showPreview, slippage, togglePreview, tokenOut, route, mode, setSlippage } = useZapOutUserState();
+  const { zapImpact, refund, suggestedSlippage, zapFee, removeLiquidity, earnedFee } = useZapRoute();
 
   const [gasUsd, setGasUsd] = useState<number | null>(null);
   const [buildData, setBuildData] = useState<{
@@ -141,56 +133,14 @@ export const Preview = () => {
     }
   }, [chainId, txHash]);
 
-  const { zapPiRes } = useSwapPI();
-
   if (!pool || !position || !tokenOut || !route) return null;
 
-  const actionRefund = route?.zapDetails.actions.find(item => item.type === 'ACTION_TYPE_REFUND') as
-    | RefundAction
-    | undefined;
-
-  const amountOut = BigInt(actionRefund?.refund.tokens[0].amount || 0);
-  const amountOutUsdt = actionRefund?.refund.tokens[0].amountUsd || 0;
-
-  const feeInfo = route?.zapDetails.actions.find(item => item.type === ZapAction.PROTOCOL_FEE) as
-    | ProtocolFeeAction
-    | undefined;
-
   const pi = {
-    piHigh: zapPiRes.level === PI_LEVEL.HIGH,
-    piVeryHigh: zapPiRes.level === PI_LEVEL.VERY_HIGH,
+    piHigh: zapImpact.level === PI_LEVEL.HIGH,
+    piVeryHigh: zapImpact.level === PI_LEVEL.VERY_HIGH,
   };
 
-  const zapFee = ((feeInfo?.protocolFee.pcm || 0) / 100_000) * 100;
-  const suggestedSlippage = route?.zapDetails.suggestedSlippage || 100;
-
-  const actionRemoveLiq = route?.zapDetails.actions.find(item => item.type === 'ACTION_TYPE_REMOVE_LIQUIDITY') as
-    | RemoveLiquidityAction
-    | undefined;
-
-  const { tokens, fees } = actionRemoveLiq?.removeLiquidity || {};
-
-  const token0 = tokens?.find(f => f.address.toLowerCase() === pool.token0.address.toLowerCase());
-
-  const token1 = tokens?.find(f => f.address.toLowerCase() === pool.token1.address.toLowerCase());
-
-  const withdrawAmount0 = BigInt(token0 ? token0.amount : 0);
-  const withdrawAmount1 = BigInt(token1 ? token1.amount : 0);
-
-  const fee0 = fees?.find(f => f.address.toLowerCase() === pool.token0.address.toLowerCase());
-
-  const fee1 = fees?.find(f => f.address.toLowerCase() === pool.token1.address.toLowerCase());
-
-  const feeAmount0 = BigInt(fee0?.amount || 0);
-  const feeAmount1 = BigInt(fee1?.amount || 0);
-
-  const receiveAmount0 = withdrawAmount0 + feeAmount0;
-  const receiveAmount1 = withdrawAmount1 + feeAmount1;
-  const receiveUsd0 = Number(token0?.amountUsd || 0) + Number(fee0?.amountUsd || 0);
-  const receiveUsd1 = Number(token1?.amountUsd || 0) + Number(fee1?.amountUsd || 0);
-
   const handleSlippage = () => {
-    const suggestedSlippage = route?.zapDetails.suggestedSlippage || 0;
     if (slippage !== suggestedSlippage) setSlippage(suggestedSlippage);
     togglePreview();
   };
@@ -265,7 +215,7 @@ export const Preview = () => {
             </button>
             {error.includes('slippage') && (
               <button className="ks-primary-btn flex-1" onClick={handleSlippage}>
-                {slippage !== route?.zapDetails.suggestedSlippage ? 'Use Suggested Slippage' : 'Set Custom Slippage'}
+                {slippage !== suggestedSlippage ? 'Use Suggested Slippage' : 'Set Custom Slippage'}
               </button>
             )}
           </div>
@@ -291,9 +241,9 @@ export const Preview = () => {
   }
 
   const color =
-    zapPiRes.level === PI_LEVEL.VERY_HIGH || zapPiRes.level === PI_LEVEL.INVALID
+    zapImpact.level === PI_LEVEL.VERY_HIGH || zapImpact.level === PI_LEVEL.INVALID
       ? theme.error
-      : zapPiRes.level === PI_LEVEL.HIGH
+      : zapImpact.level === PI_LEVEL.HIGH
         ? theme.warning
         : theme.subText;
 
@@ -327,9 +277,9 @@ export const Preview = () => {
           <div className="flex mt-3 text-base items-center">
             <TokenLogo src={tokenOut.logo} size={20} alt={tokenOut.symbol} />
             <div className="ml-1">
-              {formatTokenAmount(amountOut, tokenOut.decimals)} {tokenOut.symbol}
+              {refund.refunds[0]?.amount || 0} {tokenOut.symbol}
             </div>
-            <div className="ml-2 text-subText">~{formatCurrency(+amountOutUsdt)}</div>
+            <div className="ml-2 text-subText">~{formatCurrency(refund.value)}</div>
           </div>
         )}
         {mode === 'withdrawOnly' && (
@@ -337,16 +287,30 @@ export const Preview = () => {
             <div className="flex gap-1 items-center mt-3">
               <TokenLogo src={pool.token0.logo || ''} className="w-5 h-5" />
               <span className="text-lg font-medium">
-                {formatTokenAmount(receiveAmount0, pool.token0.decimals, 8)} {pool.token0.symbol}
+                {formatTokenAmount(
+                  BigInt(removeLiquidity.removedAmount0) + earnedFee.earnedFee0,
+                  pool.token0.decimals,
+                  8,
+                )}{' '}
+                {pool.token0.symbol}
               </span>
-              <span className="text-subText ml-1">~{formatDisplayNumber(receiveUsd0, { style: 'currency' })}</span>
+              <span className="text-subText ml-1">
+                ~{formatDisplayNumber(earnedFee.feeValue0 + earnedFee.feeValue0, { style: 'currency' })}
+              </span>
             </div>
             <div className="flex gap-1 items-center mt-3">
               <TokenLogo src={pool.token1.logo || ''} className="w-5 h-5" />
               <span className="text-lg font-medium">
-                {formatTokenAmount(receiveAmount1, pool.token1.decimals, 8)} {pool.token1.symbol}
+                {formatTokenAmount(
+                  BigInt(removeLiquidity.removedAmount1) + earnedFee.earnedFee1,
+                  pool.token1.decimals,
+                  8,
+                )}{' '}
+                {pool.token1.symbol}
               </span>
-              <span className="text-subText ml-1">~{formatDisplayNumber(receiveUsd1, { style: 'currency' })}</span>
+              <span className="text-subText ml-1">
+                ~{formatDisplayNumber(earnedFee.feeValue1 + earnedFee.feeValue1, { style: 'currency' })}
+              </span>
             </div>
           </>
         )}
@@ -359,7 +323,7 @@ export const Preview = () => {
               <div className="text-subText text-xs ">Est. Received {tokenOut.symbol}</div>
               <div className="flex items-center gap-1">
                 <TokenLogo src={tokenOut.logo} alt={tokenOut.symbol} />
-                {formatTokenAmount(amountOut, tokenOut?.decimals || 18)} {tokenOut.symbol}
+                {refund.refunds[0]?.amount || 0} {tokenOut.symbol}
               </div>
             </div>
 
@@ -392,14 +356,14 @@ export const Preview = () => {
               <div
                 style={{
                   color:
-                    zapPiRes.level === PI_LEVEL.VERY_HIGH || zapPiRes.level === PI_LEVEL.INVALID
+                    zapImpact.level === PI_LEVEL.VERY_HIGH || zapImpact.level === PI_LEVEL.INVALID
                       ? theme.error
-                      : zapPiRes.level === PI_LEVEL.HIGH
+                      : zapImpact.level === PI_LEVEL.HIGH
                         ? theme.warning
                         : theme.text,
                 }}
               >
-                {zapPiRes.display}
+                {zapImpact.display}
               </div>
             </div>
 

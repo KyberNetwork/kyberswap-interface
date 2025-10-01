@@ -1,12 +1,12 @@
 import { useEffect, useRef } from 'react';
 
 import { useDebounce } from '@kyber/hooks/use-debounce';
-import { ProtocolFeeAction, RefundAction, RemoveLiquidityAction, ZapAction } from '@kyber/schema';
 import { MouseoverTooltip, Skeleton, TokenLogo } from '@kyber/ui';
-import { PI_LEVEL, getZapImpact } from '@kyber/utils';
+import { PI_LEVEL } from '@kyber/utils';
 import { formatCurrency, formatDisplayNumber, formatTokenAmount } from '@kyber/utils/number';
 
 import SlippageRow from '@/components/Estimated/SlippageRow';
+import useZapRoute from '@/hooks/useZapRoute';
 import { useZapOutContext } from '@/stores';
 import { useZapOutUserState } from '@/stores/state';
 
@@ -14,27 +14,11 @@ export default function Estimated() {
   const { chainId, positionId, poolAddress, poolType, pool, theme, position } = useZapOutContext(s => s);
   const { slippage, fetchingRoute, fetchZapOutRoute, route, showPreview, liquidityOut, tokenOut, mode } =
     useZapOutUserState();
+  const { refund, finalAmountUsd, zapImpact, zapFee, suggestedSlippage, gasUsd, earnedFee } = useZapRoute();
+  const { earnedFee0, earnedFee1, feeValue0, feeValue1 } = earnedFee;
 
   const debounceLiquidityOut = useDebounce(liquidityOut, 500);
   const abortControllerRef = useRef<AbortController>();
-
-  const actionRefund = route?.zapDetails.actions.find(item => item.type === 'ACTION_TYPE_REFUND') as
-    | RefundAction
-    | undefined;
-
-  const amountOut = BigInt(actionRefund?.refund.tokens[0].amount || 0);
-  const amountOutUsd =
-    mode === 'withdrawOnly'
-      ? Number(route?.zapDetails.finalAmountUsd) || 0
-      : Number(actionRefund?.refund.tokens[0].amountUsd || 0);
-
-  const feeInfo = route?.zapDetails.actions.find(item => item.type === ZapAction.PROTOCOL_FEE) as
-    | ProtocolFeeAction
-    | undefined;
-
-  const suggestedSlippage = route?.zapDetails.suggestedSlippage || 0;
-
-  const piRes = getZapImpact(route?.zapDetails.priceImpact, route?.zapDetails.suggestedSlippage || 100);
 
   useEffect(() => {
     if (showPreview) return;
@@ -72,26 +56,12 @@ export default function Estimated() {
     poolType,
   ]);
 
-  const zapFee = ((feeInfo?.protocolFee.pcm || 0) / 100_000) * 100;
-
   const color =
-    piRes.level === PI_LEVEL.VERY_HIGH || piRes.level === PI_LEVEL.INVALID
+    zapImpact.level === PI_LEVEL.VERY_HIGH || zapImpact.level === PI_LEVEL.INVALID
       ? theme.error
-      : piRes.level === PI_LEVEL.HIGH
+      : zapImpact.level === PI_LEVEL.HIGH
         ? theme.warning
         : theme.subText;
-
-  const actionRemoveLiq = route?.zapDetails.actions.find(item => item.type === 'ACTION_TYPE_REMOVE_LIQUIDITY') as
-    | RemoveLiquidityAction
-    | undefined;
-
-  const { fees } = actionRemoveLiq?.removeLiquidity || {};
-
-  const fee0 = pool !== null && fees?.find(f => f.address.toLowerCase() === pool.token0.address.toLowerCase());
-  const fee1 = pool !== null && fees?.find(f => f.address.toLowerCase() === pool.token1.address.toLowerCase());
-
-  const feeAmount0 = BigInt(fee0 ? fee0.amount : 0);
-  const feeAmount1 = BigInt(fee1 ? fee1.amount : 0);
 
   const loading = !position || !pool || fetchingRoute;
 
@@ -100,7 +70,11 @@ export default function Estimated() {
       <div className="flex items-center justify-between">
         <div>{mode === 'zapOut' ? 'Est. Received Value' : 'Est. Liquidity Value'}</div>
 
-        {fetchingRoute ? <Skeleton className="w-6 h-3" /> : <div>{formatCurrency(amountOutUsd)}</div>}
+        {fetchingRoute ? (
+          <Skeleton className="w-6 h-3" />
+        ) : (
+          <div>{formatCurrency(mode === 'withdrawOnly' ? finalAmountUsd : refund.value)}</div>
+        )}
       </div>
 
       <div className="mt-2 h-[1px] w-full bg-stroke"></div>
@@ -114,7 +88,7 @@ export default function Estimated() {
             ) : (
               <div className="flex items-center gap-1">
                 <TokenLogo src={tokenOut?.logo} size={16} />
-                {formatTokenAmount(amountOut, tokenOut?.decimals || 18, 6)} {tokenOut?.symbol}
+                {refund.refunds[0]?.amount || 0} {tokenOut?.symbol}
               </div>
             )}
           </div>
@@ -144,14 +118,14 @@ export default function Estimated() {
               <div
                 style={{
                   color:
-                    piRes.level === PI_LEVEL.VERY_HIGH || piRes.level === PI_LEVEL.INVALID
+                    zapImpact.level === PI_LEVEL.VERY_HIGH || zapImpact.level === PI_LEVEL.INVALID
                       ? theme.error
-                      : piRes.level === PI_LEVEL.HIGH
+                      : zapImpact.level === PI_LEVEL.HIGH
                         ? theme.warning
                         : theme.text,
                 }}
               >
-                {piRes.display}
+                {zapImpact.display}
               </div>
             ) : (
               '--'
@@ -195,29 +169,25 @@ export default function Estimated() {
                 <>
                   <div className="flex items-center gap-1">
                     <TokenLogo src={pool.token0.logo} size={16} />
-                    {formatTokenAmount(feeAmount0, pool.token0.decimals, 4)}
+                    {formatTokenAmount(earnedFee0, pool.token0.decimals, 4)}
                     <span>{pool.token0.symbol}</span>
-                    {fee0 && (
-                      <span className="text-xs text-subText">
-                        ~
-                        {formatDisplayNumber(fee0.amountUsd, {
-                          style: 'currency',
-                        })}
-                      </span>
-                    )}
+                    <span className="text-xs text-subText">
+                      ~
+                      {formatDisplayNumber(feeValue0, {
+                        style: 'currency',
+                      })}
+                    </span>
                   </div>
                   <div className="flex items-center gap-1 mt-1">
                     <TokenLogo src={pool.token1.logo} size={16} />
-                    {formatTokenAmount(feeAmount1, pool.token1.decimals, 4)}
+                    {formatTokenAmount(earnedFee1, pool.token1.decimals, 4)}
                     <span>{pool.token1.symbol}</span>
-                    {fee1 && (
-                      <span className="text-xs text-subText">
-                        ~
-                        {formatDisplayNumber(fee1.amountUsd, {
-                          style: 'currency',
-                        })}
-                      </span>
-                    )}
+                    <span className="text-xs text-subText">
+                      ~
+                      {formatDisplayNumber(feeValue1, {
+                        style: 'currency',
+                      })}
+                    </span>
                   </div>
                 </>
               )}
@@ -233,7 +203,7 @@ export default function Estimated() {
               <div className="text-subText text-xs border-b border-dotted border-subText">Est. Gas Fee</div>
             </MouseoverTooltip>
 
-            <span>{route?.gasUsd ? formatDisplayNumber(route.gasUsd, { style: 'currency' }) : '--'}</span>
+            <span>{route ? formatDisplayNumber(gasUsd, { style: 'currency' }) : '--'}</span>
           </div>
         </>
       )}

@@ -6,9 +6,9 @@ import { InfoHelper } from '@kyber/ui';
 import { PI_LEVEL } from '@kyber/utils';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
-import { useSwapPI } from '@/components/SwapImpact';
 import { WarningMsg } from '@/components/WarningMsg';
 import { useNftApproval } from '@/hooks/useNftApproval';
+import useZapRoute from '@/hooks/useZapRoute';
 import { useZapOutContext } from '@/stores';
 import { useZapOutUserState } from '@/stores/state';
 
@@ -20,6 +20,7 @@ export const Action = () => {
   const { address: account, chainId: walletChainId } = connectedAccount;
 
   const { fetchingRoute, togglePreview, route, degenMode, toggleSetting } = useZapOutUserState();
+  const { zapImpact } = useZapRoute();
 
   const nftManager = DEXES_INFO[poolType].nftManagerContract;
   const nftManagerContract = typeof nftManager === 'string' ? nftManager : nftManager[chainId];
@@ -74,11 +75,9 @@ export const Action = () => {
     togglePreview();
   };
 
-  const { zapPiRes } = useSwapPI();
-
   const pi = {
-    piHigh: zapPiRes.level === PI_LEVEL.HIGH,
-    piVeryHigh: zapPiRes.level === PI_LEVEL.VERY_HIGH,
+    piHigh: zapImpact.level === PI_LEVEL.HIGH,
+    piVeryHigh: zapImpact.level === PI_LEVEL.VERY_HIGH,
   };
 
   const btnText = useMemo(() => {

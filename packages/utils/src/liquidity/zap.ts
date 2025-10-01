@@ -149,6 +149,8 @@ const defaultZapRoute = {
     addedValue1: 0,
   },
   removeLiquidity: {
+    token0Address: '',
+    token1Address: '',
     removedAmount0: '0',
     removedAmount1: '0',
     removedValue0: 0,
@@ -157,6 +159,8 @@ const defaultZapRoute = {
   earnedFee: {
     earnedFee0: 0n,
     earnedFee1: 0n,
+    feeValue0: 0,
+    feeValue1: 0,
   },
   refund: {
     value: 0,
@@ -165,6 +169,8 @@ const defaultZapRoute = {
   zapFee: 0,
   suggestedSlippage: 0,
   initUsd: 0,
+  finalAmountUsd: 0,
+  gasUsd: 0,
   zapImpact: defaultZapImpact,
   swapActions: [],
 };
@@ -177,6 +183,8 @@ export const parseZapRoute = (route: ZapRouteDetail | null, tokens: Token[], dex
   const earnedFee = parseEarnedFee(route);
   const suggestedSlippage = route.zapDetails.suggestedSlippage || 0;
   const initUsd = Number(route?.zapDetails.initialAmountUsd || 0);
+  const finalAmountUsd = Number(route?.zapDetails.finalAmountUsd || 0);
+  const gasUsd = Number(route?.gasUsd || 0);
   const refund = parseRefund(route, tokens);
   const zapFee = parseZapFee(route);
   const zapImpact = parseZapImpact(route.zapDetails.priceImpact, suggestedSlippage);
@@ -189,6 +197,8 @@ export const parseZapRoute = (route: ZapRouteDetail | null, tokens: Token[], dex
     suggestedSlippage,
     refund,
     initUsd,
+    finalAmountUsd,
+    gasUsd,
     zapFee,
     zapImpact,
     swapActions,
@@ -224,6 +234,8 @@ const parseRemoveLiquidity = (route: ZapRouteDetail) => {
   const removedValue1 = +(actionRemoveLiquidity?.removeLiquidity.tokens[1]?.amountUsd || 0);
 
   return {
+    token0Address: actionRemoveLiquidity?.removeLiquidity.tokens[0]?.address || '',
+    token1Address: actionRemoveLiquidity?.removeLiquidity.tokens[1]?.address || '',
     removedAmount0,
     removedAmount1,
     removedValue0,
@@ -242,10 +254,14 @@ const parseEarnedFee = (route: ZapRouteDetail) => {
 
   const feeAmount0 = BigInt(fee0 ? fee0.amount : 0);
   const feeAmount1 = BigInt(fee1 ? fee1.amount : 0);
+  const feeValue0 = +(fee0 ? fee0.amountUsd : 0);
+  const feeValue1 = +(fee1 ? fee1.amountUsd : 0);
 
   return {
     earnedFee0: feeAmount0,
     earnedFee1: feeAmount1,
+    feeValue0,
+    feeValue1,
   };
 };
 

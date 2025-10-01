@@ -1,18 +1,13 @@
 import { useEffect, useState } from 'react';
 
-import {
-  RemoveLiquidityAction,
-  UniV2Position,
-  UniV3Position,
-  univ2PoolNormalize,
-  univ3PoolNormalize,
-} from '@kyber/schema';
+import { UniV2Position, UniV3Position, univ2PoolNormalize, univ3PoolNormalize } from '@kyber/schema';
 import { Skeleton, Slider, TokenLogo } from '@kyber/ui';
 import { assertUnreachable } from '@kyber/utils';
 import { formatDisplayNumber, formatTokenAmount, toRawString } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
 import { getPositionAmounts } from '@kyber/utils/uniswapv3';
 
+import useZapRoute from '@/hooks/useZapRoute';
 import { useZapOutContext } from '@/stores';
 import { useZapOutUserState } from '@/stores/state';
 
@@ -21,7 +16,9 @@ export function LiquidityToRemove() {
   const [percent, setPercent] = useState(100);
   const loading = !position || !pool;
 
-  const { liquidityOut, setLiquidityOut, route } = useZapOutUserState();
+  const { liquidityOut, setLiquidityOut } = useZapOutUserState();
+  const { earnedFee } = useZapRoute();
+  const { earnedFee0, earnedFee1 } = earnedFee;
 
   useEffect(() => {
     if (!position) return;
@@ -49,19 +46,8 @@ export function LiquidityToRemove() {
     } else assertUnreachable(poolType as never, `${poolType} is not handled`);
   }
 
-  const actionRemoveLiq = route?.zapDetails.actions.find(item => item.type === 'ACTION_TYPE_REMOVE_LIQUIDITY') as
-    | RemoveLiquidityAction
-    | undefined;
-  const { fees } = actionRemoveLiq?.removeLiquidity || {};
-
-  const fee0 = pool !== null && fees?.find(f => f.address.toLowerCase() === pool.token0.address.toLowerCase());
-  const fee1 = pool !== null && fees?.find(f => f.address.toLowerCase() === pool.token1.address.toLowerCase());
-
-  const feeAmount0 = BigInt(fee0 ? fee0.amount : 0);
-  const feeAmount1 = BigInt(fee1 ? fee1.amount : 0);
-
-  const amount0ToRemove = amount0 + feeAmount0;
-  const amount1ToRemove = amount1 + feeAmount1;
+  const amount0ToRemove = amount0 + earnedFee0;
+  const amount1ToRemove = amount1 + earnedFee1;
 
   return (
     <div className="rounded-lg px-4 py-3 border border-stroke text-sm text-subText">

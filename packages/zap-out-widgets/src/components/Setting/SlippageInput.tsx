@@ -4,6 +4,7 @@ import { MouseoverTooltip } from '@kyber/ui';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
 import AlertIcon from '@/assets/svg/alert.svg';
+import useZapRoute from '@/hooks/useZapRoute';
 import { useZapOutContext } from '@/stores';
 import { useZapOutUserState } from '@/stores/state';
 import { getSlippageStorageKey } from '@/utils';
@@ -75,13 +76,12 @@ const SlippageInput = ({
 }) => {
   const { pool, chainId } = useZapOutContext(s => s);
   const { slippage, setSlippage, route } = useZapOutUserState();
+  const { suggestedSlippage } = useZapRoute();
   const [v, setV] = useState(() => {
     if (!slippage) return '';
     if ([5, 10, 50, 100].includes(slippage)) return '';
     return ((slippage * 100) / 10_000).toString();
   });
-
-  const suggestedSlippage = route?.zapDetails.suggestedSlippage || 0;
 
   const [isFocus, setIsFocus] = useState(false);
   const { isValid, message } = validateSlippageInput(v, suggestedSlippage);

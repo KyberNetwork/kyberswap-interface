@@ -1,9 +1,10 @@
 import { useRef } from 'react';
 
-import { RemoveLiquidityAction, univ2PoolNormalize } from '@kyber/schema';
+import { univ2PoolNormalize } from '@kyber/schema';
 import { Skeleton } from '@kyber/ui';
 import { formatDisplayNumber, formatTokenAmount, toRawString } from '@kyber/utils/number';
 
+import useZapRoute from '@/hooks/useZapRoute';
 import { useZapOutContext } from '@/stores';
 import { useZapOutUserState } from '@/stores/state';
 
@@ -11,24 +12,14 @@ export const PoolFee = () => {
   const { route } = useZapOutUserState();
   const { pool } = useZapOutContext(s => s);
   const { success: isUniv2 } = univ2PoolNormalize.safeParse(pool);
+  const { earnedFee } = useZapRoute();
+  const { earnedFee0, earnedFee1 } = earnedFee;
 
-  const actionRemoveLiq = route?.zapDetails.actions.find(item => item.type === 'ACTION_TYPE_REMOVE_LIQUIDITY') as
-    | RemoveLiquidityAction
-    | undefined;
+  const feeAmount0Ref = useRef(earnedFee0);
+  if (route) feeAmount0Ref.current = earnedFee0;
 
-  const { fees } = actionRemoveLiq?.removeLiquidity || {};
-
-  const fee0 = pool !== null && fees?.find(f => f.address.toLowerCase() === pool.token0.address.toLowerCase());
-  const fee1 = pool !== null && fees?.find(f => f.address.toLowerCase() === pool.token1.address.toLowerCase());
-
-  const feeAmount0 = BigInt(fee0 ? fee0.amount : 0);
-  const feeAmount1 = BigInt(fee1 ? fee1.amount : 0);
-
-  const feeAmount0Ref = useRef(feeAmount0);
-  if (route) feeAmount0Ref.current = feeAmount0;
-
-  const feeAmount1Ref = useRef(feeAmount1);
-  if (route) feeAmount1Ref.current = feeAmount1;
+  const feeAmount1Ref = useRef(earnedFee1);
+  if (route) feeAmount1Ref.current = earnedFee1;
 
   if (isUniv2) return null;
 
