@@ -109,7 +109,7 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
               <span>{tokenOut?.symbol}</span>
               <DropdownIcon />
             </button>
-            <div className="text-text text-xl font-medium">{refund.refunds[0]?.amount || 0}</div>
+            <div className="text-text text-xl font-medium">{refund.refunds[0]?.amount}</div>
           </div>
         ) : (
           <>

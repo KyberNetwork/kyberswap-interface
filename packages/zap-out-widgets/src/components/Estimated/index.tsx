@@ -12,7 +12,7 @@ import { useZapOutUserState } from '@/stores/state';
 
 export default function Estimated() {
   const { chainId, positionId, poolAddress, poolType, pool, theme, position } = useZapOutContext(s => s);
-  const { slippage, fetchingRoute, fetchZapOutRoute, route, showPreview, liquidityOut, tokenOut, mode } =
+  const { slippage, fetchingRoute, fetchZapOutRoute, route, buildData, liquidityOut, tokenOut, mode } =
     useZapOutUserState();
   const { refund, finalAmountUsd, zapImpact, zapFee, suggestedSlippage, gasUsd, earnedFee } = useZapRoute();
   const { earnedFee0, earnedFee1, feeValue0, feeValue1 } = earnedFee;
@@ -21,7 +21,7 @@ export default function Estimated() {
   const abortControllerRef = useRef<AbortController>();
 
   useEffect(() => {
-    if (showPreview) return;
+    if (buildData) return;
 
     // Cancel previous request if exists
     if (abortControllerRef.current) {
@@ -45,7 +45,7 @@ export default function Estimated() {
     };
   }, [
     mode,
-    showPreview,
+    buildData,
     pool,
     fetchZapOutRoute,
     debounceLiquidityOut,
@@ -88,7 +88,7 @@ export default function Estimated() {
             ) : (
               <div className="flex items-center gap-1">
                 <TokenLogo src={tokenOut?.logo} size={16} />
-                {refund.refunds[0]?.amount || 0} {tokenOut?.symbol}
+                {refund.refunds[0]?.amount} {tokenOut?.symbol}
               </div>
             )}
           </div>

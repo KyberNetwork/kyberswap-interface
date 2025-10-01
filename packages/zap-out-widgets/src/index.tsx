@@ -12,6 +12,7 @@ import PoolStat from '@/components/PoolStat';
 import PositionLiquidity from '@/components/PositionLiquidity';
 import { PositionPriceRange } from '@/components/PositionPriceRange';
 import { Preview } from '@/components/Preview';
+import WidgetError from '@/components/WidgetError';
 import { ZapSummary } from '@/components/ZapSummary';
 import { ZapTo } from '@/components/ZapTo';
 import { TokenListProvider } from '@/hooks/useTokenList';
@@ -72,6 +73,7 @@ const ZapOut = (props: ZapOutProps) => {
             </div>
             <Action />
             <Preview />
+            <WidgetError />
           </div>
         </div>
       </TokenProvider>

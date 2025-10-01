@@ -2,6 +2,12 @@ import { create } from 'zustand';
 
 import { API_URLS, CHAIN_ID_TO_CHAIN, ChainId, PoolType, Token, ZapRouteDetail } from '@kyber/schema';
 
+import { BuildRouteData } from '@/utils';
+
+interface BuildDataWithGas extends BuildRouteData {
+  gasUsd: number;
+}
+
 interface ZapOutUserState {
   ttl: number;
   setTtl: (value: number) => void;
@@ -21,8 +27,8 @@ interface ZapOutUserState {
   tokenOut: Token | null;
   setTokenOut: (token: Token) => void;
 
-  showPreview: boolean;
-  togglePreview: () => void;
+  buildData: BuildDataWithGas | undefined;
+  setBuildData: (buildData: BuildDataWithGas | undefined) => void;
 
   fetchingRoute: boolean;
   route: ZapRouteDetail | null;
@@ -47,7 +53,7 @@ const initState = {
   degenMode: false,
   slippage: undefined,
   liquidityOut: 0n,
-  showPreview: false,
+  buildData: undefined,
   fetchingRoute: false,
   route: null,
   mode: 'zapOut' as const,
@@ -72,13 +78,13 @@ export const useZapOutUserState = create<ZapOutUserState>((set, get) => ({
 
   toggleDegenMode: () => set(state => ({ degenMode: !state.degenMode })),
 
+  setBuildData: (buildData: BuildDataWithGas | undefined) => set({ buildData }),
+
   setSlippage: (value: number) => set({ slippage: value }),
 
   setLiquidityOut: (liquidityOut: bigint) => set({ liquidityOut }),
 
   setMode: (mode: 'zapOut' | 'withdrawOnly') => set({ mode }),
-
-  togglePreview: () => set(state => ({ showPreview: !state.showPreview })),
 
   fetchZapOutRoute: async ({ chainId, poolType, positionId, poolAddress, signal }) => {
     const { tokenOut, liquidityOut, slippage, mode } = get();

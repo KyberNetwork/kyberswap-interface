@@ -45,3 +45,21 @@ export const NETWORKS_INFO: Record<ChainId, NetworkInfo> = {
   [ChainId.Berachain]: berachain,
   [ChainId.Sonic]: sonic,
 };
+
+export const CHAIN_ID_TO_CHAIN: { [chainId in ChainId]: string } = {
+  [ChainId.Ethereum]: 'ethereum',
+  [ChainId.PolygonPos]: 'polygon',
+  [ChainId.Bsc]: 'bsc',
+  [ChainId.Arbitrum]: 'arbitrum',
+  [ChainId.Avalanche]: 'avalanche',
+  [ChainId.Base]: 'base',
+  [ChainId.Blast]: 'blast',
+  [ChainId.Fantom]: 'fantom',
+  [ChainId.Mantle]: 'mantle',
+  [ChainId.Optimism]: 'optimism',
+  [ChainId.Scroll]: 'scroll',
+  [ChainId.Linea]: 'linea',
+  [ChainId.ZkSync]: 'zksync',
+  [ChainId.Berachain]: 'berachain',
+  [ChainId.Sonic]: 'sonic',
+};

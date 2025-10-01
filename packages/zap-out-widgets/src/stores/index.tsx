@@ -33,9 +33,11 @@ interface ZapOutState extends ZapOutProps {
   revertPrice: boolean;
   position: Position | null;
   errorMsg: string;
+  widgetError: string;
   getPool: () => void;
   getPosition: (pool: Pool) => void;
   toggleRevertPrice: () => void;
+  setWidgetError: (error: string) => void;
 }
 
 interface InnerZapOutProps extends ZapOutProps {
@@ -53,7 +55,7 @@ const createZapOutStore = (initProps: InnerZapOutProps) => {
     revertPrice: false,
     position: null,
     errorMsg: '',
-
+    widgetError: '',
     getPool: async () => {
       const { poolAddress, chainId, poolType, getPosition } = get();
 
@@ -69,6 +71,9 @@ const createZapOutStore = (initProps: InnerZapOutProps) => {
       const price = getPoolPrice({ pool: poolInfo.pool as Pool, revertPrice });
       if (price !== null) set({ poolPrice: price });
 
+      const { buildData } = useZapOutUserState.getState();
+
+      if (buildData) return;
       getPosition(poolInfo.pool as Pool);
     },
     getPosition: async (pool: Pool) => {
@@ -114,6 +119,7 @@ const createZapOutStore = (initProps: InnerZapOutProps) => {
       set({ errorMsg: 'Invalid pool type' });
     },
     toggleRevertPrice: () => set(state => ({ revertPrice: !state.revertPrice })),
+    setWidgetError: (error: string) => set({ widgetError: error }),
   }));
 };
 
