@@ -21,7 +21,7 @@ import './Widget.scss';
 import './globals.css';
 
 const ZapOut = (props: ZapOutProps) => {
-  const { theme, chainId, poolType, positionId, poolAddress } = props;
+  const { theme, chainId } = props;
 
   const themeToApply = useMemo(
     () =>
@@ -56,7 +56,7 @@ const ZapOut = (props: ZapOutProps) => {
             <div className="mt-4 flex gap-5 max-sm:flex-col">
               <div className="flex flex-col gap-4 w-[55%] max-sm:w-full">
                 <div className="-mb-4">
-                  <PoolStat chainId={chainId} poolType={poolType} positionId={positionId} poolAddress={poolAddress} />
+                  <PoolStat />
                 </div>
                 <PositionLiquidity />
                 <PoolPrice />

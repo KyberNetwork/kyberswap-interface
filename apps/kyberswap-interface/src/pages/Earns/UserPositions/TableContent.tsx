@@ -356,9 +356,9 @@ export default function TableContent({
                       <Text marginLeft={-2} fontSize={upToSmall ? 15 : 16}>
                         {token0.symbol}/{token1.symbol}
                       </Text>
-                      {pool.fee ? <Badge>{pool.fee}%</Badge> : null}
+                      <Badge>{pool.fee}%</Badge>
                     </Flex>
-                    <Flex flexWrap={'wrap'} alignItems={'center'} sx={{ gap: '10px' }}>
+                    <Flex flexWrap={'wrap'} alignItems={'center'} sx={{ gap: '6px' }}>
                       <Flex alignItems={'center'} sx={{ gap: 1 }}>
                         <MouseoverTooltipDesktopOnly text={dex.id} width="fit-content" placement="bottom">
                           <TokenLogo src={dex.logo} size={16} />

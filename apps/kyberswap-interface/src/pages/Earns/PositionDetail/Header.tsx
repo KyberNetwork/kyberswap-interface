@@ -122,11 +122,7 @@ const PositionDetailHeader = ({
             </Flex>
           )}
 
-          {initialLoading ? (
-            <PositionSkeleton width={80} height={22} />
-          ) : (
-            position?.pool.fee && <Badge>Fee {position?.pool.fee}%</Badge>
-          )}
+          {initialLoading ? <PositionSkeleton width={80} height={22} /> : <Badge>Fee {position?.pool.fee}%</Badge>}
 
           {initialLoading ? (
             <PositionSkeleton width={32} height={32} />
