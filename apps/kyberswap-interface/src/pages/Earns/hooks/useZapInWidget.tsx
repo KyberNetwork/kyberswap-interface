@@ -226,11 +226,10 @@ const useZapInWidget = ({
               if (!dex) return
 
               const isUniv2 = isForkFrom(dex, CoreProtocol.UniswapV2)
-              const isUniV4 = isForkFrom(dex, CoreProtocol.UniswapV4)
 
               const nftId =
                 data.position.positionId ||
-                (isUniv2 ? account || '' : ((await getTokenId(library, data.txHash, isUniV4)) || '').toString())
+                (isUniv2 ? account || '' : ((await getTokenId(library, data.txHash, dex)) || '').toString())
 
               const dexVersion = getDexVersion(dex)
               const contract = getNftManagerContractAddress(dex, chainId)

@@ -15,7 +15,6 @@ export const navigateToPositionAfterZap = async (
 ) => {
   let url
   const isUniv2 = isForkFrom(dex, CoreProtocol.UniswapV2)
-  const isUniV4 = isForkFrom(dex, CoreProtocol.UniswapV4)
 
   const exchange = protocolGroupNameToExchangeMapping[dex]
 
@@ -25,7 +24,7 @@ export const navigateToPositionAfterZap = async (
         .replace(':chainId', chainId.toString())
         .replace(':protocol', exchange) + '?forceLoading=true'
   } else {
-    const tokenId = defaultTokenId || (await getTokenId(library, txHash, isUniV4))
+    const tokenId = defaultTokenId || (await getTokenId(library, txHash, dex))
     if (!tokenId) {
       navigateFunc(APP_PATHS.EARN_POSITIONS)
       return

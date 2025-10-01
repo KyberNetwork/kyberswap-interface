@@ -20,13 +20,13 @@ export const PositionPageWrapper = styled(PoolPageWrapper)`
 export const PositionRow = styled(Link)`
   display: grid;
   grid-template-columns:
-    minmax(260px, 2.5fr) /* Position */
+    minmax(260px, 2.8fr) /* Position */
     minmax(80px, 0.8fr) /* Value */
     minmax(90px, 0.8fr) /* est. APR */
     minmax(100px, 1fr) /* Unclaimed fees */
     minmax(120px, 1fr) /* Unclaimed rewards */
     24px /* Spacer column for better visual separation */
-    minmax(150px, 0.5fr) /* Balance */
+    minmax(150px, 0.4fr) /* Balance */
     minmax(160px, 1.8fr) /* Price range */
     minmax(75px, auto); /* Actions */
   grid-template-rows: 1fr;
@@ -335,13 +335,13 @@ export const BannerDataItem = styled.div`
 
 export const PositionTableHeader = styled(TableHeader)`
   grid-template-columns:
-    minmax(260px, 2.5fr) /* Position */
+    minmax(260px, 2.8fr) /* Position */
     minmax(80px, 0.8fr) /* Value */
     minmax(90px, 0.8fr) /* est. APR */
     minmax(100px, 1fr) /* Unclaimed fees */
     minmax(120px, 1fr) /* Unclaimed rewards */
     24px /* Spacer column for better visual separation */
-    minmax(150px, 0.5fr) /* Balance */
+    minmax(150px, 0.4fr) /* Balance */
     minmax(160px, 1.8fr) /* Price range */
     minmax(75px, auto); /* Actions */
   overflow: hidden;

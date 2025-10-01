@@ -16,14 +16,21 @@ import {
 import { calculateGasMargin } from 'utils'
 import { getReadingContractWithCustomChain } from 'utils/getContract'
 
-export const getTokenId = async (provider: Web3Provider, txHash: string, isUniV4: boolean) => {
+export const getTokenId = async (provider: Web3Provider, txHash: string, dex: EarnDex) => {
   try {
     const receipt = await provider.getTransactionReceipt(txHash)
     if (!receipt || !receipt.logs) return
 
+    const isUniV4 = isForkFrom(dex, CoreProtocol.UniswapV4)
+
     let hexTokenId
     if (!isUniV4) {
-      const increaseLidEventTopic = ethers.utils.id('IncreaseLiquidity(uint256,uint128,uint256,uint256)')
+      const isQuickSwapV3 = dex === EarnDex.DEX_QUICKSWAPV3ALGEBRA
+      const increaseLidEventTopic = ethers.utils.id(
+        !isQuickSwapV3
+          ? 'IncreaseLiquidity(uint256,uint128,uint256,uint256)'
+          : 'IncreaseLiquidity(uint256,uint128,uint128,uint256,uint256,address)',
+      )
       const increaseLidLogs = receipt.logs.filter((log: any) => log.topics[0] === increaseLidEventTopic)
       const increaseLidEvent = increaseLidLogs?.length ? increaseLidLogs[0] : undefined
       hexTokenId = increaseLidEvent?.topics?.[1]
