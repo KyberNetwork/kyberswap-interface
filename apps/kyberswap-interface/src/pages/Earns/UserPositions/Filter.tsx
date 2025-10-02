@@ -8,7 +8,7 @@ import Search from 'components/Search'
 import useDebounce from 'hooks/useDebounce'
 import DropdownMenu, { MenuOption } from 'pages/Earns/components/DropdownMenu'
 import { default as MultiSelectDropdownMenu } from 'pages/Earns/components/DropdownMenu/MultiSelect'
-import { AllChainsOption, AllProtocolsOption } from 'pages/Earns/hooks/useSupportedDexesAndChains'
+import { AllProtocolsOption } from 'pages/Earns/hooks/useSupportedDexesAndChains'
 import { PositionFilter, PositionStatus } from 'pages/Earns/types'
 import { MEDIA_WIDTHS } from 'theme'
 
@@ -19,7 +19,6 @@ const POSITION_STATUS = [
 ]
 
 export default function Filter({
-  supportedChains,
   supportedDexes,
   filters,
   updateFilters,
@@ -68,13 +67,6 @@ export default function Filter({
       sx={{ gap: 2 }}
     >
       <Flex sx={{ gap: 2, width: upToSmall ? '100%' : 'auto' }} flexWrap={'wrap'}>
-        <MultiSelectDropdownMenu
-          alignLeft
-          label={t`Select chains`}
-          options={supportedChains.length ? supportedChains : [AllChainsOption]}
-          value={filters.chainIds || ''}
-          onChange={value => value !== filters.chainIds && updateFilters('chainIds', value)}
-        />
         <DropdownMenu
           alignLeft
           mobileHalfWidth

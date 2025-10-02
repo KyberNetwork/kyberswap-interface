@@ -26,11 +26,13 @@ import {
   PositionTableWrapper,
 } from 'pages/Earns/UserPositions/styles'
 import useFilter, { SortBy } from 'pages/Earns/UserPositions/useFilter'
+import { default as MultiSelectDropdownMenu } from 'pages/Earns/components/DropdownMenu/MultiSelect'
+import { ItemIcon } from 'pages/Earns/components/DropdownMenu/styles'
 import { earnSupportedChains, earnSupportedExchanges, protocolGroupNameToExchangeMapping } from 'pages/Earns/constants'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import useClosedPositions from 'pages/Earns/hooks/useClosedPositions'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
-import useSupportedDexesAndChains from 'pages/Earns/hooks/useSupportedDexesAndChains'
+import useSupportedDexesAndChains, { AllChainsOption } from 'pages/Earns/hooks/useSupportedDexesAndChains'
 import useZapInWidget from 'pages/Earns/hooks/useZapInWidget'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import useZapOutWidget from 'pages/Earns/hooks/useZapOutWidget'
@@ -105,6 +107,21 @@ const UserPositions = () => {
     refetch()
     setLoading(true)
   })
+
+  const selectedChainsLabel = useMemo(() => {
+    const arrValue = filters.chainIds?.split(',')
+    const selectedChains = supportedChains.filter(option => arrValue?.includes(option.value))
+    if (selectedChains.length >= 2) {
+      return `Selected ${selectedChains.length} chains`
+    }
+    const option = selectedChains[0] || supportedChains[0]
+    return (
+      <>
+        {option.icon && <ItemIcon src={option.icon} alt={option.label} />}
+        {option.label}
+      </>
+    )
+  }, [supportedChains, filters.chainIds])
 
   const parsedPositions: Array<ParsedPosition> = useMemo(
     () =>
@@ -293,18 +310,27 @@ const UserPositions = () => {
       {zapOutWidget}
 
       <PositionPageWrapper>
+        <Flex alignItems="center" sx={{ gap: 3 }}>
+          <IconArrowLeft onClick={() => navigate(-1)} />
+          <Text as="h1" fontSize={24} fontWeight="500">
+            {t`My Positions`}
+          </Text>
+        </Flex>
+
         <Flex
           flexDirection={upToSmall ? 'column' : 'row'}
           alignItems={upToSmall ? 'flex-start' : 'center'}
           justifyContent={'space-between'}
-          sx={{ gap: 3 }}
+          sx={{ gap: 2 }}
         >
-          <Flex alignItems="center" sx={{ gap: 3 }}>
-            <IconArrowLeft onClick={() => navigate(-1)} />
-            <Text as="h1" fontSize={24} fontWeight="500">
-              {t`My Positions`}
-            </Text>
-          </Flex>
+          <MultiSelectDropdownMenu
+            alignLeft
+            label={selectedChainsLabel || t`Select chains`}
+            options={supportedChains.length ? supportedChains : [AllChainsOption]}
+            value={filters.chainIds || ''}
+            onChange={value => value !== filters.chainIds && updateFilters('chainIds', value)}
+          />
+
           <NavigateButton
             mobileFullWidth
             icon={<RocketIcon width={20} height={20} />}

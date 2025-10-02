@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import { Check } from 'react-feather'
 
 import { MenuOption } from 'pages/Earns/components/DropdownMenu'
@@ -24,7 +24,7 @@ const MultiSelect = ({
   mobileHalfWidth = false,
   onChange,
 }: {
-  label: string
+  label: ReactNode
   options: MenuOption[]
   value: string
   width?: number
@@ -81,7 +81,9 @@ const MultiSelect = ({
   return (
     <DropdownWrapper mobileFullWidth={mobileFullWidth} mobileHalfWidth={mobileHalfWidth} ref={ref}>
       <DropdownTitleWrapper onClick={handleOpenChange}>
-        <DropdownTitle width={width}>{label}</DropdownTitle>
+        <DropdownTitle justifyContent="flex-start" width={width}>
+          {label}
+        </DropdownTitle>
         <DropdownIcon open={open} />
       </DropdownTitleWrapper>
       {open && (

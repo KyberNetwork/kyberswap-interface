@@ -24,12 +24,12 @@ export const DropdownTitleWrapper = styled.div`
   justify-content: center;
 `
 
-export const DropdownTitle = styled.div<{ width?: number }>`
+export const DropdownTitle = styled.div<{ width?: number; justifyContent?: string }>`
   width: ${({ width }) => (width ? `${width}px` : '')};
   min-width: ${({ width }) => (!width ? '100px' : 'max-content')};
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: ${({ justifyContent }) => justifyContent || 'center'};
   gap: 6px;
   text-transform: capitalize;
 
