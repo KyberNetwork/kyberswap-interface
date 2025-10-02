@@ -14,12 +14,12 @@ export default function PoolStat() {
   const { position } = usePositionStore(['position']);
   const { pool } = usePoolStore(['pool']);
 
-  const initializing = pool === 'loading';
+  const initializing = !pool;
 
   const isUniv2 = univ2Types.includes(poolType as any);
 
   const poolShare =
-    position === 'loading' || !position || !isUniv2 || !('totalSupply' in position)
+    !position || !isUniv2 || !('totalSupply' in position)
       ? null
       : Number((BigInt(position.liquidity) * 10000n) / BigInt(position.totalSupply)) / 100;
 

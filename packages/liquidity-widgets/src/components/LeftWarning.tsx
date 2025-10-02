@@ -9,11 +9,10 @@ export default function LeftWarning() {
   const { chainId } = useWidgetStore(['chainId']);
   const { pool } = usePoolStore(['pool']);
 
-  const tokensToCheck =
-    pool === 'loading'
-      ? []
-      : [pool.token0, pool.token1].filter(token => token.address.toLowerCase() !== NATIVE_TOKEN_ADDRESS.toLowerCase());
-  const honeypots = usePairHoneypot(pool === 'loading' ? [] : tokensToCheck.map(token => token.address), chainId);
+  const tokensToCheck = !pool
+    ? []
+    : [pool.token0, pool.token1].filter(token => token.address.toLowerCase() !== NATIVE_TOKEN_ADDRESS.toLowerCase());
+  const honeypots = usePairHoneypot(!pool ? [] : tokensToCheck.map(token => token.address), chainId);
   const honeypotTokens = honeypots
     .map((honeypot, index) => (honeypot.isFOT || honeypot.isHoneypot ? tokensToCheck[index].symbol : ''))
     .filter(honeypot => honeypot !== '')

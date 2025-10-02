@@ -34,7 +34,7 @@ export default function Warning() {
   const { pool, poolPrice, revertPrice } = usePoolStore(['pool', 'poolPrice', 'revertPrice']);
   const { zapInfo, tickLower, tickUpper } = useZapState();
 
-  const initializing = pool === 'loading';
+  const initializing = !pool;
   const isUniV4 = univ4Types.includes(poolType);
   const { token0 = defaultToken, token1 = defaultToken } = !initializing ? pool : {};
 

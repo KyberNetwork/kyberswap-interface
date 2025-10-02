@@ -191,7 +191,7 @@ export default function useActionButton({
       setClickedLoading(true);
       approveNft().finally(() => setClickedLoading(false));
     } else if (
-      pool !== 'loading' &&
+      pool !== null &&
       amountsIn &&
       tokensIn.every(Boolean) &&
       zapInfo &&

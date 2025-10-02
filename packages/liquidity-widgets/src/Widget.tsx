@@ -70,7 +70,7 @@ export default function Widget() {
   const [widgetError, setWidgetError] = useState<string | undefined>();
   const [zapSnapshotState, setZapSnapshotState] = useState<ZapSnapshotState | null>(null);
 
-  const initializing = pool === 'loading';
+  const initializing = !pool;
   const { token0 = defaultToken, token1 = defaultToken } = !initializing ? pool : {};
 
   const isUniV3 = univ3Types.includes(poolType as any);
@@ -178,7 +178,7 @@ export default function Widget() {
           }
         />
       )}
-      {zapSnapshotState && pool && pool !== 'loading' && (
+      {zapSnapshotState && !initializing && (
         <Modal isOpen onClick={onClosePreview} modalContentClass="!max-h-[96vh]">
           <Preview zapState={zapSnapshotState} pool={pool} onDismiss={onClosePreview} />
         </Modal>
