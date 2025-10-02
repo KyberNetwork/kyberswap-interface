@@ -112,7 +112,7 @@ const UserPositions = () => {
     const arrValue = filters.chainIds?.split(',')
     const selectedChains = supportedChains.filter(option => arrValue?.includes(option.value))
     if (selectedChains.length >= 2) {
-      return `Selected ${selectedChains.length} chains`
+      return `Selected: ${selectedChains.length} chains`
     }
     const option = selectedChains[0] || supportedChains[0]
     return (
