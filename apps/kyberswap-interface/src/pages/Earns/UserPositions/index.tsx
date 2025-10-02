@@ -313,7 +313,7 @@ const UserPositions = () => {
           />
         </Flex>
 
-        {account && <PositionBanner positions={parsedPositions} initialLoading={initialLoading} />}
+        {account && <PositionBanner positions={filteredPositions} initialLoading={initialLoading} />}
 
         <Filter
           supportedChains={supportedChains}
