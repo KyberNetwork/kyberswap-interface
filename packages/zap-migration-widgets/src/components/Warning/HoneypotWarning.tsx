@@ -7,13 +7,17 @@ import { useWidgetStore } from '@/stores/useWidgetStore';
 
 export default function HoneypotWarning() {
   const { chainId } = useWidgetStore(['chainId']);
-  const { targetPool } = usePoolStore(['targetPool']);
-  const tokensToCheck = !targetPool
-    ? []
-    : [targetPool.token0, targetPool.token1].filter(
-        token => token.address.toLowerCase() !== NATIVE_TOKEN_ADDRESS.toLowerCase(),
-      );
-  const honeypots = usePairHoneypot(!targetPool ? [] : tokensToCheck.map(token => token.address), chainId);
+  const { sourcePool, targetPool } = usePoolStore(['sourcePool', 'targetPool']);
+  const tokensToCheck =
+    !sourcePool || !targetPool
+      ? []
+      : [sourcePool.token0, sourcePool.token1, targetPool.token0, targetPool.token1].filter(
+          token => token.address.toLowerCase() !== NATIVE_TOKEN_ADDRESS.toLowerCase(),
+        );
+  const honeypots = usePairHoneypot(
+    tokensToCheck.map(token => token.address),
+    chainId,
+  );
   const honeypotTokens = honeypots
     .map((honeypot, index) => (honeypot.isFOT || honeypot.isHoneypot ? tokensToCheck[index].symbol : ''))
     .filter(honeypot => honeypot !== '')
