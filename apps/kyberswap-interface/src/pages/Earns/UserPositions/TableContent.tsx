@@ -1,6 +1,5 @@
 import { formatAprNumber, toString } from '@kyber/utils/dist/number'
 import { MAX_TICK, MIN_TICK, priceToClosestTick } from '@kyber/utils/dist/uniswapv3'
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useCallback, useMemo, useState } from 'react'
 import { ArrowRight, ArrowRightCircle } from 'react-feather'
@@ -15,7 +14,6 @@ import { Loader2 } from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { APP_PATHS, PAIR_CATEGORY } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { PositionAction as PositionActionBtn } from 'pages/Earns/PositionDetail/styles'
@@ -25,7 +23,6 @@ import PriceRange from 'pages/Earns/UserPositions/PriceRange'
 import {
   Badge,
   BadgeType,
-  ChainImage,
   Divider,
   EmptyPositionText,
   ImageContainer,
@@ -351,9 +348,9 @@ export default function TableContent({
                       <ImageContainer>
                         <TokenLogo src={token0.logo} />
                         <TokenLogo src={token1.logo} translateLeft />
-                        <ChainImage src={NETWORKS_INFO[chain.id as ChainId]?.icon || chain.logo} alt="" />
+                        <TokenLogo src={chain.logo} size={12} translateLeft translateTop />
                       </ImageContainer>
-                      <Text marginLeft={-2} fontSize={upToSmall ? 15 : 16}>
+                      <Text marginLeft={-1} fontSize={upToSmall ? 15 : 16}>
                         {token0.symbol}/{token1.symbol}
                       </Text>
                       <Badge>{pool.fee}%</Badge>

@@ -14,7 +14,7 @@ import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { NavigateButton } from 'pages/Earns/PoolExplorer/styles'
 import { DexInfo, IconArrowLeft, PositionHeader } from 'pages/Earns/PositionDetail/styles'
-import { Badge, BadgeType, ChainImage, ImageContainer } from 'pages/Earns/UserPositions/styles'
+import { Badge, BadgeType, ImageContainer } from 'pages/Earns/UserPositions/styles'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import { CoreProtocol, EarnDex, Exchange, PROTOCOL_POSITION_URL, earnSupportedProtocols } from 'pages/Earns/constants'
 import useForceLoading from 'pages/Earns/hooks/useForceLoading'
@@ -110,12 +110,12 @@ const PositionDetailHeader = ({
               <ImageContainer>
                 <TokenLogo src={position?.token0.logo} />
                 <TokenLogo src={position?.token1.logo} translateLeft />
-                <ChainImage src={position?.chain.logo} alt="" />
+                <TokenLogo src={position?.chain.logo} size={12} translateLeft translateTop />
               </ImageContainer>
               <Link
                 to={`${APP_PATHS.EARN_POOLS}?exchange=${position?.dex.id}&poolChainId=${position?.chain.id}&poolAddress=${position?.pool.address}`}
               >
-                <Text color={theme.text} marginLeft={-3} fontSize={upToSmall ? 20 : 16}>
+                <Text color={theme.text} marginLeft={-2.5} fontSize={upToSmall ? 20 : 16}>
                   {position?.token0.symbol}/{position?.token1.symbol}
                 </Text>
               </Link>

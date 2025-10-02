@@ -78,15 +78,6 @@ export const ImageContainer = styled.div`
   top: 2px;
 `
 
-export const ChainImage = styled.img`
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  position: relative;
-  left: -8px;
-  top: 4px;
-`
-
 export enum BadgeType {
   PRIMARY = 'primary',
   WARNING = 'warning',
