@@ -12,6 +12,8 @@ import {
   MultiSelectDropdownContentItem,
 } from 'pages/Earns/components/DropdownMenu/styles'
 
+const AllOptionValue = ''
+
 const MultiSelect = ({
   label,
   options,
@@ -39,6 +41,10 @@ const MultiSelect = ({
   const handleOpenChange = () => setOpen(!open)
 
   const handleSelectItem = (newValue: string) => {
+    if (value === AllOptionValue) {
+      onChange(newValue)
+      return
+    }
     const arrValue = value.split(',')
     if (arrValue.includes(newValue)) {
       arrValue.splice(arrValue.indexOf(newValue), 1)
@@ -46,8 +52,18 @@ const MultiSelect = ({
       arrValue.push(newValue)
     }
     if (arrValue.length === 0) {
-      onChange(options.map(option => option.value).join(','))
-    } else onChange(arrValue.join(','))
+      if (options.some(option => option.value === AllOptionValue)) {
+        onChange(AllOptionValue)
+      } else {
+        onChange(options.map(option => option.value).join(','))
+      }
+    } else {
+      if (arrValue.includes(AllOptionValue)) {
+        onChange(AllOptionValue)
+      } else {
+        onChange(arrValue.join(','))
+      }
+    }
   }
 
   useEffect(() => {

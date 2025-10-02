@@ -68,18 +68,18 @@ export default function Filter({
       sx={{ gap: 2 }}
     >
       <Flex sx={{ gap: 2, width: upToSmall ? '100%' : 'auto' }} flexWrap={'wrap'}>
-        <DropdownMenu
+        <MultiSelectDropdownMenu
           alignLeft
-          mobileHalfWidth
-          value={filters.chainIds || ''}
+          label={t`Select chains`}
           options={supportedChains.length ? supportedChains : [AllChainsOption]}
+          value={filters.chainIds || ''}
           onChange={value => value !== filters.chainIds && updateFilters('chainIds', value)}
         />
         <DropdownMenu
           alignLeft
           mobileHalfWidth
-          value={filters.protocols || ''}
           options={supportedDexes.length ? supportedDexes : [AllProtocolsOption]}
+          value={filters.protocols || ''}
           onChange={value => value !== filters.protocols && updateFilters('protocols', value)}
         />
         <MultiSelectDropdownMenu

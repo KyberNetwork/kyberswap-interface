@@ -72,7 +72,7 @@ const UserPositions = () => {
   }, [account, filters.q, filters.status])
 
   const {
-    data: userPosition,
+    data: userPositions,
     isFetching,
     isError,
     refetch,
@@ -108,7 +108,7 @@ const UserPositions = () => {
 
   const parsedPositions: Array<ParsedPosition> = useMemo(
     () =>
-      [...(userPosition || [])].map(position => {
+      [...(userPositions || [])].map(position => {
         const feeInfo = feeInfoFromRpc.find(feeInfo => feeInfo.id === position.tokenId)
         const nftRewardInfo = rewardInfo?.nfts.find(item => item.nftId === position.tokenId)
         const isClosedFromRpc = closedPositionsFromRpc.some(
@@ -122,7 +122,7 @@ const UserPositions = () => {
           isClosedFromRpc,
         })
       }),
-    [feeInfoFromRpc, rewardInfo?.nfts, userPosition, closedPositionsFromRpc],
+    [feeInfoFromRpc, rewardInfo?.nfts, userPositions, closedPositionsFromRpc],
   )
 
   const filteredPositions: Array<ParsedPosition> = useMemo(() => {
@@ -142,7 +142,9 @@ const UserPositions = () => {
         return arrStatus.includes(position.status)
       })
 
-    if (filters.chainIds) result = result.filter(position => position.chain.id === Number(filters.chainIds))
+    if (filters.chainIds) {
+      result = result.filter(position => filters.chainIds?.split(',').includes(position.chain.id.toString()))
+    }
     if (filters.protocols) {
       result = result.filter(position =>
         filters.protocols?.split(',').includes(protocolGroupNameToExchangeMapping[position.dex.id]),
