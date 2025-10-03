@@ -1,16 +1,23 @@
 import { univ2Types } from '@kyber/schema';
 import { MouseoverTooltip } from '@kyber/ui';
 import { Skeleton } from '@kyber/ui';
+import { shortenAddress } from '@kyber/utils/crypto';
 import { formatAprNumber, formatDisplayNumber } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
 import FarmingIcon from '@/assets/svg/kem.svg';
+import { useRewardCycleProgress } from '@/hooks/useRewardCycleProgress';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
 export default function PoolStat() {
-  const { poolType, positionId } = useWidgetStore(['poolType', 'positionId']);
+  const { poolType, positionId, chainId, poolAddress } = useWidgetStore([
+    'poolType',
+    'positionId',
+    'chainId',
+    'poolAddress',
+  ]);
   const { position } = usePositionStore(['position']);
   const { pool } = usePoolStore(['pool']);
 
@@ -26,6 +33,21 @@ export default function PoolStat() {
   const poolStat = initializing ? null : pool?.stats;
   const poolApr = (poolStat?.apr || 0) + (poolStat?.kemEGApr || 0) + (poolStat?.kemLMApr || 0);
   const isFarming = initializing ? false : pool?.isFarming || false;
+
+  const {
+    loading: rewardLoading,
+    data: rewardProgress,
+    error: rewardError,
+  } = useRewardCycleProgress({
+    chainId,
+    poolAddress: poolAddress?.toLowerCase() || '',
+    enabled: isFarming,
+  });
+
+  const rewardSymbol = rewardProgress ? rewardProgress.symbol || shortenAddress(rewardProgress.tokenAddress, 4) : '';
+  const rewardPercent = rewardProgress ? Math.round(rewardProgress.progress * 100) : 0;
+  const rewardProgressWidth = rewardProgress ? Math.min(rewardProgress.progress * 100, 100) : 0;
+  const rewardIndicatorPosition = rewardProgress ? Math.min(Math.max(rewardProgressWidth, 6), 94) : 6;
 
   return (
     <div
@@ -116,6 +138,57 @@ export default function PoolStat() {
           </span>
         </div>
       )}
+      {isFarming ? (
+        <div className="mt-3 border-t border-stroke pt-3">
+          <div className="flex flex-col gap-2">
+            <span className="text-subText">Liquidity Mining Progress</span>
+            {rewardLoading ? (
+              <div className="flex flex-col gap-2">
+                <Skeleton className="w-40 h-5" />
+                <Skeleton className="w-full h-2" />
+              </div>
+            ) : rewardProgress ? (
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center justify-between text-text">
+                  <span className="text-[16px]">
+                    {formatDisplayNumber(rewardProgress.distributedReward, {
+                      significantDigits: 6,
+                    })}{' '}
+                    {rewardSymbol}
+                  </span>
+                  <span className="text-subText">
+                    /{' '}
+                    {formatDisplayNumber(rewardProgress.totalReward, {
+                      significantDigits: 6,
+                    })}{' '}
+                    {rewardSymbol}
+                  </span>
+                </div>
+                <div className="relative pt-2 pb-8">
+                  <div className="h-1.5 rounded-full bg-layer2 overflow-hidden">
+                    <div
+                      className="h-full bg-accent rounded-full transition-all duration-500 ease-linear"
+                      style={{ width: `${rewardProgressWidth}%` }}
+                    />
+                  </div>
+                  <div
+                    className="absolute top-4 -translate-x-1/2 mt-2 px-3 py-[3px] rounded-full bg-accent-100 text-xs text-accent shadow-[0_4px_12px_rgba(0,0,0,0.35)]"
+                    style={{ left: `${rewardIndicatorPosition}%` }}
+                  >
+                    <div
+                      className="pointer-events-none absolute -top-[5.5px] left-1/2 h-1.5 w-2.5 -translate-x-1/2 bg-accent-100 z-[-1]"
+                      style={{ clipPath: 'polygon(50% 0, 0 100%, 100% 100%)' }}
+                    />
+                    {rewardPercent}%
+                  </div>
+                </div>
+              </div>
+            ) : rewardError ? (
+              <span className="text-xs text-warning">Failed to load reward data</span>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
