@@ -59,11 +59,11 @@ const useSupportedDexesAndChains = (filters: PoolQueryParams | PositionFilter) =
     return allowAllChains ? [AllChainsOption].concat(parsedChains) : parsedChains
   }, [filters, supportedChains, supportedProtocols?.data?.chains])
 
-  const selectedChainId = useMemo(() => {
-    if ('chainId' in filters) return filters.chainId || chains[0]?.value
-    else if ('chainIds' in filters) return filters.chainIds
+  const selectedChainIds = useMemo(() => {
+    if ('chainId' in filters) return [filters.chainId || chains[0]?.value].filter(Boolean)
+    if ('chainIds' in filters) return filters.chainIds?.split(',').filter(Boolean)
 
-    return ''
+    return []
   }, [chains, filters])
 
   const supportedDexes = useMemo(() => {
@@ -71,12 +71,15 @@ const useSupportedDexesAndChains = (filters: PoolQueryParams | PositionFilter) =
 
     let parsedProtocols: MenuOption[] = []
 
-    if (selectedChainId)
-      parsedProtocols =
-        supportedProtocols.data.chains[selectedChainId]?.protocols?.map(item => ({
-          label: item.name,
-          value: item.id.toString(),
-        })) || []
+    if (selectedChainIds?.length)
+      selectedChainIds.forEach(chainId => {
+        const protocols =
+          supportedProtocols.data.chains[chainId]?.protocols?.map(item => ({
+            label: item.name,
+            value: item.id.toString(),
+          })) || []
+        parsedProtocols.push(...protocols)
+      })
     else
       Object.keys(supportedProtocols.data.chains)
         .map(chain => supportedProtocols.data.chains[chain].protocols)
@@ -105,7 +108,7 @@ const useSupportedDexesAndChains = (filters: PoolQueryParams | PositionFilter) =
       })
 
     return [AllProtocolsOption].concat(parsedProtocols)
-  }, [selectedChainId, supportedProtocols])
+  }, [selectedChainIds, supportedProtocols])
 
   return { supportedDexes, supportedChains: chains }
 }
