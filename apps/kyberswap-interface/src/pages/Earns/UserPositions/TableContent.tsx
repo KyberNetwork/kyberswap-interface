@@ -353,7 +353,12 @@ export default function TableContent({
                         <TokenLogo src={token1.logo} translateLeft />
                         <ChainImage src={NETWORKS_INFO[chain.id as ChainId]?.icon || chain.logo} alt="" />
                       </ImageContainer>
-                      <Text marginLeft={-2} fontSize={upToSmall ? 15 : 16}>
+                      <Text
+                        marginLeft={-2}
+                        fontSize={upToSmall ? 15 : 16}
+                        maxWidth={'160px'}
+                        sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+                      >
                         {token0.symbol}/{token1.symbol}
                       </Text>
                       {pool.fee ? <Badge>{pool.fee}%</Badge> : null}
@@ -601,14 +606,16 @@ export default function TableContent({
                     <PositionValueLabel>{t`Balance`}</PositionValueLabel>
 
                     {token0.symbol && token1.symbol ? (
-                      <Flex flexDirection={upToSmall ? 'row' : 'column'} sx={{ gap: 1.8 }}>
-                        <Text>
-                          {formatDisplayNumber(token0.totalProvide, { significantDigits: 4 })} {token0.symbol}
-                        </Text>
+                      <Flex flexDirection={upToSmall ? 'row' : 'column'} alignItems="center" sx={{ gap: 1.8 }}>
+                        <Flex alignItems="center" sx={{ gap: 1 }}>
+                          <Text>{formatDisplayNumber(token0.totalProvide, { significantDigits: 4 })}</Text>
+                          <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '80px' }}>{token0.symbol}</Text>
+                        </Flex>
                         {upToSmall && <Divider />}
-                        <Text>
-                          {formatDisplayNumber(token1.totalProvide, { significantDigits: 4 })} {token1.symbol}
-                        </Text>
+                        <Flex alignItems="center" sx={{ gap: 1 }}>
+                          <Text>{formatDisplayNumber(token1.totalProvide, { significantDigits: 4 })}</Text>
+                          <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '80px' }}>{token1.symbol}</Text>
+                        </Flex>
                       </Flex>
                     ) : (
                       '--'

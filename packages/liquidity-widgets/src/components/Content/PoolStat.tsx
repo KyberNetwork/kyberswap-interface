@@ -148,7 +148,7 @@ export default function PoolStat() {
                 <Skeleton className="w-full h-2" />
               </div>
             ) : rewardProgress ? (
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col">
                 <div className="flex items-center justify-between text-text">
                   <span className="text-[16px]">
                     {formatDisplayNumber(rewardProgress.distributedReward, {
