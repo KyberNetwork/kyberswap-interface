@@ -606,7 +606,11 @@ export default function TableContent({
                     <PositionValueLabel>{t`Balance`}</PositionValueLabel>
 
                     {token0.symbol && token1.symbol ? (
-                      <Flex flexDirection={upToSmall ? 'row' : 'column'} alignItems="center" sx={{ gap: 1.8 }}>
+                      <Flex
+                        flexDirection={upToSmall ? 'row' : 'column'}
+                        alignItems={upToSmall ? 'center' : 'flex-start'}
+                        sx={{ gap: 1.8 }}
+                      >
                         <Flex alignItems="center" sx={{ gap: 1 }}>
                           <Text>{formatDisplayNumber(token0.totalProvide, { significantDigits: 4 })}</Text>
                           <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '80px' }}>{token0.symbol}</Text>
