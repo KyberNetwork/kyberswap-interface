@@ -60,17 +60,13 @@ const UserPositions = () => {
   const { closedPositionsFromRpc, checkClosedPosition } = useClosedPositions()
 
   const positionQueryParams = useMemo(() => {
-    const statusFilter = filters.status.split(',')
-    const isFilterOnlyClosedPosition = statusFilter.length === 1 && statusFilter[0] === PositionStatus.CLOSED
-    const isFilterOnlyOpenPosition = !statusFilter.includes(PositionStatus.CLOSED)
-
     return {
       addresses: account || '',
       chainIds: earnSupportedChains.join(','),
       protocols: earnSupportedExchanges.join(','),
-      positionStatus: isFilterOnlyClosedPosition ? 'closed' : isFilterOnlyOpenPosition ? 'open' : 'all',
+      positionStatus: 'all',
     }
-  }, [account, filters.status])
+  }, [account])
 
   const {
     data: userPositions,
@@ -158,15 +154,17 @@ const UserPositions = () => {
 
     let unfinalizedPositions = getUnfinalizedPositions(positionsToCheckWithCache)
 
-    const arrStatus = filters.status.split(',')
-    result = [...filteredPositionsByChains]
-      .filter(position => !unfinalizedPositions.some(p => p.tokenId === position.tokenId))
-      .filter(position => {
-        if (filters.status === PositionStatus.OUT_RANGE)
-          return !position.pool.isUniv2 && arrStatus.includes(position.status)
+    result = [...filteredPositionsByChains].filter(
+      position => !unfinalizedPositions.some(p => p.tokenId === position.tokenId),
+    )
 
-        return arrStatus.includes(position.status)
-      })
+    const arrStatus = filters.status.split(',')
+    result = result.filter(position => {
+      if (filters.status === PositionStatus.OUT_RANGE)
+        return !position.pool.isUniv2 && arrStatus.includes(position.status)
+
+      return arrStatus.includes(position.status)
+    })
 
     if (filters.q) {
       result = result.filter(position => {
