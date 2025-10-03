@@ -68,10 +68,9 @@ const UserPositions = () => {
       addresses: account || '',
       chainIds: earnSupportedChains.join(','),
       protocols: earnSupportedExchanges.join(','),
-      q: filters.q,
       positionStatus: isFilterOnlyClosedPosition ? 'closed' : isFilterOnlyOpenPosition ? 'open' : 'all',
     }
-  }, [account, filters.q, filters.status])
+  }, [account, filters.status])
 
   const {
     data: userPositions,
@@ -142,15 +141,25 @@ const UserPositions = () => {
     [feeInfoFromRpc, rewardInfo?.nfts, userPositions, closedPositionsFromRpc],
   )
 
+  const filteredPositionsByChains: Array<ParsedPosition> = useMemo(() => {
+    let result = [...parsedPositions]
+
+    if (filters.chainIds) {
+      result = result.filter(position => filters.chainIds?.split(',').includes(position.chain.id.toString()))
+    }
+
+    return result
+  }, [filters.chainIds, parsedPositions])
+
   const filteredPositions: Array<ParsedPosition> = useMemo(() => {
     let result = []
 
-    const positionsToCheckWithCache = [...parsedPositions]
+    const positionsToCheckWithCache = [...filteredPositionsByChains]
 
-    const unfinalizedPositions = getUnfinalizedPositions(positionsToCheckWithCache)
+    let unfinalizedPositions = getUnfinalizedPositions(positionsToCheckWithCache)
 
     const arrStatus = filters.status.split(',')
-    result = [...parsedPositions]
+    result = [...filteredPositionsByChains]
       .filter(position => !unfinalizedPositions.some(p => p.tokenId === position.tokenId))
       .filter(position => {
         if (filters.status === PositionStatus.OUT_RANGE)
@@ -159,9 +168,18 @@ const UserPositions = () => {
         return arrStatus.includes(position.status)
       })
 
-    if (filters.chainIds) {
-      result = result.filter(position => filters.chainIds?.split(',').includes(position.chain.id.toString()))
+    if (filters.q) {
+      result = result.filter(position => {
+        return [
+          position.tokenAddress,
+          position.token0.address,
+          position.token0.symbol,
+          position.token1.address,
+          position.token1.symbol,
+        ].some(item => item.toLowerCase().includes(filters.q?.toLowerCase() || ''))
+      })
     }
+
     if (filters.protocols) {
       result = result.filter(position =>
         filters.protocols?.split(',').includes(protocolGroupNameToExchangeMapping[position.dex.id]),
@@ -200,9 +218,9 @@ const UserPositions = () => {
       }
     }
 
-    unfinalizedPositions.filter(
+    unfinalizedPositions = unfinalizedPositions.filter(
       position =>
-        (filters.chainIds ? Number(filters.chainIds) === position.chain.id : true) &&
+        (filters.chainIds ? filters.chainIds.split(',').includes(position.chain.id.toString()) : true) &&
         (filters.protocols
           ? filters.protocols.split(',').includes(protocolGroupNameToExchangeMapping[position.dex.id])
           : true) &&
@@ -210,7 +228,15 @@ const UserPositions = () => {
     )
 
     return [...result, ...unfinalizedPositions]
-  }, [filters.chainIds, filters.orderBy, filters.protocols, filters.sortBy, filters.status, parsedPositions])
+  }, [
+    filters.chainIds,
+    filters.protocols,
+    filters.status,
+    filters.q,
+    filters.sortBy,
+    filters.orderBy,
+    filteredPositionsByChains,
+  ])
 
   const paginatedPositions: Array<ParsedPosition> = useMemo(() => {
     if (filteredPositions.length <= POSITIONS_TABLE_LIMIT) return filteredPositions
@@ -339,7 +365,7 @@ const UserPositions = () => {
           />
         </Flex>
 
-        {account && <PositionBanner positions={filteredPositions} initialLoading={initialLoading} />}
+        {account && <PositionBanner positions={filteredPositionsByChains} initialLoading={initialLoading} />}
 
         <Filter
           supportedChains={supportedChains}
