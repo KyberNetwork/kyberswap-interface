@@ -107,6 +107,10 @@ const UserPositions = () => {
     setLoading(true)
   })
 
+  useEffect(() => {
+    console.log(1)
+  }, [])
+
   const parsedPositions: Array<ParsedPosition> = useMemo(
     () =>
       [...(userPosition || [])].map(position => {
