@@ -7,6 +7,7 @@ import { NotificationType } from 'components/Announcement/type'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { fetchListTokenByAddresses } from 'hooks/Tokens'
 import useChainsConfig from 'hooks/useChainsConfig'
+import useFilter from 'pages/Earns/UserPositions/useFilter'
 import ClaimAllModal from 'pages/Earns/components/ClaimAllModal'
 import ClaimModal, { ClaimInfo, ClaimType } from 'pages/Earns/components/ClaimModal'
 import { EarnDex, FARMING_SUPPORTED_CHAIN } from 'pages/Earns/constants'
@@ -27,6 +28,7 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
   const { account, chainId } = useActiveWeb3React()
   const { library } = useWeb3React()
   const { supportedChains } = useChainsConfig()
+  const { filters } = useFilter()
 
   const { data, refetch: refetchRewardInfo } = useRewardInfoQuery(
     {
@@ -58,10 +60,14 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
     onCloseClaimModal: onCloseClaim,
   })
 
-  const rewardInfo: RewardInfo | null = useMemo(
-    () => parseReward({ data, tokens, supportedChains }),
-    [data, tokens, supportedChains],
-  )
+  const rewardInfo: RewardInfo | null = useMemo(() => {
+    const chainIds = filters.chainIds?.split(',').filter(Boolean).map(Number)
+    return parseReward({
+      data,
+      tokens,
+      supportedChains: supportedChains.filter(chain => !chainIds?.length || chainIds.includes(chain.chainId)),
+    })
+  }, [data, tokens, supportedChains, filters.chainIds])
 
   const handleClaim = useCallback(async () => {
     if (!account || !claimInfo) return
