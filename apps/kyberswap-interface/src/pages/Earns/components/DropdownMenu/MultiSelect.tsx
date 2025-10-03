@@ -22,6 +22,7 @@ const MultiSelect = ({
   alignLeft = false,
   mobileFullWidth = false,
   mobileHalfWidth = false,
+  highlightOnSelect = false,
   onChange,
 }: {
   label: ReactNode
@@ -31,6 +32,7 @@ const MultiSelect = ({
   alignLeft?: boolean
   mobileFullWidth?: boolean
   mobileHalfWidth?: boolean
+  highlightOnSelect?: boolean
   onChange: (value: string | number) => void
 }) => {
   const [open, setOpen] = useState(false)
@@ -80,7 +82,7 @@ const MultiSelect = ({
 
   return (
     <DropdownWrapper mobileFullWidth={mobileFullWidth} mobileHalfWidth={mobileHalfWidth} ref={ref}>
-      <DropdownTitleWrapper onClick={handleOpenChange}>
+      <DropdownTitleWrapper highlight={highlightOnSelect && value !== AllOptionValue} onClick={handleOpenChange}>
         <DropdownTitle justifyContent="flex-start" width={width}>
           {label}
         </DropdownTitle>
