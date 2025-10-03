@@ -33,6 +33,7 @@ export default function PoolStat() {
   const poolStat = initializing ? null : pool?.stats;
   const poolApr = (poolStat?.apr || 0) + (poolStat?.kemEGApr || 0) + (poolStat?.kemLMApr || 0);
   const isFarming = initializing ? false : pool?.isFarming || false;
+  const haveLm = initializing ? false : pool?.haveLm || false;
 
   const {
     loading: rewardLoading,
@@ -41,7 +42,7 @@ export default function PoolStat() {
   } = useRewardCycleProgress({
     chainId,
     poolAddress: poolAddress?.toLowerCase() || '',
-    enabled: isFarming,
+    enabled: haveLm,
   });
 
   const rewardSymbol = rewardProgress ? rewardProgress.symbol || shortenAddress(rewardProgress.tokenAddress, 4) : '';

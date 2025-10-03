@@ -127,6 +127,7 @@ export const getPoolInfo = async ({
           kemEGApr: univ3PoolInfo.poolStats.kemEGApr || 0,
         },
         isFarming: univ3PoolInfo.programs?.includes('eg') || univ3PoolInfo.programs?.includes('lm'),
+        haveLm: univ3PoolInfo.programs?.includes('lm'),
       },
     };
   }
@@ -155,6 +156,7 @@ export const getPoolInfo = async ({
           kemEGApr: univ2PoolInfo.poolStats.kemEGApr || 0,
         },
         isFarming: univ2PoolInfo.programs?.includes('eg') || univ2PoolInfo.programs?.includes('lm'),
+        haveLm: univ2PoolInfo.programs?.includes('lm'),
       },
     };
   }
