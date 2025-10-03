@@ -78,7 +78,9 @@ const useSupportedDexesAndChains = (filters: PoolQueryParams | PositionFilter) =
             label: item.name,
             value: item.id.toString(),
           })) || []
-        parsedProtocols.push(...protocols)
+        protocols.forEach(item => {
+          if (!parsedProtocols.some(protocol => protocol.value === item.value)) parsedProtocols.push(item)
+        })
       })
     else
       Object.keys(supportedProtocols.data.chains)
