@@ -7,7 +7,7 @@ import {
   defaultToken,
   univ3PoolNormalize,
 } from '@kyber/schema';
-import { InfoHelper, Skeleton, TokenLogo } from '@kyber/ui';
+import { InfoHelper, Skeleton, TokenLogo, TokenSymbol } from '@kyber/ui';
 import { shortenAddress } from '@kyber/utils/crypto';
 
 import { usePoolStore } from '@/stores/usePoolStore';
@@ -85,8 +85,9 @@ export function PoolInfo({ type }: { type: PoolInfoType }) {
             className="-ml-1.5 z-20"
           />
         </div>
-        <div className="text-xl self-center">
-          {token0.symbol}/{token1.symbol}
+        <div className="flex items-center gap-1">
+          <TokenSymbol symbol={token0.symbol} className="text-xl" maxWidth={90} />/
+          <TokenSymbol symbol={token1.symbol} className="text-xl" maxWidth={90} />
         </div>
         <div className="flex items-center justify-center px-1.5 py-1 bg-layer2 rounded-full">
           <InfoHelper
