@@ -2,7 +2,6 @@ import { useMemo, useState } from 'react';
 
 import { cn } from '@kyber/utils/tailwind-helpers';
 
-import HoneypotWarning from '@/components/HoneypotWarning';
 import InfoHelper from '@/components/InfoHelper';
 import { useSwapPI } from '@/components/SwapImpact';
 import { WarningMsg } from '@/components/WarningMsg';
@@ -113,7 +112,6 @@ export const Action = () => {
 
   return (
     <>
-      <HoneypotWarning />
       <WarningMsg />
       <div className="grid grid-cols-2 gap-3 mt-5 sm:gap-6">
         <button className="ks-outline-btn flex-1 w-full" onClick={onClose}>

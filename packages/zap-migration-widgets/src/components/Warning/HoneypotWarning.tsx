@@ -13,9 +13,19 @@ export default function HoneypotWarning() {
   const tokensToCheck =
     !sourcePool || !targetPool
       ? []
-      : [sourcePool.token0, sourcePool.token1, targetPool.token0, targetPool.token1].filter(
-          token => token.address.toLowerCase() !== NATIVE_TOKEN_ADDRESS.toLowerCase(),
-        );
+      : (() => {
+          const seenAddresses = new Set<string>();
+          return [sourcePool.token0, sourcePool.token1, targetPool.token0, targetPool.token1]
+            .filter(token => token.address.toLowerCase() !== NATIVE_TOKEN_ADDRESS.toLowerCase())
+            .filter(token => {
+              const address = token.address.toLowerCase();
+              if (seenAddresses.has(address)) {
+                return false;
+              }
+              seenAddresses.add(address);
+              return true;
+            });
+        })();
   const honeypots = usePairHoneypot(
     tokensToCheck.map(token => token.address),
     chainId,
