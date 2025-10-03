@@ -1,5 +1,6 @@
 import { usePairHoneypot } from '@kyber/hooks';
 import { NATIVE_TOKEN_ADDRESS } from '@kyber/schema';
+import { isNotNull } from '@kyber/utils';
 
 import AlertIcon from '@/assets/svg/alert.svg';
 import { usePoolStore } from '@/stores/usePoolStore';
@@ -23,7 +24,7 @@ export default function LeftWarning() {
           }
         : null,
     )
-    .filter(honeypot => honeypot !== null);
+    .filter(isNotNull);
   const honeypotTokensNames = honeypotTokens.map(honeypot => honeypot.symbol).join(', ');
 
   const fotTokens = honeypots
@@ -35,7 +36,7 @@ export default function LeftWarning() {
           }
         : null,
     )
-    .filter(honeypot => honeypot !== null);
+    .filter(isNotNull);
 
   return (
     <>
