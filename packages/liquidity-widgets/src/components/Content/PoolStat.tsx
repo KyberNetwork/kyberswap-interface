@@ -139,7 +139,7 @@ export default function PoolStat() {
           </span>
         </div>
       )}
-      {isFarming ? (
+      {haveLm ? (
         <div className="mt-3 border-t border-stroke pt-3">
           <div className="flex flex-col gap-2">
             <span className="text-subText">Liquidity Mining Progress</span>
