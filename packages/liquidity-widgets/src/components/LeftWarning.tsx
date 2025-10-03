@@ -13,22 +13,53 @@ export default function LeftWarning() {
     ? []
     : [pool.token0, pool.token1].filter(token => token.address.toLowerCase() !== NATIVE_TOKEN_ADDRESS.toLowerCase());
   const honeypots = usePairHoneypot(!pool ? [] : tokensToCheck.map(token => token.address), chainId);
+
   const honeypotTokens = honeypots
-    .map((honeypot, index) => (honeypot.isFOT || honeypot.isHoneypot ? tokensToCheck[index].symbol : ''))
-    .filter(honeypot => honeypot !== '')
-    .join(', ');
+    .map((honeypot, index) =>
+      honeypot.isHoneypot
+        ? {
+            ...honeypot,
+            symbol: tokensToCheck[index].symbol,
+          }
+        : null,
+    )
+    .filter(honeypot => honeypot !== null);
+  const honeypotTokensNames = honeypotTokens.map(honeypot => honeypot.symbol).join(', ');
+
+  const fotTokens = honeypots
+    .map((honeypot, index) =>
+      honeypot.isFOT
+        ? {
+            ...honeypot,
+            symbol: tokensToCheck[index].symbol,
+          }
+        : null,
+    )
+    .filter(honeypot => honeypot !== null);
 
   return (
     <>
-      {honeypotTokens ? (
+      {honeypotTokensNames ? (
         <div className="py-3 px-4 text-sm rounded-md bg-warning-200 mt-4 flex gap-2">
           <AlertIcon className="text-warning w-4 h-4 relative top-0.5" />
           <p className="flex-1">
-            Our security checks detected that {honeypotTokens} may be a honeypot token (cannot be sold or carries
+            Our security checks detected that {honeypotTokensNames} may be a honeypot token (cannot be sold or carries
             extremely high sell fee). Please research carefully before adding liquidity or trading.
           </p>
         </div>
       ) : null}
+
+      {fotTokens.length
+        ? fotTokens.map(fotToken => (
+            <div key={fotToken.symbol} className="py-3 px-4 text-sm rounded-md bg-warning-200 mt-4 flex gap-2">
+              <AlertIcon className="text-warning w-4 h-4 relative top-0.5" />
+              <p className="flex-1">
+                {fotToken.symbol} is a Fee-On-Transfer token with a {Math.round(fotToken.tax * 100)}% transaction fee
+                applied on every transfer, please beware before triggering trades with this token.
+              </p>
+            </div>
+          ))
+        : null}
     </>
   );
 }
