@@ -357,7 +357,8 @@ export const getPoolInfo = async ({
   if (!fee) return null;
 
   const { sqrtPriceX96, liquidity, tick, tickSpacing } = positionInfo;
-  if (!sqrtPriceX96 || !liquidity || !tick || !tickSpacing) return null;
+  if (!sqrtPriceX96 || !liquidity || (!tick && tick !== 0) || !tickSpacing)
+    return null;
 
   return new Pool(
     token0,
@@ -608,7 +609,7 @@ export const getPositionInfo = async ({
       number,
       number,
       number,
-      bigint
+      bigint,
     ];
 
     tickLower = tickLowerFromRpc;
@@ -627,7 +628,7 @@ export const getPositionInfo = async ({
       { currency0: string; currency1: string; fee: number },
       number,
       number,
-      bigint
+      bigint,
     ];
 
     tickLower = tickLowerFromRpc;
