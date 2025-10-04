@@ -46,7 +46,7 @@ export default function PriceInput() {
         : nearestUsableTick((targetPool as UniV3Pool).tick, (targetPool as UniV3Pool).tickSpacing);
 
   const increaseTickLower = () => {
-    if (!isTargetUniV3 || !targetPool || !poolTick) return;
+    if (!isTargetUniV3 || !targetPool || poolTick === undefined) return;
     const newTick =
       tickLower !== null
         ? tickLower + (targetPool as UniV3Pool).tickSpacing
@@ -54,7 +54,7 @@ export default function PriceInput() {
     if (newTick <= MAX_TICK) setTickLower(newTick);
   };
   const increaseTickUpper = () => {
-    if (!isTargetUniV3 || !targetPool || !poolTick) return;
+    if (!isTargetUniV3 || !targetPool || poolTick === undefined) return;
     const newTick =
       tickUpper !== null
         ? tickUpper + (targetPool as UniV3Pool).tickSpacing
@@ -63,14 +63,14 @@ export default function PriceInput() {
   };
 
   const decreaseTickLower = () => {
-    if (!isTargetUniV3 || !targetPool || !poolTick) return;
+    if (!isTargetUniV3 || !targetPool || poolTick === undefined) return;
     const newTick =
       (tickLower !== null ? tickLower : (targetPool as UniV3Pool).tick) - (targetPool as UniV3Pool).tickSpacing;
 
     if (newTick >= MIN_TICK) setTickLower(newTick);
   };
   const decreaseTickUpper = () => {
-    if (!isTargetUniV3 || !targetPool || !poolTick) return;
+    if (!isTargetUniV3 || !targetPool || poolTick === undefined) return;
     const newTick = (tickUpper !== null ? tickUpper : poolTick) - (targetPool as UniV3Pool).tickSpacing;
 
     if (newTick >= MIN_TICK) setTickUpper(newTick);
