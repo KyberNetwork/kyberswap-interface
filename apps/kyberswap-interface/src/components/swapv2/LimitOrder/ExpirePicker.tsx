@@ -1,7 +1,7 @@
 import { Trans } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { rgba } from 'polished'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import { Calendar, X } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled, { CSSProperties } from 'styled-components'
@@ -69,12 +69,14 @@ export default function DateTimePicker({
   onSetDate,
   expire,
   defaultDate,
+  title,
 }: {
   isOpen: boolean
   onDismiss: () => void
   onSetDate: (val: Date | number) => void
   expire: number
   defaultDate?: Date
+  title?: ReactNode
 }) {
   const today = new Date()
   const minDate = new Date(today.getFullYear(), today.getMonth(), today.getDate())
@@ -158,9 +160,7 @@ export default function DateTimePicker({
     <Modal maxWidth={'98vw'} width={'480px'} isOpen={isOpen} enableSwipeGesture={false}>
       <Container>
         <Flex justifyContent={'space-between'} alignItems="center">
-          <Text fontSize={14}>
-            <Trans>Customize the Expiry Time</Trans>
-          </Text>
+          <Text fontSize={14}>{title || <Trans>Customize the Expiry Time</Trans>}</Text>
           <X color={theme.text} onClick={onDismiss} cursor="pointer" />
         </Flex>
         <Flex style={{ gap: 16 }}>
