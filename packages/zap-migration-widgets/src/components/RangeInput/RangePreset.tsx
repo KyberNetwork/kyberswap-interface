@@ -125,7 +125,7 @@ export default function RangePreset({ initialTick }: { initialTick?: { tickLower
   // Set default price range depending on protocol fee
   useEffect(() => {
     if (!targetPool || !priceRanges.length || initialTick || targetPositionId) return;
-    if (!tickLower || !tickUpper)
+    if (tickLower === null || tickUpper === null)
       handleSelectPriceRange(
         DEFAULT_PRICE_RANGE[targetPool.category as keyof typeof DEFAULT_PRICE_RANGE] ||
           DEFAULT_PRICE_RANGE[POOL_CATEGORY.EXOTIC_PAIR],
