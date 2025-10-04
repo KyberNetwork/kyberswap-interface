@@ -69,6 +69,7 @@ const UserPositions = () => {
       chainIds: earnSupportedChains.join(','),
       protocols: earnSupportedExchanges.join(','),
       positionStatus: isFilterOnlyClosedPosition ? 'closed' : isFilterOnlyOpenPosition ? 'open' : 'all',
+      limit: 200,
     }
   }, [account, filters.status])
 
@@ -106,6 +107,10 @@ const UserPositions = () => {
     refetch()
     setLoading(true)
   })
+
+  useEffect(() => {
+    console.log(1)
+  }, [])
 
   const selectedChainsLabel = useMemo(() => {
     const arrValue = filters.chainIds?.split(',')
@@ -181,9 +186,9 @@ const UserPositions = () => {
     }
 
     if (filters.protocols) {
-      result = result.filter(position =>
-        filters.protocols?.split(',').includes(protocolGroupNameToExchangeMapping[position.dex.id]),
-      )
+      result = result.filter(position => {
+        return filters.protocols?.split(',').includes(protocolGroupNameToExchangeMapping[position.dex.id])
+      })
     }
 
     if (filters.sortBy) {

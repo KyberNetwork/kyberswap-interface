@@ -18,7 +18,7 @@ import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import { ZapMigrationInfo } from 'pages/Earns/hooks/useZapMigrationWidget'
 import { DEFAULT_PARSED_POSITION } from 'pages/Earns/types'
 import { getNftManagerContractAddress, getTokenId, isForkFrom, submitTransaction } from 'pages/Earns/utils'
-import { listDexesWithVersion } from 'pages/Earns/utils/position'
+import { getDexVersion } from 'pages/Earns/utils/position'
 import { updateUnfinalizedPosition } from 'pages/Earns/utils/unfinalizedPosition'
 import { navigateToPositionAfterZap } from 'pages/Earns/utils/zap'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
@@ -66,6 +66,8 @@ const zapInDexMapping: Record<EarnDex | Exchange, ZapInPoolType> = {
   [EarnDex.DEX_UNISWAPV2]: ZapInPoolType.DEX_UNISWAPV2,
   [EarnDex.DEX_UNISWAP_V4]: ZapInPoolType.DEX_UNISWAP_V4,
   [EarnDex.DEX_UNISWAP_V4_FAIRFLOW]: ZapInPoolType.DEX_UNISWAP_V4_FAIRFLOW,
+  [EarnDex.DEX_PANCAKE_INFINITY_CL]: ZapInPoolType.DEX_PANCAKE_INFINITY_CL,
+  [EarnDex.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: ZapInPoolType.DEX_PANCAKE_INFINITY_CL_FAIRFLOW,
   [Exchange.DEX_UNISWAPV3]: ZapInPoolType.DEX_UNISWAPV3,
   [Exchange.DEX_PANCAKESWAPV3]: ZapInPoolType.DEX_PANCAKESWAPV3,
   [Exchange.DEX_SUSHISWAPV3]: ZapInPoolType.DEX_SUSHISWAPV3,
@@ -76,6 +78,8 @@ const zapInDexMapping: Record<EarnDex | Exchange, ZapInPoolType> = {
   [Exchange.DEX_UNISWAPV2]: ZapInPoolType.DEX_UNISWAPV2,
   [Exchange.DEX_UNISWAP_V4]: ZapInPoolType.DEX_UNISWAP_V4,
   [Exchange.DEX_UNISWAP_V4_FAIRFLOW]: ZapInPoolType.DEX_UNISWAP_V4_FAIRFLOW,
+  [Exchange.DEX_PANCAKE_INFINITY_CL]: ZapInPoolType.DEX_PANCAKE_INFINITY_CL,
+  [Exchange.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: ZapInPoolType.DEX_PANCAKE_INFINITY_CL_FAIRFLOW,
 }
 
 const getEarnDexFromPoolType = (poolType: ZapInPoolType) => {
@@ -222,14 +226,12 @@ const useZapInWidget = ({
               if (!dex) return
 
               const isUniv2 = isForkFrom(dex, CoreProtocol.UniswapV2)
-              const isUniV4 = isForkFrom(dex, CoreProtocol.UniswapV4)
 
               const nftId =
                 data.position.positionId ||
-                (isUniv2 ? account || '' : ((await getTokenId(library, data.txHash, isUniV4)) || '').toString())
+                (isUniv2 ? account || '' : ((await getTokenId(library, data.txHash, dex)) || '').toString())
 
-              const dexVersion = listDexesWithVersion.includes(dex) ? dex.split(' ').pop() || '' : ''
-
+              const dexVersion = getDexVersion(dex)
               const contract = getNftManagerContractAddress(dex, chainId)
 
               updateUnfinalizedPosition({

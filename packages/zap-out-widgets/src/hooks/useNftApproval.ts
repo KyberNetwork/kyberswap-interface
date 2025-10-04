@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
+import { univ2Types } from '@kyber/schema';
 import {
   calculateGasMargin,
   decodeAddress,
@@ -8,7 +9,6 @@ import {
   isTransactionSuccessful,
 } from '@kyber/utils/crypto';
 
-import { Univ2PoolType } from '@/schema';
 import { useZapOutContext } from '@/stores';
 import { useZapOutUserState } from '@/stores/state';
 
@@ -30,7 +30,7 @@ export function useNftApproval({
   const [isApproved, setIsApproved] = useState(false);
   const [pendingTx, setPendingTx] = useState('');
 
-  const isUniv2 = Univ2PoolType.safeParse(poolType).success;
+  const isUniV2 = univ2Types.includes(poolType as any);
 
   const { address: account } = connectedAccount;
 
@@ -41,7 +41,7 @@ export function useNftApproval({
     const methodSignature = getFunctionSelector('approve(address,uint256)');
     const encodedSpenderAddress = spender.slice(2).padStart(64, '0');
 
-    if (isUniv2) {
+    if (isUniV2) {
       const maxUnit = '0x' + (2n ** 256n - 1n).toString(16);
       const encodedMaxUnit = maxUnit.slice(2).padStart(64, '0');
       const approvalData = `0x${methodSignature}${encodedSpenderAddress}${encodedMaxUnit}`;
@@ -68,7 +68,7 @@ export function useNftApproval({
       gasLimit: calculateGasMargin(gasEstimation),
     });
     setPendingTx(txHash);
-  }, [account, isUniv2, nftId, nftManagerContract, onSubmitTx, poolAddress, rpcUrl, spender]);
+  }, [account, isUniV2, nftId, nftManagerContract, onSubmitTx, poolAddress, rpcUrl, spender]);
 
   useEffect(() => {
     if (pendingTx) {
@@ -93,13 +93,13 @@ export function useNftApproval({
     const encodedSpenderAddress = spender.slice(2).padStart(64, '0');
     let data;
 
-    if (mode === 'withdrawOnly' && !isUniv2) {
+    if (mode === 'withdrawOnly' && !isUniV2) {
       setIsApproved(true);
       setIsChecking(false);
       return;
     }
 
-    if (isUniv2) {
+    if (isUniV2) {
       const methodSignature = getFunctionSelector('allowance(address,address)');
       const encodedOwnerAddress = account.slice(2).padStart(64, '0');
       data = `0x${methodSignature}${encodedOwnerAddress}${encodedSpenderAddress}`;
@@ -120,7 +120,7 @@ export function useNftApproval({
         method: 'eth_call',
         params: [
           {
-            to: isUniv2 ? poolAddress : nftManagerContract,
+            to: isUniV2 ? poolAddress : nftManagerContract,
             data,
           },
           'latest',
@@ -130,7 +130,7 @@ export function useNftApproval({
       .then(res => res.json())
       .then(res => {
         setIsChecking(false);
-        if (isUniv2) {
+        if (isUniV2) {
           setIsApproved(res?.result && BigInt(res?.result) >= BigInt(liquidityOut));
         } else {
           if (decodeAddress((res?.result || '').slice(2))?.toLowerCase() === spender.toLowerCase()) setIsApproved(true);
@@ -140,7 +140,7 @@ export function useNftApproval({
       .finally(() => {
         setIsChecking(false);
       });
-  }, [nftManagerContract, nftId, spender, rpcUrl, account, isUniv2, poolAddress, liquidityOut, mode]);
+  }, [nftManagerContract, nftId, spender, rpcUrl, account, isUniV2, poolAddress, liquidityOut, mode]);
 
   return { isChecking, isApproved, approve, pendingTx };
 }

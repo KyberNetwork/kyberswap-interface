@@ -1,5 +1,6 @@
 import { ReactNode, useEffect, useMemo } from 'react';
 
+import { ChainId, PoolType, Theme, defaultTheme } from '@kyber/schema';
 import '@kyber/ui/styles.css';
 
 import { Action } from '@/components/Action';
@@ -11,18 +12,17 @@ import PoolStat from '@/components/PoolStat';
 import PositionLiquidity from '@/components/PositionLiquidity';
 import { PositionPriceRange } from '@/components/PositionPriceRange';
 import { Preview } from '@/components/Preview';
+import WidgetError from '@/components/WidgetError';
 import { ZapSummary } from '@/components/ZapSummary';
 import { ZapTo } from '@/components/ZapTo';
 import { TokenListProvider } from '@/hooks/useTokenList';
-import { ChainId, PoolType } from '@/schema';
 import { ZapOutProps, ZapOutProvider, useZapOutContext } from '@/stores';
-import { Theme, defaultTheme } from '@/theme';
 
 import './Widget.scss';
 import './globals.css';
 
 const ZapOut = (props: ZapOutProps) => {
-  const { theme, chainId, poolType, positionId, poolAddress } = props;
+  const { theme, chainId } = props;
 
   const themeToApply = useMemo(
     () =>
@@ -57,7 +57,7 @@ const ZapOut = (props: ZapOutProps) => {
             <div className="mt-4 flex gap-5 max-sm:flex-col">
               <div className="flex flex-col gap-4 w-[55%] max-sm:w-full">
                 <div className="-mb-4">
-                  <PoolStat chainId={chainId} poolType={poolType} positionId={positionId} poolAddress={poolAddress} />
+                  <PoolStat />
                 </div>
                 <PositionLiquidity />
                 <PoolPrice />
@@ -73,6 +73,7 @@ const ZapOut = (props: ZapOutProps) => {
             </div>
             <Action />
             <Preview />
+            <WidgetError />
           </div>
         </div>
       </TokenProvider>

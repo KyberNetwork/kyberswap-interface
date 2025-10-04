@@ -10,7 +10,7 @@ export const univ2RawPool = z.object({
   amplifiedTvl: z.string(),
   swapFee: z.number(),
   exchange: z.string(),
-  type: z.string(),
+  type: z.string().optional(),
   timestamp: z.number(),
   reserves: z.tuple([z.string(), z.string()]),
   tokens: z.array(

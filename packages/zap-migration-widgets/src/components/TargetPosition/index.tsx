@@ -22,8 +22,8 @@ export default function TargetPosition() {
   const currentAmount0 = +toRawString(targetPosition?.amount0 || 0n, token0.decimals);
   const currentAmount1 = +toRawString(targetPosition?.amount1 || 0n, token1.decimals);
 
-  const addedAmount0 = +formatUnits(addedLiquidity.addedAmount0, token0.decimals);
-  const addedAmount1 = +formatUnits(addedLiquidity.addedAmount1, token1.decimals);
+  const addedAmount0 = +formatUnits(addedLiquidity.addedAmount0.toString(), token0.decimals);
+  const addedAmount1 = +formatUnits(addedLiquidity.addedAmount1.toString(), token1.decimals);
 
   return (
     <div className="border border-stroke rounded-md px-4 py-3">

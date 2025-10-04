@@ -3,6 +3,8 @@ import { z } from 'zod';
 export enum PoolType {
   DEX_UNISWAP_V4 = 68,
   DEX_UNISWAP_V4_FAIRFLOW = 73,
+  DEX_PANCAKE_INFINITY_CL = 75,
+  DEX_PANCAKE_INFINITY_CL_FAIRFLOW = 74,
 
   DEX_UNISWAPV3 = 2,
   DEX_PANCAKESWAPV3 = 3,
@@ -30,7 +32,12 @@ export enum PoolType {
   DEX_CAMELOTV3 = 13,
 }
 
-export const univ4Types = [PoolType.DEX_UNISWAP_V4, PoolType.DEX_UNISWAP_V4_FAIRFLOW];
+export const univ4Types = [
+  PoolType.DEX_UNISWAP_V4,
+  PoolType.DEX_UNISWAP_V4_FAIRFLOW,
+  PoolType.DEX_PANCAKE_INFINITY_CL,
+  PoolType.DEX_PANCAKE_INFINITY_CL_FAIRFLOW,
+];
 
 export const algebraTypes = [
   PoolType.DEX_THENAFUSION,
@@ -56,6 +63,8 @@ export const univ3Types = [
   PoolType.DEX_SQUADSWAP_V3,
   PoolType.DEX_UNISWAP_V4,
   PoolType.DEX_UNISWAP_V4_FAIRFLOW,
+  PoolType.DEX_PANCAKE_INFINITY_CL,
+  PoolType.DEX_PANCAKE_INFINITY_CL_FAIRFLOW,
 ] as const;
 export type Univ3PoolType = (typeof univ3Types)[number];
 

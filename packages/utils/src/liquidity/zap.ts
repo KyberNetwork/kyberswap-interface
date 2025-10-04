@@ -143,20 +143,24 @@ const defaultZapImpact = {
 
 const defaultZapRoute = {
   addedLiquidity: {
-    addedAmount0: '0',
-    addedAmount1: '0',
+    addedAmount0: 0n,
+    addedAmount1: 0n,
     addedValue0: 0,
     addedValue1: 0,
   },
   removeLiquidity: {
-    removedAmount0: '0',
-    removedAmount1: '0',
+    token0Address: '',
+    token1Address: '',
+    removedAmount0: 0n,
+    removedAmount1: 0n,
     removedValue0: 0,
     removedValue1: 0,
   },
   earnedFee: {
     earnedFee0: 0n,
     earnedFee1: 0n,
+    feeValue0: 0,
+    feeValue1: 0,
   },
   refund: {
     value: 0,
@@ -165,6 +169,8 @@ const defaultZapRoute = {
   zapFee: 0,
   suggestedSlippage: 0,
   initUsd: 0,
+  finalAmountUsd: 0,
+  gasUsd: 0,
   zapImpact: defaultZapImpact,
   swapActions: [],
 };
@@ -177,6 +183,8 @@ export const parseZapRoute = (route: ZapRouteDetail | null, tokens: Token[], dex
   const earnedFee = parseEarnedFee(route);
   const suggestedSlippage = route.zapDetails.suggestedSlippage || 0;
   const initUsd = Number(route?.zapDetails.initialAmountUsd || 0);
+  const finalAmountUsd = Number(route?.zapDetails.finalAmountUsd || 0);
+  const gasUsd = Number(route?.gasUsd || 0);
   const refund = parseRefund(route, tokens);
   const zapFee = parseZapFee(route);
   const zapImpact = parseZapImpact(route.zapDetails.priceImpact, suggestedSlippage);
@@ -189,6 +197,8 @@ export const parseZapRoute = (route: ZapRouteDetail | null, tokens: Token[], dex
     suggestedSlippage,
     refund,
     initUsd,
+    finalAmountUsd,
+    gasUsd,
     zapFee,
     zapImpact,
     swapActions,
@@ -200,8 +210,8 @@ const parseAddedLiquidity = (route: ZapRouteDetail) => {
     item => item.type === ZapAction.ADD_LIQUIDITY,
   ) as AddLiquidityAction;
 
-  const addedAmount0 = addLiquidityInfo?.addLiquidity.token0.amount || '0';
-  const addedAmount1 = addLiquidityInfo?.addLiquidity.token1.amount || '0';
+  const addedAmount0 = BigInt(addLiquidityInfo?.addLiquidity.token0.amount || '0');
+  const addedAmount1 = BigInt(addLiquidityInfo?.addLiquidity.token1.amount || '0');
   const addedValue0 = +(addLiquidityInfo?.addLiquidity.token0.amountUsd || 0);
   const addedValue1 = +(addLiquidityInfo?.addLiquidity.token1.amountUsd || 0);
 
@@ -218,12 +228,14 @@ const parseRemoveLiquidity = (route: ZapRouteDetail) => {
     | RemoveLiquidityAction
     | undefined;
 
-  const removedAmount0 = actionRemoveLiquidity?.removeLiquidity.tokens[0]?.amount || '0';
-  const removedAmount1 = actionRemoveLiquidity?.removeLiquidity.tokens[1]?.amount || '0';
+  const removedAmount0 = BigInt(actionRemoveLiquidity?.removeLiquidity.tokens[0]?.amount || '0');
+  const removedAmount1 = BigInt(actionRemoveLiquidity?.removeLiquidity.tokens[1]?.amount || '0');
   const removedValue0 = +(actionRemoveLiquidity?.removeLiquidity.tokens[0]?.amountUsd || 0);
   const removedValue1 = +(actionRemoveLiquidity?.removeLiquidity.tokens[1]?.amountUsd || 0);
 
   return {
+    token0Address: actionRemoveLiquidity?.removeLiquidity.tokens[0]?.address || '',
+    token1Address: actionRemoveLiquidity?.removeLiquidity.tokens[1]?.address || '',
     removedAmount0,
     removedAmount1,
     removedValue0,
@@ -242,10 +254,14 @@ const parseEarnedFee = (route: ZapRouteDetail) => {
 
   const feeAmount0 = BigInt(fee0 ? fee0.amount : 0);
   const feeAmount1 = BigInt(fee1 ? fee1.amount : 0);
+  const feeValue0 = +(fee0 ? fee0.amountUsd : 0);
+  const feeValue1 = +(fee1 ? fee1.amountUsd : 0);
 
   return {
     earnedFee0: feeAmount0,
     earnedFee1: feeAmount1,
+    feeValue0,
+    feeValue1,
   };
 };
 
