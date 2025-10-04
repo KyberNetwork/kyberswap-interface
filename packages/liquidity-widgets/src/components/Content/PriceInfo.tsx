@@ -15,7 +15,7 @@ export default function PriceInfo() {
     'toggleRevertPrice',
   ]);
 
-  const initializing = pool === 'loading';
+  const initializing = !pool;
 
   const token0 = initializing ? defaultToken : revertPrice ? pool.token1 : pool.token0;
   const token1 = initializing ? defaultToken : revertPrice ? pool.token0 : pool.token1;

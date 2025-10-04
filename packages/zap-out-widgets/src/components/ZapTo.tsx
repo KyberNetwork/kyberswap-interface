@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { Skeleton, TokenLogo } from '@kyber/ui';
+import { Skeleton, TokenLogo, TokenSymbol } from '@kyber/ui';
 import { formatDisplayNumber, formatTokenAmount, toRawString } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
 import { getPositionAmounts } from '@kyber/utils/uniswapv3';
@@ -126,7 +126,7 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
               }}
             >
               <TokenLogo src={tokenOut?.logo} size={20} className="rounded-full brightness-75" />
-              <span>{tokenOut?.symbol}</span>
+              <TokenSymbol symbol={tokenOut?.symbol || ''} maxWidth={80} />
               <DropdownIcon />
             </button>
             <div className="text-text text-xl font-medium">
@@ -145,7 +145,7 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
                 <>
                   <div className="flex items-center text-base gap-1 text-text">
                     <TokenLogo src={pool.token0.logo} size={16} />
-                    {pool.token0.symbol}
+                    <TokenSymbol symbol={pool.token0.symbol} maxWidth={100} />
                   </div>
                   <div className="text-xs text-subText text-right">
                     <div className="text-text text-base">
@@ -170,7 +170,7 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
                 <>
                   <div className="flex items-center text-base gap-1 text-text">
                     <TokenLogo src={pool.token1.logo} size={16} />
-                    {pool.token1.symbol}
+                    <TokenSymbol symbol={pool.token1.symbol} maxWidth={100} />
                   </div>
                   <div className="text-xs text-subText text-right">
                     <div className="text-text text-base">

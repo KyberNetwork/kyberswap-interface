@@ -18,14 +18,14 @@ export default function PriceInput({ type }: { type: PriceType }) {
   const [localValue, setLocalValue] = useState('');
 
   const pool = useMemo(() => {
-    if (rawPool === 'loading') return rawPool;
+    if (rawPool === null) return rawPool;
     const { success, data } = univ3PoolNormalize.safeParse(rawPool);
     if (success) return data;
 
-    return 'loading';
+    return null;
   }, [rawPool]);
 
-  const initializing = pool === 'loading';
+  const initializing = !pool;
 
   const isMinTick = !initializing && tickLower === pool.minTick;
   const isMaxTick = !initializing && tickUpper === pool.maxTick;
@@ -64,7 +64,7 @@ export default function PriceInput({ type }: { type: PriceType }) {
   };
 
   const wrappedCorrectPrice = (value: string) => {
-    if (pool === 'loading') return;
+    if (!pool) return;
     const tick = priceToClosestTick(value, pool.token0?.decimals, pool.token1?.decimals, revertPrice);
     if (tick !== undefined) {
       const t = tick % pool.tickSpacing === 0 ? tick : nearestUsableTick(tick, pool.tickSpacing);
@@ -87,7 +87,7 @@ export default function PriceInput({ type }: { type: PriceType }) {
   };
 
   useEffect(() => {
-    if (pool === 'loading') return;
+    if (!pool) return;
     if (type === PriceType.MinPrice && (!revertPrice ? isMinTick : isMaxTick)) {
       setLocalValue('0');
     } else if (type === PriceType.MaxPrice && (!revertPrice ? isMaxTick : isMinTick)) {

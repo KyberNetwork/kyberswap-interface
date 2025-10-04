@@ -20,6 +20,7 @@ import PriceInput from '@/components/Content/PriceInput';
 import ZapSummary from '@/components/Content/ZapSummary';
 import Estimated from '@/components/Estimated';
 import Header from '@/components/Header';
+import LeftWarning from '@/components/LeftWarning';
 import LiquidityChart from '@/components/LiquidityChart';
 import LiquidityChartSkeleton from '@/components/LiquidityChart/LiquidityChartSkeleton';
 import Modal from '@/components/Modal';
@@ -69,7 +70,7 @@ export default function Widget() {
   const [widgetError, setWidgetError] = useState<string | undefined>();
   const [zapSnapshotState, setZapSnapshotState] = useState<ZapSnapshotState | null>(null);
 
-  const initializing = pool === 'loading';
+  const initializing = !pool;
   const { token0 = defaultToken, token1 = defaultToken } = !initializing ? pool : {};
 
   const isUniV3 = univ3Types.includes(poolType as any);
@@ -177,7 +178,7 @@ export default function Widget() {
           }
         />
       )}
-      {zapSnapshotState && pool && pool !== 'loading' && (
+      {zapSnapshotState && !initializing && (
         <Modal isOpen onClick={onClosePreview} modalContentClass="!max-h-[96vh]">
           <Preview zapState={zapSnapshotState} pool={pool} onDismiss={onClosePreview} />
         </Modal>
@@ -231,6 +232,7 @@ export default function Widget() {
                 {addLiquiditySection}
               </>
             ) : null}
+            <LeftWarning />
           </div>
 
           <div className="w-[45%] max-sm:w-full">

@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { Skeleton } from '@kyber/ui';
+import { Skeleton, TokenSymbol } from '@kyber/ui';
 import { divideBigIntToString, formatDisplayNumber } from '@kyber/utils/number';
 import { sqrtToPrice } from '@kyber/utils/uniswapv3';
 
@@ -49,9 +49,9 @@ export function PoolPrice() {
     <div className="rounded-lg flex items-center justify-between flex-wrap border border-stroke px-4 py-3 text-subText text-sm">
       <div className="flex items-center gap-1">
         <span> Current Price</span>
-        <div className="text-text">
-          1 {revertPrice ? pool.token1.symbol : pool.token0.symbol} = {price}{' '}
-          {revertPrice ? pool.token0.symbol : pool.token1.symbol}
+        <div className="text-text flex items-center gap-1">
+          1 <TokenSymbol symbol={revertPrice ? pool.token1.symbol : pool.token0.symbol} maxWidth={80} /> = {price}
+          <TokenSymbol symbol={revertPrice ? pool.token0.symbol : pool.token1.symbol} maxWidth={80} />
         </div>
       </div>
 

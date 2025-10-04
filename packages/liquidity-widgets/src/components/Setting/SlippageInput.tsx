@@ -74,7 +74,7 @@ const SlippageInput = ({
   };
 
   useEffect(() => {
-    if (pool !== 'loading' && slippage && suggestedSlippage > 0 && slippage !== suggestedSlippage) {
+    if (pool !== null && slippage && suggestedSlippage > 0 && slippage !== suggestedSlippage) {
       try {
         const storageKey = getSlippageStorageKey(pool.token0.symbol, pool.token1.symbol, chainId, pool.fee);
         localStorage.setItem(storageKey, slippage.toString());

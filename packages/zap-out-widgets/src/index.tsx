@@ -5,6 +5,7 @@ import '@kyber/ui/styles.css';
 import { Action } from '@/components/Action';
 import Estimated from '@/components/Estimated';
 import { Header } from '@/components/Header';
+import HoneypotWarning from '@/components/HoneypotWarning';
 import { PoolFee } from '@/components/PoolFee';
 import { PoolPrice } from '@/components/PoolPrice';
 import PoolStat from '@/components/PoolStat';
@@ -63,6 +64,7 @@ const ZapOut = (props: ZapOutProps) => {
                 <PoolPrice />
                 <PositionPriceRange />
                 <PoolFee />
+                <HoneypotWarning />
               </div>
 
               <div className="flex flex-col gap-4 w-[45%] max-sm:w-full">

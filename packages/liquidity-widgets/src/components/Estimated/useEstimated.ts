@@ -13,7 +13,7 @@ export default function useEstimated() {
   const { position } = usePositionStore(['position']);
 
   return useMemo(() => {
-    const initializing = pool === 'loading';
+    const initializing = !pool;
     const { token0, token1 } = initializing ? { token0: defaultToken, token1: defaultToken } : pool;
     const {
       refundInfo,

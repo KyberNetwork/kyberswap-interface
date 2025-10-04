@@ -111,14 +111,14 @@ export const getPriceRangeToShow = ({
   minPrice,
   maxPrice,
 }: {
-  pool: Pool | 'loading';
+  pool: Pool | null;
   revertPrice: boolean;
   tickLower: number | null;
   tickUpper: number | null;
   minPrice: string | null;
   maxPrice: string | null;
 }) => {
-  if (pool === 'loading') return;
+  if (!pool) return;
 
   const { success: isUniV3, data: uniV3Pool } = univ3PoolNormalize.safeParse(pool);
 

@@ -46,7 +46,7 @@ const Header = () => {
 
   const { toggleSetting, uiState, loading: zapLoading, getZapRoute, zapRouteDisabled } = useZapState();
 
-  const initializing = pool === 'loading' || !pool || position === 'loading';
+  const initializing = !pool;
   const poolAddress = initializing ? '' : pool.address;
 
   const PoolCopy = useCopy({
@@ -74,7 +74,7 @@ const Header = () => {
     !!positionId && position && success && isUniV3
       ? univ3Pool.tick < data.tickLower || univ3Pool.tick >= data.tickUpper
       : false;
-  const isClosed = !!position && position !== 'loading' && position.liquidity.toString() === '0';
+  const isClosed = position !== null && position.liquidity.toString() === '0';
 
   const handleToggleSetting = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();

@@ -15,7 +15,7 @@ export const SlippageWarning = ({
   showWarning: boolean;
 }) => {
   const { pool } = usePoolStore(['pool']);
-  const initializing = pool === 'loading';
+  const initializing = !pool;
 
   return (
     <div className={cn('flex items-center justify-between mt-2 text-sm', className)}>

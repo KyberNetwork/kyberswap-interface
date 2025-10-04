@@ -1,6 +1,6 @@
 import { useCopy } from '@kyber/hooks';
 import { ChainId, DEXES_INFO, NETWORKS_INFO, Pool } from '@kyber/schema';
-import { TokenLogo } from '@kyber/ui';
+import { TokenLogo, TokenSymbol } from '@kyber/ui';
 
 export default function PreviewPoolInfo({ pool, chainId }: { pool: Pool; chainId: ChainId }) {
   const copy = useCopy({
@@ -21,7 +21,8 @@ export default function PreviewPoolInfo({ pool, chainId }: { pool: Pool; chainId
       </div>
       <div>
         <div className="flex gap-1 items-center">
-          {pool.token0.symbol}/{pool.token1.symbol} {copy}
+          <TokenSymbol symbol={pool.token0.symbol} maxWidth={80} />/
+          <TokenSymbol symbol={pool.token1.symbol} maxWidth={80} /> {copy}
         </div>
         <div className="flex gap-1 items-center text-subText mt-1">
           <TokenLogo src={dex.icon} size={12} alt={dexName} />

@@ -9,7 +9,7 @@ export default function PositionPriceRange() {
 
   const { pool, revertPrice } = usePoolStore(['pool', 'revertPrice']);
 
-  const initializing = pool === 'loading';
+  const initializing = !pool;
 
   const priceRange = getPriceRangeToShow({
     pool,

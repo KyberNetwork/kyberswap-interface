@@ -23,7 +23,7 @@ const PriceRange = () => {
   const { poolType, initialTick } = useWidgetStore(['poolType', 'initialTick']);
   const { pool, revertPrice, poolPrice } = usePoolStore(['pool', 'revertPrice', 'poolPrice']);
 
-  const initializing = pool === 'loading';
+  const initializing = !pool;
 
   const previousRevertPrice = usePrevious(revertPrice);
 

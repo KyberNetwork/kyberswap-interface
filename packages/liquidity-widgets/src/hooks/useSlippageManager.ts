@@ -9,14 +9,14 @@ export default function useSlippageManager({
   tokensIn,
   chainId,
 }: {
-  pool: 'loading' | Pool;
+  pool: Pool | null;
   tokensIn: Token[];
   chainId: ChainId;
 }) {
   const [slippage, setSlippage] = useState<number | undefined>(undefined);
 
   useEffect(() => {
-    if (pool === 'loading' || slippage || !tokensIn.length) return;
+    if (!pool || slippage || !tokensIn.length) return;
 
     // First, try to load from localStorage
     if (pool.token0?.symbol && pool.token1?.symbol) {

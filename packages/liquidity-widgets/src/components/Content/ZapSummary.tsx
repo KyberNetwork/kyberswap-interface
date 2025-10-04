@@ -23,7 +23,7 @@ export default function ZapSummary() {
   const { pool } = usePoolStore(['pool']);
   const [expanded, setExpanded] = useState(false);
 
-  const initializing = pool === 'loading';
+  const initializing = !pool;
 
   const { symbol: symbol0 } = initializing ? defaultToken : pool.token0;
   const { symbol: symbol1 } = initializing ? defaultToken : pool.token1;
@@ -36,7 +36,7 @@ export default function ZapSummary() {
   const { swapActions } = useSwapPI();
 
   const addedLiquidityInfo = useMemo(() => {
-    if (pool === 'loading') return { addedAmount0: '0', addedAmount1: '0' };
+    if (!pool) return { addedAmount0: '0', addedAmount1: '0' };
     const data = zapInfo?.zapDetails.actions.find(
       item => item.type === ZapAction.ADD_LIQUIDITY,
     ) as AddLiquidityAction | null;
@@ -53,7 +53,7 @@ export default function ZapSummary() {
 
   const { fees } = actionRemoveLiq?.removeLiquidity || {};
 
-  const poolTokens: Token[] = pool === 'loading' ? [] : [pool.token0, pool.token1];
+  const poolTokens: Token[] = !pool ? [] : [pool.token0, pool.token1];
 
   const feeToken0 = poolTokens.find(item => item.address.toLowerCase() === fees?.[0]?.address.toLowerCase());
   const feeToken1 = poolTokens.find(item => item.address.toLowerCase() === fees?.[1]?.address.toLowerCase());

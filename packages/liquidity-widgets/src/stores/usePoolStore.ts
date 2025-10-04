@@ -7,7 +7,7 @@ import { POOL_ERROR, getPoolInfo, getPoolPrice } from '@kyber/utils';
 interface PoolState {
   poolLoading: boolean;
   poolError: string;
-  pool: 'loading' | Pool;
+  pool: Pool | null;
   poolPrice: number | null;
   revertPrice: boolean;
   toggleRevertPrice: () => void;
@@ -17,7 +17,7 @@ interface PoolState {
 
 const initState: Omit<PoolState, 'getPool' | 'toggleRevertPrice' | 'reset'> = {
   poolLoading: false,
-  pool: 'loading',
+  pool: null,
   poolError: '',
   poolPrice: null,
   revertPrice: false,
@@ -36,7 +36,7 @@ const usePoolRawStore = create<PoolState>((set, get) => ({
     set({ poolLoading: true });
 
     const poolInfo = await getPoolInfo({ poolAddress, chainId, poolType });
-    const firstLoad = get().pool === 'loading';
+    const firstLoad = get().pool === null;
 
     if (poolInfo.error && (!poolInfo.error.includes(POOL_ERROR.CANT_GET_POOL_INFO) || firstLoad))
       set({ poolError: poolInfo.error });
