@@ -6,7 +6,6 @@ import { PoolQueryParams, usePoolsExplorerQuery } from 'services/zapEarn'
 import useTheme from 'hooks/useTheme'
 import DesktopTableRow from 'pages/Earns/PoolExplorer/DesktopTableRow'
 import MobileTableRow from 'pages/Earns/PoolExplorer/MobileTableRow'
-import { TableBody } from 'pages/Earns/PoolExplorer/styles'
 import useFavoritePool from 'pages/Earns/PoolExplorer/useFavoritePool'
 import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import Updater from 'state/customizeDexes/updater'
@@ -71,7 +70,7 @@ const TableContent = ({
 
   return (
     <>
-      <TableBody>
+      <div>
         {tablePoolData.map((pool, index) =>
           upToMedium ? (
             <MobileTableRow
@@ -93,7 +92,7 @@ const TableContent = ({
             />
           ),
         )}
-      </TableBody>
+      </div>
       <Updater customChainId={filters.chainId} />
     </>
   )
