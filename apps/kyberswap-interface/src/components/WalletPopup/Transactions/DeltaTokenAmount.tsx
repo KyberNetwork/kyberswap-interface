@@ -71,8 +71,8 @@ export const DeltaNft = ({
   style?: CSSProperties
 }) => {
   const theme = useTheme()
-  const color = plus ? theme.primary : theme.subText
-  const sign = plus && !hideSign ? '+' : '-'
+  const color = plus ? theme.primary : theme.red
+  const sign = hideSign ? '' : plus ? '+' : '-'
 
   return (
     <TokenAmountWrapper style={style}>

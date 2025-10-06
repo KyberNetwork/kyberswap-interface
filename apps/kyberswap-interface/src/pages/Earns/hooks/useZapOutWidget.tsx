@@ -12,6 +12,8 @@ import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import { CheckClosedPositionParams } from 'pages/Earns/hooks/useClosedPositions'
 import { submitTransaction } from 'pages/Earns/utils'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
+import { useTransactionAdder } from 'state/transactions/hooks'
+import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { getCookieValue } from 'utils'
 
 export interface ZapOutInfo {
@@ -47,6 +49,7 @@ const zapOutDexMapping: Record<EarnDex | Exchange, ZapOutDex> = {
 }
 
 const useZapOutWidget = (onRefreshPosition?: (props: CheckClosedPositionParams) => void) => {
+  const addTransactionWithType = useTransactionAdder()
   const toggleWalletModal = useWalletModalToggle()
   const notify = useNotify()
   const refCode = getCookieValue('refCode')
@@ -60,6 +63,7 @@ const useZapOutWidget = (onRefreshPosition?: (props: CheckClosedPositionParams) 
     poolAddress: string
     chainId: ZapOutChainId
   } | null>(null)
+  const [dex, setDex] = useState<EarnDex | Exchange | null>(null)
 
   const zapOutParams = useMemo(
     () =>
@@ -96,15 +100,46 @@ const useZapOutWidget = (onRefreshPosition?: (props: CheckClosedPositionParams) 
             },
             onConnectWallet: toggleWalletModal,
             onSwitchChain: () => changeNetwork(zapOutPureParams.chainId as number),
-            onSubmitTx: async (txData: { from: string; to: string; value: string; data: string }) => {
+            onSubmitTx: async (
+              txData: { from: string; to: string; value: string; data: string },
+              additionalInfo?: {
+                pool: string
+                dexLogo: string
+                tokensOut: Array<{ symbol: string; amount: string; logoUrl?: string }>
+              },
+            ) => {
               const res = await submitTransaction({ library, txData })
               const { txHash, error } = res
               if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
+
+              if (additionalInfo)
+                addTransactionWithType({
+                  hash: txHash,
+                  type: TRANSACTION_TYPE.EARN_REMOVE_LIQUIDITY,
+                  extraInfo: {
+                    pool: additionalInfo.pool || '',
+                    dexLogoUrl: additionalInfo.dexLogo,
+                    positionId: zapOutPureParams.positionId,
+                    tokensOut: additionalInfo.tokensOut || [],
+                    dex: dex as EarnDex | Exchange,
+                  },
+                })
               return txHash
             },
           }
         : null,
-    [account, chainId, changeNetwork, library, toggleWalletModal, zapOutPureParams, refCode, onRefreshPosition],
+    [
+      account,
+      chainId,
+      changeNetwork,
+      library,
+      toggleWalletModal,
+      zapOutPureParams,
+      dex,
+      refCode,
+      onRefreshPosition,
+      addTransactionWithType,
+    ],
   )
 
   const handleOpenZapOut = ({ position }: ZapOutInfo) => {
@@ -120,6 +155,7 @@ const useZapOutWidget = (onRefreshPosition?: (props: CheckClosedPositionParams) 
       return
     }
 
+    setDex(position.dex as EarnDex | Exchange)
     setZapOutPureParams({
       poolType,
       chainId: position.chainId as ZapOutChainId,
@@ -128,10 +164,22 @@ const useZapOutWidget = (onRefreshPosition?: (props: CheckClosedPositionParams) 
     })
   }
 
-  useAccountChanged(() => setZapOutPureParams(null))
+  useAccountChanged(() => {
+    setZapOutPureParams(null)
+    setDex(null)
+  })
 
   const widget = zapOutParams ? (
-    <Modal isOpen mobileFullWidth maxWidth={760} width={'760px'} onDismiss={() => setZapOutPureParams(null)}>
+    <Modal
+      isOpen
+      mobileFullWidth
+      maxWidth={760}
+      width={'760px'}
+      onDismiss={() => {
+        setZapOutPureParams(null)
+        setDex(null)
+      }}
+    >
       <ZapOut {...zapOutParams} />
     </Modal>
   ) : null

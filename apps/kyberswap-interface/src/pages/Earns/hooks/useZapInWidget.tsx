@@ -305,19 +305,20 @@ const useZapInWidget = ({
 
               if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
 
-              addTransactionWithType({
-                hash: txHash,
-                type: addLiquidityPureParams.positionId
-                  ? TRANSACTION_TYPE.EARN_INCREASE_LIQUIDITY
-                  : TRANSACTION_TYPE.EARN_ADD_LIQUIDITY,
-                extraInfo: {
-                  pool: additionalInfo?.pool || '',
-                  positionId: addLiquidityPureParams.positionId || '',
-                  tokensIn: additionalInfo?.tokensIn || [],
-                  dexLogoUrl: additionalInfo?.dexLogo,
-                  dex: dex as EarnDex | Exchange,
-                },
-              })
+              if (additionalInfo)
+                addTransactionWithType({
+                  hash: txHash,
+                  type: addLiquidityPureParams.positionId
+                    ? TRANSACTION_TYPE.EARN_INCREASE_LIQUIDITY
+                    : TRANSACTION_TYPE.EARN_ADD_LIQUIDITY,
+                  extraInfo: {
+                    pool: additionalInfo?.pool || '',
+                    positionId: addLiquidityPureParams.positionId || '',
+                    tokensIn: additionalInfo?.tokensIn || [],
+                    dexLogoUrl: additionalInfo?.dexLogo,
+                    dex: dex as EarnDex | Exchange,
+                  },
+                })
               return txHash
             },
           }

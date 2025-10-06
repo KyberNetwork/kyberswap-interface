@@ -78,8 +78,11 @@ export type EarnAddLiquidityExtraInfo = {
 
 export type EarnRemoveLiquidityExtraInfo = {
   pool: string
+  dexLogoUrl?: string
+  dex: EarnDex | Exchange
   positionId: string
   tokensOut: Array<{
+    logoUrl?: string
     symbol: string
     amount: string
   }>

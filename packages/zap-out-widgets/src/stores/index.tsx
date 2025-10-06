@@ -48,7 +48,14 @@ export interface ZapOutProps {
   onClose: () => void;
   onConnectWallet: () => void;
   onSwitchChain: () => void;
-  onSubmitTx: (txData: { from: string; to: string; value: string; data: string; gasLimit: string }) => Promise<string>;
+  onSubmitTx: (
+    txData: { from: string; to: string; value: string; data: string; gasLimit: string },
+    additionalInfo?: {
+      pool: string;
+      dexLogo: string;
+      tokensOut: Array<{ symbol: string; amount: string; logoUrl?: string }>;
+    },
+  ) => Promise<string>;
 
   source: string; // for tracking volume
   referral?: string;

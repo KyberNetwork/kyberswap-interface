@@ -21,7 +21,7 @@ import { SlippageWarning } from '@/components/SlippageWarning';
 import { useSwapPI } from '@/components/SwapImpact';
 import { MouseoverTooltip } from '@/components/Tooltip';
 import { WarningMsg } from '@/components/WarningMsg';
-import { CHAIN_ID_TO_CHAIN, NETWORKS_INFO, PATHS } from '@/constants';
+import { CHAIN_ID_TO_CHAIN, DEXES_INFO, NETWORKS_INFO, PATHS } from '@/constants';
 import { ProtocolFeeAction, ZapAction } from '@/hooks/types/zapInTypes';
 import { Univ3PoolType } from '@/schema';
 import { useZapOutContext } from '@/stores';
@@ -525,10 +525,37 @@ export const Preview = () => {
           if (gas === 0n) return;
 
           try {
-            const txHash = await onSubmitTx({
-              ...txData,
-              gasLimit: calculateGasMargin(gas),
-            });
+            const txHash = await onSubmitTx(
+              {
+                ...txData,
+                gasLimit: calculateGasMargin(gas),
+              },
+              {
+                pool: `${pool.token0.symbol}/${pool.token1.symbol}`,
+                dexLogo: DEXES_INFO[poolType].icon,
+                tokensOut:
+                  mode === 'zapOut'
+                    ? [
+                        {
+                          symbol: tokenOut.symbol,
+                          amount: formatTokenAmount(amountOut, tokenOut.decimals),
+                          logoUrl: tokenOut.logo,
+                        },
+                      ]
+                    : [
+                        {
+                          symbol: pool.token0.symbol,
+                          amount: formatTokenAmount(receiveAmount0, pool.token0.decimals),
+                          logoUrl: pool.token0.logo,
+                        },
+                        {
+                          symbol: pool.token1.symbol,
+                          amount: formatTokenAmount(receiveAmount1, pool.token1.decimals),
+                          logoUrl: pool.token1.logo,
+                        },
+                      ],
+              },
+            );
             setTxHash(txHash);
           } catch (err) {
             setSubmiting(false);
