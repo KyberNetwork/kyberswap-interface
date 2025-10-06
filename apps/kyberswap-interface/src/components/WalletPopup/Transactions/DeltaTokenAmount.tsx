@@ -75,7 +75,7 @@ export const DeltaNft = ({
   const sign = hideSign ? '' : plus ? '+' : '-'
 
   return (
-    <TokenAmountWrapper style={style}>
+    <TokenAmountWrapper style={{ gap: '6px', ...style }}>
       {logoUrl && <TokenLogo src={logoUrl} size={14} />}
       <PrimaryText style={{ color }}>
         {sign} {poolName.length > 10 ? poolName.slice(0, 10) + '...' : poolName} {nftId}

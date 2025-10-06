@@ -16,6 +16,8 @@ import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import { submitTransaction } from 'pages/Earns/utils'
 import { navigateToPositionAfterZap } from 'pages/Earns/utils/zap'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
+import { useTransactionAdder } from 'state/transactions/hooks'
+import { TRANSACTION_TYPE } from 'state/transactions/type'
 
 interface CompoundingPureParams {
   poolAddress: string
@@ -81,6 +83,7 @@ const useCompounding = ({
   onRefreshPosition?: () => void
   onCloseClaimModal: () => void
 }) => {
+  const addTransactionWithType = useTransactionAdder()
   const toggleWalletModal = useWalletModalToggle()
   const notify = useNotify()
   const navigate = useNavigate()
@@ -89,9 +92,11 @@ const useCompounding = ({
   const { changeNetwork } = useChangeNetwork()
 
   const [compoundingPureParams, setCompoundingPureParams] = useState<CompoundingPureParams | null>(null)
+  const [dex, setDex] = useState<EarnDex | Exchange | null>(null)
 
   const handleCloseCompounding = useCallback(() => {
     setCompoundingPureParams(null)
+    setDex(null)
   }, [])
 
   const handleNavigateToPosition = useCallback(
@@ -126,6 +131,7 @@ const useCompounding = ({
         )
         return
       }
+      setDex(pool.dex as EarnDex | Exchange)
       setCompoundingPureParams({
         poolAddress: pool.address,
         chainId: pool.chainId as CompoundingChainId,
@@ -160,12 +166,33 @@ const useCompounding = ({
               handleCloseCompounding()
               onRefreshPosition?.()
             },
-            onSubmitTx: async (txData: { from: string; to: string; data: string; value: string; gasLimit: string }) => {
+            onSubmitTx: async (
+              txData: { from: string; to: string; data: string; value: string; gasLimit: string },
+              additionalInfo?: {
+                tokensIn: Array<{ symbol: string; amount: string; logoUrl?: string }>
+                pool: string
+                dexLogo: string
+              },
+            ) => {
               const res = await submitTransaction({ library, txData })
               const { txHash, error } = res
-
               if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
 
+              if (additionalInfo)
+                addTransactionWithType({
+                  hash: txHash,
+                  type:
+                    compoundingPureParams.compoundType === 'COMPOUND_TYPE_REWARD'
+                      ? TRANSACTION_TYPE.EARN_COMPOUND_REWARD
+                      : TRANSACTION_TYPE.EARN_COMPOUND_FEE,
+                  extraInfo: {
+                    pool: additionalInfo?.pool || '',
+                    positionId: compoundingPureParams.positionId || '',
+                    tokensIn: additionalInfo?.tokensIn || [],
+                    dexLogoUrl: additionalInfo?.dexLogo,
+                    dex: dex as EarnDex | Exchange,
+                  },
+                })
               return txHash
             },
           }
@@ -181,6 +208,8 @@ const useCompounding = ({
       onRefreshPosition,
       toggleWalletModal,
       onCloseClaimModal,
+      addTransactionWithType,
+      dex,
     ],
   )
 

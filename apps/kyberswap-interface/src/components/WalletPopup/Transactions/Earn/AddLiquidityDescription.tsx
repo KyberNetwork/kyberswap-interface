@@ -17,7 +17,7 @@ export default function AddLiquidityDescription(transaction: TransactionDetails)
   const isUniV4 = isForkFrom(dex, CoreProtocol.UniswapV4)
 
   useEffect(() => {
-    if (library) {
+    if (library && !positionId) {
       getTokenId(library, transaction.hash, isUniV4)
         .then(id => {
           if (id) setTokenId(id.toString())
@@ -25,7 +25,7 @@ export default function AddLiquidityDescription(transaction: TransactionDetails)
         })
         .catch(error => console.log('failed to get token id', error))
     }
-  }, [library, transaction.hash, isUniV4])
+  }, [library, transaction.hash, isUniV4, positionId])
 
   return !success ? null : (
     <>
@@ -33,7 +33,7 @@ export default function AddLiquidityDescription(transaction: TransactionDetails)
         hideSign={!!positionId}
         poolName={pool}
         logoUrl={dexLogoUrl}
-        nftId={tokenId ? `#${tokenId}` : ''}
+        nftId={positionId ? `#${positionId}` : tokenId ? `#${tokenId}` : ''}
         plus
       />
       {tokensIn.map(token => (

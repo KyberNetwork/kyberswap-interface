@@ -15,7 +15,14 @@ export interface WidgetProps {
   onClose: () => void;
   onConnectWallet: () => void;
   onSwitchChain: () => void;
-  onSubmitTx: (txData: { from: string; to: string; value: string; data: string; gasLimit: string }) => Promise<string>;
+  onSubmitTx: (
+    txData: { from: string; to: string; value: string; data: string; gasLimit: string },
+    additionalInfo?: {
+      tokensIn: Array<{ symbol: string; amount: string; logoUrl?: string }>;
+      pool: string;
+      dexLogo: string;
+    },
+  ) => Promise<string>;
   onViewPosition?: (txHash: string) => void;
 }
 

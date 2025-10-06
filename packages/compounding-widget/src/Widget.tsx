@@ -6,6 +6,7 @@ import { useNftApproval } from '@kyber/hooks';
 import { API_URLS, CHAIN_ID_TO_CHAIN, DEXES_INFO, NETWORKS_INFO, defaultToken, univ3Types } from '@kyber/schema';
 import { friendlyError, getNftManagerContractAddress } from '@kyber/utils';
 import { calculateGasMargin, estimateGas, isTransactionSuccessful } from '@kyber/utils/crypto';
+import { formatTokenAmount } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
 import ChevronLeftIcon from '@/assets/svg/chevron-left.svg';
@@ -26,6 +27,7 @@ import Setting from '@/components/Setting';
 import { ZAP_SOURCE } from '@/constants';
 import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
+import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
 export default function Widget() {
@@ -40,12 +42,14 @@ export default function Widget() {
       onViewPosition: s.onViewPosition,
     })),
   );
-  const { poolError } = usePoolStore(
+  const { poolError, pool } = usePoolStore(
     useShallow(s => ({
       poolError: s.poolError,
+      pool: s.pool,
     })),
   );
   const { zapInfo, snapshotState, setSnapshotState } = useZapState();
+  const { position } = usePositionStore(useShallow(s => ({ position: s.position })));
 
   const nftManagerContract = getNftManagerContractAddress(poolType, chainId);
   const {
@@ -94,7 +98,7 @@ export default function Widget() {
   }, [chainId, txHash]);
 
   const handleClick = useCallback(async () => {
-    if (!snapshotState || attempTx || txError) return;
+    if (!snapshotState || attempTx || txError || pool === 'loading' || !position || position === 'loading') return;
     setAttempTx(true);
     setTxHash('');
     setTxError(null);
@@ -124,10 +128,28 @@ export default function Widget() {
 
           try {
             const gasEstimation = await estimateGas(rpcUrl, txData);
-            const txHash = await onSubmitTx({
-              ...txData,
-              gasLimit: calculateGasMargin(gasEstimation),
-            });
+            const txHash = await onSubmitTx(
+              {
+                ...txData,
+                gasLimit: calculateGasMargin(gasEstimation),
+              },
+              {
+                tokensIn: [
+                  {
+                    symbol: pool.token0.symbol,
+                    amount: formatTokenAmount(position.amount0, pool.token0.decimals, 6),
+                    logoUrl: pool.token0.logo,
+                  },
+                  {
+                    symbol: pool.token1.symbol,
+                    amount: formatTokenAmount(position.amount1, pool.token1.decimals, 6),
+                    logoUrl: pool.token1.logo,
+                  },
+                ],
+                pool: `${pool.token0.symbol}/${pool.token1.symbol}`,
+                dexLogo: DEXES_INFO[poolType].icon,
+              },
+            );
             setTxHash(txHash);
           } catch (e) {
             // setAttempTx(false);
@@ -137,7 +159,7 @@ export default function Widget() {
         }
       });
     // .finally(() => setAttempTx(false));
-  }, [account, attempTx, chainId, onSubmitTx, rpcUrl, snapshotState, txError]);
+  }, [snapshotState, attempTx, txError, pool, chainId, account, rpcUrl, onSubmitTx, poolType, position]);
 
   useEffect(() => {
     handleClick();
