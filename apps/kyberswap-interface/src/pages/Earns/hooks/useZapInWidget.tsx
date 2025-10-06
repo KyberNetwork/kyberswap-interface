@@ -22,6 +22,8 @@ import { listDexesWithVersion } from 'pages/Earns/utils/position'
 import { updateUnfinalizedPosition } from 'pages/Earns/utils/unfinalizedPosition'
 import { navigateToPositionAfterZap } from 'pages/Earns/utils/zap'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
+import { useTransactionAdder } from 'state/transactions/hooks'
+import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { getCookieValue } from 'utils'
 
 interface AddLiquidityPureParams {
@@ -102,6 +104,7 @@ const useZapInWidget = ({
   triggerClose?: boolean
   setTriggerClose?: (value: boolean) => void
 }) => {
+  const addTransactionWithType = useTransactionAdder()
   const toggleWalletModal = useWalletModalToggle()
   const notify = useNotify()
   const navigate = useNavigate()
@@ -112,6 +115,7 @@ const useZapInWidget = ({
   const [searchParams, setSearchParams] = useSearchParams()
 
   const [addLiquidityPureParams, setAddLiquidityPureParams] = useState<AddLiquidityPureParams | null>(null)
+  const [dex, setDex] = useState<EarnDex | Exchange | null>(null)
 
   const handleCloseZapInWidget = useCallback(() => {
     searchParams.delete('exchange')
@@ -119,6 +123,7 @@ const useZapInWidget = ({
     searchParams.delete('poolAddress')
     setSearchParams(searchParams)
     setAddLiquidityPureParams(null)
+    setDex(null)
   }, [searchParams, setSearchParams])
 
   const handleNavigateToPosition = useCallback(
@@ -145,6 +150,7 @@ const useZapInWidget = ({
       )
       return
     }
+    setDex(pool.dex as EarnDex | Exchange)
     setAddLiquidityPureParams({
       poolAddress: pool.address,
       chainId: pool.chainId as ZapInChainId,
@@ -286,18 +292,39 @@ const useZapInWidget = ({
                 isValueUpdating: !!data.position.positionId,
               })
             },
-            onSubmitTx: async (txData: { from: string; to: string; data: string; value: string; gasLimit: string }) => {
+            onSubmitTx: async (
+              txData: { from: string; to: string; data: string; value: string; gasLimit: string },
+              additionalInfo?: {
+                tokensIn: Array<{ symbol: string; amount: string; logoUrl?: string }>
+                pool: string
+                dexLogo: string
+              },
+            ) => {
               const res = await submitTransaction({ library, txData })
               const { txHash, error } = res
 
               if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
 
+              addTransactionWithType({
+                hash: txHash,
+                type: addLiquidityPureParams.positionId
+                  ? TRANSACTION_TYPE.EARN_INCREASE_LIQUIDITY
+                  : TRANSACTION_TYPE.EARN_ADD_LIQUIDITY,
+                extraInfo: {
+                  pool: additionalInfo?.pool || '',
+                  positionId: addLiquidityPureParams.positionId || '',
+                  tokensIn: additionalInfo?.tokensIn || [],
+                  dexLogoUrl: additionalInfo?.dexLogo,
+                  dex: dex as EarnDex | Exchange,
+                },
+              })
               return txHash
             },
           }
         : null,
     [
       addLiquidityPureParams,
+      dex,
       refCode,
       account,
       chainId,
@@ -308,6 +335,7 @@ const useZapInWidget = ({
       changeNetwork,
       library,
       onRefreshPosition,
+      addTransactionWithType,
     ],
   )
 

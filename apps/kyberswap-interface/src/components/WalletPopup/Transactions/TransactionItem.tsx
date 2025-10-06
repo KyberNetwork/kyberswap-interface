@@ -9,6 +9,7 @@ import SendIcon from 'components/Icons/SendIcon'
 import Row from 'components/Row'
 import ContractAddress from 'components/WalletPopup/Transactions/ContractAddress'
 import DeltaTokenAmount from 'components/WalletPopup/Transactions/DeltaTokenAmount'
+import AddLiquidityDescription from 'components/WalletPopup/Transactions/Earn/AddLiquidityDescription'
 import Icon from 'components/WalletPopup/Transactions/Icon'
 import PendingWarning from 'components/WalletPopup/Transactions/PendingWarning'
 import PoolFarmLink from 'components/WalletPopup/Transactions/PoolFarmLink'
@@ -280,6 +281,14 @@ const DESCRIPTION_MAP: {
 
   [TRANSACTION_TYPE.HARVEST]: DescriptionHarvestFarmReward,
   [TRANSACTION_TYPE.CLAIM]: DescriptionApproveClaim,
+
+  [TRANSACTION_TYPE.EARN_ADD_LIQUIDITY]: AddLiquidityDescription,
+  [TRANSACTION_TYPE.EARN_INCREASE_LIQUIDITY]: AddLiquidityDescription,
+  [TRANSACTION_TYPE.EARN_REMOVE_LIQUIDITY]: DescriptionLiquidity,
+  [TRANSACTION_TYPE.EARN_MIGRATE_LIQUIDITY]: DescriptionLiquidity,
+  [TRANSACTION_TYPE.EARN_REPOSITION]: DescriptionLiquidity,
+  [TRANSACTION_TYPE.EARN_COMPOUND_FEE]: DescriptionLiquidity,
+  [TRANSACTION_TYPE.EARN_COMPOUND_REWARD]: DescriptionLiquidity,
 }
 
 type Prop = {

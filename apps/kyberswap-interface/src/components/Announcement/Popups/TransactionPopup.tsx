@@ -11,6 +11,10 @@ import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useAllTransactions } from 'state/transactions/hooks'
 import {
+  EarnAddLiquidityExtraInfo,
+  EarnMigrateLiquidityExtraInfo,
+  EarnRemoveLiquidityExtraInfo,
+  EarnRepositionExtraInfo,
   TRANSACTION_TYPE,
   TransactionDetails,
   TransactionExtraBaseInfo,
@@ -135,6 +139,61 @@ const summaryTransferToken = (txs: TransactionDetails) => {
 
 const summaryTypeOnly = (txs: TransactionDetails) => `${txs.type}`
 
+const summaryEarnAddLiquidity = (txs: TransactionDetails) => {
+  const { tokensIn, pool } = (txs.extraInfo || {}) as EarnAddLiquidityExtraInfo
+  const tokensText = tokensIn.map(token => `${token.amount} ${token.symbol}`).join(', ')
+  return {
+    success: `Added ${tokensText} to the ${pool} pool.`,
+    error: `Add ${tokensText} to the ${pool} pool failed`,
+  }
+}
+
+const summaryEarnIncreaseLiquidity = (txs: TransactionDetails) => {
+  const { tokensIn, pool, positionId } = (txs.extraInfo || {}) as EarnAddLiquidityExtraInfo
+  return {
+    success: `Increased liquidity by ${tokensIn
+      .map(token => `${token.amount} ${token.symbol}`)
+      .join(', ')} for position ${pool} #${positionId}.`,
+    error: `Increase liquidity by ${tokensIn
+      .map(token => `${token.amount} ${token.symbol}`)
+      .join(', ')} for position ${pool} #${positionId} failed`,
+  }
+}
+
+const summaryEarnRemoveLiquidity = (txs: TransactionDetails) => {
+  const { tokensOut, pool, positionId } = (txs.extraInfo || {}) as EarnRemoveLiquidityExtraInfo
+  const tokensText = tokensOut.map(token => `${token.amount} ${token.symbol}`).join(', ')
+  return {
+    success: `Removed ${tokensText} from position ${pool} #${positionId}.`,
+    error: `Remove ${tokensText} from position ${pool} #${positionId} failed`,
+  }
+}
+
+const summaryEarnMigrateLiquidity = (txs: TransactionDetails) => {
+  const { sourcePool, destinationPool, positionId } = (txs.extraInfo || {}) as EarnMigrateLiquidityExtraInfo
+  return {
+    success: `Migrated position ${sourcePool} #${positionId} to the ${destinationPool} pool.`,
+    error: `Migrate position ${sourcePool} #${positionId} to the ${destinationPool} pool failed`,
+  }
+}
+
+const summaryEarnReposition = (txs: TransactionDetails) => {
+  const { pool, positionId } = (txs.extraInfo || {}) as EarnRepositionExtraInfo
+  return {
+    success: `Repositioned position ${pool} #${positionId} to a new range.`,
+    error: `Reposition position ${pool} #${positionId} to a new range failed`,
+  }
+}
+
+const summaryEarnCompound = (txs: TransactionDetails) => {
+  const { pool, positionId, tokensIn } = (txs.extraInfo || {}) as EarnAddLiquidityExtraInfo
+  const tokensText = tokensIn.map(token => `${token.amount} ${token.symbol}`).join(', ')
+  return {
+    success: `Compounded ${tokensText} for position ${pool} #${positionId}.`,
+    error: `Compound ${tokensText} for position ${pool} #${positionId} failed`,
+  }
+}
+
 // to render summary in notify transaction
 const SUMMARY: { [type in TRANSACTION_TYPE]: SummaryFunction } = {
   [TRANSACTION_TYPE.WRAP_TOKEN]: summary2Token,
@@ -173,6 +232,14 @@ const SUMMARY: { [type in TRANSACTION_TYPE]: SummaryFunction } = {
   [TRANSACTION_TYPE.KYBERDAO_DELEGATE]: summaryDelegateDao,
 
   [TRANSACTION_TYPE.CLAIM]: () => 'Claimed',
+
+  [TRANSACTION_TYPE.EARN_ADD_LIQUIDITY]: summaryEarnAddLiquidity,
+  [TRANSACTION_TYPE.EARN_INCREASE_LIQUIDITY]: summaryEarnIncreaseLiquidity,
+  [TRANSACTION_TYPE.EARN_REMOVE_LIQUIDITY]: summaryEarnRemoveLiquidity,
+  [TRANSACTION_TYPE.EARN_MIGRATE_LIQUIDITY]: summaryEarnMigrateLiquidity,
+  [TRANSACTION_TYPE.EARN_REPOSITION]: summaryEarnReposition,
+  [TRANSACTION_TYPE.EARN_COMPOUND_FEE]: summaryEarnCompound,
+  [TRANSACTION_TYPE.EARN_COMPOUND_REWARD]: summaryEarnCompound,
 }
 
 const CUSTOM_SUCCESS_STATUS: { [key in string]: string } = {

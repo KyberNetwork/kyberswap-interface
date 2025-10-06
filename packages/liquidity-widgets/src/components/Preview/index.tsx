@@ -23,6 +23,7 @@ import { useZapState } from '@/hooks/useZapState';
 import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 import { ZapSnapshotState } from '@/types/index';
+import { parseTokensAndAmounts } from '@/utils';
 
 export interface PreviewProps {
   zapState: ZapSnapshotState;
@@ -31,7 +32,7 @@ export interface PreviewProps {
 }
 
 export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool, onDismiss }: PreviewProps) {
-  const { poolType, chainId, connectedAccount, onSubmitTx, onViewPosition, referral, source, positionId } =
+  const { poolType, chainId, connectedAccount, onSubmitTx, onViewPosition, referral, source, positionId, onClose } =
     useWidgetStore([
       'poolType',
       'chainId',
@@ -41,9 +42,10 @@ export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool,
       'referral',
       'source',
       'positionId',
+      'onClose',
     ]);
   const { position } = usePositionStore(['position']);
-  const { setSlippage, slippage } = useZapState();
+  const { setSlippage, slippage, tokensIn, amountsIn } = useZapState();
 
   const [txHash, setTxHash] = useState('');
   const [attempTx, setAttempTx] = useState(false);
@@ -77,6 +79,13 @@ export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool,
     const { address: account } = connectedAccount;
     const rpcUrl = NETWORKS_INFO[chainId].defaultRpc;
 
+    const { tokensIn: validTokensIn, amountsIn: validAmountsIn } = parseTokensAndAmounts(tokensIn, amountsIn);
+    const parsedTokensIn = validTokensIn.map((token, index) => ({
+      symbol: token.symbol,
+      logoUrl: token.logo,
+      amount: validAmountsIn[index],
+    }));
+
     fetch(`${API_URLS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/in/route/build`, {
       method: 'POST',
       body: JSON.stringify({
@@ -101,10 +110,17 @@ export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool,
 
           try {
             const gasEstimation = await estimateGas(rpcUrl, txData);
-            const txHash = await onSubmitTx({
-              ...txData,
-              gasLimit: calculateGasMargin(gasEstimation),
-            });
+            const txHash = await onSubmitTx(
+              {
+                ...txData,
+                gasLimit: calculateGasMargin(gasEstimation),
+              },
+              {
+                tokensIn: parsedTokensIn,
+                pool: `${pool.token0.symbol}/${pool.token1.symbol}`,
+                dexLogo: DEXES_INFO[poolType].icon,
+              },
+            );
             setTxHash(txHash);
           } catch (e) {
             setAttempTx(false);
@@ -149,7 +165,13 @@ export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool,
         transactionExplorerUrl={txHash ? `${NETWORKS_INFO[chainId].scanLink}/tx/${txHash}` : undefined}
         action={
           <>
-            <button className="ks-outline-btn flex-1" onClick={onDismiss}>
+            <button
+              className="ks-outline-btn flex-1"
+              onClick={() => {
+                if (txStatus === 'success' && onClose) onClose();
+                onDismiss();
+              }}
+            >
               Close
             </button>
             {txStatus === 'success' ? (

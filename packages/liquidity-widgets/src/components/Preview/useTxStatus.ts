@@ -19,7 +19,7 @@ export default function useTxStatus({ txHash }: { txHash?: string }) {
             setTxStatus('success');
           } else setTxStatus('failed');
         });
-      }, 10_000);
+      }, 5_000);
 
       return () => {
         clearInterval(i);

@@ -36,7 +36,14 @@ export interface WidgetProps {
     initialSlippage?: number,
   ) => void;
   onSuccess?: ({ txHash, position }: OnSuccessProps) => void;
-  onSubmitTx: (txData: { from: string; to: string; value: string; data: string; gasLimit: string }) => Promise<string>;
+  onSubmitTx: (
+    txData: { from: string; to: string; value: string; data: string; gasLimit: string },
+    additionalInfo?: {
+      tokensIn: Array<{ symbol: string; amount: string; logoUrl?: string }>;
+      pool: string;
+      dexLogo: string;
+    },
+  ) => Promise<string>;
   onViewPosition?: (txHash: string) => void;
 }
 
