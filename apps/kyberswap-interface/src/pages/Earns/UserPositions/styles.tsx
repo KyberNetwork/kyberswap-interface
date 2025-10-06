@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 
 import { ReactComponent as IconCurrentPrice } from 'assets/svg/earn/ic_position_current_price.svg'
-import { PoolPageWrapper, TableBody, TableHeader, TableWrapper } from 'pages/Earns/PoolExplorer/styles'
+import { PoolPageWrapper, TableHeader, TableWrapper } from 'pages/Earns/PoolExplorer/styles'
 
 export const PositionPageWrapper = styled(PoolPageWrapper)`
   padding: 24px 6rem 62px;
@@ -367,10 +367,6 @@ export const PositionTableWrapper = styled(TableWrapper)`
     background: transparent;
     margin: 0;
   `}
-`
-
-export const PositionTableBody = styled(TableBody)`
-  max-height: unset;
 `
 
 export const PriceRangeWrapper = styled.div<{ outOfRange: boolean }>`
