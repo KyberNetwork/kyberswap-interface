@@ -148,16 +148,6 @@ export const TokenContextProvider = ({
             aggregatedTokens.push(...result.tokens);
           });
         }
-      } else {
-        let nextPage = 2;
-        let hasMore = firstPage.hasMore;
-
-        while (hasMore) {
-          const pageResult = await fetchDefaultTokensPage(nextPage);
-          aggregatedTokens.push(...pageResult.tokens);
-          hasMore = pageResult.hasMore;
-          nextPage += 1;
-        }
       }
 
       return aggregatedTokens;
