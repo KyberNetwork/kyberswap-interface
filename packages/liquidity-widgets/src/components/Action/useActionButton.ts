@@ -13,6 +13,8 @@ import { useWidgetStore } from '@/stores/useWidgetStore';
 import { ZapSnapshotState } from '@/types/index';
 import { estimateGasForTx } from '@/utils';
 
+const IS_DISABLED = true;
+
 export default function useActionButton({
   nftApproved,
   approveNft,
@@ -103,6 +105,7 @@ export default function useActionButton({
   const isNotConnected = errors.includes(ERROR_MESSAGE.CONNECT_WALLET);
 
   const btnDisabled =
+    IS_DISABLED ||
     (isUniv4 && isNotOwner) ||
     clickedApprove ||
     nftApprovePendingTx ||
@@ -121,6 +124,7 @@ export default function useActionButton({
   const isInvalidZapImpact = zapImpact?.level === PI_LEVEL.INVALID;
 
   const buttonStates = [
+    { condition: IS_DISABLED, text: 'Zap Temporarily Unavailable' },
     { condition: zapLoading, text: 'Fetching Route' },
     { condition: gasLoading, text: 'Estimating Gas' },
     { condition: errors.length > 0, text: errors[0] },

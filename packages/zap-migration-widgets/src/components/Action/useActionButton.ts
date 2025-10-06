@@ -62,6 +62,8 @@ interface UseActionButtonReturn {
   handleClick: () => Promise<void>;
 }
 
+const IS_DISABLED = true;
+
 export function useActionButton({
   onSubmitTx,
   onConnectWallet,
@@ -179,6 +181,7 @@ export function useActionButton({
   }, [isChecking, isTargetUniV4, targetPosition, isTargetNftChecking]);
 
   const getButtonText = useMemo((): string => {
+    if (IS_DISABLED) return 'Zap Temporarily Unavailable';
     if (gasLoading) return BUTTON_TEXTS.ESTIMATING_GAS;
     if (fetchingRoute) return BUTTON_TEXTS.FETCHING_ROUTE;
     if (liquidityOut === 0n) return BUTTON_TEXTS.SELECT_LIQUIDITY;
@@ -231,7 +234,8 @@ export function useActionButton({
 
   const isButtonDisabled = useMemo(() => {
     return Boolean(
-      fetchingRoute ||
+      IS_DISABLED ||
+        fetchingRoute ||
         gasLoading ||
         !route ||
         liquidityOut === 0n ||
