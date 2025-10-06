@@ -13,10 +13,10 @@ export const DropdownWrapper = styled.div<{ mobileFullWidth: boolean; mobileHalf
   `}
 `
 
-export const DropdownTitleWrapper = styled.div<{ highlight?: boolean }>`
+export const DropdownTitleWrapper = styled.div<{ flatten?: boolean; highlight?: boolean }>`
   background: ${({ theme, highlight }) => (highlight ? rgba(theme.blue, 0.2) : theme.background)};
   border-radius: 30px;
-  padding: 6px 12px;
+  padding: ${({ flatten }) => (flatten ? '0px 0px' : '6px 12px')};
   font-size: 14px;
   cursor: pointer;
   color: ${({ theme, highlight }) => (highlight ? theme.text : theme.subText)};
@@ -49,13 +49,13 @@ export const ItemIcon = styled.img`
   height: 18px;
 `
 
-export const DropdownContent = styled.div<{ alignLeft: boolean }>`
+export const DropdownContent = styled.div<{ flatten?: boolean; alignLeft: boolean }>`
   position: absolute;
-  top: 42px;
+  top: ${({ flatten }) => (flatten ? '32px' : '42px')};
   left: 0;
   background: ${({ theme }) => theme.background};
-  border-radius: 24px;
-  padding: 8px 12px;
+  border-radius: 18px;
+  padding: 8px 8px;
   font-size: 14px;
   color: ${({ theme }) => theme.text};
   width: max-content;
@@ -68,8 +68,8 @@ export const DropdownContent = styled.div<{ alignLeft: boolean }>`
 `
 
 export const DropdownContentItem = styled.div`
+  border-radius: 12px;
   padding: 8px;
-  border-radius: 30px;
   display: flex;
   align-items: center;
   justify-content: center;

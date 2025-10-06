@@ -20,6 +20,7 @@ const DropdownMenu = ({
   options,
   value,
   width,
+  flatten = false,
   alignLeft = false,
   mobileFullWidth = false,
   mobileHalfWidth = false,
@@ -28,6 +29,7 @@ const DropdownMenu = ({
   options: MenuOption[]
   value: string | number
   width?: number
+  flatten?: boolean
   alignLeft?: boolean
   mobileFullWidth?: boolean
   mobileHalfWidth?: boolean
@@ -59,7 +61,7 @@ const DropdownMenu = ({
 
   return (
     <DropdownWrapper mobileFullWidth={mobileFullWidth} mobileHalfWidth={mobileHalfWidth} ref={ref}>
-      <DropdownTitleWrapper onClick={handleOpenChange}>
+      <DropdownTitleWrapper flatten={flatten} onClick={handleOpenChange}>
         <DropdownTitle width={width}>
           {optionValue?.icon && <ItemIcon src={optionValue.icon} alt={optionValue.label} />}
           {/* {(!upToExtraSmall || !optionValue?.icon) && optionValue?.label} */}
@@ -68,7 +70,7 @@ const DropdownMenu = ({
         <DropdownIcon open={open} />
       </DropdownTitleWrapper>
       {open && (
-        <DropdownContent alignLeft={alignLeft}>
+        <DropdownContent flatten={flatten} alignLeft={alignLeft}>
           {options.map((option: MenuOption) => (
             <DropdownContentItem key={option.value} onClick={() => handleSelectItem(option.value)}>
               {option.icon && <ItemIcon src={option.icon} alt={option.label} />}

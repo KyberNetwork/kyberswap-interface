@@ -118,8 +118,8 @@ export const PriceSection = styled(InfoSection)`
 
 export const AprSection = styled(InfoSection)<{ showForFarming?: boolean }>`
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 6px;
 
   ${({ showForFarming }) => showForFarming && 'flex-direction: column;'}
   ${({ showForFarming }) => showForFarming && 'align-items: flex-start;'}
