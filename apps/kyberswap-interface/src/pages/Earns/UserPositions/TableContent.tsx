@@ -29,7 +29,6 @@ import {
   PositionActionWrapper,
   PositionOverview,
   PositionRow,
-  PositionTableBody,
   PositionValueLabel,
   PositionValueWrapper,
 } from 'pages/Earns/UserPositions/styles'
@@ -288,7 +287,7 @@ export default function TableContent({
       {zapMigrationWidget}
       {migrationModal}
 
-      <PositionTableBody>
+      <div>
         {account && positions && positions.length > 0
           ? positions.map((position, index) => {
               const {
@@ -651,7 +650,7 @@ export default function TableContent({
               )
             })
           : emptyPosition}
-      </PositionTableBody>
+      </div>
     </>
   )
 }

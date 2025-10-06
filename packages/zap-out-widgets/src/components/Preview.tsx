@@ -94,8 +94,13 @@ export const Preview = () => {
             <button
               className="ks-outline-btn flex-1"
               onClick={() => {
-                if (txStatus === 'success') onClose();
-                setBuildData(undefined);
+                if (txStatus === 'success') {
+                  onClose();
+                  setBuildData(undefined);
+                } else if (error) {
+                  setShowProcessing(false);
+                  setError(undefined);
+                }
               }}
             >
               Close
