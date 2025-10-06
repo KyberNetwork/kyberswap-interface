@@ -1,4 +1,4 @@
-import { ReactNode, createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { ReactNode, createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 
 import { useTokenBalances } from '@kyber/hooks';
 import { API_URLS, ChainId, Token } from '@kyber/schema';
@@ -44,6 +44,7 @@ export const TokenContextProvider = ({
   const [importedTokens, setImportedTokens] = useState<Token[]>([]);
   const [tokens, setTokens] = useState<Token[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const fetchTokensStateRef = useRef<{ key: string; promise: Promise<void> } | null>(null);
 
   const { balances: tokenBalances, loading: tokenBalancesLoading } = useTokenBalances(
     chainId,
@@ -99,42 +100,127 @@ export const TokenContextProvider = ({
       return;
     }
 
-    setIsLoading(true);
-    try {
-      const results = await Promise.all([
-        fetch(`${TOKEN_API}?pageSize=100&isWhitelisted=true&chainIds=${chainId}&page=1`).then(res => res.json()),
-        fetch(`${TOKEN_API}?pageSize=100&isWhitelisted=true&chainIds=${chainId}&page=2`).then(res => res.json()),
-        ...(additionalTokenAddresses
-          ? additionalTokenAddresses.split(',').map(address => fetchTokenInfo(address, chainId))
-          : []),
-      ]);
+    const PAGE_SIZE = 100;
+    const CONCURRENCY_LIMIT = 4;
+    const requestKey = `${chainId}-${additionalTokenAddresses ?? ''}`;
 
-      const [res1, res2, ...defaultTokensResults] = results;
-      const tokens1 = res1.data.tokens.map((item: Token & { logoURI: string }) => ({
+    if (fetchTokensStateRef.current?.key === requestKey) {
+      return fetchTokensStateRef.current.promise;
+    }
+
+    const fetchDefaultTokensPage = async (page: number) => {
+      const response = await fetch(
+        `${TOKEN_API}?pageSize=${PAGE_SIZE}&isWhitelisted=true&chainIds=${chainId}&page=${page}`,
+      );
+      if (!response.ok) {
+        throw new Error(`Failed to fetch default tokens for page ${page}`);
+      }
+      const result = await response.json();
+
+      const tokensForPage = (result?.data?.tokens || []).map((item: Token & { logoURI: string }) => ({
         ...item,
         logo: item.logoURI,
       }));
-      const tokens2 = res2.data.tokens.map((item: Token & { logoURI: string }) => ({
-        ...item,
-        logo: item.logoURI,
-      }));
-      let mergedTokens = [...tokens1, ...tokens2];
-      if (defaultTokensResults.length) {
-        // Flatten and filter out tokens already in mergedTokens
-        const allDefaultTokens = defaultTokensResults.flat();
-        const existingAddresses = new Set(mergedTokens.map(t => t.address.toLowerCase()));
-        const newDefaultTokens = allDefaultTokens.filter(t => !existingAddresses.has(t.address.toLowerCase()));
-        mergedTokens = [...mergedTokens, ...newDefaultTokens];
+
+      const totalTokensFromResponse = result?.data?.pagination?.totalItems;
+      const totalPages =
+        typeof totalTokensFromResponse === 'number' && totalTokensFromResponse > 0
+          ? Math.ceil(totalTokensFromResponse / PAGE_SIZE)
+          : undefined;
+      const hasMore = totalPages ? page < totalPages : tokensForPage.length === PAGE_SIZE;
+
+      return { tokens: tokensForPage, totalPages, hasMore };
+    };
+
+    const fetchAllDefaultTokens = async () => {
+      const aggregatedTokens: Token[] = [];
+      const firstPage = await fetchDefaultTokensPage(1);
+      aggregatedTokens.push(...firstPage.tokens);
+
+      const totalPagesFromFirstPage = firstPage.totalPages;
+
+      if (totalPagesFromFirstPage && totalPagesFromFirstPage > 1) {
+        const remainingPages = Array.from({ length: totalPagesFromFirstPage - 1 }, (_, index) => index + 2);
+        for (let i = 0; i < remainingPages.length; i += CONCURRENCY_LIMIT) {
+          const batch = remainingPages.slice(i, i + CONCURRENCY_LIMIT);
+          const batchResults = await Promise.all(batch.map(page => fetchDefaultTokensPage(page)));
+          batchResults.forEach(result => {
+            aggregatedTokens.push(...result.tokens);
+          });
+        }
+      } else {
+        let nextPage = 2;
+        let hasMore = firstPage.hasMore;
+
+        while (hasMore) {
+          const pageResult = await fetchDefaultTokensPage(nextPage);
+          aggregatedTokens.push(...pageResult.tokens);
+          hasMore = pageResult.hasMore;
+          nextPage += 1;
+        }
       }
 
-      // Cache the fetched tokens
-      setCachedTokens(chainId, mergedTokens, additionalTokenAddresses);
-      setTokens(mergedTokens);
-    } catch (error) {
-      console.error('Failed to fetch tokens:', error);
-    } finally {
-      setIsLoading(false);
-    }
+      return aggregatedTokens;
+    };
+
+    const executeFetch = async () => {
+      setIsLoading(true);
+      try {
+        const additionalTokenPromises = additionalTokenAddresses
+          ? additionalTokenAddresses
+              .split(',')
+              .map(address => address.trim())
+              .filter(Boolean)
+              .map(address => fetchTokenInfo(address, chainId))
+          : [];
+
+        const [defaultTokens, ...extraTokenResults] = await Promise.all([
+          fetchAllDefaultTokens(),
+          ...additionalTokenPromises,
+        ]);
+
+        let mergedTokens = [...defaultTokens];
+
+        if (extraTokenResults.length) {
+          // Flatten and filter out tokens already in mergedTokens
+          const allExtraTokens = extraTokenResults.flat();
+          const existingAddresses = new Set(mergedTokens.map(t => t.address.toLowerCase()));
+          const newExtraTokens = allExtraTokens.filter(t => !existingAddresses.has(t.address.toLowerCase()));
+          mergedTokens = [...mergedTokens, ...newExtraTokens];
+        }
+
+        const dedupedTokens = (() => {
+          const uniqueTokens = new Map<string, Token>();
+          mergedTokens.forEach(token => {
+            uniqueTokens.set(token.address.toLowerCase(), token);
+          });
+          return Array.from(uniqueTokens.values());
+        })();
+
+        if (fetchTokensStateRef.current?.key !== requestKey) {
+          return;
+        }
+
+        setCachedTokens(chainId, dedupedTokens, additionalTokenAddresses);
+        setTokens(dedupedTokens);
+      } catch (error) {
+        console.error('Failed to fetch tokens:', error);
+      } finally {
+        if (fetchTokensStateRef.current?.key === requestKey) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    const promise = executeFetch().finally(() => {
+      if (fetchTokensStateRef.current?.key === requestKey) {
+        fetchTokensStateRef.current = null;
+      }
+    });
+
+    fetchTokensStateRef.current = { key: requestKey, promise };
+
+    return promise;
   }, [additionalTokenAddresses, chainId]);
 
   useEffect(() => fetchImportedTokens(), [fetchImportedTokens]);
