@@ -7,7 +7,7 @@ import Skeleton from 'react-loading-skeleton'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
-import { ReactComponent as IconKem } from 'assets/svg/kyber/kem.svg'
+import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import InfoHelper from 'components/InfoHelper'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
@@ -187,7 +187,7 @@ export default function PositionBanner({
                   sx={{ borderTop: `1px solid ${rgba(theme.white, 0.08)}` }}
                 >
                   <Flex alignItems="center" sx={{ gap: 1 }}>
-                    <IconKem width={KemImageSize} height={KemImageSize} />
+                    <FarmingIcon width={KemImageSize} height={KemImageSize} />
                     <Text color={theme.subText} marginRight={1}>{t`Total Rewards`}</Text>
                     {shareBtn}
                   </Flex>
@@ -262,7 +262,7 @@ export default function PositionBanner({
             <RewardBannerWrapper>
               <Flex alignItems={'center'} sx={{ gap: 3 }}>
                 <Flex alignItems={'center'} sx={{ gap: 2 }}>
-                  <IconKem width={KemImageSize} height={KemImageSize} style={{ position: 'relative', top: 2 }} />
+                  <FarmingIcon width={KemImageSize} height={KemImageSize} style={{ position: 'relative', top: 2 }} />
                   <Text color={theme.subText}>{t`Total Rewards`}</Text>
                 </Flex>
 

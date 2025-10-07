@@ -142,7 +142,7 @@ export default function PoolStat() {
       )}
       {haveLm ? (
         <div className="mt-3 border-t border-stroke pt-3">
-          <div className="flex flex-col gap-2 sm:gap-3">
+          <div className="flex flex-col gap-2 sm:gap-2.5">
             <div className="flex items-center justify-between gap-0.5 sm:gap-3 flex-wrap">
               <span className="text-subText">Liquidity Mining Progress</span>
               {rewardLoading ? (

@@ -168,6 +168,11 @@ export default function useActionButton({
           }
           return gasUsd;
         }
+      })
+      .catch(err => {
+        setGasLoading(false);
+        setWidgetError(err.message);
+        console.error(err);
       });
 
     return res;

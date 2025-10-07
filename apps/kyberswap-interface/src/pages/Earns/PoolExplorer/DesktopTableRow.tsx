@@ -4,7 +4,8 @@ import { Star } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import { PoolQueryParams } from 'services/zapEarn'
 
-import { ReactComponent as IconFarmingPool } from 'assets/svg/kyber/kem.svg'
+import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
+import { ReactComponent as FarmingLmIcon } from 'assets/svg/kyber/kemLm.svg'
 import Loader from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
@@ -18,6 +19,7 @@ import { formatDisplayNumber } from 'utils/numbers'
 export const kemFarming = (pool: ParsedEarnPool) => {
   const programs = pool.programs || []
   const isFarming = programs.includes(ProgramType.EG) || programs.includes(ProgramType.LM)
+  const isFarmingLm = programs.includes(ProgramType.LM)
 
   return isFarming ? (
     <MouseoverTooltipDesktopOnly
@@ -33,7 +35,11 @@ export const kemFarming = (pool: ParsedEarnPool) => {
         </div>
       }
     >
-      <IconFarmingPool width={24} height={24} style={{ marginLeft: 4 }} />
+      {isFarmingLm ? (
+        <FarmingLmIcon width={24} height={24} style={{ marginLeft: 4 }} />
+      ) : (
+        <FarmingIcon width={24} height={24} style={{ marginLeft: 4 }} />
+      )}
     </MouseoverTooltipDesktopOnly>
   ) : null
 }

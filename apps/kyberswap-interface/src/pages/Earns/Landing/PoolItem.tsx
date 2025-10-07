@@ -3,7 +3,8 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { Flex, Text } from 'rebass'
 
-import { ReactComponent as IconFarmingPool } from 'assets/svg/kyber/kem.svg'
+import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
+import { ReactComponent as FarmingLmIcon } from 'assets/svg/kyber/kemLm.svg'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
@@ -11,10 +12,10 @@ import useTheme from 'hooks/useTheme'
 import { PoolRow, Tag } from 'pages/Earns/Landing/styles'
 import useZapInWidget from 'pages/Earns/hooks/useZapInWidget'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
-import { EarnPool } from 'pages/Earns/types'
+import { EarnPool, ProgramType } from 'pages/Earns/types'
 import { formatDisplayNumber } from 'utils/numbers'
 
-const PoolItem = ({ pool, isFarming }: { pool: EarnPool; isFarming?: boolean }) => {
+const PoolItem = ({ pool }: { pool: EarnPool }) => {
   const theme = useTheme()
   const { widget: zapMigrationWidget, handleOpenZapMigration, triggerClose, setTriggerClose } = useZapMigrationWidget()
   const { widget: zapInWidget, handleOpenZapIn } = useZapInWidget({
@@ -22,6 +23,9 @@ const PoolItem = ({ pool, isFarming }: { pool: EarnPool; isFarming?: boolean }) 
     triggerClose,
     setTriggerClose,
   })
+
+  const isFarming = pool.programs?.includes(ProgramType.EG) || pool.programs?.includes(ProgramType.LM)
+  const isFarmingLm = pool.programs?.includes(ProgramType.LM)
 
   return (
     <PoolRow
@@ -71,7 +75,7 @@ const PoolItem = ({ pool, isFarming }: { pool: EarnPool; isFarming?: boolean }) 
         <Text color={theme.primary}>
           {formatAprNumber((pool.apr || 0) + (pool.kemEGApr || 0) + (pool.kemLMApr || 0))}%
         </Text>
-        {isFarming && (
+        {isFarming ? (
           <MouseoverTooltipDesktopOnly
             placement="top"
             width="fit-content"
@@ -85,9 +89,9 @@ const PoolItem = ({ pool, isFarming }: { pool: EarnPool; isFarming?: boolean }) 
               </div>
             }
           >
-            <IconFarmingPool width={20} height={20} />
+            {isFarmingLm ? <FarmingLmIcon width={20} height={20} /> : <FarmingIcon width={20} height={20} />}
           </MouseoverTooltipDesktopOnly>
-        )}
+        ) : null}
       </Flex>
     </PoolRow>
   )

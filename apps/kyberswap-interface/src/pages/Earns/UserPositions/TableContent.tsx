@@ -9,7 +9,7 @@ import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
 import { ReactComponent as IconEarnNotFound } from 'assets/svg/earn/ic_earn_not_found.svg'
-import { ReactComponent as IconKem } from 'assets/svg/kyber/kem.svg'
+import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import { InfoHelperWithDelay } from 'components/InfoHelper'
 import { Loader2 } from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
@@ -564,7 +564,7 @@ export default function TableContent({
                       <RewardSyncing width={80} height={19} />
                     ) : (
                       <Flex alignItems={'center'} sx={{ gap: 1 }}>
-                        {upToSmall && <IconKem width={20} height={20} />}
+                        {upToSmall && <FarmingIcon width={20} height={20} />}
                         <MouseoverTooltipDesktopOnly
                           text={
                             <>
