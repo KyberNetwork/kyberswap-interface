@@ -1,5 +1,5 @@
 import { univ2Types } from '@kyber/schema';
-import { TokenLogo } from '@kyber/ui';
+import { TokenLogo, TokenSymbol } from '@kyber/ui';
 import { formatDisplayNumber, formatTokenAmount } from '@kyber/utils/number';
 
 import RevertPriceIcon from '@/assets/icons/ic_revert_price.svg';
@@ -39,8 +39,9 @@ export default function UpdatedPosition() {
       </div>
       <div className="flex items-center text-base mt-2 gap-1.5">
         <TokenLogo src={targetPool.token0.logo} size={20} alt={targetPool.token0.symbol} />
-        <div>
-          {formatTokenAmount(addedLiquidity.addedAmount0, targetPool.token0.decimals, 8)} {targetPool.token0.symbol}
+        <div className="flex items-center gap-1">
+          {formatTokenAmount(addedLiquidity.addedAmount0, targetPool.token0.decimals, 8)}
+          <TokenSymbol symbol={targetPool.token0.symbol} maxWidth={80} />
         </div>
         <div className="text-subText">
           ~{formatDisplayNumber(addedLiquidity.addedValue0, { style: 'currency', significantDigits: 6 })}
@@ -49,8 +50,9 @@ export default function UpdatedPosition() {
 
       <div className="flex items-center text-base mt-1 gap-1.5">
         <TokenLogo src={targetPool.token1.logo} size={20} alt={targetPool.token1.symbol} />
-        <div>
-          {formatTokenAmount(addedLiquidity.addedAmount1, targetPool.token1.decimals, 10)} {targetPool.token1.symbol}
+        <div className="flex items-center gap-1">
+          {formatTokenAmount(addedLiquidity.addedAmount1, targetPool.token1.decimals, 10)}
+          <TokenSymbol symbol={targetPool.token1.symbol} maxWidth={80} />
         </div>
         <div className="text-subText">
           ~{formatDisplayNumber(addedLiquidity.addedValue1, { style: 'currency', significantDigits: 6 })}
@@ -64,11 +66,20 @@ export default function UpdatedPosition() {
           <div className="flex items-center justify-between flex-wrap gap-2 row-gap-0">
             <p className="text-subText text-sm">Current price</p>
             <div className="flex items-center gap-1.5">
-              <p>
-                1 {revertPrice ? targetPool.token1.symbol : targetPool.token0.symbol} ={' '}
-                {formatDisplayNumber(currentPrice, { significantDigits: 8 })}{' '}
-                {revertPrice ? targetPool.token0.symbol : targetPool.token1.symbol}
-              </p>
+              <div className="flex items-center gap-1">
+                1{' '}
+                {revertPrice ? (
+                  <TokenSymbol symbol={targetPool.token1.symbol} maxWidth={80} />
+                ) : (
+                  <TokenSymbol symbol={targetPool.token0.symbol} maxWidth={80} />
+                )}{' '}
+                = {formatDisplayNumber(currentPrice, { significantDigits: 8 })}{' '}
+                {revertPrice ? (
+                  <TokenSymbol symbol={targetPool.token0.symbol} maxWidth={80} />
+                ) : (
+                  <TokenSymbol symbol={targetPool.token1.symbol} maxWidth={80} />
+                )}
+              </div>
               <div
                 className="flex items-center justify-center rounded-full bg-[#ffffff14] w-6 h-6"
                 onClick={toggleRevertPrice}

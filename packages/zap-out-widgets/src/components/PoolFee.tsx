@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 
 import { univ2PoolNormalize } from '@kyber/schema';
-import { Skeleton } from '@kyber/ui';
+import { Skeleton, TokenSymbol } from '@kyber/ui';
 import { formatDisplayNumber, formatTokenAmount, toRawString } from '@kyber/utils/number';
 
 import useZapRoute from '@/hooks/useZapRoute';
@@ -34,7 +34,8 @@ export const PoolFee = () => {
           ) : (
             <>
               <div className="flex items-center text-base gap-1 text-text">
-                {formatTokenAmount(feeAmount0Ref.current, pool.token0.decimals, 8)} {pool.token0.symbol}
+                {formatTokenAmount(feeAmount0Ref.current, pool.token0.decimals, 8)}{' '}
+                <TokenSymbol symbol={pool.token0.symbol} maxWidth={120} />
               </div>
               <div className="text-xs text-subText">
                 {formatDisplayNumber(
@@ -51,7 +52,8 @@ export const PoolFee = () => {
           ) : (
             <>
               <div className="flex items-center text-base gap-1 text-text">
-                {formatTokenAmount(feeAmount1Ref.current, pool.token1.decimals, 8)} {pool.token1.symbol}
+                {formatTokenAmount(feeAmount1Ref.current, pool.token1.decimals, 8)}{' '}
+                <TokenSymbol symbol={pool.token1.symbol} maxWidth={120} />
               </div>
               <div className="text-xs text-subText">
                 {formatDisplayNumber(

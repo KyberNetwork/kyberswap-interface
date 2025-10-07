@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { NETWORKS_INFO, univ3Types } from '@kyber/schema';
-import { MouseoverTooltip, StatusDialog, StatusDialogType, TokenLogo } from '@kyber/ui';
+import { MouseoverTooltip, StatusDialog, StatusDialogType, TokenLogo, TokenSymbol } from '@kyber/ui';
 import { PI_LEVEL, friendlyError } from '@kyber/utils';
 import { calculateGasMargin, estimateGas, isTransactionSuccessful } from '@kyber/utils/crypto';
 import { formatCurrency, formatDisplayNumber, formatTokenAmount } from '@kyber/utils/number';
@@ -179,8 +179,9 @@ export const Preview = () => {
         </div>
 
         <div>
-          <div className="text-base">
-            {pool.token0.symbol}/{pool.token1.symbol} {isUniV3 ? `#${positionId}` : ''}
+          <div className="text-base flex items-center">
+            <TokenSymbol symbol={pool.token0.symbol} maxWidth={80} />/
+            <TokenSymbol symbol={pool.token1.symbol} maxWidth={80} /> {isUniV3 ? `#${positionId}` : ''}
           </div>
           <div className="rounded-full text-xs bg-layer2 text-text px-3 py-[2px] w-fit">Fee {pool.fee}%</div>
         </div>
@@ -191,8 +192,8 @@ export const Preview = () => {
         {mode === 'zapOut' && (
           <div className="flex mt-3 text-base items-center">
             <TokenLogo src={tokenOut.logo} size={20} alt={tokenOut.symbol} />
-            <div className="ml-1">
-              {refund.refunds[0]?.amount || 0} {tokenOut.symbol}
+            <div className="ml-1 flex items-center gap-1">
+              {refund.refunds[0]?.amount || 0} <TokenSymbol symbol={tokenOut.symbol} maxWidth={80} />
             </div>
             <div className="ml-2 text-subText">~{formatCurrency(refund.value)}</div>
           </div>
@@ -201,9 +202,9 @@ export const Preview = () => {
           <>
             <div className="flex gap-1 items-center mt-3">
               <TokenLogo src={pool.token0.logo || ''} className="w-5 h-5" />
-              <span className="text-lg font-medium">
+              <span className="text-lg font-medium flex items-center gap-1">
                 {formatTokenAmount(removeLiquidity.removedAmount0 + earnedFee.earnedFee0, pool.token0.decimals, 8)}{' '}
-                {pool.token0.symbol}
+                <TokenSymbol symbol={pool.token0.symbol} maxWidth={80} />
               </span>
               <span className="text-subText ml-1">
                 ~{formatDisplayNumber(removeLiquidity.removedValue0 + earnedFee.feeValue0, { style: 'currency' })}
@@ -211,9 +212,9 @@ export const Preview = () => {
             </div>
             <div className="flex gap-1 items-center mt-3">
               <TokenLogo src={pool.token1.logo || ''} className="w-5 h-5" />
-              <span className="text-lg font-medium">
+              <span className="text-lg font-medium flex items-center gap-1">
                 {formatTokenAmount(removeLiquidity.removedAmount1 + earnedFee.earnedFee1, pool.token1.decimals, 8)}{' '}
-                {pool.token1.symbol}
+                <TokenSymbol symbol={pool.token1.symbol} maxWidth={80} />
               </span>
               <span className="text-subText ml-1">
                 ~{formatDisplayNumber(removeLiquidity.removedValue1 + earnedFee.feeValue1, { style: 'currency' })}
@@ -227,10 +228,13 @@ export const Preview = () => {
         <>
           <div className="flex flex-col mt-4 gap-3 text-sm">
             <div className="flex items-center justify-between">
-              <div className="text-subText text-xs ">Est. Received {tokenOut.symbol}</div>
+              <div className="text-subText text-xs flex items-center gap-1">
+                Est. Received <TokenSymbol symbol={tokenOut.symbol} maxWidth={80} />
+              </div>
               <div className="flex items-center gap-1">
                 <TokenLogo src={tokenOut.logo} alt={tokenOut.symbol} />
-                {refund.refunds[0]?.amount || 0} {tokenOut.symbol}
+                {refund.refunds[0]?.amount || 0}
+                <TokenSymbol symbol={tokenOut.symbol} maxWidth={80} />
               </div>
             </div>
 

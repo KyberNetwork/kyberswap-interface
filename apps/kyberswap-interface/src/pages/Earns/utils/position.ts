@@ -119,6 +119,7 @@ export const parsePosition = ({
 
   const programs = pool.programs || []
   const isFarming = programs.includes(ProgramType.EG) || programs.includes(ProgramType.LM)
+  const isFarmingLm = programs.includes(ProgramType.LM)
 
   const unclaimedRewardTokens = nftRewardInfo?.tokens.filter(token => token.unclaimedAmount > 0) || []
 
@@ -190,6 +191,7 @@ export const parsePosition = ({
       tickSpacing: pool.tickSpacing,
       category: pool.category,
       isFarming,
+      isFarmingLm,
       isUniv2,
     },
     dex: {

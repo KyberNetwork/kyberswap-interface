@@ -1,6 +1,6 @@
 import { useCopy } from '@kyber/hooks';
 import { DEXES_INFO, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, UniV3Pool, UniV3Position, univ3Types } from '@kyber/schema';
-import { InfoHelper, MouseoverTooltip, Skeleton, TokenLogo } from '@kyber/ui';
+import { InfoHelper, MouseoverTooltip, Skeleton, TokenLogo, TokenSymbol } from '@kyber/ui';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
 import SettingIcon from '@/assets/svg/setting.svg';
@@ -47,7 +47,8 @@ export const Header = () => {
           <Skeleton className="w-[400px] h-7" />
         ) : (
           <div className="flex items-center gap-2 flex-1 flex-wrap">
-            {mode === 'zapOut' ? 'Zap Out' : 'Remove Liquidity'} {pool.token0.symbol}/{pool.token1.symbol}{' '}
+            {mode === 'zapOut' ? 'Zap Out' : 'Remove Liquidity'} <TokenSymbol symbol={pool.token0.symbol} />/
+            <TokenSymbol symbol={pool.token1.symbol} />{' '}
             {isUniV3 && (
               <div className="flex items-center gap-1">
                 #{positionId}
@@ -86,9 +87,10 @@ export const Header = () => {
                 className="border-[2px] border-layer1 max-sm:w-[18px] max-sm:h-[18px] max-sm:-ml-2 -ml-1"
               />
             </div>
-            <span className="text-xl">
-              {pool.token0.symbol}/{pool.token1.symbol}
-            </span>
+            <div className="text-xl flex items-center">
+              <TokenSymbol symbol={pool.token0.symbol} />/
+              <TokenSymbol symbol={pool.token1.symbol} />
+            </div>
             <div className="rounded-full text-xs bg-layer2 text-subText px-[14px] py-1">Fee {pool.fee}%</div>
 
             <div className="flex items-center justify-center px-2 py-1 bg-layer2 rounded-full">

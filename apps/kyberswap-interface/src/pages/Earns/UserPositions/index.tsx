@@ -5,7 +5,7 @@ import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { useUserPositionsQuery } from 'services/zapEarn'
 
-import { ReactComponent as IconKem } from 'assets/svg/kyber/kem.svg'
+import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import { ReactComponent as RocketIcon } from 'assets/svg/rocket.svg'
 import InfoHelper from 'components/InfoHelper'
 import LocalLoader from 'components/LocalLoader'
@@ -423,7 +423,7 @@ const UserPositions = () => {
 
                 <PositionTableHeaderFlexItem role="button" onClick={() => onSortChange(SortBy.UNCLAIMED_REWARDS)}>
                   <Flex alignItems={'flex-start'} sx={{ gap: '4px' }}>
-                    <IconKem width={24} height={24} />
+                    <FarmingIcon width={24} height={24} />
                     <Text>Unclaimed</Text>
                   </Flex>
                   <Flex alignItems={'center'} sx={{ gap: '4px' }} paddingLeft={'28px'}>

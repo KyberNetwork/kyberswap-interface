@@ -8,8 +8,8 @@ const PositionLiquidity = () => {
   const { pool } = usePoolStore(['pool']);
   const { position } = usePositionStore(['position']);
 
-  const initializing = pool === 'loading' || position === 'loading';
-  const positionNotExist = position === 'loading' || !position || initializing;
+  const initializing = !pool;
+  const positionNotExist = !position || initializing;
 
   const amount0 = positionNotExist ? '0' : formatTokenAmount(position.amount0, pool.token0.decimals, 6);
   const amount1 = positionNotExist ? '0' : formatTokenAmount(position.amount1, pool.token1.decimals, 6);

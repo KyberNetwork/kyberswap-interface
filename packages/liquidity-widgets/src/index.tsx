@@ -59,7 +59,7 @@ const LiquidityWidget = (widgetProps: WidgetProps) => {
   }, [chainId, getPool, poolAddress, poolType]);
 
   useEffect(() => {
-    if (firstFetch || pool === 'loading' || !pool) return;
+    if (firstFetch || !pool) return;
 
     getPosition({
       positionId,

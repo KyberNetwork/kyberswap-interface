@@ -8,7 +8,7 @@ import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
 import { ReactComponent as IconEarnNotFound } from 'assets/svg/earn/ic_earn_not_found.svg'
-import { ReactComponent as IconKem } from 'assets/svg/kyber/kem.svg'
+import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import { InfoHelperWithDelay } from 'components/InfoHelper'
 import { Loader2 } from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
@@ -349,7 +349,12 @@ export default function TableContent({
                         <TokenLogo src={token1.logo} translateLeft />
                         <TokenLogo src={chain.logo} size={12} translateLeft translateTop />
                       </ImageContainer>
-                      <Text marginLeft={-1} fontSize={upToSmall ? 15 : 16}>
+                      <Text
+                        marginLeft={-2}
+                        fontSize={upToSmall ? 15 : 16}
+                        maxWidth={'160px'}
+                        sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+                      >
                         {token0.symbol}/{token1.symbol}
                       </Text>
                       <Badge>{pool.fee}%</Badge>
@@ -464,7 +469,7 @@ export default function TableContent({
                             pool.isFarming ? (
                               <>
                                 <Text>
-                                  {t`LP Fees APR`}: {formatAprNumber(position.feeApr)}%
+                                  {t`LP Fee`}: {formatAprNumber(position.feeApr)}%
                                 </Text>
                                 <Text>
                                   {t`EG Sharing Reward`}: {formatAprNumber(position.kemEGApr)}%
@@ -556,7 +561,7 @@ export default function TableContent({
                       <RewardSyncing width={80} height={19} />
                     ) : (
                       <Flex alignItems={'center'} sx={{ gap: 1 }}>
-                        {upToSmall && <IconKem width={20} height={20} />}
+                        {upToSmall && <FarmingIcon width={20} height={20} />}
                         <MouseoverTooltipDesktopOnly
                           text={
                             <>
@@ -597,14 +602,20 @@ export default function TableContent({
                     <PositionValueLabel>{t`Balance`}</PositionValueLabel>
 
                     {token0.symbol && token1.symbol ? (
-                      <Flex flexDirection={upToSmall ? 'row' : 'column'} sx={{ gap: 1.8 }}>
-                        <Text>
-                          {formatDisplayNumber(token0.totalProvide, { significantDigits: 4 })} {token0.symbol}
-                        </Text>
+                      <Flex
+                        flexDirection={upToSmall ? 'row' : 'column'}
+                        alignItems={upToSmall ? 'center' : 'flex-start'}
+                        sx={{ gap: 1.8 }}
+                      >
+                        <Flex alignItems="center" sx={{ gap: 1 }}>
+                          <Text>{formatDisplayNumber(token0.totalProvide, { significantDigits: 4 })}</Text>
+                          <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '80px' }}>{token0.symbol}</Text>
+                        </Flex>
                         {upToSmall && <Divider />}
-                        <Text>
-                          {formatDisplayNumber(token1.totalProvide, { significantDigits: 4 })} {token1.symbol}
-                        </Text>
+                        <Flex alignItems="center" sx={{ gap: 1 }}>
+                          <Text>{formatDisplayNumber(token1.totalProvide, { significantDigits: 4 })}</Text>
+                          <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '80px' }}>{token1.symbol}</Text>
+                        </Flex>
                       </Flex>
                     ) : (
                       '--'

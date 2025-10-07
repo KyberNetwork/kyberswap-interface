@@ -4,6 +4,7 @@ import { formatAprNumber, formatDisplayNumber } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
 import FarmingIcon from '@/assets/svg/kem.svg';
+import FarmingLmIcon from '@/assets/svg/kemLm.svg';
 import { useZapOutContext } from '@/stores';
 
 export default function PoolStat() {
@@ -19,6 +20,7 @@ export default function PoolStat() {
 
   const poolApr = initializing ? 0 : (pool.stats.apr || 0) + (pool.stats.kemEGApr || 0) + (pool.stats.kemLMApr || 0);
   const isFarming = initializing ? false : pool.isFarming || false;
+  const isFarmingLm = initializing ? false : pool.isFarmingLm || false;
 
   return (
     <div
@@ -84,7 +86,7 @@ export default function PoolStat() {
                 <MouseoverTooltip
                   text={
                     <div>
-                      LP Fee APR: {formatAprNumber(pool.stats.apr || 0)}%
+                      LP Fee: {formatAprNumber(pool.stats.apr || 0)}%
                       <br />
                       EG Sharing Reward: {formatAprNumber(pool.stats.kemEGApr || 0)}%
                       <br />
@@ -94,7 +96,7 @@ export default function PoolStat() {
                   placement="top"
                   width="fit-content"
                 >
-                  <FarmingIcon width={20} height={20} />
+                  {isFarmingLm ? <FarmingLmIcon width={20} height={20} /> : <FarmingIcon width={20} height={20} />}
                 </MouseoverTooltip>
               ) : null}
             </div>

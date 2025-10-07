@@ -1,4 +1,4 @@
-import { Skeleton } from '@kyber/ui';
+import { Skeleton, TokenSymbol } from '@kyber/ui';
 import { formatDisplayNumber } from '@kyber/utils/number';
 
 import RevertPriceIcon from '@/assets/svg/ic_revert_price.svg';
@@ -13,10 +13,10 @@ export function PoolPrice() {
     <div className="rounded-lg flex items-center justify-between flex-wrap border border-stroke px-4 py-3 text-subText text-sm">
       <div className="flex items-center gap-1">
         <span> Current Price</span>
-        <div className="text-text">
-          1 {revertPrice ? pool.token1.symbol : pool.token0.symbol} ={' '}
-          {formatDisplayNumber(poolPrice, { significantDigits: 8 })}{' '}
-          {revertPrice ? pool.token0.symbol : pool.token1.symbol}
+        <div className="text-text flex items-center gap-1">
+          1 <TokenSymbol symbol={revertPrice ? pool.token1.symbol : pool.token0.symbol} maxWidth={80} /> ={' '}
+          {formatDisplayNumber(poolPrice, { significantDigits: 8 })}
+          <TokenSymbol symbol={revertPrice ? pool.token0.symbol : pool.token1.symbol} maxWidth={80} />
         </div>
       </div>
 

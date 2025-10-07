@@ -132,7 +132,6 @@ const EarnLanding = () => {
           isLoading={isLoading}
           listPools={farmingPools}
           size="large"
-          isFarming
           styles={{ marginTop: upToSmall ? '40px' : '64px' }}
         />
 
