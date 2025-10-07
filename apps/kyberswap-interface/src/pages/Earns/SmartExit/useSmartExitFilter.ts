@@ -12,14 +12,28 @@ import { SmartExitFilter } from 'pages/Earns/types'
 //   UNCLAIMED_REWARDS = 'unclaimed_rewards',
 // }
 
+export enum DexType {
+  DexTypeUniswapV3 = 'DexTypeUniswapV3',
+  DexTypeUniswapV4 = 'DexTypeUniswapV4',
+  DexTypeUniswapV4FairFlow = 'DexTypeUniswapV4FairFlow',
+  DexTypePancakeV3 = 'DexTypePancakeV3',
+}
+
+export enum OrderStatus {
+  OrderStatusOpen = 'OrderStatusOpen',
+  OrderStatusDone = 'OrderStatusDone',
+  OrderStatusCancelled = 'OrderStatusCancelled',
+  OrderStatusExpired = 'OrderStatusExpired',
+}
+
 export default function useSmartExitFilter() {
   const [searchParams, setSearchParams] = useSearchParams()
 
   const filters: SmartExitFilter = useMemo(
     () => ({
       chainIds: searchParams.get('chainIds') || '',
-      protocols: searchParams.get('protocols') || '',
-      status: searchParams.get('status') || 'open',
+      dexType: searchParams.get('dexTypes') || '',
+      status: searchParams.get('status') || OrderStatus.OrderStatusOpen,
       // q: searchParams.get('q') || '',
       // sortBy: searchParams.get('sortBy') || SortBy.VALUE,
       // orderBy: searchParams.get('orderBy') || Direction.DESC,

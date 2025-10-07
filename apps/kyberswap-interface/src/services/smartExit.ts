@@ -48,17 +48,17 @@ const smartExitApi = createApi({
         chainIds?: string
         userWallet: string
         status?: string
-        protocols?: string
+        dexTypes?: string
         page?: number
         pageSize?: number
       }
     >({
-      query: ({ chainIds, protocols, userWallet, status, page = 1, pageSize = 10 }) => ({
+      query: ({ chainIds, dexTypes, userWallet, status, page = 1, pageSize = 10 }) => ({
         url: SMART_EXIT_API_URL,
         params: {
           userWallet,
           ...(status && { status }),
-          ...(protocols && { protocols }),
+          ...(dexTypes && { dexTypes }),
           ...(chainIds && { chainIds }),
           page,
           pageSize,

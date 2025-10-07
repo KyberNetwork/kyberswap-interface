@@ -7,11 +7,13 @@ import { AllChainsOption, AllProtocolsOption } from 'pages/Earns/hooks/useSuppor
 import { SmartExitFilter } from 'pages/Earns/types'
 import { MEDIA_WIDTHS } from 'theme'
 
+import { OrderStatus } from './useSmartExitFilter'
+
 const ORDER_STATUS = [
-  { label: 'Active', value: 'open' },
-  { label: 'Executed', value: 'done' },
-  { label: 'Expired', value: 'expired' },
-  { label: 'Cancelled', value: 'cancelled' },
+  { label: 'Active', value: OrderStatus.OrderStatusOpen },
+  { label: 'Executed', value: OrderStatus.OrderStatusDone },
+  { label: 'Expired', value: OrderStatus.OrderStatusExpired },
+  { label: 'Cancelled', value: OrderStatus.OrderStatusCancelled },
 ]
 
 export default function Filter({
@@ -45,16 +47,16 @@ export default function Filter({
 
   useEffect(() => {
     if (
-      filters.protocols &&
+      filters.dexTypes &&
       supportedDexes.length &&
       !supportedDexes
         .map(item => item.value)
         .filter(Boolean)
-        .includes(filters.protocols)
+        .includes(filters.dexTypes)
     ) {
-      updateFilters('protocols', '')
+      updateFilters('dexTypes', '')
     }
-  }, [filters.protocols, supportedDexes, updateFilters])
+  }, [filters.dexTypes, supportedDexes, updateFilters])
 
   return (
     <Flex
@@ -74,9 +76,9 @@ export default function Filter({
         <DropdownMenu
           alignLeft
           mobileHalfWidth
-          value={filters.protocols || ''}
+          value={filters.dexTypes || ''}
           options={supportedDexes.length ? supportedDexes : [AllProtocolsOption]}
-          onChange={value => value !== filters.protocols && updateFilters('protocols', value)}
+          onChange={value => value !== filters.dexTypes && updateFilters('dexTypes', value)}
         />
         <DropdownMenu
           alignLeft

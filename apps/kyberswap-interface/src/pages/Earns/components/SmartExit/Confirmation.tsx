@@ -62,7 +62,7 @@ export const Confirmation = ({
     signature: permitData?.signature,
   })
 
-  const displayTime = dayjs(time).format('DD/MM/YYYY HH:mm:ss')
+  const displayTime = dayjs(time * 1000).format('DD/MM/YYYY HH:mm:ss')
 
   const [condition0, condition1] = selectedMetrics
 

@@ -19,7 +19,7 @@ export enum ProgramType {
 export interface SmartExitFilter {
   chainIds?: string
   status?: string
-  protocols?: string
+  dexTypes?: string
   page: number
 }
 

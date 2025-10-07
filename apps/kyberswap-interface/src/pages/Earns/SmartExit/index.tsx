@@ -149,7 +149,7 @@ const SmartExit = () => {
       chainIds: filters.chainIds || undefined,
       userWallet: account || '',
       status: filters.status || undefined,
-      protocols: filters.protocols || undefined,
+      dexTypes: filters.dexTypes || undefined,
       page: currentPage,
       pageSize,
     },
