@@ -44,10 +44,9 @@ export function Preview({
     'connectedAccount',
     'rePositionMode',
   ]);
-  const { route, slippage, setSlippageOpen, setSlippage, buildData, setBuildData } = useZapStore([
+  const { route, slippage, setSlippage, buildData, setBuildData } = useZapStore([
     'route',
     'slippage',
-    'setSlippageOpen',
     'setSlippage',
     'buildData',
     'setBuildData',
@@ -83,8 +82,6 @@ export function Preview({
   if (route === null || !sourcePool || !targetPool || !account || !buildData) return null;
 
   const handleSlippage = () => {
-    setSlippageOpen(true);
-    const suggestedSlippage = route?.zapDetails.suggestedSlippage || 0;
     if (slippage !== suggestedSlippage) setSlippage(suggestedSlippage);
     setBuildData(undefined);
   };
@@ -190,7 +187,7 @@ export function Preview({
     <Dialog open={true} onOpenChange={onDismiss}>
       <DialogPortal>
         <DialogContent
-          className="max-h-[700px] max-w-[450px] overflow-auto z-[1002]"
+          className="max-h-[800px] max-w-[450px] overflow-auto z-[1002]"
           overlayClassName="z-[1002]"
           aria-describedby={undefined}
           containerClassName="ks-lw-migration-style"

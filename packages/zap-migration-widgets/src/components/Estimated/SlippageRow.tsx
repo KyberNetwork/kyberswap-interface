@@ -1,6 +1,5 @@
-import { useEffect } from 'react';
+import { useState } from 'react';
 
-import { usePrevious } from '@kyber/hooks';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, MouseoverTooltip, Skeleton } from '@kyber/ui';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
@@ -13,20 +12,12 @@ const MAX_SLIPPAGE_LABEL_TEXT =
 
 const SlippageRow = () => {
   const { suggestedSlippage } = useZapRoute();
-  const { slippage, slippageOpen, setSlippageOpen } = useZapStore(['slippage', 'slippageOpen', 'setSlippageOpen']);
+  const { slippage } = useZapStore(['slippage']);
+  const [slippageOpen, setSlippageOpen] = useState(false);
 
   const isHighSlippage = suggestedSlippage > 0 ? slippage && slippage > 2 * suggestedSlippage : false;
   const isLowSlippage = suggestedSlippage > 0 ? slippage && slippage < suggestedSlippage / 2 : false;
   const isSlippageWarning = isHighSlippage || isLowSlippage;
-
-  const previousSuggestedSlippage = usePrevious(suggestedSlippage);
-
-  useEffect(() => {
-    if (previousSuggestedSlippage !== suggestedSlippage && slippage !== suggestedSlippage && suggestedSlippage > 0) {
-      setSlippageOpen(true);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [suggestedSlippage]);
 
   return (
     <div className="flex first-line:text-sm">

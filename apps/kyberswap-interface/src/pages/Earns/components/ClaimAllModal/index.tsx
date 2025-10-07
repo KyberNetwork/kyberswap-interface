@@ -53,9 +53,13 @@ export default function ClaimAllModal({
   }, [chainId, changeNetwork, library, onClaimAll, selectedChainId])
 
   const handleSelectChain = (chainId: number) => {
-    if (chainId === selectedChainId) setSelectedChainId(null)
-    else setSelectedChainId(chainId)
+    if (chainId !== selectedChainId) setSelectedChainId(chainId)
   }
+
+  useEffect(() => {
+    if (selectedChainId) return
+    setSelectedChainId(rewardInfo.chains[0].chainId)
+  }, [rewardInfo.chains, selectedChainId])
 
   useEffect(() => {
     if (autoClaim && chainId === selectedChainId) {
@@ -159,9 +163,7 @@ export default function ClaimAllModal({
               <Text>{t`on`}</Text>
               <Text>{selectedChain.chainName}</Text>
             </Flex>
-          ) : (
-            <Text mt={2} color={theme.subText}>{t`Please select a chain to claim rewards`}</Text>
-          )}
+          ) : null}
         </ClaimInfoWrapper>
         <Row gap="16px" flexDirection={upToExtraSmall ? 'column-reverse' : 'row'}>
           <ButtonOutlined onClick={onClose}>{t`Cancel`}</ButtonOutlined>

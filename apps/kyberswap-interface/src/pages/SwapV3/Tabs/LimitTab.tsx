@@ -1,5 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useLocation } from 'react-router-dom'
 import { useGetListOrdersQuery } from 'services/limitOrder'
@@ -7,7 +7,7 @@ import styled from 'styled-components'
 
 import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
-import { useActiveWeb3React } from 'hooks'
+import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { isSupportLimitOrder } from 'utils'
 
 import { Tab } from './index'
@@ -30,6 +30,7 @@ type Props = {
 }
 export default function LimitTab({ onClick, active, customChainId }: Props) {
   const { chainId: walletChainId, account } = useActiveWeb3React()
+  const { isSmartConnector } = useWeb3React()
   const { pathname } = useLocation()
 
   const chainId = customChainId || walletChainId
@@ -56,13 +57,21 @@ export default function LimitTab({ onClick, active, customChainId }: Props) {
   }
 
   return (
-    <Tab id="limit-button" data-testid="limit-button" onClick={onClick} isActive={active || isLimitPage}>
-      <Trans>Limit Order</Trans>{' '}
-      {!!numberOfActiveOrders && (
-        <MouseoverTooltip placement="top" text={<Trans>You have {numberOfActiveOrders} active orders.</Trans>}>
-          <ActiveBadge>{numberOfActiveOrders}</ActiveBadge>
-        </MouseoverTooltip>
-      )}
+    <Tab
+      id="limit-button"
+      data-testid="limit-button"
+      onClick={onClick}
+      isActive={active || isLimitPage}
+      isDisabled={isSmartConnector}
+    >
+      <MouseoverTooltip text={isSmartConnector ? t`Limit Order doesn't support your current wallet type` : ''}>
+        <Trans>Limit Order</Trans>{' '}
+        {!!numberOfActiveOrders && (
+          <MouseoverTooltip placement="top" text={<Trans>You have {numberOfActiveOrders} active orders.</Trans>}>
+            <ActiveBadge>{numberOfActiveOrders}</ActiveBadge>
+          </MouseoverTooltip>
+        )}
+      </MouseoverTooltip>
     </Tab>
   )
 }

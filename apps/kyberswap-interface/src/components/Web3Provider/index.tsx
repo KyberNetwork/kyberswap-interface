@@ -1,5 +1,7 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { watchChainId } from '@wagmi/core'
+import { porto } from 'porto/wagmi'
 import { ReactNode, useEffect, useMemo } from 'react'
 import { createClient, defineChain, http } from 'viem'
 import {
@@ -9,6 +11,7 @@ import {
   berachain,
   blast,
   bsc,
+  etherlink,
   fantom,
   linea,
   mainnet,
@@ -35,6 +38,31 @@ import { WALLETCONNECT_PROJECT_ID } from 'constants/env'
 import { isSupportedChainId } from 'constants/networks'
 import { useAppDispatch } from 'state/hooks'
 import { updateChainId } from 'state/user/actions'
+
+export const plasma = defineChain({
+  id: ChainId.PLASMA,
+  name: 'Plasma',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'XPL',
+    symbol: 'XPL',
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://rpc.plasma.to'],
+      webSocket: ['wss://rpc.plasma.to'],
+    },
+  },
+  blockExplorers: {
+    default: { name: 'Explorer', url: 'https://plasmascan.to' },
+  },
+  contracts: {
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 1,
+    },
+  },
+})
 
 export const hyperevm = defineChain({
   id: 999,
@@ -73,6 +101,7 @@ export const CONNECTION = {
   METAMASK_RDNS: 'io.metamask',
   //UNISWAP_EXTENSION_RDNS: 'org.uniswap.app',
   SAFE_CONNECTOR_ID: 'safe',
+  PORTO: 'xyz.ithaca.porto',
 } as const
 
 export const CONNECTOR_ICON_OVERRIDE_MAP: { [id in string]?: string } = {
@@ -81,6 +110,8 @@ export const CONNECTOR_ICON_OVERRIDE_MAP: { [id in string]?: string } = {
   [CONNECTION.WALLET_CONNECT_CONNECTOR_ID]: WALLET_CONNECT_ICON,
   [CONNECTION.SAFE_CONNECTOR_ID]: SAFE_ICON,
 }
+
+export const SMART_WALLETS = [CONNECTION.PORTO, CONNECTION.SAFE_CONNECTOR_ID]
 
 type ConnectorID = (typeof CONNECTION)[keyof typeof CONNECTION]
 
@@ -232,6 +263,8 @@ const wagmiChains = [
   ronin,
   unichain,
   hyperevm,
+  etherlink,
+  plasma,
 ] as const
 
 export const wagmiConfig = createConfig({
@@ -245,6 +278,7 @@ export const wagmiConfig = createConfig({
       reloadOnDisconnect: false,
       enableMobileWalletLink: true,
     }),
+    porto(),
     safe(),
     ...HardCodedConnectors.map(connector => createPriorityConnector(connector)),
   ],

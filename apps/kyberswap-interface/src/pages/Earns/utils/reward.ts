@@ -124,6 +124,9 @@ export const parseReward = ({
 
   // Single pass through all data
   Object.entries(data).forEach(([chainId, chainData]) => {
+    const chain = chainLookup.get(Number(chainId))
+    if (!chain) return
+
     const numericChainId = Number(chainId)
 
     Object.entries(chainData.campaigns).forEach(([_campaignId, campaign]) => {

@@ -40,9 +40,6 @@ interface ZapState {
   ttl: number;
   setTtl: (value: number) => void;
 
-  slippageOpen: boolean;
-  setSlippageOpen: (value: boolean) => void;
-
   reset: () => void;
 }
 
@@ -58,7 +55,6 @@ const initState = {
   fetchingRoute: false,
   route: null,
   highlightDegenMode: false,
-  slippageOpen: false,
 };
 
 const useZapRawStore = create<ZapState>((set, get) => ({
@@ -155,7 +151,6 @@ const useZapRawStore = create<ZapState>((set, get) => ({
       set({ fetchingRoute: false, route: null });
     }
   },
-  setSlippageOpen: value => set({ slippageOpen: value }),
 }));
 
 type ZapStoreKeys = keyof ReturnType<typeof useZapRawStore.getState>;

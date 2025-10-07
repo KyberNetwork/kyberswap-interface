@@ -1,7 +1,7 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { WalletClient, formatUnits } from 'viem'
 
-import { CROSS_CHAIN_FEE_RECEIVER, ETHER_ADDRESS } from 'constants/index'
+import { BUNGEE_AFFILIATE_ID, CROSS_CHAIN_FEE_RECEIVER, ETHER_ADDRESS, KYBERSWAP_DOMAIN } from 'constants/index'
 import { MAINNET_NETWORKS } from 'constants/networks'
 
 import { Quote } from '../registry'
@@ -15,7 +15,10 @@ import {
   SwapStatus,
 } from './BaseSwapAdapter'
 
-const BUNGEE_API_BASE_URL = 'https://public-backend.bungee.exchange'
+const BUNGEE_API_BASE_URL =
+  typeof window !== 'undefined' && window.location?.hostname === KYBERSWAP_DOMAIN
+    ? 'https://backend.bungee.exchange' // use whitelisted backend for kyberswap.com
+    : 'https://public-backend.bungee.exchange' // use public backend for local development/testing
 enum RequestStatusEnum {
   PENDING = 0,
   ASSIGNED = 1,
@@ -56,7 +59,7 @@ export class BungeeAdapter extends BaseSwapAdapter {
       inputAmount: params.amount,
       receiverAddress: params.recipient,
       outputToken: params.toToken.isNative ? ETHER_ADDRESS : params.toToken.wrapped.address,
-      slippage: params.slippage.toString(),
+      slippage: ((params.slippage * 100) / 10_000).toString(),
       // delegateAddress: params.sender // optional
 
       feeBps: params.feeBps.toString(),
@@ -73,6 +76,7 @@ export class BungeeAdapter extends BaseSwapAdapter {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
+        affiliate: BUNGEE_AFFILIATE_ID,
       },
     })
 
