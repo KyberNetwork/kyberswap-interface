@@ -93,7 +93,7 @@ export default function MigrationModal({
                           width="max-content"
                           text={
                             <div>
-                              {t`LP Fee APR`}: {formatAprNumber(pool.apr)}%
+                              {t`LP Fee`}: {formatAprNumber(pool.apr)}%
                               <br />
                               {t`EG Sharing Reward`}: {formatAprNumber(pool.kemEGApr || 0)}%
                               <br />
@@ -162,7 +162,7 @@ export default function MigrationModal({
                             width="max-content"
                             text={
                               <div>
-                                {t`LP Fee APR`}: {formatAprNumber(pool.apr)}%
+                                {t`LP Fee`}: {formatAprNumber(pool.apr)}%
                                 <br />
                                 {t`EG Sharing Reward`}: {formatAprNumber(pool.kemEGApr || 0)}%
                                 <br />

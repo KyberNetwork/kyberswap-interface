@@ -5,6 +5,7 @@ import { formatAprNumber, formatDisplayNumber } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
 import FarmingIcon from '@/assets/svg/kem.svg';
+import FarmingLmIcon from '@/assets/svg/kemLm.svg';
 import { PATHS } from '@/constants';
 import { PoolType, Univ2PoolType } from '@/schema';
 import { useZapOutContext } from '@/stores';
@@ -17,6 +18,7 @@ interface PoolInfo {
   kemEGApr: number;
   kemLMApr: number;
   isFarming: boolean;
+  isFarmingLm: boolean;
 }
 
 export default function PoolStat({
@@ -44,6 +46,7 @@ export default function PoolStat({
   const poolApr = (poolInfo?.apr || 0) + (poolInfo?.kemEGApr || 0) + (poolInfo?.kemLMApr || 0);
 
   const isFarming = poolInfo?.isFarming || false;
+  const isFarmingLm = poolInfo?.isFarmingLm || false;
 
   useEffect(() => {
     const handleFetchPoolInfo = () => {
@@ -54,10 +57,12 @@ export default function PoolStat({
           if (!poolStatInfo) return;
           const programs = data?.data?.programs || [];
           const isFarming = programs.includes('eg') || programs.includes('lm');
+          const isFarmingLm = programs.includes('lm');
 
           setPoolInfo({
             ...poolStatInfo,
             isFarming,
+            isFarmingLm,
           });
         })
         .catch(e => {
@@ -132,7 +137,7 @@ export default function PoolStat({
                 <MouseoverTooltip
                   text={
                     <div>
-                      LP Fee APR: {formatAprNumber(poolInfo?.apr || 0)}%
+                      LP Fee: {formatAprNumber(poolInfo?.apr || 0)}%
                       <br />
                       EG Sharing Reward: {formatAprNumber(poolInfo?.kemEGApr || 0)}%
                       <br />
@@ -142,7 +147,7 @@ export default function PoolStat({
                   placement="top"
                   width="fit-content"
                 >
-                  <FarmingIcon width={20} height={20} />
+                  {isFarmingLm ? <FarmingLmIcon width={20} height={20} /> : <FarmingIcon width={20} height={20} />}
                 </MouseoverTooltip>
               ) : null}
             </div>

@@ -382,7 +382,7 @@ const PositionDetail = () => {
             width="fit-content"
             text={
               <div>
-                {t`LP Fee APR`}: {formatAprNumber(position?.feeApr || 0)}%
+                {t`LP Fee`}: {formatAprNumber(position?.feeApr || 0)}%
                 <br />
                 {t`EG Sharing Reward`}: {formatAprNumber(position?.kemEGApr || 0)}%
                 <br />

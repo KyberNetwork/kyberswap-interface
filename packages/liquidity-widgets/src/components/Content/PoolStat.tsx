@@ -6,6 +6,7 @@ import { formatAprNumber, formatDisplayNumber } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
 import FarmingIcon from '@/assets/svg/kem.svg';
+import FarmingLmIcon from '@/assets/svg/kemLm.svg';
 import { useRewardCycleProgress } from '@/hooks/useRewardCycleProgress';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
@@ -33,12 +34,12 @@ export default function PoolStat() {
   const poolStat = initializing ? null : pool?.stats;
   const poolApr = (poolStat?.apr || 0) + (poolStat?.kemEGApr || 0) + (poolStat?.kemLMApr || 0);
   const isFarming = initializing ? false : pool?.isFarming || false;
-  const haveLm = initializing ? false : pool?.haveLm || false;
+  const isFarmingLm = initializing ? false : pool?.isFarmingLm || false;
 
   const { loading: rewardLoading, data: rewardProgress } = useRewardCycleProgress({
     chainId,
     poolAddress: poolAddress?.toLowerCase() || '',
-    enabled: haveLm,
+    enabled: isFarmingLm,
   });
 
   const rewardSymbol = rewardProgress ? rewardProgress.symbol || shortenAddress(rewardProgress.tokenAddress, 4) : '';
@@ -115,7 +116,7 @@ export default function PoolStat() {
                 <MouseoverTooltip
                   text={
                     <div>
-                      LP Fee APR: {formatAprNumber(poolStat?.apr || 0)}%
+                      LP Fee: {formatAprNumber(poolStat?.apr || 0)}%
                       <br />
                       EG Sharing Reward: {formatAprNumber(poolStat?.kemEGApr || 0)}%
                       <br />
@@ -125,7 +126,7 @@ export default function PoolStat() {
                   placement="top"
                   width="fit-content"
                 >
-                  <FarmingIcon width={20} height={20} />
+                  {isFarmingLm ? <FarmingLmIcon width={20} height={20} /> : <FarmingIcon width={20} height={20} />}
                 </MouseoverTooltip>
               ) : null}
             </div>
@@ -140,7 +141,7 @@ export default function PoolStat() {
           </span>
         </div>
       )}
-      {haveLm ? (
+      {isFarmingLm ? (
         <div className="mt-3 border-t border-stroke pt-3">
           <div className="flex flex-col gap-2 sm:gap-2.5">
             <div className="flex items-center justify-between gap-0.5 sm:gap-3 flex-wrap">

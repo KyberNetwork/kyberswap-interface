@@ -27,7 +27,7 @@ export const kemFarming = (pool: ParsedEarnPool) => {
       width="max-content"
       text={
         <div>
-          {t`LP Fee APR`}: {formatAprNumber(pool.feeApr)}%
+          {t`LP Fee`}: {formatAprNumber(pool.feeApr)}%
           <br />
           {t`EG Sharing Reward`}: {formatAprNumber(pool.kemEGApr || 0)}%
           <br />

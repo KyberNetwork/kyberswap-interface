@@ -472,7 +472,7 @@ export default function TableContent({
                             pool.isFarming ? (
                               <>
                                 <Text>
-                                  {t`LP Fees APR`}: {formatAprNumber(position.feeApr)}%
+                                  {t`LP Fee`}: {formatAprNumber(position.feeApr)}%
                                 </Text>
                                 <Text>
                                   {t`EG Sharing Reward`}: {formatAprNumber(position.kemEGApr)}%

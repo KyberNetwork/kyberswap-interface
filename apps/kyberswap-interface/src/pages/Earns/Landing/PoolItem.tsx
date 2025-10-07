@@ -81,7 +81,7 @@ const PoolItem = ({ pool }: { pool: EarnPool }) => {
             width="fit-content"
             text={
               <div>
-                {t`LP Fee APR`}: {formatAprNumber(pool.apr || 0)}%
+                {t`LP Fee`}: {formatAprNumber(pool.apr || 0)}%
                 <br />
                 {t`EG Sharing Reward`}: {formatAprNumber(pool.kemEGApr || 0)}%
                 <br />
