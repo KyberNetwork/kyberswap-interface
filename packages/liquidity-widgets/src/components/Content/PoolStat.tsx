@@ -35,11 +35,7 @@ export default function PoolStat() {
   const isFarming = initializing ? false : pool?.isFarming || false;
   const haveLm = initializing ? false : pool?.haveLm || false;
 
-  const {
-    loading: rewardLoading,
-    data: rewardProgress,
-    error: rewardError,
-  } = useRewardCycleProgress({
+  const { loading: rewardLoading, data: rewardProgress } = useRewardCycleProgress({
     chainId,
     poolAddress: poolAddress?.toLowerCase() || '',
     enabled: haveLm,
@@ -48,7 +44,12 @@ export default function PoolStat() {
   const rewardSymbol = rewardProgress ? rewardProgress.symbol || shortenAddress(rewardProgress.tokenAddress, 4) : '';
   const rewardPercent = rewardProgress ? Math.round(rewardProgress.progress * 100) : 0;
   const rewardProgressWidth = rewardProgress ? Math.min(rewardProgress.progress * 100, 100) : 0;
-  const rewardIndicatorPosition = rewardProgress ? Math.min(Math.max(rewardProgressWidth, 6), 94) : 6;
+  const isIndicatorAtStart = rewardProgress ? rewardProgressWidth < 12 : true;
+  const rewardIndicatorPosition = rewardProgress
+    ? isIndicatorAtStart
+      ? rewardProgressWidth
+      : Math.min(rewardProgressWidth, 98)
+    : 0;
 
   return (
     <div
@@ -141,51 +142,47 @@ export default function PoolStat() {
       )}
       {haveLm ? (
         <div className="mt-3 border-t border-stroke pt-3">
-          <div className="flex flex-col gap-2">
-            <span className="text-subText">Liquidity Mining Progress</span>
-            {rewardLoading ? (
-              <div className="flex flex-col gap-2">
-                <Skeleton className="w-40 h-5" />
-                <Skeleton className="w-full h-2" />
-              </div>
-            ) : rewardProgress ? (
-              <div className="flex flex-col">
-                <div className="flex items-center justify-between text-text">
-                  <span className="text-[16px]">
+          <div className="flex flex-col gap-2 sm:gap-3">
+            <div className="flex items-center justify-between gap-0.5 sm:gap-3 flex-wrap">
+              <span className="text-subText">Liquidity Mining Progress</span>
+              {rewardLoading ? (
+                <Skeleton className="w-32 h-4" />
+              ) : rewardProgress ? (
+                <div className="flex items-center gap-1 text-sm text-text">
+                  <span>
                     {formatDisplayNumber(rewardProgress.distributedReward, {
                       significantDigits: 6,
                     })}{' '}
                     {rewardSymbol}
                   </span>
+                  <span>/</span>
                   <span className="text-subText">
-                    /{' '}
                     {formatDisplayNumber(rewardProgress.totalReward, {
                       significantDigits: 6,
                     })}{' '}
                     {rewardSymbol}
                   </span>
                 </div>
-                <div className="relative pt-2 pb-8">
-                  <div className="h-1.5 rounded-full bg-layer2 overflow-hidden">
-                    <div
-                      className="h-full bg-accent rounded-full transition-all duration-500 ease-linear"
-                      style={{ width: `${rewardProgressWidth}%` }}
-                    />
-                  </div>
-                  <div
-                    className="absolute top-4 -translate-x-1/2 mt-2 px-3 py-[3px] rounded-full bg-accent-100 text-xs text-accent shadow-[0_4px_12px_rgba(0,0,0,0.35)]"
-                    style={{ left: `${rewardIndicatorPosition}%` }}
-                  >
-                    <div
-                      className="pointer-events-none absolute -top-[5.5px] left-1/2 h-1.5 w-2.5 -translate-x-1/2 bg-accent-100 z-[-1]"
-                      style={{ clipPath: 'polygon(50% 0, 0 100%, 100% 100%)' }}
-                    />
-                    {rewardPercent}%
-                  </div>
+              ) : null}
+            </div>
+            {rewardLoading ? (
+              <Skeleton className="w-full h-5" />
+            ) : rewardProgress ? (
+              <div className="relative h-4 rounded-full bg-layer2 overflow-hidden">
+                <div
+                  className="absolute left-0 top-0 h-full rounded-full bg-[#05966B] transition-all duration-500 ease-linear"
+                  style={{ width: `${rewardProgressWidth}%` }}
+                />
+                <div
+                  className={cn(
+                    'absolute top-1/2 -translate-y-1/2 px-2 py-1 text-xs font-medium text-text',
+                    !isIndicatorAtStart && '-translate-x-full',
+                  )}
+                  style={{ left: `${rewardIndicatorPosition}%` }}
+                >
+                  {rewardPercent}%
                 </div>
               </div>
-            ) : rewardError ? (
-              <span className="text-xs text-warning">Failed to load reward data</span>
             ) : null}
           </div>
         </div>
