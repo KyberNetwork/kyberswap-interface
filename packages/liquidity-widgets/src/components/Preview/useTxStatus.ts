@@ -10,25 +10,30 @@ export default function useTxStatus({ txHash }: { txHash?: string }) {
   const [txStatus, setTxStatus] = useState<'success' | 'failed' | ''>('');
 
   useEffect(() => {
-    if (txHash) {
-      const i = setInterval(
-        () => {
-          isTransactionSuccessful(NETWORKS_INFO[chainId].defaultRpc, txHash).then(res => {
-            if (!res) return;
+    const checkTxStatus = () => {
+      if (txStatus !== '' || !txHash) return;
+      isTransactionSuccessful(NETWORKS_INFO[chainId].defaultRpc, txHash).then(res => {
+        if (!res) return;
 
-            if (res.status) {
-              setTxStatus('success');
-            } else setTxStatus('failed');
-          });
-        },
-        chainId === ChainId.Ethereum ? 5_000 : 2_000,
-      );
+        if (res.status) {
+          setTxStatus('success');
+        } else setTxStatus('failed');
+      });
+    };
+
+    if (txHash) {
+      checkTxStatus();
+      const i = setInterval(checkTxStatus, chainId === ChainId.Ethereum ? 10_000 : 5_000);
 
       return () => {
         clearInterval(i);
       };
     }
-  }, [chainId, txHash]);
+  }, [chainId, txHash, txStatus]);
+
+  useEffect(() => {
+    setTxStatus('');
+  }, [txHash]);
 
   return { txStatus };
 }
