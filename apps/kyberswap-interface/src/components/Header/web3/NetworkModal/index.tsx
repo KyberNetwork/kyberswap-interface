@@ -43,6 +43,7 @@ const l1Chains = [
   ChainId.RONIN,
   ChainId.FANTOM,
   ChainId.HYPEREVM,
+  ChainId.PLASMA,
 ]
 
 const l2Chains = [
@@ -56,6 +57,7 @@ const l2Chains = [
   ChainId.SCROLL,
   ChainId.BLAST,
   ChainId.MANTLE,
+  ChainId.ETHERLINK,
 ]
 
 export default function NetworkModal({

@@ -39,7 +39,7 @@
     "ChromeAndroid >= 52"
   ],
   "dependencies": {
-    "@across-protocol/app-sdk": "^0.4.0",
+    "@across-protocol/app-sdk": "^0.4.2",
     "@bitcoinerlab/secp256k1": "^1.2.0",
     "@defuse-protocol/one-click-sdk-typescript": "^0.1.2",
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
@@ -55,12 +55,12 @@
     "@ethersproject/strings": "^5.8.0",
     "@ethersproject/units": "^5.8.0",
     "@holdstation/paymaster-helper": "^2.0.20",
+    "@kyberswap/compounding-widget": "workspace:*",
     "@kyberswap/ks-sdk-classic": "^1.0.3",
-    "@kyberswap/ks-sdk-core": "1.1.12",
+    "@kyberswap/ks-sdk-core": "1.1.13",
     "@kyberswap/ks-sdk-elastic": "^1.1.2",
     "@kyberswap/liquidity-chart": "workspace:*",
     "@kyberswap/liquidity-widgets": "workspace:*",
-    "@kyberswap/compounding-widget": "workspace:*",
     "@kyberswap/oauth2": "1.0.2",
     "@kyberswap/zap-migration-widgets": "workspace:*",
     "@kyberswap/zap-out-widgets": "workspace:*",
@@ -135,6 +135,7 @@
     "numeral": "^2.0.6",
     "patch-package": "^7.0.0",
     "polished": "^3.7.2",
+    "porto": "^0.2.12",
     "process": "^0.11.10",
     "react": "^18.2.0",
     "react-date-picker": "9.1.0",
@@ -168,7 +169,7 @@
     "ua-parser-js": "^1.0.33",
     "util": "^0.12.5",
     "uuid": "^11.1.0",
-    "viem": "^2.23.7",
+    "viem": "^2.37.8",
     "vite-plugin-env-compatible": "^1.1.1",
     "wagmi": "^2.14.11",
     "walktour": "^5.2.0",
@@ -251,6 +252,7 @@
     "vite": "^4.3.9",
     "vite-plugin-checker": "^0.5.6",
     "vite-plugin-svgr": "^2.4.0",
-    "vite-tsconfig-paths": "^4.0.8"
+    "vite-tsconfig-paths": "^4.0.8",
+    "vitest": "^1.6.0"
   }
 }

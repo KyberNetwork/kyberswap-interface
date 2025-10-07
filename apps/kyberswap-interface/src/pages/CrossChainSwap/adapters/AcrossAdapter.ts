@@ -3,7 +3,20 @@ import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
 import { WalletAdapterProps } from '@solana/wallet-adapter-base'
 import { Connection } from '@solana/web3.js'
 import { WalletClient, formatUnits } from 'viem'
-import { arbitrum, base, blast, bsc, linea, mainnet, optimism, polygon, scroll, unichain, zksync } from 'viem/chains'
+import {
+  arbitrum,
+  base,
+  blast,
+  bsc,
+  linea,
+  mainnet,
+  optimism,
+  plasma,
+  polygon,
+  scroll,
+  unichain,
+  zksync,
+} from 'viem/chains'
 
 import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
@@ -32,7 +45,7 @@ export class AcrossAdapter extends BaseSwapAdapter {
     super()
     this.acrossClient = createAcrossClient({
       integratorId: `0x008a`,
-      chains: [mainnet, arbitrum, bsc, optimism, linea, polygon, zksync, base, scroll, blast, unichain],
+      chains: [mainnet, arbitrum, bsc, optimism, linea, polygon, zksync, base, scroll, blast, unichain, plasma],
       rpcUrls: [
         ChainId.MAINNET,
         ChainId.ARBITRUM,
@@ -70,6 +83,7 @@ export class AcrossAdapter extends BaseSwapAdapter {
       ChainId.BLAST,
       ChainId.UNICHAIN,
       ChainId.BSCMAINNET,
+      ChainId.PLASMA,
       // NonEvmChain.Solana,
     ]
   }
@@ -106,7 +120,7 @@ export class AcrossAdapter extends BaseSwapAdapter {
           amount: params.amount,
           appFee: params.feeBps / 10_000,
           appFeeRecipient: CROSS_CHAIN_FEE_RECEIVER,
-          slippage: (params.slippage * 100) / 10_000,
+          slippage: params.slippage / 10_000, // https://docs.across.to/reference/api-reference#get-swap-approval
           depositor: params.sender,
         })
       }

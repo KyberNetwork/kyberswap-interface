@@ -101,12 +101,20 @@ export class KyberSwapAdapter extends BaseSwapAdapter {
     const deadline = new Date()
     deadline.setSeconds(deadline.getSeconds() + 60 * 20)
 
+    const rawQuote = {
+      ...quote.rawQuote,
+      amountInUsd: quote.rawQuote.rawAmountInUsd as string,
+      amountOutUsd: quote.rawQuote.rawAmountOutUsd as string,
+    }
+    delete rawQuote.rawAmountInUsd
+    delete rawQuote.rawAmountOutUsd
+
     const response = await store.dispatch(
       routeApi.endpoints.buildRoute.initiate({
         authentication: false,
         url,
         payload: {
-          routeSummary: quote.rawQuote as any,
+          routeSummary: rawQuote as any,
           deadline: deadline.getTime(),
           sender: quote.quoteParams.sender,
           recipient: quote.quoteParams.recipient,
@@ -164,7 +172,7 @@ export class KyberSwapAdapter extends BaseSwapAdapter {
 
     return {
       txHash: params.id,
-      status: !receipt.status ? 'Processing' : receipt?.status === 'success' ? 'Success' : 'Failed',
+      status: !receipt?.status ? 'Processing' : receipt?.status === 'success' ? 'Success' : 'Failed',
     }
   }
 }

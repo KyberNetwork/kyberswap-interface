@@ -6,8 +6,8 @@ import { MenuOption } from 'pages/Earns/components/DropdownMenu'
 import { EarnDex, earnSupportedChains, earnSupportedProtocols } from 'pages/Earns/constants'
 import { PositionFilter, SmartExitFilter } from 'pages/Earns/types'
 
-export const AllChainsOption = { label: 'All Chains', value: '' }
-export const AllProtocolsOption = { label: 'All Protocols', value: '' }
+export const AllChainsOption: MenuOption = { label: 'All Chains', value: '' }
+export const AllProtocolsOption: MenuOption = { label: 'All Protocols', value: '' }
 
 const CHAIN_PRIORITY_ORDER = [
   '1', // Ethereum
@@ -59,11 +59,11 @@ const useSupportedDexesAndChains = (filters: PoolQueryParams | PositionFilter | 
     return allowAllChains ? [AllChainsOption].concat(parsedChains) : parsedChains
   }, [filters, supportedChains, supportedProtocols?.data?.chains])
 
-  const selectedChainId = useMemo(() => {
-    if ('chainId' in filters) return filters.chainId || chains[0]?.value
-    else if ('chainIds' in filters) return filters.chainIds
+  const selectedChainIds = useMemo(() => {
+    if ('chainId' in filters) return [filters.chainId || chains[0]?.value].filter(Boolean)
+    if ('chainIds' in filters) return filters.chainIds?.split(',').filter(Boolean)
 
-    return ''
+    return []
   }, [chains, filters])
 
   const supportedDexes = useMemo(() => {
@@ -71,12 +71,17 @@ const useSupportedDexesAndChains = (filters: PoolQueryParams | PositionFilter | 
 
     let parsedProtocols: MenuOption[] = []
 
-    if (selectedChainId)
-      parsedProtocols =
-        supportedProtocols.data.chains[selectedChainId]?.protocols?.map(item => ({
-          label: item.name,
-          value: item.id.toString(),
-        })) || []
+    if (selectedChainIds?.length)
+      selectedChainIds.forEach(chainId => {
+        const protocols =
+          supportedProtocols.data.chains[chainId]?.protocols?.map(item => ({
+            label: item.name,
+            value: item.id.toString(),
+          })) || []
+        protocols.forEach(item => {
+          if (!parsedProtocols.some(protocol => protocol.value === item.value)) parsedProtocols.push(item)
+        })
+      })
     else
       Object.keys(supportedProtocols.data.chains)
         .map(chain => supportedProtocols.data.chains[chain].protocols)
@@ -105,7 +110,7 @@ const useSupportedDexesAndChains = (filters: PoolQueryParams | PositionFilter | 
       })
 
     return [AllProtocolsOption].concat(parsedProtocols)
-  }, [selectedChainId, supportedProtocols])
+  }, [selectedChainIds, supportedProtocols])
 
   return { supportedDexes, supportedChains: chains }
 }
