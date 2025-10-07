@@ -206,7 +206,7 @@ export const Preview = () => {
                 {pool.token0.symbol}
               </span>
               <span className="text-subText ml-1">
-                ~{formatDisplayNumber(earnedFee.feeValue0 + earnedFee.feeValue0, { style: 'currency' })}
+                ~{formatDisplayNumber(removeLiquidity.removedValue0 + earnedFee.feeValue0, { style: 'currency' })}
               </span>
             </div>
             <div className="flex gap-1 items-center mt-3">
@@ -216,7 +216,7 @@ export const Preview = () => {
                 {pool.token1.symbol}
               </span>
               <span className="text-subText ml-1">
-                ~{formatDisplayNumber(earnedFee.feeValue1 + earnedFee.feeValue1, { style: 'currency' })}
+                ~{formatDisplayNumber(removeLiquidity.removedValue1 + earnedFee.feeValue1, { style: 'currency' })}
               </span>
             </div>
           </>
