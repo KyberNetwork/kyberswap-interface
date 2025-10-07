@@ -33,7 +33,7 @@ const routeApi = createApi({
           params: rest,
           authentication,
           headers: {
-            'x-client-id': 'kyberswap-internal',
+            'x-client-id': 'router-sim-test',
           },
         }
       },
@@ -104,11 +104,11 @@ const routeApi = createApi({
         return {
           url,
           method: 'POST',
-          body: { ...rest, source: 'kyberswap-internal', enableGasEstimation: false },
+          body: { ...rest, source: 'router-sim-test', enableGasEstimation: false },
           signal,
           authentication,
           headers: {
-            'x-client-id': 'kyberswap-internal',
+            'x-client-id': 'router-sim-test',
           },
         }
       },
