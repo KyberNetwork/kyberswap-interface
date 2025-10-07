@@ -1,3 +1,4 @@
+import { rgba } from 'polished'
 import styled from 'styled-components'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
@@ -12,24 +13,24 @@ export const DropdownWrapper = styled.div<{ mobileFullWidth: boolean; mobileHalf
   `}
 `
 
-export const DropdownTitleWrapper = styled.div`
-  background: ${({ theme }) => theme.background};
+export const DropdownTitleWrapper = styled.div<{ highlight?: boolean }>`
+  background: ${({ theme, highlight }) => (highlight ? rgba(theme.blue, 0.2) : theme.background)};
   border-radius: 30px;
   padding: 6px 12px;
   font-size: 14px;
   cursor: pointer;
-  color: ${({ theme }) => theme.subText};
+  color: ${({ theme, highlight }) => (highlight ? theme.text : theme.subText)};
   display: flex;
   align-items: center;
   justify-content: center;
 `
 
-export const DropdownTitle = styled.div<{ width?: number }>`
+export const DropdownTitle = styled.div<{ width?: number; justifyContent?: string }>`
   width: ${({ width }) => (width ? `${width}px` : '')};
   min-width: ${({ width }) => (!width ? '100px' : 'max-content')};
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: ${({ justifyContent }) => justifyContent || 'center'};
   gap: 6px;
   text-transform: capitalize;
 

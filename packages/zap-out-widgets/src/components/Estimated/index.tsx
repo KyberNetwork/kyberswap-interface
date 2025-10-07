@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 
 import { useDebounce } from '@kyber/hooks/use-debounce';
-import { Skeleton, TokenLogo } from '@kyber/ui';
+import { Skeleton, TokenLogo, TokenSymbol } from '@kyber/ui';
 import { getZapImpact } from '@kyber/utils';
 import { formatDisplayNumber, formatTokenAmount } from '@kyber/utils/number';
 
@@ -110,13 +110,16 @@ export default function Estimated() {
       {mode === 'zapOut' && (
         <>
           <div className="flex items-center justify-between mt-2">
-            <div className="text-subText text-xs ">Est. Received {tokenOut?.symbol}</div>
+            <div className="text-subText text-xs ">
+              Est. Received <TokenSymbol symbol={tokenOut?.symbol || ''} maxWidth={40} />
+            </div>
             {fetchingRoute || !tokenOut ? (
               <Skeleton className="w-20 h-4" />
             ) : (
               <div className="flex items-center gap-1">
                 <TokenLogo src={tokenOut?.logo} size={16} />
-                {formatTokenAmount(amountOut, tokenOut?.decimals || 18, 6)} {tokenOut?.symbol}
+                {formatTokenAmount(amountOut, tokenOut?.decimals || 18, 6)}{' '}
+                <TokenSymbol symbol={tokenOut?.symbol || ''} maxWidth={40} />
               </div>
             )}
           </div>
@@ -198,7 +201,7 @@ export default function Estimated() {
                   <div className="flex items-center gap-1">
                     <TokenLogo src={pool.token0.logo} size={16} />
                     {formatTokenAmount(feeAmount0, pool.token0.decimals, 4)}
-                    <span>{pool.token0.symbol}</span>
+                    <TokenSymbol symbol={pool.token0.symbol} maxWidth={80} />
                     {fee0 && (
                       <span className="text-xs text-subText">
                         ~
@@ -211,7 +214,7 @@ export default function Estimated() {
                   <div className="flex items-center gap-1 mt-1">
                     <TokenLogo src={pool.token1.logo} size={16} />
                     {formatTokenAmount(feeAmount1, pool.token1.decimals, 4)}
-                    <span>{pool.token1.symbol}</span>
+                    <TokenSymbol symbol={pool.token1.symbol} maxWidth={80} />
                     {fee1 && (
                       <span className="text-xs text-subText">
                         ~

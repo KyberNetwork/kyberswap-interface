@@ -63,7 +63,7 @@ const useFavoritePool = ({ filters, refetch }: { filters: PoolQueryParams; refet
       notify(
         {
           title: `${action} failed`,
-          summary: error instanceof Error ? error.message : 'Something went wrong',
+          summary: error?.message || 'Something went wrong',
           type: NotificationType.ERROR,
         },
         8000,

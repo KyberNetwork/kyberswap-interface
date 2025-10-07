@@ -10,7 +10,8 @@ import { useUserPositionsQuery } from 'services/zapEarn'
 
 import { ReactComponent as IconEarnNotFound } from 'assets/svg/earn/ic_earn_not_found.svg'
 import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_earn_position.svg'
-import { ReactComponent as IconKem } from 'assets/svg/kyber/kem.svg'
+import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
+import { ReactComponent as FarmingLmIcon } from 'assets/svg/kyber/kemLm.svg'
 import { ReactComponent as RocketIcon } from 'assets/svg/rocket.svg'
 import InfoHelper from 'components/InfoHelper'
 import { Loader2 } from 'components/Loader'
@@ -381,7 +382,7 @@ const PositionDetail = () => {
             width="fit-content"
             text={
               <div>
-                {t`LP Fee APR`}: {formatAprNumber(position?.feeApr || 0)}%
+                {t`LP Fee`}: {formatAprNumber(position?.feeApr || 0)}%
                 <br />
                 {t`EG Sharing Reward`}: {formatAprNumber(position?.kemEGApr || 0)}%
                 <br />
@@ -400,7 +401,11 @@ const PositionDetail = () => {
         <RewardSyncing width={70} height={24} />
       ) : (
         <Flex alignItems={'center'} sx={{ gap: 1 }}>
-          {position?.pool.isFarming && <IconKem width={20} height={20} />}
+          {position?.pool.isFarmingLm ? (
+            <FarmingLmIcon width={20} height={20} />
+          ) : position?.pool.isFarming ? (
+            <FarmingIcon width={20} height={20} />
+          ) : null}
           <Text fontSize={20} marginRight={1} color={position?.apr && position.apr > 0 ? theme.primary : theme.text}>
             {formatAprNumber(position?.apr || 0)}%
           </Text>

@@ -5,7 +5,7 @@ import { Clock } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import { useCycleConfigQuery } from 'services/kyberdata'
 
-import { ReactComponent as KemIcon } from 'assets/svg/kyber/kem.svg'
+import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import InfoHelper from 'components/InfoHelper'
 import Loader from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
@@ -82,7 +82,7 @@ const RewardSection = ({
       <RewardsSection>
         <Flex alignItems={'center'} justifyContent={'space-between'} sx={{ gap: '20px' }}>
           <Flex alignItems={'center'} sx={{ gap: 1 }}>
-            <KemIcon width={20} height={20} />
+            <FarmingIcon width={20} height={20} />
             <Text fontSize={14} color={theme.subText} lineHeight={'20PX'}>
               {t`Total Rewards`}
             </Text>
