@@ -17,7 +17,7 @@ export default function LeftWarning() {
 
   const honeypotTokens = honeypots
     .map((honeypot, index) =>
-      honeypot.isHoneypot
+      honeypot && honeypot.isHoneypot
         ? {
             ...honeypot,
             symbol: tokensToCheck[index].symbol,
@@ -29,7 +29,7 @@ export default function LeftWarning() {
 
   const fotTokens = honeypots
     .map((honeypot, index) =>
-      honeypot.isFOT
+      honeypot && honeypot.isFOT
         ? {
             ...honeypot,
             symbol: tokensToCheck[index].symbol,
