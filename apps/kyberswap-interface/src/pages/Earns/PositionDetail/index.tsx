@@ -38,12 +38,7 @@ import { EmptyPositionText, PositionPageWrapper } from 'pages/Earns/UserPosition
 import DropdownMenu from 'pages/Earns/components/DropdownMenu'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import RewardSyncing from 'pages/Earns/components/RewardSyncing'
-import {
-  EarnDex,
-  Exchange,
-  POSSIBLE_FARMING_PROTOCOLS,
-  protocolGroupNameToExchangeMapping,
-} from 'pages/Earns/constants'
+import { EarnDex, protocolGroupNameToExchangeMapping } from 'pages/Earns/constants'
 import useClosedPositions, { CheckClosedPositionParams } from 'pages/Earns/hooks/useClosedPositions'
 import useFarmingStablePools from 'pages/Earns/hooks/useFarmingStablePools'
 import useForceLoading from 'pages/Earns/hooks/useForceLoading'
@@ -263,7 +258,6 @@ const PositionDetail = () => {
   }, [position])
 
   const isNotAccountOwner = !!positionOwnerAddress && !!account && positionOwnerAddress !== account
-  const isFarmingPossible = POSSIBLE_FARMING_PROTOCOLS.includes(protocol as Exchange)
   const isUnfinalized = position?.isUnfinalized
   const isStablePair = position?.pool.category === PAIR_CATEGORY.STABLE
   const isEarlyPosition = !!position && checkEarlyPosition(position)
@@ -285,13 +279,7 @@ const PositionDetail = () => {
   )
 
   const totalLiquiditySection = (
-    <TotalLiquiditySection
-      showForFarming={
-        position?.pool.isFarming ||
-        (initialLoading && isFarmingPossible) ||
-        Number(position?.rewards.claimableUsdValue || 0) > 0
-      }
-    >
+    <TotalLiquiditySection>
       <Flex flexDirection={'column'} alignContent={'flex-start'} sx={{ gap: '6px' }}>
         <Flex alignItems={'center'} sx={{ gap: '6px' }}>
           <Text fontSize={14} color={theme.subText}>
@@ -386,13 +374,7 @@ const PositionDetail = () => {
   )
 
   const aprSection = (
-    <AprSection
-      showForFarming={
-        position?.pool.isFarming ||
-        (initialLoading && isFarmingPossible) ||
-        Number(position?.rewards.claimableUsdValue || 0) > 0
-      }
-    >
+    <AprSection>
       <Flex alignItems={'center'} sx={{ gap: '2px' }}>
         <Text fontSize={14} color={theme.subText}>
           {t`Est. Position APR`}

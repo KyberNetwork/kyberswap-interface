@@ -100,12 +100,11 @@ export const RewardDetailInfo = styled.div`
   background: ${({ theme }) => rgba(theme.white, 0.04)};
 `
 
-export const TotalLiquiditySection = styled(InfoSection)<{ showForFarming?: boolean }>`
+export const TotalLiquiditySection = styled(InfoSection)`
   display: flex;
   align-items: center;
   gap: 20px;
-
-  ${({ showForFarming }) => showForFarming && 'flex-grow: 1;'}
+  flex-grow: 1;
 `
 
 export const PriceSection = styled(InfoSection)`
@@ -116,17 +115,11 @@ export const PriceSection = styled(InfoSection)`
   flex-wrap: wrap;
 `
 
-export const AprSection = styled(InfoSection)<{ showForFarming?: boolean }>`
+export const AprSection = styled(InfoSection)`
   display: flex;
   flex-direction: column;
   gap: 6px;
-
-  ${({ showForFarming }) => showForFarming && 'flex-direction: column;'}
-  ${({ showForFarming }) => showForFarming && 'align-items: flex-start;'}
-  ${({ showForFarming }) => showForFarming && 'justify-content: center;'}
-  ${({ showForFarming }) => showForFarming && 'padding: 16px 24px;'}
-  ${({ showForFarming }) => showForFarming && 'gap: 6px;'}
-  ${({ showForFarming }) => showForFarming && 'align-self: stretch;'}
+  min-width: 240px;
 `
 
 const PriceRangeSection = styled(InfoSection)`
