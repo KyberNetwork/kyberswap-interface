@@ -61,5 +61,6 @@ export const univ3PoolNormalize = z.object({
     kemEGApr: z.number(),
   }),
   isFarming: z.boolean().optional(),
+  isFarmingLm: z.boolean().optional(),
 });
 export type UniV3Pool = z.infer<typeof univ3PoolNormalize>;

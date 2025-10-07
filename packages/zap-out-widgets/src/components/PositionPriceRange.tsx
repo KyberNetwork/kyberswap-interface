@@ -1,4 +1,4 @@
-import { Skeleton } from '@kyber/ui';
+import { Skeleton, TokenSymbol } from '@kyber/ui';
 import { formatDisplayNumber } from '@kyber/utils/number';
 import { tickToPrice } from '@kyber/utils/uniswapv3';
 
@@ -46,11 +46,17 @@ export function PositionPriceRange() {
         significantDigits: 8,
       });
 
-  const label = initializing
-    ? ''
-    : revertPrice
-      ? `${pool.token0.symbol} per ${pool.token1.symbol}`
-      : `${pool.token1.symbol} per ${pool.token0.symbol}`;
+  const baseToken = initializing ? '' : revertPrice ? pool.token0.symbol : pool.token1.symbol;
+  const quoteToken = initializing ? '' : revertPrice ? pool.token1.symbol : pool.token0.symbol;
+
+  const baseTokenSymbol = <TokenSymbol symbol={baseToken} maxWidth={60} />;
+  const quoteTokenSymbol = <TokenSymbol symbol={quoteToken} maxWidth={60} />;
+
+  const label = (
+    <>
+      {baseTokenSymbol} per {quoteTokenSymbol}
+    </>
+  );
 
   return (
     <div className="px-4 py-3 text-sm border border-stroke rounded-md">

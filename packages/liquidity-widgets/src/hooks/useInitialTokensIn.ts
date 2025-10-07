@@ -14,7 +14,7 @@ export default function useInitialTokensIn({
   account,
   nativeToken,
 }: {
-  pool: Pool | 'loading';
+  pool: Pool | null;
   chainId: ChainId;
   initDepositTokens?: string;
   initAmounts?: string;
@@ -28,7 +28,7 @@ export default function useInitialTokensIn({
 
   useEffect(() => {
     const setDefaultTokensIn = async () => {
-      if (!pool || pool === 'loading' || tokensIn.length) return;
+      if (!pool || tokensIn.length) return;
 
       // with params
       if (initDepositTokens) {
