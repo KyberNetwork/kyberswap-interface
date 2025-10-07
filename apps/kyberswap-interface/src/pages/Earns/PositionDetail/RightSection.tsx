@@ -44,6 +44,7 @@ const RightSection = ({
   aprSection,
   onRefreshPosition,
   initialLoading,
+  isNotAccountOwner,
   triggerClose,
   setTriggerClose,
   setReduceFetchInterval,
@@ -55,6 +56,7 @@ const RightSection = ({
   aprSection: React.ReactNode
   onRefreshPosition: (props: CheckClosedPositionParams) => void
   initialLoading: boolean
+  isNotAccountOwner: boolean
   triggerClose: boolean
   setTriggerClose: (value: boolean) => void
   setReduceFetchInterval: (value: boolean) => void
@@ -288,10 +290,9 @@ const RightSection = ({
         <PositionActionWrapper>
           <PositionAction
             outlineDefault
-            disabled={initialLoading || !position || isClosed}
+            disabled={initialLoading || isNotAccountOwner || !position || isClosed}
             onClick={() => {
               if (initialLoading || isClosed || !position) return
-
               handleOpenZapOut({
                 position: {
                   dex: position.dex.id,
@@ -301,7 +302,9 @@ const RightSection = ({
                 },
               })
             }}
-          >{t`Remove Liquidity`}</PositionAction>
+          >
+            {t`Remove Liquidity`}
+          </PositionAction>
           <PositionAction
             disabled={!isOutRange ? increaseDisabled : repositionDisabled}
             onClick={e => {
