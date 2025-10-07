@@ -254,7 +254,11 @@ export const Preview = () => {
           <div className="flex gap-4 w-full mt-4">
             <button
               className="flex-1 h-[40px] rounded-full border font-medium text-sm border-stroke text-subText"
-              onClick={togglePreview}
+              onClick={() => {
+                setShowProcessing(false);
+                setError('');
+                setSubmiting(false);
+              }}
             >
               Close
             </button>
