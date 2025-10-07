@@ -3,7 +3,15 @@ import { useCallback, useEffect, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { useNftApproval } from '@kyber/hooks';
-import { API_URLS, CHAIN_ID_TO_CHAIN, DEXES_INFO, NETWORKS_INFO, defaultToken, univ3Types } from '@kyber/schema';
+import {
+  API_URLS,
+  CHAIN_ID_TO_CHAIN,
+  ChainId,
+  DEXES_INFO,
+  NETWORKS_INFO,
+  defaultToken,
+  univ3Types,
+} from '@kyber/schema';
 import { friendlyError, getNftManagerContractAddress } from '@kyber/utils';
 import { calculateGasMargin, estimateGas, isTransactionSuccessful } from '@kyber/utils/crypto';
 import { formatTokenAmount } from '@kyber/utils/number';
@@ -81,15 +89,18 @@ export default function Widget() {
 
   useEffect(() => {
     if (txHash) {
-      const i = setInterval(() => {
-        isTransactionSuccessful(NETWORKS_INFO[chainId].defaultRpc, txHash).then(res => {
-          if (!res) return;
+      const i = setInterval(
+        () => {
+          isTransactionSuccessful(NETWORKS_INFO[chainId].defaultRpc, txHash).then(res => {
+            if (!res) return;
 
-          if (res.status) {
-            setTxStatus('success');
-          } else setTxStatus('failed');
-        });
-      }, 10_000);
+            if (res.status) {
+              setTxStatus('success');
+            } else setTxStatus('failed');
+          });
+        },
+        chainId === ChainId.Ethereum ? 5_000 : 2_000,
+      );
 
       return () => {
         clearInterval(i);

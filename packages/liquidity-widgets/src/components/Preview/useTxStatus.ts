@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { NETWORKS_INFO } from '@kyber/schema';
+import { ChainId, NETWORKS_INFO } from '@kyber/schema';
 import { isTransactionSuccessful } from '@kyber/utils/crypto';
 
 import { useWidgetStore } from '@/stores/useWidgetStore';
@@ -11,15 +11,18 @@ export default function useTxStatus({ txHash }: { txHash?: string }) {
 
   useEffect(() => {
     if (txHash) {
-      const i = setInterval(() => {
-        isTransactionSuccessful(NETWORKS_INFO[chainId].defaultRpc, txHash).then(res => {
-          if (!res) return;
+      const i = setInterval(
+        () => {
+          isTransactionSuccessful(NETWORKS_INFO[chainId].defaultRpc, txHash).then(res => {
+            if (!res) return;
 
-          if (res.status) {
-            setTxStatus('success');
-          } else setTxStatus('failed');
-        });
-      }, 5_000);
+            if (res.status) {
+              setTxStatus('success');
+            } else setTxStatus('failed');
+          });
+        },
+        chainId === ChainId.Ethereum ? 5_000 : 2_000,
+      );
 
       return () => {
         clearInterval(i);

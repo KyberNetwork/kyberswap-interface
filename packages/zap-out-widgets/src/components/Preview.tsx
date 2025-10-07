@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 
+import { ChainId } from '@kyber/schema';
 import { ScrollArea, TokenLogo } from '@kyber/ui';
 import { fetchTokenPrice, friendlyError } from '@kyber/utils';
 import {
@@ -120,15 +121,18 @@ export const Preview = () => {
 
   useEffect(() => {
     if (txHash) {
-      const i = setInterval(() => {
-        isTransactionSuccessful(NETWORKS_INFO[chainId].defaultRpc, txHash).then(res => {
-          if (!res) return;
+      const i = setInterval(
+        () => {
+          isTransactionSuccessful(NETWORKS_INFO[chainId].defaultRpc, txHash).then(res => {
+            if (!res) return;
 
-          if (res.status) {
-            setTxStatus('success');
-          } else setTxStatus('failed');
-        });
-      }, 10_000);
+            if (res.status) {
+              setTxStatus('success');
+            } else setTxStatus('failed');
+          });
+        },
+        chainId === ChainId.Ethereum ? 5_000 : 2_000,
+      );
 
       return () => {
         clearInterval(i);
