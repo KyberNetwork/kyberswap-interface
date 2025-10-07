@@ -6,7 +6,7 @@ import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { useExplorerLandingQuery } from 'services/zapEarn'
 
-import { ReactComponent as IconKem } from 'assets/svg/kyber/kem.svg'
+import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import {
   FarmingAprBadge,
   FarmingPool,
@@ -93,7 +93,7 @@ export default function FarmingPoolBanner() {
   return (
     <FarmingWrapper>
       <Flex alignItems="center" sx={{ gap: '6px' }}>
-        <IconKem width={26} height={26} color={theme.primary} />
+        <FarmingIcon width={26} height={26} color={theme.primary} />
         <Text color={'#FCD884'}>{t`FARMING POOLS`}</Text>
       </Flex>
       {pools.length > 0 ? (

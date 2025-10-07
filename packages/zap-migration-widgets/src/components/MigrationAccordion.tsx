@@ -1,7 +1,15 @@
 import { useState } from 'react';
 
 import { Pool, defaultToken } from '@kyber/schema';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Skeleton, TokenLogo } from '@kyber/ui';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+  Skeleton,
+  TokenLogo,
+  TokenSymbol,
+} from '@kyber/ui';
 import { formatDisplayNumber } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
@@ -55,7 +63,7 @@ export default function MigrationAccordion({
               ) : (
                 <span className="text-base">{formatDisplayNumber(amount0, { significantDigits: 8 })}</span>
               )}
-              <span className="text-base">{token0.symbol}</span>
+              <TokenSymbol symbol={token0.symbol} className="text-base" maxWidth={120} />
             </div>
             {amountLoading ? (
               <Skeleton className="w-20 h-4" />
@@ -72,7 +80,7 @@ export default function MigrationAccordion({
               ) : (
                 <span className="text-base">{formatDisplayNumber(amount1, { significantDigits: 8 })}</span>
               )}
-              <span className="text-base">{token1.symbol}</span>
+              <TokenSymbol symbol={token1.symbol} className="text-base" maxWidth={120} />
             </div>
             {amountLoading ? (
               <Skeleton className="w-20 h-4" />
