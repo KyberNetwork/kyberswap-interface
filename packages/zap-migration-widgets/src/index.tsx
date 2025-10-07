@@ -65,7 +65,15 @@ export interface ZapMigrationProps {
   onExplorePools?: () => void;
   onConnectWallet: () => void;
   onSwitchChain: () => void;
-  onSubmitTx: (txData: { from: string; to: string; value: string; data: string; gasLimit: string }) => Promise<string>;
+  onSubmitTx: (
+    txData: { from: string; to: string; value: string; data: string; gasLimit: string },
+    additionalInfo?: {
+      sourcePool: string;
+      sourceDexLogo: string;
+      destinationPool: string;
+      destinationDexLogo: string;
+    },
+  ) => Promise<string>;
   onViewPosition?: (txHash: string) => void;
   onBack?: () => void;
   onClose: () => void;

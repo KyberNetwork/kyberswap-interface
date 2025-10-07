@@ -91,13 +91,11 @@ export type EarnRemoveLiquidityExtraInfo = {
 
 export type EarnMigrateLiquidityExtraInfo = {
   sourcePool: string
+  sourceDexLogoUrl?: string
+  sourceDex: EarnDex | Exchange
   destinationPool: string
-  positionId: string
-  contract?: string
-}
-
-export type EarnRepositionExtraInfo = {
-  pool: string
+  destinationDexLogoUrl?: string
+  destinationDex: EarnDex | Exchange
   positionId: string
   contract?: string
 }
@@ -111,7 +109,6 @@ export type TransactionExtraInfo = (
   | EarnAddLiquidityExtraInfo
   | EarnRemoveLiquidityExtraInfo
   | EarnMigrateLiquidityExtraInfo
-  | EarnRepositionExtraInfo
 ) & {
   actuallySuccess?: boolean
   needCheckSubgraph?: boolean

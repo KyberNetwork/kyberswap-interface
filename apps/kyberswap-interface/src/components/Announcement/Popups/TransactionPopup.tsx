@@ -14,7 +14,6 @@ import {
   EarnAddLiquidityExtraInfo,
   EarnMigrateLiquidityExtraInfo,
   EarnRemoveLiquidityExtraInfo,
-  EarnRepositionExtraInfo,
   TRANSACTION_TYPE,
   TransactionDetails,
   TransactionExtraBaseInfo,
@@ -178,10 +177,10 @@ const summaryEarnMigrateLiquidity = (txs: TransactionDetails) => {
 }
 
 const summaryEarnReposition = (txs: TransactionDetails) => {
-  const { pool, positionId } = (txs.extraInfo || {}) as EarnRepositionExtraInfo
+  const { sourcePool, positionId } = (txs.extraInfo || {}) as EarnMigrateLiquidityExtraInfo
   return {
-    success: `Repositioned position ${pool} #${positionId} to a new range.`,
-    error: `Reposition position ${pool} #${positionId} to a new range failed`,
+    success: `Repositioned position ${sourcePool} #${positionId} to a new range.`,
+    error: `Reposition position ${sourcePool} #${positionId} to a new range failed`,
   }
 }
 

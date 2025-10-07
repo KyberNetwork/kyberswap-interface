@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { ChainId, NETWORKS_INFO } from '@kyber/schema';
+import { ChainId, DEXES_INFO, NETWORKS_INFO } from '@kyber/schema';
 import {
   Dialog,
   DialogContent,
@@ -34,7 +34,15 @@ export function Preview({
   onViewPosition,
   onExplorePools,
 }: {
-  onSubmitTx: (txData: { from: string; to: string; value: string; data: string; gasLimit: string }) => Promise<string>;
+  onSubmitTx: (
+    txData: { from: string; to: string; value: string; data: string; gasLimit: string },
+    additionalInfo?: {
+      sourcePool: string;
+      sourceDexLogo: string;
+      destinationPool: string;
+      destinationDexLogo: string;
+    },
+  ) => Promise<string>;
   onClose: () => void;
   onViewPosition?: (txHash: string) => void;
   onExplorePools?: () => void;
@@ -74,7 +82,7 @@ export function Preview({
           setTxStatus('success');
         } else setTxStatus('failed');
       },
-      chainId === ChainId.Ethereum ? 10_000 : 5_000,
+      chainId === ChainId.Ethereum ? 5_000 : 2_000,
     );
     return () => clearInterval(i);
   }, [txHash, chainId, rpcUrl]);
@@ -115,10 +123,18 @@ export function Preview({
     if (gas === 0n) return;
 
     try {
-      const txHash = await onSubmitTx({
-        ...txData,
-        gasLimit: calculateGasMargin(gas),
-      });
+      const txHash = await onSubmitTx(
+        {
+          ...txData,
+          gasLimit: calculateGasMargin(gas),
+        },
+        {
+          sourcePool: `${sourcePool.token0.symbol}/${sourcePool.token1.symbol}`,
+          sourceDexLogo: DEXES_INFO[sourcePool.poolType].icon,
+          destinationPool: `${targetPool.token0.symbol}/${targetPool.token1.symbol}`,
+          destinationDexLogo: DEXES_INFO[targetPool.poolType].icon,
+        },
+      );
       setTxHash(txHash);
     } catch (err) {
       setError(err as Error);

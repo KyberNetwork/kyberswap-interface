@@ -18,6 +18,8 @@ import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import { submitTransaction } from 'pages/Earns/utils'
 import { navigateToPositionAfterZap } from 'pages/Earns/utils/zap'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
+import { useTransactionAdder } from 'state/transactions/hooks'
+import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { getCookieValue } from 'utils'
 
 interface MigrateLiquidityPureParams {
@@ -91,6 +93,7 @@ const zapMigrationDexMapping: Record<EarnDex | Exchange, ZapMigrationDex | null>
 }
 
 const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
+  const addTransactionWithType = useTransactionAdder()
   const toggleWalletModal = useWalletModalToggle()
   const notify = useNotify()
   const navigate = useNavigate()
@@ -100,6 +103,7 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
   const { changeNetwork } = useChangeNetwork()
 
   const [migrateLiquidityPureParams, setMigrateLiquidityPureParams] = useState<MigrateLiquidityPureParams | null>(null)
+  const [dex, setDex] = useState<{ sourceDex: EarnDex | Exchange; destinationDex: EarnDex | Exchange } | null>(null)
   const [triggerClose, setTriggerClose] = useState(false)
 
   const handleNavigateToPosition = useCallback(
@@ -143,6 +147,7 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
       return
     }
 
+    setDex({ sourceDex: from.poolType, destinationDex: to?.poolType || from.poolType })
     setMigrateLiquidityPureParams({
       from: {
         poolType: sourceDex,
@@ -180,20 +185,50 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
                 migrateLiquidityPureParams.to || migrateLiquidityPureParams.from
               setTriggerClose(true)
               setMigrateLiquidityPureParams(null)
+              setDex(null)
               handleNavigateToPosition(txHash, chainId, targetDex, targetPoolId)
             },
             onClose: () => {
               setTriggerClose(true)
               setMigrateLiquidityPureParams(null)
+              setDex(null)
               onRefreshPosition?.()
             },
-            onBack: () => setMigrateLiquidityPureParams(null),
+            onBack: () => {
+              setMigrateLiquidityPureParams(null)
+              setDex(null)
+            },
             onConnectWallet: toggleWalletModal,
             onSwitchChain: () => changeNetwork(migrateLiquidityPureParams.chainId as number),
-            onSubmitTx: async (txData: { from: string; to: string; value: string; data: string }) => {
+            onSubmitTx: async (
+              txData: { from: string; to: string; value: string; data: string },
+              additionalInfo?: {
+                sourcePool: string
+                sourceDexLogo: string
+                destinationPool: string
+                destinationDexLogo: string
+              },
+            ) => {
               const res = await submitTransaction({ library, txData })
               const { txHash, error } = res
               if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
+
+              if (additionalInfo && dex)
+                addTransactionWithType({
+                  hash: txHash,
+                  type: migrateLiquidityPureParams.rePositionMode
+                    ? TRANSACTION_TYPE.EARN_REPOSITION
+                    : TRANSACTION_TYPE.EARN_MIGRATE_LIQUIDITY,
+                  extraInfo: {
+                    sourcePool: additionalInfo.sourcePool,
+                    sourceDexLogoUrl: additionalInfo.sourceDexLogo,
+                    sourceDex: dex.sourceDex,
+                    destinationPool: additionalInfo.destinationPool,
+                    destinationDexLogoUrl: additionalInfo.destinationDexLogo,
+                    destinationDex: dex.destinationDex,
+                    positionId: migrateLiquidityPureParams.from.positionId,
+                  },
+                })
               return txHash
             },
             onExplorePools: () => {
@@ -212,16 +247,24 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
       library,
       onRefreshPosition,
       navigate,
+      addTransactionWithType,
+      dex,
     ],
   )
 
   const previousAccount = usePreviousDistinct(account)
 
   useEffect(() => {
-    if (account && previousAccount) setMigrateLiquidityPureParams(null)
+    if (account && previousAccount) {
+      setMigrateLiquidityPureParams(null)
+      setDex(null)
+    }
   }, [account, previousAccount])
 
-  useAccountChanged(() => setMigrateLiquidityPureParams(null))
+  useAccountChanged(() => {
+    setMigrateLiquidityPureParams(null)
+    setDex(null)
+  })
 
   const widget = migrateLiquidityParams ? (
     <Modal
@@ -229,7 +272,10 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
       mobileFullWidth
       maxWidth={832}
       width={'832px'}
-      onDismiss={() => setMigrateLiquidityPureParams(null)}
+      onDismiss={() => {
+        setMigrateLiquidityPureParams(null)
+        setDex(null)
+      }}
       zindex={1001}
     >
       <ZapMigration {...migrateLiquidityParams} />
