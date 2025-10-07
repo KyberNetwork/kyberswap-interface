@@ -57,7 +57,7 @@ export class OptimexAdapter extends BaseSwapAdapter {
     return 'https://storage.googleapis.com/ks-setting-1d682dca/464ce79e-a906-4590-bf78-9054e606aa041749023419612.png'
   }
   getSupportedChains(): Chain[] {
-    return [NonEvmChain.Bitcoin, ChainId.MAINNET]
+    return [NonEvmChain.Bitcoin, ChainId.MAINNET, ChainId.BASE, ChainId.ARBITRUM, ChainId.BSCMAINNET, ChainId.OPTIMISM]
   }
 
   getSupportedTokens(_sourceChain: Chain, _destChain: Chain): Currency[] {
