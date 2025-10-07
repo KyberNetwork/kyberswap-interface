@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { ChainId } from '@kyber/schema';
-import { ScrollArea, TokenLogo } from '@kyber/ui';
+import { ScrollArea, TokenLogo, TokenSymbol } from '@kyber/ui';
 import { fetchTokenPrice, friendlyError } from '@kyber/utils';
 import {
   calculateGasMargin,
@@ -317,8 +317,9 @@ export const Preview = () => {
         </div>
 
         <div>
-          <div className="text-base">
-            {pool.token0.symbol}/{pool.token1.symbol} {isUniV3 ? `#${positionId}` : ''}
+          <div className="text-base flex items-center">
+            <TokenSymbol symbol={pool.token0.symbol} maxWidth={80} />/
+            <TokenSymbol symbol={pool.token1.symbol} maxWidth={80} /> {isUniV3 ? `#${positionId}` : ''}
           </div>
           <div className="rounded-full text-xs bg-layer2 text-text px-3 py-[2px] w-fit">Fee {pool.fee}%</div>
         </div>
@@ -330,7 +331,7 @@ export const Preview = () => {
           <div className="flex mt-3 text-base items-center">
             <TokenLogo src={tokenOut.logo} size={20} alt={tokenOut.symbol} />
             <div className="ml-1">
-              {formatTokenAmount(amountOut, tokenOut.decimals)} {tokenOut.symbol}
+              {formatTokenAmount(amountOut, tokenOut.decimals)} <TokenSymbol symbol={tokenOut.symbol} maxWidth={80} />
             </div>
             <div className="ml-2 text-subText">~{formatCurrency(+amountOutUsdt)}</div>
           </div>
@@ -340,14 +341,16 @@ export const Preview = () => {
             <div className="flex gap-1 items-center mt-3">
               <TokenLogo src={pool.token0.logo || ''} className="w-5 h-5" />
               <span className="text-lg font-medium">
-                {formatTokenAmount(receiveAmount0, pool.token0.decimals, 8)} {pool.token0.symbol}
+                {formatTokenAmount(receiveAmount0, pool.token0.decimals, 8)}{' '}
+                <TokenSymbol symbol={pool.token0.symbol} maxWidth={80} />
               </span>
               <span className="text-subText ml-1">~{formatDisplayNumber(receiveUsd0, { style: 'currency' })}</span>
             </div>
             <div className="flex gap-1 items-center mt-3">
               <TokenLogo src={pool.token1.logo || ''} className="w-5 h-5" />
               <span className="text-lg font-medium">
-                {formatTokenAmount(receiveAmount1, pool.token1.decimals, 8)} {pool.token1.symbol}
+                {formatTokenAmount(receiveAmount1, pool.token1.decimals, 8)}{' '}
+                <TokenSymbol symbol={pool.token1.symbol} maxWidth={80} />
               </span>
               <span className="text-subText ml-1">~{formatDisplayNumber(receiveUsd1, { style: 'currency' })}</span>
             </div>
@@ -359,10 +362,13 @@ export const Preview = () => {
         <>
           <div className="flex flex-col mt-4 gap-3 text-sm">
             <div className="flex items-center justify-between">
-              <div className="text-subText text-xs ">Est. Received {tokenOut.symbol}</div>
+              <div className="text-subText text-xs ">
+                Est. Received <TokenSymbol symbol={tokenOut.symbol} maxWidth={80} />
+              </div>
               <div className="flex items-center gap-1">
                 <TokenLogo src={tokenOut.logo} alt={tokenOut.symbol} />
-                {formatTokenAmount(amountOut, tokenOut?.decimals || 18)} {tokenOut.symbol}
+                {formatTokenAmount(amountOut, tokenOut?.decimals || 18)}
+                <TokenSymbol symbol={tokenOut.symbol} maxWidth={80} />
               </div>
             </div>
 
