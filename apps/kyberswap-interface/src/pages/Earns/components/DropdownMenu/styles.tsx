@@ -14,9 +14,12 @@ export const DropdownWrapper = styled.div<{ mobileFullWidth: boolean; mobileHalf
 `
 
 export const DropdownTitleWrapper = styled.div<{ flatten?: boolean; highlight?: boolean }>`
-  background: ${({ theme, highlight }) => (highlight ? rgba(theme.blue, 0.2) : theme.background)};
+  background: ${({ theme, highlight, flatten }) =>
+    highlight ? rgba(flatten ? theme.primary : theme.blue, 0.2) : theme.background};
+  border: ${({ theme, highlight, flatten }) =>
+    flatten ? `1px solid ${highlight ? theme.primary : 'transparent'}` : 'none'};
   border-radius: 30px;
-  padding: ${({ flatten }) => (flatten ? '0px 0px' : '6px 12px')};
+  padding: ${({ flatten }) => (flatten ? '0px 6px' : '6px 12px')};
   font-size: 14px;
   cursor: pointer;
   color: ${({ theme, highlight }) => (highlight ? theme.text : theme.subText)};
@@ -39,9 +42,10 @@ export const DropdownTitle = styled.div<{ width?: number; justifyContent?: strin
   `}
 `
 
-export const DropdownIcon = styled(DropdownSVG)<{ open: boolean }>`
+export const DropdownIcon = styled(DropdownSVG)<{ flatten?: boolean; open: boolean }>`
   transform: ${({ open }) => (open ? 'rotate(180deg)' : 'rotate(0deg)')};
   transition: transform 0.3s;
+  ${({ flatten }) => flatten && 'margin-inline: -6px;'}
 `
 
 export const ItemIcon = styled.img`

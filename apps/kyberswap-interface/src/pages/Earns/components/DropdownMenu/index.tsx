@@ -61,13 +61,13 @@ const DropdownMenu = ({
 
   return (
     <DropdownWrapper mobileFullWidth={mobileFullWidth} mobileHalfWidth={mobileHalfWidth} ref={ref}>
-      <DropdownTitleWrapper flatten={flatten} onClick={handleOpenChange}>
+      <DropdownTitleWrapper flatten={flatten} highlight={flatten && open} onClick={handleOpenChange}>
         <DropdownTitle width={width}>
           {optionValue?.icon && <ItemIcon src={optionValue.icon} alt={optionValue.label} />}
           {/* {(!upToExtraSmall || !optionValue?.icon) && optionValue?.label} */}
           {optionValue?.label}
         </DropdownTitle>
-        <DropdownIcon open={open} />
+        <DropdownIcon flatten={flatten} open={open} />
       </DropdownTitleWrapper>
       {open && (
         <DropdownContent flatten={flatten} alignLeft={alignLeft}>
