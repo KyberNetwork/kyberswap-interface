@@ -34,7 +34,7 @@ import useZapInWidget from 'pages/Earns/hooks/useZapInWidget'
 import { ZapMigrationInfo } from 'pages/Earns/hooks/useZapMigrationWidget'
 import useZapOutWidget from 'pages/Earns/hooks/useZapOutWidget'
 import { ParsedPosition, PositionStatus } from 'pages/Earns/types'
-import { isForkFrom } from 'pages/Earns/utils'
+import { getNftManagerContractAddress, isForkFrom } from 'pages/Earns/utils'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -104,8 +104,10 @@ const RightSection = ({
       return `${baseUrl}/token/${position.pool.address}?a=${positionOwnerAddress || account}`
     }
 
-    const [nftManagerAddress] = (positionId || '').split('-')
-    if (!nftManagerAddress || !position.tokenId) return null
+    const [nftManagerAddressFromRoute] = (positionId || '').split('-')
+    const nftManagerAddress = nftManagerAddressFromRoute?.startsWith('0x')
+      ? nftManagerAddressFromRoute
+      : getNftManagerContractAddress(position.dex.id, position.chain.id)
 
     return `${baseUrl}/nft/${nftManagerAddress}/${position.tokenId}`
   }, [account, chainId, isUniv2, position, positionId, positionOwnerAddress])
