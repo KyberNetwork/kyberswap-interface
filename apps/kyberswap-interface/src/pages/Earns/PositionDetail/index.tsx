@@ -501,6 +501,7 @@ const PositionDetail = () => {
                 aprSection={aprSection}
                 initialLoading={initialLoading}
                 isNotAccountOwner={isNotAccountOwner}
+                positionOwnerAddress={positionOwnerAddress}
                 onRefreshPosition={onRefreshPosition}
                 triggerClose={triggerClose}
                 setTriggerClose={setTriggerClose}
