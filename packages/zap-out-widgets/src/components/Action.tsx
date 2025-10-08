@@ -5,7 +5,7 @@ import { cn } from '@kyber/utils/tailwind-helpers';
 import InfoHelper from '@/components/InfoHelper';
 import { useSwapPI } from '@/components/SwapImpact';
 import { WarningMsg } from '@/components/WarningMsg';
-import { DEXES_INFO, FARMING_CONTRACTS, NETWORKS_INFO } from '@/constants';
+import { DEXES_INFO, FARMING_CONTRACTS } from '@/constants';
 import { useNftApproval } from '@/hooks/useNftApproval';
 import usePositionOwner from '@/hooks/usePositionOwner';
 import { useZapOutContext } from '@/stores';
@@ -13,9 +13,8 @@ import { useZapOutUserState } from '@/stores/state';
 import { PI_LEVEL } from '@/utils';
 
 export const Action = () => {
-  const { onClose, connectedAccount, chainId, onConnectWallet, onSwitchChain, poolType, positionId } = useZapOutContext(
-    s => s,
-  );
+  const { onClose, connectedAccount, chainId, rpcUrl, onConnectWallet, onSwitchChain, poolType, positionId } =
+    useZapOutContext(s => s);
 
   const { address: account, chainId: walletChainId } = connectedAccount;
 
@@ -30,7 +29,7 @@ export const Action = () => {
     approve,
     pendingTx,
   } = useNftApproval({
-    rpcUrl: NETWORKS_INFO[chainId].defaultRpc,
+    rpcUrl,
     nftManagerContract,
     nftId: +positionId,
     spender: route?.routerAddress,
@@ -40,7 +39,7 @@ export const Action = () => {
 
   const [clickedApprove, setClickedApprove] = useState(false);
 
-  const positionOwner = usePositionOwner({ positionId, chainId, poolType });
+  const positionOwner = usePositionOwner({ positionId, chainId, rpcUrl, poolType });
   const isNotOwner =
     positionOwner && connectedAccount?.address && positionOwner !== connectedAccount?.address?.toLowerCase()
       ? true

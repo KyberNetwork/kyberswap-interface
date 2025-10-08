@@ -37,6 +37,7 @@ export const Preview = () => {
     theme,
     position,
     chainId,
+    rpcUrl,
     connectedAccount,
     onSubmitTx,
     referral,
@@ -81,8 +82,6 @@ export const Preview = () => {
       });
   }, [route?.route, showPreview, account, chainId, source, referral]);
 
-  const rpcUrl = NETWORKS_INFO[chainId].defaultRpc;
-
   useEffect(() => {
     if (!buildData || !account) return;
     (async () => {
@@ -121,7 +120,7 @@ export const Preview = () => {
   useEffect(() => {
     if (txHash) {
       const i = setInterval(() => {
-        isTransactionSuccessful(NETWORKS_INFO[chainId].defaultRpc, txHash).then(res => {
+        isTransactionSuccessful(rpcUrl, txHash).then(res => {
           if (!res) return;
 
           if (res.status) {
@@ -134,7 +133,7 @@ export const Preview = () => {
         clearInterval(i);
       };
     }
-  }, [chainId, txHash]);
+  }, [chainId, rpcUrl, txHash]);
 
   const { zapPiRes } = useSwapPI();
 
