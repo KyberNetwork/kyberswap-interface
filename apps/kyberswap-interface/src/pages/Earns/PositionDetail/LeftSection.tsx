@@ -29,6 +29,7 @@ const LeftSection = ({
   totalLiquiditySection,
   aprSection,
   initialLoading,
+  isNotAccountOwner,
   shareBtn,
   refetchPositions,
 }: {
@@ -37,6 +38,7 @@ const LeftSection = ({
   totalLiquiditySection: React.ReactNode
   aprSection: React.ReactNode
   initialLoading: boolean
+  isNotAccountOwner: boolean
   shareBtn: (size?: number) => React.ReactNode
   refetchPositions: () => void
 }) => {
@@ -221,7 +223,9 @@ const LeftSection = ({
                 outline
                 mobileAutoWidth
                 load={feesClaiming}
-                disabled={initialLoading || isUnfinalized || position?.unclaimedFees === 0 || feesClaiming}
+                disabled={
+                  initialLoading || isNotAccountOwner || isUnfinalized || position?.unclaimedFees === 0 || feesClaiming
+                }
                 onClick={() =>
                   !initialLoading &&
                   !isUnfinalized &&
