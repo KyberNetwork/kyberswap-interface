@@ -108,10 +108,6 @@ const UserPositions = () => {
     setLoading(true)
   })
 
-  useEffect(() => {
-    console.log(1)
-  }, [])
-
   const selectedChainsLabel = useMemo(() => {
     const arrValue = filters.chainIds?.split(',')
     const selectedChains = supportedChains.filter(option => arrValue?.includes(option.value))

@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react';
 import { usePositionOwner } from '@kyber/hooks';
 import { DEXES_INFO, FARMING_CONTRACTS, NETWORKS_INFO } from '@kyber/schema';
 import { InfoHelper, Loading } from '@kyber/ui';
-import { PI_LEVEL } from '@kyber/utils';
+import { PI_LEVEL, friendlyError } from '@kyber/utils';
 import { estimateGasForTx } from '@kyber/utils/crypto/transaction';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
@@ -105,6 +105,7 @@ export const Action = () => {
 
       return { ...buildData, gasUsd };
     } catch (error) {
+      setWidgetError(friendlyError(error as Error));
       console.log('estimate gas error', error);
     } finally {
       setGasLoading(false);
