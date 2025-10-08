@@ -13,7 +13,7 @@ import Modal from 'components/Modal'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import { CoreProtocol, Exchange, earnSupportedExchanges } from 'pages/Earns/constants'
+import { CoreProtocol, DEX_NAME, Exchange, earnSupportedExchanges } from 'pages/Earns/constants'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import { ZapMigrationInfo } from 'pages/Earns/hooks/useZapMigrationWidget'
 import { DEFAULT_PARSED_POSITION } from 'pages/Earns/types'
@@ -233,6 +233,7 @@ const useZapInWidget = ({
                 },
                 dex: {
                   id: dex,
+                  name: DEX_NAME[dex],
                   logo: data.position.dexLogo,
                   version: dexVersion,
                 },
