@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import {
   OnSuccessProps,
   LiquidityWidget as ZapIn,
@@ -21,7 +22,7 @@ import { getNftManagerContractAddress, getTokenId, isForkFrom, submitTransaction
 import { listDexesWithVersion } from 'pages/Earns/utils/position'
 import { updateUnfinalizedPosition } from 'pages/Earns/utils/unfinalizedPosition'
 import { navigateToPositionAfterZap } from 'pages/Earns/utils/zap'
-import { useNotify, useWalletModalToggle } from 'state/application/hooks'
+import { useKyberSwapConfig, useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { getCookieValue } from 'utils'
 
 interface AddLiquidityPureParams {
@@ -34,6 +35,7 @@ interface AddLiquidityPureParams {
 
 interface AddLiquidityParams extends AddLiquidityPureParams {
   source: string
+  rpcUrl?: string
   connectedAccount: {
     address?: string | undefined
     chainId: number
@@ -112,6 +114,7 @@ const useZapInWidget = ({
   const [searchParams, setSearchParams] = useSearchParams()
 
   const [addLiquidityPureParams, setAddLiquidityPureParams] = useState<AddLiquidityPureParams | null>(null)
+  const { rpc: zapInRpcUrl } = useKyberSwapConfig(addLiquidityPureParams?.chainId as ChainId | undefined)
 
   const handleCloseZapInWidget = useCallback(() => {
     searchParams.delete('exchange')
@@ -198,6 +201,7 @@ const useZapInWidget = ({
         ? {
             ...addLiquidityPureParams,
             source: 'kyberswap-earn',
+            rpcUrl: zapInRpcUrl,
             referral: refCode,
             onViewPosition: (txHash: string) => {
               const { chainId, poolType, poolAddress } = addLiquidityPureParams
@@ -298,6 +302,7 @@ const useZapInWidget = ({
         : null,
     [
       addLiquidityPureParams,
+      zapInRpcUrl,
       refCode,
       account,
       chainId,
