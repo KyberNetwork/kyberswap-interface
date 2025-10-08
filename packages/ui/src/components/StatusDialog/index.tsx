@@ -91,7 +91,7 @@ export default function StatusDialog({
           ) : null}
         </div>
 
-        {action ? <DialogFooter className="sm:space-x-4">{action}</DialogFooter> : null}
+        {action ? <DialogFooter className="sm:space-x-4 gap-y-3">{action}</DialogFooter> : null}
       </DialogContent>
     </Dialog>
   );
