@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react';
 import { usePositionOwner } from '@kyber/hooks';
 import { APPROVAL_STATE, useErc20Approvals } from '@kyber/hooks';
 import { API_URLS, CHAIN_ID_TO_CHAIN, NETWORKS_INFO, univ3PoolNormalize, univ4Types } from '@kyber/schema';
-import { PI_LEVEL, getZapImpact } from '@kyber/utils';
+import { PI_LEVEL, friendlyError, getZapImpact } from '@kyber/utils';
 import { parseUnits } from '@kyber/utils/crypto';
 
 import { ERROR_MESSAGE } from '@/constants';
@@ -171,7 +171,7 @@ export default function useActionButton({
       })
       .catch(err => {
         setGasLoading(false);
-        setWidgetError(err.message);
+        setWidgetError(friendlyError(err as Error));
         console.error(err);
       });
 
