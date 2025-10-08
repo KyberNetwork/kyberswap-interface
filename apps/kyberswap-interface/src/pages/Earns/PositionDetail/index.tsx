@@ -408,10 +408,10 @@ const PositionDetail = () => {
         <Flex alignItems={'center'} justifyContent={'space-between'}>
           <Flex alignItems={'center'} sx={{ gap: 1 }}>
             {position?.pool.isFarmingLm ? (
-               <FarmingLmIcon width={20} height={20} />
-              ) : position?.pool.isFarming ? (
-            <FarmingIcon width={20} height={20} />
-          ) : null}
+              <FarmingLmIcon width={20} height={20} />
+            ) : position?.pool.isFarming ? (
+              <FarmingIcon width={20} height={20} />
+            ) : null}
             <Text
               fontSize={20}
               marginRight={1}
