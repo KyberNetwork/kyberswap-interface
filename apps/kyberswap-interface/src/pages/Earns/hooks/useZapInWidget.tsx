@@ -13,7 +13,7 @@ import Modal from 'components/Modal'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import { CoreProtocol, EarnDex, Exchange, earnSupportedProtocols } from 'pages/Earns/constants'
+import { CoreProtocol, Exchange, earnSupportedExchanges } from 'pages/Earns/constants'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import { ZapMigrationInfo } from 'pages/Earns/hooks/useZapMigrationWidget'
 import { DEFAULT_PARSED_POSITION } from 'pages/Earns/types'
@@ -49,25 +49,13 @@ export interface ZapInInfo {
   pool: {
     chainId: number
     address: string
-    dex: EarnDex | Exchange
+    dex: Exchange
   }
   positionId?: string
   initialTick?: { tickUpper: number; tickLower: number }
 }
 
-const zapInDexMapping: Record<EarnDex | Exchange, ZapInPoolType> = {
-  [EarnDex.DEX_UNISWAPV3]: ZapInPoolType.DEX_UNISWAPV3,
-  [EarnDex.DEX_PANCAKESWAPV3]: ZapInPoolType.DEX_PANCAKESWAPV3,
-  [EarnDex.DEX_SUSHISWAPV3]: ZapInPoolType.DEX_SUSHISWAPV3,
-  [EarnDex.DEX_QUICKSWAPV3ALGEBRA]: ZapInPoolType.DEX_QUICKSWAPV3ALGEBRA,
-  [EarnDex.DEX_CAMELOTV3]: ZapInPoolType.DEX_CAMELOTV3,
-  [EarnDex.DEX_THENAFUSION]: ZapInPoolType.DEX_THENAFUSION,
-  [EarnDex.DEX_KODIAK_V3]: ZapInPoolType.DEX_KODIAK_V3,
-  [EarnDex.DEX_UNISWAPV2]: ZapInPoolType.DEX_UNISWAPV2,
-  [EarnDex.DEX_UNISWAP_V4]: ZapInPoolType.DEX_UNISWAP_V4,
-  [EarnDex.DEX_UNISWAP_V4_FAIRFLOW]: ZapInPoolType.DEX_UNISWAP_V4_FAIRFLOW,
-  [EarnDex.DEX_PANCAKE_INFINITY_CL]: ZapInPoolType.DEX_PANCAKE_INFINITY_CL,
-  [EarnDex.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: ZapInPoolType.DEX_PANCAKE_INFINITY_CL_FAIRFLOW,
+const zapInDexMapping: Record<Exchange, ZapInPoolType> = {
   [Exchange.DEX_UNISWAPV3]: ZapInPoolType.DEX_UNISWAPV3,
   [Exchange.DEX_PANCAKESWAPV3]: ZapInPoolType.DEX_PANCAKESWAPV3,
   [Exchange.DEX_SUSHISWAPV3]: ZapInPoolType.DEX_SUSHISWAPV3,
@@ -82,15 +70,15 @@ const zapInDexMapping: Record<EarnDex | Exchange, ZapInPoolType> = {
   [Exchange.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: ZapInPoolType.DEX_PANCAKE_INFINITY_CL_FAIRFLOW,
 }
 
-const getEarnDexFromPoolType = (poolType: ZapInPoolType) => {
+const getDexFromPoolType = (poolType: ZapInPoolType) => {
   const dexIndex = Object.values(zapInDexMapping).findIndex(
-    (item, index) => item === poolType && earnSupportedProtocols.includes(Object.keys(zapInDexMapping)[index]),
+    (item, index) => item === poolType && earnSupportedExchanges.includes(Object.keys(zapInDexMapping)[index]),
   )
   if (dexIndex === -1) {
     console.error('Cannot find dex')
     return
   }
-  const dex = Object.keys(zapInDexMapping)[dexIndex] as EarnDex
+  const dex = Object.keys(zapInDexMapping)[dexIndex] as Exchange
 
   return dex
 }
@@ -129,7 +117,7 @@ const useZapInWidget = ({
     async (txHash: string, chainId: number, poolType: ZapInPoolType, poolId: string) => {
       if (!library) return
 
-      const dex = getEarnDexFromPoolType(poolType)
+      const dex = getDexFromPoolType(poolType)
       if (!dex) return
 
       navigateToPositionAfterZap(library, txHash, chainId, dex, poolId, navigate)
@@ -169,17 +157,17 @@ const useZapInWidget = ({
       const dexIndex = Object.values(zapInDexMapping).findIndex(
         (item, index) =>
           item === addLiquidityPureParams.poolType &&
-          earnSupportedProtocols.includes(Object.keys(zapInDexMapping)[index]),
+          earnSupportedExchanges.includes(Object.keys(zapInDexMapping)[index]),
       )
       if (dexIndex === -1) {
         console.error('Cannot find dex')
         return
       }
-      const dex = Object.keys(zapInDexMapping)[dexIndex] as EarnDex
+      const dex = Object.keys(zapInDexMapping)[dexIndex] as Exchange
 
       onOpenZapMigration({
         from: {
-          poolType: position.exchange as EarnDex,
+          poolType: position.exchange as Exchange,
           poolAddress: position.poolId,
           positionId: position.positionId.toString(),
         },
@@ -222,7 +210,7 @@ const useZapInWidget = ({
             onSuccess: async (data: OnSuccessProps) => {
               if (!library) return
 
-              const dex = getEarnDexFromPoolType(data.position.poolType)
+              const dex = getDexFromPoolType(data.position.poolType)
               if (!dex) return
 
               const isUniv2 = isForkFrom(dex, CoreProtocol.UniswapV2)

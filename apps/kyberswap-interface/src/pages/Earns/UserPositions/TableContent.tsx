@@ -34,13 +34,7 @@ import {
 } from 'pages/Earns/UserPositions/styles'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import RewardSyncing from 'pages/Earns/components/RewardSyncing'
-import {
-  CoreProtocol,
-  DEXES_SUPPORT_COLLECT_FEE,
-  EarnDex,
-  LIMIT_TEXT_STYLES,
-  protocolGroupNameToExchangeMapping,
-} from 'pages/Earns/constants'
+import { CoreProtocol, EXCHANGES_SUPPORT_COLLECT_FEE, LIMIT_TEXT_STYLES } from 'pages/Earns/constants'
 import useCollectFees from 'pages/Earns/hooks/useCollectFees'
 import useFarmingStablePools from 'pages/Earns/hooks/useFarmingStablePools'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
@@ -306,8 +300,7 @@ export default function TableContent({
                 rewards,
                 isUnfinalized,
               } = position
-              const feesClaimDisabled =
-                !DEXES_SUPPORT_COLLECT_FEE[dex.id as EarnDex] || unclaimedFees === 0 || feesClaiming
+              const feesClaimDisabled = !EXCHANGES_SUPPORT_COLLECT_FEE[dex.id] || unclaimedFees === 0 || feesClaiming
               const rewardsClaimDisabled = rewardsClaiming || position.rewards.claimableUsdValue === 0
               const isStablePair = pool.category === PAIR_CATEGORY.STABLE
               const isEarlyPosition = checkEarlyPosition(position)
@@ -339,7 +332,7 @@ export default function TableContent({
                   key={`${tokenId}-${pool.address}-${index}`}
                   to={APP_PATHS.EARN_POSITION_DETAIL.replace(':positionId', !pool.isUniv2 ? id : pool.address)
                     .replace(':chainId', chain.id.toString())
-                    .replace(':protocol', protocolGroupNameToExchangeMapping[dex.id] || dex.id)}
+                    .replace(':protocol', dex.id)}
                 >
                   {/* Overview info */}
                   <PositionOverview>
@@ -633,7 +626,7 @@ export default function TableContent({
                           tickSpacing={pool.tickSpacing}
                           token0Decimals={token0.decimals}
                           token1Decimals={token1.decimals}
-                          dex={dex.id as EarnDex}
+                          dex={dex.id}
                         />
                       )
                     ) : isUnfinalized ? (
@@ -646,7 +639,7 @@ export default function TableContent({
                         tickSpacing={pool.tickSpacing}
                         token0Decimals={token0.decimals}
                         token1Decimals={token1.decimals}
-                        dex={dex.id as EarnDex}
+                        dex={dex.id}
                       />
                     )}
                   </PositionValueWrapper>

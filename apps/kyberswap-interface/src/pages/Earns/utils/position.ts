@@ -12,14 +12,14 @@ import {
 import { ChainId, WETH } from '@kyberswap/ks-sdk-core'
 
 import { NETWORKS_INFO } from 'constants/networks'
-import { CoreProtocol, DEXES_WITH_VERSION, EarnDex } from 'pages/Earns/constants'
+import { CoreProtocol, DEXES_WITH_VERSION, DEX_NAME, Exchange } from 'pages/Earns/constants'
 import { EarnPosition, FeeInfo, NftRewardInfo, ParsedPosition, PositionStatus, ProgramType } from 'pages/Earns/types'
 import { getNftManagerContractAddress, isForkFrom, isNativeToken } from 'pages/Earns/utils'
 
-export const getDexVersion = (dex: EarnDex) => {
+export const getDexVersion = (dex: Exchange) => {
   if (!DEXES_WITH_VERSION[dex]) return ''
 
-  const dexStringSplit = dex.split(' ')
+  const dexStringSplit = DEX_NAME[dex].split(' ')
   return dexStringSplit.length > 0 ? dexStringSplit.slice(1).join(' ') : ''
 }
 
@@ -114,7 +114,7 @@ export const parsePosition = ({
   const token0Address = token0Data?.address || ''
   const token1Address = token1Data?.address || ''
 
-  const dex = pool.project || ''
+  const dex = pool.exchange || ''
   const isUniv2 = isForkFrom(dex, CoreProtocol.UniswapV2)
 
   const programs = pool.programs || []
@@ -196,6 +196,7 @@ export const parsePosition = ({
     },
     dex: {
       id: dex,
+      name: DEX_NAME[dex],
       logo: pool.projectLogo,
       version: getDexVersion(dex),
     },
@@ -294,7 +295,7 @@ export const getPositionLiquidity = async ({
   chainId,
 }: {
   tokenId: string
-  dex: EarnDex
+  dex: Exchange
   poolAddress: string
   chainId: ChainId
 }) => {

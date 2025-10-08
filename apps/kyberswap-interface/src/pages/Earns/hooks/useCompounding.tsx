@@ -11,7 +11,7 @@ import { NotificationType } from 'components/Announcement/type'
 import Modal from 'components/Modal'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import { EarnDex, Exchange, earnSupportedProtocols } from 'pages/Earns/constants'
+import { Exchange, earnSupportedExchanges } from 'pages/Earns/constants'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import { submitTransaction } from 'pages/Earns/utils'
 import { navigateToPositionAfterZap } from 'pages/Earns/utils/zap'
@@ -43,7 +43,7 @@ export interface CompoundingInfo {
   pool: {
     chainId: number
     address: string
-    dex: EarnDex | Exchange
+    dex: Exchange
   }
   positionId: string
   initDepositTokens: string
@@ -51,19 +51,7 @@ export interface CompoundingInfo {
   compoundType?: 'COMPOUND_TYPE_REWARD'
 }
 
-const compoundingDexMapping: Record<EarnDex | Exchange, CompoundingPoolType> = {
-  [EarnDex.DEX_UNISWAPV3]: CompoundingPoolType.DEX_UNISWAPV3,
-  [EarnDex.DEX_PANCAKESWAPV3]: CompoundingPoolType.DEX_PANCAKESWAPV3,
-  [EarnDex.DEX_SUSHISWAPV3]: CompoundingPoolType.DEX_SUSHISWAPV3,
-  [EarnDex.DEX_QUICKSWAPV3ALGEBRA]: CompoundingPoolType.DEX_QUICKSWAPV3ALGEBRA,
-  [EarnDex.DEX_CAMELOTV3]: CompoundingPoolType.DEX_CAMELOTV3,
-  [EarnDex.DEX_THENAFUSION]: CompoundingPoolType.DEX_THENAFUSION,
-  [EarnDex.DEX_KODIAK_V3]: CompoundingPoolType.DEX_KODIAK_V3,
-  [EarnDex.DEX_UNISWAPV2]: CompoundingPoolType.DEX_UNISWAPV2,
-  [EarnDex.DEX_UNISWAP_V4]: CompoundingPoolType.DEX_UNISWAP_V4,
-  [EarnDex.DEX_UNISWAP_V4_FAIRFLOW]: CompoundingPoolType.DEX_UNISWAP_V4_FAIRFLOW,
-  [EarnDex.DEX_PANCAKE_INFINITY_CL]: CompoundingPoolType.DEX_PANCAKE_INFINITY_CL,
-  [EarnDex.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: CompoundingPoolType.DEX_PANCAKE_INFINITY_CL_FAIRFLOW,
+const compoundingDexMapping: Record<Exchange, CompoundingPoolType> = {
   [Exchange.DEX_UNISWAPV3]: CompoundingPoolType.DEX_UNISWAPV3,
   [Exchange.DEX_PANCAKESWAPV3]: CompoundingPoolType.DEX_PANCAKESWAPV3,
   [Exchange.DEX_SUSHISWAPV3]: CompoundingPoolType.DEX_SUSHISWAPV3,
@@ -104,13 +92,13 @@ const useCompounding = ({
 
       const dexIndex = Object.values(compoundingDexMapping).findIndex(
         (item, index) =>
-          item === poolType && earnSupportedProtocols.includes(Object.keys(compoundingDexMapping)[index]),
+          item === poolType && earnSupportedExchanges.includes(Object.keys(compoundingDexMapping)[index]),
       )
       if (dexIndex === -1) {
         console.error('Cannot find dex')
         return
       }
-      const dex = Object.keys(compoundingDexMapping)[dexIndex] as EarnDex
+      const dex = Object.keys(compoundingDexMapping)[dexIndex]
 
       navigateToPositionAfterZap(library, txHash, chainId, dex, poolId, navigate, tokenId)
     },

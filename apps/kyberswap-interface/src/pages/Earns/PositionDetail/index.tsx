@@ -36,12 +36,7 @@ import MigrationModal from 'pages/Earns/UserPositions/MigrationModal'
 import { EmptyPositionText, PositionPageWrapper } from 'pages/Earns/UserPositions/styles'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import RewardSyncing from 'pages/Earns/components/RewardSyncing'
-import {
-  EarnDex,
-  Exchange,
-  POSSIBLE_FARMING_PROTOCOLS,
-  protocolGroupNameToExchangeMapping,
-} from 'pages/Earns/constants'
+import { Exchange, POSSIBLE_FARMING_PROTOCOLS } from 'pages/Earns/constants'
 import useClosedPositions, { CheckClosedPositionParams } from 'pages/Earns/hooks/useClosedPositions'
 import useFarmingStablePools from 'pages/Earns/hooks/useFarmingStablePools'
 import useForceLoading from 'pages/Earns/hooks/useForceLoading'
@@ -333,8 +328,8 @@ const PositionDetail = () => {
               chainId: position.chain.id,
               chainLogo: position.chain.logo,
               dexLogo: position.dex.logo,
-              dexName: position.dex.id,
-              exchange: protocolGroupNameToExchangeMapping[position.dex.id as EarnDex],
+              dexName: position.dex.name,
+              exchange: position.dex.id,
               token0: {
                 symbol: position.token0.symbol,
                 logo: position.token0.logo,

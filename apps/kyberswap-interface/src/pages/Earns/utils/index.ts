@@ -6,26 +6,24 @@ import {
   CoreProtocol,
   EXCHANGES_CORE_PROTOCOL_MAPPING,
   EarnChain,
-  EarnDex,
   Exchange,
   NATIVE_ADDRESSES,
   NFT_MANAGER_ABI,
   NFT_MANAGER_CONTRACT,
-  PROTOCOLS_CORE_MAPPING,
 } from 'pages/Earns/constants'
 import { calculateGasMargin } from 'utils'
 import { getReadingContractWithCustomChain } from 'utils/getContract'
 
-export const getTokenId = async (provider: Web3Provider, txHash: string, dex: EarnDex) => {
+export const getTokenId = async (provider: Web3Provider, txHash: string, exchange: Exchange) => {
   try {
     const receipt = await provider.getTransactionReceipt(txHash)
     if (!receipt || !receipt.logs) return
 
-    const isUniV4 = isForkFrom(dex, CoreProtocol.UniswapV4)
+    const isUniV4 = isForkFrom(exchange, CoreProtocol.UniswapV4)
 
     let hexTokenId
     if (!isUniV4) {
-      const isQuickSwapV3 = dex === EarnDex.DEX_QUICKSWAPV3ALGEBRA
+      const isQuickSwapV3 = exchange === Exchange.DEX_QUICKSWAPV3ALGEBRA
       const increaseLidEventTopic = ethers.utils.id(
         !isQuickSwapV3
           ? 'IncreaseLiquidity(uint256,uint128,uint256,uint256)'
@@ -51,9 +49,8 @@ export const getTokenId = async (provider: Web3Provider, txHash: string, dex: Ea
   }
 }
 
-export const isForkFrom = (protocol: EarnDex | Exchange, coreProtocol: CoreProtocol) =>
-  PROTOCOLS_CORE_MAPPING[protocol as EarnDex] === coreProtocol ||
-  EXCHANGES_CORE_PROTOCOL_MAPPING[protocol as Exchange] === coreProtocol
+export const isForkFrom = (protocol: Exchange, coreProtocol: CoreProtocol) =>
+  EXCHANGES_CORE_PROTOCOL_MAPPING[protocol] === coreProtocol
 
 export const isNativeToken = (tokenAddress: string, chainId: keyof typeof WETH) =>
   NATIVE_ADDRESSES[chainId as EarnChain] === tokenAddress.toLowerCase() ||
@@ -90,7 +87,7 @@ export const submitTransaction = async ({
   }
 }
 
-export const getNftManagerContractAddress = (dex: EarnDex, chainId: number) => {
+export const getNftManagerContractAddress = (dex: Exchange, chainId: number) => {
   const nftManagerContractElement = NFT_MANAGER_CONTRACT[dex]
 
   return typeof nftManagerContractElement === 'string'
@@ -98,7 +95,7 @@ export const getNftManagerContractAddress = (dex: EarnDex, chainId: number) => {
     : nftManagerContractElement[chainId as keyof typeof nftManagerContractElement]
 }
 
-export const getNftManagerContract = (dex: EarnDex, chainId: number) => {
+export const getNftManagerContract = (dex: Exchange, chainId: number) => {
   const nftManagerContractAddress = getNftManagerContractAddress(dex, chainId)
   const nftManagerAbi = NFT_MANAGER_ABI[dex]
   if (!nftManagerAbi) return

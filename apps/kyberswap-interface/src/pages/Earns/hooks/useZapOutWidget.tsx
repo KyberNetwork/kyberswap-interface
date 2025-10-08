@@ -7,7 +7,7 @@ import { NotificationType } from 'components/Announcement/type'
 import Modal from 'components/Modal'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import { EarnDex, Exchange, protocolGroupNameToExchangeMapping } from 'pages/Earns/constants'
+import { Exchange } from 'pages/Earns/constants'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import { CheckClosedPositionParams } from 'pages/Earns/hooks/useClosedPositions'
 import { submitTransaction } from 'pages/Earns/utils'
@@ -16,26 +16,14 @@ import { getCookieValue } from 'utils'
 
 export interface ZapOutInfo {
   position: {
-    dex: EarnDex | Exchange
+    dex: Exchange
     chainId: number
     poolAddress: string
     id: string
   }
 }
 
-const zapOutDexMapping: Record<EarnDex | Exchange, ZapOutDex> = {
-  [EarnDex.DEX_UNISWAPV3]: ZapOutDex.DEX_UNISWAPV3,
-  [EarnDex.DEX_PANCAKESWAPV3]: ZapOutDex.DEX_PANCAKESWAPV3,
-  [EarnDex.DEX_SUSHISWAPV3]: ZapOutDex.DEX_SUSHISWAPV3,
-  [EarnDex.DEX_QUICKSWAPV3ALGEBRA]: ZapOutDex.DEX_QUICKSWAPV3ALGEBRA,
-  [EarnDex.DEX_CAMELOTV3]: ZapOutDex.DEX_CAMELOTV3,
-  [EarnDex.DEX_THENAFUSION]: ZapOutDex.DEX_THENAFUSION,
-  [EarnDex.DEX_KODIAK_V3]: ZapOutDex.DEX_KODIAK_V3,
-  [EarnDex.DEX_UNISWAPV2]: ZapOutDex.DEX_UNISWAPV2,
-  [EarnDex.DEX_UNISWAP_V4]: ZapOutDex.DEX_UNISWAP_V4,
-  [EarnDex.DEX_UNISWAP_V4_FAIRFLOW]: ZapOutDex.DEX_UNISWAP_V4_FAIRFLOW,
-  [EarnDex.DEX_PANCAKE_INFINITY_CL]: ZapOutDex.DEX_PANCAKE_INFINITY_CL,
-  [EarnDex.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: ZapOutDex.DEX_PANCAKE_INFINITY_CL_FAIRFLOW,
+const zapOutDexMapping: Record<Exchange, ZapOutDex> = {
   [Exchange.DEX_UNISWAPV3]: ZapOutDex.DEX_UNISWAPV3,
   [Exchange.DEX_PANCAKESWAPV3]: ZapOutDex.DEX_PANCAKESWAPV3,
   [Exchange.DEX_SUSHISWAPV3]: ZapOutDex.DEX_SUSHISWAPV3,
@@ -81,17 +69,13 @@ const useZapOutWidget = (onRefreshPosition?: (props: CheckClosedPositionParams) 
                 const foundEntry = Object.entries(zapOutDexMapping).find(
                   ([_, zapOutDex]) => zapOutDex === zapOutPureParams.poolType,
                 )
-                let dex = foundEntry?.[0] as EarnDex | Exchange
+                const dex = foundEntry?.[0] as Exchange
 
-                if (dex && Object.values(Exchange).includes(dex as Exchange)) {
-                  dex = Object.entries(protocolGroupNameToExchangeMapping).find(
-                    ([_, exchange]) => exchange === dex,
-                  )?.[0] as EarnDex
-                }
+                if (!dex || !Object.values(Exchange).includes(dex)) return
 
                 onRefreshPosition?.({
                   tokenId: zapOutPureParams.positionId,
-                  dex: dex as EarnDex,
+                  dex,
                   poolAddress: zapOutPureParams.poolAddress,
                   chainId: zapOutPureParams.chainId as unknown as ChainId,
                 })

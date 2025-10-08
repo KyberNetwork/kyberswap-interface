@@ -10,7 +10,7 @@ import useChainsConfig from 'hooks/useChainsConfig'
 import useFilter from 'pages/Earns/UserPositions/useFilter'
 import ClaimAllModal from 'pages/Earns/components/ClaimAllModal'
 import ClaimModal, { ClaimInfo, ClaimType } from 'pages/Earns/components/ClaimModal'
-import { EarnChain, EarnDex, FARMING_SUPPORTED_CHAINS } from 'pages/Earns/constants'
+import { EarnChain, FARMING_SUPPORTED_CHAINS } from 'pages/Earns/constants'
 import useCompounding from 'pages/Earns/hooks/useCompounding'
 import { ParsedPosition, RewardInfo, TokenInfo } from 'pages/Earns/types'
 import { getNftManagerContractAddress, submitTransaction } from 'pages/Earns/utils'
@@ -70,12 +70,12 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
   }, [data, tokens, supportedChains, filters.chainIds])
 
   const handleClaim = useCallback(async () => {
-    if (!account || !claimInfo) return
+    if (!account || !claimInfo || !claimInfo.dex) return
     if (!FARMING_SUPPORTED_CHAINS[chainId as unknown as EarnChain]) return
 
     setClaiming(true)
 
-    const positionManagerContract = getNftManagerContractAddress(EarnDex.DEX_UNISWAP_V4_FAIRFLOW, chainId)
+    const positionManagerContract = getNftManagerContractAddress(claimInfo.dex, chainId)
 
     const encodeData = await claimEncodeData({
       recipient: account,

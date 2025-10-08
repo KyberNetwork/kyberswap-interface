@@ -8,21 +8,6 @@ import Univ4NftManagerABI from 'constants/abis/earn/uniswapv4NftManagerContract.
 import { ETHER_ADDRESS } from 'constants/index'
 import { enumToArrayOfValues } from 'utils'
 
-export enum EarnDex {
-  DEX_UNISWAPV3 = 'Uniswap V3',
-  DEX_PANCAKESWAPV3 = 'PancakeSwap V3',
-  DEX_SUSHISWAPV3 = 'SushiSwap V3',
-  DEX_QUICKSWAPV3ALGEBRA = 'QuickSwap V3',
-  DEX_CAMELOTV3 = 'Camelot V3',
-  DEX_THENAFUSION = 'THENA',
-  DEX_KODIAK_V3 = 'Kodiak Concentrated',
-  DEX_UNISWAPV2 = 'Uniswap V2',
-  DEX_UNISWAP_V4 = 'Uniswap V4',
-  DEX_UNISWAP_V4_FAIRFLOW = 'Uniswap V4 FairFlow',
-  DEX_PANCAKE_INFINITY_CL = 'Pancake ∞ CL',
-  DEX_PANCAKE_INFINITY_CL_FAIRFLOW = 'Pancake ∞ CL FairFlow',
-}
-
 export enum Exchange {
   DEX_UNISWAPV3 = 'uniswapv3',
   DEX_PANCAKESWAPV3 = 'pancake-v3',
@@ -50,27 +35,25 @@ export enum EarnChain {
 }
 
 export const earnSupportedChains = enumToArrayOfValues(EarnChain, 'number')
-
-export const earnSupportedProtocols = enumToArrayOfValues(EarnDex)
 export const earnSupportedExchanges = enumToArrayOfValues(Exchange)
 
-export const protocolGroupNameToExchangeMapping: { [key in EarnDex]: Exchange } = {
-  [EarnDex.DEX_UNISWAPV3]: Exchange.DEX_UNISWAPV3,
-  [EarnDex.DEX_PANCAKESWAPV3]: Exchange.DEX_PANCAKESWAPV3,
-  [EarnDex.DEX_SUSHISWAPV3]: Exchange.DEX_SUSHISWAPV3,
-  [EarnDex.DEX_QUICKSWAPV3ALGEBRA]: Exchange.DEX_QUICKSWAPV3ALGEBRA,
-  [EarnDex.DEX_CAMELOTV3]: Exchange.DEX_CAMELOTV3,
-  [EarnDex.DEX_THENAFUSION]: Exchange.DEX_THENAFUSION,
-  [EarnDex.DEX_KODIAK_V3]: Exchange.DEX_KODIAK_V3,
-  [EarnDex.DEX_UNISWAPV2]: Exchange.DEX_UNISWAPV2,
-  [EarnDex.DEX_UNISWAP_V4]: Exchange.DEX_UNISWAP_V4,
-  [EarnDex.DEX_UNISWAP_V4_FAIRFLOW]: Exchange.DEX_UNISWAP_V4_FAIRFLOW,
-  [EarnDex.DEX_PANCAKE_INFINITY_CL]: Exchange.DEX_PANCAKE_INFINITY_CL,
-  [EarnDex.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: Exchange.DEX_PANCAKE_INFINITY_CL_FAIRFLOW,
+export const DEX_NAME: Record<Exchange, string> = {
+  [Exchange.DEX_UNISWAPV3]: 'Uniswap V3',
+  [Exchange.DEX_PANCAKESWAPV3]: 'PancakeSwap V3',
+  [Exchange.DEX_SUSHISWAPV3]: 'SushiSwap V3',
+  [Exchange.DEX_QUICKSWAPV3ALGEBRA]: 'QuickSwap V3',
+  [Exchange.DEX_CAMELOTV3]: 'Camelot V3',
+  [Exchange.DEX_THENAFUSION]: 'THENA',
+  [Exchange.DEX_KODIAK_V3]: 'Kodiak Concentrated',
+  [Exchange.DEX_UNISWAPV2]: 'Uniswap V2',
+  [Exchange.DEX_UNISWAP_V4]: 'Uniswap V4',
+  [Exchange.DEX_UNISWAP_V4_FAIRFLOW]: 'Uniswap V4 FairFlow',
+  [Exchange.DEX_PANCAKE_INFINITY_CL]: 'Pancake ∞ CL',
+  [Exchange.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: 'Pancake ∞ CL FairFlow',
 }
 
-export const NFT_MANAGER_CONTRACT: { [key in EarnDex]: { [key: string]: string } | string } = {
-  [EarnDex.DEX_UNISWAPV3]: {
+export const NFT_MANAGER_CONTRACT: { [key in Exchange]: { [key: string]: string } | string } = {
+  [Exchange.DEX_UNISWAPV3]: {
     [ChainId.MAINNET]: '0xC36442b4a4522E871399CD717aBDD847Ab11FE88',
     [ChainId.BSCMAINNET]: '0x7b8A01B39D58278b5DE7e48c8449c9f4F5170613',
     [ChainId.MATIC]: '0xC36442b4a4522E871399CD717aBDD847Ab11FE88',
@@ -84,8 +67,8 @@ export const NFT_MANAGER_CONTRACT: { [key in EarnDex]: { [key: string]: string }
     [ChainId.OPTIMISM]: '0xC36442b4a4522E871399CD717aBDD847Ab11FE88',
     [ChainId.SCROLL]: '0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1',
   },
-  [EarnDex.DEX_PANCAKESWAPV3]: '0x46A15B0b27311cedF172AB29E4f4766fbE7F4364',
-  [EarnDex.DEX_SUSHISWAPV3]: {
+  [Exchange.DEX_PANCAKESWAPV3]: '0x46A15B0b27311cedF172AB29E4f4766fbE7F4364',
+  [Exchange.DEX_SUSHISWAPV3]: {
     [ChainId.ARBITRUM]: '0xF0cBce1942A68BEB3d1b73F0dd86C8DCc363eF49',
     [ChainId.AVAXMAINNET]: '0x18350b048AB366ed601fFDbC669110Ecb36016f3',
     [ChainId.BASE]: '0x80C7DD17B01855a6D2347444a0FCC36136a314de',
@@ -98,20 +81,20 @@ export const NFT_MANAGER_CONTRACT: { [key in EarnDex]: { [key: string]: string }
     [ChainId.MATIC]: '0xb7402ee99F0A008e461098AC3A27F4957Df89a40',
     [ChainId.SCROLL]: '0x0389879e0156033202C44BF784ac18fC02edeE4f',
   },
-  [EarnDex.DEX_QUICKSWAPV3ALGEBRA]: {
+  [Exchange.DEX_QUICKSWAPV3ALGEBRA]: {
     [ChainId.MATIC]: '0x8eF88E4c7CfbbaC1C163f7eddd4B578792201de6',
   },
-  [EarnDex.DEX_CAMELOTV3]: {
+  [Exchange.DEX_CAMELOTV3]: {
     [ChainId.ARBITRUM]: '0x00c7f3082833e796A5b3e4Bd59f6642FF44DCD15',
   },
-  [EarnDex.DEX_THENAFUSION]: {
+  [Exchange.DEX_THENAFUSION]: {
     [ChainId.BSCMAINNET]: '0xa51ADb08Cbe6Ae398046A23bec013979816B77Ab',
   },
-  [EarnDex.DEX_KODIAK_V3]: {
+  [Exchange.DEX_KODIAK_V3]: {
     [ChainId.BERA]: '0xFE5E8C83FFE4d9627A75EaA7Fee864768dB989bD',
   },
-  [EarnDex.DEX_UNISWAPV2]: {},
-  [EarnDex.DEX_UNISWAP_V4]: {
+  [Exchange.DEX_UNISWAPV2]: {},
+  [Exchange.DEX_UNISWAP_V4]: {
     [ChainId.MAINNET]: '0xbd216513d74c8cf14cf4747e6aaa6420ff64ee9e',
     [ChainId.BSCMAINNET]: '0x7a4a5c919ae2541aed11041a1aeee68f1287f95b',
     [ChainId.MATIC]: '0x1ec2ebf4f37e7363fdfe3551602425af0b3ceef9',
@@ -121,7 +104,7 @@ export const NFT_MANAGER_CONTRACT: { [key in EarnDex]: { [key: string]: string }
     [ChainId.BLAST]: '0x4ad2f4cca2682cbb5b950d660dd458a1d3f1baad',
     [ChainId.OPTIMISM]: '0x3c3ea4b57a46241e54610e5f022e5c45859a1017',
   },
-  [EarnDex.DEX_UNISWAP_V4_FAIRFLOW]: {
+  [Exchange.DEX_UNISWAP_V4_FAIRFLOW]: {
     [ChainId.MAINNET]: '0xbd216513d74c8cf14cf4747e6aaa6420ff64ee9e',
     [ChainId.BSCMAINNET]: '0x7a4a5c919ae2541aed11041a1aeee68f1287f95b',
     [ChainId.MATIC]: '0x1ec2ebf4f37e7363fdfe3551602425af0b3ceef9',
@@ -131,10 +114,10 @@ export const NFT_MANAGER_CONTRACT: { [key in EarnDex]: { [key: string]: string }
     [ChainId.BLAST]: '0x4ad2f4cca2682cbb5b950d660dd458a1d3f1baad',
     [ChainId.OPTIMISM]: '0x3c3ea4b57a46241e54610e5f022e5c45859a1017',
   },
-  [EarnDex.DEX_PANCAKE_INFINITY_CL]: {
+  [Exchange.DEX_PANCAKE_INFINITY_CL]: {
     [ChainId.BSCMAINNET]: '0x55f4c8abA71A1e923edC303eb4fEfF14608cC226',
   },
-  [EarnDex.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: {
+  [Exchange.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: {
     [ChainId.BSCMAINNET]: '0x55f4c8abA71A1e923edC303eb4fEfF14608cC226',
   },
 }
@@ -150,64 +133,49 @@ export const NATIVE_ADDRESSES: Record<EarnChain, string> = {
   [EarnChain.BERA]: ETHER_ADDRESS.toLowerCase(),
 }
 
-export const NFT_MANAGER_ABI: { [key in EarnDex]: ContractInterface | null } = {
-  [EarnDex.DEX_UNISWAPV3]: Univ3NftManagerABI,
-  [EarnDex.DEX_PANCAKESWAPV3]: Univ3NftManagerABI,
-  [EarnDex.DEX_SUSHISWAPV3]: Univ3NftManagerABI,
-  [EarnDex.DEX_QUICKSWAPV3ALGEBRA]: AlgebraNftManagerABI,
-  [EarnDex.DEX_CAMELOTV3]: AlgebraNftManagerABI,
-  [EarnDex.DEX_THENAFUSION]: AlgebraNftManagerABI,
-  [EarnDex.DEX_KODIAK_V3]: Univ3NftManagerABI,
-  [EarnDex.DEX_UNISWAPV2]: null,
-  [EarnDex.DEX_UNISWAP_V4]: Univ4NftManagerABI,
-  [EarnDex.DEX_UNISWAP_V4_FAIRFLOW]: Univ4NftManagerABI,
-  [EarnDex.DEX_PANCAKE_INFINITY_CL]: PancakeInfinityClNftManagerABI,
-  [EarnDex.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: PancakeInfinityClNftManagerABI,
+export const NFT_MANAGER_ABI: { [key in Exchange]: ContractInterface | null } = {
+  [Exchange.DEX_UNISWAPV3]: Univ3NftManagerABI,
+  [Exchange.DEX_PANCAKESWAPV3]: Univ3NftManagerABI,
+  [Exchange.DEX_SUSHISWAPV3]: Univ3NftManagerABI,
+  [Exchange.DEX_QUICKSWAPV3ALGEBRA]: AlgebraNftManagerABI,
+  [Exchange.DEX_CAMELOTV3]: AlgebraNftManagerABI,
+  [Exchange.DEX_THENAFUSION]: AlgebraNftManagerABI,
+  [Exchange.DEX_KODIAK_V3]: Univ3NftManagerABI,
+  [Exchange.DEX_UNISWAPV2]: null,
+  [Exchange.DEX_UNISWAP_V4]: Univ4NftManagerABI,
+  [Exchange.DEX_UNISWAP_V4_FAIRFLOW]: Univ4NftManagerABI,
+  [Exchange.DEX_PANCAKE_INFINITY_CL]: PancakeInfinityClNftManagerABI,
+  [Exchange.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: PancakeInfinityClNftManagerABI,
 }
 
-export const UNWRAP_WNATIVE_TOKEN_FUNC: { [key in EarnDex]: string | null } = {
-  [EarnDex.DEX_UNISWAPV3]: 'unwrapWETH9',
-  [EarnDex.DEX_PANCAKESWAPV3]: 'unwrapWETH9',
-  [EarnDex.DEX_SUSHISWAPV3]: 'unwrapWETH9',
-  [EarnDex.DEX_QUICKSWAPV3ALGEBRA]: 'unwrapWNativeToken',
-  [EarnDex.DEX_CAMELOTV3]: 'unwrapWNativeToken',
-  [EarnDex.DEX_THENAFUSION]: 'unwrapWNativeToken',
-  [EarnDex.DEX_KODIAK_V3]: 'unwrapWETH9',
-  [EarnDex.DEX_UNISWAPV2]: null,
-  [EarnDex.DEX_UNISWAP_V4]: null,
-  [EarnDex.DEX_UNISWAP_V4_FAIRFLOW]: null,
-  [EarnDex.DEX_PANCAKE_INFINITY_CL]: null,
-  [EarnDex.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: null,
+export const UNWRAP_WNATIVE_TOKEN_FUNC: { [key in Exchange]: string | null } = {
+  [Exchange.DEX_UNISWAPV3]: 'unwrapWETH9',
+  [Exchange.DEX_PANCAKESWAPV3]: 'unwrapWETH9',
+  [Exchange.DEX_SUSHISWAPV3]: 'unwrapWETH9',
+  [Exchange.DEX_QUICKSWAPV3ALGEBRA]: 'unwrapWNativeToken',
+  [Exchange.DEX_CAMELOTV3]: 'unwrapWNativeToken',
+  [Exchange.DEX_THENAFUSION]: 'unwrapWNativeToken',
+  [Exchange.DEX_KODIAK_V3]: 'unwrapWETH9',
+  [Exchange.DEX_UNISWAPV2]: null,
+  [Exchange.DEX_UNISWAP_V4]: null,
+  [Exchange.DEX_UNISWAP_V4_FAIRFLOW]: null,
+  [Exchange.DEX_PANCAKE_INFINITY_CL]: null,
+  [Exchange.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: null,
 }
 
-export const PROTOCOL_POSITION_URL: Record<EarnDex, string> = {
-  [EarnDex.DEX_UNISWAPV3]: 'https://app.uniswap.org/positions/v3/$chainName/$positionId',
-  [EarnDex.DEX_SUSHISWAPV3]: 'https://www.sushi.com/$chainName/pool/v3/$poolAddress/$positionId',
-  [EarnDex.DEX_PANCAKESWAPV3]: 'https://pancakeswap.finance/liquidity/$positionId',
-  [EarnDex.DEX_QUICKSWAPV3ALGEBRA]: 'https://quickswap.exchange/#/pools',
-  [EarnDex.DEX_CAMELOTV3]: 'https://app.camelot.exchange/positions',
-  [EarnDex.DEX_THENAFUSION]: 'https://thena.fi/pools/$poolAddress',
-  [EarnDex.DEX_KODIAK_V3]: 'https://app.kodiak.finance/#/liquidity/v3/$positionId',
-  [EarnDex.DEX_UNISWAPV2]: 'https://app.uniswap.org/positions/v2/$chainName/$poolAddress',
-  [EarnDex.DEX_UNISWAP_V4]: 'https://app.uniswap.org/positions/v4/$chainName/$positionId',
-  [EarnDex.DEX_UNISWAP_V4_FAIRFLOW]: 'https://app.uniswap.org/positions/v4/$chainName/$positionId',
-  [EarnDex.DEX_PANCAKE_INFINITY_CL]: 'https://pancakeswap.finance/liquidity/position/infinityCl/$positionId',
-  [EarnDex.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: 'https://pancakeswap.finance/liquidity/position/infinityCl/$positionId',
-}
-
-export const DEXES_SUPPORT_COLLECT_FEE: Record<EarnDex, boolean> = {
-  [EarnDex.DEX_UNISWAPV3]: true,
-  [EarnDex.DEX_PANCAKESWAPV3]: true,
-  [EarnDex.DEX_SUSHISWAPV3]: true,
-  [EarnDex.DEX_QUICKSWAPV3ALGEBRA]: true,
-  [EarnDex.DEX_CAMELOTV3]: true,
-  [EarnDex.DEX_THENAFUSION]: true,
-  [EarnDex.DEX_KODIAK_V3]: true,
-  [EarnDex.DEX_UNISWAPV2]: false,
-  [EarnDex.DEX_UNISWAP_V4]: true,
-  [EarnDex.DEX_UNISWAP_V4_FAIRFLOW]: true,
-  [EarnDex.DEX_PANCAKE_INFINITY_CL]: true,
-  [EarnDex.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: true,
+export const PROTOCOL_POSITION_URL: Record<Exchange, string> = {
+  [Exchange.DEX_UNISWAPV3]: 'https://app.uniswap.org/positions/v3/$chainName/$positionId',
+  [Exchange.DEX_SUSHISWAPV3]: 'https://www.sushi.com/$chainName/pool/v3/$poolAddress/$positionId',
+  [Exchange.DEX_PANCAKESWAPV3]: 'https://pancakeswap.finance/liquidity/$positionId',
+  [Exchange.DEX_QUICKSWAPV3ALGEBRA]: 'https://quickswap.exchange/#/pools',
+  [Exchange.DEX_CAMELOTV3]: 'https://app.camelot.exchange/positions',
+  [Exchange.DEX_THENAFUSION]: 'https://thena.fi/pools/$poolAddress',
+  [Exchange.DEX_KODIAK_V3]: 'https://app.kodiak.finance/#/liquidity/v3/$positionId',
+  [Exchange.DEX_UNISWAPV2]: 'https://app.uniswap.org/positions/v2/$chainName/$poolAddress',
+  [Exchange.DEX_UNISWAP_V4]: 'https://app.uniswap.org/positions/v4/$chainName/$positionId',
+  [Exchange.DEX_UNISWAP_V4_FAIRFLOW]: 'https://app.uniswap.org/positions/v4/$chainName/$positionId',
+  [Exchange.DEX_PANCAKE_INFINITY_CL]: 'https://pancakeswap.finance/liquidity/position/infinityCl/$positionId',
+  [Exchange.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: 'https://pancakeswap.finance/liquidity/position/infinityCl/$positionId',
 }
 
 export const EXCHANGES_SUPPORT_COLLECT_FEE: Record<Exchange, boolean> = {
@@ -234,21 +202,6 @@ export enum CoreProtocol {
   AlgebraIntegral,
 }
 
-export const PROTOCOLS_CORE_MAPPING: Record<EarnDex, CoreProtocol> = {
-  [EarnDex.DEX_UNISWAPV3]: CoreProtocol.UniswapV3,
-  [EarnDex.DEX_PANCAKESWAPV3]: CoreProtocol.UniswapV3,
-  [EarnDex.DEX_SUSHISWAPV3]: CoreProtocol.UniswapV3,
-  [EarnDex.DEX_QUICKSWAPV3ALGEBRA]: CoreProtocol.AlgebraV1,
-  [EarnDex.DEX_CAMELOTV3]: CoreProtocol.AlgebraV19,
-  [EarnDex.DEX_THENAFUSION]: CoreProtocol.AlgebraV1,
-  [EarnDex.DEX_KODIAK_V3]: CoreProtocol.UniswapV3,
-  [EarnDex.DEX_UNISWAPV2]: CoreProtocol.UniswapV2,
-  [EarnDex.DEX_UNISWAP_V4]: CoreProtocol.UniswapV4,
-  [EarnDex.DEX_UNISWAP_V4_FAIRFLOW]: CoreProtocol.UniswapV4,
-  [EarnDex.DEX_PANCAKE_INFINITY_CL]: CoreProtocol.UniswapV4,
-  [EarnDex.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: CoreProtocol.UniswapV4,
-}
-
 export const EXCHANGES_CORE_PROTOCOL_MAPPING: Record<Exchange, CoreProtocol> = {
   [Exchange.DEX_UNISWAPV3]: CoreProtocol.UniswapV3,
   [Exchange.DEX_PANCAKESWAPV3]: CoreProtocol.UniswapV3,
@@ -264,19 +217,19 @@ export const EXCHANGES_CORE_PROTOCOL_MAPPING: Record<Exchange, CoreProtocol> = {
   [Exchange.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: CoreProtocol.UniswapV4,
 }
 
-export const DEXES_WITH_VERSION: Record<EarnDex, boolean> = {
-  [EarnDex.DEX_UNISWAPV2]: true,
-  [EarnDex.DEX_UNISWAPV3]: true,
-  [EarnDex.DEX_UNISWAP_V4]: true,
-  [EarnDex.DEX_UNISWAP_V4_FAIRFLOW]: true,
-  [EarnDex.DEX_PANCAKE_INFINITY_CL]: true,
-  [EarnDex.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: true,
-  [EarnDex.DEX_PANCAKESWAPV3]: true,
-  [EarnDex.DEX_SUSHISWAPV3]: true,
-  [EarnDex.DEX_QUICKSWAPV3ALGEBRA]: true,
-  [EarnDex.DEX_CAMELOTV3]: true,
-  [EarnDex.DEX_THENAFUSION]: false,
-  [EarnDex.DEX_KODIAK_V3]: false,
+export const DEXES_WITH_VERSION: Record<Exchange, boolean> = {
+  [Exchange.DEX_UNISWAPV2]: true,
+  [Exchange.DEX_UNISWAPV3]: true,
+  [Exchange.DEX_UNISWAP_V4]: true,
+  [Exchange.DEX_UNISWAP_V4_FAIRFLOW]: true,
+  [Exchange.DEX_PANCAKE_INFINITY_CL]: true,
+  [Exchange.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: true,
+  [Exchange.DEX_PANCAKESWAPV3]: true,
+  [Exchange.DEX_SUSHISWAPV3]: true,
+  [Exchange.DEX_QUICKSWAPV3ALGEBRA]: true,
+  [Exchange.DEX_CAMELOTV3]: true,
+  [Exchange.DEX_THENAFUSION]: false,
+  [Exchange.DEX_KODIAK_V3]: false,
 }
 
 export const FARMING_SUPPORTED_CHAINS: Record<EarnChain, boolean> = {

@@ -5,7 +5,7 @@ import { defaultAbiCoder as abiEncoder, keccak256, solidityPack } from 'ethers/l
 import StateViewABI from 'constants/abis/earn/uniswapv4StateViewAbi.json'
 import { ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
 import { ClaimInfo } from 'pages/Earns/components/ClaimModal'
-import { CoreProtocol, EarnDex, UNISWAPV4_STATEVIEW_CONTRACT, UNWRAP_WNATIVE_TOKEN_FUNC } from 'pages/Earns/constants'
+import { CoreProtocol, Exchange, UNISWAPV4_STATEVIEW_CONTRACT, UNWRAP_WNATIVE_TOKEN_FUNC } from 'pages/Earns/constants'
 import { ParsedPosition } from 'pages/Earns/types'
 import { getNftManagerContract, getNftManagerContractAddress, isForkFrom } from 'pages/Earns/utils'
 import { getReadingContractWithCustomChain } from 'utils/getContract'
@@ -45,7 +45,15 @@ export const getUnclaimedFeesInfo = async (position: ParsedPosition) => {
   }
 }
 
-const getUniv3UnclaimedFees = async ({ tokenId, dex, chainId }: { tokenId: string; dex: EarnDex; chainId: number }) => {
+const getUniv3UnclaimedFees = async ({
+  tokenId,
+  dex,
+  chainId,
+}: {
+  tokenId: string
+  dex: Exchange
+  chainId: number
+}) => {
   const contract = getNftManagerContract(dex, chainId)
   if (!contract) return { balance0: 0, balance1: 0 }
 
@@ -74,7 +82,7 @@ const getUniv4UnclaimedFees = async ({
   poolAddress,
 }: {
   tokenId: number | string
-  dex: EarnDex
+  dex: Exchange
   chainId: number
   poolAddress: string
 }) => {
@@ -151,7 +159,7 @@ export const getUniv3CollectCallData = async ({
 }) => {
   if (!claimInfo || !recipient) return
 
-  const contract = getNftManagerContract(claimInfo.dex as EarnDex, claimInfo.chainId)
+  const contract = getNftManagerContract(claimInfo.dex as Exchange, claimInfo.chainId)
   if (!contract) return
 
   const tokenId = claimInfo.nftId
@@ -204,7 +212,7 @@ export const getUniv4CollectCallData = async ({
 }) => {
   if (!claimInfo || !recipient) return
 
-  const contract = getNftManagerContract(claimInfo.dex as EarnDex, claimInfo.chainId)
+  const contract = getNftManagerContract(claimInfo.dex as Exchange, claimInfo.chainId)
   if (!contract) return
 
   const token0 = claimInfo.tokens[0]

@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { NotificationType } from 'components/Announcement/type'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import ClaimModal, { ClaimInfo, ClaimType } from 'pages/Earns/components/ClaimModal'
-import { CoreProtocol, DEXES_SUPPORT_COLLECT_FEE } from 'pages/Earns/constants'
+import { CoreProtocol, EXCHANGES_SUPPORT_COLLECT_FEE } from 'pages/Earns/constants'
 import useCompounding from 'pages/Earns/hooks/useCompounding'
 import { ParsedPosition } from 'pages/Earns/types'
 import { getNftManagerContract, isForkFrom, submitTransaction } from 'pages/Earns/utils'
@@ -41,7 +41,7 @@ const useCollectFees = ({ refetchAfterCollect }: { refetchAfterCollect: () => vo
   })
 
   const handleClaim = useCallback(async () => {
-    if (!library || !claimInfo?.dex || !DEXES_SUPPORT_COLLECT_FEE[claimInfo.dex]) return
+    if (!library || !claimInfo?.dex || !EXCHANGES_SUPPORT_COLLECT_FEE[claimInfo.dex]) return
 
     const contract = getNftManagerContract(claimInfo.dex, claimInfo.chainId)
     if (!contract) return

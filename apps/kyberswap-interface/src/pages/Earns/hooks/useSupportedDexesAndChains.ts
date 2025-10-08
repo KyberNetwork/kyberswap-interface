@@ -3,7 +3,7 @@ import { PoolQueryParams, useSupportedProtocolsQuery } from 'services/zapEarn'
 
 import useChainsConfig from 'hooks/useChainsConfig'
 import { MenuOption } from 'pages/Earns/components/DropdownMenu'
-import { EarnDex, earnSupportedChains, earnSupportedProtocols } from 'pages/Earns/constants'
+import { Exchange, earnSupportedChains, earnSupportedExchanges } from 'pages/Earns/constants'
 import { PositionFilter } from 'pages/Earns/types'
 
 export const AllChainsOption: MenuOption = { label: 'All Chains', value: '' }
@@ -19,13 +19,13 @@ const CHAIN_PRIORITY_ORDER = [
 ]
 
 const DEX_PRIORITY_ORDER = [
-  EarnDex.DEX_UNISWAP_V4,
-  EarnDex.DEX_UNISWAP_V4_FAIRFLOW,
-  EarnDex.DEX_UNISWAPV3,
-  EarnDex.DEX_UNISWAPV2,
-  EarnDex.DEX_PANCAKESWAPV3,
-  EarnDex.DEX_SUSHISWAPV3,
-  EarnDex.DEX_QUICKSWAPV3ALGEBRA,
+  Exchange.DEX_UNISWAP_V4,
+  Exchange.DEX_UNISWAP_V4_FAIRFLOW,
+  Exchange.DEX_UNISWAPV3,
+  Exchange.DEX_UNISWAPV2,
+  Exchange.DEX_PANCAKESWAPV3,
+  Exchange.DEX_SUSHISWAPV3,
+  Exchange.DEX_QUICKSWAPV3ALGEBRA,
 ]
 
 const useSupportedDexesAndChains = (filters: PoolQueryParams | PositionFilter) => {
@@ -95,10 +95,10 @@ const useSupportedDexesAndChains = (filters: PoolQueryParams | PositionFilter) =
         })
 
     parsedProtocols = parsedProtocols
-      .filter(protocol => earnSupportedProtocols.includes(protocol.label))
+      .filter(protocol => earnSupportedExchanges.includes(protocol.value))
       .sort((a, b) => {
-        const aIndex = DEX_PRIORITY_ORDER.indexOf(a.label as EarnDex)
-        const bIndex = DEX_PRIORITY_ORDER.indexOf(b.label as EarnDex)
+        const aIndex = DEX_PRIORITY_ORDER.indexOf(a.label as Exchange)
+        const bIndex = DEX_PRIORITY_ORDER.indexOf(b.label as Exchange)
 
         // If both DEXes are in priority order, sort by their priority
         if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex

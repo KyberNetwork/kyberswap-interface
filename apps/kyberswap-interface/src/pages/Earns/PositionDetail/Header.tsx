@@ -16,7 +16,7 @@ import { NavigateButton } from 'pages/Earns/PoolExplorer/styles'
 import { DexInfo, IconArrowLeft, PositionHeader } from 'pages/Earns/PositionDetail/styles'
 import { Badge, BadgeType, ImageContainer } from 'pages/Earns/UserPositions/styles'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
-import { CoreProtocol, EarnDex, Exchange, PROTOCOL_POSITION_URL, earnSupportedProtocols } from 'pages/Earns/constants'
+import { CoreProtocol, Exchange, PROTOCOL_POSITION_URL, earnSupportedExchanges } from 'pages/Earns/constants'
 import useForceLoading from 'pages/Earns/hooks/useForceLoading'
 import { ParsedPosition, PositionStatus } from 'pages/Earns/types'
 import { isForkFrom } from 'pages/Earns/utils'
@@ -43,17 +43,17 @@ const PositionDetailHeader = ({
   const posStatus = isUniv2 ? PositionStatus.IN_RANGE : position?.status
 
   const onOpenPositionInDexSite = () => {
-    if (!position || !earnSupportedProtocols.includes(position.dex.id)) return
+    if (!position || !earnSupportedExchanges.includes(position.dex.id)) return
 
     const positionDetailUrl = PROTOCOL_POSITION_URL[position.dex.id]
 
     if (!positionDetailUrl) return
 
     const protocolThatNeedParse = [
-      EarnDex.DEX_UNISWAPV2,
-      EarnDex.DEX_UNISWAPV3,
-      EarnDex.DEX_UNISWAP_V4,
-      EarnDex.DEX_UNISWAP_V4_FAIRFLOW,
+      Exchange.DEX_UNISWAPV2,
+      Exchange.DEX_UNISWAPV3,
+      Exchange.DEX_UNISWAP_V4,
+      Exchange.DEX_UNISWAP_V4_FAIRFLOW,
     ]
     const parsedUrl = positionDetailUrl
       .replace(
@@ -162,14 +162,14 @@ const PositionDetailHeader = ({
             <PositionSkeleton width={150} height={16} />
           ) : (
             <MouseoverTooltipDesktopOnly
-              text={`View this position on ${position?.dex.id.split(' ')?.[0] || ''}`}
+              text={`View this position on ${position?.dex?.name?.split(' ')?.[0] || ''}`}
               width="fit-content"
               placement="top"
             >
-              <DexInfo openable={earnSupportedProtocols.includes(position?.dex.id)} onClick={onOpenPositionInDexSite}>
+              <DexInfo openable={earnSupportedExchanges.includes(position?.dex.id)} onClick={onOpenPositionInDexSite}>
                 <TokenLogo src={position?.dex.logo} size={16} />
                 <Text fontSize={14} color={theme.subText}>
-                  {position?.dex.id}
+                  {position?.dex.name}
                 </Text>
               </DexInfo>
             </MouseoverTooltipDesktopOnly>

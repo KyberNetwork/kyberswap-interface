@@ -28,7 +28,7 @@ import {
 import useFilter, { SortBy } from 'pages/Earns/UserPositions/useFilter'
 import { default as MultiSelectDropdownMenu } from 'pages/Earns/components/DropdownMenu/MultiSelect'
 import { ItemIcon } from 'pages/Earns/components/DropdownMenu/styles'
-import { earnSupportedChains, earnSupportedExchanges, protocolGroupNameToExchangeMapping } from 'pages/Earns/constants'
+import { earnSupportedChains, earnSupportedExchanges } from 'pages/Earns/constants'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import useClosedPositions from 'pages/Earns/hooks/useClosedPositions'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
@@ -183,7 +183,7 @@ const UserPositions = () => {
 
     if (filters.protocols) {
       result = result.filter(position => {
-        return filters.protocols?.split(',').includes(protocolGroupNameToExchangeMapping[position.dex.id])
+        return filters.protocols?.split(',').includes(position.dex.id)
       })
     }
 
@@ -222,9 +222,7 @@ const UserPositions = () => {
     unfinalizedPositions = unfinalizedPositions.filter(
       position =>
         (filters.chainIds ? filters.chainIds.split(',').includes(position.chain.id.toString()) : true) &&
-        (filters.protocols
-          ? filters.protocols.split(',').includes(protocolGroupNameToExchangeMapping[position.dex.id])
-          : true) &&
+        (filters.protocols ? filters.protocols.split(',').includes(position.dex.id) : true) &&
         (filters.status.includes(PositionStatus.IN_RANGE) || filters.status.includes(PositionStatus.OUT_RANGE)),
     )
 
