@@ -1,7 +1,9 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
+import { SMART_EXIT_API_URL } from 'constants/env'
 import { RTK_QUERY_TAGS } from 'constants/index'
+import { OrderStatus } from 'pages/Earns/SmartExit/useSmartExitFilter'
 
 export interface SmartExitOrder {
   id: string
@@ -23,17 +25,15 @@ export interface SmartExitOrder {
       }>
     }
   }
-  status: 'open' | 'done' | 'cancelled' | 'expired'
+  status: OrderStatus
   createdAt: number
   updatedAt: number
   deadline: number
 }
 
-const SMART_EXIT_API_URL = 'https://pre-conditional-order.kyberengineering.io/api/v1/orders/smart-exit'
-
 const smartExitApi = createApi({
   reducerPath: 'smartExitApi',
-  baseQuery: fetchBaseQuery({ baseUrl: '' }),
+  baseQuery: fetchBaseQuery({ baseUrl: SMART_EXIT_API_URL }),
   tagTypes: [RTK_QUERY_TAGS.GET_SMART_EXIT_ORDERS],
   endpoints: builder => ({
     getSmartExitOrders: builder.query<
@@ -54,7 +54,7 @@ const smartExitApi = createApi({
       }
     >({
       query: ({ chainIds, dexTypes, userWallet, status, page = 1, pageSize = 10 }) => ({
-        url: SMART_EXIT_API_URL,
+        url: '/v1/orders/smart-exit',
         params: {
           userWallet,
           ...(status && { status }),
@@ -112,7 +112,7 @@ const smartExitApi = createApi({
       }
     >({
       query: body => ({
-        url: SMART_EXIT_API_URL,
+        url: '/v1/orders/smart-exit',
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -158,7 +158,7 @@ const smartExitApi = createApi({
       }
     >({
       query: body => ({
-        url: `${SMART_EXIT_API_URL}/sign-message`,
+        url: '/v1/orders/smart-exit/sign-message',
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -186,7 +186,7 @@ const smartExitApi = createApi({
       }
     >({
       query: body => ({
-        url: `${SMART_EXIT_API_URL}/cancel/sign-message`,
+        url: `/v1/orders/smart-exit/cancel/sign-message`,
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -208,7 +208,7 @@ const smartExitApi = createApi({
       }
     >({
       query: body => ({
-        url: `${SMART_EXIT_API_URL}/cancel`,
+        url: `/v1/orders/smart-exit/cancel`,
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

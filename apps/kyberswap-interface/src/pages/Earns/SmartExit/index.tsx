@@ -31,10 +31,9 @@ import { friendlyError } from 'utils/errorMessage'
 
 import { PoolPageWrapper, TableWrapper } from '../PoolExplorer/styles'
 import { earnSupportedChains, earnSupportedExchanges } from '../constants'
-import useSupportedDexesAndChains from '../hooks/useSupportedDexesAndChains'
 import { PositionStatus } from '../types'
 import Filter from './Filter'
-import useSmartExitFilter from './useSmartExitFilter'
+import useSmartExitFilter, { OrderStatus } from './useSmartExitFilter'
 
 const Trash = styled.div`
   width: 20px;
@@ -69,7 +68,6 @@ const SmartExit = () => {
   const notify = useNotify()
 
   const { filters, updateFilters } = useSmartExitFilter()
-  const { supportedDexes, supportedChains } = useSupportedDexesAndChains(filters)
 
   const [showCancelConfirm, setShowCancelConfirm] = useState<SmartExitOrder | null>(null)
   const [removing, setRemoving] = useState(false)
@@ -189,8 +187,6 @@ const SmartExit = () => {
       </Flex>
 
       <Filter
-        supportedChains={supportedChains}
-        supportedDexes={supportedDexes}
         filters={filters}
         updateFilters={(...args) => {
           updateFilters(...args)
@@ -217,13 +213,7 @@ const SmartExit = () => {
           <Flex justifyContent="center" padding="20px">
             <LocalLoader />
           </Flex>
-        ) : ordersError ? (
-          <Flex justifyContent="center" padding="20px">
-            <Text color="red">
-              <Trans>Error loading orders</Trans>
-            </Text>
-          </Flex>
-        ) : orders.length === 0 ? (
+        ) : ordersError || orders?.length === 0 ? (
           <Flex justifyContent="center" padding="20px">
             <Text color="subText">
               <Trans>No smart exit orders found</Trans>
@@ -364,18 +354,18 @@ const SmartExit = () => {
               <Badge
                 style={{ height: 'max-content' }}
                 type={
-                  order.status === 'open'
+                  order.status === OrderStatus.OrderStatusOpen
                     ? BadgeType.PRIMARY
-                    : order.status === 'done'
+                    : order.status === OrderStatus.OrderStatusDone
                     ? BadgeType.SECONDARY
-                    : order.status === 'cancelled'
+                    : order.status === OrderStatus.OrderStatusCancelled
                     ? BadgeType.DISABLED
                     : BadgeType.WARNING
                 }
               >
-                {order.status === 'open'
+                {order.status === OrderStatus.OrderStatusOpen
                   ? 'Active'
-                  : order.status === 'done'
+                  : order.status === OrderStatus.OrderStatusDone
                   ? 'Executed'
                   : order.status.charAt(0).toUpperCase() + order.status.slice(1)}
               </Badge>
@@ -417,7 +407,7 @@ const SmartExit = () => {
                   {condition}
                   <Flex justifyContent="space-between" alignItems="center">
                     {status}
-                    {order.status === 'open' ? actionDelete : <div />}
+                    {order.status === OrderStatus.OrderStatusOpen ? actionDelete : <div />}
                   </Flex>
                 </Flex>
               )
@@ -429,7 +419,7 @@ const SmartExit = () => {
                 {condition}
 
                 <Flex justifyContent="center">{status}</Flex>
-                {order.status === 'open' ? actionDelete : <div />}
+                {order.status === OrderStatus.OrderStatusOpen ? actionDelete : <div />}
               </TableRow>
             )
           })

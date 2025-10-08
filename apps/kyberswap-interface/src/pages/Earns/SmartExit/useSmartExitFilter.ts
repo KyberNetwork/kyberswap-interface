@@ -32,7 +32,7 @@ export default function useSmartExitFilter() {
   const filters: SmartExitFilter = useMemo(
     () => ({
       chainIds: searchParams.get('chainIds') || '',
-      dexType: searchParams.get('dexTypes') || '',
+      dexTypes: searchParams.get('dexTypes') || '',
       status: searchParams.get('status') || OrderStatus.OrderStatusOpen,
       // q: searchParams.get('q') || '',
       // sortBy: searchParams.get('sortBy') || SortBy.VALUE,
