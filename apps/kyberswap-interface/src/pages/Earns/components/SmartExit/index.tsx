@@ -27,6 +27,10 @@ const Content = styled.div`
   display: flex;
   flex-direction: row;
   gap: 20px;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    flex-direction: column;
+  `}
 `
 
 const Box = styled.div`

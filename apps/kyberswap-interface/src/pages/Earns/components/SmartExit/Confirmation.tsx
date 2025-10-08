@@ -1,19 +1,25 @@
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { X } from 'react-feather'
+import { useNavigate } from 'react-router'
 import { Box, Flex, Text } from 'rebass'
 
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
+import { CheckCircle } from 'components/Icons'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
-import { TIMES_IN_SECS } from 'constants/index'
+import { APP_PATHS, TIMES_IN_SECS } from 'constants/index'
+import { useActiveWeb3React } from 'hooks'
 import { PermitNftState, usePermitNft } from 'hooks/usePermitNft'
 import useTheme from 'hooks/useTheme'
+import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { Badge, ChainImage, ImageContainer } from 'pages/Earns/UserPositions/styles'
 import { ParsedPosition } from 'pages/Earns/types'
 
 import { Metric } from './Metrics'
 import { useSmartExit } from './useSmartExit'
+
+const SMART_EXIT_ADDRESS = '0x0fa805F0c8Dd1DD0e2168320558D74c952816ae5'
 
 export const Confirmation = ({
   selectedMetrics,
@@ -36,6 +42,9 @@ export const Confirmation = ({
 }) => {
   const theme = useTheme()
 
+  const { chainId } = useActiveWeb3React()
+  const { changeNetwork } = useChangeNetwork()
+
   const today = new Date()
   today.setUTCHours(0, 0, 0, 0)
   const time = [7 * TIMES_IN_SECS.ONE_DAY, 30 * TIMES_IN_SECS.ONE_DAY, 90 * TIMES_IN_SECS.ONE_DAY].includes(expireTime)
@@ -45,8 +54,7 @@ export const Confirmation = ({
   const { permitState, signPermitNft, permitData } = usePermitNft({
     contractAddress: pos.id.split('-')[0],
     tokenId: pos.tokenId,
-    // TODO
-    spender: '0xCa611DEb2914056D392bF77e13aCD544334dD957',
+    spender: SMART_EXIT_ADDRESS,
     deadline: time,
   })
 
@@ -66,6 +74,44 @@ export const Confirmation = ({
 
   const [condition0, condition1] = selectedMetrics
 
+  const navigate = useNavigate()
+
+  if (isSuccess)
+    return (
+      <>
+        <Flex justifyContent="space-between" alignItems="center">
+          <div></div>
+          <X onClick={onDismiss} />
+        </Flex>
+
+        <Flex justifyContent="center" alignItems="center" sx={{ gap: '8px' }} fontSize={20} fontWeight={500}>
+          <CheckCircle color={theme.primary} size="20px" />
+
+          <Text>
+            <Trans>Condition saved</Trans>
+          </Text>
+        </Flex>
+
+        <Text mt="24px" color={theme.subText} fontSize={14}>
+          <Trans>Your Smart Exit condition has been created successfully.</Trans>
+        </Text>
+
+        <Flex sx={{ gap: '12px' }} mt="24px">
+          <ButtonOutlined onClick={onDismiss} flex={1}>
+            <Trans>Cancel</Trans>
+          </ButtonOutlined>
+          <ButtonPrimary
+            flex={1}
+            onClick={() => {
+              navigate(APP_PATHS.EARN_SMART_EXIT)
+            }}
+          >
+            <Trans>View All Condition(s)</Trans>
+          </ButtonPrimary>
+        </Flex>
+      </>
+    )
+
   return (
     <>
       <Flex justifyContent="space-between" alignItems="center">
@@ -75,7 +121,7 @@ export const Confirmation = ({
         <X onClick={onDismiss} />
       </Flex>
 
-      <Flex mt="1rem" alignItems="center">
+      <Flex mt="1rem" alignItems="center" flexWrap="wrap">
         <Trans>Exit</Trans>
         <Flex mx="12px" alignItems="center">
           <ImageContainer>
@@ -186,46 +232,36 @@ export const Confirmation = ({
         </Trans>
       </Text>
 
-      {isSuccess ? (
-        <Flex sx={{ gap: '12px' }} mt="16px">
-          <ButtonOutlined
-            onClick={() => {
-              // TODO: Navigate to orders page or open order details
-              console.log('View order clicked')
-            }}
-            flex={1}
-          >
-            <Trans>View Order</Trans>
-          </ButtonOutlined>
-          <ButtonPrimary onClick={onDismiss} flex={1}>
-            <Trans>Close</Trans>
-          </ButtonPrimary>
-        </Flex>
-      ) : (
-        <ButtonPrimary
-          disabled={permitState === PermitNftState.SIGNING || isCreating}
-          onClick={async () => {
-            if (permitState === PermitNftState.SIGNED && permitData) {
-              // Create smart exit order
-              await createSmartExitOrder()
-              return
-            }
-            if (permitState === PermitNftState.READY_TO_SIGN) {
-              await signPermitNft()
-            }
-          }}
-        >
-          {isCreating ? (
-            <Trans>Creating Order...</Trans>
-          ) : permitState === PermitNftState.SIGNED ? (
-            <Trans>Confirm Smart Exit</Trans>
-          ) : permitState === PermitNftState.SIGNING ? (
-            <Trans>Signing...</Trans>
-          ) : (
-            <Trans>Permit NFT</Trans>
-          )}
-        </ButtonPrimary>
-      )}
+      <ButtonPrimary
+        disabled={permitState === PermitNftState.SIGNING || isCreating}
+        onClick={async () => {
+          if (chainId !== pos.chain.id) {
+            changeNetwork(pos.chain.id)
+            return
+          }
+
+          if (permitState === PermitNftState.SIGNED && permitData) {
+            // Create smart exit order
+            await createSmartExitOrder()
+            return
+          }
+          if (permitState === PermitNftState.READY_TO_SIGN) {
+            await signPermitNft()
+          }
+        }}
+      >
+        {chainId !== pos.chain.id ? (
+          <Trans>Switch Network</Trans>
+        ) : isCreating ? (
+          <Trans>Creating Order...</Trans>
+        ) : permitState === PermitNftState.SIGNED ? (
+          <Trans>Confirm Smart Exit</Trans>
+        ) : permitState === PermitNftState.SIGNING ? (
+          <Trans>Signing...</Trans>
+        ) : (
+          <Trans>Permit NFT</Trans>
+        )}
+      </ButtonPrimary>
     </>
   )
 }

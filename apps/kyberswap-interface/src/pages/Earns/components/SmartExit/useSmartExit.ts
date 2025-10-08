@@ -3,6 +3,7 @@ import { useCallback, useState } from 'react'
 import { useGetSmartExitSignMessageMutation } from 'services/smartExit'
 
 import { NotificationType } from 'components/Announcement/type'
+import { SMART_EXIT_API_URL } from 'constants/env'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useReadingContract } from 'hooks/useContract'
 import { DexType } from 'pages/Earns/SmartExit/useSmartExitFilter'
@@ -56,9 +57,6 @@ export enum SmartExitState {
   SUCCESS = 'success',
   ERROR = 'error',
 }
-
-// TODO: move to env
-const SMART_EXIT_API_URL = 'https://pre-conditional-order.kyberengineering.io/api/v1/orders/smart-exit'
 
 // Position Manager ABI for liquidity fetching
 const POSITION_MANAGER_ABI = [
@@ -239,7 +237,7 @@ export const useSmartExit = ({
 
       console.log('Creating smart exit order with params:', orderParams)
 
-      const response = await fetch(SMART_EXIT_API_URL, {
+      const response = await fetch(`${SMART_EXIT_API_URL}/v1/orders/smart-exit`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
