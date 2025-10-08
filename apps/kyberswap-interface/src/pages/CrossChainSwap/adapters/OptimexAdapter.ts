@@ -113,6 +113,8 @@ export class OptimexAdapter extends BaseSwapAdapter {
       throw new Error(`Optimex does not support ${!fromTokenId ? params.fromToken.symbol : params.toToken.symbol}`)
     }
 
+    const userRefundPubkey = params.fromChain === NonEvmChain.Bitcoin ? params.publicKey : params.sender
+
     const [quoteRes, estimateRes, token0Usd, token1Usd] = await Promise.all([
       fetch(`${OPTIMEX_API}/solver/indicative-quote`, {
         method: 'POST',
@@ -125,6 +127,9 @@ export class OptimexAdapter extends BaseSwapAdapter {
           from_token_id: fromTokenId,
           to_token_id: toTokenId,
           affiliate_fee_bps: params.feeBps.toString(),
+          from_user_address: params.sender,
+          user_receiving_address: params.recipient,
+          user_refund_pubkey: userRefundPubkey,
         }),
       }).then(res => res.json()),
       fetch(`${OPTIMEX_API}/trades/estimate?from_token=${fromTokenId}&to_token=${toTokenId}`).then(res => res.json()),
@@ -159,7 +164,7 @@ export class OptimexAdapter extends BaseSwapAdapter {
             10_000n
           ).toString(),
           to_user_address: params.recipient,
-          user_refund_pubkey: params.fromChain === NonEvmChain.Bitcoin ? params.publicKey : params.sender,
+          user_refund_pubkey: userRefundPubkey,
           user_refund_address: params.sender,
           creator_public_key: params.fromChain === NonEvmChain.Bitcoin ? params.publicKey : params.sender,
           from_wallet_address: params.sender,
