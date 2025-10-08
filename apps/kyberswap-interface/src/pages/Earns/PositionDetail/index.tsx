@@ -44,6 +44,7 @@ import useKemRewards from 'pages/Earns/hooks/useKemRewards'
 import useReduceFetchInterval from 'pages/Earns/hooks/useReduceFetchInterval'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import { FeeInfo, PAIR_CATEGORY, ParsedPosition, PositionStatus, SuggestedPool } from 'pages/Earns/types'
+import { getNftManagerContract } from 'pages/Earns/utils'
 import { getUnclaimedFeesInfo } from 'pages/Earns/utils/fees'
 import { checkEarlyPosition, parsePosition } from 'pages/Earns/utils/position'
 import { getUnfinalizedPositions } from 'pages/Earns/utils/unfinalizedPosition'
@@ -86,6 +87,7 @@ const PositionDetail = () => {
   const [feeInfoFromRpc, setFeeInfoFromRpc] = useState<FeeInfo | undefined>()
   const [shareInfo, setShareInfo] = useState<ShareModalProps | undefined>()
   const [positionToMigrate, setPositionToMigrate] = useState<ParsedPosition | null>(null)
+  const [positionOwnerAddress, setPositionOwnerAddress] = useState<string | null>(null)
 
   const loadingInterval = isFetching
   const initialLoading = !!(forceLoading || (isLoading && !firstLoading.current))
@@ -235,6 +237,24 @@ const PositionDetail = () => {
     [checkClosedPosition, refetch],
   )
 
+  useEffect(() => {
+    if (!position) return
+    const fetchOwner = async () => {
+      try {
+        const contract = getNftManagerContract(position.dex.id, position.chain.id)
+        if (contract) {
+          const owner = await contract.ownerOf(position.tokenId)
+          setPositionOwnerAddress(owner)
+        }
+      } catch (error) {
+        console.error('Failed to fetch position owner', error)
+        setPositionOwnerAddress(null)
+      }
+    }
+    fetchOwner()
+  }, [position])
+
+  const isNotAccountOwner = !!positionOwnerAddress && !!account && positionOwnerAddress !== account
   const isFarmingPossible = POSSIBLE_FARMING_PROTOCOLS.includes(protocol as Exchange)
   const isUnfinalized = position?.isUnfinalized
   const isStablePair = position?.pool.category === PAIR_CATEGORY.STABLE
@@ -434,30 +454,43 @@ const PositionDetail = () => {
         {!!position || initialLoading ? (
           <>
             <PositionDetailHeader isLoading={loadingInterval} initialLoading={initialLoading} position={position} />
-            {!position?.pool.isFarming &&
-              (!!position?.suggestionPool ||
-                (isStablePair && farmingPoolsByChain[position.chain.id]?.pools.length > 0)) &&
-              position.status !== PositionStatus.CLOSED && (
+
+            <Flex flexDirection={'column'} sx={{ gap: '12px' }}>
+              {!position?.pool.isFarming &&
+                (!!position?.suggestionPool ||
+                  (isStablePair && farmingPoolsByChain[position.chain.id]?.pools.length > 0)) &&
+                position.status !== PositionStatus.CLOSED && (
+                  <MigrationLiquidityRecommend>
+                    <Text color={'#fafafa'} lineHeight={'18px'}>
+                      {!!position.suggestionPool
+                        ? position.pool.fee === position.suggestionPool.feeTier
+                          ? t`Earn extra rewards with exact same pair and fee tier on Uniswap v4 hook.`
+                          : t`We found a pool with the same pair offering extra rewards. Migrate to this pool on Uniswap v4 hook to start earning farming rewards.`
+                        : t`We found other stable pools offering extra rewards. Explore and migrate to start earning.`}
+                    </Text>
+                    <Text color={theme.primary} sx={{ cursor: 'pointer' }} onClick={handleMigrateToKem}>
+                      {!!position.suggestionPool ? t`Migrate` : t`View Pools`} →
+                    </Text>
+                  </MigrationLiquidityRecommend>
+                )}
+
+              {isNotAccountOwner && (
                 <MigrationLiquidityRecommend>
                   <Text color={'#fafafa'} lineHeight={'18px'}>
-                    {!!position.suggestionPool
-                      ? position.pool.fee === position.suggestionPool.feeTier
-                        ? t`Earn extra rewards with exact same pair and fee tier on Uniswap v4 hook.`
-                        : t`We found a pool with the same pair offering extra rewards. Migrate to this pool on Uniswap v4 hook to start earning farming rewards.`
-                      : t`We found other stable pools offering extra rewards. Explore and migrate to start earning.`}
-                  </Text>
-                  <Text color={theme.primary} sx={{ cursor: 'pointer' }} onClick={handleMigrateToKem}>
-                    {!!position.suggestionPool ? t`Migrate` : t`View Pools`} →
+                    {t`This position is currently being used in another protocol. Fee claim and liquidity actions are unavailable.`}
                   </Text>
                 </MigrationLiquidityRecommend>
               )}
+            </Flex>
+
             <PositionDetailWrapper>
               <LeftSection
-                initialLoading={initialLoading}
                 position={position}
                 onFetchUnclaimedFee={handleFetchUnclaimedFee}
                 totalLiquiditySection={totalLiquiditySection}
                 aprSection={aprSection}
+                initialLoading={initialLoading}
+                isNotAccountOwner={isNotAccountOwner}
                 shareBtn={shareBtn}
                 refetchPositions={refetch}
               />
@@ -466,8 +499,10 @@ const PositionDetail = () => {
                 onOpenZapMigration={handleOpenZapMigration}
                 totalLiquiditySection={totalLiquiditySection}
                 aprSection={aprSection}
-                onRefreshPosition={onRefreshPosition}
                 initialLoading={initialLoading}
+                isNotAccountOwner={isNotAccountOwner}
+                positionOwnerAddress={positionOwnerAddress}
+                onRefreshPosition={onRefreshPosition}
                 triggerClose={triggerClose}
                 setTriggerClose={setTriggerClose}
                 setReduceFetchInterval={setReduceFetchInterval}
