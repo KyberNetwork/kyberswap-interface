@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { Skeleton, Slider, TokenLogo } from '@kyber/ui';
+import { Skeleton, Slider, TokenLogo, TokenSymbol } from '@kyber/ui';
 import { formatDisplayNumber, formatTokenAmount, toRawString } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
 import { getPositionAmounts } from '@kyber/utils/uniswapv3';
@@ -99,7 +99,8 @@ export function LiquidityToRemove() {
           <>
             <div className="flex items-center text-base gap-1 text-text">
               <TokenLogo src={pool.token0.logo || ''} />
-              {formatTokenAmount(amount0ToRemove, pool.token0.decimals, 8)} {pool.token0.symbol}
+              {formatTokenAmount(amount0ToRemove, pool.token0.decimals, 8)}{' '}
+              <TokenSymbol symbol={pool.token0.symbol} maxWidth={120} />
             </div>
             <div className="text-xs text-subText">
               {formatDisplayNumber(
@@ -122,7 +123,8 @@ export function LiquidityToRemove() {
           <>
             <div className="flex items-center text-base gap-1 text-text">
               <TokenLogo src={pool.token1.logo || ''} />
-              {formatTokenAmount(amount1ToRemove, pool.token1.decimals, 8)} {pool.token1.symbol}
+              {formatTokenAmount(amount1ToRemove, pool.token1.decimals, 8)}{' '}
+              <TokenSymbol symbol={pool.token1.symbol} maxWidth={120} />
             </div>
             <div className="text-xs text-subText">
               {formatDisplayNumber(

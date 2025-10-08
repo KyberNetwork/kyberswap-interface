@@ -13,7 +13,7 @@ export default function TokenSymbol({
 }) {
   return (
     <MouseoverTooltip text={symbol} placement="top" width="fit-content">
-      <p className={cn('truncate', className)} style={{ maxWidth }}>
+      <p className={cn('truncate ks-ui-style', className)} style={{ maxWidth }}>
         {symbol}
       </p>
     </MouseoverTooltip>

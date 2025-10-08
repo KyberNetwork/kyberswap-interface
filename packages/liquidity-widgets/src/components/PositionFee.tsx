@@ -31,7 +31,7 @@ export const PositionFee = () => {
 
   const { fees } = feeInfo?.removeLiquidity || {};
   if (!pool || !fees) return null;
-  const poolTokens: Token[] = pool === 'loading' ? [] : [pool.token0, pool.token1];
+  const poolTokens: Token[] = !pool ? [] : [pool.token0, pool.token1];
 
   const feeToken0 = poolTokens.find(item => item.address.toLowerCase() === fees?.[0]?.address.toLowerCase());
   const feeToken1 = poolTokens.find(item => item.address.toLowerCase() === fees?.[1]?.address.toLowerCase());

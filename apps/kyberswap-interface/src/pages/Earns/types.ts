@@ -130,6 +130,7 @@ export const DEFAULT_PARSED_POSITION: ParsedPosition = {
     address: '',
     isUniv2: false,
     isFarming: false,
+    isFarmingLm: false,
     nativeToken: {
       symbol: '',
       decimal: 18,
@@ -222,6 +223,7 @@ export interface ParsedPosition {
     address: string
     isUniv2: boolean
     isFarming: boolean
+    isFarmingLm: boolean
     nativeToken: NativeToken
     tickSpacing: number
     category: PAIR_CATEGORY
