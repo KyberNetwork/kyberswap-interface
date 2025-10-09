@@ -1,5 +1,12 @@
 import { ChainId, Pool, PoolType, ZapRouteDetail } from '@kyber/schema';
 
+export enum ZapStatus {
+  INIT = 'init',
+  PENDING = 'pending',
+  SUCCESS = 'success',
+  FAILED = 'failed',
+}
+
 export interface WidgetProps {
   poolAddress: string;
   positionId: string;
@@ -13,6 +20,7 @@ export interface WidgetProps {
   initDepositTokens?: string;
   initAmounts?: string;
   compoundType?: 'COMPOUND_TYPE_REWARD';
+  zapStatus?: ZapStatus;
   onClose: () => void;
   onConnectWallet: () => void;
   onSwitchChain: () => void;

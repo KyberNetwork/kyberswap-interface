@@ -2,6 +2,7 @@ import {
   ChainId as CompoundingChainId,
   PoolType as CompoundingPoolType,
   CompoundingWidget,
+  ZapStatus,
 } from '@kyberswap/compounding-widget'
 import '@kyberswap/compounding-widget/dist/style.css'
 import { ChainId } from '@kyberswap/ks-sdk-core'
@@ -17,7 +18,7 @@ import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import { submitTransaction } from 'pages/Earns/utils'
 import { navigateToPositionAfterZap } from 'pages/Earns/utils/zap'
 import { useKyberSwapConfig, useNotify, useWalletModalToggle } from 'state/application/hooks'
-import { useTransactionAdder } from 'state/transactions/hooks'
+import { useAllTransactions, useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 
 interface CompoundingPureParams {
@@ -78,6 +79,7 @@ const useCompounding = ({
   onCloseClaimModal: () => void
 }) => {
   const addTransactionWithType = useTransactionAdder()
+  const allTransactions = useAllTransactions()
   const toggleWalletModal = useWalletModalToggle()
   const notify = useNotify()
   const navigate = useNavigate()
@@ -86,10 +88,24 @@ const useCompounding = ({
   const { changeNetwork } = useChangeNetwork()
 
   const [compoundingPureParams, setCompoundingPureParams] = useState<CompoundingPureParams | null>(null)
+  const [compoundingTxHash, setCompoundingTxHash] = useState<string | null>(null)
   const { rpc: compoundingRpcUrl } = useKyberSwapConfig(compoundingPureParams?.chainId as ChainId | undefined)
+
+  const compoundingStatus = useMemo(() => {
+    if (!compoundingTxHash) return ZapStatus.INIT
+
+    if (allTransactions && allTransactions[compoundingTxHash]) {
+      const zapTx = allTransactions[compoundingTxHash]
+      if (zapTx?.[0].receipt) {
+        return zapTx?.[0].receipt.status === 1 ? ZapStatus.SUCCESS : ZapStatus.FAILED
+      } else return ZapStatus.PENDING
+    }
+    return ZapStatus.PENDING
+  }, [allTransactions, compoundingTxHash])
 
   const handleCloseCompounding = useCallback(() => {
     setCompoundingPureParams(null)
+    setCompoundingTxHash(null)
   }, [])
 
   const handleNavigateToPosition = useCallback(
@@ -147,6 +163,7 @@ const useCompounding = ({
               chainId: chainId,
             },
             onConnectWallet: toggleWalletModal,
+            zapStatus: compoundingStatus,
             onSwitchChain: () => changeNetwork(compoundingPureParams.chainId as number),
             onViewPosition: (txHash: string) => {
               const { chainId, poolType, poolAddress, positionId } = compoundingPureParams
@@ -214,6 +231,7 @@ const useCompounding = ({
       toggleWalletModal,
       onCloseClaimModal,
       addTransactionWithType,
+      compoundingStatus,
     ],
   )
 

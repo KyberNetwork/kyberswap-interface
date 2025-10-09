@@ -3,18 +3,10 @@ import { useCallback, useEffect, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 import { useNftApproval } from '@kyber/hooks';
-import {
-  API_URLS,
-  CHAIN_ID_TO_CHAIN,
-  ChainId,
-  DEXES_INFO,
-  NETWORKS_INFO,
-  defaultToken,
-  univ3Types,
-} from '@kyber/schema';
+import { API_URLS, CHAIN_ID_TO_CHAIN, DEXES_INFO, NETWORKS_INFO, defaultToken, univ3Types } from '@kyber/schema';
 import { friendlyError, getNftManagerContractAddress } from '@kyber/utils';
-import { calculateGasMargin, estimateGas, isTransactionSuccessful } from '@kyber/utils/crypto';
-import { formatTokenAmount } from '@kyber/utils/number';
+import { calculateGasMargin, estimateGas } from '@kyber/utils/crypto';
+import { formatDisplayNumber, formatTokenAmount } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
 import ChevronLeftIcon from '@/assets/svg/chevron-left.svg';
@@ -33,6 +25,7 @@ import PriceRange from '@/components/PriceRange';
 import ReInvest from '@/components/ReInvest';
 import Setting from '@/components/Setting';
 import { ZAP_SOURCE } from '@/constants';
+import useTxStatus from '@/hooks/useTxStatus';
 import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
@@ -86,28 +79,7 @@ export default function Widget() {
   const [txHash, setTxHash] = useState('');
   const [attempTx, setAttempTx] = useState(false);
   const [txError, setTxError] = useState<Error | null>(null);
-  const [txStatus, setTxStatus] = useState<'success' | 'failed' | ''>('');
-
-  useEffect(() => {
-    if (txHash) {
-      const i = setInterval(
-        () => {
-          isTransactionSuccessful(rpcUrl, txHash).then(res => {
-            if (!res) return;
-
-            if (res.status) {
-              setTxStatus('success');
-            } else setTxStatus('failed');
-          });
-        },
-        chainId === ChainId.Ethereum ? 5_000 : 2_000,
-      );
-
-      return () => {
-        clearInterval(i);
-      };
-    }
-  }, [chainId, txHash, rpcUrl]);
+  const { txStatus } = useTxStatus({ txHash: txHash || undefined });
 
   const handleClick = useCallback(async () => {
     if (!snapshotState || attempTx || txError || pool === 'loading' || !position || position === 'loading') return;
@@ -149,12 +121,16 @@ export default function Widget() {
                 tokensIn: [
                   {
                     symbol: pool.token0.symbol,
-                    amount: formatTokenAmount(position.amount0, pool.token0.decimals, 6),
+                    amount: formatDisplayNumber(formatTokenAmount(position.amount0, pool.token0.decimals, 6), {
+                      significantDigits: 6,
+                    }),
                     logoUrl: pool.token0.logo,
                   },
                   {
                     symbol: pool.token1.symbol,
-                    amount: formatTokenAmount(position.amount1, pool.token1.decimals, 6),
+                    amount: formatDisplayNumber(formatTokenAmount(position.amount1, pool.token1.decimals, 6), {
+                      significantDigits: 6,
+                    }),
                     logoUrl: pool.token1.logo,
                   },
                 ],
@@ -165,7 +141,6 @@ export default function Widget() {
             setTxHash(txHash);
           } catch (e) {
             // setAttempTx(false);
-            setTxStatus('failed');
             setTxError(e as Error);
           }
         }
@@ -193,7 +168,6 @@ export default function Widget() {
     txStatusText = '';
     setTxHash('');
     setTxError(null);
-    setTxStatus('');
     setAttempTx(false);
   };
 
