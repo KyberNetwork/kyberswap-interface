@@ -70,14 +70,13 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
   }, [data, tokens, supportedChains, filters.chainIds])
 
   const handleClaim = useCallback(async () => {
-    if (!account || !claimInfo || !claimInfo.dex) return
-    if (!EARN_CHAINS[chainId as unknown as EarnChain]?.farmingSupported) return
-
-    setClaiming(true)
+    if (!account || !claimInfo || !claimInfo.dex || !EARN_CHAINS[chainId as unknown as EarnChain]?.farmingSupported)
+      return
 
     const positionManagerContract = getNftManagerContractAddress(claimInfo.dex, chainId)
     if (!positionManagerContract) return
 
+    setClaiming(true)
     const encodeData = await claimEncodeData({
       recipient: account,
       chainId,
@@ -227,6 +226,7 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
           value: tokenReward.claimableUsdValue,
         })),
       totalValue: rewardNftInfo.claimableUsdValue,
+      dex: position.dex.id,
     })
     setPosition(position)
   }
