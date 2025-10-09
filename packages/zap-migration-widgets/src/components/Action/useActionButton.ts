@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 
-import { DEXES_INFO, NETWORKS_INFO, univ2Types, univ4Types } from '@kyber/schema';
+import { DEXES_INFO, univ2Types, univ4Types } from '@kyber/schema';
 import { PI_LEVEL } from '@kyber/utils';
 import { estimateGasForTx } from '@kyber/utils/crypto/transaction';
 
@@ -69,6 +69,7 @@ export function useActionButton({
 }: UseActionButtonProps): UseActionButtonReturn {
   const {
     chainId,
+    rpcUrl,
     connectedAccount,
     sourcePoolType,
     targetPoolType,
@@ -78,6 +79,7 @@ export function useActionButton({
     rePositionMode,
   } = useWidgetStore([
     'chainId',
+    'rpcUrl',
     'connectedAccount',
     'sourcePoolType',
     'targetPoolType',
@@ -111,8 +113,6 @@ export function useActionButton({
 
   const nftManager = sourcePoolType ? DEXES_INFO[sourcePoolType].nftManagerContract : undefined;
   const targetNftManager = targetPoolType ? DEXES_INFO[targetPoolType].nftManagerContract : undefined;
-
-  const rpcUrl = NETWORKS_INFO[chainId].defaultRpc;
 
   const {
     isChecking,
