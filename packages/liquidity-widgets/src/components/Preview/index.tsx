@@ -93,7 +93,9 @@ export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool,
     const parsedTokensIn = validTokensIn.map((token, index) => ({
       symbol: token.symbol,
       logoUrl: token.logo,
-      amount: validAmountsIn[index],
+      amount: formatDisplayNumber(validAmountsIn[index], {
+        significantDigits: 6,
+      }),
     }));
 
     fetch(`${API_URLS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/in/route/build`, {

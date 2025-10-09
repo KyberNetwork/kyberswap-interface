@@ -4,6 +4,7 @@ import {
   LiquidityWidget as ZapIn,
   ChainId as ZapInChainId,
   PoolType as ZapInPoolType,
+  ZapStatus,
 } from '@kyberswap/liquidity-widgets'
 import '@kyberswap/liquidity-widgets/dist/style.css'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -24,7 +25,7 @@ import { getDexVersion } from 'pages/Earns/utils/position'
 import { updateUnfinalizedPosition } from 'pages/Earns/utils/unfinalizedPosition'
 import { navigateToPositionAfterZap } from 'pages/Earns/utils/zap'
 import { useKyberSwapConfig, useNotify, useWalletModalToggle } from 'state/application/hooks'
-import { useTransactionAdder } from 'state/transactions/hooks'
+import { useAllTransactions, useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { getCookieValue } from 'utils'
 
@@ -100,6 +101,7 @@ const useZapInWidget = ({
   setTriggerClose?: (value: boolean) => void
 }) => {
   const addTransactionWithType = useTransactionAdder()
+  const allTransactions = useAllTransactions()
   const toggleWalletModal = useWalletModalToggle()
   const notify = useNotify()
   const navigate = useNavigate()
@@ -110,7 +112,20 @@ const useZapInWidget = ({
   const [searchParams, setSearchParams] = useSearchParams()
 
   const [addLiquidityPureParams, setAddLiquidityPureParams] = useState<AddLiquidityPureParams | null>(null)
+  const [zapTxHash, setZapTxHash] = useState<string | null>(null)
   const { rpc: zapInRpcUrl } = useKyberSwapConfig(addLiquidityPureParams?.chainId as ChainId | undefined)
+
+  const zapStatus = useMemo(() => {
+    if (!zapTxHash) return ZapStatus.INIT
+
+    if (allTransactions && allTransactions[zapTxHash]) {
+      const zapTx = allTransactions[zapTxHash]
+      if (zapTx?.[0].receipt) {
+        return zapTx?.[0].receipt.status === 1 ? ZapStatus.SUCCESS : ZapStatus.FAILED
+      } else return ZapStatus.PENDING
+    }
+    return ZapStatus.PENDING
+  }, [allTransactions, zapTxHash])
 
   const handleCloseZapInWidget = useCallback(() => {
     searchParams.delete('exchange')
@@ -191,6 +206,7 @@ const useZapInWidget = ({
             source: 'kyberswap-earn',
             rpcUrl: zapInRpcUrl,
             referral: refCode,
+            zapStatus,
             onViewPosition: (txHash: string) => {
               const { chainId, poolType, poolAddress } = addLiquidityPureParams
               handleCloseZapInWidget()
@@ -306,6 +322,8 @@ const useZapInWidget = ({
                   },
                 })
               }
+
+              setZapTxHash(txHash)
               return txHash
             },
           }
@@ -324,6 +342,7 @@ const useZapInWidget = ({
       library,
       onRefreshPosition,
       addTransactionWithType,
+      zapStatus,
     ],
   )
 
