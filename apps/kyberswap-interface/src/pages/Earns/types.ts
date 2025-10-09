@@ -83,12 +83,23 @@ export interface EarnPosition {
   feePending: Array<PositionAmount>
   feesClaimed: Array<PositionAmount>
   createdTime: number
+  stats: {
+    apr: PoolAprInterval
+    kemLMApr: PoolAprInterval
+    kemEGApr: PoolAprInterval
+    earning: PoolAprInterval
+  }
+  /** @deprecated */
   apr: number
+  /** @deprecated */
   kemEGApr: number
+  /** @deprecated */
   kemLMApr: number
-  currentPositionValue: number
+  /** @deprecated */
   earning24h: number
+  /** @deprecated */
   earning7d: number
+  currentPositionValue: number
   status: PositionStatus
   pool: {
     id: string
@@ -194,10 +205,10 @@ export const DEFAULT_PARSED_POSITION: ParsedPosition = {
     unclaimedValue: 0,
   },
   tokenAddress: '',
-  apr: 0,
-  kemEGApr: 0,
-  kemLMApr: 0,
-  feeApr: 0,
+  apr: { '24h': 0, '7d': 0, all: 0 },
+  kemEGApr: { '24h': 0, '7d': 0, all: 0 },
+  kemLMApr: { '24h': 0, '7d': 0, all: 0 },
+  feeApr: { '24h': 0, '7d': 0, all: 0 },
   totalValue: 0,
   totalProvidedValue: 0,
   status: PositionStatus.IN_RANGE,
@@ -265,10 +276,10 @@ export interface ParsedPosition {
   token0: Token
   token1: Token
   tokenAddress: string
-  apr: number
-  kemEGApr: number
-  kemLMApr: number
-  feeApr: number
+  apr: PoolAprInterval
+  kemEGApr: PoolAprInterval
+  kemLMApr: PoolAprInterval
+  feeApr: PoolAprInterval
   totalValue: number
   totalProvidedValue: number
   status: string
@@ -291,6 +302,12 @@ export interface SuggestedPool {
   token1: {
     decimals: number
   }
+}
+
+export interface PoolAprInterval {
+  '7d': number
+  '24h': number
+  all: number
 }
 
 interface Token {

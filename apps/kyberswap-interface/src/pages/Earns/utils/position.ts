@@ -14,7 +14,15 @@ import { ChainId, WETH } from '@kyberswap/ks-sdk-core'
 import { NETWORKS_INFO } from 'constants/networks'
 import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
-import { EarnPosition, FeeInfo, NftRewardInfo, ParsedPosition, PositionStatus, ProgramType } from 'pages/Earns/types'
+import {
+  EarnPosition,
+  FeeInfo,
+  NftRewardInfo,
+  ParsedPosition,
+  PoolAprInterval,
+  PositionStatus,
+  ProgramType,
+} from 'pages/Earns/types'
 import { getNftManagerContractAddress, isNativeToken } from 'pages/Earns/utils'
 
 export const getDexVersion = (dex: Exchange) => {
@@ -34,7 +42,7 @@ export const parsePosition = ({
   feeInfo?: FeeInfo
   nftRewardInfo?: NftRewardInfo
   isClosedFromRpc?: boolean
-}) => {
+}): ParsedPosition => {
   const forceClosed = isClosedFromRpc && position.status !== PositionStatus.CLOSED
 
   const currentAmounts = position.currentAmounts
@@ -215,8 +223,8 @@ export const parsePosition = ({
     },
     earning: {
       earned: totalEarnedFees,
-      in7d: position.earning7d || 0,
-      in24h: position.earning24h || 0,
+      in7d: position.stats.earning['7d'] || 0,
+      in24h: position.stats.earning['24h'] || 0,
     },
     rewards: {
       totalUsdValue: nftRewardInfo?.totalUsdValue || 0,
@@ -257,10 +265,10 @@ export const parsePosition = ({
     },
     suggestionPool: position.suggestionPool,
     tokenAddress: position.tokenAddress,
-    feeApr: position.apr || 0,
-    apr: (position.apr || 0) + (position.kemEGApr || 0) + (position.kemLMApr || 0),
-    kemEGApr: position.kemEGApr || 0,
-    kemLMApr: position.kemLMApr || 0,
+    apr: calcAprInterval(position.stats.apr, position.stats.kemEGApr, position.stats.kemLMApr),
+    kemEGApr: calcAprInterval(position.stats.kemEGApr),
+    kemLMApr: calcAprInterval(position.stats.kemLMApr),
+    feeApr: calcAprInterval(position.stats.apr),
     totalValue,
     totalProvidedValue,
     unclaimedFees,
@@ -268,6 +276,14 @@ export const parsePosition = ({
     createdTime: position.createdTime,
     isUnfinalized,
     isValueUpdating: false,
+  }
+}
+
+const calcAprInterval = (...stats: PoolAprInterval[]): PoolAprInterval => {
+  return {
+    '24h': stats.reduce((sum, apr) => sum + (apr['24h'] || 0), 0),
+    '7d': stats.reduce((sum, apr) => sum + (apr['7d'] || 0), 0),
+    all: stats.reduce((sum, apr) => sum + (apr['all'] || 0), 0),
   }
 }
 

@@ -31,6 +31,7 @@ export { ChainId, PoolType };
 export interface ZapMigrationProps {
   theme?: Theme;
   chainId: ChainId;
+  rpcUrl?: string;
   className?: string;
   from: {
     poolType: PoolType;

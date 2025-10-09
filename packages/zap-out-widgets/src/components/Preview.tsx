@@ -16,7 +16,7 @@ import { useZapOutContext } from '@/stores';
 import { useZapOutUserState } from '@/stores/state';
 
 export const Preview = () => {
-  const { onClose, pool, positionId, theme, position, chainId, connectedAccount, onSubmitTx, poolType } =
+  const { onClose, pool, positionId, theme, position, chainId, connectedAccount, onSubmitTx, poolType, rpcUrl } =
     useZapOutContext(s => s);
 
   const { address: account } = connectedAccount;
@@ -34,7 +34,7 @@ export const Preview = () => {
   useEffect(() => {
     if (txHash) {
       const i = setInterval(() => {
-        isTransactionSuccessful(NETWORKS_INFO[chainId].defaultRpc, txHash).then(res => {
+        isTransactionSuccessful(rpcUrl, txHash).then(res => {
           if (!res) return;
 
           if (res.status) {
@@ -47,7 +47,7 @@ export const Preview = () => {
         clearInterval(i);
       };
     }
-  }, [chainId, txHash]);
+  }, [chainId, rpcUrl, txHash]);
 
   if (!pool || !position || !tokenOut || !route) return null;
 
@@ -142,7 +142,6 @@ export const Preview = () => {
     };
 
     setShowProcessing(true);
-    const rpcUrl = NETWORKS_INFO[chainId].defaultRpc;
     const gas = await estimateGas(rpcUrl, txData).catch(err => {
       console.log(err.message);
       setError(err);

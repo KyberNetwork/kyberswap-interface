@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useRef } from 'react';
 
 import { createStore, useStore } from 'zustand';
 
-import { PoolType, univ2PoolNormalize, univ3PoolNormalize } from '@kyber/schema';
+import { NETWORKS_INFO, PoolType, univ2PoolNormalize, univ3PoolNormalize } from '@kyber/schema';
 import { ChainId, Pool, Position, Theme } from '@kyber/schema';
 import { getPoolInfo, getPoolPrice, getUniv2PositionInfo, getUniv3PositionInfo } from '@kyber/utils';
 
@@ -10,10 +10,11 @@ import { useZapOutUserState } from '@/stores/state';
 
 export interface ZapOutProps {
   theme?: Theme;
+  chainId: ChainId;
+  rpcUrl?: string;
   poolAddress: string;
   poolType: PoolType;
   positionId: string;
-  chainId: ChainId;
   connectedAccount: {
     address?: string | undefined;
     chainId: number;
@@ -32,6 +33,7 @@ interface ZapOutState extends ZapOutProps {
   poolPrice: number | null;
   revertPrice: boolean;
   position: Position | null;
+  rpcUrl: string;
   errorMsg: string;
   widgetError: string;
   getPool: () => void;
@@ -49,6 +51,7 @@ type ZapOutProviderState = React.PropsWithChildren<InnerZapOutProps>;
 const createZapOutStore = (initProps: InnerZapOutProps) => {
   return createStore<ZapOutState>()((set, get) => ({
     ...initProps,
+    rpcUrl: initProps.rpcUrl ?? NETWORKS_INFO[initProps.chainId].defaultRpc,
     theme: initProps.theme,
     pool: null,
     poolPrice: null,
@@ -134,6 +137,7 @@ export function ZapOutProvider({ children, ...props }: ZapOutProviderState) {
   useEffect(() => {
     store.setState({
       ...props,
+      rpcUrl: props.rpcUrl ?? NETWORKS_INFO[props.chainId].defaultRpc,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props]);

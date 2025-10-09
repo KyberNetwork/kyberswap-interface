@@ -60,26 +60,13 @@ const LeftSection = ({
 
       <InfoLeftColumn halfWidth={isUniv2}>
         {/* Total Liquidity */}
-        {upToSmall
-          ? totalLiquiditySection
-          : initialLoading
-          ? !isFarmingPossible
-            ? totalLiquiditySection
-            : null
-          : !position?.pool.isFarming && !position?.rewards.claimableUsdValue
-          ? totalLiquiditySection
-          : null}
-
         {/* Est. Position APR */}
-        {upToSmall
-          ? aprSection
-          : initialLoading
-          ? !isFarmingPossible
-            ? aprSection
-            : null
-          : !position?.pool.isFarming && !position?.rewards.claimableUsdValue
-          ? aprSection
-          : null}
+        {upToSmall && (
+          <>
+            {totalLiquiditySection}
+            {aprSection}
+          </>
+        )}
 
         {/* Fee Earn */}
         <InfoSection>

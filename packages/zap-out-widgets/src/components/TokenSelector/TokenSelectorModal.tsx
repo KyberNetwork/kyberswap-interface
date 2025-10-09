@@ -14,12 +14,13 @@ const TokenSelectorModal = ({ onClose, chainId }: { onClose: () => void; chainId
   const [tokenToShow, setTokenToShow] = useState<Token | null>(null);
   const [tokenToImport, setTokenToImport] = useState<Token | null>(null);
 
-  const { connectedAccount } = useZapOutContext(s => s);
+  const { connectedAccount, rpcUrl } = useZapOutContext(s => s);
   const { address: account } = connectedAccount;
 
   const { allTokens } = useTokenList();
   const { balances: balanceTokens } = useTokenBalances(
     chainId,
+    rpcUrl,
     allTokens.map(item => item.address),
     account,
   );

@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import {
   ZapMigration,
   ChainId as ZapMigrationChainId,
@@ -17,7 +18,7 @@ import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import { submitTransaction } from 'pages/Earns/utils'
 import { navigateToPositionAfterZap } from 'pages/Earns/utils/zap'
-import { useNotify, useWalletModalToggle } from 'state/application/hooks'
+import { useKyberSwapConfig, useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { getCookieValue } from 'utils'
 
 interface MigrateLiquidityPureParams {
@@ -39,6 +40,7 @@ interface MigrateLiquidityPureParams {
 
 interface MigrateLiquidityParams extends MigrateLiquidityPureParams {
   client: string
+  rpcUrl?: string
   connectedAccount: {
     address: string | undefined
     chainId: ZapMigrationChainId
@@ -92,6 +94,7 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
 
   const [migrateLiquidityPureParams, setMigrateLiquidityPureParams] = useState<MigrateLiquidityPureParams | null>(null)
   const [triggerClose, setTriggerClose] = useState(false)
+  const { rpc: zapMigrationRpcUrl } = useKyberSwapConfig(migrateLiquidityPureParams?.chainId as ChainId | undefined)
 
   const handleNavigateToPosition = useCallback(
     async (txHash: string, chainId: number, targetDex: ZapMigrationDex, targetPoolId: string) => {
@@ -159,6 +162,7 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
         ? {
             ...migrateLiquidityPureParams,
             client: 'kyberswap-earn',
+            rpcUrl: zapMigrationRpcUrl,
             referral: refCode,
             connectedAccount: {
               address: account,
@@ -193,6 +197,7 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
         : null,
     [
       migrateLiquidityPureParams,
+      zapMigrationRpcUrl,
       refCode,
       account,
       chainId,

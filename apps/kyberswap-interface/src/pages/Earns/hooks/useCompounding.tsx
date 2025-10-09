@@ -4,6 +4,7 @@ import {
   CompoundingWidget,
 } from '@kyberswap/compounding-widget'
 import '@kyberswap/compounding-widget/dist/style.css'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useCallback, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -15,7 +16,7 @@ import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import { submitTransaction } from 'pages/Earns/utils'
 import { navigateToPositionAfterZap } from 'pages/Earns/utils/zap'
-import { useNotify, useWalletModalToggle } from 'state/application/hooks'
+import { useKyberSwapConfig, useNotify, useWalletModalToggle } from 'state/application/hooks'
 
 interface CompoundingPureParams {
   poolAddress: string
@@ -28,6 +29,7 @@ interface CompoundingPureParams {
 }
 
 interface CompoundingParams extends CompoundingPureParams {
+  rpcUrl?: string
   connectedAccount: {
     address?: string | undefined
     chainId: number
@@ -81,6 +83,7 @@ const useCompounding = ({
   const { changeNetwork } = useChangeNetwork()
 
   const [compoundingPureParams, setCompoundingPureParams] = useState<CompoundingPureParams | null>(null)
+  const { rpc: compoundingRpcUrl } = useKyberSwapConfig(compoundingPureParams?.chainId as ChainId | undefined)
 
   const handleCloseCompounding = useCallback(() => {
     setCompoundingPureParams(null)
@@ -135,6 +138,7 @@ const useCompounding = ({
       compoundingPureParams
         ? {
             ...compoundingPureParams,
+            rpcUrl: compoundingRpcUrl,
             connectedAccount: {
               address: account,
               chainId: chainId,
@@ -166,6 +170,7 @@ const useCompounding = ({
       chainId,
       changeNetwork,
       compoundingPureParams,
+      compoundingRpcUrl,
       handleCloseCompounding,
       handleNavigateToPosition,
       library,

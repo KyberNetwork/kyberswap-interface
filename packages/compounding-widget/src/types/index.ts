@@ -5,6 +5,7 @@ export interface WidgetProps {
   positionId: string;
   poolType: PoolType;
   chainId: ChainId;
+  rpcUrl?: string;
   connectedAccount: {
     address?: string | undefined;
     chainId: number;

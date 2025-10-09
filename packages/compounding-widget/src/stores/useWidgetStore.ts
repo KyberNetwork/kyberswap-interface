@@ -15,6 +15,7 @@ import { WidgetProps } from '@/types/index';
 
 interface WidgetState extends WidgetProps {
   theme: Theme;
+  rpcUrl: string;
   nativeToken: Token;
   wrappedNativeToken: Token;
   reset: () => void;
@@ -28,6 +29,7 @@ const initState = {
   positionId: '',
   poolType: PoolType.DEX_UNISWAPV3,
   chainId: ChainId.Ethereum,
+  rpcUrl: NETWORKS_INFO[ChainId.Ethereum].defaultRpc,
   connectedAccount: {
     address: '',
     chainId: ChainId.Ethereum,
@@ -54,12 +56,13 @@ export const useWidgetStore = create<WidgetState>((set, _get) => ({
   ...initState,
   reset: () => set(initState),
   setInitiaWidgetState: (props: WidgetProps, resetStore: () => void) => {
-    const { onClose, chainId } = props;
+    const { onClose, chainId, rpcUrl } = props;
 
     const wrappedNativeToken = NETWORKS_INFO[chainId].wrappedToken;
 
     set({
       ...props,
+      rpcUrl: rpcUrl ?? NETWORKS_INFO[chainId].defaultRpc,
       onClose: () => {
         resetStore();
         onClose();

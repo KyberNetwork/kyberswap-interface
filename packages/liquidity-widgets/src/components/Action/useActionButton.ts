@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 
 import { usePositionOwner } from '@kyber/hooks';
 import { APPROVAL_STATE, useErc20Approvals } from '@kyber/hooks';
-import { API_URLS, CHAIN_ID_TO_CHAIN, NETWORKS_INFO, univ3PoolNormalize, univ4Types } from '@kyber/schema';
+import { API_URLS, CHAIN_ID_TO_CHAIN, univ3PoolNormalize, univ4Types } from '@kyber/schema';
 import { PI_LEVEL, friendlyError, getZapImpact } from '@kyber/utils';
 import { parseUnits } from '@kyber/utils/crypto';
 
@@ -26,17 +26,27 @@ export default function useActionButton({
   setWidgetError: (_value: string | undefined) => void;
   setZapSnapshotState: (_value: ZapSnapshotState | null) => void;
 }) {
-  const { poolType, chainId, connectedAccount, onConnectWallet, onSwitchChain, onSubmitTx, positionId, source } =
-    useWidgetStore([
-      'poolType',
-      'chainId',
-      'connectedAccount',
-      'onConnectWallet',
-      'onSwitchChain',
-      'onSubmitTx',
-      'positionId',
-      'source',
-    ]);
+  const {
+    chainId,
+    rpcUrl,
+    poolType,
+    connectedAccount,
+    onConnectWallet,
+    onSwitchChain,
+    onSubmitTx,
+    positionId,
+    source,
+  } = useWidgetStore([
+    'chainId',
+    'rpcUrl',
+    'poolType',
+    'connectedAccount',
+    'onConnectWallet',
+    'onSwitchChain',
+    'onSubmitTx',
+    'positionId',
+    'source',
+  ]);
   const { pool } = usePoolStore(['pool']);
   const positionOwner = usePositionOwner({
     positionId: positionId || '',
@@ -78,7 +88,7 @@ export default function useActionButton({
     amounts: amountsToApprove,
     addreses: tokenAddressesToApprove,
     owner: connectedAccount?.address || '',
-    rpcUrl: NETWORKS_INFO[chainId].defaultRpc,
+    rpcUrl,
     spender: zapInfo?.routerAddress || '',
     onSubmitTx: onSubmitTx,
   });
@@ -136,8 +146,6 @@ export default function useActionButton({
   const getGasEstimation = async ({ deadline }: { deadline: number }) => {
     if (!zapInfo) return;
     setGasLoading(true);
-    const rpcUrl = NETWORKS_INFO[chainId].defaultRpc;
-
     const res = await fetch(`${API_URLS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/in/route/build`, {
       method: 'POST',
       body: JSON.stringify({

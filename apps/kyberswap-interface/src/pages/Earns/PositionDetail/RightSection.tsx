@@ -136,7 +136,6 @@ const RightSection = ({
     if (isToken0Stable || (isToken0Native && !isToken1Stable)) setRevert(true)
   }, [defaultRevertChecked, pool, chainId, stableCoins])
 
-  const isFarmingPossible = EARN_DEXES[exchange as Exchange]?.farmingSupported || false
   const isUnfinalized = position?.isUnfinalized
   const isUniV4 = EARN_DEXES[exchange as Exchange]?.isForkFrom === CoreProtocol.UniswapV4
   const isClosed = position?.status === PositionStatus.CLOSED
@@ -152,15 +151,14 @@ const RightSection = ({
       {zapOutWidget}
 
       <InfoRightColumn halfWidth={isUniv2}>
-        {!upToSmall &&
-        (position?.pool.isFarming ||
-          (initialLoading && isFarmingPossible) ||
-          Number(position?.rewards.claimableUsdValue || 0) > 0) ? (
+        {/* Total Liquidity */}
+        {/* Est. Position APR */}
+        {!upToSmall && (
           <Flex flexWrap={'wrap'} alignItems={'center'} sx={{ gap: '12px' }}>
             {totalLiquiditySection}
             {aprSection}
           </Flex>
-        ) : null}
+        )}
 
         {price || initialLoading ? (
           <PriceSection>

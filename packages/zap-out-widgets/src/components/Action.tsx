@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 
 import { usePositionOwner } from '@kyber/hooks';
-import { DEXES_INFO, FARMING_CONTRACTS, NETWORKS_INFO } from '@kyber/schema';
+import { DEXES_INFO, FARMING_CONTRACTS } from '@kyber/schema';
 import { InfoHelper, Loading } from '@kyber/ui';
 import { PI_LEVEL, friendlyError } from '@kyber/utils';
 import { estimateGasForTx } from '@kyber/utils/crypto/transaction';
@@ -26,6 +26,7 @@ export const Action = () => {
     source,
     referral,
     setWidgetError,
+    rpcUrl,
   } = useZapOutContext(s => s);
 
   const { address: account, chainId: walletChainId } = connectedAccount;
@@ -42,7 +43,7 @@ export const Action = () => {
     approve,
     pendingTx,
   } = useNftApproval({
-    rpcUrl: NETWORKS_INFO[chainId].defaultRpc,
+    rpcUrl,
     nftManagerContract,
     nftId: +positionId,
     spender: route?.routerAddress,
@@ -94,7 +95,6 @@ export const Action = () => {
         data: buildData.callData,
         value: `0x${BigInt(buildData.value).toString(16)}`,
       };
-      const rpcUrl = NETWORKS_INFO[chainId].defaultRpc;
       const { gasUsd, error } = await estimateGasForTx({ rpcUrl, txData, chainId });
       setGasLoading(false);
 
