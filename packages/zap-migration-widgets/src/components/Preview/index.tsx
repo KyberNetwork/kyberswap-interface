@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
-import { ChainId, DEXES_INFO, NETWORKS_INFO } from '@kyber/schema';
+import { DEXES_INFO, NETWORKS_INFO } from '@kyber/schema';
 import {
   Dialog,
   DialogContent,
@@ -11,7 +11,7 @@ import {
   StatusDialogType,
 } from '@kyber/ui';
 import { friendlyError } from '@kyber/utils';
-import { calculateGasMargin, estimateGas, isTransactionSuccessful } from '@kyber/utils/crypto';
+import { calculateGasMargin, estimateGas } from '@kyber/utils/crypto';
 import { formatDisplayNumber } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
@@ -19,14 +19,14 @@ import CircleChevronDown from '@/assets/icons/circle-chevron-down.svg';
 import Estimated from '@/components/Preview/Estimated';
 import { MigrationSummary } from '@/components/Preview/MigrationSummary';
 import PreviewPoolInfo from '@/components/Preview/PreviewPoolInfo';
+import UpdatedPosition from '@/components/Preview/UpdatedPosition';
 import Warning from '@/components/Preview/Warning';
+import useTxStatus from '@/hooks/useTxStatus';
 import useZapRoute from '@/hooks/useZapRoute';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 import { useZapStore } from '@/stores/useZapStore';
-
-import UpdatedPosition from './UpdatedPosition';
 
 export function Preview({
   onSubmitTx,
@@ -68,24 +68,8 @@ export function Preview({
 
   const [showProcessing, setShowProcessing] = useState(false);
   const [txHash, setTxHash] = useState<string | null>(null);
-  const [txStatus, setTxStatus] = useState<'success' | 'failed' | ''>('');
   const [error, setError] = useState<Error | undefined>();
-
-  useEffect(() => {
-    if (!txHash) return;
-    const i = setInterval(
-      async () => {
-        const res = await isTransactionSuccessful(rpcUrl, txHash);
-        if (!res) return;
-
-        if (res.status) {
-          setTxStatus('success');
-        } else setTxStatus('failed');
-      },
-      chainId === ChainId.Ethereum ? 5_000 : 2_000,
-    );
-    return () => clearInterval(i);
-  }, [txHash, chainId, rpcUrl]);
+  const { txStatus } = useTxStatus({ txHash: txHash || undefined });
 
   if (route === null || !sourcePool || !targetPool || !account || !buildData) return null;
 

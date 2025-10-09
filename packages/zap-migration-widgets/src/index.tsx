@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
 import { useDebounce } from '@kyber/hooks';
-import { ChainId, PoolType, Theme, ZERO_ADDRESS } from '@kyber/schema';
+import { ChainId, PoolType, ZERO_ADDRESS } from '@kyber/schema';
 import { StatusDialog, StatusDialogType } from '@kyber/ui';
 import '@kyber/ui/styles.css';
 import { cn } from '@kyber/utils/tailwind-helpers';
@@ -25,60 +25,9 @@ import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 import { useZapStore } from '@/stores/useZapStore';
+import { ZapMigrationProps, ZapStatus } from '@/types/index';
 
-export { ChainId, PoolType };
-
-export interface ZapMigrationProps {
-  theme?: Theme;
-  chainId: ChainId;
-  rpcUrl?: string;
-  className?: string;
-  from: {
-    poolType: PoolType;
-    poolAddress: string;
-    positionId: string;
-  };
-  to?: {
-    poolType: PoolType;
-    poolAddress: string;
-    positionId?: string;
-  };
-  initialSlippage?: number;
-  rePositionMode?: boolean;
-  initialTick?: {
-    tickLower: number;
-    tickUpper: number;
-  };
-  connectedAccount: {
-    address: string | undefined;
-    chainId: number;
-  };
-  aggregatorOptions?: {
-    includedSources?: string[];
-    excludedSources?: string[];
-  };
-  feeConfig?: {
-    feePcm: number;
-    feeAddress: string;
-  };
-  client: string;
-  referral?: string;
-  onExplorePools?: () => void;
-  onConnectWallet: () => void;
-  onSwitchChain: () => void;
-  onSubmitTx: (
-    txData: { from: string; to: string; value: string; data: string; gasLimit: string },
-    additionalInfo?: {
-      sourcePool: string;
-      sourceDexLogo: string;
-      destinationPool: string;
-      destinationDexLogo: string;
-    },
-  ) => Promise<string>;
-  onViewPosition?: (txHash: string) => void;
-  onBack?: () => void;
-  onClose: () => void;
-}
+export { ChainId, PoolType, ZapStatus, type ZapMigrationProps };
 
 const createModalRoot = () => {
   let modalRoot = document.getElementById('ks-lw-migration-modal-root');

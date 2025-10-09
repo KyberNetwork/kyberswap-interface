@@ -3,6 +3,7 @@ import {
   ZapMigration,
   ChainId as ZapMigrationChainId,
   PoolType as ZapMigrationDex,
+  ZapStatus,
 } from '@kyberswap/zap-migration-widgets'
 import '@kyberswap/zap-migration-widgets/dist/style.css'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -19,7 +20,7 @@ import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import { submitTransaction } from 'pages/Earns/utils'
 import { navigateToPositionAfterZap } from 'pages/Earns/utils/zap'
 import { useKyberSwapConfig, useNotify, useWalletModalToggle } from 'state/application/hooks'
-import { useTransactionAdder } from 'state/transactions/hooks'
+import { useAllTransactions, useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { getCookieValue } from 'utils'
 
@@ -100,6 +101,7 @@ const getDexFromPoolType = (poolType: ZapMigrationDex) => {
 
 const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
   const addTransactionWithType = useTransactionAdder()
+  const allTransactions = useAllTransactions()
   const toggleWalletModal = useWalletModalToggle()
   const notify = useNotify()
   const navigate = useNavigate()
@@ -109,8 +111,21 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
   const { changeNetwork } = useChangeNetwork()
 
   const [migrateLiquidityPureParams, setMigrateLiquidityPureParams] = useState<MigrateLiquidityPureParams | null>(null)
+  const [zapTxHash, setZapTxHash] = useState<string | null>(null)
   const [triggerClose, setTriggerClose] = useState(false)
   const { rpc: zapMigrationRpcUrl } = useKyberSwapConfig(migrateLiquidityPureParams?.chainId as ChainId | undefined)
+
+  const zapStatus = useMemo(() => {
+    if (!zapTxHash) return ZapStatus.INIT
+
+    if (allTransactions && allTransactions[zapTxHash]) {
+      const zapTx = allTransactions[zapTxHash]
+      if (zapTx?.[0].receipt) {
+        return zapTx?.[0].receipt.status === 1 ? ZapStatus.SUCCESS : ZapStatus.FAILED
+      } else return ZapStatus.PENDING
+    }
+    return ZapStatus.PENDING
+  }, [allTransactions, zapTxHash])
 
   const handleNavigateToPosition = useCallback(
     async (txHash: string, chainId: number, targetDex: ZapMigrationDex, targetPoolId: string) => {
@@ -174,6 +189,7 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
             client: 'kyberswap-earn',
             rpcUrl: zapMigrationRpcUrl,
             referral: refCode,
+            zapStatus,
             connectedAccount: {
               address: account,
               chainId: chainId as unknown as ZapMigrationChainId,
@@ -184,15 +200,18 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
                 migrateLiquidityPureParams.to || migrateLiquidityPureParams.from
               setTriggerClose(true)
               setMigrateLiquidityPureParams(null)
+              setZapTxHash(null)
               handleNavigateToPosition(txHash, chainId, targetDex, targetPoolId)
             },
             onClose: () => {
               setTriggerClose(true)
               setMigrateLiquidityPureParams(null)
+              setZapTxHash(null)
               onRefreshPosition?.()
             },
             onBack: () => {
               setMigrateLiquidityPureParams(null)
+              setZapTxHash(null)
             },
             onConnectWallet: toggleWalletModal,
             onSwitchChain: () => changeNetwork(migrateLiquidityPureParams.chainId as number),
@@ -230,6 +249,7 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
                   },
                 })
               }
+              setZapTxHash(txHash)
               return txHash
             },
             onExplorePools: () => {
@@ -250,6 +270,7 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
       onRefreshPosition,
       navigate,
       addTransactionWithType,
+      zapStatus,
     ],
   )
 
@@ -258,11 +279,13 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
   useEffect(() => {
     if (account && previousAccount) {
       setMigrateLiquidityPureParams(null)
+      setZapTxHash(null)
     }
   }, [account, previousAccount])
 
   useAccountChanged(() => {
     setMigrateLiquidityPureParams(null)
+    setZapTxHash(null)
   })
 
   const widget = migrateLiquidityParams ? (
@@ -273,6 +296,7 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
       width={'832px'}
       onDismiss={() => {
         setMigrateLiquidityPureParams(null)
+        setZapTxHash(null)
       }}
       zindex={1001}
     >
