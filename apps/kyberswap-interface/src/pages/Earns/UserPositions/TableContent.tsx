@@ -462,12 +462,12 @@ export default function TableContent({
                             pool.isFarming ? (
                               <>
                                 <Text>
-                                  {t`LP Fee`}: {formatAprNumber(position.feeApr['24h'])}%
+                                  {t`LP Fee`}: {formatAprNumber(position.feeApr['7d'])}%
                                 </Text>
                                 <Text>
-                                  {t`EG Sharing Reward`}: {formatAprNumber(position.kemEGApr['24h'])}%
+                                  {t`EG Sharing Reward`}: {formatAprNumber(position.kemEGApr['7d'])}%
                                   <br />
-                                  {t`LM Reward`}: {formatAprNumber(position.kemLMApr['24h'])}%
+                                  {t`LM Reward`}: {formatAprNumber(position.kemLMApr['7d'])}%
                                 </Text>
                               </>
                             ) : null
@@ -475,9 +475,7 @@ export default function TableContent({
                           width="fit-content"
                           placement="top"
                         >
-                          <Text color={pool.isFarming ? theme.primary : theme.text}>
-                            {formatAprNumber(apr['24h'])}%
-                          </Text>
+                          <Text color={pool.isFarming ? theme.primary : theme.text}>{formatAprNumber(apr['7d'])}%</Text>
                         </MouseoverTooltipDesktopOnly>
 
                         {!pool.isFarming &&
