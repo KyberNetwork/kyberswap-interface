@@ -4,26 +4,13 @@ import { ChainId, PoolType, Theme } from '@kyber/schema';
 import '@kyber/ui/styles.css';
 
 import Widget from '@/Widget';
+import '@/Widget.scss';
+import '@/globals.css';
 import { ZapContextProvider } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 import { OnSuccessProps, WidgetProps, ZapStatus } from '@/types/index';
-
-import './Widget.scss';
-import './globals.css';
-
-const createModalRoot = () => {
-  let modalRoot = document.getElementById('ks-lw-modal-root');
-  if (!modalRoot) {
-    modalRoot = document.createElement('div');
-    modalRoot.id = 'ks-lw-modal-root';
-    modalRoot.className = 'ks-lw-style';
-    document.body.appendChild(modalRoot);
-  }
-};
-
-createModalRoot();
 
 const LiquidityWidget = (widgetProps: WidgetProps) => {
   const { chainId, poolAddress, poolType, positionId, connectedAccount } = widgetProps;

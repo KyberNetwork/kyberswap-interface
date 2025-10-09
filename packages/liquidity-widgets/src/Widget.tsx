@@ -23,7 +23,6 @@ import Header from '@/components/Header';
 import LeftWarning from '@/components/LeftWarning';
 import LiquidityChart from '@/components/LiquidityChart';
 import LiquidityChartSkeleton from '@/components/LiquidityChart/LiquidityChartSkeleton';
-import Modal from '@/components/Modal';
 import { PositionFee } from '@/components/PositionFee';
 import PositionLiquidity from '@/components/PositionLiquidity';
 import PositionPriceRange from '@/components/PositionPriceRange';
@@ -181,9 +180,7 @@ export default function Widget() {
         />
       )}
       {zapSnapshotState && !initializing && (
-        <Modal isOpen onClick={onClosePreview} modalContentClass="!max-h-[96vh]">
-          <Preview zapState={zapSnapshotState} pool={pool} onDismiss={onClosePreview} />
-        </Modal>
+        <Preview zapState={zapSnapshotState} pool={pool} onDismiss={onClosePreview} />
       )}
 
       {openTokenSelectModal && (

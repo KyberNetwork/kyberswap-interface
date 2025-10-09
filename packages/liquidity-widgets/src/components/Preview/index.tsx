@@ -1,7 +1,16 @@
 import { useState } from 'react';
 
 import { API_URLS, CHAIN_ID_TO_CHAIN, DEXES_INFO, NETWORKS_INFO, Pool, univ3PoolNormalize } from '@kyber/schema';
-import { InfoHelper, StatusDialog, StatusDialogType, TokenSymbol } from '@kyber/ui';
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogTitle,
+  InfoHelper,
+  StatusDialog,
+  StatusDialogType,
+  TokenSymbol,
+} from '@kyber/ui';
 import { parseZapInfo } from '@kyber/utils';
 import { friendlyError } from '@kyber/utils';
 import { PI_LEVEL } from '@kyber/utils';
@@ -9,7 +18,6 @@ import { calculateGasMargin, estimateGas } from '@kyber/utils/crypto';
 import { formatCurrency, formatDisplayNumber } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
-import X from '@/assets/svg/x.svg';
 import EstimatedRow from '@/components/Estimated/EstimatedRow';
 import Head from '@/components/Preview/Head';
 import PooledAmount from '@/components/Preview/PooledAmount';
@@ -205,149 +213,147 @@ export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool,
   }
 
   return (
-    <>
-      <div className="flex justify-between text-xl font-medium">
-        <div>{positionId ? 'Increase' : 'Add'} Liquidity via Zap</div>
-        <div role="button" onClick={onDismiss} className="cursor-pointer">
-          <X />
-        </div>
-      </div>
-      <div className="ks-lw-preview">
-        <Head pool={pool} />
+    <Dialog open={true} onOpenChange={onDismiss}>
+      <DialogContent className="ks-lw-style max-h-[85vh] max-w-[480px] overflow-auto" aria-describedby={undefined}>
+        <DialogTitle>{positionId ? 'Increase' : 'Add'} Liquidity via Zap</DialogTitle>
+        <div>
+          <Head pool={pool} />
 
-        <ZapInAmount zapInfo={zapInfo} />
-        <PriceInfo pool={pool} />
+          <ZapInAmount zapInfo={zapInfo} />
+          <PriceInfo pool={pool} />
 
-        <div className="flex flex-col items-center gap-3 mt-4">
-          <PooledAmount pool={pool} positionAmountInfo={positionAmountInfo} addedAmountInfo={addedAmountInfo} />
-          <EstimatedRow
-            initializing={false}
-            label="Remaining Amount"
-            labelTooltip="Based on your price range settings, a portion of your liquidity will be automatically zapped into the pool, while the remaining amount will stay in your wallet."
-            value={
-              <div className="text-sm">
-                {formatCurrency(refundInfo.refundUsd)}
-                {refundInfo.refundAmount0 || refundInfo.refundAmount1 ? (
-                  <InfoHelper
-                    text={
-                      <div>
+          <div className="flex flex-col items-center gap-3 mt-4">
+            <PooledAmount pool={pool} positionAmountInfo={positionAmountInfo} addedAmountInfo={addedAmountInfo} />
+            <EstimatedRow
+              initializing={false}
+              label="Remaining Amount"
+              labelTooltip="Based on your price range settings, a portion of your liquidity will be automatically zapped into the pool, while the remaining amount will stay in your wallet."
+              value={
+                <div className="text-sm">
+                  {formatCurrency(refundInfo.refundUsd)}
+                  {refundInfo.refundAmount0 || refundInfo.refundAmount1 ? (
+                    <InfoHelper
+                      text={
                         <div>
-                          {refundInfo.refundAmount0} <TokenSymbol symbol={token0.symbol} maxWidth={80} />
+                          <div>
+                            {refundInfo.refundAmount0} <TokenSymbol symbol={token0.symbol} maxWidth={80} />
+                          </div>
+                          <div>
+                            {refundInfo.refundAmount1} <TokenSymbol symbol={token1.symbol} maxWidth={80} />
+                          </div>
                         </div>
-                        <div>
-                          {refundInfo.refundAmount1} <TokenSymbol symbol={token1.symbol} maxWidth={80} />
-                        </div>
-                      </div>
-                    }
-                  />
-                ) : null}
-              </div>
-            }
-            hasRoute
-            className="w-full mt-0"
-          />
+                      }
+                    />
+                  ) : null}
+                </div>
+              }
+              hasRoute
+              className="w-full mt-0"
+            />
 
-          <SlippageWarning
-            className="gap-4 w-full mt-0"
-            slippage={slippage || 0}
-            suggestedSlippage={zapInfo.zapDetails.suggestedSlippage}
-            showWarning
-          />
+            <SlippageWarning
+              className="gap-4 w-full mt-0"
+              slippage={slippage || 0}
+              suggestedSlippage={zapInfo.zapDetails.suggestedSlippage}
+              showWarning
+            />
 
-          <EstimatedRow
-            initializing={false}
-            label={
-              <div
-                className={cn(
-                  'text-subText mt-[2px] w-fit border-b border-dotted border-subText',
-                  zapInfo
-                    ? zapImpact.level === PI_LEVEL.VERY_HIGH || zapImpact.level === PI_LEVEL.INVALID
-                      ? 'border-error text-error'
-                      : zapImpact.level === PI_LEVEL.HIGH
-                        ? 'border-warning text-warning'
-                        : 'border-subText'
-                    : '',
-                )}
-              >
-                Zap Impact
-              </div>
-            }
-            labelTooltip="The difference between input and estimated liquidity received (including remaining amount). Be careful with high value!"
-            value={
-              <div
-                className={cn(
-                  'text-sm',
-                  zapImpact.level === PI_LEVEL.VERY_HIGH || zapImpact.level === PI_LEVEL.INVALID
-                    ? 'text-error'
-                    : zapImpact.level === PI_LEVEL.HIGH
-                      ? 'text-warning'
-                      : 'text-text',
-                )}
-              >
-                {zapImpact.display}
-              </div>
-            }
-            hasRoute
-            className="w-full mt-0"
-          />
-
-          <EstimatedRow
-            initializing={false}
-            label="Est. Gas Fee"
-            labelTooltip={'Estimated network fee for your transaction.'}
-            value={
-              <div className="text-sm">
-                {gasUsd
-                  ? formatDisplayNumber(gasUsd, {
-                      significantDigits: 4,
-                      style: 'currency',
-                    })
-                  : '--'}
-              </div>
-            }
-            hasRoute
-            className="w-full mt-0"
-          />
-
-          <EstimatedRow
-            initializing={false}
-            label="Zap Fee"
-            labelTooltip={
-              <div>
-                Fees charged for automatically zapping into a liquidity pool. You still have to pay the standard gas
-                fees.{' '}
-                <a
-                  className="text-accent"
-                  href={API_URLS.DOCUMENT.ZAP_FEE_MODEL}
-                  target="_blank"
-                  rel="noopener norefferer noreferrer"
+            <EstimatedRow
+              initializing={false}
+              label={
+                <div
+                  className={cn(
+                    'text-subText mt-[2px] w-fit border-b border-dotted border-subText',
+                    zapInfo
+                      ? zapImpact.level === PI_LEVEL.VERY_HIGH || zapImpact.level === PI_LEVEL.INVALID
+                        ? 'border-error text-error'
+                        : zapImpact.level === PI_LEVEL.HIGH
+                          ? 'border-warning text-warning'
+                          : 'border-subText'
+                      : '',
+                  )}
                 >
-                  More details.
-                </a>
-              </div>
-            }
-            value={<div className="text-sm">{parseFloat(feeInfo.protocolFee.toFixed(3))}%</div>}
-            hasRoute
-            className="w-full mt-0"
-          />
+                  Zap Impact
+                </div>
+              }
+              labelTooltip="The difference between input and estimated liquidity received (including remaining amount). Be careful with high value!"
+              value={
+                <div
+                  className={cn(
+                    'text-sm',
+                    zapImpact.level === PI_LEVEL.VERY_HIGH || zapImpact.level === PI_LEVEL.INVALID
+                      ? 'text-error'
+                      : zapImpact.level === PI_LEVEL.HIGH
+                        ? 'text-warning'
+                        : 'text-text',
+                  )}
+                >
+                  {zapImpact.display}
+                </div>
+              }
+              hasRoute
+              className="w-full mt-0"
+            />
+
+            <EstimatedRow
+              initializing={false}
+              label="Est. Gas Fee"
+              labelTooltip={'Estimated network fee for your transaction.'}
+              value={
+                <div className="text-sm">
+                  {gasUsd
+                    ? formatDisplayNumber(gasUsd, {
+                        significantDigits: 4,
+                        style: 'currency',
+                      })
+                    : '--'}
+                </div>
+              }
+              hasRoute
+              className="w-full mt-0"
+            />
+
+            <EstimatedRow
+              initializing={false}
+              label="Zap Fee"
+              labelTooltip={
+                <div>
+                  Fees charged for automatically zapping into a liquidity pool. You still have to pay the standard gas
+                  fees.{' '}
+                  <a
+                    className="text-accent"
+                    href={API_URLS.DOCUMENT.ZAP_FEE_MODEL}
+                    target="_blank"
+                    rel="noopener norefferer noreferrer"
+                  >
+                    More details.
+                  </a>
+                </div>
+              }
+              value={<div className="text-sm">{parseFloat(feeInfo.protocolFee.toFixed(3))}%</div>}
+              hasRoute
+              className="w-full mt-0"
+            />
+          </div>
+
+          <Warning zapInfo={zapInfo} slippage={slippage || 0} zapImpact={zapImpact} />
         </div>
-
-        <Warning zapInfo={zapInfo} slippage={slippage || 0} zapImpact={zapImpact} />
-
-        <button
-          className={cn(
-            'ks-primary-btn mt-4 w-full',
-            zapImpact.level === PI_LEVEL.VERY_HIGH || zapImpact.level === PI_LEVEL.INVALID
-              ? 'bg-error border-error text-white'
-              : zapImpact.level === PI_LEVEL.HIGH
-                ? 'bg-warning border-warning'
-                : '',
-          )}
-          onClick={handleClick}
-        >
-          {positionId ? 'Increase liquidity' : 'Add liquidity'}
-        </button>
-      </div>
-    </>
+        <DialogFooter>
+          <button
+            className={cn(
+              'ks-primary-btn mt-4 w-full',
+              zapImpact.level === PI_LEVEL.VERY_HIGH || zapImpact.level === PI_LEVEL.INVALID
+                ? 'bg-error border-error text-white'
+                : zapImpact.level === PI_LEVEL.HIGH
+                  ? 'bg-warning border-warning'
+                  : '',
+            )}
+            onClick={handleClick}
+          >
+            {positionId ? 'Increase liquidity' : 'Add liquidity'}
+          </button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
