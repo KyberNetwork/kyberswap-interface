@@ -62,6 +62,7 @@ export const usePermitNft = ({ contractAddress, tokenId, spender, deadline, vers
   // Get V3 specific data
   const domainSeparatorState = useSingleCallResult(nftContract, 'DOMAIN_SEPARATOR', [])
   const permitTypehashState = useSingleCallResult(nftContract, 'PERMIT_TYPEHASH', [])
+  console.log(noncesState)
 
   // Auto-detect version based on available data
   const actualVersion = useMemo(() => {
@@ -69,16 +70,16 @@ export const usePermitNft = ({ contractAddress, tokenId, spender, deadline, vers
 
     if (detectedVersion) return detectedVersion
 
-    // Try to detect based on available data
-    if (positionsState?.result && !positionsState.error) {
-      setDetectedVersion('v3')
-      return 'v3'
-    }
     if (noncesState?.result && !noncesState.error) {
       setDetectedVersion('v4')
       return 'v4'
     }
 
+    // Try to detect based on available data
+    if (positionsState?.result && !positionsState.error) {
+      setDetectedVersion('v3')
+      return 'v3'
+    }
     return 'v4' // Default to v4 if uncertain
   }, [version, detectedVersion, positionsState, noncesState])
 

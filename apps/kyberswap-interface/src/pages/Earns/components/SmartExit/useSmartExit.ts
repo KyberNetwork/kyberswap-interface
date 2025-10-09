@@ -7,6 +7,7 @@ import { SMART_EXIT_API_URL } from 'constants/env'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useReadingContract } from 'hooks/useContract'
 import { DexType } from 'pages/Earns/SmartExit/useSmartExitFilter'
+import { Exchange } from 'pages/Earns/constants'
 import { ParsedPosition } from 'pages/Earns/types'
 import { useNotify } from 'state/application/hooks'
 import { friendlyError } from 'utils/errorMessage'
@@ -85,10 +86,12 @@ export const useSmartExit = ({
   const getDexType = useCallback((dexId: string) => {
     // Map dex IDs to API format
     const dexMapping: Record<string, string> = {
-      'Uniswap V3': DexType.DexTypeUniswapV3,
-      'Uniswap V4': DexType.DexTypeUniswapV4,
-      'Uniswap V4 FairFlow': DexType.DexTypeUniswapV4FairFlow,
-      'PancakeSwap V3': DexType.DexTypePancakeV3,
+      [Exchange.DEX_UNISWAPV3]: DexType.DexTypeUniswapV3,
+      [Exchange.DEX_UNISWAP_V4]: DexType.DexTypeUniswapV4,
+      [Exchange.DEX_UNISWAP_V4_FAIRFLOW]: DexType.DexTypeUniswapV4FairFlow,
+      [Exchange.DEX_PANCAKESWAPV3]: DexType.DexTypePancakeV3,
+      [Exchange.DEX_PANCAKE_INFINITY_CL]: DexType.DexTypePancakeInfinityCL,
+      [Exchange.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: DexType.DexTypePancakeInfinityCLFairFlow,
     }
     return dexMapping[dexId] || dexId
   }, [])

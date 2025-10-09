@@ -17,6 +17,8 @@ export enum DexType {
   DexTypeUniswapV4 = 'DexTypeUniswapV4',
   DexTypeUniswapV4FairFlow = 'DexTypeUniswapV4FairFlow',
   DexTypePancakeV3 = 'DexTypePancakeV3',
+  DexTypePancakeInfinityCL = 'DexTypePancakeInfinityCL',
+  DexTypePancakeInfinityCLFairFlow = 'DexTypePancakeInfinityCLFairFlow',
 }
 
 export enum OrderStatus {
