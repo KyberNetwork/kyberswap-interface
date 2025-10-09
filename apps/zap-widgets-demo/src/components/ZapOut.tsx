@@ -145,32 +145,36 @@ const ZapOut = () => {
             <Label>Protocols</Label>
             <RadioGroup
               className="grid grid-cols-3 gap-2 max-md:grid-cols-2"
-              value={params.poolType}
+              value={params.poolType.toString()}
               onValueChange={(value) =>
                 setParams((p) => ({
                   ...p,
-                  poolType: value as ZapOutDex,
+                  poolType: Number(value) as ZapOutDex,
                 }))
               }
             >
-              {Object.keys(ZapOutDex).map((key, index) => (
-                <div className="flex items-center space-x-2" key={key}>
-                  <RadioGroupItem
-                    value={ZapOutDex[key as keyof typeof ZapOutDex]}
-                    id={`${index + 1}`}
-                  />
-                  <Label className="text-xs" htmlFor={`${index + 1}`}>
-                    {ZapOutDex[key as keyof typeof ZapOutDex] in
-                    zapOutDexMapping
-                      ? zapOutDexMapping[
-                          ZapOutDex[
-                            key as keyof typeof ZapOutDex
-                          ] as keyof typeof zapOutDexMapping
-                        ]
-                      : ZapOutDex[key as keyof typeof ZapOutDex]}
-                  </Label>
-                </div>
-              ))}
+              {Object.keys(ZapOutDex)
+                .filter((key) => isNaN(Number(key)))
+                .map((key: string, index: number) => (
+                  <div className="flex items-center space-x-2" key={key}>
+                    <RadioGroupItem
+                      value={ZapOutDex[
+                        key as keyof typeof ZapOutDex
+                      ].toString()}
+                      id={`${index + 1}`}
+                    />
+                    <Label className="text-xs" htmlFor={`${index + 1}`}>
+                      {ZapOutDex[key as keyof typeof ZapOutDex] in
+                      zapOutDexMapping
+                        ? zapOutDexMapping[
+                            ZapOutDex[
+                              key as keyof typeof ZapOutDex
+                            ] as keyof typeof zapOutDexMapping
+                          ]
+                        : ZapOutDex[key as keyof typeof ZapOutDex]}
+                    </Label>
+                  </div>
+                ))}
             </RadioGroup>
           </div>
         </CardContent>
