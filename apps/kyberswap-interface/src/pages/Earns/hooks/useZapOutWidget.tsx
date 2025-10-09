@@ -1,5 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { ZapOut, ChainId as ZapOutChainId, PoolType as ZapOutDex } from '@kyberswap/zap-out-widgets'
+import { ZapOut, ChainId as ZapOutChainId, PoolType as ZapOutDex, ZapStatus } from '@kyberswap/zap-out-widgets'
 import '@kyberswap/zap-out-widgets/dist/style.css'
 import { useMemo, useState } from 'react'
 
@@ -12,7 +12,7 @@ import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import { CheckClosedPositionParams } from 'pages/Earns/hooks/useClosedPositions'
 import { submitTransaction } from 'pages/Earns/utils'
 import { useKyberSwapConfig, useNotify, useWalletModalToggle } from 'state/application/hooks'
-import { useTransactionAdder } from 'state/transactions/hooks'
+import { useAllTransactions, useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { getCookieValue } from 'utils'
 
@@ -55,6 +55,7 @@ const getDexFromPoolType = (poolType: ZapOutDex) => {
 
 const useZapOutWidget = (onRefreshPosition?: (props: CheckClosedPositionParams) => void) => {
   const addTransactionWithType = useTransactionAdder()
+  const allTransactions = useAllTransactions()
   const toggleWalletModal = useWalletModalToggle()
   const notify = useNotify()
   const refCode = getCookieValue('refCode')
@@ -68,7 +69,20 @@ const useZapOutWidget = (onRefreshPosition?: (props: CheckClosedPositionParams) 
     poolAddress: string
     chainId: ZapOutChainId
   } | null>(null)
+  const [zapTxHash, setZapTxHash] = useState<string | null>(null)
   const { rpc: zapOutRpcUrl } = useKyberSwapConfig(zapOutPureParams?.chainId as ChainId | undefined)
+
+  const zapStatus = useMemo(() => {
+    if (!zapTxHash) return ZapStatus.INIT
+
+    if (allTransactions && allTransactions[zapTxHash]) {
+      const zapTx = allTransactions[zapTxHash]
+      if (zapTx?.[0].receipt) {
+        return zapTx?.[0].receipt.status === 1 ? ZapStatus.SUCCESS : ZapStatus.FAILED
+      } else return ZapStatus.PENDING
+    }
+    return ZapStatus.PENDING
+  }, [allTransactions, zapTxHash])
 
   const zapOutParams = useMemo(
     () =>
@@ -82,6 +96,7 @@ const useZapOutWidget = (onRefreshPosition?: (props: CheckClosedPositionParams) 
               address: account,
               chainId: chainId as unknown as ZapOutChainId,
             },
+            zapStatus,
             onClose: () => {
               setTimeout(() => {
                 const foundEntry = Object.entries(zapOutDexMapping).find(
@@ -129,6 +144,7 @@ const useZapOutWidget = (onRefreshPosition?: (props: CheckClosedPositionParams) 
                 })
               }
 
+              setZapTxHash(txHash)
               return txHash
             },
           }
@@ -144,6 +160,7 @@ const useZapOutWidget = (onRefreshPosition?: (props: CheckClosedPositionParams) 
       refCode,
       onRefreshPosition,
       addTransactionWithType,
+      zapStatus,
     ],
   )
 
@@ -170,6 +187,7 @@ const useZapOutWidget = (onRefreshPosition?: (props: CheckClosedPositionParams) 
 
   useAccountChanged(() => {
     setZapOutPureParams(null)
+    setZapTxHash(null)
   })
 
   const widget = zapOutParams ? (
@@ -180,6 +198,7 @@ const useZapOutWidget = (onRefreshPosition?: (props: CheckClosedPositionParams) 
       width={'760px'}
       onDismiss={() => {
         setZapOutPureParams(null)
+        setZapTxHash(null)
       }}
     >
       <ZapOut {...zapOutParams} />

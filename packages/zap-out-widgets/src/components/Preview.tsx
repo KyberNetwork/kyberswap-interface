@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
-import { ChainId, DEXES_INFO, NETWORKS_INFO, univ3Types } from '@kyber/schema';
+import { DEXES_INFO, NETWORKS_INFO, univ3Types } from '@kyber/schema';
 import { MouseoverTooltip, StatusDialog, StatusDialogType, TokenLogo, TokenSymbol } from '@kyber/ui';
 import { PI_LEVEL, friendlyError } from '@kyber/utils';
-import { calculateGasMargin, estimateGas, isTransactionSuccessful } from '@kyber/utils/crypto';
+import { calculateGasMargin, estimateGas } from '@kyber/utils/crypto';
 import { formatCurrency, formatDisplayNumber, formatTokenAmount } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
@@ -11,6 +11,7 @@ import X from '@/assets/svg/x.svg';
 import Modal from '@/components/Modal';
 import { SlippageWarning } from '@/components/SlippageWarning';
 import { WarningMsg } from '@/components/WarningMsg';
+import useTxStatus from '@/hooks/useTxStatus';
 import useZapRoute from '@/hooks/useZapRoute';
 import { useZapOutContext } from '@/stores';
 import { useZapOutUserState } from '@/stores/state';
@@ -29,28 +30,7 @@ export const Preview = () => {
 
   const [showProcessing, setShowProcessing] = useState(false);
   const [txHash, setTxHash] = useState<string | null>(null);
-  const [txStatus, setTxStatus] = useState<'success' | 'failed' | ''>('');
-
-  useEffect(() => {
-    if (txHash) {
-      const i = setInterval(
-        () => {
-          isTransactionSuccessful(rpcUrl, txHash).then(res => {
-            if (!res) return;
-
-            if (res.status) {
-              setTxStatus('success');
-            } else setTxStatus('failed');
-          });
-        },
-        chainId === ChainId.Ethereum ? 5_000 : 2_000,
-      );
-
-      return () => {
-        clearInterval(i);
-      };
-    }
-  }, [chainId, rpcUrl, txHash]);
+  const { txStatus } = useTxStatus({ txHash: txHash || undefined });
 
   if (!pool || !position || !tokenOut || !route) return null;
 
@@ -167,24 +147,24 @@ export const Preview = () => {
               ? [
                   {
                     symbol: tokenOut.symbol,
-                    amount: (refund.refunds[0]?.amount || 0).toString(),
+                    amount: formatDisplayNumber(refund.refunds[0]?.amount || 0, { significantDigits: 6 }),
                     logoUrl: tokenOut.logo,
                   },
                 ]
               : [
                   {
                     symbol: pool.token0.symbol,
-                    amount: formatTokenAmount(
-                      removeLiquidity.removedAmount0 + earnedFee.earnedFee0,
-                      pool.token0.decimals,
+                    amount: formatDisplayNumber(
+                      formatTokenAmount(removeLiquidity.removedAmount0 + earnedFee.earnedFee0, pool.token0.decimals),
+                      { significantDigits: 6 },
                     ),
                     logoUrl: pool.token0.logo,
                   },
                   {
                     symbol: pool.token1.symbol,
-                    amount: formatTokenAmount(
-                      removeLiquidity.removedAmount1 + earnedFee.earnedFee1,
-                      pool.token1.decimals,
+                    amount: formatDisplayNumber(
+                      formatTokenAmount(removeLiquidity.removedAmount1 + earnedFee.earnedFee1, pool.token1.decimals),
+                      { significantDigits: 6 },
                     ),
                     logoUrl: pool.token1.logo,
                   },
