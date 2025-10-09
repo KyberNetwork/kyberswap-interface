@@ -11,7 +11,7 @@ import { EarnDex, Exchange, protocolGroupNameToExchangeMapping } from 'pages/Ear
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import { CheckClosedPositionParams } from 'pages/Earns/hooks/useClosedPositions'
 import { submitTransaction } from 'pages/Earns/utils'
-import { useNotify, useWalletModalToggle } from 'state/application/hooks'
+import { useKyberSwapConfig, useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { getCookieValue } from 'utils'
 
 export interface ZapOutInfo {
@@ -60,6 +60,7 @@ const useZapOutWidget = (onRefreshPosition?: (props: CheckClosedPositionParams) 
     poolAddress: string
     chainId: ZapOutChainId
   } | null>(null)
+  const { rpc: zapOutRpcUrl } = useKyberSwapConfig(zapOutPureParams?.chainId as ChainId | undefined)
 
   const zapOutParams = useMemo(
     () =>
@@ -67,6 +68,7 @@ const useZapOutWidget = (onRefreshPosition?: (props: CheckClosedPositionParams) 
         ? {
             ...zapOutPureParams,
             source: 'kyberswap-earn',
+            rpcUrl: zapOutRpcUrl,
             referral: refCode,
             connectedAccount: {
               address: account,
@@ -104,7 +106,17 @@ const useZapOutWidget = (onRefreshPosition?: (props: CheckClosedPositionParams) 
             },
           }
         : null,
-    [account, chainId, changeNetwork, library, toggleWalletModal, zapOutPureParams, refCode, onRefreshPosition],
+    [
+      account,
+      chainId,
+      changeNetwork,
+      library,
+      toggleWalletModal,
+      zapOutPureParams,
+      zapOutRpcUrl,
+      refCode,
+      onRefreshPosition,
+    ],
   )
 
   const handleOpenZapOut = ({ position }: ZapOutInfo) => {

@@ -9,6 +9,7 @@ import { usePoolDetailQuery } from 'services/zapEarn'
 
 import { ReactComponent as IconReposition } from 'assets/svg/earn/ic_reposition.svg'
 import { ReactComponent as RevertPriceIcon } from 'assets/svg/earn/ic_revert_price.svg'
+import { NETWORKS_INFO } from 'constants/networks'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useStableCoins } from 'hooks/Tokens'
@@ -27,13 +28,13 @@ import {
   RevertIconWrapper,
 } from 'pages/Earns/PositionDetail/styles'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
-import { CoreProtocol, Exchange, POSSIBLE_FARMING_PROTOCOLS } from 'pages/Earns/constants'
+import { CoreProtocol, Exchange } from 'pages/Earns/constants'
 import { CheckClosedPositionParams } from 'pages/Earns/hooks/useClosedPositions'
 import useZapInWidget from 'pages/Earns/hooks/useZapInWidget'
 import { ZapMigrationInfo } from 'pages/Earns/hooks/useZapMigrationWidget'
 import useZapOutWidget from 'pages/Earns/hooks/useZapOutWidget'
 import { ParsedPosition, PositionStatus } from 'pages/Earns/types'
-import { isForkFrom } from 'pages/Earns/utils'
+import { getNftManagerContractAddress, isForkFrom } from 'pages/Earns/utils'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -44,6 +45,8 @@ const RightSection = ({
   aprSection,
   onRefreshPosition,
   initialLoading,
+  isNotAccountOwner,
+  positionOwnerAddress,
   triggerClose,
   setTriggerClose,
   setReduceFetchInterval,
@@ -55,6 +58,8 @@ const RightSection = ({
   aprSection: React.ReactNode
   onRefreshPosition: (props: CheckClosedPositionParams) => void
   initialLoading: boolean
+  isNotAccountOwner: boolean
+  positionOwnerAddress?: string | null
   triggerClose: boolean
   setTriggerClose: (value: boolean) => void
   setReduceFetchInterval: (value: boolean) => void
@@ -62,7 +67,7 @@ const RightSection = ({
 }) => {
   const theme = useTheme()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
-  const { protocol, chainId } = useParams()
+  const { protocol, chainId, positionId } = useParams()
 
   const { account } = useActiveWeb3React()
   const { stableCoins } = useStableCoins(Number(chainId) as ChainId)
@@ -89,6 +94,24 @@ const RightSection = ({
   )
   const isUniv2 = isForkFrom(protocol as Exchange, CoreProtocol.UniswapV2)
 
+  const explorerUrl = useMemo(() => {
+    if (!position || !chainId) return null
+
+    const baseUrl = NETWORKS_INFO[+chainId as ChainId]?.etherscanUrl
+    if (!baseUrl) return null
+
+    if (isUniv2) {
+      return `${baseUrl}/token/${position.pool.address}?a=${positionOwnerAddress || account}`
+    }
+
+    const [nftManagerAddressFromRoute] = (positionId || '').split('-')
+    const nftManagerAddress = nftManagerAddressFromRoute?.startsWith('0x')
+      ? nftManagerAddressFromRoute
+      : getNftManagerContractAddress(position.dex.id, position.chain.id)
+
+    return `${baseUrl}/nft/${nftManagerAddress}/${position.tokenId}`
+  }, [account, chainId, isUniv2, position, positionId, positionOwnerAddress])
+
   const onOpenIncreaseLiquidityWidget = () => {
     if (!position) return
     handleOpenZapIn({
@@ -112,7 +135,6 @@ const RightSection = ({
     if (isToken0Stable || (isToken0Native && !isToken1Stable)) setRevert(true)
   }, [defaultRevertChecked, pool, chainId, stableCoins])
 
-  const isFarmingPossible = POSSIBLE_FARMING_PROTOCOLS.includes(protocol as Exchange)
   const isUnfinalized = position?.isUnfinalized
   const isUniV4 = isForkFrom(protocol as Exchange, CoreProtocol.UniswapV4)
   const isClosed = position?.status === PositionStatus.CLOSED
@@ -128,15 +150,14 @@ const RightSection = ({
       {zapOutWidget}
 
       <InfoRightColumn halfWidth={isUniv2}>
-        {!upToSmall &&
-        (position?.pool.isFarming ||
-          (initialLoading && isFarmingPossible) ||
-          Number(position?.rewards.claimableUsdValue || 0) > 0) ? (
+        {/* Total Liquidity */}
+        {/* Est. Position APR */}
+        {!upToSmall && (
           <Flex flexWrap={'wrap'} alignItems={'center'} sx={{ gap: '12px' }}>
             {totalLiquiditySection}
             {aprSection}
           </Flex>
-        ) : null}
+        )}
 
         {price || initialLoading ? (
           <PriceSection>
@@ -288,10 +309,9 @@ const RightSection = ({
         <PositionActionWrapper>
           <PositionAction
             outlineDefault
-            disabled={initialLoading || !position || isClosed}
+            disabled={initialLoading || isNotAccountOwner || !position || isClosed}
             onClick={() => {
               if (initialLoading || isClosed || !position) return
-
               handleOpenZapOut({
                 position: {
                   dex: position.dex.id,
@@ -301,20 +321,34 @@ const RightSection = ({
                 },
               })
             }}
-          >{t`Remove Liquidity`}</PositionAction>
-          <PositionAction
-            disabled={!isOutRange ? increaseDisabled : repositionDisabled}
-            onClick={e => {
-              if (!isOutRange ? increaseDisabled : repositionDisabled) return
-              if (isOutRange) {
-                onReposition(e, position)
-              } else {
-                onOpenIncreaseLiquidityWidget()
-              }
-            }}
           >
-            {!isOutRange ? t`Increase Liquidity` : t`Reposition to new range`}
+            {t`Remove Liquidity`}
           </PositionAction>
+          {isNotAccountOwner ? (
+            <PositionAction
+              disabled={!explorerUrl}
+              onClick={() => {
+                if (!explorerUrl) return
+                window.open(explorerUrl, '_blank', 'noopener,noreferrer')
+              }}
+            >
+              {t`View on Explorer`}
+            </PositionAction>
+          ) : (
+            <PositionAction
+              disabled={!isOutRange ? increaseDisabled : repositionDisabled}
+              onClick={e => {
+                if (!isOutRange ? increaseDisabled : repositionDisabled) return
+                if (isOutRange) {
+                  onReposition(e, position)
+                } else {
+                  onOpenIncreaseLiquidityWidget()
+                }
+              }}
+            >
+              {!isOutRange ? t`Increase Liquidity` : t`Reposition to new range`}
+            </PositionAction>
+          )}
         </PositionActionWrapper>
       </InfoRightColumn>
     </>

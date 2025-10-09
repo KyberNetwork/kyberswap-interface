@@ -34,10 +34,11 @@ import { Theme } from '@/theme';
 
 export interface ZapOutProps {
   theme?: Theme;
+  chainId: ChainId;
+  rpcUrl?: string;
   poolAddress: string;
   poolType: PoolType;
   positionId: string;
-  chainId: ChainId;
 
   connectedAccount: {
     address?: string | undefined; // check if account is connected
@@ -56,6 +57,7 @@ export interface ZapOutProps {
 
 interface ZapOutState extends ZapOutProps {
   theme: Theme;
+  rpcUrl: string;
   pool: 'loading' | Pool;
   position: 'loading' | Position;
   errorMsg: string;
@@ -72,13 +74,14 @@ type ZapOutProviderState = React.PropsWithChildren<InnerZapOutProps>;
 const createZapOutStore = (initProps: InnerZapOutProps) => {
   return createStore<ZapOutState>()((set, get) => ({
     ...initProps,
+    rpcUrl: initProps.rpcUrl ?? NETWORKS_INFO[initProps.chainId].defaultRpc,
     theme: initProps.theme,
     pool: 'loading' as 'loading' | Pool,
     position: 'loading' as 'loading' | Position,
     errorMsg: '',
 
     getPool: async () => {
-      const { poolAddress, chainId, poolType, positionId } = get();
+      const { poolAddress, chainId, poolType, positionId, rpcUrl } = get();
 
       const res = await fetch(`${PATHS.ZAP_EARN_API}/v1/pools?chainId=${chainId}&address=${poolAddress}`).then(res =>
         res.json(),
@@ -242,7 +245,7 @@ const createZapOutStore = (initProps: InnerZapOutProps) => {
         };
 
         // Send JSON-RPC request via fetch
-        const response = await fetch(NETWORKS_INFO[chainId].defaultRpc, {
+        const response = await fetch(rpcUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -277,7 +280,7 @@ const createZapOutStore = (initProps: InnerZapOutProps) => {
               id: 1,
             };
 
-            const response = await fetch(NETWORKS_INFO[chainId].defaultRpc, {
+            const response = await fetch(rpcUrl, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -369,14 +372,10 @@ const createZapOutStore = (initProps: InnerZapOutProps) => {
           };
         };
 
-        const balanceRes = await fetch(
-          NETWORKS_INFO[chainId].defaultRpc,
-          getPayload(`0x${balanceOfSelector}${paddedAccount}`),
-        ).then(res => res.json());
-        const totalSupplyRes = await fetch(
-          NETWORKS_INFO[chainId].defaultRpc,
-          getPayload(`0x${totalSupplySelector}`),
-        ).then(res => res.json());
+        const balanceRes = await fetch(rpcUrl, getPayload(`0x${balanceOfSelector}${paddedAccount}`)).then(res =>
+          res.json(),
+        );
+        const totalSupplyRes = await fetch(rpcUrl, getPayload(`0x${totalSupplySelector}`)).then(res => res.json());
 
         const userBalance = BigInt(balanceRes?.result || '0');
         const totalSupply = BigInt(totalSupplyRes?.result || '0');
@@ -407,6 +406,7 @@ export function ZapOutProvider({ children, ...props }: ZapOutProviderState) {
   useEffect(() => {
     store.setState({
       ...props,
+      rpcUrl: props.rpcUrl ?? NETWORKS_INFO[props.chainId].defaultRpc,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props]);

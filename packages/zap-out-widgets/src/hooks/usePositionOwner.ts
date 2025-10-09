@@ -2,21 +2,21 @@ import { useEffect, useState } from 'react';
 
 import { decodeAddress, getFunctionSelector } from '@kyber/utils/crypto';
 
-import { DEXES_INFO, NETWORKS_INFO } from '@/constants';
+import { DEXES_INFO } from '@/constants';
 import { ChainId, PoolType } from '@/schema';
 
 const usePositionOwner = ({
   positionId,
   chainId,
+  rpcUrl,
   poolType,
 }: {
   positionId?: string;
   chainId: ChainId;
+  rpcUrl: string;
   poolType: PoolType;
 }) => {
   const [positionOwner, setPositionOwner] = useState<string | null>(null);
-
-  const rpcUrl = NETWORKS_INFO[chainId].defaultRpc;
 
   const contract = DEXES_INFO[poolType].nftManagerContract;
   const nftManagerContract = typeof contract === 'string' ? contract : contract[chainId];
