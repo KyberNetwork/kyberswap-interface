@@ -28,7 +28,7 @@ import {
   RevertIconWrapper,
 } from 'pages/Earns/PositionDetail/styles'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
-import { CoreProtocol, Exchange, POSSIBLE_FARMING_PROTOCOLS } from 'pages/Earns/constants'
+import { CoreProtocol, Exchange } from 'pages/Earns/constants'
 import { CheckClosedPositionParams } from 'pages/Earns/hooks/useClosedPositions'
 import useZapInWidget from 'pages/Earns/hooks/useZapInWidget'
 import { ZapMigrationInfo } from 'pages/Earns/hooks/useZapMigrationWidget'
@@ -135,7 +135,6 @@ const RightSection = ({
     if (isToken0Stable || (isToken0Native && !isToken1Stable)) setRevert(true)
   }, [defaultRevertChecked, pool, chainId, stableCoins])
 
-  const isFarmingPossible = POSSIBLE_FARMING_PROTOCOLS.includes(protocol as Exchange)
   const isUnfinalized = position?.isUnfinalized
   const isUniV4 = isForkFrom(protocol as Exchange, CoreProtocol.UniswapV4)
   const isClosed = position?.status === PositionStatus.CLOSED
@@ -151,15 +150,14 @@ const RightSection = ({
       {zapOutWidget}
 
       <InfoRightColumn halfWidth={isUniv2}>
-        {!upToSmall &&
-        (position?.pool.isFarming ||
-          (initialLoading && isFarmingPossible) ||
-          Number(position?.rewards.claimableUsdValue || 0) > 0) ? (
+        {/* Total Liquidity */}
+        {/* Est. Position APR */}
+        {!upToSmall && (
           <Flex flexWrap={'wrap'} alignItems={'center'} sx={{ gap: '12px' }}>
             {totalLiquiditySection}
             {aprSection}
           </Flex>
-        ) : null}
+        )}
 
         {price || initialLoading ? (
           <PriceSection>
