@@ -1,5 +1,5 @@
 import { NativeToken } from 'constants/networks/type'
-import { EarnDex, Exchange } from 'pages/Earns/constants'
+import { Exchange } from 'pages/Earns/constants'
 
 export enum PositionStatus {
   IN_RANGE = 'IN_RANGE',
@@ -108,7 +108,7 @@ export interface EarnPosition {
     tokenAmounts: Array<PositionAmount>
     fees: Array<number>
     tickSpacing: number
-    project: EarnDex
+    exchange: Exchange
     projectLogo: string
     category: PAIR_CATEGORY
     programs?: Array<ProgramType>
@@ -145,7 +145,8 @@ export const DEFAULT_PARSED_POSITION: ParsedPosition = {
     category: PAIR_CATEGORY.DEFAULT_EMPTY,
   },
   dex: {
-    id: EarnDex.DEX_UNISWAPV3,
+    id: Exchange.DEX_UNISWAPV3,
+    name: 'Uniswap V3',
     logo: '',
     version: '',
   },
@@ -233,7 +234,8 @@ export interface ParsedPosition {
     category: PAIR_CATEGORY
   }
   dex: {
-    id: EarnDex
+    id: Exchange
+    name: string
     logo: string
     version: string
   }

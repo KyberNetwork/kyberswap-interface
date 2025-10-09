@@ -1,56 +1,21 @@
-import { useMemo } from 'react';
-
 import { Skeleton, TokenSymbol } from '@kyber/ui';
-import { divideBigIntToString, formatDisplayNumber } from '@kyber/utils/number';
-import { sqrtToPrice } from '@kyber/utils/uniswapv3';
+import { formatDisplayNumber } from '@kyber/utils/number';
 
 import RevertPriceIcon from '@/assets/svg/ic_revert_price.svg';
-import { univ2PoolNormalize, univ3PoolNormalize } from '@/schema';
 import { useZapOutContext } from '@/stores';
-import { useZapOutUserState } from '@/stores/state';
-import { assertUnreachable } from '@/utils';
 
 export function PoolPrice() {
-  const { pool, poolType } = useZapOutContext(s => s);
+  const { pool, revertPrice, toggleRevertPrice, poolPrice } = useZapOutContext(s => s);
 
-  const { revertPrice, toggleRevertPrice } = useZapOutUserState();
-
-  const price = useMemo(() => {
-    if (pool === 'loading') return '--';
-    const { success, data } = univ3PoolNormalize.safeParse(pool);
-    if (success) {
-      return formatDisplayNumber(
-        sqrtToPrice(BigInt(data.sqrtPriceX96 || 0), data.token0.decimals, data.token1.decimals, revertPrice),
-        {
-          significantDigits: 8,
-        },
-      );
-    }
-
-    const { success: isUniV2, data: uniV2Pool } = univ2PoolNormalize.safeParse(pool);
-
-    if (isUniV2) {
-      const p = divideBigIntToString(
-        BigInt(uniV2Pool.reserves[1]) * 10n ** BigInt(uniV2Pool.token0.decimals),
-        BigInt(uniV2Pool.reserves[0]) * 10n ** BigInt(uniV2Pool.token1.decimals),
-        18,
-      );
-      return formatDisplayNumber(revertPrice ? 1 / +p : p, {
-        significantDigits: 8,
-      });
-    }
-    return assertUnreachable(poolType as never, 'poolType is not handled');
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pool, revertPrice]);
-
-  return pool === 'loading' || !price ? (
+  return !pool || !poolPrice ? (
     <Skeleton className="w-[200px] h-3.5" />
   ) : (
     <div className="rounded-lg flex items-center justify-between flex-wrap border border-stroke px-4 py-3 text-subText text-sm">
       <div className="flex items-center gap-1">
         <span> Current Price</span>
         <div className="text-text flex items-center gap-1">
-          1 <TokenSymbol symbol={revertPrice ? pool.token1.symbol : pool.token0.symbol} maxWidth={80} /> = {price}
+          1 <TokenSymbol symbol={revertPrice ? pool.token1.symbol : pool.token0.symbol} maxWidth={80} /> ={' '}
+          {formatDisplayNumber(poolPrice, { significantDigits: 8 })}
           <TokenSymbol symbol={revertPrice ? pool.token0.symbol : pool.token1.symbol} maxWidth={80} />
         </div>
       </div>

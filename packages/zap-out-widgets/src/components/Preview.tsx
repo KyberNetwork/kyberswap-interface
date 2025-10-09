@@ -1,119 +1,33 @@
 import { useEffect, useState } from 'react';
 
-import { ScrollArea, TokenLogo, TokenSymbol } from '@kyber/ui';
-import { fetchTokenPrice, friendlyError } from '@kyber/utils';
-import {
-  calculateGasMargin,
-  estimateGas,
-  formatUnits,
-  getCurrentGasPrice,
-  isTransactionSuccessful,
-} from '@kyber/utils/crypto';
-import { formatDisplayNumber, formatTokenAmount } from '@kyber/utils/number';
+import { NETWORKS_INFO, univ3Types } from '@kyber/schema';
+import { MouseoverTooltip, StatusDialog, StatusDialogType, TokenLogo, TokenSymbol } from '@kyber/ui';
+import { PI_LEVEL, friendlyError } from '@kyber/utils';
+import { calculateGasMargin, estimateGas, isTransactionSuccessful } from '@kyber/utils/crypto';
+import { formatCurrency, formatDisplayNumber, formatTokenAmount } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
-import AlertIcon from '@/assets/svg/error.svg';
-import LoadingIcon from '@/assets/svg/loader.svg';
-import CheckIcon from '@/assets/svg/success.svg';
 import X from '@/assets/svg/x.svg';
 import Modal from '@/components/Modal';
 import { SlippageWarning } from '@/components/SlippageWarning';
-import { useSwapPI } from '@/components/SwapImpact';
-import { MouseoverTooltip } from '@/components/Tooltip';
 import { WarningMsg } from '@/components/WarningMsg';
-import { CHAIN_ID_TO_CHAIN, NETWORKS_INFO, PATHS } from '@/constants';
-import { ProtocolFeeAction, ZapAction } from '@/hooks/types/zapInTypes';
-import { Univ3PoolType } from '@/schema';
+import useZapRoute from '@/hooks/useZapRoute';
 import { useZapOutContext } from '@/stores';
-import { RefundAction, RemoveLiquidityAction, useZapOutUserState } from '@/stores/state';
-import { PI_LEVEL, formatCurrency } from '@/utils';
+import { useZapOutUserState } from '@/stores/state';
 
 export const Preview = () => {
-  const {
-    onClose,
-    pool,
-    source,
-    positionId,
-    theme,
-    position,
-    chainId,
-    rpcUrl,
-    connectedAccount,
-    onSubmitTx,
-    referral,
-    poolType,
-  } = useZapOutContext(s => s);
+  const { onClose, pool, positionId, theme, position, chainId, connectedAccount, onSubmitTx, poolType, rpcUrl } =
+    useZapOutContext(s => s);
 
   const { address: account } = connectedAccount;
-  const isUniV3 = Univ3PoolType.safeParse(poolType).success;
+  const isUniV3 = univ3Types.includes(poolType as any);
 
-  const { showPreview, slippage, togglePreview, tokenOut, route, mode, setSlippage } = useZapOutUserState();
+  const { buildData, slippage, setBuildData, tokenOut, route, mode, setSlippage } = useZapOutUserState();
+  const { zapImpact, refund, suggestedSlippage, zapFee, removeLiquidity, earnedFee } = useZapRoute();
 
-  const [gasUsd, setGasUsd] = useState<number | null>(null);
-  const [buildData, setBuildData] = useState<{
-    callData: string;
-    routerAddress: string;
-    value: string;
-  } | null>(null);
-  const [error, setError] = useState<string>('');
-
-  useEffect(() => {
-    if (!route?.route || !showPreview || !account) return;
-    fetch(`${PATHS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/out/route/build`, {
-      method: 'POST',
-      body: JSON.stringify({
-        sender: account,
-        route: route.route,
-        burnNft: false,
-        source,
-        referral,
-      }),
-      headers: {
-        'x-client-id': source,
-      },
-    })
-      .then(res => res.json())
-      .then(res => {
-        if (res.data) setBuildData(res.data);
-        else setError(friendlyError(res.message) || 'build failed');
-      })
-      .catch(err => {
-        setError(friendlyError(err.message) || JSON.stringify(err));
-      });
-  }, [route?.route, showPreview, account, chainId, source, referral]);
-
-  useEffect(() => {
-    if (!buildData || !account) return;
-    (async () => {
-      const wethAddress = NETWORKS_INFO[chainId].wrappedToken.address.toLowerCase();
-      const [gasEstimation, gasPrice, nativeTokenPrice] = await Promise.all([
-        estimateGas(rpcUrl, {
-          from: account,
-          to: buildData.routerAddress,
-          value: '0x0', // alway use WETH when remove this this is alway 0
-          data: buildData.callData,
-        }).catch(() => {
-          return '0';
-        }),
-        getCurrentGasPrice(rpcUrl).catch(() => 0),
-        fetchTokenPrice({
-          addresses: [wethAddress],
-          chainId,
-        })
-          .then(prices => {
-            return prices[wethAddress]?.PriceBuy || 0;
-          })
-          .catch(() => 0),
-      ]);
-
-      const gasUsd = +formatUnits(gasPrice, 18) * +gasEstimation.toString() * nativeTokenPrice;
-
-      setGasUsd(gasUsd);
-    })();
-  }, [buildData, account, chainId, rpcUrl]);
+  const [error, setError] = useState<Error | undefined>();
 
   const [showProcessing, setShowProcessing] = useState(false);
-  const [submiting, setSubmiting] = useState(false);
   const [txHash, setTxHash] = useState<string | null>(null);
   const [txStatus, setTxStatus] = useState<'success' | 'failed' | ''>('');
 
@@ -135,171 +49,123 @@ export const Preview = () => {
     }
   }, [chainId, rpcUrl, txHash]);
 
-  const { zapPiRes } = useSwapPI();
-
-  if (pool === 'loading' || position === 'loading' || !tokenOut || !route) return null;
-
-  const actionRefund = route?.zapDetails.actions.find(item => item.type === 'ACTION_TYPE_REFUND') as
-    | RefundAction
-    | undefined;
-
-  const amountOut = BigInt(actionRefund?.refund.tokens[0].amount || 0);
-  const amountOutUsdt = actionRefund?.refund.tokens[0].amountUsd || 0;
-
-  const feeInfo = route?.zapDetails.actions.find(item => item.type === ZapAction.PROTOCOL_FEE) as
-    | ProtocolFeeAction
-    | undefined;
+  if (!pool || !position || !tokenOut || !route) return null;
 
   const pi = {
-    piHigh: zapPiRes.level === PI_LEVEL.HIGH,
-    piVeryHigh: zapPiRes.level === PI_LEVEL.VERY_HIGH,
+    piHigh: zapImpact.level === PI_LEVEL.HIGH,
+    piVeryHigh: zapImpact.level === PI_LEVEL.VERY_HIGH,
   };
 
-  const zapFee = ((feeInfo?.protocolFee.pcm || 0) / 100_000) * 100;
-  const suggestedSlippage = route?.zapDetails.suggestedSlippage || 100;
-
-  const actionRemoveLiq = route?.zapDetails.actions.find(item => item.type === 'ACTION_TYPE_REMOVE_LIQUIDITY') as
-    | RemoveLiquidityAction
-    | undefined;
-
-  const { tokens, fees } = actionRemoveLiq?.removeLiquidity || {};
-
-  const token0 = tokens?.find(f => f.address.toLowerCase() === pool.token0.address.toLowerCase());
-
-  const token1 = tokens?.find(f => f.address.toLowerCase() === pool.token1.address.toLowerCase());
-
-  const withdrawAmount0 = BigInt(token0 ? token0.amount : 0);
-  const withdrawAmount1 = BigInt(token1 ? token1.amount : 0);
-
-  const fee0 = fees?.find(f => f.address.toLowerCase() === pool.token0.address.toLowerCase());
-
-  const fee1 = fees?.find(f => f.address.toLowerCase() === pool.token1.address.toLowerCase());
-
-  const feeAmount0 = BigInt(fee0?.amount || 0);
-  const feeAmount1 = BigInt(fee1?.amount || 0);
-
-  const receiveAmount0 = withdrawAmount0 + feeAmount0;
-  const receiveAmount1 = withdrawAmount1 + feeAmount1;
-  const receiveUsd0 = Number(token0?.amountUsd || 0) + Number(fee0?.amountUsd || 0);
-  const receiveUsd1 = Number(token1?.amountUsd || 0) + Number(fee1?.amountUsd || 0);
-
   const handleSlippage = () => {
-    const suggestedSlippage = route?.zapDetails.suggestedSlippage || 0;
     if (slippage !== suggestedSlippage) setSlippage(suggestedSlippage);
-    togglePreview();
+    setBuildData(undefined);
   };
 
   if (showProcessing) {
-    let content = <></>;
-    if (txHash) {
-      content = (
-        <div className="flex flex-col items-center">
-          <div className="flex items-center justify-center gap-2 text-xl font-medium my-8">
-            {txStatus === 'success' ? (
-              <CheckIcon className="w-7 h-7 text-success" />
-            ) : txStatus === 'failed' ? (
-              <AlertIcon className="w-7 h-7 text-error" />
-            ) : (
-              <LoadingIcon className="w-7 h-7 text-primary animate-spin" />
-            )}
-            {txStatus === 'success'
-              ? mode === 'zapOut'
-                ? 'Zap Out Success!'
-                : 'Remove Liquidity Success!'
-              : txStatus === 'failed'
-                ? 'Transaction Failed!'
-                : 'Processing Transaction'}
-          </div>
+    const errorMessage = error ? friendlyError(error) || error.message || JSON.stringify(error) : '';
 
-          <div className="text-subText text-center">
-            {txStatus === 'success'
-              ? 'You have successfully removed liquidity!'
-              : txStatus === 'failed'
-                ? 'An error occurred during the liquidity migration.'
-                : 'Transaction submitted. Waiting for the transaction to be mined'}
-          </div>
-          <a
-            className="text-primary text-xs mt-4"
-            href={`${NETWORKS_INFO[chainId].scanLink}/tx/${txHash}`}
-            target="_blank"
-            rel="noreferrer noopener"
-          >
-            View transaction ↗
-          </a>
-          <button className="ks-primary-btn w-full mt-4" onClick={onClose}>
-            Close
-          </button>
-        </div>
-      );
-    } else if (submiting) {
-      content = (
-        <div className="flex items-center justify-center gap-2 text-xl font-medium my-8">
-          <LoadingIcon className="w-6 h-6 text-primary animate-spin" />
-          Submitting transaction
-        </div>
-      );
-    } else if (error) {
-      content = (
-        <>
-          <div className="flex items-center justify-center gap-2 text-xl font-medium">
-            <AlertIcon className="w-6 h-6 text-error" />
-            Failed to remove liquidity
-          </div>
-          <ScrollArea>
-            <div className="text-subText mt-6 break-all	text-center max-h-[200px]" style={{ wordBreak: 'break-word' }}>
-              {error}
-            </div>
-          </ScrollArea>
-          <div className="flex gap-4 w-full mt-4">
+    return (
+      <StatusDialog
+        className="z-[1003]"
+        overlayClassName="z-[1003]"
+        type={
+          txStatus === 'success'
+            ? StatusDialogType.SUCCESS
+            : txStatus === 'failed' || error
+              ? StatusDialogType.ERROR
+              : txHash
+                ? StatusDialogType.PROCESSING
+                : StatusDialogType.WAITING
+        }
+        title={
+          txStatus === 'success' ? (mode === 'zapOut' ? 'Zap Out Success!' : 'Remove Liquidity Success!') : undefined
+        }
+        description={
+          txStatus !== 'success' && txStatus !== 'failed' && !error && !txHash
+            ? 'Confirm this transaction in your wallet'
+            : txStatus === 'success'
+              ? 'You have successfully removed your liquidity'
+              : undefined
+        }
+        errorMessage={error ? errorMessage : undefined}
+        transactionExplorerUrl={txHash ? `${NETWORKS_INFO[chainId].scanLink}/tx/${txHash}` : undefined}
+        action={
+          <>
             <button
-              className="flex-1 h-[40px] rounded-full border font-medium text-sm border-stroke text-subText"
+              className="ks-outline-btn flex-1"
               onClick={() => {
-                setShowProcessing(false);
-                setError('');
-                setSubmiting(false);
+                if (txStatus === 'success') {
+                  onClose();
+                  setBuildData(undefined);
+                } else if (error) {
+                  setShowProcessing(false);
+                  setError(undefined);
+                }
               }}
             >
               Close
             </button>
-            {error.includes('slippage') && (
+            {txStatus !== 'success' && errorMessage.includes('slippage') ? (
               <button className="ks-primary-btn flex-1" onClick={handleSlippage}>
-                {slippage !== route?.zapDetails.suggestedSlippage ? 'Use Suggested Slippage' : 'Set Custom Slippage'}
+                {slippage !== suggestedSlippage ? 'Use Suggested Slippage' : 'Set Custom Slippage'}
               </button>
-            )}
-          </div>
-        </>
-      );
-    }
-    return (
-      <Modal
-        isOpen={showProcessing}
-        onClick={() => {
-          if (txStatus === 'success') {
-            onClose();
-          }
-          togglePreview();
-          setShowProcessing(false);
-          setError('');
-          setSubmiting(false);
+            ) : null}
+          </>
+        }
+        onClose={() => {
+          if (txStatus === 'success') onClose();
+          setBuildData(undefined);
         }}
-      >
-        <div className="py-4">{content}</div>
-      </Modal>
+      />
     );
   }
 
   const color =
-    zapPiRes.level === PI_LEVEL.VERY_HIGH || zapPiRes.level === PI_LEVEL.INVALID
+    zapImpact.level === PI_LEVEL.VERY_HIGH || zapImpact.level === PI_LEVEL.INVALID
       ? theme.error
-      : zapPiRes.level === PI_LEVEL.HIGH
+      : zapImpact.level === PI_LEVEL.HIGH
         ? theme.warning
         : theme.subText;
 
+  const handleConfirm = async () => {
+    if (!account) return;
+    if (!buildData) {
+      setShowProcessing(true);
+      return;
+    }
+
+    const txData = {
+      from: account,
+      to: buildData.routerAddress,
+      value: '0x0', // alway use WETH when remove this this is alway 0
+      data: buildData.callData,
+    };
+
+    setShowProcessing(true);
+    const gas = await estimateGas(rpcUrl, txData).catch(err => {
+      console.log(err.message);
+      setError(err);
+      return 0n;
+    });
+
+    if (gas === 0n) return;
+
+    try {
+      const txHash = await onSubmitTx({
+        ...txData,
+        gasLimit: calculateGasMargin(gas),
+      });
+      setTxHash(txHash);
+    } catch (err) {
+      setError(err as Error);
+    }
+  };
+
   return (
-    <Modal isOpen={showPreview} onClick={() => togglePreview()} modalContentClass="!max-h-[96vh]">
+    <Modal isOpen={Boolean(buildData)} onClick={() => setBuildData(undefined)} modalContentClass="!max-h-[96vh]">
       <div className="flex justify-between text-[20px] font-medium">
         <div>Remove Liquidity {mode === 'zapOut' ? 'via Zap' : ''}</div>
-        <div role="button" onClick={() => togglePreview()} style={{ cursor: 'pointer' }}>
+        <div role="button" onClick={() => setBuildData(undefined)} style={{ cursor: 'pointer' }}>
           <X />
         </div>
       </div>
@@ -325,29 +191,33 @@ export const Preview = () => {
         {mode === 'zapOut' && (
           <div className="flex mt-3 text-base items-center">
             <TokenLogo src={tokenOut.logo} size={20} alt={tokenOut.symbol} />
-            <div className="ml-1">
-              {formatTokenAmount(amountOut, tokenOut.decimals)} <TokenSymbol symbol={tokenOut.symbol} maxWidth={80} />
+            <div className="ml-1 flex items-center gap-1">
+              {refund.refunds[0]?.amount || 0} <TokenSymbol symbol={tokenOut.symbol} maxWidth={80} />
             </div>
-            <div className="ml-2 text-subText">~{formatCurrency(+amountOutUsdt)}</div>
+            <div className="ml-2 text-subText">~{formatCurrency(refund.value)}</div>
           </div>
         )}
         {mode === 'withdrawOnly' && (
           <>
             <div className="flex gap-1 items-center mt-3">
               <TokenLogo src={pool.token0.logo || ''} className="w-5 h-5" />
-              <span className="text-lg font-medium">
-                {formatTokenAmount(receiveAmount0, pool.token0.decimals, 8)}{' '}
+              <span className="text-lg font-medium flex items-center gap-1">
+                {formatTokenAmount(removeLiquidity.removedAmount0 + earnedFee.earnedFee0, pool.token0.decimals, 8)}{' '}
                 <TokenSymbol symbol={pool.token0.symbol} maxWidth={80} />
               </span>
-              <span className="text-subText ml-1">~{formatDisplayNumber(receiveUsd0, { style: 'currency' })}</span>
+              <span className="text-subText ml-1">
+                ~{formatDisplayNumber(removeLiquidity.removedValue0 + earnedFee.feeValue0, { style: 'currency' })}
+              </span>
             </div>
             <div className="flex gap-1 items-center mt-3">
               <TokenLogo src={pool.token1.logo || ''} className="w-5 h-5" />
-              <span className="text-lg font-medium">
-                {formatTokenAmount(receiveAmount1, pool.token1.decimals, 8)}{' '}
+              <span className="text-lg font-medium flex items-center gap-1">
+                {formatTokenAmount(removeLiquidity.removedAmount1 + earnedFee.earnedFee1, pool.token1.decimals, 8)}{' '}
                 <TokenSymbol symbol={pool.token1.symbol} maxWidth={80} />
               </span>
-              <span className="text-subText ml-1">~{formatDisplayNumber(receiveUsd1, { style: 'currency' })}</span>
+              <span className="text-subText ml-1">
+                ~{formatDisplayNumber(removeLiquidity.removedValue1 + earnedFee.feeValue1, { style: 'currency' })}
+              </span>
             </div>
           </>
         )}
@@ -357,12 +227,12 @@ export const Preview = () => {
         <>
           <div className="flex flex-col mt-4 gap-3 text-sm">
             <div className="flex items-center justify-between">
-              <div className="text-subText text-xs ">
+              <div className="text-subText text-xs flex items-center gap-1">
                 Est. Received <TokenSymbol symbol={tokenOut.symbol} maxWidth={80} />
               </div>
               <div className="flex items-center gap-1">
                 <TokenLogo src={tokenOut.logo} alt={tokenOut.symbol} />
-                {formatTokenAmount(amountOut, tokenOut?.decimals || 18)}
+                {refund.refunds[0]?.amount || 0}
                 <TokenSymbol symbol={tokenOut.symbol} maxWidth={80} />
               </div>
             </div>
@@ -396,14 +266,14 @@ export const Preview = () => {
               <div
                 style={{
                   color:
-                    zapPiRes.level === PI_LEVEL.VERY_HIGH || zapPiRes.level === PI_LEVEL.INVALID
+                    zapImpact.level === PI_LEVEL.VERY_HIGH || zapImpact.level === PI_LEVEL.INVALID
                       ? theme.error
-                      : zapPiRes.level === PI_LEVEL.HIGH
+                      : zapImpact.level === PI_LEVEL.HIGH
                         ? theme.warning
                         : theme.text,
                 }}
               >
-                {zapPiRes.display}
+                {zapImpact.display}
               </div>
             </div>
 
@@ -412,8 +282,8 @@ export const Preview = () => {
                 <div className="text-subText text-xs border-b border-dotted border-subText">Est. Gas Fee</div>
               </MouseoverTooltip>
               <div>
-                {gasUsd
-                  ? formatDisplayNumber(gasUsd, {
+                {buildData
+                  ? formatDisplayNumber(buildData.gasUsd, {
                       significantDigits: 4,
                       style: 'currency',
                     })
@@ -479,8 +349,8 @@ export const Preview = () => {
                 <div className="text-subText text-xs border-b border-dotted border-subText">Est. Gas Fee</div>
               </MouseoverTooltip>
               <div>
-                {gasUsd
-                  ? formatDisplayNumber(gasUsd, {
+                {buildData
+                  ? formatDisplayNumber(buildData.gasUsd, {
                       significantDigits: 4,
                       style: 'currency',
                     })
@@ -504,42 +374,7 @@ export const Preview = () => {
               ? 'bg-warning border-solid border-warning'
               : '',
         )}
-        onClick={async () => {
-          if (!account) return;
-          if (!buildData) {
-            setShowProcessing(true);
-            return;
-          }
-
-          const txData = {
-            from: account,
-            to: buildData.routerAddress || '',
-            value: '0x0', // alway use WETH when remove this this is alway 0
-            data: buildData.callData || '',
-          };
-
-          setShowProcessing(true);
-          setSubmiting(true);
-          const gas = await estimateGas(rpcUrl, txData).catch(err => {
-            console.log(err.message);
-            setSubmiting(false);
-            setError(`Estimate Gas Failed: ${friendlyError(err.message)}`);
-            return 0n;
-          });
-
-          if (gas === 0n) return;
-
-          try {
-            const txHash = await onSubmitTx({
-              ...txData,
-              gasLimit: calculateGasMargin(gas),
-            });
-            setTxHash(txHash);
-          } catch (err) {
-            setSubmiting(false);
-            setError(`Submit Tx Failed: ${friendlyError(err as Error)}`);
-          }
-        }}
+        onClick={handleConfirm}
       >
         Remove Liquidity
       </button>

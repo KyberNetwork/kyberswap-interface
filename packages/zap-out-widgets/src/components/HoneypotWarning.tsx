@@ -11,7 +11,7 @@ export default function HoneypotWarning() {
   const { tokenOut } = useZapOutUserState();
 
   const tokensToCheck =
-    !pool || pool === 'loading' || !tokenOut
+    !pool || !tokenOut
       ? []
       : (() => {
           const seenAddresses = new Set<string>();

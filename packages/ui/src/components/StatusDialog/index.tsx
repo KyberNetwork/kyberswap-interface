@@ -59,7 +59,7 @@ export default function StatusDialog({
         aria-describedby={undefined}
       >
         <DialogTitle className="hidden" />
-        <div>
+        <div className="text-sm text-muted-foreground">
           <div className="w-full flex items-center justify-center gap-2 py-4">
             {statusIcon}
             <div className="text-xl font-medium text-center">{statusText}</div>
@@ -91,7 +91,7 @@ export default function StatusDialog({
           ) : null}
         </div>
 
-        {action ? <DialogFooter className="sm:space-x-4">{action}</DialogFooter> : null}
+        {action ? <DialogFooter className="sm:space-x-4 gap-y-3">{action}</DialogFooter> : null}
       </DialogContent>
     </Dialog>
   );
