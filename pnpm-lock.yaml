@@ -1721,21 +1721,12 @@ importers:
 
   packages/zap-migration-widgets:
     dependencies:
-      '@popperjs/core':
-        specifier: ^2.11.8
-        version: 2.11.8
       react:
         specifier: '>=16.8.0'
         version: 18.3.1
       react-dom:
         specifier: '>=16.8.0'
         version: 18.3.1(react@18.3.1)
-      react-popper:
-        specifier: ^2.3.0
-        version: 2.3.0(@popperjs/core@2.11.8)(react-dom@18.3.1)(react@18.3.1)
-      zod:
-        specifier: ^3.23.8
-        version: 3.23.8
       zustand:
         specifier: ^5.0.0
         version: 5.0.1(@types/react@18.3.12)(react@18.3.1)
@@ -1827,9 +1818,6 @@ importers:
 
   packages/zap-out-widgets:
     dependencies:
-      '@popperjs/core':
-        specifier: ^2.11.8
-        version: 2.11.8
       numeral:
         specifier: ^2.0.6
         version: 2.0.6
@@ -1839,12 +1827,6 @@ importers:
       react-dom:
         specifier: '>=16.8.0'
         version: 18.3.1(react@18.3.1)
-      react-popper:
-        specifier: ^2.3.0
-        version: 2.3.0(@popperjs/core@2.11.8)(react-dom@18.3.1)(react@18.3.1)
-      zod:
-        specifier: ^3.23.8
-        version: 3.23.8
       zustand:
         specifier: ^5.0.0
         version: 5.0.1(@types/react@18.3.12)(react@18.3.1)

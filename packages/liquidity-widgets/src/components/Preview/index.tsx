@@ -32,18 +32,29 @@ export interface PreviewProps {
 }
 
 export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool, onDismiss }: PreviewProps) {
-  const { poolType, chainId, connectedAccount, onSubmitTx, onViewPosition, referral, source, positionId, onClose } =
-    useWidgetStore([
-      'poolType',
-      'chainId',
-      'connectedAccount',
-      'onSubmitTx',
-      'onViewPosition',
-      'referral',
-      'source',
-      'positionId',
-      'onClose',
-    ]);
+  const {
+    chainId,
+    rpcUrl,
+    poolType,
+    connectedAccount,
+    onSubmitTx,
+    onViewPosition,
+    referral,
+    source,
+    positionId,
+    onClose,
+  } = useWidgetStore([
+    'chainId',
+    'rpcUrl',
+    'poolType',
+    'connectedAccount',
+    'onSubmitTx',
+    'onViewPosition',
+    'referral',
+    'source',
+    'positionId',
+    'onClose',
+  ]);
   const { position } = usePositionStore(['position']);
   const { setSlippage, slippage, tokensIn, amountsIn } = useZapState();
 
@@ -77,7 +88,6 @@ export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool,
     setTxError(null);
 
     const { address: account } = connectedAccount;
-    const rpcUrl = NETWORKS_INFO[chainId].defaultRpc;
 
     const { tokensIn: validTokensIn, amountsIn: validAmountsIn } = parseTokensAndAmounts(tokensIn, amountsIn);
     const parsedTokensIn = validTokensIn.map((token, index) => ({

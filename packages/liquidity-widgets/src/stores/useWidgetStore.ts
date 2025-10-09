@@ -18,6 +18,7 @@ interface WidgetState extends WidgetProps {
   theme: Theme;
   nativeToken: Token;
   wrappedNativeToken: Token;
+  rpcUrl: string;
   reset: () => void;
   setPositionId: (positionId: string) => void;
   setInitiaWidgetState: (props: WidgetProps, resetStore: () => void) => void;
@@ -25,10 +26,11 @@ interface WidgetState extends WidgetProps {
 
 const initState = {
   theme: defaultTheme,
+  chainId: ChainId.Ethereum,
+  rpcUrl: NETWORKS_INFO[ChainId.Ethereum].defaultRpc,
   poolAddress: '',
   positionId: undefined,
   poolType: PoolType.DEX_UNISWAPV3,
-  chainId: ChainId.Ethereum,
   connectedAccount: {
     address: '',
     chainId: ChainId.Ethereum,
@@ -56,7 +58,7 @@ const useWidgetRawStore = create<WidgetState>((set, _get) => ({
   ...initState,
   reset: () => set(initState),
   setInitiaWidgetState: (props: WidgetProps, resetStore: () => void) => {
-    const { theme, onClose, chainId } = props;
+    const { theme, onClose, chainId, rpcUrl } = props;
     const themeToApply =
       theme && typeof theme === 'object'
         ? {
@@ -69,6 +71,7 @@ const useWidgetRawStore = create<WidgetState>((set, _get) => ({
 
     set({
       ...props,
+      rpcUrl: rpcUrl ?? NETWORKS_INFO[chainId].defaultRpc,
       theme: themeToApply,
       onClose: onClose
         ? () => {

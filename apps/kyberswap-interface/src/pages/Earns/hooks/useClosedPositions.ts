@@ -1,12 +1,12 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useEffect, useState } from 'react'
 
-import { EarnDex } from 'pages/Earns/constants'
+import { Exchange } from 'pages/Earns/constants'
 import { getPositionLiquidity } from 'pages/Earns/utils/position'
 
 export interface CheckClosedPositionParams {
   tokenId: string
-  dex: EarnDex
+  dex: Exchange
   poolAddress: string
   chainId: ChainId
 }
@@ -26,7 +26,7 @@ const useClosedPositions = () => {
     chainId,
   }: {
     tokenId: string
-    dex: EarnDex
+    dex: Exchange
     poolAddress: string
     chainId: ChainId
   }) => {

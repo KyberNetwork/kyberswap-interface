@@ -39,17 +39,19 @@ import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
 export default function Widget() {
-  const { poolType, chainId, connectedAccount, onClose, positionId, onSubmitTx, onViewPosition } = useWidgetStore(
-    useShallow(s => ({
-      poolType: s.poolType,
-      chainId: s.chainId,
-      connectedAccount: s.connectedAccount,
-      onClose: s.onClose,
-      positionId: s.positionId,
-      onSubmitTx: s.onSubmitTx,
-      onViewPosition: s.onViewPosition,
-    })),
-  );
+  const { poolType, chainId, rpcUrl, connectedAccount, onClose, positionId, onSubmitTx, onViewPosition } =
+    useWidgetStore(
+      useShallow(s => ({
+        poolType: s.poolType,
+        chainId: s.chainId,
+        rpcUrl: s.rpcUrl,
+        connectedAccount: s.connectedAccount,
+        onClose: s.onClose,
+        positionId: s.positionId,
+        onSubmitTx: s.onSubmitTx,
+        onViewPosition: s.onViewPosition,
+      })),
+    );
   const { poolError, pool } = usePoolStore(
     useShallow(s => ({
       poolError: s.poolError,
@@ -69,13 +71,12 @@ export default function Widget() {
     tokenId: +positionId,
     spender: zapInfo?.routerAddress || '',
     userAddress: connectedAccount?.address || '',
-    rpcUrl: NETWORKS_INFO[chainId].defaultRpc,
+    rpcUrl,
     nftManagerContract,
     onSubmitTx: onSubmitTx,
   });
 
   const { address: account } = connectedAccount;
-  const rpcUrl = NETWORKS_INFO[chainId].defaultRpc;
   const isUniV3 = univ3Types.includes(poolType as any);
   const { token0 = defaultToken, token1 = defaultToken, fee: poolFee = 0 } = snapshotState ? snapshotState.pool : {};
 
@@ -91,7 +92,7 @@ export default function Widget() {
     if (txHash) {
       const i = setInterval(
         () => {
-          isTransactionSuccessful(NETWORKS_INFO[chainId].defaultRpc, txHash).then(res => {
+          isTransactionSuccessful(rpcUrl, txHash).then(res => {
             if (!res) return;
 
             if (res.status) {
@@ -106,7 +107,7 @@ export default function Widget() {
         clearInterval(i);
       };
     }
-  }, [chainId, txHash]);
+  }, [chainId, txHash, rpcUrl]);
 
   const handleClick = useCallback(async () => {
     if (!snapshotState || attempTx || txError || pool === 'loading' || !position || position === 'loading') return;

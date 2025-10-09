@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { API_URLS, ChainId, EarnChain, EarnDex, Exchange } from '@kyber/schema';
+import { API_URLS, ChainId, EarnChain, Exchange } from '@kyber/schema';
 import { enumToArrayOfValues } from '@kyber/utils';
 import { isAddress } from '@kyber/utils/crypto';
 
@@ -42,7 +42,7 @@ export default function usePositions({
   const positions = useMemo(() => {
     const positions = positionId
       ? userPositions.filter((position: EarnPosition) =>
-          position.pool.project !== EarnDex.DEX_UNISWAPV2
+          position.pool.exchange !== Exchange.DEX_UNISWAPV2
             ? position.tokenId !== positionId
             : position.pool.poolAddress !== poolAddress,
         )

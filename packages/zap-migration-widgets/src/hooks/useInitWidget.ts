@@ -19,6 +19,7 @@ export default function useInitWidget(widgetProps: ZapMigrationProps) {
     initialSlippage,
     connectedAccount,
     client,
+    rpcUrl,
     referral,
   } = widgetProps;
 
@@ -73,6 +74,7 @@ export default function useInitWidget(widgetProps: ZapMigrationProps) {
     setInitiaWidgetState({
       theme: themeProps as Theme,
       chainId,
+      rpcUrl,
       rePositionMode,
       sourcePoolType: from.poolType,
       targetPoolType: to?.poolType || from.poolType,
@@ -83,6 +85,7 @@ export default function useInitWidget(widgetProps: ZapMigrationProps) {
   }, [
     themeProps,
     chainId,
+    rpcUrl,
     setInitiaWidgetState,
     hasReseted,
     rePositionMode,

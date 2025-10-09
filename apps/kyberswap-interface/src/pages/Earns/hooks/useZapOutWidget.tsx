@@ -7,35 +7,25 @@ import { NotificationType } from 'components/Announcement/type'
 import Modal from 'components/Modal'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import { EarnDex, Exchange, protocolGroupNameToExchangeMapping } from 'pages/Earns/constants'
+import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import { CheckClosedPositionParams } from 'pages/Earns/hooks/useClosedPositions'
 import { submitTransaction } from 'pages/Earns/utils'
-import { useNotify, useWalletModalToggle } from 'state/application/hooks'
+import { useKyberSwapConfig, useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { getCookieValue } from 'utils'
 
 export interface ZapOutInfo {
   position: {
-    dex: EarnDex | Exchange
+    dex: Exchange
     chainId: number
     poolAddress: string
     id: string
   }
 }
 
-const zapOutDexMapping: Record<EarnDex | Exchange, ZapOutDex> = {
-  [EarnDex.DEX_UNISWAPV3]: ZapOutDex.DEX_UNISWAPV3,
-  [EarnDex.DEX_PANCAKESWAPV3]: ZapOutDex.DEX_PANCAKESWAPV3,
-  [EarnDex.DEX_SUSHISWAPV3]: ZapOutDex.DEX_SUSHISWAPV3,
-  [EarnDex.DEX_QUICKSWAPV3ALGEBRA]: ZapOutDex.DEX_QUICKSWAPV3ALGEBRA,
-  [EarnDex.DEX_CAMELOTV3]: ZapOutDex.DEX_CAMELOTV3,
-  [EarnDex.DEX_THENAFUSION]: ZapOutDex.DEX_THENAFUSION,
-  [EarnDex.DEX_KODIAK_V3]: ZapOutDex.DEX_KODIAK_V3,
-  [EarnDex.DEX_UNISWAPV2]: ZapOutDex.DEX_UNISWAPV2,
-  [EarnDex.DEX_UNISWAP_V4]: ZapOutDex.DEX_UNISWAP_V4,
-  [EarnDex.DEX_UNISWAP_V4_FAIRFLOW]: ZapOutDex.DEX_UNISWAP_V4_FAIRFLOW,
+const zapOutDexMapping: Record<Exchange, ZapOutDex> = {
   [Exchange.DEX_UNISWAPV3]: ZapOutDex.DEX_UNISWAPV3,
   [Exchange.DEX_PANCAKESWAPV3]: ZapOutDex.DEX_PANCAKESWAPV3,
   [Exchange.DEX_SUSHISWAPV3]: ZapOutDex.DEX_SUSHISWAPV3,
@@ -46,6 +36,21 @@ const zapOutDexMapping: Record<EarnDex | Exchange, ZapOutDex> = {
   [Exchange.DEX_UNISWAPV2]: ZapOutDex.DEX_UNISWAPV2,
   [Exchange.DEX_UNISWAP_V4]: ZapOutDex.DEX_UNISWAP_V4,
   [Exchange.DEX_UNISWAP_V4_FAIRFLOW]: ZapOutDex.DEX_UNISWAP_V4_FAIRFLOW,
+  [Exchange.DEX_PANCAKE_INFINITY_CL]: ZapOutDex.DEX_PANCAKE_INFINITY_CL,
+  [Exchange.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: ZapOutDex.DEX_PANCAKE_INFINITY_CL_FAIRFLOW,
+}
+
+const getDexFromPoolType = (poolType: ZapOutDex) => {
+  const dexIndex = Object.values(zapOutDexMapping).findIndex(
+    (item, index) => item === poolType && EARN_DEXES[Object.keys(zapOutDexMapping)[index] as Exchange],
+  )
+  if (dexIndex === -1) {
+    console.error('Cannot find dex')
+    return
+  }
+  const dex = Object.keys(zapOutDexMapping)[dexIndex] as Exchange
+
+  return dex
 }
 
 const useZapOutWidget = (onRefreshPosition?: (props: CheckClosedPositionParams) => void) => {
@@ -63,7 +68,7 @@ const useZapOutWidget = (onRefreshPosition?: (props: CheckClosedPositionParams) 
     poolAddress: string
     chainId: ZapOutChainId
   } | null>(null)
-  const [dex, setDex] = useState<EarnDex | Exchange | null>(null)
+  const { rpc: zapOutRpcUrl } = useKyberSwapConfig(zapOutPureParams?.chainId as ChainId | undefined)
 
   const zapOutParams = useMemo(
     () =>
@@ -71,6 +76,7 @@ const useZapOutWidget = (onRefreshPosition?: (props: CheckClosedPositionParams) 
         ? {
             ...zapOutPureParams,
             source: 'kyberswap-earn',
+            rpcUrl: zapOutRpcUrl,
             referral: refCode,
             connectedAccount: {
               address: account,
@@ -81,17 +87,13 @@ const useZapOutWidget = (onRefreshPosition?: (props: CheckClosedPositionParams) 
                 const foundEntry = Object.entries(zapOutDexMapping).find(
                   ([_, zapOutDex]) => zapOutDex === zapOutPureParams.poolType,
                 )
-                let dex = foundEntry?.[0] as EarnDex | Exchange
+                const dex = foundEntry?.[0] as Exchange
 
-                if (dex && Object.values(Exchange).includes(dex as Exchange)) {
-                  dex = Object.entries(protocolGroupNameToExchangeMapping).find(
-                    ([_, exchange]) => exchange === dex,
-                  )?.[0] as EarnDex
-                }
+                if (!dex || !Object.values(Exchange).includes(dex)) return
 
                 onRefreshPosition?.({
                   tokenId: zapOutPureParams.positionId,
-                  dex: dex as EarnDex,
+                  dex,
                   poolAddress: zapOutPureParams.poolAddress,
                   chainId: zapOutPureParams.chainId as unknown as ChainId,
                 })
@@ -112,7 +114,8 @@ const useZapOutWidget = (onRefreshPosition?: (props: CheckClosedPositionParams) 
               const { txHash, error } = res
               if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
 
-              if (additionalInfo)
+              const dex = getDexFromPoolType(zapOutPureParams.poolType)
+              if (additionalInfo && dex) {
                 addTransactionWithType({
                   hash: txHash,
                   type: TRANSACTION_TYPE.EARN_REMOVE_LIQUIDITY,
@@ -121,9 +124,11 @@ const useZapOutWidget = (onRefreshPosition?: (props: CheckClosedPositionParams) 
                     dexLogoUrl: additionalInfo.dexLogo,
                     positionId: zapOutPureParams.positionId,
                     tokensOut: additionalInfo.tokensOut || [],
-                    dex: dex as EarnDex | Exchange,
+                    dex,
                   },
                 })
+              }
+
               return txHash
             },
           }
@@ -135,7 +140,7 @@ const useZapOutWidget = (onRefreshPosition?: (props: CheckClosedPositionParams) 
       library,
       toggleWalletModal,
       zapOutPureParams,
-      dex,
+      zapOutRpcUrl,
       refCode,
       onRefreshPosition,
       addTransactionWithType,
@@ -155,7 +160,6 @@ const useZapOutWidget = (onRefreshPosition?: (props: CheckClosedPositionParams) 
       return
     }
 
-    setDex(position.dex as EarnDex | Exchange)
     setZapOutPureParams({
       poolType,
       chainId: position.chainId as ZapOutChainId,
@@ -166,7 +170,6 @@ const useZapOutWidget = (onRefreshPosition?: (props: CheckClosedPositionParams) 
 
   useAccountChanged(() => {
     setZapOutPureParams(null)
-    setDex(null)
   })
 
   const widget = zapOutParams ? (
@@ -177,7 +180,6 @@ const useZapOutWidget = (onRefreshPosition?: (props: CheckClosedPositionParams) 
       width={'760px'}
       onDismiss={() => {
         setZapOutPureParams(null)
-        setDex(null)
       }}
     >
       <ZapOut {...zapOutParams} />

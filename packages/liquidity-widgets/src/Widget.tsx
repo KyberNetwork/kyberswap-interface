@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 
 import { useNftApproval } from '@kyber/hooks';
-import { NETWORKS_INFO, defaultToken, univ3Types, univ4Types } from '@kyber/schema';
+import { defaultToken, univ3Types, univ4Types } from '@kyber/schema';
 import {
   InfoHelper,
   MAX_TOKENS,
@@ -39,8 +39,9 @@ import { PriceType, ZapSnapshotState } from '@/types/index';
 export default function Widget() {
   const {
     theme,
-    poolType,
     chainId,
+    rpcUrl,
+    poolType,
     poolAddress,
     connectedAccount,
     onClose,
@@ -50,8 +51,9 @@ export default function Widget() {
     onOpenZapMigration,
   } = useWidgetStore([
     'theme',
-    'poolType',
     'chainId',
+    'rpcUrl',
+    'poolType',
     'poolAddress',
     'connectedAccount',
     'onClose',
@@ -86,7 +88,7 @@ export default function Widget() {
     tokenId: positionId ? +positionId : undefined,
     spender: zapInfo?.routerAddress || '',
     userAddress: connectedAccount?.address || '',
-    rpcUrl: NETWORKS_INFO[chainId].defaultRpc,
+    rpcUrl,
     nftManagerContract,
     onSubmitTx: onSubmitTx,
   });

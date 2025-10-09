@@ -4,6 +4,7 @@ import {
   CompoundingWidget,
 } from '@kyberswap/compounding-widget'
 import '@kyberswap/compounding-widget/dist/style.css'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useCallback, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -11,11 +12,11 @@ import { NotificationType } from 'components/Announcement/type'
 import Modal from 'components/Modal'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import { EarnDex, Exchange, earnSupportedProtocols } from 'pages/Earns/constants'
+import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import { submitTransaction } from 'pages/Earns/utils'
 import { navigateToPositionAfterZap } from 'pages/Earns/utils/zap'
-import { useNotify, useWalletModalToggle } from 'state/application/hooks'
+import { useKyberSwapConfig, useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 
@@ -30,6 +31,7 @@ interface CompoundingPureParams {
 }
 
 interface CompoundingParams extends CompoundingPureParams {
+  rpcUrl?: string
   connectedAccount: {
     address?: string | undefined
     chainId: number
@@ -45,7 +47,7 @@ export interface CompoundingInfo {
   pool: {
     chainId: number
     address: string
-    dex: EarnDex | Exchange
+    dex: Exchange
   }
   positionId: string
   initDepositTokens: string
@@ -53,17 +55,7 @@ export interface CompoundingInfo {
   compoundType?: 'COMPOUND_TYPE_REWARD'
 }
 
-const compoundingDexMapping: Record<EarnDex | Exchange, CompoundingPoolType> = {
-  [EarnDex.DEX_UNISWAPV3]: CompoundingPoolType.DEX_UNISWAPV3,
-  [EarnDex.DEX_PANCAKESWAPV3]: CompoundingPoolType.DEX_PANCAKESWAPV3,
-  [EarnDex.DEX_SUSHISWAPV3]: CompoundingPoolType.DEX_SUSHISWAPV3,
-  [EarnDex.DEX_QUICKSWAPV3ALGEBRA]: CompoundingPoolType.DEX_QUICKSWAPV3ALGEBRA,
-  [EarnDex.DEX_CAMELOTV3]: CompoundingPoolType.DEX_CAMELOTV3,
-  [EarnDex.DEX_THENAFUSION]: CompoundingPoolType.DEX_THENAFUSION,
-  [EarnDex.DEX_KODIAK_V3]: CompoundingPoolType.DEX_KODIAK_V3,
-  [EarnDex.DEX_UNISWAPV2]: CompoundingPoolType.DEX_UNISWAPV2,
-  [EarnDex.DEX_UNISWAP_V4]: CompoundingPoolType.DEX_UNISWAP_V4,
-  [EarnDex.DEX_UNISWAP_V4_FAIRFLOW]: CompoundingPoolType.DEX_UNISWAP_V4_FAIRFLOW,
+const compoundingDexMapping: Record<Exchange, CompoundingPoolType> = {
   [Exchange.DEX_UNISWAPV3]: CompoundingPoolType.DEX_UNISWAPV3,
   [Exchange.DEX_PANCAKESWAPV3]: CompoundingPoolType.DEX_PANCAKESWAPV3,
   [Exchange.DEX_SUSHISWAPV3]: CompoundingPoolType.DEX_SUSHISWAPV3,
@@ -74,6 +66,8 @@ const compoundingDexMapping: Record<EarnDex | Exchange, CompoundingPoolType> = {
   [Exchange.DEX_UNISWAPV2]: CompoundingPoolType.DEX_UNISWAPV2,
   [Exchange.DEX_UNISWAP_V4]: CompoundingPoolType.DEX_UNISWAP_V4,
   [Exchange.DEX_UNISWAP_V4_FAIRFLOW]: CompoundingPoolType.DEX_UNISWAP_V4_FAIRFLOW,
+  [Exchange.DEX_PANCAKE_INFINITY_CL]: CompoundingPoolType.DEX_PANCAKE_INFINITY_CL,
+  [Exchange.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: CompoundingPoolType.DEX_PANCAKE_INFINITY_CL_FAIRFLOW,
 }
 
 const useCompounding = ({
@@ -92,11 +86,10 @@ const useCompounding = ({
   const { changeNetwork } = useChangeNetwork()
 
   const [compoundingPureParams, setCompoundingPureParams] = useState<CompoundingPureParams | null>(null)
-  const [dex, setDex] = useState<EarnDex | Exchange | null>(null)
+  const { rpc: compoundingRpcUrl } = useKyberSwapConfig(compoundingPureParams?.chainId as ChainId | undefined)
 
   const handleCloseCompounding = useCallback(() => {
     setCompoundingPureParams(null)
-    setDex(null)
   }, [])
 
   const handleNavigateToPosition = useCallback(
@@ -104,14 +97,13 @@ const useCompounding = ({
       if (!library) return
 
       const dexIndex = Object.values(compoundingDexMapping).findIndex(
-        (item, index) =>
-          item === poolType && earnSupportedProtocols.includes(Object.keys(compoundingDexMapping)[index]),
+        (item, index) => item === poolType && EARN_DEXES[Object.keys(compoundingDexMapping)[index] as Exchange],
       )
       if (dexIndex === -1) {
         console.error('Cannot find dex')
         return
       }
-      const dex = Object.keys(compoundingDexMapping)[dexIndex] as EarnDex
+      const dex = Object.keys(compoundingDexMapping)[dexIndex]
 
       navigateToPositionAfterZap(library, txHash, chainId, dex, poolId, navigate, tokenId)
     },
@@ -131,7 +123,6 @@ const useCompounding = ({
         )
         return
       }
-      setDex(pool.dex as EarnDex | Exchange)
       setCompoundingPureParams({
         poolAddress: pool.address,
         chainId: pool.chainId as CompoundingChainId,
@@ -150,6 +141,7 @@ const useCompounding = ({
       compoundingPureParams
         ? {
             ...compoundingPureParams,
+            rpcUrl: compoundingRpcUrl,
             connectedAccount: {
               address: account,
               chainId: chainId,
@@ -178,21 +170,33 @@ const useCompounding = ({
               const { txHash, error } = res
               if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
 
-              if (additionalInfo)
-                addTransactionWithType({
-                  hash: txHash,
-                  type:
-                    compoundingPureParams.compoundType === 'COMPOUND_TYPE_REWARD'
-                      ? TRANSACTION_TYPE.EARN_COMPOUND_REWARD
-                      : TRANSACTION_TYPE.EARN_COMPOUND_FEE,
-                  extraInfo: {
-                    pool: additionalInfo?.pool || '',
-                    positionId: compoundingPureParams.positionId || '',
-                    tokensIn: additionalInfo?.tokensIn || [],
-                    dexLogoUrl: additionalInfo?.dexLogo,
-                    dex: dex as EarnDex | Exchange,
-                  },
-                })
+              if (additionalInfo) {
+                const dexIndex = Object.values(compoundingDexMapping).findIndex(
+                  (item, index) =>
+                    item === compoundingPureParams.poolType &&
+                    EARN_DEXES[Object.keys(compoundingDexMapping)[index] as Exchange],
+                )
+                if (dexIndex === -1) {
+                  console.error('Cannot find dex')
+                } else {
+                  const dex = Object.keys(compoundingDexMapping)[dexIndex] as Exchange
+
+                  addTransactionWithType({
+                    hash: txHash,
+                    type:
+                      compoundingPureParams.compoundType === 'COMPOUND_TYPE_REWARD'
+                        ? TRANSACTION_TYPE.EARN_COMPOUND_REWARD
+                        : TRANSACTION_TYPE.EARN_COMPOUND_FEE,
+                    extraInfo: {
+                      pool: additionalInfo?.pool || '',
+                      positionId: compoundingPureParams.positionId || '',
+                      tokensIn: additionalInfo?.tokensIn || [],
+                      dexLogoUrl: additionalInfo?.dexLogo,
+                      dex,
+                    },
+                  })
+                }
+              }
               return txHash
             },
           }
@@ -202,6 +206,7 @@ const useCompounding = ({
       chainId,
       changeNetwork,
       compoundingPureParams,
+      compoundingRpcUrl,
       handleCloseCompounding,
       handleNavigateToPosition,
       library,
@@ -209,7 +214,6 @@ const useCompounding = ({
       toggleWalletModal,
       onCloseClaimModal,
       addTransactionWithType,
-      dex,
     ],
   )
 

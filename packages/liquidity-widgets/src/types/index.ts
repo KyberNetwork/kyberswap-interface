@@ -2,10 +2,11 @@ import { ChainId, PoolType, Theme, ZapRouteDetail } from '@kyber/schema';
 
 export interface WidgetProps {
   theme?: Theme;
+  chainId: ChainId;
+  rpcUrl?: string;
   poolAddress: string;
   positionId?: string;
   poolType: PoolType;
-  chainId: ChainId;
   connectedAccount: {
     address?: string | undefined;
     chainId: number;

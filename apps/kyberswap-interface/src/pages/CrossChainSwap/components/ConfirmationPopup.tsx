@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react'
 import { ArrowDown, X } from 'react-feather'
 import { useSearchParams } from 'react-router-dom'
 import { Box, Flex, Text } from 'rebass'
+import { useLazyCheckBlackjackQuery } from 'services/blackjack'
 import styled from 'styled-components'
 import { formatUnits } from 'viem'
 import { useWalletClient } from 'wagmi'
@@ -126,6 +127,8 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
 
   const { walletInfo, availableWallets } = useBitcoinWallet()
 
+  const [checkBlackjack] = useLazyCheckBlackjackQuery()
+
   const { publicKey: solanaAddress, sendTransaction } = useWallet()
   const { connection } = useConnection()
 
@@ -188,6 +191,14 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
     )
 
     setSubmittingTx(true)
+
+    const blackjackRes = await checkBlackjack(sender)
+    if (blackjackRes?.data?.blacklisted) {
+      setSubmittingTx(false)
+      setTxError('There was an error with your transaction.')
+      return
+    }
+
     const res = await selectedQuote.adapter
       .executeSwap(
         selectedQuote,
