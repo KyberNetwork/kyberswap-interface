@@ -16,9 +16,20 @@ import {
 
 const OPTIMEX_API = 'https://ks-provider.optimex.xyz/v1'
 
+// TODO: remember to add new supported chains to this map
+//  Map from ChainID to Optimex network_id
+const CHAIN_TO_OPTIMEX_NETWORK: Partial<Record<Chain, string>> = {
+  [NonEvmChain.Bitcoin]: 'bitcoin',
+  [ChainId.MAINNET]: 'ethereum',
+  [ChainId.BASE]: 'base',
+  [ChainId.ARBITRUM]: 'arbitrum',
+  [ChainId.BSCMAINNET]: 'bsc',
+  [ChainId.OPTIMISM]: 'optimism',
+}
+
 interface OptimexToken {
   id: number
-  network_id: 'ethereum' | 'bitcoin'
+  network_id: string // Optimex network identifier (e.g., 'ethereum', 'bitcoin', 'base', etc.)
   token_id: string
   network_name: string
   network_symbol: string
@@ -57,7 +68,7 @@ export class OptimexAdapter extends BaseSwapAdapter {
     return 'https://storage.googleapis.com/ks-setting-1d682dca/464ce79e-a906-4590-bf78-9054e606aa041749023419612.png'
   }
   getSupportedChains(): Chain[] {
-    return [NonEvmChain.Bitcoin, ChainId.MAINNET]
+    return [NonEvmChain.Bitcoin, ChainId.MAINNET, ChainId.BASE, ChainId.ARBITRUM, ChainId.BSCMAINNET, ChainId.OPTIMISM]
   }
 
   getSupportedTokens(_sourceChain: Chain, _destChain: Chain): Currency[] {
@@ -71,11 +82,21 @@ export class OptimexAdapter extends BaseSwapAdapter {
 
     const isFromBtc = params.fromChain === NonEvmChain.Bitcoin
     const isToBtc = params.toChain === NonEvmChain.Bitcoin
+    const fromNetworkId = CHAIN_TO_OPTIMEX_NETWORK[params.fromChain]
+    if (!fromNetworkId) {
+      throw new Error(`Optimex does not support source chain: ${params.fromChain}`)
+    }
+
+    const toNetworkId = CHAIN_TO_OPTIMEX_NETWORK[params.toChain]
+    if (!toNetworkId) {
+      throw new Error(`Optimex does not support destination chain: ${params.toChain}`)
+    }
+
     const fromToken = isFromBtc
       ? { token_id: 'BTC', token_symbol: 'BTC' }
       : this.tokens.find(item => {
           const address = (params.fromToken as any).isNative ? 'native' : (params.fromToken as any).wrapped.address
-          return item.network_id === 'ethereum' && address.toLowerCase() === item.token_address.toLowerCase()
+          return item.network_id === fromNetworkId && address.toLowerCase() === item.token_address.toLowerCase()
         })
     const fromTokenId = fromToken?.token_id
 
@@ -83,7 +104,7 @@ export class OptimexAdapter extends BaseSwapAdapter {
       ? { token_id: 'BTC', token_symbol: 'BTC' }
       : this.tokens.find(item => {
           const address = (params.toToken as any).isNative ? 'native' : (params.toToken as any).wrapped.address
-          return item.network_id === 'ethereum' && address.toLowerCase() === item.token_address.toLowerCase()
+          return item.network_id === toNetworkId && address.toLowerCase() === item.token_address.toLowerCase()
         })
     const toTokenId = toToken?.token_id
 
@@ -91,6 +112,8 @@ export class OptimexAdapter extends BaseSwapAdapter {
       console.log('optimex tokens', this.tokens)
       throw new Error(`Optimex does not support ${!fromTokenId ? params.fromToken.symbol : params.toToken.symbol}`)
     }
+
+    const userRefundPubkey = params.fromChain === NonEvmChain.Bitcoin ? params.publicKey : params.sender
 
     const [quoteRes, estimateRes, token0Usd, token1Usd] = await Promise.all([
       fetch(`${OPTIMEX_API}/solver/indicative-quote`, {
@@ -104,6 +127,9 @@ export class OptimexAdapter extends BaseSwapAdapter {
           from_token_id: fromTokenId,
           to_token_id: toTokenId,
           affiliate_fee_bps: params.feeBps.toString(),
+          from_user_address: params.sender,
+          user_receiving_address: params.recipient,
+          user_refund_pubkey: userRefundPubkey,
         }),
       }).then(res => res.json()),
       fetch(`${OPTIMEX_API}/trades/estimate?from_token=${fromTokenId}&to_token=${toTokenId}`).then(res => res.json()),
@@ -138,7 +164,7 @@ export class OptimexAdapter extends BaseSwapAdapter {
             10_000n
           ).toString(),
           to_user_address: params.recipient,
-          user_refund_pubkey: params.fromChain === NonEvmChain.Bitcoin ? params.publicKey : params.sender,
+          user_refund_pubkey: userRefundPubkey,
           user_refund_address: params.sender,
           creator_public_key: params.fromChain === NonEvmChain.Bitcoin ? params.publicKey : params.sender,
           from_wallet_address: params.sender,
