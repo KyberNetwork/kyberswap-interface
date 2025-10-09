@@ -1,6 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { t } from '@lingui/macro'
-import { defaultAbiCoder } from 'ethers/lib/utils'
+import { defaultAbiCoder, splitSignature } from 'ethers/lib/utils'
 import { useCallback, useMemo, useState } from 'react'
 
 import { NotificationType } from 'components/Announcement/type'
@@ -204,13 +204,12 @@ export const usePermitNft = ({ contractAddress, tokenId, spender, deadline, vers
 
         const flatSig = await library.send('eth_signTypedData_v4', [account.toLowerCase(), typedData])
 
-        // Split signature into v, r, s for V3 format
-        const r = flatSig.slice(0, 66)
-        const s = '0x' + flatSig.slice(66, 130)
-        const v = parseInt(flatSig.slice(130, 132), 16)
-
+        const sig = splitSignature(flatSig)
         // V3 permit data: encode(deadline, v, r, s)
-        permitData = defaultAbiCoder.encode(['uint256', 'uint8', 'bytes32', 'bytes32'], [permitDeadline, v, r, s])
+        permitData = defaultAbiCoder.encode(
+          ['uint256', 'uint8', 'bytes32', 'bytes32'],
+          [permitDeadline, sig.v, sig.r, sig.s],
+        )
         signature = flatSig
       } else {
         // V4 uses EIP-712 typed data signing (keep existing working implementation)

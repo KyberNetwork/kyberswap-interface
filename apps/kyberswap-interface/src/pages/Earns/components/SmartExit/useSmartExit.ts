@@ -88,6 +88,7 @@ export const useSmartExit = ({
       'Uniswap V3': DexType.DexTypeUniswapV3,
       'Uniswap V4': DexType.DexTypeUniswapV4,
       'Uniswap V4 FairFlow': DexType.DexTypeUniswapV4FairFlow,
+      'PancakeSwap V3': DexType.DexTypePancakeV3,
     }
     return dexMapping[dexId] || dexId
   }, [])
@@ -177,7 +178,7 @@ export const useSmartExit = ({
       return false
     }
     let liquidity = ''
-    if (dexType === 'uniswap-v3') {
+    if ([DexType.DexTypeUniswapV3, DexType.DexTypePancakeV3].includes(dexType)) {
       const res = await positionContract.positions(position.tokenId)
       liquidity = res.liquidity.toString()
     } else {
@@ -201,7 +202,7 @@ export const useSmartExit = ({
         poolId: position.pool.address,
         positionId: position.id,
         removeLiquidity: liquidity,
-        unwrap: true,
+        unwrap: position.token0.isNative || position.token1.isNative,
         permitData,
         condition: buildConditions(),
         deadline: expireTime,
