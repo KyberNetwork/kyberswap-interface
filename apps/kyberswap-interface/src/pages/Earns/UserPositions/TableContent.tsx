@@ -354,7 +354,7 @@ export default function TableContent({
                     </Flex>
                     <Flex flexWrap={'wrap'} alignItems={'center'} sx={{ gap: '6px' }}>
                       <Flex alignItems={'center'} sx={{ gap: 1 }}>
-                        <MouseoverTooltipDesktopOnly text={dex.id} width="fit-content" placement="bottom">
+                        <MouseoverTooltipDesktopOnly text={dex.name} width="fit-content" placement="bottom">
                           <TokenLogo src={dex.logo} size={16} />
                         </MouseoverTooltipDesktopOnly>
                         <Text fontSize={upToSmall ? 16 : 14} color={theme.subText}>
