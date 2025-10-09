@@ -12,20 +12,25 @@ import {
 import { ChainId, WETH } from '@kyberswap/ks-sdk-core'
 
 import { NETWORKS_INFO } from 'constants/networks'
-import { CoreProtocol, EarnDex } from 'pages/Earns/constants'
-import { EarnPosition, FeeInfo, NftRewardInfo, ParsedPosition, PositionStatus, ProgramType } from 'pages/Earns/types'
-import { getNftManagerContractAddress, isForkFrom, isNativeToken } from 'pages/Earns/utils'
+import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
+import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
+import {
+  EarnPosition,
+  FeeInfo,
+  NftRewardInfo,
+  ParsedPosition,
+  PoolAprInterval,
+  PositionStatus,
+  ProgramType,
+} from 'pages/Earns/types'
+import { getNftManagerContractAddress, isNativeToken } from 'pages/Earns/utils'
 
-export const listDexesWithVersion = [
-  EarnDex.DEX_UNISWAPV2,
-  EarnDex.DEX_UNISWAPV3,
-  EarnDex.DEX_UNISWAP_V4,
-  EarnDex.DEX_UNISWAP_V4_FAIRFLOW,
-  EarnDex.DEX_SUSHISWAPV3,
-  EarnDex.DEX_QUICKSWAPV3ALGEBRA,
-  EarnDex.DEX_CAMELOTV3,
-  EarnDex.DEX_PANCAKESWAPV3,
-]
+export const getDexVersion = (dex: Exchange) => {
+  if (!EARN_DEXES[dex].showVersion) return ''
+
+  const dexStringSplit = EARN_DEXES[dex].name.split(' ')
+  return dexStringSplit.length > 0 ? dexStringSplit.slice(1).join(' ') : ''
+}
 
 export const parsePosition = ({
   position,
@@ -37,7 +42,7 @@ export const parsePosition = ({
   feeInfo?: FeeInfo
   nftRewardInfo?: NftRewardInfo
   isClosedFromRpc?: boolean
-}) => {
+}): ParsedPosition => {
   const forceClosed = isClosedFromRpc && position.status !== PositionStatus.CLOSED
 
   const currentAmounts = position.currentAmounts
@@ -118,8 +123,8 @@ export const parsePosition = ({
   const token0Address = token0Data?.address || ''
   const token1Address = token1Data?.address || ''
 
-  const dex = pool.project || ''
-  const isUniv2 = isForkFrom(dex, CoreProtocol.UniswapV2)
+  const dex = pool.exchange || ''
+  const isUniv2 = EARN_DEXES[dex].isForkFrom === CoreProtocol.UniswapV2
 
   const programs = pool.programs || []
   const isFarming = programs.includes(ProgramType.EG) || programs.includes(ProgramType.LM)
@@ -164,8 +169,6 @@ export const parsePosition = ({
     feePending.reduce((sum, fee) => sum + fee.quotes.usd.value, 0) +
     feesClaimed.reduce((sum, fee) => sum + fee.quotes.usd.value, 0)
 
-  const dexVersion = listDexesWithVersion.includes(dex) ? dex.split(' ').pop() || '' : ''
-
   const chainId = position.chainId as keyof typeof NETWORKS_INFO
   const nativeToken = NETWORKS_INFO[chainId]?.nativeToken
 
@@ -202,8 +205,9 @@ export const parsePosition = ({
     },
     dex: {
       id: dex,
+      name: EARN_DEXES[dex].name,
       logo: pool.projectLogo,
-      version: dexVersion,
+      version: getDexVersion(dex),
     },
     chain: {
       id: position.chainId,
@@ -219,8 +223,8 @@ export const parsePosition = ({
     },
     earning: {
       earned: totalEarnedFees,
-      in7d: position.earning7d || 0,
-      in24h: position.earning24h || 0,
+      in7d: position.stats.earning['7d'] || 0,
+      in24h: position.stats.earning['24h'] || 0,
     },
     rewards: {
       totalUsdValue: nftRewardInfo?.totalUsdValue || 0,
@@ -261,10 +265,10 @@ export const parsePosition = ({
     },
     suggestionPool: position.suggestionPool,
     tokenAddress: position.tokenAddress,
-    feeApr: position.apr || 0,
-    apr: (position.apr || 0) + (position.kemEGApr || 0) + (position.kemLMApr || 0),
-    kemEGApr: position.kemEGApr || 0,
-    kemLMApr: position.kemLMApr || 0,
+    apr: calcAprInterval(position.stats.apr, position.stats.kemEGApr, position.stats.kemLMApr),
+    kemEGApr: calcAprInterval(position.stats.kemEGApr),
+    kemLMApr: calcAprInterval(position.stats.kemLMApr),
+    feeApr: calcAprInterval(position.stats.apr),
     totalValue,
     totalProvidedValue,
     unclaimedFees,
@@ -272,6 +276,14 @@ export const parsePosition = ({
     createdTime: position.createdTime,
     isUnfinalized,
     isValueUpdating: false,
+  }
+}
+
+const calcAprInterval = (...stats: PoolAprInterval[]): PoolAprInterval => {
+  return {
+    '24h': stats.reduce((sum, apr) => sum + (apr['24h'] || 0), 0),
+    '7d': stats.reduce((sum, apr) => sum + (apr['7d'] || 0), 0),
+    all: stats.reduce((sum, apr) => sum + (apr['all'] || 0), 0),
   }
 }
 
@@ -300,14 +312,15 @@ export const getPositionLiquidity = async ({
   chainId,
 }: {
   tokenId: string
-  dex: EarnDex
+  dex: Exchange
   poolAddress: string
   chainId: ChainId
 }) => {
-  const isUniV2 = isForkFrom(dex, CoreProtocol.UniswapV2)
-  const isUniV3 = isForkFrom(dex, CoreProtocol.UniswapV3)
-  const isUniV4 = isForkFrom(dex, CoreProtocol.UniswapV4)
-  const isAlgebra = isForkFrom(dex, CoreProtocol.AlgebraV1) || isForkFrom(dex, CoreProtocol.AlgebraV19)
+  const isUniV2 = EARN_DEXES[dex].isForkFrom === CoreProtocol.UniswapV2
+  const isUniV3 = EARN_DEXES[dex].isForkFrom === CoreProtocol.UniswapV3
+  const isUniV4 = EARN_DEXES[dex].isForkFrom === CoreProtocol.UniswapV4
+  const isAlgebra =
+    EARN_DEXES[dex].isForkFrom === CoreProtocol.AlgebraV1 || EARN_DEXES[dex].isForkFrom === CoreProtocol.AlgebraV19
 
   if (isUniV2) {
     const balanceOfSelector = getFunctionSelector('balanceOf(address)')

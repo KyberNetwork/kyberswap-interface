@@ -1,10 +1,11 @@
 import { create } from 'zustand';
 import { useShallow } from 'zustand/shallow';
 
-import { ChainId, PoolType, Theme, defaultTheme } from '@kyber/schema';
+import { ChainId, NETWORKS_INFO, PoolType, Theme, defaultTheme } from '@kyber/schema';
 
 interface WidgetProps {
   chainId: ChainId;
+  rpcUrl?: string;
   theme: Theme;
   sourcePoolType?: PoolType;
   targetPoolType?: PoolType;
@@ -18,6 +19,7 @@ interface WidgetProps {
 }
 
 interface WidgetState extends WidgetProps {
+  rpcUrl: string;
   widgetError: string;
   setWidgetError: (error: string) => void;
   reset: () => void;
@@ -27,6 +29,7 @@ interface WidgetState extends WidgetProps {
 const initState = {
   theme: defaultTheme,
   chainId: ChainId.Ethereum,
+  rpcUrl: NETWORKS_INFO[ChainId.Ethereum].defaultRpc,
   sourcePoolType: undefined,
   targetPoolType: undefined,
   rePositionMode: false,
@@ -45,6 +48,7 @@ const useWidgetRawStore = create<WidgetState>((set, _get) => ({
   setInitiaWidgetState: ({
     theme,
     chainId,
+    rpcUrl,
     rePositionMode,
     sourcePoolType,
     targetPoolType,
@@ -63,6 +67,7 @@ const useWidgetRawStore = create<WidgetState>((set, _get) => ({
     set({
       theme: themeToApply,
       chainId,
+      rpcUrl: rpcUrl ?? NETWORKS_INFO[chainId].defaultRpc,
       rePositionMode,
       sourcePoolType,
       targetPoolType,

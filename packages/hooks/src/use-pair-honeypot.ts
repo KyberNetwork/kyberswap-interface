@@ -17,14 +17,14 @@ const checkTokenHoneypot = async (tokenAddress: string, chainId: ChainId) => {
 };
 
 // Cache and in-flight request registry to deduplicate network calls across renders/mounts
-const honeypotCache = new Map<string, Honeypot[]>();
-const inFlightRequests = new Map<string, Promise<Honeypot[]>>();
+const honeypotCache = new Map<string, Array<Honeypot | null>>();
+const inFlightRequests = new Map<string, Promise<Array<Honeypot | null>>>();
 
 const makeKey = (addresses: string[], chainId: ChainId) =>
   `${chainId}:${addresses.map(a => a.toLowerCase()).join(',')}`;
 
 export function usePairHoneypot(tokenAddresses: string[], chainId: ChainId) {
-  const [honeypots, setHoneypots] = useState<Honeypot[]>([]);
+  const [honeypots, setHoneypots] = useState<Array<Honeypot | null>>([]);
 
   const normalizedAddresses = useMemo(() => tokenAddresses.map(addr => addr.toLowerCase()), [tokenAddresses]);
   const key = useMemo(() => makeKey(normalizedAddresses, chainId), [normalizedAddresses, chainId]);

@@ -11,7 +11,7 @@ export default function HoneypotWarning() {
   const { tokenOut } = useZapOutUserState();
 
   const tokensToCheck =
-    !pool || pool === 'loading' || !tokenOut
+    !pool || !tokenOut
       ? []
       : (() => {
           const seenAddresses = new Set<string>();
@@ -33,7 +33,7 @@ export default function HoneypotWarning() {
 
   const honeypotTokens = honeypots
     .map((honeypot, index) =>
-      honeypot.isHoneypot
+      honeypot && honeypot.isHoneypot
         ? {
             ...honeypot,
             symbol: tokensToCheck[index].symbol,
@@ -45,7 +45,7 @@ export default function HoneypotWarning() {
 
   const fotTokens = honeypots
     .map((honeypot, index) =>
-      honeypot.isFOT
+      honeypot && honeypot.isFOT
         ? {
             ...honeypot,
             symbol: tokensToCheck[index].symbol,

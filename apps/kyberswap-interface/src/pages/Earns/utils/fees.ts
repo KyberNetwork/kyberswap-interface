@@ -5,15 +5,16 @@ import { defaultAbiCoder as abiEncoder, keccak256, solidityPack } from 'ethers/l
 import StateViewABI from 'constants/abis/earn/uniswapv4StateViewAbi.json'
 import { ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
 import { ClaimInfo } from 'pages/Earns/components/ClaimModal'
-import { CoreProtocol, EarnDex, UNISWAPV4_STATEVIEW_CONTRACT, UNWRAP_WNATIVE_TOKEN_FUNC } from 'pages/Earns/constants'
+import { EARN_CHAINS, EARN_DEXES, Exchange } from 'pages/Earns/constants'
+import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import { ParsedPosition } from 'pages/Earns/types'
-import { getNftManagerContract, getNftManagerContractAddress, isForkFrom } from 'pages/Earns/utils'
+import { getNftManagerContract, getNftManagerContractAddress } from 'pages/Earns/utils'
 import { getReadingContractWithCustomChain } from 'utils/getContract'
 
 export const getUnclaimedFeesInfo = async (position: ParsedPosition) => {
   const { tokenId, dex, chain, token0, token1 } = position
   const chainId = chain.id
-  const isUniv4 = isForkFrom(dex.id, CoreProtocol.UniswapV4)
+  const isUniv4 = EARN_DEXES[dex.id].isForkFrom === CoreProtocol.UniswapV4
 
   const { balance0, balance1 } = isUniv4
     ? await getUniv4UnclaimedFees({
@@ -45,7 +46,15 @@ export const getUnclaimedFeesInfo = async (position: ParsedPosition) => {
   }
 }
 
-const getUniv3UnclaimedFees = async ({ tokenId, dex, chainId }: { tokenId: string; dex: EarnDex; chainId: number }) => {
+const getUniv3UnclaimedFees = async ({
+  tokenId,
+  dex,
+  chainId,
+}: {
+  tokenId: string
+  dex: Exchange
+  chainId: number
+}) => {
   const contract = getNftManagerContract(dex, chainId)
   if (!contract) return { balance0: 0, balance1: 0 }
 
@@ -74,7 +83,7 @@ const getUniv4UnclaimedFees = async ({
   poolAddress,
 }: {
   tokenId: number | string
-  dex: EarnDex
+  dex: Exchange
   chainId: number
   poolAddress: string
 }) => {
@@ -87,7 +96,8 @@ const getUniv4UnclaimedFees = async ({
     const positionInfo = await nftPosManagerContract.positionInfo(tokenId)
     const { tickLower, tickUpper } = decodePositionInfo(BigInt(positionInfo))
 
-    const stateViewAddress = UNISWAPV4_STATEVIEW_CONTRACT[chainId as keyof typeof UNISWAPV4_STATEVIEW_CONTRACT]
+    const stateViewAddress = EARN_CHAINS[chainId as keyof typeof EARN_CHAINS].univ4StateViewContract
+    if (!stateViewAddress) return defaultBalance
     const stateViewContract = getReadingContractWithCustomChain(stateViewAddress, StateViewABI, chainId)
     if (!stateViewContract) return defaultBalance
 
@@ -149,9 +159,9 @@ export const getUniv3CollectCallData = async ({
   claimInfo: ClaimInfo | null
   recipient?: string
 }) => {
-  if (!claimInfo || !recipient) return
+  if (!claimInfo || !claimInfo.dex || !recipient) return
 
-  const contract = getNftManagerContract(claimInfo.dex as EarnDex, claimInfo.chainId)
+  const contract = getNftManagerContract(claimInfo.dex as Exchange, claimInfo.chainId)
   if (!contract) return
 
   const tokenId = claimInfo.nftId
@@ -175,8 +185,7 @@ export const getUniv3CollectCallData = async ({
   if (involvesETH) {
     const token = token0.isNative ? token1.address : token0.address
 
-    const unwrapWNativeTokenFuncName =
-      UNWRAP_WNATIVE_TOKEN_FUNC[claimInfo.dex as keyof typeof UNWRAP_WNATIVE_TOKEN_FUNC]
+    const unwrapWNativeTokenFuncName = EARN_DEXES[claimInfo.dex].unwrapWNativeTokenFuncName
     if (!unwrapWNativeTokenFuncName) return
     const unwrapWETH9CallData = contract.interface.encodeFunctionData(unwrapWNativeTokenFuncName, [0, recipient])
 
@@ -204,7 +213,7 @@ export const getUniv4CollectCallData = async ({
 }) => {
   if (!claimInfo || !recipient) return
 
-  const contract = getNftManagerContract(claimInfo.dex as EarnDex, claimInfo.chainId)
+  const contract = getNftManagerContract(claimInfo.dex as Exchange, claimInfo.chainId)
   if (!contract) return
 
   const token0 = claimInfo.tokens[0]

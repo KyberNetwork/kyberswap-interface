@@ -1,25 +1,38 @@
 import { useMemo, useState } from 'react';
 
+import { usePositionOwner } from '@kyber/hooks';
+import { DEXES_INFO, FARMING_CONTRACTS } from '@kyber/schema';
+import { InfoHelper, Loading } from '@kyber/ui';
+import { PI_LEVEL, friendlyError } from '@kyber/utils';
+import { estimateGasForTx } from '@kyber/utils/crypto/transaction';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
-import InfoHelper from '@/components/InfoHelper';
-import { useSwapPI } from '@/components/SwapImpact';
 import { WarningMsg } from '@/components/WarningMsg';
-import { DEXES_INFO, FARMING_CONTRACTS, NETWORKS_INFO } from '@/constants';
 import { useNftApproval } from '@/hooks/useNftApproval';
-import usePositionOwner from '@/hooks/usePositionOwner';
+import useZapRoute from '@/hooks/useZapRoute';
 import { useZapOutContext } from '@/stores';
 import { useZapOutUserState } from '@/stores/state';
-import { PI_LEVEL } from '@/utils';
+import { buildRouteData } from '@/utils';
 
 export const Action = () => {
-  const { onClose, connectedAccount, chainId, onConnectWallet, onSwitchChain, poolType, positionId } = useZapOutContext(
-    s => s,
-  );
+  const {
+    onClose,
+    connectedAccount,
+    chainId,
+    onConnectWallet,
+    onSwitchChain,
+    poolType,
+    positionId,
+    source,
+    referral,
+    setWidgetError,
+    rpcUrl,
+  } = useZapOutContext(s => s);
 
   const { address: account, chainId: walletChainId } = connectedAccount;
 
-  const { fetchingRoute, togglePreview, route, degenMode, toggleSetting } = useZapOutUserState();
+  const { fetchingRoute, setBuildData, route, degenMode, toggleSetting, ttl } = useZapOutUserState();
+  const { zapImpact } = useZapRoute();
 
   const nftManager = DEXES_INFO[poolType].nftManagerContract;
   const nftManagerContract = typeof nftManager === 'string' ? nftManager : nftManager[chainId];
@@ -30,7 +43,7 @@ export const Action = () => {
     approve,
     pendingTx,
   } = useNftApproval({
-    rpcUrl: NETWORKS_INFO[chainId].defaultRpc,
+    rpcUrl,
     nftManagerContract,
     nftId: +positionId,
     spender: route?.routerAddress,
@@ -39,6 +52,7 @@ export const Action = () => {
   const isApproved = approved && !isChecking;
 
   const [clickedApprove, setClickedApprove] = useState(false);
+  const [gasLoading, setGasLoading] = useState(false);
 
   const positionOwner = usePositionOwner({ positionId, chainId, poolType });
   const isNotOwner =
@@ -50,7 +64,55 @@ export const Action = () => {
     FARMING_CONTRACTS[poolType]?.[chainId] &&
     FARMING_CONTRACTS[poolType]?.[chainId]?.toLowerCase() === positionOwner?.toLowerCase();
 
-  const disabled = isNotOwner || clickedApprove || isChecking || fetchingRoute || Boolean(pendingTx) || !route;
+  const disabled =
+    isNotOwner || clickedApprove || isChecking || fetchingRoute || Boolean(pendingTx) || !route || gasLoading;
+
+  const getBuildData = async () => {
+    if (!route || !connectedAccount.address) return;
+    setGasLoading(true);
+
+    try {
+      const date = new Date();
+      date.setMinutes(date.getMinutes() + (ttl || 20));
+      const deadline = Math.floor(date.getTime() / 1000);
+
+      const buildData = await buildRouteData({
+        sender: connectedAccount.address,
+        route: route.route,
+        source,
+        referral,
+        chainId,
+        deadline,
+      });
+      if (!buildData) {
+        setGasLoading(false);
+        return;
+      }
+
+      const txData = {
+        from: connectedAccount.address,
+        to: buildData.routerAddress,
+        data: buildData.callData,
+        value: `0x${BigInt(buildData.value).toString(16)}`,
+      };
+      const { gasUsd, error } = await estimateGasForTx({ rpcUrl, txData, chainId });
+      setGasLoading(false);
+
+      if (error || !gasUsd) {
+        setWidgetError(error || 'Estimate Gas Failed');
+        return;
+      }
+
+      return { ...buildData, gasUsd };
+    } catch (error) {
+      setWidgetError(friendlyError(error as Error));
+      console.log('estimate gas error', error);
+    } finally {
+      setGasLoading(false);
+    }
+
+    return;
+  };
 
   const handleClick = async () => {
     if (!account) {
@@ -71,27 +133,30 @@ export const Action = () => {
       document.getElementById('zapout-setting')?.scrollIntoView({ behavior: 'smooth' });
       return;
     }
-    togglePreview();
+    if (!route) return;
+    const buildData = await getBuildData();
+    if (!buildData) return;
+
+    setBuildData(buildData);
   };
 
-  const { zapPiRes } = useSwapPI();
-
   const pi = {
-    piHigh: zapPiRes.level === PI_LEVEL.HIGH,
-    piVeryHigh: zapPiRes.level === PI_LEVEL.VERY_HIGH,
+    piHigh: zapImpact.level === PI_LEVEL.HIGH,
+    piVeryHigh: zapImpact.level === PI_LEVEL.VERY_HIGH,
   };
 
   const btnText = useMemo(() => {
+    if (gasLoading) return 'Estimating Gas';
     if (!account) return 'Connect Wallet';
     if (isNotOwner) {
       if (isFarming) return 'Your position is in farming';
       return 'Not the position owner';
     }
+    if (fetchingRoute) return 'Fetching Route';
     if (!route) return 'No route found';
-    if (isChecking) return 'Checking Approval...';
-    if (fetchingRoute) return 'Fetching Route...';
+    if (isChecking) return 'Checking Approval';
     if (chainId !== walletChainId) return 'Switch Network';
-    if (clickedApprove || pendingTx) return 'Approving...';
+    if (clickedApprove || pendingTx) return 'Approving';
     if (!isApproved) return 'Approve';
     if (pi.piVeryHigh) return 'Remove anyway';
     return 'Preview';
@@ -108,7 +173,10 @@ export const Action = () => {
     isApproved,
     pi.piVeryHigh,
     isFarming,
+    gasLoading,
   ]);
+
+  const btnLoading = isChecking || fetchingRoute || clickedApprove || pendingTx || gasLoading;
 
   return (
     <>
@@ -132,6 +200,7 @@ export const Action = () => {
           onClick={handleClick}
         >
           {btnText}
+          {btnLoading && <Loading className="ml-[6px]" />}
           {pi.piVeryHigh && chainId === walletChainId && account && isApproved && (
             <InfoHelper
               color="#ffffff"

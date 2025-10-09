@@ -20,7 +20,7 @@ import {
   Wrapper,
   X,
 } from 'pages/Earns/components/ClaimModal/styles'
-import { EarnDex, LIMIT_TEXT_STYLES } from 'pages/Earns/constants'
+import { Exchange, LIMIT_TEXT_STYLES } from 'pages/Earns/constants'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -30,7 +30,7 @@ export enum ClaimType {
 }
 
 export interface ClaimInfo {
-  dex?: EarnDex
+  dex?: Exchange
   nftId: string
   chainId: number
   tokens: Array<{
