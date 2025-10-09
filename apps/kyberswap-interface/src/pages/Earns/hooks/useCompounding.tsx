@@ -11,7 +11,7 @@ import { NotificationType } from 'components/Announcement/type'
 import Modal from 'components/Modal'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import { Exchange, earnSupportedExchanges } from 'pages/Earns/constants'
+import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import { submitTransaction } from 'pages/Earns/utils'
 import { navigateToPositionAfterZap } from 'pages/Earns/utils/zap'
@@ -91,8 +91,7 @@ const useCompounding = ({
       if (!library) return
 
       const dexIndex = Object.values(compoundingDexMapping).findIndex(
-        (item, index) =>
-          item === poolType && earnSupportedExchanges.includes(Object.keys(compoundingDexMapping)[index]),
+        (item, index) => item === poolType && EARN_DEXES[Object.keys(compoundingDexMapping)[index] as Exchange],
       )
       if (dexIndex === -1) {
         console.error('Cannot find dex')

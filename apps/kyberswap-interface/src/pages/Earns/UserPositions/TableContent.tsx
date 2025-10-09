@@ -34,7 +34,8 @@ import {
 } from 'pages/Earns/UserPositions/styles'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import RewardSyncing from 'pages/Earns/components/RewardSyncing'
-import { CoreProtocol, EXCHANGES_SUPPORT_COLLECT_FEE, LIMIT_TEXT_STYLES } from 'pages/Earns/constants'
+import { EARN_DEXES, LIMIT_TEXT_STYLES } from 'pages/Earns/constants'
+import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import useCollectFees from 'pages/Earns/hooks/useCollectFees'
 import useFarmingStablePools from 'pages/Earns/hooks/useFarmingStablePools'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
@@ -42,7 +43,6 @@ import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import { ZapOutInfo } from 'pages/Earns/hooks/useZapOutWidget'
 import { FeeInfo, ParsedPosition, PositionStatus, SuggestedPool } from 'pages/Earns/types'
-import { isForkFrom } from 'pages/Earns/utils'
 import { getUnclaimedFeesInfo } from 'pages/Earns/utils/fees'
 import { checkEarlyPosition } from 'pages/Earns/utils/position'
 import { useWalletModalToggle } from 'state/application/hooks'
@@ -132,7 +132,7 @@ export default function TableContent({
   const handleOpenIncreaseLiquidityWidget = (e: React.MouseEvent, position: ParsedPosition) => {
     e.stopPropagation()
     e.preventDefault()
-    const isUniv2 = isForkFrom(position.dex.id, CoreProtocol.UniswapV2)
+    const isUniv2 = EARN_DEXES[position.dex.id].isForkFrom === CoreProtocol.UniswapV2
     onOpenZapInWidget({
       pool: {
         dex: position.dex.id,
@@ -146,7 +146,7 @@ export default function TableContent({
   const handleOpenZapOut = (e: React.MouseEvent, position: ParsedPosition) => {
     e.stopPropagation()
     e.preventDefault()
-    const isUniv2 = isForkFrom(position.dex.id, CoreProtocol.UniswapV2)
+    const isUniv2 = EARN_DEXES[position.dex.id].isForkFrom === CoreProtocol.UniswapV2
     onOpenZapOut({
       position: {
         dex: position.dex.id,
@@ -300,7 +300,7 @@ export default function TableContent({
                 rewards,
                 isUnfinalized,
               } = position
-              const feesClaimDisabled = !EXCHANGES_SUPPORT_COLLECT_FEE[dex.id] || unclaimedFees === 0 || feesClaiming
+              const feesClaimDisabled = !EARN_DEXES[dex.id].collectFeeSupported || unclaimedFees === 0 || feesClaiming
               const rewardsClaimDisabled = rewardsClaiming || position.rewards.claimableUsdValue === 0
               const isStablePair = pool.category === PAIR_CATEGORY.STABLE
               const isEarlyPosition = checkEarlyPosition(position)
@@ -332,7 +332,7 @@ export default function TableContent({
                   key={`${tokenId}-${pool.address}-${index}`}
                   to={APP_PATHS.EARN_POSITION_DETAIL.replace(':positionId', !pool.isUniv2 ? id : pool.address)
                     .replace(':chainId', chain.id.toString())
-                    .replace(':protocol', dex.id)}
+                    .replace(':exchange', dex.id)}
                 >
                   {/* Overview info */}
                   <PositionOverview>

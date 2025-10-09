@@ -16,10 +16,10 @@ import { NavigateButton } from 'pages/Earns/PoolExplorer/styles'
 import { DexInfo, IconArrowLeft, PositionHeader } from 'pages/Earns/PositionDetail/styles'
 import { Badge, BadgeType, ImageContainer } from 'pages/Earns/UserPositions/styles'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
-import { CoreProtocol, Exchange, PROTOCOL_POSITION_URL, earnSupportedExchanges } from 'pages/Earns/constants'
+import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
+import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import useForceLoading from 'pages/Earns/hooks/useForceLoading'
 import { ParsedPosition, PositionStatus } from 'pages/Earns/types'
-import { isForkFrom } from 'pages/Earns/utils'
 import { MEDIA_WIDTHS } from 'theme'
 
 const PositionDetailHeader = ({
@@ -36,16 +36,16 @@ const PositionDetailHeader = ({
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
 
-  const { protocol } = useParams()
+  const { exchange } = useParams()
   const { hadForceLoading } = useForceLoading()
 
-  const isUniv2 = isForkFrom(protocol as Exchange, CoreProtocol.UniswapV2)
+  const isUniv2 = EARN_DEXES[exchange as Exchange]?.isForkFrom === CoreProtocol.UniswapV2
   const posStatus = isUniv2 ? PositionStatus.IN_RANGE : position?.status
 
   const onOpenPositionInDexSite = () => {
-    if (!position || !earnSupportedExchanges.includes(position.dex.id)) return
+    if (!position || !EARN_DEXES[position.dex.id]) return
 
-    const positionDetailUrl = PROTOCOL_POSITION_URL[position.dex.id]
+    const positionDetailUrl = EARN_DEXES[position.dex.id].siteUrl
 
     if (!positionDetailUrl) return
 
@@ -166,7 +166,10 @@ const PositionDetailHeader = ({
               width="fit-content"
               placement="top"
             >
-              <DexInfo openable={earnSupportedExchanges.includes(position?.dex.id)} onClick={onOpenPositionInDexSite}>
+              <DexInfo
+                openable={EARN_DEXES[position?.dex.id as Exchange] ? true : false}
+                onClick={onOpenPositionInDexSite}
+              >
                 <TokenLogo src={position?.dex.logo} size={16} />
                 <Text fontSize={14} color={theme.subText}>
                   {position?.dex.name}

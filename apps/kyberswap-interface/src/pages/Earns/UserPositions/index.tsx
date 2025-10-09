@@ -28,7 +28,7 @@ import {
 import useFilter, { SortBy } from 'pages/Earns/UserPositions/useFilter'
 import { default as MultiSelectDropdownMenu } from 'pages/Earns/components/DropdownMenu/MultiSelect'
 import { ItemIcon } from 'pages/Earns/components/DropdownMenu/styles'
-import { earnSupportedChains, earnSupportedExchanges } from 'pages/Earns/constants'
+import { EarnChain, Exchange } from 'pages/Earns/constants'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import useClosedPositions from 'pages/Earns/hooks/useClosedPositions'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
@@ -41,6 +41,7 @@ import { parsePosition } from 'pages/Earns/utils/position'
 import { getUnfinalizedPositions } from 'pages/Earns/utils/unfinalizedPosition'
 import SortIcon, { Direction } from 'pages/MarketOverview/SortIcon'
 import { MEDIA_WIDTHS } from 'theme'
+import { enumToArrayOfValues } from 'utils'
 
 const POSITIONS_TABLE_LIMIT = 10
 
@@ -63,6 +64,8 @@ const UserPositions = () => {
     const statusFilter = filters.status.split(',')
     const isFilterOnlyClosedPosition = statusFilter.length === 1 && statusFilter[0] === PositionStatus.CLOSED
     const isFilterOnlyOpenPosition = !statusFilter.includes(PositionStatus.CLOSED)
+    const earnSupportedChains = enumToArrayOfValues(EarnChain, 'number')
+    const earnSupportedExchanges = enumToArrayOfValues(Exchange)
 
     return {
       addresses: account || '',

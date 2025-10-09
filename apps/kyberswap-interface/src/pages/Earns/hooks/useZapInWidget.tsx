@@ -13,11 +13,12 @@ import Modal from 'components/Modal'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import { CoreProtocol, DEX_NAME, Exchange, earnSupportedExchanges } from 'pages/Earns/constants'
+import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
+import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import { ZapMigrationInfo } from 'pages/Earns/hooks/useZapMigrationWidget'
 import { DEFAULT_PARSED_POSITION } from 'pages/Earns/types'
-import { getNftManagerContractAddress, getTokenId, isForkFrom, submitTransaction } from 'pages/Earns/utils'
+import { getNftManagerContractAddress, getTokenId, submitTransaction } from 'pages/Earns/utils'
 import { getDexVersion } from 'pages/Earns/utils/position'
 import { updateUnfinalizedPosition } from 'pages/Earns/utils/unfinalizedPosition'
 import { navigateToPositionAfterZap } from 'pages/Earns/utils/zap'
@@ -72,7 +73,7 @@ const zapInDexMapping: Record<Exchange, ZapInPoolType> = {
 
 const getDexFromPoolType = (poolType: ZapInPoolType) => {
   const dexIndex = Object.values(zapInDexMapping).findIndex(
-    (item, index) => item === poolType && earnSupportedExchanges.includes(Object.keys(zapInDexMapping)[index]),
+    (item, index) => item === poolType && EARN_DEXES[Object.keys(zapInDexMapping)[index] as Exchange],
   )
   if (dexIndex === -1) {
     console.error('Cannot find dex')
@@ -156,8 +157,7 @@ const useZapInWidget = ({
 
       const dexIndex = Object.values(zapInDexMapping).findIndex(
         (item, index) =>
-          item === addLiquidityPureParams.poolType &&
-          earnSupportedExchanges.includes(Object.keys(zapInDexMapping)[index]),
+          item === addLiquidityPureParams.poolType && EARN_DEXES[Object.keys(zapInDexMapping)[index] as Exchange],
       )
       if (dexIndex === -1) {
         console.error('Cannot find dex')
@@ -213,7 +213,7 @@ const useZapInWidget = ({
               const dex = getDexFromPoolType(data.position.poolType)
               if (!dex) return
 
-              const isUniv2 = isForkFrom(dex, CoreProtocol.UniswapV2)
+              const isUniv2 = EARN_DEXES[dex as Exchange]?.isForkFrom === CoreProtocol.UniswapV2
 
               const nftId =
                 data.position.positionId ||
@@ -233,7 +233,7 @@ const useZapInWidget = ({
                 },
                 dex: {
                   id: dex,
-                  name: DEX_NAME[dex],
+                  name: EARN_DEXES[dex].name,
                   logo: data.position.dexLogo,
                   version: dexVersion,
                 },

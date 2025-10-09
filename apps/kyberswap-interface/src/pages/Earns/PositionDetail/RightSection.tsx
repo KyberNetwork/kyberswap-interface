@@ -28,13 +28,14 @@ import {
   RevertIconWrapper,
 } from 'pages/Earns/PositionDetail/styles'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
-import { CoreProtocol, Exchange, POSSIBLE_FARMING_PROTOCOLS } from 'pages/Earns/constants'
+import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
+import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import { CheckClosedPositionParams } from 'pages/Earns/hooks/useClosedPositions'
 import useZapInWidget from 'pages/Earns/hooks/useZapInWidget'
 import { ZapMigrationInfo } from 'pages/Earns/hooks/useZapMigrationWidget'
 import useZapOutWidget from 'pages/Earns/hooks/useZapOutWidget'
 import { ParsedPosition, PositionStatus } from 'pages/Earns/types'
-import { getNftManagerContractAddress, isForkFrom } from 'pages/Earns/utils'
+import { getNftManagerContractAddress } from 'pages/Earns/utils'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -67,7 +68,7 @@ const RightSection = ({
 }) => {
   const theme = useTheme()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
-  const { protocol, chainId, positionId } = useParams()
+  const { exchange, chainId, positionId } = useParams()
 
   const { account } = useActiveWeb3React()
   const { stableCoins } = useStableCoins(Number(chainId) as ChainId)
@@ -92,7 +93,7 @@ const RightSection = ({
     () => (!position?.priceRange ? 0 : !revert ? position.priceRange.current : 1 / position.priceRange.current),
     [position?.priceRange, revert],
   )
-  const isUniv2 = isForkFrom(protocol as Exchange, CoreProtocol.UniswapV2)
+  const isUniv2 = EARN_DEXES[exchange as Exchange]?.isForkFrom === CoreProtocol.UniswapV2
 
   const explorerUrl = useMemo(() => {
     if (!position || !chainId) return null
@@ -135,9 +136,9 @@ const RightSection = ({
     if (isToken0Stable || (isToken0Native && !isToken1Stable)) setRevert(true)
   }, [defaultRevertChecked, pool, chainId, stableCoins])
 
-  const isFarmingPossible = POSSIBLE_FARMING_PROTOCOLS.includes(protocol as Exchange)
+  const isFarmingPossible = EARN_DEXES[exchange as Exchange]?.farmingSupported || false
   const isUnfinalized = position?.isUnfinalized
-  const isUniV4 = isForkFrom(protocol as Exchange, CoreProtocol.UniswapV4)
+  const isUniV4 = EARN_DEXES[exchange as Exchange]?.isForkFrom === CoreProtocol.UniswapV4
   const isClosed = position?.status === PositionStatus.CLOSED
   const isOutRange = position?.status === PositionStatus.OUT_RANGE
 

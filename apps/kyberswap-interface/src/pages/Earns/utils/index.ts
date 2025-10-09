@@ -2,15 +2,8 @@ import { TransactionRequest, Web3Provider } from '@ethersproject/providers'
 import { ChainId, WETH } from '@kyberswap/ks-sdk-core'
 import { ethers } from 'ethers'
 
-import {
-  CoreProtocol,
-  EXCHANGES_CORE_PROTOCOL_MAPPING,
-  EarnChain,
-  Exchange,
-  NATIVE_ADDRESSES,
-  NFT_MANAGER_ABI,
-  NFT_MANAGER_CONTRACT,
-} from 'pages/Earns/constants'
+import { EARN_CHAINS, EARN_DEXES, EarnChain, Exchange } from 'pages/Earns/constants'
+import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import { calculateGasMargin } from 'utils'
 import { getReadingContractWithCustomChain } from 'utils/getContract'
 
@@ -19,7 +12,7 @@ export const getTokenId = async (provider: Web3Provider, txHash: string, exchang
     const receipt = await provider.getTransactionReceipt(txHash)
     if (!receipt || !receipt.logs) return
 
-    const isUniV4 = isForkFrom(exchange, CoreProtocol.UniswapV4)
+    const isUniV4 = EARN_DEXES[exchange].isForkFrom === CoreProtocol.UniswapV4
 
     let hexTokenId
     if (!isUniV4) {
@@ -49,11 +42,8 @@ export const getTokenId = async (provider: Web3Provider, txHash: string, exchang
   }
 }
 
-export const isForkFrom = (protocol: Exchange, coreProtocol: CoreProtocol) =>
-  EXCHANGES_CORE_PROTOCOL_MAPPING[protocol] === coreProtocol
-
 export const isNativeToken = (tokenAddress: string, chainId: keyof typeof WETH) =>
-  NATIVE_ADDRESSES[chainId as EarnChain] === tokenAddress.toLowerCase() ||
+  EARN_CHAINS[chainId as EarnChain].nativeAddress === tokenAddress.toLowerCase() ||
   (WETH[chainId] && tokenAddress.toLowerCase() === WETH[chainId].address.toLowerCase())
 
 export const submitTransaction = async ({
@@ -88,7 +78,7 @@ export const submitTransaction = async ({
 }
 
 export const getNftManagerContractAddress = (dex: Exchange, chainId: number) => {
-  const nftManagerContractElement = NFT_MANAGER_CONTRACT[dex]
+  const nftManagerContractElement = EARN_DEXES[dex].nftManagerContract
 
   return typeof nftManagerContractElement === 'string'
     ? nftManagerContractElement
@@ -97,8 +87,8 @@ export const getNftManagerContractAddress = (dex: Exchange, chainId: number) => 
 
 export const getNftManagerContract = (dex: Exchange, chainId: number) => {
   const nftManagerContractAddress = getNftManagerContractAddress(dex, chainId)
-  const nftManagerAbi = NFT_MANAGER_ABI[dex]
-  if (!nftManagerAbi) return
+  const nftManagerAbi = EARN_DEXES[dex].nftManagerContractAbi
+  if (!nftManagerAbi || !nftManagerContractAddress) return
 
   return getReadingContractWithCustomChain(nftManagerContractAddress, nftManagerAbi, chainId as ChainId)
 }

@@ -13,7 +13,7 @@ import Modal from 'components/Modal'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import { Exchange, earnSupportedExchanges } from 'pages/Earns/constants'
+import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import { submitTransaction } from 'pages/Earns/utils'
 import { navigateToPositionAfterZap } from 'pages/Earns/utils/zap'
@@ -98,8 +98,7 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
       if (!library) return
 
       const dexIndex = Object.values(zapMigrationDexMapping).findIndex(
-        (item, index) =>
-          item === targetDex && earnSupportedExchanges.includes(Object.keys(zapMigrationDexMapping)[index]),
+        (item, index) => item === targetDex && EARN_DEXES[Object.keys(zapMigrationDexMapping)[index] as Exchange],
       )
       if (dexIndex === -1) {
         console.error('Cannot find dex')

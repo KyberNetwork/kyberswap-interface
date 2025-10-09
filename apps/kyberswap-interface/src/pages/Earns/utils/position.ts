@@ -12,14 +12,15 @@ import {
 import { ChainId, WETH } from '@kyberswap/ks-sdk-core'
 
 import { NETWORKS_INFO } from 'constants/networks'
-import { CoreProtocol, DEXES_WITH_VERSION, DEX_NAME, Exchange } from 'pages/Earns/constants'
+import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
+import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import { EarnPosition, FeeInfo, NftRewardInfo, ParsedPosition, PositionStatus, ProgramType } from 'pages/Earns/types'
-import { getNftManagerContractAddress, isForkFrom, isNativeToken } from 'pages/Earns/utils'
+import { getNftManagerContractAddress, isNativeToken } from 'pages/Earns/utils'
 
 export const getDexVersion = (dex: Exchange) => {
-  if (!DEXES_WITH_VERSION[dex]) return ''
+  if (!EARN_DEXES[dex].showVersion) return ''
 
-  const dexStringSplit = DEX_NAME[dex].split(' ')
+  const dexStringSplit = EARN_DEXES[dex].name.split(' ')
   return dexStringSplit.length > 0 ? dexStringSplit.slice(1).join(' ') : ''
 }
 
@@ -115,7 +116,7 @@ export const parsePosition = ({
   const token1Address = token1Data?.address || ''
 
   const dex = pool.exchange || ''
-  const isUniv2 = isForkFrom(dex, CoreProtocol.UniswapV2)
+  const isUniv2 = EARN_DEXES[dex].isForkFrom === CoreProtocol.UniswapV2
 
   const programs = pool.programs || []
   const isFarming = programs.includes(ProgramType.EG) || programs.includes(ProgramType.LM)
@@ -196,7 +197,7 @@ export const parsePosition = ({
     },
     dex: {
       id: dex,
-      name: DEX_NAME[dex],
+      name: EARN_DEXES[dex].name,
       logo: pool.projectLogo,
       version: getDexVersion(dex),
     },
@@ -299,10 +300,11 @@ export const getPositionLiquidity = async ({
   poolAddress: string
   chainId: ChainId
 }) => {
-  const isUniV2 = isForkFrom(dex, CoreProtocol.UniswapV2)
-  const isUniV3 = isForkFrom(dex, CoreProtocol.UniswapV3)
-  const isUniV4 = isForkFrom(dex, CoreProtocol.UniswapV4)
-  const isAlgebra = isForkFrom(dex, CoreProtocol.AlgebraV1) || isForkFrom(dex, CoreProtocol.AlgebraV19)
+  const isUniV2 = EARN_DEXES[dex].isForkFrom === CoreProtocol.UniswapV2
+  const isUniV3 = EARN_DEXES[dex].isForkFrom === CoreProtocol.UniswapV3
+  const isUniV4 = EARN_DEXES[dex].isForkFrom === CoreProtocol.UniswapV4
+  const isAlgebra =
+    EARN_DEXES[dex].isForkFrom === CoreProtocol.AlgebraV1 || EARN_DEXES[dex].isForkFrom === CoreProtocol.AlgebraV19
 
   if (isUniV2) {
     const balanceOfSelector = getFunctionSelector('balanceOf(address)')

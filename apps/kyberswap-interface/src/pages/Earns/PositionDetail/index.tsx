@@ -36,7 +36,7 @@ import MigrationModal from 'pages/Earns/UserPositions/MigrationModal'
 import { EmptyPositionText, PositionPageWrapper } from 'pages/Earns/UserPositions/styles'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import RewardSyncing from 'pages/Earns/components/RewardSyncing'
-import { Exchange, POSSIBLE_FARMING_PROTOCOLS } from 'pages/Earns/constants'
+import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import useClosedPositions, { CheckClosedPositionParams } from 'pages/Earns/hooks/useClosedPositions'
 import useFarmingStablePools from 'pages/Earns/hooks/useFarmingStablePools'
 import useForceLoading from 'pages/Earns/hooks/useForceLoading'
@@ -58,7 +58,7 @@ const PositionDetail = () => {
 
   const { account } = useActiveWeb3React()
   const { forceLoading, removeForceLoading } = useForceLoading()
-  const { positionId, chainId, protocol } = useParams()
+  const { positionId, chainId, exchange } = useParams()
   const { widget: zapMigrationWidget, handleOpenZapMigration, triggerClose, setTriggerClose } = useZapMigrationWidget()
 
   const { closedPositionsFromRpc, checkClosedPosition } = useClosedPositions()
@@ -74,7 +74,7 @@ const PositionDetail = () => {
       addresses: account || '',
       positionId: positionId?.toLowerCase(),
       chainIds: chainId || '',
-      protocols: protocol || '',
+      protocols: exchange || '',
     },
     { skip: !account, pollingInterval: forceLoading || reduceFetchInterval ? 5_000 : 15_000 },
   )
@@ -255,7 +255,7 @@ const PositionDetail = () => {
   }, [position])
 
   const isNotAccountOwner = !!positionOwnerAddress && !!account && positionOwnerAddress !== account
-  const isFarmingPossible = POSSIBLE_FARMING_PROTOCOLS.includes(protocol as Exchange)
+  const isFarmingPossible = EARN_DEXES[exchange as Exchange]?.farmingSupported || false
   const isUnfinalized = position?.isUnfinalized
   const isStablePair = position?.pool.category === PAIR_CATEGORY.STABLE
   const isEarlyPosition = !!position && checkEarlyPosition(position)

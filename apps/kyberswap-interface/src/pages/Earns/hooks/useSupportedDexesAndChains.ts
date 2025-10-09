@@ -3,7 +3,7 @@ import { PoolQueryParams, useSupportedProtocolsQuery } from 'services/zapEarn'
 
 import useChainsConfig from 'hooks/useChainsConfig'
 import { MenuOption } from 'pages/Earns/components/DropdownMenu'
-import { Exchange, earnSupportedChains, earnSupportedExchanges } from 'pages/Earns/constants'
+import { EARN_CHAINS, EARN_DEXES, EarnChain, Exchange } from 'pages/Earns/constants'
 import { PositionFilter } from 'pages/Earns/types'
 
 export const AllChainsOption: MenuOption = { label: 'All Chains', value: '' }
@@ -39,9 +39,7 @@ const useSupportedDexesAndChains = (filters: PoolQueryParams | PositionFilter) =
         value: chain.chainId.toString(),
         icon: chain.icon,
       }))
-      .filter(
-        chain => supportedProtocols?.data?.chains?.[chain.value] && earnSupportedChains.includes(Number(chain.value)),
-      )
+      .filter(chain => supportedProtocols?.data?.chains?.[chain.value] && EARN_CHAINS[Number(chain.value) as EarnChain])
       .sort((a, b) => {
         const aIndex = CHAIN_PRIORITY_ORDER.indexOf(a.value)
         const bIndex = CHAIN_PRIORITY_ORDER.indexOf(b.value)
@@ -95,7 +93,7 @@ const useSupportedDexesAndChains = (filters: PoolQueryParams | PositionFilter) =
         })
 
     parsedProtocols = parsedProtocols
-      .filter(protocol => earnSupportedExchanges.includes(protocol.value))
+      .filter(protocol => EARN_DEXES[protocol.value as Exchange])
       .sort((a, b) => {
         const aIndex = DEX_PRIORITY_ORDER.indexOf(a.label as Exchange)
         const bIndex = DEX_PRIORITY_ORDER.indexOf(b.label as Exchange)
