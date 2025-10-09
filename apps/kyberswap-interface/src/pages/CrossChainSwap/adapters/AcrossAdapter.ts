@@ -24,6 +24,7 @@ import { SolanaToken } from 'state/crossChainSwap'
 import { isEvmChain } from 'utils'
 
 import { Quote } from '../registry'
+import { isNativeToken, isWrappedToken } from '../utils'
 import {
   BaseSwapAdapter,
   Chain,
@@ -70,6 +71,28 @@ export class AcrossAdapter extends BaseSwapAdapter {
   getIcon(): string {
     return 'https://across.to/favicon.ico'
   }
+
+  canSupport(category: string, tokenIn?: Currency, tokenOut?: Currency): boolean {
+    if (!tokenIn || !tokenOut) {
+      return false
+    }
+
+    if (category === 'stablePair') {
+      return true
+    }
+
+    const isTokenInNativeOrWrapped = isNativeToken(tokenIn) || isWrappedToken(tokenIn)
+    const isTokenOutNativeOrWrapped = isNativeToken(tokenOut) || isWrappedToken(tokenOut)
+
+    if (isTokenInNativeOrWrapped && isTokenOutNativeOrWrapped) {
+      return true
+    }
+
+    console.warn(`Across does not support swap from ${tokenIn.symbol || 'unknown'} to ${tokenOut.symbol || 'unknown'}`)
+
+    return false
+  }
+
   getSupportedChains(): Chain[] {
     return [
       ChainId.MAINNET,
