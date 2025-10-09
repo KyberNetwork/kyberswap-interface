@@ -49,7 +49,7 @@ export enum Exchange {
   DEX_PANCAKE_INFINITY_CL_FAIRFLOW = 'pancake-infinity-cl-fairflow',
 }
 
-export const EARN_DEXES: Record<Exchange, EarnDexInfo> = {
+export const EARN_DEXES_CONFIG: Record<Exchange, EarnDexInfo> = {
   [Exchange.DEX_UNISWAPV2]: uniswapv2,
   [Exchange.DEX_UNISWAPV3]: uniswapv3,
   [Exchange.DEX_PANCAKESWAPV3]: pancakeswapv3,
@@ -71,6 +71,27 @@ export const EARN_DEXES: Record<Exchange, EarnDexInfo> = {
     farmingSupported: true,
   },
 }
+
+const defaultConfig = {
+  name: '',
+  nftManagerContract: {},
+  nftManagerContractAbi: null,
+  unwrapWNativeTokenFuncName: null,
+  siteUrl: '',
+  collectFeeSupported: false,
+  isForkFrom: CoreProtocol.UniswapV3,
+  showVersion: false,
+  farmingSupported: false,
+}
+
+// Proxy helps fallback undefined Exchange by default dex info
+export const EARN_DEXES = new Proxy(EARN_DEXES_CONFIG as any, {
+  get(target, p) {
+    const prop = p as any as Exchange
+    if (p && target[prop]) return target[prop]
+    return defaultConfig
+  },
+}) as typeof EARN_DEXES_CONFIG & Record<string, EarnDexInfo>
 
 // Chain info
 export interface EarnChainInfo {
