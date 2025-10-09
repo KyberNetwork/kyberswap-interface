@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 
 import { DEXES_INFO, univ2Types, univ4Types } from '@kyber/schema';
-import { PI_LEVEL } from '@kyber/utils';
+import { PI_LEVEL, friendlyError } from '@kyber/utils';
 import { estimateGasForTx } from '@kyber/utils/crypto/transaction';
 
 import { useOwner } from '@/components/Action/useOwner';
@@ -297,6 +297,7 @@ export function useActionButton({
 
       return { ...buildData, gasUsd };
     } catch (error) {
+      setWidgetError(friendlyError(error as Error));
       console.log('estimate gas error', error);
     } finally {
       setGasLoading(false);

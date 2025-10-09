@@ -1,6 +1,5 @@
 import { formatAprNumber, toString } from '@kyber/utils/dist/number'
 import { MAX_TICK, MIN_TICK, priceToClosestTick } from '@kyber/utils/dist/uniswapv3'
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useCallback, useMemo, useState } from 'react'
 import { ArrowRight, ArrowRightCircle } from 'react-feather'
@@ -15,7 +14,6 @@ import { Loader2 } from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { APP_PATHS, PAIR_CATEGORY } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { PositionAction as PositionActionBtn } from 'pages/Earns/PositionDetail/styles'
@@ -25,7 +23,6 @@ import PriceRange from 'pages/Earns/UserPositions/PriceRange'
 import {
   Badge,
   BadgeType,
-  ChainImage,
   Divider,
   EmptyPositionText,
   ImageContainer,
@@ -37,13 +34,8 @@ import {
 } from 'pages/Earns/UserPositions/styles'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import RewardSyncing from 'pages/Earns/components/RewardSyncing'
-import {
-  CoreProtocol,
-  DEXES_SUPPORT_COLLECT_FEE,
-  EarnDex,
-  LIMIT_TEXT_STYLES,
-  protocolGroupNameToExchangeMapping,
-} from 'pages/Earns/constants'
+import { EARN_DEXES, LIMIT_TEXT_STYLES } from 'pages/Earns/constants'
+import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import useCollectFees from 'pages/Earns/hooks/useCollectFees'
 import useFarmingStablePools from 'pages/Earns/hooks/useFarmingStablePools'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
@@ -51,7 +43,6 @@ import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import { ZapOutInfo } from 'pages/Earns/hooks/useZapOutWidget'
 import { FeeInfo, ParsedPosition, PositionStatus, SuggestedPool } from 'pages/Earns/types'
-import { isForkFrom } from 'pages/Earns/utils'
 import { getUnclaimedFeesInfo } from 'pages/Earns/utils/fees'
 import { checkEarlyPosition } from 'pages/Earns/utils/position'
 import { useWalletModalToggle } from 'state/application/hooks'
@@ -141,7 +132,7 @@ export default function TableContent({
   const handleOpenIncreaseLiquidityWidget = (e: React.MouseEvent, position: ParsedPosition) => {
     e.stopPropagation()
     e.preventDefault()
-    const isUniv2 = isForkFrom(position.dex.id, CoreProtocol.UniswapV2)
+    const isUniv2 = EARN_DEXES[position.dex.id].isForkFrom === CoreProtocol.UniswapV2
     onOpenZapInWidget({
       pool: {
         dex: position.dex.id,
@@ -155,7 +146,7 @@ export default function TableContent({
   const handleOpenZapOut = (e: React.MouseEvent, position: ParsedPosition) => {
     e.stopPropagation()
     e.preventDefault()
-    const isUniv2 = isForkFrom(position.dex.id, CoreProtocol.UniswapV2)
+    const isUniv2 = EARN_DEXES[position.dex.id].isForkFrom === CoreProtocol.UniswapV2
     onOpenZapOut({
       position: {
         dex: position.dex.id,
@@ -309,8 +300,7 @@ export default function TableContent({
                 rewards,
                 isUnfinalized,
               } = position
-              const feesClaimDisabled =
-                !DEXES_SUPPORT_COLLECT_FEE[dex.id as EarnDex] || unclaimedFees === 0 || feesClaiming
+              const feesClaimDisabled = !EARN_DEXES[dex.id].collectFeeSupported || unclaimedFees === 0 || feesClaiming
               const rewardsClaimDisabled = rewardsClaiming || position.rewards.claimableUsdValue === 0
               const isStablePair = pool.category === PAIR_CATEGORY.STABLE
               const isEarlyPosition = checkEarlyPosition(position)
@@ -342,7 +332,7 @@ export default function TableContent({
                   key={`${tokenId}-${pool.address}-${index}`}
                   to={APP_PATHS.EARN_POSITION_DETAIL.replace(':positionId', !pool.isUniv2 ? id : pool.address)
                     .replace(':chainId', chain.id.toString())
-                    .replace(':protocol', protocolGroupNameToExchangeMapping[dex.id] || dex.id)}
+                    .replace(':exchange', dex.id)}
                 >
                   {/* Overview info */}
                   <PositionOverview>
@@ -350,7 +340,7 @@ export default function TableContent({
                       <ImageContainer>
                         <TokenLogo src={token0.logo} />
                         <TokenLogo src={token1.logo} translateLeft />
-                        <ChainImage src={NETWORKS_INFO[chain.id as ChainId]?.icon || chain.logo} alt="" />
+                        <TokenLogo src={chain.logo} size={12} translateLeft translateTop />
                       </ImageContainer>
                       <Text
                         marginLeft={-2}
@@ -360,9 +350,9 @@ export default function TableContent({
                       >
                         {token0.symbol}/{token1.symbol}
                       </Text>
-                      {pool.fee ? <Badge>{pool.fee}%</Badge> : null}
+                      <Badge>{pool.fee}%</Badge>
                     </Flex>
-                    <Flex flexWrap={'wrap'} alignItems={'center'} sx={{ gap: '10px' }}>
+                    <Flex flexWrap={'wrap'} alignItems={'center'} sx={{ gap: '6px' }}>
                       <Flex alignItems={'center'} sx={{ gap: 1 }}>
                         <MouseoverTooltipDesktopOnly text={dex.id} width="fit-content" placement="bottom">
                           <TokenLogo src={dex.logo} size={16} />
@@ -638,7 +628,7 @@ export default function TableContent({
                           tickSpacing={pool.tickSpacing}
                           token0Decimals={token0.decimals}
                           token1Decimals={token1.decimals}
-                          dex={dex.id as EarnDex}
+                          dex={dex.id}
                         />
                       )
                     ) : isUnfinalized ? (
@@ -651,7 +641,7 @@ export default function TableContent({
                         tickSpacing={pool.tickSpacing}
                         token0Decimals={token0.decimals}
                         token1Decimals={token1.decimals}
-                        dex={dex.id as EarnDex}
+                        dex={dex.id}
                       />
                     )}
                   </PositionValueWrapper>

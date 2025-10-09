@@ -1,4 +1,4 @@
-import { EarnDex } from '@kyber/schema';
+import { Exchange } from '@kyber/schema';
 
 export interface EarnPosition {
   [x: string]: any;
@@ -27,7 +27,7 @@ export interface EarnPosition {
     tokenAmounts: Array<PositionAmount>;
     fees: Array<number>;
     tickSpacing: number;
-    project: EarnDex;
+    exchange: Exchange;
     projectLogo: string;
   };
 }

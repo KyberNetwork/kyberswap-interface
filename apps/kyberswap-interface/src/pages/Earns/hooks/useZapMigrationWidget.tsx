@@ -14,7 +14,7 @@ import Modal from 'components/Modal'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import { EarnDex, Exchange, earnSupportedProtocols } from 'pages/Earns/constants'
+import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import { submitTransaction } from 'pages/Earns/utils'
 import { navigateToPositionAfterZap } from 'pages/Earns/utils/zap'
@@ -53,12 +53,12 @@ interface MigrateLiquidityParams extends MigrateLiquidityPureParams {
 
 export interface ZapMigrationInfo {
   from: {
-    poolType: EarnDex | Exchange
+    poolType: Exchange
     poolAddress: string
     positionId: string
   }
   to?: {
-    poolType: EarnDex | Exchange
+    poolType: Exchange
     poolAddress: string
     positionId?: string
   }
@@ -68,18 +68,7 @@ export interface ZapMigrationInfo {
   rePositionMode?: boolean
 }
 
-const zapMigrationDexMapping: Record<EarnDex | Exchange, ZapMigrationDex | null> = {
-  [EarnDex.DEX_UNISWAPV3]: ZapMigrationDex.DEX_UNISWAPV3,
-  [EarnDex.DEX_PANCAKESWAPV3]: ZapMigrationDex.DEX_PANCAKESWAPV3,
-  [EarnDex.DEX_SUSHISWAPV3]: ZapMigrationDex.DEX_SUSHISWAPV3,
-  [EarnDex.DEX_QUICKSWAPV3ALGEBRA]: ZapMigrationDex.DEX_QUICKSWAPV3ALGEBRA,
-  [EarnDex.DEX_CAMELOTV3]: ZapMigrationDex.DEX_CAMELOTV3,
-  [EarnDex.DEX_THENAFUSION]: ZapMigrationDex.DEX_THENAFUSION,
-  [EarnDex.DEX_KODIAK_V3]: ZapMigrationDex.DEX_KODIAK_V3,
-  [EarnDex.DEX_UNISWAPV2]: ZapMigrationDex.DEX_UNISWAPV2,
-  [EarnDex.DEX_UNISWAP_V4]: ZapMigrationDex.DEX_UNISWAP_V4,
-  [EarnDex.DEX_UNISWAP_V4_FAIRFLOW]: ZapMigrationDex.DEX_UNISWAP_V4_FAIRFLOW,
-
+const zapMigrationDexMapping: Record<Exchange, ZapMigrationDex | null> = {
   [Exchange.DEX_UNISWAPV3]: ZapMigrationDex.DEX_UNISWAPV3,
   [Exchange.DEX_PANCAKESWAPV3]: ZapMigrationDex.DEX_PANCAKESWAPV3,
   [Exchange.DEX_SUSHISWAPV3]: ZapMigrationDex.DEX_SUSHISWAPV3,
@@ -90,6 +79,8 @@ const zapMigrationDexMapping: Record<EarnDex | Exchange, ZapMigrationDex | null>
   [Exchange.DEX_UNISWAPV2]: ZapMigrationDex.DEX_UNISWAPV2,
   [Exchange.DEX_UNISWAP_V4]: ZapMigrationDex.DEX_UNISWAP_V4,
   [Exchange.DEX_UNISWAP_V4_FAIRFLOW]: ZapMigrationDex.DEX_UNISWAP_V4_FAIRFLOW,
+  [Exchange.DEX_PANCAKE_INFINITY_CL]: ZapMigrationDex.DEX_PANCAKE_INFINITY_CL,
+  [Exchange.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: ZapMigrationDex.DEX_PANCAKE_INFINITY_CL_FAIRFLOW,
 }
 
 const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
@@ -110,14 +101,13 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
       if (!library) return
 
       const dexIndex = Object.values(zapMigrationDexMapping).findIndex(
-        (item, index) =>
-          item === targetDex && earnSupportedProtocols.includes(Object.keys(zapMigrationDexMapping)[index]),
+        (item, index) => item === targetDex && EARN_DEXES[Object.keys(zapMigrationDexMapping)[index] as Exchange],
       )
       if (dexIndex === -1) {
         console.error('Cannot find dex')
         return
       }
-      const dex = Object.keys(zapMigrationDexMapping)[dexIndex] as EarnDex
+      const dex = Object.keys(zapMigrationDexMapping)[dexIndex] as Exchange
 
       navigateToPositionAfterZap(library, txHash, chainId, dex, targetPoolId, navigate)
     },

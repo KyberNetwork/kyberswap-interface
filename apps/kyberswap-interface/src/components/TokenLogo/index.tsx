@@ -1,8 +1,9 @@
 import styled from 'styled-components'
 
 import UnknownToken from 'assets/svg/kyber/unknown-token.svg'
+import { getProxyTokenLogo } from 'utils/tokenInfo'
 
-const Image = styled.img<{ boxShadowColor?: string; translateLeft?: boolean }>`
+const Image = styled.img<{ boxShadowColor?: string; translateLeft?: boolean; translateTop?: boolean }>`
   border-radius: 50%;
   filter: drop-shadow(0px 4px 8px ${({ boxShadowColor }) => (boxShadowColor ? boxShadowColor : 'none')});
 
@@ -10,6 +11,13 @@ const Image = styled.img<{ boxShadowColor?: string; translateLeft?: boolean }>`
     translateLeft &&
     `{
       margin-left: -8px;
+    }`}
+
+  ${({ translateTop }) =>
+    translateTop &&
+    `{
+      top: 2px;
+      position: relative;
     }`}
 `
 
@@ -20,6 +28,7 @@ const TokenLogo = ({
   size = 24,
   boxShadowColor,
   translateLeft,
+  translateTop,
   style,
 }: {
   src?: string
@@ -28,6 +37,7 @@ const TokenLogo = ({
   size?: number
   boxShadowColor?: string
   translateLeft?: boolean
+  translateTop?: boolean
   style?: React.CSSProperties
 }) => (
   <Image
@@ -38,11 +48,18 @@ const TokenLogo = ({
     src={src || UnknownToken}
     alt={alt || ''}
     onError={({ currentTarget }) => {
-      currentTarget.onerror = null // prevents looping
-      currentTarget.src = UnknownToken
+      const hasTriedProxy = currentTarget.getAttribute('data-tried-proxy') === 'true'
+      if (!hasTriedProxy) {
+        currentTarget.setAttribute('data-tried-proxy', 'true')
+        currentTarget.src = getProxyTokenLogo(currentTarget.src)
+      } else {
+        currentTarget.onerror = null // prevents looping
+        currentTarget.src = UnknownToken
+      }
     }}
     boxShadowColor={boxShadowColor}
     translateLeft={translateLeft}
+    translateTop={translateTop}
   />
 )
 

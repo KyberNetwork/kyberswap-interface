@@ -10,16 +10,10 @@ import PositionHistory from 'pages/Earns/PositionDetail/PositionHistory'
 import RewardSection from 'pages/Earns/PositionDetail/RewardSection'
 import { InfoLeftColumn, InfoSection, PositionAction, VerticalDivider } from 'pages/Earns/PositionDetail/styles'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
-import {
-  CoreProtocol,
-  EXCHANGES_SUPPORT_COLLECT_FEE,
-  Exchange,
-  LIMIT_TEXT_STYLES,
-  POSSIBLE_FARMING_PROTOCOLS,
-} from 'pages/Earns/constants'
+import { EARN_DEXES, Exchange, LIMIT_TEXT_STYLES } from 'pages/Earns/constants'
+import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import useCollectFees from 'pages/Earns/hooks/useCollectFees'
 import { ParsedPosition } from 'pages/Earns/types'
-import { isForkFrom } from 'pages/Earns/utils'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -44,7 +38,7 @@ const LeftSection = ({
 }) => {
   const theme = useTheme()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
-  const { protocol, chainId } = useParams()
+  const { exchange, chainId } = useParams()
 
   const {
     claimModal: claimFeesModal,
@@ -54,8 +48,8 @@ const LeftSection = ({
     refetchAfterCollect: () => onFetchUnclaimedFee(),
   })
 
-  const isUniv2 = isForkFrom(protocol as Exchange, CoreProtocol.UniswapV2)
-  const isFarmingPossible = POSSIBLE_FARMING_PROTOCOLS.includes(protocol as Exchange)
+  const isUniv2 = EARN_DEXES[exchange as Exchange]?.isForkFrom === CoreProtocol.UniswapV2
+  const isFarmingPossible = EARN_DEXES[exchange as Exchange]?.farmingSupported || false
   const nativeToken = chainId ? NETWORKS_INFO[Number(chainId) as keyof typeof NETWORKS_INFO]?.nativeToken : undefined
 
   const isUnfinalized = position?.isUnfinalized
@@ -143,7 +137,7 @@ const LeftSection = ({
         </InfoSection>
 
         {/* Claim Fees */}
-        {EXCHANGES_SUPPORT_COLLECT_FEE[protocol as Exchange] ? (
+        {EARN_DEXES[exchange as Exchange].collectFeeSupported ? (
           <InfoSection>
             <Flex alignItems={'center'} justifyContent={'space-between'} marginBottom={2}>
               <Text fontSize={14} color={theme.subText} marginTop={1}>

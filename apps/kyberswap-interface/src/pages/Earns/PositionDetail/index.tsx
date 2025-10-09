@@ -38,7 +38,6 @@ import { EmptyPositionText, PositionPageWrapper } from 'pages/Earns/UserPosition
 import DropdownMenu from 'pages/Earns/components/DropdownMenu'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import RewardSyncing from 'pages/Earns/components/RewardSyncing'
-import { EarnDex, protocolGroupNameToExchangeMapping } from 'pages/Earns/constants'
 import useClosedPositions, { CheckClosedPositionParams } from 'pages/Earns/hooks/useClosedPositions'
 import useFarmingStablePools from 'pages/Earns/hooks/useFarmingStablePools'
 import useForceLoading from 'pages/Earns/hooks/useForceLoading'
@@ -60,7 +59,7 @@ const PositionDetail = () => {
 
   const { account } = useActiveWeb3React()
   const { forceLoading, removeForceLoading } = useForceLoading()
-  const { positionId, chainId, protocol } = useParams()
+  const { positionId, chainId, exchange } = useParams()
   const { widget: zapMigrationWidget, handleOpenZapMigration, triggerClose, setTriggerClose } = useZapMigrationWidget()
 
   const { closedPositionsFromRpc, checkClosedPosition } = useClosedPositions()
@@ -76,7 +75,7 @@ const PositionDetail = () => {
       addresses: account || '',
       positionId: positionId?.toLowerCase(),
       chainIds: chainId || '',
-      protocols: protocol || '',
+      protocols: exchange || '',
     },
     { skip: !account, pollingInterval: forceLoading || reduceFetchInterval ? 5_000 : 15_000 },
   )
@@ -344,8 +343,8 @@ const PositionDetail = () => {
               chainId: position.chain.id,
               chainLogo: position.chain.logo,
               dexLogo: position.dex.logo,
-              dexName: position.dex.id,
-              exchange: protocolGroupNameToExchangeMapping[position.dex.id as EarnDex],
+              dexName: position.dex.name,
+              exchange: position.dex.id,
               token0: {
                 symbol: position.token0.symbol,
                 logo: position.token0.logo,

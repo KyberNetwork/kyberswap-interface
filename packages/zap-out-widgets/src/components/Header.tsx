@@ -1,24 +1,22 @@
+import { useCopy } from '@kyber/hooks';
+import { DEXES_INFO, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, UniV3Pool, UniV3Position, univ3Types } from '@kyber/schema';
 import { InfoHelper, MouseoverTooltip, Skeleton, TokenLogo, TokenSymbol } from '@kyber/ui';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
 import SettingIcon from '@/assets/svg/setting.svg';
 import X from '@/assets/svg/x.svg';
 import Setting from '@/components/Setting';
-import { shortenAddress } from '@/components/TokenInfo/utils';
-import { DEXES_INFO, NETWORKS_INFO } from '@/constants';
-import { NATIVE_TOKEN_ADDRESS } from '@/constants';
-import useCopy from '@/hooks/useCopy';
-import { UniV3Pool, UniV3Position, Univ3PoolType } from '@/schema';
+import { shortenAddress } from '@/components/TokenSelector/TokenInfo/utils';
 import { useZapOutContext } from '@/stores';
 import { useZapOutUserState } from '@/stores/state';
 
 export const Header = () => {
   const { poolAddress, onClose, poolType, pool, position, positionId, theme, chainId } = useZapOutContext(s => s);
-  const isUniV3 = Univ3PoolType.safeParse(poolType).success;
+  const isUniV3 = univ3Types.includes(poolType as any);
 
   const { degenMode, toggleSetting, mode } = useZapOutUserState();
 
-  const loading = pool === 'loading' || position === 'loading';
+  const loading = !pool || !position;
 
   const PoolCopy = useCopy({
     text: poolAddress,
@@ -39,10 +37,8 @@ export const Header = () => {
   const { icon: dexLogo, name: rawName } = DEXES_INFO[poolType];
   const dexName = typeof rawName === 'string' ? rawName : rawName[chainId];
 
-  const isToken0Native =
-    pool === 'loading' ? false : pool.token0.address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase();
-  const isToken1Native =
-    pool === 'loading' ? false : pool.token1.address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase();
+  const isToken0Native = !pool ? false : pool.token0.address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase();
+  const isToken1Native = !pool ? false : pool.token1.address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase();
 
   return (
     <>

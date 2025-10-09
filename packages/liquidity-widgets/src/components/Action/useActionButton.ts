@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react';
 import { usePositionOwner } from '@kyber/hooks';
 import { APPROVAL_STATE, useErc20Approvals } from '@kyber/hooks';
 import { API_URLS, CHAIN_ID_TO_CHAIN, univ3PoolNormalize, univ4Types } from '@kyber/schema';
-import { PI_LEVEL, getZapImpact } from '@kyber/utils';
+import { PI_LEVEL, friendlyError, getZapImpact } from '@kyber/utils';
 import { parseUnits } from '@kyber/utils/crypto';
 
 import { ERROR_MESSAGE } from '@/constants';
@@ -131,12 +131,12 @@ export default function useActionButton({
   const isInvalidZapImpact = zapImpact?.level === PI_LEVEL.INVALID;
 
   const buttonStates = [
+    { condition: addressToApprove || nftApprovePendingTx, text: 'Approving' },
     { condition: zapLoading, text: 'Fetching Route' },
     { condition: gasLoading, text: 'Estimating Gas' },
     { condition: errors.length > 0, text: errors[0] },
     { condition: isUniv4 && isNotOwner, text: 'Not the position owner' },
     { condition: loading, text: 'Checking Allowance' },
-    { condition: addressToApprove || nftApprovePendingTx, text: 'Approving' },
     { condition: notApprove, text: `Approve ${notApprove?.symbol}` },
     { condition: isUniv4 && positionId && !nftApproved, text: 'Approve NFT' },
     { condition: isVeryHighZapImpact || isInvalidZapImpact, text: 'Zap anyway' },
@@ -179,7 +179,7 @@ export default function useActionButton({
       })
       .catch(err => {
         setGasLoading(false);
-        setWidgetError(err.message);
+        setWidgetError(friendlyError(err as Error));
         console.error(err);
       });
 
