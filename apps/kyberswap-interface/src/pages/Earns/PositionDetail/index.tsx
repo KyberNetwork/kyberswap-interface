@@ -85,7 +85,7 @@ const PositionDetail = () => {
     : rewardInfo?.nfts.find(item => item.nftId === userPositions?.[0]?.tokenId)
 
   const currentWalletAddress = useRef(account)
-  const [aprInterval, setAprInterval] = useState<'24h' | '7d'>('24h')
+  const [aprInterval, setAprInterval] = useState<'24h' | '7d'>('7d')
   const [feeInfoFromRpc, setFeeInfoFromRpc] = useState<FeeInfo | undefined>()
   const [shareInfo, setShareInfo] = useState<ShareModalProps | undefined>()
   const [positionToMigrate, setPositionToMigrate] = useState<ParsedPosition | null>(null)
@@ -424,15 +424,19 @@ const PositionDetail = () => {
               shareBtn(12, [ShareOption.TOTAL_APR])}
           </Flex>
 
-          <DropdownMenu
-            width={30}
-            flatten
-            tooltip={`APR calculated based on last ${aprInterval} fees. Useful for recent performance trends.`}
-            options={timings.slice(0, 2)}
-            value={aprInterval}
-            alignLeft
-            onChange={value => setAprInterval(value as '24h')}
-          />
+          {aprInterval ? (
+            <>{/* TODO: Revert later */}</>
+          ) : (
+            <DropdownMenu
+              width={30}
+              flatten
+              tooltip={`APR calculated based on last ${aprInterval} fees. Useful for recent performance trends.`}
+              options={timings.slice(0, 2)}
+              value={aprInterval}
+              alignLeft
+              onChange={value => setAprInterval(value as '24h')}
+            />
+          )}
         </Flex>
       )}
     </AprSection>
