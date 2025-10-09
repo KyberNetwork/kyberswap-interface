@@ -29,18 +29,6 @@ import { ZapMigrationProps, ZapStatus } from '@/types/index';
 
 export { ChainId, PoolType, ZapStatus, type ZapMigrationProps };
 
-const createModalRoot = () => {
-  let modalRoot = document.getElementById('ks-lw-migration-modal-root');
-  if (!modalRoot) {
-    modalRoot = document.createElement('div');
-    modalRoot.id = 'ks-lw-migration-modal-root';
-    modalRoot.className = 'ks-lw-migration-style';
-    document.body.appendChild(modalRoot);
-  }
-};
-
-createModalRoot();
-
 export const ZapMigration = (widgetProps: ZapMigrationProps) => {
   const {
     onClose: rawClose,
