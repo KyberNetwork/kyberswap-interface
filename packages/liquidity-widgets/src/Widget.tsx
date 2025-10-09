@@ -207,7 +207,7 @@ export default function Widget() {
         />
       )}
 
-      <div className={`p-6 ${zapSnapshotState ? 'hidden' : ''}`}>
+      <div className={zapSnapshotState ? 'hidden' : 'p-6'}>
         <Header />
         <div className="mt-5 flex gap-5 max-sm:flex-col">
           <div className="w-[55%] max-sm:w-full">
