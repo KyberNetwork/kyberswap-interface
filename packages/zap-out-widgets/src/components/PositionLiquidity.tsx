@@ -6,9 +6,9 @@ import { useZapOutContext } from '@/stores';
 export default function PositionLiquidity() {
   const { position, pool } = useZapOutContext(s => s);
 
-  const loading = position === 'loading' || pool === 'loading';
+  const loading = !position || !pool;
 
-  const { amount0, amount1 } = position && position !== 'loading' ? position : { amount0: 0n, amount1: 0n };
+  const { amount0, amount1 } = position && position !== null ? position : { amount0: 0n, amount1: 0n };
 
   return (
     <div className="rounded-lg border border-stroke px-4 py-3 text-subText text-sm">

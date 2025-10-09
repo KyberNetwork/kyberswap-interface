@@ -24,13 +24,14 @@ import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
-import { Badge, BadgeType, ChainImage, ImageContainer } from 'pages/Earns/UserPositions/styles'
+import { Badge, BadgeType, ImageContainer } from 'pages/Earns/UserPositions/styles'
+import { EarnChain, Exchange } from 'pages/Earns/constants'
 import { useNotify } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
+import { enumToArrayOfValues } from 'utils'
 import { friendlyError } from 'utils/errorMessage'
 
 import { PoolPageWrapper, TableWrapper } from '../PoolExplorer/styles'
-import { earnSupportedChains, earnSupportedExchanges } from '../constants'
 import { PositionStatus } from '../types'
 import Filter from './Filter'
 import useSmartExitFilter, { OrderStatus } from './useSmartExitFilter'
@@ -160,6 +161,8 @@ const SmartExit = () => {
   const orders = ordersData?.orders || []
   const totalItems = ordersData?.totalItems || 0
 
+  const earnSupportedChains = enumToArrayOfValues(EarnChain, 'number')
+  const earnSupportedExchanges = enumToArrayOfValues(Exchange)
   const { data: userPosition, isLoading: userPosLoading } = useUserPositionsQuery(
     {
       chainIds: earnSupportedChains.join(','),
@@ -230,15 +233,17 @@ const SmartExit = () => {
             const { conditions, op } = order.condition.logical
 
             const protocol = (() => {
-              switch (posDetail.pool.project) {
-                case 'Uniswap V3':
+              switch (posDetail.pool.exchange) {
+                case Exchange.DEX_UNISWAPV3:
+                case Exchange.DEX_PANCAKESWAPV3:
                   return 'V3'
-                case 'Uniswap V4':
+                case Exchange.DEX_UNISWAP_V4:
                   return 'V4'
-                case 'Uniswap V4 FairFlow':
+                case Exchange.DEX_UNISWAP_V4_FAIRFLOW:
+                case Exchange.DEX_PANCAKE_INFINITY_CL_FAIRFLOW:
                   return 'FairFlow'
                 default:
-                  return posDetail.pool.project
+                  return posDetail.pool.exchange
               }
             })()
             const posStatus = posDetail.status || PositionStatus.IN_RANGE
@@ -248,7 +253,7 @@ const SmartExit = () => {
                   <ImageContainer>
                     <TokenLogo src={token0.logo} />
                     <TokenLogo src={token1.logo} translateLeft />
-                    <ChainImage src={posDetail.chainLogo} alt="" />
+                    <TokenLogo src={posDetail.chainLogo} size={12} translateLeft translateTop />
                   </ImageContainer>
                   <Text mr="8px">
                     {token0.symbol}/{token1.symbol}

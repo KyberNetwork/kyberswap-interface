@@ -40,7 +40,7 @@ export default function UpdatedPosition() {
       <div className="flex items-center text-base mt-2 gap-1.5">
         <TokenLogo src={targetPool.token0.logo} size={20} alt={targetPool.token0.symbol} />
         <div className="flex items-center gap-1">
-          {formatTokenAmount(BigInt(addedLiquidity.addedAmount0) || 0n, targetPool.token0.decimals, 8)}
+          {formatTokenAmount(addedLiquidity.addedAmount0, targetPool.token0.decimals, 8)}
           <TokenSymbol symbol={targetPool.token0.symbol} maxWidth={80} />
         </div>
         <div className="text-subText">
@@ -51,7 +51,7 @@ export default function UpdatedPosition() {
       <div className="flex items-center text-base mt-1 gap-1.5">
         <TokenLogo src={targetPool.token1.logo} size={20} alt={targetPool.token1.symbol} />
         <div className="flex items-center gap-1">
-          {formatTokenAmount(BigInt(addedLiquidity.addedAmount1) || 0n, targetPool.token1.decimals, 10)}
+          {formatTokenAmount(addedLiquidity.addedAmount1, targetPool.token1.decimals, 10)}
           <TokenSymbol symbol={targetPool.token1.symbol} maxWidth={80} />
         </div>
         <div className="text-subText">

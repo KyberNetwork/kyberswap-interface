@@ -39,8 +39,9 @@ export function Preview({
   onViewPosition?: (txHash: string) => void;
   onExplorePools?: () => void;
 }) {
-  const { chainId, connectedAccount, rePositionMode } = useWidgetStore([
+  const { chainId, rpcUrl, connectedAccount, rePositionMode } = useWidgetStore([
     'chainId',
+    'rpcUrl',
     'connectedAccount',
     'rePositionMode',
   ]);
@@ -54,7 +55,6 @@ export function Preview({
   const { sourcePool, targetPool } = usePoolStore(['sourcePool', 'targetPool']);
   const { targetPositionId } = usePositionStore(['targetPositionId']);
 
-  const rpcUrl = NETWORKS_INFO[chainId].defaultRpc;
   const account = connectedAccount.address;
   const { suggestedSlippage } = useZapRoute();
 

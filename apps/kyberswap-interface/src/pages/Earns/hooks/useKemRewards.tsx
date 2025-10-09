@@ -10,7 +10,7 @@ import useChainsConfig from 'hooks/useChainsConfig'
 import useFilter from 'pages/Earns/UserPositions/useFilter'
 import ClaimAllModal from 'pages/Earns/components/ClaimAllModal'
 import ClaimModal, { ClaimInfo, ClaimType } from 'pages/Earns/components/ClaimModal'
-import { EarnDex, FARMING_SUPPORTED_CHAIN } from 'pages/Earns/constants'
+import { EARN_CHAINS, EarnChain } from 'pages/Earns/constants'
 import useCompounding from 'pages/Earns/hooks/useCompounding'
 import { ParsedPosition, RewardInfo, TokenInfo } from 'pages/Earns/types'
 import { getNftManagerContractAddress, submitTransaction } from 'pages/Earns/utils'
@@ -70,13 +70,13 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
   }, [data, tokens, supportedChains, filters.chainIds])
 
   const handleClaim = useCallback(async () => {
-    if (!account || !claimInfo) return
-    if (!FARMING_SUPPORTED_CHAIN.includes(chainId)) return
+    if (!account || !claimInfo || !claimInfo.dex || !EARN_CHAINS[chainId as unknown as EarnChain]?.farmingSupported)
+      return
+
+    const positionManagerContract = getNftManagerContractAddress(claimInfo.dex, chainId)
+    if (!positionManagerContract) return
 
     setClaiming(true)
-
-    const positionManagerContract = getNftManagerContractAddress(EarnDex.DEX_UNISWAP_V4_FAIRFLOW, chainId)
-
     const encodeData = await claimEncodeData({
       recipient: account,
       chainId,
@@ -136,7 +136,7 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
   }, [account, addTransactionWithType, chainId, claimEncodeData, claimInfo, library, notify])
 
   const handleClaimAll = useCallback(async () => {
-    if (!account || !FARMING_SUPPORTED_CHAIN.includes(chainId)) return
+    if (!account || !EARN_CHAINS[chainId as unknown as EarnChain]?.farmingSupported) return
     setClaiming(true)
 
     const encodeData = await batchClaimEncodeData({
@@ -226,6 +226,7 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
           value: tokenReward.claimableUsdValue,
         })),
       totalValue: rewardNftInfo.claimableUsdValue,
+      dex: position.dex.id,
     })
     setPosition(position)
   }

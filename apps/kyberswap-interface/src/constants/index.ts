@@ -185,9 +185,8 @@ export const APP_PATHS = {
   EARN: '/earn',
   EARN_POOLS: '/earn/pools',
   EARN_POSITIONS: '/earn/positions',
-  EARN_POSITION_DETAIL: '/earn/position/:positionId/:chainId/:protocol',
+  EARN_POSITION_DETAIL: '/earn/position/:positionId/:chainId/:exchange',
   EARN_SMART_EXIT: '/earn/smart-exit',
-
   EARNS: '/earns',
   EARNS_POOLS: '/earns/pools',
   EARNS_POSITIONS: '/earns/positions',

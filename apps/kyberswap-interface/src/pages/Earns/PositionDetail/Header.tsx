@@ -14,12 +14,12 @@ import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { NavigateButton } from 'pages/Earns/PoolExplorer/styles'
 import { DexInfo, IconArrowLeft, PositionHeader } from 'pages/Earns/PositionDetail/styles'
-import { Badge, BadgeType, ChainImage, ImageContainer } from 'pages/Earns/UserPositions/styles'
+import { Badge, BadgeType, ImageContainer } from 'pages/Earns/UserPositions/styles'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
-import { CoreProtocol, EarnDex, Exchange, PROTOCOL_POSITION_URL, earnSupportedProtocols } from 'pages/Earns/constants'
+import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
+import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import useForceLoading from 'pages/Earns/hooks/useForceLoading'
 import { ParsedPosition, PositionStatus } from 'pages/Earns/types'
-import { isForkFrom } from 'pages/Earns/utils'
 import { MEDIA_WIDTHS } from 'theme'
 
 const PositionDetailHeader = ({
@@ -42,24 +42,24 @@ const PositionDetailHeader = ({
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
 
-  const { protocol } = useParams()
+  const { exchange } = useParams()
   const { hadForceLoading } = useForceLoading()
 
-  const isUniv2 = isForkFrom(protocol as Exchange, CoreProtocol.UniswapV2)
+  const isUniv2 = EARN_DEXES[exchange as Exchange]?.isForkFrom === CoreProtocol.UniswapV2
   const posStatus = isUniv2 ? PositionStatus.IN_RANGE : position?.status
 
   const onOpenPositionInDexSite = () => {
-    if (!position || !earnSupportedProtocols.includes(position.dex.id)) return
+    if (!position || !EARN_DEXES[position.dex.id]) return
 
-    const positionDetailUrl = PROTOCOL_POSITION_URL[position.dex.id]
+    const positionDetailUrl = EARN_DEXES[position.dex.id].siteUrl
 
     if (!positionDetailUrl) return
 
     const protocolThatNeedParse = [
-      EarnDex.DEX_UNISWAPV2,
-      EarnDex.DEX_UNISWAPV3,
-      EarnDex.DEX_UNISWAP_V4,
-      EarnDex.DEX_UNISWAP_V4_FAIRFLOW,
+      Exchange.DEX_UNISWAPV2,
+      Exchange.DEX_UNISWAPV3,
+      Exchange.DEX_UNISWAP_V4,
+      Exchange.DEX_UNISWAP_V4_FAIRFLOW,
     ]
     const parsedUrl = positionDetailUrl
       .replace(
@@ -117,23 +117,19 @@ const PositionDetailHeader = ({
               <ImageContainer>
                 <TokenLogo src={position?.token0.logo} />
                 <TokenLogo src={position?.token1.logo} translateLeft />
-                <ChainImage src={position?.chain.logo} alt="" />
+                <TokenLogo src={position?.chain.logo} size={12} translateLeft translateTop />
               </ImageContainer>
               <Link
                 to={`${APP_PATHS.EARN_POOLS}?exchange=${position?.dex.id}&poolChainId=${position?.chain.id}&poolAddress=${position?.pool.address}`}
               >
-                <Text color={theme.text} marginLeft={-3} fontSize={upToSmall ? 20 : 16}>
+                <Text color={theme.text} marginLeft={-2.5} fontSize={upToSmall ? 20 : 16}>
                   {position?.token0.symbol}/{position?.token1.symbol}
                 </Text>
               </Link>
             </Flex>
           )}
 
-          {initialLoading ? (
-            <PositionSkeleton width={80} height={22} />
-          ) : (
-            position?.pool.fee && <Badge>Fee {position?.pool.fee}%</Badge>
-          )}
+          {initialLoading ? <PositionSkeleton width={80} height={22} /> : <Badge>Fee {position?.pool.fee}%</Badge>}
 
           {initialLoading ? (
             <PositionSkeleton width={32} height={32} />
@@ -173,14 +169,17 @@ const PositionDetailHeader = ({
             <PositionSkeleton width={150} height={16} />
           ) : (
             <MouseoverTooltipDesktopOnly
-              text={`View this position on ${position?.dex.id.split(' ')?.[0] || ''}`}
+              text={`View this position on ${position?.dex?.name?.split(' ')?.[0] || ''}`}
               width="fit-content"
               placement="top"
             >
-              <DexInfo openable={earnSupportedProtocols.includes(position?.dex.id)} onClick={onOpenPositionInDexSite}>
+              <DexInfo
+                openable={EARN_DEXES[position?.dex.id as Exchange] ? true : false}
+                onClick={onOpenPositionInDexSite}
+              >
                 <TokenLogo src={position?.dex.logo} size={16} />
                 <Text fontSize={14} color={theme.subText}>
-                  {position?.dex.id}
+                  {position?.dex.name}
                 </Text>
               </DexInfo>
             </MouseoverTooltipDesktopOnly>

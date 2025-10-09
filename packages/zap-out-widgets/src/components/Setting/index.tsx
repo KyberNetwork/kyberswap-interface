@@ -1,13 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { MouseoverTooltip } from '@kyber/ui';
+import { useOnClickOutside } from '@kyber/hooks';
+import { MouseoverTooltip, Toggle } from '@kyber/ui';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
 import X from '@/assets/svg/x.svg';
 import Modal from '@/components/Modal';
 import SlippageInput from '@/components/Setting/SlippageInput';
-import Toggle from '@/components/Toggle';
-import { useOnClickOutside } from '@/hooks/useOnClickOutside';
 import { useZapOutUserState } from '@/stores/state';
 
 const validateDeadlineString = (str: string): boolean => {
@@ -55,7 +54,7 @@ export default function Setting() {
       if (!isValid) setDeadline(20);
       toggleSetting();
     }
-  });
+  }, ['setting', 'ks-lw-modal-overlay', 'kyber-portal']);
 
   if (!showSetting) return null;
 

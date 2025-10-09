@@ -13,7 +13,7 @@ import { useActiveWeb3React } from 'hooks'
 import { PermitNftState, usePermitNft } from 'hooks/usePermitNft'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import { Badge, ChainImage, ImageContainer } from 'pages/Earns/UserPositions/styles'
+import { Badge, ImageContainer } from 'pages/Earns/UserPositions/styles'
 import { ParsedPosition } from 'pages/Earns/types'
 
 import { Metric } from './Metrics'
@@ -127,7 +127,7 @@ export const Confirmation = ({
           <ImageContainer>
             <TokenLogo src={pos?.token0.logo} />
             <TokenLogo src={pos?.token1.logo} translateLeft />
-            <ChainImage src={pos?.chain.logo} alt="" />
+            <TokenLogo src={pos.chain.logo} size={12} translateLeft translateTop />
           </ImageContainer>
           <Text mr="8px">
             {pos.token0.symbol}/{pos.token1.symbol}
