@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react'
 
 import DeltaTokenAmount, { DeltaNft } from 'components/WalletPopup/Transactions/DeltaTokenAmount'
 import { useWeb3React } from 'hooks'
-import { CoreProtocol } from 'pages/Earns/constants'
-import { getTokenId, isForkFrom } from 'pages/Earns/utils'
+import { getTokenId } from 'pages/Earns/utils'
 import { EarnAddLiquidityExtraInfo, TransactionDetails } from 'state/transactions/type'
 import { getTransactionStatus } from 'utils/transaction'
 
@@ -14,18 +13,17 @@ export default function AddLiquidityDescription(transaction: TransactionDetails)
   const [tokenId, setTokenId] = useState<string | null>(null)
 
   const { success } = getTransactionStatus(transaction)
-  const isUniV4 = isForkFrom(dex, CoreProtocol.UniswapV4)
 
   useEffect(() => {
     if (library && !positionId) {
-      getTokenId(library, transaction.hash, isUniV4)
+      getTokenId(library, transaction.hash, dex)
         .then(id => {
           if (id) setTokenId(id.toString())
           else setTokenId(null)
         })
         .catch(error => console.log('failed to get token id', error))
     }
-  }, [library, transaction.hash, isUniV4, positionId])
+  }, [library, transaction.hash, dex, positionId])
 
   return !success ? null : (
     <>

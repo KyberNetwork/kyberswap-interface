@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react'
 
 import { DeltaNft } from 'components/WalletPopup/Transactions/DeltaTokenAmount'
 import { useWeb3React } from 'hooks'
-import { CoreProtocol } from 'pages/Earns/constants'
-import { getTokenId, isForkFrom } from 'pages/Earns/utils'
+import { getTokenId } from 'pages/Earns/utils'
 import { EarnMigrateLiquidityExtraInfo, TransactionDetails } from 'state/transactions/type'
 import { getTransactionStatus } from 'utils/transaction'
 
@@ -23,18 +22,17 @@ export default function MigrateLiquidityDescription(transaction: TransactionDeta
   const [tokenId, setTokenId] = useState<string | null>(null)
 
   const { success } = getTransactionStatus(transaction)
-  const isUniV4 = isForkFrom(destinationDex, CoreProtocol.UniswapV4)
 
   useEffect(() => {
     if (library) {
-      getTokenId(library, transaction.hash, isUniV4)
+      getTokenId(library, transaction.hash, destinationDex)
         .then(id => {
           if (id) setTokenId(id.toString())
           else setTokenId(null)
         })
         .catch(error => console.log('failed to get token id', error))
     }
-  }, [library, transaction.hash, isUniV4])
+  }, [library, transaction.hash, destinationDex])
 
   return !success ? null : (
     <>

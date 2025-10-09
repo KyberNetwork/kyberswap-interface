@@ -1,6 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
-import { EarnDex, Exchange } from 'pages/Earns/constants'
+import { Exchange } from 'pages/Earns/constants'
 
 export interface SerializableTransactionReceipt {
   blockHash: string
@@ -66,7 +66,7 @@ export type TransactionExtraBaseInfo = {
 export type EarnAddLiquidityExtraInfo = {
   pool: string
   dexLogoUrl?: string
-  dex: EarnDex | Exchange
+  dex: Exchange
   positionId?: string
   tokensIn: Array<{
     logoUrl?: string
@@ -79,7 +79,7 @@ export type EarnAddLiquidityExtraInfo = {
 export type EarnRemoveLiquidityExtraInfo = {
   pool: string
   dexLogoUrl?: string
-  dex: EarnDex | Exchange
+  dex: Exchange
   positionId: string
   tokensOut: Array<{
     logoUrl?: string
@@ -92,10 +92,10 @@ export type EarnRemoveLiquidityExtraInfo = {
 export type EarnMigrateLiquidityExtraInfo = {
   sourcePool: string
   sourceDexLogoUrl?: string
-  sourceDex: EarnDex | Exchange
+  sourceDex: Exchange
   destinationPool: string
   destinationDexLogoUrl?: string
-  destinationDex: EarnDex | Exchange
+  destinationDex: Exchange
   positionId: string
   contract?: string
 }
