@@ -10,7 +10,8 @@ import { useUserPositionsQuery } from 'services/zapEarn'
 
 import { ReactComponent as IconEarnNotFound } from 'assets/svg/earn/ic_earn_not_found.svg'
 import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_earn_position.svg'
-import { ReactComponent as IconKem } from 'assets/svg/kyber/kem.svg'
+import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
+import { ReactComponent as FarmingLmIcon } from 'assets/svg/kyber/kemLm.svg'
 import { ReactComponent as RocketIcon } from 'assets/svg/rocket.svg'
 import InfoHelper from 'components/InfoHelper'
 import { Loader2 } from 'components/Loader'
@@ -19,6 +20,7 @@ import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
+import { timings } from 'pages/Earns/PoolExplorer/Filter'
 import { NavigateButton } from 'pages/Earns/PoolExplorer/styles'
 import PositionDetailHeader from 'pages/Earns/PositionDetail/Header'
 import LeftSection from 'pages/Earns/PositionDetail/LeftSection'
@@ -33,14 +35,9 @@ import {
 } from 'pages/Earns/PositionDetail/styles'
 import MigrationModal from 'pages/Earns/UserPositions/MigrationModal'
 import { EmptyPositionText, PositionPageWrapper } from 'pages/Earns/UserPositions/styles'
+import DropdownMenu from 'pages/Earns/components/DropdownMenu'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import RewardSyncing from 'pages/Earns/components/RewardSyncing'
-import {
-  EarnDex,
-  Exchange,
-  POSSIBLE_FARMING_PROTOCOLS,
-  protocolGroupNameToExchangeMapping,
-} from 'pages/Earns/constants'
 import useClosedPositions, { CheckClosedPositionParams } from 'pages/Earns/hooks/useClosedPositions'
 import useFarmingStablePools from 'pages/Earns/hooks/useFarmingStablePools'
 import useForceLoading from 'pages/Earns/hooks/useForceLoading'
@@ -48,6 +45,7 @@ import useKemRewards from 'pages/Earns/hooks/useKemRewards'
 import useReduceFetchInterval from 'pages/Earns/hooks/useReduceFetchInterval'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import { FeeInfo, PAIR_CATEGORY, ParsedPosition, PositionStatus, SuggestedPool } from 'pages/Earns/types'
+import { getNftManagerContract } from 'pages/Earns/utils'
 import { getUnclaimedFeesInfo } from 'pages/Earns/utils/fees'
 import { checkEarlyPosition, parsePosition } from 'pages/Earns/utils/position'
 import { getUnfinalizedPositions } from 'pages/Earns/utils/unfinalizedPosition'
@@ -61,14 +59,14 @@ const PositionDetail = () => {
 
   const { account } = useActiveWeb3React()
   const { forceLoading, removeForceLoading } = useForceLoading()
-  const { positionId, chainId, protocol } = useParams()
+  const { positionId, chainId, exchange } = useParams()
   const { widget: zapMigrationWidget, handleOpenZapMigration, triggerClose, setTriggerClose } = useZapMigrationWidget()
 
   const { closedPositionsFromRpc, checkClosedPosition } = useClosedPositions()
   const { reduceFetchInterval, setReduceFetchInterval } = useReduceFetchInterval()
 
   const {
-    data: userPosition,
+    data: userPositions,
     isLoading,
     isFetching,
     refetch,
@@ -77,36 +75,38 @@ const PositionDetail = () => {
       addresses: account || '',
       positionId: positionId?.toLowerCase(),
       chainIds: chainId || '',
-      protocols: protocol || '',
+      protocols: exchange || '',
     },
     { skip: !account, pollingInterval: forceLoading || reduceFetchInterval ? 5_000 : 15_000 },
   )
   const { rewardInfo } = useKemRewards(refetch)
-  const rewardInfoThisPosition = !userPosition
+  const rewardInfoThisPosition = !userPositions
     ? undefined
-    : rewardInfo?.nfts.find(item => item.nftId === userPosition?.[0]?.tokenId)
+    : rewardInfo?.nfts.find(item => item.nftId === userPositions?.[0]?.tokenId)
 
   const currentWalletAddress = useRef(account)
+  const [aprInterval, setAprInterval] = useState<'24h' | '7d'>('7d')
   const [feeInfoFromRpc, setFeeInfoFromRpc] = useState<FeeInfo | undefined>()
   const [shareInfo, setShareInfo] = useState<ShareModalProps | undefined>()
   const [positionToMigrate, setPositionToMigrate] = useState<ParsedPosition | null>(null)
+  const [positionOwnerAddress, setPositionOwnerAddress] = useState<string | null>(null)
 
   const loadingInterval = isFetching
   const initialLoading = !!(forceLoading || (isLoading && !firstLoading.current))
 
   const position: ParsedPosition | undefined = useMemo(() => {
-    if (!userPosition || !userPosition.length) {
+    if (!userPositions || !userPositions.length) {
       const unfinalizedPositions = getUnfinalizedPositions([])
       if (unfinalizedPositions.length > 0) return unfinalizedPositions[0]
       return
     }
 
     const isClosedFromRpc = closedPositionsFromRpc.some(
-      (closedPosition: { tokenId: string }) => closedPosition.tokenId === userPosition[0].tokenId,
+      (closedPosition: { tokenId: string }) => closedPosition.tokenId === userPositions[0].tokenId,
     )
 
     const parsedPosition = parsePosition({
-      position: userPosition[0],
+      position: userPositions[0],
       feeInfo: feeInfoFromRpc,
       nftRewardInfo: rewardInfoThisPosition,
       isClosedFromRpc,
@@ -117,7 +117,7 @@ const PositionDetail = () => {
     if (unfinalizedPositions.length > 0) return unfinalizedPositions[0]
 
     return parsedPosition
-  }, [feeInfoFromRpc, userPosition, rewardInfoThisPosition, closedPositionsFromRpc])
+  }, [feeInfoFromRpc, userPositions, rewardInfoThisPosition, closedPositionsFromRpc])
 
   const farmingPoolsByChain = useFarmingStablePools({ chainIds: position ? [position.chain.id] : [] })
 
@@ -178,16 +178,16 @@ const PositionDetail = () => {
     handleOpenZapMigration({
       chainId: sourcePosition.chain.id,
       from: {
-        dex: sourcePosition.dex.id,
-        poolId: sourcePosition.pool.address,
+        poolType: sourcePosition.dex.id,
+        poolAddress: sourcePosition.pool.address,
         positionId: sourcePosition.pool.isUniv2 ? account || '' : sourcePosition.tokenId,
       },
       to: {
-        dex: targetPool.poolExchange,
-        poolId: targetPool.address,
+        poolType: targetPool.poolExchange,
+        poolAddress: targetPool.address,
       },
       initialTick:
-        tickLower && tickUpper
+        tickLower !== undefined && tickUpper !== undefined
           ? {
               tickLower: tickLower,
               tickUpper: tickUpper,
@@ -195,6 +195,23 @@ const PositionDetail = () => {
           : undefined,
     })
   }
+
+  const handleReposition = useCallback(
+    (e: React.MouseEvent, position: ParsedPosition) => {
+      e.stopPropagation()
+      e.preventDefault()
+      handleOpenZapMigration({
+        chainId: position.chain.id,
+        from: {
+          poolType: position.dex.id,
+          poolAddress: position.pool.address,
+          positionId: position.pool.isUniv2 ? account || '' : position.tokenId,
+        },
+        rePositionMode: true,
+      })
+    },
+    [handleOpenZapMigration, account],
+  )
 
   useEffect(() => {
     if (!firstLoading.current && !isLoading) {
@@ -222,7 +239,24 @@ const PositionDetail = () => {
     [checkClosedPosition, refetch],
   )
 
-  const isFarmingPossible = POSSIBLE_FARMING_PROTOCOLS.includes(protocol as Exchange)
+  useEffect(() => {
+    if (!position) return
+    const fetchOwner = async () => {
+      try {
+        const contract = getNftManagerContract(position.dex.id, position.chain.id)
+        if (contract) {
+          const owner = await contract.ownerOf(position.tokenId)
+          setPositionOwnerAddress(owner)
+        }
+      } catch (error) {
+        console.error('Failed to fetch position owner', error)
+        setPositionOwnerAddress(null)
+      }
+    }
+    fetchOwner()
+  }, [position])
+
+  const isNotAccountOwner = !!positionOwnerAddress && !!account && positionOwnerAddress !== account
   const isUnfinalized = position?.isUnfinalized
   const isStablePair = position?.pool.category === PAIR_CATEGORY.STABLE
   const isEarlyPosition = !!position && checkEarlyPosition(position)
@@ -244,13 +278,7 @@ const PositionDetail = () => {
   )
 
   const totalLiquiditySection = (
-    <TotalLiquiditySection
-      showForFarming={
-        position?.pool.isFarming ||
-        (initialLoading && isFarmingPossible) ||
-        Number(position?.rewards.claimableUsdValue || 0) > 0
-      }
-    >
+    <TotalLiquiditySection>
       <Flex flexDirection={'column'} alignContent={'flex-start'} sx={{ gap: '6px' }}>
         <Flex alignItems={'center'} sx={{ gap: '6px' }}>
           <Text fontSize={14} color={theme.subText}>
@@ -315,8 +343,8 @@ const PositionDetail = () => {
               chainId: position.chain.id,
               chainLogo: position.chain.logo,
               dexLogo: position.dex.logo,
-              dexName: position.dex.id,
-              exchange: protocolGroupNameToExchangeMapping[position.dex.id as EarnDex],
+              dexName: position.dex.name,
+              exchange: position.dex.id,
               token0: {
                 symbol: position.token0.symbol,
                 logo: position.token0.logo,
@@ -328,9 +356,9 @@ const PositionDetail = () => {
             },
             position: {
               apr: {
-                total: position.apr,
-                eg: position.kemEGApr,
-                lm: position.kemLMApr,
+                total: position.apr[aprInterval],
+                eg: position.kemEGApr[aprInterval],
+                lm: position.kemLMApr[aprInterval],
               },
               createdTime: position.createdTime,
               totalEarnings: position.rewards.totalUsdValue + position.earning.earned,
@@ -341,17 +369,11 @@ const PositionDetail = () => {
         <Share2 size={size || 16} color={theme.primary} />
       </ShareButtonWrapper>
     ),
-    [theme.primary, position],
+    [theme.primary, position, aprInterval],
   )
 
   const aprSection = (
-    <AprSection
-      showForFarming={
-        position?.pool.isFarming ||
-        (initialLoading && isFarmingPossible) ||
-        Number(position?.rewards.claimableUsdValue || 0) > 0
-      }
-    >
+    <AprSection>
       <Flex alignItems={'center'} sx={{ gap: '2px' }}>
         <Text fontSize={14} color={theme.subText}>
           {t`Est. Position APR`}
@@ -364,11 +386,11 @@ const PositionDetail = () => {
             width="fit-content"
             text={
               <div>
-                {t`LP Fee APR`}: {formatAprNumber(position?.feeApr || 0)}%
+                {t`LP Fee`}: {formatAprNumber(position?.feeApr[aprInterval] || 0)}%
                 <br />
-                {t`EG Sharing Reward`}: {formatAprNumber(position?.kemEGApr || 0)}%
+                {t`EG Sharing Reward`}: {formatAprNumber(position?.kemEGApr[aprInterval] || 0)}%
                 <br />
-                {t`LM Reward`}: {formatAprNumber(position?.kemLMApr || 0)}%
+                {t`LM Reward`}: {formatAprNumber(position?.kemLMApr[aprInterval] || 0)}%
               </div>
             }
           />
@@ -382,15 +404,39 @@ const PositionDetail = () => {
       ) : isWaitingForRewards ? (
         <RewardSyncing width={70} height={24} />
       ) : (
-        <Flex alignItems={'center'} sx={{ gap: 1 }}>
-          {position?.pool.isFarming && <IconKem width={20} height={20} />}
-          <Text fontSize={20} marginRight={1} color={position?.apr && position.apr > 0 ? theme.primary : theme.text}>
-            {formatAprNumber(position?.apr || 0)}%
-          </Text>
-          {!initialLoading &&
-            !isUnfinalized &&
-            position?.status !== PositionStatus.CLOSED &&
-            shareBtn(12, [ShareOption.TOTAL_APR])}
+        <Flex alignItems={'center'} justifyContent={'space-between'}>
+          <Flex alignItems={'center'} sx={{ gap: 1 }}>
+            {position?.pool.isFarmingLm ? (
+              <FarmingLmIcon width={20} height={20} />
+            ) : position?.pool.isFarming ? (
+              <FarmingIcon width={20} height={20} />
+            ) : null}
+            <Text
+              fontSize={20}
+              marginRight={1}
+              color={position?.apr && position.apr[aprInterval] > 0 ? theme.primary : theme.text}
+            >
+              {formatAprNumber(position?.apr[aprInterval] || 0)}%
+            </Text>
+            {!initialLoading &&
+              !isUnfinalized &&
+              position?.status !== PositionStatus.CLOSED &&
+              shareBtn(12, [ShareOption.TOTAL_APR])}
+          </Flex>
+
+          {aprInterval ? (
+            <>{/* TODO: Revert later */}</>
+          ) : (
+            <DropdownMenu
+              width={30}
+              flatten
+              tooltip={`APR calculated based on last ${aprInterval} fees. Useful for recent performance trends.`}
+              options={timings.slice(0, 2)}
+              value={aprInterval}
+              alignLeft
+              onChange={value => setAprInterval(value as '24h')}
+            />
+          )}
         </Flex>
       )}
     </AprSection>
@@ -417,30 +463,43 @@ const PositionDetail = () => {
         {!!position || initialLoading ? (
           <>
             <PositionDetailHeader isLoading={loadingInterval} initialLoading={initialLoading} position={position} />
-            {!position?.pool.isFarming &&
-              (!!position?.suggestionPool ||
-                (isStablePair && farmingPoolsByChain[position.chain.id]?.pools.length > 0)) &&
-              position.status !== PositionStatus.CLOSED && (
+
+            <Flex flexDirection={'column'} sx={{ gap: '12px' }}>
+              {!position?.pool.isFarming &&
+                (!!position?.suggestionPool ||
+                  (isStablePair && farmingPoolsByChain[position.chain.id]?.pools.length > 0)) &&
+                position.status !== PositionStatus.CLOSED && (
+                  <MigrationLiquidityRecommend>
+                    <Text color={'#fafafa'} lineHeight={'18px'}>
+                      {!!position.suggestionPool
+                        ? position.pool.fee === position.suggestionPool.feeTier
+                          ? t`Earn extra rewards with exact same pair and fee tier on Uniswap v4 hook.`
+                          : t`We found a pool with the same pair offering extra rewards. Migrate to this pool on Uniswap v4 hook to start earning farming rewards.`
+                        : t`We found other stable pools offering extra rewards. Explore and migrate to start earning.`}
+                    </Text>
+                    <Text color={theme.primary} sx={{ cursor: 'pointer' }} onClick={handleMigrateToKem}>
+                      {!!position.suggestionPool ? t`Migrate` : t`View Pools`} →
+                    </Text>
+                  </MigrationLiquidityRecommend>
+                )}
+
+              {isNotAccountOwner && (
                 <MigrationLiquidityRecommend>
                   <Text color={'#fafafa'} lineHeight={'18px'}>
-                    {!!position.suggestionPool
-                      ? position.pool.fee === position.suggestionPool.feeTier
-                        ? t`Earn extra rewards with exact same pair and fee tier on Uniswap v4 hook.`
-                        : t`We found a pool with the same pair offering extra rewards. Migrate to this pool on Uniswap v4 hook to start earning farming rewards.`
-                      : t`We found other stable pools offering extra rewards. Explore and migrate to start earning.`}
-                  </Text>
-                  <Text color={theme.primary} sx={{ cursor: 'pointer' }} onClick={handleMigrateToKem}>
-                    {!!position.suggestionPool ? t`Migrate` : t`View Pools`} →
+                    {t`This position is currently being used in another protocol. Fee claim and liquidity actions are unavailable.`}
                   </Text>
                 </MigrationLiquidityRecommend>
               )}
+            </Flex>
+
             <PositionDetailWrapper>
               <LeftSection
-                initialLoading={initialLoading}
                 position={position}
                 onFetchUnclaimedFee={handleFetchUnclaimedFee}
                 totalLiquiditySection={totalLiquiditySection}
                 aprSection={aprSection}
+                initialLoading={initialLoading}
+                isNotAccountOwner={isNotAccountOwner}
                 shareBtn={shareBtn}
                 refetchPositions={refetch}
               />
@@ -449,11 +508,14 @@ const PositionDetail = () => {
                 onOpenZapMigration={handleOpenZapMigration}
                 totalLiquiditySection={totalLiquiditySection}
                 aprSection={aprSection}
-                onRefreshPosition={onRefreshPosition}
                 initialLoading={initialLoading}
+                isNotAccountOwner={isNotAccountOwner}
+                positionOwnerAddress={positionOwnerAddress}
+                onRefreshPosition={onRefreshPosition}
                 triggerClose={triggerClose}
                 setTriggerClose={setTriggerClose}
                 setReduceFetchInterval={setReduceFetchInterval}
+                onReposition={handleReposition}
               />
             </PositionDetailWrapper>
           </>

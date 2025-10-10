@@ -143,7 +143,14 @@ function CrossChainSwap() {
           onRefresh={getQuote}
         />
 
-        <Flex color={theme.text} fontSize="14px" alignItems="center" sx={{ gap: '4px', flex: 1 }} ml="4px">
+        <Flex
+          color={theme.text}
+          flexWrap="wrap"
+          fontSize="14px"
+          alignItems="center"
+          sx={{ gap: '4px', flex: 1 }}
+          ml="4px"
+        >
           <Text as="span" color={theme.subText}>
             Cross-chain rate:
           </Text>
@@ -158,6 +165,7 @@ function CrossChainSwap() {
           ) : selectedQuote && toChainId ? (
             <Flex
               role="button"
+              flexWrap="wrap"
               sx={{ alignItems: 'center', gap: '4px', cursor: 'pointer' }}
               onClick={() => setRevertPrice(!revertPrice)}
             >

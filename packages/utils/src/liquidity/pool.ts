@@ -22,6 +22,7 @@ import { fetchTokenPrice } from '../services';
 import { MAX_TICK, MIN_TICK, nearestUsableTick, sqrtToPrice } from '../uniswapv3';
 
 export enum POOL_ERROR {
+  MISSING_TARGET_POOL = 'Missing target pool',
   CANT_GET_POOL_INFO = "Can't get pool info",
   CANT_GET_TOKEN_INFO = "Can't get token info",
   INVALID_POOL_TYPE = 'Invalid pool type',
@@ -126,6 +127,7 @@ export const getPoolInfo = async ({
           kemEGApr: univ3PoolInfo.poolStats.kemEGApr || 0,
         },
         isFarming: univ3PoolInfo.programs?.includes('eg') || univ3PoolInfo.programs?.includes('lm'),
+        isFarmingLm: univ3PoolInfo.programs?.includes('lm'),
       },
     };
   }
@@ -154,6 +156,7 @@ export const getPoolInfo = async ({
           kemEGApr: univ2PoolInfo.poolStats.kemEGApr || 0,
         },
         isFarming: univ2PoolInfo.programs?.includes('eg') || univ2PoolInfo.programs?.includes('lm'),
+        isFarmingLm: univ2PoolInfo.programs?.includes('lm'),
       },
     };
   }

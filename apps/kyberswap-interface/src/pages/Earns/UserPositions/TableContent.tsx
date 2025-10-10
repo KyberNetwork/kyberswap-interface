@@ -1,20 +1,19 @@
 import { formatAprNumber, toString } from '@kyber/utils/dist/number'
 import { MAX_TICK, MIN_TICK, priceToClosestTick } from '@kyber/utils/dist/uniswapv3'
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useCallback, useMemo, useState } from 'react'
-import { ArrowRightCircle } from 'react-feather'
+import { ArrowRight, ArrowRightCircle } from 'react-feather'
 import { Link } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
 import { ReactComponent as IconEarnNotFound } from 'assets/svg/earn/ic_earn_not_found.svg'
-import { ReactComponent as IconKem } from 'assets/svg/kyber/kem.svg'
+import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
+import { InfoHelperWithDelay } from 'components/InfoHelper'
 import { Loader2 } from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { APP_PATHS, PAIR_CATEGORY } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { PositionAction as PositionActionBtn } from 'pages/Earns/PositionDetail/styles'
@@ -24,26 +23,19 @@ import PriceRange from 'pages/Earns/UserPositions/PriceRange'
 import {
   Badge,
   BadgeType,
-  ChainImage,
   Divider,
   EmptyPositionText,
   ImageContainer,
   PositionActionWrapper,
   PositionOverview,
   PositionRow,
-  PositionTableBody,
   PositionValueLabel,
   PositionValueWrapper,
 } from 'pages/Earns/UserPositions/styles'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import RewardSyncing from 'pages/Earns/components/RewardSyncing'
-import {
-  CoreProtocol,
-  DEXES_SUPPORT_COLLECT_FEE,
-  EarnDex,
-  LIMIT_TEXT_STYLES,
-  protocolGroupNameToExchangeMapping,
-} from 'pages/Earns/constants'
+import { EARN_DEXES, LIMIT_TEXT_STYLES } from 'pages/Earns/constants'
+import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import useCollectFees from 'pages/Earns/hooks/useCollectFees'
 import useFarmingStablePools from 'pages/Earns/hooks/useFarmingStablePools'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
@@ -51,7 +43,6 @@ import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import { ZapOutInfo } from 'pages/Earns/hooks/useZapOutWidget'
 import { FeeInfo, ParsedPosition, PositionStatus, SuggestedPool } from 'pages/Earns/types'
-import { isForkFrom } from 'pages/Earns/utils'
 import { getUnclaimedFeesInfo } from 'pages/Earns/utils/fees'
 import { checkEarlyPosition } from 'pages/Earns/utils/position'
 import { useWalletModalToggle } from 'state/application/hooks'
@@ -141,7 +132,7 @@ export default function TableContent({
   const handleOpenIncreaseLiquidityWidget = (e: React.MouseEvent, position: ParsedPosition) => {
     e.stopPropagation()
     e.preventDefault()
-    const isUniv2 = isForkFrom(position.dex.id, CoreProtocol.UniswapV2)
+    const isUniv2 = EARN_DEXES[position.dex.id].isForkFrom === CoreProtocol.UniswapV2
     onOpenZapInWidget({
       pool: {
         dex: position.dex.id,
@@ -155,7 +146,7 @@ export default function TableContent({
   const handleOpenZapOut = (e: React.MouseEvent, position: ParsedPosition) => {
     e.stopPropagation()
     e.preventDefault()
-    const isUniv2 = isForkFrom(position.dex.id, CoreProtocol.UniswapV2)
+    const isUniv2 = EARN_DEXES[position.dex.id].isForkFrom === CoreProtocol.UniswapV2
     onOpenZapOut({
       position: {
         dex: position.dex.id,
@@ -230,21 +221,35 @@ export default function TableContent({
     handleOpenZapMigration({
       chainId: sourcePosition.chain.id,
       from: {
-        dex: sourcePosition.dex.id,
-        poolId: sourcePosition.pool.address,
+        poolType: sourcePosition.dex.id,
+        poolAddress: sourcePosition.pool.address,
         positionId: sourcePosition.pool.isUniv2 ? account || '' : sourcePosition.tokenId,
       },
       to: {
-        dex: targetPool.poolExchange,
-        poolId: targetPool.address,
+        poolType: targetPool.poolExchange,
+        poolAddress: targetPool.address,
       },
       initialTick:
-        tickLower && tickUpper
+        tickLower !== undefined && tickUpper !== undefined
           ? {
               tickLower: tickLower,
               tickUpper: tickUpper,
             }
           : undefined,
+    })
+  }
+
+  const handleReposition = (e: React.MouseEvent, position: ParsedPosition) => {
+    e.stopPropagation()
+    e.preventDefault()
+    handleOpenZapMigration({
+      chainId: position.chain.id,
+      from: {
+        poolType: position.dex.id,
+        poolAddress: position.pool.address,
+        positionId: position.pool.isUniv2 ? account || '' : position.tokenId,
+      },
+      rePositionMode: true,
     })
   }
 
@@ -276,7 +281,7 @@ export default function TableContent({
       {zapMigrationWidget}
       {migrationModal}
 
-      <PositionTableBody>
+      <div>
         {account && positions && positions.length > 0
           ? positions.map((position, index) => {
               const {
@@ -295,8 +300,7 @@ export default function TableContent({
                 rewards,
                 isUnfinalized,
               } = position
-              const feesClaimDisabled =
-                !DEXES_SUPPORT_COLLECT_FEE[dex.id as EarnDex] || unclaimedFees === 0 || feesClaiming
+              const feesClaimDisabled = !EARN_DEXES[dex.id].collectFeeSupported || unclaimedFees === 0 || feesClaiming
               const rewardsClaimDisabled = rewardsClaiming || position.rewards.claimableUsdValue === 0
               const isStablePair = pool.category === PAIR_CATEGORY.STABLE
               const isEarlyPosition = checkEarlyPosition(position)
@@ -307,6 +311,7 @@ export default function TableContent({
                   position={position}
                   onOpenIncreaseLiquidityWidget={handleOpenIncreaseLiquidityWidget}
                   onOpenZapOut={handleOpenZapOut}
+                  onOpenReposition={handleReposition}
                   claimFees={{
                     onClaimFee: handleClaimFees,
                     feesClaimDisabled,
@@ -327,7 +332,7 @@ export default function TableContent({
                   key={`${tokenId}-${pool.address}-${index}`}
                   to={APP_PATHS.EARN_POSITION_DETAIL.replace(':positionId', !pool.isUniv2 ? id : pool.address)
                     .replace(':chainId', chain.id.toString())
-                    .replace(':protocol', protocolGroupNameToExchangeMapping[dex.id] || dex.id)}
+                    .replace(':exchange', dex.id)}
                 >
                   {/* Overview info */}
                   <PositionOverview>
@@ -335,16 +340,21 @@ export default function TableContent({
                       <ImageContainer>
                         <TokenLogo src={token0.logo} />
                         <TokenLogo src={token1.logo} translateLeft />
-                        <ChainImage src={NETWORKS_INFO[chain.id as ChainId]?.icon || chain.logo} alt="" />
+                        <TokenLogo src={chain.logo} size={12} translateLeft translateTop />
                       </ImageContainer>
-                      <Text marginLeft={-2} fontSize={upToSmall ? 15 : 16}>
+                      <Text
+                        marginLeft={-2}
+                        fontSize={upToSmall ? 15 : 16}
+                        maxWidth={'160px'}
+                        sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+                      >
                         {token0.symbol}/{token1.symbol}
                       </Text>
-                      {pool.fee ? <Badge>{pool.fee}%</Badge> : null}
+                      <Badge>{pool.fee}%</Badge>
                     </Flex>
-                    <Flex flexWrap={'wrap'} alignItems={'center'} sx={{ gap: '10px' }}>
+                    <Flex flexWrap={'wrap'} alignItems={'center'} sx={{ gap: '6px' }}>
                       <Flex alignItems={'center'} sx={{ gap: 1 }}>
-                        <MouseoverTooltipDesktopOnly text={dex.id} width="fit-content" placement="bottom">
+                        <MouseoverTooltipDesktopOnly text={dex.name} width="fit-content" placement="bottom">
                           <TokenLogo src={dex.logo} size={16} />
                         </MouseoverTooltipDesktopOnly>
                         <Text fontSize={upToSmall ? 16 : 14} color={theme.subText}>
@@ -372,6 +382,30 @@ export default function TableContent({
                             : status === PositionStatus.OUT_RANGE
                             ? t`Out of range`
                             : t`Closed`}
+                          {status === PositionStatus.OUT_RANGE ? (
+                            <InfoHelperWithDelay
+                              text={
+                                <Flex flexDirection={'column'} sx={{ gap: 1 }}>
+                                  <Text>
+                                    {t`The position is inactive. Update to an action price range to earn fees/rewards.`}
+                                  </Text>
+                                  <Flex
+                                    color={theme.primary}
+                                    alignItems={'center'}
+                                    sx={{ gap: 1, cursor: 'pointer' }}
+                                    onClick={e => handleReposition(e, position)}
+                                  >
+                                    <Text>{t`Reposition to new range`}</Text>
+                                    <ArrowRight size={14} />
+                                  </Flex>
+                                </Flex>
+                              }
+                              color={theme.warning}
+                              placement="top"
+                              width="280px"
+                              style={{ marginLeft: 4 }}
+                            />
+                          ) : null}
                         </Badge>
                       )}
                     </Flex>
@@ -428,12 +462,12 @@ export default function TableContent({
                             pool.isFarming ? (
                               <>
                                 <Text>
-                                  {t`LP Fees APR`}: {formatAprNumber(position.feeApr)}%
+                                  {t`LP Fee`}: {formatAprNumber(position.feeApr['7d'])}%
                                 </Text>
                                 <Text>
-                                  {t`EG Sharing Reward`}: {formatAprNumber(position.kemEGApr)}%
+                                  {t`EG Sharing Reward`}: {formatAprNumber(position.kemEGApr['7d'])}%
                                   <br />
-                                  {t`LM Reward`}: {formatAprNumber(position.kemLMApr)}%
+                                  {t`LM Reward`}: {formatAprNumber(position.kemLMApr['7d'])}%
                                 </Text>
                               </>
                             ) : null
@@ -441,7 +475,7 @@ export default function TableContent({
                           width="fit-content"
                           placement="top"
                         >
-                          <Text color={pool.isFarming ? theme.primary : theme.text}>{formatAprNumber(apr)}%</Text>
+                          <Text color={pool.isFarming ? theme.primary : theme.text}>{formatAprNumber(apr['7d'])}%</Text>
                         </MouseoverTooltipDesktopOnly>
 
                         {!pool.isFarming &&
@@ -520,7 +554,7 @@ export default function TableContent({
                       <RewardSyncing width={80} height={19} />
                     ) : (
                       <Flex alignItems={'center'} sx={{ gap: 1 }}>
-                        {upToSmall && <IconKem width={20} height={20} />}
+                        {upToSmall && <FarmingIcon width={20} height={20} />}
                         <MouseoverTooltipDesktopOnly
                           text={
                             <>
@@ -561,14 +595,20 @@ export default function TableContent({
                     <PositionValueLabel>{t`Balance`}</PositionValueLabel>
 
                     {token0.symbol && token1.symbol ? (
-                      <Flex flexDirection={upToSmall ? 'row' : 'column'} sx={{ gap: 1.8 }}>
-                        <Text>
-                          {formatDisplayNumber(token0.totalProvide, { significantDigits: 4 })} {token0.symbol}
-                        </Text>
+                      <Flex
+                        flexDirection={upToSmall ? 'row' : 'column'}
+                        alignItems={upToSmall ? 'center' : 'flex-start'}
+                        sx={{ gap: 1.8 }}
+                      >
+                        <Flex alignItems="center" sx={{ gap: 1 }}>
+                          <Text>{formatDisplayNumber(token0.totalProvide, { significantDigits: 4 })}</Text>
+                          <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '80px' }}>{token0.symbol}</Text>
+                        </Flex>
                         {upToSmall && <Divider />}
-                        <Text>
-                          {formatDisplayNumber(token1.totalProvide, { significantDigits: 4 })} {token1.symbol}
-                        </Text>
+                        <Flex alignItems="center" sx={{ gap: 1 }}>
+                          <Text>{formatDisplayNumber(token1.totalProvide, { significantDigits: 4 })}</Text>
+                          <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '80px' }}>{token1.symbol}</Text>
+                        </Flex>
                       </Flex>
                     ) : (
                       '--'
@@ -586,7 +626,7 @@ export default function TableContent({
                           tickSpacing={pool.tickSpacing}
                           token0Decimals={token0.decimals}
                           token1Decimals={token1.decimals}
-                          dex={dex.id as EarnDex}
+                          dex={dex.id}
                         />
                       )
                     ) : isUnfinalized ? (
@@ -599,7 +639,7 @@ export default function TableContent({
                         tickSpacing={pool.tickSpacing}
                         token0Decimals={token0.decimals}
                         token1Decimals={token1.decimals}
-                        dex={dex.id as EarnDex}
+                        dex={dex.id}
                       />
                     )}
                   </PositionValueWrapper>
@@ -614,7 +654,7 @@ export default function TableContent({
               )
             })
           : emptyPosition}
-      </PositionTableBody>
+      </div>
     </>
   )
 }

@@ -1,136 +1,80 @@
-import { useMemo } from 'react';
+import { useState } from 'react';
 
+import { DEXES_INFO } from '@kyber/schema';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@kyber/ui';
 import { formatTokenAmount } from '@kyber/utils/number';
 
-import { DEXES_INFO, NETWORKS_INFO } from '@/constants';
-import { ChainId } from '@/schema';
-import { usePoolsStore } from '@/stores/usePoolsStore';
-import {
-  AddLiquidityAction,
-  AggregatorSwapAction,
-  GetRouteResponse,
-  PoolSwapAction,
-  RemoveLiquidityAction,
-} from '@/stores/useZapStateStore';
-import { formatWei } from '@/utils';
+import useZapRoute from '@/hooks/useZapRoute';
+import { usePoolStore } from '@/stores/usePoolStore';
+import { useWidgetStore } from '@/stores/useWidgetStore';
 
-export function MigrationSummary({ route, chainId }: { route: GetRouteResponse; chainId: ChainId }) {
-  const { pools } = usePoolsStore();
+export function MigrationSummary() {
+  const { chainId, sourcePoolType, targetPoolType } = useWidgetStore(['chainId', 'sourcePoolType', 'targetPoolType']);
+  const { sourcePool, targetPool } = usePoolStore(['sourcePool', 'targetPool']);
+  const { swapActions, addedLiquidity, removeLiquidity } = useZapRoute();
 
-  const swaps = useMemo(() => {
-    const aggregatorSwapInfo = route?.zapDetails.actions.find(
-      item => item.type === 'ACTION_TYPE_AGGREGATOR_SWAP',
-    ) as AggregatorSwapAction | null;
+  const [expanded, setExpanded] = useState(false);
+  const onExpand = () => setExpanded(prev => !prev);
 
-    const poolSwapInfo = route?.zapDetails.actions.find(
-      item => item.type === 'ACTION_TYPE_POOL_SWAP',
-    ) as PoolSwapAction | null;
+  if (!sourcePool || !targetPool || !sourcePoolType || !targetPoolType) return null;
 
-    if (pools === 'loading') return [];
-    const tokens = [
-      pools[0].token0,
-      pools[0].token1,
-      pools[1].token0,
-      pools[1].token1,
-      NETWORKS_INFO[chainId].wrappedToken,
-    ];
+  const sourceDexName =
+    typeof DEXES_INFO[sourcePoolType].name === 'string'
+      ? DEXES_INFO[sourcePoolType].name
+      : DEXES_INFO[sourcePoolType].name[chainId];
 
-    const parsedAggregatorSwapInfo =
-      aggregatorSwapInfo?.aggregatorSwap?.swaps?.map(item => {
-        const tokenIn = tokens.find(token => token.address.toLowerCase() === item.tokenIn.address.toLowerCase());
-        const tokenOut = tokens.find(token => token.address.toLowerCase() === item.tokenOut.address.toLowerCase());
-        return {
-          tokenInSymbol: tokenIn?.symbol || '--',
-          tokenOutSymbol: tokenOut?.symbol || '--',
-          amountIn: formatWei(item.tokenIn.amount, tokenIn?.decimals),
-          amountOut: formatWei(item.tokenOut.amount, tokenOut?.decimals),
-          pool: 'KyberSwap',
-        };
-      }) || [];
-
-    const dexNameObj = DEXES_INFO[pools[1].dex].name;
-    const dexName = typeof dexNameObj === 'string' ? dexNameObj : dexNameObj[chainId];
-
-    const parsedPoolSwapInfo =
-      poolSwapInfo?.poolSwap?.swaps?.map(item => {
-        const tokenIn = tokens.find(token => token.address.toLowerCase() === item.tokenIn.address.toLowerCase());
-        const tokenOut = tokens.find(token => token.address.toLowerCase() === item.tokenOut.address.toLowerCase());
-        return {
-          tokenInSymbol: tokenIn?.symbol || '--',
-          tokenOutSymbol: tokenOut?.symbol || '--',
-          amountIn: formatWei(item.tokenIn.amount, tokenIn?.decimals),
-          amountOut: formatWei(item.tokenOut.amount, tokenOut?.decimals),
-          pool: `${dexName} Pool`,
-        };
-      }) || [];
-
-    return parsedAggregatorSwapInfo.concat(parsedPoolSwapInfo);
-  }, [chainId, pools, route?.zapDetails.actions]);
-
-  if (pools === 'loading') return null;
-  const actionRemove = route.zapDetails.actions.find(action => action.type === 'ACTION_TYPE_REMOVE_LIQUIDITY') as
-    | RemoveLiquidityAction
-    | undefined;
-  const amount0Removed =
-    actionRemove?.removeLiquidity.tokens.find(tk => tk.address.toLowerCase() === pools[0].token0.address.toLowerCase())
-      ?.amount || '0';
-  const amount1Removed =
-    actionRemove?.removeLiquidity.tokens.find(tk => tk.address.toLowerCase() === pools[0].token1.address.toLowerCase())
-      ?.amount || '0';
-
-  const addliquidityAction = route.zapDetails.actions.find(action => action.type === 'ACTION_TYPE_ADD_LIQUIDITY') as
-    | AddLiquidityAction
-    | undefined;
-
-  const addedAmount0 = BigInt(addliquidityAction?.addLiquidity.token0.amount || 0);
-  const addedAmount1 = BigInt(addliquidityAction?.addLiquidity.token1.amount || 0);
-  const dexFrom =
-    typeof DEXES_INFO[pools[0].dex].name === 'string'
-      ? DEXES_INFO[pools[0].dex].name
-      : DEXES_INFO[pools[0].dex].name[chainId];
-
-  const dexTo =
-    typeof DEXES_INFO[pools[1].dex].name === 'string'
-      ? DEXES_INFO[pools[1].dex].name
-      : DEXES_INFO[pools[1].dex].name[chainId];
+  const targetDexName =
+    typeof DEXES_INFO[targetPoolType].name === 'string'
+      ? DEXES_INFO[targetPoolType].name
+      : DEXES_INFO[targetPoolType].name[chainId];
 
   return (
-    <div className="border border-stroke rounded-md px-4 py-3 mt-8">
-      <div className="text-sm">Migration Summary</div>
-      <div className="h-[1px] bg-stroke w-full mt-2" />
+    <Accordion type="single" collapsible className="w-full" value={expanded ? 'item-1' : ''}>
+      <AccordionItem value="item-1">
+        <AccordionTrigger
+          className={`px-4 py-3 text-sm border border-stroke text-text rounded-md ${
+            expanded ? '!rounded-b-none !border-b-0 !pb-1' : ''
+          }`}
+          onClick={onExpand}
+        >
+          Migration Summary
+        </AccordionTrigger>
+        <AccordionContent className="px-4 pb-4 pt-0 border border-stroke !border-t-0 rounded-b-md">
+          <div className="h-[1px] w-full bg-stroke mt-1 mb-3" />
 
-      <div className="flex items-center text-subText gap-2 mt-3">
-        <div className="rounded-full w-4 h-4 bg-layer2 text-xs text-center">1</div>
-        <div className="text-xs">
-          Remove {formatTokenAmount(BigInt(amount0Removed), pools[0].token0.decimals, 8)} {pools[0].token0.symbol} and{' '}
-          {formatTokenAmount(BigInt(amount1Removed), pools[0].token1.decimals, 8)} {pools[0].token1.symbol} from{' '}
-          <span className="text-text">{dexFrom as string}</span>
-        </div>
-      </div>
-
-      <div className="flex items-start text-subText gap-2 mt-3">
-        <div className="rounded-full w-4 h-4 bg-layer2 text-xs text-center">2</div>
-        <div className="text-xs">
-          {swaps.map((item, index) => (
-            <div className="flex-1 text-subText leading-4" key={index}>
-              Swap {item.amountIn} {item.tokenInSymbol} for {item.amountOut} {item.tokenOutSymbol} via{' '}
-              <span className="font-medium text-text">{item.pool}</span>
+          <div className="flex items-start text-subText gap-2 mt-3">
+            <div className="rounded-full w-4 h-4 bg-layer2 text-xs text-center">1</div>
+            <div className="flex-1 text-xs">
+              Remove {formatTokenAmount(removeLiquidity.removedAmount0, sourcePool.token0.decimals, 8)}{' '}
+              {sourcePool.token0.symbol} and{' '}
+              {formatTokenAmount(removeLiquidity.removedAmount1, sourcePool.token1.decimals, 8)}{' '}
+              {sourcePool.token1.symbol} from <span className="text-text">{sourceDexName as string}</span>
             </div>
-          ))}
-        </div>
-      </div>
+          </div>
 
-      <div className="flex items-center text-subText gap-2 mt-3">
-        <div className="rounded-full w-4 h-4 bg-layer2 text-xs text-center">3</div>
-        <div className="text-xs">
-          Add{' '}
-          {addedAmount0 !== 0n &&
-            `${formatTokenAmount(addedAmount0, pools[1].token0.decimals, 8)} ${pools[1].token0.symbol} and`}{' '}
-          {addedAmount0 !== 0n &&
-            `${formatTokenAmount(addedAmount1, pools[1].token1.decimals, 8)} ${pools[1].token1.symbol}`}{' '}
-          into <span className="text-text">{dexTo as string}</span> in the selected fee pool
-        </div>
-      </div>
-    </div>
+          <div className="flex items-start text-subText gap-2 mt-3">
+            <div className="rounded-full w-4 h-4 bg-layer2 text-xs text-center">2</div>
+            <div className="flex-1 text-xs">
+              {swapActions.map((item, index) => (
+                <div className="flex-1 text-subText leading-4" key={index}>
+                  Swap {item.amountIn} {item.tokenInSymbol} for {item.amountOut} {item.tokenOutSymbol} via{' '}
+                  <span className="font-medium text-text">{item.pool}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex items-start text-subText gap-2 mt-3">
+            <div className="rounded-full w-4 h-4 bg-layer2 text-xs text-center">3</div>
+            <div className="flex-1 text-xs">
+              Add{' '}
+              {`${formatTokenAmount(addedLiquidity.addedAmount0, targetPool.token0.decimals, 8)} ${targetPool.token0.symbol} and`}{' '}
+              {`${formatTokenAmount(addedLiquidity.addedAmount1, targetPool.token1.decimals, 8)} ${targetPool.token1.symbol}`}{' '}
+              into <span className="text-text">{targetDexName as string}</span> in the selected fee pool
+            </div>
+          </div>
+        </AccordionContent>
+      </AccordionItem>
+    </Accordion>
   );
 }

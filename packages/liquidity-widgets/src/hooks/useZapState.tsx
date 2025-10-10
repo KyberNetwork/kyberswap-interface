@@ -15,14 +15,12 @@ import { parseTokensAndAmounts, validateData } from '@/utils';
 
 interface UiState {
   showSetting: boolean;
-  slippageOpen: boolean;
   highlightDegenMode: boolean;
   degenMode: boolean;
 }
 
 const defaultUiState = {
   showSetting: false,
-  slippageOpen: false,
   highlightDegenMode: false,
   degenMode: false,
 };
@@ -129,7 +127,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(false);
   const [defaultRevertChecked, setDefaultRevertChecked] = useState(false);
 
-  const initializing = pool === 'loading';
+  const initializing = !pool;
   const isUniV3 = !initializing && univ3Types.includes(poolType as any);
   const { token0, token1 } = initializing ? { token0: undefined, token1: undefined } : pool;
 

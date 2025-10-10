@@ -1,7 +1,6 @@
 import { ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
-import { PATHS } from '@/constants';
-import { ChainId, Pool, Token } from '@/schema';
+import { API_URLS, ChainId, Pool, Token } from '@kyber/schema';
 
 type TokenListContextState = {
   tokens: Token[];
@@ -32,7 +31,7 @@ export const TokenListProvider = ({
 }: {
   children: ReactNode;
   chainId: ChainId;
-  pool: 'loading' | Pool;
+  pool: Pool | null;
 }) => {
   const [loading, setLoading] = useState(false);
   const [tokens, setTokens] = useState<Token[]>([]);
@@ -57,15 +56,15 @@ export const TokenListProvider = ({
     logo: '',
     symbol: '',
   };
-  const { address: token0Address } = pool === 'loading' ? defaultToken : pool.token0;
-  const { address: token1Address } = pool === 'loading' ? defaultToken : pool.token1;
+  const { address: token0Address } = pool === null ? defaultToken : pool.token0;
+  const { address: token1Address } = pool === null ? defaultToken : pool.token1;
 
   const allTokens = useMemo(() => {
     const mergedTokens = [...tokens, ...importedTokens];
-    if (pool !== 'loading' && !mergedTokens.find(t => t.address.toLowerCase() === token0Address.toLowerCase()))
+    if (pool !== null && !mergedTokens.find(t => t.address.toLowerCase() === token0Address.toLowerCase()))
       mergedTokens.push(pool.token0);
 
-    if (pool !== 'loading' && !mergedTokens.find(t => t.address.toLowerCase() === token1Address.toLowerCase()))
+    if (pool !== null && !mergedTokens.find(t => t.address.toLowerCase() === token1Address.toLowerCase()))
       mergedTokens.push(pool.token1);
 
     return mergedTokens;
@@ -99,7 +98,7 @@ export const TokenListProvider = ({
     setLoading(true);
     const urls = [1, 2].map(
       page =>
-        `${PATHS.KYBERSWAP_SETTING_API}/v1/tokens?page=${page}&pageSize=100&isWhitelisted=true&chainIds=${chainId}`,
+        `${API_URLS.KYBERSWAP_SETTING_API}/v1/tokens?page=${page}&pageSize=100&isWhitelisted=true&chainIds=${chainId}`,
     );
 
     Promise.all(urls.map(url => fetch(url).then(res => res.json())))
@@ -122,7 +121,7 @@ export const TokenListProvider = ({
       setLoading(true);
       try {
         const res = await fetch(
-          `${PATHS.KYBERSWAP_SETTING_API}/v1/tokens?query=${address}&page=1&pageSize=100&chainIds=${chainId}`,
+          `${API_URLS.KYBERSWAP_SETTING_API}/v1/tokens?query=${address}&page=1&pageSize=100&chainIds=${chainId}`,
         );
         const { data } = await res.json();
 

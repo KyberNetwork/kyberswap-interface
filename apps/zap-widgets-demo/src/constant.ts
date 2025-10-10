@@ -1,11 +1,13 @@
 import { PoolType as ZapInDex } from "@kyberswap/liquidity-widgets";
-import { Dex as ZapMigrationDex } from "@kyberswap/zap-migration-widgets";
+import { PoolType as ZapMigrationDex } from "@kyberswap/zap-migration-widgets";
 import { PoolType as ZapOutDex } from "@kyberswap/zap-out-widgets";
 import { PoolType as PancakeZapInDex } from "@kyberswap/pancake-liquidity-widgets";
 
 export const zapInDexMapping: Record<ZapInDex, string> = {
   [ZapInDex.DEX_UNISWAP_V4]: "Uniswap V4",
   [ZapInDex.DEX_UNISWAP_V4_FAIRFLOW]: "Uniswap V4 FairFlow",
+  [ZapInDex.DEX_PANCAKE_INFINITY_CL]: "Pancake ∞ CL",
+  [ZapInDex.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: "Pancake ∞ CL FairFlow",
   [ZapInDex.DEX_UNISWAPV3]: "Uniswap V3",
   [ZapInDex.DEX_PANCAKESWAPV3]: "PancakeSwap V3",
   [ZapInDex.DEX_METAVAULTV3]: "MetaVault V3",
@@ -33,6 +35,8 @@ export const zapInDexMapping: Record<ZapInDex, string> = {
 export const zapMigrationDexMapping: Record<ZapMigrationDex, string> = {
   [ZapMigrationDex.DEX_UNISWAP_V4]: "Uniswap V4",
   [ZapMigrationDex.DEX_UNISWAP_V4_FAIRFLOW]: "Uniswap V4 FairFlow",
+  [ZapMigrationDex.DEX_PANCAKE_INFINITY_CL]: "Pancake ∞ CL",
+  [ZapMigrationDex.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: "Pancake ∞ CL FairFlow",
   [ZapMigrationDex.DEX_UNISWAPV3]: "Uniswap V3",
   [ZapMigrationDex.DEX_PANCAKESWAPV3]: "PancakeSwap V3",
   [ZapMigrationDex.DEX_METAVAULTV3]: "MetaVault V3",
@@ -41,18 +45,27 @@ export const zapMigrationDexMapping: Record<ZapMigrationDex, string> = {
   [ZapMigrationDex.DEX_SWAPMODEV3]: "SwapMode V3",
   [ZapMigrationDex.DEX_KOICL]: "KOI CL",
   [ZapMigrationDex.DEX_THRUSTERV3]: "Thruster V3",
+  [ZapMigrationDex.DEX_PANCAKESWAPV2]: "PancakeSwap V2",
   [ZapMigrationDex.DEX_UNISWAPV2]: "Uniswap V2",
-  [ZapMigrationDex.DEX_KODIAK_V3]: "Kodiak V3",
-  [ZapMigrationDex.DEX_SQUADSWAP_V3]: "Squad Swap V3",
-  [ZapMigrationDex.DEX_SQUADSWAP_V2]: "Squad Swap V2",
+  [ZapMigrationDex.DEX_SUSHISWAPV2]: "SushiSwap V2",
+  [ZapMigrationDex.DEX_QUICKSWAPV2]: "QuickSwap V2",
+  [ZapMigrationDex.DEX_THRUSTERV2]: "Thruster V2",
+  [ZapMigrationDex.DEX_SWAPMODEV2]: "SwapMode V2",
   [ZapMigrationDex.DEX_THENAFUSION]: "Thena",
   [ZapMigrationDex.DEX_CAMELOTV3]: "Camelot V3",
   [ZapMigrationDex.DEX_QUICKSWAPV3ALGEBRA]: "QuickSwap",
+  [ZapMigrationDex.DEX_PANGOLINSTANDARD]: "Pangolin Standard",
+  [ZapMigrationDex.DEX_KODIAK_V3]: "Kodiak V3",
+  [ZapMigrationDex.DEX_KODIAK_V2]: "Kodiak V2",
+  [ZapMigrationDex.DEX_SQUADSWAP_V3]: "Squad Swap V3",
+  [ZapMigrationDex.DEX_SQUADSWAP_V2]: "Squad Swap V2",
 };
 
 export const zapOutDexMapping: Record<ZapOutDex, string> = {
   [ZapOutDex.DEX_UNISWAP_V4]: "Uniswap V4",
   [ZapOutDex.DEX_UNISWAP_V4_FAIRFLOW]: "Uniswap V4 FairFlow",
+  [ZapOutDex.DEX_PANCAKE_INFINITY_CL]: "Pancake ∞ CL",
+  [ZapOutDex.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: "Pancake ∞ CL FairFlow",
   [ZapOutDex.DEX_UNISWAPV3]: "Uniswap V3",
   [ZapOutDex.DEX_PANCAKESWAPV3]: "PancakeSwap V3",
   [ZapOutDex.DEX_METAVAULTV3]: "MetaVault V3",

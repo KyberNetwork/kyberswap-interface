@@ -8,6 +8,8 @@ import { TransactionFlowState } from 'types/TransactionFlowState'
 import * as ENV from './env'
 import { MAINNET_NETWORKS, NETWORKS_INFO, SUPPORTED_NETWORKS } from './networks'
 
+export const KYBERSWAP_DOMAIN = 'kyberswap.com'
+
 export const EMPTY_OBJECT: any = {}
 export const EMPTY_ARRAY: any[] = []
 export const EMPTY_FUNCTION = () => {
@@ -183,7 +185,7 @@ export const APP_PATHS = {
   EARN: '/earn',
   EARN_POOLS: '/earn/pools',
   EARN_POSITIONS: '/earn/positions',
-  EARN_POSITION_DETAIL: '/earn/position/:positionId/:chainId/:protocol',
+  EARN_POSITION_DETAIL: '/earn/position/:positionId/:chainId/:exchange',
   EARNS: '/earns',
   EARNS_POOLS: '/earns/pools',
   EARNS_POSITIONS: '/earns/positions',
@@ -351,3 +353,6 @@ export const CROSS_CHAIN_FEE_RECEIVER_SOLANA = 'D6tN4c5vpMqh4eFdHBUCEo7QLiw6DQy8
 // use a fake address in case user wallet is not connected. will reject if sign tx with this address
 export const BTC_DEFAULT_RECEIVER = 'bc1qmzgkj3hznt8heh4vp33v2cr2mvsyhc3lmfzz9p'
 export const SOLANA_NATIVE = '11111111111111111111111111111111'
+
+export const BUNGEE_AFFILIATE_ID =
+  '609913096e183f62cecd07e9c13f82e04ffbbdceb5fef75aad43e6cbff367039708902197e0b2b78b1d76cb0837ad0b318baedceb5fef75aad43e6cb'

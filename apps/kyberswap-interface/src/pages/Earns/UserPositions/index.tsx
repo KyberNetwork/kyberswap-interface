@@ -5,7 +5,7 @@ import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { useUserPositionsQuery } from 'services/zapEarn'
 
-import { ReactComponent as IconKem } from 'assets/svg/kyber/kem.svg'
+import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import { ReactComponent as RocketIcon } from 'assets/svg/rocket.svg'
 import InfoHelper from 'components/InfoHelper'
 import LocalLoader from 'components/LocalLoader'
@@ -26,11 +26,13 @@ import {
   PositionTableWrapper,
 } from 'pages/Earns/UserPositions/styles'
 import useFilter, { SortBy } from 'pages/Earns/UserPositions/useFilter'
-import { earnSupportedChains, earnSupportedExchanges, protocolGroupNameToExchangeMapping } from 'pages/Earns/constants'
+import { default as MultiSelectDropdownMenu } from 'pages/Earns/components/DropdownMenu/MultiSelect'
+import { ItemIcon } from 'pages/Earns/components/DropdownMenu/styles'
+import { EarnChain, Exchange } from 'pages/Earns/constants'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import useClosedPositions from 'pages/Earns/hooks/useClosedPositions'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
-import useSupportedDexesAndChains from 'pages/Earns/hooks/useSupportedDexesAndChains'
+import useSupportedDexesAndChains, { AllChainsOption } from 'pages/Earns/hooks/useSupportedDexesAndChains'
 import useZapInWidget from 'pages/Earns/hooks/useZapInWidget'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import useZapOutWidget from 'pages/Earns/hooks/useZapOutWidget'
@@ -39,6 +41,7 @@ import { parsePosition } from 'pages/Earns/utils/position'
 import { getUnfinalizedPositions } from 'pages/Earns/utils/unfinalizedPosition'
 import SortIcon, { Direction } from 'pages/MarketOverview/SortIcon'
 import { MEDIA_WIDTHS } from 'theme'
+import { enumToArrayOfValues } from 'utils'
 
 const POSITIONS_TABLE_LIMIT = 10
 
@@ -61,18 +64,20 @@ const UserPositions = () => {
     const statusFilter = filters.status.split(',')
     const isFilterOnlyClosedPosition = statusFilter.length === 1 && statusFilter[0] === PositionStatus.CLOSED
     const isFilterOnlyOpenPosition = !statusFilter.includes(PositionStatus.CLOSED)
+    const earnSupportedChains = enumToArrayOfValues(EarnChain, 'number')
+    const earnSupportedExchanges = enumToArrayOfValues(Exchange)
 
     return {
       addresses: account || '',
       chainIds: earnSupportedChains.join(','),
       protocols: earnSupportedExchanges.join(','),
-      q: filters.q,
       positionStatus: isFilterOnlyClosedPosition ? 'closed' : isFilterOnlyOpenPosition ? 'open' : 'all',
+      limit: 200,
     }
-  }, [account, filters.q, filters.status])
+  }, [account, filters.status])
 
   const {
-    data: userPosition,
+    data: userPositions,
     isFetching,
     isError,
     refetch,
@@ -106,9 +111,24 @@ const UserPositions = () => {
     setLoading(true)
   })
 
+  const selectedChainsLabel = useMemo(() => {
+    const arrValue = filters.chainIds?.split(',')
+    const selectedChains = supportedChains.filter(option => arrValue?.includes(option.value))
+    if (selectedChains.length >= 2) {
+      return `Selected: ${selectedChains.length} chains`
+    }
+    const option = selectedChains[0] || supportedChains[0]
+    return (
+      <>
+        {option.icon && <ItemIcon src={option.icon} alt={option.label} />}
+        {option.label}
+      </>
+    )
+  }, [supportedChains, filters.chainIds])
+
   const parsedPositions: Array<ParsedPosition> = useMemo(
     () =>
-      [...(userPosition || [])].map(position => {
+      [...(userPositions || [])].map(position => {
         const feeInfo = feeInfoFromRpc.find(feeInfo => feeInfo.id === position.tokenId)
         const nftRewardInfo = rewardInfo?.nfts.find(item => item.nftId === position.tokenId)
         const isClosedFromRpc = closedPositionsFromRpc.some(
@@ -122,18 +142,28 @@ const UserPositions = () => {
           isClosedFromRpc,
         })
       }),
-    [feeInfoFromRpc, rewardInfo?.nfts, userPosition, closedPositionsFromRpc],
+    [feeInfoFromRpc, rewardInfo?.nfts, userPositions, closedPositionsFromRpc],
   )
+
+  const filteredPositionsByChains: Array<ParsedPosition> = useMemo(() => {
+    let result = [...parsedPositions]
+
+    if (filters.chainIds) {
+      result = result.filter(position => filters.chainIds?.split(',').includes(position.chain.id.toString()))
+    }
+
+    return result
+  }, [filters.chainIds, parsedPositions])
 
   const filteredPositions: Array<ParsedPosition> = useMemo(() => {
     let result = []
 
-    const positionsToCheckWithCache = [...parsedPositions]
+    const positionsToCheckWithCache = [...filteredPositionsByChains]
 
-    const unfinalizedPositions = getUnfinalizedPositions(positionsToCheckWithCache)
+    let unfinalizedPositions = getUnfinalizedPositions(positionsToCheckWithCache)
 
     const arrStatus = filters.status.split(',')
-    result = [...parsedPositions]
+    result = [...filteredPositionsByChains]
       .filter(position => !unfinalizedPositions.some(p => p.tokenId === position.tokenId))
       .filter(position => {
         if (filters.status === PositionStatus.OUT_RANGE)
@@ -142,11 +172,22 @@ const UserPositions = () => {
         return arrStatus.includes(position.status)
       })
 
-    if (filters.chainIds) result = result.filter(position => position.chain.id === Number(filters.chainIds))
+    if (filters.q) {
+      result = result.filter(position => {
+        return [
+          position.tokenAddress,
+          position.token0.address,
+          position.token0.symbol,
+          position.token1.address,
+          position.token1.symbol,
+        ].some(item => item.toLowerCase().includes(filters.q?.toLowerCase() || ''))
+      })
+    }
+
     if (filters.protocols) {
-      result = result.filter(position =>
-        filters.protocols?.split(',').includes(protocolGroupNameToExchangeMapping[position.dex.id]),
-      )
+      result = result.filter(position => {
+        return filters.protocols?.split(',').includes(position.dex.id)
+      })
     }
 
     if (filters.sortBy) {
@@ -159,8 +200,8 @@ const UserPositions = () => {
         })
       } else if (filters.sortBy === SortBy.APR) {
         result.sort((a, b) => {
-          const aValue = a.apr
-          const bValue = b.apr
+          const aValue = a.apr['7d']
+          const bValue = b.apr['7d']
 
           return filters.orderBy === Direction.ASC ? aValue - bValue : bValue - aValue
         })
@@ -181,17 +222,23 @@ const UserPositions = () => {
       }
     }
 
-    unfinalizedPositions.filter(
+    unfinalizedPositions = unfinalizedPositions.filter(
       position =>
-        (filters.chainIds ? Number(filters.chainIds) === position.chain.id : true) &&
-        (filters.protocols
-          ? filters.protocols.split(',').includes(protocolGroupNameToExchangeMapping[position.dex.id])
-          : true) &&
+        (filters.chainIds ? filters.chainIds.split(',').includes(position.chain.id.toString()) : true) &&
+        (filters.protocols ? filters.protocols.split(',').includes(position.dex.id) : true) &&
         (filters.status.includes(PositionStatus.IN_RANGE) || filters.status.includes(PositionStatus.OUT_RANGE)),
     )
 
     return [...result, ...unfinalizedPositions]
-  }, [filters.chainIds, filters.orderBy, filters.protocols, filters.sortBy, filters.status, parsedPositions])
+  }, [
+    filters.chainIds,
+    filters.protocols,
+    filters.status,
+    filters.q,
+    filters.sortBy,
+    filters.orderBy,
+    filteredPositionsByChains,
+  ])
 
   const paginatedPositions: Array<ParsedPosition> = useMemo(() => {
     if (filteredPositions.length <= POSITIONS_TABLE_LIMIT) return filteredPositions
@@ -291,18 +338,28 @@ const UserPositions = () => {
       {zapOutWidget}
 
       <PositionPageWrapper>
+        <Flex alignItems="center" sx={{ gap: 3 }}>
+          <IconArrowLeft onClick={() => navigate(-1)} />
+          <Text as="h1" fontSize={24} fontWeight="500">
+            {t`My Positions`}
+          </Text>
+        </Flex>
+
         <Flex
           flexDirection={upToSmall ? 'column' : 'row'}
           alignItems={upToSmall ? 'flex-start' : 'center'}
           justifyContent={'space-between'}
-          sx={{ gap: 3 }}
+          sx={{ gap: 2 }}
         >
-          <Flex alignItems="center" sx={{ gap: 3 }}>
-            <IconArrowLeft onClick={() => navigate(-1)} />
-            <Text as="h1" fontSize={24} fontWeight="500">
-              {t`My Positions`}
-            </Text>
-          </Flex>
+          <MultiSelectDropdownMenu
+            alignLeft
+            highlightOnSelect
+            label={selectedChainsLabel || t`Select chains`}
+            options={supportedChains.length ? supportedChains : [AllChainsOption]}
+            value={filters.chainIds || ''}
+            onChange={value => value !== filters.chainIds && updateFilters('chainIds', value)}
+          />
+
           <NavigateButton
             mobileFullWidth
             icon={<RocketIcon width={20} height={20} />}
@@ -311,7 +368,7 @@ const UserPositions = () => {
           />
         </Flex>
 
-        {account && <PositionBanner positions={parsedPositions} initialLoading={initialLoading} />}
+        {account && <PositionBanner positions={filteredPositionsByChains} initialLoading={initialLoading} />}
 
         <Filter
           supportedChains={supportedChains}
@@ -363,7 +420,7 @@ const UserPositions = () => {
 
                 <PositionTableHeaderFlexItem role="button" onClick={() => onSortChange(SortBy.UNCLAIMED_REWARDS)}>
                   <Flex alignItems={'flex-start'} sx={{ gap: '4px' }}>
-                    <IconKem width={24} height={24} />
+                    <FarmingIcon width={24} height={24} />
                     <Text>Unclaimed</Text>
                   </Flex>
                   <Flex alignItems={'center'} sx={{ gap: '4px' }} paddingLeft={'28px'}>

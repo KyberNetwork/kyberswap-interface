@@ -81,6 +81,8 @@ const routeApi = createApi({
                   ...routeSummary,
                   amountInUsd: tokenInMidPrice ? (+tokenInBalance * tokenInMidPrice).toString() : '',
                   amountOutUsd: tokenOutMidPrice ? (+tokenOutBalance * tokenOutMidPrice).toString() : '',
+                  rawAmountInUsd: routeSummary.amountInUsd,
+                  rawAmountOutUsd: routeSummary.amountOutUsd,
                 },
               },
             }
@@ -120,19 +122,22 @@ const routeApi = createApi({
           const { amountIn, amountOut } = routeSummary
 
           try {
+            const wrappedTokenIn = getWrappedToken(tokenIn, chainId)
+            const wrappedTokenOut = getWrappedToken(tokenOut, chainId)
+
             const priceResponse = await fetch(`${TOKEN_API_URL}/v1/public/tokens/prices`, {
               method: 'POST',
               body: JSON.stringify({
-                [chainId]: [tokenIn, tokenOut],
+                [chainId]: [wrappedTokenIn, wrappedTokenOut],
               }),
             }).then(res => res.json())
 
-            const tokenInPrices = priceResponse?.data?.[chainId]?.[tokenIn]
+            const tokenInPrices = priceResponse?.data?.[chainId]?.[wrappedTokenIn]
             const tokenInMidPrice =
               tokenInPrices?.PriceBuy && tokenInPrices?.PriceSell
                 ? (tokenInPrices.PriceBuy + tokenInPrices.PriceSell) / 2
                 : null
-            const tokenOutPrices = priceResponse?.data?.[chainId]?.[tokenOut]
+            const tokenOutPrices = priceResponse?.data?.[chainId]?.[wrappedTokenOut]
             const tokenOutMidPrice =
               tokenOutPrices?.PriceBuy && tokenOutPrices?.PriceSell
                 ? (tokenOutPrices.PriceBuy + tokenOutPrices.PriceSell) / 2

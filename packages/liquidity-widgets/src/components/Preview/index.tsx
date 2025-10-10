@@ -31,10 +31,11 @@ export interface PreviewProps {
 }
 
 export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool, onDismiss }: PreviewProps) {
-  const { poolType, chainId, connectedAccount, onSubmitTx, onViewPosition, referral, source, positionId } =
+  const { chainId, rpcUrl, poolType, connectedAccount, onSubmitTx, onViewPosition, referral, source, positionId } =
     useWidgetStore([
-      'poolType',
       'chainId',
+      'rpcUrl',
+      'poolType',
       'connectedAccount',
       'onSubmitTx',
       'onViewPosition',
@@ -43,7 +44,7 @@ export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool,
       'positionId',
     ]);
   const { position } = usePositionStore(['position']);
-  const { setSlippage, setUiState, slippage } = useZapState();
+  const { setSlippage, slippage } = useZapState();
 
   const [txHash, setTxHash] = useState('');
   const [attempTx, setAttempTx] = useState(false);
@@ -75,8 +76,6 @@ export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool,
     setTxError(null);
 
     const { address: account } = connectedAccount;
-    const rpcUrl = NETWORKS_INFO[chainId].defaultRpc;
-
     fetch(`${API_URLS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/in/route/build`, {
       method: 'POST',
       body: JSON.stringify({
@@ -121,7 +120,6 @@ export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool,
     const errorMessage = txError ? friendlyError(txError) || txError.message || JSON.stringify(txError) : '';
 
     const handleSlippage = () => {
-      setUiState(prev => ({ ...prev, slippageOpen: true }));
       if (slippage !== suggestedSlippage) setSlippage(suggestedSlippage);
       onDismiss();
     };

@@ -56,6 +56,13 @@ export function useOrderedConnections(): InjectableConnector[] {
       return !hardcodedInjectedIds.includes(c.id)
     })
 
+    // Ensure Porto connector appears last among injected connectors
+    const portoIndex = injectedConnectorsWithoutHardcoded.findIndex(c => c.id === CONNECTION.PORTO)
+    if (portoIndex > -1) {
+      const [portoConnector] = injectedConnectorsWithoutHardcoded.splice(portoIndex, 1)
+      injectedConnectorsWithoutHardcoded.push(portoConnector)
+    }
+
     // remove hardcoded connectors if the real connector is present
     HardCodedConnectors.forEach(c => {
       const connector = getConnectorWithId(connectors, c.realId as any)
@@ -69,8 +76,12 @@ export function useOrderedConnections(): InjectableConnector[] {
     }
 
     // Special-case: Only display the injected connector for in-wallet browsers.
-    if (isMobile && injectedConnectorsWithoutHardcoded.length === 1) {
-      return injectedConnectorsWithoutHardcoded
+    if (
+      isMobile &&
+      injectedConnectorsWithoutHardcoded.length === 2 &&
+      injectedConnectorsWithoutHardcoded.some(c => c.id === CONNECTION.PORTO)
+    ) {
+      return injectedConnectorsWithoutHardcoded.filter(c => c.id !== CONNECTION.PORTO)
     }
 
     // Special-case: Only display the Coinbase connector in the Coinbase Wallet.

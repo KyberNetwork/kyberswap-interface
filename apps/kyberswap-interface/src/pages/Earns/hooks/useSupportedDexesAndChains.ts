@@ -3,11 +3,11 @@ import { PoolQueryParams, useSupportedProtocolsQuery } from 'services/zapEarn'
 
 import useChainsConfig from 'hooks/useChainsConfig'
 import { MenuOption } from 'pages/Earns/components/DropdownMenu'
-import { EarnDex, earnSupportedChains, earnSupportedProtocols } from 'pages/Earns/constants'
+import { EARN_CHAINS, EARN_DEXES, EarnChain, Exchange } from 'pages/Earns/constants'
 import { PositionFilter } from 'pages/Earns/types'
 
-export const AllChainsOption = { label: 'All Chains', value: '' }
-export const AllProtocolsOption = { label: 'All Protocols', value: '' }
+export const AllChainsOption: MenuOption = { label: 'All Chains', value: '' }
+export const AllProtocolsOption: MenuOption = { label: 'All Protocols', value: '' }
 
 const CHAIN_PRIORITY_ORDER = [
   '1', // Ethereum
@@ -19,13 +19,13 @@ const CHAIN_PRIORITY_ORDER = [
 ]
 
 const DEX_PRIORITY_ORDER = [
-  EarnDex.DEX_UNISWAP_V4,
-  EarnDex.DEX_UNISWAP_V4_FAIRFLOW,
-  EarnDex.DEX_UNISWAPV3,
-  EarnDex.DEX_UNISWAPV2,
-  EarnDex.DEX_PANCAKESWAPV3,
-  EarnDex.DEX_SUSHISWAPV3,
-  EarnDex.DEX_QUICKSWAPV3ALGEBRA,
+  Exchange.DEX_UNISWAP_V4,
+  Exchange.DEX_UNISWAP_V4_FAIRFLOW,
+  Exchange.DEX_UNISWAPV3,
+  Exchange.DEX_UNISWAPV2,
+  Exchange.DEX_PANCAKESWAPV3,
+  Exchange.DEX_SUSHISWAPV3,
+  Exchange.DEX_QUICKSWAPV3ALGEBRA,
 ]
 
 const useSupportedDexesAndChains = (filters: PoolQueryParams | PositionFilter) => {
@@ -39,9 +39,7 @@ const useSupportedDexesAndChains = (filters: PoolQueryParams | PositionFilter) =
         value: chain.chainId.toString(),
         icon: chain.icon,
       }))
-      .filter(
-        chain => supportedProtocols?.data?.chains?.[chain.value] && earnSupportedChains.includes(Number(chain.value)),
-      )
+      .filter(chain => supportedProtocols?.data?.chains?.[chain.value] && EARN_CHAINS[Number(chain.value) as EarnChain])
       .sort((a, b) => {
         const aIndex = CHAIN_PRIORITY_ORDER.indexOf(a.value)
         const bIndex = CHAIN_PRIORITY_ORDER.indexOf(b.value)
@@ -59,11 +57,11 @@ const useSupportedDexesAndChains = (filters: PoolQueryParams | PositionFilter) =
     return allowAllChains ? [AllChainsOption].concat(parsedChains) : parsedChains
   }, [filters, supportedChains, supportedProtocols?.data?.chains])
 
-  const selectedChainId = useMemo(() => {
-    if ('chainId' in filters) return filters.chainId || chains[0]?.value
-    else if ('chainIds' in filters) return filters.chainIds
+  const selectedChainIds = useMemo(() => {
+    if ('chainId' in filters) return [filters.chainId || chains[0]?.value].filter(Boolean)
+    if ('chainIds' in filters) return filters.chainIds?.split(',').filter(Boolean)
 
-    return ''
+    return []
   }, [chains, filters])
 
   const supportedDexes = useMemo(() => {
@@ -71,12 +69,17 @@ const useSupportedDexesAndChains = (filters: PoolQueryParams | PositionFilter) =
 
     let parsedProtocols: MenuOption[] = []
 
-    if (selectedChainId)
-      parsedProtocols =
-        supportedProtocols.data.chains[selectedChainId]?.protocols?.map(item => ({
-          label: item.name,
-          value: item.id.toString(),
-        })) || []
+    if (selectedChainIds?.length)
+      selectedChainIds.forEach(chainId => {
+        const protocols =
+          supportedProtocols.data.chains[chainId]?.protocols?.map(item => ({
+            label: item.name,
+            value: item.id.toString(),
+          })) || []
+        protocols.forEach(item => {
+          if (!parsedProtocols.some(protocol => protocol.value === item.value)) parsedProtocols.push(item)
+        })
+      })
     else
       Object.keys(supportedProtocols.data.chains)
         .map(chain => supportedProtocols.data.chains[chain].protocols)
@@ -90,10 +93,10 @@ const useSupportedDexesAndChains = (filters: PoolQueryParams | PositionFilter) =
         })
 
     parsedProtocols = parsedProtocols
-      .filter(protocol => earnSupportedProtocols.includes(protocol.label))
+      .filter(protocol => EARN_DEXES[protocol.value as Exchange])
       .sort((a, b) => {
-        const aIndex = DEX_PRIORITY_ORDER.indexOf(a.label as EarnDex)
-        const bIndex = DEX_PRIORITY_ORDER.indexOf(b.label as EarnDex)
+        const aIndex = DEX_PRIORITY_ORDER.indexOf(a.label as Exchange)
+        const bIndex = DEX_PRIORITY_ORDER.indexOf(b.label as Exchange)
 
         // If both DEXes are in priority order, sort by their priority
         if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex
@@ -105,7 +108,7 @@ const useSupportedDexesAndChains = (filters: PoolQueryParams | PositionFilter) =
       })
 
     return [AllProtocolsOption].concat(parsedProtocols)
-  }, [selectedChainId, supportedProtocols])
+  }, [selectedChainIds, supportedProtocols])
 
   return { supportedDexes, supportedChains: chains }
 }

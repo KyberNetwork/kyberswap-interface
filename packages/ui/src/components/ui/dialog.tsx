@@ -20,13 +20,12 @@ const DialogOverlay = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Overlay
     className={cn(
-      'fixed inset-0 z-[1000] bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+      'fixed inset-0 z-[1000] bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 dialog-overlay',
       'ks-ui-style',
       className,
     )}
     ref={ref}
     style={{
-      zIndex: 10001,
       ...(props.style || {}),
     }}
     {...props}
@@ -37,16 +36,17 @@ DialogOverlay.displayName = DialogPrimitive.Overlay.displayName;
 interface ContentProps extends React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> {
   containerClassName?: string;
   skipClose?: boolean;
+  overlayClassName?: string;
 }
 
 const DialogContent = React.forwardRef<React.ElementRef<typeof DialogPrimitive.Content>, ContentProps>(
-  ({ className, skipClose, containerClassName, children, ...props }, ref) => {
+  ({ className, skipClose, containerClassName, overlayClassName, children, ...props }, ref) => {
     const [container, setContentRef] = React.useState<HTMLDivElement | null>(null);
     return (
       <>
         {containerClassName ? <div className={containerClassName} ref={setContentRef} /> : null}
         <DialogPortal container={containerClassName ? container : null}>
-          <DialogOverlay />
+          <DialogOverlay className={overlayClassName} />
           <DialogPrimitive.Content
             className={cn(
               'outline-none text-text fixed left-[50%] top-[50%] z-[1000] grid w-full max-w-lg gap-4 border border-stroke bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg',
@@ -55,7 +55,6 @@ const DialogContent = React.forwardRef<React.ElementRef<typeof DialogPrimitive.C
             )}
             ref={ref}
             style={{
-              zIndex: 10001,
               transform: 'translate(-50%, -50%)',
               ...(props.style || {}),
             }}

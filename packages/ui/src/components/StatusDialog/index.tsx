@@ -1,3 +1,5 @@
+import { cn } from '@kyber/utils/tailwind-helpers';
+
 import ArrowUpRightIcon from '@/assets/icons/ic-arrow-up-right.svg?react';
 import ErrorDetailIcon from '@/assets/icons/ic-error-detail.svg?react';
 import ErrorIcon from '@/assets/icons/ic-error.svg?react';
@@ -19,6 +21,8 @@ export interface StatusDialogProps {
   description?: string;
   transactionExplorerUrl?: string;
   errorMessage?: string;
+  className?: string;
+  overlayClassName?: string;
   action?: React.ReactNode;
   onClose: () => void;
 }
@@ -29,6 +33,8 @@ export default function StatusDialog({
   description,
   transactionExplorerUrl,
   errorMessage,
+  className,
+  overlayClassName,
   action,
   onClose,
 }: StatusDialogProps) {
@@ -48,11 +54,12 @@ export default function StatusDialog({
     <Dialog onOpenChange={onClose} open={true}>
       <DialogContent
         containerClassName="ks-ui-style"
-        className="bg-layer1 p-6 max-w-[420px]"
+        className={cn('bg-layer1 p-6 max-w-[420px]', className)}
+        overlayClassName={overlayClassName}
         aria-describedby={undefined}
       >
         <DialogTitle className="hidden" />
-        <div>
+        <div className="text-sm text-muted-foreground">
           <div className="w-full flex items-center justify-center gap-2 py-4">
             {statusIcon}
             <div className="text-xl font-medium text-center">{statusText}</div>
@@ -84,7 +91,7 @@ export default function StatusDialog({
           ) : null}
         </div>
 
-        {action ? <DialogFooter className="sm:space-x-4">{action}</DialogFooter> : null}
+        {action ? <DialogFooter className="sm:space-x-4 gap-y-3">{action}</DialogFooter> : null}
       </DialogContent>
     </Dialog>
   );

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 
 import { ReactComponent as IconCurrentPrice } from 'assets/svg/earn/ic_position_current_price.svg'
-import { PoolPageWrapper, TableBody, TableHeader, TableWrapper } from 'pages/Earns/PoolExplorer/styles'
+import { PoolPageWrapper, TableHeader, TableWrapper } from 'pages/Earns/PoolExplorer/styles'
 
 export const PositionPageWrapper = styled(PoolPageWrapper)`
   padding: 24px 6rem 62px;
@@ -20,14 +20,14 @@ export const PositionPageWrapper = styled(PoolPageWrapper)`
 export const PositionRow = styled(Link)`
   display: grid;
   grid-template-columns:
-    minmax(260px, 2.2fr) /* Position */
-    minmax(80px, 1fr) /* Value */
-    minmax(90px, 1fr) /* est. APR */
+    minmax(260px, 2.6fr) /* Position */
+    minmax(80px, 0.8fr) /* Value */
+    minmax(90px, 0.8fr) /* est. APR */
     minmax(100px, 1fr) /* Unclaimed fees */
     minmax(120px, 1fr) /* Unclaimed rewards */
     24px /* Spacer column for better visual separation */
-    minmax(150px, 1.5fr) /* Balance */
-    minmax(160px, 1.5fr) /* Price range */
+    minmax(150px, 0.4fr) /* Balance */
+    minmax(160px, 1.8fr) /* Price range */
     minmax(75px, auto); /* Actions */
   grid-template-rows: 1fr;
   padding: 16px 28px;
@@ -76,15 +76,6 @@ export const PositionOverview = styled.div`
 export const ImageContainer = styled.div`
   position: relative;
   top: 2px;
-`
-
-export const ChainImage = styled.img`
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  position: relative;
-  left: -8px;
-  top: 4px;
 `
 
 export enum BadgeType {
@@ -335,14 +326,14 @@ export const BannerDataItem = styled.div`
 
 export const PositionTableHeader = styled(TableHeader)`
   grid-template-columns:
-    minmax(260px, 2.2fr) /* Position */
-    minmax(80px, 1fr) /* Value */
-    minmax(90px, 1fr) /* est. APR */
+    minmax(260px, 2.6fr) /* Position */
+    minmax(80px, 0.8fr) /* Value */
+    minmax(90px, 0.8fr) /* est. APR */
     minmax(100px, 1fr) /* Unclaimed fees */
     minmax(120px, 1fr) /* Unclaimed rewards */
     24px /* Spacer column for better visual separation */
-    minmax(150px, 1.5fr) /* Balance */
-    minmax(160px, 1.5fr) /* Price range */
+    minmax(150px, 0.4fr) /* Balance */
+    minmax(160px, 1.8fr) /* Price range */
     minmax(75px, auto); /* Actions */
   overflow: hidden;
 `
@@ -367,10 +358,6 @@ export const PositionTableWrapper = styled(TableWrapper)`
     background: transparent;
     margin: 0;
   `}
-`
-
-export const PositionTableBody = styled(TableBody)`
-  max-height: unset;
 `
 
 export const PriceRangeWrapper = styled.div<{ outOfRange: boolean }>`

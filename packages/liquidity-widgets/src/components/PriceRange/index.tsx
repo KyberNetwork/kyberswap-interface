@@ -23,7 +23,7 @@ const PriceRange = () => {
   const { poolType, initialTick } = useWidgetStore(['poolType', 'initialTick']);
   const { pool, revertPrice, poolPrice } = usePoolStore(['pool', 'revertPrice', 'poolPrice']);
 
-  const initializing = pool === 'loading';
+  const initializing = !pool;
 
   const previousRevertPrice = usePrevious(revertPrice);
 
@@ -124,7 +124,7 @@ const PriceRange = () => {
   // Set default price range depending on protocol fee
   useEffect(() => {
     if (!pairCategory || !priceRanges.length || initialTick) return;
-    if (!tickLower || !tickUpper)
+    if (tickLower === null || tickUpper === null)
       handleSelectPriceRange(
         DEFAULT_PRICE_RANGE[pairCategory as keyof typeof DEFAULT_PRICE_RANGE] ||
           DEFAULT_PRICE_RANGE[POOL_CATEGORY.EXOTIC_PAIR],

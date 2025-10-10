@@ -109,6 +109,7 @@ export const TableWrapper = styled.div`
   background: ${({ theme }) => rgba(theme.background, 0.8)};
   border-radius: 16px;
   position: relative;
+  overflow: hidden;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     margin: 0 -16px;
@@ -139,13 +140,9 @@ export const MigrateTableHeader = styled(TableHeader)`
   grid-template-columns: 2.5fr 0.8fr 1fr 1fr 1fr !important;
 `
 
-export const TableBody = styled.div`
-  max-height: 740px;
-  overflow-y: auto;
-`
-
-export const MigrateTableBody = styled(TableBody)`
+export const MigrateTableBody = styled.div`
   max-height: 432px;
+  overflow-y: auto;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     max-height: 495px;

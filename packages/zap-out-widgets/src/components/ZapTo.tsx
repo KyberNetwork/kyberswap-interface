@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 
-import { Skeleton, TokenLogo } from '@kyber/ui';
+import { ChainId, UniV2Position, UniV3Position, univ2PoolNormalize, univ3PoolNormalize } from '@kyber/schema';
+import { Skeleton, TokenLogo, TokenSymbol } from '@kyber/ui';
+import { assertUnreachable } from '@kyber/utils';
 import { formatDisplayNumber, formatTokenAmount, toRawString } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
 import { getPositionAmounts } from '@kyber/utils/uniswapv3';
@@ -11,43 +13,21 @@ import HandIcon from '@/assets/svg/hand.svg';
 import ZapIcon from '@/assets/svg/zapout.svg';
 import { LiquidityToRemove } from '@/components/LiquidityToRemove';
 import TokenSelectorModal from '@/components/TokenSelector/TokenSelectorModal';
-import { NETWORKS_INFO } from '@/constants';
 import useSlippageManager from '@/hooks/useSlippageManager';
-import { ChainId, UniV2Position, UniV3Position, univ2PoolNormalize, univ3PoolNormalize } from '@/schema';
+import useZapRoute from '@/hooks/useZapRoute';
 import { useZapOutContext } from '@/stores';
-import { RefundAction, RemoveLiquidityAction, useZapOutUserState } from '@/stores/state';
-import { assertUnreachable, sameToken } from '@/utils';
+import { useZapOutUserState } from '@/stores/state';
 
 export function ZapTo({ chainId }: { chainId: ChainId }) {
   const { theme, position, pool, poolType } = useZapOutContext(s => s);
 
-  const loading = position === 'loading' || pool === 'loading';
+  const loading = !position || !pool;
   const [showTokenSelect, setShowTokenSelect] = useState(false);
 
-  const { liquidityOut, tokenOut, setTokenOut, route, mode, setMode, fetchingRoute } = useZapOutUserState();
+  const { liquidityOut, tokenOut, setTokenOut, mode, setMode, fetchingRoute } = useZapOutUserState();
+  const { refund, removeLiquidity } = useZapRoute();
+  const { removedAmount0, removedAmount1 } = removeLiquidity;
   useSlippageManager();
-
-  const actionRefund = route?.zapDetails.actions.find(item => item.type === 'ACTION_TYPE_REFUND') as
-    | RefundAction
-    | undefined;
-  const amountOut = BigInt(actionRefund?.refund.tokens[0].amount || 0);
-
-  const actionRemoveLiq = route?.zapDetails.actions.find(item => item.type === 'ACTION_TYPE_REMOVE_LIQUIDITY') as
-    | RemoveLiquidityAction
-    | undefined;
-
-  const { tokens } = actionRemoveLiq?.removeLiquidity || {};
-
-  const token0 =
-    pool !== 'loading' &&
-    tokens?.find(f => sameToken(f.address, pool.token0.address, NETWORKS_INFO[chainId].wrappedToken.address));
-
-  const token1 =
-    pool !== 'loading' &&
-    tokens?.find(f => sameToken(f.address, pool.token1.address, NETWORKS_INFO[chainId].wrappedToken.address));
-
-  const withdrawAmount0 = BigInt(token0 ? token0.amount : 0);
-  const withdrawAmount1 = BigInt(token1 ? token1.amount : 0);
 
   let amount0 = 0n;
   let amount1 = 0n;
@@ -71,7 +51,7 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
   }
 
   useEffect(() => {
-    if (!tokenOut && pool !== 'loading' && (!!amount0 || !!amount1)) {
+    if (!tokenOut && pool !== null && (!!amount0 || !!amount1)) {
       const usdValue0 = (pool.token0.price || 0) * Number(toRawString(amount0, pool.token0.decimals));
       const usdValue1 = (pool.token1.price || 0) * Number(toRawString(amount1, pool.token1.decimals));
       setTokenOut(usdValue1 > usdValue0 ? pool.token1 : pool.token0);
@@ -126,12 +106,10 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
               }}
             >
               <TokenLogo src={tokenOut?.logo} size={20} className="rounded-full brightness-75" />
-              <span>{tokenOut?.symbol}</span>
+              <TokenSymbol symbol={tokenOut?.symbol || ''} maxWidth={80} />
               <DropdownIcon />
             </button>
-            <div className="text-text text-xl font-medium">
-              {formatTokenAmount(amountOut, tokenOut?.decimals || 18)}{' '}
-            </div>
+            <div className="text-text text-xl font-medium">{refund.refunds[0]?.amount}</div>
           </div>
         ) : (
           <>
@@ -145,14 +123,14 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
                 <>
                   <div className="flex items-center text-base gap-1 text-text">
                     <TokenLogo src={pool.token0.logo} size={16} />
-                    {pool.token0.symbol}
+                    <TokenSymbol symbol={pool.token0.symbol} maxWidth={100} />
                   </div>
                   <div className="text-xs text-subText text-right">
                     <div className="text-text text-base">
-                      {formatTokenAmount(withdrawAmount0, pool.token0.decimals, 8)}
+                      {formatTokenAmount(removedAmount0, pool.token0.decimals, 8)}
                     </div>
                     {formatDisplayNumber(
-                      (pool.token0.price || 0) * Number(toRawString(withdrawAmount0, pool.token0.decimals)),
+                      (pool.token0.price || 0) * Number(toRawString(removedAmount0, pool.token0.decimals)),
                       { style: 'currency' },
                     )}
                   </div>
@@ -170,14 +148,14 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
                 <>
                   <div className="flex items-center text-base gap-1 text-text">
                     <TokenLogo src={pool.token1.logo} size={16} />
-                    {pool.token1.symbol}
+                    <TokenSymbol symbol={pool.token1.symbol} maxWidth={100} />
                   </div>
                   <div className="text-xs text-subText text-right">
                     <div className="text-text text-base">
-                      {formatTokenAmount(withdrawAmount1, pool.token1.decimals, 8)}
+                      {formatTokenAmount(removedAmount1, pool.token1.decimals, 8)}
                     </div>
                     {formatDisplayNumber(
-                      (pool.token1.price || 0) * Number(toRawString(withdrawAmount1, pool.token1.decimals)),
+                      (pool.token1.price || 0) * Number(toRawString(removedAmount1, pool.token1.decimals)),
                       { style: 'currency' },
                     )}
                   </div>

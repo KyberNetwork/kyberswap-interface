@@ -74,7 +74,7 @@ const SlippageInput = ({
   };
 
   useEffect(() => {
-    if (pool !== 'loading' && slippage && suggestedSlippage > 0 && slippage !== suggestedSlippage) {
+    if (pool !== null && slippage && suggestedSlippage > 0 && slippage !== suggestedSlippage) {
       try {
         const storageKey = getSlippageStorageKey(pool.token0.symbol, pool.token1.symbol, chainId, pool.fee);
         localStorage.setItem(storageKey, slippage.toString());
@@ -138,9 +138,9 @@ const SlippageInput = ({
           onClick={() => {
             if (suggestedSlippage > 0) {
               setSlippage(suggestedSlippage);
-              if (![5, 10, 50, 100].includes((suggestedSlippage * 100) / 10_000)) {
+              if (![5, 10, 50, 100].includes(suggestedSlippage)) {
                 setV(((suggestedSlippage * 100) / 10_000).toString());
-              }
+              } else setV('');
             }
           }}
         >

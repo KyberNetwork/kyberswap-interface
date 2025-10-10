@@ -7,10 +7,12 @@ import styled from 'styled-components'
 
 import Row from 'components/Row'
 import WarningNote from 'components/WarningNote'
+import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { useSwitchPairToLimitOrder } from 'state/swap/hooks'
 import { StyledInternalLink } from 'theme'
+import { isSupportLimitOrder } from 'utils'
 import { checkPriceImpact } from 'utils/prices'
 
 export const TextUnderlineColor = styled(Text)`
@@ -38,6 +40,8 @@ type Props = {
 
 const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLink = false }) => {
   const theme = useTheme()
+  const { chainId } = useActiveWeb3React()
+  const { isSmartConnector } = useWeb3React()
   const priceImpactResult = checkPriceImpact(priceImpact)
   const switchToLimitOrder = useSwitchPairToLimitOrder()
   const { mixpanelHandler } = useMixpanel()
@@ -149,7 +153,7 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLi
   }
 
   // high
-  if (showLimitOrderLink && !!priceImpact && priceImpact > 1) {
+  if (showLimitOrderLink && !!priceImpact && priceImpact > 1 && isSupportLimitOrder(chainId) && !isSmartConnector) {
     return (
       <WarningNote
         shortText={

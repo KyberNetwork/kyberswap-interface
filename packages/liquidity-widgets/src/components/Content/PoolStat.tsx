@@ -1,31 +1,56 @@
 import { univ2Types } from '@kyber/schema';
 import { MouseoverTooltip } from '@kyber/ui';
 import { Skeleton } from '@kyber/ui';
+import { shortenAddress } from '@kyber/utils/crypto';
 import { formatAprNumber, formatDisplayNumber } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
 import FarmingIcon from '@/assets/svg/kem.svg';
+import FarmingLmIcon from '@/assets/svg/kemLm.svg';
+import { useRewardCycleProgress } from '@/hooks/useRewardCycleProgress';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
 export default function PoolStat() {
-  const { poolType, positionId } = useWidgetStore(['poolType', 'positionId']);
+  const { poolType, positionId, chainId, poolAddress } = useWidgetStore([
+    'poolType',
+    'positionId',
+    'chainId',
+    'poolAddress',
+  ]);
   const { position } = usePositionStore(['position']);
   const { pool } = usePoolStore(['pool']);
 
-  const initializing = pool === 'loading';
+  const initializing = !pool;
 
   const isUniv2 = univ2Types.includes(poolType as any);
 
   const poolShare =
-    position === 'loading' || !position || !isUniv2 || !('totalSupply' in position)
+    !position || !isUniv2 || !('totalSupply' in position)
       ? null
       : Number((BigInt(position.liquidity) * 10000n) / BigInt(position.totalSupply)) / 100;
 
   const poolStat = initializing ? null : pool?.stats;
   const poolApr = (poolStat?.apr || 0) + (poolStat?.kemEGApr || 0) + (poolStat?.kemLMApr || 0);
   const isFarming = initializing ? false : pool?.isFarming || false;
+  const isFarmingLm = initializing ? false : pool?.isFarmingLm || false;
+
+  const { loading: rewardLoading, data: rewardProgress } = useRewardCycleProgress({
+    chainId,
+    poolAddress: poolAddress?.toLowerCase() || '',
+    enabled: isFarmingLm,
+  });
+
+  const rewardSymbol = rewardProgress ? rewardProgress.symbol || shortenAddress(rewardProgress.tokenAddress, 4) : '';
+  const rewardPercent = rewardProgress ? Math.round(rewardProgress.progress * 100) : 0;
+  const rewardProgressWidth = rewardProgress ? Math.min(rewardProgress.progress * 100, 100) : 0;
+  const isIndicatorAtStart = rewardProgress ? rewardProgressWidth < 12 : true;
+  const rewardIndicatorPosition = rewardProgress
+    ? isIndicatorAtStart
+      ? rewardProgressWidth
+      : Math.min(rewardProgressWidth, 98)
+    : 0;
 
   return (
     <div
@@ -91,7 +116,7 @@ export default function PoolStat() {
                 <MouseoverTooltip
                   text={
                     <div>
-                      LP Fee APR: {formatAprNumber(poolStat?.apr || 0)}%
+                      LP Fee: {formatAprNumber(poolStat?.apr || 0)}%
                       <br />
                       EG Sharing Reward: {formatAprNumber(poolStat?.kemEGApr || 0)}%
                       <br />
@@ -101,7 +126,7 @@ export default function PoolStat() {
                   placement="top"
                   width="fit-content"
                 >
-                  <FarmingIcon width={20} height={20} />
+                  {isFarmingLm ? <FarmingLmIcon width={20} height={20} /> : <FarmingIcon width={20} height={20} />}
                 </MouseoverTooltip>
               ) : null}
             </div>
@@ -116,6 +141,53 @@ export default function PoolStat() {
           </span>
         </div>
       )}
+      {isFarmingLm ? (
+        <div className="mt-3 border-t border-stroke pt-3">
+          <div className="flex flex-col gap-2 sm:gap-2.5">
+            <div className="flex items-center justify-between gap-0.5 sm:gap-3 flex-wrap">
+              <span className="text-subText">Liquidity Mining Progress</span>
+              {rewardLoading ? (
+                <Skeleton className="w-32 h-4" />
+              ) : rewardProgress ? (
+                <div className="flex items-center gap-1 text-sm text-text">
+                  <span>
+                    {formatDisplayNumber(rewardProgress.distributedReward, {
+                      significantDigits: 6,
+                    })}{' '}
+                    {rewardSymbol}
+                  </span>
+                  <span>/</span>
+                  <span className="text-subText">
+                    {formatDisplayNumber(rewardProgress.totalReward, {
+                      significantDigits: 6,
+                    })}{' '}
+                    {rewardSymbol}
+                  </span>
+                </div>
+              ) : null}
+            </div>
+            {rewardLoading ? (
+              <Skeleton className="w-full h-5" />
+            ) : rewardProgress ? (
+              <div className="relative h-4 rounded-full bg-layer2 overflow-hidden">
+                <div
+                  className="absolute left-0 top-0 h-full rounded-full bg-[#05966B] transition-all duration-500 ease-linear"
+                  style={{ width: `${rewardProgressWidth}%` }}
+                />
+                <div
+                  className={cn(
+                    'absolute top-1/2 -translate-y-1/2 px-2 py-1 text-xs font-medium text-text',
+                    !isIndicatorAtStart && '-translate-x-full',
+                  )}
+                  style={{ left: `${rewardIndicatorPosition}%` }}
+                >
+                  {rewardPercent}%
+                </div>
+              </div>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

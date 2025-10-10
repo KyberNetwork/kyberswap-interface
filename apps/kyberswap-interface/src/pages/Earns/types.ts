@@ -1,5 +1,5 @@
 import { NativeToken } from 'constants/networks/type'
-import { EarnDex, Exchange } from 'pages/Earns/constants'
+import { Exchange } from 'pages/Earns/constants'
 
 export enum PositionStatus {
   IN_RANGE = 'IN_RANGE',
@@ -83,12 +83,23 @@ export interface EarnPosition {
   feePending: Array<PositionAmount>
   feesClaimed: Array<PositionAmount>
   createdTime: number
+  stats: {
+    apr: PoolAprInterval
+    kemLMApr: PoolAprInterval
+    kemEGApr: PoolAprInterval
+    earning: PoolAprInterval
+  }
+  /** @deprecated */
   apr: number
+  /** @deprecated */
   kemEGApr: number
+  /** @deprecated */
   kemLMApr: number
-  currentPositionValue: number
+  /** @deprecated */
   earning24h: number
+  /** @deprecated */
   earning7d: number
+  currentPositionValue: number
   status: PositionStatus
   pool: {
     id: string
@@ -97,7 +108,7 @@ export interface EarnPosition {
     tokenAmounts: Array<PositionAmount>
     fees: Array<number>
     tickSpacing: number
-    project: EarnDex
+    exchange: Exchange
     projectLogo: string
     category: PAIR_CATEGORY
     programs?: Array<ProgramType>
@@ -123,6 +134,7 @@ export const DEFAULT_PARSED_POSITION: ParsedPosition = {
     address: '',
     isUniv2: false,
     isFarming: false,
+    isFarmingLm: false,
     nativeToken: {
       symbol: '',
       decimal: 18,
@@ -133,7 +145,8 @@ export const DEFAULT_PARSED_POSITION: ParsedPosition = {
     category: PAIR_CATEGORY.DEFAULT_EMPTY,
   },
   dex: {
-    id: EarnDex.DEX_UNISWAPV3,
+    id: Exchange.DEX_UNISWAPV3,
+    name: 'Uniswap V3',
     logo: '',
     version: '',
   },
@@ -192,10 +205,10 @@ export const DEFAULT_PARSED_POSITION: ParsedPosition = {
     unclaimedValue: 0,
   },
   tokenAddress: '',
-  apr: 0,
-  kemEGApr: 0,
-  kemLMApr: 0,
-  feeApr: 0,
+  apr: { '24h': 0, '7d': 0, all: 0 },
+  kemEGApr: { '24h': 0, '7d': 0, all: 0 },
+  kemLMApr: { '24h': 0, '7d': 0, all: 0 },
+  feeApr: { '24h': 0, '7d': 0, all: 0 },
   totalValue: 0,
   totalProvidedValue: 0,
   status: PositionStatus.IN_RANGE,
@@ -215,12 +228,14 @@ export interface ParsedPosition {
     address: string
     isUniv2: boolean
     isFarming: boolean
+    isFarmingLm: boolean
     nativeToken: NativeToken
     tickSpacing: number
     category: PAIR_CATEGORY
   }
   dex: {
-    id: EarnDex
+    id: Exchange
+    name: string
     logo: string
     version: string
   }
@@ -261,10 +276,10 @@ export interface ParsedPosition {
   token0: Token
   token1: Token
   tokenAddress: string
-  apr: number
-  kemEGApr: number
-  kemLMApr: number
-  feeApr: number
+  apr: PoolAprInterval
+  kemEGApr: PoolAprInterval
+  kemLMApr: PoolAprInterval
+  feeApr: PoolAprInterval
   totalValue: number
   totalProvidedValue: number
   status: string
@@ -287,6 +302,12 @@ export interface SuggestedPool {
   token1: {
     decimals: number
   }
+}
+
+export interface PoolAprInterval {
+  '7d': number
+  '24h': number
+  all: number
 }
 
 interface Token {
