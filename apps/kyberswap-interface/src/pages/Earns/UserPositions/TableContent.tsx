@@ -32,6 +32,7 @@ import {
   PositionValueLabel,
   PositionValueWrapper,
 } from 'pages/Earns/UserPositions/styles'
+import AprDetailTooltip from 'pages/Earns/components/AprDetailTooltip'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import RewardSyncing from 'pages/Earns/components/RewardSyncing'
 import { EARN_DEXES, LIMIT_TEXT_STYLES } from 'pages/Earns/constants'
@@ -354,7 +355,7 @@ export default function TableContent({
                     </Flex>
                     <Flex flexWrap={'wrap'} alignItems={'center'} sx={{ gap: '6px' }}>
                       <Flex alignItems={'center'} sx={{ gap: 1 }}>
-                        <MouseoverTooltipDesktopOnly text={dex.id} width="fit-content" placement="bottom">
+                        <MouseoverTooltipDesktopOnly text={dex.name} width="fit-content" placement="bottom">
                           <TokenLogo src={dex.logo} size={16} />
                         </MouseoverTooltipDesktopOnly>
                         <Text fontSize={upToSmall ? 16 : 14} color={theme.subText}>
@@ -457,28 +458,17 @@ export default function TableContent({
                       <RewardSyncing width={70} height={19} />
                     ) : (
                       <Flex alignItems={'center'} sx={{ gap: 1 }}>
-                        <MouseoverTooltipDesktopOnly
-                          text={
-                            pool.isFarming ? (
-                              <>
-                                <Text>
-                                  {t`LP Fee`}: {formatAprNumber(position.feeApr['24h'])}%
-                                </Text>
-                                <Text>
-                                  {t`EG Sharing Reward`}: {formatAprNumber(position.kemEGApr['24h'])}%
-                                  <br />
-                                  {t`LM Reward`}: {formatAprNumber(position.kemLMApr['24h'])}%
-                                </Text>
-                              </>
-                            ) : null
-                          }
-                          width="fit-content"
-                          placement="top"
-                        >
-                          <Text color={pool.isFarming ? theme.primary : theme.text}>
-                            {formatAprNumber(apr['24h'])}%
-                          </Text>
-                        </MouseoverTooltipDesktopOnly>
+                        {pool.isFarming ? (
+                          <AprDetailTooltip
+                            feeApr={position.feeApr['7d']}
+                            egApr={position.kemEGApr['7d']}
+                            lmApr={position.kemLMApr['7d']}
+                          >
+                            <Text color={theme.primary}>{formatAprNumber(apr['7d'])}%</Text>
+                          </AprDetailTooltip>
+                        ) : (
+                          <Text color={theme.text}>{formatAprNumber(apr['7d'])}%</Text>
+                        )}
 
                         {!pool.isFarming &&
                           (!!position.suggestionPool ||
