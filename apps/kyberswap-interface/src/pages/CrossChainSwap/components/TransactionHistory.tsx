@@ -14,14 +14,13 @@ import Pagination from 'components/Pagination'
 import { NETWORKS_INFO } from 'constants/networks'
 import { CROSS_CHAIN_MIXPANEL_TYPE, useCrossChainMixpanel } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import { NonEvmChain, NonEvmChainInfo } from 'pages/CrossChainSwap/adapters'
+import { TokenLogoWithChain } from 'pages/CrossChainSwap/components/TokenLogoWithChain'
+import { registry } from 'pages/CrossChainSwap/hooks/useCrossChainSwap'
 import { useCrossChainTransactions } from 'state/crossChainSwap'
 import { ExternalLinkIcon, MEDIA_WIDTHS } from 'theme'
 import { getEtherscanLink, shortenHash } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
-
-import { NonEvmChain, NonEvmChainInfo } from '../adapters'
-import { registry } from '../hooks/useCrossChainSwap'
-import { TokenLogoWithChain } from './TokenLogoWithChain'
 
 const PAGE_SIZE = 5
 
@@ -111,9 +110,14 @@ export const TransactionHistory = () => {
 
                   // Fire specific GA events for success/failure
                   if (status && status !== oldStatus) {
-                    const swap_details = {
+                    const swapDetails = {
+                      amount_in: tx.inputAmount,
+                      amount_in_usd: tx.amountInUsd,
+                      amount_out: tx.outputAmount,
+                      amount_out_usd: tx.amountOutUsd,
+                      currency: 'USD',
+                      fee_percent: tx.platformFeePercent,
                       from_chain: tx.sourceChain,
-                      to_chain: tx.targetChain,
                       from_token:
                         tx.sourceChain === NonEvmChain.Bitcoin
                           ? tx.sourceToken.symbol
@@ -122,6 +126,7 @@ export const TransactionHistory = () => {
                           : tx.sourceChain === NonEvmChain.Near
                           ? (tx.sourceToken as any).assetId
                           : (tx.sourceToken as any)?.address || tx.sourceToken?.symbol,
+                      to_chain: tx.targetChain,
                       to_token:
                         tx.targetChain === NonEvmChain.Bitcoin
                           ? tx.targetToken.symbol
@@ -130,23 +135,27 @@ export const TransactionHistory = () => {
                           : tx.targetChain === NonEvmChain.Near
                           ? (tx.targetToken as any).assetId
                           : (tx.targetToken as any)?.address || tx.targetToken?.symbol,
-                      amount_in: tx.inputAmount,
-                      amount_out: tx.outputAmount,
                       partner: tx.adapter,
+                      platform: 'KyberSwap Cross-Chain',
                       source_tx_hash: tx.sourceTxHash,
                       target_tx_hash: txHash || tx.targetTxHash,
+                      recipient: tx.recipient,
                       sender: tx.sender,
                       status: status,
                       time: Date.now(),
                       timestamp: tx.timestamp,
-                      currency: 'USD',
-                      platform: 'KyberSwap Cross-Chain',
                     }
 
                     if (status === 'Success') {
-                      crossChainMixpanelHandler(CROSS_CHAIN_MIXPANEL_TYPE.CROSS_CHAIN_SWAP_SUCCESS, swap_details)
+                      crossChainMixpanelHandler(CROSS_CHAIN_MIXPANEL_TYPE.CROSS_CHAIN_SWAP_SUCCESS, {
+                        ...swapDetails,
+                        status: 'succeed',
+                      })
                     } else if (status === 'Failed') {
-                      crossChainMixpanelHandler(CROSS_CHAIN_MIXPANEL_TYPE.CROSS_CHAIN_SWAP_FAILED, swap_details)
+                      crossChainMixpanelHandler(CROSS_CHAIN_MIXPANEL_TYPE.CROSS_CHAIN_SWAP_FAILED, {
+                        ...swapDetails,
+                        status: 'failed',
+                      })
                     }
                   }
 
