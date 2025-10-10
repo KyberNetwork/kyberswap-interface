@@ -49,7 +49,7 @@ export default function Estimated() {
           Est. Liquidity Value
           {addedValue}
         </div>
-        <div className="ks-lw-divider" />
+        <div className="h-[1px] w-full bg-stroke" />
 
         <EstimatedTokenRow
           initializing={initializing}

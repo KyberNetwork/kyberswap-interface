@@ -1,5 +1,12 @@
 import { ChainId, PoolType, Theme, ZapRouteDetail } from '@kyber/schema';
 
+export enum ZapStatus {
+  INIT = 'init',
+  PENDING = 'pending',
+  SUCCESS = 'success',
+  FAILED = 'failed',
+}
+
 export interface WidgetProps {
   theme?: Theme;
   chainId: ChainId;
@@ -24,6 +31,7 @@ export interface WidgetProps {
   };
   referral?: string;
   initialTick?: { tickLower: number; tickUpper: number };
+  zapStatus?: ZapStatus;
   onClose?: () => void;
   onConnectWallet: () => void;
   onSwitchChain: () => void;
@@ -37,7 +45,14 @@ export interface WidgetProps {
     initialSlippage?: number,
   ) => void;
   onSuccess?: ({ txHash, position }: OnSuccessProps) => void;
-  onSubmitTx: (txData: { from: string; to: string; value: string; data: string; gasLimit: string }) => Promise<string>;
+  onSubmitTx: (
+    txData: { from: string; to: string; value: string; data: string; gasLimit: string },
+    additionalInfo?: {
+      tokensIn: Array<{ symbol: string; amount: string; logoUrl?: string }>;
+      pool: string;
+      dexLogo: string;
+    },
+  ) => Promise<string>;
   onViewPosition?: (txHash: string) => void;
 }
 

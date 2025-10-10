@@ -59,7 +59,7 @@ export default function Setting() {
       if (!isValid) setDeadline(20);
       toggleSetting();
     }
-  }, ['setting', 'ks-lw-modal-overlay', 'kyber-portal', 'confirm-dialog', 'dialog-overlay']);
+  }, ['setting', 'kyber-portal', 'confirm-dialog', 'dialog-overlay']);
 
   if (!showSetting) return null;
 

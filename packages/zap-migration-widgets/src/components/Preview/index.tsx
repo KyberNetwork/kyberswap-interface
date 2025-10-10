@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
-import { ChainId, NETWORKS_INFO } from '@kyber/schema';
+import { DEXES_INFO, NETWORKS_INFO } from '@kyber/schema';
 import {
   Dialog,
   DialogContent,
@@ -11,7 +11,7 @@ import {
   StatusDialogType,
 } from '@kyber/ui';
 import { friendlyError } from '@kyber/utils';
-import { calculateGasMargin, estimateGas, isTransactionSuccessful } from '@kyber/utils/crypto';
+import { calculateGasMargin, estimateGas } from '@kyber/utils/crypto';
 import { formatDisplayNumber } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
@@ -19,14 +19,14 @@ import CircleChevronDown from '@/assets/icons/circle-chevron-down.svg';
 import Estimated from '@/components/Preview/Estimated';
 import { MigrationSummary } from '@/components/Preview/MigrationSummary';
 import PreviewPoolInfo from '@/components/Preview/PreviewPoolInfo';
+import UpdatedPosition from '@/components/Preview/UpdatedPosition';
 import Warning from '@/components/Preview/Warning';
+import useTxStatus from '@/hooks/useTxStatus';
 import useZapRoute from '@/hooks/useZapRoute';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 import { useZapStore } from '@/stores/useZapStore';
-
-import UpdatedPosition from './UpdatedPosition';
 
 export function Preview({
   onSubmitTx,
@@ -34,7 +34,15 @@ export function Preview({
   onViewPosition,
   onExplorePools,
 }: {
-  onSubmitTx: (txData: { from: string; to: string; value: string; data: string; gasLimit: string }) => Promise<string>;
+  onSubmitTx: (
+    txData: { from: string; to: string; value: string; data: string; gasLimit: string },
+    additionalInfo?: {
+      sourcePool: string;
+      sourceDexLogo: string;
+      destinationPool: string;
+      destinationDexLogo: string;
+    },
+  ) => Promise<string>;
   onClose: () => void;
   onViewPosition?: (txHash: string) => void;
   onExplorePools?: () => void;
@@ -60,24 +68,8 @@ export function Preview({
 
   const [showProcessing, setShowProcessing] = useState(false);
   const [txHash, setTxHash] = useState<string | null>(null);
-  const [txStatus, setTxStatus] = useState<'success' | 'failed' | ''>('');
   const [error, setError] = useState<Error | undefined>();
-
-  useEffect(() => {
-    if (!txHash) return;
-    const i = setInterval(
-      async () => {
-        const res = await isTransactionSuccessful(rpcUrl, txHash);
-        if (!res) return;
-
-        if (res.status) {
-          setTxStatus('success');
-        } else setTxStatus('failed');
-      },
-      chainId === ChainId.Ethereum ? 10_000 : 5_000,
-    );
-    return () => clearInterval(i);
-  }, [txHash, chainId, rpcUrl]);
+  const { txStatus } = useTxStatus({ txHash: txHash || undefined });
 
   if (route === null || !sourcePool || !targetPool || !account || !buildData) return null;
 
@@ -115,10 +107,18 @@ export function Preview({
     if (gas === 0n) return;
 
     try {
-      const txHash = await onSubmitTx({
-        ...txData,
-        gasLimit: calculateGasMargin(gas),
-      });
+      const txHash = await onSubmitTx(
+        {
+          ...txData,
+          gasLimit: calculateGasMargin(gas),
+        },
+        {
+          sourcePool: `${sourcePool.token0.symbol}/${sourcePool.token1.symbol}`,
+          sourceDexLogo: DEXES_INFO[sourcePool.poolType].icon,
+          destinationPool: `${targetPool.token0.symbol}/${targetPool.token1.symbol}`,
+          destinationDexLogo: DEXES_INFO[targetPool.poolType].icon,
+        },
+      );
       setTxHash(txHash);
     } catch (err) {
       setError(err as Error);
@@ -187,7 +187,7 @@ export function Preview({
     <Dialog open={true} onOpenChange={onDismiss}>
       <DialogPortal>
         <DialogContent
-          className="max-h-[800px] max-w-[450px] overflow-auto z-[1002]"
+          className="max-h-[85vh] max-w-[480px] overflow-auto z-[1002]"
           overlayClassName="z-[1002]"
           aria-describedby={undefined}
           containerClassName="ks-lw-migration-style"
