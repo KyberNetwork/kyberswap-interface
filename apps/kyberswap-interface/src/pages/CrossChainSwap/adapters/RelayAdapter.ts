@@ -207,6 +207,10 @@ export class RelayAdapter extends BaseSwapAdapter {
                   sourceToken: quote.quote.quoteParams.fromToken,
                   targetToken: quote.quote.quoteParams.toToken,
                   timestamp: new Date().getTime(),
+                  amountInUsd: quote.quote.inputUsd,
+                  amountOutUsd: quote.quote.outputUsd,
+                  platformFeePercent: quote.quote.platformFeePercent,
+                  recipient: quote.quote.quoteParams.recipient,
                 })
               }
             }
