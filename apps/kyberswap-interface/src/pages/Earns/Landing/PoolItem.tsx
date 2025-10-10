@@ -23,12 +23,8 @@ const PoolItem = ({ pool }: { pool: EarnPool }) => {
     setTriggerClose,
   })
 
-  const isFarmingEg = pool.programs?.includes(ProgramType.EG)
+  const isFarming = pool.programs?.includes(ProgramType.EG) || pool.programs?.includes(ProgramType.LM)
   const isFarmingLm = pool.programs?.includes(ProgramType.LM)
-  const isFarming = isFarmingEg || isFarmingLm
-
-  const egApr = isFarmingEg ? pool.kemEGApr || 0 : 0
-  const lmApr = isFarmingLm ? pool.kemLMApr || 0 : 0
 
   return (
     <PoolRow
@@ -75,9 +71,11 @@ const PoolItem = ({ pool }: { pool: EarnPool }) => {
       </Flex>
 
       <Flex alignItems="center" sx={{ gap: '4px' }}>
-        <Text color={theme.primary}>{formatAprNumber((pool.apr || 0) + egApr + lmApr)}%</Text>
+        <Text color={theme.primary}>
+          {formatAprNumber((pool.apr || 0) + (pool.kemEGApr || 0) + (pool.kemLMApr || 0))}%
+        </Text>
         {isFarming ? (
-          <AprDetailTooltip feeApr={pool.apr || 0} egApr={egApr} lmApr={lmApr}>
+          <AprDetailTooltip feeApr={pool.apr || 0} egApr={pool.kemEGApr || 0} lmApr={pool.kemLMApr || 0}>
             {isFarmingLm ? <FarmingLmIcon width={20} height={20} /> : <FarmingIcon width={20} height={20} />}
           </AprDetailTooltip>
         ) : null}

@@ -25,12 +25,6 @@ import {
 } from 'pages/Earns/types'
 import { getNftManagerContractAddress, isNativeToken } from 'pages/Earns/utils'
 
-const defaultAprStats = {
-  '24h': 0,
-  '7d': 0,
-  all: 0,
-}
-
 export const getDexVersion = (dex: Exchange) => {
   if (!EARN_DEXES[dex].showVersion) return ''
 
@@ -133,9 +127,8 @@ export const parsePosition = ({
   const isUniv2 = EARN_DEXES[dex].isForkFrom === CoreProtocol.UniswapV2
 
   const programs = pool.programs || []
-  const isFarmingEg = programs.includes(ProgramType.EG)
+  const isFarming = programs.includes(ProgramType.EG) || programs.includes(ProgramType.LM)
   const isFarmingLm = programs.includes(ProgramType.LM)
-  const isFarming = isFarmingEg || isFarmingLm
 
   const unclaimedRewardTokens = nftRewardInfo?.tokens.filter(token => token.unclaimedAmount > 0) || []
 
@@ -196,9 +189,6 @@ export const parsePosition = ({
 
   const minTick = pool.tickSpacing === 0 ? MIN_TICK : nearestUsableTick(MIN_TICK, pool.tickSpacing)
   const maxTick = pool.tickSpacing === 0 ? MAX_TICK : nearestUsableTick(MAX_TICK, pool.tickSpacing)
-
-  const egAprStats = isFarmingEg ? position.stats.kemEGApr : defaultAprStats
-  const lmAprStats = isFarmingLm ? position.stats.kemLMApr : defaultAprStats
 
   return {
     id: position.id,
@@ -275,9 +265,9 @@ export const parsePosition = ({
     },
     suggestionPool: position.suggestionPool,
     tokenAddress: position.tokenAddress,
-    apr: calcAprInterval(position.stats.apr, egAprStats, lmAprStats),
-    kemEGApr: calcAprInterval(egAprStats),
-    kemLMApr: calcAprInterval(lmAprStats),
+    apr: calcAprInterval(position.stats.apr, position.stats.kemEGApr, position.stats.kemLMApr),
+    kemEGApr: calcAprInterval(position.stats.kemEGApr),
+    kemLMApr: calcAprInterval(position.stats.kemLMApr),
     feeApr: calcAprInterval(position.stats.apr),
     totalValue,
     totalProvidedValue,

@@ -55,12 +55,8 @@ export default function MigrationModal({
           <MigrateTableBody>
             {!upToSmall &&
               farmingPools.map((pool: EarnPool) => {
-                const isFarmingEg = pool.programs?.includes(ProgramType.EG)
+                const isFarming = pool.programs?.includes(ProgramType.EG) || pool.programs?.includes(ProgramType.LM)
                 const isFarmingLm = pool.programs?.includes(ProgramType.LM)
-                const isFarming = isFarmingEg || isFarmingLm
-
-                const egApr = isFarmingEg ? pool.kemEGApr || 0 : 0
-                const lmApr = isFarmingLm ? pool.kemLMApr || 0 : 0
 
                 return (
                   <MigrateTableRow
@@ -92,7 +88,7 @@ export default function MigrationModal({
                     <Apr value={pool.apr}>
                       {formatAprNumber(pool.apr)}%{' '}
                       {isFarming ? (
-                        <AprDetailTooltip feeApr={pool.apr} egApr={egApr} lmApr={lmApr}>
+                        <AprDetailTooltip feeApr={pool.apr} egApr={pool.kemEGApr || 0} lmApr={pool.kemLMApr || 0}>
                           {isFarmingLm ? (
                             <FarmingLmIcon width={20} height={20} />
                           ) : (
@@ -116,12 +112,8 @@ export default function MigrationModal({
 
             {upToSmall &&
               farmingPools.map((pool: EarnPool, index: number) => {
-                const isFarmingEg = pool.programs?.includes(ProgramType.EG)
+                const isFarming = pool.programs?.includes(ProgramType.EG) || pool.programs?.includes(ProgramType.LM)
                 const isFarmingLm = pool.programs?.includes(ProgramType.LM)
-                const isFarming = isFarmingEg || isFarmingLm
-
-                const egApr = isFarmingEg ? pool.kemEGApr || 0 : 0
-                const lmApr = isFarmingLm ? pool.kemLMApr || 0 : 0
 
                 return (
                   <MobileTableRow
@@ -153,7 +145,7 @@ export default function MigrationModal({
                       <Flex alignItems="center" sx={{ gap: '2px' }}>
                         <Apr value={pool.apr}>{formatAprNumber(pool.apr)}%</Apr>
                         {isFarming ? (
-                          <AprDetailTooltip feeApr={pool.apr} egApr={egApr} lmApr={lmApr}>
+                          <AprDetailTooltip feeApr={pool.apr} egApr={pool.kemEGApr || 0} lmApr={pool.kemLMApr || 0}>
                             {isFarmingLm ? (
                               <FarmingLmIcon width={20} height={20} />
                             ) : (

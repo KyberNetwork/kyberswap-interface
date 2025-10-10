@@ -18,14 +18,11 @@ import { formatDisplayNumber } from 'utils/numbers'
 
 export const kemFarming = (pool: ParsedEarnPool) => {
   const programs = pool.programs || []
-  const isFarmingEg = programs.includes(ProgramType.EG)
+  const isFarming = programs.includes(ProgramType.EG) || programs.includes(ProgramType.LM)
   const isFarmingLm = programs.includes(ProgramType.LM)
-  const isFarming = isFarmingEg || isFarmingLm
-  const egApr = isFarmingEg ? pool.kemEGApr || 0 : 0
-  const lmApr = isFarmingLm ? pool.kemLMApr || 0 : 0
 
   return isFarming ? (
-    <AprDetailTooltip feeApr={pool.feeApr} egApr={egApr} lmApr={lmApr}>
+    <AprDetailTooltip feeApr={pool.feeApr} egApr={pool.kemEGApr || 0} lmApr={pool.kemLMApr || 0}>
       {isFarmingLm ? (
         <FarmingLmIcon width={24} height={24} style={{ marginLeft: 4 }} />
       ) : (
