@@ -22,14 +22,6 @@ export default function PoolStat() {
   const isFarming = initializing ? false : pool.isFarming || false;
   const isFarmingLm = initializing ? false : pool.isFarmingLm || false;
 
-  const aprLine = !pool?.stats
-    ? []
-    : [
-        { label: 'LP Fees', value: pool.stats.apr || 0 },
-        { label: 'EG Sharing Reward', value: pool.stats.kemEGApr || 0 },
-        { label: 'LM Reward', value: pool.stats.kemLMApr || 0 },
-      ].filter(line => line.value > 0);
-
   return (
     <div
       className={cn(
@@ -94,11 +86,9 @@ export default function PoolStat() {
                 <MouseoverTooltip
                   text={
                     <div className="flex flex-col gap-0.5">
-                      {aprLine.map(line => (
-                        <div key={line.label}>
-                          {line.label}: {formatAprNumber(line.value)}%
-                        </div>
-                      ))}
+                      <div>LP Fees: {formatAprNumber(pool.stats.apr)}%</div>
+                      <div>EG Sharing Reward: {formatAprNumber(pool.stats.kemEGApr)}%</div>
+                      {pool.stats.kemLMApr > 0 && <div>LM Reward: {formatAprNumber(pool.stats.kemLMApr)}%</div>}
                     </div>
                   }
                   placement="top"

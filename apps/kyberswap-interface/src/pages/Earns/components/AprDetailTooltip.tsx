@@ -15,33 +15,23 @@ export default function AprDetailTooltip({
   lmApr: number
   children: React.ReactNode
 }) {
-  const lines = [
-    {
-      label: t`LP Fees`,
-      value: feeApr,
-    },
-
-    {
-      label: t`EG Sharing Reward`,
-      value: egApr,
-    },
-    {
-      label: t`LM Reward`,
-      value: lmApr,
-    },
-  ].filter(line => line.value > 0)
-
   return (
     <MouseoverTooltipDesktopOnly
       placement="top"
       width="fit-content"
       text={
         <Flex sx={{ flexDirection: 'column', gap: '2px' }}>
-          {lines.map(line => (
-            <Text key={line.label}>
-              {line.label}: {formatAprNumber(line.value)}%
+          <Text>
+            {t`LP Fees`}: {formatAprNumber(feeApr)}%
+          </Text>
+          <Text>
+            {t`EG Sharing Reward`}: {formatAprNumber(egApr)}%
+          </Text>
+          {lmApr > 0 && (
+            <Text>
+              {t`LM Reward`}: {formatAprNumber(lmApr)}%
             </Text>
-          ))}
+          )}
         </Flex>
       }
     >
