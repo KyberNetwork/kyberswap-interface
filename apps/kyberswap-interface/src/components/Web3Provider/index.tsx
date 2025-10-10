@@ -29,6 +29,7 @@ import { coinbaseWallet, injected, safe, walletConnect } from 'wagmi/connectors'
 
 import WC_BG from 'assets/images/wc-bg.png'
 import Kyber from 'assets/svg/kyber/logo_kyberswap_with_padding.svg'
+import BINANCE_ICON from 'assets/wallets-connect/binance.svg'
 import COINBASE_ICON from 'assets/wallets-connect/coinbase.svg'
 import METAMASK_ICON from 'assets/wallets-connect/metamask.svg'
 import SAFE_ICON from 'assets/wallets-connect/safe.svg'
@@ -171,6 +172,13 @@ export const HardCodedConnectors = [
     logo: METAMASK_ICON,
     url: 'https://metamask.io',
     realId: 'io.metamask',
+  },
+  {
+    id: 'KSBinanceWallet',
+    name: 'Binance Wallet',
+    logo: BINANCE_ICON,
+    url: 'https://www.binance.com/en/binancewallet',
+    realId: 'com.binance.wallet',
   },
 ] as const
 
