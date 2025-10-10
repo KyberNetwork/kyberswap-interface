@@ -1,11 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { useOnClickOutside } from '@kyber/hooks';
-import { MouseoverTooltip, Toggle } from '@kyber/ui';
+import { Dialog, DialogContent, DialogFooter, DialogTitle, MouseoverTooltip, Toggle } from '@kyber/ui';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
-import X from '@/assets/svg/x.svg';
-import Modal from '@/components/Modal';
 import SlippageInput from '@/components/Setting/SlippageInput';
 import { validateDeadlineString } from '@/components/Setting/utils';
 import { useZapState } from '@/hooks/useZapState';
@@ -32,39 +30,39 @@ export default function Setting() {
       if (!isValid) setDeadline(20);
       toggleSetting();
     }
-  }, ['setting', 'ks-lw-modal-overlay', 'kyber-portal']);
+  }, ['setting', 'kyber-portal', 'confirm-dialog', 'dialog-overlay']);
 
   if (!uiState.showSetting) return null;
 
   return (
     <>
-      <Modal isOpen={showConfirm}>
-        <div>
-          <div className="flex justify-between text-xl items-center font-medium">
-            <div>Are you sure?</div>
+      <Dialog open={showConfirm} onOpenChange={() => setShowConfirm(prev => !prev)}>
+        <DialogContent
+          className="confirm-dialog z-[1002] ks-lw-style"
+          overlayClassName="z-[1002]"
+          aria-describedby={undefined}
+        >
+          <DialogTitle>Are you sure?</DialogTitle>
+          <div>
+            <div className="text-sm text-subText">
+              Turn this on to make trades with very high price impact or to set very high slippage tolerance. This can
+              result in bad rates and loss of funds. Be cautious.
+            </div>
 
-            <X className="cursor-pointer" role="button" onClick={() => setShowConfirm(false)} />
+            <div className="text-sm text-subText mt-4">
+              Please type the word <span className="text-warning">Confirm</span> below to enable Degen Mode
+            </div>
+
+            <input
+              className="box-border mt-5 py-2 px-4 text-sm outline-none border-none w-full text-white bg-layer2 rounded-md"
+              placeholder="Confirm"
+              value={confirm}
+              onChange={e => {
+                setConfirm(e.target.value.trim());
+              }}
+            />
           </div>
-
-          <div className="text-sm text-subText mt-5">
-            Turn this on to make trades with very high price impact or to set very high slippage tolerance. This can
-            result in bad rates and loss of funds. Be cautious.
-          </div>
-
-          <div className="text-sm text-subText mt-5">
-            Please type the word <span className="text-warning">Confirm</span> below to enable Degen Mode
-          </div>
-
-          <input
-            className="box-border mt-5 py-2 px-4 text-sm outline-none border-none w-full text-white bg-layer2 rounded-md"
-            placeholder="Confirm"
-            value={confirm}
-            onChange={e => {
-              setConfirm(e.target.value.trim());
-            }}
-          />
-
-          <div className="flex gap-4 mt-6">
+          <DialogFooter className="flex gap-4 mt-2">
             <button
               className="ks-outline-btn flex-1"
               onClick={() => {
@@ -86,9 +84,9 @@ export default function Setting() {
             >
               Confirm
             </button>
-          </div>
-        </div>
-      </Modal>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       <div className="absolute right-6 top-[116px] bg-layer2 p-5 rounded-md min-w-[330px] sm:max-w-[330px]" ref={ref}>
         <div className="text-base font-medium mb-5">Advanced Setting</div>
         <MouseoverTooltip
