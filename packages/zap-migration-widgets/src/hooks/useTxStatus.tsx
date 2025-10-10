@@ -32,7 +32,7 @@ export default function useTxStatus({ txHash }: { txHash?: string }) {
         clearInterval(i);
       };
     }
-  }, [chainId, rpcUrl, txHash, txStatus, zapStatus]);
+  }, [txHash, chainId, rpcUrl, zapStatus, txStatus]);
 
   useEffect(() => {
     setTxStatus('');

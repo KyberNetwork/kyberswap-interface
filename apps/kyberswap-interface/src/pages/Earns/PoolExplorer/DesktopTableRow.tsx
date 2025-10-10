@@ -1,5 +1,4 @@
 import { formatAprNumber } from '@kyber/utils/dist/number'
-import { t } from '@lingui/macro'
 import { Star } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import { PoolQueryParams } from 'services/zapEarn'
@@ -12,6 +11,7 @@ import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
 import { FilterTag } from 'pages/Earns/PoolExplorer/Filter'
 import { Apr, FeeTier, SymbolText, TableRow } from 'pages/Earns/PoolExplorer/styles'
+import AprDetailTooltip from 'pages/Earns/components/AprDetailTooltip'
 import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import { ParsedEarnPool, ProgramType } from 'pages/Earns/types'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -22,25 +22,13 @@ export const kemFarming = (pool: ParsedEarnPool) => {
   const isFarmingLm = programs.includes(ProgramType.LM)
 
   return isFarming ? (
-    <MouseoverTooltipDesktopOnly
-      placement="bottom"
-      width="max-content"
-      text={
-        <div>
-          {t`LP Fee`}: {formatAprNumber(pool.feeApr)}%
-          <br />
-          {t`EG Sharing Reward`}: {formatAprNumber(pool.kemEGApr || 0)}%
-          <br />
-          {t`LM Reward`}: {formatAprNumber(pool.kemLMApr || 0)}%
-        </div>
-      }
-    >
+    <AprDetailTooltip feeApr={pool.feeApr} egApr={pool.kemEGApr || 0} lmApr={pool.kemLMApr || 0}>
       {isFarmingLm ? (
         <FarmingLmIcon width={24} height={24} style={{ marginLeft: 4 }} />
       ) : (
         <FarmingIcon width={24} height={24} style={{ marginLeft: 4 }} />
       )}
-    </MouseoverTooltipDesktopOnly>
+    </AprDetailTooltip>
   ) : null
 }
 

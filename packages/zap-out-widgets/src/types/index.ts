@@ -1,4 +1,4 @@
-import { ChainId, Pool, PoolType, ZapRouteDetail } from '@kyber/schema';
+import { ChainId, PoolType, Theme } from '@kyber/schema';
 
 export enum ZapStatus {
   INIT = 'init',
@@ -7,19 +7,19 @@ export enum ZapStatus {
   FAILED = 'failed',
 }
 
-export interface WidgetProps {
-  poolAddress: string;
-  positionId: string;
-  poolType: PoolType;
+export interface ZapOutProps {
+  theme?: Theme;
   chainId: ChainId;
   rpcUrl?: string;
+  poolAddress: string;
+  poolType: PoolType;
+  positionId: string;
   connectedAccount: {
     address?: string | undefined;
     chainId: number;
   };
-  initDepositTokens?: string;
-  initAmounts?: string;
-  compoundType?: 'COMPOUND_TYPE_REWARD';
+  source: string;
+  referral?: string;
   zapStatus?: ZapStatus;
   onClose: () => void;
   onConnectWallet: () => void;
@@ -27,16 +27,9 @@ export interface WidgetProps {
   onSubmitTx: (
     txData: { from: string; to: string; value: string; data: string; gasLimit: string },
     additionalInfo?: {
-      tokensIn: Array<{ symbol: string; amount: string; logoUrl?: string }>;
       pool: string;
       dexLogo: string;
+      tokensOut: Array<{ symbol: string; amount: string; logoUrl?: string }>;
     },
   ) => Promise<string>;
-  onViewPosition?: (txHash: string) => void;
-}
-
-export interface ZapState {
-  pool: Pool;
-  zapInfo: ZapRouteDetail;
-  deadline: number;
 }

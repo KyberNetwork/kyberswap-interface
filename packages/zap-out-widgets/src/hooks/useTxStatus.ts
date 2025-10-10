@@ -3,11 +3,11 @@ import { useEffect, useState } from 'react';
 import { ChainId } from '@kyber/schema';
 import { isTransactionSuccessful } from '@kyber/utils/crypto';
 
-import { useWidgetStore } from '@/stores/useWidgetStore';
+import { useZapOutContext } from '@/stores';
 import { ZapStatus } from '@/types/index';
 
 export default function useTxStatus({ txHash }: { txHash?: string }) {
-  const { chainId, rpcUrl, zapStatus } = useWidgetStore(['chainId', 'rpcUrl', 'zapStatus']);
+  const { chainId, rpcUrl, zapStatus } = useZapOutContext(s => s);
   const [txStatus, setTxStatus] = useState<'success' | 'failed' | ''>('');
 
   useEffect(() => {

@@ -3,7 +3,7 @@ import { formatAprNumber } from '@kyber/utils/dist/number'
 import { MAX_TICK, MIN_TICK, priceToClosestTick } from '@kyber/utils/dist/uniswapv3'
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Share2 } from 'react-feather'
+import { Info, Share2 } from 'react-feather'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import { useUserPositionsQuery } from 'services/zapEarn'
@@ -13,7 +13,6 @@ import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_
 import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import { ReactComponent as FarmingLmIcon } from 'assets/svg/kyber/kemLm.svg'
 import { ReactComponent as RocketIcon } from 'assets/svg/rocket.svg'
-import InfoHelper from 'components/InfoHelper'
 import { Loader2 } from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
@@ -35,6 +34,7 @@ import {
 } from 'pages/Earns/PositionDetail/styles'
 import MigrationModal from 'pages/Earns/UserPositions/MigrationModal'
 import { EmptyPositionText, PositionPageWrapper } from 'pages/Earns/UserPositions/styles'
+import AprDetailTooltip from 'pages/Earns/components/AprDetailTooltip'
 import DropdownMenu from 'pages/Earns/components/DropdownMenu'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import RewardSyncing from 'pages/Earns/components/RewardSyncing'
@@ -85,7 +85,7 @@ const PositionDetail = () => {
     : rewardInfo?.nfts.find(item => item.nftId === userPositions?.[0]?.tokenId)
 
   const currentWalletAddress = useRef(account)
-  const [aprInterval, setAprInterval] = useState<'24h' | '7d'>('24h')
+  const [aprInterval, setAprInterval] = useState<'24h' | '7d'>('7d')
   const [feeInfoFromRpc, setFeeInfoFromRpc] = useState<FeeInfo | undefined>()
   const [shareInfo, setShareInfo] = useState<ShareModalProps | undefined>()
   const [positionToMigrate, setPositionToMigrate] = useState<ParsedPosition | null>(null)
@@ -375,25 +375,17 @@ const PositionDetail = () => {
   const aprSection = (
     <AprSection>
       <Flex alignItems={'center'} sx={{ gap: '2px' }}>
-        <Text fontSize={14} color={theme.subText}>
+        <Text fontSize={14} color={theme.subText} marginRight={0.5}>
           {t`Est. Position APR`}
         </Text>
         {position?.pool.isFarming && !isUnfinalized && (
-          <InfoHelper
-            size={16}
-            fontSize={14}
-            placement="top"
-            width="fit-content"
-            text={
-              <div>
-                {t`LP Fee`}: {formatAprNumber(position?.feeApr[aprInterval] || 0)}%
-                <br />
-                {t`EG Sharing Reward`}: {formatAprNumber(position?.kemEGApr[aprInterval] || 0)}%
-                <br />
-                {t`LM Reward`}: {formatAprNumber(position?.kemLMApr[aprInterval] || 0)}%
-              </div>
-            }
-          />
+          <AprDetailTooltip
+            feeApr={position?.feeApr[aprInterval] || 0}
+            egApr={position?.kemEGApr[aprInterval] || 0}
+            lmApr={position?.kemLMApr[aprInterval] || 0}
+          >
+            <Info color={theme.subText} size={16} />
+          </AprDetailTooltip>
         )}
       </Flex>
 
@@ -424,15 +416,19 @@ const PositionDetail = () => {
               shareBtn(12, [ShareOption.TOTAL_APR])}
           </Flex>
 
-          <DropdownMenu
-            width={30}
-            flatten
-            tooltip={`APR calculated based on last ${aprInterval} fees. Useful for recent performance trends.`}
-            options={timings.slice(0, 2)}
-            value={aprInterval}
-            alignLeft
-            onChange={value => setAprInterval(value as '24h')}
-          />
+          {aprInterval ? (
+            <>{/* TODO: Revert later */}</>
+          ) : (
+            <DropdownMenu
+              width={30}
+              flatten
+              tooltip={`APR calculated based on last ${aprInterval} fees. Useful for recent performance trends.`}
+              options={timings.slice(0, 2)}
+              value={aprInterval}
+              alignLeft
+              onChange={value => setAprInterval(value as '24h')}
+            />
+          )}
         </Flex>
       )}
     </AprSection>
