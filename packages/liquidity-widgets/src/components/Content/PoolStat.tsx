@@ -36,14 +36,6 @@ export default function PoolStat() {
   const isFarming = initializing ? false : pool?.isFarming || false;
   const isFarmingLm = initializing ? false : pool?.isFarmingLm || false;
 
-  const aprLine = !poolStat
-    ? []
-    : [
-        { label: 'LP Fees', value: poolStat?.apr || 0 },
-        { label: 'EG Sharing Reward', value: poolStat?.kemEGApr || 0 },
-        { label: 'LM Reward', value: poolStat?.kemLMApr || 0 },
-      ].filter(line => line.value > 0);
-
   const { loading: rewardLoading, data: rewardProgress } = useRewardCycleProgress({
     chainId,
     poolAddress: poolAddress?.toLowerCase() || '',
@@ -124,11 +116,9 @@ export default function PoolStat() {
                 <MouseoverTooltip
                   text={
                     <div className="flex flex-col gap-0.5">
-                      {aprLine.map(line => (
-                        <div key={line.label}>
-                          {line.label}: {formatAprNumber(line.value)}%
-                        </div>
-                      ))}
+                      <div>LP Fees: {formatAprNumber(poolStat?.apr || 0)}%</div>
+                      <div>EG Sharing Reward: {formatAprNumber(poolStat?.kemEGApr || 0)}%</div>
+                      {poolStat?.kemLMApr ? <div>LM Reward: {formatAprNumber(poolStat.kemLMApr)}%</div> : null}
                     </div>
                   }
                   placement="top"

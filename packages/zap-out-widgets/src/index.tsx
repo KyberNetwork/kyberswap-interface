@@ -25,6 +25,18 @@ import { ZapOutProps, ZapStatus } from '@/types/index';
 import './Widget.scss';
 import './globals.css';
 
+const createModalRoot = () => {
+  let modalRoot = document.getElementById('ks-lw-modal-root');
+  if (!modalRoot) {
+    modalRoot = document.createElement('div');
+    modalRoot.id = 'ks-lw-modal-root';
+    modalRoot.className = 'ks-lw-style';
+    document.body.appendChild(modalRoot);
+  }
+};
+
+createModalRoot();
+
 const ZapOut = (props: ZapOutProps) => {
   const { theme, chainId } = props;
   const { buildData } = useZapOutUserState();
@@ -78,9 +90,9 @@ const ZapOut = (props: ZapOutProps) => {
               </div>
             </div>
             <Action />
-            <Preview />
             <WidgetError />
           </div>
+          <Preview />
         </div>
       </TokenProvider>
     </ZapOutProvider>
