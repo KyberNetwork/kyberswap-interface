@@ -2,6 +2,7 @@ import { ReactNode, useEffect, useMemo } from 'react';
 
 import { ChainId, PoolType, Theme, defaultTheme } from '@kyber/schema';
 import '@kyber/ui/styles.css';
+import { cn } from '@kyber/utils/tailwind-helpers';
 
 import { Action } from '@/components/Action';
 import Estimated from '@/components/Estimated';
@@ -18,6 +19,7 @@ import { ZapSummary } from '@/components/ZapSummary';
 import { ZapTo } from '@/components/ZapTo';
 import { TokenListProvider } from '@/hooks/useTokenList';
 import { ZapOutProvider, useZapOutContext } from '@/stores';
+import { useZapOutUserState } from '@/stores/state';
 import { ZapOutProps, ZapStatus } from '@/types/index';
 
 import './Widget.scss';
@@ -25,6 +27,7 @@ import './globals.css';
 
 const ZapOut = (props: ZapOutProps) => {
   const { theme, chainId } = props;
+  const { buildData } = useZapOutUserState();
 
   const themeToApply = useMemo(
     () =>
@@ -54,7 +57,7 @@ const ZapOut = (props: ZapOutProps) => {
     <ZapOutProvider {...widgetProps}>
       <TokenProvider chainId={chainId}>
         <div className="ks-lw ks-lw-style">
-          <div className="px-4 py-6 sm:px-6">
+          <div className={cn('px-4 py-6 sm:px-6', buildData ? 'hidden' : '')}>
             <Header />
             <div className="mt-4 flex gap-5 max-sm:flex-col">
               <div className="flex flex-col gap-4 w-[55%] max-sm:w-full">
