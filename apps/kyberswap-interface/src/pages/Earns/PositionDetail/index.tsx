@@ -3,7 +3,7 @@ import { formatAprNumber } from '@kyber/utils/dist/number'
 import { MAX_TICK, MIN_TICK, priceToClosestTick } from '@kyber/utils/dist/uniswapv3'
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Share2 } from 'react-feather'
+import { Info, Share2 } from 'react-feather'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import { useUserPositionsQuery } from 'services/zapEarn'
@@ -13,7 +13,6 @@ import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_
 import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import { ReactComponent as FarmingLmIcon } from 'assets/svg/kyber/kemLm.svg'
 import { ReactComponent as RocketIcon } from 'assets/svg/rocket.svg'
-import InfoHelper from 'components/InfoHelper'
 import { Loader2 } from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
@@ -35,6 +34,7 @@ import {
 } from 'pages/Earns/PositionDetail/styles'
 import MigrationModal from 'pages/Earns/UserPositions/MigrationModal'
 import { EmptyPositionText, PositionPageWrapper } from 'pages/Earns/UserPositions/styles'
+import AprDetailTooltip from 'pages/Earns/components/AprDetailTooltip'
 import DropdownMenu from 'pages/Earns/components/DropdownMenu'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import RewardSyncing from 'pages/Earns/components/RewardSyncing'
@@ -375,25 +375,17 @@ const PositionDetail = () => {
   const aprSection = (
     <AprSection>
       <Flex alignItems={'center'} sx={{ gap: '2px' }}>
-        <Text fontSize={14} color={theme.subText}>
+        <Text fontSize={14} color={theme.subText} marginRight={0.5}>
           {t`Est. Position APR`}
         </Text>
         {position?.pool.isFarming && !isUnfinalized && (
-          <InfoHelper
-            size={16}
-            fontSize={14}
-            placement="top"
-            width="fit-content"
-            text={
-              <div>
-                {t`LP Fee`}: {formatAprNumber(position?.feeApr[aprInterval] || 0)}%
-                <br />
-                {t`EG Sharing Reward`}: {formatAprNumber(position?.kemEGApr[aprInterval] || 0)}%
-                <br />
-                {t`LM Reward`}: {formatAprNumber(position?.kemLMApr[aprInterval] || 0)}%
-              </div>
-            }
-          />
+          <AprDetailTooltip
+            feeApr={position?.feeApr[aprInterval] || 0}
+            egApr={position?.kemEGApr[aprInterval] || 0}
+            lmApr={position?.kemLMApr[aprInterval] || 0}
+          >
+            <Info color={theme.subText} size={16} />
+          </AprDetailTooltip>
         )}
       </Flex>
 
