@@ -162,18 +162,21 @@ export const Preview = () => {
               : [
                   {
                     symbol: pool.token0.symbol,
-                    amount: formatDisplayNumber(
-                      formatTokenAmount(removeLiquidity.removedAmount0 + earnedFee.earnedFee0, pool.token0.decimals),
-                      { significantDigits: 6 },
+                    amount: formatTokenAmount(
+                      removeLiquidity.removedAmount0 + earnedFee.earnedFee0,
+                      pool.token0.decimals,
+                      6,
                     ),
                     logoUrl: pool.token0.logo,
                   },
                   {
                     symbol: pool.token1.symbol,
-                    amount: formatDisplayNumber(
-                      formatTokenAmount(removeLiquidity.removedAmount1 + earnedFee.earnedFee1, pool.token1.decimals),
-                      { significantDigits: 6 },
+                    amount: formatTokenAmount(
+                      removeLiquidity.removedAmount1 + earnedFee.earnedFee1,
+                      pool.token1.decimals,
+                      6,
                     ),
+
                     logoUrl: pool.token1.logo,
                   },
                 ],
