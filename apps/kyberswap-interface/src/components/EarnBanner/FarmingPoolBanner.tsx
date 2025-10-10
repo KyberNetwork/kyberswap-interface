@@ -20,6 +20,7 @@ import {
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
+import { ProgramType } from 'pages/Earns/types'
 import { MEDIA_WIDTHS } from 'theme'
 
 let indexInterval: NodeJS.Timeout
@@ -112,21 +113,24 @@ export default function FarmingPoolBanner() {
                   animateMoveBack={animateMoveBack}
                   style={{ width: containerWidth * (!upToExtraSmall ? 2 : 3) }}
                 >
-                  {pools.map((pool, index) => (
-                    <FarmingPool
-                      key={`${pool.address}-${index}`}
-                      className="farming-pool"
-                      style={{ width: !upToExtraSmall ? containerWidth / 2 : containerWidth }}
-                      onClick={handleClickBannerPool}
-                    >
-                      <PoolPairText>
-                        {pool.tokens[0].symbol}/{pool.tokens[1].symbol}
-                      </PoolPairText>
-                      <FarmingAprBadge>
-                        {formatAprNumber((pool.apr || 0) + (pool.kemEGApr || 0) + (pool.kemLMApr || 0))}%
-                      </FarmingAprBadge>
-                    </FarmingPool>
-                  ))}
+                  {pools.map((pool, index) => {
+                    const egApr = pool.programs?.includes(ProgramType.EG) ? pool.kemEGApr || 0 : 0
+                    const lmApr = pool.programs?.includes(ProgramType.LM) ? pool.kemLMApr || 0 : 0
+
+                    return (
+                      <FarmingPool
+                        key={`${pool.address}-${index}`}
+                        className="farming-pool"
+                        style={{ width: !upToExtraSmall ? containerWidth / 2 : containerWidth }}
+                        onClick={handleClickBannerPool}
+                      >
+                        <PoolPairText>
+                          {pool.tokens[0].symbol}/{pool.tokens[1].symbol}
+                        </PoolPairText>
+                        <FarmingAprBadge>{formatAprNumber((pool.apr || 0) + egApr + lmApr)}%</FarmingAprBadge>
+                      </FarmingPool>
+                    )
+                  })}
                 </FarmingPoolWrapper>
               </FarmingPoolContainer>
               <MoveForwardIcon onClick={handleMoveForward} />

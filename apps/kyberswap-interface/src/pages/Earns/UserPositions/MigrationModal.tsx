@@ -7,7 +7,6 @@ import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import { ReactComponent as FarmingLmIcon } from 'assets/svg/kyber/kemLm.svg'
 import Modal from 'components/Modal'
 import TokenLogo from 'components/TokenLogo'
-import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
 import {
   Apr,
@@ -21,6 +20,7 @@ import {
   MobileTableRow,
   SymbolText,
 } from 'pages/Earns/PoolExplorer/styles'
+import AprDetailTooltip from 'pages/Earns/components/AprDetailTooltip'
 import { EarnPool, ParsedPosition, ProgramType, SuggestedPool } from 'pages/Earns/types'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -55,8 +55,12 @@ export default function MigrationModal({
           <MigrateTableBody>
             {!upToSmall &&
               farmingPools.map((pool: EarnPool) => {
-                const isFarming = pool.programs?.includes(ProgramType.EG) || pool.programs?.includes(ProgramType.LM)
+                const isFarmingEg = pool.programs?.includes(ProgramType.EG)
                 const isFarmingLm = pool.programs?.includes(ProgramType.LM)
+                const isFarming = isFarmingEg || isFarmingLm
+
+                const egApr = isFarmingEg ? pool.kemEGApr || 0 : 0
+                const lmApr = isFarmingLm ? pool.kemLMApr || 0 : 0
 
                 return (
                   <MigrateTableRow
@@ -88,25 +92,13 @@ export default function MigrationModal({
                     <Apr value={pool.apr}>
                       {formatAprNumber(pool.apr)}%{' '}
                       {isFarming ? (
-                        <MouseoverTooltipDesktopOnly
-                          placement="bottom"
-                          width="max-content"
-                          text={
-                            <div>
-                              {t`LP Fee`}: {formatAprNumber(pool.apr)}%
-                              <br />
-                              {t`EG Sharing Reward`}: {formatAprNumber(pool.kemEGApr || 0)}%
-                              <br />
-                              {t`LM Reward`}: {formatAprNumber(pool.kemLMApr || 0)}%
-                            </div>
-                          }
-                        >
+                        <AprDetailTooltip feeApr={pool.apr} egApr={egApr} lmApr={lmApr}>
                           {isFarmingLm ? (
                             <FarmingLmIcon width={20} height={20} />
                           ) : (
                             <FarmingIcon width={20} height={20} />
                           )}
-                        </MouseoverTooltipDesktopOnly>
+                        </AprDetailTooltip>
                       ) : null}
                     </Apr>
                     <Flex justifyContent="flex-end">
@@ -124,8 +116,12 @@ export default function MigrationModal({
 
             {upToSmall &&
               farmingPools.map((pool: EarnPool, index: number) => {
-                const isFarming = pool.programs?.includes(ProgramType.EG) || pool.programs?.includes(ProgramType.LM)
+                const isFarmingEg = pool.programs?.includes(ProgramType.EG)
                 const isFarmingLm = pool.programs?.includes(ProgramType.LM)
+                const isFarming = isFarmingEg || isFarmingLm
+
+                const egApr = isFarmingEg ? pool.kemEGApr || 0 : 0
+                const lmApr = isFarmingLm ? pool.kemLMApr || 0 : 0
 
                 return (
                   <MobileTableRow
@@ -157,25 +153,13 @@ export default function MigrationModal({
                       <Flex alignItems="center" sx={{ gap: '2px' }}>
                         <Apr value={pool.apr}>{formatAprNumber(pool.apr)}%</Apr>
                         {isFarming ? (
-                          <MouseoverTooltipDesktopOnly
-                            placement="bottom"
-                            width="max-content"
-                            text={
-                              <div>
-                                {t`LP Fee`}: {formatAprNumber(pool.apr)}%
-                                <br />
-                                {t`EG Sharing Reward`}: {formatAprNumber(pool.kemEGApr || 0)}%
-                                <br />
-                                {t`LM Reward`}: {formatAprNumber(pool.kemLMApr || 0)}%
-                              </div>
-                            }
-                          >
+                          <AprDetailTooltip feeApr={pool.apr} egApr={egApr} lmApr={lmApr}>
                             {isFarmingLm ? (
                               <FarmingLmIcon width={20} height={20} />
                             ) : (
                               <FarmingIcon width={20} height={20} />
                             )}
-                          </MouseoverTooltipDesktopOnly>
+                          </AprDetailTooltip>
                         ) : null}
                       </Flex>
                     </Flex>

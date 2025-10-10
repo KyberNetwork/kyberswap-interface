@@ -105,6 +105,10 @@ export const getPoolInfo = async ({
         pool: null,
       };
 
+    const isFarmingEg = univ3PoolInfo.programs?.includes('eg');
+    const isFarmingLm = univ3PoolInfo.programs?.includes('lm');
+    const isFarming = isFarmingEg || isFarmingLm;
+
     return {
       error: null,
       pool: {
@@ -123,11 +127,11 @@ export const getPoolInfo = async ({
         maxTick: nearestUsableTick(MAX_TICK, univ3PoolInfo.positionInfo.tickSpacing),
         stats: {
           ...univ3PoolInfo.poolStats,
-          kemLMApr: univ3PoolInfo.poolStats.kemLMApr || 0,
-          kemEGApr: univ3PoolInfo.poolStats.kemEGApr || 0,
+          kemLMApr: isFarmingLm ? univ3PoolInfo.poolStats.kemLMApr || 0 : 0,
+          kemEGApr: isFarmingEg ? univ3PoolInfo.poolStats.kemEGApr || 0 : 0,
         },
-        isFarming: univ3PoolInfo.programs?.includes('eg') || univ3PoolInfo.programs?.includes('lm'),
-        isFarmingLm: univ3PoolInfo.programs?.includes('lm'),
+        isFarming,
+        isFarmingLm,
       },
     };
   }
@@ -139,6 +143,10 @@ export const getPoolInfo = async ({
         error: POOL_ERROR.INVALID_UNIV2_POOL_TYPE,
         pool: null,
       };
+
+    const isFarmingEg = univ2PoolInfo.programs?.includes('eg');
+    const isFarmingLm = univ2PoolInfo.programs?.includes('lm');
+    const isFarming = isFarmingEg || isFarmingLm;
 
     return {
       error: null,
@@ -152,11 +160,11 @@ export const getPoolInfo = async ({
         reserves: univ2PoolInfo.reserves,
         stats: {
           ...univ2PoolInfo.poolStats,
-          kemLMApr: univ2PoolInfo.poolStats.kemLMApr || 0,
-          kemEGApr: univ2PoolInfo.poolStats.kemEGApr || 0,
+          kemLMApr: isFarmingLm ? univ2PoolInfo.poolStats.kemLMApr || 0 : 0,
+          kemEGApr: isFarmingEg ? univ2PoolInfo.poolStats.kemEGApr || 0 : 0,
         },
-        isFarming: univ2PoolInfo.programs?.includes('eg') || univ2PoolInfo.programs?.includes('lm'),
-        isFarmingLm: univ2PoolInfo.programs?.includes('lm'),
+        isFarming,
+        isFarmingLm,
       },
     };
   }
