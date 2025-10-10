@@ -225,11 +225,25 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
     }
 
     if (res) {
-      setTransactions([res, ...transactions].slice(0, 30))
+      // enrich tx with usd/fee/recipient for later use
+      const enriched = {
+        ...res,
+        amountInUsd: selectedQuote.quote.inputUsd,
+        amountOutUsd: selectedQuote.quote.outputUsd,
+        platformFeePercent: selectedQuote.quote.platformFeePercent,
+        recipient: receiver,
+      }
+
+      setTransactions([enriched, ...transactions].slice(0, 30))
 
       const swapDetails = {
+        amount_in: amount,
+        amount_in_usd: selectedQuote.quote.inputUsd,
+        amount_out: selectedQuote.quote.outputAmount.toString(),
+        amount_out_usd: selectedQuote.quote.outputUsd,
+        currency: 'USD',
+        fee_percent: selectedQuote.quote.platformFeePercent,
         from_chain: fromChainId,
-        to_chain: toChainId,
         from_token:
           fromChainId === NonEvmChain.Bitcoin
             ? currencyIn.symbol
@@ -238,6 +252,7 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
             : fromChainId === NonEvmChain.Near
             ? (currencyIn as any).assetId
             : (currencyIn as any)?.address || currencyIn?.symbol,
+        to_chain: toChainId,
         to_token:
           toChainId === NonEvmChain.Bitcoin
             ? currencyOut.symbol
@@ -246,20 +261,15 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
             : toChainId === NonEvmChain.Near
             ? (currencyOut as any).assetId
             : (currencyOut as any)?.address || currencyOut?.symbol,
-        amount_in: amount,
-        amount_out: selectedQuote.quote.outputAmount.toString(),
         partner: selectedQuote.adapter.getName(),
+        platform: 'KyberSwap Cross-Chain',
         source_tx_hash: res.sourceTxHash,
-        sender,
+        target_tx_hash: undefined,
         recipient: receiver,
+        sender,
         status: 'init',
-        fee_percent: selectedQuote.quote.platformFeePercent,
         time: Date.now(),
         timestamp: Date.now(),
-        amount_in_usd: selectedQuote.quote.inputUsd,
-        amount_out_usd: selectedQuote.quote.outputUsd,
-        currency: 'USD',
-        platform: 'KyberSwap Cross-Chain',
       }
       crossChainMixpanelHandler(CROSS_CHAIN_MIXPANEL_TYPE.CROSS_CHAIN_SWAP_INIT, swapDetails)
     }
