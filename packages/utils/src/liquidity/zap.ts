@@ -13,7 +13,7 @@ import {
 } from '@kyber/schema';
 
 import { formatUnits } from '../crypto';
-import { formatDisplayNumber, formatTokenAmount, toRawString } from '../number';
+import { formatDisplayNumber, toRawString } from '../number';
 import { PI_LEVEL, getZapImpact } from './price-impact';
 
 export const parseZapInfo = ({
@@ -274,7 +274,7 @@ const parseRefund = (route: ZapRouteDetail, tokens: Token[]) => {
     const token = tokens.find(t => t.address.toLowerCase() === refund.address.toLowerCase());
     if (token) {
       refunds.push({
-        amount: formatTokenAmount(BigInt(refund.amount), token.decimals),
+        amount: formatUnits(refund.amount, token.decimals),
         symbol: token.symbol,
       });
     }
