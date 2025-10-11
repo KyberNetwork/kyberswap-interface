@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Connector, useConnect } from 'wagmi'
 
-import { CONNECTION, HardCodedConnectors, getConnectorWithId } from 'components/Web3Provider'
+import { CONNECTION, CONNECTION_ORDER, HardCodedConnectors, getConnectorWithId } from 'components/Web3Provider'
 import { isInSafeApp } from 'utils'
 
 function getInjectedConnectors(connectors: readonly Connector[]) {
@@ -56,13 +56,6 @@ export function useOrderedConnections(): InjectableConnector[] {
       return !hardcodedInjectedIds.includes(c.id)
     })
 
-    // Ensure Porto connector appears last among injected connectors
-    const portoIndex = injectedConnectorsWithoutHardcoded.findIndex(c => c.id === CONNECTION.PORTO)
-    if (portoIndex > -1) {
-      const [portoConnector] = injectedConnectorsWithoutHardcoded.splice(portoIndex, 1)
-      injectedConnectorsWithoutHardcoded.push(portoConnector)
-    }
-
     // remove hardcoded connectors if the real connector is present
     HardCodedConnectors.forEach(c => {
       const connector = getConnectorWithId(connectors, c.realId as any)
@@ -97,6 +90,15 @@ export function useOrderedConnections(): InjectableConnector[] {
     // WalletConnect and Coinbase are added last in the list.
     orderedConnectors.push(walletConnectConnector)
     orderedConnectors.push(coinbaseSdkConnector)
+
+    // Sort the connectors by the CONNECTION_ORDER, if not found, put at the end
+    orderedConnectors.sort((a, b) => {
+      const aIndex = CONNECTION_ORDER.indexOf(a.id as any)
+      const bIndex = CONNECTION_ORDER.indexOf(b.id as any)
+      if (aIndex === -1) return 1
+      if (bIndex === -1) return -1
+      return aIndex - bIndex
+    })
 
     orderedConnectors.push(...hardcodeInjectedConnectors)
 
