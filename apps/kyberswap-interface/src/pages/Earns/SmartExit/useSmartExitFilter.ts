@@ -35,7 +35,7 @@ export default function useSmartExitFilter() {
     () => ({
       chainIds: searchParams.get('chainIds') || '',
       dexTypes: searchParams.get('dexTypes') || '',
-      status: searchParams.get('status') || OrderStatus.OrderStatusOpen,
+      status: searchParams.get('status') || '',
       // q: searchParams.get('q') || '',
       // sortBy: searchParams.get('sortBy') || SortBy.VALUE,
       // orderBy: searchParams.get('orderBy') || Direction.DESC,

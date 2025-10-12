@@ -12,6 +12,7 @@ import { MEDIA_WIDTHS } from 'theme'
 import { DexType, OrderStatus } from './useSmartExitFilter'
 
 const ORDER_STATUS = [
+  { label: 'All Status', value: '' },
   { label: 'Active', value: OrderStatus.OrderStatusOpen },
   { label: 'Executed', value: OrderStatus.OrderStatusDone },
   { label: 'Expired', value: OrderStatus.OrderStatusExpired },
@@ -97,7 +98,6 @@ export default function Filter({
           options={ORDER_STATUS}
           value={filters.status || ''}
           onChange={value => {
-            console.log(value)
             value !== filters.status && updateFilters('status', value)
           }}
         />
