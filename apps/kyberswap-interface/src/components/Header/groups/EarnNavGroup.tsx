@@ -70,7 +70,7 @@ const EarnNavGroup = () => {
             data-testid="earn-pools-explorer-nav-link"
             to={{ pathname: `${APP_PATHS.EARN_POOLS}` }}
             customActive
-            isCustomActive={pathname === APP_PATHS.EARN_POOLS && search !== `?tag=${FilterTag.FARMING_POOL}`}
+            isCustomActive={pathname === APP_PATHS.EARN_POOLS && !search.includes(`tag=${FilterTag.FARMING_POOL}`)}
           >
             <Flex sx={{ gap: '12px' }} alignItems="center">
               <PoolsIcon width={16} height={16} />
@@ -83,7 +83,7 @@ const EarnNavGroup = () => {
             data-testid="earn-farming-pools-nav-link"
             to={{ pathname: `${APP_PATHS.EARN_POOLS}`, search: `tag=${FilterTag.FARMING_POOL}` }}
             customActive
-            isCustomActive={pathname === APP_PATHS.EARN_POOLS && search === `?tag=${FilterTag.FARMING_POOL}`}
+            isCustomActive={pathname === APP_PATHS.EARN_POOLS && search.includes(`tag=${FilterTag.FARMING_POOL}`)}
           >
             <Flex sx={{ gap: '12px' }} alignItems="center">
               <FarmingIcon width={16} height={16} />

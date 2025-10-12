@@ -3,6 +3,8 @@ import { useShallow } from 'zustand/shallow';
 
 import { ChainId, NETWORKS_INFO, PoolType, Theme, defaultTheme } from '@kyber/schema';
 
+import { ZapStatus } from '@/types/index';
+
 interface WidgetProps {
   chainId: ChainId;
   rpcUrl?: string;
@@ -16,6 +18,7 @@ interface WidgetProps {
     address: string | undefined;
     chainId: number;
   };
+  zapStatus?: ZapStatus;
 }
 
 interface WidgetState extends WidgetProps {
@@ -55,6 +58,7 @@ const useWidgetRawStore = create<WidgetState>((set, _get) => ({
     client,
     referral,
     connectedAccount,
+    zapStatus,
   }: WidgetProps) => {
     const themeToApply =
       theme && typeof theme === 'object'
@@ -74,6 +78,7 @@ const useWidgetRawStore = create<WidgetState>((set, _get) => ({
       client,
       referral,
       connectedAccount,
+      zapStatus,
     });
   },
   setWidgetError: (error: string) => set({ widgetError: error }),

@@ -139,7 +139,14 @@ export class BungeeAdapter extends BaseSwapAdapter {
       account,
     })
 
-    return { ...params, sourceTxHash: hash }
+    return {
+      ...params,
+      sourceTxHash: hash,
+      amountInUsd: quote.inputUsd,
+      amountOutUsd: quote.outputUsd,
+      platformFeePercent: quote.platformFeePercent,
+      recipient: quote.quoteParams.recipient,
+    }
   }
   async getTransactionStatus(params: NormalizedTxResponse): Promise<SwapStatus> {
     const response = await fetch(`${BUNGEE_API_BASE_URL}/api/v1/bungee/status?requestHash=${params.id}`)

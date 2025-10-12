@@ -32,6 +32,7 @@ import {
   PositionValueLabel,
   PositionValueWrapper,
 } from 'pages/Earns/UserPositions/styles'
+import AprDetailTooltip from 'pages/Earns/components/AprDetailTooltip'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import RewardSyncing from 'pages/Earns/components/RewardSyncing'
 import { EARN_DEXES, LIMIT_TEXT_STYLES } from 'pages/Earns/constants'
@@ -466,26 +467,17 @@ export default function TableContent({
                       <RewardSyncing width={70} height={19} />
                     ) : (
                       <Flex alignItems={'center'} sx={{ gap: 1 }}>
-                        <MouseoverTooltipDesktopOnly
-                          text={
-                            pool.isFarming ? (
-                              <>
-                                <Text>
-                                  {t`LP Fee`}: {formatAprNumber(position.feeApr['7d'])}%
-                                </Text>
-                                <Text>
-                                  {t`EG Sharing Reward`}: {formatAprNumber(position.kemEGApr['7d'])}%
-                                  <br />
-                                  {t`LM Reward`}: {formatAprNumber(position.kemLMApr['7d'])}%
-                                </Text>
-                              </>
-                            ) : null
-                          }
-                          width="fit-content"
-                          placement="top"
-                        >
-                          <Text color={pool.isFarming ? theme.primary : theme.text}>{formatAprNumber(apr['7d'])}%</Text>
-                        </MouseoverTooltipDesktopOnly>
+                        {pool.isFarming ? (
+                          <AprDetailTooltip
+                            feeApr={position.feeApr['7d']}
+                            egApr={position.kemEGApr['7d']}
+                            lmApr={position.kemLMApr['7d']}
+                          >
+                            <Text color={theme.primary}>{formatAprNumber(apr['7d'])}%</Text>
+                          </AprDetailTooltip>
+                        ) : (
+                          <Text color={theme.text}>{formatAprNumber(apr['7d'])}%</Text>
+                        )}
 
                         {!pool.isFarming &&
                           (!!position.suggestionPool ||

@@ -85,12 +85,10 @@ export default function PoolStat() {
               {isFarming ? (
                 <MouseoverTooltip
                   text={
-                    <div>
-                      LP Fee: {formatAprNumber(pool.stats.apr || 0)}%
-                      <br />
-                      EG Sharing Reward: {formatAprNumber(pool.stats.kemEGApr || 0)}%
-                      <br />
-                      LM Reward: {formatAprNumber(pool.stats.kemLMApr || 0)}%
+                    <div className="flex flex-col gap-0.5">
+                      <div>LP Fees: {formatAprNumber(pool.stats.apr)}%</div>
+                      <div>EG Sharing Reward: {formatAprNumber(pool.stats.kemEGApr)}%</div>
+                      {pool.stats.kemLMApr > 0 && <div>LM Reward: {formatAprNumber(pool.stats.kemLMApr)}%</div>}
                     </div>
                   }
                   placement="top"

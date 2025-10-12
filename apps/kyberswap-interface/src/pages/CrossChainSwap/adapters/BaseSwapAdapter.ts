@@ -114,6 +114,11 @@ export interface NormalizedTxResponse {
   targetTxHash?: string
   timestamp: number
   status?: 'Processing' | 'Success' | 'Failed' | 'Refunded'
+  // Enriched fields for data analysis
+  amountInUsd: number
+  amountOutUsd: number
+  platformFeePercent: number
+  recipient: string
 }
 
 export interface SwapStatus {

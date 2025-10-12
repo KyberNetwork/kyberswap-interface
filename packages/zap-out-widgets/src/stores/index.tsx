@@ -2,30 +2,12 @@ import { createContext, useContext, useEffect, useRef } from 'react';
 
 import { createStore, useStore } from 'zustand';
 
-import { NETWORKS_INFO, PoolType, univ2PoolNormalize, univ3PoolNormalize } from '@kyber/schema';
-import { ChainId, Pool, Position, Theme } from '@kyber/schema';
+import { NETWORKS_INFO, univ2PoolNormalize, univ3PoolNormalize } from '@kyber/schema';
+import { Pool, Position, Theme } from '@kyber/schema';
 import { getPoolInfo, getPoolPrice, getUniv2PositionInfo, getUniv3PositionInfo } from '@kyber/utils';
 
 import { useZapOutUserState } from '@/stores/state';
-
-export interface ZapOutProps {
-  theme?: Theme;
-  chainId: ChainId;
-  rpcUrl?: string;
-  poolAddress: string;
-  poolType: PoolType;
-  positionId: string;
-  connectedAccount: {
-    address?: string | undefined;
-    chainId: number;
-  };
-  onClose: () => void;
-  onConnectWallet: () => void;
-  onSwitchChain: () => void;
-  onSubmitTx: (txData: { from: string; to: string; value: string; data: string; gasLimit: string }) => Promise<string>;
-  source: string;
-  referral?: string;
-}
+import { ZapOutProps } from '@/types/index';
 
 interface ZapOutState extends ZapOutProps {
   theme: Theme;

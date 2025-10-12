@@ -180,6 +180,10 @@ export class XYFinanceAdapter extends BaseSwapAdapter {
         sourceToken: fromToken,
         targetToken: toToken,
         timestamp: new Date().getTime(),
+        amountInUsd: quote.inputUsd,
+        amountOutUsd: quote.outputUsd,
+        platformFeePercent: quote.platformFeePercent,
+        recipient: quote.quoteParams.recipient,
       }
     }
 
