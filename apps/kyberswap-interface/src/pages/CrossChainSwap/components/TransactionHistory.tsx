@@ -22,6 +22,8 @@ import { ExternalLinkIcon, MEDIA_WIDTHS } from 'theme'
 import { getEtherscanLink, shortenHash } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
+import { getChainName } from '../utils'
+
 const PAGE_SIZE = 5
 
 const TableHeader = styled.div`
@@ -118,6 +120,7 @@ export const TransactionHistory = () => {
                       currency: 'USD',
                       fee_percent: tx.platformFeePercent,
                       from_chain: tx.sourceChain,
+                      from_chain_name: getChainName(tx.sourceChain),
                       from_token:
                         tx.sourceChain === NonEvmChain.Bitcoin
                           ? tx.sourceToken.symbol
@@ -125,8 +128,13 @@ export const TransactionHistory = () => {
                           ? (tx.sourceToken as any).id
                           : tx.sourceChain === NonEvmChain.Near
                           ? (tx.sourceToken as any).assetId
-                          : (tx.sourceToken as any)?.address || tx.sourceToken?.symbol,
+                          : (tx.sourceToken as any)?.address ||
+                            (tx.sourceToken as any)?.wrapped?.address ||
+                            tx.sourceToken?.symbol,
+                      from_token_symbol: tx.sourceToken?.symbol,
+                      from_token_decimals: tx.sourceToken?.decimals,
                       to_chain: tx.targetChain,
+                      to_chain_name: getChainName(tx.targetChain),
                       to_token:
                         tx.targetChain === NonEvmChain.Bitcoin
                           ? tx.targetToken.symbol
@@ -134,7 +142,11 @@ export const TransactionHistory = () => {
                           ? (tx.targetToken as any).id
                           : tx.targetChain === NonEvmChain.Near
                           ? (tx.targetToken as any).assetId
-                          : (tx.targetToken as any)?.address || tx.targetToken?.symbol,
+                          : (tx.targetToken as any)?.address ||
+                            (tx.targetToken as any)?.wrapped?.address ||
+                            tx.targetToken?.symbol,
+                      to_token_symbol: tx.targetToken?.symbol,
+                      to_token_decimals: tx.targetToken?.decimals,
                       partner: tx.adapter,
                       platform: 'KyberSwap Cross-Chain',
                       source_tx_hash: tx.sourceTxHash,
