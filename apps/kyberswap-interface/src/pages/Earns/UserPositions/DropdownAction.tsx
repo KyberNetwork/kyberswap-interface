@@ -306,24 +306,22 @@ const DropdownAction = ({
         </DropdownContentItem>
       ) : null}
 
-      {smartExitSupported && (
-        <DropdownContentItem
-          disabled={position.status === PositionStatus.CLOSED}
-          onClick={e => {
-            e.stopPropagation()
-            e.preventDefault()
-            if (hasActiveSmartExitOrder) {
-              navigate(APP_PATHS.EARN_SMART_EXIT)
-              return
-            }
-            if (position.status === PositionStatus.CLOSED) return
-            handleAction(e, onOpenSmartExit)
-          }}
-        >
-          <IconSmartExit width={14} style={{ marginRight: '2px' }} />
-          {hasActiveSmartExitOrder ? <Text>{t`View Smart Exit Orders`}</Text> : <Text>{t`Smart Exit`}</Text>}
-        </DropdownContentItem>
-      )}
+      <DropdownContentItem
+        disabled={!smartExitSupported || position.status === PositionStatus.CLOSED}
+        onClick={e => {
+          e.stopPropagation()
+          e.preventDefault()
+          if (hasActiveSmartExitOrder) {
+            navigate(APP_PATHS.EARN_SMART_EXIT)
+            return
+          }
+          if (position.status === PositionStatus.CLOSED) return
+          handleAction(e, onOpenSmartExit)
+        }}
+      >
+        <IconSmartExit width={14} style={{ marginRight: '2px' }} />
+        {hasActiveSmartExitOrder ? <Text>{t`View Smart Exit Orders`}</Text> : <Text>{t`Smart Exit`}</Text>}
+      </DropdownContentItem>
     </>
   )
 

@@ -105,8 +105,11 @@ export default function DateTimePicker({
   }
 
   const onSelectDefaultOption = useCallback((value: number) => {
-    setDefaultExpire(value)
-    const date = new Date(Date.now() + value * 1000)
+    // value can be either seconds (duration) or timestamp (absolute date in seconds)
+    // If value is greater than a reasonable duration threshold, treat it as a timestamp
+    const isTimestamp = value > 1000000000 // Timestamps in seconds (10+ digits, represents Sep 2001+)
+    if (!isTimestamp) setDefaultExpire(value)
+    const date = isTimestamp ? new Date(value) : new Date(Date.now() + value * 1000)
     setDate(date)
     setHour(date.getHours())
     setMin(date.getMinutes())
@@ -218,11 +221,16 @@ export default function DateTimePicker({
             </Flex>
           </Flex>
         </Flex>
-        <ResultContainer>
+        <ResultContainer
+          style={{
+            backgroundColor: title ? 'transparent' : undefined,
+            border: title ? `1px solid ${theme.primary}` : undefined,
+          }}
+        >
           <Flex alignItems={'center'} color={theme.subText}>
-            <Calendar color={theme.warning} size={17} />
+            <Calendar color={title ? theme.primary : theme.warning} size={17} />
             <Text marginLeft={'5px'}>
-              <Trans>Order will Expire on</Trans>
+              {title ? <Trans>Order will trigger on</Trans> : <Trans>Order will Expire on</Trans>}
             </Text>
           </Flex>
           <Text color={theme.text}>{dayjs(expireResult).format('DD/MM/YYYY HH:mm')}</Text>

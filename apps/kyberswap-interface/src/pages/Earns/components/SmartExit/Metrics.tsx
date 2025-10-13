@@ -124,7 +124,6 @@ export const Metrics = ({
       <Divider my="1rem" />
 
       <DateTimePicker
-        title={<Trans>Time Setup</Trans>}
         isOpen={openDatePicker}
         onDismiss={() => {
           setOpenDatePicker(false)
