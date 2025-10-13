@@ -128,7 +128,9 @@ export const TransactionHistory = () => {
                           ? (tx.sourceToken as any).id
                           : tx.sourceChain === NonEvmChain.Near
                           ? (tx.sourceToken as any).assetId
-                          : (tx.sourceToken as any)?.address || tx.sourceToken?.symbol,
+                          : (tx.sourceToken as any)?.address ||
+                            (tx.sourceToken as any)?.wrapped.address ||
+                            tx.sourceToken?.symbol,
                       from_token_symbol: tx.sourceToken?.symbol,
                       from_token_decimals: tx.sourceToken?.decimals,
                       to_chain: tx.targetChain,
@@ -140,7 +142,9 @@ export const TransactionHistory = () => {
                           ? (tx.targetToken as any).id
                           : tx.targetChain === NonEvmChain.Near
                           ? (tx.targetToken as any).assetId
-                          : (tx.targetToken as any)?.address || tx.targetToken?.symbol,
+                          : (tx.targetToken as any)?.address ||
+                            (tx.targetToken as any)?.wrapped.address ||
+                            tx.targetToken?.symbol,
                       to_token_symbol: tx.targetToken?.symbol,
                       to_token_decimals: tx.targetToken?.decimals,
                       partner: tx.adapter,
