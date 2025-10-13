@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { DEXES_INFO } from '@kyber/schema';
+import { DEXES_INFO, NETWORKS_INFO } from '@kyber/schema';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@kyber/ui';
 import { formatTokenAmount } from '@kyber/utils/number';
 
@@ -58,7 +58,18 @@ export function MigrationSummary() {
               {swapActions.map((item, index) => (
                 <div className="flex-1 text-subText leading-4" key={index}>
                   Swap {item.amountIn} {item.tokenInSymbol} for {item.amountOut} {item.tokenOutSymbol} via{' '}
-                  <span className="font-medium text-text">{item.pool}</span>
+                  {item.poolAddress ? (
+                    <a
+                      href={`${NETWORKS_INFO[chainId].scanLink}/address/${item.poolAddress}`}
+                      className="font-medium text-text"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {item.pool}
+                    </a>
+                  ) : (
+                    <span className="font-medium text-text">{item.pool}</span>
+                  )}
                 </div>
               ))}
             </div>

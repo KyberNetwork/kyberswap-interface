@@ -27,6 +27,7 @@ export default function useZapRoute() {
 
   const token0Address = pool?.token0.address || '';
   const token1Address = pool?.token1.address || '';
+  const poolAddress = pool?.address || '';
   const dexNameObj = poolType ? DEXES_INFO[poolType].name : '';
   const dexName = poolType ? (typeof dexNameObj === 'string' ? dexNameObj : dexNameObj[chainId]) : '';
 
@@ -40,7 +41,7 @@ export default function useZapRoute() {
     zapFee,
     zapImpact,
     swapActions,
-  } = parseZapRoute(route || null, token0Address, token1Address, tokens, dexName);
+  } = parseZapRoute(route || null, token0Address, token1Address, tokens, dexName, poolAddress);
 
   return {
     swapActions,

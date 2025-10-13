@@ -29,6 +29,7 @@ export default function useZapRoute() {
 
   const sourceToken0Address = sourcePool?.token0.address || '';
   const sourceToken1Address = sourcePool?.token1.address || '';
+  const poolAddress = targetPool?.address || '';
   const dexNameObj = targetPoolType ? DEXES_INFO[targetPoolType].name : '';
   const dexName = targetPoolType ? (typeof dexNameObj === 'string' ? dexNameObj : dexNameObj[chainId]) : '';
 
@@ -42,7 +43,7 @@ export default function useZapRoute() {
     zapFee,
     zapImpact,
     swapActions,
-  } = parseZapRoute(route || null, sourceToken0Address, sourceToken1Address, tokens, dexName);
+  } = parseZapRoute(route || null, sourceToken0Address, sourceToken1Address, tokens, dexName, poolAddress);
 
   return {
     addedLiquidity,

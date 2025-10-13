@@ -104,8 +104,13 @@ export const Preview = () => {
           </>
         }
         onClose={() => {
-          if (txStatus === 'success') onClose();
-          setBuildData(undefined);
+          if (txStatus === 'success') {
+            onClose();
+            setBuildData(undefined);
+          } else if (error) {
+            setShowProcessing(false);
+            setError(undefined);
+          }
         }}
       />
     );
