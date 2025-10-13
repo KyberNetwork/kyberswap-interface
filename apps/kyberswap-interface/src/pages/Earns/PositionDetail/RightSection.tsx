@@ -169,7 +169,7 @@ const RightSection = ({
               {initialLoading ? (
                 <PositionSkeleton width={160} height={16} />
               ) : isUnfinalized ? (
-                <PositionSkeleton width={160} height={16} text="Finalizing..." />
+                <PositionSkeleton width={160} height={16} text={t`Finalizing...`} />
               ) : (
                 position && (
                   <>
@@ -223,7 +223,7 @@ const RightSection = ({
                   width={80}
                   height={21}
                   style={{ marginBottom: 8, marginTop: 8 }}
-                  text="Finalizing..."
+                  text={t`Finalizing...`}
                 />
               ) : (
                 <Text fontSize={18} marginBottom={2} marginTop={2}>
@@ -258,7 +258,7 @@ const RightSection = ({
                   width={80}
                   height={21}
                   style={{ marginBottom: 8, marginTop: 8 }}
-                  text="Finalizing..."
+                  text={t`Finalizing...`}
                 />
               ) : (
                 <Text fontSize={18} marginBottom={2} marginTop={2}>

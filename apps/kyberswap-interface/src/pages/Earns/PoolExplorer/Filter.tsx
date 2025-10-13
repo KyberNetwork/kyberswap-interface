@@ -1,4 +1,5 @@
 import { t } from '@lingui/macro'
+import { useLingui } from '@lingui/react'
 import { useMemo } from 'react'
 import { Star } from 'react-feather'
 import { useMedia } from 'react-use'
@@ -27,39 +28,6 @@ export enum FilterTag {
   LOW_VOLATILITY = 'low_volatility',
 }
 
-const filterTags = [
-  {
-    label: 'Farming Pools',
-    value: FilterTag.FARMING_POOL,
-    icon: <IconFarmingPool width={24} />,
-    tooltip: 'No staking is required to earn rewards in these pools',
-  },
-  {
-    label: 'Highlighted Pools',
-    value: FilterTag.HIGHLIGHTED_POOL,
-    icon: <IconHighlightedPool width={20} color="#FF007A" />,
-    tooltip: 'Pools matching your wallet tokens or top volume pools if no wallet is connected',
-  },
-  {
-    label: 'High APR',
-    value: FilterTag.HIGH_APR,
-    icon: <IconHighAprPool width={20} color="#31CB9E" />,
-    tooltip: 'Top 100 Pools with assets that offer exceptionally high APRs',
-  },
-  {
-    label: 'Solid Earning',
-    value: FilterTag.SOLID_EARNING,
-    icon: <IconSolidEarningPool width={20} color="#FBB324" />,
-    tooltip: 'Top 100 pools that have the high total earned fee in the last 7 days',
-  },
-  {
-    label: 'Low Volatility',
-    value: FilterTag.LOW_VOLATILITY,
-    icon: <IconLowVolatility width={20} color="#2C9CE4" />,
-    tooltip: 'Top 100 highest TVL Pools consisting of stable coins or correlated pairs',
-  },
-]
-
 export const timings: MenuOption[] = [
   { label: '24h', value: '24h' },
   { label: '7d', value: '7d' },
@@ -77,11 +45,46 @@ const Filter = ({
   search: string
   setSearch: (value: string) => void
 }) => {
+  const { i18n } = useLingui()
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
   const { supportedDexes, supportedChains } = useSupportedDexesAndChains(filters)
 
-  const memoizedFilterTags = useMemo(() => filterTags, [])
+  const filterTagOptions = useMemo(
+    () => [
+      {
+        label: t`Farming Pools`,
+        value: FilterTag.FARMING_POOL,
+        icon: <IconFarmingPool width={24} />,
+        tooltip: t`No staking is required to earn rewards in these pools`,
+      },
+      {
+        label: t`Highlighted Pools`,
+        value: FilterTag.HIGHLIGHTED_POOL,
+        icon: <IconHighlightedPool width={20} color="#FF007A" />,
+        tooltip: t`Pools matching your wallet tokens or top volume pools if no wallet is connected`,
+      },
+      {
+        label: t`High APR`,
+        value: FilterTag.HIGH_APR,
+        icon: <IconHighAprPool width={20} color="#31CB9E" />,
+        tooltip: t`Top 100 Pools with assets that offer exceptionally high APRs`,
+      },
+      {
+        label: t`Solid Earning`,
+        value: FilterTag.SOLID_EARNING,
+        icon: <IconSolidEarningPool width={20} color="#FBB324" />,
+        tooltip: t`Top 100 pools that have the high total earned fee in the last 7 days`,
+      },
+      {
+        label: t`Low Volatility`,
+        value: FilterTag.LOW_VOLATILITY,
+        icon: <IconLowVolatility width={20} color="#2C9CE4" />,
+        tooltip: t`Top 100 highest TVL Pools consisting of stable coins or correlated pairs`,
+      },
+    ],
+    [i18n.locale],
+  )
 
   const onChainChange = (newChainId: string | number) => {
     updateFilters('chainId', newChainId.toString())
@@ -100,12 +103,12 @@ const Filter = ({
           <Tag active={!filters.tag} role="button" onClick={() => updateFilters('tag', '')}>
             {t`All pools`}
           </Tag>
-          <MouseoverTooltip text="List of pools added as favorite" placement="top" width="fit-content">
+          <MouseoverTooltip text={t`List of pools added as favorite`} placement="top" width="fit-content">
             <Tag active={filters.tag === 'favorite'} role="button" onClick={() => updateFilters('tag', 'favorite')}>
               <Star size={16} />
             </Tag>
           </MouseoverTooltip>
-          {memoizedFilterTags.map((item, index) =>
+          {filterTagOptions.map((item, index) =>
             !upToMedium ? (
               <MouseoverTooltipDesktopOnly text={item.tooltip} placement="top" key={index}>
                 <Tag
