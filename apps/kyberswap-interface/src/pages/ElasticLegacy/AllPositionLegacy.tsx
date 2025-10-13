@@ -146,7 +146,7 @@ const Row = memo(
               <Text fontWeight="500">
                 {unwrappedToken(token0).symbol} - {unwrappedToken(token1).symbol}
               </Text>
-              <FeeTag>Fee {((Number(p.pool?.feeTier) || 0) * 100) / ELASTIC_BASE_FEE_UNIT}%</FeeTag>
+              <FeeTag>{t`Fee` + ` ${((Number(p.pool?.feeTier) || 0) * 100) / ELASTIC_BASE_FEE_UNIT}%`}</FeeTag>
             </Flex>
 
             <RangeBadge hideText removed={p.liquidity === '0'} inRange={!outOfRange} />
@@ -158,10 +158,12 @@ const Row = memo(
               <CopyHelper toCopy={p.pool.id} />
             </Flex>
             <Text>
-              ID:{' '}
-              <Text as="span" color={theme.text}>
-                {p.id}
-              </Text>
+              <Trans>
+                ID:{' '}
+                <Text as="span" color={theme.text}>
+                  {p.id}
+                </Text>
+              </Trans>
             </Text>
           </Flex>
 
@@ -236,7 +238,9 @@ const Row = memo(
                     <Trans>Current Price</Trans>
                   </Text>
                   <Flex color={theme.text} fontWeight="500" alignItems="center" sx={{ gap: '4px' }}>
-                    {price.toSignificant(6)} {unwrappedToken(token1).symbol} per {unwrappedToken(token0).symbol}
+                    <Trans>
+                      {price.toSignificant(6)} {unwrappedToken(token1).symbol} per {unwrappedToken(token0).symbol}
+                    </Trans>
                   </Flex>
                 </Flex>
 
@@ -245,8 +249,10 @@ const Row = memo(
                     <Trans>Min Price</Trans>
                   </Text>
                   <Flex color={theme.text} fontWeight="500" alignItems="center" sx={{ gap: '4px' }}>
-                    {formatTickPrice(priceLower, tickAtLimit, Bound.LOWER)} {unwrappedToken(token1).symbol} per{' '}
-                    {unwrappedToken(token0).symbol}
+                    <Trans>
+                      {formatTickPrice(priceLower, tickAtLimit, Bound.LOWER)} {unwrappedToken(token1).symbol} per{' '}
+                      {unwrappedToken(token0).symbol}
+                    </Trans>
                   </Flex>
                 </Flex>
 
@@ -255,8 +261,10 @@ const Row = memo(
                     <Trans>Max Price</Trans>
                   </Text>
                   <Flex color={theme.text} fontWeight="500" alignItems="center" sx={{ gap: '4px' }}>
-                    {formatTickPrice(priceUpper, tickAtLimit, Bound.UPPER)} {unwrappedToken(token1).symbol} per{' '}
-                    {unwrappedToken(token0).symbol}
+                    <Trans>
+                      {formatTickPrice(priceUpper, tickAtLimit, Bound.UPPER)} {unwrappedToken(token1).symbol} per{' '}
+                      {unwrappedToken(token0).symbol}
+                    </Trans>
                   </Flex>
                 </Flex>
               </OutlineCard>
@@ -271,7 +279,7 @@ const Row = memo(
               disabled={p.liquidity === '0'}
               onClick={() => removeLiquidity(true)}
             >
-              Remove Liquidity
+              <Trans>Remove Liquidity</Trans>
             </ButtonPrimary>
             <ButtonOutlined
               style={{ height: '36px' }}
@@ -280,7 +288,7 @@ const Row = memo(
                 collectFee()
               }}
             >
-              Collect Fees
+              <Trans>Collect Fees</Trans>
             </ButtonOutlined>
           </Flex>
         </Item>
@@ -298,7 +306,7 @@ const Row = memo(
                   onDismiss={handleDismiss}
                   message={removeLiquidityError}
                   confirmText={
-                    removeLiquidityError?.includes('burn amount exceeds balance') ? 'Remove without Fees' : ''
+                    removeLiquidityError?.includes('burn amount exceeds balance') ? t`Remove without fees` : ''
                   }
                   confirmAction={() => {
                     if (removeLiquidityError?.includes('burn amount exceeds balance')) {

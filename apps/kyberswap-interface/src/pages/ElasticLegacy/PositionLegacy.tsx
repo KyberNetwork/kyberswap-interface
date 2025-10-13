@@ -1,3 +1,4 @@
+import { Trans, t } from '@lingui/macro'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -77,11 +78,21 @@ export default function PositionLegacy({ positions }: { positions: SubgraphPosit
     <Wrapper>
       <OverFlow>
         <TableHeader>
-          <Text>NFT ID</Text>
-          <Text>POOLS</Text>
-          <Text>MY LIQUIDITY</Text>
-          <Text>MY FEES EARNED</Text>
-          <Text textAlign="right">ACTION</Text>
+          <Text>
+            <Trans>NFT ID</Trans>
+          </Text>
+          <Text>
+            <Trans>Pools</Trans>
+          </Text>
+          <Text>
+            <Trans>My liquidity</Trans>
+          </Text>
+          <Text>
+            <Trans>My fees earned</Trans>
+          </Text>
+          <Text textAlign="right">
+            <Trans>Action</Trans>
+          </Text>
         </TableHeader>
 
         {positions.map(item => {
@@ -128,7 +139,7 @@ const Row = ({
         <Text color={theme.primary}>
           {unwrappedToken(token0).symbol} - {unwrappedToken(token1).symbol}
         </Text>
-        <FeeTag>Fee {((Number(item.pool?.feeTier) || 0) * 100) / ELASTIC_BASE_FEE_UNIT}%</FeeTag>
+        <FeeTag>{t`Fee` + ` ${((Number(item.pool?.feeTier) || 0) * 100) / ELASTIC_BASE_FEE_UNIT}%`}</FeeTag>
       </Flex>
 
       <Flex alignItems="center" justifyContent="flex-start" width="fit-content">
@@ -174,15 +185,19 @@ const Row = ({
         {item.owner !== account?.toLowerCase() ? (
           <MouseoverTooltip
             placement="top"
-            text="You need to withdraw your deposited liquidity position from the Farm first."
+            text={t`You need to withdraw your deposited liquidity position from the Farm first.`}
           >
             <ButtonPrimary padding="6px 12px" style={{ background: theme.buttonGray, color: theme.border }}>
-              <Text fontSize="12px">Remove Liquidity</Text>
+              <Text fontSize="12px">
+                <Trans>Remove Liquidity</Trans>
+              </Text>
             </ButtonPrimary>
           </MouseoverTooltip>
         ) : (
           <ButtonOutlined padding="6px 12px" width="fit-content" onClick={() => removeLiquidity(true)}>
-            <Text fontSize="12px">Remove Liquidity</Text>
+            <Text fontSize="12px">
+              <Trans>Remove Liquidity</Trans>
+            </Text>
           </ButtonOutlined>
         )}
       </Flex>
@@ -192,14 +207,16 @@ const Row = ({
         onDismiss={handleDismiss}
         hash={txnHash}
         attemptingTxn={attemptingTxn}
-        pendingText={`Removing liquidity`}
+        pendingText={t`Removing liquidity`}
         content={() => (
           <Flex flexDirection={'column'} width="100%">
             {removeLiquidityError ? (
               <TransactionErrorContent
                 onDismiss={handleDismiss}
                 message={removeLiquidityError}
-                confirmText={removeLiquidityError?.includes('burn amount exceeds balance') ? 'Remove without Fees' : ''}
+                confirmText={
+                  removeLiquidityError?.includes('burn amount exceeds balance') ? t`Remove without fees` : ''
+                }
                 confirmAction={() => {
                   if (removeLiquidityError?.includes('burn amount exceeds balance')) {
                     removeLiquidity(false)

@@ -1,4 +1,4 @@
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { Link } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
@@ -40,10 +40,10 @@ const Notice = ({ isFarm }: { isFarm?: boolean }) => {
         </Text>
         , we have permanently paused our{' '}
         <Text as="span" color={theme.text}>
-          Elastic {isFarm ? 'Farms' : 'Pools'} (Legacy)
+          {isFarm ? t`Elastic Farms (Legacy)` : t`Elastic Pools (Legacy)`}
         </Text>
-        . If you wish to participate in our {isFarm ? 'farms' : 'pools'}, check out our new and audited{' '}
-        <Link to={isFarm ? '/farms' : '/pools'}>Elastic {isFarm ? 'Farms' : 'Pools'}</Link>.
+        . If you wish to participate in our {isFarm ? t`farms` : t`pools`}, check out our new and audited{' '}
+        <Link to={isFarm ? '/farms' : '/pools'}>{isFarm ? t`Elastic Farms` : t`Elastic Pools`}</Link>.
       </Trans>
     </Wrapper>
   )
@@ -62,7 +62,7 @@ const WarningNotice = () => {
         </ExternalLink>{' '}
         with our legacy Elastic protocol, we recommend that all liquidity providers withdraw their liquidity from
         Elastic Pools (Legacy). We have fixed all the issues and deployed the new and audited{' '}
-        <Link to="/pools">Elastic Pools</Link> where you can add liquidity normally instead.
+        <Link to="/pools">{t`Elastic Pools`}</Link> where you can add liquidity normally instead.
       </Trans>
     </Warning>
   )
