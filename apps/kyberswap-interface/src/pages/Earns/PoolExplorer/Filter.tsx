@@ -83,6 +83,7 @@ const Filter = ({
         tooltip: t`Top 100 highest TVL Pools consisting of stable coins or correlated pairs`,
       },
     ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [i18n.locale],
   )
 
