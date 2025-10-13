@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import { NETWORKS_INFO } from '@kyber/schema';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@kyber/ui';
 import { formatDisplayNumber, formatTokenAmount } from '@kyber/utils/number';
 
@@ -8,22 +9,21 @@ import { useZapOutContext } from '@/stores';
 import { useZapOutUserState } from '@/stores/state';
 
 export function ZapSummary() {
-  const { pool } = useZapOutContext(s => s);
+  const { pool, chainId } = useZapOutContext(s => s);
   const { tokenOut, mode } = useZapOutUserState();
   const { swapActions, refund, removeLiquidity, earnedFee } = useZapRoute();
-  const { removedAmount0, removedAmount1, token0Address, token1Address } = removeLiquidity;
+  const { removedAmount0, removedAmount1 } = removeLiquidity;
   const { earnedFee0, earnedFee1 } = earnedFee;
 
   const [expanded, setExpanded] = useState(false);
   const onExpand = () => setExpanded(prev => !prev);
 
-  const poolTokens = !pool ? [] : [pool.token0, pool.token1];
-  const token0 = poolTokens.find(item => item.address.toLowerCase() === token0Address.toLowerCase());
-  const token1 = poolTokens.find(item => item.address.toLowerCase() === token1Address.toLowerCase());
-
   if (mode == 'withdrawOnly') {
     return null;
   }
+
+  const token0 = pool?.token0;
+  const token1 = pool?.token1;
 
   return (
     <Accordion type="single" collapsible className="w-full" value={expanded ? 'item-1' : ''}>
@@ -76,7 +76,19 @@ export function ZapSummary() {
                         Swap {formatDisplayNumber(item.amountIn)} {item.tokenInSymbol} for{' '}
                         {formatDisplayNumber(item.amountOut)}{' '}
                       </span>
-                      {item.tokenOutSymbol} via <span className="font-medium text-text">{item.pool}</span>
+                      {item.tokenOutSymbol} via{' '}
+                      {item.poolAddress ? (
+                        <a
+                          href={`${NETWORKS_INFO[chainId].scanLink}/address/${item.poolAddress}`}
+                          className="font-medium text-text"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {item.pool}
+                        </a>
+                      ) : (
+                        <span className="font-medium text-text">{item.pool}</span>
+                      )}
                     </div>
                   </div>
                 ))}

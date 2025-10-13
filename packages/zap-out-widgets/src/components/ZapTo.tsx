@@ -109,7 +109,9 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
               <TokenSymbol symbol={tokenOut?.symbol || ''} maxWidth={80} />
               <DropdownIcon />
             </button>
-            <div className="text-text text-xl font-medium">{refund.refunds[0]?.amount}</div>
+            <div className="text-text text-xl font-medium">
+              {formatDisplayNumber(refund.refunds[0]?.amount, { significantDigits: 8 })}
+            </div>
           </div>
         ) : (
           <>

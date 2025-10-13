@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react';
 import {
   AddLiquidityAction,
   DEXES_INFO,
+  NETWORKS_INFO,
   PoolType,
   RemoveLiquidityAction,
   Token,
@@ -99,7 +100,18 @@ export default function ZapSummary() {
                 </div>
                 <div className="flex-1 text-subText leading-4">
                   Swap {item.amountIn} {item.tokenInSymbol} for {item.amountOut} {item.tokenOutSymbol} via{' '}
-                  <span className="font-medium text-text">{item.pool}</span>
+                  {item.poolAddress ? (
+                    <a
+                      href={`${NETWORKS_INFO[chainId].scanLink}/address/${item.poolAddress}`}
+                      className="font-medium text-text"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {item.pool}
+                    </a>
+                  ) : (
+                    <span className="font-medium text-text">{item.pool}</span>
+                  )}
                 </div>
               </div>
             ))}

@@ -6,7 +6,7 @@ import { useNftApproval } from '@kyber/hooks';
 import { API_URLS, CHAIN_ID_TO_CHAIN, DEXES_INFO, NETWORKS_INFO, defaultToken, univ3Types } from '@kyber/schema';
 import { friendlyError, getNftManagerContractAddress } from '@kyber/utils';
 import { calculateGasMargin, estimateGas } from '@kyber/utils/crypto';
-import { formatDisplayNumber, formatTokenAmount } from '@kyber/utils/number';
+import { formatTokenAmount } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
 import ChevronLeftIcon from '@/assets/svg/chevron-left.svg';
@@ -121,16 +121,12 @@ export default function Widget() {
                 tokensIn: [
                   {
                     symbol: pool.token0.symbol,
-                    amount: formatDisplayNumber(formatTokenAmount(position.amount0, pool.token0.decimals, 6), {
-                      significantDigits: 6,
-                    }),
+                    amount: formatTokenAmount(position.amount0, pool.token0.decimals, 6),
                     logoUrl: pool.token0.logo,
                   },
                   {
                     symbol: pool.token1.symbol,
-                    amount: formatDisplayNumber(formatTokenAmount(position.amount1, pool.token1.decimals, 6), {
-                      significantDigits: 6,
-                    }),
+                    amount: formatTokenAmount(position.amount1, pool.token1.decimals, 6),
                     logoUrl: pool.token1.logo,
                   },
                 ],

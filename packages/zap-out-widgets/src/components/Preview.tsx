@@ -104,8 +104,13 @@ export const Preview = () => {
           </>
         }
         onClose={() => {
-          if (txStatus === 'success') onClose();
-          setBuildData(undefined);
+          if (txStatus === 'success') {
+            onClose();
+            setBuildData(undefined);
+          } else if (error) {
+            setShowProcessing(false);
+            setError(undefined);
+          }
         }}
       />
     );
@@ -162,18 +167,21 @@ export const Preview = () => {
               : [
                   {
                     symbol: pool.token0.symbol,
-                    amount: formatDisplayNumber(
-                      formatTokenAmount(removeLiquidity.removedAmount0 + earnedFee.earnedFee0, pool.token0.decimals),
-                      { significantDigits: 6 },
+                    amount: formatTokenAmount(
+                      removeLiquidity.removedAmount0 + earnedFee.earnedFee0,
+                      pool.token0.decimals,
+                      6,
                     ),
                     logoUrl: pool.token0.logo,
                   },
                   {
                     symbol: pool.token1.symbol,
-                    amount: formatDisplayNumber(
-                      formatTokenAmount(removeLiquidity.removedAmount1 + earnedFee.earnedFee1, pool.token1.decimals),
-                      { significantDigits: 6 },
+                    amount: formatTokenAmount(
+                      removeLiquidity.removedAmount1 + earnedFee.earnedFee1,
+                      pool.token1.decimals,
+                      6,
                     ),
+
                     logoUrl: pool.token1.logo,
                   },
                 ],
@@ -217,7 +225,8 @@ export const Preview = () => {
               <div className="flex mt-3 text-base items-center">
                 <TokenLogo src={tokenOut.logo} size={20} alt={tokenOut.symbol} />
                 <div className="ml-1 flex items-center gap-1">
-                  {refund.refunds[0]?.amount || 0} <TokenSymbol symbol={tokenOut.symbol} maxWidth={80} />
+                  {formatDisplayNumber(refund.refunds[0]?.amount, { significantDigits: 8 })}{' '}
+                  <TokenSymbol symbol={tokenOut.symbol} maxWidth={80} />
                 </div>
                 <div className="ml-2 text-subText">~{formatCurrency(refund.value)}</div>
               </div>

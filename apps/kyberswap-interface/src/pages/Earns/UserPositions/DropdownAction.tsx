@@ -1,5 +1,5 @@
 import { t } from '@lingui/macro'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Minus, MoreVertical, Plus } from 'react-feather'
 import { useMedia } from 'react-use'
@@ -52,6 +52,7 @@ const DropdownContent = styled.div`
   gap: 4px;
   z-index: 1000;
   box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.1);
+  will-change: top, left;
 `
 
 const DropdownContentItem = styled.div<{ disabled?: boolean }>`
@@ -138,28 +139,64 @@ const DropdownAction = ({
   const [open, setOpen] = useState(false)
   const [portalPosition, setPortalPosition] = useState({ top: 0, left: 0 })
   const ref = useRef<HTMLDivElement>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
+  const tickingRef = useRef(false)
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
 
-  const updatePortalPosition = () => {
+  const updatePortalPosition = useCallback(() => {
     if (!ref.current) return
     const rect = ref.current.getBoundingClientRect()
-    setPortalPosition({
-      top: rect.bottom + 5,
-      left: rect.right - 200,
+    const margin = 3
+    const upwardGapAdjustment = 10
+    const viewportWidth = window.innerWidth
+    const viewportHeight = window.innerHeight
+
+    const menuWidth = contentRef.current?.offsetWidth ?? 200
+    const menuHeight = contentRef.current?.offsetHeight ?? 0
+
+    const diagonalHorizontalOffset = 22
+    let left = rect.right - menuWidth - diagonalHorizontalOffset
+    if (left < margin) left = margin
+    if (left + menuWidth > viewportWidth - margin) left = Math.max(viewportWidth - menuWidth - margin, margin)
+
+    const spaceAbove = rect.top - margin
+    const spaceBelow = viewportHeight - rect.bottom - margin
+    const preferUpward = spaceAbove > spaceBelow + 22
+
+    let top = rect.bottom + margin
+    const willOverflowBottom = top + menuHeight > viewportHeight - margin
+    const canOpenUp = spaceAbove >= margin
+    if ((willOverflowBottom && canOpenUp) || (preferUpward && canOpenUp)) {
+      const effectiveGap = Math.max(margin - upwardGapAdjustment, -7)
+      top = Math.max(rect.top - menuHeight - effectiveGap, margin)
+    } else if (willOverflowBottom) {
+      top = Math.max(viewportHeight - menuHeight - margin, margin)
+    }
+
+    setPortalPosition(prev => (prev.top === top && prev.left === left ? prev : { top, left }))
+  }, [])
+
+  const scheduleUpdatePosition = useCallback(() => {
+    if (tickingRef.current) return
+    tickingRef.current = true
+    requestAnimationFrame(() => {
+      updatePortalPosition()
+      tickingRef.current = false
     })
-  }
+  }, [updatePortalPosition])
 
   useEffect(() => {
     if (open) {
-      updatePortalPosition()
-      window.addEventListener('scroll', updatePortalPosition, true)
-      window.addEventListener('resize', updatePortalPosition)
+      requestAnimationFrame(() => updatePortalPosition())
+      const options = { capture: true, passive: true } as AddEventListenerOptions
+      window.addEventListener('scroll', scheduleUpdatePosition, options)
+      window.addEventListener('resize', scheduleUpdatePosition, options)
     }
     return () => {
-      window.removeEventListener('scroll', updatePortalPosition, true)
-      window.removeEventListener('resize', updatePortalPosition)
+      window.removeEventListener('scroll', scheduleUpdatePosition, true)
+      window.removeEventListener('resize', scheduleUpdatePosition, true)
     }
-  }, [open])
+  }, [open, scheduleUpdatePosition, updatePortalPosition])
 
   const handleOpenChange = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -266,7 +303,7 @@ const DropdownAction = ({
       {!upToExtraSmall &&
         open &&
         createPortal(
-          <DropdownContent style={portalPosition} data-dropdown-content>
+          <DropdownContent ref={contentRef} style={portalPosition} data-dropdown-content>
             {renderActionItems()}
           </DropdownContent>,
           document.body,
