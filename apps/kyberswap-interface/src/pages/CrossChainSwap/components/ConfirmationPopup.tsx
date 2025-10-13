@@ -253,7 +253,7 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
             ? (currencyIn as any).id
             : fromChainId === NonEvmChain.Near
             ? (currencyIn as any).assetId
-            : (currencyIn as any)?.address || (currencyIn as any)?.wrapped.address || currencyIn?.symbol,
+            : (currencyIn as any)?.address || (currencyIn as any)?.wrapped?.address || currencyIn?.symbol,
         from_token_symbol: currencyIn?.symbol,
         from_token_decimals: currencyIn?.decimals,
         to_chain: toChainId,
@@ -265,7 +265,7 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
             ? (currencyOut as any).id
             : toChainId === NonEvmChain.Near
             ? (currencyOut as any).assetId
-            : (currencyOut as any)?.address || (currencyOut as any)?.wrapped.address || currencyOut?.symbol,
+            : (currencyOut as any)?.address || (currencyOut as any)?.wrapped?.address || currencyOut?.symbol,
         to_token_symbol: currencyOut?.symbol,
         to_token_decimals: currencyOut?.decimals,
         partner: selectedQuote.adapter.getName(),
