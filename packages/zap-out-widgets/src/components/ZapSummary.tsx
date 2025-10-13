@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import { NETWORKS_INFO } from '@kyber/schema';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@kyber/ui';
 import { formatDisplayNumber, formatTokenAmount } from '@kyber/utils/number';
 
@@ -8,7 +9,7 @@ import { useZapOutContext } from '@/stores';
 import { useZapOutUserState } from '@/stores/state';
 
 export function ZapSummary() {
-  const { pool } = useZapOutContext(s => s);
+  const { pool, chainId } = useZapOutContext(s => s);
   const { tokenOut, mode } = useZapOutUserState();
   const { swapActions, refund, removeLiquidity, earnedFee } = useZapRoute();
   const { removedAmount0, removedAmount1 } = removeLiquidity;
@@ -75,7 +76,19 @@ export function ZapSummary() {
                         Swap {formatDisplayNumber(item.amountIn)} {item.tokenInSymbol} for{' '}
                         {formatDisplayNumber(item.amountOut)}{' '}
                       </span>
-                      {item.tokenOutSymbol} via <span className="font-medium text-text">{item.pool}</span>
+                      {item.tokenOutSymbol} via{' '}
+                      {item.poolAddress ? (
+                        <a
+                          href={`${NETWORKS_INFO[chainId].scanLink}/address/${item.poolAddress}`}
+                          className="font-medium text-text"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {item.pool}
+                        </a>
+                      ) : (
+                        <span className="font-medium text-text">{item.pool}</span>
+                      )}
                     </div>
                   </div>
                 ))}
