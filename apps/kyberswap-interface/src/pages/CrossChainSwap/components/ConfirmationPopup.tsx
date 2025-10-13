@@ -27,6 +27,7 @@ import { formatDisplayNumber } from 'utils/numbers'
 
 import { Chain, Currency, NonEvmChain, NonEvmChainInfo } from '../adapters'
 import { useCrossChainSwap } from '../hooks/useCrossChainSwap'
+import { getChainName } from '../utils'
 import { PiWarning } from './PiWarning'
 import { Tag } from './QuoteSelector'
 import { Summary } from './Summary'
@@ -244,6 +245,7 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
         currency: 'USD',
         fee_percent: selectedQuote.quote.platformFeePercent,
         from_chain: fromChainId,
+        from_chain_name: getChainName(fromChainId),
         from_token:
           fromChainId === NonEvmChain.Bitcoin
             ? currencyIn.symbol
@@ -251,8 +253,11 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
             ? (currencyIn as any).id
             : fromChainId === NonEvmChain.Near
             ? (currencyIn as any).assetId
-            : (currencyIn as any)?.address || currencyIn?.symbol,
+            : (currencyIn as any)?.address || (currencyIn as any)?.wrapped?.address || currencyIn?.symbol,
+        from_token_symbol: currencyIn?.symbol,
+        from_token_decimals: currencyIn?.decimals,
         to_chain: toChainId,
+        to_chain_name: getChainName(toChainId),
         to_token:
           toChainId === NonEvmChain.Bitcoin
             ? currencyOut.symbol
@@ -260,7 +265,9 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
             ? (currencyOut as any).id
             : toChainId === NonEvmChain.Near
             ? (currencyOut as any).assetId
-            : (currencyOut as any)?.address || currencyOut?.symbol,
+            : (currencyOut as any)?.address || (currencyOut as any)?.wrapped?.address || currencyOut?.symbol,
+        to_token_symbol: currencyOut?.symbol,
+        to_token_decimals: currencyOut?.decimals,
         partner: selectedQuote.adapter.getName(),
         platform: 'KyberSwap Cross-Chain',
         source_tx_hash: res.sourceTxHash,
