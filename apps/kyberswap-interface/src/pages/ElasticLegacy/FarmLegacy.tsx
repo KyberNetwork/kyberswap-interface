@@ -285,7 +285,9 @@ export default function FarmLegacy({
                 <Text color={theme.primary}>
                   {token0.symbol} - {token1.symbol}
                 </Text>
-                <FeeTag>{t`Fee` + ` ${((Number(item.pool?.feeTier) || 0) * 100) / ELASTIC_BASE_FEE_UNIT}%`}</FeeTag>
+                <FeeTag>
+                  <Trans>Fee {((Number(item.pool?.feeTier) || 0) * 100) / ELASTIC_BASE_FEE_UNIT}%</Trans>
+                </FeeTag>
               </Flex>
               <Flex alignItems="center" justifyContent="flex-start" width="fit-content">
                 <MouseoverTooltip

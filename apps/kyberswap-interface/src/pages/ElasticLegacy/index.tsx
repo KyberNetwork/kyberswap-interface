@@ -40,10 +40,10 @@ const Notice = ({ isFarm }: { isFarm?: boolean }) => {
         </Text>
         , we have permanently paused our{' '}
         <Text as="span" color={theme.text}>
-          {isFarm ? t`Elastic Farms (Legacy)` : t`Elastic Pools (Legacy)`}
+          Elastic {isFarm ? 'Farms' : 'Pools'} (Legacy)
         </Text>
-        . If you wish to participate in our {isFarm ? t`farms` : t`pools`}, check out our new and audited{' '}
-        <Link to={isFarm ? '/farms' : '/pools'}>{isFarm ? t`Elastic Farms` : t`Elastic Pools`}</Link>.
+        . If you wish to participate in our {isFarm ? 'farms' : 'pools'}, check out our new and audited{' '}
+        <Link to={isFarm ? '/farms' : '/pools'}>Elastic {isFarm ? 'Farms' : 'Pools'}</Link>.
       </Trans>
     </Wrapper>
   )

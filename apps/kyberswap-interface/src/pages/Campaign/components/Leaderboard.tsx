@@ -171,7 +171,7 @@ export default function Leaderboard({
       {!isLoading &&
         (campaign === 'referral-program' ? !referralData?.data.referrals.length : !data?.data?.leaderBoards.length) && (
           <Text color={theme.subText} textAlign="center" padding="24px" marginTop="24px">
-            <Trans>No data found</Trans>
+            {t`No data found`}
           </Text>
         )}
 

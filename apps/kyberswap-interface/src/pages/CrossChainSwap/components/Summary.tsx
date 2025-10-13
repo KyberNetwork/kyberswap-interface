@@ -97,7 +97,7 @@ export const Summary = ({ quote, tokenOut, full }: { quote?: Quote; tokenOut?: C
 
       {quote && quote.quote.protocolFee > 0 && (
         <Flex justifyContent="space-between">
-          <MouseoverTooltip text={t`Additional fee charged by ` + `${quote.adapter.getName()}`}>
+          <MouseoverTooltip text={<Trans>Additional fee charged by {quote.adapter.getName()}</Trans>}>
             <Text color={theme.subText} sx={{ borderBottom: `1px dotted ${theme.border}` }}>
               {t`Protocol Fee`}
             </Text>

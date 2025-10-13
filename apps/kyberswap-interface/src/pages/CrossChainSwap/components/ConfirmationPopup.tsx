@@ -402,7 +402,7 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
             <PiWarning />
 
             <Text marginY="1rem" fontStyle="italic" color={'#737373'} fontSize={12} display="flex" alignItems="center">
-              {t`Routed via`} {selectedQuote.adapter.getName()}
+              <Trans>Routed via {selectedQuote.adapter.getName()}</Trans>
               {selectedQuote.adapter.getName() === 'Optimex' && <Tag>{t`Beta`}</Tag>}
             </Text>
 

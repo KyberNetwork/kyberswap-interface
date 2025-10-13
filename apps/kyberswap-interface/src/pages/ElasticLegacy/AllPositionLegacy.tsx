@@ -146,7 +146,9 @@ const Row = memo(
               <Text fontWeight="500">
                 {unwrappedToken(token0).symbol} - {unwrappedToken(token1).symbol}
               </Text>
-              <FeeTag>{t`Fee` + ` ${((Number(p.pool?.feeTier) || 0) * 100) / ELASTIC_BASE_FEE_UNIT}%`}</FeeTag>
+              <FeeTag>
+                <Trans>Fee {((Number(p.pool?.feeTier) || 0) * 100) / ELASTIC_BASE_FEE_UNIT}%</Trans>
+              </FeeTag>
             </Flex>
 
             <RangeBadge hideText removed={p.liquidity === '0'} inRange={!outOfRange} />
