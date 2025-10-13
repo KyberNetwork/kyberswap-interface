@@ -63,3 +63,8 @@ export function isCanonicalPair(chainId0: number, address0: string, chainId1: nu
 
   return false
 }
+
+export const getChainName = (chainId: ChainId | NonEvmChain) => {
+  if (isEvmChain(chainId)) return NETWORKS_INFO[chainId as ChainId].name
+  return NonEvmChainInfo[chainId as NonEvmChain].name
+}
