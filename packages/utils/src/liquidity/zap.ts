@@ -179,6 +179,7 @@ export const parseZapRoute = (
   token1Address: string,
   tokens: Token[],
   dexName: string,
+  poolAddress: string,
 ) => {
   if (!route || !token0Address || !token1Address) return defaultZapRoute;
 
@@ -192,7 +193,7 @@ export const parseZapRoute = (
   const refund = parseRefund(route, tokens);
   const zapFee = parseZapFee(route);
   const zapImpact = parseZapImpact(route.zapDetails.priceImpact, suggestedSlippage);
-  const swapActions = parseSwapActions(route, tokens, dexName);
+  const swapActions = parseSwapActions(route, tokens, dexName, poolAddress);
 
   return {
     addedLiquidity,
@@ -260,10 +261,10 @@ const parseEarnedFee = (route: ZapRouteDetail, token0Address: string, token1Addr
     | RemoveLiquidityAction
     | undefined;
 
-  const token0 = actionRemoveLiquidity?.removeLiquidity.tokens.find(
+  const token0 = actionRemoveLiquidity?.removeLiquidity.fees?.find(
     item => item.address.toLowerCase() === token0Address.toLowerCase(),
   );
-  const token1 = actionRemoveLiquidity?.removeLiquidity.tokens.find(
+  const token1 = actionRemoveLiquidity?.removeLiquidity.fees?.find(
     item => item.address.toLowerCase() === token1Address.toLowerCase(),
   );
 
@@ -341,7 +342,7 @@ const parseZapImpact = (pi: number | null | undefined, suggestedSlippage: number
   };
 };
 
-const parseSwapActions = (route: ZapRouteDetail, tokens: Token[], dexName: string) => {
+const parseSwapActions = (route: ZapRouteDetail, tokens: Token[], dexName: string, poolAddress: string) => {
   const aggregatorSwapInfo = route?.zapDetails.actions.find(
     item => item.type === ZapAction.AGGREGATOR_SWAP,
   ) as AggregatorSwapAction | null;
@@ -363,6 +364,7 @@ const parseSwapActions = (route: ZapRouteDetail, tokens: Token[], dexName: strin
         amountIn,
         amountOut,
         pool: 'KyberSwap',
+        poolAddress: '',
       };
     }) || [];
 
@@ -373,12 +375,18 @@ const parseSwapActions = (route: ZapRouteDetail, tokens: Token[], dexName: strin
       const amountIn = formatUnits(item.tokenIn.amount, tokenIn?.decimals);
       const amountOut = formatUnits(item.tokenOut.amount, tokenOut?.decimals);
 
+      const displayPool =
+        item.poolAddress && poolAddress && item.poolAddress !== poolAddress
+          ? `${tokenIn?.symbol}-${tokenOut?.symbol}`
+          : dexName;
+
       return {
         tokenInSymbol: tokenIn?.symbol || '--',
         tokenOutSymbol: tokenOut?.symbol || '--',
         amountIn,
         amountOut,
-        pool: `${dexName} Pool`,
+        pool: `${displayPool} Pool`,
+        poolAddress: item.poolAddress || '',
       };
     }) || [];
 

@@ -96,6 +96,7 @@ export const parseSwapActions = ({
         amountIn,
         amountOut,
         pool: 'KyberSwap',
+        poolAddress: '',
       };
     }) || [];
 
@@ -117,6 +118,7 @@ export const parseSwapActions = ({
         amountIn,
         amountOut,
         pool: `${displayPool} Pool`,
+        poolAddress: item.poolAddress || '',
       };
     }) || [];
 
