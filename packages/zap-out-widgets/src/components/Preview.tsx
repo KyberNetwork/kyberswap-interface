@@ -220,7 +220,8 @@ export const Preview = () => {
               <div className="flex mt-3 text-base items-center">
                 <TokenLogo src={tokenOut.logo} size={20} alt={tokenOut.symbol} />
                 <div className="ml-1 flex items-center gap-1">
-                  {refund.refunds[0]?.amount || 0} <TokenSymbol symbol={tokenOut.symbol} maxWidth={80} />
+                  {formatDisplayNumber(refund.refunds[0]?.amount, { significantDigits: 8 })}{' '}
+                  <TokenSymbol symbol={tokenOut.symbol} maxWidth={80} />
                 </div>
                 <div className="ml-2 text-subText">~{formatCurrency(refund.value)}</div>
               </div>

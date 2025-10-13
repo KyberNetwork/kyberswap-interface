@@ -90,7 +90,8 @@ export default function Estimated() {
             ) : (
               <div className="flex items-center gap-1">
                 <TokenLogo src={tokenOut?.logo} size={16} />
-                {refund.refunds[0]?.amount} <TokenSymbol symbol={tokenOut?.symbol || ''} maxWidth={40} />
+                {formatDisplayNumber(refund.refunds[0]?.amount, { significantDigits: 8 })}{' '}
+                <TokenSymbol symbol={tokenOut?.symbol || ''} maxWidth={40} />
               </div>
             )}
           </div>
