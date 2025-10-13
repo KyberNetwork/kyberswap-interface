@@ -59,6 +59,15 @@ export enum SmartExitState {
   ERROR = 'error',
 }
 
+export const DexMapping: Record<string, string> = {
+  [Exchange.DEX_UNISWAPV3]: DexType.DexTypeUniswapV3,
+  [Exchange.DEX_UNISWAP_V4]: DexType.DexTypeUniswapV4,
+  [Exchange.DEX_UNISWAP_V4_FAIRFLOW]: DexType.DexTypeUniswapV4FairFlow,
+  [Exchange.DEX_PANCAKESWAPV3]: DexType.DexTypePancakeV3,
+  [Exchange.DEX_PANCAKE_INFINITY_CL]: DexType.DexTypePancakeInfinityCL,
+  [Exchange.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: DexType.DexTypePancakeInfinityCLFairFlow,
+}
+
 // Position Manager ABI for liquidity fetching
 const POSITION_MANAGER_ABI = [
   'function positions(uint256 tokenId) view returns (uint96 nonce, address operator, address token0, address token1, uint24 fee, int24 tickLower, int24 tickUpper, uint128 liquidity, uint256 feeGrowthInside0LastX128, uint256 feeGrowthInside1LastX128, uint128 tokensOwed0, uint128 tokensOwed1)', // V3
@@ -85,15 +94,7 @@ export const useSmartExit = ({
 
   const getDexType = useCallback((dexId: string) => {
     // Map dex IDs to API format
-    const dexMapping: Record<string, string> = {
-      [Exchange.DEX_UNISWAPV3]: DexType.DexTypeUniswapV3,
-      [Exchange.DEX_UNISWAP_V4]: DexType.DexTypeUniswapV4,
-      [Exchange.DEX_UNISWAP_V4_FAIRFLOW]: DexType.DexTypeUniswapV4FairFlow,
-      [Exchange.DEX_PANCAKESWAPV3]: DexType.DexTypePancakeV3,
-      [Exchange.DEX_PANCAKE_INFINITY_CL]: DexType.DexTypePancakeInfinityCL,
-      [Exchange.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: DexType.DexTypePancakeInfinityCLFairFlow,
-    }
-    return dexMapping[dexId] || dexId
+    return DexMapping[dexId] || dexId
   }, [])
 
   // Detect version from dex type

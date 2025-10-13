@@ -2,6 +2,7 @@ import { t } from '@lingui/macro'
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Minus, MoreVertical, Plus } from 'react-feather'
+import { useNavigate } from 'react-router'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import styled from 'styled-components'
@@ -11,9 +12,12 @@ import { ReactComponent as IconClaimFees } from 'assets/svg/earn/ic_earn_claim_f
 import { ReactComponent as IconReposition } from 'assets/svg/earn/ic_reposition.svg'
 import { ReactComponent as IconSmartExit } from 'assets/svg/smart_exit.svg'
 import Loader from 'components/Loader'
+import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { ParsedPosition, PositionStatus } from 'pages/Earns/types'
 import { MEDIA_WIDTHS } from 'theme'
+
+import { DexMapping } from '../components/SmartExit/useSmartExit'
 
 const DropdownWrapper = styled.div`
   position: relative;
@@ -118,6 +122,7 @@ const DropdownAction = ({
   onOpenReposition,
   claimFees: { onClaimFee, feesClaimDisabled, feesClaiming, positionThatClaimingFees },
   claimRewards: { onClaimRewards, rewardsClaimDisabled, rewardsClaiming, positionThatClaimingRewards },
+  hasActiveSmartExitOrder,
 }: {
   position: ParsedPosition
   onOpenIncreaseLiquidityWidget: (e: React.MouseEvent, position: ParsedPosition) => void
@@ -136,12 +141,15 @@ const DropdownAction = ({
     rewardsClaiming: boolean
     positionThatClaimingRewards: ParsedPosition | null
   }
+  hasActiveSmartExitOrder: boolean
 }) => {
   const theme = useTheme()
   const [open, setOpen] = useState(false)
   const [portalPosition, setPortalPosition] = useState({ top: 0, left: 0 })
   const ref = useRef<HTMLDivElement>(null)
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
+
+  const navigate = useNavigate()
 
   const updatePortalPosition = () => {
     if (!ref.current) return
@@ -190,6 +198,8 @@ const DropdownAction = ({
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [ref])
+
+  const smartExitSupported = Object.keys(DexMapping).includes(position.dex.id)
 
   const renderActionItems = () => (
     <>
@@ -258,17 +268,25 @@ const DropdownAction = ({
           <Text>{t`Reposition`}</Text>
         </DropdownContentItem>
       ) : null}
-      <DropdownContentItem
-        disabled={position.status === PositionStatus.CLOSED}
-        onClick={e => {
-          e.stopPropagation()
-          if (position.status === PositionStatus.CLOSED) return
-          handleAction(e, onOpenSmartExit)
-        }}
-      >
-        <IconSmartExit width={14} style={{ marginRight: '2px' }} />
-        <Text>{t`Smart Exit`}</Text>
-      </DropdownContentItem>
+
+      {smartExitSupported && (
+        <DropdownContentItem
+          disabled={position.status === PositionStatus.CLOSED}
+          onClick={e => {
+            e.stopPropagation()
+            e.preventDefault()
+            if (hasActiveSmartExitOrder) {
+              navigate(APP_PATHS.EARN_SMART_EXIT)
+              return
+            }
+            if (position.status === PositionStatus.CLOSED) return
+            handleAction(e, onOpenSmartExit)
+          }}
+        >
+          <IconSmartExit width={14} style={{ marginRight: '2px' }} />
+          {hasActiveSmartExitOrder ? <Text>{t`View Smart Exit Orders`}</Text> : <Text>{t`Smart Exit`}</Text>}
+        </DropdownContentItem>
+      )}
     </>
   )
 

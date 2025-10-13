@@ -372,7 +372,9 @@ const SmartExit = () => {
                   ? 'Active'
                   : order.status === OrderStatus.OrderStatusDone
                   ? 'Executed'
-                  : order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                  : order.status === OrderStatus.OrderStatusCancelled
+                  ? 'Cancelled'
+                  : order.status}
               </Badge>
             )
 

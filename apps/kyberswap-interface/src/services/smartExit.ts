@@ -51,21 +51,30 @@ const smartExitApi = createApi({
         dexTypes?: string
         page?: number
         pageSize?: number
+        positionIds?: string[]
       }
     >({
-      query: ({ chainIds, dexTypes, userWallet, status, page = 1, pageSize = 10 }) => ({
-        url: '/v1/orders/smart-exit',
-        params: {
+      query: ({ chainIds, dexTypes, userWallet, status, page = 1, pageSize = 10, positionIds }) => {
+        const params = new URLSearchParams({
           userWallet,
-          ...(status && { status }),
-          ...(dexTypes && { dexTypes }),
-          ...(chainIds && { chainIds }),
-          page,
-          pageSize,
-        },
-      }),
+          page: page.toString(),
+          pageSize: pageSize.toString(),
+        })
+
+        if (status) params.append('status', status)
+        if (dexTypes) params.append('dexTypes', dexTypes)
+        if (chainIds) params.append('chainIds', chainIds)
+
+        // Handle array by appending each value separately
+        if (positionIds) {
+          positionIds.forEach(id => params.append('positionIds', id))
+        }
+
+        return {
+          url: `/v1/orders/smart-exit?${params.toString()}`,
+        }
+      },
       transformResponse: (data: any) => {
-        console.log(data)
         const orders = data?.data?.orders || []
         const totalItems = data?.data?.pagination?.totalItems || orders.length
 
