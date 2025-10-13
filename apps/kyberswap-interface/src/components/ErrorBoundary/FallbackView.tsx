@@ -138,7 +138,7 @@ const FallbackView: React.FC<Props> = ({ error }) => {
               window.location.reload()
             }}
           >
-            Refresh
+            <Trans>Refresh</Trans>
           </ButtonPrimary>
         </AutoColumn>
       </BodyWrapper>

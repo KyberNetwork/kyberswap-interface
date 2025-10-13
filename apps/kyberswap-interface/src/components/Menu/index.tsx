@@ -343,7 +343,9 @@ export default function Menu() {
                   }}
                 >
                   <PieChart />
-                  <Text>Market</Text>
+                  <Text>
+                    <Trans>Market</Trans>
+                  </Text>
                 </MenuItem>
               </NavLink>
             )}
@@ -355,15 +357,15 @@ export default function Menu() {
                     icon={<VoteIcon />}
                     title={
                       <Text sx={{ position: 'relative' }} width="max-content">
-                        KyberDAO
+                        <Trans>KyberDAO</Trans>
                       </Text>
                     }
                     link={'/campaigns'}
                     options={[
-                      { link: APP_PATHS.KYBERDAO_STAKE, label: 'Stake KNC' },
-                      { link: APP_PATHS.KYBERDAO_VOTE, label: 'Vote' },
-                      { link: APP_PATHS.KYBERDAO_KNC_UTILITY, label: 'KNC Utility' },
-                      { link: 'https://discord.gg/cqwvAuYp3H', label: 'Feature Request', external: true },
+                      { link: APP_PATHS.KYBERDAO_STAKE, label: t`Stake KNC` },
+                      { link: APP_PATHS.KYBERDAO_VOTE, label: t`Vote` },
+                      { link: APP_PATHS.KYBERDAO_KNC_UTILITY, label: t`KNC Utility` },
+                      { link: 'https://discord.gg/cqwvAuYp3H', label: t`Feature Request`, external: true },
                     ]}
                   />
                 </MenuItem>
@@ -520,7 +522,10 @@ export default function Menu() {
               >
                 <Trans>KyberSwap Guide</Trans>
                 <Row justify="flex-end">
-                  <Text color={theme.text}>View</Text>&nbsp;
+                  <Text color={theme.text}>
+                    <Trans>View</Trans>
+                  </Text>
+                  &nbsp;
                   <LightIcon color={theme.text} />
                 </Row>
               </NavLinkBetween>

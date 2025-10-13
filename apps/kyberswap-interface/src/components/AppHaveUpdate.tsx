@@ -49,7 +49,7 @@ const AppHaveUpdate = () => {
         style={{ width: 'fit-content', padding: '8px 20px', margin: 'auto', marginTop: '1rem' }}
         onClick={updateServiceWorker}
       >
-        Reload
+        <Trans>Reload</Trans>
       </ButtonPrimary>
     </Wrapper>
   )
