@@ -1,4 +1,5 @@
 import { ChainId, CurrencyAmount, Currency as EvmCurrency } from '@kyberswap/ks-sdk-core'
+import { Trans, t } from '@lingui/macro'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
 import { adaptSolanaWallet } from '@reservoir0x/relay-solana-wallet-adapter'
 import { useConnection, useWallet } from '@solana/wallet-adapter-react'
@@ -307,7 +308,11 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
           : getEtherscanLink(fromChainId, txHash, 'transaction')
       }
       attemptingTxn={submittingTx}
-      pendingText={`Swapping ${currencyIn?.symbol} for ${currencyOut?.symbol}`}
+      pendingText={
+        <Trans>
+          Swapping {currencyIn?.symbol ?? ''} for {currencyOut?.symbol ?? ''}
+        </Trans>
+      }
       content={() => {
         if (txError) {
           return <TransactionErrorContent message={txError} onDismiss={dismiss} />
@@ -316,17 +321,17 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
           <Wrapper>
             <Flex justifyContent="space-between" alignItems="center" mb="0.75rem">
               <Text fontSize={20} fontWeight="500">
-                Confirm Swap Details
+                {t`Confirm Swap Details`}
               </Text>
               <ButtonEmpty width="fit-content" padding="0" onClick={onDismiss}>
                 <X size={20} color={theme.text} />
               </ButtonEmpty>
             </Flex>
             <Text color={theme.subText} fontSize={12} marginBottom="1rem">
-              Please review the details of your swap
+              {t`Please review the details of your swap`}
             </Text>
             <TokenBoxInfo
-              title="Input Amount"
+              title={t`Input Amount`}
               chainId={fromChainId}
               currency={currencyIn}
               amount={amount || ''}
@@ -353,7 +358,7 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
               <ArrowDown />
             </Box>
             <TokenBoxInfo
-              title="Ouput Amount"
+              title={t`Output Amount`}
               chainId={toChainId}
               currency={currencyOut}
               amount={selectedQuote?.quote.formattedOutputAmount || ''}
@@ -370,7 +375,7 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
               }}
             >
               <Text fontSize={12} fontWeight={500} color={theme.subText}>
-                Recipient
+                {t`Recipient`}
               </Text>
               <Flex fontSize={14} alignItems="center" color={theme.subText}>
                 <ExternalLink
@@ -397,11 +402,11 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
             <PiWarning />
 
             <Text marginY="1rem" fontStyle="italic" color={'#737373'} fontSize={12} display="flex" alignItems="center">
-              Routed via {selectedQuote.adapter.getName()}
-              {selectedQuote.adapter.getName() === 'Optimex' && <Tag>Beta</Tag>}
+              {t`Routed via`} {selectedQuote.adapter.getName()}
+              {selectedQuote.adapter.getName() === 'Optimex' && <Tag>{t`Beta`}</Tag>}
             </Text>
 
-            <ButtonPrimary onClick={handleSwap}>Confirm Swap</ButtonPrimary>
+            <ButtonPrimary onClick={handleSwap}>{t`Confirm Swap`}</ButtonPrimary>
           </Wrapper>
         )
       }}
