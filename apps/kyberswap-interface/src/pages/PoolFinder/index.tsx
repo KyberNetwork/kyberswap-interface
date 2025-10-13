@@ -131,7 +131,7 @@ export default function PoolFinder() {
             </Row>
           ) : (
             <Text fontWeight={500} fontSize={20} marginLeft={'12px'}>
-              Select a Token
+              <Trans>Select a token</Trans>
             </Text>
           )}
         </ButtonDropdownLight>
@@ -155,7 +155,7 @@ export default function PoolFinder() {
             </Row>
           ) : (
             <Text fontWeight={500} fontSize={20} marginLeft={'12px'}>
-              Select a Token
+              <Trans>Select a token</Trans>
             </Text>
           )}
         </ButtonDropdownLight>

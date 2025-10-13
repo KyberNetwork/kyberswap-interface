@@ -460,16 +460,21 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
   }, [onUserInput, txnHash])
 
   const pendingText = (
-    <Trans>
-      Removing {liquidityValue0?.toSignificant(6)} {liquidityValue0?.currency?.symbol} and{' '}
-      {liquidityValue1?.toSignificant(6)} {liquidityValue1?.currency?.symbol}
-      {claimFee && (feeValue0?.greaterThan(ZERO) || feeValue1?.greaterThan(ZERO)) ? <br /> : ''}
-      {claimFee && (feeValue0?.greaterThan(ZERO) || feeValue1?.greaterThan(ZERO))
-        ? `Collecting fee of ${feeValue0?.toSignificant(6)} ${
-            feeValue0?.currency?.symbol
-          } and ${feeValue1?.toSignificant(6)} ${feeValue1?.currency?.symbol}`
-        : ''}
-    </Trans>
+    <>
+      <Trans>
+        Removing {liquidityValue0?.toSignificant(6)} {liquidityValue0?.currency?.symbol} and{' '}
+        {liquidityValue1?.toSignificant(6)} {liquidityValue1?.currency?.symbol}
+      </Trans>
+      {claimFee && (feeValue0?.greaterThan(ZERO) || feeValue1?.greaterThan(ZERO)) ? (
+        <>
+          <br />
+          <Trans>
+            Collecting fee of {feeValue0?.toSignificant(6)} {feeValue0?.currency?.symbol} and{' '}
+            {feeValue1?.toSignificant(6)} {feeValue1?.currency?.symbol}
+          </Trans>
+        </>
+      ) : null}
+    </>
   )
 
   function modalFooter() {
