@@ -69,6 +69,7 @@ export default function DateTimePicker({
   onSetDate,
   expire,
   defaultDate,
+  defaultOptions,
   title,
 }: {
   isOpen: boolean
@@ -77,6 +78,7 @@ export default function DateTimePicker({
   expire: number
   defaultDate?: Date
   title?: ReactNode
+  defaultOptions?: { label: string; value: number }[]
 }) {
   const today = new Date()
   const minDate = new Date(today.getFullYear(), today.getMonth(), today.getDate())
@@ -171,7 +173,7 @@ export default function DateTimePicker({
             <Text color={theme.border}>
               <Trans>Default Options</Trans>
             </Text>
-            {getExpireOptions().map(opt => (
+            {(defaultOptions || getExpireOptions()).map(opt => (
               <Text
                 style={{ cursor: 'pointer' }}
                 color={opt.value === defaultExpire ? theme.primary : theme.subText}

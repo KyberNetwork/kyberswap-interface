@@ -48,7 +48,7 @@ export const Confirmation = ({
   const today = new Date()
   today.setUTCHours(0, 0, 0, 0)
   const time = [7 * TIMES_IN_SECS.ONE_DAY, 30 * TIMES_IN_SECS.ONE_DAY, 90 * TIMES_IN_SECS.ONE_DAY].includes(expireTime)
-    ? Math.floor(today.getTime() / 1000) + expireTime
+    ? Math.floor(today.getTime()) + expireTime * 1000
     : expireTime
 
   const { permitState, signPermitNft, permitData } = usePermitNft({
@@ -70,7 +70,7 @@ export const Confirmation = ({
     signature: permitData?.signature,
   })
 
-  const displayTime = dayjs(time * 1000).format('DD/MM/YYYY HH:mm:ss')
+  const displayTime = dayjs(time).format('DD/MM/YYYY HH:mm:ss')
 
   const [condition0, condition1] = selectedMetrics
 

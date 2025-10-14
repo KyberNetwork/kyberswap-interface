@@ -15,12 +15,23 @@ import { TIMES_IN_SECS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { ParsedPosition } from 'pages/Earns/types'
 import { ButtonText } from 'theme'
+import { formatTimeDuration } from 'utils/time'
 
 export enum Metric {
   FeeYield = 'fee_yield',
   PoolPrice = 'pool_price',
   Time = 'time',
 }
+
+const defaultOptions = [
+  5 * TIMES_IN_SECS.ONE_MIN,
+  10 * TIMES_IN_SECS.ONE_MIN,
+  TIMES_IN_SECS.ONE_HOUR,
+  TIMES_IN_SECS.ONE_DAY,
+  3 * TIMES_IN_SECS.ONE_DAY,
+  7 * TIMES_IN_SECS.ONE_DAY,
+  30 * TIMES_IN_SECS.ONE_DAY,
+].map(e => ({ value: e, label: formatTimeDuration(e) }))
 
 export const Metrics = ({
   position,
@@ -124,6 +135,7 @@ export const Metrics = ({
       <Divider my="1rem" />
 
       <DateTimePicker
+        defaultOptions={defaultOptions}
         isOpen={openDatePicker}
         onDismiss={() => {
           setOpenDatePicker(false)
@@ -448,7 +460,10 @@ const MetricSelect = ({
                 time: typeof val === 'number' ? val : val.getTime(),
               })
             }}
-            expire={timeCondition.time || 0}
+            expire={
+              timeCondition.time || 5 * 60 // 5min
+            }
+            defaultOptions={defaultOptions}
           />
         </>
       )}
