@@ -1,5 +1,7 @@
 import { ChainId, Pool, PoolType, ZapRouteDetail } from '@kyber/schema';
 
+import { SupportedLocale } from '@/i18n';
+
 export enum TxStatus {
   INIT = 'init',
   PENDING = 'pending',
@@ -12,6 +14,7 @@ export interface WidgetProps {
   positionId: string;
   poolType: PoolType;
   chainId: ChainId;
+  locale?: SupportedLocale;
   rpcUrl?: string;
   connectedAccount: {
     address?: string | undefined;

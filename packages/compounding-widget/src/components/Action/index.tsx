@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 
+import { t } from '@lingui/macro';
 import { useShallow } from 'zustand/react/shallow';
 
 import { usePositionOwner } from '@kyber/hooks';
@@ -170,7 +171,7 @@ export default function Action({
         disabled={!!disabled}
         onClick={hanldeClick}
       >
-        {btnText}
+        {btnText} HELLO {t`LOCALE`}
         {(isVeryHighZapImpact || isInvalidZapImpact) && !error && !isWrongNetwork && !isNotConnected && (
           <InfoHelper
             width="300px"
