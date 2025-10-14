@@ -2187,6 +2187,7 @@ msgstr "No price alerts created yet"
 msgid "Your request has timed out."
 msgstr "Your request has timed out."
 
+#: src/components/SwapForm/SwapActionButton/index.tsx
 #: src/pages/SwapV3/ApprovalModal.tsx
 msgid "Infinite Allowance"
 msgstr "Infinite Allowance"
@@ -3693,6 +3694,10 @@ msgstr ""
 msgid "Click Migrate to start the migration process from KNC Legacy to the new KNC. You will receive the new KNC tokens in your wallet once the transaction has been confirmed. Conversion rate is 1:1. Read about the KNC migration <0>here ↗</0>"
 msgstr "Click Migrate to start the migration process from KNC Legacy to the new KNC. You will receive the new KNC tokens in your wallet once the transaction has been confirmed. Conversion rate is 1:1. Read about the KNC migration <0>here ↗</0>"
 
+#: src/components/SwapForm/SwapActionButton/index.tsx
+msgid "Exact Allowance"
+msgstr "Exact Allowance"
+
 #: src/pages/CrossChainSwap/components/TransactionHistory.tsx
 msgid "ACTIONS"
 msgstr "ACTIONS"
@@ -3720,6 +3725,10 @@ msgstr "Claimable Rewards"
 #: src/pages/NotificationCenter/Profile/ExportAccountModal/UserEnterPasscodeContent.tsx
 msgid "Your passcode must be at least 6 characters long"
 msgstr "Your passcode must be at least 6 characters long"
+
+#: src/components/SwapForm/SwapActionButton/index.tsx
+msgid "You wish to give KyberSwap permission to use the selected token for transactions without any limit. You do not need to give permission again unless revoke."
+msgstr "You wish to give KyberSwap permission to use the selected token for transactions without any limit. You do not need to give permission again unless revoke."
 
 #: src/components/swapv2/AdvancedSwapDetails.tsx
 msgid "MORE INFORMATION"
@@ -5283,6 +5292,10 @@ msgstr "Active Alerts: {totalActiveAlerts}/{maxActiveAlerts}"
 #: src/pages/Earns/UserPositions/PositionBanner.tsx
 msgid "Total Unclaimed Fees"
 msgstr "Total Unclaimed Fees"
+
+#: src/components/SwapForm/SwapActionButton/index.tsx
+msgid "You wish to give KyberSwap permission to use the exact allowance token amount as the amount in for this transaction, Subsequent transactions will require your permission again."
+msgstr "You wish to give KyberSwap permission to use the exact allowance token amount as the amount in for this transaction, Subsequent transactions will require your permission again."
 
 #: src/pages/Campaign/components/Information.tsx
 msgid "5. The 10% Bonus come from the Referral Program budget, not from the referee allocation."

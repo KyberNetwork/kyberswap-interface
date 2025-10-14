@@ -2187,6 +2187,7 @@ msgstr "尚未创建价格提醒"
 msgid "Your request has timed out."
 msgstr "您的请求已超时。"
 
+#: src/components/SwapForm/SwapActionButton/index.tsx
 #: src/pages/SwapV3/ApprovalModal.tsx
 msgid "Infinite Allowance"
 msgstr "无限授权"
@@ -3693,6 +3694,10 @@ msgstr ""
 msgid "Click Migrate to start the migration process from KNC Legacy to the new KNC. You will receive the new KNC tokens in your wallet once the transaction has been confirmed. Conversion rate is 1:1. Read about the KNC migration <0>here ↗</0>"
 msgstr "点击“迁移”以开始从旧版 KNC 迁移至新版 KNC。交易确认后，您将在钱包中收到新的 KNC 代币，兑换比例为 1:1。关于 KNC 迁移<0>请查看此处 ↗</0>"
 
+#: src/components/SwapForm/SwapActionButton/index.tsx
+msgid "Exact Allowance"
+msgstr "精确授权额度"
+
 #: src/pages/CrossChainSwap/components/TransactionHistory.tsx
 msgid "ACTIONS"
 msgstr "操作"
@@ -3720,6 +3725,10 @@ msgstr "可领取奖励"
 #: src/pages/NotificationCenter/Profile/ExportAccountModal/UserEnterPasscodeContent.tsx
 msgid "Your passcode must be at least 6 characters long"
 msgstr "您的口令长度至少为 6 个字符"
+
+#: src/components/SwapForm/SwapActionButton/index.tsx
+msgid "You wish to give KyberSwap permission to use the selected token for transactions without any limit. You do not need to give permission again unless revoke."
+msgstr "您希望允许 KyberSwap 无限制地使用所选代币进行交易。除非撤销授权，否则无需再次授权。"
 
 #: src/components/swapv2/AdvancedSwapDetails.tsx
 msgid "MORE INFORMATION"
@@ -5283,6 +5292,10 @@ msgstr "活跃提醒：{totalActiveAlerts}/{maxActiveAlerts}"
 #: src/pages/Earns/UserPositions/PositionBanner.tsx
 msgid "Total Unclaimed Fees"
 msgstr "未领取手续费总额"
+
+#: src/components/SwapForm/SwapActionButton/index.tsx
+msgid "You wish to give KyberSwap permission to use the exact allowance token amount as the amount in for this transaction, Subsequent transactions will require your permission again."
+msgstr "您希望允许 KyberSwap 在本次交易中使用与输入金额完全相同的代币授权额度。后续交易将需要您再次授权。"
 
 #: src/pages/Campaign/components/Information.tsx
 msgid "5. The 10% Bonus come from the Referral Program budget, not from the referee allocation."
