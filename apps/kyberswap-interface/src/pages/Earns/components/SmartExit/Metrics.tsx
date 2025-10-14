@@ -91,15 +91,29 @@ export const Metrics = ({
       <Divider my="1rem" />
       {metric2 ? (
         <>
-          <RadioGroup value={conditionType} onValueChange={v => setConditionType(v as 'and' | 'or')}>
-            <Flex sx={{ gap: '8px' }}>
-              <RadioGroupItem value={'and'} id="and" />
-              <Label htmlFor="and">And</Label>
+          <Flex justifyContent="space-between" alignItems="center">
+            <RadioGroup value={conditionType} onValueChange={v => setConditionType(v as 'and' | 'or')}>
+              <Flex sx={{ gap: '8px' }}>
+                <RadioGroupItem value={'and'} id="and" />
+                <Label htmlFor="and">And</Label>
 
-              <RadioGroupItem value={'or'} id="or" style={{ marginLeft: '24px' }} />
-              <Label htmlFor="or">Or</Label>
-            </Flex>
-          </RadioGroup>
+                <RadioGroupItem value={'or'} id="or" style={{ marginLeft: '24px' }} />
+                <Label htmlFor="or">Or</Label>
+              </Flex>
+            </RadioGroup>
+            <ButtonText
+              style={{
+                width: 'fit-content',
+                color: theme.red,
+                fontSize: '14px',
+              }}
+              onClick={() => {
+                setSelectedMetrics([metric1, null])
+              }}
+            >
+              <Trans>Remove Condition</Trans>
+            </ButtonText>
+          </Flex>
           <Divider my="1rem" />
           <MetricSelect
             metric={metric2}
