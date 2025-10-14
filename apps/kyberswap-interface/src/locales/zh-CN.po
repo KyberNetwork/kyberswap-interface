@@ -2561,6 +2561,7 @@ msgstr "交易 ETH 衍生品每兑换 1 美元可获得 1 积分。"
 msgid "Explore Liquidity Pools to get started"
 msgstr "探索流动性池以开始"
 
+#: src/components/Header/index.tsx
 #: src/components/Menu/index.tsx
 #: src/components/swapv2/LimitOrder/LimitOrderForm.tsx
 msgid "Market"

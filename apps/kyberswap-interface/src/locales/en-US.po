@@ -2561,6 +2561,7 @@ msgstr "ETH Derivatives trading will give 1 Point per USD swapped."
 msgid "Explore Liquidity Pools to get started"
 msgstr "Explore Liquidity Pools to get started"
 
+#: src/components/Header/index.tsx
 #: src/components/Menu/index.tsx
 #: src/components/swapv2/LimitOrder/LimitOrderForm.tsx
 msgid "Market"
