@@ -1,3 +1,4 @@
+import { Trans } from '@lingui/macro'
 import { useEffect, useRef, useState } from 'react'
 import { Box, Flex, Text } from 'rebass'
 
@@ -55,7 +56,7 @@ export const CrossChainSwapSources: React.FC<{ onBack: () => void }> = ({ onBack
         >
           <BackIconWrapper onClick={onBack}></BackIconWrapper>
           <Text color={theme.text} fontWeight={500} fontSize={18}>
-            Liquidity Sources
+            <Trans>Liquidity Sources</Trans>
           </Text>
         </Flex>
 
@@ -72,7 +73,9 @@ export const CrossChainSwapSources: React.FC<{ onBack: () => void }> = ({ onBack
               }
             }}
           />
-          <Text>Liquidity Sources</Text>
+          <Text>
+            <Trans>Liquidity Sources</Trans>
+          </Text>
         </LiquiditySourceHeader>
 
         <SourceList>

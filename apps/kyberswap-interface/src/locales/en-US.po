@@ -63,6 +63,10 @@ msgstr "ENDED"
 msgid "Open Orders"
 msgstr "Open Orders"
 
+#: src/pages/CrossChainSwap/components/BitcoinConnectModal.tsx
+msgid "Select Derivation Path"
+msgstr "Select Derivation Path"
+
 #: src/pages/KyberDAO/KNCUtility/GasRefundBox.tsx
 msgid "Total Gas Refund = Available + Pending + Claimed Gas Refund"
 msgstr "Total Gas Refund = Available + Pending + Claimed Gas Refund"
@@ -192,6 +196,10 @@ msgstr "📄 Terms & Conditions"
 #: src/pages/Campaign/constants.tsx
 msgid "May Trading Campaign"
 msgstr "May Trading Campaign"
+
+#: src/pages/CrossChainSwap/components/BitcoinConnectModal.tsx
+msgid "Connect your Bitcoin Wallet"
+msgstr "Connect your Bitcoin Wallet"
 
 #: src/pages/CrossChainSwap/components/Summary.tsx
 msgid "Check more details <0>here</0>"
@@ -719,6 +727,10 @@ msgstr "Terms"
 msgid "Connect to a wallet to find pools"
 msgstr "Connect to a wallet to find pools"
 
+#: src/components/swapv2/SwapSettingsPanel/CrossChainSourceSetting.tsx
+msgid "Cross-Chain Routing Sources"
+msgstr "Cross-Chain Routing Sources"
+
 #: src/components/swapv2/LimitOrder/Modals/CancelOrderModal.tsx
 msgid "Are you sure you want to cancel {0} limit orders?"
 msgstr "Are you sure you want to cancel {0} limit orders?"
@@ -928,6 +940,10 @@ msgstr "TIME"
 msgid "Maintenance"
 msgstr "Maintenance"
 
+#: src/pages/CrossChainSwap/components/BitcoinConnectModal.tsx
+msgid "Accept <0>KyberSwap‘s Terms of Use</0> and <1>Privacy Policy</1>. <2>Last updated: {0}</2>"
+msgstr "Accept <0>KyberSwap‘s Terms of Use</0> and <1>Privacy Policy</1>. <2>Last updated: {0}</2>"
+
 #: src/pages/KyberDAO/Vote/ProposalItem/VoteInformation.tsx
 msgid "Voting System"
 msgstr "Voting System"
@@ -1043,6 +1059,10 @@ msgstr "Actions"
 #: src/pages/Campaign/components/Information.tsx
 msgid "User earned Points for the week / Total Users Point for the week) X Amount of ARB allocation for the week."
 msgstr "User earned Points for the week / Total Users Point for the week) X Amount of ARB allocation for the week."
+
+#: src/utils/slippage.ts
+msgid "is quite low and may cause failed transactions in volatile markets."
+msgstr "is quite low and may cause failed transactions in volatile markets."
 
 #: src/pages/KyberDAO/Vote/ProposalItem/VoteInformation.tsx
 msgid "Reached"
@@ -1443,6 +1463,10 @@ msgstr "<0>Week 4</0> July 29 - Aug 04"
 #: src/pages/NotificationCenter/PriceAlerts/Header.tsx
 msgid "Active Alerts"
 msgstr "Active Alerts"
+
+#: src/components/swapv2/SwapSettingsPanel/CrossChainSourceSetting.tsx
+msgid "Your trade is routed through one of these cross-chain sources."
+msgstr "Your trade is routed through one of these cross-chain sources."
 
 #: src/pages/Earns/UserPositions/DropdownAction.tsx
 msgid "Claim Fees"
@@ -2280,6 +2304,10 @@ msgstr "During your swap if the price changes by more than this %, your transact
 msgid "Market Info"
 msgstr "Market Info"
 
+#: src/utils/slippage.ts
+msgid "setting might be high for this market. Consider adjusting it to reduce front-running risks."
+msgstr "setting might be high for this market. Consider adjusting it to reduce front-running risks."
+
 #: src/pages/KyberDAO/StakeKNC/YourTransactionsModal.tsx
 msgid "Go to <0>Stake</0>"
 msgstr "Go to <0>Stake</0>"
@@ -2427,6 +2455,10 @@ msgstr "Staking KNC"
 #: src/pages/KyberDAO/StakeKNC/index.tsx
 msgid "Stake + Vote"
 msgstr "Stake + Vote"
+
+#: src/pages/CrossChainSwap/hooks/useCrossChainSwap.tsx
+msgid "Your slippage is set higher than usual, which may cause unexpected losses"
+msgstr "Your slippage is set higher than usual, which may cause unexpected losses"
 
 #: src/components/Header/groups/CampaignNavGroup.tsx
 #: src/components/Menu/index.tsx
@@ -2808,6 +2840,11 @@ msgstr "Insufficient liquidity for this trade"
 msgid "Total est. rewards"
 msgstr "Total est. rewards"
 
+#: src/utils/slippage.ts
+#: src/utils/slippage.ts
+msgid "is quite low and may cause failed transactions in highly volatile markets."
+msgstr "is quite low and may cause failed transactions in highly volatile markets."
+
 #: src/pages/ElasticLegacy/PositionLegacy.tsx
 msgid "You need to withdraw your deposited liquidity position from the Farm first."
 msgstr "You need to withdraw your deposited liquidity position from the Farm first."
@@ -2823,6 +2860,10 @@ msgstr "Sell Tax"
 #: src/components/swapv2/LimitOrder/ExpirePicker.tsx
 msgid "Set"
 msgstr "Set"
+
+#: src/pages/CrossChainSwap/hooks/useCrossChainSwap.tsx
+msgid "Your slippage is set lower than usual, which may cause transaction failure."
+msgstr "Your slippage is set lower than usual, which may cause transaction failure."
 
 #: src/components/EarningAreaChart/TooltipContent.tsx
 #: src/components/WalletPopup/Transactions/index.tsx
@@ -2883,6 +2924,10 @@ msgstr "Platform Fee"
 #: src/pages/Campaign/index.tsx
 msgid "ended at"
 msgstr "ended at"
+
+#: src/utils/slippage.ts
+msgid "setting might be high compared with other similar trades. Consider adjusting it to reduce front-running risks."
+msgstr "setting might be high compared with other similar trades. Consider adjusting it to reduce front-running risks."
 
 #: src/components/Tutorial/TutorialSwap/constant.ts
 msgid "Earn trading fees through our Pools / Farms"
@@ -3057,6 +3102,10 @@ msgstr "Your position will be 100% composed of {baseSymbol} at this price."
 msgid "Customize the layout & the look and feel of your trading interface!"
 msgstr "Customize the layout & the look and feel of your trading interface!"
 
+#: src/pages/CrossChainSwap/hooks/useCrossChainSwap.tsx
+msgid "The price impact might be high — double check the output before proceeding."
+msgstr "The price impact might be high — double check the output before proceeding."
+
 #: src/pages/MyPool/index.tsx
 #: src/pages/MyPool/index.tsx
 msgid "Don't see a pool you joined?"
@@ -3140,6 +3189,11 @@ msgstr "Claim your KNC rewards"
 msgid "Cancel Limit Orders Submitted!"
 msgstr "Cancel Limit Orders Submitted!"
 
+#: src/utils/slippage.ts
+#: src/utils/slippage.ts
+msgid "setting might be high. Consider adjusting it to reduce front-running risks."
+msgstr "setting might be high. Consider adjusting it to reduce front-running risks."
+
 #: src/components/Menu/index.tsx
 msgid "Preferences"
 msgstr "Preferences"
@@ -3192,6 +3246,11 @@ msgstr "Exchange rate is always 1 to 1."
 #: src/pages/Earns/UserPositions/Filter.tsx
 msgid "Position status"
 msgstr "Position status"
+
+#: src/components/SwapForm/SlippageSetting.tsx
+#: src/components/swapv2/SwapSettingsPanel/SlippageSetting.tsx
+msgid "Your slippage {msg}"
+msgstr "Your slippage {msg}"
 
 #: src/pages/ElasticSnapshot/components/SelectTreasuryGrant.tsx
 msgid "Selecting Treasury Grant Option"
@@ -3433,6 +3492,7 @@ msgid "View on Explorer"
 msgstr "View on Explorer"
 
 #: src/components/TransactionConfirmationModal/index.tsx
+#: src/pages/CrossChainSwap/components/BitcoinConnectModal.tsx
 #: src/pages/Earns/hooks/useCollectFees.tsx
 #: src/pages/Earns/hooks/useCollectFees.tsx
 #: src/pages/Earns/hooks/useKemRewards.tsx
@@ -5159,6 +5219,10 @@ msgstr "This alert will be disabled after its triggered once"
 msgid "You have turned on <0>Degen Mode</0> from settings. Trades can still be executed when price impact cannot be calculated."
 msgstr "You have turned on <0>Degen Mode</0> from settings. Trades can still be executed when price impact cannot be calculated."
 
+#: src/utils/slippage.ts
+msgid "setting might be high compared to typical stable pair trades. Consider adjusting it to reduce front-running risks."
+msgstr "setting might be high compared to typical stable pair trades. Consider adjusting it to reduce front-running risks."
+
 #: src/components/Tutorial/index.tsx
 msgid "To learn more about how to add liquidity to KyberSwap Classic, view <0> here</0>"
 msgstr "To learn more about how to add liquidity to KyberSwap Classic, view <0> here</0>"
@@ -5876,12 +5940,18 @@ msgstr "Suitable for pairs with low price volatility. Anticipating price to fluc
 #: src/components/swapv2/LiquiditySourcesPanel/index.tsx
 #: src/components/swapv2/LiquiditySourcesPanel/index.tsx
 #: src/components/swapv2/SwapSettingsPanel/LiquiditySourcesSetting.tsx
+#: src/pages/CrossChainSwap/components/CrossChainSwapSources.tsx
+#: src/pages/CrossChainSwap/components/CrossChainSwapSources.tsx
 msgid "Liquidity Sources"
 msgstr "Liquidity Sources"
 
 #: src/pages/KyberDAO/StakeKNC/StakeKNCComponent.tsx
 msgid "In this default delegation method, your delegate is responsible for voting on your behalf and distributing your KNC rewards to you, though only you can withdraw/unstake your own KNC"
 msgstr "In this default delegation method, your delegate is responsible for voting on your behalf and distributing your KNC rewards to you, though only you can withdraw/unstake your own KNC"
+
+#: src/pages/CrossChainSwap/components/BitcoinConnectModal.tsx
+msgid "Failed to connect Ledger wallet"
+msgstr "Failed to connect Ledger wallet"
 
 #: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
 #: src/components/SwapForm/TradeSummary.tsx
@@ -6050,6 +6120,10 @@ msgstr "No orders."
 #: src/pages/KyberDAO/KNCUtility/index.tsx
 msgid "Terms and Conditions"
 msgstr "Terms and Conditions"
+
+#: src/pages/CrossChainSwap/components/BitcoinConnectModal.tsx
+msgid "Detected"
+msgstr "Detected"
 
 #: src/pages/KyberDAO/StakeKNC/DelegateConfirmModal.tsx
 msgid "Ethereum Address"
@@ -6355,6 +6429,10 @@ msgstr "Wrapping"
 #: src/components/Header/groups/AboutNavGroup.tsx
 msgid "KNC"
 msgstr "KNC"
+
+#: src/components/swapv2/SwapSettingsPanel/CrossChainSourceSetting.tsx
+msgid "{0} out of {1} selected"
+msgstr "{0} out of {1} selected"
 
 #: src/components/Announcement/AnnoucementView.tsx
 msgid "My Inbox"
@@ -7040,6 +7118,10 @@ msgstr "Swap"
 #: src/pages/Verify/VerifyCodeModal/index.tsx
 msgid "Your email has been verified successfully! You can now customize your preferences."
 msgstr "Your email has been verified successfully! You can now customize your preferences."
+
+#: src/pages/CrossChainSwap/hooks/useCrossChainSwap.tsx
+msgid "The price impact is high — double check the output before proceeding."
+msgstr "The price impact is high — double check the output before proceeding."
 
 #: src/components/SwapForm/PriceImpactNote.tsx
 msgid "You can turn on Degen Mode from Settings to execute trades with very high price impact or Place a {limitOrderLink}. This can result in bad rates and loss of funds"

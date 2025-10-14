@@ -1,4 +1,4 @@
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { ReactNode, useMemo, useState } from 'react'
 import { Flex, Text } from 'rebass'
@@ -70,9 +70,10 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
 
   const { rawSlippage, setRawSlippage, isSlippageControlPinned } = useSlippageSettingByPage()
 
-  const pairCategory = usePairCategory()
   const defaultSlippage = useDefaultSlippageByPair()
   const defaultSlp = slippageInfo ? slippageInfo.default : defaultSlippage
+
+  const pairCategory = usePairCategory()
   const slippageStatus = slippageInfo
     ? slippageInfo.isHigh
       ? SLIPPAGE_STATUS.HIGH
@@ -84,7 +85,7 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
     ? slippageInfo.isHigh || slippageInfo.isLow
     : slippageStatus !== SLIPPAGE_STATUS.NORMAL
 
-  const msg = slippageInfo ? slippageInfo.message : SLIPPAGE_WARNING_MESSAGES[slippageStatus]?.[pairCategory] || ''
+  const msg = slippageInfo?.message ?? (SLIPPAGE_WARNING_MESSAGES[slippageStatus]?.[pairCategory] || '')
 
   const options = useMemo(
     () =>
@@ -168,7 +169,7 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
               }}
             >
               {msg ? (
-                <MouseoverTooltip text={slippageInfo ? msg : `Your slippage ${msg}`}>
+                <MouseoverTooltip text={slippageInfo ? msg : t`Your slippage ${msg}`}>
                   {formatSlippage(rawSlippage)}
                 </MouseoverTooltip>
               ) : (

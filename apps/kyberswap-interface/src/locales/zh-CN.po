@@ -63,6 +63,10 @@ msgstr "已结束"
 msgid "Open Orders"
 msgstr "未成交订单"
 
+#: src/pages/CrossChainSwap/components/BitcoinConnectModal.tsx
+msgid "Select Derivation Path"
+msgstr "选择派生路径"
+
 #: src/pages/KyberDAO/KNCUtility/GasRefundBox.tsx
 msgid "Total Gas Refund = Available + Pending + Claimed Gas Refund"
 msgstr "燃气费返还总额 = 可用 + 待处理 + 已领取的燃气费返还"
@@ -192,6 +196,10 @@ msgstr "📄 条款与细则"
 #: src/pages/Campaign/constants.tsx
 msgid "May Trading Campaign"
 msgstr "五月交易活动"
+
+#: src/pages/CrossChainSwap/components/BitcoinConnectModal.tsx
+msgid "Connect your Bitcoin Wallet"
+msgstr "连接您的比特币钱包"
 
 #: src/pages/CrossChainSwap/components/Summary.tsx
 msgid "Check more details <0>here</0>"
@@ -719,6 +727,10 @@ msgstr "条例"
 msgid "Connect to a wallet to find pools"
 msgstr "连接钱包以查找池"
 
+#: src/components/swapv2/SwapSettingsPanel/CrossChainSourceSetting.tsx
+msgid "Cross-Chain Routing Sources"
+msgstr "跨链路由来源"
+
 #: src/components/swapv2/LimitOrder/Modals/CancelOrderModal.tsx
 msgid "Are you sure you want to cancel {0} limit orders?"
 msgstr "您确定要取消 {0} 笔限价订单吗？"
@@ -928,6 +940,10 @@ msgstr "时间"
 msgid "Maintenance"
 msgstr "维护中"
 
+#: src/pages/CrossChainSwap/components/BitcoinConnectModal.tsx
+msgid "Accept <0>KyberSwap‘s Terms of Use</0> and <1>Privacy Policy</1>. <2>Last updated: {0}</2>"
+msgstr "接受 <0>KyberSwap 的使用条款</0>和<1>隐私政策</1>。<2>最后更新：{0}</2>"
+
 #: src/pages/KyberDAO/Vote/ProposalItem/VoteInformation.tsx
 msgid "Voting System"
 msgstr "投票系统"
@@ -1043,6 +1059,10 @@ msgstr "操作"
 #: src/pages/Campaign/components/Information.tsx
 msgid "User earned Points for the week / Total Users Point for the week) X Amount of ARB allocation for the week."
 msgstr "用户当周获得的积分 / 全体用户当周积分 × 当周 ARB 分配总量。"
+
+#: src/utils/slippage.ts
+msgid "is quite low and may cause failed transactions in volatile markets."
+msgstr "偏低，可能导致在波动市场中交易失败。"
 
 #: src/pages/KyberDAO/Vote/ProposalItem/VoteInformation.tsx
 msgid "Reached"
@@ -1443,6 +1463,10 @@ msgstr "<0>第 4 周</0> 7 月 29 日 - 8 月 4 日"
 #: src/pages/NotificationCenter/PriceAlerts/Header.tsx
 msgid "Active Alerts"
 msgstr "进行中的提醒"
+
+#: src/components/swapv2/SwapSettingsPanel/CrossChainSourceSetting.tsx
+msgid "Your trade is routed through one of these cross-chain sources."
+msgstr "您的交易将通过上述跨链来源之一路由。"
 
 #: src/pages/Earns/UserPositions/DropdownAction.tsx
 msgid "Claim Fees"
@@ -2280,6 +2304,10 @@ msgstr "兑换过程中若价格变动超过该百分比，交易将回滚。了
 msgid "Market Info"
 msgstr "市场信息"
 
+#: src/utils/slippage.ts
+msgid "setting might be high for this market. Consider adjusting it to reduce front-running risks."
+msgstr "此设置在该市场可能偏高。请考虑调整以降低抢先交易风险。"
+
 #: src/pages/KyberDAO/StakeKNC/YourTransactionsModal.tsx
 msgid "Go to <0>Stake</0>"
 msgstr "前往<0>质押</0>"
@@ -2427,6 +2455,10 @@ msgstr "质押 KNC"
 #: src/pages/KyberDAO/StakeKNC/index.tsx
 msgid "Stake + Vote"
 msgstr "质押 + 投票"
+
+#: src/pages/CrossChainSwap/hooks/useCrossChainSwap.tsx
+msgid "Your slippage is set higher than usual, which may cause unexpected losses"
+msgstr "您的滑点高于常规值，可能导致意外损失"
 
 #: src/components/Header/groups/CampaignNavGroup.tsx
 #: src/components/Menu/index.tsx
@@ -2808,6 +2840,11 @@ msgstr "该交易的流动性不足"
 msgid "Total est. rewards"
 msgstr "预计奖励总额"
 
+#: src/utils/slippage.ts
+#: src/utils/slippage.ts
+msgid "is quite low and may cause failed transactions in highly volatile markets."
+msgstr "偏低，可能导致在高波动市场中交易失败。"
+
 #: src/pages/ElasticLegacy/PositionLegacy.tsx
 msgid "You need to withdraw your deposited liquidity position from the Farm first."
 msgstr "您需要先从挖矿中提取已存入的流动性仓位。"
@@ -2823,6 +2860,10 @@ msgstr "卖出税"
 #: src/components/swapv2/LimitOrder/ExpirePicker.tsx
 msgid "Set"
 msgstr "设置"
+
+#: src/pages/CrossChainSwap/hooks/useCrossChainSwap.tsx
+msgid "Your slippage is set lower than usual, which may cause transaction failure."
+msgstr "您的滑点低于常规值，可能导致交易失败。"
 
 #: src/components/EarningAreaChart/TooltipContent.tsx
 #: src/components/WalletPopup/Transactions/index.tsx
@@ -2883,6 +2924,10 @@ msgstr "平台手续费"
 #: src/pages/Campaign/index.tsx
 msgid "ended at"
 msgstr "结束于"
+
+#: src/utils/slippage.ts
+msgid "setting might be high compared with other similar trades. Consider adjusting it to reduce front-running risks."
+msgstr "此设置与其他类似交易相比可能偏高。请考虑调整以降低抢先交易风险。"
 
 #: src/components/Tutorial/TutorialSwap/constant.ts
 msgid "Earn trading fees through our Pools / Farms"
@@ -3057,6 +3102,10 @@ msgstr "在此价格下，您的仓位将100%由 {baseSymbol} 组成。"
 msgid "Customize the layout & the look and feel of your trading interface!"
 msgstr "自定义您的交易界面的布局和外观！"
 
+#: src/pages/CrossChainSwap/hooks/useCrossChainSwap.tsx
+msgid "The price impact might be high — double check the output before proceeding."
+msgstr "价格影响可能很高，请在继续前再次确认输出。"
+
 #: src/pages/MyPool/index.tsx
 #: src/pages/MyPool/index.tsx
 msgid "Don't see a pool you joined?"
@@ -3140,6 +3189,11 @@ msgstr "领取您的KNC奖励"
 msgid "Cancel Limit Orders Submitted!"
 msgstr "限价订单取消已提交！"
 
+#: src/utils/slippage.ts
+#: src/utils/slippage.ts
+msgid "setting might be high. Consider adjusting it to reduce front-running risks."
+msgstr "此设置可能偏高。请考虑调整以降低抢先交易风险。"
+
 #: src/components/Menu/index.tsx
 msgid "Preferences"
 msgstr "偏好"
@@ -3192,6 +3246,11 @@ msgstr "汇率始终为1比1。"
 #: src/pages/Earns/UserPositions/Filter.tsx
 msgid "Position status"
 msgstr "仓位状态"
+
+#: src/components/SwapForm/SlippageSetting.tsx
+#: src/components/swapv2/SwapSettingsPanel/SlippageSetting.tsx
+msgid "Your slippage {msg}"
+msgstr "您的滑点{msg}"
 
 #: src/pages/ElasticSnapshot/components/SelectTreasuryGrant.tsx
 msgid "Selecting Treasury Grant Option"
@@ -3433,6 +3492,7 @@ msgid "View on Explorer"
 msgstr "在区块浏览器查看"
 
 #: src/components/TransactionConfirmationModal/index.tsx
+#: src/pages/CrossChainSwap/components/BitcoinConnectModal.tsx
 #: src/pages/Earns/hooks/useCollectFees.tsx
 #: src/pages/Earns/hooks/useCollectFees.tsx
 #: src/pages/Earns/hooks/useKemRewards.tsx
@@ -5159,6 +5219,10 @@ msgstr "此提醒触发一次后将被停用"
 msgid "You have turned on <0>Degen Mode</0> from settings. Trades can still be executed when price impact cannot be calculated."
 msgstr "您已在设置中开启<0>Degen 模式</0>，即使无法计算价格影响仍可执行交易。"
 
+#: src/utils/slippage.ts
+msgid "setting might be high compared to typical stable pair trades. Consider adjusting it to reduce front-running risks."
+msgstr "此设置相较于典型的稳定币交易可能偏高。请考虑调整以降低抢先交易风险。"
+
 #: src/components/Tutorial/index.tsx
 msgid "To learn more about how to add liquidity to KyberSwap Classic, view <0> here</0>"
 msgstr "想了解如何在 KyberSwap Classic 添加流动性，请查看<0>这里</0>"
@@ -5876,12 +5940,18 @@ msgstr "适合价格波动较低的交易对。预计价格波动约为 30%，�
 #: src/components/swapv2/LiquiditySourcesPanel/index.tsx
 #: src/components/swapv2/LiquiditySourcesPanel/index.tsx
 #: src/components/swapv2/SwapSettingsPanel/LiquiditySourcesSetting.tsx
+#: src/pages/CrossChainSwap/components/CrossChainSwapSources.tsx
+#: src/pages/CrossChainSwap/components/CrossChainSwapSources.tsx
 msgid "Liquidity Sources"
 msgstr "流动性来源"
 
 #: src/pages/KyberDAO/StakeKNC/StakeKNCComponent.tsx
 msgid "In this default delegation method, your delegate is responsible for voting on your behalf and distributing your KNC rewards to you, though only you can withdraw/unstake your own KNC"
 msgstr "在默认委托方式下，受托人将代您投票并向您分发 KNC 奖励，但只有您本人可以提取/解除质押 KNC。"
+
+#: src/pages/CrossChainSwap/components/BitcoinConnectModal.tsx
+msgid "Failed to connect Ledger wallet"
+msgstr "连接 Ledger 钱包失败"
 
 #: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
 #: src/components/SwapForm/TradeSummary.tsx
@@ -6050,6 +6120,10 @@ msgstr "暂无订单。"
 #: src/pages/KyberDAO/KNCUtility/index.tsx
 msgid "Terms and Conditions"
 msgstr "条款与条件"
+
+#: src/pages/CrossChainSwap/components/BitcoinConnectModal.tsx
+msgid "Detected"
+msgstr "已检测"
 
 #: src/pages/KyberDAO/StakeKNC/DelegateConfirmModal.tsx
 msgid "Ethereum Address"
@@ -6355,6 +6429,10 @@ msgstr "包装中"
 #: src/components/Header/groups/AboutNavGroup.tsx
 msgid "KNC"
 msgstr "KNC"
+
+#: src/components/swapv2/SwapSettingsPanel/CrossChainSourceSetting.tsx
+msgid "{0} out of {1} selected"
+msgstr "已选择 {0}/{1}"
 
 #: src/components/Announcement/AnnoucementView.tsx
 msgid "My Inbox"
@@ -7040,6 +7118,10 @@ msgstr "兑换"
 #: src/pages/Verify/VerifyCodeModal/index.tsx
 msgid "Your email has been verified successfully! You can now customize your preferences."
 msgstr "邮箱已成功验证！您现在可以自定义偏好设置。"
+
+#: src/pages/CrossChainSwap/hooks/useCrossChainSwap.tsx
+msgid "The price impact is high — double check the output before proceeding."
+msgstr "价格影响很高，请在继续前再次确认输出。"
 
 #: src/components/SwapForm/PriceImpactNote.tsx
 msgid "You can turn on Degen Mode from Settings to execute trades with very high price impact or Place a {limitOrderLink}. This can result in bad rates and loss of funds"
