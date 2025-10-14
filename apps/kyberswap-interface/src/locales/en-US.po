@@ -4929,10 +4929,6 @@ msgstr "Your currently existing order is {filledPercent}% filled."
 msgid "All KyberSwap Aggregator API users from whitelisted clients are welcome to participate in the campaign."
 msgstr "All KyberSwap Aggregator API users from whitelisted clients are welcome to participate in the campaign."
 
-#: src/components/SwapForm/PriceImpactNote.tsx
-msgid "Unable to calculate <0>Price Impact.</0>{0}"
-msgstr "Unable to calculate <0>Price Impact.</0>{0}"
-
 #: src/pages/Campaign/components/Information.tsx
 msgid "Up to <0>45,000 ARB</0> are allocated for the Referral Campaign until the end of the Trading Campaign."
 msgstr "Up to <0>45,000 ARB</0> are allocated for the Referral Campaign until the end of the Trading Campaign."
@@ -5274,6 +5270,7 @@ msgstr "Error when changing network."
 msgid "KyberSwap's Terms of Use"
 msgstr "KyberSwap's Terms of Use"
 
+#: src/components/SwapForm/PriceImpactNote.tsx
 #: src/components/SwapForm/PriceImpactNote.tsx
 msgid "Consider requesting a {limitOrderLink} instead, or click 'Swap Anyway' if you wish to continue by enabling Degen Mode."
 msgstr "Consider requesting a {limitOrderLink} instead, or click 'Swap Anyway' if you wish to continue by enabling Degen Mode."
@@ -5886,6 +5883,10 @@ msgstr "Due to a potential issue with our legacy <0>Elastic protocol</0>, we hav
 #: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
 msgid "Minimum Receiving"
 msgstr "Minimum Receiving"
+
+#: src/components/SwapForm/PriceImpactNote.tsx
+msgid "Unable to calculate <0>Price Impact</0>."
+msgstr "Unable to calculate <0>Price Impact</0>."
 
 #: src/components/Header/groups/KyberDaoGroup.tsx
 #: src/components/Menu/index.tsx

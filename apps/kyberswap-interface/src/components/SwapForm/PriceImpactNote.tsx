@@ -72,18 +72,21 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLi
             <Trans>
               Unable to calculate{' '}
               <TextUnderlineColor as="a" href={PRICE_IMPACT_EXPLANATION_URL} target="_blank" rel="noreferrer noopener">
-                Price Impact.
+                Price Impact
               </TextUnderlineColor>
-              {!isDegenMode ? (
-                <span>
+              {'.'}
+            </Trans>
+            {!isDegenMode ? (
+              <span>
+                <Trans>
                   {' '}
                   Consider requesting a {limitOrderLink} instead, or click &apos;Swap Anyway&apos; if you wish to
                   continue by enabling Degen Mode.
-                </span>
-              ) : (
-                ''
-              )}
-            </Trans>
+                </Trans>
+              </span>
+            ) : (
+              ''
+            )}
           </Text>
         }
         longText={

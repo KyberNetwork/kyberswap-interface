@@ -4929,10 +4929,6 @@ msgstr "您当前的订单已成交 {filledPercent}%。"
 msgid "All KyberSwap Aggregator API users from whitelisted clients are welcome to participate in the campaign."
 msgstr "欢迎所有白名单客户端的 KyberSwap 聚合器 API 用户参与本次活动。"
 
-#: src/components/SwapForm/PriceImpactNote.tsx
-msgid "Unable to calculate <0>Price Impact.</0>{0}"
-msgstr "无法计算<0>价格影响。</0>{0}"
-
 #: src/pages/Campaign/components/Information.tsx
 msgid "Up to <0>45,000 ARB</0> are allocated for the Referral Campaign until the end of the Trading Campaign."
 msgstr "在交易活动结束前，推荐活动最高分配 <0>45,000 ARB</0>。"
@@ -5274,6 +5270,7 @@ msgstr "切换网络时出错。"
 msgid "KyberSwap's Terms of Use"
 msgstr "KyberSwap 使用条款"
 
+#: src/components/SwapForm/PriceImpactNote.tsx
 #: src/components/SwapForm/PriceImpactNote.tsx
 msgid "Consider requesting a {limitOrderLink} instead, or click 'Swap Anyway' if you wish to continue by enabling Degen Mode."
 msgstr "请考虑改为提交 {limitOrderLink}，或如仍想继续，可开启 Degen 模式后点击“仍然交换”。"
@@ -5886,6 +5883,10 @@ msgstr "由于我们的旧版 <0>Elastic 协议</0>存在潜在问题，我们�
 #: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
 msgid "Minimum Receiving"
 msgstr "最小接收量"
+
+#: src/components/SwapForm/PriceImpactNote.tsx
+msgid "Unable to calculate <0>Price Impact</0>."
+msgstr "无法计算 <0>价格影响</0>。"
 
 #: src/components/Header/groups/KyberDaoGroup.tsx
 #: src/components/Menu/index.tsx
