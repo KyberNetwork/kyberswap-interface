@@ -374,6 +374,8 @@ const SmartExit = () => {
                   ? 'Executed'
                   : order.status === OrderStatus.OrderStatusCancelled
                   ? 'Cancelled'
+                  : order.status === OrderStatus.OrderStatusExpired
+                  ? 'Expired'
                   : order.status}
               </Badge>
             )
