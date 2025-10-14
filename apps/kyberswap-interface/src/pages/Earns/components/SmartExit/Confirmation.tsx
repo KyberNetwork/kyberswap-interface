@@ -47,9 +47,11 @@ export const Confirmation = ({
 
   const today = new Date()
   today.setUTCHours(0, 0, 0, 0)
-  const time = [7 * TIMES_IN_SECS.ONE_DAY, 30 * TIMES_IN_SECS.ONE_DAY, 90 * TIMES_IN_SECS.ONE_DAY].includes(expireTime)
-    ? Math.floor(today.getTime()) + expireTime * 1000
-    : expireTime
+  const time = Math.floor(
+    ([7 * TIMES_IN_SECS.ONE_DAY, 30 * TIMES_IN_SECS.ONE_DAY, 90 * TIMES_IN_SECS.ONE_DAY].includes(expireTime)
+      ? Math.floor(today.getTime()) + expireTime * 1000
+      : expireTime) / 1000,
+  )
 
   const { permitState, signPermitNft, permitData } = usePermitNft({
     contractAddress: pos.id.split('-')[0],
