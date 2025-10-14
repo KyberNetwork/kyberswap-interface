@@ -47,17 +47,15 @@ export const Confirmation = ({
 
   const today = new Date()
   today.setUTCHours(0, 0, 0, 0)
-  const time = Math.floor(
-    ([7 * TIMES_IN_SECS.ONE_DAY, 30 * TIMES_IN_SECS.ONE_DAY, 90 * TIMES_IN_SECS.ONE_DAY].includes(expireTime)
-      ? Math.floor(today.getTime()) + expireTime * 1000
-      : expireTime) / 1000,
-  )
+  const time = [7 * TIMES_IN_SECS.ONE_DAY, 30 * TIMES_IN_SECS.ONE_DAY, 90 * TIMES_IN_SECS.ONE_DAY].includes(expireTime)
+    ? Math.floor(today.getTime()) + expireTime * 1000
+    : expireTime
 
   const { permitState, signPermitNft, permitData } = usePermitNft({
     contractAddress: pos.id.split('-')[0],
     tokenId: pos.tokenId,
     spender: SMART_EXIT_ADDRESS,
-    deadline: time,
+    deadline: Math.floor(time / 1000),
   })
 
   const { createSmartExitOrder, isCreating, isSuccess } = useSmartExit({
@@ -67,7 +65,7 @@ export const Confirmation = ({
     feeYieldCondition,
     priceCondition,
     timeCondition,
-    expireTime: time,
+    expireTime: Math.floor(time / 1000),
     permitData: permitData?.permitData,
     signature: permitData?.signature,
   })
