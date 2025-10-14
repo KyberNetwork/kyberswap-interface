@@ -503,6 +503,7 @@ msgstr "当满足以下条件时发送提醒"
 msgid "The owner of this liquidity position is {0}"
 msgstr "该流动性仓位的所有者是 {0}"
 
+#: src/components/SwapForm/SlippageSettingGroup.tsx
 #: src/components/swapv2/GasTokenSetting.tsx
 msgid "Pay network fees in the token of your choice."
 msgstr "使用您选择的代币支付网络手续费。"
@@ -1817,6 +1818,10 @@ msgstr "移除的LP代币"
 msgid "Your Staked KNC"
 msgstr "您已质押的 KNC"
 
+#: src/components/SwapForm/SlippageSetting.tsx
+msgid "Dynamic entry based on trading pair."
+msgstr "根据交易对动态给出提示。"
+
 #: src/pages/Campaign/components/Information.tsx
 msgid "Rewards will be airdropped directly to the winners wallets by August 12th."
 msgstr "奖励将于 8 月 12 日前直接空投至获奖者钱包。"
@@ -2106,6 +2111,10 @@ msgstr "用户拒绝签名消息"
 msgid "You have successfully cancelled all orders."
 msgstr "您已成功取消所有订单。"
 
+#: src/components/Header/web3/NetworkModal/index.tsx
+msgid "Search by chain name"
+msgstr "按链名称搜索"
+
 #: src/pages/KyberDAO/KNCUtility/index.tsx
 msgid "Step 1 - Stake KNC on KyberDAO<0/>Step 2 - Trade on KyberSwap"
 msgstr "步骤 1 - 在 KyberDAO 上质押 KNC<0/>步骤 2 - 在 KyberSwap 上交易"
@@ -2390,6 +2399,10 @@ msgstr "高风险项目"
 #: src/pages/Campaign/constants.tsx
 msgid "Referral Program"
 msgstr "推荐计划"
+
+#: src/components/SwapForm/SwapModal/ConfirmSwapModalContent.tsx
+msgid "New Suggested Slippage:"
+msgstr "新的建议滑点："
 
 #: src/components/swapv2/SwapSettingsPanel/index.tsx
 #: src/components/TransactionSettings/index.tsx
@@ -3135,6 +3148,10 @@ msgstr "偏好"
 msgid "Create Alert Failed"
 msgstr "创建提醒失败"
 
+#: src/components/SwapForm/SwapModal/ConfirmSwapModalContent.tsx
+msgid "Use Suggested Slippage"
+msgstr "使用建议滑点"
+
 #: src/components/Announcement/Popups/TransactionPopup.tsx
 msgid "Unstake liquidity from farm."
 msgstr "从农场解除流动性质押。"
@@ -3757,6 +3774,7 @@ msgstr "阶段 3"
 
 #: src/components/Header/groups/SwapNavGroup.tsx
 #: src/components/Menu/index.tsx
+#: src/components/SwapForm/PriceImpactNote.tsx
 #: src/components/swapv2/LimitOrder/useNotificationLimitOrder.tsx
 #: src/components/swapv2/LimitOrder/useNotificationLimitOrder.tsx
 #: src/pages/Campaign/MyDashboard.tsx
@@ -4042,6 +4060,10 @@ msgstr "委托"
 msgid "25%"
 msgstr "25%"
 
+#: src/components/SwapForm/SwapModal/ConfirmSwapModalContent.tsx
+msgid "This route may currently be too volatile to execute. Try to custom your own slippage to continue."
+msgstr "该路径目前波动过大，无法执行。请尝试自定义滑点后再继续。"
+
 #: src/pages/Campaign/components/Information.tsx
 msgid "You can view your total points earned and current rank by going to the “Leaderboard” tab."
 msgstr "您可以在“排行榜”标签中查看累计积分和当前排名。"
@@ -4167,6 +4189,10 @@ msgstr "保留当前资料"
 #: src/pages/Earns/PositionDetail/RewardSection.tsx
 msgid "will move to “Vesting” when this cycle ends."
 msgstr "本周期结束后将移动至“归属中”。"
+
+#: src/components/SwapForm/SlippageSetting.tsx
+msgid "Suggestion"
+msgstr "建议"
 
 #: src/pages/Earns/PositionDetail/PositionHistory.tsx
 msgid "Position History"
@@ -4797,6 +4823,10 @@ msgstr "以更优汇率兑换代币，无任何限制"
 #: src/components/SwapForm/PriceImpactNote.tsx
 msgid "<0>Price Impact</0><1>is high</1>"
 msgstr "<0>价格影响</0><1>较高</1>"
+
+#: src/components/SwapForm/SwapModal/ConfirmSwapModalContent.tsx
+msgid "Set Custom Slippage"
+msgstr "自定义滑点"
 
 #: src/components/Announcement/Popups/TransactionPopup.tsx
 #: src/components/TransactionConfirmationModal/index.tsx
@@ -5482,6 +5512,11 @@ msgstr "批准"
 #: src/pages/KyberDAO/Vote/ProposalItem/index.tsx
 msgid "Github"
 msgstr "GitHub"
+
+#: src/components/SwapForm/SlippageSettingGroup.tsx
+#: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
+msgid "Add MEV Protection to safeguard you from front-running attacks."
+msgstr "添加 MEV 防护可保护您免受抢跑攻击。"
 
 #: src/components/swapv2/TokenInfo/utils.ts
 msgid "Blacklisted Function"
@@ -6290,6 +6325,10 @@ msgstr "加密钱包让您掌控数字代币，并成为进入 KyberSwap 等区�
 #: src/components/swapv2/LimitOrder/useNotificationLimitOrder.tsx
 msgid "Cancel all orders failed. Please try again."
 msgstr "取消全部订单失败，请重试。"
+
+#: src/components/SwapForm/SlippageSetting.tsx
+msgid "Maximum slippage allowed for Degen mode is 50%"
+msgstr "Degen 模式允许的最大滑点为 50%"
 
 #: src/pages/NotificationCenter/CreateAlert/ConfirmModal.tsx
 msgid "Alert Created"
@@ -7120,6 +7159,10 @@ msgstr "数值"
 #: src/components/swapv2/SwapSettingsPanel/TransactionTimeLimitSetting.tsx
 msgid "Transaction time limit"
 msgstr "交易时限"
+
+#: src/components/SwapForm/SwapModal/ConfirmSwapModalContent.tsx
+msgid "This suggestion is based on your trade's estimated slippage and token pair volatility, with a cap applied."
+msgstr "此建议基于您交易的预估滑点和代币对波动性，并额外设置了上限。"
 
 #: src/pages/RemoveLiquidityProAmm/index.tsx
 msgid "50%"

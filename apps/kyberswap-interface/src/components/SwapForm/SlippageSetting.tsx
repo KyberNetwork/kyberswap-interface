@@ -21,7 +21,7 @@ const highlight = keyframes`
   }
 
   70% {
-    box-shadow: 0 0 0 3px #31CB9E66; 
+    box-shadow: 0 0 0 3px #31CB9E66;
   }
 
   100% {
@@ -206,7 +206,7 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
         />
         {isDegenMode && expanded && (
           <Text fontSize="12px" fontWeight="500" color={theme.subText} padding="4px 6px" marginTop="-12px">
-            Maximum Slippage allow for Degen mode is 50%
+            <Trans>Maximum slippage allowed for Degen mode is 50%</Trans>
           </Text>
         )}
         {Math.abs(defaultSlp - rawSlippage) / defaultSlp > 0.2 && (
@@ -220,8 +220,10 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
             role="button"
             onClick={() => setRawSlippage(defaultSlp)}
           >
-            <MouseoverTooltip text="Dynamic entry based on trading pair." placement="bottom">
-              <Text sx={{ borderBottom: `1px dotted ${theme.primary}` }}>Suggestion</Text>
+            <MouseoverTooltip text={<Trans>Dynamic entry based on trading pair.</Trans>} placement="bottom">
+              <Text sx={{ borderBottom: `1px dotted ${theme.primary}` }}>
+                <Trans>Suggestion</Trans>
+              </Text>
             </MouseoverTooltip>
             {(defaultSlp * 100) / 10_000}%
           </Flex>

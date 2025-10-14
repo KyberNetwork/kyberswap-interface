@@ -58,7 +58,7 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLi
         switchToLimitOrder()
       }}
     >
-      Limit Order
+      <Trans>Limit Order</Trans>
     </Text>
   )
 
