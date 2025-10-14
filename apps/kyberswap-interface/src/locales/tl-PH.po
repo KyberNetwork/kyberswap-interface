@@ -93,7 +93,7 @@ msgstr ""
 #~ msgid "Transaction will revert if there is an adverse rate change that is higher than this %"
 #~ msgstr ""
 
-#: 
+#:
 #~ msgid "+ Add Recipient (optional)"
 #~ msgstr ""
 
@@ -135,7 +135,7 @@ msgstr ""
 msgid "Exported profiles will not be associated with your wallet. Your export code is unique. Learn more about profile <0>here</0>."
 msgstr ""
 
-#: 
+#:
 #~ msgid "Manage this pool."
 #~ msgstr ""
 
@@ -437,8 +437,8 @@ msgstr ""
 msgid "Use Aggregator for Zaps"
 msgstr ""
 
-#: 
-#: 
+#:
+#:
 #~ msgid "Provide Liquidity"
 #~ msgstr ""
 
@@ -1922,11 +1922,11 @@ msgstr ""
 msgid "Hard Cancel All Orders"
 msgstr ""
 
-#: 
+#:
 #~ msgid "Max APY Available"
 #~ msgstr ""
 
-#: 
+#:
 #~ msgid "Deposit your liquidity & then stake it to earn even more attractive rewards"
 #~ msgstr ""
 
@@ -2706,7 +2706,7 @@ msgstr ""
 #~ msgid "Error connecting. Try refreshing the page."
 #~ msgstr ""
 
-#: 
+#:
 #~ msgid "Add liquidity to our Classic Pools & earn fees automatically. We amplify liquidity pools so you earn more fees even with less liquidity!"
 #~ msgstr ""
 
@@ -2821,7 +2821,7 @@ msgstr ""
 #~ msgstr ""
 
 #: src/pages/Farm/ElasticFarmv2/components/NewRangesNotiModal.tsx
-#~ msgid "This indicates that range is idle. Staked positions in this range is still earning small amount of rewards."
+#~ msgid "This indicates that range is idle. Staked positionsin this range is still earning small amount of rewards."
 #~ msgstr ""
 
 #: src/components/SearchModal/ImportToken.tsx
@@ -2870,7 +2870,7 @@ msgstr ""
 msgid "Subscribe"
 msgstr ""
 
-#: 
+#:
 #~ msgid "If you would like to subscribe to notifications, please use Google Chrome (macOS, Windows, Android). Other browsers will be supported in the near future"
 #~ msgstr ""
 
@@ -3191,8 +3191,8 @@ msgstr ""
 #~ msgid "Volume (24h)"
 #~ msgstr ""
 
-#: 
-#: 
+#:
+#:
 #~ msgid "REWARD:"
 #~ msgstr ""
 
@@ -3872,7 +3872,7 @@ msgstr ""
 #~ msgid "<0>Create a watchlist of your favorite tokens</0>, and analyze them quickly."
 #~ msgstr ""
 
-#: 
+#:
 #~ msgid "We gives liquidity providers the option of choosing between two liquidity protocols so they can earn passive income - KyberSwap Elastic and KyberSwap Classic. Simply deposit your liquidity and start earning."
 #~ msgstr ""
 
@@ -3959,7 +3959,7 @@ msgstr ""
 msgid "Send"
 msgstr ""
 
-#: 
+#:
 #~ msgid "Enables high slippage trades. Use at your own risk."
 #~ msgstr ""
 
@@ -4279,8 +4279,8 @@ msgstr ""
 msgid "Your cancellation {summary} has been submitted"
 msgstr ""
 
-#: 
-#: 
+#:
+#:
 #~ msgid "What can KNC be used for?"
 #~ msgstr ""
 
@@ -4505,7 +4505,7 @@ msgstr ""
 #~ msgid "View all"
 #~ msgstr ""
 
-#: 
+#:
 #~ msgid "Rewards: {0} {1}"
 #~ msgstr ""
 
@@ -6814,7 +6814,7 @@ msgstr ""
 msgid "Search by pool address"
 msgstr ""
 
-#: 
+#:
 #~ msgid "These tokens are commonly paired with other tokens."
 #~ msgstr ""
 
@@ -6884,7 +6884,7 @@ msgstr ""
 #~ msgid "You are creating a pool"
 #~ msgstr ""
 
-#: 
+#:
 #~ msgid "Tokens from inactive lists. Import specific tokens below or click 'Manage' to activate more lists."
 #~ msgstr ""
 
@@ -7553,7 +7553,7 @@ msgstr ""
 #~ msgid "Centralized Exchanges"
 #~ msgstr ""
 
-#: 
+#:
 #~ msgid "DEPOSIT"
 #~ msgstr ""
 
@@ -8425,8 +8425,8 @@ msgstr ""
 msgid "Alert when"
 msgstr ""
 
-#: 
-#: 
+#:
+#:
 #~ msgid "AVAILABLE BALANCE:"
 #~ msgstr ""
 
@@ -8665,8 +8665,8 @@ msgstr ""
 #~ msgid "Click Get Started to subscribe to Telegram"
 #~ msgstr ""
 
-#: 
-#: 
+#:
+#:
 #~ msgid "AMP"
 #~ msgstr ""
 
@@ -8836,7 +8836,7 @@ msgstr ""
 #~ msgid "Install ${0} extension"
 #~ msgstr ""
 
-#: 
+#:
 #~ msgid "You can manually import your pool"
 #~ msgstr ""
 
@@ -8848,7 +8848,7 @@ msgstr ""
 msgid "We suggest you increase the value of your limit order to at least <0>${threshold}</0>. This will increase the odds of your order being filled."
 msgstr ""
 
-#: 
+#:
 #~ msgid "Unlocked: {0} {1}"
 #~ msgstr ""
 
@@ -9030,7 +9030,7 @@ msgstr ""
 #~ msgid "Set Your Price Range"
 #~ msgstr ""
 
-#: 
+#:
 #~ msgid "No {type} pool found."
 #~ msgstr ""
 
@@ -9217,7 +9217,7 @@ msgstr ""
 #~ msgid "Fulfil these requirements to participate in the campaign"
 #~ msgstr ""
 
-#: 
+#:
 #~ msgid "Vesting started: {0}"
 #~ msgstr ""
 
@@ -9539,7 +9539,7 @@ msgstr ""
 #~ msgid "<0>Monitor token prices - Set a price alert</0>, sit back and we'll notify you."
 #~ msgstr ""
 
-#: 
+#:
 #~ msgid "Max APR Available ↗️"
 #~ msgstr ""
 
@@ -9687,8 +9687,8 @@ msgstr ""
 #~ msgid "Success!"
 #~ msgstr ""
 
-#: 
-#: 
+#:
+#:
 #~ msgid "Manage Liquidity in Rewards Pool"
 #~ msgstr ""
 
@@ -9797,7 +9797,7 @@ msgstr ""
 msgid "Create Pool"
 msgstr ""
 
-#: 
+#:
 #~ msgid "Search name or paste address"
 #~ msgstr ""
 
@@ -9911,7 +9911,7 @@ msgstr ""
 msgid "Connecting Wallet"
 msgstr ""
 
-#: 
+#:
 #~ msgid "{0} on {1}"
 #~ msgstr ""
 
@@ -10215,9 +10215,9 @@ msgstr ""
 #~ msgid "You are creating a new pool and will be the first liquidity provider. The ratio of tokens you supply below will set the initial price of this pool. Once you are satisfied with the rate, proceed to supply liquidity."
 #~ msgstr ""
 
-#: 
-#: 
-#: 
+#:
+#:
+#:
 #~ msgid "APY"
 #~ msgstr ""
 
@@ -10818,8 +10818,8 @@ msgstr ""
 msgid "Mint Function"
 msgstr ""
 
-#: 
-#: 
+#:
+#:
 #~ msgid "Estimated Refund"
 #~ msgstr ""
 
@@ -11219,7 +11219,7 @@ msgstr ""
 msgid "Max Slippage"
 msgstr ""
 
-#: 
+#:
 #~ msgid "Farm APY"
 #~ msgstr ""
 

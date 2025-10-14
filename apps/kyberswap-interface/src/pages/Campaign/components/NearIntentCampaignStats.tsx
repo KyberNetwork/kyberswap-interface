@@ -1,4 +1,5 @@
 import { ChainId, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
+import { Trans } from '@lingui/macro'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { useGetUserRewardQuery } from 'services/campaign'
@@ -203,7 +204,7 @@ export const NearIntentCampaignStats = ({
                             }
                           }}
                         >
-                          {address[walletType] ? 'Disconnect' : 'Connect'}
+                          {address[walletType] ? <Trans>Disconnect</Trans> : <Trans>Connect</Trans>}
                         </ButtonText>
                       </Flex>
                     ))}
@@ -218,7 +219,9 @@ export const NearIntentCampaignStats = ({
               justifyContent={upToSmall ? 'space-between' : 'flex-start'}
               style={{ flex: 1 }}
             >
-              <Text color={theme.subText}>My Earned Points</Text>
+              <Text color={theme.subText}>
+                <Trans>My Earned Points</Trans>
+              </Text>
               <Text fontSize={16} fontWeight={500}>
                 {formatDisplayNumber(Math.floor(data[selectedWallet]?.point || 0), { significantDigits: 6 })}
               </Text>
@@ -231,7 +234,9 @@ export const NearIntentCampaignStats = ({
               justifyContent={upToSmall ? 'space-between' : 'flex-start'}
               style={{ flex: 1 }}
             >
-              <Text color={theme.subText}>My Est. Rewards</Text>
+              <Text color={theme.subText}>
+                <Trans>My Est. Rewards</Trans>
+              </Text>
 
               <Flex alignItems="center" sx={{ gap: '4px' }}>
                 <img src={reward.logo} width={18} height={18} style={{ borderRadius: '50%' }} alt="" />
@@ -244,11 +249,11 @@ export const NearIntentCampaignStats = ({
         ) : (
           <>
             <Text fontSize={14} color={theme.subText}>
-              Connect wallet to view your reward
+              <Trans>Connect wallet to view your reward</Trans>
             </Text>
 
             <ButtonLight width="max-content" height="36px" onClick={() => setShowSelect(true)}>
-              Connect Wallet
+              <Trans>Connect Wallet</Trans>
             </ButtonLight>
           </>
         )}

@@ -1,4 +1,5 @@
 import { ChainId, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
+import { Trans } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
@@ -158,7 +159,7 @@ export const MyNearIntentDashboard = ({
                             }
                           }}
                         >
-                          {address[walletType] ? 'Disconnect' : 'Connect'}
+                          {address[walletType] ? <Trans>Disconnect</Trans> : <Trans>Connect</Trans>}
                         </ButtonText>
                       </Flex>
                     ))}
@@ -174,7 +175,9 @@ export const MyNearIntentDashboard = ({
               justifyContent={upToSmall ? 'space-between' : 'flex-start'}
               style={{ flex: 1 }}
             >
-              <Text color={theme.subText}>My Earned Points</Text>
+              <Text color={theme.subText}>
+                <Trans>My Earned Points</Trans>
+              </Text>
               <Text fontSize={18} fontWeight={500}>
                 {formatDisplayNumber(Math.floor(data[selectedWallet]?.totalPoint || 0), { significantDigits: 6 })}
               </Text>
@@ -187,7 +190,9 @@ export const MyNearIntentDashboard = ({
               justifyContent={upToSmall ? 'space-between' : 'flex-start'}
               style={{ flex: 1 }}
             >
-              <Text color={theme.subText}>My Est. Rewards</Text>
+              <Text color={theme.subText}>
+                <Trans>My Est. Rewards</Trans>
+              </Text>
 
               <Flex alignItems="center" sx={{ gap: '4px' }}>
                 <img src={reward.logo} width={20} height={20} style={{ borderRadius: '50%' }} alt="" />
@@ -200,11 +205,11 @@ export const MyNearIntentDashboard = ({
         ) : (
           <>
             <Text fontSize={14} color={theme.subText}>
-              Connect wallet to view your reward
+              <Trans>Connect wallet to view your reward</Trans>
             </Text>
 
             <ButtonLight width="max-content" height="36px" onClick={() => setShowSelect(true)}>
-              Connect Wallet
+              <Trans>Connect Wallet</Trans>
             </ButtonLight>
           </>
         )}
@@ -223,9 +228,15 @@ export const MyNearIntentDashboard = ({
       {!upToSmall && (
         <>
           <TableHeader>
-            <Text>WEEK</Text>
-            <Text textAlign="right">POINTS EARNED</Text>
-            <Text textAlign="right">ESTIMATED REWARDS </Text>
+            <Text>
+              <Trans>WEEK</Trans>
+            </Text>
+            <Text textAlign="right">
+              <Trans>POINTS EARNED</Trans>
+            </Text>
+            <Text textAlign="right">
+              <Trans>ESTIMATED REWARDS</Trans>{' '}
+            </Text>
           </TableHeader>
           <Divider />
         </>
@@ -242,20 +253,21 @@ export const MyNearIntentDashboard = ({
               <Box paddingY="1rem" sx={{ borderBottom: `1px solid ${theme.border}` }} key={index}>
                 <Flex justifyContent="space-between" alignItems="center">
                   <Text color={theme.subText}>
-                    Week {item.week - baseWeek}: {dayjs(date).format('MMM DD')} - {dayjs(end).format('MMM DD')}
+                    <Trans>Week {item.week - baseWeek}:</Trans> {dayjs(date).format('MMM DD')} -{' '}
+                    {dayjs(end).format('MMM DD')}
                   </Text>
                 </Flex>
 
                 <Flex justifyContent="space-between" alignItems="center" mt="1rem">
                   <Text color={theme.subText} fontSize={12} fontWeight={500}>
-                    POINTS EARNED
+                    <Trans>POINTS EARNED</Trans>
                   </Text>
                   <Text textAlign="right">{formatDisplayNumber(Math.floor(item.point), { significantDigits: 6 })}</Text>
                 </Flex>
 
                 <Flex justifyContent="space-between" alignItems="center" mt="0.5rem">
                   <Text color={theme.subText} fontSize={12} fontWeight={500}>
-                    ESTIMATED REWARDS
+                    <Trans>ESTIMATED REWARDS</Trans>
                   </Text>
                   <Flex justifyContent="flex-end" alignItems="flex-end" sx={{ gap: '4px' }}>
                     <img src={reward.logo} width={20} height={20} style={{ borderRadius: '50%' }} alt="" />
@@ -300,7 +312,7 @@ export const MyNearIntentDashboard = ({
         })
       ) : (
         <Text textAlign="center" color={theme.subText} mt="24px">
-          No data found
+          <Trans>No data found</Trans>
         </Text>
       )}
     </Box>

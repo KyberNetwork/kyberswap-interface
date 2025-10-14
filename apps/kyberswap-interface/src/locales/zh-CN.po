@@ -13,9 +13,18 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "Plural-Forms: \n"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "Uncorrelated tokens filled orders will give 5 Points per USD. This section includes orders of any eligible token to any eligible token that do not fall in category 1; 3 and 4."
+msgstr "非相关代币成交的订单每兑换 1 美元可获得 5 积分。本类别涵盖所有不属于第 1、3、4 类的任意合资格代币之间的订单。"
+
 #: src/components/SwapForm/SwapModal/ConfirmSwapModalContent.tsx
 msgid "Rate:"
 msgstr "汇率："
+
+#: src/pages/Campaign/components/Information.tsx
+#: src/pages/Campaign/components/Information.tsx
+msgid "KyberSwap may modify the campaign mechanics, eligibility, or rewards at any time without prior notice. All decisions regarding rewards and disqualification are final and at the sole discretion of the KyberSwap team."
+msgstr "KyberSwap 可在不事先通知的情况下随时调整活动机制、参与资格或奖励。关于奖励及资格取消的一切决定均由 KyberSwap 团队全权裁定且为最终决定。"
 
 #: src/pages/ElasticLegacy/FarmLegacy.tsx
 msgid "Staked liquidity"
@@ -29,6 +38,8 @@ msgstr "请在下方输入 <0>Confirm</0> 以启用 Degen 模式"
 msgid "You need to first allow KyberSwap smart contracts to use your {inSymbol}. This has to be done only once for each token."
 msgstr "您需要先授权 KyberSwap 智能合约使用您的 {inSymbol}。每个代币只需执行一次。"
 
+#: src/pages/Campaign/components/MyNearIntentDashboard.tsx
+#: src/pages/Campaign/components/NearIntentCampaignStats.tsx
 #: src/pages/CrossChainSwap/components/TokenPanel.tsx
 msgid "Disconnect"
 msgstr "断开连接"
@@ -42,6 +53,12 @@ msgstr "正在寻找最佳路线..."
 msgid "Updated"
 msgstr "已更新"
 
+#: src/pages/Campaign/MyDashboard.tsx
+#: src/pages/Campaign/MyDashboard.tsx
+#: src/pages/Campaign/MyDashboard.tsx
+msgid "ENDED"
+msgstr "已结束"
+
 #: src/components/swapv2/LimitOrder/const.ts
 msgid "Open Orders"
 msgstr "未成交订单"
@@ -49,6 +66,11 @@ msgstr "未成交订单"
 #: src/pages/KyberDAO/KNCUtility/GasRefundBox.tsx
 msgid "Total Gas Refund = Available + Pending + Claimed Gas Refund"
 msgstr "燃气费返还总额 = 可用 + 待处理 + 已领取的燃气费返还"
+
+#: src/pages/Campaign/MyDashboard.tsx
+#: src/pages/Campaign/MyDashboard.tsx
+msgid "Cross Chain"
+msgstr "跨链"
 
 #: src/components/EarningPieChart/index.tsx
 #: src/components/EarningPieChart/index.tsx
@@ -63,6 +85,10 @@ msgstr "加载中..."
 msgid "Increase Liquidity"
 msgstr "增加流动性"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "Any Other Pairs"
+msgstr "其他任意交易对"
+
 #: src/pages/NotificationCenter/Profile/ExportAccountModal/UserEnterPasscodeContent.tsx
 msgid "Exported profiles will not be associated with your wallet. Your export code is unique. Learn more about profile <0>here</0>."
 msgstr "导出的档案不会与您的钱包关联。您的导出代码是唯一的。了解更多关于档案的信息<0>请点击这里</0>。"
@@ -71,6 +97,10 @@ msgstr "导出的档案不会与您的钱包关联。您的导出代码是唯一
 #: src/components/swapv2/LimitOrder/OrderBook/TableHeader.tsx
 msgid "RATE"
 msgstr "汇率"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "1. John refers Vitalik."
+msgstr "1. 约翰邀请了维塔利克。"
 
 #: src/pages/CrossChainSwap/components/TransactionHistory.tsx
 msgid "Refunded"
@@ -100,6 +130,10 @@ msgstr "KNCL 余额不足！"
 #: src/components/swapv2/TokenInfoIcon.tsx
 msgid "Token Info"
 msgstr "代币信息"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "How often is referral data updated?"
+msgstr "推荐数据多久更新一次？"
 
 #: src/components/Announcement/PrivateAnnoucement/InboxItemPoolPosition.tsx
 #: src/components/Announcement/PrivateAnnoucement/NotificationCenter/PoolPosition.tsx
@@ -151,6 +185,14 @@ msgstr "正在下单"
 msgid "Loading token..."
 msgstr "正在加载代币..."
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "📄 Terms & Conditions"
+msgstr "📄 条款与细则"
+
+#: src/pages/Campaign/constants.tsx
+msgid "May Trading Campaign"
+msgstr "五月交易活动"
+
 #: src/pages/CrossChainSwap/components/Summary.tsx
 msgid "Check more details <0>here</0>"
 msgstr "查看更多详情<0>请点击这里</0>"
@@ -177,9 +219,22 @@ msgstr "仓位 {0}"
 msgid "FARMING POOLS"
 msgstr "挖矿池"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "Go to <0>kyberswap.com/swap/base</0>"
+msgstr "前往 <0>kyberswap.com/swap/base</0>"
+
 #: src/pages/Earns/Landing/RewardSection.tsx
 msgid "Collect Rewards"
 msgstr "领取奖励"
+
+#: src/pages/Campaign/components/Information.tsx
+#: src/pages/Campaign/components/Information.tsx
+msgid "Which tokens can I trade to be eligible for the rewards?"
+msgstr "我可以交易哪些代币才能符合领取奖励的资格？"
+
+#: src/pages/Campaign/constants.tsx
+msgid "Limit Order Campaign"
+msgstr "限价单活动"
 
 #: src/pages/Earns/PositionDetail/index.tsx
 msgid "No position found!"
@@ -209,6 +264,11 @@ msgstr "适合风险偏好较低、价格波动较大的交易对 LP。预期价
 msgid "My Farming Positions"
 msgstr "我的挖矿仓位"
 
+#: src/pages/Campaign/components/Information.tsx
+#: src/pages/Campaign/components/Information.tsx
+msgid "Ex: ARB <> USDC; ETH <> ARB; PENDLE <> ARB"
+msgstr "示例：ARB <> USDC；ETH <> ARB；PENDLE <> ARB"
+
 #: src/components/FeeControlGroup/index.tsx
 msgid "No hidden fees - Your optional tips support {clientName}!"
 msgstr "无隐藏费用 - 您的自愿小费将支持 {clientName}！"
@@ -216,6 +276,14 @@ msgstr "无隐藏费用 - 您的自愿小费将支持 {clientName}！"
 #: src/components/swapv2/LimitOrder/Modals/CancelOrderModal.tsx
 msgid "Hard Cancel"
 msgstr "强制取消"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "There is no maximum bonus limit for each eligible wallet."
+msgstr "每个合资格钱包没有奖金上限。"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "As a referee, you'll get a 5% bonus on your rewards from KyberSwap.com."
+msgstr "作为被推荐人，您将在 KyberSwap.com 获得奖励的基础上额外享受 5% 奖金。"
 
 #: src/pages/Earns/Landing/index.tsx
 #: src/pages/Earns/PoolExplorer/Filter.tsx
@@ -307,6 +375,10 @@ msgstr "否"
 msgid "Sender:"
 msgstr "发送者："
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "Stable Pairs:"
+msgstr "稳定交易对："
+
 #: src/pages/ElasticSnapshot/components/ChooseGrantModal.tsx
 msgid "USD stablecoins equivalent to 60% of the Reference Value of Lost Affected Assets contributed from such Affected Address, vested continuously on a linear basis over 3 months."
 msgstr "向该受影响地址发放相当于受影响资产参考价值 60% 的美元稳定币，并在 3 个月内按线性方式持续归属。"
@@ -367,6 +439,10 @@ msgstr "正在取消订单"
 msgid "Keep this profile active whenever you switch wallets."
 msgstr "每次切换钱包时都保持此档案处于激活状态。"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "Stablecoins to Stablecoins filled orders will give 0.25 Points per USD."
+msgstr "稳定币对成交的订单每兑换 1 美元可获得 0.25 积分。"
+
 #: src/pages/NotificationCenter/CreateAlert/ConfirmModal.tsx
 #: src/pages/NotificationCenter/CreateAlert/CreateAlertForm.tsx
 #: src/pages/NotificationCenter/PriceAlerts/AlertCondition.tsx
@@ -399,6 +475,14 @@ msgstr "检查您的订单"
 #: src/components/TransactionSettings/index.tsx
 msgid "Degen Mode"
 msgstr "Degen 模式"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "How are my referee/referrer rewards calculated?"
+msgstr "被推荐人和推荐人的奖励是如何计算的？"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "Claiming will require a gas fee. Users must claim their rewards before 00:00 UTC on July 9; unclaimed rewards after this time will no longer be available."
+msgstr "领取需要支付 Gas 费用。用户必须在 7 月 9 日 00:00 UTC 前领取奖励，逾期未领取的奖励将不再提供。"
 
 #: src/pages/NotificationCenter/CreateAlert/CreateAlertForm.tsx
 #: src/pages/NotificationCenter/CreateAlert/index.tsx
@@ -451,6 +535,14 @@ msgstr "我的仓位"
 msgid "The price of the pool is outside your selected price range and hence you can only deposit a single token. To see more options, update the price range."
 msgstr "池子的价格已超出您选择的价格区间，因此您只能存入单一代币。若要查看更多选项，请更新价格区间。"
 
+#: src/pages/Campaign/constants.tsx
+msgid "<0>Week 8</0> Aug 26 - Sep 01"
+msgstr "<0>第 8 周</0> 8 月 26 日 - 9 月 1 日"
+
+#: src/pages/Campaign/MyDashboard.tsx
+msgid "The current rewards are based on your current rank. See Information for details."
+msgstr "当前奖励基于您的当前排名。详情请查看“信息”页签。"
+
 #: src/pages/NotificationCenter/CreateAlert/CreateAlertForm.tsx
 #: src/pages/NotificationCenter/NotificationPreference/index.tsx
 #: src/pages/NotificationCenter/Profile/ImportAccountModal/index.tsx
@@ -478,13 +570,33 @@ msgstr "您的流动性"
 msgid "Suitable for low-risk appetite LPs for pairs with high price volatility. Anticipating price to fluctuate within ~100%. You can earn fees even if the price goes up by 50% or goes down by 50%."
 msgstr "适合风险偏好较低、价格波动较大的交易对 LP。预期价格波动幅度约为 100%。即使价格上涨 50% 或下跌 50%，您仍可赚取手续费。"
 
+#: src/pages/Campaign/components/Information.tsx
+#: src/pages/Campaign/components/Information.tsx
+#: src/pages/Campaign/components/Information.tsx
+msgid "When is the deadline to claim the rewards?"
+msgstr "领取奖励的截止时间是什么时候？"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "Users can freely choose pairs and routes to optimize their points within the $50,000 volume cap in Week 2. For example:"
+msgstr "用户可以在第 2 周 5 万美元的交易量上限内自由选择交易对和路径以优化积分。例如："
+
 #: src/pages/CrossChainSwap/components/QuoteSelector.tsx
 msgid "More options"
 msgstr "更多选项"
 
+#: src/pages/Campaign/components/Information.tsx
+#: src/pages/Campaign/components/Information.tsx
+#: src/pages/Campaign/components/Information.tsx
+msgid "KyberSwap doesn’t charge any fee on claiming rewards, user only needs to pay gas fee on Arbitrum for transaction execution."
+msgstr "KyberSwap 在用户领取奖励时不收取任何费用，您只需支付在 Arbitrum 上执行交易的 Gas 费用。"
+
 #: src/pages/KyberDAO/StakeKNC/index.tsx
 msgid "Total KNC migrated from KNCL"
-msgstr ""
+msgstr "从 KNCL 迁移的 KNC 总量"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "The volume is counted for the Near wallet (destination wallet), not the EVM wallet."
+msgstr "交易量计入 Near 钱包（目标钱包），而不是 EVM 钱包。"
 
 #: src/components/NavigationTabs/index.tsx
 #: src/components/PositionCard/index.tsx
@@ -502,24 +614,28 @@ msgstr "删除流动性"
 
 #: src/utils/time.ts
 msgid "{day} {temp} ago"
-msgstr ""
+msgstr "{day} {temp} 前"
 
 #: src/components/ElasticHackedModal.tsx
 msgid "Adding liquidity to Elastic Pools and staking in Elastic Farms is temporarily unavailable. Kindly visit \"My Pool\" for prompt removal of your liquidity."
-msgstr ""
+msgstr "Elastic 池添增流动性及 Elastic 农场质押暂时不可用。请前往“我的池子”及时移除您的流动性。"
 
 #: src/components/WalletPopup/RewardCenter.tsx
 msgid "Voting Rewards"
-msgstr ""
+msgstr "投票奖励"
 
 #: src/pages/AddLiquidityV2/constants.ts
 msgid "Suitable for stablecoin or stable correlated pairs. Anticipating price to fluctuate within ~2%. You can earn fees even if the price goes up by 1% or goes down by 1%."
-msgstr ""
+msgstr "适合稳定币或高度相关的交易对，预计价格波动约 2%。即使价格上涨 1% 或下跌 1%，您仍可赚取手续费。"
 
 #: src/components/LiveChart/index.tsx
 #: src/components/LiveChart/ProChartToggle.tsx
 msgid "Pro"
 msgstr "专业版"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "Please ensure you thoroughly read our Terms & Conditions before you begin earning points."
+msgstr "开始获取积分前，请务必仔细阅读我们的条款与条件。"
 
 #: src/pages/Earns/components/ClaimModal/index.tsx
 msgid "Choose to reinvest your earnings back into this position or send them to your wallet."
@@ -543,6 +659,11 @@ msgstr "增加流动性"
 msgid "Your fees are being automatically compounded so you earn more"
 msgstr "您的手续费正在自动复利，帮助您获得更多收益"
 
+#: src/pages/Campaign/components/Information.tsx
+#: src/pages/Campaign/components/Information.tsx
+msgid "Category 4"
+msgstr "第 4 类"
+
 #: src/pages/NotificationCenter/NotificationPreference/index.tsx
 msgid "Before you can subscribe to this notification, sign-in to a profile first. Go the <0>Profile</0> tab to sign-in with your wallet"
 msgstr "在订阅此通知之前，请先登录一个档案。前往<0>档案</0>页签并使用钱包登录"
@@ -554,6 +675,15 @@ msgstr "仓位创建于 {0}"
 #: src/components/SwapForm/TradeSummary.tsx
 msgid "Read more about the fees {hereLink}"
 msgstr "在 {hereLink} 了解更多手续费信息"
+
+#: src/pages/Campaign/components/Information.tsx
+#: src/pages/Campaign/components/Information.tsx
+msgid "What is the Finalized Rewards compared with Estimated Rewards"
+msgstr "最终奖励与预计奖励有何区别"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "ARB trading will give 10 Points per USD swapped. It can be paired with any eligible tokens from the list, except plsARB that falls in Category 3."
+msgstr "交易 ARB 每兑换 1 美元可获得 10 积分，可与列表中的任何合格代币配对，除第 3 类的 plsARB 外。"
 
 #: src/components/CurrencyInputPanel/index.tsx
 msgid "MAX"
@@ -571,6 +701,10 @@ msgstr "访问 KyberSwap 并参与该计划，即表示用户已阅读、理解�
 #: src/components/PositionCard/index.tsx
 msgid "My Share Of Pool"
 msgstr "我在池中的份额"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "Week 1: 0h00 UTC 21st July - 23h59 UTC 27th July."
+msgstr "第 1 周：7 月 21 日 0:00 UTC - 7 月 27 日 23:59 UTC。"
 
 #: src/pages/KyberDAO/StakeKNC/StakeKNCComponent.tsx
 msgid "You are undelegating your voting from {delegatedAddress}."
@@ -590,7 +724,7 @@ msgstr "您确定要取消 {0} 笔限价订单吗？"
 
 #: src/components/Announcement/Popups/TransactionPopup.tsx
 msgid "You have successfully transferred {postFix}"
-msgstr ""
+msgstr "您已成功转账 {postFix}"
 
 #: src/pages/Earns/PositionDetail/PositionHistory.tsx
 msgid "Created Time"
@@ -663,9 +797,17 @@ msgstr "Pooled {0}"
 msgid "Cross-Chain"
 msgstr "跨链"
 
+#: src/pages/Earns/UserPositions/index.tsx
+msgid "<0><1/><2>Unclaimed</2></0><3><4>rewards</4><5/></3>"
+msgstr "<0><1/><2>未领取</2></0><3><4>奖励</4><5/></3>"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "For $1 in trading volume, you earn 1 point"
+msgstr "每 1 美元的交易量可获得 1 积分"
+
 #: src/components/Menu/index.tsx
 msgid "Bridge Assets"
-msgstr ""
+msgstr "跨链资产"
 
 #: src/pages/PoolFinder/index.tsx
 msgid "Manage your pools."
@@ -703,6 +845,7 @@ msgstr "我知道"
 
 #: src/components/Header/groups/CampaignNavGroup.tsx
 #: src/components/Menu/index.tsx
+#: src/pages/Campaign/MyDashboard.tsx
 msgid "May Trading"
 msgstr "五月交易"
 
@@ -776,6 +919,10 @@ msgstr "由于我们的旧版 Elastic 协议存在<0><1>潜在问题</1></0>，�
 msgid "My Order(s)"
 msgstr "我的订单"
 
+#: src/pages/Campaign/components/MyReferralDashboard.tsx
+msgid "TIME"
+msgstr "时间"
+
 #: src/components/Header/web3/NetworkModal/components/DraggableNetworkButton.tsx
 msgid "Maintenance"
 msgstr "维护中"
@@ -804,6 +951,10 @@ msgstr "以下订单已成功取消：<0/>{listOrderName}"
 #: src/pages/About/AboutKyberSwap/index.tsx
 msgid "Tokens"
 msgstr "代币"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "KyberSwap Cross-Chain leverages Near Intent infrastructure. Please note that any infrastructure-related issues are not under KyberSwap’s responsibility."
+msgstr "KyberSwap 跨链功能依托 Near Intent 基础设施运作，请注意任何与该基础设施相关的问题均不由 KyberSwap 承担责任。"
 
 #: src/pages/NotificationCenter/PriceAlerts/AlertType.tsx
 msgid "above"
@@ -835,6 +986,10 @@ msgstr "您确定吗?"
 msgid "{hour} {temp} ago"
 msgstr "{hour} {temp} 前"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "How are points calculated?"
+msgstr "积分如何计算？"
+
 #: src/pages/CrossChainSwap/components/SwapAction.tsx
 #: src/pages/KyberDAO/StakeKNC/SwitchToEthereumModal.tsx
 msgid "Switch Network"
@@ -850,6 +1005,10 @@ msgstr "流动性"
 #: src/pages/Earns/UserPositions/TableContent.tsx
 msgid "APR"
 msgstr "APR"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "Example: You trade $100 of AIXBT for USDC. If you receive $99 worth of USDC, then your trade volume is counted as $99 ~ 99 points."
+msgstr "示例：您用 100 美元的 AIXBT 兑换 USDC，若收到价值 99 美元的 USDC，则交易量按 99 美元（即 99 积分）计算。"
 
 #: src/pages/KyberDAO/KNCUtility/FAQ.tsx
 msgid "How can I vote on KIPs with my staked KNC to earn voting rewards?"
@@ -871,9 +1030,18 @@ msgstr "失败"
 msgid "Price range"
 msgstr "价格区间"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "KNC rewards will be available to claim on the “My Dashboard” page starting from 00:00 UTC on June 9."
+msgstr "KNC 奖励将于 6 月 9 日 00:00 UTC 起可在“我的仪表板”页面领取。"
+
 #: src/pages/Earns/UserPositions/index.tsx
 msgid "Actions"
 msgstr "操作"
+
+#: src/pages/Campaign/components/Information.tsx
+#: src/pages/Campaign/components/Information.tsx
+msgid "User earned Points for the week / Total Users Point for the week) X Amount of ARB allocation for the week."
+msgstr "用户当周获得的积分 / 全体用户当周积分 × 当周 ARB 分配总量。"
 
 #: src/pages/KyberDAO/Vote/ProposalItem/VoteInformation.tsx
 msgid "Reached"
@@ -887,6 +1055,7 @@ msgstr "钱包未连接"
 #: src/components/ConfirmModal.tsx
 #: src/components/SwapForm/SwapModal/SwapModalAreYouSure.tsx
 #: src/components/TransactionSettings/AdvanceModeModal.tsx
+#: src/pages/Campaign/components/JoinReferral.tsx
 #: src/pages/KyberDAO/StakeKNC/DelegateConfirmModal.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
@@ -896,6 +1065,15 @@ msgstr "确认"
 #: src/pages/AddLiquidityV2/constants.ts
 msgid "Suitable for stablecoin or stable correlated pairs. Anticipating price to fluctuate within ~3%. You can earn fees even if the price goes up by 1.5% or goes down by 1.5%."
 msgstr "适合稳定币或高度相关的代币对。预期价格波动约 3%。即使价格上涨 1.5% 或下跌 1.5%，您仍可赚取手续费。"
+
+#: src/pages/Campaign/MyDashboard.tsx
+msgid "Total Claim-able rewards"
+msgstr "可领取奖励总额"
+
+#: src/pages/Campaign/components/Information.tsx
+#: src/pages/Campaign/components/Information.tsx
+msgid "Ex: ETH <> WSTETH; EZETH <> RETH; WEETH <> ETH"
+msgstr "示例：ETH <> WSTETH；EZETH <> RETH；WEETH <> ETH"
 
 #: src/pages/NotificationCenter/CreateAlert/ConfirmModal.tsx
 #: src/pages/NotificationCenter/CreateAlert/CreateAlertForm.tsx
@@ -919,6 +1097,10 @@ msgstr "使用访客档案"
 msgid "Not selected option"
 msgstr "未选择选项"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "<0>To be eligible for the Referee bonus</0>, users must join the referral program by using a referrer's link or entering a referrer code, click on \"Confirm to join,\" and sign the on-chain message to confirm to join."
+msgstr "<0>要符合被推荐人奖金资格</0>，用户必须通过推荐者的链接或输入推荐码加入推荐计划，点击“确认加入”，并签署链上消息以确认参与。"
+
 #: src/pages/KyberDAO/Vote/ProposalItem/VoteInformation.tsx
 msgid "KNC Amount"
 msgstr "KNC 数量"
@@ -936,9 +1118,17 @@ msgstr "KIP"
 msgid "Cross Chain Campaign"
 msgstr "跨链活动"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "Points & Rewards on the Leaderboard are subject to change during the buffer period before the distribution of ARB. <0>Any wallet that tries to sybil or cheat in any way will have all their points and rewards forfeited.</0>"
+msgstr "排行榜上的积分与奖励在 ARB 发放前的缓冲期内可能发生变化。<0>任何企图进行女巫攻击或其他作弊行为的钱包，其全部积分与奖励都会被没收。</0>"
+
 #: src/pages/KyberDAO/KNCUtility/FAQ.tsx
 msgid "When will gas refunds be available to claim?"
 msgstr "燃气费返还是何时可以领取？"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "These Terms and Conditions <0>(\"Terms\")</0> should be read in conjunction with the KyberSwap Terms of Use, which lay out the terms and conditions that apply to all KyberSwap promotional activities (\"Campaign\")."
+msgstr "这些条款与细则 <0>(“条款”)</0> 应与 KyberSwap 使用条款一并阅读，后者规定了适用于所有 KyberSwap 推广活动（“活动”）的条款与条件。"
 
 #: src/components/swapv2/LimitOrder/useWarningCreateOrder.tsx
 msgid "Your current allowance is insufficient. Approve an additional {0} {1} to proceed."
@@ -948,6 +1138,15 @@ msgstr "您当前的授权额度不足。请再批准 {0} {1} 后继续。"
 msgid "Full Range"
 msgstr "全范围"
 
+#: src/pages/Campaign/components/Information.tsx
+#: src/pages/Campaign/components/Information.tsx
+msgid "What are points and how do I convert it to ARB rewards?"
+msgstr "什么是积分？我该如何将其兑换为 ARB 奖励？"
+
+#: src/pages/Campaign/components/JoinReferral.tsx
+msgid "By signing this message, you confirm your participation in the KyberSwap Referral Program. This action does not trigger any transaction and does not incur any gas fees."
+msgstr "签署此消息即表示您确认参加 KyberSwap 推荐计划。此操作不会触发任何交易，也不会产生燃气费。"
+
 #: src/pages/NotificationCenter/PriceAlerts/AlertType.tsx
 msgid "below"
 msgstr "低于"
@@ -956,6 +1155,10 @@ msgstr "低于"
 msgid "Gas Abuser"
 msgstr "燃气滥用者"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "Each user’s eligible trading volume is capped at $100,000 per week in Week 1 and <0>$50,000 per week in Week 2</0>"
+msgstr "每位用户在第 1 周的合格交易量上限为 10 万美元，在第 2 周为 <0>每周 5 万美元</0>"
+
 #: src/pages/BuyCrypto/index.tsx
 #: src/pages/BuyCrypto/index.tsx
 msgid "Buy Crypto"
@@ -963,7 +1166,7 @@ msgstr "购买加密货币"
 
 #: src/components/Header/groups/AboutNavGroup.tsx
 msgid "KyberSwap"
-msgstr ""
+msgstr "KyberSwap"
 
 #: src/components/FeeControlGroup/CustomFeeInput.tsx
 #: src/components/SlippageControl/CustomSlippageInput.tsx
@@ -1032,6 +1235,11 @@ msgstr "强制取消全部订单"
 msgid "Insufficient {symbol} balance"
 msgstr "{symbol} 余额不足"
 
+#: src/pages/Campaign/components/ClaimBtn.tsx
+#: src/pages/Campaign/components/ClaimBtn.tsx
+msgid "Claim failed"
+msgstr "领取失败"
+
 #: src/components/swapv2/TokenInfo/utils.ts
 msgid "Can Change Balance"
 msgstr "可能更改余额"
@@ -1065,6 +1273,10 @@ msgstr "总金额（USDC）"
 msgid "Once you add {0}, the order will be executed at <0>{1}%</0> below the market price."
 msgstr "一旦您追加 {0}，该订单将以低于市场价 <0>{1}%</0> 的价格执行。"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "<0>Note</0>: The referral bonus applies only on trades made on KyberSwap.com within the Aggregator Trading Campaign."
+msgstr "<0>注意</0>：推荐奖金仅适用于聚合器交易活动期间在 KyberSwap.com 上完成的交易。"
+
 #: src/pages/CrossChainSwap/components/Summary.tsx
 msgid "You will receive at least this amount or your transaction will revert."
 msgstr "您将至少收到该数量，否则交易将回滚。"
@@ -1078,6 +1290,10 @@ msgstr "档案更新失败"
 #: src/pages/ElasticLegacy/PositionLegacy.tsx
 msgid "Fee {0}%"
 msgstr "手续费 {0}%"
+
+#: src/pages/Campaign/MyDashboard.tsx
+msgid "My claim-able rewards"
+msgstr "我的可领取奖励"
 
 #: src/components/SwapForm/SwapActionButton/index.tsx
 msgid "You need to first give a temporary 24H approval to KyberSwap's smart contract to use your {0}. This doesn't require a gas fees. <0>Read more ↗</0>"
@@ -1137,10 +1353,27 @@ msgstr "任何<0>正滑点</0>都将归属于 KyberSwap。"
 msgid "Your Voting Power"
 msgstr "您的投票权"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "EVM ← Near L1"
+msgstr "EVM ← Near L1"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "Any Other Pairs:"
+msgstr "其他任意交易对："
+
+#: src/pages/Campaign/components/JoinReferral.tsx
+msgid "Join Referral Campaign Failed"
+msgstr "加入推荐活动失败"
+
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "You will receive"
 msgstr "您将收到"
+
+#: src/pages/Campaign/components/Information.tsx
+#: src/pages/Campaign/components/Information.tsx
+msgid "Ex: ETH <> USDT; WBTC <> WSTETH; PENDLE <> KNC"
+msgstr "示例：ETH <> USDT；WBTC <> WSTETH；PENDLE <> KNC"
 
 #: src/hooks/useWrapCallback.ts
 msgid "Wrap Error"
@@ -1159,6 +1392,14 @@ msgstr "在 GitHub 上创建问题"
 msgid "This action"
 msgstr "此操作"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "My Earn Points and My Estimated Rewards data for Limit Order campaign are updated approximately hourly."
+msgstr "限价单活动中的“我的积分”和“我的预估奖励”数据大约每小时更新一次。"
+
+#: src/pages/Campaign/components/JoinReferral.tsx
+msgid "Generate Referral"
+msgstr "生成推荐链接"
+
 #: src/components/swapv2/LimitOrder/DeltaRate.tsx
 msgid "Sell {symbol} at rate"
 msgstr "以该汇率卖出 {symbol}"
@@ -1176,9 +1417,15 @@ msgstr "投票权"
 msgid "You can search and select <0>any token</0> on KyberSwap."
 msgstr "您可以在 KyberSwap 上搜索并选择<0>任何代币</0>。"
 
+#: src/pages/Campaign/components/MyNearIntentDashboard.tsx
+#: src/pages/Campaign/components/NearIntentCampaignStats.tsx
 #: src/pages/Campaign/index.tsx
 msgid "My Earned Points"
 msgstr "我获得的积分"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "KNC rewards will be available to claim on the “My Dashboard” page starting from 00:00 UTC on June 9. Rewards are claimable on Ethereum, and claiming will require a gas fee. Users must claim their rewards before 00:00 UTC on July 9; unclaimed rewards after this time will no longer be available."
+msgstr "自 6 月 9 日 00:00 UTC 起，您可以在“我的仪表板”页面领取 KNC 奖励。奖励需在以太坊网络上领取，并需支付 Gas 费用。请务必在 7 月 9 日 00:00 UTC 前完成领取，逾期未领取的奖励将失效。"
 
 #: src/components/WalletPopup/AccountInfo/index.tsx
 msgid "Total Balance"
@@ -1188,6 +1435,10 @@ msgstr "总余额"
 msgid "Your output amount is invalid."
 msgstr "您的输出数量无效。"
 
+#: src/pages/Campaign/constants.tsx
+msgid "<0>Week 4</0> July 29 - Aug 04"
+msgstr "<0>第 4 周</0> 7 月 29 日 - 8 月 4 日"
+
 #: src/pages/NotificationCenter/PriceAlerts/Header.tsx
 msgid "Active Alerts"
 msgstr "进行中的提醒"
@@ -1195,6 +1446,14 @@ msgstr "进行中的提醒"
 #: src/pages/Earns/UserPositions/DropdownAction.tsx
 msgid "Claim Fees"
 msgstr "领取手续费"
+
+#: src/pages/Campaign/components/MyReferralDashboard.tsx
+msgid "REFEREES WALLET ADDRESSES"
+msgstr "被推荐人钱包地址"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "☑️ Eligibility"
+msgstr "☑️ 资格条件"
 
 #: src/components/EarningPieChart/index.tsx
 msgid "loading"
@@ -1211,6 +1470,10 @@ msgstr "经典挖矿"
 #: src/pages/KyberDAO/StakeKNC/StakeKNCComponent.tsx
 msgid "Delegate Address"
 msgstr "受托地址"
+
+#: src/pages/Campaign/components/JoinReferral.tsx
+msgid "Invite your friends"
+msgstr "邀请好友"
 
 #: src/components/ElasticHackedModal.tsx
 msgid "Go to My Pool"
@@ -1232,6 +1495,11 @@ msgstr "无法获取市场价格"
 #: src/components/Menu/index.tsx
 msgid "Faucet"
 msgstr "水龙头"
+
+#: src/pages/Campaign/components/Information.tsx
+#: src/pages/Campaign/components/Information.tsx
+msgid "How to calculate the Estimated Rewards"
+msgstr "如何计算预计奖励"
 
 #: src/components/swapv2/TokenInfo/utils.ts
 msgid "Whitelisted Function"
@@ -1281,9 +1549,17 @@ msgstr "部分主题需要加入白名单才能订阅"
 msgid "Max"
 msgstr "最大值"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "Only trading volume executed on <0>kyberswap.com/swap/base</0> is counted."
+msgstr "仅统计在 <0>kyberswap.com/swap/base</0> 上执行的交易量。"
+
 #: src/components/Tutorial/TutorialSwap/TutorialMobile.tsx
 msgid "{0} easy ways to get started with KyberSwap"
 msgstr "{0} 种轻松上手 KyberSwap 的方法"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "KyberSwap maintains the right, at its sole discretion, to disqualify any user who violates, cheats, or exploits the campaign."
+msgstr "KyberSwap 保留自行决定取消任何违反、作弊或利用本次活动的用户资格的权利。"
 
 #: src/components/PositionCard/index.tsx
 msgid "My pool share:"
@@ -1297,6 +1573,10 @@ msgstr "您正在取消对该地址的投票权委托"
 #: src/components/swapv2/LimitOrder/Modals/ConfirmOrderModal.tsx
 msgid "Gasless Edit"
 msgstr "免 Gas 编辑"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "<0>9,000 ARB</0> is allocated for this campaign each week."
+msgstr "本次活动每周分配 <0>9,000 ARB</0>。"
 
 #: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
 msgid "Estimated network fee for your transaction."
@@ -1327,10 +1607,20 @@ msgstr "注意：点击“购买加密货币”将跳转至由独立第三方拥
 msgid "Permission needed"
 msgstr "需要权限"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "The Campaign will run from <0>8th July 2024 at 0:00 UTC to 15th September 2024 at 23:59 UTC UTC</0>. KyberSwap retains the right to amend the Campaign's start and end dates with reasonable notice."
+msgstr "本次活动将于 <0>2024 年 7 月 8 日 0:00 UTC 至 2024 年 9 月 15 日 23:59 UTC</0> 期间进行。KyberSwap 保留在给予合理通知的情况下调整活动开始和结束日期的权利。"
+
 #: src/pages/Earns/Landing/index.tsx
 msgid "Staking/Compounding Strategies"
 msgstr "质押/复利策略"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "Rewards are distributed based on the points leaderboard - the more points you earn, the higher your rank and the bigger your reward."
+msgstr "奖励将根据积分排行榜发放——积分越多，排名越高，奖励也越丰厚。"
+
+#: src/pages/Campaign/components/MyNearIntentDashboard.tsx
+#: src/pages/Campaign/components/NearIntentCampaignStats.tsx
 #: src/pages/CrossChainSwap/components/SwapAction.tsx
 #: src/pages/Earns/UserPositions/TableContent.tsx
 msgid "Connect Wallet"
@@ -1339,6 +1629,14 @@ msgstr "连接钱包"
 #: src/components/SwapForm/SlippageSettingGroup.tsx
 msgid "Gas Token"
 msgstr "燃气代币"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "Bitcoin L1 ↔ Solana L1"
+msgstr "Bitcoin L1 ↔ Solana L1"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "This Program is only available for the Trading Campaign. A referrer can not become a referee, unless he was a referee before becoming a referrer."
+msgstr "此计划仅适用于交易活动。除非在成为推荐人之前已经是被推荐人，否则推荐人不能转为被推荐人。"
 
 #: src/pages/KyberDAO/StakeKNC/YourTransactionsModal.tsx
 msgid "Local Time"
@@ -1362,6 +1660,11 @@ msgstr "在 2 天的最终确认期后才能领取。"
 #: src/components/swapv2/LimitOrder/EditOrderModal.tsx
 msgid "Editing this order will automatically cancel your existing order and a new order will be created."
 msgstr "编辑此订单会自动取消您现有的订单，并创建一个新订单。"
+
+#: src/pages/Campaign/components/Information.tsx
+#: src/pages/Campaign/components/Information.tsx
+msgid "What are the different categories and how does it work?"
+msgstr "有哪些不同的类别？它们如何运作？"
 
 #: src/components/SwapForm/SwapActionButton/SwapButtonWithPriceImpact.tsx
 #: src/components/swapv2/LimitOrder/TradePrice.tsx
@@ -1397,6 +1700,10 @@ msgstr "您可以访问旧版 KyberDAO v1 查看历史 KIP，<0>请点击这里 
 msgid "Done"
 msgstr "完成"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "The Campaign will take place over 10 weeks, from 8th July to 16th September 2024."
+msgstr "活动将持续 10 周，自 2024 年 7 月 8 日至 9 月 16 日。"
+
 #: src/components/Footer/Footer.tsx
 #: src/components/Footer/Footer.tsx
 msgid "Covers smart-contracts"
@@ -1409,6 +1716,10 @@ msgstr "我们已将验证码发送至 <0>{email}</0>，请在下方输入该验
 #: src/pages/KyberDAO/StakeKNC/StakeKNCComponent.tsx
 msgid "Your voting power is calculated by [Your Staked KNC] / [Total Staked KNC] * 100%."
 msgstr "您的投票权 = [您质押的 KNC] / [质押的 KNC 总量] * 100%。"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "<0>31,500 ARB</0> is allocated for this campaign each week."
+msgstr "本次活动每周分配 <0>31,500 ARB</0>。"
 
 #: src/pages/CrossChainSwap/components/Summary.tsx
 msgid "Current price"
@@ -1460,6 +1771,10 @@ msgstr "通过 Zap 到任意代币，从该仓位移出流动性。"
 msgid "est. APR"
 msgstr "预计 APR"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "You may freely trade any pair composed of <0>eligible tokens</0>, excluding WETH-ETH, WETH-USDC, and ETH-USDC."
+msgstr "您可以自由交易由 <0>合资格代币</0>组成的任何交易对，但不包括 WETH-ETH、WETH-USDC 和 ETH-USDC。"
+
 #: src/components/SearchModal/ImportToken.tsx
 msgid "Address"
 msgstr "地址"
@@ -1502,6 +1817,10 @@ msgstr "移除的LP代币"
 msgid "Your Staked KNC"
 msgstr "您已质押的 KNC"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "Rewards will be airdropped directly to the winners wallets by August 12th."
+msgstr "奖励将于 8 月 12 日前直接空投至获奖者钱包。"
+
 #: src/components/ShareModal/index.tsx
 msgid "Copy Link"
 msgstr "复制链接"
@@ -1509,6 +1828,14 @@ msgstr "复制链接"
 #: src/components/LiveChart/index.tsx
 msgid "You can swap {0} for {1} (and vice versa)"
 msgstr "您可以将 {0} 兑换成 {1}（反之亦然）"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "Please note that KyberSwap reserves the rights to change the rules & conditions at its sole discretion."
+msgstr "请注意，KyberSwap 保留自行调整规则与条件的权利。"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "Both tokens must be stablecoins (e.g., USDC-USDC, USDT-USDT, USDC-USDT…)"
+msgstr "两个代币都必须是稳定币（例如 USDC-USDC、USDT-USDT、USDC-USDT…）"
 
 #: src/components/WalletPopup/Transactions/index.tsx
 msgid "Swaps"
@@ -1534,6 +1861,11 @@ msgstr "钱包地址或 ENS 名称"
 msgid "Unwrap Error"
 msgstr "解包错误"
 
+#: src/pages/Campaign/components/Information.tsx
+#: src/pages/Campaign/components/Information.tsx
+msgid "The distribution of ARB rewards are based on the points distributed to users. All users will grow a Points portfolio for each week. Here’s the formula for the conversion of Points to ARB: User earned Points for the week / Total Users Point for the week) X Amount of ARB allocation for the week."
+msgstr "ARB 奖励的分配以用户获得的积分为依据，每位用户都会按周累积积分组合。积分换算为 ARB 的公式为：用户当周获得的积分 / 所有用户当周积分 × 当周 ARB 分配总量。"
+
 #: src/pages/Earns/UserPositions/TableContent.tsx
 msgid "You don't have any liquidity positions yet"
 msgstr "您暂时还没有流动性仓位"
@@ -1553,6 +1885,15 @@ msgstr "最高价格"
 msgid "TOKEN UTILITY"
 msgstr "代币用途"
 
+#: src/pages/Campaign/components/Information.tsx
+#: src/pages/Campaign/components/Information.tsx
+msgid "The Estimated Rewards are based on the following formula for the conversion of Points to ARB:"
+msgstr "预计奖励基于以下积分换算 ARB 的公式："
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "EVM → Near L1"
+msgstr "EVM → Near L1"
+
 #: src/hooks/web3/useChangeNetwork.ts
 msgid "Failed to switch network"
 msgstr "切换网络失败"
@@ -1560,6 +1901,10 @@ msgstr "切换网络失败"
 #: src/components/swapv2/LimitOrder/ListOrder/index.tsx
 msgid "You don't have any open orders yet."
 msgstr "您还没有未成交订单。"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "The rules against such activities will remain unrevealed to avoid abuse from a selected group of users. KyberSwap team can exclude wallets from the campaign at its sole discretion."
+msgstr "为避免被少数用户滥用，针对这些行为的具体规则将不会公开。KyberSwap 团队可自行决定将相关钱包排除在活动之外。"
 
 #: src/components/Header/web3/SelectWallet.tsx
 msgid "{pendingLength} Pending"
@@ -1572,6 +1917,10 @@ msgstr "进行中"
 #: src/components/PoolPriceBar/index.tsx
 msgid "Share of Pool"
 msgstr "池的份额"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "Heavy wash trading, sybil-attack, Just-in-time liquidity attack, flashloans attacks or other related activities are not allowed and will forfeit points & rewards of the identified users. KyberSwap team will monitor and exclude such behaviour from the STIP Campaign."
+msgstr "严禁大量刷量、女巫攻击、即时流动性攻击、闪电贷攻击或其他相关行为，一经发现将取消该用户的积分和奖励。KyberSwap 团队会持续监控并将此类行为排除在 STIP 活动之外。"
 
 #: src/pages/CrossChainSwap/components/TransactionHistory.tsx
 #: src/pages/CrossChainSwap/components/TransactionHistory.tsx
@@ -1610,6 +1959,10 @@ msgstr "自毁"
 msgid "Loading topics ..."
 msgstr "正在加载主题..."
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "❓ FAQ"
+msgstr "❓ 常见问题"
+
 #: src/pages/Earns/components/ClaimAllModal/index.tsx
 #: src/pages/NotificationCenter/PriceAlerts/AlertCondition.tsx
 msgid "on"
@@ -1618,6 +1971,10 @@ msgstr "开启"
 #: src/components/swapv2/LimitOrder/Modals/CancelOrderModal.tsx
 msgid "Gasless Cancel All Orders"
 msgstr "免 gas 取消全部订单"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "In order to be eligible, you need to create a Limit Order with eligible tokens and get it filled on <0>https://kyberswap.com/limit/arbitrum.</0> Only filled orders will give you points."
+msgstr "要符合资格，您需要使用合资格代币创建限价单，并在 <0>https://kyberswap.com/limit/arbitrum.</0> 成交。只有成交的订单才会获得积分。"
 
 #: src/components/SwapForm/SwapModal/ConfirmSwapModalContent.tsx
 msgid "There was an issue while trying to confirm your price. <0>Permit signature invalid</0>"
@@ -1663,6 +2020,10 @@ msgstr "从收藏中移除"
 msgid "Show closed positions"
 msgstr "显示已关闭的仓位"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "Trades made on <0>https://kyberswap.com/swap/arbitrum</0> which created the rewards from Trading campaign will be eligible for referrals bonus."
+msgstr "在 <0>https://kyberswap.com/swap/arbitrum</0> 上完成并产生交易活动奖励的交易，可获得推荐奖金资格。"
+
 #: src/pages/Earns/PoolExplorer/Filter.tsx
 msgid "Search by token symbol or pool/token address"
 msgstr "按代币符号或池/代币地址搜索"
@@ -1672,6 +2033,10 @@ msgstr "按代币符号或池/代币地址搜索"
 #: src/hooks/kyberdao/index.tsx
 msgid "Claim Error"
 msgstr "领取错误"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "Yes. Pairs of the same native asset - POL, ETH, or BNB - and their official wrapped versions are counted as stable pairs, along with stablecoin pairs."
+msgstr "是的，同一原生资产（如 POL、ETH 或 BNB）及其官方包裹版本的交易对，与稳定币对一样都视为稳定对。"
 
 #: src/components/WalletPopup/type.ts
 #: src/components/WalletPopup/WalletView.tsx
@@ -1698,6 +2063,10 @@ msgstr "请输入电子邮箱地址以接收通知。"
 msgid "Alerts Created: {totalAlerts}/{maxAlerts}"
 msgstr "已创建的提醒：{totalAlerts}/{maxAlerts}"
 
+#: src/pages/Campaign/constants.tsx
+msgid "<0>Week 1</0> July 08 - July 14"
+msgstr "<0>第 1 周</0> 7 月 8 日 - 7 月 14 日"
+
 #: src/pages/CrossChainSwap/components/SwapAction.tsx
 msgid "Please input an amount"
 msgstr "请输入数量"
@@ -1709,6 +2078,10 @@ msgstr "您的资产分布在多个网络上，请选择相应网络并继续领
 #: src/components/swapv2/TokenInfo/SecurityInfo/Content.tsx
 msgid "Risky Item"
 msgstr "高风险项目"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "Week 1: <0>20,000 USDT</0>"
+msgstr "第 1 周：<0>20,000 USDT</0>"
 
 #: src/pages/NotificationCenter/PriceAlerts/CommonSingleAlert.tsx
 #: src/pages/NotificationCenter/PriceAlerts/TitleOnMobile.tsx
@@ -1749,6 +2122,10 @@ msgstr "档案 <0>{currentProfileName}</0>"
 msgid "Where you can store KNC"
 msgstr "可存放 KNC 的地方"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "Uncorrelated tokens trading will give 5 Points per USD swapped. This section includes trading of any eligible token to any eligible token that do not fall in category 1; 3 and 4."
+msgstr "交易非相关代币每兑换 1 美元可获得 5 积分。本类别包括所有不属于第 1、3、4 类的合资格代币之间的交易。"
+
 #: src/pages/ElasticLegacy/PositionLegacy.tsx
 msgid "My liquidity"
 msgstr "我的流动性"
@@ -1758,6 +2135,10 @@ msgstr "我的流动性"
 #: src/pages/CrossChainSwap/components/TermAndPolicy.tsx
 msgid "and"
 msgstr "和"
+
+#: src/pages/Campaign/MyDashboard.tsx
+msgid "Trading"
+msgstr "交易"
 
 #: src/pages/NotificationCenter/PriceAlerts/ActiveAlerts/index.tsx
 msgid "No price alerts created yet"
@@ -1792,6 +2173,10 @@ msgstr "重新加载"
 #: src/components/SwapForm/SwapModal/ConfirmSwapModalContent.tsx
 msgid "New Amount Accepted"
 msgstr "已接受的新数量"
+
+#: src/pages/Campaign/MyDashboard.tsx
+msgid "Total point earned"
+msgstr "累计获得积分"
 
 #: src/pages/MyPool/index.tsx
 msgid "My Staked Pools"
@@ -2002,6 +2387,10 @@ msgstr "获得 {0} 手续费"
 msgid "Risky Item(s)"
 msgstr "高风险项目"
 
+#: src/pages/Campaign/constants.tsx
+msgid "Referral Program"
+msgstr "推荐计划"
+
 #: src/components/swapv2/SwapSettingsPanel/index.tsx
 #: src/components/TransactionSettings/index.tsx
 msgid "Advanced Settings"
@@ -2028,6 +2417,7 @@ msgstr "质押 + 投票"
 
 #: src/components/Header/groups/CampaignNavGroup.tsx
 #: src/components/Menu/index.tsx
+#: src/pages/Campaign/MyDashboard.tsx
 msgid "My Dashboard"
 msgstr "我的仪表盘"
 
@@ -2042,6 +2432,7 @@ msgid "Add MEV Protection"
 msgstr "添加 MEV 防护"
 
 #: src/pages/CrossChainSwap/components/ConfirmationPopup.tsx
+#: src/pages/CrossChainSwap/index.tsx
 msgid "Routed via {0}"
 msgstr "通过 {0} 路由"
 
@@ -2098,6 +2489,7 @@ msgid "VALUE"
 msgstr "价值"
 
 #: src/components/WalletPopup/RewardCenter.tsx
+#: src/pages/Campaign/components/ClaimBtn.tsx
 #: src/pages/Earns/components/ClaimAllModal/index.tsx
 #: src/pages/Earns/components/ClaimModal/index.tsx
 #: src/pages/Earns/PositionDetail/LeftSection.tsx
@@ -2110,6 +2502,10 @@ msgstr "正在领取"
 msgid "<0/> Cancellation may not be instant. <1>Learn more ↗︎</1>"
 msgstr "<0/> 取消可能不会立即生效。<1>了解更多 ↗︎</1>"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "ETH Derivatives trading will give 1 Point per USD swapped."
+msgstr "交易 ETH 衍生品每兑换 1 美元可获得 1 积分。"
+
 #: src/pages/Earns/UserPositions/TableContent.tsx
 msgid "Explore Liquidity Pools to get started"
 msgstr "探索流动性池以开始"
@@ -2119,6 +2515,16 @@ msgstr "探索流动性池以开始"
 msgid "Market"
 msgstr "市场"
 
+#: src/pages/Campaign/components/Information.tsx
+#: src/pages/Campaign/components/Information.tsx
+msgid "There are 4 different categories that will reward each swap with a different amount of points. Refer to “How to earn Points” section for a detailed explanation."
+msgstr "共有 4 个不同类别，每笔兑换可获得不同积分。详情请参阅“如何赚取积分”章节。"
+
+#: src/pages/Campaign/components/Information.tsx
+#: src/pages/Campaign/components/Information.tsx
+msgid "Category 1"
+msgstr "第 1 类"
+
 #: src/components/Announcement/PrivateAnnoucement/NotificationCenter/PoolPosition.tsx
 msgid "Max Price of your range is {maxPrice} {token0Symbol} per {token1Symbol}"
 msgstr "您价格区间的最高价为每 {token1Symbol} {maxPrice} {token0Symbol}"
@@ -2127,9 +2533,22 @@ msgstr "您价格区间的最高价为每 {token1Symbol} {maxPrice} {token0Symbo
 msgid "Active Alerts:"
 msgstr "进行中的提醒："
 
+#: src/pages/Campaign/components/MyNearIntentDashboard.tsx
+#: src/pages/Campaign/components/MyNearIntentDashboard.tsx
+#: src/pages/Campaign/MyDashboard.tsx
+#: src/pages/Campaign/MyDashboard.tsx
+msgid "POINTS EARNED"
+msgstr "获得积分"
+
 #: src/components/SwapForm/TradeSummary.tsx
 msgid "A {feePercent} fee ({feeAmountText}) will incur on this swap. The Est. Output amount you see above is inclusive of this fee. Read more about the fees {hereLink}"
 msgstr "本次兑换将产生 {feePercent} 的手续费（{feeAmountText}）。上述预计输出已包含该费用。关于手续费{hereLink}。"
+
+#: src/pages/Campaign/components/Information.tsx
+#: src/pages/Campaign/components/Information.tsx
+#: src/pages/Campaign/components/Information.tsx
+msgid "Do I have to pay any fee to claim the rewards?"
+msgstr "领取奖励需要支付费用吗？"
 
 #: src/pages/MarketOverview/index.tsx
 #: src/pages/MarketOverview/index.tsx
@@ -2139,6 +2558,10 @@ msgstr "市值与 24 小时成交量数据来自 Coingecko"
 #: src/components/ProAmm/ProAmmFee.tsx
 msgid "You don't have any fees to collect"
 msgstr "您暂无可领取的手续费"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "The campaign will take place over 2 weeks:"
+msgstr "活动将持续 2 周："
 
 #: src/components/LiveChart/index.tsx
 msgid "Past Month"
@@ -2180,6 +2603,17 @@ msgstr "我们需要访问您的本地存储。可能是因为您不小心阻止
 msgid "Note: The current price is"
 msgstr "注意：当前价格为"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "Stablecoins to Stablecoins filled orders will give 0.5 Points per USD."
+msgstr "稳定币对成交的订单每兑换 1 美元可获得 0.5 积分。"
+
+#: src/pages/Campaign/components/MyNearIntentDashboard.tsx
+#: src/pages/Campaign/components/MyNearIntentDashboard.tsx
+#: src/pages/Campaign/MyDashboard.tsx
+#: src/pages/Campaign/MyDashboard.tsx
+msgid "ESTIMATED REWARDS"
+msgstr "预计奖励"
+
 #: src/pages/CrossChainSwap/components/SwapAction.tsx
 msgid "Review the Cross-chain Swap"
 msgstr "检查跨链兑换"
@@ -2212,6 +2646,10 @@ msgstr "您取消 {summary} 的请求已提交"
 msgid "The position is inactive. Update to an action price range to earn fees/rewards."
 msgstr "该仓位处于非活跃状态。请调整到有效价格区间以继续赚取手续费/奖励。"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "Users that perform swaps with <0>KyberSwap.com</0> website directly will benefit of 25% more points on each eligible trade."
+msgstr "直接在 <0>KyberSwap.com</0> 网站进行兑换的用户，每笔合资格交易可额外获得 25% 的积分。"
+
 #: src/components/Badge/RangeBadge.tsx
 msgid "Your position has 0 liquidity, and is not earning fees"
 msgstr "您的仓位流动性为 0，当前无法赚取手续费"
@@ -2220,6 +2658,10 @@ msgstr "您的仓位流动性为 0，当前无法赚取手续费"
 msgid "Epoch {epochNumber} Start Date"
 msgstr "纪元 {epochNumber} 开始日期"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "Is there a maximum allocation limit for each wallet address?"
+msgstr "每个钱包地址是否有最大分配额度？"
+
 #: src/pages/KyberDAO/KNCUtility/GasRefundBox.tsx
 msgid "Rewards successfully claimed."
 msgstr "奖励领取成功。"
@@ -2227,6 +2669,10 @@ msgstr "奖励领取成功。"
 #: src/pages/KyberDAO/KNCUtility/FAQ.tsx
 msgid "Are limit orders and cross-chain swaps eligible for gas refunds?"
 msgstr "限价单和跨链兑换是否符合燃气返还条件？"
+
+#: src/pages/Campaign/components/MyReferralDashboard.tsx
+msgid "My total referrals"
+msgstr "我的推荐总数"
 
 #: src/pages/Campaign/index.tsx
 msgid "Participants"
@@ -2247,6 +2693,10 @@ msgstr "我赚取的手续费"
 #: src/components/Header/web3/SignWallet/ConfirmModal.tsx
 msgid "instead?"
 msgstr "改为？"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "Volume is measured based on the value of tokens received on the <0>destination chain</0>, and attributed to the <1>destination wallet.</1>"
+msgstr "成交量按照在 <0>目标链</0> 上收到的代币价值计算，并归属于<1>目标钱包</1>。"
 
 #: src/components/swapv2/LimitOrder/OrderBook/TableHeader.tsx
 #: src/components/swapv2/LimitOrder/OrderBook/TableHeader.tsx
@@ -2279,6 +2729,10 @@ msgstr "您的会话已过期，请登录后继续。"
 msgid "Claiming..."
 msgstr "领取中..."
 
+#: src/pages/CrossChainSwap/index.tsx
+msgid "Send to other wallet"
+msgstr "发送到其他钱包"
+
 #: src/pages/About/AboutKNC.tsx
 msgid "KNC token holders can benefit from our flagship product KyberSwap. Holders can stake their KNC & vote on initiatives to receive trading fees generated on KyberSwap! More trades on KyberSwap can generate more rewards for KNC holders!<0/><1/>KNC token is dynamic - it can be upgraded, minted or burned by KyberDAO to better support liquidity and growth."
 msgstr "KNC 代币持有人可从我们的旗舰产品 KyberSwap 中获益。持有人可质押 KNC 并对提案进行投票，从而获得 KyberSwap 交易产生的手续费！KyberSwap 上的交易越多，KNC 持有人获得的奖励越多！<0/><1/>KNC 代币具有可变性——KyberDAO 可对其升级、增发或销毁，以更好地支持流动性与增长。"
@@ -2299,6 +2753,10 @@ msgstr "全部"
 #: src/pages/ElasticSnapshot/components/SelectTreasuryGrant.tsx
 msgid "Choose option successfully"
 msgstr "已成功选择选项"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "There is no minimum nor maximum value requirement for an order to earn points."
+msgstr "订单获得积分没有最低或最高金额要求。"
 
 #: src/pages/Earns/UserPositions/PositionBanner.tsx
 msgid "Earned Fees"
@@ -2333,9 +2791,17 @@ msgstr "已创建"
 msgid "Insufficient liquidity for this trade"
 msgstr "该交易的流动性不足"
 
+#: src/pages/Campaign/MyDashboard.tsx
+msgid "Total est. rewards"
+msgstr "预计奖励总额"
+
 #: src/pages/ElasticLegacy/PositionLegacy.tsx
 msgid "You need to withdraw your deposited liquidity position from the Farm first."
 msgstr "您需要先从挖矿中提取已存入的流动性仓位。"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "The Total Claimable Rewards is the real amount of ARB that a user will get after filtering sybils, cheaters and potential calculation issues. All ARB allocations from recognized sybils and cheaters will be re-allocated proportionally to other eligible traders."
+msgstr "可领取奖励总额是在过滤女巫、作弊和潜在计算问题后，用户实际可获得的 ARB 数量。来自确认的女巫和作弊地址的 ARB 分配将按比例重新分配给其他合格交易者。"
 
 #: src/components/swapv2/TokenInfo/utils.ts
 msgid "Sell Tax"
@@ -2413,6 +2879,10 @@ msgstr "通过我们的池/农场赚取交易手续费"
 msgid "Buy crypto easily with over 50+ currencies"
 msgstr "支持 50 多种货币，轻松购买加密资产"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "Examples of eligible pairs: AIXBT-VVV, AIXBT-USDC…"
+msgstr "合资格交易对示例：AIXBT-VVV、AIXBT-USDC…"
+
 #: src/pages/ElasticSnapshot/components/InstantClaim.tsx
 #: src/pages/ElasticSnapshot/components/SelectTreasuryGrant.tsx
 msgid "Phase 1"
@@ -2461,6 +2931,10 @@ msgstr "提取"
 #: src/pages/KyberDAO/KNCUtility/index.tsx
 msgid "Any and all decisions made by KyberSwap in relation to every aspect of the program shall be final and conclusive."
 msgstr "KyberSwap 对该计划各方面所作出的任何决定均为最终决定并具有约束力。"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "How can I be eligible to the trading campaign?"
+msgstr "我如何获得交易活动的参与资格？"
 
 #: src/pages/BuyCrypto/index.tsx
 msgid "You can now seamlessly buy 100+ cryptocurrencies on over 10+ blockchains using a wide range of payment options!"
@@ -2527,6 +3001,18 @@ msgstr "总可用奖励"
 msgid "Filled Orders"
 msgstr "已成交订单"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "3. Vitalik gets a 5% bonus for being a referee, so he gets 10.5 ARB."
+msgstr "3. 维塔利克作为被推荐人获得 5% 奖金，因此共获得 10.5 ARB。"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "<0>Bitcoin L1 winning wallets</0> will only receive an airdrop <1>if the reward value ≥ $10</1>, and the prize distributed in <2>BTC</2>, calculated at the airdrop date exchange rate."
+msgstr "<0>Bitcoin L1</0> 获奖钱包仅在奖励价值 <1>≥ 10 美元</1> 时获得空投，奖励以 <2>BTC</2> 发放，并按空投当日汇率计算。"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "Example: A user earns 100 points. Total participant points = 1,000. Weekly reward pool = $20,000. User reward = (100 / 1,000) × 20,000 = $2,000."
+msgstr "示例：某用户获得 100 积分，所有参与者总积分为 1,000，周奖励池为 20,000 美元，则该用户奖励 = (100 / 1,000) × 20,000 = 2,000 美元。"
+
 #: src/components/SwapForm/OutputCurrencyPanel.tsx
 msgid "Est. Output (incl. fee)"
 msgstr "预估输出（含手续费）"
@@ -2539,6 +3025,15 @@ msgstr "燃料费用"
 #: src/pages/CrossChainSwap/components/QuoteSelector.tsx
 msgid "Route Options"
 msgstr "路由选项"
+
+#: src/pages/Campaign/components/Information.tsx
+#: src/pages/Campaign/components/Information.tsx
+msgid "Points & Rewards on the Leaderboard are subject to change during the buffer period before the distribution of rewards. Any wallet that tries to sybil or cheat in any way will have all their points and rewards forfeited."
+msgstr "奖励发放前的缓冲期内，排行榜上的积分和奖励可能会调整。任何以任何方式进行女巫或作弊的钱包，其所有积分和奖励都将被没收。"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "How to participate?"
+msgstr "如何参与？"
 
 #: src/components/ProAmm/ProAmmPriceRange.tsx
 msgid "Your position will be 100% composed of {baseSymbol} at this price."
@@ -2578,6 +3073,10 @@ msgstr "已复制！"
 msgid "Voting starts in:"
 msgstr "投票开始于："
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "The referral data, including My Referrals, My Estimated Rewards, and Referees' Wallet Addresses, is updated approximately hourly."
+msgstr "推荐数据（包括我的推荐、我的预估奖励以及被推荐人钱包地址）大约每小时更新一次。"
+
 #: src/components/swapv2/TokenInfo/index.tsx
 msgid "Security Info"
 msgstr "安全信息"
@@ -2589,6 +3088,10 @@ msgstr "质押KNC后，您可以在<0>投票页面</0>上对活跃的KyberDAO KI
 #: src/pages/KyberDAO/KNCUtility/FAQ.tsx
 msgid "Are swaps on all chains eligible for gas refunds?"
 msgstr "所有链上的兑换都有资格获得燃料费返还吗？"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "As a referrer, when someone you referred earns ARB on a trade made on KyberSwap.com, you get 10% of their rewards allocation."
+msgstr "作为推荐人，当您推荐的用户在 KyberSwap.com 上交易并获得 ARB 奖励时，您将得到其奖励分配的 10%。"
 
 #: src/components/swapv2/LimitOrder/useValidateInputError.tsx
 #: src/components/WalletPopup/SendToken/index.tsx
@@ -2606,6 +3109,11 @@ msgstr "质押后您可用的LP代币余额（如适用）"
 #: src/pages/NotificationCenter/Profile/ImportAccountModal/UserEnterPasscodeContent.tsx
 msgid "Can not read QR code"
 msgstr "无法读取二维码"
+
+#: src/pages/Campaign/components/MyNearIntentDashboard.tsx
+#: src/pages/Campaign/components/NearIntentCampaignStats.tsx
+msgid "Connect wallet to view your reward"
+msgstr "连接钱包以查看您的奖励"
 
 #: src/components/AppHaveUpdate.tsx
 msgid "New contents are available."
@@ -2643,6 +3151,10 @@ msgstr "赚取"
 #: src/components/Tutorial/TutorialSwap/index.tsx
 msgid "Let’s get started"
 msgstr "开始吧"
+
+#: src/pages/Campaign/constants.tsx
+msgid "Cross-Chain Race x NEAR Intents"
+msgstr "跨链竞速 x NEAR Intents"
 
 #: src/hooks/useApproveCallback.ts
 msgid "Approve Error"
@@ -2716,6 +3228,15 @@ msgstr "已收藏的池子列表"
 msgid "LP Fees"
 msgstr "LP 手续费"
 
+#: src/pages/Campaign/components/Information.tsx
+#: src/pages/Campaign/components/Information.tsx
+msgid "KyberSwap reserves the right to disqualify any address found to engage in the following: wash trading, sybil attacks, flashloan-based volume inflation, just-in-time liquidity attack and any other behavior deemed manipulative or abusive by the KyberSwap team."
+msgstr "KyberSwap 保留取消任何被发现存在刷量、女巫攻击、闪电贷刷量、即时流动性攻击或其他被认为具有操纵或滥用行为的地址资格的权利。"
+
+#: src/pages/Campaign/constants.tsx
+msgid "<0>Week 5</0> Aug 05 - Aug 11"
+msgstr "<0>第 5 周</0> 8 月 5 日 - 8 月 11 日"
+
 #: src/components/swapv2/LimitOrder/helpers.ts
 msgid "Invalid signature"
 msgstr "签名无效"
@@ -2748,6 +3269,10 @@ msgstr "全部清除"
 msgid "Rewards to claim after the end of the countdown period."
 msgstr "倒计时结束后可领取奖励。"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "Stablecoins to Stablecoins trading will give 0.5 Points per USD swapped."
+msgstr "稳定币之间的交易每兑换 1 美元可获得 0.5 积分。"
+
 #: src/components/swapv2/LimitOrder/Modals/CancelButtons.tsx
 msgid "Edit immediately by paying {gasAmountDisplay} gas fees."
 msgstr "支付 {gasAmountDisplay} Gas 费用即可立即编辑。"
@@ -2763,6 +3288,10 @@ msgstr "距离开始还有"
 #: src/components/swapv2/LimitOrder/ListOrder/OrderItem.tsx
 msgid "Partially Filled"
 msgstr "部分成交"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "No. Bitcoin wallets will only receive an airdrop if the reward share is ≥ $10."
+msgstr "不会。比特币钱包只有在奖励份额达到或超过 10 美元时才会收到空投。"
 
 #: src/pages/NotificationCenter/NotificationPreference/index.tsx
 msgid "You will need to verify your email address first."
@@ -2783,6 +3312,10 @@ msgstr "用户名（可选）"
 #: src/pages/KyberDAO/StakeKNC/SwitchToEthereumModal.tsx
 msgid "Switch to Ethereum Network"
 msgstr "切换到以太坊网络"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "2. At the end of the week, Vitalik earns 10 ARB from trading on KyberSwap.com."
+msgstr "2. 在本周结束时，维塔利克在 KyberSwap.com 交易获得 10 ARB。"
 
 #: src/components/swapv2/TokenInfo/utils.ts
 msgid "Buy Tax"
@@ -2817,6 +3350,10 @@ msgstr "稳健收益"
 #: src/components/WalletPopup/SendToken/index.tsx
 msgid "You can’t use your own address as a receiver"
 msgstr "不能将自己的地址设为收款人"
+
+#: src/pages/CrossChainSwap/index.tsx
+msgid "Recipient ({networkName} address)"
+msgstr "收款人（{networkName} 地址）"
 
 #: src/components/SwapForm/SwapActionButton/SwapButtonWithPriceImpact.tsx
 msgid "By clicking this, you will proceed by enabling Degen Mode. We recommend double-checking the minimum received amount before confirming the swap."
@@ -2858,6 +3395,10 @@ msgstr "正在检查价格"
 msgid "Claim all available farming rewards"
 msgstr "领取所有可用的挖矿奖励"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "ARB filled orders will give 10 Points per USD. It can be paired with any eligible tokens from the list, except plsARB that falls in Category 3."
+msgstr "ARB 成交的订单每兑换 1 美元可获得 10 积分，可与名单上的任意合资格代币交易，但不包括归入第 3 类的 plsARB。"
+
 #: src/components/SwapForm/SwapActionButton/index.tsx
 msgid "Permit {0}"
 msgstr "授权 {0}"
@@ -2896,6 +3437,10 @@ msgstr "等级 {userTier} - {0}% Gas 返还"
 #: src/components/Menu/index.tsx
 msgid "Legacy"
 msgstr "旧版"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "Refers to any trading pairs that are not classified as Stable Pairs."
+msgstr "指所有未归类为稳定交易对的任意交易对。"
 
 #: src/components/SwapForm/GasPriceNote.tsx
 msgid "Gas fees and Price Impact are very high. You will lose your funds."
@@ -2938,6 +3483,10 @@ msgstr "选择一个代币"
 msgid "Claim {claimType}"
 msgstr "领取 {claimType}"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "How to earn points"
+msgstr "如何获取积分"
+
 #: src/components/Header/web3/SignWallet/ConfirmModal.tsx
 msgid "or switch to"
 msgstr "或切换至"
@@ -2976,6 +3525,10 @@ msgstr "代币"
 msgid "Earning with Smart Liquidity Providing"
 msgstr "通过智能流动性提供赚取收益"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "EVM ↔ EVM (excl same chain)"
+msgstr "EVM ↔ EVM（不含同链）"
+
 #: src/components/PositionCard/index.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "LP Tokens"
@@ -2998,6 +3551,10 @@ msgstr "更多 KNC 相关信息请见："
 msgid "Docs"
 msgstr "文档"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "In the event that multiple participants achieve the same score for a ranked position (e.g., two users tied for Rank 1), the corresponding rewards for that rank and the following rank will be combined and equally distributed among the tied participants."
+msgstr "若多名参与者获得相同分数（例如两位用户并列第 1 名），该名次及下一名次的奖励将合并并平分给并列用户。"
+
 #: src/pages/ElasticSnapshot/index.tsx
 msgid "Affected Assets presently locked in Affected Pools due to incorrect pool state as a result of the Primary Exploit and MBA."
 msgstr "由于主要攻击和 MBA 导致池状态错误，目前受影响资产被锁定在受影响的资金池中。"
@@ -3005,6 +3562,10 @@ msgstr "由于主要攻击和 MBA 导致池状态错误，目前受影响资产�
 #: src/pages/KyberDAO/Vote/VoteConfirmModal.tsx
 msgid "You are voting for <0>{options}</0> on <1>{title}</1> with your KIP voting power"
 msgstr "您正使用 KIP 投票权在 <1>{title}</1> 上为 <0>{options}</0> 投票"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "How can I check my current rank?"
+msgstr "我如何查看当前排名？"
 
 #: src/pages/About/AboutKNC.tsx
 msgid "KNC enables KyberDAO to shape token behaviour and upgrades, making KNC much more adaptable and providing better support for innovation and growth."
@@ -3064,6 +3625,10 @@ msgstr "未收到验证码？<0>重新发送</0>"
 msgid "{0} {1} per {2}"
 msgstr "每 {2} {0} {1}"
 
+#: src/pages/Earns/Landing/index.tsx
+msgid "EXPLORE POOLS"
+msgstr "探索资金池"
+
 #: src/pages/Earns/components/ClaimAllModal/index.tsx
 msgid "Claimable Rewards"
 msgstr "可领取奖励"
@@ -3097,9 +3662,18 @@ msgstr "赚取奖励"
 msgid "My Liquidity Balance"
 msgstr "我的流动性余额"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "You will receive 3 points for swapping these derivatives pairs."
+msgstr "兑换这些衍生品交易对可获得 3 积分。"
+
 #: src/pages/About/AboutKyberSwap/index.tsx
 msgid "With our Dynamic Trade Routing technology, we aggregate liquidity from multiple DEXs and identify superior trade routes for you."
 msgstr "凭借动态交易路由技术，我们聚合多个 DEX 的流动性，为您识别更优的交易路径。"
+
+#: src/pages/Campaign/components/Information.tsx
+#: src/pages/Campaign/components/Information.tsx
+msgid "Category 2"
+msgstr "第 2 类"
 
 #: src/pages/BuyCrypto/index.tsx
 msgid "Step 3"
@@ -3160,6 +3734,10 @@ msgstr ""
 "您希望授权 KyberSwap 在交易中使用所选自定义代币额度。\n"
 "之后超过该额度的交易需要您再次授权，并会产生 Gas 费用。"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "<0>EVM, Near L1, Solana L1 winning wallets</0> will receive the airdrop <1>if the reward value is ≥ $5</1>, distributed in <2>USDT</2>. For EVM wallets, the reward will be sent on the Base chain."
+msgstr "<0>EVM、Near L1、Solana L1</0> 获奖钱包在奖励价值 <1>≥ 5 美元</1> 时将获得空投，奖励以 <2>USDT</2> 发放。EVM 钱包的奖励将在 Base 链上发送。"
+
 #: src/components/WalletPopup/Transactions/index.tsx
 #: src/pages/KyberDAO/StakeKNC/YourTransactionsModal.tsx
 msgid "You have no Transaction History."
@@ -3181,6 +3759,7 @@ msgstr "阶段 3"
 #: src/components/Menu/index.tsx
 #: src/components/swapv2/LimitOrder/useNotificationLimitOrder.tsx
 #: src/components/swapv2/LimitOrder/useNotificationLimitOrder.tsx
+#: src/pages/Campaign/MyDashboard.tsx
 #: src/pages/SwapV3/Tabs/LimitTab.tsx
 msgid "Limit Order"
 msgstr "限价单"
@@ -3188,6 +3767,10 @@ msgstr "限价单"
 #: src/pages/ElasticSnapshot/components/ChooseGrantModal.tsx
 msgid "USD stablecoins equivalent to 100% of the Reference Value of Lost Affected Assets contributed from such Affected Address, vested continuously on a linear basis over 12 months."
 msgstr "以线性方式在 12 个月内归属，由该受影响地址贡献的损失资产参考值 100% 等值的美元稳定币。"
+
+#: src/pages/Campaign/MyDashboard.tsx
+msgid "Total final rewards that you can claim for the campaign."
+msgstr "此活动您可领取的最终奖励总额。"
 
 #: src/components/CurrencyInputPanel/TokenInfo.tsx
 msgid "Native token"
@@ -3223,8 +3806,7 @@ msgstr "AMP 系数 x 池中的流动性。放大池具有更高的资本效率�
 
 #: src/components/SwapForm/AddMEVProtectionModal.tsx
 msgid "<0>MEV</0> Protection safeguards you from front-running attacks on Ethereum. We recommend using <1>KyberSwap's RPC endpoint</1> - powered by Blink to protect your transactions from front-running attacks and ensure a better trading experience.<2/><3/>Note that adding the RPC endpoint automatically is only available via the MetaMask wallet. If you are using another wallet or would like to add the RPC endpoint to your wallet manually, please refer to this <4>guide</4>. Please make sure you understand how it works and use at your own caution."
-msgstr ""
-"<0>MEV</0> 保护可防止您在以太坊上遭受抢先交易攻击。我们建议使用由 Blink 提供支持的 <1>KyberSwap RPC 端点</1>，以保护您的交易并确保更佳的交易体验。<2/><3/>请注意，仅能通过 MetaMask 钱包自动添加该 RPC 端点。如果您使用其他钱包或希望手动添加，请参阅此<4>指南</4>。请务必了解其工作原理并谨慎使用。"
+msgstr "<0>MEV</0> 保护可防止您在以太坊上遭受抢先交易攻击。我们建议使用由 Blink 提供支持的 <1>KyberSwap RPC 端点</1>，以保护您的交易并确保更佳的交易体验。<2/><3/>请注意，仅能通过 MetaMask 钱包自动添加该 RPC 端点。如果您使用其他钱包或希望手动添加，请参阅此<4>指南</4>。请务必了解其工作原理并谨慎使用。"
 
 #: src/components/Header/web3/NetworkModal/components/DraggableNetworkButton.tsx
 #: src/pages/Earns/Landing/index.tsx
@@ -3254,6 +3836,10 @@ msgstr "请在 Brave 钱包中导入代币。"
 msgid "KyberSwap maintains the right, at its sole discretion, to take action or remove rewards against the User who violates the KyberSwap <0>Terms of Use</0> and/or violates, cheats, or exploits the program, including but not limited to, any suspicious activities, or any attempts to circumvent these Terms and Conditions."
 msgstr "KyberSwap 保留自行决定对违反 KyberSwap <0>使用条款</0>及/或违反、作弊或利用本计划的用户采取措施或取消其奖励的权利，包括但不限于任何可疑活动或试图规避这些条款与条件的行为。"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "Points are calculated based on the trading volume of eligible tokens — you earn 1 point for every $1 of eligible trading volume."
+msgstr "积分依据合资格代币的交易量计算——每 1 美元的合资格交易量可获得 1 积分。"
+
 #: src/components/PoolPriceBar/index.tsx
 #: src/components/PoolPriceBar/index.tsx
 #: src/components/PoolPriceBar/index.tsx
@@ -3272,6 +3858,10 @@ msgstr "发生错误"
 #: src/components/Header/web3/SignWallet/ConfirmModal.tsx
 msgid "You are connected to KyberSwap with wallet <0>{0}</0> while your current profile <1>{currentProfileName}</1> was created by wallet <2>{1}</2>. Do you wish to keep using"
 msgstr "您当前使用钱包 <0>{0}</0> 连接 KyberSwap，而当前资料 <1>{currentProfileName}</1> 由钱包 <2>{1}</2> 创建。您是否希望继续使用"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "To be eligible, you must make a swap on <0>KyberSwap.com</0> using trading pairs composed of eligible tokens from the list, excluding WETH-ETH, WETH-USDC, and ETH-USDC."
+msgstr "要符合资格，您必须在 <0>KyberSwap.com</0> 上使用列表中的合资格代币交易对进行兑换，但不包括 WETH-ETH、WETH-USDC 和 ETH-USDC。"
 
 #: src/components/swapv2/LimitOrder/ListOrder/SummaryNotify.tsx
 msgid "Your order to pay {mainMsg} is {filledPercent}% filled"
@@ -3298,6 +3888,10 @@ msgstr "假日模式"
 #: src/pages/Campaign/components/Leaderboard.tsx
 msgid "POINTS"
 msgstr "积分"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "Rewards will be distributed in KNC tokens on Ethereum."
+msgstr "奖励将以 KNC 代币在以太坊上发放。"
 
 #: src/components/PoolsCurrencyInputPanel/index.tsx
 msgid "Select Token"
@@ -3326,6 +3920,10 @@ msgstr "如果兑换过程中价格变动超过该百分比，交易将被回滚
 #: src/pages/ElasticLegacy/AllPositionLegacy.tsx
 msgid "Selected Price Range"
 msgstr "已选价格区间"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "For example: If two users tie for Rank 1, the rewards for Rank 1 and Rank 2 (in Rank 2-5) will be added together and split equally between the two → Each receives (1050 + 550) ÷ 2 = 800 KNC"
+msgstr "例如：若两位用户并列第 1 名，则第 1 名与第 2 名（位于第 2-5 名段）的奖励相加后平均分配，每人可得 (1050 + 550) ÷ 2 = 800 KNC。"
 
 #: src/pages/Earns/UserPositions/TableContent.tsx
 msgid "Unclaimed rewards"
@@ -3399,8 +3997,7 @@ msgstr "电子邮箱地址无效"
 
 #: src/components/swapv2/LimitOrder/useValidateInputError.tsx
 msgid "Insufficient {0} balance.<0/><1>{1}{formatNum} {2}</1> remaining after deducting Active and Open orders."
-msgstr ""
-"{0} 余额不足。<0/><1>扣除活跃和未完成订单后剩余 {1}{formatNum} {2}</1>。"
+msgstr "{0} 余额不足。<0/><1>扣除活跃和未完成订单后剩余 {1}{formatNum} {2}</1>。"
 
 #: src/components/Header/web3/SignWallet/ConfirmModal.tsx
 msgid "Signing in..."
@@ -3445,9 +4042,17 @@ msgstr "委托"
 msgid "25%"
 msgstr "25%"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "You can view your total points earned and current rank by going to the “Leaderboard” tab."
+msgstr "您可以在“排行榜”标签中查看累计积分和当前排名。"
+
 #: src/pages/NotificationCenter/CreateAlert/CreateAlertForm.tsx
 msgid "Alert Conditions"
 msgstr "提醒条件"
+
+#: src/pages/Campaign/MyDashboard.tsx
+msgid "TOTAL CLAIMABLE REWARDS"
+msgstr "可领取奖励总计"
 
 #: src/pages/Campaign/index.tsx
 msgid "Ending in"
@@ -3496,6 +4101,7 @@ msgstr "价格范围"
 
 #: src/pages/CrossChainSwap/components/ConfirmationPopup.tsx
 #: src/pages/CrossChainSwap/components/QuoteSelector.tsx
+#: src/pages/CrossChainSwap/index.tsx
 msgid "Beta"
 msgstr "测试版"
 
@@ -3505,6 +4111,10 @@ msgstr "测试版"
 #: src/pages/RemoveLiquidityProAmm/index.tsx
 msgid "My Liquidity"
 msgstr "我的流动性"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "Non-EVM ← Near L1 (excl same chain)"
+msgstr "非 EVM ← Near L1（不含同链）"
 
 #: src/components/Select/index.tsx
 msgid "Search..."
@@ -3521,6 +4131,10 @@ msgstr "想了解如何在 KyberSwap Elastic 上移除流动性，请查看<0>�
 #: src/pages/CrossChainSwap/components/SwapAction.tsx
 msgid "Connect Solana Wallet"
 msgstr "连接 Solana 钱包"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "For every $1 bridged via NEAR Intents on KyberSwap, users earn points based on the following scale:"
+msgstr "通过 KyberSwap 的 NEAR Intents 桥接每 1 美元，将按照下列标准获得积分："
 
 #: src/components/WalletPopup/Transactions/index.tsx
 msgid "Manually clear this transaction from the pending list. This will not affect its on-chain status."
@@ -3640,6 +4254,10 @@ msgstr "在此质押 ↗"
 msgid "The amount of the gas refunded will depend on your tier displayed below. Read more <0>here ↗</0>"
 msgstr "返还的 Gas 数量取决于您在下方显示的等级。了解更多<0>请见此处 ↗</0>"
 
+#: src/pages/Campaign/MyDashboard.tsx
+msgid "Please connect wallet to view your Dashboard"
+msgstr "请连接钱包以查看您的仪表板"
+
 #: src/components/swapv2/LimitOrder/EditOrderModal.tsx
 msgid "Your currently existing order is {filled}% filled."
 msgstr "您当前的订单已成交 {filled}%。"
@@ -3673,6 +4291,10 @@ msgstr "分析工具"
 msgid "No. Limit orders and cross-chain swaps are not eligible for gas refunds. Only standard swaps on KyberSwap are eligible."
 msgstr "不可以。限价单和跨链兑换不符合 Gas 返还资格，只有 KyberSwap 上的标准兑换符合条件。"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "User reward = (User Points/Total Points) * Weekly Prize Pool"
+msgstr "用户奖励 = （用户积分 / 总积分） × 每周奖励池"
+
 #: src/hooks/useLogin.tsx
 #: src/hooks/useSessionExpire.ts
 #: src/pages/NotificationCenter/Profile/WarningSignMessage.tsx
@@ -3682,6 +4304,10 @@ msgstr "登录"
 #: src/components/Search/index.tsx
 msgid "Search by pool address"
 msgstr "按池地址搜索"
+
+#: src/pages/Campaign/components/JoinReferral.tsx
+msgid "Confirm to join"
+msgstr "确认加入"
 
 #: src/pages/KyberDAO/Vote/index.tsx
 msgid "Voting Power next Epoch: {0}"
@@ -3733,6 +4359,14 @@ msgstr "ID：<0>{0}</0>"
 msgid "The first-ever aggregated on-chain price platform, offering the most real-time, trade-able, and reliable price data."
 msgstr "首个聚合链上价格的平台，提供最实时、可交易且可靠的价格数据。"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "EVM ↔ Bitcoin L1"
+msgstr "EVM ↔ Bitcoin L1"
+
+#: src/pages/Earns/UserPositions/index.tsx
+msgid "<0>Unclaimed</0><1>fees<2/></1>"
+msgstr "<0>未领取</0><1>手续费<2/></1>"
+
 #: src/pages/ProAmmPool/index.tsx
 msgid "Farming Positions"
 msgstr "挖矿仓位"
@@ -3744,6 +4378,10 @@ msgstr "KNC 持有者可在 KyberDAO 中质押 KNC 并参与重要决策投票�
 #: src/pages/NotificationCenter/CreateAlert/ConfirmModal.tsx
 msgid "Note: <0>{note}</0>"
 msgstr "注意：<0>{note}</0>"
+
+#: src/pages/Campaign/constants.tsx
+msgid "<0>Week 1</0> May 19 - May 25"
+msgstr "<0>第 1 周</0> 5 月 19 日 - 5 月 25 日"
 
 #: src/components/swapv2/LimitOrder/ListOrder/OrderItem.tsx
 msgid "Expiry"
@@ -3777,6 +4415,10 @@ msgstr "点击签名即可在 KyberSwap.com 添加收藏代币，无需登录。
 #: src/components/Menu/index.tsx
 msgid "Blog"
 msgstr "博客"
+
+#: src/pages/Campaign/constants.tsx
+msgid "Place order"
+msgstr "下单"
 
 #: src/components/Toggle/LegacyToggle.tsx
 msgid "Off"
@@ -3846,6 +4488,19 @@ msgstr "冷却时间"
 msgid "Enhance Your Liquidity Positions"
 msgstr "提升您的流动性仓位"
 
+#: src/pages/Campaign/components/Information.tsx
+#: src/pages/Campaign/components/Information.tsx
+msgid "There is no deadline to claim the rewards. All the rewards if not claimed will be airdropped at a later time."
+msgstr "领取奖励没有截止日期。未领取的奖励将在之后通过空投发放。"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "The campaign will start from 00h00, 27/05 - 23h59, 01/06 in UTC timezone"
+msgstr "活动将于 UTC 时间 5 月 27 日 00:00 开始，至 6 月 1 日 23:59 结束。"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "Are pairs that include the same POL, ETH, or BNB counted as stable pairs in this campaign?"
+msgstr "在本次活动中，包含同一 POL、ETH 或 BNB 的交易对是否算作稳定对？"
+
 #: src/components/SwapForm/SwapModal/ConfirmSwapModalContent.tsx
 msgid "To ensure you dont lose funds due to very high price impact (≥10%), swap has been disabled for this trade. If you still wish to continue, you can turn on Degen Mode from Settings."
 msgstr "为避免因价格影响极高（≥10%）而造成资金损失，此交易的兑换已被禁用。如仍要继续，可在设置中开启 Degen 模式。"
@@ -3904,6 +4559,11 @@ msgstr "开始使用"
 msgid "Canceling your orders"
 msgstr "正在取消您的订单"
 
+#: src/pages/Campaign/components/Information.tsx
+#: src/pages/Campaign/components/Information.tsx
+msgid "There is no minimum nor maximum value requirement for a trade to earn points."
+msgstr "交易获得积分没有最低或最高金额限制。"
+
 #: src/components/swapv2/LiquiditySourcesPanel/SearchBar.tsx
 msgid "Search for a liquidity source"
 msgstr "搜索流动性来源"
@@ -3912,6 +4572,14 @@ msgstr "搜索流动性来源"
 #: src/components/swapv2/LimitOrder/ListOrder/TableHeader.tsx
 msgid "LIMIT ORDER(S)"
 msgstr "限价单"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "<0>To become a Referrer</0>, users simply need to click on \"Invite your friends,\" sign an on-chain message to confirm their participation (if you were referred by a friend and have already signed the message as a referee, you won't need to sign again), and then generate a link ready to share."
+msgstr "<0>要成为推荐人</0>，用户只需点击“邀请好友”，签署一条链上消息确认参与（若您先前作为被推荐人已签署过，则无需再次签名），随后即可生成可分享的链接。"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "My Bitcoin wallet has a reward share of $5. Will I receive the airdrop?"
+msgstr "我的比特币钱包分到 5 美元的奖励，会收到空投吗？"
 
 #: src/components/FarmTag.tsx
 msgid "Farming"
@@ -3933,6 +4601,10 @@ msgstr "奖励中心"
 msgid "Trading Security"
 msgstr "交易安全"
 
+#: src/pages/Campaign/constants.tsx
+msgid "<0>Week 3</0> July 22 - July 28"
+msgstr "<0>第 3 周</0> 7 月 22 日 - 7 月 28 日"
+
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Insufficient liquidity available. Please reload page or increase max slippage and try again!"
@@ -3946,6 +4618,10 @@ msgstr "编辑订单"
 #: src/pages/KyberDAO/StakeKNC/StakeKNCComponent.tsx
 msgid "Unstaking {inputValue} KNC from KyberDAO"
 msgstr "正在从 KyberDAO 解除质押 {inputValue} KNC"
+
+#: src/pages/Campaign/constants.tsx
+msgid "<0>Week 9</0> Sep 02 - Sep 08"
+msgstr "<0>第 9 周</0> 9 月 2 日 - 9 月 8 日"
 
 #: src/components/ModalCommunity/index.tsx
 msgid "Community"
@@ -3985,6 +4661,10 @@ msgstr "连接 NEAR 钱包"
 msgid "Your transactions"
 msgstr "您的交易"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "If I swap $1 volume from EVM to Near L1, is the volume counted for my EVM wallet or my Near wallet?"
+msgstr "如果我从 EVM 向 Near L1 兑换 1 美元，交易量算在 EVM 钱包还是 Near 钱包？"
+
 #: src/components/swapv2/LimitOrder/ListOrder/OrderItem.tsx
 msgid "Created"
 msgstr "已创建"
@@ -4000,6 +4680,11 @@ msgstr "如需更详细的使用指南，<0>请点击此处</0>。"
 #: src/pages/KyberDAO/StakeKNC/StakeKNCComponent.tsx
 msgid "Unstaking KNC"
 msgstr "解除质押 KNC"
+
+#: src/pages/Campaign/components/MyNearIntentDashboard.tsx
+#: src/pages/Campaign/MyDashboard.tsx
+msgid "WEEK"
+msgstr "周"
 
 #: src/pages/CrossChainSwap/components/Summary.tsx
 msgid "Estimated processing time for your transaction."
@@ -4059,6 +4744,12 @@ msgstr "注意：订单成交后，您将收到 {currencyName}（{currencySymbol
 msgid "Farms"
 msgstr "农场"
 
+#: src/pages/Campaign/components/Information.tsx
+#: src/pages/Campaign/components/Information.tsx
+#: src/pages/Campaign/components/Information.tsx
+msgid "How often is the data updated?"
+msgstr "这些数据多久更新一次？"
+
 #: src/components/Select/MultipleChainSelect/ApplyButton.tsx
 msgid "View Selected Chains"
 msgstr "查看已选链"
@@ -4082,7 +4773,14 @@ msgstr "当前周期"
 msgid "Place Order"
 msgstr "下单"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "There is no set deadline to claim your rewards; however, we recommend claiming them as soon as possible to make the most of your benefits."
+msgstr "领取奖励没有固定截止日期；但我们建议尽早领取，以充分利用您的收益。"
+
 #: src/pages/Campaign/components/Leaderboard.tsx
+#: src/pages/Campaign/components/MyNearIntentDashboard.tsx
+#: src/pages/Campaign/components/MyReferralDashboard.tsx
+#: src/pages/Campaign/MyDashboard.tsx
 #: src/pages/Earns/PoolExplorer/TableContent.tsx
 #: src/pages/MarketOverview/TableContent.tsx
 msgid "No data found"
@@ -4122,9 +4820,17 @@ msgstr "经典池"
 msgid "Your currently existing order is {filledPercent}% filled."
 msgstr "您当前的订单已成交 {filledPercent}%。"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "All KyberSwap Aggregator API users from whitelisted clients are welcome to participate in the campaign."
+msgstr "欢迎所有白名单客户端的 KyberSwap 聚合器 API 用户参与本次活动。"
+
 #: src/components/SwapForm/PriceImpactNote.tsx
 msgid "Unable to calculate <0>Price Impact.</0>{0}"
 msgstr "无法计算<0>价格影响。</0>{0}"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "Up to <0>45,000 ARB</0> are allocated for the Referral Campaign until the end of the Trading Campaign."
+msgstr "在交易活动结束前，推荐活动最高分配 <0>45,000 ARB</0>。"
 
 #: src/utils/time.ts
 msgid "< 1 minute ago"
@@ -4133,6 +4839,11 @@ msgstr "不足 1 分钟前"
 #: src/pages/SwapV3/ApprovalModal.tsx
 msgid "Choose between Infinite or Custom allowance. <0>Read more ↗</0>"
 msgstr "可选择无限或自定义授权额度。<0>了解更多 ↗</0>"
+
+#: src/pages/Campaign/components/Information.tsx
+#: src/pages/Campaign/components/Information.tsx
+msgid "The Campaign will take place over 10 weeks, from 8th July to 16th September 2024. Points and Rewards are reset to 0 each Monday at 0:00 UTC, after the end of each weekly event."
+msgstr "活动将持续 10 周，自 2024 年 7 月 8 日至 9 月 16 日。每周活动结束后的周一 0:00 UTC 会重置积分与奖励。"
 
 #: src/pages/ElasticSnapshot/components/Vesting.tsx
 msgid "Unlocked Amount (USDC)"
@@ -4153,6 +4864,10 @@ msgstr "外部调用"
 #: src/components/swapv2/LimitOrder/ExpirePicker.tsx
 msgid "Min"
 msgstr "最小"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "Week 2: 0h00 UTC 28th July - 23h59 UTC 3rd August."
+msgstr "第 2 周：7 月 28 日 0:00 UTC - 8 月 3 日 23:59 UTC。"
 
 #: src/pages/KyberDAO/KNCUtility/FAQ.tsx
 msgid "During this beta phase, only swaps on Ethereum are eligible for gas refunds. We may expand the gas refund program to other chains in the future."
@@ -4214,6 +4929,13 @@ msgstr "质押 KNC ↗"
 #: src/components/WalletPopup/ReceiveToken.tsx
 msgid "Your Wallet Address"
 msgstr "您的钱包地址"
+
+#: src/pages/Campaign/constants.tsx
+#: src/pages/Campaign/constants.tsx
+#: src/pages/Campaign/constants.tsx
+#: src/pages/Campaign/constants.tsx
+msgid "Trade Now"
+msgstr "立即交易"
 
 #: src/pages/AddLiquidityV2/constants.ts
 msgid "Suitable for high-risk appetite LPs for pairs with high price volatility. Anticipating price to fluctuate within ~30%. You can earn fees even if the price goes up by 15% or goes down by 15%."
@@ -4290,6 +5012,10 @@ msgstr "已回滚 {increasedFilledPercent}"
 msgid "Rate"
 msgstr "汇率"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "Example:"
+msgstr "示例："
+
 #: src/components/swapv2/GasTokenSetting.tsx
 #: src/pages/Earns/UserPositions/index.tsx
 #: src/pages/Earns/UserPositions/TableContent.tsx
@@ -4358,6 +5084,10 @@ msgstr "未找到交易"
 #: src/pages/ElasticSnapshot/components/InstantClaim.tsx
 msgid "Total Amount includes assets that KyberSwap has recovered or rescued under Category 3 & 5"
 msgstr "总金额包含 KyberSwap 在第 3 类和第 5 类中追回或救助的资产"
+
+#: src/pages/Campaign/components/JoinReferral.tsx
+msgid "Join Referral Campaign Success"
+msgstr "成功加入推荐活动"
 
 #: src/components/Announcement/PrivateAnnoucement/index.tsx
 msgid "Limit Orders"
@@ -4447,6 +5177,10 @@ msgstr "活跃提醒：{totalActiveAlerts}/{maxActiveAlerts}"
 msgid "Total Unclaimed Fees"
 msgstr "未领取手续费总额"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "5. The 10% Bonus come from the Referral Program budget, not from the referee allocation."
+msgstr "5. 这 10% 的奖金来自推荐计划预算，不会扣除被推荐人的奖励。"
+
 #: src/pages/ElasticSnapshot/index.tsx
 msgid "Affected Assets taken from Affected Pools by subsequent activity (“Category 3 MBA” which together with Category 2 MBA collectively referred to as “MBA”) of two front-run bots mimicking the Primary Exploit – which Affected Assets have been partially recovered along with assets (“Category 3 Swapped Affected Assets”) into which part of such Affected Assets have been swapped into by such front-run bots."
 msgstr "两名模仿主攻击的抢跑机器人在后续活动中（“第 3 类 MBA”，与第 2 类 MBA 合称为“MBA”）从受影响资金池取走的资产，其中部分已追回，以及这些机器人将部分受影响资产兑换成的资产（“第 3 类兑换受影响资产”）。"
@@ -4455,6 +5189,8 @@ msgstr "两名模仿主攻击的抢跑机器人在后续活动中（“第 3 类
 msgid "What is the maximum gas refund limit for a user?"
 msgstr "用户的 Gas 返还上限是多少？"
 
+#: src/pages/Campaign/MyDashboard.tsx
+#: src/pages/Campaign/MyDashboard.tsx
 #: src/pages/Earns/PositionDetail/RewardSection.tsx
 #: src/pages/Earns/UserPositions/PositionBanner.tsx
 #: src/pages/Earns/UserPositions/PositionBanner.tsx
@@ -4466,10 +5202,19 @@ msgstr "已领取"
 msgid "[ My Dashboard ]"
 msgstr "[ 我的仪表板 ]"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "Both tokens must be the same native tokens including ETH-ETH, BNB-BNB, POL-POL. Wrapped versions of ETH, BNB, and POL are also eligible (e.g., ETH-WETH, WETH-WETH, BNB-WBNB…)"
+msgstr "两种代币必须是相同的原生代币，如 ETH-ETH、BNB-BNB、POL-POL。ETH、BNB、POL 的包装版本亦符合条件（例如 ETH-WETH、WETH-WETH、BNB-WBNB…）。"
+
 #: src/components/Tutorial/TutorialSwap/CustomPopup.tsx
 #: src/pages/NotificationCenter/Profile/ExportAccountModal/UserEnterPasscodeContent.tsx
 msgid "Next"
 msgstr "下一步"
+
+#: src/pages/Campaign/components/Information.tsx
+#: src/pages/Campaign/components/Information.tsx
+msgid "How do you calculate the rewards?"
+msgstr "奖励是如何计算的？"
 
 #: src/pages/NotificationCenter/Profile/ImportAccountModal/UserEnterPasscodeContent.tsx
 msgid "Importing..."
@@ -4491,8 +5236,15 @@ msgstr "包装"
 msgid "EG Sharing Reward"
 msgstr "EG 分润奖励"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "Only trading volume from pairs composed of <0>eligible tokens</0> will be counted, excluding WETH-ETH, WETH-USDC, and ETH-USDC."
+msgstr "仅统计由<0>合资格代币</0>组成的交易对的交易量，WETH-ETH、WETH-USDC 和 ETH-USDC 不计入内。"
+
 #: src/components/Menu/ClaimRewardModal.tsx
 #: src/components/WalletPopup/RewardCenter.tsx
+#: src/pages/Campaign/components/ClaimBtn.tsx
+#: src/pages/Campaign/MyDashboard.tsx
+#: src/pages/Campaign/MyDashboard.tsx
 #: src/pages/Earns/components/ClaimAllModal/index.tsx
 #: src/pages/Earns/PositionDetail/LeftSection.tsx
 #: src/pages/Earns/PositionDetail/RewardSection.tsx
@@ -4509,9 +5261,17 @@ msgstr "领取"
 msgid "Due to market conditions, your output has been updated from {0} {1} to {2} {3} ({formattedOutputChangePercent}%) {4}"
 msgstr "受市场行情影响，您的输出已从 {0} {1} 调整为 {2} {3}（{formattedOutputChangePercent}%）{4}"
 
+#: src/pages/Campaign/constants.tsx
+msgid "<0>Week 6</0> Aug 12 - Aug 18"
+msgstr "<0>第 6 周</0> 8 月 12 日 - 8 月 18 日"
+
 #: src/pages/ElasticSnapshot/index.tsx
 msgid "You can find the vesting details of each category of assets that were affected by the exploit below."
 msgstr "您可在下方查看受攻击影响的各类资产的归属详情。"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "Bonus:"
+msgstr "额外奖励："
 
 #: src/pages/NotificationCenter/Profile/ImportAccountModal/UserEnterPasscodeContent.tsx
 msgid "Or upload QR Code"
@@ -4625,6 +5385,8 @@ msgstr "输入金额"
 #: src/components/swapv2/LimitOrder/ActionButtonLimitOrder.tsx
 #: src/components/YieldPools/ElasticFarmGroup/buttons.tsx
 #: src/pages/BuyCrypto/index.tsx
+#: src/pages/Campaign/components/MyNearIntentDashboard.tsx
+#: src/pages/Campaign/components/NearIntentCampaignStats.tsx
 #: src/pages/ElasticSnapshot/index.tsx
 #: src/pages/KyberDAO/KNCUtility/GasRefundBox.tsx
 #: src/pages/KyberDAO/StakeKNC/MigrateModal.tsx
@@ -4683,9 +5445,17 @@ msgstr "当 <2>1 {makerAssetSymbol} 等于 </2><3>{takingAmountRate} {takerAsset
 msgid "Week {weekIndex} {statusText}"
 msgstr "第 {weekIndex} 周 {statusText}"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "Non-EVM → Near L1 (excl same chain)"
+msgstr "非 EVM → Near L1（不含同链）"
+
 #: src/pages/CrossChainSwap/components/SwapAction.tsx
 msgid "Please select a token"
 msgstr "请选择代币"
+
+#: src/pages/CrossChainSwap/index.tsx
+msgid "Enter {networkName} receiving address"
+msgstr "输入 {networkName} 收款地址"
 
 #: src/components/Header/web3/NetworkModal/components/DraggableNetworkButton.tsx
 msgid "New"
@@ -4753,6 +5523,10 @@ msgstr "您已将投票权委托给该地址。"
 msgid "Finalizing..."
 msgstr "正在完成..."
 
+#: src/pages/Campaign/components/JoinReferral.tsx
+msgid "Referral Code Input (Optional)"
+msgstr "推荐码输入（可选）"
+
 #: src/components/Header/web3/SignWallet/ConfirmModal.tsx
 msgid "Sign in with the connected wallet"
 msgstr "使用已连接的钱包登录"
@@ -4761,6 +5535,10 @@ msgstr "使用已连接的钱包登录"
 #: src/pages/ProAmmPool/index.tsx
 msgid "Connect to a wallet to view your liquidity."
 msgstr "连接钱包以查看您的流动性。"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "How can I claim my reward?"
+msgstr "我该如何领取奖励？"
 
 #: src/pages/NotificationCenter/Profile/ImportAccountModal/index.tsx
 msgid "Imported successfully"
@@ -4809,6 +5587,10 @@ msgstr "Gas 费用非常高，您将损失资金。"
 msgid "Market Overview"
 msgstr "市场概览"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "EVM ↔ Solana L1"
+msgstr "EVM ↔ Solana L1"
+
 #: src/components/swapv2/LimitOrder/ActionButtonLimitOrder.tsx
 #: src/components/swapv2/LimitOrder/ActionButtonLimitOrder.tsx
 msgid "Review Order"
@@ -4818,9 +5600,18 @@ msgstr "检查订单"
 msgid "Search by token symbol or address"
 msgstr "按代币符号或地址搜索"
 
+#: src/pages/Campaign/components/JoinReferral.tsx
+msgid "Copy and share your link/code with your network."
+msgstr "复制并与您的社群分享您的链接/代码。"
+
 #: src/pages/KyberDAO/StakeKNC/StakeKNCComponent.tsx
 msgid "Staking {inputValue} KNC to KyberDAO"
 msgstr "正在将 {inputValue} KNC 质押到 KyberDAO"
+
+#: src/pages/Campaign/components/Information.tsx
+#: src/pages/Campaign/components/Information.tsx
+msgid "Ex: USDC <> USDT; FRAX <> DAI; LUSD <> MIM"
+msgstr "示例：USDC <> USDT；FRAX <> DAI；LUSD <> MIM"
 
 #: src/components/Announcement/PrivateAnnoucement/InboxItemLO.tsx
 msgid "{filledPercent} Filled {increasedFilledPercent}"
@@ -4878,6 +5669,10 @@ msgstr "存入"
 #: src/components/TransactionConfirmationModal/index.tsx
 msgid "Add {0} to {name}"
 msgstr "将 {0} 添加到 {name}"
+
+#: src/pages/Campaign/constants.tsx
+msgid "<0>Week 2</0> July 15 - July 21"
+msgstr "<0>第 2 周</0> 7 月 15 日 - 7 月 21 日"
 
 #: src/components/PositionCard/index.tsx
 msgid "One token is close to 0% in the pool ratio. Pool might go inactive."
@@ -5003,6 +5798,12 @@ msgstr "收到的最小值"
 msgid "Cancel All"
 msgstr "全部取消"
 
+#: src/pages/Campaign/components/Information.tsx
+#: src/pages/Campaign/components/Information.tsx
+#: src/pages/Campaign/components/Information.tsx
+msgid "You can find the full list of eligible tokens <0>here</0>"
+msgstr "可在<0>此处</0>查看合资格代币的完整列表"
+
 #: src/components/swapv2/LimitOrder/Modals/CancelOrderModal.tsx
 #: src/components/swapv2/LimitOrder/Modals/ConfirmOrderModal.tsx
 msgid "I pay"
@@ -5080,6 +5881,18 @@ msgstr "出现问题，请稍后再试！"
 msgid "Voting Power this Epoch: {0}"
 msgstr "本轮投票权：{0}"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "Which tokens can referees trade to be eligible for the rewards?"
+msgstr "被推荐人需要交易哪些代币才能符合奖励资格？"
+
+#: src/pages/CrossChainSwap/index.tsx
+msgid "Use my wallet"
+msgstr "使用我的钱包"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "The Referrers and Referees rewards will be claimable only at the end of the STIP Campaign, around 1 week after 16th of September."
+msgstr "推荐人和被推荐人的奖励将在 STIP 活动结束后（约 9 月 16 日后一周）开放领取。"
+
 #: src/pages/Earns/PoolExplorer/MobileTableRow.tsx
 #: src/pages/Earns/PoolExplorer/TableHeader.tsx
 #: src/pages/Earns/UserPositions/MigrationModal.tsx
@@ -5100,6 +5913,10 @@ msgstr "链上价格"
 msgid "If you're okay with this, please type the word 'confirm' below to accept this new amount."
 msgstr "若您接受，请在下方输入“confirm”以确认新的数量。"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "Trade more to earn more points to climb the leaderboard - the higher your rank, the greater your rewards."
+msgstr "交易越多，积分越多，排名越高，奖励越丰厚。"
+
 #: src/components/swapv2/LimitOrder/ActionButtonLimitOrder.tsx
 msgid "You will need to wrap your {inSymbol} to {wrapSymbol} before you can place a limit order. Your tokens will be exchanged 1 to 1."
 msgstr "您需要先将 {inSymbol} 包装成 {wrapSymbol} 才能下限价单，代币将按 1:1 兑换。"
@@ -5116,10 +5933,23 @@ msgstr "无效的以太坊地址"
 msgid "This token isn’t frequently swapped. Please do your own research before trading."
 msgstr "该代币交易并不频繁，请在交易前自行研究。"
 
+#: src/pages/Campaign/components/Information.tsx
+#: src/pages/Campaign/components/Information.tsx
+msgid "The transaction needs to be executed in the 20 minutes after clicking the “Swap” button in order to receive points & rewards."
+msgstr "点击“Swap”按钮后需在 20 分钟内完成交易，才能获得积分与奖励。"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "Any wallet engaging in cheating, such as wash trading, sybil attacks, flashloan-based volume inflation, and any other behavior deemed manipulative or abusive by the KyberSwap team will be disqualified."
+msgstr "任何进行刷量、女巫攻击、闪电贷刷量或其他被 KyberSwap 团队认定为操纵或滥用行为的钱包都将被取消资格。"
+
 #: src/pages/ElasticSnapshot/components/InstantClaim.tsx
 #: src/pages/ElasticSnapshot/components/SelectTreasuryGrant.tsx
 msgid "Phase 2"
 msgstr "阶段 2"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "Points are earned each time a Maker Order is filled on KyberSwap Limit-Order. Eligible tokens are indexed in 4 different categories, giving different amount of points per USD amount filled. Eligible tokens can be found on <0>this list</0>"
+msgstr "每当 KyberSwap 限价单的 Maker 订单成交时都会获得积分。合资格代币分为 4 个类别，每成交 1 美元可获得不同积分。合资格代币列表可在 <0>此处</0> 查看。"
 
 #: src/hooks/useWrapCallback.ts
 msgid "Insufficient {nativeTokenSymbol} balance"
@@ -5166,9 +5996,17 @@ msgstr "您的仓位 <0/>{token0Symbol}-{token1Symbol} <1>{statusMessage}</1><2/
 msgid "Coming soon..."
 msgstr "即将推出..."
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "After your first week of Limit-Order activities (from Monday 0:00 UTC to Sunday 23h59 UTC) points and rewards are locked 7 days. During this 7 days buffer period, the team will analyze the data and exclude potential cheaters. Once this buffer period ends, ARB will be claimable on <0>KyberSwap.com/campaigns/dashboard.</0>"
+msgstr "在您完成首周限价单活动（周一 0:00 UTC 至周日 23:59 UTC）后，积分和奖励会锁定 7 天。在此缓冲期内团队会分析数据并排除潜在作弊者。缓冲期结束后，可在 <0>KyberSwap.com/campaigns/dashboard.</0> 领取 ARB。"
+
 #: src/components/Header/web3/NetworkModal/index.tsx
 msgid "Select a Chain"
 msgstr "选择链"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "Go to <0>KyberSwap Cross-Chain</0> feature."
+msgstr "前往 <0>KyberSwap 跨链</0> 功能。"
 
 #: src/components/swapv2/LimitOrder/OrderBook/index.tsx
 msgid "No orders."
@@ -5206,6 +6044,10 @@ msgstr "您仍有 <0>{numberOfPosition}</0> 个流动性仓位尚未从 Elastic 
 msgid "Classic is not supported on Blast. Please switch to other chains"
 msgstr "Blast 上不支持 Classic，请切换至其他链"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "🕑️ Timeline"
+msgstr "🕑️ 时间线"
+
 #: src/components/WalletPopup/SendToken/WarningBrave.tsx
 msgid "Notice for Brave wallet users"
 msgstr "Brave 钱包用户须知"
@@ -5217,6 +6059,10 @@ msgstr "输出数量（含手续费）"
 #: src/pages/Verify/VerifyCodeModal/index.tsx
 msgid "Email Verified"
 msgstr "邮箱已验证"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "The campaign takes place entirely on Base chain."
+msgstr "本次活动完全在 Base 链上进行。"
 
 #: src/pages/KyberDAO/KNCUtility/index.tsx
 msgid "Tier"
@@ -5248,6 +6094,7 @@ msgid "Limit Order doesn't support your current wallet type"
 msgstr "限价单不支持您当前的钱包类型"
 
 #: src/pages/Campaign/index.tsx
+#: src/pages/Campaign/MyDashboard.tsx
 msgid "The Estimated Rewards will vary based on the points earned by you and all campaign participants during the week. Check out how they are calculated in the <0>Information</0> tab."
 msgstr "预估奖励会根据您和所有活动参与者本周获得的积分而变化。请在<0>信息</0>标签中查看计算方式。"
 
@@ -5267,7 +6114,14 @@ msgstr "进行中的活动"
 msgid "<0>Swap</0> Tokens at Superior Rates"
 msgstr "<0>兑换</0>代币，享受更优汇率"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "Stable Pair"
+msgstr "稳定交易对"
+
 #: src/components/SwapForm/hooks/useBuildRoute.tsx
+#: src/pages/Campaign/components/ClaimBtn.tsx
+#: src/pages/Campaign/components/ClaimBtn.tsx
+#: src/pages/Campaign/components/JoinReferral.tsx
 #: src/pages/ElasticSnapshot/components/ChooseGrantModal.tsx
 #: src/pages/ElasticSnapshot/components/ChooseGrantModal.tsx
 #: src/pages/ElasticSnapshot/components/SelectTreasuryGrant.tsx
@@ -5304,6 +6158,10 @@ msgstr "24 小时"
 msgid "We got you a higher amount. The initial output amount was {output}"
 msgstr "我们帮您获得了更高的数量。最初的输出为 {output}"
 
+#: src/pages/Campaign/components/JoinReferral.tsx
+msgid "Nonce Retrieval Failed"
+msgstr "获取随机数失败"
+
 #: src/components/TransactionConfirmationModal/index.tsx
 msgid "Confirm this transaction in your wallet"
 msgstr "在您的钱包中确认此交易"
@@ -5312,6 +6170,11 @@ msgstr "在您的钱包中确认此交易"
 #: src/pages/ElasticSnapshot/components/SelectTreasuryGrant.tsx
 msgid "Opt Out"
 msgstr "退出"
+
+#: src/pages/Campaign/components/Information.tsx
+#: src/pages/Campaign/components/Information.tsx
+msgid "There is no maximum allocation for each eligible wallet."
+msgstr "每个合资格钱包没有最高分配额度。"
 
 #: src/components/Menu/index.tsx
 msgid "Campaigns"
@@ -5325,6 +6188,10 @@ msgstr "包装 {inSymbol}"
 msgid "Total LP Tokens"
 msgstr "LP代币总数"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "🏆 Rewards"
+msgstr "🏆 奖励"
+
 #: src/components/swapv2/LimitOrder/Modals/CancelStatusCountDown.tsx
 msgid "*There is a possibility that the order might be filled before cancellation."
 msgstr "*订单在取消前有可能被成交。"
@@ -5332,6 +6199,20 @@ msgstr "*订单在取消前有可能被成交。"
 #: src/pages/RemoveLiquidityProAmm/index.tsx
 msgid "Remove Amount"
 msgstr "移除数量"
+
+#: src/pages/CrossChainSwap/index.tsx
+msgid "Cross-chain rate:"
+msgstr "跨链汇率："
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "How can I be eligible for the campaign?"
+msgstr "我如何获得参加此活动的资格？"
+
+#: src/pages/Campaign/components/MyNearIntentDashboard.tsx
+#: src/pages/Campaign/MyDashboard.tsx
+#: src/pages/Campaign/MyDashboard.tsx
+msgid "Week {0}:"
+msgstr "第 {0} 周："
 
 #: src/pages/CrossChainSwap/components/ConfirmationPopup.tsx
 msgid "Please review the details of your swap"
@@ -5369,6 +6250,10 @@ msgstr "图表暂不可用"
 #: src/components/ConfirmAddModalBottom/index.tsx
 msgid "Create Pool"
 msgstr "创建池子"
+
+#: src/pages/Campaign/MyDashboard.tsx
+msgid "NEW"
+msgstr "新"
 
 #: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
 #: src/components/SwapForm/TradeSummary.tsx
@@ -5413,6 +6298,10 @@ msgstr "提醒已创建"
 #: src/pages/ElasticSnapshot/index.tsx
 msgid "Wallet address"
 msgstr "钱包地址"
+
+#: src/pages/Campaign/constants.tsx
+msgid "<0>Week 10</0> Sep 09 - Sep 15"
+msgstr "<0>第 10 周</0> 9 月 9 日 - 9 月 15 日"
 
 #: src/pages/ElasticSnapshot/components/InstantClaimModal.tsx
 #: src/pages/ElasticSnapshot/index.tsx
@@ -5489,6 +6378,10 @@ msgstr "您正在将投票权委托给该地址，您的质押余额保持不变
 #: src/pages/Earns/PositionDetail/LeftSection.tsx
 msgid "Fees Earn"
 msgstr "获得的手续费"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "Click on <0>Route Options</0> and select <1>NEAR Intents.</1>"
+msgstr "点击 <0>Route Options</0> 并选择 <1>NEAR Intents</1>。"
 
 #: src/pages/Earns/PositionDetail/PositionHistory.tsx
 msgid "Tnx Hash"
@@ -5578,6 +6471,10 @@ msgstr "探索资金池"
 msgid "Thank you. You have chosen to Opt Out."
 msgstr "感谢您的参与，您已选择退出。"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "The points data are updated hourly."
+msgstr "积分数据每小时更新一次。"
+
 #: src/pages/About/AboutKyberSwap/index.tsx
 msgid "ABOUT KNC"
 msgstr "关于 KNC"
@@ -5605,6 +6502,10 @@ msgstr "市值排名"
 #: src/pages/NotificationCenter/PriceAlerts/AlertsHistory/index.tsx
 msgid "No alerts yet"
 msgstr "暂无提醒"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "Stablecoins to Stablecoins trading will give 0.25 Points per USD swapped."
+msgstr "稳定币之间的交易每兑换 1 美元可获得 0.25 积分。"
 
 #: src/pages/CrossChainSwap/components/SwapAction.tsx
 msgid "No route found"
@@ -5655,6 +6556,14 @@ msgstr "节省时间与精力"
 msgid "View less"
 msgstr "收起"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "Is there a maximum bonus limit for each wallet address?"
+msgstr "每个钱包地址是否有奖金上限？"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "After your first week of trading (from Monday 0:00 UTC to Sunday 23h59 UTC) points and rewards are locked 7 days. During this 7 days buffer period, the team will analyze the data and exclude potential cheaters. Once this buffer period ends, ARB will be claimable on <0>KyberSwap.com/campaigns/dashboard.</0>"
+msgstr "在您完成首周交易活动（周一 0:00 UTC 至周日 23:59 UTC）后，积分和奖励会锁定 7 天。团队会在缓冲期内审查数据并排除潜在作弊者，缓冲期结束后即可在 <0>KyberSwap.com/campaigns/dashboard.</0> 领取 ARB。"
+
 #: src/components/FeeControlGroup/index.tsx
 msgid "Tip"
 msgstr "提示"
@@ -5687,6 +6596,10 @@ msgstr "限价单价格高于市场价 ≥{BETTER_PRICE_DIFF_THRESHOLD}% ，请�
 #: src/components/Announcement/Popups/TransactionPopup.tsx
 msgid "undelegated your voting power"
 msgstr "撤销了您的投票委托"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "Trade $50,000 from Arbitrum to Near L1 and Stable Pairs earns 125,000 points."
+msgstr "从 Arbitrum 向 Near L1 的稳定交易对兑换 50,000 美元可获得 125,000 积分。"
 
 #: src/components/swapv2/LimitOrder/Modals/CancelOrderModal.tsx
 msgid "I want to cancel my order where"
@@ -5759,6 +6672,10 @@ msgstr "钱包"
 msgid "Import it."
 msgstr "导入它。"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "In order to be eligible, you need to make a swap from KyberSwap Aggregator API and trade any of the eligible tokens. You can trade on any of the whitelisted platforms that support KyberSwap Aggregator API. This includes <0>KyberSwap.com</0> and other interfaces that support our Aggregator. To name a few: Defillama, Pendle, Ramses… Whitelisted platforms will communicate on their eligibility for the KyberSwap STIP ARB Rewards. If no communication has been made on social medias or on their website, consider the platform as not eligible."
+msgstr "要符合资格，您需要通过 KyberSwap Aggregator API 进行兑换并交易任意合资格代币。您可以在所有支持 KyberSwap Aggregator API 的白名单平台上交易，其中包括 <0>KyberSwap.com</0> 以及 Defillama、Pendle、Ramses 等支持我们聚合器的界面。白名单平台会公布其是否符合 KyberSwap STIP ARB 奖励资格；若其在社交媒体或官网上未做说明，请视为不符合资格。"
+
 #: src/components/Tutorial/TutorialSwap/index.tsx
 msgid "Here's a quick tutorial guide about KyberSwap's main features. Do you wish to have a look?"
 msgstr "这里有一份 KyberSwap 主要功能的快速教程，是否查看？"
@@ -5787,6 +6704,11 @@ msgstr "资料已更新"
 #: src/pages/Earns/UserPositions/TableContent.tsx
 msgid "We found a pool with the same pair offering extra rewards. Migrate to this pool on Uniswap v4 hook to start earning farming rewards."
 msgstr "我们发现同一交易对有额外奖励的资金池。迁移至该 Uniswap v4 hook 资金池即可开始赚取挖矿奖励。"
+
+#: src/pages/Campaign/components/Information.tsx
+#: src/pages/Campaign/components/Information.tsx
+msgid "Points are calculated based on the tokens and the amount you swap. It will automatically be converted to ARB after a 7 days buffer period."
+msgstr "积分根据您兑换的代币及数量计算，并会在 7 天缓冲期后自动转换为 ARB。"
 
 #: src/components/Header/web3/NetworkModal/index.tsx
 msgid "Wrong Chain"
@@ -5825,6 +6747,10 @@ msgstr "欢迎使用 KyberSwap —— 智慧交易！"
 msgid "Max APR"
 msgstr "最大年化"
 
+#: src/pages/Campaign/constants.tsx
+msgid "<0>Week 2</0> Jul 28 - Aug 03"
+msgstr "<0>第 2 周</0> 7 月 28 日 - 8 月 3 日"
+
 #: src/components/Tutorial/TutorialSwap/CustomPopup.tsx
 msgid "<0>Step: {stepNumber}/</0><1>{totalStep}</1>"
 msgstr "<0>步骤：{stepNumber}/</0><1>{totalStep}</1>"
@@ -5841,14 +6767,27 @@ msgstr "以下订单已成功成交：<0/>{listOrderName}"
 msgid "To apply for KyberSwap Treasury Grant, complete your KYC process and select your preferred option before January 31, 2024 - 14 OTC"
 msgstr "若要申请 KyberSwap 国库资助，请在 2024 年 1 月 31 日 OTC 14 点前完成 KYC 并选择您偏好的方案"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "Only trades made through whitelisted router contracts such as KyberSwap Router are eligible."
+msgstr "只有通过 KyberSwap Router 等白名单路由合约执行的交易才符合资格。"
+
 #: src/pages/ElasticSnapshot/components/ChooseGrantModal.tsx
 msgid "Once you make a selection, you are unable to change your choice."
 msgstr "一旦做出选择，便无法更改。"
+
+#: src/pages/Campaign/components/Information.tsx
+#: src/pages/Campaign/components/Information.tsx
+msgid "Category 3"
+msgstr "第 3 类"
 
 #: src/pages/KyberDAO/StakeKNC/DelegateConfirmModal.tsx
 #: src/pages/KyberDAO/StakeKNC/StakeKNCComponent.tsx
 msgid "Undelegate"
 msgstr "取消委托"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "KyberSwap does not endorse or promote any specific tokens in this campaign. All trading decisions are made at the user's own risk."
+msgstr "KyberSwap 不在本次活动中对任何特定代币进行背书或推广，所有交易决策均由用户自行承担风险。"
 
 #: src/pages/ElasticSnapshot/components/SelectTreasuryGrant.tsx
 msgid "Option {userSelectedOption}"
@@ -5861,6 +6800,10 @@ msgstr "选项 {userSelectedOption}"
 msgid "Confirm Swap"
 msgstr "确认兑换"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "4. John receives 10% bonus of Vitalik’s 10 ARB (excluding the 0.5 ARB bonus), so John gets 1 ARB."
+msgstr "4. 约翰获得维塔利克 10 ARB（不含 0.5 ARB 奖金）的 10% 奖励，因此获得 1 ARB。"
+
 #: src/pages/KyberDAO/StakeKNC/StakeKNCComponent.tsx
 msgid "Stake Amount"
 msgstr "质押数量"
@@ -5870,6 +6813,16 @@ msgstr "质押数量"
 msgid "Save"
 msgstr "保存"
 
+#: src/pages/Campaign/components/Information.tsx
+#: src/pages/Campaign/components/Information.tsx
+#: src/pages/Campaign/components/Information.tsx
+msgid "When can I claim my rewards?"
+msgstr "我什么时候可以领取奖励？"
+
+#: src/pages/Campaign/constants.tsx
+msgid "Aggregator Trading Campaign"
+msgstr "聚合交易活动"
+
 #: src/pages/Oauth/AuthForm/EmailLoginForm.tsx
 msgid "Sign-In with Email"
 msgstr "使用邮箱登录"
@@ -5877,6 +6830,14 @@ msgstr "使用邮箱登录"
 #: src/pages/Earns/UserPositions/index.tsx
 msgid "Claim fees"
 msgstr "领取手续费"
+
+#: src/pages/Campaign/constants.tsx
+msgid "<0>Week 7</0> Aug 19 - Aug 25"
+msgstr "<0>第 7 周</0> 8 月 19 日 - 8 月 25 日"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "How can I be eligible to the Limit Order campaign?"
+msgstr "我如何获得限价单活动的参与资格？"
 
 #: src/pages/Earns/Landing/index.tsx
 #: src/pages/Earns/PoolExplorer/Filter.tsx
@@ -5886,6 +6847,10 @@ msgstr "匹配您钱包中代币的资金池；若未连接钱包，则显示交
 #: src/pages/ElasticSnapshot/components/SelectTreasuryGrant.tsx
 msgid "Only available on Polygon, you may need to spend a small gas fee to complete your KYC"
 msgstr "仅在 Polygon 可用，完成 KYC 可能需要少量 Gas 费用"
+
+#: src/pages/Campaign/components/SelectChainModal.tsx
+msgid "Select chain"
+msgstr "选择链"
 
 #: src/pages/KyberDAO/KNCUtility/GasRefundBox.tsx
 msgid "Gas Refund Rewards is only available on Ethereum chain. Switch your network to continue <0>here</0>"
@@ -5905,6 +6870,10 @@ msgstr "资金池导航教程"
 msgid "order to pay {tokenAmountIn} {tokenSymbolIn} and receive {tokenAmountOut} {tokenSymbolOut}"
 msgstr "支付 {tokenAmountIn} {tokenSymbolIn} 并接收 {tokenAmountOut} {tokenSymbolOut}"
 
+#: src/pages/Campaign/constants.tsx
+msgid "<0>Week 1</0> Jul 21 - Jul 27"
+msgstr "<0>第 1 周</0> 7 月 21 日 - 7 月 27 日"
+
 #: src/pages/Earns/components/RewardSyncing.tsx
 msgid "Syncing..."
 msgstr "同步中..."
@@ -5916,6 +6885,10 @@ msgstr "正在登录"
 #: src/components/Announcement/Popups/CenterPopup.tsx
 msgid "Important Announcement!"
 msgstr "重要公告！"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "Are there a maximum allocation limit for each wallet address?"
+msgstr "每个钱包地址是否有最大分配额度？"
 
 #: src/pages/NotificationCenter/NotificationPreference/InputEmail.tsx
 #: src/pages/Verify/VerifyCodeModal/index.tsx
@@ -5934,6 +6907,10 @@ msgstr "订单到期后将自动取消，不会收取 Gas 费用。"
 #: src/components/ExpandableBox/index.tsx
 msgid "Header"
 msgstr "标题"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "Only trades executed after 00:00 UTC, 27 May 2025, and before 23:59 UTC, 01 June 2025, will be eligible."
+msgstr "只有在 2025 年 5 月 27 日 00:00 UTC 之后、2025 年 6 月 1 日 23:59 UTC 之前执行的交易才符合资格。"
 
 #: src/components/WalletPopup/RewardCenter.tsx
 #: src/pages/KyberDAO/Vote/index.tsx
@@ -6064,6 +7041,7 @@ msgid "Language"
 msgstr "语言"
 
 #: src/components/Menu/index.tsx
+#: src/pages/Campaign/MyDashboard.tsx
 msgid "Referral"
 msgstr "推荐"
 
@@ -6078,6 +7056,12 @@ msgstr "面向交易者"
 #: src/pages/KyberDAO/KNCUtility/index.tsx
 msgid "Gas Refund Program"
 msgstr "Gas 返还计划"
+
+#: src/pages/Campaign/components/Information.tsx
+#: src/pages/Campaign/components/Information.tsx
+#: src/pages/Campaign/components/Information.tsx
+msgid "Are there any minimum or maximum value (USD) requirements for each trade?"
+msgstr "每笔交易在美元金额上是否有最低或最高要求？"
 
 #: src/pages/NotificationCenter/index.tsx
 #: src/pages/NotificationCenter/Menu/index.tsx
@@ -6112,6 +7096,10 @@ msgstr "导入资料"
 msgid "Are you sure you want to clear all pending transactions? This will remove them from your list but will not affect their status on-chain."
 msgstr "确定要清除所有待处理交易吗？此操作只会从列表中移除，不会影响其链上状态。"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "Trade $50,000 between EVM Chains and Stable Pairs earns 50,000 points."
+msgstr "在 EVM 链之间的稳定交易对兑换 50,000 美元可获得 50,000 积分。"
+
 #: src/components/swapv2/LimitOrder/LimitOrderForm.tsx
 msgid "Order Placed"
 msgstr "订单已提交"
@@ -6145,6 +7133,14 @@ msgstr "价格影响很大"
 msgid "Insufficient amount"
 msgstr "数量不足"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "Where can I trade to be eligible for the referral rewards?"
+msgstr "我在哪里交易才能获得推荐奖励资格？"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "User Points: Points earned within the $100,000 volume cap"
+msgstr "用户积分：在 10 万美元交易量上限内获得的积分"
+
 #: src/components/swapv2/LimitOrder/ListOrder/ActionButtons.tsx
 msgid "Copy Txn Hash"
 msgstr "复制交易哈希"
@@ -6152,6 +7148,10 @@ msgstr "复制交易哈希"
 #: src/components/Announcement/PrivateAnnoucement/InboxItemLO.tsx
 msgid "{filledPercent}% Filled | Expired"
 msgstr "成交 {filledPercent}% | 已过期"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "How can I be eligible to the Referral Program?"
+msgstr "我如何获得推荐计划的参与资格？"
 
 #: src/pages/MarketOverview/index.tsx
 #: src/pages/MarketOverview/TableContent.tsx
@@ -6161,6 +7161,10 @@ msgstr "24 小时交易量"
 #: src/pages/ElasticSnapshot/components/SelectTreasuryGrant.tsx
 msgid "Choose Grant Option"
 msgstr "选择资助选项"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "Are there any activities that may lead to disqualification?"
+msgstr "哪些行为可能导致被取消资格？"
 
 #: src/pages/Earns/PositionDetail/RewardSection.tsx
 msgid "LM Reward:"
@@ -6173,6 +7177,10 @@ msgstr "订单历史"
 #: src/components/SwapForm/TradeSummary.tsx
 msgid "Swap fees charged by {clientId}."
 msgstr "{clientId} 收取的兑换手续费。"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "In order to join the Referral Program, users can generate their own referral link and share it with other users to be eligible to the referrer reward. Referrers get 10% of their referee ARB allocation. Referees will get a 5% bonus based on their initial ARB allocation for the week once they have been referred by other users. Note that only trades made on <0>KyberSwap.com</0> are eligible, trades on other platforms are not eligible for this Referral Program."
+msgstr "要加入推荐计划，用户可以生成自己的推荐链接并分享给他人，以获得推荐人奖励。推荐人可获得被推荐人 ARB 分配的 10%；被推荐人在某周被他人推荐后，可基于当周初始 ARB 分配再获得 5% 奖金。请注意，只有在 <0>KyberSwap.com</0> 上完成的交易才符合此推荐计划的资格，其他平台的交易不在范围内。"
 
 #: src/components/SwapForm/SlippageSetting.tsx
 #: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
@@ -6227,6 +7235,14 @@ msgstr "下方列出了本次攻击中受影响的 KyberSwap Elastic 资金池�
 msgid "You have {numberOfInsufficientFundOrders} active orders that don't have sufficient funds."
 msgstr "您有 {numberOfInsufficientFundOrders} 个活跃订单资金不足。"
 
+#: src/pages/Campaign/MyDashboard.tsx
+msgid "CLAIMABLE REWARDS"
+msgstr "可领取奖励"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "ETH Derivatives filled orders will give 1 Point per USD."
+msgstr "ETH 衍生品成交的订单每兑换 1 美元可获得 1 积分。"
+
 #: src/pages/ElasticSnapshot/components/Vesting.tsx
 msgid "Grant Plan: USD stablecoins equivalent of {0} of Reference Value of Affected Assets associated with such Affected Address, vested over {1} months."
 msgstr "资助方案：按受影响资产参考价值 {0} 的等值美元稳定币，分 {1} 个月线性归属。"
@@ -6235,11 +7251,19 @@ msgstr "资助方案：按受影响资产参考价值 {0} 的等值美元稳定�
 msgid "all orders"
 msgstr "所有订单"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "Points are earned each time a user swap eligible tokens on KyberSwap Aggregator API. Eligible tokens are indexed in 4 different categories, giving different amount of points per USD swapped. Eligible tokens can be found on <0>this list</0>"
+msgstr "每当用户通过 KyberSwap Aggregator API 兑换合资格代币时都会获得积分。合资格代币分为 4 个类别，每兑换 1 美元可获得不同积分。可在 <0>该列表</0> 中查看合资格代币。"
+
 #: src/components/swapv2/LimitOrder/const.ts
 msgid "All Active Orders"
 msgstr "全部活跃订单"
 
+#: src/pages/Campaign/components/MyNearIntentDashboard.tsx
+#: src/pages/Campaign/components/MyReferralDashboard.tsx
+#: src/pages/Campaign/components/NearIntentCampaignStats.tsx
 #: src/pages/Campaign/index.tsx
+#: src/pages/Campaign/MyDashboard.tsx
 msgid "My Est. Rewards"
 msgstr "我的预估奖励"
 
@@ -6247,10 +7271,18 @@ msgstr "我的预估奖励"
 msgid "No tip"
 msgstr "无提示"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "Week 2: <0>30,000 USDT</0>"
+msgstr "第 2 周：<0>30,000 USDT</0>"
+
 #: src/components/Header/web3/SignWallet/ConfirmModal.tsx
 #: src/pages/NotificationCenter/Profile/index.tsx
 msgid "Keep Current Profile"
 msgstr "保留当前资料"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "If I swap a derivatives pair of ETH, POL, or BNB, do I receive 1 or 3 points?"
+msgstr "如果我兑换 ETH、POL 或 BNB 的衍生品交易对，会获得 1 分还是 3 分？"
 
 #: src/pages/SwapV3/Header.tsx
 msgid "Instantly buy or sell tokens at superior prices"
@@ -6278,9 +7310,17 @@ msgstr "TVL 排名前 100 的稳定币或高度相关交易对资金池"
 msgid "Migrate"
 msgstr "迁移"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "The Total Claimable Rewards is the real amount of ARB that a user will get after filtering sybils, cheaters and potential calculation issues. All ARB allocations from recognized sybils and cheaters will be re-allocated proportionally to other eligible Limit-Order users."
+msgstr "可领取奖励总额是在过滤女巫、作弊和潜在计算问题后，用户实际可获得的 ARB 数量。来自确认的女巫和作弊地址的 ARB 分配将按比例重新分配给其他合格的限价单用户。"
+
 #: src/pages/KyberDAO/Vote/ProposalItem/VoteInformation.tsx
 msgid "Vote Information"
 msgstr "投票信息"
+
+#: src/pages/Campaign/components/JoinReferral.tsx
+msgid "Code Referral"
+msgstr "推荐码"
 
 #: src/components/Tutorial/TutorialSwap/index.tsx
 msgid "Add liquidity into our Pools to earn trading fees & participate in our Farms to earn additional rewards!"
@@ -6301,6 +7341,11 @@ msgstr "快照"
 #: src/pages/ProAmmPool/index.tsx
 msgid "Here you can view all your liquidity and staked balances in the Elastic Pools."
 msgstr "您可以在此查看 Elastic 资金池中的全部流动性与质押余额。"
+
+#: src/pages/Campaign/components/Information.tsx
+#: src/pages/Campaign/components/Information.tsx
+msgid "Note:"
+msgstr "注意："
 
 #: src/components/ProAmm/Tab.tsx
 msgid "Add a new position"
@@ -6330,6 +7375,10 @@ msgstr "全部通知"
 msgid "Your notification preferences have been saved successfully"
 msgstr "通知偏好已成功保存"
 
+#: src/pages/Campaign/components/JoinReferral.tsx
+msgid "Enter the referral code to get 5% extra bonus, more information <0>here.</0>"
+msgstr "输入推荐码可额外获得 5% 奖励，更多信息请点击<0>这里</0>。"
+
 #: src/pages/NotificationCenter/CreateAlert/ConfirmModal.tsx
 msgid "View Price Alerts"
 msgstr "查看价格提醒"
@@ -6354,6 +7403,10 @@ msgstr "您没有投票权"
 msgid "KNC is a utility and governance token, and an integral part of Kyber Network and its flagship product KyberSwap. It is the glue that connects different stakeholders in Kyber's ecosystem."
 msgstr "KNC 是 Kyber Network 及其旗舰产品 KyberSwap 的实用与治理代币，是连接 Kyber 生态各方的重要纽带。"
 
+#: src/pages/Campaign/components/Information.tsx
+msgid "Total Points: Combined points from all participants"
+msgstr "总代积分：所有参与者的积分总和"
+
 #: src/components/Menu/index.tsx
 #: src/pages/Earns/components/ClaimAllModal/index.tsx
 #: src/pages/Earns/UserPositions/DropdownAction.tsx
@@ -6376,6 +7429,10 @@ msgstr "立即兑换"
 #: src/pages/RemoveLiquidity/index.tsx
 msgid "pool"
 msgstr "池"
+
+#: src/pages/Campaign/components/Information.tsx
+msgid "The Points and Rewards Estimation data for Trading & LO campaigns are updating hourly."
+msgstr "交易与限价单活动的积分和奖励预估数据大约每小时更新一次。"
 
 #: src/pages/Campaign/components/Leaderboard.tsx
 msgid "NUMBER OF REFERRALS"

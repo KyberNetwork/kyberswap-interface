@@ -93,7 +93,7 @@ msgstr ""
 #~ msgid "Transaction will revert if there is an adverse rate change that is higher than this %"
 #~ msgstr "이 %보다 높은 비율 변경이 있는 경우 거래가 거절됩니다"
 
-#: 
+#:
 #~ msgid "+ Add Recipient (optional)"
 #~ msgstr "+ 수신자 추가(선택 사항)"
 
@@ -535,7 +535,7 @@ msgstr ""
 msgid "Dismiss"
 msgstr "무시"
 
-#: 
+#:
 #~ msgid "Collecting"
 #~ msgstr ""
 
@@ -1456,7 +1456,7 @@ msgstr ""
 #~ msgid "Name"
 #~ msgstr ""
 
-#: 
+#:
 #~ msgid "You can select the appropriate fee tier for your pool. For each trade that uses this liquidity pool, liquidity providers will earn this trading fee"
 #~ msgstr ""
 
@@ -1748,7 +1748,7 @@ msgstr ""
 #~ msgid "Swap your tokens at the best rates. No limits"
 #~ msgstr ""
 
-#: 
+#:
 #~ msgid "Collect as WETH"
 #~ msgstr ""
 
@@ -1929,11 +1929,11 @@ msgstr ""
 msgid "Hard Cancel All Orders"
 msgstr ""
 
-#: 
+#:
 #~ msgid "Max APY Available"
 #~ msgstr ""
 
-#: 
+#:
 #~ msgid "Deposit your liquidity & then stake it to earn even more attractive rewards"
 #~ msgstr ""
 
@@ -2713,7 +2713,7 @@ msgstr ""
 #~ msgid "Error connecting. Try refreshing the page."
 #~ msgstr "연결하는 동안 오류가 발생했습니다. 페이지를 새로고침해 보세요."
 
-#: 
+#:
 #~ msgid "Add liquidity to our Classic Pools & earn fees automatically. We amplify liquidity pools so you earn more fees even with less liquidity!"
 #~ msgstr ""
 
@@ -2828,7 +2828,7 @@ msgstr ""
 #~ msgstr ""
 
 #: src/pages/Farm/ElasticFarmv2/components/NewRangesNotiModal.tsx
-#~ msgid "This indicates that range is idle. Staked positions in this range is still earning small amount of rewards."
+#~ msgid "This indicates that range is idle. Staked positionsin this range is still earning small amount of rewards."
 #~ msgstr ""
 
 #: src/components/SearchModal/ImportToken.tsx
@@ -2877,7 +2877,7 @@ msgstr ""
 msgid "Subscribe"
 msgstr ""
 
-#: 
+#:
 #~ msgid "If you would like to subscribe to notifications, please use Google Chrome (macOS, Windows, Android). Other browsers will be supported in the near future"
 #~ msgstr ""
 
@@ -3198,8 +3198,8 @@ msgstr ""
 #~ msgid "Volume (24h)"
 #~ msgstr "볼륨(24시간)"
 
-#: 
-#: 
+#:
+#:
 #~ msgid "REWARD:"
 #~ msgstr ""
 
@@ -3962,7 +3962,7 @@ msgstr ""
 msgid "Send"
 msgstr ""
 
-#: 
+#:
 #~ msgid "Collected"
 #~ msgstr ""
 
@@ -4282,8 +4282,8 @@ msgstr ""
 msgid "Your cancellation {summary} has been submitted"
 msgstr ""
 
-#: 
-#: 
+#:
+#:
 #~ msgid "What can KNC be used for?"
 #~ msgstr "KNC의 사용처"
 
@@ -4508,7 +4508,7 @@ msgstr ""
 #~ msgid "View all"
 #~ msgstr ""
 
-#: 
+#:
 #~ msgid "Rewards: {0} {1}"
 #~ msgstr "보상: {0} {1}"
 
@@ -5003,7 +5003,7 @@ msgstr ""
 #~ msgid "Note: Farms will run in <0>multiple phases.</0> If you haven’t harvested your rewards for ended farms, you still can access them via the <1>Ended</1> tab. To continue earning rewards in the new phase, you must restake your NFT position into the active farm."
 #~ msgstr ""
 
-#: 
+#:
 #~ msgid "FULL UNLOCK"
 #~ msgstr "전체 잠금 해제"
 
@@ -5264,7 +5264,7 @@ msgstr ""
 msgid "Invalid pair"
 msgstr "잘못된 쌍입니다."
 
-#: 
+#:
 #~ msgid "Collecting fees will withdraw currently available fees for you."
 #~ msgstr ""
 
@@ -5347,7 +5347,7 @@ msgstr ""
 msgid "Modifiable Tax"
 msgstr ""
 
-#: 
+#:
 #~ msgid "← Back to Pools Overview"
 #~ msgstr ""
 
@@ -5425,7 +5425,7 @@ msgstr ""
 msgid "LOCAL TIME"
 msgstr ""
 
-#: 
+#:
 #~ msgid "Collecting fees"
 #~ msgstr ""
 
@@ -6369,7 +6369,7 @@ msgstr ""
 msgid "Get KNC"
 msgstr ""
 
-#: 
+#:
 #~ msgid "Unclaimed fees"
 #~ msgstr ""
 
@@ -7568,7 +7568,7 @@ msgstr ""
 #~ msgid "Centralized Exchanges"
 #~ msgstr ""
 
-#: 
+#:
 #~ msgid "DEPOSIT"
 #~ msgstr "내 예치금"
 
@@ -8153,8 +8153,8 @@ msgstr ""
 #~ msgid "Farming Mechanism 2 - Active Liquidity Time & Target Volume"
 #~ msgstr ""
 
-#: 
-#: 
+#:
+#:
 #~ msgid "Collect fees"
 #~ msgstr ""
 
@@ -8224,7 +8224,7 @@ msgstr ""
 #~ msgid "Claim on {networkName}"
 #~ msgstr ""
 
-#: 
+#:
 #~ msgid "Unlocked"
 #~ msgstr "잠금 해제됨"
 
@@ -8449,8 +8449,8 @@ msgstr ""
 msgid "Alert when"
 msgstr ""
 
-#: 
-#: 
+#:
+#:
 #~ msgid "AVAILABLE BALANCE:"
 #~ msgstr ""
 
@@ -8855,7 +8855,7 @@ msgstr ""
 #~ msgid "Install ${0} extension"
 #~ msgstr ""
 
-#: 
+#:
 #~ msgid "You can manually import your pool"
 #~ msgstr ""
 
@@ -8867,7 +8867,7 @@ msgstr ""
 msgid "We suggest you increase the value of your limit order to at least <0>${threshold}</0>. This will increase the odds of your order being filled."
 msgstr ""
 
-#: 
+#:
 #~ msgid "Unlocked: {0} {1}"
 #~ msgstr "잠금 해제: {0} {1}"
 
@@ -9232,7 +9232,7 @@ msgstr ""
 #~ msgid "Fulfil these requirements to participate in the campaign"
 #~ msgstr ""
 
-#: 
+#:
 #~ msgid "Vesting started: {0}"
 #~ msgstr "베스팅 시작됨: {0}"
 
@@ -9803,7 +9803,7 @@ msgstr ""
 msgid "Create Pool"
 msgstr ""
 
-#: 
+#:
 #~ msgid "Search name or paste address"
 #~ msgstr "이름 검색 또는 주소 붙여넣기"
 
@@ -9917,7 +9917,7 @@ msgstr ""
 msgid "Connecting Wallet"
 msgstr ""
 
-#: 
+#:
 #~ msgid "{0} on {1}"
 #~ msgstr ""
 
@@ -10221,9 +10221,9 @@ msgstr ""
 #~ msgid "You are creating a new pool and will be the first liquidity provider. The ratio of tokens you supply below will set the initial price of this pool. Once you are satisfied with the rate, proceed to supply liquidity."
 #~ msgstr "이 토큰 풀을 생성 하는 첫 번째 유동성 공급자 입니다.  아래에서 제공하는 토큰의 비율에 맞춰 이 풀의 초기 가격이 설정됩니다. 원하는 토큰 비율에 맞춰 세팅 한 후 유동성 공급을 진행하십시오."
 
-#: 
-#: 
-#: 
+#:
+#:
+#:
 #~ msgid "APY"
 #~ msgstr ""
 

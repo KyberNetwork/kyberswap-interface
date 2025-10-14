@@ -1,4 +1,4 @@
-import { t } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -409,26 +409,32 @@ const UserPositions = () => {
                   role="button"
                   onClick={() => onSortChange(SortBy.UNCLAIMED_FEE)}
                 >
-                  <div>Unclaimed</div>
-                  <Flex alignItems={'center'} sx={{ gap: '4px' }}>
-                    fees
-                    <SortIcon
-                      sorted={filters.sortBy === SortBy.UNCLAIMED_FEE ? (filters.orderBy as Direction) : undefined}
-                    />
-                  </Flex>
+                  <Trans>
+                    <Text>Unclaimed</Text>
+                    <Flex alignItems={'center'} sx={{ gap: '4px' }}>
+                      fees
+                      <SortIcon
+                        sorted={filters.sortBy === SortBy.UNCLAIMED_FEE ? (filters.orderBy as Direction) : undefined}
+                      />
+                    </Flex>
+                  </Trans>
                 </Flex>
 
                 <PositionTableHeaderFlexItem role="button" onClick={() => onSortChange(SortBy.UNCLAIMED_REWARDS)}>
-                  <Flex alignItems={'flex-start'} sx={{ gap: '4px' }}>
-                    <FarmingIcon width={24} height={24} />
-                    <Text>Unclaimed</Text>
-                  </Flex>
-                  <Flex alignItems={'center'} sx={{ gap: '4px' }} paddingLeft={'28px'}>
-                    <Text>rewards</Text>
-                    <SortIcon
-                      sorted={filters.sortBy === SortBy.UNCLAIMED_REWARDS ? (filters.orderBy as Direction) : undefined}
-                    />
-                  </Flex>
+                  <Trans>
+                    <Flex alignItems={'flex-start'} sx={{ gap: '4px' }}>
+                      <FarmingIcon width={24} height={24} />
+                      <Text>Unclaimed</Text>
+                    </Flex>
+                    <Flex alignItems={'center'} sx={{ gap: '4px' }} paddingLeft={'28px'}>
+                      <Text>rewards</Text>
+                      <SortIcon
+                        sorted={
+                          filters.sortBy === SortBy.UNCLAIMED_REWARDS ? (filters.orderBy as Direction) : undefined
+                        }
+                      />
+                    </Flex>
+                  </Trans>
                 </PositionTableHeaderFlexItem>
 
                 {!upToLarge && <div />}
