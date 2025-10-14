@@ -53,6 +53,8 @@ msgstr "Finding the best route..."
 msgid "Updated"
 msgstr "Updated"
 
+#: src/components/Header/groups/CampaignNavGroup.tsx
+#: src/components/Header/groups/CampaignNavGroup.tsx
 #: src/pages/Campaign/MyDashboard.tsx
 #: src/pages/Campaign/MyDashboard.tsx
 #: src/pages/Campaign/MyDashboard.tsx
@@ -985,6 +987,10 @@ msgstr "Hour"
 #: src/pages/MarketOverview/TableContent.tsx
 msgid "Name"
 msgstr "Name"
+
+#: src/pages/NotificationCenter/Profile/index.tsx
+msgid "Your nickname"
+msgstr "Your nickname"
 
 #: src/pages/KyberDAO/StakeKNC/StakeKNCComponent.tsx
 msgid "Voting power"
@@ -3832,6 +3838,7 @@ msgstr "Sending token"
 msgid "Phase 3"
 msgstr "Phase 3"
 
+#: src/components/Header/groups/CampaignNavGroup.tsx
 #: src/components/Header/groups/SwapNavGroup.tsx
 #: src/components/Menu/index.tsx
 #: src/components/SwapForm/PriceImpactNote.tsx
@@ -4549,6 +4556,10 @@ msgstr "7D"
 msgid "Your profile has been successfully updated"
 msgstr "Your profile has been successfully updated"
 
+#: src/pages/NotificationCenter/Profile/index.tsx
+msgid "Sign Out"
+msgstr "Sign Out"
+
 #: src/pages/KyberDAO/StakeKNC/SwitchToEthereumModal.tsx
 msgid "{0} is only available on Ethereum chain. Please switch network to continue."
 msgstr "{0} is only available on Ethereum chain. Please switch network to continue."
@@ -4682,6 +4693,10 @@ msgstr "Logging out"
 #: src/components/WalletPopup/type.ts
 msgid "Reward Center"
 msgstr "Reward Center"
+
+#: src/components/Header/groups/EarnNavGroup.tsx
+msgid "BETA"
+msgstr "BETA"
 
 #: src/components/swapv2/TokenInfo/SecurityInfo/index.tsx
 msgid "Trading Security"
@@ -5502,6 +5517,7 @@ msgstr "Suitable for pairs with low price volatility. Anticipating price to fluc
 msgid "Select a network"
 msgstr "Select a network"
 
+#: src/components/Header/groups/CampaignNavGroup.tsx
 #: src/components/Menu/index.tsx
 msgid "Aggregator Trading"
 msgstr "Aggregator Trading"
@@ -6285,6 +6301,7 @@ msgstr "Opt Out"
 msgid "There is no maximum allocation for each eligible wallet."
 msgstr "There is no maximum allocation for each eligible wallet."
 
+#: src/components/Header/groups/CampaignNavGroup.tsx
 #: src/components/Menu/index.tsx
 msgid "Campaigns"
 msgstr "Campaigns"
@@ -7161,6 +7178,7 @@ msgstr "Sending {inputAmount} {inSymbol} to {recipient}"
 msgid "Language"
 msgstr "Language"
 
+#: src/components/Header/groups/CampaignNavGroup.tsx
 #: src/components/Menu/index.tsx
 #: src/pages/Campaign/MyDashboard.tsx
 msgid "Referral"
