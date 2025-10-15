@@ -200,8 +200,8 @@ const UserPositions = () => {
         })
       } else if (filters.sortBy === SortBy.APR) {
         result.sort((a, b) => {
-          const aValue = a.apr['7d']
-          const bValue = b.apr['7d']
+          const aValue = a.apr['24h']
+          const bValue = b.apr['24h']
 
           return filters.orderBy === Direction.ASC ? aValue - bValue : bValue - aValue
         })

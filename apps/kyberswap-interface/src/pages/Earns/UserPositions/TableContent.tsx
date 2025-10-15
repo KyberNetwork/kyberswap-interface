@@ -486,14 +486,14 @@ export default function TableContent({
                       <Flex alignItems={'center'} sx={{ gap: 1 }}>
                         {pool.isFarming ? (
                           <AprDetailTooltip
-                            feeApr={position.feeApr['7d']}
-                            egApr={position.kemEGApr['7d']}
-                            lmApr={position.kemLMApr['7d']}
+                            feeApr={position.feeApr['24h']}
+                            egApr={position.kemEGApr['24h']}
+                            lmApr={position.kemLMApr['24h']}
                           >
-                            <Text color={theme.primary}>{formatAprNumber(apr['7d'])}%</Text>
+                            <Text color={theme.primary}>{formatAprNumber(apr['24h'])}%</Text>
                           </AprDetailTooltip>
                         ) : (
-                          <Text color={theme.text}>{formatAprNumber(apr['7d'])}%</Text>
+                          <Text color={theme.text}>{formatAprNumber(apr['24h'])}%</Text>
                         )}
 
                         {!pool.isFarming &&
