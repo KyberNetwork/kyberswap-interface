@@ -142,6 +142,7 @@ export interface SwapProvider {
     connection?: Connection,
   ): Promise<NormalizedTxResponse>
   getTransactionStatus(p: NormalizedTxResponse): Promise<SwapStatus>
+  canSupport(category: string): boolean
 }
 export abstract class BaseSwapAdapter implements SwapProvider {
   abstract getName(): string
@@ -155,6 +156,11 @@ export abstract class BaseSwapAdapter implements SwapProvider {
     nearWallet?: ReturnType<typeof useWalletSelector>,
   ): Promise<NormalizedTxResponse>
   abstract getTransactionStatus(p: NormalizedTxResponse): Promise<SwapStatus>
+
+  canSupport(_category: string): boolean {
+    // Default implementation - support all categories
+    return true
+  }
 
   protected handleError(error: any): never {
     console.error(`[${this.getName()}] Error:`, error)
