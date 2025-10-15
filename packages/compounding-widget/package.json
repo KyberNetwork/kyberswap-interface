@@ -21,8 +21,7 @@
     "access": "public"
   },
   "scripts": {
-    "prebuild": "pnpm run i18n:compile",
-    "build": "tsup",
+    "build": "pnpm run i18n:compile && tsup",
     "dev": "tsup --watch",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css,scss}\"",
