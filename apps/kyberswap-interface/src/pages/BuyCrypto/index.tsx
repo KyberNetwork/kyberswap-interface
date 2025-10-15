@@ -282,8 +282,10 @@ function BuyCrypto() {
                   lineHeight={upToMedium ? '24px' : '28px'}
                   marginTop={upToMedium ? '40px' : '48px'}
                 >
-                  You can now seamlessly buy 100+ cryptocurrencies on over 10+ blockchains using a wide range of payment
-                  options!
+                  <Trans>
+                    You can now seamlessly buy 100+ cryptocurrencies on over 10+ blockchains using a wide range of
+                    payment options!
+                  </Trans>
                 </Text>
 
                 <Flex sx={{ gap: '28px' }} marginTop="24px">
@@ -448,22 +450,26 @@ function BuyCrypto() {
                 </Text>
 
                 <Text color={'#A7B6BD'} lineHeight={1.5} marginTop={upToMedium ? '40px' : '48px'}>
-                  Note: Clicking &quot;Buy Crypto&quot; will bring you to a third party website, owned and operated by
-                  an independent party over which KyberSwap has no control (&quot;
-                  <ExternalLink href="https://app.transak.com/">Third Party Website</ExternalLink>&quot;).
+                  <Trans>
+                    Note: Clicking &quot;Buy Crypto&quot; will bring you to a third party website, owned and operated by
+                    an independent party over which KyberSwap has no control (&quot;
+                    <ExternalLink href="https://app.transak.com/">Third Party Website</ExternalLink>&quot;).
+                  </Trans>
                   <br />
                   <br />
-                  For support, please contact Transak{' '}
-                  <ExternalLink href="https://support.transak.com/">here</ExternalLink>.
+                  <Trans>
+                    For support, please contact Transak{' '}
+                    <ExternalLink href="https://support.transak.com/">here</ExternalLink>.
+                  </Trans>
                 </Text>
 
                 <Text color={'#A7B6BD'} marginTop="24px">
-                  Your wallet address
+                  <Trans>Your wallet address</Trans>
                 </Text>
 
                 {!account ? (
                   <ButtonLight margin={'16px 0 0'} width={upToSmall ? '100%' : '50%'} onClick={toggleWalletModal}>
-                    Connect
+                    <Trans>Connect</Trans>
                   </ButtonLight>
                 ) : (
                   <Address>

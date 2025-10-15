@@ -45,7 +45,7 @@ export default function MigrationModal({
         <ContentWrapper>
           {!upToSmall && (
             <MigrateTableHeader>
-              <Text>Pair</Text>
+              <Text>{t`Pair`}</Text>
               <Text>{t`APR`}</Text>
               <Flex justifyContent="flex-end">{t`Earn Fees`}</Flex>
               <Flex justifyContent="flex-end">{t`TVL`}</Flex>
@@ -157,15 +157,15 @@ export default function MigrationModal({
                     </Flex>
                     <MobileTableBottomRow withoutBorder={index === farmingPools.length - 1}>
                       <Flex justifyContent="space-between" sx={{ gap: 1 }}>
-                        <Text color={theme.subText}>Earn Fees</Text>
+                        <Text color={theme.subText}>{t`Earn Fees`}</Text>
                         <Text>{formatDisplayNumber(pool.earnFee, { style: 'currency', significantDigits: 6 })}</Text>
                       </Flex>
                       <Flex justifyContent="space-between" sx={{ gap: 1 }}>
-                        <Text color={theme.subText}>TVL</Text>
+                        <Text color={theme.subText}>{t`TVL`}</Text>
                         <Text>{formatDisplayNumber(pool.tvl, { style: 'currency', significantDigits: 6 })}</Text>
                       </Flex>
                       <Flex justifyContent="space-between" sx={{ gap: 1 }}>
-                        <Text color={theme.subText}>Volume</Text>
+                        <Text color={theme.subText}>{t`Volume`}</Text>
                         <Text>{formatDisplayNumber(pool.volume, { style: 'currency', significantDigits: 6 })}</Text>
                       </Flex>
                     </MobileTableBottomRow>

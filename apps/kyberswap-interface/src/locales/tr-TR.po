@@ -93,7 +93,7 @@ msgstr ""
 #~ msgid "Transaction will revert if there is an adverse rate change that is higher than this %"
 #~ msgstr "Bu %'den daha yüksek bir olumsuz oran değişikliği olursa işlem geri dönecektir"
 
-#: 
+#:
 #~ msgid "+ Add Recipient (optional)"
 #~ msgstr "+ Alıcı Ekle (isteğe bağlı)"
 
@@ -135,7 +135,7 @@ msgstr ""
 msgid "Exported profiles will not be associated with your wallet. Your export code is unique. Learn more about profile <0>here</0>."
 msgstr ""
 
-#: 
+#:
 #~ msgid "Manage this pool."
 #~ msgstr "Bu havuzu yönetin."
 
@@ -437,8 +437,8 @@ msgstr ""
 msgid "Use Aggregator for Zaps"
 msgstr ""
 
-#: 
-#: 
+#:
+#:
 #~ msgid "Provide Liquidity"
 #~ msgstr ""
 
@@ -1926,11 +1926,11 @@ msgstr ""
 msgid "Hard Cancel All Orders"
 msgstr ""
 
-#: 
+#:
 #~ msgid "Max APY Available"
 #~ msgstr ""
 
-#: 
+#:
 #~ msgid "Deposit your liquidity & then stake it to earn even more attractive rewards"
 #~ msgstr ""
 
@@ -2710,7 +2710,7 @@ msgstr ""
 #~ msgid "Error connecting. Try refreshing the page."
 #~ msgstr "Bağlantı hatası. Sayfayı yenilemeyi deneyin."
 
-#: 
+#:
 #~ msgid "Add liquidity to our Classic Pools & earn fees automatically. We amplify liquidity pools so you earn more fees even with less liquidity!"
 #~ msgstr ""
 
@@ -2825,7 +2825,7 @@ msgstr ""
 #~ msgstr ""
 
 #: src/pages/Farm/ElasticFarmv2/components/NewRangesNotiModal.tsx
-#~ msgid "This indicates that range is idle. Staked positions in this range is still earning small amount of rewards."
+#~ msgid "This indicates that range is idle. Staked positionsin this range is still earning small amount of rewards."
 #~ msgstr ""
 
 #: src/components/SearchModal/ImportToken.tsx
@@ -2874,7 +2874,7 @@ msgstr ""
 msgid "Subscribe"
 msgstr ""
 
-#: 
+#:
 #~ msgid "If you would like to subscribe to notifications, please use Google Chrome (macOS, Windows, Android). Other browsers will be supported in the near future"
 #~ msgstr ""
 
@@ -3195,8 +3195,8 @@ msgstr ""
 #~ msgid "Volume (24h)"
 #~ msgstr "Hacim (24s)"
 
-#: 
-#: 
+#:
+#:
 #~ msgid "REWARD:"
 #~ msgstr ""
 
@@ -3876,7 +3876,7 @@ msgstr ""
 #~ msgid "<0>Create a watchlist of your favorite tokens</0>, and analyze them quickly."
 #~ msgstr ""
 
-#: 
+#:
 #~ msgid "We gives liquidity providers the option of choosing between two liquidity protocols so they can earn passive income - KyberSwap Elastic and KyberSwap Classic. Simply deposit your liquidity and start earning."
 #~ msgstr ""
 
@@ -3963,7 +3963,7 @@ msgstr ""
 msgid "Send"
 msgstr ""
 
-#: 
+#:
 #~ msgid "Enables high slippage trades. Use at your own risk."
 #~ msgstr "Yüksek kayma oranı yaşanabilecek işlemlere olanak tanır. Kendi sorumluluğunuzu alınız."
 
@@ -4283,8 +4283,8 @@ msgstr ""
 msgid "Your cancellation {summary} has been submitted"
 msgstr ""
 
-#: 
-#: 
+#:
+#:
 #~ msgid "What can KNC be used for?"
 #~ msgstr "KNC ne için kullanılabilir?"
 
@@ -4509,7 +4509,7 @@ msgstr ""
 #~ msgid "View all"
 #~ msgstr ""
 
-#: 
+#:
 #~ msgid "Rewards: {0} {1}"
 #~ msgstr "Ödüller: {0} {1}"
 
@@ -5004,7 +5004,7 @@ msgstr ""
 #~ msgid "Note: Farms will run in <0>multiple phases.</0> If you haven’t harvested your rewards for ended farms, you still can access them via the <1>Ended</1> tab. To continue earning rewards in the new phase, you must restake your NFT position into the active farm."
 #~ msgstr ""
 
-#: 
+#:
 #~ msgid "FULL UNLOCK"
 #~ msgstr "TAM KİLİT AÇMA"
 
@@ -6822,7 +6822,7 @@ msgstr ""
 msgid "Search by pool address"
 msgstr "Havuz adresine göre ara"
 
-#: 
+#:
 #~ msgid "These tokens are commonly paired with other tokens."
 #~ msgstr "Bu token’lar genellikle diğer token’lar ile eşleştirilir."
 
@@ -6892,7 +6892,7 @@ msgstr ""
 #~ msgid "You are creating a pool"
 #~ msgstr "Bir havuz oluşturuyorsunuz"
 
-#: 
+#:
 #~ msgid "Tokens from inactive lists. Import specific tokens below or click 'Manage' to activate more lists."
 #~ msgstr "Etkin olmayan listelerdeki token varlıklarıdır. Aşağıdaki belirli token’ları içe aktarın veya daha fazla listeyi etkinleştirmek için 'Yönet’e tıklayın."
 
@@ -7561,7 +7561,7 @@ msgstr ""
 #~ msgid "Centralized Exchanges"
 #~ msgstr ""
 
-#: 
+#:
 #~ msgid "DEPOSIT"
 #~ msgstr "YATIR"
 
@@ -8212,7 +8212,7 @@ msgstr ""
 #~ msgid "Claim on {networkName}"
 #~ msgstr ""
 
-#: 
+#:
 #~ msgid "Unlocked"
 #~ msgstr "Kilidi Açık"
 
@@ -8437,8 +8437,8 @@ msgstr ""
 msgid "Alert when"
 msgstr ""
 
-#: 
-#: 
+#:
+#:
 #~ msgid "AVAILABLE BALANCE:"
 #~ msgstr ""
 
@@ -8677,8 +8677,8 @@ msgstr ""
 #~ msgid "Click Get Started to subscribe to Telegram"
 #~ msgstr ""
 
-#: 
-#: 
+#:
+#:
 #~ msgid "AMP"
 #~ msgstr "AMP"
 
@@ -8848,7 +8848,7 @@ msgstr ""
 #~ msgid "Install ${0} extension"
 #~ msgstr ""
 
-#: 
+#:
 #~ msgid "You can manually import your pool"
 #~ msgstr ""
 
@@ -8860,7 +8860,7 @@ msgstr ""
 msgid "We suggest you increase the value of your limit order to at least <0>${threshold}</0>. This will increase the odds of your order being filled."
 msgstr ""
 
-#: 
+#:
 #~ msgid "Unlocked: {0} {1}"
 #~ msgstr "Kilidi açık: {0} {1}"
 
@@ -9042,7 +9042,7 @@ msgstr ""
 #~ msgid "Set Your Price Range"
 #~ msgstr ""
 
-#: 
+#:
 #~ msgid "No {type} pool found."
 #~ msgstr "{type} havuzu bulunamadı."
 
@@ -9229,7 +9229,7 @@ msgstr ""
 #~ msgid "Fulfil these requirements to participate in the campaign"
 #~ msgstr ""
 
-#: 
+#:
 #~ msgid "Vesting started: {0}"
 #~ msgstr "Hak kazanma süreci (Vesting) başladı: {0}"
 
@@ -9551,7 +9551,7 @@ msgstr ""
 #~ msgid "<0>Monitor token prices - Set a price alert</0>, sit back and we'll notify you."
 #~ msgstr ""
 
-#: 
+#:
 #~ msgid "Max APR Available ↗️"
 #~ msgstr ""
 
@@ -9687,9 +9687,9 @@ msgstr "Bu işlemi cüzdanınızda onaylayın"
 msgid "Opt Out"
 msgstr ""
 
-#: 
-#: 
-#: 
+#:
+#:
+#:
 #~ msgid "Maximum sold"
 #~ msgstr "Maksimum satıldı"
 
@@ -9705,8 +9705,8 @@ msgstr ""
 #~ msgid "Success!"
 #~ msgstr ""
 
-#: 
-#: 
+#:
+#:
 #~ msgid "Manage Liquidity in Rewards Pool"
 #~ msgstr "Ödül Havuzunda Likiditeyi Yönetin"
 
@@ -9815,7 +9815,7 @@ msgstr ""
 msgid "Create Pool"
 msgstr ""
 
-#: 
+#:
 #~ msgid "Search name or paste address"
 #~ msgstr "Adı arayın veya adresi yapıştırın"
 
@@ -9929,7 +9929,7 @@ msgstr ""
 msgid "Connecting Wallet"
 msgstr ""
 
-#: 
+#:
 #~ msgid "{0} on {1}"
 #~ msgstr ""
 
@@ -10233,9 +10233,9 @@ msgstr ""
 #~ msgid "You are creating a new pool and will be the first liquidity provider. The ratio of tokens you supply below will set the initial price of this pool. Once you are satisfied with the rate, proceed to supply liquidity."
 #~ msgstr "Yeni bir havuz oluşturuyorsunuz ve ilk likidite sağlayıcısı olacaksınız. Tedarik ettiğiniz token varlıklarının oranı, aşağıda bu havuzun başlangıç fiyatını belirleyecektir. Orandan memnunsanız, likidite sağlama işlemine devam edin."
 
-#: 
-#: 
-#: 
+#:
+#:
+#:
 #~ msgid "APY"
 #~ msgstr ""
 
@@ -10836,8 +10836,8 @@ msgstr ""
 msgid "Mint Function"
 msgstr ""
 
-#: 
-#: 
+#:
+#:
 #~ msgid "Estimated Refund"
 #~ msgstr "Tahmini Geri Ödeme"
 

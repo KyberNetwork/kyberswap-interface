@@ -392,7 +392,7 @@ const PositionDetail = () => {
       {initialLoading ? (
         <PositionSkeleton width={70} height={24} />
       ) : isUnfinalized ? (
-        <PositionSkeleton width={70} height={24} text="Finalizing..." />
+        <PositionSkeleton width={70} height={24} text={t`Finalizing...`} />
       ) : isWaitingForRewards ? (
         <RewardSyncing width={70} height={24} />
       ) : (

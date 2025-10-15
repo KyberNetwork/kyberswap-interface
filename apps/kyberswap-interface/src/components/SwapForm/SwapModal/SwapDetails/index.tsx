@@ -126,7 +126,7 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
         <Shield size={14} color={theme.subText} />
         <Text color={theme.subText} style={{ whiteSpace: 'nowrap' }}>
           {upToXXSmall ? <Trans>MEV Protection</Trans> : <Trans>Add MEV Protection</Trans>}
-          <InfoHelper size={14} text="Add MEV Protection to safeguard you from front-running attacks." />
+          <InfoHelper size={14} text={<Trans>Add MEV Protection to safeguard you from front-running attacks.</Trans>} />
         </Text>
       </PriceAlertButton>
     ) : null

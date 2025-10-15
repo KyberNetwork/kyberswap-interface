@@ -1,3 +1,4 @@
+import { t } from '@lingui/macro'
 import { useMemo } from 'react'
 import { useMedia } from 'react-use'
 import { Text } from 'rebass'
@@ -64,7 +65,7 @@ const TableContent = ({
   if (!tablePoolData?.length || isError)
     return (
       <Text color={theme.subText} margin="3rem" marginTop="4rem" textAlign="center">
-        No data found
+        {t`No data found`}
       </Text>
     )
 

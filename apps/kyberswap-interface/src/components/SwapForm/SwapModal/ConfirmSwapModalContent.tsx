@@ -1,5 +1,5 @@
 import { Currency, CurrencyAmount, Price } from '@kyberswap/ks-sdk-core'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { transparentize } from 'polished'
 import { useEffect, useMemo, useState } from 'react'
 import { Check, Info, Repeat } from 'react-feather'
@@ -394,19 +394,26 @@ export default function ConfirmSwapModalContent({
             onDismiss()
           }
         }}
-        confirmText={retry < 1 ? 'Use Suggested Slippage' : 'Set Custom Slippage'}
+        confirmText={retry < 1 ? t`Use Suggested Slippage` : t`Set Custom Slippage`}
         message={
           retry < 1
             ? errorWhileBuildRoute
-            : 'This route may currently be too volatile to execute. Try to custom your own slippage to continue.'
+            : t`This route may currently be too volatile to execute. Try to custom your own slippage to continue.`
         }
         confirmBtnStyle={{ flex: 2 }}
         dismissBtnStyle={{ flex: 1 }}
         suggestionMessage={
           retry < 1 && (
             <Text marginTop="8px" fontSize={16} color={theme.text}>
-              New Suggested Slippage: {(dynamicSuggestedSlippage * 100) / 10_000}%{' '}
-              <InfoHelper text="This suggestion is based on your trade’s estimated slippage and token pair volatility, with a cap applied." />{' '}
+              <Trans>New Suggested Slippage:</Trans> {(dynamicSuggestedSlippage * 100) / 10_000}%{' '}
+              <InfoHelper
+                text={
+                  <Trans>
+                    This suggestion is based on your trade&apos;s estimated slippage and token pair volatility, with a
+                    cap applied.
+                  </Trans>
+                }
+              />{' '}
             </Text>
           )
         }

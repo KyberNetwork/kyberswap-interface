@@ -652,7 +652,7 @@ export default function ZapOut({
               <TransactionErrorContent onDismiss={handleDismissConfirmation} message={zapOutError} />
             ) : (
               <ConfirmationModalContent
-                title={'You will receive'}
+                title={t`You will receive`}
                 onDismiss={handleDismissConfirmation}
                 topContent={modalHeader}
                 bottomContent={modalBottom}
@@ -678,7 +678,7 @@ export default function ZapOut({
                       ) : (
                         formatDisplayNumber(userLiquidity, { style: 'decimal', significantDigits: 6 })
                       )}{' '}
-                      LP Tokens
+                      {t`LP Tokens`}
                     </Text>
                   </RowBetween>
                   <Row style={{ alignItems: 'flex-end' }}>

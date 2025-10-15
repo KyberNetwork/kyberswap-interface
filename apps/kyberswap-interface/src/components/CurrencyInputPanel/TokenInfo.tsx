@@ -1,6 +1,6 @@
 import { shortenAddress } from '@kyber/utils/dist/crypto'
 import { Token } from '@kyberswap/ks-sdk-core'
-import { t } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Info } from 'react-feather'
 import { useMedia } from 'react-use'
@@ -126,7 +126,7 @@ export default function TokenInfo({ token, isNativeToken = false }: { token: Tok
   const tooltipContent = (
     <Flex flexDirection="column" sx={{ gap: '2px' }}>
       <Flex alignItems="center" sx={{ gap: '2px' }}>
-        <Text>{isNativeToken ? 'Native token' : shortenAddress(token?.wrapped.address || '', 6)}</Text>
+        <Text>{isNativeToken ? t`Native token` : shortenAddress(token?.wrapped.address || '', 6)}</Text>
         {!isNativeToken ? <CopyHelper size={14} toCopy={token?.wrapped.address} /> : null}
       </Flex>
       <Flex alignItems="center" sx={{ gap: '4px' }}>
@@ -134,7 +134,7 @@ export default function TokenInfo({ token, isNativeToken = false }: { token: Tok
         <Text color={priceInfo?.buyPrice ? theme.primary : theme.text}>
           {priceInfo?.buyPrice
             ? formatDisplayNumber(priceInfo?.buyPrice, { significantDigits: 8, style: 'currency' })
-            : 'N/A'}
+            : t`N/A`}
         </Text>
       </Flex>
       <Flex alignItems="center" sx={{ gap: '4px' }}>
@@ -142,22 +142,24 @@ export default function TokenInfo({ token, isNativeToken = false }: { token: Tok
         <Text color={priceInfo?.sellPrice ? theme.blue : theme.text}>
           {priceInfo?.sellPrice
             ? formatDisplayNumber(priceInfo?.sellPrice, { significantDigits: 8, style: 'currency' })
-            : 'N/A'}
+            : t`N/A`}
         </Text>
       </Flex>
       {spreadCheck.display ? (
         <Flex alignItems="center" sx={{ gap: '4px' }}>
           <Text>{t`Spread`}:</Text>
           <Text color={spreadCheck.warning ? theme.warning : theme.text}>
-            {priceInfo?.spread ? formatDisplayNumber(priceInfo?.spread, { significantDigits: 2 }) + '%' : 'N/A'}
+            {priceInfo?.spread ? formatDisplayNumber(priceInfo?.spread, { significantDigits: 2 }) + '%' : t`N/A`}
           </Text>
         </Flex>
       ) : null}
       {spreadCheck.warning ? (
         <Text color={theme.warning} fontStyle="italic">
-          {`The current difference between buy and sell is ${formatDisplayNumber(priceInfo?.spread, {
-            significantDigits: 2,
-          })}% of the mid point, which might be higher than usual for similar tokens.`}
+          <Trans>
+            The current difference between buy and sell is{' '}
+            {formatDisplayNumber(priceInfo?.spread, { significantDigits: 2 })}% of the mid point, which might be higher
+            than usual for similar tokens.
+          </Trans>
         </Text>
       ) : null}
     </Flex>
