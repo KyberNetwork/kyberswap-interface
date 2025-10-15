@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
-import { t } from '@lingui/macro';
+import { Trans, t } from '@lingui/macro';
 import { useShallow } from 'zustand/react/shallow';
 
 import { usePositionOwner } from '@kyber/hooks';
@@ -100,19 +100,39 @@ export default function Action({
   const isHighZapImpact = zapImpact?.level === PI_LEVEL.HIGH;
   const isInvalidZapImpact = zapImpact?.level === PI_LEVEL.INVALID;
 
-  const btnText = (() => {
-    if (error) return error;
-    if (initializing) return `Loading${'.'.repeat(dots)}`;
-    if (isNotOwner) {
-      if (isFarming) return 'Your position is in farming';
-      return 'Not the position owner';
-    }
-    if (zapLoading) return `Fetching Route${'.'.repeat(dots)}`;
-    if (nftApprovePendingTx) return `Approving${'.'.repeat(dots)}`;
-    if (positionId && !nftApproved) return 'Approve NFT';
-    if (isVeryHighZapImpact || isInvalidZapImpact) return 'Zap anyway';
+  const loadingLabel = useMemo(() => t`Loading`, []);
+  const fetchingRouteLabel = useMemo(() => t`Fetching Route`, []);
+  const approvingLabel = useMemo(() => t`Approving`, []);
+  const farmingLabel = useMemo(() => t`Your position is in farming`, []);
+  const notOwnerLabel = useMemo(() => t`Not the position owner`, []);
+  const approveNftLabel = useMemo(() => t`Approve NFT`, []);
+  const zapAnywayLabel = useMemo(() => t`Zap anyway`, []);
+  const confirmLabel = useMemo(() => t`Confirm`, []);
 
-    return 'Confirm';
+  const translateError = (currentError: string) => {
+    switch (currentError) {
+      case ERROR_MESSAGE.CONNECT_WALLET:
+        return t`Connect wallet`;
+      case ERROR_MESSAGE.WRONG_NETWORK:
+        return t`Switch network`;
+      default:
+        return currentError;
+    }
+  };
+
+  const btnText = (() => {
+    if (error) return translateError(error);
+    if (initializing) return `${loadingLabel}${'.'.repeat(dots)}`;
+    if (isNotOwner) {
+      if (isFarming) return farmingLabel;
+      return notOwnerLabel;
+    }
+    if (zapLoading) return `${fetchingRouteLabel}${'.'.repeat(dots)}`;
+    if (nftApprovePendingTx) return `${approvingLabel}${'.'.repeat(dots)}`;
+    if (positionId && !nftApproved) return approveNftLabel;
+    if (isVeryHighZapImpact || isInvalidZapImpact) return zapAnywayLabel;
+
+    return confirmLabel;
   })();
 
   const hanldeClick = () => {
@@ -156,7 +176,7 @@ export default function Action({
   return (
     <div className="flex justify-center gap-5 mt-6">
       <button className="ks-outline-btn w-[190px]" onClick={onClose}>
-        Cancel
+        <Trans>Cancel</Trans>
       </button>
       <button
         className={`ks-primary-btn min-w-[190px] w-fit ${
@@ -171,15 +191,15 @@ export default function Action({
         disabled={!!disabled}
         onClick={hanldeClick}
       >
-        {btnText} HELLO {t`LOCALE`}
+        {btnText}
         {(isVeryHighZapImpact || isInvalidZapImpact) && !error && !isWrongNetwork && !isNotConnected && (
           <InfoHelper
             width="300px"
             color="#ffffff"
             text={
               degenMode
-                ? 'You have turned on Degen Mode from settings. Trades with very high price impact can be executed'
-                : 'To ensure you dont lose funds due to very high price impact, swap has been disabled for this trade. If you still wish to continue, you can turn on Degen Mode from Settings.'
+                ? t`You have turned on Degen Mode from settings. Trades with very high price impact can be executed`
+                : t`To ensure you dont lose funds due to very high price impact, swap has been disabled for this trade. If you still wish to continue, you can turn on Degen Mode from Settings.`
             }
           />
         )}

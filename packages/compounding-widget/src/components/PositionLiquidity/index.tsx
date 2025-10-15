@@ -1,3 +1,5 @@
+import { Trans } from '@lingui/macro';
+
 import { Skeleton, TokenLogo } from '@kyber/ui';
 import { formatCurrency, formatTokenAmount } from '@kyber/utils/number';
 
@@ -16,7 +18,9 @@ const PositionLiquidity = () => {
 
   return (
     <div className="px-4 py-3 border border-stroke rounded-md">
-      <p className="text-subText mb-3 text-sm">Your Current Position Liquidity</p>
+      <p className="text-subText mb-3 text-sm">
+        <Trans>Your Current Position Liquidity</Trans>
+      </p>
       <div className="flex justify-between">
         {initializing ? (
           <Skeleton className="w-32 h-5" />

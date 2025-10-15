@@ -11,6 +11,296 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: \n"
 
+#: src/components/Setting/index.tsx
+msgid "Please type the word <0>Confirm</0> below to enable Degen Mode"
+msgstr "请在下方输入 <0>Confirm</0> 以启用 Degen 模式"
+
+#: src/Widget.tsx
+msgid "Compound Completed"
+msgstr "复利已完成"
+
+#: src/components/Content/EstLiqValue.tsx
+msgid "Zap Impact"
+msgstr "Zap 影响"
+
 #: src/components/Action/index.tsx
-msgid "LOCALE"
-msgstr "CHINESE"
+msgid "Approve NFT"
+msgstr "授权 NFT"
+
+#: src/components/Header/index.tsx
+msgid "● In range"
+msgstr "● 区间内"
+
+#: src/components/Setting/index.tsx
+msgid "No, Go back"
+msgstr "不，返回"
+
+#: src/Widget.tsx
+msgid "Waiting For Confirmation"
+msgstr "等待确认"
+
+#: src/Widget.tsx
+msgid "It may take a few minutes to proceed."
+msgstr "这可能需要几分钟才能完成。"
+
+#: src/components/Content/EstLiqValue.tsx
+msgid "Est. Liquidity Value"
+msgstr "预计流动性价值"
+
+#: src/components/Setting/index.tsx
+msgid "Degen Mode"
+msgstr "Degen 模式"
+
+#: src/components/Setting/index.tsx
+msgid "mins"
+msgstr "分钟"
+
+#: src/components/Setting/index.tsx
+msgid "Transaction Time Limit"
+msgstr "交易时间限制"
+
+#: src/components/Content/EstLiqValue.tsx
+#: src/components/Content/EstLiqValue.tsx
+msgid "Est. Pooled"
+msgstr "预计投入"
+
+#: src/components/Setting/index.tsx
+msgid "Are you sure?"
+msgstr "确定吗？"
+
+#: src/components/Action/index.tsx
+#: src/components/Setting/index.tsx
+#: src/components/Setting/index.tsx
+#: src/components/Setting/index.tsx
+msgid "Confirm"
+msgstr "确认"
+
+#: src/components/PriceRange/index.tsx
+#: src/components/PriceRange/index.tsx
+msgid "{0} per {1}"
+msgstr "每 {1} {0}"
+
+#: src/components/PriceRange/index.tsx
+msgid "Your Position Price Ranges"
+msgstr "您的头寸价格区间"
+
+#: src/components/Setting/SlippageInput.tsx
+msgid "Custom"
+msgstr "自定义"
+
+#: src/Widget.tsx
+msgid "An error occurred during the liquidity migration."
+msgstr "流动性迁移过程中发生错误。"
+
+#: src/components/Setting/index.tsx
+#: src/components/Setting/index.tsx
+msgid "Turn this on to make trades with very high price impact or to set very high slippage tolerance. This can result in bad rates and loss of funds. Be cautious."
+msgstr "开启此选项以在极高价格影响或极高滑点容差下执行交易，这可能导致不良汇率并造成资金损失，请谨慎操作。"
+
+#: src/components/Setting/index.tsx
+msgid "Transaction will revert if it is pending for longer than the indicated time."
+msgstr "若交易等待时间超过设定值将被回滚。"
+
+#: src/components/Content/PriceInfo.tsx
+msgid "Current price"
+msgstr "当前价格"
+
+#: src/components/PriceRange/index.tsx
+msgid "Max Price"
+msgstr "最高价格"
+
+#: src/Widget.tsx
+msgid "You have successfully added liquidity!"
+msgstr "您已成功添加流动性！"
+
+#: src/components/Content/EstLiqValue.tsx
+msgid "Based on your price range settings, a portion of your liquidity will be automatically zapped into the pool, while the remaining amount will stay in your wallet."
+msgstr "根据您的价格区间设置，部分流动性会自动 Zap 到池中，剩余金额将保留在您的钱包中。"
+
+#: src/components/Content/ZapSummary.tsx
+msgid "and"
+msgstr "和"
+
+#: src/hooks/useZapState.tsx
+msgid "useZapState must be used within a ZapContextProvider"
+msgstr "useZapState 必须在 ZapContextProvider 中使用"
+
+#: src/Widget.tsx
+msgid "View transaction ↗"
+msgstr "查看交易 ↗"
+
+#: src/components/Content/EstLiqValue.tsx
+msgid "Zap Fee"
+msgstr "Zap 手续费"
+
+#: src/Widget.tsx
+msgid "Processing transaction"
+msgstr "处理交易中"
+
+#: src/components/Header/index.tsx
+msgid "● Out of range"
+msgstr "● 超出区间"
+
+#: src/components/ReInvest/index.tsx
+msgid "Your Earning to Reinvest"
+msgstr "待复投收益"
+
+#: src/components/Header/index.tsx
+msgid "Fee {fee}%"
+msgstr "手续费 {fee}%"
+
+#: src/components/Content/ZapSummary.tsx
+msgid "Swap {0} {1} for {2} {3} via <0>{4}</0>"
+msgstr "通过 <0>{4}</0> 将 {0} {1} 兑换为 {2} {3}"
+
+#: src/components/Setting/utils.ts
+#: src/components/Setting/utils.ts
+#: src/components/Setting/utils.ts
+msgid "Enter a valid slippage percentage"
+msgstr "请输入有效的滑点百分比"
+
+#: src/components/Action/index.tsx
+msgid "Your position is in farming"
+msgstr "您的头寸正在参与挖矿"
+
+#: src/components/Action/index.tsx
+msgid "Connect wallet"
+msgstr "连接钱包"
+
+#: src/components/Action/index.tsx
+msgid "To ensure you dont lose funds due to very high price impact, swap has been disabled for this trade. If you still wish to continue, you can turn on Degen Mode from Settings."
+msgstr "为避免因极高价格影响导致资金损失，此交易的换币功能已被禁用。如仍要继续，可在设置中开启 Degen 模式。"
+
+#: src/components/Action/index.tsx
+msgid "Fetching Route"
+msgstr "正在获取路线"
+
+#: src/components/Action/index.tsx
+msgid "Switch network"
+msgstr "切换网络"
+
+#: src/components/Action/index.tsx
+msgid "Cancel"
+msgstr "取消"
+
+#: src/components/Action/index.tsx
+msgid "Zap anyway"
+msgstr "仍然 Zap"
+
+#: src/components/Content/ZapSummary.tsx
+msgid "Zap {0} {symbol0} and {1} {symbol1} into <0>{dexName}</0> in the selected fee pool."
+msgstr "将 {0} {symbol0} 和 {1} {symbol1} Zap 进所选费率池中的 <0>{dexName}</0>。"
+
+#: src/components/Action/index.tsx
+msgid "Not the position owner"
+msgstr "非该头寸所有者"
+
+#: src/components/Action/index.tsx
+msgid "Approving"
+msgstr "授权中"
+
+#: src/components/PriceRange/index.tsx
+msgid "Min Price"
+msgstr "最低价格"
+
+#: src/components/Content/ZapSummary.tsx
+msgid "Collect {0} from <0>{dexName}</0> via <1>KyberSwap</1>"
+msgstr "通过 <1>KyberSwap</1> 从 <0>{dexName}</0> 领取 {0}"
+
+#: src/components/Header/index.tsx
+msgid "Degen Mode is turned on!"
+msgstr "Degen 模式已开启！"
+
+#: src/components/Content/EstLiqValue.tsx
+msgid "{0}% remains unused and will be returned to your wallet. Refresh or change your amount to get updated routes."
+msgstr "{0}% 的资金未被使用，将返还至您的钱包。请刷新或调整金额以获取最新路线。"
+
+#: src/components/Content/PriceInfo.tsx
+msgid "Unable to get the market price. Please be cautious!"
+msgstr "无法获取市场价格，请谨慎操作！"
+
+#: src/components/Setting/utils.ts
+#: src/components/SlippageWarning/index.tsx
+msgid "Your slippage is set lower than usual, increasing the risk of transaction failure."
+msgstr "您的滑点设置低于常规，可能增加交易失败风险。"
+
+#: src/components/Setting/index.tsx
+msgid "Slippage Tolerance"
+msgstr "滑点容差"
+
+#: src/components/Header/index.tsx
+msgid "Compounding"
+msgstr "复利"
+
+#: src/components/Content/EstLiqValue.tsx
+msgid "The difference between input and estimated liquidity received (including remaining amount). Be careful with high value!"
+msgstr "输入与预计获得的流动性（含剩余金额）之间的差额。数值较高时请谨慎！"
+
+#: src/hooks/useZapState.tsx
+#: src/hooks/useZapState.tsx
+msgid "Something went wrong"
+msgstr "出现错误"
+
+#: src/components/Setting/index.tsx
+msgid "Advanced Setting"
+msgstr "高级设置"
+
+#: src/components/Content/EstLiqValue.tsx
+msgid "Est. Remaining Value"
+msgstr "预计剩余价值"
+
+#: src/components/Action/index.tsx
+msgid "You have turned on Degen Mode from settings. Trades with very high price impact can be executed"
+msgstr "您已在设置中开启 Degen 模式，可执行高价格影响的交易"
+
+#: src/Widget.tsx
+msgid "View position"
+msgstr "查看头寸"
+
+#: src/components/Content/EstLiqValue.tsx
+msgid "Fees charged for automatically zapping into a liquidity pool. You still have to pay the standard gas fees. <0>More details.</0>"
+msgstr "自动 Zap 到流动性池时收取的费用。仍需支付常规 Gas 费。<0>了解更多。</0>"
+
+#: src/components/Setting/index.tsx
+#: src/components/SlippageWarning/index.tsx
+msgid "Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price. Please use with caution!"
+msgstr "适用于每一步 Zap。较高的滑点容差有助于交易成功，但价格可能不理想，请谨慎使用！"
+
+#: src/components/Content/ZapSummary.tsx
+msgid "Compound Summary"
+msgstr "复利摘要"
+
+#: src/Widget.tsx
+#: src/Widget.tsx
+msgid "Transaction failed"
+msgstr "交易失败"
+
+#: src/components/Setting/utils.ts
+#: src/components/SlippageWarning/index.tsx
+msgid "Your slippage is set higher than usual, which may cause unexpected losses."
+msgstr "您的滑点设置高于常规，可能导致意外亏损。"
+
+#: src/components/SlippageWarning/index.tsx
+msgid "Max Slippage"
+msgstr "最大滑点"
+
+#: src/components/PositionLiquidity/index.tsx
+msgid "Your Current Position Liquidity"
+msgstr "您当前的头寸流动性"
+
+#: src/Widget.tsx
+msgid "Confirm this transaction in your wallet - Zapping {0}"
+msgstr "请在钱包中确认此交易 - 正在 Zap {0}"
+
+#: src/components/Action/index.tsx
+msgid "Loading"
+msgstr "加载中"
+
+#: src/components/Setting/utils.ts
+msgid "Enter a smaller slippage percentage"
+msgstr "请输入更小的滑点百分比"
+
+#: src/Widget.tsx
+#: src/Widget.tsx
+msgid "Close"
+msgstr "关闭"
