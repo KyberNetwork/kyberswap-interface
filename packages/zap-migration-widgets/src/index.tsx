@@ -19,6 +19,7 @@ import RangeInput from '@/components/RangeInput';
 import TargetPosition from '@/components/TargetPosition';
 import Warning from '@/components/Warning';
 import useInitWidget from '@/hooks/useInitWidget';
+import { WidgetI18nProvider } from '@/i18n';
 import '@/index.css';
 import '@/index.scss';
 import { usePoolStore } from '@/stores/usePoolStore';
@@ -28,6 +29,7 @@ import { useZapStore } from '@/stores/useZapStore';
 import { TxStatus, ZapMigrationProps } from '@/types/index';
 
 export { ChainId, PoolType, TxStatus, type ZapMigrationProps };
+export type { SupportedLocale } from '@/i18n';
 
 export const ZapMigration = (widgetProps: ZapMigrationProps) => {
   const {
@@ -45,6 +47,7 @@ export const ZapMigration = (widgetProps: ZapMigrationProps) => {
     to,
     chainId,
     onExplorePools,
+    locale,
   } = widgetProps;
 
   const {
@@ -140,52 +143,64 @@ export const ZapMigration = (widgetProps: ZapMigrationProps) => {
     ) : null;
 
   return (
-    <div className="ks-lw-migration-style" style={{ width: '100%', height: '100%' }}>
-      {errorDialog}
+    <WidgetI18nProvider locale={locale}>
+      <div className="ks-lw-migration-style" style={{ width: '100%', height: '100%' }}>
+        {errorDialog}
 
-      <div
-        className={cn(
-          'bg-background text-text w-full h-full border rounded-md p-6 border-stroke',
-          className,
-          buildData && 'hidden',
-        )}
-      >
-        <Header onClose={onClose} onBack={onBack} />
+        <div
+          className={cn(
+            'bg-background text-text w-full h-full border rounded-md p-6 border-stroke',
+            className,
+            buildData && 'hidden',
+          )}
+        >
+          <Header onClose={onClose} onBack={onBack} />
 
-        <div className="grid md:grid-cols-2 grid-cols-1 gap-4 md:gap-14 mt-4">
-          <div className="flex flex-col gap-4">
-            <PositionToMigrate />
-            {rePositionMode && <PoolPriceWithRange type={RangeType.Source} />}
-            <AmountToMigrate />
-            {!targetPositionId && <Estimated />}
-          </div>
-
-          <div className="block md:hidden rotate-90 w-fit mx-auto">
-            <ArrowRight className="text-primary w-6 h-6" />
-          </div>
-
-          <div className="flex flex-col gap-4">
-            <div className="block md:hidden mb-4">
-              <PoolInfo type={PoolInfoType.Target} />
+          <div className="grid md:grid-cols-2 grid-cols-1 gap-4 md:gap-14 mt-4">
+            <div className="flex flex-col gap-4">
+              <PositionToMigrate />
+              {rePositionMode && <PoolPriceWithRange type={RangeType.Source} />}
+              <AmountToMigrate />
+              {!targetPositionId && <Estimated />}
+              <PoolInfo type={PoolInfoType.Source} />
             </div>
-            <TargetPosition />
-            <RangeInput initialTick={initialTick} />
-            {!rePositionMode && to?.positionId && <PoolPriceWithRange type={RangeType.Target} showPrice />}
-            {targetPositionId && <Estimated />}
-            <Warning />
+
+            <div className="block md:hidden rotate-90 w-fit mx-auto">
+              <ArrowRight className="text-primary w-6 h-6" />
+            </div>
+
+            <div className="flex flex-col gap-4">
+              <div className="block md:hidden mb-4">
+                <PoolInfo type={PoolInfoType.Target} />
+              </div>
+              <TargetPosition />
+              <RangeInput initialTick={initialTick} />
+              {!rePositionMode && to?.positionId && <PoolPriceWithRange type={RangeType.Target} showPrice />}
+              {targetPositionId && <Estimated />}
+              <Warning />
+            </div>
           </div>
+
+          <Action
+            onConnectWallet={onConnectWallet}
+            onSwitchChain={onSwitchChain}
+            onClose={onClose}
+            onBack={onBack}
+            onSubmitTx={onSubmitTx}
+          />
         </div>
 
-        <Action
-          onConnectWallet={onConnectWallet}
-          onSwitchChain={onSwitchChain}
-          onClose={onClose}
-          onBack={onBack}
-          onSubmitTx={onSubmitTx}
-        />
+        {buildData && (
+          <Preview
+            onSubmitTx={onSubmitTx}
+            onClose={onClose}
+            onViewPosition={onViewPosition}
+            onExplorePools={onExplorePools}
+          />
+        )}
       </div>
 
       {buildData && <Preview onSubmitTx={onSubmitTx} onViewPosition={onViewPosition} onExplorePools={onExplorePools} />}
-    </div>
+    </WidgetI18nProvider>
   );
 };

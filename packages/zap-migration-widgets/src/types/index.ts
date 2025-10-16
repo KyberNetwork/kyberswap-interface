@@ -1,5 +1,7 @@
 import { ChainId, PoolType, Theme } from '@kyber/schema';
 
+import { SupportedLocale } from '@/i18n';
+
 export enum TxStatus {
   INIT = 'init',
   PENDING = 'pending',
@@ -43,6 +45,7 @@ export interface ZapMigrationProps {
   client: string;
   referral?: string;
   zapStatus?: Record<string, TxStatus>;
+  locale?: SupportedLocale;
   onExplorePools?: () => void;
   onConnectWallet: () => void;
   onSwitchChain: () => void;
