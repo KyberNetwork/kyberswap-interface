@@ -6,7 +6,7 @@ import { ChainId } from '@kyber/schema';
 import { isTransactionSuccessful } from '@kyber/utils/crypto';
 
 import { useWidgetStore } from '@/stores/useWidgetStore';
-import { ZapStatus } from '@/types/index';
+import { TxStatus } from '@/types/index';
 
 export default function useTxStatus({ txHash }: { txHash?: string }) {
   const { chainId, rpcUrl, zapStatus } = useWidgetStore(
@@ -47,11 +47,11 @@ export default function useTxStatus({ txHash }: { txHash?: string }) {
   }, [txHash]);
 
   useEffect(() => {
-    if (!zapStatus) return;
-    if (zapStatus === ZapStatus.SUCCESS || zapStatus === ZapStatus.FAILED) {
-      setTxStatus(zapStatus);
+    if (!zapStatus || !txHash) return;
+    if (zapStatus[txHash] === TxStatus.SUCCESS || zapStatus[txHash] === TxStatus.FAILED) {
+      setTxStatus(zapStatus[txHash] as 'success' | 'failed');
     } else setTxStatus('');
-  }, [zapStatus]);
+  }, [zapStatus, txHash]);
 
   return { txStatus };
 }
