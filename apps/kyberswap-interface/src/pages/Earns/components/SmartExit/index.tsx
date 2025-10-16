@@ -17,6 +17,7 @@ import { RevertIconWrapper } from 'pages/Earns/PositionDetail/styles'
 import PriceRange from 'pages/Earns/UserPositions/PriceRange'
 import { PositionValueWrapper } from 'pages/Earns/UserPositions/styles'
 import { ParsedPosition } from 'pages/Earns/types'
+import { ExternalLink } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
 import { Confirmation } from './Confirmation'
@@ -73,6 +74,8 @@ export const SmartExit = ({
   const disableBtn = invalidYield || invalidPriceCondition || invalidTime
 
   const [showConfirm, setShowConfirm] = useState(false)
+
+  console.log(position)
 
   const setupContent = (
     <>
@@ -167,9 +170,23 @@ export const SmartExit = ({
 
             <Flex alignItems="center" mt="10px" justifyContent="space-between">
               <Text color={theme.subText} fontSize={14}>
-                <Trans>Earning Fee Yield</Trans> <InfoHelper text="TODO" />{' '}
+                <Trans>Earning Fee Yield</Trans>{' '}
+                <InfoHelper
+                  text={
+                    <Text>
+                      <Trans>
+                        Based on the amount of fee tokens your position has earned compared with your initial deposit.
+                      </Trans>
+                      <ExternalLink src="/">
+                        <Text as="span" ml="4px">
+                          <Trans>Details</Trans>
+                        </Text>
+                      </ExternalLink>
+                    </Text>
+                  }
+                />{' '}
               </Text>
-              <Text>TODO</Text>
+              <Text>{position.earningFeeYield.toFixed(2)}%</Text>
             </Flex>
           </Box>
         </Flex>

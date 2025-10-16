@@ -87,6 +87,7 @@ export interface EarnPosition {
   minPrice: number
   maxPrice: number
   currentAmounts: Array<PositionAmount>
+  providedAmounts: Array<PositionAmount>
   feePending: Array<PositionAmount>
   feesClaimed: Array<PositionAmount>
   createdTime: number
@@ -230,6 +231,7 @@ export const DEFAULT_PARSED_POSITION: ParsedPosition = {
 export interface ParsedPosition {
   id: string
   tokenId: string
+  earningFeeYield: number
   pool: {
     fee: number
     address: string
