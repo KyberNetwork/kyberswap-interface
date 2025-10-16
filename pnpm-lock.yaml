@@ -1860,6 +1860,12 @@ importers:
 
   packages/zap-out-widgets:
     dependencies:
+      '@lingui/core':
+        specifier: ^4.6.0
+        version: 4.14.1
+      '@lingui/react':
+        specifier: ^4.6.0
+        version: 4.14.1(react@18.3.1)
       numeral:
         specifier: ^2.0.6
         version: 2.0.6
@@ -1873,6 +1879,9 @@ importers:
         specifier: ^5.0.0
         version: 5.0.1(@types/react@18.3.12)(react@18.3.1)
     devDependencies:
+      '@babel/core':
+        specifier: ^7.26.0
+        version: 7.26.0
       '@kyber/eslint-config':
         specifier: workspace:*
         version: link:../config-eslint
@@ -1897,6 +1906,12 @@ importers:
       '@kyberswap/liquidity-chart':
         specifier: workspace:^
         version: link:../liquidity-chart
+      '@lingui/cli':
+        specifier: ^4.6.0
+        version: 4.14.1(typescript@5.3.2)
+      '@lingui/macro':
+        specifier: ^4.6.0
+        version: 4.14.1(@lingui/react@4.14.1)(babel-plugin-macros@3.1.0)(typescript@5.3.2)
       '@trivago/prettier-plugin-sort-imports':
         specifier: ^3.3.1
         version: 3.4.0(prettier@3.5.3)
@@ -1921,6 +1936,12 @@ importers:
       autoprefixer:
         specifier: ^10.4.20
         version: 10.4.20(postcss@8.4.49)
+      babel-plugin-macros:
+        specifier: ^3.1.0
+        version: 3.1.0
+      esbuild-plugin-babel:
+        specifier: ^0.2.3
+        version: 0.2.3(@babel/core@7.26.0)
       esbuild-sass-plugin:
         specifier: ^3.3.1
         version: 3.3.1(esbuild@0.24.0)(sass-embedded@1.80.7)
@@ -7175,6 +7196,45 @@ packages:
       - typescript
     dev: true
 
+  /@lingui/cli@4.14.1(typescript@5.3.2):
+    resolution: {integrity: sha512-4DUtjHg5fumZ+hX8bcGYGZw9A6F5JURTMrI8Z6MSkO26OeSHEtPcheGFiPYfNhFeON6fZWZmwgyV9kkb0+psug==}
+    engines: {node: '>=16.0.0'}
+    hasBin: true
+    dependencies:
+      '@babel/core': 7.26.0
+      '@babel/generator': 7.26.2
+      '@babel/parser': 7.26.2
+      '@babel/runtime': 7.27.0
+      '@babel/types': 7.26.0
+      '@lingui/babel-plugin-extract-messages': 4.14.1
+      '@lingui/conf': 4.14.1(typescript@5.3.2)
+      '@lingui/core': 4.14.1
+      '@lingui/format-po': 4.14.1(typescript@5.3.2)
+      '@lingui/message-utils': 4.14.1
+      babel-plugin-macros: 3.1.0
+      chalk: 4.1.2
+      chokidar: 3.5.1
+      cli-table: 0.3.11
+      commander: 10.0.1
+      convert-source-map: 2.0.0
+      date-fns: 3.6.0
+      esbuild: 0.17.19
+      glob: 7.2.3
+      inquirer: 7.3.3
+      micromatch: 4.0.8
+      normalize-path: 3.0.0
+      ora: 5.4.1
+      pathe: 1.1.2
+      pkg-up: 3.1.0
+      pofile: 1.1.4
+      pseudolocale: 2.1.0
+      ramda: 0.27.2
+      source-map: 0.8.0-beta.0
+    transitivePeerDependencies:
+      - supports-color
+      - typescript
+    dev: true
+
   /@lingui/cli@4.14.1(typescript@5.3.3):
     resolution: {integrity: sha512-4DUtjHg5fumZ+hX8bcGYGZw9A6F5JURTMrI8Z6MSkO26OeSHEtPcheGFiPYfNhFeON6fZWZmwgyV9kkb0+psug==}
     engines: {node: '>=16.0.0'}
@@ -7228,11 +7288,25 @@ packages:
       - typescript
     dev: true
 
+  /@lingui/conf@4.14.1(typescript@5.3.2):
+    resolution: {integrity: sha512-LE/1RrVoMebQK+u4y6VQJdSwjOsMu4go/VR8m1eH0THn8vfkuLOYlPTIAHTWcoO+Ogi15p5TqHPfJcgVBy/NpA==}
+    engines: {node: '>=16.0.0'}
+    dependencies:
+      '@babel/runtime': 7.27.0
+      chalk: 4.1.2
+      cosmiconfig: 8.3.6(typescript@5.3.2)
+      jest-validate: 29.7.0
+      jiti: 1.21.6
+      lodash.get: 4.4.2
+    transitivePeerDependencies:
+      - typescript
+    dev: true
+
   /@lingui/conf@4.14.1(typescript@5.3.3):
     resolution: {integrity: sha512-LE/1RrVoMebQK+u4y6VQJdSwjOsMu4go/VR8m1eH0THn8vfkuLOYlPTIAHTWcoO+Ogi15p5TqHPfJcgVBy/NpA==}
     engines: {node: '>=16.0.0'}
     dependencies:
-      '@babel/runtime': 7.26.0
+      '@babel/runtime': 7.27.0
       chalk: 4.1.2
       cosmiconfig: 8.3.6(typescript@5.3.3)
       jest-validate: 29.7.0
@@ -7254,6 +7328,18 @@ packages:
     engines: {node: '>=16.0.0'}
     dependencies:
       '@lingui/conf': 4.14.1(typescript@5.1.6)
+      '@lingui/message-utils': 4.14.1
+      date-fns: 3.6.0
+      pofile: 1.1.4
+    transitivePeerDependencies:
+      - typescript
+    dev: true
+
+  /@lingui/format-po@4.14.1(typescript@5.3.2):
+    resolution: {integrity: sha512-SfT3/4LspwDq5KNyN+HUsDiF2IVMBk0LS6ruEG+vGOKNXzdSpnuxAT5E6wgGA/4/MG2UF9WKBzfkfOsYeXmSEg==}
+    engines: {node: '>=16.0.0'}
+    dependencies:
+      '@lingui/conf': 4.14.1(typescript@5.3.2)
       '@lingui/message-utils': 4.14.1
       date-fns: 3.6.0
       pofile: 1.1.4
@@ -7283,6 +7369,24 @@ packages:
       '@babel/runtime': 7.27.0
       '@babel/types': 7.26.0
       '@lingui/conf': 4.14.1(typescript@5.1.6)
+      '@lingui/core': 4.14.1
+      '@lingui/message-utils': 4.14.1
+      '@lingui/react': 4.14.1(react@18.3.1)
+      babel-plugin-macros: 3.1.0
+    transitivePeerDependencies:
+      - typescript
+    dev: true
+
+  /@lingui/macro@4.14.1(@lingui/react@4.14.1)(babel-plugin-macros@3.1.0)(typescript@5.3.2):
+    resolution: {integrity: sha512-kVAe78Sj4a74GJTOOqoAzxZgsgqPfcBFQC1akXMlAv9r4bX7zvbMov2cQVWjvix0waetwxo3oVqlSozsa8UPAw==}
+    engines: {node: '>=16.0.0'}
+    peerDependencies:
+      '@lingui/react': ^4.0.0
+      babel-plugin-macros: 2 || 3
+    dependencies:
+      '@babel/runtime': 7.27.0
+      '@babel/types': 7.26.0
+      '@lingui/conf': 4.14.1(typescript@5.3.2)
       '@lingui/core': 4.14.1
       '@lingui/message-utils': 4.14.1
       '@lingui/react': 4.14.1(react@18.3.1)

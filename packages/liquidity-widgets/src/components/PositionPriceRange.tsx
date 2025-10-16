@@ -1,4 +1,4 @@
-import { Trans, t } from '@lingui/macro';
+import { Trans } from '@lingui/macro';
 
 import { Skeleton } from '@kyber/ui';
 
