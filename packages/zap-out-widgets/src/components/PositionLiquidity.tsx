@@ -1,3 +1,5 @@
+import { Trans } from '@lingui/macro';
+
 import { Skeleton, TokenLogo, TokenSymbol } from '@kyber/ui';
 import { formatDisplayNumber, formatTokenAmount, toRawString } from '@kyber/utils/number';
 
@@ -12,7 +14,9 @@ export default function PositionLiquidity() {
 
   return (
     <div className="rounded-lg border border-stroke px-4 py-3 text-subText text-sm">
-      <div>Your Position Liquidity</div>
+      <div>
+        <Trans>Your Position Liquidity</Trans>
+      </div>
 
       <div className="flex justify-between mt-4 items-start">
         {loading ? (
