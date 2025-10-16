@@ -1,10 +1,10 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import {
   OnSuccessProps,
+  TxStatus,
   LiquidityWidget as ZapIn,
   ChainId as ZapInChainId,
   PoolType as ZapInPoolType,
-  ZapStatus,
 } from '@kyberswap/liquidity-widgets'
 import '@kyberswap/liquidity-widgets/dist/style.css'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -112,19 +112,19 @@ const useZapInWidget = ({
   const [searchParams, setSearchParams] = useSearchParams()
 
   const [addLiquidityPureParams, setAddLiquidityPureParams] = useState<AddLiquidityPureParams | null>(null)
-  const [zapTxHash, setZapTxHash] = useState<string | null>(null)
+  const [zapTxHash, setZapTxHash] = useState<string[]>([])
   const { rpc: zapInRpcUrl } = useKyberSwapConfig(addLiquidityPureParams?.chainId as ChainId | undefined)
 
   const zapStatus = useMemo(() => {
-    if (!zapTxHash) return ZapStatus.INIT
+    if (!allTransactions || !zapTxHash.length) return {}
 
-    if (allTransactions && allTransactions[zapTxHash]) {
-      const zapTx = allTransactions[zapTxHash]
+    return zapTxHash.reduce((acc: Record<string, TxStatus>, txHash) => {
+      const zapTx = allTransactions[txHash]
       if (zapTx?.[0].receipt) {
-        return zapTx?.[0].receipt.status === 1 ? ZapStatus.SUCCESS : ZapStatus.FAILED
-      } else return ZapStatus.PENDING
-    }
-    return ZapStatus.PENDING
+        acc[txHash as keyof typeof acc] = zapTx?.[0].receipt.status === 1 ? TxStatus.SUCCESS : TxStatus.FAILED
+      } else acc[txHash as keyof typeof acc] = TxStatus.PENDING
+      return acc
+    }, {})
   }, [allTransactions, zapTxHash])
 
   const handleCloseZapInWidget = useCallback(() => {
@@ -133,6 +133,7 @@ const useZapInWidget = ({
     searchParams.delete('poolAddress')
     setSearchParams(searchParams)
     setAddLiquidityPureParams(null)
+    setZapTxHash([])
   }, [searchParams, setSearchParams])
 
   const handleNavigateToPosition = useCallback(
@@ -323,7 +324,7 @@ const useZapInWidget = ({
                 })
               }
 
-              setZapTxHash(txHash)
+              setZapTxHash(prev => [...prev, txHash])
               return txHash
             },
           }
@@ -332,17 +333,17 @@ const useZapInWidget = ({
       addLiquidityPureParams,
       zapInRpcUrl,
       refCode,
+      zapStatus,
       account,
       chainId,
       toggleWalletModal,
       handleOpenZapMigration,
       handleCloseZapInWidget,
       handleNavigateToPosition,
+      onRefreshPosition,
       changeNetwork,
       library,
-      onRefreshPosition,
       addTransactionWithType,
-      zapStatus,
     ],
   )
 

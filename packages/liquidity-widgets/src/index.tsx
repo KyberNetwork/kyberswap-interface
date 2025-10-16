@@ -10,7 +10,7 @@ import { ZapContextProvider } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
-import { OnSuccessProps, WidgetProps, ZapStatus } from '@/types/index';
+import { OnSuccessProps, TxStatus, WidgetProps } from '@/types/index';
 
 const LiquidityWidget = (widgetProps: WidgetProps) => {
   const { chainId, poolAddress, poolType, positionId, connectedAccount } = widgetProps;
@@ -76,6 +76,6 @@ const LiquidityWidget = (widgetProps: WidgetProps) => {
   );
 };
 
-export { PoolType, ChainId, LiquidityWidget, ZapStatus };
+export { PoolType, ChainId, LiquidityWidget, TxStatus };
 
 export type { OnSuccessProps };

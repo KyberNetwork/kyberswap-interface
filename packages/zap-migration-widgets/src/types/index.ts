@@ -1,6 +1,6 @@
 import { ChainId, PoolType, Theme } from '@kyber/schema';
 
-export enum ZapStatus {
+export enum TxStatus {
   INIT = 'init',
   PENDING = 'pending',
   SUCCESS = 'success',
@@ -42,7 +42,7 @@ export interface ZapMigrationProps {
   };
   client: string;
   referral?: string;
-  zapStatus?: ZapStatus;
+  zapStatus?: Record<string, TxStatus>;
   onExplorePools?: () => void;
   onConnectWallet: () => void;
   onSwitchChain: () => void;
