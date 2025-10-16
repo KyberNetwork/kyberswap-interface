@@ -1,5 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { ZapOut, ChainId as ZapOutChainId, PoolType as ZapOutDex, ZapStatus } from '@kyberswap/zap-out-widgets'
+import { TxStatus, ZapOut, ChainId as ZapOutChainId, PoolType as ZapOutDex } from '@kyberswap/zap-out-widgets'
 import '@kyberswap/zap-out-widgets/dist/style.css'
 import { useMemo, useState } from 'react'
 
@@ -69,19 +69,19 @@ const useZapOutWidget = (onRefreshPosition?: (props: CheckClosedPositionParams) 
     poolAddress: string
     chainId: ZapOutChainId
   } | null>(null)
-  const [zapTxHash, setZapTxHash] = useState<string | null>(null)
+  const [zapTxHash, setZapTxHash] = useState<string[]>([])
   const { rpc: zapOutRpcUrl } = useKyberSwapConfig(zapOutPureParams?.chainId as ChainId | undefined)
 
   const zapStatus = useMemo(() => {
-    if (!zapTxHash) return ZapStatus.INIT
+    if (!allTransactions || !zapTxHash.length) return {}
 
-    if (allTransactions && allTransactions[zapTxHash]) {
-      const zapTx = allTransactions[zapTxHash]
+    return zapTxHash.reduce((acc: Record<string, TxStatus>, txHash) => {
+      const zapTx = allTransactions[txHash]
       if (zapTx?.[0].receipt) {
-        return zapTx?.[0].receipt.status === 1 ? ZapStatus.SUCCESS : ZapStatus.FAILED
-      } else return ZapStatus.PENDING
-    }
-    return ZapStatus.PENDING
+        acc[txHash as keyof typeof acc] = zapTx?.[0].receipt.status === 1 ? TxStatus.SUCCESS : TxStatus.FAILED
+      } else acc[txHash as keyof typeof acc] = TxStatus.PENDING
+      return acc
+    }, {})
   }, [allTransactions, zapTxHash])
 
   const zapOutParams = useMemo(
@@ -114,6 +114,7 @@ const useZapOutWidget = (onRefreshPosition?: (props: CheckClosedPositionParams) 
                 })
               }, 500)
               setZapOutPureParams(null)
+              setZapTxHash([])
             },
             onConnectWallet: toggleWalletModal,
             onSwitchChain: () => changeNetwork(zapOutPureParams.chainId as number),
@@ -144,7 +145,7 @@ const useZapOutWidget = (onRefreshPosition?: (props: CheckClosedPositionParams) 
                 })
               }
 
-              setZapTxHash(txHash)
+              setZapTxHash(prev => [...prev, txHash])
               return txHash
             },
           }
@@ -187,7 +188,7 @@ const useZapOutWidget = (onRefreshPosition?: (props: CheckClosedPositionParams) 
 
   useAccountChanged(() => {
     setZapOutPureParams(null)
-    setZapTxHash(null)
+    setZapTxHash([])
   })
 
   const widget = zapOutParams ? (
@@ -198,7 +199,7 @@ const useZapOutWidget = (onRefreshPosition?: (props: CheckClosedPositionParams) 
       width={'760px'}
       onDismiss={() => {
         setZapOutPureParams(null)
-        setZapTxHash(null)
+        setZapTxHash([])
       }}
     >
       <ZapOut {...zapOutParams} />

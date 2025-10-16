@@ -39,7 +39,11 @@ export default function useTxStatus({ txHash }: { txHash?: string }) {
   }, [txHash]);
 
   useEffect(() => {
-    if (!zapStatus || !txHash) return;
+    if (!zapStatus) return;
+    if (!txHash || !zapStatus[txHash]) {
+      setTxStatus('');
+      return;
+    }
     if (zapStatus[txHash] === TxStatus.SUCCESS || zapStatus[txHash] === TxStatus.FAILED) {
       setTxStatus(zapStatus[txHash] as 'success' | 'failed');
     } else setTxStatus('');

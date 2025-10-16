@@ -50,6 +50,7 @@ export const Preview = () => {
   const handleSlippage = () => {
     if (slippage !== suggestedSlippage) setSlippage(suggestedSlippage);
     setBuildData(undefined);
+    setTxHash(null);
   };
 
   if (showProcessing) {
@@ -92,6 +93,7 @@ export const Preview = () => {
                   setShowProcessing(false);
                   setError(undefined);
                 }
+                setTxHash(null);
               }}
             >
               Close
@@ -104,13 +106,10 @@ export const Preview = () => {
           </>
         }
         onClose={() => {
-          if (txStatus === 'success') {
-            onClose();
-            setBuildData(undefined);
-          } else if (error) {
-            setShowProcessing(false);
-            setError(undefined);
-          }
+          setBuildData(undefined);
+          setShowProcessing(false);
+          setError(undefined);
+          setTxHash(null);
         }}
       />
     );
@@ -194,7 +193,13 @@ export const Preview = () => {
   };
 
   return (
-    <Dialog open={Boolean(buildData)} onOpenChange={() => setBuildData(undefined)}>
+    <Dialog
+      open={Boolean(buildData)}
+      onOpenChange={() => {
+        setBuildData(undefined);
+        setTxHash(null);
+      }}
+    >
       <DialogContent className="ks-lw-style max-h-[85vh] max-w-[480px] overflow-auto" aria-describedby={undefined}>
         <DialogTitle>Remove Liquidity {mode === 'zapOut' ? 'via Zap' : ''}</DialogTitle>
         <div>
