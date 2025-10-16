@@ -1474,6 +1474,7 @@ msgstr "Active Alerts"
 msgid "Your trade is routed through one of these cross-chain sources."
 msgstr "Your trade is routed through one of these cross-chain sources."
 
+#: src/pages/Earns/components/ClaimModal/index.tsx
 #: src/pages/Earns/UserPositions/DropdownAction.tsx
 msgid "Claim Fees"
 msgstr "Claim Fees"
@@ -3564,10 +3565,6 @@ msgstr "Remove from favorites"
 msgid "Select a token"
 msgstr "Select a token"
 
-#: src/pages/Earns/components/ClaimModal/index.tsx
-msgid "Claim {claimType}"
-msgstr "Claim {claimType}"
-
 #: src/pages/Campaign/components/Information.tsx
 msgid "How to earn points"
 msgstr "How to earn points"
@@ -5366,6 +5363,7 @@ msgstr "Only trading volume from pairs composed of <0>eligible tokens</0> will b
 #: src/pages/Campaign/MyDashboard.tsx
 #: src/pages/Campaign/MyDashboard.tsx
 #: src/pages/Earns/components/ClaimAllModal/index.tsx
+#: src/pages/Earns/components/ClaimModal/index.tsx
 #: src/pages/Earns/PositionDetail/LeftSection.tsx
 #: src/pages/Earns/PositionDetail/RewardSection.tsx
 #: src/pages/Earns/UserPositions/PositionBanner.tsx
@@ -7567,6 +7565,7 @@ msgstr "Total Points: Combined points from all participants"
 
 #: src/components/Menu/index.tsx
 #: src/pages/Earns/components/ClaimAllModal/index.tsx
+#: src/pages/Earns/components/ClaimModal/index.tsx
 #: src/pages/Earns/UserPositions/DropdownAction.tsx
 #: src/pages/ElasticLegacy/FarmLegacy.tsx
 msgid "Claim Rewards"

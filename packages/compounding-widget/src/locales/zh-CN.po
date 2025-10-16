@@ -78,7 +78,7 @@ msgstr "确认"
 #: src/components/PriceRange/index.tsx
 #: src/components/PriceRange/index.tsx
 msgid "{0} per {1}"
-msgstr "每 {1} {0}"
+msgstr "{0} 每 {1}"
 
 #: src/components/PriceRange/index.tsx
 msgid "Your Position Price Ranges"

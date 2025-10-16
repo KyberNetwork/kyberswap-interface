@@ -1474,6 +1474,7 @@ msgstr "进行中的提醒"
 msgid "Your trade is routed through one of these cross-chain sources."
 msgstr "您的交易将通过上述跨链来源之一路由。"
 
+#: src/pages/Earns/components/ClaimModal/index.tsx
 #: src/pages/Earns/UserPositions/DropdownAction.tsx
 msgid "Claim Fees"
 msgstr "领取手续费"
@@ -3564,10 +3565,6 @@ msgstr "从收藏中移除"
 msgid "Select a token"
 msgstr "选择一个代币"
 
-#: src/pages/Earns/components/ClaimModal/index.tsx
-msgid "Claim {claimType}"
-msgstr "领取 {claimType}"
-
 #: src/pages/Campaign/components/Information.tsx
 msgid "How to earn points"
 msgstr "如何获取积分"
@@ -5366,6 +5363,7 @@ msgstr "仅统计由<0>合资格代币</0>组成的交易对的交易量，WETH-
 #: src/pages/Campaign/MyDashboard.tsx
 #: src/pages/Campaign/MyDashboard.tsx
 #: src/pages/Earns/components/ClaimAllModal/index.tsx
+#: src/pages/Earns/components/ClaimModal/index.tsx
 #: src/pages/Earns/PositionDetail/LeftSection.tsx
 #: src/pages/Earns/PositionDetail/RewardSection.tsx
 #: src/pages/Earns/UserPositions/PositionBanner.tsx
@@ -7567,6 +7565,7 @@ msgstr "总代积分：所有参与者的积分总和"
 
 #: src/components/Menu/index.tsx
 #: src/pages/Earns/components/ClaimAllModal/index.tsx
+#: src/pages/Earns/components/ClaimModal/index.tsx
 #: src/pages/Earns/UserPositions/DropdownAction.tsx
 #: src/pages/ElasticLegacy/FarmLegacy.tsx
 msgid "Claim Rewards"
