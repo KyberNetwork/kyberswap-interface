@@ -1,13 +1,14 @@
 import { useState } from 'react';
 
+import { Trans, t } from '@lingui/macro';
+
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, MouseoverTooltip } from '@kyber/ui';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
 import SlippageInput from '@/components/Setting/SlippageInput';
 import { useZapState } from '@/hooks/useZapState';
 
-const MAX_SLIPPAGE_LABEL_TEXT =
-  'Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price. Please use with caution!';
+const MAX_SLIPPAGE_LABEL_TEXT = t`Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price. Please use with caution!`;
 
 export default function SlippageRow({ suggestedSlippage }: { suggestedSlippage: number }) {
   const { slippage } = useZapState();
@@ -37,7 +38,7 @@ export default function SlippageRow({ suggestedSlippage }: { suggestedSlippage: 
                     isSlippageWarning ? 'text-warning border-warning' : '',
                   )}
                 >
-                  Max Slippage
+                  <Trans>Max Slippage</Trans>
                 </div>
               </MouseoverTooltip>
               <div className={cn('mr-1', isSlippageWarning ? 'text-warning' : 'text-text')}>

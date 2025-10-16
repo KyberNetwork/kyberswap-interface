@@ -1168,6 +1168,12 @@ importers:
 
   packages/liquidity-widgets:
     dependencies:
+      '@lingui/core':
+        specifier: ^4.6.0
+        version: 4.14.1
+      '@lingui/react':
+        specifier: ^4.6.0
+        version: 4.14.1(react@18.3.1)
       react:
         specifier: '>=16.8.0'
         version: 18.3.1
@@ -1178,6 +1184,9 @@ importers:
         specifier: ^5.0.0
         version: 5.0.1(@types/react@18.3.12)(react@18.3.1)
     devDependencies:
+      '@babel/core':
+        specifier: ^7.26.0
+        version: 7.26.0
       '@kyber/eslint-config':
         specifier: workspace:*
         version: link:../config-eslint
@@ -1202,6 +1211,12 @@ importers:
       '@kyberswap/liquidity-chart':
         specifier: workspace:^
         version: link:../liquidity-chart
+      '@lingui/cli':
+        specifier: ^4.6.0
+        version: 4.14.1(typescript@5.1.6)
+      '@lingui/macro':
+        specifier: ^4.6.0
+        version: 4.14.1(@lingui/react@4.14.1)(babel-plugin-macros@3.1.0)(typescript@5.1.6)
       '@trivago/prettier-plugin-sort-imports':
         specifier: ^4.2.0
         version: 4.3.0(prettier@3.5.3)
@@ -1220,6 +1235,12 @@ importers:
       autoprefixer:
         specifier: ^10.4.20
         version: 10.4.20(postcss@8.4.49)
+      babel-plugin-macros:
+        specifier: ^3.1.0
+        version: 3.1.0
+      esbuild-plugin-babel:
+        specifier: ^0.2.3
+        version: 0.2.3(@babel/core@7.26.0)
       esbuild-sass-plugin:
         specifier: ^3.3.1
         version: 3.3.1(esbuild@0.24.0)(sass-embedded@1.80.7)

@@ -7,13 +7,14 @@ import Widget from '@/Widget';
 import '@/Widget.scss';
 import '@/globals.css';
 import { ZapContextProvider } from '@/hooks/useZapState';
+import { WidgetI18nProvider } from '@/i18n';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 import { OnSuccessProps, TxStatus, WidgetProps } from '@/types/index';
 
 const LiquidityWidget = (widgetProps: WidgetProps) => {
-  const { chainId, poolAddress, poolType, positionId, connectedAccount } = widgetProps;
+  const { chainId, poolAddress, poolType, positionId, connectedAccount, locale } = widgetProps;
 
   const {
     theme,
@@ -70,9 +71,11 @@ const LiquidityWidget = (widgetProps: WidgetProps) => {
   }, [theme]);
 
   return (
-    <ZapContextProvider>
-      <Widget />
-    </ZapContextProvider>
+    <WidgetI18nProvider locale={locale}>
+      <ZapContextProvider>
+        <Widget />
+      </ZapContextProvider>
+    </WidgetI18nProvider>
   );
 };
 

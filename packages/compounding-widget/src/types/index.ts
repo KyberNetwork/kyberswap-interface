@@ -14,7 +14,6 @@ export interface WidgetProps {
   positionId: string;
   poolType: PoolType;
   chainId: ChainId;
-  locale?: SupportedLocale;
   rpcUrl?: string;
   connectedAccount: {
     address?: string | undefined;
@@ -24,6 +23,7 @@ export interface WidgetProps {
   initAmounts?: string;
   compoundType?: 'COMPOUND_TYPE_REWARD';
   zapStatus?: Record<string, TxStatus>;
+  locale?: SupportedLocale;
   onClose: () => void;
   onConnectWallet: () => void;
   onSwitchChain: () => void;

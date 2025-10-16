@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Trans, t } from '@lingui/macro';
 import { useShallow } from 'zustand/react/shallow';
@@ -8,7 +8,7 @@ import { FARMING_CONTRACTS, univ3PoolNormalize } from '@kyber/schema';
 import { InfoHelper } from '@kyber/ui';
 import { PI_LEVEL, getZapImpact } from '@kyber/utils';
 
-import { ERROR_MESSAGE } from '@/constants';
+import { ERROR_MESSAGE, translateErrorMessage } from '@/constants';
 import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
@@ -100,39 +100,19 @@ export default function Action({
   const isHighZapImpact = zapImpact?.level === PI_LEVEL.HIGH;
   const isInvalidZapImpact = zapImpact?.level === PI_LEVEL.INVALID;
 
-  const loadingLabel = useMemo(() => t`Loading`, []);
-  const fetchingRouteLabel = useMemo(() => t`Fetching Route`, []);
-  const approvingLabel = useMemo(() => t`Approving`, []);
-  const farmingLabel = useMemo(() => t`Your position is in farming`, []);
-  const notOwnerLabel = useMemo(() => t`Not the position owner`, []);
-  const approveNftLabel = useMemo(() => t`Approve NFT`, []);
-  const zapAnywayLabel = useMemo(() => t`Zap anyway`, []);
-  const confirmLabel = useMemo(() => t`Confirm`, []);
-
-  const translateError = (currentError: string) => {
-    switch (currentError) {
-      case ERROR_MESSAGE.CONNECT_WALLET:
-        return t`Connect wallet`;
-      case ERROR_MESSAGE.WRONG_NETWORK:
-        return t`Switch network`;
-      default:
-        return currentError;
-    }
-  };
-
   const btnText = (() => {
-    if (error) return translateError(error);
-    if (initializing) return `${loadingLabel}${'.'.repeat(dots)}`;
+    if (error) return translateErrorMessage(error);
+    if (initializing) return t`Loading${'.'.repeat(dots)}`;
     if (isNotOwner) {
-      if (isFarming) return farmingLabel;
-      return notOwnerLabel;
+      if (isFarming) return t`Your position is in farming`;
+      return t`Not the position owner`;
     }
-    if (zapLoading) return `${fetchingRouteLabel}${'.'.repeat(dots)}`;
-    if (nftApprovePendingTx) return `${approvingLabel}${'.'.repeat(dots)}`;
-    if (positionId && !nftApproved) return approveNftLabel;
-    if (isVeryHighZapImpact || isInvalidZapImpact) return zapAnywayLabel;
+    if (zapLoading) return t`Fetching Route${'.'.repeat(dots)}`;
+    if (nftApprovePendingTx) return t`Approving${'.'.repeat(dots)}`;
+    if (positionId && !nftApproved) return t`Approve NFT`;
+    if (isVeryHighZapImpact || isInvalidZapImpact) return t`Zap anyway`;
 
-    return confirmLabel;
+    return t`Confirm`;
   })();
 
   const hanldeClick = () => {
