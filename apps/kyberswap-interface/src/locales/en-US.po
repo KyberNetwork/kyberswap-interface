@@ -737,6 +737,10 @@ msgstr "Cross-Chain Routing Sources"
 msgid "Are you sure you want to cancel {0} limit orders?"
 msgstr "Are you sure you want to cancel {0} limit orders?"
 
+#: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
+msgid "Est. Paymaster Gas Fee"
+msgstr "Est. Paymaster Gas Fee"
+
 #: src/components/Announcement/Popups/TransactionPopup.tsx
 msgid "You have successfully transferred {postFix}"
 msgstr "You have successfully transferred {postFix}"
@@ -5805,6 +5809,10 @@ msgstr "One token is close to 0% in the pool ratio. Pool might go inactive."
 #: src/components/SwapForm/hooks/useGetInputError.tsx
 msgid "Invalid recipient"
 msgstr "Invalid recipient"
+
+#: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
+msgid "Estimated Total Gas"
+msgstr "Estimated Total Gas"
 
 #: src/pages/KyberDAO/KNCUtility/GasRefundBox.tsx
 msgid "Total Gas Refund"

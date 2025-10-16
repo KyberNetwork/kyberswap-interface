@@ -737,6 +737,10 @@ msgstr "跨链路由来源"
 msgid "Are you sure you want to cancel {0} limit orders?"
 msgstr "您确定要取消 {0} 笔限价订单吗？"
 
+#: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
+msgid "Est. Paymaster Gas Fee"
+msgstr "预计 Paymaster Gas 费用"
+
 #: src/components/Announcement/Popups/TransactionPopup.tsx
 msgid "You have successfully transferred {postFix}"
 msgstr "您已成功转账 {postFix}"
@@ -5805,6 +5809,10 @@ msgstr "一个代币在池中的比例接近0%时，池可能会变得不活跃�
 #: src/components/SwapForm/hooks/useGetInputError.tsx
 msgid "Invalid recipient"
 msgstr "收件人无效"
+
+#: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
+msgid "Estimated Total Gas"
+msgstr "预计总 Gas 费用"
 
 #: src/pages/KyberDAO/KNCUtility/GasRefundBox.tsx
 msgid "Total Gas Refund"
