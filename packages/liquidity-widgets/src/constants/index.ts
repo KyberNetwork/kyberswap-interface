@@ -1,4 +1,7 @@
-import { t } from '@lingui/macro';
+import type { MessageDescriptor } from '@lingui/core';
+import { msg } from '@lingui/macro';
+
+import { i18n } from '@/lingui';
 
 export const MAX_ZAP_IN_TOKENS = 5;
 
@@ -16,19 +19,22 @@ export const ERROR_MESSAGE = {
 
 export type ErrorMessage = (typeof ERROR_MESSAGE)[keyof typeof ERROR_MESSAGE];
 
-const ERROR_MESSAGE_TRANSLATIONS: Record<ErrorMessage, string> = {
-  [ERROR_MESSAGE.CONNECT_WALLET]: t`Connect wallet`,
-  [ERROR_MESSAGE.WRONG_NETWORK]: t`Switch network`,
-  [ERROR_MESSAGE.SELECT_TOKEN_IN]: t`Select token in`,
-  [ERROR_MESSAGE.ENTER_MIN_PRICE]: t`Enter min price`,
-  [ERROR_MESSAGE.ENTER_MAX_PRICE]: t`Enter max price`,
-  [ERROR_MESSAGE.INVALID_PRICE_RANGE]: t`Invalid price range`,
-  [ERROR_MESSAGE.ENTER_AMOUNT]: t`Enter amount`,
-  [ERROR_MESSAGE.INSUFFICIENT_BALANCE]: t`Insufficient balance`,
-  [ERROR_MESSAGE.INVALID_INPUT_AMOUNT]: t`Invalid input amount`,
+const ERROR_MESSAGE_TRANSLATIONS: Record<ErrorMessage, MessageDescriptor> = {
+  [ERROR_MESSAGE.CONNECT_WALLET]: msg`Connect wallet`,
+  [ERROR_MESSAGE.WRONG_NETWORK]: msg`Switch network`,
+  [ERROR_MESSAGE.SELECT_TOKEN_IN]: msg`Select token in`,
+  [ERROR_MESSAGE.ENTER_MIN_PRICE]: msg`Enter min price`,
+  [ERROR_MESSAGE.ENTER_MAX_PRICE]: msg`Enter max price`,
+  [ERROR_MESSAGE.INVALID_PRICE_RANGE]: msg`Invalid price range`,
+  [ERROR_MESSAGE.ENTER_AMOUNT]: msg`Enter amount`,
+  [ERROR_MESSAGE.INSUFFICIENT_BALANCE]: msg`Insufficient balance`,
+  [ERROR_MESSAGE.INVALID_INPUT_AMOUNT]: msg`Invalid input amount`,
 };
 
-export const translateErrorMessage = (error: string) => ERROR_MESSAGE_TRANSLATIONS[error as ErrorMessage] ?? error;
+export const translateErrorMessage = (error: string) => {
+  const descriptor = ERROR_MESSAGE_TRANSLATIONS[error as ErrorMessage];
+  return descriptor ? i18n._(descriptor) : error;
+};
 
 export const getSlippageStorageKey = (
   token0Symbol: string,
