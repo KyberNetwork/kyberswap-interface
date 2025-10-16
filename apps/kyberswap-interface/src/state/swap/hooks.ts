@@ -296,7 +296,7 @@ export const useOutputCurrency = () => {
   return outputCurrency || undefined
 }
 
-export const usePairCategory = (customChainId?: ChainId) => {
+export const usePairCategory = (customChainId?: ChainId): PAIR_CATEGORY => {
   const { chainId } = useActiveWeb3React()
   const inputCurrency = useInputCurrency()
   const outputCurrency = useOutputCurrency()

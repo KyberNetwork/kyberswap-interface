@@ -1,3 +1,4 @@
+import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { darken } from 'polished'
 import { useEffect, useState } from 'react'
@@ -107,7 +108,7 @@ export const BitcoinConnectModal = ({ isOpen, onDismiss }: { isOpen: boolean; on
         <UpperSection>
           <RowBetween marginBottom="26px" gap="20px">
             <Text fontSize="20px" fontWeight="500">
-              {showLedgerType ? 'Select Derivation Path' : 'Connect your Bitcoin Wallet'}
+              {showLedgerType ? t`Select Derivation Path` : t`Connect your Bitcoin Wallet`}
             </Text>
             <CloseIcon
               onClick={() => {
@@ -137,18 +138,20 @@ export const BitcoinConnectModal = ({ isOpen, onDismiss }: { isOpen: boolean; on
                 style={{ marginRight: '12px', height: '14px', width: '14px', minWidth: '14px', cursor: 'pointer' }}
               />
               <Text color={theme.subText}>
-                Accept{' '}
-                <ExternalLink href={TERM_FILES_PATH.KYBERSWAP_TERMS} onClick={e => e.stopPropagation()}>
-                  KyberSwap&lsquo;s Terms of Use
-                </ExternalLink>{' '}
-                and{' '}
-                <ExternalLink href={TERM_FILES_PATH.PRIVACY_POLICY} onClick={e => e.stopPropagation()}>
-                  Privacy Policy
-                </ExternalLink>
-                {'. '}
-                <Text fontSize={10} as="span">
-                  Last updated: {dayjs(TERM_FILES_PATH.VERSION).format('DD MMM YYYY')}
-                </Text>
+                <Trans>
+                  Accept{' '}
+                  <ExternalLink href={TERM_FILES_PATH.KYBERSWAP_TERMS} onClick={e => e.stopPropagation()}>
+                    KyberSwap&lsquo;s Terms of Use
+                  </ExternalLink>{' '}
+                  and{' '}
+                  <ExternalLink href={TERM_FILES_PATH.PRIVACY_POLICY} onClick={e => e.stopPropagation()}>
+                    Privacy Policy
+                  </ExternalLink>
+                  {'. '}
+                  <Text fontSize={10} as="span">
+                    Last updated: {dayjs(TERM_FILES_PATH.VERSION).format('DD MMM YYYY')}
+                  </Text>
+                </Trans>
               </Text>
             </TermAndCondition>
           )}
@@ -168,8 +171,8 @@ export const BitcoinConnectModal = ({ isOpen, onDismiss }: { isOpen: boolean; on
                           console.log('Error connecting Ledger wallet:', error)
                           notify(
                             {
-                              title: `Error`,
-                              summary: error.message || 'Failed to connect Ledger wallet',
+                              title: t`Error`,
+                              summary: error.message || t`Failed to connect Ledger wallet`,
                               type: NotificationType.ERROR,
                             },
                             3000,
@@ -223,7 +226,7 @@ export const BitcoinConnectModal = ({ isOpen, onDismiss }: { isOpen: boolean; on
                         {connectingWallet === wallet.type && <Loader color={theme.white} />}
                       </Flex>
                       <Text color={theme.subText} fontSize={12} minWidth="max-content">
-                        {wallet.isInstalled() && 'Detected'}
+                        {wallet.isInstalled() && t`Detected`}
                       </Text>
                     </Option>
                   )

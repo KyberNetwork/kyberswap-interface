@@ -10,7 +10,7 @@ import { ZapContextProvider } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
-import { WidgetProps, ZapStatus } from '@/types/index';
+import { TxStatus, WidgetProps } from '@/types/index';
 
 import './Widget.scss';
 import './globals.css';
@@ -90,4 +90,4 @@ const CompoundingWidget = (widgetProps: WidgetProps) => {
   );
 };
 
-export { PoolType, ChainId, CompoundingWidget, ZapStatus };
+export { PoolType, ChainId, CompoundingWidget, TxStatus };

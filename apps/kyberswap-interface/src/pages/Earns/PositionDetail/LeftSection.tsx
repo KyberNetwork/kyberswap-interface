@@ -82,7 +82,7 @@ const LeftSection = ({
               {initialLoading ? (
                 <PositionSkeleton width={90} height={19} />
               ) : isUnfinalized ? (
-                <PositionSkeleton width={70} height={19} text="Finalizing..." />
+                <PositionSkeleton width={70} height={19} text={t`Finalizing...`} />
               ) : (position?.earning.in24h || position?.earning.in24h === 0) && !isUniv2 ? (
                 <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '120px' }}>
                   {formatDisplayNumber(position?.earning.in24h, { significantDigits: 4, style: 'currency' })}
@@ -100,7 +100,7 @@ const LeftSection = ({
               {initialLoading ? (
                 <PositionSkeleton width={90} height={19} />
               ) : isUnfinalized ? (
-                <PositionSkeleton width={70} height={19} text="Finalizing..." />
+                <PositionSkeleton width={70} height={19} text={t`Finalizing...`} />
               ) : (position?.earning.in7d || position?.earning.in7d === 0) && !isUniv2 ? (
                 <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '120px' }}>
                   {formatDisplayNumber(position?.earning.in7d, { significantDigits: 4, style: 'currency' })}
@@ -121,7 +121,7 @@ const LeftSection = ({
                 {initialLoading ? (
                   <PositionSkeleton width={90} height={21} />
                 ) : isUnfinalized ? (
-                  <PositionSkeleton width={70} height={19} text="Finalizing..." />
+                  <PositionSkeleton width={70} height={19} text={t`Finalizing...`} />
                 ) : (position?.earning.earned || position?.earning.earned === 0) && position?.earning.earned >= 0 ? (
                   <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '140px' }}>
                     {formatDisplayNumber(position?.earning.earned, { style: 'currency', significantDigits: 4 })}
@@ -147,7 +147,7 @@ const LeftSection = ({
               {initialLoading ? (
                 <PositionSkeleton width={90} height={21} />
               ) : isUnfinalized ? (
-                <PositionSkeleton width={90} height={21} text="Finalizing..." />
+                <PositionSkeleton width={90} height={21} text={t`Finalizing...`} />
               ) : (
                 <Text fontSize={18} sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '160px' }}>
                   {position?.unclaimedFees || position?.unclaimedFees === 0
@@ -164,7 +164,7 @@ const LeftSection = ({
                 {initialLoading ? (
                   <PositionSkeleton width={120} height={19} style={{ marginBottom: 4 }} />
                 ) : isUnfinalized ? (
-                  <PositionSkeleton width={120} height={19} style={{ marginBottom: 4 }} text="Finalizing..." />
+                  <PositionSkeleton width={120} height={19} style={{ marginBottom: 4 }} text={t`Finalizing...`} />
                 ) : (
                   <Flex alignItems={'center'} sx={{ gap: '6px' }} marginBottom={1}>
                     <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '100px' }}>
@@ -183,7 +183,7 @@ const LeftSection = ({
                 {initialLoading ? (
                   <PositionSkeleton width={120} height={19} style={{ marginBottom: 1 }} />
                 ) : isUnfinalized ? (
-                  <PositionSkeleton width={120} height={19} style={{ marginBottom: 1 }} text="Finalizing..." />
+                  <PositionSkeleton width={120} height={19} style={{ marginBottom: 1 }} text={t`Finalizing...`} />
                 ) : (
                   <Flex alignItems={'center'} sx={{ gap: '6px' }}>
                     <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '100px' }}>

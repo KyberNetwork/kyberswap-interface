@@ -1,4 +1,5 @@
 import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
+import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
@@ -182,11 +183,11 @@ export default function Aggregator() {
 
   const usd = campaign === 'referral-program' ? referralRewardUsd : rewardUsd
 
-  const startEndIn =
-    type === CampaignType.MayTrading
-      ? `${isNotStart ? 'Starting in' : isEnd ? 'Ended at' : 'Ending in'}`
-      : `Week ${selectedWeek - startWeek + 1} ${isNotStart ? 'starting in' : isEnd ? 'ended at' : 'ending in'}`
-  const estRewardText = 'My Est. Rewards'
+  const weekIndex = selectedWeek - startWeek + 1
+  const statusText = isNotStart ? t`starting in` : isEnd ? t`ended at` : t`ending in`
+  const statusTextUp = isNotStart ? t`Starting in` : isEnd ? t`Ended at` : t`Ending in`
+  const startEndIn = type === CampaignType.MayTrading ? statusTextUp : t`Week ${weekIndex} ${statusText}`
+  const estRewardText = t`My Est. Rewards`
 
   useEffect(() => {
     searchParams.set('page', '1')
@@ -200,22 +201,24 @@ export default function Aggregator() {
     <InfoHelper
       text={
         <Text>
-          The Estimated Rewards will vary based on the points earned by you and all campaign participants during the
-          week. Check out how they are calculated in the{' '}
-          <StyledInternalLink
-            to={
-              campaign === 'trading-incentive'
-                ? type === CampaignType.Aggregator
-                  ? '/campaigns/aggregator?tab=information'
-                  : '/campaigns/may-trading?tab=information'
-                : campaign === 'limit-order-farming'
-                ? '/campaigns/limit-order?tab=information'
-                : '/campaigns/referrals?tab=information'
-            }
-          >
-            Information
-          </StyledInternalLink>{' '}
-          tab.
+          <Trans>
+            The Estimated Rewards will vary based on the points earned by you and all campaign participants during the
+            week. Check out how they are calculated in the{' '}
+            <StyledInternalLink
+              to={
+                campaign === 'trading-incentive'
+                  ? type === CampaignType.Aggregator
+                    ? '/campaigns/aggregator?tab=information'
+                    : '/campaigns/may-trading?tab=information'
+                  : campaign === 'limit-order-farming'
+                  ? '/campaigns/limit-order?tab=information'
+                  : '/campaigns/referrals?tab=information'
+              }
+            >
+              Information
+            </StyledInternalLink>{' '}
+            tab.
+          </Trans>
         </Text>
       }
     />
@@ -262,7 +265,7 @@ export default function Aggregator() {
                 {value?.label}{' '}
                 {value?.value === w && year === new Date().getFullYear() ? (
                   <Text as="span" color={theme.red1} fontSize={12} ml="4px">
-                    Active
+                    <Trans>Active</Trans>
                   </Text>
                 ) : (
                   ''
@@ -312,7 +315,7 @@ export default function Aggregator() {
 
           <StatCard style={{ flex: 1 }}>
             <Text fontSize={14} color={theme.subText}>
-              Participants
+              <Trans>Participants</Trans>
             </Text>
             <Text marginTop="8px" fontSize={20} fontWeight="500">
               {campaign === 'referral-program'
@@ -335,7 +338,7 @@ export default function Aggregator() {
           <Flex width="100%" sx={{ gap: '12px' }} flexDirection={upToSmall ? 'column' : 'row'}>
             <StatCard style={{ flex: 1 }}>
               <Text fontSize={14} color={theme.subText}>
-                {campaign === 'referral-program' ? 'My referrals' : 'My Earned Points'}
+                {campaign === 'referral-program' ? t`My referrals` : t`My Earned Points`}
               </Text>
               <Text marginTop="8px" fontSize={20} fontWeight="500">
                 {campaign === 'referral-program'
@@ -373,7 +376,7 @@ export default function Aggregator() {
               setSearchParams(searchParams)
             }}
           >
-            Information
+            <Trans>Information</Trans>
           </Tab>
           <Tab
             role="button"
@@ -383,11 +386,13 @@ export default function Aggregator() {
               setSearchParams(searchParams)
             }}
           >
-            Leaderboard
+            <Trans>Leaderboard</Trans>
           </Tab>
         </Tabs>
 
-        <StyledInternalLink to={`${APP_PATHS.MY_DASHBOARD}?tab=${type}`}>[ My Dashboard ]</StyledInternalLink>
+        <StyledInternalLink to={`${APP_PATHS.MY_DASHBOARD}?tab=${type}`}>
+          <Trans>[ My Dashboard ]</Trans>
+        </StyledInternalLink>
       </Flex>
 
       {tab === 'information' && <Information type={type} week={selectedWeek} />}

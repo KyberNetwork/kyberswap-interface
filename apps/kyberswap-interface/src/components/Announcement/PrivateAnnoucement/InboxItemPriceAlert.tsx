@@ -61,7 +61,7 @@ function InboxItemBridge({
         </RowItem>
         <RowItem>
           <ButtonLight height={'24px'} style={{ display: 'flex', gap: '6px', padding: '12px 10px' }}>
-            <Repeat size={16} /> Swap
+            <Repeat size={16} /> <Trans>Swap</Trans>
           </ButtonLight>
         </RowItem>
       </InboxItemRow>

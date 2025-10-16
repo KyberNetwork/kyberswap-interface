@@ -151,7 +151,7 @@ const PoolExplorer = () => {
         notify(
           {
             title: t`Open pool detail failed`,
-            summary: `Invalid pool info`,
+            summary: t`Invalid pool info`,
             type: NotificationType.ERROR,
           },
           5000,

@@ -30,7 +30,6 @@ import { useZapStore } from '@/stores/useZapStore';
 
 export function Preview({
   onSubmitTx,
-  onClose,
   onViewPosition,
   onExplorePools,
 }: {
@@ -43,7 +42,6 @@ export function Preview({
       destinationDexLogo: string;
     },
   ) => Promise<string>;
-  onClose: () => void;
   onViewPosition?: (txHash: string) => void;
   onExplorePools?: () => void;
 }) {
@@ -175,10 +173,7 @@ export function Preview({
             ) : null}
           </>
         }
-        onClose={() => {
-          if (txStatus === 'success') onClose();
-          onDismiss();
-        }}
+        onClose={onDismiss}
       />
     );
   }

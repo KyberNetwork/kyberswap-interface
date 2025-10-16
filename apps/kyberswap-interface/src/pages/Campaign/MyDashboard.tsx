@@ -1,4 +1,5 @@
 import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
+import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { useState } from 'react'
 import { MoreHorizontal } from 'react-feather'
@@ -71,6 +72,14 @@ const MyDashboard = () => {
   }
 
   const { reward, baseWeek, banner } = campaignConfig[tab]
+
+  const campaignLabelMap: Record<CampaignType, string> = {
+    [CampaignType.NearIntents]: t`Cross Chain`,
+    [CampaignType.MayTrading]: t`May Trading`,
+    [CampaignType.Aggregator]: t`Trading`,
+    [CampaignType.LimitOrder]: t`Limit Order`,
+    [CampaignType.Referrals]: t`Referral`,
+  }
 
   const mockToken = new Token(1, ZERO_ADDRESS, 18, 'mock')
 
@@ -215,19 +224,19 @@ const MyDashboard = () => {
   const endedCampaigns = [
     {
       type: CampaignType.MayTrading,
-      label: 'May Trading',
+      label: campaignLabelMap[CampaignType.MayTrading],
     },
     {
       type: CampaignType.Aggregator,
-      label: 'Trading',
+      label: campaignLabelMap[CampaignType.Aggregator],
     },
     {
       type: CampaignType.LimitOrder,
-      label: 'Limit Order',
+      label: campaignLabelMap[CampaignType.LimitOrder],
     },
     {
       type: CampaignType.Referrals,
-      label: 'Referral',
+      label: campaignLabelMap[CampaignType.Referrals],
     },
   ].filter(
     item =>
@@ -241,24 +250,26 @@ const MyDashboard = () => {
     <InfoHelper
       text={
         <Text>
-          The Estimated Rewards will vary based on the points earned by you and all campaign participants during the
-          week. Check out how they are calculated in the{' '}
-          <StyledInternalLink
-            to={
-              tab === CampaignType.NearIntents
-                ? '/campaigns/near-intents?tab=information'
-                : tab === CampaignType.MayTrading
-                ? '/campaigns/may-trading?tab=information'
-                : tab === CampaignType.Aggregator
-                ? '/campaigns/aggregator?tab=information'
-                : CampaignType.LimitOrder === tab
-                ? '/campaigns/limit-order?tab=information'
-                : '/campaigns/referrals?tab=information'
-            }
-          >
-            Information
-          </StyledInternalLink>{' '}
-          tab.
+          <Trans>
+            The Estimated Rewards will vary based on the points earned by you and all campaign participants during the
+            week. Check out how they are calculated in the{' '}
+            <StyledInternalLink
+              to={
+                tab === CampaignType.NearIntents
+                  ? '/campaigns/near-intents?tab=information'
+                  : tab === CampaignType.MayTrading
+                  ? '/campaigns/may-trading?tab=information'
+                  : tab === CampaignType.Aggregator
+                  ? '/campaigns/aggregator?tab=information'
+                  : CampaignType.LimitOrder === tab
+                  ? '/campaigns/limit-order?tab=information'
+                  : '/campaigns/referrals?tab=information'
+              }
+            >
+              Information
+            </StyledInternalLink>{' '}
+            tab.
+          </Trans>
         </Text>
       }
     />
@@ -273,7 +284,7 @@ const MyDashboard = () => {
           onClick={() => navigate(APP_PATHS.NEAR_INTENTS_CAMPAIGN)}
         />
         <Text fontSize={24} fontWeight="500">
-          My Dashboard
+          <Trans>My Dashboard</Trans>
         </Text>
       </Flex>
 
@@ -287,7 +298,9 @@ const MyDashboard = () => {
           }}
         >
           <Flex justifyContent="space-between" alignItems="center">
-            <Text>My Est. Rewards {infor}</Text>
+            <Text>
+              <Trans>My Est. Rewards</Trans> {infor}
+            </Text>
           </Flex>
           {account && stipTradingRw?.greaterThan('0') && (
             <Flex alignItems="center" sx={{ gap: '4px' }} fontSize={24} marginTop="0.5rem">
@@ -319,7 +332,7 @@ const MyDashboard = () => {
             </Flex>
           )}
           <Text fontStyle="italic" color={theme.subText} mt="12px">
-            The current rewards are based on your current rank. See Information for details.
+            <Trans>The current rewards are based on your current rank. See Information for details.</Trans>
           </Text>
         </Box>
 
@@ -331,7 +344,9 @@ const MyDashboard = () => {
             flex: 1,
           }}
         >
-          <Text>My claim-able rewards</Text>
+          <Text>
+            <Trans>My claim-able rewards</Trans>
+          </Text>
 
           {account && stipTradingRw?.greaterThan('0') && (
             <Flex alignItems="center" sx={{ gap: '4px' }} fontSize={24} marginTop="0.5rem">
@@ -355,7 +370,7 @@ const MyDashboard = () => {
           </Flex>
 
           <Text fontStyle="italic" color={theme.subText} mt="12px">
-            Total final rewards that you can claim for the campaign.
+            <Trans>Total final rewards that you can claim for the campaign.</Trans>
           </Text>
         </Box>
       </Flex>
@@ -367,7 +382,10 @@ const MyDashboard = () => {
           onClick={() => changeTab(CampaignType.NearIntents)}
         >
           <Flex>
-            Cross Chain <NewLabel>NEW</NewLabel>
+            <Trans>Cross Chain</Trans>{' '}
+            <NewLabel>
+              <Trans>NEW</Trans>
+            </NewLabel>
           </Flex>
         </Tab>
         {!upToSmall ? (
@@ -381,7 +399,9 @@ const MyDashboard = () => {
               >
                 <Flex>
                   {campaign.label}
-                  <ELabel>ENDED</ELabel>
+                  <ELabel>
+                    <Trans>ENDED</Trans>
+                  </ELabel>
                 </Flex>
               </Tab>
             ))}
@@ -395,14 +415,12 @@ const MyDashboard = () => {
               }}
             >
               <Flex>
-                {tab === CampaignType.Referrals
-                  ? 'Referral'
-                  : tab === CampaignType.Aggregator
-                  ? 'Trading'
-                  : tab === CampaignType.LimitOrder
-                  ? 'Limit Order'
-                  : endedCampaigns?.[0]?.label || ''}
-                {endedCampaigns.length > 0 && <ELabel>ENDED</ELabel>}
+                {tab === CampaignType.NearIntents ? endedCampaigns?.[0]?.label || '' : campaignLabelMap[tab]}
+                {endedCampaigns.length > 0 && (
+                  <ELabel>
+                    <Trans>ENDED</Trans>
+                  </ELabel>
+                )}
               </Flex>
             </Tab>
             {endedCampaigns.length > 0 && (
@@ -433,7 +451,9 @@ const MyDashboard = () => {
                   >
                     <Flex>
                       {campaign.label}
-                      <ELabel>ENDED</ELabel>
+                      <ELabel>
+                        <Trans>ENDED</Trans>
+                      </ELabel>
                     </Flex>
                   </Tab>
                 ))}
@@ -447,7 +467,7 @@ const MyDashboard = () => {
         <MyNearIntentDashboard reward={reward} />
       ) : !account ? (
         <Text marginTop="30px" textAlign="center" color={theme.subText}>
-          Please connect wallet to view your Dashboard
+          <Trans>Please connect wallet to view your Dashboard</Trans>
         </Text>
       ) : tab === CampaignType.Referrals ? (
         <MyReferralDashboard price={stipRewardPrice} infor={infor} />
@@ -462,13 +482,17 @@ const MyDashboard = () => {
             }}
           >
             <div>
-              <Text color={theme.subText}>Total point earned</Text>
+              <Text color={theme.subText}>
+                <Trans>Total point earned</Trans>
+              </Text>
               <Text marginTop="8px" fontSize={18} fontWeight="500">
                 {formatDisplayNumber(Math.floor(data?.data?.totalPoint || 0), { significantDigits: 4 })}
               </Text>
             </div>
             <div>
-              <Text color={theme.subText}>Total est. rewards {infor}</Text>
+              <Text color={theme.subText}>
+                <Trans>Total est. rewards</Trans> {infor}
+              </Text>
               <Flex sx={{ gap: '4px' }} marginTop="8px" alignItems="center">
                 <img
                   src={rewardTokenLogo}
@@ -489,7 +513,9 @@ const MyDashboard = () => {
               </Flex>
             </div>
             <div>
-              <Text color={theme.subText}>Total Claim-able rewards</Text>
+              <Text color={theme.subText}>
+                <Trans>Total Claim-able rewards</Trans>
+              </Text>
               <Flex sx={{ gap: '4px' }} marginTop="8px" alignItems="center">
                 <img
                   src={rewardTokenLogo}
@@ -517,10 +543,18 @@ const MyDashboard = () => {
 
           {!upToSmall && (
             <TableHeader>
-              <Text>WEEK</Text>
-              <Text textAlign="right">POINTS EARNED</Text>
-              <Text textAlign="right">ESTIMATED REWARDS {infor}</Text>
-              <Text textAlign="right">TOTAL CLAIMABLE REWARDS</Text>
+              <Text>
+                <Trans>WEEK</Trans>
+              </Text>
+              <Text textAlign="right">
+                <Trans>POINTS EARNED</Trans>
+              </Text>
+              <Text textAlign="right">
+                <Trans>ESTIMATED REWARDS</Trans> {infor}
+              </Text>
+              <Text textAlign="right">
+                <Trans>TOTAL CLAIMABLE REWARDS</Trans>
+              </Text>
             </TableHeader>
           )}
 
@@ -528,7 +562,7 @@ const MyDashboard = () => {
 
           {!data?.data?.weeklyRewards?.length && (
             <Text color={theme.subText} textAlign="center" marginTop="24px">
-              No data found
+              <Trans>No data found</Trans>
             </Text>
           )}
           {data?.data?.weeklyRewards?.map((item, idx) => {
@@ -548,11 +582,12 @@ const MyDashboard = () => {
                 <Box paddingY="1rem" sx={{ borderBottom: `1px solid ${theme.border}` }} key={idx}>
                   <Flex justifyContent="space-between" alignItems="center">
                     <Text color={theme.subText}>
-                      Week {item.week - baseWeek}: {dayjs(date).format('MMM DD')} - {dayjs(end).format('MMM DD')}
+                      <Trans>Week {item.week - baseWeek}:</Trans> {dayjs(date).format('MMM DD')} -{' '}
+                      {dayjs(end).format('MMM DD')}
                     </Text>
                     {!canClaim ? (
                       <ButtonOutlined width="88px" height="32px" disabled>
-                        {item.isClaimed ? 'Claimed' : 'Claim'}
+                        {item.isClaimed ? <Trans>Claimed</Trans> : <Trans>Claim</Trans>}
                       </ButtonOutlined>
                     ) : (
                       <ClaimBtn info={item.claimInfo} />
@@ -561,7 +596,7 @@ const MyDashboard = () => {
 
                   <Flex justifyContent="space-between" alignItems="center" mt="1rem">
                     <Text color={theme.subText} fontSize={12} fontWeight={500}>
-                      POINTS EARNED
+                      <Trans>POINTS EARNED</Trans>
                     </Text>
                     <Text textAlign="right">
                       {formatDisplayNumber(Math.floor(item.point), { significantDigits: 4 })}
@@ -570,7 +605,7 @@ const MyDashboard = () => {
 
                   <Flex justifyContent="space-between" alignItems="center" mt="0.5rem">
                     <Text color={theme.subText} fontSize={12} fontWeight={500}>
-                      ESTIMATED REWARDS {infor}
+                      <Trans>ESTIMATED REWARDS</Trans> {infor}
                     </Text>
                     <Flex justifyContent="flex-end" alignItems="flex-end" flexDirection="column">
                       <Text>
@@ -586,7 +621,7 @@ const MyDashboard = () => {
                   </Flex>
                   <Flex justifyContent="space-between" alignItems="center" mt="0.5rem">
                     <Text color={theme.subText} fontSize={12} fontWeight={500}>
-                      CLAIMABLE REWARDS
+                      <Trans>CLAIMABLE REWARDS</Trans>
                     </Text>
                     <Flex justifyContent="flex-end" alignItems="flex-end" flexDirection="column">
                       <Text>
@@ -606,7 +641,8 @@ const MyDashboard = () => {
             return (
               <TableRow key={`${item.year}-${item.week}`}>
                 <Text color={theme.subText}>
-                  Week {item.week - baseWeek}: {dayjs(date).format('MMM DD')} - {dayjs(end).format('MMM DD')}
+                  <Trans>Week {item.week - baseWeek}:</Trans> {dayjs(date).format('MMM DD')} -{' '}
+                  {dayjs(end).format('MMM DD')}
                 </Text>
                 <Text textAlign="right">
                   {formatDisplayNumber(Math.floor(item.point * 10) / 10, { significantDigits: 4 })}
@@ -638,7 +674,7 @@ const MyDashboard = () => {
                 <Flex justifyContent="flex-end">
                   {!canClaim ? (
                     <ButtonOutlined width="88px" height="32px" disabled>
-                      {item.isClaimed ? 'Claimed' : 'Claim'}
+                      {item.isClaimed ? <Trans>Claimed</Trans> : <Trans>Claim</Trans>}
                     </ButtonOutlined>
                   ) : (
                     <ClaimBtn info={item.claimInfo} />

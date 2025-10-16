@@ -1,4 +1,5 @@
 import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
+import { Trans } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { ReactNode } from 'react'
 import { useSearchParams } from 'react-router-dom'
@@ -53,7 +54,7 @@ export default function MyReferralDashboard({ price, infor }: { price: number; i
       <Flex mb="24px" sx={{ gap: '1rem' }}>
         <Box flex={1}>
           <Text color={theme.subText} fontSize={14}>
-            My total referrals
+            <Trans>My total referrals</Trans>
           </Text>
           <Text fontSize={18} fontWeight="500" color={theme.text} marginTop="8px">
             {totalItem ? formatDisplayNumber(totalItem.toFixed(3), { significantDigits: 6 }) : '--'}
@@ -62,7 +63,7 @@ export default function MyReferralDashboard({ price, infor }: { price: number; i
 
         <Box flex={upToSmall ? 1 : 2}>
           <Text color={theme.subText} fontSize={14}>
-            My Est. Rewards {infor}
+            <Trans>My Est. Rewards</Trans> {infor}
           </Text>
           <Flex
             fontSize={18}
@@ -93,15 +94,19 @@ export default function MyReferralDashboard({ price, infor }: { price: number; i
       <Divider />
 
       <Flex padding="1rem 0" color={theme.subText} fontSize="12px" fontWeight="500">
-        <Text flex={1}>TIME</Text>
-        <Text flex={1}>REFEREES WALLET ADDRESSES</Text>
+        <Text flex={1}>
+          <Trans>TIME</Trans>
+        </Text>
+        <Text flex={1}>
+          <Trans>REFEREES WALLET ADDRESSES</Trans>
+        </Text>
       </Flex>
 
       <Divider />
 
       {(!userRefCode || error || !userReferralData?.data.referrals.length || participantError) && (
         <Text color={theme.subText} padding="30px" textAlign="center">
-          No data found
+          <Trans>No data found</Trans>
         </Text>
       )}
 
