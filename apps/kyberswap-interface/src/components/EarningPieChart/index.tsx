@@ -212,7 +212,7 @@ const EarningPieChart: React.FC<Props> = ({
     if (data.length === 0) {
       return [
         {
-          title: 'empty',
+          title: t`empty`,
           value: 100,
           color: theme.subText,
         },

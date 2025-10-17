@@ -280,7 +280,7 @@ export default function TableContent({
         <Text color={theme.subText}>{t`You don't have any liquidity positions yet`}.</Text>
         <Link to={APP_PATHS.EARN_POOLS}>{t`Explore Liquidity Pools to get started`}!</Link>
       </Flex>
-      {!account && <PositionActionBtn onClick={toggleWalletModal}>Connect Wallet</PositionActionBtn>}
+      {!account && <PositionActionBtn onClick={toggleWalletModal}>{t`Connect Wallet`}</PositionActionBtn>}
     </EmptyPositionText>
   )
 
@@ -479,7 +479,7 @@ export default function TableContent({
                     <PositionValueLabel>{t`APR`}</PositionValueLabel>
 
                     {isUnfinalized ? (
-                      <PositionSkeleton width={80} height={19} text="Finalizing..." />
+                      <PositionSkeleton width={80} height={19} text={t`Finalizing...`} />
                     ) : isWaitingForRewards ? (
                       <RewardSyncing width={70} height={19} />
                     ) : (
@@ -538,7 +538,7 @@ export default function TableContent({
                     <PositionValueLabel>{t`Unclaimed Fee`}</PositionValueLabel>
 
                     {isUnfinalized ? (
-                      <PositionSkeleton width={80} height={19} text="Finalizing..." />
+                      <PositionSkeleton width={80} height={19} text={t`Finalizing...`} />
                     ) : (
                       <MouseoverTooltipDesktopOnly
                         text={
@@ -567,7 +567,7 @@ export default function TableContent({
                   <PositionValueWrapper align={!upToLarge ? 'center' : ''}>
                     <PositionValueLabel>{t`Unclaimed rewards`}</PositionValueLabel>
                     {isUnfinalized ? (
-                      <PositionSkeleton width={80} height={19} text="Finalizing..." />
+                      <PositionSkeleton width={80} height={19} text={t`Finalizing...`} />
                     ) : isWaitingForRewards ? (
                       <RewardSyncing width={80} height={19} />
                     ) : (
@@ -648,7 +648,7 @@ export default function TableContent({
                         />
                       )
                     ) : isUnfinalized ? (
-                      <PositionSkeleton width={80} height={19} text="Finalizing..." />
+                      <PositionSkeleton width={80} height={19} text={t`Finalizing...`} />
                     ) : (
                       <PriceRange
                         minPrice={priceRange.min}
@@ -665,7 +665,7 @@ export default function TableContent({
                   {/* Actions info */}
                   {!upToLarge && (
                     <PositionValueWrapper align="flex-end">
-                      {isUnfinalized ? <PositionSkeleton width={80} height={19} text="Finalizing..." /> : actions}
+                      {isUnfinalized ? <PositionSkeleton width={80} height={19} text={t`Finalizing...`} /> : actions}
                     </PositionValueWrapper>
                   )}
                 </PositionRow>

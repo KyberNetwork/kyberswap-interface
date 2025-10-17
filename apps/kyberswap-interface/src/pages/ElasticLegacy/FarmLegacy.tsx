@@ -1,4 +1,5 @@
 import { CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { Trans, t } from '@lingui/macro'
 import { useState } from 'react'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
@@ -146,7 +147,7 @@ export default function FarmLegacy({
           hash,
           type: TRANSACTION_TYPE.CLAIM_REWARD,
           extraInfo: {
-            summary: 'farming rewards',
+            summary: t`Farming rewards`,
           },
         })
       } catch (e) {
@@ -161,7 +162,7 @@ export default function FarmLegacy({
   const handleWithdraw = async () => {
     setShowConfirmModal('withdraw')
     if (!farmContract) {
-      setErrorMessage('No contract found')
+      setErrorMessage(t`No contract found`)
       return
     }
 
@@ -188,46 +189,57 @@ export default function FarmLegacy({
   return (
     <Wrapper>
       <Text>
-        We paused all our Elastic farms on 18 April 2023, 4pm UTC. Information on this can be found in our announcement{' '}
-        <ExternalLink href="https://twitter.com/KyberNetwork/status/1648265647858790400?s=20">here</ExternalLink>
+        <Trans>
+          We paused all our Elastic farms on 18 April 2023, 4pm UTC. Information on this can be found in our
+          announcement{' '}
+          <ExternalLink href="https://twitter.com/KyberNetwork/status/1648265647858790400?s=20">here</ExternalLink>
+        </Trans>
       </Text>
 
       {!!numberOfPosition && claimInfo ? (
         <Text>
-          You still have{' '}
-          <Text color={theme.warning} as="span">
-            {numberOfPosition} liquidity positions
-          </Text>{' '}
-          and{' '}
-          <Text color={theme.warning} as="span">
-            {formatDollarAmount(unclaimedUSD)} unclaimed farming rewards
-          </Text>{' '}
-          that you haven&apos;t withdrawn from the Elastic farms yet. You will first need to withdraw all your liquidity
-          positions by clicking on ‘Withdraw Positions’ button before you can claim your reward by clicking the
-          &apos;Claim Rewards&apos; button{' '}
+          <Trans>
+            You still have{' '}
+            <Text color={theme.warning} as="span">
+              {numberOfPosition}
+            </Text>{' '}
+            liquidity positions and{' '}
+            <Text color={theme.warning} as="span">
+              {formatDollarAmount(unclaimedUSD)}
+            </Text>{' '}
+            unclaimed farming rewards that you haven&apos;t withdrawn from the Elastic farms yet. You will first need to
+            withdraw all your liquidity positions by clicking on the &quot;Withdraw Positions&quot; button before you
+            can claim your reward by clicking the &quot;Claim Rewards&quot; button.
+          </Trans>
         </Text>
       ) : !!numberOfPosition ? (
         <Text>
-          You still have{' '}
-          <Text as="span" color={theme.warning}>
-            {numberOfPosition} liquidity positions
-          </Text>{' '}
-          that you haven&apos;t withdrawn from the Elastic farms yet, please withdraw and remove your funds on Elastic
-          as soon as possible
+          <Trans>
+            You still have{' '}
+            <Text as="span" color={theme.warning}>
+              {numberOfPosition}
+            </Text>{' '}
+            liquidity positions that you haven&apos;t withdrawn from the Elastic farms yet, please withdraw and remove
+            your funds on Elastic as soon as possible.
+          </Trans>
         </Text>
       ) : (
         <Text>
-          You are eligible for{' '}
-          <Text as="span" color={theme.warning}>
-            {formatDollarAmount(unclaimedUSD)} unclaimed farming rewards
-          </Text>
-          , you can claim them by clicking the &apos;Claim Rewards&apos; button below.
+          <Trans>
+            You are eligible for{' '}
+            <Text as="span" color={theme.warning}>
+              {formatDollarAmount(unclaimedUSD)}
+            </Text>{' '}
+            unclaimed farming rewards, you can claim them by clicking the &quot;Claim Rewards&quot; button below.
+          </Trans>
         </Text>
       )}
 
       {!!numberOfPosition && (
         <Flex alignItems="center" sx={{ gap: '8px' }} justifyContent="flex-end" marginY="1rem">
-          <Text fontSize="12px">Total Rewards</Text>
+          <Text fontSize="12px">
+            <Trans>Total Rewards</Trans>
+          </Text>
           <Text fontSize="1rem" fontWeight="500" color={theme.text}>
             {formatDollarAmount(unclaimedUSD)}
           </Text>
@@ -237,10 +249,18 @@ export default function FarmLegacy({
       <OverFlow>
         {!!numberOfPosition && (
           <TableHeader>
-            <Text textAlign="left">NFT ID</Text>
-            <Text textAlign="left">FARMS</Text>
-            <Text textAlign="left">STAKED LIQUIDITY</Text>
-            <Text textAlign="right">REWARD</Text>
+            <Text textAlign="left">
+              <Trans>NFT ID</Trans>
+            </Text>
+            <Text textAlign="left">
+              <Trans>Farms</Trans>
+            </Text>
+            <Text textAlign="left">
+              <Trans>Staked liquidity</Trans>
+            </Text>
+            <Text textAlign="right">
+              <Trans>Reward</Trans>
+            </Text>
           </TableHeader>
         )}
 
@@ -265,7 +285,9 @@ export default function FarmLegacy({
                 <Text color={theme.primary}>
                   {token0.symbol} - {token1.symbol}
                 </Text>
-                <FeeTag>Fee {((Number(item.pool?.feeTier) || 0) * 100) / ELASTIC_BASE_FEE_UNIT}%</FeeTag>
+                <FeeTag>
+                  <Trans>Fee {((Number(item.pool?.feeTier) || 0) * 100) / ELASTIC_BASE_FEE_UNIT}%</Trans>
+                </FeeTag>
               </Flex>
               <Flex alignItems="center" justifyContent="flex-start" width="fit-content">
                 <MouseoverTooltip
@@ -318,12 +340,12 @@ export default function FarmLegacy({
             padding="8px"
             style={{ border: `1px solid ${theme.red}` }}
           >
-            Withdraw Positions
+            <Trans>Withdraw Positions</Trans>
           </ButtonLight>
         )}
         {claimInfo && (
           <ButtonPrimary width="170px" padding="8px" onClick={handleClaimRewards}>
-            Claim Rewards
+            <Trans>Claim Rewards</Trans>
           </ButtonPrimary>
         )}
       </Flex>
@@ -333,7 +355,7 @@ export default function FarmLegacy({
         onDismiss={handleDismiss}
         hash={txHash}
         attemptingTxn={attemptingTxn}
-        pendingText={`Claiming Rewards`}
+        pendingText={t`Claiming rewards`}
         content={() => (
           <Flex flexDirection={'column'} width="100%">
             {errorMessage ? <TransactionErrorContent onDismiss={handleDismiss} message={errorMessage} /> : null}

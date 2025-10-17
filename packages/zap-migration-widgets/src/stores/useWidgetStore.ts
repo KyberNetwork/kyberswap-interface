@@ -3,7 +3,7 @@ import { useShallow } from 'zustand/shallow';
 
 import { ChainId, NETWORKS_INFO, PoolType, Theme, defaultTheme } from '@kyber/schema';
 
-import { ZapStatus } from '@/types/index';
+import { TxStatus } from '@/types/index';
 
 interface WidgetProps {
   chainId: ChainId;
@@ -18,7 +18,7 @@ interface WidgetProps {
     address: string | undefined;
     chainId: number;
   };
-  zapStatus?: ZapStatus;
+  zapStatus?: Record<string, TxStatus>;
 }
 
 interface WidgetState extends WidgetProps {

@@ -1,4 +1,5 @@
 import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
+import { Trans, t } from '@lingui/macro'
 import { useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
@@ -91,7 +92,7 @@ export default function Leaderboard({
       {campaign !== 'referral-program' && (
         <>
           <Text fontSize={16} color={theme.subText} mb="1rem">
-            Your rank{' '}
+            <Trans>Your rank</Trans>{' '}
             <Text color={theme.text} fontWeight="500" as="span" fontSize={18}>
               {userData?.data?.rank || '--'}
             </Text>
@@ -104,21 +105,21 @@ export default function Leaderboard({
       <Flex padding={upToSmall ? '1rem 0' : '1rem 1.25rem'} fontSize={12} fontWeight="500" color={theme.subText}>
         {campaign !== 'referral-program' && (
           <Text width={upToSmall ? '30px' : '50px'} textAlign="center">
-            RANK
+            {t`RANK`}
           </Text>
         )}
 
         <Text flex={1} marginLeft={campaign === 'referral-program' ? 0 : '1.25rem'}>
-          WALLET
+          {t`WALLET`}
         </Text>
 
         <Text width={campaign === 'referral-program' ? '150px' : '80px'} marginLeft="1.25rem" textAlign="right">
-          {campaign === 'referral-program' ? 'NUMBER OF REFERRALS' : 'POINTS'}
+          {campaign === 'referral-program' ? t`NUMBER OF REFERRALS` : t`POINTS`}
         </Text>
 
         {showReward && (
           <Text width={!upToSmall ? '150px' : '80px'} marginLeft="1.25rem" textAlign="right">
-            REWARDS
+            {t`REWARDS`}
           </Text>
         )}
       </Flex>
@@ -170,7 +171,7 @@ export default function Leaderboard({
       {!isLoading &&
         (campaign === 'referral-program' ? !referralData?.data.referrals.length : !data?.data?.leaderBoards.length) && (
           <Text color={theme.subText} textAlign="center" padding="24px" marginTop="24px">
-            No data found
+            {t`No data found`}
           </Text>
         )}
 

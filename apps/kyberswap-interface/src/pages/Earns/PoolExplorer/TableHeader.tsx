@@ -22,8 +22,8 @@ const TableHeader = ({
 
   return !upToMedium ? (
     <TableHeaderComponent expandColumn={isFarmingFiltered}>
-      <Text>Protocol</Text>
-      <Text>Pair</Text>
+      <Text>{t`Protocol`}</Text>
+      <Text>{t`Pair`}</Text>
       <Flex
         justifyContent="flex-start"
         sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}

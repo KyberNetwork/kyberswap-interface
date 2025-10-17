@@ -1,3 +1,4 @@
+import { Trans } from '@lingui/macro'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -39,7 +40,7 @@ export const SelectChainModal = ({
       <Flex width="100%" flexDirection="column" padding="24px">
         <RowBetween gap="20px" mb="24px">
           <Text fontSize="20px" fontWeight="500">
-            Select chain
+            <Trans>Select chain</Trans>
           </Text>
           <CloseIcon
             onClick={() => {

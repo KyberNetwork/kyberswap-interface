@@ -92,7 +92,7 @@ const RewardSection = ({
           {initialLoading ? (
             <PositionSkeleton width={110} height={24} />
           ) : isUnfinalized ? (
-            <PositionSkeleton width={110} height={24} text="Finalizing..." />
+            <PositionSkeleton width={110} height={24} text={t`Finalizing...`} />
           ) : (
             <Flex alignItems={'center'} sx={{ gap: 1 }}>
               <Text fontSize={20}>
@@ -120,7 +120,7 @@ const RewardSection = ({
             {initialLoading ? (
               <PositionSkeleton width={90} height={24} />
             ) : isUnfinalized ? (
-              <PositionSkeleton width={90} height={24} text="Finalizing..." />
+              <PositionSkeleton width={90} height={24} text={t`Finalizing...`} />
             ) : (
               <Text fontSize={20}>
                 {formatDisplayNumber(rewardInfoThisPosition?.claimedUsdValue || 0, {
@@ -138,7 +138,7 @@ const RewardSection = ({
             {initialLoading ? (
               <PositionSkeleton width={105} height={24} />
             ) : isUnfinalized ? (
-              <PositionSkeleton width={105} height={24} text="Finalizing..." />
+              <PositionSkeleton width={105} height={24} text={t`Finalizing...`} />
             ) : isWaitingForRewards ? (
               <RewardSyncing width={105} height={24} />
             ) : (
@@ -178,7 +178,7 @@ const RewardSection = ({
               {initialLoading || !cycleConfig ? (
                 <PositionSkeleton width={112} height={16} />
               ) : isUnfinalized ? (
-                <PositionSkeleton width={112} height={16} text="Finalizing..." />
+                <PositionSkeleton width={112} height={16} text={t`Finalizing...`} />
               ) : (
                 <Flex alignItems={'center'} sx={{ gap: 1 }}>
                   <Clock size={16} color={theme.subText} />
@@ -194,7 +194,7 @@ const RewardSection = ({
             {initialLoading ? (
               <PositionSkeleton width={90} height={24} />
             ) : isUnfinalized ? (
-              <PositionSkeleton width={90} height={24} text="Finalizing..." />
+              <PositionSkeleton width={90} height={24} text={t`Finalizing...`} />
             ) : isWaitingForRewards ? (
               <RewardSyncing width={90} height={24} />
             ) : (

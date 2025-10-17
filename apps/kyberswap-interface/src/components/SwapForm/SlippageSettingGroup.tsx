@@ -66,7 +66,7 @@ export default function SlippageSettingGroup({
         <Shield size={14} color={theme.subText} />
         <Text color={theme.subText} style={{ whiteSpace: 'nowrap' }}>
           {upToXXSmall ? <Trans>MEV Protection</Trans> : <Trans>Add MEV Protection</Trans>}
-          <InfoHelper size={14} text="Add MEV Protection to safeguard you from front-running attacks." />
+          <InfoHelper size={14} text={<Trans>Add MEV Protection to safeguard you from front-running attacks.</Trans>} />
         </Text>
       </PriceAlertButton>
     ) : null
@@ -81,7 +81,7 @@ export default function SlippageSettingGroup({
           />
         </svg>
 
-        <MouseoverTooltip text="Pay network fees in the token of your choice." placement="top">
+        <MouseoverTooltip text={<Trans>Pay network fees in the token of your choice.</Trans>} placement="top">
           <TextDashed marginLeft="6px" lineHeight="16px" fontWeight="500" marginTop="2px">
             <Trans>Gas Token</Trans>
           </TextDashed>

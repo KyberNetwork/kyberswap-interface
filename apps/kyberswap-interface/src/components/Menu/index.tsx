@@ -14,6 +14,7 @@ import { ReactComponent as LightIcon } from 'assets/svg/light.svg'
 import { ReactComponent as RoadMapIcon } from 'assets/svg/roadmap.svg'
 import { ButtonEmpty, ButtonPrimary } from 'components/Button'
 import { AutoColumn } from 'components/Column'
+import ArrowRight from 'components/Icons/ArrowRight'
 import CampaignIcon from 'components/Icons/CampaignIcon'
 import Faucet from 'components/Icons/Faucet'
 import Icon from 'components/Icons/Icon'
@@ -27,6 +28,7 @@ import Toggle from 'components/Toggle'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { ENV_LEVEL, TAG } from 'constants/env'
 import { AGGREGATOR_ANALYTICS_URL, APP_PATHS, TERM_FILES_PATH } from 'constants/index'
+import { getLocaleLabel } from 'constants/locales'
 import { FAUCET_NETWORKS } from 'constants/networks'
 import { ENV_TYPE } from 'constants/type'
 import { useActiveWeb3React } from 'hooks'
@@ -37,7 +39,7 @@ import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
-import { useHolidayMode } from 'state/user/hooks'
+import { useHolidayMode, useUserLocale } from 'state/user/hooks'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { isChristmasTime } from 'utils'
 
@@ -212,6 +214,7 @@ export default function Menu() {
   const [holidayMode, toggleHolidayMode] = useHolidayMode()
   const [isSelectingLanguage, setIsSelectingLanguage] = useState(false)
 
+  const userLocale = useUserLocale()
   const location = useLocation()
 
   const { mixpanelHandler } = useMixpanel()
@@ -340,7 +343,9 @@ export default function Menu() {
                   }}
                 >
                   <PieChart />
-                  <Text>Market</Text>
+                  <Text>
+                    <Trans>Market</Trans>
+                  </Text>
                 </MenuItem>
               </NavLink>
             )}
@@ -352,15 +357,15 @@ export default function Menu() {
                     icon={<VoteIcon />}
                     title={
                       <Text sx={{ position: 'relative' }} width="max-content">
-                        KyberDAO
+                        <Trans>KyberDAO</Trans>
                       </Text>
                     }
                     link={'/campaigns'}
                     options={[
-                      { link: APP_PATHS.KYBERDAO_STAKE, label: 'Stake KNC' },
-                      { link: APP_PATHS.KYBERDAO_VOTE, label: 'Vote' },
-                      { link: APP_PATHS.KYBERDAO_KNC_UTILITY, label: 'KNC Utility' },
-                      { link: 'https://discord.gg/cqwvAuYp3H', label: 'Feature Request', external: true },
+                      { link: APP_PATHS.KYBERDAO_STAKE, label: t`Stake KNC` },
+                      { link: APP_PATHS.KYBERDAO_VOTE, label: t`Vote` },
+                      { link: APP_PATHS.KYBERDAO_KNC_UTILITY, label: t`KNC Utility` },
+                      { link: 'https://discord.gg/cqwvAuYp3H', label: t`Feature Request`, external: true },
                     ]}
                   />
                 </MenuItem>
@@ -517,7 +522,10 @@ export default function Menu() {
               >
                 <Trans>KyberSwap Guide</Trans>
                 <Row justify="flex-end">
-                  <Text color={theme.text}>View</Text>&nbsp;
+                  <Text color={theme.text}>
+                    <Trans>View</Trans>
+                  </Text>
+                  &nbsp;
                   <LightIcon color={theme.text} />
                 </Row>
               </NavLinkBetween>
@@ -539,6 +547,23 @@ export default function Menu() {
             >
               <Trans>Notification Center</Trans>
               <MailIcon size={17} color={theme.text} />
+            </NavLinkBetween>
+            <NavLinkBetween
+              style={{ display: 'none' }} // TODO: Enable later
+              onClick={() => {
+                setIsSelectingLanguage(true)
+                handlePreferenceClickMixpanel('Language')
+              }}
+            >
+              <Trans>Language</Trans>
+              <ButtonEmpty
+                padding="0"
+                width="fit-content"
+                style={{ color: theme.text, textDecoration: 'none', fontSize: '14px' }}
+              >
+                {getLocaleLabel(userLocale, true)}&nbsp;&nbsp;
+                <ArrowRight fill={theme.text} />
+              </ButtonEmpty>
             </NavLinkBetween>
 
             <Divider />

@@ -2,7 +2,7 @@ import {
   ChainId as CompoundingChainId,
   PoolType as CompoundingPoolType,
   CompoundingWidget,
-  ZapStatus,
+  TxStatus,
 } from '@kyberswap/compounding-widget'
 import '@kyberswap/compounding-widget/dist/style.css'
 import { ChainId } from '@kyberswap/ks-sdk-core'
@@ -88,24 +88,24 @@ const useCompounding = ({
   const { changeNetwork } = useChangeNetwork()
 
   const [compoundingPureParams, setCompoundingPureParams] = useState<CompoundingPureParams | null>(null)
-  const [compoundingTxHash, setCompoundingTxHash] = useState<string | null>(null)
+  const [compoundingTxHash, setCompoundingTxHash] = useState<string[]>([])
   const { rpc: compoundingRpcUrl } = useKyberSwapConfig(compoundingPureParams?.chainId as ChainId | undefined)
 
   const compoundingStatus = useMemo(() => {
-    if (!compoundingTxHash) return ZapStatus.INIT
+    if (!allTransactions || !compoundingTxHash.length) return {}
 
-    if (allTransactions && allTransactions[compoundingTxHash]) {
-      const zapTx = allTransactions[compoundingTxHash]
+    return compoundingTxHash.reduce((acc: Record<string, TxStatus>, txHash) => {
+      const zapTx = allTransactions[txHash]
       if (zapTx?.[0].receipt) {
-        return zapTx?.[0].receipt.status === 1 ? ZapStatus.SUCCESS : ZapStatus.FAILED
-      } else return ZapStatus.PENDING
-    }
-    return ZapStatus.PENDING
+        acc[txHash as keyof typeof acc] = zapTx?.[0].receipt.status === 1 ? TxStatus.SUCCESS : TxStatus.FAILED
+      } else acc[txHash as keyof typeof acc] = TxStatus.PENDING
+      return acc
+    }, {})
   }, [allTransactions, compoundingTxHash])
 
   const handleCloseCompounding = useCallback(() => {
     setCompoundingPureParams(null)
-    setCompoundingTxHash(null)
+    setCompoundingTxHash([])
   }, [])
 
   const handleNavigateToPosition = useCallback(
@@ -214,6 +214,8 @@ const useCompounding = ({
                   })
                 }
               }
+
+              setCompoundingTxHash(prev => [...prev, txHash])
               return txHash
             },
           }

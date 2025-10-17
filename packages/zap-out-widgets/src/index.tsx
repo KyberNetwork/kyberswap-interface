@@ -20,7 +20,7 @@ import { ZapTo } from '@/components/ZapTo';
 import { TokenListProvider } from '@/hooks/useTokenList';
 import { ZapOutProvider, useZapOutContext } from '@/stores';
 import { useZapOutUserState } from '@/stores/state';
-import { ZapOutProps, ZapStatus } from '@/types/index';
+import { TxStatus, ZapOutProps } from '@/types/index';
 
 import './Widget.scss';
 import './globals.css';
@@ -109,4 +109,4 @@ const TokenProvider = ({ children, chainId }: { children: ReactNode; chainId: nu
   );
 };
 
-export { ChainId, PoolType, ZapOut, ZapStatus };
+export { ChainId, PoolType, ZapOut, TxStatus };

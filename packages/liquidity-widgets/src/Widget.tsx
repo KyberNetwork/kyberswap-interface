@@ -32,6 +32,7 @@ import Setting from '@/components/Setting';
 import Warning from '@/components/Warning';
 import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
+import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 import { PriceType, ZapSnapshotState } from '@/types/index';
 
@@ -62,6 +63,7 @@ export default function Widget() {
     'onOpenZapMigration',
   ]);
   const { pool, poolError } = usePoolStore(['pool', 'poolError']);
+  const { positionError } = usePositionStore(['positionError']);
 
   const { zapInfo, tickLower, tickUpper, tokensIn, amountsIn, setTokensIn, setAmountsIn, slippage, getZapRoute } =
     useZapState();
@@ -157,7 +159,7 @@ export default function Widget() {
   };
 
   const onCloseErrorDialog = () => {
-    if (poolError) onClose?.();
+    if (poolError || positionError) onClose?.();
     else {
       setWidgetError(undefined);
       getZapRoute();
@@ -166,11 +168,19 @@ export default function Widget() {
 
   return (
     <div className="ks-lw ks-lw-style">
-      {(poolError || widgetError) && (
+      {(poolError || positionError || widgetError) && (
         <StatusDialog
           type={StatusDialogType.ERROR}
-          title={poolError ? 'Failed to load pool' : widgetError ? 'Failed to build zap route' : ''}
-          description={poolError || widgetError}
+          title={
+            poolError
+              ? 'Failed to load pool'
+              : positionError
+                ? 'Failed to load position'
+                : widgetError
+                  ? 'Failed to build zap route'
+                  : ''
+          }
+          description={poolError || positionError || widgetError}
           onClose={onCloseErrorDialog}
           action={
             <button className="ks-outline-btn flex-1" onClick={onCloseErrorDialog}>
