@@ -177,7 +177,7 @@ export const SmartExit = ({
                       <Trans>
                         Based on the amount of fee tokens your position has earned compared with your initial deposit.
                       </Trans>
-                      <ExternalLink src="/">
+                      <ExternalLink href="/TODO">
                         <Text as="span" ml="4px">
                           <Trans>Details</Trans>
                         </Text>

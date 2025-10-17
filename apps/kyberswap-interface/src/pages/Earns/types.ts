@@ -137,6 +137,7 @@ export enum PAIR_CATEGORY {
 export const DEFAULT_PARSED_POSITION: ParsedPosition = {
   id: '',
   tokenId: '',
+  earningFeeYield: 0,
   pool: {
     fee: 0,
     address: '',
