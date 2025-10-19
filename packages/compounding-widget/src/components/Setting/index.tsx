@@ -65,7 +65,7 @@ export default function Setting() {
 
           <input
             className="box-border mt-5 py-2 px-4 text-sm outline-none border-none w-full text-white bg-layer2 rounded-md"
-            placeholder={t`Confirm`}
+            placeholder={'Confirm'}
             value={confirm}
             onChange={e => {
               setConfirm(e.target.value.trim());
@@ -85,7 +85,7 @@ export default function Setting() {
             <button
               className="ks-primary-btn bg-warning border-none flex-1"
               onClick={() => {
-                if (confirm.toLowerCase() === t`Confirm`.toLowerCase()) {
+                if (confirm.toLowerCase() === 'Confirm'.toLowerCase()) {
                   setDegenMode(true);
                   setShowConfirm(false);
                   setConfirm('');

@@ -1,5 +1,7 @@
 import { useEffect } from 'react';
 
+import { t } from '@lingui/macro';
+
 import { useDebounce } from '@kyber/hooks';
 import { ChainId, PoolType, ZERO_ADDRESS } from '@kyber/schema';
 import { StatusDialog, StatusDialogType } from '@kyber/ui';
@@ -125,18 +127,18 @@ export const ZapMigration = (widgetProps: ZapMigrationProps) => {
         type={StatusDialogType.ERROR}
         title={
           poolError
-            ? 'Failed to load pool'
+            ? t`Failed to load pool`
             : positionError
-              ? 'Failed to load position'
+              ? t`Failed to load position`
               : widgetError
-                ? 'Failed to load zap route'
+                ? t`Failed to load zap route`
                 : ''
         }
         description={poolError || positionError || widgetError}
         onClose={onCloseErrorDialog}
         action={
           <button className="ks-outline-btn flex-1" onClick={onCloseErrorDialog}>
-            {poolError || positionError ? 'Close' : 'Close & Refresh'}
+            {poolError || positionError ? t`Close` : t`Close & Refresh`}
           </button>
         }
       />
@@ -162,7 +164,6 @@ export const ZapMigration = (widgetProps: ZapMigrationProps) => {
               {rePositionMode && <PoolPriceWithRange type={RangeType.Source} />}
               <AmountToMigrate />
               {!targetPositionId && <Estimated />}
-              <PoolInfo type={PoolInfoType.Source} />
             </div>
 
             <div className="block md:hidden rotate-90 w-fit mx-auto">
@@ -191,16 +192,9 @@ export const ZapMigration = (widgetProps: ZapMigrationProps) => {
         </div>
 
         {buildData && (
-          <Preview
-            onSubmitTx={onSubmitTx}
-            onClose={onClose}
-            onViewPosition={onViewPosition}
-            onExplorePools={onExplorePools}
-          />
+          <Preview onSubmitTx={onSubmitTx} onViewPosition={onViewPosition} onExplorePools={onExplorePools} />
         )}
       </div>
-
-      {buildData && <Preview onSubmitTx={onSubmitTx} onViewPosition={onViewPosition} onExplorePools={onExplorePools} />}
     </WidgetI18nProvider>
   );
 };

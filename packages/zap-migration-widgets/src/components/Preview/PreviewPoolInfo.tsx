@@ -1,3 +1,5 @@
+import { Trans } from '@lingui/macro';
+
 import { useCopy } from '@kyber/hooks';
 import { ChainId, DEXES_INFO, NETWORKS_INFO, Pool } from '@kyber/schema';
 import { TokenLogo, TokenSymbol } from '@kyber/ui';
@@ -27,7 +29,9 @@ export default function PreviewPoolInfo({ pool, chainId }: { pool: Pool; chainId
         <div className="flex gap-1 items-center text-subText mt-1">
           <TokenLogo src={dex.icon} size={12} alt={dexName} />
           <div className="text-sm opacity-70">{dexName}</div>
-          <div className="rounded-xl bg-layer2 px-2 py-1 text-xs">Fee {pool.fee}%</div>
+          <div className="rounded-xl bg-layer2 px-2 py-1 text-xs">
+            <Trans>Fee {pool.fee}%</Trans>
+          </div>
         </div>
       </div>
     </div>

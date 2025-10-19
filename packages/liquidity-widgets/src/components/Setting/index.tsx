@@ -63,7 +63,7 @@ export default function Setting() {
 
             <input
               className="box-border mt-5 py-2 px-4 text-sm outline-none border-none w-full text-white bg-layer2 rounded-md"
-              placeholder={t`Confirm`}
+              placeholder={'Confirm'}
               value={confirm}
               onChange={e => {
                 setConfirm(e.target.value.trim());
