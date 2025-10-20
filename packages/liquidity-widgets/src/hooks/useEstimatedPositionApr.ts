@@ -69,8 +69,10 @@ export const useEstimatedPositionApr = ({
         ).then(res => res.json());
 
         setAprData({
-          totalApr: data.feeApr + data.egApr + data.lmApr,
-          ...data,
+          totalApr: (data.feeApr + data.egApr + data.lmApr) * 100,
+          feeApr: data.feeApr * 100,
+          egApr: data.egApr * 100,
+          lmApr: data.lmApr * 100,
         });
       } catch (err) {
         if (controller.signal.aborted) return;
