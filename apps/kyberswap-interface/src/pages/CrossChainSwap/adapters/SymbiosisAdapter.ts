@@ -14,6 +14,7 @@ import {
 } from './BaseSwapAdapter'
 
 const SYMBIOSIS_API = 'https://api.symbiosis.finance/crosschain/v1'
+const KYBERSWAP_PARTNER_ID = 'kyberswap'
 
 export class SymbiosisAdapter extends BaseSwapAdapter {
   constructor() {
@@ -79,6 +80,7 @@ export class SymbiosisAdapter extends BaseSwapAdapter {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'X-Partner-Id': KYBERSWAP_PARTNER_ID,
       },
       body: JSON.stringify(body),
     }).then(r => r.json())
