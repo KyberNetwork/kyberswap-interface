@@ -1,4 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
+import { t } from '@lingui/macro'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
 import { adaptSolanaWallet } from '@reservoir0x/relay-solana-wallet-adapter'
 import { useConnection, useWallet } from '@solana/wallet-adapter-react'
@@ -312,10 +313,10 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     'commonPair',
   )
   const warning = useMemo(() => {
-    const highSlippageMsg = 'Your slippage is set higher than usual, which may cause unexpected losses'
-    const lowSlippageMsg = 'Your slippage is set lower than usual, which may cause transaction failure.'
-    const veryHighPiMsg = 'The price impact is high — double check the output before proceeding.'
-    const highPiMsg = 'The price impact might be high — double check the output before proceeding.'
+    const highSlippageMsg = t`Your slippage is set higher than usual, which may cause unexpected losses`
+    const lowSlippageMsg = t`Your slippage is set lower than usual, which may cause transaction failure.`
+    const veryHighPiMsg = t`The price impact is high — double check the output before proceeding.`
+    const highPiMsg = t`The price impact might be high — double check the output before proceeding.`
     if (isFromEvm && isToEvm) {
       const slippageHighThreshold = category === 'stablePair' ? 100 : 200
       const slippageLowThreshold = category === 'stablePair' ? 5 : 30

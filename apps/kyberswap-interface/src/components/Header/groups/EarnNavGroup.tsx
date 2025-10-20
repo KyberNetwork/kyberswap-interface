@@ -87,7 +87,7 @@ const EarnNavGroup = () => {
               <FarmingIcon width={16} height={16} />
               <Flex sx={{ gap: '2px' }}>
                 {t`Farming Pools`}
-                <BetaLabel>BETA</BetaLabel>
+                <BetaLabel>{t`BETA`}</BetaLabel>
               </Flex>
             </Flex>
           </StyledNavLink>

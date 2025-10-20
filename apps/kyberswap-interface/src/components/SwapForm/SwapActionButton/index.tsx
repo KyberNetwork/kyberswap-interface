@@ -1,5 +1,5 @@
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { useEffect, useState } from 'react'
 import { Flex } from 'rebass'
 import styled from 'styled-components'
@@ -335,12 +335,12 @@ const SwapActionButton: React.FC<Props> = ({
               options={[
                 {
                   value: AllowanceType.INFINITE,
-                  label: 'Infinite Allowance',
+                  label: t`Infinite Allowance`,
                   onSelect: () => setApprovalType(AllowanceType.INFINITE),
                 },
                 {
                   value: AllowanceType.EXACT,
-                  label: 'Exact Allowance',
+                  label: t`Exact Allowance`,
                   onSelect: () => setApprovalType(AllowanceType.EXACT),
                 },
               ]}
@@ -351,8 +351,8 @@ const SwapActionButton: React.FC<Props> = ({
                     <InfoHelper
                       text={
                         selected.value === AllowanceType.EXACT
-                          ? 'You wish to give KyberSwap permission to use the exact allowance token amount as the amount in for this transaction, Subsequent transactions will require your permission again.'
-                          : 'You wish to give KyberSwap permission to use the selected token for transactions without any limit. You do not need to give permission again unless revoke.'
+                          ? t`You wish to give KyberSwap permission to use the exact allowance token amount as the amount in for this transaction, Subsequent transactions will require your permission again.`
+                          : t`You wish to give KyberSwap permission to use the selected token for transactions without any limit. You do not need to give permission again unless revoke.`
                       }
                     />
                   </Flex>

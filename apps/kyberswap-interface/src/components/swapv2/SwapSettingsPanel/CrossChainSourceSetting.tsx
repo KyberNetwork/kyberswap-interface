@@ -1,3 +1,4 @@
+import { Trans, t } from '@lingui/macro'
 import { ChevronRight } from 'react-feather'
 import { Flex, Text } from 'rebass'
 
@@ -25,15 +26,17 @@ export const CrossChainSourceSetting: React.FC<{ onClick: () => void }> = ({ onC
     >
       <Flex>
         <TextDashed fontSize={12} fontWeight={400} color={theme.subText} underlineColor={theme.border}>
-          <MouseoverTooltip text={'Your trade is routed through one of these cross-chain sources.'} placement="right">
-            Cross-Chain Routing Sources
+          <MouseoverTooltip text={t`Your trade is routed through one of these cross-chain sources.`} placement="right">
+            <Trans>Cross-Chain Routing Sources</Trans>
           </MouseoverTooltip>
         </TextDashed>
       </Flex>
 
       <Flex>
         <Text>
-          {selectedSources.length || sources.length} out of {sources.length} selected
+          <Trans>
+            {selectedSources.length || sources.length} out of {sources.length} selected
+          </Trans>
         </Text>
         <ChevronRight size={20} color={theme.subText} />
       </Flex>

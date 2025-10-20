@@ -1,3 +1,4 @@
+import { t } from '@lingui/macro'
 import { format } from 'date-fns'
 import { rgba } from 'polished'
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -235,20 +236,20 @@ export const TransactionHistory = () => {
     <>
       {upToSmall ? (
         <Text fontWeight={500} fontSize={14} color={theme.subText}>
-          HISTORY
+          {t`HISTORY`}
         </Text>
       ) : (
         <TableHeader>
-          <Text>CREATED</Text>
-          <Text>STATUS</Text>
-          <Text>ROUTE</Text>
-          <Text>AMOUNT</Text>
-          <Text textAlign="right">ACTIONS</Text>
+          <Text>{t`CREATED`}</Text>
+          <Text>{t`STATUS`}</Text>
+          <Text>{t`ROUTE`}</Text>
+          <Text>{t`AMOUNT`}</Text>
+          <Text textAlign="right">{t`ACTIONS`}</Text>
         </TableHeader>
       )}
       {transactions.length === 0 && (
         <Text color={theme.subText} padding="36px" textAlign="center">
-          No transaction found
+          {t`No transaction found`}
         </Text>
       )}
       {transactions.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE).map(tx => {
@@ -274,13 +275,21 @@ export const TransactionHistory = () => {
             </Flex>
             {tx.sender && (
               <Flex mt="8px" color={theme.blue} fontSize="14px" sx={{ gap: '4px' }} alignItems="center">
-                <Text color={theme.subText}>Sender:</Text>{' '}
+                <Text color={theme.subText}>{t`Sender:`}</Text>{' '}
                 {tx.sender.includes('.near') ? tx.sender : shortenHash(tx.sender)}
                 <CopyHelper toCopy={tx.sender} />
               </Flex>
             )}
           </div>
         )
+        const statusLabel =
+          tx.status === 'Success'
+            ? t`Success`
+            : tx.status === 'Failed'
+            ? t`Failed`
+            : tx.status === 'Refunded'
+            ? t`Refunded`
+            : t`Processing`
         const status = (
           <Flex
             sx={{
@@ -296,7 +305,7 @@ export const TransactionHistory = () => {
               fontSize: '12px',
             }}
           >
-            {tx.status || 'Processing'}
+            {tx.status ? statusLabel : t`Processing`}
           </Flex>
         )
         const fromto = (
@@ -393,7 +402,7 @@ export const TransactionHistory = () => {
                 paddingX="12px"
                 color={theme.subText}
               >
-                <Text color={theme.text}>Deposit:</Text>
+                <Text color={theme.text}>{t`Deposit:`}</Text>
                 {sourceTx}
               </Flex>
               <Flex
@@ -403,7 +412,7 @@ export const TransactionHistory = () => {
                 paddingX="12px"
                 color={theme.subText}
               >
-                <Text color={theme.text}>Fill:</Text>
+                <Text color={theme.text}>{t`Fill:`}</Text>
                 {fill}
               </Flex>
               <Divider></Divider>
@@ -423,12 +432,12 @@ export const TransactionHistory = () => {
 
             <div>
               <Flex justifyContent="flex-end" sx={{ gap: '4px' }} color={theme.subText}>
-                <Text color={theme.text}>Deposit:</Text>
+                <Text color={theme.text}>{t`Deposit:`}</Text>
                 {sourceTx}
               </Flex>
 
               <Flex justifyContent="flex-end" sx={{ gap: '4px' }} color={theme.subText} mt="8px">
-                <Text color={theme.text}>Fill:</Text> {fill}
+                <Text color={theme.text}>{t`Fill:`}</Text> {fill}
               </Flex>
             </div>
           </TableRow>

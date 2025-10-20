@@ -1,4 +1,5 @@
 import { formatAprNumber } from '@kyber/utils/dist/number'
+import { t } from '@lingui/macro'
 import { Star } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import { PoolQueryParams } from 'services/zapEarn'
@@ -93,11 +94,13 @@ const DesktopTableRow = ({
           <MouseoverTooltipDesktopOnly
             text={
               pool.maxAprInfo
-                ? `Add liquidity with price range: ${
+                ? t`Add liquidity with price range:` +
+                  ` ${
                     pool.maxAprInfo.minPrice
                       ? formatDisplayNumber(pool.maxAprInfo.minPrice, { significantDigits: 6 })
                       : '--'
-                  } - ${
+                  }` +
+                  ` - ${
                     pool.maxAprInfo.maxPrice
                       ? formatDisplayNumber(pool.maxAprInfo.maxPrice, { significantDigits: 6 })
                       : '--'

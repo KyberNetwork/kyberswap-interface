@@ -25,9 +25,9 @@ import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 import { useZapStore } from '@/stores/useZapStore';
-import { ZapMigrationProps, ZapStatus } from '@/types/index';
+import { TxStatus, ZapMigrationProps } from '@/types/index';
 
-export { ChainId, PoolType, ZapStatus, type ZapMigrationProps };
+export { ChainId, PoolType, TxStatus, type ZapMigrationProps };
 
 export const ZapMigration = (widgetProps: ZapMigrationProps) => {
   const {
@@ -185,14 +185,7 @@ export const ZapMigration = (widgetProps: ZapMigrationProps) => {
         />
       </div>
 
-      {buildData && (
-        <Preview
-          onSubmitTx={onSubmitTx}
-          onClose={onClose}
-          onViewPosition={onViewPosition}
-          onExplorePools={onExplorePools}
-        />
-      )}
+      {buildData && <Preview onSubmitTx={onSubmitTx} onViewPosition={onViewPosition} onExplorePools={onExplorePools} />}
     </div>
   );
 };

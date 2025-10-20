@@ -58,7 +58,7 @@ const RewardSection = () => {
         <Text fontSize={14} color={theme.primary} fontWeight={500} sx={{ textTransform: 'uppercase' }}>
           {btnText}
         </Text>
-        <img src={PlayIcon} alt="play" width={36} height={36} />
+        <img src={PlayIcon} alt={t`Play icon`} width={36} height={36} />
       </RewardsNavigateButton>
     </Flex>
   )

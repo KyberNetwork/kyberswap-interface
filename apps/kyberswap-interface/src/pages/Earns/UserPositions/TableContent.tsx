@@ -261,7 +261,7 @@ export default function TableContent({
         <Text color={theme.subText}>{t`You don't have any liquidity positions yet`}.</Text>
         <Link to={APP_PATHS.EARN_POOLS}>{t`Explore Liquidity Pools to get started`}!</Link>
       </Flex>
-      {!account && <PositionActionBtn onClick={toggleWalletModal}>Connect Wallet</PositionActionBtn>}
+      {!account && <PositionActionBtn onClick={toggleWalletModal}>{t`Connect Wallet`}</PositionActionBtn>}
     </EmptyPositionText>
   )
 
@@ -453,21 +453,21 @@ export default function TableContent({
                     <PositionValueLabel>{t`APR`}</PositionValueLabel>
 
                     {isUnfinalized ? (
-                      <PositionSkeleton width={80} height={19} text="Finalizing..." />
+                      <PositionSkeleton width={80} height={19} text={t`Finalizing...`} />
                     ) : isWaitingForRewards ? (
                       <RewardSyncing width={70} height={19} />
                     ) : (
                       <Flex alignItems={'center'} sx={{ gap: 1 }}>
                         {pool.isFarming ? (
                           <AprDetailTooltip
-                            feeApr={position.feeApr['7d']}
-                            egApr={position.kemEGApr['7d']}
-                            lmApr={position.kemLMApr['7d']}
+                            feeApr={position.feeApr['24h']}
+                            egApr={position.kemEGApr['24h']}
+                            lmApr={position.kemLMApr['24h']}
                           >
-                            <Text color={theme.primary}>{formatAprNumber(apr['7d'])}%</Text>
+                            <Text color={theme.primary}>{formatAprNumber(apr['24h'])}%</Text>
                           </AprDetailTooltip>
                         ) : (
-                          <Text color={theme.text}>{formatAprNumber(apr['7d'])}%</Text>
+                          <Text color={theme.text}>{formatAprNumber(apr['24h'])}%</Text>
                         )}
 
                         {!pool.isFarming &&
@@ -512,7 +512,7 @@ export default function TableContent({
                     <PositionValueLabel>{t`Unclaimed Fee`}</PositionValueLabel>
 
                     {isUnfinalized ? (
-                      <PositionSkeleton width={80} height={19} text="Finalizing..." />
+                      <PositionSkeleton width={80} height={19} text={t`Finalizing...`} />
                     ) : (
                       <MouseoverTooltipDesktopOnly
                         text={
@@ -541,7 +541,7 @@ export default function TableContent({
                   <PositionValueWrapper align={!upToLarge ? 'center' : ''}>
                     <PositionValueLabel>{t`Unclaimed rewards`}</PositionValueLabel>
                     {isUnfinalized ? (
-                      <PositionSkeleton width={80} height={19} text="Finalizing..." />
+                      <PositionSkeleton width={80} height={19} text={t`Finalizing...`} />
                     ) : isWaitingForRewards ? (
                       <RewardSyncing width={80} height={19} />
                     ) : (
@@ -622,7 +622,7 @@ export default function TableContent({
                         />
                       )
                     ) : isUnfinalized ? (
-                      <PositionSkeleton width={80} height={19} text="Finalizing..." />
+                      <PositionSkeleton width={80} height={19} text={t`Finalizing...`} />
                     ) : (
                       <PriceRange
                         minPrice={priceRange.min}
@@ -639,7 +639,7 @@ export default function TableContent({
                   {/* Actions info */}
                   {!upToLarge && (
                     <PositionValueWrapper align="flex-end">
-                      {isUnfinalized ? <PositionSkeleton width={80} height={19} text="Finalizing..." /> : actions}
+                      {isUnfinalized ? <PositionSkeleton width={80} height={19} text={t`Finalizing...`} /> : actions}
                     </PositionValueWrapper>
                   )}
                 </PositionRow>
