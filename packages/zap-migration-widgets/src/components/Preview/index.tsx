@@ -45,11 +45,12 @@ export function Preview({
   onViewPosition?: (txHash: string) => void;
   onExplorePools?: () => void;
 }) {
-  const { chainId, rpcUrl, connectedAccount, rePositionMode } = useWidgetStore([
+  const { chainId, rpcUrl, connectedAccount, rePositionMode, onClose } = useWidgetStore([
     'chainId',
     'rpcUrl',
     'connectedAccount',
     'rePositionMode',
+    'onClose',
   ]);
   const { route, slippage, setSlippage, buildData, setBuildData } = useZapStore([
     'route',
@@ -173,7 +174,10 @@ export function Preview({
             ) : null}
           </>
         }
-        onClose={onDismiss}
+        onClose={() => {
+          if (txStatus === 'success') onClose();
+          onDismiss();
+        }}
       />
     );
   }

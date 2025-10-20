@@ -55,6 +55,16 @@ export const Preview = () => {
 
   if (showProcessing) {
     const errorMessage = error ? friendlyError(error) || error.message || JSON.stringify(error) : '';
+    const onCloseStatusDialog = () => {
+      if (txStatus === 'success') {
+        onClose();
+        setBuildData(undefined);
+      } else if (error) {
+        setShowProcessing(false);
+        setError(undefined);
+      }
+      setTxHash(null);
+    };
 
     return (
       <StatusDialog
@@ -83,19 +93,7 @@ export const Preview = () => {
         transactionExplorerUrl={txHash ? `${NETWORKS_INFO[chainId].scanLink}/tx/${txHash}` : undefined}
         action={
           <>
-            <button
-              className="ks-outline-btn flex-1"
-              onClick={() => {
-                if (txStatus === 'success') {
-                  onClose();
-                  setBuildData(undefined);
-                } else if (error) {
-                  setShowProcessing(false);
-                  setError(undefined);
-                }
-                setTxHash(null);
-              }}
-            >
+            <button className="ks-outline-btn flex-1" onClick={onCloseStatusDialog}>
               Close
             </button>
             {txStatus !== 'success' && errorMessage.includes('slippage') ? (
@@ -105,12 +103,7 @@ export const Preview = () => {
             ) : null}
           </>
         }
-        onClose={() => {
-          setBuildData(undefined);
-          setShowProcessing(false);
-          setError(undefined);
-          setTxHash(null);
-        }}
+        onClose={onCloseStatusDialog}
       />
     );
   }
