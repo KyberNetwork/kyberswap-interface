@@ -80,6 +80,7 @@ function deserializeToken(serializedToken: SerializedToken): Token {
 
 export function useUserLocale(): SupportedLocale | null {
   const userLocale = useAppSelector(state => state.user.userLocale)
+  if (1 === 1) return 'en-US' // TODO: Remove later
   if (Object.keys(LOCALE_INFO).includes(userLocale)) return userLocale
   return 'en-US'
 }
