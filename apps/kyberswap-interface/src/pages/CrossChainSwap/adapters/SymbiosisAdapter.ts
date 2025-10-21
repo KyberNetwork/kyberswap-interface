@@ -1,7 +1,7 @@
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { WalletClient, formatUnits } from 'viem'
 
-import { ZERO_ADDRESS } from 'constants/index'
+import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
 
 import { Quote } from '../registry'
 import {
@@ -14,6 +14,7 @@ import {
 } from './BaseSwapAdapter'
 
 const SYMBIOSIS_API = 'https://api.symbiosis.finance/crosschain/v1'
+const KYBERSWAP_PARTNER_ID = 'kyberswap'
 
 export class SymbiosisAdapter extends BaseSwapAdapter {
   constructor() {
@@ -26,6 +27,12 @@ export class SymbiosisAdapter extends BaseSwapAdapter {
   getIcon(): string {
     return 'https://app.symbiosis.finance/images/favicon-32x32.png'
   }
+
+  canSupport(category: string): boolean {
+    // Symbiosis should only be used for stablePair category
+    return category === 'stablePair'
+  }
+
   getSupportedChains(): Chain[] {
     return [
       ChainId.MAINNET,
@@ -66,12 +73,14 @@ export class SymbiosisAdapter extends BaseSwapAdapter {
       from: params.sender,
       to: params.recipient,
       slippage: params.slippage,
+      partnerAddress: CROSS_CHAIN_FEE_RECEIVER,
     }
 
     const res = await fetch(`${SYMBIOSIS_API}/swap`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'X-Partner-Id': KYBERSWAP_PARTNER_ID,
       },
       body: JSON.stringify(body),
     }).then(r => r.json())
@@ -87,6 +96,22 @@ export class SymbiosisAdapter extends BaseSwapAdapter {
     const inputUsd = tokenInUsd * +formattedInputAmount
     const outputUsd = tokenOutUsd * +formattedOutputAmount
 
+    // Calculate protocol fee from the fees array
+    const protocolFee = (res.fees || []).reduce(
+      (
+        total: number,
+        fee: {
+          value: { amount: string; decimals: number; priceUsd: number }
+        },
+      ) => {
+        const { amount, decimals, priceUsd } = fee.value
+        const feeAmount = Number(amount) / Math.pow(10, decimals)
+        const feeUsd = feeAmount * priceUsd
+        return total + feeUsd
+      },
+      0,
+    )
+
     return {
       quoteParams: params,
       outputAmount: BigInt(res.tokenAmountOut.amount),
@@ -99,10 +124,8 @@ export class SymbiosisAdapter extends BaseSwapAdapter {
       timeEstimate: res.estimatedTime,
       contractAddress: res.approveTo || ZERO_ADDRESS,
       rawQuote: res,
-
-      // TODO: add Fee
-      protocolFee: 0,
-      platformFeePercent: 0,
+      protocolFee,
+      platformFeePercent: (params.feeBps * 100) / 10_000,
     }
   }
 
