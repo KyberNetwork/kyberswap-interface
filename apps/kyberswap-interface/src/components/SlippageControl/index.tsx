@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react'
-import styled, { css, keyframes } from 'styled-components'
+import styled, { css } from 'styled-components'
 
 import CustomSlippageInput from 'components/SlippageControl/CustomSlippageInput'
 import { DEFAULT_SLIPPAGES, DEFAULT_SLIPPAGES_HIGH_VOTALITY } from 'constants/index'
@@ -7,20 +7,6 @@ import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { usePairCategory } from 'state/swap/hooks'
 
 import { Props as CustomSlippageInputProps } from './CustomSlippageInput'
-
-const highlight = keyframes`
-  0% {
-    box-shadow: 0 0 0 0 #FF9901d9;
-  }
-
-  70% {
-    box-shadow: 0 0 0 1px #FF9901d9;
-  }
-
-  100% {
-    box-shadow: 0 0 0 0 #FF9901d9;
-  }
-`
 
 const SlippageSettingElement = styled.div`
   display: flex;
@@ -31,10 +17,6 @@ const SlippageSettingElement = styled.div`
   border-radius: 20px;
   background: ${({ theme }) => theme.tabBackground};
   padding: 2px;
-
-  &[data-highlight='true'] {
-    animation: ${highlight} 2s infinite alternate ease-in-out;
-  }
 `
 
 const slippageOptionCSS = css`
@@ -102,7 +84,7 @@ const SlippageControl: React.FC<Props> = props => {
   )
 
   return (
-    <SlippageSettingElement data-highlight={isHighlight}>
+    <SlippageSettingElement>
       {options.map(slp => (
         <DefaultSlippageOption
           key={slp}
@@ -117,7 +99,7 @@ const SlippageControl: React.FC<Props> = props => {
         </DefaultSlippageOption>
       ))}
 
-      <CustomSlippageInput {...props} options={options} />
+      <CustomSlippageInput data-highlight={isHighlight} {...props} options={options} />
     </SlippageSettingElement>
   )
 }
