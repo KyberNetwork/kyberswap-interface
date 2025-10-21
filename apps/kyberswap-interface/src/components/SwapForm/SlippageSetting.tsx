@@ -1,6 +1,7 @@
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
-import { ReactNode, useMemo, useState } from 'react'
+import { ReactNode, useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled, { keyframes } from 'styled-components'
 
@@ -65,6 +66,7 @@ type Props = {
 }
 const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
   const theme = useTheme()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [expanded, setExpanded] = useState(false)
   const [isDegenMode] = useDegenModeManager()
 
@@ -96,6 +98,15 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
         : DEFAULT_SLIPPAGES,
     [pairCategory, slippageInfo],
   )
+
+  const actionFromUrl = searchParams.get('action')
+  useEffect(() => {
+    if (actionFromUrl === 'open-slippage-panel') {
+      setExpanded(true)
+      searchParams.delete('action')
+      setSearchParams(searchParams)
+    }
+  }, [actionFromUrl, searchParams, setSearchParams])
 
   if (!isSlippageControlPinned) {
     return null
