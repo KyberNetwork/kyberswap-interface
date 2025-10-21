@@ -127,6 +127,10 @@ msgstr "{0} per {1}"
 msgid "Your Position Price Ranges"
 msgstr "Your Position Price Ranges"
 
+#: src/components/PriceRange/index.tsx
+msgid "Full Range"
+msgstr "Full Range"
+
 #: src/components/Setting/SlippageInput.tsx
 msgid "Custom"
 msgstr "Custom"

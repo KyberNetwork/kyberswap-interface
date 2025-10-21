@@ -127,6 +127,10 @@ msgstr "{0} 每 {1}"
 msgid "Your Position Price Ranges"
 msgstr "你的头寸价格区间"
 
+#: src/components/PriceRange/index.tsx
+msgid "Full Range"
+msgstr "全范围"
+
 #: src/components/Setting/SlippageInput.tsx
 msgid "Custom"
 msgstr "自定义"
