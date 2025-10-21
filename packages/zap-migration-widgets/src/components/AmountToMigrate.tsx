@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 
+import { Trans, t } from '@lingui/macro';
+
 import { defaultToken } from '@kyber/schema';
 import { Slider } from '@kyber/ui';
 import { toRawString } from '@kyber/utils/number';
@@ -39,8 +41,10 @@ export default function AmountToMigrate() {
   return (
     <div className="border border-stroke rounded-md px-4 py-3">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-subText">Amount to migrate</p>
-        <p>{percent}%</p>
+        <Trans>
+          <p className="text-sm text-subText">Amount to migrate</p>
+          <p>{percent}%</p>
+        </Trans>
       </div>
 
       <Slider
@@ -65,13 +69,13 @@ export default function AmountToMigrate() {
             )}
             onClick={() => setPercent(item)}
           >
-            {item === 100 ? 'Max' : `${item}%`}
+            {item === 100 ? t`Max` : `${item}%`}
           </button>
         ))}
       </div>
 
       <MigrationAccordion
-        title="Will migrate"
+        title={t`Will migrate`}
         amount0={amount0ToMigrate}
         amount1={amount1ToMigrate}
         className="mt-4"
@@ -79,7 +83,7 @@ export default function AmountToMigrate() {
         amountLoading={sourcePositionLoading}
       />
       <MigrationAccordion
-        title="Will remain"
+        title={t`Will remain`}
         amount0={amount0Remain}
         amount1={amount1Remain}
         className="mt-3"

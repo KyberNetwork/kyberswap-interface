@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
+import { Trans, t } from '@lingui/macro';
 import { useShallow } from 'zustand/shallow';
 
 import { useNftApproval } from '@kyber/hooks';
@@ -150,12 +151,12 @@ export default function Widget() {
 
   let txStatusText = '';
   if (txHash) {
-    if (txStatus === 'success') txStatusText = 'Compound Completed';
-    else if (txStatus === 'failed' || txError) txStatusText = 'Transaction failed';
-    else txStatusText = 'Processing transaction';
+    if (txStatus === 'success') txStatusText = t`Compound Completed`;
+    else if (txStatus === 'failed' || txError) txStatusText = t`Transaction failed`;
+    else txStatusText = t`Processing transaction`;
   } else {
-    if (txError) txStatusText = 'Transaction failed';
-    else txStatusText = 'Waiting For Confirmation';
+    if (txError) txStatusText = t`Transaction failed`;
+    else txStatusText = t`Waiting For Confirmation`;
   }
 
   const onCloseConfirm = () => {
@@ -175,7 +176,7 @@ export default function Widget() {
             <ErrorIcon className="text-error" />
             <div className="text-center">{poolError}</div>
             <button className="ks-primary-btn w-[95%] bg-error border-solid border-error" onClick={onClose}>
-              Close
+              <Trans>Close</Trans>
             </button>
           </div>
         </Modal>
@@ -197,20 +198,28 @@ export default function Widget() {
 
               {!txHash && !txError && (
                 <div className="text-sm text-subText text-center">
-                  Confirm this transaction in your wallet - Zapping{' '}
-                  {positionId && isUniV3
-                    ? `Position #${positionId}`
-                    : `${dexName} ${token0.symbol}/${token1.symbol} ${poolFee}%`}
+                  <Trans>
+                    Confirm this transaction in your wallet - Zapping{' '}
+                    {positionId && isUniV3
+                      ? t`Position #${positionId}`
+                      : `${dexName} ${token0.symbol}/${token1.symbol} ${poolFee}%`}
+                  </Trans>
                 </div>
               )}
               {txHash && txStatus === '' && !txError && (
-                <div className="text-sm text-subText">It may take a few minutes to proceed.</div>
+                <div className="text-sm text-subText">
+                  <Trans>It may take a few minutes to proceed.</Trans>
+                </div>
               )}
               {txHash && txStatus === 'success' && (
-                <div className="text-sm text-subText">You have successfully added liquidity!</div>
+                <div className="text-sm text-subText">
+                  <Trans>You have successfully added liquidity!</Trans>
+                </div>
               )}
               {txHash && (txStatus === 'failed' || txError) && (
-                <div className="text-sm text-subText">An error occurred during the liquidity migration.</div>
+                <div className="text-sm text-subText">
+                  <Trans>An error occurred during the liquidity migration.</Trans>
+                </div>
               )}
             </div>
 
@@ -221,7 +230,7 @@ export default function Widget() {
                 target="_blank"
                 rel="noopener norefferer noreferrer"
               >
-                View transaction ↗
+                <Trans>View transaction ↗</Trans>
               </a>
             )}
 
@@ -240,11 +249,11 @@ export default function Widget() {
                   className={cn(onViewPosition ? 'ks-outline-btn flex-1' : 'ks-primary-btn flex-1')}
                   onClick={onCloseConfirm}
                 >
-                  Close
+                  <Trans>Close</Trans>
                 </button>
                 {txStatus === 'success' && onViewPosition && (
                   <button className="ks-primary-btn flex-1" onClick={() => onViewPosition(txHash)}>
-                    View position
+                    <Trans>View position</Trans>
                   </button>
                 )}
               </div>

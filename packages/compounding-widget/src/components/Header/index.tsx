@@ -1,3 +1,4 @@
+import { Trans, t } from '@lingui/macro';
 import { useShallow } from 'zustand/shallow';
 
 import { DEXES_INFO, NETWORKS_INFO, PoolType, defaultToken, univ3PoolNormalize, univ3Position } from '@kyber/schema';
@@ -58,7 +59,9 @@ const Header = () => {
       <div className="flex text-xl font-medium justify-between items-start">
         <div className="flex items-center gap-2">
           <IconBack onClick={onClose} className="cursor-pointer" />
-          <span>Compounding</span>
+          <span>
+            <Trans>Compounding</Trans>
+          </span>
         </div>
         <div className="cursor-pointer text-subText" role="button" onClick={onClose}>
           <X />
@@ -97,7 +100,7 @@ const Header = () => {
                     background: `${isOutOfRange ? theme.warning : theme.accent}33`,
                   }}
                 >
-                  {isOutOfRange ? '● Out of range' : '● In range'}
+                  {isOutOfRange ? <Trans>● Out of range</Trans> : <Trans>● In range</Trans>}
                 </div>
               )}
 
@@ -106,7 +109,9 @@ const Header = () => {
                 <span>{dexName}</span>
               </div>
 
-              <div className="rounded-full text-xs bg-layer2 text-subText px-[14px] py-1">Fee {fee}%</div>
+              <div className="rounded-full text-xs bg-layer2 text-subText px-[14px] py-1">
+                <Trans>Fee {fee}%</Trans>
+              </div>
 
               {isUniV3 && <span className="text-subText">#{positionId}</span>}
             </div>
@@ -115,7 +120,7 @@ const Header = () => {
 
         <MouseoverTooltip
           className="top-16 right-5 sm:right-6 max-sm:absolute"
-          text={degenMode ? 'Degen Mode is turned on!' : ''}
+          text={degenMode ? t`Degen Mode is turned on!` : ''}
         >
           <div
             className={`setting w-9 h-9 flex items-center justify-center rounded-full cursor-pointer bg-layer2 hover:brightness-125 active:scale-95 ${

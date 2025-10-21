@@ -1,3 +1,4 @@
+import { Trans, t } from '@lingui/macro';
 import { useShallow } from 'zustand/shallow';
 
 import { API_URLS, defaultToken } from '@kyber/schema';
@@ -44,14 +45,15 @@ export default function EstLiqValue() {
     <>
       <div className="border border-stroke rounded-md py-3 px-4">
         <div className="text-sm mb-1 flex justify-between">
-          Est. Liquidity Value
+          <Trans>Est. Liquidity Value</Trans>
           {!!positionAmountInfo.addedAmountUsd && <span>{formatCurrency(positionAmountInfo.addedAmountUsd)}</span>}
         </div>
         <div className="ks-cw-divider" />
 
         <div className="flex justify-between items-start mt-3 text-xs">
           <div className="text-subText mt-[2px] w-fit flex items-center">
-            Est. Pooled {initializing ? <Skeleton className="w-10 h-4 ml-2" /> : token0.symbol}
+            <Trans>Est. Pooled</Trans>
+            {initializing ? <Skeleton className="w-10 h-4 ml-2" /> : <span className="ml-1">{token0.symbol}</span>}
           </div>
           {initializing ? (
             <Skeleton className="w-14 h-4" />
@@ -81,7 +83,8 @@ export default function EstLiqValue() {
 
         <div className="flex justify-between items-start mt-3 text-xs">
           <div className="text-subText mt-[2px] w-fit flex items-center">
-            Est. Pooled {initializing ? <Skeleton className="w-10 h-4 ml-2" /> : token1.symbol}
+            <Trans>Est. Pooled</Trans>
+            {initializing ? <Skeleton className="w-10 h-4 ml-2" /> : <span className="ml-1">{token1.symbol}</span>}
           </div>
           {initializing ? (
             <Skeleton className="w-14 h-4" />
@@ -111,11 +114,11 @@ export default function EstLiqValue() {
 
         <div className="flex justify-between items-start mt-3 text-xs">
           <MouseoverTooltip
-            text="Based on your price range settings, a portion of your liquidity will be automatically zapped into the pool, while the remaining amount will stay in your wallet."
+            text={t`Based on your price range settings, a portion of your liquidity will be automatically zapped into the pool, while the remaining amount will stay in your wallet.`}
             width="220px"
           >
             <div className="text-subText mt-[2px] w-fit border-b border-dotted border-subText">
-              Est. Remaining Value
+              <Trans>Est. Remaining Value</Trans>
             </div>
           </MouseoverTooltip>
 
@@ -149,7 +152,7 @@ export default function EstLiqValue() {
 
         <div className="flex justify-between items-start mt-3 text-xs">
           <MouseoverTooltip
-            text="The difference between input and estimated liquidity received (including remaining amount). Be careful with high value!"
+            text={t`The difference between input and estimated liquidity received (including remaining amount). Be careful with high value!`}
             width="220px"
           >
             <div
@@ -164,7 +167,7 @@ export default function EstLiqValue() {
                   : '',
               )}
             >
-              Zap Impact
+              <Trans>Zap Impact</Trans>
             </div>
           </MouseoverTooltip>
           {initializing ? (
@@ -189,7 +192,7 @@ export default function EstLiqValue() {
         <div className="flex justify-between items-start mt-3 text-xs">
           <MouseoverTooltip
             text={
-              <div>
+              <Trans>
                 Fees charged for automatically zapping into a liquidity pool. You still have to pay the standard gas
                 fees.{' '}
                 <a
@@ -200,11 +203,13 @@ export default function EstLiqValue() {
                 >
                   More details.
                 </a>
-              </div>
+              </Trans>
             }
             width="220px"
           >
-            <div className="text-subText mt-[2px] w-fit border-b border-dotted border-subText">Zap Fee</div>
+            <div className="text-subText mt-[2px] w-fit border-b border-dotted border-subText">
+              <Trans>Zap Fee</Trans>
+            </div>
           </MouseoverTooltip>
 
           {initializing ? (
@@ -220,8 +225,10 @@ export default function EstLiqValue() {
           className="rounded-md text-xs py-3 px-4 mt-4 font-normal leading-[18px] text-warning"
           style={{ background: `${theme.warning}33` }}
         >
-          {((refundInfo.refundUsd * 100) / initUsd).toFixed(2)}% remains unused and will be returned to your wallet.
-          Refresh or change your amount to get updated routes.
+          <Trans>
+            {((refundInfo.refundUsd * 100) / initUsd).toFixed(2)}% remains unused and will be returned to your wallet.
+            Refresh or change your amount to get updated routes.
+          </Trans>
         </div>
       )}
 

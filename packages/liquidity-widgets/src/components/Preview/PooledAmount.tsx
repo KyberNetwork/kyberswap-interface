@@ -1,3 +1,5 @@
+import { Trans } from '@lingui/macro';
+
 import { Pool } from '@kyber/schema';
 import { TokenLogo, TokenSymbol } from '@kyber/ui';
 import { formatCurrency, formatDisplayNumber } from '@kyber/utils/number';
@@ -17,7 +19,9 @@ export default function PooledAmount({
 
   return (
     <div className="flex justify-between gap-4 w-full items-start">
-      <div className="text-sm font-medium text-subText">Est. Pooled Amount</div>
+      <div className="text-sm font-medium text-subText">
+        <Trans>Est. Pooled Amount</Trans>
+      </div>
       <div className="text-[14px] flex gap-4">
         <div className="flex flex-col gap-1">
           <div className="flex gap-1">

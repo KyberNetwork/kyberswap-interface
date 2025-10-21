@@ -1,5 +1,7 @@
 import { useCallback, useState } from 'react';
 
+import { Trans, t } from '@lingui/macro';
+
 import { useNftApproval } from '@kyber/hooks';
 import { defaultToken, univ3Types, univ4Types } from '@kyber/schema';
 import {
@@ -119,7 +121,9 @@ export default function Widget() {
   const addLiquiditySection = (
     <>
       <div>
-        <div className="text-base pl-1">{positionId ? 'Increase' : 'Add'} Liquidity</div>
+        <div className="text-base pl-1">
+          {positionId ? <Trans>Increase Liquidity</Trans> : <Trans>Add Liquidity</Trans>}
+        </div>
         {initializing || !tokensIn.length ? (
           <LiquidityToAddSkeleton />
         ) : (
@@ -135,10 +139,10 @@ export default function Widget() {
       </div>
 
       <div className="my-3 text-accent cursor-pointer w-fit text-sm" onClick={() => setOpenTokenSelectModal(true)}>
-        + Add Token(s) or Use Existing Position
+        <Trans>+ Add Token(s) or Use Existing Position</Trans>
         <InfoHelper
           placement="bottom"
-          text={`You can either zap in with up to ${MAX_TOKENS} tokens or select an existing position as the liquidity source`}
+          text={t`You can either zap in with up to ${MAX_TOKENS} tokens or select an existing position as the liquidity source`}
           color={theme.accent}
           width="300px"
           style={{
@@ -173,18 +177,18 @@ export default function Widget() {
           type={StatusDialogType.ERROR}
           title={
             poolError
-              ? 'Failed to load pool'
+              ? t`Failed to load pool`
               : positionError
-                ? 'Failed to load position'
+                ? t`Failed to load position`
                 : widgetError
-                  ? 'Failed to build zap route'
+                  ? t`Failed to build zap route`
                   : ''
           }
           description={poolError || positionError || widgetError}
           onClose={onCloseErrorDialog}
           action={
             <button className="ks-outline-btn flex-1" onClick={onCloseErrorDialog}>
-              {poolError ? 'Close' : 'Close & Refresh'}
+              {poolError ? <Trans>Close</Trans> : <Trans>Close & Refresh</Trans>}
             </button>
           }
         />

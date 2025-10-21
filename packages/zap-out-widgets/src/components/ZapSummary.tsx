@@ -1,5 +1,7 @@
 import { useState } from 'react';
 
+import { Trans } from '@lingui/macro';
+
 import { NETWORKS_INFO } from '@kyber/schema';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@kyber/ui';
 import { formatDisplayNumber, formatTokenAmount } from '@kyber/utils/number';
@@ -34,29 +36,33 @@ export function ZapSummary() {
           }`}
           onClick={onExpand}
         >
-          Zap Summary
+          <Trans>Zap Summary</Trans>
         </AccordionTrigger>
         <AccordionContent className="px-4 pb-4 pt-0 border border-stroke !border-t-0 rounded-b-md">
-          <p className="text-subText text-xs italic">The actual Zap Routes could be adjusted with on-chain states</p>
+          <p className="text-subText text-xs italic">
+            <Trans>The actual Zap Routes could be adjusted with on-chain states</Trans>
+          </p>
 
           <div className="h-[1px] w-full bg-stroke mt-1 mb-3" />
 
           <div className="flex gap-2 mt-2">
             <div className="w-6 h-6 rounded-full flex items-center justify-center bg-layer2 text-xs font-medium">1</div>
             <div className="flex-1 text-subText text-xs">
-              Remove {removedAmount0 !== 0n ? formatTokenAmount(removedAmount0, token0?.decimals || 18) : ''}{' '}
-              {token0?.symbol}
-              {removedAmount1 !== 0n
-                ? `+ ${formatTokenAmount(removedAmount1, token1?.decimals || 18)} ${token1?.symbol}`
-                : ''}{' '}
+              <Trans>
+                Remove {removedAmount0 !== 0n ? formatTokenAmount(removedAmount0, token0?.decimals || 18) : ''}{' '}
+                {token0?.symbol}
+                {removedAmount1 !== 0n
+                  ? `+ ${formatTokenAmount(removedAmount1, token1?.decimals || 18)} ${token1?.symbol}`
+                  : ''}{' '}
+              </Trans>
               {earnedFee0 !== 0n || earnedFee1 !== 0n ? (
-                <>
+                <Trans>
                   and claim fee {earnedFee0 !== 0n ? formatTokenAmount(earnedFee0, token0?.decimals || 18) : ''}{' '}
                   {earnedFee0 !== 0n ? token0?.symbol : ''}{' '}
                   {earnedFee1 !== 0n
                     ? `+ ${formatTokenAmount(earnedFee1, token1?.decimals || 18)} ${token1?.symbol}`
                     : ''}{' '}
-                </>
+                </Trans>
               ) : (
                 ''
               )}
@@ -72,23 +78,24 @@ export function ZapSummary() {
                 {swapActions.map((item, index) => (
                   <div className="flex gap-3 items-center text-xs" key={index}>
                     <div className="flex-1 text-subText leading-4">
-                      <span>
-                        Swap {formatDisplayNumber(item.amountIn)} {item.tokenInSymbol} for{' '}
-                        {formatDisplayNumber(item.amountOut)}{' '}
-                      </span>
-                      {item.tokenOutSymbol} via{' '}
-                      {item.poolAddress ? (
-                        <a
-                          href={`${NETWORKS_INFO[chainId].scanLink}/address/${item.poolAddress}`}
-                          className="font-medium text-text"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          {item.pool}
-                        </a>
-                      ) : (
-                        <span className="font-medium text-text">{item.pool}</span>
-                      )}
+                      <Trans>
+                        <span>
+                          Swap {formatDisplayNumber(item.amountIn)} {item.tokenInSymbol} for{' '}
+                          {formatDisplayNumber(item.amountOut)}{' '}
+                        </span>
+                        {item.poolAddress ? (
+                          <a
+                            href={`${NETWORKS_INFO[chainId].scanLink}/address/${item.poolAddress}`}
+                            className="font-medium text-text"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            {item.pool}
+                          </a>
+                        ) : (
+                          <span className="font-medium text-text">{item.pool}</span>
+                        )}
+                      </Trans>
                     </div>
                   </div>
                 ))}
@@ -101,7 +108,9 @@ export function ZapSummary() {
               {swapActions.length > 0 ? 3 : 2}
             </div>
             <div className="text-xs text-subText">
-              Receive {refund.refunds[0]?.amount || 0} {tokenOut?.symbol}
+              <Trans>
+                Receive {refund.refunds[0]?.amount || 0} {tokenOut?.symbol}
+              </Trans>
             </div>
           </div>
         </AccordionContent>

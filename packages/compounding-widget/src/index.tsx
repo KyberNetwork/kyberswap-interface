@@ -7,6 +7,7 @@ import '@kyber/ui/styles.css';
 
 import Widget from '@/Widget';
 import { ZapContextProvider } from '@/hooks/useZapState';
+import { SupportedLocale, WidgetI18nProvider } from '@/i18n';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
@@ -28,7 +29,7 @@ const createModalRoot = () => {
 createModalRoot();
 
 const CompoundingWidget = (widgetProps: WidgetProps) => {
-  const { chainId, poolAddress, poolType, positionId, connectedAccount } = widgetProps;
+  const { chainId, poolAddress, poolType, positionId, connectedAccount, locale } = widgetProps;
 
   const {
     setInitiaWidgetState,
@@ -84,10 +85,14 @@ const CompoundingWidget = (widgetProps: WidgetProps) => {
   }, [chainId, connectedAccount, firstFetch, getPosition, pool, poolType, positionId, setPositionId]);
 
   return (
-    <ZapContextProvider>
-      <Widget />
-    </ZapContextProvider>
+    <WidgetI18nProvider locale={locale}>
+      <ZapContextProvider>
+        <Widget />
+      </ZapContextProvider>
+    </WidgetI18nProvider>
   );
 };
 
 export { PoolType, ChainId, CompoundingWidget, TxStatus };
+
+export type { SupportedLocale };

@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 
+import { Trans, t } from '@lingui/macro';
+
 import { ChainId, UniV2Position, UniV3Position, univ2PoolNormalize, univ3PoolNormalize } from '@kyber/schema';
 import { Skeleton, TokenLogo, TokenSymbol } from '@kyber/ui';
 import { assertUnreachable } from '@kyber/utils';
@@ -79,7 +81,9 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
             onClick={() => setMode('zapOut')}
           >
             <ZapIcon />
-            <div>Zap Out</div>
+            <div>
+              <Trans>Zap Out</Trans>
+            </div>
           </div>
           <div
             className={cn(
@@ -93,10 +97,12 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
             onClick={() => setMode('withdrawOnly')}
           >
             <HandIcon />
-            <div>Manually</div>
+            <div>
+              <Trans>Manually</Trans>
+            </div>
           </div>
         </div>
-        <div className="mt-2">{mode === 'zapOut' ? 'Zap to' : 'Remove Liquidity'}</div>
+        <div className="mt-2">{mode === 'zapOut' ? t`Zap to` : t`Remove Liquidity`}</div>
         {mode === 'zapOut' ? (
           <div className="flex justify-between items-center mt-2">
             <button
