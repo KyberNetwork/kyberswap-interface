@@ -7,7 +7,7 @@ import '@kyber/ui/styles.css';
 
 import Widget from '@/Widget';
 import { ZapContextProvider } from '@/hooks/useZapState';
-import { WidgetI18nProvider } from '@/i18n';
+import { SupportedLocale, WidgetI18nProvider } from '@/i18n';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
@@ -94,3 +94,5 @@ const CompoundingWidget = (widgetProps: WidgetProps) => {
 };
 
 export { PoolType, ChainId, CompoundingWidget, TxStatus };
+
+export type { SupportedLocale };

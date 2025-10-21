@@ -1,5 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import {
+  SupportedLocale,
   TxStatus,
   ZapMigration,
   ChainId as ZapMigrationChainId,
@@ -13,7 +14,6 @@ import { usePreviousDistinct } from 'react-use'
 import { NotificationType } from 'components/Announcement/type'
 import Modal from 'components/Modal'
 import { APP_PATHS } from 'constants/index'
-import { SupportedLocale } from 'constants/locales'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useActiveLocale } from 'hooks/useActiveLocale'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'

@@ -18,7 +18,7 @@ import WidgetError from '@/components/WidgetError';
 import { ZapSummary } from '@/components/ZapSummary';
 import { ZapTo } from '@/components/ZapTo';
 import { TokenListProvider } from '@/hooks/useTokenList';
-import { WidgetI18nProvider } from '@/i18n';
+import { SupportedLocale, WidgetI18nProvider } from '@/i18n';
 import { ZapOutProvider, useZapOutContext } from '@/stores';
 import { useZapOutUserState } from '@/stores/state';
 import { TxStatus, ZapOutProps } from '@/types/index';
@@ -113,3 +113,5 @@ const TokenProvider = ({ children, chainId }: { children: ReactNode; chainId: nu
 };
 
 export { ChainId, PoolType, ZapOut, TxStatus };
+
+export type { SupportedLocale };

@@ -1,6 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import {
   OnSuccessProps,
+  SupportedLocale,
   TxStatus,
   LiquidityWidget as ZapIn,
   ChainId as ZapInChainId,
@@ -12,7 +13,6 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import { NotificationType } from 'components/Announcement/type'
 import Modal from 'components/Modal'
-import { SupportedLocale } from 'constants/locales'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useActiveLocale } from 'hooks/useActiveLocale'

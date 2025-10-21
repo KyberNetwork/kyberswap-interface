@@ -7,7 +7,7 @@ import Widget from '@/Widget';
 import '@/Widget.scss';
 import '@/globals.css';
 import { ZapContextProvider } from '@/hooks/useZapState';
-import { WidgetI18nProvider } from '@/i18n';
+import { SupportedLocale, WidgetI18nProvider } from '@/i18n';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
@@ -81,4 +81,4 @@ const LiquidityWidget = (widgetProps: WidgetProps) => {
 
 export { PoolType, ChainId, LiquidityWidget, TxStatus };
 
-export type { OnSuccessProps };
+export type { OnSuccessProps, SupportedLocale };

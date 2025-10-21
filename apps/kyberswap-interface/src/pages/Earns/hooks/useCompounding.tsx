@@ -2,6 +2,7 @@ import {
   ChainId as CompoundingChainId,
   PoolType as CompoundingPoolType,
   CompoundingWidget,
+  SupportedLocale,
   TxStatus,
 } from '@kyberswap/compounding-widget'
 import '@kyberswap/compounding-widget/dist/style.css'
@@ -11,7 +12,6 @@ import { useNavigate } from 'react-router-dom'
 
 import { NotificationType } from 'components/Announcement/type'
 import Modal from 'components/Modal'
-import { SupportedLocale } from 'constants/locales'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useActiveLocale } from 'hooks/useActiveLocale'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'

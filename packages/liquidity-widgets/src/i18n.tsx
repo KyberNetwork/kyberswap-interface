@@ -2,7 +2,7 @@ import { ReactNode, useEffect, useState } from 'react';
 
 import { I18nProvider } from '@lingui/react';
 
-import { i18n } from './lingui';
+import { i18n } from '@/lingui';
 
 type CatalogModule = { messages?: Record<string, string>; default?: { messages?: Record<string, string> } };
 
