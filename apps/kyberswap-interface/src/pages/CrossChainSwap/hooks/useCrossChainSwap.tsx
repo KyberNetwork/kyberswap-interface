@@ -469,6 +469,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
           (currencyOut as any).wrapped.address,
         )
       ) {
+        setCategory('stablePair')
         feeBps = 5
       } else {
         const [token0Cat, token1Cat] = await Promise.all([
