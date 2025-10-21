@@ -11,6 +11,10 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: \n"
 
+#: src/Widget.tsx
+msgid "Position #{positionId}"
+msgstr "头寸 #{positionId}"
+
 #: src/components/Setting/index.tsx
 msgid "Please type the word <0>Confirm</0> below to enable Degen Mode"
 msgstr "请在下方输入 <0>Confirm</0> 以启用 Degen 模式"
@@ -47,6 +51,10 @@ msgstr "这可能需要几分钟才能完成。"
 msgid "Est. Liquidity Value"
 msgstr "预计流动性价值"
 
+#: src/components/Action/index.tsx
+msgid "Loading{0}"
+msgstr "加载中{0}"
+
 #: src/components/Setting/index.tsx
 msgid "Degen Mode"
 msgstr "Degen 模式"
@@ -69,8 +77,6 @@ msgid "Are you sure?"
 msgstr "确定吗？"
 
 #: src/components/Action/index.tsx
-#: src/components/Setting/index.tsx
-#: src/components/Setting/index.tsx
 #: src/components/Setting/index.tsx
 msgid "Confirm"
 msgstr "确认"
@@ -163,7 +169,7 @@ msgstr "请输入有效的滑点百分比"
 msgid "Your position is in farming"
 msgstr "您的头寸正在参与挖矿"
 
-#: src/components/Action/index.tsx
+#: src/constants/index.ts
 msgid "Connect wallet"
 msgstr "连接钱包"
 
@@ -171,11 +177,7 @@ msgstr "连接钱包"
 msgid "To ensure you dont lose funds due to very high price impact, swap has been disabled for this trade. If you still wish to continue, you can turn on Degen Mode from Settings."
 msgstr "为避免因极高价格影响导致资金损失，此交易的换币功能已被禁用。如仍要继续，可在设置中开启 Degen 模式。"
 
-#: src/components/Action/index.tsx
-msgid "Fetching Route"
-msgstr "正在获取路线"
-
-#: src/components/Action/index.tsx
+#: src/constants/index.ts
 msgid "Switch network"
 msgstr "切换网络"
 
@@ -196,8 +198,8 @@ msgid "Not the position owner"
 msgstr "非该头寸所有者"
 
 #: src/components/Action/index.tsx
-msgid "Approving"
-msgstr "授权中"
+msgid "Fetching Route{0}"
+msgstr "正在获取路线{0}"
 
 #: src/components/PriceRange/index.tsx
 msgid "Min Price"
@@ -293,8 +295,8 @@ msgid "Confirm this transaction in your wallet - Zapping {0}"
 msgstr "请在钱包中确认此交易 - 正在 Zap {0}"
 
 #: src/components/Action/index.tsx
-msgid "Loading"
-msgstr "加载中"
+msgid "Approving{0}"
+msgstr "正在授权{0}"
 
 #: src/components/Setting/utils.ts
 msgid "Enter a smaller slippage percentage"

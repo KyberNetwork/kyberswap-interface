@@ -11,6 +11,10 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: \n"
 
+#: src/Widget.tsx
+msgid "Position #{positionId}"
+msgstr "Position #{positionId}"
+
 #: src/components/Setting/index.tsx
 msgid "Please type the word <0>Confirm</0> below to enable Degen Mode"
 msgstr "Please type the word <0>Confirm</0> below to enable Degen Mode"
@@ -47,6 +51,10 @@ msgstr "It may take a few minutes to proceed."
 msgid "Est. Liquidity Value"
 msgstr "Est. Liquidity Value"
 
+#: src/components/Action/index.tsx
+msgid "Loading{0}"
+msgstr "Loading{0}"
+
 #: src/components/Setting/index.tsx
 msgid "Degen Mode"
 msgstr "Degen Mode"
@@ -69,8 +77,6 @@ msgid "Are you sure?"
 msgstr "Are you sure?"
 
 #: src/components/Action/index.tsx
-#: src/components/Setting/index.tsx
-#: src/components/Setting/index.tsx
 #: src/components/Setting/index.tsx
 msgid "Confirm"
 msgstr "Confirm"
@@ -163,7 +169,7 @@ msgstr "Enter a valid slippage percentage"
 msgid "Your position is in farming"
 msgstr "Your position is in farming"
 
-#: src/components/Action/index.tsx
+#: src/constants/index.ts
 msgid "Connect wallet"
 msgstr "Connect wallet"
 
@@ -171,11 +177,7 @@ msgstr "Connect wallet"
 msgid "To ensure you dont lose funds due to very high price impact, swap has been disabled for this trade. If you still wish to continue, you can turn on Degen Mode from Settings."
 msgstr "To ensure you dont lose funds due to very high price impact, swap has been disabled for this trade. If you still wish to continue, you can turn on Degen Mode from Settings."
 
-#: src/components/Action/index.tsx
-msgid "Fetching Route"
-msgstr "Fetching Route"
-
-#: src/components/Action/index.tsx
+#: src/constants/index.ts
 msgid "Switch network"
 msgstr "Switch network"
 
@@ -196,8 +198,8 @@ msgid "Not the position owner"
 msgstr "Not the position owner"
 
 #: src/components/Action/index.tsx
-msgid "Approving"
-msgstr "Approving"
+msgid "Fetching Route{0}"
+msgstr "Fetching Route{0}"
 
 #: src/components/PriceRange/index.tsx
 msgid "Min Price"
@@ -293,8 +295,8 @@ msgid "Confirm this transaction in your wallet - Zapping {0}"
 msgstr "Confirm this transaction in your wallet - Zapping {0}"
 
 #: src/components/Action/index.tsx
-msgid "Loading"
-msgstr "Loading"
+msgid "Approving{0}"
+msgstr "Approving{0}"
 
 #: src/components/Setting/utils.ts
 msgid "Enter a smaller slippage percentage"

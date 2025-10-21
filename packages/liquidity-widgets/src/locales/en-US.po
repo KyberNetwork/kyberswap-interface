@@ -6,6 +6,12 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: @lingui/cli\n"
 "Language: en-US\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
 
 #: src/components/Preview/index.tsx
 msgid "Position #{positionId}"
@@ -106,7 +112,6 @@ msgstr "Are you sure?"
 msgid "Increase Liquidity via Zap"
 msgstr "Increase Liquidity via Zap"
 
-#: src/components/Setting/index.tsx
 #: src/components/Setting/index.tsx
 msgid "Confirm"
 msgstr "Confirm"
@@ -318,6 +323,10 @@ msgstr "Enter max price"
 #: src/constants/index.ts
 msgid "Switch network"
 msgstr "Switch network"
+
+#: src/Widget.tsx
+msgid "Failed to load position"
+msgstr "Failed to load position"
 
 #: src/Widget.tsx
 msgid "+ Add Token(s) or Use Existing Position"

@@ -8,8 +8,6 @@ import { cn } from '@kyber/utils/tailwind-helpers';
 import SlippageInput from '@/components/Setting/SlippageInput';
 import { useZapState } from '@/hooks/useZapState';
 
-const MAX_SLIPPAGE_LABEL_TEXT = t`Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price. Please use with caution!`;
-
 export default function SlippageRow({ suggestedSlippage }: { suggestedSlippage: number }) {
   const { slippage } = useZapState();
 
@@ -31,7 +29,10 @@ export default function SlippageRow({ suggestedSlippage }: { suggestedSlippage: 
             }}
           >
             <div className="flex items-center justify-between w-full">
-              <MouseoverTooltip text={MAX_SLIPPAGE_LABEL_TEXT} width="220px">
+              <MouseoverTooltip
+                text={t`Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price. Please use with caution!`}
+                width="220px"
+              >
                 <div
                   className={cn(
                     'text-subText text-xs border-b border-dotted border-subText',

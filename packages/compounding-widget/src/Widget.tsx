@@ -201,7 +201,7 @@ export default function Widget() {
                   <Trans>
                     Confirm this transaction in your wallet - Zapping{' '}
                     {positionId && isUniV3
-                      ? `Position #${positionId}`
+                      ? t`Position #${positionId}`
                       : `${dexName} ${token0.symbol}/${token1.symbol} ${poolFee}%`}
                   </Trans>
                 </div>

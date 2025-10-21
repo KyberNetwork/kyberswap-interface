@@ -4840,6 +4840,10 @@ msgstr "STATUS"
 msgid "Amount to remove"
 msgstr "Amount to remove"
 
+#: src/pages/Earns/PositionDetail/index.tsx
+msgid "APR calculated based on last {aprInterval} fees. Useful for recent performance trends."
+msgstr "APR calculated based on last {aprInterval} fees. Useful for recent performance trends."
+
 #: src/pages/Earns/PositionDetail/LeftSection.tsx
 msgid "Unclaimed Fees"
 msgstr "Unclaimed Fees"

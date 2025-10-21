@@ -4840,6 +4840,10 @@ msgstr "状态"
 msgid "Amount to remove"
 msgstr "移除数量"
 
+#: src/pages/Earns/PositionDetail/index.tsx
+msgid "APR calculated based on last {aprInterval} fees. Useful for recent performance trends."
+msgstr "APR 基于最近 {aprInterval} 的手续费计算，可用于参考近期表现趋势。"
+
 #: src/pages/Earns/PositionDetail/LeftSection.tsx
 msgid "Unclaimed Fees"
 msgstr "未领取的手续费"

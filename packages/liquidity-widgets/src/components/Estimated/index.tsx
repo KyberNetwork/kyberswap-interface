@@ -78,7 +78,7 @@ export default function Estimated() {
 
         <EstimatedRow
           initializing={initializing}
-          label={<Trans>Est. Remaining Value</Trans>}
+          label={t`Est. Remaining Value`}
           labelTooltip={t`Based on your price range settings, a portion of your liquidity will be automatically zapped into the pool, while the remaining amount will stay in your wallet.`}
           value={
             <div>
@@ -141,7 +141,7 @@ export default function Estimated() {
 
         <EstimatedRow
           initializing={initializing}
-          label={<Trans>Zap Fee</Trans>}
+          label={t`Zap Fee`}
           labelTooltip={
             <Trans>
               Fees charged for automatically zapping into a liquidity pool. You still have to pay the standard gas fees.{' '}
