@@ -70,6 +70,8 @@ const usePositionRawStore = create<PositionState>((set, get) => ({
         });
 
         if (positionInfo.error) {
+          // TODO: Check with multi-language message
+          if (!positionId && positionInfo.error.includes('Position not found')) return;
           set({ positionError: positionInfo.error, position: null });
           return;
         }

@@ -10,7 +10,7 @@ import { estimateGasForTx } from '@kyber/utils/crypto/transaction';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
 import { WarningMsg } from '@/components/WarningMsg';
-import { useNftApproval } from '@/hooks/useNftApproval';
+import { useApproval } from '@/hooks/useApproval';
 import useZapRoute from '@/hooks/useZapRoute';
 import { useZapOutContext } from '@/stores';
 import { useZapOutUserState } from '@/stores/state';
@@ -44,7 +44,7 @@ export const Action = () => {
     isApproved: approved,
     approve,
     pendingTx,
-  } = useNftApproval({
+  } = useApproval({
     rpcUrl,
     nftManagerContract,
     nftId: +positionId,
