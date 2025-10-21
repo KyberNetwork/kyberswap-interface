@@ -32,7 +32,7 @@ export default function EstimatedTokenRow({
         <div>
           <div className="flex justify-end items-start gap-1">
             {token.logo && <TokenLogo src={token.logo} size={14} className="mt-[2px]" />}
-            <div className="text-end">
+            <div className="flex gap-1">
               {formatNumber(previousAmount ? previousAmount : addedAmount)}{' '}
               <TokenSymbol symbol={token.symbol} maxWidth={60} />
             </div>
