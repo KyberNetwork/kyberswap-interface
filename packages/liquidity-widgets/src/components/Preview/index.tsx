@@ -176,9 +176,11 @@ export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool,
         }
         description={
           txStatus !== 'success' && txStatus !== 'failed' && !txError && !txHash
-            ? t`Confirm this transaction in your wallet - Zapping ` + (positionId && isUniV3)
-              ? t`Position #${positionId}`
-              : t`${dexName} ${pool.token0.symbol}/${pool.token1.symbol} ${pool.fee}%`
+            ? t`Confirm this transaction in your wallet - Zapping` +
+              ' ' +
+              (positionId && isUniV3
+                ? t`Position #${positionId}`
+                : t`${dexName} ${pool.token0.symbol}/${pool.token1.symbol} ${pool.fee}%`)
             : undefined
         }
         errorMessage={txError ? errorMessage : undefined}
