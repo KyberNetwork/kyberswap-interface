@@ -1,3 +1,5 @@
+import { t } from '@lingui/macro';
+
 import { defaultToken } from '@kyber/schema';
 import { Skeleton, TokenSymbol } from '@kyber/ui';
 import { formatDisplayNumber } from '@kyber/utils/number';
@@ -18,7 +20,7 @@ export default function PoolPrice() {
   return (
     <div className="text-subText text-sm flex items-center gap-1 flex-wrap justify-between">
       <div className="flex items-center gap-1.5">
-        <span> Current Price</span>
+        <span>{t`Current Price`}</span>
         {!targetPool || !targetPoolPrice ? (
           <Skeleton className="w-[150px] h-3.5" />
         ) : (

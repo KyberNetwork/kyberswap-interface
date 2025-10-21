@@ -737,6 +737,10 @@ msgstr "Cross-Chain Routing Sources"
 msgid "Are you sure you want to cancel {0} limit orders?"
 msgstr "Are you sure you want to cancel {0} limit orders?"
 
+#: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
+msgid "Est. Paymaster Gas Fee"
+msgstr "Est. Paymaster Gas Fee"
+
 #: src/components/Announcement/Popups/TransactionPopup.tsx
 msgid "You have successfully transferred {postFix}"
 msgstr "You have successfully transferred {postFix}"
@@ -1474,6 +1478,7 @@ msgstr "Active Alerts"
 msgid "Your trade is routed through one of these cross-chain sources."
 msgstr "Your trade is routed through one of these cross-chain sources."
 
+#: src/pages/Earns/components/ClaimModal/index.tsx
 #: src/pages/Earns/UserPositions/DropdownAction.tsx
 msgid "Claim Fees"
 msgstr "Claim Fees"
@@ -3264,6 +3269,10 @@ msgstr "Your slippage {msg}"
 msgid "Selecting Treasury Grant Option"
 msgstr "Selecting Treasury Grant Option"
 
+#: src/pages/Earns/UserPositions/Filter.tsx
+msgid "Closed Positions"
+msgstr "Closed Positions"
+
 #: src/components/ReadMore/index.tsx
 msgid "Read more"
 msgstr "Read more"
@@ -3418,6 +3427,10 @@ msgstr "Order will Expire on"
 msgid "High APR"
 msgstr "High APR"
 
+#: src/pages/Earns/UserPositions/Filter.tsx
+msgid "Out Range"
+msgstr "Out Range"
+
 #: src/components/ClassicElasticTab.tsx
 #: src/components/ClassicElasticTab.tsx
 #: src/components/ClassicElasticTab.tsx
@@ -3563,10 +3576,6 @@ msgstr "Remove from favorites"
 #: src/pages/PoolFinder/index.tsx
 msgid "Select a token"
 msgstr "Select a token"
-
-#: src/pages/Earns/components/ClaimModal/index.tsx
-msgid "Claim {claimType}"
-msgstr "Claim {claimType}"
 
 #: src/pages/Campaign/components/Information.tsx
 msgid "How to earn points"
@@ -4450,6 +4459,10 @@ msgstr "View Pools"
 msgid "Search proposals"
 msgstr "Search proposals"
 
+#: src/pages/Earns/UserPositions/Filter.tsx
+msgid "In Range"
+msgstr "In Range"
+
 #: src/components/Badge/RangeBadge.tsx
 msgid "The price of this pool is within your selected range. Your position is currently earning fees."
 msgstr "The price of this pool is within your selected range. Your position is currently earning fees."
@@ -4838,6 +4851,10 @@ msgstr "STATUS"
 #: src/pages/RemoveLiquidityProAmm/index.tsx
 msgid "Amount to remove"
 msgstr "Amount to remove"
+
+#: src/pages/Earns/PositionDetail/index.tsx
+msgid "APR calculated based on last {aprInterval} fees. Useful for recent performance trends."
+msgstr "APR calculated based on last {aprInterval} fees. Useful for recent performance trends."
 
 #: src/pages/Earns/PositionDetail/LeftSection.tsx
 msgid "Unclaimed Fees"
@@ -5366,6 +5383,7 @@ msgstr "Only trading volume from pairs composed of <0>eligible tokens</0> will b
 #: src/pages/Campaign/MyDashboard.tsx
 #: src/pages/Campaign/MyDashboard.tsx
 #: src/pages/Earns/components/ClaimAllModal/index.tsx
+#: src/pages/Earns/components/ClaimModal/index.tsx
 #: src/pages/Earns/PositionDetail/LeftSection.tsx
 #: src/pages/Earns/PositionDetail/RewardSection.tsx
 #: src/pages/Earns/UserPositions/PositionBanner.tsx
@@ -5807,6 +5825,10 @@ msgstr "One token is close to 0% in the pool ratio. Pool might go inactive."
 #: src/components/SwapForm/hooks/useGetInputError.tsx
 msgid "Invalid recipient"
 msgstr "Invalid recipient"
+
+#: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
+msgid "Estimated Total Gas"
+msgstr "Estimated Total Gas"
 
 #: src/pages/KyberDAO/KNCUtility/GasRefundBox.tsx
 msgid "Total Gas Refund"
@@ -7567,6 +7589,7 @@ msgstr "Total Points: Combined points from all participants"
 
 #: src/components/Menu/index.tsx
 #: src/pages/Earns/components/ClaimAllModal/index.tsx
+#: src/pages/Earns/components/ClaimModal/index.tsx
 #: src/pages/Earns/UserPositions/DropdownAction.tsx
 #: src/pages/ElasticLegacy/FarmLegacy.tsx
 msgid "Claim Rewards"

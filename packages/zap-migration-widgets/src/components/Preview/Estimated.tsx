@@ -1,3 +1,5 @@
+import { Trans, t } from '@lingui/macro';
+
 import { API_URLS, univ2Types } from '@kyber/schema';
 import { InfoHelper } from '@kyber/ui';
 import { PI_LEVEL } from '@kyber/utils';
@@ -7,6 +9,7 @@ import { cn } from '@kyber/utils/tailwind-helpers';
 import EstimatedRow from '@/components/Estimated/EstimatedRow';
 import { HIGH_SLIPPAGE_WARNING, LOW_SLIPPAGE_WARNING } from '@/components/Warning/SlippageWarning';
 import useZapRoute from '@/hooks/useZapRoute';
+import { i18n } from '@/lingui';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 import { useZapStore } from '@/stores/useZapStore';
 
@@ -23,8 +26,13 @@ export default function Estimated() {
     <div className="flex flex-col gap-2 mt-4">
       {!isTargetUniV2 ? (
         <EstimatedRow
-          label="Remaining amount"
-          labelTooltip="Based on your price range settings, a portion of your liquidity will be automatically zapped into the pool, while the remaining amount will stay in your wallet."
+          label={t`Remaining amount`}
+          labelTooltip={
+            <Trans>
+              Based on your price range settings, a portion of your liquidity will be automatically zapped into the
+              pool, while the remaining amount will stay in your wallet.
+            </Trans>
+          }
           value={
             refund.refunds.length > 0 ? (
               <div>
@@ -59,15 +67,20 @@ export default function Estimated() {
                 : '',
             )}
           >
-            Max Slippage
+            {t`Max Slippage`}
           </div>
         }
-        labelTooltip="Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price. Please use with caution!"
+        labelTooltip={
+          <Trans>
+            Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not
+            get such a good price. Please use with caution!
+          </Trans>
+        }
         valueTooltip={
           slippage && slippage > 2 * suggestedSlippage
-            ? HIGH_SLIPPAGE_WARNING
+            ? i18n._(HIGH_SLIPPAGE_WARNING)
             : slippage && slippage < suggestedSlippage / 2
-              ? LOW_SLIPPAGE_WARNING
+              ? i18n._(LOW_SLIPPAGE_WARNING)
               : ''
         }
         value={
@@ -99,10 +112,15 @@ export default function Estimated() {
                 : '',
             )}
           >
-            Zap Impact
+            {t`Zap Impact`}
           </div>
         }
-        labelTooltip="The difference between input and estimated liquidity received (including remaining amount). Be careful with high value!"
+        labelTooltip={
+          <Trans>
+            The difference between input and estimated liquidity received (including remaining amount). Be careful with
+            high value!
+          </Trans>
+        }
         value={
           <div
             className={`text-sm ${
@@ -120,21 +138,21 @@ export default function Estimated() {
       />
 
       <EstimatedRow
-        label="Est. Gas Fee"
-        labelTooltip={'Estimated network fee for your transaction.'}
+        label={t`Est. Gas Fee`}
+        labelTooltip={t`Estimated network fee for your transaction.`}
         value={<div className="text-sm">{formatDisplayNumber(buildData.gasUsd, { style: 'currency' })}</div>}
         hasRoute
       />
 
       <EstimatedRow
-        label="Migration Fee"
+        label={t`Migration Fee`}
         labelTooltip={
-          <div>
+          <Trans>
             Fees charged for automatically zapping into a liquidity pool. You still have to pay the standard gas fees.{' '}
             <a className="text-accent" href={API_URLS.DOCUMENT.ZAP_FEE_MODEL} target="_blank" rel="noopener noreferrer">
               More details.
             </a>
-          </div>
+          </Trans>
         }
         value={<div className="text-sm">{parseFloat(zapFee.toFixed(3))}%</div>}
         hasRoute

@@ -1,5 +1,7 @@
 import { useRef } from 'react';
 
+import { t } from '@lingui/macro';
+
 import { MouseoverTooltip, Skeleton } from '@kyber/ui';
 import { formatDisplayNumber } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
@@ -89,7 +91,7 @@ const CurrentPriceIndicator = ({
       }}
     >
       <MouseoverTooltip
-        text={`Current Price: ${formatDisplayNumber(currentPrice, { significantDigits: 8 })}`}
+        text={t`Current Price: ${formatDisplayNumber(currentPrice, { significantDigits: 8 })}`}
         placement="bottom"
         width="max-content"
       >

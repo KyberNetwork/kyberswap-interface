@@ -1,5 +1,6 @@
 import { ReactNode, createContext, useContext, useEffect, useMemo, useState } from 'react';
 
+import { t } from '@lingui/macro';
 import { useShallow } from 'zustand/shallow';
 
 import { useTokenPrices } from '@kyber/hooks';
@@ -270,11 +271,11 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
             setZapInfo(res.data);
           } else {
             setZapInfo(null);
-            setZapApiError(res.message || 'Something went wrong');
+            setZapApiError(res.message || t`Something went wrong`);
           }
         })
         .catch(e => {
-          setZapApiError(e.message || 'Something went wrong');
+          setZapApiError(e.message || t`Something went wrong`);
         })
         .finally(() => {
           setLoading(false);
@@ -329,7 +330,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
 export const useZapState = () => {
   const context = useContext(ZapContext);
   if (context === undefined) {
-    throw new Error('useZapState must be used within a ZapContextProvider');
+    throw new Error(t`useZapState must be used within a ZapContextProvider`);
   }
   return context;
 };

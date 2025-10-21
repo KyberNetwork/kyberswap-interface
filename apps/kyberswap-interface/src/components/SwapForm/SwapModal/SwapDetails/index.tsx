@@ -1,5 +1,5 @@
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useCallback, useState } from 'react'
 import { isMobile, isTablet } from 'react-device-detect'
@@ -234,7 +234,7 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
           <RowFixed>
             <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
               <MouseoverTooltip text={<Trans>Estimated network fee for your transaction.</Trans>} placement="right">
-                {paymentToken ? 'Est. Paymaster Gas Fee' : 'Estimated Total Gas'}
+                {paymentToken ? t`Est. Paymaster Gas Fee` : t`Estimated Total Gas`}
               </MouseoverTooltip>
             </TextDashed>
           </RowFixed>

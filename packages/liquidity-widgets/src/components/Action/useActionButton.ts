@@ -1,12 +1,14 @@
 import { useMemo, useState } from 'react';
 
+import { t } from '@lingui/macro';
+
 import { usePositionOwner } from '@kyber/hooks';
 import { APPROVAL_STATE, useErc20Approvals } from '@kyber/hooks';
 import { API_URLS, CHAIN_ID_TO_CHAIN, univ3PoolNormalize, univ4Types } from '@kyber/schema';
 import { PI_LEVEL, friendlyError, getZapImpact } from '@kyber/utils';
 import { parseUnits } from '@kyber/utils/crypto';
 
-import { ERROR_MESSAGE } from '@/constants';
+import { ERROR_MESSAGE, translateErrorMessage } from '@/constants';
 import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
@@ -131,17 +133,17 @@ export default function useActionButton({
   const isInvalidZapImpact = zapImpact?.level === PI_LEVEL.INVALID;
 
   const buttonStates = [
-    { condition: addressToApprove || nftApprovePendingTx, text: 'Approving' },
-    { condition: zapLoading, text: 'Fetching Route' },
-    { condition: gasLoading, text: 'Estimating Gas' },
-    { condition: errors.length > 0, text: errors[0] },
-    { condition: isUniv4 && isNotOwner, text: 'Not the position owner' },
-    { condition: loading, text: 'Checking Allowance' },
-    { condition: notApprove, text: `Approve ${notApprove?.symbol}` },
-    { condition: isUniv4 && positionId && !nftApproved, text: 'Approve NFT' },
-    { condition: isVeryHighZapImpact || isInvalidZapImpact, text: 'Zap anyway' },
+    { condition: addressToApprove || nftApprovePendingTx, text: t`Approving` },
+    { condition: zapLoading, text: t`Fetching Route` },
+    { condition: gasLoading, text: t`Estimating Gas` },
+    { condition: errors.length > 0, text: translateErrorMessage(errors[0]) },
+    { condition: isUniv4 && isNotOwner, text: t`Not the position owner` },
+    { condition: loading, text: t`Checking Allowance` },
+    { condition: notApprove, text: t`Approve ${notApprove?.symbol ?? ''}` },
+    { condition: isUniv4 && positionId && !nftApproved, text: t`Approve NFT` },
+    { condition: isVeryHighZapImpact || isInvalidZapImpact, text: t`Zap anyway` },
   ];
-  const btnText = buttonStates.find(state => state.condition)?.text || 'Preview';
+  const btnText = buttonStates.find(state => state.condition)?.text || t`Preview`;
 
   const getGasEstimation = async ({ deadline }: { deadline: number }) => {
     if (!zapInfo) return;

@@ -1,5 +1,7 @@
 import { ChainId, Pool, PoolType, ZapRouteDetail } from '@kyber/schema';
 
+import { SupportedLocale } from '@/i18n';
+
 export enum TxStatus {
   INIT = 'init',
   PENDING = 'pending',
@@ -21,6 +23,7 @@ export interface WidgetProps {
   initAmounts?: string;
   compoundType?: 'COMPOUND_TYPE_REWARD';
   zapStatus?: Record<string, TxStatus>;
+  locale?: SupportedLocale;
   onClose: () => void;
   onConnectWallet: () => void;
   onSwitchChain: () => void;

@@ -2,6 +2,7 @@ import {
   ChainId as CompoundingChainId,
   PoolType as CompoundingPoolType,
   CompoundingWidget,
+  SupportedLocale,
   TxStatus,
 } from '@kyberswap/compounding-widget'
 import '@kyberswap/compounding-widget/dist/style.css'
@@ -12,6 +13,7 @@ import { useNavigate } from 'react-router-dom'
 import { NotificationType } from 'components/Announcement/type'
 import Modal from 'components/Modal'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useActiveLocale } from 'hooks/useActiveLocale'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
@@ -33,6 +35,7 @@ interface CompoundingPureParams {
 
 interface CompoundingParams extends CompoundingPureParams {
   rpcUrl?: string
+  locale?: SupportedLocale
   connectedAccount: {
     address?: string | undefined
     chainId: number
@@ -78,6 +81,7 @@ const useCompounding = ({
   onRefreshPosition?: () => void
   onCloseClaimModal: () => void
 }) => {
+  const locale = useActiveLocale()
   const addTransactionWithType = useTransactionAdder()
   const allTransactions = useAllTransactions()
   const toggleWalletModal = useWalletModalToggle()
@@ -158,6 +162,7 @@ const useCompounding = ({
         ? {
             ...compoundingPureParams,
             rpcUrl: compoundingRpcUrl,
+            locale,
             connectedAccount: {
               address: account,
               chainId: chainId,
@@ -228,6 +233,7 @@ const useCompounding = ({
       compoundingRpcUrl,
       handleCloseCompounding,
       handleNavigateToPosition,
+      locale,
       library,
       onRefreshPosition,
       toggleWalletModal,

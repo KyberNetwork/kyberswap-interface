@@ -1,3 +1,5 @@
+import { t } from '@lingui/macro';
+
 import { univ2Types } from '@kyber/schema';
 import { TokenLogo, TokenSymbol } from '@kyber/ui';
 import { formatDisplayNumber, formatTokenAmount } from '@kyber/utils/number';
@@ -29,7 +31,7 @@ export default function UpdatedPosition() {
   return (
     <div className="rounded-md px-5 py-4 bg-interactive">
       <div className="flex items-center justify-between">
-        <span className="text-subText text-sm">Updated position</span>
+        <span className="text-subText text-sm">{t`Updated position`}</span>
         <span>
           {formatDisplayNumber(addedLiquidity.addedValue0 + addedLiquidity.addedValue1, {
             style: 'currency',
@@ -64,7 +66,7 @@ export default function UpdatedPosition() {
           <div className="w-full h-[1px] bg-stroke my-3" />
 
           <div className="flex items-center justify-between flex-wrap gap-2 row-gap-0">
-            <p className="text-subText text-sm">Current price</p>
+            <p className="text-subText text-sm">{t`Current price`}</p>
             <div className="flex items-center gap-1.5">
               <div className="flex items-center gap-1">
                 1{' '}

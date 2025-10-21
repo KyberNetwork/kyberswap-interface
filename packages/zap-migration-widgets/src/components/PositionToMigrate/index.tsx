@@ -1,3 +1,5 @@
+import { t } from '@lingui/macro';
+
 import { defaultToken, univ3Types } from '@kyber/schema';
 import { toRawString } from '@kyber/utils/number';
 
@@ -24,7 +26,7 @@ export default function PositionToMigrate() {
   return (
     <div className="border border-stroke rounded-md px-4 py-3">
       <MigrationAccordion
-        title={targetPositionId ? 'Position to migrate' : 'Current position'}
+        title={targetPositionId ? t`Position to migrate` : t`Current position`}
         amount0={+toRawString(sourcePosition?.amount0 || 0n, token0.decimals)}
         amount1={+toRawString(sourcePosition?.amount1 || 0n, token1.decimals)}
         pool={sourcePool}
@@ -33,7 +35,7 @@ export default function PositionToMigrate() {
 
       {isUniV3 ? (
         <MigrationAccordion
-          title="Earned fee to migrate"
+          title={t`Earned fee to migrate`}
           amount0={+toRawString(earnedFee.earnedFee0, token0.decimals)}
           amount1={+toRawString(earnedFee.earnedFee1, token1.decimals)}
           className="mt-3"

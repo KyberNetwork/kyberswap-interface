@@ -1,3 +1,5 @@
+import { Trans } from '@lingui/macro';
+
 import { Skeleton } from '@kyber/ui';
 
 import { useZapState } from '@/hooks/useZapState';
@@ -22,10 +24,14 @@ export default function PositionPriceRange() {
 
   return (
     <div className="px-4 py-3 mt-4 text-sm border border-stroke rounded-md">
-      <p className="text-subText mb-3">Your Position Price Ranges</p>
+      <p className="text-subText mb-3">
+        <Trans>Your Position Price Ranges</Trans>
+      </p>
       <div className="flex items-center gap-4">
         <div className="bg-white bg-opacity-[0.04] rounded-md py-3 w-1/2 flex flex-col items-center justify-center gap-1">
-          <p className="text-subText">Min Price</p>
+          <p className="text-subText">
+            <Trans>Min Price</Trans>
+          </p>
           {initializing ? (
             <Skeleton className="w-14 h-5" />
           ) : (
@@ -37,14 +43,22 @@ export default function PositionPriceRange() {
             <Skeleton className="w-20 h-5" />
           ) : (
             <p className="text-subText">
-              {revertPrice
-                ? `${pool?.token0.symbol} per ${pool?.token1.symbol}`
-                : `${pool?.token1.symbol} per ${pool?.token0.symbol}`}
+              {revertPrice ? (
+                <Trans>
+                  {pool?.token0.symbol} per {pool?.token1.symbol}
+                </Trans>
+              ) : (
+                <Trans>
+                  {pool?.token1.symbol} per {pool?.token0.symbol}
+                </Trans>
+              )}
             </p>
           )}
         </div>
         <div className="bg-white bg-opacity-[0.04] rounded-md px-2 py-3 w-1/2 flex flex-col items-center justify-center gap-1">
-          <p className="text-subText">Max Price</p>
+          <p className="text-subText">
+            <Trans>Max Price</Trans>
+          </p>
           {initializing ? (
             <Skeleton className="w-14 h-5" />
           ) : (
@@ -56,9 +70,15 @@ export default function PositionPriceRange() {
             <Skeleton className="w-20 h-5" />
           ) : (
             <p className="text-subText">
-              {revertPrice
-                ? `${pool?.token0.symbol} per ${pool?.token1.symbol}`
-                : `${pool?.token1.symbol} per ${pool?.token0.symbol}`}
+              {revertPrice ? (
+                <Trans>
+                  {pool?.token0.symbol} per {pool?.token1.symbol}
+                </Trans>
+              ) : (
+                <Trans>
+                  {pool?.token1.symbol} per {pool?.token0.symbol}
+                </Trans>
+              )}
             </p>
           )}
         </div>

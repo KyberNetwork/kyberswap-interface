@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 
+import { t } from '@lingui/macro';
+
 import { UniV2Position, UniV3Position, univ2PoolNormalize, univ3PoolNormalize } from '@kyber/schema';
 import { Skeleton, Slider, TokenLogo, TokenSymbol } from '@kyber/ui';
 import { assertUnreachable } from '@kyber/utils';
@@ -51,7 +53,7 @@ export function LiquidityToRemove() {
 
   return (
     <div className="rounded-lg px-4 py-3 border border-stroke text-sm text-subText">
-      <div>Liquidity To Remove</div>
+      <div>{t`Liquidity To Remove`}</div>
       <div className="flex justify-between items-center mt-2 py-1.5">
         <div className="font-medium text-lg text-text">{percent}%</div>
         <div className="flex gap-2">
@@ -66,7 +68,7 @@ export function LiquidityToRemove() {
               )}
               onClick={() => setPercent(item)}
             >
-              {item === 100 ? 'Max' : `${item}%`}
+              {item === 100 ? t`Max` : `${item}%`}
             </button>
           ))}
         </div>

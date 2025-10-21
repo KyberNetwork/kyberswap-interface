@@ -97,16 +97,18 @@ const ClaimModal = ({
       <Wrapper>
         <ModalHeader>
           <Text fontSize={20} fontWeight={500}>
-            {t`Claim ${claimType}`}
+            {claimType === ClaimType.FEES
+              ? t`Claim Fees`
+              : claimType === ClaimType.REWARDS
+              ? t`Claim Rewards`
+              : t`Claim`}
           </Text>
           <X onClick={onClose} />
         </ModalHeader>
         <ClaimInfoWrapper>
-          <Text
-            fontSize={14}
-            color={theme.subText}
-            marginBottom={2}
-          >{t`Choose to reinvest your earnings back into this position or send them to your wallet.`}</Text>
+          <Text fontSize={14} color={theme.subText} marginBottom={2}>
+            {t`Choose to reinvest your earnings back into this position or send them to your wallet.`}
+          </Text>
           <ClaimInfo>
             <Flex alignItems={'center'} justifyContent={'space-between'}>
               <Text fontSize={14} color={theme.subText}>{t`Total Value`}</Text>
