@@ -1,3 +1,5 @@
+import { Trans, t } from '@lingui/macro';
+
 import { univ2Types } from '@kyber/schema';
 import { MouseoverTooltip, Skeleton } from '@kyber/ui';
 import { formatAprNumber, formatDisplayNumber } from '@kyber/utils/number';
@@ -31,7 +33,9 @@ export default function PoolStat() {
     >
       <div className="flex max-sm:flex-col justify-between gap-[6px]">
         <div className="flex flex-col max-sm:!flex-row max-sm:justify-between items-start gap-1">
-          <span>TVL</span>
+          <span>
+            <Trans>TVL</Trans>
+          </span>
           {initializing ? (
             <Skeleton className="w-16 h-5" />
           ) : (
@@ -46,7 +50,9 @@ export default function PoolStat() {
           )}
         </div>
         <div className="flex flex-col max-sm:!flex-row max-sm:justify-between items-start gap-1">
-          <span>24h Volume</span>
+          <span>
+            <Trans>24h Volume</Trans>
+          </span>
           {initializing ? (
             <Skeleton className="w-16 h-5" />
           ) : (
@@ -61,7 +67,9 @@ export default function PoolStat() {
           )}
         </div>
         <div className="flex flex-col max-sm:!flex-row max-sm:justify-between items-start gap-1">
-          <span>24h Fees</span>
+          <span>
+            <Trans>24h Fees</Trans>
+          </span>
           {initializing ? (
             <Skeleton className="w-16 h-5" />
           ) : (
@@ -76,7 +84,9 @@ export default function PoolStat() {
           )}
         </div>
         <div className="flex flex-col max-sm:!flex-row max-sm:justify-between items-start gap-1">
-          <span>Est. APR</span>
+          <span>
+            <Trans>Est. APR</Trans>
+          </span>
           {initializing ? (
             <Skeleton className="w-16 h-5" />
           ) : (
@@ -86,9 +96,9 @@ export default function PoolStat() {
                 <MouseoverTooltip
                   text={
                     <div className="flex flex-col gap-0.5">
-                      <div>LP Fees: {formatAprNumber(pool.stats.apr)}%</div>
-                      <div>EG Sharing Reward: {formatAprNumber(pool.stats.kemEGApr)}%</div>
-                      {pool.stats.kemLMApr > 0 && <div>LM Reward: {formatAprNumber(pool.stats.kemLMApr)}%</div>}
+                      <div>{t`LP Fees: ${formatAprNumber(pool.stats.apr)}%`}</div>
+                      <div>{t`EG Sharing Reward: ${formatAprNumber(pool.stats.kemEGApr)}%`}</div>
+                      {pool.stats.kemLMApr > 0 && <div>{t`LM Reward: ${formatAprNumber(pool.stats.kemLMApr)}%`}</div>}
                     </div>
                   }
                   placement="top"
@@ -103,7 +113,9 @@ export default function PoolStat() {
       </div>
       {isUniV2 && !!positionId && (
         <div className="flex justify-between items-start gap-1 mt-3 border-t border-stroke pt-2">
-          <span>Pool Share</span>
+          <span>
+            <Trans>Pool Share</Trans>
+          </span>
           <span className="text-text">
             {poolShare || poolShare === 0 ? (poolShare < 0.01 ? '<0.01%' : poolShare + '%') : '--'}
           </span>

@@ -1,0 +1,417 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2025-01-01 00:00+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: en-US\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#: src/components/Setting/index.tsx
+msgid "Please type the word <0>Confirm</0> below to enable Degen Mode"
+msgstr "Please type the word <0>Confirm</0> below to enable Degen Mode"
+
+#: src/components/Estimated/index.tsx
+#: src/components/Preview.tsx
+msgid "Zap Impact"
+msgstr "Zap Impact"
+
+#: src/components/Header.tsx
+msgid "● In range"
+msgstr "● In range"
+
+#: src/components/Setting/index.tsx
+msgid "No, Go back"
+msgstr "No, Go back"
+
+#: src/components/PoolStat.tsx
+msgid "Est. APR"
+msgstr "Est. APR"
+
+#: src/components/Estimated/index.tsx
+msgid "Est. Liquidity Value"
+msgstr "Est. Liquidity Value"
+
+#: src/components/Setting/index.tsx
+msgid "Degen Mode"
+msgstr "Degen Mode"
+
+#: src/components/Estimated/index.tsx
+#: src/components/Preview.tsx
+#: src/components/Preview.tsx
+msgid "Est. Gas Fee"
+msgstr "Est. Gas Fee"
+
+#: src/components/Setting/index.tsx
+msgid "mins"
+msgstr "mins"
+
+#: src/components/Setting/index.tsx
+msgid "Transaction Time Limit"
+msgstr "Transaction Time Limit"
+
+#: src/components/Header.tsx
+#: src/components/Preview.tsx
+#: src/components/Preview.tsx
+#: src/components/ZapTo.tsx
+msgid "Remove Liquidity"
+msgstr "Remove Liquidity"
+
+#: src/components/Estimated/index.tsx
+msgid "Est. Received Value"
+msgstr "Est. Received Value"
+
+#: src/components/Setting/index.tsx
+msgid "Are you sure?"
+msgstr "Are you sure?"
+
+#: src/components/Setting/index.tsx
+msgid "Confirm"
+msgstr "Confirm"
+
+#: src/components/PositionPriceRange.tsx
+msgid "Your Position Price Ranges"
+msgstr "Your Position Price Ranges"
+
+#: src/components/Setting/SlippageInput.tsx
+msgid "Custom"
+msgstr "Custom"
+
+#: src/components/Header.tsx
+#: src/components/Preview.tsx
+msgid "Fee {0}%"
+msgstr "Fee {0}%"
+
+#: src/components/Setting/index.tsx
+#: src/components/Setting/index.tsx
+msgid "Turn this on to make trades with very high price impact or to set very high slippage tolerance. This can result in bad rates and loss of funds. Be cautious."
+msgstr "Turn this on to make trades with very high price impact or to set very high slippage tolerance. This can result in bad rates and loss of funds. Be cautious."
+
+#: src/components/LiquidityToRemove.tsx
+msgid "Max"
+msgstr "Max"
+
+#: src/components/Estimated/index.tsx
+#: src/components/Preview.tsx
+msgid "Slippage"
+msgstr "Slippage"
+
+#: src/components/Estimated/index.tsx
+#: src/components/Preview.tsx
+#: src/components/Preview.tsx
+msgid "Estimated network fee for your transaction."
+msgstr "Estimated network fee for your transaction."
+
+#: src/components/Preview.tsx
+msgid "Zap Out Success!"
+msgstr "Zap Out Success!"
+
+#: src/components/Setting/index.tsx
+msgid "Transaction will revert if it is pending for longer than the indicated time."
+msgstr "Transaction will revert if it is pending for longer than the indicated time."
+
+#: src/components/Setting/SlippageInput.tsx
+msgid "Dynamic entry based on trading pair."
+msgstr "Dynamic entry based on trading pair."
+
+#: src/components/PositionPriceRange.tsx
+msgid "Max Price"
+msgstr "Max Price"
+
+#: src/components/PoolStat.tsx
+msgid "TVL"
+msgstr "TVL"
+
+#: src/components/ZapSummary.tsx
+msgid "Zap Summary"
+msgstr "Zap Summary"
+
+#: src/components/Header.tsx
+#: src/components/ZapTo.tsx
+msgid "Zap Out"
+msgstr "Zap Out"
+
+#: src/components/Estimated/index.tsx
+msgid "Collecting Fees"
+msgstr "Collecting Fees"
+
+#: src/components/ZapSummary.tsx
+msgid "Receive {0} {1}"
+msgstr "Receive {0} {1}"
+
+#: src/components/WidgetError.tsx
+msgid "Failed to load pool"
+msgstr "Failed to load pool"
+
+#: src/components/WidgetError.tsx
+msgid "Close & Refresh"
+msgstr "Close & Refresh"
+
+#: src/components/Estimated/index.tsx
+#: src/components/Preview.tsx
+msgid "Est. Received <0/>"
+msgstr "Est. Received <0/>"
+
+#: src/components/PoolStat.tsx
+msgid "Pool Share"
+msgstr "Pool Share"
+
+#: src/components/Preview.tsx
+msgid "Remove Liquidity via Zap"
+msgstr "Remove Liquidity via Zap"
+
+#: src/components/Estimated/index.tsx
+#: src/components/Preview.tsx
+msgid "Zap Fee"
+msgstr "Zap Fee"
+
+#: src/components/Estimated/index.tsx
+#: src/components/Preview.tsx
+msgid "The difference between input and estimated received (including remaining amount). Be careful with high value!"
+msgstr "The difference between input and estimated received (including remaining amount). Be careful with high value!"
+
+#: src/components/Header.tsx
+msgid "● Out of range"
+msgstr "● Out of range"
+
+#: src/components/Preview.tsx
+msgid "Use Suggested Slippage"
+msgstr "Use Suggested Slippage"
+
+#: src/components/PoolFee.tsx
+msgid "Fees to Claim"
+msgstr "Fees to Claim"
+
+#: src/components/PoolStat.tsx
+msgid "EG Sharing Reward: {0}%"
+msgstr "EG Sharing Reward: {0}%"
+
+#: src/components/Action.tsx
+msgid "Remove anyway"
+msgstr "Remove anyway"
+
+#: src/components/WidgetError.tsx
+msgid "Failed to build zap route"
+msgstr "Failed to build zap route"
+
+#: src/components/HoneypotWarning.tsx
+msgid "{0} is a Fee-On-Transfer token with a {1}% transaction fee applied on every transfer, please beware before triggering trades with this token."
+msgstr "{0} is a Fee-On-Transfer token with a {1}% transaction fee applied on every transfer, please beware before triggering trades with this token."
+
+#: src/components/ZapSummary.tsx
+msgid "<0>Swap {0} {1} for {2} </0>{3}"
+msgstr "<0>Swap {0} {1} for {2} </0>{3}"
+
+#: src/components/Setting/SlippageInput.tsx
+#: src/components/Setting/SlippageInput.tsx
+#: src/components/Setting/SlippageInput.tsx
+msgid "Enter a valid slippage percentage"
+msgstr "Enter a valid slippage percentage"
+
+#: src/components/PoolStat.tsx
+msgid "LM Reward: {0}%"
+msgstr "LM Reward: {0}%"
+
+#: src/components/Action.tsx
+msgid "Your position is in farming"
+msgstr "Your position is in farming"
+
+#: src/components/Header.tsx
+#: src/components/Header.tsx
+msgid "Native token"
+msgstr "Native token"
+
+#: src/components/Action.tsx
+msgid "Connect wallet"
+msgstr "Connect wallet"
+
+#: src/components/Preview.tsx
+msgid "Receiving Amount"
+msgstr "Receiving Amount"
+
+#: src/components/HoneypotWarning.tsx
+msgid "Our security checks detected that {honeypotTokensNames} may be a honeypot token (cannot be sold or carries extremely high sell fee). Please research carefully before adding liquidity or trading."
+msgstr "Our security checks detected that {honeypotTokensNames} may be a honeypot token (cannot be sold or carries extremely high sell fee). Please research carefully before adding liquidity or trading."
+
+#: src/components/Setting/SlippageInput.tsx
+msgid "Suggestion"
+msgstr "Suggestion"
+
+#: src/components/Action.tsx
+msgid "Fetching Route"
+msgstr "Fetching Route"
+
+#: src/components/Action.tsx
+msgid "Approve"
+msgstr "Approve"
+
+#: src/components/Preview.tsx
+msgid "Remove Liquidity Success!"
+msgstr "Remove Liquidity Success!"
+
+#: src/components/Action.tsx
+msgid "Switch network"
+msgstr "Switch network"
+
+#: src/components/Action.tsx
+msgid "Estimate Gas Failed"
+msgstr "Estimate Gas Failed"
+
+#: src/components/Action.tsx
+msgid "Cancel"
+msgstr "Cancel"
+
+#: src/components/PoolStat.tsx
+msgid "24h Fees"
+msgstr "24h Fees"
+
+#: src/components/Preview.tsx
+msgid "Set Custom Slippage"
+msgstr "Set Custom Slippage"
+
+#: src/components/Header.tsx
+msgid "Pool Address:"
+msgstr "Pool Address:"
+
+#: src/components/LiquidityToRemove.tsx
+msgid "Liquidity To Remove"
+msgstr "Liquidity To Remove"
+
+#: src/components/PositionLiquidity.tsx
+msgid "Your Position Liquidity"
+msgstr "Your Position Liquidity"
+
+#: src/components/Action.tsx
+msgid "Not the position owner"
+msgstr "Not the position owner"
+
+#: src/components/Action.tsx
+msgid "Approving"
+msgstr "Approving"
+
+#: src/components/PositionPriceRange.tsx
+msgid "Min Price"
+msgstr "Min Price"
+
+#: src/components/PoolPrice.tsx
+msgid "Current Price"
+msgstr "Current Price"
+
+#: src/components/Header.tsx
+msgid "Degen Mode is turned on!"
+msgstr "Degen Mode is turned on!"
+
+#: src/components/Action.tsx
+msgid "Checking Approval"
+msgstr "Checking Approval"
+
+#: src/components/ZapSummary.tsx
+msgid "The actual Zap Routes could be adjusted with on-chain states"
+msgstr "The actual Zap Routes could be adjusted with on-chain states"
+
+#: src/components/Preview.tsx
+#: src/components/Setting/SlippageInput.tsx
+#: src/components/SlippageWarning.tsx
+msgid "Your slippage is set lower than usual, increasing the risk of transaction failure."
+msgstr "Your slippage is set lower than usual, increasing the risk of transaction failure."
+
+#: src/components/Setting/index.tsx
+msgid "Slippage Tolerance"
+msgstr "Slippage Tolerance"
+
+#: src/components/PoolStat.tsx
+msgid "LP Fees: {0}%"
+msgstr "LP Fees: {0}%"
+
+#: src/components/Setting/index.tsx
+msgid "Advanced Setting"
+msgstr "Advanced Setting"
+
+#: src/components/Preview.tsx
+msgid "Confirm this transaction in your wallet"
+msgstr "Confirm this transaction in your wallet"
+
+#: src/components/Preview.tsx
+msgid "You have successfully removed your liquidity"
+msgstr "You have successfully removed your liquidity"
+
+#: src/components/Action.tsx
+msgid "No route found"
+msgstr "No route found"
+
+#: src/components/Preview.tsx
+#: src/components/Preview.tsx
+msgid "The information is intended solely for your reference at the time you are viewing. It is your responsibility to verify all information before making decisions"
+msgstr "The information is intended solely for your reference at the time you are viewing. It is your responsibility to verify all information before making decisions"
+
+#: src/components/PositionPriceRange.tsx
+msgid "{baseTokenSymbol} per {quoteTokenSymbol}"
+msgstr "{baseTokenSymbol} per {quoteTokenSymbol}"
+
+#: src/components/Action.tsx
+msgid "Preview"
+msgstr "Preview"
+
+#: src/components/Action.tsx
+msgid "Estimating Gas"
+msgstr "Estimating Gas"
+
+#: src/components/Estimated/index.tsx
+#: src/components/Preview.tsx
+msgid "Fees charged for automatically zapping into a liquidity pool. You still have to pay the standard gas fees. <0>More details.</0>"
+msgstr "Fees charged for automatically zapping into a liquidity pool. You still have to pay the standard gas fees. <0>More details.</0>"
+
+#: src/components/Estimated/SlippageRow.tsx
+#: src/components/Setting/index.tsx
+#: src/components/SlippageWarning.tsx
+msgid "Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price. Please use with caution!"
+msgstr "Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price. Please use with caution!"
+
+#: src/components/ZapSummary.tsx
+msgid "and claim fee {0} {1} {2}"
+msgstr "and claim fee {0} {1} {2}"
+
+#: src/components/ZapTo.tsx
+msgid "Zap to"
+msgstr "Zap to"
+
+#: src/components/Preview.tsx
+#: src/components/Setting/SlippageInput.tsx
+#: src/components/SlippageWarning.tsx
+msgid "Your slippage is set higher than usual, which may cause unexpected losses."
+msgstr "Your slippage is set higher than usual, which may cause unexpected losses."
+
+#: src/components/ZapSummary.tsx
+msgid "Remove {0} {1}{2}"
+msgstr "Remove {0} {1}{2}"
+
+#: src/components/PoolStat.tsx
+msgid "24h Volume"
+msgstr "24h Volume"
+
+#: src/components/Estimated/SlippageRow.tsx
+#: src/components/SlippageWarning.tsx
+msgid "Max Slippage"
+msgstr "Max Slippage"
+
+#: src/components/ZapTo.tsx
+msgid "Manually"
+msgstr "Manually"
+
+#: src/components/Preview.tsx
+msgid "Zap-out Amount"
+msgstr "Zap-out Amount"
+
+#: src/components/Setting/SlippageInput.tsx
+msgid "Enter a smaller slippage percentage"
+msgstr "Enter a smaller slippage percentage"
+
+#: src/components/Preview.tsx
+#: src/components/WidgetError.tsx
+msgid "Close"
+msgstr "Close"

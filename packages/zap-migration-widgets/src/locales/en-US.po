@@ -1,0 +1,431 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2025-01-01 00:00+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: en-US\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#: src/components/Setting/index.tsx
+msgid "Please type the word <0>Confirm</0> below to enable Degen Mode"
+msgstr "Please type the word <0>Confirm</0> below to enable Degen Mode"
+
+#: src/components/Estimated/index.tsx
+#: src/components/Preview/Estimated.tsx
+msgid "Zap Impact"
+msgstr "Zap Impact"
+
+#: src/components/PoolInfo.tsx
+msgid "● In range"
+msgstr "● In range"
+
+#: src/components/Setting/index.tsx
+msgid "No, Go back"
+msgstr "No, Go back"
+
+#: src/components/Preview/MigrationSummary.tsx
+msgid "Add {0} {1} and {2} {3} into {4} in the selected fee pool"
+msgstr "Add {0} {1} and {2} {3} into {4} in the selected fee pool"
+
+#: src/components/TargetPosition/index.tsx
+msgid "New position"
+msgstr "New position"
+
+#: src/components/Setting/index.tsx
+msgid "Degen Mode"
+msgstr "Degen Mode"
+
+#: src/components/Preview/Estimated.tsx
+msgid "Est. Gas Fee"
+msgstr "Est. Gas Fee"
+
+#: src/components/Preview/index.tsx
+msgid "You have successfully migrated your liquidity"
+msgstr "You have successfully migrated your liquidity"
+
+#: src/components/Setting/index.tsx
+msgid "mins"
+msgstr "mins"
+
+#: src/components/Setting/index.tsx
+msgid "Transaction Time Limit"
+msgstr "Transaction Time Limit"
+
+#: src/components/Header.tsx
+#: src/components/Preview/index.tsx
+msgid "Migrate to increase position liquidity"
+msgstr "Migrate to increase position liquidity"
+
+#: src/components/Preview/index.tsx
+msgid "Reposition Completed"
+msgstr "Reposition Completed"
+
+#: src/components/PoolPriceWithRange/PriceRange.tsx
+msgid "Current Price: {0}"
+msgstr "Current Price: {0}"
+
+#: src/components/PositionToMigrate/index.tsx
+msgid "Position to migrate"
+msgstr "Position to migrate"
+
+#: src/components/Setting/index.tsx
+msgid "Are you sure?"
+msgstr "Are you sure?"
+
+#: src/components/Action/useActionButton.ts
+msgid "Switch Network"
+msgstr "Switch Network"
+
+#: src/components/Preview/index.tsx
+#: src/components/Setting/index.tsx
+msgid "Confirm"
+msgstr "Confirm"
+
+#: src/index.tsx
+msgid "Failed to load zap route"
+msgstr "Failed to load zap route"
+
+#: src/components/RangeInput/RangePreset.tsx
+msgid "Full Range"
+msgstr "Full Range"
+
+#: src/components/Action/useActionButton.ts
+msgid "No Route Found"
+msgstr "No Route Found"
+
+#: src/components/Setting/SlippageInput.tsx
+msgid "Custom"
+msgstr "Custom"
+
+#: src/components/AmountToMigrate.tsx
+msgid "Will remain"
+msgstr "Will remain"
+
+#: src/components/PoolInfo.tsx
+msgid "● Closed"
+msgstr "● Closed"
+
+#: src/components/PoolInfo.tsx
+#: src/components/Preview/PreviewPoolInfo.tsx
+msgid "Fee {0}%"
+msgstr "Fee {0}%"
+
+#: src/components/Setting/index.tsx
+#: src/components/Setting/index.tsx
+msgid "Turn this on to make trades with very high price impact or to set very high slippage tolerance. This can result in bad rates and loss of funds. Be cautious."
+msgstr "Turn this on to make trades with very high price impact or to set very high slippage tolerance. This can result in bad rates and loss of funds. Be cautious."
+
+#: src/components/Action/useActionButton.ts
+msgid "You are not the owner of this position"
+msgstr "You are not the owner of this position"
+
+#: src/components/AmountToMigrate.tsx
+msgid "Max"
+msgstr "Max"
+
+#: src/components/Preview/Estimated.tsx
+msgid "Estimated network fee for your transaction."
+msgstr "Estimated network fee for your transaction."
+
+#: src/components/Action/useActionButton.ts
+msgid "Connect Wallet"
+msgstr "Connect Wallet"
+
+#: src/components/Setting/index.tsx
+msgid "Transaction will revert if it is pending for longer than the indicated time."
+msgstr "Transaction will revert if it is pending for longer than the indicated time."
+
+#: src/components/Preview/UpdatedPosition.tsx
+msgid "Current price"
+msgstr "Current price"
+
+#: src/components/PositionToMigrate/index.tsx
+#: src/components/TargetPosition/index.tsx
+msgid "Current position"
+msgstr "Current position"
+
+#: src/components/Setting/SlippageInput.tsx
+msgid "Dynamic entry based on trading pair."
+msgstr "Dynamic entry based on trading pair."
+
+#: src/components/RangeInput/PriceInput.tsx
+msgid "Max Price"
+msgstr "Max Price"
+
+#: src/components/Action/useActionButton.ts
+msgid "Approve source position"
+msgstr "Approve source position"
+
+#: src/components/Preview/Estimated.tsx
+msgid "Based on your price range settings, a portion of your liquidity will be automatically zapped into the pool, while the remaining amount will stay in your wallet."
+msgstr "Based on your price range settings, a portion of your liquidity will be automatically zapped into the pool, while the remaining amount will stay in your wallet."
+
+#: src/components/Preview/MigrationSummary.tsx
+msgid "Remove {0} {1} and {2} {3} from {4}"
+msgstr "Remove {0} {1} and {2} {3} from {4}"
+
+#: src/index.tsx
+msgid "Failed to load pool"
+msgstr "Failed to load pool"
+
+#: src/index.tsx
+msgid "Close & Refresh"
+msgstr "Close & Refresh"
+
+#: src/components/Preview/index.tsx
+msgid "Explore pools"
+msgstr "Explore pools"
+
+#: src/components/PoolInfo.tsx
+msgid "● Out of range"
+msgstr "● Out of range"
+
+#: src/components/Preview/index.tsx
+msgid "Reposition liquidity"
+msgstr "Reposition liquidity"
+
+#: src/components/Preview/index.tsx
+msgid "Use Suggested Slippage"
+msgstr "Use Suggested Slippage"
+
+#: src/components/Action/useActionButton.ts
+msgid "Select Liquidity to Migrate"
+msgstr "Select Liquidity to Migrate"
+
+#: src/components/Header.tsx
+msgid "Your current position will be closed and a new one created."
+msgstr "Your current position will be closed and a new one created."
+
+#: src/components/Warning/HoneypotWarning.tsx
+msgid "{0} is a Fee-On-Transfer token with a {1}% transaction fee applied on every transfer, please beware before triggering trades with this token."
+msgstr "{0} is a Fee-On-Transfer token with a {1}% transaction fee applied on every transfer, please beware before triggering trades with this token."
+
+#: src/components/Setting/SlippageInput.tsx
+#: src/components/Setting/SlippageInput.tsx
+#: src/components/Setting/SlippageInput.tsx
+msgid "Enter a valid slippage percentage"
+msgstr "Enter a valid slippage percentage"
+
+#: src/components/Action/useActionButton.ts
+msgid "Your position is in farming"
+msgstr "Your position is in farming"
+
+#: src/components/PoolInfo.tsx
+#: src/components/PoolInfo.tsx
+msgid "Native token"
+msgstr "Native token"
+
+#: src/components/Preview/UpdatedPosition.tsx
+msgid "Updated position"
+msgstr "Updated position"
+
+#: src/components/Action/index.tsx
+msgid "To ensure you dont lose funds due to very high price impact, swap has been disabled for this trade. If you still wish to continue, you can turn on Degen Mode from Settings."
+msgstr "To ensure you dont lose funds due to very high price impact, swap has been disabled for this trade. If you still wish to continue, you can turn on Degen Mode from Settings."
+
+#: src/components/AmountToMigrate.tsx
+msgid "Will migrate"
+msgstr "Will migrate"
+
+#: src/components/Warning/HoneypotWarning.tsx
+msgid "Our security checks detected that {honeypotTokensNames} may be a honeypot token (cannot be sold or carries extremely high sell fee). Please research carefully before adding liquidity or trading."
+msgstr "Our security checks detected that {honeypotTokensNames} may be a honeypot token (cannot be sold or carries extremely high sell fee). Please research carefully before adding liquidity or trading."
+
+#: src/components/Preview/Estimated.tsx
+msgid "Remaining amount"
+msgstr "Remaining amount"
+
+#: src/components/Setting/SlippageInput.tsx
+msgid "Suggestion"
+msgstr "Suggestion"
+
+#: src/components/Action/useActionButton.ts
+msgid "Fetching Route"
+msgstr "Fetching Route"
+
+#: src/components/Preview/index.tsx
+msgid "Migrated liquidity"
+msgstr "Migrated liquidity"
+
+#: src/index.tsx
+msgid "Failed to load position"
+msgstr "Failed to load position"
+
+#: src/components/Preview/index.tsx
+msgid "Migrate liquidity via Zap"
+msgstr "Migrate liquidity via Zap"
+
+#: src/components/PoolInfo.tsx
+msgid "Pool Address"
+msgstr "Pool Address"
+
+#: src/components/Action/useActionButton.ts
+msgid "Estimate Gas Failed"
+msgstr "Estimate Gas Failed"
+
+#: src/components/Action/index.tsx
+#: src/components/Preview/index.tsx
+msgid "Cancel"
+msgstr "Cancel"
+
+#: src/components/Action/useActionButton.ts
+msgid "Zap anyway"
+msgstr "Zap anyway"
+
+#: src/components/Preview/index.tsx
+msgid "Set Custom Slippage"
+msgstr "Set Custom Slippage"
+
+#: src/components/Action/useActionButton.ts
+msgid "Invalid Price Range"
+msgstr "Invalid Price Range"
+
+#: src/components/Header.tsx
+#: src/components/Preview/index.tsx
+msgid "Reposition"
+msgstr "Reposition"
+
+#: src/components/Preview/MigrationSummary.tsx
+msgid "Migration Summary"
+msgstr "Migration Summary"
+
+#: src/components/Action/useActionButton.ts
+msgid "Approve target position"
+msgstr "Approve target position"
+
+#: src/components/Action/useActionButton.ts
+msgid "Checking Allowance"
+msgstr "Checking Allowance"
+
+#: src/components/Action/useActionButton.ts
+msgid "Approving"
+msgstr "Approving"
+
+#: src/components/Action/useActionButton.ts
+msgid "Select Price Range"
+msgstr "Select Price Range"
+
+#: src/components/RangeInput/PriceInput.tsx
+msgid "Min Price"
+msgstr "Min Price"
+
+#: src/components/PoolPrice.tsx
+msgid "Current Price"
+msgstr "Current Price"
+
+#: src/components/Header.tsx
+msgid "Degen Mode is turned on!"
+msgstr "Degen Mode is turned on!"
+
+#: src/components/Preview/MigrationSummary.tsx
+msgid "Swap {0} {1} for {2} {3} via {poolElement}"
+msgstr "Swap {0} {1} for {2} {3} via {poolElement}"
+
+#: src/components/AmountToMigrate.tsx
+msgid "<0>Amount to migrate</0><1>{percent}%</1>"
+msgstr "<0>Amount to migrate</0><1>{percent}%</1>"
+
+#: src/components/Warning/SlippageWarning.tsx
+msgid "Your slippage is set lower than usual, increasing the risk of transaction failure."
+msgstr "Your slippage is set lower than usual, increasing the risk of transaction failure."
+
+#: src/components/Setting/index.tsx
+msgid "Slippage Tolerance"
+msgstr "Slippage Tolerance"
+
+#: src/components/Header.tsx
+msgid "Migrate liquidity"
+msgstr "Migrate liquidity"
+
+#: src/components/Estimated/index.tsx
+#: src/components/Preview/Estimated.tsx
+msgid "The difference between input and estimated liquidity received (including remaining amount). Be careful with high value!"
+msgstr "The difference between input and estimated liquidity received (including remaining amount). Be careful with high value!"
+
+#: src/components/Warning/FullRangeWarning.tsx
+msgid "Your liquidity is active across the full price range. However, this may result in a lower APR than estimated due to less concentration of liquidity."
+msgstr "Your liquidity is active across the full price range. However, this may result in a lower APR than estimated due to less concentration of liquidity."
+
+#: src/components/Setting/index.tsx
+msgid "Advanced Setting"
+msgstr "Advanced Setting"
+
+#: src/components/Preview/index.tsx
+msgid "Confirm this transaction in your wallet"
+msgstr "Confirm this transaction in your wallet"
+
+#: src/components/Action/useActionButton.ts
+msgid "Reposition to New Range"
+msgstr "Reposition to New Range"
+
+#: src/components/Action/index.tsx
+msgid "You have turned on Degen Mode from settings. Trades with very high price impact can be executed"
+msgstr "You have turned on Degen Mode from settings. Trades with very high price impact can be executed"
+
+#: src/components/Action/useActionButton.ts
+msgid "Preview"
+msgstr "Preview"
+
+#: src/components/Preview/index.tsx
+msgid "View position"
+msgstr "View position"
+
+#: src/components/Preview/index.tsx
+msgid "Confirm migration"
+msgstr "Confirm migration"
+
+#: src/components/Action/useActionButton.ts
+msgid "Estimating Gas"
+msgstr "Estimating Gas"
+
+#: src/components/Estimated/index.tsx
+#: src/components/Preview/Estimated.tsx
+msgid "Fees charged for automatically zapping into a liquidity pool. You still have to pay the standard gas fees. <0>More details.</0>"
+msgstr "Fees charged for automatically zapping into a liquidity pool. You still have to pay the standard gas fees. <0>More details.</0>"
+
+#: src/components/Estimated/SlippageRow.tsx
+#: src/components/Preview/Estimated.tsx
+#: src/components/Setting/index.tsx
+msgid "Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price. Please use with caution!"
+msgstr "Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price. Please use with caution!"
+
+#: src/components/Estimated/index.tsx
+#: src/components/Preview/Estimated.tsx
+msgid "Migration Fee"
+msgstr "Migration Fee"
+
+#: src/components/Warning/OutRangeWarning.tsx
+msgid "Your liquidity is outside the current market range and will not be used/earn fees until the market price enters your specified range."
+msgstr "Your liquidity is outside the current market range and will not be used/earn fees until the market price enters your specified range."
+
+#: src/components/TargetPosition/index.tsx
+msgid "Total position"
+msgstr "Total position"
+
+#: src/components/PositionToMigrate/index.tsx
+msgid "Earned fee to migrate"
+msgstr "Earned fee to migrate"
+
+#: src/components/Warning/SlippageWarning.tsx
+msgid "Your slippage is set higher than usual, which may cause unexpected losses."
+msgstr "Your slippage is set higher than usual, which may cause unexpected losses."
+
+#: src/components/Estimated/SlippageRow.tsx
+#: src/components/Preview/Estimated.tsx
+msgid "Max Slippage"
+msgstr "Max Slippage"
+
+#: src/components/Setting/SlippageInput.tsx
+msgid "Enter a smaller slippage percentage"
+msgstr "Enter a smaller slippage percentage"
+
+#: src/components/Preview/index.tsx
+#: src/index.tsx
+msgid "Close"
+msgstr "Close"

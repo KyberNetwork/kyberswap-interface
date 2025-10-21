@@ -1,5 +1,7 @@
 import { useEffect, useRef } from 'react';
 
+import { Trans, t } from '@lingui/macro';
+
 import { useDebounce } from '@kyber/hooks/use-debounce';
 import { MouseoverTooltip, Skeleton, TokenLogo, TokenSymbol } from '@kyber/ui';
 import { PI_LEVEL } from '@kyber/utils';
@@ -68,7 +70,7 @@ export default function Estimated() {
   return (
     <div className="rounded-lg border border-stroke px-4 py-3 text-sm">
       <div className="flex items-center justify-between">
-        <div>{mode === 'zapOut' ? 'Est. Received Value' : 'Est. Liquidity Value'}</div>
+        <div>{mode === 'zapOut' ? t`Est. Received Value` : t`Est. Liquidity Value`}</div>
 
         {fetchingRoute ? (
           <Skeleton className="w-6 h-3" />
@@ -83,7 +85,9 @@ export default function Estimated() {
         <>
           <div className="flex items-center justify-between mt-2">
             <div className="text-subText text-xs flex items-center gap-1">
-              Est. Received <TokenSymbol symbol={tokenOut?.symbol || ''} maxWidth={40} />
+              <Trans>
+                Est. Received <TokenSymbol symbol={tokenOut?.symbol || ''} maxWidth={40} />
+              </Trans>
             </div>
             {fetchingRoute || !tokenOut ? (
               <Skeleton className="w-20 h-4" />
@@ -100,7 +104,7 @@ export default function Estimated() {
 
           <div className="flex items-center justify-between mt-2">
             <MouseoverTooltip
-              text="The difference between input and estimated received (including remaining amount). Be careful with high value!"
+              text={t`The difference between input and estimated received (including remaining amount). Be careful with high value!`}
               width="220px"
             >
               <div
@@ -114,7 +118,7 @@ export default function Estimated() {
                     : {}
                 }
               >
-                Zap Impact
+                <Trans>Zap Impact</Trans>
               </div>
             </MouseoverTooltip>
             {route ? (
@@ -138,7 +142,7 @@ export default function Estimated() {
           <div className="flex items-center justify-between mt-2">
             <MouseoverTooltip
               text={
-                <div>
+                <Trans>
                   Fees charged for automatically zapping into a liquidity pool. You still have to pay the standard gas
                   fees.{' '}
                   <a
@@ -149,11 +153,13 @@ export default function Estimated() {
                   >
                     More details.
                   </a>
-                </div>
+                </Trans>
               }
               width="220px"
             >
-              <div className="text-subText text-xs border-b border-dotted border-subText">Zap Fee</div>
+              <div className="text-subText text-xs border-b border-dotted border-subText">
+                <Trans>Zap Fee</Trans>
+              </div>
             </MouseoverTooltip>
             <div>{parseFloat(zapFee.toFixed(3))}%</div>
           </div>
@@ -163,7 +169,9 @@ export default function Estimated() {
       {mode === 'withdrawOnly' && (
         <>
           <div className="flex items-start justify-between mt-2">
-            <div className="text-subText text-xs ">Collecting Fees</div>
+            <div className="text-subText text-xs ">
+              <Trans>Collecting Fees</Trans>
+            </div>
 
             <div className="flex justify-end flex-col items-end">
               {loading ? (
@@ -197,13 +205,17 @@ export default function Estimated() {
             </div>
           </div>
           <div className="flex items-start justify-between mt-2">
-            <div className="text-subText text-xs ">Slippage</div>
+            <div className="text-subText text-xs ">
+              <Trans>Slippage</Trans>
+            </div>
             <span>{slippage ? (((slippage || 0) * 100) / 10_000).toFixed(2) + '%' : '--'}</span>
           </div>
 
           <div className="flex items-start justify-between mt-2">
-            <MouseoverTooltip text="Estimated network fee for your transaction." width="220px">
-              <div className="text-subText text-xs border-b border-dotted border-subText">Est. Gas Fee</div>
+            <MouseoverTooltip text={t`Estimated network fee for your transaction.`} width="220px">
+              <div className="text-subText text-xs border-b border-dotted border-subText">
+                <Trans>Est. Gas Fee</Trans>
+              </div>
             </MouseoverTooltip>
 
             <span>{route ? formatDisplayNumber(gasUsd, { style: 'currency' }) : '--'}</span>

@@ -1,5 +1,7 @@
 import { useState } from 'react';
 
+import { Trans, t } from '@lingui/macro';
+
 import { DEXES_INFO, NETWORKS_INFO, univ3Types } from '@kyber/schema';
 import {
   Dialog,
@@ -80,13 +82,13 @@ export const Preview = () => {
                 : StatusDialogType.WAITING
         }
         title={
-          txStatus === 'success' ? (mode === 'zapOut' ? 'Zap Out Success!' : 'Remove Liquidity Success!') : undefined
+          txStatus === 'success' ? (mode === 'zapOut' ? t`Zap Out Success!` : t`Remove Liquidity Success!`) : undefined
         }
         description={
           txStatus !== 'success' && txStatus !== 'failed' && !error && !txHash
-            ? 'Confirm this transaction in your wallet'
+            ? t`Confirm this transaction in your wallet`
             : txStatus === 'success'
-              ? 'You have successfully removed your liquidity'
+              ? t`You have successfully removed your liquidity`
               : undefined
         }
         errorMessage={error ? errorMessage : undefined}
@@ -94,11 +96,11 @@ export const Preview = () => {
         action={
           <>
             <button className="ks-outline-btn flex-1" onClick={onCloseStatusDialog}>
-              Close
+              <Trans>Close</Trans>
             </button>
             {txStatus !== 'success' && errorMessage.includes('slippage') ? (
               <button className="ks-primary-btn flex-1" onClick={handleSlippage}>
-                {slippage !== suggestedSlippage ? 'Use Suggested Slippage' : 'Set Custom Slippage'}
+                {slippage !== suggestedSlippage ? t`Use Suggested Slippage` : t`Set Custom Slippage`}
               </button>
             ) : null}
           </>
@@ -194,7 +196,7 @@ export const Preview = () => {
       }}
     >
       <DialogContent className="ks-lw-style max-h-[85vh] max-w-[480px] overflow-auto" aria-describedby={undefined}>
-        <DialogTitle>Remove Liquidity {mode === 'zapOut' ? 'via Zap' : ''}</DialogTitle>
+        <DialogTitle>{mode === 'zapOut' ? t`Remove Liquidity via Zap` : t`Remove Liquidity`}</DialogTitle>
         <div>
           {' '}
           <div className="flex gap-3 items-center mt-4">
@@ -214,11 +216,13 @@ export const Preview = () => {
                 <TokenSymbol symbol={pool.token0.symbol} maxWidth={80} />/
                 <TokenSymbol symbol={pool.token1.symbol} maxWidth={80} /> {isUniV3 ? `#${positionId}` : ''}
               </div>
-              <div className="rounded-full text-xs bg-layer2 text-text px-3 py-[2px] w-fit">Fee {pool.fee}%</div>
+              <div className="rounded-full text-xs bg-layer2 text-text px-3 py-[2px] w-fit">
+                <Trans>Fee {pool.fee}%</Trans>
+              </div>
             </div>
           </div>
           <div className="mt-4 rounded-xl p-4 bg-layer2">
-            <div className="text-subText text-sm">{mode === 'zapOut' ? 'Zap-out' : 'Receiving'} Amount</div>
+            <div className="text-subText text-sm">{mode === 'zapOut' ? t`Zap-out Amount` : t`Receiving Amount`}</div>
             {mode === 'zapOut' && (
               <div className="flex mt-3 text-base items-center">
                 <TokenLogo src={tokenOut.logo} size={20} alt={tokenOut.symbol} />
@@ -259,7 +263,9 @@ export const Preview = () => {
               <div className="flex flex-col mt-4 gap-3 text-sm">
                 <div className="flex items-center justify-between">
                   <div className="text-subText text-xs flex items-center gap-1">
-                    Est. Received <TokenSymbol symbol={tokenOut.symbol} maxWidth={80} />
+                    <Trans>
+                      Est. Received <TokenSymbol symbol={tokenOut.symbol} maxWidth={80} />
+                    </Trans>
                   </div>
                   <div className="flex items-center gap-1">
                     <TokenLogo src={tokenOut.logo} alt={tokenOut.symbol} />
@@ -277,7 +283,7 @@ export const Preview = () => {
 
                 <div className="flex items-center justify-between">
                   <MouseoverTooltip
-                    text="The difference between input and estimated received (including remaining amount). Be careful with high value!"
+                    text={t`The difference between input and estimated received (including remaining amount). Be careful with high value!`}
                     width="220px"
                   >
                     <div
@@ -291,7 +297,7 @@ export const Preview = () => {
                           : {}
                       }
                     >
-                      Zap Impact
+                      <Trans>Zap Impact</Trans>
                     </div>
                   </MouseoverTooltip>
                   <div
@@ -309,8 +315,10 @@ export const Preview = () => {
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <MouseoverTooltip text="Estimated network fee for your transaction." width="220px">
-                    <div className="text-subText text-xs border-b border-dotted border-subText">Est. Gas Fee</div>
+                  <MouseoverTooltip text={t`Estimated network fee for your transaction.`} width="220px">
+                    <div className="text-subText text-xs border-b border-dotted border-subText">
+                      <Trans>Est. Gas Fee</Trans>
+                    </div>
                   </MouseoverTooltip>
                   <div>
                     {buildData
@@ -325,7 +333,7 @@ export const Preview = () => {
                 <div className="flex items-center justify-between">
                   <MouseoverTooltip
                     text={
-                      <div>
+                      <Trans>
                         Fees charged for automatically zapping into a liquidity pool. You still have to pay the standard
                         gas fees.{' '}
                         <a
@@ -336,11 +344,13 @@ export const Preview = () => {
                         >
                           More details.
                         </a>
-                      </div>
+                      </Trans>
                     }
                     width="220px"
                   >
-                    <div className="text-subText text-xs border-b border-dotted border-subText">Zap Fee</div>
+                    <div className="text-subText text-xs border-b border-dotted border-subText">
+                      <Trans>Zap Fee</Trans>
+                    </div>
                   </MouseoverTooltip>
                   <div>{parseFloat(zapFee.toFixed(3))}%</div>
                 </div>
@@ -354,14 +364,16 @@ export const Preview = () => {
                   }}
                 >
                   {slippage > 2 * suggestedSlippage
-                    ? 'Your slippage is set higher than usual, which may cause unexpected losses.'
-                    : 'Your slippage is set lower than usual, increasing the risk of transaction failure.'}
+                    ? t`Your slippage is set higher than usual, which may cause unexpected losses.`
+                    : t`Your slippage is set lower than usual, increasing the risk of transaction failure.`}
                 </div>
               )}
 
               <div className="text-xs italic mt-4 text-subText">
-                The information is intended solely for your reference at the time you are viewing. It is your
-                responsibility to verify all information before making decisions
+                <Trans>
+                  The information is intended solely for your reference at the time you are viewing. It is your
+                  responsibility to verify all information before making decisions
+                </Trans>
               </div>
 
               <WarningMsg />
@@ -371,12 +383,16 @@ export const Preview = () => {
             <>
               <div className="flex flex-col mt-4 gap-3 text-sm">
                 <div className="flex items-start justify-between">
-                  <div className="text-subText">Slippage</div>
+                  <div className="text-subText">
+                    <Trans>Slippage</Trans>
+                  </div>
                   <span>{slippage ? ((slippage * 100) / 10_000).toFixed(2) + '%' : '--'}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <MouseoverTooltip text="Estimated network fee for your transaction." width="220px">
-                    <div className="text-subText text-xs border-b border-dotted border-subText">Est. Gas Fee</div>
+                  <MouseoverTooltip text={t`Estimated network fee for your transaction.`} width="220px">
+                    <div className="text-subText text-xs border-b border-dotted border-subText">
+                      <Trans>Est. Gas Fee</Trans>
+                    </div>
                   </MouseoverTooltip>
                   <div>
                     {buildData
@@ -389,8 +405,10 @@ export const Preview = () => {
                 </div>
               </div>
               <div className="text-xs italic mt-4 text-subText">
-                The information is intended solely for your reference at the time you are viewing. It is your
-                responsibility to verify all information before making decisions
+                <Trans>
+                  The information is intended solely for your reference at the time you are viewing. It is your
+                  responsibility to verify all information before making decisions
+                </Trans>
               </div>
             </>
           )}
@@ -407,7 +425,7 @@ export const Preview = () => {
             )}
             onClick={handleConfirm}
           >
-            Remove Liquidity
+            <Trans>Remove Liquidity</Trans>
           </button>
         </DialogFooter>
       </DialogContent>

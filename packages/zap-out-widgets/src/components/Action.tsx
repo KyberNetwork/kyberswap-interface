@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react';
 
+import { Trans, t } from '@lingui/macro';
+
 import { usePositionOwner } from '@kyber/hooks';
 import { DEXES_INFO, FARMING_CONTRACTS } from '@kyber/schema';
 import { InfoHelper, Loading } from '@kyber/ui';
@@ -99,7 +101,7 @@ export const Action = () => {
       setGasLoading(false);
 
       if (error || !gasUsd) {
-        setWidgetError(error || 'Estimate Gas Failed');
+        setWidgetError(error || t`Estimate Gas Failed`);
         return;
       }
 
@@ -146,20 +148,20 @@ export const Action = () => {
   };
 
   const btnText = useMemo(() => {
-    if (gasLoading) return 'Estimating Gas';
-    if (!account) return 'Connect Wallet';
+    if (gasLoading) return t`Estimating Gas`;
+    if (!account) return t`Connect wallet`;
     if (isNotOwner) {
-      if (isFarming) return 'Your position is in farming';
-      return 'Not the position owner';
+      if (isFarming) return t`Your position is in farming`;
+      return t`Not the position owner`;
     }
-    if (clickedApprove || pendingTx) return 'Approving';
-    if (fetchingRoute) return 'Fetching Route';
-    if (!route) return 'No route found';
-    if (isChecking) return 'Checking Approval';
-    if (chainId !== walletChainId) return 'Switch Network';
-    if (!isApproved) return 'Approve';
-    if (pi.piVeryHigh) return 'Remove anyway';
-    return 'Preview';
+    if (clickedApprove || pendingTx) return t`Approving`;
+    if (fetchingRoute) return t`Fetching Route`;
+    if (!route) return t`No route found`;
+    if (isChecking) return t`Checking Approval`;
+    if (chainId !== walletChainId) return t`Switch Network`;
+    if (!isApproved) return t`Approve`;
+    if (pi.piVeryHigh) return t`Remove anyway`;
+    return t`Preview`;
   }, [
     account,
     isNotOwner,
@@ -183,7 +185,7 @@ export const Action = () => {
       <WarningMsg />
       <div className="grid grid-cols-2 gap-3 mt-5 sm:gap-6">
         <button className="ks-outline-btn flex-1 w-full" onClick={onClose}>
-          Cancel
+          <Trans>Cancel</Trans>
         </button>
         <button
           className={cn(

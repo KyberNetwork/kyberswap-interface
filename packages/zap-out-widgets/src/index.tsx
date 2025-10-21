@@ -18,6 +18,7 @@ import WidgetError from '@/components/WidgetError';
 import { ZapSummary } from '@/components/ZapSummary';
 import { ZapTo } from '@/components/ZapTo';
 import { TokenListProvider } from '@/hooks/useTokenList';
+import { SupportedLocale, WidgetI18nProvider } from '@/i18n';
 import { ZapOutProvider, useZapOutContext } from '@/stores';
 import { useZapOutUserState } from '@/stores/state';
 import { TxStatus, ZapOutProps } from '@/types/index';
@@ -38,7 +39,7 @@ const createModalRoot = () => {
 createModalRoot();
 
 const ZapOut = (props: ZapOutProps) => {
-  const { theme, chainId } = props;
+  const { theme, chainId, locale } = props;
   const { buildData } = useZapOutUserState();
 
   const themeToApply = useMemo(
@@ -66,36 +67,38 @@ const ZapOut = (props: ZapOutProps) => {
   };
 
   return (
-    <ZapOutProvider {...widgetProps}>
-      <TokenProvider chainId={chainId}>
-        <div className="ks-lw ks-lw-style">
-          <div className={cn('px-4 py-6 sm:px-6', buildData ? 'hidden' : '')}>
-            <Header />
-            <div className="mt-4 flex gap-5 max-sm:flex-col">
-              <div className="flex flex-col gap-4 w-[55%] max-sm:w-full">
-                <div className="-mb-4">
-                  <PoolStat />
+    <WidgetI18nProvider locale={locale}>
+      <ZapOutProvider {...widgetProps}>
+        <TokenProvider chainId={chainId}>
+          <div className="ks-lw ks-lw-style">
+            <div className={cn('px-4 py-6 sm:px-6', buildData ? 'hidden' : '')}>
+              <Header />
+              <div className="mt-4 flex gap-5 max-sm:flex-col">
+                <div className="flex flex-col gap-4 w-[55%] max-sm:w-full">
+                  <div className="-mb-4">
+                    <PoolStat />
+                  </div>
+                  <PositionLiquidity />
+                  <PoolPrice />
+                  <PositionPriceRange />
+                  <PoolFee />
+                  <HoneypotWarning />
                 </div>
-                <PositionLiquidity />
-                <PoolPrice />
-                <PositionPriceRange />
-                <PoolFee />
-                <HoneypotWarning />
-              </div>
 
-              <div className="flex flex-col gap-4 w-[45%] max-sm:w-full">
-                <ZapTo chainId={chainId} />
-                <Estimated />
-                <ZapSummary />
+                <div className="flex flex-col gap-4 w-[45%] max-sm:w-full">
+                  <ZapTo chainId={chainId} />
+                  <Estimated />
+                  <ZapSummary />
+                </div>
               </div>
+              <Action />
+              <WidgetError />
             </div>
-            <Action />
-            <WidgetError />
+            <Preview />
           </div>
-          <Preview />
-        </div>
-      </TokenProvider>
-    </ZapOutProvider>
+        </TokenProvider>
+      </ZapOutProvider>
+    </WidgetI18nProvider>
   );
 };
 
@@ -110,3 +113,5 @@ const TokenProvider = ({ children, chainId }: { children: ReactNode; chainId: nu
 };
 
 export { ChainId, PoolType, ZapOut, TxStatus };
+
+export type { SupportedLocale };

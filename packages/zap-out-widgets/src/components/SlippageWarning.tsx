@@ -1,3 +1,5 @@
+import { t } from '@lingui/macro';
+
 import { MouseoverTooltip } from '@kyber/ui';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
@@ -15,7 +17,7 @@ export const SlippageWarning = ({
   return (
     <div className={cn('flex items-center justify-between mt-2 text-sm', className)}>
       <MouseoverTooltip
-        text="Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price. Please use with caution!"
+        text={t`Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price. Please use with caution!`}
         width="220px"
       >
         <div
@@ -26,7 +28,7 @@ export const SlippageWarning = ({
               : '',
           )}
         >
-          Max Slippage
+          {t`Max Slippage`}
         </div>
       </MouseoverTooltip>
       <MouseoverTooltip
@@ -34,9 +36,9 @@ export const SlippageWarning = ({
           !showWarning || !slippage
             ? ''
             : slippage > 2 * suggestedSlippage
-              ? 'Your slippage is set higher than usual, which may cause unexpected losses.'
+              ? t`Your slippage is set higher than usual, which may cause unexpected losses.`
               : slippage < suggestedSlippage / 2
-                ? 'Your slippage is set lower than usual, increasing the risk of transaction failure.'
+                ? t`Your slippage is set lower than usual, increasing the risk of transaction failure.`
                 : ''
         }
         width="220px"

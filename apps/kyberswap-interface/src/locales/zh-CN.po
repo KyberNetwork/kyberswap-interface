@@ -737,6 +737,10 @@ msgstr "跨链路由来源"
 msgid "Are you sure you want to cancel {0} limit orders?"
 msgstr "您确定要取消 {0} 笔限价订单吗？"
 
+#: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
+msgid "Est. Paymaster Gas Fee"
+msgstr "预计 Paymaster Gas 费用"
+
 #: src/components/Announcement/Popups/TransactionPopup.tsx
 msgid "You have successfully transferred {postFix}"
 msgstr "您已成功转账 {postFix}"
@@ -1474,6 +1478,7 @@ msgstr "进行中的提醒"
 msgid "Your trade is routed through one of these cross-chain sources."
 msgstr "您的交易将通过上述跨链来源之一路由。"
 
+#: src/pages/Earns/components/ClaimModal/index.tsx
 #: src/pages/Earns/UserPositions/DropdownAction.tsx
 msgid "Claim Fees"
 msgstr "领取手续费"
@@ -3264,6 +3269,10 @@ msgstr "您的滑点{msg}"
 msgid "Selecting Treasury Grant Option"
 msgstr "选择国库资助选项"
 
+#: src/pages/Earns/UserPositions/Filter.tsx
+msgid "Closed Positions"
+msgstr "已关闭仓位"
+
 #: src/components/ReadMore/index.tsx
 msgid "Read more"
 msgstr "阅读更多"
@@ -3418,6 +3427,10 @@ msgstr "订单将于以下时间过期"
 msgid "High APR"
 msgstr "高年化收益率"
 
+#: src/pages/Earns/UserPositions/Filter.tsx
+msgid "Out Range"
+msgstr "范围外"
+
 #: src/components/ClassicElasticTab.tsx
 #: src/components/ClassicElasticTab.tsx
 #: src/components/ClassicElasticTab.tsx
@@ -3563,10 +3576,6 @@ msgstr "从收藏中移除"
 #: src/pages/PoolFinder/index.tsx
 msgid "Select a token"
 msgstr "选择一个代币"
-
-#: src/pages/Earns/components/ClaimModal/index.tsx
-msgid "Claim {claimType}"
-msgstr "领取 {claimType}"
 
 #: src/pages/Campaign/components/Information.tsx
 msgid "How to earn points"
@@ -4450,6 +4459,10 @@ msgstr "查看资金池"
 msgid "Search proposals"
 msgstr "搜索提案"
 
+#: src/pages/Earns/UserPositions/Filter.tsx
+msgid "In Range"
+msgstr "范围内"
+
 #: src/components/Badge/RangeBadge.tsx
 msgid "The price of this pool is within your selected range. Your position is currently earning fees."
 msgstr "该资金池的价格位于您选择的区间内，您的仓位当前正在赚取手续费。"
@@ -4838,6 +4851,10 @@ msgstr "状态"
 #: src/pages/RemoveLiquidityProAmm/index.tsx
 msgid "Amount to remove"
 msgstr "移除数量"
+
+#: src/pages/Earns/PositionDetail/index.tsx
+msgid "APR calculated based on last {aprInterval} fees. Useful for recent performance trends."
+msgstr "APR 基于最近 {aprInterval} 的手续费计算，可用于参考近期表现趋势。"
 
 #: src/pages/Earns/PositionDetail/LeftSection.tsx
 msgid "Unclaimed Fees"
@@ -5366,6 +5383,7 @@ msgstr "仅统计由<0>合资格代币</0>组成的交易对的交易量，WETH-
 #: src/pages/Campaign/MyDashboard.tsx
 #: src/pages/Campaign/MyDashboard.tsx
 #: src/pages/Earns/components/ClaimAllModal/index.tsx
+#: src/pages/Earns/components/ClaimModal/index.tsx
 #: src/pages/Earns/PositionDetail/LeftSection.tsx
 #: src/pages/Earns/PositionDetail/RewardSection.tsx
 #: src/pages/Earns/UserPositions/PositionBanner.tsx
@@ -5807,6 +5825,10 @@ msgstr "一个代币在池中的比例接近0%时，池可能会变得不活跃�
 #: src/components/SwapForm/hooks/useGetInputError.tsx
 msgid "Invalid recipient"
 msgstr "收件人无效"
+
+#: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
+msgid "Estimated Total Gas"
+msgstr "预计总 Gas 费用"
 
 #: src/pages/KyberDAO/KNCUtility/GasRefundBox.tsx
 msgid "Total Gas Refund"
@@ -7567,6 +7589,7 @@ msgstr "总代积分：所有参与者的积分总和"
 
 #: src/components/Menu/index.tsx
 #: src/pages/Earns/components/ClaimAllModal/index.tsx
+#: src/pages/Earns/components/ClaimModal/index.tsx
 #: src/pages/Earns/UserPositions/DropdownAction.tsx
 #: src/pages/ElasticLegacy/FarmLegacy.tsx
 msgid "Claim Rewards"

@@ -1,3 +1,5 @@
+import { Trans, t } from '@lingui/macro';
+
 import { MouseoverTooltip, Skeleton } from '@kyber/ui';
 
 import ArrowLeft from '@/assets/icons/ic_left_arrow.svg';
@@ -26,14 +28,14 @@ export function Header({ onClose, onBack }: { onClose: () => void; onBack?: () =
           <div className="flex items-center gap-2">
             {onBack && <ArrowLeft className="cursor-pointer text-subText hover:text-text" onClick={onBack} />}
             {rePositionMode
-              ? 'Reposition'
+              ? t`Reposition`
               : targetPositionId
-                ? 'Migrate to increase position liquidity'
-                : 'Migrate liquidity'}
+                ? t`Migrate to increase position liquidity`
+                : t`Migrate liquidity`}
           </div>
         )}
         <div className="flex gap-2 items-center">
-          <MouseoverTooltip text={degenMode ? 'Degen Mode is turned on!' : ''}>
+          <MouseoverTooltip text={degenMode ? t`Degen Mode is turned on!` : ''}>
             <div
               className="w-9 h-9 flex items-center justify-center rounded-full hover:opacity-60 setting"
               id="zap-migration-setting"
@@ -60,7 +62,7 @@ export function Header({ onClose, onBack }: { onClose: () => void; onBack?: () =
       {rePositionMode ? (
         !sourcePool || !targetPool ? null : (
           <div className="text-sm text-subText w-fit italic">
-            Your current position will be closed and a new one created.
+            <Trans>Your current position will be closed and a new one created.</Trans>
           </div>
         )
       ) : null}

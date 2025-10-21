@@ -1,3 +1,5 @@
+import { Trans } from '@lingui/macro';
+
 import { univ3PoolNormalize, univ3Position } from '@kyber/schema';
 import { Skeleton, TokenSymbol } from '@kyber/ui';
 import { formatDisplayNumber } from '@kyber/utils/number';
@@ -49,17 +51,21 @@ export function PositionPriceRange() {
   const quoteTokenSymbol = <TokenSymbol symbol={quoteToken} maxWidth={60} />;
 
   const label = (
-    <>
+    <Trans>
       {baseTokenSymbol} per {quoteTokenSymbol}
-    </>
+    </Trans>
   );
 
   return (
     <div className="px-4 py-3 text-sm border border-stroke rounded-md">
-      <p className="text-subText mb-3">Your Position Price Ranges</p>
+      <p className="text-subText mb-3">
+        <Trans>Your Position Price Ranges</Trans>
+      </p>
       <div className="flex items-center gap-4">
         <div className="bg-white bg-opacity-[0.04] rounded-md py-3 w-1/2 flex flex-col items-center justify-center gap-1">
-          <p className="text-subText">Min Price</p>
+          <p className="text-subText">
+            <Trans>Min Price</Trans>
+          </p>
           {initializing ? (
             <Skeleton className="w-14 h-5" />
           ) : (
@@ -74,7 +80,9 @@ export function PositionPriceRange() {
           )}
         </div>
         <div className="bg-white bg-opacity-[0.04] rounded-md px-2 py-3 w-1/2 flex flex-col items-center justify-center gap-1">
-          <p className="text-subText">Max Price</p>
+          <p className="text-subText">
+            <Trans>Max Price</Trans>
+          </p>
           {initializing ? (
             <Skeleton className="w-14 h-5" />
           ) : (

@@ -1,3 +1,5 @@
+import { Trans } from '@lingui/macro';
+
 import { UniV3Pool, univ3Types } from '@kyber/schema';
 
 import { usePoolStore } from '@/stores/usePoolStore';
@@ -18,8 +20,10 @@ export default function OutRangeWarning() {
 
   return isAddToOutRange ? (
     <div className="rounded-md text-xs px-4 py-3 text-warning bg-warning-200">
-      Your liquidity is outside the current market range and will not be used/earn fees until the market price enters
-      your specified range.
+      <Trans>
+        Your liquidity is outside the current market range and will not be used/earn fees until the market price enters
+        your specified range.
+      </Trans>
     </div>
   ) : null;
 }

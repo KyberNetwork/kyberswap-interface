@@ -6,6 +6,7 @@ import { useMemo, useState } from 'react'
 import { NotificationType } from 'components/Announcement/type'
 import Modal from 'components/Modal'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useActiveLocale } from 'hooks/useActiveLocale'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
@@ -69,6 +70,7 @@ const useZapOutWidget = (onRefreshPosition?: (props: CheckClosedPositionParams) 
     poolAddress: string
     chainId: ZapOutChainId
   } | null>(null)
+  const locale = useActiveLocale()
   const [zapTxHash, setZapTxHash] = useState<string[]>([])
   const { rpc: zapOutRpcUrl } = useKyberSwapConfig(zapOutPureParams?.chainId as ChainId | undefined)
 
@@ -97,6 +99,7 @@ const useZapOutWidget = (onRefreshPosition?: (props: CheckClosedPositionParams) 
               chainId: chainId as unknown as ZapOutChainId,
             },
             zapStatus,
+            locale,
             onClose: () => {
               setTimeout(() => {
                 const foundEntry = Object.entries(zapOutDexMapping).find(
@@ -162,6 +165,7 @@ const useZapOutWidget = (onRefreshPosition?: (props: CheckClosedPositionParams) 
       onRefreshPosition,
       addTransactionWithType,
       zapStatus,
+      locale,
     ],
   )
 
