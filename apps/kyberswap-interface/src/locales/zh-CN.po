@@ -3269,6 +3269,10 @@ msgstr "您的滑点{msg}"
 msgid "Selecting Treasury Grant Option"
 msgstr "选择国库资助选项"
 
+#: src/pages/Earns/UserPositions/Filter.tsx
+msgid "Closed Positions"
+msgstr "已关闭仓位"
+
 #: src/components/ReadMore/index.tsx
 msgid "Read more"
 msgstr "阅读更多"
@@ -3422,6 +3426,10 @@ msgstr "订单将于以下时间过期"
 #: src/pages/Earns/PoolExplorer/Filter.tsx
 msgid "High APR"
 msgstr "高年化收益率"
+
+#: src/pages/Earns/UserPositions/Filter.tsx
+msgid "Out Range"
+msgstr "范围外"
 
 #: src/components/ClassicElasticTab.tsx
 #: src/components/ClassicElasticTab.tsx
@@ -4450,6 +4458,10 @@ msgstr "查看资金池"
 #: src/pages/KyberDAO/Vote/SearchProposal.tsx
 msgid "Search proposals"
 msgstr "搜索提案"
+
+#: src/pages/Earns/UserPositions/Filter.tsx
+msgid "In Range"
+msgstr "范围内"
 
 #: src/components/Badge/RangeBadge.tsx
 msgid "The price of this pool is within your selected range. Your position is currently earning fees."
