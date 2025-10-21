@@ -116,6 +116,7 @@ export type Props = {
   rawSlippage: number
   setRawSlippage: (value: number) => void
   isWarning: boolean
+  isHighlight?: boolean
   options: number[]
 }
 const CustomSlippageInput: React.FC<Props> = ({ options, rawSlippage, setRawSlippage, isWarning }) => {

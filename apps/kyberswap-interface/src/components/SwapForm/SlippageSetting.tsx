@@ -68,6 +68,7 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
   const theme = useTheme()
   const [searchParams, setSearchParams] = useSearchParams()
   const [expanded, setExpanded] = useState(false)
+  const [isHighlight, setIsHighlight] = useState(false)
   const [isDegenMode] = useDegenModeManager()
 
   const { rawSlippage, setRawSlippage, isSlippageControlPinned } = useSlippageSettingByPage()
@@ -105,6 +106,10 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
       setExpanded(true)
       searchParams.delete('action')
       setSearchParams(searchParams)
+      setIsHighlight(true)
+      setTimeout(() => {
+        setIsHighlight(false)
+      }, 4000)
     }
   }, [actionFromUrl, searchParams, setSearchParams])
 
@@ -205,12 +210,13 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
           transition: 'all 100ms linear',
           paddingTop: expanded ? '8px' : '0px',
           height: expanded ? 'max-content' : '0px',
-          overflow: 'hidden',
+          overflow: !isHighlight ? 'hidden' : 'visible',
           flexDirection: 'column',
           gap: '1rem',
         }}
       >
         <SlippageControl
+          isHighlight={isHighlight}
           rawSlippage={rawSlippage}
           setRawSlippage={setRawSlippage}
           isWarning={isWarningSlippage}
