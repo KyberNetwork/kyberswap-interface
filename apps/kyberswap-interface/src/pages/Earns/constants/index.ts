@@ -68,7 +68,7 @@ export const EARN_DEXES_CONFIG: Record<Exchange, EarnDexInfo> = {
   [Exchange.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: {
     ...pancakeinfinitycl,
     name: 'Pancake ∞ CL FairFlow',
-    // farmingSupported: true,
+    farmingSupported: true,
   },
 }
 
