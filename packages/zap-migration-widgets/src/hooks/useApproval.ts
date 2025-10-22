@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { univ2Types } from '@kyber/schema';
+import { ChainId, univ2Types } from '@kyber/schema';
 import {
   calculateGasMargin,
   decodeAddress,
@@ -10,6 +10,7 @@ import {
 } from '@kyber/utils/crypto';
 
 import { usePoolStore } from '@/stores/usePoolStore';
+import { useWidgetStore } from '@/stores/useWidgetStore';
 import { useZapStore } from '@/stores/useZapStore';
 
 export function useApproval({
@@ -27,6 +28,7 @@ export function useApproval({
   account?: string;
   onSubmitTx: (txData: { from: string; to: string; value: string; data: string; gasLimit: string }) => Promise<string>;
 }) {
+  const { chainId } = useWidgetStore(['chainId']);
   const { sourcePool } = usePoolStore(['sourcePool']);
   const { liquidityOut } = useZapStore(['liquidityOut']);
 
@@ -78,21 +80,25 @@ export function useApproval({
   }, [account, isFromUniv2, nftId, nftManagerContract, onSubmitTx, rpcUrl, sourcePoolAddress, spender]);
 
   useEffect(() => {
+    const checkTxStatus = () => {
+      if (pendingTx === '') return;
+      isTransactionSuccessful(rpcUrl, pendingTx).then(res => {
+        if (res) {
+          setPendingTx('');
+          setIsApproved(res.status);
+        }
+      });
+    };
+
     if (pendingTx) {
-      const i = setInterval(() => {
-        isTransactionSuccessful(rpcUrl, pendingTx).then(res => {
-          if (res) {
-            setPendingTx('');
-            setIsApproved(res.status);
-          }
-        });
-      }, 8_000);
+      checkTxStatus();
+      const i = setInterval(checkTxStatus, chainId === ChainId.Ethereum ? 10_000 : 5_000);
 
       return () => {
         clearInterval(i);
       };
     }
-  }, [pendingTx, rpcUrl]);
+  }, [pendingTx, rpcUrl, chainId]);
 
   useEffect(() => {
     if (!spender || !account || !nftId || !sourcePoolAddress) {

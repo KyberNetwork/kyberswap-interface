@@ -1,6 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import {
   OnSuccessProps,
+  SupportedLocale,
   TxStatus,
   LiquidityWidget as ZapIn,
   ChainId as ZapInChainId,
@@ -14,6 +15,7 @@ import { NotificationType } from 'components/Announcement/type'
 import Modal from 'components/Modal'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useActiveLocale } from 'hooks/useActiveLocale'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
@@ -44,6 +46,7 @@ interface AddLiquidityParams extends AddLiquidityPureParams {
     address?: string | undefined
     chainId: number
   }
+  locale?: SupportedLocale
   onClose: () => void
   onConnectWallet: () => void
   onSwitchChain: () => void
@@ -100,6 +103,7 @@ const useZapInWidget = ({
   triggerClose?: boolean
   setTriggerClose?: (value: boolean) => void
 }) => {
+  const locale = useActiveLocale()
   const addTransactionWithType = useTransactionAdder()
   const allTransactions = useAllTransactions()
   const toggleWalletModal = useWalletModalToggle()
@@ -208,6 +212,7 @@ const useZapInWidget = ({
             rpcUrl: zapInRpcUrl,
             referral: refCode,
             zapStatus,
+            locale,
             onViewPosition: (txHash: string) => {
               const { chainId, poolType, poolAddress } = addLiquidityPureParams
               handleCloseZapInWidget()
@@ -344,6 +349,7 @@ const useZapInWidget = ({
       changeNetwork,
       library,
       addTransactionWithType,
+      locale,
     ],
   )
 

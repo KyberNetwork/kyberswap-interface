@@ -1,3 +1,5 @@
+import { Trans, t } from '@lingui/macro';
+
 import { InfoHelper, Loading } from '@kyber/ui';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
@@ -33,7 +35,7 @@ export function Action({
           else onClose();
         }}
       >
-        Cancel
+        <Trans>Cancel</Trans>
       </button>
       <button
         className={cn(
@@ -58,8 +60,8 @@ export function Action({
             width="300px"
             text={
               degenMode
-                ? 'You have turned on Degen Mode from settings. Trades with very high price impact can be executed'
-                : 'To ensure you dont lose funds due to very high price impact, swap has been disabled for this trade. If you still wish to continue, you can turn on Degen Mode from Settings.'
+                ? t`You have turned on Degen Mode from settings. Trades with very high price impact can be executed`
+                : t`To ensure you dont lose funds due to very high price impact, swap has been disabled for this trade. If you still wish to continue, you can turn on Degen Mode from Settings.`
             }
           />
         )}

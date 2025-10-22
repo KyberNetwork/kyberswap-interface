@@ -419,7 +419,7 @@ const PositionDetail = () => {
           <DropdownMenu
             width={30}
             flatten
-            tooltip={`APR calculated based on last ${aprInterval} fees. Useful for recent performance trends.`}
+            tooltip={t`APR calculated based on last ${aprInterval} fees. Useful for recent performance trends.`}
             options={timings.slice(0, 2)}
             value={aprInterval}
             alignLeft

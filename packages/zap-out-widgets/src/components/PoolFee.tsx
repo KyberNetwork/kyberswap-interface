@@ -1,5 +1,7 @@
 import { useRef } from 'react';
 
+import { Trans } from '@lingui/macro';
+
 import { univ2PoolNormalize } from '@kyber/schema';
 import { Skeleton, TokenSymbol } from '@kyber/ui';
 import { formatDisplayNumber, formatTokenAmount, toRawString } from '@kyber/utils/number';
@@ -25,7 +27,9 @@ export const PoolFee = () => {
 
   return (
     <div className="rounded-lg px-4 py-3 border border-stroke text-sm text-subText flex items-start justify-between">
-      <div>Fees to Claim</div>
+      <div>
+        <Trans>Fees to Claim</Trans>
+      </div>
 
       <div className="flex flex-col gap-2">
         <div className="flex justify-end items-center gap-2">

@@ -1,4 +1,4 @@
-import { t } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -13,9 +13,9 @@ import { PositionFilter, PositionStatus } from 'pages/Earns/types'
 import { MEDIA_WIDTHS } from 'theme'
 
 const POSITION_STATUS = [
-  { label: 'In Range', value: PositionStatus.IN_RANGE },
-  { label: 'Out Range', value: PositionStatus.OUT_RANGE },
-  { label: 'Closed Positions', value: PositionStatus.CLOSED },
+  { label: <Trans>In Range</Trans>, value: PositionStatus.IN_RANGE },
+  { label: <Trans>Out Range</Trans>, value: PositionStatus.OUT_RANGE },
+  { label: <Trans>Closed Positions</Trans>, value: PositionStatus.CLOSED },
 ]
 
 export default function Filter({
@@ -78,7 +78,7 @@ export default function Filter({
           alignLeft
           mobileFullWidth
           label={t`Position status`}
-          options={POSITION_STATUS}
+          options={POSITION_STATUS as unknown as MenuOption[]}
           value={filters.status || ''}
           onChange={value => value !== filters.status && updateFilters('status', value)}
         />

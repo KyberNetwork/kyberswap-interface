@@ -1,5 +1,7 @@
 import { useState } from 'react';
 
+import { Trans, t } from '@lingui/macro';
+
 import { API_URLS, CHAIN_ID_TO_CHAIN, DEXES_INFO, NETWORKS_INFO, Pool, univ3PoolNormalize } from '@kyber/schema';
 import {
   Dialog,
@@ -174,11 +176,11 @@ export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool,
         }
         description={
           txStatus !== 'success' && txStatus !== 'failed' && !txError && !txHash
-            ? `Confirm this transaction in your wallet - Zapping ${
-                positionId && isUniV3
-                  ? `Position #${positionId}`
-                  : `${dexName} ${pool.token0.symbol}/${pool.token1.symbol} ${pool.fee}%`
-              }`
+            ? t`Confirm this transaction in your wallet - Zapping` +
+              ' ' +
+              (positionId && isUniV3
+                ? t`Position #${positionId}`
+                : t`${dexName} ${pool.token0.symbol}/${pool.token1.symbol} ${pool.fee}%`)
             : undefined
         }
         errorMessage={txError ? errorMessage : undefined}
@@ -192,17 +194,17 @@ export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool,
                 onDismiss();
               }}
             >
-              Close
+              <Trans>Close</Trans>
             </button>
             {txStatus === 'success' ? (
               onViewPosition ? (
                 <button className="ks-primary-btn flex-1" onClick={() => onViewPosition(txHash)}>
-                  View position
+                  <Trans>View position</Trans>
                 </button>
               ) : null
             ) : errorMessage.includes('slippage') ? (
               <button className="ks-primary-btn flex-1" onClick={handleSlippage}>
-                {slippage !== suggestedSlippage ? 'Use Suggested Slippage' : 'Set Custom Slippage'}
+                {slippage !== suggestedSlippage ? t`Use Suggested Slippage` : t`Set Custom Slippage`}
               </button>
             ) : null}
           </>
@@ -215,7 +217,9 @@ export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool,
   return (
     <Dialog open={true} onOpenChange={onDismiss}>
       <DialogContent className="ks-lw-style max-h-[85vh] max-w-[480px] overflow-auto" aria-describedby={undefined}>
-        <DialogTitle>{positionId ? 'Increase' : 'Add'} Liquidity via Zap</DialogTitle>
+        <DialogTitle>
+          {positionId ? <Trans>Increase Liquidity via Zap</Trans> : <Trans>Add Liquidity via Zap</Trans>}
+        </DialogTitle>
         <div>
           <Head pool={pool} />
 
@@ -226,8 +230,8 @@ export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool,
             <PooledAmount pool={pool} positionAmountInfo={positionAmountInfo} addedAmountInfo={addedAmountInfo} />
             <EstimatedRow
               initializing={false}
-              label="Remaining Amount"
-              labelTooltip="Based on your price range settings, a portion of your liquidity will be automatically zapped into the pool, while the remaining amount will stay in your wallet."
+              label={<Trans>Remaining Amount</Trans>}
+              labelTooltip={t`Based on your price range settings, a portion of your liquidity will be automatically zapped into the pool, while the remaining amount will stay in your wallet.`}
               value={
                 <div className="text-sm">
                   {formatCurrency(refundInfo.refundUsd)}
@@ -273,10 +277,10 @@ export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool,
                       : '',
                   )}
                 >
-                  Zap Impact
+                  <Trans>Zap Impact</Trans>
                 </div>
               }
-              labelTooltip="The difference between input and estimated liquidity received (including remaining amount). Be careful with high value!"
+              labelTooltip={t`The difference between input and estimated liquidity received (including remaining amount). Be careful with high value!`}
               value={
                 <div
                   className={cn(
@@ -297,8 +301,8 @@ export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool,
 
             <EstimatedRow
               initializing={false}
-              label="Est. Gas Fee"
-              labelTooltip={'Estimated network fee for your transaction.'}
+              label={<Trans>Est. Gas Fee</Trans>}
+              labelTooltip={t`Estimated network fee for your transaction.`}
               value={
                 <div className="text-sm">
                   {gasUsd
@@ -315,9 +319,9 @@ export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool,
 
             <EstimatedRow
               initializing={false}
-              label="Zap Fee"
+              label={<Trans>Zap Fee</Trans>}
               labelTooltip={
-                <div>
+                <Trans>
                   Fees charged for automatically zapping into a liquidity pool. You still have to pay the standard gas
                   fees.{' '}
                   <a
@@ -328,7 +332,7 @@ export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool,
                   >
                     More details.
                   </a>
-                </div>
+                </Trans>
               }
               value={<div className="text-sm">{parseFloat(feeInfo.protocolFee.toFixed(3))}%</div>}
               hasRoute
@@ -350,7 +354,7 @@ export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool,
             )}
             onClick={handleClick}
           >
-            {positionId ? 'Increase liquidity' : 'Add liquidity'}
+            {positionId ? <Trans>Increase liquidity</Trans> : <Trans>Add liquidity</Trans>}
           </button>
         </DialogFooter>
       </DialogContent>

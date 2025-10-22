@@ -1,5 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import {
+  SupportedLocale,
   TxStatus,
   ZapMigration,
   ChainId as ZapMigrationChainId,
@@ -14,6 +15,7 @@ import { NotificationType } from 'components/Announcement/type'
 import Modal from 'components/Modal'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useActiveLocale } from 'hooks/useActiveLocale'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
@@ -48,6 +50,7 @@ interface MigrateLiquidityParams extends MigrateLiquidityPureParams {
     address: string | undefined
     chainId: ZapMigrationChainId
   }
+  locale?: SupportedLocale
   onClose: () => void
   onConnectWallet: () => void
   onSwitchChain: () => void
@@ -100,6 +103,7 @@ const getDexFromPoolType = (poolType: ZapMigrationDex) => {
 }
 
 const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
+  const locale = useActiveLocale()
   const addTransactionWithType = useTransactionAdder()
   const allTransactions = useAllTransactions()
   const toggleWalletModal = useWalletModalToggle()
@@ -190,6 +194,7 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
             rpcUrl: zapMigrationRpcUrl,
             referral: refCode,
             zapStatus,
+            locale,
             connectedAccount: {
               address: account,
               chainId: chainId as unknown as ZapMigrationChainId,
@@ -271,6 +276,7 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
       navigate,
       addTransactionWithType,
       zapStatus,
+      locale,
     ],
   )
 

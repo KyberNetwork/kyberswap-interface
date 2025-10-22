@@ -19,6 +19,7 @@ interface WidgetProps {
     chainId: number;
   };
   zapStatus?: Record<string, TxStatus>;
+  onClose: () => void;
 }
 
 interface WidgetState extends WidgetProps {
@@ -43,6 +44,7 @@ const initState = {
     chainId: ChainId.Ethereum,
   },
   widgetError: '',
+  onClose: () => {},
 };
 
 const useWidgetRawStore = create<WidgetState>((set, _get) => ({
@@ -59,6 +61,7 @@ const useWidgetRawStore = create<WidgetState>((set, _get) => ({
     referral,
     connectedAccount,
     zapStatus,
+    onClose,
   }: WidgetProps) => {
     const themeToApply =
       theme && typeof theme === 'object'
@@ -79,6 +82,7 @@ const useWidgetRawStore = create<WidgetState>((set, _get) => ({
       referral,
       connectedAccount,
       zapStatus,
+      onClose,
     });
   },
   setWidgetError: (error: string) => set({ widgetError: error }),

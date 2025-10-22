@@ -27,6 +27,7 @@ import {
   NOT_SUPPORTED_CHAINS_PRICE_SERVICE,
   NearQuoteParams,
   NonEvmChain,
+  NormalizedQuote,
   QuoteParams,
   SwapProvider,
 } from '../adapters'
@@ -44,6 +45,28 @@ const createTimeoutPromise = (ms: number) => {
   return new Promise<never>((_, reject) => {
     setTimeout(() => reject(new Error('Timeout')), ms)
   })
+}
+
+// Helper to calculate net output amount after protocol fees
+const getNetOutputAmount = (quote: NormalizedQuote): bigint => {
+  const { outputAmount, protocolFee, quoteParams } = quote
+  const { tokenOutUsd, toToken } = quoteParams
+
+  // Convert protocol fee from USD to token amount
+  if (protocolFee && tokenOutUsd && tokenOutUsd > 0) {
+    const decimals = toToken?.decimals || 18
+    const protocolFeeInTokens = protocolFee / tokenOutUsd
+
+    // Use parseUnits to safely convert decimal to BigInt without precision loss
+    try {
+      const protocolFeeInSmallestUnit = parseUnits(protocolFeeInTokens.toFixed(decimals), decimals)
+      return outputAmount - protocolFeeInSmallestUnit
+    } catch (e) {
+      console.error('Error converting protocol fee:', e)
+      return outputAmount
+    }
+  }
+  return outputAmount
 }
 
 const RegistryContext = createContext<
@@ -446,6 +469,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
           (currencyOut as any).wrapped.address,
         )
       ) {
+        setCategory('stablePair')
         feeBps = 5
       } else {
         const [token0Cat, token1Cat] = await Promise.all([
@@ -547,6 +571,12 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
           // Check for cancellation before starting
           if (signal.aborted) throw new Error('Cancelled')
 
+          // Skip adapter if it does not support the category
+          if (!adapter.canSupport(category)) {
+            console.log(`Skipping ${adapter.getName()} because it does not support category ${category}`)
+            return
+          }
+
           // Race between the adapter quote and timeout
           const quote = await Promise.race([adapter.getQuote(params), createTimeoutPromise(9_000)])
 
@@ -554,7 +584,11 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
           if (signal.aborted) throw new Error('Cancelled')
 
           quotes.push({ adapter, quote })
-          const sortedQuotes = [...quotes].sort((a, b) => (a.quote.outputAmount < b.quote.outputAmount ? 1 : -1))
+          const sortedQuotes = [...quotes].sort((a, b) => {
+            const netA = getNetOutputAmount(a.quote)
+            const netB = getNetOutputAmount(b.quote)
+            return netA < netB ? 1 : -1
+          })
           setQuotes(sortedQuotes)
           setLoading(false)
         } catch (err) {
@@ -571,7 +605,12 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
         throw new Error('No valid quotes found for the requested swap')
       }
 
-      quotes.sort((a, b) => (a.quote.outputAmount < b.quote.outputAmount ? 1 : -1))
+      // Sort by net output amount (after protocol fees)
+      quotes.sort((a, b) => {
+        const netA = getNetOutputAmount(a.quote)
+        const netB = getNetOutputAmount(b.quote)
+        return netA < netB ? 1 : -1
+      })
       return quotes
     }
 
@@ -628,6 +667,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     isToSolana,
     connection,
     excludedSources,
+    category,
   ])
 
   return (

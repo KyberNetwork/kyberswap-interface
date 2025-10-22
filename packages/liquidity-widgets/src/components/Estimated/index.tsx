@@ -1,3 +1,5 @@
+import { Trans, t } from '@lingui/macro';
+
 import { API_URLS } from '@kyber/schema';
 import { InfoHelper } from '@kyber/ui';
 import { PI_LEVEL } from '@kyber/utils';
@@ -35,7 +37,12 @@ export default function Estimated() {
   const remainingAmountWarning = zapInfo && isHighRemainingAmount && (
     <WarningMessage
       isWarning
-      message={`${((refundInfo.refundUsd * 100) / initUsd).toFixed(2)}% remains unused and will be returned to your wallet. Refresh or change your amount to get updated routes.`}
+      message={
+        <Trans>
+          {((refundInfo.refundUsd * 100) / initUsd).toFixed(2)}% remains unused and will be returned to your wallet.
+          Refresh or change your amount to get updated routes.
+        </Trans>
+      }
     />
   );
   const zapImpactWarning = zapInfo && zapImpact.level !== PI_LEVEL.NORMAL && (
@@ -46,7 +53,7 @@ export default function Estimated() {
     <>
       <div className="border border-stroke rounded-md py-3 px-4">
         <div className="text-sm mb-1 flex justify-between">
-          Est. Liquidity Value
+          <Trans>Est. Liquidity Value</Trans>
           {addedValue}
         </div>
         <div className="h-[1px] w-full bg-stroke" />
@@ -71,8 +78,8 @@ export default function Estimated() {
 
         <EstimatedRow
           initializing={initializing}
-          label="Est. Remaining Value"
-          labelTooltip="Based on your price range settings, a portion of your liquidity will be automatically zapped into the pool, while the remaining amount will stay in your wallet."
+          label={t`Est. Remaining Value`}
+          labelTooltip={t`Based on your price range settings, a portion of your liquidity will be automatically zapped into the pool, while the remaining amount will stay in your wallet.`}
           value={
             <div>
               {formatCurrency(refundInfo.refundUsd)}
@@ -112,10 +119,10 @@ export default function Estimated() {
                   : '',
               )}
             >
-              Zap Impact
+              <Trans>Zap Impact</Trans>
             </div>
           }
-          labelTooltip="The difference between input and estimated liquidity received (including remaining amount). Be careful with high value!"
+          labelTooltip={t`The difference between input and estimated liquidity received (including remaining amount). Be careful with high value!`}
           value={
             <div
               className={
@@ -134,9 +141,9 @@ export default function Estimated() {
 
         <EstimatedRow
           initializing={initializing}
-          label="Zap Fee"
+          label={t`Zap Fee`}
           labelTooltip={
-            <div>
+            <Trans>
               Fees charged for automatically zapping into a liquidity pool. You still have to pay the standard gas fees.{' '}
               <a
                 className="text-accent"
@@ -146,15 +153,16 @@ export default function Estimated() {
               >
                 More details.
               </a>
-            </div>
+            </Trans>
           }
           value={<div>{parseFloat((feeInfo.protocolFee + feeInfo.partnerFee).toFixed(3)) + '%'}</div>}
           valueTooltip={
-            feeInfo.partnerFee
-              ? `${parseFloat(feeInfo.protocolFee.toFixed(3))}% Protocol Fee + ${parseFloat(
-                  feeInfo.partnerFee.toFixed(3),
-                )}% Fee for ${source}`
-              : undefined
+            feeInfo.partnerFee ? (
+              <Trans>
+                {parseFloat(feeInfo.protocolFee.toFixed(3))}% Protocol Fee + {parseFloat(feeInfo.partnerFee.toFixed(3))}
+                % Fee for {source}
+              </Trans>
+            ) : undefined
           }
           hasRoute={!!zapInfo}
         />

@@ -1,5 +1,7 @@
 import { useState } from 'react';
 
+import { t } from '@lingui/macro';
+
 import { DEXES_INFO, NETWORKS_INFO } from '@kyber/schema';
 import {
   Dialog,
@@ -45,11 +47,12 @@ export function Preview({
   onViewPosition?: (txHash: string) => void;
   onExplorePools?: () => void;
 }) {
-  const { chainId, rpcUrl, connectedAccount, rePositionMode } = useWidgetStore([
+  const { chainId, rpcUrl, connectedAccount, rePositionMode, onClose } = useWidgetStore([
     'chainId',
     'rpcUrl',
     'connectedAccount',
     'rePositionMode',
+    'onClose',
   ]);
   const { route, slippage, setSlippage, buildData, setBuildData } = useZapStore([
     'route',
@@ -139,12 +142,12 @@ export function Preview({
                 ? StatusDialogType.PROCESSING
                 : StatusDialogType.WAITING
         }
-        title={txStatus === 'success' && rePositionMode ? 'Reposition Completed' : undefined}
+        title={txStatus === 'success' && rePositionMode ? t`Reposition Completed` : undefined}
         description={
           txStatus !== 'success' && txStatus !== 'failed' && !error && !txHash
-            ? 'Confirm this transaction in your wallet'
+            ? t`Confirm this transaction in your wallet`
             : txStatus === 'success'
-              ? 'You have successfully migrated your liquidity'
+              ? t`You have successfully migrated your liquidity`
               : undefined
         }
         errorMessage={error ? errorMessage : undefined}
@@ -153,27 +156,30 @@ export function Preview({
           <>
             {txStatus === 'success' && onExplorePools && rePositionMode ? (
               <button className="ks-outline-btn flex-1" onClick={onExplorePools}>
-                Explore pools
+                {t`Explore pools`}
               </button>
             ) : (
               <button className="ks-outline-btn flex-1" onClick={onDismiss}>
-                Close
+                {t`Close`}
               </button>
             )}
             {txStatus === 'success' ? (
               onViewPosition && txHash ? (
                 <button className="ks-primary-btn flex-1" onClick={() => onViewPosition(txHash)}>
-                  View position
+                  {t`View position`}
                 </button>
               ) : null
             ) : errorMessage.includes('slippage') ? (
               <button className="ks-primary-btn flex-1" onClick={handleSlippage}>
-                {slippage !== suggestedSlippage ? 'Use Suggested Slippage' : 'Set Custom Slippage'}
+                {slippage !== suggestedSlippage ? t`Use Suggested Slippage` : t`Set Custom Slippage`}
               </button>
             ) : null}
           </>
         }
-        onClose={onDismiss}
+        onClose={() => {
+          if (txStatus === 'success') onClose();
+          onDismiss();
+        }}
       />
     );
   }
@@ -190,16 +196,16 @@ export function Preview({
           <DialogHeader>
             <DialogTitle>
               {rePositionMode
-                ? 'Reposition'
+                ? t`Reposition`
                 : targetPositionId
-                  ? 'Migrate to increase position liquidity'
-                  : 'Migrate liquidity via Zap'}
+                  ? t`Migrate to increase position liquidity`
+                  : t`Migrate liquidity via Zap`}
             </DialogTitle>
           </DialogHeader>
 
           <div>
             <div className="flex justify-between items-center">
-              <p>{rePositionMode ? 'Reposition liquidity' : 'Migrated liquidity'}</p>
+              <p>{rePositionMode ? t`Reposition liquidity` : t`Migrated liquidity`}</p>
               <p>
                 {formatDisplayNumber(route.zapDetails.initialAmountUsd, {
                   style: 'currency',
@@ -232,7 +238,7 @@ export function Preview({
                 className="flex-1 h-[40px] rounded-full border border-stroke text-subText text-sm font-medium"
                 onClick={onDismiss}
               >
-                Cancel
+                {t`Cancel`}
               </button>
               <button
                 className={cn(
@@ -241,7 +247,7 @@ export function Preview({
                 )}
                 onClick={handleConfirm}
               >
-                {rePositionMode ? 'Confirm' : 'Confirm migration'}
+                {rePositionMode ? t`Confirm` : t`Confirm migration`}
               </button>
             </div>
 
