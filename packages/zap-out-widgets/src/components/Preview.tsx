@@ -60,11 +60,10 @@ export const Preview = () => {
     const onCloseStatusDialog = () => {
       if (txStatus === 'success') {
         onClose();
-        setBuildData(undefined);
-      } else if (error) {
-        setShowProcessing(false);
-        setError(undefined);
       }
+      setBuildData(undefined);
+      setShowProcessing(false);
+      setError(undefined);
       setTxHash(null);
     };
 
@@ -118,11 +117,7 @@ export const Preview = () => {
         : theme.subText;
 
   const handleConfirm = async () => {
-    if (!account) return;
-    if (!buildData) {
-      setShowProcessing(true);
-      return;
-    }
+    if (!account || !buildData) return;
 
     const txData = {
       from: account,
@@ -131,6 +126,7 @@ export const Preview = () => {
       data: buildData.callData,
     };
 
+    setError(undefined);
     setShowProcessing(true);
     const gas = await estimateGas(rpcUrl, txData).catch(err => {
       console.log(err.message);
