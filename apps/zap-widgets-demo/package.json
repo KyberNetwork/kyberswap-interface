@@ -3,7 +3,9 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
+  "packageManager": "pnpm@8.9.2",
   "scripts": {
+    "preinstall": "corepack enable",
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
