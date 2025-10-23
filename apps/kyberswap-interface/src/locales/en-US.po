@@ -1816,8 +1816,8 @@ msgid "Address"
 msgstr "Address"
 
 #: src/components/SwapForm/AddMEVProtectionModal.tsx
-msgid "You have successfully turned on MEV Protection Mode. All transactions on Ethereum will go through the custom RPC endpoint unless you change it"
-msgstr "You have successfully turned on MEV Protection Mode. All transactions on Ethereum will go through the custom RPC endpoint unless you change it"
+#~ msgid "You have successfully turned on MEV Protection Mode. All transactions on Ethereum will go through the custom RPC endpoint unless you change it"
+#~ msgstr "You have successfully turned on MEV Protection Mode. All transactions on Ethereum will go through the custom RPC endpoint unless you change it"
 
 #: src/pages/NotificationCenter/CreateAlert/index.tsx
 msgid "We will use our Aggregator to regularly monitor price changes based on your alert conditions below. When the price alert is triggered, we will send you a notification"
@@ -1860,6 +1860,10 @@ msgstr "Dynamic entry based on trading pair."
 #: src/pages/Campaign/components/Information.tsx
 msgid "Rewards will be airdropped directly to the winners wallets by August 12th."
 msgstr "Rewards will be airdropped directly to the winners wallets by August 12th."
+
+#: src/components/SwapForm/AddMEVProtectionModal.tsx
+msgid "guide"
+msgstr "guide"
 
 #: src/components/ShareModal/index.tsx
 msgid "Copy Link"
@@ -2369,6 +2373,10 @@ msgstr "Your import token (click to copy)"
 #: src/pages/Earns/PositionDetail/LeftSection.tsx
 msgid "days"
 msgstr "days"
+
+#: src/components/SwapForm/AddMEVProtectionModal.tsx
+msgid "RPC Url"
+msgstr "RPC Url"
 
 #: src/pages/Earns/Landing/index.tsx
 msgid "Liquidity Pools"
@@ -3909,8 +3917,8 @@ msgid "AMP factor x Liquidity in the pool. Amplified pools have higher capital e
 msgstr "AMP factor x Liquidity in the pool. Amplified pools have higher capital efficiency and liquidity."
 
 #: src/components/SwapForm/AddMEVProtectionModal.tsx
-msgid "<0>MEV</0> Protection safeguards you from front-running attacks on Ethereum. We recommend using <1>KyberSwap's RPC endpoint</1> - powered by Blink to protect your transactions from front-running attacks and ensure a better trading experience.<2/><3/>Note that adding the RPC endpoint automatically is only available via the MetaMask wallet. If you are using another wallet or would like to add the RPC endpoint to your wallet manually, please refer to this <4>guide</4>. Please make sure you understand how it works and use at your own caution."
-msgstr "<0>MEV</0> Protection safeguards you from front-running attacks on Ethereum. We recommend using <1>KyberSwap's RPC endpoint</1> - powered by Blink to protect your transactions from front-running attacks and ensure a better trading experience.<2/><3/>Note that adding the RPC endpoint automatically is only available via the MetaMask wallet. If you are using another wallet or would like to add the RPC endpoint to your wallet manually, please refer to this <4>guide</4>. Please make sure you understand how it works and use at your own caution."
+#~ msgid "<0>MEV</0> Protection safeguards you from front-running attacks on Ethereum. We recommend using <1>KyberSwap's RPC endpoint</1> - powered by Blink to protect your transactions from front-running attacks and ensure a better trading experience.<2/><3/>Note that adding the RPC endpoint automatically is only available via the MetaMask wallet. If you are using another wallet or would like to add the RPC endpoint to your wallet manually, please refer to this <4>guide</4>. Please make sure you understand how it works and use at your own caution."
+#~ msgstr "<0>MEV</0> Protection safeguards you from front-running attacks on Ethereum. We recommend using <1>KyberSwap's RPC endpoint</1> - powered by Blink to protect your transactions from front-running attacks and ensure a better trading experience.<2/><3/>Note that adding the RPC endpoint automatically is only available via the MetaMask wallet. If you are using another wallet or would like to add the RPC endpoint to your wallet manually, please refer to this <4>guide</4>. Please make sure you understand how it works and use at your own caution."
 
 #: src/components/Header/web3/NetworkModal/components/DraggableNetworkButton.tsx
 #: src/pages/Earns/Landing/index.tsx
@@ -4106,6 +4114,10 @@ msgstr "Insufficient {0} balance.<0/><1>{1}{formatNum} {2}</1> remaining after d
 #: src/components/Header/web3/SignWallet/ConfirmModal.tsx
 msgid "Signing in..."
 msgstr "Signing in..."
+
+#: src/components/SwapForm/AddMEVProtectionModal.tsx
+msgid "- powered by Blink to protect your transactions from front-running attacks and ensure a better trading experience."
+msgstr "- powered by Blink to protect your transactions from front-running attacks and ensure a better trading experience."
 
 #: src/pages/ElasticLegacy/FarmLegacy.tsx
 msgid "Claiming rewards"
@@ -4498,6 +4510,10 @@ msgstr "Note: <0>{note}</0>"
 #: src/pages/Campaign/constants.tsx
 msgid "<0>Week 1</0> May 19 - May 25"
 msgstr "<0>Week 1</0> May 19 - May 25"
+
+#: src/components/SwapForm/AddMEVProtectionModal.tsx
+msgid "Protection safeguards you from front-running attacks on {chainName}. We recommend using"
+msgstr "Protection safeguards you from front-running attacks on {chainName}. We recommend using"
 
 #: src/components/swapv2/LimitOrder/ListOrder/OrderItem.tsx
 msgid "Expiry"
@@ -5348,6 +5364,10 @@ msgstr "Both tokens must be the same native tokens including ETH-ETH, BNB-BNB, P
 msgid "Next"
 msgstr "Next"
 
+#: src/components/SwapForm/AddMEVProtectionModal.tsx
+msgid "Note that adding the RPC endpoint automatically is only available via the MetaMask wallet. If you are using another wallet or would like to add the RPC endpoint to your wallet manually, please refer to this"
+msgstr "Note that adding the RPC endpoint automatically is only available via the MetaMask wallet. If you are using another wallet or would like to add the RPC endpoint to your wallet manually, please refer to this"
+
 #: src/pages/Campaign/components/Information.tsx
 #: src/pages/Campaign/components/Information.tsx
 msgid "How do you calculate the rewards?"
@@ -5563,6 +5583,10 @@ msgstr "Deposit:"
 #: src/hooks/useWrapCallback.ts
 msgid "Insufficient W{nativeTokenSymbol} balance"
 msgstr "Insufficient W{nativeTokenSymbol} balance"
+
+#: src/components/SwapForm/AddMEVProtectionModal.tsx
+msgid "You have successfully turned on MEV Protection Mode. All transactions on {chainName} will go through the custom RPC endpoint unless you change it"
+msgstr "You have successfully turned on MEV Protection Mode. All transactions on {chainName} will go through the custom RPC endpoint unless you change it"
 
 #: src/components/Announcement/PrivateAnnoucement/NotificationCenter/PoolPosition.tsx
 msgid "Current Market Price is {currentPrice} {token0Symbol} per {token1Symbol}"
@@ -6410,6 +6434,10 @@ msgstr "Position"
 msgid "Chart is unavailable right now"
 msgstr "Chart is unavailable right now"
 
+#: src/components/SwapForm/AddMEVProtectionModal.tsx
+msgid "KyberSwap's RPC endpoint"
+msgstr "KyberSwap's RPC endpoint"
+
 #: src/components/ConfirmAddModalBottom/index.tsx
 msgid "Create Pool"
 msgstr "Create Pool"
@@ -6495,6 +6523,10 @@ msgstr "My Inbox"
 #: src/pages/KyberDAO/Vote/index.tsx
 msgid "In Progress: Epoch {0}"
 msgstr "In Progress: Epoch {0}"
+
+#: src/components/SwapForm/AddMEVProtectionModal.tsx
+msgid ". Please make sure you understand how it works and use at your own caution."
+msgstr ". Please make sure you understand how it works and use at your own caution."
 
 #: src/pages/KyberDAO/StakeKNC/index.tsx
 msgid "Read about KNC ↗"

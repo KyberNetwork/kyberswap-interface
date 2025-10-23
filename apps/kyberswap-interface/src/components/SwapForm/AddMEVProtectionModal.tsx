@@ -3,11 +3,12 @@ import { Trans, t } from '@lingui/macro'
 import { useCallback, useMemo } from 'react'
 import { X } from 'react-feather'
 import { useMedia } from 'react-use'
-import { Text } from 'rebass'
+import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { NotificationType } from 'components/Announcement/type'
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
+import CopyHelper from 'components/Copy'
 import Modal from 'components/Modal'
 import Row, { RowBetween } from 'components/Row'
 import { CONNECTION } from 'components/Web3Provider'
@@ -106,29 +107,40 @@ export default function AddMEVProtectionModal({ isOpen, onClose }: { isOpen: boo
           </Text>
           <X color={theme.text} style={{ cursor: 'pointer' }} onClick={onClose} />
         </RowBetween>
-        <Row gap="12px">
-          <Text fontSize={12} lineHeight="16px">
-            <Trans>
+        <Text fontSize={12} lineHeight="16px">
+          <Flex flexDirection="column" sx={{ gap: '8px' }}>
+            <Text>
               <ExternalLink href="https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/maximal-extractable-value-mev">
                 MEV
               </ExternalLink>{' '}
-              Protection safeguards you from front-running attacks on {chainName}. We recommend using{' '}
+              <Trans>Protection safeguards you from front-running attacks on {chainName}. We recommend using</Trans>{' '}
               <ExternalLink href="https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-technologies/rpc">
-                KyberSwap&apos;s RPC endpoint
+                <Trans>KyberSwap&apos;s RPC endpoint</Trans>
               </ExternalLink>{' '}
-              - powered by Blink to protect your transactions from front-running attacks and ensure a better trading
-              experience.
-              <br />
-              <br />
-              Note that adding the RPC endpoint automatically is only available via the MetaMask wallet. If you are
-              using another wallet or would like to add the RPC endpoint to your wallet manually, please refer to this{' '}
+              <Trans>
+                - powered by Blink to protect your transactions from front-running attacks and ensure a better trading
+                experience.
+              </Trans>
+            </Text>
+            <Flex alignItems="center">
+              <Trans>RPC Url</Trans>:
+              <Text color={theme.primary} fontWeight={500} marginLeft="4px">
+                {KYBER_SWAP_RPC[chainId]}
+              </Text>
+              <CopyHelper size={14} toCopy={KYBER_SWAP_RPC[chainId] || ''} />
+            </Flex>
+            <Text>
+              <Trans>
+                Note that adding the RPC endpoint automatically is only available via the MetaMask wallet. If you are
+                using another wallet or would like to add the RPC endpoint to your wallet manually, please refer to this
+              </Trans>{' '}
               <ExternalLink href="https://docs.kyberswap.com/getting-started/quickstart/faq#how-to-change-rpc-in-metamask">
-                guide
+                <Trans>guide</Trans>
               </ExternalLink>
-              . Please make sure you understand how it works and use at your own caution.
-            </Trans>
-          </Text>
-        </Row>
+              <Trans>. Please make sure you understand how it works and use at your own caution.</Trans>
+            </Text>
+          </Flex>
+        </Text>
         <Row gap="16px" flexDirection={upToExtraSmall ? 'column' : 'row'}>
           <ButtonOutlined onClick={onClose}>{isUsingMetamask ? t`No, go back` : t`Dismiss`}</ButtonOutlined>
           {isUsingMetamask && (
