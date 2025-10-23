@@ -1,5 +1,3 @@
-import { useState } from 'react';
-
 import { Trans, t } from '@lingui/macro';
 
 import { useCopy } from '@kyber/hooks';
@@ -9,24 +7,12 @@ import {
   NETWORKS_INFO,
   PoolType,
   defaultToken,
-  dexMapping,
   univ3PoolNormalize,
   univ3Position,
 } from '@kyber/schema';
-import {
-  InfoHelper,
-  LoadingCounter,
-  MouseoverTooltip,
-  ShareModal,
-  ShareType,
-  Skeleton,
-  TokenLogo,
-  TokenSymbol,
-} from '@kyber/ui';
+import { InfoHelper, LoadingCounter, MouseoverTooltip, Skeleton, TokenLogo, TokenSymbol } from '@kyber/ui';
 import { shortenAddress } from '@kyber/utils/crypto';
-import { cn } from '@kyber/utils/tailwind-helpers';
 
-import ShareIcon from '@/assets/svg/ic_share.svg';
 import SettingIcon from '@/assets/svg/setting.svg';
 import X from '@/assets/svg/x.svg';
 import { useZapState } from '@/hooks/useZapState';
@@ -44,7 +30,6 @@ const Header = () => {
   ]);
   const { pool } = usePoolStore(['pool']);
   const { position } = usePositionStore(['position']);
-  const [openShare, setOpenShare] = useState(false);
 
   const { toggleSetting, uiState, loading: zapLoading, getZapRoute, zapRouteDisabled } = useZapState();
 
@@ -84,49 +69,8 @@ const Header = () => {
     toggleSetting();
   };
 
-  const shareButton = (className?: string) => (
-    <div
-      className={cn(
-        'flex items-center justify-center cursor-pointer w-6 h-6 rounded-full text-primary bg-primary-200',
-        className,
-      )}
-      onClick={() => setOpenShare(true)}
-    >
-      <ShareIcon />
-    </div>
-  );
-
   return (
     <>
-      {openShare && !initializing && (
-        <ShareModal
-          isFarming={pool?.isFarming}
-          onClose={() => setOpenShare(false)}
-          type={ShareType.POOL_INFO}
-          pool={{
-            feeTier: fee,
-            address: pool.address,
-            chainId,
-            chainLogo: NETWORKS_INFO[chainId].logo,
-            dexLogo,
-            dexName,
-            exchange: dexMapping[poolType]?.[0] || '',
-            token0: {
-              symbol: token0.symbol,
-              logo: token0.logo || '',
-            },
-            token1: {
-              symbol: token1.symbol,
-              logo: token1.logo || '',
-            },
-            apr: {
-              fees: pool?.stats?.apr || 0,
-              eg: pool?.stats?.kemEGApr || 0,
-              lm: pool?.stats?.kemLMApr || 0,
-            },
-          }}
-        />
-      )}
       <div className="flex text-xl font-medium justify-between items-start">
         {initializing ? (
           <Skeleton className="w-[300px] h-7" />
@@ -200,8 +144,6 @@ const Header = () => {
               <TokenSymbol symbol={token1.symbol} />
             </div>
 
-            {shareButton('sm:!hidden ml-1')}
-
             <div className="flex flex-wrap ml-[2px] gap-[6px] text-subText items-center">
               <div className="rounded-full text-xs bg-layer2 text-subText px-[14px] py-1">
                 <Trans>Fee {fee}%</Trans>
@@ -240,7 +182,6 @@ const Header = () => {
                 <TokenLogo src={dexLogo} size={16} />
                 <span>{dexName}</span>
               </div>
-              {shareButton('hidden sm:flex')}
             </div>
           </div>
         )}
