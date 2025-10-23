@@ -11,6 +11,7 @@ import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Modal from 'components/Modal'
 import Row, { RowBetween } from 'components/Row'
 import { CONNECTION } from 'components/Web3Provider'
+import { NETWORKS_INFO } from 'constants/networks'
 import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -52,6 +53,7 @@ export default function AddMEVProtectionModal({ isOpen, onClose }: { isOpen: boo
   const theme = useTheme()
 
   const isUsingMetamask = useMemo(() => walletKey === CONNECTION.METAMASK_RDNS, [walletKey])
+  const chainName = useMemo(() => NETWORKS_INFO[chainId].name, [chainId])
 
   const onAdd = useCallback(() => {
     if (!isUsingMetamask) {
@@ -75,7 +77,7 @@ export default function AddMEVProtectionModal({ isOpen, onClose }: { isOpen: boo
         notify({
           title: t`MEV Protection Mode is on`,
           type: NotificationType.SUCCESS,
-          summary: t`You have successfully turned on MEV Protection Mode. All transactions on Ethereum will go through the custom RPC endpoint unless you change it`,
+          summary: t`You have successfully turned on MEV Protection Mode. All transactions on ${chainName} will go through the custom RPC endpoint unless you change it`,
         })
         onClose?.()
         mixpanelHandler(MIXPANEL_TYPE.MEV_ADD_RESULT, { type: name, result: 'success' })
@@ -86,7 +88,7 @@ export default function AddMEVProtectionModal({ isOpen, onClose }: { isOpen: boo
         onClose?.()
       },
     )
-  }, [isUsingMetamask, onClose, mixpanelHandler, addNewNetwork, notify, chainId])
+  }, [isUsingMetamask, onClose, mixpanelHandler, addNewNetwork, notify, chainId, chainName])
 
   return (
     <Modal
@@ -110,7 +112,7 @@ export default function AddMEVProtectionModal({ isOpen, onClose }: { isOpen: boo
               <ExternalLink href="https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/maximal-extractable-value-mev">
                 MEV
               </ExternalLink>{' '}
-              Protection safeguards you from front-running attacks on Ethereum. We recommend using{' '}
+              Protection safeguards you from front-running attacks on {chainName}. We recommend using{' '}
               <ExternalLink href="https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-technologies/rpc">
                 KyberSwap&apos;s RPC endpoint
               </ExternalLink>{' '}
