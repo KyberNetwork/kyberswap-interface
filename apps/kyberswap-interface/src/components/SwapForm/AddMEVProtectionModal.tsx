@@ -37,8 +37,9 @@ const Wrapper = styled.div`
   }
 `
 
-const KYBER_SWAP_RPC: { [key: number]: string } = {
+export const KYBER_SWAP_RPC: Partial<Record<ChainId, string>> = {
   [ChainId.MAINNET]: 'https://ethereum-mev-protection.kyberengineering.io/',
+  [ChainId.BSCMAINNET]: 'https://bsc-mev-protection.kyberengineering.io/',
   // [ChainId.BASE]: 'https://base-mev-protection.kyberengineering.io/',
 }
 
@@ -64,7 +65,7 @@ export default function AddMEVProtectionModal({ isOpen, onClose }: { isOpen: boo
     mixpanelHandler(MIXPANEL_TYPE.MEV_ADD_CLICK_MODAL, { type: name })
     addNewNetwork(
       chainId,
-      KYBER_SWAP_RPC[chainId],
+      KYBER_SWAP_RPC[chainId] as string,
       {
         name,
         title: t`Failed to switch to ${name} RPC Endpoint`,

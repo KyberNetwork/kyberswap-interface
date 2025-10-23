@@ -1,4 +1,4 @@
-import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useCallback, useState } from 'react'
@@ -14,7 +14,7 @@ import Divider from 'components/Divider'
 import { Shield } from 'components/Icons'
 import InfoHelper from 'components/InfoHelper'
 import { RowBetween, RowFixed } from 'components/Row'
-import AddMEVProtectionModal from 'components/SwapForm/AddMEVProtectionModal'
+import AddMEVProtectionModal, { KYBER_SWAP_RPC } from 'components/SwapForm/AddMEVProtectionModal'
 import { PriceAlertButton } from 'components/SwapForm/SlippageSettingGroup'
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import ValueWithLoadingSkeleton from 'components/SwapForm/SwapModal/SwapDetails/ValueWithLoadingSkeleton'
@@ -116,7 +116,7 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
   const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
   const isPartnerSwap = window.location.pathname.startsWith(APP_PATHS.PARTNER_SWAP)
   const addMevButton =
-    chainId === ChainId.MAINNET &&
+    KYBER_SWAP_RPC[chainId] &&
     active &&
     !isPartnerSwap &&
     slippageStatus === SLIPPAGE_STATUS.HIGH &&
