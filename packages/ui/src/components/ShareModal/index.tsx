@@ -79,15 +79,17 @@ export default function ShareModal({
           className={`flex flex-col ${forDownload ? 'ml-10' : 'ml-4 sm:ml-10'} ${forDownload ? 'gap-5' : 'gap-3 sm:gap-5'}`}
           style={{ height: 'calc(100% - 48px)' }}
         >
-          <div className="flex items-center gap-1">
-            <TokenLogo
-              className={forDownload ? 'h-5 w-5' : 'h-[18px] sm:h-5 w-[18px] sm:w-5'}
-              src={getProxyImage(pool.dexLogo)}
-            />
-            <p className={forDownload ? 'text-lg' : 'text-base sm:text-lg'}>{pool.dexName}</p>
-          </div>
+          {pool ? (
+            <div className="flex items-center gap-1">
+              <TokenLogo
+                className={forDownload ? 'h-5 w-5' : 'h-[18px] sm:h-5 w-[18px] sm:w-5'}
+                src={getProxyImage(pool.dexLogo)}
+              />
+              <p className={forDownload ? 'text-lg' : 'text-base sm:text-lg'}>{pool.dexName}</p>
+            </div>
+          ) : null}
           <div className="flex flex-col gap-3">
-            {!isRewardSharing ? (
+            {!isRewardSharing && pool ? (
               <div className="flex items-center">
                 <div className="flex items-center">
                   <TokenLogo size={22} src={getProxyImage(pool.token0?.logo)} />
@@ -108,7 +110,7 @@ export default function ShareModal({
                 )}
               </div>
             ) : (
-              <div className="h-[12px]" />
+              <div className="h-[18px]" />
             )}
             {selectedOptions.size === 1 ? (
               isPoolSharing || isRewardSharing ? (
