@@ -87,7 +87,7 @@ const RightSection = ({
   const { widget: zapOutWidget, handleOpenZapOut } = useZapOutWidget((props: CheckClosedPositionParams) => {
     onRefreshPosition(props)
     setReduceFetchInterval(true)
-  })
+  }, true)
 
   const price = useMemo(
     () => (!position?.priceRange ? 0 : !revert ? position.priceRange.current : 1 / position.priceRange.current),
