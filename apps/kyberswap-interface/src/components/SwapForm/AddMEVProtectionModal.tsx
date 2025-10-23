@@ -65,7 +65,7 @@ export default function AddMEVProtectionModal({ isOpen, onClose }: { isOpen: boo
     mixpanelHandler(MIXPANEL_TYPE.MEV_ADD_CLICK_MODAL, { type: name })
     addNewNetwork(
       chainId,
-      KYBER_SWAP_RPC[chainId],
+      KYBER_SWAP_RPC[chainId] as string,
       {
         name,
         title: t`Failed to switch to ${name} RPC Endpoint`,
