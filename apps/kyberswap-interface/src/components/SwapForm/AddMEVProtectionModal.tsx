@@ -37,8 +37,9 @@ const Wrapper = styled.div`
   }
 `
 
-const KYBER_SWAP_RPC: { [key: number]: string } = {
+export const KYBER_SWAP_RPC: Partial<Record<ChainId, string>> = {
   [ChainId.MAINNET]: 'https://ethereum-mev-protection.kyberengineering.io/',
+  [ChainId.BSCMAINNET]: 'https://bsc-mev-protection.kyberengineering.io/',
   // [ChainId.BASE]: 'https://base-mev-protection.kyberengineering.io/',
 }
 
