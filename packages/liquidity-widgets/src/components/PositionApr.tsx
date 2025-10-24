@@ -42,7 +42,7 @@ export const PositionApr = () => {
   return (
     <div className="flex items-center justify-end text-sm mt-2 gap-2">
       <div className="text-subText">Est. Position APR</div>
-      {loading ? (
+      {loading && !data ? (
         <Skeleton className="w-16 h-5" />
       ) : (
         <div className="flex items-center" style={{ color: defaultTheme.blue }}>
