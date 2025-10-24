@@ -6,6 +6,7 @@ import { ArrowRight, ArrowRightCircle } from 'react-feather'
 import { Link } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
+import { useGetSmartExitOrdersQuery } from 'services/smartExit'
 
 import { ReactComponent as IconEarnNotFound } from 'assets/svg/earn/ic_earn_not_found.svg'
 import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
@@ -50,6 +51,9 @@ import { useWalletModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
+import { OrderStatus } from '../SmartExit/useSmartExitFilter'
+import { SmartExit } from '../components/SmartExit'
+
 export interface FeeInfoFromRpc extends FeeInfo {
   id: string
   timeRemaining: number
@@ -79,6 +83,21 @@ export default function TableContent({
   const [positionThatClaimingFees, setPositionThatClaimingFees] = useState<ParsedPosition | null>(null)
   const [positionThatClaimingRewards, setPositionThatClaimingRewards] = useState<ParsedPosition | null>(null)
   const [positionToMigrate, setPositionToMigrate] = useState<ParsedPosition | null>(null)
+  const [smartExitPosition, setSmartExitPosition] = useState<ParsedPosition | null>(null)
+
+  const { data: smartExitOrders } = useGetSmartExitOrdersQuery(
+    {
+      userWallet: account || '',
+      positionIds: positions?.map(pos => pos.id) || [],
+      status: OrderStatus.OrderStatusOpen,
+      page: 1,
+      pageSize: positions?.length || 10,
+    },
+    {
+      skip: (positions?.length || 0) === 0,
+    },
+  )
+  const smartExitPosIds = smartExitOrders?.orders.map(order => order.positionId) || []
 
   const {
     claimModal: claimFeesModal,
@@ -281,6 +300,9 @@ export default function TableContent({
       {claimRewardsModal}
       {zapMigrationWidget}
       {migrationModal}
+      {smartExitPosition && (
+        <SmartExit position={smartExitPosition} isOpen onDismiss={() => setSmartExitPosition(null)} />
+      )}
 
       <div>
         {account && positions && positions.length > 0
@@ -313,8 +335,12 @@ export default function TableContent({
               const actions = (
                 <DropdownAction
                   position={position}
+                  hasActiveSmartExitOrder={smartExitPosIds.includes(position.id)}
                   onOpenIncreaseLiquidityWidget={handleOpenIncreaseLiquidityWidget}
                   onOpenZapOut={handleOpenZapOut}
+                  onOpenSmartExit={(_e: React.MouseEvent, position: ParsedPosition) => {
+                    setSmartExitPosition(position)
+                  }}
                   onOpenReposition={handleReposition}
                   claimFees={{
                     onClaimFee: handleClaimFees,

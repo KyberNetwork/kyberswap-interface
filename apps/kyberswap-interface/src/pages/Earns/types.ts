@@ -16,6 +16,13 @@ export enum ProgramType {
   LM = 'lm',
 }
 
+export interface SmartExitFilter {
+  chainIds?: string
+  status?: string
+  dexTypes?: string
+  page: number
+}
+
 export interface PositionFilter {
   chainIds?: string
   positionId?: string
@@ -80,6 +87,7 @@ export interface EarnPosition {
   minPrice: number
   maxPrice: number
   currentAmounts: Array<PositionAmount>
+  providedAmounts: Array<PositionAmount>
   feePending: Array<PositionAmount>
   feesClaimed: Array<PositionAmount>
   createdTime: number
@@ -129,6 +137,7 @@ export enum PAIR_CATEGORY {
 export const DEFAULT_PARSED_POSITION: ParsedPosition = {
   id: '',
   tokenId: '',
+  earningFeeYield: 0,
   pool: {
     fee: 0,
     address: '',
@@ -223,6 +232,7 @@ export const DEFAULT_PARSED_POSITION: ParsedPosition = {
 export interface ParsedPosition {
   id: string
   tokenId: string
+  earningFeeYield: number
   pool: {
     fee: number
     address: string
