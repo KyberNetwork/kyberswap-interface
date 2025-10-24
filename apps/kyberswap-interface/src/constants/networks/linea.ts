@@ -1,5 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
+import ethereumIcon from 'assets/networks/ethereum.svg'
+import lineaIcon from 'assets/networks/linea.svg'
 import { NetworkInfo } from 'constants/networks/type'
 
 const EMPTY_ARRAY: any[] = []
@@ -12,7 +14,7 @@ const lineaInfo: NetworkInfo = {
   priceRoute: 'linea',
   aggregatorRoute: 'linea',
   name: 'Linea',
-  icon: 'https://storage.googleapis.com/ks-setting-1d682dca/12a257d3-65e3-4b16-8a84-03a4ca34a6bc1693378197244.svg',
+  icon: lineaIcon,
 
   iconSelected: NOT_SUPPORT,
 
@@ -22,7 +24,7 @@ const lineaInfo: NetworkInfo = {
   nativeToken: {
     symbol: 'ETH',
     name: 'LineaETH',
-    logo: 'https://storage.googleapis.com/ks-setting-1d682dca/9412b9e7-161f-472e-94b2-a62d2c386ab7.png',
+    logo: ethereumIcon,
     decimal: 18,
   },
   defaultRpcUrl: 'https://rpc.linea.build',

@@ -1,7 +1,9 @@
+import uniswapLogo from 'assets/dexes/uniswap.svg'
 import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 
 export default {
   name: 'Uniswap V2',
+  logo: uniswapLogo,
   nftManagerContract: {},
   nftManagerContractAbi: null,
   unwrapWNativeTokenFuncName: null,

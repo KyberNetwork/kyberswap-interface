@@ -24,6 +24,7 @@ import uniswapv4 from 'pages/Earns/constants/dexes/uniswapv4'
 // Dex info
 export interface EarnDexInfo {
   name: string
+  logo: string
   nftManagerContract: { [key in ChainId]?: string } | string
   nftManagerContractAbi: ContractInterface | null
   unwrapWNativeTokenFuncName: string | null
@@ -74,6 +75,7 @@ export const EARN_DEXES_CONFIG: Record<Exchange, EarnDexInfo> = {
 
 const defaultConfig = {
   name: '',
+  logo: '',
   nftManagerContract: {},
   nftManagerContractAbi: null,
   unwrapWNativeTokenFuncName: null,
@@ -98,6 +100,7 @@ export interface EarnChainInfo {
   nativeAddress: string
   farmingSupported: boolean
   univ4StateViewContract: string | null
+  logo: string
 }
 
 export enum EarnChain {

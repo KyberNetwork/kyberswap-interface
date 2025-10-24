@@ -1,5 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
+import blastIcon from 'assets/networks/blast.svg'
+import ethereumIcon from 'assets/networks/ethereum.svg'
 import { NetworkInfo } from 'constants/networks/type'
 
 const EMPTY_ARRAY: any[] = []
@@ -12,7 +14,7 @@ const scroll: NetworkInfo = {
   priceRoute: 'blast',
   aggregatorRoute: 'blast',
   name: 'Blast',
-  icon: 'https://static.debank.com/image/project/logo_url/blast/c0e1eb5f4051bd62ca904cf2e3282f47.png',
+  icon: blastIcon,
 
   iconSelected: NOT_SUPPORT,
 
@@ -22,7 +24,7 @@ const scroll: NetworkInfo = {
   nativeToken: {
     symbol: 'ETH',
     name: 'ETH',
-    logo: 'https://storage.googleapis.com/ks-setting-1d682dca/9412b9e7-161f-472e-94b2-a62d2c386ab7.png',
+    logo: ethereumIcon,
     decimal: 18,
   },
   defaultRpcUrl: 'https://rpc.blast.io',

@@ -12,7 +12,7 @@ import {
 import { ChainId, WETH } from '@kyberswap/ks-sdk-core'
 
 import { NETWORKS_INFO } from 'constants/networks'
-import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
+import { EARN_CHAINS, EARN_DEXES, EarnChain, Exchange } from 'pages/Earns/constants'
 import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import {
   EarnPosition,
@@ -206,13 +206,13 @@ export const parsePosition = ({
     dex: {
       id: dex,
       name: EARN_DEXES[dex].name,
-      logo: pool.projectLogo,
+      logo: EARN_DEXES[dex].logo ?? pool.projectLogo,
       version: getDexVersion(dex),
     },
     chain: {
       id: position.chainId,
       name: position.chainName,
-      logo: position.chainLogo,
+      logo: EARN_CHAINS[position.chainId as EarnChain]?.logo ?? position.chainLogo,
     },
     priceRange: {
       min: position.minPrice || 0,

@@ -24,7 +24,7 @@ const ethereumInfo: NetworkInfo = {
   nativeToken: {
     symbol: 'ETH',
     name: 'Ether',
-    logo: 'https://storage.googleapis.com/ks-setting-1d682dca/9412b9e7-161f-472e-94b2-a62d2c386ab7.png',
+    logo: ethereumIcon,
     decimal: 18,
   },
   defaultRpcUrl: 'https://ethereum.kyberengineering.io',

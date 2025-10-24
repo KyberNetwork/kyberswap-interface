@@ -8,7 +8,6 @@ import { DEFAULT_SHARE_OPTION } from '@/components/ShareModal/constants';
 import { ShareModalProps, ShareOption, ShareType } from '@/components/ShareModal/types';
 import {
   formatTimeDurationFromTimestamp,
-  getProxyImage,
   getValueByOption,
   renderStaggeredNumber,
 } from '@/components/ShareModal/utils';
@@ -83,7 +82,8 @@ export default function ShareModal({
             <div className="flex items-center gap-1">
               <TokenLogo
                 className={forDownload ? 'h-5 w-5' : 'h-[18px] sm:h-5 w-[18px] sm:w-5'}
-                src={getProxyImage(pool.dexLogo)}
+                src={pool.dexLogo}
+                fallbackWithProxy
               />
               <p className={forDownload ? 'text-lg' : 'text-base sm:text-lg'}>{pool.dexName}</p>
             </div>
@@ -92,12 +92,13 @@ export default function ShareModal({
             {!isRewardSharing && pool ? (
               <div className="flex items-center">
                 <div className="flex items-center">
-                  <TokenLogo size={22} src={getProxyImage(pool.token0?.logo)} />
-                  <TokenLogo size={22} className="-ml-2" src={getProxyImage(pool.token1?.logo)} />
+                  <TokenLogo size={22} src={pool.token0?.logo} fallbackWithProxy />
+                  <TokenLogo size={22} className="-ml-2" src={pool.token1?.logo} fallbackWithProxy />
                   <TokenLogo
                     size={12}
                     className="relative -left-[6px] -bottom-[6px]"
-                    src={getProxyImage(pool.chainLogo)}
+                    src={pool.chainLogo}
+                    fallbackWithProxy
                   />
                 </div>
                 <p className={forDownload ? 'text-2xl' : 'text-[22px] sm:text-2xl'}>
