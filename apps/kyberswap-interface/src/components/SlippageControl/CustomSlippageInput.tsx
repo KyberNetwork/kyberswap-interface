@@ -1,7 +1,7 @@
 import { t } from '@lingui/macro'
 import React, { useEffect, useRef, useState } from 'react'
 import { Flex, Text } from 'rebass'
-import styled, { css } from 'styled-components'
+import styled, { css, keyframes } from 'styled-components'
 
 import Tooltip from 'components/Tooltip'
 import { MAX_DEGEN_SLIPPAGE_IN_BIPS, MAX_NORMAL_SLIPPAGE_IN_BIPS } from 'constants/index'
@@ -64,6 +64,20 @@ const slippageOptionCSS = css`
   }
 `
 
+const highlight = keyframes`
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 153, 1, 0);
+  }
+
+  70% {
+    box-shadow: 0 0 0 1px rgba(255, 153, 1, 1);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 153, 1, 0);
+  }
+`
+
 const CustomSlippageOption = styled.div`
   ${slippageOptionCSS};
 
@@ -86,6 +100,10 @@ const CustomSlippageOption = styled.div`
     ${EmojiContainer} {
       color: ${({ theme }) => theme.warning};
     }
+  }
+
+  &[data-highlight='true'] {
+    animation: ${highlight} 2s infinite alternate ease-in-out;
   }
 `
 
@@ -116,9 +134,10 @@ export type Props = {
   rawSlippage: number
   setRawSlippage: (value: number) => void
   isWarning: boolean
+  isHighlight?: boolean
   options: number[]
 }
-const CustomSlippageInput: React.FC<Props> = ({ options, rawSlippage, setRawSlippage, isWarning }) => {
+const CustomSlippageInput: React.FC<Props> = ({ options, rawSlippage, setRawSlippage, isWarning, isHighlight }) => {
   const [tooltip, setTooltip] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
   const { mixpanelHandler } = useMixpanel()
@@ -182,7 +201,11 @@ const CustomSlippageInput: React.FC<Props> = ({ options, rawSlippage, setRawSlip
   return (
     <Flex sx={{ flex: 1 }}>
       <Tooltip text={tooltip} show={!!tooltip} placement="bottom" width="fit-content">
-        <CustomSlippageOption data-active={isCustomOptionActive} data-warning={isCustomOptionActive && isWarning}>
+        <CustomSlippageOption
+          data-active={isCustomOptionActive}
+          data-warning={isCustomOptionActive && isWarning}
+          data-highlight={isHighlight}
+        >
           {isCustomOptionActive && isWarning && (
             <EmojiContainer>
               <span role="img" aria-label="warning">

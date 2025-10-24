@@ -572,8 +572,8 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
           if (signal.aborted) throw new Error('Cancelled')
 
           // Skip adapter if it does not support the category
-          if (!adapter.canSupport(category)) {
-            console.log(`Skipping ${adapter.getName()} because it does not support category ${category}`)
+          if (!adapter.canSupport(category, currencyIn, currencyOut)) {
+            // reason will be logged in adapter.canSupport for specific adapter
             return
           }
 

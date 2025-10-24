@@ -27,13 +27,24 @@ import { useZapOutContext } from '@/stores';
 import { useZapOutUserState } from '@/stores/state';
 
 export const Preview = () => {
-  const { onClose, pool, positionId, theme, position, chainId, connectedAccount, onSubmitTx, poolType, rpcUrl } =
-    useZapOutContext(s => s);
+  const {
+    onClose,
+    pool,
+    positionId,
+    theme,
+    position,
+    chainId,
+    connectedAccount,
+    onSubmitTx,
+    poolType,
+    rpcUrl,
+    onExplorePools,
+  } = useZapOutContext(s => s);
 
   const { address: account } = connectedAccount;
   const isUniV3 = univ3Types.includes(poolType as any);
 
-  const { buildData, slippage, setBuildData, tokenOut, route, mode, setSlippage } = useZapOutUserState();
+  const { buildData, slippage, setBuildData, tokenOut, route, mode, setSlippage, liquidityOut } = useZapOutUserState();
   const { zapImpact, refund, suggestedSlippage, zapFee, removeLiquidity, earnedFee } = useZapRoute();
 
   const [error, setError] = useState<Error | undefined>();
@@ -48,6 +59,7 @@ export const Preview = () => {
     piHigh: zapImpact.level === PI_LEVEL.HIGH,
     piVeryHigh: zapImpact.level === PI_LEVEL.VERY_HIGH,
   };
+  const isRemovedFullLiquidity = liquidityOut === BigInt(position.liquidity);
 
   const handleSlippage = () => {
     if (slippage !== suggestedSlippage) setSlippage(suggestedSlippage);
@@ -59,12 +71,12 @@ export const Preview = () => {
     const errorMessage = error ? friendlyError(error) || error.message || JSON.stringify(error) : '';
     const onCloseStatusDialog = () => {
       if (txStatus === 'success') {
-        onClose();
-        setBuildData(undefined);
-      } else if (error) {
-        setShowProcessing(false);
-        setError(undefined);
+        if (onExplorePools && isRemovedFullLiquidity) onExplorePools();
+        else onClose();
       }
+      setBuildData(undefined);
+      setShowProcessing(false);
+      setError(undefined);
       setTxHash(null);
     };
 
@@ -96,7 +108,11 @@ export const Preview = () => {
         action={
           <>
             <button className="ks-outline-btn flex-1" onClick={onCloseStatusDialog}>
-              <Trans>Close</Trans>
+              {onExplorePools && txStatus === 'success' && isRemovedFullLiquidity ? (
+                <Trans>Explore Pools</Trans>
+              ) : (
+                <Trans>Close</Trans>
+              )}
             </button>
             {txStatus !== 'success' && errorMessage.includes('slippage') ? (
               <button className="ks-primary-btn flex-1" onClick={handleSlippage}>
@@ -118,11 +134,7 @@ export const Preview = () => {
         : theme.subText;
 
   const handleConfirm = async () => {
-    if (!account) return;
-    if (!buildData) {
-      setShowProcessing(true);
-      return;
-    }
+    if (!account || !buildData) return;
 
     const txData = {
       from: account,
@@ -131,6 +143,7 @@ export const Preview = () => {
       data: buildData.callData,
     };
 
+    setError(undefined);
     setShowProcessing(true);
     const gas = await estimateGas(rpcUrl, txData).catch(err => {
       console.log(err.message);

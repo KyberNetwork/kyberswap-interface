@@ -86,10 +86,7 @@ export function Preview({
   };
 
   const handleConfirm = async () => {
-    if (!buildData) {
-      setShowProcessing(true);
-      return;
-    }
+    if (!buildData) return;
 
     const txData = {
       from: account,
@@ -98,6 +95,7 @@ export function Preview({
       data: buildData.callData,
     };
 
+    setError(undefined);
     setShowProcessing(true);
     const gas = await estimateGas(rpcUrl, txData).catch(err => {
       console.log(err.message);
