@@ -98,6 +98,7 @@ export interface EarnChainInfo {
   nativeAddress: string
   farmingSupported: boolean
   univ4StateViewContract: string | null
+  logo: string
 }
 
 export enum EarnChain {
