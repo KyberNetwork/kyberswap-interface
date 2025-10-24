@@ -131,13 +131,10 @@ export default function AddMEVProtectionModal({ isOpen, onClose }: { isOpen: boo
             </Flex>
             <Text>
               <Trans>
-                Note that adding the RPC endpoint automatically is only available via the MetaMask wallet. If you are
-                using another wallet or would like to add the RPC endpoint to your wallet manually, please refer to this
-              </Trans>{' '}
-              <ExternalLink href="https://docs.kyberswap.com/getting-started/quickstart/faq#how-to-change-rpc-in-metamask">
-                <Trans>guide</Trans>
-              </ExternalLink>
-              <Trans>. Please make sure you understand how it works and use at your own caution.</Trans>
+                Note that adding the RPC endpoint automatically is only available via the MetaMask wallet. If you’re
+                using another wallet please add the RPC endpoint manually in your wallet’s custom network settings.
+                Please make sure you understand how it works and use it at your own caution.
+              </Trans>
             </Text>
           </Flex>
         </Text>

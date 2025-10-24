@@ -20,7 +20,6 @@ import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import ValueWithLoadingSkeleton from 'components/SwapForm/SwapModal/SwapDetails/ValueWithLoadingSkeleton'
 import { TooltipTextOfSwapFee } from 'components/SwapForm/TradeSummary'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
-import { CONNECTION } from 'components/Web3Provider'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useENS from 'hooks/useENS'
@@ -46,7 +45,7 @@ export type Props = {
 } & Optional<Pick<DetailedRouteSummary, 'gasUsd' | 'executionPrice' | 'priceImpact'>>
 
 export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, priceImpact, buildData }: Props) {
-  const { chainId, networkInfo, account, walletKey } = useActiveWeb3React()
+  const { chainId, networkInfo, account } = useActiveWeb3React()
   const { active } = useWeb3React()
   const [showMevModal, setShowMevModal] = useState(false)
   const theme = useTheme()
@@ -116,10 +115,8 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
   const slippageStatus = checkRangeSlippage(rawSlippage, cat)
   const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
   const isPartnerSwap = window.location.pathname.startsWith(APP_PATHS.PARTNER_SWAP)
-  const isUsingMetamask = walletKey === CONNECTION.METAMASK_RDNS
   const addMevButton =
     KYBER_SWAP_RPC[chainId] &&
-    isUsingMetamask &&
     active &&
     !isPartnerSwap &&
     slippageStatus === SLIPPAGE_STATUS.HIGH &&

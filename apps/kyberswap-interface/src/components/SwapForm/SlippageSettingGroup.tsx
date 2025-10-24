@@ -13,7 +13,6 @@ import InfoHelper from 'components/InfoHelper'
 import AddMEVProtectionModal, { KYBER_SWAP_RPC } from 'components/SwapForm/AddMEVProtectionModal'
 import SlippageSetting from 'components/SwapForm/SlippageSetting'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
-import { CONNECTION } from 'components/Web3Provider'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
@@ -43,7 +42,7 @@ export default function SlippageSettingGroup({
 }) {
   const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
   const theme = useTheme()
-  const { chainId, walletKey } = useActiveWeb3React()
+  const { chainId } = useActiveWeb3React()
   const { active } = useWeb3React()
   const [showMevModal, setShowMevModal] = useState(false)
   const { mixpanelHandler } = useMixpanel()
@@ -60,9 +59,8 @@ export default function SlippageSettingGroup({
   const [paymentToken] = usePaymentToken()
   const { isSlippageControlPinned } = useSlippageSettingByPage()
   const isPartnerSwap = window.location.pathname.startsWith(APP_PATHS.PARTNER_SWAP)
-  const isUsingMetamask = walletKey === CONNECTION.METAMASK_RDNS
   let rightButton =
-    KYBER_SWAP_RPC[chainId] && isUsingMetamask && active && !isPartnerSwap && !isMobile && !isTablet ? (
+    KYBER_SWAP_RPC[chainId] && active && !isPartnerSwap && !isMobile && !isTablet ? (
       <PriceAlertButton onClick={addMevProtectionHandler}>
         <Shield size={14} color={theme.subText} />
         <Text color={theme.subText} style={{ whiteSpace: 'nowrap' }}>
