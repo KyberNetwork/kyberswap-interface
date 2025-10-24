@@ -48,6 +48,11 @@ export const useEstimatedPositionApr = ({
       setLoading(false);
       return;
     }
+    if (!zapInfo?.positionDetails.addedLiquidity || debouncedLower === debouncedUpper) {
+      setAprData(null);
+      setLoading(false);
+      return;
+    }
 
     const controller = new AbortController();
 
