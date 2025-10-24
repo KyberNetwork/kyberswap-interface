@@ -27,4 +27,7 @@ export const Tabs = styled.div`
 export const Tab = styled.div<{ active: boolean }>`
   color: ${({ theme, active }) => (active ? theme.primary : theme.subText)};
   cursor: pointer;
+  :hover {
+    color: ${({ theme }) => theme.primary};
+  }
 `

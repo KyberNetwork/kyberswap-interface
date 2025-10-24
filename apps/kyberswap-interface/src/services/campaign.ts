@@ -54,7 +54,14 @@ const campaignApi = createApi({
 
     getUserReward: builder.query<
       { data: { point: number; reward: string; rank: number } },
-      { url?: string; program: 'stip' | 'grind/base'; wallet: string; campaign: string; year: number; week: number }
+      {
+        url?: string
+        program: 'stip' | 'grind/base'
+        wallet: string
+        campaign: string
+        year: number
+        week: number
+      }
     >({
       query: ({ url, program, campaign, wallet, week, year }) => ({
         url: url
@@ -85,7 +92,10 @@ const campaignApi = createApi({
           totalReward: string
         }
       },
-      { program: 'stip' | 'grind/base'; wallet: string }
+      {
+        program: 'stip' | 'grind/base'
+        wallet: string
+      }
     >({
       query: ({ program, wallet }) => ({
         url: `/v1/${program}/rewards/${wallet}/total?campaign=referral-program`,

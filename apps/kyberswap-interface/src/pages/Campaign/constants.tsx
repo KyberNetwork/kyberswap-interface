@@ -9,6 +9,7 @@ import loBanner from './assets/limit_order.png'
 import mayTradingBanner from './assets/may_trading.png'
 import nearIntentBanner from './assets/near_intents.png'
 import nearIntentBannerMobile from './assets/near_intents_mobile.png'
+import raffleCampaignBanner from './assets/raffle_campaign.png'
 import referralBanner from './assets/referral.png'
 import tradingBanner from './assets/trading.png'
 
@@ -216,7 +217,41 @@ export const nearIntentWeeks = [
   },
 ].reverse()
 
+export const raffleWeeks = [
+  {
+    value: 46,
+    label: (
+      <Text>
+        <Trans>
+          <Text as="span" color="#ffffff">
+            Week 2
+          </Text>{' '}
+          Nov 10 - Nov 17
+        </Trans>
+      </Text>
+    ),
+    start: 1762707600,
+    end: 1763312400,
+  },
+  {
+    value: 45,
+    label: (
+      <Text>
+        <Trans>
+          <Text as="span" color="#ffffff">
+            Week 1
+          </Text>{' '}
+          Nov 3 - Nov 10
+        </Trans>
+      </Text>
+    ),
+    start: 1762102800,
+    end: 1762707600,
+  },
+].reverse()
+
 export enum CampaignType {
+  Raffle = 'Raffle',
   NearIntents = 'NearIntents',
   MayTrading = 'MayTrading',
   Aggregator = 'Aggregator',
@@ -258,9 +293,29 @@ export type CampaignConfig = {
   banner: string
   ctaLink: string
   title: JSX.Element
+  apiKey?: string
 }
 
 export const campaignConfig: Record<CampaignType, CampaignConfig> = {
+  [CampaignType.Raffle]: {
+    year: 2025,
+    baseWeek: 45,
+    reward: {
+      chainId: ChainId.MAINNET,
+      symbol: 'KNC',
+      logo: 'https://s2.coinmarketcap.com/static/img/coins/64x64/9444.png',
+      address: KNC[ChainId.MAINNET].address,
+      decimals: KNC[ChainId.MAINNET].decimals,
+    },
+    ctaLink: '/swap',
+    ctaText: <Trans>Join Now</Trans>,
+    type: CampaignType.Raffle,
+    weeks: raffleWeeks,
+    program: 'grind/base' as const,
+    campaign: 'trading-incentive' as const,
+    banner: raffleCampaignBanner,
+    title: <Trans>Raffle Campaign</Trans>,
+  },
   [CampaignType.Aggregator]: {
     ...stipInfo,
     ctaLink: '/swap/arbitrum/eth-to-arb',

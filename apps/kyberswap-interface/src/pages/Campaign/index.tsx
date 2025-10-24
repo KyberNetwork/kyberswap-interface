@@ -75,6 +75,8 @@ export default function Aggregator() {
       ? CampaignType.LimitOrder
       : pathname === APP_PATHS.MAY_TRADING_CAMPAIGN
       ? CampaignType.MayTrading
+      : pathname === APP_PATHS.RAFFLE_CAMPAIGN
+      ? CampaignType.Raffle
       : pathname === APP_PATHS.NEAR_INTENTS_CAMPAIGN
       ? CampaignType.NearIntents
       : CampaignType.Referrals
