@@ -233,6 +233,7 @@ export const parsePosition = ({
       inProgressUsdValue: nftRewardInfo?.inProgressUsdValue || 0,
       pendingUsdValue: nftRewardInfo?.pendingUsdValue || 0,
       vestingUsdValue: nftRewardInfo?.vestingUsdValue || 0,
+      waitingUsdValue: nftRewardInfo?.waitingUsdValue || 0,
       claimableUsdValue: nftRewardInfo?.claimableUsdValue || 0,
       egTokens: nftRewardInfo?.egTokens || [],
       lmTokens: nftRewardInfo?.lmTokens || [],

@@ -481,6 +481,11 @@ msgstr "总金额（美元）"
 msgid "Review your order"
 msgstr "检查您的订单"
 
+#: src/pages/Earns/PositionDetail/index.tsx
+#: src/pages/Earns/UserPositions/TableContent.tsx
+msgid "We found a pool with the same pair offering extra rewards. Migrate to this pool on {suggestedProtocolName} hook to start earning farming rewards."
+msgstr "我们发现一个具有相同交易对且提供额外奖励的资金池。迁移到 {suggestedProtocolName} Hook 上的该资金池以开始赚取挖矿奖励。"
+
 #: src/components/swapv2/SwapSettingsPanel/DegenModeSetting.tsx
 #: src/components/TransactionSettings/index.tsx
 msgid "Degen Mode"
@@ -682,6 +687,10 @@ msgstr "在订阅此通知之前，请先登录一个档案。前往<0>档案</0
 #: src/components/ProAmm/ProAmmPooledTokens.tsx
 msgid "Position was created at {0}"
 msgstr "仓位创建于 {0}"
+
+#: src/pages/Earns/components/RewardSyncing.tsx
+msgid "Data is still syncing — takes up to 10 minutes."
+msgstr "数据仍在同步中 — 最多需要 10 分钟。"
 
 #: src/components/SwapForm/TradeSummary.tsx
 msgid "Read more about the fees {hereLink}"
@@ -1135,6 +1144,11 @@ msgstr "<0>要符合被推荐人奖金资格</0>，用户必须通过推荐者�
 #: src/pages/KyberDAO/Vote/ProposalItem/VoteInformation.tsx
 msgid "KNC Amount"
 msgstr "KNC 数量"
+
+#: src/pages/Earns/PositionDetail/index.tsx
+#: src/pages/Earns/UserPositions/TableContent.tsx
+msgid "Earn extra rewards with exact same pair and fee tier on {suggestedProtocolName} hook."
+msgstr "在 {suggestedProtocolName} Hook 上使用完全相同的交易对与费率层级可获得额外奖励。"
 
 #: src/components/LiveChart/index.tsx
 msgid "Past hour"
@@ -2509,11 +2523,6 @@ msgstr "可以购买 KNC 的渠道"
 msgid "Checking data"
 msgstr "正在检查数据"
 
-#: src/pages/Earns/PositionDetail/index.tsx
-#: src/pages/Earns/UserPositions/TableContent.tsx
-msgid "Earn extra rewards with exact same pair and fee tier on Uniswap v4 hook."
-msgstr "在 Uniswap v4 hook 上使用相同的代币对和手续费等级可赚取额外奖励。"
-
 #: src/components/swapv2/LimitOrder/LimitOrderForm.tsx
 msgid "You Sell"
 msgstr "您卖出"
@@ -3790,6 +3799,7 @@ msgid "Step 3"
 msgstr "步骤 3"
 
 #: src/components/WalletPopup/Transactions/Status.tsx
+#: src/pages/Earns/PositionDetail/RewardSection.tsx
 #: src/pages/KyberDAO/KNCUtility/GasRefundBox.tsx
 msgid "Pending"
 msgstr "待处理"
@@ -6895,18 +6905,10 @@ msgstr "资金池"
 msgid "We paused all our Elastic farms on 18 April 2023, 4pm UTC. Information on this can be found in our announcement <0>here</0>"
 msgstr "我们已于 2023 年 4 月 18 日 UTC 16:00 暂停所有 Elastic 挖矿池，详情请查看公告<0>点击此处</0>"
 
-#: src/pages/Earns/components/RewardSyncing.tsx
-msgid "Data is still syncing — takes up to 5 minutes."
-msgstr "数据仍在同步中——最多需要 5 分钟。"
-
 #: src/pages/NotificationCenter/Profile/index.tsx
 msgid "Profile updated"
 msgstr "资料已更新"
 
-#: src/pages/Earns/PositionDetail/index.tsx
-#: src/pages/Earns/UserPositions/TableContent.tsx
-msgid "We found a pool with the same pair offering extra rewards. Migrate to this pool on Uniswap v4 hook to start earning farming rewards."
-msgstr "我们发现同一交易对有额外奖励的资金池。迁移至该 Uniswap v4 hook 资金池即可开始赚取挖矿奖励。"
 
 #: src/pages/Campaign/components/Information.tsx
 #: src/pages/Campaign/components/Information.tsx
@@ -7656,6 +7658,10 @@ msgstr "推荐人数"
 #: src/pages/CrossChainSwap/components/TermAndPolicy.tsx
 msgid "Connect your Wallet"
 msgstr "连接您的钱包"
+
+#: src/pages/Earns/PositionDetail/RewardSection.tsx
+msgid "are under review after failing to finalize in the 2 days vesting period."
+msgstr "因未能在 2 天归属期内完成最终确认，正在审核中。"
 
 #: src/state/burn/hooks.ts
 #: src/state/burn/hooks.ts

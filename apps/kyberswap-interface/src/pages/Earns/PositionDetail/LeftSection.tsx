@@ -226,6 +226,7 @@ const LeftSection = ({
         {/* Rewards */}
         {(position?.pool.isFarming ||
           (initialLoading && isFarmingPossible) ||
+          Number(position?.rewards.inProgressUsdValue || 0) > 0 ||
           Number(position?.rewards.claimableUsdValue || 0) > 0) && (
           <RewardSection
             position={position}

@@ -481,6 +481,11 @@ msgstr "TOTAL AMOUNT (USD)"
 msgid "Review your order"
 msgstr "Review your order"
 
+#: src/pages/Earns/PositionDetail/index.tsx
+#: src/pages/Earns/UserPositions/TableContent.tsx
+msgid "We found a pool with the same pair offering extra rewards. Migrate to this pool on {suggestedProtocolName} hook to start earning farming rewards."
+msgstr "We found a pool with the same pair offering extra rewards. Migrate to this pool on {suggestedProtocolName} hook to start earning farming rewards."
+
 #: src/components/swapv2/SwapSettingsPanel/DegenModeSetting.tsx
 #: src/components/TransactionSettings/index.tsx
 msgid "Degen Mode"
@@ -682,6 +687,10 @@ msgstr "Before you can subscribe to this notification, sign-in to a profile firs
 #: src/components/ProAmm/ProAmmPooledTokens.tsx
 msgid "Position was created at {0}"
 msgstr "Position was created at {0}"
+
+#: src/pages/Earns/components/RewardSyncing.tsx
+msgid "Data is still syncing — takes up to 10 minutes."
+msgstr "Data is still syncing — takes up to 10 minutes."
 
 #: src/components/SwapForm/TradeSummary.tsx
 msgid "Read more about the fees {hereLink}"
@@ -1135,6 +1144,11 @@ msgstr "<0>To be eligible for the Referee bonus</0>, users must join the referra
 #: src/pages/KyberDAO/Vote/ProposalItem/VoteInformation.tsx
 msgid "KNC Amount"
 msgstr "KNC Amount"
+
+#: src/pages/Earns/PositionDetail/index.tsx
+#: src/pages/Earns/UserPositions/TableContent.tsx
+msgid "Earn extra rewards with exact same pair and fee tier on {suggestedProtocolName} hook."
+msgstr "Earn extra rewards with exact same pair and fee tier on {suggestedProtocolName} hook."
 
 #: src/components/LiveChart/index.tsx
 msgid "Past hour"
@@ -2509,11 +2523,6 @@ msgstr "Where you can buy KNC"
 msgid "Checking data"
 msgstr "Checking data"
 
-#: src/pages/Earns/PositionDetail/index.tsx
-#: src/pages/Earns/UserPositions/TableContent.tsx
-msgid "Earn extra rewards with exact same pair and fee tier on Uniswap v4 hook."
-msgstr "Earn extra rewards with exact same pair and fee tier on Uniswap v4 hook."
-
 #: src/components/swapv2/LimitOrder/LimitOrderForm.tsx
 msgid "You Sell"
 msgstr "You Sell"
@@ -3790,6 +3799,7 @@ msgid "Step 3"
 msgstr "Step 3"
 
 #: src/components/WalletPopup/Transactions/Status.tsx
+#: src/pages/Earns/PositionDetail/RewardSection.tsx
 #: src/pages/KyberDAO/KNCUtility/GasRefundBox.tsx
 msgid "Pending"
 msgstr "Pending"
@@ -6895,18 +6905,9 @@ msgstr "POOLS"
 msgid "We paused all our Elastic farms on 18 April 2023, 4pm UTC. Information on this can be found in our announcement <0>here</0>"
 msgstr "We paused all our Elastic farms on 18 April 2023, 4pm UTC. Information on this can be found in our announcement <0>here</0>"
 
-#: src/pages/Earns/components/RewardSyncing.tsx
-msgid "Data is still syncing — takes up to 5 minutes."
-msgstr "Data is still syncing — takes up to 5 minutes."
-
 #: src/pages/NotificationCenter/Profile/index.tsx
 msgid "Profile updated"
 msgstr "Profile updated"
-
-#: src/pages/Earns/PositionDetail/index.tsx
-#: src/pages/Earns/UserPositions/TableContent.tsx
-msgid "We found a pool with the same pair offering extra rewards. Migrate to this pool on Uniswap v4 hook to start earning farming rewards."
-msgstr "We found a pool with the same pair offering extra rewards. Migrate to this pool on Uniswap v4 hook to start earning farming rewards."
 
 #: src/pages/Campaign/components/Information.tsx
 #: src/pages/Campaign/components/Information.tsx
@@ -7656,6 +7657,10 @@ msgstr "NUMBER OF REFERRALS"
 #: src/pages/CrossChainSwap/components/TermAndPolicy.tsx
 msgid "Connect your Wallet"
 msgstr "Connect your Wallet"
+
+#: src/pages/Earns/PositionDetail/RewardSection.tsx
+msgid "are under review after failing to finalize in the 2 days vesting period."
+msgstr "are under review after failing to finalize in the 2 days vesting period."
 
 #: src/state/burn/hooks.ts
 #: src/state/burn/hooks.ts
