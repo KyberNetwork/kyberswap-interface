@@ -22,9 +22,10 @@ const StyledNavGroup = styled(NavGroup)`
   `}
 `
 
-const ELabel = styled.span`
+const ELabel = styled.span<{ isNew?: boolean }>`
   font-size: 10px;
   margin-left: 4px;
+  color: ${({ theme, isNew }) => (isNew ? theme.red : theme.subText)};
 `
 
 const NestedNavLink = styled(StyledNavLink)`
@@ -55,8 +56,14 @@ const CampaignNavGroup = () => {
         }
         dropdownContent={
           <Column>
+            <StyledNavLink to={APP_PATHS.RAFFLE_CAMPAIGN}>
+              <Trans>Raffle Campaign</Trans>
+              <ELabel isNew>{t`NEW`}</ELabel>
+            </StyledNavLink>
+
             <StyledNavLink to={APP_PATHS.NEAR_INTENTS_CAMPAIGN}>
               <Trans>Cross Chain Campaign</Trans>
+              <ELabel>{t`ENDED`}</ELabel>
             </StyledNavLink>
 
             <StyledNavLink to={APP_PATHS.MAY_TRADING_CAMPAIGN}>

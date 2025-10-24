@@ -65,7 +65,7 @@ const MyDashboard = () => {
   const navigate = useNavigateToUrl()
   const theme = useTheme()
   const [searchParams, setSearchParams] = useSearchParams()
-  const tab: CampaignType = (searchParams.get('tab') || CampaignType.NearIntents) as CampaignType
+  const tab: CampaignType = (searchParams.get('tab') || CampaignType.Raffle) as CampaignType
   const changeTab = (t: CampaignType) => {
     searchParams.set('tab', t)
     setSearchParams(searchParams)
@@ -74,6 +74,7 @@ const MyDashboard = () => {
   const { reward, baseWeek, banner } = campaignConfig[tab]
 
   const campaignLabelMap: Record<CampaignType, string> = {
+    [CampaignType.Raffle]: t`Raffle`,
     [CampaignType.NearIntents]: t`Cross Chain`,
     [CampaignType.MayTrading]: t`May Trading`,
     [CampaignType.Aggregator]: t`Trading`,
@@ -223,6 +224,10 @@ const MyDashboard = () => {
 
   const endedCampaigns = [
     {
+      type: CampaignType.NearIntents,
+      label: campaignLabelMap[CampaignType.NearIntents],
+    },
+    {
       type: CampaignType.MayTrading,
       label: campaignLabelMap[CampaignType.MayTrading],
     },
@@ -238,13 +243,29 @@ const MyDashboard = () => {
       type: CampaignType.Referrals,
       label: campaignLabelMap[CampaignType.Referrals],
     },
-  ].filter(
-    item =>
-      (item.type === CampaignType.MayTrading && Number(mayTrading?.data?.totalClaimableReward || '0') > 0) ||
-      (item.type === CampaignType.Aggregator && Number(stipTrading?.data?.totalClaimableReward || '0') > 0) ||
-      (item.type === CampaignType.LimitOrder && Number(stipLoData?.data?.totalClaimableReward || '0') > 0) ||
-      (item.type === CampaignType.Referrals && Number(referralReward || '0') > 0),
-  )
+  ]
+
+  const endedCampaignsHaveRewards = endedCampaigns.filter(item => {
+    if (item.type === tab) {
+      return true
+    }
+    if (item.type === CampaignType.NearIntents) {
+      return totalNearCampaignReward > 0n
+    }
+    if (item.type === CampaignType.MayTrading) {
+      return Number(mayTrading?.data?.totalClaimableReward || '0') > 0
+    }
+    if (item.type === CampaignType.Aggregator) {
+      return Number(stipTrading?.data?.totalClaimableReward || '0') > 0
+    }
+    if (item.type === CampaignType.LimitOrder) {
+      return Number(stipLoData?.data?.totalClaimableReward || '0') > 0
+    }
+    if (item.type === CampaignType.Referrals) {
+      return Number(referralReward || '0') > 0
+    }
+    return false
+  })
 
   const infor = (
     <InfoHelper
@@ -376,13 +397,9 @@ const MyDashboard = () => {
       </Flex>
 
       <Tabs>
-        <Tab
-          role="button"
-          active={tab === CampaignType.NearIntents}
-          onClick={() => changeTab(CampaignType.NearIntents)}
-        >
+        <Tab role="button" active={tab === CampaignType.Raffle} onClick={() => changeTab(CampaignType.Raffle)}>
           <Flex>
-            <Trans>Cross Chain</Trans>{' '}
+            <Trans>Raffle</Trans>{' '}
             <NewLabel>
               <Trans>NEW</Trans>
             </NewLabel>
@@ -390,7 +407,7 @@ const MyDashboard = () => {
         </Tab>
         {!upToSmall ? (
           <>
-            {endedCampaigns.map(campaign => (
+            {endedCampaignsHaveRewards.map(campaign => (
               <Tab
                 key={campaign.type}
                 role="button"
@@ -409,18 +426,18 @@ const MyDashboard = () => {
         ) : (
           <Flex justifyContent="space-between" sx={{ gap: '8px' }} flex={1}>
             <Tab
-              active={tab !== CampaignType.NearIntents}
+              active={tab !== CampaignType.Raffle}
               onClick={() => {
-                //
+                if (tab === CampaignType.Raffle) {
+                  changeTab(endedCampaigns[0]?.type)
+                }
               }}
             >
               <Flex>
-                {tab === CampaignType.NearIntents ? endedCampaigns?.[0]?.label || '' : campaignLabelMap[tab]}
-                {endedCampaigns.length > 0 && (
-                  <ELabel>
-                    <Trans>ENDED</Trans>
-                  </ELabel>
-                )}
+                {tab === CampaignType.Raffle ? endedCampaigns[0]?.label || '' : campaignLabelMap[tab]}
+                <ELabel>
+                  <Trans>ENDED</Trans>
+                </ELabel>
               </Flex>
             </Tab>
             {endedCampaigns.length > 0 && (
