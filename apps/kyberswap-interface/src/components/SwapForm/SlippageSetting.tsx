@@ -1,6 +1,7 @@
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
-import { ReactNode, useMemo, useState } from 'react'
+import { ReactNode, useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled, { keyframes } from 'styled-components'
 
@@ -65,7 +66,9 @@ type Props = {
 }
 const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
   const theme = useTheme()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [expanded, setExpanded] = useState(false)
+  const [isHighlight, setIsHighlight] = useState(false)
   const [isDegenMode] = useDegenModeManager()
 
   const { rawSlippage, setRawSlippage, isSlippageControlPinned } = useSlippageSettingByPage()
@@ -96,6 +99,19 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
         : DEFAULT_SLIPPAGES,
     [pairCategory, slippageInfo],
   )
+
+  const actionFromUrl = searchParams.get('action')
+  useEffect(() => {
+    if (actionFromUrl === 'open-slippage-panel') {
+      setExpanded(true)
+      searchParams.delete('action')
+      setSearchParams(searchParams)
+      setIsHighlight(true)
+      setTimeout(() => {
+        setIsHighlight(false)
+      }, 4000)
+    }
+  }, [actionFromUrl, searchParams, setSearchParams])
 
   if (!isSlippageControlPinned) {
     return null
@@ -194,12 +210,13 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
           transition: 'all 100ms linear',
           paddingTop: expanded ? '8px' : '0px',
           height: expanded ? 'max-content' : '0px',
-          overflow: 'hidden',
+          overflow: !isHighlight ? 'hidden' : 'visible',
           flexDirection: 'column',
           gap: '1rem',
         }}
       >
         <SlippageControl
+          isHighlight={isHighlight}
           rawSlippage={rawSlippage}
           setRawSlippage={setRawSlippage}
           isWarning={isWarningSlippage}
