@@ -5,6 +5,7 @@ import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
 
 import { Quote } from '../registry'
 import {
+  Currency as AdapterCurrency,
   BaseSwapAdapter,
   Chain,
   EvmQuoteParams,
@@ -28,9 +29,14 @@ export class SymbiosisAdapter extends BaseSwapAdapter {
     return 'https://app.symbiosis.finance/images/favicon-32x32.png'
   }
 
-  canSupport(category: string): boolean {
+  canSupport(category: string, _tokenIn?: AdapterCurrency, _tokenOut?: AdapterCurrency): boolean {
     // Symbiosis should only be used for stablePair category
-    return category === 'stablePair'
+    if (category !== 'stablePair') {
+      console.warn(`Symbiosis does not support category: ${category}`)
+      return false
+    }
+
+    return true
   }
 
   getSupportedChains(): Chain[] {
