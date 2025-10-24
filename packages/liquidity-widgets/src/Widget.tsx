@@ -25,6 +25,7 @@ import Header from '@/components/Header';
 import LeftWarning from '@/components/LeftWarning';
 import LiquidityChart from '@/components/LiquidityChart';
 import LiquidityChartSkeleton from '@/components/LiquidityChart/LiquidityChartSkeleton';
+import { PositionApr } from '@/components/PositionApr';
 import { PositionFee } from '@/components/PositionFee';
 import PositionLiquidity from '@/components/PositionLiquidity';
 import PositionPriceRange from '@/components/PositionPriceRange';
@@ -245,6 +246,7 @@ export default function Widget() {
                 {addLiquiditySection}
               </>
             ) : null}
+            <PositionApr />
             <LeftWarning />
           </div>
 

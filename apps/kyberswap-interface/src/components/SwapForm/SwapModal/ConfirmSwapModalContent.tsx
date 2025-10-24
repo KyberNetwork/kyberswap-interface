@@ -389,7 +389,7 @@ export default function ConfirmSwapModalContent({
             setRetry(prev => prev + 1)
             setRawSlippage(dynamicSuggestedSlippage)
           } else {
-            searchParams.set('tab', 'settings')
+            searchParams.set('action', 'open-slippage-panel')
             setSearchParams(searchParams)
             onDismiss()
           }
@@ -552,7 +552,7 @@ export default function ConfirmSwapModalContent({
                   <ButtonPrimary
                     style={{ flex: 1 }}
                     onClick={() => {
-                      searchParams.set('tab', 'settings')
+                      searchParams.set('action', 'open-slippage-panel')
                       setSearchParams(searchParams)
                       onDismiss()
                     }}
