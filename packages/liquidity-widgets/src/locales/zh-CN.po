@@ -342,10 +342,6 @@ msgstr "你的头寸手续费"
 msgid "Enter max price"
 msgstr "输入最高价格"
 
-#: src/components/PositionApr.tsx
-msgid "See more details"
-msgstr ""
-
 #: src/constants/index.ts
 msgid "Switch network"
 msgstr "切换网络"
@@ -438,10 +434,6 @@ msgstr "滑点容差"
 msgid "The difference between input and estimated liquidity received (including remaining amount). Be careful with high value!"
 msgstr "输入金额与预计获得的流动性（含剩余金额）之间的差额。数值过高时请谨慎！"
 
-#: src/components/PositionApr.tsx
-msgid "on how this estimate is calculated."
-msgstr ""
-
 #: src/components/Content/PoolStat.tsx
 #: src/components/PositionApr.tsx
 msgid "LP Fees: {0}%"
@@ -486,6 +478,10 @@ msgstr "输入最低价格"
 #: src/components/Preview/index.tsx
 msgid "View position"
 msgstr "查看头寸"
+
+#: src/components/PositionApr.tsx
+msgid "<0>See more details</0> on how this estimate is calculated."
+msgstr "<0>了解更多详情</0>，了解此估算的计算方式。"
 
 #: src/components/Action/useActionButton.ts
 msgid "Estimating Gas"

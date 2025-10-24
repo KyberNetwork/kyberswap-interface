@@ -342,10 +342,6 @@ msgstr "Your Position Fee"
 msgid "Enter max price"
 msgstr "Enter max price"
 
-#: src/components/PositionApr.tsx
-msgid "See more details"
-msgstr "See more details"
-
 #: src/constants/index.ts
 msgid "Switch network"
 msgstr "Switch network"
@@ -438,10 +434,6 @@ msgstr "Slippage Tolerance"
 msgid "The difference between input and estimated liquidity received (including remaining amount). Be careful with high value!"
 msgstr "The difference between input and estimated liquidity received (including remaining amount). Be careful with high value!"
 
-#: src/components/PositionApr.tsx
-msgid "on how this estimate is calculated."
-msgstr "on how this estimate is calculated."
-
 #: src/components/Content/PoolStat.tsx
 #: src/components/PositionApr.tsx
 msgid "LP Fees: {0}%"
@@ -486,6 +478,10 @@ msgstr "Enter min price"
 #: src/components/Preview/index.tsx
 msgid "View position"
 msgstr "View position"
+
+#: src/components/PositionApr.tsx
+msgid "<0>See more details</0> on how this estimate is calculated."
+msgstr "<0>See more details</0> on how this estimate is calculated."
 
 #: src/components/Action/useActionButton.ts
 msgid "Estimating Gas"

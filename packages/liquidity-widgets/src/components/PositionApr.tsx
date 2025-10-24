@@ -46,15 +46,17 @@ export const PositionApr = () => {
         <Trans>The APR estimation is not guaranteed and may differ from actual returns.</Trans>
       </div>
       <div className="italic">
-        <a
-          className="!underline hover:text-accent"
-          href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-fairflow/position-apr-estimation"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Trans>See more details</Trans>
-        </a>{' '}
-        <Trans>on how this estimate is calculated.</Trans>
+        <Trans>
+          <a
+            className="!underline hover:text-accent"
+            href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-fairflow/position-apr-estimation"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            See more details
+          </a>{' '}
+          on how this estimate is calculated.
+        </Trans>
       </div>
     </div>
   );
