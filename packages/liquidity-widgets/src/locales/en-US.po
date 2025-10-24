@@ -43,10 +43,6 @@ msgstr "Increase Liquidity"
 msgid "No, Go back"
 msgstr "No, Go back"
 
-#: src/components/Content/PoolStat.tsx
-msgid "Est. APR"
-msgstr "Est. APR"
-
 #: src/components/Estimated/index.tsx
 msgid "Est. Liquidity Value"
 msgstr "Est. Liquidity Value"
@@ -54,6 +50,10 @@ msgstr "Est. Liquidity Value"
 #: src/Widget.tsx
 msgid "You can either zap in with up to {MAX_TOKENS} tokens or select an existing position as the liquidity source"
 msgstr "You can either zap in with up to {MAX_TOKENS} tokens or select an existing position as the liquidity source"
+
+#: src/components/PositionApr.tsx
+msgid "The APR estimation is not guaranteed and may differ from actual returns."
+msgstr "The APR estimation is not guaranteed and may differ from actual returns."
 
 #: src/components/Warning.tsx
 msgid "You are not the current owner of the position #{positionId}, please double check before proceeding"
@@ -177,6 +177,10 @@ msgstr "Dynamic entry based on trading pair."
 msgid "Min price"
 msgstr "Min price"
 
+#: src/components/PositionApr.tsx
+msgid "Est. Position APR"
+msgstr "Est. Position APR"
+
 #: src/components/PositionPriceRange.tsx
 #: src/components/Preview/PriceInfo.tsx
 msgid "Max Price"
@@ -199,9 +203,21 @@ msgstr "Based on your price range settings, a portion of your liquidity will be 
 msgid "{dexName} {0}/{1} {2}%"
 msgstr "{dexName} {0}/{1} {2}%"
 
+#: src/components/PositionApr.tsx
+msgid "Fees and rewards accrue only when the market price is inside your chosen range."
+msgstr "Fees and rewards accrue only when the market price is inside your chosen range."
+
 #: src/components/Content/ZapSummary.tsx
 msgid "Build LP using {0} {symbol0} and {1} {symbol1} on <0>{dexName}</0>"
 msgstr "Build LP using {0} {symbol0} and {1} {symbol1} on <0>{dexName}</0>"
+
+#: src/components/Content/PoolStat.tsx
+msgid "Est. Pool APR"
+msgstr "Est. Pool APR"
+
+#: src/components/PositionApr.tsx
+msgid "Input an amount to calculate."
+msgstr "Input an amount to calculate."
 
 #: src/components/Estimated/index.tsx
 msgid "{0}% Protocol Fee + {1}% Fee for {source}"
@@ -258,6 +274,7 @@ msgid "Use Suggested Slippage"
 msgstr "Use Suggested Slippage"
 
 #: src/components/Content/PoolStat.tsx
+#: src/components/PositionApr.tsx
 msgid "EG Sharing Reward: {0}%"
 msgstr "EG Sharing Reward: {0}%"
 
@@ -276,6 +293,7 @@ msgid "Enter a valid slippage percentage"
 msgstr "Enter a valid slippage percentage"
 
 #: src/components/Content/PoolStat.tsx
+#: src/components/PositionApr.tsx
 msgid "LM Reward: {0}%"
 msgstr "LM Reward: {0}%"
 
@@ -323,6 +341,10 @@ msgstr "Your Position Fee"
 #: src/constants/index.ts
 msgid "Enter max price"
 msgstr "Enter max price"
+
+#: src/components/PositionApr.tsx
+msgid "See more details"
+msgstr "See more details"
 
 #: src/constants/index.ts
 msgid "Switch network"
@@ -416,7 +438,12 @@ msgstr "Slippage Tolerance"
 msgid "The difference between input and estimated liquidity received (including remaining amount). Be careful with high value!"
 msgstr "The difference between input and estimated liquidity received (including remaining amount). Be careful with high value!"
 
+#: src/components/PositionApr.tsx
+msgid "on how this estimate is calculated."
+msgstr "on how this estimate is calculated."
+
 #: src/components/Content/PoolStat.tsx
+#: src/components/PositionApr.tsx
 msgid "LP Fees: {0}%"
 msgstr "LP Fees: {0}%"
 
