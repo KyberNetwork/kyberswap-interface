@@ -10,16 +10,16 @@ import styled from 'styled-components'
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import { Shield } from 'components/Icons'
 import InfoHelper from 'components/InfoHelper'
+import AddMEVProtectionModal, { KYBER_SWAP_RPC } from 'components/SwapForm/AddMEVProtectionModal'
 import SlippageSetting from 'components/SwapForm/SlippageSetting'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
+import { CONNECTION } from 'components/Web3Provider'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { usePaymentToken, useSlippageSettingByPage } from 'state/user/hooks'
 import { MEDIA_WIDTHS } from 'theme'
-
-import AddMEVProtectionModal from './AddMEVProtectionModal'
 
 export const PriceAlertButton = styled.div`
   background: ${({ theme }) => rgba(theme.subText, 0.2)};
@@ -43,7 +43,7 @@ export default function SlippageSettingGroup({
 }) {
   const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
   const theme = useTheme()
-  const { chainId } = useActiveWeb3React()
+  const { chainId, walletKey } = useActiveWeb3React()
   const { active } = useWeb3React()
   const [showMevModal, setShowMevModal] = useState(false)
   const { mixpanelHandler } = useMixpanel()
@@ -60,8 +60,9 @@ export default function SlippageSettingGroup({
   const [paymentToken] = usePaymentToken()
   const { isSlippageControlPinned } = useSlippageSettingByPage()
   const isPartnerSwap = window.location.pathname.startsWith(APP_PATHS.PARTNER_SWAP)
+  const isUsingMetamask = walletKey === CONNECTION.METAMASK_RDNS
   let rightButton =
-    [ChainId.MAINNET].includes(chainId) && active && !isPartnerSwap && !isMobile && !isTablet ? (
+    KYBER_SWAP_RPC[chainId] && isUsingMetamask && active && !isPartnerSwap && !isMobile && !isTablet ? (
       <PriceAlertButton onClick={addMevProtectionHandler}>
         <Shield size={14} color={theme.subText} />
         <Text color={theme.subText} style={{ whiteSpace: 'nowrap' }}>

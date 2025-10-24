@@ -1816,8 +1816,8 @@ msgid "Address"
 msgstr "地址"
 
 #: src/components/SwapForm/AddMEVProtectionModal.tsx
-msgid "You have successfully turned on MEV Protection Mode. All transactions on Ethereum will go through the custom RPC endpoint unless you change it"
-msgstr "您已成功开启 MEV 防护模式。除非更改设置，否则在以太坊上的所有交易都将通过该自定义 RPC 节点。"
+#~ msgid "You have successfully turned on MEV Protection Mode. All transactions on Ethereum will go through the custom RPC endpoint unless you change it"
+#~ msgstr "您已成功开启 MEV 防护模式。除非更改设置，否则在以太坊上的所有交易都将通过该自定义 RPC 节点。"
 
 #: src/pages/NotificationCenter/CreateAlert/index.tsx
 msgid "We will use our Aggregator to regularly monitor price changes based on your alert conditions below. When the price alert is triggered, we will send you a notification"
@@ -1860,6 +1860,10 @@ msgstr "根据交易对动态给出提示。"
 #: src/pages/Campaign/components/Information.tsx
 msgid "Rewards will be airdropped directly to the winners wallets by August 12th."
 msgstr "奖励将于 8 月 12 日前直接空投至获奖者钱包。"
+
+#: src/components/SwapForm/AddMEVProtectionModal.tsx
+msgid "guide"
+msgstr "指南"
 
 #: src/components/ShareModal/index.tsx
 msgid "Copy Link"
@@ -2369,6 +2373,10 @@ msgstr "您的导入令牌（点击复制）"
 #: src/pages/Earns/PositionDetail/LeftSection.tsx
 msgid "days"
 msgstr "天"
+
+#: src/components/SwapForm/AddMEVProtectionModal.tsx
+msgid "RPC Url"
+msgstr "RPC 地址"
 
 #: src/pages/Earns/Landing/index.tsx
 msgid "Liquidity Pools"
@@ -3909,8 +3917,8 @@ msgid "AMP factor x Liquidity in the pool. Amplified pools have higher capital e
 msgstr "AMP 系数 x 池中的流动性。放大池具有更高的资本效率和流动性。"
 
 #: src/components/SwapForm/AddMEVProtectionModal.tsx
-msgid "<0>MEV</0> Protection safeguards you from front-running attacks on Ethereum. We recommend using <1>KyberSwap's RPC endpoint</1> - powered by Blink to protect your transactions from front-running attacks and ensure a better trading experience.<2/><3/>Note that adding the RPC endpoint automatically is only available via the MetaMask wallet. If you are using another wallet or would like to add the RPC endpoint to your wallet manually, please refer to this <4>guide</4>. Please make sure you understand how it works and use at your own caution."
-msgstr "<0>MEV</0> 保护可防止您在以太坊上遭受抢先交易攻击。我们建议使用由 Blink 提供支持的 <1>KyberSwap RPC 端点</1>，以保护您的交易并确保更佳的交易体验。<2/><3/>请注意，仅能通过 MetaMask 钱包自动添加该 RPC 端点。如果您使用其他钱包或希望手动添加，请参阅此<4>指南</4>。请务必了解其工作原理并谨慎使用。"
+#~ msgid "<0>MEV</0> Protection safeguards you from front-running attacks on Ethereum. We recommend using <1>KyberSwap's RPC endpoint</1> - powered by Blink to protect your transactions from front-running attacks and ensure a better trading experience.<2/><3/>Note that adding the RPC endpoint automatically is only available via the MetaMask wallet. If you are using another wallet or would like to add the RPC endpoint to your wallet manually, please refer to this <4>guide</4>. Please make sure you understand how it works and use at your own caution."
+#~ msgstr "<0>MEV</0> 保护可防止您在以太坊上遭受抢先交易攻击。我们建议使用由 Blink 提供支持的 <1>KyberSwap RPC 端点</1>，以保护您的交易并确保更佳的交易体验。<2/><3/>请注意，仅能通过 MetaMask 钱包自动添加该 RPC 端点。如果您使用其他钱包或希望手动添加，请参阅此<4>指南</4>。请务必了解其工作原理并谨慎使用。"
 
 #: src/components/Header/web3/NetworkModal/components/DraggableNetworkButton.tsx
 #: src/pages/Earns/Landing/index.tsx
@@ -4106,6 +4114,10 @@ msgstr "{0} 余额不足。<0/><1>扣除活跃和未完成订单后剩余 {1}{fo
 #: src/components/Header/web3/SignWallet/ConfirmModal.tsx
 msgid "Signing in..."
 msgstr "正在登录..."
+
+#: src/components/SwapForm/AddMEVProtectionModal.tsx
+msgid "- powered by Blink to protect your transactions from front-running attacks and ensure a better trading experience."
+msgstr "- 由 Blink 提供支持，保护您的交易免受抢先交易攻击并确保更佳的交易体验。"
 
 #: src/pages/ElasticLegacy/FarmLegacy.tsx
 msgid "Claiming rewards"
@@ -4498,6 +4510,10 @@ msgstr "注意：<0>{note}</0>"
 #: src/pages/Campaign/constants.tsx
 msgid "<0>Week 1</0> May 19 - May 25"
 msgstr "<0>第 1 周</0> 5 月 19 日 - 5 月 25 日"
+
+#: src/components/SwapForm/AddMEVProtectionModal.tsx
+msgid "Protection safeguards you from front-running attacks on {chainName}. We recommend using"
+msgstr "保护可防止您在 {chainName} 上遭受抢先交易攻击。我们建议使用"
 
 #: src/components/swapv2/LimitOrder/ListOrder/OrderItem.tsx
 msgid "Expiry"
@@ -5348,6 +5364,10 @@ msgstr "两种代币必须是相同的原生代币，如 ETH-ETH、BNB-BNB、POL
 msgid "Next"
 msgstr "下一步"
 
+#: src/components/SwapForm/AddMEVProtectionModal.tsx
+msgid "Note that adding the RPC endpoint automatically is only available via the MetaMask wallet. If you are using another wallet or would like to add the RPC endpoint to your wallet manually, please refer to this"
+msgstr "请注意，仅能通过 MetaMask 钱包自动添加该 RPC 端点。如果您使用其他钱包，或希望将该 RPC 端点手动添加到钱包，请参阅此"
+
 #: src/pages/Campaign/components/Information.tsx
 #: src/pages/Campaign/components/Information.tsx
 msgid "How do you calculate the rewards?"
@@ -5563,6 +5583,10 @@ msgstr "存入："
 #: src/hooks/useWrapCallback.ts
 msgid "Insufficient W{nativeTokenSymbol} balance"
 msgstr "W{nativeTokenSymbol} 余额不足"
+
+#: src/components/SwapForm/AddMEVProtectionModal.tsx
+msgid "You have successfully turned on MEV Protection Mode. All transactions on {chainName} will go through the custom RPC endpoint unless you change it"
+msgstr "您已成功开启 MEV 保护模式。除非更改设置，在 {chainName} 上的所有交易都将通过该自定义 RPC 端点。"
 
 #: src/components/Announcement/PrivateAnnoucement/NotificationCenter/PoolPosition.tsx
 msgid "Current Market Price is {currentPrice} {token0Symbol} per {token1Symbol}"
@@ -6410,6 +6434,10 @@ msgstr "仓位"
 msgid "Chart is unavailable right now"
 msgstr "图表暂不可用"
 
+#: src/components/SwapForm/AddMEVProtectionModal.tsx
+msgid "KyberSwap's RPC endpoint"
+msgstr "KyberSwap 的 RPC 端点"
+
 #: src/components/ConfirmAddModalBottom/index.tsx
 msgid "Create Pool"
 msgstr "创建池子"
@@ -6495,6 +6523,10 @@ msgstr "我的收件箱"
 #: src/pages/KyberDAO/Vote/index.tsx
 msgid "In Progress: Epoch {0}"
 msgstr "进行中：第 {0} 轮"
+
+#: src/components/SwapForm/AddMEVProtectionModal.tsx
+msgid ". Please make sure you understand how it works and use at your own caution."
+msgstr "。请务必了解其工作原理并谨慎使用。"
 
 #: src/pages/KyberDAO/StakeKNC/index.tsx
 msgid "Read about KNC ↗"
