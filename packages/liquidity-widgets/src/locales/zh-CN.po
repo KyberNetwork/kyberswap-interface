@@ -205,7 +205,7 @@ msgstr "{dexName} {0}/{1} {2}%"
 
 #: src/components/PositionApr.tsx
 msgid "Fees and rewards accrue only when the market price is inside your chosen range."
-msgstr ""
+msgstr "只有当市场价格处于你选择的区间内时，手续费和奖励才会累积。"
 
 #: src/components/Content/ZapSummary.tsx
 msgid "Build LP using {0} {symbol0} and {1} {symbol1} on <0>{dexName}</0>"
@@ -213,11 +213,11 @@ msgstr "在 <0>{dexName}</0> 上使用 {0} {symbol0} 和 {1} {symbol1} 构建 LP
 
 #: src/components/Content/PoolStat.tsx
 msgid "Est. Pool APR"
-msgstr ""
+msgstr "预计池年化收益率"
 
 #: src/components/PositionApr.tsx
 msgid "Input an amount to calculate."
-msgstr ""
+msgstr "输入金额以计算。"
 
 #: src/components/Estimated/index.tsx
 msgid "{0}% Protocol Fee + {1}% Fee for {source}"
