@@ -1,3 +1,5 @@
+import { Trans } from '@lingui/macro';
+
 import { defaultTheme } from '@kyber/schema';
 import { InfoHelper, Skeleton } from '@kyber/ui';
 import { formatAprNumber } from '@kyber/utils/number';
@@ -22,17 +24,39 @@ export const PositionApr = () => {
   });
 
   const tooltipContent = !zapInfo ? (
-    <div>Not enough data to estimate yet.</div>
+    <div>
+      <Trans>Input an amount to calculate.</Trans>
+    </div>
   ) : !data?.totalApr ? (
-    <div>Fees and rewards accrue only when the market price is inside your chosen range.</div>
+    <div>
+      <Trans>Fees and rewards accrue only when the market price is inside your chosen range.</Trans>
+    </div>
   ) : (
     <div className="flex flex-col gap-1 text-xs">
-      <div>LP Fees: {formatAprNumber(data.feeApr)}%</div>
-      <div>EG Sharing Reward: {formatAprNumber(data.egApr)}%</div>
-      <div>LM Reward: {formatAprNumber(data.lmApr)}%</div>
-      <div className="italic">The APR estimation is not guaranteed and may differ from actual returns.</div>
+      <div>
+        <Trans>LP Fees: {formatAprNumber(data.feeApr)}%</Trans>
+      </div>
+      <div>
+        <Trans>EG Sharing Reward: {formatAprNumber(data.egApr)}%</Trans>
+      </div>
+      <div>
+        <Trans>LM Reward: {formatAprNumber(data.lmApr)}%</Trans>
+      </div>
       <div className="italic">
-        <span className="underline">See more details</span> on how this estimate is calculated.
+        <Trans>The APR estimation is not guaranteed and may differ from actual returns.</Trans>
+      </div>
+      <div className="italic">
+        <Trans>
+          <a
+            className="!underline hover:text-accent"
+            href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-fairflow/position-apr-estimation"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            See more details
+          </a>{' '}
+          on how this estimate is calculated.
+        </Trans>
       </div>
     </div>
   );
@@ -41,7 +65,9 @@ export const PositionApr = () => {
 
   return (
     <div className="flex items-center justify-end text-sm mt-2 gap-2">
-      <div className="text-subText">Est. Position APR</div>
+      <div className="text-subText">
+        <Trans>Est. Position APR</Trans>
+      </div>
       {loading && !data ? (
         <Skeleton className="w-16 h-5" />
       ) : (
