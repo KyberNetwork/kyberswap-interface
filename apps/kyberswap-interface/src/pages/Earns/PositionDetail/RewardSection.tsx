@@ -302,7 +302,7 @@ export const inProgressRewardTooltip = ({
         <li style={{ marginTop: 4 }}>
           {t`Pending`}:{' '}
           <b>
-            {formatDisplayNumber(vestingUsdValue, {
+            {formatDisplayNumber(waitingUsdValue, {
               significantDigits: 4,
               style: 'currency',
             })}
