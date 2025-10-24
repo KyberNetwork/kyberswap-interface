@@ -38,6 +38,7 @@ import AprDetailTooltip from 'pages/Earns/components/AprDetailTooltip'
 import DropdownMenu from 'pages/Earns/components/DropdownMenu'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import RewardSyncing from 'pages/Earns/components/RewardSyncing'
+import { EARN_DEXES } from 'pages/Earns/constants'
 import useClosedPositions, { CheckClosedPositionParams } from 'pages/Earns/hooks/useClosedPositions'
 import useFarmingStablePools from 'pages/Earns/hooks/useFarmingStablePools'
 import useForceLoading from 'pages/Earns/hooks/useForceLoading'
@@ -440,6 +441,9 @@ const PositionDetail = () => {
         onClose={() => setPositionToMigrate(null)}
       />
     ) : null
+  const suggestedProtocolName = position?.suggestionPool
+    ? EARN_DEXES[position.suggestionPool.poolExchange].name.replace('FairFlow', '').trim()
+    : ''
 
   return (
     <>
@@ -461,8 +465,8 @@ const PositionDetail = () => {
                     <Text color={'#fafafa'} lineHeight={'18px'}>
                       {!!position.suggestionPool
                         ? position.pool.fee === position.suggestionPool.feeTier
-                          ? t`Earn extra rewards with exact same pair and fee tier on Uniswap v4 hook.`
-                          : t`We found a pool with the same pair offering extra rewards. Migrate to this pool on Uniswap v4 hook to start earning farming rewards.`
+                          ? t`Earn extra rewards with exact same pair and fee tier on ${suggestedProtocolName} hook.`
+                          : t`We found a pool with the same pair offering extra rewards. Migrate to this pool on ${suggestedProtocolName} hook to start earning farming rewards.`
                         : t`We found other stable pools offering extra rewards. Explore and migrate to start earning.`}
                     </Text>
                     <Text color={theme.primary} sx={{ cursor: 'pointer' }} onClick={handleMigrateToKem}>

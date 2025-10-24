@@ -171,7 +171,6 @@ export default function useActionButton({
 
           const { gasUsd, error } = await estimateGasForTx({ rpcUrl, txData, chainId });
 
-          setGasLoading(false);
           if (error) {
             setWidgetError(error);
             return;
@@ -180,9 +179,11 @@ export default function useActionButton({
         }
       })
       .catch(err => {
-        setGasLoading(false);
         setWidgetError(friendlyError(err as Error));
         console.error(err);
+      })
+      .finally(() => {
+        setGasLoading(false);
       });
 
     return res;

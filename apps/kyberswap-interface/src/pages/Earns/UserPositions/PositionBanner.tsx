@@ -108,11 +108,6 @@ export default function PositionBanner({
         setShareInfo({
           type: ShareType.REWARD_INFO,
           onClose: () => setShareInfo(undefined),
-          pool: {
-            dexLogo:
-              'https://storage.googleapis.com/ks-setting-1d682dca/c044ba9d-9bff-4f4a-b8b5-fad07861d5561738568061182.png',
-            dexName: 'Uniswap V4 FairFlow',
-          },
           reward: {
             total: totalUsdValue,
             lm: totalLmUsdValue,
