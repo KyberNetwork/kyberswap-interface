@@ -142,7 +142,7 @@ export interface SwapProvider {
     connection?: Connection,
   ): Promise<NormalizedTxResponse>
   getTransactionStatus(p: NormalizedTxResponse): Promise<SwapStatus>
-  canSupport(category: string): boolean
+  canSupport(category: string, tokenIn?: Currency, tokenOut?: Currency): boolean
 }
 export abstract class BaseSwapAdapter implements SwapProvider {
   abstract getName(): string
@@ -157,8 +157,8 @@ export abstract class BaseSwapAdapter implements SwapProvider {
   ): Promise<NormalizedTxResponse>
   abstract getTransactionStatus(p: NormalizedTxResponse): Promise<SwapStatus>
 
-  canSupport(_category: string): boolean {
-    // Default implementation - support all categories
+  canSupport(_category: string, _tokenIn?: Currency, _tokenOut?: Currency): boolean {
+    // Default implementation - support all cases
     return true
   }
 
