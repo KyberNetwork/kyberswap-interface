@@ -153,7 +153,7 @@ export default function PoolStat() {
           </div>
           <div className="flex flex-col max-sm:!flex-row max-sm:justify-between items-start gap-1">
             <span>
-              <Trans>Est. APR</Trans>
+              <Trans>Est. Pool APR</Trans>
             </span>
             {initializing ? (
               <Skeleton className="w-16 h-5" />
