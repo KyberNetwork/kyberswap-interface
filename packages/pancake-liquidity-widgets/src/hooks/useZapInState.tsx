@@ -301,7 +301,7 @@ export const ZapContextProvider = ({
     if (
       initTickLower !== undefined &&
       initTickLower % pool.tickSpacing === 0 &&
-      !tickLower
+      tickLower === null
     ) {
       setTickLower(initTickLower);
     }
@@ -309,7 +309,7 @@ export const ZapContextProvider = ({
     if (
       initTickUpper !== undefined &&
       initTickUpper % pool.tickSpacing === 0 &&
-      !tickUpper
+      tickUpper === null
     ) {
       setTickUpper(initTickUpper);
     }

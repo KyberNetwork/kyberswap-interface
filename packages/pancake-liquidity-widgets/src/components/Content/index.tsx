@@ -308,7 +308,7 @@ export default function Content({
   );
 
   useEffect(() => {
-    if (!tickLower && !tickUpper && pool) selectPriceRange(0.2);
+    if (tickLower === null && tickUpper === null && pool) selectPriceRange(0.2);
   }, [pool, selectPriceRange, tickLower, tickUpper]);
 
   return (
