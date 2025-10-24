@@ -206,7 +206,7 @@ export const parsePosition = ({
     dex: {
       id: dex,
       name: EARN_DEXES[dex].name,
-      logo: pool.projectLogo,
+      logo: EARN_DEXES[dex].logo ?? pool.projectLogo,
       version: getDexVersion(dex),
     },
     chain: {
