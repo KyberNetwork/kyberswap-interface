@@ -153,6 +153,7 @@ const RewardSection = ({
                   text={inProgressRewardTooltip({
                     pendingUsdValue: rewardInfoThisPosition?.pendingUsdValue || 0,
                     vestingUsdValue: rewardInfoThisPosition?.vestingUsdValue || 0,
+                    waitingUsdValue: rewardInfoThisPosition?.waitingUsdValue || 0,
                     tokens: rewardInfoThisPosition?.tokens || [],
                   })}
                   width="290px"
@@ -235,10 +236,12 @@ const RewardSection = ({
 export const inProgressRewardTooltip = ({
   pendingUsdValue,
   vestingUsdValue,
+  waitingUsdValue,
   tokens,
 }: {
   pendingUsdValue: number
   vestingUsdValue: number
+  waitingUsdValue: number
   tokens: Array<TokenRewardInfo>
 }) => {
   const pendingTokens =
@@ -258,6 +261,16 @@ export const inProgressRewardTooltip = ({
         tokens
           .filter(token => token.vestingAmount > 0)
           .map(token => `${formatDisplayNumber(token.vestingAmount, { significantDigits: 4 })} ${token.symbol}`)
+          .join(' + ') +
+        ') '
+
+  const waitingTokens =
+    waitingUsdValue === 0
+      ? ''
+      : '(' +
+        tokens
+          .filter(token => token.waitingAmount > 0)
+          .map(token => `${formatDisplayNumber(token.waitingAmount, { significantDigits: 4 })} ${token.symbol}`)
           .join(' + ') +
         ') '
 
@@ -285,6 +298,19 @@ export const inProgressRewardTooltip = ({
         {vestingTokens}
         {t`in a 2-day finalization period before they become claimable.`}
       </li>
+      {waitingUsdValue > 0 ? (
+        <li style={{ marginTop: 4 }}>
+          {t`Pending`}:{' '}
+          <b>
+            {formatDisplayNumber(waitingUsdValue, {
+              significantDigits: 4,
+              style: 'currency',
+            })}
+          </b>{' '}
+          {waitingTokens}
+          {t`are under review after failing to finalize in the 2 days vesting period.`}
+        </li>
+      ) : null}
     </ul>
   )
 }

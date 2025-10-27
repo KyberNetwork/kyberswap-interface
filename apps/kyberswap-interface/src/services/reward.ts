@@ -27,11 +27,13 @@ interface TokenReward {
   claimedUSDValue: string
   claimableUSDValue: string
   vestingUSDValue: string
+  waitingUSDValue: string
 
   claimedAmounts: { [tokenAddress: string]: string }
   merkleAmounts: { [tokenAddress: string]: string }
   pendingAmounts: { [tokenAddress: string]: string }
   vestingAmounts: { [tokenAddress: string]: string }
+  waitingAmounts: { [tokenAddress: string]: string }
   claimableAmounts: { [tokenAddress: string]: string }
 
   claimableUSDValues: { [tokenAddress: string]: string }

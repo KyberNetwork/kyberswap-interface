@@ -1,5 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
+import ethereumIcon from 'assets/networks/ethereum.svg'
+import scrollIcon from 'assets/networks/scroll.svg'
 import { NetworkInfo } from 'constants/networks/type'
 
 const EMPTY_ARRAY: any[] = []
@@ -12,7 +14,7 @@ const scroll: NetworkInfo = {
   priceRoute: 'scroll',
   aggregatorRoute: 'scroll',
   name: 'Scroll',
-  icon: 'https://storage.googleapis.com/ks-setting-1d682dca/fe12013c-4d72-4ac3-9415-a278b7d474c71697595633825.png',
+  icon: scrollIcon,
 
   iconSelected: NOT_SUPPORT,
 
@@ -22,7 +24,7 @@ const scroll: NetworkInfo = {
   nativeToken: {
     symbol: 'ETH',
     name: 'ETH',
-    logo: 'https://storage.googleapis.com/ks-setting-1d682dca/9412b9e7-161f-472e-94b2-a62d2c386ab7.png',
+    logo: ethereumIcon,
     decimal: 18,
   },
   defaultRpcUrl: 'https://rpc.scroll.io',

@@ -177,8 +177,10 @@ export const ThemedGlobalStyle = createGlobalStyle`
     display: none;
   }
 
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  * {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
 
   html {
     color: ${({ theme }) => theme.text};
@@ -234,7 +236,7 @@ export const ThemedGlobalStyle = createGlobalStyle`
   .zkme-widget-mask {
     position: fixed;
   }
-  
+
   coinbasewallet-subscribe::part(modal-dialog) {
     padding: 24px;
     background: ${({ theme }) => theme.background};
@@ -250,7 +252,7 @@ export const ThemedGlobalStyle = createGlobalStyle`
     color: ${({ theme }) => theme.textReverse};
     font-size: 16px;
   }
-  
+
   coinbasewallet-subscribe::part(close-button) {
     top: 24px;
     right: 24px;
@@ -262,7 +264,7 @@ export const ThemedGlobalStyle = createGlobalStyle`
     background: #ffffff;
   }
 
-  
+
   coinbasewallet-subscribe::part(subscribe-confirmation) {
     padding-right: 1.5rem;
   }
