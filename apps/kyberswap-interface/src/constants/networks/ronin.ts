@@ -1,5 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
+import roninIcon from 'assets/networks/ronin.svg'
 import { NetworkInfo } from 'constants/networks/type'
 
 const EMPTY_ARRAY: any[] = []
@@ -12,7 +13,7 @@ const ronin: NetworkInfo = {
   priceRoute: 'ronin',
   aggregatorRoute: 'ronin',
   name: 'Ronin',
-  icon: 'https://storage.googleapis.com/ks-setting-1d682dca/ba94566c-928c-4493-8de6-b00f5e5afea31742289463316.png',
+  icon: roninIcon,
 
   iconSelected: NOT_SUPPORT,
 
@@ -22,7 +23,7 @@ const ronin: NetworkInfo = {
   nativeToken: {
     symbol: 'RONIN',
     name: 'RONIN',
-    logo: 'https://storage.googleapis.com/ks-setting-1d682dca/ba94566c-928c-4493-8de6-b00f5e5afea31742289463316.png',
+    logo: roninIcon,
     decimal: 18,
   },
   defaultRpcUrl: 'https://api.roninchain.com/rpc',
