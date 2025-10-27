@@ -71,6 +71,7 @@ export default function PositionBanner({
     inProgressUsdValue,
     pendingUsdValue,
     vestingUsdValue,
+    waitingUsdValue,
     claimableUsdValue,
     tokens,
     egTokens,
@@ -215,6 +216,7 @@ export default function PositionBanner({
                         text={inProgressRewardTooltip({
                           pendingUsdValue,
                           vestingUsdValue,
+                          waitingUsdValue,
                           tokens,
                         })}
                         size={16}
@@ -304,6 +306,7 @@ export default function PositionBanner({
                       text={inProgressRewardTooltip({
                         pendingUsdValue,
                         vestingUsdValue,
+                        waitingUsdValue,
                         tokens,
                       })}
                       size={16}
