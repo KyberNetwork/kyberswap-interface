@@ -73,7 +73,12 @@ export const PositionApr = () => {
       ) : (
         <div className="flex items-center" style={{ color: defaultTheme.blue }}>
           {!data ? '--' : data.totalApr === 0 ? '~0%' : `${formatAprNumber(data.totalApr)}%`}
-          <InfoHelper placement="top" width="320px" color={defaultTheme.blue} text={tooltipContent} />
+          <InfoHelper
+            placement="top"
+            width={!data ? 'fit-content' : '320px'}
+            color={defaultTheme.blue}
+            text={tooltipContent}
+          />
         </div>
       )}
     </div>
