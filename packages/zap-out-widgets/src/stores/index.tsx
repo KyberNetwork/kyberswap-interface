@@ -103,7 +103,13 @@ const createZapOutStore = (initProps: InnerZapOutProps) => {
 
       set({ errorMsg: 'Invalid pool type' });
     },
-    toggleRevertPrice: () => set(state => ({ revertPrice: !state.revertPrice })),
+    toggleRevertPrice: () => {
+      set(state => ({ revertPrice: !state.revertPrice }));
+
+      const { pool, revertPrice } = get();
+      const price = getPoolPrice({ pool, revertPrice });
+      if (price !== null) set({ poolPrice: price });
+    },
     setWidgetError: (error: string) => set({ widgetError: error }),
   }));
 };

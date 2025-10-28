@@ -43,10 +43,6 @@ msgstr "增加流动性"
 msgid "No, Go back"
 msgstr "不，返回"
 
-#: src/components/Content/PoolStat.tsx
-msgid "Est. APR"
-msgstr "预计年化收益率"
-
 #: src/components/Estimated/index.tsx
 msgid "Est. Liquidity Value"
 msgstr "预计流动性价值"
@@ -54,6 +50,10 @@ msgstr "预计流动性价值"
 #: src/Widget.tsx
 msgid "You can either zap in with up to {MAX_TOKENS} tokens or select an existing position as the liquidity source"
 msgstr "你可以最多使用 {MAX_TOKENS} 个代币进行 Zap，或选择现有仓位作为流动性来源"
+
+#: src/components/PositionApr.tsx
+msgid "The APR estimation is not guaranteed and may differ from actual returns."
+msgstr "APR 估算值不作保证，实际收益可能有所不同。"
 
 #: src/components/Warning.tsx
 msgid "You are not the current owner of the position #{positionId}, please double check before proceeding"
@@ -177,6 +177,10 @@ msgstr "根据交易对动态设定。"
 msgid "Min price"
 msgstr "最低价格"
 
+#: src/components/PositionApr.tsx
+msgid "Est. Position APR"
+msgstr "预计头寸年化收益率"
+
 #: src/components/PositionPriceRange.tsx
 #: src/components/Preview/PriceInfo.tsx
 msgid "Max Price"
@@ -199,9 +203,21 @@ msgstr "根据你设置的价格区间，部分流动性会自动 Zap 入池，�
 msgid "{dexName} {0}/{1} {2}%"
 msgstr "{dexName} {0}/{1} {2}%"
 
+#: src/components/PositionApr.tsx
+msgid "Fees and rewards accrue only when the market price is inside your chosen range."
+msgstr "只有当市场价格处于你选择的区间内时，手续费和奖励才会累积。"
+
 #: src/components/Content/ZapSummary.tsx
 msgid "Build LP using {0} {symbol0} and {1} {symbol1} on <0>{dexName}</0>"
 msgstr "在 <0>{dexName}</0> 上使用 {0} {symbol0} 和 {1} {symbol1} 构建 LP"
+
+#: src/components/Content/PoolStat.tsx
+msgid "Est. Pool APR"
+msgstr "预计池年化收益率"
+
+#: src/components/PositionApr.tsx
+msgid "Input an amount to calculate."
+msgstr "输入金额以计算。"
 
 #: src/components/Estimated/index.tsx
 msgid "{0}% Protocol Fee + {1}% Fee for {source}"
@@ -258,6 +274,7 @@ msgid "Use Suggested Slippage"
 msgstr "使用建议滑点"
 
 #: src/components/Content/PoolStat.tsx
+#: src/components/PositionApr.tsx
 msgid "EG Sharing Reward: {0}%"
 msgstr "EG 分享奖励：{0}%"
 
@@ -276,6 +293,7 @@ msgid "Enter a valid slippage percentage"
 msgstr "请输入有效的滑点百分比"
 
 #: src/components/Content/PoolStat.tsx
+#: src/components/PositionApr.tsx
 msgid "LM Reward: {0}%"
 msgstr "流动性挖矿奖励：{0}%"
 
@@ -417,6 +435,7 @@ msgid "The difference between input and estimated liquidity received (including 
 msgstr "输入金额与预计获得的流动性（含剩余金额）之间的差额。数值过高时请谨慎！"
 
 #: src/components/Content/PoolStat.tsx
+#: src/components/PositionApr.tsx
 msgid "LP Fees: {0}%"
 msgstr "LP 手续费：{0}%"
 
@@ -459,6 +478,10 @@ msgstr "输入最低价格"
 #: src/components/Preview/index.tsx
 msgid "View position"
 msgstr "查看头寸"
+
+#: src/components/PositionApr.tsx
+msgid "<0>See more details</0> on how this estimate is calculated."
+msgstr "<0>了解更多详情</0>，了解此估算的计算方式。"
 
 #: src/components/Action/useActionButton.ts
 msgid "Estimating Gas"

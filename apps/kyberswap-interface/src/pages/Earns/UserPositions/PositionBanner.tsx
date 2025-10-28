@@ -60,7 +60,7 @@ export default function PositionBanner({
   initialLoading: boolean
 }) {
   const theme = useTheme()
-  const { claimAllRewardsModal, onOpenClaimAllRewards, rewardInfo } = useKemRewards()
+  const { claimAllRewardsModal, onOpenClaimAllRewards, rewardInfo, isLoadingRewardInfo } = useKemRewards()
   const [shareInfo, setShareInfo] = useState<ShareModalProps | undefined>()
 
   const {
@@ -71,6 +71,7 @@ export default function PositionBanner({
     inProgressUsdValue,
     pendingUsdValue,
     vestingUsdValue,
+    waitingUsdValue,
     claimableUsdValue,
     tokens,
     egTokens,
@@ -91,7 +92,7 @@ export default function PositionBanner({
   const claimRewardButton = (
     <MouseoverTooltipDesktopOnly text={t`Claim all available farming rewards`} width="fit-content" placement="bottom">
       <PositionAction
-        disabled={!claimableUsdValue || initialLoading}
+        disabled={!claimableUsdValue || initialLoading || isLoadingRewardInfo}
         mobileAutoWidth
         outline
         onClick={onOpenClaimAllRewards}
@@ -108,11 +109,6 @@ export default function PositionBanner({
         setShareInfo({
           type: ShareType.REWARD_INFO,
           onClose: () => setShareInfo(undefined),
-          pool: {
-            dexLogo:
-              'https://storage.googleapis.com/ks-setting-1d682dca/c044ba9d-9bff-4f4a-b8b5-fad07861d5561738568061182.png',
-            dexName: 'Uniswap V4 FairFlow',
-          },
           reward: {
             total: totalUsdValue,
             lm: totalLmUsdValue,
@@ -192,7 +188,7 @@ export default function PositionBanner({
                     {shareBtn}
                   </Flex>
 
-                  {initialLoading ? (
+                  {initialLoading || isLoadingRewardInfo ? (
                     <BannerSkeleton width={90} height={28} />
                   ) : (
                     <Text fontSize={24}>
@@ -204,7 +200,7 @@ export default function PositionBanner({
                   <BannerDataItem>
                     <Text fontSize={14} color={theme.subText}>{t`Claimed`}</Text>
 
-                    {initialLoading ? (
+                    {initialLoading || isLoadingRewardInfo ? (
                       <BannerSkeleton width={80} height={24} />
                     ) : (
                       <Text fontSize={20}>
@@ -220,6 +216,7 @@ export default function PositionBanner({
                         text={inProgressRewardTooltip({
                           pendingUsdValue,
                           vestingUsdValue,
+                          waitingUsdValue,
                           tokens,
                         })}
                         size={16}
@@ -228,7 +225,7 @@ export default function PositionBanner({
                       />
                     </Flex>
 
-                    {initialLoading ? (
+                    {initialLoading || isLoadingRewardInfo ? (
                       <BannerSkeleton width={80} height={24} />
                     ) : (
                       <Text fontSize={20}>
@@ -241,7 +238,7 @@ export default function PositionBanner({
                     <Flex flexDirection={'column'} alignItems={'flex-start'} sx={{ gap: 2 }}>
                       <Text fontSize={14} color={theme.subText}>{t`Claimable`}</Text>
 
-                      {initialLoading ? (
+                      {initialLoading || isLoadingRewardInfo ? (
                         <BannerSkeleton width={80} height={24} />
                       ) : (
                         <Text fontSize={20}>
@@ -266,7 +263,7 @@ export default function PositionBanner({
                   <Text color={theme.subText}>{t`Total Rewards`}</Text>
                 </Flex>
 
-                {initialLoading ? (
+                {initialLoading || isLoadingRewardInfo ? (
                   <BannerSkeleton width={110} height={28} />
                 ) : (
                   <Flex alignItems={'center'} sx={{ gap: 1 }}>
@@ -293,7 +290,7 @@ export default function PositionBanner({
                 <BannerDataItem>
                   <Text fontSize={14} color={theme.subText}>{t`Claimed`}</Text>
 
-                  {initialLoading ? (
+                  {initialLoading || isLoadingRewardInfo ? (
                     <BannerSkeleton width={80} height={24} />
                   ) : (
                     <Text fontSize={20}>
@@ -309,6 +306,7 @@ export default function PositionBanner({
                       text={inProgressRewardTooltip({
                         pendingUsdValue,
                         vestingUsdValue,
+                        waitingUsdValue,
                         tokens,
                       })}
                       size={16}
@@ -317,7 +315,7 @@ export default function PositionBanner({
                     />
                   </Flex>
 
-                  {initialLoading ? (
+                  {initialLoading || isLoadingRewardInfo ? (
                     <BannerSkeleton width={80} height={24} />
                   ) : (
                     <Text fontSize={20}>
@@ -329,7 +327,7 @@ export default function PositionBanner({
                 <BannerDataItem>
                   <Text fontSize={14} color={theme.subText}>{t`Claimable`}</Text>
 
-                  {initialLoading ? (
+                  {initialLoading || isLoadingRewardInfo ? (
                     <BannerSkeleton width={80} height={24} />
                   ) : (
                     <Text fontSize={20}>

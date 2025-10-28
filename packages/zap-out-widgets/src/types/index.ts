@@ -35,4 +35,5 @@ export interface ZapOutProps {
       tokensOut: Array<{ symbol: string; amount: string; logoUrl?: string }>;
     },
   ) => Promise<string>;
+  onExplorePools?: () => void;
 }

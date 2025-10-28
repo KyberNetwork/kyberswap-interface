@@ -328,6 +328,9 @@ export default function TableContent({
               const isStablePair = pool.category === PAIR_CATEGORY.STABLE
               const isEarlyPosition = checkEarlyPosition(position)
               const isWaitingForRewards = pool.isFarming && rewards.totalUsdValue === 0 && isEarlyPosition
+              const suggestedProtocolName = position.suggestionPool
+                ? EARN_DEXES[position.suggestionPool.poolExchange].name.replace('FairFlow', '').trim()
+                : ''
 
               const actions = (
                 <DropdownAction
@@ -506,8 +509,8 @@ export default function TableContent({
                                   <Text>
                                     {!!position.suggestionPool
                                       ? pool.fee === position.suggestionPool.feeTier
-                                        ? t`Earn extra rewards with exact same pair and fee tier on Uniswap v4 hook.`
-                                        : t`We found a pool with the same pair offering extra rewards. Migrate to this pool on Uniswap v4 hook to start earning farming rewards.`
+                                        ? t`Earn extra rewards with exact same pair and fee tier on ${suggestedProtocolName} hook.`
+                                        : t`We found a pool with the same pair offering extra rewards. Migrate to this pool on ${suggestedProtocolName} hook to start earning farming rewards.`
                                       : t`We found other stable pools offering extra rewards. Explore and migrate to start earning.`}
                                   </Text>
                                   <Text

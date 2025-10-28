@@ -2,9 +2,11 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { TxStatus, ZapOut, ChainId as ZapOutChainId, PoolType as ZapOutDex } from '@kyberswap/zap-out-widgets'
 import '@kyberswap/zap-out-widgets/dist/style.css'
 import { useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import { NotificationType } from 'components/Announcement/type'
 import Modal from 'components/Modal'
+import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useActiveLocale } from 'hooks/useActiveLocale'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
@@ -54,11 +56,15 @@ const getDexFromPoolType = (poolType: ZapOutDex) => {
   return dex
 }
 
-const useZapOutWidget = (onRefreshPosition?: (props: CheckClosedPositionParams) => void) => {
+const useZapOutWidget = (
+  onRefreshPosition?: (props: CheckClosedPositionParams) => void,
+  explorePoolsEnabled?: boolean,
+) => {
   const addTransactionWithType = useTransactionAdder()
   const allTransactions = useAllTransactions()
   const toggleWalletModal = useWalletModalToggle()
   const notify = useNotify()
+  const navigate = useNavigate()
   const refCode = getCookieValue('refCode')
   const { library } = useWeb3React()
   const { account, chainId } = useActiveWeb3React()
@@ -151,6 +157,11 @@ const useZapOutWidget = (onRefreshPosition?: (props: CheckClosedPositionParams) 
               setZapTxHash(prev => [...prev, txHash])
               return txHash
             },
+            onExplorePools: explorePoolsEnabled
+              ? () => {
+                  navigate(APP_PATHS.EARN_POOLS)
+                }
+              : undefined,
           }
         : null,
     [
@@ -166,6 +177,8 @@ const useZapOutWidget = (onRefreshPosition?: (props: CheckClosedPositionParams) 
       addTransactionWithType,
       zapStatus,
       locale,
+      navigate,
+      explorePoolsEnabled,
     ],
   )
 

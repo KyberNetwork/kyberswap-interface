@@ -38,7 +38,7 @@ export default function EstimatedTokenRow({
             </div>
           </div>
           {previousAmount && (
-            <div className="text-end">
+            <div className="flex justify-end items-center gap-1">
               + {formatNumber(addedAmount)} <TokenSymbol symbol={token.symbol} maxWidth={60} />
             </div>
           )}

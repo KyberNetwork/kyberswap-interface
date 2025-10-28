@@ -1,10 +1,12 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
+import sushiswapLogo from 'assets/dexes/sushiswap.svg'
 import Univ3NftManagerABI from 'constants/abis/earn/uniswapv3NftManagerContract.json'
 import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 
 export default {
   name: 'SushiSwap V3',
+  logo: sushiswapLogo,
   nftManagerContract: {
     [ChainId.ARBITRUM]: '0xF0cBce1942A68BEB3d1b73F0dd86C8DCc363eF49',
     [ChainId.AVAXMAINNET]: '0x18350b048AB366ed601fFDbC669110Ecb36016f3',
