@@ -30,7 +30,11 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
   const { supportedChains } = useChainsConfig()
   const { filters } = useFilter()
 
-  const { data, refetch: refetchRewardInfo } = useRewardInfoQuery(
+  const {
+    data,
+    refetch: refetchRewardInfo,
+    isLoading: isLoadingRewardInfo,
+  } = useRewardInfoQuery(
     {
       owner: account || '',
     },
@@ -357,7 +361,15 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
       />
     ) : null
 
-  return { rewardInfo, claimModal, onOpenClaim, claiming, claimAllRewardsModal, onOpenClaimAllRewards }
+  return {
+    rewardInfo,
+    claimModal,
+    onOpenClaim,
+    claiming,
+    claimAllRewardsModal,
+    onOpenClaimAllRewards,
+    isLoadingRewardInfo,
+  }
 }
 
 export default useKemRewards
