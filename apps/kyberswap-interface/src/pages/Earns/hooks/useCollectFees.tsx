@@ -6,6 +6,7 @@ import { useActiveWeb3React, useWeb3React } from 'hooks'
 import ClaimModal, { ClaimInfo, ClaimType } from 'pages/Earns/components/ClaimModal'
 import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
+import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import useCompounding from 'pages/Earns/hooks/useCompounding'
 import { ParsedPosition } from 'pages/Earns/types'
 import { getNftManagerContract, submitTransaction } from 'pages/Earns/utils'
@@ -178,6 +179,8 @@ const useCollectFees = ({ refetchAfterCollect }: { refetchAfterCollect: () => vo
       }
     }
   }, [allTransactions, refetchAfterCollect, txHash])
+
+  useAccountChanged(onCloseClaim)
 
   const claimModal =
     openClaimModal && claimInfo ? (
