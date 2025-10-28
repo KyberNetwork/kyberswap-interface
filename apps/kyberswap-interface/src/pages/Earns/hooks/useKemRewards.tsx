@@ -11,6 +11,7 @@ import useFilter from 'pages/Earns/UserPositions/useFilter'
 import ClaimAllModal from 'pages/Earns/components/ClaimAllModal'
 import ClaimModal, { ClaimInfo, ClaimType } from 'pages/Earns/components/ClaimModal'
 import { EARN_CHAINS, EarnChain } from 'pages/Earns/constants'
+import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import useCompounding from 'pages/Earns/hooks/useCompounding'
 import { ParsedPosition, RewardInfo, TokenInfo } from 'pages/Earns/types'
 import { getNftManagerContractAddress, submitTransaction } from 'pages/Earns/utils'
@@ -333,6 +334,11 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
   useEffect(() => {
     if (!rewardInfo?.chains.length) setOpenClaimAllModal(false)
   }, [rewardInfo?.chains.length])
+
+  useAccountChanged(() => {
+    onCloseClaim()
+    setOpenClaimAllModal(false)
+  })
 
   const claimModal =
     openClaimModal && claimInfo ? (
