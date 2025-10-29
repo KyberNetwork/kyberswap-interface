@@ -9,7 +9,7 @@ export default defineConfig({
   target: 'esnext',
   clean: true,
   dts: true,
-  external: ['react', 'react-dom'],
+  external: ['react', 'react-dom', '@lingui/core', '@lingui/react'],
   esbuildPlugins: [svgrPlugin()],
   esbuildOptions(options) {
     options.globalName = 'UI';
