@@ -1,0 +1,494 @@
+msgid ""
+msgstr ""
+"Language: en-US\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenImportConfirm.tsx
+msgid "Address: {address}"
+msgstr "Address: {address}"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenSelector.tsx
+msgid "All"
+msgstr "All"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/utils.ts
+msgid "All-Time High"
+msgstr "All-Time High"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/utils.ts
+msgid "All-Time Low"
+msgstr "All-Time Low"
+
+#. js-lingui-explicit-id
+#: src/components/StatusDialog/utils.ts
+msgid "An error occurred while processing your transaction"
+msgstr "An error occurred while processing your transaction"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/utils.ts
+msgid "Anti Whale"
+msgstr "Anti Whale"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/CollapseInfoItem.tsx
+msgid "Attention Item"
+msgstr "Attention Item"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/CollapseInfoItem.tsx
+msgid "Attention Item(s)"
+msgstr "Attention Item(s)"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/utils.ts
+msgid "Blacklisted Function"
+msgstr "Blacklisted Function"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/utils.ts
+msgid "Buy Tax"
+msgstr "Buy Tax"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/utils.ts
+msgid "Can Change Balance"
+msgstr "Can Change Balance"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/utils.ts
+msgid "Can be bought"
+msgstr "Can be bought"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/utils.ts
+msgid "Can sell all"
+msgstr "Can sell all"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenSelector.tsx
+msgid "Cancel"
+msgstr "Cancel"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/utils.ts
+msgid "Circulating Supply"
+msgstr "Circulating Supply"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenSelector.tsx
+msgid "Clear All"
+msgstr "Clear All"
+
+#. js-lingui-explicit-id
+#: src/components/LoadingCounter/index.tsx
+msgid "Click to refresh, occur once per second."
+msgstr "Click to refresh, occur once per second."
+
+#. js-lingui-explicit-id
+#: src/components/StatusDialog/utils.ts
+msgid "Confirm this transaction in your wallet"
+msgstr "Confirm this transaction in your wallet"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/UserPositions/index.tsx
+msgid "Connect"
+msgstr "Connect"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/MarketInfo.tsx
+msgid "Contract Address"
+msgstr "Contract Address"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/SecurityInfo.tsx
+msgid "Contract Security"
+msgstr "Contract Security"
+
+#. js-lingui-explicit-id
+#: src/components/ShareModal/Actions.tsx
+msgid "Copy Image"
+msgstr "Copy Image"
+
+#. js-lingui-explicit-id
+#: src/components/ShareModal/Actions.tsx
+msgid "Copy URL"
+msgstr "Copy URL"
+
+#. js-lingui-explicit-id
+#: src/components/ShareModal/Actions.tsx
+msgid "Download Image"
+msgstr "Download Image"
+
+#. js-lingui-explicit-id
+#: src/components/ShareModal/utils.tsx
+msgid "EG Sharing APR"
+msgstr "EG Sharing APR"
+
+#. js-lingui-explicit-id
+#: src/components/ShareModal/utils.tsx
+msgid "EG Sharing rewards"
+msgstr "EG Sharing rewards"
+
+#. js-lingui-explicit-id
+#: src/components/ShareModal/index.tsx
+msgid "Explore details:"
+msgstr "Explore details:"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/utils.ts
+msgid "External Call"
+msgstr "External Call"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/utils.ts
+msgid "Gas Abuser"
+msgstr "Gas Abuser"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/utils.ts
+msgid "Honeypot"
+msgstr "Honeypot"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenImportConfirm.tsx
+msgid "I understand"
+msgstr "I understand"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenSelector.tsx
+msgid "Import"
+msgstr "Import"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenImportConfirm.tsx
+msgid "Import Token"
+msgstr "Import Token"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenSelector.tsx
+msgid "Imported"
+msgstr "Imported"
+
+#. js-lingui-explicit-id
+#: src/components/ShareModal/utils.tsx
+msgid "Liquidity Mining APR"
+msgstr "Liquidity Mining APR"
+
+#. js-lingui-explicit-id
+#: src/components/ShareModal/utils.tsx
+msgid "Liquidity Mining rewards"
+msgstr "Liquidity Mining rewards"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/utils.ts
+msgid "Market Cap"
+msgstr "Market Cap"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/utils.ts
+msgid "Market Cap Rank"
+msgstr "Market Cap Rank"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/MarketInfo.tsx
+msgid "Market Info"
+msgstr "Market Info"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/utils.ts
+msgid "Mint Function"
+msgstr "Mint Function"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/utils.ts
+msgid "Modifiable Anti Whale"
+msgstr "Modifiable Anti Whale"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/utils.ts
+msgid "Modifiable Tax"
+msgstr "Modifiable Tax"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/CollapseInfoItem.tsx
+msgid "No"
+msgstr "No"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/UserPositions/index.tsx
+msgid "No positions found."
+msgstr "No positions found."
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/UserPositions/index.tsx
+msgid "No positions found. Connect your wallet first."
+msgstr "No positions found. Connect your wallet first."
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenSelector.tsx
+msgid "No results found."
+msgstr "No results found."
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/utils.ts
+msgid "Open Source"
+msgstr "Open Source"
+
+#. js-lingui-explicit-id
+#: src/components/ShareModal/index.tsx
+msgid "Position age: {duration}"
+msgstr "Position age: {duration}"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/MarketInfo.tsx
+#: src/components/TokenSelectorModal/TokenInfo/SecurityInfo.tsx
+msgid "Powered by"
+msgstr "Powered by"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/utils.ts
+msgid "Price"
+msgstr "Price"
+
+#. js-lingui-explicit-id
+#: src/components/StatusDialog/utils.ts
+msgid "Processing transaction"
+msgstr "Processing transaction"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/utils.ts
+msgid "Proxy Contract"
+msgstr "Proxy Contract"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/CollapseInfoItem.tsx
+msgid "Risky Item"
+msgstr "Risky Item"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/CollapseInfoItem.tsx
+msgid "Risky Item(s)"
+msgstr "Risky Item(s)"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenSelector.tsx
+msgid "Save"
+msgstr "Save"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenSelector.tsx
+msgid "Search by token name, token symbol or address"
+msgstr "Search by token name, token symbol or address"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/SecurityInfo.tsx
+msgid "Security Info"
+msgstr "Security Info"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenSelector.tsx
+msgid "Select Liquidity Source"
+msgstr "Select Liquidity Source"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/utils.ts
+msgid "Self-destruct"
+msgstr "Self-destruct"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/utils.ts
+msgid "Sell Tax"
+msgstr "Sell Tax"
+
+#. js-lingui-explicit-id
+#: src/components/ShareModal/index.tsx
+msgid "Share this with your friends!"
+msgstr "Share this with your friends!"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/utils.ts
+msgid "Take Back Ownership"
+msgstr "Take Back Ownership"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenSelector.tsx
+msgid "The maximum number of tokens selected is {count}."
+msgstr "The maximum number of tokens selected is {count}."
+
+#. js-lingui-explicit-id
+#: src/components/ShareModal/Options.tsx
+msgid "This option is not available for non-farming pools"
+msgstr "This option is not available for non-farming pools"
+
+#. js-lingui-explicit-id
+#: src/components/ShareModal/Options.tsx
+msgid "This option is not available when you select {options}"
+msgstr "This option is not available when you select {options}"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenImportConfirm.tsx
+msgid "This token isn't frequently swapped. Please do your own research before trading."
+msgstr "This token isn't frequently swapped. Please do your own research before trading."
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/SecurityInfo.tsx
+msgid "Token security info provided by Goplus. Please conduct your own research before trading"
+msgstr "Token security info provided by Goplus. Please conduct your own research before trading"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenSelector.tsx
+msgid "Token(s)"
+msgstr "Token(s)"
+
+#. js-lingui-explicit-id
+#: src/components/ShareModal/utils.tsx
+msgid "Total APR"
+msgstr "Total APR"
+
+#. js-lingui-explicit-id
+#: src/components/ShareModal/utils.tsx
+msgid "Total Earnings"
+msgstr "Total Earnings"
+
+#. js-lingui-explicit-id
+#: src/components/ShareModal/utils.tsx
+msgid "Total Rewards"
+msgstr "Total Rewards"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/utils.ts
+msgid "Total Supply"
+msgstr "Total Supply"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/SecurityInfo.tsx
+msgid "Trading Security"
+msgstr "Trading Security"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/utils.ts
+msgid "Trading Volume (24H)"
+msgstr "Trading Volume (24H)"
+
+#. js-lingui-explicit-id
+#: src/components/StatusDialog/utils.ts
+msgid "Transaction failed"
+msgstr "Transaction failed"
+
+#. js-lingui-explicit-id
+#: src/components/StatusDialog/utils.ts
+msgid "Transaction successful"
+msgstr "Transaction successful"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/CollapseInfoItem.tsx
+msgid "Unknown"
+msgstr "Unknown"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenSelector.tsx
+msgid "Use your existing liquidity positions from supported protocols as a source."
+msgstr "Use your existing liquidity positions from supported protocols as a source."
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/MarketInfo.tsx
+msgid "View less"
+msgstr "View less"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/MarketInfo.tsx
+msgid "View more"
+msgstr "View more"
+
+#. js-lingui-explicit-id
+#: src/components/StatusDialog/index.tsx
+msgid "View transaction"
+msgstr "View transaction"
+
+#. js-lingui-explicit-id
+#: src/components/StatusDialog/utils.ts
+msgid "Waiting for confirmation"
+msgstr "Waiting for confirmation"
+
+#. js-lingui-explicit-id
+#: src/components/StatusDialog/utils.ts
+msgid "Waiting for transaction to be mined"
+msgstr "Waiting for transaction to be mined"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/utils.ts
+msgid "Whitelisted Function"
+msgstr "Whitelisted Function"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/CollapseInfoItem.tsx
+msgid "Yes"
+msgstr "Yes"
+
+#. js-lingui-explicit-id
+#: src/components/ShareModal/Options.tsx
+msgid "You can only select up to {count} options"
+msgstr "You can only select up to {count} options"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenSelector.tsx
+msgid "You can search and select"
+msgstr "You can search and select"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenSelector.tsx
+#: src/components/TokenSelectorModal/TokenSelector.tsx
+msgid "You cannot remove the only selected token, please select another token first."
+msgstr "You cannot remove the only selected token, please select another token first."
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenSelector.tsx
+msgid "You have reached the maximum token selection limit. Please deselect one or more tokens to make changes."
+msgstr "You have reached the maximum token selection limit. Please deselect one or more tokens to make changes."
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenSelector.tsx
+msgid "Your Position(s)"
+msgstr "Your Position(s)"
+
+#. js-lingui-explicit-id
+#: src/components/StatusDialog/utils.ts
+msgid "Your transaction has been successful"
+msgstr "Your transaction has been successful"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenSelector.tsx
+msgid "any token(s)"
+msgstr "any token(s)"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenSelector.tsx
+msgid "on KyberSwap"
+msgstr "on KyberSwap"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenSelector.tsx
+msgid "{count} Custom Tokens"
+msgstr "{count} Custom Tokens"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/UserPositions/index.tsx
+msgid "● In range"
+msgstr "● In range"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/UserPositions/index.tsx
+msgid "● Out of range"
+msgstr "● Out of range"
