@@ -99,6 +99,7 @@ export const EARN_DEXES = new Proxy(EARN_DEXES_CONFIG as any, {
 export interface EarnChainInfo {
   nativeAddress: string
   farmingSupported: boolean
+  smartExitSupported: boolean
   univ4StateViewContract: string | null
   logo: string
 }

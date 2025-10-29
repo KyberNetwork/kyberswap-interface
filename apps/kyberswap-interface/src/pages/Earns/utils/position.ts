@@ -119,6 +119,7 @@ export const parsePosition = ({
 
   const dex = pool.exchange || ''
   const isUniv2 = EARN_DEXES[dex].isForkFrom === CoreProtocol.UniswapV2
+  const isUniv4 = EARN_DEXES[dex].isForkFrom === CoreProtocol.UniswapV4
 
   const programs = pool.programs || []
   const isFarming = programs.includes(ProgramType.EG) || programs.includes(ProgramType.LM)
@@ -163,7 +164,7 @@ export const parsePosition = ({
     feePending.reduce((sum, fee) => sum + fee.quotes.usd.value, 0) +
     feesClaimed.reduce((sum, fee) => sum + fee.quotes.usd.value, 0)
 
-  const chainId = position.chainId as keyof typeof NETWORKS_INFO
+  const chainId = position.chainId as unknown as keyof typeof NETWORKS_INFO
   const nativeToken = NETWORKS_INFO[chainId]?.nativeToken
 
   //  %Yield = [(f₀ + f₁/P) / (t₀ + t₁/P)] × 100
@@ -210,6 +211,7 @@ export const parsePosition = ({
       isFarming,
       isFarmingLm,
       isUniv2,
+      isUniv4,
     },
     dex: {
       id: dex,

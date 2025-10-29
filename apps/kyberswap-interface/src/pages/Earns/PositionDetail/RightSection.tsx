@@ -137,7 +137,7 @@ const RightSection = ({
   }, [defaultRevertChecked, pool, chainId, stableCoins])
 
   const isUnfinalized = position?.isUnfinalized
-  const isUniV4 = EARN_DEXES[exchange as Exchange]?.isForkFrom === CoreProtocol.UniswapV4
+  const isUniV4 = position?.pool.isUniv4
   const isClosed = position?.status === PositionStatus.CLOSED
   const isOutRange = position?.status === PositionStatus.OUT_RANGE
 

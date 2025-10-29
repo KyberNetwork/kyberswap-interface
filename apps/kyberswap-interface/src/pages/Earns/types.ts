@@ -137,11 +137,13 @@ export enum PAIR_CATEGORY {
 export const DEFAULT_PARSED_POSITION: ParsedPosition = {
   id: '',
   tokenId: '',
+  stakingOwner: undefined,
   earningFeeYield: 0,
   pool: {
     fee: 0,
     address: '',
     isUniv2: false,
+    isUniv4: false,
     isFarming: false,
     isFarmingLm: false,
     nativeToken: {
@@ -239,6 +241,7 @@ export interface ParsedPosition {
     fee: number
     address: string
     isUniv2: boolean
+    isUniv4: boolean
     isFarming: boolean
     isFarmingLm: boolean
     nativeToken: NativeToken
