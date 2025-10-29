@@ -1,3 +1,5 @@
+import { useLingui } from '@lingui/react';
+
 import {
   MAX_SELECTED_OPTIONS,
   NON_FARMING_EXCLUDED_OPTIONS,
@@ -5,6 +7,7 @@ import {
   shareOptions,
 } from '@/components/ShareModal/constants';
 import { ShareOption, ShareType } from '@/components/ShareModal/types';
+import { getShareOptionLabel } from '@/components/ShareModal/utils';
 import { MouseoverTooltip } from '@/components/Tooltip';
 import { Checkbox } from '@/components/ui/checkbox';
 
@@ -16,6 +19,8 @@ interface OptionsProps {
 }
 
 export default function Options({ type, selectedOptions, setSelectedOptions, isFarming }: OptionsProps) {
+  const { i18n } = useLingui();
+
   const handleOptionChange = (option: ShareOption, checked: boolean) => {
     const newSelectedOptions = new Set(selectedOptions);
     if (checked) {
@@ -49,19 +54,25 @@ export default function Options({ type, selectedOptions, setSelectedOptions, isF
         const isMaxSelected = selectedOptions.size === MAX_SELECTED_OPTIONS && !selectedOptions.has(option);
         const isConflict = conflictOptions[type][option]?.some(o => selectedOptions.has(o));
         const isDisabled = isExcluded || isMaxSelected || isConflict;
+        const conflictOptionLabels =
+          conflictOptions[type][option]?.map(conflictOption => getShareOptionLabel(i18n, conflictOption)) ?? [];
 
         const message = isExcluded
-          ? `This option is not available for non-farming pools`
+          ? i18n._('This option is not available for non-farming pools')
           : isMaxSelected
-            ? `You can only select up to ${MAX_SELECTED_OPTIONS} options`
-            : isConflict
-              ? `This option is not available when you select ${conflictOptions[type][option]?.join(', ')}`
+            ? i18n._('You can only select up to {count} options', { count: MAX_SELECTED_OPTIONS })
+            : isConflict && conflictOptionLabels.length > 0
+              ? i18n._('This option is not available when you select {options}', {
+                  options: conflictOptionLabels.join(', '),
+                })
               : undefined;
+
+        const optionLabel = getShareOptionLabel(i18n, option);
 
         return (
           <MouseoverTooltip text={message} placement="top" key={option}>
             <Checkbox
-              label={option}
+              label={optionLabel}
               disabled={isDisabled}
               checked={selectedOptions.has(option)}
               onChange={checked => handleOptionChange(option, checked)}

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import { useLingui } from '@lingui/react';
 import html2canvas from 'html2canvas';
 
 import { cn } from '@kyber/utils/tailwind-helpers';
@@ -82,6 +83,7 @@ const convertModernColorsToLegacy = (element: HTMLElement) => {
 };
 
 export default function Actions({ type, pool, shareBannerRef }: ActionsProps) {
+  const { i18n } = useLingui();
   const [isCopied, setIsCopied] = useState(false);
   const [isDownloaded, setIsDownloaded] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -204,7 +206,7 @@ export default function Actions({ type, pool, shareBannerRef }: ActionsProps) {
           onClick={handleCopyPath}
         >
           {isCopied ? <SuccessIcon /> : <LinkIcon />}
-          Copy URL
+          {i18n._('Copy URL')}
         </button>
       ) : null}
       {!isSafari() && (
@@ -216,7 +218,7 @@ export default function Actions({ type, pool, shareBannerRef }: ActionsProps) {
           onClick={handleCopyImage}
         >
           {isImageCopied ? <SuccessIcon /> : isCopyingImage ? <Loading className="text-subText" /> : <CopyIcon />}
-          Copy Image
+          {i18n._('Copy Image')}
         </button>
       )}
       <button
@@ -227,7 +229,7 @@ export default function Actions({ type, pool, shareBannerRef }: ActionsProps) {
         onClick={handleDownloadImage}
       >
         {isDownloaded ? <SuccessIcon /> : isDownloading ? <Loading className="text-subText" /> : <DownloadIcon />}
-        Download Image
+        {i18n._('Download Image')}
       </button>
     </div>
   );
