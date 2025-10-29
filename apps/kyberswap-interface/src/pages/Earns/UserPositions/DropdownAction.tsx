@@ -15,10 +15,9 @@ import Loader from 'components/Loader'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
+import { DexMapping } from 'pages/Earns/components/SmartExit/useSmartExit'
 import { ParsedPosition, PositionStatus } from 'pages/Earns/types'
 import { MEDIA_WIDTHS } from 'theme'
-
-import { DexMapping } from '../components/SmartExit/useSmartExit'
 
 const DropdownWrapper = styled.div`
   position: relative;

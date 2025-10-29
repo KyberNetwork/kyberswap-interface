@@ -18,6 +18,7 @@ import { APP_PATHS, PAIR_CATEGORY } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { PositionAction as PositionActionBtn } from 'pages/Earns/PositionDetail/styles'
+import { OrderStatus } from 'pages/Earns/SmartExit/useSmartExitFilter'
 import DropdownAction from 'pages/Earns/UserPositions/DropdownAction'
 import MigrationModal from 'pages/Earns/UserPositions/MigrationModal'
 import PriceRange from 'pages/Earns/UserPositions/PriceRange'
@@ -36,6 +37,7 @@ import {
 import AprDetailTooltip from 'pages/Earns/components/AprDetailTooltip'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import RewardSyncing from 'pages/Earns/components/RewardSyncing'
+import { SmartExit } from 'pages/Earns/components/SmartExit'
 import { EARN_DEXES, LIMIT_TEXT_STYLES } from 'pages/Earns/constants'
 import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import useCollectFees from 'pages/Earns/hooks/useCollectFees'
@@ -50,9 +52,6 @@ import { checkEarlyPosition } from 'pages/Earns/utils/position'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
-
-import { OrderStatus } from '../SmartExit/useSmartExitFilter'
-import { SmartExit } from '../components/SmartExit'
 
 export interface FeeInfoFromRpc extends FeeInfo {
   id: string

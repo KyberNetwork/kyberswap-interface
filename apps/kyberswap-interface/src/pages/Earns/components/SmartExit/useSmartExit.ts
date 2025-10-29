@@ -7,12 +7,11 @@ import { SMART_EXIT_API_URL } from 'constants/env'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useReadingContract } from 'hooks/useContract'
 import { DexType } from 'pages/Earns/SmartExit/useSmartExitFilter'
+import { Metric } from 'pages/Earns/components/SmartExit/Metrics'
 import { Exchange } from 'pages/Earns/constants'
 import { ParsedPosition } from 'pages/Earns/types'
 import { useNotify } from 'state/application/hooks'
 import { friendlyError } from 'utils/errorMessage'
-
-import { Metric } from './Metrics'
 
 export interface SmartExitCondition {
   logical: {

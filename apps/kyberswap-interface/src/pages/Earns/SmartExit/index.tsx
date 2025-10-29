@@ -23,18 +23,17 @@ import TokenLogo from 'components/TokenLogo'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
+import { PoolPageWrapper, TableWrapper } from 'pages/Earns/PoolExplorer/styles'
 import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
+import Filter from 'pages/Earns/SmartExit/Filter'
+import useSmartExitFilter, { OrderStatus } from 'pages/Earns/SmartExit/useSmartExitFilter'
 import { Badge, BadgeType, ImageContainer } from 'pages/Earns/UserPositions/styles'
 import { EarnChain, Exchange } from 'pages/Earns/constants'
+import { PositionStatus } from 'pages/Earns/types'
 import { useNotify } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { enumToArrayOfValues } from 'utils'
 import { friendlyError } from 'utils/errorMessage'
-
-import { PoolPageWrapper, TableWrapper } from '../PoolExplorer/styles'
-import { PositionStatus } from '../types'
-import Filter from './Filter'
-import useSmartExitFilter, { OrderStatus } from './useSmartExitFilter'
 
 const Trash = styled.div`
   width: 20px;

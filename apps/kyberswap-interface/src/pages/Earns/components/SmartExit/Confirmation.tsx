@@ -14,10 +14,9 @@ import { PermitNftState, usePermitNft } from 'hooks/usePermitNft'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { Badge, ImageContainer } from 'pages/Earns/UserPositions/styles'
+import { Metric } from 'pages/Earns/components/SmartExit/Metrics'
+import { useSmartExit } from 'pages/Earns/components/SmartExit/useSmartExit'
 import { ParsedPosition } from 'pages/Earns/types'
-
-import { Metric } from './Metrics'
-import { useSmartExit } from './useSmartExit'
 
 const SMART_EXIT_ADDRESS = '0x52ee3c8dd099ccb542c6227855d68c79e3e956f9'
 

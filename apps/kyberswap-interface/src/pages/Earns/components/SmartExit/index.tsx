@@ -16,12 +16,11 @@ import PositionDetailHeader from 'pages/Earns/PositionDetail/Header'
 import { RevertIconWrapper } from 'pages/Earns/PositionDetail/styles'
 import PriceRange from 'pages/Earns/UserPositions/PriceRange'
 import { PositionValueWrapper } from 'pages/Earns/UserPositions/styles'
+import { Confirmation } from 'pages/Earns/components/SmartExit/Confirmation'
+import { Metric, Metrics } from 'pages/Earns/components/SmartExit/Metrics'
 import { ParsedPosition } from 'pages/Earns/types'
 import { ExternalLink } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
-
-import { Confirmation } from './Confirmation'
-import { Metric, Metrics } from './Metrics'
 
 const Content = styled.div`
   margin-top: 20px;
