@@ -22,7 +22,7 @@ const DropdownMenu = ({
   value,
   width,
   tooltip,
-  flatten = false,
+  flatten,
   alignLeft = false,
   mobileFullWidth = false,
   mobileHalfWidth = false,

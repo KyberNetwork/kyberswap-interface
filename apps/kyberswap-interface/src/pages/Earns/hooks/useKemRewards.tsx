@@ -73,6 +73,7 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
       supportedChains: supportedChains.filter(chain => !chainIds?.length || chainIds.includes(chain.chainId)),
     })
   }, [data, tokens, supportedChains, filters.chainIds])
+  const isRewardInfoParsing = Object.keys(data || {}).length > 0 && !rewardInfo
 
   const handleClaim = useCallback(async () => {
     if (!account || !claimInfo || !claimInfo.dex || !EARN_CHAINS[chainId as unknown as EarnChain]?.farmingSupported)
@@ -374,7 +375,7 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
     claiming,
     claimAllRewardsModal,
     onOpenClaimAllRewards,
-    isLoadingRewardInfo,
+    isLoadingRewardInfo: isLoadingRewardInfo || isRewardInfoParsing,
   }
 }
 
