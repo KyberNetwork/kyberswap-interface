@@ -76,7 +76,7 @@ export default function Filter({
         />
         <MultiSelectDropdownMenu
           alignLeft
-          mobileFullWidth
+          mobileHalfWidth
           label={t`Position status`}
           options={POSITION_STATUS as unknown as MenuOption[]}
           value={filters.status || ''}
