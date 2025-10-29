@@ -618,6 +618,10 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     setLoading(true)
     setAllLoading(true)
 
+    // Track quote fetching time
+    const quoteStartTime = performance.now()
+    console.log('[Quote Timing] Starting to fetch quotes...')
+
     const getQuotesWithCancellation = async (params: QuoteParams | NearQuoteParams) => {
       const quotes: Quote[] = []
 
@@ -954,6 +958,18 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     } finally {
       setLoading(false)
       setAllLoading(false)
+
+      // Log total time taken to fetch all quotes
+      const quoteEndTime = performance.now()
+      const totalTime = quoteEndTime - quoteStartTime
+      const tokenInSymbol = (currencyIn as any)?.symbol || (currencyIn as any)?.wrapped?.symbol || 'Unknown'
+      const tokenOutSymbol = (currencyOut as any)?.symbol || (currencyOut as any)?.wrapped?.symbol || 'Unknown'
+      console.log(
+        `[Quote Timing] All quotes fetched and processed. ${amount} ${tokenInSymbol} -> ${tokenOutSymbol}. Total time: ${totalTime.toFixed(
+          2,
+        )}ms (${(totalTime / 1000).toFixed(2)}s)`,
+      )
+      console.log(`[Quote Timing] Number of quotes received: ${quotes.length}`)
     }
   }, [
     sender,
