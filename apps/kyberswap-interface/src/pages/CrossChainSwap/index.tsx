@@ -115,6 +115,7 @@ function CrossChainSwap() {
         selectedCurrency={currencyIn || undefined}
         onSelectNetwork={chainId => {
           searchParams.set('from', chainId.toString())
+          searchParams.delete('tokenIn')
           setSearchParams(searchParams)
         }}
         value={amount}
@@ -227,6 +228,7 @@ function CrossChainSwap() {
         selectedCurrency={currencyOut || undefined}
         onSelectNetwork={chainId => {
           searchParams.set('to', chainId.toString())
+          searchParams.delete('tokenOut')
           setSearchParams(searchParams)
         }}
         value={selectedQuote?.quote.formattedOutputAmount || ''}
