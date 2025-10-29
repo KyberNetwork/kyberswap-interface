@@ -13,6 +13,7 @@ import { ReactComponent as IconReposition } from 'assets/svg/earn/ic_reposition.
 import { ReactComponent as IconSmartExit } from 'assets/svg/smart_exit.svg'
 import Loader from 'components/Loader'
 import { APP_PATHS } from 'constants/index'
+import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { ParsedPosition, PositionStatus } from 'pages/Earns/types'
 import { MEDIA_WIDTHS } from 'theme'
@@ -145,6 +146,7 @@ const DropdownAction = ({
   hasActiveSmartExitOrder: boolean
 }) => {
   const theme = useTheme()
+  const { account } = useActiveWeb3React()
   const [open, setOpen] = useState(false)
   const [portalPosition, setPortalPosition] = useState({ top: 0, left: 0 })
   const ref = useRef<HTMLDivElement>(null)
@@ -237,6 +239,8 @@ const DropdownAction = ({
   }, [ref])
 
   const smartExitSupported = Object.keys(DexMapping).includes(position.dex.id)
+  const smartExitDisabled =
+    !smartExitSupported || position.status === PositionStatus.CLOSED || account !== position.stakingOwner
 
   const renderActionItems = () => (
     <>
@@ -307,7 +311,7 @@ const DropdownAction = ({
       ) : null}
 
       <DropdownContentItem
-        disabled={!smartExitSupported || position.status === PositionStatus.CLOSED}
+        disabled={smartExitDisabled}
         onClick={e => {
           e.stopPropagation()
           e.preventDefault()
@@ -315,7 +319,7 @@ const DropdownAction = ({
             navigate(APP_PATHS.EARN_SMART_EXIT)
             return
           }
-          if (position.status === PositionStatus.CLOSED) return
+          if (smartExitDisabled) return
           handleAction(e, onOpenSmartExit)
         }}
       >

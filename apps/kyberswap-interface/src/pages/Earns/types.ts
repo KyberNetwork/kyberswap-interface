@@ -233,6 +233,7 @@ export const DEFAULT_PARSED_POSITION: ParsedPosition = {
 export interface ParsedPosition {
   id: string
   tokenId: string
+  stakingOwner?: string
   earningFeeYield: number
   pool: {
     fee: number

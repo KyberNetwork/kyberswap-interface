@@ -75,8 +75,6 @@ export const SmartExit = ({
 
   const [showConfirm, setShowConfirm] = useState(false)
 
-  console.log(position)
-
   const setupContent = (
     <>
       <Flex justifyContent="space-between" alignItems="center" mb="16px">

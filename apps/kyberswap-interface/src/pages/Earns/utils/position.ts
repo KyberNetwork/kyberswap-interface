@@ -194,9 +194,12 @@ export const parsePosition = ({
   const minTick = pool.tickSpacing === 0 ? MIN_TICK : nearestUsableTick(MIN_TICK, pool.tickSpacing)
   const maxTick = pool.tickSpacing === 0 ? MAX_TICK : nearestUsableTick(MAX_TICK, pool.tickSpacing)
 
+  const [id, stakingOwner] = position.id.split('_')
+
   return {
-    id: position.id,
+    id,
     tokenId: position.tokenId,
+    stakingOwner,
     earningFeeYield,
     pool: {
       fee: pool.fees?.[0],
