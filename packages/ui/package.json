@@ -26,7 +26,6 @@
     "./card": "./src/components/ui/card.tsx",
     "./radio-group": "./src/components/ui/radio-group.tsx",
     "./token-logo": "./src/components/token-logo.tsx",
-    "./lingui": "./src/lingui.ts",
     "./locales/*": "./src/locales/*"
   },
   "main": "./dist/index.cjs",
