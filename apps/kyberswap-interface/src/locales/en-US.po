@@ -1106,6 +1106,11 @@ msgstr "Confirm"
 msgid "Suitable for stablecoin or stable correlated pairs. Anticipating price to fluctuate within ~3%. You can earn fees even if the price goes up by 1.5% or goes down by 1.5%."
 msgstr "Suitable for stablecoin or stable correlated pairs. Anticipating price to fluctuate within ~3%. You can earn fees even if the price goes up by 1.5% or goes down by 1.5%."
 
+#: src/pages/Earns/PositionDetail/RightSection.tsx
+#: src/pages/Earns/PositionDetail/RightSection.tsx
+msgid "{0} per {1}"
+msgstr "{0} per {1}"
+
 #: src/pages/Campaign/MyDashboard.tsx
 msgid "Total Claim-able rewards"
 msgstr "Total Claim-able rewards"
@@ -1829,10 +1834,6 @@ msgstr "You may freely trade any pair composed of <0>eligible tokens</0>, exclud
 msgid "Address"
 msgstr "Address"
 
-#: src/components/SwapForm/AddMEVProtectionModal.tsx
-#~ msgid "You have successfully turned on MEV Protection Mode. All transactions on Ethereum will go through the custom RPC endpoint unless you change it"
-#~ msgstr "You have successfully turned on MEV Protection Mode. All transactions on Ethereum will go through the custom RPC endpoint unless you change it"
-
 #: src/pages/NotificationCenter/CreateAlert/index.tsx
 msgid "We will use our Aggregator to regularly monitor price changes based on your alert conditions below. When the price alert is triggered, we will send you a notification"
 msgstr "We will use our Aggregator to regularly monitor price changes based on your alert conditions below. When the price alert is triggered, we will send you a notification"
@@ -1874,10 +1875,6 @@ msgstr "Dynamic entry based on trading pair."
 #: src/pages/Campaign/components/Information.tsx
 msgid "Rewards will be airdropped directly to the winners wallets by August 12th."
 msgstr "Rewards will be airdropped directly to the winners wallets by August 12th."
-
-#: src/components/SwapForm/AddMEVProtectionModal.tsx
-msgid "guide"
-msgstr "guide"
 
 #: src/components/ShareModal/index.tsx
 msgid "Copy Link"
@@ -3926,10 +3923,6 @@ msgstr "Stake your KNC (<0>Kyber Network Crystal</0>) tokens to <1>vote on KIPs<
 msgid "AMP factor x Liquidity in the pool. Amplified pools have higher capital efficiency and liquidity."
 msgstr "AMP factor x Liquidity in the pool. Amplified pools have higher capital efficiency and liquidity."
 
-#: src/components/SwapForm/AddMEVProtectionModal.tsx
-#~ msgid "<0>MEV</0> Protection safeguards you from front-running attacks on Ethereum. We recommend using <1>KyberSwap's RPC endpoint</1> - powered by Blink to protect your transactions from front-running attacks and ensure a better trading experience.<2/><3/>Note that adding the RPC endpoint automatically is only available via the MetaMask wallet. If you are using another wallet or would like to add the RPC endpoint to your wallet manually, please refer to this <4>guide</4>. Please make sure you understand how it works and use at your own caution."
-#~ msgstr "<0>MEV</0> Protection safeguards you from front-running attacks on Ethereum. We recommend using <1>KyberSwap's RPC endpoint</1> - powered by Blink to protect your transactions from front-running attacks and ensure a better trading experience.<2/><3/>Note that adding the RPC endpoint automatically is only available via the MetaMask wallet. If you are using another wallet or would like to add the RPC endpoint to your wallet manually, please refer to this <4>guide</4>. Please make sure you understand how it works and use at your own caution."
-
 #: src/components/Header/web3/NetworkModal/components/DraggableNetworkButton.tsx
 #: src/pages/Earns/Landing/index.tsx
 msgid "Coming Soon"
@@ -5374,10 +5367,6 @@ msgstr "Both tokens must be the same native tokens including ETH-ETH, BNB-BNB, P
 msgid "Next"
 msgstr "Next"
 
-#: src/components/SwapForm/AddMEVProtectionModal.tsx
-msgid "Note that adding the RPC endpoint automatically is only available via the MetaMask wallet. If you are using another wallet or would like to add the RPC endpoint to your wallet manually, please refer to this"
-msgstr "Note that adding the RPC endpoint automatically is only available via the MetaMask wallet. If you are using another wallet or would like to add the RPC endpoint to your wallet manually, please refer to this"
-
 #: src/pages/Campaign/components/Information.tsx
 #: src/pages/Campaign/components/Information.tsx
 msgid "How do you calculate the rewards?"
@@ -6534,10 +6523,6 @@ msgstr "My Inbox"
 msgid "In Progress: Epoch {0}"
 msgstr "In Progress: Epoch {0}"
 
-#: src/components/SwapForm/AddMEVProtectionModal.tsx
-msgid ". Please make sure you understand how it works and use at your own caution."
-msgstr ". Please make sure you understand how it works and use at your own caution."
-
 #: src/pages/KyberDAO/StakeKNC/index.tsx
 msgid "Read about KNC ↗"
 msgstr "Read about KNC ↗"
@@ -6666,6 +6651,10 @@ msgstr "You still have <0>{numberOfPosition}</0> liquidity positions and <1>{0}<
 #: src/pages/ElasticSnapshot/index.tsx
 msgid "NFT ID"
 msgstr "NFT ID"
+
+#: src/components/SwapForm/AddMEVProtectionModal.tsx
+msgid "Note that adding the RPC endpoint automatically is only available via the MetaMask wallet. If you’re using another wallet please add the RPC endpoint manually in your wallet’s custom network settings. Please make sure you understand how it works and use it at your own caution."
+msgstr "Note that adding the RPC endpoint automatically is only available via the MetaMask wallet. If you’re using another wallet please add the RPC endpoint manually in your wallet’s custom network settings. Please make sure you understand how it works and use it at your own caution."
 
 #: src/components/WalletPopup/Transactions/Status.tsx
 msgid "Completed"

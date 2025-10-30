@@ -1106,6 +1106,11 @@ msgstr "确认"
 msgid "Suitable for stablecoin or stable correlated pairs. Anticipating price to fluctuate within ~3%. You can earn fees even if the price goes up by 1.5% or goes down by 1.5%."
 msgstr "适合稳定币或高度相关的代币对。预期价格波动约 3%。即使价格上涨 1.5% 或下跌 1.5%，您仍可赚取手续费。"
 
+#: src/pages/Earns/PositionDetail/RightSection.tsx
+#: src/pages/Earns/PositionDetail/RightSection.tsx
+msgid "{0} per {1}"
+msgstr "{0} 每 {1}"
+
 #: src/pages/Campaign/MyDashboard.tsx
 msgid "Total Claim-able rewards"
 msgstr "可领取奖励总额"
@@ -1829,10 +1834,6 @@ msgstr "您可以自由交易由 <0>合资格代币</0>组成的任何交易对�
 msgid "Address"
 msgstr "地址"
 
-#: src/components/SwapForm/AddMEVProtectionModal.tsx
-#~ msgid "You have successfully turned on MEV Protection Mode. All transactions on Ethereum will go through the custom RPC endpoint unless you change it"
-#~ msgstr "您已成功开启 MEV 防护模式。除非更改设置，否则在以太坊上的所有交易都将通过该自定义 RPC 节点。"
-
 #: src/pages/NotificationCenter/CreateAlert/index.tsx
 msgid "We will use our Aggregator to regularly monitor price changes based on your alert conditions below. When the price alert is triggered, we will send you a notification"
 msgstr "我们会使用聚合器根据您下方的提醒条件定期监控价格变化。一旦触发价格提醒，我们将向您发送通知。"
@@ -1874,10 +1875,6 @@ msgstr "根据交易对动态给出提示。"
 #: src/pages/Campaign/components/Information.tsx
 msgid "Rewards will be airdropped directly to the winners wallets by August 12th."
 msgstr "奖励将于 8 月 12 日前直接空投至获奖者钱包。"
-
-#: src/components/SwapForm/AddMEVProtectionModal.tsx
-msgid "guide"
-msgstr "指南"
 
 #: src/components/ShareModal/index.tsx
 msgid "Copy Link"
@@ -3926,10 +3923,6 @@ msgstr "质押您的 KNC（<0>Kyber Network Crystal</0>）代币以<1>参与 KIP
 msgid "AMP factor x Liquidity in the pool. Amplified pools have higher capital efficiency and liquidity."
 msgstr "AMP 系数 x 池中的流动性。放大池具有更高的资本效率和流动性。"
 
-#: src/components/SwapForm/AddMEVProtectionModal.tsx
-#~ msgid "<0>MEV</0> Protection safeguards you from front-running attacks on Ethereum. We recommend using <1>KyberSwap's RPC endpoint</1> - powered by Blink to protect your transactions from front-running attacks and ensure a better trading experience.<2/><3/>Note that adding the RPC endpoint automatically is only available via the MetaMask wallet. If you are using another wallet or would like to add the RPC endpoint to your wallet manually, please refer to this <4>guide</4>. Please make sure you understand how it works and use at your own caution."
-#~ msgstr "<0>MEV</0> 保护可防止您在以太坊上遭受抢先交易攻击。我们建议使用由 Blink 提供支持的 <1>KyberSwap RPC 端点</1>，以保护您的交易并确保更佳的交易体验。<2/><3/>请注意，仅能通过 MetaMask 钱包自动添加该 RPC 端点。如果您使用其他钱包或希望手动添加，请参阅此<4>指南</4>。请务必了解其工作原理并谨慎使用。"
-
 #: src/components/Header/web3/NetworkModal/components/DraggableNetworkButton.tsx
 #: src/pages/Earns/Landing/index.tsx
 msgid "Coming Soon"
@@ -5374,10 +5367,6 @@ msgstr "两种代币必须是相同的原生代币，如 ETH-ETH、BNB-BNB、POL
 msgid "Next"
 msgstr "下一步"
 
-#: src/components/SwapForm/AddMEVProtectionModal.tsx
-msgid "Note that adding the RPC endpoint automatically is only available via the MetaMask wallet. If you are using another wallet or would like to add the RPC endpoint to your wallet manually, please refer to this"
-msgstr "请注意，仅能通过 MetaMask 钱包自动添加该 RPC 端点。如果您使用其他钱包，或希望将该 RPC 端点手动添加到钱包，请参阅此"
-
 #: src/pages/Campaign/components/Information.tsx
 #: src/pages/Campaign/components/Information.tsx
 msgid "How do you calculate the rewards?"
@@ -6534,10 +6523,6 @@ msgstr "我的收件箱"
 msgid "In Progress: Epoch {0}"
 msgstr "进行中：第 {0} 轮"
 
-#: src/components/SwapForm/AddMEVProtectionModal.tsx
-msgid ". Please make sure you understand how it works and use at your own caution."
-msgstr "。请务必了解其工作原理并谨慎使用。"
-
 #: src/pages/KyberDAO/StakeKNC/index.tsx
 msgid "Read about KNC ↗"
 msgstr "了解 KNC ↗"
@@ -6666,6 +6651,10 @@ msgstr "您仍有 <0>{numberOfPosition}</0> 个流动性仓位和 <1>{0}</1> 未
 #: src/pages/ElasticSnapshot/index.tsx
 msgid "NFT ID"
 msgstr "NFT ID"
+
+#: src/components/SwapForm/AddMEVProtectionModal.tsx
+msgid "Note that adding the RPC endpoint automatically is only available via the MetaMask wallet. If you’re using another wallet please add the RPC endpoint manually in your wallet’s custom network settings. Please make sure you understand how it works and use it at your own caution."
+msgstr "请注意，自动添加 RPC 端点仅适用于 MetaMask 钱包。如果您使用其他钱包，请在钱包的自定义网络设置中手动添加该 RPC 端点。请确保了解其工作原理，并谨慎自行使用。"
 
 #: src/components/WalletPopup/Transactions/Status.tsx
 msgid "Completed"
@@ -6908,7 +6897,6 @@ msgstr "我们已于 2023 年 4 月 18 日 UTC 16:00 暂停所有 Elastic 挖矿
 #: src/pages/NotificationCenter/Profile/index.tsx
 msgid "Profile updated"
 msgstr "资料已更新"
-
 
 #: src/pages/Campaign/components/Information.tsx
 #: src/pages/Campaign/components/Information.tsx
