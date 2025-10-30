@@ -7,40 +7,28 @@ import { ReactNode, useEffect, useState } from 'react'
 import { SupportedLocale } from 'constants/locales'
 import { useActiveLocale, useSetLocaleFromUrl } from 'hooks/useActiveLocale'
 
+import * as appEnUSCatalog from './locales/en-US.po'
+import * as appZhCNCatalog from './locales/zh-CN.po'
+
 type CatalogModule = { messages?: Record<string, string>; default?: { messages?: Record<string, string> } }
 
-const uiCatalogs: Record<SupportedLocale, CatalogModule> = {
-  'en-US': uiEnUSCatalog,
-  'zh-CN': uiZhCNCatalog,
-}
-
-const appCatalogLoaders: Record<SupportedLocale, () => Promise<CatalogModule>> = {
-  'en-US': () => import('./locales/en-US.po'),
-  'zh-CN': () => import('./locales/zh-CN.po'),
+const catalogs: Record<SupportedLocale, { ui: CatalogModule; app: CatalogModule }> = {
+  'en-US': { ui: uiEnUSCatalog, app: appEnUSCatalog },
+  'zh-CN': { ui: uiZhCNCatalog, app: appZhCNCatalog },
 }
 
 const extractMessages = (catalog?: CatalogModule) => catalog?.messages ?? catalog?.default?.messages ?? {}
 
-const fallbackLocale: SupportedLocale = 'en-US'
-const supportedLocales = Object.keys(appCatalogLoaders) as SupportedLocale[]
-
 async function dynamicActivate(locale: SupportedLocale) {
-  const targetLocale = supportedLocales.includes(locale) ? locale : fallbackLocale
-
-  const [appCatalog] = await Promise.all([appCatalogLoaders[targetLocale]()])
-  const uiCatalog = uiCatalogs[targetLocale] ?? uiCatalogs[fallbackLocale]
-
-  const messages = {
-    ...extractMessages(uiCatalog),
-    ...extractMessages(appCatalog),
-  }
+  const { ui, app } = catalogs[locale]
+  const messages = { ...extractMessages(ui), ...extractMessages(app) }
 
   if (!Object.keys(messages).length) {
-    throw new Error(`Missing translation catalog for locale "${targetLocale}"`)
+    throw new Error(`Missing translation catalog for locale "${locale}"`)
   }
 
-  i18n.load(targetLocale, messages)
-  i18n.activate(targetLocale)
+  i18n.load(locale, messages)
+  i18n.activate(locale)
 }
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
@@ -49,8 +37,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const [loaded, setLoaded] = useState(false)
 
   useEffect(() => {
-    const targetLocale = supportedLocales.includes(locale) ? locale : fallbackLocale
-
+    const targetLocale = catalogs[locale] ? locale : 'en-US'
     dynamicActivate(targetLocale)
       .then(() => {
         setLoaded(true)
@@ -60,7 +47,6 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       })
   }, [locale])
 
-  // prevent the app from rendering with placeholder text before the locale is loaded
   if (!loaded) return null
 
   return <I18nProvider i18n={i18n}>{children}</I18nProvider>
