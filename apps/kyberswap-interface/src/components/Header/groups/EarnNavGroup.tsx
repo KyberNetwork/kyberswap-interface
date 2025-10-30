@@ -7,7 +7,7 @@ import { ReactComponent as OverviewIcon } from 'assets/svg/earn/ic_earn_overview
 import { ReactComponent as PoolsIcon } from 'assets/svg/earn/ic_earn_pools.svg'
 import { ReactComponent as PositionsIcon } from 'assets/svg/earn/ic_earn_positions.svg'
 import { ReactComponent as FarmingIcon } from 'assets/svg/earn/ic_farming.svg'
-import { ReactComponent as ListIcon } from 'assets/svg/ic_exit.svg'
+import { ReactComponent as ListSmartExitIcon } from 'assets/svg/earn/ic_list_smart_exit.svg'
 import { ReactComponent as KemIcon } from 'assets/svg/kyber/kem.svg'
 import NavGroup from 'components/Header/groups/NavGroup'
 import { DropdownTextAnchor, StyledNavLink } from 'components/Header/styleds'
@@ -106,7 +106,7 @@ const EarnNavGroup = () => {
           </StyledNavLink>
           <StyledNavLink data-testid="earn-positions-nav-link" to={{ pathname: `${APP_PATHS.EARN_SMART_EXIT}` }}>
             <Flex sx={{ gap: '12px' }} alignItems="center">
-              <ListIcon width={16} height={16} />
+              <ListSmartExitIcon width={16} height={16} />
               {t`Smart Exit Orders`}
             </Flex>
           </StyledNavLink>

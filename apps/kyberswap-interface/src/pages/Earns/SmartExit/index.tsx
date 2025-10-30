@@ -435,7 +435,7 @@ const SmartExit = () => {
 
         <Pagination
           onPageChange={setCurrentPage}
-          totalCount={totalItems}
+          totalCount={loading ? 0 : totalItems}
           currentPage={currentPage}
           pageSize={pageSize}
         />

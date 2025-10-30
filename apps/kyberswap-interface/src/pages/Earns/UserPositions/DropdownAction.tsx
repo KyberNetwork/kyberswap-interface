@@ -9,8 +9,9 @@ import styled from 'styled-components'
 
 import { ReactComponent as IconClaimRewards } from 'assets/svg/earn/ic_claim.svg'
 import { ReactComponent as IconClaimFees } from 'assets/svg/earn/ic_earn_claim_fees.svg'
+import { ReactComponent as ListSmartExitIcon } from 'assets/svg/earn/ic_list_smart_exit.svg'
 import { ReactComponent as IconReposition } from 'assets/svg/earn/ic_reposition.svg'
-import { ReactComponent as IconSmartExit } from 'assets/svg/smart_exit.svg'
+import { ReactComponent as IconSmartExit } from 'assets/svg/earn/ic_smart_exit.svg'
 import Loader from 'components/Loader'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
@@ -321,7 +322,7 @@ const DropdownAction = ({
         : position.stakingOwner && account !== position.stakingOwner
         ? t`Position is in farming in another protocol`
         : '',
-      icon: <IconSmartExit width={16} />,
+      icon: hasActiveSmartExitOrder ? <ListSmartExitIcon width={16} /> : <IconSmartExit width={16} />,
       onClick: (e: React.MouseEvent) => {
         e.stopPropagation()
         e.preventDefault()
