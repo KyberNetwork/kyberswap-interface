@@ -257,6 +257,7 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
         'merkleAmounts',
         'pendingAmounts',
         'vestingAmounts',
+        'waitingAmounts',
         'claimableAmounts',
         'claimableUSDValues',
       ] as const
