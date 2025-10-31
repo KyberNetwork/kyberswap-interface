@@ -14,11 +14,11 @@ export class CrossChainSwapAdapterRegistry {
   private adapters: Map<string, SwapProvider> = new Map()
 
   registerAdapter(adapter: SwapProvider): void {
-    this.adapters.set(adapter.getName().toLowerCase(), adapter)
+    this.adapters.set(adapter.getName().toLowerCase().replace(/\s+/g, ''), adapter)
   }
 
   getAdapter(name: string): SwapProvider | undefined {
-    return this.adapters.get(name.toLowerCase())
+    return this.adapters.get(name.toLowerCase().replace(/\s+/g, ''))
   }
 
   getAllAdapters(): SwapProvider[] {
