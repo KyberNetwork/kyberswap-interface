@@ -1,6 +1,7 @@
+import { ChainId, Currency as EvmCurrency } from '@kyberswap/ks-sdk-core'
 import { Flex } from 'rebass'
 
-import { isEvmChain } from 'utils'
+import { getNativeTokenLogo, isEvmChain } from 'utils'
 
 import { Chain, Currency } from '../adapters'
 import { getNetworkInfo } from '../utils'
@@ -20,7 +21,9 @@ export const TokenLogoWithChain = ({
     <Flex sx={{ position: 'relative', marginRight: '4px' }}>
       {isEvmChain(chainId) ? (
         <img
-          src={(currency as any)?.logoURI}
+          src={
+            (currency as EvmCurrency)?.isNative ? getNativeTokenLogo(chainId as ChainId) : (currency as any)?.logoURI
+          }
           width={size}
           height={size}
           style={{ borderRadius: '50%' }}
