@@ -51,6 +51,7 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
   const [claiming, setClaiming] = useState(false)
   const [txHash, setTxHash] = useState<string | null>(null)
   const [position, setPosition] = useState<ParsedPosition | null>(null)
+  const [rewardInfo, setRewardInfo] = useState<RewardInfo | null>(null)
 
   const onCloseClaim = useCallback(() => {
     setOpenClaimModal(false)
@@ -65,7 +66,7 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
     onCloseClaimModal: onCloseClaim,
   })
 
-  const rewardInfo: RewardInfo | null = useMemo(() => {
+  const parsedRewardInfo = useMemo(() => {
     const chainIds = filters.chainIds?.split(',').filter(Boolean).map(Number)
     return parseReward({
       data,
@@ -74,6 +75,16 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
     })
   }, [data, tokens, supportedChains, filters.chainIds])
   const isRewardInfoParsing = Object.keys(data || {}).length > 0 && !rewardInfo
+
+  useEffect(() => {
+    if (parsedRewardInfo) {
+      setRewardInfo(parsedRewardInfo)
+    }
+  }, [parsedRewardInfo])
+
+  useEffect(() => {
+    setRewardInfo(null)
+  }, [account])
 
   const handleClaim = useCallback(async () => {
     if (!account || !claimInfo || !claimInfo.dex || !EARN_CHAINS[chainId as unknown as EarnChain]?.farmingSupported)
