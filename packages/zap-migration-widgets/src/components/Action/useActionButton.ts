@@ -4,6 +4,7 @@ import type { MessageDescriptor } from '@lingui/core';
 import { msg, t } from '@lingui/macro';
 
 import { DEXES_INFO, univ2Types, univ4Types } from '@kyber/schema';
+import { translateFriendlyErrorMessage } from '@kyber/ui';
 import { PI_LEVEL, friendlyError } from '@kyber/utils';
 import { estimateGasForTx } from '@kyber/utils/crypto/transaction';
 
@@ -323,13 +324,13 @@ export function useActionButton({
       setGasLoading(false);
 
       if (error || !gasUsd) {
-        setWidgetError(error || t`Estimate Gas Failed`);
+        setWidgetError(error ? translateFriendlyErrorMessage(error) : t`Estimate Gas Failed`);
         return;
       }
 
       return { ...buildData, gasUsd };
     } catch (error) {
-      setWidgetError(friendlyError(error as Error));
+      setWidgetError(translateFriendlyErrorMessage(friendlyError(error as Error)));
       console.log('estimate gas error', error);
     } finally {
       setGasLoading(false);

@@ -1,7 +1,7 @@
 import { Trans, t } from '@lingui/macro';
 
 import { API_URLS } from '@kyber/schema';
-import { InfoHelper } from '@kyber/ui';
+import { InfoHelper, translateZapMessage } from '@kyber/ui';
 import { PI_LEVEL } from '@kyber/utils';
 import { formatCurrency } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
@@ -45,9 +45,10 @@ export default function Estimated() {
       }
     />
   );
-  const zapImpactWarning = zapInfo && zapImpact.level !== PI_LEVEL.NORMAL && (
-    <WarningMessage isWarning={zapImpact.level === PI_LEVEL.HIGH} message={zapImpact.msg} />
-  );
+  const zapImpactWarning =
+    zapInfo && zapImpact.level !== PI_LEVEL.NORMAL ? (
+      <WarningMessage isWarning={zapImpact.level === PI_LEVEL.HIGH} message={translateZapMessage(zapImpact.msg)} />
+    ) : null;
 
   return (
     <>

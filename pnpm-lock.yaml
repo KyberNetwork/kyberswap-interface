@@ -1606,6 +1606,15 @@ importers:
         specifier: ^2.3.0
         version: 2.3.0(@popperjs/core@2.11.8)(react-dom@18.3.1)(react@18.3.1)
     devDependencies:
+      '@babel/core':
+        specifier: ^7.26.0
+        version: 7.26.0
+      '@babel/preset-react':
+        specifier: ^7.25.9
+        version: 7.25.9(@babel/core@7.26.0)
+      '@babel/preset-typescript':
+        specifier: ^7.26.0
+        version: 7.26.0(@babel/core@7.26.0)
       '@kyber/eslint-config':
         specifier: workspace:*
         version: link:../config-eslint
@@ -1633,6 +1642,9 @@ importers:
       '@lingui/core':
         specifier: ^4.6.0
         version: 4.14.1
+      '@lingui/macro':
+        specifier: ^4.6.0
+        version: 4.14.1(@lingui/react@4.14.1)(babel-plugin-macros@3.1.0)(typescript@5.3.2)
       '@lingui/react':
         specifier: ^4.6.0
         version: 4.14.1(react@18.3.1)
@@ -1663,6 +1675,12 @@ importers:
       autoprefixer:
         specifier: ^10.4.20
         version: 10.4.20(postcss@8.4.49)
+      babel-plugin-macros:
+        specifier: ^3.1.0
+        version: 3.1.0
+      esbuild-plugin-babel:
+        specifier: ^0.2.3
+        version: 0.2.3(@babel/core@7.26.0)
       eslint:
         specifier: ^8.57.0
         version: 8.57.0

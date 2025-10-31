@@ -11,6 +11,14 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: \n"
 
+#: src/utils/translateUtilsMessage.ts
+msgid "An error occurred. Refresh the page and try again"
+msgstr "An error occurred. Refresh the page and try again"
+
+#: src/utils/translateUtilsMessage.ts
+msgid "An error occurred. Invalid Permit Signature"
+msgstr "An error occurred. Invalid Permit Signature"
+
 #. js-lingui-explicit-id
 #: src/components/TokenSelectorModal/TokenImportConfirm.tsx
 msgid "Address: {address}"
@@ -50,6 +58,14 @@ msgstr "Attention Item"
 #: src/components/TokenSelectorModal/TokenInfo/CollapseInfoItem.tsx
 msgid "Attention Item(s)"
 msgstr "Attention Item(s)"
+
+#: src/utils/translateUtilsMessage.ts
+msgid "Overall zap price impact is higher than expected."
+msgstr "Overall zap price impact is higher than expected."
+
+#: src/utils/translateUtilsMessage.ts
+msgid "Unable to calculate zap impact"
+msgstr "Unable to calculate zap impact"
 
 #. js-lingui-explicit-id
 #: src/components/TokenSelectorModal/TokenInfo/utils.ts
@@ -126,6 +142,10 @@ msgstr "Copy Image"
 msgid "Copy URL"
 msgstr "Copy URL"
 
+#: src/utils/translateUtilsMessage.ts
+msgid "Insufficient fee rewards amount, try to remove your liquidity without claiming fees for now and you can try to claim it later"
+msgstr "Insufficient fee rewards amount, try to remove your liquidity without claiming fees for now and you can try to claim it later"
+
 #. js-lingui-explicit-id
 #: src/components/ShareModal/Actions.tsx
 msgid "Download Image"
@@ -180,6 +200,10 @@ msgstr "Import Token"
 #: src/components/TokenSelectorModal/TokenSelector.tsx
 msgid "Imported"
 msgstr "Imported"
+
+#: src/utils/translateUtilsMessage.ts
+msgid "Overall zap price impact is higher than expected. Click 'Zap Anyway' if you wish to proceed in Degen Mode."
+msgstr "Overall zap price impact is higher than expected. Click 'Zap Anyway' if you wish to proceed in Degen Mode."
 
 #. js-lingui-explicit-id
 #: src/components/ShareModal/utils.tsx
@@ -392,6 +416,10 @@ msgstr "Transaction failed"
 msgid "Transaction successful"
 msgstr "Transaction successful"
 
+#: src/utils/translateUtilsMessage.ts
+msgid "{0} Pool"
+msgstr "{0} Pool"
+
 #. js-lingui-explicit-id
 #: src/components/TokenSelectorModal/TokenInfo/CollapseInfoItem.tsx
 msgid "Unknown"
@@ -416,6 +444,10 @@ msgstr "View more"
 #: src/components/StatusDialog/index.tsx
 msgid "View transaction"
 msgstr "View transaction"
+
+#: src/utils/translateUtilsMessage.ts
+msgid "An error occurred"
+msgstr "An error occurred"
 
 #. js-lingui-explicit-id
 #: src/components/StatusDialog/utils.ts
@@ -468,15 +500,35 @@ msgstr "Your Position(s)"
 msgid "Your transaction has been successful"
 msgstr "Your transaction has been successful"
 
+#: src/utils/translateUtilsMessage.ts
+msgid "An error occurred. Refresh the page and try again. If the issue still persists, it might be an issue with your RPC node settings in Metamask."
+msgstr "An error occurred. Refresh the page and try again. If the issue still persists, it might be an issue with your RPC node settings in Metamask."
+
 #. js-lingui-explicit-id
 #: src/components/TokenSelectorModal/TokenSelector.tsx
 msgid "any token(s)"
 msgstr "any token(s)"
 
+#: src/utils/translateUtilsMessage.ts
+msgid "Something went wrong. Please try again"
+msgstr "Something went wrong. Please try again"
+
+#: src/utils/translateUtilsMessage.ts
+msgid "An error occurred. Please try increasing max slippage"
+msgstr "An error occurred. Please try increasing max slippage"
+
+#: src/utils/translateUtilsMessage.ts
+msgid "An error occurred. Try refreshing the price rate or increase max slippage"
+msgstr "An error occurred. Try refreshing the price rate or increase max slippage"
+
 #. js-lingui-explicit-id
 #: src/components/TokenSelectorModal/TokenSelector.tsx
 msgid "on KyberSwap"
 msgstr "on KyberSwap"
+
+#: src/utils/translateUtilsMessage.ts
+msgid "User rejected the transaction."
+msgstr "User rejected the transaction."
 
 #. js-lingui-explicit-id
 #: src/components/TokenSelectorModal/TokenSelector.tsx

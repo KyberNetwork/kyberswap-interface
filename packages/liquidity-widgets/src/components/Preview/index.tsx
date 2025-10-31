@@ -12,6 +12,8 @@ import {
   StatusDialog,
   StatusDialogType,
   TokenSymbol,
+  translateFriendlyErrorMessage,
+  translateZapMessage,
 } from '@kyber/ui';
 import { parseZapInfo } from '@kyber/utils';
 import { friendlyError } from '@kyber/utils';
@@ -156,7 +158,8 @@ export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool,
   if (attempTx || txHash || txError) {
     const dexName =
       typeof DEXES_INFO[poolType].name === 'string' ? DEXES_INFO[poolType].name : DEXES_INFO[poolType].name[chainId];
-    const errorMessage = txError ? friendlyError(txError) || txError.message || JSON.stringify(txError) : '';
+    const rawErrorMessage = txError ? friendlyError(txError) || txError.message || JSON.stringify(txError) : '';
+    const errorMessage = translateFriendlyErrorMessage(rawErrorMessage);
 
     const handleSlippage = () => {
       if (slippage !== suggestedSlippage) setSlippage(suggestedSlippage);
@@ -340,7 +343,11 @@ export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool,
             />
           </div>
 
-          <Warning zapInfo={zapInfo} slippage={slippage || 0} zapImpact={zapImpact} />
+          <Warning
+            zapInfo={zapInfo}
+            slippage={slippage || 0}
+            zapImpact={{ ...zapImpact, msg: translateZapMessage(zapImpact.msg) }}
+          />
         </div>
         <DialogFooter>
           <button

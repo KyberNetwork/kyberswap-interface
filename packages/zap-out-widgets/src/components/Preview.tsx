@@ -13,6 +13,7 @@ import {
   StatusDialogType,
   TokenLogo,
   TokenSymbol,
+  translateFriendlyErrorMessage,
 } from '@kyber/ui';
 import { PI_LEVEL, friendlyError } from '@kyber/utils';
 import { calculateGasMargin, estimateGas } from '@kyber/utils/crypto';
@@ -68,7 +69,8 @@ export const Preview = () => {
   };
 
   if (showProcessing) {
-    const errorMessage = error ? friendlyError(error) || error.message || JSON.stringify(error) : '';
+    const rawErrorMessage = error ? friendlyError(error) || error.message || JSON.stringify(error) : '';
+    const errorMessage = translateFriendlyErrorMessage(rawErrorMessage);
     const onCloseStatusDialog = () => {
       if (txStatus === 'success') {
         if (onExplorePools && isRemovedFullLiquidity) onExplorePools();

@@ -11,6 +11,7 @@ import {
   DialogTitle,
   StatusDialog,
   StatusDialogType,
+  translateFriendlyErrorMessage,
 } from '@kyber/ui';
 import { friendlyError } from '@kyber/utils';
 import { calculateGasMargin, estimateGas } from '@kyber/utils/crypto';
@@ -125,7 +126,8 @@ export function Preview({
   };
 
   if (showProcessing) {
-    const errorMessage = error ? friendlyError(error) || error.message || JSON.stringify(error) : '';
+    const rawErrorMessage = error ? friendlyError(error) || error.message || JSON.stringify(error) : '';
+    const errorMessage = translateFriendlyErrorMessage(rawErrorMessage);
 
     return (
       <StatusDialog

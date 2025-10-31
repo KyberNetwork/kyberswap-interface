@@ -14,7 +14,7 @@ import {
 
 import { formatUnits } from '../crypto';
 import { formatDisplayNumber, toRawString } from '../number';
-import { PI_LEVEL, getZapImpact } from './price-impact';
+import { PI_LEVEL, ZAP_MESSAGES, getZapImpact } from './price-impact';
 
 export const parseZapInfo = ({
   zapInfo,
@@ -136,7 +136,7 @@ export const parseZapInfo = ({
 
 // NEW
 const defaultZapImpact = {
-  msg: `Unable to calculate zap impact`,
+  msg: ZAP_MESSAGES.UNABLE_TO_CALCULATE,
   level: PI_LEVEL.INVALID,
   display: '--',
 };
@@ -321,7 +321,7 @@ const parseZapImpact = (pi: number | null | undefined, suggestedSlippage: number
 
   if (pi > 2 * warningThreshold) {
     return {
-      msg: "Overall zap price impact is higher than expected. Click 'Zap Anyway' if you wish to proceed in Degen Mode.",
+      msg: ZAP_MESSAGES.ZAP_IMPACT_HIGH,
       level: PI_LEVEL.VERY_HIGH,
       display: piDisplay,
     };
@@ -329,7 +329,7 @@ const parseZapImpact = (pi: number | null | undefined, suggestedSlippage: number
 
   if (pi > warningThreshold) {
     return {
-      msg: 'Overall zap price impact is higher than expected.',
+      msg: ZAP_MESSAGES.ZAP_IMPACT_WARNING,
       level: PI_LEVEL.HIGH,
       display: piDisplay,
     };
@@ -385,7 +385,7 @@ const parseSwapActions = (route: ZapRouteDetail, tokens: Token[], dexName: strin
         tokenOutSymbol: tokenOut?.symbol || '--',
         amountIn,
         amountOut,
-        pool: `${displayPool} Pool`,
+        pool: ZAP_MESSAGES.DISPLAY_POOL.replace('{displayPool}', displayPool),
         poolAddress: item.poolAddress || '',
       };
     }) || [];

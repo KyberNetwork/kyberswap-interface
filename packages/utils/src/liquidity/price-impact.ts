@@ -10,10 +10,18 @@ export enum PI_LEVEL {
   INVALID = 'INVALID',
 }
 
+export const ZAP_MESSAGES = {
+  UNABLE_TO_CALCULATE: 'Unable to calculate zap impact',
+  ZAP_IMPACT_HIGH:
+    "Overall zap price impact is higher than expected. Click 'Zap Anyway' if you wish to proceed in Degen Mode.",
+  ZAP_IMPACT_WARNING: 'Overall zap price impact is higher than expected.',
+  DISPLAY_POOL: '{displayPool} Pool',
+} as const;
+
 export const getZapImpact = (pi: number | null | undefined, suggestedSlippage: number) => {
   if (pi === null || pi === undefined || isNaN(pi))
     return {
-      msg: `Unable to calculate zap impact`,
+      msg: ZAP_MESSAGES.UNABLE_TO_CALCULATE,
       level: PI_LEVEL.INVALID,
       display: '--',
     };
@@ -24,7 +32,7 @@ export const getZapImpact = (pi: number | null | undefined, suggestedSlippage: n
 
   if (pi > 2 * warningThreshold) {
     return {
-      msg: "Overall zap price impact is higher than expected. Click 'Zap Anyway' if you wish to proceed in Degen Mode.",
+      msg: ZAP_MESSAGES.ZAP_IMPACT_HIGH,
       level: PI_LEVEL.VERY_HIGH,
       display: piDisplay,
     };
@@ -32,7 +40,7 @@ export const getZapImpact = (pi: number | null | undefined, suggestedSlippage: n
 
   if (pi > warningThreshold) {
     return {
-      msg: 'Overall zap price impact is higher than expected.',
+      msg: ZAP_MESSAGES.ZAP_IMPACT_WARNING,
       level: PI_LEVEL.HIGH,
       display: piDisplay,
     };
@@ -117,7 +125,7 @@ export const parseSwapActions = ({
         tokenOutSymbol: tokenOut?.symbol || '--',
         amountIn,
         amountOut,
-        pool: `${displayPool} Pool`,
+        pool: ZAP_MESSAGES.DISPLAY_POOL.replace('{displayPool}', displayPool),
         poolAddress: item.poolAddress || '',
       };
     }) || [];
