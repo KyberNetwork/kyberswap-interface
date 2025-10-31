@@ -131,7 +131,8 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
 
   const [checkBlackjack] = useLazyCheckBlackjackQuery()
 
-  const { publicKey: solanaAddress, sendTransaction } = useWallet()
+  const solanaWallet = useWallet()
+  const { publicKey: solanaAddress, sendTransaction } = solanaWallet
   const { connection } = useConnection()
 
   const sendBtcFn = async (params: { recipient: string; amount: string | number }) => {
@@ -204,7 +205,11 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
     const res = await selectedQuote.adapter
       .executeSwap(
         selectedQuote,
-        fromChainId === 'solana' ? adaptedWallet : (walletClient as any),
+        fromChainId === 'solana'
+          ? selectedQuote.adapter.getName() === 'Relay' // for backward compatibility
+            ? adaptedWallet
+            : (solanaWallet as any)
+          : (walletClient as any),
         nearWallet,
         sendBtcFn,
         sendTransaction,
