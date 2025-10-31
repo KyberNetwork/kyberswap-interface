@@ -50,10 +50,24 @@ function capitalizeFirstLetter(str?: string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
+export const ERROR_MESSAGES = {
+  REFRESH_AND_RETRY: 'An error occurred. Refresh the page and try again',
+  REFRESH_PRICE_OR_SLIPPAGE: 'An error occurred. Try refreshing the price rate or increase max slippage',
+  RPC_SETTINGS_ISSUE:
+    'An error occurred. Refresh the page and try again. If the issue still persists, it might be an issue with your RPC node settings in Metamask.',
+  USER_REJECTED: 'User rejected the transaction.',
+  INCREASE_SLIPPAGE: 'An error occurred. Please try increasing max slippage',
+  INVALID_PERMIT_SIGNATURE: 'An error occurred. Invalid Permit Signature',
+  INSUFFICIENT_FEE_REWARDS:
+    'Insufficient fee rewards amount, try to remove your liquidity without claiming fees for now and you can try to claim it later',
+  SOMETHING_WENT_WRONG: 'Something went wrong. Please try again',
+  GENERIC_ERROR: 'An error occurred',
+} as const;
+
 function parseKnownPattern(text: string): string | undefined {
   const error = text?.toLowerCase?.() || '';
 
-  if (!error || error.includes('router: expired')) return 'An error occurred. Refresh the page and try again ';
+  if (!error || error.includes('router: expired')) return ERROR_MESSAGES.REFRESH_AND_RETRY;
 
   if (
     error.includes('mintotalamountout') ||
@@ -63,22 +77,20 @@ function parseKnownPattern(text: string): string | undefined {
     error.includes('none of the calls threw an error') ||
     error.includes('not enough liquidity')
   )
-    return `An error occurred. Try refreshing the price rate or increase max slippage`;
+    return ERROR_MESSAGES.REFRESH_PRICE_OR_SLIPPAGE;
 
-  if (error.includes('header not found') || error.includes('swap failed'))
-    return `An error occurred. Refresh the page and try again. If the issue still persists, it might be an issue with your RPC node settings in Metamask.`;
+  if (error.includes('header not found') || error.includes('swap failed')) return ERROR_MESSAGES.RPC_SETTINGS_ISSUE;
 
-  if (didUserReject(error)) return `User rejected the transaction.`;
+  if (didUserReject(error)) return ERROR_MESSAGES.USER_REJECTED;
 
   // classic/elastic remove liquidity error
-  if (error.includes('insufficient')) return `An error occurred. Please try increasing max slippage`;
+  if (error.includes('insufficient')) return ERROR_MESSAGES.INCREASE_SLIPPAGE;
 
-  if (error.includes('permit')) return `An error occurred. Invalid Permit Signature`;
+  if (error.includes('permit')) return ERROR_MESSAGES.INVALID_PERMIT_SIGNATURE;
 
-  if (error.includes('burn amount exceeds balance'))
-    return `Insufficient fee rewards amount, try to remove your liquidity without claiming fees for now and you can try to claim it later`;
+  if (error.includes('burn amount exceeds balance')) return ERROR_MESSAGES.INSUFFICIENT_FEE_REWARDS;
 
-  if (error === '[object Object]') return `Something went wrong. Please try again`;
+  if (error === '[object Object]') return ERROR_MESSAGES.SOMETHING_WENT_WRONG;
 
   return undefined;
 }
@@ -110,7 +122,7 @@ export function friendlyError(error: Error | string): string {
   const knownRegexPattern = parseKnownRegexPattern(message);
   if (knownRegexPattern) return knownRegexPattern;
 
-  return `An error occurred`;
+  return ERROR_MESSAGES.GENERIC_ERROR;
 }
 
 /**

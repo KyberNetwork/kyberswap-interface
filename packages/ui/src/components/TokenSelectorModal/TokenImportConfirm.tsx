@@ -1,3 +1,5 @@
+import { useLingui } from '@lingui/react';
+
 import { useCopy } from '@kyber/hooks';
 import { ChainId, Token } from '@kyber/schema';
 import { getEtherscanLink } from '@kyber/utils';
@@ -23,6 +25,7 @@ const TokenImportConfirm = ({
   onGoBack: () => void;
   onClose: () => void;
 }) => {
+  const { i18n } = useLingui();
   const Copy = useCopy({ text: token.address });
 
   const handleOpenExternalLink = () => {
@@ -34,13 +37,15 @@ const TokenImportConfirm = ({
     <div className="w-full text-white">
       <div className="flex items-center justify-between p-4 pb-2 border-b border-[#40444f]">
         <IconBack className="w-6 h-6 cursor-pointer hover:text-subText" onClick={onGoBack} />
-        <span className="text-xl">Import Token</span>
+        <span className="text-xl">{i18n._('Import Token')}</span>
         <X className="cursor-pointer hover:text-subText" onClick={onClose} />
       </div>
       <div className="p-4 flex flex-col gap-4">
         <div className="bg-warning-200 p-[15px] flex rounded-md text-warning items-start gap-2">
           <IconAlertTriangle className="h-[18px]" />
-          <p className="text-sm">This token isn’t frequently swapped. Please do your own research before trading.</p>
+          <p className="text-sm">
+            {i18n._("This token isn't frequently swapped. Please do your own research before trading.")}
+          </p>
         </div>
         <div className="bg-[#0f0f0f] rounded-md p-8 flex gap-[10px] items-start">
           <TokenLogo src={token.logo} size={44} />
@@ -48,7 +53,7 @@ const TokenImportConfirm = ({
             <p className="text-lg">{token.symbol}</p>
             <p className="text-subText text-sm">{token.name}</p>
             <p className="text-xs flex items-center gap-[5px]">
-              <span>Address: {shortenAddress(token.address, 7)}</span>
+              <span>{i18n._('Address: {address}', { address: shortenAddress(token.address, 7) })}</span>
               {Copy}
               <IconExternalLink
                 className="w-4 text-subText hover:text-text cursor-pointer"
@@ -58,7 +63,7 @@ const TokenImportConfirm = ({
           </div>
         </div>
         <Button className="ks-primary-btn" onClick={handleConfirmImportToken}>
-          I understand
+          {i18n._('I understand')}
         </Button>
       </div>
     </div>

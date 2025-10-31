@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react';
 
+import { useLingui } from '@lingui/react';
+
 import { useCopy } from '@kyber/hooks';
 import { ChainId, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, Token } from '@kyber/schema';
 import { shortenAddress } from '@kyber/utils/crypto';
@@ -12,6 +14,7 @@ import Loading from '@/components/loading';
 import TokenLogo from '@/components/token-logo';
 
 const MarketInfo = ({ token, chainId }: { token: Token; chainId: ChainId }) => {
+  const { i18n } = useLingui();
   const tokenAddress = useMemo(
     () =>
       (token?.address
@@ -28,7 +31,7 @@ const MarketInfo = ({ token, chainId }: { token: Token; chainId: ChainId }) => {
     successClassName: 'w-3 h-3',
   });
 
-  const { marketTokenInfo, loading } = useMarketTokenInfo({ tokenAddress, chainId });
+  const { marketTokenInfo, loading } = useMarketTokenInfo({ tokenAddress, chainId, i18n });
   const [expand, setExpand] = useState<boolean>(false);
 
   const handleChangeExpand = () => setExpand(prev => !prev);
@@ -39,10 +42,11 @@ const MarketInfo = ({ token, chainId }: { token: Token; chainId: ChainId }) => {
         <div className="flex items-center gap-2">
           {' '}
           <IconZiczac className="h-6 w-6" />
-          <span>Market Info</span>
+          <span>{i18n._('Market Info')}</span>
         </div>
         <div className="flex items-center gap-1">
-          <span className="text-subText text-[10px]">Powered by</span> <LogoCoingecko className="h-4 w-14" />
+          <span className="text-subText text-[10px]">{i18n._('Powered by')}</span>{' '}
+          <LogoCoingecko className="h-4 w-14" />
         </div>
       </div>
       <div
@@ -59,7 +63,7 @@ const MarketInfo = ({ token, chainId }: { token: Token; chainId: ChainId }) => {
       </div>
       <div className="flex flex-col gap-3 px-[26px] py-[14px]">
         <div className="flex items-center justify-between text-xs">
-          <span className="text-subText">Contract Address</span>
+          <span className="text-subText">{i18n._('Contract Address')}</span>
           <div className="flex items-center gap-1">
             {token ? (
               <>
@@ -76,7 +80,7 @@ const MarketInfo = ({ token, chainId }: { token: Token; chainId: ChainId }) => {
           className="text-xs text-accent cursor-pointer mx-auto w-fit flex items-center"
           onClick={handleChangeExpand}
         >
-          <span>{!expand ? 'View more' : 'View less'}</span>
+          <span>{!expand ? i18n._('View more') : i18n._('View less')}</span>
           <IconDown className={`transition ease-in-out duration-300 ${expand ? 'rotate-[-180deg]' : ''}`} />
         </div>
       </div>

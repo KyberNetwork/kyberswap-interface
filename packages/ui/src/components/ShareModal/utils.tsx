@@ -1,3 +1,5 @@
+import type { I18n } from '@lingui/core';
+
 import { formatAprNumber, formatDisplayNumber } from '@kyber/utils/number';
 
 import { ShareOption, ShareType } from '@/components/ShareModal/types';
@@ -197,6 +199,27 @@ export const renderStaggeredNumber = (numberString: string): JSX.Element => {
       ))}
     </span>
   );
+};
+
+export const getShareOptionLabel = (i18n: I18n, option: ShareOption): string => {
+  switch (option) {
+    case ShareOption.TOTAL_APR:
+      return i18n._('Total APR');
+    case ShareOption.LM_APR:
+      return i18n._('Liquidity Mining APR');
+    case ShareOption.EG_APR:
+      return i18n._('EG Sharing APR');
+    case ShareOption.TOTAL_EARNINGS:
+      return i18n._('Total Earnings');
+    case ShareOption.TOTAL_REWARD:
+      return i18n._('Total Rewards');
+    case ShareOption.LM_REWARD:
+      return i18n._('Liquidity Mining rewards');
+    case ShareOption.EG_REWARD:
+      return i18n._('EG Sharing rewards');
+    default:
+      return option;
+  }
 };
 
 export const isSafari = () => /^((?!chrome|android).)*safari/i.test(navigator.userAgent);

@@ -5,6 +5,7 @@ import { useShallow } from 'zustand/shallow';
 
 import { useNftApproval } from '@kyber/hooks';
 import { API_URLS, CHAIN_ID_TO_CHAIN, DEXES_INFO, NETWORKS_INFO, defaultToken, univ3Types } from '@kyber/schema';
+import { translateFriendlyErrorMessage } from '@kyber/ui';
 import { friendlyError, getNftManagerContractAddress } from '@kyber/utils';
 import { calculateGasMargin, estimateGas } from '@kyber/utils/crypto';
 import { formatTokenAmount } from '@kyber/utils/number';
@@ -238,7 +239,7 @@ export default function Widget() {
               <div className="flex items-start gap-[6px] px-3 py-2 rounded-[24px] bg-[#e42f5933] w-full">
                 <ErrorIcon2 className="w-4 h-4 relative top-[2px]" />
                 <span className="text-sm" style={{ maxWidth: 'calc(100% - 22px)' }}>
-                  {friendlyError(txError) || txError?.message || JSON.stringify(txError)}
+                  {translateFriendlyErrorMessage(friendlyError(txError) || txError?.message || JSON.stringify(txError))}
                 </span>
               </div>
             )}
