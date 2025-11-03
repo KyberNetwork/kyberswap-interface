@@ -69,6 +69,7 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
   const [searchParams, setSearchParams] = useSearchParams()
   const [expanded, setExpanded] = useState(false)
   const [isHighlight, setIsHighlight] = useState(false)
+  const [triedSimulatedSlippage, setTriedSimulatedSlippage] = useState(false)
   const [isDegenMode] = useDegenModeManager()
 
   const { rawSlippage, setRawSlippage, isSlippageControlPinned } = useSlippageSettingByPage()
@@ -104,6 +105,7 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
   useEffect(() => {
     if (actionFromUrl === 'open-slippage-panel') {
       setExpanded(true)
+      setTriedSimulatedSlippage(true)
       searchParams.delete('action')
       setSearchParams(searchParams)
       setIsHighlight(true)
@@ -227,7 +229,7 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
             <Trans>Maximum slippage allowed for Degen mode is 50%</Trans>
           </Text>
         )}
-        {Math.abs(defaultSlp - rawSlippage) / defaultSlp > 0.2 && (
+        {Math.abs(defaultSlp - rawSlippage) / defaultSlp > 0.2 && !triedSimulatedSlippage && (
           <Flex
             fontSize={12}
             color={theme.primary}
