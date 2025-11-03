@@ -5,6 +5,18 @@ import { SMART_EXIT_API_URL } from 'constants/env'
 import { RTK_QUERY_TAGS } from 'constants/index'
 import { OrderStatus } from 'pages/Earns/SmartExit/useSmartExitFilter'
 
+interface SmartExitCondition {
+  logical: {
+    op: 'and' | 'or'
+    conditions: Array<{
+      field: {
+        type: 'time' | 'pool_price' | 'fee_yield'
+        value: any
+      }
+    }>
+  }
+}
+
 export interface SmartExitOrder {
   id: string
   chainId: number
@@ -14,20 +26,46 @@ export interface SmartExitOrder {
   positionId: string
   removeLiquidity: string
   unwrap: boolean
-  condition: {
-    logical: {
-      op: 'and' | 'or'
-      conditions: Array<{
-        field: {
-          type: 'time' | 'pool_price' | 'fee_yield'
-          value: any
-        }
-      }>
-    }
-  }
+  condition: SmartExitCondition
   status: OrderStatus
   createdAt: number
   updatedAt: number
+  deadline: number
+}
+
+interface SmartExitOrderResponse {
+  orders: SmartExitOrder[]
+  totalItems: number
+  totalPages: number
+  currentPage: number
+  pageSize: number
+}
+
+interface SmartExitOrderParams {
+  chainIds?: string
+  userWallet: string
+  status?: string
+  dexTypes?: string
+  page?: number
+  pageSize?: number
+  positionIds?: string[]
+}
+
+export interface SmartExitFeeResponse {
+  protocol: { percentage: number; category: string }
+  gas: { percentage: number; usd: number; wei: string }
+}
+
+export interface SmartExitFeeParams {
+  chainId: number
+  userWallet: string
+  dexType: string
+  poolId: string
+  positionId: string
+  removeLiquidity: string
+  unwrap: boolean
+  permitData: string
+  condition: SmartExitCondition
   deadline: number
 }
 
@@ -36,24 +74,7 @@ const smartExitApi = createApi({
   baseQuery: fetchBaseQuery({ baseUrl: SMART_EXIT_API_URL }),
   tagTypes: [RTK_QUERY_TAGS.GET_SMART_EXIT_ORDERS],
   endpoints: builder => ({
-    getSmartExitOrders: builder.query<
-      {
-        orders: SmartExitOrder[]
-        totalItems: number
-        totalPages: number
-        currentPage: number
-        pageSize: number
-      },
-      {
-        chainIds?: string
-        userWallet: string
-        status?: string
-        dexTypes?: string
-        page?: number
-        pageSize?: number
-        positionIds?: string[]
-      }
-    >({
+    getSmartExitOrders: builder.query<SmartExitOrderResponse, SmartExitOrderParams>({
       query: ({ chainIds, dexTypes, userWallet, status, page = 1, pageSize = 10, positionIds }) => {
         const params = new URLSearchParams({
           userWallet,
@@ -96,29 +117,7 @@ const smartExitApi = createApi({
 
     createSmartExitOrder: builder.mutation<
       { id: string; orderId: string },
-      {
-        chainId: number
-        userWallet: string
-        dexType: string
-        poolId: string
-        positionId: string
-        removeLiquidity: string
-        unwrap: boolean
-        permitData: string
-        condition: {
-          logical: {
-            op: 'and' | 'or'
-            conditions: Array<{
-              field: {
-                type: 'time' | 'pool_price' | 'fee_yield'
-                value: any
-              }
-            }>
-          }
-        }
-        signature: string
-        deadline: number
-      }
+      SmartExitFeeParams & { signature: string; maxFeesPercentage?: number[] }
     >({
       query: body => ({
         url: '/v1/orders/smart-exit',
@@ -135,6 +134,21 @@ const smartExitApi = createApi({
       invalidatesTags: [RTK_QUERY_TAGS.GET_SMART_EXIT_ORDERS],
     }),
 
+    estimateSmartExitFee: builder.mutation<SmartExitFeeResponse, SmartExitFeeParams>({
+      query: body => ({
+        url: '/v1/orders/smart-exit/estimate-fee',
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body,
+      }),
+      transformResponse: (data: any) => ({
+        protocol: data?.data?.protocol ?? {},
+        gas: data?.data?.gas ?? {},
+      }),
+    }),
+
     getSmartExitSignMessage: builder.mutation<
       {
         message: {
@@ -144,27 +158,7 @@ const smartExitApi = createApi({
           primaryType: string
         }
       },
-      {
-        chainId: number
-        userWallet: string
-        dexType: string
-        poolId: string
-        positionId: string
-        removeLiquidity: string
-        unwrap: boolean
-        permitData: string
-        condition: {
-          logical: {
-            op: 'and' | 'or'
-            conditions: Array<{
-              field: {
-                type: 'time' | 'pool_price' | 'fee_yield'
-                value: any
-              }
-            }>
-          }
-        }
-      }
+      SmartExitFeeParams & { maxFeesPercentage?: number[] }
     >({
       query: body => ({
         url: '/v1/orders/smart-exit/sign-message',
@@ -236,6 +230,7 @@ export const {
   useGetSmartExitSignMessageMutation,
   useGetSmartExitCancelSignMessageMutation,
   useCancelSmartExitOrderMutation,
+  useEstimateSmartExitFeeMutation,
 } = smartExitApi
 
 export default smartExitApi

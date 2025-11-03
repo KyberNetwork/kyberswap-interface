@@ -1,6 +1,11 @@
 import { t } from '@lingui/macro'
 import { useCallback, useState } from 'react'
-import { useGetSmartExitSignMessageMutation } from 'services/smartExit'
+import {
+  SmartExitFeeParams,
+  SmartExitFeeResponse,
+  useEstimateSmartExitFeeMutation,
+  useGetSmartExitSignMessageMutation,
+} from 'services/smartExit'
 
 import { NotificationType } from 'components/Announcement/type'
 import { SMART_EXIT_API_URL } from 'constants/env'
@@ -13,32 +18,6 @@ import { ParsedPosition } from 'pages/Earns/types'
 import { useNotify } from 'state/application/hooks'
 import { friendlyError } from 'utils/errorMessage'
 
-export interface SmartExitCondition {
-  logical: {
-    op: 'and' | 'or'
-    conditions: Array<{
-      field: {
-        type: 'time' | 'pool_price' | 'fee_yield'
-        value: any
-      }
-    }>
-  }
-}
-
-export interface SmartExitOrderParams {
-  chainId: number
-  userWallet: string
-  dexType: string
-  poolId: string
-  positionId: string
-  removeLiquidity: string
-  unwrap: boolean
-  permitData: string
-  condition: SmartExitCondition
-  signature: string
-  deadline: number
-}
-
 export interface UseSmartExitParams {
   position: ParsedPosition
   selectedMetrics: Metric[]
@@ -46,7 +25,7 @@ export interface UseSmartExitParams {
   feeYieldCondition: string
   priceCondition: { gte: string; lte: string }
   timeCondition: { time: number | null; condition: 'after' | 'before' }
-  expireTime: number
+  deadline: number
   permitData?: string
   signature?: string
 }
@@ -80,7 +59,7 @@ export const useSmartExit = ({
   feeYieldCondition,
   priceCondition,
   timeCondition,
-  expireTime,
+  deadline,
   permitData,
   signature,
 }: UseSmartExitParams) => {
@@ -90,6 +69,7 @@ export const useSmartExit = ({
   const [state, setState] = useState<SmartExitState>(SmartExitState.IDLE)
   const [orderId, setOrderId] = useState<string | null>(null)
   const [getSignMessage] = useGetSmartExitSignMessageMutation()
+  const [estimateFeeMutation] = useEstimateSmartExitFeeMutation()
 
   const getDexType = useCallback((dexId: string) => {
     // Map dex IDs to API format
@@ -175,11 +155,138 @@ export const useSmartExit = ({
     }
   }, [selectedMetrics, conditionType, feeYieldCondition, priceCondition, timeCondition])
 
-  const createSmartExitOrder = useCallback(async (): Promise<boolean> => {
-    if (!account || !chainId || !permitData || !signature || !library || !positionContract) {
-      console.error('Missing required data for smart exit order')
-      return false
-    }
+  const createSmartExitOrder = useCallback(
+    async (opts: { maxFeesPercentage: number[] }): Promise<boolean> => {
+      if (!account || !chainId || !permitData || !signature || !library || !positionContract) {
+        console.error('Missing required data for smart exit order')
+        return false
+      }
+      let liquidity = ''
+      if ([DexType.DexTypeUniswapV3, DexType.DexTypePancakeV3].includes(dexType)) {
+        const res = await positionContract.positions(position.tokenId)
+        liquidity = res.liquidity.toString()
+      } else {
+        const res = await positionContract.getPositionLiquidity(position.tokenId)
+        liquidity = res.toString()
+      }
+
+      if (!liquidity) {
+        console.log("Can't get liquidity of position")
+        return false
+      }
+
+      setState(SmartExitState.CREATING)
+
+      try {
+        // Step 1: Get sign message from API
+        const signMessageParams = {
+          chainId,
+          userWallet: account,
+          dexType: getDexType(position.dex.id),
+          poolId: position.pool.address,
+          positionId: position.id,
+          removeLiquidity: liquidity,
+          unwrap: position.token0.isNative || position.token1.isNative,
+          permitData,
+          condition: buildConditions(),
+          deadline,
+          maxFeesPercentage: opts.maxFeesPercentage,
+        }
+
+        console.log('Getting sign message with params:', signMessageParams)
+
+        const signMessageResult = await getSignMessage(signMessageParams).unwrap()
+        const typedData = signMessageResult.message
+
+        if (!typedData || !typedData.domain || !typedData.types || !typedData.message) {
+          throw new Error('Failed to get valid typed data from API')
+        }
+
+        // Step 2: Sign the typed data
+        console.log('Signing typed data:', typedData)
+        const orderSignature = await library.send('eth_signTypedData_v4', [account, JSON.stringify(typedData)])
+
+        // Step 3: Create the order with both signatures
+        const orderParams: SmartExitFeeParams & { signature: string; maxFeesPercentage: number[] } = {
+          chainId,
+          userWallet: account,
+          dexType: dexType,
+          poolId: position.pool.address,
+          positionId: position.id,
+          removeLiquidity: liquidity,
+          unwrap: false,
+          permitData,
+          condition: buildConditions(),
+          signature: orderSignature,
+          deadline,
+          maxFeesPercentage: opts.maxFeesPercentage,
+        }
+
+        console.log('Creating smart exit order with params:', orderParams)
+
+        const response = await fetch(`${SMART_EXIT_API_URL}/v1/orders/smart-exit`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(orderParams),
+        })
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}))
+          throw new Error(errorData.message || `HTTP error! status: ${response.status}`)
+        }
+
+        const result = await response.json()
+        setOrderId(result.orderId || result.id)
+        setState(SmartExitState.SUCCESS)
+
+        notify({
+          type: NotificationType.SUCCESS,
+          title: t`Smart Exit Order Created`,
+          summary: t`Your smart exit order has been successfully created and is now active.`,
+        })
+
+        return true
+      } catch (error) {
+        const message = friendlyError(error)
+        console.error('Smart exit order creation error:', { message, error })
+
+        setState(SmartExitState.ERROR)
+        notify({
+          title: t`Smart Exit Order Error`,
+          summary: message,
+          type: NotificationType.ERROR,
+        })
+
+        return false
+      }
+    },
+    [
+      account,
+      chainId,
+      permitData,
+      signature,
+      position,
+      buildConditions,
+      notify,
+      deadline,
+      library,
+      getSignMessage,
+      getDexType,
+      dexType,
+      positionContract,
+    ],
+  )
+
+  const reset = useCallback(() => {
+    setState(SmartExitState.IDLE)
+    setOrderId(null)
+  }, [])
+
+  const estimateFee = useCallback(async (): Promise<SmartExitFeeResponse | null> => {
+    if (!account || !chainId || !positionContract) return null
+
     let liquidity = ''
     if ([DexType.DexTypeUniswapV3, DexType.DexTypePancakeV3].includes(dexType)) {
       const res = await positionContract.positions(position.tokenId)
@@ -188,121 +295,50 @@ export const useSmartExit = ({
       const res = await positionContract.getPositionLiquidity(position.tokenId)
       liquidity = res.toString()
     }
+    if (!liquidity) return null
 
-    if (!liquidity) {
-      console.log("Can't get liquidity of position")
-      return false
+    const payload = {
+      chainId,
+      userWallet: account,
+      dexType: getDexType(position.dex.id),
+      poolId: position.pool.address,
+      positionId: position.id,
+      removeLiquidity: liquidity,
+      unwrap: position.token0.isNative || position.token1.isNative,
+      permitData: '0x',
+      condition: buildConditions(),
+      deadline,
     }
 
-    setState(SmartExitState.CREATING)
-
     try {
-      // Step 1: Get sign message from API
-      const signMessageParams = {
-        chainId,
-        userWallet: account,
-        dexType: getDexType(position.dex.id),
-        poolId: position.pool.address,
-        positionId: position.id,
-        removeLiquidity: liquidity,
-        unwrap: position.token0.isNative || position.token1.isNative,
-        permitData,
-        condition: buildConditions(),
-        deadline: expireTime,
-      }
-
-      console.log('Getting sign message with params:', signMessageParams)
-
-      const signMessageResult = await getSignMessage(signMessageParams).unwrap()
-      const typedData = signMessageResult.message
-
-      if (!typedData || !typedData.domain || !typedData.types || !typedData.message) {
-        throw new Error('Failed to get valid typed data from API')
-      }
-
-      // Step 2: Sign the typed data
-      console.log('Signing typed data:', typedData)
-      const orderSignature = await library.send('eth_signTypedData_v4', [account, JSON.stringify(typedData)])
-
-      // Step 3: Create the order with both signatures
-      const orderParams: SmartExitOrderParams = {
-        chainId,
-        userWallet: account,
-        dexType: dexType,
-        poolId: position.pool.address,
-        positionId: position.id,
-        removeLiquidity: liquidity,
-        unwrap: false,
-        permitData,
-        condition: buildConditions(),
-        signature: orderSignature,
-        deadline: expireTime,
-      }
-
-      console.log('Creating smart exit order with params:', orderParams)
-
-      const response = await fetch(`${SMART_EXIT_API_URL}/v1/orders/smart-exit`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(orderParams),
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}))
-        throw new Error(errorData.message || `HTTP error! status: ${response.status}`)
-      }
-
-      const result = await response.json()
-      setOrderId(result.orderId || result.id)
-      setState(SmartExitState.SUCCESS)
-
-      notify({
-        type: NotificationType.SUCCESS,
-        title: t`Smart Exit Order Created`,
-        summary: t`Your smart exit order has been successfully created and is now active.`,
-      })
-
-      return true
-    } catch (error) {
-      const message = friendlyError(error)
-      console.error('Smart exit order creation error:', { message, error })
-
-      setState(SmartExitState.ERROR)
-      notify({
-        title: t`Smart Exit Order Error`,
-        summary: message,
-        type: NotificationType.ERROR,
-      })
-
-      return false
+      const res = await estimateFeeMutation(payload).unwrap()
+      const isValid =
+        res &&
+        typeof (res as any).gas === 'object' &&
+        typeof (res as any).gas.usd === 'number' &&
+        Number.isFinite((res as any).gas.usd)
+      if (!isValid) return null
+      return res
+    } catch (e) {
+      return null
     }
   }, [
     account,
     chainId,
-    permitData,
-    signature,
-    position,
-    buildConditions,
-    notify,
-    expireTime,
-    library,
-    getSignMessage,
-    getDexType,
-    dexType,
     positionContract,
+    dexType,
+    position,
+    getDexType,
+    buildConditions,
+    estimateFeeMutation,
+    deadline,
   ])
-
-  const reset = useCallback(() => {
-    setState(SmartExitState.IDLE)
-    setOrderId(null)
-  }, [])
 
   return {
     state,
     orderId,
     createSmartExitOrder,
+    estimateFee,
     reset,
     isCreating: state === SmartExitState.CREATING,
     isSuccess: state === SmartExitState.SUCCESS,

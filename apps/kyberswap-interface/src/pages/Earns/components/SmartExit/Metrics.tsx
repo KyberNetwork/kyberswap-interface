@@ -73,7 +73,7 @@ export const Metrics = ({
   const [openDatePicker, setOpenDatePicker] = useState(false)
 
   return (
-    <Flex flexDirection="column" flex={1}>
+    <Flex flexDirection="column">
       <MetricSelect
         metric={metric1}
         setMetric={(value: Metric) => {

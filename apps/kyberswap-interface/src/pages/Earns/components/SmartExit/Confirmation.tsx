@@ -8,7 +8,7 @@ import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import { CheckCircle } from 'components/Icons'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
-import { APP_PATHS, TIMES_IN_SECS } from 'constants/index'
+import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { PermitNftState, usePermitNft } from 'hooks/usePermitNft'
 import useTheme from 'hooks/useTheme'
@@ -27,34 +27,30 @@ export const Confirmation = ({
   feeYieldCondition,
   priceCondition,
   timeCondition,
-  expireTime,
+  deadline,
   conditionType,
+  feeSettings: { protocolFee, maxFeesPercentage },
 }: {
   selectedMetrics: Metric[]
   pos: ParsedPosition
   onDismiss: () => void
   conditionType: 'and' | 'or'
-  expireTime: number
+  deadline: number
   feeYieldCondition: string
   priceCondition: { lte: string; gte: string }
   timeCondition: { time: number | null; condition: 'after' | 'before' }
+  feeSettings: { protocolFee: number; maxFeesPercentage: number }
 }) => {
   const theme = useTheme()
 
   const { chainId } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
 
-  const today = new Date()
-  today.setUTCHours(0, 0, 0, 0)
-  const time = [7 * TIMES_IN_SECS.ONE_DAY, 30 * TIMES_IN_SECS.ONE_DAY, 90 * TIMES_IN_SECS.ONE_DAY].includes(expireTime)
-    ? Math.floor(today.getTime()) + expireTime * 1000
-    : expireTime
-
   const { permitState, signPermitNft, permitData } = usePermitNft({
     contractAddress: pos.id.split('-')[0],
     tokenId: pos.tokenId,
     spender: SMART_EXIT_ADDRESS,
-    deadline: Math.floor(time / 1000),
+    deadline,
   })
 
   const { createSmartExitOrder, isCreating, isSuccess } = useSmartExit({
@@ -64,12 +60,12 @@ export const Confirmation = ({
     feeYieldCondition,
     priceCondition,
     timeCondition,
-    expireTime: Math.floor(time / 1000),
+    deadline,
     permitData: permitData?.permitData,
     signature: permitData?.signature,
   })
 
-  const displayTime = dayjs(time).format('DD/MM/YYYY HH:mm:ss')
+  const displayTime = dayjs(deadline * 1000).format('DD/MM/YYYY HH:mm:ss')
 
   const [condition0, condition1] = selectedMetrics
 
@@ -203,6 +199,15 @@ export const Confirmation = ({
       </Box>
 
       <Flex justifyContent={'space-between'} mt="1rem">
+        <Text color={theme.subText} fontSize={14}>
+          <Trans>Platform Fee</Trans>
+        </Text>
+        <Text color={theme.text} fontSize={14}>
+          {protocolFee}%
+        </Text>
+      </Flex>
+
+      <Flex justifyContent={'space-between'} mt="1rem">
         <TextDashed
           color={theme.subText}
           fontSize={14}
@@ -232,8 +237,9 @@ export const Confirmation = ({
       </Text>
 
       <ButtonPrimary
-        disabled={permitState === PermitNftState.SIGNING || isCreating}
+        disabled={permitState === PermitNftState.SIGNING || isCreating || !maxFeesPercentage}
         onClick={async () => {
+          if (!maxFeesPercentage) return
           if (chainId !== pos.chain.id) {
             changeNetwork(pos.chain.id)
             return
@@ -241,7 +247,7 @@ export const Confirmation = ({
 
           if (permitState === PermitNftState.SIGNED && permitData) {
             // Create smart exit order
-            await createSmartExitOrder()
+            await createSmartExitOrder({ maxFeesPercentage: [maxFeesPercentage, maxFeesPercentage] })
             return
           }
           if (permitState === PermitNftState.READY_TO_SIGN) {
