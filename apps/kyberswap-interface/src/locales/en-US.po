@@ -851,6 +851,7 @@ msgid "Request to Faucet - Submitted"
 msgstr "Request to Faucet - Submitted"
 
 #: src/components/swapv2/TokenInfo/utils.ts
+#: src/pages/MarketOverview/DetailModal.tsx
 #: src/pages/MarketOverview/TableContent.tsx
 msgid "Market Cap"
 msgstr "Market Cap"
@@ -2250,6 +2251,10 @@ msgstr "We will automatically remove your liquidity and convert it into your des
 msgid "Imported"
 msgstr "Imported"
 
+#: src/pages/MarketOverview/DetailModal.tsx
+msgid "All Time Low"
+msgstr "All Time Low"
+
 #: src/pages/NotificationCenter/Profile/WarningSignMessage.tsx
 msgid "You are not signed in with this wallet address. Click Sign-In to link your wallet to a profile. This will allow us to offer you a better experience.{0}"
 msgstr "You are not signed in with this wallet address. Click Sign-In to link your wallet to a profile. This will allow us to offer you a better experience.{0}"
@@ -2769,6 +2774,10 @@ msgstr "instead?"
 #: src/pages/Campaign/components/Information.tsx
 msgid "Volume is measured based on the value of tokens received on the <0>destination chain</0>, and attributed to the <1>destination wallet.</1>"
 msgstr "Volume is measured based on the value of tokens received on the <0>destination chain</0>, and attributed to the <1>destination wallet.</1>"
+
+#: src/pages/MarketOverview/DetailModal.tsx
+msgid "All Time High"
+msgstr "All Time High"
 
 #: src/components/swapv2/LimitOrder/OrderBook/TableHeader.tsx
 #: src/components/swapv2/LimitOrder/OrderBook/TableHeader.tsx
@@ -4672,6 +4681,10 @@ msgstr "expired ({filledPercent}% filled)"
 msgid "Verifying"
 msgstr "Verifying"
 
+#: src/pages/MarketOverview/DetailModal.tsx
+msgid "Grouping selection across chains is sourced from Coingecko and CoinMarketCap"
+msgstr "Grouping selection across chains is sourced from Coingecko and CoinMarketCap"
+
 #: src/pages/ElasticLegacy/PositionLegacy.tsx
 #: src/pages/KyberDAO/StakeKNC/YourTransactionsModal.tsx
 msgid "Action"
@@ -6085,6 +6098,7 @@ msgstr "Earn Fees"
 msgid "You have chosen option C for KyberSwap Elastic Exploit Treasury Grant Program"
 msgstr "You have chosen option C for KyberSwap Elastic Exploit Treasury Grant Program"
 
+#: src/pages/MarketOverview/DetailModal.tsx
 #: src/pages/MarketOverview/index.tsx
 #: src/pages/MarketOverview/index.tsx
 msgid "On-chain Price"
@@ -6460,6 +6474,7 @@ msgstr "Add to favorites"
 msgid "Connected successfully with Guest Profile."
 msgstr "Connected successfully with Guest Profile."
 
+#: src/pages/MarketOverview/DetailModal.tsx
 #: src/pages/MarketOverview/index.tsx
 #: src/pages/MarketOverview/TableContent.tsx
 msgid "Sell Price"
@@ -6605,6 +6620,7 @@ msgstr "Sign-In with Google"
 msgid "{0} out of {numberOfDEXes} selected"
 msgstr "{0} out of {numberOfDEXes} selected"
 
+#: src/pages/MarketOverview/DetailModal.tsx
 #: src/pages/MarketOverview/index.tsx
 #: src/pages/MarketOverview/TableContent.tsx
 msgid "Buy Price"
@@ -6632,6 +6648,7 @@ msgstr "Total Vested Amount (USDC)"
 
 #: src/components/CurrencyInputPanel/TokenInfo.tsx
 #: src/components/WalletPopup/AccountInfo/ActionButtonGroup.tsx
+#: src/pages/MarketOverview/DetailModal.tsx
 msgid "Buy"
 msgstr "Buy"
 
@@ -7187,6 +7204,7 @@ msgstr "My Farm APR"
 #: src/components/Header/groups/SwapNavGroup.tsx
 #: src/components/SwapForm/SwapActionButton/SwapButtonWithPriceImpact.tsx
 #: src/components/SwapForm/SwapModal/ConfirmSwapModalContent.tsx
+#: src/pages/MarketOverview/DetailModal.tsx
 #: src/pages/SwapV3/Tabs/index.tsx
 msgid "Swap"
 msgstr "Swap"
@@ -7355,6 +7373,7 @@ msgstr "{filledPercent}% Filled | Expired"
 msgid "How can I be eligible to the Referral Program?"
 msgstr "How can I be eligible to the Referral Program?"
 
+#: src/pages/MarketOverview/DetailModal.tsx
 #: src/pages/MarketOverview/index.tsx
 #: src/pages/MarketOverview/TableContent.tsx
 msgid "24h Volume"
@@ -7414,6 +7433,7 @@ msgid "Tier {0}"
 msgstr "Tier {0}"
 
 #: src/components/CurrencyInputPanel/TokenInfo.tsx
+#: src/pages/MarketOverview/DetailModal.tsx
 msgid "Sell"
 msgstr "Sell"
 

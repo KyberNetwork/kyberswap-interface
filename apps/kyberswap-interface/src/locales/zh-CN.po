@@ -851,6 +851,7 @@ msgid "Request to Faucet - Submitted"
 msgstr "水龙头请求 - 已提交"
 
 #: src/components/swapv2/TokenInfo/utils.ts
+#: src/pages/MarketOverview/DetailModal.tsx
 #: src/pages/MarketOverview/TableContent.tsx
 msgid "Market Cap"
 msgstr "市值"
@@ -2250,6 +2251,10 @@ msgstr "我们将自动移除您的流动性，并在一笔交易中将其转换
 msgid "Imported"
 msgstr "已导入"
 
+#: src/pages/MarketOverview/DetailModal.tsx
+msgid "All Time Low"
+msgstr "历史最低价"
+
 #: src/pages/NotificationCenter/Profile/WarningSignMessage.tsx
 msgid "You are not signed in with this wallet address. Click Sign-In to link your wallet to a profile. This will allow us to offer you a better experience.{0}"
 msgstr "您未使用该钱包地址登录。点击登录，将钱包关联到档案以获得更佳体验。{0}"
@@ -2769,6 +2774,10 @@ msgstr "改为？"
 #: src/pages/Campaign/components/Information.tsx
 msgid "Volume is measured based on the value of tokens received on the <0>destination chain</0>, and attributed to the <1>destination wallet.</1>"
 msgstr "成交量按照在 <0>目标链</0> 上收到的代币价值计算，并归属于<1>目标钱包</1>。"
+
+#: src/pages/MarketOverview/DetailModal.tsx
+msgid "All Time High"
+msgstr "历史最高价"
 
 #: src/components/swapv2/LimitOrder/OrderBook/TableHeader.tsx
 #: src/components/swapv2/LimitOrder/OrderBook/TableHeader.tsx
@@ -4672,6 +4681,10 @@ msgstr "已过期（成交 {filledPercent}%）"
 msgid "Verifying"
 msgstr "验证中"
 
+#: src/pages/MarketOverview/DetailModal.tsx
+msgid "Grouping selection across chains is sourced from Coingecko and CoinMarketCap"
+msgstr "跨链分组信息来自 Coingecko 和 CoinMarketCap"
+
 #: src/pages/ElasticLegacy/PositionLegacy.tsx
 #: src/pages/KyberDAO/StakeKNC/YourTransactionsModal.tsx
 msgid "Action"
@@ -6085,6 +6098,7 @@ msgstr "赚取手续费"
 msgid "You have chosen option C for KyberSwap Elastic Exploit Treasury Grant Program"
 msgstr "您已选择 KyberSwap Elastic 漏洞国库资助计划的选项 C"
 
+#: src/pages/MarketOverview/DetailModal.tsx
 #: src/pages/MarketOverview/index.tsx
 #: src/pages/MarketOverview/index.tsx
 msgid "On-chain Price"
@@ -6460,6 +6474,7 @@ msgstr "加入收藏"
 msgid "Connected successfully with Guest Profile."
 msgstr "已成功连接到访客资料。"
 
+#: src/pages/MarketOverview/DetailModal.tsx
 #: src/pages/MarketOverview/index.tsx
 #: src/pages/MarketOverview/TableContent.tsx
 msgid "Sell Price"
@@ -6605,6 +6620,7 @@ msgstr "使用 Google 登录"
 msgid "{0} out of {numberOfDEXes} selected"
 msgstr "已选择 {numberOfDEXes} 个中的 {0} 个"
 
+#: src/pages/MarketOverview/DetailModal.tsx
 #: src/pages/MarketOverview/index.tsx
 #: src/pages/MarketOverview/TableContent.tsx
 msgid "Buy Price"
@@ -6632,6 +6648,7 @@ msgstr "总归属金额（USDC）"
 
 #: src/components/CurrencyInputPanel/TokenInfo.tsx
 #: src/components/WalletPopup/AccountInfo/ActionButtonGroup.tsx
+#: src/pages/MarketOverview/DetailModal.tsx
 msgid "Buy"
 msgstr "购买"
 
@@ -7187,6 +7204,7 @@ msgstr "我的挖矿年化收益率"
 #: src/components/Header/groups/SwapNavGroup.tsx
 #: src/components/SwapForm/SwapActionButton/SwapButtonWithPriceImpact.tsx
 #: src/components/SwapForm/SwapModal/ConfirmSwapModalContent.tsx
+#: src/pages/MarketOverview/DetailModal.tsx
 #: src/pages/SwapV3/Tabs/index.tsx
 msgid "Swap"
 msgstr "兑换"
@@ -7355,6 +7373,7 @@ msgstr "成交 {filledPercent}% | 已过期"
 msgid "How can I be eligible to the Referral Program?"
 msgstr "我如何获得推荐计划的参与资格？"
 
+#: src/pages/MarketOverview/DetailModal.tsx
 #: src/pages/MarketOverview/index.tsx
 #: src/pages/MarketOverview/TableContent.tsx
 msgid "24h Volume"
@@ -7414,6 +7433,7 @@ msgid "Tier {0}"
 msgstr "等级 {0}"
 
 #: src/components/CurrencyInputPanel/TokenInfo.tsx
+#: src/pages/MarketOverview/DetailModal.tsx
 msgid "Sell"
 msgstr "卖出"
 
