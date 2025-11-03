@@ -51,7 +51,7 @@ const RewardSection = () => {
         >
           {t`Total rewards`}
         </Text>
-        {isLoadingRewardInfo || !rewardInfo ? (
+        {isLoadingRewardInfo ? (
           <PositionSkeleton width={120} height={32} />
         ) : (
           <Text fontSize={28}>
