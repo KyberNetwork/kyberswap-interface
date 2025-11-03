@@ -125,7 +125,7 @@ export const SmartExit = ({
         const res = await estimateFee()
         setFeeInfo(res)
       } catch {
-        setFeeInfo(null)
+        if (feeInfo) setFeeInfo(null)
       } finally {
         setFeeLoading(false)
       }
@@ -143,7 +143,8 @@ export const SmartExit = ({
         intervalRef.current = null
       }
     }
-  }, [disableBtn, estimateFee, feeLoading, feeInfo])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [disableBtn])
 
   const setupContent = (
     <>

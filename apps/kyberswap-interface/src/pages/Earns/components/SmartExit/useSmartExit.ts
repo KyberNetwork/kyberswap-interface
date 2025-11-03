@@ -10,13 +10,13 @@ import {
 import { NotificationType } from 'components/Announcement/type'
 import { SMART_EXIT_API_URL } from 'constants/env'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import { useReadingContract } from 'hooks/useContract'
 import { DexType } from 'pages/Earns/SmartExit/useSmartExitFilter'
 import { Metric } from 'pages/Earns/components/SmartExit/Metrics'
 import { Exchange } from 'pages/Earns/constants'
 import { ParsedPosition } from 'pages/Earns/types'
 import { useNotify } from 'state/application/hooks'
 import { friendlyError } from 'utils/errorMessage'
+import { getReadingContractWithCustomChain } from 'utils/getContract'
 
 export interface UseSmartExitParams {
   position: ParsedPosition
@@ -78,9 +78,6 @@ export const useSmartExit = ({
 
   // Detect version from dex type
   const dexType = getDexType(position.dex.id)
-
-  // Contract setup for liquidity fetching
-  const positionContract = useReadingContract(position.id.split('-')[0], POSITION_MANAGER_ABI)
 
   const buildConditions = useCallback(() => {
     const conditions: Array<{
@@ -157,8 +154,17 @@ export const useSmartExit = ({
 
   const createSmartExitOrder = useCallback(
     async (opts: { maxFeesPercentage: number[] }): Promise<boolean> => {
-      if (!account || !chainId || !permitData || !signature || !library || !positionContract) {
+      if (!account || !chainId || !permitData || !signature || !library) {
         console.error('Missing required data for smart exit order')
+        return false
+      }
+      const positionContract = getReadingContractWithCustomChain(
+        position.id.split('-')[0],
+        POSITION_MANAGER_ABI,
+        position.chain.id,
+      )
+      if (!positionContract) {
+        console.error('Failed to get position contract')
         return false
       }
       let liquidity = ''
@@ -169,7 +175,6 @@ export const useSmartExit = ({
         const res = await positionContract.getPositionLiquidity(position.tokenId)
         liquidity = res.toString()
       }
-
       if (!liquidity) {
         console.log("Can't get liquidity of position")
         return false
@@ -275,7 +280,6 @@ export const useSmartExit = ({
       getSignMessage,
       getDexType,
       dexType,
-      positionContract,
     ],
   )
 
@@ -285,6 +289,11 @@ export const useSmartExit = ({
   }, [])
 
   const estimateFee = useCallback(async (): Promise<SmartExitFeeResponse | null> => {
+    const positionContract = getReadingContractWithCustomChain(
+      position.id.split('-')[0],
+      POSITION_MANAGER_ABI,
+      position.chain.id,
+    )
     if (!account || !chainId || !positionContract) return null
 
     let liquidity = ''
@@ -295,6 +304,8 @@ export const useSmartExit = ({
       const res = await positionContract.getPositionLiquidity(position.tokenId)
       liquidity = res.toString()
     }
+    console.log('liquidity', liquidity)
+
     if (!liquidity) return null
 
     const payload = {
@@ -322,17 +333,7 @@ export const useSmartExit = ({
     } catch (e) {
       return null
     }
-  }, [
-    account,
-    chainId,
-    positionContract,
-    dexType,
-    position,
-    getDexType,
-    buildConditions,
-    estimateFeeMutation,
-    deadline,
-  ])
+  }, [account, chainId, dexType, position, getDexType, buildConditions, estimateFeeMutation, deadline])
 
   return {
     state,
