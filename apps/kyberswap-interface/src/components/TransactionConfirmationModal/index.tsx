@@ -1,5 +1,5 @@
 import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import React, { useState } from 'react'
 import { ArrowUpCircle, BarChart2 } from 'react-feather'
 import { Flex, Text } from 'rebass'
@@ -291,7 +291,7 @@ export function TransactionErrorContent({
                 sx={{ cursor: `pointer` }}
                 onClick={() => setShowDetail(prev => !prev)}
               >
-                {showDetail ? 'Show less' : 'Show more details'}
+                {showDetail ? t`Show less` : t`Show more details`}
               </Text>
               {showDetail && (
                 <ErrorDetail>{typeof message === 'string' ? message : JSON.stringify(message)}</ErrorDetail>

@@ -345,6 +345,10 @@ msgstr "Download Image"
 msgid "There is no deadline to claim your gas refunds. You can wait for more KNC to be accumulated before claiming them in order to save on gas fees."
 msgstr "There is no deadline to claim your gas refunds. You can wait for more KNC to be accumulated before claiming them in order to save on gas fees."
 
+#: src/utils/errorMessage.ts
+msgid "An error occurred. Invalid Permit Signature."
+msgstr "An error occurred. Invalid Permit Signature."
+
 #: src/components/SwapForm/SwapActionButton/index.tsx
 #: src/components/swapv2/LimitOrder/LimitOrderForm.tsx
 msgid "Switch to {0}"
@@ -1027,6 +1031,10 @@ msgstr "Are you sure?"
 msgid "{hour} {temp} ago"
 msgstr "{hour} {temp} ago"
 
+#: src/components/TransactionConfirmationModal/index.tsx
+msgid "Show less"
+msgstr "Show less"
+
 #: src/pages/Campaign/components/Information.tsx
 msgid "How are points calculated?"
 msgstr "How are points calculated?"
@@ -1078,6 +1086,10 @@ msgstr "KNC rewards will be available to claim on the “My Dashboard” page st
 #: src/pages/Earns/UserPositions/index.tsx
 msgid "Actions"
 msgstr "Actions"
+
+#: src/utils/errorMessage.ts
+msgid "The requested account and/or method has not been authorized by the user."
+msgstr "The requested account and/or method has not been authorized by the user."
 
 #: src/pages/Campaign/components/Information.tsx
 #: src/pages/Campaign/components/Information.tsx
@@ -1930,6 +1942,10 @@ msgstr "The distribution of ARB rewards are based on the points distributed to u
 msgid "You don't have any liquidity positions yet"
 msgstr "You don't have any liquidity positions yet"
 
+#: src/utils/errorMessage.ts
+msgid "An error occurred. Try refreshing the price rate or increase max slippage."
+msgstr "An error occurred. Try refreshing the price rate or increase max slippage."
+
 #: src/pages/Earns/PositionDetail/index.tsx
 msgid "Est. Position APR"
 msgstr "Est. Position APR"
@@ -2381,6 +2397,10 @@ msgstr "Your Transactions"
 msgid "This is the USD value of the fees earned by your liquidity position immediately before the exploit."
 msgstr "This is the USD value of the fees earned by your liquidity position immediately before the exploit."
 
+#: src/utils/errorMessage.ts
+msgid "Insufficient fee rewards amount, try to remove your liquidity without claiming fees for now and you can try to claim it later."
+msgstr "Insufficient fee rewards amount, try to remove your liquidity without claiming fees for now and you can try to claim it later."
+
 #: src/components/Announcement/Popups/SnippetPopup.tsx
 #: src/pages/NotificationCenter/Profile/WarningSignMessage.tsx
 msgid "Read More"
@@ -2430,6 +2450,10 @@ msgstr "Stake KNC, Vote, Earn Rewards."
 #: src/components/swapv2/LimitOrder/Modals/ConfirmOrderModal.tsx
 msgid "Hard Edit (<0>~{0}</0> gas fees)"
 msgstr "Hard Edit (<0>~{0}</0> gas fees)"
+
+#: src/components/TransactionConfirmationModal/index.tsx
+msgid "Show more details"
+msgstr "Show more details"
 
 #: src/components/swapv2/LimitOrder/OrderBook/index.tsx
 msgid "Orders refresh in"
@@ -3009,6 +3033,10 @@ msgstr "Open scan explorer"
 msgid "Request"
 msgstr "Request"
 
+#: src/utils/errorMessage.ts
+msgid "An error occurred. Please try increasing max slippage."
+msgstr "An error occurred. Please try increasing max slippage."
+
 #: src/components/SwapForm/SwapActionButton/index.tsx
 #: src/components/SwapForm/SwapActionButton/index.tsx
 msgid "Approve <0>{0}</0> requires to be more than <1>{1} {2}</1>, find out more <2>here</2>"
@@ -3220,6 +3248,10 @@ msgstr "Connect wallet to view your reward"
 #: src/components/AppHaveUpdate.tsx
 msgid "New contents are available."
 msgstr "New contents are available."
+
+#: src/utils/errorMessage.ts
+msgid "Your current balance falls short of covering the required gas fee."
+msgstr "Your current balance falls short of covering the required gas fee."
 
 #: src/pages/KyberDAO/Vote/ClaimConfirmModal.tsx
 msgid "Claim your KNC rewards"
@@ -4111,6 +4143,10 @@ msgstr "You can only vote from the next Epoch onward"
 msgid "Get KNC"
 msgstr "Get KNC"
 
+#: src/utils/errorMessage.ts
+msgid "Network Error. Please check your connection and try again."
+msgstr "Network Error. Please check your connection and try again."
+
 #: src/pages/About/AboutKNC.tsx
 msgid "Dynamic Token Model"
 msgstr "Dynamic Token Model"
@@ -4256,6 +4292,10 @@ msgstr "Non-EVM ← Near L1 (excl same chain)"
 msgid "Search..."
 msgstr "Search..."
 
+#: src/utils/errorMessage.ts
+msgid "Pending request(s), please approve it in your wallet."
+msgstr "Pending request(s), please approve it in your wallet."
+
 #: src/pages/BuyCrypto/index.tsx
 msgid "Step 1"
 msgstr "Step 1"
@@ -4385,6 +4425,10 @@ msgstr "Cancel Orders"
 #: src/components/Toggle/ListToggle.tsx
 msgid "OFF"
 msgstr "OFF"
+
+#: src/utils/errorMessage.ts
+msgid "An error occurred. Refresh the page and try again. If the issue still persists, it might be an issue with your RPC node settings in Metamask."
+msgstr "An error occurred. Refresh the page and try again. If the issue still persists, it might be an issue with your RPC node settings in Metamask."
 
 #: src/pages/KyberDAO/KNCUtility/index.tsx
 msgid "Stake here ↗"
@@ -5132,6 +5176,10 @@ msgstr "Token Pair"
 msgid "DAO Governance"
 msgstr "DAO Governance"
 
+#: src/utils/errorMessage.ts
+msgid "Something went wrong. Please try again."
+msgstr "Something went wrong. Please try again."
+
 #: src/components/Menu/index.tsx
 #: src/pages/MyPool/index.tsx
 msgid "My Pools"
@@ -5623,6 +5671,10 @@ msgstr "Your order to pay <0/> {makingAmount} {makerAssetSymbol} and receive <1/
 #: src/pages/Campaign/index.tsx
 msgid "Week {weekIndex} {statusText}"
 msgstr "Week {weekIndex} {statusText}"
+
+#: src/utils/errorMessage.ts
+msgid "An error occurred. Refresh the page and try again."
+msgstr "An error occurred. Refresh the page and try again."
 
 #: src/pages/Campaign/components/Information.tsx
 msgid "Non-EVM → Near L1 (excl same chain)"
@@ -6369,6 +6421,10 @@ msgstr "We got you a higher amount. The initial output amount was {output}"
 msgid "Nonce Retrieval Failed"
 msgstr "Nonce Retrieval Failed"
 
+#: src/utils/errorMessage.ts
+msgid "Your chain is mismatched, please make sure your wallet is switch to the expected chain."
+msgstr "Your chain is mismatched, please make sure your wallet is switch to the expected chain."
+
 #: src/components/TransactionConfirmationModal/index.tsx
 msgid "Confirm this transaction in your wallet"
 msgstr "Confirm this transaction in your wallet"
@@ -6507,6 +6563,10 @@ msgstr "Cancel all orders failed. Please try again."
 #: src/components/SwapForm/SlippageSetting.tsx
 msgid "Maximum slippage allowed for Degen mode is 50%"
 msgstr "Maximum slippage allowed for Degen mode is 50%"
+
+#: src/utils/errorMessage.ts
+msgid "User rejected the transaction."
+msgstr "User rejected the transaction."
 
 #: src/pages/NotificationCenter/CreateAlert/ConfirmModal.tsx
 msgid "Alert Created"
@@ -6837,6 +6897,10 @@ msgstr "I want to cancel my order where"
 #: src/pages/CrossChainSwap/components/ConfirmationPopup.tsx
 msgid "Confirm Swap Details"
 msgstr "Confirm Swap Details"
+
+#: src/utils/errorMessage.ts
+msgid "Insufficient ERC20 balance to pay gas fee"
+msgstr "Insufficient ERC20 balance to pay gas fee"
 
 #: src/pages/KyberDAO/KNCUtility/FAQ.tsx
 msgid "Is there a deadline to claim your gas refunds?"
