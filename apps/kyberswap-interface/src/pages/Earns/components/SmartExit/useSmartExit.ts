@@ -63,7 +63,7 @@ export const useSmartExit = ({
   permitData,
   signature,
 }: UseSmartExitParams) => {
-  const { account, chainId } = useActiveWeb3React()
+  const { account } = useActiveWeb3React()
   const { library } = useWeb3React()
   const notify = useNotify()
   const [state, setState] = useState<SmartExitState>(SmartExitState.IDLE)
@@ -154,7 +154,7 @@ export const useSmartExit = ({
 
   const createSmartExitOrder = useCallback(
     async (opts: { maxFeesPercentage: number[] }): Promise<boolean> => {
-      if (!account || !chainId || !permitData || !signature || !library) {
+      if (!account || !permitData || !signature || !library) {
         console.error('Missing required data for smart exit order')
         return false
       }
@@ -185,7 +185,7 @@ export const useSmartExit = ({
       try {
         // Step 1: Get sign message from API
         const signMessageParams = {
-          chainId,
+          chainId: position.chain.id,
           userWallet: account,
           dexType: getDexType(position.dex.id),
           poolId: position.pool.address,
@@ -213,7 +213,7 @@ export const useSmartExit = ({
 
         // Step 3: Create the order with both signatures
         const orderParams: SmartExitFeeParams & { signature: string; maxFeesPercentage: number[] } = {
-          chainId,
+          chainId: position.chain.id,
           userWallet: account,
           dexType: dexType,
           poolId: position.pool.address,
@@ -269,7 +269,6 @@ export const useSmartExit = ({
     },
     [
       account,
-      chainId,
       permitData,
       signature,
       position,
@@ -294,7 +293,7 @@ export const useSmartExit = ({
       POSITION_MANAGER_ABI,
       position.chain.id,
     )
-    if (!account || !chainId || !positionContract) return null
+    if (!account || !positionContract) return null
 
     let liquidity = ''
     if ([DexType.DexTypeUniswapV3, DexType.DexTypePancakeV3].includes(dexType)) {
@@ -309,7 +308,7 @@ export const useSmartExit = ({
     if (!liquidity) return null
 
     const payload = {
-      chainId,
+      chainId: position.chain.id,
       userWallet: account,
       dexType: getDexType(position.dex.id),
       poolId: position.pool.address,
@@ -333,7 +332,7 @@ export const useSmartExit = ({
     } catch (e) {
       return null
     }
-  }, [account, chainId, dexType, position, getDexType, buildConditions, estimateFeeMutation, deadline])
+  }, [account, dexType, position, getDexType, buildConditions, estimateFeeMutation, deadline])
 
   return {
     state,
