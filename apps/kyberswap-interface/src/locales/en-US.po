@@ -195,6 +195,10 @@ msgstr "Loading token..."
 msgid "📄 Terms & Conditions"
 msgstr "📄 Terms & Conditions"
 
+#: src/components/SwapForm/index.tsx
+msgid "Our simulation detects that {0} token can not be sold immediately or has an extremely high sell fee after being bought, please check further before buying!"
+msgstr "Our simulation detects that {0} token can not be sold immediately or has an extremely high sell fee after being bought, please check further before buying!"
+
 #: src/pages/Campaign/constants.tsx
 msgid "May Trading Campaign"
 msgstr "May Trading Campaign"
@@ -6107,6 +6111,10 @@ msgstr "On-chain Price"
 #: src/components/SwapForm/SwapModal/SwapModalAreYouSure.tsx
 msgid "If you're okay with this, please type the word 'confirm' below to accept this new amount."
 msgstr "If you're okay with this, please type the word 'confirm' below to accept this new amount."
+
+#: src/components/SwapForm/index.tsx
+msgid "Our simulation detects that {0} has {1}% fee on transfer, please check further before buying."
+msgstr "Our simulation detects that {0} has {1}% fee on transfer, please check further before buying."
 
 #: src/pages/Campaign/components/Information.tsx
 msgid "Trade more to earn more points to climb the leaderboard - the higher your rank, the greater your rewards."

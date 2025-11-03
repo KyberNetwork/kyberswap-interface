@@ -195,6 +195,10 @@ msgstr "正在加载代币..."
 msgid "📄 Terms & Conditions"
 msgstr "📄 条款与细则"
 
+#: src/components/SwapForm/index.tsx
+msgid "Our simulation detects that {0} token can not be sold immediately or has an extremely high sell fee after being bought, please check further before buying!"
+msgstr "我们的模拟检测到 {0} 代币在买入后无法立即卖出或卖出手续费极高，购买前请进一步确认！"
+
 #: src/pages/Campaign/constants.tsx
 msgid "May Trading Campaign"
 msgstr "五月交易活动"
@@ -6107,6 +6111,10 @@ msgstr "链上价格"
 #: src/components/SwapForm/SwapModal/SwapModalAreYouSure.tsx
 msgid "If you're okay with this, please type the word 'confirm' below to accept this new amount."
 msgstr "若您接受，请在下方输入“confirm”以确认新的数量。"
+
+#: src/components/SwapForm/index.tsx
+msgid "Our simulation detects that {0} has {1}% fee on transfer, please check further before buying."
+msgstr "我们的模拟检测到 {0} 在转账时需支付 {1}% 手续费，购买前请进一步确认。"
 
 #: src/pages/Campaign/components/Information.tsx
 msgid "Trade more to earn more points to climb the leaderboard - the higher your rank, the greater your rewards."
