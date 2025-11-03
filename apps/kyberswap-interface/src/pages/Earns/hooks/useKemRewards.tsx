@@ -11,6 +11,7 @@ import useFilter from 'pages/Earns/UserPositions/useFilter'
 import ClaimAllModal from 'pages/Earns/components/ClaimAllModal'
 import ClaimModal, { ClaimInfo, ClaimType } from 'pages/Earns/components/ClaimModal'
 import { EARN_CHAINS, EarnChain } from 'pages/Earns/constants'
+import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import useCompounding from 'pages/Earns/hooks/useCompounding'
 import { ParsedPosition, RewardInfo, TokenInfo } from 'pages/Earns/types'
 import { getNftManagerContractAddress, submitTransaction } from 'pages/Earns/utils'
@@ -50,6 +51,7 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
   const [claiming, setClaiming] = useState(false)
   const [txHash, setTxHash] = useState<string | null>(null)
   const [position, setPosition] = useState<ParsedPosition | null>(null)
+  const [rewardInfo, setRewardInfo] = useState<RewardInfo | null>(null)
 
   const onCloseClaim = useCallback(() => {
     setOpenClaimModal(false)
@@ -64,7 +66,7 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
     onCloseClaimModal: onCloseClaim,
   })
 
-  const rewardInfo: RewardInfo | null = useMemo(() => {
+  const parsedRewardInfo = useMemo(() => {
     const chainIds = filters.chainIds?.split(',').filter(Boolean).map(Number)
     return parseReward({
       data,
@@ -72,6 +74,17 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
       supportedChains: supportedChains.filter(chain => !chainIds?.length || chainIds.includes(chain.chainId)),
     })
   }, [data, tokens, supportedChains, filters.chainIds])
+  const isRewardInfoParsing = Object.keys(data || {}).length > 0 && !rewardInfo
+
+  useEffect(() => {
+    if (parsedRewardInfo) {
+      setRewardInfo(parsedRewardInfo)
+    }
+  }, [parsedRewardInfo])
+
+  useEffect(() => {
+    setRewardInfo(null)
+  }, [account])
 
   const handleClaim = useCallback(async () => {
     if (!account || !claimInfo || !claimInfo.dex || !EARN_CHAINS[chainId as unknown as EarnChain]?.farmingSupported)
@@ -255,6 +268,7 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
         'merkleAmounts',
         'pendingAmounts',
         'vestingAmounts',
+        'waitingAmounts',
         'claimableAmounts',
         'claimableUSDValues',
       ] as const
@@ -334,6 +348,11 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
     if (!rewardInfo?.chains.length) setOpenClaimAllModal(false)
   }, [rewardInfo?.chains.length])
 
+  useAccountChanged(() => {
+    onCloseClaim()
+    setOpenClaimAllModal(false)
+  })
+
   const claimModal =
     openClaimModal && claimInfo ? (
       <>
@@ -368,7 +387,7 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
     claiming,
     claimAllRewardsModal,
     onOpenClaimAllRewards,
-    isLoadingRewardInfo,
+    isLoadingRewardInfo: isLoadingRewardInfo || isRewardInfoParsing,
   }
 }
 
