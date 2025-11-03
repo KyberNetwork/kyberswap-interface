@@ -136,11 +136,11 @@ const RewardSection = ({
 
           <Flex width={'100%'} alignItems={'center'} justifyContent={'space-between'}>
             {initialLoading ? (
-              <PositionSkeleton width={105} height={24} />
+              <PositionSkeleton width={90} height={24} />
             ) : isUnfinalized ? (
-              <PositionSkeleton width={105} height={24} text={t`Finalizing...`} />
+              <PositionSkeleton width={90} height={24} text={t`Finalizing...`} />
             ) : isWaitingForRewards ? (
-              <RewardSyncing width={105} height={24} />
+              <RewardSyncing width={90} height={24} />
             ) : (
               <Flex alignItems={'center'}>
                 <Text fontSize={20}>
