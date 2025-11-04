@@ -151,6 +151,10 @@ msgstr "Insufficient fee rewards amount, try to remove your liquidity without cl
 msgid "Download Image"
 msgstr "Download Image"
 
+#: src/utils/translateUtilsMessage.ts
+msgid "User rejected the request."
+msgstr "User rejected the request."
+
 #. js-lingui-explicit-id
 #: src/components/ShareModal/utils.tsx
 msgid "EG Sharing APR"

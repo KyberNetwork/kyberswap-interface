@@ -56,6 +56,7 @@ export const ERROR_MESSAGES = {
   RPC_SETTINGS_ISSUE:
     'An error occurred. Refresh the page and try again. If the issue still persists, it might be an issue with your RPC node settings in Metamask.',
   USER_REJECTED: 'User rejected the transaction.',
+  USER_REJECTED_REQUEST: 'User rejected the request.',
   INCREASE_SLIPPAGE: 'An error occurred. Please try increasing max slippage',
   INVALID_PERMIT_SIGNATURE: 'An error occurred. Invalid Permit Signature',
   INSUFFICIENT_FEE_REWARDS:

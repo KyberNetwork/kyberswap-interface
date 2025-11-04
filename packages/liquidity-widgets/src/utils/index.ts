@@ -189,7 +189,7 @@ export const estimateGasForTx = async ({
 
     return {
       gasUsd: undefined,
-      error: translateFriendlyErrorMessage(friendlyError(message)),
+      error: friendlyError(message),
     };
   }
 };

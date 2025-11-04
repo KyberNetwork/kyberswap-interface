@@ -151,6 +151,10 @@ msgstr "费用奖励金额不足，请尝试在不领取费用的情况下移除
 msgid "Download Image"
 msgstr "下载图片"
 
+#: src/utils/translateUtilsMessage.ts
+msgid "User rejected the request."
+msgstr "用户拒绝了请求。"
+
 #. js-lingui-explicit-id
 #: src/components/ShareModal/utils.tsx
 msgid "EG Sharing APR"

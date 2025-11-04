@@ -101,13 +101,13 @@ export const Action = () => {
       setGasLoading(false);
 
       if (error || !gasUsd) {
-        setWidgetError(error ? translateFriendlyErrorMessage(error) : t`Estimate Gas Failed`);
+        setWidgetError(error || t`Estimate Gas Failed`);
         return;
       }
 
       return { ...buildData, gasUsd };
     } catch (error) {
-      setWidgetError(translateFriendlyErrorMessage(friendlyError(error as Error)));
+      setWidgetError(friendlyError(error as Error));
       console.log('estimate gas error', error);
     } finally {
       setGasLoading(false);

@@ -180,7 +180,7 @@ export default function useActionButton({
         }
       })
       .catch(err => {
-        setWidgetError(translateFriendlyErrorMessage(friendlyError(err as Error)));
+        setWidgetError(friendlyError(err as Error));
         console.error(err);
       })
       .finally(() => {

@@ -9,6 +9,7 @@ const FRIENDLY_ERROR_TRANSLATIONS: Record<string, () => string> = {
   [ERROR_MESSAGES.RPC_SETTINGS_ISSUE]: () =>
     t`An error occurred. Refresh the page and try again. If the issue still persists, it might be an issue with your RPC node settings in Metamask.`,
   [ERROR_MESSAGES.USER_REJECTED]: () => t`User rejected the transaction.`,
+  [ERROR_MESSAGES.USER_REJECTED_REQUEST]: () => t`User rejected the request.`,
   [ERROR_MESSAGES.INCREASE_SLIPPAGE]: () => t`An error occurred. Please try increasing max slippage`,
   [ERROR_MESSAGES.INVALID_PERMIT_SIGNATURE]: () => t`An error occurred. Invalid Permit Signature`,
   [ERROR_MESSAGES.INSUFFICIENT_FEE_REWARDS]: () =>
