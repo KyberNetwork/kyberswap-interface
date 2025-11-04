@@ -282,15 +282,14 @@ export const SmartExit = ({
             {!feeInfo ? (
               <Text>--</Text>
             ) : (
-              <Flex alignItems="center">
+              <Flex alignItems="center" onClick={() => setFeeSettingExpanded(e => !e)} style={{ cursor: 'default' }}>
                 <Text color={isWarningGas ? rgba(theme.warning, 0.9) : theme.text}>
-                  ${customGasUsd ? customGasUsd : (feeInfo.gas.usd * multiplier).toFixed(2)}
+                  ${customGasUsd ? customGasUsd : (feeInfo.gas.usd * multiplier).toPrecision(2)}
                 </Text>
                 <DropdownIcon
                   data-flip={feeSettingExpanded}
                   data-highlight={isHighlightGas}
                   data-warning={isWarningGas}
-                  onClick={() => setFeeSettingExpanded(e => !e)}
                 >
                   <svg width="10" height="6" viewBox="0 0 6 4" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path
@@ -338,7 +337,7 @@ export const SmartExit = ({
                       },
                     }}
                   >
-                    ${(item * (feeInfo?.gas.usd || 0)).toFixed(2)}
+                    ${formatDisplayNumber(item * (feeInfo?.gas.usd || 0), { significantDigits: 2 })}
                   </Box>
                 )
               })}
@@ -383,7 +382,7 @@ export const SmartExit = ({
             </Flex>
             <Flex flexDirection="column" sx={{ gap: '4px' }}>
               <Text fontSize={12} color={theme.subText}>
-                {t`Current est. gas`} = ${(feeInfo?.gas.usd || 0).toFixed(2)}
+                {t`Current est. gas`} = ${(feeInfo?.gas.usd || 0).toPrecision(2)}
               </Text>
               <Text fontSize={12} color={isWarningGas ? rgba(theme.warning, 0.9) : theme.subText}>
                 <Trans>
