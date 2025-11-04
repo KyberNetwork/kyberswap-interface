@@ -303,7 +303,7 @@ const MetricSelect = ({
               label: 'Time',
               value: Metric.Time,
             },
-          ].filter(item => item.value !== selectedMetric)}
+          ].filter(item => item.value === Metric.PoolPrice || item.value !== selectedMetric)}
           onChange={value => {
             setMetric(value)
           }}

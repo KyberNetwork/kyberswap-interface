@@ -299,9 +299,7 @@ export default function TableContent({
       {claimRewardsModal}
       {zapMigrationWidget}
       {migrationModal}
-      {smartExitPosition && (
-        <SmartExit position={smartExitPosition} isOpen onDismiss={() => setSmartExitPosition(null)} />
-      )}
+      {smartExitPosition && <SmartExit position={smartExitPosition} onDismiss={() => setSmartExitPosition(null)} />}
 
       <div>
         {account && positions && positions.length > 0
