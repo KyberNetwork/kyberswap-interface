@@ -4,7 +4,7 @@ import { useMedia } from 'react-use'
 import { Flex } from 'rebass'
 
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
-import { DexType, OrderStatus } from 'pages/Earns/SmartExit/useSmartExitFilter'
+import { DexType, OrderStatus } from 'pages/Earns/SmartExitOrders/useSmartExitFilter'
 import DropdownMenu from 'pages/Earns/components/DropdownMenu'
 import { AllChainsOption } from 'pages/Earns/hooks/useSupportedDexesAndChains'
 import { SmartExitFilter } from 'pages/Earns/types'

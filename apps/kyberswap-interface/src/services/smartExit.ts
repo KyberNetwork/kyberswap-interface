@@ -3,7 +3,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 import { SMART_EXIT_API_URL } from 'constants/env'
 import { RTK_QUERY_TAGS } from 'constants/index'
-import { OrderStatus } from 'pages/Earns/SmartExit/useSmartExitFilter'
+import { OrderStatus } from 'pages/Earns/SmartExitOrders/useSmartExitFilter'
 
 interface SmartExitCondition {
   logical: {

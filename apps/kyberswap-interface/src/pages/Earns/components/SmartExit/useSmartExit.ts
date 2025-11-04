@@ -10,7 +10,7 @@ import {
 import { NotificationType } from 'components/Announcement/type'
 import { SMART_EXIT_API_URL } from 'constants/env'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import { DexType } from 'pages/Earns/SmartExit/useSmartExitFilter'
+import { DexType } from 'pages/Earns/SmartExitOrders/useSmartExitFilter'
 import { Metric } from 'pages/Earns/components/SmartExit/Metrics'
 import { Exchange } from 'pages/Earns/constants'
 import { ParsedPosition } from 'pages/Earns/types'

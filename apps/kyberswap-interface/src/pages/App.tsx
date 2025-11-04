@@ -67,7 +67,7 @@ const Earns = lazy(() => import('pages/Earns/Landing'))
 const EarnPoolExplorer = lazy(() => import('pages/Earns/PoolExplorer'))
 const EarnUserPositions = lazy(() => import('pages/Earns/UserPositions'))
 const EarnPositionDetail = lazy(() => import('pages/Earns/PositionDetail'))
-const SmartExit = lazy(() => import('pages/Earns/SmartExit'))
+const SmartExit = lazy(() => import('pages/Earns/SmartExitOrders'))
 
 const AppWrapper = styled.div`
   display: flex;
