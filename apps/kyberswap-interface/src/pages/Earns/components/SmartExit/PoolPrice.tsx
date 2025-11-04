@@ -20,9 +20,9 @@ export default function PoolPrice({ position }: { position: ParsedPosition }) {
 
   return (
     <CustomBox>
-      <Flex alignItems="center" sx={{ gap: '4px' }} mb="1rem">
+      <Flex alignItems="center" flexWrap="wrap" sx={{ gap: '4px' }} mb="1rem">
         <Text color={theme.subText} fontSize={14}>
-          Current Price
+          <Trans>Current Price</Trans>
         </Text>
         <Text>
           1 {revertPrice ? position.token1.symbol : position.token0.symbol} ={' '}
