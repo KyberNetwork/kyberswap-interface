@@ -69,8 +69,9 @@ export const Preview = () => {
   };
 
   if (showProcessing) {
-    const rawErrorMessage = error ? friendlyError(error) || error.message || JSON.stringify(error) : '';
-    const errorMessage = translateFriendlyErrorMessage(rawErrorMessage);
+    const errorMessage = error ? friendlyError(error) || error.message || JSON.stringify(error) : '';
+    const translatedErrorMessage = translateFriendlyErrorMessage(errorMessage);
+
     const onCloseStatusDialog = () => {
       if (txStatus === 'success') {
         if (onExplorePools && isRemovedFullLiquidity) onExplorePools();
@@ -105,7 +106,7 @@ export const Preview = () => {
               ? t`You have successfully removed your liquidity`
               : undefined
         }
-        errorMessage={error ? errorMessage : undefined}
+        errorMessage={error ? translatedErrorMessage : undefined}
         transactionExplorerUrl={txHash ? `${NETWORKS_INFO[chainId].scanLink}/tx/${txHash}` : undefined}
         action={
           <>

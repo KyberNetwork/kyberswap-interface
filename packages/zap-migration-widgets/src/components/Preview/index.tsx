@@ -126,8 +126,8 @@ export function Preview({
   };
 
   if (showProcessing) {
-    const rawErrorMessage = error ? friendlyError(error) || error.message || JSON.stringify(error) : '';
-    const errorMessage = translateFriendlyErrorMessage(rawErrorMessage);
+    const errorMessage = error ? friendlyError(error) || error.message || JSON.stringify(error) : '';
+    const translatedErrorMessage = translateFriendlyErrorMessage(errorMessage);
 
     return (
       <StatusDialog
@@ -150,7 +150,7 @@ export function Preview({
               ? t`You have successfully migrated your liquidity`
               : undefined
         }
-        errorMessage={error ? errorMessage : undefined}
+        errorMessage={error ? translatedErrorMessage : undefined}
         transactionExplorerUrl={txHash ? `${NETWORKS_INFO[chainId].scanLink}/tx/${txHash}` : undefined}
         action={
           <>

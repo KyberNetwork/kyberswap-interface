@@ -158,8 +158,8 @@ export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool,
   if (attempTx || txHash || txError) {
     const dexName =
       typeof DEXES_INFO[poolType].name === 'string' ? DEXES_INFO[poolType].name : DEXES_INFO[poolType].name[chainId];
-    const rawErrorMessage = txError ? friendlyError(txError) || txError.message || JSON.stringify(txError) : '';
-    const errorMessage = translateFriendlyErrorMessage(rawErrorMessage);
+    const errorMessage = txError ? friendlyError(txError) || txError.message || JSON.stringify(txError) : '';
+    const translatedErrorMessage = translateFriendlyErrorMessage(errorMessage);
 
     const handleSlippage = () => {
       if (slippage !== suggestedSlippage) setSlippage(suggestedSlippage);
@@ -186,7 +186,7 @@ export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool,
                 : t`${dexName} ${pool.token0.symbol}/${pool.token1.symbol} ${pool.fee}%`)
             : undefined
         }
-        errorMessage={txError ? errorMessage : undefined}
+        errorMessage={txError ? translatedErrorMessage : undefined}
         transactionExplorerUrl={txHash ? `${NETWORKS_INFO[chainId].scanLink}/tx/${txHash}` : undefined}
         action={
           <>
