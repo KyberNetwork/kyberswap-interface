@@ -1,4 +1,5 @@
 import { ChainId, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, Pool, Token, univ3PoolNormalize } from '@kyber/schema';
+import { translateFriendlyErrorMessage } from '@kyber/ui';
 import { fetchTokenPrice, friendlyError } from '@kyber/utils';
 import { estimateGas, getCurrentGasPrice } from '@kyber/utils/crypto';
 import { formatUnits } from '@kyber/utils/number';
@@ -188,7 +189,7 @@ export const estimateGasForTx = async ({
 
     return {
       gasUsd: undefined,
-      error: friendlyError(message),
+      error: translateFriendlyErrorMessage(friendlyError(message)),
     };
   }
 };
