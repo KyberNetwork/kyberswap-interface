@@ -131,3 +131,5 @@ export const LIMIT_TEXT_STYLES = {
   overflow: 'hidden',
   whiteSpace: 'nowrap',
 }
+
+export const SMART_EXIT_ADDRESS = '0x52ee3c8dd099ccb542c6227855d68c79e3e956f9'

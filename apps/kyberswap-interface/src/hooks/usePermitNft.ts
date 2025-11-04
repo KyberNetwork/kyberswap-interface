@@ -5,11 +5,10 @@ import { useCallback, useMemo, useState } from 'react'
 
 import { NotificationType } from 'components/Announcement/type'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useReadingContract } from 'hooks/useContract'
 import { useNotify } from 'state/application/hooks'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import { friendlyError } from 'utils/errorMessage'
-
-import { useReadingContract } from './useContract'
 
 export enum PermitNftState {
   NOT_APPLICABLE = 'not_applicable',
@@ -148,7 +147,7 @@ export const usePermitNft = ({ contractAddress, tokenId, spender, deadline, vers
     setIsSigningInProgress(true)
 
     try {
-      const nonce = getNonce()
+      const nonce = actualVersion === 'v3' ? getNonce() : BigNumber.from(Date.now())
 
       if (!nonce) {
         throw new Error(`Failed to get nonce for ${actualVersion}`)

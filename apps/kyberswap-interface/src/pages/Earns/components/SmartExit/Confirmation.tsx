@@ -16,9 +16,8 @@ import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { Badge, ImageContainer } from 'pages/Earns/UserPositions/styles'
 import { Metric } from 'pages/Earns/components/SmartExit/Metrics'
 import { useSmartExit } from 'pages/Earns/components/SmartExit/useSmartExit'
+import { SMART_EXIT_ADDRESS } from 'pages/Earns/constants'
 import { ParsedPosition } from 'pages/Earns/types'
-
-const SMART_EXIT_ADDRESS = '0x52ee3c8dd099ccb542c6227855d68c79e3e956f9'
 
 export const Confirmation = ({
   selectedMetrics,
