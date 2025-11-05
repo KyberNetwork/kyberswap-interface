@@ -38,7 +38,7 @@ export default function PoolStat() {
       : Number((BigInt(position.liquidity) * 10000n) / BigInt(position.totalSupply)) / 100;
 
   const poolStat = initializing ? null : pool?.stats;
-  const poolApr = (poolStat?.apr || 0) + (poolStat?.kemEGApr || 0) + (poolStat?.kemLMApr || 0);
+  const poolApr = (poolStat?.apr24h || 0) + (poolStat?.kemEGApr24h || 0) + (poolStat?.kemLMApr24h || 0);
   const isFarming = initializing ? false : pool?.isFarming || false;
   const isFarmingLm = initializing ? false : pool?.isFarmingLm || false;
 
@@ -86,9 +86,9 @@ export default function PoolStat() {
               logo: token1.logo || '',
             },
             apr: {
-              fees: pool?.stats?.apr || 0,
-              eg: pool?.stats?.kemEGApr || 0,
-              lm: pool?.stats?.kemLMApr || 0,
+              fees: poolStat?.apr24h || 0,
+              eg: poolStat?.kemEGApr24h || 0,
+              lm: poolStat?.kemLMApr24h || 0,
             },
           }}
         />
@@ -164,14 +164,14 @@ export default function PoolStat() {
                     text={
                       <div className="flex flex-col gap-0.5">
                         <div>
-                          <Trans>LP Fees: {formatAprNumber(poolStat?.apr || 0)}%</Trans>
+                          <Trans>LP Fees: {formatAprNumber(poolStat?.apr24h || 0)}%</Trans>
                         </div>
                         <div>
-                          <Trans>EG Sharing Reward: {formatAprNumber(poolStat?.kemEGApr || 0)}%</Trans>
+                          <Trans>EG Sharing Reward: {formatAprNumber(poolStat?.kemEGApr24h || 0)}%</Trans>
                         </div>
-                        {poolStat?.kemLMApr ? (
+                        {poolStat?.kemLMApr24h ? (
                           <div>
-                            <Trans>LM Reward: {formatAprNumber(poolStat.kemLMApr)}%</Trans>
+                            <Trans>LM Reward: {formatAprNumber(poolStat.kemLMApr24h)}%</Trans>
                           </div>
                         ) : null}
                       </div>

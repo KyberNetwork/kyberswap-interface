@@ -20,7 +20,9 @@ export default function PoolStat() {
       ? null
       : Number((BigInt(position.liquidity) * 10000n) / BigInt(position.totalSupply)) / 100;
 
-  const poolApr = initializing ? 0 : (pool.stats.apr || 0) + (pool.stats.kemEGApr || 0) + (pool.stats.kemLMApr || 0);
+  const poolApr = initializing
+    ? 0
+    : (pool.stats.apr24h || 0) + (pool.stats.kemEGApr24h || 0) + (pool.stats.kemLMApr24h || 0);
   const isFarming = initializing ? false : pool.isFarming || false;
   const isFarmingLm = initializing ? false : pool.isFarmingLm || false;
 
@@ -96,9 +98,11 @@ export default function PoolStat() {
                 <MouseoverTooltip
                   text={
                     <div className="flex flex-col gap-0.5">
-                      <div>{t`LP Fees: ${formatAprNumber(pool.stats.apr)}%`}</div>
-                      <div>{t`EG Sharing Reward: ${formatAprNumber(pool.stats.kemEGApr)}%`}</div>
-                      {pool.stats.kemLMApr > 0 && <div>{t`LM Reward: ${formatAprNumber(pool.stats.kemLMApr)}%`}</div>}
+                      <div>{t`LP Fees: ${formatAprNumber(pool.stats.apr24h)}%`}</div>
+                      <div>{t`EG Sharing Reward: ${formatAprNumber(pool.stats.kemEGApr24h)}%`}</div>
+                      {pool.stats.kemLMApr24h > 0 && (
+                        <div>{t`LM Reward: ${formatAprNumber(pool.stats.kemLMApr24h)}%`}</div>
+                      )}
                     </div>
                   }
                   placement="top"
