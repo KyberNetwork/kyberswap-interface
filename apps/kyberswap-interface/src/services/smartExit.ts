@@ -3,35 +3,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 import { SMART_EXIT_API_URL } from 'constants/env'
 import { RTK_QUERY_TAGS } from 'constants/index'
-import { OrderStatus } from 'pages/Earns/SmartExitOrders/useSmartExitFilter'
-
-interface SmartExitCondition {
-  logical: {
-    op: 'and' | 'or'
-    conditions: Array<{
-      field: {
-        type: 'time' | 'pool_price' | 'fee_yield'
-        value: any
-      }
-    }>
-  }
-}
-
-export interface SmartExitOrder {
-  id: string
-  chainId: number
-  userWallet: string
-  dexType: string
-  poolId: string
-  positionId: string
-  removeLiquidity: string
-  unwrap: boolean
-  condition: SmartExitCondition
-  status: OrderStatus
-  createdAt: number
-  updatedAt: number
-  deadline: number
-}
+import { SmartExitCondition, SmartExitFee, SmartExitOrder } from 'pages/Earns/types'
 
 interface SmartExitOrderResponse {
   orders: SmartExitOrder[]
@@ -49,11 +21,6 @@ interface SmartExitOrderParams {
   page?: number
   pageSize?: number
   positionIds?: string[]
-}
-
-export interface SmartExitFeeResponse {
-  protocol: { percentage: number; category: string }
-  gas: { percentage: number; usd: number; wei: string }
 }
 
 export interface SmartExitFeeParams {
@@ -134,7 +101,7 @@ const smartExitApi = createApi({
       invalidatesTags: [RTK_QUERY_TAGS.GET_SMART_EXIT_ORDERS],
     }),
 
-    estimateSmartExitFee: builder.mutation<SmartExitFeeResponse, SmartExitFeeParams>({
+    estimateSmartExitFee: builder.mutation<SmartExitFee, SmartExitFeeParams>({
       query: body => ({
         url: '/v1/orders/smart-exit/estimate-fee',
         method: 'POST',

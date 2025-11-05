@@ -4,10 +4,10 @@ import { useMedia } from 'react-use'
 import { Flex } from 'rebass'
 
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
-import { DexType, OrderStatus } from 'pages/Earns/SmartExitOrders/useSmartExitFilter'
+import { DexType } from 'pages/Earns/SmartExitOrders/useSmartExitFilter'
 import DropdownMenu from 'pages/Earns/components/DropdownMenu'
 import { AllChainsOption } from 'pages/Earns/hooks/useSupportedDexesAndChains'
-import { SmartExitFilter } from 'pages/Earns/types'
+import { OrderStatus, SmartExitFilter } from 'pages/Earns/types'
 import { MEDIA_WIDTHS } from 'theme'
 
 const ORDER_STATUS = [

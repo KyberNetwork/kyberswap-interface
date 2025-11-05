@@ -2,7 +2,6 @@ import { t } from '@lingui/macro'
 import { useCallback, useState } from 'react'
 import {
   SmartExitFeeParams,
-  SmartExitFeeResponse,
   useEstimateSmartExitFeeMutation,
   useGetSmartExitSignMessageMutation,
 } from 'services/smartExit'
@@ -11,9 +10,8 @@ import { NotificationType } from 'components/Announcement/type'
 import { SMART_EXIT_API_URL } from 'constants/env'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { DexType } from 'pages/Earns/SmartExitOrders/useSmartExitFilter'
-import { Metric } from 'pages/Earns/components/SmartExit/Metrics'
 import { Exchange } from 'pages/Earns/constants'
-import { ParsedPosition } from 'pages/Earns/types'
+import { ConditionType, Metric, ParsedPosition, SmartExitFee } from 'pages/Earns/types'
 import { useNotify } from 'state/application/hooks'
 import { friendlyError } from 'utils/errorMessage'
 import { getReadingContractWithCustomChain } from 'utils/getContract'
@@ -21,7 +19,7 @@ import { getReadingContractWithCustomChain } from 'utils/getContract'
 export interface UseSmartExitParams {
   position: ParsedPosition
   selectedMetrics: Metric[]
-  conditionType: 'and' | 'or'
+  conditionType: ConditionType
   feeYieldCondition: string
   priceCondition: { gte: string; lte: string }
   timeCondition: { time: number | null; condition: 'after' | 'before' }
@@ -82,7 +80,7 @@ export const useSmartExit = ({
   const buildConditions = useCallback(() => {
     const conditions: Array<{
       field: {
-        type: 'time' | 'pool_price' | 'fee_yield'
+        type: Metric
         value: any
       }
     }> = []
@@ -94,7 +92,7 @@ export const useSmartExit = ({
           if (feeYieldCondition) {
             conditions.push({
               field: {
-                type: 'fee_yield',
+                type: Metric.FeeYield,
                 value: {
                   gte: parseFloat(feeYieldCondition),
                 },
@@ -107,7 +105,7 @@ export const useSmartExit = ({
           if (priceCondition.gte && priceCondition.lte) {
             conditions.push({
               field: {
-                type: 'pool_price',
+                type: Metric.PoolPrice,
                 value: {
                   gte: parseFloat(priceCondition.gte),
                   lte: parseFloat(priceCondition.lte),
@@ -123,7 +121,7 @@ export const useSmartExit = ({
             if (timeCondition.condition === 'before') {
               conditions.push({
                 field: {
-                  type: 'time',
+                  type: Metric.Time,
                   value: {
                     lte: timeValue,
                   },
@@ -132,7 +130,7 @@ export const useSmartExit = ({
             } else {
               conditions.push({
                 field: {
-                  type: 'time',
+                  type: Metric.Time,
                   value: {
                     gte: timeValue,
                   },
@@ -287,7 +285,7 @@ export const useSmartExit = ({
     setOrderId(null)
   }, [])
 
-  const estimateFee = useCallback(async (): Promise<SmartExitFeeResponse | null> => {
+  const estimateFee = useCallback(async (): Promise<SmartExitFee | null> => {
     const positionContract = getReadingContractWithCustomChain(
       position.id.split('-')[0],
       POSITION_MANAGER_ABI,

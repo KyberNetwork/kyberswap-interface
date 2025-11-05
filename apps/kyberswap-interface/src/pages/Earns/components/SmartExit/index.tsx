@@ -2,7 +2,6 @@ import { Trans } from '@lingui/macro'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { X } from 'react-feather'
 import { Flex, Text } from 'rebass'
-import { SmartExitFeeResponse } from 'services/smartExit'
 
 import Divider from 'components/Divider'
 import Modal from 'components/Modal'
@@ -11,16 +10,16 @@ import PositionDetailHeader from 'pages/Earns/PositionDetail/Header'
 import Actions from 'pages/Earns/components/SmartExit/Actions'
 import { Confirmation } from 'pages/Earns/components/SmartExit/Confirmation'
 import GasSetting from 'pages/Earns/components/SmartExit/GasSetting'
-import { Metric, Metrics } from 'pages/Earns/components/SmartExit/Metrics'
+import { Metrics } from 'pages/Earns/components/SmartExit/Metrics'
 import PoolPrice from 'pages/Earns/components/SmartExit/PoolPrice'
 import PositionLiquidity from 'pages/Earns/components/SmartExit/PositionLiquidity'
 import { ContentWrapper } from 'pages/Earns/components/SmartExit/styles'
 import { useSmartExit } from 'pages/Earns/components/SmartExit/useSmartExit'
-import { ParsedPosition } from 'pages/Earns/types'
+import { ConditionType, Metric, ParsedPosition, SmartExitFee } from 'pages/Earns/types'
 
 export const SmartExit = ({ position, onDismiss }: { position: ParsedPosition; onDismiss: () => void }) => {
   const [selectedMetrics, setSelectedMetrics] = useState<[Metric, Metric | null]>([Metric.FeeYield, null])
-  const [conditionType, setConditionType] = useState<'and' | 'or'>('and')
+  const [conditionType, setConditionType] = useState<ConditionType>(ConditionType.And)
 
   const [expireTime, setExpireTime] = useState(TIMES_IN_SECS.ONE_DAY * 30)
   const deadline = useMemo(() => {
@@ -51,7 +50,7 @@ export const SmartExit = ({ position, onDismiss }: { position: ParsedPosition; o
   const [showConfirm, setShowConfirm] = useState(false)
 
   // Gas estimation + selection state
-  const [feeInfo, setFeeInfo] = useState<SmartExitFeeResponse | null>(null)
+  const [feeInfo, setFeeInfo] = useState<SmartExitFee | null>(null)
   const [feeLoading, setFeeLoading] = useState(false)
   const [multiplier, setMultiplier] = useState<number>(1.5)
   const [customGasUsd, setCustomGasUsd] = useState<string>('')

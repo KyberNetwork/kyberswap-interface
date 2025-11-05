@@ -1,27 +1,7 @@
 import { NativeToken } from 'constants/networks/type'
 import { Exchange } from 'pages/Earns/constants'
-
-export enum PositionStatus {
-  IN_RANGE = 'IN_RANGE',
-  OUT_RANGE = 'OUT_RANGE',
-  CLOSED = 'CLOSED',
-}
-
-export enum PositionHistoryType {
-  DEPOSIT = 'DEPOSIT',
-}
-
-export enum ProgramType {
-  EG = 'eg',
-  LM = 'lm',
-}
-
-export interface SmartExitFilter {
-  chainIds?: string
-  status?: string
-  dexTypes?: string
-  page: number
-}
+import { PAIR_CATEGORY, PoolAprInterval, ProgramType } from 'pages/Earns/types/pool'
+import { TokenRewardInfo } from 'pages/Earns/types/reward'
 
 export interface PositionFilter {
   chainIds?: string
@@ -34,104 +14,10 @@ export interface PositionFilter {
   page: number
 }
 
-export interface EarnPool {
-  address: string
-  earnFee: number
-  exchange: Exchange
-  type: string
-  feeTier: number
-  volume: number
-  apr: number
-  kemEGApr: number
-  kemLMApr: number
-  liquidity: number
-  tvl: number
-  chainId?: number
-  favorite?: {
-    chainId: number
-    isFavorite: boolean
-  }
-  category?: PAIR_CATEGORY
-  programs?: Array<ProgramType>
-  tokens: Array<{
-    address: string
-    logoURI: string
-    symbol: string
-    decimals: number
-  }>
-  maxAprInfo?: {
-    tickLower: number
-    tickUpper: number
-    minPrice: string
-    maxPrice: string
-    apr: string
-    kemEGApr: string
-    kemLMApr: string
-  }
-}
-
-export interface ParsedEarnPool extends EarnPool {
-  dexLogo: string
-  dexName: string
-  feeApr: number
-}
-
-export interface EarnPosition {
-  [x: string]: any
-  chainName: 'eth'
-  chainId: number
-  chainLogo: string
-  id: string
-  tokenAddress: string
-  tokenId: string
-  minPrice: number
-  maxPrice: number
-  currentAmounts: Array<PositionAmount>
-  providedAmounts: Array<PositionAmount>
-  feePending: Array<PositionAmount>
-  feesClaimed: Array<PositionAmount>
-  createdTime: number
-  stats: {
-    apr: PoolAprInterval
-    kemLMApr: PoolAprInterval
-    kemEGApr: PoolAprInterval
-    earning: PoolAprInterval
-  }
-  /** @deprecated */
-  apr: number
-  /** @deprecated */
-  kemEGApr: number
-  /** @deprecated */
-  kemLMApr: number
-  /** @deprecated */
-  earning24h: number
-  /** @deprecated */
-  earning7d: number
-  currentPositionValue: number
-  status: PositionStatus
-  pool: {
-    id: string
-    poolAddress: string
-    price: number
-    tokenAmounts: Array<PositionAmount>
-    fees: Array<number>
-    tickSpacing: number
-    exchange: Exchange
-    projectLogo: string
-    category: PAIR_CATEGORY
-    programs?: Array<ProgramType>
-  }
-  suggestionPool: SuggestedPool | null
-  latestBlock: number
-  createdAtBlock: number
-}
-
-export enum PAIR_CATEGORY {
-  STABLE = 'stablePair',
-  CORRELATED = 'correlatedPair',
-  EXOTIC = 'exoticPair',
-  HIGH_VOLATILITY = 'highVolatilityPair',
-  DEFAULT_EMPTY = '', // For Krystal data
+export enum PositionStatus {
+  IN_RANGE = 'IN_RANGE',
+  OUT_RANGE = 'OUT_RANGE',
+  CLOSED = 'CLOSED',
 }
 
 export const DEFAULT_PARSED_POSITION: ParsedPosition = {
@@ -307,6 +193,56 @@ export interface ParsedPosition {
   txHash?: string
 }
 
+export interface EarnPosition {
+  [x: string]: any
+  chainName: 'eth'
+  chainId: number
+  chainLogo: string
+  id: string
+  tokenAddress: string
+  tokenId: string
+  minPrice: number
+  maxPrice: number
+  currentAmounts: Array<PositionAmount>
+  providedAmounts: Array<PositionAmount>
+  feePending: Array<PositionAmount>
+  feesClaimed: Array<PositionAmount>
+  createdTime: number
+  stats: {
+    apr: PoolAprInterval
+    kemLMApr: PoolAprInterval
+    kemEGApr: PoolAprInterval
+    earning: PoolAprInterval
+  }
+  /** @deprecated */
+  apr: number
+  /** @deprecated */
+  kemEGApr: number
+  /** @deprecated */
+  kemLMApr: number
+  /** @deprecated */
+  earning24h: number
+  /** @deprecated */
+  earning7d: number
+  currentPositionValue: number
+  status: PositionStatus
+  pool: {
+    id: string
+    poolAddress: string
+    price: number
+    tokenAmounts: Array<PositionAmount>
+    fees: Array<number>
+    tickSpacing: number
+    exchange: Exchange
+    projectLogo: string
+    category: PAIR_CATEGORY
+    programs?: Array<ProgramType>
+  }
+  suggestionPool: SuggestedPool | null
+  latestBlock: number
+  createdAtBlock: number
+}
+
 export interface SuggestedPool {
   address: string
   // chainId: number
@@ -318,12 +254,6 @@ export interface SuggestedPool {
   token1: {
     decimals: number
   }
-}
-
-export interface PoolAprInterval {
-  '7d': number
-  '24h': number
-  all: number
 }
 
 interface Token {
@@ -357,79 +287,6 @@ interface PositionAmount {
   }
 }
 
-export interface FeeInfo {
-  balance0: string | number
-  balance1: string | number
-  amount0: string | number
-  amount1: string | number
-  value0: number
-  value1: number
-  totalValue: number
-}
-
-export interface RewardInfo {
-  totalUsdValue: number
-  totalLmUsdValue: number
-  totalEgUsdValue: number
-  claimableUsdValue: number
-  claimedUsdValue: number
-  inProgressUsdValue: number
-  pendingUsdValue: number
-  vestingUsdValue: number
-  waitingUsdValue: number
-  nfts: Array<NftRewardInfo>
-  chains: Array<ChainRewardInfo>
-  tokens: Array<TokenRewardInfo>
-  egTokens: Array<TokenRewardInfo>
-  lmTokens: Array<TokenRewardInfo>
-}
-
-export interface ChainRewardInfo {
-  chainId: number
-  chainName: string
-  chainLogo: string
-  claimableUsdValue: number
-  tokens: Array<TokenRewardInfo>
-}
-
-export interface NftRewardInfo {
-  nftId: string
-  chainId: number
-  totalUsdValue: number
-  totalLmUsdValue: number
-  totalEgUsdValue: number
-  claimedUsdValue: number
-  inProgressUsdValue: number
-  pendingUsdValue: number
-  vestingUsdValue: number
-  waitingUsdValue: number
-  claimableUsdValue: number
-  unclaimedUsdValue: number
-
-  tokens: Array<TokenRewardInfo>
-  egTokens: Array<TokenRewardInfo>
-  lmTokens: Array<TokenRewardInfo>
-}
-
-export interface TokenRewardInfo {
-  symbol: string
-  logo: string
-  address: string
-  chainId: number
-
-  totalAmount: number
-  claimableAmount: number
-  unclaimedAmount: number
-  pendingAmount: number
-  vestingAmount: number
-  waitingAmount: number
-  claimableUsdValue: number
-}
-
-export interface TokenInfo {
-  address: string
-  symbol: string
-  logo: string
-  decimals: number
-  chainId: number
+export enum PositionHistoryType {
+  DEPOSIT = 'DEPOSIT',
 }

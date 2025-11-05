@@ -2,11 +2,11 @@ import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useState } from 'react'
 import { Box, Flex, Text } from 'rebass'
-import { SmartExitFeeResponse } from 'services/smartExit'
 
 import Input from 'components/NumericalInput'
 import { DropdownIcon } from 'components/SwapForm/SlippageSetting'
 import useTheme from 'hooks/useTheme'
+import { SmartExitFee } from 'pages/Earns/types'
 import { formatDisplayNumber } from 'utils/numbers'
 
 export default function GasSetting({
@@ -16,7 +16,7 @@ export default function GasSetting({
   customGasUsd,
   setCustomGasUsd,
 }: {
-  feeInfo: SmartExitFeeResponse | null
+  feeInfo: SmartExitFee | null
   multiplier: number
   setMultiplier: (value: number) => void
   customGasUsd: string
@@ -40,7 +40,10 @@ export default function GasSetting({
         ) : (
           <Flex alignItems="center" onClick={() => setFeeSettingExpanded(e => !e)} style={{ cursor: 'default' }}>
             <Text color={isWarningGas ? rgba(theme.warning, 0.9) : theme.text}>
-              ${customGasUsd ? customGasUsd : (feeInfo.gas.usd * multiplier).toPrecision(2)}
+              $
+              {customGasUsd
+                ? customGasUsd
+                : formatDisplayNumber(feeInfo.gas.usd * multiplier, { significantDigits: 2 })}
             </Text>
             <DropdownIcon data-flip={feeSettingExpanded} data-highlight={isHighlightGas} data-warning={isWarningGas}>
               <svg width="10" height="6" viewBox="0 0 6 4" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -134,7 +137,7 @@ export default function GasSetting({
         </Flex>
         <Flex flexDirection="column" sx={{ gap: '4px' }}>
           <Text fontSize={12} color={theme.subText}>
-            {t`Current est. gas`} = ${(feeInfo?.gas.usd || 0).toPrecision(2)}
+            {t`Current est. gas`} = ${formatDisplayNumber(feeInfo?.gas.usd || 0, { significantDigits: 2 })}
           </Text>
           <Text fontSize={12} color={isWarningGas ? rgba(theme.warning, 0.9) : theme.subText}>
             <Trans>

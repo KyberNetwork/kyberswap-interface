@@ -14,10 +14,9 @@ import { PermitNftState, usePermitNft } from 'hooks/usePermitNft'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { Badge, ImageContainer } from 'pages/Earns/UserPositions/styles'
-import { Metric } from 'pages/Earns/components/SmartExit/Metrics'
 import { useSmartExit } from 'pages/Earns/components/SmartExit/useSmartExit'
 import { SMART_EXIT_ADDRESS } from 'pages/Earns/constants'
-import { ParsedPosition } from 'pages/Earns/types'
+import { ConditionType, Metric, ParsedPosition } from 'pages/Earns/types'
 
 export const Confirmation = ({
   selectedMetrics,
@@ -33,7 +32,7 @@ export const Confirmation = ({
   selectedMetrics: Metric[]
   pos: ParsedPosition
   onDismiss: () => void
-  conditionType: 'and' | 'or'
+  conditionType: ConditionType
   deadline: number
   feeYieldCondition: string
   priceCondition: { lte: string; gte: string }
@@ -166,7 +165,7 @@ export const Confirmation = ({
                   flex: 1,
                 }}
               />
-              {conditionType === 'and' ? <Trans>And</Trans> : <Trans>Or</Trans>}
+              {conditionType === ConditionType.And ? <Trans>And</Trans> : <Trans>Or</Trans>}
               <Box
                 sx={{
                   height: '1px',

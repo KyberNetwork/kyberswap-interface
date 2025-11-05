@@ -6,7 +6,6 @@ import { useNavigate } from 'react-router'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import {
-  SmartExitOrder,
   useCancelSmartExitOrderMutation,
   useGetSmartExitCancelSignMessageMutation,
   useGetSmartExitOrdersQuery,
@@ -26,10 +25,10 @@ import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { PoolPageWrapper, TableWrapper } from 'pages/Earns/PoolExplorer/styles'
 import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
 import Filter from 'pages/Earns/SmartExitOrders/Filter'
-import useSmartExitFilter, { OrderStatus } from 'pages/Earns/SmartExitOrders/useSmartExitFilter'
+import useSmartExitFilter from 'pages/Earns/SmartExitOrders/useSmartExitFilter'
 import { Badge, BadgeType, ImageContainer } from 'pages/Earns/UserPositions/styles'
 import { EarnChain, Exchange } from 'pages/Earns/constants'
-import { PositionStatus } from 'pages/Earns/types'
+import { OrderStatus, PositionStatus, SmartExitOrder } from 'pages/Earns/types'
 import { useNotify } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { enumToArrayOfValues } from 'utils'

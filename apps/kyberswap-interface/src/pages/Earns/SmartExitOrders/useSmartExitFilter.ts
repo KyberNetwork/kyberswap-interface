@@ -3,15 +3,6 @@ import { useSearchParams } from 'react-router-dom'
 
 import { SmartExitFilter } from 'pages/Earns/types'
 
-// import { Direction } from 'pages/MarketOverview/SortIcon'
-
-// export enum SortBy {
-//   VALUE = 'value',
-//   APR = 'apr',
-//   UNCLAIMED_FEE = 'unclaimed_fees',
-//   UNCLAIMED_REWARDS = 'unclaimed_rewards',
-// }
-
 export enum DexType {
   DexTypeUniswapV3 = 'DexTypeUniswapV3',
   DexTypeUniswapV4 = 'DexTypeUniswapV4',
@@ -19,13 +10,6 @@ export enum DexType {
   DexTypePancakeV3 = 'DexTypePancakeV3',
   DexTypePancakeInfinityCL = 'DexTypePancakeInfinityCL',
   DexTypePancakeInfinityCLFairFlow = 'DexTypePancakeInfinityCLFairFlow',
-}
-
-export enum OrderStatus {
-  OrderStatusOpen = 'OrderStatusOpen',
-  OrderStatusDone = 'OrderStatusDone',
-  OrderStatusCancelled = 'OrderStatusCancelled',
-  OrderStatusExpired = 'OrderStatusExpired',
 }
 
 export default function useSmartExitFilter() {

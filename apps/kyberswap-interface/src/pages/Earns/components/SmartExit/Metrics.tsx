@@ -13,15 +13,9 @@ import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import DateTimePicker from 'components/swapv2/LimitOrder/ExpirePicker'
 import { TIMES_IN_SECS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
-import { ParsedPosition } from 'pages/Earns/types'
+import { ConditionType, Metric, ParsedPosition } from 'pages/Earns/types'
 import { ButtonText } from 'theme'
 import { formatTimeDuration } from 'utils/time'
-
-export enum Metric {
-  FeeYield = 'fee_yield',
-  PoolPrice = 'pool_price',
-  Time = 'time',
-}
 
 const defaultOptions = [
   5 * TIMES_IN_SECS.ONE_MIN,
@@ -51,8 +45,8 @@ export const Metrics = ({
   position: ParsedPosition
   selectedMetrics: [Metric, Metric | null]
   setSelectedMetrics: (value: [Metric, Metric | null]) => void
-  conditionType: 'and' | 'or'
-  setConditionType: (v: 'and' | 'or') => void
+  conditionType: ConditionType
+  setConditionType: (v: ConditionType) => void
   expireTime: number
   setExpireTime: (v: number) => void
   feeYieldCondition: string
@@ -92,13 +86,13 @@ export const Metrics = ({
       {metric2 ? (
         <>
           <Flex justifyContent="space-between" alignItems="center">
-            <RadioGroup value={conditionType} onValueChange={v => setConditionType(v as 'and' | 'or')}>
+            <RadioGroup value={conditionType} onValueChange={v => setConditionType(v as ConditionType)}>
               <Flex sx={{ gap: '8px' }}>
-                <RadioGroupItem value={'and'} id="and" />
-                <Label htmlFor="and">And</Label>
+                <RadioGroupItem value={ConditionType.And} id={ConditionType.And} />
+                <Label htmlFor={ConditionType.And}>And</Label>
 
-                <RadioGroupItem value={'or'} id="or" style={{ marginLeft: '24px' }} />
-                <Label htmlFor="or">Or</Label>
+                <RadioGroupItem value={ConditionType.Or} id={ConditionType.Or} style={{ marginLeft: '24px' }} />
+                <Label htmlFor={ConditionType.Or}>Or</Label>
               </Flex>
             </RadioGroup>
             <ButtonText
