@@ -19,9 +19,11 @@ import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
+import { WidgetMode } from '@/types/index';
 
 const Header = () => {
-  const { theme, chainId, onClose, poolType, positionId } = useWidgetStore([
+  const { mode, theme, chainId, onClose, poolType, positionId } = useWidgetStore([
+    'mode',
     'theme',
     'chainId',
     'onClose',
@@ -33,6 +35,7 @@ const Header = () => {
 
   const { toggleSetting, uiState, loading: zapLoading, getZapRoute, zapRouteDisabled } = useZapState();
 
+  const isCreateMode = mode === WidgetMode.CREATE;
   const initializing = !pool;
   const poolAddress = initializing ? '' : pool.address;
 
@@ -76,7 +79,13 @@ const Header = () => {
           <Skeleton className="w-[300px] h-7" />
         ) : (
           <div className="flex items-center flex-wrap gap-[6px]">
-            {positionId ? <Trans>Increase Liquidity</Trans> : <Trans>Add Liquidity</Trans>}
+            {isCreateMode ? (
+              <Trans>Create New Pool</Trans>
+            ) : positionId ? (
+              <Trans>Increase Liquidity</Trans>
+            ) : (
+              <Trans>Add Liquidity</Trans>
+            )}
             <div className="flex items-center gap-1">
               <TokenSymbol symbol={token0.symbol} />
               <span>/</span>
@@ -167,13 +176,15 @@ const Header = () => {
                         <span>{isToken1Native ? <Trans>Native token</Trans> : shortenAddress(token1.address, 4)}</span>
                         {!isToken1Native && <span>{Token1Copy}</span>}
                       </div>
-                      <div className="flex items-center gap-1">
-                        <span>
-                          <Trans>Pool Address:</Trans>{' '}
-                        </span>
-                        <span>{shortenAddress(poolAddress, 4)}</span>
-                        <span>{PoolCopy}</span>
-                      </div>
+                      {!!poolAddress && (
+                        <div className="flex items-center gap-1">
+                          <span>
+                            <Trans>Pool Address:</Trans>{' '}
+                          </span>
+                          <span>{shortenAddress(poolAddress, 4)}</span>
+                          <span>{PoolCopy}</span>
+                        </div>
+                      )}
                     </div>
                   }
                 />
