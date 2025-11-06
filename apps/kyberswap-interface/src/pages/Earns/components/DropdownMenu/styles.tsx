@@ -42,10 +42,12 @@ export const DropdownTitle = styled.div<{ width?: number; justifyContent?: strin
   `}
 `
 
-export const DropdownIcon = styled(DropdownSVG)<{ flatten?: boolean; open: boolean }>`
+export const DropdownIcon = styled(DropdownSVG).withConfig({
+  shouldForwardProp: prop => !['flatten', 'open'].includes(prop),
+})<{ flatten?: boolean; open: boolean }>`
   transform: ${({ open }) => (open ? 'rotate(180deg)' : 'rotate(0deg)')};
   transition: transform 0.3s;
-  ${({ flatten }) => flatten && 'margin-inline: -6px;'}
+  ${({ flatten }) => flatten && 'margin-inline: -4px;'}
 `
 
 export const ItemIcon = styled.img`
@@ -83,6 +85,11 @@ export const DropdownContentItem = styled.div`
 
   &:hover {
     background: ${({ theme }) => theme.tableHeader};
+  }
+
+  &.selected {
+    background: ${({ theme }) => rgba(theme.primary, 0.2)};
+    color: ${({ theme }) => theme.primary};
   }
 `
 
