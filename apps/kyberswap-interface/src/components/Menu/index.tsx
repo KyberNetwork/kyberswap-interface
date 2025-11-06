@@ -549,6 +549,7 @@ export default function Menu() {
               <MailIcon size={17} color={theme.text} />
             </NavLinkBetween>
             <NavLinkBetween
+              style={{ display: 'none' }} // TODO: Enable later
               onClick={() => {
                 setIsSelectingLanguage(true)
                 handlePreferenceClickMixpanel('Language')
