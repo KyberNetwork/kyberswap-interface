@@ -151,6 +151,7 @@ export const usePermitNft = ({ contractAddress, tokenId, spender, deadline, vers
         // V3 domain structure (simpler than V4)
         const domain = {
           name: contractName,
+          version: '1',
           chainId,
           verifyingContract: contractAddress,
         }
@@ -175,6 +176,7 @@ export const usePermitNft = ({ contractAddress, tokenId, spender, deadline, vers
           types: {
             EIP712Domain: [
               { name: 'name', type: 'string' },
+              { name: 'version', type: 'string' },
               { name: 'chainId', type: 'uint256' },
               { name: 'verifyingContract', type: 'address' },
             ],
