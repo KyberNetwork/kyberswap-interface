@@ -99,7 +99,7 @@ export const usePermitNft = ({ contractAddress, tokenId, spender, deadline, vers
     if (actualVersion === 'v3') {
       // Use ordered nonce from positions function
       if (positionsState?.result?.[0] !== undefined) {
-        return BigNumber.from(positionsState.result[0]).add(1) // Next nonce is current + 1
+        return BigNumber.from(positionsState.result[0])
       }
     } else if (actualVersion === 'v4') return BigNumber.from(Math.floor(Date.now() / 1000))
 
