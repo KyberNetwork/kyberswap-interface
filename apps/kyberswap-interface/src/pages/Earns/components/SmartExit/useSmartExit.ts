@@ -11,18 +11,24 @@ import { SMART_EXIT_API_URL } from 'constants/env'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { DexType } from 'pages/Earns/SmartExitOrders/useSmartExitFilter'
 import { Exchange } from 'pages/Earns/constants'
-import { ConditionType, Metric, ParsedPosition, SmartExitFee } from 'pages/Earns/types'
+import {
+  ConditionType,
+  FeeYieldCondition,
+  Metric,
+  ParsedPosition,
+  PriceCondition,
+  SelectedMetric,
+  SmartExitFee,
+  TimeCondition,
+} from 'pages/Earns/types'
 import { useNotify } from 'state/application/hooks'
 import { friendlyError } from 'utils/errorMessage'
 import { getReadingContractWithCustomChain } from 'utils/getContract'
 
 export interface UseSmartExitParams {
   position: ParsedPosition
-  selectedMetrics: Metric[]
+  selectedMetrics: SelectedMetric[]
   conditionType: ConditionType
-  feeYieldCondition: string
-  priceCondition: { gte: string; lte: string }
-  timeCondition: { time: number | null; condition: 'after' | 'before' }
   deadline: number
   permitData?: string
   signature?: string
@@ -54,9 +60,6 @@ export const useSmartExit = ({
   position,
   selectedMetrics,
   conditionType,
-  feeYieldCondition,
-  priceCondition,
-  timeCondition,
   deadline,
   permitData,
   signature,
@@ -87,7 +90,11 @@ export const useSmartExit = ({
 
     // Add selected metric conditions
     selectedMetrics.forEach(metric => {
-      switch (metric) {
+      const feeYieldCondition = metric.condition as FeeYieldCondition
+      const priceCondition = metric.condition as PriceCondition
+      const timeCondition = metric.condition as TimeCondition
+
+      switch (metric.metric) {
         case Metric.FeeYield:
           if (feeYieldCondition) {
             conditions.push({
@@ -148,7 +155,7 @@ export const useSmartExit = ({
         conditions,
       },
     }
-  }, [selectedMetrics, conditionType, feeYieldCondition, priceCondition, timeCondition])
+  }, [selectedMetrics, conditionType])
 
   const createSmartExitOrder = useCallback(
     async (opts: { maxFeesPercentage: number[] }): Promise<boolean> => {

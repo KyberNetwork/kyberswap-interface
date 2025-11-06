@@ -55,3 +55,20 @@ export interface SmartExitOrder {
   updatedAt: number
   deadline: number
 }
+
+export interface SelectedMetric {
+  metric: Metric
+  condition: FeeYieldCondition | PriceCondition | TimeCondition
+}
+
+export type FeeYieldCondition = string
+
+export interface PriceCondition {
+  gte: string
+  lte: string
+}
+
+export interface TimeCondition {
+  time: number | null
+  condition: 'after' | 'before'
+}

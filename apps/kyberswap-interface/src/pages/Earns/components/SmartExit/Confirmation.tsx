@@ -16,58 +16,62 @@ import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { Badge, ImageContainer } from 'pages/Earns/UserPositions/styles'
 import { useSmartExit } from 'pages/Earns/components/SmartExit/useSmartExit'
 import { SMART_EXIT_ADDRESS } from 'pages/Earns/constants'
-import { ConditionType, Metric, ParsedPosition } from 'pages/Earns/types'
+import {
+  ConditionType,
+  FeeYieldCondition,
+  Metric,
+  ParsedPosition,
+  PriceCondition,
+  SelectedMetric,
+  TimeCondition,
+} from 'pages/Earns/types'
 
 export const Confirmation = ({
   selectedMetrics,
-  pos,
-  onDismiss,
-  feeYieldCondition,
-  priceCondition,
-  timeCondition,
+  position,
   deadline,
   conditionType,
   feeSettings: { protocolFee, maxFeesPercentage },
+  onDismiss,
 }: {
-  selectedMetrics: Metric[]
-  pos: ParsedPosition
-  onDismiss: () => void
+  selectedMetrics: SelectedMetric[]
+  position: ParsedPosition
   conditionType: ConditionType
   deadline: number
-  feeYieldCondition: string
-  priceCondition: { lte: string; gte: string }
-  timeCondition: { time: number | null; condition: 'after' | 'before' }
   feeSettings: { protocolFee: number; maxFeesPercentage: number }
+  onDismiss: () => void
 }) => {
   const theme = useTheme()
-
+  const navigate = useNavigate()
   const { chainId } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
 
   const { permitState, signPermitNft, permitData } = usePermitNft({
-    contractAddress: pos.id.split('-')[0],
-    tokenId: pos.tokenId,
+    contractAddress: position.id.split('-')[0],
+    tokenId: position.tokenId,
     spender: SMART_EXIT_ADDRESS,
     deadline,
   })
 
   const { createSmartExitOrder, isCreating, isSuccess } = useSmartExit({
-    position: pos,
+    position,
     selectedMetrics,
     conditionType,
-    feeYieldCondition,
-    priceCondition,
-    timeCondition,
     deadline,
     permitData: permitData?.permitData,
     signature: permitData?.signature,
   })
 
+  const [metric1, metric2] = selectedMetrics
+
+  const feeYieldCondition1 = metric1.condition as FeeYieldCondition
+  const priceCondition1 = metric1.condition as PriceCondition
+  const timeCondition1 = metric1.condition as TimeCondition
+  const feeYieldCondition2 = metric2?.condition as FeeYieldCondition
+  const priceCondition2 = metric2?.condition as PriceCondition
+  const timeCondition2 = metric2?.condition as TimeCondition
+
   const displayTime = dayjs(deadline * 1000).format('DD/MM/YYYY HH:mm:ss')
-
-  const [condition0, condition1] = selectedMetrics
-
-  const navigate = useNavigate()
 
   if (isSuccess)
     return (
@@ -118,14 +122,14 @@ export const Confirmation = ({
         <Trans>Exit</Trans>
         <Flex mx="12px" alignItems="center">
           <ImageContainer>
-            <TokenLogo src={pos?.token0.logo} />
-            <TokenLogo src={pos?.token1.logo} translateLeft />
-            <TokenLogo src={pos.chain.logo} size={12} translateLeft translateTop />
+            <TokenLogo src={position?.token0.logo} />
+            <TokenLogo src={position?.token1.logo} translateLeft />
+            <TokenLogo src={position.chain.logo} size={12} translateLeft translateTop />
           </ImageContainer>
           <Text mr="8px">
-            {pos.token0.symbol}/{pos.token1.symbol}
+            {position.token0.symbol}/{position.token1.symbol}
           </Text>
-          <Badge>Fee {pos?.pool.fee}%</Badge>
+          <Badge>Fee {position?.pool.fee}%</Badge>
         </Flex>
         <Trans>When</Trans>
       </Flex>
@@ -138,24 +142,24 @@ export const Confirmation = ({
           marginTop: '1rem',
         }}
       >
-        {condition0 === Metric.FeeYield && <Trans>The fee yield ≥ {feeYieldCondition}%</Trans>}
-        {condition0 === Metric.Time && (
+        {metric1.metric === Metric.FeeYield && <Trans>The fee yield ≥ {feeYieldCondition1}%</Trans>}
+        {metric1.metric === Metric.Time && (
           <>
-            <Text>{timeCondition.condition.charAt(0).toUpperCase() + timeCondition.condition.slice(1)}</Text>
-            <Text>{dayjs(timeCondition.time).format('DD/MM/YYYY HH:mm:ss')}</Text>
+            <Text>{timeCondition1.condition.charAt(0).toUpperCase() + timeCondition1.condition.slice(1)}</Text>
+            <Text>{dayjs(timeCondition1.time).format('DD/MM/YYYY HH:mm:ss')}</Text>
           </>
         )}
-        {condition0 === Metric.PoolPrice && (
+        {metric1.metric === Metric.PoolPrice && (
           <>
             <Text>
               <Trans>Pool price is between</Trans>
             </Text>
             <Text>
-              {priceCondition.gte} and {priceCondition.lte} {pos.token0.symbol}/{pos.token1.symbol}
+              {priceCondition1.gte} and {priceCondition1.lte} {position.token0.symbol}/{position.token1.symbol}
             </Text>
           </>
         )}
-        {condition1 && (
+        {metric2 && (
           <>
             <Flex alignItems="center" sx={{ gap: '1rem' }} my="8px">
               <Box
@@ -175,20 +179,20 @@ export const Confirmation = ({
               />
             </Flex>
 
-            {condition1 === Metric.FeeYield && <Trans>The fee yield ≥ {feeYieldCondition}%</Trans>}
-            {condition1 === Metric.Time && (
+            {metric2.metric === Metric.FeeYield && <Trans>The fee yield ≥ {feeYieldCondition2}%</Trans>}
+            {metric2.metric === Metric.Time && (
               <>
-                <Text>{timeCondition.condition.charAt(0).toUpperCase() + timeCondition.condition.slice(1)}</Text>
-                <Text mt="6px">{dayjs(timeCondition.time).format('DD/MM/YYYY HH:mm:ss')}</Text>
+                <Text>{timeCondition2.condition.charAt(0).toUpperCase() + timeCondition2.condition.slice(1)}</Text>
+                <Text mt="6px">{dayjs(timeCondition2.time).format('DD/MM/YYYY HH:mm:ss')}</Text>
               </>
             )}
-            {condition1 === Metric.PoolPrice && (
+            {metric2.metric === Metric.PoolPrice && (
               <>
                 <Text>
                   <Trans>Pool price is between</Trans>
                 </Text>
                 <Text mt="6px">
-                  {priceCondition.gte} and {priceCondition.lte} {pos.token0.symbol}/{pos.token1.symbol}
+                  {priceCondition2.gte} and {priceCondition2.lte} {position.token0.symbol}/{position.token1.symbol}
                 </Text>
               </>
             )}
@@ -238,8 +242,8 @@ export const Confirmation = ({
         disabled={permitState === PermitNftState.SIGNING || isCreating || !maxFeesPercentage}
         onClick={async () => {
           if (!maxFeesPercentage) return
-          if (chainId !== pos.chain.id) {
-            changeNetwork(pos.chain.id)
+          if (chainId !== position.chain.id) {
+            changeNetwork(position.chain.id)
             return
           }
 
@@ -253,7 +257,7 @@ export const Confirmation = ({
           }
         }}
       >
-        {chainId !== pos.chain.id ? (
+        {chainId !== position.chain.id ? (
           <Trans>Switch Network</Trans>
         ) : isCreating ? (
           <Trans>Creating Order...</Trans>

@@ -9,16 +9,29 @@ import { TIMES_IN_SECS } from 'constants/index'
 import PositionDetailHeader from 'pages/Earns/PositionDetail/Header'
 import Actions from 'pages/Earns/components/SmartExit/Actions'
 import { Confirmation } from 'pages/Earns/components/SmartExit/Confirmation'
+import ExpireSetting from 'pages/Earns/components/SmartExit/ExpireSetting'
 import GasSetting from 'pages/Earns/components/SmartExit/GasSetting'
 import { Metrics } from 'pages/Earns/components/SmartExit/Metrics'
 import PoolPrice from 'pages/Earns/components/SmartExit/PoolPrice'
 import PositionLiquidity from 'pages/Earns/components/SmartExit/PositionLiquidity'
 import { ContentWrapper } from 'pages/Earns/components/SmartExit/styles'
 import { useSmartExit } from 'pages/Earns/components/SmartExit/useSmartExit'
-import { ConditionType, Metric, ParsedPosition, SmartExitFee } from 'pages/Earns/types'
+import { defaultFeeYieldCondition } from 'pages/Earns/components/SmartExit/utils'
+import {
+  ConditionType,
+  FeeYieldCondition,
+  Metric,
+  ParsedPosition,
+  PriceCondition,
+  SelectedMetric,
+  SmartExitFee,
+  TimeCondition,
+} from 'pages/Earns/types'
 
 export const SmartExit = ({ position, onDismiss }: { position: ParsedPosition; onDismiss: () => void }) => {
-  const [selectedMetrics, setSelectedMetrics] = useState<[Metric, Metric | null]>([Metric.FeeYield, null])
+  const [selectedMetrics, setSelectedMetrics] = useState<SelectedMetric[]>([
+    { metric: Metric.FeeYield, condition: defaultFeeYieldCondition },
+  ])
   const [conditionType, setConditionType] = useState<ConditionType>(ConditionType.And)
 
   const [expireTime, setExpireTime] = useState(TIMES_IN_SECS.ONE_DAY * 30)
@@ -34,18 +47,26 @@ export const SmartExit = ({ position, onDismiss }: { position: ParsedPosition; o
     return Math.floor(time / 1000)
   }, [expireTime])
 
-  const [feeYieldCondition, setFeeYieldCondition] = useState('')
-  const [priceCondition, setPriceCondition] = useState<{ gte: string; lte: string }>({ lte: '', gte: '' })
-  const [timeCondition, setTimeCondition] = useState<{ time: number | null; condition: 'after' | 'before' }>({
-    time: null,
-    condition: 'after',
-  })
+  const invalidYieldCondition = useMemo(() => {
+    const feeYieldMetric = selectedMetrics.find(metric => metric.metric === Metric.FeeYield)
+    const feeYieldCondition = feeYieldMetric?.condition as FeeYieldCondition
+    return feeYieldMetric && !feeYieldCondition
+  }, [selectedMetrics])
 
-  const invalidYield = selectedMetrics.includes(Metric.FeeYield) && !feeYieldCondition
-  const invalidPriceCondition =
-    selectedMetrics.includes(Metric.PoolPrice) &&
-    (!priceCondition.gte || !priceCondition.lte || Number(priceCondition.gte) > Number(priceCondition.lte))
-  const invalidTime = selectedMetrics.includes(Metric.Time) && !timeCondition.time
+  const invalidPriceCondition = useMemo(() => {
+    const priceMetric = selectedMetrics.find(metric => metric.metric === Metric.PoolPrice)
+    const priceCondition = priceMetric?.condition as PriceCondition
+    return (
+      priceMetric &&
+      (!priceCondition.gte || !priceCondition.lte || Number(priceCondition.gte) > Number(priceCondition.lte))
+    )
+  }, [selectedMetrics])
+
+  const invalidTimeCondition = useMemo(() => {
+    const timeMetric = selectedMetrics.find(metric => metric.metric === Metric.Time)
+    const timeCondition = timeMetric?.condition as TimeCondition
+    return timeMetric && !timeCondition.time
+  }, [selectedMetrics])
 
   const [showConfirm, setShowConfirm] = useState(false)
 
@@ -58,19 +79,16 @@ export const SmartExit = ({ position, onDismiss }: { position: ParsedPosition; o
 
   const { estimateFee } = useSmartExit({
     position,
-    selectedMetrics: selectedMetrics.filter(Boolean) as Metric[],
+    selectedMetrics,
     conditionType,
-    feeYieldCondition,
-    priceCondition,
-    timeCondition,
     deadline,
   })
 
-  const disabled = invalidYield || invalidPriceCondition || invalidTime || !feeInfo
+  const disabled = invalidYieldCondition || invalidPriceCondition || invalidTimeCondition || !feeInfo
 
   // Auto-estimate when metrics are valid
   useEffect(() => {
-    if (invalidYield || invalidPriceCondition || invalidTime) return
+    if (invalidYieldCondition || invalidPriceCondition || invalidTimeCondition) return
 
     const call = async () => {
       if (feeLoading || feeInfo) return
@@ -86,7 +104,6 @@ export const SmartExit = ({ position, onDismiss }: { position: ParsedPosition; o
     }
 
     call()
-
     intervalRef.current = window.setInterval(call, 15000)
 
     return () => {
@@ -96,21 +113,18 @@ export const SmartExit = ({ position, onDismiss }: { position: ParsedPosition; o
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [invalidYield || invalidPriceCondition || invalidTime])
+  }, [invalidYieldCondition || invalidPriceCondition || invalidTimeCondition])
 
   return (
     <Modal isOpen mobileFullWidth onDismiss={onDismiss} width="100vw" maxWidth={showConfirm ? 450 : 800}>
       <Flex width="100%" flexDirection="column" padding="20px">
         {showConfirm ? (
           <Confirmation
-            selectedMetrics={selectedMetrics.filter(Boolean) as Metric[]}
-            timeCondition={timeCondition}
-            priceCondition={priceCondition}
-            feeYieldCondition={feeYieldCondition}
-            onDismiss={() => setShowConfirm(false)}
+            selectedMetrics={selectedMetrics}
             conditionType={conditionType}
             deadline={deadline}
-            pos={position}
+            position={position}
+            onDismiss={() => setShowConfirm(false)}
             feeSettings={{
               protocolFee: feeInfo?.protocol.percentage || 0,
               maxFeesPercentage:
@@ -150,15 +164,9 @@ export const SmartExit = ({ position, onDismiss }: { position: ParsedPosition; o
                   setSelectedMetrics={setSelectedMetrics}
                   conditionType={conditionType}
                   setConditionType={setConditionType}
-                  expireTime={expireTime}
-                  setExpireTime={setExpireTime}
-                  feeYieldCondition={feeYieldCondition}
-                  setFeeYieldCondition={setFeeYieldCondition}
-                  priceCondition={priceCondition}
-                  setPriceCondition={setPriceCondition}
-                  timeCondition={timeCondition}
-                  setTimeCondition={setTimeCondition}
                 />
+                <Divider my="1rem" />
+                <ExpireSetting expireTime={expireTime} setExpireTime={setExpireTime} />
                 <Divider my="1rem" />
                 <GasSetting
                   feeInfo={feeInfo}
