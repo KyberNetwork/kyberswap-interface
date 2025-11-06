@@ -8,6 +8,7 @@ import { usePoolsExplorerQuery } from 'services/zapEarn'
 import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_earn_position.svg'
 import { NotificationType } from 'components/Announcement/type'
 import Pagination from 'components/Pagination'
+import CreatePositionModal from 'components/ZapCreatePool/CreatePositionModal'
 import { BFF_API } from 'constants/env'
 import { APP_PATHS } from 'constants/index'
 import useDebounce from 'hooks/useDebounce'
@@ -25,6 +26,7 @@ import {
 import useFilter from 'pages/Earns/PoolExplorer/useFilter'
 import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
 import { Exchange } from 'pages/Earns/constants'
+import useZapCreatePoolWidget from 'pages/Earns/hooks/useZapCreatePoolWidget'
 import useZapInWidget, { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import { Direction } from 'pages/MarketOverview/SortIcon'
@@ -55,7 +57,9 @@ const PoolExplorer = () => {
     triggerClose,
     setTriggerClose,
   })
+  const { widget: zapCreatePoolWidget, open: openZapCreatePoolWidget } = useZapCreatePoolWidget()
   const { data: poolData, isError } = usePoolsExplorerQuery(filters, { pollingInterval: POLLING_INTERVAL })
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
 
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
 
@@ -166,6 +170,7 @@ const PoolExplorer = () => {
     <PoolPageWrapper>
       {zapInWidget}
       {zapMigrationWidget}
+      {zapCreatePoolWidget}
 
       <div>
         <Flex alignItems="center" sx={{ gap: 3 }}>
@@ -179,7 +184,13 @@ const PoolExplorer = () => {
         </Text>
       </div>
 
-      <Filter filters={filters} updateFilters={updateFilters} search={search} setSearch={setSearch} />
+      <Filter
+        filters={filters}
+        updateFilters={updateFilters}
+        search={search}
+        setSearch={setSearch}
+        onOpenCreatePool={() => setIsCreateModalOpen(true)}
+      />
 
       {upToLarge && (
         <NavigateButton
@@ -204,6 +215,12 @@ const PoolExplorer = () => {
           />
         )}
       </TableWrapper>
+
+      <CreatePositionModal
+        isOpen={isCreateModalOpen}
+        onDismiss={() => setIsCreateModalOpen(false)}
+        onSubmit={openZapCreatePoolWidget}
+      />
 
       <Disclaimer>{t`KyberSwap provides tools for tracking & adding liquidity to third-party Protocols. For any pool-related concerns, please contact the respective Liquidity Protocol directly.`}</Disclaimer>
     </PoolPageWrapper>

@@ -12,13 +12,15 @@ import {
   defaultToken,
 } from '@kyber/schema';
 
-import { WidgetProps } from '@/types/index';
+import { CreatePoolConfig, WidgetMode, WidgetProps } from '@/types/index';
 
 interface WidgetState extends WidgetProps {
   theme: Theme;
   nativeToken: Token;
   wrappedNativeToken: Token;
   rpcUrl: string;
+  mode: WidgetMode;
+  createPoolConfig?: CreatePoolConfig;
   reset: () => void;
   setPositionId: (positionId: string) => void;
   setInitiaWidgetState: (props: WidgetProps, resetStore: () => void) => void;
@@ -31,6 +33,8 @@ const initState = {
   poolAddress: '',
   positionId: undefined,
   poolType: PoolType.DEX_UNISWAPV3,
+  mode: WidgetMode.EXISTING,
+  createPoolConfig: undefined,
   connectedAccount: {
     address: '',
     chainId: ChainId.Ethereum,
