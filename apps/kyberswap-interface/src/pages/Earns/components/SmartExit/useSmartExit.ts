@@ -301,7 +301,6 @@ export const useSmartExit = ({
       const res = await positionContract.getPositionLiquidity(position.tokenId)
       liquidity = res.toString()
     }
-    console.log('liquidity', liquidity)
 
     if (!liquidity) return null
 

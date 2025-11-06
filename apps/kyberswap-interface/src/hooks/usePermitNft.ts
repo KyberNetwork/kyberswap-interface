@@ -94,31 +94,17 @@ export const usePermitNft = ({ contractAddress, tokenId, spender, deadline, vers
     return PermitNftState.READY_TO_SIGN
   }, [account, contractAddress, tokenId, spender, isSigningInProgress, permitData])
 
-  const findFreeNonce = useCallback((bitmap: BigNumber, word = 0): BigNumber => {
-    // Find a free bit in the bitmap (unordered nonce)
-    for (let i = 0; i < 256; i++) {
-      if (bitmap.shr(i).and(1).isZero()) {
-        return BigNumber.from(word).shl(8).add(i)
-      }
-    }
-    throw new Error('No free nonce in word 0; pick a different word.')
-  }, [])
-
   // Get nonce based on version
   const getNonce = useCallback((): BigNumber | null => {
     if (actualVersion === 'v3') {
       // Use ordered nonce from positions function
       if (positionsState?.result?.[0] !== undefined) {
-        return BigNumber.from(positionsState.result[0]).add(1) // Next nonce is current + 1
+        return BigNumber.from(positionsState.result[0]) // Next nonce is current + 1
       }
-    } else {
-      // Use unordered nonce from bitmap (V4)
-      if (noncesState?.result?.[0]) {
-        return findFreeNonce(noncesState.result[0], 0)
-      }
-    }
+    } else if (actualVersion === 'v4') return BigNumber.from(Math.floor(Date.now() / 1000))
+
     return null
-  }, [actualVersion, positionsState?.result, noncesState?.result, findFreeNonce])
+  }, [actualVersion, positionsState?.result])
 
   const signPermitNft = useCallback(async (): Promise<PermitNftResult | null> => {
     if (!library || !account || !chainId || !nameState?.result?.[0]) {
@@ -147,7 +133,7 @@ export const usePermitNft = ({ contractAddress, tokenId, spender, deadline, vers
     setIsSigningInProgress(true)
 
     try {
-      const nonce = actualVersion === 'v3' ? getNonce() : BigNumber.from(Date.now())
+      const nonce = getNonce()
 
       if (!nonce) {
         throw new Error(`Failed to get nonce for ${actualVersion}`)
