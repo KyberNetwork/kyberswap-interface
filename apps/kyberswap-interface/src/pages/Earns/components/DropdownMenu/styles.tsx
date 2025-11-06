@@ -84,6 +84,11 @@ export const DropdownContentItem = styled.div`
   &:hover {
     background: ${({ theme }) => theme.tableHeader};
   }
+
+  &.selected {
+    background: ${({ theme }) => rgba(theme.primary, 0.2)};
+    color: ${({ theme }) => theme.primary};
+  }
 `
 
 export const MultiSelectDropdownContentItem = styled(DropdownContentItem)`

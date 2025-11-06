@@ -1,8 +1,67 @@
 import { create } from 'zustand';
 import { useShallow } from 'zustand/shallow';
 
-import { Pool, PoolType } from '@kyber/schema';
+import { POOL_CATEGORY, Pool, PoolType } from '@kyber/schema';
 import { POOL_ERROR, getPoolInfo, getPoolPrice } from '@kyber/utils';
+import { MAX_TICK, MIN_TICK, nearestUsableTick } from '@kyber/utils/uniswapv3';
+
+import { CreatePoolConfig } from '@/types/index';
+
+const DEFAULT_TICK_SPACING_BY_FEE: Record<number, number> = {
+  0.005: 1,
+  0.01: 1,
+  0.05: 10,
+  0.1: 20,
+  0.3: 60,
+  0.5: 100,
+  1: 200,
+  3: 600,
+};
+
+const getDefaultTickSpacing = (fee: number) => {
+  const spacing = DEFAULT_TICK_SPACING_BY_FEE[fee];
+  if (spacing) return spacing;
+  if (fee <= 0.01) return 1;
+  if (fee <= 0.05) return 10;
+  if (fee <= 0.3) return 60;
+  if (fee <= 1) return 200;
+  return 600;
+};
+
+const DEFAULT_SQRT_RATIO_X96 = (1n << 96n).toString();
+
+const buildSyntheticPool = (config: CreatePoolConfig, poolType: PoolType): Pool => {
+  const tickSpacing = getDefaultTickSpacing(config.fee);
+  return {
+    address: '',
+    poolType: poolType as PoolType.DEX_UNISWAP_V4_FAIRFLOW,
+    token0: config.token0,
+    token1: config.token1,
+    fee: config.fee,
+    tick: 0,
+    liquidity: '0',
+    sqrtPriceX96: DEFAULT_SQRT_RATIO_X96,
+    tickSpacing,
+    ticks: [],
+    minTick: nearestUsableTick(MIN_TICK, tickSpacing),
+    maxTick: nearestUsableTick(MAX_TICK, tickSpacing),
+    category: POOL_CATEGORY.COMMON_PAIR,
+    stats: {
+      tvl: 0,
+      volume24h: 0,
+      fees24h: 0,
+      apr: 0,
+      apr24h: 0,
+      apr30d: 0,
+      kemLMApr24h: 0,
+      kemLMApr30d: 0,
+      kemEGApr24h: 0,
+      kemEGApr30d: 0,
+    },
+    isFarming: false,
+    isFarmingLm: false,
+  };
+};
 
 interface PoolState {
   poolLoading: boolean;
@@ -10,12 +69,14 @@ interface PoolState {
   pool: Pool | null;
   poolPrice: number | null;
   revertPrice: boolean;
+  setPoolPrice: (price: number | null) => void;
   toggleRevertPrice: () => void;
   getPool: (props: getPoolProps) => void;
+  setCreatePool: (config: CreatePoolConfig, poolType: PoolType) => void;
   reset: () => void;
 }
 
-const initState: Omit<PoolState, 'getPool' | 'toggleRevertPrice' | 'reset'> = {
+const initState: Omit<PoolState, 'getPool' | 'setCreatePool' | 'toggleRevertPrice' | 'reset' | 'setPoolPrice'> = {
   poolLoading: false,
   pool: null,
   poolError: '',
@@ -49,6 +110,13 @@ const usePoolRawStore = create<PoolState>((set, get) => ({
     }
 
     set({ poolLoading: false });
+  },
+  setCreatePool: (config: CreatePoolConfig, poolType: PoolType) => {
+    const syntheticPool = buildSyntheticPool(config, poolType);
+    set({ pool: syntheticPool, poolError: '', poolLoading: false, poolPrice: null });
+  },
+  setPoolPrice: (price: number | null) => {
+    set({ poolPrice: price });
   },
   toggleRevertPrice: () => {
     set(state => ({ revertPrice: !state.revertPrice }));
