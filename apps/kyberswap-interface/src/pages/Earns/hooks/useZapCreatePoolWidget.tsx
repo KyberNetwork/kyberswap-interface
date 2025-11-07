@@ -121,7 +121,7 @@ const useZapCreatePoolWidget = () => {
 
       const existingPoolAddress = await fetchExistingPoolAddress(newConfig)
       if (existingPoolAddress) {
-        mode = WidgetMode.EXISTING
+        mode = WidgetMode.IN
         poolAddress = existingPoolAddress
       }
       setConfig({
