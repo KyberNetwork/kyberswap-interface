@@ -4,7 +4,6 @@ import type { MessageDescriptor } from '@lingui/core';
 import { msg, t } from '@lingui/macro';
 
 import { DEXES_INFO, univ2Types, univ4Types } from '@kyber/schema';
-import { translateFriendlyErrorMessage } from '@kyber/ui';
 import { PI_LEVEL, friendlyError } from '@kyber/utils';
 import { estimateGasForTx } from '@kyber/utils/crypto/transaction';
 

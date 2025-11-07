@@ -1,3 +1,5 @@
+import * as appEnUSCatalog from '@/locales/en-US.po'
+import * as appZhCNCatalog from '@/locales/zh-CN.po'
 import * as uiEnUSCatalog from '@kyber/ui/locales/en-US.mjs'
 import * as uiZhCNCatalog from '@kyber/ui/locales/zh-CN.mjs'
 import { i18n } from '@lingui/core'
@@ -6,9 +8,6 @@ import { ReactNode, useEffect, useState } from 'react'
 
 import { SupportedLocale } from 'constants/locales'
 import { useActiveLocale, useSetLocaleFromUrl } from 'hooks/useActiveLocale'
-
-import * as appEnUSCatalog from './locales/en-US.po'
-import * as appZhCNCatalog from './locales/zh-CN.po'
 
 type CatalogModule = { messages?: Record<string, string>; default?: { messages?: Record<string, string> } }
 

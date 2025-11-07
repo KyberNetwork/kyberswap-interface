@@ -4,7 +4,7 @@ import { Trans, t } from '@lingui/macro';
 
 import { usePositionOwner } from '@kyber/hooks';
 import { DEXES_INFO, FARMING_CONTRACTS } from '@kyber/schema';
-import { InfoHelper, Loading, translateFriendlyErrorMessage } from '@kyber/ui';
+import { InfoHelper, Loading } from '@kyber/ui';
 import { PI_LEVEL, friendlyError } from '@kyber/utils';
 import { estimateGasForTx } from '@kyber/utils/crypto/transaction';
 import { cn } from '@kyber/utils/tailwind-helpers';

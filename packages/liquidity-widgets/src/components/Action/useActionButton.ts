@@ -5,7 +5,7 @@ import { t } from '@lingui/macro';
 import { usePositionOwner } from '@kyber/hooks';
 import { APPROVAL_STATE, useErc20Approvals } from '@kyber/hooks';
 import { API_URLS, CHAIN_ID_TO_CHAIN, univ3PoolNormalize, univ4Types } from '@kyber/schema';
-import { translateFriendlyErrorMessage, translateZapImpact } from '@kyber/ui';
+import { translateZapImpact } from '@kyber/ui';
 import { PI_LEVEL, friendlyError } from '@kyber/utils';
 import { parseUnits } from '@kyber/utils/crypto';
 

@@ -6,9 +6,8 @@ import * as uiEnUSCatalog from '@kyber/ui/locales/en-US.mjs';
 import * as uiZhCNCatalog from '@kyber/ui/locales/zh-CN.mjs';
 
 import { i18n } from '@/lingui';
-
-import * as widgetEnUSCatalog from './locales/en-US.mjs';
-import * as widgetZhCNCatalog from './locales/zh-CN.mjs';
+import * as widgetEnUSCatalog from '@/locales/en-US.mjs';
+import * as widgetZhCNCatalog from '@/locales/zh-CN.mjs';
 
 const catalogs = {
   'en-US': { ui: uiEnUSCatalog, widget: widgetEnUSCatalog },
