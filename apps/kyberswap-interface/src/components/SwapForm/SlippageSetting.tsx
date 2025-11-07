@@ -1,6 +1,7 @@
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
-import { ReactNode, useMemo, useState } from 'react'
+import { ReactNode, useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled, { keyframes } from 'styled-components'
 
@@ -21,7 +22,7 @@ const highlight = keyframes`
   }
 
   70% {
-    box-shadow: 0 0 0 3px #31CB9E66; 
+    box-shadow: 0 0 0 3px #31CB9E66;
   }
 
   100% {
@@ -65,14 +66,18 @@ type Props = {
 }
 const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
   const theme = useTheme()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [expanded, setExpanded] = useState(false)
+  const [isHighlight, setIsHighlight] = useState(false)
+  const [triedSimulatedSlippage, setTriedSimulatedSlippage] = useState(false)
   const [isDegenMode] = useDegenModeManager()
 
   const { rawSlippage, setRawSlippage, isSlippageControlPinned } = useSlippageSettingByPage()
 
-  const pairCategory = usePairCategory()
   const defaultSlippage = useDefaultSlippageByPair()
   const defaultSlp = slippageInfo ? slippageInfo.default : defaultSlippage
+
+  const pairCategory = usePairCategory()
   const slippageStatus = slippageInfo
     ? slippageInfo.isHigh
       ? SLIPPAGE_STATUS.HIGH
@@ -84,7 +89,7 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
     ? slippageInfo.isHigh || slippageInfo.isLow
     : slippageStatus !== SLIPPAGE_STATUS.NORMAL
 
-  const msg = slippageInfo ? slippageInfo.message : SLIPPAGE_WARNING_MESSAGES[slippageStatus]?.[pairCategory] || ''
+  const msg = slippageInfo?.message ?? (SLIPPAGE_WARNING_MESSAGES[slippageStatus]?.[pairCategory] || '')
 
   const options = useMemo(
     () =>
@@ -95,6 +100,20 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
         : DEFAULT_SLIPPAGES,
     [pairCategory, slippageInfo],
   )
+
+  const actionFromUrl = searchParams.get('action')
+  useEffect(() => {
+    if (actionFromUrl === 'open-slippage-panel') {
+      setExpanded(true)
+      setTriedSimulatedSlippage(true)
+      searchParams.delete('action')
+      setSearchParams(searchParams)
+      setIsHighlight(true)
+      setTimeout(() => {
+        setIsHighlight(false)
+      }, 4000)
+    }
+  }, [actionFromUrl, searchParams, setSearchParams])
 
   if (!isSlippageControlPinned) {
     return null
@@ -168,7 +187,7 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
               }}
             >
               {msg ? (
-                <MouseoverTooltip text={slippageInfo ? msg : `Your slippage ${msg}`}>
+                <MouseoverTooltip text={slippageInfo ? msg : t`Your slippage ${msg}`}>
                   {formatSlippage(rawSlippage)}
                 </MouseoverTooltip>
               ) : (
@@ -193,12 +212,13 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
           transition: 'all 100ms linear',
           paddingTop: expanded ? '8px' : '0px',
           height: expanded ? 'max-content' : '0px',
-          overflow: 'hidden',
+          overflow: !isHighlight ? 'hidden' : 'visible',
           flexDirection: 'column',
           gap: '1rem',
         }}
       >
         <SlippageControl
+          isHighlight={isHighlight}
           rawSlippage={rawSlippage}
           setRawSlippage={setRawSlippage}
           isWarning={isWarningSlippage}
@@ -206,10 +226,10 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
         />
         {isDegenMode && expanded && (
           <Text fontSize="12px" fontWeight="500" color={theme.subText} padding="4px 6px" marginTop="-12px">
-            Maximum Slippage allow for Degen mode is 50%
+            <Trans>Maximum slippage allowed for Degen mode is 50%</Trans>
           </Text>
         )}
-        {Math.abs(defaultSlp - rawSlippage) / defaultSlp > 0.2 && (
+        {Math.abs(defaultSlp - rawSlippage) / defaultSlp > 0.2 && !triedSimulatedSlippage && (
           <Flex
             fontSize={12}
             color={theme.primary}
@@ -220,8 +240,10 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
             role="button"
             onClick={() => setRawSlippage(defaultSlp)}
           >
-            <MouseoverTooltip text="Dynamic entry based on trading pair." placement="bottom">
-              <Text sx={{ borderBottom: `1px dotted ${theme.primary}` }}>Suggestion</Text>
+            <MouseoverTooltip text={<Trans>Dynamic entry based on trading pair.</Trans>} placement="bottom">
+              <Text sx={{ borderBottom: `1px dotted ${theme.primary}` }}>
+                <Trans>Suggestion</Trans>
+              </Text>
             </MouseoverTooltip>
             {(defaultSlp * 100) / 10_000}%
           </Flex>

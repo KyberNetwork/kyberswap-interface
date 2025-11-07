@@ -1,3 +1,5 @@
+import { Trans } from '@lingui/macro';
+
 import { defaultToken } from '@kyber/schema';
 import { Skeleton, TokenSymbol } from '@kyber/ui';
 import { formatDisplayNumber } from '@kyber/utils/number';
@@ -15,7 +17,7 @@ export default function PriceInfo() {
     'toggleRevertPrice',
   ]);
 
-  const initializing = pool === 'loading';
+  const initializing = !pool;
 
   const token0 = initializing ? defaultToken : revertPrice ? pool.token1 : pool.token0;
   const token1 = initializing ? defaultToken : revertPrice ? pool.token0 : pool.token1;
@@ -25,7 +27,9 @@ export default function PriceInfo() {
       <div className="rounded-md border border-stroke py-3 px-4 mt-[6px]">
         <div className="flex justify-between">
           <div className="flex items-center justify-start gap-1 text-sm flex-wrap">
-            <span className="text-subText">Current price</span>
+            <span className="text-subText">
+              <Trans>Current price</Trans>
+            </span>
             {initializing ? (
               <Skeleton className="w-20 h-5" />
             ) : (
@@ -54,7 +58,9 @@ export default function PriceInfo() {
           className="py-3 px-4 text-subText text-sm rounded-md mt-2 font-normal"
           style={{ backgroundColor: `${theme.warning}33` }}
         >
-          <span className="italic text-text">Unable to get the market price. Please be cautious!</span>
+          <span className="italic text-text">
+            <Trans>Unable to get the market price. Please be cautious!</Trans>
+          </span>
         </div>
       )}
     </>

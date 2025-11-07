@@ -15,6 +15,7 @@ import { WidgetProps } from '@/types/index';
 
 interface WidgetState extends WidgetProps {
   theme: Theme;
+  rpcUrl: string;
   nativeToken: Token;
   wrappedNativeToken: Token;
   reset: () => void;
@@ -28,6 +29,7 @@ const initState = {
   positionId: '',
   poolType: PoolType.DEX_UNISWAPV3,
   chainId: ChainId.Ethereum,
+  rpcUrl: NETWORKS_INFO[ChainId.Ethereum].defaultRpc,
   connectedAccount: {
     address: '',
     chainId: ChainId.Ethereum,
@@ -42,8 +44,14 @@ const initState = {
   onClose: () => {},
   onConnectWallet: () => {},
   onSwitchChain: () => {},
-  onSubmitTx: (_txData: { from: string; to: string; value: string; data: string; gasLimit: string }) =>
-    Promise.resolve(''),
+  onSubmitTx: (
+    _txData: { from: string; to: string; value: string; data: string; gasLimit: string },
+    _additionalInfo?: {
+      tokensIn: Array<{ symbol: string; amount: string; logoUrl?: string }>;
+      pool: string;
+      dexLogo: string;
+    },
+  ) => Promise.resolve(''),
   onOpenZapMigration: undefined,
   onViewPosition: undefined,
   nativeToken: defaultToken,
@@ -54,12 +62,13 @@ export const useWidgetStore = create<WidgetState>((set, _get) => ({
   ...initState,
   reset: () => set(initState),
   setInitiaWidgetState: (props: WidgetProps, resetStore: () => void) => {
-    const { onClose, chainId } = props;
+    const { onClose, chainId, rpcUrl } = props;
 
     const wrappedNativeToken = NETWORKS_INFO[chainId].wrappedToken;
 
     set({
       ...props,
+      rpcUrl: rpcUrl ?? NETWORKS_INFO[chainId].defaultRpc,
       onClose: () => {
         resetStore();
         onClose();

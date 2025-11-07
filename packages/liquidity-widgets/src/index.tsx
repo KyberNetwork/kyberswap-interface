@@ -4,29 +4,17 @@ import { ChainId, PoolType, Theme } from '@kyber/schema';
 import '@kyber/ui/styles.css';
 
 import Widget from '@/Widget';
+import '@/Widget.scss';
+import '@/globals.css';
 import { ZapContextProvider } from '@/hooks/useZapState';
+import { SupportedLocale, WidgetI18nProvider } from '@/i18n';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
-import { OnSuccessProps, WidgetProps } from '@/types/index';
-
-import './Widget.scss';
-import './globals.css';
-
-const createModalRoot = () => {
-  let modalRoot = document.getElementById('ks-lw-modal-root');
-  if (!modalRoot) {
-    modalRoot = document.createElement('div');
-    modalRoot.id = 'ks-lw-modal-root';
-    modalRoot.className = 'ks-lw-style';
-    document.body.appendChild(modalRoot);
-  }
-};
-
-createModalRoot();
+import { OnSuccessProps, TxStatus, WidgetProps } from '@/types/index';
 
 const LiquidityWidget = (widgetProps: WidgetProps) => {
-  const { chainId, poolAddress, poolType, positionId, connectedAccount } = widgetProps;
+  const { chainId, poolAddress, poolType, positionId, connectedAccount, locale } = widgetProps;
 
   const {
     theme,
@@ -59,7 +47,7 @@ const LiquidityWidget = (widgetProps: WidgetProps) => {
   }, [chainId, getPool, poolAddress, poolType]);
 
   useEffect(() => {
-    if (firstFetch || pool === 'loading' || !pool) return;
+    if (firstFetch || !pool) return;
 
     getPosition({
       positionId,
@@ -83,12 +71,14 @@ const LiquidityWidget = (widgetProps: WidgetProps) => {
   }, [theme]);
 
   return (
-    <ZapContextProvider>
-      <Widget />
-    </ZapContextProvider>
+    <WidgetI18nProvider locale={locale}>
+      <ZapContextProvider>
+        <Widget />
+      </ZapContextProvider>
+    </WidgetI18nProvider>
   );
 };
 
-export { PoolType, ChainId, LiquidityWidget };
+export { PoolType, ChainId, LiquidityWidget, TxStatus };
 
-export type { OnSuccessProps };
+export type { OnSuccessProps, SupportedLocale };

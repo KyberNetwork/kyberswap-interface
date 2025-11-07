@@ -16,9 +16,20 @@ import {
 
 const OPTIMEX_API = 'https://ks-provider.optimex.xyz/v1'
 
+// TODO: remember to add new supported chains to this map
+//  Map from ChainID to Optimex network_id
+const CHAIN_TO_OPTIMEX_NETWORK: Partial<Record<Chain, string>> = {
+  [NonEvmChain.Bitcoin]: 'bitcoin',
+  [ChainId.MAINNET]: 'ethereum',
+  [ChainId.BASE]: 'base',
+  [ChainId.ARBITRUM]: 'arbitrum',
+  [ChainId.BSCMAINNET]: 'bsc',
+  [ChainId.OPTIMISM]: 'optimism',
+}
+
 interface OptimexToken {
   id: number
-  network_id: 'ethereum' | 'bitcoin'
+  network_id: string // Optimex network identifier (e.g., 'ethereum', 'bitcoin', 'base', etc.)
   token_id: string
   network_name: string
   network_symbol: string
@@ -50,6 +61,60 @@ export class OptimexAdapter extends BaseSwapAdapter {
       // Handle error appropriately
     }
   }
+
+  private async initiateTrade(params: {
+    sessionId: string
+    fromUserAddress: string
+    amountIn: string
+    minAmountOut: string
+    toUserAddress: string
+    userRefundPubkey: string | undefined
+    userRefundAddress: string
+    creatorPublicKey: string | undefined
+    fromWalletAddress: string
+    feeBps: string
+  }): Promise<{ deposit_address: string; payload?: string; trade_id: string }> {
+    const tradeTimeout = new Date()
+    tradeTimeout.setHours(tradeTimeout.getHours() + 2)
+
+    const scriptTimeout = new Date()
+    scriptTimeout.setHours(scriptTimeout.getHours() + 24)
+
+    const res = await fetch(`${OPTIMEX_API}/trades/initiate`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        session_id: params.sessionId,
+        from_user_address: params.fromUserAddress,
+        amount_in: params.amountIn,
+        min_amount_out: params.minAmountOut,
+        to_user_address: params.toUserAddress,
+        user_refund_pubkey: params.userRefundPubkey || params.fromUserAddress,
+        user_refund_address: params.userRefundAddress,
+        creator_public_key: params.creatorPublicKey,
+        from_wallet_address: params.fromWalletAddress,
+        trade_timeout: Math.floor(tradeTimeout.getTime() / 1000),
+        script_timeout: Math.floor(scriptTimeout.getTime() / 1000),
+        affiliate_info: [
+          {
+            provider: 'KyberSwap',
+            rate: params.feeBps,
+            receiver: CROSS_CHAIN_FEE_RECEIVER,
+            network: 'ethereum',
+          },
+        ],
+      }),
+    }).then(res => res.json())
+
+    if (!res.data?.deposit_address) {
+      throw new Error('Failed to initiate trade with Optimex')
+    }
+
+    return res.data
+  }
+
   getName(): string {
     return 'Optimex'
   }
@@ -57,7 +122,7 @@ export class OptimexAdapter extends BaseSwapAdapter {
     return 'https://storage.googleapis.com/ks-setting-1d682dca/464ce79e-a906-4590-bf78-9054e606aa041749023419612.png'
   }
   getSupportedChains(): Chain[] {
-    return [NonEvmChain.Bitcoin, ChainId.MAINNET]
+    return [NonEvmChain.Bitcoin, ChainId.MAINNET, ChainId.BASE, ChainId.ARBITRUM, ChainId.BSCMAINNET, ChainId.OPTIMISM]
   }
 
   getSupportedTokens(_sourceChain: Chain, _destChain: Chain): Currency[] {
@@ -71,11 +136,21 @@ export class OptimexAdapter extends BaseSwapAdapter {
 
     const isFromBtc = params.fromChain === NonEvmChain.Bitcoin
     const isToBtc = params.toChain === NonEvmChain.Bitcoin
+    const fromNetworkId = CHAIN_TO_OPTIMEX_NETWORK[params.fromChain]
+    if (!fromNetworkId) {
+      throw new Error(`Optimex does not support source chain: ${params.fromChain}`)
+    }
+
+    const toNetworkId = CHAIN_TO_OPTIMEX_NETWORK[params.toChain]
+    if (!toNetworkId) {
+      throw new Error(`Optimex does not support destination chain: ${params.toChain}`)
+    }
+
     const fromToken = isFromBtc
       ? { token_id: 'BTC', token_symbol: 'BTC' }
       : this.tokens.find(item => {
           const address = (params.fromToken as any).isNative ? 'native' : (params.fromToken as any).wrapped.address
-          return item.network_id === 'ethereum' && address.toLowerCase() === item.token_address.toLowerCase()
+          return item.network_id === fromNetworkId && address.toLowerCase() === item.token_address.toLowerCase()
         })
     const fromTokenId = fromToken?.token_id
 
@@ -83,7 +158,7 @@ export class OptimexAdapter extends BaseSwapAdapter {
       ? { token_id: 'BTC', token_symbol: 'BTC' }
       : this.tokens.find(item => {
           const address = (params.toToken as any).isNative ? 'native' : (params.toToken as any).wrapped.address
-          return item.network_id === 'ethereum' && address.toLowerCase() === item.token_address.toLowerCase()
+          return item.network_id === toNetworkId && address.toLowerCase() === item.token_address.toLowerCase()
         })
     const toTokenId = toToken?.token_id
 
@@ -91,6 +166,8 @@ export class OptimexAdapter extends BaseSwapAdapter {
       console.log('optimex tokens', this.tokens)
       throw new Error(`Optimex does not support ${!fromTokenId ? params.fromToken.symbol : params.toToken.symbol}`)
     }
+
+    const userRefundPubkey = params.fromChain === NonEvmChain.Bitcoin ? params.publicKey : params.sender
 
     const [quoteRes, estimateRes, token0Usd, token1Usd] = await Promise.all([
       fetch(`${OPTIMEX_API}/solver/indicative-quote`, {
@@ -104,6 +181,9 @@ export class OptimexAdapter extends BaseSwapAdapter {
           from_token_id: fromTokenId,
           to_token_id: toTokenId,
           affiliate_fee_bps: params.feeBps.toString(),
+          from_user_address: params.sender,
+          user_receiving_address: params.recipient,
+          user_refund_pubkey: userRefundPubkey,
         }),
       }).then(res => res.json()),
       fetch(`${OPTIMEX_API}/trades/estimate?from_token=${fromTokenId}&to_token=${toTokenId}`).then(res => res.json()),
@@ -117,46 +197,28 @@ export class OptimexAdapter extends BaseSwapAdapter {
 
     let txData: { deposit_address: string; payload?: string; trade_id: string } | null = null
 
-    if (params.sender && params.recipient && (isFromBtc ? params.publicKey : true)) {
-      const tradeTimeout = new Date()
-      tradeTimeout.setHours(tradeTimeout.getHours() + 2)
-
-      const scriptTimeout = new Date()
-      scriptTimeout.setHours(scriptTimeout.getHours() + 24)
-
-      const res = await fetch(`${OPTIMEX_API}/trades/initiate`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          session_id: quoteRes.data.session_id,
-          from_user_address: params.sender,
-          amount_in: params.amount,
-          min_amount_out: (
+    // For any flow going TO BTC (EVM->BTC, etc.), we need to call initiate in getQuote
+    // to get deposit address for frontend approval checks
+    if (params.sender && params.recipient && isToBtc) {
+      try {
+        txData = await this.initiateTrade({
+          sessionId: quoteRes.data.session_id,
+          fromUserAddress: params.sender,
+          amountIn: params.amount,
+          minAmountOut: (
             (BigInt(quoteRes.data.best_quote_after_fees) * (10_000n - BigInt(params.slippage))) /
             10_000n
           ).toString(),
-          to_user_address: params.recipient,
-          user_refund_pubkey: params.fromChain === NonEvmChain.Bitcoin ? params.publicKey : params.sender,
-          user_refund_address: params.sender,
-          creator_public_key: params.fromChain === NonEvmChain.Bitcoin ? params.publicKey : params.sender,
-          from_wallet_address: params.sender,
-          trade_timeout: Math.floor(tradeTimeout.getTime() / 1000),
-          script_timeout: Math.floor(scriptTimeout.getTime() / 1000),
-          affiliate_info: [
-            {
-              provider: 'KyberSwap',
-              rate: params.feeBps.toString(),
-              receiver: CROSS_CHAIN_FEE_RECEIVER,
-              network: 'ethereum',
-            },
-          ],
-        }),
-      }).then(res => res.json())
-
-      if (res.data.deposit_address) {
-        txData = res.data
+          toUserAddress: params.recipient,
+          userRefundPubkey: userRefundPubkey,
+          userRefundAddress: params.sender,
+          creatorPublicKey: params.fromChain === NonEvmChain.Bitcoin ? params.publicKey : params.sender,
+          fromWalletAddress: params.sender,
+          feeBps: params.feeBps.toString(),
+        })
+      } catch (error) {
+        console.log('Failed to initiate trade in getQuote:', error)
+        // Continue without txData for TO BTC flows - will try again in executeSwap
       }
     }
 
@@ -189,9 +251,81 @@ export class OptimexAdapter extends BaseSwapAdapter {
     _nearWallet: any,
     sendBtcFn?: (params: { recipient: string; amount: string | number }) => Promise<string>,
   ): Promise<NormalizedTxResponse> {
+    // For EVM -> BTC flow, txData should already exist from getQuote
+    // For BTC -> EVM flow, we need to initiate the trade here
+    let txData: { deposit_address: string; payload?: string; trade_id: string }
+
+    if (quote.rawQuote.txData) {
+      // EVM -> BTC flow: use existing txData from getQuote
+      txData = quote.rawQuote.txData
+    } else {
+      // BTC -> EVM flow: initiate trade now
+      const isFromBtc = quote.quoteParams.fromChain === NonEvmChain.Bitcoin
+      const isToBtc = quote.quoteParams.toChain === NonEvmChain.Bitcoin
+
+      // Get network and token info (only needed for BTC -> EVM flow)
+      const fromNetworkId = CHAIN_TO_OPTIMEX_NETWORK[quote.quoteParams.fromChain]
+      if (!fromNetworkId) {
+        throw new Error(`Optimex does not support source chain: ${quote.quoteParams.fromChain}`)
+      }
+
+      const toNetworkId = CHAIN_TO_OPTIMEX_NETWORK[quote.quoteParams.toChain]
+      if (!toNetworkId) {
+        throw new Error(`Optimex does not support destination chain: ${quote.quoteParams.toChain}`)
+      }
+
+      // Find tokens
+      const fromToken = isFromBtc
+        ? { token_id: 'BTC', token_symbol: 'BTC' }
+        : this.tokens.find(item => {
+            const address = (quote.quoteParams.fromToken as any).isNative
+              ? 'native'
+              : (quote.quoteParams.fromToken as any).wrapped.address
+            return item.network_id === fromNetworkId && address.toLowerCase() === item.token_address.toLowerCase()
+          })
+      const toToken = isToBtc
+        ? { token_id: 'BTC', token_symbol: 'BTC' }
+        : this.tokens.find(item => {
+            const address = (quote.quoteParams.toToken as any).isNative
+              ? 'native'
+              : (quote.quoteParams.toToken as any).wrapped.address
+            return item.network_id === toNetworkId && address.toLowerCase() === item.token_address.toLowerCase()
+          })
+      const fromTokenId = fromToken?.token_id
+      const toTokenId = toToken?.token_id
+
+      if (!fromTokenId || !toTokenId) {
+        throw new Error(
+          `Optimex does not support ${
+            !fromTokenId ? quote.quoteParams.fromToken.symbol : quote.quoteParams.toToken.symbol
+          }`,
+        )
+      }
+
+      const userRefundPubkey =
+        quote.quoteParams.fromChain === NonEvmChain.Bitcoin ? quote.quoteParams.publicKey : quote.quoteParams.sender
+
+      // Initiate trade using the reusable function
+      txData = await this.initiateTrade({
+        sessionId: quote.rawQuote.session_id,
+        fromUserAddress: quote.quoteParams.sender,
+        amountIn: quote.quoteParams.amount,
+        minAmountOut: (
+          (BigInt(quote.outputAmount) * (10_000n - BigInt(quote.quoteParams.slippage))) /
+          10_000n
+        ).toString(),
+        toUserAddress: quote.quoteParams.recipient,
+        userRefundPubkey: userRefundPubkey,
+        userRefundAddress: quote.quoteParams.sender,
+        creatorPublicKey: userRefundPubkey,
+        fromWalletAddress: quote.quoteParams.sender,
+        feeBps: quote.quoteParams.feeBps.toString(),
+      })
+    }
+
     const params = {
       sender: quote.quoteParams.sender,
-      id: quote.rawQuote.txData.trade_id,
+      id: txData.trade_id,
       adapter: this.getName(),
       sourceChain: quote.quoteParams.fromChain,
       targetChain: quote.quoteParams.toChain,
@@ -200,16 +334,20 @@ export class OptimexAdapter extends BaseSwapAdapter {
       sourceToken: quote.quoteParams.fromToken,
       targetToken: quote.quoteParams.toToken,
       timestamp: new Date().getTime(),
+      amountInUsd: quote.inputUsd,
+      amountOutUsd: quote.outputUsd,
+      platformFeePercent: quote.platformFeePercent,
+      recipient: quote.quoteParams.recipient,
     }
     if (quote.quoteParams.fromChain === NonEvmChain.Bitcoin) {
       if (!sendBtcFn) throw new Error('sendBtcFn is not defined')
       const res = await sendBtcFn({
-        recipient: quote.rawQuote.txData.deposit_address,
+        recipient: txData.deposit_address,
         amount: quote.quoteParams.amount,
       }).catch(e => {
         throw e
       })
-      await fetch(`${OPTIMEX_API}/trades/${quote.rawQuote.txData.trade_id}/submit-tx`, {
+      await fetch(`${OPTIMEX_API}/trades/${txData.trade_id}/submit-tx`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -230,14 +368,14 @@ export class OptimexAdapter extends BaseSwapAdapter {
 
     const account = walletClient.account?.address as `0x${string}`
     const hash = await walletClient.sendTransaction({
-      to: quote.rawQuote.txData.deposit_address,
+      to: txData.deposit_address as `0x${string}`,
       value: (quote.quoteParams.fromToken as any).isNative ? BigInt(quote.quoteParams.amount) : undefined,
-      data: quote.rawQuote.txData.payload,
+      data: txData.payload as `0x${string}` | undefined,
       chain: undefined,
       account,
     })
 
-    await fetch(`${OPTIMEX_API}/trades/${quote.rawQuote.txData.trade_id}/submit-tx`, {
+    await fetch(`${OPTIMEX_API}/trades/${txData.trade_id}/submit-tx`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

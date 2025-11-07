@@ -1,8 +1,11 @@
 import { useMemo, useState } from 'react';
 
+import { Trans } from '@lingui/macro';
+
 import {
   AddLiquidityAction,
   DEXES_INFO,
+  NETWORKS_INFO,
   PoolType,
   RemoveLiquidityAction,
   Token,
@@ -23,7 +26,7 @@ export default function ZapSummary() {
   const { pool } = usePoolStore(['pool']);
   const [expanded, setExpanded] = useState(false);
 
-  const initializing = pool === 'loading';
+  const initializing = !pool;
 
   const { symbol: symbol0 } = initializing ? defaultToken : pool.token0;
   const { symbol: symbol1 } = initializing ? defaultToken : pool.token1;
@@ -36,7 +39,7 @@ export default function ZapSummary() {
   const { swapActions } = useSwapPI();
 
   const addedLiquidityInfo = useMemo(() => {
-    if (pool === 'loading') return { addedAmount0: '0', addedAmount1: '0' };
+    if (!pool) return { addedAmount0: '0', addedAmount1: '0' };
     const data = zapInfo?.zapDetails.actions.find(
       item => item.type === ZapAction.ADD_LIQUIDITY,
     ) as AddLiquidityAction | null;
@@ -53,7 +56,7 @@ export default function ZapSummary() {
 
   const { fees } = actionRemoveLiq?.removeLiquidity || {};
 
-  const poolTokens: Token[] = pool === 'loading' ? [] : [pool.token0, pool.token1];
+  const poolTokens: Token[] = !pool ? [] : [pool.token0, pool.token1];
 
   const feeToken0 = poolTokens.find(item => item.address.toLowerCase() === fees?.[0]?.address.toLowerCase());
   const feeToken1 = poolTokens.find(item => item.address.toLowerCase() === fees?.[1]?.address.toLowerCase());
@@ -73,22 +76,26 @@ export default function ZapSummary() {
             }`}
             onClick={onExpand}
           >
-            Zap Summary
+            <Trans>Zap Summary</Trans>
           </AccordionTrigger>
           <AccordionContent className="px-4 pb-4 pt-0 border border-stroke !border-t-0 rounded-b-md">
-            <p className="text-subText text-xs italic">The actual Zap Routes could be adjusted with on-chain states</p>
+            <p className="text-subText text-xs italic">
+              <Trans>The actual Zap Routes could be adjusted with on-chain states</Trans>
+            </p>
             <div className="h-[1px] w-full bg-stroke mt-1 mb-3" />
             {hasFee && (
               <div className="flex gap-3 items-center mt-3 text-xs">
                 <div className="rounded-full w-6 h-6 flex items-center justify-center font-medium bg-layer2">1</div>
                 <div className="flex-1 text-subText leading-4">
-                  <>
-                    Claim fee {feeAmount0 !== 0n ? formatTokenAmount(feeAmount0, feeToken0?.decimals || 18) : ''}{' '}
-                    {feeAmount0 !== 0n ? feeToken0?.symbol : ''}{' '}
+                  <Trans>
+                    Claim fee
+                    {feeAmount0 !== 0n
+                      ? ` ${formatTokenAmount(feeAmount0, feeToken0?.decimals || 18)} ${feeToken0?.symbol}`
+                      : ''}
                     {feeAmount1 !== 0n
-                      ? `+ ${formatTokenAmount(feeAmount1, feeToken1?.decimals || 18)} ${feeToken1?.symbol}`
-                      : ''}{' '}
-                  </>
+                      ? ` + ${formatTokenAmount(feeAmount1, feeToken1?.decimals || 18)} ${feeToken1?.symbol}`
+                      : ''}
+                  </Trans>
                 </div>
               </div>
             )}
@@ -98,8 +105,21 @@ export default function ZapSummary() {
                   {index + (hasFee ? 2 : 1)}
                 </div>
                 <div className="flex-1 text-subText leading-4">
-                  Swap {item.amountIn} {item.tokenInSymbol} for {item.amountOut} {item.tokenOutSymbol} via{' '}
-                  <span className="font-medium text-text">{item.pool}</span>
+                  <Trans>
+                    Swap {item.amountIn} {item.tokenInSymbol} for {item.amountOut} {item.tokenOutSymbol} via{' '}
+                    {item.poolAddress ? (
+                      <a
+                        href={`${NETWORKS_INFO[chainId].scanLink}/address/${item.poolAddress}`}
+                        className="font-medium text-text"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {item.pool}
+                      </a>
+                    ) : (
+                      <span className="font-medium text-text">{item.pool}</span>
+                    )}
+                  </Trans>
                 </div>
               </div>
             ))}
@@ -108,8 +128,10 @@ export default function ZapSummary() {
                 {swapActions.length + (hasFee ? 2 : 1)}
               </div>
               <div className="flex-1 text-subText leading-4">
-                Build LP using {addedLiquidityInfo.addedAmount0} {symbol0} and {addedLiquidityInfo.addedAmount1}{' '}
-                {symbol1} on <span className="font-medium text-text">{dexName}</span>
+                <Trans>
+                  Build LP using {addedLiquidityInfo.addedAmount0} {symbol0} and {addedLiquidityInfo.addedAmount1}{' '}
+                  {symbol1} on <span className="font-medium text-text">{dexName}</span>
+                </Trans>
               </div>
             </div>
           </AccordionContent>

@@ -10,16 +10,10 @@ import PositionHistory from 'pages/Earns/PositionDetail/PositionHistory'
 import RewardSection from 'pages/Earns/PositionDetail/RewardSection'
 import { InfoLeftColumn, InfoSection, PositionAction, VerticalDivider } from 'pages/Earns/PositionDetail/styles'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
-import {
-  CoreProtocol,
-  EXCHANGES_SUPPORT_COLLECT_FEE,
-  Exchange,
-  LIMIT_TEXT_STYLES,
-  POSSIBLE_FARMING_PROTOCOLS,
-} from 'pages/Earns/constants'
+import { EARN_DEXES, Exchange, LIMIT_TEXT_STYLES } from 'pages/Earns/constants'
+import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import useCollectFees from 'pages/Earns/hooks/useCollectFees'
 import { ParsedPosition } from 'pages/Earns/types'
-import { isForkFrom } from 'pages/Earns/utils'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -29,6 +23,7 @@ const LeftSection = ({
   totalLiquiditySection,
   aprSection,
   initialLoading,
+  isNotAccountOwner,
   shareBtn,
   refetchPositions,
 }: {
@@ -37,12 +32,13 @@ const LeftSection = ({
   totalLiquiditySection: React.ReactNode
   aprSection: React.ReactNode
   initialLoading: boolean
+  isNotAccountOwner: boolean
   shareBtn: (size?: number) => React.ReactNode
   refetchPositions: () => void
 }) => {
   const theme = useTheme()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
-  const { protocol, chainId } = useParams()
+  const { exchange, chainId } = useParams()
 
   const {
     claimModal: claimFeesModal,
@@ -52,8 +48,8 @@ const LeftSection = ({
     refetchAfterCollect: () => onFetchUnclaimedFee(),
   })
 
-  const isUniv2 = isForkFrom(protocol as Exchange, CoreProtocol.UniswapV2)
-  const isFarmingPossible = POSSIBLE_FARMING_PROTOCOLS.includes(protocol as Exchange)
+  const isUniv2 = EARN_DEXES[exchange as Exchange]?.isForkFrom === CoreProtocol.UniswapV2
+  const isFarmingPossible = EARN_DEXES[exchange as Exchange]?.farmingSupported || false
   const nativeToken = chainId ? NETWORKS_INFO[Number(chainId) as keyof typeof NETWORKS_INFO]?.nativeToken : undefined
 
   const isUnfinalized = position?.isUnfinalized
@@ -64,26 +60,13 @@ const LeftSection = ({
 
       <InfoLeftColumn halfWidth={isUniv2}>
         {/* Total Liquidity */}
-        {upToSmall
-          ? totalLiquiditySection
-          : initialLoading
-          ? !isFarmingPossible
-            ? totalLiquiditySection
-            : null
-          : !position?.pool.isFarming && !position?.rewards.claimableUsdValue
-          ? totalLiquiditySection
-          : null}
-
         {/* Est. Position APR */}
-        {upToSmall
-          ? aprSection
-          : initialLoading
-          ? !isFarmingPossible
-            ? aprSection
-            : null
-          : !position?.pool.isFarming && !position?.rewards.claimableUsdValue
-          ? aprSection
-          : null}
+        {upToSmall && (
+          <>
+            {totalLiquiditySection}
+            {aprSection}
+          </>
+        )}
 
         {/* Fee Earn */}
         <InfoSection>
@@ -99,7 +82,7 @@ const LeftSection = ({
               {initialLoading ? (
                 <PositionSkeleton width={90} height={19} />
               ) : isUnfinalized ? (
-                <PositionSkeleton width={70} height={19} text="Finalizing..." />
+                <PositionSkeleton width={70} height={19} text={t`Finalizing...`} />
               ) : (position?.earning.in24h || position?.earning.in24h === 0) && !isUniv2 ? (
                 <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '120px' }}>
                   {formatDisplayNumber(position?.earning.in24h, { significantDigits: 4, style: 'currency' })}
@@ -117,7 +100,7 @@ const LeftSection = ({
               {initialLoading ? (
                 <PositionSkeleton width={90} height={19} />
               ) : isUnfinalized ? (
-                <PositionSkeleton width={70} height={19} text="Finalizing..." />
+                <PositionSkeleton width={70} height={19} text={t`Finalizing...`} />
               ) : (position?.earning.in7d || position?.earning.in7d === 0) && !isUniv2 ? (
                 <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '120px' }}>
                   {formatDisplayNumber(position?.earning.in7d, { significantDigits: 4, style: 'currency' })}
@@ -138,7 +121,7 @@ const LeftSection = ({
                 {initialLoading ? (
                   <PositionSkeleton width={90} height={21} />
                 ) : isUnfinalized ? (
-                  <PositionSkeleton width={70} height={19} text="Finalizing..." />
+                  <PositionSkeleton width={70} height={19} text={t`Finalizing...`} />
                 ) : (position?.earning.earned || position?.earning.earned === 0) && position?.earning.earned >= 0 ? (
                   <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '140px' }}>
                     {formatDisplayNumber(position?.earning.earned, { style: 'currency', significantDigits: 4 })}
@@ -154,7 +137,7 @@ const LeftSection = ({
         </InfoSection>
 
         {/* Claim Fees */}
-        {EXCHANGES_SUPPORT_COLLECT_FEE[protocol as Exchange] ? (
+        {EARN_DEXES[exchange as Exchange].collectFeeSupported ? (
           <InfoSection>
             <Flex alignItems={'center'} justifyContent={'space-between'} marginBottom={2}>
               <Text fontSize={14} color={theme.subText} marginTop={1}>
@@ -164,7 +147,7 @@ const LeftSection = ({
               {initialLoading ? (
                 <PositionSkeleton width={90} height={21} />
               ) : isUnfinalized ? (
-                <PositionSkeleton width={90} height={21} text="Finalizing..." />
+                <PositionSkeleton width={90} height={21} text={t`Finalizing...`} />
               ) : (
                 <Text fontSize={18} sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '160px' }}>
                   {position?.unclaimedFees || position?.unclaimedFees === 0
@@ -181,7 +164,7 @@ const LeftSection = ({
                 {initialLoading ? (
                   <PositionSkeleton width={120} height={19} style={{ marginBottom: 4 }} />
                 ) : isUnfinalized ? (
-                  <PositionSkeleton width={120} height={19} style={{ marginBottom: 4 }} text="Finalizing..." />
+                  <PositionSkeleton width={120} height={19} style={{ marginBottom: 4 }} text={t`Finalizing...`} />
                 ) : (
                   <Flex alignItems={'center'} sx={{ gap: '6px' }} marginBottom={1}>
                     <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '100px' }}>
@@ -200,7 +183,7 @@ const LeftSection = ({
                 {initialLoading ? (
                   <PositionSkeleton width={120} height={19} style={{ marginBottom: 1 }} />
                 ) : isUnfinalized ? (
-                  <PositionSkeleton width={120} height={19} style={{ marginBottom: 1 }} text="Finalizing..." />
+                  <PositionSkeleton width={120} height={19} style={{ marginBottom: 1 }} text={t`Finalizing...`} />
                 ) : (
                   <Flex alignItems={'center'} sx={{ gap: '6px' }}>
                     <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '100px' }}>
@@ -221,7 +204,9 @@ const LeftSection = ({
                 outline
                 mobileAutoWidth
                 load={feesClaiming}
-                disabled={initialLoading || isUnfinalized || position?.unclaimedFees === 0 || feesClaiming}
+                disabled={
+                  initialLoading || isNotAccountOwner || isUnfinalized || position?.unclaimedFees === 0 || feesClaiming
+                }
                 onClick={() =>
                   !initialLoading &&
                   !isUnfinalized &&
@@ -241,6 +226,7 @@ const LeftSection = ({
         {/* Rewards */}
         {(position?.pool.isFarming ||
           (initialLoading && isFarmingPossible) ||
+          Number(position?.rewards.inProgressUsdValue || 0) > 0 ||
           Number(position?.rewards.claimableUsdValue || 0) > 0) && (
           <RewardSection
             position={position}

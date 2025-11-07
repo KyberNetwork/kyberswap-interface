@@ -114,6 +114,11 @@ export interface NormalizedTxResponse {
   targetTxHash?: string
   timestamp: number
   status?: 'Processing' | 'Success' | 'Failed' | 'Refunded'
+  // Enriched fields for data analysis
+  amountInUsd: number
+  amountOutUsd: number
+  platformFeePercent: number
+  recipient: string
 }
 
 export interface SwapStatus {
@@ -137,6 +142,7 @@ export interface SwapProvider {
     connection?: Connection,
   ): Promise<NormalizedTxResponse>
   getTransactionStatus(p: NormalizedTxResponse): Promise<SwapStatus>
+  canSupport(category: string, tokenIn?: Currency, tokenOut?: Currency): boolean
 }
 export abstract class BaseSwapAdapter implements SwapProvider {
   abstract getName(): string
@@ -150,6 +156,11 @@ export abstract class BaseSwapAdapter implements SwapProvider {
     nearWallet?: ReturnType<typeof useWalletSelector>,
   ): Promise<NormalizedTxResponse>
   abstract getTransactionStatus(p: NormalizedTxResponse): Promise<SwapStatus>
+
+  canSupport(_category: string, _tokenIn?: Currency, _tokenOut?: Currency): boolean {
+    // Default implementation - support all cases
+    return true
+  }
 
   protected handleError(error: any): never {
     console.error(`[${this.getName()}] Error:`, error)

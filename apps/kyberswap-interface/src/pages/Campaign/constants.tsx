@@ -1,4 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
+import { Trans } from '@lingui/macro'
 import { isMobile } from 'react-device-detect'
 import { Text } from 'rebass'
 
@@ -16,10 +17,12 @@ export const stipWeeks = [
     value: 37,
     label: (
       <Text>
-        <Text as="span" color="#ffffff">
-          Week 10
-        </Text>{' '}
-        Sep 09 - Sep 15
+        <Trans>
+          <Text as="span" color="#ffffff">
+            Week 10
+          </Text>{' '}
+          Sep 09 - Sep 15
+        </Trans>
       </Text>
     ),
     start: 1725840000,
@@ -29,10 +32,12 @@ export const stipWeeks = [
     value: 36,
     label: (
       <Text>
-        <Text as="span" color="#ffffff">
-          Week 9
-        </Text>{' '}
-        Sep 02 - Sep 08
+        <Trans>
+          <Text as="span" color="#ffffff">
+            Week 9
+          </Text>{' '}
+          Sep 02 - Sep 08
+        </Trans>
       </Text>
     ),
     start: 1725235200,
@@ -42,10 +47,12 @@ export const stipWeeks = [
     value: 35,
     label: (
       <Text>
-        <Text as="span" color="#ffffff">
-          Week 8
-        </Text>{' '}
-        Aug 26 - Sep 01
+        <Trans>
+          <Text as="span" color="#ffffff">
+            Week 8
+          </Text>{' '}
+          Aug 26 - Sep 01
+        </Trans>
       </Text>
     ),
     start: 1724630400,
@@ -55,10 +62,12 @@ export const stipWeeks = [
     value: 34,
     label: (
       <Text>
-        <Text as="span" color="#ffffff">
-          Week 7
-        </Text>{' '}
-        Aug 19 - Aug 25
+        <Trans>
+          <Text as="span" color="#ffffff">
+            Week 7
+          </Text>{' '}
+          Aug 19 - Aug 25
+        </Trans>
       </Text>
     ),
     start: 1724025600,
@@ -68,10 +77,12 @@ export const stipWeeks = [
     value: 33,
     label: (
       <Text>
-        <Text as="span" color="#ffffff">
-          Week 6
-        </Text>{' '}
-        Aug 12 - Aug 18
+        <Trans>
+          <Text as="span" color="#ffffff">
+            Week 6
+          </Text>{' '}
+          Aug 12 - Aug 18
+        </Trans>
       </Text>
     ),
     start: 1723420800,
@@ -81,10 +92,12 @@ export const stipWeeks = [
     value: 32,
     label: (
       <Text>
-        <Text as="span" color="#ffffff">
-          Week 5
-        </Text>{' '}
-        Aug 05 - Aug 11
+        <Trans>
+          <Text as="span" color="#ffffff">
+            Week 5
+          </Text>{' '}
+          Aug 05 - Aug 11
+        </Trans>
       </Text>
     ),
     start: 1722816000,
@@ -94,10 +107,12 @@ export const stipWeeks = [
     value: 31,
     label: (
       <Text>
-        <Text as="span" color="#ffffff">
-          Week 4
-        </Text>{' '}
-        July 29 - Aug 04
+        <Trans>
+          <Text as="span" color="#ffffff">
+            Week 4
+          </Text>{' '}
+          July 29 - Aug 04
+        </Trans>
       </Text>
     ),
     start: 1722211200,
@@ -107,10 +122,12 @@ export const stipWeeks = [
     value: 30,
     label: (
       <Text>
-        <Text as="span" color="#ffffff">
-          Week 3
-        </Text>{' '}
-        July 22 - July 28
+        <Trans>
+          <Text as="span" color="#ffffff">
+            Week 3
+          </Text>{' '}
+          July 22 - July 28
+        </Trans>
       </Text>
     ),
     start: 1721606400,
@@ -120,10 +137,12 @@ export const stipWeeks = [
     value: 29,
     label: (
       <Text>
-        <Text as="span" color="#ffffff">
-          Week 2
-        </Text>{' '}
-        July 15 - July 21
+        <Trans>
+          <Text as="span" color="#ffffff">
+            Week 2
+          </Text>{' '}
+          July 15 - July 21
+        </Trans>
       </Text>
     ),
     start: 1721001600,
@@ -133,10 +152,12 @@ export const stipWeeks = [
     value: 28,
     label: (
       <Text>
-        <Text as="span" color="#ffffff">
-          Week 1
-        </Text>{' '}
-        July 08 - July 14
+        <Trans>
+          <Text as="span" color="#ffffff">
+            Week 1
+          </Text>{' '}
+          July 08 - July 14
+        </Trans>
       </Text>
     ),
     start: 1720396800,
@@ -149,10 +170,12 @@ export const mayTradingWeeks = [
     value: 22,
     label: (
       <Text>
-        <Text as="span" color="#ffffff">
-          Week 1
-        </Text>{' '}
-        May 19 - May 25
+        <Trans>
+          <Text as="span" color="#ffffff">
+            Week 1
+          </Text>{' '}
+          May 19 - May 25
+        </Trans>
       </Text>
     ),
     start: 1748304000,
@@ -165,10 +188,12 @@ export const nearIntentWeeks = [
     value: 31,
     label: (
       <Text>
-        <Text as="span" color="#ffffff">
-          Week 2
-        </Text>{' '}
-        Jul 28 - Aug 03
+        <Trans>
+          <Text as="span" color="#ffffff">
+            Week 2
+          </Text>{' '}
+          Jul 28 - Aug 03
+        </Trans>
       </Text>
     ),
     start: 1753660800,
@@ -178,10 +203,12 @@ export const nearIntentWeeks = [
     value: 30,
     label: (
       <Text>
-        <Text as="span" color="#ffffff">
-          Week 1
-        </Text>{' '}
-        Jul 21 - Jul 27
+        <Trans>
+          <Text as="span" color="#ffffff">
+            Week 1
+          </Text>{' '}
+          Jul 21 - Jul 27
+        </Trans>
       </Text>
     ),
     start: 1753056000,
@@ -222,7 +249,7 @@ export type CampaignConfig = {
     logo: string
   }
   type: CampaignType
-  ctaText: string
+  ctaText: JSX.Element
   weeks: any[]
   program: 'stip' | 'grind/base'
   campaign: 'trading-incentive' | 'limit-order-farming' | 'referral-program'
@@ -230,36 +257,36 @@ export type CampaignConfig = {
 
   banner: string
   ctaLink: string
-  title: string
+  title: JSX.Element
 }
 
 export const campaignConfig: Record<CampaignType, CampaignConfig> = {
   [CampaignType.Aggregator]: {
     ...stipInfo,
     ctaLink: '/swap/arbitrum/eth-to-arb',
-    ctaText: 'Trade Now',
+    ctaText: <Trans>Trade Now</Trans>,
     type: CampaignType.Aggregator,
     campaign: 'trading-incentive' as const,
     banner: tradingBanner,
-    title: 'Aggregator Trading Campaign',
+    title: <Trans>Aggregator Trading Campaign</Trans>,
   },
   [CampaignType.LimitOrder]: {
     ...stipInfo,
     ctaLink: '/limit/arbitrum',
-    ctaText: 'Place order',
+    ctaText: <Trans>Place order</Trans>,
     type: CampaignType.LimitOrder,
     campaign: 'limit-order-farming' as const,
     banner: loBanner,
-    title: 'Limit Order Campaign',
+    title: <Trans>Limit Order Campaign</Trans>,
   },
   [CampaignType.Referrals]: {
     ...stipInfo,
-    ctaText: 'Trade Now',
+    ctaText: <Trans>Trade Now</Trans>,
     ctaLink: '/swap/arbitrum/eth-to-arb',
     type: CampaignType.Referrals,
     campaign: 'referral-program' as const,
     banner: referralBanner,
-    title: 'Referral Program',
+    title: <Trans>Referral Program</Trans>,
   },
   [CampaignType.MayTrading]: {
     ctaLink: '/swap/base',
@@ -272,13 +299,13 @@ export const campaignConfig: Record<CampaignType, CampaignConfig> = {
       address: KNC[ChainId.MAINNET].address,
       decimals: KNC[ChainId.MAINNET].decimals,
     },
-    ctaText: 'Trade Now',
+    ctaText: <Trans>Trade Now</Trans>,
     type: CampaignType.MayTrading,
     weeks: mayTradingWeeks,
     program: 'grind/base' as const,
     campaign: 'trading-incentive' as const,
     banner: mayTradingBanner,
-    title: 'May Trading Campaign',
+    title: <Trans>May Trading Campaign</Trans>,
   },
   [CampaignType.NearIntents]: {
     year: 2025,
@@ -291,7 +318,7 @@ export const campaignConfig: Record<CampaignType, CampaignConfig> = {
       decimals: 6,
     },
     type: CampaignType.NearIntents,
-    ctaText: 'Trade Now',
+    ctaText: <Trans>Trade Now</Trans>,
     weeks: nearIntentWeeks,
     // dont use for near intents
     program: 'grind/base' as const,
@@ -300,6 +327,6 @@ export const campaignConfig: Record<CampaignType, CampaignConfig> = {
     url: 'https://kyberswap-near-intents.kyberengineering.io/api/v1',
     banner: isMobile ? nearIntentBannerMobile : nearIntentBanner,
     ctaLink: '/cross-chain',
-    title: 'Cross-Chain Race x NEAR Intents',
+    title: <Trans>Cross-Chain Race x NEAR Intents</Trans>,
   },
 }

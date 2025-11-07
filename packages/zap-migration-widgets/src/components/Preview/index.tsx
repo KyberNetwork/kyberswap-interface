@@ -1,6 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
-import { ChainId, NETWORKS_INFO } from '@kyber/schema';
+import { t } from '@lingui/macro';
+
+import { DEXES_INFO, NETWORKS_INFO } from '@kyber/schema';
 import {
   Dialog,
   DialogContent,
@@ -11,7 +13,7 @@ import {
   StatusDialogType,
 } from '@kyber/ui';
 import { friendlyError } from '@kyber/utils';
-import { calculateGasMargin, estimateGas, isTransactionSuccessful } from '@kyber/utils/crypto';
+import { calculateGasMargin, estimateGas } from '@kyber/utils/crypto';
 import { formatDisplayNumber } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
@@ -19,30 +21,38 @@ import CircleChevronDown from '@/assets/icons/circle-chevron-down.svg';
 import Estimated from '@/components/Preview/Estimated';
 import { MigrationSummary } from '@/components/Preview/MigrationSummary';
 import PreviewPoolInfo from '@/components/Preview/PreviewPoolInfo';
+import UpdatedPosition from '@/components/Preview/UpdatedPosition';
 import Warning from '@/components/Preview/Warning';
+import useTxStatus from '@/hooks/useTxStatus';
 import useZapRoute from '@/hooks/useZapRoute';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 import { useZapStore } from '@/stores/useZapStore';
 
-import UpdatedPosition from './UpdatedPosition';
-
 export function Preview({
   onSubmitTx,
-  onClose,
   onViewPosition,
   onExplorePools,
 }: {
-  onSubmitTx: (txData: { from: string; to: string; value: string; data: string; gasLimit: string }) => Promise<string>;
-  onClose: () => void;
+  onSubmitTx: (
+    txData: { from: string; to: string; value: string; data: string; gasLimit: string },
+    additionalInfo?: {
+      sourcePool: string;
+      sourceDexLogo: string;
+      destinationPool: string;
+      destinationDexLogo: string;
+    },
+  ) => Promise<string>;
   onViewPosition?: (txHash: string) => void;
   onExplorePools?: () => void;
 }) {
-  const { chainId, connectedAccount, rePositionMode } = useWidgetStore([
+  const { chainId, rpcUrl, connectedAccount, rePositionMode, onClose } = useWidgetStore([
     'chainId',
+    'rpcUrl',
     'connectedAccount',
     'rePositionMode',
+    'onClose',
   ]);
   const { route, slippage, setSlippage, buildData, setBuildData } = useZapStore([
     'route',
@@ -54,30 +64,13 @@ export function Preview({
   const { sourcePool, targetPool } = usePoolStore(['sourcePool', 'targetPool']);
   const { targetPositionId } = usePositionStore(['targetPositionId']);
 
-  const rpcUrl = NETWORKS_INFO[chainId].defaultRpc;
   const account = connectedAccount.address;
   const { suggestedSlippage } = useZapRoute();
 
   const [showProcessing, setShowProcessing] = useState(false);
   const [txHash, setTxHash] = useState<string | null>(null);
-  const [txStatus, setTxStatus] = useState<'success' | 'failed' | ''>('');
   const [error, setError] = useState<Error | undefined>();
-
-  useEffect(() => {
-    if (!txHash) return;
-    const i = setInterval(
-      async () => {
-        const res = await isTransactionSuccessful(rpcUrl, txHash);
-        if (!res) return;
-
-        if (res.status) {
-          setTxStatus('success');
-        } else setTxStatus('failed');
-      },
-      chainId === ChainId.Ethereum ? 10_000 : 5_000,
-    );
-    return () => clearInterval(i);
-  }, [txHash, chainId, rpcUrl]);
+  const { txStatus } = useTxStatus({ txHash: txHash || undefined });
 
   if (route === null || !sourcePool || !targetPool || !account || !buildData) return null;
 
@@ -93,10 +86,7 @@ export function Preview({
   };
 
   const handleConfirm = async () => {
-    if (!buildData) {
-      setShowProcessing(true);
-      return;
-    }
+    if (!buildData) return;
 
     const txData = {
       from: account,
@@ -105,6 +95,7 @@ export function Preview({
       data: buildData.callData,
     };
 
+    setError(undefined);
     setShowProcessing(true);
     const gas = await estimateGas(rpcUrl, txData).catch(err => {
       console.log(err.message);
@@ -115,10 +106,18 @@ export function Preview({
     if (gas === 0n) return;
 
     try {
-      const txHash = await onSubmitTx({
-        ...txData,
-        gasLimit: calculateGasMargin(gas),
-      });
+      const txHash = await onSubmitTx(
+        {
+          ...txData,
+          gasLimit: calculateGasMargin(gas),
+        },
+        {
+          sourcePool: `${sourcePool.token0.symbol}/${sourcePool.token1.symbol}`,
+          sourceDexLogo: DEXES_INFO[sourcePool.poolType].icon,
+          destinationPool: `${targetPool.token0.symbol}/${targetPool.token1.symbol}`,
+          destinationDexLogo: DEXES_INFO[targetPool.poolType].icon,
+        },
+      );
       setTxHash(txHash);
     } catch (err) {
       setError(err as Error);
@@ -141,12 +140,12 @@ export function Preview({
                 ? StatusDialogType.PROCESSING
                 : StatusDialogType.WAITING
         }
-        title={txStatus === 'success' && rePositionMode ? 'Reposition Completed' : undefined}
+        title={txStatus === 'success' && rePositionMode ? t`Reposition Completed` : undefined}
         description={
           txStatus !== 'success' && txStatus !== 'failed' && !error && !txHash
-            ? 'Confirm this transaction in your wallet'
+            ? t`Confirm this transaction in your wallet`
             : txStatus === 'success'
-              ? 'You have successfully migrated your liquidity'
+              ? t`You have successfully migrated your liquidity`
               : undefined
         }
         errorMessage={error ? errorMessage : undefined}
@@ -155,22 +154,22 @@ export function Preview({
           <>
             {txStatus === 'success' && onExplorePools && rePositionMode ? (
               <button className="ks-outline-btn flex-1" onClick={onExplorePools}>
-                Explore pools
+                {t`Explore pools`}
               </button>
             ) : (
               <button className="ks-outline-btn flex-1" onClick={onDismiss}>
-                Close
+                {t`Close`}
               </button>
             )}
             {txStatus === 'success' ? (
               onViewPosition && txHash ? (
                 <button className="ks-primary-btn flex-1" onClick={() => onViewPosition(txHash)}>
-                  View position
+                  {t`View position`}
                 </button>
               ) : null
             ) : errorMessage.includes('slippage') ? (
               <button className="ks-primary-btn flex-1" onClick={handleSlippage}>
-                {slippage !== suggestedSlippage ? 'Use Suggested Slippage' : 'Set Custom Slippage'}
+                {slippage !== suggestedSlippage ? t`Use Suggested Slippage` : t`Set Custom Slippage`}
               </button>
             ) : null}
           </>
@@ -187,7 +186,7 @@ export function Preview({
     <Dialog open={true} onOpenChange={onDismiss}>
       <DialogPortal>
         <DialogContent
-          className="max-h-[800px] max-w-[450px] overflow-auto z-[1002]"
+          className="max-h-[85vh] max-w-[480px] overflow-auto z-[1002]"
           overlayClassName="z-[1002]"
           aria-describedby={undefined}
           containerClassName="ks-lw-migration-style"
@@ -195,16 +194,16 @@ export function Preview({
           <DialogHeader>
             <DialogTitle>
               {rePositionMode
-                ? 'Reposition'
+                ? t`Reposition`
                 : targetPositionId
-                  ? 'Migrate to increase position liquidity'
-                  : 'Migrate liquidity via Zap'}
+                  ? t`Migrate to increase position liquidity`
+                  : t`Migrate liquidity via Zap`}
             </DialogTitle>
           </DialogHeader>
 
           <div>
             <div className="flex justify-between items-center">
-              <p>{rePositionMode ? 'Reposition liquidity' : 'Migrated liquidity'}</p>
+              <p>{rePositionMode ? t`Reposition liquidity` : t`Migrated liquidity`}</p>
               <p>
                 {formatDisplayNumber(route.zapDetails.initialAmountUsd, {
                   style: 'currency',
@@ -237,7 +236,7 @@ export function Preview({
                 className="flex-1 h-[40px] rounded-full border border-stroke text-subText text-sm font-medium"
                 onClick={onDismiss}
               >
-                Cancel
+                {t`Cancel`}
               </button>
               <button
                 className={cn(
@@ -246,7 +245,7 @@ export function Preview({
                 )}
                 onClick={handleConfirm}
               >
-                {rePositionMode ? 'Confirm' : 'Confirm migration'}
+                {rePositionMode ? t`Confirm` : t`Confirm migration`}
               </button>
             </div>
 

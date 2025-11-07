@@ -1,7 +1,9 @@
 import { useCallback, useState } from 'react';
 
+import { Trans, t } from '@lingui/macro';
+
 import { useNftApproval } from '@kyber/hooks';
-import { NETWORKS_INFO, defaultToken, univ3Types, univ4Types } from '@kyber/schema';
+import { defaultToken, univ3Types, univ4Types } from '@kyber/schema';
 import {
   InfoHelper,
   MAX_TOKENS,
@@ -20,9 +22,10 @@ import PriceInput from '@/components/Content/PriceInput';
 import ZapSummary from '@/components/Content/ZapSummary';
 import Estimated from '@/components/Estimated';
 import Header from '@/components/Header';
+import LeftWarning from '@/components/LeftWarning';
 import LiquidityChart from '@/components/LiquidityChart';
 import LiquidityChartSkeleton from '@/components/LiquidityChart/LiquidityChartSkeleton';
-import Modal from '@/components/Modal';
+import { PositionApr } from '@/components/PositionApr';
 import { PositionFee } from '@/components/PositionFee';
 import PositionLiquidity from '@/components/PositionLiquidity';
 import PositionPriceRange from '@/components/PositionPriceRange';
@@ -32,14 +35,16 @@ import Setting from '@/components/Setting';
 import Warning from '@/components/Warning';
 import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
+import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 import { PriceType, ZapSnapshotState } from '@/types/index';
 
 export default function Widget() {
   const {
     theme,
-    poolType,
     chainId,
+    rpcUrl,
+    poolType,
     poolAddress,
     connectedAccount,
     onClose,
@@ -49,8 +54,9 @@ export default function Widget() {
     onOpenZapMigration,
   } = useWidgetStore([
     'theme',
-    'poolType',
     'chainId',
+    'rpcUrl',
+    'poolType',
     'poolAddress',
     'connectedAccount',
     'onClose',
@@ -60,6 +66,7 @@ export default function Widget() {
     'onOpenZapMigration',
   ]);
   const { pool, poolError } = usePoolStore(['pool', 'poolError']);
+  const { positionError } = usePositionStore(['positionError']);
 
   const { zapInfo, tickLower, tickUpper, tokensIn, amountsIn, setTokensIn, setAmountsIn, slippage, getZapRoute } =
     useZapState();
@@ -69,7 +76,7 @@ export default function Widget() {
   const [widgetError, setWidgetError] = useState<string | undefined>();
   const [zapSnapshotState, setZapSnapshotState] = useState<ZapSnapshotState | null>(null);
 
-  const initializing = pool === 'loading';
+  const initializing = !pool;
   const { token0 = defaultToken, token1 = defaultToken } = !initializing ? pool : {};
 
   const isUniV3 = univ3Types.includes(poolType as any);
@@ -85,7 +92,7 @@ export default function Widget() {
     tokenId: positionId ? +positionId : undefined,
     spender: zapInfo?.routerAddress || '',
     userAddress: connectedAccount?.address || '',
-    rpcUrl: NETWORKS_INFO[chainId].defaultRpc,
+    rpcUrl,
     nftManagerContract,
     onSubmitTx: onSubmitTx,
   });
@@ -115,7 +122,9 @@ export default function Widget() {
   const addLiquiditySection = (
     <>
       <div>
-        <div className="text-base pl-1">{positionId ? 'Increase' : 'Add'} Liquidity</div>
+        <div className="text-base pl-1">
+          {positionId ? <Trans>Increase Liquidity</Trans> : <Trans>Add Liquidity</Trans>}
+        </div>
         {initializing || !tokensIn.length ? (
           <LiquidityToAddSkeleton />
         ) : (
@@ -131,10 +140,10 @@ export default function Widget() {
       </div>
 
       <div className="my-3 text-accent cursor-pointer w-fit text-sm" onClick={() => setOpenTokenSelectModal(true)}>
-        + Add Token(s) or Use Existing Position
+        <Trans>+ Add Token(s) or Use Existing Position</Trans>
         <InfoHelper
           placement="bottom"
-          text={`You can either zap in with up to ${MAX_TOKENS} tokens or select an existing position as the liquidity source`}
+          text={t`You can either zap in with up to ${MAX_TOKENS} tokens or select an existing position as the liquidity source`}
           color={theme.accent}
           width="300px"
           style={{
@@ -155,7 +164,7 @@ export default function Widget() {
   };
 
   const onCloseErrorDialog = () => {
-    if (poolError) onClose?.();
+    if (poolError || positionError) onClose?.();
     else {
       setWidgetError(undefined);
       getZapRoute();
@@ -164,23 +173,29 @@ export default function Widget() {
 
   return (
     <div className="ks-lw ks-lw-style">
-      {(poolError || widgetError) && (
+      {(poolError || positionError || widgetError) && (
         <StatusDialog
           type={StatusDialogType.ERROR}
-          title={poolError ? 'Failed to load pool' : widgetError ? 'Failed to build zap route' : ''}
-          description={poolError || widgetError}
+          title={
+            poolError
+              ? t`Failed to load pool`
+              : positionError
+                ? t`Failed to load position`
+                : widgetError
+                  ? t`Failed to build zap route`
+                  : ''
+          }
+          description={poolError || positionError || widgetError}
           onClose={onCloseErrorDialog}
           action={
             <button className="ks-outline-btn flex-1" onClick={onCloseErrorDialog}>
-              {poolError ? 'Close' : 'Close & Refresh'}
+              {poolError ? <Trans>Close</Trans> : <Trans>Close & Refresh</Trans>}
             </button>
           }
         />
       )}
-      {zapSnapshotState && pool && pool !== 'loading' && (
-        <Modal isOpen onClick={onClosePreview} modalContentClass="!max-h-[96vh]">
-          <Preview zapState={zapSnapshotState} pool={pool} onDismiss={onClosePreview} />
-        </Modal>
+      {zapSnapshotState && !initializing && (
+        <Preview zapState={zapSnapshotState} pool={pool} onDismiss={onClosePreview} />
       )}
 
       {openTokenSelectModal && (
@@ -204,7 +219,7 @@ export default function Widget() {
         />
       )}
 
-      <div className={`p-6 ${zapSnapshotState ? 'hidden' : ''}`}>
+      <div className={zapSnapshotState ? 'hidden' : 'p-6'}>
         <Header />
         <div className="mt-5 flex gap-5 max-sm:flex-col">
           <div className="w-[55%] max-sm:w-full">
@@ -231,6 +246,8 @@ export default function Widget() {
                 {addLiquiditySection}
               </>
             ) : null}
+            <PositionApr />
+            <LeftWarning />
           </div>
 
           <div className="w-[45%] max-sm:w-full">

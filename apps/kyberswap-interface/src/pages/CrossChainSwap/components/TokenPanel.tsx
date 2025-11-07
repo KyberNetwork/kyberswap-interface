@@ -1,4 +1,5 @@
 import { ChainId, Currency as EvmCurrency } from '@kyberswap/ks-sdk-core'
+import { t } from '@lingui/macro'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { rgba } from 'polished'
@@ -269,7 +270,7 @@ export const TokenPanel = ({
               ? selectedChain === NonEvmChain.Near && connectedAddress.includes('.near')
                 ? connectedAddress
                 : shortenHash(connectedAddress)
-              : `Select Wallet`}
+              : t`Select Wallet`}
             <ChevronDown size={14} />
 
             {showMenu && (
@@ -299,7 +300,7 @@ export const TokenPanel = ({
                     toggleShowMenu()
                   }}
                 >
-                  Disconnect
+                  {t`Disconnect`}
                 </Text>
               </Box>
             )}
@@ -383,7 +384,7 @@ export const TokenPanel = ({
                 active={Boolean(selectedCurrency?.symbol)}
                 style={{ paddingRight: 0 }}
               >
-                {selectedCurrency?.symbol || 'Select a token'}
+                {selectedCurrency?.symbol || t`Select a token`}
               </StyledTokenName>
             </RowFixed>
             <DropdownSVG />
@@ -411,7 +412,7 @@ export const TokenPanel = ({
           <Flex flexDirection="column" width="100%" padding="20px" sx={{ gap: '1rem' }}>
             <Flex justifyContent="space-between" alignItems="center">
               <Text fontSize={20} fontWeight={500}>
-                Select a token
+                {t`Select a token`}
               </Text>
               <CloseIcon onClick={() => setModalOpen(false)} />
             </Flex>
@@ -420,7 +421,7 @@ export const TokenPanel = ({
                 type="text"
                 id="token-search-input"
                 data-testid="token-search-input"
-                placeholder={'Search by token name, token symbol or address'}
+                placeholder={t`Search by token name, token symbol or address`}
                 value={searchQuery}
                 ref={inputRef}
                 onChange={e => {

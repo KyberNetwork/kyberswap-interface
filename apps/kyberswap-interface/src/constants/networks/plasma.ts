@@ -1,5 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
+import plasmaIcon from 'assets/networks/plasma.svg'
 import { NetworkInfo } from 'constants/networks/type'
 
 const EMPTY_ARRAY: any[] = []
@@ -12,7 +13,7 @@ const plasmaInfo: NetworkInfo = {
   priceRoute: 'plasma',
   aggregatorRoute: 'plasma',
   name: 'Plasma',
-  icon: 'https://storage.googleapis.com/ks-setting-1d682dca/9cdb1542-1d9a-4cf0-b67b-b68b1a29b09d1758725874771.png',
+  icon: plasmaIcon,
 
   iconSelected: NOT_SUPPORT,
 
@@ -22,7 +23,7 @@ const plasmaInfo: NetworkInfo = {
   nativeToken: {
     symbol: 'XPL',
     name: 'XPL',
-    logo: 'https://storage.googleapis.com/ks-setting-1d682dca/9cdb1542-1d9a-4cf0-b67b-b68b1a29b09d1758725874771.png',
+    logo: plasmaIcon,
     decimal: 18,
   },
   defaultRpcUrl: 'https://rpc.plasma.to',

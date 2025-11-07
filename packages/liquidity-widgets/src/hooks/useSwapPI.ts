@@ -17,11 +17,17 @@ export default function useSwapPI(zapInfo?: ZapRouteDetail) {
 
   const zapInfoToUse = zapInfo || zapCurrentInfo;
 
-  const initializing = pool === 'loading';
+  const initializing = !pool;
   const { token0, token1 } = initializing ? { token0: defaultToken, token1: defaultToken } : pool;
 
   const tokensToCheck = [...tokensIn, token0, token1, wrappedNativeToken, nativeToken];
-  const swapActions = parseSwapActions({ zapInfo: zapInfoToUse, tokens: tokensToCheck, poolType, chainId });
+  const swapActions = parseSwapActions({
+    zapInfo: zapInfoToUse,
+    tokens: tokensToCheck,
+    poolType,
+    chainId,
+    poolAddress: pool?.address,
+  });
 
   return { swapActions };
 }

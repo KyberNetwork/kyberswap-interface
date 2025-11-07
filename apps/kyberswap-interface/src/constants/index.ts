@@ -185,7 +185,7 @@ export const APP_PATHS = {
   EARN: '/earn',
   EARN_POOLS: '/earn/pools',
   EARN_POSITIONS: '/earn/positions',
-  EARN_POSITION_DETAIL: '/earn/position/:positionId/:chainId/:protocol',
+  EARN_POSITION_DETAIL: '/earn/position/:positionId/:chainId/:exchange',
   EARNS: '/earns',
   EARNS_POOLS: '/earns/pools',
   EARNS_POSITIONS: '/earns/positions',
@@ -350,6 +350,7 @@ export const SAFE_APP_CLIENT_ID = 'app.safe.global'
 
 export const CROSS_CHAIN_FEE_RECEIVER = '0x0891617fe27647731d6f1e764092b2f9f06130A0'
 export const CROSS_CHAIN_FEE_RECEIVER_SOLANA = 'D6tN4c5vpMqh4eFdHBUCEo7QLiw6DQy8f4NwqABZuJEf'
+export const CROSS_CHAIN_FEE_RECEIVER_SUI = 'intentionally-empty-for-now'
 // use a fake address in case user wallet is not connected. will reject if sign tx with this address
 export const BTC_DEFAULT_RECEIVER = 'bc1qmzgkj3hznt8heh4vp33v2cr2mvsyhc3lmfzz9p'
 export const SOLANA_NATIVE = '11111111111111111111111111111111'

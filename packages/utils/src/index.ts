@@ -30,6 +30,8 @@ export const getEtherscanLink = (
   }
 };
 
+export const isNotNull = <T>(value: T): value is NonNullable<T> => value !== null;
+
 export * from './liquidity';
 export * from './liquidity/pool';
 export * from './liquidity/position';

@@ -2,7 +2,7 @@ import { cn } from '@kyber/utils/tailwind-helpers';
 
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
-export default function WarningMessage({ isWarning, message }: { isWarning: boolean; message: string }) {
+export default function WarningMessage({ isWarning, message }: { isWarning: boolean; message: React.ReactNode }) {
   const { theme } = useWidgetStore(['theme']);
 
   return (

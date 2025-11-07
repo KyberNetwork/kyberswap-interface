@@ -1,11 +1,11 @@
-import { t } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { useUserPositionsQuery } from 'services/zapEarn'
 
-import { ReactComponent as IconKem } from 'assets/svg/kyber/kem.svg'
+import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import { ReactComponent as RocketIcon } from 'assets/svg/rocket.svg'
 import InfoHelper from 'components/InfoHelper'
 import LocalLoader from 'components/LocalLoader'
@@ -28,7 +28,7 @@ import {
 import useFilter, { SortBy } from 'pages/Earns/UserPositions/useFilter'
 import { default as MultiSelectDropdownMenu } from 'pages/Earns/components/DropdownMenu/MultiSelect'
 import { ItemIcon } from 'pages/Earns/components/DropdownMenu/styles'
-import { earnSupportedChains, earnSupportedExchanges, protocolGroupNameToExchangeMapping } from 'pages/Earns/constants'
+import { EarnChain, Exchange } from 'pages/Earns/constants'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import useClosedPositions from 'pages/Earns/hooks/useClosedPositions'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
@@ -41,6 +41,7 @@ import { parsePosition } from 'pages/Earns/utils/position'
 import { getUnfinalizedPositions } from 'pages/Earns/utils/unfinalizedPosition'
 import SortIcon, { Direction } from 'pages/MarketOverview/SortIcon'
 import { MEDIA_WIDTHS } from 'theme'
+import { enumToArrayOfValues } from 'utils'
 
 const POSITIONS_TABLE_LIMIT = 10
 
@@ -63,12 +64,15 @@ const UserPositions = () => {
     const statusFilter = filters.status.split(',')
     const isFilterOnlyClosedPosition = statusFilter.length === 1 && statusFilter[0] === PositionStatus.CLOSED
     const isFilterOnlyOpenPosition = !statusFilter.includes(PositionStatus.CLOSED)
+    const earnSupportedChains = enumToArrayOfValues(EarnChain, 'number')
+    const earnSupportedExchanges = enumToArrayOfValues(Exchange)
 
     return {
       addresses: account || '',
       chainIds: earnSupportedChains.join(','),
       protocols: earnSupportedExchanges.join(','),
       positionStatus: isFilterOnlyClosedPosition ? 'closed' : isFilterOnlyOpenPosition ? 'open' : 'all',
+      limit: 200,
     }
   }, [account, filters.status])
 
@@ -181,9 +185,9 @@ const UserPositions = () => {
     }
 
     if (filters.protocols) {
-      result = result.filter(position =>
-        filters.protocols?.split(',').includes(protocolGroupNameToExchangeMapping[position.dex.id]),
-      )
+      result = result.filter(position => {
+        return filters.protocols?.split(',').includes(position.dex.id)
+      })
     }
 
     if (filters.sortBy) {
@@ -196,8 +200,8 @@ const UserPositions = () => {
         })
       } else if (filters.sortBy === SortBy.APR) {
         result.sort((a, b) => {
-          const aValue = a.apr
-          const bValue = b.apr
+          const aValue = a.apr['24h']
+          const bValue = b.apr['24h']
 
           return filters.orderBy === Direction.ASC ? aValue - bValue : bValue - aValue
         })
@@ -221,9 +225,7 @@ const UserPositions = () => {
     unfinalizedPositions = unfinalizedPositions.filter(
       position =>
         (filters.chainIds ? filters.chainIds.split(',').includes(position.chain.id.toString()) : true) &&
-        (filters.protocols
-          ? filters.protocols.split(',').includes(protocolGroupNameToExchangeMapping[position.dex.id])
-          : true) &&
+        (filters.protocols ? filters.protocols.split(',').includes(position.dex.id) : true) &&
         (filters.status.includes(PositionStatus.IN_RANGE) || filters.status.includes(PositionStatus.OUT_RANGE)),
     )
 
@@ -407,26 +409,32 @@ const UserPositions = () => {
                   role="button"
                   onClick={() => onSortChange(SortBy.UNCLAIMED_FEE)}
                 >
-                  <div>Unclaimed</div>
-                  <Flex alignItems={'center'} sx={{ gap: '4px' }}>
-                    fees
-                    <SortIcon
-                      sorted={filters.sortBy === SortBy.UNCLAIMED_FEE ? (filters.orderBy as Direction) : undefined}
-                    />
-                  </Flex>
+                  <Trans>
+                    <Text>Unclaimed</Text>
+                    <Flex alignItems={'center'} sx={{ gap: '4px' }}>
+                      fees
+                      <SortIcon
+                        sorted={filters.sortBy === SortBy.UNCLAIMED_FEE ? (filters.orderBy as Direction) : undefined}
+                      />
+                    </Flex>
+                  </Trans>
                 </Flex>
 
                 <PositionTableHeaderFlexItem role="button" onClick={() => onSortChange(SortBy.UNCLAIMED_REWARDS)}>
-                  <Flex alignItems={'flex-start'} sx={{ gap: '4px' }}>
-                    <IconKem width={24} height={24} />
-                    <Text>Unclaimed</Text>
-                  </Flex>
-                  <Flex alignItems={'center'} sx={{ gap: '4px' }} paddingLeft={'28px'}>
-                    <Text>rewards</Text>
-                    <SortIcon
-                      sorted={filters.sortBy === SortBy.UNCLAIMED_REWARDS ? (filters.orderBy as Direction) : undefined}
-                    />
-                  </Flex>
+                  <Trans>
+                    <Flex alignItems={'flex-start'} sx={{ gap: '4px' }}>
+                      <FarmingIcon width={24} height={24} />
+                      <Text>Unclaimed</Text>
+                    </Flex>
+                    <Flex alignItems={'center'} sx={{ gap: '4px' }} paddingLeft={'28px'}>
+                      <Text>rewards</Text>
+                      <SortIcon
+                        sorted={
+                          filters.sortBy === SortBy.UNCLAIMED_REWARDS ? (filters.orderBy as Direction) : undefined
+                        }
+                      />
+                    </Flex>
+                  </Trans>
                 </PositionTableHeaderFlexItem>
 
                 {!upToLarge && <div />}

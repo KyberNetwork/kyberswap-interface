@@ -1,3 +1,5 @@
+import { Trans, t } from '@lingui/macro';
+
 import { useCopy } from '@kyber/hooks';
 import {
   DEXES_INFO,
@@ -7,7 +9,7 @@ import {
   defaultToken,
   univ3PoolNormalize,
 } from '@kyber/schema';
-import { InfoHelper, Skeleton, TokenLogo } from '@kyber/ui';
+import { InfoHelper, Skeleton, TokenLogo, TokenSymbol } from '@kyber/ui';
 import { shortenAddress } from '@kyber/utils/crypto';
 
 import { usePoolStore } from '@/stores/usePoolStore';
@@ -85,8 +87,9 @@ export function PoolInfo({ type }: { type: PoolInfoType }) {
             className="-ml-1.5 z-20"
           />
         </div>
-        <div className="text-xl self-center">
-          {token0.symbol}/{token1.symbol}
+        <div className="flex items-center gap-1">
+          <TokenSymbol symbol={token0.symbol} className="text-xl" maxWidth={90} />/
+          <TokenSymbol symbol={token1.symbol} className="text-xl" maxWidth={90} />
         </div>
         <div className="flex items-center justify-center px-1.5 py-1 bg-layer2 rounded-full">
           <InfoHelper
@@ -98,7 +101,7 @@ export function PoolInfo({ type }: { type: PoolInfoType }) {
             text={
               <div className="flex flex-col text-xs gap-2">
                 <div className="flex items-center gap-1">
-                  <span>Pool Address </span>
+                  <span>{t`Pool Address`} </span>
                   <span className="text-blue">{shortenAddress(pool.address, 4)}</span>
                   <span>{PoolCopy}</span>
                 </div>
@@ -106,7 +109,7 @@ export function PoolInfo({ type }: { type: PoolInfoType }) {
                   <TokenLogo src={token0.logo} alt={token0.symbol} />
                   <span>{token0.symbol} </span>
                   <span className="text-blue">
-                    {isToken0Native ? 'Native token' : shortenAddress(token0.address, 4)}
+                    {isToken0Native ? t`Native token` : shortenAddress(token0.address, 4)}
                   </span>
                   {!isToken0Native && <span>{Token0Copy}</span>}
                 </div>
@@ -114,7 +117,7 @@ export function PoolInfo({ type }: { type: PoolInfoType }) {
                   <TokenLogo src={token1.logo} alt={token1.symbol} />
                   <span>{token1.symbol} </span>
                   <span className="text-blue">
-                    {isToken1Native ? 'Native token' : shortenAddress(token1.address, 4)}
+                    {isToken1Native ? t`Native token` : shortenAddress(token1.address, 4)}
                   </span>
                   {!isToken1Native && <span>{Token1Copy}</span>}
                 </div>
@@ -129,7 +132,7 @@ export function PoolInfo({ type }: { type: PoolInfoType }) {
               background: `${isClosed ? theme.icons : isOutOfRange ? theme.warning : theme.accent}33`,
             }}
           >
-            {isClosed ? '● Closed' : isOutOfRange ? '● Out of range' : '● In range'}
+            {isClosed ? t`● Closed` : isOutOfRange ? t`● Out of range` : t`● In range`}
           </div>
         )}
       </div>
@@ -138,7 +141,9 @@ export function PoolInfo({ type }: { type: PoolInfoType }) {
         <TokenLogo src={DEXES_INFO[pool.poolType].icon} alt={dexName} />
         <div className="text-sm opacity-70">{dexName}</div>
         {isUniV3 && positionId && <div className="text-sm opacity-70">#{positionId}</div>}
-        <div className="rounded-xl bg-layer2 px-2 py-1 text-xs">Fee {pool.fee}%</div>
+        <div className="rounded-xl bg-layer2 px-2 py-1 text-xs">
+          <Trans>Fee {pool.fee}%</Trans>
+        </div>
       </div>
     </div>
   );

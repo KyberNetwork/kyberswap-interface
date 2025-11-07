@@ -121,12 +121,15 @@ export const getPoolInfo = async ({
         ticks: univ3PoolInfo.positionInfo.ticks || [],
         minTick: nearestUsableTick(MIN_TICK, univ3PoolInfo.positionInfo.tickSpacing),
         maxTick: nearestUsableTick(MAX_TICK, univ3PoolInfo.positionInfo.tickSpacing),
-        stats: {
-          ...univ3PoolInfo.poolStats,
-          kemLMApr: univ3PoolInfo.poolStats.kemLMApr || 0,
-          kemEGApr: univ3PoolInfo.poolStats.kemEGApr || 0,
-        },
+        stats: Object.entries(univ3PoolInfo.poolStats).reduce<Record<string, number>>(
+          (acc, [key, value]) => {
+            acc[key] = Number(value ?? 0);
+            return acc;
+          },
+          {} as Record<string, number>,
+        ),
         isFarming: univ3PoolInfo.programs?.includes('eg') || univ3PoolInfo.programs?.includes('lm'),
+        isFarmingLm: univ3PoolInfo.programs?.includes('lm'),
       },
     };
   }
@@ -149,12 +152,15 @@ export const getPoolInfo = async ({
         token1,
         fee: univ2PoolInfo.swapFee,
         reserves: univ2PoolInfo.reserves,
-        stats: {
-          ...univ2PoolInfo.poolStats,
-          kemLMApr: univ2PoolInfo.poolStats.kemLMApr || 0,
-          kemEGApr: univ2PoolInfo.poolStats.kemEGApr || 0,
-        },
+        stats: Object.entries(univ2PoolInfo.poolStats).reduce<Record<string, number>>(
+          (acc, [key, value]) => {
+            acc[key] = Number(value ?? 0);
+            return acc;
+          },
+          {} as Record<string, number>,
+        ),
         isFarming: univ2PoolInfo.programs?.includes('eg') || univ2PoolInfo.programs?.includes('lm'),
+        isFarmingLm: univ2PoolInfo.programs?.includes('lm'),
       },
     };
   }

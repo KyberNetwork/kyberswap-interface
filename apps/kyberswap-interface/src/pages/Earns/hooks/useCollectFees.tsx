@@ -4,10 +4,12 @@ import { useCallback, useEffect, useState } from 'react'
 import { NotificationType } from 'components/Announcement/type'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import ClaimModal, { ClaimInfo, ClaimType } from 'pages/Earns/components/ClaimModal'
-import { CoreProtocol, DEXES_SUPPORT_COLLECT_FEE } from 'pages/Earns/constants'
+import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
+import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
+import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import useCompounding from 'pages/Earns/hooks/useCompounding'
 import { ParsedPosition } from 'pages/Earns/types'
-import { getNftManagerContract, isForkFrom, submitTransaction } from 'pages/Earns/utils'
+import { getNftManagerContract, submitTransaction } from 'pages/Earns/utils'
 import { getUniv3CollectCallData, getUniv4CollectCallData } from 'pages/Earns/utils/fees'
 import { useNotify } from 'state/application/hooks'
 import { useAllTransactions, useTransactionAdder } from 'state/transactions/hooks'
@@ -41,7 +43,7 @@ const useCollectFees = ({ refetchAfterCollect }: { refetchAfterCollect: () => vo
   })
 
   const handleClaim = useCallback(async () => {
-    if (!library || !claimInfo?.dex || !DEXES_SUPPORT_COLLECT_FEE[claimInfo.dex]) return
+    if (!library || !claimInfo?.dex || !EARN_DEXES[claimInfo.dex].collectFeeSupported) return
 
     const contract = getNftManagerContract(claimInfo.dex, claimInfo.chainId)
     if (!contract) return
@@ -52,8 +54,7 @@ const useCollectFees = ({ refetchAfterCollect }: { refetchAfterCollect: () => vo
 
     setClaiming(true)
 
-    const isUniv4 = isForkFrom(claimInfo.dex, CoreProtocol.UniswapV4)
-
+    const isUniv4 = EARN_DEXES[claimInfo.dex as Exchange]?.isForkFrom === CoreProtocol.UniswapV4
     const txData = isUniv4
       ? await getUniv4CollectCallData({ claimInfo, recipient: account })
       : await getUniv3CollectCallData({ claimInfo, recipient: account })
@@ -110,9 +111,10 @@ const useCollectFees = ({ refetchAfterCollect }: { refetchAfterCollect: () => vo
 
   const onOpenClaim = (position: ParsedPosition) => {
     setOpenClaimModal(true)
-    const isUniV3 = isForkFrom(position.dex.id, CoreProtocol.UniswapV3)
+    const isUniV3 = EARN_DEXES[position.dex.id as Exchange]?.isForkFrom === CoreProtocol.UniswapV3
     const isAlgebra =
-      isForkFrom(position.dex.id, CoreProtocol.AlgebraV1) || isForkFrom(position.dex.id, CoreProtocol.AlgebraV19)
+      EARN_DEXES[position.dex.id as Exchange]?.isForkFrom === CoreProtocol.AlgebraV1 ||
+      EARN_DEXES[position.dex.id as Exchange]?.isForkFrom === CoreProtocol.AlgebraV19
     const { token0, token1, pool } = position
     const { nativeToken } = pool
 
@@ -177,6 +179,8 @@ const useCollectFees = ({ refetchAfterCollect }: { refetchAfterCollect: () => vo
       }
     }
   }, [allTransactions, refetchAfterCollect, txHash])
+
+  useAccountChanged(onCloseClaim)
 
   const claimModal =
     openClaimModal && claimInfo ? (

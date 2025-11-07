@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 
+import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import {
   DropdownContent,
   DropdownContentItem,
@@ -20,6 +21,8 @@ const DropdownMenu = ({
   options,
   value,
   width,
+  tooltip,
+  flatten,
   alignLeft = false,
   mobileFullWidth = false,
   mobileHalfWidth = false,
@@ -28,6 +31,8 @@ const DropdownMenu = ({
   options: MenuOption[]
   value: string | number
   width?: number
+  tooltip?: string
+  flatten?: boolean
   alignLeft?: boolean
   mobileFullWidth?: boolean
   mobileHalfWidth?: boolean
@@ -59,16 +64,18 @@ const DropdownMenu = ({
 
   return (
     <DropdownWrapper mobileFullWidth={mobileFullWidth} mobileHalfWidth={mobileHalfWidth} ref={ref}>
-      <DropdownTitleWrapper onClick={handleOpenChange}>
-        <DropdownTitle width={width}>
-          {optionValue?.icon && <ItemIcon src={optionValue.icon} alt={optionValue.label} />}
-          {/* {(!upToExtraSmall || !optionValue?.icon) && optionValue?.label} */}
-          {optionValue?.label}
-        </DropdownTitle>
-        <DropdownIcon open={open} />
-      </DropdownTitleWrapper>
+      <MouseoverTooltipDesktopOnly text={!open && tooltip} placement="top" width="260px">
+        <DropdownTitleWrapper flatten={flatten} highlight={flatten && open} onClick={handleOpenChange}>
+          <DropdownTitle width={width}>
+            {optionValue?.icon && <ItemIcon src={optionValue.icon} alt={optionValue.label} />}
+            {/* {(!upToExtraSmall || !optionValue?.icon) && optionValue?.label} */}
+            {optionValue?.label}
+          </DropdownTitle>
+          <DropdownIcon flatten={flatten} open={open} />
+        </DropdownTitleWrapper>
+      </MouseoverTooltipDesktopOnly>
       {open && (
-        <DropdownContent alignLeft={alignLeft}>
+        <DropdownContent flatten={flatten} alignLeft={alignLeft}>
           {options.map((option: MenuOption) => (
             <DropdownContentItem key={option.value} onClick={() => handleSelectItem(option.value)}>
               {option.icon && <ItemIcon src={option.icon} alt={option.label} />}

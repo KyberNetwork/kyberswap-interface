@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 
+import { t } from '@lingui/macro';
+
 import { usePrevious } from '@kyber/hooks';
 import { POOL_CATEGORY, univ3PoolNormalize, univ3Types } from '@kyber/schema';
 import { Button, Skeleton } from '@kyber/ui';
@@ -23,7 +25,7 @@ const PriceRange = () => {
   const { poolType, initialTick } = useWidgetStore(['poolType', 'initialTick']);
   const { pool, revertPrice, poolPrice } = usePoolStore(['pool', 'revertPrice', 'poolPrice']);
 
-  const initializing = pool === 'loading';
+  const initializing = !pool;
 
   const previousRevertPrice = usePrevious(revertPrice);
 
@@ -160,7 +162,7 @@ const PriceRange = () => {
             className={`flex-1 !border-none !text-icon ${rangeSelected === item.range ? ' !bg-[#ffffff14]' : ''}`}
             onClick={() => handleSelectPriceRange(item.range)}
           >
-            {item.range === FULL_PRICE_RANGE ? item.range : `${Number(item.range) * 100}%`}
+            {item.range === FULL_PRICE_RANGE ? t`Full Range` : `${Number(item.range) * 100}%`}
           </Button>
         ))
       )}

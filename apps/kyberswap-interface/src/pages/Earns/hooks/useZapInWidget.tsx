@@ -1,5 +1,8 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import {
   OnSuccessProps,
+  SupportedLocale,
+  TxStatus,
   LiquidityWidget as ZapIn,
   ChainId as ZapInChainId,
   PoolType as ZapInPoolType,
@@ -12,16 +15,20 @@ import { NotificationType } from 'components/Announcement/type'
 import Modal from 'components/Modal'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useActiveLocale } from 'hooks/useActiveLocale'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import { CoreProtocol, EarnDex, Exchange, earnSupportedProtocols } from 'pages/Earns/constants'
+import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
+import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import { ZapMigrationInfo } from 'pages/Earns/hooks/useZapMigrationWidget'
 import { DEFAULT_PARSED_POSITION } from 'pages/Earns/types'
-import { getNftManagerContractAddress, getTokenId, isForkFrom, submitTransaction } from 'pages/Earns/utils'
-import { listDexesWithVersion } from 'pages/Earns/utils/position'
+import { getNftManagerContractAddress, getTokenId, submitTransaction } from 'pages/Earns/utils'
+import { getDexVersion } from 'pages/Earns/utils/position'
 import { updateUnfinalizedPosition } from 'pages/Earns/utils/unfinalizedPosition'
 import { navigateToPositionAfterZap } from 'pages/Earns/utils/zap'
-import { useNotify, useWalletModalToggle } from 'state/application/hooks'
+import { useKyberSwapConfig, useNotify, useWalletModalToggle } from 'state/application/hooks'
+import { useAllTransactions, useTransactionAdder } from 'state/transactions/hooks'
+import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { getCookieValue } from 'utils'
 
 interface AddLiquidityPureParams {
@@ -34,10 +41,12 @@ interface AddLiquidityPureParams {
 
 interface AddLiquidityParams extends AddLiquidityPureParams {
   source: string
+  rpcUrl?: string
   connectedAccount: {
     address?: string | undefined
     chainId: number
   }
+  locale?: SupportedLocale
   onClose: () => void
   onConnectWallet: () => void
   onSwitchChain: () => void
@@ -49,23 +58,13 @@ export interface ZapInInfo {
   pool: {
     chainId: number
     address: string
-    dex: EarnDex | Exchange
+    dex: Exchange
   }
   positionId?: string
   initialTick?: { tickUpper: number; tickLower: number }
 }
 
-const zapInDexMapping: Record<EarnDex | Exchange, ZapInPoolType> = {
-  [EarnDex.DEX_UNISWAPV3]: ZapInPoolType.DEX_UNISWAPV3,
-  [EarnDex.DEX_PANCAKESWAPV3]: ZapInPoolType.DEX_PANCAKESWAPV3,
-  [EarnDex.DEX_SUSHISWAPV3]: ZapInPoolType.DEX_SUSHISWAPV3,
-  [EarnDex.DEX_QUICKSWAPV3ALGEBRA]: ZapInPoolType.DEX_QUICKSWAPV3ALGEBRA,
-  [EarnDex.DEX_CAMELOTV3]: ZapInPoolType.DEX_CAMELOTV3,
-  [EarnDex.DEX_THENAFUSION]: ZapInPoolType.DEX_THENAFUSION,
-  [EarnDex.DEX_KODIAK_V3]: ZapInPoolType.DEX_KODIAK_V3,
-  [EarnDex.DEX_UNISWAPV2]: ZapInPoolType.DEX_UNISWAPV2,
-  [EarnDex.DEX_UNISWAP_V4]: ZapInPoolType.DEX_UNISWAP_V4,
-  [EarnDex.DEX_UNISWAP_V4_FAIRFLOW]: ZapInPoolType.DEX_UNISWAP_V4_FAIRFLOW,
+const zapInDexMapping: Record<Exchange, ZapInPoolType> = {
   [Exchange.DEX_UNISWAPV3]: ZapInPoolType.DEX_UNISWAPV3,
   [Exchange.DEX_PANCAKESWAPV3]: ZapInPoolType.DEX_PANCAKESWAPV3,
   [Exchange.DEX_SUSHISWAPV3]: ZapInPoolType.DEX_SUSHISWAPV3,
@@ -76,17 +75,19 @@ const zapInDexMapping: Record<EarnDex | Exchange, ZapInPoolType> = {
   [Exchange.DEX_UNISWAPV2]: ZapInPoolType.DEX_UNISWAPV2,
   [Exchange.DEX_UNISWAP_V4]: ZapInPoolType.DEX_UNISWAP_V4,
   [Exchange.DEX_UNISWAP_V4_FAIRFLOW]: ZapInPoolType.DEX_UNISWAP_V4_FAIRFLOW,
+  [Exchange.DEX_PANCAKE_INFINITY_CL]: ZapInPoolType.DEX_PANCAKE_INFINITY_CL,
+  [Exchange.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: ZapInPoolType.DEX_PANCAKE_INFINITY_CL_FAIRFLOW,
 }
 
-const getEarnDexFromPoolType = (poolType: ZapInPoolType) => {
+const getDexFromPoolType = (poolType: ZapInPoolType) => {
   const dexIndex = Object.values(zapInDexMapping).findIndex(
-    (item, index) => item === poolType && earnSupportedProtocols.includes(Object.keys(zapInDexMapping)[index]),
+    (item, index) => item === poolType && EARN_DEXES[Object.keys(zapInDexMapping)[index] as Exchange],
   )
   if (dexIndex === -1) {
     console.error('Cannot find dex')
     return
   }
-  const dex = Object.keys(zapInDexMapping)[dexIndex] as EarnDex
+  const dex = Object.keys(zapInDexMapping)[dexIndex] as Exchange
 
   return dex
 }
@@ -102,6 +103,9 @@ const useZapInWidget = ({
   triggerClose?: boolean
   setTriggerClose?: (value: boolean) => void
 }) => {
+  const locale = useActiveLocale()
+  const addTransactionWithType = useTransactionAdder()
+  const allTransactions = useAllTransactions()
   const toggleWalletModal = useWalletModalToggle()
   const notify = useNotify()
   const navigate = useNavigate()
@@ -112,6 +116,20 @@ const useZapInWidget = ({
   const [searchParams, setSearchParams] = useSearchParams()
 
   const [addLiquidityPureParams, setAddLiquidityPureParams] = useState<AddLiquidityPureParams | null>(null)
+  const [zapTxHash, setZapTxHash] = useState<string[]>([])
+  const { rpc: zapInRpcUrl } = useKyberSwapConfig(addLiquidityPureParams?.chainId as ChainId | undefined)
+
+  const zapStatus = useMemo(() => {
+    if (!allTransactions || !zapTxHash.length) return {}
+
+    return zapTxHash.reduce((acc: Record<string, TxStatus>, txHash) => {
+      const zapTx = allTransactions[txHash]
+      if (zapTx?.[0].receipt) {
+        acc[txHash as keyof typeof acc] = zapTx?.[0].receipt.status === 1 ? TxStatus.SUCCESS : TxStatus.FAILED
+      } else acc[txHash as keyof typeof acc] = TxStatus.PENDING
+      return acc
+    }, {})
+  }, [allTransactions, zapTxHash])
 
   const handleCloseZapInWidget = useCallback(() => {
     searchParams.delete('exchange')
@@ -119,13 +137,14 @@ const useZapInWidget = ({
     searchParams.delete('poolAddress')
     setSearchParams(searchParams)
     setAddLiquidityPureParams(null)
+    setZapTxHash([])
   }, [searchParams, setSearchParams])
 
   const handleNavigateToPosition = useCallback(
     async (txHash: string, chainId: number, poolType: ZapInPoolType, poolId: string) => {
       if (!library) return
 
-      const dex = getEarnDexFromPoolType(poolType)
+      const dex = getDexFromPoolType(poolType)
       if (!dex) return
 
       navigateToPositionAfterZap(library, txHash, chainId, dex, poolId, navigate)
@@ -162,20 +181,12 @@ const useZapInWidget = ({
     ) => {
       if (!addLiquidityPureParams) return
 
-      const dexIndex = Object.values(zapInDexMapping).findIndex(
-        (item, index) =>
-          item === addLiquidityPureParams.poolType &&
-          earnSupportedProtocols.includes(Object.keys(zapInDexMapping)[index]),
-      )
-      if (dexIndex === -1) {
-        console.error('Cannot find dex')
-        return
-      }
-      const dex = Object.keys(zapInDexMapping)[dexIndex] as EarnDex
+      const dex = getDexFromPoolType(addLiquidityPureParams.poolType)
+      if (!dex) return
 
       onOpenZapMigration({
         from: {
-          poolType: position.exchange as EarnDex,
+          poolType: position.exchange as Exchange,
           poolAddress: position.poolId,
           positionId: position.positionId.toString(),
         },
@@ -198,7 +209,10 @@ const useZapInWidget = ({
         ? {
             ...addLiquidityPureParams,
             source: 'kyberswap-earn',
+            rpcUrl: zapInRpcUrl,
             referral: refCode,
+            zapStatus,
+            locale,
             onViewPosition: (txHash: string) => {
               const { chainId, poolType, poolAddress } = addLiquidityPureParams
               handleCloseZapInWidget()
@@ -218,18 +232,16 @@ const useZapInWidget = ({
             onSuccess: async (data: OnSuccessProps) => {
               if (!library) return
 
-              const dex = getEarnDexFromPoolType(data.position.poolType)
+              const dex = getDexFromPoolType(data.position.poolType)
               if (!dex) return
 
-              const isUniv2 = isForkFrom(dex, CoreProtocol.UniswapV2)
-              const isUniV4 = isForkFrom(dex, CoreProtocol.UniswapV4)
+              const isUniv2 = EARN_DEXES[dex as Exchange]?.isForkFrom === CoreProtocol.UniswapV2
 
               const nftId =
                 data.position.positionId ||
-                (isUniv2 ? account || '' : ((await getTokenId(library, data.txHash, isUniV4)) || '').toString())
+                (isUniv2 ? account || '' : ((await getTokenId(library, data.txHash, dex)) || '').toString())
 
-              const dexVersion = listDexesWithVersion.includes(dex) ? dex.split(' ').pop() || '' : ''
-
+              const dexVersion = getDexVersion(dex)
               const contract = getNftManagerContractAddress(dex, chainId)
 
               updateUnfinalizedPosition({
@@ -243,6 +255,7 @@ const useZapInWidget = ({
                 },
                 dex: {
                   id: dex,
+                  name: EARN_DEXES[dex].name,
                   logo: data.position.dexLogo,
                   version: dexVersion,
                 },
@@ -286,28 +299,57 @@ const useZapInWidget = ({
                 isValueUpdating: !!data.position.positionId,
               })
             },
-            onSubmitTx: async (txData: { from: string; to: string; data: string; value: string; gasLimit: string }) => {
+            onSubmitTx: async (
+              txData: { from: string; to: string; data: string; value: string; gasLimit: string },
+              additionalInfo?: {
+                tokensIn: Array<{ symbol: string; amount: string; logoUrl?: string }>
+                pool: string
+                dexLogo: string
+              },
+            ) => {
               const res = await submitTransaction({ library, txData })
               const { txHash, error } = res
 
               if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
 
+              const dex = getDexFromPoolType(addLiquidityPureParams.poolType)
+              if (additionalInfo && dex) {
+                addTransactionWithType({
+                  hash: txHash,
+                  type: addLiquidityPureParams.positionId
+                    ? TRANSACTION_TYPE.EARN_INCREASE_LIQUIDITY
+                    : TRANSACTION_TYPE.EARN_ADD_LIQUIDITY,
+                  extraInfo: {
+                    pool: additionalInfo?.pool || '',
+                    positionId: addLiquidityPureParams.positionId || '',
+                    tokensIn: additionalInfo?.tokensIn || [],
+                    dexLogoUrl: additionalInfo?.dexLogo,
+                    dex,
+                  },
+                })
+              }
+
+              setZapTxHash(prev => [...prev, txHash])
               return txHash
             },
           }
         : null,
     [
       addLiquidityPureParams,
+      zapInRpcUrl,
       refCode,
+      zapStatus,
       account,
       chainId,
       toggleWalletModal,
       handleOpenZapMigration,
       handleCloseZapInWidget,
       handleNavigateToPosition,
+      onRefreshPosition,
       changeNetwork,
       library,
-      onRefreshPosition,
+      addTransactionWithType,
+      locale,
     ],
   )
 

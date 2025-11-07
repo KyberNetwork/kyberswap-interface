@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 
+import { Trans } from '@lingui/macro';
+
 import { API_URLS, CHAIN_ID_TO_CHAIN, RemoveLiquidityAction, Token } from '@kyber/schema';
 import { TokenLogo, TokenSymbol } from '@kyber/ui';
 import { formatCurrency, formatTokenAmount } from '@kyber/utils/number';
@@ -31,7 +33,7 @@ export const PositionFee = () => {
 
   const { fees } = feeInfo?.removeLiquidity || {};
   if (!pool || !fees) return null;
-  const poolTokens: Token[] = pool === 'loading' ? [] : [pool.token0, pool.token1];
+  const poolTokens: Token[] = !pool ? [] : [pool.token0, pool.token1];
 
   const feeToken0 = poolTokens.find(item => item.address.toLowerCase() === fees?.[0]?.address.toLowerCase());
   const feeToken1 = poolTokens.find(item => item.address.toLowerCase() === fees?.[1]?.address.toLowerCase());
@@ -44,7 +46,9 @@ export const PositionFee = () => {
 
   return (
     <div className="px-4 py-3 mt-4 border border-stroke rounded-md">
-      <p className="text-subText mb-4 text-sm">Your Position Fee</p>
+      <p className="text-subText mb-4 text-sm">
+        <Trans>Your Position Fee</Trans>
+      </p>
 
       <div className="flex justify-between">
         <div className="flex items-center gap-2">

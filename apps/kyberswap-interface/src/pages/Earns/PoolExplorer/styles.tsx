@@ -109,6 +109,7 @@ export const TableWrapper = styled.div`
   background: ${({ theme }) => rgba(theme.background, 0.8)};
   border-radius: 16px;
   position: relative;
+  overflow: hidden;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     margin: 0 -16px;

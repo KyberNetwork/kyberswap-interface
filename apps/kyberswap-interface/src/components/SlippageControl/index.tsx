@@ -1,14 +1,23 @@
 import React, { useMemo } from 'react'
-import { Flex } from 'rebass'
 import styled, { css } from 'styled-components'
 
 import CustomSlippageInput from 'components/SlippageControl/CustomSlippageInput'
 import { DEFAULT_SLIPPAGES, DEFAULT_SLIPPAGES_HIGH_VOTALITY } from 'constants/index'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
-import useTheme from 'hooks/useTheme'
 import { usePairCategory } from 'state/swap/hooks'
 
 import { Props as CustomSlippageInputProps } from './CustomSlippageInput'
+
+const SlippageSettingElement = styled.div`
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 100%;
+  height: 28px;
+  border-radius: 20px;
+  background: ${({ theme }) => theme.tabBackground};
+  padding: 2px;
+`
 
 const slippageOptionCSS = css`
   height: 100%;
@@ -61,8 +70,7 @@ type Props = CustomSlippageInputProps
 // rawSlippage = 10
 // slippage = 10 / 10_000 = 0.001 = 0.1%
 const SlippageControl: React.FC<Props> = props => {
-  const { rawSlippage, setRawSlippage, isWarning } = props
-  const theme = useTheme()
+  const { rawSlippage, setRawSlippage, isWarning, isHighlight } = props
   const { mixpanelHandler } = useMixpanel()
   const cat = usePairCategory()
   const options = useMemo(
@@ -76,17 +84,7 @@ const SlippageControl: React.FC<Props> = props => {
   )
 
   return (
-    <Flex
-      sx={{
-        justifyContent: 'space-between',
-        width: '100%',
-        maxWidth: '100%',
-        height: '28px',
-        borderRadius: '20px',
-        background: theme.tabBackground,
-        padding: '2px',
-      }}
-    >
+    <SlippageSettingElement>
       {options.map(slp => (
         <DefaultSlippageOption
           key={slp}
@@ -101,8 +99,8 @@ const SlippageControl: React.FC<Props> = props => {
         </DefaultSlippageOption>
       ))}
 
-      <CustomSlippageInput {...props} options={options} />
-    </Flex>
+      <CustomSlippageInput data-highlight={isHighlight} {...props} options={options} />
+    </SlippageSettingElement>
   )
 }
 

@@ -1,24 +1,24 @@
-import { InfoHelper, MouseoverTooltip, Skeleton, TokenLogo } from '@kyber/ui';
+import { Trans, t } from '@lingui/macro';
+
+import { useCopy } from '@kyber/hooks';
+import { DEXES_INFO, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, UniV3Pool, UniV3Position, univ3Types } from '@kyber/schema';
+import { InfoHelper, MouseoverTooltip, Skeleton, TokenLogo, TokenSymbol } from '@kyber/ui';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
 import SettingIcon from '@/assets/svg/setting.svg';
 import X from '@/assets/svg/x.svg';
 import Setting from '@/components/Setting';
-import { shortenAddress } from '@/components/TokenInfo/utils';
-import { DEXES_INFO, NETWORKS_INFO } from '@/constants';
-import { NATIVE_TOKEN_ADDRESS } from '@/constants';
-import useCopy from '@/hooks/useCopy';
-import { UniV3Pool, UniV3Position, Univ3PoolType } from '@/schema';
+import { shortenAddress } from '@/components/TokenSelector/TokenInfo/utils';
 import { useZapOutContext } from '@/stores';
 import { useZapOutUserState } from '@/stores/state';
 
 export const Header = () => {
   const { poolAddress, onClose, poolType, pool, position, positionId, theme, chainId } = useZapOutContext(s => s);
-  const isUniV3 = Univ3PoolType.safeParse(poolType).success;
+  const isUniV3 = univ3Types.includes(poolType as any);
 
   const { degenMode, toggleSetting, mode } = useZapOutUserState();
 
-  const loading = pool === 'loading' || position === 'loading';
+  const loading = !pool || !position;
 
   const PoolCopy = useCopy({
     text: poolAddress,
@@ -39,10 +39,8 @@ export const Header = () => {
   const { icon: dexLogo, name: rawName } = DEXES_INFO[poolType];
   const dexName = typeof rawName === 'string' ? rawName : rawName[chainId];
 
-  const isToken0Native =
-    pool === 'loading' ? false : pool.token0.address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase();
-  const isToken1Native =
-    pool === 'loading' ? false : pool.token1.address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase();
+  const isToken0Native = !pool ? false : pool.token0.address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase();
+  const isToken1Native = !pool ? false : pool.token1.address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase();
 
   return (
     <>
@@ -51,7 +49,8 @@ export const Header = () => {
           <Skeleton className="w-[400px] h-7" />
         ) : (
           <div className="flex items-center gap-2 flex-1 flex-wrap">
-            {mode === 'zapOut' ? 'Zap Out' : 'Remove Liquidity'} {pool.token0.symbol}/{pool.token1.symbol}{' '}
+            {mode === 'zapOut' ? t`Zap Out` : t`Remove Liquidity`} <TokenSymbol symbol={pool.token0.symbol} />/
+            <TokenSymbol symbol={pool.token1.symbol} />{' '}
             {isUniV3 && (
               <div className="flex items-center gap-1">
                 #{positionId}
@@ -64,7 +63,7 @@ export const Header = () => {
                     background: `${isOutOfRange ? theme.warning : theme.success}33`,
                   }}
                 >
-                  {isOutOfRange ? '● Out of range' : '● In range'}
+                  {isOutOfRange ? t`● Out of range` : t`● In range`}
                 </div>
               </div>
             )}
@@ -90,10 +89,13 @@ export const Header = () => {
                 className="border-[2px] border-layer1 max-sm:w-[18px] max-sm:h-[18px] max-sm:-ml-2 -ml-1"
               />
             </div>
-            <span className="text-xl">
-              {pool.token0.symbol}/{pool.token1.symbol}
-            </span>
-            <div className="rounded-full text-xs bg-layer2 text-subText px-[14px] py-1">Fee {pool.fee}%</div>
+            <div className="text-xl flex items-center">
+              <TokenSymbol symbol={pool.token0.symbol} />/
+              <TokenSymbol symbol={pool.token1.symbol} />
+            </div>
+            <div className="rounded-full text-xs bg-layer2 text-subText px-[14px] py-1">
+              <Trans>Fee {pool.fee}%</Trans>
+            </div>
 
             <div className="flex items-center justify-center px-2 py-1 bg-layer2 rounded-full">
               <InfoHelper
@@ -106,16 +108,18 @@ export const Header = () => {
                   <div className="flex flex-col text-xs text-subText gap-2">
                     <div className="flex items-center gap-3">
                       <span>{pool.token0.symbol}: </span>
-                      <span>{isToken0Native ? 'Native token' : shortenAddress(pool.token0.address, 4)}</span>
+                      <span>{isToken0Native ? t`Native token` : shortenAddress(pool.token0.address, 4)}</span>
                       {!isToken0Native && <span>{Token0Copy}</span>}
                     </div>
                     <div className="flex items-center gap-1">
                       <span>{pool.token1.symbol}: </span>
-                      <span>{isToken1Native ? 'Native token' : shortenAddress(pool.token1.address, 4)}</span>
+                      <span>{isToken1Native ? t`Native token` : shortenAddress(pool.token1.address, 4)}</span>
                       {!isToken1Native && <span>{Token1Copy}</span>}
                     </div>
                     <div className="flex items-center gap-1">
-                      <span>Pool Address: </span>
+                      <span>
+                        <Trans>Pool Address:</Trans>{' '}
+                      </span>
                       <span>{shortenAddress(poolAddress, 4)}</span>
                       <span>{PoolCopy}</span>
                     </div>
@@ -131,7 +135,7 @@ export const Header = () => {
           </div>
         )}
 
-        <MouseoverTooltip text={degenMode ? 'Degen Mode is turned on!' : ''}>
+        <MouseoverTooltip text={degenMode ? t`Degen Mode is turned on!` : ''}>
           <div
             className="w-9 h-9 flex items-center justify-center rounded-full bg-layer2 hover:opacity-60 setting"
             id="zapout-setting"

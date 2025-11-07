@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { ChainId, EarnDex, Exchange, Univ2EarnDex } from '@kyber/schema';
+import { ChainId, DEX_NAME, Exchange, Univ2EarnDex } from '@kyber/schema';
 import { enumToArrayOfValues } from '@kyber/utils';
 import { shortenAddress } from '@kyber/utils/crypto';
 import { formatDisplayNumber } from '@kyber/utils/number';
@@ -18,10 +18,16 @@ const COPY_TIMEOUT = 2000;
 let hideCopied: ReturnType<typeof setTimeout>;
 
 const listDexesWithVersion = [
-  EarnDex.DEX_UNISWAPV2,
-  EarnDex.DEX_UNISWAPV3,
-  EarnDex.DEX_UNISWAP_V4,
-  EarnDex.DEX_UNISWAP_V4_FAIRFLOW,
+  Exchange.DEX_UNISWAPV2,
+  Exchange.DEX_UNISWAPV3,
+  Exchange.DEX_UNISWAP_V4,
+  Exchange.DEX_UNISWAP_V4_FAIRFLOW,
+  Exchange.DEX_PANCAKE_INFINITY_CL,
+  Exchange.DEX_PANCAKE_INFINITY_CL_FAIRFLOW,
+  Exchange.DEX_PANCAKESWAPV3,
+  Exchange.DEX_SUSHISWAPV3,
+  Exchange.DEX_QUICKSWAPV3ALGEBRA,
+  Exchange.DEX_CAMELOTV3,
 ];
 
 export const earnSupportedExchanges = enumToArrayOfValues(Exchange);
@@ -94,10 +100,11 @@ const UserPositions = ({
     <TokenLoader />
   ) : positions.length ? (
     positions.map((position: EarnPosition, index: number) => {
-      const isUniv2 = Univ2EarnDex.safeParse(position.pool.project).success;
+      const isUniv2 = Univ2EarnDex.safeParse(position.pool.exchange).success;
       const posStatus = isUniv2 ? PositionStatus.IN_RANGE : position.status;
-      const version = listDexesWithVersion.includes(position.pool.project)
-        ? position.pool.project.split(' ')[position.pool.project.split(' ').length - 1] || ''
+      const dexName = DEX_NAME[position.pool.exchange];
+      const version = listDexesWithVersion.includes(position.pool.exchange)
+        ? dexName.split(' ')[dexName.split(' ').length - 1] || ''
         : '';
 
       return (
@@ -105,13 +112,13 @@ const UserPositions = ({
           <div
             className="flex flex-col py-3 px-[26px] gap-2 cursor-pointer hover:bg-[#31cb9e33]"
             onClick={() => {
-              const isUniV2 = Univ2EarnDex.safeParse(position.pool.project).success;
+              const isUniV2 = Univ2EarnDex.safeParse(position.pool.exchange).success;
               if (isUniV2 && !account) return;
 
               onClose();
               onOpenZapMigration(
                 {
-                  exchange: position.pool.project,
+                  exchange: position.pool.exchange,
                   poolId: position.pool.poolAddress,
                   positionId: !isUniV2 ? position.tokenId : account,
                 },

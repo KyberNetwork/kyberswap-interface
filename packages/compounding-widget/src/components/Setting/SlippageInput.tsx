@@ -1,5 +1,7 @@
 import { useState } from 'react';
 
+import { t } from '@lingui/macro';
+
 import AlertIcon from '@/assets/svg/alert.svg';
 import { parseSlippageInput, validateSlippageInput } from '@/components/Setting/utils';
 import { useZapState } from '@/hooks/useZapState';
@@ -88,7 +90,7 @@ const SlippageInput = () => {
           <input
             className="bg-layer1 border-none outline-none text-right text-text w-full text-xs p-0 focus:bg-layer1"
             data-active={![5, 10, 50, 100].includes(slippage)}
-            placeholder="Custom"
+            placeholder={t`Custom`}
             onFocus={onCustomSlippageFocus}
             onBlur={onCustomSlippageBlur}
             value={v}

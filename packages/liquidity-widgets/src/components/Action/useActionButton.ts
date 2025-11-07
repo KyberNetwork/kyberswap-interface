@@ -1,12 +1,14 @@
 import { useMemo, useState } from 'react';
 
+import { t } from '@lingui/macro';
+
 import { usePositionOwner } from '@kyber/hooks';
 import { APPROVAL_STATE, useErc20Approvals } from '@kyber/hooks';
-import { API_URLS, CHAIN_ID_TO_CHAIN, NETWORKS_INFO, univ3PoolNormalize, univ4Types } from '@kyber/schema';
-import { PI_LEVEL, getZapImpact } from '@kyber/utils';
+import { API_URLS, CHAIN_ID_TO_CHAIN, univ3PoolNormalize, univ4Types } from '@kyber/schema';
+import { PI_LEVEL, friendlyError, getZapImpact } from '@kyber/utils';
 import { parseUnits } from '@kyber/utils/crypto';
 
-import { ERROR_MESSAGE } from '@/constants';
+import { ERROR_MESSAGE, translateErrorMessage } from '@/constants';
 import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
@@ -26,17 +28,27 @@ export default function useActionButton({
   setWidgetError: (_value: string | undefined) => void;
   setZapSnapshotState: (_value: ZapSnapshotState | null) => void;
 }) {
-  const { poolType, chainId, connectedAccount, onConnectWallet, onSwitchChain, onSubmitTx, positionId, source } =
-    useWidgetStore([
-      'poolType',
-      'chainId',
-      'connectedAccount',
-      'onConnectWallet',
-      'onSwitchChain',
-      'onSubmitTx',
-      'positionId',
-      'source',
-    ]);
+  const {
+    chainId,
+    rpcUrl,
+    poolType,
+    connectedAccount,
+    onConnectWallet,
+    onSwitchChain,
+    onSubmitTx,
+    positionId,
+    source,
+  } = useWidgetStore([
+    'chainId',
+    'rpcUrl',
+    'poolType',
+    'connectedAccount',
+    'onConnectWallet',
+    'onSwitchChain',
+    'onSubmitTx',
+    'positionId',
+    'source',
+  ]);
   const { pool } = usePoolStore(['pool']);
   const positionOwner = usePositionOwner({
     positionId: positionId || '',
@@ -78,7 +90,7 @@ export default function useActionButton({
     amounts: amountsToApprove,
     addreses: tokenAddressesToApprove,
     owner: connectedAccount?.address || '',
-    rpcUrl: NETWORKS_INFO[chainId].defaultRpc,
+    rpcUrl,
     spender: zapInfo?.routerAddress || '',
     onSubmitTx: onSubmitTx,
   });
@@ -121,23 +133,21 @@ export default function useActionButton({
   const isInvalidZapImpact = zapImpact?.level === PI_LEVEL.INVALID;
 
   const buttonStates = [
-    { condition: zapLoading, text: 'Fetching Route' },
-    { condition: gasLoading, text: 'Estimating Gas' },
-    { condition: errors.length > 0, text: errors[0] },
-    { condition: isUniv4 && isNotOwner, text: 'Not the position owner' },
-    { condition: loading, text: 'Checking Allowance' },
-    { condition: addressToApprove || nftApprovePendingTx, text: 'Approving' },
-    { condition: notApprove, text: `Approve ${notApprove?.symbol}` },
-    { condition: isUniv4 && positionId && !nftApproved, text: 'Approve NFT' },
-    { condition: isVeryHighZapImpact || isInvalidZapImpact, text: 'Zap anyway' },
+    { condition: addressToApprove || nftApprovePendingTx, text: t`Approving` },
+    { condition: zapLoading, text: t`Fetching Route` },
+    { condition: gasLoading, text: t`Estimating Gas` },
+    { condition: errors.length > 0, text: translateErrorMessage(errors[0]) },
+    { condition: isUniv4 && isNotOwner, text: t`Not the position owner` },
+    { condition: loading, text: t`Checking Allowance` },
+    { condition: notApprove, text: t`Approve ${notApprove?.symbol ?? ''}` },
+    { condition: isUniv4 && positionId && !nftApproved, text: t`Approve NFT` },
+    { condition: isVeryHighZapImpact || isInvalidZapImpact, text: t`Zap anyway` },
   ];
-  const btnText = buttonStates.find(state => state.condition)?.text || 'Preview';
+  const btnText = buttonStates.find(state => state.condition)?.text || t`Preview`;
 
   const getGasEstimation = async ({ deadline }: { deadline: number }) => {
     if (!zapInfo) return;
     setGasLoading(true);
-    const rpcUrl = NETWORKS_INFO[chainId].defaultRpc;
-
     const res = await fetch(`${API_URLS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/in/route/build`, {
       method: 'POST',
       body: JSON.stringify({
@@ -161,13 +171,19 @@ export default function useActionButton({
 
           const { gasUsd, error } = await estimateGasForTx({ rpcUrl, txData, chainId });
 
-          setGasLoading(false);
           if (error) {
             setWidgetError(error);
             return;
           }
           return gasUsd;
         }
+      })
+      .catch(err => {
+        setWidgetError(friendlyError(err as Error));
+        console.error(err);
+      })
+      .finally(() => {
+        setGasLoading(false);
       });
 
     return res;
@@ -191,7 +207,7 @@ export default function useActionButton({
       setClickedLoading(true);
       approveNft().finally(() => setClickedLoading(false));
     } else if (
-      pool !== 'loading' &&
+      pool !== null &&
       amountsIn &&
       tokensIn.every(Boolean) &&
       zapInfo &&

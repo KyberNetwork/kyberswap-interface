@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
 
+import { t } from '@lingui/macro';
+
 import { MouseoverTooltip } from '@kyber/ui';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
 import AlertIcon from '@/assets/icons/alert.svg';
 import { HIGH_SLIPPAGE_WARNING, LOW_SLIPPAGE_WARNING } from '@/components/Warning/SlippageWarning';
 import { getSlippageStorageKey } from '@/constants';
+import { i18n } from '@/lingui';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 import { useZapStore } from '@/stores/useZapStore';
@@ -26,7 +29,7 @@ export const validateSlippageInput = (
   if (!str.match(numberRegex)) {
     return {
       isValid: false,
-      message: `Enter a valid slippage percentage`,
+      message: t`Enter a valid slippage percentage`,
     };
   }
 
@@ -35,29 +38,29 @@ export const validateSlippageInput = (
   if (Number.isNaN(rawSlippage)) {
     return {
       isValid: false,
-      message: `Enter a valid slippage percentage`,
+      message: t`Enter a valid slippage percentage`,
     };
   }
 
   if (rawSlippage < 0) {
     return {
       isValid: false,
-      message: `Enter a valid slippage percentage`,
+      message: t`Enter a valid slippage percentage`,
     };
   } else if (rawSlippage < suggestedSlippage / 2) {
     return {
       isValid: true,
-      message: LOW_SLIPPAGE_WARNING,
+      message: i18n._(LOW_SLIPPAGE_WARNING),
     };
   } else if (rawSlippage > 5000) {
     return {
       isValid: false,
-      message: `Enter a smaller slippage percentage`,
+      message: t`Enter a smaller slippage percentage`,
     };
   } else if (rawSlippage > 2 * suggestedSlippage) {
     return {
       isValid: true,
-      message: HIGH_SLIPPAGE_WARNING,
+      message: i18n._(HIGH_SLIPPAGE_WARNING),
     };
   }
 
@@ -183,7 +186,7 @@ const SlippageInput = ({
               inputClassName,
             )}
             data-active={slippage && ![5, 10, 50, 100].includes(slippage)}
-            placeholder="Custom"
+            placeholder={t`Custom`}
             onFocus={onCustomSlippageFocus}
             onBlur={onCustomSlippageBlur}
             value={v}
@@ -205,8 +208,8 @@ const SlippageInput = ({
             }
           }}
         >
-          <MouseoverTooltip text="Dynamic entry based on trading pair." width="fit-content" placement="bottom">
-            <span className="border-b border-dotted border-primary">Suggestion</span>
+          <MouseoverTooltip text={t`Dynamic entry based on trading pair.`} width="fit-content" placement="bottom">
+            <span className="border-b border-dotted border-primary">{t`Suggestion`}</span>
           </MouseoverTooltip>
           <span>{((suggestedSlippage * 100) / 10_000).toFixed(2)}%</span>
         </div>

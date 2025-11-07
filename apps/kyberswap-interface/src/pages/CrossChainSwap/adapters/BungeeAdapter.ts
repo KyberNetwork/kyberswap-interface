@@ -1,13 +1,14 @@
-import { Currency } from '@kyberswap/ks-sdk-core'
 import { WalletClient, formatUnits } from 'viem'
 
 import { BUNGEE_AFFILIATE_ID, CROSS_CHAIN_FEE_RECEIVER, ETHER_ADDRESS, KYBERSWAP_DOMAIN } from 'constants/index'
 import { MAINNET_NETWORKS } from 'constants/networks'
 
 import { Quote } from '../registry'
+import { isWrappedToken } from '../utils'
 import {
   BaseSwapAdapter,
   Chain,
+  Currency,
   EvmQuoteParams,
   NOT_SUPPORTED_CHAINS_PRICE_SERVICE,
   NormalizedQuote,
@@ -42,6 +43,21 @@ export class BungeeAdapter extends BaseSwapAdapter {
   getIcon(): string {
     return 'https://www.bungee.exchange/favicon.ico'
   }
+
+  canSupport(_category: string, tokenIn?: Currency, _tokenOut?: Currency): boolean {
+    // Bungee only supports EVM tokens, so check if it has chainId
+    if (!tokenIn || !('chainId' in tokenIn) || !tokenIn.chainId) return false
+
+    const isWrappedTokenIn = isWrappedToken(tokenIn)
+
+    if (isWrappedTokenIn) {
+      console.warn(`Bungee does not support swap from wrapped token: ${tokenIn.symbol || 'unknown'}`)
+      return false
+    }
+
+    return true
+  }
+
   getSupportedChains(): Chain[] {
     return [...MAINNET_NETWORKS]
   }
@@ -139,7 +155,14 @@ export class BungeeAdapter extends BaseSwapAdapter {
       account,
     })
 
-    return { ...params, sourceTxHash: hash }
+    return {
+      ...params,
+      sourceTxHash: hash,
+      amountInUsd: quote.inputUsd,
+      amountOutUsd: quote.outputUsd,
+      platformFeePercent: quote.platformFeePercent,
+      recipient: quote.quoteParams.recipient,
+    }
   }
   async getTransactionStatus(params: NormalizedTxResponse): Promise<SwapStatus> {
     const response = await fetch(`${BUNGEE_API_BASE_URL}/api/v1/bungee/status?requestHash=${params.id}`)

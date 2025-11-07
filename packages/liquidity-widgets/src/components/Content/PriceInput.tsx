@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 
+import { Trans } from '@lingui/macro';
+
 import { univ3PoolNormalize } from '@kyber/schema';
 import { Skeleton, TokenSymbol } from '@kyber/ui';
 import { formatNumber } from '@kyber/utils/number';
@@ -18,14 +20,14 @@ export default function PriceInput({ type }: { type: PriceType }) {
   const [localValue, setLocalValue] = useState('');
 
   const pool = useMemo(() => {
-    if (rawPool === 'loading') return rawPool;
+    if (rawPool === null) return rawPool;
     const { success, data } = univ3PoolNormalize.safeParse(rawPool);
     if (success) return data;
 
-    return 'loading';
+    return null;
   }, [rawPool]);
 
-  const initializing = pool === 'loading';
+  const initializing = !pool;
 
   const isMinTick = !initializing && tickLower === pool.minTick;
   const isMaxTick = !initializing && tickUpper === pool.maxTick;
@@ -64,7 +66,7 @@ export default function PriceInput({ type }: { type: PriceType }) {
   };
 
   const wrappedCorrectPrice = (value: string) => {
-    if (pool === 'loading') return;
+    if (!pool) return;
     const tick = priceToClosestTick(value, pool.token0?.decimals, pool.token1?.decimals, revertPrice);
     if (tick !== undefined) {
       const t = tick % pool.tickSpacing === 0 ? tick : nearestUsableTick(tick, pool.tickSpacing);
@@ -87,7 +89,7 @@ export default function PriceInput({ type }: { type: PriceType }) {
   };
 
   useEffect(() => {
-    if (pool === 'loading') return;
+    if (!pool) return;
     if (type === PriceType.MinPrice && (!revertPrice ? isMinTick : isMaxTick)) {
       setLocalValue('0');
     } else if (type === PriceType.MaxPrice && (!revertPrice ? isMaxTick : isMinTick)) {
@@ -116,7 +118,13 @@ export default function PriceInput({ type }: { type: PriceType }) {
         </button>
 
         <div className="flex flex-col items-center gap-[6px] w-fit text-sm font-medium text-subText">
-          <span>{type === PriceType.MinPrice ? 'Min' : PriceType.MaxPrice ? 'Max' : ''} price</span>
+          <span>
+            {type === PriceType.MinPrice ? (
+              <Trans>Min price</Trans>
+            ) : type === PriceType.MaxPrice ? (
+              <Trans>Max price</Trans>
+            ) : null}
+          </span>
           {initializing ? (
             <Skeleton className="w-20 h-6 mx-4" />
           ) : (
@@ -153,9 +161,11 @@ export default function PriceInput({ type }: { type: PriceType }) {
         <Skeleton className="w-24 h-5 mt-1" />
       ) : (
         <div className="w-max text-sm font-medium text-subText flex items-center gap-1">
-          <TokenSymbol symbol={!revertPrice ? pool.token1.symbol : pool.token0.symbol} maxWidth={80} />
-          <span>per</span>
-          <TokenSymbol symbol={!revertPrice ? pool.token0.symbol : pool.token1.symbol} maxWidth={80} />
+          <Trans>
+            <TokenSymbol symbol={!revertPrice ? pool.token1.symbol : pool.token0.symbol} maxWidth={80} />
+            <span>per</span>
+            <TokenSymbol symbol={!revertPrice ? pool.token0.symbol : pool.token1.symbol} maxWidth={80} />
+          </Trans>
         </div>
       )}
     </div>

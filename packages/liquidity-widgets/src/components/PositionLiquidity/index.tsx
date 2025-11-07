@@ -1,3 +1,5 @@
+import { Trans } from '@lingui/macro';
+
 import { Skeleton, TokenLogo } from '@kyber/ui';
 import { formatCurrency, formatTokenAmount } from '@kyber/utils/number';
 
@@ -8,15 +10,17 @@ const PositionLiquidity = () => {
   const { pool } = usePoolStore(['pool']);
   const { position } = usePositionStore(['position']);
 
-  const initializing = pool === 'loading' || position === 'loading';
-  const positionNotExist = position === 'loading' || !position || initializing;
+  const initializing = !pool;
+  const positionNotExist = !position || initializing;
 
   const amount0 = positionNotExist ? '0' : formatTokenAmount(position.amount0, pool.token0.decimals, 6);
   const amount1 = positionNotExist ? '0' : formatTokenAmount(position.amount1, pool.token1.decimals, 6);
 
   return (
     <div className="px-4 py-3 mt-4 border border-stroke rounded-md">
-      <p className="text-subText mb-4 text-sm">Your Position Liquidity</p>
+      <p className="text-subText mb-4 text-sm">
+        <Trans>Your Position Liquidity</Trans>
+      </p>
       <div className="flex justify-between">
         {initializing ? (
           <Skeleton className="w-32 h-5" />

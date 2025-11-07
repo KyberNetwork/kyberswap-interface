@@ -1,4 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
+import { Trans, t } from '@lingui/macro'
 import { BigNumber } from 'ethers'
 import { useCallback, useEffect, useState } from 'react'
 
@@ -50,8 +51,8 @@ const ClaimBtn = ({ info }: { info: { ref: string; clientCode: string } }) => {
           setIsClaiming(false)
           notify(
             {
-              title: 'Claim failed',
-              summary: res?.message || 'Something went wrong',
+              title: t`Claim failed`,
+              summary: res?.message || t`Something went wrong`,
               type: NotificationType.ERROR,
             },
             5000,
@@ -80,8 +81,8 @@ const ClaimBtn = ({ info }: { info: { ref: string; clientCode: string } }) => {
           .catch(e => {
             notify(
               {
-                title: 'Claim failed',
-                summary: e?.message || 'Something went wrong',
+                title: t`Claim failed`,
+                summary: e?.message || t`Something went wrong`,
                 type: NotificationType.ERROR,
               },
               5000,
@@ -112,7 +113,7 @@ const ClaimBtn = ({ info }: { info: { ref: string; clientCode: string } }) => {
 
   return (
     <ButtonOutlined color={theme.primary} width="88px" height="32px" onClick={handleClaim} disabled={claiming}>
-      {claiming ? 'Claiming' : 'Claim'}
+      {claiming ? <Trans>Claiming</Trans> : <Trans>Claim</Trans>}
     </ButtonOutlined>
   )
 }

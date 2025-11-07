@@ -1,4 +1,5 @@
 import { ChainId, CurrencyAmount, Currency as EvmCurrency } from '@kyberswap/ks-sdk-core'
+import { Trans, t } from '@lingui/macro'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
 import { adaptSolanaWallet } from '@reservoir0x/relay-solana-wallet-adapter'
 import { useConnection, useWallet } from '@solana/wallet-adapter-react'
@@ -7,6 +8,7 @@ import { useEffect, useState } from 'react'
 import { ArrowDown, X } from 'react-feather'
 import { useSearchParams } from 'react-router-dom'
 import { Box, Flex, Text } from 'rebass'
+import { useLazyCheckBlackjackQuery } from 'services/blackjack'
 import styled from 'styled-components'
 import { formatUnits } from 'viem'
 import { useWalletClient } from 'wagmi'
@@ -26,6 +28,7 @@ import { formatDisplayNumber } from 'utils/numbers'
 
 import { Chain, Currency, NonEvmChain, NonEvmChainInfo } from '../adapters'
 import { useCrossChainSwap } from '../hooks/useCrossChainSwap'
+import { getChainName } from '../utils'
 import { PiWarning } from './PiWarning'
 import { Tag } from './QuoteSelector'
 import { Summary } from './Summary'
@@ -126,7 +129,10 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
 
   const { walletInfo, availableWallets } = useBitcoinWallet()
 
-  const { publicKey: solanaAddress, sendTransaction } = useWallet()
+  const [checkBlackjack] = useLazyCheckBlackjackQuery()
+
+  const solanaWallet = useWallet()
+  const { publicKey: solanaAddress, sendTransaction } = solanaWallet
   const { connection } = useConnection()
 
   const sendBtcFn = async (params: { recipient: string; amount: string | number }) => {
@@ -188,10 +194,22 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
     )
 
     setSubmittingTx(true)
+
+    const blackjackRes = await checkBlackjack(sender)
+    if (blackjackRes?.data?.blacklisted) {
+      setSubmittingTx(false)
+      setTxError('There was an error with your transaction.')
+      return
+    }
+
     const res = await selectedQuote.adapter
       .executeSwap(
         selectedQuote,
-        fromChainId === 'solana' ? adaptedWallet : (walletClient as any),
+        fromChainId === 'solana'
+          ? selectedQuote.adapter.getName() === 'Relay' // for backward compatibility
+            ? adaptedWallet
+            : (solanaWallet as any)
+          : (walletClient as any),
         nearWallet,
         sendBtcFn,
         sendTransaction,
@@ -214,11 +232,26 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
     }
 
     if (res) {
-      setTransactions([res, ...transactions].slice(0, 30))
+      // enrich tx with usd/fee/recipient for later use
+      const enriched = {
+        ...res,
+        amountInUsd: selectedQuote.quote.inputUsd,
+        amountOutUsd: selectedQuote.quote.outputUsd,
+        platformFeePercent: selectedQuote.quote.platformFeePercent,
+        recipient: receiver,
+      }
+
+      setTransactions([enriched, ...transactions].slice(0, 30))
 
       const swapDetails = {
+        amount_in: amount,
+        amount_in_usd: selectedQuote.quote.inputUsd,
+        amount_out: selectedQuote.quote.outputAmount.toString(),
+        amount_out_usd: selectedQuote.quote.outputUsd,
+        currency: 'USD',
+        fee_percent: selectedQuote.quote.platformFeePercent,
         from_chain: fromChainId,
-        to_chain: toChainId,
+        from_chain_name: getChainName(fromChainId),
         from_token:
           fromChainId === NonEvmChain.Bitcoin
             ? currencyIn.symbol
@@ -226,7 +259,11 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
             ? (currencyIn as any).id
             : fromChainId === NonEvmChain.Near
             ? (currencyIn as any).assetId
-            : (currencyIn as any)?.address || currencyIn?.symbol,
+            : (currencyIn as any)?.address || (currencyIn as any)?.wrapped?.address || currencyIn?.symbol,
+        from_token_symbol: currencyIn?.symbol,
+        from_token_decimals: currencyIn?.decimals,
+        to_chain: toChainId,
+        to_chain_name: getChainName(toChainId),
         to_token:
           toChainId === NonEvmChain.Bitcoin
             ? currencyOut.symbol
@@ -234,21 +271,18 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
             ? (currencyOut as any).id
             : toChainId === NonEvmChain.Near
             ? (currencyOut as any).assetId
-            : (currencyOut as any)?.address || currencyOut?.symbol,
-        amount_in: amount,
-        amount_out: selectedQuote.quote.outputAmount.toString(),
+            : (currencyOut as any)?.address || (currencyOut as any)?.wrapped?.address || currencyOut?.symbol,
+        to_token_symbol: currencyOut?.symbol,
+        to_token_decimals: currencyOut?.decimals,
         partner: selectedQuote.adapter.getName(),
+        platform: 'KyberSwap Cross-Chain',
         source_tx_hash: res.sourceTxHash,
-        sender,
+        target_tx_hash: undefined,
         recipient: receiver,
+        sender,
         status: 'init',
-        fee_percent: selectedQuote.quote.platformFeePercent,
         time: Date.now(),
         timestamp: Date.now(),
-        amount_in_usd: selectedQuote.quote.inputUsd,
-        amount_out_usd: selectedQuote.quote.outputUsd,
-        currency: 'USD',
-        platform: 'KyberSwap Cross-Chain',
       }
       crossChainMixpanelHandler(CROSS_CHAIN_MIXPANEL_TYPE.CROSS_CHAIN_SWAP_INIT, swapDetails)
     }
@@ -279,7 +313,11 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
           : getEtherscanLink(fromChainId, txHash, 'transaction')
       }
       attemptingTxn={submittingTx}
-      pendingText={`Swapping ${currencyIn?.symbol} for ${currencyOut?.symbol}`}
+      pendingText={
+        <Trans>
+          Swapping {currencyIn?.symbol ?? ''} for {currencyOut?.symbol ?? ''}
+        </Trans>
+      }
       content={() => {
         if (txError) {
           return <TransactionErrorContent message={txError} onDismiss={dismiss} />
@@ -288,17 +326,17 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
           <Wrapper>
             <Flex justifyContent="space-between" alignItems="center" mb="0.75rem">
               <Text fontSize={20} fontWeight="500">
-                Confirm Swap Details
+                {t`Confirm Swap Details`}
               </Text>
               <ButtonEmpty width="fit-content" padding="0" onClick={onDismiss}>
                 <X size={20} color={theme.text} />
               </ButtonEmpty>
             </Flex>
             <Text color={theme.subText} fontSize={12} marginBottom="1rem">
-              Please review the details of your swap
+              {t`Please review the details of your swap`}
             </Text>
             <TokenBoxInfo
-              title="Input Amount"
+              title={t`Input Amount`}
               chainId={fromChainId}
               currency={currencyIn}
               amount={amount || ''}
@@ -325,7 +363,7 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
               <ArrowDown />
             </Box>
             <TokenBoxInfo
-              title="Ouput Amount"
+              title={t`Output Amount`}
               chainId={toChainId}
               currency={currencyOut}
               amount={selectedQuote?.quote.formattedOutputAmount || ''}
@@ -342,7 +380,7 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
               }}
             >
               <Text fontSize={12} fontWeight={500} color={theme.subText}>
-                Recipient
+                {t`Recipient`}
               </Text>
               <Flex fontSize={14} alignItems="center" color={theme.subText}>
                 <ExternalLink
@@ -369,11 +407,11 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
             <PiWarning />
 
             <Text marginY="1rem" fontStyle="italic" color={'#737373'} fontSize={12} display="flex" alignItems="center">
-              Routed via {selectedQuote.adapter.getName()}
-              {selectedQuote.adapter.getName() === 'Optimex' && <Tag>Beta</Tag>}
+              <Trans>Routed via {selectedQuote.adapter.getName()}</Trans>
+              {selectedQuote.adapter.getName() === 'Optimex' && <Tag>{t`Beta`}</Tag>}
             </Text>
 
-            <ButtonPrimary onClick={handleSwap}>Confirm Swap</ButtonPrimary>
+            <ButtonPrimary onClick={handleSwap}>{t`Confirm Swap`}</ButtonPrimary>
           </Wrapper>
         )
       }}

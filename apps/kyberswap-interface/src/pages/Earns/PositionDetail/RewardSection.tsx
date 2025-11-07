@@ -5,7 +5,7 @@ import { Clock } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import { useCycleConfigQuery } from 'services/kyberdata'
 
-import { ReactComponent as KemIcon } from 'assets/svg/kyber/kem.svg'
+import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import InfoHelper from 'components/InfoHelper'
 import Loader from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
@@ -82,7 +82,7 @@ const RewardSection = ({
       <RewardsSection>
         <Flex alignItems={'center'} justifyContent={'space-between'} sx={{ gap: '20px' }}>
           <Flex alignItems={'center'} sx={{ gap: 1 }}>
-            <KemIcon width={20} height={20} />
+            <FarmingIcon width={20} height={20} />
             <Text fontSize={14} color={theme.subText} lineHeight={'20PX'}>
               {t`Total Rewards`}
             </Text>
@@ -92,7 +92,7 @@ const RewardSection = ({
           {initialLoading ? (
             <PositionSkeleton width={110} height={24} />
           ) : isUnfinalized ? (
-            <PositionSkeleton width={110} height={24} text="Finalizing..." />
+            <PositionSkeleton width={110} height={24} text={t`Finalizing...`} />
           ) : (
             <Flex alignItems={'center'} sx={{ gap: 1 }}>
               <Text fontSize={20}>
@@ -120,7 +120,7 @@ const RewardSection = ({
             {initialLoading ? (
               <PositionSkeleton width={90} height={24} />
             ) : isUnfinalized ? (
-              <PositionSkeleton width={90} height={24} text="Finalizing..." />
+              <PositionSkeleton width={90} height={24} text={t`Finalizing...`} />
             ) : (
               <Text fontSize={20}>
                 {formatDisplayNumber(rewardInfoThisPosition?.claimedUsdValue || 0, {
@@ -136,11 +136,11 @@ const RewardSection = ({
 
           <Flex width={'100%'} alignItems={'center'} justifyContent={'space-between'}>
             {initialLoading ? (
-              <PositionSkeleton width={105} height={24} />
+              <PositionSkeleton width={90} height={24} />
             ) : isUnfinalized ? (
-              <PositionSkeleton width={105} height={24} text="Finalizing..." />
+              <PositionSkeleton width={90} height={24} text={t`Finalizing...`} />
             ) : isWaitingForRewards ? (
-              <RewardSyncing width={105} height={24} />
+              <RewardSyncing width={90} height={24} />
             ) : (
               <Flex alignItems={'center'}>
                 <Text fontSize={20}>
@@ -153,6 +153,7 @@ const RewardSection = ({
                   text={inProgressRewardTooltip({
                     pendingUsdValue: rewardInfoThisPosition?.pendingUsdValue || 0,
                     vestingUsdValue: rewardInfoThisPosition?.vestingUsdValue || 0,
+                    waitingUsdValue: rewardInfoThisPosition?.waitingUsdValue || 0,
                     tokens: rewardInfoThisPosition?.tokens || [],
                   })}
                   width="290px"
@@ -178,7 +179,7 @@ const RewardSection = ({
               {initialLoading || !cycleConfig ? (
                 <PositionSkeleton width={112} height={16} />
               ) : isUnfinalized ? (
-                <PositionSkeleton width={112} height={16} text="Finalizing..." />
+                <PositionSkeleton width={112} height={16} text={t`Finalizing...`} />
               ) : (
                 <Flex alignItems={'center'} sx={{ gap: 1 }}>
                   <Clock size={16} color={theme.subText} />
@@ -194,7 +195,7 @@ const RewardSection = ({
             {initialLoading ? (
               <PositionSkeleton width={90} height={24} />
             ) : isUnfinalized ? (
-              <PositionSkeleton width={90} height={24} text="Finalizing..." />
+              <PositionSkeleton width={90} height={24} text={t`Finalizing...`} />
             ) : isWaitingForRewards ? (
               <RewardSyncing width={90} height={24} />
             ) : (
@@ -235,10 +236,12 @@ const RewardSection = ({
 export const inProgressRewardTooltip = ({
   pendingUsdValue,
   vestingUsdValue,
+  waitingUsdValue,
   tokens,
 }: {
   pendingUsdValue: number
   vestingUsdValue: number
+  waitingUsdValue: number
   tokens: Array<TokenRewardInfo>
 }) => {
   const pendingTokens =
@@ -258,6 +261,16 @@ export const inProgressRewardTooltip = ({
         tokens
           .filter(token => token.vestingAmount > 0)
           .map(token => `${formatDisplayNumber(token.vestingAmount, { significantDigits: 4 })} ${token.symbol}`)
+          .join(' + ') +
+        ') '
+
+  const waitingTokens =
+    waitingUsdValue === 0
+      ? ''
+      : '(' +
+        tokens
+          .filter(token => token.waitingAmount > 0)
+          .map(token => `${formatDisplayNumber(token.waitingAmount, { significantDigits: 4 })} ${token.symbol}`)
           .join(' + ') +
         ') '
 
@@ -285,6 +298,19 @@ export const inProgressRewardTooltip = ({
         {vestingTokens}
         {t`in a 2-day finalization period before they become claimable.`}
       </li>
+      {waitingUsdValue > 0 ? (
+        <li style={{ marginTop: 4 }}>
+          {t`Pending`}:{' '}
+          <b>
+            {formatDisplayNumber(waitingUsdValue, {
+              significantDigits: 4,
+              style: 'currency',
+            })}
+          </b>{' '}
+          {waitingTokens}
+          {t`are under review after failing to finalize in the 2 days vesting period.`}
+        </li>
+      ) : null}
     </ul>
   )
 }

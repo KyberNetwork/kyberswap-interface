@@ -1,5 +1,5 @@
-import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
-import { Trans } from '@lingui/macro'
+import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useCallback, useState } from 'react'
 import { isMobile, isTablet } from 'react-device-detect'
@@ -14,7 +14,7 @@ import Divider from 'components/Divider'
 import { Shield } from 'components/Icons'
 import InfoHelper from 'components/InfoHelper'
 import { RowBetween, RowFixed } from 'components/Row'
-import AddMEVProtectionModal from 'components/SwapForm/AddMEVProtectionModal'
+import AddMEVProtectionModal, { KYBER_SWAP_RPC } from 'components/SwapForm/AddMEVProtectionModal'
 import { PriceAlertButton } from 'components/SwapForm/SlippageSettingGroup'
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import ValueWithLoadingSkeleton from 'components/SwapForm/SwapModal/SwapDetails/ValueWithLoadingSkeleton'
@@ -116,7 +116,7 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
   const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
   const isPartnerSwap = window.location.pathname.startsWith(APP_PATHS.PARTNER_SWAP)
   const addMevButton =
-    chainId === ChainId.MAINNET &&
+    KYBER_SWAP_RPC[chainId] &&
     active &&
     !isPartnerSwap &&
     slippageStatus === SLIPPAGE_STATUS.HIGH &&
@@ -126,7 +126,7 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
         <Shield size={14} color={theme.subText} />
         <Text color={theme.subText} style={{ whiteSpace: 'nowrap' }}>
           {upToXXSmall ? <Trans>MEV Protection</Trans> : <Trans>Add MEV Protection</Trans>}
-          <InfoHelper size={14} text="Add MEV Protection to safeguard you from front-running attacks." />
+          <InfoHelper size={14} text={<Trans>Add MEV Protection to safeguard you from front-running attacks.</Trans>} />
         </Text>
       </PriceAlertButton>
     ) : null
@@ -234,7 +234,7 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
           <RowFixed>
             <TextDashed fontSize={12} fontWeight={400} color={theme.subText}>
               <MouseoverTooltip text={<Trans>Estimated network fee for your transaction.</Trans>} placement="right">
-                {paymentToken ? 'Est. Paymaster Gas Fee' : 'Estimated Total Gas'}
+                {paymentToken ? t`Est. Paymaster Gas Fee` : t`Estimated Total Gas`}
               </MouseoverTooltip>
             </TextDashed>
           </RowFixed>

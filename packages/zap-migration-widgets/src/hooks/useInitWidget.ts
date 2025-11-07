@@ -19,7 +19,9 @@ export default function useInitWidget(widgetProps: ZapMigrationProps) {
     initialSlippage,
     connectedAccount,
     client,
+    rpcUrl,
     referral,
+    onClose,
   } = widgetProps;
 
   const [hasReseted, setHasReseted] = useState(false);
@@ -73,16 +75,19 @@ export default function useInitWidget(widgetProps: ZapMigrationProps) {
     setInitiaWidgetState({
       theme: themeProps as Theme,
       chainId,
+      rpcUrl,
       rePositionMode,
       sourcePoolType: from.poolType,
       targetPoolType: to?.poolType || from.poolType,
       connectedAccount,
       client,
       referral,
+      onClose,
     });
   }, [
     themeProps,
     chainId,
+    rpcUrl,
     setInitiaWidgetState,
     hasReseted,
     rePositionMode,
@@ -91,6 +96,7 @@ export default function useInitWidget(widgetProps: ZapMigrationProps) {
     connectedAccount,
     client,
     referral,
+    onClose,
   ]);
 
   useEffect(() => {

@@ -1,9 +1,9 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId, WETH } from '@kyberswap/ks-sdk-core'
 
 import { NETWORKS_INFO } from 'constants/networks'
 import { isEvmChain } from 'utils'
 
-import { Chain, NonEvmChain, NonEvmChainInfo } from '../adapters'
+import { Chain, Currency, NonEvmChain, NonEvmChainInfo } from '../adapters'
 
 export const getNetworkInfo = (chain: Chain) => {
   if (isEvmChain(chain))
@@ -51,6 +51,17 @@ export const NEAR_STABLE_COINS = [
   'nep141:usdt.tether-token.near',
 ]
 
+export const isWrappedToken = (token: Currency) => {
+  // Check if it's an EVM token (has chainId property)
+  if (!('chainId' in token) || !token.chainId) return false
+
+  // Check if it's native
+  if ('isNative' in token && token.isNative) return false
+
+  // Check if it's the wrapped native token
+  return 'address' in token && WETH[token.chainId]?.address?.toLowerCase() === token.address?.toLowerCase()
+}
+
 export function isCanonicalPair(chainId0: number, address0: string, chainId1: number, address1: string) {
   for (const [, chainMapping] of Object.entries(CANONICAL_TOKENS)) {
     const add0 = chainMapping[chainId0]?.toLowerCase()
@@ -62,4 +73,9 @@ export function isCanonicalPair(chainId0: number, address0: string, chainId1: nu
   }
 
   return false
+}
+
+export const getChainName = (chainId: ChainId | NonEvmChain) => {
+  if (isEvmChain(chainId)) return NETWORKS_INFO[chainId as ChainId].name
+  return NonEvmChainInfo[chainId as NonEvmChain].name
 }

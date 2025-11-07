@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
 
+import { Trans, t } from '@lingui/macro';
 import { useShallow } from 'zustand/shallow';
 
 import { useNftApproval } from '@kyber/hooks';
 import { API_URLS, CHAIN_ID_TO_CHAIN, DEXES_INFO, NETWORKS_INFO, defaultToken, univ3Types } from '@kyber/schema';
 import { friendlyError, getNftManagerContractAddress } from '@kyber/utils';
-import { calculateGasMargin, estimateGas, isTransactionSuccessful } from '@kyber/utils/crypto';
+import { calculateGasMargin, estimateGas } from '@kyber/utils/crypto';
+import { formatTokenAmount } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
 import ChevronLeftIcon from '@/assets/svg/chevron-left.svg';
@@ -24,28 +26,34 @@ import PriceRange from '@/components/PriceRange';
 import ReInvest from '@/components/ReInvest';
 import Setting from '@/components/Setting';
 import { ZAP_SOURCE } from '@/constants';
+import useTxStatus from '@/hooks/useTxStatus';
 import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
+import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
 export default function Widget() {
-  const { poolType, chainId, connectedAccount, onClose, positionId, onSubmitTx, onViewPosition } = useWidgetStore(
-    useShallow(s => ({
-      poolType: s.poolType,
-      chainId: s.chainId,
-      connectedAccount: s.connectedAccount,
-      onClose: s.onClose,
-      positionId: s.positionId,
-      onSubmitTx: s.onSubmitTx,
-      onViewPosition: s.onViewPosition,
-    })),
-  );
-  const { poolError } = usePoolStore(
+  const { poolType, chainId, rpcUrl, connectedAccount, onClose, positionId, onSubmitTx, onViewPosition } =
+    useWidgetStore(
+      useShallow(s => ({
+        poolType: s.poolType,
+        chainId: s.chainId,
+        rpcUrl: s.rpcUrl,
+        connectedAccount: s.connectedAccount,
+        onClose: s.onClose,
+        positionId: s.positionId,
+        onSubmitTx: s.onSubmitTx,
+        onViewPosition: s.onViewPosition,
+      })),
+    );
+  const { poolError, pool } = usePoolStore(
     useShallow(s => ({
       poolError: s.poolError,
+      pool: s.pool,
     })),
   );
   const { zapInfo, snapshotState, setSnapshotState } = useZapState();
+  const { position } = usePositionStore(useShallow(s => ({ position: s.position })));
 
   const nftManagerContract = getNftManagerContractAddress(poolType, chainId);
   const {
@@ -57,13 +65,12 @@ export default function Widget() {
     tokenId: +positionId,
     spender: zapInfo?.routerAddress || '',
     userAddress: connectedAccount?.address || '',
-    rpcUrl: NETWORKS_INFO[chainId].defaultRpc,
+    rpcUrl,
     nftManagerContract,
     onSubmitTx: onSubmitTx,
   });
 
   const { address: account } = connectedAccount;
-  const rpcUrl = NETWORKS_INFO[chainId].defaultRpc;
   const isUniV3 = univ3Types.includes(poolType as any);
   const { token0 = defaultToken, token1 = defaultToken, fee: poolFee = 0 } = snapshotState ? snapshotState.pool : {};
 
@@ -73,28 +80,10 @@ export default function Widget() {
   const [txHash, setTxHash] = useState('');
   const [attempTx, setAttempTx] = useState(false);
   const [txError, setTxError] = useState<Error | null>(null);
-  const [txStatus, setTxStatus] = useState<'success' | 'failed' | ''>('');
-
-  useEffect(() => {
-    if (txHash) {
-      const i = setInterval(() => {
-        isTransactionSuccessful(NETWORKS_INFO[chainId].defaultRpc, txHash).then(res => {
-          if (!res) return;
-
-          if (res.status) {
-            setTxStatus('success');
-          } else setTxStatus('failed');
-        });
-      }, 10_000);
-
-      return () => {
-        clearInterval(i);
-      };
-    }
-  }, [chainId, txHash]);
+  const { txStatus } = useTxStatus({ txHash: txHash || undefined });
 
   const handleClick = useCallback(async () => {
-    if (!snapshotState || attempTx || txError) return;
+    if (!snapshotState || attempTx || txError || pool === 'loading' || !position || position === 'loading') return;
     setAttempTx(true);
     setTxHash('');
     setTxError(null);
@@ -124,20 +113,37 @@ export default function Widget() {
 
           try {
             const gasEstimation = await estimateGas(rpcUrl, txData);
-            const txHash = await onSubmitTx({
-              ...txData,
-              gasLimit: calculateGasMargin(gasEstimation),
-            });
+            const txHash = await onSubmitTx(
+              {
+                ...txData,
+                gasLimit: calculateGasMargin(gasEstimation),
+              },
+              {
+                tokensIn: [
+                  {
+                    symbol: pool.token0.symbol,
+                    amount: formatTokenAmount(position.amount0, pool.token0.decimals, 6),
+                    logoUrl: pool.token0.logo,
+                  },
+                  {
+                    symbol: pool.token1.symbol,
+                    amount: formatTokenAmount(position.amount1, pool.token1.decimals, 6),
+                    logoUrl: pool.token1.logo,
+                  },
+                ],
+                pool: `${pool.token0.symbol}/${pool.token1.symbol}`,
+                dexLogo: DEXES_INFO[poolType].icon,
+              },
+            );
             setTxHash(txHash);
           } catch (e) {
             // setAttempTx(false);
-            setTxStatus('failed');
             setTxError(e as Error);
           }
         }
       });
     // .finally(() => setAttempTx(false));
-  }, [account, attempTx, chainId, onSubmitTx, rpcUrl, snapshotState, txError]);
+  }, [snapshotState, attempTx, txError, pool, chainId, account, rpcUrl, onSubmitTx, poolType, position]);
 
   useEffect(() => {
     handleClick();
@@ -145,12 +151,12 @@ export default function Widget() {
 
   let txStatusText = '';
   if (txHash) {
-    if (txStatus === 'success') txStatusText = 'Compound Completed';
-    else if (txStatus === 'failed' || txError) txStatusText = 'Transaction failed';
-    else txStatusText = 'Processing transaction';
+    if (txStatus === 'success') txStatusText = t`Compound Completed`;
+    else if (txStatus === 'failed' || txError) txStatusText = t`Transaction failed`;
+    else txStatusText = t`Processing transaction`;
   } else {
-    if (txError) txStatusText = 'Transaction failed';
-    else txStatusText = 'Waiting For Confirmation';
+    if (txError) txStatusText = t`Transaction failed`;
+    else txStatusText = t`Waiting For Confirmation`;
   }
 
   const onCloseConfirm = () => {
@@ -159,7 +165,6 @@ export default function Widget() {
     txStatusText = '';
     setTxHash('');
     setTxError(null);
-    setTxStatus('');
     setAttempTx(false);
   };
 
@@ -171,7 +176,7 @@ export default function Widget() {
             <ErrorIcon className="text-error" />
             <div className="text-center">{poolError}</div>
             <button className="ks-primary-btn w-[95%] bg-error border-solid border-error" onClick={onClose}>
-              Close
+              <Trans>Close</Trans>
             </button>
           </div>
         </Modal>
@@ -193,20 +198,28 @@ export default function Widget() {
 
               {!txHash && !txError && (
                 <div className="text-sm text-subText text-center">
-                  Confirm this transaction in your wallet - Zapping{' '}
-                  {positionId && isUniV3
-                    ? `Position #${positionId}`
-                    : `${dexName} ${token0.symbol}/${token1.symbol} ${poolFee}%`}
+                  <Trans>
+                    Confirm this transaction in your wallet - Zapping{' '}
+                    {positionId && isUniV3
+                      ? t`Position #${positionId}`
+                      : `${dexName} ${token0.symbol}/${token1.symbol} ${poolFee}%`}
+                  </Trans>
                 </div>
               )}
               {txHash && txStatus === '' && !txError && (
-                <div className="text-sm text-subText">It may take a few minutes to proceed.</div>
+                <div className="text-sm text-subText">
+                  <Trans>It may take a few minutes to proceed.</Trans>
+                </div>
               )}
               {txHash && txStatus === 'success' && (
-                <div className="text-sm text-subText">You have successfully added liquidity!</div>
+                <div className="text-sm text-subText">
+                  <Trans>You have successfully added liquidity!</Trans>
+                </div>
               )}
               {txHash && (txStatus === 'failed' || txError) && (
-                <div className="text-sm text-subText">An error occurred during the liquidity migration.</div>
+                <div className="text-sm text-subText">
+                  <Trans>An error occurred during the liquidity migration.</Trans>
+                </div>
               )}
             </div>
 
@@ -217,7 +230,7 @@ export default function Widget() {
                 target="_blank"
                 rel="noopener norefferer noreferrer"
               >
-                View transaction ↗
+                <Trans>View transaction ↗</Trans>
               </a>
             )}
 
@@ -236,11 +249,11 @@ export default function Widget() {
                   className={cn(onViewPosition ? 'ks-outline-btn flex-1' : 'ks-primary-btn flex-1')}
                   onClick={onCloseConfirm}
                 >
-                  Close
+                  <Trans>Close</Trans>
                 </button>
                 {txStatus === 'success' && onViewPosition && (
                   <button className="ks-primary-btn flex-1" onClick={() => onViewPosition(txHash)}>
-                    View position
+                    <Trans>View position</Trans>
                   </button>
                 )}
               </div>

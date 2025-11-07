@@ -42,7 +42,7 @@ interface Reward {
 interface GetValueByOptionParams {
   type: ShareType;
   option?: ShareOption;
-  pool: Pool;
+  pool?: Pool;
   position?: Position;
   reward?: Reward;
 }
@@ -93,12 +93,6 @@ export const formatTimeDurationFromTimestamp = (timestamp: number): string => {
   return `${months} ${monthText} ${remainingDays} ${dayText}`;
 };
 
-export const getProxyImage = (url: string | undefined): string => {
-  if (!url) return '';
-  if (url.startsWith('data:')) return url;
-  return `https://proxy.kyberswap.com/token-logo?url=${url}`;
-};
-
 export const getSharePath = (type: ShareType, pool: Pool): string => {
   const origin = window?.location?.origin || 'kyberswap.com';
 
@@ -120,11 +114,11 @@ export const getValueByOption = ({ type, option, pool, position, reward }: GetVa
   if (isPoolSharing) {
     switch (option) {
       case ShareOption.TOTAL_APR:
-        return `${formatAprNumber((pool.apr?.fees || 0) + (pool.apr?.eg || 0) + (pool.apr?.lm || 0))}%`;
+        return `${formatAprNumber((pool?.apr?.fees || 0) + (pool?.apr?.eg || 0) + (pool?.apr?.lm || 0))}%`;
       case ShareOption.LM_APR:
-        return `${formatAprNumber(pool.apr?.lm || 0)}%`;
+        return `${formatAprNumber(pool?.apr?.lm || 0)}%`;
       case ShareOption.EG_APR:
-        return `${formatAprNumber(pool.apr?.eg || 0)}%`;
+        return `${formatAprNumber(pool?.apr?.eg || 0)}%`;
       default:
         return '';
     }

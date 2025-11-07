@@ -1,5 +1,7 @@
+import { t } from '@lingui/macro';
+
 import { defaultToken } from '@kyber/schema';
-import { Skeleton } from '@kyber/ui';
+import { Skeleton, TokenSymbol } from '@kyber/ui';
 import { formatDisplayNumber } from '@kyber/utils/number';
 
 import RevertPriceIcon from '@/assets/icons/ic_revert_price.svg';
@@ -18,14 +20,23 @@ export default function PoolPrice() {
   return (
     <div className="text-subText text-sm flex items-center gap-1 flex-wrap justify-between">
       <div className="flex items-center gap-1.5">
-        <span> Current Price</span>
+        <span>{t`Current Price`}</span>
         {!targetPool || !targetPoolPrice ? (
           <Skeleton className="w-[150px] h-3.5" />
         ) : (
-          <div className="text-text">
-            1 {revertPrice ? token1.symbol : token0.symbol} ={' '}
-            {formatDisplayNumber(targetPoolPrice, { significantDigits: 8 })}{' '}
-            {revertPrice ? token0.symbol : token1.symbol}
+          <div className="text-text flex items-center gap-1">
+            1{' '}
+            {revertPrice ? (
+              <TokenSymbol symbol={token1.symbol} maxWidth={80} />
+            ) : (
+              <TokenSymbol symbol={token0.symbol} maxWidth={80} />
+            )}{' '}
+            ={formatDisplayNumber(targetPoolPrice, { significantDigits: 8 })}
+            {revertPrice ? (
+              <TokenSymbol symbol={token0.symbol} maxWidth={80} />
+            ) : (
+              <TokenSymbol symbol={token1.symbol} maxWidth={80} />
+            )}
           </div>
         )}
       </div>

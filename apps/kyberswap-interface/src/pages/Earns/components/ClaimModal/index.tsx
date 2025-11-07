@@ -20,7 +20,7 @@ import {
   Wrapper,
   X,
 } from 'pages/Earns/components/ClaimModal/styles'
-import { EarnDex, LIMIT_TEXT_STYLES } from 'pages/Earns/constants'
+import { Exchange, LIMIT_TEXT_STYLES } from 'pages/Earns/constants'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -30,7 +30,7 @@ export enum ClaimType {
 }
 
 export interface ClaimInfo {
-  dex?: EarnDex
+  dex?: Exchange
   nftId: string
   chainId: number
   tokens: Array<{
@@ -97,16 +97,18 @@ const ClaimModal = ({
       <Wrapper>
         <ModalHeader>
           <Text fontSize={20} fontWeight={500}>
-            {t`Claim ${claimType}`}
+            {claimType === ClaimType.FEES
+              ? t`Claim Fees`
+              : claimType === ClaimType.REWARDS
+              ? t`Claim Rewards`
+              : t`Claim`}
           </Text>
           <X onClick={onClose} />
         </ModalHeader>
         <ClaimInfoWrapper>
-          <Text
-            fontSize={14}
-            color={theme.subText}
-            marginBottom={2}
-          >{t`Choose to reinvest your earnings back into this position or send them to your wallet.`}</Text>
+          <Text fontSize={14} color={theme.subText} marginBottom={2}>
+            {t`Choose to reinvest your earnings back into this position or send them to your wallet.`}
+          </Text>
           <ClaimInfo>
             <Flex alignItems={'center'} justifyContent={'space-between'}>
               <Text fontSize={14} color={theme.subText}>{t`Total Value`}</Text>

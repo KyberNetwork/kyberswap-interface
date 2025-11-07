@@ -6,27 +6,27 @@ import { PoolQueryParams } from 'services/zapEarn'
 import { useActiveWeb3React } from 'hooks'
 import { SortBy } from 'pages/Earns/PoolExplorer'
 import { FilterTag, timings } from 'pages/Earns/PoolExplorer/Filter'
-import { FARMING_SUPPORTED_CHAIN, earnSupportedChains } from 'pages/Earns/constants'
+import { EARN_CHAINS, EarnChain } from 'pages/Earns/constants'
 import { Direction } from 'pages/MarketOverview/SortIcon'
 
 export default function useFilter(setSearch?: (search: string) => void) {
   const [searchParams, setSearchParams] = useSearchParams()
   const { account, chainId } = useActiveWeb3React()
-  const [defaultChainId] = useState(chainId && earnSupportedChains.includes(chainId) ? chainId : ChainId.MAINNET)
+  const [defaultChainId] = useState(chainId && EARN_CHAINS[chainId as unknown as EarnChain] ? chainId : ChainId.MAINNET)
 
   const filters: PoolQueryParams = useMemo(() => {
     return {
       chainId: +(
         searchParams.get('chainId') ||
         (searchParams.get('tag') === FilterTag.FARMING_POOL
-          ? FARMING_SUPPORTED_CHAIN.find(chain => chain === defaultChainId)
+          ? EARN_CHAINS[defaultChainId as unknown as EarnChain]?.farmingSupported
             ? defaultChainId
             : ChainId.MAINNET
           : defaultChainId)
       ),
       page: +(searchParams.get('page') || 1),
       limit: 10,
-      interval: searchParams.get('interval') || (timings[1].value as string),
+      interval: searchParams.get('interval') || (timings[0].value as string),
       protocol: searchParams.get('protocol') || '',
       userAddress: account,
       tag: searchParams.get('tag') || '',
@@ -51,9 +51,17 @@ export default function useFilter(setSearch?: (search: string) => void) {
             searchParams.set('sortBy', SortBy.APR)
             searchParams.set('orderBy', Direction.DESC)
           } else if (value === FilterTag.FARMING_POOL) {
-            if (FARMING_SUPPORTED_CHAIN.find(chain => chain === chainId))
-              searchParams.set('chainId', chainId.toString())
-            else searchParams.set('chainId', ChainId.MAINNET.toString())
+            const currentFilteredChainId = searchParams.get('chainId')
+
+            if (
+              currentFilteredChainId &&
+              !EARN_CHAINS[currentFilteredChainId as unknown as EarnChain]?.farmingSupported
+            ) {
+              if (EARN_CHAINS[chainId as unknown as EarnChain]?.farmingSupported)
+                searchParams.set('chainId', chainId.toString())
+              else searchParams.set('chainId', ChainId.MAINNET.toString())
+            }
+
             searchParams.delete('protocol')
           }
         }
