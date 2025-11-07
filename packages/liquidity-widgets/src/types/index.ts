@@ -10,8 +10,8 @@ export enum TxStatus {
 }
 
 export enum WidgetMode {
-  EXISTING = 'existing',
   CREATE = 'create',
+  IN = 'in',
 }
 
 export interface CreatePoolConfig {
