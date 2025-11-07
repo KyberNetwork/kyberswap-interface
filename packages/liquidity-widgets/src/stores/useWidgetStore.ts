@@ -33,7 +33,7 @@ const initState = {
   poolAddress: '',
   positionId: undefined,
   poolType: PoolType.DEX_UNISWAPV3,
-  mode: WidgetMode.EXISTING,
+  mode: WidgetMode.IN,
   createPoolConfig: undefined,
   connectedAccount: {
     address: '',
