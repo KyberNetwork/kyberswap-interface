@@ -33,7 +33,7 @@ const routeApi = createApi({
           params: rest,
           authentication,
           headers: {
-            'x-client-id': 'router-sim-test',
+            'x-client-id': 'test',
           },
         }
       },
@@ -104,11 +104,11 @@ const routeApi = createApi({
         return {
           url,
           method: 'POST',
-          body: { ...rest, source: 'router-sim-test', enableGasEstimation: false },
+          body: { ...rest, source: 'test', enableGasEstimation: false },
           signal,
           authentication,
           headers: {
-            'x-client-id': 'router-sim-test',
+            'x-client-id': 'test',
           },
         }
       },
