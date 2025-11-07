@@ -34,6 +34,7 @@ const routeApi = createApi({
           authentication,
           headers: {
             'x-client-id': 'test',
+            'x-debug': 'shinichikudo',
           },
         }
       },
@@ -109,6 +110,7 @@ const routeApi = createApi({
           authentication,
           headers: {
             'x-client-id': 'test',
+            'x-debug': 'shinichikudo',
           },
         }
       },
