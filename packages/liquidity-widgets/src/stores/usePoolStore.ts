@@ -112,8 +112,7 @@ const usePoolRawStore = create<PoolState>((set, get) => ({
     set({ poolLoading: false });
   },
   setCreatePool: (config: CreatePoolConfig, poolType: PoolType) => {
-    const syntheticPool = buildSyntheticPool(config, poolType);
-    set({ pool: syntheticPool, poolError: '', poolLoading: false, poolPrice: null });
+    set({ pool: buildSyntheticPool(config, poolType) });
   },
   setPoolPrice: (price: number | null) => {
     set({ poolPrice: price });

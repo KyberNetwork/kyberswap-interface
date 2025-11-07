@@ -21,7 +21,7 @@ const LiquidityWidget = (widgetProps: WidgetProps) => {
     positionId,
     connectedAccount,
     locale,
-    mode = WidgetMode.EXISTING,
+    mode = WidgetMode.IN,
     createPoolConfig,
   } = widgetProps;
 

@@ -45,6 +45,7 @@ export interface PreviewProps {
 
 export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool, onDismiss }: PreviewProps) {
   const {
+    mode,
     chainId,
     rpcUrl,
     poolType,
@@ -56,6 +57,7 @@ export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool,
     positionId,
     onClose,
   } = useWidgetStore([
+    'mode',
     'chainId',
     'rpcUrl',
     'poolType',
@@ -110,7 +112,7 @@ export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool,
       }),
     }));
 
-    fetch(`${API_URLS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/in/route/build`, {
+    fetch(`${API_URLS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/${mode}/route/build`, {
       method: 'POST',
       body: JSON.stringify({
         sender: account,

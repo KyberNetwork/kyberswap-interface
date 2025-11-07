@@ -13,6 +13,7 @@ export default function useInitialTokensIn({
   initAmounts,
   account,
   nativeToken,
+  isCreateMode,
 }: {
   pool: Pool | null;
   chainId: ChainId;
@@ -20,6 +21,7 @@ export default function useInitialTokensIn({
   initAmounts?: string;
   account?: string;
   nativeToken: Token;
+  isCreateMode?: boolean;
 }) {
   const [tokensIn, setTokensIn] = useState<Token[]>([]);
   const [amountsIn, setAmountsIn] = useState<string>('');
@@ -29,6 +31,12 @@ export default function useInitialTokensIn({
   useEffect(() => {
     const setDefaultTokensIn = async () => {
       if (!pool || tokensIn.length) return;
+
+      // For create mode, just use one native token
+      if (isCreateMode) {
+        setTokensIn([nativeToken]);
+        return;
+      }
 
       // with params
       if (initDepositTokens) {
@@ -75,7 +83,7 @@ export default function useInitialTokensIn({
     };
 
     setDefaultTokensIn();
-  }, [account, chainId, initAmounts, initDepositTokens, nativeToken, pool, tokensIn.length]);
+  }, [account, chainId, initAmounts, initDepositTokens, isCreateMode, nativeToken, pool, tokensIn.length]);
 
   return { tokensIn, amountsIn, setTokensIn, setAmountsIn, debounceAmountsIn };
 }
