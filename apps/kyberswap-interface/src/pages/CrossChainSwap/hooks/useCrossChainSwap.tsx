@@ -10,7 +10,13 @@ import { useWalletClient } from 'wagmi'
 
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import { TOKEN_API_URL } from 'constants/env'
-import { BTC_DEFAULT_RECEIVER, CROSS_CHAIN_FEE_RECEIVER_SOLANA, SOLANA_NATIVE, ZERO_ADDRESS } from 'constants/index'
+import {
+  BTC_DEFAULT_RECEIVER,
+  CROSS_CHAIN_FEE_RECEIVER,
+  CROSS_CHAIN_FEE_RECEIVER_SOLANA,
+  SOLANA_NATIVE,
+  ZERO_ADDRESS,
+} from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrencyV2 } from 'hooks/Tokens'
@@ -405,7 +411,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     ? btcAddress || BTC_DEFAULT_RECEIVER
     : isFromNear
     ? signedAccountId || ZERO_ADDRESS
-    : walletClient?.data?.account.address || ZERO_ADDRESS
+    : walletClient?.data?.account.address || CROSS_CHAIN_FEE_RECEIVER
 
   const receiver = isToSolana
     ? recipient || solanaAddress?.toString() || CROSS_CHAIN_FEE_RECEIVER_SOLANA
@@ -413,7 +419,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     ? recipient || BTC_DEFAULT_RECEIVER
     : isToNear
     ? recipient || signedAccountId || ZERO_ADDRESS
-    : recipient || walletClient?.data?.account.address || ZERO_ADDRESS
+    : recipient || walletClient?.data?.account.address || CROSS_CHAIN_FEE_RECEIVER
 
   const getQuote = useCallback(async () => {
     if (showPreview) return
