@@ -142,7 +142,7 @@ const PriceControl = () => {
 
       <div className="flex items-center gap-3 px-4 py-2 border border-stroke rounded-md">
         <input
-          className="flex-1 bg-transparent text-base text-text outline-none placeholder:text-subText"
+          className="flex-1 min-w-0 bg-transparent text-base text-text outline-none placeholder:text-subText"
           value={inputValue}
           onChange={handleInputChange}
           onBlur={persistPrice}
@@ -156,7 +156,7 @@ const PriceControl = () => {
         />
         <button
           type="button"
-          className="ks-secondary-btn h-6 py-0 px-3 text-xs"
+          className="ks-secondary-btn h-6 py-0 px-3 text-xs min-w-fit"
           onClick={handleUseMarketRate}
           disabled={!marketPrice}
         >
