@@ -72,22 +72,38 @@ const PriceControl = () => {
     setInputValue(formatInputValue(poolPrice));
   }, [poolPrice]);
 
+  const persistPrice = () => {
+    const trimmed = inputValue.trim();
+    if (!trimmed) {
+      setPoolPrice(null);
+      return;
+    }
+
+    const parsed = Number(trimmed);
+    if (!Number.isFinite(parsed) || parsed <= 0) {
+      setPoolPrice(null);
+      return;
+    }
+
+    setPoolPrice(parsed);
+  };
+
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const rawValue = event.target.value;
     const normalized = rawValue.replace(/,/g, '.');
-    const parsed = Number(normalized);
 
     if (normalized === '' || normalized === '.') {
-      setPoolPrice(parsed);
+      setInputValue(normalized);
       return;
     }
 
     if (/^\d*\.?\d*$/.test(normalized)) {
-      setPoolPrice(parsed);
+      setInputValue(normalized);
     }
   };
 
   const handleUseMarketRate = () => {
+    if (!marketPrice) return;
     setPoolPrice(marketPrice);
   };
 
@@ -129,6 +145,7 @@ const PriceControl = () => {
           className="flex-1 bg-transparent text-base text-text outline-none placeholder:text-subText"
           value={inputValue}
           onChange={handleInputChange}
+          onBlur={persistPrice}
           inputMode="decimal"
           autoComplete="off"
           autoCorrect="off"
