@@ -54,7 +54,7 @@ const OptionButton = styled.button`
 const DEFAULT_FEE_OPTIONS = [0.1, 0.3, 0.5, 1]
 
 type Props = {
-  value: number
+  value: number | null
   onChange: (value: number) => void
   options?: number[]
   disabled?: boolean
