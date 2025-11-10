@@ -270,18 +270,21 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
 
     if (isCreateMode) {
       const tickFromPrice = priceToClosestTick(
-        poolPrice!.toString(),
+        poolPrice?.toString() ?? '0',
         pool.token0.decimals,
         pool.token1.decimals,
         revertPrice,
       );
       const sqrtPriceX96 = getSqrtRatioAtTick(tickFromPrice || 0).toString();
+      const feeAmount = pool.fee * 10_000;
+      const tickSpacing = Math.max(Math.round((2 * feeAmount) / 100), 1);
 
       params = {
         dex: poolType,
         'pool.tokens': `${pool.token0.address},${pool.token1.address}`,
-        'pool.uniswap_v4_config.fee': pool.fee * 10_000,
+        'pool.uniswap_v4_config.fee': feeAmount,
         'pool.uniswap_v4_config.sqrt_p': sqrtPriceX96,
+        'pool.uniswap_v4_config.tick_spacing': tickSpacing,
         'zap_in.position.tick_upper': debounceTickUpper ?? 0,
         'zap_in.position.tick_lower': debounceTickLower ?? 0,
         'zap_in.tokens_in': validTokenInAddresses,
