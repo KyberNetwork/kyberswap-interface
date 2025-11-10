@@ -112,17 +112,27 @@ const usePoolRawStore = create<PoolState>((set, get) => ({
     set({ poolLoading: false });
   },
   setCreatePool: (config: CreatePoolConfig, poolType: PoolType) => {
-    set({ pool: buildSyntheticPool(config, poolType) });
+    set({ pool: buildSyntheticPool(config, poolType), poolPrice: null });
   },
   setPoolPrice: (price: number | null) => {
     set({ poolPrice: price });
   },
   toggleRevertPrice: () => {
-    set(state => ({ revertPrice: !state.revertPrice }));
+    set(state => {
+      const nextRevertPrice = !state.revertPrice;
+      let nextPoolPrice = state.poolPrice;
 
-    const { pool, revertPrice } = get();
-    const price = getPoolPrice({ pool, revertPrice });
-    if (price !== null) set({ poolPrice: price });
+      if (state.pool && state.pool.address) {
+        const derivedPrice = getPoolPrice({ pool: state.pool, revertPrice: nextRevertPrice });
+        if (derivedPrice !== null) {
+          nextPoolPrice = derivedPrice;
+        }
+      } else if (state.poolPrice && state.poolPrice > 0) {
+        nextPoolPrice = 1 / state.poolPrice;
+      }
+
+      return { revertPrice: nextRevertPrice, poolPrice: nextPoolPrice };
+    });
   },
 }));
 
