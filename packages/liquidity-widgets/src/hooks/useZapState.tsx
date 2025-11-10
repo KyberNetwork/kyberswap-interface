@@ -136,7 +136,6 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(false);
   const [defaultRevertChecked, setDefaultRevertChecked] = useState(false);
 
-  const isCreateMode = mode === WidgetMode.CREATE;
   const initializing = !pool;
   const isUniV3 = !initializing && univ3Types.includes(poolType as any);
   const { token0, token1 } = initializing ? { token0: undefined, token1: undefined } : pool;
@@ -148,7 +147,6 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
     initAmounts,
     account,
     nativeToken,
-    isCreateMode,
   });
 
   const { balances } = useTokenBalances(
@@ -268,7 +266,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true);
     let params: Record<string, string | number | boolean>;
 
-    if (isCreateMode) {
+    if (mode === WidgetMode.CREATE) {
       const tickFromPrice = priceToClosestTick(
         poolPrice?.toString() ?? '0',
         pool.token0.decimals,
