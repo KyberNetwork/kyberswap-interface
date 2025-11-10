@@ -6,6 +6,7 @@ import {
   DropdownContent,
   DropdownContentItem,
   DropdownIcon,
+  DropdownLabel,
   DropdownTitle,
   DropdownTitleWrapper,
   DropdownWrapper,
@@ -24,6 +25,7 @@ const DropdownMenu = ({
   width,
   tooltip,
   flatten,
+  fullWidth = false,
   alignLeft = false,
   mobileFullWidth = false,
   mobileHalfWidth = false,
@@ -35,6 +37,7 @@ const DropdownMenu = ({
   width?: number
   tooltip?: string
   flatten?: boolean
+  fullWidth?: boolean
   alignLeft?: boolean
   mobileFullWidth?: boolean
   mobileHalfWidth?: boolean
@@ -118,12 +121,21 @@ const DropdownMenu = ({
   )
 
   return (
-    <DropdownWrapper mobileFullWidth={mobileFullWidth} mobileHalfWidth={mobileHalfWidth} ref={ref}>
+    <DropdownWrapper
+      mobileFullWidth={mobileFullWidth}
+      mobileHalfWidth={mobileHalfWidth}
+      fullWidth={fullWidth}
+      ref={ref}
+    >
       <MouseoverTooltipDesktopOnly text={!open && tooltip} placement="top" width="260px">
         <DropdownTitleWrapper flatten={flatten} highlight={flatten && open} onClick={handleOpenChange}>
-          <DropdownTitle justifyContent={alignLeft ? 'flex-start' : 'center'} width={width}>
+          <DropdownTitle
+            justifyContent={alignLeft ? 'flex-start' : 'center'}
+            width={width}
+            fullWidth={fullWidth && !width}
+          >
             {optionValue?.icon && <ItemIcon src={optionValue.icon} alt={optionValue.label} />}
-            {optionValue?.label}
+            <DropdownLabel>{optionValue?.label}</DropdownLabel>
           </DropdownTitle>
           <DropdownIcon $flatten={flatten} open={open} />
         </DropdownTitleWrapper>

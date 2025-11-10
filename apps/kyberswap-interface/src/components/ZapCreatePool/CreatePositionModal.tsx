@@ -225,7 +225,7 @@ const CreatePositionModal = ({ isOpen, onDismiss, onSubmit }: Props) => {
             </Text>
             <Row gap="12px">
               <DropdownMenu
-                width={160}
+                fullWidth
                 options={chainOptions}
                 value={selectedChainId.toString()}
                 alignLeft
@@ -233,7 +233,7 @@ const CreatePositionModal = ({ isOpen, onDismiss, onSubmit }: Props) => {
                 onChange={value => setSelectedChainId(Number(value) as ChainId)}
               />
               <DropdownMenu
-                width={160}
+                fullWidth
                 options={protocolOptions}
                 value={selectedProtocol}
                 alignLeft
