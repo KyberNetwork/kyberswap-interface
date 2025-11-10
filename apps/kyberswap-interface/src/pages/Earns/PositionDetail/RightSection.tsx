@@ -1,5 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { t } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { useEffect, useMemo, useState } from 'react'
 import { PlusCircle } from 'react-feather'
 import { useParams } from 'react-router-dom'
@@ -241,8 +241,10 @@ const RightSection = ({
                 <PositionSkeleton width={110} height={16} />
               ) : (
                 <Text fontSize={14} color={theme.subText}>
-                  {!revert ? position?.token1.symbol : position?.token0.symbol} per{' '}
-                  {!revert ? position?.token0.symbol : position?.token1.symbol}
+                  <Trans>
+                    {!revert ? position?.token1.symbol : position?.token0.symbol} per{' '}
+                    {!revert ? position?.token0.symbol : position?.token1.symbol}
+                  </Trans>
                 </Text>
               )}
             </MinPriceSection>
@@ -276,8 +278,10 @@ const RightSection = ({
                 <PositionSkeleton width={110} height={16} />
               ) : (
                 <Text fontSize={14} color={theme.subText}>
-                  {!revert ? position?.token1.symbol : position?.token0.symbol} per{' '}
-                  {!revert ? position?.token0.symbol : position?.token1.symbol}
+                  <Trans>
+                    {!revert ? position?.token1.symbol : position?.token0.symbol} per{' '}
+                    {!revert ? position?.token0.symbol : position?.token1.symbol}
+                  </Trans>
                 </Text>
               )}
             </MaxPriceSection>

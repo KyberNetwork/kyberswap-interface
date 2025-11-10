@@ -1,3 +1,4 @@
+import type { I18n } from '@lingui/core';
 import Numeral from 'numeral';
 
 export interface TokenInfo {
@@ -86,39 +87,39 @@ const formattedNum = (number: string | number, usd = false, fractionDigits = 5):
   return truncateFloatNumber(num, fractionDigits);
 };
 
-export const parseMarketTokenInfo = (tokenInfo: TokenInfo | null) => {
+export const getMarketTokenInfo = (tokenInfo: TokenInfo | null, i18n: I18n) => {
   const NOT_AVAILABLE = '--';
   const listData = [
     {
-      label: 'Price',
+      label: i18n._('Price'),
       value: tokenInfo?.price ? formattedNum(tokenInfo.price.toString(), true) : NOT_AVAILABLE,
     },
     {
-      label: 'Market Cap Rank',
+      label: i18n._('Market Cap Rank'),
       value: tokenInfo?.marketCapRank ? `#${formattedNum(tokenInfo.marketCapRank.toString())}` : NOT_AVAILABLE,
     },
     {
-      label: 'Trading Volume (24H)',
+      label: i18n._('Trading Volume (24H)'),
       value: tokenInfo?.tradingVolume ? formatLongNumber(tokenInfo.tradingVolume.toString(), true) : NOT_AVAILABLE,
     },
     {
-      label: 'Market Cap',
+      label: i18n._('Market Cap'),
       value: tokenInfo?.marketCap ? formatLongNumber(tokenInfo.marketCap.toString(), true) : NOT_AVAILABLE,
     },
     {
-      label: 'All-Time High',
+      label: i18n._('All-Time High'),
       value: tokenInfo?.allTimeHigh ? formattedNum(tokenInfo.allTimeHigh.toString(), true) : NOT_AVAILABLE,
     },
     {
-      label: 'All-Time Low',
+      label: i18n._('All-Time Low'),
       value: tokenInfo?.allTimeLow ? formattedNum(tokenInfo.allTimeLow.toString(), true) : NOT_AVAILABLE,
     },
     {
-      label: 'Circulating Supply',
+      label: i18n._('Circulating Supply'),
       value: tokenInfo?.circulatingSupply ? formatLongNumber(tokenInfo.circulatingSupply.toString()) : NOT_AVAILABLE,
     },
     {
-      label: 'Total Supply',
+      label: i18n._('Total Supply'),
       value: tokenInfo?.totalSupply ? formatLongNumber(tokenInfo.totalSupply.toString()) : NOT_AVAILABLE,
     },
   ];
@@ -188,51 +189,51 @@ const calcTotalRisk = (data: ItemData[]) => {
 
 const reverseValue = (value: string | undefined) => (!value ? undefined : value === '0' ? '1' : '0');
 
-export const getSecurityTokenInfo = (data: SecurityInfo | null) => {
+export const getSecurityTokenInfo = (data: SecurityInfo | null, i18n: I18n) => {
   const contractData: ItemData[] = [
     {
-      label: `Open Source`,
+      label: i18n._('Open Source'),
       value: data?.is_open_source,
       type: WarningType.RISKY,
     },
     {
-      label: `Proxy Contrac`,
+      label: i18n._('Proxy Contract'),
       value: data?.is_proxy,
       type: WarningType.WARNING,
       riskyReverse: true,
     },
     {
-      label: `Mint Function`,
+      label: i18n._('Mint Function'),
       value: data?.is_mintable,
       type: WarningType.WARNING,
       riskyReverse: true,
     },
     {
-      label: `Take Back Ownership`,
+      label: i18n._('Take Back Ownership'),
       value: data?.can_take_back_ownership,
       type: WarningType.RISKY,
       riskyReverse: true,
     },
     {
-      label: `Can Change Balance`,
+      label: i18n._('Can Change Balance'),
       value: data?.owner_change_balance,
       type: WarningType.RISKY,
       riskyReverse: true,
     },
     {
-      label: `Self-destruc`,
+      label: i18n._('Self-destruct'),
       value: data?.selfdestruct,
       type: WarningType.RISKY,
       riskyReverse: true,
     },
     {
-      label: `External Call`,
+      label: i18n._('External Call'),
       value: data?.external_call,
       type: WarningType.RISKY,
       riskyReverse: true,
     },
     {
-      label: `Gas Abuser`,
+      label: i18n._('Gas Abuser'),
       value: data?.gas_abuse,
       type: WarningType.WARNING,
       riskyReverse: true,
@@ -241,59 +242,59 @@ export const getSecurityTokenInfo = (data: SecurityInfo | null) => {
 
   const tradingData: ItemData[] = [
     {
-      label: `Buy Tax`,
+      label: i18n._('Buy Tax'),
       value: data?.buy_tax,
       type: WarningType.WARNING,
       isNumber: true,
     },
     {
-      label: `Sell Tax`,
+      label: i18n._('Sell Tax'),
       value: data?.sell_tax,
       type: WarningType.WARNING,
       isNumber: true,
     },
     {
-      label: `Modifiable Tax`,
+      label: i18n._('Modifiable Tax'),
       value: data?.slippage_modifiable,
       type: WarningType.WARNING,
       riskyReverse: true,
     },
     {
-      label: `Honeypo`,
+      label: i18n._('Honeypot'),
       value: data?.is_honeypot,
       type: WarningType.RISKY,
       riskyReverse: true,
     },
     {
-      label: `Can be bough`,
+      label: i18n._('Can be bought'),
       value: reverseValue(data?.cannot_buy),
       type: WarningType.RISKY,
     },
     {
-      label: `Can sell all`,
+      label: i18n._('Can sell all'),
       value: reverseValue(data?.cannot_sell_all),
       type: WarningType.RISKY,
     },
     {
-      label: `Blacklisted Function`,
+      label: i18n._('Blacklisted Function'),
       value: data?.is_blacklisted,
       type: WarningType.WARNING,
       riskyReverse: true,
     },
     {
-      label: `Whitelisted Function`,
+      label: i18n._('Whitelisted Function'),
       value: data?.is_whitelisted,
       type: WarningType.WARNING,
       riskyReverse: true,
     },
     {
-      label: `Anti Whale`,
+      label: i18n._('Anti Whale'),
       value: data?.is_anti_whale,
       type: WarningType.WARNING,
       riskyReverse: true,
     },
     {
-      label: `Modifiable Anti Whale`,
+      label: i18n._('Modifiable Anti Whale'),
       value: data?.anti_whale_modifiable,
       type: WarningType.WARNING,
       riskyReverse: true,

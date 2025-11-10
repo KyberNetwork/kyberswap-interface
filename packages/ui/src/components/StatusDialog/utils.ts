@@ -1,30 +1,32 @@
+import type { I18n } from '@lingui/core';
+
 import { StatusDialogType } from '@/components/StatusDialog';
 
-export const getStatusText = (type: StatusDialogType) => {
+export const getStatusText = (i18n: I18n, type: StatusDialogType) => {
   switch (type) {
     case StatusDialogType.WAITING:
-      return 'Waiting for confirmation';
+      return i18n._('Waiting for confirmation');
     case StatusDialogType.PROCESSING:
-      return 'Processing transaction';
+      return i18n._('Processing transaction');
     case StatusDialogType.SUCCESS:
-      return 'Transaction successful';
+      return i18n._('Transaction successful');
     case StatusDialogType.ERROR:
-      return 'Transaction failed';
+      return i18n._('Transaction failed');
     default:
       return '';
   }
 };
 
-export const getStatusDescription = (type: StatusDialogType) => {
+export const getStatusDescription = (i18n: I18n, type: StatusDialogType) => {
   switch (type) {
     case StatusDialogType.WAITING:
-      return 'Confirm this transaction in your wallet';
+      return i18n._('Confirm this transaction in your wallet');
     case StatusDialogType.PROCESSING:
-      return 'Waiting for transaction to be mined';
+      return i18n._('Waiting for transaction to be mined');
     case StatusDialogType.SUCCESS:
-      return 'Your transaction has been successful';
+      return i18n._('Your transaction has been successful');
     case StatusDialogType.ERROR:
-      return 'An error occurred while processing your transaction';
+      return i18n._('An error occurred while processing your transaction');
     default:
       return '';
   }

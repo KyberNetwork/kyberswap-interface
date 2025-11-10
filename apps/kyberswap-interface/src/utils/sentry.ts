@@ -34,8 +34,8 @@ export function captureSwapError(error: TransactionError) {
     ? 'returnAmountIsNotEnough'
     : 'other'
 
-  const level = Object.keys(knownPatterns)
-    .map(key => knownPatterns[key])
+  const level = (Object.keys(knownPatterns) as Array<keyof typeof knownPatterns>)
+    .map(key => knownPatterns[key]())
     .includes(friendlyErrorResult)
     ? 'warning'
     : 'error'

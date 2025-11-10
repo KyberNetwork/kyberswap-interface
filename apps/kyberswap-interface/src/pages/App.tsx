@@ -18,6 +18,7 @@ import Loader from 'components/LocalLoader'
 import Modal from 'components/Modal'
 import ModalsGlobal from 'components/ModalsGlobal'
 import ProtectedRoute from 'components/ProtectedRoute'
+import SingaporeWarningPopup from 'components/SingaporeWarningPopup'
 import SupportButton from 'components/SupportButton'
 import { APP_PATHS, CHAINS_SUPPORT_CROSS_CHAIN, TERM_FILES_PATH } from 'constants/index'
 import { CLASSIC_NOT_SUPPORTED, ELASTIC_NOT_SUPPORTED, NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
@@ -245,6 +246,7 @@ export default function App() {
           */}
 
           <BodyWrapper>
+            <SingaporeWarningPopup />
             {isInSafeApp && !safeAppAcceptedTermOfUse && (
               <Modal isOpen>
                 <Flex width="100%" padding="32px 24px" flexDirection="column" sx={{ gap: '24px' }} alignItems="center">
