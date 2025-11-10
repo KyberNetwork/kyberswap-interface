@@ -34,7 +34,7 @@ const PriceRange = () => {
   const [lastSelected, setLastSelected] = useState<number | string>('');
 
   const priceRanges = useMemo(() => {
-    if (initializing || !poolPrice || !pairCategory) return [];
+    if (initializing || poolPrice === null || !pairCategory) return [];
 
     const priceOptionsForPairCategory =
       PRICE_RANGE[pairCategory as keyof typeof PRICE_RANGE] || PRICE_RANGE[POOL_CATEGORY.EXOTIC_PAIR];
