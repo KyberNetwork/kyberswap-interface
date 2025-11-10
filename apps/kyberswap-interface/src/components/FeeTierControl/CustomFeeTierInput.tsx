@@ -73,7 +73,7 @@ const formatPercentValue = (value: number) => {
 }
 
 type Props = {
-  value: number
+  value: number | null
   onChange: (value: number) => void
   isCustom?: boolean
   disabled?: boolean
@@ -83,7 +83,7 @@ const CustomFeeTierInput: React.FC<Props> = ({ value, onChange, isCustom, disabl
   const [text, setText] = useState('')
 
   useEffect(() => {
-    if (!isCustom) {
+    if (!isCustom || value === null) {
       setText('')
       return
     }

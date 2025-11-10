@@ -98,7 +98,7 @@ const CreatePositionModal = ({ isOpen, onDismiss, onSubmit }: Props) => {
   const [selectedProtocol, setSelectedProtocol] = useState<Exchange>(Exchange.DEX_UNISWAP_V4_FAIRFLOW)
   const [token0, setToken0] = useState<Token | null>(null)
   const [token1, setToken1] = useState<Token | null>(null)
-  const [fee, setFee] = useState<number>(0.01)
+  const [fee, setFee] = useState<number | null>(null)
   const [tokenSelectorTarget, setTokenSelectorTarget] = useState<'token0' | 'token1' | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -134,7 +134,7 @@ const CreatePositionModal = ({ isOpen, onDismiss, onSubmit }: Props) => {
     setSelectedProtocol(Exchange.DEX_UNISWAP_V4_FAIRFLOW)
     setToken0(null)
     setToken1(null)
-    setFee(0.01)
+    setFee(null)
   }, [isOpen])
 
   useEffect(() => {
