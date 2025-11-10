@@ -3,9 +3,15 @@ import styled from 'styled-components'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 
-export const DropdownWrapper = styled.div<{ mobileFullWidth: boolean; mobileHalfWidth: boolean }>`
+export const DropdownWrapper = styled.div<{
+  mobileFullWidth: boolean
+  mobileHalfWidth: boolean
+  fullWidth?: boolean
+}>`
   position: relative;
-  width: fit-content;
+  width: ${({ fullWidth }) => (fullWidth ? '100%' : 'fit-content')};
+  flex: ${({ fullWidth }) => (fullWidth ? '1 1 0%' : 'initial')};
+  min-width: ${({ fullWidth }) => (fullWidth ? '0' : 'auto')};
 
   ${({ theme, mobileFullWidth, mobileHalfWidth }) => theme.mediaWidth.upToSmall`
     ${mobileFullWidth && 'width: 100%;'}
@@ -14,6 +20,7 @@ export const DropdownWrapper = styled.div<{ mobileFullWidth: boolean; mobileHalf
 `
 
 export const DropdownTitleWrapper = styled.div<{ flatten?: boolean; highlight?: boolean }>`
+  width: 100%;
   background: ${({ theme, highlight, flatten }) =>
     highlight ? rgba(flatten ? theme.primary : theme.blue, 0.2) : theme.background};
   border: ${({ theme, highlight, flatten }) =>
@@ -28,18 +35,37 @@ export const DropdownTitleWrapper = styled.div<{ flatten?: boolean; highlight?: 
   justify-content: center;
 `
 
-export const DropdownTitle = styled.div<{ width?: number; justifyContent?: string }>`
-  width: ${({ width }) => (width ? `${width}px` : '')};
-  min-width: ${({ width }) => (!width ? '100px' : 'max-content')};
+export const DropdownTitle = styled.div<{ width?: number; justifyContent?: string; fullWidth?: boolean }>`
+  width: ${({ width, fullWidth }) => {
+    if (width) return `${width}px`
+    return fullWidth ? '100%' : 'auto'
+  }};
+  min-width: ${({ width, fullWidth }) => {
+    if (fullWidth) return '0'
+    return !width ? '100px' : 'max-content'
+  }};
+  flex: ${({ fullWidth }) => (fullWidth ? '1 1 auto' : '0 0 auto')};
   display: flex;
   align-items: center;
   justify-content: ${({ justifyContent }) => justifyContent || 'center'};
   gap: 6px;
   text-transform: capitalize;
 
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+  ${({ theme, fullWidth }) =>
+    !fullWidth &&
+    theme.mediaWidth.upToExtraSmall`
     min-width: max-content;
   `}
+`
+
+export const DropdownLabel = styled.span`
+  display: block;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: inherit;
 `
 
 export const DropdownIcon = styled(DropdownSVG)<{ $flatten?: boolean; open: boolean }>`
