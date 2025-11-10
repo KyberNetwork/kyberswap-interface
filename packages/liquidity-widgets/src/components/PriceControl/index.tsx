@@ -11,12 +11,9 @@ import RevertPriceIcon from '@/assets/svg/ic_revert_price.svg';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
-const PRICE_DISPLAY_OPTIONS = { significantDigits: 8 } as const;
-const INPUT_REGEX = /^\d*\.?\d*$/;
-
-const formatInputValue = (value: number) => {
-  if (!Number.isFinite(value)) return '';
-  return formatDisplayNumber(value, PRICE_DISPLAY_OPTIONS).replace(/,/g, '');
+const formatInputValue = (value: number | null) => {
+  if (!Number.isFinite(value) || value === null) return '';
+  return formatDisplayNumber(value, { significantDigits: 8 }).replace(/,/g, '');
 };
 
 const getNumericPrice = (value: unknown) => {
@@ -28,8 +25,9 @@ const getNumericPrice = (value: unknown) => {
 };
 
 const PriceControl = () => {
-  const { pool, revertPrice, toggleRevertPrice, setPoolPrice } = usePoolStore([
+  const { pool, poolPrice, revertPrice, toggleRevertPrice, setPoolPrice } = usePoolStore([
     'pool',
+    'poolPrice',
     'revertPrice',
     'toggleRevertPrice',
     'setPoolPrice',
@@ -65,51 +63,32 @@ const PriceControl = () => {
   }, [token0Price, token1Price, revertPrice]);
 
   useEffect(() => {
-    if (marketPrice && inputValue.trim() === '') {
+    if (marketPrice && poolPrice === null) {
       setPoolPrice(marketPrice);
-      setInputValue(formatInputValue(marketPrice));
     }
-  }, [marketPrice, inputValue, setPoolPrice]);
+  }, [marketPrice, poolPrice, setPoolPrice]);
 
-  if (!pool) return null;
-
-  const persistPrice = () => {
-    const trimmed = inputValue.trim();
-    if (!trimmed) {
-      setPoolPrice(null);
-      setInputValue('');
-      return;
-    }
-
-    const parsed = Number(trimmed);
-    if (!Number.isFinite(parsed) || parsed <= 0) {
-      setPoolPrice(null);
-      setInputValue('');
-      return;
-    }
-
-    setPoolPrice(parsed);
-    setInputValue(formatInputValue(parsed));
-  };
+  useEffect(() => {
+    setInputValue(formatInputValue(poolPrice));
+  }, [poolPrice]);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const rawValue = event.target.value;
     const normalized = rawValue.replace(/,/g, '.');
+    const parsed = Number(normalized);
 
     if (normalized === '' || normalized === '.') {
-      setInputValue(normalized);
+      setPoolPrice(parsed);
       return;
     }
 
-    if (INPUT_REGEX.test(normalized)) {
-      setInputValue(normalized);
+    if (/^\d*\.?\d*$/.test(normalized)) {
+      setPoolPrice(parsed);
     }
   };
 
   const handleUseMarketRate = () => {
-    if (!marketPrice) return;
     setPoolPrice(marketPrice);
-    setInputValue(formatInputValue(marketPrice));
   };
 
   return (
@@ -150,7 +129,6 @@ const PriceControl = () => {
           className="flex-1 bg-transparent text-base text-text outline-none placeholder:text-subText"
           value={inputValue}
           onChange={handleInputChange}
-          onBlur={persistPrice}
           inputMode="decimal"
           autoComplete="off"
           autoCorrect="off"
