@@ -195,6 +195,10 @@ msgstr "正在加载代币..."
 msgid "📄 Terms & Conditions"
 msgstr "📄 条款与细则"
 
+#: src/components/SwapForm/index.tsx
+msgid "Our simulation detects that {0} token can not be sold immediately or has an extremely high sell fee after being bought, please check further before buying!"
+msgstr "我们的模拟检测到 {0} 代币在买入后无法立即卖出或卖出手续费极高，购买前请进一步确认！"
+
 #: src/pages/Campaign/constants.tsx
 msgid "May Trading Campaign"
 msgstr "五月交易活动"
@@ -340,6 +344,10 @@ msgstr "下载图片"
 #: src/pages/KyberDAO/KNCUtility/FAQ.tsx
 msgid "There is no deadline to claim your gas refunds. You can wait for more KNC to be accumulated before claiming them in order to save on gas fees."
 msgstr "领取燃气费返还没有期限。您可以等待累积更多 KNC 后再领取，以节省燃气费。"
+
+#: src/utils/errorMessage.ts
+msgid "An error occurred. Invalid Permit Signature."
+msgstr "发生错误。Permit 签名无效。"
 
 #: src/components/SwapForm/SwapActionButton/index.tsx
 #: src/components/swapv2/LimitOrder/LimitOrderForm.tsx
@@ -851,6 +859,7 @@ msgid "Request to Faucet - Submitted"
 msgstr "水龙头请求 - 已提交"
 
 #: src/components/swapv2/TokenInfo/utils.ts
+#: src/pages/MarketOverview/DetailModal.tsx
 #: src/pages/MarketOverview/TableContent.tsx
 msgid "Market Cap"
 msgstr "市值"
@@ -1022,6 +1031,10 @@ msgstr "您确定吗?"
 msgid "{hour} {temp} ago"
 msgstr "{hour} {temp} 前"
 
+#: src/components/TransactionConfirmationModal/index.tsx
+msgid "Show less"
+msgstr "显示较少"
+
 #: src/pages/Campaign/components/Information.tsx
 msgid "How are points calculated?"
 msgstr "积分如何计算？"
@@ -1074,6 +1087,10 @@ msgstr "KNC 奖励将于 6 月 9 日 00:00 UTC 起可在“我的仪表板”页
 msgid "Actions"
 msgstr "操作"
 
+#: src/utils/errorMessage.ts
+msgid "The requested account and/or method has not been authorized by the user."
+msgstr "请求的账户和/或方法尚未获得用户授权。"
+
 #: src/pages/Campaign/components/Information.tsx
 #: src/pages/Campaign/components/Information.tsx
 msgid "User earned Points for the week / Total Users Point for the week) X Amount of ARB allocation for the week."
@@ -1105,6 +1122,11 @@ msgstr "确认"
 #: src/pages/AddLiquidityV2/constants.ts
 msgid "Suitable for stablecoin or stable correlated pairs. Anticipating price to fluctuate within ~3%. You can earn fees even if the price goes up by 1.5% or goes down by 1.5%."
 msgstr "适合稳定币或高度相关的代币对。预期价格波动约 3%。即使价格上涨 1.5% 或下跌 1.5%，您仍可赚取手续费。"
+
+#: src/pages/Earns/PositionDetail/RightSection.tsx
+#: src/pages/Earns/PositionDetail/RightSection.tsx
+msgid "{0} per {1}"
+msgstr "{0} 每 {1}"
 
 #: src/pages/Campaign/MyDashboard.tsx
 msgid "Total Claim-able rewards"
@@ -1829,10 +1851,6 @@ msgstr "您可以自由交易由 <0>合资格代币</0>组成的任何交易对�
 msgid "Address"
 msgstr "地址"
 
-#: src/components/SwapForm/AddMEVProtectionModal.tsx
-#~ msgid "You have successfully turned on MEV Protection Mode. All transactions on Ethereum will go through the custom RPC endpoint unless you change it"
-#~ msgstr "您已成功开启 MEV 防护模式。除非更改设置，否则在以太坊上的所有交易都将通过该自定义 RPC 节点。"
-
 #: src/pages/NotificationCenter/CreateAlert/index.tsx
 msgid "We will use our Aggregator to regularly monitor price changes based on your alert conditions below. When the price alert is triggered, we will send you a notification"
 msgstr "我们会使用聚合器根据您下方的提醒条件定期监控价格变化。一旦触发价格提醒，我们将向您发送通知。"
@@ -1874,10 +1892,6 @@ msgstr "根据交易对动态给出提示。"
 #: src/pages/Campaign/components/Information.tsx
 msgid "Rewards will be airdropped directly to the winners wallets by August 12th."
 msgstr "奖励将于 8 月 12 日前直接空投至获奖者钱包。"
-
-#: src/components/SwapForm/AddMEVProtectionModal.tsx
-msgid "guide"
-msgstr "指南"
 
 #: src/components/ShareModal/index.tsx
 msgid "Copy Link"
@@ -1927,6 +1941,10 @@ msgstr "ARB 奖励的分配以用户获得的积分为依据，每位用户都�
 #: src/pages/Earns/UserPositions/TableContent.tsx
 msgid "You don't have any liquidity positions yet"
 msgstr "您暂时还没有流动性仓位"
+
+#: src/utils/errorMessage.ts
+msgid "An error occurred. Try refreshing the price rate or increase max slippage."
+msgstr "发生错误。请尝试刷新价格或提高最大滑点。"
 
 #: src/pages/Earns/PositionDetail/index.tsx
 msgid "Est. Position APR"
@@ -2253,6 +2271,10 @@ msgstr "我们将自动移除您的流动性，并在一笔交易中将其转换
 msgid "Imported"
 msgstr "已导入"
 
+#: src/pages/MarketOverview/DetailModal.tsx
+msgid "All Time Low"
+msgstr "历史最低价"
+
 #: src/pages/NotificationCenter/Profile/WarningSignMessage.tsx
 msgid "You are not signed in with this wallet address. Click Sign-In to link your wallet to a profile. This will allow us to offer you a better experience.{0}"
 msgstr "您未使用该钱包地址登录。点击登录，将钱包关联到档案以获得更佳体验。{0}"
@@ -2375,6 +2397,10 @@ msgstr "您的交易"
 msgid "This is the USD value of the fees earned by your liquidity position immediately before the exploit."
 msgstr "这是在被攻击前您的流动性仓位所赚取手续费的美元价值。"
 
+#: src/utils/errorMessage.ts
+msgid "Insufficient fee rewards amount, try to remove your liquidity without claiming fees for now and you can try to claim it later."
+msgstr "手续费奖励金额不足，请暂时在不领取手续费的情况下移除流动性，稍后再尝试领取。"
+
 #: src/components/Announcement/Popups/SnippetPopup.tsx
 #: src/pages/NotificationCenter/Profile/WarningSignMessage.tsx
 msgid "Read More"
@@ -2424,6 +2450,10 @@ msgstr "质押 KNC、投票、赚取奖励。"
 #: src/components/swapv2/LimitOrder/Modals/ConfirmOrderModal.tsx
 msgid "Hard Edit (<0>~{0}</0> gas fees)"
 msgstr "强制编辑（<0>约 {0}</0> 燃气费）"
+
+#: src/components/TransactionConfirmationModal/index.tsx
+msgid "Show more details"
+msgstr "显示更多详情"
 
 #: src/components/swapv2/LimitOrder/OrderBook/index.tsx
 msgid "Orders refresh in"
@@ -2773,6 +2803,10 @@ msgstr "改为？"
 msgid "Volume is measured based on the value of tokens received on the <0>destination chain</0>, and attributed to the <1>destination wallet.</1>"
 msgstr "成交量按照在 <0>目标链</0> 上收到的代币价值计算，并归属于<1>目标钱包</1>。"
 
+#: src/pages/MarketOverview/DetailModal.tsx
+msgid "All Time High"
+msgstr "历史最高价"
+
 #: src/components/swapv2/LimitOrder/OrderBook/TableHeader.tsx
 #: src/components/swapv2/LimitOrder/OrderBook/TableHeader.tsx
 #: src/pages/CrossChainSwap/components/TransactionHistory.tsx
@@ -2999,6 +3033,10 @@ msgstr "打开区块浏览器"
 msgid "Request"
 msgstr "请求"
 
+#: src/utils/errorMessage.ts
+msgid "An error occurred. Please try increasing max slippage."
+msgstr "发生错误。请尝试提高最大滑点。"
+
 #: src/components/SwapForm/SwapActionButton/index.tsx
 #: src/components/SwapForm/SwapActionButton/index.tsx
 msgid "Approve <0>{0}</0> requires to be more than <1>{1} {2}</1>, find out more <2>here</2>"
@@ -3210,6 +3248,10 @@ msgstr "连接钱包以查看您的奖励"
 #: src/components/AppHaveUpdate.tsx
 msgid "New contents are available."
 msgstr "新内容可用。"
+
+#: src/utils/errorMessage.ts
+msgid "Your current balance falls short of covering the required gas fee."
+msgstr "您当前的余额不足以支付所需的燃气费用。"
 
 #: src/pages/KyberDAO/Vote/ClaimConfirmModal.tsx
 msgid "Claim your KNC rewards"
@@ -3926,10 +3968,6 @@ msgstr "质押您的 KNC（<0>Kyber Network Crystal</0>）代币以<1>参与 KIP
 msgid "AMP factor x Liquidity in the pool. Amplified pools have higher capital efficiency and liquidity."
 msgstr "AMP 系数 x 池中的流动性。放大池具有更高的资本效率和流动性。"
 
-#: src/components/SwapForm/AddMEVProtectionModal.tsx
-#~ msgid "<0>MEV</0> Protection safeguards you from front-running attacks on Ethereum. We recommend using <1>KyberSwap's RPC endpoint</1> - powered by Blink to protect your transactions from front-running attacks and ensure a better trading experience.<2/><3/>Note that adding the RPC endpoint automatically is only available via the MetaMask wallet. If you are using another wallet or would like to add the RPC endpoint to your wallet manually, please refer to this <4>guide</4>. Please make sure you understand how it works and use at your own caution."
-#~ msgstr "<0>MEV</0> 保护可防止您在以太坊上遭受抢先交易攻击。我们建议使用由 Blink 提供支持的 <1>KyberSwap RPC 端点</1>，以保护您的交易并确保更佳的交易体验。<2/><3/>请注意，仅能通过 MetaMask 钱包自动添加该 RPC 端点。如果您使用其他钱包或希望手动添加，请参阅此<4>指南</4>。请务必了解其工作原理并谨慎使用。"
-
 #: src/components/Header/web3/NetworkModal/components/DraggableNetworkButton.tsx
 #: src/pages/Earns/Landing/index.tsx
 msgid "Coming Soon"
@@ -4105,6 +4143,10 @@ msgstr "您只能从下一个 Epoch 起参与投票"
 msgid "Get KNC"
 msgstr "获取 KNC"
 
+#: src/utils/errorMessage.ts
+msgid "Network Error. Please check your connection and try again."
+msgstr "网络错误。请检查您的连接并重试。"
+
 #: src/pages/About/AboutKNC.tsx
 msgid "Dynamic Token Model"
 msgstr "动态代币模型"
@@ -4250,6 +4292,10 @@ msgstr "非 EVM ← Near L1（不含同链）"
 msgid "Search..."
 msgstr "搜索..."
 
+#: src/utils/errorMessage.ts
+msgid "Pending request(s), please approve it in your wallet."
+msgstr "存在待处理请求，请在钱包中完成批准。"
+
 #: src/pages/BuyCrypto/index.tsx
 msgid "Step 1"
 msgstr "步骤 1"
@@ -4379,6 +4425,10 @@ msgstr "取消订单"
 #: src/components/Toggle/ListToggle.tsx
 msgid "OFF"
 msgstr "关"
+
+#: src/utils/errorMessage.ts
+msgid "An error occurred. Refresh the page and try again. If the issue still persists, it might be an issue with your RPC node settings in Metamask."
+msgstr "发生错误。请刷新页面后重试。如果问题仍然存在，可能是您在 Metamask 中的 RPC 节点设置导致的。"
 
 #: src/pages/KyberDAO/KNCUtility/index.tsx
 msgid "Stake here ↗"
@@ -4678,6 +4728,10 @@ msgstr "已过期（成交 {filledPercent}%）"
 #: src/pages/Verify/VerifyCodeModal/index.tsx
 msgid "Verifying"
 msgstr "验证中"
+
+#: src/pages/MarketOverview/DetailModal.tsx
+msgid "Grouping selection across chains is sourced from Coingecko and CoinMarketCap"
+msgstr "跨链分组信息来自 Coingecko 和 CoinMarketCap"
 
 #: src/pages/ElasticLegacy/PositionLegacy.tsx
 #: src/pages/KyberDAO/StakeKNC/YourTransactionsModal.tsx
@@ -5122,6 +5176,10 @@ msgstr "代币对"
 msgid "DAO Governance"
 msgstr "DAO 治理"
 
+#: src/utils/errorMessage.ts
+msgid "Something went wrong. Please try again."
+msgstr "出现问题。请重试。"
+
 #: src/components/Menu/index.tsx
 #: src/pages/MyPool/index.tsx
 msgid "My Pools"
@@ -5374,10 +5432,6 @@ msgstr "两种代币必须是相同的原生代币，如 ETH-ETH、BNB-BNB、POL
 msgid "Next"
 msgstr "下一步"
 
-#: src/components/SwapForm/AddMEVProtectionModal.tsx
-msgid "Note that adding the RPC endpoint automatically is only available via the MetaMask wallet. If you are using another wallet or would like to add the RPC endpoint to your wallet manually, please refer to this"
-msgstr "请注意，仅能通过 MetaMask 钱包自动添加该 RPC 端点。如果您使用其他钱包，或希望将该 RPC 端点手动添加到钱包，请参阅此"
-
 #: src/pages/Campaign/components/Information.tsx
 #: src/pages/Campaign/components/Information.tsx
 msgid "How do you calculate the rewards?"
@@ -5617,6 +5671,10 @@ msgstr "当 <2>1 {makerAssetSymbol} 等于 </2><3>{takingAmountRate} {takerAsset
 #: src/pages/Campaign/index.tsx
 msgid "Week {weekIndex} {statusText}"
 msgstr "第 {weekIndex} 周 {statusText}"
+
+#: src/utils/errorMessage.ts
+msgid "An error occurred. Refresh the page and try again."
+msgstr "发生错误。请刷新页面后重试。"
 
 #: src/pages/Campaign/components/Information.tsx
 msgid "Non-EVM → Near L1 (excl same chain)"
@@ -6096,6 +6154,7 @@ msgstr "赚取手续费"
 msgid "You have chosen option C for KyberSwap Elastic Exploit Treasury Grant Program"
 msgstr "您已选择 KyberSwap Elastic 漏洞国库资助计划的选项 C"
 
+#: src/pages/MarketOverview/DetailModal.tsx
 #: src/pages/MarketOverview/index.tsx
 #: src/pages/MarketOverview/index.tsx
 msgid "On-chain Price"
@@ -6104,6 +6163,10 @@ msgstr "链上价格"
 #: src/components/SwapForm/SwapModal/SwapModalAreYouSure.tsx
 msgid "If you're okay with this, please type the word 'confirm' below to accept this new amount."
 msgstr "若您接受，请在下方输入“confirm”以确认新的数量。"
+
+#: src/components/SwapForm/index.tsx
+msgid "Our simulation detects that {0} has {1}% fee on transfer, please check further before buying."
+msgstr "我们的模拟检测到 {0} 在转账时需支付 {1}% 手续费，购买前请进一步确认。"
 
 #: src/pages/Campaign/components/Information.tsx
 msgid "Trade more to earn more points to climb the leaderboard - the higher your rank, the greater your rewards."
@@ -6358,6 +6421,10 @@ msgstr "我们帮您获得了更高的数量。最初的输出为 {output}"
 msgid "Nonce Retrieval Failed"
 msgstr "获取随机数失败"
 
+#: src/utils/errorMessage.ts
+msgid "Your chain is mismatched, please make sure your wallet is switch to the expected chain."
+msgstr "链不匹配，请确保您的钱包已切换到预期的链。"
+
 #: src/components/TransactionConfirmationModal/index.tsx
 msgid "Confirm this transaction in your wallet"
 msgstr "在您的钱包中确认此交易"
@@ -6471,6 +6538,7 @@ msgstr "加入收藏"
 msgid "Connected successfully with Guest Profile."
 msgstr "已成功连接到访客资料。"
 
+#: src/pages/MarketOverview/DetailModal.tsx
 #: src/pages/MarketOverview/index.tsx
 #: src/pages/MarketOverview/TableContent.tsx
 msgid "Sell Price"
@@ -6495,6 +6563,10 @@ msgstr "取消全部订单失败，请重试。"
 #: src/components/SwapForm/SlippageSetting.tsx
 msgid "Maximum slippage allowed for Degen mode is 50%"
 msgstr "Degen 模式允许的最大滑点为 50%"
+
+#: src/utils/errorMessage.ts
+msgid "User rejected the transaction."
+msgstr "用户拒绝了该交易。"
 
 #: src/pages/NotificationCenter/CreateAlert/ConfirmModal.tsx
 msgid "Alert Created"
@@ -6533,10 +6605,6 @@ msgstr "我的收件箱"
 #: src/pages/KyberDAO/Vote/index.tsx
 msgid "In Progress: Epoch {0}"
 msgstr "进行中：第 {0} 轮"
-
-#: src/components/SwapForm/AddMEVProtectionModal.tsx
-msgid ". Please make sure you understand how it works and use at your own caution."
-msgstr "。请务必了解其工作原理并谨慎使用。"
 
 #: src/pages/KyberDAO/StakeKNC/index.tsx
 msgid "Read about KNC ↗"
@@ -6620,6 +6688,7 @@ msgstr "使用 Google 登录"
 msgid "{0} out of {numberOfDEXes} selected"
 msgstr "已选择 {numberOfDEXes} 个中的 {0} 个"
 
+#: src/pages/MarketOverview/DetailModal.tsx
 #: src/pages/MarketOverview/index.tsx
 #: src/pages/MarketOverview/TableContent.tsx
 msgid "Buy Price"
@@ -6647,6 +6716,7 @@ msgstr "总归属金额（USDC）"
 
 #: src/components/CurrencyInputPanel/TokenInfo.tsx
 #: src/components/WalletPopup/AccountInfo/ActionButtonGroup.tsx
+#: src/pages/MarketOverview/DetailModal.tsx
 msgid "Buy"
 msgstr "购买"
 
@@ -6666,6 +6736,10 @@ msgstr "您仍有 <0>{numberOfPosition}</0> 个流动性仓位和 <1>{0}</1> 未
 #: src/pages/ElasticSnapshot/index.tsx
 msgid "NFT ID"
 msgstr "NFT ID"
+
+#: src/components/SwapForm/AddMEVProtectionModal.tsx
+msgid "Note that adding the RPC endpoint automatically is only available via the MetaMask wallet. If you’re using another wallet please add the RPC endpoint manually in your wallet’s custom network settings. Please make sure you understand how it works and use it at your own caution."
+msgstr "请注意，自动添加 RPC 端点仅适用于 MetaMask 钱包。如果您使用其他钱包，请在钱包的自定义网络设置中手动添加该 RPC 端点。请确保了解其工作原理，并谨慎自行使用。"
 
 #: src/components/WalletPopup/Transactions/Status.tsx
 msgid "Completed"
@@ -6824,6 +6898,10 @@ msgstr "我想取消的订单条件为"
 msgid "Confirm Swap Details"
 msgstr "确认兑换详情"
 
+#: src/utils/errorMessage.ts
+msgid "Insufficient ERC20 balance to pay gas fee"
+msgstr "ERC20 余额不足，无法支付燃气费。"
+
 #: src/pages/KyberDAO/KNCUtility/FAQ.tsx
 msgid "Is there a deadline to claim your gas refunds?"
 msgstr "领取 Gas 返还是否有截止日期？"
@@ -6908,7 +6986,6 @@ msgstr "我们已于 2023 年 4 月 18 日 UTC 16:00 暂停所有 Elastic 挖矿
 #: src/pages/NotificationCenter/Profile/index.tsx
 msgid "Profile updated"
 msgstr "资料已更新"
-
 
 #: src/pages/Campaign/components/Information.tsx
 #: src/pages/Campaign/components/Information.tsx
@@ -7199,6 +7276,7 @@ msgstr "我的挖矿年化收益率"
 #: src/components/Header/groups/SwapNavGroup.tsx
 #: src/components/SwapForm/SwapActionButton/SwapButtonWithPriceImpact.tsx
 #: src/components/SwapForm/SwapModal/ConfirmSwapModalContent.tsx
+#: src/pages/MarketOverview/DetailModal.tsx
 #: src/pages/SwapV3/Tabs/index.tsx
 msgid "Swap"
 msgstr "兑换"
@@ -7367,6 +7445,7 @@ msgstr "成交 {filledPercent}% | 已过期"
 msgid "How can I be eligible to the Referral Program?"
 msgstr "我如何获得推荐计划的参与资格？"
 
+#: src/pages/MarketOverview/DetailModal.tsx
 #: src/pages/MarketOverview/index.tsx
 #: src/pages/MarketOverview/TableContent.tsx
 msgid "24h Volume"
@@ -7426,6 +7505,7 @@ msgid "Tier {0}"
 msgstr "等级 {0}"
 
 #: src/components/CurrencyInputPanel/TokenInfo.tsx
+#: src/pages/MarketOverview/DetailModal.tsx
 msgid "Sell"
 msgstr "卖出"
 

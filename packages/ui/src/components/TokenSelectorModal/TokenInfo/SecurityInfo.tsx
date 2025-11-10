@@ -1,5 +1,7 @@
 import { useMemo } from 'react';
 
+import { useLingui } from '@lingui/react';
+
 import { ChainId, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, Token } from '@kyber/schema';
 
 import CollapseInfoItem from '@/components/TokenSelectorModal/TokenInfo/CollapseInfoItem';
@@ -11,6 +13,7 @@ import IconSecurity from '@/components/TokenSelectorModal/assets/security.svg?re
 import { MouseoverTooltip } from '@/components/Tooltip';
 
 const SecurityInfo = ({ token, chainId }: { token: Token; chainId: ChainId }) => {
+  const { i18n } = useLingui();
   const tokenAddress = useMemo(
     () =>
       (token?.address
@@ -22,7 +25,7 @@ const SecurityInfo = ({ token, chainId }: { token: Token; chainId: ChainId }) =>
     [token, chainId],
   );
 
-  const { securityInfo, loading } = useSecurityTokenInfo({ tokenAddress, chainId });
+  const { securityInfo, loading } = useSecurityTokenInfo({ tokenAddress, chainId, i18n });
 
   return (
     <>
@@ -30,20 +33,20 @@ const SecurityInfo = ({ token, chainId }: { token: Token; chainId: ChainId }) =>
         <div className="flex items-center gap-2">
           <IconSecurity className="h-6 w-6" />
           <MouseoverTooltip
-            text="Token security info provided by Goplus. Please conduct your own research before trading"
+            text={i18n._('Token security info provided by Goplus. Please conduct your own research before trading')}
             width="250px"
           >
-            <span className="border-dashed border-b border-text">Security Info</span>
+            <span className="border-dashed border-b border-text">{i18n._('Security Info')}</span>
           </MouseoverTooltip>
         </div>
         <div className="flex items-center gap-1">
-          <span className="text-subText text-[10px]">Powered by</span> <LogoGoPlus className="h-4 w-14" />
+          <span className="text-subText text-[10px]">{i18n._('Powered by')}</span> <LogoGoPlus className="h-4 w-14" />
         </div>
       </div>
       <div className="flex flex-col gap-[14px] p-[14px]">
         <CollapseInfoItem
           icon={<IconSecurityTrading />}
-          title={`Trading Security`}
+          title={i18n._('Trading Security')}
           warning={securityInfo.totalWarningTrading}
           danger={securityInfo.totalRiskTrading}
           loading={loading}
@@ -53,7 +56,7 @@ const SecurityInfo = ({ token, chainId }: { token: Token; chainId: ChainId }) =>
         />
         <CollapseInfoItem
           icon={<IconSecurityContract />}
-          title={`Contract Security`}
+          title={i18n._('Contract Security')}
           warning={securityInfo.totalWarningContract}
           danger={securityInfo.totalRiskContract}
           loading={loading}

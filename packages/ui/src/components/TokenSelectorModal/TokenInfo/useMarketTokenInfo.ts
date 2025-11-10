@@ -1,17 +1,25 @@
 import { useEffect, useMemo, useState } from 'react';
 
+import type { I18n } from '@lingui/core';
+
 import { API_URLS, ChainId, NETWORKS_INFO } from '@kyber/schema';
 
-import { TokenInfo, parseMarketTokenInfo } from '@/components/TokenSelectorModal/TokenInfo/utils';
+import { TokenInfo, getMarketTokenInfo } from '@/components/TokenSelectorModal/TokenInfo/utils';
 
 const FETCH_INTERVAL = 60_000;
 let fetchInterval: ReturnType<typeof setInterval>;
 
-export default function useMarketTokenInfo({ tokenAddress, chainId }: { tokenAddress: string; chainId: ChainId }) {
+interface UseMarketTokenInfoParams {
+  tokenAddress: string;
+  chainId: ChainId;
+  i18n: I18n;
+}
+
+export default function useMarketTokenInfo({ tokenAddress, chainId, i18n }: UseMarketTokenInfoParams) {
   const [marketTokenInfo, setMarketTokenInfo] = useState<TokenInfo | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
-  const parsedMarketTokenInfo = useMemo(() => parseMarketTokenInfo(marketTokenInfo), [marketTokenInfo]);
+  const parsedMarketTokenInfo = useMemo(() => getMarketTokenInfo(marketTokenInfo, i18n), [marketTokenInfo, i18n]);
 
   const handleFetchCoingeckoData = () => {
     if (!tokenAddress) return;

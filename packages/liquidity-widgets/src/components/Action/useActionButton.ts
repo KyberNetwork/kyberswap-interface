@@ -5,7 +5,8 @@ import { t } from '@lingui/macro';
 import { usePositionOwner } from '@kyber/hooks';
 import { APPROVAL_STATE, useErc20Approvals } from '@kyber/hooks';
 import { API_URLS, CHAIN_ID_TO_CHAIN, univ3PoolNormalize, univ4Types } from '@kyber/schema';
-import { PI_LEVEL, friendlyError, getZapImpact } from '@kyber/utils';
+import { translateZapImpact } from '@kyber/ui';
+import { PI_LEVEL, friendlyError } from '@kyber/utils';
 import { parseUnits } from '@kyber/utils/crypto';
 
 import { ERROR_MESSAGE, translateErrorMessage } from '@/constants';
@@ -126,7 +127,7 @@ export default function useActionButton({
 
   const zapImpact = !zapInfo
     ? null
-    : getZapImpact(zapInfo.zapDetails.priceImpact, zapInfo.zapDetails.suggestedSlippage || 100);
+    : translateZapImpact(zapInfo.zapDetails.priceImpact, zapInfo.zapDetails.suggestedSlippage || 100);
 
   const isVeryHighZapImpact = zapImpact?.level === PI_LEVEL.VERY_HIGH;
   const isHighZapImpact = zapImpact?.level === PI_LEVEL.HIGH;

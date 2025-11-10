@@ -1,5 +1,7 @@
 import { useState } from 'react';
 
+import { useLingui } from '@lingui/react';
+
 import { ChainId, DEX_NAME, Exchange, Univ2EarnDex } from '@kyber/schema';
 import { enumToArrayOfValues } from '@kyber/utils';
 import { shortenAddress } from '@kyber/utils/crypto';
@@ -62,6 +64,7 @@ const UserPositions = ({
   ) => void;
   onClose: () => void;
 }) => {
+  const { i18n } = useLingui();
   const [copied, setCopied] = useState<string | null>(null);
 
   const { positions, loading } = usePositions({
@@ -89,9 +92,9 @@ const UserPositions = ({
     return (
       <div className="flex flex-col items-center justify-center gap-3 text-subText font-medium h-[260px] relative mx-6">
         <IconPositionConnectWallet />
-        No positions found. Connect your wallet first.
+        {i18n._('No positions found. Connect your wallet first.')}
         <button className="ks-primary-btn w-full absolute -bottom-14 left-0" onClick={onConnectWallet}>
-          Connect
+          {i18n._('Connect')}
         </button>
       </div>
     );
@@ -189,7 +192,7 @@ const UserPositions = ({
                   posStatus === PositionStatus.OUT_RANGE ? 'text-warning bg-warning-200' : 'text-accent bg-accent-200'
                 }`}
               >
-                {posStatus === PositionStatus.OUT_RANGE ? '● Out of range' : '● In range'}
+                {posStatus === PositionStatus.OUT_RANGE ? i18n._('● Out of range') : i18n._('● In range')}
               </div>
             </div>
           </div>
@@ -200,7 +203,7 @@ const UserPositions = ({
   ) : (
     <div className="flex flex-col items-center justify-center gap-3 text-subText font-medium h-[280px]">
       <IconPositionNotFound />
-      No positions found.
+      {i18n._('No positions found.')}
     </div>
   );
 };

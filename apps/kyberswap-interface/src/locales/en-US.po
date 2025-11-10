@@ -195,6 +195,10 @@ msgstr "Loading token..."
 msgid "📄 Terms & Conditions"
 msgstr "📄 Terms & Conditions"
 
+#: src/components/SwapForm/index.tsx
+msgid "Our simulation detects that {0} token can not be sold immediately or has an extremely high sell fee after being bought, please check further before buying!"
+msgstr "Our simulation detects that {0} token can not be sold immediately or has an extremely high sell fee after being bought, please check further before buying!"
+
 #: src/pages/Campaign/constants.tsx
 msgid "May Trading Campaign"
 msgstr "May Trading Campaign"
@@ -340,6 +344,10 @@ msgstr "Download Image"
 #: src/pages/KyberDAO/KNCUtility/FAQ.tsx
 msgid "There is no deadline to claim your gas refunds. You can wait for more KNC to be accumulated before claiming them in order to save on gas fees."
 msgstr "There is no deadline to claim your gas refunds. You can wait for more KNC to be accumulated before claiming them in order to save on gas fees."
+
+#: src/utils/errorMessage.ts
+msgid "An error occurred. Invalid Permit Signature."
+msgstr "An error occurred. Invalid Permit Signature."
 
 #: src/components/SwapForm/SwapActionButton/index.tsx
 #: src/components/swapv2/LimitOrder/LimitOrderForm.tsx
@@ -851,6 +859,7 @@ msgid "Request to Faucet - Submitted"
 msgstr "Request to Faucet - Submitted"
 
 #: src/components/swapv2/TokenInfo/utils.ts
+#: src/pages/MarketOverview/DetailModal.tsx
 #: src/pages/MarketOverview/TableContent.tsx
 msgid "Market Cap"
 msgstr "Market Cap"
@@ -1022,6 +1031,10 @@ msgstr "Are you sure?"
 msgid "{hour} {temp} ago"
 msgstr "{hour} {temp} ago"
 
+#: src/components/TransactionConfirmationModal/index.tsx
+msgid "Show less"
+msgstr "Show less"
+
 #: src/pages/Campaign/components/Information.tsx
 msgid "How are points calculated?"
 msgstr "How are points calculated?"
@@ -1074,6 +1087,10 @@ msgstr "KNC rewards will be available to claim on the “My Dashboard” page st
 msgid "Actions"
 msgstr "Actions"
 
+#: src/utils/errorMessage.ts
+msgid "The requested account and/or method has not been authorized by the user."
+msgstr "The requested account and/or method has not been authorized by the user."
+
 #: src/pages/Campaign/components/Information.tsx
 #: src/pages/Campaign/components/Information.tsx
 msgid "User earned Points for the week / Total Users Point for the week) X Amount of ARB allocation for the week."
@@ -1105,6 +1122,11 @@ msgstr "Confirm"
 #: src/pages/AddLiquidityV2/constants.ts
 msgid "Suitable for stablecoin or stable correlated pairs. Anticipating price to fluctuate within ~3%. You can earn fees even if the price goes up by 1.5% or goes down by 1.5%."
 msgstr "Suitable for stablecoin or stable correlated pairs. Anticipating price to fluctuate within ~3%. You can earn fees even if the price goes up by 1.5% or goes down by 1.5%."
+
+#: src/pages/Earns/PositionDetail/RightSection.tsx
+#: src/pages/Earns/PositionDetail/RightSection.tsx
+msgid "{0} per {1}"
+msgstr "{0} per {1}"
 
 #: src/pages/Campaign/MyDashboard.tsx
 msgid "Total Claim-able rewards"
@@ -1829,10 +1851,6 @@ msgstr "You may freely trade any pair composed of <0>eligible tokens</0>, exclud
 msgid "Address"
 msgstr "Address"
 
-#: src/components/SwapForm/AddMEVProtectionModal.tsx
-#~ msgid "You have successfully turned on MEV Protection Mode. All transactions on Ethereum will go through the custom RPC endpoint unless you change it"
-#~ msgstr "You have successfully turned on MEV Protection Mode. All transactions on Ethereum will go through the custom RPC endpoint unless you change it"
-
 #: src/pages/NotificationCenter/CreateAlert/index.tsx
 msgid "We will use our Aggregator to regularly monitor price changes based on your alert conditions below. When the price alert is triggered, we will send you a notification"
 msgstr "We will use our Aggregator to regularly monitor price changes based on your alert conditions below. When the price alert is triggered, we will send you a notification"
@@ -1874,10 +1892,6 @@ msgstr "Dynamic entry based on trading pair."
 #: src/pages/Campaign/components/Information.tsx
 msgid "Rewards will be airdropped directly to the winners wallets by August 12th."
 msgstr "Rewards will be airdropped directly to the winners wallets by August 12th."
-
-#: src/components/SwapForm/AddMEVProtectionModal.tsx
-msgid "guide"
-msgstr "guide"
 
 #: src/components/ShareModal/index.tsx
 msgid "Copy Link"
@@ -1927,6 +1941,10 @@ msgstr "The distribution of ARB rewards are based on the points distributed to u
 #: src/pages/Earns/UserPositions/TableContent.tsx
 msgid "You don't have any liquidity positions yet"
 msgstr "You don't have any liquidity positions yet"
+
+#: src/utils/errorMessage.ts
+msgid "An error occurred. Try refreshing the price rate or increase max slippage."
+msgstr "An error occurred. Try refreshing the price rate or increase max slippage."
 
 #: src/pages/Earns/PositionDetail/index.tsx
 msgid "Est. Position APR"
@@ -2253,6 +2271,10 @@ msgstr "We will automatically remove your liquidity and convert it into your des
 msgid "Imported"
 msgstr "Imported"
 
+#: src/pages/MarketOverview/DetailModal.tsx
+msgid "All Time Low"
+msgstr "All Time Low"
+
 #: src/pages/NotificationCenter/Profile/WarningSignMessage.tsx
 msgid "You are not signed in with this wallet address. Click Sign-In to link your wallet to a profile. This will allow us to offer you a better experience.{0}"
 msgstr "You are not signed in with this wallet address. Click Sign-In to link your wallet to a profile. This will allow us to offer you a better experience.{0}"
@@ -2375,6 +2397,10 @@ msgstr "Your Transactions"
 msgid "This is the USD value of the fees earned by your liquidity position immediately before the exploit."
 msgstr "This is the USD value of the fees earned by your liquidity position immediately before the exploit."
 
+#: src/utils/errorMessage.ts
+msgid "Insufficient fee rewards amount, try to remove your liquidity without claiming fees for now and you can try to claim it later."
+msgstr "Insufficient fee rewards amount, try to remove your liquidity without claiming fees for now and you can try to claim it later."
+
 #: src/components/Announcement/Popups/SnippetPopup.tsx
 #: src/pages/NotificationCenter/Profile/WarningSignMessage.tsx
 msgid "Read More"
@@ -2424,6 +2450,10 @@ msgstr "Stake KNC, Vote, Earn Rewards."
 #: src/components/swapv2/LimitOrder/Modals/ConfirmOrderModal.tsx
 msgid "Hard Edit (<0>~{0}</0> gas fees)"
 msgstr "Hard Edit (<0>~{0}</0> gas fees)"
+
+#: src/components/TransactionConfirmationModal/index.tsx
+msgid "Show more details"
+msgstr "Show more details"
 
 #: src/components/swapv2/LimitOrder/OrderBook/index.tsx
 msgid "Orders refresh in"
@@ -2773,6 +2803,10 @@ msgstr "instead?"
 msgid "Volume is measured based on the value of tokens received on the <0>destination chain</0>, and attributed to the <1>destination wallet.</1>"
 msgstr "Volume is measured based on the value of tokens received on the <0>destination chain</0>, and attributed to the <1>destination wallet.</1>"
 
+#: src/pages/MarketOverview/DetailModal.tsx
+msgid "All Time High"
+msgstr "All Time High"
+
 #: src/components/swapv2/LimitOrder/OrderBook/TableHeader.tsx
 #: src/components/swapv2/LimitOrder/OrderBook/TableHeader.tsx
 #: src/pages/CrossChainSwap/components/TransactionHistory.tsx
@@ -2999,6 +3033,10 @@ msgstr "Open scan explorer"
 msgid "Request"
 msgstr "Request"
 
+#: src/utils/errorMessage.ts
+msgid "An error occurred. Please try increasing max slippage."
+msgstr "An error occurred. Please try increasing max slippage."
+
 #: src/components/SwapForm/SwapActionButton/index.tsx
 #: src/components/SwapForm/SwapActionButton/index.tsx
 msgid "Approve <0>{0}</0> requires to be more than <1>{1} {2}</1>, find out more <2>here</2>"
@@ -3210,6 +3248,10 @@ msgstr "Connect wallet to view your reward"
 #: src/components/AppHaveUpdate.tsx
 msgid "New contents are available."
 msgstr "New contents are available."
+
+#: src/utils/errorMessage.ts
+msgid "Your current balance falls short of covering the required gas fee."
+msgstr "Your current balance falls short of covering the required gas fee."
 
 #: src/pages/KyberDAO/Vote/ClaimConfirmModal.tsx
 msgid "Claim your KNC rewards"
@@ -3926,10 +3968,6 @@ msgstr "Stake your KNC (<0>Kyber Network Crystal</0>) tokens to <1>vote on KIPs<
 msgid "AMP factor x Liquidity in the pool. Amplified pools have higher capital efficiency and liquidity."
 msgstr "AMP factor x Liquidity in the pool. Amplified pools have higher capital efficiency and liquidity."
 
-#: src/components/SwapForm/AddMEVProtectionModal.tsx
-#~ msgid "<0>MEV</0> Protection safeguards you from front-running attacks on Ethereum. We recommend using <1>KyberSwap's RPC endpoint</1> - powered by Blink to protect your transactions from front-running attacks and ensure a better trading experience.<2/><3/>Note that adding the RPC endpoint automatically is only available via the MetaMask wallet. If you are using another wallet or would like to add the RPC endpoint to your wallet manually, please refer to this <4>guide</4>. Please make sure you understand how it works and use at your own caution."
-#~ msgstr "<0>MEV</0> Protection safeguards you from front-running attacks on Ethereum. We recommend using <1>KyberSwap's RPC endpoint</1> - powered by Blink to protect your transactions from front-running attacks and ensure a better trading experience.<2/><3/>Note that adding the RPC endpoint automatically is only available via the MetaMask wallet. If you are using another wallet or would like to add the RPC endpoint to your wallet manually, please refer to this <4>guide</4>. Please make sure you understand how it works and use at your own caution."
-
 #: src/components/Header/web3/NetworkModal/components/DraggableNetworkButton.tsx
 #: src/pages/Earns/Landing/index.tsx
 msgid "Coming Soon"
@@ -4105,6 +4143,10 @@ msgstr "You can only vote from the next Epoch onward"
 msgid "Get KNC"
 msgstr "Get KNC"
 
+#: src/utils/errorMessage.ts
+msgid "Network Error. Please check your connection and try again."
+msgstr "Network Error. Please check your connection and try again."
+
 #: src/pages/About/AboutKNC.tsx
 msgid "Dynamic Token Model"
 msgstr "Dynamic Token Model"
@@ -4250,6 +4292,10 @@ msgstr "Non-EVM ← Near L1 (excl same chain)"
 msgid "Search..."
 msgstr "Search..."
 
+#: src/utils/errorMessage.ts
+msgid "Pending request(s), please approve it in your wallet."
+msgstr "Pending request(s), please approve it in your wallet."
+
 #: src/pages/BuyCrypto/index.tsx
 msgid "Step 1"
 msgstr "Step 1"
@@ -4379,6 +4425,10 @@ msgstr "Cancel Orders"
 #: src/components/Toggle/ListToggle.tsx
 msgid "OFF"
 msgstr "OFF"
+
+#: src/utils/errorMessage.ts
+msgid "An error occurred. Refresh the page and try again. If the issue still persists, it might be an issue with your RPC node settings in Metamask."
+msgstr "An error occurred. Refresh the page and try again. If the issue still persists, it might be an issue with your RPC node settings in Metamask."
 
 #: src/pages/KyberDAO/KNCUtility/index.tsx
 msgid "Stake here ↗"
@@ -4678,6 +4728,10 @@ msgstr "expired ({filledPercent}% filled)"
 #: src/pages/Verify/VerifyCodeModal/index.tsx
 msgid "Verifying"
 msgstr "Verifying"
+
+#: src/pages/MarketOverview/DetailModal.tsx
+msgid "Grouping selection across chains is sourced from Coingecko and CoinMarketCap"
+msgstr "Grouping selection across chains is sourced from Coingecko and CoinMarketCap"
 
 #: src/pages/ElasticLegacy/PositionLegacy.tsx
 #: src/pages/KyberDAO/StakeKNC/YourTransactionsModal.tsx
@@ -5122,6 +5176,10 @@ msgstr "Token Pair"
 msgid "DAO Governance"
 msgstr "DAO Governance"
 
+#: src/utils/errorMessage.ts
+msgid "Something went wrong. Please try again."
+msgstr "Something went wrong. Please try again."
+
 #: src/components/Menu/index.tsx
 #: src/pages/MyPool/index.tsx
 msgid "My Pools"
@@ -5374,10 +5432,6 @@ msgstr "Both tokens must be the same native tokens including ETH-ETH, BNB-BNB, P
 msgid "Next"
 msgstr "Next"
 
-#: src/components/SwapForm/AddMEVProtectionModal.tsx
-msgid "Note that adding the RPC endpoint automatically is only available via the MetaMask wallet. If you are using another wallet or would like to add the RPC endpoint to your wallet manually, please refer to this"
-msgstr "Note that adding the RPC endpoint automatically is only available via the MetaMask wallet. If you are using another wallet or would like to add the RPC endpoint to your wallet manually, please refer to this"
-
 #: src/pages/Campaign/components/Information.tsx
 #: src/pages/Campaign/components/Information.tsx
 msgid "How do you calculate the rewards?"
@@ -5617,6 +5671,10 @@ msgstr "Your order to pay <0/> {makingAmount} {makerAssetSymbol} and receive <1/
 #: src/pages/Campaign/index.tsx
 msgid "Week {weekIndex} {statusText}"
 msgstr "Week {weekIndex} {statusText}"
+
+#: src/utils/errorMessage.ts
+msgid "An error occurred. Refresh the page and try again."
+msgstr "An error occurred. Refresh the page and try again."
 
 #: src/pages/Campaign/components/Information.tsx
 msgid "Non-EVM → Near L1 (excl same chain)"
@@ -6096,6 +6154,7 @@ msgstr "Earn Fees"
 msgid "You have chosen option C for KyberSwap Elastic Exploit Treasury Grant Program"
 msgstr "You have chosen option C for KyberSwap Elastic Exploit Treasury Grant Program"
 
+#: src/pages/MarketOverview/DetailModal.tsx
 #: src/pages/MarketOverview/index.tsx
 #: src/pages/MarketOverview/index.tsx
 msgid "On-chain Price"
@@ -6104,6 +6163,10 @@ msgstr "On-chain Price"
 #: src/components/SwapForm/SwapModal/SwapModalAreYouSure.tsx
 msgid "If you're okay with this, please type the word 'confirm' below to accept this new amount."
 msgstr "If you're okay with this, please type the word 'confirm' below to accept this new amount."
+
+#: src/components/SwapForm/index.tsx
+msgid "Our simulation detects that {0} has {1}% fee on transfer, please check further before buying."
+msgstr "Our simulation detects that {0} has {1}% fee on transfer, please check further before buying."
 
 #: src/pages/Campaign/components/Information.tsx
 msgid "Trade more to earn more points to climb the leaderboard - the higher your rank, the greater your rewards."
@@ -6358,6 +6421,10 @@ msgstr "We got you a higher amount. The initial output amount was {output}"
 msgid "Nonce Retrieval Failed"
 msgstr "Nonce Retrieval Failed"
 
+#: src/utils/errorMessage.ts
+msgid "Your chain is mismatched, please make sure your wallet is switch to the expected chain."
+msgstr "Your chain is mismatched, please make sure your wallet is switch to the expected chain."
+
 #: src/components/TransactionConfirmationModal/index.tsx
 msgid "Confirm this transaction in your wallet"
 msgstr "Confirm this transaction in your wallet"
@@ -6471,6 +6538,7 @@ msgstr "Add to favorites"
 msgid "Connected successfully with Guest Profile."
 msgstr "Connected successfully with Guest Profile."
 
+#: src/pages/MarketOverview/DetailModal.tsx
 #: src/pages/MarketOverview/index.tsx
 #: src/pages/MarketOverview/TableContent.tsx
 msgid "Sell Price"
@@ -6495,6 +6563,10 @@ msgstr "Cancel all orders failed. Please try again."
 #: src/components/SwapForm/SlippageSetting.tsx
 msgid "Maximum slippage allowed for Degen mode is 50%"
 msgstr "Maximum slippage allowed for Degen mode is 50%"
+
+#: src/utils/errorMessage.ts
+msgid "User rejected the transaction."
+msgstr "User rejected the transaction."
 
 #: src/pages/NotificationCenter/CreateAlert/ConfirmModal.tsx
 msgid "Alert Created"
@@ -6533,10 +6605,6 @@ msgstr "My Inbox"
 #: src/pages/KyberDAO/Vote/index.tsx
 msgid "In Progress: Epoch {0}"
 msgstr "In Progress: Epoch {0}"
-
-#: src/components/SwapForm/AddMEVProtectionModal.tsx
-msgid ". Please make sure you understand how it works and use at your own caution."
-msgstr ". Please make sure you understand how it works and use at your own caution."
 
 #: src/pages/KyberDAO/StakeKNC/index.tsx
 msgid "Read about KNC ↗"
@@ -6620,6 +6688,7 @@ msgstr "Sign-In with Google"
 msgid "{0} out of {numberOfDEXes} selected"
 msgstr "{0} out of {numberOfDEXes} selected"
 
+#: src/pages/MarketOverview/DetailModal.tsx
 #: src/pages/MarketOverview/index.tsx
 #: src/pages/MarketOverview/TableContent.tsx
 msgid "Buy Price"
@@ -6647,6 +6716,7 @@ msgstr "Total Vested Amount (USDC)"
 
 #: src/components/CurrencyInputPanel/TokenInfo.tsx
 #: src/components/WalletPopup/AccountInfo/ActionButtonGroup.tsx
+#: src/pages/MarketOverview/DetailModal.tsx
 msgid "Buy"
 msgstr "Buy"
 
@@ -6666,6 +6736,10 @@ msgstr "You still have <0>{numberOfPosition}</0> liquidity positions and <1>{0}<
 #: src/pages/ElasticSnapshot/index.tsx
 msgid "NFT ID"
 msgstr "NFT ID"
+
+#: src/components/SwapForm/AddMEVProtectionModal.tsx
+msgid "Note that adding the RPC endpoint automatically is only available via the MetaMask wallet. If you’re using another wallet please add the RPC endpoint manually in your wallet’s custom network settings. Please make sure you understand how it works and use it at your own caution."
+msgstr "Note that adding the RPC endpoint automatically is only available via the MetaMask wallet. If you’re using another wallet please add the RPC endpoint manually in your wallet’s custom network settings. Please make sure you understand how it works and use it at your own caution."
 
 #: src/components/WalletPopup/Transactions/Status.tsx
 msgid "Completed"
@@ -6823,6 +6897,10 @@ msgstr "I want to cancel my order where"
 #: src/pages/CrossChainSwap/components/ConfirmationPopup.tsx
 msgid "Confirm Swap Details"
 msgstr "Confirm Swap Details"
+
+#: src/utils/errorMessage.ts
+msgid "Insufficient ERC20 balance to pay gas fee"
+msgstr "Insufficient ERC20 balance to pay gas fee"
 
 #: src/pages/KyberDAO/KNCUtility/FAQ.tsx
 msgid "Is there a deadline to claim your gas refunds?"
@@ -7198,6 +7276,7 @@ msgstr "My Farm APR"
 #: src/components/Header/groups/SwapNavGroup.tsx
 #: src/components/SwapForm/SwapActionButton/SwapButtonWithPriceImpact.tsx
 #: src/components/SwapForm/SwapModal/ConfirmSwapModalContent.tsx
+#: src/pages/MarketOverview/DetailModal.tsx
 #: src/pages/SwapV3/Tabs/index.tsx
 msgid "Swap"
 msgstr "Swap"
@@ -7366,6 +7445,7 @@ msgstr "{filledPercent}% Filled | Expired"
 msgid "How can I be eligible to the Referral Program?"
 msgstr "How can I be eligible to the Referral Program?"
 
+#: src/pages/MarketOverview/DetailModal.tsx
 #: src/pages/MarketOverview/index.tsx
 #: src/pages/MarketOverview/TableContent.tsx
 msgid "24h Volume"
@@ -7425,6 +7505,7 @@ msgid "Tier {0}"
 msgstr "Tier {0}"
 
 #: src/components/CurrencyInputPanel/TokenInfo.tsx
+#: src/pages/MarketOverview/DetailModal.tsx
 msgid "Sell"
 msgstr "Sell"
 

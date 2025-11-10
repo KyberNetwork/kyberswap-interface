@@ -11,6 +11,7 @@ import {
   StatusDialogType,
   TOKEN_SELECT_MODE,
   TokenSelectorModal,
+  translateFriendlyErrorMessage,
 } from '@kyber/ui';
 import { getNftManagerContractAddress } from '@kyber/utils';
 
@@ -185,7 +186,7 @@ export default function Widget() {
                   ? t`Failed to build zap route`
                   : ''
           }
-          description={poolError || positionError || widgetError}
+          description={translateFriendlyErrorMessage(poolError || positionError || widgetError || '')}
           onClose={onCloseErrorDialog}
           action={
             <button className="ks-outline-btn flex-1" onClick={onCloseErrorDialog}>
