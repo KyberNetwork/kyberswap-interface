@@ -127,7 +127,7 @@ export default function Widget() {
 
   const addLiquiditySection = (
     <>
-      <div className={isCreateMode ? 'mb-4' : 'mb-0'}>
+      <div>
         <div className="text-base pl-1">
           {positionId ? <Trans>Increase Liquidity</Trans> : <Trans>Add Liquidity</Trans>}
         </div>
@@ -145,23 +145,21 @@ export default function Widget() {
         )}
       </div>
 
-      {!isCreateMode && (
-        <div className="my-3 text-accent cursor-pointer w-fit text-sm" onClick={() => setOpenTokenSelectModal(true)}>
-          <Trans>+ Add Token(s) or Use Existing Position</Trans>
-          <InfoHelper
-            placement="bottom"
-            text={t`You can either zap in with up to ${MAX_TOKENS} tokens or select an existing position as the liquidity source`}
-            color={theme.accent}
-            width="300px"
-            style={{
-              verticalAlign: 'baseline',
-              position: 'relative',
-              top: 2,
-              left: 2,
-            }}
-          />
-        </div>
-      )}
+      <div className="my-3 text-accent cursor-pointer w-fit text-sm" onClick={() => setOpenTokenSelectModal(true)}>
+        <Trans>+ Add Token(s) or Use Existing Position</Trans>
+        <InfoHelper
+          placement="bottom"
+          text={t`You can either zap in with up to ${MAX_TOKENS} tokens or select an existing position as the liquidity source`}
+          color={theme.accent}
+          width="300px"
+          style={{
+            verticalAlign: 'baseline',
+            position: 'relative',
+            top: 2,
+            left: 2,
+          }}
+        />
+      </div>
     </>
   );
 
