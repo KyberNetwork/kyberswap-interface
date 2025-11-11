@@ -37,8 +37,8 @@ const campaignApi = createApi({
       },
       {
         url?: string
-        program: 'stip' | 'grind/base'
-        campaign: 'trading-incentive' | 'limit-order-farming' | 'referral-program'
+        program?: 'stip' | 'grind/base'
+        campaign?: 'trading-incentive' | 'limit-order-farming' | 'referral-program'
         week: number
         year: number
         pageSize: number
@@ -56,9 +56,9 @@ const campaignApi = createApi({
       { data: { point: number; reward: string; rank: number } },
       {
         url?: string
-        program: 'stip' | 'grind/base'
+        program?: 'stip' | 'grind/base'
         wallet: string
-        campaign: string
+        campaign?: string
         year: number
         week: number
       }
@@ -79,7 +79,12 @@ const campaignApi = createApi({
           totalPoint: number
         }
       },
-      { url?: string; program: 'stip' | 'grind/base'; campaign: string; wallet: string }
+      {
+        url?: string
+        program?: 'stip' | 'grind/base'
+        campaign?: string
+        wallet: string
+      }
     >({
       query: ({ url, program, campaign, wallet }) => ({
         url: url ? `${url}/rewards?wallet=${wallet}` : `/v1/${program}/rewards?campaign=${campaign}&wallet=${wallet}`,
@@ -93,7 +98,7 @@ const campaignApi = createApi({
         }
       },
       {
-        program: 'stip' | 'grind/base'
+        program?: 'stip' | 'grind/base'
         wallet: string
       }
     >({

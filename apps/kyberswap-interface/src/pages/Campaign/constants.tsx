@@ -286,8 +286,8 @@ export type CampaignConfig = {
   type: CampaignType
   ctaText: JSX.Element
   weeks: any[]
-  program: 'stip' | 'grind/base'
-  campaign: 'trading-incentive' | 'limit-order-farming' | 'referral-program'
+  program?: 'stip' | 'grind/base'
+  campaign?: 'trading-incentive' | 'limit-order-farming' | 'referral-program'
   url?: string
 
   banner: string
@@ -311,8 +311,6 @@ export const campaignConfig: Record<CampaignType, CampaignConfig> = {
     ctaText: <Trans>Join Now</Trans>,
     type: CampaignType.Raffle,
     weeks: raffleWeeks,
-    program: 'grind/base' as const,
-    campaign: 'trading-incentive' as const,
     banner: raffleCampaignBanner,
     title: <Trans>Raffle Campaign</Trans>,
   },
@@ -375,10 +373,8 @@ export const campaignConfig: Record<CampaignType, CampaignConfig> = {
     type: CampaignType.NearIntents,
     ctaText: <Trans>Trade Now</Trans>,
     weeks: nearIntentWeeks,
-    // dont use for near intents
-    program: 'grind/base' as const,
-    // dont use too
-    campaign: 'trading-incentive' as const,
+    program: 'grind/base' as const, // dummy value
+    campaign: 'trading-incentive' as const, // dummy value
     url: 'https://kyberswap-near-intents.kyberengineering.io/api/v1',
     banner: isMobile ? nearIntentBannerMobile : nearIntentBanner,
     ctaLink: '/cross-chain',
