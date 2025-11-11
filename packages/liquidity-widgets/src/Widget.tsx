@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 
 import { Trans, t } from '@lingui/macro';
 
-import { useNftApproval } from '@kyber/hooks';
+import { useNftApproval, useNftApprovalAll } from '@kyber/hooks';
 import { defaultToken, univ3Types, univ4Types } from '@kyber/schema';
 import {
   InfoHelper,
@@ -89,8 +89,22 @@ export default function Widget() {
     approve: approveNft,
     approvePendingTx: nftApprovePendingTx,
     checkApproval: checkNftApproval,
+    isChecking: isCheckingNftApproval,
   } = useNftApproval({
     tokenId: positionId ? +positionId : undefined,
+    spender: zapInfo?.routerAddress || '',
+    userAddress: connectedAccount?.address || '',
+    rpcUrl,
+    nftManagerContract,
+    onSubmitTx: onSubmitTx,
+  });
+  const {
+    isApproved: nftApprovedAll,
+    approveAll: approveNftAll,
+    approvePendingTx: nftApprovePendingTxAll,
+    checkApprovalAll: checkNftApprovalAll,
+    isChecking: isCheckingNftApprovalAll,
+  } = useNftApprovalAll({
     spender: zapInfo?.routerAddress || '',
     userAddress: connectedAccount?.address || '',
     rpcUrl,
@@ -159,7 +173,10 @@ export default function Widget() {
   );
 
   const onClosePreview = () => {
-    if (isUniv4) checkNftApproval();
+    if (isUniv4) {
+      checkNftApproval();
+      checkNftApprovalAll();
+    }
     setZapSnapshotState(null);
     getZapRoute();
   };
@@ -260,9 +277,18 @@ export default function Widget() {
           </div>
         </div>
         <Action
-          nftApproved={nftApproved}
-          nftApprovePendingTx={nftApprovePendingTx}
-          approveNft={approveNft}
+          nftApproval={{
+            approved: nftApproved,
+            onApprove: approveNft,
+            pendingTx: nftApprovePendingTx,
+            isChecking: isCheckingNftApproval,
+          }}
+          nftApprovalAll={{
+            approved: nftApprovedAll,
+            onApprove: approveNftAll,
+            pendingTx: nftApprovePendingTxAll,
+            isChecking: isCheckingNftApprovalAll,
+          }}
           setWidgetError={setWidgetError}
           setZapSnapshotState={setZapSnapshotState}
         />

@@ -17,15 +17,13 @@ import { ZapSnapshotState } from '@/types/index';
 import { estimateGasForTx } from '@/utils';
 
 export default function useActionButton({
-  nftApproved,
-  approveNft,
-  nftApprovePendingTx,
+  nftApproval,
+  nftApprovalAll,
   setWidgetError,
   setZapSnapshotState,
 }: {
-  nftApproved: boolean;
-  nftApprovePendingTx: string;
-  approveNft: () => Promise<void>;
+  nftApproval: { approved: boolean; onApprove: () => Promise<void>; pendingTx: string; isChecking: boolean };
+  nftApprovalAll: { approved: boolean; onApprove: () => Promise<void>; pendingTx: string; isChecking: boolean };
   setWidgetError: (_value: string | undefined) => void;
   setZapSnapshotState: (_value: ZapSnapshotState | null) => void;
 }) {
@@ -87,7 +85,12 @@ export default function useActionButton({
     .map(token => token?.address || '');
   const amountsToApprove = amountsInWei.filter(amount => Number(amount) > 0);
 
-  const { loading, approvalStates, approve, addressToApprove } = useErc20Approvals({
+  const {
+    loading: tokenApprovalLoading,
+    approvalStates,
+    approve,
+    addressToApprove,
+  } = useErc20Approvals({
     amounts: amountsToApprove,
     addreses: tokenAddressesToApprove,
     owner: connectedAccount?.address || '',
@@ -95,8 +98,21 @@ export default function useActionButton({
     spender: zapInfo?.routerAddress || '',
     onSubmitTx: onSubmitTx,
   });
+  const {
+    approved: nftApproved,
+    onApprove: approveNft,
+    pendingTx: nftApprovePendingTx,
+    isChecking: isCheckingNftApproval,
+  } = nftApproval;
+  const {
+    approved: nftApprovedAll,
+    onApprove: approveNftAll,
+    pendingTx: nftApprovePendingTxAll,
+    isChecking: isCheckingNftApprovalAll,
+  } = nftApprovalAll;
+  const [nftApprovalType, setNftApprovalType] = useState<'single' | 'all'>('single');
 
-  const notApprove = useMemo(
+  const tokenInNotApproved = useMemo(
     () => tokensIn.find(item => approvalStates[item?.address || ''] === APPROVAL_STATE.NOT_APPROVED),
     [approvalStates, tokensIn],
   );
@@ -119,9 +135,12 @@ export default function useActionButton({
     (isUniv4 && isNotOwner) ||
     clickedApprove ||
     nftApprovePendingTx ||
-    loading ||
+    nftApprovePendingTxAll ||
+    tokenApprovalLoading ||
     zapLoading ||
     gasLoading ||
+    isCheckingNftApproval ||
+    isCheckingNftApprovalAll ||
     (errors.length > 0 && !isWrongNetwork && !isNotConnected) ||
     Object.values(approvalStates).some(item => item === APPROVAL_STATE.PENDING);
 
@@ -133,18 +152,36 @@ export default function useActionButton({
   const isHighZapImpact = zapImpact?.level === PI_LEVEL.HIGH;
   const isInvalidZapImpact = zapImpact?.level === PI_LEVEL.INVALID;
 
+  const needApproveNft = isUniv4 && positionId && !nftApproved && !nftApprovedAll;
+  const approvalPending = addressToApprove || nftApprovePendingTx || nftApprovePendingTxAll;
   const buttonStates = [
-    { condition: addressToApprove || nftApprovePendingTx, text: t`Approving` },
-    { condition: zapLoading, text: t`Fetching Route` },
+    { condition: approvalPending, text: t`Approving` },
     { condition: gasLoading, text: t`Estimating Gas` },
+    { condition: tokenApprovalLoading, text: t`Checking Allowance` },
     { condition: errors.length > 0, text: translateErrorMessage(errors[0]) },
+    {
+      condition: needApproveNft && (isCheckingNftApproval || isCheckingNftApprovalAll),
+      text: t`Checking Approval`,
+    },
+    { condition: zapLoading, text: t`Fetching Route` },
     { condition: isUniv4 && isNotOwner, text: t`Not the position owner` },
-    { condition: loading, text: t`Checking Allowance` },
-    { condition: notApprove, text: t`Approve ${notApprove?.symbol ?? ''}` },
-    { condition: isUniv4 && positionId && !nftApproved, text: t`Approve NFT` },
+    { condition: tokenInNotApproved, text: t`Approve ${tokenInNotApproved?.symbol ?? ''}` },
+    { condition: needApproveNft, text: t`Approve NFT` },
     { condition: isVeryHighZapImpact || isInvalidZapImpact, text: t`Zap anyway` },
   ];
   const btnText = buttonStates.find(state => state.condition)?.text || t`Preview`;
+  const isInNftApprovalStep = Boolean(
+    !approvalPending &&
+      !gasLoading &&
+      !tokenApprovalLoading &&
+      !zapLoading &&
+      errors.length === 0 &&
+      !(isUniv4 && isNotOwner) &&
+      !tokenInNotApproved &&
+      !isCheckingNftApproval &&
+      !isCheckingNftApprovalAll &&
+      needApproveNft,
+  );
 
   const getGasEstimation = async ({ deadline }: { deadline: number }) => {
     if (!zapInfo) return;
@@ -201,12 +238,16 @@ export default function useActionButton({
       onSwitchChain();
       return;
     }
-    if (notApprove) {
+    if (tokenInNotApproved) {
       setClickedLoading(true);
-      approve(notApprove.address).finally(() => setClickedLoading(false));
-    } else if (isUniv4 && positionId && !nftApproved) {
+      approve(tokenInNotApproved.address).finally(() => setClickedLoading(false));
+    } else if (needApproveNft) {
       setClickedLoading(true);
-      approveNft().finally(() => setClickedLoading(false));
+      if (nftApprovalType === 'single') {
+        approveNft().finally(() => setClickedLoading(false));
+      } else {
+        approveNftAll().finally(() => setClickedLoading(false));
+      }
     } else if (
       pool !== null &&
       amountsIn &&
@@ -236,14 +277,42 @@ export default function useActionButton({
     }
   };
 
-  const btnLoading = zapLoading || loading || addressToApprove || nftApprovePendingTx || gasLoading;
-  const btnWarning =
-    (isVeryHighZapImpact || isInvalidZapImpact) &&
-    !errors.length &&
-    !isWrongNetwork &&
-    !isNotConnected &&
-    Object.values(approvalStates).every(item => item === APPROVAL_STATE.APPROVED) &&
-    (isUniv4 ? nftApproved : true);
+  const btnLoading =
+    errors.length === 0 &&
+    (zapLoading ||
+      tokenApprovalLoading ||
+      addressToApprove ||
+      nftApprovePendingTx ||
+      nftApprovePendingTxAll ||
+      isCheckingNftApproval ||
+      isCheckingNftApprovalAll ||
+      gasLoading);
+
+  const tooltipContent = (() => {
+    if (
+      approvalPending ||
+      gasLoading ||
+      tokenApprovalLoading ||
+      zapLoading ||
+      errors.length > 0 ||
+      isWrongNetwork ||
+      isNotConnected ||
+      isCheckingNftApproval ||
+      isCheckingNftApprovalAll ||
+      Object.values(approvalStates).some(item => item === APPROVAL_STATE.NOT_APPROVED)
+    )
+      return '';
+
+    if (needApproveNft)
+      return t`Authorize ZapRouter through an on-chain approval. Choose whether to approve once or all positions.`;
+
+    if (isVeryHighZapImpact || isInvalidZapImpact)
+      return uiState.degenMode
+        ? t`You have turned on Degen Mode from settings. Trades with very high price impact can be executed`
+        : t`To ensure you dont lose funds due to very high price impact, swap has been disabled for this trade. If you still wish to continue, you can turn on Degen Mode from Settings.`;
+
+    return '';
+  })();
 
   const isVeryHighWarning = isVeryHighZapImpact || isInvalidZapImpact;
   const isHighWarning = isHighZapImpact;
@@ -252,10 +321,13 @@ export default function useActionButton({
     btnText,
     hanldeClick,
     btnLoading,
-    btnWarning,
+    tooltipContent,
     btnDisabled,
     approvalStates,
     isHighWarning,
     isVeryHighWarning,
+    nftApprovalType,
+    setNftApprovalType,
+    isInNftApprovalStep,
   };
 }

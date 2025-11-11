@@ -1,23 +1,31 @@
+import { useState } from 'react';
+
 import { Trans, t } from '@lingui/macro';
 
 import { APPROVAL_STATE } from '@kyber/hooks';
-import { InfoHelper, Loading } from '@kyber/ui';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  InfoHelper,
+  Loading,
+} from '@kyber/ui';
+import { cn } from '@kyber/utils/tailwind-helpers';
 
+import ChevronDown from '@/assets/svg/chevron-down.svg';
 import useActionButton from '@/components/Action/useActionButton';
-import { useZapState } from '@/hooks/useZapState';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 import { ZapSnapshotState } from '@/types/index';
 
 export default function Action({
-  nftApproved,
-  approveNft,
-  nftApprovePendingTx,
+  nftApproval,
+  nftApprovalAll,
   setWidgetError,
   setZapSnapshotState,
 }: {
-  nftApproved: boolean;
-  nftApprovePendingTx: string;
-  approveNft: () => Promise<void>;
+  nftApproval: { approved: boolean; onApprove: () => Promise<void>; pendingTx: string; isChecking: boolean };
+  nftApprovalAll: { approved: boolean; onApprove: () => Promise<void>; pendingTx: string; isChecking: boolean };
   setWidgetError: (_value: string | undefined) => void;
   setZapSnapshotState: (_value: ZapSnapshotState | null) => void;
 }) {
@@ -25,55 +33,90 @@ export default function Action({
     btnText,
     hanldeClick,
     btnLoading,
-    btnWarning,
+    tooltipContent,
     btnDisabled,
     approvalStates,
     isHighWarning,
     isVeryHighWarning,
+    nftApprovalType,
+    setNftApprovalType,
+    isInNftApprovalStep,
   } = useActionButton({
-    nftApproved,
-    approveNft,
-    nftApprovePendingTx,
+    nftApproval,
+    nftApprovalAll,
     setWidgetError,
     setZapSnapshotState,
   });
-  const { onClose } = useWidgetStore(['onClose']);
-  const { uiState } = useZapState();
+  const { onClose, theme } = useWidgetStore(['onClose', 'theme']);
+  const [openDropdown, setOpenDropdown] = useState(false);
 
   return (
-    <div className="flex justify-center gap-5 mt-6">
+    <div className="flex items-start justify-center gap-5 mt-6">
       {onClose && (
         <button className="ks-outline-btn w-[190px]" onClick={onClose}>
           <Trans>Cancel</Trans>
         </button>
       )}
-      <button
-        className={`ks-primary-btn min-w-[190px] w-fit ${
-          !btnDisabled && Object.values(approvalStates).some(item => item !== APPROVAL_STATE.NOT_APPROVED)
-            ? isVeryHighWarning
-              ? 'bg-error border-solid border-error text-white'
-              : isHighWarning
-                ? 'bg-warning border-solid border-warning'
-                : ''
-            : ''
-        }`}
-        disabled={!!btnDisabled}
-        onClick={hanldeClick}
-      >
-        {btnText}
-        {btnLoading && <Loading className="ml-[6px]" />}
-        {btnWarning && (
-          <InfoHelper
-            width="300px"
-            color="#ffffff"
-            text={
-              uiState.degenMode
-                ? t`You have turned on Degen Mode from settings. Trades with very high price impact can be executed`
-                : t`To ensure you dont lose funds due to very high price impact, swap has been disabled for this trade. If you still wish to continue, you can turn on Degen Mode from Settings.`
-            }
-          />
+      <div className="flex flex-col gap-2">
+        <button
+          className={`ks-primary-btn min-w-[190px] w-fit ${
+            !btnDisabled && Object.values(approvalStates).some(item => item !== APPROVAL_STATE.NOT_APPROVED)
+              ? isVeryHighWarning
+                ? 'bg-error border-solid border-error text-white'
+                : isHighWarning
+                  ? 'bg-warning border-solid border-warning'
+                  : ''
+              : ''
+          }`}
+          disabled={!!btnDisabled}
+          onClick={hanldeClick}
+        >
+          {btnText}
+          {btnLoading && <Loading className="ml-[6px]" />}
+          {tooltipContent ? (
+            <InfoHelper
+              size={14}
+              width="300px"
+              color={btnDisabled ? theme.subText : isVeryHighWarning ? '#ffffff' : '#000000'}
+              text={tooltipContent}
+            />
+          ) : null}
+        </button>
+        {isInNftApprovalStep && (
+          <DropdownMenu open={openDropdown} onOpenChange={() => setOpenDropdown(!openDropdown)}>
+            <DropdownMenuTrigger asChild>
+              <div className="flex items-center gap-0.5 text-subText text-sm cursor-pointer ml-3">
+                {nftApprovalType === 'single' ? <Trans>Approve this position</Trans> : <Trans>Approve for all</Trans>}
+                <ChevronDown
+                  className={cn('w-3.5 h-3.5 transition-transform duration-200', openDropdown ? 'rotate-180' : '')}
+                />
+              </div>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56" align="start">
+              <DropdownMenuItem onSelect={() => nftApprovalType !== 'single' && setNftApprovalType('single')}>
+                <Trans>Approve this position</Trans>
+                <InfoHelper
+                  width="400px"
+                  color={theme.icons}
+                  size={14}
+                  text={t`You wish to give KyberSwap permission to only use this position NFT for this transaction. You’ll need to approve again for future actions.`}
+                  style={{ marginLeft: '-3px' }}
+                />
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => nftApprovalType !== 'all' && setNftApprovalType('all')}>
+                <Trans>Approve for all</Trans>
+                <InfoHelper
+                  width="400px"
+                  color={theme.icons}
+                  size={14}
+                  text={t`You wish to give KyberSwap permission to manage all your positions on this chain. You won’t need to approve again unless you revoke the permission in your wallet.`}
+                  style={{ marginLeft: '-3px' }}
+                />
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         )}
-      </button>
+      </div>
     </div>
   );
 }
