@@ -115,8 +115,8 @@ const PriceControl = () => {
 
       <div className="flex justify-between">
         <div className="flex items-center justify-start gap-3 text-sm flex-wrap">
-          <span className="text-subText uppercase">
-            <Trans>Market rate</Trans>
+          <span className="text-subText">
+            <Trans>Market Rate</Trans>
           </span>
           {loading ? (
             <Skeleton className="w-20 h-5" />

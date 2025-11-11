@@ -22,7 +22,7 @@ export default function PooledAmount({
       <div className="text-sm font-medium text-subText">
         <Trans>Est. Pooled Amount</Trans>
       </div>
-      <div className="text-[14px] flex gap-4">
+      <div className="flex gap-4 text-sm">
         <div className="flex flex-col gap-1">
           <div className="flex gap-1">
             {pool?.token0?.logo && (
@@ -31,9 +31,7 @@ export default function PooledAmount({
             <div className="flex items-center gap-1">
               {formatDisplayNumber(
                 positionId !== undefined ? positionAmountInfo.amount0 : addedAmountInfo.addedAmount0,
-                {
-                  significantDigits: 4,
-                },
+                { significantDigits: 4 },
               )}{' '}
               <TokenSymbol symbol={pool?.token0.symbol} maxWidth={60} />
             </div>
