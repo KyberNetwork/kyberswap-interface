@@ -275,7 +275,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
       );
       const sqrtPriceX96 = getSqrtRatioAtTick(tickFromPrice || 0).toString();
       const feeAmount = pool.fee * 10_000;
-      const tickSpacing = Math.max(Math.round((2 * feeAmount) / 100), 1);
+      const tickSpacing = (pool as typeof pool & { tickSpacing: number }).tickSpacing;
 
       params = {
         dex: poolType,
