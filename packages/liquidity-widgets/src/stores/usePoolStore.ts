@@ -7,31 +7,8 @@ import { MAX_TICK, MIN_TICK, nearestUsableTick } from '@kyber/utils/uniswapv3';
 
 import { CreatePoolConfig } from '@/types/index';
 
-const DEFAULT_TICK_SPACING_BY_FEE: Record<number, number> = {
-  0.005: 1,
-  0.01: 1,
-  0.05: 10,
-  0.1: 20,
-  0.3: 60,
-  0.5: 100,
-  1: 200,
-  3: 600,
-};
-
-const getDefaultTickSpacing = (fee: number) => {
-  const spacing = DEFAULT_TICK_SPACING_BY_FEE[fee];
-  if (spacing) return spacing;
-  if (fee <= 0.01) return 1;
-  if (fee <= 0.05) return 10;
-  if (fee <= 0.3) return 60;
-  if (fee <= 1) return 200;
-  return 600;
-};
-
-const DEFAULT_SQRT_RATIO_X96 = (1n << 96n).toString();
-
 const buildSyntheticPool = (config: CreatePoolConfig, poolType: PoolType): Pool => {
-  const tickSpacing = getDefaultTickSpacing(config.fee);
+  const tickSpacing = Math.max(Math.round((2 * config.fee * 10_000) / 100), 1);
   return {
     address: '',
     poolType: poolType as PoolType.DEX_UNISWAP_V4_FAIRFLOW,
@@ -40,7 +17,7 @@ const buildSyntheticPool = (config: CreatePoolConfig, poolType: PoolType): Pool 
     fee: config.fee,
     tick: 0,
     liquidity: '0',
-    sqrtPriceX96: DEFAULT_SQRT_RATIO_X96,
+    sqrtPriceX96: (1n << 96n).toString(),
     tickSpacing,
     ticks: [],
     minTick: nearestUsableTick(MIN_TICK, tickSpacing),
