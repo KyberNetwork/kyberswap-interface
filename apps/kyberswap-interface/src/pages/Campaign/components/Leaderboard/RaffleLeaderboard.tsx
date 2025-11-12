@@ -1,19 +1,18 @@
 import { Trans, t } from '@lingui/macro'
-import dayjs from 'dayjs'
-import { ReactNode, useEffect, useState } from 'react'
+import { ReactNode, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
+import { Box, Flex, Text } from 'rebass'
 import { useGetRaffleCampaignTransactionsQuery } from 'services/campaignRaffle'
 import styled from 'styled-components'
 
 import Divider from 'components/Divider'
-import Input from 'components/Input'
 import LocalLoader from 'components/LocalLoader'
 import Pagination from 'components/Pagination'
-import useDebounce from 'hooks/useDebounce'
+import { NETWORKS_INFO, isSupportedChainId } from 'constants/networks'
+import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import { ButtonText, ExternalLink, MEDIA_WIDTHS } from 'theme'
+import { MEDIA_WIDTHS } from 'theme'
 import { shortenHash } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -29,43 +28,27 @@ const Wrapper = styled.div`
 
 const PAGE_SIZE = 10
 
-export default function RaffleLeaderboard() {
+type Props = {
+  type?: 'leaderboard' | 'owner'
+}
+
+export default function RaffleLeaderboard({ type }: Props) {
   const theme = useTheme()
+  const { account } = useActiveWeb3React()
   const [searchParams, setSearchParams] = useSearchParams()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
-
-  const senderInQuery = searchParams.get('sender') || ''
-  const [sender, setSender] = useState(senderInQuery)
-  const debouncedSender = useDebounce(sender.trim().toLowerCase(), 300)
-
-  useEffect(() => {
-    const currentSender = searchParams.get('sender') || ''
-    setSender(prev => (prev === currentSender ? prev : currentSender))
-  }, [searchParams])
-
-  useEffect(() => {
-    const normalizedSender = debouncedSender
-    const params = new URLSearchParams(searchParams)
-    const current = params.get('sender') || ''
-    if (normalizedSender === current) return
-
-    if (normalizedSender) {
-      params.set('sender', normalizedSender)
-    } else {
-      params.delete('sender')
-    }
-    params.set('page', '1')
-    setSearchParams(params)
-  }, [debouncedSender, searchParams, setSearchParams])
 
   const pageFromQuery = Number(searchParams.get('page') || '1')
   const currentPage = Number.isFinite(pageFromQuery) && pageFromQuery > 0 ? pageFromQuery : 1
 
-  const { data, isLoading } = useGetRaffleCampaignTransactionsQuery({
-    page: currentPage,
-    limit: PAGE_SIZE,
-    sender: senderInQuery || undefined,
-  })
+  const { data, isLoading } = useGetRaffleCampaignTransactionsQuery(
+    {
+      page: currentPage,
+      limit: PAGE_SIZE,
+      address: type === 'owner' ? account : undefined,
+    },
+    { skip: type === 'owner' ? !account : false },
+  )
 
   const transactions = data?.txs ?? []
   const pagination = data?.pagination
@@ -75,11 +58,6 @@ export default function RaffleLeaderboard() {
     const params = new URLSearchParams(searchParams)
     params.set('page', page.toString())
     setSearchParams(params)
-  }
-
-  const handleClearFilter = () => {
-    if (!sender) return
-    setSender('')
   }
 
   useEffect(() => {
@@ -99,137 +77,81 @@ export default function RaffleLeaderboard() {
 
   return (
     <Wrapper>
-      <Flex
-        flexDirection={upToSmall ? 'column' : 'row'}
-        alignItems={upToSmall ? 'stretch' : 'center'}
-        sx={{ gap: '12px' }}
-      >
-        <Text fontSize={16} fontWeight="500">
-          <Trans>Eligible transaction log</Trans>
-        </Text>
-
-        <Flex flex={1} sx={{ gap: '8px' }} alignItems="center">
-          <Input
-            value={sender}
-            onChange={e => setSender(e.target.value)}
-            placeholder={t`Filter by wallet (sender)`}
-            style={{ flex: 1 }}
-          />
-          {sender && (
-            <ButtonText style={{ whiteSpace: 'nowrap' }} onClick={handleClearFilter}>
-              <Trans>Clear</Trans>
-            </ButtonText>
-          )}
-        </Flex>
-      </Flex>
-
-      <Divider style={{ margin: '16px 0' }} />
-
-      <Flex padding={upToSmall ? '0 0 12px' : '0 1.25rem 12px'} fontSize={12} color={theme.subText} fontWeight="500">
-        <Text width={40}>#</Text>
-        <Text flex={1}>
-          <Trans>Tx hash</Trans>
-        </Text>
-        <Text flex={1}>
-          <Trans>Wallet</Trans>
-        </Text>
-        <Text width={upToSmall ? '120px' : '140px'} textAlign="right">
-          <Trans>Volume (USD)</Trans>
-        </Text>
-        <Text width={upToSmall ? '80px' : '100px'} textAlign="center">
-          <Trans>Eligible</Trans>
-        </Text>
-        <Text width={upToSmall ? '80px' : '100px'} textAlign="center">
-          <Trans>Rewarded</Trans>
-        </Text>
-        <Text width={upToSmall ? '100px' : '120px'} textAlign="right">
-          <Trans>Diff</Trans>
-        </Text>
-        {!upToSmall && (
-          <Text width="160px" textAlign="right">
-            <Trans>Time</Trans>
-          </Text>
-        )}
-      </Flex>
-
-      <Divider />
+      {!upToSmall && (
+        <>
+          <Flex padding="1rem 1.25rem" fontSize={12} color={theme.subText} fontWeight="500" sx={{ gap: '1.25rem' }}>
+            <Text width={50} textAlign="center">
+              <Trans>RANK</Trans>
+            </Text>
+            <Text width={upToSmall ? '100%' : '160px'}>
+              <Trans>NETWORK</Trans>
+            </Text>
+            <Text flex={1}>
+              <Trans>TX HASH</Trans>
+            </Text>
+            <Text width={upToSmall ? '120px' : '160px'} textAlign="right">
+              <Trans>DIFFERENCE</Trans>
+            </Text>
+            <Text width={upToSmall ? '120px' : '160px'} textAlign="right">
+              <Trans>REWARDS</Trans>
+            </Text>
+          </Flex>
+          <Divider />
+        </>
+      )}
 
       {isLoading ? (
         <LocalLoader />
       ) : transactions.length ? (
         transactions.map((tx, index) => {
           const rowNumber = index + 1 + (currentPage - 1) * PAGE_SIZE
-          const formattedTime = dayjs(tx.time).format('MMM DD, YYYY HH:mm:ss')
+          const networkName = isSupportedChainId(tx.chain) ? NETWORKS_INFO[tx.chain].name : '-'
           return (
-            <Flex
+            <Box
+              display={upToSmall ? 'grid' : 'flex'}
               key={tx.id}
-              padding={upToSmall ? '12px 0' : '12px 1.25rem'}
+              padding={upToSmall ? '1rem 0' : '1rem 1.25rem'}
               fontSize={14}
               color={theme.text}
               flexDirection={upToSmall ? 'column' : 'row'}
-              sx={{ gap: upToSmall ? '8px' : '0' }}
+              sx={{
+                gap: upToSmall ? '0.5rem' : '1.25rem',
+                gridTemplateColumns: upToSmall ? 'repeat(2, minmax(0, 1fr))' : 'none',
+              }}
             >
               <Flex
-                width={upToSmall ? '100%' : '40px'}
+                width={upToSmall ? '100%' : '50px'}
                 flexDirection="column"
-                alignItems={upToSmall ? 'flex-start' : 'center'}
+                textAlign={upToSmall ? 'left' : 'center'}
               >
-                {renderLabel('#')}
+                {renderLabel(<Trans>RANK</Trans>)}
                 <Text fontWeight="500">{rowNumber}</Text>
               </Flex>
-              <Flex flex={1} flexDirection="column">
-                {renderLabel(<Trans>Tx hash</Trans>)}
-                <ExternalLink href={`https://etherscan.io/tx/${tx.tx}`}>
-                  {shortenHash(tx.tx, upToSmall ? 8 : 12)}
-                </ExternalLink>
+              <Flex width={upToSmall ? '100%' : '160px'} flexDirection="column">
+                {renderLabel(<Trans>NETWORK</Trans>)}
+                <Text>{networkName}</Text>
               </Flex>
               <Flex flex={1} flexDirection="column">
-                {renderLabel(<Trans>Wallet</Trans>)}
-                <Text>{shortenHash(tx.user_address, upToSmall ? 8 : 12)}</Text>
-              </Flex>
-              <Flex
-                width={upToSmall ? '100%' : '140px'}
-                flexDirection="column"
-                textAlign={upToSmall ? 'left' : 'right'}
-              >
-                {renderLabel(<Trans>Volume (USD)</Trans>)}
-                <Text fontWeight="500">
-                  {formatDisplayNumber(tx.amount_in_usd, { style: 'currency', significantDigits: 4 })}
-                </Text>
-              </Flex>
-              <Flex
-                width={upToSmall ? '100%' : '100px'}
-                flexDirection="column"
-                textAlign={upToSmall ? 'left' : 'center'}
-              >
-                {renderLabel(<Trans>Eligible</Trans>)}
-                <Text color={tx.eligible ? theme.primary : theme.subText}>{tx.eligible ? t`Yes` : t`No`}</Text>
-              </Flex>
-              <Flex
-                width={upToSmall ? '100%' : '100px'}
-                flexDirection="column"
-                textAlign={upToSmall ? 'left' : 'center'}
-              >
-                {renderLabel(<Trans>Rewarded</Trans>)}
-                <Text color={tx.rewarded ? theme.primary : theme.subText}>{tx.rewarded ? t`Yes` : t`No`}</Text>
-              </Flex>
-              <Flex
-                width={upToSmall ? '100%' : '120px'}
-                flexDirection="column"
-                textAlign={upToSmall ? 'left' : 'right'}
-              >
-                {renderLabel(<Trans>Diff</Trans>)}
-                <Text>{formatDisplayNumber(tx.diff, { significantDigits: 6 })}</Text>
+                {renderLabel(<Trans>TX HASH</Trans>)}
+                <Text>{shortenHash(tx.tx, 4)}</Text>
               </Flex>
               <Flex
                 width={upToSmall ? '100%' : '160px'}
                 flexDirection="column"
                 textAlign={upToSmall ? 'left' : 'right'}
               >
-                {renderLabel(<Trans>Time</Trans>)}
-                <Text>{formattedTime}</Text>
+                {renderLabel(<Trans>DIFFERENCE</Trans>)}
+                <Text fontWeight="500">{formatDisplayNumber(tx.diff, { significantDigits: 6 })}</Text>
               </Flex>
-            </Flex>
+              <Flex
+                width={upToSmall ? '100%' : '160px'}
+                flexDirection="column"
+                textAlign={upToSmall ? 'left' : 'right'}
+              >
+                {renderLabel(<Trans>REWARDS</Trans>)}
+                <Text>{formatDisplayNumber(tx.rewarded, { significantDigits: 6 })}</Text>
+              </Flex>
+            </Box>
           )
         })
       ) : (

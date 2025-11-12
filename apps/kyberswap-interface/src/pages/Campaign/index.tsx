@@ -94,7 +94,7 @@ export default function CampaignPage() {
         <CampaignStats type={type} selectedWeek={selectedWeek} page={page} />
       )}
 
-      <Flex justifyContent="space-between" alignItems="center" marginTop="1rem">
+      <Flex justifyContent="space-between" alignItems="center" marginTop="1rem" flexWrap="wrap" sx={{ gap: '1rem' }}>
         <Tabs>
           <Tab
             role="button"
@@ -116,6 +116,18 @@ export default function CampaignPage() {
           >
             <Trans>Leaderboard</Trans>
           </Tab>
+          {isRaffleCampaign && (
+            <Tab
+              role="button"
+              active={tab === 'your-transactions'}
+              onClick={() => {
+                searchParams.set('tab', 'your-transactions')
+                setSearchParams(searchParams)
+              }}
+            >
+              <Trans>Your Transactions</Trans>
+            </Tab>
+          )}
         </Tabs>
 
         <StyledInternalLink to={`${APP_PATHS.MY_DASHBOARD}?tab=${type}`}>
@@ -139,6 +151,8 @@ export default function CampaignPage() {
             }
           />
         ))}
+
+      {tab === 'your-transactions' && <RaffleLeaderboard type="owner" />}
     </Wrapper>
   )
 }

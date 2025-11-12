@@ -23,7 +23,7 @@ const Wrapper = styled.div`
   background: ${({ theme }) => theme.background};
   margin-top: 20px;
   ${({ theme }) => theme.mediaWidth.upToSmall`
-  padding: 1rem;
+    padding: 1rem;
   `}
 `
 
