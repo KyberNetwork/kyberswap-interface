@@ -17,6 +17,7 @@ import kyberdataServiceApi from 'services/kyberdata'
 import limitOrderApi from 'services/limitOrder'
 import marketOverviewApi from 'services/marketOverview'
 import priceAlertApi from 'services/priceAlert'
+import raffleCampaignApi from 'services/raffleCampaign'
 import referralApi from 'services/referral'
 import rewardServiceApi from 'services/reward'
 import routeApi from 'services/route'
@@ -111,6 +112,7 @@ const store = configureStore({
     [rewardServiceApi.reducerPath]: rewardServiceApi.reducer,
     [kyberdataServiceApi.reducerPath]: kyberdataServiceApi.reducer,
     [referralApi.reducerPath]: referralApi.reducer,
+    [raffleCampaignApi.reducerPath]: raffleCampaignApi.reducer,
     [campaignApi.reducerPath]: campaignApi.reducer,
     [commonServiceApi.reducerPath]: commonServiceApi.reducer,
     [blackjackApi.reducerPath]: blackjackApi.reducer,
@@ -144,6 +146,7 @@ const store = configureStore({
       .concat(rewardServiceApi.middleware)
       .concat(kyberdataServiceApi.middleware)
       .concat(referralApi.middleware)
+      .concat(raffleCampaignApi.middleware)
       .concat(campaignApi.middleware)
       .concat(commonServiceApi.middleware)
       .concat(blackjackApi.middleware)

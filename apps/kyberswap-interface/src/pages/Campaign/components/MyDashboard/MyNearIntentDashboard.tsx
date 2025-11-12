@@ -1,17 +1,20 @@
-import { ChainId, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
+import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
+import dayjs from 'dayjs'
 import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
-import { useGetUserRewardQuery } from 'services/campaign'
+import { Box, Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ButtonLight } from 'components/Button'
 import Column from 'components/Column'
+import Divider from 'components/Divider'
 import NavGroup from 'components/Header/groups/NavGroup'
 import useTheme from 'hooks/useTheme'
+import { getDateOfWeek } from 'pages/Campaign/MyDashboard'
 import { SelectChainModal } from 'pages/Campaign/components/SelectChainModal'
+import { CampaignType, campaignConfig } from 'pages/Campaign/constants'
+import { useNearIntentCampaignReward } from 'pages/Campaign/hooks/useNearIntentCampaignReward'
 import { useNearIntentSelectedWallet } from 'pages/Campaign/hooks/useNearIntentSelectedWallet'
-import { StatCard } from 'pages/Campaign/styles'
 import { BitcoinConnectModal } from 'pages/CrossChainSwap/components/BitcoinConnectModal'
 import { ButtonText, MEDIA_WIDTHS } from 'theme'
 import { shortenHash } from 'utils'
@@ -22,25 +25,27 @@ const AddressText = styled(Text)`
     color: ${({ theme }) => theme.primary};
   }
 `
+const TableHeader = styled.div`
+  display: grid;
+  grid-template-columns: 40px 2fr 2fr;
+  font-size: 12px;
+  color: ${({ theme }) => theme.subText};
+  padding: 1rem 0;
+  gap: 1rem;
+  font-weight: 500;
+`
 
-export const NearIntentCampaignStats = ({
-  year,
-  selectedWeek,
-  reward,
-  selectedWalletParams,
-}: {
-  year: number
-  selectedWeek: number
-  reward: {
-    chainId: ChainId
-    address: string
-    symbol: string
-    decimals: number
-    logo: string
-  }
-  selectedWalletParams: ReturnType<typeof useNearIntentSelectedWallet>
-}) => {
+const TableRow = styled(TableHeader)`
+  font-size: 1rem;
+  font-weight: 400;
+  color: ${({ theme }) => theme.text};
+  align-items: center;
+`
+
+const MyNearIntentDashboard = () => {
   const theme = useTheme()
+  const { reward } = campaignConfig[CampaignType.NearIntents]
+
   const {
     selectedWallet,
     connect,
@@ -58,84 +63,32 @@ export const NearIntentCampaignStats = ({
     nearAddress,
     setSelectedWallet,
     termAndPolicyModal,
-  } = selectedWalletParams
+  } = useNearIntentSelectedWallet()
 
-  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
-
-  const params = {
-    program: 'stip' as const,
-    week: selectedWeek,
-    year: year,
-    campaign: 'trading-incentive' as const,
-    url: 'https://kyberswap-near-intents.kyberengineering.io/api/v1',
-  }
-
-  const { data: evmData } = useGetUserRewardQuery(
-    {
-      ...params,
-      wallet: evmWallet || '',
-    },
-    {
-      skip: !evmWallet,
-    },
-  )
-  const { data: btcData } = useGetUserRewardQuery(
-    {
-      ...params,
-      wallet: btcAddress || '',
-    },
-    {
-      skip: !btcAddress,
-    },
-  )
-
-  const { data: nearData } = useGetUserRewardQuery(
-    {
-      ...params,
-      wallet: nearAddress || '',
-    },
-    {
-      skip: !nearAddress,
-    },
-  )
-
-  const { data: solanaData } = useGetUserRewardQuery(
-    {
-      ...params,
-      wallet: solanaWallet || '',
-    },
-    {
-      skip: !solanaWallet,
-    },
-  )
-
-  const data = {
-    EVM: evmData?.data,
-    Solana: solanaData?.data,
-    Bitcoin: btcData?.data,
-    Near: nearData?.data,
-  }
+  const data = useNearIntentCampaignReward()
 
   const rewardAmount =
     selectedWallet &&
     CurrencyAmount.fromRawAmount(
       new Token(reward.chainId, reward.address, reward.decimals, reward.symbol),
-      data[selectedWallet]?.reward?.split('.')[0] || '0',
+      data[selectedWallet]?.totalReward?.split('.')[0] || '0',
     )
 
+  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+
   return (
-    <StatCard>
+    <Box marginTop="1.25rem" sx={{ borderRadius: '20px', background: theme.background }} padding="1.5rem">
       {termAndPolicyModal}
       <Flex alignItems="center" justifyContent="space-between" height="100%">
         {selectedWallet && address[selectedWallet] ? (
           <Flex
             width="100%"
             alignItems="center"
-            sx={{ gap: '12px' }}
+            sx={{ gap: '8px' }}
             flexDirection={upToSmall ? 'column' : 'row'}
             justifyContent={upToSmall ? 'flex-start' : 'space-around'}
           >
-            <Flex width="100%" flex="0.8">
+            <Flex flex={1} width="100%">
               <NavGroup
                 isActive={false}
                 anchor={
@@ -212,6 +165,7 @@ export const NearIntentCampaignStats = ({
                 }
               />
             </Flex>
+
             <Flex
               flexDirection={upToSmall ? 'row' : 'column'}
               width="100%"
@@ -222,8 +176,8 @@ export const NearIntentCampaignStats = ({
               <Text color={theme.subText}>
                 <Trans>My Earned Points</Trans>
               </Text>
-              <Text fontSize={16} fontWeight={500}>
-                {formatDisplayNumber(Math.floor(data[selectedWallet]?.point || 0), { significantDigits: 6 })}
+              <Text fontSize={18} fontWeight={500}>
+                {formatDisplayNumber(Math.floor(data[selectedWallet]?.totalPoint || 0), { significantDigits: 6 })}
               </Text>
             </Flex>
 
@@ -239,8 +193,8 @@ export const NearIntentCampaignStats = ({
               </Text>
 
               <Flex alignItems="center" sx={{ gap: '4px' }}>
-                <img src={reward.logo} width={18} height={18} style={{ borderRadius: '50%' }} alt="" />
-                <Text fontWeight={500} fontSize={16}>
+                <img src={reward.logo} width={20} height={20} style={{ borderRadius: '50%' }} alt="" />
+                <Text fontWeight={500} fontSize={18}>
                   {rewardAmount?.toSignificant(4) || '0'} {reward.symbol}
                 </Text>
               </Flex>
@@ -266,6 +220,101 @@ export const NearIntentCampaignStats = ({
       />
 
       <SelectChainModal showSelect={showSelect} connect={connect} setShowSelect={setShowSelect} logo={logo} />
-    </StatCard>
+
+      <Divider mt="1rem" />
+
+      {!upToSmall && (
+        <>
+          <TableHeader>
+            <Text>
+              <Trans>WEEK</Trans>
+            </Text>
+            <Text textAlign="right">
+              <Trans>POINTS EARNED</Trans>
+            </Text>
+            <Text textAlign="right">
+              <Trans>ESTIMATED REWARDS</Trans>{' '}
+            </Text>
+          </TableHeader>
+          <Divider />
+        </>
+      )}
+      {selectedWallet && data[selectedWallet]?.weeklyRewards?.length ? (
+        data[selectedWallet]?.weeklyRewards.map((item, index) => {
+          if (upToSmall) {
+            const baseWeek = campaignConfig[CampaignType.NearIntents].baseWeek
+            const date = getDateOfWeek(item.week, item.year)
+            const end = getDateOfWeek(item.week + 1, item.year)
+            end.setHours(end.getHours() - 1)
+
+            return (
+              <Box paddingY="1rem" sx={{ borderBottom: `1px solid ${theme.border}` }} key={index}>
+                <Flex justifyContent="space-between" alignItems="center">
+                  <Text color={theme.subText}>
+                    <Trans>Week {item.week - baseWeek}:</Trans> {dayjs(date).format('MMM DD')} -{' '}
+                    {dayjs(end).format('MMM DD')}
+                  </Text>
+                </Flex>
+
+                <Flex justifyContent="space-between" alignItems="center" mt="1rem">
+                  <Text color={theme.subText} fontSize={12} fontWeight={500}>
+                    <Trans>POINTS EARNED</Trans>
+                  </Text>
+                  <Text textAlign="right">{formatDisplayNumber(Math.floor(item.point), { significantDigits: 6 })}</Text>
+                </Flex>
+
+                <Flex justifyContent="space-between" alignItems="center" mt="0.5rem">
+                  <Text color={theme.subText} fontSize={12} fontWeight={500}>
+                    <Trans>ESTIMATED REWARDS</Trans>
+                  </Text>
+                  <Flex justifyContent="flex-end" alignItems="flex-end" sx={{ gap: '4px' }}>
+                    <img src={reward.logo} width={20} height={20} style={{ borderRadius: '50%' }} alt="" />
+                    <Text textAlign="right">
+                      {formatDisplayNumber(
+                        CurrencyAmount.fromRawAmount(
+                          new Token(reward.chainId, reward.address, reward.decimals, ''),
+                          item.reward.toString(),
+                        ),
+                        {
+                          significantDigits: 4,
+                        },
+                      )}{' '}
+                      {reward.symbol}
+                    </Text>
+                  </Flex>
+                </Flex>
+              </Box>
+            )
+          }
+          return (
+            <TableRow key={index}>
+              <Text>{item.week - campaignConfig[CampaignType.NearIntents].baseWeek}</Text>
+              <Text textAlign="right">{formatDisplayNumber(Math.floor(item.point), { significantDigits: 6 })}</Text>
+              <Flex alignItems="center" justifyContent="flex-end" sx={{ gap: '4px' }}>
+                <img src={reward.logo} width={20} height={20} style={{ borderRadius: '50%' }} alt="" />
+                <Text textAlign="right">
+                  {formatDisplayNumber(
+                    CurrencyAmount.fromRawAmount(
+                      new Token(reward.chainId, reward.address, reward.decimals, ''),
+                      item.reward.toString(),
+                    ),
+                    {
+                      significantDigits: 4,
+                    },
+                  )}{' '}
+                  {reward.symbol}
+                </Text>
+              </Flex>
+            </TableRow>
+          )
+        })
+      ) : (
+        <Text textAlign="center" color={theme.subText} mt="24px">
+          <Trans>No data found</Trans>
+        </Text>
+      )}
+    </Box>
   )
 }
+
+export default MyNearIntentDashboard

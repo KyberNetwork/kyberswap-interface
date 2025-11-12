@@ -15,7 +15,7 @@ import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
-import { CampaignType, campaignConfig } from '../constants'
+import { CampaignType, campaignConfig } from '../../constants'
 
 const Wrapper = styled.div`
   border-radius: 20px;
@@ -27,22 +27,18 @@ const Wrapper = styled.div`
   `}
 `
 
-export default function Leaderboard({
-  type,
-  week,
-  year,
-  wallet,
-}: {
+type Props = {
   type: CampaignType
   week: number
-  year: number
   wallet?: string
-}) {
+}
+
+export default function Leaderboard({ type, week, wallet }: Props) {
   const theme = useTheme()
   const [searchParams, setSearchParams] = useSearchParams()
   const page = +(searchParams.get('page') || '1')
 
-  const { campaign, program, url, reward } = campaignConfig[type]
+  const { campaign, program, url, year, reward } = campaignConfig[type]
 
   const rewardAmount = (amount?: string): string => {
     const rewardAmount = CurrencyAmount.fromRawAmount(

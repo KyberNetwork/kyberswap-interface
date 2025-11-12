@@ -21,13 +21,13 @@ import useTheme from 'hooks/useTheme'
 import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
 import { ButtonIcon } from 'pages/Pools/styleds'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
-import { MEDIA_WIDTHS, StyledInternalLink } from 'theme'
+import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 import { useNavigateToUrl } from 'utils/redirect'
 
 import ClaimBtn from './components/ClaimBtn'
-import { MyNearIntentDashboard } from './components/MyNearIntentDashboard'
-import MyReferralDashboard from './components/MyReferralDashboard'
+import MyNearIntentDashboard from './components/MyDashboard/MyNearIntentDashboard'
+import MyReferralDashboard from './components/MyDashboard/MyReferralDashboard'
 import { CampaignType, campaignConfig } from './constants'
 import { useNearIntentCampaignReward } from './hooks/useNearIntentCampaignReward'
 import { Tab, Tabs, Wrapper } from './styles'
@@ -60,12 +60,14 @@ export function getDateOfWeek(w: number, y: number) {
   return new Date(y, 0, d)
 }
 
+const NEW_CAMPAIGN = CampaignType.Raffle
+
 const MyDashboard = () => {
   const { account } = useActiveWeb3React()
   const navigate = useNavigateToUrl()
   const theme = useTheme()
   const [searchParams, setSearchParams] = useSearchParams()
-  const tab: CampaignType = (searchParams.get('tab') || CampaignType.Raffle) as CampaignType
+  const tab: CampaignType = (searchParams.get('tab') || NEW_CAMPAIGN) as CampaignType
   const changeTab = (t: CampaignType) => {
     searchParams.set('tab', t)
     setSearchParams(searchParams)
@@ -270,28 +272,14 @@ const MyDashboard = () => {
   const infor = (
     <InfoHelper
       text={
-        <Text>
-          <Trans>
-            The Estimated Rewards will vary based on the points earned by you and all campaign participants during the
-            week. Check out how they are calculated in the{' '}
-            <StyledInternalLink
-              to={
-                tab === CampaignType.NearIntents
-                  ? '/campaigns/near-intents?tab=information'
-                  : tab === CampaignType.MayTrading
-                  ? '/campaigns/may-trading?tab=information'
-                  : tab === CampaignType.Aggregator
-                  ? '/campaigns/aggregator?tab=information'
-                  : CampaignType.LimitOrder === tab
-                  ? '/campaigns/limit-order?tab=information'
-                  : '/campaigns/referrals?tab=information'
-              }
-            >
-              Information
-            </StyledInternalLink>{' '}
-            tab.
-          </Trans>
-        </Text>
+        <Trans>
+          The Estimated Rewards will vary based on the points earned by you and all campaign participants during the
+          week. Check out how they are calculated in the{' '}
+          <Text as="span" fontWeight="500" color={theme.primary}>
+            Information
+          </Text>{' '}
+          tab.
+        </Trans>
       }
     />
   )
@@ -397,22 +385,54 @@ const MyDashboard = () => {
       </Flex>
 
       <Tabs>
-        <Tab role="button" active={tab === CampaignType.Raffle} onClick={() => changeTab(CampaignType.Raffle)}>
+        <Tab role="button" active={tab === NEW_CAMPAIGN} onClick={() => changeTab(NEW_CAMPAIGN)}>
           <Flex>
-            <Trans>Raffle</Trans>{' '}
+            {campaignLabelMap[NEW_CAMPAIGN]}{' '}
             <NewLabel>
               <Trans>NEW</Trans>
             </NewLabel>
           </Flex>
         </Tab>
-        {!upToSmall ? (
-          <>
-            {endedCampaignsHaveRewards.map(campaign => (
+        {endedCampaignsHaveRewards.slice(0, upToSmall ? 2 : undefined).map(campaign => (
+          <Tab
+            key={campaign.type}
+            role="button"
+            active={tab === campaign.type}
+            onClick={() => changeTab(campaign.type)}
+          >
+            <Flex>
+              {campaign.label}
+              <ELabel>
+                <Trans>ENDED</Trans>
+              </ELabel>
+            </Flex>
+          </Tab>
+        ))}
+        <Flex justifyContent="flex-end" flex={1}>
+          <ButtonIcon onClick={() => setShowModal(true)}>
+            <MoreHorizontal size={16} />
+          </ButtonIcon>
+        </Flex>
+        <Modal
+          isOpen={showModal}
+          onDismiss={() => setShowModal(false)}
+          maxHeight={90}
+          maxWidth={600}
+          bypassScrollLock={true}
+          bypassFocusLock={true}
+          zindex={99999}
+          width="240px"
+        >
+          <Flex width="100%" flexDirection="column" padding="24px" sx={{ gap: '24px' }}>
+            {endedCampaigns.map(campaign => (
               <Tab
                 key={campaign.type}
                 role="button"
                 active={tab === campaign.type}
-                onClick={() => changeTab(campaign.type)}
+                onClick={() => {
+                  changeTab(campaign.type)
+                  setShowModal(false)
+                }}
               >
                 <Flex>
                   {campaign.label}
@@ -422,66 +442,12 @@ const MyDashboard = () => {
                 </Flex>
               </Tab>
             ))}
-          </>
-        ) : (
-          <Flex justifyContent="space-between" sx={{ gap: '8px' }} flex={1}>
-            <Tab
-              active={tab !== CampaignType.Raffle}
-              onClick={() => {
-                if (tab === CampaignType.Raffle) {
-                  changeTab(endedCampaigns[0]?.type)
-                }
-              }}
-            >
-              <Flex>
-                {tab === CampaignType.Raffle ? endedCampaigns[0]?.label || '' : campaignLabelMap[tab]}
-                <ELabel>
-                  <Trans>ENDED</Trans>
-                </ELabel>
-              </Flex>
-            </Tab>
-            {endedCampaigns.length > 0 && (
-              <ButtonIcon onClick={() => setShowModal(true)}>
-                <MoreHorizontal size={16} />
-              </ButtonIcon>
-            )}
-            <Modal
-              isOpen={showModal}
-              onDismiss={() => setShowModal(false)}
-              maxHeight={90}
-              maxWidth={600}
-              bypassScrollLock={true}
-              bypassFocusLock={true}
-              zindex={99999}
-              width="240px"
-            >
-              <Flex width="100%" flexDirection="column" padding="24px" sx={{ gap: '24px' }}>
-                {endedCampaigns.map(campaign => (
-                  <Tab
-                    key={campaign.type}
-                    role="button"
-                    active={tab === campaign.type}
-                    onClick={() => {
-                      changeTab(campaign.type)
-                      setShowModal(false)
-                    }}
-                  >
-                    <Flex>
-                      {campaign.label}
-                      <ELabel>
-                        <Trans>ENDED</Trans>
-                      </ELabel>
-                    </Flex>
-                  </Tab>
-                ))}
-              </Flex>
-            </Modal>
           </Flex>
-        )}
+        </Modal>
       </Tabs>
 
       {tab === CampaignType.NearIntents ? (
-        <MyNearIntentDashboard reward={reward} />
+        <MyNearIntentDashboard />
       ) : !account ? (
         <Text marginTop="30px" textAlign="center" color={theme.subText}>
           <Trans>Please connect wallet to view your Dashboard</Trans>
