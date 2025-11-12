@@ -1,27 +1,20 @@
 import { Trans } from '@lingui/macro'
-import { ReactNode } from 'react'
 import { useMedia } from 'react-use'
 import { Box, Text } from 'rebass'
-import { useGetRaffleCampaignStatsQuery } from 'services/raffleCampaign'
+import { useGetRaffleCampaignParticipantQuery, useGetRaffleCampaignStatsQuery } from 'services/campaignRaffle'
 
 import InfoHelper from 'components/InfoHelper'
+import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import { CampaignType, campaignConfig } from 'pages/Campaign/constants'
+import { CampaignWeek } from 'pages/Campaign/constants'
 import { StatCard } from 'pages/Campaign/styles'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
-import { CountdownWeek } from './CountdownWeek'
+import { WeekCountdown } from './WeekCountdown'
 
-type CampaignWeek = {
-  value: number
-  start: number
-  end: number
-  label?: ReactNode
-}
-
-const formatLabelValue = (campaignStats: Record<string, any> | undefined, key: string) => {
-  return campaignStats?.[key] !== undefined ? formatDisplayNumber(campaignStats[key], { significantDigits: 6 }) : '--'
+const formatLabelValue = (data: Record<string, any> | undefined, key: string) => {
+  return data?.[key] !== undefined ? formatDisplayNumber(data[key], { significantDigits: 6 }) : '--'
 }
 
 const getWeekPosition = (weeks: CampaignWeek[], selectedWeek: number) => {
@@ -31,12 +24,15 @@ const getWeekPosition = (weeks: CampaignWeek[], selectedWeek: number) => {
 
 export default function RaffleCampaignStats({ selectedWeek }: { selectedWeek: number }) {
   const theme = useTheme()
+  const { account } = useActiveWeb3React()
+
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
-  const { weeks } = campaignConfig[CampaignType.Raffle]
-  const weekPosition = getWeekPosition(weeks, selectedWeek)
-
   const { data: campaignStats } = useGetRaffleCampaignStatsQuery()
+  const { data: participant } = useGetRaffleCampaignParticipantQuery({ address: account || '' }, { skip: !account })
+
+  const weeks = campaignStats?.weeks ?? []
+  const weekPosition = getWeekPosition(weeks, selectedWeek)
 
   return (
     <Box
@@ -47,7 +43,7 @@ export default function RaffleCampaignStats({ selectedWeek }: { selectedWeek: nu
         gap: '12px',
       }}
     >
-      <CountdownWeek weekOptions={weeks} selectedWeek={selectedWeek} />
+      <WeekCountdown weekOptions={weeks} selectedWeek={selectedWeek} />
 
       <StatCard>
         <Text fontSize={14} color={theme.subText}>
@@ -76,7 +72,7 @@ export default function RaffleCampaignStats({ selectedWeek }: { selectedWeek: nu
           />
         </Text>
         <Text marginTop="8px" fontSize={20} fontWeight="500">
-          {'--'}
+          {formatLabelValue(participant, 'tx_count_week_' + weekPosition)}
         </Text>
       </StatCard>
     </Box>

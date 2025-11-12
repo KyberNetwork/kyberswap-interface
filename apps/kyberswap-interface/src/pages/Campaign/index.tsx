@@ -5,9 +5,7 @@ import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
 import { ButtonPrimary } from 'components/Button'
-import Select from 'components/Select'
 import { APP_PATHS } from 'constants/index'
-import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS, StyledInternalLink } from 'theme'
 
 import CampaignStats from './components/CampaignStats'
@@ -16,13 +14,12 @@ import Information from './components/Information'
 import JoinReferral from './components/JoinReferral'
 import Leaderboard from './components/Leaderboard'
 import RaffleLeaderboard from './components/Leaderboard/RaffleLeaderboard'
+import WeekSelect from './components/WeekSelect'
 import { CampaignType, campaignConfig } from './constants'
 import { useNearIntentSelectedWallet } from './hooks/useNearIntentSelectedWallet'
 import { Tab, Tabs, Wrapper } from './styles'
-import { getCurrentWeek } from './utils'
 
 export default function CampaignPage() {
-  const theme = useTheme()
   const navigate = useNavigate()
   const { pathname } = useLocation()
 
@@ -42,22 +39,10 @@ export default function CampaignPage() {
       : CampaignType.Referrals
 
   const isRaffleCampaign = type === CampaignType.Raffle
-  const { campaign, weeks, ctaText, ctaLink, year, banner, title } = campaignConfig[type]
+  const { campaign, ctaText, ctaLink, banner, title } = campaignConfig[type]
 
-  const startWeek = weeks[0].value
-  const endWeek = weeks[weeks.length - 1].value
-  const currentWeek = getCurrentWeek()
-  const currentYear = new Date().getFullYear()
-
-  const [selectedWeek, setSelectedWeek] = useState(
-    startWeek <= currentWeek && currentWeek <= endWeek ? currentWeek : startWeek,
-  )
-
-  useEffect(() => {
-    if (selectedWeek < startWeek || selectedWeek > endWeek) {
-      setSelectedWeek(endWeek)
-    }
-  }, [selectedWeek, startWeek, endWeek])
+  // Previously selected week was week number of campaign timelines, but Raffle campaign week is zero-based index
+  const [selectedWeek, setSelectedWeek] = useState(-1)
 
   const params = useNearIntentSelectedWallet()
   const page = +(searchParams.get('page') || '1')
@@ -89,37 +74,8 @@ export default function CampaignPage() {
           flexDirection={upToExtraSmall ? 'column' : 'row'}
           sx={{ gap: '1rem' }}
         >
-          <Select
-            options={weeks}
-            placement="bottom-start"
-            style={{
-              fontSize: '16px',
-              border: `1px solid ${theme.border}`,
-              width: upToExtraSmall ? '100%' : '260px',
-            }}
-            optionStyle={{
-              fontSize: '16px',
-              width: upToExtraSmall ? 'calc(100vw - 48px)' : undefined,
-            }}
-            onChange={value => setSelectedWeek(value)}
-            value={selectedWeek}
-            optionRender={value => (
-              <Text
-                color={value?.value === selectedWeek ? theme.primary : theme.subText}
-                display="flex"
-                alignItems="center"
-              >
-                {value?.label}{' '}
-                {value?.value === currentWeek && year === currentYear ? (
-                  <Text as="span" color={theme.red1} fontSize={12} ml="4px">
-                    <Trans>Active</Trans>
-                  </Text>
-                ) : (
-                  ''
-                )}
-              </Text>
-            )}
-          />
+          <WeekSelect type={type} selectedWeek={selectedWeek} setSelectedWeek={setSelectedWeek} />
+
           <ButtonPrimary
             width={upToExtraSmall ? '100%' : '160px'}
             height="40px"

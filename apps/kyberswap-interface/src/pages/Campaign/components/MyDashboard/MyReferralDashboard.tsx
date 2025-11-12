@@ -53,7 +53,7 @@ export default function MyReferralDashboard({ price, infor }: { price: number; i
     <Box marginTop="1.25rem" sx={{ borderRadius: '20px', background: theme.background }} padding="1.5rem">
       <Flex mb="24px" sx={{ gap: '1rem' }}>
         <Box flex={1}>
-          <Text color={theme.subText} fontSize={14}>
+          <Text color={theme.subText}>
             <Trans>My total referrals</Trans>
           </Text>
           <Text fontSize={18} fontWeight="500" color={theme.text} marginTop="8px">
@@ -62,7 +62,7 @@ export default function MyReferralDashboard({ price, infor }: { price: number; i
         </Box>
 
         <Box flex={upToSmall ? 1 : 2}>
-          <Text color={theme.subText} fontSize={14}>
+          <Text color={theme.subText}>
             <Trans>My Est. Rewards</Trans> {infor}
           </Text>
           <Flex

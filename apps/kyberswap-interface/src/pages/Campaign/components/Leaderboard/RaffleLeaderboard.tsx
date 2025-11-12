@@ -1,10 +1,10 @@
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
-import { ReactNode, useEffect, useMemo, useState } from 'react'
+import { ReactNode, useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
-import { useGetRaffleCampaignTransactionsQuery } from 'services/raffleCampaign'
+import { useGetRaffleCampaignTransactionsQuery } from 'services/campaignRaffle'
 import styled from 'styled-components'
 
 import Divider from 'components/Divider'
@@ -67,12 +67,9 @@ export default function RaffleLeaderboard() {
     sender: senderInQuery || undefined,
   })
 
-  const transactions = data ?? []
-  const hasMore = transactions.length === PAGE_SIZE
-  const totalCount = useMemo(() => {
-    const base = (currentPage - 1) * PAGE_SIZE + transactions.length
-    return hasMore ? base + 1 : base
-  }, [currentPage, hasMore, transactions.length])
+  const transactions = data?.txs ?? []
+  const pagination = data?.pagination
+  const totalCount = pagination ? pagination.totalOfPages * pagination.pageSize : 0
 
   const handlePageChange = (page: number) => {
     const params = new URLSearchParams(searchParams)
@@ -246,7 +243,7 @@ export default function RaffleLeaderboard() {
           onPageChange={handlePageChange}
           totalCount={totalCount}
           currentPage={currentPage}
-          pageSize={PAGE_SIZE}
+          pageSize={pagination?.pageSize ?? PAGE_SIZE}
           style={{ marginTop: '12px' }}
         />
       )}

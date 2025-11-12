@@ -1,9 +1,10 @@
 import { t } from '@lingui/macro'
 import dayjs from 'dayjs'
-import { ReactNode, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Text } from 'rebass'
 
 import useTheme from 'hooks/useTheme'
+import { CampaignWeek } from 'pages/Campaign/constants'
 import { StatCard } from 'pages/Campaign/styles'
 
 const formatCountdown = (totalSeconds: number): string => {
@@ -16,22 +17,17 @@ const formatCountdown = (totalSeconds: number): string => {
   return `${totalDays}D ${hours}H ${minutes}M ${seconds}S`
 }
 
-export type CampaignWeek = {
-  value: number
-  start: number
-  end: number
-  label?: ReactNode
-}
-
 type Props = {
   weekOptions: CampaignWeek[]
   selectedWeek: number
 }
 
-export const CountdownWeek = ({ weekOptions, selectedWeek }: Props) => {
+const EMPTY_WEEK: CampaignWeek = { value: -1, start: 0, end: 0 }
+
+export const WeekCountdown = ({ weekOptions, selectedWeek }: Props) => {
   const theme = useTheme()
 
-  const defaultWeek = weekOptions[0]
+  const defaultWeek = weekOptions[0] || EMPTY_WEEK
   const week = weekOptions.find(w => w.value === selectedWeek) || defaultWeek
   const startWeek = weekOptions[0]?.value ?? selectedWeek
   const weekIndex = selectedWeek - startWeek + 1

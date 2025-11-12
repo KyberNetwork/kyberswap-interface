@@ -1,5 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
+import { ReactNode } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Text } from 'rebass'
 
@@ -13,7 +14,14 @@ import raffleCampaignBanner from './assets/raffle_campaign.png'
 import referralBanner from './assets/referral.png'
 import tradingBanner from './assets/trading.png'
 
-export const stipWeeks = [
+export type CampaignWeek = {
+  value: number
+  label?: ReactNode
+  start: number
+  end: number
+}
+
+const stipWeeks: CampaignWeek[] = [
   {
     value: 37,
     label: (
@@ -166,7 +174,7 @@ export const stipWeeks = [
   },
 ].reverse()
 
-export const mayTradingWeeks = [
+const mayTradingWeeks: CampaignWeek[] = [
   {
     value: 22,
     label: (
@@ -184,7 +192,7 @@ export const mayTradingWeeks = [
   },
 ]
 
-export const nearIntentWeeks = [
+const nearIntentWeeks: CampaignWeek[] = [
   {
     value: 31,
     label: (
@@ -217,48 +225,6 @@ export const nearIntentWeeks = [
   },
 ].reverse()
 
-export const raffleWeeks = [
-  {
-    value: 46,
-    label: (
-      <Text>
-        <Trans>
-          <Text as="span" color="#ffffff">
-            Week 2
-          </Text>{' '}
-          Nov 10 - Nov 17
-        </Trans>
-      </Text>
-    ),
-    start: 1762707600,
-    end: 1763312400,
-  },
-  {
-    value: 45,
-    label: (
-      <Text>
-        <Trans>
-          <Text as="span" color="#ffffff">
-            Week 1
-          </Text>{' '}
-          Nov 3 - Nov 10
-        </Trans>
-      </Text>
-    ),
-    start: 1762102800,
-    end: 1762707600,
-  },
-].reverse()
-
-export enum CampaignType {
-  Raffle = 'Raffle',
-  NearIntents = 'NearIntents',
-  MayTrading = 'MayTrading',
-  Aggregator = 'Aggregator',
-  LimitOrder = 'LimitOrder',
-  Referrals = 'Referrals',
-}
-
 const stipInfo = {
   year: 2024,
   baseWeek: 27,
@@ -273,7 +239,24 @@ const stipInfo = {
   program: 'stip' as const,
 }
 
-export type CampaignConfig = {
+const rewardKNC = {
+  chainId: ChainId.MAINNET,
+  symbol: 'KNC',
+  logo: 'https://s2.coinmarketcap.com/static/img/coins/64x64/9444.png',
+  address: KNC[ChainId.MAINNET].address,
+  decimals: KNC[ChainId.MAINNET].decimals,
+}
+
+export enum CampaignType {
+  Raffle = 'Raffle',
+  NearIntents = 'NearIntents',
+  MayTrading = 'MayTrading',
+  Aggregator = 'Aggregator',
+  LimitOrder = 'LimitOrder',
+  Referrals = 'Referrals',
+}
+
+type CampaignConfig = {
   year: number
   baseWeek: number
   reward: {
@@ -285,7 +268,7 @@ export type CampaignConfig = {
   }
   type: CampaignType
   ctaText: JSX.Element
-  weeks: any[]
+  weeks: CampaignWeek[]
   program?: 'stip' | 'grind/base'
   campaign?: 'trading-incentive' | 'limit-order-farming' | 'referral-program'
   url?: string
@@ -300,17 +283,11 @@ export const campaignConfig: Record<CampaignType, CampaignConfig> = {
   [CampaignType.Raffle]: {
     year: 2025,
     baseWeek: 45,
-    reward: {
-      chainId: ChainId.MAINNET,
-      symbol: 'KNC',
-      logo: 'https://s2.coinmarketcap.com/static/img/coins/64x64/9444.png',
-      address: KNC[ChainId.MAINNET].address,
-      decimals: KNC[ChainId.MAINNET].decimals,
-    },
+    reward: rewardKNC,
     ctaLink: '/swap',
     ctaText: <Trans>Join Now</Trans>,
     type: CampaignType.Raffle,
-    weeks: raffleWeeks,
+    weeks: [],
     banner: raffleCampaignBanner,
     title: <Trans>Raffle Campaign</Trans>,
   },
@@ -345,13 +322,7 @@ export const campaignConfig: Record<CampaignType, CampaignConfig> = {
     ctaLink: '/swap/base',
     baseWeek: 21,
     year: 2025,
-    reward: {
-      chainId: ChainId.MAINNET,
-      symbol: 'KNC',
-      logo: 'https://s2.coinmarketcap.com/static/img/coins/64x64/9444.png',
-      address: KNC[ChainId.MAINNET].address,
-      decimals: KNC[ChainId.MAINNET].decimals,
-    },
+    reward: rewardKNC,
     ctaText: <Trans>Trade Now</Trans>,
     type: CampaignType.MayTrading,
     weeks: mayTradingWeeks,

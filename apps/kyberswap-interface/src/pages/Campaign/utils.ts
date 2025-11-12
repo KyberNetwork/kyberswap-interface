@@ -1,4 +1,4 @@
-export const getCurrentWeek = (): number => {
+export const getCurrentWeek = () => {
   const currentDate: Date = new Date()
   const startOfYear: Date = new Date(Date.UTC(currentDate.getUTCFullYear(), 0, 1))
 
@@ -20,5 +20,7 @@ export const getCurrentWeek = (): number => {
   // Calculate the week number
   const weekNumber: number = Math.ceil((diffInDays + 1) / 7)
 
-  return weekNumber
+  const currentYear = new Date().getFullYear()
+
+  return { currentWeek: weekNumber, currentYear }
 }

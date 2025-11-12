@@ -27,6 +27,7 @@ import { useNavigateToUrl } from 'utils/redirect'
 
 import ClaimBtn from './components/ClaimBtn'
 import MyNearIntentDashboard from './components/MyDashboard/MyNearIntentDashboard'
+import MyRaffleDashboard from './components/MyDashboard/MyRaffleDashboard'
 import MyReferralDashboard from './components/MyDashboard/MyReferralDashboard'
 import { CampaignType, campaignConfig } from './constants'
 import { useNearIntentCampaignReward } from './hooks/useNearIntentCampaignReward'
@@ -393,7 +394,7 @@ const MyDashboard = () => {
             </NewLabel>
           </Flex>
         </Tab>
-        {endedCampaignsHaveRewards.slice(0, upToSmall ? 2 : undefined).map(campaign => (
+        {endedCampaignsHaveRewards.slice(0, upToSmall ? 1 : undefined).map(campaign => (
           <Tab
             key={campaign.type}
             role="button"
@@ -454,6 +455,8 @@ const MyDashboard = () => {
         </Text>
       ) : tab === CampaignType.Referrals ? (
         <MyReferralDashboard price={stipRewardPrice} infor={infor} />
+      ) : tab === CampaignType.Raffle ? (
+        <MyRaffleDashboard />
       ) : (
         <Box marginTop="1.25rem" sx={{ borderRadius: '20px', background: theme.background }} padding="1.5rem">
           <Box
@@ -461,7 +464,7 @@ const MyDashboard = () => {
               display: 'grid',
               gap: '1rem',
               gridTemplateColumns: upToSmall ? '1fr' : '1fr 1fr 1fr',
-              marginBottom: '28px',
+              marginBottom: '24px',
             }}
           >
             <div>
@@ -525,23 +528,24 @@ const MyDashboard = () => {
           <Divider />
 
           {!upToSmall && (
-            <TableHeader>
-              <Text>
-                <Trans>WEEK</Trans>
-              </Text>
-              <Text textAlign="right">
-                <Trans>POINTS EARNED</Trans>
-              </Text>
-              <Text textAlign="right">
-                <Trans>ESTIMATED REWARDS</Trans> {infor}
-              </Text>
-              <Text textAlign="right">
-                <Trans>TOTAL CLAIMABLE REWARDS</Trans>
-              </Text>
-            </TableHeader>
+            <>
+              <TableHeader>
+                <Text>
+                  <Trans>WEEK</Trans>
+                </Text>
+                <Text textAlign="right">
+                  <Trans>POINTS EARNED</Trans>
+                </Text>
+                <Text textAlign="right">
+                  <Trans>ESTIMATED REWARDS</Trans> {infor}
+                </Text>
+                <Text textAlign="right">
+                  <Trans>TOTAL CLAIMABLE REWARDS</Trans>
+                </Text>
+              </TableHeader>
+              <Divider />
+            </>
           )}
-
-          <Divider />
 
           {!data?.data?.weeklyRewards?.length && (
             <Text color={theme.subText} textAlign="center" marginTop="24px">

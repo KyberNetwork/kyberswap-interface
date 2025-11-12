@@ -15,8 +15,8 @@ import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
-import { CountdownWeek } from './CountdownWeek'
 import NearIntentCampaignStats from './NearIntentCampaignStats'
+import { WeekCountdown } from './WeekCountdown'
 
 type Props = {
   type: CampaignType
@@ -119,7 +119,7 @@ export default function CampaignStats({ type, selectedWeek, page }: Props) {
       }}
     >
       <Flex width="100%" sx={{ gap: '12px' }} flexDirection={upToSmall ? 'column' : 'row'}>
-        {!isReferralCampaign && <CountdownWeek weekOptions={weeks} selectedWeek={selectedWeek} />}
+        {!isReferralCampaign && <WeekCountdown weekOptions={weeks} selectedWeek={selectedWeek} />}
 
         <StatCard style={{ flex: 1 }}>
           <Text fontSize={14} color={theme.subText}>
