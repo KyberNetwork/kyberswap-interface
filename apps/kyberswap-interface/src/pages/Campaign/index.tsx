@@ -19,6 +19,12 @@ import { CampaignType, campaignConfig } from './constants'
 import { useNearIntentSelectedWallet } from './hooks/useNearIntentSelectedWallet'
 import { Tab, Tabs, Wrapper } from './styles'
 
+enum TabKey {
+  Information = 'information',
+  Leaderboard = 'leaderboard',
+  YourTransactions = 'your-transactions',
+}
+
 export default function CampaignPage() {
   const navigate = useNavigate()
   const { pathname } = useLocation()
@@ -46,7 +52,7 @@ export default function CampaignPage() {
 
   const params = useNearIntentSelectedWallet()
   const page = +(searchParams.get('page') || '1')
-  const tab = searchParams.get('tab') || 'information'
+  const tab = searchParams.get('tab') || TabKey.Information
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
 
   useEffect(() => {
@@ -98,9 +104,9 @@ export default function CampaignPage() {
         <Tabs>
           <Tab
             role="button"
-            active={tab === 'information'}
+            active={tab === TabKey.Information}
             onClick={() => {
-              searchParams.set('tab', 'information')
+              searchParams.set('tab', TabKey.Information)
               setSearchParams(searchParams)
             }}
           >
@@ -108,9 +114,9 @@ export default function CampaignPage() {
           </Tab>
           <Tab
             role="button"
-            active={tab === 'leaderboard'}
+            active={tab === TabKey.Leaderboard}
             onClick={() => {
-              searchParams.set('tab', 'leaderboard')
+              searchParams.set('tab', TabKey.Leaderboard)
               setSearchParams(searchParams)
             }}
           >
@@ -119,9 +125,9 @@ export default function CampaignPage() {
           {isRaffleCampaign && (
             <Tab
               role="button"
-              active={tab === 'your-transactions'}
+              active={tab === TabKey.YourTransactions}
               onClick={() => {
-                searchParams.set('tab', 'your-transactions')
+                searchParams.set('tab', TabKey.YourTransactions)
                 setSearchParams(searchParams)
               }}
             >
@@ -135,9 +141,9 @@ export default function CampaignPage() {
         </StyledInternalLink>
       </Flex>
 
-      {tab === 'information' && <Information type={type} week={selectedWeek} />}
+      {tab === TabKey.Information && <Information type={type} week={selectedWeek} />}
 
-      {tab === 'leaderboard' &&
+      {tab === TabKey.Leaderboard &&
         (isRaffleCampaign ? (
           <RaffleLeaderboard />
         ) : (
@@ -152,7 +158,7 @@ export default function CampaignPage() {
           />
         ))}
 
-      {tab === 'your-transactions' && <RaffleLeaderboard type="owner" />}
+      {tab === TabKey.YourTransactions && <RaffleLeaderboard type="owner" />}
     </Wrapper>
   )
 }
