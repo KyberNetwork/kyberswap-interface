@@ -1,5 +1,6 @@
 import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
+import { useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 import { useGetLeaderboardQuery, useGetUserReferralTotalRewardQuery, useGetUserRewardQuery } from 'services/campaign'
@@ -21,13 +22,15 @@ import { WeekCountdown } from './WeekCountdown'
 type Props = {
   type: CampaignType
   selectedWeek: number
-  page: number
 }
 
-export default function CampaignStats({ type, selectedWeek, page }: Props) {
+export default function CampaignStats({ type, selectedWeek }: Props) {
   const theme = useTheme()
   const { account } = useWeb3React()
   const { campaign, weeks, reward, program, year, url } = campaignConfig[type]
+
+  const [searchParams] = useSearchParams()
+  const page = +(searchParams.get('page') || '1')
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
@@ -42,9 +45,7 @@ export default function CampaignStats({ type, selectedWeek, page }: Props) {
       campaign,
       url,
     },
-    {
-      skip: !account,
-    },
+    { skip: !account },
   )
 
   const { data: leaderboardData } = useGetLeaderboardQuery(
@@ -57,12 +58,10 @@ export default function CampaignStats({ type, selectedWeek, page }: Props) {
       pageSize: 10,
       pageNumber: page,
     },
-    {
-      skip: campaign === 'referral-program',
-    },
+    { skip: campaign === 'referral-program' },
   )
 
-  const { data: totalReferralData } = useGetDashboardQuery({ referralCode: '', page })
+  const { data: totalReferralData } = useGetDashboardQuery({ referralCode: '', page: 1 })
   const totalParticipant = totalReferralData?.data.pagination.totalItems
 
   const { data: userRefData } = useGetParticipantQuery({ wallet: account || '' }, { skip: !account })

@@ -1,5 +1,5 @@
 import { Trans, t } from '@lingui/macro'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
@@ -31,6 +31,9 @@ export default function CampaignPage() {
   const { pathname } = useLocation()
 
   const [searchParams, setSearchParams] = useSearchParams()
+  const tab = searchParams.get('tab') || TabKey.Information
+
+  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
 
   const type =
     pathname === APP_PATHS.AGGREGATOR_CAMPAIGN
@@ -58,15 +61,6 @@ export default function CampaignPage() {
   } = useRaffleCampaignJoin({ selectedWeek })
 
   const params = useNearIntentSelectedWallet()
-  const page = +(searchParams.get('page') || '1')
-  const tab = searchParams.get('tab') || TabKey.Information
-  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
-
-  useEffect(() => {
-    searchParams.set('page', '1')
-    setSearchParams(searchParams)
-    // eslint-disable-next-line
-  }, [campaign])
 
   return (
     <Wrapper>
@@ -123,7 +117,7 @@ export default function CampaignPage() {
       {isRaffleCampaign ? (
         <RaffleCampaignStats selectedWeek={selectedWeek} />
       ) : (
-        <CampaignStats type={type} selectedWeek={selectedWeek} page={page} />
+        <CampaignStats type={type} selectedWeek={selectedWeek} />
       )}
 
       <Flex justifyContent="space-between" alignItems="center" marginTop="1rem" flexWrap="wrap" sx={{ gap: '1rem' }}>
