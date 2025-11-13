@@ -12,7 +12,7 @@ import { ExternalLink } from 'theme'
 
 import { campaignInfos } from './campaignInfos'
 
-export default function Information({ type, week }: { type: CampaignType; week: number }) {
+export default function Information({ type, selectedWeek }: { type: CampaignType; selectedWeek: number }) {
   const theme = useTheme()
   const [isShowRule, setIsShowRule] = useState(true)
   const [isShowTimeline, setIsShowTimeline] = useState(true)
@@ -65,7 +65,7 @@ export default function Information({ type, week }: { type: CampaignType; week: 
           overflow: 'hidden',
         }}
       >
-        {info.getHowTo(week)}
+        {info.getHowTo(selectedWeek)}
       </Box>
 
       <Divider style={{ marginTop: '20px' }} />
@@ -119,7 +119,7 @@ export default function Information({ type, week }: { type: CampaignType; week: 
           overflow: 'hidden',
         }}
       >
-        {info.getRewards(week)}
+        {info.getRewards(selectedWeek)}
       </Text>
 
       {info.eligibility && (
@@ -187,7 +187,7 @@ export default function Information({ type, week }: { type: CampaignType; week: 
             apply to all KyberSwap promotional activities ({'"Campaign"'}).
           </Trans>
         </li>
-        {info.getTerms(week)}
+        {info.getTerms(selectedWeek)}
       </Text>
 
       <Divider style={{ marginTop: '20px' }} />

@@ -161,15 +161,15 @@ export default function CampaignPage() {
         </StyledInternalLink>
       </Flex>
 
-      {tab === TabKey.Information && <Information type={type} week={selectedWeek} />}
+      {tab === TabKey.Information && <Information type={type} selectedWeek={selectedWeek} />}
 
       {tab === TabKey.Leaderboard &&
         (isRaffleCampaign ? (
-          <RaffleLeaderboard />
+          <RaffleLeaderboard selectedWeek={selectedWeek} />
         ) : (
           <Leaderboard
             type={type}
-            week={selectedWeek}
+            selectedWeek={selectedWeek}
             wallet={
               type === CampaignType.NearIntents && params.selectedWallet && params.address[params.selectedWallet]
                 ? params.address[params.selectedWallet] || undefined
@@ -178,7 +178,7 @@ export default function CampaignPage() {
           />
         ))}
 
-      {tab === TabKey.YourTransactions && <RaffleLeaderboard type="owner" />}
+      {tab === TabKey.YourTransactions && <RaffleLeaderboard type="owner" selectedWeek={selectedWeek} />}
     </Wrapper>
   )
 }

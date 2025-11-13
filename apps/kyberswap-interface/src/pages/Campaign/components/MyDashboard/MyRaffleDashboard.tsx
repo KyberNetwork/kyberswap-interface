@@ -33,7 +33,7 @@ export default function MyRaffleDashboard() {
           <Flex alignItems="center" sx={{ gap: '8px', marginTop: '8px' }}>
             <img src={reward.logo} alt={reward.symbol} width="20px" height="20px" style={{ borderRadius: '50%' }} />
             <Text fontSize={18} fontWeight="500" color={theme.text}>
-              {formatDisplayNumber(participant?.reward, { significantDigits: 6 })} {reward.symbol}
+              {formatDisplayNumber(participant?.reward, { significantDigits: 6, fallback: '0' })} {reward.symbol}
             </Text>
           </Flex>
         </Box>

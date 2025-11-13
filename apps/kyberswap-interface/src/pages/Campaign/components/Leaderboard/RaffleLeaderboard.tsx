@@ -30,9 +30,10 @@ const PAGE_SIZE = 10
 
 type Props = {
   type?: 'leaderboard' | 'owner'
+  selectedWeek: number
 }
 
-export default function RaffleLeaderboard({ type }: Props) {
+export default function RaffleLeaderboard({ type, selectedWeek }: Props) {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
   const [searchParams, setSearchParams] = useSearchParams()
@@ -45,6 +46,7 @@ export default function RaffleLeaderboard({ type }: Props) {
     {
       page: currentPage,
       limit: PAGE_SIZE,
+      week: selectedWeek + 1,
       address: type === 'owner' ? account : undefined,
     },
     { skip: type === 'owner' ? !account : false },
@@ -80,9 +82,6 @@ export default function RaffleLeaderboard({ type }: Props) {
       {!upToSmall && (
         <>
           <Flex padding="1rem 1.25rem" fontSize={12} color={theme.subText} fontWeight="500" sx={{ gap: '1.25rem' }}>
-            <Text width={50} textAlign="center">
-              <Trans>RANK</Trans>
-            </Text>
             <Text width={upToSmall ? '100%' : '160px'}>
               <Trans>NETWORK</Trans>
             </Text>
@@ -103,8 +102,7 @@ export default function RaffleLeaderboard({ type }: Props) {
       {isLoading ? (
         <LocalLoader />
       ) : transactions.length ? (
-        transactions.map((tx, index) => {
-          const rowNumber = index + 1 + (currentPage - 1) * PAGE_SIZE
+        transactions.map(tx => {
           const networkName = isSupportedChainId(tx.chain) ? NETWORKS_INFO[tx.chain].name : '-'
           return (
             <Box
@@ -119,14 +117,6 @@ export default function RaffleLeaderboard({ type }: Props) {
                 gridTemplateColumns: upToSmall ? 'repeat(2, minmax(0, 1fr))' : 'none',
               }}
             >
-              <Flex
-                width={upToSmall ? '100%' : '50px'}
-                flexDirection="column"
-                textAlign={upToSmall ? 'left' : 'center'}
-              >
-                {renderLabel(<Trans>RANK</Trans>)}
-                <Text fontWeight="500">{rowNumber}</Text>
-              </Flex>
               <Flex width={upToSmall ? '100%' : '160px'} flexDirection="column">
                 {renderLabel(<Trans>NETWORK</Trans>)}
                 <Text>{networkName}</Text>

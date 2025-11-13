@@ -29,11 +29,11 @@ const Wrapper = styled.div`
 
 type Props = {
   type: CampaignType
-  week: number
+  selectedWeek: number
   wallet?: string
 }
 
-export default function Leaderboard({ type, week, wallet }: Props) {
+export default function Leaderboard({ type, selectedWeek, wallet }: Props) {
   const theme = useTheme()
   const [searchParams, setSearchParams] = useSearchParams()
   const page = +(searchParams.get('page') || '1')
@@ -51,7 +51,7 @@ export default function Leaderboard({ type, week, wallet }: Props) {
   const { isLoading, data } = useGetLeaderboardQuery(
     {
       program,
-      week,
+      week: selectedWeek,
       year,
       campaign,
       pageSize: 10,
@@ -69,7 +69,7 @@ export default function Leaderboard({ type, week, wallet }: Props) {
   const { data: userData } = useGetUserRewardQuery(
     {
       program,
-      week,
+      week: selectedWeek,
       year,
       wallet: wallet || account || '',
       campaign,

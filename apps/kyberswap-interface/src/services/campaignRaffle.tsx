@@ -116,13 +116,14 @@ const raffleCampaignApi = createApi({
     }),
     getTransactions: builder.query<
       Pagination<RaffleCampaignTransaction>,
-      { page: number; limit: number; address?: string }
+      { page: number; limit: number; week: number; address?: string }
     >({
-      query: ({ page, limit, address }) => ({
+      query: ({ page, limit, week, address }) => ({
         url: '/txs',
         params: {
           page,
           limit,
+          week,
           user_address: address,
         },
       }),
