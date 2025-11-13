@@ -1,4 +1,4 @@
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -17,7 +17,8 @@ import RaffleLeaderboard from './components/Leaderboard/RaffleLeaderboard'
 import WeekSelect from './components/WeekSelect'
 import { CampaignType, campaignConfig } from './constants'
 import { useNearIntentSelectedWallet } from './hooks/useNearIntentSelectedWallet'
-import { Tab, Tabs, Wrapper } from './styles'
+import { useRaffleCampaignJoin } from './hooks/useRaffleCampaignJoin'
+import { StatCard, Tab, Tabs, Wrapper } from './styles'
 
 enum TabKey {
   Information = 'information',
@@ -50,6 +51,12 @@ export default function CampaignPage() {
   // Previously selected week was week number of campaign timelines, but Raffle campaign week is zero-based index
   const [selectedWeek, setSelectedWeek] = useState(-1)
 
+  const {
+    onJoin: handleJoinRaffleCampaign,
+    isJoinedByWeek: isRaffleJoinedByWeek,
+    isNotEligible: isRaffleNotEligible,
+  } = useRaffleCampaignJoin({ selectedWeek })
+
   const params = useNearIntentSelectedWallet()
   const page = +(searchParams.get('page') || '1')
   const tab = searchParams.get('tab') || TabKey.Information
@@ -70,12 +77,25 @@ export default function CampaignPage() {
         </Text>
 
         {campaign === 'referral-program' && <JoinReferral />}
+        {isRaffleNotEligible && (
+          <StatCard style={{ padding: '8px 16px' }}>
+            <Text fontSize={14} color="error" textAlign="right">
+              <Trans>
+                You are{' '}
+                <Text as="span" fontWeight="500" color="white">
+                  not eligible
+                </Text>{' '}
+                for this campaign.
+              </Trans>
+            </Text>
+          </StatCard>
+        )}
       </Flex>
 
       {campaign !== 'referral-program' && (
         <Flex
           justifyContent="space-between"
-          marginTop="1.5rem"
+          marginTop="1rem"
           alignItems="center"
           flexDirection={upToExtraSmall ? 'column' : 'row'}
           sx={{ gap: '1rem' }}
@@ -83,13 +103,19 @@ export default function CampaignPage() {
           <WeekSelect type={type} selectedWeek={selectedWeek} setSelectedWeek={setSelectedWeek} />
 
           <ButtonPrimary
+            altDisabledStyle
             width={upToExtraSmall ? '100%' : '160px'}
             height="40px"
+            disabled={isRaffleNotEligible || isRaffleJoinedByWeek}
             onClick={() => {
-              navigate(ctaLink)
+              if (isRaffleCampaign) {
+                handleJoinRaffleCampaign()
+              } else {
+                navigate(ctaLink)
+              }
             }}
           >
-            {ctaText}
+            {isRaffleJoinedByWeek ? t`Joined` : ctaText}
           </ButtonPrimary>
         </Flex>
       )}

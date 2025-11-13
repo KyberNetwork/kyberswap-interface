@@ -100,7 +100,9 @@ const WeekRewardLine = ({ title, txCount }: { title: ReactNode; txCount: number 
       <Text flex={1}>{title}</Text>
       <Flex justifyContent="space-between">
         <Text flex={1}>ELIGIBLE TRANSACTIONS</Text>
-        <Text color="white">{formatDisplayNumber(txCount, { significantDigits: 6 })}</Text>
+        <Text color="white" fontSize={16}>
+          {formatDisplayNumber(txCount, { significantDigits: 6 })}
+        </Text>
       </Flex>
     </Flex>
   ) : (

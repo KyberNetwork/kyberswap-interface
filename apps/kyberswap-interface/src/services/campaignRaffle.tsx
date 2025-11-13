@@ -36,7 +36,7 @@ export type RaffleCampaignParticipant = {
   tx_count_week_1: number
   tx_count_week_2: number
   reward: number
-  eligible: boolean
+  eligible?: boolean
 }
 
 export type RaffleCampaignTransaction = {
@@ -110,7 +110,7 @@ const raffleCampaignApi = createApi({
           tx_count_week_1: 0,
           tx_count_week_2: 0,
           reward: 0,
-          eligible: false,
+          eligible: true,
         }
       },
     }),
@@ -141,6 +141,20 @@ const raffleCampaignApi = createApi({
         }
       },
     }),
+    joinCampaign: builder.mutation<
+      Response<unknown>,
+      { address: string; message: string; signature: string; week?: string }
+    >({
+      query: ({ address, message, signature, week = 'week_1' }) => ({
+        url: `/join/${week}`,
+        method: 'POST',
+        body: {
+          address,
+          message,
+          signature,
+        },
+      }),
+    }),
   }),
 })
 
@@ -148,6 +162,7 @@ export const {
   useGetStatsQuery: useGetRaffleCampaignStatsQuery,
   useGetParticipantQuery: useGetRaffleCampaignParticipantQuery,
   useGetTransactionsQuery: useGetRaffleCampaignTransactionsQuery,
+  useJoinCampaignMutation: useJoinRaffleCampaignMutation,
 } = raffleCampaignApi
 
 export default raffleCampaignApi

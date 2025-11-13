@@ -182,8 +182,9 @@ const raffleRewards = (
           <Trans>
             You can verify Bitcoin Block Hash{' '}
             <ExternalLink href="https://btcscan.org/block/00000000000000000000a82a97d2c92db3dc2344476665f5c0d4b15172a24cec">
-              here.
+              here
             </ExternalLink>
+            .
           </Trans>
         </li>
       </ul>

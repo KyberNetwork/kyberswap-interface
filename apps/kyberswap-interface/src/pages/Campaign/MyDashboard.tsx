@@ -38,7 +38,7 @@ const TableHeader = styled.div`
   grid-template-columns: 1.5fr 1fr 1fr 1.25fr 100px;
   font-size: 12px;
   color: ${({ theme }) => theme.subText};
-  padding: 1rem;
+  padding: 1rem 0;
   gap: 1rem;
   font-weight: 500;
 `
