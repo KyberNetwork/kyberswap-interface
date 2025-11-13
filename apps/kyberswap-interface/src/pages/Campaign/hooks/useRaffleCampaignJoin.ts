@@ -41,7 +41,7 @@ export const useRaffleCampaignJoin = ({ selectedWeek }: Props) => {
     }
 
     try {
-      const nonce = '12345678' //TODO: replace with real nonce from backend
+      const nonce = String(10_000_000 + Math.floor(Math.random() * 90_000_000))
 
       const message = new SiweMessage({
         domain: window.location.host,
@@ -54,25 +54,17 @@ export const useRaffleCampaignJoin = ({ selectedWeek }: Props) => {
       }).prepareMessage()
 
       const signature = await library.getSigner().signMessage(message)
-      const result = await joinRaffleCampaign({ address: account, message, signature }).unwrap()
+      await joinRaffleCampaign({ address: account, message, signature }).unwrap()
 
-      if (!result?.success) {
-        throw new Error(result?.message || t`Join campaign request failed.`)
-      }
-
+      await refetchParticipant()
       notify({
         title: t`Joined Raffle Campaign`,
-        summary: t`Your wallet has been registered. Eligible trades will now be tracked automatically.`,
         type: NotificationType.SUCCESS,
       })
-      if (account) {
-        await refetchParticipant()
-      }
     } catch (error) {
-      console.log('Error joining raffle campaign:', error)
       notify({
         title: t`Unable to join Raffle Campaign`,
-        summary: error instanceof Error ? error.message : t`Something went wrong. Please try again.`,
+        summary: error.message || error.data?.message || t`Something went wrong. Please try again.`,
         type: NotificationType.ERROR,
       })
     }

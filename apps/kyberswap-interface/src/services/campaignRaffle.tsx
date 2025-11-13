@@ -96,7 +96,7 @@ const raffleCampaignApi = createApi({
       query: ({ address }) => ({
         url: '/participant',
         params: {
-          user_address: address,
+          user_address: address.toLowerCase(),
         },
       }),
       transformResponse: (response: Response<RaffleCampaignParticipant>) => {
@@ -110,7 +110,7 @@ const raffleCampaignApi = createApi({
           tx_count_week_1: 0,
           tx_count_week_2: 0,
           reward: 0,
-          eligible: true,
+          eligible: false,
         }
       },
     }),
