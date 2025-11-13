@@ -2,11 +2,27 @@ import { Trans } from '@lingui/macro'
 import { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { Text } from 'rebass'
+import styled from 'styled-components'
 
 import { ExternalLink } from 'theme'
 
 import { StyledTable, TableWrapper, Td, Th, Tr } from './styles'
 import { CampaignContent, FaqItem } from './types'
+
+const Quote = styled('div')`
+  position: relative;
+  margin: 0px;
+  margin-left: 40px;
+  &::before {
+    content: '';
+    background-color: #a9a9a9a9;
+    width: 2px;
+    position: absolute;
+    left: -12px;
+    top: 6px;
+    bottom: 6px;
+  }
+`
 
 const raffleRewardSteps: { step: ReactNode; example: ReactNode }[] = [
   {
@@ -93,26 +109,9 @@ const raffleTimeline = (
 
 const raffleRewards = (
   <>
-    <li>
-      <Trans>Trade on KyberSwap Swap feature, meet the following minimum trading volume per transaction:</Trans>
-      <ul style={{ margin: 0 }}>
-        <li>
-          <Trans>
-            <span style={{ fontWeight: 500, color: '#fff' }}>$500</span> for stablecoins and correlated pairs (
-            <ExternalLink href="https://www.notion.so/Stablecoins-and-Correlated-Pairs-28d26751887e80049bb2e907e6b1b4b1?pvs=21">
-              see full list
-            </ExternalLink>
-            ).
-          </Trans>
-        </li>
-        <li>
-          <Trans>
-            <span style={{ fontWeight: 500, color: '#fff' }}>$100</span> for all other trading pairs (excluding
-            stablecoins and correlated pairs).
-          </Trans>
-        </li>
-      </ul>
-    </li>
+    <Text color="white" fontWeight="500" marginBottom="8px">
+      <Trans>Reward Allocation Mechanism</Trans>
+    </Text>
     <li>
       <Trans>
         After the campaign period ends, KyberSwap will determine results using a{' '}
@@ -195,54 +194,81 @@ const raffleRewards = (
         them.
       </Trans>
     </li>
+    <Text color="white" fontWeight="500" marginY="8px">
+      <Trans>Reward Distribution</Trans>
+    </Text>
+    <li>
+      <Trans>The full campaign results will be published on KyberSwap by:</Trans>
+      <ul style={{ margin: 0 }}>
+        <li>
+          <Trans>Nov 19, 2025 for Week 1 results.</Trans>
+        </li>
+        <li>
+          <Trans>Nov 27, 2025 for Week 2 results.</Trans>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <Trans>Users may report any reward-related issues by Nov 22, 2025 (Week 1) and Nov 30, 2025 (Week 2).</Trans>
+    </li>
+    <li>
+      <Trans>Rewards will be airdropped to qualifying wallet in KNC token on Base by Dec 07, 2025.</Trans>
+    </li>
+    <li>
+      <Trans>
+        Each wallet may have multiple reward-qualifying transaction hashes. If multiple hashes qualify, the reward pool
+        will be shared equally among all reward-qualifying transaction hashes.
+      </Trans>
+    </li>
   </>
 )
 
 const raffleFaq: FaqItem[] = [
   {
-    q: <Trans>How are the raffle winners selected?</Trans>,
+    q: (
+      <Trans>
+        I made 1 swap on KyberSwap between 01/11/2024 and 30/10/2025 on a supported chain. How do I become eligible for
+        the campaign?
+      </Trans>
+    ),
     a: (
       <Trans>
-        At the end of each week, KyberSwap compares the last 4 hex digits of every eligible transaction hash with the
-        selected Bitcoin block hash. The hash with the smallest absolute difference is declared the winner, following
-        the calculation shown in the table above.
+        You must click &quot;Join Campaign&quot; first. Only eligible transactions made after you click &quot;Join
+        Campaign&quot; will be counted.
       </Trans>
     ),
   },
   {
-    q: <Trans>Do I need to register before my trades count?</Trans>,
-    a: (
-      <Trans>
-        Yes. Make sure you click “Join Campaign” on the Raffle Campaign page before executing eligible trades. Only
-        trades submitted after joining, and that meet the minimum volume requirement, are considered.
-      </Trans>
-    ),
+    q: <Trans>Is there any minimum or maximum value requirements for each trade?</Trans>,
+    a: <Trans>There is no minimum nor maximum value requirement for a trade.</Trans>,
   },
   {
-    q: <Trans>Do failed or cancelled transactions count?</Trans>,
-    a: (
-      <Trans>
-        No. Only successful transactions that appear on the explorer with a “success” status are eligible for the
-        raffle.
-      </Trans>
-    ),
+    q: <Trans>My wallet generates 100 eligible transaction hashes. Are only the first 50 counted?</Trans>,
+    a: <Trans>Yes. We only count the first 50 eligible hashes per wallet.</Trans>,
   },
   {
-    q: <Trans>When will I receive my rewards if I win?</Trans>,
-    a: (
+    q: (
       <Trans>
-        Rewards will be distributed to the winning wallets by 12 August 2025. EVM, Near, and Solana wallets receive USDT
-        (with a minimum value of $5), while Bitcoin wallets receive BTC (minimum value $10) based on the distribution
-        day’s exchange rate.
+        If a campaign has 10 reward-qualifying hashes and my wallet owns 5, how is my reward share calculated?
       </Trans>
     ),
+    a: <Trans>Your wallet&apos;s reward = 5 ÷ 10 = 50% of the total prize pool.</Trans>,
   },
   {
-    q: <Trans>What happens if multiple hashes produce the same closest result?</Trans>,
+    q: <Trans>Where can I see my eligible transactions?</Trans>,
+    a: <Trans>You can check it under the &quot;Your Transactions&quot; tab on the campaign page.</Trans>,
+  },
+  {
+    q: (
+      <Trans>
+        Why have I made a successful swap transaction, but it&apos;s not counted even after I successfully clicked
+        &quot;Join Campaign&quot;?
+      </Trans>
+    ),
     a: (
       <Trans>
-        If more than one transaction produces the same qualifying difference, the affected prize pool is split equally
-        between the tied participants.
+        Because your swap might fall under excluded cases - such as wrapping or unwrapping native tokens (e.g., ETH ↔
+        WETH, BNB ↔ WBNB…), cross-chain swaps, or limit orders during the campaign period.
       </Trans>
     ),
   },
@@ -290,43 +316,30 @@ export const raffleInfo: CampaignContent = {
         <Trans>
           Click <Link to="/campaigns/raffle-campaign">Join Campaign</Link> on the KyberSwap UI to participate.
         </Trans>
+        <Quote>
+          Note: Wallet addresses must have at least one successful swap transaction on KyberSwap between 01/11/2024 and
+          30/10/2025 (UTC) to be eligible, excluding cross-chain, limit orders, and deprecated chains swaps.
+        </Quote>
       </li>
       <li>
-        <Trans>Trade on KyberSwap Swap feature, meet the following minimum trading volume per transaction:</Trans>
-        <ul style={{ margin: 0 }}>
-          <li>
-            <Trans>
-              <span style={{ fontWeight: 500, color: '#fff' }}>$500</span> for stablecoins and correlated pairs (
-              <ExternalLink href="https://www.notion.so/Stablecoins-and-Correlated-Pairs-28d26751887e80049bb2e907e6b1b4b1?pvs=21">
-                see full list
-              </ExternalLink>
-              ).
-            </Trans>
-          </li>
-          <li>
-            <Trans>
-              <span style={{ fontWeight: 500, color: '#fff' }}>$100</span> for all other trading pairs (excluding
-              stablecoins and correlated pairs).
-            </Trans>
-          </li>
-        </ul>
-      </li>
-      <li>
-        <Text as="span" display="block" marginTop="8px">
-          <Trans>
-            Note: See the full stablecoin supported list{' '}
-            <ExternalLink href="https://docs.google.com/spreadsheets/d/1ASuf0R4EqNslY7RYbKUIqaBmia0ASdYGF_eZCcDK0d4/edit?gid=0#gid=0">
-              here
-            </ExternalLink>
-            .
-          </Trans>
-        </Text>
+        <Trans>Make swaps on the the KyberSwap UI.</Trans>
+        <Quote>
+          Note: Excluding wrapping and unwrapping of native tokens (e.g., ETH ↔ WETH, BNB ↔ WBNB…), cross-chain swaps
+          and limit orders.
+        </Quote>
       </li>
       <li>
         <Trans>
-          Each eligible trade generates a unique transaction hash, which serves as the participant&apos;s identifier.
-          Only successful (&quot;success&quot; status on explorer) transaction hashes are counted.
+          Each eligible swap generates a unique transaction hash, which serves as the participant&apos;s identifier.
         </Trans>
+        <ul style={{ margin: 0 }}>
+          <li>
+            <Trans>Only successful (&quot;success&quot; status on explorer) transaction hash is counted.</Trans>
+          </li>
+          <li>
+            <Trans>Eligible transaction hashes per wallet per week are capped at the first 50 eligible hashes.</Trans>
+          </li>
+        </ul>
       </li>
     </>
   ),
