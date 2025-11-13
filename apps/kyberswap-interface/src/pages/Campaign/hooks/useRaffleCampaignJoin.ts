@@ -54,7 +54,7 @@ export const useRaffleCampaignJoin = ({ selectedWeek }: Props) => {
       }).prepareMessage()
 
       const signature = await library.getSigner().signMessage(message)
-      await joinRaffleCampaign({ address: account, message, signature }).unwrap()
+      await joinRaffleCampaign({ address: account, message, signature, week: `week_${selectedWeek + 1}` }).unwrap()
 
       await refetchParticipant()
       notify({
@@ -68,7 +68,7 @@ export const useRaffleCampaignJoin = ({ selectedWeek }: Props) => {
         type: NotificationType.ERROR,
       })
     }
-  }, [account, chainId, joinRaffleCampaign, library, notify, refetchParticipant, toggleWalletModal])
+  }, [account, chainId, joinRaffleCampaign, library, selectedWeek, notify, refetchParticipant, toggleWalletModal])
 
   return {
     onJoin,
