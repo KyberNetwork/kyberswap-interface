@@ -1,5 +1,5 @@
 import { Trans, t } from '@lingui/macro'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
@@ -11,9 +11,11 @@ import { MEDIA_WIDTHS, StyledInternalLink } from 'theme'
 import CampaignStats from './components/CampaignStats'
 import RaffleCampaignStats from './components/CampaignStats/RaffleCampaignStats'
 import Information from './components/Information'
+import JoinRaffleCampaignModal from './components/JoinRaffleCampaignModal'
 import JoinReferral from './components/JoinReferral'
 import Leaderboard from './components/Leaderboard'
 import RaffleLeaderboard from './components/Leaderboard/RaffleLeaderboard'
+import RaffleRewardModal from './components/RaffleRewardModal'
 import WeekSelect from './components/WeekSelect'
 import { CampaignType, campaignConfig } from './constants'
 import { useNearIntentSelectedWallet } from './hooks/useNearIntentSelectedWallet'
@@ -53,14 +55,23 @@ export default function CampaignPage() {
 
   // Previously selected week was week number of campaign timelines, but Raffle campaign week is zero-based index
   const [selectedWeek, setSelectedWeek] = useState(-1)
+  const [isJoinModalOpen, setIsJoinModalOpen] = useState(false)
+  const [isRewardModalOpen, setIsRewardModalOpen] = useState(false)
 
   const {
     onJoin: handleJoinRaffleCampaign,
     isJoinedByWeek: isRaffleJoinedByWeek,
     isNotEligible: isRaffleNotEligible,
+    participant,
   } = useRaffleCampaignJoin({ selectedWeek })
 
   const params = useNearIntentSelectedWallet()
+
+  useEffect(() => {
+    if (isRaffleCampaign && participant?.reward_all) {
+      setIsRewardModalOpen(true)
+    }
+  }, [isRaffleCampaign, participant])
 
   return (
     <Wrapper>
@@ -103,7 +114,7 @@ export default function CampaignPage() {
             disabled={isRaffleNotEligible || isRaffleJoinedByWeek}
             onClick={() => {
               if (isRaffleCampaign) {
-                handleJoinRaffleCampaign()
+                setIsJoinModalOpen(true)
               } else {
                 navigate(ctaLink)
               }
@@ -179,6 +190,29 @@ export default function CampaignPage() {
         ))}
 
       {tab === TabKey.YourTransactions && <RaffleLeaderboard type="owner" selectedWeek={selectedWeek} />}
+
+      {isRaffleCampaign && (
+        <JoinRaffleCampaignModal
+          isOpen={isJoinModalOpen}
+          onDismiss={() => setIsJoinModalOpen(false)}
+          onConfirm={() => {
+            setIsJoinModalOpen(false)
+            void handleJoinRaffleCampaign()
+          }}
+        />
+      )}
+
+      {isRaffleCampaign && (
+        <RaffleRewardModal
+          isOpen={isRewardModalOpen}
+          onDismiss={() => setIsRewardModalOpen(false)}
+          onConfirm={() => {
+            setIsRewardModalOpen(false)
+            navigate(`${APP_PATHS.MY_DASHBOARD}?tab=${CampaignType.Raffle}`)
+          }}
+          participant={participant}
+        />
+      )}
     </Wrapper>
   )
 }

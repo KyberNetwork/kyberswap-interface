@@ -139,7 +139,7 @@ export default function RaffleLeaderboard({ type, selectedWeek }: Props) {
                 textAlign={upToSmall ? 'left' : 'right'}
               >
                 {renderLabel(<Trans>REWARDS</Trans>)}
-                <Text>{formatDisplayNumber(tx.rewarded, { significantDigits: 6 })}</Text>
+                <Text>{formatDisplayNumber(tx.rewarded, { significantDigits: 6 })} KNC</Text>
               </Flex>
             </Box>
           )

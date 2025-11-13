@@ -240,11 +240,11 @@ const stipInfo = {
 }
 
 const rewardKNC = {
-  chainId: ChainId.MAINNET,
+  chainId: ChainId.BASE,
   symbol: 'KNC',
   logo: 'https://s2.coinmarketcap.com/static/img/coins/64x64/9444.png',
-  address: KNC[ChainId.MAINNET].address,
-  decimals: KNC[ChainId.MAINNET].decimals,
+  address: KNC[ChainId.BASE].address,
+  decimals: KNC[ChainId.BASE].decimals,
 }
 
 export enum CampaignType {

@@ -248,7 +248,7 @@ const raffleFaq: FaqItem[] = [
   },
 ]
 
-const renderRaffleTerms = () => (
+export const renderRaffleTerms = () => (
   <>
     <li>
       <Trans>

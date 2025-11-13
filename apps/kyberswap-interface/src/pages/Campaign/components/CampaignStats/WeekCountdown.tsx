@@ -26,6 +26,7 @@ const EMPTY_WEEK: CampaignWeek = { value: -1, start: 0, end: 0 }
 
 export const WeekCountdown = ({ weekOptions, selectedWeek }: Props) => {
   const theme = useTheme()
+  const initializing = weekOptions.length === 0
 
   const defaultWeek = weekOptions[0] || EMPTY_WEEK
   const week = weekOptions.find(w => w.value === selectedWeek) || defaultWeek
@@ -55,10 +56,10 @@ export const WeekCountdown = ({ weekOptions, selectedWeek }: Props) => {
   return (
     <StatCard style={{ flex: 1 }}>
       <Text fontSize={14} color={theme.subText}>
-        {startEndIn}
+        {initializing ? '' : startEndIn}
       </Text>
       <Text marginTop="8px" fontSize={20} fontWeight="500">
-        {isEnd ? dayjs(week.end * 1000).format('MMM DD YYYY') : formatCountdown(duration)}
+        {initializing ? '' : isEnd ? dayjs(week.end * 1000).format('MMM DD YYYY') : formatCountdown(duration)}
       </Text>
     </StatCard>
   )

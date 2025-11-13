@@ -17,14 +17,16 @@ export const useRaffleCampaignJoin = ({ selectedWeek }: Props) => {
   const toggleWalletModal = useWalletModalToggle()
   const notify = useNotify()
 
-  const [joinRaffleCampaign] = useJoinRaffleCampaignMutation()
-  const { data: raffleParticipant, refetch: refetchParticipant } = useGetRaffleCampaignParticipantQuery(
+  const [joinCampaign] = useJoinRaffleCampaignMutation()
+
+  const { data: participant, refetch: refetchParticipant } = useGetRaffleCampaignParticipantQuery(
     { address: account ?? '' },
     { skip: !account },
   )
-  const isNotEligible = !!account && raffleParticipant?.eligible === false
+
+  const isNotEligible = !!account && participant?.eligible === false
   const isJoinedByWeek =
-    !!raffleParticipant?.[`joined_week${selectedWeek + 1}_at` as keyof typeof raffleParticipant] && selectedWeek >= 0
+    !!participant?.[`joined_week${selectedWeek + 1}_at` as keyof typeof participant] && selectedWeek >= 0
 
   const onJoin = useCallback(async () => {
     if (!account) {
@@ -54,7 +56,7 @@ export const useRaffleCampaignJoin = ({ selectedWeek }: Props) => {
       }).prepareMessage()
 
       const signature = await library.getSigner().signMessage(message)
-      await joinRaffleCampaign({ address: account, message, signature, week: `week_${selectedWeek + 1}` }).unwrap()
+      await joinCampaign({ address: account, message, signature, week: `week_${selectedWeek + 1}` }).unwrap()
 
       await refetchParticipant()
       notify({
@@ -62,17 +64,19 @@ export const useRaffleCampaignJoin = ({ selectedWeek }: Props) => {
         type: NotificationType.SUCCESS,
       })
     } catch (error) {
+      console.warn('Raffle campaign join error:', error)
       notify({
         title: t`Unable to join Raffle Campaign`,
         summary: error.message || error.data?.message || t`Something went wrong. Please try again.`,
         type: NotificationType.ERROR,
       })
     }
-  }, [account, chainId, joinRaffleCampaign, library, selectedWeek, notify, refetchParticipant, toggleWalletModal])
+  }, [account, chainId, joinCampaign, library, selectedWeek, notify, refetchParticipant, toggleWalletModal])
 
   return {
     onJoin,
     isJoinedByWeek,
     isNotEligible,
+    participant,
   }
 }

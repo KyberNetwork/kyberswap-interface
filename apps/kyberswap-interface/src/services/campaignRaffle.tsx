@@ -35,8 +35,10 @@ export type RaffleCampaignParticipant = {
   joined_week2_at: string | null
   tx_count_week_1: number
   tx_count_week_2: number
-  reward: number
-  eligible?: boolean
+  reward_week_1: number
+  reward_week_2: number
+  reward_all: number
+  eligible: boolean
 }
 
 export type RaffleCampaignTransaction = {
@@ -73,8 +75,8 @@ const raffleCampaignApi = createApi({
         return {
           ...response.data,
           weeks: timelines.map((week, index) => {
-            const start = Math.floor(new Date(week.start).getTime() / 1000) - 7 * 3600
-            const end = Math.floor(new Date(week.end).getTime() / 1000) - 7 * 3600
+            const startUnix = Math.floor(new Date(week.start).getTime() / 1000)
+            const endUnix = Math.floor(new Date(week.end).getTime() / 1000)
             return {
               value: index,
               label: (
@@ -82,11 +84,11 @@ const raffleCampaignApi = createApi({
                   <Text as="span" color="#ffffff">
                     Week {index + 1}
                   </Text>{' '}
-                  {dayjs.unix(start).format('MMM D')} - {dayjs.unix(end).format('MMM D')}
+                  {dayjs(week.start).utc().format('MMM D')} - {dayjs(week.end).utc().format('MMM D')}
                 </Text>
               ),
-              start,
-              end,
+              start: startUnix,
+              end: endUnix,
             }
           }),
         }
@@ -101,7 +103,10 @@ const raffleCampaignApi = createApi({
       }),
       transformResponse: (response: Response<RaffleCampaignParticipant>) => {
         if (response.success) {
-          return response.data
+          return {
+            ...response.data,
+            reward_all: response.data.reward_week_1 + response.data.reward_week_2,
+          }
         }
         return {
           address: '',
@@ -109,7 +114,9 @@ const raffleCampaignApi = createApi({
           joined_week2_at: null,
           tx_count_week_1: 0,
           tx_count_week_2: 0,
-          reward: 0,
+          reward_week_1: 0,
+          reward_week_2: 0,
+          reward_all: 0,
           eligible: false,
         }
       },
