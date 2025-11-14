@@ -468,6 +468,9 @@ importers:
       '@cypress/grep':
         specifier: ^3.1.5
         version: 3.1.5(@babel/core@7.26.0)(cypress@14.1.0)
+      '@kyber/schema':
+        specifier: workspace:^
+        version: link:../../packages/schema
       '@kyber/ui':
         specifier: workspace:^
         version: link:../../packages/ui
