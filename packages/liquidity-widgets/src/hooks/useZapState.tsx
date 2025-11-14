@@ -315,7 +315,9 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
 
     let tmp = '';
     Object.keys(params).forEach(key => {
-      tmp = `${tmp}&${key}=${params[key]}`;
+      if (params[key] !== undefined) {
+        tmp = `${tmp}&${key}=${params[key]}`;
+      }
     });
 
     fetch(`${API_URLS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/${mode}/route?${tmp.slice(1)}`, {
