@@ -175,6 +175,7 @@ export const APP_PATHS = {
   ELASTIC_SNAPSHOT: '/elastic-snapshot',
   MARKET_OVERVIEW: '/market-overview',
 
+  RAFFLE_CAMPAIGN: '/campaigns/raffle-campaign',
   NEAR_INTENTS_CAMPAIGN: '/campaigns/near-intents',
   MAY_TRADING_CAMPAIGN: '/campaigns/may-trading',
   AGGREGATOR_CAMPAIGN: '/campaigns/aggregator',

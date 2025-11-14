@@ -1,5 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
+import { ReactNode } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Text } from 'rebass'
 
@@ -9,10 +10,18 @@ import loBanner from './assets/limit_order.png'
 import mayTradingBanner from './assets/may_trading.png'
 import nearIntentBanner from './assets/near_intents.png'
 import nearIntentBannerMobile from './assets/near_intents_mobile.png'
+import raffleCampaignBanner from './assets/raffle_campaign.png'
 import referralBanner from './assets/referral.png'
 import tradingBanner from './assets/trading.png'
 
-export const stipWeeks = [
+export type CampaignWeek = {
+  value: number
+  label?: ReactNode
+  start: number
+  end: number
+}
+
+const stipWeeks: CampaignWeek[] = [
   {
     value: 37,
     label: (
@@ -165,7 +174,7 @@ export const stipWeeks = [
   },
 ].reverse()
 
-export const mayTradingWeeks = [
+const mayTradingWeeks: CampaignWeek[] = [
   {
     value: 22,
     label: (
@@ -183,7 +192,7 @@ export const mayTradingWeeks = [
   },
 ]
 
-export const nearIntentWeeks = [
+const nearIntentWeeks: CampaignWeek[] = [
   {
     value: 31,
     label: (
@@ -216,14 +225,6 @@ export const nearIntentWeeks = [
   },
 ].reverse()
 
-export enum CampaignType {
-  NearIntents = 'NearIntents',
-  MayTrading = 'MayTrading',
-  Aggregator = 'Aggregator',
-  LimitOrder = 'LimitOrder',
-  Referrals = 'Referrals',
-}
-
 const stipInfo = {
   year: 2024,
   baseWeek: 27,
@@ -238,7 +239,24 @@ const stipInfo = {
   program: 'stip' as const,
 }
 
-export type CampaignConfig = {
+const rewardKNC = {
+  chainId: ChainId.BASE,
+  symbol: 'KNC',
+  logo: 'https://s2.coinmarketcap.com/static/img/coins/64x64/9444.png',
+  address: KNC[ChainId.BASE].address,
+  decimals: KNC[ChainId.BASE].decimals,
+}
+
+export enum CampaignType {
+  Raffle = 'Raffle',
+  NearIntents = 'NearIntents',
+  MayTrading = 'MayTrading',
+  Aggregator = 'Aggregator',
+  LimitOrder = 'LimitOrder',
+  Referrals = 'Referrals',
+}
+
+type CampaignConfig = {
   year: number
   baseWeek: number
   reward: {
@@ -250,17 +268,29 @@ export type CampaignConfig = {
   }
   type: CampaignType
   ctaText: JSX.Element
-  weeks: any[]
-  program: 'stip' | 'grind/base'
-  campaign: 'trading-incentive' | 'limit-order-farming' | 'referral-program'
+  weeks: CampaignWeek[]
+  program?: 'stip' | 'grind/base'
+  campaign?: 'trading-incentive' | 'limit-order-farming' | 'referral-program'
   url?: string
 
   banner: string
   ctaLink: string
   title: JSX.Element
+  apiKey?: string
 }
 
 export const campaignConfig: Record<CampaignType, CampaignConfig> = {
+  [CampaignType.Raffle]: {
+    year: 2025,
+    baseWeek: 45,
+    reward: rewardKNC,
+    ctaLink: '/swap',
+    ctaText: <Trans>Join Now</Trans>,
+    type: CampaignType.Raffle,
+    weeks: [],
+    banner: raffleCampaignBanner,
+    title: <Trans>Raffle Campaign</Trans>,
+  },
   [CampaignType.Aggregator]: {
     ...stipInfo,
     ctaLink: '/swap/arbitrum/eth-to-arb',
@@ -292,13 +322,7 @@ export const campaignConfig: Record<CampaignType, CampaignConfig> = {
     ctaLink: '/swap/base',
     baseWeek: 21,
     year: 2025,
-    reward: {
-      chainId: ChainId.MAINNET,
-      symbol: 'KNC',
-      logo: 'https://s2.coinmarketcap.com/static/img/coins/64x64/9444.png',
-      address: KNC[ChainId.MAINNET].address,
-      decimals: KNC[ChainId.MAINNET].decimals,
-    },
+    reward: rewardKNC,
     ctaText: <Trans>Trade Now</Trans>,
     type: CampaignType.MayTrading,
     weeks: mayTradingWeeks,
@@ -320,10 +344,8 @@ export const campaignConfig: Record<CampaignType, CampaignConfig> = {
     type: CampaignType.NearIntents,
     ctaText: <Trans>Trade Now</Trans>,
     weeks: nearIntentWeeks,
-    // dont use for near intents
-    program: 'grind/base' as const,
-    // dont use too
-    campaign: 'trading-incentive' as const,
+    program: 'grind/base' as const, // dummy value
+    campaign: 'trading-incentive' as const, // dummy value
     url: 'https://kyberswap-near-intents.kyberengineering.io/api/v1',
     banner: isMobile ? nearIntentBannerMobile : nearIntentBanner,
     ctaLink: '/cross-chain',

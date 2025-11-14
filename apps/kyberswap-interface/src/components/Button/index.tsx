@@ -210,15 +210,6 @@ export const ButtonOutlined = styled(Base)<{ color?: string }>`
   color: ${({ theme, color }) => color || theme.subText};
   border-radius: 999px;
   font-size: 14px;
-  &:focus {
-    box-shadow: 0 0 0 1px ${({ theme, color }) => color || theme.subText};
-  }
-  &:hover {
-    box-shadow: 0 0 0 1px ${({ theme, color }) => color || theme.subText};
-  }
-  &:active {
-    box-shadow: 0 0 0 1px ${({ theme, color }) => color || theme.subText};
-  }
   &:disabled {
     ${disabledOutlined}
   }
