@@ -1,5 +1,5 @@
 import { rgba } from 'polished'
-import React from 'react'
+import React, { useEffect } from 'react'
 import styled, { css } from 'styled-components'
 
 import CustomFeeTierInput from './CustomFeeTierInput'
@@ -63,6 +63,10 @@ type Props = {
 
 const FeeTierControl: React.FC<Props> = ({ value, onChange, options = DEFAULT_FEE_OPTIONS, disabled, className }) => {
   const [isCustom, setIsCustom] = React.useState(false)
+
+  useEffect(() => {
+    setIsCustom(false)
+  }, [options])
 
   return (
     <Container className={className}>
