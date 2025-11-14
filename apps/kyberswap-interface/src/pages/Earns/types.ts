@@ -61,6 +61,7 @@ export interface EarnPool {
     kemEGApr: string
     kemLMApr: string
   }
+  egUsd?: number
 }
 
 export interface ParsedEarnPool extends EarnPool {
