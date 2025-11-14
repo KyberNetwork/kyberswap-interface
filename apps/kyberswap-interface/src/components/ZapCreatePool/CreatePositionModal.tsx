@@ -193,22 +193,12 @@ const CreatePositionModal = ({ isOpen, onDismiss, onSubmit }: Props) => {
 
   const feeOptions = useMemo(() => {
     const preset = CATEGORY_FEE_PRESETS[poolCategory]
-    if (preset) {
-      return preset.options
-    }
-    return undefined
+    return preset?.options
   }, [poolCategory])
 
   useEffect(() => {
     const preset = CATEGORY_FEE_PRESETS[poolCategory]
-    if (preset) {
-      setFee(currentFee => {
-        if (preset.options.some(option => option === currentFee)) {
-          return currentFee
-        }
-        return preset.defaultFee
-      })
-    }
+    if (preset) setFee(preset.defaultFee)
   }, [poolCategory])
 
   return (
