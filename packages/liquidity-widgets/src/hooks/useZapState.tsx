@@ -5,7 +5,7 @@ import { API_URLS, CHAIN_ID_TO_CHAIN, Token, ZERO_ADDRESS, ZapRouteDetail, univ3
 import { parseUnits } from '@kyber/utils/crypto';
 import { getSqrtRatioAtTick, priceToClosestTick } from '@kyber/utils/uniswapv3';
 
-import { ERROR_MESSAGE } from '@/constants';
+import { ERROR_MESSAGE, getConfigHooksAddress } from '@/constants';
 import useInitialTokensIn from '@/hooks/useInitialTokensIn';
 import useSlippageManager from '@/hooks/useSlippageManager';
 import useTickPrice from '@/hooks/useTickPrice';
@@ -264,7 +264,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
     }
 
     setLoading(true);
-    let params: Record<string, string | number | boolean>;
+    let params: Record<string, string | number | boolean | undefined>;
 
     if (mode === WidgetMode.CREATE) {
       const tickFromPrice = priceToClosestTick(
@@ -283,6 +283,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
         'pool.uniswap_v4_config.fee': feeAmount,
         'pool.uniswap_v4_config.sqrt_p': sqrtPriceX96,
         'pool.uniswap_v4_config.tick_spacing': tickSpacing,
+        'pool.uniswap_v4_config.hooks': getConfigHooksAddress(poolType),
         'zap_in.position.tick_upper': debounceTickUpper ?? 0,
         'zap_in.position.tick_lower': debounceTickLower ?? 0,
         'zap_in.tokens_in': validTokenInAddresses,
