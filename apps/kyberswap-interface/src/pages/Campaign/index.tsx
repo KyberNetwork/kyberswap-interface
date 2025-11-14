@@ -90,7 +90,7 @@ export default function CampaignPage() {
                 <Text as="span" fontWeight="500" color="white">
                   not eligible
                 </Text>{' '}
-                for this campaign.
+                for this campaign
               </Trans>
             </Text>
           </StatCard>

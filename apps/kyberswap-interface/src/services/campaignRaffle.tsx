@@ -117,7 +117,7 @@ const raffleCampaignApi = createApi({
           reward_week_1: 0,
           reward_week_2: 0,
           reward_all: 0,
-          eligible: false,
+          eligible: true,
         }
       },
     }),

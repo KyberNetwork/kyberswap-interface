@@ -58,7 +58,6 @@ export const useRaffleCampaignJoin = ({ selectedWeek }: Props) => {
       const signature = await library.getSigner().signMessage(message)
       await joinCampaign({ address: account, message, signature, week: `week_${selectedWeek + 1}` }).unwrap()
 
-      await refetchParticipant()
       notify({
         title: t`Joined Raffle Campaign`,
         type: NotificationType.SUCCESS,
@@ -70,6 +69,8 @@ export const useRaffleCampaignJoin = ({ selectedWeek }: Props) => {
         summary: error.message || error.data?.message || t`Something went wrong. Please try again.`,
         type: NotificationType.ERROR,
       })
+    } finally {
+      refetchParticipant()
     }
   }, [account, chainId, joinCampaign, library, selectedWeek, notify, refetchParticipant, toggleWalletModal])
 
