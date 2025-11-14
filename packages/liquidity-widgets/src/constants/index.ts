@@ -1,6 +1,8 @@
 import type { MessageDescriptor } from '@lingui/core';
 import { msg } from '@lingui/macro';
 
+import { PoolType } from '@kyber/schema';
+
 import { i18n } from '@/lingui';
 
 export const MAX_ZAP_IN_TOKENS = 5;
@@ -45,4 +47,11 @@ export const getSlippageStorageKey = (
   // Sort symbols alphabetically to ensure consistent key generation regardless of token order
   const sortedSymbols = [token0Symbol, token1Symbol].sort();
   return `kyber_liquidity_widget_slippage_${sortedSymbols[0]}_${sortedSymbols[1]}_${chainId}_${feeTier}`;
+};
+
+export const getConfigHooksAddress = (poolType?: PoolType): string | undefined => {
+  if (poolType === PoolType.DEX_UNISWAP_V4_FAIRFLOW) {
+    return '0x4440854B2d02C57A0Dc5c58b7A884562D875c0c4';
+  }
+  return undefined;
 };
