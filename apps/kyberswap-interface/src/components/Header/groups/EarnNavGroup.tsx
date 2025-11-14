@@ -11,7 +11,6 @@ import { ReactComponent as ListSmartExitIcon } from 'assets/svg/earn/ic_list_sma
 import { ReactComponent as KemIcon } from 'assets/svg/kyber/kem.svg'
 import NavGroup from 'components/Header/groups/NavGroup'
 import { DropdownTextAnchor, StyledNavLink } from 'components/Header/styleds'
-import { BetaLabel } from 'components/Menu'
 import { APP_PATHS } from 'constants/index'
 import { FilterTag } from 'pages/Earns/PoolExplorer/Filter'
 import { MEDIA_WIDTHS } from 'theme'
@@ -87,10 +86,7 @@ const EarnNavGroup = () => {
           >
             <Flex sx={{ gap: '12px' }} alignItems="center">
               <FarmingIcon width={16} height={16} />
-              <Flex sx={{ gap: '2px' }}>
-                {t`Farming Pools`}
-                <BetaLabel>{t`BETA`}</BetaLabel>
-              </Flex>
+              <Flex sx={{ gap: '2px' }}>{t`Farming Pools`}</Flex>
             </Flex>
           </StyledNavLink>
 

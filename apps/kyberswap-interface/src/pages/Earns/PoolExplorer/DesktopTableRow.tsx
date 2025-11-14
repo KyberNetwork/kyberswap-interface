@@ -121,7 +121,10 @@ const DesktopTableRow = ({
         </Flex>
       )}
       <Flex justifyContent="flex-end">
-        {formatDisplayNumber(pool.earnFee, { style: 'currency', significantDigits: 6 })}
+        {formatDisplayNumber(isFarmingFiltered ? pool.egUsd : pool.earnFee, {
+          style: 'currency',
+          significantDigits: 6,
+        })}
       </Flex>
       <Flex justifyContent="flex-end">
         {formatDisplayNumber(pool.tvl, { style: 'currency', significantDigits: 6 })}

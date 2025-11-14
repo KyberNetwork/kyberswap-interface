@@ -1,5 +1,7 @@
 import { ReactNode, useState } from 'react';
 
+import { useLingui } from '@lingui/react';
+
 import { ItemData, RISKY_THRESHOLD, WarningType, isItemRisky } from '@/components/TokenSelectorModal/TokenInfo/utils';
 import IconAlertOctagon from '@/components/TokenSelectorModal/assets/alert-octagon.svg?react';
 import Loading from '@/components/loading';
@@ -24,6 +26,7 @@ const CollapseInfoItem = ({
   totalRisk: number;
   totalWarning: number;
 }) => {
+  const { i18n } = useLingui();
   const [expanded, setExpanded] = useState(true);
 
   const onExpand = () => setExpanded(prev => !prev);
@@ -52,7 +55,7 @@ const CollapseInfoItem = ({
           <div className="flex items-center gap-[6px] justify-between basis-[45%] text-xs text-subText">
             <div className="flex items-center gap-[6px]">
               <IconAlertOctagon className="h-4 w-4 text-error" />
-              <span>{totalRisk <= 1 ? 'Risky Item' : 'Risky Item(s)'}</span>
+              <span>{totalRisk <= 1 ? i18n._('Risky Item') : i18n._('Risky Item(s)')}</span>
             </div>
             <span className="text-error font-medium">{totalRisk}</span>
           </div>
@@ -60,7 +63,7 @@ const CollapseInfoItem = ({
           <div className="flex items-center gap-[6px] justify-between basis-[45%] text-xs text-subText">
             <div className="flex items-center gap-[6px]">
               <IconAlertOctagon className="h-4 w-4 text-warning" />
-              <span>{totalWarning <= 1 ? 'Attention Item' : 'Attention Item(s)'}</span>
+              <span>{totalWarning <= 1 ? i18n._('Attention Item') : i18n._('Attention Item(s)')}</span>
             </div>
             <span className="text-warning font-medium">{totalWarning}</span>
           </div>
@@ -75,11 +78,11 @@ const CollapseInfoItem = ({
             ) : isNumber && value ? (
               `${+value * 100}%`
             ) : value === '0' ? (
-              `No`
+              i18n._('No')
             ) : value === '1' ? (
-              `Yes`
+              i18n._('Yes')
             ) : isNumber ? (
-              `Unknown`
+              i18n._('Unknown')
             ) : (
               '--'
             );

@@ -12,6 +12,8 @@ import {
   StatusDialog,
   StatusDialogType,
   TokenSymbol,
+  translateFriendlyErrorMessage,
+  translateZapMessage,
 } from '@kyber/ui';
 import { parseZapInfo } from '@kyber/utils';
 import { friendlyError } from '@kyber/utils';
@@ -157,6 +159,7 @@ export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool,
     const dexName =
       typeof DEXES_INFO[poolType].name === 'string' ? DEXES_INFO[poolType].name : DEXES_INFO[poolType].name[chainId];
     const errorMessage = txError ? friendlyError(txError) || txError.message || JSON.stringify(txError) : '';
+    const translatedErrorMessage = translateFriendlyErrorMessage(errorMessage);
 
     const handleSlippage = () => {
       if (slippage !== suggestedSlippage) setSlippage(suggestedSlippage);
@@ -183,7 +186,7 @@ export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool,
                 : t`${dexName} ${pool.token0.symbol}/${pool.token1.symbol} ${pool.fee}%`)
             : undefined
         }
-        errorMessage={txError ? errorMessage : undefined}
+        errorMessage={txError ? translatedErrorMessage : undefined}
         transactionExplorerUrl={txHash ? `${NETWORKS_INFO[chainId].scanLink}/tx/${txHash}` : undefined}
         action={
           <>
@@ -340,7 +343,11 @@ export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool,
             />
           </div>
 
-          <Warning zapInfo={zapInfo} slippage={slippage || 0} zapImpact={zapImpact} />
+          <Warning
+            zapInfo={zapInfo}
+            slippage={slippage || 0}
+            zapImpact={{ ...zapImpact, msg: translateZapMessage(zapImpact.msg) }}
+          />
         </div>
         <DialogFooter>
           <button

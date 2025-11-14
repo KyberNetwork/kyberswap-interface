@@ -4,7 +4,7 @@ import { t } from '@lingui/macro';
 
 import { useDebounce } from '@kyber/hooks';
 import { ChainId, PoolType, ZERO_ADDRESS } from '@kyber/schema';
-import { StatusDialog, StatusDialogType } from '@kyber/ui';
+import { StatusDialog, StatusDialogType, translateFriendlyErrorMessage } from '@kyber/ui';
 import '@kyber/ui/styles.css';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
@@ -134,7 +134,7 @@ export const ZapMigration = (widgetProps: ZapMigrationProps) => {
                 ? t`Failed to load zap route`
                 : ''
         }
-        description={poolError || positionError || widgetError}
+        description={translateFriendlyErrorMessage(poolError || positionError || widgetError)}
         onClose={onCloseErrorDialog}
         action={
           <button className="ks-outline-btn flex-1" onClick={onCloseErrorDialog}>

@@ -8,9 +8,9 @@ import styled, {
   css,
 } from 'styled-components'
 
-import { Colors, colors } from './color'
+import { Colors, colors } from 'theme/color'
 
-export * from './components'
+export * from 'theme/components'
 
 export const MEDIA_WIDTHS = {
   upToXXSmall: 420,
@@ -223,6 +223,7 @@ export const ThemedGlobalStyle = createGlobalStyle`
 
   input[type=number] {
     -moz-appearance: textfield; /* Firefox */
+    appearance: textfield;
   }
 
   .tv-lightweight-charts{

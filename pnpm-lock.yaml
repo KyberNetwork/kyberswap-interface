@@ -30,8 +30,8 @@ importers:
   apps/kyberswap-interface:
     dependencies:
       '@across-protocol/app-sdk':
-        specifier: ^0.4.2
-        version: 0.4.2(viem@2.37.8)
+        specifier: ^0.4.4
+        version: 0.4.4(viem@2.37.8)
       '@bitcoinerlab/secp256k1':
         specifier: ^1.2.0
         version: 1.2.0
@@ -1606,6 +1606,15 @@ importers:
         specifier: ^2.3.0
         version: 2.3.0(@popperjs/core@2.11.8)(react-dom@18.3.1)(react@18.3.1)
     devDependencies:
+      '@babel/core':
+        specifier: ^7.26.0
+        version: 7.26.0
+      '@babel/preset-react':
+        specifier: ^7.25.9
+        version: 7.25.9(@babel/core@7.26.0)
+      '@babel/preset-typescript':
+        specifier: ^7.26.0
+        version: 7.26.0(@babel/core@7.26.0)
       '@kyber/eslint-config':
         specifier: workspace:*
         version: link:../config-eslint
@@ -1627,6 +1636,18 @@ importers:
       '@kyber/utils':
         specifier: workspace:^
         version: link:../utils
+      '@lingui/cli':
+        specifier: ^4.6.0
+        version: 4.14.1(typescript@5.3.2)
+      '@lingui/core':
+        specifier: ^4.6.0
+        version: 4.14.1
+      '@lingui/macro':
+        specifier: ^4.6.0
+        version: 4.14.1(@lingui/react@4.14.1)(babel-plugin-macros@3.1.0)(typescript@5.3.2)
+      '@lingui/react':
+        specifier: ^4.6.0
+        version: 4.14.1(react@18.3.1)
       '@trivago/prettier-plugin-sort-imports':
         specifier: ^4.2.0
         version: 4.3.0(prettier@3.5.3)
@@ -1654,6 +1675,12 @@ importers:
       autoprefixer:
         specifier: ^10.4.20
         version: 10.4.20(postcss@8.4.49)
+      babel-plugin-macros:
+        specifier: ^3.1.0
+        version: 3.1.0
+      esbuild-plugin-babel:
+        specifier: ^0.2.3
+        version: 0.2.3(@babel/core@7.26.0)
       eslint:
         specifier: ^8.57.0
         version: 8.57.0
@@ -2039,8 +2066,8 @@ packages:
       typescript: 5.3.3
     dev: true
 
-  /@across-protocol/app-sdk@0.4.2(viem@2.37.8):
-    resolution: {integrity: sha512-YjB/0g4MflvOObEP7Gzln0kdrbToAegatR5DIqsu1P5o+9qE2G4NBSzUvfgLqq3mdMeHAdx1jNVHA8WdoTRtCg==}
+  /@across-protocol/app-sdk@0.4.4(viem@2.37.8):
+    resolution: {integrity: sha512-Yz+C1/jFJCQ3TRXRxCn+WXW1K0aLyrGi+S2p7Ot+MSO6X/rThRCbZpXdfPkSRLxdNBKXL5h3LAEgwwj1j2Pa7w==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       viem: ^2.31.2
@@ -14452,7 +14479,7 @@ packages:
     peerDependencies:
       cypress: ^12.0.0
     dependencies:
-      '@babel/runtime': 7.26.0
+      '@babel/runtime': 7.27.0
       '@testing-library/dom': 8.20.1
       cypress: 12.17.3
     dev: true
@@ -14519,7 +14546,7 @@ packages:
       react: ^18.0.0
       react-dom: ^18.0.0
     dependencies:
-      '@babel/runtime': 7.26.0
+      '@babel/runtime': 7.27.0
       '@testing-library/dom': 9.3.4
       '@types/react-dom': 18.3.1
       react: 18.3.1
@@ -30985,7 +31012,7 @@ packages:
       '@types/react':
         optional: true
     dependencies:
-      '@babel/runtime': 7.26.0
+      '@babel/runtime': 7.27.0
       '@types/react': 18.3.12
       focus-lock: 1.3.6
       prop-types: 15.8.1
@@ -31668,7 +31695,7 @@ packages:
   /redux@4.2.1:
     resolution: {integrity: sha512-LAUYz4lc+Do8/g7aeRa8JkyDErK6ekstQaqWQrNRW//MY1TvCEpMtpTWvlQ+FPbWCx+Xixu/6SHt5N0HR+SB4w==}
     dependencies:
-      '@babel/runtime': 7.26.0
+      '@babel/runtime': 7.27.0
 
   /reflect.getprototypeof@1.0.10:
     resolution: {integrity: sha512-00o4I+DVrefhv+nX0ulyi3biSHCPDe+yLv5o/p6d/UVlirijB8E16FtfwSAi4g3tcqrQ4lRAqQSoFEZJehYEcw==}
