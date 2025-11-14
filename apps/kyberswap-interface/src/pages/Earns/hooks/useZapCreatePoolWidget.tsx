@@ -1,5 +1,5 @@
 import { Token } from '@kyber/schema'
-import { SupportedLocale, WidgetMode, LiquidityWidget as ZapWidget } from '@kyberswap/liquidity-widgets'
+import { WidgetMode, LiquidityWidget as ZapWidget } from '@kyberswap/liquidity-widgets'
 import '@kyberswap/liquidity-widgets/dist/style.css'
 import { useCallback, useMemo, useState } from 'react'
 import { useLazyPoolsExplorerQuery } from 'services/zapEarn'
@@ -95,7 +95,7 @@ const useZapCreatePoolWidget = () => {
             }
           : undefined,
       source: 'kyberswap-earn',
-      locale: locale as SupportedLocale,
+      locale,
       onClose: handleClose,
       onConnectWallet: toggleWalletModal,
       onSwitchChain: () => changeNetwork(config.chainId),
