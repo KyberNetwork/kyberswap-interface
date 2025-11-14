@@ -39,7 +39,7 @@
     "ChromeAndroid >= 52"
   ],
   "dependencies": {
-    "@across-protocol/app-sdk": "^0.4.2",
+    "@across-protocol/app-sdk": "^0.4.4",
     "@bitcoinerlab/secp256k1": "^1.2.0",
     "@defuse-protocol/one-click-sdk-typescript": "^0.1.2",
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",

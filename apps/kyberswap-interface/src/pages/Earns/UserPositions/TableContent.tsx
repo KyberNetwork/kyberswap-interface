@@ -73,7 +73,7 @@ export default function TableContent({
   const { account } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
   const theme = useTheme()
-  const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
+  const upToCustomLarge = useMedia(`(max-width: ${1300}px)`)
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   const [positionThatClaimingFees, setPositionThatClaimingFees] = useState<ParsedPosition | null>(null)
@@ -416,7 +416,7 @@ export default function TableContent({
                   </PositionOverview>
 
                   {/* Actions for Tablet */}
-                  {upToLarge && !isUnfinalized && <PositionActionWrapper>{actions}</PositionActionWrapper>}
+                  {upToCustomLarge && !isUnfinalized && <PositionActionWrapper>{actions}</PositionActionWrapper>}
 
                   {/* Value info */}
                   <PositionValueWrapper>
@@ -511,7 +511,7 @@ export default function TableContent({
                   </PositionValueWrapper>
 
                   {/* Unclaimed fees info */}
-                  <PositionValueWrapper align={upToLarge ? 'flex-end' : ''}>
+                  <PositionValueWrapper align={upToCustomLarge ? 'flex-end' : ''}>
                     <PositionValueLabel>{t`Unclaimed Fee`}</PositionValueLabel>
 
                     {isUnfinalized ? (
@@ -541,7 +541,7 @@ export default function TableContent({
                   </PositionValueWrapper>
 
                   {/* Unclaimed rewards info */}
-                  <PositionValueWrapper align={!upToLarge ? 'center' : ''}>
+                  <PositionValueWrapper align={!upToCustomLarge ? 'center' : ''}>
                     <PositionValueLabel>{t`Unclaimed rewards`}</PositionValueLabel>
                     {isUnfinalized ? (
                       <PositionSkeleton width={80} height={19} text={t`Finalizing...`} />
@@ -583,7 +583,7 @@ export default function TableContent({
                     )}
                   </PositionValueWrapper>
 
-                  {!upToLarge && <div />}
+                  {!upToCustomLarge && <div />}
 
                   {/* Balance info */}
                   <PositionValueWrapper align={upToSmall ? 'flex-end' : ''}>
@@ -611,8 +611,8 @@ export default function TableContent({
                   </PositionValueWrapper>
 
                   {/* Price range info */}
-                  <PositionValueWrapper align={upToLarge ? 'flex-end' : ''}>
-                    {upToLarge ? (
+                  <PositionValueWrapper align={upToCustomLarge ? 'flex-end' : ''}>
+                    {upToCustomLarge ? (
                       isUnfinalized ? null : (
                         <PriceRange
                           minPrice={priceRange.min}
@@ -640,7 +640,7 @@ export default function TableContent({
                   </PositionValueWrapper>
 
                   {/* Actions info */}
-                  {!upToLarge && (
+                  {!upToCustomLarge && (
                     <PositionValueWrapper align="flex-end">
                       {isUnfinalized ? <PositionSkeleton width={80} height={19} text={t`Finalizing...`} /> : actions}
                     </PositionValueWrapper>

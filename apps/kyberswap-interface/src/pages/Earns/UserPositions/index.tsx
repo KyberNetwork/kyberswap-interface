@@ -48,7 +48,7 @@ const POSITIONS_TABLE_LIMIT = 10
 const UserPositions = () => {
   const theme = useTheme()
   const navigate = useNavigate()
-  const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
+  const upToCustomLarge = useMedia(`(max-width: ${1300}px)`)
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const { account } = useActiveWeb3React()
   const { filters, updateFilters } = useFilter()
@@ -382,7 +382,7 @@ const UserPositions = () => {
 
         <PositionTableWrapper>
           <ContentWrapper>
-            {!upToLarge && paginatedPositions && paginatedPositions.length > 0 && (
+            {!upToCustomLarge && paginatedPositions && paginatedPositions.length > 0 && (
               <PositionTableHeader>
                 <PositionTableHeaderItem>{t`Position`}</PositionTableHeaderItem>
 
@@ -437,7 +437,7 @@ const UserPositions = () => {
                   </Trans>
                 </PositionTableHeaderFlexItem>
 
-                {!upToLarge && <div />}
+                {!upToCustomLarge && <div />}
 
                 <PositionTableHeaderItem>{t`Balance`}</PositionTableHeaderItem>
 

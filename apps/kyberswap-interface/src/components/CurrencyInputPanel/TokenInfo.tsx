@@ -131,7 +131,7 @@ export default function TokenInfo({ token, isNativeToken = false }: { token: Tok
       </Flex>
       <Flex alignItems="center" sx={{ gap: '4px' }}>
         <Text>{t`Buy`}:</Text>
-        <Text color={priceInfo?.buyPrice ? theme.primary : theme.text}>
+        <Text color={priceInfo?.buyPrice ? theme.primary : theme.warning}>
           {priceInfo?.buyPrice
             ? formatDisplayNumber(priceInfo?.buyPrice, { significantDigits: 8, style: 'currency' })
             : t`N/A`}
@@ -139,7 +139,7 @@ export default function TokenInfo({ token, isNativeToken = false }: { token: Tok
       </Flex>
       <Flex alignItems="center" sx={{ gap: '4px' }}>
         <Text>{t`Sell`}:</Text>
-        <Text color={priceInfo?.sellPrice ? theme.blue : theme.text}>
+        <Text color={priceInfo?.sellPrice ? theme.blue : theme.warning}>
           {priceInfo?.sellPrice
             ? formatDisplayNumber(priceInfo?.sellPrice, { significantDigits: 8, style: 'currency' })
             : t`N/A`}
@@ -165,6 +165,8 @@ export default function TokenInfo({ token, isNativeToken = false }: { token: Tok
     </Flex>
   )
 
+  const isWarning = !!spreadCheck.warning || (priceInfo ? !priceInfo.buyPrice || !priceInfo.sellPrice : false)
+
   return (
     <Flex
       width="fit-content"
@@ -186,11 +188,7 @@ export default function TokenInfo({ token, isNativeToken = false }: { token: Tok
         width="fit-content"
         maxWidth={upToSmall ? '280px' : '400px'}
       >
-        <StyledInfo
-          color={spreadCheck.warning ? theme.warning : theme.subText}
-          size={18}
-          $warning={!!spreadCheck.warning}
-        />
+        <StyledInfo color={isWarning ? theme.warning : theme.subText} size={18} $warning={isWarning} />
       </Tooltip>
     </Flex>
   )
