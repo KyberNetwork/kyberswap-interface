@@ -51,6 +51,10 @@ export const NEAR_STABLE_COINS = [
   'nep141:usdt.tether-token.near',
 ]
 
+export const isNativeToken = (token: Currency): boolean => {
+  return 'isNative' in token && token.isNative
+}
+
 export const isWrappedToken = (token: Currency) => {
   // Check if it's an EVM token (has chainId property)
   if (!('chainId' in token) || !token.chainId) return false

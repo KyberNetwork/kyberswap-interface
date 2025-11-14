@@ -110,8 +110,13 @@ const MobileTableRow = ({
           </Flex>
         )}
         <Flex justifyContent="space-between" sx={{ gap: 1 }}>
-          <Text color={theme.subText}>{t`Earn Fees`}</Text>
-          <Text>{formatDisplayNumber(pool.earnFee, { style: 'currency', significantDigits: 6 })}</Text>
+          <Text color={theme.subText}>{isFarmingFiltered ? t`EG Sharing` : t`Earn Fees`}</Text>
+          <Text>
+            {formatDisplayNumber(isFarmingFiltered ? pool.egUsd : pool.earnFee, {
+              style: 'currency',
+              significantDigits: 6,
+            })}
+          </Text>
         </Flex>
         <Flex justifyContent="space-between" sx={{ gap: 1 }}>
           <Text color={theme.subText}>{t`TVL`}</Text>

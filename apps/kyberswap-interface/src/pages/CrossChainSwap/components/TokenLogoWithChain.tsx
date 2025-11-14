@@ -46,6 +46,7 @@ export const TokenLogoWithChain = ({
           position: 'absolute',
           top: 0,
           right: '-4px',
+          borderRadius: '50%',
           ...chainLogoStyle,
         }}
       />
