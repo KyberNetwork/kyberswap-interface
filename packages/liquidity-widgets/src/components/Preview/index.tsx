@@ -171,7 +171,6 @@ export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool,
 
     return (
       <StatusDialog
-        title={isCreateMode ? t`Creation Pool Completed` : undefined}
         type={
           txStatus === 'success'
             ? StatusDialogType.SUCCESS
