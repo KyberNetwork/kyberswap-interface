@@ -416,7 +416,8 @@ export default function TableContent({
                   </PositionOverview>
 
                   {/* Actions for Tablet */}
-                  {upToCustomLarge && !isUnfinalized && <PositionActionWrapper>{actions}</PositionActionWrapper>}
+                  {upToCustomLarge &&
+                    (!isUnfinalized ? <PositionActionWrapper>{actions}</PositionActionWrapper> : <div />)}
 
                   {/* Value info */}
                   <PositionValueWrapper>
