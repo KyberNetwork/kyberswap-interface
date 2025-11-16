@@ -17,7 +17,7 @@ export function useNftApprovalAll({
   userAddress: string;
   onSubmitTx: (txData: { from: string; to: string; value: string; data: string; gasLimit: string }) => Promise<string>;
 }) {
-  const [isChecking, setIsChecking] = useState(true);
+  const [isChecking, setIsChecking] = useState(false);
   const [isApproved, setIsApproved] = useState(false);
   const [approvePendingTx, setApprovePendingTx] = useState('');
 
