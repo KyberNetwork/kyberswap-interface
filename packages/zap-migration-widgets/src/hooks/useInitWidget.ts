@@ -22,6 +22,7 @@ export default function useInitWidget(widgetProps: ZapMigrationProps) {
     rpcUrl,
     referral,
     onClose,
+    onSubmitTx,
   } = widgetProps;
 
   const [hasReseted, setHasReseted] = useState(false);
@@ -83,6 +84,7 @@ export default function useInitWidget(widgetProps: ZapMigrationProps) {
       client,
       referral,
       onClose,
+      onSubmitTx,
     });
   }, [
     themeProps,
@@ -97,6 +99,7 @@ export default function useInitWidget(widgetProps: ZapMigrationProps) {
     client,
     referral,
     onClose,
+    onSubmitTx,
   ]);
 
   useEffect(() => {

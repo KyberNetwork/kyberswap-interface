@@ -20,6 +20,7 @@ interface WidgetProps {
   };
   zapStatus?: Record<string, TxStatus>;
   onClose: () => void;
+  onSubmitTx: (txData: { from: string; to: string; value: string; data: string; gasLimit: string }) => Promise<string>;
 }
 
 interface WidgetState extends WidgetProps {
@@ -45,6 +46,7 @@ const initState = {
   },
   widgetError: '',
   onClose: () => {},
+  onSubmitTx: async () => '',
 };
 
 const useWidgetRawStore = create<WidgetState>((set, _get) => ({
@@ -62,6 +64,7 @@ const useWidgetRawStore = create<WidgetState>((set, _get) => ({
     connectedAccount,
     zapStatus,
     onClose,
+    onSubmitTx,
   }: WidgetProps) => {
     const themeToApply =
       theme && typeof theme === 'object'
@@ -83,6 +86,7 @@ const useWidgetRawStore = create<WidgetState>((set, _get) => ({
       connectedAccount,
       zapStatus,
       onClose,
+      onSubmitTx,
     });
   },
   setWidgetError: (error: string) => set({ widgetError: error }),

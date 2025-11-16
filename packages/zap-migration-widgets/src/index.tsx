@@ -182,13 +182,7 @@ export const ZapMigration = (widgetProps: ZapMigrationProps) => {
             </div>
           </div>
 
-          <Action
-            onConnectWallet={onConnectWallet}
-            onSwitchChain={onSwitchChain}
-            onClose={onClose}
-            onBack={onBack}
-            onSubmitTx={onSubmitTx}
-          />
+          <Action onConnectWallet={onConnectWallet} onSwitchChain={onSwitchChain} onClose={onClose} onBack={onBack} />
         </div>
 
         {buildData && (
