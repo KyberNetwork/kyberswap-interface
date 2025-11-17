@@ -12,6 +12,47 @@ import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { isRaffleStarted } from 'pages/Campaign/constants'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 
+const RAFFLE_JOINED_SESSION_KEY = 'raffle_joined_weeks'
+
+type JoinedWeeksStore = Record<string, Record<number, boolean>>
+
+const readJoinedWeeksStore = (): JoinedWeeksStore => {
+  if (typeof window === 'undefined') return {}
+  try {
+    const raw = window.sessionStorage.getItem(RAFFLE_JOINED_SESSION_KEY)
+    return raw ? JSON.parse(raw) : {}
+  } catch (error) {
+    console.warn('Failed to read raffle session store', error)
+    return {}
+  }
+}
+
+const hasJoinedWeekInSession = (address: string, weekIndex: number) => {
+  if (weekIndex < 0) return false
+  const normalized = address.toLowerCase()
+  const store = readJoinedWeeksStore()
+  return !!store[normalized]?.[weekIndex]
+}
+
+const saveJoinedWeekInSession = (address: string, weekIndex: number) => {
+  if (typeof window === 'undefined' || weekIndex < 0) return
+  const normalized = address.toLowerCase()
+  const store = readJoinedWeeksStore()
+  const accountStore = store[normalized] || {}
+  const nextStore = {
+    ...store,
+    [normalized]: {
+      ...accountStore,
+      [weekIndex]: true,
+    },
+  }
+  try {
+    window.sessionStorage.setItem(RAFFLE_JOINED_SESSION_KEY, JSON.stringify(nextStore))
+  } catch (error) {
+    console.warn('Failed to save raffle session store', error)
+  }
+}
+
 type Props = {
   selectedWeek: number
 }
@@ -38,8 +79,12 @@ export const useRaffleCampaignJoin = ({ selectedWeek }: Props) => {
   )
 
   const isNotEligible = !!account && participant?.eligible === false
-  const isJoinedByWeek =
-    !!participant?.[`joined_week${selectedWeek + 1}_at` as keyof typeof participant] && selectedWeek >= 0
+  const participantJoined =
+    selectedWeek >= 0 && !!participant?.[`joined_week${selectedWeek + 1}_at` as keyof typeof participant]
+
+  const sessionJoined = !!account && hasJoinedWeekInSession(account, selectedWeek)
+
+  const isJoinedByWeek = participantJoined || sessionJoined
 
   const onJoin = useCallback(async () => {
     if (!account) {
@@ -69,7 +114,10 @@ export const useRaffleCampaignJoin = ({ selectedWeek }: Props) => {
       }).prepareMessage()
 
       const signature = await library.getSigner().signMessage(message)
-      await joinCampaign({ address: account, message, signature, week: `week_${selectedWeek + 1}` }).unwrap()
+      await joinCampaign({ address: account, message, signature, week: `week_1` }).unwrap()
+      saveJoinedWeekInSession(account, 0)
+      await joinCampaign({ address: account, message, signature, week: `week_2` }).unwrap()
+      saveJoinedWeekInSession(account, 1)
 
       notify({
         title: t`Joined Raffle Campaign`,
@@ -86,17 +134,7 @@ export const useRaffleCampaignJoin = ({ selectedWeek }: Props) => {
       refetchParticipant()
       refetchCampaignStats()
     }
-  }, [
-    account,
-    chainId,
-    joinCampaign,
-    library,
-    selectedWeek,
-    notify,
-    refetchParticipant,
-    refetchCampaignStats,
-    toggleWalletModal,
-  ])
+  }, [account, chainId, joinCampaign, library, notify, refetchParticipant, refetchCampaignStats, toggleWalletModal])
 
   return {
     onJoin,
