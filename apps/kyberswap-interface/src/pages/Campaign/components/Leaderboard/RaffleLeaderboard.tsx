@@ -1,6 +1,5 @@
 import { Trans, t } from '@lingui/macro'
-import { ReactNode } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { ReactNode, useEffect, useState } from 'react'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 import { useGetRaffleCampaignTransactionsQuery } from 'services/campaignRaffle'
@@ -37,11 +36,13 @@ type Props = {
 export default function RaffleLeaderboard({ type, selectedWeek }: Props) {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
-  const [searchParams, setSearchParams] = useSearchParams()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
-  const pageFromQuery = Number(searchParams.get('page') || '1')
-  const currentPage = Number.isFinite(pageFromQuery) && pageFromQuery > 0 ? pageFromQuery : 1
+  const [currentPage, setCurrentPage] = useState(1)
+
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [selectedWeek, type, account])
 
   const { data, isLoading } = useGetRaffleCampaignTransactionsQuery(
     {
@@ -61,9 +62,7 @@ export default function RaffleLeaderboard({ type, selectedWeek }: Props) {
   const totalCount = pagination ? pagination.totalOfPages * pagination.pageSize : 0
 
   const handlePageChange = (page: number) => {
-    const params = new URLSearchParams(searchParams)
-    params.set('page', page.toString())
-    setSearchParams(params)
+    setCurrentPage(Math.max(1, page))
   }
 
   const renderLabel = (label: ReactNode) =>
