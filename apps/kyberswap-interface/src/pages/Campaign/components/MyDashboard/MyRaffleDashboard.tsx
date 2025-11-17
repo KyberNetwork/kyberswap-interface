@@ -48,12 +48,12 @@ export default function MyRaffleDashboard() {
         {!!participant?.reward_all && (
           <Box flex={1} minWidth={280}>
             <Text color={theme.subText}>
-              <Trans>You&apos;ve won 🎁 Week {rewaredWeek} - Raffle Campaign.</Trans>
+              <Trans>
+                You&apos;ve eligible for Week {rewaredWeek} &quot;Swap For An Opportunity&quot; Campaign Rewards 🎁
+              </Trans>
             </Text>
             <Text fontSize={14} color={theme.subText} marginTop="8px">
-              <Trans>
-                Your rewards will be distributed directly to your wallet within 7 business days after the announcement.
-              </Trans>
+              <Trans>Rewards will be sent directly to your wallet by Dec 12, 2025 on Base.</Trans>
             </Text>
           </Box>
         )}

@@ -29,11 +29,12 @@ const WeekSelect = ({ type, selectedWeek, setSelectedWeek }: Props) => {
     skip: type !== CampaignType.Raffle,
   })
   const weeks = useMemo(() => {
+    if (configWeeks.length > 0) return configWeeks
     if (type === CampaignType.Raffle && raffleCampaignStats) {
       return raffleCampaignStats.weeks || []
     }
     return configWeeks
-  }, [type, raffleCampaignStats, configWeeks])
+  }, [type, configWeeks, raffleCampaignStats])
 
   useEffect(() => {
     const now = dayjs().unix()

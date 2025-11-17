@@ -10,7 +10,8 @@ import loBanner from './assets/limit_order.png'
 import mayTradingBanner from './assets/may_trading.png'
 import nearIntentBanner from './assets/near_intents.png'
 import nearIntentBannerMobile from './assets/near_intents_mobile.png'
-import raffleCampaignBanner from './assets/raffle_campaign.png'
+import raffleBanner from './assets/raffle_banner.png'
+import raffleBannerMobile from './assets/raffle_banner_mobile.png'
 import referralBanner from './assets/referral.png'
 import tradingBanner from './assets/trading.png'
 
@@ -225,6 +226,39 @@ const nearIntentWeeks: CampaignWeek[] = [
   },
 ].reverse()
 
+const raffleWeeks: CampaignWeek[] = [
+  {
+    value: 0,
+    label: (
+      <Text>
+        <Trans>
+          <Text as="span" color="#ffffff">
+            Week 1
+          </Text>{' '}
+          Nov 19 - Nov 25
+        </Trans>
+      </Text>
+    ),
+    start: 1763510400,
+    end: 1764115140,
+  },
+  {
+    value: 1,
+    label: (
+      <Text>
+        <Trans>
+          <Text as="span" color="#ffffff">
+            Week 2
+          </Text>{' '}
+          Nov 26 - Dec 02
+        </Trans>
+      </Text>
+    ),
+    start: 1764115200,
+    end: 1764719940,
+  },
+]
+
 const stipInfo = {
   year: 2024,
   baseWeek: 27,
@@ -287,8 +321,8 @@ export const campaignConfig: Record<CampaignType, CampaignConfig> = {
     ctaLink: '/swap',
     ctaText: <Trans>Join Now</Trans>,
     type: CampaignType.Raffle,
-    weeks: [],
-    banner: raffleCampaignBanner,
+    weeks: raffleWeeks,
+    banner: isMobile ? raffleBannerMobile : raffleBanner,
     title: <Trans>Raffle Campaign</Trans>,
   },
   [CampaignType.Aggregator]: {

@@ -135,11 +135,8 @@ const raffleCampaignApi = createApi({
           user_address: address,
         },
       }),
-      transformResponse: (response: Response<Pagination<RaffleCampaignTransaction>>, meta, args) => {
+      transformResponse: (response: Response<Pagination<RaffleCampaignTransaction>>) => {
         if (response.success) {
-          if (args.address) {
-            Object.assign(response.data.pagination, { totalOfPages: 1, hasMore: false })
-          }
           return response.data
         }
         return {

@@ -46,7 +46,7 @@ export default function RaffleLeaderboard({ type, selectedWeek }: Props) {
     {
       page: currentPage,
       limit: PAGE_SIZE,
-      week: selectedWeek + 1,
+      week: Math.max(selectedWeek + 1, 1),
       address: type === 'owner' ? account : undefined,
     },
     {

@@ -45,23 +45,23 @@ export const RaffleRewardModal = ({ isOpen, onDismiss, onConfirm, participant }:
   }, [participant])
 
   return (
-    <Modal isOpen={isOpen} onDismiss={onDismiss} maxWidth={460} minHeight={false}>
+    <Modal isOpen={isOpen} onDismiss={onDismiss} maxWidth={480} minHeight={false}>
       <Wrapper>
         <Text fontSize={18} fontWeight={500} textAlign="center">
           <Trans>🎉 Congratulations!</Trans>
         </Text>
 
         <Flex flexDirection="column" sx={{ gap: '8px', alignItems: 'center' }}>
-          <Text color={theme.subText}>
-            <Trans>You&apos;ve won 🎁 Week {rewaredWeek} - Raffle Campaign.</Trans>
+          <Text color={theme.subText} textAlign="center">
+            <Trans>
+              You&apos;ve eligible for Week {rewaredWeek} &quot;Swap For An Opportunity&quot; Campaign Rewards 🎁
+            </Trans>
           </Text>
           <Text>
             <Trans>🏆 Prize: {formatDisplayNumber(participant?.reward_all, { significantDigits: 6 })} KNC</Trans>
           </Text>
           <Text fontSize={14} color={theme.subText} textAlign="center">
-            <Trans>
-              Your rewards will be distributed directly to your wallet within 7 business days after the announcement.
-            </Trans>
+            <Trans>Rewards will be sent directly to your wallet by Dec 12, 2025 on Base.</Trans>
           </Text>
         </Flex>
 

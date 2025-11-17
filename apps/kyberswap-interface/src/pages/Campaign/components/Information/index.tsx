@@ -210,7 +210,6 @@ export default function Information({ type, selectedWeek }: { type: CampaignType
         sx={{
           maxHeight: isShowFaq ? '5000px' : 0,
           opacity: isShowFaq ? 1 : 0,
-          marginTop: isShowReward ? '1rem' : 0,
           transition: 'all 0.3s ease',
           overflow: 'hidden',
         }}

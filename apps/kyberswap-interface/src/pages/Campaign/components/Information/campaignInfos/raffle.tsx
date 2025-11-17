@@ -99,6 +99,17 @@ const raffleRewardSteps: { step: ReactNode; example: ReactNode }[] = [
   },
 ]
 
+const raffleTimeline = (
+  <>
+    <li>
+      <Trans>Week 1: 00:00 19/11/2025 - 23:59 25/11/2025 UTC, 5,000 KNC (~$1,500)</Trans>
+    </li>
+    <li>
+      <Trans>Week 2: 00:00 26/11/2025 - 23:59 02/12/2025 UTC, 5,000 KNC (~$1,500)</Trans>
+    </li>
+  </>
+)
+
 const RaffleTimeline = () => {
   const { data: campaignStats } = useGetRaffleCampaignStatsQuery()
   return (
@@ -140,7 +151,7 @@ const raffleRewards = (
         <Text as="span" fontWeight="500">
           SMALLEST absolute numerical difference
         </Text>{' '}
-        from the last 4 hex digits of the Bitcoin Block Hash mined closest after 23:59 UTC on 10/11 (Week 1) and 17/11
+        from the last 4 hex digits of the Bitcoin Block Hash mined closest after 23:59 UTC on 25/11 (Week 1) and 02/12
         (Week 2), will receive the promotional reward.
       </Trans>
       <Text as="span" display="block" fontStyle="italic">
@@ -214,24 +225,18 @@ const raffleRewards = (
       <Trans>The full campaign results will be published on KyberSwap by:</Trans>
       <ul style={{ margin: 0 }}>
         <li>
-          <Trans>Nov 19, 2025 for Week 1 results.</Trans>
+          <Trans>Nov 28, 2025 for Week 1 results.</Trans>
         </li>
         <li>
-          <Trans>Nov 27, 2025 for Week 2 results.</Trans>
+          <Trans>Dec 05, 2025 for Week 2 results.</Trans>
         </li>
       </ul>
     </li>
     <li>
-      <Trans>Users may report any reward-related issues by Nov 22, 2025 (Week 1) and Nov 30, 2025 (Week 2).</Trans>
+      <Trans>Rewards will be airdropped to qualifying wallet in KNC token on Base by Dec 12, 2025.</Trans>
     </li>
     <li>
-      <Trans>Rewards will be airdropped to qualifying wallet in KNC token on Base by Dec 07, 2025.</Trans>
-    </li>
-    <li>
-      <Trans>
-        Each wallet may have multiple reward-qualifying transaction hashes. If multiple hashes qualify, the reward pool
-        will be shared equally among all reward-qualifying transaction hashes.
-      </Trans>
+      <Trans>Each wallet may have multiple reward-qualifying transaction hashes.</Trans>
     </li>
   </>
 )
@@ -356,7 +361,7 @@ export const raffleInfo: CampaignContent = {
       </li>
     </>
   ),
-  timeline: <RaffleTimeline />,
+  timeline: raffleTimeline || <RaffleTimeline />,
   getRewards: (_week: number) => raffleRewards,
   faq: raffleFaq,
   getTerms: (_week: number) => renderRaffleTerms(),

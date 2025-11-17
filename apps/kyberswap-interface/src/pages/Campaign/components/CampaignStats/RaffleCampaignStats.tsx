@@ -1,10 +1,11 @@
 import { Trans } from '@lingui/macro'
+import { useMemo } from 'react'
 import { useMedia } from 'react-use'
 import { Box, Text } from 'rebass'
 
 import InfoHelper from 'components/InfoHelper'
 import useTheme from 'hooks/useTheme'
-import { CampaignWeek } from 'pages/Campaign/constants'
+import { CampaignType, CampaignWeek, campaignConfig } from 'pages/Campaign/constants'
 import { useRaffleCampaignJoin } from 'pages/Campaign/hooks/useRaffleCampaignJoin'
 import { StatCard } from 'pages/Campaign/styles'
 import { MEDIA_WIDTHS } from 'theme'
@@ -23,12 +24,16 @@ const getWeekPosition = (weeks: CampaignWeek[], selectedWeek: number) => {
 
 export default function RaffleCampaignStats({ selectedWeek }: { selectedWeek: number }) {
   const theme = useTheme()
-
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
+  const { weeks: configWeeks } = campaignConfig[CampaignType.Raffle]
   const { participant, campaignStats } = useRaffleCampaignJoin({ selectedWeek })
 
-  const weeks = campaignStats?.weeks ?? []
+  const weeks = useMemo(() => {
+    if (configWeeks.length > 0) return configWeeks
+    return campaignStats?.weeks ?? []
+  }, [configWeeks, campaignStats])
+
   const weekPosition = getWeekPosition(weeks, selectedWeek)
 
   return (
