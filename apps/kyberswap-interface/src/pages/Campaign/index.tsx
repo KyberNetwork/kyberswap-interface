@@ -17,7 +17,7 @@ import Leaderboard from './components/Leaderboard'
 import RaffleLeaderboard from './components/Leaderboard/RaffleLeaderboard'
 import RaffleRewardModal from './components/RaffleRewardModal'
 import WeekSelect from './components/WeekSelect'
-import { CampaignType, campaignConfig } from './constants'
+import { CampaignType, campaignConfig, isRaffleStarted } from './constants'
 import { useNearIntentSelectedWallet } from './hooks/useNearIntentSelectedWallet'
 import { useRaffleCampaignJoin } from './hooks/useRaffleCampaignJoin'
 import { StatCard, Tab, Tabs, Wrapper } from './styles'
@@ -111,7 +111,7 @@ export default function CampaignPage() {
             altDisabledStyle
             width={upToExtraSmall ? '100%' : '160px'}
             height="40px"
-            disabled={isRaffleNotEligible || isRaffleJoinedByWeek}
+            disabled={isRaffleNotEligible || isRaffleJoinedByWeek || (isRaffleCampaign && !isRaffleStarted)}
             onClick={() => {
               if (isRaffleCampaign) {
                 setIsJoinModalOpen(true)

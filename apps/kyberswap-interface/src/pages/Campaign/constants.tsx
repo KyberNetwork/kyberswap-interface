@@ -259,6 +259,8 @@ const raffleWeeks: CampaignWeek[] = [
   },
 ]
 
+export const isRaffleStarted = new Date().getTime() / 1000 > raffleWeeks[0].start
+
 const stipInfo = {
   year: 2024,
   baseWeek: 27,

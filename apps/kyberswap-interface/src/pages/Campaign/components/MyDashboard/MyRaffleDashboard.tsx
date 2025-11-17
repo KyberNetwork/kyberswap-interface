@@ -7,7 +7,7 @@ import { useGetRaffleCampaignParticipantQuery, useGetRaffleCampaignStatsQuery } 
 import Divider from 'components/Divider'
 import { useWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import { CampaignType, campaignConfig } from 'pages/Campaign/constants'
+import { CampaignType, campaignConfig, isRaffleStarted } from 'pages/Campaign/constants'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -16,12 +16,18 @@ export default function MyRaffleDashboard() {
   const { account } = useWeb3React()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
-  const { reward } = campaignConfig[CampaignType.Raffle]
+  const { reward, weeks: configWeeks } = campaignConfig[CampaignType.Raffle]
 
-  const { data: campaignStats } = useGetRaffleCampaignStatsQuery()
-  const { data: participant } = useGetRaffleCampaignParticipantQuery({ address: account || '' }, { skip: !account })
+  const { data: campaignStats } = useGetRaffleCampaignStatsQuery(undefined, { skip: !isRaffleStarted })
+  const { data: participant } = useGetRaffleCampaignParticipantQuery(
+    { address: account || '' },
+    { skip: !isRaffleStarted || !account },
+  )
 
-  const weeks = campaignStats?.weeks ?? []
+  const weeks = useMemo(() => {
+    if (configWeeks.length > 0) return configWeeks
+    return campaignStats?.weeks ?? []
+  }, [configWeeks, campaignStats])
 
   const rewaredWeek = useMemo(() => {
     if (participant?.reward_week_1 && participant.reward_week_2) return '1 & 2'
@@ -133,7 +139,7 @@ const WeekRewardLine = ({ title, txCount, reward }: { title: ReactNode; txCount?
       <Flex justifyContent="space-between">
         <Text flex={1}>REWARDS</Text>
         <Text color="white" fontSize={16}>
-          {formatDisplayNumber(reward, { significantDigits: 6 })} KNC
+          {formatDisplayNumber(reward, { significantDigits: 6 })} {!!reward && 'KNC'}
         </Text>
       </Flex>
     </Flex>
@@ -144,7 +150,7 @@ const WeekRewardLine = ({ title, txCount, reward }: { title: ReactNode; txCount?
         {formatDisplayNumber(txCount, { significantDigits: 6 })}
       </Text>
       <Text flex={1} color="white" textAlign="right">
-        {formatDisplayNumber(reward, { significantDigits: 6 })} KNC
+        {formatDisplayNumber(reward, { significantDigits: 6 })} {!!reward && 'KNC'}
       </Text>
     </Flex>
   )

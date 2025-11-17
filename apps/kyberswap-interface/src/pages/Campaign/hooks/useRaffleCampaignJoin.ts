@@ -11,6 +11,8 @@ import { NotificationType } from 'components/Announcement/type'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 
+import { isRaffleStarted } from '../constants'
+
 type Props = {
   selectedWeek: number
 }
@@ -24,13 +26,14 @@ export const useRaffleCampaignJoin = ({ selectedWeek }: Props) => {
   const [joinCampaign] = useJoinRaffleCampaignMutation()
 
   const { data: campaignStats, refetch: refetchCampaignStats } = useGetRaffleCampaignStatsQuery(undefined, {
+    skip: !isRaffleStarted,
     pollingInterval: 10_000,
   })
 
   const { data: participant, refetch: refetchParticipant } = useGetRaffleCampaignParticipantQuery(
     { address: account ?? '' },
     {
-      skip: !account,
+      skip: !isRaffleStarted || !account,
       pollingInterval: 10_000,
     },
   )

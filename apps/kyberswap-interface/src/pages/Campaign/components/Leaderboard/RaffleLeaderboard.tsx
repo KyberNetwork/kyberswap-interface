@@ -12,6 +12,7 @@ import Pagination from 'components/Pagination'
 import { NETWORKS_INFO, isSupportedChainId } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
+import { isRaffleStarted } from 'pages/Campaign/constants'
 import { MEDIA_WIDTHS } from 'theme'
 import { shortenHash } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -50,7 +51,7 @@ export default function RaffleLeaderboard({ type, selectedWeek }: Props) {
       address: type === 'owner' ? account : undefined,
     },
     {
-      skip: type === 'owner' ? !account : false,
+      skip: !isRaffleStarted || (type === 'owner' ? !account : false),
       pollingInterval: 10_000,
     },
   )

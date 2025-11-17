@@ -9,7 +9,7 @@ import Select, { SelectOption } from 'components/Select'
 import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
 
-import { CampaignType, campaignConfig } from '../constants'
+import { CampaignType, campaignConfig, isRaffleStarted } from '../constants'
 import { getCurrentWeek } from '../utils'
 
 type Props = {
@@ -26,7 +26,7 @@ const WeekSelect = ({ type, selectedWeek, setSelectedWeek }: Props) => {
   const { currentWeek, currentYear } = getCurrentWeek()
 
   const { data: raffleCampaignStats } = useGetRaffleCampaignStatsQuery(undefined, {
-    skip: type !== CampaignType.Raffle,
+    skip: type !== CampaignType.Raffle || !isRaffleStarted,
   })
   const weeks = useMemo(() => {
     if (configWeeks.length > 0) return configWeeks
