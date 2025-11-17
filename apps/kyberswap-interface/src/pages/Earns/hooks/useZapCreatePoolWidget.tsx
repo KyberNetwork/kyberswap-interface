@@ -1,4 +1,4 @@
-import { Token } from '@kyber/schema'
+import { POOL_CATEGORY, Token } from '@kyber/schema'
 import { WidgetMode, LiquidityWidget as ZapWidget } from '@kyberswap/liquidity-widgets'
 import '@kyberswap/liquidity-widgets/dist/style.css'
 import { useCallback, useMemo, useState } from 'react'
@@ -19,6 +19,7 @@ type CreateConfig = {
   protocol: Exchange
   token0: Token
   token1: Token
+  poolCategory: POOL_CATEGORY
   fee: number
 }
 
@@ -91,6 +92,7 @@ const useZapCreatePoolWidget = () => {
           ? {
               token0: config.token0,
               token1: config.token1,
+              poolCategory: config.poolCategory,
               fee: config.fee,
             }
           : undefined,
