@@ -72,6 +72,8 @@ const CATEGORY_FEE_PRESETS: Record<POOL_CATEGORY, FeePreset> = {
   [POOL_CATEGORY.HIGH_VOLATILITY_PAIR]: { defaultFee: 1, options: [0.3, 0.5, 1, 3] },
 }
 
+const availableChains: number[] = [ChainId.Ethereum, ChainId.Bsc, ChainId.Base]
+
 export type CreatePoolModalConfig = {
   chainId: number
   protocol: Exchange
@@ -82,11 +84,12 @@ export type CreatePoolModalConfig = {
 
 interface Props {
   isOpen: boolean
+  filterChainId?: number
   onDismiss: () => void
   onSubmit: (config: CreatePoolModalConfig) => void | Promise<void>
 }
 
-const CreatePositionModal = ({ isOpen, onDismiss, onSubmit }: Props) => {
+const CreatePositionModal = ({ isOpen, filterChainId, onDismiss, onSubmit }: Props) => {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
@@ -94,7 +97,7 @@ const CreatePositionModal = ({ isOpen, onDismiss, onSubmit }: Props) => {
   const { supportedChains } = useChainsConfig()
   const { data: supportedProtocols } = useSupportedProtocolsQuery()
 
-  const [selectedChainId, setSelectedChainId] = useState<ChainId>(ChainId.Bsc)
+  const [selectedChainId, setSelectedChainId] = useState<ChainId>(availableChains[0])
   const [selectedProtocol, setSelectedProtocol] = useState<Exchange>(Exchange.DEX_UNISWAP_V4_FAIRFLOW)
   const [token0, setToken0] = useState<Token | null>(null)
   const [token1, setToken1] = useState<Token | null>(null)
@@ -130,12 +133,12 @@ const CreatePositionModal = ({ isOpen, onDismiss, onSubmit }: Props) => {
 
   useEffect(() => {
     if (!isOpen) return
-    setSelectedChainId(ChainId.Bsc)
+    setSelectedChainId(availableChains.includes(filterChainId) ? filterChainId : ChainId.Bsc)
     setSelectedProtocol(Exchange.DEX_UNISWAP_V4_FAIRFLOW)
     setToken0(null)
     setToken1(null)
     setFee(null)
-  }, [isOpen])
+  }, [isOpen, filterChainId])
 
   useEffect(() => {
     setToken0(null)
