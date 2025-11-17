@@ -25,7 +25,7 @@ export type RaffleCampaignStats = {
   'eligible.week_2': string
   'participant.week_1': string
   'participant.week_2': string
-  weeks: CampaignWeek[]
+  weeks: (CampaignWeek & { reward: number })[]
   timelines: string
 }
 
@@ -89,6 +89,7 @@ const raffleCampaignApi = createApi({
               ),
               start: startUnix,
               end: endUnix,
+              reward: week.reward,
             }
           }),
         }

@@ -1,10 +1,13 @@
 import { Trans } from '@lingui/macro'
+import dayjs from 'dayjs'
 import { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { Text } from 'rebass'
+import { useGetRaffleCampaignStatsQuery } from 'services/campaignRaffle'
 import styled from 'styled-components'
 
 import { ExternalLink } from 'theme'
+import { formatDisplayNumber } from 'utils/numbers'
 
 import { StyledTable, TableWrapper, Td, Th, Tr } from './styles'
 import { CampaignContent, FaqItem } from './types'
@@ -96,16 +99,26 @@ const raffleRewardSteps: { step: ReactNode; example: ReactNode }[] = [
   },
 ]
 
-const raffleTimeline = (
-  <>
-    <li>
-      <Trans>Week 1: 00:00 07/11/2025 - 23:59 13/11/2025 UTC, 5,000 KNC (~$1,500)</Trans>
-    </li>
-    <li>
-      <Trans>Week 2: 00:00 14/11/2025 - 23:59 20/11/2025 UTC, 5,000 KNC (~$1,500)</Trans>
-    </li>
-  </>
-)
+const RaffleTimeline = () => {
+  const { data: campaignStats } = useGetRaffleCampaignStatsQuery()
+  return (
+    <>
+      {campaignStats?.weeks.map((week, index) => {
+        const startTime = dayjs.unix(week.start).utc().format('HH:mm DD/MM/YYYY')
+        const endTime = dayjs.unix(week.end).utc().format('HH:mm DD/MM/YYYY')
+        const reward = week.reward * 1
+        return (
+          <li key={index}>
+            <Trans>
+              Week {index + 1}: {startTime} - {endTime} UTC, {formatDisplayNumber(reward, { significantDigits: 6 })} KNC
+              {`(~${formatDisplayNumber(reward * 0.3, { significantDigits: 6, style: 'currency' })})`}
+            </Trans>
+          </li>
+        )
+      })}
+    </>
+  )
+}
 
 const raffleRewards = (
   <>
@@ -343,7 +356,7 @@ export const raffleInfo: CampaignContent = {
       </li>
     </>
   ),
-  timeline: raffleTimeline,
+  timeline: <RaffleTimeline />,
   getRewards: (_week: number) => raffleRewards,
   faq: raffleFaq,
   getTerms: (_week: number) => renderRaffleTerms(),
