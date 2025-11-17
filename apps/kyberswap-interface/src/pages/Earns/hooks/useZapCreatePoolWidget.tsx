@@ -1,8 +1,8 @@
-import { POOL_CATEGORY, Token } from '@kyber/schema'
+import { API_URLS, CHAIN_ID_TO_CHAIN, ChainId, POOL_CATEGORY, Token } from '@kyber/schema'
 import { WidgetMode, LiquidityWidget as ZapWidget } from '@kyberswap/liquidity-widgets'
 import '@kyberswap/liquidity-widgets/dist/style.css'
+import axios, { AxiosError } from 'axios'
 import { useCallback, useMemo, useState } from 'react'
-import { useLazyPoolsExplorerQuery } from 'services/zapEarn'
 
 import Modal from 'components/Modal'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
@@ -35,7 +35,6 @@ const useZapCreatePoolWidget = () => {
   const { changeNetwork } = useChangeNetwork()
   const { library } = useWeb3React()
 
-  const [fetchPoolsExplorer] = useLazyPoolsExplorerQuery()
   const [config, setConfig] = useState<WidgetConfig | null>(null)
 
   const { rpc: defaultRpc } = useKyberSwapConfig(config?.chainId)
@@ -46,30 +45,28 @@ const useZapCreatePoolWidget = () => {
 
   useAccountChanged(handleClose)
 
-  const fetchExistingPoolAddress = useCallback(
-    async (input: CreateConfig) => {
-      const [targetToken0, targetToken1] = [input.token0, input.token1].map(token => token.address.toLowerCase()).sort()
-
-      for (const token of [input.token0, input.token1]) {
-        const response = await fetchPoolsExplorer({
-          chainId: input.chainId,
-          protocol: input.protocol,
-          interval: '24h',
-          page: 1,
-          limit: 10,
-          q: token.address,
-        }).unwrap()
-
-        const matchedPool = (response?.data?.pools ?? []).find(pool => {
-          const [poolToken0, poolToken1] = pool.tokens.map(token => token.address.toLowerCase()).sort()
-          return poolToken0 === targetToken0 && poolToken1 === targetToken1 && pool.feeTier === input.fee
-        })
-        return matchedPool?.address
-      }
-      return undefined
-    },
-    [fetchPoolsExplorer],
-  )
+  const fetchExistingPoolAddress = useCallback(async (input: CreateConfig) => {
+    const configFee = input.fee * 10_000
+    const tickSpacing = Math.max(Math.round((2 * configFee) / 100), 1)
+    return axios
+      .get(`${API_URLS.ZAP_API}/${CHAIN_ID_TO_CHAIN[input.chainId as ChainId]}/api/v1/create/route`, {
+        params: {
+          dex: 68,
+          'pool.tokens': `${input.token0.address},${input.token1.address}`,
+          'pool.uniswap_v4_config.fee': configFee,
+          'pool.uniswap_v4_config.tick_spacing': tickSpacing,
+          'zap_in.position.tick_lower': tickSpacing * 1,
+          'zap_in.position.tick_upper': tickSpacing * 10,
+          'zap_in.tokens_in': input.token0.address,
+          'zap_in.amounts_in': 10 ** (input.token0.decimals - 1),
+        },
+      })
+      .then(() => undefined)
+      .catch((error: AxiosError<{ message: string }>) => {
+        const matches = error.response?.data.message.match(/pool already exists: (0x[a-fA-F0-9]+)/)
+        return matches?.[1]
+      })
+  }, [])
 
   const widgetProps = useMemo(() => {
     if (!config) return null
