@@ -38,6 +38,7 @@ export default function RaffleLeaderboard({ type, selectedWeek }: Props) {
   const { account } = useActiveWeb3React()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
+  const isOwner = type === 'owner'
   const [currentPage, setCurrentPage] = useState(1)
 
   useEffect(() => {
@@ -49,10 +50,10 @@ export default function RaffleLeaderboard({ type, selectedWeek }: Props) {
       page: currentPage,
       limit: PAGE_SIZE,
       week: Math.max(selectedWeek + 1, 1),
-      address: type === 'owner' ? account : undefined,
+      address: isOwner ? account : undefined,
     },
     {
-      skip: !isRaffleStarted || (type === 'owner' ? !account : false),
+      skip: !isRaffleStarted || (isOwner ? !account : false),
       pollingInterval: 10_000,
     },
   )
@@ -77,9 +78,15 @@ export default function RaffleLeaderboard({ type, selectedWeek }: Props) {
       {!upToSmall && (
         <>
           <Flex padding="1rem 1.25rem" fontSize={12} color={theme.subText} fontWeight="500" sx={{ gap: '1.25rem' }}>
-            <Text width={upToSmall ? '100%' : '160px'}>
-              <Trans>NETWORK</Trans>
-            </Text>
+            {isOwner ? (
+              <Text width={upToSmall ? '100%' : '160px'}>
+                <Trans>NETWORK</Trans>
+              </Text>
+            ) : (
+              <Text width={upToSmall ? '100%' : '160px'}>
+                <Trans>WALLET</Trans>
+              </Text>
+            )}
             <Text flex={1}>
               <Trans>TX HASH</Trans>
             </Text>
@@ -112,10 +119,17 @@ export default function RaffleLeaderboard({ type, selectedWeek }: Props) {
                 gridTemplateColumns: upToSmall ? 'repeat(2, minmax(0, 1fr))' : 'none',
               }}
             >
-              <Flex width={upToSmall ? '100%' : '160px'} flexDirection="column">
-                {renderLabel(<Trans>NETWORK</Trans>)}
-                <Text>{networkName}</Text>
-              </Flex>
+              {isOwner ? (
+                <Flex width={upToSmall ? '100%' : '160px'} flexDirection="column">
+                  {renderLabel(<Trans>NETWORK</Trans>)}
+                  <Text>{networkName}</Text>
+                </Flex>
+              ) : (
+                <Flex width={upToSmall ? '100%' : '160px'} flexDirection="column">
+                  {renderLabel(<Trans>WALLET</Trans>)}
+                  <Text>{shortenHash(tx.user_address, 4)}</Text>
+                </Flex>
+              )}
               <Flex flex={1} flexDirection="column">
                 {renderLabel(<Trans>TX HASH</Trans>)}
                 <Text>{shortenHash(tx.tx, 4)}</Text>
