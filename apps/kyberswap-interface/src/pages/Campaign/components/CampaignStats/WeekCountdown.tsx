@@ -38,17 +38,16 @@ export const WeekCountdown = ({ weekOptions, selectedWeek }: Props) => {
   const isEnd = now >= week.end
   const duration = isNotStart ? week.start - now : week.end - now
 
-  const [counter, setCounter] = useState(duration)
+  const [_, setCounter] = useState(0)
 
   useEffect(() => {
-    let timer: NodeJS.Timeout | undefined
-    if (counter > 0) {
-      timer = setTimeout(() => setCounter(prev => prev - 1), 1000)
-    }
+    const timer = setInterval(() => {
+      setCounter(c => c + 1)
+    }, 1000)
     return () => {
-      if (timer) clearTimeout(timer)
+      if (timer) clearInterval(timer)
     }
-  }, [counter])
+  }, [])
 
   const statusText = isNotStart ? t`starting in` : isEnd ? t`ended at` : t`ending in`
   const startEndIn = t`Week ${weekIndex} ${statusText}`
