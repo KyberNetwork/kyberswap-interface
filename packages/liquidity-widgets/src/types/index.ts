@@ -1,4 +1,4 @@
-import { ChainId, PoolType, Theme, Token, ZapRouteDetail } from '@kyber/schema';
+import { ChainId, POOL_CATEGORY, PoolType, Theme, Token, ZapRouteDetail } from '@kyber/schema';
 
 import { SupportedLocale } from '@/i18n';
 
@@ -17,6 +17,7 @@ export enum WidgetMode {
 export interface CreatePoolConfig {
   token0: Token;
   token1: Token;
+  poolCategory: POOL_CATEGORY;
   fee: number;
 }
 

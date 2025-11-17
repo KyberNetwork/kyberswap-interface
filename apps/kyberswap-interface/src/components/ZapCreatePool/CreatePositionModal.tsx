@@ -79,6 +79,7 @@ export type CreatePoolModalConfig = {
   protocol: Exchange
   token0: Token
   token1: Token
+  poolCategory: POOL_CATEGORY
   fee: number
 }
 
@@ -157,6 +158,7 @@ const CreatePositionModal = ({ isOpen, filterChainId, onDismiss, onSubmit }: Pro
         protocol: selectedProtocol,
         token0,
         token1,
+        poolCategory,
         fee: Number(fee),
       }),
     ).finally(() => {

@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { useShallow } from 'zustand/shallow';
 
-import { POOL_CATEGORY, Pool, PoolType } from '@kyber/schema';
+import { Pool, PoolType } from '@kyber/schema';
 import { POOL_ERROR, getPoolInfo, getPoolPrice } from '@kyber/utils';
 import { MAX_TICK, MIN_TICK, nearestUsableTick } from '@kyber/utils/uniswapv3';
 
@@ -22,7 +22,7 @@ const buildSyntheticPool = (config: CreatePoolConfig, poolType: PoolType): Pool 
     ticks: [],
     minTick: nearestUsableTick(MIN_TICK, tickSpacing),
     maxTick: nearestUsableTick(MAX_TICK, tickSpacing),
-    category: POOL_CATEGORY.COMMON_PAIR,
+    category: config.poolCategory,
     stats: {
       tvl: 0,
       volume24h: 0,
