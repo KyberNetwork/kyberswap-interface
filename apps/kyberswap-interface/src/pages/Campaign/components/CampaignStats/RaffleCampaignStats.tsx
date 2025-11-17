@@ -1,12 +1,11 @@
 import { Trans } from '@lingui/macro'
 import { useMedia } from 'react-use'
 import { Box, Text } from 'rebass'
-import { useGetRaffleCampaignParticipantQuery, useGetRaffleCampaignStatsQuery } from 'services/campaignRaffle'
 
 import InfoHelper from 'components/InfoHelper'
-import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { CampaignWeek } from 'pages/Campaign/constants'
+import { useRaffleCampaignJoin } from 'pages/Campaign/hooks/useRaffleCampaignJoin'
 import { StatCard } from 'pages/Campaign/styles'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -24,12 +23,10 @@ const getWeekPosition = (weeks: CampaignWeek[], selectedWeek: number) => {
 
 export default function RaffleCampaignStats({ selectedWeek }: { selectedWeek: number }) {
   const theme = useTheme()
-  const { account } = useActiveWeb3React()
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
-  const { data: campaignStats } = useGetRaffleCampaignStatsQuery()
-  const { data: participant } = useGetRaffleCampaignParticipantQuery({ address: account || '' }, { skip: !account })
+  const { participant, campaignStats } = useRaffleCampaignJoin({ selectedWeek })
 
   const weeks = campaignStats?.weeks ?? []
   const weekPosition = getWeekPosition(weeks, selectedWeek)

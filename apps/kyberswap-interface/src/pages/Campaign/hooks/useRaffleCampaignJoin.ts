@@ -1,6 +1,10 @@
 import { t } from '@lingui/macro'
 import { useCallback } from 'react'
-import { useGetRaffleCampaignParticipantQuery, useJoinRaffleCampaignMutation } from 'services/campaignRaffle'
+import {
+  useGetRaffleCampaignParticipantQuery,
+  useGetRaffleCampaignStatsQuery,
+  useJoinRaffleCampaignMutation,
+} from 'services/campaignRaffle'
 import { SiweMessage } from 'siwe'
 
 import { NotificationType } from 'components/Announcement/type'
@@ -19,9 +23,16 @@ export const useRaffleCampaignJoin = ({ selectedWeek }: Props) => {
 
   const [joinCampaign] = useJoinRaffleCampaignMutation()
 
+  const { data: campaignStats, refetch: refetchCampaignStats } = useGetRaffleCampaignStatsQuery(undefined, {
+    pollingInterval: 10_000,
+  })
+
   const { data: participant, refetch: refetchParticipant } = useGetRaffleCampaignParticipantQuery(
     { address: account ?? '' },
-    { skip: !account },
+    {
+      skip: !account,
+      pollingInterval: 10_000,
+    },
   )
 
   const isNotEligible = !!account && participant?.eligible === false
@@ -71,13 +82,25 @@ export const useRaffleCampaignJoin = ({ selectedWeek }: Props) => {
       })
     } finally {
       refetchParticipant()
+      refetchCampaignStats()
     }
-  }, [account, chainId, joinCampaign, library, selectedWeek, notify, refetchParticipant, toggleWalletModal])
+  }, [
+    account,
+    chainId,
+    joinCampaign,
+    library,
+    selectedWeek,
+    notify,
+    refetchParticipant,
+    refetchCampaignStats,
+    toggleWalletModal,
+  ])
 
   return {
     onJoin,
     isJoinedByWeek,
     isNotEligible,
     participant,
+    campaignStats,
   }
 }

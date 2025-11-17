@@ -1,5 +1,5 @@
 import { Trans, t } from '@lingui/macro'
-import { ReactNode, useEffect } from 'react'
+import { ReactNode } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
@@ -49,7 +49,10 @@ export default function RaffleLeaderboard({ type, selectedWeek }: Props) {
       week: selectedWeek + 1,
       address: type === 'owner' ? account : undefined,
     },
-    { skip: type === 'owner' ? !account : false },
+    {
+      skip: type === 'owner' ? !account : false,
+      pollingInterval: 10_000,
+    },
   )
 
   const transactions = data?.txs ?? []
@@ -61,14 +64,6 @@ export default function RaffleLeaderboard({ type, selectedWeek }: Props) {
     params.set('page', page.toString())
     setSearchParams(params)
   }
-
-  useEffect(() => {
-    if (!isLoading && currentPage > 1 && transactions.length === 0) {
-      const params = new URLSearchParams(searchParams)
-      params.set('page', Math.max(currentPage - 1, 1).toString())
-      setSearchParams(params)
-    }
-  }, [isLoading, currentPage, transactions.length, searchParams, setSearchParams])
 
   const renderLabel = (label: ReactNode) =>
     upToSmall ? (
