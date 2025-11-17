@@ -114,10 +114,8 @@ export const useRaffleCampaignJoin = ({ selectedWeek }: Props) => {
       }).prepareMessage()
 
       const signature = await library.getSigner().signMessage(message)
-      await joinCampaign({ address: account, message, signature, week: `week_1` }).unwrap()
-      saveJoinedWeekInSession(account, 0)
-      await joinCampaign({ address: account, message, signature, week: `week_2` }).unwrap()
-      saveJoinedWeekInSession(account, 1)
+      await joinCampaign({ address: account, message, signature, week: `week_${selectedWeek + 1}` }).unwrap()
+      saveJoinedWeekInSession(account, selectedWeek)
 
       notify({
         title: t`Joined Raffle Campaign`,
@@ -134,7 +132,17 @@ export const useRaffleCampaignJoin = ({ selectedWeek }: Props) => {
       refetchParticipant()
       refetchCampaignStats()
     }
-  }, [account, chainId, joinCampaign, library, notify, refetchParticipant, refetchCampaignStats, toggleWalletModal])
+  }, [
+    account,
+    chainId,
+    joinCampaign,
+    library,
+    selectedWeek,
+    notify,
+    refetchParticipant,
+    refetchCampaignStats,
+    toggleWalletModal,
+  ])
 
   return {
     onJoin,
