@@ -126,7 +126,11 @@ export default function RaffleLeaderboard({ type, selectedWeek }: Props) {
                 textAlign={upToSmall ? 'left' : 'right'}
               >
                 {renderLabel(<Trans>DIFFERENCE</Trans>)}
-                <Text fontWeight="500">{formatDisplayNumber(tx.diff, { significantDigits: 6 })}</Text>
+                {tx.bit_block ? (
+                  <Text fontWeight="500">{formatDisplayNumber(tx.diff, { significantDigits: 6 })}</Text>
+                ) : (
+                  <Text>TBU</Text>
+                )}
               </Flex>
               <Flex
                 width={upToSmall ? '100%' : '160px'}
@@ -134,7 +138,11 @@ export default function RaffleLeaderboard({ type, selectedWeek }: Props) {
                 textAlign={upToSmall ? 'left' : 'right'}
               >
                 {renderLabel(<Trans>REWARDS</Trans>)}
-                <Text>{formatDisplayNumber(tx.rewarded, { significantDigits: 6 })} KNC</Text>
+                {tx.bit_block ? (
+                  <Text>{formatDisplayNumber(tx.rewarded, { significantDigits: 6 })} KNC</Text>
+                ) : (
+                  <Text>TBU</Text>
+                )}
               </Flex>
             </Box>
           )
