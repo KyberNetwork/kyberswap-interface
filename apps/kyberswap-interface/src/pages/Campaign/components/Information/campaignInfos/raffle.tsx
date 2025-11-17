@@ -252,8 +252,8 @@ const raffleFaq: FaqItem[] = [
     ),
     a: (
       <Trans>
-        You must click &quot;Join Now&quot; first. Only eligible transactions made after you click &quot;Join
-        Campaign&quot; will be counted.
+        You must click &quot;Join Now&quot; first. Only eligible transactions made after you click &quot;Join Now&quot;
+        will be counted.
       </Trans>
     ),
   },
@@ -333,7 +333,7 @@ export const raffleInfo: CampaignContent = {
     <>
       <li>
         <Trans>
-          Click <Link to="/campaigns/raffle-campaign">Join Now</Link> on the KyberSwap UI to participate.
+          Click <Link to="/campaigns/weekly-rewards">Join Now</Link> on the KyberSwap UI to participate.
         </Trans>
         <Quote>
           Note: Wallet addresses must have at least one successful swap transaction on KyberSwap between 01/11/2024 and
