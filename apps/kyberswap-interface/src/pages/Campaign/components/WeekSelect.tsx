@@ -7,10 +7,9 @@ import { useGetRaffleCampaignStatsQuery } from 'services/campaignRaffle'
 
 import Select, { SelectOption } from 'components/Select'
 import useTheme from 'hooks/useTheme'
+import { CampaignType, campaignConfig, isRaffleStarted } from 'pages/Campaign/constants'
+import { getCurrentWeek } from 'pages/Campaign/utils'
 import { MEDIA_WIDTHS } from 'theme'
-
-import { CampaignType, campaignConfig, isRaffleStarted } from '../constants'
-import { getCurrentWeek } from '../utils'
 
 type Props = {
   type: CampaignType

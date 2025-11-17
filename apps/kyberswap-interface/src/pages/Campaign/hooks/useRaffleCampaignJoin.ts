@@ -9,9 +9,8 @@ import { SiweMessage } from 'siwe'
 
 import { NotificationType } from 'components/Announcement/type'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { isRaffleStarted } from 'pages/Campaign/constants'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
-
-import { isRaffleStarted } from '../constants'
 
 type Props = {
   selectedWeek: number
