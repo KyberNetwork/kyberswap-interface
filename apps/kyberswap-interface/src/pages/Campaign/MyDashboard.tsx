@@ -77,7 +77,7 @@ const MyDashboard = () => {
   const { reward, baseWeek, banner } = campaignConfig[tab]
 
   const campaignLabelMap: Record<CampaignType, string> = {
-    [CampaignType.Raffle]: t`Raffle`,
+    [CampaignType.Raffle]: t`Weekly Rewards`,
     [CampaignType.NearIntents]: t`Cross Chain`,
     [CampaignType.MayTrading]: t`May Trading`,
     [CampaignType.Aggregator]: t`Trading`,

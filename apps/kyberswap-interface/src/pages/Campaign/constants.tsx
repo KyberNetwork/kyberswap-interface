@@ -325,7 +325,7 @@ export const campaignConfig: Record<CampaignType, CampaignConfig> = {
     type: CampaignType.Raffle,
     weeks: raffleWeeks,
     banner: isMobile ? raffleBannerMobile : raffleBanner,
-    title: <Trans>Raffle Campaign</Trans>,
+    title: <Trans>Weekly Rewards</Trans>,
   },
   [CampaignType.Aggregator]: {
     ...stipInfo,

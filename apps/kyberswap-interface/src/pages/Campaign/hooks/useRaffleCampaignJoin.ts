@@ -118,13 +118,13 @@ export const useRaffleCampaignJoin = ({ selectedWeek }: Props) => {
       saveJoinedWeekInSession(account, selectedWeek)
 
       notify({
-        title: t`Joined Raffle Campaign`,
+        title: t`Joined Weekly Rewards`,
         type: NotificationType.SUCCESS,
       })
     } catch (error) {
       console.warn('Raffle campaign join error:', error)
       notify({
-        title: t`Unable to join Raffle Campaign`,
+        title: t`Unable to join Weekly Rewards`,
         summary: error.message || error.data?.message || t`Something went wrong. Please try again.`,
         type: NotificationType.ERROR,
       })

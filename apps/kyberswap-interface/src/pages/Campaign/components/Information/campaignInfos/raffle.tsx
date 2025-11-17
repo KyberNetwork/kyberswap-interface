@@ -59,8 +59,8 @@ const raffleRewardSteps: { step: ReactNode; example: ReactNode }[] = [
           <Trans>Step 2:</Trans>
         </Text>{' '}
         <Trans>
-          Take the last 4 hex digits of the Bitcoin block hash mined closest after 23:59 UTC on 10/11 (Week 1) and 17/11
-          (Week 2).
+          Take the last 4 hex digits of the Bitcoin block hash, mined closest after 23:59 UTC on 25/11 (Week 1) and
+          02/12 (Week 2).
         </Trans>
       </>
     ),
@@ -252,7 +252,7 @@ const raffleFaq: FaqItem[] = [
     ),
     a: (
       <Trans>
-        You must click &quot;Join Campaign&quot; first. Only eligible transactions made after you click &quot;Join
+        You must click &quot;Join Now&quot; first. Only eligible transactions made after you click &quot;Join
         Campaign&quot; will be counted.
       </Trans>
     ),
@@ -281,7 +281,7 @@ const raffleFaq: FaqItem[] = [
     q: (
       <Trans>
         Why have I made a successful swap transaction, but it&apos;s not counted even after I successfully clicked
-        &quot;Join Campaign&quot;?
+        &quot;Join Now&quot;?
       </Trans>
     ),
     a: (
@@ -333,7 +333,7 @@ export const raffleInfo: CampaignContent = {
     <>
       <li>
         <Trans>
-          Click <Link to="/campaigns/raffle-campaign">Join Campaign</Link> on the KyberSwap UI to participate.
+          Click <Link to="/campaigns/raffle-campaign">Join Now</Link> on the KyberSwap UI to participate.
         </Trans>
         <Quote>
           Note: Wallet addresses must have at least one successful swap transaction on KyberSwap between 01/11/2024 and

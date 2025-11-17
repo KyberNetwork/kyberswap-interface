@@ -57,7 +57,7 @@ const CampaignNavGroup = () => {
         dropdownContent={
           <Column>
             <StyledNavLink to={APP_PATHS.RAFFLE_CAMPAIGN}>
-              <Trans>Raffle Campaign</Trans>
+              <Trans>Weekly Rewards</Trans>
               <ELabel isNew>{t`NEW`}</ELabel>
             </StyledNavLink>
 
