@@ -6,7 +6,7 @@ import { usePrevious } from '@kyber/hooks';
 import { POOL_CATEGORY, univ3PoolNormalize, univ3Types } from '@kyber/schema';
 import { Button, Skeleton } from '@kyber/ui';
 import { toString } from '@kyber/utils/number';
-import { nearestUsableTick, priceToClosestTick, tickToPrice } from '@kyber/utils/uniswapv3';
+import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick, tickToPrice } from '@kyber/utils/uniswapv3';
 
 import { DEFAULT_PRICE_RANGE, FULL_PRICE_RANGE, PRICE_RANGE } from '@/components/PriceRange/constants';
 import { useZapState } from '@/hooks/useZapState';
@@ -91,8 +91,8 @@ const PriceRange = () => {
 
         return {
           range: item,
-          tickLower: validLowerTick,
-          tickUpper: validUpperTick,
+          tickLower: validLowerTick < MIN_TICK ? MIN_TICK : validLowerTick,
+          tickUpper: validUpperTick > MAX_TICK ? MAX_TICK : validUpperTick,
         };
       })
       .filter(item => !!item) as PriceRange[];
