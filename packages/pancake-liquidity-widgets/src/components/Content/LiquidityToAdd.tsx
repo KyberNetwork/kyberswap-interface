@@ -112,7 +112,7 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
 
         <div className="flex justify-end gap-1 text-subText text-sm font-medium mt-1">
           <button
-            className="ks-outline-btn small"
+            className="pcs-outline-btn small"
             onClick={() => {
               onChangeTokenAmount(
                 formatUnits(
@@ -125,7 +125,7 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
             25%
           </button>
           <button
-            className="ks-outline-btn small"
+            className="pcs-outline-btn small"
             onClick={() => {
               onChangeTokenAmount(
                 formatUnits(
@@ -138,7 +138,7 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
             50%
           </button>
           <button
-            className="ks-outline-btn small"
+            className="pcs-outline-btn small"
             onClick={() => {
               onChangeTokenAmount(
                 formatUnits(
@@ -153,7 +153,7 @@ export default function LiquidityToAdd({ tokenIndex }: { tokenIndex: number }) {
           </button>
 
           <button
-            className="ks-outline-btn small"
+            className="pcs-outline-btn small"
             onClick={() => {
               onChangeTokenAmount(
                 formatUnits(
