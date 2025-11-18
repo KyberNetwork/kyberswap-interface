@@ -51,7 +51,7 @@ const useZapCreatePoolWidget = () => {
     return axios
       .get(`${API_URLS.ZAP_API}/${CHAIN_ID_TO_CHAIN[input.chainId as ChainId]}/api/v1/create/route`, {
         params: {
-          dex: 68,
+          dex: ZAPIN_DEX_MAPPING[input.protocol],
           'pool.tokens': `${input.token0.address},${input.token1.address}`,
           'pool.uniswap_v4_config.fee': configFee,
           'pool.uniswap_v4_config.tick_spacing': tickSpacing,
@@ -71,12 +71,9 @@ const useZapCreatePoolWidget = () => {
   const widgetProps = useMemo(() => {
     if (!config) return null
 
-    const poolType = ZAPIN_DEX_MAPPING[config.protocol]
-    if (!poolType) return null
-
     return {
       chainId: config.chainId,
-      poolType: poolType,
+      poolType: ZAPIN_DEX_MAPPING[config.protocol],
       connectedAccount: {
         address: account,
         chainId: connectedChainId ?? config.chainId,
