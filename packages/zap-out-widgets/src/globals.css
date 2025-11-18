@@ -15,6 +15,17 @@
     @apply disabled:cursor-not-allowed disabled:text-subText disabled:bg-layer2 disabled:border-layer2 disabled:brightness-105;
   }
 
+  .ks-secondary-btn {
+    @apply flex justify-center items-center justify-self-end;
+    @apply rounded-md;
+    @apply text-sm font-medium bg-accent-200 text-accent;
+    @apply px-3 py-[10px] cursor-pointer;
+
+    @apply hover:enabled:brightness-110;
+    @apply active:enabled:scale-99;
+    @apply disabled:cursor-not-allowed disabled:text-subText disabled:bg-layer2 disabled:border-layer2 disabled:brightness-105;
+  }
+
   .ks-outline-btn {
     @apply flex justify-center items-center justify-self-end;
     @apply border border-[#ffffffb3] rounded-md;

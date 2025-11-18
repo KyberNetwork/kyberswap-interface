@@ -2,8 +2,8 @@ import { useMemo, useState } from 'react';
 
 import { Trans, t } from '@lingui/macro';
 
-import { usePositionOwner } from '@kyber/hooks';
-import { FARMING_CONTRACTS, univ2Types } from '@kyber/schema';
+import { PermitNftState, usePermitNft, usePositionOwner } from '@kyber/hooks';
+import { DEXES_INFO, FARMING_CONTRACTS, univ2Types, univ4Types } from '@kyber/schema';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -38,6 +38,7 @@ export const Action = () => {
     setWidgetError,
     rpcUrl,
     theme,
+    signTypedData,
   } = useZapOutContext(s => s);
 
   const { address: account, chainId: walletChainId } = connectedAccount;
@@ -49,6 +50,7 @@ export const Action = () => {
 
   const isApproved = approved && !isChecking;
   const isUniV2 = univ2Types.includes(poolType as any);
+  const isUniv4 = univ4Types.includes(poolType as any);
 
   const [clickedApprove, setClickedApprove] = useState(false);
   const [gasLoading, setGasLoading] = useState(false);
@@ -67,15 +69,33 @@ export const Action = () => {
   const disabled =
     isNotOwner || clickedApprove || isChecking || fetchingRoute || Boolean(pendingTx) || !route || gasLoading;
 
+  // Calculate deadline for both permit and build calls
+  const deadline = useMemo(() => {
+    const date = new Date();
+    date.setMinutes(date.getMinutes() + (ttl || 20));
+    return Math.floor(date.getTime() / 1000);
+  }, [ttl]);
+
+  // Resolve NFT manager contract for permit
+  const nftManager = DEXES_INFO[poolType].nftManagerContract;
+  const nftManagerContract = typeof nftManager === 'string' ? nftManager : nftManager[chainId];
+
+  // Hook for NFT permit (off-chain authorization)
+  const { permitState, signPermitNft, permitData } = usePermitNft({
+    nftManagerContract,
+    tokenId: positionId,
+    spender: route?.routerPermitAddress,
+    account,
+    chainId: walletChainId,
+    rpcUrl,
+    signTypedData,
+  });
+
   const getBuildData = async () => {
     if (!route || !connectedAccount.address) return;
     setGasLoading(true);
 
     try {
-      const date = new Date();
-      date.setMinutes(date.getMinutes() + (ttl || 20));
-      const deadline = Math.floor(date.getTime() / 1000);
-
       const buildData = await buildRouteData({
         sender: connectedAccount.address,
         route: route.route,
@@ -83,6 +103,12 @@ export const Action = () => {
         referral,
         chainId,
         deadline,
+        ...(permitState === PermitNftState.SIGNED &&
+          permitData?.permitData && {
+            permits: {
+              positionId: permitData.permitData,
+            },
+          }),
       });
       if (!buildData) {
         setGasLoading(false);
@@ -189,17 +215,44 @@ export const Action = () => {
     (!isChecking || pendingTx) &&
     !isApproved;
 
+  // Enable/disable permit button similarly to liquidity widgets
+  const permitEnable = Boolean(
+    isInNftApprovalStep &&
+      isUniv4 &&
+      (permitState === PermitNftState.READY_TO_SIGN ||
+        permitState === PermitNftState.SIGNING ||
+        permitState === PermitNftState.ERROR),
+  );
+  const permitDisabled = Boolean(isInNftApprovalStep && (permitState === PermitNftState.SIGNING || pendingTx));
+
   return (
     <>
       <WarningMsg />
       <div className="flex items-start justify-center gap-5 mt-6">
-        <button className="ks-outline-btn w-[190px]" onClick={onClose}>
-          <Trans>Cancel</Trans>
-        </button>
+        {permitEnable ? (
+          <button
+            className={`ks-primary-btn min-w-[190px] w-fit`}
+            disabled={permitDisabled}
+            onClick={() => signPermitNft(deadline)}
+          >
+            {t`Permit NFT`}
+            <InfoHelper
+              size={14}
+              width="300px"
+              color={permitDisabled ? theme.subText : '#000000'}
+              text={t`Authorize this position for ZapRouter by signing off-chain. No gas fee.`}
+            />
+          </button>
+        ) : (
+          <button className="ks-outline-btn w-[190px]" onClick={onClose}>
+            <Trans>Cancel</Trans>
+          </button>
+        )}
         <div className="flex flex-col gap-2">
           <button
             className={cn(
-              'ks-primary-btn min-w-[190px] disabled:opacity-50 disabled:cursor-not-allowed',
+              permitEnable ? 'ks-secondary-btn' : 'ks-primary-btn',
+              'min-w-[190px] disabled:opacity-50 disabled:cursor-not-allowed',
               !disabled && isApproved
                 ? pi.piVeryHigh
                   ? 'bg-error border-solid border-error text-white'
