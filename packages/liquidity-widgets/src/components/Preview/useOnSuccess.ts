@@ -28,7 +28,7 @@ export default function useOnSuccess({
     addedAmount0Usd: number;
     addedAmount1Usd: number;
   };
-  zapInfo: ZapRouteDetail;
+  zapInfo: ZapRouteDetail | null;
 }) {
   const { poolType, chainId, positionId, onSuccess } = useWidgetStore([
     'poolType',
@@ -42,7 +42,7 @@ export default function useOnSuccess({
   const { icon: dexLogo } = DEXES_INFO[poolType as PoolType];
 
   useEffect(() => {
-    if (!txHash || txStatus !== 'success' || !onSuccess || onSuccessTriggered) return;
+    if (!txHash || txStatus !== 'success' || !onSuccess || onSuccessTriggered || !zapInfo) return;
 
     setOnSuccessTriggered(true);
 
@@ -100,11 +100,12 @@ export default function useOnSuccess({
     positionId,
     txHash,
     txStatus,
-    zapInfo.zapDetails.initialAmountUsd,
+    zapInfo?.zapDetails.initialAmountUsd,
     positionAmountInfo.positionAmount0Usd,
     positionAmountInfo.positionAmount1Usd,
-    addedAmountInfo.addedAmount0Usd,
-    addedAmountInfo.addedAmount1Usd,
+    addedAmountInfo?.addedAmount0Usd,
+    addedAmountInfo?.addedAmount1Usd,
     position,
+    zapInfo,
   ]);
 }

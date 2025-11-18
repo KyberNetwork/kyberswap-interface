@@ -38,7 +38,7 @@ import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
-import { PriceType, ZapSnapshotState } from '@/types/index';
+import { BuildDataWithGas, PriceType } from '@/types/index';
 
 export default function Widget() {
   const {
@@ -75,7 +75,7 @@ export default function Widget() {
   const [openTokenSelectModal, setOpenTokenSelectModal] = useState(false);
   const [tokenAddressSelected, setTokenAddressSelected] = useState<string | undefined>();
   const [widgetError, setWidgetError] = useState<string | undefined>();
-  const [zapSnapshotState, setZapSnapshotState] = useState<ZapSnapshotState | null>(null);
+  const [buildData, setBuildData] = useState<BuildDataWithGas | null>(null);
 
   const initializing = !pool;
   const { token0 = defaultToken, token1 = defaultToken } = !initializing ? pool : {};
@@ -177,7 +177,7 @@ export default function Widget() {
       checkNftApproval();
       checkNftApprovalAll();
     }
-    setZapSnapshotState(null);
+    setBuildData(null);
     getZapRoute();
   };
 
@@ -212,9 +212,7 @@ export default function Widget() {
           }
         />
       )}
-      {zapSnapshotState && !initializing && (
-        <Preview zapState={zapSnapshotState} pool={pool} onDismiss={onClosePreview} />
-      )}
+      {buildData && !initializing && <Preview buildData={buildData} pool={pool} onDismiss={onClosePreview} />}
 
       {openTokenSelectModal && (
         <TokenSelectorModal
@@ -237,7 +235,7 @@ export default function Widget() {
         />
       )}
 
-      <div className={zapSnapshotState ? 'hidden' : 'p-6'}>
+      <div className={buildData ? 'hidden' : 'p-6'}>
         <Header />
         <div className="mt-5 flex gap-5 max-sm:flex-col">
           <div className="w-[55%] max-sm:w-full">
@@ -290,7 +288,7 @@ export default function Widget() {
             isChecking: isCheckingNftApprovalAll,
           }}
           setWidgetError={setWidgetError}
-          setZapSnapshotState={setZapSnapshotState}
+          setBuildData={setBuildData}
         />
       </div>
       <Setting />

@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 import { Trans, t } from '@lingui/macro';
 
-import { API_URLS, CHAIN_ID_TO_CHAIN, DEXES_INFO, NETWORKS_INFO, Pool, univ3PoolNormalize } from '@kyber/schema';
+import { API_URLS, DEXES_INFO, NETWORKS_INFO, Pool, univ3PoolNormalize } from '@kyber/schema';
 import {
   Dialog,
   DialogContent,
@@ -34,41 +34,29 @@ import { SlippageWarning } from '@/components/SlippageWarning';
 import { useZapState } from '@/hooks/useZapState';
 import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
-import { ZapSnapshotState } from '@/types/index';
+import { BuildDataWithGas } from '@/types/index';
 import { parseTokensAndAmounts } from '@/utils';
 
 export interface PreviewProps {
-  zapState: ZapSnapshotState;
+  buildData: BuildDataWithGas;
   pool: Pool;
   onDismiss: () => void;
 }
 
-export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool, onDismiss }: PreviewProps) {
-  const {
-    chainId,
-    rpcUrl,
-    poolType,
-    connectedAccount,
-    onSubmitTx,
-    onViewPosition,
-    referral,
-    source,
-    positionId,
-    onClose,
-  } = useWidgetStore([
-    'chainId',
-    'rpcUrl',
-    'poolType',
-    'connectedAccount',
-    'onSubmitTx',
-    'onViewPosition',
-    'referral',
-    'source',
-    'positionId',
-    'onClose',
-  ]);
+export default function Preview({ buildData, pool, onDismiss }: PreviewProps) {
+  const { chainId, rpcUrl, poolType, connectedAccount, onSubmitTx, onViewPosition, positionId, onClose } =
+    useWidgetStore([
+      'chainId',
+      'rpcUrl',
+      'poolType',
+      'connectedAccount',
+      'onSubmitTx',
+      'onViewPosition',
+      'positionId',
+      'onClose',
+    ]);
   const { position } = usePositionStore(['position']);
-  const { setSlippage, slippage, tokensIn, amountsIn } = useZapState();
+  const { setSlippage, slippage, tokensIn, amountsIn, zapInfo } = useZapState();
 
   const [txHash, setTxHash] = useState('');
   const [attempTx, setAttempTx] = useState(false);
@@ -100,6 +88,7 @@ export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool,
     setTxError(null);
 
     const { address: account } = connectedAccount;
+    if (!account) return;
 
     const { tokensIn: validTokensIn, amountsIn: validAmountsIn } = parseTokensAndAmounts(tokensIn, amountsIn);
     const parsedTokensIn = validTokensIn.map((token, index) => ({
@@ -110,49 +99,33 @@ export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool,
       }),
     }));
 
-    fetch(`${API_URLS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/in/route/build`, {
-      method: 'POST',
-      body: JSON.stringify({
-        sender: account,
-        recipient: account,
-        route: zapInfo.route,
-        deadline,
-        source,
-        referral,
-      }),
-    })
-      .then(res => res.json())
-      .then(async res => {
-        const { data } = res || {};
-        if (data.callData && account) {
-          const txData = {
-            from: account,
-            to: data.routerAddress,
-            data: data.callData,
-            value: `0x${BigInt(data.value).toString(16)}`,
-          };
+    const txData = {
+      from: account,
+      to: buildData.routerAddress,
+      data: buildData.callData,
+      value: `0x${BigInt(buildData.value).toString(16)}`,
+    };
 
-          try {
-            const gasEstimation = await estimateGas(rpcUrl, txData);
-            const txHash = await onSubmitTx(
-              {
-                ...txData,
-                gasLimit: calculateGasMargin(gasEstimation),
-              },
-              {
-                tokensIn: parsedTokensIn,
-                pool: `${pool.token0.symbol}/${pool.token1.symbol}`,
-                dexLogo: DEXES_INFO[poolType].icon,
-              },
-            );
-            setTxHash(txHash);
-          } catch (e) {
-            setAttempTx(false);
-            setTxError(e as Error);
-          }
-        }
-      })
-      .finally(() => setAttempTx(false));
+    try {
+      const gasEstimation = await estimateGas(rpcUrl, txData);
+      const txHash = await onSubmitTx(
+        {
+          ...txData,
+          gasLimit: calculateGasMargin(gasEstimation),
+        },
+        {
+          tokensIn: parsedTokensIn,
+          pool: `${pool.token0.symbol}/${pool.token1.symbol}`,
+          dexLogo: DEXES_INFO[poolType].icon,
+        },
+      );
+      setTxHash(txHash);
+    } catch (e) {
+      setAttempTx(false);
+      setTxError(e as Error);
+    } finally {
+      setAttempTx(false);
+    }
   };
 
   if (attempTx || txHash || txError) {
@@ -261,7 +234,7 @@ export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool,
             <SlippageWarning
               className="gap-4 w-full mt-0"
               slippage={slippage || 0}
-              suggestedSlippage={zapInfo.zapDetails.suggestedSlippage}
+              suggestedSlippage={zapInfo?.zapDetails?.suggestedSlippage || 0}
               showWarning
             />
 
@@ -308,8 +281,8 @@ export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool,
               labelTooltip={t`Estimated network fee for your transaction.`}
               value={
                 <div className="text-sm">
-                  {gasUsd
-                    ? formatDisplayNumber(gasUsd, {
+                  {buildData.gasUsd
+                    ? formatDisplayNumber(buildData.gasUsd, {
                         significantDigits: 4,
                         style: 'currency',
                       })

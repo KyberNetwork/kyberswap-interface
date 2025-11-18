@@ -12,3 +12,4 @@ export * from './use-nft-approval-all';
 export * from './use-previous';
 export * from './use-copy';
 export * from './use-pair-honeypot';
+export * from './use-permit-nft';

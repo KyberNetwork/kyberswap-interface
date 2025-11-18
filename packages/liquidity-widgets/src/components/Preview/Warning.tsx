@@ -10,7 +10,7 @@ export default function Warning({
   slippage,
   zapImpact,
 }: {
-  zapInfo: ZapRouteDetail;
+  zapInfo: ZapRouteDetail | null;
   slippage: number;
   zapImpact: {
     level: PI_LEVEL;
@@ -21,18 +21,20 @@ export default function Warning({
 
   return (
     <>
-      {(slippage > 2 * zapInfo.zapDetails.suggestedSlippage || slippage < zapInfo.zapDetails.suggestedSlippage / 2) && (
-        <div
-          className="rounded-md text-xs px-4 py-3 mt-4 font-normal text-warning"
-          style={{
-            backgroundColor: `${theme.warning}33`,
-          }}
-        >
-          {slippage > zapInfo.zapDetails.suggestedSlippage * 2
-            ? t`Your slippage is set higher than usual, which may cause unexpected losses.`
-            : t`Your slippage is set lower than usual, increasing the risk of transaction failure.`}
-        </div>
-      )}
+      {zapInfo &&
+        (slippage > 2 * zapInfo.zapDetails.suggestedSlippage ||
+          slippage < zapInfo.zapDetails.suggestedSlippage / 2) && (
+          <div
+            className="rounded-md text-xs px-4 py-3 mt-4 font-normal text-warning"
+            style={{
+              backgroundColor: `${theme.warning}33`,
+            }}
+          >
+            {slippage > zapInfo.zapDetails.suggestedSlippage * 2
+              ? t`Your slippage is set higher than usual, which may cause unexpected losses.`
+              : t`Your slippage is set lower than usual, increasing the risk of transaction failure.`}
+          </div>
+        )}
 
       {zapInfo && zapImpact.level !== PI_LEVEL.NORMAL && (
         <div

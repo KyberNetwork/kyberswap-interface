@@ -42,6 +42,7 @@ const initState = {
   feeConfig: undefined,
   referral: undefined,
   initialTick: undefined,
+  signTypedData: undefined,
   onClose: undefined,
   onConnectWallet: () => {},
   onSwitchChain: () => {},

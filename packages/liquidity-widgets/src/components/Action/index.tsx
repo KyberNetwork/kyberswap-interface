@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import { Trans, t } from '@lingui/macro';
 
@@ -15,20 +15,31 @@ import { cn } from '@kyber/utils/tailwind-helpers';
 
 import ChevronDown from '@/assets/svg/chevron-down.svg';
 import useActionButton from '@/components/Action/useActionButton';
+import { useZapState } from '@/hooks/useZapState';
 import { useWidgetStore } from '@/stores/useWidgetStore';
-import { ZapSnapshotState } from '@/types/index';
+import { BuildDataWithGas } from '@/types/index';
 
 export default function Action({
   nftApproval,
   nftApprovalAll,
   setWidgetError,
-  setZapSnapshotState,
+  setBuildData,
 }: {
   nftApproval: { approved: boolean; onApprove: () => Promise<void>; pendingTx: string; isChecking: boolean };
   nftApprovalAll: { approved: boolean; onApprove: () => Promise<void>; pendingTx: string; isChecking: boolean };
   setWidgetError: (_value: string | undefined) => void;
-  setZapSnapshotState: (_value: ZapSnapshotState | null) => void;
+  setBuildData: (_value: BuildDataWithGas | null) => void;
 }) {
+  const { onClose, theme } = useWidgetStore(['onClose', 'theme']);
+  const { ttl } = useZapState();
+
+  const deadline = useMemo(() => {
+    const date = new Date();
+    date.setMinutes(date.getMinutes() + (ttl || 20));
+
+    return Math.floor(date.getTime() / 1000);
+  }, [ttl]);
+
   const {
     btnText,
     hanldeClick,
@@ -41,33 +52,53 @@ export default function Action({
     nftApprovalType,
     setNftApprovalType,
     isInNftApprovalStep,
+    permit,
   } = useActionButton({
     nftApproval,
     nftApprovalAll,
     setWidgetError,
-    setZapSnapshotState,
+    setBuildData,
+    deadline,
   });
-  const { onClose, theme } = useWidgetStore(['onClose', 'theme']);
   const [openDropdown, setOpenDropdown] = useState(false);
 
   return (
     <div className="flex items-start justify-center gap-5 mt-6">
-      {onClose && (
-        <button className="ks-outline-btn w-[190px]" onClick={onClose}>
-          <Trans>Cancel</Trans>
+      {permit.enable ? (
+        <button
+          className={`ks-primary-btn min-w-[190px] w-fit`}
+          disabled={permit.disabled}
+          onClick={() => permit.sign(deadline)}
+        >
+          {t`Permit NFT`}
+          <InfoHelper
+            size={14}
+            width="300px"
+            color={permit.disabled ? theme.subText : '#000000'}
+            text={t`Authorize this position for ZapRouter by signing off-chain. No gas fee.`}
+          />
         </button>
+      ) : (
+        onClose && (
+          <button className="ks-outline-btn w-[190px]" onClick={onClose}>
+            <Trans>Cancel</Trans>
+          </button>
+        )
       )}
+
       <div className="flex flex-col gap-2">
         <button
-          className={`ks-primary-btn min-w-[190px] w-fit ${
+          className={cn(
+            permit.enable ? 'ks-secondary-btn' : 'ks-primary-btn',
+            'min-w-[190px] w-fit',
             !btnDisabled && Object.values(approvalStates).some(item => item !== APPROVAL_STATE.NOT_APPROVED)
               ? isVeryHighWarning
                 ? 'bg-error border-solid border-error text-white'
                 : isHighWarning
                   ? 'bg-warning border-solid border-warning'
                   : ''
-              : ''
-          }`}
+              : '',
+          )}
           disabled={!!btnDisabled}
           onClick={hanldeClick}
         >
@@ -77,7 +108,7 @@ export default function Action({
             <InfoHelper
               size={14}
               width="300px"
-              color={btnDisabled ? theme.subText : isVeryHighWarning ? '#ffffff' : '#000000'}
+              color={btnDisabled ? theme.subText : isVeryHighWarning ? '#ffffff' : theme.accent}
               text={tooltipContent}
             />
           ) : null}
