@@ -17,18 +17,13 @@ import ChevronDown from '@/assets/svg/chevron-down.svg';
 import useActionButton from '@/components/Action/useActionButton';
 import { useZapState } from '@/hooks/useZapState';
 import { useWidgetStore } from '@/stores/useWidgetStore';
-import { BuildDataWithGas } from '@/types/index';
 
 export default function Action({
   nftApproval,
   nftApprovalAll,
-  setWidgetError,
-  setBuildData,
 }: {
   nftApproval: { approved: boolean; onApprove: () => Promise<void>; pendingTx: string; isChecking: boolean };
   nftApprovalAll: { approved: boolean; onApprove: () => Promise<void>; pendingTx: string; isChecking: boolean };
-  setWidgetError: (_value: string | undefined) => void;
-  setBuildData: (_value: BuildDataWithGas | null) => void;
 }) {
   const { onClose, theme } = useWidgetStore(['onClose', 'theme']);
   const { ttl } = useZapState();
@@ -56,8 +51,6 @@ export default function Action({
   } = useActionButton({
     nftApproval,
     nftApprovalAll,
-    setWidgetError,
-    setBuildData,
     deadline,
   });
   const [openDropdown, setOpenDropdown] = useState(false);

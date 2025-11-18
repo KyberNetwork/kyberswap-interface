@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 import { Trans, t } from '@lingui/macro';
 
-import { API_URLS, DEXES_INFO, NETWORKS_INFO, Pool, univ3PoolNormalize } from '@kyber/schema';
+import { API_URLS, DEXES_INFO, NETWORKS_INFO, defaultToken, univ3PoolNormalize } from '@kyber/schema';
 import {
   Dialog,
   DialogContent,
@@ -32,18 +32,12 @@ import useOnSuccess from '@/components/Preview/useOnSuccess';
 import useTxStatus from '@/components/Preview/useTxStatus';
 import { SlippageWarning } from '@/components/SlippageWarning';
 import { useZapState } from '@/hooks/useZapState';
+import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
-import { BuildDataWithGas } from '@/types/index';
 import { parseTokensAndAmounts } from '@/utils';
 
-export interface PreviewProps {
-  buildData: BuildDataWithGas;
-  pool: Pool;
-  onDismiss: () => void;
-}
-
-export default function Preview({ buildData, pool, onDismiss }: PreviewProps) {
+export default function Preview({ onDismiss }: { onDismiss: () => void }) {
   const { chainId, rpcUrl, poolType, connectedAccount, onSubmitTx, onViewPosition, positionId, onClose } =
     useWidgetStore([
       'chainId',
@@ -55,8 +49,9 @@ export default function Preview({ buildData, pool, onDismiss }: PreviewProps) {
       'positionId',
       'onClose',
     ]);
+  const { pool } = usePoolStore(['pool']);
   const { position } = usePositionStore(['position']);
-  const { setSlippage, slippage, tokensIn, amountsIn, zapInfo } = useZapState();
+  const { setSlippage, slippage, tokensIn, amountsIn, zapInfo, buildData } = useZapState();
 
   const [txHash, setTxHash] = useState('');
   const [attempTx, setAttempTx] = useState(false);
@@ -65,7 +60,7 @@ export default function Preview({ buildData, pool, onDismiss }: PreviewProps) {
 
   const { success: isUniV3 } = univ3PoolNormalize.safeParse(pool);
 
-  const { token0, token1 } = pool;
+  const { token0 = defaultToken, token1 = defaultToken } = pool || {};
   const { refundInfo, addedAmountInfo, feeInfo, positionAmountInfo, zapImpact, suggestedSlippage } = parseZapInfo({
     zapInfo,
     token0,
@@ -74,7 +69,6 @@ export default function Preview({ buildData, pool, onDismiss }: PreviewProps) {
   });
 
   useOnSuccess({
-    pool,
     txHash,
     txStatus,
     positionAmountInfo,
@@ -83,6 +77,7 @@ export default function Preview({ buildData, pool, onDismiss }: PreviewProps) {
   });
 
   const handleClick = async () => {
+    if (!buildData || !pool) return;
     setAttempTx(true);
     setTxHash('');
     setTxError(null);
@@ -127,6 +122,8 @@ export default function Preview({ buildData, pool, onDismiss }: PreviewProps) {
       setAttempTx(false);
     }
   };
+
+  if (!buildData || !pool) return null;
 
   if (attempTx || txHash || txError) {
     const dexName =

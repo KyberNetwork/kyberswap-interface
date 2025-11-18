@@ -19,14 +19,10 @@ import { estimateGasForTx } from '@/utils';
 export default function useActionButton({
   nftApproval,
   nftApprovalAll,
-  setWidgetError,
-  setBuildData,
   deadline,
 }: {
   nftApproval: { approved: boolean; onApprove: () => Promise<void>; pendingTx: string; isChecking: boolean };
   nftApprovalAll: { approved: boolean; onApprove: () => Promise<void>; pendingTx: string; isChecking: boolean };
-  setWidgetError: (_value: string | undefined) => void;
-  setBuildData: (_value: BuildDataWithGas | null) => void;
   deadline: number;
 }) {
   const {
@@ -41,6 +37,7 @@ export default function useActionButton({
     source,
     signTypedData,
     referral,
+    setError: setWidgetError,
   } = useWidgetStore([
     'chainId',
     'rpcUrl',
@@ -53,6 +50,7 @@ export default function useActionButton({
     'source',
     'signTypedData',
     'referral',
+    'setError',
   ]);
   const { pool } = usePoolStore(['pool']);
   const positionOwner = usePositionOwner({
@@ -71,6 +69,7 @@ export default function useActionButton({
     amountsIn,
     toggleSetting,
     uiState,
+    setBuildData,
   } = useZapState();
 
   const { address: account } = connectedAccount;

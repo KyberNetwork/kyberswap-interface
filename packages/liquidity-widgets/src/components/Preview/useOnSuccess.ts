@@ -1,19 +1,18 @@
 import { useEffect, useState } from 'react';
 
-import { DEXES_INFO, Pool, PoolType, ZapRouteDetail } from '@kyber/schema';
+import { DEXES_INFO, PoolType, ZapRouteDetail } from '@kyber/schema';
 
+import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
 export default function useOnSuccess({
-  pool,
   txHash,
   txStatus,
   positionAmountInfo,
   addedAmountInfo,
   zapInfo,
 }: {
-  pool: Pool;
   txHash: string;
   txStatus: string;
   positionAmountInfo: {
@@ -36,13 +35,14 @@ export default function useOnSuccess({
     'positionId',
     'onSuccess',
   ]);
+  const { pool } = usePoolStore(['pool']);
   const { position } = usePositionStore(['position']);
 
   const [onSuccessTriggered, setOnSuccessTriggered] = useState(false);
   const { icon: dexLogo } = DEXES_INFO[poolType as PoolType];
 
   useEffect(() => {
-    if (!txHash || txStatus !== 'success' || !onSuccess || onSuccessTriggered || !zapInfo) return;
+    if (!txHash || txStatus !== 'success' || !onSuccess || onSuccessTriggered || !zapInfo || !pool) return;
 
     setOnSuccessTriggered(true);
 
@@ -86,26 +86,18 @@ export default function useOnSuccess({
     dexLogo,
     onSuccess,
     onSuccessTriggered,
-    pool.address,
-    pool.fee,
-    pool.token0.address,
-    pool.token1.address,
-    pool.token0.logo,
-    pool.token0.symbol,
-    pool.token1.logo,
-    pool.token1.symbol,
     poolType,
     positionAmountInfo.amount0,
     positionAmountInfo.amount1,
     positionId,
     txHash,
     txStatus,
-    zapInfo?.zapDetails.initialAmountUsd,
     positionAmountInfo.positionAmount0Usd,
     positionAmountInfo.positionAmount1Usd,
     addedAmountInfo?.addedAmount0Usd,
     addedAmountInfo?.addedAmount1Usd,
     position,
     zapInfo,
+    pool,
   ]);
 }

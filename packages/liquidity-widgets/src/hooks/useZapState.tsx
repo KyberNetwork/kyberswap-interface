@@ -11,6 +11,7 @@ import useTickPrice from '@/hooks/useTickPrice';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
+import { BuildDataWithGas } from '@/types/index';
 import { parseTokensAndAmounts, validateData } from '@/utils';
 
 interface UiState {
@@ -34,6 +35,7 @@ const defaultZapState = {
   amountsIn: '',
   errors: [],
   zapInfo: null,
+  buildData: null,
   loading: false,
   slippage: undefined,
   ttl: 20, // 20min
@@ -50,6 +52,7 @@ const defaultZapState = {
   toggleSetting: (_highlightDegenMode?: boolean) => {},
   setUiState: (_val: UiState | ((_prev: UiState) => UiState)) => {},
   getZapRoute: () => {},
+  setBuildData: (_value: BuildDataWithGas | null) => {},
 };
 
 const ZapContext = createContext<{
@@ -59,6 +62,7 @@ const ZapContext = createContext<{
   amountsIn: string;
   errors: string[];
   zapInfo: ZapRouteDetail | null;
+  buildData: BuildDataWithGas | null;
   loading: boolean;
   slippage?: number;
   minPrice: string | null;
@@ -79,6 +83,7 @@ const ZapContext = createContext<{
   toggleSetting: (_highlightDegenMode?: boolean) => void;
   setUiState: (_val: UiState | ((_prev: UiState) => UiState)) => void;
   getZapRoute: () => void;
+  setBuildData: (_value: BuildDataWithGas | null) => void;
 }>(defaultZapState);
 
 export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
@@ -123,6 +128,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
   const [uiState, setUiState] = useState(defaultUiState);
   const [ttl, setTtl] = useState(20);
   const [zapInfo, setZapInfo] = useState<ZapRouteDetail | null>(null);
+  const [buildData, setBuildData] = useState<BuildDataWithGas | null>(null);
   const [zapApiError, setZapApiError] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [defaultRevertChecked, setDefaultRevertChecked] = useState(false);
@@ -351,6 +357,8 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
         setTickUpper,
         errors,
         zapInfo,
+        buildData,
+        setBuildData,
         loading,
         minPrice,
         maxPrice,
