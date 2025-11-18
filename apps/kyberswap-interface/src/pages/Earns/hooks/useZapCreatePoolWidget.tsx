@@ -1,4 +1,4 @@
-import { API_URLS, CHAIN_ID_TO_CHAIN, ChainId, POOL_CATEGORY, Token } from '@kyber/schema'
+import { API_URLS, CHAIN_ID_TO_CHAIN, ChainId, POOL_CATEGORY, PoolType, Token } from '@kyber/schema'
 import { WidgetMode, LiquidityWidget as ZapWidget } from '@kyberswap/liquidity-widgets'
 import '@kyberswap/liquidity-widgets/dist/style.css'
 import axios, { AxiosError } from 'axios'
@@ -48,10 +48,11 @@ const useZapCreatePoolWidget = () => {
   const fetchExistingPoolAddress = useCallback(async (input: CreateConfig) => {
     const configFee = input.fee * 10_000
     const tickSpacing = Math.max(Math.round((2 * configFee) / 100), 1)
+    const poolType = ZAPIN_DEX_MAPPING[input.protocol]
     return axios
       .get(`${API_URLS.ZAP_API}/${CHAIN_ID_TO_CHAIN[input.chainId as ChainId]}/api/v1/create/route`, {
         params: {
-          dex: ZAPIN_DEX_MAPPING[input.protocol],
+          dex: poolType,
           'pool.tokens': `${input.token0.address},${input.token1.address}`,
           'pool.uniswap_v4_config.fee': configFee,
           'pool.uniswap_v4_config.tick_spacing': tickSpacing,
@@ -59,6 +60,9 @@ const useZapCreatePoolWidget = () => {
           'zap_in.position.tick_upper': tickSpacing * 10,
           'zap_in.tokens_in': input.token0.address,
           'zap_in.amounts_in': 10 ** (input.token0.decimals - 1),
+          ...(poolType === PoolType.DEX_UNISWAP_V4_FAIRFLOW && {
+            'pool.uniswap_v4_config.hooks': '0x4440854B2d02C57A0Dc5c58b7A884562D875c0c4',
+          }),
         },
       })
       .then(() => undefined)
