@@ -1,5 +1,5 @@
-import { Trans, t } from '@lingui/macro'
-import { Flex, Text } from 'rebass'
+import { Trans } from '@lingui/macro'
+import { Flex, Link, Text } from 'rebass'
 import styled from 'styled-components'
 
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
@@ -36,7 +36,9 @@ export const JoinRaffleCampaignModal = ({ isOpen, onDismiss, onConfirm }: Props)
   return (
     <Modal isOpen={isOpen} onDismiss={onDismiss} maxWidth={560}>
       <Wrapper>
-        <Text fontWeight={500}>{t`By clicking "Join Campaign" you agree to the campaign's terms and conditions.`}</Text>
+        <Text fontWeight={500} fontSize={16} marginBottom="0.5rem">
+          By clicking <Link>Join Campaign</Link> you agree to the campaign&apos;s terms and conditions
+        </Text>
         <Text color={theme.subText} paddingLeft="14px">
           <li>
             <Trans>
