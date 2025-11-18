@@ -226,38 +226,7 @@ const nearIntentWeeks: CampaignWeek[] = [
   },
 ].reverse()
 
-const raffleWeeks: CampaignWeek[] = [
-  {
-    value: 0,
-    label: (
-      <Text>
-        <Trans>
-          <Text as="span" color="#ffffff">
-            Week 1
-          </Text>{' '}
-          Nov 19 - Nov 25
-        </Trans>
-      </Text>
-    ),
-    start: 1763510400,
-    end: 1764115140,
-  },
-  {
-    value: 1,
-    label: (
-      <Text>
-        <Trans>
-          <Text as="span" color="#ffffff">
-            Week 2
-          </Text>{' '}
-          Nov 26 - Dec 02
-        </Trans>
-      </Text>
-    ),
-    start: 1764115200,
-    end: 1764719940,
-  },
-]
+const raffleWeeks: CampaignWeek[] = []
 
 export const isRaffleStarted = new Date().getTime() / 1000 > raffleWeeks[0].start
 
