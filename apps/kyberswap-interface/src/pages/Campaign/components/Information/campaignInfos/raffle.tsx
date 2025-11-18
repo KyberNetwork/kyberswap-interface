@@ -103,10 +103,10 @@ const raffleRewardSteps: { step: ReactNode; example: ReactNode }[] = [
 const raffleTimeline = (
   <>
     <li>
-      <Trans>Week 1: 00:00 19/11/2025 - 23:59 25/11/2025 UTC, 5,000 KNC (~$1,500)</Trans>
+      <Trans>Week 1: 00:00 19/11/2025 - 23:59 25/11/2025 UTC, 5,000 KNC</Trans>
     </li>
     <li>
-      <Trans>Week 2: 00:00 26/11/2025 - 23:59 02/12/2025 UTC, 5,000 KNC (~$1,500)</Trans>
+      <Trans>Week 2: 00:00 26/11/2025 - 23:59 02/12/2025 UTC, 5,000 KNC</Trans>
     </li>
   </>
 )
