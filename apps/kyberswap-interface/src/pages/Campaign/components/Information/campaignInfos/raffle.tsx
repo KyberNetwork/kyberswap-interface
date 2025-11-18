@@ -6,7 +6,6 @@ import { Text } from 'rebass'
 import { useGetRaffleCampaignStatsQuery } from 'services/campaignRaffle'
 import styled from 'styled-components'
 
-import { isRaffleStarted } from 'pages/Campaign/constants'
 import { ExternalLink } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -116,7 +115,7 @@ const raffleTimeline = (
 )
 
 const RaffleTimeline = () => {
-  const { data: campaignStats } = useGetRaffleCampaignStatsQuery(undefined, { skip: !isRaffleStarted })
+  const { data: campaignStats } = useGetRaffleCampaignStatsQuery()
   return (
     <>
       {campaignStats?.weeks.map((week, index) => {
@@ -127,7 +126,6 @@ const RaffleTimeline = () => {
           <li key={index}>
             <Trans>
               Week {index + 1}: {startTime} - {endTime} UTC, {formatDisplayNumber(reward, { significantDigits: 6 })} KNC
-              {`(~${formatDisplayNumber(reward * 0.3, { significantDigits: 6, style: 'currency' })})`}
             </Trans>
           </li>
         )
@@ -346,7 +344,7 @@ export const raffleInfo: CampaignContent = {
         </Quote>
       </li>
       <li>
-        <Trans>Make swaps on the the kyberswap.com</Trans>
+        <Trans>Make swaps on the kyberswap.com</Trans>
         <Quote>
           Note: Excluding wrapping and unwrapping of native tokens (e.g., ETH ↔ WETH, BNB ↔ WBNB…), cross-chain swaps
           and limit orders.

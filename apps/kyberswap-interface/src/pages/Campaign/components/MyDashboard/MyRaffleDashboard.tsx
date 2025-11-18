@@ -7,7 +7,7 @@ import { useGetRaffleCampaignParticipantQuery, useGetRaffleCampaignStatsQuery } 
 import Divider from 'components/Divider'
 import { useWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import { CampaignType, campaignConfig, isRaffleStarted } from 'pages/Campaign/constants'
+import { CampaignType, campaignConfig } from 'pages/Campaign/constants'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -18,11 +18,8 @@ export default function MyRaffleDashboard() {
 
   const { reward, weeks: configWeeks } = campaignConfig[CampaignType.Raffle]
 
-  const { data: campaignStats } = useGetRaffleCampaignStatsQuery(undefined, { skip: !isRaffleStarted })
-  const { data: participant } = useGetRaffleCampaignParticipantQuery(
-    { address: account || '' },
-    { skip: !isRaffleStarted || !account },
-  )
+  const { data: campaignStats } = useGetRaffleCampaignStatsQuery()
+  const { data: participant } = useGetRaffleCampaignParticipantQuery({ address: account || '' }, { skip: !account })
 
   const weeks = useMemo(() => {
     if (configWeeks.length > 0) return configWeeks

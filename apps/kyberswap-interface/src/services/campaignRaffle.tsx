@@ -61,7 +61,7 @@ export type RaffleCampaignTransaction = {
 const raffleCampaignApi = createApi({
   reducerPath: 'raffleCampaignApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: 'https://raffle-campaign.kyberengineering.io/api',
+    baseUrl: 'https://raffle-campaign.kyberswap.com/api',
   }),
   endpoints: builder => ({
     getStats: builder.query<RaffleCampaignStats, void>({

@@ -6,7 +6,6 @@ import { Flex, Text } from 'rebass'
 
 import { ButtonPrimary } from 'components/Button'
 import { APP_PATHS } from 'constants/index'
-import { ButtonPrimaryStyled } from 'pages/Earns/Landing/styles'
 import { MEDIA_WIDTHS, StyledInternalLink } from 'theme'
 
 import CampaignStats from './components/CampaignStats'
@@ -18,7 +17,7 @@ import Leaderboard from './components/Leaderboard'
 import RaffleLeaderboard from './components/Leaderboard/RaffleLeaderboard'
 import RaffleRewardModal from './components/RaffleRewardModal'
 import WeekSelect from './components/WeekSelect'
-import { CampaignType, campaignConfig, isRaffleStarted } from './constants'
+import { CampaignType, campaignConfig } from './constants'
 import { useNearIntentSelectedWallet } from './hooks/useNearIntentSelectedWallet'
 import { useRaffleCampaignJoin } from './hooks/useRaffleCampaignJoin'
 import { StatCard, Tab, Tabs, Wrapper } from './styles'
@@ -108,25 +107,21 @@ export default function CampaignPage() {
         >
           <WeekSelect type={type} selectedWeek={selectedWeek} setSelectedWeek={setSelectedWeek} />
 
-          {isRaffleCampaign && !isRaffleStarted ? (
-            <ButtonPrimaryStyled disabled>{t`Join Now`}</ButtonPrimaryStyled>
-          ) : (
-            <ButtonPrimary
-              altDisabledStyle
-              width={upToExtraSmall ? '100%' : '160px'}
-              height="40px"
-              disabled={isRaffleNotEligible || isRaffleJoinedByWeek}
-              onClick={() => {
-                if (isRaffleCampaign) {
-                  setIsJoinModalOpen(true)
-                } else {
-                  navigate(ctaLink)
-                }
-              }}
-            >
-              {isRaffleJoinedByWeek ? t`Joined` : ctaText}
-            </ButtonPrimary>
-          )}
+          <ButtonPrimary
+            altDisabledStyle
+            width={upToExtraSmall ? '100%' : '160px'}
+            height="40px"
+            disabled={isRaffleNotEligible || isRaffleJoinedByWeek}
+            onClick={() => {
+              if (isRaffleCampaign) {
+                setIsJoinModalOpen(true)
+              } else {
+                navigate(ctaLink)
+              }
+            }}
+          >
+            {isRaffleJoinedByWeek ? t`Joined` : ctaText}
+          </ButtonPrimary>
         </Flex>
       )}
 
