@@ -383,6 +383,7 @@ export default function Menu() {
                   }
                   link="/campaigns"
                   options={[
+                    { link: APP_PATHS.RAFFLE_CAMPAIGN, label: t`Weekly Rewards` },
                     { link: APP_PATHS.NEAR_INTENTS_CAMPAIGN, label: t`Cross Chain Campaign` },
                     { link: APP_PATHS.MAY_TRADING_CAMPAIGN, label: t`May Trading` },
                     { link: APP_PATHS.AGGREGATOR_CAMPAIGN, label: t`Aggregator Trading` },

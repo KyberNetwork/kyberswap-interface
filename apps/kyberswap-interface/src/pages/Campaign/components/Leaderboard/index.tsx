@@ -12,10 +12,9 @@ import LocalLoader from 'components/LocalLoader'
 import Pagination from 'components/Pagination'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
+import { CampaignType, campaignConfig } from 'pages/Campaign/constants'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
-
-import { CampaignType, campaignConfig } from '../constants'
 
 const Wrapper = styled.div`
   border-radius: 20px;
@@ -23,26 +22,22 @@ const Wrapper = styled.div`
   background: ${({ theme }) => theme.background};
   margin-top: 20px;
   ${({ theme }) => theme.mediaWidth.upToSmall`
-  padding: 1rem;
+    padding: 1rem;
   `}
 `
 
-export default function Leaderboard({
-  type,
-  week,
-  year,
-  wallet,
-}: {
+type Props = {
   type: CampaignType
-  week: number
-  year: number
+  selectedWeek: number
   wallet?: string
-}) {
+}
+
+export default function Leaderboard({ type, selectedWeek, wallet }: Props) {
   const theme = useTheme()
   const [searchParams, setSearchParams] = useSearchParams()
   const page = +(searchParams.get('page') || '1')
 
-  const { campaign, program, url, reward } = campaignConfig[type]
+  const { campaign, program, url, year, reward } = campaignConfig[type]
 
   const rewardAmount = (amount?: string): string => {
     const rewardAmount = CurrencyAmount.fromRawAmount(
@@ -55,7 +50,7 @@ export default function Leaderboard({
   const { isLoading, data } = useGetLeaderboardQuery(
     {
       program,
-      week,
+      week: selectedWeek,
       year,
       campaign,
       pageSize: 10,
@@ -73,7 +68,7 @@ export default function Leaderboard({
   const { data: userData } = useGetUserRewardQuery(
     {
       program,
-      week,
+      week: selectedWeek,
       year,
       wallet: wallet || account || '',
       campaign,
