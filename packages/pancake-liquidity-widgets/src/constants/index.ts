@@ -292,18 +292,6 @@ export const API_URL = {
   KYBERSWAP_BFF_API: "https://bff.kyberswap.com/api",
 };
 
-export const POOL_MANAGER_CONTRACT: {
-  [poolType in PoolType]: { [chainId: number]: string } | string;
-} = {
-  [PoolType.DEX_PANCAKESWAPV3]: "",
-  [PoolType.DEX_PANCAKE_INFINITY_CL]: {
-    56: "0xa0FfB9c1CE1Fe56963B0321B32E7A0302114058b",
-  },
-  [PoolType.DEX_KEM_PANCAKE_INFINITY_CL]: {
-    56: "0xa0FfB9c1CE1Fe56963B0321B32E7A0302114058b",
-  },
-};
-
 export const POSITION_MANAGER_CONTRACT: {
   [poolType in PoolType]: { [chainId: number]: Address } | Address;
 } = {

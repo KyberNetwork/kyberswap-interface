@@ -51,7 +51,6 @@ export default function usePoolInfo(
         poolAddress,
         poolType,
         chainId,
-        publicClient,
       });
 
       if (!poolInfo) {
@@ -139,7 +138,6 @@ export default function usePoolInfo(
           poolAddress,
           poolType,
           chainId,
-          publicClient,
         });
         if (!poolInfo) return;
 
