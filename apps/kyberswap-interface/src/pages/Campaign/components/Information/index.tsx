@@ -25,6 +25,7 @@ export default function Information({ type, selectedWeek }: { type: CampaignType
   const upTo400 = useMedia(`(max-width: 400px)`)
 
   const info = campaignInfos[type]
+  const isRaffleCampaign = type === CampaignType.Raffle
 
   if (!info) {
     return null
@@ -72,7 +73,7 @@ export default function Information({ type, selectedWeek }: { type: CampaignType
 
       <Flex justifyContent="space-between" marginTop="20px">
         <Flex fontSize={20} sx={{ gap: '4px' }} alignItems="center">
-          {t`🕑️ Timeline`}
+          {isRaffleCampaign ? t`🕑️ Timeline and Reward` : t`🕑️ Timeline`}
         </Flex>
 
         <ButtonIcon onClick={() => setIsShowTimeline(prev => !prev)}>

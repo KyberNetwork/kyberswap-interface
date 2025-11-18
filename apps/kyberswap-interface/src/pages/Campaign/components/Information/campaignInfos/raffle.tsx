@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import dayjs from 'dayjs'
-import { ReactNode } from 'react'
+import { PropsWithChildren, ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { Text } from 'rebass'
 import { useGetRaffleCampaignStatsQuery } from 'services/campaignRaffle'
@@ -27,6 +27,10 @@ const Quote = styled('div')`
     bottom: 6px;
   }
 `
+
+const KyberswapLink = ({ children }: PropsWithChildren) => (
+  <ExternalLink href="https://kyberswap.com">{children || 'kyberswap.com'}</ExternalLink>
+)
 
 const raffleRewardSteps: { step: ReactNode; example: ReactNode }[] = [
   {
@@ -220,7 +224,7 @@ const raffleRewards = (
       </Trans>
     </li>
     <Text color="white" fontWeight="500" marginY="8px">
-      <Trans>Reward Distribution</Trans>
+      <Trans>Rewards Distribution</Trans>
     </Text>
     <li>
       <Trans>The full campaign results will be published on KyberSwap by:</Trans>
@@ -246,8 +250,8 @@ const raffleFaq: FaqItem[] = [
   {
     q: (
       <Trans>
-        I made 1 swap on KyberSwap between 01/11/2024 and 30/10/2025 on a supported chain. How do I become eligible for
-        the campaign?
+        I made 1 swap on <KyberswapLink>KyberSwap.com</KyberswapLink> between 01/11/2024 and 30/10/2025 on a supported
+        chain. How do I become eligible for the campaign?
       </Trans>
     ),
     a: (
@@ -333,15 +337,16 @@ export const raffleInfo: CampaignContent = {
     <>
       <li>
         <Trans>
-          Click <Link to="/campaigns/weekly-rewards">Join Now</Link> on the KyberSwap UI to participate.
+          Click <Link to="/campaigns/weekly-rewards">Join Now</Link> on the kyberswap.com to participate.
         </Trans>
         <Quote>
-          Note: Wallet addresses must have at least one successful swap transaction on KyberSwap between 01/11/2024 and
-          30/10/2025 (UTC) to be eligible, excluding cross-chain, limit orders, and deprecated chains swaps.
+          Note: Wallet addresses must have at least one successful swap transaction on <KyberswapLink /> between
+          01/11/2024 and 30/10/2025 (UTC) to be eligible, excluding cross-chain, limit orders, and deprecated chains
+          swaps.
         </Quote>
       </li>
       <li>
-        <Trans>Make swaps on the the KyberSwap UI.</Trans>
+        <Trans>Make swaps on the the kyberswap.com</Trans>
         <Quote>
           Note: Excluding wrapping and unwrapping of native tokens (e.g., ETH ↔ WETH, BNB ↔ WBNB…), cross-chain swaps
           and limit orders.
