@@ -1,4 +1,4 @@
-import { ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useTokenBalances, useTokenPrices } from '@kyber/hooks';
 import { API_URLS, CHAIN_ID_TO_CHAIN, Token, ZERO_ADDRESS, ZapRouteDetail, univ3Types } from '@kyber/schema';
@@ -127,6 +127,9 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(false);
   const [defaultRevertChecked, setDefaultRevertChecked] = useState(false);
 
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const latestRequestIdRef = useRef(0);
+
   const initializing = !pool;
   const isUniV3 = !initializing && univ3Types.includes(poolType as any);
   const { token0, token1 } = initializing ? { token0: undefined, token1: undefined } : pool;
@@ -250,11 +253,21 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
       formattedAmountsInWeis === '0' ||
       formattedAmountsInWeis === '00'
     ) {
+      // No valid input → clear info and abort any in-flight request
+      abortControllerRef.current?.abort();
+      setLoading(false);
       setZapInfo(null);
       return;
     }
 
     setLoading(true);
+    // Abort previous request and prepare a new controller
+    abortControllerRef.current?.abort();
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+    const requestId = latestRequestIdRef.current + 1;
+    latestRequestIdRef.current = requestId;
+
     const params: { [key: string]: string | number | boolean } = {
       dex: poolType,
       'pool.id': poolAddress,
@@ -285,9 +298,11 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
       headers: {
         'X-Client-Id': source,
       },
+      signal: controller.signal,
     })
       .then(res => res.json())
       .then(res => {
+        if (requestId !== latestRequestIdRef.current) return;
         if (res.data) {
           setZapApiError('');
           setZapInfo(res.data);
@@ -297,30 +312,31 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
         }
       })
       .catch(e => {
+        if (requestId !== latestRequestIdRef.current) return;
+        // Ignore abort errors
+        if ((e as any)?.name === 'AbortError') return;
         const errorMessage = e instanceof Error ? e.message : 'Something went wrong';
         setZapApiError(errorMessage);
         console.error('Zap API error:', e);
       })
       .finally(() => {
-        setLoading(false);
+        if (requestId === latestRequestIdRef.current) {
+          setLoading(false);
+        }
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    debounceTickLower,
-    debounceTickUpper,
-    feeAddress,
-    feePcm,
-    slippage,
-    includedSources,
-    excludedSources,
-    source,
-    tokensIn,
-    debounceAmountsIn,
-  ]);
+  }, [debounceTickLower, debounceTickUpper, slippage, tokensIn, debounceAmountsIn]);
 
   useEffect(() => {
     getZapRoute();
   }, [getZapRoute]);
+
+  // Abort in-flight request on unmount
+  useEffect(() => {
+    return () => {
+      abortControllerRef.current?.abort();
+    };
+  }, []);
 
   return (
     <ZapContext.Provider
