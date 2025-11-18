@@ -126,7 +126,6 @@ const RaffleTimeline = () => {
           <li key={index}>
             <Trans>
               Week {index + 1}: {startTime} - {endTime} UTC, {formatDisplayNumber(reward, { significantDigits: 6 })} KNC
-              {`(~${formatDisplayNumber(reward * 0.3, { significantDigits: 6, style: 'currency' })})`}
             </Trans>
           </li>
         )

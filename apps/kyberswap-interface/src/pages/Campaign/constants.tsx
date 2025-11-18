@@ -226,9 +226,7 @@ const nearIntentWeeks: CampaignWeek[] = [
   },
 ].reverse()
 
-const raffleWeeks: CampaignWeek[] = []
-
-export const isRaffleStarted = new Date().getTime() / 1000 > raffleWeeks[0].start
+export const raffleWeeks: CampaignWeek[] = []
 
 const stipInfo = {
   year: 2024,
