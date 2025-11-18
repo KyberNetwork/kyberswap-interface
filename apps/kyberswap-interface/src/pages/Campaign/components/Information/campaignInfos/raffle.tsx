@@ -6,7 +6,6 @@ import { Text } from 'rebass'
 import { useGetRaffleCampaignStatsQuery } from 'services/campaignRaffle'
 import styled from 'styled-components'
 
-import { isRaffleStarted } from 'pages/Campaign/constants'
 import { ExternalLink } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -116,7 +115,7 @@ const raffleTimeline = (
 )
 
 const RaffleTimeline = () => {
-  const { data: campaignStats } = useGetRaffleCampaignStatsQuery(undefined, { skip: !isRaffleStarted })
+  const { data: campaignStats } = useGetRaffleCampaignStatsQuery()
   return (
     <>
       {campaignStats?.weeks.map((week, index) => {

@@ -9,7 +9,6 @@ import { SiweMessage } from 'siwe'
 
 import { NotificationType } from 'components/Announcement/type'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import { isRaffleStarted } from 'pages/Campaign/constants'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 
 const RAFFLE_JOINED_SESSION_KEY = 'raffle_joined_weeks'
@@ -66,14 +65,13 @@ export const useRaffleCampaignJoin = ({ selectedWeek }: Props) => {
   const [joinCampaign] = useJoinRaffleCampaignMutation()
 
   const { data: campaignStats, refetch: refetchCampaignStats } = useGetRaffleCampaignStatsQuery(undefined, {
-    skip: !isRaffleStarted,
     pollingInterval: 10_000,
   })
 
   const { data: participant, refetch: refetchParticipant } = useGetRaffleCampaignParticipantQuery(
     { address: account ?? '' },
     {
-      skip: !isRaffleStarted || !account,
+      skip: !account,
       pollingInterval: 10_000,
     },
   )
