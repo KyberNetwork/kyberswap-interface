@@ -345,7 +345,7 @@ export const raffleInfo: CampaignContent = {
         </Quote>
       </li>
       <li>
-        <Trans>Make swaps on the the kyberswap.com</Trans>
+        <Trans>Make swaps on the kyberswap.com</Trans>
         <Quote>
           Note: Excluding wrapping and unwrapping of native tokens (e.g., ETH ↔ WETH, BNB ↔ WBNB…), cross-chain swaps
           and limit orders.
