@@ -417,7 +417,6 @@ export const usePermitNft = ({
         return result;
       } catch (e) {
         const err = e instanceof Error ? e : new Error(String(e));
-        // eslint-disable-next-line no-console
         console.error('NFT Permit error:', err);
         setError(err);
         return null;
