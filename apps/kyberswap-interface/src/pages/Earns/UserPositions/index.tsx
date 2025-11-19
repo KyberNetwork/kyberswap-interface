@@ -382,7 +382,7 @@ const UserPositions = () => {
         />
 
         {filters.chainIds?.split(',').includes(ChainId.BASE.toString()) && (
-          <Text color={theme.subText} fontSize={12} fontStyle={'italic'}>
+          <Text color={theme.primary} fontSize={12} fontStyle={'italic'}>
             Kyber Earn data on Base is being updated. This may take a moment and will be available again at 1:00 AM UTC
             on 20 Nov 2025 — thank you for your patience.
           </Text>
