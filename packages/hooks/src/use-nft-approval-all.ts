@@ -2,8 +2,6 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { calculateGasMargin, estimateGas, getFunctionSelector, isTransactionSuccessful } from '@kyber/utils/crypto';
 
-let intervalCheckApprovalAll: ReturnType<typeof setTimeout> | null;
-
 export function useNftApprovalAll({
   rpcUrl,
   nftManagerContract,
@@ -105,11 +103,6 @@ export function useNftApprovalAll({
 
   useEffect(() => {
     checkApprovalAll();
-    intervalCheckApprovalAll = setInterval(checkApprovalAll, 8_000);
-
-    return () => {
-      if (intervalCheckApprovalAll) clearInterval(intervalCheckApprovalAll);
-    };
   }, [checkApprovalAll]);
 
   return {

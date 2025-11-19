@@ -8,8 +8,6 @@ import {
   isTransactionSuccessful,
 } from '@kyber/utils/crypto';
 
-let intervalCheckApproval: ReturnType<typeof setTimeout> | null;
-
 export function useNftApproval({
   rpcUrl,
   nftManagerContract,
@@ -108,11 +106,6 @@ export function useNftApproval({
 
   useEffect(() => {
     checkApproval();
-    intervalCheckApproval = setInterval(checkApproval, 8_000);
-
-    return () => {
-      if (intervalCheckApproval) clearInterval(intervalCheckApproval);
-    };
   }, [checkApproval]);
 
   return { isChecking, isApproved, approve, approvePendingTx, checkApproval };

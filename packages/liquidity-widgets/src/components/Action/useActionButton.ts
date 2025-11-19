@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 
 import { t } from '@lingui/macro';
 
-import { PermitNftState, usePositionOwner } from '@kyber/hooks';
+import { PermitNftState, useDebounce, usePositionOwner } from '@kyber/hooks';
 import { APPROVAL_STATE } from '@kyber/hooks';
 import { API_URLS, CHAIN_ID_TO_CHAIN, univ3PoolNormalize, univ4Types } from '@kyber/schema';
 import { translateZapImpact } from '@kyber/ui';
@@ -48,7 +48,7 @@ export default function useActionButton({ approval, deadline }: { approval: Appr
   });
   const {
     zapInfo,
-    errors,
+    errors: rawErrors,
     loading: zapLoading,
     tickLower,
     tickUpper,
@@ -59,6 +59,7 @@ export default function useActionButton({ approval, deadline }: { approval: Appr
     uiState,
     setBuildData,
   } = useZapState();
+  const errors = useDebounce(rawErrors, 200);
 
   const { address: account } = connectedAccount;
 
@@ -94,7 +95,7 @@ export default function useActionButton({ approval, deadline }: { approval: Appr
     approval.nftApproval.pendingTx ||
     approval.nftApprovalAll.pendingTx ||
     approval.tokenApproval.loading ||
-    zapLoading ||
+    (zapLoading && !zapInfo) ||
     gasLoading ||
     approval.nftApproval.isChecking ||
     approval.nftApprovalAll.isChecking ||
@@ -116,13 +117,13 @@ export default function useActionButton({ approval, deadline }: { approval: Appr
       text: t`Approving...`,
     },
     { condition: gasLoading, text: t`Estimating Gas...` },
-    { condition: approval.tokenApproval.loading, text: t`Checking Allowance...` },
+    // { condition: approval.tokenApproval.loading, text: t`Checking Allowance...` },
     { condition: errors.length > 0, text: translateErrorMessage(errors[0]) },
     {
       condition: needApproveNft && (approval.nftApproval.isChecking || approval.nftApprovalAll.isChecking),
       text: t`Checking Approval...`,
     },
-    { condition: zapLoading, text: t`Fetching Route...` },
+    { condition: zapLoading && !zapInfo, text: t`Fetching Route...` },
     { condition: isUniv4 && isNotOwner, text: t`Not the position owner` },
     { condition: tokenInNotApproved, text: t`Approve ${tokenInNotApproved?.symbol ?? ''}` },
     { condition: !zapInfo, text: t`No route found` },
@@ -139,12 +140,12 @@ export default function useActionButton({ approval, deadline }: { approval: Appr
   );
   const nftApprovalDisabled = Boolean(
     isInNftApprovalStep &&
-      (approval.nftApproval.isChecking ||
-        approval.nftApprovalAll.isChecking ||
+      (approval.nftApproval.pendingTx ||
+        approval.nftApprovalAll.pendingTx ||
         approval.permit.state === PermitNftState.SIGNING),
   );
   const nftApprovalText =
-    approval.nftApproval.isChecking || approval.nftApprovalAll.isChecking ? t`Checking Approval...` : t`Approve NFT`;
+    approval.nftApproval.pendingTx || approval.nftApprovalAll.pendingTx ? t`Approving...` : t`Approve NFT`;
   const permitEnable = Boolean(
     isInNftApprovalStep &&
       (approval.permit.state === PermitNftState.READY_TO_SIGN ||
