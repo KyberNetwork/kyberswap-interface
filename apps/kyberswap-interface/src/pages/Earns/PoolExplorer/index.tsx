@@ -51,6 +51,13 @@ export const BaseWarningWrapper = styled.div`
   margin: 0 auto;
 `
 
+export const isWithinBaseMaintenanceWindow = () => {
+  const nowMs = Date.now()
+  const MAINTENANCE_END_UTC_MS = Date.UTC(2025, 10, 20, 1, 0, 0) // 1:00 AM UTC, 20 Nov 2025
+  const MAINTENANCE_START_UTC_MS = MAINTENANCE_END_UTC_MS - 2 * 60 * 60 * 1000 // 2 hours before
+  return nowMs >= MAINTENANCE_START_UTC_MS && nowMs <= MAINTENANCE_END_UTC_MS
+}
+
 const PoolExplorer = () => {
   const [search, setSearch] = useState('')
   const deboundedSearch = useDebounce(search, DEBOUNCE_DELAY)
@@ -68,10 +75,6 @@ const PoolExplorer = () => {
   const { data: poolData, isError } = usePoolsExplorerQuery(filters, { pollingInterval: POLLING_INTERVAL })
 
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
-  // const nowMs = Date.now()
-  // const MAINTENANCE_END_UTC_MS = Date.UTC(2025, 10, 20, 1, 0, 0) // 1:00 AM UTC, 20 Nov 2025
-  // const MAINTENANCE_START_UTC_MS = MAINTENANCE_END_UTC_MS - 2 * 60 * 60 * 1000 // 2 hours before
-  // const isWithinMaintenanceWindow = nowMs >= MAINTENANCE_START_UTC_MS && nowMs <= MAINTENANCE_END_UTC_MS
 
   const onSortChange = (sortBy: string) => {
     if (!filters.sortBy || filters.sortBy !== sortBy) {
@@ -194,7 +197,7 @@ const PoolExplorer = () => {
       </div>
 
       <Filter filters={filters} updateFilters={updateFilters} search={search} setSearch={setSearch} />
-      {filters.chainId === ChainId.BASE && (
+      {filters.chainId === ChainId.BASE && isWithinBaseMaintenanceWindow() && (
         <BaseWarningWrapper>
           <Text color={theme.subText} fontSize={12} fontWeight={500} fontStyle={'italic'}>
             Kyber Earn data on Base is being updated. This may take a moment and will be available again at 1:00 AM UTC

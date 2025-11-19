@@ -14,7 +14,7 @@ import Pagination from 'components/Pagination'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import { BaseWarningWrapper } from 'pages/Earns/PoolExplorer'
+import { BaseWarningWrapper, isWithinBaseMaintenanceWindow } from 'pages/Earns/PoolExplorer'
 import { ContentWrapper, Disclaimer, NavigateButton } from 'pages/Earns/PoolExplorer/styles'
 import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
 import Filter from 'pages/Earns/UserPositions/Filter'
@@ -382,7 +382,7 @@ const UserPositions = () => {
           }}
         />
 
-        {filters.chainIds?.split(',').includes(ChainId.BASE.toString()) && (
+        {filters.chainIds?.split(',').includes(ChainId.BASE.toString()) && isWithinBaseMaintenanceWindow() && (
           <BaseWarningWrapper>
             <Text color={theme.subText} fontSize={12} fontWeight={500} fontStyle={'italic'}>
               Kyber Earn data on Base is being updated. This may take a moment and will be available again at 1:00 AM
