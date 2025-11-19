@@ -8,6 +8,7 @@ import styled from 'styled-components'
 
 import ArbitrumDark from 'assets/images/Arbitrum_HorizontalLogo-dark.svg'
 import KNCGraphic from 'assets/images/knc-graphic.png'
+import monadIcon from 'assets/networks/monad.svg'
 import AboutAvalanche from 'assets/svg/about_icon_avalanche.svg'
 import BSC from 'assets/svg/about_icon_bsc.svg'
 import ForTraderImage from 'assets/svg/for_trader.svg'
@@ -361,6 +362,10 @@ function AboutKyberSwap() {
                   width="80px"
                 />
                 <Text>Plasma</Text>
+              </Flex>
+              <Flex sx={{ gap: '12px', width: 'auto' }} alignItems="center">
+                <img src={monadIcon} alt="Monad" width="80px" />
+                <Text>Monad</Text>
               </Flex>
             </Powered>
           </Text>
