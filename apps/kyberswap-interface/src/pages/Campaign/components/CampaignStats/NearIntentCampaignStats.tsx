@@ -1,4 +1,4 @@
-import { ChainId, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
+import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
@@ -10,6 +10,7 @@ import Column from 'components/Column'
 import NavGroup from 'components/Header/groups/NavGroup'
 import useTheme from 'hooks/useTheme'
 import { SelectChainModal } from 'pages/Campaign/components/SelectChainModal'
+import { CampaignType, campaignConfig } from 'pages/Campaign/constants'
 import { useNearIntentSelectedWallet } from 'pages/Campaign/hooks/useNearIntentSelectedWallet'
 import { StatCard } from 'pages/Campaign/styles'
 import { BitcoinConnectModal } from 'pages/CrossChainSwap/components/BitcoinConnectModal'
@@ -23,24 +24,12 @@ const AddressText = styled(Text)`
   }
 `
 
-export const NearIntentCampaignStats = ({
-  year,
-  selectedWeek,
-  reward,
-  selectedWalletParams,
-}: {
-  year: number
-  selectedWeek: number
-  reward: {
-    chainId: ChainId
-    address: string
-    symbol: string
-    decimals: number
-    logo: string
-  }
-  selectedWalletParams: ReturnType<typeof useNearIntentSelectedWallet>
-}) => {
+const NearIntentCampaignStats = ({ selectedWeek }: { selectedWeek: number }) => {
   const theme = useTheme()
+  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+
+  const { year, reward } = campaignConfig[CampaignType.NearIntents]
+
   const {
     selectedWallet,
     connect,
@@ -58,9 +47,7 @@ export const NearIntentCampaignStats = ({
     nearAddress,
     setSelectedWallet,
     termAndPolicyModal,
-  } = selectedWalletParams
-
-  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+  } = useNearIntentSelectedWallet()
 
   const params = {
     program: 'stip' as const,
@@ -70,44 +57,10 @@ export const NearIntentCampaignStats = ({
     url: 'https://kyberswap-near-intents.kyberengineering.io/api/v1',
   }
 
-  const { data: evmData } = useGetUserRewardQuery(
-    {
-      ...params,
-      wallet: evmWallet || '',
-    },
-    {
-      skip: !evmWallet,
-    },
-  )
-  const { data: btcData } = useGetUserRewardQuery(
-    {
-      ...params,
-      wallet: btcAddress || '',
-    },
-    {
-      skip: !btcAddress,
-    },
-  )
-
-  const { data: nearData } = useGetUserRewardQuery(
-    {
-      ...params,
-      wallet: nearAddress || '',
-    },
-    {
-      skip: !nearAddress,
-    },
-  )
-
-  const { data: solanaData } = useGetUserRewardQuery(
-    {
-      ...params,
-      wallet: solanaWallet || '',
-    },
-    {
-      skip: !solanaWallet,
-    },
-  )
+  const { data: evmData } = useGetUserRewardQuery({ ...params, wallet: evmWallet || '' }, { skip: !evmWallet })
+  const { data: btcData } = useGetUserRewardQuery({ ...params, wallet: btcAddress || '' }, { skip: !btcAddress })
+  const { data: nearData } = useGetUserRewardQuery({ ...params, wallet: nearAddress || '' }, { skip: !nearAddress })
+  const { data: solanaData } = useGetUserRewardQuery({ ...params, wallet: solanaWallet || '' }, { skip: !solanaWallet })
 
   const data = {
     EVM: evmData?.data,
@@ -269,3 +222,5 @@ export const NearIntentCampaignStats = ({
     </StatCard>
   )
 }
+
+export default NearIntentCampaignStats

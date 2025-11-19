@@ -21,13 +21,14 @@ import useTheme from 'hooks/useTheme'
 import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
 import { ButtonIcon } from 'pages/Pools/styleds'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
-import { MEDIA_WIDTHS, StyledInternalLink } from 'theme'
+import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 import { useNavigateToUrl } from 'utils/redirect'
 
 import ClaimBtn from './components/ClaimBtn'
-import { MyNearIntentDashboard } from './components/MyNearIntentDashboard'
-import MyReferralDashboard from './components/MyReferralDashboard'
+import MyNearIntentDashboard from './components/MyDashboard/MyNearIntentDashboard'
+import MyRaffleDashboard from './components/MyDashboard/MyRaffleDashboard'
+import MyReferralDashboard from './components/MyDashboard/MyReferralDashboard'
 import { CampaignType, campaignConfig } from './constants'
 import { useNearIntentCampaignReward } from './hooks/useNearIntentCampaignReward'
 import { Tab, Tabs, Wrapper } from './styles'
@@ -37,7 +38,7 @@ const TableHeader = styled.div`
   grid-template-columns: 1.5fr 1fr 1fr 1.25fr 100px;
   font-size: 12px;
   color: ${({ theme }) => theme.subText};
-  padding: 1rem;
+  padding: 1rem 0;
   gap: 1rem;
   font-weight: 500;
 `
@@ -60,12 +61,14 @@ export function getDateOfWeek(w: number, y: number) {
   return new Date(y, 0, d)
 }
 
+const NEW_CAMPAIGN = CampaignType.Raffle
+
 const MyDashboard = () => {
   const { account } = useActiveWeb3React()
   const navigate = useNavigateToUrl()
   const theme = useTheme()
   const [searchParams, setSearchParams] = useSearchParams()
-  const tab: CampaignType = (searchParams.get('tab') || CampaignType.NearIntents) as CampaignType
+  const tab: CampaignType = (searchParams.get('tab') || NEW_CAMPAIGN) as CampaignType
   const changeTab = (t: CampaignType) => {
     searchParams.set('tab', t)
     setSearchParams(searchParams)
@@ -74,6 +77,7 @@ const MyDashboard = () => {
   const { reward, baseWeek, banner } = campaignConfig[tab]
 
   const campaignLabelMap: Record<CampaignType, string> = {
+    [CampaignType.Raffle]: t`Weekly Rewards`,
     [CampaignType.NearIntents]: t`Cross Chain`,
     [CampaignType.MayTrading]: t`May Trading`,
     [CampaignType.Aggregator]: t`Trading`,
@@ -223,6 +227,10 @@ const MyDashboard = () => {
 
   const endedCampaigns = [
     {
+      type: CampaignType.NearIntents,
+      label: campaignLabelMap[CampaignType.NearIntents],
+    },
+    {
       type: CampaignType.MayTrading,
       label: campaignLabelMap[CampaignType.MayTrading],
     },
@@ -238,39 +246,41 @@ const MyDashboard = () => {
       type: CampaignType.Referrals,
       label: campaignLabelMap[CampaignType.Referrals],
     },
-  ].filter(
-    item =>
-      (item.type === CampaignType.MayTrading && Number(mayTrading?.data?.totalClaimableReward || '0') > 0) ||
-      (item.type === CampaignType.Aggregator && Number(stipTrading?.data?.totalClaimableReward || '0') > 0) ||
-      (item.type === CampaignType.LimitOrder && Number(stipLoData?.data?.totalClaimableReward || '0') > 0) ||
-      (item.type === CampaignType.Referrals && Number(referralReward || '0') > 0),
-  )
+  ]
+
+  const endedCampaignsHaveRewards = endedCampaigns.filter(item => {
+    if (item.type === tab) {
+      return true
+    }
+    if (item.type === CampaignType.NearIntents) {
+      return totalNearCampaignReward > 0n
+    }
+    if (item.type === CampaignType.MayTrading) {
+      return Number(mayTrading?.data?.totalClaimableReward || '0') > 0
+    }
+    if (item.type === CampaignType.Aggregator) {
+      return Number(stipTrading?.data?.totalClaimableReward || '0') > 0
+    }
+    if (item.type === CampaignType.LimitOrder) {
+      return Number(stipLoData?.data?.totalClaimableReward || '0') > 0
+    }
+    if (item.type === CampaignType.Referrals) {
+      return Number(referralReward || '0') > 0
+    }
+    return false
+  })
 
   const infor = (
     <InfoHelper
       text={
-        <Text>
-          <Trans>
-            The Estimated Rewards will vary based on the points earned by you and all campaign participants during the
-            week. Check out how they are calculated in the{' '}
-            <StyledInternalLink
-              to={
-                tab === CampaignType.NearIntents
-                  ? '/campaigns/near-intents?tab=information'
-                  : tab === CampaignType.MayTrading
-                  ? '/campaigns/may-trading?tab=information'
-                  : tab === CampaignType.Aggregator
-                  ? '/campaigns/aggregator?tab=information'
-                  : CampaignType.LimitOrder === tab
-                  ? '/campaigns/limit-order?tab=information'
-                  : '/campaigns/referrals?tab=information'
-              }
-            >
-              Information
-            </StyledInternalLink>{' '}
-            tab.
-          </Trans>
-        </Text>
+        <Trans>
+          The Estimated Rewards will vary based on the points earned by you and all campaign participants during the
+          week. Check out how they are calculated in the{' '}
+          <Text as="span" fontWeight="500" color={theme.primary}>
+            Information
+          </Text>{' '}
+          tab.
+        </Trans>
       }
     />
   )
@@ -376,26 +386,54 @@ const MyDashboard = () => {
       </Flex>
 
       <Tabs>
-        <Tab
-          role="button"
-          active={tab === CampaignType.NearIntents}
-          onClick={() => changeTab(CampaignType.NearIntents)}
-        >
+        <Tab role="button" active={tab === NEW_CAMPAIGN} onClick={() => changeTab(NEW_CAMPAIGN)}>
           <Flex>
-            <Trans>Cross Chain</Trans>{' '}
+            {campaignLabelMap[NEW_CAMPAIGN]}{' '}
             <NewLabel>
               <Trans>NEW</Trans>
             </NewLabel>
           </Flex>
         </Tab>
-        {!upToSmall ? (
-          <>
+        {endedCampaignsHaveRewards.slice(0, upToSmall ? 1 : undefined).map(campaign => (
+          <Tab
+            key={campaign.type}
+            role="button"
+            active={tab === campaign.type}
+            onClick={() => changeTab(campaign.type)}
+          >
+            <Flex>
+              {campaign.label}
+              <ELabel>
+                <Trans>ENDED</Trans>
+              </ELabel>
+            </Flex>
+          </Tab>
+        ))}
+        <Flex justifyContent="flex-end" flex={1}>
+          <ButtonIcon onClick={() => setShowModal(true)}>
+            <MoreHorizontal size={16} />
+          </ButtonIcon>
+        </Flex>
+        <Modal
+          isOpen={showModal}
+          onDismiss={() => setShowModal(false)}
+          maxHeight={90}
+          maxWidth={600}
+          bypassScrollLock={true}
+          bypassFocusLock={true}
+          zindex={99999}
+          width="240px"
+        >
+          <Flex width="100%" flexDirection="column" padding="24px" sx={{ gap: '24px' }}>
             {endedCampaigns.map(campaign => (
               <Tab
                 key={campaign.type}
                 role="button"
                 active={tab === campaign.type}
-                onClick={() => changeTab(campaign.type)}
+                onClick={() => {
+                  changeTab(campaign.type)
+                  setShowModal(false)
+                }}
               >
                 <Flex>
                   {campaign.label}
@@ -405,72 +443,20 @@ const MyDashboard = () => {
                 </Flex>
               </Tab>
             ))}
-          </>
-        ) : (
-          <Flex justifyContent="space-between" sx={{ gap: '8px' }} flex={1}>
-            <Tab
-              active={tab !== CampaignType.NearIntents}
-              onClick={() => {
-                //
-              }}
-            >
-              <Flex>
-                {tab === CampaignType.NearIntents ? endedCampaigns?.[0]?.label || '' : campaignLabelMap[tab]}
-                {endedCampaigns.length > 0 && (
-                  <ELabel>
-                    <Trans>ENDED</Trans>
-                  </ELabel>
-                )}
-              </Flex>
-            </Tab>
-            {endedCampaigns.length > 0 && (
-              <ButtonIcon onClick={() => setShowModal(true)}>
-                <MoreHorizontal size={16} />
-              </ButtonIcon>
-            )}
-            <Modal
-              isOpen={showModal}
-              onDismiss={() => setShowModal(false)}
-              maxHeight={90}
-              maxWidth={600}
-              bypassScrollLock={true}
-              bypassFocusLock={true}
-              zindex={99999}
-              width="240px"
-            >
-              <Flex width="100%" flexDirection="column" padding="24px" sx={{ gap: '24px' }}>
-                {endedCampaigns.map(campaign => (
-                  <Tab
-                    key={campaign.type}
-                    role="button"
-                    active={tab === campaign.type}
-                    onClick={() => {
-                      changeTab(campaign.type)
-                      setShowModal(false)
-                    }}
-                  >
-                    <Flex>
-                      {campaign.label}
-                      <ELabel>
-                        <Trans>ENDED</Trans>
-                      </ELabel>
-                    </Flex>
-                  </Tab>
-                ))}
-              </Flex>
-            </Modal>
           </Flex>
-        )}
+        </Modal>
       </Tabs>
 
       {tab === CampaignType.NearIntents ? (
-        <MyNearIntentDashboard reward={reward} />
+        <MyNearIntentDashboard />
       ) : !account ? (
         <Text marginTop="30px" textAlign="center" color={theme.subText}>
           <Trans>Please connect wallet to view your Dashboard</Trans>
         </Text>
       ) : tab === CampaignType.Referrals ? (
         <MyReferralDashboard price={stipRewardPrice} infor={infor} />
+      ) : tab === CampaignType.Raffle ? (
+        <MyRaffleDashboard />
       ) : (
         <Box marginTop="1.25rem" sx={{ borderRadius: '20px', background: theme.background }} padding="1.5rem">
           <Box
@@ -478,7 +464,7 @@ const MyDashboard = () => {
               display: 'grid',
               gap: '1rem',
               gridTemplateColumns: upToSmall ? '1fr' : '1fr 1fr 1fr',
-              marginBottom: '28px',
+              marginBottom: '24px',
             }}
           >
             <div>
@@ -542,23 +528,24 @@ const MyDashboard = () => {
           <Divider />
 
           {!upToSmall && (
-            <TableHeader>
-              <Text>
-                <Trans>WEEK</Trans>
-              </Text>
-              <Text textAlign="right">
-                <Trans>POINTS EARNED</Trans>
-              </Text>
-              <Text textAlign="right">
-                <Trans>ESTIMATED REWARDS</Trans> {infor}
-              </Text>
-              <Text textAlign="right">
-                <Trans>TOTAL CLAIMABLE REWARDS</Trans>
-              </Text>
-            </TableHeader>
+            <>
+              <TableHeader>
+                <Text>
+                  <Trans>WEEK</Trans>
+                </Text>
+                <Text textAlign="right">
+                  <Trans>POINTS EARNED</Trans>
+                </Text>
+                <Text textAlign="right">
+                  <Trans>ESTIMATED REWARDS</Trans> {infor}
+                </Text>
+                <Text textAlign="right">
+                  <Trans>TOTAL CLAIMABLE REWARDS</Trans>
+                </Text>
+              </TableHeader>
+              <Divider />
+            </>
           )}
-
-          <Divider />
 
           {!data?.data?.weeklyRewards?.length && (
             <Text color={theme.subText} textAlign="center" marginTop="24px">
