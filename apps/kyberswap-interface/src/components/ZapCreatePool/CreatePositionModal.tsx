@@ -1,4 +1,4 @@
-import { ChainId, POOL_CATEGORY, Token } from '@kyber/schema'
+import { ChainId, POOL_CATEGORY, Token as TokenSchema } from '@kyber/schema'
 import { TOKEN_SELECT_MODE, TokenLogo, TokenSelectorModal } from '@kyber/ui'
 import { Trans } from '@lingui/macro'
 import Portal from '@reach/portal'
@@ -74,6 +74,8 @@ const CATEGORY_FEE_PRESETS: Record<POOL_CATEGORY, FeePreset> = {
 
 const availableChains: number[] = [ChainId.Ethereum, ChainId.Bsc, ChainId.Base]
 
+type Token = TokenSchema & { isFOT?: boolean }
+
 export type CreatePoolModalConfig = {
   chainId: number
   protocol: Exchange
@@ -146,7 +148,8 @@ const CreatePositionModal = ({ isOpen, filterChainId, onDismiss, onSubmit }: Pro
     setToken1(null)
   }, [selectedChainId])
 
-  const canSubmit = !!token0 && !!token1 && !!fee && !isSubmitting
+  const tokensFOT = [token0, token1].filter(token => token?.isFOT).map(token => token?.symbol)
+  const canSubmit = !!token0 && !!token1 && !!fee && !isSubmitting && tokensFOT.length === 0
 
   const handleConfirm = () => {
     if (!canSubmit) return
@@ -263,6 +266,11 @@ const CreatePositionModal = ({ isOpen, filterChainId, onDismiss, onSubmit }: Pro
                 <DropdownSVG color={theme.subText} />
               </TokenSelectWrapper>
             </Row>
+            {tokensFOT.length > 0 && (
+              <Text fontSize="14px" color={theme.warning} mt="-4px">
+                <Trans>Can&apos;t create pool because {tokensFOT.join(' and ')} are fee-on-transfer tokens</Trans>
+              </Text>
+            )}
           </Section>
 
           <Section>
