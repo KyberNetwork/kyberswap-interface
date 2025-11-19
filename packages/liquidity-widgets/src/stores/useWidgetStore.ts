@@ -52,7 +52,6 @@ const initState = {
   nativeToken: defaultToken,
   wrappedNativeToken: defaultToken,
   error: undefined,
-  setError: () => {},
   onConnectWallet: () => {},
   onSwitchChain: () => {},
   onSubmitTx: (_txData: { from: string; to: string; value: string; data: string; gasLimit: string }) =>

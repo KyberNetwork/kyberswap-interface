@@ -1,6 +1,4 @@
-import { useNftApproval, useNftApprovalAll } from '@kyber/hooks';
 import { univ3Types, univ4Types } from '@kyber/schema';
-import { getNftManagerContractAddress } from '@kyber/utils';
 
 import Action from '@/components/Action';
 import PoolStat from '@/components/Content/PoolStat';
@@ -22,61 +20,27 @@ import PriceRange from '@/components/PriceRange';
 import Setting from '@/components/Setting';
 import TokenInput from '@/components/TokenInput';
 import Warning from '@/components/Warning';
+import useApproval from '@/hooks/useApproval';
 import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 import { PriceType } from '@/types/index';
 
 export default function Widget() {
-  const { chainId, rpcUrl, poolType, connectedAccount, positionId, onSubmitTx } = useWidgetStore([
-    'chainId',
-    'rpcUrl',
-    'poolType',
-    'connectedAccount',
-    'positionId',
-    'onSubmitTx',
-  ]);
+  const { poolType, positionId } = useWidgetStore(['poolType', 'positionId']);
   const { pool } = usePoolStore(['pool']);
-  const { zapInfo, getZapRoute, buildData, setBuildData } = useZapState();
+  const { getZapRoute, buildData, setBuildData } = useZapState();
+  const approval = useApproval();
 
   const initializing = !pool;
 
   const isUniV3 = univ3Types.includes(poolType as any);
   const isUniv4 = univ4Types.includes(poolType);
 
-  const nftManagerContract = getNftManagerContractAddress(poolType, chainId);
-  const {
-    isApproved: nftApproved,
-    approve: approveNft,
-    approvePendingTx: nftApprovePendingTx,
-    checkApproval: checkNftApproval,
-    isChecking: isCheckingNftApproval,
-  } = useNftApproval({
-    tokenId: positionId ? +positionId : undefined,
-    spender: zapInfo?.routerAddress || '',
-    userAddress: connectedAccount?.address || '',
-    rpcUrl,
-    nftManagerContract,
-    onSubmitTx: onSubmitTx,
-  });
-  const {
-    isApproved: nftApprovedAll,
-    approveAll: approveNftAll,
-    approvePendingTx: nftApprovePendingTxAll,
-    checkApprovalAll: checkNftApprovalAll,
-    isChecking: isCheckingNftApprovalAll,
-  } = useNftApprovalAll({
-    spender: zapInfo?.routerAddress || '',
-    userAddress: connectedAccount?.address || '',
-    rpcUrl,
-    nftManagerContract,
-    onSubmitTx: onSubmitTx,
-  });
-
   const onClosePreview = () => {
     if (isUniv4) {
-      checkNftApproval();
-      checkNftApprovalAll();
+      approval.nftApproval.check();
+      approval.nftApprovalAll.check();
     }
     setBuildData(null);
     getZapRoute();
@@ -119,20 +83,7 @@ export default function Widget() {
             <Warning />
           </div>
         </div>
-        <Action
-          nftApproval={{
-            approved: nftApproved,
-            onApprove: approveNft,
-            pendingTx: nftApprovePendingTx,
-            isChecking: isCheckingNftApproval,
-          }}
-          nftApprovalAll={{
-            approved: nftApprovedAll,
-            onApprove: approveNftAll,
-            pendingTx: nftApprovePendingTxAll,
-            isChecking: isCheckingNftApprovalAll,
-          }}
-        />
+        <Action approval={approval} />
       </div>
       <Setting />
     </div>
