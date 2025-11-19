@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -13,6 +14,7 @@ import Pagination from 'components/Pagination'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
+import { BaseWarningWrapper, isWithinBaseMaintenanceWindow } from 'pages/Earns/PoolExplorer'
 import { ContentWrapper, Disclaimer, NavigateButton } from 'pages/Earns/PoolExplorer/styles'
 import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
 import Filter from 'pages/Earns/UserPositions/Filter'
@@ -379,6 +381,15 @@ const UserPositions = () => {
             setLoading(true)
           }}
         />
+
+        {filters.chainIds?.split(',').includes(ChainId.BASE.toString()) && isWithinBaseMaintenanceWindow() && (
+          <BaseWarningWrapper>
+            <Text color={theme.subText} fontSize={12} fontWeight={500} fontStyle={'italic'}>
+              Kyber Earn data on Base is being updated. This may take a moment and will be available again at 1:00 AM
+              UTC on 20 Nov 2025 — thank you for your patience.
+            </Text>
+          </BaseWarningWrapper>
+        )}
 
         <PositionTableWrapper>
           <ContentWrapper>
