@@ -199,19 +199,17 @@ export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool,
               <button
                 className="ks-outline-btn flex-1"
                 onClick={() => {
-                  // Navigate to the explore pools page
+                  onClose?.();
+                  onDismiss();
                 }}
               >
-                <Trans>Explore pools</Trans>
+                <Trans>Close</Trans>
               </button>
-              <button
-                className="ks-primary-btn flex-1"
-                onClick={() => {
-                  // Navigate to the newly created pool page
-                }}
-              >
-                <Trans>View your pool</Trans>
-              </button>
+              {onViewPosition ? (
+                <button className="ks-primary-btn flex-1" onClick={() => onViewPosition(txHash)}>
+                  <Trans>View position</Trans>
+                </button>
+              ) : null}
             </>
           ) : (
             <>
@@ -238,7 +236,12 @@ export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool,
             </>
           )
         }
-        onClose={onDismiss}
+        onClose={() => {
+          if (txStatus === 'success' && isCreateMode) {
+            onClose?.();
+          }
+          onDismiss();
+        }}
       />
     );
   }

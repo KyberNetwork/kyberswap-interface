@@ -3,16 +3,20 @@ import { WidgetMode, LiquidityWidget as ZapWidget } from '@kyberswap/liquidity-w
 import '@kyberswap/liquidity-widgets/dist/style.css'
 import axios, { AxiosError } from 'axios'
 import { useCallback, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import Modal from 'components/Modal'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useActiveLocale } from 'hooks/useActiveLocale'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { Exchange } from 'pages/Earns/constants'
-import { ZAPIN_DEX_MAPPING } from 'pages/Earns/constants/dexMappings'
+import { ZAPIN_DEX_MAPPING, getDexFromPoolType } from 'pages/Earns/constants/dexMappings'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import { submitTransaction } from 'pages/Earns/utils'
+import { navigateToPositionAfterZap } from 'pages/Earns/utils/zap'
 import { useKyberSwapConfig, useWalletModalToggle } from 'state/application/hooks'
+import { useTransactionAdder } from 'state/transactions/hooks'
+import { TRANSACTION_TYPE } from 'state/transactions/type'
 
 type CreateConfig = {
   chainId: number
@@ -34,6 +38,8 @@ const useZapCreatePoolWidget = () => {
   const { account, chainId: connectedChainId } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
   const { library } = useWeb3React()
+  const navigate = useNavigate()
+  const addTransactionWithType = useTransactionAdder()
 
   const [config, setConfig] = useState<WidgetConfig | null>(null)
 
@@ -72,6 +78,21 @@ const useZapCreatePoolWidget = () => {
       })
   }, [])
 
+  const handleNavigateToPosition = useCallback(
+    async (txHash: string, config: WidgetConfig) => {
+      if (!library || !config) return
+      const poolAddress = await fetchExistingPoolAddress(config)
+
+      const poolType = ZAPIN_DEX_MAPPING[config.protocol]
+      const dex = getDexFromPoolType(poolType)
+
+      if (!dex || !poolAddress) return
+
+      navigateToPositionAfterZap(library, txHash, config.chainId, dex, poolAddress, navigate)
+    },
+    [library, navigate, fetchExistingPoolAddress],
+  )
+
   const widgetProps = useMemo(() => {
     if (!config) return null
 
@@ -96,17 +117,57 @@ const useZapCreatePoolWidget = () => {
           : undefined,
       source: 'kyberswap-earn',
       locale,
-      onClose: handleClose,
+      onViewPosition: (txHash: string) => {
+        handleNavigateToPosition(txHash, config)
+        handleClose()
+      },
+      onClose: () => {
+        handleClose()
+      },
       onConnectWallet: toggleWalletModal,
       onSwitchChain: () => changeNetwork(config.chainId),
-      onSubmitTx: async (txData: { from: string; to: string; data: string; value: string; gasLimit: string }) => {
-        if (!library) throw new Error('Wallet not connected')
+      onSubmitTx: async (
+        txData: { from: string; to: string; data: string; value: string; gasLimit: string },
+        additionalInfo?: {
+          tokensIn: Array<{ symbol: string; amount: string; logoUrl?: string }>
+          pool: string
+          dexLogo: string
+        },
+      ) => {
         const res = await submitTransaction({ library, txData })
-        if (!res.txHash || res.error) throw new Error(res.error?.message || 'Transaction failed')
+        const { txHash, error } = res
+
+        if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
+
+        if (config && additionalInfo) {
+          addTransactionWithType({
+            hash: txHash,
+            type: TRANSACTION_TYPE.EARN_ADD_LIQUIDITY,
+            extraInfo: {
+              pool: additionalInfo.pool,
+              tokensIn: additionalInfo.tokensIn,
+              dexLogoUrl: additionalInfo.dexLogo,
+              dex: config.protocol,
+            },
+          })
+        }
+
         return res.txHash
       },
     }
-  }, [account, changeNetwork, config, connectedChainId, defaultRpc, handleClose, library, locale, toggleWalletModal])
+  }, [
+    account,
+    addTransactionWithType,
+    changeNetwork,
+    config,
+    connectedChainId,
+    defaultRpc,
+    handleClose,
+    handleNavigateToPosition,
+    library,
+    locale,
+    toggleWalletModal,
+  ])
 
   const widget = widgetProps ? (
     <Modal isOpen mobileFullWidth maxWidth={900} width={'900px'} onDismiss={handleClose}>
