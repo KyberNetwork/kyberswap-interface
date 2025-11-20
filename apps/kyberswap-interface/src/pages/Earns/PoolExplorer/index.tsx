@@ -4,7 +4,6 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { usePoolsExplorerQuery } from 'services/zapEarn'
-import styled from 'styled-components'
 
 import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_earn_position.svg'
 import { NotificationType } from 'components/Announcement/type'
@@ -41,21 +40,6 @@ export enum SortBy {
 
 const POLLING_INTERVAL = 5 * 60_000
 const DEBOUNCE_DELAY = 300
-
-export const BaseWarningWrapper = styled.div`
-  border-radius: 40px;
-  padding: 6px 12px;
-  background-color: ${({ theme }) => theme.background};
-  width: fit-content;
-  margin: 0 auto;
-`
-
-export const isWithinBaseMaintenanceWindow = () => {
-  const nowMs = Date.now()
-  const MAINTENANCE_END_UTC_MS = new Date('2025-11-20T04:00:00Z').getTime() // 4:00 AM UTC, 20 Nov 2025
-  const MAINTENANCE_START_UTC_MS = MAINTENANCE_END_UTC_MS - 5 * 60 * 60 * 1000 // 5 hours before
-  return nowMs >= MAINTENANCE_START_UTC_MS && nowMs <= MAINTENANCE_END_UTC_MS
-}
 
 const PoolExplorer = () => {
   const [search, setSearch] = useState('')
@@ -196,14 +180,6 @@ const PoolExplorer = () => {
       </div>
 
       <Filter filters={filters} updateFilters={updateFilters} search={search} setSearch={setSearch} />
-      {isWithinBaseMaintenanceWindow() && (
-        <BaseWarningWrapper>
-          <Text color={theme.subText} fontSize={12} fontWeight={500} fontStyle={'italic'}>
-            Kyber Earn data on <b>Base</b> is being updated. This may take a moment and will be available again at 4:00
-            AM UTC on 20 Nov 2025 — thank you for your patience.
-          </Text>
-        </BaseWarningWrapper>
-      )}
 
       {upToLarge && (
         <NavigateButton
