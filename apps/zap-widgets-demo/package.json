@@ -28,6 +28,7 @@
     "@eslint/js": "^9.11.1",
     "@kyber/tailwind-config": "workspace:^",
     "@kyber/ui": "workspace:^",
+    "@kyber/schema": "workspace:*",
     "@kyber/utils": "workspace:^",
     "@types/react": "^18.3.10",
     "@types/react-dom": "^18.3.0",
