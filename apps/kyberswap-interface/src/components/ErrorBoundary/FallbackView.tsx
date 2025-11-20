@@ -42,7 +42,7 @@ const BodyWrapper = styled.div`
 
 const CodeBlockWrapper = styled.div`
   overflow: auto;
-  white-space: pre;
+  white-space: pre-line;
 `
 
 const LinkWrapper = styled.div`

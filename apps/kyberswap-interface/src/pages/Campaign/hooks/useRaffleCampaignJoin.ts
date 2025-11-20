@@ -1,0 +1,152 @@
+import { t } from '@lingui/macro'
+import { useCallback } from 'react'
+import {
+  useGetRaffleCampaignParticipantQuery,
+  useGetRaffleCampaignStatsQuery,
+  useJoinRaffleCampaignMutation,
+} from 'services/campaignRaffle'
+import { SiweMessage } from 'siwe'
+
+import { NotificationType } from 'components/Announcement/type'
+import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useNotify, useWalletModalToggle } from 'state/application/hooks'
+
+const RAFFLE_JOINED_SESSION_KEY = 'raffle_joined_weeks'
+
+type JoinedWeeksStore = Record<string, Record<number, boolean>>
+
+const readJoinedWeeksStore = (): JoinedWeeksStore => {
+  if (typeof window === 'undefined') return {}
+  try {
+    const raw = window.sessionStorage.getItem(RAFFLE_JOINED_SESSION_KEY)
+    return raw ? JSON.parse(raw) : {}
+  } catch (error) {
+    console.warn('Failed to read raffle session store', error)
+    return {}
+  }
+}
+
+const hasJoinedWeekInSession = (address: string, weekIndex: number) => {
+  if (weekIndex < 0) return false
+  const normalized = address.toLowerCase()
+  const store = readJoinedWeeksStore()
+  return !!store[normalized]?.[weekIndex]
+}
+
+const saveJoinedWeekInSession = (address: string, weekIndex: number) => {
+  if (typeof window === 'undefined' || weekIndex < 0) return
+  const normalized = address.toLowerCase()
+  const store = readJoinedWeeksStore()
+  const accountStore = store[normalized] || {}
+  const nextStore = {
+    ...store,
+    [normalized]: {
+      ...accountStore,
+      [weekIndex]: true,
+    },
+  }
+  try {
+    window.sessionStorage.setItem(RAFFLE_JOINED_SESSION_KEY, JSON.stringify(nextStore))
+  } catch (error) {
+    console.warn('Failed to save raffle session store', error)
+  }
+}
+
+type Props = {
+  selectedWeek: number
+}
+
+export const useRaffleCampaignJoin = ({ selectedWeek }: Props) => {
+  const { account, chainId } = useActiveWeb3React()
+  const { library } = useWeb3React()
+  const toggleWalletModal = useWalletModalToggle()
+  const notify = useNotify()
+
+  const [joinCampaign] = useJoinRaffleCampaignMutation()
+
+  const { data: campaignStats, refetch: refetchCampaignStats } = useGetRaffleCampaignStatsQuery(undefined, {
+    pollingInterval: 10_000,
+  })
+
+  const { data: participant, refetch: refetchParticipant } = useGetRaffleCampaignParticipantQuery(
+    { address: account ?? '' },
+    {
+      skip: !account,
+      pollingInterval: 10_000,
+    },
+  )
+
+  const isNotEligible = !!account && participant?.eligible === false
+  const participantJoined =
+    selectedWeek >= 0 && !!participant?.[`joined_week${selectedWeek + 1}_at` as keyof typeof participant]
+
+  const sessionJoined = !!account && hasJoinedWeekInSession(account, selectedWeek)
+
+  const isJoinedByWeek = participantJoined || sessionJoined
+
+  const onJoin = useCallback(async () => {
+    if (!account) {
+      toggleWalletModal()
+      return
+    }
+    if (!library) {
+      notify({
+        title: t`Unable to access wallet`,
+        summary: t`Please reconnect your wallet and try again.`,
+        type: NotificationType.ERROR,
+      })
+      return
+    }
+
+    try {
+      const nonce = String(10_000_000 + Math.floor(Math.random() * 90_000_000))
+
+      const message = new SiweMessage({
+        domain: window.location.host,
+        address: account,
+        uri: window.location.origin,
+        version: '1',
+        chainId,
+        nonce,
+        issuedAt: new Date().toISOString(),
+      }).prepareMessage()
+
+      const signature = await library.getSigner().signMessage(message)
+      await joinCampaign({ address: account, message, signature, week: `week_${selectedWeek + 1}` }).unwrap()
+      saveJoinedWeekInSession(account, selectedWeek)
+
+      notify({
+        title: t`Joined Weekly Rewards`,
+        type: NotificationType.SUCCESS,
+      })
+    } catch (error) {
+      console.warn('Raffle campaign join error:', error)
+      notify({
+        title: t`Unable to join Weekly Rewards`,
+        summary: error.message || error.data?.message || t`Something went wrong. Please try again.`,
+        type: NotificationType.ERROR,
+      })
+    } finally {
+      refetchParticipant()
+      refetchCampaignStats()
+    }
+  }, [
+    account,
+    chainId,
+    joinCampaign,
+    library,
+    selectedWeek,
+    notify,
+    refetchParticipant,
+    refetchCampaignStats,
+    toggleWalletModal,
+  ])
+
+  return {
+    onJoin,
+    isJoinedByWeek,
+    isNotEligible,
+    participant,
+    campaignStats,
+  }
+}
