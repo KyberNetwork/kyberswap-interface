@@ -35,7 +35,7 @@ import {
   POSITION_MANAGER_CONTRACT,
   CoreProtocol,
 } from "@/constants";
-import { tickToPrice } from "@kyber/utils/uniswapv3";
+import { sqrtToPrice } from "@kyber/utils/uniswapv3";
 import { useNftApproval } from "@/hooks/useNftApproval";
 
 export default function Content({
@@ -275,8 +275,8 @@ export default function Content({
   }, [snapshotState, onTogglePreview]);
 
   const currentPoolPrice = pool
-    ? tickToPrice(
-        pool.tickCurrent,
+    ? sqrtToPrice(
+        BigInt(pool.sqrtRatioX96 || 0),
         pool.token0.decimals,
         pool.token1.decimals,
         revertPrice

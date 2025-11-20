@@ -2,7 +2,7 @@ import { useWidgetInfo } from "@/hooks/useWidgetInfo";
 import { useZapState } from "@/hooks/useZapInState";
 import { formatNumber } from "@/utils";
 import SwitchIcon from "@/assets/switch.svg";
-import { tickToPrice } from "@kyber/utils/uniswapv3";
+import { sqrtToPrice } from "@kyber/utils/uniswapv3";
 import { formatDisplayNumber } from "@kyber/utils/number";
 
 export default function PriceInfo() {
@@ -12,8 +12,8 @@ export default function PriceInfo() {
   if (loading) return <div className="text-textSecondary">Loading...</div>;
 
   const poolPrice = pool
-    ? tickToPrice(
-        pool.tickCurrent,
+    ? sqrtToPrice(
+        BigInt(pool.sqrtRatioX96 || 0),
         pool.token0?.decimals,
         pool.token1?.decimals,
         revertPrice
@@ -25,8 +25,8 @@ export default function PriceInfo() {
     pool &&
     Math.abs(
       marketPrice /
-        +tickToPrice(
-          pool.tickCurrent,
+        +sqrtToPrice(
+          BigInt(pool.sqrtRatioX96 || 0),
           pool.token0.decimals,
           pool.token1.decimals,
           false
