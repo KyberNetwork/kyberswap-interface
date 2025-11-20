@@ -40,6 +40,31 @@ import { isSupportedChainId } from 'constants/networks'
 import { useAppDispatch } from 'state/hooks'
 import { updateChainId } from 'state/user/actions'
 
+export const monad = defineChain({
+  id: ChainId.MONAD,
+  name: 'Monad',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'MON',
+    symbol: 'MON',
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://rpc-mainnet.monadinfra.com/rpc/ICLJSp4IKDWLSpZ4laJATUQfL0ucwxiK'],
+      webSocket: ['wss://rpc-mainnet.monadinfra.com/rpc/ICLJSp4IKDWLSpZ4laJATUQfL0ucwxiK'],
+    },
+  },
+  blockExplorers: {
+    default: { name: 'Explorer', url: 'https://mainnet-beta.monvision.io' },
+  },
+  contracts: {
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 1,
+    },
+  },
+})
+
 export const plasma = defineChain({
   id: ChainId.PLASMA,
   name: 'Plasma',
@@ -287,6 +312,7 @@ const wagmiChains = [
   hyperevm,
   etherlink,
   plasma,
+  monad,
 ] as const
 
 export const wagmiConfig = createConfig({

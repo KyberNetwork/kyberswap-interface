@@ -28,6 +28,7 @@ const WETH_ONLY: ChainTokenList = {
   [ChainId.HYPEREVM]: [WETH[ChainId.HYPEREVM]],
   [ChainId.ETHERLINK]: [WETH[ChainId.ETHERLINK]],
   [ChainId.PLASMA]: [WETH[ChainId.PLASMA]],
+  [ChainId.MONAD]: [WETH[ChainId.MONAD]],
 }
 
 // used to construct intermediary pairs for trading

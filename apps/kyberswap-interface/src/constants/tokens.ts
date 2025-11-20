@@ -49,6 +49,7 @@ export const STABLE_COIN_ADDRESSES_TO_TAKE_FEE: Record<ChainId, string[]> = {
   [ChainId.HYPEREVM]: [],
   [ChainId.ETHERLINK]: [],
   [ChainId.PLASMA]: [],
+  [ChainId.MONAD]: [],
 }
 
 // This is basically the same as STABLE_COIN_ADDRESSES_TO_TAKE_FEE,
@@ -118,6 +119,10 @@ export const SUPER_STABLE_COINS_ADDRESS: { [chainId in ChainId]: string[] } = {
   [ChainId.HYPEREVM]: [],
   [ChainId.ETHERLINK]: [],
   [ChainId.PLASMA]: [],
+  [ChainId.MONAD]: [
+    '0x754704Bc059F8C67012fEd69BC8A327a5aafb603', // USDC
+    '0xe7cd86e13AC4309349F30B3435a9d337750fC82D', // USDT0
+  ],
 }
 
 export const CORRELATED_COINS_ADDRESS: { [chainId in ChainId]: string[][] } = {
@@ -386,6 +391,7 @@ export const CORRELATED_COINS_ADDRESS: { [chainId in ChainId]: string[][] } = {
   [ChainId.HYPEREVM]: [],
   [ChainId.ETHERLINK]: [],
   [ChainId.PLASMA]: [],
+  [ChainId.MONAD]: [],
 }
 
 export const KNC_ADDRESS = '0xdeFA4e8a7bcBA345F687a2f1456F5Edd9CE97202'
@@ -416,6 +422,7 @@ export const KNC: { [chainId in ChainId]: Token } = {
   [ChainId.HYPEREVM]: new Token(ChainId.RONIN, KNC_ADDRESS, 18, 'KNC', 'KNC'),
   [ChainId.ETHERLINK]: new Token(ChainId.RONIN, KNC_ADDRESS, 18, 'KNC', 'KNC'),
   [ChainId.PLASMA]: new Token(ChainId.RONIN, KNC_ADDRESS, 18, 'KNC', 'KNC'),
+  [ChainId.MONAD]: new Token(ChainId.MONAD, KNC_ADDRESS, 18, 'KNC', 'KNC'),
 }
 
 export const DEFAULT_OUTPUT_TOKEN_BY_CHAIN: Partial<Record<ChainId, Token>> = {
@@ -446,6 +453,7 @@ export const DEFAULT_OUTPUT_TOKEN_BY_CHAIN: Partial<Record<ChainId, Token>> = {
   [ChainId.HYPEREVM]: new Token(ChainId.HYPEREVM, '0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb', 6, 'USD₮0', 'USD₮0'),
   [ChainId.ETHERLINK]: new Token(ChainId.ETHERLINK, '0x796Ea11Fa2dD751eD01b53C372fFDB4AAa8f00F9', 6, 'USDC', 'USDC'),
   [ChainId.PLASMA]: new Token(ChainId.PLASMA, '0xB8CE59FC3717ada4C02eaDF9682A9e934F625ebb', 6, 'USDT0', 'USDT0'),
+  [ChainId.MONAD]: new Token(ChainId.MONAD, '0x754704Bc059F8C67012fEd69BC8A327a5aafb603', 6, 'USDC', 'USDC'),
 }
 
 export const DEFAULT_SWAP_FEE_STABLE_PAIRS = 4
