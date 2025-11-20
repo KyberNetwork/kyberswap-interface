@@ -63,6 +63,7 @@ export default function Content({
     positionId,
     degenMode,
     revertPrice,
+    getZapRoute,
   } = useZapState();
   const {
     pool,
@@ -311,6 +312,11 @@ export default function Content({
     if (tickLower === null && tickUpper === null && pool) selectPriceRange(0.2);
   }, [pool, selectPriceRange, tickLower, tickUpper]);
 
+  const onDismissPreview = useCallback(() => {
+    setSnapshotState(null);
+    getZapRoute?.();
+  }, [getZapRoute]);
+
   return (
     <>
       {loadPoolError && (
@@ -328,13 +334,13 @@ export default function Content({
         </Modal>
       )}
       {snapshotState && (
-        <Modal isOpen onClick={() => setSnapshotState(null)}>
+        <Modal isOpen onClick={onDismissPreview}>
           <div className="flex justify-between text-xl font-medium">
             <div>{positionId ? "Increase" : "Add"} Liquidity via Zap</div>
             <div
               className="cursor-pointer"
               role="button"
-              onClick={() => setSnapshotState(null)}
+              onClick={onDismissPreview}
             >
               <X />
             </div>
@@ -344,9 +350,7 @@ export default function Content({
             onTxSubmit={onTxSubmit}
             checkNftApproval={checkNftApproval}
             zapState={snapshotState}
-            onDismiss={() => {
-              setSnapshotState(null);
-            }}
+            onDismiss={onDismissPreview}
           />
         </Modal>
       )}
