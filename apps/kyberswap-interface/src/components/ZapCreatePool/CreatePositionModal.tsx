@@ -268,7 +268,11 @@ const CreatePositionModal = ({ isOpen, filterChainId, onDismiss, onSubmit }: Pro
             </Row>
             {tokensFOT.length > 0 && (
               <Text fontSize="14px" color={theme.warning} mt="-4px">
-                <Trans>Can&apos;t create pool because {tokensFOT.join(' and ')} are fee-on-transfer tokens</Trans>
+                {tokensFOT.length > 1 ? (
+                  <Trans>Can&apos;t create pool because {tokensFOT.join(' and ')} are fee-on-transfer tokens</Trans>
+                ) : (
+                  <Trans>Can&apos;t create pool because {tokensFOT[0]} is a fee-on-transfer token</Trans>
+                )}
               </Text>
             )}
           </Section>
