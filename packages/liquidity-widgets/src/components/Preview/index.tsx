@@ -34,7 +34,7 @@ import { SlippageWarning } from '@/components/SlippageWarning';
 import { useZapState } from '@/hooks/useZapState';
 import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
-import { ZapSnapshotState } from '@/types/index';
+import { WidgetMode, ZapSnapshotState } from '@/types/index';
 import { parseTokensAndAmounts } from '@/utils';
 
 export interface PreviewProps {
@@ -45,6 +45,7 @@ export interface PreviewProps {
 
 export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool, onDismiss }: PreviewProps) {
   const {
+    mode,
     chainId,
     rpcUrl,
     poolType,
@@ -56,6 +57,7 @@ export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool,
     positionId,
     onClose,
   } = useWidgetStore([
+    'mode',
     'chainId',
     'rpcUrl',
     'poolType',
@@ -75,6 +77,7 @@ export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool,
   const [txError, setTxError] = useState<Error | null>(null);
   const { txStatus } = useTxStatus({ txHash });
 
+  const isCreateMode = mode === WidgetMode.CREATE;
   const { success: isUniV3 } = univ3PoolNormalize.safeParse(pool);
 
   const { token0, token1 } = pool;
@@ -110,7 +113,7 @@ export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool,
       }),
     }));
 
-    fetch(`${API_URLS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/in/route/build`, {
+    fetch(`${API_URLS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/${mode}/route/build`, {
       method: 'POST',
       body: JSON.stringify({
         sender: account,
@@ -178,41 +181,67 @@ export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool,
                 : StatusDialogType.WAITING
         }
         description={
-          txStatus !== 'success' && txStatus !== 'failed' && !txError && !txHash
-            ? t`Confirm this transaction in your wallet - Zapping` +
-              ' ' +
-              (positionId && isUniV3
-                ? t`Position #${positionId}`
-                : t`${dexName} ${pool.token0.symbol}/${pool.token1.symbol} ${pool.fee}%`)
-            : undefined
+          txStatus === 'success' && isCreateMode
+            ? t`You have successfully created your Pool.`
+            : txStatus !== 'success' && txStatus !== 'failed' && !txError && !txHash
+              ? t`Confirm this transaction in your wallet - Zapping` +
+                ' ' +
+                (positionId && isUniV3
+                  ? t`Position #${positionId}`
+                  : t`${dexName} ${pool.token0.symbol}/${pool.token1.symbol} ${pool.fee}%`)
+              : undefined
         }
         errorMessage={txError ? translatedErrorMessage : undefined}
         transactionExplorerUrl={txHash ? `${NETWORKS_INFO[chainId].scanLink}/tx/${txHash}` : undefined}
         action={
-          <>
-            <button
-              className="ks-outline-btn flex-1"
-              onClick={() => {
-                if (txStatus === 'success' && onClose) onClose();
-                onDismiss();
-              }}
-            >
-              <Trans>Close</Trans>
-            </button>
-            {txStatus === 'success' ? (
-              onViewPosition ? (
+          txStatus === 'success' && isCreateMode ? (
+            <>
+              <button
+                className="ks-outline-btn flex-1"
+                onClick={() => {
+                  onClose?.();
+                  onDismiss();
+                }}
+              >
+                <Trans>Close</Trans>
+              </button>
+              {onViewPosition ? (
                 <button className="ks-primary-btn flex-1" onClick={() => onViewPosition(txHash)}>
                   <Trans>View position</Trans>
                 </button>
-              ) : null
-            ) : errorMessage.includes('slippage') ? (
-              <button className="ks-primary-btn flex-1" onClick={handleSlippage}>
-                {slippage !== suggestedSlippage ? t`Use Suggested Slippage` : t`Set Custom Slippage`}
+              ) : null}
+            </>
+          ) : (
+            <>
+              <button
+                className="ks-outline-btn flex-1"
+                onClick={() => {
+                  if (txStatus === 'success' && onClose) onClose();
+                  onDismiss();
+                }}
+              >
+                <Trans>Close</Trans>
               </button>
-            ) : null}
-          </>
+              {txStatus === 'success' ? (
+                onViewPosition ? (
+                  <button className="ks-primary-btn flex-1" onClick={() => onViewPosition(txHash)}>
+                    <Trans>View position</Trans>
+                  </button>
+                ) : null
+              ) : errorMessage.includes('slippage') ? (
+                <button className="ks-primary-btn flex-1" onClick={handleSlippage}>
+                  {slippage !== suggestedSlippage ? t`Use Suggested Slippage` : t`Set Custom Slippage`}
+                </button>
+              ) : null}
+            </>
+          )
         }
-        onClose={onDismiss}
+        onClose={() => {
+          if (txStatus === 'success' && isCreateMode) {
+            onClose?.();
+          }
+          onDismiss();
+        }}
       />
     );
   }
@@ -221,15 +250,21 @@ export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool,
     <Dialog open={true} onOpenChange={onDismiss}>
       <DialogContent className="ks-lw-style max-h-[85vh] max-w-[480px] overflow-auto" aria-describedby={undefined}>
         <DialogTitle>
-          {positionId ? <Trans>Increase Liquidity via Zap</Trans> : <Trans>Add Liquidity via Zap</Trans>}
+          {isCreateMode ? (
+            <Trans>Create Pool with Zap</Trans>
+          ) : positionId ? (
+            <Trans>Increase Liquidity via Zap</Trans>
+          ) : (
+            <Trans>Add Liquidity via Zap</Trans>
+          )}
         </DialogTitle>
-        <div>
+        <div className="flex flex-col gap-4">
           <Head pool={pool} />
 
-          <ZapInAmount zapInfo={zapInfo} />
+          <ZapInAmount />
           <PriceInfo pool={pool} />
 
-          <div className="flex flex-col items-center gap-3 mt-4">
+          <div className="flex flex-col items-center gap-3">
             <PooledAmount pool={pool} positionAmountInfo={positionAmountInfo} addedAmountInfo={addedAmountInfo} />
             <EstimatedRow
               initializing={false}
@@ -361,7 +396,13 @@ export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool,
             )}
             onClick={handleClick}
           >
-            {positionId ? <Trans>Increase liquidity</Trans> : <Trans>Add liquidity</Trans>}
+            {isCreateMode ? (
+              <Trans>Create Pool with Zap</Trans>
+            ) : positionId ? (
+              <Trans>Increase liquidity</Trans>
+            ) : (
+              <Trans>Add liquidity</Trans>
+            )}
           </button>
         </DialogFooter>
       </DialogContent>

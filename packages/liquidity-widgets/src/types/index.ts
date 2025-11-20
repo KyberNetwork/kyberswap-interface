@@ -1,4 +1,4 @@
-import { ChainId, PoolType, Theme, ZapRouteDetail } from '@kyber/schema';
+import { ChainId, POOL_CATEGORY, PoolType, Theme, Token, ZapRouteDetail } from '@kyber/schema';
 
 import { SupportedLocale } from '@/i18n';
 
@@ -9,6 +9,18 @@ export enum TxStatus {
   FAILED = 'failed',
 }
 
+export enum WidgetMode {
+  CREATE = 'create',
+  IN = 'in',
+}
+
+export interface CreatePoolConfig {
+  token0: Token;
+  token1: Token;
+  poolCategory: POOL_CATEGORY;
+  fee: number;
+}
+
 export interface WidgetProps {
   theme?: Theme;
   chainId: ChainId;
@@ -16,6 +28,8 @@ export interface WidgetProps {
   poolAddress: string;
   positionId?: string;
   poolType: PoolType;
+  mode?: WidgetMode;
+  createPoolConfig?: CreatePoolConfig;
   connectedAccount: {
     address?: string | undefined;
     chainId: number;
