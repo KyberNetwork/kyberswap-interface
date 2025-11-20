@@ -1,4 +1,12 @@
-import { API_URLS, CHAIN_ID_TO_CHAIN, ChainId, POOL_CATEGORY, PoolType, Token } from '@kyber/schema'
+import {
+  API_URLS,
+  CHAIN_ID_TO_CHAIN,
+  ChainId,
+  NATIVE_TOKEN_ADDRESS,
+  POOL_CATEGORY,
+  PoolType,
+  Token,
+} from '@kyber/schema'
 import { WidgetMode, LiquidityWidget as ZapWidget } from '@kyberswap/liquidity-widgets'
 import '@kyberswap/liquidity-widgets/dist/style.css'
 import axios, { AxiosError } from 'axios'
@@ -31,6 +39,17 @@ type CreateConfig = {
 type WidgetConfig = CreateConfig & {
   mode: WidgetMode
   poolAddress?: string
+}
+
+const sortTokensByAddress = (tokenA: Token, tokenB: Token): [Token, Token] => {
+  const nativeAddress = NATIVE_TOKEN_ADDRESS.toLowerCase()
+  const addressA = tokenA.address.toLowerCase()
+  const addressB = tokenB.address.toLowerCase()
+
+  if (addressA === nativeAddress) return [tokenA, tokenB]
+  if (addressB === nativeAddress) return [tokenB, tokenA]
+
+  return addressA < addressB ? [tokenA, tokenB] : [tokenB, tokenA]
 }
 
 const useZapCreatePoolWidget = () => {
@@ -198,8 +217,11 @@ const useZapCreatePoolWidget = () => {
         mode = WidgetMode.IN
         poolAddress = existingPoolAddress
       }
+      const [token0, token1] = sortTokensByAddress(newConfig.token0, newConfig.token1)
       setConfig({
         ...newConfig,
+        token0,
+        token1,
         mode,
         poolAddress,
       })
