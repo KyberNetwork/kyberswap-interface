@@ -1,4 +1,3 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
@@ -53,8 +52,8 @@ export const BaseWarningWrapper = styled.div`
 
 export const isWithinBaseMaintenanceWindow = () => {
   const nowMs = Date.now()
-  const MAINTENANCE_END_UTC_MS = Date.UTC(2025, 10, 20, 1, 0, 0) // 1:00 AM UTC, 20 Nov 2025
-  const MAINTENANCE_START_UTC_MS = MAINTENANCE_END_UTC_MS - 2 * 60 * 60 * 1000 // 2 hours before
+  const MAINTENANCE_END_UTC_MS = new Date('2025-11-20T04:00:00Z').getTime() // 4:00 AM UTC, 20 Nov 2025
+  const MAINTENANCE_START_UTC_MS = MAINTENANCE_END_UTC_MS - 5 * 60 * 60 * 1000 // 5 hours before
   return nowMs >= MAINTENANCE_START_UTC_MS && nowMs <= MAINTENANCE_END_UTC_MS
 }
 
@@ -197,11 +196,11 @@ const PoolExplorer = () => {
       </div>
 
       <Filter filters={filters} updateFilters={updateFilters} search={search} setSearch={setSearch} />
-      {filters.chainId === ChainId.BASE && isWithinBaseMaintenanceWindow() && (
+      {isWithinBaseMaintenanceWindow() && (
         <BaseWarningWrapper>
           <Text color={theme.subText} fontSize={12} fontWeight={500} fontStyle={'italic'}>
-            Kyber Earn data on Base is being updated. This may take a moment and will be available again at 1:00 AM UTC
-            on 20 Nov 2025 — thank you for your patience.
+            Kyber Earn data on <b>Base</b> is being updated. This may take a moment and will be available again at 4:00
+            AM UTC on 20 Nov 2025 — thank you for your patience.
           </Text>
         </BaseWarningWrapper>
       )}
