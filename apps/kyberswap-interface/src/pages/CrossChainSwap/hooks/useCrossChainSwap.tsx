@@ -9,7 +9,7 @@ import { parseUnits } from 'viem'
 import { useWalletClient } from 'wagmi'
 
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
-import { TOKEN_API_URL } from 'constants/env'
+import { CROSSCHAIN_AGGREGATOR_API, TOKEN_API_URL } from 'constants/env'
 import {
   BTC_DEFAULT_RECEIVER,
   CROSS_CHAIN_FEE_RECEIVER,
@@ -35,11 +35,82 @@ import {
   NonEvmChain,
   NormalizedQuote,
   QuoteParams,
-  SwapProvider,
 } from '../adapters'
 import { CrossChainSwapFactory } from '../factory'
 import { CrossChainSwapAdapterRegistry, Quote } from '../registry'
 import { NEAR_STABLE_COINS, SOLANA_STABLE_COINS, isCanonicalPair } from '../utils'
+
+// Mapping from ChainId/NonEvmChain to aggregator API chain names
+const CHAIN_TO_API_NAME: Partial<Record<Chain, string>> = {
+  [NonEvmChain.Bitcoin]: 'bitcoin',
+  [NonEvmChain.Near]: 'near',
+  [NonEvmChain.Solana]: 'solana',
+  [ChainId.MAINNET]: 'ethereum',
+  [ChainId.BASE]: 'base',
+  [ChainId.ARBITRUM]: 'arbitrum',
+  [ChainId.OPTIMISM]: 'optimism',
+  [ChainId.MATIC]: 'polygon',
+  [ChainId.BSCMAINNET]: 'bsc',
+  [ChainId.AVAXMAINNET]: 'avalanche',
+  [ChainId.LINEA]: 'linea',
+  [ChainId.SCROLL]: 'scroll',
+  [ChainId.BLAST]: 'blast',
+  [ChainId.ZKSYNC]: 'zksync',
+  [ChainId.SONIC]: 'sonic',
+  [ChainId.FANTOM]: 'fantom',
+  [ChainId.BERA]: 'bera',
+  [ChainId.MANTLE]: 'mantle',
+  [ChainId.RONIN]: 'ronin',
+  [ChainId.UNICHAIN]: 'unichain',
+  [ChainId.HYPEREVM]: 'hyperevm',
+  [ChainId.ETHERLINK]: 'etherlink',
+  [ChainId.PLASMA]: 'plasma',
+}
+
+// Reverse mapping from API chain names to ChainId/NonEvmChain
+export const API_NAME_TO_CHAIN: Record<string, Chain> = {
+  bitcoin: NonEvmChain.Bitcoin,
+  near: NonEvmChain.Near,
+  solana: NonEvmChain.Solana,
+  ethereum: ChainId.MAINNET,
+  base: ChainId.BASE,
+  arbitrum: ChainId.ARBITRUM,
+  optimism: ChainId.OPTIMISM,
+  polygon: ChainId.MATIC,
+  bsc: ChainId.BSCMAINNET,
+  avalanche: ChainId.AVAXMAINNET,
+  linea: ChainId.LINEA,
+  scroll: ChainId.SCROLL,
+  blast: ChainId.BLAST,
+  zksync: ChainId.ZKSYNC,
+  sonic: ChainId.SONIC,
+  fantom: ChainId.FANTOM,
+  bera: ChainId.BERA,
+  mantle: ChainId.MANTLE,
+  ronin: ChainId.RONIN,
+  unichain: ChainId.UNICHAIN,
+  hyperevm: ChainId.HYPEREVM,
+  etherlink: ChainId.ETHERLINK,
+  plasma: ChainId.PLASMA,
+}
+
+const getChainName = (chain: Chain): string => {
+  return CHAIN_TO_API_NAME[chain] || chain.toString()
+}
+
+export const getChainIdFromName = (chainName: string): Chain => {
+  return API_NAME_TO_CHAIN[chainName.toLowerCase()] || chainName
+}
+
+// SSE Event types from the server
+const SSE_EVENT_INIT = 'init'
+const SSE_EVENT_QUOTE = 'quote'
+const SSE_EVENT_PROVIDER_ERROR = 'provider_error'
+const SSE_EVENT_COMPLETE = 'complete'
+const SSE_EVENT_ERROR = 'error'
+
+// Timeout constants
+const SOFT_TIMEOUT_MS = 4000 // 4 seconds - enable swap button if at least 1 quote exists
 
 export const registry = new CrossChainSwapAdapterRegistry()
 CrossChainSwapFactory.getAllAdapters().forEach(adapter => {
@@ -547,77 +618,312 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     setLoading(true)
     setAllLoading(true)
 
+    // Track quote fetching time
+    const quoteStartTime = performance.now()
+    console.log('[Quote Timing] Starting to fetch quotes...')
+
     const getQuotesWithCancellation = async (params: QuoteParams | NearQuoteParams) => {
-      let allAdapters = registry.getAllAdapters().filter(a => !excludedSources.includes(a.getName()))
-
-      if (allAdapters.length === 0) {
-        //  if use uncheck all, using all change
-        allAdapters = registry.getAllAdapters()
-      }
-
-      // Create a modified version of getQuotes that can be cancelled
       const quotes: Quote[] = []
-      const adapters =
+
+      // Check if this is a same-chain EVM swap
+      const isSameChainEvmSwap =
         params.fromChain === params.toChain &&
         isEvmChain(params.fromChain) &&
         !NOT_SUPPORTED_CHAINS_PRICE_SERVICE.includes(params.fromChain) &&
         !NOT_SUPPORTED_CHAINS_PRICE_SERVICE.includes(params.toChain)
-          ? registry.getAdapter('KyberSwap')
-            ? ([registry.getAdapter('KyberSwap')] as SwapProvider[])
-            : ([] as SwapProvider[])
-          : allAdapters.filter(
-              adapter =>
-                adapter.getName() !== 'KyberSwap' &&
-                adapter.getSupportedChains().includes(params.fromChain) &&
-                adapter.getSupportedChains().includes(params.toChain),
-            )
-      // Map each adapter to a promise that can be cancelled
-      const quotePromises = adapters.map(async adapter => {
-        try {
-          // Check for cancellation before starting
-          if (signal.aborted) throw new Error('Cancelled')
 
-          // Skip adapter if it does not support the category
-          if (!adapter.canSupport(category, currencyIn, currencyOut)) {
-            // reason will be logged in adapter.canSupport for specific adapter
-            return
+      // For same-chain EVM swaps, use KyberSwap adapter directly (old logic)
+      if (isSameChainEvmSwap) {
+        const kyberswapAdapter = registry.getAdapter('KyberSwap')
+
+        // Check if KyberSwap is excluded or doesn't support the category (unless all sources are excluded)
+        const isKyberSwapExcluded =
+          excludedSources.includes('KyberSwap') && excludedSources.length < registry.getAllAdapters().length
+
+        const isKyberSwapSupported = kyberswapAdapter?.canSupport(category, currencyIn, currencyOut) ?? true
+
+        if (kyberswapAdapter && !isKyberSwapExcluded && isKyberSwapSupported) {
+          try {
+            console.log('Using KyberSwap adapter for same-chain swap')
+            if (signal.aborted) throw new Error('Cancelled')
+
+            const quote = await Promise.race([kyberswapAdapter.getQuote(params), createTimeoutPromise(9_000)])
+
+            if (signal.aborted) throw new Error('Cancelled')
+
+            quotes.push({ adapter: kyberswapAdapter, quote })
+            setQuotes(quotes)
+            setLoading(false)
+          } catch (err) {
+            if ((err as Error).message === 'Cancelled' || signal.aborted) {
+              throw new Error('Cancelled')
+            }
+            console.error(`Failed to get quote from KyberSwap:`, err)
+            throw new Error('No valid quotes found for the requested swap')
           }
-
-          // Race between the adapter quote and timeout
-          const quote = await Promise.race([adapter.getQuote(params), createTimeoutPromise(9_000)])
-
-          // Check for cancellation after getting quote
-          if (signal.aborted) throw new Error('Cancelled')
-
-          quotes.push({ adapter, quote })
-          const sortedQuotes = [...quotes].sort((a, b) => {
-            const netA = getNetOutputAmount(a.quote)
-            const netB = getNetOutputAmount(b.quote)
-            return netA < netB ? 1 : -1
-          })
-          setQuotes(sortedQuotes)
-          setLoading(false)
-        } catch (err) {
-          if (err.message === 'Cancelled' || signal.aborted) {
-            throw new Error('Cancelled')
-          }
-          console.error(`Failed to get quote from ${adapter.getName()}:`, err)
         }
-      })
 
-      await Promise.all(quotePromises)
-
-      if (quotes.length === 0) {
-        throw new Error('No valid quotes found for the requested swap')
+        if (isKyberSwapExcluded) {
+          throw new Error('KyberSwap is excluded. Please enable it for same-chain swaps.')
+        }
+        if (!isKyberSwapSupported) {
+          throw new Error('KyberSwap does not support this token pair category.')
+        }
+        throw new Error('KyberSwap adapter not available')
       }
 
-      // Sort by net output amount (after protocol fees)
-      quotes.sort((a, b) => {
-        const netA = getNetOutputAmount(a.quote)
-        const netB = getNetOutputAmount(b.quote)
-        return netA < netB ? 1 : -1
+      // For cross-chain swaps, use the streaming API (new logic)
+      // The streaming API handles provider selection on the backend
+
+      // Construct the API URL with parameters
+      const fromToken = (params.fromToken as any).isNative
+        ? ZERO_ADDRESS
+        : (params.fromToken as any).wrapped?.address ||
+          (params.fromToken as any).address ||
+          (params.fromToken as any).id ||
+          (params.fromToken as any).assetId
+      const toToken = (params.toToken as any).isNative
+        ? ZERO_ADDRESS
+        : (params.toToken as any).wrapped?.address ||
+          (params.toToken as any).address ||
+          (params.toToken as any).id ||
+          (params.toToken as any).assetId
+      const fromTokenDecimals = params.fromToken.decimals
+      const toTokenDecimals = params.toToken.decimals
+
+      const queryParams = new URLSearchParams({
+        fromChain: getChainName(params.fromChain),
+        fromToken,
+        fromTokenDecimals: fromTokenDecimals.toString(),
+        fromAddress: params.sender,
+        fromAmount: params.amount,
+        toChain: getChainName(params.toChain),
+        toToken,
+        toTokenDecimals: toTokenDecimals.toString(),
+        toAddress: params.recipient,
+        fee: params.feeBps.toString(),
+        integrator: 'kyberswap',
+        stream: 'true',
+        slippage: params.slippage.toString(),
+        fromTokenUsd: (params as any).tokenInUsd?.toString() || '0',
+        toTokenUsd: (params as any).tokenOutUsd?.toString() || '0',
       })
-      return quotes
+
+      // Add includedSources and excludedSources parameters
+      const allAdapters = registry.getAllAdapters()
+
+      // Filter adapters based on both excludedSources and canSupport check
+      const supportedAdapters = allAdapters.filter(adapter => adapter.canSupport(category, currencyIn, currencyOut))
+      const includedSourceNames = supportedAdapters
+        .filter(adapter => !excludedSources.includes(adapter.getName()))
+        .map(adapter => adapter.getName())
+
+      const excludedSourceNames = allAdapters
+        .filter(
+          adapter =>
+            excludedSources.includes(adapter.getName()) || !adapter.canSupport(category, currencyIn, currencyOut),
+        )
+        .map(adapter => adapter.getName())
+
+      // Only add parameters if there are filters to apply
+      if (includedSourceNames.length > 0 && includedSourceNames.length < allAdapters.length) {
+        queryParams.append('includedSources', includedSourceNames.join(','))
+      }
+
+      if (excludedSourceNames.length > 0) {
+        queryParams.append('excludedSources', excludedSourceNames.join(','))
+      }
+
+      const apiUrl = `${CROSSCHAIN_AGGREGATOR_API}/api/v1/quotes?${queryParams.toString()}`
+
+      // Declare soft timeout timer outside try-catch for cleanup access
+      let softTimeoutTimer: NodeJS.Timeout | null = null
+
+      try {
+        // Check for cancellation before starting
+        if (signal.aborted) throw new Error('Cancelled')
+
+        // Set up soft timeout to enable swap button after SOFT_TIMEOUT_MS if we have at least 1 quote
+        softTimeoutTimer = setTimeout(() => {
+          if (quotes.length > 0) {
+            console.log(
+              `[Soft Timeout] ${SOFT_TIMEOUT_MS}ms reached with ${quotes.length} quote(s). Enabling swap button while continuing to collect quotes.`,
+            )
+            setLoading(false)
+          } else {
+            console.log(`[Soft Timeout] ${SOFT_TIMEOUT_MS}ms reached but no quotes available yet.`)
+          }
+        }, SOFT_TIMEOUT_MS)
+
+        // Fetch with streaming
+        const response = await fetch(apiUrl, { signal })
+
+        if (!response.ok) {
+          console.error('Streaming API error response status:', response.status)
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
+
+        const reader = response.body?.getReader()
+        const decoder = new TextDecoder()
+
+        if (!reader) {
+          throw new Error('No response body reader available')
+        }
+
+        let buffer = ''
+        let currentEvent = '' // Track the current event type
+
+        // Read the stream
+        while (true) {
+          // Check for cancellation
+          if (signal.aborted) {
+            reader.cancel()
+            throw new Error('Cancelled')
+          }
+
+          const { done, value } = await reader.read()
+
+          if (done) break
+
+          buffer += decoder.decode(value, { stream: true })
+
+          // Process complete SSE messages
+          const lines = buffer.split('\n')
+          buffer = lines.pop() || '' // Keep incomplete line in buffer
+
+          for (const line of lines) {
+            // Skip empty lines
+            if (!line) {
+              continue
+            }
+
+            // Parse event type
+            if (line.startsWith('event:')) {
+              currentEvent = line.startsWith('event: ') ? line.slice(7).trim() : line.slice(6).trim()
+              continue
+            }
+
+            if (line.startsWith('data:')) {
+              try {
+                // Handle both "data:{json}" and "data: {json}" formats
+                const jsonStr = line.startsWith('data: ') ? line.slice(6) : line.slice(5)
+                const data = JSON.parse(jsonStr)
+
+                // Handle different event types
+                if (currentEvent === SSE_EVENT_INIT) {
+                  console.log('SSE connection initialized. Request ID:', data.requestID)
+                  continue
+                }
+
+                if (currentEvent === SSE_EVENT_COMPLETE) {
+                  console.log(`All quotes received from streaming API. Total quotes: ${quotes.length}`)
+                  continue
+                }
+
+                if (currentEvent === SSE_EVENT_PROVIDER_ERROR) {
+                  console.error('Provider error from streaming API:', data)
+                  continue
+                }
+
+                if (currentEvent === SSE_EVENT_ERROR) {
+                  console.error('Error from streaming API:', data)
+                  continue
+                }
+
+                // Only process quote events
+                if (currentEvent !== SSE_EVENT_QUOTE) {
+                  console.log('Skipping non-quote event:', currentEvent)
+                  continue
+                }
+
+                // Find the corresponding adapter
+                const adapter = registry.getAdapter(data.provider)
+
+                // Skip if this source is excluded (unless all sources are excluded)
+                if (
+                  adapter &&
+                  excludedSources.includes(adapter.getName()) &&
+                  excludedSources.length < registry.getAllAdapters().length
+                ) {
+                  console.log('Skipping excluded source:', adapter.getName())
+                  continue
+                }
+
+                // Skip if this source doesn't support the current category
+                if (adapter && !adapter.canSupport(category, currencyIn, currencyOut)) {
+                  console.log('Skipping unsupported category for source:', adapter.getName(), 'category:', category)
+                  continue
+                }
+
+                if (adapter) {
+                  console.log(`Received quote from ${adapter.getName()} with output amount: ${data.outputAmount}`)
+                  // Convert the API response to NormalizedQuote format
+                  // Need to convert chain names back to Chain IDs for the adapters to work correctly
+                  const normalizedQuote = {
+                    quoteParams: {
+                      ...data.quoteParams,
+                      fromChain: getChainIdFromName(data.quoteParams.fromChain),
+                      toChain: getChainIdFromName(data.quoteParams.toChain),
+                      fromToken: params.fromToken,
+                      toToken: params.toToken,
+                      publicKey: params.publicKey,
+                      walletClient: params.walletClient,
+                    },
+                    outputAmount: BigInt(data.outputAmount),
+                    formattedOutputAmount: data.formattedOutputAmount,
+                    inputUsd: data.inputUsd,
+                    outputUsd: data.outputUsd,
+                    rate: data.rate,
+                    timeEstimate: data.timeEstimate,
+                    priceImpact: data.priceImpact,
+                    gasFeeUsd: data.gasFeeUsd,
+                    contractAddress: data.contractAddress,
+                    rawQuote: data.rawQuote,
+                    protocolFee: data.protocolFee,
+                    protocolFeeString: data.protocolFeeString,
+                    platformFeePercent: data.platformFeePercent,
+                  }
+
+                  quotes.push({ adapter, quote: normalizedQuote })
+
+                  const sortedQuotes = [...quotes].sort((a, b) => {
+                    const netA = getNetOutputAmount(a.quote)
+                    const netB = getNetOutputAmount(b.quote)
+                    return netA < netB ? 1 : -1
+                  })
+                  setQuotes(sortedQuotes)
+                } else {
+                  console.warn(`Adapter not found in registry: ${data.provider}`)
+                  console.log(
+                    'Available adapters:',
+                    registry.getAllAdapters().map(a => a.getName()),
+                  )
+                }
+              } catch (err) {
+                console.error('Failed to parse SSE data:', err)
+                console.error('Problematic line:', line)
+                console.error('Line length:', line.length)
+              }
+            }
+          }
+        }
+
+        // Clear soft timeout timer when stream completes
+        if (softTimeoutTimer) clearTimeout(softTimeoutTimer)
+
+        if (quotes.length === 0) {
+          throw new Error('No valid quotes found for the requested swap')
+        }
+      } catch (err) {
+        // Clear soft timeout timer on error
+        if (softTimeoutTimer) clearTimeout(softTimeoutTimer)
+
+        if ((err as Error).message === 'Cancelled' || signal.aborted) {
+          throw new Error('Cancelled')
+        }
+        console.error('Failed to get quotes from streaming API:', err)
+        throw err
+      }
     }
 
     const adaptedWallet = adaptSolanaWallet(
@@ -627,28 +933,44 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
       connection.sendTransaction as any,
     )
 
-    const q = await getQuotesWithCancellation({
-      feeBps,
-      tokenInUsd: tokenInUsd,
-      tokenOutUsd: tokenOutUsd,
-      fromChain: fromChainId,
-      toChain: toChainId,
-      fromToken: currencyIn,
-      toToken: currencyOut,
-      amount: inputAmount,
-      slippage,
-      walletClient: fromChainId === 'solana' ? adaptedWallet : walletClient?.data,
-      sender,
-      recipient: receiver,
-      nearTokens,
-      publicKey: btcPublicKey || '',
-    }).catch(e => {
-      console.log(e)
-      return []
-    })
-    setQuotes(q)
-    setLoading(false)
-    setAllLoading(false)
+    try {
+      await getQuotesWithCancellation({
+        feeBps,
+        tokenInUsd: tokenInUsd,
+        tokenOutUsd: tokenOutUsd,
+        fromChain: fromChainId,
+        toChain: toChainId,
+        fromToken: currencyIn,
+        toToken: currencyOut,
+        amount: inputAmount,
+        slippage,
+        walletClient: fromChainId === 'solana' ? adaptedWallet : walletClient?.data,
+        sender,
+        recipient: receiver,
+        nearTokens,
+        publicKey: btcPublicKey || '',
+      })
+    } catch (e) {
+      console.error('Error getting quotes:', e)
+      if ((e as Error).message !== 'Cancelled') {
+        setQuotes([])
+      }
+    } finally {
+      setLoading(false)
+      setAllLoading(false)
+
+      // Log total time taken to fetch all quotes
+      const quoteEndTime = performance.now()
+      const totalTime = quoteEndTime - quoteStartTime
+      const tokenInSymbol = (currencyIn as any)?.symbol || (currencyIn as any)?.wrapped?.symbol || 'Unknown'
+      const tokenOutSymbol = (currencyOut as any)?.symbol || (currencyOut as any)?.wrapped?.symbol || 'Unknown'
+      console.log(
+        `[Quote Timing] All quotes fetched and processed. ${amount} ${tokenInSymbol} -> ${tokenOutSymbol}. Total time: ${totalTime.toFixed(
+          2,
+        )}ms (${(totalTime / 1000).toFixed(2)}s)`,
+      )
+      console.log(`[Quote Timing] Number of quotes received: ${quotes.length}`)
+    }
   }, [
     sender,
     receiver,

@@ -216,6 +216,9 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
     ) {
       throw new Error('Near Intent recipient or refundTo is ZERO ADDRESS')
     }
+
+    console.log('refreshedQuote.quote.minAmountOut ======', refreshedQuote.quote.minAmountOut)
+    console.log('quote.rawQuote.quote.minAmountOut ======', quote.rawQuote.quote.minAmountOut)
     if (BigInt(refreshedQuote.quote.minAmountOut) < BigInt(quote.rawQuote.quote.minAmountOut)) {
       throw new Error('Quote amount out is less than expected')
     }
