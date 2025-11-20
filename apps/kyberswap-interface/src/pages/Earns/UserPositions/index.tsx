@@ -1,4 +1,3 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -382,11 +381,11 @@ const UserPositions = () => {
           }}
         />
 
-        {filters.chainIds?.split(',').includes(ChainId.BASE.toString()) && isWithinBaseMaintenanceWindow() && (
+        {isWithinBaseMaintenanceWindow() && (
           <BaseWarningWrapper>
             <Text color={theme.subText} fontSize={12} fontWeight={500} fontStyle={'italic'}>
-              Kyber Earn data on Base is being updated. This may take a moment and will be available again at 1:00 AM
-              UTC on 20 Nov 2025 — thank you for your patience.
+              Kyber Earn data on <b>Base</b> is being updated. This may take a moment and will be available again at
+              4:00 AM UTC on 20 Nov 2025 — thank you for your patience.
             </Text>
           </BaseWarningWrapper>
         )}
