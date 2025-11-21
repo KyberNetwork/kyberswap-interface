@@ -293,7 +293,7 @@ export default function Preview({ onDismiss }: { onDismiss: () => void }) {
                   </a>
                 </Trans>
               }
-              value={<div className="text-sm">{parseFloat(zapFee.toFixed(3))}%</div>}
+              value={<div className="text-sm">{parseFloat(zapFee.protocolFee.toFixed(3))}%</div>}
               hasRoute
               className="w-full mt-0"
             />
