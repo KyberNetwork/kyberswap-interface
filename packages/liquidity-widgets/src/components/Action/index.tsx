@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react';
 import { Trans, t } from '@lingui/macro';
 
 import { APPROVAL_STATE, PermitNftResult, PermitNftState } from '@kyber/hooks';
+import { DEXES_INFO } from '@kyber/schema';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, InfoHelper } from '@kyber/ui';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
@@ -91,8 +92,11 @@ function NftApprovalButton({
     setType: (_type: 'single' | 'all') => void;
   };
 }) {
-  const { theme } = useWidgetStore(['theme']);
+  const { theme, poolType, chainId } = useWidgetStore(['theme', 'poolType', 'chainId']);
   const [openDropdown, setOpenDropdown] = useState(false);
+
+  const rawName = DEXES_INFO[poolType].name;
+  const dexName = typeof rawName === 'string' ? rawName : rawName[chainId];
 
   return (
     <div className="flex flex-col gap-2">
@@ -142,7 +146,7 @@ function NftApprovalButton({
               width="400px"
               color={theme.icons}
               size={14}
-              text={t`You wish to give KyberSwap permission to manage all your positions on this chain. You won’t need to approve again unless you revoke the permission in your wallet.`}
+              text={t`You wish to give KyberSwap permission to manage all your positions from ${dexName.replace('FairFlow', '').trim()} on this chain. You won’t need to approve again unless you revoke the permission in your wallet.`}
               style={{ marginLeft: '-3px' }}
             />
           </DropdownMenuItem>

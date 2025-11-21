@@ -5,7 +5,6 @@ import {
   DEXES_INFO,
   NATIVE_TOKEN_ADDRESS,
   NETWORKS_INFO,
-  PoolType,
   defaultToken,
   univ3PoolNormalize,
   univ3Position,
@@ -51,7 +50,7 @@ const Header = () => {
   const isToken0Native = token0.address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase();
   const isToken1Native = token1.address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase();
 
-  const { icon: dexLogo, name: rawName } = DEXES_INFO[poolType as PoolType];
+  const { icon: dexLogo, name: rawName } = DEXES_INFO[poolType];
   const dexName = typeof rawName === 'string' ? rawName : rawName[chainId];
 
   const { success, data } = univ3Position.safeParse(position);
