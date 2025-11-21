@@ -1,4 +1,4 @@
-import { ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useTokenBalances, useTokenPrices } from '@kyber/hooks';
 import { API_URLS, CHAIN_ID_TO_CHAIN, Token, ZERO_ADDRESS, ZapRouteDetail, univ3Types } from '@kyber/schema';
@@ -11,6 +11,7 @@ import useTickPrice from '@/hooks/useTickPrice';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
+import { BuildDataWithGas } from '@/types/index';
 import { parseTokensAndAmounts, validateData } from '@/utils';
 
 interface UiState {
@@ -33,7 +34,8 @@ const defaultZapState = {
   tokensIn: [],
   amountsIn: '',
   errors: [],
-  zapInfo: null,
+  route: null,
+  buildData: null,
   loading: false,
   slippage: undefined,
   ttl: 20, // 20min
@@ -50,6 +52,7 @@ const defaultZapState = {
   toggleSetting: (_highlightDegenMode?: boolean) => {},
   setUiState: (_val: UiState | ((_prev: UiState) => UiState)) => {},
   getZapRoute: () => {},
+  setBuildData: (_value: BuildDataWithGas | null) => {},
 };
 
 const ZapContext = createContext<{
@@ -58,7 +61,8 @@ const ZapContext = createContext<{
   tokensIn: Token[];
   amountsIn: string;
   errors: string[];
-  zapInfo: ZapRouteDetail | null;
+  route: ZapRouteDetail | null;
+  buildData: BuildDataWithGas | null;
   loading: boolean;
   slippage?: number;
   minPrice: string | null;
@@ -79,6 +83,7 @@ const ZapContext = createContext<{
   toggleSetting: (_highlightDegenMode?: boolean) => void;
   setUiState: (_val: UiState | ((_prev: UiState) => UiState)) => void;
   getZapRoute: () => void;
+  setBuildData: (_value: BuildDataWithGas | null) => void;
 }>(defaultZapState);
 
 export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
@@ -122,10 +127,14 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
 
   const [uiState, setUiState] = useState(defaultUiState);
   const [ttl, setTtl] = useState(20);
-  const [zapInfo, setZapInfo] = useState<ZapRouteDetail | null>(null);
+  const [route, setRoute] = useState<ZapRouteDetail | null>(null);
+  const [buildData, setBuildData] = useState<BuildDataWithGas | null>(null);
   const [zapApiError, setZapApiError] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [defaultRevertChecked, setDefaultRevertChecked] = useState(false);
+
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const latestRequestIdRef = useRef(0);
 
   const initializing = !pool;
   const isUniV3 = !initializing && univ3Types.includes(poolType as any);
@@ -226,7 +235,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
   }, [defaultRevertChecked, initializing, pool, revertPrice, toggleRevertPrice, wrappedNativeToken?.address]);
 
   const getZapRoute = useCallback(() => {
-    if (zapRouteDisabled || !slippage || initializing) return;
+    if (zapRouteDisabled || !slippage || initializing || buildData) return;
 
     let formattedAmountsInWeis = '';
 
@@ -250,11 +259,21 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
       formattedAmountsInWeis === '0' ||
       formattedAmountsInWeis === '00'
     ) {
-      setZapInfo(null);
+      // No valid input → clear info and abort any in-flight request
+      abortControllerRef.current?.abort();
+      setLoading(false);
+      setRoute(null);
       return;
     }
 
     setLoading(true);
+    // Abort previous request and prepare a new controller
+    abortControllerRef.current?.abort();
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+    const requestId = latestRequestIdRef.current + 1;
+    latestRequestIdRef.current = requestId;
+
     const params: { [key: string]: string | number | boolean } = {
       dex: poolType,
       'pool.id': poolAddress,
@@ -285,42 +304,45 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
       headers: {
         'X-Client-Id': source,
       },
+      signal: controller.signal,
     })
       .then(res => res.json())
       .then(res => {
+        if (requestId !== latestRequestIdRef.current) return;
         if (res.data) {
           setZapApiError('');
-          setZapInfo(res.data);
+          setRoute(res.data);
         } else {
-          setZapInfo(null);
+          setRoute(null);
           setZapApiError(res.message || 'Something went wrong');
         }
       })
       .catch(e => {
+        if (requestId !== latestRequestIdRef.current) return;
+        // Ignore abort errors
+        if ((e as any)?.name === 'AbortError') return;
         const errorMessage = e instanceof Error ? e.message : 'Something went wrong';
         setZapApiError(errorMessage);
         console.error('Zap API error:', e);
       })
       .finally(() => {
-        setLoading(false);
+        if (requestId === latestRequestIdRef.current) {
+          setLoading(false);
+        }
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    debounceTickLower,
-    debounceTickUpper,
-    feeAddress,
-    feePcm,
-    slippage,
-    includedSources,
-    excludedSources,
-    source,
-    tokensIn,
-    debounceAmountsIn,
-  ]);
+  }, [debounceTickLower, debounceTickUpper, slippage, tokensIn, debounceAmountsIn]);
 
   useEffect(() => {
     getZapRoute();
   }, [getZapRoute]);
+
+  // Abort in-flight request on unmount
+  useEffect(() => {
+    return () => {
+      abortControllerRef.current?.abort();
+    };
+  }, []);
 
   return (
     <ZapContext.Provider
@@ -334,7 +356,9 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
         setTickLower,
         setTickUpper,
         errors,
-        zapInfo,
+        route,
+        buildData,
+        setBuildData,
         loading,
         minPrice,
         maxPrice,

@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react';
 import type { MessageDescriptor } from '@lingui/core';
 import { msg, t } from '@lingui/macro';
 
-import { DEXES_INFO, univ2Types, univ4Types } from '@kyber/schema';
+import { univ2Types, univ4Types } from '@kyber/schema';
 import { PI_LEVEL, friendlyError } from '@kyber/utils';
 import { estimateGasForTx } from '@kyber/utils/crypto/transaction';
 
@@ -11,7 +11,6 @@ import { useOwner } from '@/components/Action/useOwner';
 import { useApproval } from '@/hooks/useApproval';
 import useZapRoute from '@/hooks/useZapRoute';
 import { i18n } from '@/lingui';
-import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 import { useZapStore } from '@/stores/useZapStore';
 import { buildRouteData } from '@/utils';
@@ -64,17 +63,7 @@ const translateButtonText = (text: string) => {
   return descriptor ? i18n._(descriptor) : text;
 };
 
-// Types
-interface TxData {
-  from: string;
-  to: string;
-  value: string;
-  data: string;
-  gasLimit: string;
-}
-
 interface UseActionButtonProps {
-  onSubmitTx: (txData: TxData) => Promise<string>;
   onConnectWallet: () => void;
   onSwitchChain: () => void;
 }
@@ -88,16 +77,19 @@ interface UseActionButtonReturn {
   btnText: string;
   isButtonDisabled: boolean;
   zapImpactLevel: ZapImpactLevel;
-  isApproved: boolean;
+  isSourceApproved: boolean;
+  isTargetNftApproved: boolean;
   isButtonLoading: boolean;
+  sourceNftApprovalType: 'single' | 'all';
+  targetNftApprovalType: 'single' | 'all';
+  isInSourceNftApprovalStep: boolean;
+  isInTargetNftApprovalStep: boolean;
+  setSourceNftApprovalType: (type: 'single' | 'all') => void;
+  setTargetNftApprovalType: (type: 'single' | 'all') => void;
   handleClick: () => Promise<void>;
 }
 
-export function useActionButton({
-  onSubmitTx,
-  onConnectWallet,
-  onSwitchChain,
-}: UseActionButtonProps): UseActionButtonReturn {
+export function useActionButton({ onConnectWallet, onSwitchChain }: UseActionButtonProps): UseActionButtonReturn {
   const {
     chainId,
     rpcUrl,
@@ -119,11 +111,6 @@ export function useActionButton({
     'referral',
     'rePositionMode',
   ]);
-  const { targetPosition, sourcePositionId, targetPositionId } = usePositionStore([
-    'targetPosition',
-    'sourcePositionId',
-    'targetPositionId',
-  ]);
 
   const { toggleSetting, tickUpper, tickLower, liquidityOut, route, fetchingRoute, setBuildData, degenMode, ttl } =
     useZapStore([
@@ -139,45 +126,33 @@ export function useActionButton({
     ]);
   const { isNotSourceOwner, isNotTargetOwner, isSourceFarming } = useOwner();
 
+  const isSourceUniV2 = sourcePoolType && univ2Types.includes(sourcePoolType as any);
   const isTargetUniV2 = targetPoolType && univ2Types.includes(targetPoolType as any);
   const isTargetUniV4 = targetPoolType && univ4Types.includes(targetPoolType as any);
 
-  const nftManager = sourcePoolType ? DEXES_INFO[sourcePoolType].nftManagerContract : undefined;
-  const targetNftManager = targetPoolType ? DEXES_INFO[targetPoolType].nftManagerContract : undefined;
-
   const {
-    isChecking,
-    isApproved: approved,
-    approve,
-    pendingTx,
+    isChecking: isSourceApprovalChecking,
+    isApproved: sourceApproved,
+    approve: sourceApprove,
+    pendingTx: sourceApprovalPendingTx,
+    nftApprovalType: sourceNftApprovalType,
+    setNftApprovalType: setSourceNftApprovalType,
   } = useApproval({
-    rpcUrl,
-    nftManagerContract: nftManager ? (typeof nftManager === 'string' ? nftManager : nftManager[chainId]) : undefined,
-    nftId: +sourcePositionId,
-    spender: route?.routerAddress,
-    account: connectedAccount.address,
-    onSubmitTx,
+    type: 'source',
   });
-  const isApproved = approved && !isChecking;
+  const isSourceApproved = sourceApproved && !isSourceApprovalChecking;
 
   const {
-    isChecking: isTargetNftChecking,
-    isApproved: targetNftApproved,
+    isChecking: isTargetApprovalChecking,
+    isApproved: isTargetApproved,
     approve: targetNftApprove,
-    pendingTx: targetNftPendingTx,
+    pendingTx: targetApprovalPendingTx,
+    nftApprovalType: targetNftApprovalType,
+    setNftApprovalType: setTargetNftApprovalType,
   } = useApproval({
-    rpcUrl,
-    nftManagerContract: targetNftManager
-      ? typeof targetNftManager === 'string'
-        ? targetNftManager
-        : targetNftManager[chainId]
-      : undefined,
-    nftId: !targetPositionId ? undefined : +targetPositionId,
-    spender: route?.routerAddress,
-    account: connectedAccount.address,
-    onSubmitTx,
+    type: 'target',
   });
-  const isTargetNftApproved = targetNftApproved && !isTargetNftChecking;
+  const isTargetNftApproved = isTargetApproved && !isTargetApprovalChecking;
 
   const { zapImpact } = useZapRoute();
   const zapImpactLevel: ZapImpactLevel = useMemo(
@@ -202,12 +177,12 @@ export function useActionButton({
   }, [isTargetUniV2]);
 
   const isAnyApproving = useMemo(() => {
-    return Boolean(pendingTx || clickedApprove || (isTargetUniV4 && targetPosition && targetNftPendingTx));
-  }, [pendingTx, clickedApprove, isTargetUniV4, targetPosition, targetNftPendingTx]);
+    return Boolean(sourceApprovalPendingTx || targetApprovalPendingTx || clickedApprove);
+  }, [sourceApprovalPendingTx, targetApprovalPendingTx, clickedApprove]);
 
   const isAnyChecking = useMemo(() => {
-    return isChecking || (isTargetUniV4 && targetPosition && isTargetNftChecking);
-  }, [isChecking, isTargetUniV4, targetPosition, isTargetNftChecking]);
+    return isSourceApprovalChecking || isTargetApprovalChecking;
+  }, [isSourceApprovalChecking, isTargetApprovalChecking]);
 
   const getButtonText = useMemo((): string => {
     if (gasLoading) return translateButtonText(BUTTON_TEXTS.ESTIMATING_GAS);
@@ -230,9 +205,8 @@ export function useActionButton({
     if (isTargetUniV4 && isNotTargetOwner) return translateButtonText(BUTTON_TEXTS.NOT_POSITION_OWNER);
     if (isAnyChecking) return translateButtonText(BUTTON_TEXTS.CHECKING_ALLOWANCE);
     if (isAnyApproving) return translateButtonText(BUTTON_TEXTS.APPROVING);
-    if (!isApproved) return translateButtonText(BUTTON_TEXTS.APPROVE_SOURCE);
-    if (isTargetUniV4 && targetPosition && !isTargetNftApproved)
-      return translateButtonText(BUTTON_TEXTS.APPROVE_TARGET);
+    if (!isSourceApproved) return translateButtonText(BUTTON_TEXTS.APPROVE_SOURCE);
+    if (!isTargetNftApproved) return translateButtonText(BUTTON_TEXTS.APPROVE_TARGET);
     if (zapImpactLevel.isVeryHigh) return translateButtonText(BUTTON_TEXTS.ZAP_ANYWAY);
 
     return translateButtonText(rePositionMode ? BUTTON_TEXTS.REPOSITION : BUTTON_TEXTS.PREVIEW);
@@ -253,13 +227,74 @@ export function useActionButton({
     isNotTargetOwner,
     isAnyChecking,
     isAnyApproving,
-    isApproved,
-    targetPosition,
+    isSourceApproved,
     isTargetNftApproved,
     zapImpactLevel.isVeryHigh,
     gasLoading,
     rePositionMode,
   ]);
+
+  const isInSourceNftApprovalStep = useMemo(
+    () =>
+      Boolean(
+        !gasLoading &&
+          liquidityOut > 0n &&
+          (!isPriceRangeRequired || hasValidPriceRange) &&
+          route &&
+          !isNotSourceOwner &&
+          connectedAccount.address &&
+          connectedAccount.chainId === chainId &&
+          (!isTargetUniV4 || !isNotTargetOwner) &&
+          !isSourceUniV2 &&
+          !isSourceApproved,
+      ),
+    [
+      gasLoading,
+      liquidityOut,
+      isPriceRangeRequired,
+      hasValidPriceRange,
+      route,
+      isNotSourceOwner,
+      connectedAccount.address,
+      connectedAccount.chainId,
+      chainId,
+      isTargetUniV4,
+      isNotTargetOwner,
+      isSourceUniV2,
+      isSourceApproved,
+    ],
+  );
+
+  const isInTargetNftApprovalStep = useMemo(
+    () =>
+      Boolean(
+        !gasLoading &&
+          liquidityOut > 0n &&
+          (!isPriceRangeRequired || hasValidPriceRange) &&
+          route &&
+          !isNotSourceOwner &&
+          connectedAccount.address &&
+          connectedAccount.chainId === chainId &&
+          (!isTargetUniV4 || !isNotTargetOwner) &&
+          isSourceApproved &&
+          !isTargetNftApproved,
+      ),
+    [
+      chainId,
+      connectedAccount.address,
+      connectedAccount.chainId,
+      gasLoading,
+      hasValidPriceRange,
+      isNotSourceOwner,
+      isNotTargetOwner,
+      isPriceRangeRequired,
+      isSourceApproved,
+      isTargetNftApproved,
+      isTargetUniV4,
+      liquidityOut,
+      route,
+    ],
+  );
 
   const isButtonDisabled = useMemo(() => {
     return Boolean(
@@ -350,13 +385,13 @@ export function useActionButton({
         return;
       }
 
-      if (!isApproved) {
+      if (!isSourceApproved && sourceApprove) {
         setClickedApprove(true);
-        await approve().finally(() => setClickedApprove(false));
+        await sourceApprove().finally(() => setClickedApprove(false));
         return;
       }
 
-      if (isTargetUniV4 && targetPosition && !isTargetNftApproved) {
+      if (!isTargetNftApproved && targetNftApprove) {
         setClickedApprove(true);
         await targetNftApprove().finally(() => setClickedApprove(false));
         return;
@@ -388,7 +423,14 @@ export function useActionButton({
     isButtonDisabled,
     handleClick,
     zapImpactLevel,
-    isApproved,
     isButtonLoading,
+    isSourceApproved,
+    isTargetNftApproved,
+    sourceNftApprovalType,
+    targetNftApprovalType,
+    setSourceNftApprovalType,
+    setTargetNftApprovalType,
+    isInSourceNftApprovalStep,
+    isInTargetNftApprovalStep,
   };
 }

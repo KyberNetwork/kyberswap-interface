@@ -162,5 +162,6 @@ export const useErc20Approvals = ({
     addressToApprove,
     approve,
     loading,
+    pendingTx,
   };
 };

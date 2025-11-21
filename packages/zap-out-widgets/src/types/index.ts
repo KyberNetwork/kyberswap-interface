@@ -36,4 +36,5 @@ export interface ZapOutProps {
     },
   ) => Promise<string>;
   onExplorePools?: () => void;
+  signTypedData?: (account: string, typedDataJson: string) => Promise<string>;
 }

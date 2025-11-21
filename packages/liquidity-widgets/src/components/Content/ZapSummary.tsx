@@ -1,70 +1,32 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 
 import { Trans } from '@lingui/macro';
 
-import {
-  AddLiquidityAction,
-  DEXES_INFO,
-  NETWORKS_INFO,
-  PoolType,
-  RemoveLiquidityAction,
-  Token,
-  ZapAction,
-  defaultToken,
-} from '@kyber/schema';
+import { DEXES_INFO, NETWORKS_INFO, PoolType, defaultToken } from '@kyber/schema';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@kyber/ui';
-import { formatTokenAmount, formatWei } from '@kyber/utils/number';
+import { formatTokenAmount } from '@kyber/utils/number';
 
-import useSwapPI from '@/hooks/useSwapPI';
-import { useZapState } from '@/hooks/useZapState';
+import useZapRoute from '@/hooks/useZapRoute';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
 export default function ZapSummary() {
   const { chainId, poolType } = useWidgetStore(['chainId', 'poolType']);
-  const { zapInfo } = useZapState();
   const { pool } = usePoolStore(['pool']);
+  const { earnedFee, addedLiquidity, swapActions } = useZapRoute();
   const [expanded, setExpanded] = useState(false);
 
   const initializing = !pool;
 
-  const { symbol: symbol0 } = initializing ? defaultToken : pool.token0;
-  const { symbol: symbol1 } = initializing ? defaultToken : pool.token1;
+  const { symbol: symbol0, decimals: decimals0 } = initializing ? defaultToken : pool.token0;
+  const { symbol: symbol1, decimals: decimals1 } = initializing ? defaultToken : pool.token1;
 
   const dexNameObj = DEXES_INFO[poolType as PoolType].name;
   const dexName = !dexNameObj ? '' : typeof dexNameObj === 'string' ? dexNameObj : dexNameObj[chainId];
 
   const onExpand = () => setExpanded(prev => !prev);
 
-  const { swapActions } = useSwapPI();
-
-  const addedLiquidityInfo = useMemo(() => {
-    if (!pool) return { addedAmount0: '0', addedAmount1: '0' };
-    const data = zapInfo?.zapDetails.actions.find(
-      item => item.type === ZapAction.ADD_LIQUIDITY,
-    ) as AddLiquidityAction | null;
-
-    const addedAmount0 = formatWei(data?.addLiquidity.token0.amount, pool?.token0?.decimals);
-    const addedAmount1 = formatWei(data?.addLiquidity.token1.amount, pool?.token1?.decimals);
-
-    return { addedAmount0, addedAmount1 };
-  }, [pool, zapInfo?.zapDetails.actions]);
-
-  const actionRemoveLiq = zapInfo?.zapDetails.actions.find(item => item.type === ZapAction.REMOVE_LIQUIDITY) as
-    | RemoveLiquidityAction
-    | undefined;
-
-  const { fees } = actionRemoveLiq?.removeLiquidity || {};
-
-  const poolTokens: Token[] = !pool ? [] : [pool.token0, pool.token1];
-
-  const feeToken0 = poolTokens.find(item => item.address.toLowerCase() === fees?.[0]?.address.toLowerCase());
-  const feeToken1 = poolTokens.find(item => item.address.toLowerCase() === fees?.[1]?.address.toLowerCase());
-
-  const feeAmount0 = BigInt(fees?.[0]?.amount || 0);
-  const feeAmount1 = BigInt(fees?.[1]?.amount || 0);
-
-  const hasFee = feeAmount0 !== 0n || feeAmount1 !== 0n;
+  const hasFee = earnedFee.earnedFee0 !== 0n || earnedFee.earnedFee1 !== 0n;
 
   return (
     <>
@@ -89,11 +51,11 @@ export default function ZapSummary() {
                 <div className="flex-1 text-subText leading-4">
                   <Trans>
                     Claim fee
-                    {feeAmount0 !== 0n
-                      ? ` ${formatTokenAmount(feeAmount0, feeToken0?.decimals || 18)} ${feeToken0?.symbol}`
+                    {earnedFee.earnedFee0 !== 0n
+                      ? ` ${formatTokenAmount(earnedFee.earnedFee0, decimals0 || 18)} ${symbol0}`
                       : ''}
-                    {feeAmount1 !== 0n
-                      ? ` + ${formatTokenAmount(feeAmount1, feeToken1?.decimals || 18)} ${feeToken1?.symbol}`
+                    {earnedFee.earnedFee1 !== 0n
+                      ? ` + ${formatTokenAmount(earnedFee.earnedFee1, decimals1 || 18)} ${symbol1}`
                       : ''}
                   </Trans>
                 </div>
@@ -129,7 +91,9 @@ export default function ZapSummary() {
               </div>
               <div className="flex-1 text-subText leading-4">
                 <Trans>
-                  Build LP using {addedLiquidityInfo.addedAmount0} {symbol0} and {addedLiquidityInfo.addedAmount1}{' '}
+                  Build LP using {formatTokenAmount(addedLiquidity.addedAmount0, decimals0 || 18)} {symbol0} and{' '}
+                  {formatTokenAmount(addedLiquidity.addedAmount1, decimals1 || 18)} {symbol1} on{' '}
+                  <span className="font-medium text-text">{dexName}</span>
                   {symbol1} on <span className="font-medium text-text">{dexName}</span>
                 </Trans>
               </div>

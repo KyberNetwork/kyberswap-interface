@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro';
 
-import { Pool, univ3PoolNormalize } from '@kyber/schema';
+import { univ3PoolNormalize } from '@kyber/schema';
 import { TokenSymbol } from '@kyber/ui';
 import { formatDisplayNumber } from '@kyber/utils/number';
 
@@ -9,8 +9,13 @@ import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { getPriceRangeToShow } from '@/utils';
 
-export default function PriceInfo({ pool }: { pool: Pool }) {
-  const { toggleRevertPrice, poolPrice, revertPrice } = usePoolStore(['toggleRevertPrice', 'poolPrice', 'revertPrice']);
+export default function PriceInfo() {
+  const { pool, toggleRevertPrice, poolPrice, revertPrice } = usePoolStore([
+    'pool',
+    'toggleRevertPrice',
+    'poolPrice',
+    'revertPrice',
+  ]);
   const { success: isUniV3 } = univ3PoolNormalize.safeParse(pool);
   const { tickLower, tickUpper, minPrice, maxPrice } = useZapState();
 
@@ -25,9 +30,9 @@ export default function PriceInfo({ pool }: { pool: Pool }) {
 
   const quoteTokenSymbol = (
     <Trans>
-      <TokenSymbol symbol={!revertPrice ? pool?.token1.symbol : pool?.token0.symbol} maxWidth={80} />
+      <TokenSymbol symbol={!revertPrice ? pool?.token1.symbol || '' : pool?.token0.symbol || ''} maxWidth={80} />
       <span>per</span>
-      <TokenSymbol symbol={!revertPrice ? pool?.token0.symbol : pool?.token1.symbol} maxWidth={80} />
+      <TokenSymbol symbol={!revertPrice ? pool?.token0.symbol || '' : pool?.token1.symbol || ''} maxWidth={80} />
     </Trans>
   );
 

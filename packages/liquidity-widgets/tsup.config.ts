@@ -1,8 +1,7 @@
+import babelPlugin from 'esbuild-plugin-babel';
 import { sassPlugin } from 'esbuild-sass-plugin';
 import { defineConfig } from 'tsup';
 
-// @ts-expect-error esbuild-plugin-babel does not provide TypeScript types
-import babelPlugin from 'esbuild-plugin-babel';
 import { svgrPlugin } from '@kyber/svgr-esbuild-plugin';
 
 export default defineConfig({

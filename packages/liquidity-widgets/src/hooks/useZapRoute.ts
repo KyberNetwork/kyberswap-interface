@@ -3,15 +3,17 @@ import { useMemo } from 'react';
 import { DEXES_INFO, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO } from '@kyber/schema';
 import { parseZapRoute } from '@kyber/utils/liquidity/zap';
 
-import { useZapOutContext } from '@/stores';
-import { useZapOutUserState } from '@/stores/state';
+import { useZapState } from '@/hooks/useZapState';
+import { usePoolStore } from '@/stores/usePoolStore';
+import { useWidgetStore } from '@/stores/useWidgetStore';
 
 export default function useZapRoute() {
-  const { poolType, chainId, pool } = useZapOutContext(s => s);
-  const { route, tokenOut } = useZapOutUserState();
+  const { chainId, poolType } = useWidgetStore(['chainId', 'poolType']);
+  const { pool } = usePoolStore(['pool']);
+  const { route, tokensIn } = useZapState();
 
   const tokens = useMemo(() => {
-    if (!tokenOut) return [];
+    if (!tokensIn.length) return [];
     const pair = !pool ? [] : [pool.token0, pool.token1];
 
     const wrappedNativeToken = NETWORKS_INFO[chainId].wrappedToken;
@@ -22,8 +24,8 @@ export default function useZapRoute() {
       decimals: 18,
     };
 
-    return [...pair, tokenOut, wrappedNativeToken, nativeToken];
-  }, [pool, chainId, tokenOut]);
+    return [...tokensIn, ...pair, wrappedNativeToken, nativeToken];
+  }, [pool, chainId, tokensIn]);
 
   const token0Address = pool?.token0.address || '';
   const token1Address = pool?.token1.address || '';
@@ -31,27 +33,15 @@ export default function useZapRoute() {
   const dexNameObj = poolType ? DEXES_INFO[poolType].name : '';
   const dexName = poolType ? (typeof dexNameObj === 'string' ? dexNameObj : dexNameObj[chainId]) : '';
 
-  const {
-    removeLiquidity,
-    earnedFee,
-    refund,
-    suggestedSlippage,
-    finalAmountUsd,
-    gasUsd,
-    zapFee,
-    zapImpact,
-    swapActions,
-  } = parseZapRoute({ route: route || null, token0Address, token1Address, tokens, dexName, poolAddress });
+  const { initUsd, suggestedSlippage, zapImpact, earnedFee, addedLiquidity, swapActions, zapFee, refund } =
+    parseZapRoute({
+      route: route || null,
+      token0Address,
+      token1Address,
+      tokens,
+      dexName,
+      poolAddress,
+    });
 
-  return {
-    swapActions,
-    refund,
-    removeLiquidity,
-    suggestedSlippage,
-    zapImpact,
-    finalAmountUsd,
-    zapFee,
-    gasUsd,
-    earnedFee,
-  };
+  return { initUsd, suggestedSlippage, zapImpact, earnedFee, addedLiquidity, swapActions, zapFee, refund };
 }
