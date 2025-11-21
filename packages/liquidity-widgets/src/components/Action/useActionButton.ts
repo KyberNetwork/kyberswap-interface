@@ -206,8 +206,6 @@ export default function useActionButton({ approval, deadline }: { approval: Appr
   };
 
   const hanldeClick = async () => {
-    if (!slippage || needApproveNft) return;
-    const { success: isUniV3Pool } = univ3PoolNormalize.safeParse(pool);
     if (isNotConnected) {
       onConnectWallet();
       return;
@@ -216,6 +214,8 @@ export default function useActionButton({ approval, deadline }: { approval: Appr
       onSwitchChain();
       return;
     }
+    if (!slippage || needApproveNft) return;
+    const { success: isUniV3Pool } = univ3PoolNormalize.safeParse(pool);
     if (tokenInNotApproved) {
       setClickedLoading(true);
       approval.tokenApproval.approve(tokenInNotApproved.address).finally(() => setClickedLoading(false));

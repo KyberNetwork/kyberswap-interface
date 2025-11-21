@@ -109,7 +109,7 @@ function NftApprovalButton({
           text={t`Authorize ZapRouter through an on-chain approval. Choose whether to approve once or all positions.`}
         />
       </button>
-      <DropdownMenu open={openDropdown} onOpenChange={() => !nftApproval.disabled && setOpenDropdown(!openDropdown)}>
+      <DropdownMenu open={openDropdown} onOpenChange={open => !nftApproval.disabled && setOpenDropdown(open)}>
         <DropdownMenuTrigger asChild>
           <div className="flex items-center gap-0.5 text-subText text-sm cursor-pointer ml-3">
             {nftApproval.type === 'single' ? <Trans>Approve this position</Trans> : <Trans>Approve for all</Trans>}
@@ -118,7 +118,14 @@ function NftApprovalButton({
             />
           </div>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56" align="start">
+        <DropdownMenuContent
+          className="w-56"
+          align="start"
+          onCloseAutoFocus={e => {
+            // prevent focus restoration from scrolling the container to the top
+            e.preventDefault();
+          }}
+        >
           <DropdownMenuItem onSelect={() => nftApproval.type !== 'single' && nftApproval.setType('single')}>
             <Trans>Approve this position</Trans>
             <InfoHelper
