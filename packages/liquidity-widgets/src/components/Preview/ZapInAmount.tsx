@@ -1,22 +1,23 @@
 import { t } from '@lingui/macro';
 
-import { ZapRouteDetail } from '@kyber/schema';
 import { TokenLogo } from '@kyber/ui';
 import { formatDisplayNumber } from '@kyber/utils/number';
 
+import useZapRoute from '@/hooks/useZapRoute';
 import { useZapState } from '@/hooks/useZapState';
 import { parseTokensAndAmounts } from '@/utils';
 
-export default function ZapInAmount({ zapInfo }: { zapInfo: ZapRouteDetail | null }) {
+export default function ZapInAmount() {
   const { tokensIn, amountsIn } = useZapState();
   const { tokensIn: listValidTokensIn, amountsIn: listValidAmountsIn } = parseTokensAndAmounts(tokensIn, amountsIn);
+  const { initUsd } = useZapRoute();
 
   return (
     <div className="ks-lw-card mt-4">
       <div className="ks-lw-card-title">
         <p>{t`Zap-in Amount`}</p>
         <p className="text-text font-normal text-lg">
-          {formatDisplayNumber(zapInfo?.zapDetails?.initialAmountUsd || 0, {
+          {formatDisplayNumber(initUsd, {
             significantDigits: 6,
             style: 'currency',
           })}

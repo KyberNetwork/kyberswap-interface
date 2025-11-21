@@ -14,9 +14,9 @@ export const defaultToken = {
   address: '',
   symbol: '',
   name: '',
-  decimals: NaN,
+  decimals: 18,
   logo: '',
-  price: NaN,
+  price: 0,
   isStable: false,
 };
 

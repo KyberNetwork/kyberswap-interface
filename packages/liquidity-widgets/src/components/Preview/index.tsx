@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 import { Trans, t } from '@lingui/macro';
 
-import { API_URLS, DEXES_INFO, NETWORKS_INFO, defaultToken, univ3PoolNormalize } from '@kyber/schema';
+import { API_URLS, DEXES_INFO, NETWORKS_INFO, univ3PoolNormalize } from '@kyber/schema';
 import {
   Dialog,
   DialogContent,
@@ -13,9 +13,7 @@ import {
   StatusDialogType,
   TokenSymbol,
   translateFriendlyErrorMessage,
-  translateZapMessage,
 } from '@kyber/ui';
-import { parseZapInfo } from '@kyber/utils';
 import { friendlyError } from '@kyber/utils';
 import { PI_LEVEL } from '@kyber/utils';
 import { calculateGasMargin, estimateGas } from '@kyber/utils/crypto';
@@ -31,9 +29,9 @@ import ZapInAmount from '@/components/Preview/ZapInAmount';
 import useOnSuccess from '@/components/Preview/useOnSuccess';
 import useTxStatus from '@/components/Preview/useTxStatus';
 import { SlippageWarning } from '@/components/SlippageWarning';
+import useZapRoute from '@/hooks/useZapRoute';
 import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
-import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 import { parseTokensAndAmounts } from '@/utils';
 
@@ -50,8 +48,8 @@ export default function Preview({ onDismiss }: { onDismiss: () => void }) {
       'onClose',
     ]);
   const { pool } = usePoolStore(['pool']);
-  const { position } = usePositionStore(['position']);
-  const { setSlippage, slippage, tokensIn, amountsIn, zapInfo, buildData } = useZapState();
+  const { setSlippage, slippage, tokensIn, amountsIn, route, buildData } = useZapState();
+  const { zapImpact, suggestedSlippage, zapFee, refund } = useZapRoute();
 
   const [txHash, setTxHash] = useState('');
   const [attempTx, setAttempTx] = useState(false);
@@ -60,20 +58,9 @@ export default function Preview({ onDismiss }: { onDismiss: () => void }) {
 
   const { success: isUniV3 } = univ3PoolNormalize.safeParse(pool);
 
-  const { token0 = defaultToken, token1 = defaultToken } = pool || {};
-  const { refundInfo, addedAmountInfo, feeInfo, positionAmountInfo, zapImpact, suggestedSlippage } = parseZapInfo({
-    zapInfo,
-    token0,
-    token1,
-    position,
-  });
-
   useOnSuccess({
     txHash,
     txStatus,
-    positionAmountInfo,
-    addedAmountInfo,
-    zapInfo,
   });
 
   const handleClick = async () => {
@@ -194,30 +181,29 @@ export default function Preview({ onDismiss }: { onDismiss: () => void }) {
           {positionId ? <Trans>Increase Liquidity via Zap</Trans> : <Trans>Add Liquidity via Zap</Trans>}
         </DialogTitle>
         <div>
-          <Head pool={pool} />
+          <Head />
 
-          <ZapInAmount zapInfo={zapInfo} />
-          <PriceInfo pool={pool} />
+          <ZapInAmount />
+          <PriceInfo />
 
           <div className="flex flex-col items-center gap-3 mt-4">
-            <PooledAmount pool={pool} positionAmountInfo={positionAmountInfo} addedAmountInfo={addedAmountInfo} />
+            <PooledAmount />
             <EstimatedRow
               initializing={false}
               label={<Trans>Remaining Amount</Trans>}
               labelTooltip={t`Based on your price range settings, a portion of your liquidity will be automatically zapped into the pool, while the remaining amount will stay in your wallet.`}
               value={
                 <div className="text-sm">
-                  {formatCurrency(refundInfo.refundUsd)}
-                  {refundInfo.refundAmount0 || refundInfo.refundAmount1 ? (
+                  {formatCurrency(refund.value)}
+                  {refund.refunds.length > 0 ? (
                     <InfoHelper
                       text={
                         <div>
-                          <div>
-                            {refundInfo.refundAmount0} <TokenSymbol symbol={token0.symbol} maxWidth={80} />
-                          </div>
-                          <div>
-                            {refundInfo.refundAmount1} <TokenSymbol symbol={token1.symbol} maxWidth={80} />
-                          </div>
+                          {refund.refunds.map(item => (
+                            <div key={item.symbol}>
+                              {item.amount} <TokenSymbol symbol={item.symbol} maxWidth={80} />
+                            </div>
+                          ))}
                         </div>
                       }
                     />
@@ -231,7 +217,7 @@ export default function Preview({ onDismiss }: { onDismiss: () => void }) {
             <SlippageWarning
               className="gap-4 w-full mt-0"
               slippage={slippage || 0}
-              suggestedSlippage={zapInfo?.zapDetails?.suggestedSlippage || 0}
+              suggestedSlippage={suggestedSlippage}
               showWarning
             />
 
@@ -241,7 +227,7 @@ export default function Preview({ onDismiss }: { onDismiss: () => void }) {
                 <div
                   className={cn(
                     'text-subText mt-[2px] w-fit border-b border-dotted border-subText',
-                    zapInfo
+                    route
                       ? zapImpact.level === PI_LEVEL.VERY_HIGH || zapImpact.level === PI_LEVEL.INVALID
                         ? 'border-error text-error'
                         : zapImpact.level === PI_LEVEL.HIGH
@@ -307,17 +293,13 @@ export default function Preview({ onDismiss }: { onDismiss: () => void }) {
                   </a>
                 </Trans>
               }
-              value={<div className="text-sm">{parseFloat(feeInfo.protocolFee.toFixed(3))}%</div>}
+              value={<div className="text-sm">{parseFloat(zapFee.toFixed(3))}%</div>}
               hasRoute
               className="w-full mt-0"
             />
           </div>
 
-          <Warning
-            zapInfo={zapInfo}
-            slippage={slippage || 0}
-            zapImpact={{ ...zapImpact, msg: translateZapMessage(zapImpact.msg) }}
-          />
+          <Warning />
         </div>
         <DialogFooter>
           <button

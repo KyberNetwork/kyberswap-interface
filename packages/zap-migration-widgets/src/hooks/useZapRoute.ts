@@ -43,7 +43,14 @@ export default function useZapRoute() {
     zapFee,
     zapImpact,
     swapActions,
-  } = parseZapRoute(route || null, sourceToken0Address, sourceToken1Address, tokens, dexName, poolAddress);
+  } = parseZapRoute({
+    route: route || null,
+    token0Address: sourceToken0Address,
+    token1Address: sourceToken1Address,
+    tokens,
+    dexName,
+    poolAddress,
+  });
 
   return {
     addedLiquidity,

@@ -26,14 +26,14 @@ export const useEstimatedPositionApr = ({
   poolAddress,
   tickLower,
   tickUpper,
-  zapInfo,
+  route,
   enabled = true,
 }: {
   chainId: number;
   poolAddress: string;
   tickLower: number | null;
   tickUpper: number | null;
-  zapInfo: ZapRouteDetail | null;
+  route: ZapRouteDetail | null;
   enabled?: boolean;
 }) => {
   const [aprData, setAprData] = useState<AprData | null>(null);
@@ -48,7 +48,7 @@ export const useEstimatedPositionApr = ({
       setLoading(false);
       return;
     }
-    if (!zapInfo?.positionDetails.addedLiquidity || debouncedLower === debouncedUpper) {
+    if (!route?.positionDetails.addedLiquidity || debouncedLower === debouncedUpper) {
       setAprData(null);
       setLoading(false);
       return;
@@ -64,8 +64,8 @@ export const useEstimatedPositionApr = ({
           chainId: chainId.toString(),
           tickLower: debouncedLower.toString(),
           tickUpper: debouncedUpper.toString(),
-          positionLiquidity: zapInfo?.positionDetails.addedLiquidity.toString() || '0',
-          positionTvl: zapInfo?.positionDetails.addedAmountUsd.toString() || '0',
+          positionLiquidity: route?.positionDetails.addedLiquidity.toString() || '0',
+          positionTvl: route?.positionDetails.addedAmountUsd.toString() || '0',
         });
 
         const { data }: AprEstimationResponse = await fetch(
@@ -95,8 +95,8 @@ export const useEstimatedPositionApr = ({
     chainId,
     debouncedLower,
     debouncedUpper,
-    zapInfo?.positionDetails.addedAmountUsd,
-    zapInfo?.positionDetails.addedLiquidity,
+    route?.positionDetails.addedAmountUsd,
+    route?.positionDetails.addedLiquidity,
   ]);
 
   return {

@@ -1,34 +1,15 @@
 import { useEffect, useState } from 'react';
 
-import { DEXES_INFO, PoolType, ZapRouteDetail } from '@kyber/schema';
+import { DEXES_INFO, PoolType } from '@kyber/schema';
+import { formatTokenAmount } from '@kyber/utils/number';
 
+import useZapRoute from '@/hooks/useZapRoute';
+import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
-export default function useOnSuccess({
-  txHash,
-  txStatus,
-  positionAmountInfo,
-  addedAmountInfo,
-  zapInfo,
-}: {
-  txHash: string;
-  txStatus: string;
-  positionAmountInfo: {
-    amount0: number;
-    amount1: number;
-    positionAmount0Usd: number;
-    positionAmount1Usd: number;
-  };
-  addedAmountInfo: {
-    addedAmount0: number;
-    addedAmount1: number;
-    addedAmount0Usd: number;
-    addedAmount1Usd: number;
-  };
-  zapInfo: ZapRouteDetail | null;
-}) {
+export default function useOnSuccess({ txHash, txStatus }: { txHash: string; txStatus: string }) {
   const { poolType, chainId, positionId, onSuccess } = useWidgetStore([
     'poolType',
     'chainId',
@@ -37,12 +18,14 @@ export default function useOnSuccess({
   ]);
   const { pool } = usePoolStore(['pool']);
   const { position } = usePositionStore(['position']);
+  const { route } = useZapState();
+  const { initUsd, addedLiquidity } = useZapRoute();
 
   const [onSuccessTriggered, setOnSuccessTriggered] = useState(false);
   const { icon: dexLogo } = DEXES_INFO[poolType as PoolType];
 
   useEffect(() => {
-    if (!txHash || txStatus !== 'success' || !onSuccess || onSuccessTriggered || !zapInfo || !pool) return;
+    if (!txHash || txStatus !== 'success' || !onSuccess || onSuccessTriggered || !route || !pool) return;
 
     setOnSuccessTriggered(true);
 
@@ -57,47 +40,49 @@ export default function useOnSuccess({
           address: pool.token0.address,
           symbol: pool.token0.symbol,
           logo: pool.token0.logo || '',
-          amount: positionId !== undefined ? positionAmountInfo.amount0 : addedAmountInfo.addedAmount0,
+          amount: +formatTokenAmount(
+            position ? position.amount0 : addedLiquidity.addedAmount0,
+            pool.token0.decimals || 18,
+          ),
         },
         token1: {
           address: pool.token1.address,
           symbol: pool.token1.symbol,
           logo: pool.token1.logo || '',
-          amount: positionId !== undefined ? positionAmountInfo.amount1 : addedAmountInfo.addedAmount1,
+          amount: +formatTokenAmount(
+            position ? position.amount1 : addedLiquidity.addedAmount1,
+            pool.token1.decimals || 18,
+          ),
         },
         pool: {
           address: pool.address,
           fee: pool.fee,
         },
-        value:
-          position !== undefined
-            ? addedAmountInfo.addedAmount0Usd +
-              positionAmountInfo.positionAmount0Usd +
-              addedAmountInfo.addedAmount1Usd +
-              positionAmountInfo.positionAmount1Usd
-            : +zapInfo.zapDetails.initialAmountUsd,
+        value: position
+          ? addedLiquidity.addedValue0 +
+            +formatTokenAmount(position.amount0, pool.token0.decimals || 18) * (pool.token0.price || 0) +
+            addedLiquidity.addedValue1 +
+            +formatTokenAmount(position.amount1, pool.token1.decimals || 18) * (pool.token1.price || 0)
+          : +initUsd,
         createdAt: Date.now(),
       },
     });
   }, [
-    addedAmountInfo.addedAmount0,
-    addedAmountInfo.addedAmount1,
+    addedLiquidity.addedAmount0,
+    addedLiquidity.addedAmount1,
+    addedLiquidity.addedValue0,
+    addedLiquidity.addedValue1,
     chainId,
     dexLogo,
+    initUsd,
     onSuccess,
     onSuccessTriggered,
+    pool,
     poolType,
-    positionAmountInfo.amount0,
-    positionAmountInfo.amount1,
+    position,
     positionId,
+    route,
     txHash,
     txStatus,
-    positionAmountInfo.positionAmount0Usd,
-    positionAmountInfo.positionAmount1Usd,
-    addedAmountInfo?.addedAmount0Usd,
-    addedAmountInfo?.addedAmount1Usd,
-    position,
-    zapInfo,
-    pool,
   ]);
 }

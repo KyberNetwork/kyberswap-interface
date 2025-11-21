@@ -1,52 +1,52 @@
 import { Trans, t } from '@lingui/macro';
 
-import { API_URLS } from '@kyber/schema';
-import { InfoHelper, translateZapMessage } from '@kyber/ui';
+import { API_URLS, defaultToken } from '@kyber/schema';
+import { InfoHelper, TokenSymbol, translateZapMessage } from '@kyber/ui';
 import { PI_LEVEL } from '@kyber/utils';
-import { formatCurrency } from '@kyber/utils/number';
+import { formatCurrency, formatTokenAmount } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
 import EstimatedRow from '@/components/Estimated/EstimatedRow';
 import EstimatedTokenRow from '@/components/Estimated/EstimatedTokenRow';
 import SlippageRow from '@/components/Estimated/SlippageRow';
 import WarningMessage from '@/components/Estimated/WarningMessage';
-import useEstimated from '@/components/Estimated/useEstimated';
+import useZapRoute from '@/hooks/useZapRoute';
+import { useZapState } from '@/hooks/useZapState';
+import { usePoolStore } from '@/stores/usePoolStore';
+import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
 export default function Estimated() {
-  const { source, positionId } = useWidgetStore(['source', 'positionId']);
-  const {
-    initializing,
-    token0,
-    token1,
-    zapInfo,
-    positionAmountInfo,
-    addedAmountInfo,
-    isHighRemainingAmount,
-    refundInfo,
-    initUsd,
-    suggestedSlippage,
-    zapImpact,
-    feeInfo,
-  } = useEstimated();
+  const { pool } = usePoolStore(['pool']);
+  const { position } = usePositionStore(['position']);
+  const { source } = useWidgetStore(['source']);
+  const { route } = useZapState();
+  const { zapFee, suggestedSlippage, initUsd, refund, zapImpact, addedLiquidity } = useZapRoute();
 
-  const addedValue = !!positionAmountInfo.addedAmountUsd && (
-    <span>{formatCurrency(positionAmountInfo.addedAmountUsd)}</span>
+  const initializing = !pool;
+  const { token0 = defaultToken, token1 = defaultToken } = !initializing ? pool : {};
+
+  const addedValue = !!position && (
+    <span>
+      {+formatTokenAmount(position.amount0, token0.decimals) * (token0.price || 0) +
+        +formatTokenAmount(position.amount1, token1.decimals) * (token1.price || 0)}
+    </span>
   );
 
-  const remainingAmountWarning = zapInfo && isHighRemainingAmount && (
+  const isHighRemainingAmount = initUsd ? refund.value / initUsd >= suggestedSlippage / 10_000 : false;
+  const remainingAmountWarning = route && isHighRemainingAmount && (
     <WarningMessage
       isWarning
       message={
         <Trans>
-          {((refundInfo.refundUsd * 100) / initUsd).toFixed(2)}% remains unused and will be returned to your wallet.
-          Refresh or change your amount to get updated routes.
+          {((refund.value * 100) / initUsd).toFixed(2)}% remains unused and will be returned to your wallet. Refresh or
+          change your amount to get updated routes.
         </Trans>
       }
     />
   );
   const zapImpactWarning =
-    zapInfo && zapImpact.level !== PI_LEVEL.NORMAL ? (
+    route && zapImpact.level !== PI_LEVEL.NORMAL ? (
       <WarningMessage isWarning={zapImpact.level === PI_LEVEL.HIGH} message={translateZapMessage(zapImpact.msg)} />
     ) : null;
 
@@ -62,19 +62,23 @@ export default function Estimated() {
         <EstimatedTokenRow
           initializing={initializing}
           token={token0}
-          addedAmount={addedAmountInfo.addedAmount0}
-          addedValue={addedAmountInfo.addedAmount0Usd}
-          previousAmount={positionId ? positionAmountInfo.amount0 : undefined}
-          previousValue={positionId ? positionAmountInfo.positionAmount0Usd : undefined}
+          addedAmount={+formatTokenAmount(addedLiquidity.addedAmount0, token0.decimals)}
+          addedValue={addedLiquidity.addedValue0}
+          previousAmount={position ? +formatTokenAmount(position.amount0, token0.decimals) : undefined}
+          previousValue={
+            position ? +formatTokenAmount(position.amount0, token0.decimals) * (token0.price || 0) : undefined
+          }
         />
 
         <EstimatedTokenRow
           initializing={initializing}
           token={token1}
-          addedAmount={addedAmountInfo.addedAmount1}
-          addedValue={addedAmountInfo.addedAmount1Usd}
-          previousAmount={positionId ? positionAmountInfo.amount1 : undefined}
-          previousValue={positionId ? positionAmountInfo.positionAmount1Usd : undefined}
+          addedAmount={+formatTokenAmount(addedLiquidity.addedAmount1, token1.decimals)}
+          addedValue={addedLiquidity.addedValue1}
+          previousAmount={position ? +formatTokenAmount(position.amount1, token1.decimals) : undefined}
+          previousValue={
+            position ? +formatTokenAmount(position.amount1, token1.decimals) * (token1.price || 0) : undefined
+          }
         />
 
         <EstimatedRow
@@ -83,24 +87,23 @@ export default function Estimated() {
           labelTooltip={t`Based on your price range settings, a portion of your liquidity will be automatically zapped into the pool, while the remaining amount will stay in your wallet.`}
           value={
             <div>
-              {formatCurrency(refundInfo.refundUsd)}
-              {refundInfo.refundAmount0 || refundInfo.refundAmount1 ? (
+              {formatCurrency(refund.value)}
+              {refund.refunds.length > 0 ? (
                 <InfoHelper
                   text={
                     <div>
-                      <div>
-                        {refundInfo.refundAmount0} {token0.symbol}
-                      </div>
-                      <div>
-                        {refundInfo.refundAmount1} {token1.symbol}
-                      </div>
+                      {refund.refunds.map(item => (
+                        <div key={item.symbol}>
+                          {item.amount} <TokenSymbol symbol={item.symbol} maxWidth={80} />
+                        </div>
+                      ))}
                     </div>
                   }
                 />
               ) : null}
             </div>
           }
-          hasRoute={!!zapInfo}
+          hasRoute={!!route}
         />
 
         <SlippageRow suggestedSlippage={suggestedSlippage} />
@@ -111,7 +114,7 @@ export default function Estimated() {
             <div
               className={cn(
                 'text-subText mt-[2px] w-fit border-b border-dotted border-subText',
-                zapInfo
+                route
                   ? zapImpact.level === PI_LEVEL.VERY_HIGH || zapImpact.level === PI_LEVEL.INVALID
                     ? 'border-error text-error'
                     : zapImpact.level === PI_LEVEL.HIGH
@@ -137,7 +140,7 @@ export default function Estimated() {
               {zapImpact.display}
             </div>
           }
-          hasRoute={!!zapInfo}
+          hasRoute={!!route}
         />
 
         <EstimatedRow
@@ -156,16 +159,16 @@ export default function Estimated() {
               </a>
             </Trans>
           }
-          value={<div>{parseFloat((feeInfo.protocolFee + feeInfo.partnerFee).toFixed(3)) + '%'}</div>}
+          value={<div>{parseFloat((zapFee.protocolFee + zapFee.partnerFee).toFixed(3)) + '%'}</div>}
           valueTooltip={
-            feeInfo.partnerFee ? (
+            zapFee.partnerFee ? (
               <Trans>
-                {parseFloat(feeInfo.protocolFee.toFixed(3))}% Protocol Fee + {parseFloat(feeInfo.partnerFee.toFixed(3))}
-                % Fee for {source}
+                {parseFloat(zapFee.protocolFee.toFixed(3))}% Protocol Fee + {parseFloat(zapFee.partnerFee.toFixed(3))}%
+                Fee for {source}
               </Trans>
             ) : undefined
           }
-          hasRoute={!!zapInfo}
+          hasRoute={!!route}
         />
       </div>
 

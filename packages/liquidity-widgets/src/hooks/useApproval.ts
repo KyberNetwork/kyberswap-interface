@@ -57,7 +57,7 @@ export default function useApproval() {
     'onSubmitTx',
     'signTypedData',
   ]);
-  const { zapInfo, tokensIn, amountsIn } = useZapState();
+  const { route, tokensIn, amountsIn } = useZapState();
   const [nftApprovalType, setNftApprovalType] = useState<'single' | 'all'>('single');
 
   const nftManagerContract = getNftManagerContractAddress(poolType, chainId);
@@ -69,7 +69,7 @@ export default function useApproval() {
     isChecking: isCheckingNftApproval,
   } = useNftApproval({
     tokenId: positionId ? +positionId : undefined,
-    spender: zapInfo?.routerAddress || '',
+    spender: route?.routerAddress || '',
     userAddress: connectedAccount?.address || '',
     rpcUrl,
     nftManagerContract,
@@ -83,7 +83,7 @@ export default function useApproval() {
     checkApprovalAll: checkNftApprovalAll,
     isChecking: isCheckingNftApprovalAll,
   } = useNftApprovalAll({
-    spender: zapInfo?.routerAddress || '',
+    spender: route?.routerAddress || '',
     userAddress: connectedAccount?.address || '',
     rpcUrl,
     nftManagerContract,
@@ -93,7 +93,7 @@ export default function useApproval() {
   const { permitState, signPermitNft, permitData } = usePermitNft({
     nftManagerContract,
     tokenId: positionId,
-    spender: zapInfo?.routerPermitAddress,
+    spender: route?.routerPermitAddress,
     account: connectedAccount?.address,
     chainId: connectedAccount?.chainId,
     rpcUrl,
@@ -119,7 +119,7 @@ export default function useApproval() {
     addreses: tokenAddressesToApprove,
     owner: connectedAccount?.address || '',
     rpcUrl,
-    spender: zapInfo?.routerAddress || '',
+    spender: route?.routerAddress || '',
     onSubmitTx: onSubmitTx,
   });
 

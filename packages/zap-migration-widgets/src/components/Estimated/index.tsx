@@ -72,7 +72,7 @@ export function Estimated() {
             </Trans>
           </div>
         }
-        value={<div className="text-sm font-medium">{parseFloat(zapFee.toFixed(3))}%</div>}
+        value={<div className="text-sm font-medium">{parseFloat(zapFee.protocolFee.toFixed(3))}%</div>}
         hasRoute={!!route}
       />
     </div>

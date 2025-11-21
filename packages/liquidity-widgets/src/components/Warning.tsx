@@ -34,7 +34,7 @@ export default function Warning() {
   ]);
   const { position } = usePositionStore(['position']);
   const { pool, poolPrice, revertPrice } = usePoolStore(['pool', 'poolPrice', 'revertPrice']);
-  const { zapInfo, tickLower, tickUpper } = useZapState();
+  const { route, tickLower, tickUpper } = useZapState();
 
   const initializing = !pool;
   const isUniV4 = univ4Types.includes(poolType);
@@ -53,26 +53,26 @@ export default function Warning() {
     const isUniV3PoolType = univ3Types.includes(poolType as any);
     const isUniV2PoolType = univ2Types.includes(poolType as any);
 
-    if (zapInfo) {
+    if (route) {
       if (isUniV3 && isUniV3PoolType) {
-        const newInfo = zapInfo?.poolDetails.uniswapV3 || zapInfo?.poolDetails.algebraV1;
+        const newInfo = route?.poolDetails.uniswapV3 || route?.poolDetails.algebraV1;
         return {
           ...univ3PoolInfo,
           poolType: poolType as Univ3PoolType,
           sqrtRatioX96: newInfo?.newSqrtP,
           tick: newInfo.newTick,
-          liquidity: (BigInt(univ3PoolInfo.liquidity) + BigInt(zapInfo.positionDetails.addedLiquidity)).toString(),
+          liquidity: (BigInt(univ3PoolInfo.liquidity) + BigInt(route.positionDetails.addedLiquidity)).toString(),
         };
       }
       if (isUniV2 && isUniV2PoolType)
         return {
           ...uniV2PoolInfo,
           poolType: poolType as Univ2PoolType,
-          reverses: [zapInfo.poolDetails.uniswapV2.newReserve0, zapInfo.poolDetails.uniswapV2.newReserve1],
+          reverses: [route.poolDetails.uniswapV2.newReserve0, route.poolDetails.uniswapV2.newReserve1],
         };
     }
     return null;
-  }, [pool, poolType, zapInfo]);
+  }, [pool, poolType, route]);
 
   const isOutOfRangeAfterZap = useMemo(() => {
     const { success, data } = univ3Position.safeParse(position);

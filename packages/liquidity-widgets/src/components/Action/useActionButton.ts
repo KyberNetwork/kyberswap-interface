@@ -5,11 +5,11 @@ import { t } from '@lingui/macro';
 import { PermitNftState, useDebounce, usePositionOwner } from '@kyber/hooks';
 import { APPROVAL_STATE } from '@kyber/hooks';
 import { API_URLS, CHAIN_ID_TO_CHAIN, univ3PoolNormalize, univ4Types } from '@kyber/schema';
-import { translateZapImpact } from '@kyber/ui';
 import { PI_LEVEL, friendlyError } from '@kyber/utils';
 
 import { ERROR_MESSAGE, translateErrorMessage } from '@/constants';
 import { ApprovalState } from '@/hooks/useApproval';
+import useZapRoute from '@/hooks/useZapRoute';
 import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
@@ -47,7 +47,7 @@ export default function useActionButton({ approval, deadline }: { approval: Appr
     poolType,
   });
   const {
-    zapInfo,
+    route,
     errors: rawErrors,
     loading: zapLoading,
     tickLower,
@@ -60,6 +60,7 @@ export default function useActionButton({ approval, deadline }: { approval: Appr
     setBuildData,
   } = useZapState();
   const errors = useDebounce(rawErrors, 200);
+  const { zapImpact } = useZapRoute();
 
   const { address: account } = connectedAccount;
 
@@ -82,12 +83,9 @@ export default function useActionButton({ approval, deadline }: { approval: Appr
   const isWrongNetwork = errors.includes(ERROR_MESSAGE.WRONG_NETWORK);
   const isNotConnected = errors.includes(ERROR_MESSAGE.CONNECT_WALLET);
 
-  const zapImpact = !zapInfo
-    ? null
-    : translateZapImpact(zapInfo.zapDetails.priceImpact, zapInfo.zapDetails.suggestedSlippage || 100);
-  const isVeryHighZapImpact = zapImpact?.level === PI_LEVEL.VERY_HIGH;
-  const isHighZapImpact = zapImpact?.level === PI_LEVEL.HIGH;
-  const isInvalidZapImpact = zapImpact?.level === PI_LEVEL.INVALID;
+  const isVeryHighZapImpact = zapImpact.level === PI_LEVEL.VERY_HIGH;
+  const isHighZapImpact = zapImpact.level === PI_LEVEL.HIGH;
+  const isInvalidZapImpact = zapImpact.level === PI_LEVEL.INVALID;
 
   const btnDisabled =
     (isUniv4 && isNotOwner) ||
@@ -95,7 +93,7 @@ export default function useActionButton({ approval, deadline }: { approval: Appr
     approval.nftApproval.pendingTx ||
     approval.nftApprovalAll.pendingTx ||
     approval.tokenApproval.loading ||
-    (zapLoading && !zapInfo) ||
+    (zapLoading && !route) ||
     gasLoading ||
     approval.nftApproval.isChecking ||
     approval.nftApprovalAll.isChecking ||
@@ -123,16 +121,16 @@ export default function useActionButton({ approval, deadline }: { approval: Appr
       condition: needApproveNft && (approval.nftApproval.isChecking || approval.nftApprovalAll.isChecking),
       text: t`Checking Approval...`,
     },
-    { condition: zapLoading && !zapInfo, text: t`Fetching Route...` },
+    { condition: zapLoading && !route, text: t`Fetching Route...` },
     { condition: isUniv4 && isNotOwner, text: t`Not the position owner` },
     { condition: tokenInNotApproved, text: t`Approve ${tokenInNotApproved?.symbol ?? ''}` },
-    { condition: !zapInfo, text: t`No route found` },
+    { condition: !route, text: t`No route found` },
     { condition: isVeryHighZapImpact || isInvalidZapImpact, text: t`Zap anyway` },
   ];
   const btnText = buttonStates.find(state => state.condition)?.text || t`Preview`;
   const isInNftApprovalStep = Boolean(
     errors.length === 0 &&
-      zapInfo &&
+      route &&
       !approval.tokenApproval.addressToApprove &&
       !gasLoading &&
       !isNotOwner &&
@@ -154,12 +152,12 @@ export default function useActionButton({ approval, deadline }: { approval: Appr
   );
 
   const getBuildDataWithGas = async () => {
-    if (!zapInfo) return;
+    if (!route) return;
     setGasLoading(true);
     const buildBody = {
       sender: account,
       recipient: account,
-      route: zapInfo.route,
+      route: route.route,
       deadline,
       source,
       referral,
@@ -223,7 +221,7 @@ export default function useActionButton({ approval, deadline }: { approval: Appr
       pool !== null &&
       amountsIn &&
       tokensIn.every(Boolean) &&
-      zapInfo &&
+      route &&
       (isUniV3Pool ? tickLower !== null && tickUpper !== null : true)
     ) {
       if ((isVeryHighZapImpact || isInvalidZapImpact) && !uiState.degenMode) {

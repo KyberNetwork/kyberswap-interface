@@ -34,7 +34,7 @@ const defaultZapState = {
   tokensIn: [],
   amountsIn: '',
   errors: [],
-  zapInfo: null,
+  route: null,
   buildData: null,
   loading: false,
   slippage: undefined,
@@ -61,7 +61,7 @@ const ZapContext = createContext<{
   tokensIn: Token[];
   amountsIn: string;
   errors: string[];
-  zapInfo: ZapRouteDetail | null;
+  route: ZapRouteDetail | null;
   buildData: BuildDataWithGas | null;
   loading: boolean;
   slippage?: number;
@@ -127,7 +127,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
 
   const [uiState, setUiState] = useState(defaultUiState);
   const [ttl, setTtl] = useState(20);
-  const [zapInfo, setZapInfo] = useState<ZapRouteDetail | null>(null);
+  const [route, setRoute] = useState<ZapRouteDetail | null>(null);
   const [buildData, setBuildData] = useState<BuildDataWithGas | null>(null);
   const [zapApiError, setZapApiError] = useState<string>('');
   const [loading, setLoading] = useState(false);
@@ -235,7 +235,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
   }, [defaultRevertChecked, initializing, pool, revertPrice, toggleRevertPrice, wrappedNativeToken?.address]);
 
   const getZapRoute = useCallback(() => {
-    if (zapRouteDisabled || !slippage || initializing) return;
+    if (zapRouteDisabled || !slippage || initializing || buildData) return;
 
     let formattedAmountsInWeis = '';
 
@@ -262,7 +262,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
       // No valid input → clear info and abort any in-flight request
       abortControllerRef.current?.abort();
       setLoading(false);
-      setZapInfo(null);
+      setRoute(null);
       return;
     }
 
@@ -311,9 +311,9 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
         if (requestId !== latestRequestIdRef.current) return;
         if (res.data) {
           setZapApiError('');
-          setZapInfo(res.data);
+          setRoute(res.data);
         } else {
-          setZapInfo(null);
+          setRoute(null);
           setZapApiError(res.message || 'Something went wrong');
         }
       })
@@ -356,7 +356,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
         setTickLower,
         setTickUpper,
         errors,
-        zapInfo,
+        route,
         buildData,
         setBuildData,
         loading,

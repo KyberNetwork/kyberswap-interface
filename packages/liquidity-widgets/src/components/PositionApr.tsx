@@ -10,7 +10,7 @@ import { usePoolStore } from '@/stores/usePoolStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
 export const PositionApr = () => {
-  const { tickLower, tickUpper, zapInfo } = useZapState();
+  const { tickLower, tickUpper, route } = useZapState();
   const { pool } = usePoolStore(['pool']);
   const { poolAddress, chainId } = useWidgetStore(['poolAddress', 'chainId']);
 
@@ -19,11 +19,11 @@ export const PositionApr = () => {
     poolAddress,
     tickLower,
     tickUpper,
-    zapInfo,
+    route,
     enabled: pool?.isFarming,
   });
 
-  const tooltipContent = !zapInfo ? (
+  const tooltipContent = !route ? (
     <div>
       <Trans>Input an amount to calculate.</Trans>
     </div>
