@@ -2,10 +2,11 @@ import { ChainId, POOL_CATEGORY, Token as TokenSchema } from '@kyber/schema'
 import { TOKEN_SELECT_MODE, TokenLogo, TokenSelectorModal } from '@kyber/ui'
 import { Trans } from '@lingui/macro'
 import Portal from '@reach/portal'
+import { useQuery } from '@tanstack/react-query'
 import { useEffect, useMemo, useState } from 'react'
 import { Text } from 'rebass'
 import { useCheckPairQuery } from 'services/marketOverview'
-import { useSupportedProtocolsQuery } from 'services/zapEarn'
+import { useLazyPoolDetailQuery, useSupportedProtocolsQuery } from 'services/zapEarn'
 import styled from 'styled-components'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
@@ -19,6 +20,7 @@ import useChainsConfig from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
 import DropdownMenu from 'pages/Earns/components/DropdownMenu'
 import { Exchange } from 'pages/Earns/constants'
+import { fetchExistingPoolAddress } from 'pages/Earns/utils/zap'
 import { useWalletModalToggle } from 'state/application/hooks'
 
 const Wrapper = styled.div`
@@ -83,13 +85,14 @@ export type CreatePoolModalConfig = {
   token1: Token
   poolCategory: POOL_CATEGORY
   fee: number
+  poolAddress?: string | null
 }
 
 interface Props {
   isOpen: boolean
   filterChainId?: number
   onDismiss: () => void
-  onSubmit: (config: CreatePoolModalConfig) => void | Promise<void>
+  onSubmit: (config: CreatePoolModalConfig) => void
 }
 
 const CreatePositionModal = ({ isOpen, filterChainId, onDismiss, onSubmit }: Props) => {
@@ -106,7 +109,6 @@ const CreatePositionModal = ({ isOpen, filterChainId, onDismiss, onSubmit }: Pro
   const [token1, setToken1] = useState<Token | null>(null)
   const [fee, setFee] = useState<number | null>(null)
   const [tokenSelectorTarget, setTokenSelectorTarget] = useState<'token0' | 'token1' | null>(null)
-  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const chainOptions = useMemo(
     () =>
@@ -149,23 +151,47 @@ const CreatePositionModal = ({ isOpen, filterChainId, onDismiss, onSubmit }: Pro
   }, [selectedChainId])
 
   const tokensFOT = [token0, token1].filter(token => token?.isFOT).map(token => token?.symbol)
-  const canSubmit = !!token0 && !!token1 && !!fee && !isSubmitting && tokensFOT.length === 0
+
+  const [fetchPoolDetail, { isLoading: isLoadingPoolDetail }] = useLazyPoolDetailQuery()
+
+  const {
+    data: existingPoolAddress,
+    isLoading: isLoadingExistingPool,
+    isError: isExistingPoolError,
+  } = useQuery({
+    queryKey: ['zap-create-existing-pool', selectedChainId, selectedProtocol, token0?.address, token1?.address, fee],
+    queryFn: async () => {
+      const poolAddress = await fetchExistingPoolAddress({
+        chainId: selectedChainId,
+        protocol: selectedProtocol,
+        token0: token0,
+        token1: token1,
+        fee: Number(fee),
+      })
+      if (poolAddress) {
+        await fetchPoolDetail({ chainId: selectedChainId, address: poolAddress }).unwrap()
+        return poolAddress
+      }
+      return null
+    },
+    enabled: isOpen && !!token0 && !!token1 && !!fee,
+    retry: false,
+  })
+
+  const isLoading = isLoadingPoolDetail || isLoadingExistingPool
+
+  const canSubmit = !!token0 && !!token1 && !!fee && tokensFOT.length === 0 && !isExistingPoolError
 
   const handleConfirm = () => {
     if (!canSubmit) return
-    setIsSubmitting(true)
-
-    void Promise.resolve(
-      onSubmit({
-        chainId: selectedChainId,
-        protocol: selectedProtocol,
-        token0,
-        token1,
-        poolCategory,
-        fee: Number(fee),
-      }),
-    ).finally(() => {
-      setIsSubmitting(false)
+    onSubmit({
+      chainId: selectedChainId,
+      protocol: selectedProtocol,
+      token0,
+      token1,
+      poolCategory,
+      fee: Number(fee),
+      poolAddress: existingPoolAddress,
     })
   }
 
@@ -214,7 +240,7 @@ const CreatePositionModal = ({ isOpen, filterChainId, onDismiss, onSubmit }: Pro
       <Modal isOpen={isOpen} onDismiss={onDismiss} maxWidth={480} width="100%">
         <Wrapper>
           <Title>
-            <Trans>Create Position</Trans>
+            <Trans>Create Pool with Zap</Trans>
           </Title>
 
           <Section>
@@ -290,11 +316,21 @@ const CreatePositionModal = ({ isOpen, filterChainId, onDismiss, onSubmit }: Pro
             </ButtonOutlined>
             <ButtonPrimary
               onClick={handleConfirm}
-              disabled={!canSubmit}
+              disabled={!canSubmit || isLoading}
               altDisabledStyle
               style={{ borderRadius: '20px', height: 40 }}
             >
-              {isSubmitting ? <Loader stroke={theme.textReverse} /> : <Trans>Create with Zap</Trans>}
+              {isLoading ? (
+                <Loader stroke={theme.textReverse} />
+              ) : tokensFOT.length > 0 ? (
+                <Trans>Token is not available</Trans>
+              ) : isExistingPoolError ? (
+                <Trans>Pool is not available</Trans>
+              ) : existingPoolAddress ? (
+                <Trans>Add Liquidity</Trans>
+              ) : (
+                <Trans>Create with Zap</Trans>
+              )}
             </ButtonPrimary>
           </Footer>
         </Wrapper>
