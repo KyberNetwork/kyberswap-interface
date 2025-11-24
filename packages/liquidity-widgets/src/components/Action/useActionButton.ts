@@ -83,9 +83,9 @@ export default function useActionButton({ approval, deadline }: { approval: Appr
   const isWrongNetwork = errors.includes(ERROR_MESSAGE.WRONG_NETWORK);
   const isNotConnected = errors.includes(ERROR_MESSAGE.CONNECT_WALLET);
 
-  const isVeryHighZapImpact = zapImpact.level === PI_LEVEL.VERY_HIGH;
-  const isHighZapImpact = zapImpact.level === PI_LEVEL.HIGH;
-  const isInvalidZapImpact = zapImpact.level === PI_LEVEL.INVALID;
+  const isVeryHighZapImpact = route ? zapImpact.level === PI_LEVEL.VERY_HIGH : false;
+  const isHighZapImpact = route ? zapImpact.level === PI_LEVEL.HIGH : false;
+  const isInvalidZapImpact = route ? zapImpact.level === PI_LEVEL.INVALID : false;
 
   const btnDisabled =
     (isUniv4 && isNotOwner) ||
@@ -164,7 +164,7 @@ export default function useActionButton({ approval, deadline }: { approval: Appr
     } as any; // Type assertion added to allow dynamic property assignment
     if (isUniv4 && positionId && approval.permit.state === PermitNftState.SIGNED && approval.permit.data?.permitData) {
       (buildBody as any).permits = {
-        positionId: approval.permit.data.permitData,
+        [positionId]: approval.permit.data.permitData,
       };
     }
     try {
