@@ -28,7 +28,6 @@ const initState = {
   theme: defaultTheme,
   chainId: ChainId.Ethereum,
   rpcUrl: NETWORKS_INFO[ChainId.Ethereum].defaultRpc,
-  poolAddress: '',
   poolType: PoolType.DEX_UNISWAPV3,
   createPoolConfig: {
     token0: defaultToken,

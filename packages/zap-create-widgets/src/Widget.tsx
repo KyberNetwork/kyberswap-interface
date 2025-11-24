@@ -4,8 +4,6 @@ import { Trans, t } from '@lingui/macro';
 
 import { defaultToken } from '@kyber/schema';
 import {
-  InfoHelper,
-  MAX_TOKENS,
   StatusDialog,
   StatusDialogType,
   TOKEN_SELECT_MODE,
@@ -30,12 +28,10 @@ import { useWidgetStore } from '@/stores/useWidgetStore';
 import { PriceType, ZapSnapshotState } from '@/types/index';
 
 export default function Widget() {
-  const { theme, chainId, poolAddress, connectedAccount, onClose, onConnectWallet } = useWidgetStore([
-    'theme',
+  const { chainId, connectedAccount, onClose, onConnectWallet } = useWidgetStore([
     'chainId',
     'rpcUrl',
     'poolType',
-    'poolAddress',
     'connectedAccount',
     'onClose',
     'onConnectWallet',
@@ -99,7 +95,6 @@ export default function Widget() {
           chainId={chainId}
           mode={tokenAddressSelected ? TOKEN_SELECT_MODE.SELECT : TOKEN_SELECT_MODE.ADD}
           selectedTokenAddress={tokenAddressSelected}
-          poolAddress={poolAddress}
           onConnectWallet={onConnectWallet}
           onClose={onCloseTokenSelectModal}
           token0Address={token0.address}
@@ -144,18 +139,6 @@ export default function Widget() {
               onClick={() => setOpenTokenSelectModal(true)}
             >
               <Trans>+ Add Token(s)</Trans>
-              <InfoHelper
-                placement="bottom"
-                text={t`You can zap in with up to ${MAX_TOKENS} tokens.`}
-                color={theme.accent}
-                width="300px"
-                style={{
-                  verticalAlign: 'baseline',
-                  position: 'relative',
-                  top: 2,
-                  left: 2,
-                }}
-              />
             </div>
 
             <Estimated />

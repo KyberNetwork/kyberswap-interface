@@ -19,8 +19,9 @@ export default function PriceInput({ type }: { type: PriceType }) {
   const pool = useMemo(() => {
     if (rawPool === null) return rawPool;
     const { success, data } = univ3PoolNormalize.safeParse(rawPool);
-    if (success) return data;
-
+    if (success) {
+      return data;
+    }
     return null;
   }, [rawPool]);
 

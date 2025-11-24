@@ -13,14 +13,14 @@ import { useWidgetStore } from '@/stores/useWidgetStore';
 import { OnSuccessProps, TxStatus, WidgetProps } from '@/types/index';
 
 const ZapCreateWidget = (widgetProps: WidgetProps) => {
-  const { chainId, poolAddress, poolType, locale, createPoolConfig } = widgetProps;
+  const { poolType, locale, createPoolConfig } = widgetProps;
 
   const {
     theme,
     setInitiaWidgetState,
     reset: resetWidgetStore,
   } = useWidgetStore(['theme', 'setInitiaWidgetState', 'reset']);
-  const { getPool, reset: resetPoolStore, setCreatePool } = usePoolStore(['getPool', 'reset', 'setCreatePool']);
+  const { reset: resetPoolStore, setCreatePool } = usePoolStore(['reset', 'setCreatePool']);
 
   const resetStore = useCallback(() => {
     resetPoolStore();
@@ -36,13 +36,8 @@ const ZapCreateWidget = (widgetProps: WidgetProps) => {
   }, [widgetProps, setInitiaWidgetState, resetStore]);
 
   useEffect(() => {
-    if (createPoolConfig) {
-      setCreatePool(createPoolConfig, poolType);
-      return;
-    }
-    if (!poolAddress) return;
-    getPool({ poolAddress, chainId, poolType });
-  }, [chainId, getPool, poolAddress, poolType, createPoolConfig, setCreatePool]);
+    setCreatePool(createPoolConfig, poolType);
+  }, [createPoolConfig, poolType, setCreatePool]);
 
   useEffect(() => {
     if (!theme) return;

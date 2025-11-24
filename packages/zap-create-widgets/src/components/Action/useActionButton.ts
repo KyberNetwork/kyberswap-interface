@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react';
 import { t } from '@lingui/macro';
 
 import { APPROVAL_STATE, useErc20Approvals } from '@kyber/hooks';
-import { API_URLS, CHAIN_ID_TO_CHAIN, univ3PoolNormalize } from '@kyber/schema';
+import { API_URLS, CHAIN_ID_TO_CHAIN } from '@kyber/schema';
 import { translateZapImpact } from '@kyber/ui';
 import { PI_LEVEL, friendlyError } from '@kyber/utils';
 import { parseUnits } from '@kyber/utils/crypto';
@@ -157,7 +157,6 @@ export default function useActionButton({
 
   const hanldeClick = async () => {
     if (!slippage) return;
-    const { success: isUniV3Pool } = univ3PoolNormalize.safeParse(pool);
     if (isNotConnected) {
       onConnectWallet();
       return;
@@ -174,7 +173,8 @@ export default function useActionButton({
       amountsIn &&
       tokensIn.every(Boolean) &&
       zapInfo &&
-      (isUniV3Pool ? tickLower !== null && tickUpper !== null : true)
+      tickLower !== null &&
+      tickUpper !== null
     ) {
       if ((isVeryHighZapImpact || isInvalidZapImpact) && !uiState.degenMode) {
         toggleSetting(true);

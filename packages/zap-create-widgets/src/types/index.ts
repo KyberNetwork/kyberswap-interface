@@ -20,7 +20,6 @@ export interface WidgetProps {
   theme?: Theme;
   chainId: ChainId;
   rpcUrl?: string;
-  poolAddress: string;
   poolType: PoolType;
   createPoolConfig: CreatePoolConfig;
   source: string;
@@ -45,7 +44,6 @@ export interface WidgetProps {
 export interface OnSuccessProps {
   txHash: string;
   position: {
-    positionId?: string;
     chainId: number;
     poolType: PoolType;
     dexLogo: string;
@@ -60,10 +58,6 @@ export interface OnSuccessProps {
       symbol: string;
       logo: string;
       amount: number;
-    };
-    pool: {
-      address: string;
-      fee: number;
     };
     value: number;
     createdAt: number;

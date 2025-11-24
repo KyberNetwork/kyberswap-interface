@@ -35,7 +35,6 @@ export default function useOnSuccess({
     onSuccess({
       txHash,
       position: {
-        positionId: undefined,
         chainId,
         poolType,
         dexLogo,
@@ -51,10 +50,6 @@ export default function useOnSuccess({
           logo: pool.token1.logo || '',
           amount: addedAmountInfo.addedAmount1,
         },
-        pool: {
-          address: pool.address,
-          fee: pool.fee,
-        },
         value: +zapInfo.zapDetails.initialAmountUsd,
         createdAt: Date.now(),
       },
@@ -66,8 +61,6 @@ export default function useOnSuccess({
     dexLogo,
     onSuccess,
     onSuccessTriggered,
-    pool.address,
-    pool.fee,
     pool.token0.address,
     pool.token1.address,
     pool.token0.logo,

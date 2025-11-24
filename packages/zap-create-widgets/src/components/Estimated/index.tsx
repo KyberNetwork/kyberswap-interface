@@ -20,7 +20,6 @@ export default function Estimated() {
     token0,
     token1,
     zapInfo,
-    positionAmountInfo,
     addedAmountInfo,
     isHighRemainingAmount,
     refundInfo,
@@ -30,9 +29,7 @@ export default function Estimated() {
     feeInfo,
   } = useEstimated();
 
-  const addedValue = !!positionAmountInfo.addedAmountUsd && (
-    <span>{formatCurrency(positionAmountInfo.addedAmountUsd)}</span>
-  );
+  const addedValueUsd = (addedAmountInfo.addedAmount0Usd ?? 0) + (addedAmountInfo.addedAmount1Usd ?? 0);
 
   const remainingAmountWarning = zapInfo && isHighRemainingAmount && (
     <WarningMessage
@@ -55,7 +52,7 @@ export default function Estimated() {
       <div className="border border-stroke rounded-md py-3 px-4">
         <div className="text-sm mb-1 flex justify-between">
           <Trans>Est. Liquidity Value</Trans>
-          {addedValue}
+          {addedValueUsd > 0 && <span>{formatCurrency(addedValueUsd)}</span>}
         </div>
         <div className="h-[1px] w-full bg-stroke" />
 

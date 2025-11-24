@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { t } from '@lingui/macro';
 
 import { usePrevious } from '@kyber/hooks';
-import { POOL_CATEGORY, univ3PoolNormalize, univ3Types } from '@kyber/schema';
+import { POOL_CATEGORY, univ3PoolNormalize } from '@kyber/schema';
 import { Button, Skeleton } from '@kyber/ui';
 import { toString } from '@kyber/utils/number';
 import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick, tickToPrice } from '@kyber/utils/uniswapv3';
@@ -11,7 +11,6 @@ import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick, tickToPrice 
 import { DEFAULT_PRICE_RANGE, FULL_PRICE_RANGE, PRICE_RANGE } from '@/components/PriceRange/constants';
 import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
-import { useWidgetStore } from '@/stores/useWidgetStore';
 
 interface PriceRange {
   range: number | string;
@@ -22,7 +21,6 @@ interface PriceRange {
 const PriceRange = () => {
   const { setTickLower, setTickUpper, tickLower, tickUpper } = useZapState();
 
-  const { poolType } = useWidgetStore(['poolType']);
   const { pool, revertPrice, poolPrice } = usePoolStore(['pool', 'revertPrice', 'poolPrice']);
 
   const initializing = !pool;
@@ -40,7 +38,7 @@ const PriceRange = () => {
       PRICE_RANGE[pairCategory as keyof typeof PRICE_RANGE] || PRICE_RANGE[POOL_CATEGORY.EXOTIC_PAIR];
     if (!priceOptionsForPairCategory.length) return [];
 
-    const { success: isUniV3, data } = univ3PoolNormalize.safeParse(pool);
+    const { success: isUniV3, data: poolUniV3 } = univ3PoolNormalize.safeParse(pool);
     if (!isUniV3) return [];
 
     return priceOptionsForPairCategory
@@ -48,8 +46,8 @@ const PriceRange = () => {
         if (item === FULL_PRICE_RANGE)
           return {
             range: item,
-            tickLower: data.minTick,
-            tickUpper: data.maxTick,
+            tickLower: poolUniV3.minTick,
+            tickUpper: poolUniV3.maxTick,
           };
 
         const left = poolPrice * (1 - Number(item));
@@ -70,8 +68,8 @@ const PriceRange = () => {
 
         if (lower === undefined || upper === undefined) return null;
 
-        const nearestLowerTick = nearestUsableTick(lower, data.tickSpacing);
-        const nearestUpperTick = nearestUsableTick(upper, data.tickSpacing);
+        const nearestLowerTick = nearestUsableTick(lower, poolUniV3.tickSpacing);
+        const nearestUpperTick = nearestUsableTick(upper, poolUniV3.tickSpacing);
 
         let validLowerTick = nearestLowerTick;
         let validUpperTick = nearestUpperTick;
@@ -83,9 +81,9 @@ const PriceRange = () => {
             revertPrice,
           );
           if (Number(lowerPriceFromTick) > poolPrice) {
-            validLowerTick = validLowerTick - data.tickSpacing;
+            validLowerTick = validLowerTick - poolUniV3.tickSpacing;
           } else {
-            validUpperTick = validLowerTick + data.tickSpacing;
+            validUpperTick = validLowerTick + poolUniV3.tickSpacing;
           }
         }
 
@@ -133,9 +131,6 @@ const PriceRange = () => {
       );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pairCategory, priceRanges]);
-
-  const isUniv3 = univ3Types.includes(poolType as any);
-  if (!isUniv3) return null;
 
   return (
     <div className="flex mt-6 gap-[6px] my-[10px] border border-stroke rounded-md">

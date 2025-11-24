@@ -17,7 +17,7 @@ export interface TokenModalProps {
   mode: TOKEN_SELECT_MODE;
   selectedTokenAddress?: string;
   positionId?: string;
-  poolAddress: string;
+  poolAddress?: string;
   token0Address: string;
   token1Address: string;
   initialSlippage?: number;

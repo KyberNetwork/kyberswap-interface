@@ -31,7 +31,7 @@ export default function usePositions({
   chainId,
 }: {
   positionId?: string;
-  poolAddress: string;
+  poolAddress?: string;
   search: string;
   account?: string;
   chainId: ChainId;

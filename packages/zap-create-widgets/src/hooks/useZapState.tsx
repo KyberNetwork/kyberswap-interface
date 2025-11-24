@@ -1,7 +1,7 @@
 import { ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 import { useTokenBalances, useTokenPrices } from '@kyber/hooks';
-import { API_URLS, CHAIN_ID_TO_CHAIN, Token, ZapRouteDetail, univ3Types } from '@kyber/schema';
+import { API_URLS, CHAIN_ID_TO_CHAIN, Token, ZapRouteDetail } from '@kyber/schema';
 import { parseUnits } from '@kyber/utils/crypto';
 import { getSqrtRatioAtTick, priceToClosestTick } from '@kyber/utils/uniswapv3';
 
@@ -86,7 +86,6 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
     'chainId',
     'source',
     'poolType',
-    'poolAddress',
     'connectedAccount',
     'nativeToken',
     'wrappedNativeToken',
@@ -109,7 +108,6 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
   const [defaultRevertChecked, setDefaultRevertChecked] = useState(false);
 
   const initializing = !pool;
-  const isUniV3 = !initializing && univ3Types.includes(poolType as any);
   const { token0, token1 } = initializing ? { token0: undefined, token1: undefined } : pool;
 
   const { tokensIn, amountsIn, setTokensIn, setAmountsIn, debounceAmountsIn } = useInitialTokensIn({
@@ -130,7 +128,6 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
       token0,
       token1,
       revertPrice,
-      position: null,
       initialTick: undefined,
     });
   const { slippage, setSlippage } = useSlippageManager({ pool, tokensIn, chainId });
@@ -146,32 +143,20 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
         chainId,
         networkChainId,
         tokensIn,
-        isUniV3,
         tickLower: tickLower || 0,
         tickUpper: tickUpper || 0,
         amountsIn: debounceAmountsIn,
         balances,
         zapApiError,
       }),
-    [
-      account,
-      chainId,
-      networkChainId,
-      tokensIn,
-      debounceAmountsIn,
-      tickLower,
-      tickUpper,
-      zapApiError,
-      balances,
-      isUniV3,
-    ],
+    [account, chainId, networkChainId, tokensIn, debounceAmountsIn, tickLower, tickUpper, zapApiError, balances],
   );
 
   const zapRouteDisabled = useMemo(
     () =>
       Boolean(
         !slippage ||
-          (isUniV3 && !debounceTickLower && !debounceTickUpper) ||
+          (!debounceTickLower && !debounceTickUpper) ||
           initializing ||
           (errors.length > 0 &&
             (errors.includes(ERROR_MESSAGE.SELECT_TOKEN_IN) ||
@@ -181,7 +166,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
               errors.includes(ERROR_MESSAGE.ENTER_AMOUNT) ||
               errors.includes(ERROR_MESSAGE.INVALID_INPUT_AMOUNT))),
       ),
-    [debounceTickLower, debounceTickUpper, errors, initializing, isUniV3, slippage],
+    [debounceTickLower, debounceTickUpper, errors, initializing, slippage],
   );
 
   const toggleSetting = useCallback((highlight?: boolean) => {
