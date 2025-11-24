@@ -1,15 +1,7 @@
 import { Trans, t } from '@lingui/macro';
 
 import { useCopy } from '@kyber/hooks';
-import {
-  DEXES_INFO,
-  NATIVE_TOKEN_ADDRESS,
-  NETWORKS_INFO,
-  PoolType,
-  defaultToken,
-  univ3PoolNormalize,
-  univ3Position,
-} from '@kyber/schema';
+import { DEXES_INFO, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, PoolType, defaultToken } from '@kyber/schema';
 import { InfoHelper, LoadingCounter, MouseoverTooltip, Skeleton, TokenLogo, TokenSymbol } from '@kyber/ui';
 import { shortenAddress } from '@kyber/utils/crypto';
 
@@ -17,25 +9,14 @@ import SettingIcon from '@/assets/svg/setting.svg';
 import X from '@/assets/svg/x.svg';
 import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
-import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
-import { WidgetMode } from '@/types/index';
 
 const Header = () => {
-  const { mode, theme, chainId, onClose, poolType, positionId } = useWidgetStore([
-    'mode',
-    'theme',
-    'chainId',
-    'onClose',
-    'poolType',
-    'positionId',
-  ]);
+  const { chainId, onClose, poolType } = useWidgetStore(['chainId', 'onClose', 'poolType']);
   const { pool } = usePoolStore(['pool']);
-  const { position } = usePositionStore(['position']);
 
   const { toggleSetting, uiState, loading: zapLoading, getZapRoute, zapRouteDisabled } = useZapState();
 
-  const isCreateMode = mode === WidgetMode.CREATE;
   const initializing = !pool;
   const poolAddress = initializing ? '' : pool.address;
 
@@ -57,15 +38,6 @@ const Header = () => {
   const { icon: dexLogo, name: rawName } = DEXES_INFO[poolType as PoolType];
   const dexName = typeof rawName === 'string' ? rawName : rawName[chainId];
 
-  const { success, data } = univ3Position.safeParse(position);
-  const { success: isUniV3, data: univ3Pool } = univ3PoolNormalize.safeParse(pool);
-
-  const isOutOfRange =
-    !!positionId && position && success && isUniV3
-      ? univ3Pool.tick < data.tickLower || univ3Pool.tick >= data.tickUpper
-      : false;
-  const isClosed = position !== null && position.liquidity.toString() === '0';
-
   const handleToggleSetting = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
     e.preventDefault();
@@ -79,38 +51,12 @@ const Header = () => {
           <Skeleton className="w-[300px] h-7" />
         ) : (
           <div className="flex items-center flex-wrap gap-[6px]">
-            TODO
-            {isCreateMode ? (
-              <Trans>Create New Pool</Trans>
-            ) : positionId ? (
-              <Trans>Increase Liquidity</Trans>
-            ) : (
-              <Trans>Add Liquidity</Trans>
-            )}
+            <Trans>Create New Pool</Trans>
             <div className="flex items-center gap-1">
               <TokenSymbol symbol={token0.symbol} />
               <span>/</span>
               <TokenSymbol symbol={token1.symbol} />
             </div>
-            {!initializing && !!positionId && isUniV3 && (
-              <>
-                <div>#{positionId}</div>
-                <div
-                  className={`rounded-full text-xs px-2 py-1 font-normal text-${isClosed ? 'icons' : isOutOfRange ? 'warning' : 'accent'}`}
-                  style={{
-                    background: `${isClosed ? theme.icons : isOutOfRange ? theme.warning : theme.accent}33`,
-                  }}
-                >
-                  {isClosed ? (
-                    <Trans>● Closed</Trans>
-                  ) : isOutOfRange ? (
-                    <Trans>● Out of range</Trans>
-                  ) : (
-                    <Trans>● In range</Trans>
-                  )}
-                </div>
-              </>
-            )}
             {!zapRouteDisabled && (
               <LoadingCounter
                 clickable

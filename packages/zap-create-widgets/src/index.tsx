@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect } from 'react';
 
 import { ChainId, PoolType, Theme } from '@kyber/schema';
 import '@kyber/ui/styles.css';
@@ -9,44 +9,23 @@ import '@/globals.css';
 import { ZapContextProvider } from '@/hooks/useZapState';
 import { SupportedLocale, WidgetI18nProvider } from '@/i18n';
 import { usePoolStore } from '@/stores/usePoolStore';
-import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
-import { OnSuccessProps, TxStatus, WidgetMode, WidgetProps } from '@/types/index';
+import { OnSuccessProps, TxStatus, WidgetProps } from '@/types/index';
 
 const ZapCreateWidget = (widgetProps: WidgetProps) => {
-  const {
-    chainId,
-    poolAddress,
-    poolType,
-    positionId,
-    connectedAccount,
-    locale,
-    mode = WidgetMode.IN,
-    createPoolConfig,
-  } = widgetProps;
+  const { chainId, poolAddress, poolType, locale, createPoolConfig } = widgetProps;
 
   const {
     theme,
     setInitiaWidgetState,
     reset: resetWidgetStore,
-    setPositionId,
-  } = useWidgetStore(['theme', 'setInitiaWidgetState', 'reset', 'setPositionId']);
-  const {
-    pool,
-    getPool,
-    reset: resetPoolStore,
-    setCreatePool,
-  } = usePoolStore(['pool', 'getPool', 'reset', 'setCreatePool']);
-
-  const { getPosition, reset: resetPositionStore } = usePositionStore(['getPosition', 'reset']);
-
-  const [firstFetch, setFirstFetch] = useState(false);
+  } = useWidgetStore(['theme', 'setInitiaWidgetState', 'reset']);
+  const { getPool, reset: resetPoolStore, setCreatePool } = usePoolStore(['getPool', 'reset', 'setCreatePool']);
 
   const resetStore = useCallback(() => {
     resetPoolStore();
-    resetPositionStore();
     resetWidgetStore();
-  }, [resetPoolStore, resetPositionStore, resetWidgetStore]);
+  }, [resetPoolStore, resetWidgetStore]);
 
   useEffect(() => {
     return () => resetStore();
@@ -57,29 +36,13 @@ const ZapCreateWidget = (widgetProps: WidgetProps) => {
   }, [widgetProps, setInitiaWidgetState, resetStore]);
 
   useEffect(() => {
-    if (mode === WidgetMode.CREATE) {
-      if (createPoolConfig) setCreatePool(createPoolConfig, poolType);
+    if (createPoolConfig) {
+      setCreatePool(createPoolConfig, poolType);
       return;
     }
     if (!poolAddress) return;
     getPool({ poolAddress, chainId, poolType });
-  }, [chainId, getPool, poolAddress, poolType, mode, createPoolConfig, setCreatePool]);
-
-  useEffect(() => {
-    if (mode === WidgetMode.CREATE) return;
-    if (firstFetch || !pool) return;
-
-    getPosition({
-      positionId,
-      chainId,
-      poolType,
-      connectedAccount,
-      pool,
-      setPositionId,
-    });
-    if (positionId) setPositionId(positionId);
-    setFirstFetch(true);
-  }, [chainId, connectedAccount, firstFetch, getPosition, pool, poolType, positionId, setPositionId, mode]);
+  }, [chainId, getPool, poolAddress, poolType, createPoolConfig, setCreatePool]);
 
   useEffect(() => {
     if (!theme) return;
@@ -99,6 +62,6 @@ const ZapCreateWidget = (widgetProps: WidgetProps) => {
   );
 };
 
-export { PoolType, ChainId, ZapCreateWidget, TxStatus, WidgetMode };
+export { PoolType, ChainId, ZapCreateWidget, TxStatus };
 
 export type { OnSuccessProps, SupportedLocale };

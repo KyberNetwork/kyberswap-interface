@@ -5,12 +5,10 @@ import { parseZapInfo } from '@kyber/utils';
 
 import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
-import { usePositionStore } from '@/stores/usePositionStore';
 
 export default function useEstimated() {
   const { zapInfo } = useZapState();
   const { pool } = usePoolStore(['pool']);
-  const { position } = usePositionStore(['position']);
 
   return useMemo(() => {
     const initializing = !pool;
@@ -24,7 +22,7 @@ export default function useEstimated() {
       feeInfo,
       positionAmountInfo,
       zapImpact,
-    } = parseZapInfo({ zapInfo, token0, token1, position });
+    } = parseZapInfo({ zapInfo, token0, token1 });
 
     return {
       initializing,
@@ -40,5 +38,5 @@ export default function useEstimated() {
       zapImpact,
       feeInfo,
     };
-  }, [pool, position, zapInfo]);
+  }, [pool, zapInfo]);
 }

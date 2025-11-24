@@ -1,7 +1,7 @@
 import { ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 import { useTokenBalances, useTokenPrices } from '@kyber/hooks';
-import { API_URLS, CHAIN_ID_TO_CHAIN, Token, ZERO_ADDRESS, ZapRouteDetail, univ3Types } from '@kyber/schema';
+import { API_URLS, CHAIN_ID_TO_CHAIN, Token, ZapRouteDetail, univ3Types } from '@kyber/schema';
 import { parseUnits } from '@kyber/utils/crypto';
 import { getSqrtRatioAtTick, priceToClosestTick } from '@kyber/utils/uniswapv3';
 
@@ -10,9 +10,7 @@ import useInitialTokensIn from '@/hooks/useInitialTokensIn';
 import useSlippageManager from '@/hooks/useSlippageManager';
 import useTickPrice from '@/hooks/useTickPrice';
 import { usePoolStore } from '@/stores/usePoolStore';
-import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
-import { WidgetMode } from '@/types/index';
 import { parseTokensAndAmounts, validateData } from '@/utils';
 
 interface UiState {
@@ -84,38 +82,15 @@ const ZapContext = createContext<{
 }>(defaultZapState);
 
 export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
-  const {
-    mode,
-    chainId,
-    source,
-    aggregatorOptions,
-    initDepositTokens,
-    initAmounts,
-    feeConfig,
-    poolType,
-    poolAddress,
-    connectedAccount,
-    nativeToken,
-    wrappedNativeToken,
-    positionId,
-    initialTick,
-  } = useWidgetStore([
-    'mode',
+  const { chainId, source, poolType, connectedAccount, nativeToken, wrappedNativeToken } = useWidgetStore([
     'chainId',
     'source',
-    'aggregatorOptions',
-    'initDepositTokens',
-    'initAmounts',
-    'feeConfig',
     'poolType',
     'poolAddress',
     'connectedAccount',
     'nativeToken',
     'wrappedNativeToken',
-    'positionId',
-    'initialTick',
   ]);
-  const { position } = usePositionStore(['position']);
   const { pool, poolPrice, revertPrice, toggleRevertPrice } = usePoolStore([
     'pool',
     'poolPrice',
@@ -123,11 +98,8 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
     'toggleRevertPrice',
   ]);
 
-  const excludedSources = aggregatorOptions?.excludedSources?.join(',');
-  const includedSources = aggregatorOptions?.includedSources?.join(',');
   const account = connectedAccount?.address;
   const networkChainId = connectedAccount?.chainId;
-  const { feePcm, feeAddress } = feeConfig || {};
 
   const [uiState, setUiState] = useState(defaultUiState);
   const [ttl, setTtl] = useState(20);
@@ -143,8 +115,6 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
   const { tokensIn, amountsIn, setTokensIn, setAmountsIn, debounceAmountsIn } = useInitialTokensIn({
     pool,
     chainId,
-    initDepositTokens,
-    initAmounts,
     account,
     nativeToken,
   });
@@ -160,8 +130,8 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
       token0,
       token1,
       revertPrice,
-      position,
-      initialTick,
+      position: null,
+      initialTick: undefined,
     });
   const { slippage, setSlippage } = useSlippageManager({ pool, tokensIn, chainId });
   const { prices: tokenPrices } = useTokenPrices({
@@ -235,7 +205,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
   }, [defaultRevertChecked, initializing, pool, revertPrice, toggleRevertPrice, wrappedNativeToken?.address]);
 
   const getZapRoute = useCallback(() => {
-    if (zapRouteDisabled || !slippage || initializing) return;
+    if (zapRouteDisabled || !slippage || initializing || !pool || !poolPrice) return;
 
     let formattedAmountsInWeis = '';
 
@@ -263,56 +233,29 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
 
-    let params: Record<string, string | number | boolean | undefined>;
+    const tickFromPrice = priceToClosestTick(
+      poolPrice.toString(),
+      pool.token0.decimals,
+      pool.token1.decimals,
+      revertPrice,
+    );
+    const sqrtPriceX96 = getSqrtRatioAtTick(tickFromPrice || 0).toString();
+    const feeAmount = pool.fee * 10_000;
+    const tickSpacing = (pool as typeof pool & { tickSpacing: number }).tickSpacing;
 
-    if (mode === WidgetMode.CREATE) {
-      if (!pool || !poolPrice) return;
-
-      const tickFromPrice = priceToClosestTick(
-        poolPrice.toString(),
-        pool.token0.decimals,
-        pool.token1.decimals,
-        revertPrice,
-      );
-      const sqrtPriceX96 = getSqrtRatioAtTick(tickFromPrice || 0).toString();
-      const feeAmount = pool.fee * 10_000;
-      const tickSpacing = (pool as typeof pool & { tickSpacing: number }).tickSpacing;
-
-      params = {
-        dex: poolType,
-        'pool.tokens': `${pool.token0.address},${pool.token1.address}`,
-        'pool.uniswap_v4_config.fee': feeAmount,
-        'pool.uniswap_v4_config.sqrt_p': sqrtPriceX96,
-        'pool.uniswap_v4_config.tick_spacing': tickSpacing,
-        'pool.uniswap_v4_config.hooks': getConfigHooksAddress(poolType),
-        'zap_in.position.tick_upper': debounceTickUpper ?? 0,
-        'zap_in.position.tick_lower': debounceTickLower ?? 0,
-        'zap_in.tokens_in': validTokenInAddresses,
-        'zap_in.amounts_in': formattedAmountsInWeis,
-        'zap_in.slippage': slippage,
-      };
-    } else {
-      params = {
-        dex: poolType,
-        'pool.id': poolAddress,
-        'pool.token0': pool.token0.address,
-        'pool.token1': pool.token1.address,
-        'pool.fee': pool.fee * 10_000,
-        ...(isUniV3 && debounceTickUpper !== null && debounceTickLower !== null && !positionId
-          ? {
-              'position.tickUpper': debounceTickUpper,
-              'position.tickLower': debounceTickLower,
-            }
-          : { 'position.id': account || ZERO_ADDRESS }),
-        tokensIn: validTokenInAddresses,
-        amountsIn: formattedAmountsInWeis,
-        slippage,
-        ...(positionId ? { 'position.id': positionId } : {}),
-        ...(feeAddress ? { feeAddress, feePcm } : {}),
-        ...(includedSources ? { 'aggregatorOptions.includedSources': includedSources } : {}),
-        ...(excludedSources ? { 'aggregatorOptions.excludedSources': excludedSources } : {}),
-      };
-    }
+    const params: Record<string, string | number | boolean | undefined> = {
+      dex: poolType,
+      'pool.tokens': `${pool.token0.address},${pool.token1.address}`,
+      'pool.uniswap_v4_config.fee': feeAmount,
+      'pool.uniswap_v4_config.sqrt_p': sqrtPriceX96,
+      'pool.uniswap_v4_config.tick_spacing': tickSpacing,
+      'pool.uniswap_v4_config.hooks': getConfigHooksAddress(poolType),
+      'zap_in.position.tick_upper': debounceTickUpper ?? 0,
+      'zap_in.position.tick_lower': debounceTickLower ?? 0,
+      'zap_in.tokens_in': validTokenInAddresses,
+      'zap_in.amounts_in': formattedAmountsInWeis,
+      'zap_in.slippage': slippage,
+    };
 
     let tmp = '';
     Object.keys(params).forEach(key => {
@@ -322,7 +265,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
     });
     setLoading(true);
 
-    fetch(`${API_URLS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/${mode}/route?${tmp.slice(1)}`, {
+    fetch(`${API_URLS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/create/route?${tmp.slice(1)}`, {
       headers: {
         'X-Client-Id': source,
       },
@@ -346,21 +289,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
         setLoading(false);
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    debounceTickLower,
-    debounceTickUpper,
-    feeAddress,
-    feePcm,
-    slippage,
-    includedSources,
-    excludedSources,
-    source,
-    tokensIn,
-    debounceAmountsIn,
-    mode,
-    poolPrice,
-    revertPrice,
-  ]);
+  }, [debounceTickLower, debounceTickUpper, slippage, source, tokensIn, debounceAmountsIn, poolPrice, revertPrice]);
 
   useEffect(() => {
     getZapRoute();

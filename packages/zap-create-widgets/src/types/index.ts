@@ -9,11 +9,6 @@ export enum TxStatus {
   FAILED = 'failed',
 }
 
-export enum WidgetMode {
-  CREATE = 'create',
-  IN = 'in',
-}
-
 export interface CreatePoolConfig {
   token0: Token;
   token1: Token;
@@ -26,41 +21,15 @@ export interface WidgetProps {
   chainId: ChainId;
   rpcUrl?: string;
   poolAddress: string;
-  positionId?: string;
   poolType: PoolType;
-  mode?: WidgetMode;
-  createPoolConfig?: CreatePoolConfig;
-  connectedAccount: {
-    address?: string | undefined;
-    chainId: number;
-  };
-  initDepositTokens?: string;
-  initAmounts?: string;
+  createPoolConfig: CreatePoolConfig;
   source: string;
-  aggregatorOptions?: {
-    includedSources?: string[];
-    excludedSources?: string[];
-  };
-  feeConfig?: {
-    feePcm: number;
-    feeAddress: string;
-  };
-  referral?: string;
-  initialTick?: { tickLower: number; tickUpper: number };
+  connectedAccount: { address?: string | undefined; chainId: number };
   zapStatus?: Record<string, TxStatus>;
   locale?: SupportedLocale;
   onClose?: () => void;
   onConnectWallet: () => void;
   onSwitchChain: () => void;
-  onOpenZapMigration?: (
-    position: {
-      exchange: string;
-      poolId: string;
-      positionId: string | number;
-    },
-    initialTick?: { tickLower: number; tickUpper: number },
-    initialSlippage?: number,
-  ) => void;
   onSuccess?: ({ txHash, position }: OnSuccessProps) => void;
   onSubmitTx: (
     txData: { from: string; to: string; value: string; data: string; gasLimit: string },

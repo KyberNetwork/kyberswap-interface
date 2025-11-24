@@ -2,9 +2,8 @@ import { useMemo, useState } from 'react';
 
 import { t } from '@lingui/macro';
 
-import { usePositionOwner } from '@kyber/hooks';
 import { APPROVAL_STATE, useErc20Approvals } from '@kyber/hooks';
-import { API_URLS, CHAIN_ID_TO_CHAIN, univ3PoolNormalize, univ4Types } from '@kyber/schema';
+import { API_URLS, CHAIN_ID_TO_CHAIN, univ3PoolNormalize } from '@kyber/schema';
 import { translateZapImpact } from '@kyber/ui';
 import { PI_LEVEL, friendlyError } from '@kyber/utils';
 import { parseUnits } from '@kyber/utils/crypto';
@@ -17,31 +16,13 @@ import { ZapSnapshotState } from '@/types/index';
 import { estimateGasForTx } from '@/utils';
 
 export default function useActionButton({
-  nftApproved,
-  approveNft,
-  nftApprovePendingTx,
   setWidgetError,
   setZapSnapshotState,
 }: {
-  nftApproved: boolean;
-  nftApprovePendingTx: string;
-  approveNft: () => Promise<void>;
   setWidgetError: (_value: string | undefined) => void;
   setZapSnapshotState: (_value: ZapSnapshotState | null) => void;
 }) {
-  const {
-    mode,
-    chainId,
-    rpcUrl,
-    poolType,
-    connectedAccount,
-    onConnectWallet,
-    onSwitchChain,
-    onSubmitTx,
-    positionId,
-    source,
-  } = useWidgetStore([
-    'mode',
+  const { chainId, rpcUrl, connectedAccount, onConnectWallet, onSwitchChain, onSubmitTx, source } = useWidgetStore([
     'chainId',
     'rpcUrl',
     'poolType',
@@ -49,15 +30,9 @@ export default function useActionButton({
     'onConnectWallet',
     'onSwitchChain',
     'onSubmitTx',
-    'positionId',
     'source',
   ]);
   const { pool } = usePoolStore(['pool']);
-  const positionOwner = usePositionOwner({
-    positionId: positionId || '',
-    chainId,
-    poolType,
-  });
   const {
     zapInfo,
     errors,
@@ -106,21 +81,11 @@ export default function useActionButton({
   const [clickedApprove, setClickedLoading] = useState(false);
   const [gasLoading, setGasLoading] = useState(false);
 
-  const isUniv4 = univ4Types.includes(poolType);
-  const isNotOwner =
-    positionId &&
-    positionOwner &&
-    connectedAccount?.address &&
-    positionOwner !== connectedAccount?.address?.toLowerCase()
-      ? true
-      : false;
   const isWrongNetwork = errors.includes(ERROR_MESSAGE.WRONG_NETWORK);
   const isNotConnected = errors.includes(ERROR_MESSAGE.CONNECT_WALLET);
 
   const btnDisabled =
-    (isUniv4 && isNotOwner) ||
     clickedApprove ||
-    nftApprovePendingTx ||
     loading ||
     zapLoading ||
     gasLoading ||
@@ -136,14 +101,12 @@ export default function useActionButton({
   const isInvalidZapImpact = zapImpact?.level === PI_LEVEL.INVALID;
 
   const buttonStates = [
-    { condition: addressToApprove || nftApprovePendingTx, text: t`Approving` },
+    { condition: addressToApprove, text: t`Approving` },
     { condition: zapLoading, text: t`Fetching Route` },
     { condition: gasLoading, text: t`Estimating Gas` },
     { condition: errors.length > 0, text: translateErrorMessage(errors[0]) },
-    { condition: isUniv4 && isNotOwner, text: t`Not the position owner` },
     { condition: loading, text: t`Checking Allowance` },
     { condition: notApprove, text: t`Approve ${notApprove?.symbol ?? ''}` },
-    { condition: isUniv4 && positionId && !nftApproved, text: t`Approve NFT` },
     { condition: isVeryHighZapImpact || isInvalidZapImpact, text: t`Zap anyway` },
   ];
   const btnText = buttonStates.find(state => state.condition)?.text || t`Preview`;
@@ -151,7 +114,7 @@ export default function useActionButton({
   const getGasEstimation = async ({ deadline }: { deadline: number }) => {
     if (!zapInfo) return;
     setGasLoading(true);
-    const res = await fetch(`${API_URLS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/${mode}/route/build`, {
+    const res = await fetch(`${API_URLS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/create/route/build`, {
       method: 'POST',
       body: JSON.stringify({
         sender: account,
@@ -206,9 +169,6 @@ export default function useActionButton({
     if (notApprove) {
       setClickedLoading(true);
       approve(notApprove.address).finally(() => setClickedLoading(false));
-    } else if (isUniv4 && positionId && !nftApproved) {
-      setClickedLoading(true);
-      approveNft().finally(() => setClickedLoading(false));
     } else if (
       pool !== null &&
       amountsIn &&
@@ -238,14 +198,13 @@ export default function useActionButton({
     }
   };
 
-  const btnLoading = zapLoading || loading || addressToApprove || nftApprovePendingTx || gasLoading;
+  const btnLoading = zapLoading || loading || addressToApprove || gasLoading;
   const btnWarning =
     (isVeryHighZapImpact || isInvalidZapImpact) &&
     !errors.length &&
     !isWrongNetwork &&
     !isNotConnected &&
-    Object.values(approvalStates).every(item => item === APPROVAL_STATE.APPROVED) &&
-    (isUniv4 ? nftApproved : true);
+    Object.values(approvalStates).every(item => item === APPROVAL_STATE.APPROVED);
 
   const isVeryHighWarning = isVeryHighZapImpact || isInvalidZapImpact;
   const isHighWarning = isHighZapImpact;

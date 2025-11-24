@@ -25,7 +25,7 @@ export const parseZapInfo = ({
   zapInfo: ZapRouteDetail | undefined | null;
   token0: Token;
   token1: Token;
-  position: Position | undefined | null | 'loading';
+  position?: Position | undefined | null | 'loading';
 }) => {
   if (!zapInfo)
     return {

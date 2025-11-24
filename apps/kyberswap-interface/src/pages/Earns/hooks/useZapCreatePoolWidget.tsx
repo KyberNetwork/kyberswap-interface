@@ -1,5 +1,6 @@
 import { POOL_CATEGORY, Token } from '@kyber/schema'
-import { WidgetMode, LiquidityWidget as ZapWidget } from '@kyberswap/zap-create-widgets'
+import { LiquidityWidget } from '@kyberswap/liquidity-widgets'
+import { ZapCreateWidget as ZapWidget } from '@kyberswap/zap-create-widgets'
 import '@kyberswap/zap-create-widgets/dist/style.css'
 import { useCallback, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -27,11 +28,6 @@ type CreateConfig = {
   poolAddress?: string | null
 }
 
-type WidgetConfig = CreateConfig & {
-  mode: WidgetMode
-  poolAddress?: string | null
-}
-
 const useZapCreatePoolWidget = () => {
   const locale = useActiveLocale()
   const toggleWalletModal = useWalletModalToggle()
@@ -41,7 +37,7 @@ const useZapCreatePoolWidget = () => {
   const navigate = useNavigate()
   const addTransactionWithType = useTransactionAdder()
 
-  const [config, setConfig] = useState<WidgetConfig | null>(null)
+  const [config, setConfig] = useState<CreateConfig | null>(null)
 
   const { rpc: defaultRpc } = useKyberSwapConfig(config?.chainId)
 
@@ -52,7 +48,7 @@ const useZapCreatePoolWidget = () => {
   useAccountChanged(handleClose)
 
   const handleNavigateToPosition = useCallback(
-    async (txHash: string, config: WidgetConfig) => {
+    async (txHash: string, config: CreateConfig) => {
       if (!library || !config) return
       const poolAddress = await fetchExistingPoolAddress(config)
 
@@ -69,63 +65,65 @@ const useZapCreatePoolWidget = () => {
   const widgetProps = useMemo(() => {
     if (!config) return null
 
+    const poolType = ZAPIN_DEX_MAPPING[config.protocol]
+    const isCreate = !config.poolAddress
+
     return {
-      chainId: config.chainId,
-      poolType: ZAPIN_DEX_MAPPING[config.protocol],
-      connectedAccount: {
-        address: account,
-        chainId: connectedChainId ?? config.chainId,
-      },
-      poolAddress: config.poolAddress ?? '',
-      rpcUrl: defaultRpc,
-      mode: config.mode,
-      createPoolConfig:
-        config.mode === WidgetMode.CREATE
-          ? {
-              token0: config.token0,
-              token1: config.token1,
-              poolCategory: config.poolCategory,
-              fee: config.fee,
-            }
-          : undefined,
-      source: 'kyberswap-earn',
-      locale,
-      onViewPosition: (txHash: string) => {
-        handleNavigateToPosition(txHash, config)
-        handleClose()
-      },
-      onClose: () => {
-        handleClose()
-      },
-      onConnectWallet: toggleWalletModal,
-      onSwitchChain: () => changeNetwork(config.chainId),
-      onSubmitTx: async (
-        txData: { from: string; to: string; data: string; value: string; gasLimit: string },
-        additionalInfo?: {
-          tokensIn: Array<{ symbol: string; amount: string; logoUrl?: string }>
-          pool: string
-          dexLogo: string
+      isCreate,
+      baseProps: {
+        chainId: config.chainId,
+        poolType,
+        connectedAccount: {
+          address: account,
+          chainId: connectedChainId ?? config.chainId,
         },
-      ) => {
-        const res = await submitTransaction({ library, txData })
-        const { txHash, error } = res
+        poolAddress: config.poolAddress ?? '',
+        rpcUrl: defaultRpc,
+        source: 'kyberswap-earn',
+        locale,
+        onViewPosition: (txHash: string) => {
+          handleNavigateToPosition(txHash, config)
+          handleClose()
+        },
+        onClose: () => {
+          handleClose()
+        },
+        onConnectWallet: toggleWalletModal,
+        onSwitchChain: () => changeNetwork(config.chainId),
+        onSubmitTx: async (
+          txData: { from: string; to: string; data: string; value: string; gasLimit: string },
+          additionalInfo?: {
+            tokensIn: Array<{ symbol: string; amount: string; logoUrl?: string }>
+            pool: string
+            dexLogo: string
+          },
+        ) => {
+          const res = await submitTransaction({ library, txData })
+          const { txHash, error } = res
 
-        if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
+          if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
 
-        if (config && additionalInfo) {
-          addTransactionWithType({
-            hash: txHash,
-            type: TRANSACTION_TYPE.EARN_ADD_LIQUIDITY,
-            extraInfo: {
-              pool: additionalInfo.pool,
-              tokensIn: additionalInfo.tokensIn,
-              dexLogoUrl: additionalInfo.dexLogo,
-              dex: config.protocol,
-            },
-          })
-        }
+          if (config && additionalInfo) {
+            addTransactionWithType({
+              hash: txHash,
+              type: TRANSACTION_TYPE.EARN_ADD_LIQUIDITY,
+              extraInfo: {
+                pool: additionalInfo.pool,
+                tokensIn: additionalInfo.tokensIn,
+                dexLogoUrl: additionalInfo.dexLogo,
+                dex: config.protocol,
+              },
+            })
+          }
 
-        return res.txHash
+          return res.txHash
+        },
+      },
+      createPoolConfig: {
+        token0: config.token0,
+        token1: config.token1,
+        poolCategory: config.poolCategory,
+        fee: config.fee,
       },
     }
   }, [
@@ -144,18 +142,20 @@ const useZapCreatePoolWidget = () => {
 
   const widget = widgetProps ? (
     <Modal isOpen mobileFullWidth maxWidth={900} width={'900px'} onDismiss={handleClose}>
-      <ZapWidget {...widgetProps} />
+      {widgetProps.isCreate ? (
+        <ZapWidget {...widgetProps.baseProps} createPoolConfig={widgetProps.createPoolConfig} />
+      ) : (
+        <LiquidityWidget {...widgetProps.baseProps} />
+      )}
     </Modal>
   ) : null
 
   const openWidget = useCallback((newConfig: CreateConfig) => {
     const [token0, token1] = sortTokensByAddress(newConfig.token0, newConfig.token1)
-    const mode = newConfig.poolAddress ? WidgetMode.IN : WidgetMode.CREATE
     setConfig({
       ...newConfig,
       token0,
       token1,
-      mode,
     })
   }, [])
 

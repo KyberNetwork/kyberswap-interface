@@ -9,15 +9,9 @@ import { useWidgetStore } from '@/stores/useWidgetStore';
 import { ZapSnapshotState } from '@/types/index';
 
 export default function Action({
-  nftApproved,
-  approveNft,
-  nftApprovePendingTx,
   setWidgetError,
   setZapSnapshotState,
 }: {
-  nftApproved: boolean;
-  nftApprovePendingTx: string;
-  approveNft: () => Promise<void>;
   setWidgetError: (_value: string | undefined) => void;
   setZapSnapshotState: (_value: ZapSnapshotState | null) => void;
 }) {
@@ -31,9 +25,6 @@ export default function Action({
     isHighWarning,
     isVeryHighWarning,
   } = useActionButton({
-    nftApproved,
-    approveNft,
-    nftApprovePendingTx,
     setWidgetError,
     setZapSnapshotState,
   });
@@ -48,7 +39,7 @@ export default function Action({
         </button>
       )}
       <button
-        className={`ks-primary-btn min-w-[190px] w-fit ${
+        className={`ks-primary-btn min-w-[190px] capitalize w-fit ${
           !btnDisabled && Object.values(approvalStates).some(item => item !== APPROVAL_STATE.NOT_APPROVED)
             ? isVeryHighWarning
               ? 'bg-error border-solid border-error text-white'
