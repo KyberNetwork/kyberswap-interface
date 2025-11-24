@@ -216,6 +216,7 @@ export const {
   useAddFavoriteMutation,
   useRemoveFavoriteMutation,
   usePoolDetailQuery,
+  useLazyPoolDetailQuery,
 } = zapEarnServiceApi
 
 export default zapEarnServiceApi
