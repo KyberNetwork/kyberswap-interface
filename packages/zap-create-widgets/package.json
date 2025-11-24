@@ -1,5 +1,5 @@
 {
-  "name": "@kyberswap/liquidity-widgets",
+  "name": "@kyberswap/zap-create-widgets",
   "version": "1.1.29",
   "license": "MIT",
   "type": "module",

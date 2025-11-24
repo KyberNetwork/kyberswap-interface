@@ -62,6 +62,7 @@
     "@kyberswap/liquidity-chart": "workspace:*",
     "@kyberswap/liquidity-widgets": "workspace:*",
     "@kyberswap/oauth2": "1.0.2",
+    "@kyberswap/zap-create-widgets": "workspace:*",
     "@kyberswap/zap-migration-widgets": "workspace:*",
     "@kyberswap/zap-out-widgets": "workspace:*",
     "@ledgerhq/hw-app-btc": "^10.9.1",

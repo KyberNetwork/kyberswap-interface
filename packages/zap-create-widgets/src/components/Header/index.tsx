@@ -79,6 +79,7 @@ const Header = () => {
           <Skeleton className="w-[300px] h-7" />
         ) : (
           <div className="flex items-center flex-wrap gap-[6px]">
+            TODO
             {isCreateMode ? (
               <Trans>Create New Pool</Trans>
             ) : positionId ? (

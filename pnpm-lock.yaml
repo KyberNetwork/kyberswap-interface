@@ -98,6 +98,9 @@ importers:
       '@kyberswap/oauth2':
         specifier: 1.0.2
         version: 1.0.2
+      '@kyberswap/zap-create-widgets':
+        specifier: workspace:*
+        version: link:../../packages/zap-create-widgets
       '@kyberswap/zap-migration-widgets':
         specifier: workspace:*
         version: link:../../packages/zap-migration-widgets
@@ -1790,6 +1793,127 @@ importers:
       typescript:
         specifier: 5.3.2
         version: 5.3.2
+
+  packages/zap-create-widgets:
+    dependencies:
+      '@lingui/core':
+        specifier: ^4.6.0
+        version: 4.14.1
+      '@lingui/react':
+        specifier: ^4.6.0
+        version: 4.14.1(react@18.3.1)
+      react:
+        specifier: '>=16.8.0'
+        version: 18.3.1
+      react-dom:
+        specifier: '>=16.8.0'
+        version: 18.3.1(react@18.3.1)
+      zustand:
+        specifier: ^5.0.0
+        version: 5.0.1(@types/react@18.3.12)(react@18.3.1)
+    devDependencies:
+      '@babel/core':
+        specifier: ^7.26.0
+        version: 7.26.0
+      '@kyber/eslint-config':
+        specifier: workspace:*
+        version: link:../config-eslint
+      '@kyber/hooks':
+        specifier: workspace:^
+        version: link:../hooks
+      '@kyber/schema':
+        specifier: workspace:^
+        version: link:../schema
+      '@kyber/svgr-esbuild-plugin':
+        specifier: workspace:^
+        version: link:../svgr-esbuild-plugin
+      '@kyber/tailwind-config':
+        specifier: workspace:^
+        version: link:../config-tailwind
+      '@kyber/ui':
+        specifier: workspace:^
+        version: link:../ui
+      '@kyber/utils':
+        specifier: workspace:^
+        version: link:../utils
+      '@kyberswap/liquidity-chart':
+        specifier: workspace:^
+        version: link:../liquidity-chart
+      '@lingui/cli':
+        specifier: ^4.6.0
+        version: 4.14.1(typescript@5.1.6)
+      '@lingui/macro':
+        specifier: ^4.6.0
+        version: 4.14.1(@lingui/react@4.14.1)(babel-plugin-macros@3.1.0)(typescript@5.1.6)
+      '@trivago/prettier-plugin-sort-imports':
+        specifier: ^4.2.0
+        version: 4.3.0(prettier@3.5.3)
+      '@types/react':
+        specifier: ^18.0.17
+        version: 18.3.12
+      '@types/react-dom':
+        specifier: ^18.2.17
+        version: 18.3.1
+      '@typescript-eslint/eslint-plugin':
+        specifier: ^6.14.0
+        version: 6.21.0(@typescript-eslint/parser@6.21.0)(eslint@8.57.0)(typescript@5.1.6)
+      '@typescript-eslint/parser':
+        specifier: ^6.14.0
+        version: 6.21.0(eslint@8.57.0)(typescript@5.1.6)
+      autoprefixer:
+        specifier: ^10.4.20
+        version: 10.4.20(postcss@8.4.49)
+      babel-plugin-macros:
+        specifier: ^3.1.0
+        version: 3.1.0
+      esbuild-plugin-babel:
+        specifier: ^0.2.3
+        version: 0.2.3(@babel/core@7.26.0)
+      esbuild-sass-plugin:
+        specifier: ^3.3.1
+        version: 3.3.1(esbuild@0.24.0)(sass-embedded@1.80.7)
+      eslint:
+        specifier: ^8.55.0
+        version: 8.57.0
+      eslint-config-prettier:
+        specifier: ^9.1.0
+        version: 9.1.0(eslint@8.57.0)
+      eslint-plugin-prettier:
+        specifier: ^5.4.0
+        version: 5.4.0(@types/eslint@8.56.12)(eslint-config-prettier@9.1.0)(eslint@8.57.0)(prettier@3.5.3)
+      eslint-plugin-react:
+        specifier: ^7.33.2
+        version: 7.37.2(eslint@8.57.0)
+      eslint-plugin-react-hooks:
+        specifier: ^4.6.0
+        version: 4.6.2(eslint@8.57.0)
+      eslint-plugin-react-refresh:
+        specifier: ^0.4.5
+        version: 0.4.14(eslint@8.57.0)
+      eslint-plugin-unused-imports:
+        specifier: ^3.0.0
+        version: 3.2.0(@typescript-eslint/eslint-plugin@6.21.0)(eslint@8.57.0)
+      postcss:
+        specifier: ^8.4.47
+        version: 8.4.49
+      postcss-prefix-selector:
+        specifier: ^2.1.0
+        version: 2.1.0(postcss@8.4.49)
+      prettier:
+        specifier: ^3.5.3
+        version: 3.5.3
+      sass:
+        specifier: ^1.70.0
+        version: 1.80.7
+      tailwindcss:
+        specifier: ^3.4.13
+        version: 3.4.14
+      tsup:
+        specifier: ^8.3.0
+        version: 8.3.5(postcss@8.4.49)(typescript@5.1.6)
+      typescript:
+        specifier: 5.1.6
+        version: 5.1.6
 
   packages/zap-migration-widgets:
     dependencies:

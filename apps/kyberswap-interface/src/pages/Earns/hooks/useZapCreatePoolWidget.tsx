@@ -1,6 +1,6 @@
 import { POOL_CATEGORY, Token } from '@kyber/schema'
-import { WidgetMode, LiquidityWidget as ZapWidget } from '@kyberswap/liquidity-widgets'
-import '@kyberswap/liquidity-widgets/dist/style.css'
+import { WidgetMode, LiquidityWidget as ZapWidget } from '@kyberswap/zap-create-widgets'
+import '@kyberswap/zap-create-widgets/dist/style.css'
 import { useCallback, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
