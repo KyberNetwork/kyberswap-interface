@@ -165,7 +165,13 @@ export class BungeeAdapter extends BaseSwapAdapter {
     }
   }
   async getTransactionStatus(params: NormalizedTxResponse): Promise<SwapStatus> {
-    const response = await fetch(`${BUNGEE_API_BASE_URL}/api/v1/bungee/status?requestHash=${params.id}`)
+    const response = await fetch(`${BUNGEE_API_BASE_URL}/api/v1/bungee/status?requestHash=${params.id}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        affiliate: BUNGEE_AFFILIATE_ID,
+      },
+    })
     const data = await response.json()
 
     if (!data.success) {
@@ -179,7 +185,7 @@ export class BungeeAdapter extends BaseSwapAdapter {
           ? 'Refunded'
           : [RequestStatusEnum.EXPIRED, RequestStatusEnum.CANCELLED].includes(res.bungeeStatusCode)
           ? 'Failed'
-          : res.bungeeStatusCode == RequestStatusEnum.FULFILLED
+          : [RequestStatusEnum.FULFILLED, RequestStatusEnum.SETTLED].includes(res.bungeeStatusCode)
           ? 'Success'
           : 'Processing',
     }
