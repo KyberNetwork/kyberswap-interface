@@ -85,4 +85,5 @@ export interface NetworkInfo {
     readonly KNCAddress: string
     readonly KNCLAddress: string
   }
+  readonly accessListEnabled: boolean
 }

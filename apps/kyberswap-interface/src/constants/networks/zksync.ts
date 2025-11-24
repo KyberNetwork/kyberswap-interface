@@ -62,6 +62,7 @@ const zkSyncInfo: NetworkInfo = {
   coingeckoNativeTokenId: 'ethereum',
   dexToCompare: '',
   geckoTermialId: 'zksync',
+  accessListEnabled: false,
 }
 
 export default zkSyncInfo

@@ -75,6 +75,7 @@ const arbitrumInfo: NetworkInfo = {
   coingeckoNativeTokenId: 'ethereum',
   dexToCompare: 'uniswapv3',
   geckoTermialId: 'arbitrum',
+  accessListEnabled: false,
 }
 
 export default arbitrumInfo

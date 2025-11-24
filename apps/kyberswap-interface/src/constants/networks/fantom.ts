@@ -62,6 +62,7 @@ const fantomInfo: NetworkInfo = {
   coingeckoNativeTokenId: 'fantom',
   dexToCompare: 'spookyswap',
   geckoTermialId: 'fantom',
+  accessListEnabled: false,
 }
 
 export default fantomInfo

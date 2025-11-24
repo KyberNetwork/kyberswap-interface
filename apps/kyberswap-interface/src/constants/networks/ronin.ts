@@ -68,6 +68,7 @@ const ronin: NetworkInfo = {
   coingeckoNativeTokenId: 'ronin',
   dexToCompare: NOT_SUPPORT,
   geckoTermialId: NOT_SUPPORT,
+  accessListEnabled: false,
 }
 
 export default ronin

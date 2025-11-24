@@ -70,6 +70,7 @@ const bnbInfo: NetworkInfo = {
   coingeckoNativeTokenId: 'binancecoin',
   dexToCompare: 'pancake',
   geckoTermialId: 'bsc',
+  accessListEnabled: false,
 }
 
 export default bnbInfo

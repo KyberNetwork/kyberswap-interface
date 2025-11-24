@@ -26,7 +26,7 @@ const monadInfo: NetworkInfo = {
     logo: 'https://storage.googleapis.com/ks-setting-1d682dca/7d9b018b-7dfd-4644-9735-3215bcb9dec91763539895022.jpg',
     decimal: 18,
   },
-  defaultRpcUrl: 'http://rpc-mainnet.monadinfra.com',
+  defaultRpcUrl: 'https://rpc.monad.xyz',
   multicall: '0xcA11bde05977b3631167028862bE2a173976CA11',
   classic: {
     defaultSubgraph: '',
@@ -58,6 +58,7 @@ const monadInfo: NetworkInfo = {
   coingeckoNativeTokenId: NOT_SUPPORT,
   dexToCompare: NOT_SUPPORT,
   geckoTermialId: NOT_SUPPORT,
+  accessListEnabled: true,
 }
 
 export default monadInfo
