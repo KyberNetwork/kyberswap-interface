@@ -14,7 +14,7 @@ import useEstimated from '@/components/Estimated/useEstimated';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
 export default function Estimated() {
-  const { source, positionId } = useWidgetStore(['source', 'positionId']);
+  const { source } = useWidgetStore(['source']);
   const {
     initializing,
     token0,
@@ -64,8 +64,6 @@ export default function Estimated() {
           token={token0}
           addedAmount={addedAmountInfo.addedAmount0}
           addedValue={addedAmountInfo.addedAmount0Usd}
-          previousAmount={positionId ? positionAmountInfo.amount0 : undefined}
-          previousValue={positionId ? positionAmountInfo.positionAmount0Usd : undefined}
         />
 
         <EstimatedTokenRow
@@ -73,8 +71,6 @@ export default function Estimated() {
           token={token1}
           addedAmount={addedAmountInfo.addedAmount1}
           addedValue={addedAmountInfo.addedAmount1Usd}
-          previousAmount={positionId ? positionAmountInfo.amount1 : undefined}
-          previousValue={positionId ? positionAmountInfo.positionAmount1Usd : undefined}
         />
 
         <EstimatedRow

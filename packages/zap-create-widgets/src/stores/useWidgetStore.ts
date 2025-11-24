@@ -5,6 +5,7 @@ import {
   ChainId,
   NATIVE_TOKEN_ADDRESS,
   NETWORKS_INFO,
+  POOL_CATEGORY,
   PoolType,
   Theme,
   Token,
@@ -12,17 +13,14 @@ import {
   defaultToken,
 } from '@kyber/schema';
 
-import { CreatePoolConfig, WidgetMode, WidgetProps } from '@/types/index';
+import { WidgetProps } from '@/types/index';
 
 interface WidgetState extends WidgetProps {
   theme: Theme;
   nativeToken: Token;
   wrappedNativeToken: Token;
   rpcUrl: string;
-  mode: WidgetMode;
-  createPoolConfig?: CreatePoolConfig;
   reset: () => void;
-  setPositionId: (positionId: string) => void;
   setInitiaWidgetState: (props: WidgetProps, resetStore: () => void) => void;
 }
 
@@ -31,27 +29,24 @@ const initState = {
   chainId: ChainId.Ethereum,
   rpcUrl: NETWORKS_INFO[ChainId.Ethereum].defaultRpc,
   poolAddress: '',
-  positionId: undefined,
   poolType: PoolType.DEX_UNISWAPV3,
-  mode: WidgetMode.IN,
-  createPoolConfig: undefined,
+  createPoolConfig: {
+    token0: defaultToken,
+    token1: defaultToken,
+    poolCategory: POOL_CATEGORY.COMMON_PAIR,
+    fee: 0,
+  },
   connectedAccount: {
     address: '',
     chainId: ChainId.Ethereum,
   },
-  initDepositTokens: '',
-  initAmounts: '',
   source: '',
-  aggregatorOptions: undefined,
-  feeConfig: undefined,
-  referral: undefined,
-  initialTick: undefined,
+  zapStatus: undefined,
   onClose: undefined,
   onConnectWallet: () => {},
   onSwitchChain: () => {},
   onSubmitTx: (_txData: { from: string; to: string; value: string; data: string; gasLimit: string }) =>
     Promise.resolve(''),
-  onOpenZapMigration: undefined,
   onSuccess: undefined,
   onViewPosition: undefined,
   nativeToken: defaultToken,
@@ -97,7 +92,6 @@ const useWidgetRawStore = create<WidgetState>((set, _get) => ({
       wrappedNativeToken,
     });
   },
-  setPositionId: (positionId: string) => set({ positionId }),
 }));
 
 type WidgetStoreKeys = keyof ReturnType<typeof useWidgetRawStore.getState>;

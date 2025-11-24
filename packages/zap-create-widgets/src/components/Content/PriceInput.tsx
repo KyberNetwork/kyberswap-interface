@@ -4,18 +4,15 @@ import { Trans } from '@lingui/macro';
 
 import { univ3PoolNormalize } from '@kyber/schema';
 import { Skeleton, TokenSymbol } from '@kyber/ui';
-import { formatNumber } from '@kyber/utils/number';
 import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick } from '@kyber/utils/uniswapv3';
 
 import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
-import { useWidgetStore } from '@/stores/useWidgetStore';
 import { PriceType } from '@/types/index';
 
 export default function PriceInput({ type }: { type: PriceType }) {
   const { tickLower, tickUpper, setTickLower, setTickUpper, minPrice, maxPrice } = useZapState();
   const { pool: rawPool, revertPrice } = usePoolStore(['pool', 'revertPrice']);
-  const { positionId } = useWidgetStore(['positionId']);
 
   const [localValue, setLocalValue] = useState('');
 
@@ -96,14 +93,12 @@ export default function PriceInput({ type }: { type: PriceType }) {
       setLocalValue('∞');
     } else if (minPrice && maxPrice) {
       if (type === PriceType.MinPrice) {
-        if (positionId) setLocalValue(formatNumber(parseFloat(minPrice)));
-        else setLocalValue(minPrice);
+        setLocalValue(minPrice);
       } else {
-        if (positionId) setLocalValue(formatNumber(parseFloat(maxPrice)));
-        else setLocalValue(maxPrice);
+        setLocalValue(maxPrice);
       }
     }
-  }, [isMaxTick, isMinTick, maxPrice, minPrice, pool, positionId, revertPrice, type]);
+  }, [isMaxTick, isMinTick, maxPrice, minPrice, pool, revertPrice, type]);
 
   return (
     <div className="mt-[0.6rem] w-1/2 p-3 border rounded-md border-stroke flex flex-col gap-1 items-center">
@@ -112,7 +107,7 @@ export default function PriceInput({ type }: { type: PriceType }) {
           className="w-6 h-6 rounded-[4px] border border-stroke bg-layer2 text-subText flex items-center justify-center cursor-pointer hover:enabled:brightness-150 active:enabled:scale-95 disabled:cursor-not-allowed disabled:opacity-60 outline-none"
           role="button"
           onClick={handleDecreasePrice}
-          disabled={isFullRange || positionId !== undefined}
+          disabled={isFullRange}
         >
           -
         </button>
@@ -137,7 +132,6 @@ export default function PriceInput({ type }: { type: PriceType }) {
               inputMode="decimal"
               autoComplete="off"
               autoCorrect="off"
-              disabled={positionId !== undefined}
               type="text"
               pattern="^[0-9]*[.,]?[0-9]*$"
               placeholder="0.0"
@@ -151,7 +145,7 @@ export default function PriceInput({ type }: { type: PriceType }) {
         <button
           className="w-6 h-6 rounded-[4px] border border-stroke bg-layer2 text-subText flex items-center justify-center cursor-pointer hover:enabled:brightness-150 active:enabled:scale-95 disabled:cursor-not-allowed disabled:opacity-60 outline-none"
           onClick={handleIncreasePrice}
-          disabled={isFullRange || positionId !== undefined}
+          disabled={isFullRange}
         >
           +
         </button>
