@@ -266,10 +266,8 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
     let params: Record<string, string | number | boolean | undefined>;
 
     if (mode === WidgetMode.CREATE) {
-      if (!pool || !poolPrice) {
-        setZapInfo(null);
-        return;
-      }
+      if (!pool || !poolPrice) return;
+
       const tickFromPrice = priceToClosestTick(
         poolPrice.toString(),
         pool.token0.decimals,
