@@ -186,7 +186,7 @@ export const ButtonReturnType = styled.div<{ active?: boolean }>`
   transition: color 300ms;
 `
 
-export const SwapFormWrapper = styled.div<{ isShowTutorial?: boolean }>`
+export const SwapFormWrapper = styled.div`
   z-index: 1;
   width: 425px;
   display: flex;
@@ -195,12 +195,8 @@ export const SwapFormWrapper = styled.div<{ isShowTutorial?: boolean }>`
   justify-content: center;
   flex-shrink: 0;
   gap: 16px;
+
   @media only screen and (min-width: 1100px) {
-    position: ${({ isShowTutorial }) => (isShowTutorial ? 'unset' : 'sticky')};
-    /**
-      When tutorial appear, there is no need sticky form. 
-      Besides, it is also easy for us control position of tutorial popup when scroll page. 
-    */
     top: 16px;
   }
 
