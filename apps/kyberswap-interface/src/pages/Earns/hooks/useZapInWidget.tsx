@@ -19,6 +19,7 @@ import { useActiveLocale } from 'hooks/useActiveLocale'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
+import { ZAPIN_DEX_MAPPING, getDexFromPoolType } from 'pages/Earns/constants/dexMappings'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import { ZapMigrationInfo } from 'pages/Earns/hooks/useZapMigrationWidget'
 import { DEFAULT_PARSED_POSITION } from 'pages/Earns/types'
@@ -62,34 +63,6 @@ export interface ZapInInfo {
   }
   positionId?: string
   initialTick?: { tickUpper: number; tickLower: number }
-}
-
-const zapInDexMapping: Record<Exchange, ZapInPoolType> = {
-  [Exchange.DEX_UNISWAPV3]: ZapInPoolType.DEX_UNISWAPV3,
-  [Exchange.DEX_PANCAKESWAPV3]: ZapInPoolType.DEX_PANCAKESWAPV3,
-  [Exchange.DEX_SUSHISWAPV3]: ZapInPoolType.DEX_SUSHISWAPV3,
-  [Exchange.DEX_QUICKSWAPV3ALGEBRA]: ZapInPoolType.DEX_QUICKSWAPV3ALGEBRA,
-  [Exchange.DEX_CAMELOTV3]: ZapInPoolType.DEX_CAMELOTV3,
-  [Exchange.DEX_THENAFUSION]: ZapInPoolType.DEX_THENAFUSION,
-  [Exchange.DEX_KODIAK_V3]: ZapInPoolType.DEX_KODIAK_V3,
-  [Exchange.DEX_UNISWAPV2]: ZapInPoolType.DEX_UNISWAPV2,
-  [Exchange.DEX_UNISWAP_V4]: ZapInPoolType.DEX_UNISWAP_V4,
-  [Exchange.DEX_UNISWAP_V4_FAIRFLOW]: ZapInPoolType.DEX_UNISWAP_V4_FAIRFLOW,
-  [Exchange.DEX_PANCAKE_INFINITY_CL]: ZapInPoolType.DEX_PANCAKE_INFINITY_CL,
-  [Exchange.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: ZapInPoolType.DEX_PANCAKE_INFINITY_CL_FAIRFLOW,
-}
-
-const getDexFromPoolType = (poolType: ZapInPoolType) => {
-  const dexIndex = Object.values(zapInDexMapping).findIndex(
-    (item, index) => item === poolType && EARN_DEXES[Object.keys(zapInDexMapping)[index] as Exchange],
-  )
-  if (dexIndex === -1) {
-    console.error('Cannot find dex')
-    return
-  }
-  const dex = Object.keys(zapInDexMapping)[dexIndex] as Exchange
-
-  return dex
 }
 
 const useZapInWidget = ({
@@ -153,7 +126,7 @@ const useZapInWidget = ({
   )
 
   const handleOpenZapIn = ({ pool, positionId, initialTick }: ZapInInfo) => {
-    const dex = zapInDexMapping[pool.dex]
+    const dex = ZAPIN_DEX_MAPPING[pool.dex]
     if (!dex) {
       notify(
         {
