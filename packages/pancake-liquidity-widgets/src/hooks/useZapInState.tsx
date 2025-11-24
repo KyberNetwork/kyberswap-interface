@@ -61,6 +61,7 @@ const ZapContext = createContext<{
   positionId?: string;
   marketPrice: number | undefined | null;
   source: string;
+  getZapRoute: () => void;
 }>({
   revertPrice: false,
   tickLower: null,
@@ -86,6 +87,7 @@ const ZapContext = createContext<{
   setDegenMode: () => {},
   marketPrice: undefined,
   source: "",
+  getZapRoute: () => {},
 });
 
 export const ZapContextProvider = ({
@@ -371,8 +373,7 @@ export const ZapContextProvider = ({
     });
   }, [chainId, pool]);
 
-  // get zap route
-  useEffect(() => {
+  const getZapRoute = useCallback(() => {
     if (
       debounceTickLower !== null &&
       debounceTickUpper !== null &&
@@ -499,6 +500,11 @@ export const ZapContextProvider = ({
     poolType,
   ]);
 
+  // get zap route
+  useEffect(() => {
+    getZapRoute();
+  }, [getZapRoute]);
+
   return (
     <ZapContext.Provider
       value={{
@@ -527,6 +533,7 @@ export const ZapContextProvider = ({
         setDegenMode,
         marketPrice,
         source,
+        getZapRoute,
       }}
     >
       {children}

@@ -4,6 +4,7 @@ import { SignerPaymaster } from '@holdstation/paymaster-helper'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { ethers } from 'ethers'
 
+import { NETWORKS_INFO } from 'constants/networks'
 import { calculateGasMargin } from 'utils'
 
 import { ErrorName, TransactionError } from './sentry'
@@ -53,11 +54,36 @@ export async function sendEVMTransaction({
 }): Promise<TransactionResponse | undefined> {
   if (!account || !library) throw new Error('Invalid transaction')
 
-  const estimateGasOption = {
+  let accessList: any[] | undefined
+  let effectiveChainId = chainId
+  try {
+    if (!effectiveChainId) {
+      const network = await library.getNetwork()
+      effectiveChainId = network.chainId as ChainId
+    }
+  } catch {}
+
+  const baseTx = {
     from: account,
     to: contractAddress,
     data: encodedData,
-    value,
+    ...(value && !value.eq(0) ? { value: ethers.utils.hexlify(value) } : {}),
+  }
+  if (effectiveChainId && NETWORKS_INFO[effectiveChainId]?.accessListEnabled) {
+    try {
+      const al = await library.send('eth_createAccessList', [baseTx, 'latest'])
+      if (al && Array.isArray(al.accessList)) {
+        accessList = al.accessList
+      }
+    } catch {
+      // best-effort; continue without accessList if RPC doesn't support it
+      accessList = undefined
+    }
+  }
+
+  const estimateGasOption = {
+    ...baseTx,
+    ...(accessList ? { accessList } : {}),
   }
 
   let gasEstimate: ethers.BigNumber | undefined
@@ -77,16 +103,20 @@ export async function sendEVMTransaction({
 
   const gasLimit = calculateGasMargin(gasEstimate, chainId)
   const sendTransactionOption = {
-    from: account,
-    to: contractAddress,
-    data: encodedData,
+    ...estimateGasOption,
     gasLimit,
-    ...(value.eq('0') ? {} : { value }),
   }
 
   try {
     const response = await (paymentToken
-      ? paymasterExecute(paymentToken, sendTransactionOption, gasLimit.toNumber())
+      ? paymasterExecute(
+          paymentToken,
+          {
+            ...sendTransactionOption,
+            value: value ? ethers.BigNumber.from(value) : undefined,
+          },
+          gasLimit.toNumber(),
+        )
       : library.getSigner().sendTransaction(sendTransactionOption))
     return response
   } catch (error) {

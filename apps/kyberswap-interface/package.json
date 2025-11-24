@@ -57,7 +57,7 @@
     "@holdstation/paymaster-helper": "^2.0.20",
     "@kyberswap/compounding-widget": "workspace:*",
     "@kyberswap/ks-sdk-classic": "^1.0.3",
-    "@kyberswap/ks-sdk-core": "1.1.13",
+    "@kyberswap/ks-sdk-core": "1.1.14",
     "@kyberswap/ks-sdk-elastic": "^1.1.2",
     "@kyberswap/liquidity-chart": "workspace:*",
     "@kyberswap/liquidity-widgets": "workspace:*",

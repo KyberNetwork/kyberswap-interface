@@ -44,7 +44,7 @@ import {
   AccordionTrigger,
 } from "@kyber/ui";
 import defaultTokenLogo from "@/assets/question.svg?url";
-import { tickToPrice } from "@kyber/utils/uniswapv3";
+import { sqrtToPrice } from "@kyber/utils/uniswapv3";
 import { formatDisplayNumber } from "@kyber/utils/number";
 import { fetchTokenPrice } from "@kyber/utils";
 
@@ -183,8 +183,8 @@ export default function Preview({
     0;
 
   const price = pool
-    ? tickToPrice(
-        pool.tickCurrent,
+    ? sqrtToPrice(
+        BigInt(pool.sqrtRatioX96 || 0),
         pool.token0.decimals,
         pool.token1.decimals,
         revert
@@ -623,29 +623,34 @@ export default function Preview({
       <div className="pcs-lw-card mt-4 border border-inputBorder bg-inputBackground">
         <div>Zap-in Amount</div>
 
-        {tokensIn.map((token: PancakeTokenAdvanced, index: number) => (
-          <div
-            className="flex items-center gap-3 text-sm text-textSecondary mt-2"
-            key={index}
-          >
-            <img
-              src={token.logoURI}
-              className="w-[18px] h-[18px]"
-              onError={({ currentTarget }) => {
-                currentTarget.onerror = null;
-                currentTarget.src = defaultTokenLogo;
-              }}
-            />
-            <div className="text-textPrimary text-base">
-              {formatNumber(+listAmountsIn[index])} {token.symbol}
-              <span className="text-textSecondary font-normal text-sm ml-2">
-                {formatCurrency(
-                  (token.price || 0) * parseFloat(listAmountsIn[index])
-                )}
-              </span>
+        {tokensIn.map((token: PancakeTokenAdvanced, index: number) => {
+          const amount = listAmountsIn[index];
+          if (!amount) return null;
+
+          return (
+            <div
+              className="flex items-center gap-3 text-sm text-textSecondary mt-2"
+              key={index}
+            >
+              <img
+                src={token.logoURI}
+                className="w-[18px] h-[18px] rounded-full"
+                onError={({ currentTarget }) => {
+                  currentTarget.onerror = null;
+                  currentTarget.src = defaultTokenLogo;
+                }}
+              />
+              <div className="text-textPrimary text-base">
+                {formatNumber(+listAmountsIn[index])} {token.symbol}
+                <span className="text-textSecondary font-normal text-sm ml-2">
+                  {formatCurrency(
+                    (token.price || 0) * parseFloat(listAmountsIn[index])
+                  )}
+                </span>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <div className="pcs-lw-card mt-3 text-sm">

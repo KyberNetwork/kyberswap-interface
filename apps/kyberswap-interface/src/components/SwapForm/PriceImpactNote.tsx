@@ -74,7 +74,7 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLi
               <TextUnderlineColor as="a" href={PRICE_IMPACT_EXPLANATION_URL} target="_blank" rel="noreferrer noopener">
                 Price Impact
               </TextUnderlineColor>
-              {'.'}
+              {'. '}
             </Trans>
             {!isDegenMode ? (
               <span>
