@@ -263,12 +263,15 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
 
-    setLoading(true);
     let params: Record<string, string | number | boolean | undefined>;
 
     if (mode === WidgetMode.CREATE) {
+      if (!pool || !poolPrice) {
+        setZapInfo(null);
+        return;
+      }
       const tickFromPrice = priceToClosestTick(
-        poolPrice?.toString() ?? '0',
+        poolPrice.toString(),
         pool.token0.decimals,
         pool.token1.decimals,
         revertPrice,
@@ -319,6 +322,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
         tmp = `${tmp}&${key}=${params[key]}`;
       }
     });
+    setLoading(true);
 
     fetch(`${API_URLS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/${mode}/route?${tmp.slice(1)}`, {
       headers: {
