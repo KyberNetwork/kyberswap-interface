@@ -1,23 +1,23 @@
-# Kyber Liquidity Widgets
+# Kyber Zap Create Widgets
 
-The `@kyberswap/liquidity-widgets` package provides a React component to add or increase LP liquidity using KyberSwap's Zap engine (multi-token in, route + add liquidity). It is small, configurable, and easy to embed in a modal or page.
+The `@kyberswap/zap-create-widgets` package provides a React component to create new pools or zap liquidity into existing pools using KyberSwap's Zap engine (multi-token in, route + add liquidity). It is small, configurable, and easy to embed in a modal or page.
 
-Exports: `LiquidityWidget`, `ChainId`, `PoolType`, `TxStatus`.
+Exports: `ZapCreateWidget`, `ChainId`, `PoolType`, `TxStatus`, `WidgetMode`.
 
 ## Installation
 
 Install with your preferred package manager.
 
 ```
-pnpm add @kyberswap/liquidity-widgets
+pnpm add @kyberswap/zap-create-widgets
 ```
 
 ```
-yarn add @kyberswap/liquidity-widgets
+yarn add @kyberswap/zap-create-widgets
 ```
 
 ```
-npm i --save @kyberswap/liquidity-widgets
+npm i --save @kyberswap/zap-create-widgets
 ```
 
 ## Usage
@@ -25,8 +25,8 @@ npm i --save @kyberswap/liquidity-widgets
 Minimal example:
 
 ```tsx
-import { ChainId, LiquidityWidget, PoolType } from '@kyberswap/liquidity-widgets';
-import '@kyberswap/liquidity-widgets/dist/style.css';
+import { ChainId, PoolType, WidgetMode, ZapCreateWidget } from '@kyberswap/zap-create-widgets';
+import '@kyberswap/zap-create-widgets/dist/style.css';
 
 export default function Example() {
   // Provide these from your wallet/context (e.g. wagmi, web3-react, rainbowkit)
@@ -45,10 +45,18 @@ export default function Example() {
 
   return (
     <div style={{ width: 840, height: 720 }}>
-      <LiquidityWidget
+      <ZapCreateWidget
         chainId={ChainId.MAINNET}
         poolType={PoolType.DEX_UNISWAPV3}
         poolAddress={'0xPoolAddress'}
+        // Switch to CREATE mode and pass createPoolConfig to spin up a new pool + add liquidity
+        // mode={WidgetMode.CREATE}
+        // createPoolConfig={{
+        //   token0: TOKEN_A,
+        //   token1: TOKEN_B,
+        //   poolCategory: POOL_CATEGORY.CLASSIC,
+        //   fee: 500,
+        // }}
         // Optional: pass to increase liquidity on an existing position
         positionId={'12345'}
         connectedAccount={connectedAccount}
@@ -78,7 +86,9 @@ For a more detailed example, refer to the demo in the widgets repo.
 | chainId            | Network for the add-liquidity workflow                                                                             | `ChainId` \| `number`                                                                                      | Required           |
 | rpcUrl             | Use your own RPC endpoint                                                                                          | `string`                                                                                                   | Optional           |
 | poolType           | Protocol/pool type                                                                                                 | `PoolType`                                                                                                 | Required           |
-| poolAddress        | Pool address                                                                                                       | `string`                                                                                                   | Required           |
+| poolAddress        | Pool address (required when `mode` is `IN`)                                                                        | `string`                                                                                                   | Required for `IN`  |
+| mode               | Widget mode: zap into an existing pool (`IN`) or create a new one (`CREATE`)                                       | `WidgetMode`                                                                                                | Default `IN`       |
+| createPoolConfig   | Pool creation config when `mode` is `CREATE`                                                                       | `{ token0: Token; token1: Token; poolCategory: POOL_CATEGORY; fee: number }`                               | Required for `CREATE` |
 | positionId         | Existing position to increase liquidity into                                                                       | `string`                                                                                                   | Optional           |
 | connectedAccount   | Current connected account info                                                                                     | `{ address?: string; chainId: number }`                                                                    | Required           |
 | source             | Identifier for your integration (used for attribution/analytics)                                                   | `string`                                                                                                   | Required           |
@@ -105,5 +115,5 @@ Notes:
 
 ### Styling
 
-- You must import the stylesheet once in your app: `@kyberswap/liquidity-widgets/dist/style.css`.
+- You must import the stylesheet once in your app: `@kyberswap/zap-create-widgets/dist/style.css`.
 - You can override the theme via the `theme` prop (CSS variables under the `--ks-lw-*` namespace). Example keys include `text`, `subText`, `icons`, `layer1`, `dialog`, `layer2`, `stroke`, `chartRange`, `chartArea`, `accent`, `warning`, `error`, `success`, `blue`, `fontFamily`, `borderRadius`, `buttonRadius`, `boxShadow`.
