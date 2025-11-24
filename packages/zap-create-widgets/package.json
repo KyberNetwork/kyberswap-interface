@@ -44,7 +44,6 @@
     "@kyber/tailwind-config": "workspace:^",
     "@kyber/ui": "workspace:^",
     "@kyber/utils": "workspace:^",
-    "@kyberswap/liquidity-chart": "workspace:^",
     "@lingui/cli": "^4.6.0",
     "@lingui/macro": "^4.6.0",
     "@trivago/prettier-plugin-sort-imports": "^4.2.0",

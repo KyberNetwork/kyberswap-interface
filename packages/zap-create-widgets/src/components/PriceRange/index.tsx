@@ -22,7 +22,7 @@ interface PriceRange {
 const PriceRange = () => {
   const { setTickLower, setTickUpper, tickLower, tickUpper } = useZapState();
 
-  const { poolType, initialTick } = useWidgetStore(['poolType', 'initialTick']);
+  const { poolType } = useWidgetStore(['poolType']);
   const { pool, revertPrice, poolPrice } = usePoolStore(['pool', 'revertPrice', 'poolPrice']);
 
   const initializing = !pool;
@@ -125,7 +125,7 @@ const PriceRange = () => {
 
   // Set default price range depending on protocol fee
   useEffect(() => {
-    if (!pairCategory || !priceRanges.length || initialTick) return;
+    if (!pairCategory || !priceRanges.length) return;
     if (tickLower === null || tickUpper === null)
       handleSelectPriceRange(
         DEFAULT_PRICE_RANGE[pairCategory as keyof typeof DEFAULT_PRICE_RANGE] ||

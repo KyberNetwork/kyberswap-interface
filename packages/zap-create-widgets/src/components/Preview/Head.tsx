@@ -1,26 +1,12 @@
 import { Trans } from '@lingui/macro';
 
-import { DEXES_INFO, NETWORKS_INFO, Pool, PoolType, univ3PoolNormalize } from '@kyber/schema';
-import { InfoHelper, TokenLogo, TokenSymbol } from '@kyber/ui';
+import { DEXES_INFO, NETWORKS_INFO, Pool, PoolType } from '@kyber/schema';
+import { TokenLogo, TokenSymbol } from '@kyber/ui';
 
-import Info from '@/assets/svg/info.svg';
-import { useZapState } from '@/hooks/useZapState';
 import { useWidgetStore } from '@/stores/useWidgetStore';
-import { WidgetMode } from '@/types/index';
 
 export default function Head({ pool }: { pool: Pool }) {
-  const { mode, positionId, poolType, chainId, theme } = useWidgetStore([
-    'mode',
-    'positionId',
-    'poolType',
-    'chainId',
-    'theme',
-  ]);
-  const { tickLower, tickUpper } = useZapState();
-  const { success: isUniV3, data: univ3Pool } = univ3PoolNormalize.safeParse(pool);
-  const isOutOfRange =
-    isUniV3 && tickLower && tickUpper ? tickLower > univ3Pool.tick || univ3Pool.tick >= tickUpper : false;
-  const isCreateMode = mode === WidgetMode.CREATE;
+  const { poolType, chainId } = useWidgetStore(['poolType', 'chainId', 'theme']);
 
   const { icon: dexLogo, name: rawName } = DEXES_INFO[poolType as PoolType];
   const dexName = typeof rawName === 'string' ? rawName : rawName[chainId];
@@ -51,36 +37,8 @@ export default function Head({ pool }: { pool: Pool }) {
             <TokenLogo src={dexLogo} size={16} />
             <span>{dexName}</span>
           </div>
-          {positionId !== undefined && isUniV3 && (
-            <div className="rounded-full text-xs px-2 py-0 h-max flex items-center gap-1 bg-transparent text-success relative before:content-[''] before:absolute before:top-0 before:left-0 before:w-full before:h-full before:opacity-20 before:bg-success before:rounded-full">
-              <Info width={12} /> <Trans>ID {positionId}</Trans>
-            </div>
-          )}
         </div>
       </div>
-
-      {isOutOfRange && !isCreateMode && (
-        <div
-          className="rounded-full text-xs px-2 py-1 font-normal text-warning ml-auto"
-          style={{
-            background: `${theme.warning}33`,
-          }}
-        >
-          <Trans>Inactive</Trans>{' '}
-          <InfoHelper
-            width="300px"
-            color={theme.warning}
-            text={
-              <Trans>
-                Your liquidity is outside the current market range and will not be used/earn fees until the market price
-                enters your specified range.
-              </Trans>
-            }
-            size={16}
-            style={{ position: 'relative', top: '-1px', margin: 0 }}
-          />
-        </div>
-      )}
     </div>
   );
 }
