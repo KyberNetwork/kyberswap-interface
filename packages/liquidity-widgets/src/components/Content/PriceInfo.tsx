@@ -3,13 +3,12 @@ import { Trans } from '@lingui/macro';
 import { defaultToken } from '@kyber/schema';
 import { Skeleton, TokenSymbol } from '@kyber/ui';
 import { formatDisplayNumber } from '@kyber/utils/number';
-import { cn } from '@kyber/utils/tailwind-helpers';
 
 import RevertPriceIcon from '@/assets/svg/ic_revert_price.svg';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
-export default function PriceInfo({ flatten }: { flatten?: boolean }) {
+export default function PriceInfo() {
   const { theme } = useWidgetStore(['theme']);
   const { pool, poolPrice, revertPrice, toggleRevertPrice } = usePoolStore([
     'pool',
@@ -25,11 +24,11 @@ export default function PriceInfo({ flatten }: { flatten?: boolean }) {
 
   return (
     <>
-      <div className={cn(flatten ? '' : 'rounded-md border border-stroke py-3 px-4 mt-[6px]')}>
+      <div className="rounded-md border border-stroke py-3 px-4 mt-[6px]">
         <div className="flex justify-between">
           <div className="flex items-center justify-start gap-1 text-sm flex-wrap">
             <span className="text-subText">
-              <Trans>Current Price</Trans>
+              <Trans>Current price</Trans>
             </span>
             {initializing ? (
               <Skeleton className="w-20 h-5" />

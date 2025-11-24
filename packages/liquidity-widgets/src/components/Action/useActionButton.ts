@@ -30,7 +30,6 @@ export default function useActionButton({
   setZapSnapshotState: (_value: ZapSnapshotState | null) => void;
 }) {
   const {
-    mode,
     chainId,
     rpcUrl,
     poolType,
@@ -41,7 +40,6 @@ export default function useActionButton({
     positionId,
     source,
   } = useWidgetStore([
-    'mode',
     'chainId',
     'rpcUrl',
     'poolType',
@@ -151,7 +149,7 @@ export default function useActionButton({
   const getGasEstimation = async ({ deadline }: { deadline: number }) => {
     if (!zapInfo) return;
     setGasLoading(true);
-    const res = await fetch(`${API_URLS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/${mode}/route/build`, {
+    const res = await fetch(`${API_URLS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/in/route/build`, {
       method: 'POST',
       body: JSON.stringify({
         sender: account,

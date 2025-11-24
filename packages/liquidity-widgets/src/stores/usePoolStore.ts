@@ -3,42 +3,6 @@ import { useShallow } from 'zustand/shallow';
 
 import { Pool, PoolType } from '@kyber/schema';
 import { POOL_ERROR, getPoolInfo, getPoolPrice } from '@kyber/utils';
-import { MAX_TICK, MIN_TICK, nearestUsableTick } from '@kyber/utils/uniswapv3';
-
-import { CreatePoolConfig } from '@/types/index';
-
-const buildSyntheticPool = (config: CreatePoolConfig, poolType: PoolType): Pool => {
-  const tickSpacing = Math.max(Math.round((2 * config.fee * 10_000) / 100), 1);
-  return {
-    address: '',
-    poolType: poolType as PoolType.DEX_UNISWAP_V4_FAIRFLOW,
-    token0: config.token0,
-    token1: config.token1,
-    fee: config.fee,
-    tick: 0,
-    liquidity: '0',
-    sqrtPriceX96: (1n << 96n).toString(),
-    tickSpacing,
-    ticks: [],
-    minTick: nearestUsableTick(MIN_TICK, tickSpacing),
-    maxTick: nearestUsableTick(MAX_TICK, tickSpacing),
-    category: config.poolCategory,
-    stats: {
-      tvl: 0,
-      volume24h: 0,
-      fees24h: 0,
-      apr: 0,
-      apr24h: 0,
-      apr30d: 0,
-      kemLMApr24h: 0,
-      kemLMApr30d: 0,
-      kemEGApr24h: 0,
-      kemEGApr30d: 0,
-    },
-    isFarming: false,
-    isFarmingLm: false,
-  };
-};
 
 interface PoolState {
   poolLoading: boolean;
@@ -46,14 +10,12 @@ interface PoolState {
   pool: Pool | null;
   poolPrice: number | null;
   revertPrice: boolean;
-  setPoolPrice: (price: number | null) => void;
   toggleRevertPrice: () => void;
   getPool: (props: getPoolProps) => void;
-  setCreatePool: (config: CreatePoolConfig, poolType: PoolType) => void;
   reset: () => void;
 }
 
-const initState: Omit<PoolState, 'getPool' | 'setCreatePool' | 'toggleRevertPrice' | 'reset' | 'setPoolPrice'> = {
+const initState: Omit<PoolState, 'getPool' | 'toggleRevertPrice' | 'reset'> = {
   poolLoading: false,
   pool: null,
   poolError: '',
@@ -88,28 +50,12 @@ const usePoolRawStore = create<PoolState>((set, get) => ({
 
     set({ poolLoading: false });
   },
-  setCreatePool: (config: CreatePoolConfig, poolType: PoolType) => {
-    set({ pool: buildSyntheticPool(config, poolType), poolPrice: null });
-  },
-  setPoolPrice: (price: number | null) => {
-    set({ poolPrice: price });
-  },
   toggleRevertPrice: () => {
-    set(state => {
-      const nextRevertPrice = !state.revertPrice;
-      let nextPoolPrice = state.poolPrice;
+    set(state => ({ revertPrice: !state.revertPrice }));
 
-      if (state.pool && state.pool.address) {
-        const derivedPrice = getPoolPrice({ pool: state.pool, revertPrice: nextRevertPrice });
-        if (derivedPrice !== null) {
-          nextPoolPrice = derivedPrice;
-        }
-      } else if (state.poolPrice && state.poolPrice > 0) {
-        nextPoolPrice = 1 / state.poolPrice;
-      }
-
-      return { revertPrice: nextRevertPrice, poolPrice: nextPoolPrice };
-    });
+    const { pool, revertPrice } = get();
+    const price = getPoolPrice({ pool, revertPrice });
+    if (price !== null) set({ poolPrice: price });
   },
 }));
 

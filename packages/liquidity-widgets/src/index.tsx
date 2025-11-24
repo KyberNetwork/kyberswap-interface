@@ -11,19 +11,10 @@ import { SupportedLocale, WidgetI18nProvider } from '@/i18n';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
-import { OnSuccessProps, TxStatus, WidgetMode, WidgetProps } from '@/types/index';
+import { OnSuccessProps, TxStatus, WidgetProps } from '@/types/index';
 
 const LiquidityWidget = (widgetProps: WidgetProps) => {
-  const {
-    chainId,
-    poolAddress,
-    poolType,
-    positionId,
-    connectedAccount,
-    locale,
-    mode = WidgetMode.IN,
-    createPoolConfig,
-  } = widgetProps;
+  const { chainId, poolAddress, poolType, positionId, connectedAccount, locale } = widgetProps;
 
   const {
     theme,
@@ -31,12 +22,7 @@ const LiquidityWidget = (widgetProps: WidgetProps) => {
     reset: resetWidgetStore,
     setPositionId,
   } = useWidgetStore(['theme', 'setInitiaWidgetState', 'reset', 'setPositionId']);
-  const {
-    pool,
-    getPool,
-    reset: resetPoolStore,
-    setCreatePool,
-  } = usePoolStore(['pool', 'getPool', 'reset', 'setCreatePool']);
+  const { pool, getPool, reset: resetPoolStore } = usePoolStore(['pool', 'getPool', 'reset']);
 
   const { getPosition, reset: resetPositionStore } = usePositionStore(['getPosition', 'reset']);
 
@@ -57,16 +43,10 @@ const LiquidityWidget = (widgetProps: WidgetProps) => {
   }, [widgetProps, setInitiaWidgetState, resetStore]);
 
   useEffect(() => {
-    if (mode === WidgetMode.CREATE) {
-      if (createPoolConfig) setCreatePool(createPoolConfig, poolType);
-      return;
-    }
-    if (!poolAddress) return;
     getPool({ poolAddress, chainId, poolType });
-  }, [chainId, getPool, poolAddress, poolType, mode, createPoolConfig, setCreatePool]);
+  }, [chainId, getPool, poolAddress, poolType]);
 
   useEffect(() => {
-    if (mode === WidgetMode.CREATE) return;
     if (firstFetch || !pool) return;
 
     getPosition({
@@ -79,7 +59,7 @@ const LiquidityWidget = (widgetProps: WidgetProps) => {
     });
     if (positionId) setPositionId(positionId);
     setFirstFetch(true);
-  }, [chainId, connectedAccount, firstFetch, getPosition, pool, poolType, positionId, setPositionId, mode]);
+  }, [chainId, connectedAccount, firstFetch, getPosition, pool, poolType, positionId, setPositionId]);
 
   useEffect(() => {
     if (!theme) return;
@@ -99,6 +79,6 @@ const LiquidityWidget = (widgetProps: WidgetProps) => {
   );
 };
 
-export { PoolType, ChainId, LiquidityWidget, TxStatus, WidgetMode };
+export { PoolType, ChainId, LiquidityWidget, TxStatus };
 
 export type { OnSuccessProps, SupportedLocale };

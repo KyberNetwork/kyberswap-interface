@@ -14,7 +14,6 @@ import {
   translateFriendlyErrorMessage,
 } from '@kyber/ui';
 import { getNftManagerContractAddress } from '@kyber/utils';
-import { cn } from '@kyber/utils/tailwind-helpers';
 
 import Action from '@/components/Action';
 import LiquidityToAdd, { LiquidityToAddSkeleton } from '@/components/Content/LiquidityToAdd';
@@ -32,7 +31,6 @@ import { PositionFee } from '@/components/PositionFee';
 import PositionLiquidity from '@/components/PositionLiquidity';
 import PositionPriceRange from '@/components/PositionPriceRange';
 import Preview from '@/components/Preview';
-import PriceControl from '@/components/PriceControl';
 import PriceRange from '@/components/PriceRange';
 import Setting from '@/components/Setting';
 import Warning from '@/components/Warning';
@@ -40,11 +38,10 @@ import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
-import { PriceType, WidgetMode, ZapSnapshotState } from '@/types/index';
+import { PriceType, ZapSnapshotState } from '@/types/index';
 
 export default function Widget() {
   const {
-    mode,
     theme,
     chainId,
     rpcUrl,
@@ -57,7 +54,6 @@ export default function Widget() {
     onConnectWallet,
     onOpenZapMigration,
   } = useWidgetStore([
-    'mode',
     'theme',
     'chainId',
     'rpcUrl',
@@ -81,7 +77,6 @@ export default function Widget() {
   const [widgetError, setWidgetError] = useState<string | undefined>();
   const [zapSnapshotState, setZapSnapshotState] = useState<ZapSnapshotState | null>(null);
 
-  const isCreateMode = mode === WidgetMode.CREATE;
   const initializing = !pool;
   const { token0 = defaultToken, token1 = defaultToken } = !initializing ? pool : {};
 
@@ -228,23 +223,10 @@ export default function Widget() {
       <div className={zapSnapshotState ? 'hidden' : 'p-6'}>
         <Header />
         <div className="mt-5 flex gap-5 max-sm:flex-col">
-          <div
-            className={cn(
-              'w-[55%] h-fit max-sm:w-full',
-              isCreateMode ? 'px-4 py-4 border rounded-md border-stroke' : '',
-            )}
-          >
-            {isCreateMode ? (
-              <>
-                <PriceControl />
-              </>
-            ) : (
-              <>
-                <PoolStat />
-                <PriceInfo />
-                {!positionId && isUniV3 && (initializing ? <LiquidityChartSkeleton /> : <LiquidityChart />)}
-              </>
-            )}
+          <div className="w-[55%] max-sm:w-full">
+            <PoolStat />
+            <PriceInfo />
+            {!positionId && isUniV3 && (initializing ? <LiquidityChartSkeleton /> : <LiquidityChart />)}
             {positionId ? <PositionPriceRange /> : <PriceRange />}
             {!positionId ? (
               isUniV3 && (
@@ -265,8 +247,8 @@ export default function Widget() {
                 {addLiquiditySection}
               </>
             ) : null}
-            {!isCreateMode && <PositionApr />}
-            {!isCreateMode && <LeftWarning />}
+            <PositionApr />
+            <LeftWarning />
           </div>
 
           <div className="w-[45%] max-sm:w-full">
@@ -274,7 +256,7 @@ export default function Widget() {
 
             <Estimated />
             <ZapSummary />
-            {!isCreateMode && <Warning />}
+            <Warning />
           </div>
         </div>
         <Action
