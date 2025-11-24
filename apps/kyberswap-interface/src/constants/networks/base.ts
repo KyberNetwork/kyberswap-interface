@@ -67,7 +67,6 @@ const base: NetworkInfo = {
   coingeckoNativeTokenId: 'ethereum',
   dexToCompare: NOT_SUPPORT,
   geckoTermialId: NOT_SUPPORT,
-  accessListEnabled: false,
 }
 
 export default base

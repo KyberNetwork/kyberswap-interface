@@ -84,7 +84,6 @@ const avaxInfo: NetworkInfo = {
   coingeckoNativeTokenId: 'avalanche-2',
   dexToCompare: 'traderjoe',
   geckoTermialId: 'avax',
-  accessListEnabled: false,
 }
 
 export default avaxInfo

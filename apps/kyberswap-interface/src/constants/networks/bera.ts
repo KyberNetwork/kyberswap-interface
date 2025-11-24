@@ -68,7 +68,6 @@ const bera: NetworkInfo = {
   coingeckoNativeTokenId: 'bera',
   dexToCompare: NOT_SUPPORT,
   geckoTermialId: NOT_SUPPORT,
-  accessListEnabled: false,
 }
 
 export default bera

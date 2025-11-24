@@ -66,7 +66,6 @@ const mantle: NetworkInfo = {
   coingeckoNativeTokenId: 'mnt',
   dexToCompare: NOT_SUPPORT,
   geckoTermialId: NOT_SUPPORT,
-  accessListEnabled: false,
 }
 
 export default mantle

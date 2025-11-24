@@ -68,7 +68,6 @@ const sonic: NetworkInfo = {
   coingeckoNativeTokenId: 's',
   dexToCompare: NOT_SUPPORT,
   geckoTermialId: NOT_SUPPORT,
-  accessListEnabled: false,
 }
 
 export default sonic

@@ -70,7 +70,6 @@ const optimismInfo: NetworkInfo = {
   coingeckoNativeTokenId: 'ethereum',
   dexToCompare: 'uniswapv3',
   geckoTermialId: 'optimism',
-  accessListEnabled: false,
 }
 
 export default optimismInfo

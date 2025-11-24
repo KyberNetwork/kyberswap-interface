@@ -80,7 +80,6 @@ const maticInfo: NetworkInfo = {
   coingeckoNativeTokenId: 'matic-network',
   dexToCompare: 'quickswap',
   geckoTermialId: 'polygon_pos',
-  accessListEnabled: false,
 }
 
 export default maticInfo
