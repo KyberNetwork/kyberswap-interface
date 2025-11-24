@@ -10,9 +10,6 @@ export const countDecimals = (value: string | number) => {
   return value.toString().split('.')[1].length || 0;
 };
 
-export const checkDeviated = (price: number | null, newPrice: number | undefined | null) =>
-  !!price && !!newPrice && Math.abs(price / newPrice - 1) > 0.02;
-
 const isValidNumber = (value: string) => {
   return value && value !== '0' && parseFloat(value);
 };
@@ -23,7 +20,6 @@ export const validateData = ({
   networkChainId,
   tokensIn,
   amountsIn,
-  isUniV3,
   tickLower,
   tickUpper,
   balances,
@@ -34,7 +30,6 @@ export const validateData = ({
   networkChainId: ChainId;
   tokensIn: Token[];
   amountsIn: string;
-  isUniV3: boolean;
   tickLower: number;
   tickUpper: number;
   balances: {
@@ -46,11 +41,10 @@ export const validateData = ({
   if (!account) errors.push(ERROR_MESSAGE.CONNECT_WALLET);
   if (chainId !== networkChainId) errors.push(ERROR_MESSAGE.WRONG_NETWORK);
   if (!tokensIn.length) errors.push(ERROR_MESSAGE.SELECT_TOKEN_IN);
-  if (isUniV3) {
-    if (tickLower === null) errors.push(ERROR_MESSAGE.ENTER_MIN_PRICE);
-    if (tickUpper === null) errors.push(ERROR_MESSAGE.ENTER_MAX_PRICE);
-    if (tickLower >= tickUpper) errors.push(ERROR_MESSAGE.INVALID_PRICE_RANGE);
-  }
+
+  if (tickLower === null) errors.push(ERROR_MESSAGE.ENTER_MIN_PRICE);
+  if (tickUpper === null) errors.push(ERROR_MESSAGE.ENTER_MAX_PRICE);
+  if (tickLower >= tickUpper) errors.push(ERROR_MESSAGE.INVALID_PRICE_RANGE);
 
   const listAmountsIn = amountsIn.split(',');
   const isAmountEntered = tokensIn.some((_, index) => isValidNumber(listAmountsIn[index]));
@@ -120,7 +114,7 @@ export const getPriceRangeToShow = ({
 }) => {
   if (!pool) return;
 
-  const { success: isUniV3, data: uniV3Pool } = univ3PoolNormalize.safeParse(pool);
+  const { success: isUniV3, data: poolUniV3 } = univ3PoolNormalize.safeParse(pool);
 
   if (!isUniV3)
     return {
@@ -128,8 +122,8 @@ export const getPriceRangeToShow = ({
       maxPrice: '∞',
     };
 
-  const isMinTick = uniV3Pool.minTick === tickLower;
-  const isMaxTick = uniV3Pool.maxTick === tickUpper;
+  const isMinTick = poolUniV3.minTick === tickLower;
+  const isMaxTick = poolUniV3.maxTick === tickUpper;
 
   let minPriceToShow = minPrice;
   let maxPriceToShow = maxPrice;

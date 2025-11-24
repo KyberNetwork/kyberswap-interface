@@ -13,23 +13,14 @@ export default function useEstimated() {
   return useMemo(() => {
     const initializing = !pool;
     const { token0, token1 } = initializing ? { token0: defaultToken, token1: defaultToken } : pool;
-    const {
-      refundInfo,
-      addedAmountInfo,
-      initUsd,
-      suggestedSlippage,
-      isHighRemainingAmount,
-      feeInfo,
-      positionAmountInfo,
-      zapImpact,
-    } = parseZapInfo({ zapInfo, token0, token1 });
+    const { refundInfo, addedAmountInfo, initUsd, suggestedSlippage, isHighRemainingAmount, feeInfo, zapImpact } =
+      parseZapInfo({ zapInfo, token0, token1 });
 
     return {
       initializing,
       token0,
       token1,
       zapInfo,
-      positionAmountInfo,
       addedAmountInfo,
       isHighRemainingAmount,
       refundInfo,

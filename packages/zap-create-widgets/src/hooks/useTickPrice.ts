@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import { useDebounce } from '@kyber/hooks';
-import { Position, Token, univ3Position } from '@kyber/schema';
+import { Token } from '@kyber/schema';
 import { formatNumber } from '@kyber/utils/number';
 import { tickToPrice } from '@kyber/utils/uniswapv3';
 
@@ -10,13 +10,11 @@ export default function useTickPrice({
   token1,
   revertPrice,
   initialTick,
-  position,
 }: {
   token0?: Token;
   token1?: Token;
   revertPrice: boolean;
   initialTick?: { tickLower: number; tickUpper: number };
-  position: Position | null;
 }) {
   const [tickLower, setTickLower] = useState<number | null>(null);
   const [tickUpper, setTickUpper] = useState<number | null>(null);
@@ -39,18 +37,6 @@ export default function useTickPrice({
       8,
     );
   }, [token0, token1, tickUpper, tickLower, revertPrice]);
-
-  // set tick if position exists
-  useEffect(() => {
-    if (position !== null) {
-      const { success: isUniV3Position, data } = univ3Position.safeParse(position);
-
-      if (isUniV3Position && data.tickUpper !== undefined && data.tickLower !== undefined) {
-        setTickLower(data.tickLower);
-        setTickUpper(data.tickUpper);
-      }
-    }
-  }, [position]);
 
   useEffect(() => {
     if (initialTick && tickLower === null && tickUpper === null) {
