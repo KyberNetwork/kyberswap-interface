@@ -199,7 +199,7 @@ export const NetworkInfo: {
       "https://storage.googleapis.com/ks-setting-1d682dca/8fca1ea5-2637-48bc-bb08-c734065442fe1693634037115.png",
     scanLink: "https://optimistic.etherscan.io",
     multiCall: "0xcA11bde05977b3631167028862bE2a173976CA11",
-    defaultRpc: "https://optimism.kyberengineering.io",
+    defaultRpc: "https://mainnet.optimism.io",
     wrappedToken: {
       chainId: 10,
       name: "WETH",

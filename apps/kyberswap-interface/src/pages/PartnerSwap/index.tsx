@@ -184,7 +184,7 @@ export default function PartnerSwap() {
       <PageWrapper>
         <Banner />
         <Container>
-          <SwapFormWrapper isShowTutorial={false}>
+          <SwapFormWrapper>
             <Header activeTab={activeTab} setActiveTab={setActiveTab} customChainId={expectedChainId} />
 
             <AppBodyWrapped style={[TAB.INFO, TAB.LIMIT].includes(activeTab) ? { padding: 0 } : undefined}>

@@ -2,6 +2,7 @@ import { WETH } from '@kyberswap/ks-sdk-core'
 import { BigNumber, ethers } from 'ethers'
 import { useCallback, useMemo } from 'react'
 
+import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 
@@ -16,11 +17,24 @@ function useEstimateGasTxs(): (v: EstimateParams) => Promise<{ gas: BigNumber | 
 
   return useCallback(
     async ({ contractAddress, encodedData, value = BigNumber.from(0) }: EstimateParams) => {
-      const estimateGasOption = {
+      let accessList: any[] | undefined
+      const baseTx = {
         from: account,
         to: contractAddress,
         data: encodedData,
-        value,
+        ...(value && !value.eq(0) ? { value: ethers.utils.hexlify(value) } : {}),
+      }
+      if (chainId && NETWORKS_INFO[chainId]?.accessListEnabled) {
+        try {
+          const al = await (library as any)?.send?.('eth_createAccessList', [baseTx, 'latest'])
+          if (al && Array.isArray(al.accessList)) {
+            accessList = al.accessList
+          }
+        } catch {}
+      }
+      const estimateGasOption = {
+        ...baseTx,
+        ...(accessList ? { accessList } : {}),
       }
       let formatGas: number | null = null
       let gas: BigNumber | null = null
@@ -39,7 +53,7 @@ function useEstimateGasTxs(): (v: EstimateParams) => Promise<{ gas: BigNumber | 
         gasInUsd: formatGas && usdPriceNative ? formatGas * usdPriceNative : null,
       }
     },
-    [account, library, usdPriceNative],
+    [account, chainId, library, usdPriceNative],
   )
 }
 export default useEstimateGasTxs
