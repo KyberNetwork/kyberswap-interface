@@ -365,7 +365,7 @@ export const DefaultRpcUrl: { [chainId: number]: string } = {
   25: '', // cronos deprecated
   42161: 'https://arbitrum.kyberengineering.io',
   199: '', // deprecated bttc
-  10: 'https://optimism.kyberengineering.io',
+  10: 'https://mainnet.optimism.io',
   59144: 'https://rpc.linea.build',
   1101: 'https://zkevm-rpc.com',
   324: 'https://mainnet.era.zksync.io',
