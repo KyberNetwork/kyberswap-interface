@@ -46,7 +46,7 @@ export const getSlippageStorageKey = (
 ): string => {
   // Sort symbols alphabetically to ensure consistent key generation regardless of token order
   const sortedSymbols = [token0Symbol, token1Symbol].sort();
-  return `kyber_liquidity_widget_slippage_${sortedSymbols[0]}_${sortedSymbols[1]}_${chainId}_${feeTier}`;
+  return `kyber_zap_create_widget_slippage_${sortedSymbols[0]}_${sortedSymbols[1]}_${chainId}_${feeTier}`;
 };
 
 export const getConfigHooksAddress = (poolType?: PoolType): string | undefined => {

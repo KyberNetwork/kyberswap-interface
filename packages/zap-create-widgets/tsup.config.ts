@@ -6,7 +6,7 @@ import babelPlugin from 'esbuild-plugin-babel';
 import { svgrPlugin } from '@kyber/svgr-esbuild-plugin';
 
 export default defineConfig({
-  entry: { 'liquidity-widget': 'src/index.tsx' },
+  entry: { 'zap-create-widget': 'src/index.tsx' },
   format: ['esm', 'cjs'],
   outDir: 'dist',
   target: 'esnext',
@@ -38,7 +38,7 @@ export default defineConfig({
     }),
   ],
   esbuildOptions(options) {
-    options.globalName = 'LiquidityWidget';
+    options.globalName = 'ZapCreateWidget';
     options.define = {
       global: 'globalThis',
     };

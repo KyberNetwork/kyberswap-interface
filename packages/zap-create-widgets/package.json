@@ -5,14 +5,14 @@
   "type": "module",
   "exports": {
     ".": {
-      "import": "./dist/liquidity-widget.js",
-      "require": "./dist/liquidity-widget.cjs"
+      "import": "./dist/zap-create-widget.js",
+      "require": "./dist/zap-create-widget.cjs"
     },
-    "./dist/style.css": "./dist/liquidity-widget.css"
+    "./dist/style.css": "./dist/zap-create-widget.css"
   },
-  "main": "./dist/liquidity-widget.cjs",
-  "module": "./dist/liquidity-widget.js",
-  "types": "./dist/liquidity-widget.d.ts",
+  "main": "./dist/zap-create-widget.cjs",
+  "module": "./dist/zap-create-widget.js",
+  "types": "./dist/zap-create-widget.d.ts",
   "files": [
     "dist"
   ],

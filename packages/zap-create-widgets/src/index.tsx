@@ -13,7 +13,7 @@ import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 import { OnSuccessProps, TxStatus, WidgetMode, WidgetProps } from '@/types/index';
 
-const LiquidityWidget = (widgetProps: WidgetProps) => {
+const ZapCreateWidget = (widgetProps: WidgetProps) => {
   const {
     chainId,
     poolAddress,
@@ -99,6 +99,6 @@ const LiquidityWidget = (widgetProps: WidgetProps) => {
   );
 };
 
-export { PoolType, ChainId, LiquidityWidget, TxStatus, WidgetMode };
+export { PoolType, ChainId, ZapCreateWidget, TxStatus, WidgetMode };
 
 export type { OnSuccessProps, SupportedLocale };
