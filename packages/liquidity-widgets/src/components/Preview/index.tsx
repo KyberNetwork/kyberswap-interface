@@ -110,6 +110,13 @@ export default function Preview({ onDismiss }: { onDismiss: () => void }) {
     }
   };
 
+  const onWrappedDismiss = () => {
+    onDismiss();
+    setTxHash('');
+    setTxError(null);
+    setAttempTx(false);
+  };
+
   if (!buildData || !pool) return null;
 
   if (attempTx || txHash || txError) {
@@ -120,7 +127,7 @@ export default function Preview({ onDismiss }: { onDismiss: () => void }) {
 
     const handleSlippage = () => {
       if (slippage !== suggestedSlippage) setSlippage(suggestedSlippage);
-      onDismiss();
+      onWrappedDismiss();
     };
 
     return (
@@ -151,7 +158,7 @@ export default function Preview({ onDismiss }: { onDismiss: () => void }) {
               className="ks-outline-btn flex-1"
               onClick={() => {
                 if (txStatus === 'success' && onClose) onClose();
-                onDismiss();
+                onWrappedDismiss();
               }}
             >
               <Trans>Close</Trans>
@@ -169,13 +176,13 @@ export default function Preview({ onDismiss }: { onDismiss: () => void }) {
             ) : null}
           </>
         }
-        onClose={onDismiss}
+        onClose={onWrappedDismiss}
       />
     );
   }
 
   return (
-    <Dialog open={true} onOpenChange={onDismiss}>
+    <Dialog open={true} onOpenChange={onWrappedDismiss}>
       <DialogContent className="ks-lw-style max-h-[85vh] max-w-[480px] overflow-auto" aria-describedby={undefined}>
         <DialogTitle>
           {positionId ? <Trans>Increase Liquidity via Zap</Trans> : <Trans>Add Liquidity via Zap</Trans>}

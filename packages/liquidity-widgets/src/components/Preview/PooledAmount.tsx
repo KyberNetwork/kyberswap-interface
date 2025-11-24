@@ -1,7 +1,7 @@
 import { Trans } from '@lingui/macro';
 
 import { TokenLogo, TokenSymbol } from '@kyber/ui';
-import { formatCurrency, formatDisplayNumber, formatTokenAmount } from '@kyber/utils/number';
+import { formatCurrency, formatTokenAmount } from '@kyber/utils/number';
 
 import useZapRoute from '@/hooks/useZapRoute';
 import { usePoolStore } from '@/stores/usePoolStore';
@@ -26,14 +26,9 @@ export default function PooledAmount() {
               <TokenLogo src={pool.token0.logo} className={`relative ${positionId ? '' : 'mt-1 -top-1'}`} />
             )}
             <div className="flex items-center gap-1">
-              {formatDisplayNumber(
-                formatTokenAmount(
-                  position ? position.amount0 : addedLiquidity.addedAmount0,
-                  pool?.token0.decimals || 18,
-                ),
-                {
-                  significantDigits: 4,
-                },
+              {formatTokenAmount(
+                position ? position.amount0 : addedLiquidity.addedAmount0,
+                pool?.token0.decimals || 18,
               )}{' '}
               <TokenSymbol symbol={pool?.token0.symbol || ''} maxWidth={60} />
             </div>
@@ -41,10 +36,7 @@ export default function PooledAmount() {
 
           {positionId && (
             <div className="text-end">
-              +{' '}
-              {formatDisplayNumber(formatTokenAmount(addedLiquidity.addedAmount0, pool?.token0.decimals || 18), {
-                significantDigits: 4,
-              })}{' '}
+              + {formatTokenAmount(addedLiquidity.addedAmount0, pool?.token0.decimals || 18)}{' '}
               <TokenSymbol symbol={pool?.token0.symbol || ''} maxWidth={60} />
             </div>
           )}
@@ -64,24 +56,16 @@ export default function PooledAmount() {
               <TokenLogo src={pool.token1.logo} className={`relative ${positionId ? '' : 'mt-1 -top-1'}`} />
             )}
             <div className="flex items-center gap-1">
-              {formatDisplayNumber(
-                formatTokenAmount(
-                  position ? position.amount1 : addedLiquidity.addedAmount1,
-                  pool?.token1.decimals || 18,
-                ),
-                {
-                  significantDigits: 4,
-                },
+              {formatTokenAmount(
+                position ? position.amount1 : addedLiquidity.addedAmount1,
+                pool?.token1.decimals || 18,
               )}{' '}
               <TokenSymbol symbol={pool?.token1.symbol || ''} maxWidth={60} />
             </div>
           </div>
           {positionId && (
             <div className="text-end">
-              +{' '}
-              {formatDisplayNumber(formatTokenAmount(addedLiquidity.addedAmount1, pool?.token1.decimals || 18), {
-                significantDigits: 4,
-              })}{' '}
+              + {formatTokenAmount(addedLiquidity.addedAmount1, pool?.token1.decimals || 18)}{' '}
               <TokenSymbol symbol={pool?.token1.symbol || ''} maxWidth={60} />
             </div>
           )}

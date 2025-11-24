@@ -3,7 +3,7 @@ import { Trans, t } from '@lingui/macro';
 import { API_URLS, defaultToken } from '@kyber/schema';
 import { InfoHelper, TokenSymbol, translateZapMessage } from '@kyber/ui';
 import { PI_LEVEL } from '@kyber/utils';
-import { formatCurrency, formatTokenAmount } from '@kyber/utils/number';
+import { formatCurrency, formatDisplayNumber, formatTokenAmount, formatUnits } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
 import EstimatedRow from '@/components/Estimated/EstimatedRow';
@@ -26,10 +26,15 @@ export default function Estimated() {
   const initializing = !pool;
   const { token0 = defaultToken, token1 = defaultToken } = !initializing ? pool : {};
 
-  const addedValue = !!position && (
+  const addedValue = !!route && (
     <span>
-      {+formatTokenAmount(position.amount0, token0.decimals) * (token0.price || 0) +
-        +formatTokenAmount(position.amount1, token1.decimals) * (token1.price || 0)}
+      {formatDisplayNumber(
+        addedLiquidity.addedValue0 +
+          addedLiquidity.addedValue1 +
+          +formatUnits(position?.amount0?.toString() || '0', token0.decimals) * (token0.price || 0) +
+          +formatUnits(position?.amount1?.toString() || '0', token1.decimals) * (token1.price || 0),
+        { significantDigits: 6, style: 'currency' },
+      )}
     </span>
   );
 
@@ -62,22 +67,22 @@ export default function Estimated() {
         <EstimatedTokenRow
           initializing={initializing}
           token={token0}
-          addedAmount={+formatTokenAmount(addedLiquidity.addedAmount0, token0.decimals)}
+          addedAmount={formatTokenAmount(addedLiquidity.addedAmount0, token0.decimals)}
           addedValue={addedLiquidity.addedValue0}
-          previousAmount={position ? +formatTokenAmount(position.amount0, token0.decimals) : undefined}
+          previousAmount={position ? formatTokenAmount(position.amount0, token0.decimals) : undefined}
           previousValue={
-            position ? +formatTokenAmount(position.amount0, token0.decimals) * (token0.price || 0) : undefined
+            position ? +formatUnits(position.amount0.toString(), token0.decimals) * (token0.price || 0) : undefined
           }
         />
 
         <EstimatedTokenRow
           initializing={initializing}
           token={token1}
-          addedAmount={+formatTokenAmount(addedLiquidity.addedAmount1, token1.decimals)}
+          addedAmount={formatTokenAmount(addedLiquidity.addedAmount1, token1.decimals)}
           addedValue={addedLiquidity.addedValue1}
-          previousAmount={position ? +formatTokenAmount(position.amount1, token1.decimals) : undefined}
+          previousAmount={position ? formatTokenAmount(position.amount1, token1.decimals) : undefined}
           previousValue={
-            position ? +formatTokenAmount(position.amount1, token1.decimals) * (token1.price || 0) : undefined
+            position ? +formatUnits(position.amount1.toString(), token1.decimals) * (token1.price || 0) : undefined
           }
         />
 
