@@ -50,8 +50,8 @@ export const monad = defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['https://rpc-mainnet.monadinfra.com/rpc/ICLJSp4IKDWLSpZ4laJATUQfL0ucwxiK'],
-      webSocket: ['wss://rpc-mainnet.monadinfra.com/rpc/ICLJSp4IKDWLSpZ4laJATUQfL0ucwxiK'],
+      http: ['http://rpc-mainnet.monadinfra.com'],
+      webSocket: ['wss://rpc-mainnet.monadinfra.com'],
     },
   },
   blockExplorers: {

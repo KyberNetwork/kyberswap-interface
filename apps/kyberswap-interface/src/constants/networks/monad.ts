@@ -26,7 +26,7 @@ const monadInfo: NetworkInfo = {
     logo: 'https://storage.googleapis.com/ks-setting-1d682dca/7d9b018b-7dfd-4644-9735-3215bcb9dec91763539895022.jpg',
     decimal: 18,
   },
-  defaultRpcUrl: 'https://rpc-mainnet.monadinfra.com/rpc/ICLJSp4IKDWLSpZ4laJATUQfL0ucwxiK',
+  defaultRpcUrl: 'http://rpc-mainnet.monadinfra.com',
   multicall: '0xcA11bde05977b3631167028862bE2a173976CA11',
   classic: {
     defaultSubgraph: '',
