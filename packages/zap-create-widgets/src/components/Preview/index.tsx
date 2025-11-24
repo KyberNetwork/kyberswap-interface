@@ -64,7 +64,6 @@ export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool,
     zapInfo,
     token0,
     token1,
-    position: null,
   });
 
   useOnSuccess({
