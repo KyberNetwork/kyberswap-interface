@@ -1,4 +1,4 @@
-import { ChainId, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
+import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { useMedia } from 'react-use'
@@ -42,12 +42,10 @@ const TableRow = styled(TableHeader)`
   align-items: center;
 `
 
-export const MyNearIntentDashboard = ({
-  reward,
-}: {
-  reward: { logo: string; decimals: number; symbol: string; address: string; chainId: ChainId }
-}) => {
+const MyNearIntentDashboard = () => {
   const theme = useTheme()
+  const { reward } = campaignConfig[CampaignType.NearIntents]
+
   const {
     selectedWallet,
     connect,
@@ -81,7 +79,7 @@ export const MyNearIntentDashboard = ({
   return (
     <Box marginTop="1.25rem" sx={{ borderRadius: '20px', background: theme.background }} padding="1.5rem">
       {termAndPolicyModal}
-      <Flex alignItems="center" justifyContent="space-between" height="100%">
+      <Flex alignItems="center" justifyContent="space-between" height="100%" minHeight="49px">
         {selectedWallet && address[selectedWallet] ? (
           <Flex
             width="100%"
@@ -171,7 +169,7 @@ export const MyNearIntentDashboard = ({
             <Flex
               flexDirection={upToSmall ? 'row' : 'column'}
               width="100%"
-              sx={{ gap: '4px' }}
+              sx={{ gap: '8px' }}
               justifyContent={upToSmall ? 'space-between' : 'flex-start'}
               style={{ flex: 1 }}
             >
@@ -186,7 +184,7 @@ export const MyNearIntentDashboard = ({
             <Flex
               flexDirection={upToSmall ? 'row' : 'column'}
               width="100%"
-              sx={{ gap: '4px' }}
+              sx={{ gap: '8px' }}
               justifyContent={upToSmall ? 'space-between' : 'flex-start'}
               style={{ flex: 1 }}
             >
@@ -223,7 +221,7 @@ export const MyNearIntentDashboard = ({
 
       <SelectChainModal showSelect={showSelect} connect={connect} setShowSelect={setShowSelect} logo={logo} />
 
-      <Divider mt="1rem" />
+      <Divider mt="24px" />
 
       {!upToSmall && (
         <>
@@ -318,3 +316,5 @@ export const MyNearIntentDashboard = ({
     </Box>
   )
 }
+
+export default MyNearIntentDashboard

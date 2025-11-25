@@ -31,7 +31,7 @@ import {
 import { useMemo } from "react";
 import { NetworkInfo } from "@/constants";
 import defaultTokenLogo from "@/assets/question.svg?url";
-import { tickToPrice } from "@kyber/utils/uniswapv3";
+import { sqrtToPrice } from "@kyber/utils/uniswapv3";
 
 export default function EstLiqValue() {
   const { zapInfo, source, marketPrice, revertPrice, tokensIn } = useZapState();
@@ -249,8 +249,8 @@ export default function EstLiqValue() {
     newPool &&
     Math.abs(
       marketPrice /
-        +tickToPrice(
-          newPool.tickCurrent,
+        +sqrtToPrice(
+          BigInt(newPool.sqrtRatioX96 || 0),
           newPool.token0.decimals,
           newPool.token1.decimals,
           false
@@ -265,8 +265,8 @@ export default function EstLiqValue() {
       : false;
 
   const price = newPool
-    ? tickToPrice(
-        newPool.tickCurrent,
+    ? sqrtToPrice(
+        BigInt(newPool.sqrtRatioX96 || 0),
         newPool.token0.decimals,
         newPool.token1.decimals,
         revertPrice

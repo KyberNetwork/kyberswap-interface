@@ -199,7 +199,7 @@ export const NetworkInfo: {
       "https://storage.googleapis.com/ks-setting-1d682dca/8fca1ea5-2637-48bc-bb08-c734065442fe1693634037115.png",
     scanLink: "https://optimistic.etherscan.io",
     multiCall: "0xcA11bde05977b3631167028862bE2a173976CA11",
-    defaultRpc: "https://optimism.kyberengineering.io",
+    defaultRpc: "https://mainnet.optimism.io",
     wrappedToken: {
       chainId: 10,
       name: "WETH",
@@ -290,18 +290,6 @@ export enum PoolType {
 export const API_URL = {
   KYBERSWAP_SETTING_API: "https://ks-setting.kyberswap.com/api/v1",
   KYBERSWAP_BFF_API: "https://bff.kyberswap.com/api",
-};
-
-export const POOL_MANAGER_CONTRACT: {
-  [poolType in PoolType]: { [chainId: number]: string } | string;
-} = {
-  [PoolType.DEX_PANCAKESWAPV3]: "",
-  [PoolType.DEX_PANCAKE_INFINITY_CL]: {
-    56: "0xa0FfB9c1CE1Fe56963B0321B32E7A0302114058b",
-  },
-  [PoolType.DEX_KEM_PANCAKE_INFINITY_CL]: {
-    56: "0xa0FfB9c1CE1Fe56963B0321B32E7A0302114058b",
-  },
 };
 
 export const POSITION_MANAGER_CONTRACT: {

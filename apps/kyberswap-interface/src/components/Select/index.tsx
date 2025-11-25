@@ -97,6 +97,25 @@ const getOptionLabel = (option: SelectOption | undefined) => {
 }
 
 const defaultOffset: [number, number] = [0 /* skidding */, 2 /* distance */]
+
+export type SelectProps = {
+  value?: string | number
+  className?: string
+  options: SelectOption[]
+  dropdownRender?: (menu: ReactNode) => ReactNode
+  activeRender?: (selectedItem: SelectOption | undefined) => ReactNode
+  optionRender?: (option: SelectOption | undefined) => ReactNode
+  style?: CSSProperties
+  menuStyle?: CSSProperties
+  optionStyle?: CSSProperties
+  onChange?: (value: any) => void
+  forceMenuPlacementTop?: boolean
+  arrowColor?: string
+  placement?: Placement
+  withSearch?: boolean
+  onHideMenu?: () => void // hide without changes
+}
+
 function Select({
   options = [],
   activeRender,
@@ -113,23 +132,7 @@ function Select({
   onHideMenu,
   withSearch,
   placement = 'bottom',
-}: {
-  value?: string | number
-  className?: string
-  options: SelectOption[]
-  dropdownRender?: (menu: ReactNode) => ReactNode
-  activeRender?: (selectedItem: SelectOption | undefined) => ReactNode
-  optionRender?: (option: SelectOption | undefined) => ReactNode
-  style?: CSSProperties
-  menuStyle?: CSSProperties
-  optionStyle?: CSSProperties
-  onChange?: (value: any) => void
-  forceMenuPlacementTop?: boolean
-  arrowColor?: string
-  placement?: string
-  withSearch?: boolean
-  onHideMenu?: () => void // hide without changes
-}) {
+}: SelectProps) {
   const [selected, setSelected] = useState(getOptionValue(options?.[0]))
   const [showMenu, setShowMenu] = useState(false)
   const [searchValue, setSearchValue] = useState('')
@@ -184,7 +187,7 @@ function Select({
   const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null)
 
   const { styles } = usePopper(ref.current, popperElement, {
-    placement: placement as Placement,
+    placement: placement,
     strategy: 'fixed',
     modifiers: [{ name: 'offset', options: { offset: defaultOffset } }],
   })

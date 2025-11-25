@@ -96,9 +96,11 @@ const PositionDetail = () => {
   const initialLoading = !!(forceLoading || (isLoading && !firstLoading.current))
 
   const position: ParsedPosition | undefined = useMemo(() => {
+    const tokenId = positionId?.split('-')[1]
     if (!userPositions || !userPositions.length) {
       const unfinalizedPositions = getUnfinalizedPositions([])
-      if (unfinalizedPositions.length > 0) return unfinalizedPositions[0]
+      if (unfinalizedPositions.length > 0 && Number(tokenId) === Number(unfinalizedPositions[0].tokenId))
+        return unfinalizedPositions[0]
       return
     }
 
@@ -115,10 +117,11 @@ const PositionDetail = () => {
 
     const unfinalizedPositions = getUnfinalizedPositions([parsedPosition])
 
-    if (unfinalizedPositions.length > 0) return unfinalizedPositions[0]
+    if (unfinalizedPositions.length > 0 && Number(tokenId) === Number(unfinalizedPositions[0].tokenId))
+      return unfinalizedPositions[0]
 
     return parsedPosition
-  }, [feeInfoFromRpc, userPositions, rewardInfoThisPosition, closedPositionsFromRpc])
+  }, [feeInfoFromRpc, userPositions, rewardInfoThisPosition, closedPositionsFromRpc, positionId])
 
   const farmingPoolsByChain = useFarmingStablePools({ chainIds: position ? [position.chain.id] : [] })
 

@@ -71,7 +71,7 @@ const DropdownMenu = ({
             {/* {(!upToExtraSmall || !optionValue?.icon) && optionValue?.label} */}
             {optionValue?.label}
           </DropdownTitle>
-          <DropdownIcon flatten={flatten} open={open} />
+          <DropdownIcon $flatten={flatten} open={open} />
         </DropdownTitleWrapper>
       </MouseoverTooltipDesktopOnly>
       {open && (

@@ -14,14 +14,12 @@ import {
   NATIVE_TOKEN_ADDRESS,
   NetworkInfo,
   PANCAKE_NATIVE_TOKEN_ADDRESS,
-  POOL_MANAGER_CONTRACT,
   POSITION_MANAGER_CONTRACT,
   PROTOCOLS_CORE_MAPPING,
   CoreProtocol,
 } from "@/constants";
 import { TokenInfo } from "@/hooks/usePoolInfo/pancakev3";
 import { PancakeToken, Pool } from "@/entities/Pool";
-import { InfinityCLPoolManagerABI } from "@/abis/infinity_cl_pool_manager";
 import { InfinityCLPosManagerABI } from "@/abis/infinity_cl_pos_manager";
 import { Pancakev3PosManagerABI } from "@/abis/pancakev3_pos_manager";
 import { nearestUsableTick } from "@pancakeswap/v3-sdk";
@@ -320,12 +318,10 @@ export function calculateGasMargin(value: bigint): bigint {
 export const getPoolInfo = async ({
   chainId,
   poolAddress,
-  publicClient,
   poolType,
 }: {
   chainId: number;
   poolAddress: string;
-  publicClient: PublicClient;
   poolType: PoolType;
 }) => {
   const res = await fetch(
@@ -347,15 +343,6 @@ export const getPoolInfo = async ({
   });
   if (!token0 || !token1) return null;
 
-  const fee = await getFee({
-    rawFee: Number(swapFee),
-    chainId,
-    poolType,
-    poolAddress,
-    publicClient,
-  });
-  if (!fee) return null;
-
   const { sqrtPriceX96, liquidity, tick, tickSpacing } = positionInfo;
   if (!sqrtPriceX96 || !liquidity || (!tick && tick !== 0) || !tickSpacing)
     return null;
@@ -363,7 +350,7 @@ export const getPoolInfo = async ({
   return new Pool(
     token0,
     token1,
-    fee * BASE_BPS,
+    Number(swapFee) * BASE_BPS,
     sqrtPriceX96,
     liquidity,
     tick,
@@ -484,46 +471,6 @@ export const getTokenInfo = async ({
   } catch (error) {
     console.error("Get tokens info error: ", error);
     return nullTokens;
-  }
-};
-
-export const getFee = async ({
-  chainId,
-  rawFee,
-  poolType,
-  poolAddress,
-  publicClient,
-}: {
-  chainId: number;
-  rawFee: number;
-  poolType: PoolType;
-  poolAddress: string;
-  publicClient: PublicClient;
-}) => {
-  try {
-    const isPancakeV3 = isForkFrom(poolType, CoreProtocol.PancakeSwapV3);
-    if (isPancakeV3) return rawFee;
-    if (rawFee * 10_000 === 0x800000) return null; // dynamic fee - do not support yet
-
-    const poolManagerContract =
-      POOL_MANAGER_CONTRACT[PoolType.DEX_PANCAKE_INFINITY_CL][chainId];
-    if (!poolManagerContract) return null;
-
-    const slot0 = await publicClient.readContract({
-      address: poolManagerContract as Address,
-      abi: InfinityCLPoolManagerABI,
-      functionName: "getSlot0",
-      args: [poolAddress as `0x${string}`],
-    });
-    if (!slot0) return null;
-
-    const lpFee = Math.round((slot0[3] / 10000) * 1000) / 1000;
-    const protocolFee = Math.round(((slot0[2] >> 12) / 10000) * 1000) / 1000;
-
-    return lpFee + protocolFee;
-  } catch (error) {
-    console.error("Get fee error: ", error);
-    return null;
   }
 };
 
