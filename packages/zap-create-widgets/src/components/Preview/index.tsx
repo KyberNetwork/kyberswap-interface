@@ -125,13 +125,15 @@ export default function Preview({ zapState: { zapInfo, deadline, gasUsd }, pool,
               },
             );
             setTxHash(txHash);
-          } catch (e) {
+          } catch (error) {
             setAttempTx(false);
-            setTxError(e as Error);
+            setTxError(error as Error);
           }
         }
       })
-      .finally(() => setAttempTx(false));
+      .finally(() => {
+        setAttempTx(false);
+      });
   };
 
   if (attempTx || txHash || txError) {
