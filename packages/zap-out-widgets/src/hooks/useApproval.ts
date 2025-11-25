@@ -1,14 +1,15 @@
 import { useState } from 'react';
 
-import { useErc20Approvals, useNftApproval, useNftApprovalAll } from '@kyber/hooks';
+import { useErc20Approvals, useNftApproval, useNftApprovalAll, usePermitNft } from '@kyber/hooks';
 import { DEXES_INFO, univ2Types } from '@kyber/schema';
 
 import { useZapOutContext } from '@/stores';
 import { useZapOutUserState } from '@/stores/state';
 
 export function useApproval() {
-  const { onSubmitTx, connectedAccount, poolType, poolAddress, positionId, rpcUrl, chainId } = useZapOutContext(s => s);
-  const { address: account } = connectedAccount;
+  const { onSubmitTx, connectedAccount, poolType, poolAddress, positionId, rpcUrl, chainId, signTypedData } =
+    useZapOutContext(s => s);
+  const { address: account, chainId: walletChainId } = connectedAccount;
   const { liquidityOut, mode, route } = useZapOutUserState();
 
   const [nftApprovalType, setNftApprovalType] = useState<'single' | 'all'>('single');
@@ -58,6 +59,16 @@ export function useApproval() {
     onSubmitTx: onSubmitTx,
   });
 
+  const { permitState, signPermitNft, permitData } = usePermitNft({
+    nftManagerContract,
+    tokenId: positionId,
+    spender: route?.routerPermitAddress,
+    account,
+    chainId: walletChainId,
+    rpcUrl,
+    signTypedData,
+  });
+
   const isChecking =
     mode === 'withdrawOnly'
       ? false
@@ -90,5 +101,19 @@ export function useApproval() {
           ? nftApprovePendingTx
           : nftApprovePendingTxAll;
 
-  return { isChecking, isApproved, approve, pendingTx, nftApprovalType, setNftApprovalType };
+  return {
+    approval: {
+      isChecking,
+      isApproved,
+      approve,
+      pendingTx,
+      nftApprovalType,
+      setNftApprovalType,
+    },
+    permit: {
+      state: permitState,
+      data: permitData,
+      sign: signPermitNft,
+    },
+  };
 }

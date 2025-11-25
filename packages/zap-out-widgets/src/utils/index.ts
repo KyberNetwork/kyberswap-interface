@@ -41,7 +41,7 @@ export const buildRouteData = async ({
   referral?: string;
   chainId: ChainId;
   deadline: number;
-  permits?: { positionId: string };
+  permits?: { [x: string]: string };
 }): Promise<BuildRouteData | null> => {
   const buildData = await fetch(`${API_URLS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/out/route/build`, {
     method: 'POST',
