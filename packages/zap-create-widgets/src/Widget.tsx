@@ -59,8 +59,9 @@ export default function Widget() {
   };
 
   const onCloseErrorDialog = () => {
-    if (poolError) onClose?.();
-    else {
+    if (poolError) {
+      onClose?.();
+    } else {
       setWidgetError(undefined);
       getZapRoute();
     }

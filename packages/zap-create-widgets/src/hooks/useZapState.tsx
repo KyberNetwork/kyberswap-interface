@@ -198,7 +198,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
       tokensIn: listValidTokensIn,
       amountsIn: listValidAmountsIn,
       tokenAddresses: validTokenInAddresses,
-    } = parseTokensAndAmounts(tokensIn, amountsIn);
+    } = parseTokensAndAmounts(tokensIn, debounceAmountsIn);
 
     try {
       formattedAmountsInWeis = listValidTokensIn
@@ -265,20 +265,29 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
           setZapApiError(res.message || 'Something went wrong');
         }
       })
-      .catch(e => {
-        const errorMessage = e instanceof Error ? e.message : 'Something went wrong';
+      .catch(error => {
+        const errorMessage = error instanceof Error ? error.message : 'Something went wrong';
         setZapApiError(errorMessage);
-        console.error('Zap API error:', e);
+        console.error('Zap API error:', error);
       })
       .finally(() => {
         setLoading(false);
       });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debounceTickLower, debounceTickUpper, slippage, source, tokensIn, debounceAmountsIn, poolPrice, revertPrice]);
-
-  useEffect(() => {
-    getZapRoute();
-  }, [getZapRoute]);
+  }, [
+    chainId,
+    source,
+    zapRouteDisabled,
+    slippage,
+    initializing,
+    pool,
+    poolType,
+    poolPrice,
+    revertPrice,
+    tokensIn,
+    debounceAmountsIn,
+    debounceTickLower,
+    debounceTickUpper,
+  ]);
 
   return (
     <ZapContext.Provider
