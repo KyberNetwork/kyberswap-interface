@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { DEXES_INFO, PoolType } from '@kyber/schema';
-import { formatTokenAmount } from '@kyber/utils/number';
+import { formatUnits } from '@kyber/utils/number';
 
 import useZapRoute from '@/hooks/useZapRoute';
 import { useZapState } from '@/hooks/useZapState';
@@ -40,8 +40,8 @@ export default function useOnSuccess({ txHash, txStatus }: { txHash: string; txS
           address: pool.token0.address,
           symbol: pool.token0.symbol,
           logo: pool.token0.logo || '',
-          amount: +formatTokenAmount(
-            position ? position.amount0 : addedLiquidity.addedAmount0,
+          amount: +formatUnits(
+            position ? position.amount0.toString() : addedLiquidity.addedAmount0.toString(),
             pool.token0.decimals || 18,
           ),
         },
@@ -49,8 +49,8 @@ export default function useOnSuccess({ txHash, txStatus }: { txHash: string; txS
           address: pool.token1.address,
           symbol: pool.token1.symbol,
           logo: pool.token1.logo || '',
-          amount: +formatTokenAmount(
-            position ? position.amount1 : addedLiquidity.addedAmount1,
+          amount: +formatUnits(
+            position ? position.amount1.toString() : addedLiquidity.addedAmount1.toString(),
             pool.token1.decimals || 18,
           ),
         },
@@ -60,9 +60,9 @@ export default function useOnSuccess({ txHash, txStatus }: { txHash: string; txS
         },
         value: position
           ? addedLiquidity.addedValue0 +
-            +formatTokenAmount(position.amount0, pool.token0.decimals || 18) * (pool.token0.price || 0) +
+            +formatUnits(position.amount0.toString(), pool.token0.decimals || 18) * (pool.token0.price || 0) +
             addedLiquidity.addedValue1 +
-            +formatTokenAmount(position.amount1, pool.token1.decimals || 18) * (pool.token1.price || 0)
+            +formatUnits(position.amount1.toString(), pool.token1.decimals || 18) * (pool.token1.price || 0)
           : +initUsd,
         createdAt: Date.now(),
       },

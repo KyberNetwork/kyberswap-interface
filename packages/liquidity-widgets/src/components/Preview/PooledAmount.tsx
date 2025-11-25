@@ -1,7 +1,7 @@
 import { Trans } from '@lingui/macro';
 
 import { TokenLogo, TokenSymbol } from '@kyber/ui';
-import { formatCurrency, formatTokenAmount } from '@kyber/utils/number';
+import { formatCurrency, formatTokenAmount, formatUnits } from '@kyber/utils/number';
 
 import useZapRoute from '@/hooks/useZapRoute';
 import { usePoolStore } from '@/stores/usePoolStore';
@@ -45,7 +45,7 @@ export default function PooledAmount() {
             {formatCurrency(
               addedLiquidity.addedValue0 +
                 (position
-                  ? +formatTokenAmount(position.amount0, pool?.token0.decimals || 18) * (pool?.token0.price || 0)
+                  ? +formatUnits(position.amount0.toString(), pool?.token0.decimals || 18) * (pool?.token0.price || 0)
                   : 0),
             )}
           </div>
@@ -74,7 +74,7 @@ export default function PooledAmount() {
             {formatCurrency(
               addedLiquidity.addedValue1 +
                 (position
-                  ? +formatTokenAmount(position.amount1, pool?.token1.decimals || 18) * (pool?.token1.price || 0)
+                  ? +formatUnits(position.amount1.toString(), pool?.token1.decimals || 18) * (pool?.token1.price || 0)
                   : 0),
             )}
           </div>
