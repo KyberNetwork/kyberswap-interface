@@ -93,6 +93,11 @@ function ApprovalButton({
   const rawName = DEXES_INFO[poolType].name;
   const dexName = typeof rawName === 'string' ? rawName : rawName[chainId];
 
+  console.log('poolType', poolType);
+  console.log('rawName', rawName);
+  console.log('dexName', dexName);
+  console.log(123, dexName.replace('FairFlow', '').trim());
+
   return (
     <>
       <button
