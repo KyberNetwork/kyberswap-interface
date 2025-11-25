@@ -4,7 +4,7 @@ import { Trans } from '@lingui/macro';
 
 import { DEXES_INFO, NETWORKS_INFO, PoolType, defaultToken } from '@kyber/schema';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@kyber/ui';
-import { formatTokenAmount } from '@kyber/utils/number';
+import { formatDisplayNumber, formatTokenAmount } from '@kyber/utils/number';
 
 import useZapRoute from '@/hooks/useZapRoute';
 import { usePoolStore } from '@/stores/usePoolStore';
@@ -68,7 +68,8 @@ export default function ZapSummary() {
                 </div>
                 <div className="flex-1 text-subText leading-4">
                   <Trans>
-                    Swap {item.amountIn} {item.tokenInSymbol} for {item.amountOut} {item.tokenOutSymbol} via{' '}
+                    Swap {formatDisplayNumber(item.amountIn, { significantDigits: 8 })} {item.tokenInSymbol} for{' '}
+                    {formatDisplayNumber(item.amountOut, { significantDigits: 8 })} {item.tokenOutSymbol} via{' '}
                     {item.poolAddress ? (
                       <a
                         href={`${NETWORKS_INFO[chainId].scanLink}/address/${item.poolAddress}`}
@@ -94,7 +95,6 @@ export default function ZapSummary() {
                   Build LP using {formatTokenAmount(addedLiquidity.addedAmount0, decimals0 || 18)} {symbol0} and{' '}
                   {formatTokenAmount(addedLiquidity.addedAmount1, decimals1 || 18)} {symbol1} on{' '}
                   <span className="font-medium text-text">{dexName}</span>
-                  {symbol1} on <span className="font-medium text-text">{dexName}</span>
                 </Trans>
               </div>
             </div>
