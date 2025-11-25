@@ -20,7 +20,9 @@ export default function useTxStatus({ txHash }: { txHash?: string }) {
 
         if (res.status) {
           setTxStatus('success');
-        } else setTxStatus('failed');
+        } else {
+          setTxStatus('failed');
+        }
       });
     };
 
