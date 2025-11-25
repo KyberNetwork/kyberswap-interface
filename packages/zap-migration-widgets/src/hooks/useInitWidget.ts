@@ -23,6 +23,7 @@ export default function useInitWidget(widgetProps: ZapMigrationProps) {
     referral,
     onClose,
     onSubmitTx,
+    signTypedData,
   } = widgetProps;
 
   const [hasReseted, setHasReseted] = useState(false);
@@ -85,6 +86,7 @@ export default function useInitWidget(widgetProps: ZapMigrationProps) {
       referral,
       onClose,
       onSubmitTx,
+      signTypedData,
     });
   }, [
     themeProps,
@@ -100,6 +102,7 @@ export default function useInitWidget(widgetProps: ZapMigrationProps) {
     referral,
     onClose,
     onSubmitTx,
+    signTypedData,
   ]);
 
   useEffect(() => {

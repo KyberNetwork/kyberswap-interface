@@ -17,7 +17,7 @@
 
   .ks-secondary-btn {
     @apply flex justify-center items-center justify-self-end;
-    @apply rounded-md;
+    @apply border border-accent-200 rounded-md;
     @apply text-sm font-medium bg-accent-200 text-accent;
     @apply px-3 py-[10px] cursor-pointer;
 

@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 
+import { ZERO_ADDRESS } from '@kyber/schema';
 import { getFunctionSelector } from '@kyber/utils/crypto';
 
 type HexString = `0x${string}`;
@@ -154,6 +155,7 @@ export const usePermitNft = ({
     !!nftManagerContract &&
     !!tokenId &&
     !!spender &&
+    spender !== ZERO_ADDRESS &&
     !!rpcUrl &&
     typeof signTypedData === 'function';
 

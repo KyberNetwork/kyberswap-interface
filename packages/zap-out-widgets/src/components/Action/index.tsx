@@ -40,7 +40,7 @@ export const Action = () => {
           ) : (
             <button
               className={cn(
-                'ks-primary-btn min-w-[190px] disabled:opacity-50 disabled:cursor-not-allowed',
+                'ks-primary-btn min-w-[190px]',
                 !btnDisabled
                   ? zapImpactLevel.piVeryHigh
                     ? 'bg-error border-solid border-error text-white'
@@ -96,10 +96,7 @@ function ApprovalButton({
   return (
     <>
       <button
-        className={cn(
-          permit.enable ? 'ks-secondary-btn' : 'ks-primary-btn',
-          'min-w-[190px] disabled:opacity-50 disabled:cursor-not-allowed',
-        )}
+        className={cn(permit.enable ? 'ks-secondary-btn' : 'ks-primary-btn', 'min-w-[190px]')}
         disabled={approval.disabled}
         onClick={approval.approve}
       >
@@ -108,7 +105,7 @@ function ApprovalButton({
           <InfoHelper
             size={14}
             width="300px"
-            color={approval.disabled ? theme.subText : theme.accent}
+            color={approval.disabled ? theme.subText : !permit.enable ? '#000' : theme.accent}
             text={t`Authorize ZapRouter through an on-chain approval. Choose whether to approve once or all positions.`}
           />
         )}
@@ -168,7 +165,7 @@ function PermitButton({
 
   return (
     <button
-      className={`ks-primary-btn min-w-[190px] w-fit`}
+      className="ks-primary-btn min-w-[190px] w-fit"
       disabled={permit.disabled}
       onClick={() => permit.sign(deadline)}
     >
