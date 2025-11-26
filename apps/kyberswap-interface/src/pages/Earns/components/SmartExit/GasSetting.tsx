@@ -13,23 +13,23 @@ export default function GasSetting({
   feeInfo,
   multiplier,
   setMultiplier,
-  customGasUsd,
-  setCustomGasUsd,
+  customGasPercent,
+  setCustomGasPercent,
 }: {
   feeInfo: SmartExitFee | null
   multiplier: number
   setMultiplier: (value: number) => void
-  customGasUsd: string
-  setCustomGasUsd: (value: string) => void
+  customGasPercent: string
+  setCustomGasPercent: (value: string) => void
 }) {
   const theme = useTheme()
   const [feeSettingExpanded, setFeeSettingExpanded] = useState(false)
 
-  const isWarningGas = feeInfo && customGasUsd && parseFloat(customGasUsd) < (feeInfo.gas.usd || 0)
+  const isWarningGas = feeInfo && customGasPercent && parseFloat(customGasPercent) < (feeInfo.gas.percentage || 0)
   const isHighlightGas =
     feeInfo &&
     !feeSettingExpanded &&
-    (customGasUsd ? parseFloat(customGasUsd) > feeInfo.gas.usd : feeInfo.gas.usd * multiplier > feeInfo.gas.usd)
+    (customGasPercent ? parseFloat(customGasPercent) > feeInfo.gas.percentage : multiplier > 1)
 
   return (
     <>
@@ -40,10 +40,19 @@ export default function GasSetting({
         ) : (
           <Flex alignItems="center" onClick={() => setFeeSettingExpanded(e => !e)} style={{ cursor: 'default' }}>
             <Text color={isWarningGas ? rgba(theme.warning, 0.9) : theme.text}>
-              $
-              {customGasUsd
-                ? customGasUsd
-                : formatDisplayNumber(feeInfo.gas.usd * multiplier, { significantDigits: 2 })}
+              {customGasPercent
+                ? customGasPercent
+                : formatDisplayNumber(feeInfo.gas.percentage * multiplier, { significantDigits: 2 })}
+              %
+            </Text>
+            <Text color={isWarningGas ? rgba(theme.warning, 0.9) : theme.text} marginLeft={1.5}>
+              (~
+              {formatDisplayNumber(
+                feeInfo.gas.usd *
+                  (customGasPercent ? parseFloat(customGasPercent) / feeInfo.gas.percentage : multiplier),
+                { significantDigits: 2, style: 'currency' },
+              )}
+              )
             </Text>
             <DropdownIcon data-flip={feeSettingExpanded} data-highlight={isHighlightGas} data-warning={isWarningGas}>
               <svg width="10" height="6" viewBox="0 0 6 4" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -68,12 +77,12 @@ export default function GasSetting({
       >
         <Flex sx={{ gap: '6px', width: '100%' }}>
           {[1, 1.5, 2, 3].map(item => {
-            const isSelected = !customGasUsd && multiplier === item
+            const isSelected = !customGasPercent && multiplier === item
             return (
               <Box
                 key={item}
                 onClick={() => {
-                  setCustomGasUsd('')
+                  setCustomGasPercent('')
                   setMultiplier(item)
                 }}
                 sx={{
@@ -92,7 +101,7 @@ export default function GasSetting({
                   },
                 }}
               >
-                ${formatDisplayNumber(item * (feeInfo?.gas.usd || 0), { significantDigits: 2 })}
+                {formatDisplayNumber(item * (feeInfo?.gas.percentage || 0), { significantDigits: 2 })}%
               </Box>
             )
           })}
@@ -102,10 +111,10 @@ export default function GasSetting({
             key="custom"
             sx={{
               borderRadius: '999px',
-              border: `1px solid ${customGasUsd ? theme.primary : theme.border}`,
-              backgroundColor: customGasUsd ? theme.primary + '20' : 'transparent',
-              padding: '2px 10px',
-              color: customGasUsd ? theme.primary : theme.subText,
+              border: `1px solid ${customGasPercent ? theme.primary : theme.border}`,
+              backgroundColor: customGasPercent ? theme.primary + '20' : 'transparent',
+              padding: '2px 7px',
+              color: customGasPercent ? theme.primary : theme.subText,
               fontSize: '12px',
               fontWeight: '500',
               cursor: 'pointer',
@@ -120,12 +129,9 @@ export default function GasSetting({
               },
             }}
           >
-            <Text as="span" color="inherit" fontSize={12}>
-              $
-            </Text>
             <Input
-              value={customGasUsd}
-              onUserInput={v => setCustomGasUsd(v)}
+              value={customGasPercent}
+              onUserInput={v => setCustomGasPercent(v)}
               placeholder={t`Custom`}
               style={{
                 width: '100%',
@@ -133,11 +139,14 @@ export default function GasSetting({
                 fontSize: '12px',
               }}
             />
+            <Text as="span" color="inherit" fontSize={12}>
+              %
+            </Text>
           </Box>
         </Flex>
         <Flex flexDirection="column" sx={{ gap: '4px' }}>
           <Text fontSize={12} color={theme.subText}>
-            {t`Current est. gas`} = ${formatDisplayNumber(feeInfo?.gas.usd || 0, { significantDigits: 2 })}
+            {t`Current est. gas`} = {formatDisplayNumber(feeInfo?.gas.percentage || 0, { significantDigits: 2 })}%
           </Text>
           <Text fontSize={12} color={isWarningGas ? rgba(theme.warning, 0.9) : theme.subText}>
             <Trans>

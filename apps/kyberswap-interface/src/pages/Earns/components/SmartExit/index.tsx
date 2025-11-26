@@ -50,7 +50,7 @@ export const SmartExit = ({ position, onDismiss }: { position: ParsedPosition; o
   const invalidYieldCondition = useMemo(() => {
     const feeYieldMetric = selectedMetrics.find(metric => metric.metric === Metric.FeeYield)
     const feeYieldCondition = feeYieldMetric?.condition as FeeYieldCondition
-    return feeYieldMetric && !feeYieldCondition
+    return feeYieldMetric && (!feeYieldCondition || parseFloat(feeYieldCondition) === 0)
   }, [selectedMetrics])
 
   const invalidPriceCondition = useMemo(() => {
@@ -73,8 +73,8 @@ export const SmartExit = ({ position, onDismiss }: { position: ParsedPosition; o
   // Gas estimation + selection state
   const [feeInfo, setFeeInfo] = useState<SmartExitFee | null>(null)
   const [feeLoading, setFeeLoading] = useState(false)
-  const [multiplier, setMultiplier] = useState<number>(1.5)
-  const [customGasUsd, setCustomGasUsd] = useState<string>('')
+  const [multiplier, setMultiplier] = useState<number>(2)
+  const [customGasPercent, setCustomGasPercent] = useState<string>('')
   const intervalRef = useRef<number | null>(null)
 
   const { estimateFee } = useSmartExit({
@@ -128,8 +128,7 @@ export const SmartExit = ({ position, onDismiss }: { position: ParsedPosition; o
             feeSettings={{
               protocolFee: feeInfo?.protocol.percentage || 0,
               maxFeesPercentage:
-                (feeInfo?.gas.percentage || 0) *
-                  (customGasUsd ? parseFloat(customGasUsd) / (feeInfo?.gas.usd ?? 0) : multiplier) +
+                (customGasPercent ? parseFloat(customGasPercent) : (feeInfo?.gas.percentage || 0) * multiplier) +
                 (feeInfo?.protocol.percentage || 0),
             }}
           />
@@ -172,8 +171,8 @@ export const SmartExit = ({ position, onDismiss }: { position: ParsedPosition; o
                   feeInfo={feeInfo}
                   multiplier={multiplier}
                   setMultiplier={setMultiplier}
-                  customGasUsd={customGasUsd}
-                  setCustomGasUsd={setCustomGasUsd}
+                  customGasPercent={customGasPercent}
+                  setCustomGasPercent={setCustomGasPercent}
                 />
               </Flex>
             </ContentWrapper>
