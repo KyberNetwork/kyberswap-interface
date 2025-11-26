@@ -41,15 +41,19 @@ const PriceControl = () => {
     return [pool.token0.address.toLowerCase(), pool.token1.address.toLowerCase()];
   }, [pool]);
 
-  const { prices, loading } = useTokenPrices({
+  const { prices: tokenPrices, loading } = useTokenPrices({
     addresses: tokenAddresses,
     chainId,
   });
 
   const token0Address = tokenAddresses[0];
   const token1Address = tokenAddresses[1];
-  const token0Price = getNumericPrice(token0Address ? prices[token0Address] : undefined);
-  const token1Price = getNumericPrice(token1Address ? prices[token1Address] : undefined);
+  const token0Price = getNumericPrice(token0Address ? tokenPrices[token0Address] : undefined);
+  const token1Price = getNumericPrice(token1Address ? tokenPrices[token1Address] : undefined);
+  const invalidTokens = [
+    token0Price === 0 ? pool?.token0.symbol : null,
+    token1Price === 0 ? pool?.token1.symbol : null,
+  ].filter(Boolean);
 
   const baseToken = pool ? (revertPrice ? pool.token1 : pool.token0) : defaultToken;
   const quoteToken = pool ? (revertPrice ? pool.token0 : pool.token1) : defaultToken;
@@ -139,6 +143,12 @@ const PriceControl = () => {
           <RevertPriceIcon className="cursor-pointer" role="button" />
         </div>
       </div>
+
+      {!loading && (token0Price === 0 || token1Price === 0) ? (
+        <div className="text-xs rounded-2xl px-3 py-2 text-warning bg-warning-200">
+          <Trans>Zapping with {invalidTokens.join(', ')} is not supported</Trans>
+        </div>
+      ) : null}
 
       <div className="flex items-center gap-3 px-4 py-2 border border-stroke rounded-md">
         <input
