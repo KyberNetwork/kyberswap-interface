@@ -140,7 +140,7 @@ function NftApprovalButton({
               width="400px"
               color={theme.icons}
               size={14}
-              text={t`You wish to give KyberSwap permission to only use this position NFT for this transaction. You’ll need to approve again for future actions.`}
+              text={`You wish to give KyberSwap permission to only use this position NFT for this transaction. You’ll need to approve again for future actions.`}
               style={{ marginLeft: '-3px' }}
               onClick={e => e.stopPropagation()}
             />
@@ -151,7 +151,7 @@ function NftApprovalButton({
               width="400px"
               color={theme.icons}
               size={14}
-              text={t`You wish to give KyberSwap permission to manage all your positions from ${dexName.replace('FairFlow', '').trim()} on this chain. You won’t need to approve again unless you revoke the permission in your wallet.`}
+              text={`You wish to give KyberSwap permission to manage all your positions from ${dexName.replace('FairFlow', '').trim()} on this chain. You won’t need to approve again unless you revoke the permission in your wallet.`}
               style={{ marginLeft: '-3px' }}
               onClick={e => e.stopPropagation()}
             />
@@ -173,7 +173,7 @@ function PermitButton({
 
   return (
     <button
-      className="ks-primary-btn w-1/2 md:min-w-[190px]"
+      className="ks-primary-btn w-1/2 md:w-auto md:min-w-[190px]"
       disabled={permit.disabled}
       onClick={() => permit.sign(deadline)}
     >

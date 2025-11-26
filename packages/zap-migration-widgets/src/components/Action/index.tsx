@@ -108,7 +108,7 @@ function PermitButton({
 
   return (
     <button
-      className="ks-primary-btn w-full md:min-w-[190px]"
+      className="ks-primary-btn w-full md:w-auto md:min-w-[190px]"
       disabled={permit.disabled}
       onClick={() => permit.sign(deadline)}
     >
