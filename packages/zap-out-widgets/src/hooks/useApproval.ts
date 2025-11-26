@@ -12,7 +12,7 @@ export function useApproval() {
   const { address: account, chainId: walletChainId } = connectedAccount;
   const { liquidityOut, mode, route } = useZapOutUserState();
 
-  const [nftApprovalType, setNftApprovalType] = useState<'single' | 'all'>('single');
+  const [nftApprovalType, setNftApprovalType] = useState<'single' | 'all'>('all');
   const isUniV2 = univ2Types.includes(poolType as any);
 
   const nftManager = DEXES_INFO[poolType].nftManagerContract;

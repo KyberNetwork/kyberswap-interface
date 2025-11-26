@@ -58,7 +58,7 @@ export default function useApproval() {
     'signTypedData',
   ]);
   const { route, tokensIn, amountsIn } = useZapState();
-  const [nftApprovalType, setNftApprovalType] = useState<'single' | 'all'>('single');
+  const [nftApprovalType, setNftApprovalType] = useState<'single' | 'all'>('all');
 
   const nftManagerContract = getNftManagerContractAddress(poolType, chainId);
   const {

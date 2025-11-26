@@ -38,7 +38,7 @@ export function useApproval({ type }: { type: 'source' | 'target' }) {
       : nftManager[chainId]
     : undefined;
 
-  const [nftApprovalType, setNftApprovalType] = useState<'single' | 'all'>('single');
+  const [nftApprovalType, setNftApprovalType] = useState<'single' | 'all'>('all');
   const isFromUniV2 = type === 'source' && pool && univ2Types.includes(pool.poolType as any);
   const isToUniV4 = type === 'target' && pool && univ4Types.includes(pool.poolType as any);
 
