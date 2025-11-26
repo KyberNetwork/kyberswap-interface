@@ -33,6 +33,8 @@ const NestedNavLink = styled(StyledNavLink)`
   gap: 12px;
 `
 
+const showCampaignNew = new Date() < new Date('2025-12-02T23:59:59Z')
+
 const CampaignNavGroup = () => {
   const { pathname } = useLocation()
   const isActiveMayTrading = pathname.includes('/campaigns/may-trading')
@@ -52,7 +54,7 @@ const CampaignNavGroup = () => {
         anchor={
           <DropdownTextAnchor style={{ display: 'flex', position: 'relative', width: 'max-content' }}>
             <Trans>Campaigns</Trans>
-            <ELabel isNew>{t`NEW`}</ELabel>
+            {showCampaignNew && <ELabel isNew>{t`NEW`}</ELabel>}
           </DropdownTextAnchor>
         }
         dropdownContent={
