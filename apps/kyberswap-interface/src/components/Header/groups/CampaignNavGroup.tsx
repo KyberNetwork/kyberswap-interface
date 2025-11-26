@@ -50,8 +50,9 @@ const CampaignNavGroup = () => {
         dropdownAlign={upTo500 ? 'right' : 'left'}
         isActive={isActive}
         anchor={
-          <DropdownTextAnchor style={{ position: 'relative', width: 'max-content' }}>
+          <DropdownTextAnchor style={{ display: 'flex', position: 'relative', width: 'max-content' }}>
             <Trans>Campaigns</Trans>
+            <ELabel isNew>{t`NEW`}</ELabel>
           </DropdownTextAnchor>
         }
         dropdownContent={
