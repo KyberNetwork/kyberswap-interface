@@ -329,6 +329,7 @@ export function useActionButton({ onConnectWallet, onSwitchChain }: UseActionBut
       });
       if (!buildData) {
         setGasLoading(false);
+        setWidgetError(t`Build route data failed`);
         return;
       }
 
@@ -342,7 +343,7 @@ export function useActionButton({ onConnectWallet, onSwitchChain }: UseActionBut
       setGasLoading(false);
 
       if (error || !gasUsd) {
-        setWidgetError(error || t`Estimate Gas Failed`);
+        setWidgetError(error || t`Estimate gas failed`);
         return;
       }
 

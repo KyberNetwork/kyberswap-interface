@@ -121,7 +121,7 @@ export default function useActionButton({ approval, deadline }: { approval: Appr
       condition: needApproveNft && (approval.nftApproval.isChecking || approval.nftApprovalAll.isChecking),
       text: t`Checking Approval...`,
     },
-    { condition: zapLoading && !route, text: t`Fetching Route...` },
+    { condition: zapLoading, text: t`Fetching Route...` },
     { condition: isUniv4 && isNotOwner, text: t`Not the position owner` },
     { condition: tokenInNotApproved, text: t`Approve ${tokenInNotApproved?.symbol ?? ''}` },
     { condition: !route, text: t`No route found` },
