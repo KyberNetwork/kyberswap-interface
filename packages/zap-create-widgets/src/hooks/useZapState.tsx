@@ -1,5 +1,7 @@
 import { ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
+import { t } from '@lingui/macro';
+
 import { useTokenBalances, useTokenPrices } from '@kyber/hooks';
 import { API_URLS, CHAIN_ID_TO_CHAIN, Token, ZapRouteDetail } from '@kyber/schema';
 import { parseUnits } from '@kyber/utils/crypto';
@@ -258,15 +260,19 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
       .then(res => res.json())
       .then(res => {
         if (res.data) {
-          setZapApiError('');
           setZapInfo(res.data);
+          setZapApiError('');
         } else {
           setZapInfo(null);
-          setZapApiError(res.message || 'Something went wrong');
+          if (res.message === 'failed to get zap routes') {
+            setZapApiError(t`Zap Unavailable`);
+          } else {
+            setZapApiError(res.message || t`Something went wrong`);
+          }
         }
       })
       .catch(error => {
-        const errorMessage = error instanceof Error ? error.message : 'Something went wrong';
+        const errorMessage = error instanceof Error ? error.message : t`Something went wrong`;
         setZapApiError(errorMessage);
         console.error('Zap API error:', error);
       })
