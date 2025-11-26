@@ -1,3 +1,5 @@
+import { Trans } from '@lingui/macro';
+
 import { NETWORKS_INFO, Pool, univ3PoolNormalize } from '@kyber/schema';
 import { InfoHelper, TokenLogo, TokenSymbol } from '@kyber/ui';
 
@@ -33,11 +35,11 @@ export default function Head({ pool }: { pool: Pool }) {
         </div>
         <div className="flex flex-wrap items-center gap-1 mt-[2px]">
           <div className="rounded-full text-xs leading-5 bg-layer2 px-2 py-0 h-max text-text flex items-center gap-1 brightness-75">
-            Fee {pool.fee}%
+            <Trans>Fee {pool.fee}%</Trans>
           </div>
           {positionId !== undefined && isUniV3 && (
             <div className="rounded-full text-xs px-2 py-0 h-max flex items-center gap-1 bg-transparent text-success relative before:content-[''] before:absolute before:top-0 before:left-0 before:w-full before:h-full before:opacity-20 before:bg-success before:rounded-full">
-              <Info width={12} /> ID {positionId}
+              <Info width={12} /> <Trans>ID {positionId}</Trans>
             </div>
           )}
         </div>
@@ -50,11 +52,16 @@ export default function Head({ pool }: { pool: Pool }) {
             background: `${theme.warning}33`,
           }}
         >
-          Inactive{' '}
+          <Trans>Inactive</Trans>{' '}
           <InfoHelper
             width="300px"
             color={theme.warning}
-            text="Your liquidity is outside the current market range and will not be used/earn fees until the market price enters your specified range."
+            text={
+              <Trans>
+                Your liquidity is outside the current market range and will not be used/earn fees until the market price
+                enters your specified range.
+              </Trans>
+            }
             size={16}
             style={{ position: 'relative', top: '-1px', margin: 0 }}
           />

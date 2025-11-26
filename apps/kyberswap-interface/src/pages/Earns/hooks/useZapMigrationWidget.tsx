@@ -1,5 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import {
+  SupportedLocale,
+  TxStatus,
   ZapMigration,
   ChainId as ZapMigrationChainId,
   PoolType as ZapMigrationDex,
@@ -13,12 +15,15 @@ import { NotificationType } from 'components/Announcement/type'
 import Modal from 'components/Modal'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useActiveLocale } from 'hooks/useActiveLocale'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import { submitTransaction } from 'pages/Earns/utils'
 import { navigateToPositionAfterZap } from 'pages/Earns/utils/zap'
 import { useKyberSwapConfig, useNotify, useWalletModalToggle } from 'state/application/hooks'
+import { useAllTransactions, useTransactionAdder } from 'state/transactions/hooks'
+import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { getCookieValue } from 'utils'
 
 interface MigrateLiquidityPureParams {
@@ -45,6 +50,7 @@ interface MigrateLiquidityParams extends MigrateLiquidityPureParams {
     address: string | undefined
     chainId: ZapMigrationChainId
   }
+  locale?: SupportedLocale
   onClose: () => void
   onConnectWallet: () => void
   onSwitchChain: () => void
@@ -83,7 +89,23 @@ const zapMigrationDexMapping: Record<Exchange, ZapMigrationDex | null> = {
   [Exchange.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: ZapMigrationDex.DEX_PANCAKE_INFINITY_CL_FAIRFLOW,
 }
 
+const getDexFromPoolType = (poolType: ZapMigrationDex) => {
+  const dexIndex = Object.values(zapMigrationDexMapping).findIndex(
+    (item, index) => item === poolType && EARN_DEXES[Object.keys(zapMigrationDexMapping)[index] as Exchange],
+  )
+  if (dexIndex === -1) {
+    console.error('Cannot find dex')
+    return
+  }
+  const dex = Object.keys(zapMigrationDexMapping)[dexIndex] as Exchange
+
+  return dex
+}
+
 const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
+  const locale = useActiveLocale()
+  const addTransactionWithType = useTransactionAdder()
+  const allTransactions = useAllTransactions()
   const toggleWalletModal = useWalletModalToggle()
   const notify = useNotify()
   const navigate = useNavigate()
@@ -93,21 +115,28 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
   const { changeNetwork } = useChangeNetwork()
 
   const [migrateLiquidityPureParams, setMigrateLiquidityPureParams] = useState<MigrateLiquidityPureParams | null>(null)
+  const [zapTxHash, setZapTxHash] = useState<string[]>([])
   const [triggerClose, setTriggerClose] = useState(false)
   const { rpc: zapMigrationRpcUrl } = useKyberSwapConfig(migrateLiquidityPureParams?.chainId as ChainId | undefined)
+
+  const zapStatus = useMemo(() => {
+    if (!allTransactions || !zapTxHash.length) return {}
+
+    return zapTxHash.reduce((acc: Record<string, TxStatus>, txHash) => {
+      const zapTx = allTransactions[txHash]
+      if (zapTx?.[0].receipt) {
+        acc[txHash as keyof typeof acc] = zapTx?.[0].receipt.status === 1 ? TxStatus.SUCCESS : TxStatus.FAILED
+      } else acc[txHash as keyof typeof acc] = TxStatus.PENDING
+      return acc
+    }, {})
+  }, [allTransactions, zapTxHash])
 
   const handleNavigateToPosition = useCallback(
     async (txHash: string, chainId: number, targetDex: ZapMigrationDex, targetPoolId: string) => {
       if (!library) return
 
-      const dexIndex = Object.values(zapMigrationDexMapping).findIndex(
-        (item, index) => item === targetDex && EARN_DEXES[Object.keys(zapMigrationDexMapping)[index] as Exchange],
-      )
-      if (dexIndex === -1) {
-        console.error('Cannot find dex')
-        return
-      }
-      const dex = Object.keys(zapMigrationDexMapping)[dexIndex] as Exchange
+      const dex = getDexFromPoolType(targetDex)
+      if (!dex) return
 
       navigateToPositionAfterZap(library, txHash, chainId, dex, targetPoolId, navigate)
     },
@@ -164,6 +193,8 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
             client: 'kyberswap-earn',
             rpcUrl: zapMigrationRpcUrl,
             referral: refCode,
+            zapStatus,
+            locale,
             connectedAccount: {
               address: account,
               chainId: chainId as unknown as ZapMigrationChainId,
@@ -174,20 +205,56 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
                 migrateLiquidityPureParams.to || migrateLiquidityPureParams.from
               setTriggerClose(true)
               setMigrateLiquidityPureParams(null)
+              setZapTxHash([])
               handleNavigateToPosition(txHash, chainId, targetDex, targetPoolId)
             },
             onClose: () => {
               setTriggerClose(true)
               setMigrateLiquidityPureParams(null)
+              setZapTxHash([])
               onRefreshPosition?.()
             },
-            onBack: () => setMigrateLiquidityPureParams(null),
+            onBack: () => {
+              setMigrateLiquidityPureParams(null)
+              setZapTxHash([])
+            },
             onConnectWallet: toggleWalletModal,
             onSwitchChain: () => changeNetwork(migrateLiquidityPureParams.chainId as number),
-            onSubmitTx: async (txData: { from: string; to: string; value: string; data: string }) => {
+            onSubmitTx: async (
+              txData: { from: string; to: string; value: string; data: string },
+              additionalInfo?: {
+                sourcePool: string
+                sourceDexLogo: string
+                destinationPool: string
+                destinationDexLogo: string
+              },
+            ) => {
               const res = await submitTransaction({ library, txData })
               const { txHash, error } = res
               if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
+
+              const sourceDex = getDexFromPoolType(migrateLiquidityPureParams.from.poolType)
+              const destinationDex = getDexFromPoolType(
+                migrateLiquidityPureParams.to?.poolType || migrateLiquidityPureParams.from.poolType,
+              )
+              if (additionalInfo && sourceDex && destinationDex) {
+                addTransactionWithType({
+                  hash: txHash,
+                  type: migrateLiquidityPureParams.rePositionMode
+                    ? TRANSACTION_TYPE.EARN_REPOSITION
+                    : TRANSACTION_TYPE.EARN_MIGRATE_LIQUIDITY,
+                  extraInfo: {
+                    sourcePool: additionalInfo.sourcePool,
+                    sourceDexLogoUrl: additionalInfo.sourceDexLogo,
+                    sourceDex: sourceDex,
+                    destinationPool: additionalInfo.destinationPool,
+                    destinationDexLogoUrl: additionalInfo.destinationDexLogo,
+                    destinationDex: destinationDex,
+                    positionId: migrateLiquidityPureParams.from.positionId,
+                  },
+                })
+              }
+              setZapTxHash(prev => [...prev, txHash])
               return txHash
             },
             onExplorePools: () => {
@@ -207,16 +274,25 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
       library,
       onRefreshPosition,
       navigate,
+      addTransactionWithType,
+      zapStatus,
+      locale,
     ],
   )
 
   const previousAccount = usePreviousDistinct(account)
 
   useEffect(() => {
-    if (account && previousAccount) setMigrateLiquidityPureParams(null)
+    if (account && previousAccount) {
+      setMigrateLiquidityPureParams(null)
+      setZapTxHash([])
+    }
   }, [account, previousAccount])
 
-  useAccountChanged(() => setMigrateLiquidityPureParams(null))
+  useAccountChanged(() => {
+    setMigrateLiquidityPureParams(null)
+    setZapTxHash([])
+  })
 
   const widget = migrateLiquidityParams ? (
     <Modal
@@ -224,7 +300,10 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
       mobileFullWidth
       maxWidth={832}
       width={'832px'}
-      onDismiss={() => setMigrateLiquidityPureParams(null)}
+      onDismiss={() => {
+        setMigrateLiquidityPureParams(null)
+        setZapTxHash([])
+      }}
       zindex={1001}
     >
       <ZapMigration {...migrateLiquidityParams} />

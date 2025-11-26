@@ -1,3 +1,5 @@
+import { Trans, t } from '@lingui/macro';
+
 import { APPROVAL_STATE } from '@kyber/hooks';
 import { InfoHelper, Loading } from '@kyber/ui';
 
@@ -42,7 +44,7 @@ export default function Action({
     <div className="flex justify-center gap-5 mt-6">
       {onClose && (
         <button className="ks-outline-btn w-[190px]" onClick={onClose}>
-          Cancel
+          <Trans>Cancel</Trans>
         </button>
       )}
       <button
@@ -66,8 +68,8 @@ export default function Action({
             color="#ffffff"
             text={
               uiState.degenMode
-                ? 'You have turned on Degen Mode from settings. Trades with very high price impact can be executed'
-                : 'To ensure you dont lose funds due to very high price impact, swap has been disabled for this trade. If you still wish to continue, you can turn on Degen Mode from Settings.'
+                ? t`You have turned on Degen Mode from settings. Trades with very high price impact can be executed`
+                : t`To ensure you dont lose funds due to very high price impact, swap has been disabled for this trade. If you still wish to continue, you can turn on Degen Mode from Settings.`
             }
           />
         )}

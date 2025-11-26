@@ -162,7 +162,7 @@ const PositionDetailHeader = ({
             <PositionSkeleton width={150} height={16} />
           ) : (
             <MouseoverTooltipDesktopOnly
-              text={`View this position on ${position?.dex?.name?.split(' ')?.[0] || ''}`}
+              text={t`View this position on` + ` ${position?.dex?.name?.split(' ')?.[0] || ''}`}
               width="fit-content"
               placement="top"
             >

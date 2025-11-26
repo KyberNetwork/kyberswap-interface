@@ -1,5 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
+import beraIcon from 'assets/networks/bera.svg'
 import { NetworkInfo } from 'constants/networks/type'
 
 const EMPTY_ARRAY: any[] = []
@@ -12,7 +13,7 @@ const bera: NetworkInfo = {
   priceRoute: 'berachain',
   aggregatorRoute: 'berachain',
   name: 'Berachain',
-  icon: 'https://storage.googleapis.com/ks-setting-1d682dca/68e11813-067b-42d7-8d7a-c1b7bf80714e1739239376230.png',
+  icon: beraIcon,
 
   iconSelected: NOT_SUPPORT,
 
@@ -22,7 +23,7 @@ const bera: NetworkInfo = {
   nativeToken: {
     symbol: 'BERA',
     name: 'BERA',
-    logo: 'https://storage.googleapis.com/ks-setting-1d682dca/68e11813-067b-42d7-8d7a-c1b7bf80714e1739239376230.png',
+    logo: beraIcon,
     decimal: 18,
   },
   defaultRpcUrl: 'https://rpc.berachain.com',

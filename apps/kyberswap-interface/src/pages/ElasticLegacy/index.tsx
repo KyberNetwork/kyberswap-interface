@@ -1,4 +1,4 @@
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { Link } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
@@ -62,7 +62,7 @@ const WarningNotice = () => {
         </ExternalLink>{' '}
         with our legacy Elastic protocol, we recommend that all liquidity providers withdraw their liquidity from
         Elastic Pools (Legacy). We have fixed all the issues and deployed the new and audited{' '}
-        <Link to="/pools">Elastic Pools</Link> where you can add liquidity normally instead.
+        <Link to="/pools">{t`Elastic Pools`}</Link> where you can add liquidity normally instead.
       </Trans>
     </Warning>
   )

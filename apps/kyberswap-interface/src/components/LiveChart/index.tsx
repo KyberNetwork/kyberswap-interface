@@ -1,5 +1,5 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import React, { useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Repeat } from 'react-feather'
@@ -90,17 +90,17 @@ const getDifferentValues = (chartData: any, hoverValue: number | null) => {
 const getTimeFrameText = (timeFrame: LiveDataTimeframeEnum) => {
   switch (timeFrame) {
     case LiveDataTimeframeEnum.HOUR:
-      return 'Past hour'
+      return t`Past hour`
     case LiveDataTimeframeEnum.FOUR_HOURS:
-      return 'Past 4 hours'
+      return t`Past 4 hours`
     case LiveDataTimeframeEnum.DAY:
-      return 'Past 24 hours'
+      return t`Past 24 hours`
     case LiveDataTimeframeEnum.WEEK:
-      return 'Past Week'
+      return t`Past Week`
     case LiveDataTimeframeEnum.MONTH:
-      return 'Past Month'
+      return t`Past Month`
     case LiveDataTimeframeEnum.SIX_MONTHS:
-      return 'Past 6 Months'
+      return t`Past 6 Months`
   }
 }
 
@@ -160,16 +160,14 @@ function LiveChart({
 
     commonPool =
       dataToken0?.data.find(
-        (item =>
-          item.relationships.base_token.data.id === token0 && item.relationships.quote_token.data.id === token1) ||
-          (item =>
-            item.relationships.quote_token.data.id === token0 && item.relationships.base_token.data.id === token1),
+        item =>
+          (item.relationships.base_token.data.id === token0 && item.relationships.quote_token.data.id === token1) ||
+          (item.relationships.quote_token.data.id === token0 && item.relationships.base_token.data.id === token1),
       ) ||
       dataToken1?.data.find(
-        (item =>
-          item.relationships.base_token.data.id === token0 && item.relationships.quote_token.data.id === token1) ||
-          (item =>
-            item.relationships.quote_token.data.id === token0 && item.relationships.base_token.data.id === token1),
+        item =>
+          (item.relationships.base_token.data.id === token0 && item.relationships.quote_token.data.id === token1) ||
+          (item.relationships.quote_token.data.id === token0 && item.relationships.base_token.data.id === token1),
       )
   }
 
@@ -245,8 +243,8 @@ function LiveChart({
           }
         }}
         buttons={[
-          { name: 'basic', title: 'Basic', disabled: isBasicchartError },
-          { name: 'pro', title: 'Pro', disabled: isProchartError },
+          { name: 'basic', title: t`Basic`, disabled: isBasicchartError },
+          { name: 'pro', title: t`Pro`, disabled: isProchartError },
         ]}
       />
     ) : null
@@ -320,7 +318,7 @@ function LiveChart({
               {commonPool && <TradingViewChart poolDetail={commonPool} isReverse={isReverse} label={label} />}
               <Flex justifyContent="flex-end" sx={{ gap: '0.5rem', marginTop: '6px' }}>
                 <Text color={theme.subText} fontSize="10px">
-                  Powered by
+                  <Trans>Powered by</Trans>
                 </Text>
                 <GeckoTerminalSVG style={{ width: '75px' }} />
               </Flex>

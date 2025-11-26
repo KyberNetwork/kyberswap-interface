@@ -1,4 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
+import { t } from '@lingui/macro'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
 import { adaptSolanaWallet } from '@reservoir0x/relay-solana-wallet-adapter'
 import { useConnection, useWallet } from '@solana/wallet-adapter-react'
@@ -9,7 +10,13 @@ import { useWalletClient } from 'wagmi'
 
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import { TOKEN_API_URL } from 'constants/env'
-import { BTC_DEFAULT_RECEIVER, CROSS_CHAIN_FEE_RECEIVER_SOLANA, SOLANA_NATIVE, ZERO_ADDRESS } from 'constants/index'
+import {
+  BTC_DEFAULT_RECEIVER,
+  CROSS_CHAIN_FEE_RECEIVER,
+  CROSS_CHAIN_FEE_RECEIVER_SOLANA,
+  SOLANA_NATIVE,
+  ZERO_ADDRESS,
+} from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrencyV2 } from 'hooks/Tokens'
@@ -26,6 +33,7 @@ import {
   NOT_SUPPORTED_CHAINS_PRICE_SERVICE,
   NearQuoteParams,
   NonEvmChain,
+  NormalizedQuote,
   QuoteParams,
   SwapProvider,
 } from '../adapters'
@@ -43,6 +51,28 @@ const createTimeoutPromise = (ms: number) => {
   return new Promise<never>((_, reject) => {
     setTimeout(() => reject(new Error('Timeout')), ms)
   })
+}
+
+// Helper to calculate net output amount after protocol fees
+const getNetOutputAmount = (quote: NormalizedQuote): bigint => {
+  const { outputAmount, protocolFee, quoteParams } = quote
+  const { tokenOutUsd, toToken } = quoteParams
+
+  // Convert protocol fee from USD to token amount
+  if (protocolFee && tokenOutUsd && tokenOutUsd > 0) {
+    const decimals = toToken?.decimals || 18
+    const protocolFeeInTokens = protocolFee / tokenOutUsd
+
+    // Use parseUnits to safely convert decimal to BigInt without precision loss
+    try {
+      const protocolFeeInSmallestUnit = parseUnits(protocolFeeInTokens.toFixed(decimals), decimals)
+      return outputAmount - protocolFeeInSmallestUnit
+    } catch (e) {
+      console.error('Error converting protocol fee:', e)
+      return outputAmount
+    }
+  }
+  return outputAmount
 }
 
 const RegistryContext = createContext<
@@ -312,10 +342,10 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     'commonPair',
   )
   const warning = useMemo(() => {
-    const highSlippageMsg = 'Your slippage is set higher than usual, which may cause unexpected losses'
-    const lowSlippageMsg = 'Your slippage is set lower than usual, which may cause transaction failure.'
-    const veryHighPiMsg = 'The price impact is high — double check the output before proceeding.'
-    const highPiMsg = 'The price impact might be high — double check the output before proceeding.'
+    const highSlippageMsg = t`Your slippage is set higher than usual, which may cause unexpected losses`
+    const lowSlippageMsg = t`Your slippage is set lower than usual, which may cause transaction failure.`
+    const veryHighPiMsg = t`The price impact is high — double check the output before proceeding.`
+    const highPiMsg = t`The price impact might be high — double check the output before proceeding.`
     if (isFromEvm && isToEvm) {
       const slippageHighThreshold = category === 'stablePair' ? 100 : 200
       const slippageLowThreshold = category === 'stablePair' ? 5 : 30
@@ -381,7 +411,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     ? btcAddress || BTC_DEFAULT_RECEIVER
     : isFromNear
     ? signedAccountId || ZERO_ADDRESS
-    : walletClient?.data?.account.address || ZERO_ADDRESS
+    : walletClient?.data?.account.address || CROSS_CHAIN_FEE_RECEIVER
 
   const receiver = isToSolana
     ? recipient || solanaAddress?.toString() || CROSS_CHAIN_FEE_RECEIVER_SOLANA
@@ -389,7 +419,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     ? recipient || BTC_DEFAULT_RECEIVER
     : isToNear
     ? recipient || signedAccountId || ZERO_ADDRESS
-    : recipient || walletClient?.data?.account.address || ZERO_ADDRESS
+    : recipient || walletClient?.data?.account.address || CROSS_CHAIN_FEE_RECEIVER
 
   const getQuote = useCallback(async () => {
     if (showPreview) return
@@ -445,6 +475,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
           (currencyOut as any).wrapped.address,
         )
       ) {
+        setCategory('stablePair')
         feeBps = 5
       } else {
         const [token0Cat, token1Cat] = await Promise.all([
@@ -546,6 +577,12 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
           // Check for cancellation before starting
           if (signal.aborted) throw new Error('Cancelled')
 
+          // Skip adapter if it does not support the category
+          if (!adapter.canSupport(category, currencyIn, currencyOut)) {
+            // reason will be logged in adapter.canSupport for specific adapter
+            return
+          }
+
           // Race between the adapter quote and timeout
           const quote = await Promise.race([adapter.getQuote(params), createTimeoutPromise(9_000)])
 
@@ -553,7 +590,11 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
           if (signal.aborted) throw new Error('Cancelled')
 
           quotes.push({ adapter, quote })
-          const sortedQuotes = [...quotes].sort((a, b) => (a.quote.outputAmount < b.quote.outputAmount ? 1 : -1))
+          const sortedQuotes = [...quotes].sort((a, b) => {
+            const netA = getNetOutputAmount(a.quote)
+            const netB = getNetOutputAmount(b.quote)
+            return netA < netB ? 1 : -1
+          })
           setQuotes(sortedQuotes)
           setLoading(false)
         } catch (err) {
@@ -570,7 +611,12 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
         throw new Error('No valid quotes found for the requested swap')
       }
 
-      quotes.sort((a, b) => (a.quote.outputAmount < b.quote.outputAmount ? 1 : -1))
+      // Sort by net output amount (after protocol fees)
+      quotes.sort((a, b) => {
+        const netA = getNetOutputAmount(a.quote)
+        const netB = getNetOutputAmount(b.quote)
+        return netA < netB ? 1 : -1
+      })
       return quotes
     }
 
@@ -627,6 +673,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     isToSolana,
     connection,
     excludedSources,
+    category,
   ])
 
   return (

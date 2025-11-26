@@ -42,10 +42,10 @@ export const DropdownTitle = styled.div<{ width?: number; justifyContent?: strin
   `}
 `
 
-export const DropdownIcon = styled(DropdownSVG)<{ flatten?: boolean; open: boolean }>`
+export const DropdownIcon = styled(DropdownSVG)<{ $flatten?: boolean; open: boolean }>`
   transform: ${({ open }) => (open ? 'rotate(180deg)' : 'rotate(0deg)')};
   transition: transform 0.3s;
-  ${({ flatten }) => flatten && 'margin-inline: -6px;'}
+  ${({ $flatten }) => $flatten && 'margin-inline: -6px;'}
 `
 
 export const ItemIcon = styled.img`

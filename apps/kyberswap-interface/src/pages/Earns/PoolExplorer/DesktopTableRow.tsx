@@ -12,6 +12,7 @@ import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
 import { FilterTag } from 'pages/Earns/PoolExplorer/Filter'
 import { Apr, FeeTier, SymbolText, TableRow } from 'pages/Earns/PoolExplorer/styles'
+import AprDetailTooltip from 'pages/Earns/components/AprDetailTooltip'
 import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import { ParsedEarnPool, ProgramType } from 'pages/Earns/types'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -22,25 +23,13 @@ export const kemFarming = (pool: ParsedEarnPool) => {
   const isFarmingLm = programs.includes(ProgramType.LM)
 
   return isFarming ? (
-    <MouseoverTooltipDesktopOnly
-      placement="bottom"
-      width="max-content"
-      text={
-        <div>
-          {t`LP Fee`}: {formatAprNumber(pool.feeApr)}%
-          <br />
-          {t`EG Sharing Reward`}: {formatAprNumber(pool.kemEGApr || 0)}%
-          <br />
-          {t`LM Reward`}: {formatAprNumber(pool.kemLMApr || 0)}%
-        </div>
-      }
-    >
+    <AprDetailTooltip feeApr={pool.feeApr} egApr={pool.kemEGApr || 0} lmApr={pool.kemLMApr || 0}>
       {isFarmingLm ? (
         <FarmingLmIcon width={24} height={24} style={{ marginLeft: 4 }} />
       ) : (
         <FarmingIcon width={24} height={24} style={{ marginLeft: 4 }} />
       )}
-    </MouseoverTooltipDesktopOnly>
+    </AprDetailTooltip>
   ) : null
 }
 
@@ -105,11 +94,13 @@ const DesktopTableRow = ({
           <MouseoverTooltipDesktopOnly
             text={
               pool.maxAprInfo
-                ? `Add liquidity with price range: ${
+                ? t`Add liquidity with price range:` +
+                  ` ${
                     pool.maxAprInfo.minPrice
                       ? formatDisplayNumber(pool.maxAprInfo.minPrice, { significantDigits: 6 })
                       : '--'
-                  } - ${
+                  }` +
+                  ` - ${
                     pool.maxAprInfo.maxPrice
                       ? formatDisplayNumber(pool.maxAprInfo.maxPrice, { significantDigits: 6 })
                       : '--'
@@ -130,7 +121,10 @@ const DesktopTableRow = ({
         </Flex>
       )}
       <Flex justifyContent="flex-end">
-        {formatDisplayNumber(pool.earnFee, { style: 'currency', significantDigits: 6 })}
+        {formatDisplayNumber(isFarmingFiltered ? pool.egUsd : pool.earnFee, {
+          style: 'currency',
+          significantDigits: 6,
+        })}
       </Flex>
       <Flex justifyContent="flex-end">
         {formatDisplayNumber(pool.tvl, { style: 'currency', significantDigits: 6 })}

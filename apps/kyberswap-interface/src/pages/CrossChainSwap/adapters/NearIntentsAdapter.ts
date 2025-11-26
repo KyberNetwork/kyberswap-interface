@@ -231,6 +231,10 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
       sourceToken: quote.quoteParams.fromToken,
       targetToken: quote.quoteParams.toToken,
       timestamp: new Date().getTime(),
+      amountInUsd: quote.inputUsd,
+      amountOutUsd: quote.outputUsd,
+      platformFeePercent: quote.platformFeePercent,
+      recipient: quote.quoteParams.recipient,
     }
 
     if (quote.quoteParams.fromChain === NonEvmChain.Solana) {

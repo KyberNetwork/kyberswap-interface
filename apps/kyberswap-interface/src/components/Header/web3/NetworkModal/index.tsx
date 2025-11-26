@@ -44,6 +44,7 @@ const l1Chains = [
   ChainId.FANTOM,
   ChainId.HYPEREVM,
   ChainId.PLASMA,
+  ChainId.MONAD,
 ]
 
 const l2Chains = [
@@ -245,7 +246,7 @@ export default function NetworkModal({
           <Flex alignItems="center" sx={{ gap: '8px' }}>
             <SearchInput
               value={searchText}
-              placeholder="Search by chain name"
+              placeholder={t`Search by chain name`}
               onChange={val => {
                 setSearchText(val)
               }}

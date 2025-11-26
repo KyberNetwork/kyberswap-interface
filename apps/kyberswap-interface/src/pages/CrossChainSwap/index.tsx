@@ -1,4 +1,5 @@
 import { Currency as EvmCurrency } from '@kyberswap/ks-sdk-core'
+import { Trans, t } from '@lingui/macro'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
 import { ChangeEvent, useEffect, useState } from 'react'
 import { ChevronDown, ChevronUp, Repeat } from 'react-feather'
@@ -114,6 +115,7 @@ function CrossChainSwap() {
         selectedCurrency={currencyIn || undefined}
         onSelectNetwork={chainId => {
           searchParams.set('from', chainId.toString())
+          searchParams.delete('tokenIn')
           setSearchParams(searchParams)
         }}
         value={amount}
@@ -152,7 +154,7 @@ function CrossChainSwap() {
           ml="4px"
         >
           <Text as="span" color={theme.subText}>
-            Cross-chain rate:
+            <Trans>Cross-chain rate:</Trans>
           </Text>
           {loading ? (
             <Skeleton
@@ -226,6 +228,7 @@ function CrossChainSwap() {
         selectedCurrency={currencyOut || undefined}
         onSelectNetwork={chainId => {
           searchParams.set('to', chainId.toString())
+          searchParams.delete('tokenOut')
           setSearchParams(searchParams)
         }}
         value={selectedQuote?.quote.formattedOutputAmount || ''}
@@ -262,7 +265,11 @@ function CrossChainSwap() {
             }}
           >
             <Text>
-              {isEvmChain(fromChainId) && isToEvm ? 'Send to other wallet' : `Recipient (${networkName} address)`}
+              {isEvmChain(fromChainId) && isToEvm ? (
+                <Trans>Send to other wallet</Trans>
+              ) : (
+                t`Recipient (${networkName} address)`
+              )}
             </Text>
             {isEvmChain(fromChainId) &&
               isToEvm &&
@@ -284,7 +291,7 @@ function CrossChainSwap() {
                     setRecipient(reci)
                   }}
                 >
-                  Use my wallet
+                  <Trans>Use my wallet</Trans>
                 </ButtonLight>
               )}
             </Flex>
@@ -292,7 +299,7 @@ function CrossChainSwap() {
         </Flex>
         {(isEvmChain(fromChainId) && isToEvm ? showEvmRecipient : true) && (
           <AddressInput
-            placeholder={`Enter ${networkName} receiving address`}
+            placeholder={t`Enter ${networkName} receiving address`}
             value={recipient}
             onChange={(event: ChangeEvent<HTMLInputElement>) => {
               const input = event.target.value
@@ -323,8 +330,12 @@ function CrossChainSwap() {
 
       {selectedQuote && (
         <Text fontStyle="italic" color={'#737373'} fontSize={12} display="flex">
-          Routed via {selectedQuote.adapter.getName()}
-          {selectedQuote.adapter.getName() === 'Optimex' && <Tag>Beta</Tag>}
+          <Trans>Routed via {selectedQuote.adapter.getName()}</Trans>
+          {selectedQuote.adapter.getName() === 'Optimex' && (
+            <Tag>
+              <Trans>Beta</Trans>
+            </Tag>
+          )}
         </Text>
       )}
 

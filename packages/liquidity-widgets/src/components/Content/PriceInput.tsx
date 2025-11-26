@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 
+import { Trans } from '@lingui/macro';
+
 import { univ3PoolNormalize } from '@kyber/schema';
 import { Skeleton, TokenSymbol } from '@kyber/ui';
 import { formatNumber } from '@kyber/utils/number';
@@ -116,7 +118,13 @@ export default function PriceInput({ type }: { type: PriceType }) {
         </button>
 
         <div className="flex flex-col items-center gap-[6px] w-fit text-sm font-medium text-subText">
-          <span>{type === PriceType.MinPrice ? 'Min' : PriceType.MaxPrice ? 'Max' : ''} price</span>
+          <span>
+            {type === PriceType.MinPrice ? (
+              <Trans>Min price</Trans>
+            ) : type === PriceType.MaxPrice ? (
+              <Trans>Max price</Trans>
+            ) : null}
+          </span>
           {initializing ? (
             <Skeleton className="w-20 h-6 mx-4" />
           ) : (
@@ -153,9 +161,11 @@ export default function PriceInput({ type }: { type: PriceType }) {
         <Skeleton className="w-24 h-5 mt-1" />
       ) : (
         <div className="w-max text-sm font-medium text-subText flex items-center gap-1">
-          <TokenSymbol symbol={!revertPrice ? pool.token1.symbol : pool.token0.symbol} maxWidth={80} />
-          <span>per</span>
-          <TokenSymbol symbol={!revertPrice ? pool.token0.symbol : pool.token1.symbol} maxWidth={80} />
+          <Trans>
+            <TokenSymbol symbol={!revertPrice ? pool.token1.symbol : pool.token0.symbol} maxWidth={80} />
+            <span>per</span>
+            <TokenSymbol symbol={!revertPrice ? pool.token0.symbol : pool.token1.symbol} maxWidth={80} />
+          </Trans>
         </div>
       )}
     </div>

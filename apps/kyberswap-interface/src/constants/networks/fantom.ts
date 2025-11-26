@@ -23,7 +23,7 @@ const fantomInfo: NetworkInfo = {
   nativeToken: {
     symbol: 'FTM',
     name: 'FTM',
-    logo: 'https://storage.googleapis.com/ks-setting-1d682dca/2cd8adf9-b4b0-41f7-b83d-4a13b4e9ca6f1699420090962.png',
+    logo: fantomIcon,
     decimal: 18,
   },
   defaultRpcUrl: 'https://rpc.fantom.network',

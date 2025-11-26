@@ -3,7 +3,7 @@ import { formatAprNumber } from '@kyber/utils/dist/number'
 import { MAX_TICK, MIN_TICK, priceToClosestTick } from '@kyber/utils/dist/uniswapv3'
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Share2 } from 'react-feather'
+import { Info, Share2 } from 'react-feather'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import { useUserPositionsQuery } from 'services/zapEarn'
@@ -13,7 +13,6 @@ import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_
 import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import { ReactComponent as FarmingLmIcon } from 'assets/svg/kyber/kemLm.svg'
 import { ReactComponent as RocketIcon } from 'assets/svg/rocket.svg'
-import InfoHelper from 'components/InfoHelper'
 import { Loader2 } from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
@@ -35,9 +34,11 @@ import {
 } from 'pages/Earns/PositionDetail/styles'
 import MigrationModal from 'pages/Earns/UserPositions/MigrationModal'
 import { EmptyPositionText, PositionPageWrapper } from 'pages/Earns/UserPositions/styles'
+import AprDetailTooltip from 'pages/Earns/components/AprDetailTooltip'
 import DropdownMenu from 'pages/Earns/components/DropdownMenu'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import RewardSyncing from 'pages/Earns/components/RewardSyncing'
+import { EARN_DEXES } from 'pages/Earns/constants'
 import useClosedPositions, { CheckClosedPositionParams } from 'pages/Earns/hooks/useClosedPositions'
 import useFarmingStablePools from 'pages/Earns/hooks/useFarmingStablePools'
 import useForceLoading from 'pages/Earns/hooks/useForceLoading'
@@ -85,7 +86,7 @@ const PositionDetail = () => {
     : rewardInfo?.nfts.find(item => item.nftId === userPositions?.[0]?.tokenId)
 
   const currentWalletAddress = useRef(account)
-  const [aprInterval, setAprInterval] = useState<'24h' | '7d'>('7d')
+  const [aprInterval, setAprInterval] = useState<'24h' | '7d'>('24h')
   const [feeInfoFromRpc, setFeeInfoFromRpc] = useState<FeeInfo | undefined>()
   const [shareInfo, setShareInfo] = useState<ShareModalProps | undefined>()
   const [positionToMigrate, setPositionToMigrate] = useState<ParsedPosition | null>(null)
@@ -95,9 +96,11 @@ const PositionDetail = () => {
   const initialLoading = !!(forceLoading || (isLoading && !firstLoading.current))
 
   const position: ParsedPosition | undefined = useMemo(() => {
+    const tokenId = positionId?.split('-')[1]
     if (!userPositions || !userPositions.length) {
       const unfinalizedPositions = getUnfinalizedPositions([])
-      if (unfinalizedPositions.length > 0) return unfinalizedPositions[0]
+      if (unfinalizedPositions.length > 0 && Number(tokenId) === Number(unfinalizedPositions[0].tokenId))
+        return unfinalizedPositions[0]
       return
     }
 
@@ -114,10 +117,11 @@ const PositionDetail = () => {
 
     const unfinalizedPositions = getUnfinalizedPositions([parsedPosition])
 
-    if (unfinalizedPositions.length > 0) return unfinalizedPositions[0]
+    if (unfinalizedPositions.length > 0 && Number(tokenId) === Number(unfinalizedPositions[0].tokenId))
+      return unfinalizedPositions[0]
 
     return parsedPosition
-  }, [feeInfoFromRpc, userPositions, rewardInfoThisPosition, closedPositionsFromRpc])
+  }, [feeInfoFromRpc, userPositions, rewardInfoThisPosition, closedPositionsFromRpc, positionId])
 
   const farmingPoolsByChain = useFarmingStablePools({ chainIds: position ? [position.chain.id] : [] })
 
@@ -375,32 +379,24 @@ const PositionDetail = () => {
   const aprSection = (
     <AprSection>
       <Flex alignItems={'center'} sx={{ gap: '2px' }}>
-        <Text fontSize={14} color={theme.subText}>
+        <Text fontSize={14} color={theme.subText} marginRight={0.5}>
           {t`Est. Position APR`}
         </Text>
         {position?.pool.isFarming && !isUnfinalized && (
-          <InfoHelper
-            size={16}
-            fontSize={14}
-            placement="top"
-            width="fit-content"
-            text={
-              <div>
-                {t`LP Fee`}: {formatAprNumber(position?.feeApr[aprInterval] || 0)}%
-                <br />
-                {t`EG Sharing Reward`}: {formatAprNumber(position?.kemEGApr[aprInterval] || 0)}%
-                <br />
-                {t`LM Reward`}: {formatAprNumber(position?.kemLMApr[aprInterval] || 0)}%
-              </div>
-            }
-          />
+          <AprDetailTooltip
+            feeApr={position?.feeApr[aprInterval] || 0}
+            egApr={position?.kemEGApr[aprInterval] || 0}
+            lmApr={position?.kemLMApr[aprInterval] || 0}
+          >
+            <Info color={theme.subText} size={16} />
+          </AprDetailTooltip>
         )}
       </Flex>
 
       {initialLoading ? (
         <PositionSkeleton width={70} height={24} />
       ) : isUnfinalized ? (
-        <PositionSkeleton width={70} height={24} text="Finalizing..." />
+        <PositionSkeleton width={70} height={24} text={t`Finalizing...`} />
       ) : isWaitingForRewards ? (
         <RewardSyncing width={70} height={24} />
       ) : (
@@ -424,19 +420,15 @@ const PositionDetail = () => {
               shareBtn(12, [ShareOption.TOTAL_APR])}
           </Flex>
 
-          {aprInterval ? (
-            <>{/* TODO: Revert later */}</>
-          ) : (
-            <DropdownMenu
-              width={30}
-              flatten
-              tooltip={`APR calculated based on last ${aprInterval} fees. Useful for recent performance trends.`}
-              options={timings.slice(0, 2)}
-              value={aprInterval}
-              alignLeft
-              onChange={value => setAprInterval(value as '24h')}
-            />
-          )}
+          <DropdownMenu
+            width={30}
+            flatten
+            tooltip={t`APR calculated based on last ${aprInterval} fees. Useful for recent performance trends.`}
+            options={timings.slice(0, 2)}
+            value={aprInterval}
+            alignLeft
+            onChange={value => setAprInterval(value as '24h')}
+          />
         </Flex>
       )}
     </AprSection>
@@ -452,6 +444,9 @@ const PositionDetail = () => {
         onClose={() => setPositionToMigrate(null)}
       />
     ) : null
+  const suggestedProtocolName = position?.suggestionPool
+    ? EARN_DEXES[position.suggestionPool.poolExchange].name.replace('FairFlow', '').trim()
+    : ''
 
   return (
     <>
@@ -473,8 +468,8 @@ const PositionDetail = () => {
                     <Text color={'#fafafa'} lineHeight={'18px'}>
                       {!!position.suggestionPool
                         ? position.pool.fee === position.suggestionPool.feeTier
-                          ? t`Earn extra rewards with exact same pair and fee tier on Uniswap v4 hook.`
-                          : t`We found a pool with the same pair offering extra rewards. Migrate to this pool on Uniswap v4 hook to start earning farming rewards.`
+                          ? t`Earn extra rewards with exact same pair and fee tier on ${suggestedProtocolName} hook.`
+                          : t`We found a pool with the same pair offering extra rewards. Migrate to this pool on ${suggestedProtocolName} hook to start earning farming rewards.`
                         : t`We found other stable pools offering extra rewards. Explore and migrate to start earning.`}
                     </Text>
                     <Text color={theme.primary} sx={{ cursor: 'pointer' }} onClick={handleMigrateToKem}>

@@ -205,7 +205,7 @@ const EarnLanding = () => {
             width: 'fit-content',
           }}
         >
-          EXPLORE POOLS
+          {t`EXPLORE POOLS`}
           <img src={PlayIcon} alt="play" width="36px" />
         </Flex>
       </Container>

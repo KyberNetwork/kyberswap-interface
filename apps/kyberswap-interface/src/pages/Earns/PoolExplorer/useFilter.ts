@@ -26,7 +26,7 @@ export default function useFilter(setSearch?: (search: string) => void) {
       ),
       page: +(searchParams.get('page') || 1),
       limit: 10,
-      interval: searchParams.get('interval') || (timings[1].value as string),
+      interval: searchParams.get('interval') || (timings[0].value as string),
       protocol: searchParams.get('protocol') || '',
       userAddress: account,
       tag: searchParams.get('tag') || '',
@@ -51,9 +51,17 @@ export default function useFilter(setSearch?: (search: string) => void) {
             searchParams.set('sortBy', SortBy.APR)
             searchParams.set('orderBy', Direction.DESC)
           } else if (value === FilterTag.FARMING_POOL) {
-            if (EARN_CHAINS[chainId as unknown as EarnChain]?.farmingSupported)
-              searchParams.set('chainId', chainId.toString())
-            else searchParams.set('chainId', ChainId.MAINNET.toString())
+            const currentFilteredChainId = searchParams.get('chainId')
+
+            if (
+              currentFilteredChainId &&
+              !EARN_CHAINS[currentFilteredChainId as unknown as EarnChain]?.farmingSupported
+            ) {
+              if (EARN_CHAINS[chainId as unknown as EarnChain]?.farmingSupported)
+                searchParams.set('chainId', chainId.toString())
+              else searchParams.set('chainId', ChainId.MAINNET.toString())
+            }
+
             searchParams.delete('protocol')
           }
         }

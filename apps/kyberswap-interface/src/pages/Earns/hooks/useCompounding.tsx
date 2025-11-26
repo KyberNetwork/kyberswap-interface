@@ -2,6 +2,8 @@ import {
   ChainId as CompoundingChainId,
   PoolType as CompoundingPoolType,
   CompoundingWidget,
+  SupportedLocale,
+  TxStatus,
 } from '@kyberswap/compounding-widget'
 import '@kyberswap/compounding-widget/dist/style.css'
 import { ChainId } from '@kyberswap/ks-sdk-core'
@@ -11,12 +13,15 @@ import { useNavigate } from 'react-router-dom'
 import { NotificationType } from 'components/Announcement/type'
 import Modal from 'components/Modal'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useActiveLocale } from 'hooks/useActiveLocale'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import { submitTransaction } from 'pages/Earns/utils'
 import { navigateToPositionAfterZap } from 'pages/Earns/utils/zap'
 import { useKyberSwapConfig, useNotify, useWalletModalToggle } from 'state/application/hooks'
+import { useAllTransactions, useTransactionAdder } from 'state/transactions/hooks'
+import { TRANSACTION_TYPE } from 'state/transactions/type'
 
 interface CompoundingPureParams {
   poolAddress: string
@@ -30,6 +35,7 @@ interface CompoundingPureParams {
 
 interface CompoundingParams extends CompoundingPureParams {
   rpcUrl?: string
+  locale?: SupportedLocale
   connectedAccount: {
     address?: string | undefined
     chainId: number
@@ -75,6 +81,9 @@ const useCompounding = ({
   onRefreshPosition?: () => void
   onCloseClaimModal: () => void
 }) => {
+  const locale = useActiveLocale()
+  const addTransactionWithType = useTransactionAdder()
+  const allTransactions = useAllTransactions()
   const toggleWalletModal = useWalletModalToggle()
   const notify = useNotify()
   const navigate = useNavigate()
@@ -83,10 +92,24 @@ const useCompounding = ({
   const { changeNetwork } = useChangeNetwork()
 
   const [compoundingPureParams, setCompoundingPureParams] = useState<CompoundingPureParams | null>(null)
+  const [compoundingTxHash, setCompoundingTxHash] = useState<string[]>([])
   const { rpc: compoundingRpcUrl } = useKyberSwapConfig(compoundingPureParams?.chainId as ChainId | undefined)
+
+  const compoundingStatus = useMemo(() => {
+    if (!allTransactions || !compoundingTxHash.length) return {}
+
+    return compoundingTxHash.reduce((acc: Record<string, TxStatus>, txHash) => {
+      const zapTx = allTransactions[txHash]
+      if (zapTx?.[0].receipt) {
+        acc[txHash as keyof typeof acc] = zapTx?.[0].receipt.status === 1 ? TxStatus.SUCCESS : TxStatus.FAILED
+      } else acc[txHash as keyof typeof acc] = TxStatus.PENDING
+      return acc
+    }, {})
+  }, [allTransactions, compoundingTxHash])
 
   const handleCloseCompounding = useCallback(() => {
     setCompoundingPureParams(null)
+    setCompoundingTxHash([])
   }, [])
 
   const handleNavigateToPosition = useCallback(
@@ -139,11 +162,13 @@ const useCompounding = ({
         ? {
             ...compoundingPureParams,
             rpcUrl: compoundingRpcUrl,
+            locale,
             connectedAccount: {
               address: account,
               chainId: chainId,
             },
             onConnectWallet: toggleWalletModal,
+            zapStatus: compoundingStatus,
             onSwitchChain: () => changeNetwork(compoundingPureParams.chainId as number),
             onViewPosition: (txHash: string) => {
               const { chainId, poolType, poolAddress, positionId } = compoundingPureParams
@@ -155,12 +180,47 @@ const useCompounding = ({
               handleCloseCompounding()
               onRefreshPosition?.()
             },
-            onSubmitTx: async (txData: { from: string; to: string; data: string; value: string; gasLimit: string }) => {
+            onSubmitTx: async (
+              txData: { from: string; to: string; data: string; value: string; gasLimit: string },
+              additionalInfo?: {
+                tokensIn: Array<{ symbol: string; amount: string; logoUrl?: string }>
+                pool: string
+                dexLogo: string
+              },
+            ) => {
               const res = await submitTransaction({ library, txData })
               const { txHash, error } = res
-
               if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
 
+              if (additionalInfo) {
+                const dexIndex = Object.values(compoundingDexMapping).findIndex(
+                  (item, index) =>
+                    item === compoundingPureParams.poolType &&
+                    EARN_DEXES[Object.keys(compoundingDexMapping)[index] as Exchange],
+                )
+                if (dexIndex === -1) {
+                  console.error('Cannot find dex')
+                } else {
+                  const dex = Object.keys(compoundingDexMapping)[dexIndex] as Exchange
+
+                  addTransactionWithType({
+                    hash: txHash,
+                    type:
+                      compoundingPureParams.compoundType === 'COMPOUND_TYPE_REWARD'
+                        ? TRANSACTION_TYPE.EARN_COMPOUND_REWARD
+                        : TRANSACTION_TYPE.EARN_COMPOUND_FEE,
+                    extraInfo: {
+                      pool: additionalInfo?.pool || '',
+                      positionId: compoundingPureParams.positionId || '',
+                      tokensIn: additionalInfo?.tokensIn || [],
+                      dexLogoUrl: additionalInfo?.dexLogo,
+                      dex,
+                    },
+                  })
+                }
+              }
+
+              setCompoundingTxHash(prev => [...prev, txHash])
               return txHash
             },
           }
@@ -173,10 +233,13 @@ const useCompounding = ({
       compoundingRpcUrl,
       handleCloseCompounding,
       handleNavigateToPosition,
+      locale,
       library,
       onRefreshPosition,
       toggleWalletModal,
       onCloseClaimModal,
+      addTransactionWithType,
+      compoundingStatus,
     ],
   )
 

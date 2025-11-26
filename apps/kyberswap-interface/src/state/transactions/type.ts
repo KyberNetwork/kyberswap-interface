@@ -1,5 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
+import { Exchange } from 'pages/Earns/constants'
+
 export interface SerializableTransactionReceipt {
   blockHash: string
   status?: number
@@ -61,13 +63,52 @@ export type TransactionExtraBaseInfo = {
   contract?: string // recipient, contract, spender, ...
 }
 
-// structure data, let's create a new type if your transaction does not match 1 of 3 template
+export type EarnAddLiquidityExtraInfo = {
+  pool: string
+  dexLogoUrl?: string
+  dex: Exchange
+  positionId?: string
+  tokensIn: Array<{
+    logoUrl?: string
+    amount: string
+    symbol: string
+  }>
+  contract?: string
+}
+
+export type EarnRemoveLiquidityExtraInfo = {
+  pool: string
+  dexLogoUrl?: string
+  dex: Exchange
+  positionId: string
+  tokensOut: Array<{
+    logoUrl?: string
+    symbol: string
+    amount: string
+  }>
+  contract?: string
+}
+
+export type EarnMigrateLiquidityExtraInfo = {
+  sourcePool: string
+  sourceDexLogoUrl?: string
+  sourceDex: Exchange
+  destinationPool: string
+  destinationDexLogoUrl?: string
+  destinationDex: Exchange
+  positionId: string
+  contract?: string
+}
+
 export type TransactionExtraInfo = (
   | TransactionExtraInfo1Token
   | TransactionExtraInfo2Token
   | TransactionExtraBaseInfo
   | TransactionExtraInfoHarvestFarm
   | TransactionExtraInfoStakeFarm
+  | EarnAddLiquidityExtraInfo
+  | EarnRemoveLiquidityExtraInfo
+  | EarnMigrateLiquidityExtraInfo
 ) & {
   actuallySuccess?: boolean
   needCheckSubgraph?: boolean
@@ -156,6 +197,14 @@ export enum TRANSACTION_TYPE {
   CANCEL_LIMIT_ORDER = 'Cancel Limit Order',
   TRANSFER_TOKEN = 'Send',
   CLAIM = 'Claim',
+
+  EARN_ADD_LIQUIDITY = 'Add Liquidity',
+  EARN_INCREASE_LIQUIDITY = 'Increase Liquidity',
+  EARN_REMOVE_LIQUIDITY = 'Remove Liquidity',
+  EARN_MIGRATE_LIQUIDITY = 'Migrate Liquidity',
+  EARN_REPOSITION = 'Reposition',
+  EARN_COMPOUND_FEE = 'Compound Fee',
+  EARN_COMPOUND_REWARD = 'Compound Reward',
 }
 
 export const GROUP_TRANSACTION_BY_TYPE = {
@@ -176,6 +225,13 @@ export const GROUP_TRANSACTION_BY_TYPE = {
     TRANSACTION_TYPE.HARVEST,
     TRANSACTION_TYPE.COLLECT_FEE,
     TRANSACTION_TYPE.ELASTIC_FORCE_WITHDRAW_LIQUIDITY,
+    TRANSACTION_TYPE.EARN_ADD_LIQUIDITY,
+    TRANSACTION_TYPE.EARN_INCREASE_LIQUIDITY,
+    TRANSACTION_TYPE.EARN_REMOVE_LIQUIDITY,
+    TRANSACTION_TYPE.EARN_MIGRATE_LIQUIDITY,
+    TRANSACTION_TYPE.EARN_REPOSITION,
+    TRANSACTION_TYPE.EARN_COMPOUND_FEE,
+    TRANSACTION_TYPE.EARN_COMPOUND_REWARD,
   ],
   KYBERDAO: [
     TRANSACTION_TYPE.KYBERDAO_STAKE,

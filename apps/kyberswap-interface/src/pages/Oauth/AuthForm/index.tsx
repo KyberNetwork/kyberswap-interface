@@ -48,7 +48,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ formConfig, signInWithEth, flowStat
     const hasGoogle = loginMethods.includes(LoginMethod.GOOGLE)
     const hasEmail = loginMethods.includes(LoginMethod.EMAIL)
 
-    const nodes = []
+    const nodes: React.ReactNode[] = []
     if (hasEth)
       nodes.push(
         <ButtonEth

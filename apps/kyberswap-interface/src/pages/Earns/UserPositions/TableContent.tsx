@@ -32,6 +32,7 @@ import {
   PositionValueLabel,
   PositionValueWrapper,
 } from 'pages/Earns/UserPositions/styles'
+import AprDetailTooltip from 'pages/Earns/components/AprDetailTooltip'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import RewardSyncing from 'pages/Earns/components/RewardSyncing'
 import { EARN_DEXES, LIMIT_TEXT_STYLES } from 'pages/Earns/constants'
@@ -72,7 +73,7 @@ export default function TableContent({
   const { account } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
   const theme = useTheme()
-  const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
+  const upToCustomLarge = useMedia(`(max-width: ${1300}px)`)
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   const [positionThatClaimingFees, setPositionThatClaimingFees] = useState<ParsedPosition | null>(null)
@@ -260,7 +261,7 @@ export default function TableContent({
         <Text color={theme.subText}>{t`You don't have any liquidity positions yet`}.</Text>
         <Link to={APP_PATHS.EARN_POOLS}>{t`Explore Liquidity Pools to get started`}!</Link>
       </Flex>
-      {!account && <PositionActionBtn onClick={toggleWalletModal}>Connect Wallet</PositionActionBtn>}
+      {!account && <PositionActionBtn onClick={toggleWalletModal}>{t`Connect Wallet`}</PositionActionBtn>}
     </EmptyPositionText>
   )
 
@@ -305,6 +306,9 @@ export default function TableContent({
               const isStablePair = pool.category === PAIR_CATEGORY.STABLE
               const isEarlyPosition = checkEarlyPosition(position)
               const isWaitingForRewards = pool.isFarming && rewards.totalUsdValue === 0 && isEarlyPosition
+              const suggestedProtocolName = position.suggestionPool
+                ? EARN_DEXES[position.suggestionPool.poolExchange].name.replace('FairFlow', '').trim()
+                : ''
 
               const actions = (
                 <DropdownAction
@@ -412,7 +416,7 @@ export default function TableContent({
                   </PositionOverview>
 
                   {/* Actions for Tablet */}
-                  {upToLarge && !isUnfinalized && <PositionActionWrapper>{actions}</PositionActionWrapper>}
+                  {upToCustomLarge && !isUnfinalized && <PositionActionWrapper>{actions}</PositionActionWrapper>}
 
                   {/* Value info */}
                   <PositionValueWrapper>
@@ -452,31 +456,22 @@ export default function TableContent({
                     <PositionValueLabel>{t`APR`}</PositionValueLabel>
 
                     {isUnfinalized ? (
-                      <PositionSkeleton width={80} height={19} text="Finalizing..." />
+                      <PositionSkeleton width={80} height={19} text={t`Finalizing...`} />
                     ) : isWaitingForRewards ? (
                       <RewardSyncing width={70} height={19} />
                     ) : (
                       <Flex alignItems={'center'} sx={{ gap: 1 }}>
-                        <MouseoverTooltipDesktopOnly
-                          text={
-                            pool.isFarming ? (
-                              <>
-                                <Text>
-                                  {t`LP Fee`}: {formatAprNumber(position.feeApr['7d'])}%
-                                </Text>
-                                <Text>
-                                  {t`EG Sharing Reward`}: {formatAprNumber(position.kemEGApr['7d'])}%
-                                  <br />
-                                  {t`LM Reward`}: {formatAprNumber(position.kemLMApr['7d'])}%
-                                </Text>
-                              </>
-                            ) : null
-                          }
-                          width="fit-content"
-                          placement="top"
-                        >
-                          <Text color={pool.isFarming ? theme.primary : theme.text}>{formatAprNumber(apr['7d'])}%</Text>
-                        </MouseoverTooltipDesktopOnly>
+                        {pool.isFarming ? (
+                          <AprDetailTooltip
+                            feeApr={position.feeApr['24h']}
+                            egApr={position.kemEGApr['24h']}
+                            lmApr={position.kemLMApr['24h']}
+                          >
+                            <Text color={theme.primary}>{formatAprNumber(apr['24h'])}%</Text>
+                          </AprDetailTooltip>
+                        ) : (
+                          <Text color={theme.text}>{formatAprNumber(apr['24h'])}%</Text>
+                        )}
 
                         {!pool.isFarming &&
                           (!!position.suggestionPool ||
@@ -488,8 +483,8 @@ export default function TableContent({
                                   <Text>
                                     {!!position.suggestionPool
                                       ? pool.fee === position.suggestionPool.feeTier
-                                        ? t`Earn extra rewards with exact same pair and fee tier on Uniswap v4 hook.`
-                                        : t`We found a pool with the same pair offering extra rewards. Migrate to this pool on Uniswap v4 hook to start earning farming rewards.`
+                                        ? t`Earn extra rewards with exact same pair and fee tier on ${suggestedProtocolName} hook.`
+                                        : t`We found a pool with the same pair offering extra rewards. Migrate to this pool on ${suggestedProtocolName} hook to start earning farming rewards.`
                                       : t`We found other stable pools offering extra rewards. Explore and migrate to start earning.`}
                                   </Text>
                                   <Text
@@ -516,11 +511,11 @@ export default function TableContent({
                   </PositionValueWrapper>
 
                   {/* Unclaimed fees info */}
-                  <PositionValueWrapper align={upToLarge ? 'flex-end' : ''}>
+                  <PositionValueWrapper align={upToCustomLarge ? 'flex-end' : ''}>
                     <PositionValueLabel>{t`Unclaimed Fee`}</PositionValueLabel>
 
                     {isUnfinalized ? (
-                      <PositionSkeleton width={80} height={19} text="Finalizing..." />
+                      <PositionSkeleton width={80} height={19} text={t`Finalizing...`} />
                     ) : (
                       <MouseoverTooltipDesktopOnly
                         text={
@@ -546,10 +541,10 @@ export default function TableContent({
                   </PositionValueWrapper>
 
                   {/* Unclaimed rewards info */}
-                  <PositionValueWrapper align={!upToLarge ? 'center' : ''}>
+                  <PositionValueWrapper align={!upToCustomLarge ? 'center' : ''}>
                     <PositionValueLabel>{t`Unclaimed rewards`}</PositionValueLabel>
                     {isUnfinalized ? (
-                      <PositionSkeleton width={80} height={19} text="Finalizing..." />
+                      <PositionSkeleton width={80} height={19} text={t`Finalizing...`} />
                     ) : isWaitingForRewards ? (
                       <RewardSyncing width={80} height={19} />
                     ) : (
@@ -588,7 +583,7 @@ export default function TableContent({
                     )}
                   </PositionValueWrapper>
 
-                  {!upToLarge && <div />}
+                  {!upToCustomLarge && <div />}
 
                   {/* Balance info */}
                   <PositionValueWrapper align={upToSmall ? 'flex-end' : ''}>
@@ -616,8 +611,8 @@ export default function TableContent({
                   </PositionValueWrapper>
 
                   {/* Price range info */}
-                  <PositionValueWrapper align={upToLarge ? 'flex-end' : ''}>
-                    {upToLarge ? (
+                  <PositionValueWrapper align={upToCustomLarge ? 'flex-end' : ''}>
+                    {upToCustomLarge ? (
                       isUnfinalized ? null : (
                         <PriceRange
                           minPrice={priceRange.min}
@@ -630,7 +625,7 @@ export default function TableContent({
                         />
                       )
                     ) : isUnfinalized ? (
-                      <PositionSkeleton width={80} height={19} text="Finalizing..." />
+                      <PositionSkeleton width={80} height={19} text={t`Finalizing...`} />
                     ) : (
                       <PriceRange
                         minPrice={priceRange.min}
@@ -645,9 +640,9 @@ export default function TableContent({
                   </PositionValueWrapper>
 
                   {/* Actions info */}
-                  {!upToLarge && (
+                  {!upToCustomLarge && (
                     <PositionValueWrapper align="flex-end">
-                      {isUnfinalized ? <PositionSkeleton width={80} height={19} text="Finalizing..." /> : actions}
+                      {isUnfinalized ? <PositionSkeleton width={80} height={19} text={t`Finalizing...`} /> : actions}
                     </PositionValueWrapper>
                   )}
                 </PositionRow>

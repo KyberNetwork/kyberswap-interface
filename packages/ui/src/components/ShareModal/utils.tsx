@@ -1,3 +1,5 @@
+import type { I18n } from '@lingui/core';
+
 import { formatAprNumber, formatDisplayNumber } from '@kyber/utils/number';
 
 import { ShareOption, ShareType } from '@/components/ShareModal/types';
@@ -42,7 +44,7 @@ interface Reward {
 interface GetValueByOptionParams {
   type: ShareType;
   option?: ShareOption;
-  pool: Pool;
+  pool?: Pool;
   position?: Position;
   reward?: Reward;
 }
@@ -93,12 +95,6 @@ export const formatTimeDurationFromTimestamp = (timestamp: number): string => {
   return `${months} ${monthText} ${remainingDays} ${dayText}`;
 };
 
-export const getProxyImage = (url: string | undefined): string => {
-  if (!url) return '';
-  if (url.startsWith('data:')) return url;
-  return `https://proxy.kyberswap.com/token-logo?url=${url}`;
-};
-
 export const getSharePath = (type: ShareType, pool: Pool): string => {
   const origin = window?.location?.origin || 'kyberswap.com';
 
@@ -120,11 +116,11 @@ export const getValueByOption = ({ type, option, pool, position, reward }: GetVa
   if (isPoolSharing) {
     switch (option) {
       case ShareOption.TOTAL_APR:
-        return `${formatAprNumber((pool.apr?.fees || 0) + (pool.apr?.eg || 0) + (pool.apr?.lm || 0))}%`;
+        return `${formatAprNumber((pool?.apr?.fees || 0) + (pool?.apr?.eg || 0) + (pool?.apr?.lm || 0))}%`;
       case ShareOption.LM_APR:
-        return `${formatAprNumber(pool.apr?.lm || 0)}%`;
+        return `${formatAprNumber(pool?.apr?.lm || 0)}%`;
       case ShareOption.EG_APR:
-        return `${formatAprNumber(pool.apr?.eg || 0)}%`;
+        return `${formatAprNumber(pool?.apr?.eg || 0)}%`;
       default:
         return '';
     }
@@ -203,6 +199,27 @@ export const renderStaggeredNumber = (numberString: string): JSX.Element => {
       ))}
     </span>
   );
+};
+
+export const getShareOptionLabel = (i18n: I18n, option: ShareOption): string => {
+  switch (option) {
+    case ShareOption.TOTAL_APR:
+      return i18n._('Total APR');
+    case ShareOption.LM_APR:
+      return i18n._('Liquidity Mining APR');
+    case ShareOption.EG_APR:
+      return i18n._('EG Sharing APR');
+    case ShareOption.TOTAL_EARNINGS:
+      return i18n._('Total Earnings');
+    case ShareOption.TOTAL_REWARD:
+      return i18n._('Total Rewards');
+    case ShareOption.LM_REWARD:
+      return i18n._('Liquidity Mining rewards');
+    case ShareOption.EG_REWARD:
+      return i18n._('EG Sharing rewards');
+    default:
+      return option;
+  }
 };
 
 export const isSafari = () => /^((?!chrome|android).)*safari/i.test(navigator.userAgent);

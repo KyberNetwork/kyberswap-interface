@@ -1,6 +1,8 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import {
   OnSuccessProps,
+  SupportedLocale,
+  TxStatus,
   LiquidityWidget as ZapIn,
   ChainId as ZapInChainId,
   PoolType as ZapInPoolType,
@@ -13,6 +15,7 @@ import { NotificationType } from 'components/Announcement/type'
 import Modal from 'components/Modal'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useActiveLocale } from 'hooks/useActiveLocale'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
@@ -24,6 +27,8 @@ import { getDexVersion } from 'pages/Earns/utils/position'
 import { updateUnfinalizedPosition } from 'pages/Earns/utils/unfinalizedPosition'
 import { navigateToPositionAfterZap } from 'pages/Earns/utils/zap'
 import { useKyberSwapConfig, useNotify, useWalletModalToggle } from 'state/application/hooks'
+import { useAllTransactions, useTransactionAdder } from 'state/transactions/hooks'
+import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { getCookieValue } from 'utils'
 
 interface AddLiquidityPureParams {
@@ -41,6 +46,7 @@ interface AddLiquidityParams extends AddLiquidityPureParams {
     address?: string | undefined
     chainId: number
   }
+  locale?: SupportedLocale
   onClose: () => void
   onConnectWallet: () => void
   onSwitchChain: () => void
@@ -97,6 +103,9 @@ const useZapInWidget = ({
   triggerClose?: boolean
   setTriggerClose?: (value: boolean) => void
 }) => {
+  const locale = useActiveLocale()
+  const addTransactionWithType = useTransactionAdder()
+  const allTransactions = useAllTransactions()
   const toggleWalletModal = useWalletModalToggle()
   const notify = useNotify()
   const navigate = useNavigate()
@@ -107,7 +116,20 @@ const useZapInWidget = ({
   const [searchParams, setSearchParams] = useSearchParams()
 
   const [addLiquidityPureParams, setAddLiquidityPureParams] = useState<AddLiquidityPureParams | null>(null)
+  const [zapTxHash, setZapTxHash] = useState<string[]>([])
   const { rpc: zapInRpcUrl } = useKyberSwapConfig(addLiquidityPureParams?.chainId as ChainId | undefined)
+
+  const zapStatus = useMemo(() => {
+    if (!allTransactions || !zapTxHash.length) return {}
+
+    return zapTxHash.reduce((acc: Record<string, TxStatus>, txHash) => {
+      const zapTx = allTransactions[txHash]
+      if (zapTx?.[0].receipt) {
+        acc[txHash as keyof typeof acc] = zapTx?.[0].receipt.status === 1 ? TxStatus.SUCCESS : TxStatus.FAILED
+      } else acc[txHash as keyof typeof acc] = TxStatus.PENDING
+      return acc
+    }, {})
+  }, [allTransactions, zapTxHash])
 
   const handleCloseZapInWidget = useCallback(() => {
     searchParams.delete('exchange')
@@ -115,6 +137,7 @@ const useZapInWidget = ({
     searchParams.delete('poolAddress')
     setSearchParams(searchParams)
     setAddLiquidityPureParams(null)
+    setZapTxHash([])
   }, [searchParams, setSearchParams])
 
   const handleNavigateToPosition = useCallback(
@@ -158,15 +181,8 @@ const useZapInWidget = ({
     ) => {
       if (!addLiquidityPureParams) return
 
-      const dexIndex = Object.values(zapInDexMapping).findIndex(
-        (item, index) =>
-          item === addLiquidityPureParams.poolType && EARN_DEXES[Object.keys(zapInDexMapping)[index] as Exchange],
-      )
-      if (dexIndex === -1) {
-        console.error('Cannot find dex')
-        return
-      }
-      const dex = Object.keys(zapInDexMapping)[dexIndex] as Exchange
+      const dex = getDexFromPoolType(addLiquidityPureParams.poolType)
+      if (!dex) return
 
       onOpenZapMigration({
         from: {
@@ -195,6 +211,8 @@ const useZapInWidget = ({
             source: 'kyberswap-earn',
             rpcUrl: zapInRpcUrl,
             referral: refCode,
+            zapStatus,
+            locale,
             onViewPosition: (txHash: string) => {
               const { chainId, poolType, poolAddress } = addLiquidityPureParams
               handleCloseZapInWidget()
@@ -281,12 +299,37 @@ const useZapInWidget = ({
                 isValueUpdating: !!data.position.positionId,
               })
             },
-            onSubmitTx: async (txData: { from: string; to: string; data: string; value: string; gasLimit: string }) => {
+            onSubmitTx: async (
+              txData: { from: string; to: string; data: string; value: string; gasLimit: string },
+              additionalInfo?: {
+                tokensIn: Array<{ symbol: string; amount: string; logoUrl?: string }>
+                pool: string
+                dexLogo: string
+              },
+            ) => {
               const res = await submitTransaction({ library, txData })
               const { txHash, error } = res
 
               if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
 
+              const dex = getDexFromPoolType(addLiquidityPureParams.poolType)
+              if (additionalInfo && dex) {
+                addTransactionWithType({
+                  hash: txHash,
+                  type: addLiquidityPureParams.positionId
+                    ? TRANSACTION_TYPE.EARN_INCREASE_LIQUIDITY
+                    : TRANSACTION_TYPE.EARN_ADD_LIQUIDITY,
+                  extraInfo: {
+                    pool: additionalInfo?.pool || '',
+                    positionId: addLiquidityPureParams.positionId || '',
+                    tokensIn: additionalInfo?.tokensIn || [],
+                    dexLogoUrl: additionalInfo?.dexLogo,
+                    dex,
+                  },
+                })
+              }
+
+              setZapTxHash(prev => [...prev, txHash])
               return txHash
             },
           }
@@ -295,15 +338,18 @@ const useZapInWidget = ({
       addLiquidityPureParams,
       zapInRpcUrl,
       refCode,
+      zapStatus,
       account,
       chainId,
       toggleWalletModal,
       handleOpenZapMigration,
       handleCloseZapInWidget,
       handleNavigateToPosition,
+      onRefreshPosition,
       changeNetwork,
       library,
-      onRefreshPosition,
+      addTransactionWithType,
+      locale,
     ],
   )
 

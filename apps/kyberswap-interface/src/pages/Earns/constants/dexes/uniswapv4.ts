@@ -1,10 +1,12 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
+import uniswapLogo from 'assets/dexes/uniswap.svg'
 import Univ4NftManagerABI from 'constants/abis/earn/uniswapv4NftManagerContract.json'
 import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 
 export default {
   name: 'Uniswap V4',
+  logo: uniswapLogo,
   nftManagerContract: {
     [ChainId.MAINNET]: '0xbd216513d74c8cf14cf4747e6aaa6420ff64ee9e',
     [ChainId.BSCMAINNET]: '0x7a4a5c919ae2541aed11041a1aeee68f1287f95b',

@@ -1,3 +1,5 @@
+import { Trans, t } from '@lingui/macro';
+
 import { ZapRouteDetail } from '@kyber/schema';
 import { PI_LEVEL } from '@kyber/utils';
 
@@ -27,8 +29,8 @@ export default function Warning({
           }}
         >
           {slippage > zapInfo.zapDetails.suggestedSlippage * 2
-            ? 'Your slippage is set higher than usual, which may cause unexpected losses.'
-            : 'Your slippage is set lower than usual, increasing the risk of transaction failure.'}
+            ? t`Your slippage is set higher than usual, which may cause unexpected losses.`
+            : t`Your slippage is set lower than usual, increasing the risk of transaction failure.`}
         </div>
       )}
 
@@ -43,8 +45,10 @@ export default function Warning({
         </div>
       )}
       <p className="text-[#737373] italic text-xs mt-4">
-        The information is intended solely for your reference at the time you are viewing. It is your responsibility to
-        verify all information before making decisions
+        <Trans>
+          The information is intended solely for your reference at the time you are viewing. It is your responsibility
+          to verify all information before making decisions
+        </Trans>
       </p>
     </>
   );

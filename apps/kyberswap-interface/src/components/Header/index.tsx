@@ -42,7 +42,6 @@ const HeaderFrame = styled.div<{ hide?: boolean }>`
     padding: ${hide ? 0 : '1rem'};
     width: calc(100%);
     position: relative;
-    
   `};
 
   ${({ theme, hide }) => theme.mediaWidth.upToExtraSmall`
@@ -212,7 +211,11 @@ export default function Header() {
             <SwapNavGroup />
             <EarnNavGroup />
 
-            {!upToExtraSmall && <StyledNavLink to={`${APP_PATHS.MARKET_OVERVIEW}`}>Market</StyledNavLink>}
+            {!upToExtraSmall && (
+              <StyledNavLink to={`${APP_PATHS.MARKET_OVERVIEW}`}>
+                <Trans>Market</Trans>
+              </StyledNavLink>
+            )}
             <CampaignNavGroup />
             <KyberDAONavGroup />
             {!upToMedium && (

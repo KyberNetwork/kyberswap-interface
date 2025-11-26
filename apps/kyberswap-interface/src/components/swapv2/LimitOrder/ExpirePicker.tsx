@@ -4,12 +4,12 @@ import { rgba } from 'polished'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Calendar, X } from 'react-feather'
 import { Flex, Text } from 'rebass'
-import styled, { CSSProperties } from 'styled-components'
+import styled from 'styled-components'
 
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import DatePicker from 'components/DatePicker'
 import Modal from 'components/Modal'
-import Select from 'components/Select'
+import Select, { SelectProps } from 'components/Select'
 import useTheme from 'hooks/useTheme'
 
 import { MIN_TIME_MINUTES, getExpireOptions } from './const'
@@ -128,14 +128,14 @@ export default function DateTimePicker({
   }
   const theme = useTheme()
 
-  const propsSelect = {
-    style: { width: 120, borderRadius: 20, background: theme.background } as CSSProperties,
+  const propsSelect: Partial<SelectProps> = {
+    style: { width: 120, borderRadius: 20, background: theme.background },
     menuStyle: {
       height: 250,
       overflow: 'scroll',
       textAlign: 'center',
       width: 'fit-content',
-    } as CSSProperties,
+    },
     placement: 'left',
   }
 

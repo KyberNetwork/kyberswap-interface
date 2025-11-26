@@ -1,3 +1,4 @@
+import { t } from '@lingui/macro'
 import { CSSProperties, ReactNode, useRef, useState } from 'react'
 import styled from 'styled-components'
 
@@ -86,7 +87,7 @@ export default function ExpandableBox({
           backgroundColor: backgroundColor || 'black',
         }}
       >
-        {headerContent || 'Header'} <DropdownSVG style={{ transform: isExpanded ? 'rotate(180deg)' : undefined }} />
+        {headerContent || t`Header`} <DropdownSVG style={{ transform: isExpanded ? 'rotate(180deg)' : undefined }} />
       </Header>
 
       <Content ref={contentRef} $expanded={isExpanded} $height={contentHeight}>

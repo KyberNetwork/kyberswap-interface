@@ -7,7 +7,6 @@ import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import { ReactComponent as FarmingLmIcon } from 'assets/svg/kyber/kemLm.svg'
 import Modal from 'components/Modal'
 import TokenLogo from 'components/TokenLogo'
-import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
 import {
   Apr,
@@ -21,6 +20,7 @@ import {
   MobileTableRow,
   SymbolText,
 } from 'pages/Earns/PoolExplorer/styles'
+import AprDetailTooltip from 'pages/Earns/components/AprDetailTooltip'
 import { EarnPool, ParsedPosition, ProgramType, SuggestedPool } from 'pages/Earns/types'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -45,7 +45,7 @@ export default function MigrationModal({
         <ContentWrapper>
           {!upToSmall && (
             <MigrateTableHeader>
-              <Text>Pair</Text>
+              <Text>{t`Pair`}</Text>
               <Text>{t`APR`}</Text>
               <Flex justifyContent="flex-end">{t`Earn Fees`}</Flex>
               <Flex justifyContent="flex-end">{t`TVL`}</Flex>
@@ -88,25 +88,13 @@ export default function MigrationModal({
                     <Apr value={pool.apr}>
                       {formatAprNumber(pool.apr)}%{' '}
                       {isFarming ? (
-                        <MouseoverTooltipDesktopOnly
-                          placement="bottom"
-                          width="max-content"
-                          text={
-                            <div>
-                              {t`LP Fee`}: {formatAprNumber(pool.apr)}%
-                              <br />
-                              {t`EG Sharing Reward`}: {formatAprNumber(pool.kemEGApr || 0)}%
-                              <br />
-                              {t`LM Reward`}: {formatAprNumber(pool.kemLMApr || 0)}%
-                            </div>
-                          }
-                        >
+                        <AprDetailTooltip feeApr={pool.apr} egApr={pool.kemEGApr || 0} lmApr={pool.kemLMApr || 0}>
                           {isFarmingLm ? (
                             <FarmingLmIcon width={20} height={20} />
                           ) : (
                             <FarmingIcon width={20} height={20} />
                           )}
-                        </MouseoverTooltipDesktopOnly>
+                        </AprDetailTooltip>
                       ) : null}
                     </Apr>
                     <Flex justifyContent="flex-end">
@@ -157,39 +145,27 @@ export default function MigrationModal({
                       <Flex alignItems="center" sx={{ gap: '2px' }}>
                         <Apr value={pool.apr}>{formatAprNumber(pool.apr)}%</Apr>
                         {isFarming ? (
-                          <MouseoverTooltipDesktopOnly
-                            placement="bottom"
-                            width="max-content"
-                            text={
-                              <div>
-                                {t`LP Fee`}: {formatAprNumber(pool.apr)}%
-                                <br />
-                                {t`EG Sharing Reward`}: {formatAprNumber(pool.kemEGApr || 0)}%
-                                <br />
-                                {t`LM Reward`}: {formatAprNumber(pool.kemLMApr || 0)}%
-                              </div>
-                            }
-                          >
+                          <AprDetailTooltip feeApr={pool.apr} egApr={pool.kemEGApr || 0} lmApr={pool.kemLMApr || 0}>
                             {isFarmingLm ? (
                               <FarmingLmIcon width={20} height={20} />
                             ) : (
                               <FarmingIcon width={20} height={20} />
                             )}
-                          </MouseoverTooltipDesktopOnly>
+                          </AprDetailTooltip>
                         ) : null}
                       </Flex>
                     </Flex>
                     <MobileTableBottomRow withoutBorder={index === farmingPools.length - 1}>
                       <Flex justifyContent="space-between" sx={{ gap: 1 }}>
-                        <Text color={theme.subText}>Earn Fees</Text>
+                        <Text color={theme.subText}>{t`Earn Fees`}</Text>
                         <Text>{formatDisplayNumber(pool.earnFee, { style: 'currency', significantDigits: 6 })}</Text>
                       </Flex>
                       <Flex justifyContent="space-between" sx={{ gap: 1 }}>
-                        <Text color={theme.subText}>TVL</Text>
+                        <Text color={theme.subText}>{t`TVL`}</Text>
                         <Text>{formatDisplayNumber(pool.tvl, { style: 'currency', significantDigits: 6 })}</Text>
                       </Flex>
                       <Flex justifyContent="space-between" sx={{ gap: 1 }}>
-                        <Text color={theme.subText}>Volume</Text>
+                        <Text color={theme.subText}>{t`Volume`}</Text>
                         <Text>{formatDisplayNumber(pool.volume, { style: 'currency', significantDigits: 6 })}</Text>
                       </Flex>
                     </MobileTableBottomRow>

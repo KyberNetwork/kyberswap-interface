@@ -1,5 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
+import sonicIcon from 'assets/networks/sonic.svg'
 import { NetworkInfo } from 'constants/networks/type'
 
 const EMPTY_ARRAY: any[] = []
@@ -12,7 +13,7 @@ const sonic: NetworkInfo = {
   priceRoute: 'sonic',
   aggregatorRoute: 'sonic',
   name: 'Sonic',
-  icon: 'https://www.soniclabs.com/favicon.ico',
+  icon: sonicIcon,
 
   iconSelected: NOT_SUPPORT,
 
@@ -22,7 +23,7 @@ const sonic: NetworkInfo = {
   nativeToken: {
     symbol: 'S',
     name: 'S',
-    logo: 'https://www.soniclabs.com/favicon.ico',
+    logo: sonicIcon,
     decimal: 18,
   },
   defaultRpcUrl: 'https://rpc.soniclabs.com',

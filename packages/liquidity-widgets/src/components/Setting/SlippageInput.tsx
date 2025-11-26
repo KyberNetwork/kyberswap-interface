@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 
+import { Trans, t } from '@lingui/macro';
+
 import { MouseoverTooltip } from '@kyber/ui';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
@@ -122,7 +124,7 @@ const SlippageInput = ({
               inputClassName,
             )}
             data-active={slippage && ![5, 10, 50, 100].includes(slippage)}
-            placeholder="Custom"
+            placeholder={t`Custom`}
             onFocus={onCustomSlippageFocus}
             onBlur={onCustomSlippageBlur}
             value={v}
@@ -144,8 +146,10 @@ const SlippageInput = ({
             }
           }}
         >
-          <MouseoverTooltip text="Dynamic entry based on trading pair." width="fit-content" placement="bottom">
-            <span className="border-b border-dotted border-primary">Suggestion</span>
+          <MouseoverTooltip text={t`Dynamic entry based on trading pair.`} width="fit-content" placement="bottom">
+            <span className="border-b border-dotted border-primary">
+              <Trans>Suggestion</Trans>
+            </span>
           </MouseoverTooltip>
           <span>{((suggestedSlippage * 100) / 10_000).toFixed(2)}%</span>
         </div>

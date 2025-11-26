@@ -1,0 +1,308 @@
+msgid ""
+msgstr ""
+"Language: en-US\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Content-Type: \n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#: src/Widget.tsx
+msgid "Position #{positionId}"
+msgstr "Position #{positionId}"
+
+#: src/components/Setting/index.tsx
+msgid "Please type the word <0>Confirm</0> below to enable Degen Mode"
+msgstr "Please type the word <0>Confirm</0> below to enable Degen Mode"
+
+#: src/Widget.tsx
+msgid "Compound Completed"
+msgstr "Compound Completed"
+
+#: src/components/Content/EstLiqValue.tsx
+msgid "Zap Impact"
+msgstr "Zap Impact"
+
+#: src/components/Action/index.tsx
+msgid "Approve NFT"
+msgstr "Approve NFT"
+
+#: src/components/Header/index.tsx
+msgid "● In range"
+msgstr "● In range"
+
+#: src/components/Setting/index.tsx
+msgid "No, Go back"
+msgstr "No, Go back"
+
+#: src/Widget.tsx
+msgid "Waiting For Confirmation"
+msgstr "Waiting For Confirmation"
+
+#: src/Widget.tsx
+msgid "It may take a few minutes to proceed."
+msgstr "It may take a few minutes to proceed."
+
+#: src/components/Content/EstLiqValue.tsx
+msgid "Est. Liquidity Value"
+msgstr "Est. Liquidity Value"
+
+#: src/components/Action/index.tsx
+msgid "Loading{0}"
+msgstr "Loading{0}"
+
+#: src/components/Setting/index.tsx
+msgid "Degen Mode"
+msgstr "Degen Mode"
+
+#: src/components/Setting/index.tsx
+msgid "mins"
+msgstr "mins"
+
+#: src/components/Setting/index.tsx
+msgid "Transaction Time Limit"
+msgstr "Transaction Time Limit"
+
+#: src/components/Content/EstLiqValue.tsx
+#: src/components/Content/EstLiqValue.tsx
+msgid "Est. Pooled"
+msgstr "Est. Pooled"
+
+#: src/components/Setting/index.tsx
+msgid "Are you sure?"
+msgstr "Are you sure?"
+
+#: src/components/Action/index.tsx
+#: src/components/Setting/index.tsx
+msgid "Confirm"
+msgstr "Confirm"
+
+#: src/components/PriceRange/index.tsx
+#: src/components/PriceRange/index.tsx
+msgid "{0} per {1}"
+msgstr "{0} per {1}"
+
+#: src/components/PriceRange/index.tsx
+msgid "Your Position Price Ranges"
+msgstr "Your Position Price Ranges"
+
+#: src/components/Setting/SlippageInput.tsx
+msgid "Custom"
+msgstr "Custom"
+
+#: src/Widget.tsx
+msgid "An error occurred during the liquidity migration."
+msgstr "An error occurred during the liquidity migration."
+
+#: src/components/Setting/index.tsx
+#: src/components/Setting/index.tsx
+msgid "Turn this on to make trades with very high price impact or to set very high slippage tolerance. This can result in bad rates and loss of funds. Be cautious."
+msgstr "Turn this on to make trades with very high price impact or to set very high slippage tolerance. This can result in bad rates and loss of funds. Be cautious."
+
+#: src/components/Setting/index.tsx
+msgid "Transaction will revert if it is pending for longer than the indicated time."
+msgstr "Transaction will revert if it is pending for longer than the indicated time."
+
+#: src/components/Content/PriceInfo.tsx
+msgid "Current price"
+msgstr "Current price"
+
+#: src/components/PriceRange/index.tsx
+msgid "Max Price"
+msgstr "Max Price"
+
+#: src/Widget.tsx
+msgid "You have successfully added liquidity!"
+msgstr "You have successfully added liquidity!"
+
+#: src/components/Content/EstLiqValue.tsx
+msgid "Based on your price range settings, a portion of your liquidity will be automatically zapped into the pool, while the remaining amount will stay in your wallet."
+msgstr "Based on your price range settings, a portion of your liquidity will be automatically zapped into the pool, while the remaining amount will stay in your wallet."
+
+#: src/components/Content/ZapSummary.tsx
+msgid "and"
+msgstr "and"
+
+#: src/hooks/useZapState.tsx
+msgid "useZapState must be used within a ZapContextProvider"
+msgstr "useZapState must be used within a ZapContextProvider"
+
+#: src/Widget.tsx
+msgid "View transaction ↗"
+msgstr "View transaction ↗"
+
+#: src/components/Content/EstLiqValue.tsx
+msgid "Zap Fee"
+msgstr "Zap Fee"
+
+#: src/Widget.tsx
+msgid "Processing transaction"
+msgstr "Processing transaction"
+
+#: src/components/Header/index.tsx
+msgid "● Out of range"
+msgstr "● Out of range"
+
+#: src/components/ReInvest/index.tsx
+msgid "Your Earning to Reinvest"
+msgstr "Your Earning to Reinvest"
+
+#: src/components/Header/index.tsx
+msgid "Fee {fee}%"
+msgstr "Fee {fee}%"
+
+#: src/components/Content/ZapSummary.tsx
+msgid "Swap {0} {1} for {2} {3} via <0>{4}</0>"
+msgstr "Swap {0} {1} for {2} {3} via <0>{4}</0>"
+
+#: src/components/Setting/utils.ts
+#: src/components/Setting/utils.ts
+#: src/components/Setting/utils.ts
+msgid "Enter a valid slippage percentage"
+msgstr "Enter a valid slippage percentage"
+
+#: src/components/Action/index.tsx
+msgid "Your position is in farming"
+msgstr "Your position is in farming"
+
+#: src/constants/index.ts
+msgid "Connect wallet"
+msgstr "Connect wallet"
+
+#: src/components/Action/index.tsx
+msgid "To ensure you dont lose funds due to very high price impact, swap has been disabled for this trade. If you still wish to continue, you can turn on Degen Mode from Settings."
+msgstr "To ensure you dont lose funds due to very high price impact, swap has been disabled for this trade. If you still wish to continue, you can turn on Degen Mode from Settings."
+
+#: src/constants/index.ts
+msgid "Switch network"
+msgstr "Switch network"
+
+#: src/components/Action/index.tsx
+msgid "Cancel"
+msgstr "Cancel"
+
+#: src/components/Action/index.tsx
+msgid "Zap anyway"
+msgstr "Zap anyway"
+
+#: src/components/Content/ZapSummary.tsx
+msgid "Zap {0} {symbol0} and {1} {symbol1} into <0>{dexName}</0> in the selected fee pool."
+msgstr "Zap {0} {symbol0} and {1} {symbol1} into <0>{dexName}</0> in the selected fee pool."
+
+#: src/components/Action/index.tsx
+msgid "Not the position owner"
+msgstr "Not the position owner"
+
+#: src/components/Action/index.tsx
+msgid "Fetching Route{0}"
+msgstr "Fetching Route{0}"
+
+#: src/components/PriceRange/index.tsx
+msgid "Min Price"
+msgstr "Min Price"
+
+#: src/components/Content/ZapSummary.tsx
+msgid "Collect {0} from <0>{dexName}</0> via <1>KyberSwap</1>"
+msgstr "Collect {0} from <0>{dexName}</0> via <1>KyberSwap</1>"
+
+#: src/components/Header/index.tsx
+msgid "Degen Mode is turned on!"
+msgstr "Degen Mode is turned on!"
+
+#: src/components/Content/EstLiqValue.tsx
+msgid "{0}% remains unused and will be returned to your wallet. Refresh or change your amount to get updated routes."
+msgstr "{0}% remains unused and will be returned to your wallet. Refresh or change your amount to get updated routes."
+
+#: src/components/Content/PriceInfo.tsx
+msgid "Unable to get the market price. Please be cautious!"
+msgstr "Unable to get the market price. Please be cautious!"
+
+#: src/components/Setting/utils.ts
+#: src/components/SlippageWarning/index.tsx
+msgid "Your slippage is set lower than usual, increasing the risk of transaction failure."
+msgstr "Your slippage is set lower than usual, increasing the risk of transaction failure."
+
+#: src/components/Setting/index.tsx
+msgid "Slippage Tolerance"
+msgstr "Slippage Tolerance"
+
+#: src/components/Header/index.tsx
+msgid "Compounding"
+msgstr "Compounding"
+
+#: src/components/Content/EstLiqValue.tsx
+msgid "The difference between input and estimated liquidity received (including remaining amount). Be careful with high value!"
+msgstr "The difference between input and estimated liquidity received (including remaining amount). Be careful with high value!"
+
+#: src/hooks/useZapState.tsx
+#: src/hooks/useZapState.tsx
+msgid "Something went wrong"
+msgstr "Something went wrong"
+
+#: src/components/Setting/index.tsx
+msgid "Advanced Setting"
+msgstr "Advanced Setting"
+
+#: src/components/Content/EstLiqValue.tsx
+msgid "Est. Remaining Value"
+msgstr "Est. Remaining Value"
+
+#: src/components/Action/index.tsx
+msgid "You have turned on Degen Mode from settings. Trades with very high price impact can be executed"
+msgstr "You have turned on Degen Mode from settings. Trades with very high price impact can be executed"
+
+#: src/Widget.tsx
+msgid "View position"
+msgstr "View position"
+
+#: src/components/Content/EstLiqValue.tsx
+msgid "Fees charged for automatically zapping into a liquidity pool. You still have to pay the standard gas fees. <0>More details.</0>"
+msgstr "Fees charged for automatically zapping into a liquidity pool. You still have to pay the standard gas fees. <0>More details.</0>"
+
+#: src/components/Setting/index.tsx
+#: src/components/SlippageWarning/index.tsx
+msgid "Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price. Please use with caution!"
+msgstr "Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price. Please use with caution!"
+
+#: src/components/Content/ZapSummary.tsx
+msgid "Compound Summary"
+msgstr "Compound Summary"
+
+#: src/Widget.tsx
+#: src/Widget.tsx
+msgid "Transaction failed"
+msgstr "Transaction failed"
+
+#: src/components/Setting/utils.ts
+#: src/components/SlippageWarning/index.tsx
+msgid "Your slippage is set higher than usual, which may cause unexpected losses."
+msgstr "Your slippage is set higher than usual, which may cause unexpected losses."
+
+#: src/components/SlippageWarning/index.tsx
+msgid "Max Slippage"
+msgstr "Max Slippage"
+
+#: src/components/PositionLiquidity/index.tsx
+msgid "Your Current Position Liquidity"
+msgstr "Your Current Position Liquidity"
+
+#: src/Widget.tsx
+msgid "Confirm this transaction in your wallet - Zapping {0}"
+msgstr "Confirm this transaction in your wallet - Zapping {0}"
+
+#: src/components/Action/index.tsx
+msgid "Approving{0}"
+msgstr "Approving{0}"
+
+#: src/components/Setting/utils.ts
+msgid "Enter a smaller slippage percentage"
+msgstr "Enter a smaller slippage percentage"
+
+#: src/Widget.tsx
+#: src/Widget.tsx
+msgid "Close"
+msgstr "Close"

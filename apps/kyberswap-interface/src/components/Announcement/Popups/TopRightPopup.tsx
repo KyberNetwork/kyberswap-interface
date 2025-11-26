@@ -13,6 +13,7 @@ import {
   PopupItemType,
   PopupType,
 } from 'components/Announcement/type'
+import { useSuccessSound } from 'hooks/useSuccessSound'
 import useTheme from 'hooks/useTheme'
 import { useRemovePopup } from 'state/application/hooks'
 
@@ -128,10 +129,12 @@ const Overlay = styled.div`
 
 export default function PopupItem({ popup, hasOverlay }: { popup: PopupItemType; hasOverlay: boolean }) {
   const { removeAfterMs, popupType, content } = popup
+  const playSuccessSound = useSuccessSound()
 
   const [isRestartAnimation, setRestartAnimation] = useState(false)
   const removePopup = useRemovePopup()
   const removeThisPopup = useCallback(() => removePopup(popup), [popup, removePopup])
+
   useEffect(() => {
     if (removeAfterMs === null) return
     const timeout = setTimeout(() => {
@@ -148,7 +151,15 @@ export default function PopupItem({ popup, hasOverlay }: { popup: PopupItemType;
   const theme = useTheme()
 
   let notiType = NotificationType.SUCCESS
-  let popupContent
+  let popupContent: React.ReactNode | null = null
+
+  useEffect(() => {
+    // Play sound when a success notification appears
+    if (popupType === PopupType.TRANSACTION && (content as PopupContentTxn).type === NotificationType.SUCCESS) {
+      playSuccessSound()
+    }
+  }, [content, popupType, playSuccessSound, notiType])
+
   switch (popupType) {
     case PopupType.SIMPLE: {
       const { type = NotificationType.ERROR } = content as PopupContentSimple
@@ -170,7 +181,9 @@ export default function PopupItem({ popup, hasOverlay }: { popup: PopupItemType;
       break
     }
   }
+
   if (!popupContent) return null
+
   return isRestartAnimation ? (
     <div />
   ) : (

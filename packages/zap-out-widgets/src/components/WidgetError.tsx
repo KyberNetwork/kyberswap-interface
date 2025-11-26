@@ -1,4 +1,6 @@
-import { StatusDialog, StatusDialogType } from '@kyber/ui';
+import { t } from '@lingui/macro';
+
+import { StatusDialog, StatusDialogType, translateFriendlyErrorMessage } from '@kyber/ui';
 
 import { useZapOutContext } from '@/stores';
 import { useZapOutUserState } from '@/stores/state';
@@ -26,12 +28,12 @@ export default function WidgetError() {
       className="z-[1003]"
       overlayClassName="z-[1003]"
       type={StatusDialogType.ERROR}
-      title={errorMsg ? 'Failed to load pool' : widgetError ? 'Failed to build zap route' : ''}
-      description={errorMsg || widgetError}
+      title={errorMsg ? t`Failed to load pool` : widgetError ? t`Failed to build zap route` : ''}
+      description={translateFriendlyErrorMessage(errorMsg || widgetError)}
       onClose={onCloseErrorDialog}
       action={
         <button className="ks-outline-btn flex-1" onClick={onCloseErrorDialog}>
-          {errorMsg ? 'Close' : 'Close & Refresh'}
+          {errorMsg ? t`Close` : t`Close & Refresh`}
         </button>
       }
     />

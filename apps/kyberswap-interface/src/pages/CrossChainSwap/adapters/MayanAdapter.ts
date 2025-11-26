@@ -1,14 +1,31 @@
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
-import { ChainName, Quote as MayanQuote, addresses, fetchQuote, getSwapFromEvmTxPayload } from '@mayanfinance/swap-sdk'
+import {
+  ChainName,
+  Quote as MayanQuote,
+  type SolanaTransactionSigner,
+  addresses,
+  fetchQuote,
+  getSwapFromEvmTxPayload,
+  swapFromSolana,
+} from '@mayanfinance/swap-sdk'
+import { WalletAdapterProps } from '@solana/wallet-adapter-base'
+import { Connection } from '@solana/web3.js'
 import { WalletClient, formatUnits, parseUnits } from 'viem'
 
-import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
+import {
+  CROSS_CHAIN_FEE_RECEIVER,
+  CROSS_CHAIN_FEE_RECEIVER_SOLANA,
+  CROSS_CHAIN_FEE_RECEIVER_SUI,
+  ZERO_ADDRESS,
+} from 'constants/index'
+import { SolanaToken } from 'state/crossChainSwap'
 
 import { Quote } from '../registry'
 import {
   BaseSwapAdapter,
   Chain,
   EvmQuoteParams,
+  NonEvmChain,
   NormalizedQuote,
   NormalizedTxResponse,
   SwapStatus,
@@ -23,6 +40,11 @@ const mappingChain: Record<string, ChainName> = {
   [ChainId.OPTIMISM]: 'optimism',
   [ChainId.BASE]: 'base',
   [ChainId.LINEA]: 'linea',
+  [NonEvmChain.Solana]: 'solana',
+}
+
+function hasSolanaSigner(x: unknown): x is { signTransaction: SolanaTransactionSigner } {
+  return typeof x === 'object' && x !== null && typeof (x as any).signTransaction === 'function'
 }
 
 export class MayanAdapter extends BaseSwapAdapter {
@@ -37,7 +59,7 @@ export class MayanAdapter extends BaseSwapAdapter {
     return 'https://swap.mayan.finance/favicon.ico'
   }
   getSupportedChains(): Chain[] {
-    return [...Object.keys(mappingChain).map(Number)]
+    return [...Object.keys(mappingChain).map(Number), NonEvmChain.Solana]
   }
 
   getSupportedTokens(_sourceChain: Chain, _destChain: Chain): Currency[] {
@@ -47,12 +69,22 @@ export class MayanAdapter extends BaseSwapAdapter {
   async getQuote(params: EvmQuoteParams): Promise<NormalizedQuote> {
     const quotes = await fetchQuote({
       amount: +formatUnits(BigInt(params.amount), params.fromToken.decimals),
-      fromToken: params.fromToken.isNative ? ZERO_ADDRESS : params.fromToken.wrapped.address,
-      toToken: params.toToken.isNative ? ZERO_ADDRESS : params.toToken.wrapped.address,
+      fromToken:
+        params.fromChain === 'solana'
+          ? (params.fromToken as unknown as SolanaToken).id
+          : (params.fromToken as any).isNative
+          ? ZERO_ADDRESS
+          : (params.fromToken as any).wrapped.address,
+      toToken:
+        params.toChain === 'solana'
+          ? (params.toToken as unknown as SolanaToken).id
+          : (params.toToken as any).isNative
+          ? ZERO_ADDRESS
+          : (params.toToken as any).wrapped.address,
       fromChain: mappingChain[params.fromChain],
       toChain: mappingChain[params.toChain],
       slippageBps: params.slippage,
-      referrer: CROSS_CHAIN_FEE_RECEIVER,
+      referrer: CROSS_CHAIN_FEE_RECEIVER_SOLANA, // only for identifying where the quote request originated from
       referrerBps: params.feeBps,
     })
     if (!quotes?.[0]) {
@@ -62,7 +94,7 @@ export class MayanAdapter extends BaseSwapAdapter {
     const formattedInputAmount = formatUnits(BigInt(params.amount), params.fromToken.decimals)
 
     const tokenInUsd = params.tokenInUsd
-    const tokenOutUsd = params.tokenOutUsd
+    const tokenOutUsd = params.tokenOutUsd || (quotes[0] as any).toTokenPrice
     const inputUsd = tokenInUsd * +formattedInputAmount
     const outputUsd = tokenOutUsd * quotes[0].expectedAmountOut
 
@@ -88,7 +120,91 @@ export class MayanAdapter extends BaseSwapAdapter {
     }
   }
 
-  async executeSwap({ quote }: Quote, walletClient: WalletClient): Promise<NormalizedTxResponse> {
+  async executeSwap(
+    { quote }: Quote,
+    walletClient: WalletClient,
+    _nearWalletClient?: any,
+    _sendBtcFn?: (params: { recipient: string; amount: string | number }) => Promise<string>,
+    _sendTransaction?: WalletAdapterProps['sendTransaction'],
+    connection?: Connection,
+  ): Promise<NormalizedTxResponse> {
+    if (quote.quoteParams.fromChain === NonEvmChain.Solana) {
+      if (!connection) throw new Error('Connection is not defined for Solana swap')
+
+      if (!hasSolanaSigner(walletClient)) throw new Error('Wallet does not support signTransaction')
+      const { signTransaction } = walletClient
+
+      const swapRes = await swapFromSolana(
+        quote.rawQuote,
+        quote.quoteParams.sender,
+        quote.quoteParams.recipient,
+        {
+          evm: CROSS_CHAIN_FEE_RECEIVER,
+          solana: CROSS_CHAIN_FEE_RECEIVER_SOLANA,
+          sui: CROSS_CHAIN_FEE_RECEIVER_SUI,
+        },
+        signTransaction,
+        connection,
+        [],
+        { skipPreflight: true },
+      )
+      if (!swapRes.signature) {
+        throw new Error('Failed to send transaction to Solana')
+      }
+
+      const signature = swapRes.signature
+
+      try {
+        const latestBlockhash = await connection.getLatestBlockhash()
+
+        // Wait for confirmation with timeout
+        const confirmation = await Promise.race([
+          connection.confirmTransaction(
+            {
+              signature,
+              blockhash: latestBlockhash.blockhash,
+              lastValidBlockHeight: latestBlockhash.lastValidBlockHeight,
+            },
+            'confirmed',
+          ),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Transaction confirmation timeout')), 60000)),
+        ])
+
+        const confirmationResult = confirmation as { value: { err: any } }
+        if (confirmationResult.value.err) {
+          throw new Error(`Transaction failed: ${JSON.stringify(confirmationResult.value.err)}`)
+        }
+
+        console.log('Transaction confirmed successfully!')
+      } catch (confirmError) {
+        console.error('Transaction confirmation failed:', confirmError)
+
+        // Check if transaction actually succeeded despite timeout
+        const txStatus = await connection.getSignatureStatus(signature)
+        if (txStatus?.value?.confirmationStatus !== 'confirmed') {
+          throw new Error(`Transaction was not confirmed: ${confirmError.message}`)
+        }
+      }
+
+      return {
+        sender: quote.quoteParams.sender,
+        id: signature,
+        sourceTxHash: signature,
+        adapter: this.getName(),
+        sourceChain: quote.quoteParams.fromChain,
+        targetChain: quote.quoteParams.toChain,
+        inputAmount: quote.quoteParams.amount,
+        outputAmount: quote.outputAmount.toString(),
+        sourceToken: quote.quoteParams.fromToken,
+        targetToken: quote.quoteParams.toToken,
+        timestamp: new Date().getTime(),
+        amountInUsd: quote.inputUsd,
+        amountOutUsd: quote.outputUsd,
+        platformFeePercent: quote.platformFeePercent,
+        recipient: quote.quoteParams.recipient,
+      }
+    }
+
     const account = walletClient.account?.address
     if (!account) throw new Error('WalletClient account is not defined')
 
@@ -96,7 +212,11 @@ export class MayanAdapter extends BaseSwapAdapter {
       quote.rawQuote as MayanQuote,
       account,
       quote.quoteParams.recipient,
-      { evm: CROSS_CHAIN_FEE_RECEIVER },
+      {
+        evm: CROSS_CHAIN_FEE_RECEIVER,
+        solana: CROSS_CHAIN_FEE_RECEIVER_SOLANA,
+        sui: CROSS_CHAIN_FEE_RECEIVER_SUI,
+      },
       account,
       quote.quoteParams.fromChain,
       null,
@@ -123,6 +243,10 @@ export class MayanAdapter extends BaseSwapAdapter {
         sourceToken: quote.quoteParams.fromToken,
         targetToken: quote.quoteParams.toToken,
         timestamp: new Date().getTime(),
+        amountInUsd: quote.inputUsd,
+        amountOutUsd: quote.outputUsd,
+        platformFeePercent: quote.platformFeePercent,
+        recipient: quote.quoteParams.recipient,
       }
     }
 

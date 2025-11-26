@@ -1,4 +1,4 @@
-import { t } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -48,7 +48,7 @@ const POSITIONS_TABLE_LIMIT = 10
 const UserPositions = () => {
   const theme = useTheme()
   const navigate = useNavigate()
-  const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
+  const upToCustomLarge = useMedia(`(max-width: ${1300}px)`)
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const { account } = useActiveWeb3React()
   const { filters, updateFilters } = useFilter()
@@ -200,8 +200,8 @@ const UserPositions = () => {
         })
       } else if (filters.sortBy === SortBy.APR) {
         result.sort((a, b) => {
-          const aValue = a.apr['7d']
-          const bValue = b.apr['7d']
+          const aValue = a.apr['24h']
+          const bValue = b.apr['24h']
 
           return filters.orderBy === Direction.ASC ? aValue - bValue : bValue - aValue
         })
@@ -382,7 +382,7 @@ const UserPositions = () => {
 
         <PositionTableWrapper>
           <ContentWrapper>
-            {!upToLarge && paginatedPositions && paginatedPositions.length > 0 && (
+            {!upToCustomLarge && paginatedPositions && paginatedPositions.length > 0 && (
               <PositionTableHeader>
                 <PositionTableHeaderItem>{t`Position`}</PositionTableHeaderItem>
 
@@ -409,29 +409,35 @@ const UserPositions = () => {
                   role="button"
                   onClick={() => onSortChange(SortBy.UNCLAIMED_FEE)}
                 >
-                  <div>Unclaimed</div>
-                  <Flex alignItems={'center'} sx={{ gap: '4px' }}>
-                    fees
-                    <SortIcon
-                      sorted={filters.sortBy === SortBy.UNCLAIMED_FEE ? (filters.orderBy as Direction) : undefined}
-                    />
-                  </Flex>
+                  <Trans>
+                    <Text>Unclaimed</Text>
+                    <Flex alignItems={'center'} sx={{ gap: '4px' }}>
+                      fees
+                      <SortIcon
+                        sorted={filters.sortBy === SortBy.UNCLAIMED_FEE ? (filters.orderBy as Direction) : undefined}
+                      />
+                    </Flex>
+                  </Trans>
                 </Flex>
 
                 <PositionTableHeaderFlexItem role="button" onClick={() => onSortChange(SortBy.UNCLAIMED_REWARDS)}>
-                  <Flex alignItems={'flex-start'} sx={{ gap: '4px' }}>
-                    <FarmingIcon width={24} height={24} />
-                    <Text>Unclaimed</Text>
-                  </Flex>
-                  <Flex alignItems={'center'} sx={{ gap: '4px' }} paddingLeft={'28px'}>
-                    <Text>rewards</Text>
-                    <SortIcon
-                      sorted={filters.sortBy === SortBy.UNCLAIMED_REWARDS ? (filters.orderBy as Direction) : undefined}
-                    />
-                  </Flex>
+                  <Trans>
+                    <Flex alignItems={'flex-start'} sx={{ gap: '4px' }}>
+                      <FarmingIcon width={24} height={24} />
+                      <Text>Unclaimed</Text>
+                    </Flex>
+                    <Flex alignItems={'center'} sx={{ gap: '4px' }} paddingLeft={'28px'}>
+                      <Text>rewards</Text>
+                      <SortIcon
+                        sorted={
+                          filters.sortBy === SortBy.UNCLAIMED_REWARDS ? (filters.orderBy as Direction) : undefined
+                        }
+                      />
+                    </Flex>
+                  </Trans>
                 </PositionTableHeaderFlexItem>
 
-                {!upToLarge && <div />}
+                {!upToCustomLarge && <div />}
 
                 <PositionTableHeaderItem>{t`Balance`}</PositionTableHeaderItem>
 

@@ -14,7 +14,7 @@ export default function EstimatedRow({
   label: string | React.ReactNode;
   labelTooltip?: string | React.ReactNode;
   value: React.ReactNode;
-  valueTooltip?: string;
+  valueTooltip?: React.ReactNode;
   hasRoute: boolean;
   className?: string;
 }) {

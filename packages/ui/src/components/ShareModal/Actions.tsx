@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import { useLingui } from '@lingui/react';
 import html2canvas from 'html2canvas';
 
 import { cn } from '@kyber/utils/tailwind-helpers';
@@ -14,7 +15,7 @@ import Loading from '@/components/loading';
 
 interface ActionsProps {
   type: ShareType;
-  pool: Pool;
+  pool?: Pool;
   shareBannerRef: React.RefObject<HTMLDivElement>;
 }
 
@@ -82,15 +83,17 @@ const convertModernColorsToLegacy = (element: HTMLElement) => {
 };
 
 export default function Actions({ type, pool, shareBannerRef }: ActionsProps) {
+  const { i18n } = useLingui();
   const [isCopied, setIsCopied] = useState(false);
   const [isDownloaded, setIsDownloaded] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [isImageCopied, setIsImageCopied] = useState(false);
   const [isCopyingImage, setIsCopyingImage] = useState(false);
 
-  const path = getSharePath(type, pool);
+  const path = pool ? getSharePath(type, pool) : null;
 
   const handleCopyPath = () => {
+    if (!path) return;
     if (navigator?.clipboard) {
       navigator.clipboard.writeText(path);
       setIsCopied(true);
@@ -194,16 +197,18 @@ export default function Actions({ type, pool, shareBannerRef }: ActionsProps) {
 
   return (
     <div className="flex justify-center flex-wrap gap-4">
-      <button
-        className={cn(
-          'flex items-center justify-center py-[6px] px-4 gap-1 rounded-[30px] bg-[#ffffff14] hover:brightness-120 outline-none text-subText transition-all duration-200',
-          isCopied && 'text-primary bg-primary-200',
-        )}
-        onClick={handleCopyPath}
-      >
-        {isCopied ? <SuccessIcon /> : <LinkIcon />}
-        Copy URL
-      </button>
+      {path ? (
+        <button
+          className={cn(
+            'flex items-center justify-center py-[6px] px-4 gap-1 rounded-[30px] bg-[#ffffff14] hover:brightness-120 outline-none text-subText transition-all duration-200',
+            isCopied && 'text-primary bg-primary-200',
+          )}
+          onClick={handleCopyPath}
+        >
+          {isCopied ? <SuccessIcon /> : <LinkIcon />}
+          {i18n._('Copy URL')}
+        </button>
+      ) : null}
       {!isSafari() && (
         <button
           className={cn(
@@ -213,7 +218,7 @@ export default function Actions({ type, pool, shareBannerRef }: ActionsProps) {
           onClick={handleCopyImage}
         >
           {isImageCopied ? <SuccessIcon /> : isCopyingImage ? <Loading className="text-subText" /> : <CopyIcon />}
-          Copy Image
+          {i18n._('Copy Image')}
         </button>
       )}
       <button
@@ -224,7 +229,7 @@ export default function Actions({ type, pool, shareBannerRef }: ActionsProps) {
         onClick={handleDownloadImage}
       >
         {isDownloaded ? <SuccessIcon /> : isDownloading ? <Loading className="text-subText" /> : <DownloadIcon />}
-        Download Image
+        {i18n._('Download Image')}
       </button>
     </div>
   );

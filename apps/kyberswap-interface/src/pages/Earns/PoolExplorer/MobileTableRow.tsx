@@ -90,14 +90,14 @@ const MobileTableRow = ({
             role="button"
             cursor="pointer"
             onClick={e => handleFavorite(e, pool)}
-            aria-label={pool.favorite?.isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+            aria-label={pool.favorite?.isFavorite ? t`Remove from favorites` : t`Add to favorites`}
           />
         </Flex>
       </Flex>
       <MobileTableBottomRow withoutBorder={withoutBorder}>
         {isFarmingFiltered && (
           <Flex justifyContent="space-between" sx={{ gap: 1 }} onClick={e => handleOpenZapInWidget(e, true)}>
-            <Text color={theme.subText}>Max APR</Text>
+            <Text color={theme.subText}>{t`Max APR`}</Text>
             <Text>
               {pool.maxAprInfo
                 ? formatAprNumber(
@@ -110,15 +110,20 @@ const MobileTableRow = ({
           </Flex>
         )}
         <Flex justifyContent="space-between" sx={{ gap: 1 }}>
-          <Text color={theme.subText}>{t`Earn Fees`}</Text>
-          <Text>{formatDisplayNumber(pool.earnFee, { style: 'currency', significantDigits: 6 })}</Text>
+          <Text color={theme.subText}>{isFarmingFiltered ? t`EG Sharing` : t`Earn Fees`}</Text>
+          <Text>
+            {formatDisplayNumber(isFarmingFiltered ? pool.egUsd : pool.earnFee, {
+              style: 'currency',
+              significantDigits: 6,
+            })}
+          </Text>
         </Flex>
         <Flex justifyContent="space-between" sx={{ gap: 1 }}>
-          <Text color={theme.subText}>TVL</Text>
+          <Text color={theme.subText}>{t`TVL`}</Text>
           <Text>{formatDisplayNumber(pool.tvl, { style: 'currency', significantDigits: 6 })}</Text>
         </Flex>
         <Flex justifyContent="space-between" sx={{ gap: 1 }}>
-          <Text color={theme.subText}>Volume</Text>
+          <Text color={theme.subText}>{t`Volume`}</Text>
           <Text>{formatDisplayNumber(pool.volume, { style: 'currency', significantDigits: 6 })}</Text>
         </Flex>
       </MobileTableBottomRow>

@@ -1,3 +1,4 @@
+import { Trans, t } from '@lingui/macro'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Info, Star } from 'react-feather'
 import { useMedia } from 'react-use'
@@ -94,7 +95,7 @@ export default function TableContent({
   if (!tokens.length && !isLoading) {
     return (
       <Text color={theme.subText} margin="3rem" marginTop="4rem" textAlign="center">
-        No data found
+        <Trans>No data found</Trans>
       </Text>
     )
   }
@@ -140,7 +141,7 @@ export default function TableContent({
     }
     if (!signature) {
       const issuedAt = new Date().toISOString()
-      msg = `Click sign to add favorite tokens at Kyberswap.com without logging in.\nThis request won’t trigger any blockchain transaction or cost any gas fee. Expires in 7 days. \n\nIssued at: ${issuedAt}`
+      msg = t`Click sign to add favorite tokens at KyberSwap.com without logging in.\nThis request won’t trigger any blockchain transaction or cost any gas fee. Expires in 7 days.\n\nIssued at: ${issuedAt}`
       signature = await library?.send('personal_sign', [`0x${Buffer.from(msg, 'utf8').toString('hex')}`, account])
       localStorage.setItem(
         key,
@@ -163,8 +164,8 @@ export default function TableContent({
         if ((res as any).error) {
           notify(
             {
-              title: `${!isTokenFavorite ? 'Add' : 'Remove'} failed`,
-              summary: (res as any).error.data.message || 'Some thing went wrong',
+              title: !isTokenFavorite ? t`Add failed` : t`Remove failed`,
+              summary: (res as any).error?.data?.message || t`Something went wrong`,
               type: NotificationType.ERROR,
             },
             8000,
@@ -183,8 +184,8 @@ export default function TableContent({
         console.log(err)
         notify(
           {
-            title: `${!isTokenFavorite ? 'Add' : 'Remove'} failed`,
-            summary: err.message || 'Some thing went wrong',
+            title: !isTokenFavorite ? t`Add failed` : t`Remove failed`,
+            summary: err.message || t`Something went wrong`,
             type: NotificationType.ERROR,
           },
           8000,
@@ -198,7 +199,7 @@ export default function TableContent({
     <>
       <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', paddingY: '0.75rem' }}>
         <Text color={theme.subText} fontSize={14} height="100%">
-          Name
+          <Trans>Name</Trans>
         </Text>
 
         {showMarketInfo ? (
@@ -211,7 +212,7 @@ export default function TableContent({
               role="button"
               onClick={() => updateSort('volume_24h', false)}
             >
-              24h Volume
+              <Trans>24h Volume</Trans>
               <SortIcon sorted={sortCol === 'volume_24h' ? (sortDirection as Direction) : undefined} />
             </Flex>
 
@@ -223,7 +224,7 @@ export default function TableContent({
               color={theme.subText}
               onClick={() => updateSort('market_cap', false)}
             >
-              Market Cap
+              <Trans>Market Cap</Trans>
               <SortIcon sorted={sortCol === 'market_cap' ? (sortDirection as Direction) : undefined} />
             </Flex>
           </>
@@ -238,7 +239,7 @@ export default function TableContent({
                 role="button"
                 onClick={() => updateSort(`price_${selectedPrice}`)}
               >
-                {selectedPrice === 'buy' ? 'Buy' : 'Sell'} Price
+                {selectedPrice === 'buy' ? <Trans>Buy Price</Trans> : <Trans>Sell Price</Trans>}
                 <Flex marginTop="3px">
                   <SortIcon
                     sorted={sortCol.startsWith(`price_${selectedPrice}`) ? (sortDirection as Direction) : undefined}
@@ -283,7 +284,7 @@ export default function TableContent({
                 onClick={() => updateSort(`price_${selectedPrice}_change_${selectedSort}`)}
                 color={theme.subText}
               >
-                {selectedSort} Change
+                {selectedSort} {t`Change`}
                 <SortIcon
                   sorted={
                     sortCol.startsWith(`price_${selectedPrice}_change`) ? (sortDirection as Direction) : undefined
@@ -304,7 +305,7 @@ export default function TableContent({
                     updateSort(`price_${selectedPrice}_change_1h`, true, true)
                   }}
                 >
-                  1h
+                  <Trans>1H</Trans>
                 </TabItem>
 
                 <TabItem
@@ -314,7 +315,7 @@ export default function TableContent({
                     updateSort(`price_${selectedPrice}_change_24h`, true, true)
                   }}
                 >
-                  24h
+                  <Trans>24H</Trans>
                 </TabItem>
 
                 <TabItem
@@ -324,7 +325,7 @@ export default function TableContent({
                     updateSort(`price_${selectedPrice}_change_7d`, true, true)
                   }}
                 >
-                  7d
+                  <Trans>7D</Trans>
                 </TabItem>
               </Flex>
             </Flex>

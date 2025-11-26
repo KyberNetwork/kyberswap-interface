@@ -1,3 +1,4 @@
+import { t } from '@lingui/macro'
 import { format } from 'date-fns'
 import { rgba } from 'polished'
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -14,14 +15,15 @@ import Pagination from 'components/Pagination'
 import { NETWORKS_INFO } from 'constants/networks'
 import { CROSS_CHAIN_MIXPANEL_TYPE, useCrossChainMixpanel } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
+import { NonEvmChain, NonEvmChainInfo } from 'pages/CrossChainSwap/adapters'
+import { TokenLogoWithChain } from 'pages/CrossChainSwap/components/TokenLogoWithChain'
+import { registry } from 'pages/CrossChainSwap/hooks/useCrossChainSwap'
 import { useCrossChainTransactions } from 'state/crossChainSwap'
 import { ExternalLinkIcon, MEDIA_WIDTHS } from 'theme'
 import { getEtherscanLink, shortenHash } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
-import { NonEvmChain, NonEvmChainInfo } from '../adapters'
-import { registry } from '../hooks/useCrossChainSwap'
-import { TokenLogoWithChain } from './TokenLogoWithChain'
+import { getChainName } from '../utils'
 
 const PAGE_SIZE = 5
 
@@ -111,9 +113,15 @@ export const TransactionHistory = () => {
 
                   // Fire specific GA events for success/failure
                   if (status && status !== oldStatus) {
-                    const swap_details = {
+                    const swapDetails = {
+                      amount_in: tx.inputAmount,
+                      amount_in_usd: tx.amountInUsd,
+                      amount_out: tx.outputAmount,
+                      amount_out_usd: tx.amountOutUsd,
+                      currency: 'USD',
+                      fee_percent: tx.platformFeePercent,
                       from_chain: tx.sourceChain,
-                      to_chain: tx.targetChain,
+                      from_chain_name: getChainName(tx.sourceChain),
                       from_token:
                         tx.sourceChain === NonEvmChain.Bitcoin
                           ? tx.sourceToken.symbol
@@ -121,7 +129,13 @@ export const TransactionHistory = () => {
                           ? (tx.sourceToken as any).id
                           : tx.sourceChain === NonEvmChain.Near
                           ? (tx.sourceToken as any).assetId
-                          : (tx.sourceToken as any)?.address || tx.sourceToken?.symbol,
+                          : (tx.sourceToken as any)?.address ||
+                            (tx.sourceToken as any)?.wrapped?.address ||
+                            tx.sourceToken?.symbol,
+                      from_token_symbol: tx.sourceToken?.symbol,
+                      from_token_decimals: tx.sourceToken?.decimals,
+                      to_chain: tx.targetChain,
+                      to_chain_name: getChainName(tx.targetChain),
                       to_token:
                         tx.targetChain === NonEvmChain.Bitcoin
                           ? tx.targetToken.symbol
@@ -129,24 +143,32 @@ export const TransactionHistory = () => {
                           ? (tx.targetToken as any).id
                           : tx.targetChain === NonEvmChain.Near
                           ? (tx.targetToken as any).assetId
-                          : (tx.targetToken as any)?.address || tx.targetToken?.symbol,
-                      amount_in: tx.inputAmount,
-                      amount_out: tx.outputAmount,
+                          : (tx.targetToken as any)?.address ||
+                            (tx.targetToken as any)?.wrapped?.address ||
+                            tx.targetToken?.symbol,
+                      to_token_symbol: tx.targetToken?.symbol,
+                      to_token_decimals: tx.targetToken?.decimals,
                       partner: tx.adapter,
+                      platform: 'KyberSwap Cross-Chain',
                       source_tx_hash: tx.sourceTxHash,
                       target_tx_hash: txHash || tx.targetTxHash,
+                      recipient: tx.recipient,
                       sender: tx.sender,
                       status: status,
                       time: Date.now(),
                       timestamp: tx.timestamp,
-                      currency: 'USD',
-                      platform: 'KyberSwap Cross-Chain',
                     }
 
                     if (status === 'Success') {
-                      crossChainMixpanelHandler(CROSS_CHAIN_MIXPANEL_TYPE.CROSS_CHAIN_SWAP_SUCCESS, swap_details)
+                      crossChainMixpanelHandler(CROSS_CHAIN_MIXPANEL_TYPE.CROSS_CHAIN_SWAP_SUCCESS, {
+                        ...swapDetails,
+                        status: 'succeed',
+                      })
                     } else if (status === 'Failed') {
-                      crossChainMixpanelHandler(CROSS_CHAIN_MIXPANEL_TYPE.CROSS_CHAIN_SWAP_FAILED, swap_details)
+                      crossChainMixpanelHandler(CROSS_CHAIN_MIXPANEL_TYPE.CROSS_CHAIN_SWAP_FAILED, {
+                        ...swapDetails,
+                        status: 'failed',
+                      })
                     }
                   }
 
@@ -214,20 +236,20 @@ export const TransactionHistory = () => {
     <>
       {upToSmall ? (
         <Text fontWeight={500} fontSize={14} color={theme.subText}>
-          HISTORY
+          {t`HISTORY`}
         </Text>
       ) : (
         <TableHeader>
-          <Text>CREATED</Text>
-          <Text>STATUS</Text>
-          <Text>ROUTE</Text>
-          <Text>AMOUNT</Text>
-          <Text textAlign="right">ACTIONS</Text>
+          <Text>{t`CREATED`}</Text>
+          <Text>{t`STATUS`}</Text>
+          <Text>{t`ROUTE`}</Text>
+          <Text>{t`AMOUNT`}</Text>
+          <Text textAlign="right">{t`ACTIONS`}</Text>
         </TableHeader>
       )}
       {transactions.length === 0 && (
         <Text color={theme.subText} padding="36px" textAlign="center">
-          No transaction found
+          {t`No transaction found`}
         </Text>
       )}
       {transactions.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE).map(tx => {
@@ -253,13 +275,21 @@ export const TransactionHistory = () => {
             </Flex>
             {tx.sender && (
               <Flex mt="8px" color={theme.blue} fontSize="14px" sx={{ gap: '4px' }} alignItems="center">
-                <Text color={theme.subText}>Sender:</Text>{' '}
+                <Text color={theme.subText}>{t`Sender:`}</Text>{' '}
                 {tx.sender.includes('.near') ? tx.sender : shortenHash(tx.sender)}
                 <CopyHelper toCopy={tx.sender} />
               </Flex>
             )}
           </div>
         )
+        const statusLabel =
+          tx.status === 'Success'
+            ? t`Success`
+            : tx.status === 'Failed'
+            ? t`Failed`
+            : tx.status === 'Refunded'
+            ? t`Refunded`
+            : t`Processing`
         const status = (
           <Flex
             sx={{
@@ -275,7 +305,7 @@ export const TransactionHistory = () => {
               fontSize: '12px',
             }}
           >
-            {tx.status || 'Processing'}
+            {tx.status ? statusLabel : t`Processing`}
           </Flex>
         )
         const fromto = (
@@ -372,7 +402,7 @@ export const TransactionHistory = () => {
                 paddingX="12px"
                 color={theme.subText}
               >
-                <Text color={theme.text}>Deposit:</Text>
+                <Text color={theme.text}>{t`Deposit:`}</Text>
                 {sourceTx}
               </Flex>
               <Flex
@@ -382,7 +412,7 @@ export const TransactionHistory = () => {
                 paddingX="12px"
                 color={theme.subText}
               >
-                <Text color={theme.text}>Fill:</Text>
+                <Text color={theme.text}>{t`Fill:`}</Text>
                 {fill}
               </Flex>
               <Divider></Divider>
@@ -402,12 +432,12 @@ export const TransactionHistory = () => {
 
             <div>
               <Flex justifyContent="flex-end" sx={{ gap: '4px' }} color={theme.subText}>
-                <Text color={theme.text}>Deposit:</Text>
+                <Text color={theme.text}>{t`Deposit:`}</Text>
                 {sourceTx}
               </Flex>
 
               <Flex justifyContent="flex-end" sx={{ gap: '4px' }} color={theme.subText} mt="8px">
-                <Text color={theme.text}>Fill:</Text> {fill}
+                <Text color={theme.text}>{t`Fill:`}</Text> {fill}
               </Flex>
             </div>
           </TableRow>

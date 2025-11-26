@@ -1,5 +1,7 @@
 import { useMemo } from 'react';
 
+import { Trans } from '@lingui/macro';
+
 import { NATIVE_TOKEN_ADDRESS } from '@kyber/schema';
 import { Skeleton, TokenLogo, TokenSymbol } from '@kyber/ui';
 import { formatDisplayNumber, formatUnits } from '@kyber/utils/number';
@@ -78,7 +80,7 @@ export default function LiquidityToAdd({
               if (balanceInWei) onChangeTokenAmount(formatUnits(BigInt(balanceInWei).toString(), token?.decimals));
             }}
           >
-            Max
+            <Trans>Max</Trans>
           </button>
           <button
             className="rounded-full outline-inherit cursor-pointer items-center flex gap-1 hover:brightness-150 active:scale-95 py-[2px] px-2 text-xs bg-transparent border-[1.8px] border-solid border-stroke font-normal text-subText brightness-150"
@@ -87,7 +89,7 @@ export default function LiquidityToAdd({
                 onChangeTokenAmount(formatUnits((BigInt(balanceInWei) / 2n).toString(), token.decimals));
             }}
           >
-            Half
+            <Trans>Half</Trans>
           </button>
         </div>
 
@@ -156,10 +158,10 @@ export const LiquidityToAddSkeleton = () => {
       <div className="flex justify-between text-subText text-sm font-medium">
         <div className="flex items-center gap-[6px]">
           <button className="rounded-full outline-inherit cursor-pointer items-center flex gap-1 hover:brightness-150 active:scale-95 py-[2px] px-2 text-xs bg-transparent border-[1.8px] border-solid border-stroke font-normal text-subText brightness-150">
-            Max
+            <Trans>Max</Trans>
           </button>
           <button className="rounded-full outline-inherit cursor-pointer items-center flex gap-1 hover:brightness-150 active:scale-95 py-[2px] px-2 text-xs bg-transparent border-[1.8px] border-solid border-stroke font-normal text-subText brightness-150">
-            Half
+            <Trans>Half</Trans>
           </button>
         </div>
 

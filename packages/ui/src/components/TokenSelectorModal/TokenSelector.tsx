@@ -1,5 +1,7 @@
 import { ChangeEvent, MouseEvent, useEffect, useMemo, useState } from 'react';
 
+import { useLingui } from '@lingui/react';
+
 import { NATIVE_TOKEN_ADDRESS, Token } from '@kyber/schema';
 import { fetchTokenInfo } from '@kyber/utils';
 import { isAddress } from '@kyber/utils/crypto';
@@ -68,6 +70,7 @@ export default function TokenSelector({
   onClose,
   initialSlippage,
 }: TokenSelectorProps) {
+  const { i18n } = useLingui();
   const { importedTokens, tokens, removeImportedToken, tokenBalances, isLoading } = useTokenState();
 
   const allTokens = useMemo(() => [...tokens, ...importedTokens], [tokens, importedTokens]);
@@ -185,7 +188,9 @@ export default function TokenSelector({
         setModalAmountsIn(`${modalAmountsIn},`);
       } else {
         setMessage(
-          'You have reached the maximum token selection limit. Please deselect one or more tokens to make changes.',
+          i18n._(
+            'You have reached the maximum token selection limit. Please deselect one or more tokens to make changes.',
+          ),
         );
       }
     }
@@ -212,7 +217,7 @@ export default function TokenSelector({
 
     if (index > -1) {
       if (tokensIn.length === 1) {
-        setMessage('You cannot remove the only selected token, please select another token first.');
+        setMessage(i18n._('You cannot remove the only selected token, please select another token first.'));
         return;
       }
 
@@ -305,7 +310,7 @@ export default function TokenSelector({
     <div className="w-full mx-auto text-white overflow-hidden">
       <div className="space-y-4">
         <div className="flex justify-between items-center p-6 pb-0">
-          <h2 className="text-xl">Select Liquidity Source</h2>
+          <h2 className="text-xl">{i18n._('Select Liquidity Source')}</h2>
           <div className="text-subText hover:text-white cursor-pointer" onClick={onClose}>
             <X className="h-6 w-6" />
           </div>
@@ -319,7 +324,7 @@ export default function TokenSelector({
               }`}
               onClick={() => setModalTabSelected(MODAL_TAB.TOKENS)}
             >
-              Token(s)
+              {i18n._('Token(s)')}
             </div>
             <div
               className={`rounded-full w-full text-center py-2 cursor-pointer hover:bg-[#ffffff33] ${
@@ -327,20 +332,21 @@ export default function TokenSelector({
               }`}
               onClick={() => setModalTabSelected(MODAL_TAB.POSITIONS)}
             >
-              Your Position(s)
+              {i18n._('Your Position(s)')}
             </div>
           </div>
         )}
 
         {mode === TOKEN_SELECT_MODE.SELECT && modalTabSelected === MODAL_TAB.TOKENS && (
           <p className="text-sm text-subText px-6">
-            You can search and select <span className="text-text">any token(s)</span> on KyberSwap
+            {i18n._('You can search and select')} <span className="text-text">{i18n._('any token(s)')}</span>{' '}
+            {i18n._('on KyberSwap')}
           </p>
         )}
 
         {modalTabSelected === MODAL_TAB.POSITIONS && (
           <p className="text-sm text-subText px-6">
-            Use your existing liquidity positions from supported protocols as a source.
+            {i18n._('Use your existing liquidity positions from supported protocols as a source.')}
           </p>
         )}
 
@@ -348,7 +354,7 @@ export default function TokenSelector({
           <div className="relative border-0">
             <Input
               type="text"
-              placeholder="Search by token name, token symbol or address"
+              placeholder={i18n._('Search by token name, token symbol or address')}
               className="h-[45px] pl-4 pr-10 py-2 bg-[#0f0f0f] border-[1.5px] border-[#0f0f0f] text-white placeholder-subText rounded-full focus:border-success outline-none"
               value={searchTerm}
               onChange={handleChangeSearch}
@@ -358,7 +364,9 @@ export default function TokenSelector({
         </div>
 
         {mode === TOKEN_SELECT_MODE.ADD && modalTabSelected === MODAL_TAB.TOKENS && (
-          <p className="text-sm text-subText px-6">The maximum number of tokens selected is {MAX_TOKENS}.</p>
+          <p className="text-sm text-subText px-6">
+            {i18n._('The maximum number of tokens selected is {count}.', { count: MAX_TOKENS })}
+          </p>
         )}
 
         {modalTabSelected === MODAL_TAB.TOKENS && (
@@ -397,7 +405,7 @@ export default function TokenSelector({
                       className="rounded-full !bg-accent font-normal !text-[#222222] px-3 py-[6px] h-fit hover:brightness-75"
                       onClick={() => handleImportToken(token)}
                     >
-                      Import
+                      {i18n._('Import')}
                     </Button>
                   </div>
                 ))}
@@ -455,7 +463,7 @@ export default function TokenSelector({
                   </div>
                 ))
               ) : !unImportedTokens.length || (tabSelected === TOKEN_TAB.IMPORTED && !importedTokens.length) ? (
-                <div className="text-center text-[#6C7284] font-medium mt-4">No results found.</div>
+                <div className="text-center text-[#6C7284] font-medium mt-4">{i18n._('No results found.')}</div>
               ) : (
                 <></>
               )}
@@ -492,14 +500,14 @@ export default function TokenSelector({
               className="flex-1 !bg-transparent text-subText border-subText rounded-full hover:text-accent hover:border-accent"
               onClick={onClose}
             >
-              Cancel
+              {i18n._('Cancel')}
             </Button>
             <Button
               className="flex-1 !bg-accent text-black rounded-full hover:text-black hover:brightness-110"
               disabled={!modalTokensIn.length}
               onClick={handleSaveSelected}
             >
-              Save
+              {i18n._('Save')}
             </Button>
           </div>
         )}
@@ -533,6 +541,7 @@ const TokenFeature = ({
   setSelectedTokens: (tokens: Token[]) => void;
   onClose: () => void;
 }) => {
+  const { i18n } = useLingui();
   const { importedTokens, removeAllImportedTokens } = useTokenState();
 
   const handleRemoveAllImportedToken = () => {
@@ -540,7 +549,7 @@ const TokenFeature = ({
       tokensIn.find((tokenIn: Token) => importedTokens.find(importedToken => tokenIn.address === importedToken.address))
     ) {
       if (tokensIn.length === 1) {
-        setMessage('You cannot remove the only selected token, please select another token first.');
+        setMessage(i18n._('You cannot remove the only selected token, please select another token first.'));
         return;
       }
 
@@ -581,25 +590,25 @@ const TokenFeature = ({
           className={`text-sm cursor-pointer ${tabSelected === TOKEN_TAB.ALL ? 'text-accent' : ''}`}
           onClick={() => setTabSelected(TOKEN_TAB.ALL)}
         >
-          All
+          {i18n._('All')}
         </div>
         <div
           className={`text-sm cursor-pointer ${tabSelected === TOKEN_TAB.IMPORTED ? 'text-accent' : ''}`}
           onClick={() => setTabSelected(TOKEN_TAB.IMPORTED)}
         >
-          Imported
+          {i18n._('Imported')}
         </div>
       </div>
 
       {tabSelected === TOKEN_TAB.IMPORTED && importedTokens.length ? (
         <div className="flex items-center justify-between px-6 !mt-0 py-[10px]">
-          <span className="text-xs text-icon">{importedTokens.length} Custom Tokens</span>
+          <span className="text-xs text-icon">{i18n._('{count} Custom Tokens', { count: importedTokens.length })}</span>
           <Button
             className="rounded-full !text-icon flex items-center gap-2 text-xs px-[10px] py-[5px] h-fit font-normal !bg-[#a9a9a933]"
             onClick={handleRemoveAllImportedToken}
           >
             <TrashIcon className="w-[13px] h-[13px]" />
-            Clear All
+            {i18n._('Clear All')}
           </Button>
         </div>
       ) : null}

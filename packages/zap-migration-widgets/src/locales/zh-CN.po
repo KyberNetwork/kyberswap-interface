@@ -1,0 +1,431 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2025-01-01 00:00+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: zh-CN\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#: src/components/Setting/index.tsx
+msgid "Please type the word <0>Confirm</0> below to enable Degen Mode"
+msgstr "请输入下方的 <0>Confirm</0> 以启用 Degen 模式"
+
+#: src/components/Estimated/index.tsx
+#: src/components/Preview/Estimated.tsx
+msgid "Zap Impact"
+msgstr "Zap 价格影响"
+
+#: src/components/PoolInfo.tsx
+msgid "● In range"
+msgstr "● 区间内"
+
+#: src/components/Setting/index.tsx
+msgid "No, Go back"
+msgstr "不，返回"
+
+#: src/components/Preview/MigrationSummary.tsx
+msgid "Add {0} {1} and {2} {3} into {4} in the selected fee pool"
+msgstr "将在所选手续费池 {4} 中添加 {0} {1} 和 {2} {3}"
+
+#: src/components/TargetPosition/index.tsx
+msgid "New position"
+msgstr "新头寸"
+
+#: src/components/Setting/index.tsx
+msgid "Degen Mode"
+msgstr "Degen 模式"
+
+#: src/components/Preview/Estimated.tsx
+msgid "Est. Gas Fee"
+msgstr "预计 Gas 费用"
+
+#: src/components/Preview/index.tsx
+msgid "You have successfully migrated your liquidity"
+msgstr "您已成功迁移流动性"
+
+#: src/components/Setting/index.tsx
+msgid "mins"
+msgstr "分钟"
+
+#: src/components/Setting/index.tsx
+msgid "Transaction Time Limit"
+msgstr "交易时间限制"
+
+#: src/components/Header.tsx
+#: src/components/Preview/index.tsx
+msgid "Migrate to increase position liquidity"
+msgstr "迁移以提升头寸流动性"
+
+#: src/components/Preview/index.tsx
+msgid "Reposition Completed"
+msgstr "重新部署完成"
+
+#: src/components/PoolPriceWithRange/PriceRange.tsx
+msgid "Current Price: {0}"
+msgstr "当前价格：{0}"
+
+#: src/components/PositionToMigrate/index.tsx
+msgid "Position to migrate"
+msgstr "待迁移头寸"
+
+#: src/components/Setting/index.tsx
+msgid "Are you sure?"
+msgstr "确定吗？"
+
+#: src/components/Action/useActionButton.ts
+msgid "Switch Network"
+msgstr "切换网络"
+
+#: src/components/Preview/index.tsx
+#: src/components/Setting/index.tsx
+msgid "Confirm"
+msgstr "确认"
+
+#: src/index.tsx
+msgid "Failed to load zap route"
+msgstr "加载 Zap 路线失败"
+
+#: src/components/RangeInput/RangePreset.tsx
+msgid "Full Range"
+msgstr "全范围"
+
+#: src/components/Action/useActionButton.ts
+msgid "No Route Found"
+msgstr "未找到路线"
+
+#: src/components/Setting/SlippageInput.tsx
+msgid "Custom"
+msgstr "自定义"
+
+#: src/components/AmountToMigrate.tsx
+msgid "Will remain"
+msgstr "将保留"
+
+#: src/components/PoolInfo.tsx
+msgid "● Closed"
+msgstr "● 已关闭"
+
+#: src/components/PoolInfo.tsx
+#: src/components/Preview/PreviewPoolInfo.tsx
+msgid "Fee {0}%"
+msgstr "手续费 {0}%"
+
+#: src/components/Setting/index.tsx
+#: src/components/Setting/index.tsx
+msgid "Turn this on to make trades with very high price impact or to set very high slippage tolerance. This can result in bad rates and loss of funds. Be cautious."
+msgstr "开启该选项后，可在极高价格影响或高滑点容忍度下交易，可能导致糟糕汇率甚至资金损失，请谨慎操作。"
+
+#: src/components/Action/useActionButton.ts
+msgid "You are not the owner of this position"
+msgstr "您不是该头寸的所有者"
+
+#: src/components/AmountToMigrate.tsx
+msgid "Max"
+msgstr "最大"
+
+#: src/components/Preview/Estimated.tsx
+msgid "Estimated network fee for your transaction."
+msgstr "该交易的预估网络费用。"
+
+#: src/components/Action/useActionButton.ts
+msgid "Connect Wallet"
+msgstr "连接钱包"
+
+#: src/components/Setting/index.tsx
+msgid "Transaction will revert if it is pending for longer than the indicated time."
+msgstr "若交易等待时间超过设定值将被回滚。"
+
+#: src/components/Preview/UpdatedPosition.tsx
+msgid "Current price"
+msgstr "当前价格"
+
+#: src/components/PositionToMigrate/index.tsx
+#: src/components/TargetPosition/index.tsx
+msgid "Current position"
+msgstr "当前头寸"
+
+#: src/components/Setting/SlippageInput.tsx
+msgid "Dynamic entry based on trading pair."
+msgstr "根据交易对动态生成。"
+
+#: src/components/RangeInput/PriceInput.tsx
+msgid "Max Price"
+msgstr "最高价格"
+
+#: src/components/Action/useActionButton.ts
+msgid "Approve source position"
+msgstr "批准源头寸"
+
+#: src/components/Preview/Estimated.tsx
+msgid "Based on your price range settings, a portion of your liquidity will be automatically zapped into the pool, while the remaining amount will stay in your wallet."
+msgstr "根据您的价格区间设置，部分流动性会自动 Zap 入池，剩余部分将留在钱包。"
+
+#: src/components/Preview/MigrationSummary.tsx
+msgid "Remove {0} {1} and {2} {3} from {4}"
+msgstr "从 {4} 移除 {0} {1} 和 {2} {3}"
+
+#: src/index.tsx
+msgid "Failed to load pool"
+msgstr "加载池失败"
+
+#: src/index.tsx
+msgid "Close & Refresh"
+msgstr "关闭并刷新"
+
+#: src/components/Preview/index.tsx
+msgid "Explore pools"
+msgstr "探索更多池子"
+
+#: src/components/PoolInfo.tsx
+msgid "● Out of range"
+msgstr "● 超出区间"
+
+#: src/components/Preview/index.tsx
+msgid "Reposition liquidity"
+msgstr "重新部署流动性"
+
+#: src/components/Preview/index.tsx
+msgid "Use Suggested Slippage"
+msgstr "使用建议滑点"
+
+#: src/components/Action/useActionButton.ts
+msgid "Select Liquidity to Migrate"
+msgstr "选择要迁移的流动性"
+
+#: src/components/Header.tsx
+msgid "Your current position will be closed and a new one created."
+msgstr "您的当前头寸将被关闭并创建新的头寸。"
+
+#: src/components/Warning/HoneypotWarning.tsx
+msgid "{0} is a Fee-On-Transfer token with a {1}% transaction fee applied on every transfer, please beware before triggering trades with this token."
+msgstr "{0} 是转账收税代币，每次转账会收取 {1}% 手续费，交易前请谨慎。"
+
+#: src/components/Setting/SlippageInput.tsx
+#: src/components/Setting/SlippageInput.tsx
+#: src/components/Setting/SlippageInput.tsx
+msgid "Enter a valid slippage percentage"
+msgstr "请输入有效的滑点百分比"
+
+#: src/components/Action/useActionButton.ts
+msgid "Your position is in farming"
+msgstr "您的头寸正在参与挖矿"
+
+#: src/components/PoolInfo.tsx
+#: src/components/PoolInfo.tsx
+msgid "Native token"
+msgstr "原生代币"
+
+#: src/components/Preview/UpdatedPosition.tsx
+msgid "Updated position"
+msgstr "更新后的头寸"
+
+#: src/components/Action/index.tsx
+msgid "To ensure you dont lose funds due to very high price impact, swap has been disabled for this trade. If you still wish to continue, you can turn on Degen Mode from Settings."
+msgstr "为避免因极高价格影响造成损失，本次兑换已被禁用。如仍要继续，请在设置中开启 Degen 模式。"
+
+#: src/components/AmountToMigrate.tsx
+msgid "Will migrate"
+msgstr "将迁移"
+
+#: src/components/Warning/HoneypotWarning.tsx
+msgid "Our security checks detected that {honeypotTokensNames} may be a honeypot token (cannot be sold or carries extremely high sell fee). Please research carefully before adding liquidity or trading."
+msgstr "我们的安全检查发现 {honeypotTokensNames} 可能是蜜罐代币（无法出售或手续费极高）。请在添加流动性或交易前仔细核实。"
+
+#: src/components/Preview/Estimated.tsx
+msgid "Remaining amount"
+msgstr "剩余金额"
+
+#: src/components/Setting/SlippageInput.tsx
+msgid "Suggestion"
+msgstr "建议值"
+
+#: src/components/Action/useActionButton.ts
+msgid "Fetching Route"
+msgstr "正在获取路线"
+
+#: src/components/Preview/index.tsx
+msgid "Migrated liquidity"
+msgstr "已迁移流动性"
+
+#: src/index.tsx
+msgid "Failed to load position"
+msgstr "加载头寸失败"
+
+#: src/components/Preview/index.tsx
+msgid "Migrate liquidity via Zap"
+msgstr "通过 Zap 迁移流动性"
+
+#: src/components/PoolInfo.tsx
+msgid "Pool Address"
+msgstr "池地址"
+
+#: src/components/Action/useActionButton.ts
+msgid "Estimate Gas Failed"
+msgstr "估算 Gas 失败"
+
+#: src/components/Action/index.tsx
+#: src/components/Preview/index.tsx
+msgid "Cancel"
+msgstr "取消"
+
+#: src/components/Action/useActionButton.ts
+msgid "Zap anyway"
+msgstr "仍要 Zap"
+
+#: src/components/Preview/index.tsx
+msgid "Set Custom Slippage"
+msgstr "设置自定义滑点"
+
+#: src/components/Action/useActionButton.ts
+msgid "Invalid Price Range"
+msgstr "价格区间无效"
+
+#: src/components/Header.tsx
+#: src/components/Preview/index.tsx
+msgid "Reposition"
+msgstr "重新部署"
+
+#: src/components/Preview/MigrationSummary.tsx
+msgid "Migration Summary"
+msgstr "迁移摘要"
+
+#: src/components/Action/useActionButton.ts
+msgid "Approve target position"
+msgstr "批准目标头寸"
+
+#: src/components/Action/useActionButton.ts
+msgid "Checking Allowance"
+msgstr "正在检查授权额度"
+
+#: src/components/Action/useActionButton.ts
+msgid "Approving"
+msgstr "正在批准"
+
+#: src/components/Action/useActionButton.ts
+msgid "Select Price Range"
+msgstr "选择价格区间"
+
+#: src/components/RangeInput/PriceInput.tsx
+msgid "Min Price"
+msgstr "最低价格"
+
+#: src/components/PoolPrice.tsx
+msgid "Current Price"
+msgstr "当前价格"
+
+#: src/components/Header.tsx
+msgid "Degen Mode is turned on!"
+msgstr "Degen 模式已开启！"
+
+#: src/components/Preview/MigrationSummary.tsx
+msgid "Swap {0} {1} for {2} {3} via {poolElement}"
+msgstr "通过 {poolElement} 将 {0} {1} 兑换为 {2} {3}"
+
+#: src/components/AmountToMigrate.tsx
+msgid "<0>Amount to migrate</0><1>{percent}%</1>"
+msgstr "<0>迁移数量</0><1>{percent}%</1>"
+
+#: src/components/Warning/SlippageWarning.tsx
+msgid "Your slippage is set lower than usual, increasing the risk of transaction failure."
+msgstr "您设置的滑点低于常规，可能导致交易失败。"
+
+#: src/components/Setting/index.tsx
+msgid "Slippage Tolerance"
+msgstr "滑点容忍度"
+
+#: src/components/Header.tsx
+msgid "Migrate liquidity"
+msgstr "迁移流动性"
+
+#: src/components/Estimated/index.tsx
+#: src/components/Preview/Estimated.tsx
+msgid "The difference between input and estimated liquidity received (including remaining amount). Be careful with high value!"
+msgstr "输入与预估获得流动性（含剩余金额）之间的差额，数值过高请谨慎操作！"
+
+#: src/components/Warning/FullRangeWarning.tsx
+msgid "Your liquidity is active across the full price range. However, this may result in a lower APR than estimated due to less concentration of liquidity."
+msgstr "您的流动性覆盖整个价格区间，但可能因集中度较低导致实际 APR 低于预期。"
+
+#: src/components/Setting/index.tsx
+msgid "Advanced Setting"
+msgstr "高级设置"
+
+#: src/components/Preview/index.tsx
+msgid "Confirm this transaction in your wallet"
+msgstr "请在钱包中确认此交易"
+
+#: src/components/Action/useActionButton.ts
+msgid "Reposition to New Range"
+msgstr "重新部署到新区间"
+
+#: src/components/Action/index.tsx
+msgid "You have turned on Degen Mode from settings. Trades with very high price impact can be executed"
+msgstr "您已在设置中开启 Degen 模式，可执行高价格影响的交易"
+
+#: src/components/Action/useActionButton.ts
+msgid "Preview"
+msgstr "预览"
+
+#: src/components/Preview/index.tsx
+msgid "View position"
+msgstr "查看头寸"
+
+#: src/components/Preview/index.tsx
+msgid "Confirm migration"
+msgstr "确认迁移"
+
+#: src/components/Action/useActionButton.ts
+msgid "Estimating Gas"
+msgstr "正在估算 Gas"
+
+#: src/components/Estimated/index.tsx
+#: src/components/Preview/Estimated.tsx
+msgid "Fees charged for automatically zapping into a liquidity pool. You still have to pay the standard gas fees. <0>More details.</0>"
+msgstr "自动 Zap 入流动性池所收取的费用。您仍需支付标准 Gas 费用。<0>了解详情。</0>"
+
+#: src/components/Estimated/SlippageRow.tsx
+#: src/components/Preview/Estimated.tsx
+#: src/components/Setting/index.tsx
+msgid "Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price. Please use with caution!"
+msgstr "每个 Zap 步骤都会应用该滑点。滑点过高虽能提高成功率，但可能导致不利价格，请谨慎使用！"
+
+#: src/components/Estimated/index.tsx
+#: src/components/Preview/Estimated.tsx
+msgid "Migration Fee"
+msgstr "迁移费用"
+
+#: src/components/Warning/OutRangeWarning.tsx
+msgid "Your liquidity is outside the current market range and will not be used/earn fees until the market price enters your specified range."
+msgstr "您的流动性位于当前市场区间之外，价格进入设定区间前不会被使用或赚取手续费。"
+
+#: src/components/TargetPosition/index.tsx
+msgid "Total position"
+msgstr "头寸总额"
+
+#: src/components/PositionToMigrate/index.tsx
+msgid "Earned fee to migrate"
+msgstr "待迁移收益"
+
+#: src/components/Warning/SlippageWarning.tsx
+msgid "Your slippage is set higher than usual, which may cause unexpected losses."
+msgstr "您设置的滑点高于常规，可能带来意外损失。"
+
+#: src/components/Estimated/SlippageRow.tsx
+#: src/components/Preview/Estimated.tsx
+msgid "Max Slippage"
+msgstr "最大滑点"
+
+#: src/components/Setting/SlippageInput.tsx
+msgid "Enter a smaller slippage percentage"
+msgstr "请输入较小的滑点百分比"
+
+#: src/components/Preview/index.tsx
+#: src/index.tsx
+msgid "Close"
+msgstr "关闭"

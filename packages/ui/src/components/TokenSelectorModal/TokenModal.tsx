@@ -97,7 +97,7 @@ const TokenModal = ({
         containerClassName="ks-ui-style"
         className={`bg-layer2 p-0 !max-h-[80vh] ${
           tokenToShow || tokenToImport ? '' : 'pb-6'
-        } ${tokenToImport ? 'max-w-[420px]' : 'max-w-[435px]'}`}
+        } ${tokenToImport ? 'max-w-[420px]' : 'max-w-[435px]'} overflow-y-auto`}
         skipClose
         aria-describedby={undefined}
       >

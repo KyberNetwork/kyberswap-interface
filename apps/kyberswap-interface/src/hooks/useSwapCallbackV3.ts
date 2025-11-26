@@ -131,13 +131,14 @@ const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
           name: ErrorName.SwapError,
           wallet: walletKey,
         },
+        chainId,
         paymentToken: paymentToken?.address,
       })
       if (response?.hash === undefined) throw new Error('sendTransaction returned undefined.')
       handleSwapResponse(response)
       return response?.hash
     },
-    [account, handleSwapResponse, inputAmount, library, walletKey, paymentToken?.address],
+    [account, chainId, handleSwapResponse, inputAmount, library, walletKey, paymentToken?.address],
   )
 
   return swapCallbackForEVM

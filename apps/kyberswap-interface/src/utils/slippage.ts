@@ -1,3 +1,5 @@
+import { t } from '@lingui/macro'
+
 import {
   DEFAULT_SLIPPAGE,
   DEFAULT_SLIPPAGE_CORRELATED_PAIR,
@@ -83,19 +85,17 @@ export const formatSlippage = (slp: number, withPercent = true) => {
 
 const COMMON_PAIR = 'commonPair' // temporary solution, should have config for common pair soon
 
-export const SLIPPAGE_WARNING_MESSAGES: { [key: string]: { [key: string]: string } } = {
+export const SLIPPAGE_WARNING_MESSAGES: { [key: string]: { [key: string]: string } } = (() => ({
   [SLIPPAGE_STATUS.LOW]: {
-    [PAIR_CATEGORY.HIGH_VOLATILITY]: 'is quite low and may cause failed transactions in volatile markets.',
-    [PAIR_CATEGORY.EXOTIC]: 'is quite low and may cause failed transactions in highly volatile markets.',
-    [COMMON_PAIR]: 'is quite low and may cause failed transactions in highly volatile markets.',
+    [PAIR_CATEGORY.HIGH_VOLATILITY]: t`is quite low and may cause failed transactions in volatile markets.`,
+    [PAIR_CATEGORY.EXOTIC]: t`is quite low and may cause failed transactions in highly volatile markets.`,
+    [COMMON_PAIR]: t`is quite low and may cause failed transactions in highly volatile markets.`,
   },
   [SLIPPAGE_STATUS.HIGH]: {
-    [PAIR_CATEGORY.STABLE]:
-      'setting might be high compared to typical stable pair trades. Consider adjusting it to reduce front-running risks.',
-    [PAIR_CATEGORY.CORRELATED]:
-      'setting might be high compared with other similar trades. Consider adjusting it to reduce front-running risks.',
-    [PAIR_CATEGORY.HIGH_VOLATILITY]:
-      'setting might be high for this market. Consider adjusting it to reduce front-running risks.',
-    [PAIR_CATEGORY.EXOTIC]: 'setting might be high. Consider adjusting it to reduce front-running risks.',
+    [PAIR_CATEGORY.STABLE]: t`setting might be high compared to typical stable pair trades. Consider adjusting it to reduce front-running risks.`,
+    [PAIR_CATEGORY.CORRELATED]: t`setting might be high compared with other similar trades. Consider adjusting it to reduce front-running risks.`,
+    [PAIR_CATEGORY.HIGH_VOLATILITY]: t`setting might be high for this market. Consider adjusting it to reduce front-running risks.`,
+    [PAIR_CATEGORY.EXOTIC]: t`setting might be high. Consider adjusting it to reduce front-running risks.`,
+    [COMMON_PAIR]: t`setting might be high. Consider adjusting it to reduce front-running risks.`,
   },
-}
+}))()

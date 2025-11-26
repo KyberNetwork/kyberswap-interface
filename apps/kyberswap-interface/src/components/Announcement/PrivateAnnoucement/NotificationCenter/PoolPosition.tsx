@@ -72,10 +72,17 @@ export default function AnnouncementItem({
         </Flex>
       </Flex>
       <Desc>
-        Your position{' '}
-        <DoubleCurrencyLogoV2 logoUrl1={token0LogoURL} logoUrl2={token1LogoURL} size={16} style={{ marginRight: 12 }} />{' '}
-        {token0Symbol}-{token1Symbol} is <Text color={isInRange ? theme.apr : theme.warning}>{statusMessage}</Text>
-        <MoneyBag color={isInRange ? theme.apr : theme.warning} size={16} />
+        <Trans>
+          Your position{' '}
+          <DoubleCurrencyLogoV2
+            logoUrl1={token0LogoURL}
+            logoUrl2={token1LogoURL}
+            size={16}
+            style={{ marginRight: 12 }}
+          />{' '}
+          {token0Symbol}-{token1Symbol} is <Text color={isInRange ? theme.apr : theme.warning}>{statusMessage}</Text>
+          <MoneyBag color={isInRange ? theme.apr : theme.warning} size={16} />
+        </Trans>
       </Desc>
       {expand && (
         <Detail>

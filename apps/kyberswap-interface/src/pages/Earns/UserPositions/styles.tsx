@@ -8,9 +8,9 @@ import { PoolPageWrapper, TableHeader, TableWrapper } from 'pages/Earns/PoolExpl
 export const PositionPageWrapper = styled(PoolPageWrapper)`
   padding: 24px 6rem 62px;
 
-  ${({ theme }) => theme.mediaWidth.upToLarge`
+  @media (max-width: 1300px) {
     padding: 24px 6rem 60px;
-  `}
+  }
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     padding: 24px 16px 100px;
@@ -35,14 +35,14 @@ export const PositionRow = styled(Link)`
   text-decoration: none;
   color: inherit !important;
 
-  ${({ theme }) => theme.mediaWidth.upToLarge`
+  @media (max-width: 1300px) {
     justify-content: flex-start;
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: 1fr 1fr;
     border-radius: 20px;
-    background: ${rgba(theme.background, 0.8)};
+    background: ${({ theme }) => rgba(theme.background, 0.8)};
     margin-bottom: 16px;
-  `}
+  }
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     display: flex;
@@ -68,9 +68,9 @@ export const PositionOverview = styled.div`
   flex-direction: column;
   gap: 8px;
 
-  ${({ theme }) => theme.mediaWidth.upToLarge`
+  @media (max-width: 1300px) {
     grid-column: span 2;
-  `}
+  }
 `
 
 export const ImageContainer = styled.div`
@@ -160,9 +160,9 @@ export const PositionValueLabel = styled.p`
   top: 1px;
   display: none;
 
-  ${({ theme }) => theme.mediaWidth.upToLarge`
+  @media (max-width: 1300px) {
     display: block;
-  `}
+  }
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     font-size: 16px;
@@ -354,10 +354,10 @@ export const PositionTableHeaderFlexItem = styled.div`
 export const PositionTableWrapper = styled(TableWrapper)`
   overflow: hidden;
 
-  ${({ theme }) => theme.mediaWidth.upToLarge`
+  @media (max-width: 1300px) {
     background: transparent;
     margin: 0;
-  `}
+  }
 `
 
 export const PriceRangeWrapper = styled.div<{ outOfRange: boolean }>`

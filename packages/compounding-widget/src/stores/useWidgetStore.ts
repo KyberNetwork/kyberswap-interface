@@ -44,8 +44,14 @@ const initState = {
   onClose: () => {},
   onConnectWallet: () => {},
   onSwitchChain: () => {},
-  onSubmitTx: (_txData: { from: string; to: string; value: string; data: string; gasLimit: string }) =>
-    Promise.resolve(''),
+  onSubmitTx: (
+    _txData: { from: string; to: string; value: string; data: string; gasLimit: string },
+    _additionalInfo?: {
+      tokensIn: Array<{ symbol: string; amount: string; logoUrl?: string }>;
+      pool: string;
+      dexLogo: string;
+    },
+  ) => Promise.resolve(''),
   onOpenZapMigration: undefined,
   onViewPosition: undefined,
   nativeToken: defaultToken,

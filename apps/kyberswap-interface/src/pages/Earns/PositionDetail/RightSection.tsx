@@ -1,5 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { t } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { useEffect, useMemo, useState } from 'react'
 import { PlusCircle } from 'react-feather'
 import { useParams } from 'react-router-dom'
@@ -87,7 +87,7 @@ const RightSection = ({
   const { widget: zapOutWidget, handleOpenZapOut } = useZapOutWidget((props: CheckClosedPositionParams) => {
     onRefreshPosition(props)
     setReduceFetchInterval(true)
-  })
+  }, true)
 
   const price = useMemo(
     () => (!position?.priceRange ? 0 : !revert ? position.priceRange.current : 1 / position.priceRange.current),
@@ -169,7 +169,7 @@ const RightSection = ({
               {initialLoading ? (
                 <PositionSkeleton width={160} height={16} />
               ) : isUnfinalized ? (
-                <PositionSkeleton width={160} height={16} text="Finalizing..." />
+                <PositionSkeleton width={160} height={16} text={t`Finalizing...`} />
               ) : (
                 position && (
                   <>
@@ -223,7 +223,7 @@ const RightSection = ({
                   width={80}
                   height={21}
                   style={{ marginBottom: 8, marginTop: 8 }}
-                  text="Finalizing..."
+                  text={t`Finalizing...`}
                 />
               ) : (
                 <Text fontSize={18} marginBottom={2} marginTop={2}>
@@ -241,8 +241,10 @@ const RightSection = ({
                 <PositionSkeleton width={110} height={16} />
               ) : (
                 <Text fontSize={14} color={theme.subText}>
-                  {!revert ? position?.token1.symbol : position?.token0.symbol} per{' '}
-                  {!revert ? position?.token0.symbol : position?.token1.symbol}
+                  <Trans>
+                    {!revert ? position?.token1.symbol : position?.token0.symbol} per{' '}
+                    {!revert ? position?.token0.symbol : position?.token1.symbol}
+                  </Trans>
                 </Text>
               )}
             </MinPriceSection>
@@ -258,7 +260,7 @@ const RightSection = ({
                   width={80}
                   height={21}
                   style={{ marginBottom: 8, marginTop: 8 }}
-                  text="Finalizing..."
+                  text={t`Finalizing...`}
                 />
               ) : (
                 <Text fontSize={18} marginBottom={2} marginTop={2}>
@@ -276,8 +278,10 @@ const RightSection = ({
                 <PositionSkeleton width={110} height={16} />
               ) : (
                 <Text fontSize={14} color={theme.subText}>
-                  {!revert ? position?.token1.symbol : position?.token0.symbol} per{' '}
-                  {!revert ? position?.token0.symbol : position?.token1.symbol}
+                  <Trans>
+                    {!revert ? position?.token1.symbol : position?.token0.symbol} per{' '}
+                    {!revert ? position?.token0.symbol : position?.token1.symbol}
+                  </Trans>
                 </Text>
               )}
             </MaxPriceSection>

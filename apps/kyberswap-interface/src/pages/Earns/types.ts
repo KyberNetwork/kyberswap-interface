@@ -61,6 +61,7 @@ export interface EarnPool {
     kemEGApr: string
     kemLMApr: string
   }
+  egUsd?: number
 }
 
 export interface ParsedEarnPool extends EarnPool {
@@ -174,6 +175,7 @@ export const DEFAULT_PARSED_POSITION: ParsedPosition = {
     inProgressUsdValue: 0,
     pendingUsdValue: 0,
     vestingUsdValue: 0,
+    waitingUsdValue: 0,
     claimableUsdValue: 0,
     egTokens: [],
     lmTokens: [],
@@ -263,6 +265,7 @@ export interface ParsedPosition {
     inProgressUsdValue: number
     pendingUsdValue: number
     vestingUsdValue: number
+    waitingUsdValue: number
     claimableUsdValue: number
     egTokens: Array<TokenRewardInfo>
     lmTokens: Array<TokenRewardInfo>
@@ -360,6 +363,7 @@ export interface RewardInfo {
   inProgressUsdValue: number
   pendingUsdValue: number
   vestingUsdValue: number
+  waitingUsdValue: number
   nfts: Array<NftRewardInfo>
   chains: Array<ChainRewardInfo>
   tokens: Array<TokenRewardInfo>
@@ -385,6 +389,7 @@ export interface NftRewardInfo {
   inProgressUsdValue: number
   pendingUsdValue: number
   vestingUsdValue: number
+  waitingUsdValue: number
   claimableUsdValue: number
   unclaimedUsdValue: number
 
@@ -404,6 +409,7 @@ export interface TokenRewardInfo {
   unclaimedAmount: number
   pendingAmount: number
   vestingAmount: number
+  waitingAmount: number
   claimableUsdValue: number
 }
 

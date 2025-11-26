@@ -2,7 +2,7 @@
 
 The `@kyberswap/zap-migration-widgets` package provides a React component to migrate liquidity from one position/pool to another (or reposition within the same pool) using KyberSwap's Zap engine. It is small, configurable, and easy to embed in a modal or page.
 
-Exports: `ZapMigration`, `ChainId`, `PoolType`.
+Exports: `ZapMigration`, `ChainId`, `PoolType`, `ZapStatus`.
 
 ## Installation
 
@@ -82,6 +82,7 @@ For a more detailed example, refer to the demo component in this repository: [Za
 | Property          | Description                                                                                                                      | Type                                                                                                        | Required / Default |
 | ----------------- | -------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | ------------------ |
 | chainId           | Network for the migration workflow                                                                                               | `ChainId` \| `number`                                                                                       | Required           |
+| rpcUrl            | Use your own RPC endpoint                                                                                                        | `string`                                                                                                    | Optional           |
 | from              | Source position to migrate from                                                                                                  | `{ poolType: PoolType; poolAddress: string; positionId: string }`                                           | Required           |
 | to                | Target pool/position to migrate into. Omit to create a new position                                                              | `{ poolType: PoolType; poolAddress: string; positionId?: string }`                                          | Optional           |
 | connectedAccount  | Current connected account info                                                                                                   | `{ address?: string; chainId: number }`                                                                     | Required           |
@@ -101,6 +102,7 @@ For a more detailed example, refer to the demo component in this repository: [Za
 | onSwitchChain     | Trigger your chain switch flow                                                                                                   | `() => void`                                                                                                | Required           |
 | onSubmitTx        | Submit the provided transaction object and return the tx hash. If `gasLimit` is omitted, your wallet/provider should estimate it | `(txData: { from: string; to: string; value: string; data: string; gasLimit?: string }) => Promise<string>` | Required           |
 | onClose           | Called when the widget is closed                                                                                                 | `() => void`                                                                                                | Required           |
+| zapStatus         | Controls the widget's transaction state; pass a map of `txHash -> TxStatus`, or omit to let the widget poll itself               | `Record<string, TxStatus>`                                                                                  | Optional           |
 
 - Included/Excluded sources use KyberSwap Aggregator DEX IDs. See: https://docs.kyberswap.com/kyberswap-solutions/kyberswap-aggregator/dex-ids
 - `PoolType` enumerates supported protocols (e.g. Uniswap V3, PancakeSwap V3, Sushi V3, Algebra forks, Uniswap V2, Uniswap V4, etc.). Import it from this package and pick the one matching your pools.

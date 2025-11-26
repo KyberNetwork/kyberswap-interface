@@ -1,3 +1,5 @@
+import { t } from '@lingui/macro';
+
 import { defaultToken } from '@kyber/schema';
 import { formatUnits } from '@kyber/utils/crypto';
 import { toRawString } from '@kyber/utils/number';
@@ -28,7 +30,7 @@ export default function TargetPosition() {
   return (
     <div className="border border-stroke rounded-md px-4 py-3">
       <MigrationAccordion
-        title={!targetPositionId ? 'New position' : 'Current position'}
+        title={!targetPositionId ? t`New position` : t`Current position`}
         amount0={!targetPositionId ? addedAmount0 : currentAmount0}
         amount1={!targetPositionId ? addedAmount1 : currentAmount1}
         amountLoading={!targetPositionId ? fetchingRoute : targetPositionLoading}
@@ -39,7 +41,7 @@ export default function TargetPosition() {
         <>
           <div className="w-full h-[1px] bg-stroke my-3" />
           <MigrationAccordion
-            title="Total position"
+            title={t`Total position`}
             amount0={addedAmount0 + currentAmount0}
             amount1={addedAmount1 + currentAmount1}
             amountLoading={fetchingRoute || targetPositionLoading}

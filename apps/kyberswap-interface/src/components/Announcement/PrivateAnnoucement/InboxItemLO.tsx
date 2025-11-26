@@ -56,7 +56,7 @@ function InboxItemBridge({
     ? t`100% Filled`
     : isPartialFilled
     ? t`${filledPercent} Filled ${increasedFilledPercent}`
-    : `${filledPercent}% Filled | Expired`
+    : t`${filledPercent}% Filled | Expired`
 
   const navigate = useNavigate()
   const onClick = () => {

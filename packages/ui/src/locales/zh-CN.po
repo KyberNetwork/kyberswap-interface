@@ -1,0 +1,550 @@
+msgid ""
+msgstr ""
+"Language: zh-CN\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#: src/utils/translateUtilsMessage.ts
+msgid "An error occurred. Refresh the page and try again"
+msgstr "发生错误。请刷新页面后重试"
+
+#: src/utils/translateUtilsMessage.ts
+msgid "An error occurred. Invalid Permit Signature"
+msgstr "发生错误。无效的许可签名"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenImportConfirm.tsx
+msgid "Address: {address}"
+msgstr "地址：{address}"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenSelector.tsx
+msgid "All"
+msgstr "全部"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/utils.ts
+msgid "All-Time High"
+msgstr "历史最高价"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/utils.ts
+msgid "All-Time Low"
+msgstr "历史最低价"
+
+#. js-lingui-explicit-id
+#: src/components/StatusDialog/utils.ts
+msgid "An error occurred while processing your transaction"
+msgstr "处理您的交易时发生错误"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/utils.ts
+msgid "Anti Whale"
+msgstr "反巨鲸机制"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/CollapseInfoItem.tsx
+msgid "Attention Item"
+msgstr "注意事项"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/CollapseInfoItem.tsx
+msgid "Attention Item(s)"
+msgstr "注意事项"
+
+#: src/utils/translateUtilsMessage.ts
+msgid "Overall zap price impact is higher than expected."
+msgstr "整体zap价格影响高于预期。"
+
+#: src/utils/translateUtilsMessage.ts
+msgid "Unable to calculate zap impact"
+msgstr "无法计算zap影响"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/utils.ts
+msgid "Blacklisted Function"
+msgstr "黑名单函数"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/utils.ts
+msgid "Buy Tax"
+msgstr "买入税"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/utils.ts
+msgid "Can Change Balance"
+msgstr "可更改余额"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/utils.ts
+msgid "Can be bought"
+msgstr "可买入"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/utils.ts
+msgid "Can sell all"
+msgstr "可全部卖出"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenSelector.tsx
+msgid "Cancel"
+msgstr "取消"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/utils.ts
+msgid "Circulating Supply"
+msgstr "流通供应量"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenSelector.tsx
+msgid "Clear All"
+msgstr "清除全部"
+
+#. js-lingui-explicit-id
+#: src/components/LoadingCounter/index.tsx
+msgid "Click to refresh, occur once per second."
+msgstr "点击刷新，每秒一次。"
+
+#. js-lingui-explicit-id
+#: src/components/StatusDialog/utils.ts
+msgid "Confirm this transaction in your wallet"
+msgstr "在您的钱包中确认此交易"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/UserPositions/index.tsx
+msgid "Connect"
+msgstr "连接"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/MarketInfo.tsx
+msgid "Contract Address"
+msgstr "合约地址"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/SecurityInfo.tsx
+msgid "Contract Security"
+msgstr "合约安全"
+
+#. js-lingui-explicit-id
+#: src/components/ShareModal/Actions.tsx
+msgid "Copy Image"
+msgstr "复制图片"
+
+#. js-lingui-explicit-id
+#: src/components/ShareModal/Actions.tsx
+msgid "Copy URL"
+msgstr "复制链接"
+
+#: src/utils/translateUtilsMessage.ts
+msgid "Insufficient fee rewards amount, try to remove your liquidity without claiming fees for now and you can try to claim it later"
+msgstr "费用奖励金额不足，请尝试在不领取费用的情况下移除您的流动性，您可以稍后再尝试领取"
+
+#. js-lingui-explicit-id
+#: src/components/ShareModal/Actions.tsx
+msgid "Download Image"
+msgstr "下载图片"
+
+#: src/utils/translateUtilsMessage.ts
+msgid "User rejected the request."
+msgstr "用户拒绝了请求。"
+
+#. js-lingui-explicit-id
+#: src/components/ShareModal/utils.tsx
+msgid "EG Sharing APR"
+msgstr "EG 分享年化收益率"
+
+#. js-lingui-explicit-id
+#: src/components/ShareModal/utils.tsx
+msgid "EG Sharing rewards"
+msgstr "EG 分享奖励"
+
+#. js-lingui-explicit-id
+#: src/components/ShareModal/index.tsx
+msgid "Explore details:"
+msgstr "查看详情："
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/utils.ts
+msgid "External Call"
+msgstr "外部调用"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/utils.ts
+msgid "Gas Abuser"
+msgstr "Gas 滥用"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/utils.ts
+msgid "Honeypot"
+msgstr "蜜罐"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenImportConfirm.tsx
+msgid "I understand"
+msgstr "我已了解"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenSelector.tsx
+msgid "Import"
+msgstr "导入"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenImportConfirm.tsx
+msgid "Import Token"
+msgstr "导入代币"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenSelector.tsx
+msgid "Imported"
+msgstr "已导入"
+
+#: src/utils/translateUtilsMessage.ts
+msgid "Overall zap price impact is higher than expected. Click 'Zap Anyway' if you wish to proceed in Degen Mode."
+msgstr "整体zap价格影响高于预期。如果您希望以Degen模式继续，请点击“仍然Zap”。"
+
+#. js-lingui-explicit-id
+#: src/components/ShareModal/utils.tsx
+msgid "Liquidity Mining APR"
+msgstr "流动性挖矿年化收益率"
+
+#. js-lingui-explicit-id
+#: src/components/ShareModal/utils.tsx
+msgid "Liquidity Mining rewards"
+msgstr "流动性挖矿奖励"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/utils.ts
+msgid "Market Cap"
+msgstr "市值"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/utils.ts
+msgid "Market Cap Rank"
+msgstr "市值排名"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/MarketInfo.tsx
+msgid "Market Info"
+msgstr "市场信息"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/utils.ts
+msgid "Mint Function"
+msgstr "增发函数"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/utils.ts
+msgid "Modifiable Anti Whale"
+msgstr "可调整的反巨鲸机制"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/utils.ts
+msgid "Modifiable Tax"
+msgstr "可调整税率"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/CollapseInfoItem.tsx
+msgid "No"
+msgstr "否"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/UserPositions/index.tsx
+msgid "No positions found."
+msgstr "未找到仓位。"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/UserPositions/index.tsx
+msgid "No positions found. Connect your wallet first."
+msgstr "未找到仓位。请先连接您的钱包。"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenSelector.tsx
+msgid "No results found."
+msgstr "未找到结果。"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/utils.ts
+msgid "Open Source"
+msgstr "开源"
+
+#. js-lingui-explicit-id
+#: src/components/ShareModal/index.tsx
+msgid "Position age: {duration}"
+msgstr "持仓时长：{duration}"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/MarketInfo.tsx
+#: src/components/TokenSelectorModal/TokenInfo/SecurityInfo.tsx
+msgid "Powered by"
+msgstr "技术支持"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/utils.ts
+msgid "Price"
+msgstr "价格"
+
+#. js-lingui-explicit-id
+#: src/components/StatusDialog/utils.ts
+msgid "Processing transaction"
+msgstr "正在处理交易"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/utils.ts
+msgid "Proxy Contract"
+msgstr "代理合约"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/CollapseInfoItem.tsx
+msgid "Risky Item"
+msgstr "风险项"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/CollapseInfoItem.tsx
+msgid "Risky Item(s)"
+msgstr "风险项"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenSelector.tsx
+msgid "Save"
+msgstr "保存"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenSelector.tsx
+msgid "Search by token name, token symbol or address"
+msgstr "可按代币名称、代号或地址搜索"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/SecurityInfo.tsx
+msgid "Security Info"
+msgstr "安全信息"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenSelector.tsx
+msgid "Select Liquidity Source"
+msgstr "选择流动性来源"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/utils.ts
+msgid "Self-destruct"
+msgstr "自毁"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/utils.ts
+msgid "Sell Tax"
+msgstr "卖出税"
+
+#. js-lingui-explicit-id
+#: src/components/ShareModal/index.tsx
+msgid "Share this with your friends!"
+msgstr "分享给您的朋友！"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/utils.ts
+msgid "Take Back Ownership"
+msgstr "收回所有权"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenSelector.tsx
+msgid "The maximum number of tokens selected is {count}."
+msgstr "最多可选择 {count} 个代币。"
+
+#. js-lingui-explicit-id
+#: src/components/ShareModal/Options.tsx
+msgid "This option is not available for non-farming pools"
+msgstr "该选项不适用于非挖矿池"
+
+#. js-lingui-explicit-id
+#: src/components/ShareModal/Options.tsx
+msgid "This option is not available when you select {options}"
+msgstr "当您选择 {options} 时，此选项不可用"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenImportConfirm.tsx
+msgid "This token isn't frequently swapped. Please do your own research before trading."
+msgstr "该代币交易频率较低，交易前请自行研究。"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/SecurityInfo.tsx
+msgid "Token security info provided by Goplus. Please conduct your own research before trading"
+msgstr "代币安全信息由 Goplus 提供，交易前请自行研究"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenSelector.tsx
+msgid "Token(s)"
+msgstr "代币"
+
+#. js-lingui-explicit-id
+#: src/components/ShareModal/utils.tsx
+msgid "Total APR"
+msgstr "总年化收益率"
+
+#. js-lingui-explicit-id
+#: src/components/ShareModal/utils.tsx
+msgid "Total Earnings"
+msgstr "总收益"
+
+#. js-lingui-explicit-id
+#: src/components/ShareModal/utils.tsx
+msgid "Total Rewards"
+msgstr "总奖励"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/utils.ts
+msgid "Total Supply"
+msgstr "总代币供应量"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/SecurityInfo.tsx
+msgid "Trading Security"
+msgstr "交易安全"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/utils.ts
+msgid "Trading Volume (24H)"
+msgstr "24 小时交易量"
+
+#. js-lingui-explicit-id
+#: src/components/StatusDialog/utils.ts
+msgid "Transaction failed"
+msgstr "交易失败"
+
+#. js-lingui-explicit-id
+#: src/components/StatusDialog/utils.ts
+msgid "Transaction successful"
+msgstr "交易成功"
+
+#: src/utils/translateUtilsMessage.ts
+msgid "{0} Pool"
+msgstr "{0} 池"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/CollapseInfoItem.tsx
+msgid "Unknown"
+msgstr "未知"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenSelector.tsx
+msgid "Use your existing liquidity positions from supported protocols as a source."
+msgstr "使用来自受支持协议的现有流动性仓位作为来源。"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/MarketInfo.tsx
+msgid "View less"
+msgstr "收起"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/MarketInfo.tsx
+msgid "View more"
+msgstr "展开更多"
+
+#. js-lingui-explicit-id
+#: src/components/StatusDialog/index.tsx
+msgid "View transaction"
+msgstr "查看交易"
+
+#: src/utils/translateUtilsMessage.ts
+msgid "An error occurred"
+msgstr "发生错误"
+
+#. js-lingui-explicit-id
+#: src/components/StatusDialog/utils.ts
+msgid "Waiting for confirmation"
+msgstr "等待确认"
+
+#. js-lingui-explicit-id
+#: src/components/StatusDialog/utils.ts
+msgid "Waiting for transaction to be mined"
+msgstr "等待交易被打包"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/utils.ts
+msgid "Whitelisted Function"
+msgstr "白名单函数"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenInfo/CollapseInfoItem.tsx
+msgid "Yes"
+msgstr "是"
+
+#. js-lingui-explicit-id
+#: src/components/ShareModal/Options.tsx
+msgid "You can only select up to {count} options"
+msgstr "最多只能选择 {count} 个选项"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenSelector.tsx
+msgid "You can search and select"
+msgstr "您可以搜索并选择"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenSelector.tsx
+#: src/components/TokenSelectorModal/TokenSelector.tsx
+msgid "You cannot remove the only selected token, please select another token first."
+msgstr "无法移除唯一选择的代币，请先选择其他代币。"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenSelector.tsx
+msgid "You have reached the maximum token selection limit. Please deselect one or more tokens to make changes."
+msgstr "您已达到代币选择上限。请取消选择一个或多个代币后再修改。"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenSelector.tsx
+msgid "Your Position(s)"
+msgstr "您的持仓"
+
+#. js-lingui-explicit-id
+#: src/components/StatusDialog/utils.ts
+msgid "Your transaction has been successful"
+msgstr "您的交易已成功"
+
+#: src/utils/translateUtilsMessage.ts
+msgid "An error occurred. Refresh the page and try again. If the issue still persists, it might be an issue with your RPC node settings in Metamask."
+msgstr "发生错误。请刷新页面后重试。如果问题仍然存在，可能是您的Metamask中的RPC节点设置有问题。"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenSelector.tsx
+msgid "any token(s)"
+msgstr "任意代币"
+
+#: src/utils/translateUtilsMessage.ts
+msgid "Something went wrong. Please try again"
+msgstr "出错了。请再试一次"
+
+#: src/utils/translateUtilsMessage.ts
+msgid "An error occurred. Please try increasing max slippage"
+msgstr "发生错误。请尝试增加最大滑点"
+
+#: src/utils/translateUtilsMessage.ts
+msgid "An error occurred. Try refreshing the price rate or increase max slippage"
+msgstr "发生错误。请尝试刷新价格或增加最大滑点"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenSelector.tsx
+msgid "on KyberSwap"
+msgstr "在 KyberSwap 上"
+
+#: src/utils/translateUtilsMessage.ts
+msgid "User rejected the transaction."
+msgstr "用户拒绝了交易。"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/TokenSelector.tsx
+msgid "{count} Custom Tokens"
+msgstr "{count} 个自定义代币"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/UserPositions/index.tsx
+msgid "● In range"
+msgstr "● 价格在范围内"
+
+#. js-lingui-explicit-id
+#: src/components/TokenSelectorModal/UserPositions/index.tsx
+msgid "● Out of range"
+msgstr "● 价格超出范围"

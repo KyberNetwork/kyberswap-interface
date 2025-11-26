@@ -32,14 +32,14 @@ const TextUnderlineTransparent = styled(Text)`
 `
 
 const SlippageWarningNote: FC<Props> = ({ className, rawSlippage }) => {
-  const cat = usePairCategory()
-  const slippageStatus = checkRangeSlippage(rawSlippage, cat)
+  const pairCategory = usePairCategory()
+  const slippageStatus = checkRangeSlippage(rawSlippage, pairCategory)
 
   if (slippageStatus === SLIPPAGE_STATUS.NORMAL) {
     return null
   }
 
-  const msg = (SLIPPAGE_WARNING_MESSAGES[slippageStatus] as Record<PAIR_CATEGORY, string>)[cat] || ''
+  const msg = (SLIPPAGE_WARNING_MESSAGES[slippageStatus] as Record<PAIR_CATEGORY, string>)?.[pairCategory] || ''
 
   const shortText = (
     <div>

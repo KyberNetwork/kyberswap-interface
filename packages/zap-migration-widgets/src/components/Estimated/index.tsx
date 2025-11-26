@@ -1,3 +1,5 @@
+import { Trans, t } from '@lingui/macro';
+
 import { API_URLS } from '@kyber/schema';
 import { PI_LEVEL } from '@kyber/utils';
 import { cn } from '@kyber/utils/tailwind-helpers';
@@ -31,10 +33,10 @@ export function Estimated() {
                 : '',
             )}
           >
-            Zap Impact
+            {t`Zap Impact`}
           </div>
         }
-        labelTooltip="The difference between input and estimated liquidity received (including remaining amount). Be careful with high value!"
+        labelTooltip={t`The difference between input and estimated liquidity received (including remaining amount). Be careful with high value!`}
         value={
           <div
             className={`text-sm ${
@@ -54,13 +56,20 @@ export function Estimated() {
 
       <EstimatedRow
         loading={fetchingRoute}
-        label="Migration Fee"
+        label={t`Migration Fee`}
         labelTooltip={
           <div>
-            Fees charged for automatically zapping into a liquidity pool. You still have to pay the standard gas fees.{' '}
-            <a className="text-accent" href={API_URLS.DOCUMENT.ZAP_FEE_MODEL} target="_blank" rel="noopener noreferrer">
-              More details.
-            </a>
+            <Trans>
+              Fees charged for automatically zapping into a liquidity pool. You still have to pay the standard gas fees.{' '}
+              <a
+                className="text-accent"
+                href={API_URLS.DOCUMENT.ZAP_FEE_MODEL}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                More details.
+              </a>
+            </Trans>
           </div>
         }
         value={<div className="text-sm font-medium">{parseFloat(zapFee.toFixed(3))}%</div>}

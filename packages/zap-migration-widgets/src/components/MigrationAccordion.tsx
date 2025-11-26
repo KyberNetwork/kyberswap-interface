@@ -21,7 +21,7 @@ export default function MigrationAccordion({
   pool,
   className,
 }: {
-  title: string;
+  title: React.ReactNode;
   amount0: number;
   amount1: number;
   amountLoading?: boolean;
