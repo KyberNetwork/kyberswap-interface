@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { fetchTokenPrice } from '@kyber/utils';
 
 export function useTokenPrices({ addresses, chainId }: { addresses: string[]; chainId: number }) {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [prices, setPrices] = useState<{ [key: string]: number }>(() => {
     return addresses.reduce((acc, address) => ({ ...acc, [address]: 0 }), {});
   });
@@ -14,9 +14,11 @@ export function useTokenPrices({ addresses, chainId }: { addresses: string[]; ch
     const getPrice = async () => {
       if (addresses.length === 0) {
         setPrices({});
+        setLoading(false);
         return;
       }
 
+      setLoading(true);
       fetchTokenPrice({ addresses, chainId })
         .then(prices => {
           setPrices(
