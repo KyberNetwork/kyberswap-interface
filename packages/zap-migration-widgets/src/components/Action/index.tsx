@@ -43,9 +43,9 @@ export function Action({
   return (
     <div className="flex flex-col md:flex-row items-start justify-center gap-3 md:gap-5 mt-2 md:mt-6">
       {sourcePermit.enable ? (
-        <PermitButton permit={sourcePermit} deadline={deadline} />
+        <PermitButton permit={sourcePermit} deadline={deadline} type="source" />
       ) : targetPermit.enable ? (
-        <PermitButton permit={targetPermit} deadline={deadline} />
+        <PermitButton permit={targetPermit} deadline={deadline} type="target" />
       ) : (
         <button
           className="ks-outline-btn w-full md:w-[190px]"
@@ -99,9 +99,11 @@ export function Action({
 
 function PermitButton({
   permit,
+  type,
   deadline,
 }: {
   permit: { state: PermitNftState; disabled: boolean; sign: (deadline: number) => void };
+  type: 'source' | 'target';
   deadline: number;
 }) {
   const { theme } = useWidgetStore(['theme']);
@@ -112,7 +114,7 @@ function PermitButton({
       disabled={permit.disabled}
       onClick={() => permit.sign(deadline)}
     >
-      {permit.state === PermitNftState.SIGNING ? t`Signing...` : t`Permit NFT`}
+      {permit.state === PermitNftState.SIGNING ? t`Signing...` : `Permit ${type} NFT`}
       <InfoHelper
         size={14}
         width="300px"
