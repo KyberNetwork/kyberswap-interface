@@ -181,21 +181,6 @@ function ApprovalButton({
           <DropdownMenuContent className="w-56 z-[1002]" align="start">
             <DropdownMenuItem
               onSelect={() => {
-                approval.nftApprovalType !== 'single' && approval.setNftApprovalType('single');
-              }}
-            >
-              <Trans>Approve this position</Trans>
-              <InfoHelper
-                width="400px"
-                color={theme.icons}
-                size={14}
-                text={`You wish to give KyberSwap permission to only use this position NFT for this transaction. You’ll need to approve again for future actions.`}
-                style={{ marginLeft: '-3px' }}
-                onClick={e => e.stopPropagation()}
-              />
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onSelect={() => {
                 approval.nftApprovalType !== 'all' && approval.setNftApprovalType('all');
               }}
             >
@@ -205,6 +190,21 @@ function ApprovalButton({
                 color={theme.icons}
                 size={14}
                 text={`You wish to give KyberSwap permission to manage all your positions from ${approval.dexName} on this chain. You won’t need to approve again unless you revoke the permission in your wallet.`}
+                style={{ marginLeft: '-3px' }}
+                onClick={e => e.stopPropagation()}
+              />
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onSelect={() => {
+                approval.nftApprovalType !== 'single' && approval.setNftApprovalType('single');
+              }}
+            >
+              <Trans>Approve this position</Trans>
+              <InfoHelper
+                width="400px"
+                color={theme.icons}
+                size={14}
+                text={`You wish to give KyberSwap permission to only use this position NFT for this transaction. You’ll need to approve again for future actions.`}
                 style={{ marginLeft: '-3px' }}
                 onClick={e => e.stopPropagation()}
               />

@@ -128,6 +128,17 @@ function ApprovalButton({
             </div>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-56" align="start">
+            <DropdownMenuItem onSelect={() => approval.nftApprovalType !== 'all' && approval.setNftApprovalType('all')}>
+              <Trans>Approve for all</Trans>
+              <InfoHelper
+                width="400px"
+                color={theme.icons}
+                size={14}
+                text={`You wish to give KyberSwap permission to manage all your positions from ${dexNameWithoutFairFlow} on this chain. You won’t need to approve again unless you revoke the permission in your wallet.`}
+                style={{ marginLeft: '-3px' }}
+                onClick={e => e.stopPropagation()}
+              />
+            </DropdownMenuItem>
             <DropdownMenuItem
               onSelect={() => approval.nftApprovalType !== 'single' && approval.setNftApprovalType('single')}
             >
@@ -137,17 +148,6 @@ function ApprovalButton({
                 color={theme.icons}
                 size={14}
                 text={`You wish to give KyberSwap permission to only use this position NFT for this transaction. You’ll need to approve again for future actions.`}
-                style={{ marginLeft: '-3px' }}
-                onClick={e => e.stopPropagation()}
-              />
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => approval.nftApprovalType !== 'all' && approval.setNftApprovalType('all')}>
-              <Trans>Approve for all</Trans>
-              <InfoHelper
-                width="400px"
-                color={theme.icons}
-                size={14}
-                text={`You wish to give KyberSwap permission to manage all your positions from ${dexNameWithoutFairFlow} on this chain. You won’t need to approve again unless you revoke the permission in your wallet.`}
                 style={{ marginLeft: '-3px' }}
                 onClick={e => e.stopPropagation()}
               />
