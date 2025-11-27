@@ -57,7 +57,7 @@ const TableContent = ({
         dexLogo: dexInfo.logoURL,
         dexName: dexInfo.name,
         feeApr: pool.apr,
-        apr: (pool.kemEGApr || 0) + (pool.kemLMApr || 0) + pool.apr,
+        apr: pool.apr + (pool.kemEGApr || 0) + (pool.kemLMApr || 0) + (pool.bonusApr || 0),
       }
     })
   }, [poolData?.data?.pools, dexLookupMap])

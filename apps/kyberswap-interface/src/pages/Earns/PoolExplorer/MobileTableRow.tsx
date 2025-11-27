@@ -7,7 +7,7 @@ import { PoolQueryParams } from 'services/zapEarn'
 import CopyHelper from 'components/Copy'
 import TokenLogo from 'components/TokenLogo'
 import useTheme from 'hooks/useTheme'
-import { kemFarming } from 'pages/Earns/PoolExplorer/DesktopTableRow'
+import { kemFarming, uniReward } from 'pages/Earns/PoolExplorer/DesktopTableRow'
 import { FilterTag } from 'pages/Earns/PoolExplorer/Filter'
 import {
   Apr,
@@ -82,6 +82,7 @@ const MobileTableRow = ({
           <Flex alignItems="center" sx={{ gap: '2px' }}>
             <Apr value={pool.apr}>{formatAprNumber(pool.apr)}%</Apr>
             {kemFarming(pool)}
+            {uniReward(pool)}
           </Flex>
           <Star
             size={16}
