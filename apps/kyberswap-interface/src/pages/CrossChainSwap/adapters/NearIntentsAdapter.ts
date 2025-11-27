@@ -36,6 +36,7 @@ export const MappingChainIdToBlockChain: Record<string, string> = {
   [ChainId.BERA]: 'bera',
   [ChainId.MATIC]: 'pol',
   [ChainId.BASE]: 'base',
+  [ChainId.MONAD]: 'monad',
 }
 
 const erc20Abi = [
@@ -102,7 +103,7 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
               token.blockchain === blockchain &&
               ((params.fromToken as any).isNative
                 ? token.symbol.toLowerCase() === params.fromToken.symbol?.toLowerCase() &&
-                  token.assetId.includes('omft')
+                  (token.assetId.includes('omft') || token.assetId.includes('omni.hot.tg'))
                 : token.contractAddress?.toLowerCase() === (params.fromToken as any).wrapped?.address.toLowerCase())
             )
           })?.assetId
@@ -122,7 +123,8 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
             return (
               token.blockchain === blockchain &&
               ((params.toToken as any).isNative
-                ? token.symbol.toLowerCase() === params.toToken.symbol?.toLowerCase() && token.assetId.includes('omft')
+                ? token.symbol.toLowerCase() === params.toToken.symbol?.toLowerCase() &&
+                  (token.assetId.includes('omft') || token.assetId.includes('omni.hot.tg'))
                 : token.contractAddress?.toLowerCase() === (params.toToken as any).wrapped?.address.toLowerCase())
             )
           })?.assetId
