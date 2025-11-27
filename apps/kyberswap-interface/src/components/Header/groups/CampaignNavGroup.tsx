@@ -54,24 +54,24 @@ const CampaignNavGroup = () => {
         anchor={
           <DropdownTextAnchor style={{ display: 'flex', position: 'relative', width: 'max-content' }}>
             <Trans>Campaigns</Trans>
-            {showCampaignNew && <ELabel isNew>{t`NEW`}</ELabel>}
+            {showCampaignNew && <ELabel isNew>{t`New`}</ELabel>}
           </DropdownTextAnchor>
         }
         dropdownContent={
           <Column>
             <StyledNavLink to={APP_PATHS.RAFFLE_CAMPAIGN}>
               <Trans>Weekly Rewards</Trans>
-              <ELabel isNew>{t`NEW`}</ELabel>
+              <ELabel isNew>{t`New`}</ELabel>
             </StyledNavLink>
 
             <StyledNavLink to={APP_PATHS.NEAR_INTENTS_CAMPAIGN}>
               <Trans>Cross Chain Campaign</Trans>
-              <ELabel>{t`ENDED`}</ELabel>
+              <ELabel>{t`Ended`}</ELabel>
             </StyledNavLink>
 
             <StyledNavLink to={APP_PATHS.MAY_TRADING_CAMPAIGN}>
               <Trans>May Trading</Trans>
-              <ELabel>{t`ENDED`}</ELabel>
+              <ELabel>{t`Ended`}</ELabel>
             </StyledNavLink>
 
             <StyledNavLink
@@ -83,7 +83,7 @@ const CampaignNavGroup = () => {
               }}
             >
               Arbitrum STIP
-              <ELabel>{t`ENDED`}</ELabel>
+              <ELabel>{t`Ended`}</ELabel>
               <DropdownIcon open={showStip} />
             </StyledNavLink>
 
