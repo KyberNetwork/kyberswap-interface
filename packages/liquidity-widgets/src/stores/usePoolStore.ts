@@ -41,7 +41,6 @@ const usePoolRawStore = create<PoolState>((set, get) => ({
     if (poolInfo.error && (!poolInfo.error.includes(POOL_ERROR.CANT_GET_POOL_INFO) || firstLoad))
       set({ poolError: poolInfo.error });
     else if (poolInfo.pool) {
-      poolInfo.pool.stats.bonusApr = 12.32; // TODO: Remove hardcode bonusApr
       set({ pool: poolInfo.pool as Pool });
 
       const revertPrice = get().revertPrice;
