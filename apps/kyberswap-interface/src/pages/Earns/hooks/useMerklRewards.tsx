@@ -33,8 +33,13 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
     const calculatedRewards = data.flatMap(chainRewards =>
       (chainRewards.rewards || []).map(reward => {
         const breakdowns = reward.breakdowns.filter(item => {
-          const [protocol, _poolAddress, positionId] = item.reason.split('_')
-          return protocol.startsWith('Uniswap') && (options?.position ? positionId === options.position.tokenId : true)
+          const [protocol, poolAddress, positionId] = item.reason.split('_')
+          return (
+            protocol.startsWith('Uniswap') &&
+            (options?.position
+              ? poolAddress === options.position.pool.address && positionId === options.position.tokenId
+              : true)
+          )
         })
         return {
           ...reward,
