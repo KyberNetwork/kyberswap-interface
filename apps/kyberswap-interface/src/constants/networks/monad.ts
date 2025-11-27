@@ -23,7 +23,7 @@ const monadInfo: NetworkInfo = {
   nativeToken: {
     symbol: 'MON',
     name: 'MON',
-    logo: 'https://storage.googleapis.com/ks-setting-1d682dca/7d9b018b-7dfd-4644-9735-3215bcb9dec91763539895022.jpg',
+    logo: monadIcon,
     decimal: 18,
   },
   defaultRpcUrl: 'https://rpc.monad.xyz',
