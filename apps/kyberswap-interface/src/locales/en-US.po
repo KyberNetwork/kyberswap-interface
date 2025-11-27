@@ -58,8 +58,8 @@ msgstr "Updated"
 #: src/pages/Campaign/MyDashboard.tsx
 #: src/pages/Campaign/MyDashboard.tsx
 #: src/pages/Campaign/MyDashboard.tsx
-msgid "ENDED"
-msgstr "ENDED"
+msgid "Ended"
+msgstr "Ended"
 
 #: src/components/swapv2/LimitOrder/const.ts
 msgid "Open Orders"
@@ -6520,8 +6520,8 @@ msgid "Create Pool"
 msgstr "Create Pool"
 
 #: src/pages/Campaign/MyDashboard.tsx
-msgid "NEW"
-msgstr "NEW"
+msgid "New"
+msgstr "New"
 
 #: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
 #: src/components/SwapForm/TradeSummary.tsx
