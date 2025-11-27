@@ -22,3 +22,15 @@ export const EIP712_DOMAIN_TYPE_SALT = [
   { name: 'verifyingContract', type: 'address' },
   { name: 'salt', type: 'bytes32' },
 ]
+
+export const EIP712_DOMAIN_TYPE_NOVERSION = [
+  { name: 'name', type: 'string' },
+  { name: 'chainId', type: 'uint256' },
+  { name: 'verifyingContract', type: 'address' },
+]
+
+export const EIP712_DOMAIN_TYPE_SALT_NOVERSION = [
+  { name: 'name', type: 'string' },
+  { name: 'verifyingContract', type: 'address' },
+  { name: 'salt', type: 'bytes32' },
+]
