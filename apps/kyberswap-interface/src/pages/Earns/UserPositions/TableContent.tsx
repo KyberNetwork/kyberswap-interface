@@ -6,6 +6,7 @@ import { ArrowRight, ArrowRightCircle } from 'react-feather'
 import { Link } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
+import { useGetSmartExitOrdersQuery } from 'services/smartExit'
 
 import { ReactComponent as IconEarnNotFound } from 'assets/svg/earn/ic_earn_not_found.svg'
 import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
@@ -35,6 +36,7 @@ import {
 import AprDetailTooltip from 'pages/Earns/components/AprDetailTooltip'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import RewardSyncing from 'pages/Earns/components/RewardSyncing'
+import { SmartExit } from 'pages/Earns/components/SmartExit'
 import { EARN_DEXES, LIMIT_TEXT_STYLES } from 'pages/Earns/constants'
 import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import useCollectFees from 'pages/Earns/hooks/useCollectFees'
@@ -43,7 +45,7 @@ import useKemRewards from 'pages/Earns/hooks/useKemRewards'
 import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import { ZapOutInfo } from 'pages/Earns/hooks/useZapOutWidget'
-import { FeeInfo, ParsedPosition, PositionStatus, SuggestedPool } from 'pages/Earns/types'
+import { FeeInfo, OrderStatus, ParsedPosition, PositionStatus, SuggestedPool } from 'pages/Earns/types'
 import { getUnclaimedFeesInfo } from 'pages/Earns/utils/fees'
 import { checkEarlyPosition } from 'pages/Earns/utils/position'
 import { useWalletModalToggle } from 'state/application/hooks'
@@ -79,6 +81,21 @@ export default function TableContent({
   const [positionThatClaimingFees, setPositionThatClaimingFees] = useState<ParsedPosition | null>(null)
   const [positionThatClaimingRewards, setPositionThatClaimingRewards] = useState<ParsedPosition | null>(null)
   const [positionToMigrate, setPositionToMigrate] = useState<ParsedPosition | null>(null)
+  const [smartExitPosition, setSmartExitPosition] = useState<ParsedPosition | null>(null)
+
+  const { data: smartExitOrders } = useGetSmartExitOrdersQuery(
+    {
+      userWallet: account || '',
+      positionIds: positions?.map(pos => pos.id) || [],
+      status: OrderStatus.OrderStatusOpen,
+      page: 1,
+      pageSize: positions?.length || 10,
+    },
+    {
+      skip: (positions?.length || 0) === 0,
+    },
+  )
+  const smartExitPosIds = smartExitOrders?.orders.map(order => order.positionId) || []
 
   const {
     claimModal: claimFeesModal,
@@ -281,6 +298,7 @@ export default function TableContent({
       {claimRewardsModal}
       {zapMigrationWidget}
       {migrationModal}
+      {smartExitPosition && <SmartExit position={smartExitPosition} onDismiss={() => setSmartExitPosition(null)} />}
 
       <div>
         {account && positions && positions.length > 0
@@ -313,8 +331,12 @@ export default function TableContent({
               const actions = (
                 <DropdownAction
                   position={position}
+                  hasActiveSmartExitOrder={smartExitPosIds.includes(position.id)}
                   onOpenIncreaseLiquidityWidget={handleOpenIncreaseLiquidityWidget}
                   onOpenZapOut={handleOpenZapOut}
+                  onOpenSmartExit={(_e: React.MouseEvent, position: ParsedPosition) => {
+                    setSmartExitPosition(position)
+                  }}
                   onOpenReposition={handleReposition}
                   claimFees={{
                     onClaimFee: handleClaimFees,

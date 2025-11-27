@@ -45,21 +45,15 @@ export const parsePosition = ({
 }): ParsedPosition => {
   const forceClosed = isClosedFromRpc && position.status !== PositionStatus.CLOSED
 
-  const currentAmounts = position.currentAmounts
-  const feePending = position.feePending
-  const feesClaimed = position.feesClaimed
-  const pool = position.pool
-  const tokenAmounts = pool.tokenAmounts
+  const { currentAmounts, feePending, feesClaimed, pool, providedAmounts: initAmounts } = position
+  const { tokenAmounts, price: poolPrice } = pool
   const token0Data = tokenAmounts[0]?.token
   const token1Data = tokenAmounts[1]?.token
 
-  const currentAmount0 = currentAmounts[0]
-  const currentAmount1 = currentAmounts[1]
+  const [currentAmount0, currentAmount1] = currentAmounts
 
-  const feePending0 = feePending[0]
-  const feePending1 = feePending[1]
-  const feesClaimed0 = feesClaimed[0]
-  const feesClaimed1 = feesClaimed[1]
+  const [feePending0, feePending1] = feePending
+  const [feesClaimed0, feesClaimed1] = feesClaimed
 
   const token0CurrentQuote = currentAmount0?.quotes.usd
   const token1CurrentQuote = currentAmount1?.quotes.usd
@@ -125,6 +119,7 @@ export const parsePosition = ({
 
   const dex = pool.exchange || ''
   const isUniv2 = EARN_DEXES[dex].isForkFrom === CoreProtocol.UniswapV2
+  const isUniv4 = EARN_DEXES[dex].isForkFrom === CoreProtocol.UniswapV4
 
   const programs = pool.programs || []
   const isFarming = programs.includes(ProgramType.EG) || programs.includes(ProgramType.LM)
@@ -169,8 +164,18 @@ export const parsePosition = ({
     feePending.reduce((sum, fee) => sum + fee.quotes.usd.value, 0) +
     feesClaimed.reduce((sum, fee) => sum + fee.quotes.usd.value, 0)
 
-  const chainId = position.chainId as keyof typeof NETWORKS_INFO
+  const chainId = position.chainId as unknown as keyof typeof NETWORKS_INFO
   const nativeToken = NETWORKS_INFO[chainId]?.nativeToken
+
+  //  %Yield = [(f₀ + f₁/P) / (t₀ + t₁/P)] × 100
+  const token0Decimal = feePending[0].token.decimals
+  const token1Decimal = feePending[1].token.decimals
+  const f0 = +feePending[0].balance / 10 ** token0Decimal
+  const f1 = +feePending[1].balance / 10 ** token1Decimal
+  const p = +poolPrice
+  const t0 = +initAmounts[0].balance / 10 ** token0Decimal
+  const t1 = +initAmounts[1].balance / 10 ** token1Decimal
+  const earningFeeYield = (100 * (f0 + f1 / p)) / (t0 + t1 / p)
 
   const tickLower =
     pool.tickSpacing === 0 || isUniv2
@@ -190,9 +195,13 @@ export const parsePosition = ({
   const minTick = pool.tickSpacing === 0 ? MIN_TICK : nearestUsableTick(MIN_TICK, pool.tickSpacing)
   const maxTick = pool.tickSpacing === 0 ? MAX_TICK : nearestUsableTick(MAX_TICK, pool.tickSpacing)
 
+  const [id, stakingOwner] = position.id.split('_')
+
   return {
-    id: position.id,
+    id,
     tokenId: position.tokenId,
+    stakingOwner,
+    earningFeeYield,
     pool: {
       fee: pool.fees?.[0],
       address: pool.poolAddress,
@@ -202,6 +211,7 @@ export const parsePosition = ({
       isFarming,
       isFarmingLm,
       isUniv2,
+      isUniv4,
     },
     dex: {
       id: dex,
