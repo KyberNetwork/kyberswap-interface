@@ -12,6 +12,7 @@ import { cn } from '@kyber/utils/tailwind-helpers';
 import ShareIcon from '@/assets/svg/ic_share.svg';
 import FarmingIcon from '@/assets/svg/kem.svg';
 import FarmingLmIcon from '@/assets/svg/kemLm.svg';
+import UniBonusIcon from '@/assets/svg/uni_bonus.svg';
 import { useRewardCycleProgress } from '@/hooks/useRewardCycleProgress';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
@@ -38,7 +39,8 @@ export default function PoolStat() {
       : Number((BigInt(position.liquidity) * 10000n) / BigInt(position.totalSupply)) / 100;
 
   const poolStat = initializing ? null : pool?.stats;
-  const poolApr = (poolStat?.apr24h || 0) + (poolStat?.kemEGApr24h || 0) + (poolStat?.kemLMApr24h || 0);
+  const poolApr =
+    (poolStat?.apr24h || 0) + (poolStat?.kemEGApr24h || 0) + (poolStat?.kemLMApr24h || 0) + (poolStat?.bonusApr || 0);
   const isFarming = initializing ? false : pool?.isFarming || false;
   const isFarmingLm = initializing ? false : pool?.isFarmingLm || false;
 
@@ -182,6 +184,21 @@ export default function PoolStat() {
                     {isFarmingLm ? <FarmingLmIcon width={20} height={20} /> : <FarmingIcon width={20} height={20} />}
                   </MouseoverTooltip>
                 ) : null}
+                {!!poolStat?.bonusApr && (
+                  <MouseoverTooltip
+                    text={
+                      <div className="flex flex-col gap-0.5">
+                        <div>
+                          <Trans>Uniswap Bonus: {formatAprNumber(poolStat?.bonusApr || 0)}%</Trans>
+                        </div>
+                      </div>
+                    }
+                    placement="top"
+                    width="fit-content"
+                  >
+                    <UniBonusIcon width={20} height={20} />
+                  </MouseoverTooltip>
+                )}
                 {formatAprNumber(poolApr) + '%'}
                 <div
                   className="flex items-center justify-center cursor-pointer w-6 h-6 rounded-full text-primary bg-primary-200"
