@@ -19,6 +19,7 @@ import {
   linea,
   mainnet,
   mantle,
+  monad,
   optimism,
   plasma,
   polygon,
@@ -80,6 +81,7 @@ export class RelayAdapter extends BaseSwapAdapter {
         unichain,
         hyperevm,
         plasma,
+        monad,
       ]
         .map(convertViemChainToRelayChain)
         .concat(solanaChain as any),
@@ -114,6 +116,7 @@ export class RelayAdapter extends BaseSwapAdapter {
       ChainId.UNICHAIN,
       ChainId.HYPEREVM,
       ChainId.PLASMA,
+      ChainId.MONAD,
     ]
   }
 

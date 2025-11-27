@@ -637,7 +637,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
       toToken: currencyOut,
       amount: inputAmount,
       slippage,
-      walletClient: fromChainId === 'solana' ? adaptedWallet : walletClient?.data,
+      walletClient: (fromChainId === 'solana' ? adaptedWallet : walletClient?.data) as any,
       sender,
       recipient: receiver,
       nearTokens,
