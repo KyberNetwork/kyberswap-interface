@@ -75,6 +75,8 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
       })
   }, [data, options?.position])
 
+  const totalUsdValue = baseRewards.reduce((sum, reward) => sum + reward.totalAmount, 0)
+
   useEffect(() => {
     if (!baseRewards.length) return
 
@@ -123,9 +125,10 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
   return useMemo(
     () => ({
       rewards: parsedRewards,
+      totalUsdValue,
       loading: isFetching,
     }),
-    [parsedRewards, isFetching],
+    [parsedRewards, totalUsdValue, isFetching],
   )
 }
 

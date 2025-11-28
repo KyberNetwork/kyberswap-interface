@@ -88,7 +88,7 @@ export default function PoolStat() {
               logo: token1.logo || '',
             },
             apr: {
-              fees: poolStat?.apr24h || 0,
+              fees: (poolStat?.apr24h || 0) + (poolStat?.bonusApr || 0),
               eg: poolStat?.kemEGApr24h || 0,
               lm: poolStat?.kemLMApr24h || 0,
             },
@@ -184,6 +184,7 @@ export default function PoolStat() {
                     {isFarmingLm ? <FarmingLmIcon width={20} height={20} /> : <FarmingIcon width={20} height={20} />}
                   </MouseoverTooltip>
                 ) : null}
+
                 {!!poolStat?.bonusApr && (
                   <MouseoverTooltip
                     text={
@@ -199,6 +200,7 @@ export default function PoolStat() {
                     <UniBonusIcon width={20} height={20} />
                   </MouseoverTooltip>
                 )}
+
                 {formatAprNumber(poolApr) + '%'}
                 <div
                   className="flex items-center justify-center cursor-pointer w-6 h-6 rounded-full text-primary bg-primary-200"
