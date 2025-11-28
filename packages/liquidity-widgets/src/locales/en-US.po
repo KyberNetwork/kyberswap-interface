@@ -55,6 +55,10 @@ msgstr "You can either zap in with up to {MAX_TOKENS} tokens or select an existi
 msgid "The APR estimation is not guaranteed and may differ from actual returns."
 msgstr "The APR estimation is not guaranteed and may differ from actual returns."
 
+#: src/components/Content/PoolStat.tsx
+msgid "Uniswap Bonus: {0}%"
+msgstr "Uniswap Bonus: {0}%"
+
 #: src/components/Warning.tsx
 msgid "You are not the current owner of the position #{positionId}, please double check before proceeding"
 msgstr "You are not the current owner of the position #{positionId}, please double check before proceeding"

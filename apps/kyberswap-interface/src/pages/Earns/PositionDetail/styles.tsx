@@ -1,4 +1,5 @@
 import { rgba } from 'polished'
+import { Link } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as IconArrowLeftSvg } from 'assets/svg/ic_left_arrow.svg'
@@ -285,4 +286,10 @@ export const ShareButtonWrapper = styled.div`
   :active {
     filter: brightness(1.05);
   }
+`
+
+export const RewardLink = styled(Link)`
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px dashed ${({ theme }) => theme.text};
 `

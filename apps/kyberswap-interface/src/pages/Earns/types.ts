@@ -36,6 +36,7 @@ export interface EarnPool {
   volume: number
   apr: number
   kemEGApr: number
+  bonusApr: number
   kemLMApr: number
   liquidity: number
   tvl: number
