@@ -88,7 +88,7 @@ export default function MigrationModal({
                     <Apr value={pool.apr}>
                       {formatAprNumber(pool.apr)}%{' '}
                       {isFarming ? (
-                        <AprDetailTooltip feeApr={pool.apr} egApr={pool.kemEGApr || 0} lmApr={pool.kemLMApr || 0}>
+                        <AprDetailTooltip feeApr={pool.apr || 0} egApr={pool.kemEGApr || 0} lmApr={pool.kemLMApr || 0}>
                           {isFarmingLm ? (
                             <FarmingLmIcon width={20} height={20} />
                           ) : (
@@ -145,7 +145,11 @@ export default function MigrationModal({
                       <Flex alignItems="center" sx={{ gap: '2px' }}>
                         <Apr value={pool.apr}>{formatAprNumber(pool.apr)}%</Apr>
                         {isFarming ? (
-                          <AprDetailTooltip feeApr={pool.apr} egApr={pool.kemEGApr || 0} lmApr={pool.kemLMApr || 0}>
+                          <AprDetailTooltip
+                            feeApr={pool.apr || 0}
+                            egApr={pool.kemEGApr || 0}
+                            lmApr={pool.kemLMApr || 0}
+                          >
                             {isFarmingLm ? (
                               <FarmingLmIcon width={20} height={20} />
                             ) : (

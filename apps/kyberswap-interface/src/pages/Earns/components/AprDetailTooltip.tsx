@@ -19,12 +19,16 @@ export default function AprDetailTooltip({ feeApr, egApr, lmApr, uniApr, childre
       width="fit-content"
       text={
         <Flex sx={{ flexDirection: 'column', gap: '2px' }}>
-          <Text>
-            {t`LP Fees`}: {formatAprNumber(feeApr || 0)}%
-          </Text>
-          <Text>
-            {t`EG Sharing Reward`}: {formatAprNumber(egApr || 0)}%
-          </Text>
+          {feeApr !== undefined && (
+            <Text>
+              {t`LP Fees`}: {formatAprNumber(feeApr)}%
+            </Text>
+          )}
+          {egApr !== undefined && (
+            <Text>
+              {t`EG Sharing Reward`}: {formatAprNumber(egApr)}%
+            </Text>
+          )}
           {!!lmApr && (
             <Text>
               {t`LM Reward`}: {formatAprNumber(lmApr)}%

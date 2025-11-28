@@ -24,7 +24,7 @@ export const kemFarming = (pool: ParsedEarnPool) => {
   const isFarmingLm = programs.includes(ProgramType.LM)
 
   return isFarming ? (
-    <AprDetailTooltip feeApr={pool.feeApr} egApr={pool.kemEGApr || 0} lmApr={pool.kemLMApr || 0}>
+    <AprDetailTooltip feeApr={pool.feeApr || 0} egApr={pool.kemEGApr || 0} lmApr={pool.kemLMApr || 0}>
       {isFarmingLm ? (
         <FarmingLmIcon width={24} height={24} style={{ marginLeft: 4 }} />
       ) : (
