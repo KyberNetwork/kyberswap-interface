@@ -62,13 +62,11 @@ export default function PositionBanner({
 }) {
   const theme = useTheme()
   const { claimAllRewardsModal, onOpenClaimAllRewards, rewardInfo, isLoadingRewardInfo } = useKemRewards()
-  const { rewards: merklRewards } = useMerklRewards()
-  const isLoadingKemRewards = initialLoading || isLoadingRewardInfo
-
+  const { rewards: merklRewards, totalUsdValue: totalMerklUsdValue } = useMerklRewards()
   const [shareInfo, setShareInfo] = useState<ShareModalProps | undefined>()
 
   const {
-    totalUsdValue,
+    totalUsdValue: totalKemUsdValue,
     totalLmUsdValue,
     totalEgUsdValue,
     claimedUsdValue,
@@ -81,6 +79,9 @@ export default function PositionBanner({
     egTokens,
     lmTokens,
   } = rewardInfo || defaultRewardInfo
+
+  const isLoadingKemRewards = initialLoading || isLoadingRewardInfo
+  const totalUsdValue = totalKemUsdValue + totalMerklUsdValue
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
