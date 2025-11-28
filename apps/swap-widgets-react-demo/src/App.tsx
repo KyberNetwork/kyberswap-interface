@@ -17,7 +17,7 @@ const walletConnect = walletConnectModule({
   /**
    * Chains required to be supported by all wallets connecting to your DApp
    */
-  requiredChains: [1, 42161, 8453, 80094],
+  requiredChains: [1, 42161, 8453, 80094, 999],
   /**
    * Chains required to be supported by all wallets connecting to your DApp
    */
@@ -39,24 +39,56 @@ init({
       token: "ETH",
       label: "Ethereum Mainnet",
       rpcUrl: "https://ethereum.kyberengineering.io",
+      namespace: "evm",
     },
     {
       id: "0xa4b1", // 42161 in hex
       token: "ETH",
       label: "Arbitrum One",
       rpcUrl: "https://arbitrum.llamarpc.com",
+      namespace: "evm",
     },
     {
       id: "0x89",
       token: "MATIC",
       label: "Polygon",
       rpcUrl: "https://polygon.kyberengineering.io",
+      namespace: "evm",
     },
     {
       id: "0x138de",
       token: "BERA",
       label: "Berachain",
       rpcUrl: "https://rpc.berachain.com",
+      namespace: "evm",
+    },
+    {
+      id: "0x3e7",
+      token: "HYPE",
+      label: "HyperEvm",
+      rpcUrl: "https://rpc.hyperliquid.xyz/evm",
+      namespace: "evm",
+    },
+    {
+      id: "0x38",
+      token: "BNB",
+      label: "BSC",
+      rpcUrl: "https://bsc-dataseed.binance.org/",
+      namespace: "evm",
+    },
+    {
+      id: "0x2105",
+      token: "ETH",
+      label: "Base",
+      rpcUrl: "https://mainnet.base.org",
+      namespace: "evm",
+    },
+    {
+      id: "0x92",
+      token: "S",
+      label: "Sonic",
+      rpcUrl: "https://rpc.soniclabs.com",
+      namespace: "evm",
     },
   ],
 });
@@ -83,17 +115,17 @@ function App() {
     if (!connectedWallets.length) return;
 
     const connectedWalletsLabelArray = connectedWallets.map(
-      ({ label }) => label
+      ({ label }) => label,
     );
     window.localStorage.setItem(
       "connectedWallets",
-      JSON.stringify(connectedWalletsLabelArray)
+      JSON.stringify(connectedWalletsLabelArray),
     );
   }, [connectedWallets, wallet]);
 
   useEffect(() => {
     const previouslyConnectedWallets = JSON.parse(
-      window.localStorage.getItem("connectedWallets") || "[]"
+      window.localStorage.getItem("connectedWallets") || "[]",
     );
 
     if (previouslyConnectedWallets?.length) {
@@ -164,6 +196,7 @@ function App() {
     324: "0x493257fd37edb34451f62edf8d2a0c418852ba4c",
     8453: "0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA",
     80094: "0x549943e04f40284185054145c6e4e9568c1d3241",
+    999: "0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb",
   };
 
   const [feeSetting, setFeeSetting] = useState({
@@ -178,7 +211,9 @@ function App() {
 
   console.log("wallet", wallet?.accounts[0].address);
 
-  const [, setChain] = useSetChain();
+  const [chains, setChain] = useSetChain();
+  console.log(chains);
+
   const [customChainId, setCustomChainId] = useState(chainId);
 
   return (
@@ -254,6 +289,7 @@ function App() {
                 <option value={8453}>Base</option>
                 <option value={80094}>Bera</option>
                 <option value={146}>Sonic</option>
+                <option value={999}>HyperEvm</option>
               </select>
               <label>chainId</label>
             </div>
@@ -419,7 +455,8 @@ function App() {
         }}
         onSwitchChain={() => {
           setChain({
-            chainId: chainId.toString(),
+            chainId: "0x" + customChainId.toString(16),
+            chainNamespace: "evm",
           });
         }}
         enableRoute={enableRoute}
