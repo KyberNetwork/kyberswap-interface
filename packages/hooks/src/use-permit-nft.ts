@@ -20,6 +20,10 @@ function encodeUint256(value: number | bigint | string): string {
   return hex.padStart(64, '0');
 }
 
+function encodeAddress(value: string): string {
+  return value.replace('0x', '').padStart(64, '0');
+}
+
 function encodeUint8(value: number): string {
   if (value < 0 || value > 255) {
     throw new Error('uint8 out of range');
@@ -65,6 +69,16 @@ function splitSignature(signature: HexString): { v: number; r: HexString; s: Hex
 
   return { v, r, s };
 }
+
+const findFreeNonce = (bitmap: bigint, word = 0): bigint => {
+  // Find a free bit in the bitmap (unordered nonce)
+  for (let i = 0; i < 256; i++) {
+    if (((bitmap >> BigInt(i)) & 1n) === 0n) {
+      return (BigInt(word) << 8n) + BigInt(i);
+    }
+  }
+  throw new Error('No free nonce in word 0; pick a different word.');
+};
 
 export enum PermitNftState {
   NOT_APPLICABLE = 'not_applicable',
@@ -129,6 +143,7 @@ export const NFT_PERMIT_ABI = [
   'function name() view returns (string)',
   'function nonces(address owner, uint256 word) view returns (uint256 bitmap)', // V4 unordered nonces
   'function positions(uint256 tokenId) view returns (uint96 nonce, address operator, address token0, address token1, uint24 fee, int24 tickLower, int24 tickUpper, uint128 liquidity, uint256 feeGrowthInside0LastX128, uint256 feeGrowthInside1LastX128, uint128 tokensOwed0, uint128 tokensOwed1)', // V3 ordered nonces
+  'function getPositionLiquidity(uint256 tokenId) view returns (uint128 liquidity)',
   'function DOMAIN_SEPARATOR() view returns (bytes32)', // V3 domain separator
   'function PERMIT_TYPEHASH() view returns (bytes32)', // V3 permit typehash
   'function permit(address spender, uint256 tokenId, uint256 deadline, uint256 nonce, bytes signature) payable',
@@ -180,7 +195,7 @@ export const usePermitNft = ({
 
     if (rpcUrl && nftManagerContract && tokenId != null) {
       try {
-        const methodSignature = getFunctionSelector('positions(uint256)');
+        const methodSignature = getFunctionSelector('getPositionLiquidity(uint256)');
         const encodedTokenId = encodeUint256(tokenId);
         const data = `0x${methodSignature}${encodedTokenId}` as HexString;
 
@@ -203,10 +218,10 @@ export const usePermitNft = ({
 
         const json = await res.json();
         if (json?.result) {
-          nextVersion = 'v3';
+          nextVersion = 'v4';
         }
       } catch {
-        nextVersion = 'v4';
+        nextVersion = 'v3';
       }
     }
 
@@ -216,11 +231,10 @@ export const usePermitNft = ({
 
   const getNonce = useCallback(
     async (resolvedVersion: 'v3' | 'v4'): Promise<bigint> => {
+      if (!rpcUrl || !nftManagerContract || !account || !tokenId) {
+        throw new Error('Missing RPC configuration for get nonce');
+      }
       if (resolvedVersion === 'v3') {
-        if (!rpcUrl || !nftManagerContract || tokenId == null) {
-          throw new Error('Missing RPC configuration for V3 permit');
-        }
-
         const methodSignature = getFunctionSelector('positions(uint256)');
         const encodedTokenId = encodeUint256(tokenId);
         const data = `0x${methodSignature}${encodedTokenId}` as HexString;
@@ -254,10 +268,38 @@ export const usePermitNft = ({
         return BigInt(`0x${nonceHex}`);
       }
 
-      // V4: use timestamp-based nonce (matches app implementation).
-      return BigInt(Math.floor(Date.now() / 1000));
+      // V4
+      const methodSignature = getFunctionSelector('nonces(address,uint256)');
+      const encodedOwner = encodeAddress(account);
+      const encodedWord = encodeUint256(0);
+      const data = `0x${methodSignature}${encodedOwner}${encodedWord}` as HexString;
+
+      const res = await fetch(rpcUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 1,
+          method: 'eth_call',
+          params: [
+            {
+              to: nftManagerContract,
+              data,
+            },
+            'latest',
+          ],
+        }),
+      });
+      const json = await res.json();
+      const raw: string | undefined = json?.result;
+      if (!raw || typeof raw !== 'string') {
+        throw new Error('Failed to fetch V4 nonce from nonces()');
+      }
+
+      const bitmap = BigInt(raw);
+      return findFreeNonce(bitmap, 0);
     },
-    [nftManagerContract, rpcUrl, tokenId],
+    [nftManagerContract, rpcUrl, tokenId, account],
   );
 
   const signPermitNft = useCallback(
