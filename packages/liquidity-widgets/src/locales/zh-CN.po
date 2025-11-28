@@ -55,6 +55,10 @@ msgstr "你可以最多使用 {MAX_TOKENS} 个代币进行 Zap，或选择现有
 msgid "The APR estimation is not guaranteed and may differ from actual returns."
 msgstr "APR 估算值不作保证，实际收益可能有所不同。"
 
+#: src/components/Content/PoolStat.tsx
+msgid "Uniswap Bonus: {0}%"
+msgstr "Uniswap 奖励：{0}%"
+
 #: src/components/Warning.tsx
 msgid "You are not the current owner of the position #{positionId}, please double check before proceeding"
 msgstr "你不是头寸 #{positionId} 的当前持有人，请在继续前仔细确认"
