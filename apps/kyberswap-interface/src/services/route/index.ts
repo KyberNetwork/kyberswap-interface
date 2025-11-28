@@ -104,7 +104,7 @@ const routeApi = createApi({
         return {
           url,
           method: 'POST',
-          body: rest,
+          body: { ...rest, enableGasEstimation: false },
           signal,
           authentication,
           headers: {
