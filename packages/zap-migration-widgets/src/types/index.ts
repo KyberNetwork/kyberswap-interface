@@ -58,6 +58,7 @@ export interface ZapMigrationProps {
       destinationDexLogo: string;
     },
   ) => Promise<string>;
+  signTypedData?: (account: string, typedDataJson: string) => Promise<string>;
   onViewPosition?: (txHash: string) => void;
   onBack?: () => void;
   onClose: () => void;

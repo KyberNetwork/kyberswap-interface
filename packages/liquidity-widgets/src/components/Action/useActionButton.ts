@@ -2,33 +2,21 @@ import { useMemo, useState } from 'react';
 
 import { t } from '@lingui/macro';
 
-import { usePositionOwner } from '@kyber/hooks';
-import { APPROVAL_STATE, useErc20Approvals } from '@kyber/hooks';
+import { PermitNftState, useDebounce, usePositionOwner } from '@kyber/hooks';
+import { APPROVAL_STATE } from '@kyber/hooks';
 import { API_URLS, CHAIN_ID_TO_CHAIN, univ3PoolNormalize, univ4Types } from '@kyber/schema';
-import { translateZapImpact } from '@kyber/ui';
 import { PI_LEVEL, friendlyError } from '@kyber/utils';
-import { parseUnits } from '@kyber/utils/crypto';
 
 import { ERROR_MESSAGE, translateErrorMessage } from '@/constants';
+import { ApprovalState } from '@/hooks/useApproval';
+import useZapRoute from '@/hooks/useZapRoute';
 import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
-import { ZapSnapshotState } from '@/types/index';
+import { BuildDataWithGas } from '@/types/index';
 import { estimateGasForTx } from '@/utils';
 
-export default function useActionButton({
-  nftApproved,
-  approveNft,
-  nftApprovePendingTx,
-  setWidgetError,
-  setZapSnapshotState,
-}: {
-  nftApproved: boolean;
-  nftApprovePendingTx: string;
-  approveNft: () => Promise<void>;
-  setWidgetError: (_value: string | undefined) => void;
-  setZapSnapshotState: (_value: ZapSnapshotState | null) => void;
-}) {
+export default function useActionButton({ approval, deadline }: { approval: ApprovalState; deadline: number }) {
   const {
     chainId,
     rpcUrl,
@@ -36,9 +24,10 @@ export default function useActionButton({
     connectedAccount,
     onConnectWallet,
     onSwitchChain,
-    onSubmitTx,
     positionId,
     source,
+    referral,
+    setError: setWidgetError,
   } = useWidgetStore([
     'chainId',
     'rpcUrl',
@@ -46,9 +35,10 @@ export default function useActionButton({
     'connectedAccount',
     'onConnectWallet',
     'onSwitchChain',
-    'onSubmitTx',
     'positionId',
     'source',
+    'referral',
+    'setError',
   ]);
   const { pool } = usePoolStore(['pool']);
   const positionOwner = usePositionOwner({
@@ -57,9 +47,8 @@ export default function useActionButton({
     poolType,
   });
   const {
-    zapInfo,
-    errors,
-    ttl,
+    route,
+    errors: rawErrors,
     loading: zapLoading,
     tickLower,
     tickUpper,
@@ -68,37 +57,16 @@ export default function useActionButton({
     amountsIn,
     toggleSetting,
     uiState,
+    setBuildData,
   } = useZapState();
+  const errors = useDebounce(rawErrors, 200);
+  const { zapImpact } = useZapRoute();
 
   const { address: account } = connectedAccount;
 
-  const amountsInWei: string[] = useMemo(
-    () =>
-      !amountsIn
-        ? []
-        : amountsIn
-            .split(',')
-            .map((amount, index) => parseUnits(amount || '0', tokensIn[index]?.decimals || 0).toString()),
-    [tokensIn, amountsIn],
-  );
-
-  const tokenAddressesToApprove = tokensIn
-    .filter((_, index) => Number(amountsInWei[index]) > 0)
-    .map(token => token?.address || '');
-  const amountsToApprove = amountsInWei.filter(amount => Number(amount) > 0);
-
-  const { loading, approvalStates, approve, addressToApprove } = useErc20Approvals({
-    amounts: amountsToApprove,
-    addreses: tokenAddressesToApprove,
-    owner: connectedAccount?.address || '',
-    rpcUrl,
-    spender: zapInfo?.routerAddress || '',
-    onSubmitTx: onSubmitTx,
-  });
-
-  const notApprove = useMemo(
-    () => tokensIn.find(item => approvalStates[item?.address || ''] === APPROVAL_STATE.NOT_APPROVED),
-    [approvalStates, tokensIn],
+  const tokenInNotApproved = useMemo(
+    () => tokensIn.find(item => approval.tokenApproval.states[item?.address || ''] === APPROVAL_STATE.NOT_APPROVED),
+    [approval.tokenApproval.states, tokensIn],
   );
 
   const [clickedApprove, setClickedLoading] = useState(false);
@@ -115,84 +83,127 @@ export default function useActionButton({
   const isWrongNetwork = errors.includes(ERROR_MESSAGE.WRONG_NETWORK);
   const isNotConnected = errors.includes(ERROR_MESSAGE.CONNECT_WALLET);
 
+  const isVeryHighZapImpact = route ? zapImpact.level === PI_LEVEL.VERY_HIGH : false;
+  const isHighZapImpact = route ? zapImpact.level === PI_LEVEL.HIGH : false;
+  const isInvalidZapImpact = route ? zapImpact.level === PI_LEVEL.INVALID : false;
+
   const btnDisabled =
     (isUniv4 && isNotOwner) ||
     clickedApprove ||
-    nftApprovePendingTx ||
-    loading ||
-    zapLoading ||
+    approval.nftApproval.pendingTx ||
+    approval.nftApprovalAll.pendingTx ||
+    approval.tokenApproval.loading ||
+    (zapLoading && !route) ||
     gasLoading ||
+    approval.nftApproval.isChecking ||
+    approval.nftApprovalAll.isChecking ||
     (errors.length > 0 && !isWrongNetwork && !isNotConnected) ||
-    Object.values(approvalStates).some(item => item === APPROVAL_STATE.PENDING);
+    Object.values(approval.tokenApproval.states).some(item => item === APPROVAL_STATE.PENDING) ||
+    approval.permit.state === PermitNftState.SIGNING;
 
-  const zapImpact = !zapInfo
-    ? null
-    : translateZapImpact(zapInfo.zapDetails.priceImpact, zapInfo.zapDetails.suggestedSlippage || 100);
-
-  const isVeryHighZapImpact = zapImpact?.level === PI_LEVEL.VERY_HIGH;
-  const isHighZapImpact = zapImpact?.level === PI_LEVEL.HIGH;
-  const isInvalidZapImpact = zapImpact?.level === PI_LEVEL.INVALID;
-
+  const needApproveNft =
+    isUniv4 &&
+    positionId &&
+    approval.permit.state !== PermitNftState.SIGNED &&
+    !approval.nftApproval.isApproved &&
+    !approval.nftApprovalAll.isApproved;
+  const approvalPending =
+    approval.tokenApproval.addressToApprove || approval.nftApproval.pendingTx || approval.nftApprovalAll.pendingTx;
   const buttonStates = [
-    { condition: addressToApprove || nftApprovePendingTx, text: t`Approving` },
-    { condition: zapLoading, text: t`Fetching Route` },
-    { condition: gasLoading, text: t`Estimating Gas` },
+    {
+      condition: approvalPending,
+      text: t`Approving...`,
+    },
+    { condition: gasLoading, text: t`Estimating Gas...` },
+    // { condition: approval.tokenApproval.loading, text: t`Checking Allowance...` },
     { condition: errors.length > 0, text: translateErrorMessage(errors[0]) },
+    {
+      condition: needApproveNft && (approval.nftApproval.isChecking || approval.nftApprovalAll.isChecking),
+      text: t`Checking Approval...`,
+    },
+    { condition: zapLoading, text: t`Fetching Route...` },
     { condition: isUniv4 && isNotOwner, text: t`Not the position owner` },
-    { condition: loading, text: t`Checking Allowance` },
-    { condition: notApprove, text: t`Approve ${notApprove?.symbol ?? ''}` },
-    { condition: isUniv4 && positionId && !nftApproved, text: t`Approve NFT` },
+    { condition: tokenInNotApproved, text: t`Approve ${tokenInNotApproved?.symbol ?? ''}` },
+    { condition: !route, text: t`No route found` },
     { condition: isVeryHighZapImpact || isInvalidZapImpact, text: t`Zap anyway` },
   ];
   const btnText = buttonStates.find(state => state.condition)?.text || t`Preview`;
+  const isInNftApprovalStep = Boolean(
+    errors.length === 0 &&
+      route &&
+      !approval.tokenApproval.addressToApprove &&
+      !gasLoading &&
+      !isNotOwner &&
+      needApproveNft,
+  );
+  const nftApprovalDisabled = Boolean(
+    isInNftApprovalStep &&
+      (approval.nftApproval.pendingTx ||
+        approval.nftApprovalAll.pendingTx ||
+        approval.permit.state === PermitNftState.SIGNING),
+  );
+  const nftApprovalText =
+    approval.nftApproval.pendingTx || approval.nftApprovalAll.pendingTx ? t`Approving...` : t`Approve NFT`;
+  const permitEnable = Boolean(
+    isInNftApprovalStep &&
+      (approval.permit.state === PermitNftState.READY_TO_SIGN ||
+        approval.permit.state === PermitNftState.SIGNING ||
+        approval.permit.state === PermitNftState.ERROR),
+  );
 
-  const getGasEstimation = async ({ deadline }: { deadline: number }) => {
-    if (!zapInfo) return;
+  const getBuildDataWithGas = async () => {
+    if (!route) return;
     setGasLoading(true);
-    const res = await fetch(`${API_URLS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/in/route/build`, {
-      method: 'POST',
-      body: JSON.stringify({
-        sender: account,
-        recipient: account,
-        route: zapInfo.route,
-        deadline,
-        source,
-      }),
-    })
-      .then(res => res.json())
-      .then(async res => {
-        const { data } = res || {};
-        if (data?.callData && account) {
-          const txData = {
-            from: account,
-            to: data.routerAddress,
-            data: data.callData,
-            value: `0x${BigInt(data.value).toString(16)}`,
-          };
-
-          const { gasUsd, error } = await estimateGasForTx({ rpcUrl, txData, chainId });
-
-          if (error) {
-            setWidgetError(error);
-            return;
-          }
-          return gasUsd;
-        }
-      })
-      .catch(err => {
-        setWidgetError(friendlyError(err as Error));
-        console.error(err);
-      })
-      .finally(() => {
-        setGasLoading(false);
+    const buildBody = {
+      sender: account,
+      recipient: account,
+      route: route.route,
+      deadline,
+      source,
+      referral,
+    } as any; // Type assertion added to allow dynamic property assignment
+    if (isUniv4 && positionId && approval.permit.state === PermitNftState.SIGNED && approval.permit.data?.permitData) {
+      (buildBody as any).permits = {
+        [positionId]: approval.permit.data.permitData,
+      };
+    }
+    try {
+      const response = await fetch(`${API_URLS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/in/route/build`, {
+        method: 'POST',
+        body: JSON.stringify(buildBody),
       });
 
-    return res;
+      let body: { data: BuildDataWithGas } | null = null;
+      body = await response.json();
+
+      const { data } = body || {};
+      if (data && data.callData && account) {
+        const txData = {
+          from: account,
+          to: data.routerAddress,
+          data: data.callData,
+          value: `0x${BigInt(data.value).toString(16)}`,
+        };
+
+        const { gasUsd, error } = await estimateGasForTx({ rpcUrl, txData, chainId });
+
+        if (error || !gasUsd) {
+          setWidgetError(error);
+          return;
+        }
+        return { ...data, gasUsd };
+      }
+
+      throw new Error('Invalid response from build route');
+    } catch (err) {
+      setWidgetError(friendlyError(err as Error));
+      console.error(err);
+    } finally {
+      setGasLoading(false);
+    }
   };
 
   const hanldeClick = async () => {
-    if (!slippage) return;
-    const { success: isUniV3Pool } = univ3PoolNormalize.safeParse(pool);
     if (isNotConnected) {
       onConnectWallet();
       return;
@@ -201,17 +212,16 @@ export default function useActionButton({
       onSwitchChain();
       return;
     }
-    if (notApprove) {
+    if (!slippage || needApproveNft) return;
+    const { success: isUniV3Pool } = univ3PoolNormalize.safeParse(pool);
+    if (tokenInNotApproved) {
       setClickedLoading(true);
-      approve(notApprove.address).finally(() => setClickedLoading(false));
-    } else if (isUniv4 && positionId && !nftApproved) {
-      setClickedLoading(true);
-      approveNft().finally(() => setClickedLoading(false));
+      approval.tokenApproval.approve(tokenInNotApproved.address).finally(() => setClickedLoading(false));
     } else if (
       pool !== null &&
       amountsIn &&
       tokensIn.every(Boolean) &&
-      zapInfo &&
+      route &&
       (isUniV3Pool ? tickLower !== null && tickUpper !== null : true)
     ) {
       if ((isVeryHighZapImpact || isInvalidZapImpact) && !uiState.degenMode) {
@@ -221,41 +231,39 @@ export default function useActionButton({
         return;
       }
 
-      const date = new Date();
-      date.setMinutes(date.getMinutes() + (ttl || 20));
-      const deadline = Math.floor(date.getTime() / 1000);
+      const buildData = await getBuildDataWithGas();
+      if (!buildData) return;
 
-      const gasUsd = await getGasEstimation({ deadline });
-      if (!gasUsd) return;
-
-      setZapSnapshotState({
-        zapInfo,
-        deadline,
-        gasUsd,
-      });
+      setBuildData(buildData);
     }
   };
-
-  const btnLoading = zapLoading || loading || addressToApprove || nftApprovePendingTx || gasLoading;
-  const btnWarning =
-    (isVeryHighZapImpact || isInvalidZapImpact) &&
-    !errors.length &&
-    !isWrongNetwork &&
-    !isNotConnected &&
-    Object.values(approvalStates).every(item => item === APPROVAL_STATE.APPROVED) &&
-    (isUniv4 ? nftApproved : true);
-
-  const isVeryHighWarning = isVeryHighZapImpact || isInvalidZapImpact;
-  const isHighWarning = isHighZapImpact;
 
   return {
     btnText,
     hanldeClick,
-    btnLoading,
-    btnWarning,
     btnDisabled,
-    approvalStates,
-    isHighWarning,
-    isVeryHighWarning,
+    approvalStates: approval.tokenApproval.states,
+    isHighWarning: isHighZapImpact,
+    isVeryHighWarning: isVeryHighZapImpact || isInvalidZapImpact,
+    isInNftApprovalStep,
+    nftApproval: {
+      disabled: nftApprovalDisabled,
+      text: nftApprovalText,
+      type: approval.nftApprovalType,
+      setType: approval.setNftApprovalType,
+      approve: () => {
+        if (approval.nftApprovalType === 'single') {
+          approval.nftApproval.approve().finally(() => setClickedLoading(false));
+        } else {
+          approval.nftApprovalAll.approve().finally(() => setClickedLoading(false));
+        }
+      },
+    },
+    permit: {
+      enable: permitEnable,
+      disabled: nftApprovalDisabled,
+      sign: approval.permit.sign,
+      state: approval.permit.state,
+    },
   };
 }

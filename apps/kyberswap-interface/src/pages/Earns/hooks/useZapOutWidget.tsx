@@ -99,6 +99,10 @@ const useZapOutWidget = (
             ...zapOutPureParams,
             source: 'kyberswap-earn',
             rpcUrl: zapOutRpcUrl,
+            signTypedData: library
+              ? (account: string, typedDataJson: string) =>
+                  library.send('eth_signTypedData_v4', [account.toLowerCase(), typedDataJson])
+              : undefined,
             referral: refCode,
             connectedAccount: {
               address: account,

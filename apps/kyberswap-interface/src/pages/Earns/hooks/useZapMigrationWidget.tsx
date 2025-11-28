@@ -192,6 +192,10 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
             ...migrateLiquidityPureParams,
             client: 'kyberswap-earn',
             rpcUrl: zapMigrationRpcUrl,
+            signTypedData: library
+              ? (account: string, typedDataJson: string) =>
+                  library.send('eth_signTypedData_v4', [account.toLowerCase(), typedDataJson])
+              : undefined,
             referral: refCode,
             zapStatus,
             locale,

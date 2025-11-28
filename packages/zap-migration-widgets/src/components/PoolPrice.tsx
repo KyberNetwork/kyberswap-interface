@@ -31,7 +31,7 @@ export default function PoolPrice() {
             ) : (
               <TokenSymbol symbol={token0.symbol} maxWidth={80} />
             )}{' '}
-            ={formatDisplayNumber(targetPoolPrice, { significantDigits: 8 })}
+            = {formatDisplayNumber(targetPoolPrice, { significantDigits: 8 })}
             {revertPrice ? (
               <TokenSymbol symbol={token0.symbol} maxWidth={80} />
             ) : (

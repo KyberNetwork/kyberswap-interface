@@ -41,7 +41,7 @@ export default function useZapRoute() {
     zapFee,
     zapImpact,
     swapActions,
-  } = parseZapRoute(route || null, token0Address, token1Address, tokens, dexName, poolAddress);
+  } = parseZapRoute({ route: route || null, token0Address, token1Address, tokens, dexName, poolAddress });
 
   return {
     swapActions,
