@@ -8,7 +8,7 @@ import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 import { useZapStore } from '@/stores/useZapStore';
 
-export function useApproval({ type }: { type: 'source' | 'target' }) {
+export function useApproval({ type, spender }: { type: 'source' | 'target'; spender?: string }) {
   const { chainId, connectedAccount, rpcUrl, onSubmitTx, sourcePoolType, targetPoolType, signTypedData } =
     useWidgetStore([
       'chainId',
@@ -42,10 +42,7 @@ export function useApproval({ type }: { type: 'source' | 'target' }) {
   const isFromUniV2 = type === 'source' && pool && univ2Types.includes(pool.poolType as any);
   const isToUniV4 = type === 'target' && pool && univ4Types.includes(pool.poolType as any);
 
-  const routerAddress =
-    route?.routerPermitAddress && route.routerPermitAddress !== ZERO_ADDRESS
-      ? route.routerPermitAddress
-      : route?.routerAddress || '';
+  const routerAddress = spender && spender !== ZERO_ADDRESS ? spender : route?.routerAddress || '';
 
   const {
     approvalStates: erc20ApprovalStates,

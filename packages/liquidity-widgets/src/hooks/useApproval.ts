@@ -119,7 +119,8 @@ export default function useApproval() {
     addreses: tokenAddressesToApprove,
     owner: connectedAccount?.address || '',
     rpcUrl,
-    spender: route?.routerAddress || '',
+    spender:
+      permitData?.permitData && route?.routerPermitAddress ? route.routerPermitAddress : route?.routerAddress || '',
     onSubmitTx: onSubmitTx,
   });
 

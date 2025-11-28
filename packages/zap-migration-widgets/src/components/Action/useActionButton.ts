@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import type { MessageDescriptor } from '@lingui/core';
 import { msg, t } from '@lingui/macro';
@@ -121,13 +121,23 @@ export function useActionButton({ onConnectWallet, onSwitchChain }: UseActionBut
   const rawTargetDexName = targetPoolType ? DEXES_INFO[targetPoolType].name : '';
   const targetDexName = typeof rawTargetDexName === 'string' ? rawTargetDexName : rawTargetDexName[chainId];
 
+  const [isUsePermit, setIsUsePermit] = useState(false);
+
   const { approval: sourceApproval, permit: sourcePermit } = useApproval({
     type: 'source',
+    spender: isUsePermit ? route?.routerPermitAddress : undefined,
   });
 
   const { approval: targetApproval, permit: targetPermit } = useApproval({
     type: 'target',
+    spender: isUsePermit ? route?.routerPermitAddress : undefined,
   });
+
+  useEffect(() => {
+    if (sourcePermit.data?.permitData || targetPermit.data?.permitData) {
+      setIsUsePermit(true);
+    }
+  }, [sourcePermit.data, targetPermit.data]);
 
   const { zapImpact } = useZapRoute();
   const zapImpactLevel: ZapImpactLevel = useMemo(
