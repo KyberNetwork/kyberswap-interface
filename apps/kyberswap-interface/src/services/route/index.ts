@@ -30,7 +30,7 @@ const routeApi = createApi({
         const { chainId, tokenInDecimals, tokenOutDecimals, ...rest } = params
         return {
           url,
-          params: { ...rest, index: 'composit' },
+          params: { ...rest, index: 'composite' },
           authentication,
           headers: {
             'x-client-id': clientId || 'kyberswap',
