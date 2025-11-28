@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 import { useErc20Approvals, useNftApproval, useNftApprovalAll, usePermitNft } from '@kyber/hooks';
-import { DEXES_INFO, univ2Types, univ4Types } from '@kyber/schema';
+import { DEXES_INFO, ZERO_ADDRESS, univ2Types, univ4Types } from '@kyber/schema';
 
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
@@ -42,6 +42,11 @@ export function useApproval({ type }: { type: 'source' | 'target' }) {
   const isFromUniV2 = type === 'source' && pool && univ2Types.includes(pool.poolType as any);
   const isToUniV4 = type === 'target' && pool && univ4Types.includes(pool.poolType as any);
 
+  const routerAddress =
+    route?.routerPermitAddress && route.routerPermitAddress !== ZERO_ADDRESS
+      ? route.routerPermitAddress
+      : route?.routerAddress || '';
+
   const {
     approvalStates: erc20ApprovalStates,
     approve: approveErc20,
@@ -51,7 +56,7 @@ export function useApproval({ type }: { type: 'source' | 'target' }) {
     amounts: isFromUniV2 ? [liquidityOut?.toString() || '0'] : [],
     addreses: isFromUniV2 && pool ? [pool.address] : [],
     owner: account || '',
-    spender: route?.routerAddress || '',
+    spender: routerAddress,
     rpcUrl,
     onSubmitTx,
   });
@@ -63,7 +68,7 @@ export function useApproval({ type }: { type: 'source' | 'target' }) {
     isChecking: isCheckingNftApproval,
   } = useNftApproval({
     tokenId: nftId,
-    spender: route?.routerAddress || '',
+    spender: routerAddress,
     userAddress: account || '',
     rpcUrl,
     nftManagerContract: nftManagerContract || '',
@@ -76,7 +81,7 @@ export function useApproval({ type }: { type: 'source' | 'target' }) {
     approvePendingTx: nftApprovePendingTxAll,
     isChecking: isCheckingNftApprovalAll,
   } = useNftApprovalAll({
-    spender: route?.routerAddress || '',
+    spender: routerAddress,
     userAddress: connectedAccount?.address || '',
     rpcUrl,
     nftManagerContract: nftManagerContract || '',
