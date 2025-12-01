@@ -24,14 +24,22 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
     (reason: string) => {
       if (!positionsFilter?.length) return []
       const reasonLower = reason.toLowerCase()
+      const [_, reasonPool, reasonPositionId] = reasonLower.split('_')
 
-      const matchedByTokenId = positionsFilter.filter(position => reasonLower.includes(position.tokenId.toLowerCase()))
-      if (matchedByTokenId.length) return matchedByTokenId
+      return positionsFilter.filter(position => {
+        const tokenIdLower = position.tokenId?.toLowerCase()
+        const poolLower = position.pool.address?.toLowerCase()
 
-      const matchedByPool = positionsFilter.filter(position =>
-        reasonLower.includes(position.pool.address.toLowerCase()),
-      )
-      return matchedByPool.length === 1 ? matchedByPool : []
+        const matchByPositionId =
+          (reasonPositionId && reasonPositionId === tokenIdLower) || reasonLower.includes(tokenIdLower)
+
+        const matchByPool = reasonPool === poolLower || reasonLower.includes(poolLower)
+
+        if (matchByPositionId) return true
+
+        // Only fall back to pool match when the reason lacks position id info
+        return !reasonPositionId && matchByPool && positionsFilter.length === 1
+      })
     },
     [positionsFilter],
   )
@@ -146,14 +154,21 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
     return { baseRewards, rewardsByPosition: mappedRewardsByPosition }
   }, [data, positionsFilter, resolvePositionsForBreakdown])
 
-  const totalUsdValue = baseRewards.reduce((sum, reward) => sum + reward.totalAmount, 0)
+  const baseRewardsForReturn = useMemo(() => {
+    if (positionsFilter?.length) {
+      return Object.values(rewardsByPosition).flatMap(item => item.rewards)
+    }
+    return baseRewards
+  }, [positionsFilter?.length, rewardsByPosition, baseRewards])
+
+  const totalUsdValue = baseRewardsForReturn.reduce((sum, reward) => sum + reward.claimableUsdValue, 0)
 
   useEffect(() => {
-    if (!baseRewards.length) return
+    if (!baseRewardsForReturn.length) return
 
     const fetchLogos = async () => {
       const grouped: Record<number, Set<string>> = {}
-      baseRewards.forEach(reward => {
+      baseRewardsForReturn.forEach(reward => {
         grouped[reward.chainId] = grouped[reward.chainId] || new Set<string>()
         grouped[reward.chainId].add(reward.address.toLowerCase())
       })
@@ -179,19 +194,19 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
     }
 
     fetchLogos()
-  }, [baseRewards])
+  }, [baseRewardsForReturn])
 
   const parsedRewards = useMemo<TokenRewardInfo[]>(() => {
-    if (!baseRewards.length) return []
+    if (!baseRewardsForReturn.length) return []
 
-    return baseRewards.map(reward => {
+    return baseRewardsForReturn.map(reward => {
       const logoKey = `${reward.chainId}-${reward.address.toLowerCase()}`
       return {
         ...reward,
         logo: tokenLogos[logoKey] || reward.logo,
       }
     })
-  }, [baseRewards, tokenLogos])
+  }, [baseRewardsForReturn, tokenLogos])
 
   const parsedRewardsByPosition = useMemo<Record<string, { rewards: TokenRewardInfo[]; totalUsdValue: number }>>(() => {
     if (!Object.keys(rewardsByPosition).length) return {}
