@@ -272,7 +272,7 @@ export const parsePosition = ({
     kemEGApr: calcAprInterval(position.stats.kemEGApr),
     kemLMApr: calcAprInterval(position.stats.kemLMApr),
     feeApr: calcAprInterval(position.stats.apr),
-    bonusApr: parsedStatus === PositionStatus.OUT_RANGE ? 0 : position.pool.merklOpportunity?.apr || 0,
+    bonusApr: parsedStatus === PositionStatus.IN_RANGE ? position.pool.merklOpportunity?.apr || 0 : 0,
     totalValue,
     totalProvidedValue,
     unclaimedFees,
