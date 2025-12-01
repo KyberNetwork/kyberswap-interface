@@ -154,7 +154,7 @@ export default function Estimated() {
             </a>
           </Trans>
         }
-        value={<div className="text-sm">{parseFloat(zapFee.toFixed(3))}%</div>}
+        value={<div className="text-sm">{parseFloat(zapFee.protocolFee.toFixed(3))}%</div>}
         hasRoute
       />
     </div>

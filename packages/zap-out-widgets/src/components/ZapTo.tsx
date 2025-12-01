@@ -105,18 +105,26 @@ export function ZapTo({ chainId }: { chainId: ChainId }) {
         <div className="mt-2">{mode === 'zapOut' ? t`Zap to` : t`Remove Liquidity`}</div>
         {mode === 'zapOut' ? (
           <div className="flex justify-between items-center mt-2">
-            <button
-              className="bg-layer2 border-none rounded-full outline-inherit cursor-pointer py-[6px] px-3 items-center text-text brightness-150 flex gap-1 hover:brightness-150 active:scale-95"
-              onClick={() => {
-                setShowTokenSelect(true);
-              }}
-            >
-              <TokenLogo src={tokenOut?.logo} size={20} className="rounded-full brightness-75" />
-              <TokenSymbol symbol={tokenOut?.symbol || ''} maxWidth={80} />
-              <DropdownIcon />
-            </button>
+            {loading ? (
+              <Skeleton className="w-[100px] h-9" />
+            ) : (
+              <button
+                className="bg-layer2 border-none rounded-full outline-inherit cursor-pointer py-[6px] px-3 items-center text-text brightness-150 flex gap-1 hover:brightness-150 active:scale-95"
+                onClick={() => {
+                  setShowTokenSelect(true);
+                }}
+              >
+                <TokenLogo src={tokenOut?.logo} size={20} className="rounded-full brightness-75" />
+                <TokenSymbol symbol={tokenOut?.symbol || ''} maxWidth={80} />
+                <DropdownIcon />
+              </button>
+            )}
             <div className="text-text text-xl font-medium">
-              {formatDisplayNumber(refund.refunds[0]?.amount, { significantDigits: 8 })}
+              {loading || fetchingRoute ? (
+                <Skeleton className="w-28 h-6" />
+              ) : (
+                formatDisplayNumber(refund.refunds[0]?.amount, { significantDigits: 8 })
+              )}
             </div>
           </div>
         ) : (

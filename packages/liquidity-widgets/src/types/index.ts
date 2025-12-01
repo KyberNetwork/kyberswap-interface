@@ -1,4 +1,4 @@
-import { ChainId, PoolType, Theme, ZapRouteDetail } from '@kyber/schema';
+import { ChainId, PoolType, Theme } from '@kyber/schema';
 
 import { SupportedLocale } from '@/i18n';
 
@@ -56,6 +56,7 @@ export interface WidgetProps {
       dexLogo: string;
     },
   ) => Promise<string>;
+  signTypedData?: (account: string, typedDataJson: string) => Promise<string>;
   onViewPosition?: (txHash: string) => void;
 }
 
@@ -92,8 +93,9 @@ export enum PriceType {
   MaxPrice = 'MaxPrice',
 }
 
-export interface ZapSnapshotState {
-  zapInfo: ZapRouteDetail;
-  deadline: number;
+export interface BuildDataWithGas {
+  callData: string;
+  routerAddress: string;
+  value: string;
   gasUsd: number;
 }
