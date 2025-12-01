@@ -176,6 +176,7 @@ const UserPositions = () => {
       result = result.filter(position => {
         return [
           position.tokenId,
+          position.pool.address,
           position.tokenAddress,
           position.token0.address,
           position.token0.symbol,

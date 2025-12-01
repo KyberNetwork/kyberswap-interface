@@ -59,7 +59,9 @@ const RewardSection = ({
     onOpenClaim: onOpenClaimRewards,
     claiming: rewardsClaiming,
   } = useKemRewards(refetchPositions)
-  const { rewards: merklRewards } = useMerklRewards({ position })
+  const { rewards: merklRewards, totalUsdValue: totalMerklUsdValue } = useMerklRewards({
+    positions: position ? [position] : undefined,
+  })
 
   const rewardInfoThisPosition = !position ? undefined : rewardInfo?.nfts.find(item => item.nftId === position.tokenId)
 
@@ -112,7 +114,7 @@ const RewardSection = ({
           ) : (
             <Flex alignItems={'center'} sx={{ gap: 1 }}>
               <Text fontSize={20}>
-                {formatDisplayNumber(rewardInfoThisPosition?.totalUsdValue || 0, {
+                {formatDisplayNumber((rewardInfoThisPosition?.totalUsdValue || 0) + totalMerklUsdValue, {
                   significantDigits: 4,
                   style: 'currency',
                 })}

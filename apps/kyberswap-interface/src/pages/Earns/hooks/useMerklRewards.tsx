@@ -10,7 +10,7 @@ import { ParsedPosition, TokenRewardInfo } from 'pages/Earns/types'
 import uriToHttp from 'utils/uriToHttp'
 
 type UseMerklRewardsProps = {
-  position?: ParsedPosition
+  positions?: ParsedPosition[]
 }
 
 const useMerklRewards = (options?: UseMerklRewardsProps) => {
@@ -18,6 +18,7 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
   const { filters } = useFilter()
   const { supportedChains } = useChainsConfig()
   const [tokenLogos, setTokenLogos] = useState<Record<string, string>>({})
+  const positionsFilter = useMemo(() => options?.positions, [options?.positions])
 
   const { data, isFetching } = useMerklRewardsQuery(
     {
@@ -27,30 +28,42 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
     { skip: !account },
   )
 
-  const baseRewards = useMemo<TokenRewardInfo[]>(() => {
-    if (!data) return []
+  const {
+    baseRewards,
+    rewardsByPosition,
+  }: {
+    baseRewards: TokenRewardInfo[]
+    rewardsByPosition: Record<string, { rewards: TokenRewardInfo[]; totalUsdValue: number }>
+  } = useMemo(() => {
+    if (!data) return { baseRewards: [], rewardsByPosition: {} }
+
+    const perPositionRewards: Record<string, Record<string, TokenRewardInfo>> = {}
 
     const calculatedRewards = data.flatMap(chainRewards =>
       (chainRewards.rewards || []).map(reward => {
         const breakdowns = reward.breakdowns.filter(item => {
           const [protocol, poolAddress, positionId] = item.reason.split('_')
-          return (
-            protocol.startsWith('Uniswap') &&
-            (options?.position
-              ? poolAddress === options.position.pool.address && positionId === options.position.tokenId
-              : true)
-          )
+          const matchesPosition = positionsFilter
+            ? positionsFilter.some(
+                position =>
+                  poolAddress?.toLowerCase() === position.pool.address.toLowerCase() ||
+                  positionId?.toLowerCase() === position.tokenId.toLowerCase(),
+              )
+            : true
+
+          return protocol.startsWith('Uniswap') && matchesPosition
         })
         return {
           ...reward,
           amount: breakdowns.reduce((sum, item) => sum + +item.amount, 0).toString(),
           claimed: breakdowns.reduce((sum, item) => sum + +item.claimed, 0).toString(),
           pending: breakdowns.reduce((sum, item) => sum + +item.pending, 0).toString(),
+          breakdowns,
         }
       }),
     )
 
-    return calculatedRewards
+    const baseRewards = calculatedRewards
       .filter(reward => Number(reward.amount) > 0)
       .map(reward => {
         const decimalsPow = 10 ** reward.token.decimals
@@ -58,6 +71,47 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
         const claimedAmount = Number(reward.claimed) / decimalsPow
         const pendingAmount = Number(reward.pending) / decimalsPow
         const claimableAmount = Math.max(totalAmount - claimedAmount, 0)
+
+        if (positionsFilter) {
+          reward.breakdowns.forEach(item => {
+            const [, poolAddress, positionId] = item.reason.split('_')
+            const matchedPositions =
+              positionsFilter?.filter(
+                position =>
+                  poolAddress?.toLowerCase() === position.pool.address.toLowerCase() ||
+                  positionId?.toLowerCase() === position.tokenId.toLowerCase(),
+              ) || []
+
+            if (!matchedPositions.length) return
+
+            const breakdownTotalAmount = Number(item.amount) / decimalsPow
+            const breakdownClaimedAmount = Number(item.claimed) / decimalsPow
+            const breakdownPendingAmount = Number(item.pending) / decimalsPow
+            const breakdownClaimableAmount = Math.max(breakdownTotalAmount - breakdownClaimedAmount, 0)
+
+            matchedPositions.forEach(position => {
+              const key = position.id
+              const tokenKey = `${reward.token.chainId}-${reward.token.address.toLowerCase()}`
+              const existing = perPositionRewards[key]?.[tokenKey]
+              const next: TokenRewardInfo = {
+                symbol: reward.token.symbol,
+                logo: existing?.logo || '',
+                address: reward.token.address,
+                chainId: reward.token.chainId,
+                totalAmount: (existing?.totalAmount || 0) + breakdownTotalAmount,
+                claimableAmount: (existing?.claimableAmount || 0) + breakdownClaimableAmount,
+                unclaimedAmount: (existing?.claimableAmount || 0) + breakdownClaimableAmount,
+                pendingAmount: (existing?.pendingAmount || 0) + breakdownPendingAmount,
+                vestingAmount: 0,
+                waitingAmount: 0,
+                claimableUsdValue: ((existing?.claimableAmount || 0) + breakdownClaimableAmount) * reward.token.price,
+              }
+
+              perPositionRewards[key] = perPositionRewards[key] || {}
+              perPositionRewards[key][tokenKey] = next
+            })
+          })
+        }
 
         return {
           symbol: reward.token.symbol,
@@ -73,7 +127,17 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
           claimableUsdValue: claimableAmount * reward.token.price,
         }
       })
-  }, [data, options?.position])
+    const mappedRewardsByPosition: Record<string, { rewards: TokenRewardInfo[]; totalUsdValue: number }> = {}
+    Object.entries(perPositionRewards).forEach(([positionId, tokens]) => {
+      const rewardsList = Object.values(tokens)
+      mappedRewardsByPosition[positionId] = {
+        rewards: rewardsList,
+        totalUsdValue: rewardsList.reduce((sum, reward) => sum + reward.claimableUsdValue, 0),
+      }
+    })
+
+    return { baseRewards, rewardsByPosition: mappedRewardsByPosition }
+  }, [data, positionsFilter])
 
   const totalUsdValue = baseRewards.reduce((sum, reward) => sum + reward.totalAmount, 0)
 
@@ -122,13 +186,32 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
     })
   }, [baseRewards, tokenLogos])
 
+  const parsedRewardsByPosition = useMemo<Record<string, { rewards: TokenRewardInfo[]; totalUsdValue: number }>>(() => {
+    if (!Object.keys(rewardsByPosition).length) return {}
+    const result: Record<string, { rewards: TokenRewardInfo[]; totalUsdValue: number }> = {}
+    Object.entries(rewardsByPosition).forEach(([positionId, value]) => {
+      result[positionId] = {
+        totalUsdValue: value.totalUsdValue,
+        rewards: value.rewards.map(reward => {
+          const logoKey = `${reward.chainId}-${reward.address.toLowerCase()}`
+          return {
+            ...reward,
+            logo: tokenLogos[logoKey] || reward.logo,
+          }
+        }),
+      }
+    })
+    return result
+  }, [rewardsByPosition, tokenLogos])
+
   return useMemo(
     () => ({
+      rewardsByPosition: parsedRewardsByPosition,
       rewards: parsedRewards,
       totalUsdValue,
       loading: isFetching,
     }),
-    [parsedRewards, totalUsdValue, isFetching],
+    [parsedRewardsByPosition, parsedRewards, totalUsdValue, isFetching],
   )
 }
 

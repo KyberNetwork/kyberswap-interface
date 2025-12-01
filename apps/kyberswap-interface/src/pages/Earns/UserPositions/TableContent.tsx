@@ -40,6 +40,7 @@ import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import useCollectFees from 'pages/Earns/hooks/useCollectFees'
 import useFarmingStablePools from 'pages/Earns/hooks/useFarmingStablePools'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
+import useMerklRewards from 'pages/Earns/hooks/useMerklRewards'
 import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import { ZapOutInfo } from 'pages/Earns/hooks/useZapOutWidget'
@@ -96,6 +97,8 @@ export default function TableContent({
     onOpenClaim: onOpenClaimRewards,
     claiming: rewardsClaiming,
   } = useKemRewards(refetchPositions)
+
+  const { rewardsByPosition } = useMerklRewards({ positions })
 
   const { widget: zapMigrationWidget, handleOpenZapMigration } = useZapMigrationWidget()
 
@@ -296,6 +299,7 @@ export default function TableContent({
                 totalValue,
                 priceRange,
                 apr,
+                bonusApr,
                 unclaimedFees,
                 status,
                 rewards,
@@ -306,6 +310,8 @@ export default function TableContent({
               const isStablePair = pool.category === PAIR_CATEGORY.STABLE
               const isEarlyPosition = checkEarlyPosition(position)
               const isWaitingForRewards = pool.isFarming && rewards.totalUsdValue === 0 && isEarlyPosition
+              const merklRewards = rewardsByPosition?.[id]?.rewards || []
+              const merklRewardsTotalUsd = rewardsByPosition?.[id]?.totalUsdValue || 0
               const suggestedProtocolName = position.suggestionPool
                 ? EARN_DEXES[position.suggestionPool.poolExchange].name.replace('FairFlow', '').trim()
                 : ''
@@ -431,6 +437,11 @@ export default function TableContent({
                               {formatDisplayNumber(token.amount, { significantDigits: 4 })} {token.symbol}
                             </Text>
                           ))}
+                          {merklRewards.map(token => (
+                            <Text key={`${token.address}-${token.symbol}`}>
+                              {formatDisplayNumber(token.claimableUsdValue, { significantDigits: 4 })} {token.symbol}
+                            </Text>
+                          ))}
                         </>
                       }
                       width="fit-content"
@@ -462,13 +473,14 @@ export default function TableContent({
                       <RewardSyncing width={70} height={19} />
                     ) : (
                       <Flex alignItems={'center'} sx={{ gap: 1 }}>
-                        {pool.isFarming ? (
+                        {pool.isFarming || bonusApr > 0 ? (
                           <AprDetailTooltip
                             feeApr={position.feeApr['24h']}
                             egApr={position.kemEGApr['24h']}
                             lmApr={position.kemLMApr['24h']}
+                            uniApr={bonusApr}
                           >
-                            <Text color={theme.primary}>{formatAprNumber(apr['24h'])}%</Text>
+                            <Text color={theme.primary}>{formatAprNumber(apr['24h'] + bonusApr)}%</Text>
                           </AprDetailTooltip>
                         ) : (
                           <Text color={theme.text}>{formatAprNumber(apr['24h'])}%</Text>
@@ -568,6 +580,15 @@ export default function TableContent({
                                   style: 'currency',
                                 })}
                               </Text>
+                              {merklRewardsTotalUsd > 0 && (
+                                <Text>
+                                  {t`Uniswap Bonus`}:{' '}
+                                  {formatDisplayNumber(merklRewardsTotalUsd, {
+                                    significantDigits: 4,
+                                    style: 'currency',
+                                  })}
+                                </Text>
+                              )}
                             </>
                           }
                           width="fit-content"
