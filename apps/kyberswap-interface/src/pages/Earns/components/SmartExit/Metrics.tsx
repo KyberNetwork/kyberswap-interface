@@ -1,11 +1,13 @@
 import { Label, RadioGroup, RadioGroupItem } from '@kyber/ui'
+import { nearestUsableTick, priceToClosestTick, tickToPrice } from '@kyber/utils/dist/uniswapv3'
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Calendar } from 'react-feather'
 import { Box, Flex, Text } from 'rebass'
 
 import Divider from 'components/Divider'
+import UniswapPriceSlider from 'components/UniswapPriceSlider'
 import DateTimePicker from 'components/swapv2/LimitOrder/ExpirePicker'
 import useTheme from 'hooks/useTheme'
 import { DEFAULT_TIME_OPTIONS } from 'pages/Earns/components/SmartExit/ExpireSetting'
@@ -150,6 +152,59 @@ const MetricSelect = ({
   const priceCondition = metric.condition as PriceCondition
   const timeCondition = metric.condition as TimeCondition
 
+  const [lowerTick, setLowerTick] = useState<number>()
+  const [upperTick, setUpperTick] = useState<number>()
+  const currentTick = useMemo(
+    () =>
+      nearestUsableTick(
+        priceToClosestTick(
+          position.priceRange.current.toString(),
+          position.token0.decimals,
+          position.token1.decimals,
+        ) || 0,
+        position.pool.tickSpacing,
+      ),
+    [position.pool.tickSpacing, position.priceRange, position.token0.decimals, position.token1.decimals],
+  )
+
+  useEffect(() => {
+    if (priceCondition?.gte) {
+      setLowerTick(
+        nearestUsableTick(
+          priceToClosestTick(priceCondition.gte, position.token0.decimals, position.token1.decimals) || 0,
+          position.pool.tickSpacing,
+        ),
+      )
+    }
+  }, [position.pool.tickSpacing, position.token0.decimals, position.token1.decimals, priceCondition.gte])
+
+  useEffect(() => {
+    if (priceCondition?.lte) {
+      setUpperTick(
+        nearestUsableTick(
+          priceToClosestTick(priceCondition.lte, position.token0.decimals, position.token1.decimals) || 0,
+          position.pool.tickSpacing,
+        ),
+      )
+    }
+  }, [position.pool.tickSpacing, position.token0.decimals, position.token1.decimals, priceCondition.lte])
+
+  useEffect(() => {
+    if (lowerTick !== undefined) {
+      const lowerPrice = tickToPrice(lowerTick, position.token0.decimals, position.token1.decimals)
+      setMetric({ ...metric, condition: { ...priceCondition, gte: lowerPrice } })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lowerTick])
+
+  useEffect(() => {
+    if (upperTick !== undefined) {
+      const upperPrice = tickToPrice(upperTick, position.token0.decimals, position.token1.decimals)
+      setMetric({ ...metric, condition: { ...priceCondition, lte: upperPrice } })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [upperTick])
+
   return (
     <>
       <Flex alignItems="center" sx={{ gap: '1rem' }} justifyContent="space-between" mb="1rem">
@@ -266,6 +321,18 @@ const MetricSelect = ({
               {position.token0.symbol}/{position.token1.symbol}
             </Text>
           </Flex>
+          <UniswapPriceSlider
+            pool={{
+              tickSpacing: position.pool.tickSpacing,
+              token0Decimals: position.token0.decimals,
+              token1Decimals: position.token1.decimals,
+              currentTick,
+            }}
+            lowerTick={lowerTick}
+            upperTick={upperTick}
+            setLowerTick={setLowerTick}
+            setUpperTick={setUpperTick}
+          />
         </>
       )}
 
