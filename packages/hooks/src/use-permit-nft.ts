@@ -191,7 +191,7 @@ export const usePermitNft = ({
     if (version === 'v3' || version === 'v4') return version;
     if (detectedVersion) return detectedVersion;
 
-    let nextVersion: 'v3' | 'v4' = 'v4';
+    let nextVersion: 'v3' | 'v4' = 'v3';
 
     if (rpcUrl && nftManagerContract && tokenId != null) {
       try {
