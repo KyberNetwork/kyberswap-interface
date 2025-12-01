@@ -1,5 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useMerklRewardsQuery } from 'services/rewardMerkl'
 
 import { useActiveWeb3React } from 'hooks'
@@ -19,6 +19,22 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
   const { supportedChains } = useChainsConfig()
   const [tokenLogos, setTokenLogos] = useState<Record<string, string>>({})
   const positionsFilter = useMemo(() => options?.positions, [options?.positions])
+
+  const resolvePositionsForBreakdown = useCallback(
+    (reason: string) => {
+      if (!positionsFilter?.length) return []
+      const reasonLower = reason.toLowerCase()
+
+      const matchedByTokenId = positionsFilter.filter(position => reasonLower.includes(position.tokenId.toLowerCase()))
+      if (matchedByTokenId.length) return matchedByTokenId
+
+      const matchedByPool = positionsFilter.filter(position =>
+        reasonLower.includes(position.pool.address.toLowerCase()),
+      )
+      return matchedByPool.length === 1 ? matchedByPool : []
+    },
+    [positionsFilter],
+  )
 
   const { data, isFetching } = useMerklRewardsQuery(
     {
@@ -42,16 +58,13 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
     const calculatedRewards = data.flatMap(chainRewards =>
       (chainRewards.rewards || []).map(reward => {
         const breakdowns = reward.breakdowns.filter(item => {
-          const [protocol, poolAddress, positionId] = item.reason.split('_')
-          const matchesPosition = positionsFilter
-            ? positionsFilter.some(
-                position =>
-                  poolAddress?.toLowerCase() === position.pool.address.toLowerCase() ||
-                  positionId?.toLowerCase() === position.tokenId.toLowerCase(),
-              )
-            : true
+          const [protocol] = item.reason.split('_')
+          if (!protocol.startsWith('Uniswap')) return false
 
-          return protocol.startsWith('Uniswap') && matchesPosition
+          if (!positionsFilter?.length) return true
+
+          const resolvedPositions = resolvePositionsForBreakdown(item.reason)
+          return resolvedPositions.length > 0
         })
         return {
           ...reward,
@@ -74,13 +87,7 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
 
         if (positionsFilter) {
           reward.breakdowns.forEach(item => {
-            const [, poolAddress, positionId] = item.reason.split('_')
-            const matchedPositions =
-              positionsFilter?.filter(
-                position =>
-                  poolAddress?.toLowerCase() === position.pool.address.toLowerCase() ||
-                  positionId?.toLowerCase() === position.tokenId.toLowerCase(),
-              ) || []
+            const matchedPositions = resolvePositionsForBreakdown(item.reason)
 
             if (!matchedPositions.length) return
 
