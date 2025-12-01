@@ -439,7 +439,7 @@ export default function TableContent({
                           ))}
                           {merklRewards.map(token => (
                             <Text key={`${token.address}-${token.symbol}`}>
-                              {formatDisplayNumber(token.claimableUsdValue, { significantDigits: 4 })} {token.symbol}
+                              {formatDisplayNumber(token.claimableAmount, { significantDigits: 4 })} {token.symbol}
                             </Text>
                           ))}
                         </>
