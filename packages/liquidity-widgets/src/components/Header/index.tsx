@@ -1,14 +1,9 @@
+import { useMemo } from 'react';
+
 import { Trans, t } from '@lingui/macro';
 
 import { useCopy } from '@kyber/hooks';
-import {
-  DEXES_INFO,
-  NATIVE_TOKEN_ADDRESS,
-  NETWORKS_INFO,
-  defaultToken,
-  univ3PoolNormalize,
-  univ3Position,
-} from '@kyber/schema';
+import { DEXES_INFO, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, defaultToken, univ3Types } from '@kyber/schema';
 import { InfoHelper, LoadingCounter, MouseoverTooltip, Skeleton, TokenLogo, TokenSymbol } from '@kyber/ui';
 import { shortenAddress } from '@kyber/utils/crypto';
 
@@ -27,10 +22,18 @@ const Header = () => {
     'poolType',
     'positionId',
   ]);
-  const { pool } = usePoolStore(['pool']);
+  const { pool, poolPrice } = usePoolStore(['pool', 'poolPrice']);
   const { position } = usePositionStore(['position']);
 
-  const { toggleSetting, uiState, loading: zapLoading, getZapRoute, zapRouteDisabled } = useZapState();
+  const {
+    toggleSetting,
+    uiState,
+    loading: zapLoading,
+    getZapRoute,
+    zapRouteDisabled,
+    minPrice,
+    maxPrice,
+  } = useZapState();
 
   const initializing = !pool;
   const poolAddress = initializing ? '' : pool.address;
@@ -52,14 +55,13 @@ const Header = () => {
 
   const { icon: dexLogo, name: rawName } = DEXES_INFO[poolType];
   const dexName = typeof rawName === 'string' ? rawName : rawName[chainId];
+  const isUniV3 = univ3Types.includes(poolType as any);
 
-  const { success, data } = univ3Position.safeParse(position);
-  const { success: isUniV3, data: univ3Pool } = univ3PoolNormalize.safeParse(pool);
+  const isOutOfRange = useMemo(() => {
+    if (!positionId || !isUniV3 || !poolPrice || minPrice === null || maxPrice === null) return false;
+    return poolPrice < +minPrice || poolPrice > +maxPrice;
+  }, [isUniV3, maxPrice, minPrice, poolPrice, positionId]);
 
-  const isOutOfRange =
-    !!positionId && position && success && isUniV3
-      ? univ3Pool.tick < data.tickLower || univ3Pool.tick >= data.tickUpper
-      : false;
   const isClosed = position !== null && position.liquidity.toString() === '0';
 
   const handleToggleSetting = (e: React.MouseEvent<HTMLDivElement>) => {

@@ -1,3 +1,5 @@
+import { useMemo } from 'react';
+
 import { Trans, t } from '@lingui/macro';
 
 import { useCopy } from '@kyber/hooks';
@@ -11,6 +13,7 @@ import {
 } from '@kyber/schema';
 import { InfoHelper, Skeleton, TokenLogo, TokenSymbol } from '@kyber/ui';
 import { shortenAddress } from '@kyber/utils/crypto';
+import { sqrtToPrice, tickToPrice } from '@kyber/utils/uniswapv3';
 
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
@@ -53,6 +56,17 @@ export function PoolInfo({ type }: { type: PoolInfoType }) {
     copyClassName: '!text-blue',
   });
 
+  const { success: isUniV3, data: uniV3Pool } = univ3PoolNormalize.safeParse(pool);
+
+  const isOutOfRange = useMemo(() => {
+    if (!position || !isUniV3 || !uniV3Pool) return false;
+    const poolPrice = +sqrtToPrice(BigInt(uniV3Pool.sqrtPriceX96), token0.decimals, token1.decimals);
+    const lowerPrice = +tickToPrice((position as UniV3Position).tickLower, token0.decimals, token1.decimals);
+    const upperPrice = +tickToPrice((position as UniV3Position).tickUpper, token0.decimals, token1.decimals);
+    return poolPrice < lowerPrice || poolPrice > upperPrice;
+  }, [isUniV3, position, token0.decimals, token1.decimals, uniV3Pool]);
+  const isClosed = position && position.liquidity.toString() === '0';
+
   if (!pool)
     return (
       <div className="ui-h-[62px] flex flex-col gap-2 rounded-md bg-[#ffffff0a] px-4 py-3 w-full">
@@ -60,14 +74,6 @@ export function PoolInfo({ type }: { type: PoolInfoType }) {
         <Skeleton className="w-[200px] h-5 mt-3" />
       </div>
     );
-
-  const { success: isUniV3, data: uniV3Pool } = univ3PoolNormalize.safeParse(pool);
-
-  const isOutOfRange =
-    position && isUniV3
-      ? uniV3Pool.tick < (position as UniV3Position).tickLower || uniV3Pool.tick > (position as UniV3Position).tickUpper
-      : false;
-  const isClosed = position && position.liquidity.toString() === '0';
 
   const dexName =
     typeof DEXES_INFO[pool.poolType].name === 'string'
