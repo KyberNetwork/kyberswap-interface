@@ -43,6 +43,9 @@ export function useApproval({ type, spender }: { type: 'source' | 'target'; spen
   const isToUniV4 = type === 'target' && pool && univ4Types.includes(pool.poolType as any);
 
   const routerAddress = spender && spender !== ZERO_ADDRESS ? spender : route?.routerAddress || '';
+  const needIncreasePermitNonce = Boolean(
+    type === 'target' && !!targetPositionId && isToUniV4 && sourcePoolType === targetPoolType,
+  );
 
   const {
     approvalStates: erc20ApprovalStates,
@@ -93,6 +96,7 @@ export function useApproval({ type, spender }: { type: 'source' | 'target'; spen
     chainId: walletChainId,
     rpcUrl,
     signTypedData,
+    needIncreaseNonce: needIncreasePermitNonce,
   });
 
   const isChecking = isFromUniV2

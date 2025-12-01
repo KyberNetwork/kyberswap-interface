@@ -96,6 +96,7 @@ export interface PermitNftParams {
   chainId?: number | null;
   rpcUrl?: string;
   version?: 'v3' | 'v4' | 'auto';
+  needIncreaseNonce?: boolean;
   /**
    * Function to sign EIP-712 typed data using eth_signTypedData_v4.
    * Example: (account, data) => library.send('eth_signTypedData_v4', [account.toLowerCase(), data])
@@ -158,6 +159,7 @@ export const usePermitNft = ({
   rpcUrl,
   version = 'auto',
   signTypedData,
+  needIncreaseNonce,
 }: PermitNftParams): UsePermitNftReturn => {
   const [isSigning, setIsSigning] = useState(false);
   const [permitData, setPermitData] = useState<PermitNftResult | null>(null);
@@ -297,9 +299,12 @@ export const usePermitNft = ({
       }
 
       const bitmap = BigInt(raw);
-      return findFreeNonce(bitmap, 0);
+      const nonce = findFreeNonce(bitmap, 0);
+
+      const finalNonce = needIncreaseNonce ? nonce + 1n : nonce;
+      return finalNonce;
     },
-    [nftManagerContract, rpcUrl, tokenId, account],
+    [nftManagerContract, rpcUrl, tokenId, account, needIncreaseNonce],
   );
 
   const signPermitNft = useCallback(
