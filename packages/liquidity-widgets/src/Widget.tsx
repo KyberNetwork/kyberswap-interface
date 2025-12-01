@@ -1,26 +1,11 @@
-import { useCallback, useState } from 'react';
-
-import { Trans, t } from '@lingui/macro';
-
-import { useNftApproval } from '@kyber/hooks';
-import { defaultToken, univ3Types, univ4Types } from '@kyber/schema';
-import {
-  InfoHelper,
-  MAX_TOKENS,
-  StatusDialog,
-  StatusDialogType,
-  TOKEN_SELECT_MODE,
-  TokenSelectorModal,
-  translateFriendlyErrorMessage,
-} from '@kyber/ui';
-import { getNftManagerContractAddress } from '@kyber/utils';
+import { univ3Types, univ4Types } from '@kyber/schema';
 
 import Action from '@/components/Action';
-import LiquidityToAdd, { LiquidityToAddSkeleton } from '@/components/Content/LiquidityToAdd';
 import PoolStat from '@/components/Content/PoolStat';
 import PriceInfo from '@/components/Content/PriceInfo';
 import PriceInput from '@/components/Content/PriceInput';
 import ZapSummary from '@/components/Content/ZapSummary';
+import ErrorDialog from '@/components/ErrorDialog';
 import Estimated from '@/components/Estimated';
 import Header from '@/components/Header';
 import LeftWarning from '@/components/LeftWarning';
@@ -33,194 +18,39 @@ import PositionPriceRange from '@/components/PositionPriceRange';
 import Preview from '@/components/Preview';
 import PriceRange from '@/components/PriceRange';
 import Setting from '@/components/Setting';
+import TokenInput from '@/components/TokenInput';
 import Warning from '@/components/Warning';
+import useApproval from '@/hooks/useApproval';
 import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
-import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
-import { PriceType, ZapSnapshotState } from '@/types/index';
+import { PriceType } from '@/types/index';
 
 export default function Widget() {
-  const {
-    theme,
-    chainId,
-    rpcUrl,
-    poolType,
-    poolAddress,
-    connectedAccount,
-    onClose,
-    positionId,
-    onSubmitTx,
-    onConnectWallet,
-    onOpenZapMigration,
-  } = useWidgetStore([
-    'theme',
-    'chainId',
-    'rpcUrl',
-    'poolType',
-    'poolAddress',
-    'connectedAccount',
-    'onClose',
-    'positionId',
-    'onSubmitTx',
-    'onConnectWallet',
-    'onOpenZapMigration',
-  ]);
-  const { pool, poolError } = usePoolStore(['pool', 'poolError']);
-  const { positionError } = usePositionStore(['positionError']);
-
-  const { zapInfo, tickLower, tickUpper, tokensIn, amountsIn, setTokensIn, setAmountsIn, slippage, getZapRoute } =
-    useZapState();
-
-  const [openTokenSelectModal, setOpenTokenSelectModal] = useState(false);
-  const [tokenAddressSelected, setTokenAddressSelected] = useState<string | undefined>();
-  const [widgetError, setWidgetError] = useState<string | undefined>();
-  const [zapSnapshotState, setZapSnapshotState] = useState<ZapSnapshotState | null>(null);
+  const { poolType, positionId } = useWidgetStore(['poolType', 'positionId']);
+  const { pool } = usePoolStore(['pool']);
+  const { getZapRoute, buildData, setBuildData } = useZapState();
+  const approval = useApproval();
 
   const initializing = !pool;
-  const { token0 = defaultToken, token1 = defaultToken } = !initializing ? pool : {};
 
   const isUniV3 = univ3Types.includes(poolType as any);
   const isUniv4 = univ4Types.includes(poolType);
 
-  const nftManagerContract = getNftManagerContractAddress(poolType, chainId);
-  const {
-    isApproved: nftApproved,
-    approve: approveNft,
-    approvePendingTx: nftApprovePendingTx,
-    checkApproval: checkNftApproval,
-  } = useNftApproval({
-    tokenId: positionId ? +positionId : undefined,
-    spender: zapInfo?.routerAddress || '',
-    userAddress: connectedAccount?.address || '',
-    rpcUrl,
-    nftManagerContract,
-    onSubmitTx: onSubmitTx,
-  });
-
-  const handleOpenZapMigration = useCallback(
-    (position: { exchange: string; poolId: string; positionId: string | number }, initialSlippage?: number) =>
-      onOpenZapMigration
-        ? onOpenZapMigration(
-            position,
-            tickLower !== null && tickUpper !== null
-              ? {
-                  tickLower,
-                  tickUpper,
-                }
-              : undefined,
-            initialSlippage,
-          )
-        : undefined,
-    [onOpenZapMigration, tickLower, tickUpper],
-  );
-
-  const onCloseTokenSelectModal = () => {
-    setOpenTokenSelectModal(false);
-    setTokenAddressSelected(undefined);
-  };
-
-  const addLiquiditySection = (
-    <>
-      <div>
-        <div className="text-base pl-1">
-          {positionId ? <Trans>Increase Liquidity</Trans> : <Trans>Add Liquidity</Trans>}
-        </div>
-        {initializing || !tokensIn.length ? (
-          <LiquidityToAddSkeleton />
-        ) : (
-          tokensIn.map((_, tokenIndex: number) => (
-            <LiquidityToAdd
-              tokenIndex={tokenIndex}
-              key={tokenIndex}
-              setOpenTokenSelectModal={setOpenTokenSelectModal}
-              setTokenAddressSelected={setTokenAddressSelected}
-            />
-          ))
-        )}
-      </div>
-
-      <div className="my-3 text-accent cursor-pointer w-fit text-sm" onClick={() => setOpenTokenSelectModal(true)}>
-        <Trans>+ Add Token(s) or Use Existing Position</Trans>
-        <InfoHelper
-          placement="bottom"
-          text={t`You can either zap in with up to ${MAX_TOKENS} tokens or select an existing position as the liquidity source`}
-          color={theme.accent}
-          width="300px"
-          style={{
-            verticalAlign: 'baseline',
-            position: 'relative',
-            top: 2,
-            left: 2,
-          }}
-        />
-      </div>
-    </>
-  );
-
   const onClosePreview = () => {
-    if (isUniv4) checkNftApproval();
-    setZapSnapshotState(null);
-    getZapRoute();
-  };
-
-  const onCloseErrorDialog = () => {
-    if (poolError || positionError) onClose?.();
-    else {
-      setWidgetError(undefined);
-      getZapRoute();
+    if (isUniv4) {
+      approval.nftApproval.check();
+      approval.nftApprovalAll.check();
     }
+    setBuildData(null);
+    getZapRoute();
   };
 
   return (
     <div className="ks-lw ks-lw-style">
-      {(poolError || positionError || widgetError) && (
-        <StatusDialog
-          type={StatusDialogType.ERROR}
-          title={
-            poolError
-              ? t`Failed to load pool`
-              : positionError
-                ? t`Failed to load position`
-                : widgetError
-                  ? t`Failed to build zap route`
-                  : ''
-          }
-          description={translateFriendlyErrorMessage(poolError || positionError || widgetError || '')}
-          onClose={onCloseErrorDialog}
-          action={
-            <button className="ks-outline-btn flex-1" onClick={onCloseErrorDialog}>
-              {poolError ? <Trans>Close</Trans> : <Trans>Close & Refresh</Trans>}
-            </button>
-          }
-        />
-      )}
-      {zapSnapshotState && !initializing && (
-        <Preview zapState={zapSnapshotState} pool={pool} onDismiss={onClosePreview} />
-      )}
-
-      {openTokenSelectModal && (
-        <TokenSelectorModal
-          tokensIn={tokensIn}
-          amountsIn={amountsIn}
-          setTokensIn={setTokensIn}
-          setAmountsIn={setAmountsIn}
-          account={connectedAccount?.address}
-          chainId={chainId}
-          mode={tokenAddressSelected ? TOKEN_SELECT_MODE.SELECT : TOKEN_SELECT_MODE.ADD}
-          selectedTokenAddress={tokenAddressSelected}
-          positionId={positionId}
-          poolAddress={poolAddress}
-          onConnectWallet={onConnectWallet}
-          onOpenZapMigration={onOpenZapMigration ? handleOpenZapMigration : undefined}
-          onClose={onCloseTokenSelectModal}
-          token0Address={token0.address}
-          token1Address={token1.address}
-          initialSlippage={slippage}
-        />
-      )}
-
-      <div className={zapSnapshotState ? 'hidden' : 'p-6'}>
+      <ErrorDialog />
+      <Preview onDismiss={onClosePreview} />
+      <div className={buildData ? 'hidden' : 'p-6'}>
         <Header />
         <div className="mt-5 flex gap-5 max-sm:flex-col">
           <div className="w-[55%] max-sm:w-full">
@@ -241,31 +71,19 @@ export default function Widget() {
                 {isUniv4 && <PositionFee />}
               </>
             )}
-            {!isUniV3 ? (
-              <>
-                <div className="mt-4" />
-                {addLiquiditySection}
-              </>
-            ) : null}
+            {!isUniV3 && <TokenInput className="mt-4" />}
             <PositionApr />
             <LeftWarning />
           </div>
 
           <div className="w-[45%] max-sm:w-full">
-            {isUniV3 ? addLiquiditySection : null}
-
+            {isUniV3 && <TokenInput />}
             <Estimated />
             <ZapSummary />
             <Warning />
           </div>
         </div>
-        <Action
-          nftApproved={nftApproved}
-          nftApprovePendingTx={nftApprovePendingTx}
-          approveNft={approveNft}
-          setWidgetError={setWidgetError}
-          setZapSnapshotState={setZapSnapshotState}
-        />
+        <Action approval={approval} />
       </div>
       <Setting />
     </div>

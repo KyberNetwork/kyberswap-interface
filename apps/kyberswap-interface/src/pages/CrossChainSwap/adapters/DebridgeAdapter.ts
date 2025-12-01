@@ -28,6 +28,7 @@ const mappingChainId: Record<string, number> = {
   [ChainId.MANTLE]: 100000023,
   [ChainId.BERA]: 100000020,
   [ChainId.HYPEREVM]: 100000022,
+  [ChainId.MONAD]: 100000030,
   [NonEvmChain.Solana]: 7565164,
 }
 
@@ -56,6 +57,7 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
       ChainId.BERA,
       ChainId.SONIC,
       ChainId.HYPEREVM,
+      ChainId.MONAD,
       // NonEvmChain.Solana,
     ]
   }

@@ -361,7 +361,15 @@ const DropdownAction = ({
       {!upToExtraSmall &&
         open &&
         createPortal(
-          <DropdownContent ref={contentRef} style={portalPosition} data-dropdown-content>
+          <DropdownContent
+            onClick={e => {
+              e.preventDefault()
+              e.stopPropagation()
+            }}
+            ref={contentRef}
+            style={portalPosition}
+            data-dropdown-content
+          >
             {renderActionItems()}
           </DropdownContent>,
           document.body,

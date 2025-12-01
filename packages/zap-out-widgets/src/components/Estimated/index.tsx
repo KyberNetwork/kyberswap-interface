@@ -161,7 +161,7 @@ export default function Estimated() {
                 <Trans>Zap Fee</Trans>
               </div>
             </MouseoverTooltip>
-            <div>{parseFloat(zapFee.toFixed(3))}%</div>
+            <div>{parseFloat(zapFee.protocolFee.toFixed(3))}%</div>
           </div>
         </>
       )}

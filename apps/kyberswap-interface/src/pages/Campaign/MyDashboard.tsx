@@ -390,7 +390,7 @@ const MyDashboard = () => {
           <Flex>
             {campaignLabelMap[NEW_CAMPAIGN]}{' '}
             <NewLabel>
-              <Trans>NEW</Trans>
+              <Trans>New</Trans>
             </NewLabel>
           </Flex>
         </Tab>
@@ -404,7 +404,7 @@ const MyDashboard = () => {
             <Flex>
               {campaign.label}
               <ELabel>
-                <Trans>ENDED</Trans>
+                <Trans>Ended</Trans>
               </ELabel>
             </Flex>
           </Tab>
@@ -438,7 +438,7 @@ const MyDashboard = () => {
                 <Flex>
                   {campaign.label}
                   <ELabel>
-                    <Trans>ENDED</Trans>
+                    <Trans>Ended</Trans>
                   </ELabel>
                 </Flex>
               </Tab>

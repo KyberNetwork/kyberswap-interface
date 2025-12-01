@@ -19,9 +19,11 @@ interface WidgetState extends WidgetProps {
   nativeToken: Token;
   wrappedNativeToken: Token;
   rpcUrl: string;
+  error: string | undefined;
   reset: () => void;
   setPositionId: (positionId: string) => void;
   setInitiaWidgetState: (props: WidgetProps, resetStore: () => void) => void;
+  setError: (error: string | undefined) => void;
 }
 
 const initState = {
@@ -42,16 +44,18 @@ const initState = {
   feeConfig: undefined,
   referral: undefined,
   initialTick: undefined,
+  signTypedData: undefined,
   onClose: undefined,
-  onConnectWallet: () => {},
-  onSwitchChain: () => {},
-  onSubmitTx: (_txData: { from: string; to: string; value: string; data: string; gasLimit: string }) =>
-    Promise.resolve(''),
   onOpenZapMigration: undefined,
   onSuccess: undefined,
   onViewPosition: undefined,
   nativeToken: defaultToken,
   wrappedNativeToken: defaultToken,
+  error: undefined,
+  onConnectWallet: () => {},
+  onSwitchChain: () => {},
+  onSubmitTx: (_txData: { from: string; to: string; value: string; data: string; gasLimit: string }) =>
+    Promise.resolve(''),
 };
 
 const useWidgetRawStore = create<WidgetState>((set, _get) => ({
@@ -94,6 +98,7 @@ const useWidgetRawStore = create<WidgetState>((set, _get) => ({
     });
   },
   setPositionId: (positionId: string) => set({ positionId }),
+  setError: (error: string | undefined) => set({ error }),
 }));
 
 type WidgetStoreKeys = keyof ReturnType<typeof useWidgetRawStore.getState>;
