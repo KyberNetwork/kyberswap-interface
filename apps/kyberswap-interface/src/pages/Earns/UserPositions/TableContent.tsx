@@ -449,7 +449,7 @@ export default function TableContent({
                     >
                       <Flex alignItems={'center'} sx={{ gap: '6px' }}>
                         <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '80px' }}>
-                          {formatDisplayNumber(totalValue, {
+                          {formatDisplayNumber(totalValue + merklRewardsTotalUsd, {
                             style: 'currency',
                             significantDigits: 4,
                           })}
@@ -595,7 +595,7 @@ export default function TableContent({
                           placement="bottom"
                         >
                           <Text>
-                            {formatDisplayNumber(rewards.unclaimedUsdValue, {
+                            {formatDisplayNumber(rewards.unclaimedUsdValue + merklRewardsTotalUsd, {
                               style: 'currency',
                               significantDigits: 4,
                             })}

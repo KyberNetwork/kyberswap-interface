@@ -144,7 +144,7 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
     })
 
     return { baseRewards, rewardsByPosition: mappedRewardsByPosition }
-  }, [data, positionsFilter])
+  }, [data, positionsFilter, resolvePositionsForBreakdown])
 
   const totalUsdValue = baseRewards.reduce((sum, reward) => sum + reward.totalAmount, 0)
 
