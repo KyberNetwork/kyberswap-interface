@@ -84,7 +84,7 @@ export const SmartExit = ({ position, onDismiss }: { position: ParsedPosition; o
     deadline,
   })
 
-  const disabled = invalidYieldCondition || invalidPriceCondition || invalidTimeCondition || !feeInfo
+  const disabled = invalidYieldCondition || invalidPriceCondition || invalidTimeCondition || !feeInfo || feeLoading
 
   // Auto-estimate when metrics are valid
   useEffect(() => {
