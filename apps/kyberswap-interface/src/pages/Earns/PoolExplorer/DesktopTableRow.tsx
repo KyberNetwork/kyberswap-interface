@@ -33,6 +33,7 @@ export const kemFarming = (pool: ParsedEarnPool) => {
     </AprDetailTooltip>
   ) : null
 }
+
 export const uniReward = (pool: ParsedEarnPool) => {
   const hasReward = pool.bonusApr > 0
 
