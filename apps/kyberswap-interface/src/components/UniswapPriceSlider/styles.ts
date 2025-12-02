@@ -204,20 +204,12 @@ export const PriceLabel = styled.div.attrs<{ $position: number; $isLower: boolea
 // Current Price Marker
 // ============================================
 
-export const CurrentPriceMarker = styled.div.attrs<{ $position: number }>(props => ({
-  style: {
-    left: `${props.$position}%`,
-  },
-}))<{ $position: number }>`
-  position: absolute;
-  top: 50%;
-  transform: translate(-50%, -50%);
+export const CurrentPriceMarker = styled.div`
   width: 2px;
   height: 15px;
   background: #888;
   border-radius: 2px;
-  z-index: 5;
-  will-change: left;
+  cursor: pointer;
 
   &::after {
     content: '';
@@ -230,6 +222,39 @@ export const CurrentPriceMarker = styled.div.attrs<{ $position: number }>(props 
     border-left: 5px solid transparent;
     border-right: 5px solid transparent;
     border-top: 5px solid #888;
+  }
+`
+
+export const CurrentPriceTooltip = styled.div`
+  position: absolute;
+  top: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 500;
+  color: #fff;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.15s ease, visibility 0.15s ease;
+  pointer-events: none;
+  z-index: 100;
+`
+
+export const CurrentPriceMarkerWrapper = styled.div.attrs<{ $position: number }>(props => ({
+  style: {
+    left: `${props.$position}%`,
+  },
+}))<{ $position: number }>`
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+  will-change: left;
+
+  &:hover ${CurrentPriceTooltip} {
+    opacity: 1;
+    visibility: visible;
   }
 `
 

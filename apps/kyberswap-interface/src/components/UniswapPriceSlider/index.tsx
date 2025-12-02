@@ -11,6 +11,8 @@ import {
 import { useDebouncedTicks, useSmoothZoom, useTickPositionConverter } from 'components/UniswapPriceSlider/hooks'
 import {
   CurrentPriceMarker,
+  CurrentPriceMarkerWrapper,
+  CurrentPriceTooltip,
   Handle,
   PriceLabel,
   SliderContainer,
@@ -316,6 +318,7 @@ function UniswapPriceSlider({
   // Calculate prices (with invertPrice applied)
   const lowerTickPrice = tickToPrice(Math.round(displayLowerTick), token0Decimals, token1Decimals, invertPrice)
   const upperTickPrice = tickToPrice(Math.round(displayUpperTick), token0Decimals, token1Decimals, invertPrice)
+  const currentPrice = tickToPrice(currentTick, token0Decimals, token1Decimals, invertPrice)
 
   // Calculate positions (flipped when invertPrice=true by the hook)
   const lowerPosition = getPositionFromTick(displayLowerTick)
@@ -342,7 +345,10 @@ function UniswapPriceSlider({
         <SliderTrack />
         <SliderRange $left={leftPosition} $width={rightPosition - leftPosition} />
 
-        <CurrentPriceMarker $position={currentPosition} />
+        <CurrentPriceMarkerWrapper $position={currentPosition}>
+          <CurrentPriceMarker />
+          <CurrentPriceTooltip>{formatDisplayNumber(currentPrice, { significantDigits: 6 })}</CurrentPriceTooltip>
+        </CurrentPriceMarkerWrapper>
 
         {/* Left handle (green) - always shows lower price visually */}
         <PriceLabel $position={leftPosition} $isLower>
