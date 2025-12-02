@@ -24,21 +24,20 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
     (reason: string) => {
       if (!positionsFilter?.length) return []
       const reasonLower = reason.toLowerCase()
-      const [_, reasonPool, reasonPositionId] = reasonLower.split('_')
+      const [_, reasonPoolAddress, reasonTokenId] = reasonLower.split('_')
 
       return positionsFilter.filter(position => {
-        const tokenIdLower = position.tokenId?.toLowerCase()
-        const poolLower = position.pool.address?.toLowerCase()
+        const poolAddress = position.pool.address?.toLowerCase()
+        const positionTokenId = position.tokenId?.toLowerCase()
 
-        const matchByPositionId =
-          (reasonPositionId && reasonPositionId === tokenIdLower) || reasonLower.includes(tokenIdLower)
+        const matchByPositionId = reasonTokenId && reasonTokenId === positionTokenId
 
-        const matchByPool = reasonPool === poolLower || reasonLower.includes(poolLower)
+        const matchByPool = poolAddress && reasonPoolAddress === poolAddress
 
         if (matchByPositionId) return true
 
         // Only fall back to pool match when the reason lacks position id info
-        return !reasonPositionId && matchByPool && positionsFilter.length === 1
+        return !reasonTokenId && matchByPool && positionsFilter.length === 1
       })
     },
     [positionsFilter],
