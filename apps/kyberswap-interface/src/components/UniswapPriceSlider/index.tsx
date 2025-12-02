@@ -58,7 +58,7 @@ function UniswapPriceSlider({
 
   const { getPositionFromTick, getTickFromPosition } = useTickPositionConverter(viewRange, tickSpacing, invertPrice)
 
-  const ticksReady = lowerTick !== undefined && upperTick !== undefined
+  const ticksReady = lowerTick !== undefined && upperTick !== undefined && upperTick > lowerTick
 
   // Initialize View Range
   useEffect(() => {
