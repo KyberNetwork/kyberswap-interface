@@ -18,13 +18,16 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
   const { filters } = useFilter()
   const { supportedChains } = useChainsConfig()
   const [tokenLogos, setTokenLogos] = useState<Record<string, string>>({})
-  const positionsFilter = useMemo(() => options?.positions, [options?.positions])
+
+  const positionsFilter = useMemo(
+    () => options?.positions?.filter(position => position.pool.isFarming),
+    [options?.positions],
+  )
 
   const resolvePositionsForBreakdown = useCallback(
     (reason: string) => {
       if (!positionsFilter?.length) return []
-      const reasonLower = reason.toLowerCase()
-      const [_, reasonPoolAddress, reasonTokenId] = reasonLower.split('_')
+      const [_, reasonPoolAddress, reasonTokenId] = reason.toLowerCase().split('_')
 
       return positionsFilter.filter(position => {
         const poolAddress = position.pool.address?.toLowerCase()
