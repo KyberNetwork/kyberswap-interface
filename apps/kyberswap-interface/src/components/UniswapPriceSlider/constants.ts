@@ -21,8 +21,8 @@ export const EDGE_THRESHOLD = 18
 /** Percentage padding on each side when auto-centering after drag */
 export const AUTO_CENTER_PADDING = 25
 
-/** Minimum tick spacings between handles to prevent overlap */
-export const MIN_HANDLE_DISTANCE_MULTIPLIER = 10
+/** Minimum tick spacings between handles to prevent overlap (keep small for large tickSpacing pools) */
+export const MIN_HANDLE_DISTANCE_MULTIPLIER = 1
 
 // Dynamic LERP Constants
 /** Distance threshold (in ticks) for minimum lerp factor */
