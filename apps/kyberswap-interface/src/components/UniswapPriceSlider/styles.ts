@@ -155,6 +155,7 @@ export const SliderRange = styled.div.attrs<{ $left: number; $width: number }>(p
   background: linear-gradient(90deg, #31cb9e 0%, #7289da 100%);
   transform: translateY(-50%);
   border-radius: 2px;
+  will-change: left, width;
 `
 
 // ============================================
@@ -172,6 +173,7 @@ export const Handle = styled.div.attrs<{ $position: number }>(props => ({
   cursor: grab;
   z-index: 10;
   touch-action: none; /* Prevent scroll while dragging on touch devices */
+  will-change: left; /* Hint GPU to optimize frequent updates */
 
   &:active {
     cursor: grabbing;
@@ -195,6 +197,7 @@ export const PriceLabel = styled.div.attrs<{ $position: number; $isLower: boolea
   font-weight: 500;
   white-space: nowrap;
   pointer-events: none;
+  will-change: left, transform;
 `
 
 // ============================================
@@ -214,6 +217,7 @@ export const CurrentPriceMarker = styled.div.attrs<{ $position: number }>(props 
   background: #888;
   border-radius: 2px;
   z-index: 5;
+  will-change: left;
 
   &::after {
     content: '';
@@ -260,6 +264,7 @@ export const PriceAxisTick = styled.div.attrs<{ $position: number }>(props => ({
   width: 1px;
   height: 6px;
   background: #555;
+  will-change: left;
 `
 
 export const PriceAxisLabel = styled.div.attrs<{ $position: number }>(props => ({
@@ -274,4 +279,5 @@ export const PriceAxisLabel = styled.div.attrs<{ $position: number }>(props => (
   font-size: 10px;
   white-space: nowrap;
   user-select: none;
+  will-change: left;
 `
