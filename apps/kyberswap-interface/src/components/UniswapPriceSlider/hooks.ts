@@ -4,13 +4,17 @@ import { Dispatch, SetStateAction, useCallback, useEffect, useRef, useState } fr
 import type { ViewRange } from 'components/UniswapPriceSlider/types'
 
 const DEBOUNCE_DELAY = 150 // ms
-const ZOOM_LERP_FACTOR = 0.08 // Smooth interpolation factor for zoom
+const ZOOM_DURATION = 400 // ms - duration for zoom/auto-center animation
 const HANDLE_LERP_MIN = 0.15 // Min lerp factor when far from target
 const HANDLE_LERP_MAX = 0.4 // Max lerp factor when close to target
 const MAX_TICK_SPEED = 2000 // Maximum ticks per frame - increased for smoother tracking
 
+// Easing function: ease-out cubic for smooth deceleration
+const easeOutCubic = (t: number): number => 1 - Math.pow(1 - t, 3)
+
 /**
- * Hook for smooth zoom animation using requestAnimationFrame
+ * Hook for smooth zoom animation using easing function
+ * Uses ease-out for natural deceleration feel
  */
 export const useSmoothZoom = (
   viewRange: ViewRange | null,
@@ -18,47 +22,57 @@ export const useSmoothZoom = (
 ) => {
   const zoomAnimationRef = useRef<number | null>(null)
   const targetViewRangeRef = useRef<ViewRange | null>(null)
+  const startViewRangeRef = useRef<ViewRange | null>(null)
+  const startTimeRef = useRef<number>(0)
 
   const animateZoom = useCallback(() => {
-    if (!targetViewRangeRef.current || !viewRange) {
+    if (!targetViewRangeRef.current || !startViewRangeRef.current) {
       zoomAnimationRef.current = null
       return
     }
 
+    const now = performance.now()
+    const elapsed = now - startTimeRef.current
+    const progress = Math.min(elapsed / ZOOM_DURATION, 1)
+    const easedProgress = easeOutCubic(progress)
+
+    const start = startViewRangeRef.current
     const target = targetViewRangeRef.current
 
-    setViewRange(prev => {
-      if (!prev) return prev
+    const newMin = start.min + (target.min - start.min) * easedProgress
+    const newMax = start.max + (target.max - start.max) * easedProgress
 
-      const newMin = prev.min + (target.min - prev.min) * ZOOM_LERP_FACTOR
-      const newMax = prev.max + (target.max - prev.max) * ZOOM_LERP_FACTOR
+    setViewRange({ min: newMin, max: newMax })
 
-      // Check if we're close enough to target
-      const minDiff = Math.abs(target.min - newMin)
-      const maxDiff = Math.abs(target.max - newMax)
-      const threshold = Math.abs(prev.max - prev.min) * 0.001
-
-      if (minDiff < threshold && maxDiff < threshold) {
-        targetViewRangeRef.current = null
-        zoomAnimationRef.current = null
-        return target
-      }
-
+    if (progress < 1) {
       // Continue animation
       zoomAnimationRef.current = requestAnimationFrame(animateZoom)
-      return { min: newMin, max: newMax }
-    })
-  }, [viewRange, setViewRange])
+    } else {
+      // Animation complete - set exact target values
+      setViewRange(target)
+      targetViewRangeRef.current = null
+      startViewRangeRef.current = null
+      zoomAnimationRef.current = null
+    }
+  }, [setViewRange])
 
   const startSmoothZoom = useCallback(
     (targetMin: number, targetMax: number) => {
+      // If already animating, use current position as new start
+      if (zoomAnimationRef.current && viewRange) {
+        startViewRangeRef.current = viewRange
+      } else if (viewRange) {
+        startViewRangeRef.current = viewRange
+      }
+
       targetViewRangeRef.current = { min: targetMin, max: targetMax }
+      startTimeRef.current = performance.now()
 
       if (!zoomAnimationRef.current) {
         zoomAnimationRef.current = requestAnimationFrame(animateZoom)
       }
     },
-    [animateZoom],
+    [animateZoom, viewRange],
   )
 
   // Cleanup animation on unmount
