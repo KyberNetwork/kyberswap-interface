@@ -10,7 +10,7 @@ import { ParsedPosition, TokenRewardInfo } from 'pages/Earns/types'
 import uriToHttp from 'utils/uriToHttp'
 
 type UseMerklRewardsProps = {
-  positions?: Array<ParsedPosition | undefined>
+  positions?: Array<ParsedPosition>
 }
 
 const useMerklRewards = (options?: UseMerklRewardsProps) => {
@@ -22,14 +22,13 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
   const positionsKey = useMemo(
     () =>
       (options?.positions || [])
-        .filter((position): position is ParsedPosition => !!position)
         .map(position => `${position.id}-${position.pool.address}-${position.pool.isFarming}`)
         .join('|'),
     [options?.positions],
   )
 
   const positionsFilter = useMemo(
-    () => options?.positions?.filter((position): position is ParsedPosition => !!position && position.pool.isFarming),
+    () => options?.positions?.filter(position => position.pool.isFarming),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [positionsKey],
   )
