@@ -41,7 +41,7 @@ const MobileTableRow = ({
     onOpenZapInWidget({
       pool: {
         dex: pool.exchange,
-        chainId: pool.chainId || filters.chainId,
+        chainId: pool.chainId,
         address: pool.address,
       },
       initialTick:

@@ -11,7 +11,7 @@ const FAVORITE_EXPIRE_DAYS = 7
 const LOCAL_STORAGE_KEY_PREFIX = 'poolExplorer_'
 const FAVORITE_MESSAGE_TEMPLATE = `Click sign to add favorite pools at Kyberswap.com without logging in.\nThis request won’t trigger any blockchain transaction or cost any gas fee. Expires in ${FAVORITE_EXPIRE_DAYS} days. \n\nIssued at: {issuedAt}`
 
-const useFavoritePool = ({ filters, refetch }: { filters: PoolQueryParams; refetch: () => void }) => {
+const useFavoritePool = ({ refetch }: { filters: PoolQueryParams; refetch: () => void }) => {
   const { account } = useActiveWeb3React()
   const { library } = useWeb3React()
   const [addFavorite] = useAddFavoriteMutation()
@@ -46,7 +46,7 @@ const useFavoritePool = ({ filters, refetch }: { filters: PoolQueryParams; refet
       setDelayFavorite(true)
 
       const result = await (isPoolFavorite ? removeFavorite : addFavorite)({
-        chainId: filters.chainId,
+        chainId: pool.chainId,
         userAddress: account,
         poolAddress: pool.address,
         message: msg,

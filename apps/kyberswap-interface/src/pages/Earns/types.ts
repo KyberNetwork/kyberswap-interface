@@ -39,7 +39,7 @@ export interface EarnPool {
   kemLMApr: number
   liquidity: number
   tvl: number
-  chainId?: number
+  chainId: number
   favorite?: {
     chainId: number
     isFavorite: boolean

@@ -17,6 +17,8 @@ import { MouseoverTooltip, MouseoverTooltipDesktopOnly } from 'components/Toolti
 import { APP_PATHS } from 'constants/index'
 import { HeadSection, NavigateButton, Tag, TagContainer } from 'pages/Earns/PoolExplorer/styles'
 import DropdownMenu, { MenuOption } from 'pages/Earns/components/DropdownMenu'
+import { default as MultiSelectDropdownMenu } from 'pages/Earns/components/DropdownMenu/MultiSelect'
+import { ItemIcon } from 'pages/Earns/components/DropdownMenu/styles'
 import useSupportedDexesAndChains from 'pages/Earns/hooks/useSupportedDexesAndChains'
 import { MEDIA_WIDTHS } from 'theme'
 
@@ -87,8 +89,23 @@ const Filter = ({
     [i18n.locale],
   )
 
-  const onChainChange = (newChainId: string | number) => {
-    updateFilters('chainId', newChainId.toString())
+  const selectedChainsLabel = useMemo(() => {
+    const arrValue = filters.chainId.split(',')
+    const selectedChains = supportedChains.filter(option => arrValue?.includes(option.value))
+    if (selectedChains.length >= 2) {
+      return `Selected: ${selectedChains.length} chains`
+    }
+    const option = selectedChains[0] || supportedChains[0]
+    return (
+      <>
+        {option.icon && <ItemIcon src={option.icon} alt={option.label} />}
+        {option.label}
+      </>
+    )
+  }, [supportedChains, filters.chainId])
+
+  const onChainChange = (newChainIds: string | number) => {
+    updateFilters('chainId', newChainIds.toString())
   }
   const onProtocolChange = (newProtocol: string | number) => {
     updateFilters('protocol', newProtocol.toString())
@@ -141,9 +158,10 @@ const Filter = ({
       </HeadSection>
       <Flex justifyContent="space-between" flexDirection={upToMedium ? 'column' : 'row'} sx={{ gap: '1rem' }}>
         <Flex sx={{ gap: '1rem' }} flexWrap="wrap">
-          <DropdownMenu
+          <MultiSelectDropdownMenu
+            label={selectedChainsLabel || t`Select chains`}
             options={supportedChains}
-            value={filters.chainId.toString()}
+            value={filters.chainId}
             alignLeft
             onChange={onChainChange}
           />

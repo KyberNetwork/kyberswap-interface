@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useMemo } from 'react'
 import { useMedia } from 'react-use'
@@ -28,11 +29,16 @@ const TableContent = ({
   filters: PoolQueryParams
 }) => {
   const theme = useTheme()
-
   const allDexes = useAppSelector(state => state.customizeDexes.allDexes)
+
   const dexList = useMemo(() => {
-    return allDexes[filters.chainId] || []
+    const chainIds = filters.chainId.split(',')
+    return chainIds.reduce((acc, chainId) => {
+      const dexes = allDexes[Number(chainId) as ChainId] || []
+      return [...acc, ...dexes]
+    }, [] as { id: string; logoURL: string; name: string }[])
   }, [allDexes, filters.chainId])
+
   const { data: poolData, refetch, isError } = usePoolsExplorerQuery(filters, { pollingInterval: POLLING_INTERVAL_MS })
   const { handleFavorite, favoriteLoading } = useFavoritePool({ filters, refetch })
 
@@ -94,7 +100,7 @@ const TableContent = ({
           ),
         )}
       </div>
-      <Updater customChainId={filters.chainId} />
+      <Updater />
     </>
   )
 }
