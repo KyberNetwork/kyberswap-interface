@@ -38,6 +38,7 @@ function UniswapPriceSlider({
   const sliderRef = useRef<HTMLDivElement>(null)
   const isInitialized = useRef(false)
   const viewRangeRef = useRef<ViewRange | null>(viewRange)
+  const lastAdjustedTicksRef = useRef<{ lower: number; upper: number } | null>(null)
 
   // Keep viewRangeRef in sync with viewRange state
   useEffect(() => {
@@ -75,6 +76,45 @@ function UniswapPriceSlider({
     })
     isInitialized.current = true
   }, [lowerTick, upperTick, currentTick, tickSpacing, ticksReady])
+
+  // Auto-adjust viewRange when ticks change from outside (e.g., input fields)
+  useEffect(() => {
+    // Skip if not initialized, dragging, or ticks not ready
+    if (!isInitialized.current || isDragging || !ticksReady || !viewRange) return
+
+    // Skip if already adjusted for these exact tick values
+    const lastAdjusted = lastAdjustedTicksRef.current
+    if (lastAdjusted && lastAdjusted.lower === lowerTick && lastAdjusted.upper === upperTick) return
+
+    const currentRange = viewRange.max - viewRange.min
+    const lowerPos = ((lowerTick - viewRange.min) / currentRange) * 100
+    const upperPos = ((upperTick - viewRange.min) / currentRange) * 100
+
+    // Check if handles are outside visible area or positioned poorly
+    const handleOutsideLeft = lowerPos < -5 || upperPos < -5
+    const handleOutsideRight = lowerPos > 105 || upperPos > 105
+    const handleSpan = Math.abs(upperPos - lowerPos)
+    const idealHandleSpan = 100 - 2 * AUTO_CENTER_PADDING
+    const handlesTooClose = handleSpan < idealHandleSpan * 0.4 // Much smaller than ideal
+    const handlesTooFar = handleSpan > idealHandleSpan * 2 // Much larger than ideal
+
+    // If adjustment needed, calculate new viewRange
+    if (handleOutsideLeft || handleOutsideRight || handlesTooClose || handlesTooFar) {
+      const tickDistance = Math.abs(upperTick - lowerTick)
+      const handleCenter = (lowerTick + upperTick) / 2
+
+      const idealPadding = tickDistance * (AUTO_CENTER_PADDING / (100 - 2 * AUTO_CENTER_PADDING))
+      const minPadding = Math.max(tickDistance * 0.3, tickSpacing * 20)
+      const padding = Math.max(idealPadding, minPadding)
+
+      const targetMin = Math.max(MIN_TICK, handleCenter - tickDistance / 2 - padding)
+      const targetMax = Math.min(MAX_TICK, handleCenter + tickDistance / 2 + padding)
+
+      // Mark these ticks as adjusted to prevent re-triggering
+      lastAdjustedTicksRef.current = { lower: lowerTick, upper: upperTick }
+      startSmoothZoom(targetMin, targetMax)
+    }
+  }, [lowerTick, upperTick, isDragging, ticksReady, viewRange, tickSpacing, startSmoothZoom])
 
   const handleMouseDown = useCallback(
     (handle: 'lower' | 'upper') => (e: React.MouseEvent) => {
