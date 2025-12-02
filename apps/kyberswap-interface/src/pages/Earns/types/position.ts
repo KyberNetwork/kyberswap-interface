@@ -1,6 +1,6 @@
 import { NativeToken } from 'constants/networks/type'
 import { Exchange } from 'pages/Earns/constants'
-import { PAIR_CATEGORY, PoolAprInterval, ProgramType } from 'pages/Earns/types/pool'
+import { MerklOpportunity, PAIR_CATEGORY, PoolAprInterval, ProgramType } from 'pages/Earns/types/pool'
 import { TokenRewardInfo } from 'pages/Earns/types/reward'
 
 export interface PositionFilter {
@@ -107,6 +107,7 @@ export const DEFAULT_PARSED_POSITION: ParsedPosition = {
   kemEGApr: { '24h': 0, '7d': 0, all: 0 },
   kemLMApr: { '24h': 0, '7d': 0, all: 0 },
   feeApr: { '24h': 0, '7d': 0, all: 0 },
+  bonusApr: 0,
   totalValue: 0,
   totalProvidedValue: 0,
   status: PositionStatus.IN_RANGE,
@@ -182,6 +183,7 @@ export interface ParsedPosition {
   kemEGApr: PoolAprInterval
   kemLMApr: PoolAprInterval
   feeApr: PoolAprInterval
+  bonusApr: number
   totalValue: number
   totalProvidedValue: number
   status: string
@@ -204,7 +206,6 @@ export interface EarnPosition {
   minPrice: number
   maxPrice: number
   currentAmounts: Array<PositionAmount>
-  providedAmounts: Array<PositionAmount>
   feePending: Array<PositionAmount>
   feesClaimed: Array<PositionAmount>
   createdTime: number
@@ -237,6 +238,7 @@ export interface EarnPosition {
     projectLogo: string
     category: PAIR_CATEGORY
     programs?: Array<ProgramType>
+    merklOpportunity?: MerklOpportunity
   }
   suggestionPool: SuggestedPool | null
   latestBlock: number

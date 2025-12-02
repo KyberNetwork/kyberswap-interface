@@ -6,6 +6,7 @@ import { PoolQueryParams } from 'services/zapEarn'
 
 import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import { ReactComponent as FarmingLmIcon } from 'assets/svg/kyber/kemLm.svg'
+import { ReactComponent as UniBonusIcon } from 'assets/svg/kyber/uni_bonus.svg'
 import Loader from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
@@ -23,12 +24,22 @@ export const kemFarming = (pool: ParsedEarnPool) => {
   const isFarmingLm = programs.includes(ProgramType.LM)
 
   return isFarming ? (
-    <AprDetailTooltip feeApr={pool.feeApr} egApr={pool.kemEGApr || 0} lmApr={pool.kemLMApr || 0}>
+    <AprDetailTooltip feeApr={pool.feeApr || 0} egApr={pool.kemEGApr || 0} lmApr={pool.kemLMApr || 0}>
       {isFarmingLm ? (
         <FarmingLmIcon width={24} height={24} style={{ marginLeft: 4 }} />
       ) : (
         <FarmingIcon width={24} height={24} style={{ marginLeft: 4 }} />
       )}
+    </AprDetailTooltip>
+  ) : null
+}
+
+export const uniReward = (pool: ParsedEarnPool) => {
+  const hasReward = pool.bonusApr > 0
+
+  return hasReward ? (
+    <AprDetailTooltip uniApr={pool.bonusApr}>
+      <UniBonusIcon width={24} height={24} style={{ marginLeft: 4 }} />
     </AprDetailTooltip>
   ) : null
 }
@@ -87,7 +98,7 @@ const DesktopTableRow = ({
         <FeeTier>{formatDisplayNumber(pool.feeTier, { significantDigits: 4 })}%</FeeTier>
       </Flex>
       <Apr value={pool.apr}>
-        {formatAprNumber(pool.apr)}% {kemFarming(pool)}
+        {formatAprNumber(pool.apr)}% {kemFarming(pool)} {uniReward(pool)}
       </Apr>
       {isFarmingFiltered && (
         <Flex justifyContent="flex-end" onClick={e => handleOpenZapInWidget(e, true)}>

@@ -22,6 +22,7 @@ export interface EarnPool {
   volume: number
   apr: number
   kemEGApr: number
+  bonusApr: number
   kemLMApr: number
   liquidity: number
   tvl: number
@@ -32,6 +33,7 @@ export interface EarnPool {
   }
   category?: PAIR_CATEGORY
   programs?: Array<ProgramType>
+  merklOpportunity?: MerklOpportunity
   tokens: Array<{
     address: string
     logoURI: string
@@ -60,4 +62,53 @@ export interface PoolAprInterval {
   '7d': number
   '24h': number
   all: number
+}
+
+export interface MerklOpportunity {
+  type: string
+  chainId: number
+  identifier: string
+  status: string
+  action: string
+  tvl: number
+  apr: number
+  dailyRewards: number
+  depositUrl: string
+  liveCampaigns: number
+  protocol: {
+    id: string
+    name: string
+  }
+  rewardsRecord: {
+    total: number
+    timestamp: string | number
+    breakdowns: Array<{
+      token: {
+        name: string
+        chainId: number
+        address: string
+        decimals: number
+        symbol: string
+        displaySymbol: string
+        verified: boolean
+        isTest: boolean
+        type: string
+        isNative: boolean
+        price: number
+        updatedAt: number
+        priceSource: string
+      }
+      amount: string
+      value: number
+      campaignId: string
+      distributionType: string
+      timestamp: string | number
+    }>
+  }
+  campaigns: Array<{
+    id: string
+    startTimestamp: number
+    endTimestamp: number
+    apr: number
+  }>
 }

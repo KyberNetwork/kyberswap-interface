@@ -367,7 +367,7 @@ const useZapInWidget = ({
   }, [triggerClose, handleCloseZapInWidget, setTriggerClose, addLiquidityPureParams])
 
   const widget = addLiquidityParams ? (
-    <Modal isOpen mobileFullWidth maxWidth={800} width={'800px'} onDismiss={handleCloseZapInWidget}>
+    <Modal isOpen mobileFullWidth maxWidth={840} width={'840px'} onDismiss={handleCloseZapInWidget}>
       <ZapIn {...addLiquidityParams} />
     </Modal>
   ) : null

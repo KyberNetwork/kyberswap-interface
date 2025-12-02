@@ -76,7 +76,7 @@ export default function Widget() {
             <LeftWarning />
           </div>
 
-          <div className="w-[45%] max-sm:w-full">
+          <div className="w-[45%] max-w-[340px] max-sm:w-full">
             {isUniV3 && <TokenInput />}
             <Estimated />
             <ZapSummary />
