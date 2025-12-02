@@ -98,8 +98,8 @@ const Filter = ({
     const option = selectedChains[0] || supportedChains[0]
     return (
       <>
-        {option.icon && <ItemIcon src={option.icon} alt={option.label} />}
-        {option.label}
+        {option?.icon && <ItemIcon src={option.icon} alt={option.label} />}
+        {option?.label}
       </>
     )
   }, [supportedChains, filters.chainId])

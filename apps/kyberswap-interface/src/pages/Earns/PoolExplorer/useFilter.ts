@@ -15,15 +15,17 @@ export default function useFilter(setSearch?: (search: string) => void) {
   const [defaultChainId] = useState(chainId && EARN_CHAINS[chainId as unknown as EarnChain] ? chainId : ChainId.MAINNET)
 
   const filters: PoolQueryParams = useMemo(() => {
+    const chainIds = searchParams.get('chainId')
+    const isFilterFarmingPool = searchParams.get('tag') === FilterTag.FARMING_POOL
+    const filterChainId =
+      chainIds ||
+      (isFilterFarmingPool
+        ? EARN_CHAINS[defaultChainId as unknown as EarnChain]?.farmingSupported
+          ? defaultChainId
+          : ChainId.MAINNET
+        : defaultChainId)
     return {
-      chainId: +(
-        searchParams.get('chainId') ||
-        (searchParams.get('tag') === FilterTag.FARMING_POOL
-          ? EARN_CHAINS[defaultChainId as unknown as EarnChain]?.farmingSupported
-            ? defaultChainId
-            : ChainId.MAINNET
-          : defaultChainId)
-      ),
+      chainId: filterChainId.toString(),
       page: +(searchParams.get('page') || 1),
       limit: 10,
       interval: searchParams.get('interval') || (timings[0].value as string),
