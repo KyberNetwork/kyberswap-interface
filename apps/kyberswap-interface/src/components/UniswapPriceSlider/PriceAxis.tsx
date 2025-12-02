@@ -1,10 +1,9 @@
 import { tickToPrice } from '@kyber/utils/dist/uniswapv3'
 import React, { useMemo } from 'react'
 
+import { PriceAxisContainer, PriceAxisLabel, PriceAxisLine, PriceAxisTick } from 'components/UniswapPriceSlider/styles'
 import type { PriceAxisProps } from 'components/UniswapPriceSlider/types'
 import { formatAxisPrice } from 'components/UniswapPriceSlider/utils'
-
-import { PriceAxisContainer, PriceAxisLabel, PriceAxisLine, PriceAxisTick } from './styles'
 
 const MAX_TICK_COUNT = 11 // More ticks for small ranges
 const MIN_TICK_COUNT = 2 // Just first and last for extreme ranges
@@ -49,6 +48,7 @@ const getOptimalTickConfig = (minPrice: number, maxPrice: number): { tickCount: 
 /**
  * Calculate tick positions for the axis
  * Uses tick-space for even distribution (matching the slider)
+ * When invertPrice, positions are flipped so lower inverted price is on left
  */
 const calculateAxisTicks = (
   viewRange: { min: number; max: number },
@@ -66,7 +66,9 @@ const calculateAxisTicks = (
   for (let i = 0; i < count; i++) {
     const tick = Math.round(viewRange.min + step * i)
     const price = +tickToPrice(tick, token0Decimals, token1Decimals, invertPrice)
-    const position = ((tick - viewRange.min) / tickRange) * 100
+    const normalPosition = ((tick - viewRange.min) / tickRange) * 100
+    // When invertPrice, flip position so lower inverted price (from higher tick) is on left
+    const position = invertPrice ? 100 - normalPosition : normalPosition
 
     ticks.push({ tick, price, position })
   }
@@ -133,7 +135,9 @@ function PriceAxis({ viewRange, token0Decimals, token1Decimals, invertPrice }: P
     )
 
     const ticks = calculateAxisTicks(viewRange, token0Decimals, token1Decimals, tickCount, invertPrice)
-    return filterOverlappingTicks(ticks, minGapPercent)
+    // Sort by position ascending for proper overlap filtering
+    const sortedTicks = [...ticks].sort((a, b) => a.position - b.position)
+    return filterOverlappingTicks(sortedTicks, minGapPercent)
   }, [viewRange, token0Decimals, token1Decimals, invertPrice])
 
   return (

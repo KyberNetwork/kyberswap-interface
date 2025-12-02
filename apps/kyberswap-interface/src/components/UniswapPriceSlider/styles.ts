@@ -165,7 +165,7 @@ export const Handle = styled.div.attrs<{ $position: number }>(props => ({
   style: {
     left: `${props.$position}%`,
   },
-}))<{ $position: number; $isLower: boolean }>`
+}))<{ $position: number }>`
   position: absolute;
   top: 0;
   transform: translate(-50%, 1%);

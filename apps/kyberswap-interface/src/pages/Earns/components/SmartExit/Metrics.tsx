@@ -304,7 +304,6 @@ const PriceInput = ({
     [position.pool.tickSpacing, position.priceRange, position.token0.decimals, position.token1.decimals],
   )
 
-  // Convert price to tick (called from input change)
   const priceToTick = useCallback(
     (price: string) => {
       if (!price) return undefined
@@ -322,7 +321,7 @@ const PriceInput = ({
       changeSourceRef.current = 'slider'
       setLowerTickState(tick)
       if (tick !== undefined) {
-        const price = tickToPrice(tick, position.token0.decimals, position.token1.decimals)
+        const price = tickToPrice(tick, position.token0.decimals, position.token1.decimals, false)
         setMetric({ ...metric, condition: { ...priceCondition, gte: price } })
       }
       // Reset source after React batch update
@@ -338,7 +337,7 @@ const PriceInput = ({
       changeSourceRef.current = 'slider'
       setUpperTickState(tick)
       if (tick !== undefined) {
-        const price = tickToPrice(tick, position.token0.decimals, position.token1.decimals)
+        const price = tickToPrice(tick, position.token0.decimals, position.token1.decimals, false)
         setMetric({ ...metric, condition: { ...priceCondition, lte: price } })
       }
       setTimeout(() => {

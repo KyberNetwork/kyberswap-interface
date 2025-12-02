@@ -1,10 +1,8 @@
-import { MAX_TICK, MIN_TICK, nearestUsableTick, tickToPrice } from '@kyber/utils/dist/uniswapv3'
+import { MAX_TICK, MIN_TICK, tickToPrice } from '@kyber/utils/dist/uniswapv3'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 
 import PriceAxis from 'components/UniswapPriceSlider/PriceAxis'
-import { useDebouncedTicks, useSmoothZoom } from 'components/UniswapPriceSlider/hooks'
-import { formatDisplayNumber } from 'utils/numbers'
-
+import { useDebouncedTicks, useSmoothZoom, useTickPositionConverter } from 'components/UniswapPriceSlider/hooks'
 import {
   CurrentPriceMarker,
   Handle,
@@ -24,51 +22,38 @@ import {
   SliderRange,
   SliderTrack,
   SliderWrapper,
-} from './styles'
-import type { HandleType, UniswapPriceSliderProps, ViewRange } from './types'
-import { brushHandlePath, getEdgeIntensity } from './utils'
-
-// ============================================
-// Skeleton Component
-// ============================================
+} from 'components/UniswapPriceSlider/styles'
+import type { HandleType, UniswapPriceSliderProps, ViewRange } from 'components/UniswapPriceSlider/types'
+import { brushHandlePath, getEdgeIntensity } from 'components/UniswapPriceSlider/utils'
+import { formatDisplayNumber } from 'utils/numbers'
 
 const SKELETON_AXIS_POSITIONS = [0, 16.6, 33.3, 50, 66.6, 83.3, 100]
 
-function PriceSliderSkeleton() {
-  return (
-    <SkeletonWrapper>
-      <SkeletonSliderArea>
-        <SkeletonTrack />
-        <SkeletonRange />
-        <SkeletonCurrentPrice />
-        <SkeletonPriceLabel $isLower />
-        <SkeletonPriceLabel $isLower={false} />
-        <SkeletonHandle $isLower />
-        <SkeletonHandle $isLower={false} />
-      </SkeletonSliderArea>
-      <SkeletonAxisContainer>
-        <SkeletonAxisLine />
-        {SKELETON_AXIS_POSITIONS.map(pos => (
-          <React.Fragment key={pos}>
-            <SkeletonAxisTick $position={pos} />
-            <SkeletonAxisLabel $position={pos} />
-          </React.Fragment>
-        ))}
-      </SkeletonAxisContainer>
-    </SkeletonWrapper>
-  )
-}
-
-// ============================================
-// Constants
-// ============================================
+const PriceSliderSkeleton = () => (
+  <SkeletonWrapper>
+    <SkeletonSliderArea>
+      <SkeletonTrack />
+      <SkeletonRange />
+      <SkeletonCurrentPrice />
+      <SkeletonPriceLabel $isLower />
+      <SkeletonPriceLabel $isLower={false} />
+      <SkeletonHandle $isLower />
+      <SkeletonHandle $isLower={false} />
+    </SkeletonSliderArea>
+    <SkeletonAxisContainer>
+      <SkeletonAxisLine />
+      {SKELETON_AXIS_POSITIONS.map(pos => (
+        <React.Fragment key={pos}>
+          <SkeletonAxisTick $position={pos} />
+          <SkeletonAxisLabel $position={pos} />
+        </React.Fragment>
+      ))}
+    </SkeletonAxisContainer>
+  </SkeletonWrapper>
+)
 
 const EDGE_THRESHOLD = 18 // % from edge for zoom out (ensures price labels ~6 chars visible)
 const AUTO_CENTER_PADDING = 25 // % padding on each side when auto-centering after drag
-
-// ============================================
-// Main Component
-// ============================================
 
 function UniswapPriceSlider({
   pool,
@@ -80,16 +65,8 @@ function UniswapPriceSlider({
 }: UniswapPriceSliderProps) {
   const { tickSpacing, token0Decimals, token1Decimals, currentTick } = pool
 
-  // ============================================
-  // State
-  // ============================================
-
   const [viewRange, setViewRange] = useState<ViewRange | null>(null)
   const [isDragging, setIsDragging] = useState<HandleType>(null)
-
-  // ============================================
-  // Refs
-  // ============================================
 
   const sliderRef = useRef<HTMLDivElement>(null)
   const isInitialized = useRef(false)
@@ -99,10 +76,6 @@ function UniswapPriceSlider({
   useEffect(() => {
     viewRangeRef.current = viewRange
   }, [viewRange])
-
-  // ============================================
-  // Custom Hooks
-  // ============================================
 
   const { startSmoothZoom } = useSmoothZoom(viewRange, setViewRange)
 
@@ -115,39 +88,11 @@ function UniswapPriceSlider({
     getTargetTicks,
   } = useDebouncedTicks(lowerTick, upperTick, setLowerTick, setUpperTick, isDragging !== null)
 
-  // ============================================
-  // Derived Values
-  // ============================================
+  const { getPositionFromTick, getTickFromPosition } = useTickPositionConverter(viewRange, tickSpacing, invertPrice)
 
   const ticksReady = lowerTick !== undefined && upperTick !== undefined
 
-  // ============================================
-  // Tick/Position Converters
-  // ============================================
-
-  const getPositionFromTick = useCallback(
-    (tick: number): number => {
-      if (!viewRange) return 50
-      const { min, max } = viewRange
-      return ((tick - min) / (max - min)) * 100
-    },
-    [viewRange],
-  )
-
-  const getTickFromPosition = useCallback(
-    (position: number): number => {
-      if (!viewRange) return 0
-      const { min, max } = viewRange
-      const tick = min + (position / 100) * (max - min)
-      return nearestUsableTick(Math.round(tick), tickSpacing)
-    },
-    [viewRange, tickSpacing],
-  )
-
-  // ============================================
   // Initialize View Range
-  // ============================================
-
   useEffect(() => {
     if (isInitialized.current || !ticksReady) return
 
@@ -163,10 +108,6 @@ function UniswapPriceSlider({
     })
     isInitialized.current = true
   }, [lowerTick, upperTick, currentTick, tickSpacing, ticksReady])
-
-  // ============================================
-  // Event Handlers
-  // ============================================
 
   const handleMouseDown = useCallback(
     (handle: 'lower' | 'upper') => (e: React.MouseEvent) => {
@@ -294,10 +235,6 @@ function UniswapPriceSlider({
     }, 50)
   }, [flushDebouncedValues, getTargetTicks, lowerTick, startSmoothZoom, tickSpacing, upperTick])
 
-  // ============================================
-  // Mouse Event Listeners
-  // ============================================
-
   useEffect(() => {
     if (!isDragging) return
 
@@ -318,10 +255,6 @@ function UniswapPriceSlider({
     }
   }, [isDragging, handleMouseMove, handleMouseUp])
 
-  // ============================================
-  // Render
-  // ============================================
-
   if (!ticksReady || !viewRange) {
     return <PriceSliderSkeleton />
   }
@@ -330,36 +263,54 @@ function UniswapPriceSlider({
   const displayLowerTick = internalLowerTick ?? lowerTick
   const displayUpperTick = internalUpperTick ?? upperTick
 
-  const lowerPrice = tickToPrice(Math.round(displayLowerTick), token0Decimals, token1Decimals, invertPrice)
-  const upperPrice = tickToPrice(Math.round(displayUpperTick), token0Decimals, token1Decimals, invertPrice)
+  // Calculate prices (with invertPrice applied)
+  const lowerTickPrice = tickToPrice(Math.round(displayLowerTick), token0Decimals, token1Decimals, invertPrice)
+  const upperTickPrice = tickToPrice(Math.round(displayUpperTick), token0Decimals, token1Decimals, invertPrice)
 
+  // Calculate positions (flipped when invertPrice=true by the hook)
   const lowerPosition = getPositionFromTick(displayLowerTick)
   const upperPosition = getPositionFromTick(displayUpperTick)
   const currentPosition = getPositionFromTick(currentTick)
+
+  // When invertPrice, positions are flipped so:
+  // - lowerTick (higher inverted price) is on the RIGHT
+  // - upperTick (lower inverted price) is on the LEFT
+  // This means left position = min of the two, right position = max of the two
+  const leftPosition = Math.min(lowerPosition, upperPosition)
+  const rightPosition = Math.max(lowerPosition, upperPosition)
+
+  // Determine which tick is at which visual position
+  const isLowerOnLeft = lowerPosition <= upperPosition
+  const leftPrice = isLowerOnLeft ? lowerTickPrice : upperTickPrice
+  const rightPrice = isLowerOnLeft ? upperTickPrice : lowerTickPrice
+  const leftHandleType: 'lower' | 'upper' = isLowerOnLeft ? 'lower' : 'upper'
+  const rightHandleType: 'lower' | 'upper' = isLowerOnLeft ? 'upper' : 'lower'
 
   return (
     <SliderContainer>
       <SliderWrapper ref={sliderRef}>
         <SliderTrack />
-        <SliderRange $left={lowerPosition} $width={upperPosition - lowerPosition} />
+        <SliderRange $left={leftPosition} $width={rightPosition - leftPosition} />
 
         <CurrentPriceMarker $position={currentPosition} />
 
-        <PriceLabel $position={lowerPosition} $isLower>
-          {formatDisplayNumber(lowerPrice, { significantDigits: 6 })}
+        {/* Left handle (green) - always shows lower price visually */}
+        <PriceLabel $position={leftPosition} $isLower>
+          {formatDisplayNumber(leftPrice, { significantDigits: 6 })}
         </PriceLabel>
 
-        <PriceLabel $position={upperPosition} $isLower={false}>
-          {formatDisplayNumber(upperPrice, { significantDigits: 6 })}
+        {/* Right handle (blue) - always shows higher price visually */}
+        <PriceLabel $position={rightPosition} $isLower={false}>
+          {formatDisplayNumber(rightPrice, { significantDigits: 6 })}
         </PriceLabel>
 
-        <Handle $position={lowerPosition} $isLower onMouseDown={handleMouseDown('lower')}>
+        <Handle $position={leftPosition} onMouseDown={handleMouseDown(leftHandleType)}>
           <svg width="22" height="35" viewBox="-11 0 22 35" style={{ overflow: 'visible' }}>
             <path d={brushHandlePath(35)} fill="transparent" stroke="#31CB9E" strokeWidth={1.5} />
           </svg>
         </Handle>
 
-        <Handle $position={upperPosition} $isLower={false} onMouseDown={handleMouseDown('upper')}>
+        <Handle $position={rightPosition} onMouseDown={handleMouseDown(rightHandleType)}>
           <svg width="22" height="35" viewBox="-11 0 22 35" style={{ overflow: 'visible' }}>
             <path d={brushHandlePath(35)} fill="transparent" stroke="#7289DA" strokeWidth={1.5} />
           </svg>

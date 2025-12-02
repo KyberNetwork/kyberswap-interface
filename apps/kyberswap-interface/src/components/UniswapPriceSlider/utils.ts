@@ -18,45 +18,6 @@ export const brushHandlePath = (height: number): string => {
 }
 
 /**
- * Calculate nice tick values for the price axis
- * Returns an array of prices that are evenly spaced and use "nice" numbers
- */
-export const calculatePriceAxisTicks = (minPrice: number, maxPrice: number, targetTickCount = 6): number[] => {
-  const range = maxPrice - minPrice
-  if (range <= 0) return []
-
-  // Calculate the rough step size
-  const roughStep = range / targetTickCount
-
-  // Find the magnitude of the step
-  const magnitude = Math.pow(10, Math.floor(Math.log10(roughStep)))
-
-  // Choose a nice step value (1, 2, 2.5, 5, 10 times the magnitude)
-  const niceSteps = [1, 2, 2.5, 5, 10]
-  let niceStep = magnitude
-  for (const step of niceSteps) {
-    if (step * magnitude >= roughStep) {
-      niceStep = step * magnitude
-      break
-    }
-  }
-
-  // Calculate the start and end values
-  const start = Math.ceil(minPrice / niceStep) * niceStep
-  const ticks: number[] = []
-
-  for (let tick = start; tick <= maxPrice; tick += niceStep) {
-    // Avoid floating point precision issues
-    const roundedTick = Math.round(tick * 1e10) / 1e10
-    if (roundedTick >= minPrice && roundedTick <= maxPrice) {
-      ticks.push(roundedTick)
-    }
-  }
-
-  return ticks
-}
-
-/**
  * Format number with comma separators
  */
 const formatWithCommas = (num: number, decimals = 0): string => {
@@ -69,76 +30,69 @@ const formatWithCommas = (num: number, decimals = 0): string => {
 /**
  * Format price for axis display - user-friendly format
  * Shows more detail for smaller ranges, uses abbreviations for large numbers
+ * Note: Prices in Uniswap context are always positive
  */
 export const formatAxisPrice = (price: number): string => {
   if (price === 0) return '0'
   if (!isFinite(price)) return '∞'
 
-  const absPrice = Math.abs(price)
-  const sign = price < 0 ? '-' : ''
-
   // For astronomically large numbers, show a capped display
-  if (absPrice >= 1e18) {
-    return sign + '>999Q'
-  }
+  if (price >= 1e18) return '>999Q'
   // Quadrillions (10^15)
-  if (absPrice >= 1e15) {
-    const val = absPrice / 1e15
-    return sign + (val >= 100 ? Math.round(val) : val.toFixed(1)) + 'Q'
+  if (price >= 1e15) {
+    const val = price / 1e15
+    return (val >= 100 ? Math.round(val) : val.toFixed(1)) + 'Q'
   }
   // Trillions (10^12)
-  if (absPrice >= 1e12) {
-    const val = absPrice / 1e12
-    return sign + (val >= 100 ? Math.round(val) : val.toFixed(1)) + 'T'
+  if (price >= 1e12) {
+    const val = price / 1e12
+    return (val >= 100 ? Math.round(val) : val.toFixed(1)) + 'T'
   }
   // Billions (10^9)
-  if (absPrice >= 1e9) {
-    const val = absPrice / 1e9
-    return sign + (val >= 100 ? Math.round(val) : val.toFixed(1)) + 'B'
+  if (price >= 1e9) {
+    const val = price / 1e9
+    return (val >= 100 ? Math.round(val) : val.toFixed(1)) + 'B'
   }
   // Millions (10^6)
-  if (absPrice >= 1e6) {
-    const val = absPrice / 1e6
-    return sign + (val >= 100 ? Math.round(val) : val.toFixed(1)) + 'M'
+  if (price >= 1e6) {
+    const val = price / 1e6
+    return (val >= 100 ? Math.round(val) : val.toFixed(1)) + 'M'
   }
   // 100K - 999K: use K suffix
-  if (absPrice >= 100000) {
-    const val = absPrice / 1000
-    return sign + Math.round(val) + 'K'
+  if (price >= 100000) {
+    return Math.round(price / 1000) + 'K'
   }
   // 10K - 99.9K: show as "12.5K" with more precision
-  if (absPrice >= 10000) {
-    const val = absPrice / 1000
-    return sign + val.toFixed(1) + 'K'
+  if (price >= 10000) {
+    return (price / 1000).toFixed(1) + 'K'
   }
   // 1K - 9.9K: show full number with comma (like "2,500" or "3,750")
-  if (absPrice >= 1000) {
+  if (price >= 1000) {
     // Round to nearest 10 for cleaner display
-    const rounded = Math.round(absPrice / 10) * 10
-    return sign + formatWithCommas(rounded)
+    return formatWithCommas(Math.round(price / 10) * 10)
   }
   // 100 - 999: show full number
-  if (absPrice >= 100) {
-    return sign + Math.round(absPrice).toString()
+  if (price >= 100) {
+    return Math.round(price).toString()
   }
   // 10 - 99.99: show with 1 decimal
-  if (absPrice >= 10) {
+  if (price >= 10) {
     return price.toFixed(1)
   }
   // 1 - 9.99: show with 2 decimals
-  if (absPrice >= 1) {
+  if (price >= 1) {
     return price.toFixed(2)
   }
   // Small decimals
-  if (absPrice >= 0.01) {
+  if (price >= 0.01) {
     return price.toFixed(4)
   }
-  if (absPrice >= 0.0001) {
+  if (price >= 0.0001) {
     return price.toFixed(5)
   }
   // For extremely small numbers, show a floor display
-  if (absPrice < 1e-8) {
-    return sign + '<0.00001'
+  if (price < 1e-8) {
+    return '<0.00001'
   }
   return price.toPrecision(3)
 }
