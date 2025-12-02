@@ -1,15 +1,16 @@
 import { nearestUsableTick } from '@kyber/utils/dist/uniswapv3'
 import { Dispatch, SetStateAction, useCallback, useEffect, useRef, useState } from 'react'
 
+import {
+  DEBOUNCE_DELAY,
+  HANDLE_LERP_MAX,
+  HANDLE_LERP_MIN,
+  MAX_TICK_SPEED,
+  ZOOM_DURATION,
+} from 'components/UniswapPriceSlider/constants'
 import type { ViewRange } from 'components/UniswapPriceSlider/types'
 
-const DEBOUNCE_DELAY = 150 // ms
-const ZOOM_DURATION = 400 // ms - duration for zoom/auto-center animation
-const HANDLE_LERP_MIN = 0.15 // Min lerp factor when far from target
-const HANDLE_LERP_MAX = 0.4 // Max lerp factor when close to target
-const MAX_TICK_SPEED = 2000 // Maximum ticks per frame - increased for smoother tracking
-
-// Easing function: ease-out cubic for smooth deceleration
+/** Easing function: ease-out cubic for smooth deceleration */
 const easeOutCubic = (t: number): number => 1 - Math.pow(1 - t, 3)
 
 /**

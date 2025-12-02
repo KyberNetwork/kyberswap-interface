@@ -1,12 +1,10 @@
 import { tickToPrice } from '@kyber/utils/dist/uniswapv3'
 import React, { useMemo } from 'react'
 
+import { MAX_AXIS_TICK_COUNT, MIN_AXIS_TICK_COUNT } from 'components/UniswapPriceSlider/constants'
 import { PriceAxisContainer, PriceAxisLabel, PriceAxisLine, PriceAxisTick } from 'components/UniswapPriceSlider/styles'
 import type { PriceAxisProps } from 'components/UniswapPriceSlider/types'
 import { formatAxisPrice } from 'components/UniswapPriceSlider/utils'
-
-const MAX_TICK_COUNT = 11 // More ticks for small ranges
-const MIN_TICK_COUNT = 2 // Just first and last for extreme ranges
 
 /**
  * Calculate the optimal number of ticks and minimum gap based on price range
@@ -23,7 +21,7 @@ const getOptimalTickConfig = (minPrice: number, maxPrice: number): { tickCount: 
 
   // Very small range (< 0.5 orders): many ticks, small gap
   if (ordersOfMagnitude <= 0.5) {
-    return { tickCount: MAX_TICK_COUNT, minGapPercent: 12 }
+    return { tickCount: MAX_AXIS_TICK_COUNT, minGapPercent: 12 }
   }
   // Small range (0.5 - 1 order): good amount of ticks
   if (ordersOfMagnitude <= 1) {
@@ -42,7 +40,7 @@ const getOptimalTickConfig = (minPrice: number, maxPrice: number): { tickCount: 
     return { tickCount: 3, minGapPercent: 30 }
   }
   // Extreme range (> 8 orders): just first and last
-  return { tickCount: MIN_TICK_COUNT, minGapPercent: 40 }
+  return { tickCount: MIN_AXIS_TICK_COUNT, minGapPercent: 40 }
 }
 
 /**

@@ -2,22 +2,13 @@ import { MAX_TICK, MIN_TICK, tickToPrice } from '@kyber/utils/dist/uniswapv3'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 
 import PriceAxis from 'components/UniswapPriceSlider/PriceAxis'
+import PriceSliderSkeleton from 'components/UniswapPriceSlider/Skeleton'
+import { AUTO_CENTER_PADDING, EDGE_THRESHOLD } from 'components/UniswapPriceSlider/constants'
 import { useDebouncedTicks, useSmoothZoom, useTickPositionConverter } from 'components/UniswapPriceSlider/hooks'
 import {
   CurrentPriceMarker,
   Handle,
   PriceLabel,
-  SkeletonAxisContainer,
-  SkeletonAxisLabel,
-  SkeletonAxisLine,
-  SkeletonAxisTick,
-  SkeletonCurrentPrice,
-  SkeletonHandle,
-  SkeletonPriceLabel,
-  SkeletonRange,
-  SkeletonSliderArea,
-  SkeletonTrack,
-  SkeletonWrapper,
   SliderContainer,
   SliderRange,
   SliderTrack,
@@ -26,34 +17,6 @@ import {
 import type { HandleType, UniswapPriceSliderProps, ViewRange } from 'components/UniswapPriceSlider/types'
 import { brushHandlePath, getEdgeIntensity } from 'components/UniswapPriceSlider/utils'
 import { formatDisplayNumber } from 'utils/numbers'
-
-const SKELETON_AXIS_POSITIONS = [0, 16.6, 33.3, 50, 66.6, 83.3, 100]
-
-const PriceSliderSkeleton = () => (
-  <SkeletonWrapper>
-    <SkeletonSliderArea>
-      <SkeletonTrack />
-      <SkeletonRange />
-      <SkeletonCurrentPrice />
-      <SkeletonPriceLabel $isLower />
-      <SkeletonPriceLabel $isLower={false} />
-      <SkeletonHandle $isLower />
-      <SkeletonHandle $isLower={false} />
-    </SkeletonSliderArea>
-    <SkeletonAxisContainer>
-      <SkeletonAxisLine />
-      {SKELETON_AXIS_POSITIONS.map(pos => (
-        <React.Fragment key={pos}>
-          <SkeletonAxisTick $position={pos} />
-          <SkeletonAxisLabel $position={pos} />
-        </React.Fragment>
-      ))}
-    </SkeletonAxisContainer>
-  </SkeletonWrapper>
-)
-
-const EDGE_THRESHOLD = 18 // % from edge for zoom out (ensures price labels ~6 chars visible)
-const AUTO_CENTER_PADDING = 25 // % padding on each side when auto-centering after drag
 
 function UniswapPriceSlider({
   pool,
