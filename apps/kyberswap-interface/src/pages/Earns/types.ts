@@ -36,6 +36,7 @@ export interface EarnPool {
   volume: number
   apr: number
   kemEGApr: number
+  bonusApr: number
   kemLMApr: number
   liquidity: number
   tvl: number
@@ -46,6 +47,7 @@ export interface EarnPool {
   }
   category?: PAIR_CATEGORY
   programs?: Array<ProgramType>
+  merklOpportunity?: MerklOpportunity
   tokens: Array<{
     address: string
     logoURI: string
@@ -113,6 +115,7 @@ export interface EarnPosition {
     projectLogo: string
     category: PAIR_CATEGORY
     programs?: Array<ProgramType>
+    merklOpportunity?: MerklOpportunity
   }
   suggestionPool: SuggestedPool | null
   latestBlock: number
@@ -211,6 +214,7 @@ export const DEFAULT_PARSED_POSITION: ParsedPosition = {
   kemEGApr: { '24h': 0, '7d': 0, all: 0 },
   kemLMApr: { '24h': 0, '7d': 0, all: 0 },
   feeApr: { '24h': 0, '7d': 0, all: 0 },
+  bonusApr: 0,
   totalValue: 0,
   totalProvidedValue: 0,
   status: PositionStatus.IN_RANGE,
@@ -283,6 +287,7 @@ export interface ParsedPosition {
   kemEGApr: PoolAprInterval
   kemLMApr: PoolAprInterval
   feeApr: PoolAprInterval
+  bonusApr: number
   totalValue: number
   totalProvidedValue: number
   status: string
@@ -292,6 +297,55 @@ export interface ParsedPosition {
   isUnfinalized: boolean
   isValueUpdating: boolean
   txHash?: string
+}
+
+export interface MerklOpportunity {
+  type: string
+  chainId: number
+  identifier: string
+  status: string
+  action: string
+  tvl: number
+  apr: number
+  dailyRewards: number
+  depositUrl: string
+  liveCampaigns: number
+  protocol: {
+    id: string
+    name: string
+  }
+  rewardsRecord: {
+    total: number
+    timestamp: string | number
+    breakdowns: Array<{
+      token: {
+        name: string
+        chainId: number
+        address: string
+        decimals: number
+        symbol: string
+        displaySymbol: string
+        verified: boolean
+        isTest: boolean
+        type: string
+        isNative: boolean
+        price: number
+        updatedAt: number
+        priceSource: string
+      }
+      amount: string
+      value: number
+      campaignId: string
+      distributionType: string
+      timestamp: string | number
+    }>
+  }
+  campaigns: Array<{
+    id: string
+    startTimestamp: number
+    endTimestamp: number
+    apr: number
+  }>
 }
 
 export interface SuggestedPool {

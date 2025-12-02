@@ -190,6 +190,8 @@ export const parsePosition = ({
   const minTick = pool.tickSpacing === 0 ? MIN_TICK : nearestUsableTick(MIN_TICK, pool.tickSpacing)
   const maxTick = pool.tickSpacing === 0 ? MAX_TICK : nearestUsableTick(MAX_TICK, pool.tickSpacing)
 
+  const parsedStatus = forceClosed ? PositionStatus.CLOSED : isUniv2 ? PositionStatus.IN_RANGE : position.status
+
   return {
     id: position.id,
     tokenId: position.tokenId,
@@ -270,10 +272,11 @@ export const parsePosition = ({
     kemEGApr: calcAprInterval(position.stats.kemEGApr),
     kemLMApr: calcAprInterval(position.stats.kemLMApr),
     feeApr: calcAprInterval(position.stats.apr),
+    bonusApr: parsedStatus === PositionStatus.IN_RANGE ? position.pool.merklOpportunity?.apr || 0 : 0,
     totalValue,
     totalProvidedValue,
     unclaimedFees,
-    status: forceClosed ? PositionStatus.CLOSED : isUniv2 ? PositionStatus.IN_RANGE : position.status,
+    status: parsedStatus,
     createdTime: position.createdTime,
     isUnfinalized,
     isValueUpdating: false,
