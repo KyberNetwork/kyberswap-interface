@@ -10,7 +10,7 @@ import { ParsedPosition, TokenRewardInfo } from 'pages/Earns/types'
 import uriToHttp from 'utils/uriToHttp'
 
 type UseMerklRewardsProps = {
-  positions?: ParsedPosition[]
+  positions?: Array<ParsedPosition | undefined>
 }
 
 const useMerklRewards = (options?: UseMerklRewardsProps) => {
@@ -19,9 +19,19 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
   const { supportedChains } = useChainsConfig()
   const [tokenLogos, setTokenLogos] = useState<Record<string, string>>({})
 
-  const positionsFilter = useMemo(
-    () => options?.positions?.filter(position => position.pool.isFarming),
+  const positionsKey = useMemo(
+    () =>
+      (options?.positions || [])
+        .filter((position): position is ParsedPosition => !!position)
+        .map(position => `${position.id}-${position.pool.address}-${position.pool.isFarming}`)
+        .join('|'),
     [options?.positions],
+  )
+
+  const positionsFilter = useMemo(
+    () => options?.positions?.filter((position): position is ParsedPosition => !!position && position.pool.isFarming),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [positionsKey],
   )
 
   const resolvePositionsForBreakdown = useCallback(

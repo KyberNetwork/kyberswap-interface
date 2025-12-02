@@ -60,7 +60,7 @@ const RewardSection = ({
     claiming: rewardsClaiming,
   } = useKemRewards(refetchPositions)
 
-  const { rewardsByPosition } = useMerklRewards({ positions: position ? [position] : undefined })
+  const { rewardsByPosition } = useMerklRewards({ positions: [position] })
   const merklRewards = position ? rewardsByPosition[position.id]?.rewards || [] : []
   const merklRewardsTotalUsd = position ? rewardsByPosition[position.id]?.totalUsdValue || 0 : 0
 
@@ -355,7 +355,7 @@ const merklRewardTooltip = (merklRewards: Array<TokenRewardInfo>, textColor: str
 export const totalRewardTooltip = ({
   lmTokens,
   egTokens,
-  merklRewards = [],
+  merklRewards,
   textColor,
 }: {
   lmTokens: Array<TokenRewardInfo>
@@ -389,7 +389,7 @@ export const totalRewardTooltip = ({
       </Flex>
     ))}
 
-    {merklRewards.length > 0 && (
+    {!!merklRewards?.length && (
       <>
         <HorizontalDivider />
         {merklRewardTooltip(merklRewards, textColor)}
