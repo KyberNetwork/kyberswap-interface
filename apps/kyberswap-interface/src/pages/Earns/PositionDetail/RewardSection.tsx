@@ -355,7 +355,7 @@ const merklRewardTooltip = (merklRewards: Array<TokenRewardInfo>, textColor: str
 export const totalRewardTooltip = ({
   lmTokens,
   egTokens,
-  merklRewards = [],
+  merklRewards,
   textColor,
 }: {
   lmTokens: Array<TokenRewardInfo>
@@ -389,7 +389,7 @@ export const totalRewardTooltip = ({
       </Flex>
     ))}
 
-    {merklRewards.length > 0 && (
+    {!!merklRewards?.length && (
       <>
         <HorizontalDivider />
         {merklRewardTooltip(merklRewards, textColor)}
