@@ -117,12 +117,21 @@ function UniswapPriceSlider({
     [],
   )
 
-  const handleMouseMove = useCallback(
-    (e: MouseEvent) => {
+  const handleTouchStart = useCallback(
+    (handle: 'lower' | 'upper') => (e: React.TouchEvent) => {
+      e.preventDefault()
+      setIsDragging(handle)
+    },
+    [],
+  )
+
+  // Shared logic for handling drag movement (mouse or touch)
+  const handleDragMove = useCallback(
+    (clientX: number) => {
       if (!isDragging || !sliderRef.current || !viewRange || lowerTick === undefined || upperTick === undefined) return
 
       const rect = sliderRef.current.getBoundingClientRect()
-      const x = e.clientX - rect.left
+      const x = clientX - rect.left
       const position = Math.max(0, Math.min(100, (x / rect.width) * 100))
       const newTick = getTickFromPosition(position)
 
@@ -173,6 +182,22 @@ function UniswapPriceSlider({
       upperTick,
       viewRange,
     ],
+  )
+
+  const handleMouseMove = useCallback(
+    (e: MouseEvent) => {
+      handleDragMove(e.clientX)
+    },
+    [handleDragMove],
+  )
+
+  const handleTouchMove = useCallback(
+    (e: TouchEvent) => {
+      if (e.touches.length > 0) {
+        handleDragMove(e.touches[0].clientX)
+      }
+    },
+    [handleDragMove],
   )
 
   const handleMouseUp = useCallback(() => {
@@ -242,18 +267,30 @@ function UniswapPriceSlider({
     document.body.style.cursor = 'grabbing'
     document.body.style.userSelect = 'none'
 
+    // Mouse events
     document.addEventListener('mousemove', handleMouseMove)
     document.addEventListener('mouseup', handleMouseUp)
+
+    // Touch events
+    document.addEventListener('touchmove', handleTouchMove, { passive: false })
+    document.addEventListener('touchend', handleMouseUp)
+    document.addEventListener('touchcancel', handleMouseUp)
 
     return () => {
       // Reset cursor when dragging ends
       document.body.style.cursor = ''
       document.body.style.userSelect = ''
 
+      // Remove mouse events
       document.removeEventListener('mousemove', handleMouseMove)
       document.removeEventListener('mouseup', handleMouseUp)
+
+      // Remove touch events
+      document.removeEventListener('touchmove', handleTouchMove)
+      document.removeEventListener('touchend', handleMouseUp)
+      document.removeEventListener('touchcancel', handleMouseUp)
     }
-  }, [isDragging, handleMouseMove, handleMouseUp])
+  }, [isDragging, handleMouseMove, handleMouseUp, handleTouchMove])
 
   if (!ticksReady || !viewRange) {
     return <PriceSliderSkeleton />
@@ -304,13 +341,21 @@ function UniswapPriceSlider({
           {formatDisplayNumber(rightPrice, { significantDigits: 6 })}
         </PriceLabel>
 
-        <Handle $position={leftPosition} onMouseDown={handleMouseDown(leftHandleType)}>
+        <Handle
+          $position={leftPosition}
+          onMouseDown={handleMouseDown(leftHandleType)}
+          onTouchStart={handleTouchStart(leftHandleType)}
+        >
           <svg width="22" height="35" viewBox="-11 0 22 35" style={{ overflow: 'visible' }}>
             <path d={brushHandlePath(35)} fill="transparent" stroke="#31CB9E" strokeWidth={1.5} />
           </svg>
         </Handle>
 
-        <Handle $position={rightPosition} onMouseDown={handleMouseDown(rightHandleType)}>
+        <Handle
+          $position={rightPosition}
+          onMouseDown={handleMouseDown(rightHandleType)}
+          onTouchStart={handleTouchStart(rightHandleType)}
+        >
           <svg width="22" height="35" viewBox="-11 0 22 35" style={{ overflow: 'visible' }}>
             <path d={brushHandlePath(35)} fill="transparent" stroke="#7289DA" strokeWidth={1.5} />
           </svg>

@@ -171,6 +171,7 @@ export const Handle = styled.div.attrs<{ $position: number }>(props => ({
   transform: translate(-50%, 1%);
   cursor: grab;
   z-index: 10;
+  touch-action: none; /* Prevent scroll while dragging on touch devices */
 
   &:active {
     cursor: grabbing;
