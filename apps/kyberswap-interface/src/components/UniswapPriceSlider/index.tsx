@@ -3,7 +3,11 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 
 import PriceAxis from 'components/UniswapPriceSlider/PriceAxis'
 import PriceSliderSkeleton from 'components/UniswapPriceSlider/Skeleton'
-import { AUTO_CENTER_PADDING, EDGE_THRESHOLD } from 'components/UniswapPriceSlider/constants'
+import {
+  AUTO_CENTER_PADDING,
+  EDGE_THRESHOLD,
+  MIN_HANDLE_DISTANCE_MULTIPLIER,
+} from 'components/UniswapPriceSlider/constants'
 import { useDebouncedTicks, useSmoothZoom, useTickPositionConverter } from 'components/UniswapPriceSlider/hooks'
 import {
   CurrentPriceMarker,
@@ -123,12 +127,12 @@ function UniswapPriceSlider({
         startSmoothZoom(targetMin, targetMax)
       }
 
-      // Update tick values
+      // Update tick values (with minimum distance between handles)
       if (isDragging === 'lower') {
-        const maxLower = (internalUpperTick ?? upperTick ?? 0) - tickSpacing * 10
+        const maxLower = (internalUpperTick ?? upperTick ?? 0) - tickSpacing * MIN_HANDLE_DISTANCE_MULTIPLIER
         debouncedSetLowerTick(Math.min(newTick, maxLower))
       } else {
-        const minUpper = (internalLowerTick ?? lowerTick ?? 0) + tickSpacing * 10
+        const minUpper = (internalLowerTick ?? lowerTick ?? 0) + tickSpacing * MIN_HANDLE_DISTANCE_MULTIPLIER
         debouncedSetUpperTick(Math.max(newTick, minUpper))
       }
     },
@@ -196,11 +200,17 @@ function UniswapPriceSlider({
 
       // Calculate current positions using LATEST viewRange from ref
       const currentRange = currentViewRange.max - currentViewRange.min
-      const currentLowerPos = ((finalLowerTick - currentViewRange.min) / currentRange) * 100
-      const currentUpperPos = ((finalUpperTick - currentViewRange.min) / currentRange) * 100
-      const leftPadding = currentLowerPos
-      const rightPadding = 100 - currentUpperPos
-      const handleSpan = currentUpperPos - currentLowerPos // % of view that handles span
+      const rawLowerPos = ((finalLowerTick - currentViewRange.min) / currentRange) * 100
+      const rawUpperPos = ((finalUpperTick - currentViewRange.min) / currentRange) * 100
+
+      // Account for invertPrice: when inverted, positions are flipped
+      const currentLowerPos = invertPrice ? 100 - rawLowerPos : rawLowerPos
+      const currentUpperPos = invertPrice ? 100 - rawUpperPos : rawUpperPos
+
+      // Left/right padding based on visual positions (not tick order)
+      const leftPadding = Math.min(currentLowerPos, currentUpperPos)
+      const rightPadding = 100 - Math.max(currentLowerPos, currentUpperPos)
+      const handleSpan = Math.abs(currentUpperPos - currentLowerPos) // % of view that handles span
 
       // Ideal handle span is 50% (100 - 2 * AUTO_CENTER_PADDING)
       const idealHandleSpan = 100 - 2 * AUTO_CENTER_PADDING
@@ -221,7 +231,7 @@ function UniswapPriceSlider({
         startSmoothZoom(targetMin, targetMax)
       }
     }, 50)
-  }, [flushDebouncedValues, getTargetTicks, lowerTick, startSmoothZoom, tickSpacing, upperTick])
+  }, [flushDebouncedValues, getTargetTicks, invertPrice, lowerTick, startSmoothZoom, tickSpacing, upperTick])
 
   useEffect(() => {
     if (!isDragging) return

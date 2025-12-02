@@ -21,6 +21,16 @@ export const EDGE_THRESHOLD = 18
 /** Percentage padding on each side when auto-centering after drag */
 export const AUTO_CENTER_PADDING = 25
 
+/** Minimum tick spacings between handles to prevent overlap */
+export const MIN_HANDLE_DISTANCE_MULTIPLIER = 10
+
+// Dynamic LERP Constants
+/** Distance threshold (in ticks) for minimum lerp factor */
+export const LERP_FAR_THRESHOLD = 5000
+
+/** Distance threshold (in ticks) for maximum lerp factor */
+export const LERP_CLOSE_THRESHOLD = 100
+
 // Price Axis Constants
 /** Maximum number of ticks on price axis for small ranges */
 export const MAX_AXIS_TICK_COUNT = 11

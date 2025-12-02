@@ -5,6 +5,8 @@ import {
   DEBOUNCE_DELAY,
   HANDLE_LERP_MAX,
   HANDLE_LERP_MIN,
+  LERP_CLOSE_THRESHOLD,
+  LERP_FAR_THRESHOLD,
   MAX_TICK_SPEED,
   ZOOM_DURATION,
 } from 'components/UniswapPriceSlider/constants'
@@ -117,9 +119,9 @@ export const useDebouncedTicks = (
   // Helper: calculate dynamic lerp factor based on distance
   const getDynamicLerp = useCallback((diff: number): number => {
     const absDiff = Math.abs(diff)
-    if (absDiff > 5000) return HANDLE_LERP_MIN
-    if (absDiff < 100) return HANDLE_LERP_MAX
-    const t = (absDiff - 100) / (5000 - 100)
+    if (absDiff > LERP_FAR_THRESHOLD) return HANDLE_LERP_MIN
+    if (absDiff < LERP_CLOSE_THRESHOLD) return HANDLE_LERP_MAX
+    const t = (absDiff - LERP_CLOSE_THRESHOLD) / (LERP_FAR_THRESHOLD - LERP_CLOSE_THRESHOLD)
     return HANDLE_LERP_MAX - t * (HANDLE_LERP_MAX - HANDLE_LERP_MIN)
   }, [])
 

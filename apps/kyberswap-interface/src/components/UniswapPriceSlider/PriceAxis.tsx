@@ -141,11 +141,11 @@ function PriceAxis({ viewRange, token0Decimals, token1Decimals, invertPrice }: P
   return (
     <PriceAxisContainer>
       <PriceAxisLine />
-      {axisTicks.map(({ price, position, showLabel }, index) => {
+      {axisTicks.map(({ tick, price, position, showLabel }) => {
         // Only render if within visible range
         if (position < -2 || position > 102) return null
         return (
-          <React.Fragment key={index}>
+          <React.Fragment key={tick}>
             <PriceAxisTick $position={position} />
             {showLabel && <PriceAxisLabel $position={position}>{formatAxisPrice(price)}</PriceAxisLabel>}
           </React.Fragment>
