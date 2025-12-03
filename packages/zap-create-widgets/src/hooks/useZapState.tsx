@@ -295,6 +295,10 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
     debounceTickUpper,
   ]);
 
+  useEffect(() => {
+    getZapRoute();
+  }, [getZapRoute]);
+
   return (
     <ZapContext.Provider
       value={{
