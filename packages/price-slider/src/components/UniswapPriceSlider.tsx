@@ -328,7 +328,7 @@ function UniswapPriceSlider({
   return (
     <div className={`ks-ps-style w-full overflow-hidden ${className || ''}`}>
       {/* Slider Wrapper */}
-      <div ref={sliderRef} className="relative w-full h-[60px] mt-5 overflow-hidden">
+      <div ref={sliderRef} className="relative w-full h-[60px] overflow-hidden">
         {/* Track */}
         <div className="absolute top-1/2 left-0 right-0 h-1 bg-[#3a3a3a] -translate-y-1/2 rounded-sm" />
 
