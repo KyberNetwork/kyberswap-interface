@@ -47,7 +47,6 @@ const PriceSlider = () => {
       upperTick={tickUpper ?? undefined}
       setLowerTick={setTickLower}
       setUpperTick={setTickUpper}
-      className="mt-5"
     />
   );
 };
