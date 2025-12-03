@@ -40,14 +40,16 @@ const PriceSlider = () => {
   }
 
   return (
-    <UniswapPriceSlider
-      pool={poolInfo}
-      invertPrice={revertPrice}
-      lowerTick={tickLower ?? undefined}
-      upperTick={tickUpper ?? undefined}
-      setLowerTick={setTickLower}
-      setUpperTick={setTickUpper}
-    />
+    <div className="mt-4">
+      <UniswapPriceSlider
+        pool={poolInfo}
+        invertPrice={revertPrice}
+        lowerTick={tickLower ?? undefined}
+        upperTick={tickUpper ?? undefined}
+        setLowerTick={setTickLower}
+        setUpperTick={setTickUpper}
+      />
+    </div>
   );
 };
 
