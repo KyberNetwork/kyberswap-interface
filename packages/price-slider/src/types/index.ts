@@ -26,8 +26,6 @@ export interface UniswapPriceSliderProps {
   upperTick?: number;
   setLowerTick: (tick: number) => void;
   setUpperTick: (tick: number) => void;
-  /** Optional class name for custom styling */
-  className?: string;
 }
 
 /**
