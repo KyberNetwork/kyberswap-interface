@@ -95,7 +95,7 @@ interface Props {
   onSubmit: (config: CreatePoolModalConfig) => void
 }
 
-const CreatePositionModal = ({ isOpen, filterChainId, onDismiss, onSubmit }: Props) => {
+const CreatePoolModal = ({ isOpen, filterChainId, onDismiss, onSubmit }: Props) => {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
@@ -359,4 +359,4 @@ const CreatePositionModal = ({ isOpen, filterChainId, onDismiss, onSubmit }: Pro
   )
 }
 
-export default CreatePositionModal
+export default CreatePoolModal

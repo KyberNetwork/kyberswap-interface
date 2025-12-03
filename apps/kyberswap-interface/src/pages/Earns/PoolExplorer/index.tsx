@@ -8,7 +8,7 @@ import { usePoolsExplorerQuery } from 'services/zapEarn'
 import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_earn_position.svg'
 import { NotificationType } from 'components/Announcement/type'
 import Pagination from 'components/Pagination'
-import CreatePositionModal from 'components/ZapCreatePool/CreatePositionModal'
+import CreatePoolModal from 'components/ZapCreatePool/CreatePoolModal'
 import { BFF_API } from 'constants/env'
 import { APP_PATHS } from 'constants/index'
 import useDebounce from 'hooks/useDebounce'
@@ -216,7 +216,7 @@ const PoolExplorer = () => {
         )}
       </TableWrapper>
 
-      <CreatePositionModal
+      <CreatePoolModal
         isOpen={isCreateModalOpen}
         filterChainId={filters.chainId}
         onDismiss={() => setIsCreateModalOpen(false)}
