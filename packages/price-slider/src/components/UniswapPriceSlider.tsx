@@ -325,9 +325,9 @@ function UniswapPriceSlider({
   const rightHandleType: 'lower' | 'upper' = isLowerOnLeft ? 'upper' : 'lower';
 
   return (
-    <div className="ks-ps-style w-full overflow-hidden mt-5">
+    <div className="ks-ps-style" style={{ width: '100%' }}>
       {/* Slider Wrapper */}
-      <div ref={sliderRef} className="relative w-full h-[60px] overflow-hidden">
+      <div ref={sliderRef} className="relative w-full h-[60px] mt-1 overflow-hidden">
         {/* Track */}
         <div className="absolute top-1/2 left-0 right-0 h-1 bg-[#3a3a3a] -translate-y-1/2 rounded-sm" />
 
