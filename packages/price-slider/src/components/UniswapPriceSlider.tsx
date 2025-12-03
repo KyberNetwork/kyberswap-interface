@@ -83,8 +83,8 @@ function UniswapPriceSlider({
     const handleOutsideRight = lowerPos > 105 || upperPos > 105;
     const handleSpan = Math.abs(upperPos - lowerPos);
     const idealHandleSpan = 100 - 2 * AUTO_CENTER_PADDING;
-    const handlesTooClose = handleSpan < idealHandleSpan * 0.4; // Much smaller than ideal
-    const handlesTooFar = handleSpan > idealHandleSpan * 2; // Much larger than ideal
+    const handlesTooClose = handleSpan < idealHandleSpan * 0.6; // Much smaller than ideal
+    const handlesTooFar = handleSpan > idealHandleSpan * 1.5; // Much larger than ideal
 
     // If adjustment needed, calculate new viewRange
     if (handleOutsideLeft || handleOutsideRight || handlesTooClose || handlesTooFar) {

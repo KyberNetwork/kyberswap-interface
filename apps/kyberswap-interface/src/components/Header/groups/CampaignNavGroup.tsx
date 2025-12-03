@@ -61,7 +61,7 @@ const CampaignNavGroup = () => {
           <Column>
             <StyledNavLink to={APP_PATHS.RAFFLE_CAMPAIGN}>
               <Trans>Weekly Rewards</Trans>
-              <ELabel isNew>{t`New`}</ELabel>
+              {showCampaignNew ? <ELabel isNew>{t`New`}</ELabel> : <ELabel>{t`Ended`}</ELabel>}
             </StyledNavLink>
 
             <StyledNavLink to={APP_PATHS.NEAR_INTENTS_CAMPAIGN}>
