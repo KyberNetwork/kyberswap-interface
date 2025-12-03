@@ -374,7 +374,7 @@ const PriceInput = ({
       <Text>
         <Trans>Exit when the pool price is between</Trans>
       </Text>
-      <Flex sx={{ gap: '0.5rem' }} alignItems={'center'} mt="8px">
+      <Flex sx={{ gap: '0.5rem' }} alignItems={'center'} mt="8px" mb="8px">
         <CustomInput
           placeholder="Min price"
           value={inputMinPrice}
