@@ -76,6 +76,12 @@ const CATEGORY_FEE_PRESETS: Record<POOL_CATEGORY, FeePreset> = {
 
 const availableChains: number[] = [ChainId.Ethereum, ChainId.Bsc, ChainId.Base]
 
+const PROTOCOL_ALLOWLIST: Partial<Record<ChainId, Exchange[]>> = {
+  [ChainId.Bsc]: [Exchange.DEX_UNISWAP_V4],
+  [ChainId.Base]: [Exchange.DEX_UNISWAP_V4, Exchange.DEX_UNISWAP_V4_FAIRFLOW],
+  [ChainId.Ethereum]: [Exchange.DEX_UNISWAPV3, Exchange.DEX_UNISWAP_V4, Exchange.DEX_UNISWAP_V4_FAIRFLOW],
+}
+
 type Token = TokenSchema & { isFOT?: boolean }
 
 export type CreatePoolModalConfig = {
@@ -127,9 +133,7 @@ const CreatePoolModal = ({ isOpen, filterChainId, onDismiss, onSubmit }: Props) 
     const availableProtocols =
       Object.values(supportedProtocols.data.chains).find(chain => chain.chainId === selectedChainId)?.protocols || []
     return availableProtocols
-      .filter(protocol =>
-        [Exchange.DEX_UNISWAPV3, Exchange.DEX_UNISWAP_V4, Exchange.DEX_UNISWAP_V4_FAIRFLOW].includes(protocol.id),
-      )
+      .filter(protocol => PROTOCOL_ALLOWLIST[selectedChainId]?.includes(protocol.id))
       .map(protocol => ({
         label: protocol.name,
         value: protocol.id,
@@ -149,6 +153,14 @@ const CreatePoolModal = ({ isOpen, filterChainId, onDismiss, onSubmit }: Props) 
     setToken0(null)
     setToken1(null)
   }, [selectedChainId])
+
+  useEffect(() => {
+    if (!protocolOptions.length) return
+    const isSelectedProtocolAllowed = protocolOptions.some(option => option.value === selectedProtocol)
+    if (!isSelectedProtocolAllowed) {
+      setSelectedProtocol(protocolOptions[0].value as Exchange)
+    }
+  }, [protocolOptions, selectedProtocol])
 
   const tokensFOT = [token0, token1].filter(token => token?.isFOT).map(token => token?.symbol)
 
