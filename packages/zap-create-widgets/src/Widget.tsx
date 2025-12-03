@@ -21,6 +21,7 @@ import Header from '@/components/Header';
 import Preview from '@/components/Preview';
 import PriceControl from '@/components/PriceControl';
 import PriceRange from '@/components/PriceRange';
+import PriceSlider from '@/components/PriceSlider';
 import Setting from '@/components/Setting';
 import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
@@ -109,6 +110,7 @@ export default function Widget() {
         <div className="mt-5 flex gap-5 max-sm:flex-col">
           <div className={cn('w-[55%] h-fit max-sm:w-full', 'px-4 py-4 border rounded-md border-stroke')}>
             <PriceControl />
+            <PriceSlider />
             <PriceRange />
             <div className="flex gap-4 w-full">
               <PriceInput type={PriceType.MinPrice} />
