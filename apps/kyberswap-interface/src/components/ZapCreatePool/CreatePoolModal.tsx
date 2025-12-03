@@ -237,7 +237,7 @@ const CreatePoolModal = ({ isOpen, filterChainId, onDismiss, onSubmit }: Props) 
 
   return (
     <>
-      <Modal isOpen={isOpen} onDismiss={onDismiss} maxWidth={480} width="100%">
+      <Modal isOpen={isOpen} onDismiss={onDismiss} maxWidth={480} width="100%" bypassFocusLock={!!tokenSelectorTarget}>
         <Wrapper>
           <Title>
             <Trans>Create Pool with Zap</Trans>
