@@ -49,6 +49,11 @@ export class OptimexAdapter extends BaseSwapAdapter {
   constructor() {
     super()
     this.tokens = []
+
+    // Initialize tokens asynchronously when the adapter is created
+    this.getTokens().catch(error => {
+      console.error('Failed to initialize Optimex tokens:', error)
+    })
   }
 
   private async getTokens() {
@@ -251,6 +256,10 @@ export class OptimexAdapter extends BaseSwapAdapter {
     _nearWallet: any,
     sendBtcFn?: (params: { recipient: string; amount: string | number }) => Promise<string>,
   ): Promise<NormalizedTxResponse> {
+    if (!this.tokens?.length) {
+      await this.getTokens()
+    }
+
     // For EVM -> BTC flow, txData should already exist from getQuote
     // For BTC -> EVM flow, we need to initiate the trade here
     let txData: { deposit_address: string; payload?: string; trade_id: string }

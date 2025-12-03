@@ -31,7 +31,6 @@ export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean
     toChainId,
     currencyIn,
     currencyOut,
-    allLoading,
     loading,
     selectedQuote,
     recipient,
@@ -79,7 +78,7 @@ export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean
         onClick: () => {},
       }
     }
-    if (allLoading)
+    if (loading)
       return {
         label: t`Finding the best route...`,
         disabled: true,
