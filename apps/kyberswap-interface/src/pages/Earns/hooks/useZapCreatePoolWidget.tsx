@@ -145,7 +145,7 @@ const useZapCreatePoolWidget = () => {
       {widgetProps.isCreate ? (
         <ZapWidget {...widgetProps.baseProps} createPoolConfig={widgetProps.createPoolConfig} />
       ) : (
-        <LiquidityWidget {...widgetProps.baseProps} />
+        <LiquidityWidget {...widgetProps.baseProps} fromCreatePoolFlow={true} />
       )}
     </Modal>
   ) : null

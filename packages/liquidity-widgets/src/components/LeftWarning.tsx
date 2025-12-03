@@ -9,7 +9,7 @@ import { usePoolStore } from '@/stores/usePoolStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
 export default function LeftWarning() {
-  const { chainId } = useWidgetStore(['chainId']);
+  const { theme, chainId, fromCreatePoolFlow } = useWidgetStore(['theme', 'chainId', 'fromCreatePoolFlow']);
   const { pool } = usePoolStore(['pool']);
 
   const tokensToCheck = !pool
@@ -67,6 +67,12 @@ export default function LeftWarning() {
             </div>
           ))
         : null}
+
+      {fromCreatePoolFlow && (
+        <div className="py-2 px-4 text-sm rounded-md text-blue mt-4" style={{ backgroundColor: `${theme.blue}33` }}>
+          <Trans>Pool already exists. You'll add a position via Zap.</Trans>
+        </div>
+      )}
     </>
   );
 }
