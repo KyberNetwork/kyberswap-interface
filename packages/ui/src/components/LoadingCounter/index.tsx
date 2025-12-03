@@ -123,10 +123,6 @@ export default function LoadingCounter({
     };
   }, [countdown, onRefresh, disableRefresh]);
 
-  useEffect(() => {
-    onRefresh();
-  }, [onRefresh]);
-
   return (
     <div
       className={cn('ks-ui-style flex items-center relative w-fit', clickable && 'cursor-pointer')}
