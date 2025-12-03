@@ -37,7 +37,7 @@ import AprDetailTooltip from 'pages/Earns/components/AprDetailTooltip'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import RewardSyncing from 'pages/Earns/components/RewardSyncing'
 import { SmartExit } from 'pages/Earns/components/SmartExit'
-import { EARN_DEXES, LIMIT_TEXT_STYLES } from 'pages/Earns/constants'
+import { EARN_CHAINS, EARN_DEXES, EarnChain, LIMIT_TEXT_STYLES } from 'pages/Earns/constants'
 import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import useCollectFees from 'pages/Earns/hooks/useCollectFees'
 import useFarmingStablePools from 'pages/Earns/hooks/useFarmingStablePools'
@@ -119,13 +119,15 @@ export default function TableContent({
 
   const { widget: zapMigrationWidget, handleOpenZapMigration } = useZapMigrationWidget()
 
-  const uniqueChainIds = useMemo(() => {
+  const uniqueFarmingChainIds = useMemo(() => {
     if (!positions || positions.length === 0) return []
-    const chainIds = positions.map(position => position.chain.id)
+    const chainIds = positions
+      .map(position => position.chain.id)
+      .filter(chainId => !!EARN_CHAINS[chainId as EarnChain]?.farmingSupported)
     return [...new Set(chainIds)]
   }, [positions])
 
-  const farmingPoolsByChain = useFarmingStablePools({ chainIds: uniqueChainIds })
+  const farmingPoolsByChain = useFarmingStablePools({ chainIds: uniqueFarmingChainIds })
 
   const handleFetchUnclaimedFee = useCallback(
     async (position: ParsedPosition | null) => {

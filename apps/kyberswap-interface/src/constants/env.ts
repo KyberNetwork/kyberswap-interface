@@ -58,6 +58,7 @@ export const TOKEN_API_URL = required('TOKEN_API_URL')
 export const AFFILIATE_SERVICE_URL = required('AFFILIATE_SERVICE')
 export const SOLANA_RPC = required('SOLANA_RPC')
 export const SMART_EXIT_API_URL = required('SMART_EXIT_API_URL')
+export const CROSSCHAIN_AGGREGATOR_API = required('CROSSCHAIN_AGGREGATOR_API')
 
 type FirebaseConfig = {
   apiKey: string
