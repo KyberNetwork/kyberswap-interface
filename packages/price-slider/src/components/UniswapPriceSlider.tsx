@@ -83,8 +83,8 @@ function UniswapPriceSlider({
     const handleOutsideRight = lowerPos > 105 || upperPos > 105;
     const handleSpan = Math.abs(upperPos - lowerPos);
     const idealHandleSpan = 100 - 2 * AUTO_CENTER_PADDING;
-    const handlesTooClose = handleSpan < idealHandleSpan * 0.4; // Much smaller than ideal
-    const handlesTooFar = handleSpan > idealHandleSpan * 2; // Much larger than ideal
+    const handlesTooClose = handleSpan < idealHandleSpan * 0.6; // Much smaller than ideal
+    const handlesTooFar = handleSpan > idealHandleSpan * 1.5; // Much larger than ideal
 
     // If adjustment needed, calculate new viewRange
     if (handleOutsideLeft || handleOutsideRight || handlesTooClose || handlesTooFar) {
@@ -328,7 +328,7 @@ function UniswapPriceSlider({
   return (
     <div className={`ks-ps-style w-full overflow-hidden ${className || ''}`}>
       {/* Slider Wrapper */}
-      <div ref={sliderRef} className="relative w-full h-[60px] mt-5 overflow-hidden">
+      <div ref={sliderRef} className="relative w-full h-[60px] overflow-hidden">
         {/* Track */}
         <div className="absolute top-1/2 left-0 right-0 h-1 bg-[#3a3a3a] -translate-y-1/2 rounded-sm" />
 
