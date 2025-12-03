@@ -10,7 +10,7 @@ import { SKELETON_AXIS_POSITIONS } from '@/constants';
  */
 function PriceSliderSkeleton() {
   return (
-    <div className="ks-ps-style w-full overflow-hidden">
+    <div className="ks-ps-style" style={{ width: '100%', overflow: 'hidden' }}>
       {/* Slider Area */}
       <div className="relative w-full h-[60px] mt-5">
         {/* Track */}
