@@ -12,7 +12,7 @@ function PriceSliderSkeleton() {
   return (
     <div className="ks-ps-style" style={{ width: '100%', overflow: 'hidden' }}>
       {/* Slider Area */}
-      <div className="relative w-full h-[60px] mt-3">
+      <div className="relative w-full h-[60px] mt-1">
         {/* Track */}
         <Skeleton className="absolute top-1/2 left-0 right-0 h-1 -translate-y-1/2 rounded-sm" />
 
