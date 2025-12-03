@@ -16,7 +16,6 @@ function UniswapPriceSlider({
   upperTick,
   setLowerTick,
   setUpperTick,
-  className,
 }: UniswapPriceSliderProps) {
   const { tickSpacing, token0Decimals, token1Decimals, currentTick } = pool;
 
@@ -326,7 +325,7 @@ function UniswapPriceSlider({
   const rightHandleType: 'lower' | 'upper' = isLowerOnLeft ? 'upper' : 'lower';
 
   return (
-    <div className={`ks-ps-style w-full overflow-hidden ${className || ''}`}>
+    <div className="ks-ps-style w-full overflow-hidden mt-5">
       {/* Slider Wrapper */}
       <div ref={sliderRef} className="relative w-full h-[60px] overflow-hidden">
         {/* Track */}
