@@ -1,4 +1,5 @@
 import { formatAprNumber } from '@kyber/utils/dist/number'
+import { MAX_TICK } from '@kyber/utils/dist/uniswapv3'
 import { t } from '@lingui/macro'
 import { Star } from 'react-feather'
 import { Flex, Text } from 'rebass'
@@ -112,7 +113,9 @@ const DesktopTableRow = ({
                       : '--'
                   }` +
                   ` - ${
-                    pool.maxAprInfo.maxPrice
+                    pool.maxAprInfo.tickUpper === MAX_TICK
+                      ? '∞'
+                      : pool.maxAprInfo.maxPrice
                       ? formatDisplayNumber(pool.maxAprInfo.maxPrice, { significantDigits: 6 })
                       : '--'
                   }`
