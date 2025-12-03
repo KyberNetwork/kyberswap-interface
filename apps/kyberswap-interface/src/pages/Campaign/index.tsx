@@ -111,7 +111,7 @@ export default function CampaignPage() {
             altDisabledStyle
             width={upToExtraSmall ? '100%' : '160px'}
             height="40px"
-            disabled={isRaffleNotEligible || isRaffleJoinedByWeek}
+            disabled={isRaffleCampaign}
             onClick={() => {
               if (isRaffleCampaign) {
                 setIsJoinModalOpen(true)
