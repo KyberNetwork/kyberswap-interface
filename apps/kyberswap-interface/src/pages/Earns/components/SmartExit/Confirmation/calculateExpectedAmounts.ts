@@ -14,7 +14,7 @@ interface ExpectedAmounts {
  * - If price > priceUpper: all liquidity is in token1
  * - If priceLower <= price <= priceUpper: liquidity is split between both tokens
  *
- * Correct Uniswap V3 formulas:
+ * Correct Uniswap V3/V4 formulas:
  * When in range:
  * - amount0 = liquidity * (1/sqrt(price) - 1/sqrt(priceUpper))
  * - amount1 = liquidity * (sqrt(price) - sqrt(priceLower))

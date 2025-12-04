@@ -22,7 +22,8 @@ export default function ExpectedAmount({
   const expectedAmounts = useMemo(() => {
     // Check if any metric is pool price
     const poolPriceMetrics = selectedMetrics.filter(m => m.metric === Metric.PoolPrice)
-    if (poolPriceMetrics.length === 0) return null
+    const otherMetrics = selectedMetrics.filter(m => m.metric !== Metric.PoolPrice)
+    if (poolPriceMetrics.length === 0 || otherMetrics.length > 0) return null
 
     // If there are multiple pool price conditions, merge them
     let mergedCondition: PriceCondition | null = null
