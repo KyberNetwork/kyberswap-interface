@@ -2,11 +2,12 @@ import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useState } from 'react'
 import { ChevronDown } from 'react-feather'
-import { Box, Flex, Text } from 'rebass'
+import { Flex, Text } from 'rebass'
 
 import Input from 'components/NumericalInput'
 import { DropdownIcon } from 'components/SwapForm/SlippageSetting'
 import useTheme from 'hooks/useTheme'
+import { CustomOption } from 'pages/Earns/components/SmartExit/styles'
 import { SmartExitFee } from 'pages/Earns/types'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -80,54 +81,28 @@ export default function GasSetting({
           {[1, 1.5, 2, 3].map(item => {
             const isSelected = !customGasPercent && multiplier === item
             return (
-              <Box
+              <CustomOption
                 key={item}
                 onClick={() => {
                   setCustomGasPercent('')
                   setMultiplier(item)
                 }}
-                sx={{
-                  borderRadius: '999px',
-                  border: `1px solid ${isSelected ? theme.primary : theme.border}`,
-                  backgroundColor: isSelected ? theme.primary + '20' : 'transparent',
-                  padding: '6px 4px',
-                  color: isSelected ? theme.primary : theme.subText,
-                  fontSize: '12px',
-                  fontWeight: '500',
-                  cursor: 'pointer',
-                  textAlign: 'center',
-                  flex: 1,
-                  '&:hover': {
-                    backgroundColor: theme.primary + '10',
-                  },
-                }}
+                isSelected={isSelected}
               >
                 {formatDisplayNumber(item * (feeInfo?.gas.percentage || 0), { significantDigits: 2 })}%
-              </Box>
+              </CustomOption>
             )
           })}
 
           {/* Custom option */}
-          <Box
+          <CustomOption
             key="custom"
             sx={{
-              borderRadius: '999px',
-              border: `1px solid ${customGasPercent ? theme.primary : theme.border}`,
-              backgroundColor: customGasPercent ? theme.primary + '20' : 'transparent',
-              padding: '2px 7px',
-              color: customGasPercent ? theme.primary : theme.subText,
-              fontSize: '12px',
-              fontWeight: '500',
-              cursor: 'pointer',
-              textAlign: 'center',
+              color: customGasPercent ? theme.primary : undefined,
               flex: 1,
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center',
               gap: '4px',
-              '&:hover': {
-                backgroundColor: theme.primary + '10',
-              },
             }}
           >
             <Input
@@ -143,7 +118,7 @@ export default function GasSetting({
             <Text as="span" color="inherit" fontSize={12}>
               %
             </Text>
-          </Box>
+          </CustomOption>
         </Flex>
         <Flex flexDirection="column" sx={{ gap: '4px' }}>
           <Text fontSize={12} color={theme.subText}>
