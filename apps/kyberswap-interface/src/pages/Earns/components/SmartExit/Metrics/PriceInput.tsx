@@ -1,3 +1,4 @@
+import { formatNumber } from '@kyber/utils/dist/number'
 import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick, tickToPrice } from '@kyber/utils/dist/uniswapv3'
 import UniswapPriceSlider from '@kyberswap/price-slider'
 import '@kyberswap/price-slider/style.css'
@@ -100,7 +101,10 @@ export default function PriceInput({
       changeSourceRef.current = 'slider'
       setLowerTickState(tick)
       if (tick !== undefined) {
-        const price = tickToPrice(tick, position.token0.decimals, position.token1.decimals, false)
+        const price = formatNumber(
+          Number(tickToPrice(tick, position.token0.decimals, position.token1.decimals, false)),
+          6,
+        )
         setMetric({ ...metric, condition: { ...priceCondition, gte: price } })
       }
       // Reset source after React batch update
@@ -116,7 +120,10 @@ export default function PriceInput({
       changeSourceRef.current = 'slider'
       setUpperTickState(tick)
       if (tick !== undefined) {
-        const price = tickToPrice(tick, position.token0.decimals, position.token1.decimals, false)
+        const price = formatNumber(
+          Number(tickToPrice(tick, position.token0.decimals, position.token1.decimals, false)),
+          6,
+        )
         setMetric({ ...metric, condition: { ...priceCondition, lte: price } })
       }
       setTimeout(() => {
@@ -151,7 +158,10 @@ export default function PriceInput({
     if (lowerTick === undefined) return
     const newLowerTick = lowerTick - position.pool.tickSpacing
     if (newLowerTick < MIN_TICK) return
-    const price = tickToPrice(newLowerTick, position.token0.decimals, position.token1.decimals, false)
+    const price = formatNumber(
+      Number(tickToPrice(newLowerTick, position.token0.decimals, position.token1.decimals, false)),
+      6,
+    )
     setMetric({ ...metric, condition: { ...priceCondition, gte: price } })
     setInputMinPrice(price)
   }, [
@@ -168,7 +178,10 @@ export default function PriceInput({
     if (lowerTick === undefined) return
     const newLowerTick = lowerTick + position.pool.tickSpacing
     if (newLowerTick > MAX_TICK) return
-    const price = tickToPrice(newLowerTick, position.token0.decimals, position.token1.decimals, false)
+    const price = formatNumber(
+      Number(tickToPrice(newLowerTick, position.token0.decimals, position.token1.decimals, false)),
+      6,
+    )
     setMetric({ ...metric, condition: { ...priceCondition, gte: price } })
     setInputMinPrice(price)
   }, [
@@ -185,7 +198,10 @@ export default function PriceInput({
     if (upperTick === undefined) return
     const newUpperTick = upperTick - position.pool.tickSpacing
     if (newUpperTick < MIN_TICK) return
-    const price = tickToPrice(newUpperTick, position.token0.decimals, position.token1.decimals, false)
+    const price = formatNumber(
+      Number(tickToPrice(newUpperTick, position.token0.decimals, position.token1.decimals, false)),
+      6,
+    )
     setMetric({ ...metric, condition: { ...priceCondition, lte: price } })
     setInputMaxPrice(price)
   }, [
@@ -202,7 +218,10 @@ export default function PriceInput({
     if (upperTick === undefined) return
     const newUpperTick = upperTick + position.pool.tickSpacing
     if (newUpperTick > MAX_TICK) return
-    const price = tickToPrice(newUpperTick, position.token0.decimals, position.token1.decimals, false)
+    const price = formatNumber(
+      Number(tickToPrice(newUpperTick, position.token0.decimals, position.token1.decimals, false)),
+      6,
+    )
     setMetric({ ...metric, condition: { ...priceCondition, lte: price } })
     setInputMaxPrice(price)
   }, [
@@ -222,9 +241,9 @@ export default function PriceInput({
         tick % position.pool.tickSpacing === 0 ? tick : nearestUsableTick(tick, position.pool.tickSpacing)
       const correctedPrice = tickToPrice(correctedTick, position.token0.decimals, position.token1.decimals, false)
       if (type === 'lower') {
-        setInputMinPrice(correctedPrice)
+        setInputMinPrice(formatNumber(Number(correctedPrice), 6))
       } else {
-        setInputMaxPrice(correctedPrice)
+        setInputMaxPrice(formatNumber(Number(correctedPrice), 6))
       }
     }
   }
