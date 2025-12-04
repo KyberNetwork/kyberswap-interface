@@ -117,8 +117,16 @@ export const SmartExit = ({ position, onDismiss }: { position: ParsedPosition; o
   }, [invalidYieldCondition || invalidPriceCondition || invalidTimeCondition])
 
   return (
-    <Modal isOpen mobileFullWidth onDismiss={onDismiss} width="100vw" maxWidth={showConfirm ? 450 : 800}>
-      <Flex width="100%" flexDirection="column" padding="20px" backgroundColor={theme.background}>
+    <Modal
+      isOpen
+      mobileFullWidth
+      onDismiss={onDismiss}
+      width="100vw"
+      maxWidth={showConfirm ? 450 : 800}
+      bgColor={theme.background}
+      padding="20px"
+    >
+      <Flex width="100%" flexDirection="column">
         {showConfirm ? (
           <Confirmation
             selectedMetrics={selectedMetrics}

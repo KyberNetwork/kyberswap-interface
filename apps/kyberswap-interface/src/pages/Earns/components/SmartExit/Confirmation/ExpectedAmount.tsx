@@ -1,12 +1,14 @@
 import { Trans } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useMemo } from 'react'
+import { useMedia } from 'react-use'
 import { Box, Flex, Text } from 'rebass'
 
 import TokenLogo from 'components/TokenLogo'
 import useTheme from 'hooks/useTheme'
 import { calculateExpectedAmounts } from 'pages/Earns/components/SmartExit/Confirmation/calculateExpectedAmounts'
 import { ConditionType, Metric, ParsedPosition, PriceCondition, SelectedMetric } from 'pages/Earns/types'
+import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
 export default function ExpectedAmount({
@@ -19,6 +21,7 @@ export default function ExpectedAmount({
   conditionType: ConditionType
 }) {
   const theme = useTheme()
+  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   const expectedAmounts = useMemo(() => {
     // Check if any metric is pool price
@@ -69,7 +72,11 @@ export default function ExpectedAmount({
           <Trans>Estimated balance when exit</Trans>
         </Text>
 
-        <Flex justifyContent="space-between" sx={{ gap: '16px' }}>
+        <Flex
+          flexDirection={upToSmall ? 'column' : 'row'}
+          justifyContent="space-between"
+          sx={{ gap: upToSmall ? '16px' : '8px' }}
+        >
           <Flex
             flexDirection="column"
             flex={1}
