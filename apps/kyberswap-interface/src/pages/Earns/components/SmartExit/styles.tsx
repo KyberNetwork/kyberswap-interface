@@ -62,3 +62,35 @@ export const CustomOption = styled(Box)<{ isSelected?: boolean }>`
     background-color: ${({ theme }) => rgba(theme.primary, 0.1)};
   }
 `
+
+export const PriceInputWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 8px;
+  gap: 10px;
+  border-radius: 12px;
+  background-color: ${({ theme }) => rgba(theme.text, 0.04)};
+  cursor: pointer;
+`
+
+export const PriceInputIcon = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  background-color: ${({ theme }) => rgba(theme.text, 0.08)};
+`
+
+export const CustomPriceInput = styled(Input)`
+  border: none;
+  padding: 0;
+  border-radius: 0;
+  font-size: 16px;
+  color: ${({ theme }) => theme.text};
+  background-color: transparent;
+  flex: 1;
+  text-align: center;
+`
