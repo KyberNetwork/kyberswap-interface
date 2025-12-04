@@ -3,11 +3,11 @@ import dayjs from 'dayjs'
 import { useMemo, useState } from 'react'
 import { Flex, Text } from 'rebass'
 
-import { DefaultSlippageOption } from 'components/SlippageControl'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import DateTimePicker from 'components/swapv2/LimitOrder/ExpirePicker'
 import { TIMES_IN_SECS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
+import { CustomOption } from 'pages/Earns/components/SmartExit/styles'
 import { formatTimeDuration } from 'utils/time'
 
 export const DEFAULT_TIME_OPTIONS = [
@@ -63,46 +63,8 @@ export default function ExpireSetting({
             <Trans>Expires in</Trans>
           </MouseoverTooltip>
         </TextDashed>
-        <Flex
-          sx={{
-            alignItems: 'center',
-            gap: '4px',
-            cursor: 'pointer',
-          }}
-          role="button"
-        >
-          <Text
-            sx={{
-              fontSize: '14px',
-              fontWeight: 500,
-              lineHeight: '1',
-              color: theme.text,
-            }}
-          >
-            <Text color={theme.text} fontSize={14}>
-              {displayTime}
-            </Text>
-          </Text>
-        </Flex>
-      </Flex>
 
-      <Flex
-        sx={{
-          paddingTop: '8px',
-          height: '36px',
-        }}
-      >
-        <Flex
-          sx={{
-            justifyContent: 'space-between',
-            width: '100%',
-            maxWidth: '100%',
-            height: '28px',
-            borderRadius: '20px',
-            background: theme.tabBackground,
-            padding: '2px',
-          }}
-        >
+        <Flex justifyContent="flex-end" sx={{ gap: '4px' }}>
           {[
             { label: '7D', value: TIMES_IN_SECS.ONE_DAY * 7 },
             { label: '30D', value: TIMES_IN_SECS.ONE_DAY * 30 },
@@ -115,21 +77,36 @@ export default function ExpireSetting({
             },
           ].map((item: any) => {
             return (
-              <DefaultSlippageOption
+              <CustomOption
                 key={item.label}
                 onClick={() => {
                   if (item.label === 'Custom') item.onSelect()
                   else setExpireTime(item.value)
                 }}
-                data-active={
+                isSelected={
                   item.label === 'Custom' ? expireTime % TIMES_IN_SECS.ONE_DAY != 0 : item.value === expireTime
                 }
               >
                 {item.label}
-              </DefaultSlippageOption>
+              </CustomOption>
             )
           })}
         </Flex>
+      </Flex>
+
+      <Flex marginTop="8px" justifyContent="flex-end">
+        <Text
+          sx={{
+            fontSize: '14px',
+            fontWeight: 500,
+            lineHeight: '1',
+            color: theme.text,
+          }}
+        >
+          <Text color={theme.text} fontSize={14}>
+            {displayTime}
+          </Text>
+        </Text>
       </Flex>
     </>
   )

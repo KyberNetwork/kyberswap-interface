@@ -6,11 +6,10 @@ import { CSSProperties, ReactNode, useEffect, useRef, useState } from 'react'
 import { usePopper } from 'react-popper'
 import styled from 'styled-components'
 
+import { DropdownArrowIcon } from 'components/ArrowRotate'
 import Icon from 'components/Icons/Icon'
 import { Z_INDEXS } from 'constants/styles'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
-
-import { DropdownArrowIcon } from '../ArrowRotate'
 
 const SelectWrapper = styled.div`
   cursor: pointer;
@@ -110,7 +109,9 @@ export type SelectProps = {
   optionStyle?: CSSProperties
   onChange?: (value: any) => void
   forceMenuPlacementTop?: boolean
+  arrow?: 'chevron' | 'arrow'
   arrowColor?: string
+  arrowSize?: number
   placement?: Placement
   withSearch?: boolean
   onHideMenu?: () => void // hide without changes
@@ -127,7 +128,9 @@ function Select({
   value: selectedValue,
   className,
   forceMenuPlacementTop = false,
+  arrow = 'arrow',
   arrowColor,
+  arrowSize = 24,
   dropdownRender,
   onHideMenu,
   withSearch,
@@ -203,7 +206,7 @@ function Select({
       className={className}
     >
       <SelectedWrap>{activeRender ? activeRender(selectedInfo) : getOptionLabel(selectedInfo)}</SelectedWrap>
-      <DropdownArrowIcon rotate={showMenu} color={arrowColor} />
+      <DropdownArrowIcon rotate={showMenu} color={arrowColor} arrow={arrow} size={arrowSize} />
       <AnimatePresence>
         {showMenu && (
           <Portal>

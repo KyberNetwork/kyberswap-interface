@@ -1,8 +1,7 @@
 import { Trans } from '@lingui/macro'
-import { Box, Flex, Text } from 'rebass'
+import { Flex, Text } from 'rebass'
 
-import useTheme from 'hooks/useTheme'
-import { CustomInput } from 'pages/Earns/components/SmartExit/styles'
+import { CustomInput, CustomOption } from 'pages/Earns/components/SmartExit/styles'
 import { FeeYieldCondition, SelectedMetric } from 'pages/Earns/types'
 
 export default function FeeYieldInput({
@@ -12,7 +11,6 @@ export default function FeeYieldInput({
   metric: SelectedMetric
   setMetric: (value: SelectedMetric) => void
 }) {
-  const theme = useTheme()
   const feeYieldCondition = metric.condition as FeeYieldCondition
 
   return (
@@ -53,25 +51,13 @@ export default function FeeYieldInput({
           const isSelected = metric.condition === item.toString()
 
           return (
-            <Box
+            <CustomOption
               key={item}
               onClick={() => setMetric({ ...metric, condition: item.toString() })}
-              sx={{
-                borderRadius: '999px',
-                border: `1px solid ${isSelected ? theme.primary : theme.border}`,
-                backgroundColor: isSelected ? theme.primary + '20' : 'transparent',
-                padding: '4px 12px',
-                color: isSelected ? theme.primary : theme.subText,
-                fontSize: '12px',
-                fontWeight: '500',
-                cursor: 'pointer',
-                '&:hover': {
-                  backgroundColor: theme.primary + '10',
-                },
-              }}
+              isSelected={isSelected}
             >
               {item}%
-            </Box>
+            </CustomOption>
           )
         })}
       </Flex>

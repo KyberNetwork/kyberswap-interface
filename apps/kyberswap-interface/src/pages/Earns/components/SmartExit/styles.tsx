@@ -1,3 +1,5 @@
+import { rgba } from 'polished'
+import { Box } from 'rebass'
 import styled from 'styled-components'
 
 import Input from 'components/Input'
@@ -16,10 +18,10 @@ export const ContentWrapper = styled.div`
 
 export const CustomBox = styled.div`
   border-radius: 1rem;
-  border: 1px solid ${({ theme }) => theme.border};
+  border: 1px solid ${({ theme }) => theme.tableHeader};
   padding: 12px;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.75rem;
   display: flex;
 `
 
@@ -29,13 +31,34 @@ export const CustomInput = styled(Input)`
   border-radius: 12px;
   font-size: 16px;
   color: ${({ theme }) => theme.text};
+  background-color: ${({ theme }) => rgba(theme.text, 0.04)};
   flex: 1;
 `
 
 export const CustomSelect = styled(Select)`
   width: 100%;
-  padding: 4px 16px;
+  padding: 10px 16px;
   font-size: 14px;
   color: ${({ theme }) => theme.text};
+  background-color: ${({ theme }) => rgba(theme.text, 0.04)};
   flex: 1;
+`
+
+export const Divider = styled(Box)`
+  height: 1px;
+  background-color: ${({ theme }) => theme.tableHeader};
+`
+
+export const CustomOption = styled(Box)<{ isSelected?: boolean }>`
+  border-radius: 24px;
+  border: 1px solid ${({ theme, isSelected }) => (isSelected ? rgba(theme.primary, 0.2) : rgba(theme.text, 0.08))};
+  background-color: ${({ theme, isSelected }) => (isSelected ? rgba(theme.primary, 0.2) : 'transparent')};
+  padding: 4px 12px;
+  color: ${({ theme, isSelected }) => (isSelected ? theme.white2 : '#737373')};
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  &:hover {
+    background-color: ${({ theme }) => rgba(theme.primary, 0.1)};
+  }
 `

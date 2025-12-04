@@ -2,6 +2,7 @@ import { Trans, t } from '@lingui/macro'
 import { useMemo } from 'react'
 import { Flex, Text } from 'rebass'
 
+import useTheme from 'hooks/useTheme'
 import FeeYieldInput from 'pages/Earns/components/SmartExit/Metrics/FeeYieldInput'
 import PriceInput from 'pages/Earns/components/SmartExit/Metrics/PriceInput'
 import TimeInput from 'pages/Earns/components/SmartExit/Metrics/TimeInput'
@@ -20,6 +21,7 @@ export default function MetricSelect({
   selectedMetric?: SelectedMetric
   position: ParsedPosition
 }) {
+  const theme = useTheme()
   const metricOptions = useMemo(
     () =>
       [
@@ -55,7 +57,10 @@ export default function MetricSelect({
             setMetric({ metric: newMetric, condition })
           }}
           value={metric.metric}
-          menuStyle={{ width: '250px' }}
+          menuStyle={{ width: '250px', marginTop: '2px' }}
+          arrow="chevron"
+          arrowSize={16}
+          arrowColor={theme.border}
         />
       </Flex>
 

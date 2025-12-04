@@ -3,9 +3,9 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { X } from 'react-feather'
 import { Flex, Text } from 'rebass'
 
-import Divider from 'components/Divider'
 import Modal from 'components/Modal'
 import { TIMES_IN_SECS } from 'constants/index'
+import useTheme from 'hooks/useTheme'
 import PositionDetailHeader from 'pages/Earns/PositionDetail/Header'
 import Actions from 'pages/Earns/components/SmartExit/Actions'
 import Confirmation from 'pages/Earns/components/SmartExit/Confirmation'
@@ -14,7 +14,7 @@ import GasSetting from 'pages/Earns/components/SmartExit/GasSetting'
 import Metrics from 'pages/Earns/components/SmartExit/Metrics'
 import PoolPrice from 'pages/Earns/components/SmartExit/PoolPrice'
 import PositionLiquidity from 'pages/Earns/components/SmartExit/PositionLiquidity'
-import { ContentWrapper } from 'pages/Earns/components/SmartExit/styles'
+import { ContentWrapper, Divider } from 'pages/Earns/components/SmartExit/styles'
 import { useSmartExit } from 'pages/Earns/components/SmartExit/useSmartExit'
 import { defaultFeeYieldCondition } from 'pages/Earns/components/SmartExit/utils'
 import {
@@ -29,6 +29,7 @@ import {
 } from 'pages/Earns/types'
 
 export const SmartExit = ({ position, onDismiss }: { position: ParsedPosition; onDismiss: () => void }) => {
+  const theme = useTheme()
   const [selectedMetrics, setSelectedMetrics] = useState<SelectedMetric[]>([
     { metric: Metric.FeeYield, condition: defaultFeeYieldCondition },
   ])
@@ -117,7 +118,7 @@ export const SmartExit = ({ position, onDismiss }: { position: ParsedPosition; o
 
   return (
     <Modal isOpen mobileFullWidth onDismiss={onDismiss} width="100vw" maxWidth={showConfirm ? 450 : 800}>
-      <Flex width="100%" flexDirection="column" padding="20px">
+      <Flex width="100%" flexDirection="column" padding="20px" backgroundColor={theme.background}>
         {showConfirm ? (
           <Confirmation
             selectedMetrics={selectedMetrics}

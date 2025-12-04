@@ -31,11 +31,11 @@ const highlight = keyframes`
 `
 
 //transition: transform 300ms;
-export const DropdownIcon = styled.div`
+export const DropdownIcon = styled.div<{ size?: number }>`
   margin-left: 6px;
   border-radius: 50%;
-  width: 12px;
-  height: 12px;
+  width: ${({ size }) => size || 12}px;
+  height: ${({ size }) => size || 12}px;
   display: flex;
   justify-content: center;
   align-items: center;

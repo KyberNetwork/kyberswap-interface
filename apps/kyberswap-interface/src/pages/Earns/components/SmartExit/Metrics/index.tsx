@@ -1,10 +1,11 @@
 import { Label, RadioGroup, RadioGroupItem } from '@kyber/ui'
 import { Trans } from '@lingui/macro'
+import { Trash2 } from 'react-feather'
 import { Flex } from 'rebass'
 
-import Divider from 'components/Divider'
 import useTheme from 'hooks/useTheme'
 import MetricSelect from 'pages/Earns/components/SmartExit/Metrics/MetricSelect'
+import { Divider } from 'pages/Earns/components/SmartExit/styles'
 import { getDefaultCondition } from 'pages/Earns/components/SmartExit/utils'
 import { ConditionType, Metric, ParsedPosition, SelectedMetric } from 'pages/Earns/types'
 import { ButtonText } from 'theme'
@@ -62,10 +63,11 @@ export default function Metrics({
                 width: 'fit-content',
                 color: theme.red,
                 fontSize: '14px',
+                marginRight: '2px',
               }}
               onClick={onRemoveMetric2}
             >
-              <Trans>Remove Condition</Trans>
+              <Trash2 size={16} color={theme.subText} />
             </ButtonText>
           </Flex>
           <Divider my="1rem" />

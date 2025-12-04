@@ -1,5 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
+import { rgba } from 'polished'
 import { useMemo, useState } from 'react'
 import { Calendar } from 'react-feather'
 import { Flex, Text } from 'rebass'
@@ -47,7 +48,10 @@ export default function TimeInput({
             setMetric({ ...metric, condition: { ...timeCondition, condition: value } })
           }}
           value={timeCondition.condition}
-          menuStyle={{ width: '250px' }}
+          menuStyle={{ width: '220px', marginTop: '2px' }}
+          arrow="chevron"
+          arrowSize={16}
+          arrowColor={theme.border}
         />
       </Flex>
       <Text mt="16px">
@@ -56,7 +60,7 @@ export default function TimeInput({
       <Flex
         sx={{
           borderRadius: '12px',
-          background: theme.buttonBlack,
+          background: rgba(theme.text, 0.04),
           padding: '8px 12px',
           justifyContent: 'space-between',
           alignItems: 'center',
@@ -66,8 +70,8 @@ export default function TimeInput({
         role="button"
         onClick={() => setOpenDatePicker(true)}
       >
-        <Text>
-          {timeCondition.time === null ? 'DD/MM/YYYY' : dayjs(timeCondition.time).format('DD/MM/YYYY HH:mm:ss')}
+        <Text color={timeCondition.time === null ? theme.border : theme.text}>
+          {timeCondition.time === null ? t`Pickup time` : dayjs(timeCondition.time).format('DD/MM/YYYY HH:mm:ss')}
         </Text>
         <Calendar color={theme.primary} size={20} />
       </Flex>
