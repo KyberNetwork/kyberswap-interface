@@ -1,4 +1,4 @@
-import { formatNumber } from '@kyber/utils/dist/number'
+import { formatNumberBySignificantDigits } from '@kyber/utils/dist/number'
 import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick, tickToPrice } from '@kyber/utils/dist/uniswapv3'
 import UniswapPriceSlider from '@kyberswap/price-slider'
 import '@kyberswap/price-slider/style.css'
@@ -101,11 +101,11 @@ export default function PriceInput({
       changeSourceRef.current = 'slider'
       setLowerTickState(tick)
       if (tick !== undefined) {
-        const price = formatNumber(
-          Number(tickToPrice(tick, position.token0.decimals, position.token1.decimals, false)),
+        const price = formatNumberBySignificantDigits(
+          tickToPrice(tick, position.token0.decimals, position.token1.decimals, false),
           6,
         )
-        setMetric({ ...metric, condition: { ...priceCondition, gte: price } })
+        setMetric({ ...metric, condition: { ...priceCondition, gte: price.toString() } })
       }
       // Reset source after React batch update
       setTimeout(() => {
@@ -120,11 +120,11 @@ export default function PriceInput({
       changeSourceRef.current = 'slider'
       setUpperTickState(tick)
       if (tick !== undefined) {
-        const price = formatNumber(
-          Number(tickToPrice(tick, position.token0.decimals, position.token1.decimals, false)),
+        const price = formatNumberBySignificantDigits(
+          tickToPrice(tick, position.token0.decimals, position.token1.decimals, false),
           6,
         )
-        setMetric({ ...metric, condition: { ...priceCondition, lte: price } })
+        setMetric({ ...metric, condition: { ...priceCondition, lte: price.toString() } })
       }
       setTimeout(() => {
         changeSourceRef.current = null
@@ -158,12 +158,12 @@ export default function PriceInput({
     if (lowerTick === undefined) return
     const newLowerTick = lowerTick - position.pool.tickSpacing
     if (newLowerTick < MIN_TICK) return
-    const price = formatNumber(
-      Number(tickToPrice(newLowerTick, position.token0.decimals, position.token1.decimals, false)),
+    const price = formatNumberBySignificantDigits(
+      tickToPrice(newLowerTick, position.token0.decimals, position.token1.decimals, false),
       6,
     )
-    setMetric({ ...metric, condition: { ...priceCondition, gte: price } })
-    setInputMinPrice(price)
+    setMetric({ ...metric, condition: { ...priceCondition, gte: price.toString() } })
+    setInputMinPrice(price.toString())
   }, [
     lowerTick,
     metric,
@@ -178,12 +178,12 @@ export default function PriceInput({
     if (lowerTick === undefined) return
     const newLowerTick = lowerTick + position.pool.tickSpacing
     if (newLowerTick > MAX_TICK) return
-    const price = formatNumber(
-      Number(tickToPrice(newLowerTick, position.token0.decimals, position.token1.decimals, false)),
+    const price = formatNumberBySignificantDigits(
+      tickToPrice(newLowerTick, position.token0.decimals, position.token1.decimals, false),
       6,
     )
-    setMetric({ ...metric, condition: { ...priceCondition, gte: price } })
-    setInputMinPrice(price)
+    setMetric({ ...metric, condition: { ...priceCondition, gte: price.toString() } })
+    setInputMinPrice(price.toString())
   }, [
     lowerTick,
     metric,
@@ -198,12 +198,12 @@ export default function PriceInput({
     if (upperTick === undefined) return
     const newUpperTick = upperTick - position.pool.tickSpacing
     if (newUpperTick < MIN_TICK) return
-    const price = formatNumber(
-      Number(tickToPrice(newUpperTick, position.token0.decimals, position.token1.decimals, false)),
+    const price = formatNumberBySignificantDigits(
+      tickToPrice(newUpperTick, position.token0.decimals, position.token1.decimals, false),
       6,
     )
-    setMetric({ ...metric, condition: { ...priceCondition, lte: price } })
-    setInputMaxPrice(price)
+    setMetric({ ...metric, condition: { ...priceCondition, lte: price.toString() } })
+    setInputMaxPrice(price.toString())
   }, [
     upperTick,
     metric,
@@ -218,12 +218,12 @@ export default function PriceInput({
     if (upperTick === undefined) return
     const newUpperTick = upperTick + position.pool.tickSpacing
     if (newUpperTick > MAX_TICK) return
-    const price = formatNumber(
-      Number(tickToPrice(newUpperTick, position.token0.decimals, position.token1.decimals, false)),
+    const price = formatNumberBySignificantDigits(
+      tickToPrice(newUpperTick, position.token0.decimals, position.token1.decimals, false),
       6,
     )
-    setMetric({ ...metric, condition: { ...priceCondition, lte: price } })
-    setInputMaxPrice(price)
+    setMetric({ ...metric, condition: { ...priceCondition, lte: price.toString() } })
+    setInputMaxPrice(price.toString())
   }, [
     upperTick,
     metric,
@@ -241,9 +241,9 @@ export default function PriceInput({
         tick % position.pool.tickSpacing === 0 ? tick : nearestUsableTick(tick, position.pool.tickSpacing)
       const correctedPrice = tickToPrice(correctedTick, position.token0.decimals, position.token1.decimals, false)
       if (type === 'lower') {
-        setInputMinPrice(formatNumber(Number(correctedPrice), 6))
+        setInputMinPrice(formatNumberBySignificantDigits(correctedPrice, 6).toString())
       } else {
-        setInputMaxPrice(formatNumber(Number(correctedPrice), 6))
+        setInputMaxPrice(formatNumberBySignificantDigits(correctedPrice, 6).toString())
       }
     }
   }
@@ -301,7 +301,7 @@ export default function PriceInput({
         justifyContent="center"
         onClick={() => setPriceSliderExpanded(e => !e)}
         marginTop={2}
-        style={{ cursor: 'default', position: 'relative' }}
+        style={{ cursor: 'default', position: 'relative', userSelect: 'none' }}
       >
         <Text color={theme.text} fontSize={14}>
           {position.token1.symbol} <Trans>per</Trans> {position.token0.symbol}

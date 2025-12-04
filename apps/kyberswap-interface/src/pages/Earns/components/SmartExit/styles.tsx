@@ -72,6 +72,7 @@ export const PriceInputWrapper = styled.div`
   border-radius: 12px;
   background-color: ${({ theme }) => rgba(theme.text, 0.04)};
   cursor: pointer;
+  user-select: none;
 `
 
 export const PriceInputIcon = styled.div`
@@ -82,6 +83,7 @@ export const PriceInputIcon = styled.div`
   height: 20px;
   border-radius: 4px;
   background-color: ${({ theme }) => rgba(theme.text, 0.08)};
+  user-select: none;
 `
 
 export const CustomPriceInput = styled(Input)`

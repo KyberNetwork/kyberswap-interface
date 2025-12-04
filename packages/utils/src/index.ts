@@ -39,3 +39,4 @@ export * from './liquidity/price-impact';
 export * from './liquidity/zap';
 export * from './services';
 export * from './error';
+export * from './number';
