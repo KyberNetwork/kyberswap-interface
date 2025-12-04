@@ -1,0 +1,205 @@
+import { ParsedPosition, PriceCondition } from 'pages/Earns/types'
+
+interface ExpectedAmounts {
+  minAmount0: number
+  maxAmount0: number
+  minAmount1: number
+  maxAmount1: number
+}
+
+/**
+ * Calculate expected token amounts when removing liquidity at specific price conditions
+ * Based on Uniswap V3 formulas:
+ * - If price < priceLower: all liquidity is in token0
+ * - If price > priceUpper: all liquidity is in token1
+ * - If priceLower <= price <= priceUpper: liquidity is split between both tokens
+ *
+ * Correct Uniswap V3 formulas:
+ * When in range:
+ * - amount0 = liquidity * (1/sqrt(price) - 1/sqrt(priceUpper))
+ * - amount1 = liquidity * (sqrt(price) - sqrt(priceLower))
+ * When price < priceLower (all in token0):
+ * - amount0 = liquidity * (1/sqrt(priceLower) - 1/sqrt(priceUpper))
+ * - amount1 = 0
+ * When price > priceUpper (all in token1):
+ * - amount0 = 0
+ * - amount1 = liquidity * (sqrt(priceUpper) - sqrt(priceLower))
+ */
+export function calculateExpectedAmounts(
+  position: ParsedPosition,
+  priceCondition?: PriceCondition,
+): ExpectedAmounts | null {
+  if (!priceCondition?.gte || !priceCondition?.lte) {
+    return null
+  }
+
+  const minExitPrice = parseFloat(priceCondition.gte)
+  const maxExitPrice = parseFloat(priceCondition.lte)
+
+  if (!minExitPrice || !maxExitPrice || minExitPrice > maxExitPrice || minExitPrice <= 0 || maxExitPrice <= 0) {
+    return null
+  }
+
+  // Get position's price range
+  const positionPriceLower = position.priceRange.min
+  const positionPriceUpper = position.priceRange.max
+  const currentPrice = position.priceRange.current
+
+  // Validate price range
+  if (positionPriceLower <= 0 || positionPriceUpper <= 0 || currentPrice <= 0) {
+    return null
+  }
+
+  if (positionPriceLower >= positionPriceUpper) {
+    return null
+  }
+
+  // Get current amounts in position (including fees)
+  const currentAmount0 = position.token0.totalProvide + position.token0.unclaimedAmount
+  const currentAmount1 = position.token1.totalProvide + position.token1.unclaimedAmount
+
+  // If position is out of range, handle special cases
+  const isOutOfRange = currentPrice < positionPriceLower || currentPrice > positionPriceUpper
+
+  // Calculate liquidity from current amounts and price
+  // Using the relationship: L = sqrt(amount0 * amount1 * P)
+  const liquidity = estimateLiquidity(
+    currentAmount0,
+    currentAmount1,
+    currentPrice,
+    positionPriceLower,
+    positionPriceUpper,
+    isOutOfRange,
+  )
+
+  // Calculate expected amounts at min exit price
+  const { amount0: minPriceAmount0, amount1: minPriceAmount1 } = calculateAmountsAtPrice(
+    minExitPrice,
+    positionPriceLower,
+    positionPriceUpper,
+    liquidity,
+  )
+
+  // Calculate expected amounts at max exit price
+  const { amount0: maxPriceAmount0, amount1: maxPriceAmount1 } = calculateAmountsAtPrice(
+    maxExitPrice,
+    positionPriceLower,
+    positionPriceUpper,
+    liquidity,
+  )
+
+  // Return min/max for each token across both price points
+  return {
+    minAmount0: Math.min(minPriceAmount0, maxPriceAmount0),
+    maxAmount0: Math.max(minPriceAmount0, maxPriceAmount0),
+    minAmount1: Math.min(minPriceAmount1, maxPriceAmount1),
+    maxAmount1: Math.max(minPriceAmount1, maxPriceAmount1),
+  }
+}
+
+/**
+ * Estimate liquidity from current amounts and prices
+ * Using correct Uniswap V3 formulas:
+ * L = amount0 / (1/sqrt(P) - 1/sqrt(Pb))  where P is current price, Pb is upper bound
+ * L = amount1 / (sqrt(P) - sqrt(Pa))      where Pa is lower bound
+ */
+function estimateLiquidity(
+  amount0: number,
+  amount1: number,
+  currentPrice: number,
+  priceLower: number,
+  priceUpper: number,
+  isOutOfRange: boolean,
+): number {
+  const sqrtPrice = Math.sqrt(currentPrice)
+  const sqrtPriceLower = Math.sqrt(priceLower)
+  const sqrtPriceUpper = Math.sqrt(priceUpper)
+
+  if (isOutOfRange) {
+    if (currentPrice < priceLower) {
+      // All in token0: L = amount0 / (1/sqrt(Pa) - 1/sqrt(Pb))
+      return amount0 / (1 / sqrtPriceLower - 1 / sqrtPriceUpper)
+    } else {
+      // All in token1: L = amount1 / (sqrt(Pb) - sqrt(Pa))
+      return amount1 / (sqrtPriceUpper - sqrtPriceLower)
+    }
+  }
+
+  // In range - calculate from both and take average for stability
+  let L0 = 0
+  let L1 = 0
+
+  if (amount0 > 0) {
+    // L = amount0 / (1/sqrt(P) - 1/sqrt(Pb))
+    const denominator0 = 1 / sqrtPrice - 1 / sqrtPriceUpper
+    if (Math.abs(denominator0) > 0.000001) {
+      // Avoid division by very small number
+      L0 = amount0 / denominator0
+    }
+  }
+
+  if (amount1 > 0) {
+    // L = amount1 / (sqrt(P) - sqrt(Pa))
+    const denominator1 = sqrtPrice - sqrtPriceLower
+    if (Math.abs(denominator1) > 0.000001) {
+      // Avoid division by very small number
+      L1 = amount1 / denominator1
+    }
+  }
+
+  // Return average if both are calculated, otherwise return the non-zero one
+  if (L0 > 0 && L1 > 0) {
+    return (L0 + L1) / 2
+  }
+  return L0 > 0 ? L0 : L1
+}
+
+/**
+ * Calculate token amounts at a specific price using correct Uniswap V3 formulas
+ */
+function calculateAmountsAtPrice(
+  price: number,
+  priceLower: number,
+  priceUpper: number,
+  liquidity: number,
+): { amount0: number; amount1: number } {
+  // If no liquidity, return 0
+  if (liquidity === 0) {
+    return { amount0: 0, amount1: 0 }
+  }
+
+  const sqrtPrice = Math.sqrt(price)
+  const sqrtPriceLower = Math.sqrt(priceLower)
+  const sqrtPriceUpper = Math.sqrt(priceUpper)
+
+  // Case 1: Price below range - all in token0
+  if (price <= priceLower) {
+    // amount0 = L * (1/sqrt(Pa) - 1/sqrt(Pb))
+    const amount0 = liquidity * (1 / sqrtPriceLower - 1 / sqrtPriceUpper)
+    return {
+      amount0,
+      amount1: 0,
+    }
+  }
+
+  // Case 2: Price above range - all in token1
+  if (price >= priceUpper) {
+    // amount1 = L * (sqrt(Pb) - sqrt(Pa))
+    const amount1 = liquidity * (sqrtPriceUpper - sqrtPriceLower)
+    return {
+      amount0: 0,
+      amount1,
+    }
+  }
+
+  // Case 3: Price in range - split between both tokens
+  // amount0 = L * (1/sqrt(P) - 1/sqrt(Pb))
+  // amount1 = L * (sqrt(P) - sqrt(Pa))
+  const amount0 = liquidity * (1 / sqrtPrice - 1 / sqrtPriceUpper)
+  const amount1 = liquidity * (sqrtPrice - sqrtPriceLower)
+
+  return {
+    amount0,
+    amount1,
+  }
+}
