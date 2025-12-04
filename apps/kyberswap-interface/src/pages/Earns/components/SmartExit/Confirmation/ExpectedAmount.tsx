@@ -1,4 +1,5 @@
 import { Trans } from '@lingui/macro'
+import { rgba } from 'polished'
 import { useMemo } from 'react'
 import { Box, Flex, Text } from 'rebass'
 
@@ -59,47 +60,59 @@ export default function ExpectedAmount({
       <Box
         sx={{
           padding: '12px 16px',
-          borderRadius: '12px',
-          background: theme.buttonBlack,
+          borderRadius: '16px',
           marginTop: '1rem',
+          border: `1px solid ${theme.tableHeader}`,
         }}
       >
         <Text fontSize={14} color={theme.subText} mb="12px">
           <Trans>Estimated balance when exit</Trans>
         </Text>
 
-        <Flex justifyContent="space-between" mb="12px">
-          <Flex flexDirection="column" flex={1}>
-            <Text fontSize={12} color={theme.subText} mb="8px">
+        <Flex justifyContent="space-between" sx={{ gap: '16px' }}>
+          <Flex
+            flexDirection="column"
+            flex={1}
+            sx={{ borderRadius: '12px', background: rgba(theme.white, 0.04), gap: '8px' }}
+            py="8px"
+            px="16px"
+          >
+            <Text fontSize={14} color={theme.subText}>
               Min
             </Text>
-            <Flex alignItems="center" sx={{ gap: '8px' }} mb="8px">
-              <TokenLogo src={position.token0.logo} size={16} />
-              <Text fontSize={14}>
+            <Flex alignItems="center" sx={{ gap: '4px' }}>
+              <TokenLogo src={position.token0.logo} size={20} />
+              <Text fontSize={16}>
                 {formatDisplayNumber(expectedAmounts.minAmount0, { significantDigits: 6 })} {position.token0.symbol}
               </Text>
             </Flex>
-            <Flex alignItems="center" sx={{ gap: '8px' }}>
-              <TokenLogo src={position.token1.logo} size={16} />
-              <Text fontSize={14}>
+            <Flex alignItems="center" sx={{ gap: '4px' }}>
+              <TokenLogo src={position.token1.logo} size={20} />
+              <Text fontSize={16}>
                 {formatDisplayNumber(expectedAmounts.minAmount1, { significantDigits: 6 })} {position.token1.symbol}
               </Text>
             </Flex>
           </Flex>
 
-          <Flex flexDirection="column" flex={1}>
-            <Text fontSize={12} color={theme.subText} mb="8px">
+          <Flex
+            flexDirection="column"
+            flex={1}
+            sx={{ borderRadius: '12px', background: rgba(theme.white, 0.04), gap: '8px' }}
+            py="8px"
+            px="16px"
+          >
+            <Text fontSize={14} color={theme.subText}>
               Max
             </Text>
-            <Flex alignItems="center" sx={{ gap: '8px' }} mb="8px">
-              <TokenLogo src={position.token0.logo} size={16} />
-              <Text fontSize={14}>
+            <Flex alignItems="center" sx={{ gap: '4px' }}>
+              <TokenLogo src={position.token0.logo} size={20} />
+              <Text fontSize={16}>
                 {formatDisplayNumber(expectedAmounts.maxAmount0, { significantDigits: 6 })} {position.token0.symbol}
               </Text>
             </Flex>
-            <Flex alignItems="center" sx={{ gap: '8px' }}>
-              <TokenLogo src={position.token1.logo} size={16} />
-              <Text fontSize={14}>
+            <Flex alignItems="center" sx={{ gap: '4px' }}>
+              <TokenLogo src={position.token1.logo} size={20} />
+              <Text fontSize={16}>
                 {formatDisplayNumber(expectedAmounts.maxAmount1, { significantDigits: 6 })} {position.token1.symbol}
               </Text>
             </Flex>

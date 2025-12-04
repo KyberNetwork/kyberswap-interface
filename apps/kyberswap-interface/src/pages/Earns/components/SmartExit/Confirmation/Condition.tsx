@@ -1,5 +1,6 @@
 import { Trans } from '@lingui/macro'
 import dayjs from 'dayjs'
+import { rgba } from 'polished'
 import { Box, Flex, Text } from 'rebass'
 
 import TokenLogo from 'components/TokenLogo'
@@ -38,14 +39,18 @@ export default function Condition({
   return (
     <>
       <Flex mt="1rem" alignItems="center" flexWrap="wrap">
-        <Trans>Exit</Trans>
-        <Flex mx="12px" alignItems="center">
+        <Trans>Remove</Trans>
+        <Flex
+          mx="8px"
+          alignItems="center"
+          sx={{ borderRadius: '16px', background: rgba(theme.white, 0.04), gap: '4px', padding: '8px 12px' }}
+        >
           <ImageContainer>
             <TokenLogo src={position?.token0.logo} />
             <TokenLogo src={position?.token1.logo} translateLeft />
             <TokenLogo src={position.chain.logo} size={12} translateLeft translateTop />
           </ImageContainer>
-          <Text mr="8px">
+          <Text>
             {position.token0.symbol}/{position.token1.symbol}
           </Text>
           <Badge>Fee {position?.pool.fee}%</Badge>
