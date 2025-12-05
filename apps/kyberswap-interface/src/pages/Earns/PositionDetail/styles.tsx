@@ -293,3 +293,59 @@ export const RewardLink = styled(Link)`
   gap: 4px;
   border-bottom: 1px dashed ${({ theme }) => theme.text};
 `
+
+export const RemoveLiquidityDropdownWrapper = styled.div`
+  position: relative;
+  display: inline-block;
+`
+
+export const DropdownButton = styled(PositionAction)<{ isOpen?: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  position: relative;
+`
+
+export const DropdownMenu = styled.div<{ isOpen: boolean }>`
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  border-radius: 24px;
+  display: ${({ isOpen }) => (isOpen ? 'flex' : 'none')};
+  flex-direction: column;
+  gap: 4px;
+  width: max-content;
+  z-index: 1000;
+  box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.1);
+`
+
+export const DropdownMenuItem = styled.button<{ disabled?: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  border-radius: 24px;
+  background: ${({ theme }) => theme.background};
+  border: 1px solid ${({ theme }) => rgba(theme.white, 0.1)};
+  color: ${({ theme }) => rgba(theme.white, 0.7)};
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+  text-align: left;
+
+  &:hover:not(:disabled) {
+    background: ${({ theme }) => rgba(theme.background, 0.9)};
+    border-color: ${({ theme }) => rgba(theme.white, 0.2)};
+    color: ${({ theme }) => theme.white};
+  }
+
+  ${({ disabled }) =>
+    disabled &&
+    `
+  cursor: not-allowed;
+  opacity: 0.5;
+  filter: brightness(0.6);
+`}
+`
