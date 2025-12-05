@@ -12,6 +12,7 @@ on:
         required: true
         options:
         - packages/liquidity-widgets
+        - packages/zap-create-widgets
         - packages/zap-migration-widgets
         - packages/zap-out-widgets
         - packages/pancake-liquidity-widgets
@@ -60,4 +61,3 @@ jobs:
       - name: Publish package to npm
         working-directory: ${{ github.event.inputs.package }}
         run: npm publish --access public
-

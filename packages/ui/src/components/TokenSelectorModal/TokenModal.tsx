@@ -17,12 +17,13 @@ export interface TokenModalProps {
   mode: TOKEN_SELECT_MODE;
   selectedTokenAddress?: string;
   positionId?: string;
-  poolAddress: string;
+  poolAddress?: string;
   token0Address: string;
   token1Address: string;
   initialSlippage?: number;
   setTokensIn: (tokens: Token[]) => void;
   setAmountsIn: (amounts: string) => void;
+  onTokenSelect?: (token: Token) => void;
   onConnectWallet: () => void;
   onOpenZapMigration?: (
     position: { exchange: string; poolId: string; positionId: string | number },
@@ -44,6 +45,7 @@ const TokenModal = ({
   token1Address,
   setTokensIn,
   setAmountsIn,
+  onTokenSelect,
   onConnectWallet,
   onOpenZapMigration,
   onClose,
@@ -126,6 +128,7 @@ const TokenModal = ({
             token0Address={token0Address}
             token1Address={token1Address}
             poolAddress={poolAddress}
+            onTokenSelect={onTokenSelect}
             onConnectWallet={onConnectWallet}
             onOpenZapMigration={onOpenZapMigration}
             selectedTokens={selectedTokens}

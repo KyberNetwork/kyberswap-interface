@@ -32,6 +32,7 @@ export interface WidgetProps {
     feeAddress: string;
   };
   referral?: string;
+  fromCreatePoolFlow?: boolean;
   initialTick?: { tickLower: number; tickUpper: number };
   zapStatus?: Record<string, TxStatus>;
   locale?: SupportedLocale;
