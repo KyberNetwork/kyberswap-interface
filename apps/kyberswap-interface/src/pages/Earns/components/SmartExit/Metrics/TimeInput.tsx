@@ -14,9 +14,11 @@ import { SelectedMetric, TimeCondition } from 'pages/Earns/types'
 export default function TimeInput({
   metric,
   setMetric,
+  selectedMetric,
 }: {
   metric: SelectedMetric
   setMetric: (value: SelectedMetric) => void
+  selectedMetric?: SelectedMetric
 }) {
   const theme = useTheme()
   const [openDatePicker, setOpenDatePicker] = useState(false)
@@ -26,13 +28,15 @@ export default function TimeInput({
       {
         label: t`Before`,
         value: 'before',
+        disabled: !selectedMetric,
       },
       {
         label: t`After`,
         value: 'after',
+        disabled: false,
       },
     ],
-    [],
+    [selectedMetric],
   )
   const timeCondition = metric.condition as TimeCondition
 

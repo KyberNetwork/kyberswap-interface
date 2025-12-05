@@ -37,15 +37,16 @@ const SelectMenu = styled(motion.div)`
   width: max-content;
 `
 
-const Option = styled.div<{ $selected: boolean }>`
+const Option = styled.div<{ $selected: boolean; $disabled?: boolean }>`
   padding: 8px;
   border-radius: 8px;
-  cursor: pointer;
+  cursor: ${({ $disabled }) => ($disabled ? 'not-allowed' : 'pointer')};
   font-size: 12px;
-  color: ${({ theme }) => theme.subText};
+  color: ${({ theme, $disabled }) => ($disabled ? theme.border : theme.subText)};
   white-space: nowrap;
+  opacity: ${({ $disabled }) => ($disabled ? 0.5 : 1)};
   &:hover {
-    background-color: ${({ theme }) => theme.background};
+    background-color: ${({ theme, $disabled }) => ($disabled ? 'transparent' : theme.background)};
   }
   font-weight: ${({ $selected }) => ($selected ? '500' : 'unset')};
 `
@@ -84,7 +85,7 @@ const SearchWrapper = styled.div`
     color: ${({ theme }) => theme.text};
   }
 `
-export type SelectOption = { value?: string | number; label: ReactNode; onSelect?: () => void }
+export type SelectOption = { value?: string | number; label: ReactNode; onSelect?: () => void; disabled?: boolean }
 
 const getOptionValue = (option: SelectOption | undefined) => {
   if (!option) return ''
@@ -165,6 +166,7 @@ function Select({
         const onClick = (e: React.MouseEvent<HTMLDivElement>) => {
           e.stopPropagation()
           e.preventDefault()
+          if (item.disabled) return
           setShowMenu(false)
           setSearchValue('')
           if (item.onSelect) item.onSelect?.()
@@ -178,6 +180,7 @@ function Select({
             key={value}
             role="button"
             $selected={value === selectedValue || value === getOptionValue(selectedInfo)}
+            $disabled={item.disabled}
             onClick={onClick}
             style={optionStyle}
           >

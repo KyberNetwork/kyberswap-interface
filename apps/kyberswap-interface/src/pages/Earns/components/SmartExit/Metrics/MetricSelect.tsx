@@ -68,7 +68,9 @@ export default function MetricSelect({
 
       {metric.metric === Metric.PoolPrice && <PriceInput metric={metric} setMetric={setMetric} position={position} />}
 
-      {metric.metric === Metric.Time && <TimeInput metric={metric} setMetric={setMetric} />}
+      {metric.metric === Metric.Time && (
+        <TimeInput metric={metric} setMetric={setMetric} selectedMetric={selectedMetric} />
+      )}
     </>
   )
 }

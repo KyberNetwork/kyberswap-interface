@@ -7,7 +7,7 @@ import useTheme from 'hooks/useTheme'
 import MetricSelect from 'pages/Earns/components/SmartExit/Metrics/MetricSelect'
 import { Divider } from 'pages/Earns/components/SmartExit/styles'
 import { getDefaultCondition } from 'pages/Earns/components/SmartExit/utils'
-import { ConditionType, Metric, ParsedPosition, SelectedMetric } from 'pages/Earns/types'
+import { ConditionType, Metric, ParsedPosition, SelectedMetric, TimeCondition } from 'pages/Earns/types'
 import { ButtonText } from 'theme'
 
 const supportedMetrics = [Metric.FeeYield, Metric.PoolPrice, Metric.Time]
@@ -30,7 +30,13 @@ export default function Metrics({
 
   const onChangeMetric1 = (value: SelectedMetric) => setSelectedMetrics(metric2 ? [value, metric2] : [value])
   const onChangeMetric2 = (value: SelectedMetric) => setSelectedMetrics([metric1, value])
-  const onRemoveMetric2 = () => setSelectedMetrics([metric1])
+  const onRemoveMetric2 = () => {
+    let newMetric1 = metric1
+    if (metric1.metric === Metric.Time && (metric1.condition as TimeCondition).condition === 'before') {
+      newMetric1 = { ...metric1, condition: { ...(metric1.condition as TimeCondition), condition: 'after' } }
+    }
+    setSelectedMetrics([newMetric1])
+  }
   const onAddMetric2 = () => {
     const newMetric = supportedMetrics.filter(item => item !== metric1.metric)[0]
     const newCondition = getDefaultCondition(newMetric)
