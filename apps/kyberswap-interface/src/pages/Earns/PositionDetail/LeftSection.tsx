@@ -10,6 +10,7 @@ import PositionHistory from 'pages/Earns/PositionDetail/PositionHistory'
 import RewardSection from 'pages/Earns/PositionDetail/RewardSection'
 import { InfoLeftColumn, InfoSection, PositionAction, VerticalDivider } from 'pages/Earns/PositionDetail/styles'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
+import SmartExitActiveBadge from 'pages/Earns/components/SmartExitActiveBadge'
 import { EARN_DEXES, Exchange, LIMIT_TEXT_STYLES } from 'pages/Earns/constants'
 import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import useCollectFees from 'pages/Earns/hooks/useCollectFees'
@@ -19,20 +20,22 @@ import { formatDisplayNumber } from 'utils/numbers'
 
 const LeftSection = ({
   position,
-  onFetchUnclaimedFee,
   totalLiquiditySection,
   aprSection,
   initialLoading,
   isNotAccountOwner,
+  hasActiveSmartExitOrder,
+  onFetchUnclaimedFee,
   shareBtn,
   refetchPositions,
 }: {
   position?: ParsedPosition
-  onFetchUnclaimedFee: () => void
   totalLiquiditySection: React.ReactNode
   aprSection: React.ReactNode
   initialLoading: boolean
   isNotAccountOwner: boolean
+  hasActiveSmartExitOrder: boolean
+  onFetchUnclaimedFee: () => void
   shareBtn: (size?: number) => React.ReactNode
   refetchPositions: () => void
 }) => {
@@ -238,6 +241,8 @@ const LeftSection = ({
 
         {/* Position History */}
         {!isUniv2 && <PositionHistory position={position} />}
+
+        {!upToSmall && <SmartExitActiveBadge hasActiveSmartExitOrder={hasActiveSmartExitOrder} />}
       </InfoLeftColumn>
     </>
   )

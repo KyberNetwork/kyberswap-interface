@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { useEffect, useMemo, useState } from 'react'
-import { PlusCircle } from 'react-feather'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { ChevronDown, PlusCircle } from 'react-feather'
 import { useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
@@ -19,15 +19,21 @@ import PositionHistory from 'pages/Earns/PositionDetail/PositionHistory'
 import {
   ChartPlaceholder,
   ChartSkeletonWrapper,
+  DropdownButton,
+  DropdownMenu,
+  DropdownMenuItem,
   InfoRightColumn,
   MaxPriceSection,
   MinPriceSection,
   PositionAction,
   PositionActionWrapper,
   PriceSection,
+  RemoveLiquidityDropdownWrapper,
   RevertIconWrapper,
 } from 'pages/Earns/PositionDetail/styles'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
+import { SmartExit } from 'pages/Earns/components/SmartExit'
+import SmartExitActiveBadge from 'pages/Earns/components/SmartExitActiveBadge'
 import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import { CheckClosedPositionParams } from 'pages/Earns/hooks/useClosedPositions'
@@ -41,27 +47,29 @@ import { formatDisplayNumber } from 'utils/numbers'
 
 const RightSection = ({
   position,
-  onOpenZapMigration,
   totalLiquiditySection,
   aprSection,
-  onRefreshPosition,
   initialLoading,
   isNotAccountOwner,
   positionOwnerAddress,
   triggerClose,
+  hasActiveSmartExitOrder,
+  onOpenZapMigration,
+  onRefreshPosition,
   setTriggerClose,
   setReduceFetchInterval,
   onReposition,
 }: {
   position?: ParsedPosition
-  onOpenZapMigration: (props: ZapMigrationInfo) => void
   totalLiquiditySection: React.ReactNode
   aprSection: React.ReactNode
-  onRefreshPosition: (props: CheckClosedPositionParams) => void
   initialLoading: boolean
   isNotAccountOwner: boolean
   positionOwnerAddress?: string | null
   triggerClose: boolean
+  hasActiveSmartExitOrder: boolean
+  onOpenZapMigration: (props: ZapMigrationInfo) => void
+  onRefreshPosition: (props: CheckClosedPositionParams) => void
   setTriggerClose: (value: boolean) => void
   setReduceFetchInterval: (value: boolean) => void
   onReposition: (e: React.MouseEvent, position: ParsedPosition) => void
@@ -71,6 +79,8 @@ const RightSection = ({
   const { exchange, chainId, positionId } = useParams()
 
   const { account } = useActiveWeb3React()
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
   const { stableCoins } = useStableCoins(Number(chainId) as ChainId)
   const { data: pool } = usePoolDetailQuery(
     { chainId: Number(chainId) as ChainId, address: position?.pool.address || '' },
@@ -78,6 +88,7 @@ const RightSection = ({
   )
   const [revert, setRevert] = useState(false)
   const [defaultRevertChecked, setDefaultRevertChecked] = useState(false)
+  const [openSmartExit, setOpenSmartExit] = useState<boolean>(false)
 
   const { widget: zapInWidget, handleOpenZapIn } = useZapInWidget({
     onOpenZapMigration,
@@ -143,12 +154,30 @@ const RightSection = ({
 
   const repositionDisabled = initialLoading || !position || isClosed
   const increaseDisabled = initialLoading || (isUniV4 && isClosed)
+  const removeDisabled = initialLoading || isNotAccountOwner || isClosed || !position
   const subActionDisabled = isClosed || (!isOutRange ? repositionDisabled : increaseDisabled)
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false)
+      }
+    }
+
+    if (isDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isDropdownOpen])
 
   return (
     <>
       {zapInWidget}
       {zapOutWidget}
+      {openSmartExit && !!position ? <SmartExit position={position} onDismiss={() => setOpenSmartExit(false)} /> : null}
 
       <InfoRightColumn halfWidth={isUniv2}>
         {/* Total Liquidity */}
@@ -290,6 +319,8 @@ const RightSection = ({
 
         {isUniv2 && <PositionHistory position={position} />}
 
+        {upToSmall && <SmartExitActiveBadge hasActiveSmartExitOrder={hasActiveSmartExitOrder} />}
+
         {!isUniv2 && (
           <PositionActionWrapper>
             <Flex
@@ -312,23 +343,71 @@ const RightSection = ({
           </PositionActionWrapper>
         )}
         <PositionActionWrapper>
-          <PositionAction
-            outlineDefault
-            disabled={initialLoading || isNotAccountOwner || !position || isClosed}
-            onClick={() => {
-              if (initialLoading || isClosed || !position) return
-              handleOpenZapOut({
-                position: {
-                  dex: position.dex.id,
-                  chainId: position.chain.id,
-                  poolAddress: position.pool.address,
-                  id: isUniv2 ? account || '' : position.tokenId,
-                },
-              })
-            }}
-          >
-            {t`Remove Liquidity`}
-          </PositionAction>
+          <RemoveLiquidityDropdownWrapper ref={dropdownRef}>
+            <DropdownButton
+              outlineDefault
+              disabled={removeDisabled}
+              onClick={() => {
+                if (removeDisabled) return
+                setIsDropdownOpen(!isDropdownOpen)
+              }}
+              isOpen={isDropdownOpen}
+            >
+              {t`Remove Liquidity`}
+              <ChevronDown
+                size={16}
+                style={{ transform: isDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}
+              />
+            </DropdownButton>
+            <DropdownMenu isOpen={isDropdownOpen}>
+              {!hasActiveSmartExitOrder && (
+                <DropdownMenuItem
+                  onClick={() => {
+                    if (removeDisabled) return
+                    setIsDropdownOpen(false)
+                    setOpenSmartExit(true)
+                  }}
+                >
+                  {t`Smart Exit`}
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuItem
+                disabled={removeDisabled}
+                onClick={() => {
+                  if (removeDisabled) return
+                  setIsDropdownOpen(false)
+                  handleOpenZapOut({
+                    position: {
+                      dex: position.dex.id,
+                      chainId: position.chain.id,
+                      poolAddress: position.pool.address,
+                      id: isUniv2 ? account || '' : position.tokenId,
+                    },
+                    mode: 'withdrawOnly',
+                  })
+                }}
+              >
+                {t`Remove Manually`}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                disabled={removeDisabled}
+                onClick={() => {
+                  if (removeDisabled) return
+                  setIsDropdownOpen(false)
+                  handleOpenZapOut({
+                    position: {
+                      dex: position.dex.id,
+                      chainId: position.chain.id,
+                      poolAddress: position.pool.address,
+                      id: isUniv2 ? account || '' : position.tokenId,
+                    },
+                  })
+                }}
+              >
+                {t`Zap Out to Any Token`}
+              </DropdownMenuItem>
+            </DropdownMenu>
+          </RemoveLiquidityDropdownWrapper>
           {isNotAccountOwner ? (
             <PositionAction
               disabled={!explorerUrl}

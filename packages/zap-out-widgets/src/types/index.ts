@@ -24,6 +24,7 @@ export interface ZapOutProps {
   referral?: string;
   zapStatus?: Record<string, TxStatus>;
   locale?: SupportedLocale;
+  mode?: 'zapOut' | 'withdrawOnly';
   onClose: () => void;
   onConnectWallet: () => void;
   onSwitchChain: () => void;
