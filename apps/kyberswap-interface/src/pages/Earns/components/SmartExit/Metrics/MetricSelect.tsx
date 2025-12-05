@@ -37,7 +37,7 @@ export default function MetricSelect({
           label: t`Time`,
           value: Metric.Time,
         },
-      ].filter(item => item.value === Metric.PoolPrice || item.value !== selectedMetric?.metric),
+      ].filter(item => item.value !== selectedMetric?.metric),
     [selectedMetric],
   )
 

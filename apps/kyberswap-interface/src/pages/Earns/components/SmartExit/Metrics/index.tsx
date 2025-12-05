@@ -32,7 +32,7 @@ export default function Metrics({
   const onChangeMetric2 = (value: SelectedMetric) => setSelectedMetrics([metric1, value])
   const onRemoveMetric2 = () => setSelectedMetrics([metric1])
   const onAddMetric2 = () => {
-    const newMetric = supportedMetrics.filter(item => item === Metric.PoolPrice || item !== metric1.metric)[0]
+    const newMetric = supportedMetrics.filter(item => item !== metric1.metric)[0]
     const newCondition = getDefaultCondition(newMetric)
     if (!newCondition) return
     setSelectedMetrics([metric1, { metric: newMetric, condition: newCondition }])
