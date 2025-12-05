@@ -117,7 +117,19 @@ function Footer() {
 
           <Item>
             <Text marginRight="6px" display="flex">
-              <Trans>Audited By</Trans>
+              <Trans>
+                Audited{' '}
+                {above768 ? (
+                  <InfoHelper
+                    size={14}
+                    text={t`Covers smart-contracts`}
+                    placement="top"
+                    width="fit-content"
+                    style={{ marginRight: '4px' }}
+                  />
+                ) : null}{' '}
+                By
+              </Trans>
               {!above768 && (
                 <InfoHelper size={14} text={t`Covers smart-contracts`} placement="top" width="fit-content" />
               )}
@@ -147,7 +159,6 @@ function Footer() {
               <img src={Spearbit} alt="" height={20} />
               <Text color={theme.subText}>Spearbit</Text>
             </ExternalLink>
-            {above768 && <InfoHelper size={14} text={t`Covers smart-contracts`} placement="top" width="fit-content" />}
           </Item>
         </InfoWrapper>
         <FooterSocialLink />
