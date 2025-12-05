@@ -5,6 +5,7 @@ import styled from 'styled-components'
 
 import ChainSecurity from 'assets/svg/chainsecurity.svg'
 import Omniscia from 'assets/svg/omniscia.svg'
+import Spearbit from 'assets/svg/spearbit.svg'
 import { Telegram } from 'components/Icons'
 import Discord from 'components/Icons/Discord'
 import PoweredByIconDark from 'components/Icons/PoweredByIconDark'
@@ -116,11 +117,35 @@ function Footer() {
 
           <Item>
             <Text marginRight="6px" display="flex">
-              <Trans>Audited By</Trans>
-              {!above768 && <InfoHelper size={14} text={t`Covers smart-contracts`} placement="top" />}
+              <Trans>
+                Audited{' '}
+                {above768 ? (
+                  <InfoHelper
+                    size={14}
+                    text={t`Covers smart-contracts`}
+                    placement="top"
+                    width="fit-content"
+                    style={{ marginRight: '4px' }}
+                  />
+                ) : null}{' '}
+                By
+              </Trans>
+              {!above768 && (
+                <InfoHelper size={14} text={t`Covers smart-contracts`} placement="top" width="fit-content" />
+              )}
             </Text>
-            <ExternalLink href="https://chainsecurity.com/security-audit/kyberswap-elastic" style={{ display: 'flex' }}>
-              <img src={ChainSecurity} alt="" width="98px" />
+            <img src={ChainSecurity} alt="" width="98px" />
+            {above768 && (
+              <Text marginRight="6px" marginLeft="6px">
+                &
+              </Text>
+            )}
+            <ExternalLink
+              href="https://omniscia.io/reports/kyber-network-uniswap-v4-hooks-68163cf266222800187026b8/"
+              style={{ display: 'flex', alignItems: 'center', gap: '4px', textDecoration: 'none' }}
+            >
+              <img src={Omniscia} alt="" width={20} />
+              <Text color={theme.subText}>Omniscia</Text>
             </ExternalLink>
             {above768 && (
               <Text marginRight="6px" marginLeft="6px">
@@ -128,13 +153,12 @@ function Footer() {
               </Text>
             )}
             <ExternalLink
-              href="https://omniscia.io/"
+              href="https://github.com/spearbit/portfolio/blob/master/pdfs/Kyber-Hook-Uniswap-Foundation-Spearbit-Security-Review-October-2025.pdf"
               style={{ display: 'flex', alignItems: 'center', gap: '4px', textDecoration: 'none' }}
             >
-              <img src={Omniscia} alt="" width={20} />
-              <Text color={theme.subText}>Omniscia</Text>
+              <img src={Spearbit} alt="" height={20} />
+              <Text color={theme.subText}>Spearbit</Text>
             </ExternalLink>
-            {above768 && <InfoHelper size={14} text={t`Covers smart-contracts`} placement="top" />}
           </Item>
         </InfoWrapper>
         <FooterSocialLink />
