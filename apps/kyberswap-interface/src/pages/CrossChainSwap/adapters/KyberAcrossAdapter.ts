@@ -45,6 +45,20 @@ const chainIdToViemChain: Record<number, ViemChain> = {
   [ChainId.MONAD]: monad,
 }
 
+// Chain ID to SpokePoolPeriphery address mapping (Across protocol)
+// These are the official Across SpokePoolPeriphery contract addresses
+const chainIdToSpokePoolPeriphery: Record<number, Address> = {
+  [ChainId.MAINNET]: '0x924a9f036260DdD5808007E1AA95f08eD08aA569',
+  [ChainId.ARBITRUM]: '0x924a9f036260DdD5808007E1AA95f08eD08aA569',
+  [ChainId.OPTIMISM]: '0x924a9f036260DdD5808007E1AA95f08eD08aA569',
+  [ChainId.MATIC]: '0x924a9f036260DdD5808007E1AA95f08eD08aA569',
+  [ChainId.BASE]: '0x924a9f036260DdD5808007E1AA95f08eD08aA569',
+  [ChainId.LINEA]: '0x924a9f036260DdD5808007E1AA95f08eD08aA569',
+  [ChainId.ZKSYNC]: '0x924a9f036260DdD5808007E1AA95f08eD08aA569',
+  [ChainId.SCROLL]: '0x924a9f036260DdD5808007E1AA95f08eD08aA569',
+  [ChainId.BLAST]: '0x924a9f036260DdD5808007E1AA95f08eD08aA569',
+}
+
 // TransferType enum
 export enum TransferType {
   Approval = 0,
@@ -297,6 +311,41 @@ function getDepositFromLogs(receipt: TransactionReceipt): { depositId: bigint } 
 }
 
 /**
+ * Transforms raw API quote data (with string values) to properly typed SwapAndDepositData (with bigint values)
+ * The API returns numeric values as strings, but the contract expects bigint types
+ */
+function transformSwapAndDepositData(raw: any): SwapAndDepositData {
+  return {
+    submissionFees: {
+      amount: BigInt(raw.submissionFees?.amount || '0'),
+      recipient: raw.submissionFees?.recipient as Address,
+    },
+    depositData: {
+      inputToken: raw.depositData?.inputToken as Address,
+      outputToken: raw.depositData?.outputToken as `0x${string}`,
+      outputAmount: BigInt(raw.depositData?.outputAmount || '0'),
+      depositor: raw.depositData?.depositor as Address,
+      recipient: raw.depositData?.recipient as `0x${string}`,
+      destinationChainId: BigInt(raw.depositData?.destinationChainId || '0'),
+      exclusiveRelayer: raw.depositData?.exclusiveRelayer as `0x${string}`,
+      quoteTimestamp: Number(raw.depositData?.quoteTimestamp || 0),
+      fillDeadline: Number(raw.depositData?.fillDeadline || 0),
+      exclusivityParameter: Number(raw.depositData?.exclusivityParameter || 0),
+      message: raw.depositData?.message as `0x${string}`,
+    },
+    swapToken: raw.swapToken as Address,
+    exchange: raw.exchange as Address,
+    transferType: Number(raw.transferType) as TransferType,
+    swapTokenAmount: BigInt(raw.swapTokenAmount || '0'),
+    minExpectedInputTokenAmount: BigInt(raw.minExpectedInputTokenAmount || '0'),
+    routerCalldata: raw.routerCalldata as `0x${string}`,
+    enableProportionalAdjustment: Boolean(raw.enableProportionalAdjustment),
+    spokePool: raw.spokePool as Address,
+    nonce: BigInt(raw.nonce || '0'),
+  }
+}
+
+/**
  * Executes a swap-and-bridge transaction by:
  * 1. Approving the SpokePoolPeriphery contract if necessary
  * 2. Executing the swapAndBridge transaction
@@ -540,10 +589,15 @@ export class KyberAcrossAdapter extends BaseSwapAdapter {
   ): Promise<NormalizedTxResponse> {
     const rawQuote = quote.quote.rawQuote
 
-    // Extract swapAndDepositData from rawQuote
-    const swapAndDepositData: SwapAndDepositData = rawQuote.swapAndDepositData
-    const spokePoolPeripheryAddress: Address = rawQuote.spokePoolPeripheryAddress
-    const isNative: boolean = rawQuote.isNative ?? false
+    // Extract and transform swapAndDepositData from rawQuote
+    // The API returns numeric values as strings, so we need to convert them to bigints
+    const swapAndDepositData: SwapAndDepositData = transformSwapAndDepositData(rawQuote.swapAndDepositData)
+
+    // Determine if this is a native token swap
+    // Either explicitly set in rawQuote, or detected by swapToken being zero address
+    const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
+    const isNative: boolean =
+      rawQuote.isNative ?? swapAndDepositData?.swapToken?.toLowerCase() === ZERO_ADDRESS.toLowerCase()
 
     // Get origin chain from quoteParams
     const originChainId = quote.quote.quoteParams.fromChain as ChainId
@@ -551,6 +605,14 @@ export class KyberAcrossAdapter extends BaseSwapAdapter {
 
     if (!originChain) {
       throw new Error(`Unsupported chain: ${originChainId}`)
+    }
+
+    // Get spokePoolPeripheryAddress from rawQuote or use fallback mapping
+    const spokePoolPeripheryAddress: Address =
+      rawQuote.spokePoolPeripheryAddress || chainIdToSpokePoolPeriphery[originChainId]
+
+    if (!spokePoolPeripheryAddress) {
+      throw new Error(`No SpokePoolPeriphery address found for chain: ${originChainId}`)
     }
 
     // Get user address from quote params
