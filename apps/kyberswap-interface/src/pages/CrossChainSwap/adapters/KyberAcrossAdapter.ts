@@ -1,3 +1,11 @@
+import {
+  AcrossClient,
+  createAcrossClient,
+  parseDepositLogs,
+  parseFillLogs,
+  waitForDepositTx,
+  waitForFillTx,
+} from '@across-protocol/app-sdk'
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { WalletAdapterProps } from '@solana/wallet-adapter-base'
 import { Connection } from '@solana/web3.js'
@@ -9,14 +17,13 @@ import {
   WalletClient,
   encodeFunctionData,
   maxUint256,
-  parseAbi
+  parseAbi,
 } from 'viem'
 import { arbitrum, base, blast, bsc, linea, mainnet, optimism, polygon, scroll, unichain, zksync } from 'viem/chains'
 
 import { monad, plasma } from 'components/Web3Provider'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 
-import { AcrossClient, createAcrossClient } from '@across-protocol/app-sdk'
 import { Quote } from '../registry'
 import {
   BaseSwapAdapter,
@@ -56,6 +63,22 @@ const chainIdToSpokePoolPeriphery: Record<number, Address> = {
   [ChainId.ZKSYNC]: '0x924a9f036260DdD5808007E1AA95f08eD08aA569',
   [ChainId.SCROLL]: '0x924a9f036260DdD5808007E1AA95f08eD08aA569',
   [ChainId.BLAST]: '0x924a9f036260DdD5808007E1AA95f08eD08aA569',
+}
+
+// Chain ID to SpokePool address mapping (Across protocol)
+// These are the official Across SpokePool contract addresses for destination chains
+const chainIdToSpokePool: Record<number, Address> = {
+  [ChainId.MAINNET]: '0x5c7BCd6E7De5423a257D81B442095A1a6ced35C5',
+  [ChainId.ARBITRUM]: '0xe35e9842fceaCA96570B734083f4a58e8F7C5f2A',
+  [ChainId.OPTIMISM]: '0x6f26Bf09B1C792e3228e5467807a900A503c0281',
+  [ChainId.MATIC]: '0x9295ee1d8C5b022Be115A2AD3c30C72E34e7F096',
+  [ChainId.BASE]: '0x09aea4b2242abC8bb4BB78D537A67a245A7bEC64',
+  [ChainId.LINEA]: '0x7E63A5f1a8F0B4d0934B2f2327DAED3F6bb2ee75',
+  [ChainId.ZKSYNC]: '0xE0B015E54d54fc84a6cB9B666099c46adE9335FF',
+  [ChainId.SCROLL]: '0x3baD7AD0728f9917d1Bf08af5782dCbD516cDd96',
+  [ChainId.BLAST]: '0x2D509190Ed0172ba588407D4c2df918F955Cc6E1',
+  [ChainId.BSCMAINNET]: '0x4e8E101924eDE233C13e2D8622DC8aED2872d505',
+  [ChainId.UNICHAIN]: '0xeF684C38F94F48775959ECf2012D7E864ffb9dd4',
 }
 
 // TransferType enum
@@ -182,33 +205,6 @@ export const spokePoolPeripheryAbi = [
   },
 ] as const
 
-// V3FundsDeposited event ABI for parsing deposit ID from logs
-const V3FundsDepositedAbi = [
-  {
-    anonymous: false,
-    inputs: [
-      { indexed: false, internalType: 'address', name: 'inputToken', type: 'address' },
-      { indexed: false, internalType: 'address', name: 'outputToken', type: 'address' },
-      { indexed: false, internalType: 'uint256', name: 'inputAmount', type: 'uint256' },
-      { indexed: false, internalType: 'uint256', name: 'outputAmount', type: 'uint256' },
-      { indexed: true, internalType: 'uint256', name: 'destinationChainId', type: 'uint256' },
-      { indexed: true, internalType: 'uint32', name: 'depositId', type: 'uint32' },
-      { indexed: false, internalType: 'uint32', name: 'quoteTimestamp', type: 'uint32' },
-      { indexed: false, internalType: 'uint32', name: 'fillDeadline', type: 'uint32' },
-      { indexed: false, internalType: 'uint32', name: 'exclusivityDeadline', type: 'uint32' },
-      { indexed: true, internalType: 'address', name: 'depositor', type: 'address' },
-      { indexed: false, internalType: 'address', name: 'recipient', type: 'address' },
-      { indexed: false, internalType: 'address', name: 'exclusiveRelayer', type: 'address' },
-      { indexed: false, internalType: 'bytes', name: 'message', type: 'bytes' },
-    ],
-    name: 'V3FundsDeposited',
-    type: 'event',
-  },
-] as const
-
-// V3FundsDeposited event signature
-const V3_FUNDS_DEPOSITED_EVENT_SIGNATURE = '0xa123dc29aebf7d0c3322c8eeb5b999e859f39937950ed31056532713d0de396f'
-
 // Progress tracking types
 type ProgressMeta = ApproveMeta | SwapAndBridgeMeta | FillMeta | undefined
 
@@ -227,56 +223,68 @@ type FillMeta = {
 
 export type SwapAndBridgeProgress =
   | {
-    step: 'approve'
-    status: 'idle'
-  }
+      step: 'approve'
+      status: 'idle'
+    }
   | {
-    step: 'approve'
-    status: 'txPending'
-    txHash: Hash
-    meta: ApproveMeta
-  }
+      step: 'approve'
+      status: 'txPending'
+      txHash: Hash
+      meta: ApproveMeta
+    }
   | {
-    step: 'approve'
-    status: 'txSuccess'
-    txReceipt: TransactionReceipt
-    meta: ApproveMeta
-  }
+      step: 'approve'
+      status: 'txSuccess'
+      txReceipt: TransactionReceipt
+      meta: ApproveMeta
+    }
   | {
-    step: 'swapAndBridge'
-    status: 'txPending'
-    txHash: Hash
-    meta: SwapAndBridgeMeta
-  }
+      step: 'swapAndBridge'
+      status: 'txPending'
+      txHash: Hash
+      meta: SwapAndBridgeMeta
+    }
   | {
-    step: 'swapAndBridge'
-    status: 'txSuccess'
-    txReceipt: TransactionReceipt
-    depositId: bigint
-    meta: SwapAndBridgeMeta
-  }
+      step: 'swapAndBridge'
+      status: 'txSuccess'
+      txReceipt: TransactionReceipt
+      depositId: bigint
+      depositLog: ReturnType<typeof parseDepositLogs>
+      meta: SwapAndBridgeMeta
+    }
   | {
-    step: 'fill'
-    status: 'pending'
-    meta: FillMeta
-  }
+      step: 'fill'
+      status: 'pending'
+      meta: FillMeta
+    }
   | {
-    step: 'approve' | 'swapAndBridge' | 'fill'
-    status: 'error'
-    error: Error
-    meta: ProgressMeta
-  }
+      step: 'fill'
+      status: 'txSuccess'
+      txReceipt: TransactionReceipt
+      fillTxTimestamp: bigint
+      actionSuccess: boolean | undefined
+      fillLog: ReturnType<typeof parseFillLogs>
+      meta: FillMeta
+    }
+  | {
+      step: 'approve' | 'swapAndBridge' | 'fill'
+      status: 'error'
+      error: Error
+      meta: ProgressMeta
+    }
 
 export interface ExecuteSwapAndBridgeParams {
   // Wallet and clients
   walletClient: WalletClient
   originChain: ViemChain
+  destinationChain: ViemChain
   // User address
   userAddress: Address
   // Swap and bridge data
   swapAndDepositData: SwapAndDepositData
   // Contract addresses
   spokePoolPeripheryAddress: Address
+  destinationSpokePoolAddress: Address
   // Options
   isNative?: boolean
   infiniteApproval?: boolean
@@ -289,23 +297,8 @@ export interface ExecuteSwapAndBridgeParams {
 export interface ExecuteSwapAndBridgeResponse {
   depositId?: bigint
   swapAndBridgeTxReceipt?: TransactionReceipt
+  fillTxReceipt?: TransactionReceipt
   error?: Error
-}
-
-/**
- * Gets deposit info from transaction logs
- */
-function getDepositFromLogs(receipt: TransactionReceipt): { depositId: bigint } {
-  const depositLog = receipt.logs.find(log => log.topics[0] === V3_FUNDS_DEPOSITED_EVENT_SIGNATURE)
-
-  if (!depositLog) {
-    throw new Error('V3FundsDeposited event not found in transaction logs')
-  }
-
-  // depositId is the second indexed parameter (topics[2])
-  const depositId = BigInt(depositLog.topics[2] || '0')
-
-  return { depositId }
 }
 
 /**
@@ -435,12 +428,28 @@ export class KyberAcrossAdapter extends BaseSwapAdapter {
       throw new Error(`Unsupported chain: ${originChainId}`)
     }
 
+    // Get destination chain from quoteParams
+    const destinationChainId = quote.quote.quoteParams.toChain as ChainId
+    const destinationChain = chainIdToViemChain[destinationChainId]
+
+    if (!destinationChain) {
+      throw new Error(`Unsupported destination chain: ${destinationChainId}`)
+    }
+
     // Get spokePoolPeripheryAddress from rawQuote or use fallback mapping
     const spokePoolPeripheryAddress: Address =
       rawQuote.spokePoolPeripheryAddress || chainIdToSpokePoolPeriphery[originChainId]
 
     if (!spokePoolPeripheryAddress) {
       throw new Error(`No SpokePoolPeriphery address found for chain: ${originChainId}`)
+    }
+
+    // Get destinationSpokePoolAddress from rawQuote or use fallback mapping
+    const destinationSpokePoolAddress: Address =
+      rawQuote.destinationSpokePoolAddress || chainIdToSpokePool[destinationChainId]
+
+    if (!destinationSpokePoolAddress) {
+      throw new Error(`No SpokePool address found for destination chain: ${destinationChainId}`)
     }
 
     // Get user address from quote params
@@ -457,16 +466,17 @@ export class KyberAcrossAdapter extends BaseSwapAdapter {
       this.executeSwapAndBridge({
         walletClient,
         originChain,
+        destinationChain,
         userAddress,
         swapAndDepositData,
         spokePoolPeripheryAddress,
+        destinationSpokePoolAddress,
         isNative,
         infiniteApproval: false,
         skipAllowanceCheck: false,
         throwOnError: true,
-        onProgress: (progress: SwapAndBridgeProgress) => {
-          // Resolve when swapAndBridge transaction is pending (similar to Across SDK behavior)
-          if (progress.step === 'swapAndBridge' && progress.status === 'txPending') {
+        onProgress: progress => {
+          if (progress.step === 'swapAndBridge' && 'txHash' in progress) {
             resolve({
               sender: quote.quote.quoteParams.sender,
               sourceTxHash: progress.txHash,
@@ -485,28 +495,26 @@ export class KyberAcrossAdapter extends BaseSwapAdapter {
               recipient: quote.quote.quoteParams.recipient,
             })
           }
-
-          if (progress.status === 'error') {
-            reject(progress.error)
-          }
         },
       }).catch(reject)
     })
   }
 
   /**
- * Executes a swap-and-bridge transaction by:
- * 1. Approving the SpokePoolPeriphery contract if necessary
- * 2. Executing the swapAndBridge transaction
- * 3. Parsing the deposit ID from transaction logs
- */
+   * Executes a swap-and-bridge transaction by:
+   * 1. Approving the SpokePoolPeriphery contract if necessary
+   * 2. Executing the swapAndBridge transaction
+   * 3. Parsing the deposit ID from transaction logs
+   */
   async executeSwapAndBridge(params: ExecuteSwapAndBridgeParams): Promise<ExecuteSwapAndBridgeResponse> {
     const {
       walletClient,
       originChain,
+      destinationChain,
       userAddress,
       swapAndDepositData,
       spokePoolPeripheryAddress,
+      destinationSpokePoolAddress,
       isNative = false,
       infiniteApproval = false,
       skipAllowanceCheck = false,
@@ -523,8 +531,9 @@ export class KyberAcrossAdapter extends BaseSwapAdapter {
     let currentProgressMeta: ProgressMeta
 
     try {
-      // Create public client for reading blockchain state
+      // Create public clients for reading blockchain state
       const originClient = this.acrossClient.getPublicClient(originChain.id)
+      const destinationClient = this.acrossClient.getPublicClient(destinationChain.id)
 
       // Step 1: Check and handle approval if necessary (skip for native ETH)
       if (!skipAllowanceCheck && !isNative) {
@@ -631,29 +640,28 @@ export class KyberAcrossAdapter extends BaseSwapAdapter {
       }
       onProgressHandler(currentProgress)
 
-      // Wait for transaction confirmation
-      const swapAndBridgeTxReceipt = await originClient.waitForTransactionReceipt({
-        hash: swapAndBridgeTxHash,
+      // Wait for deposit transaction and parse logs using SDK
+      const { depositId, depositTxReceipt } = await waitForDepositTx({
+        originChainId: originChain.id,
+        transactionHash: swapAndBridgeTxHash,
+        publicClient: originClient,
       })
-
-      // Parse deposit ID from logs
-      const deposit = getDepositFromLogs(swapAndBridgeTxReceipt)
-      const depositId = deposit.depositId
+      const depositLog = parseDepositLogs(depositTxReceipt.logs)
 
       currentProgress = {
         step: 'swapAndBridge',
         status: 'txSuccess',
-        txReceipt: swapAndBridgeTxReceipt,
+        txReceipt: depositTxReceipt,
         depositId,
+        depositLog,
         meta: currentProgressMeta,
       }
       onProgressHandler(currentProgress)
 
-      // Step 3: Notify about fill pending
+      // Step 3: Wait for fill on destination chain
       currentProgressMeta = {
         depositId,
       }
-
       currentProgress = {
         step: 'fill',
         status: 'pending',
@@ -661,9 +669,38 @@ export class KyberAcrossAdapter extends BaseSwapAdapter {
       }
       onProgressHandler(currentProgress)
 
+      const destinationBlock = await destinationClient.getBlockNumber()
+
+      const { fillTxReceipt, fillTxTimestamp, actionSuccess } = await waitForFillTx({
+        deposit: {
+          originChainId: originChain.id,
+          destinationChainId: destinationChain.id,
+          destinationSpokePoolAddress,
+          message: swapAndDepositData.depositData.message,
+        },
+        depositId,
+        depositTxHash: depositTxReceipt.transactionHash,
+        destinationChainClient: destinationClient,
+        fromBlock: destinationBlock - 100n,
+      })
+
+      const fillLog = parseFillLogs(fillTxReceipt.logs)
+
+      currentProgress = {
+        step: 'fill',
+        status: 'txSuccess',
+        txReceipt: fillTxReceipt,
+        fillTxTimestamp,
+        actionSuccess,
+        fillLog,
+        meta: currentProgressMeta,
+      }
+      onProgressHandler(currentProgress)
+
       return {
         depositId,
-        swapAndBridgeTxReceipt,
+        swapAndBridgeTxReceipt: depositTxReceipt,
+        fillTxReceipt,
       }
     } catch (error) {
       currentProgress = {
@@ -683,11 +720,21 @@ export class KyberAcrossAdapter extends BaseSwapAdapter {
   }
 
   // getTransactionStatus is empty for now - will be added later
-  async getTransactionStatus(_params: NormalizedTxResponse): Promise<SwapStatus> {
-    // TODO: Implement transaction status tracking
-    return {
-      txHash: '',
-      status: 'Processing',
+  async getTransactionStatus(params: NormalizedTxResponse): Promise<SwapStatus> {
+    try {
+      const res = await fetch(`https://app.across.to/api/deposit/status?depositTxHash=${params.sourceTxHash}`).then(
+        res => res.json(),
+      )
+      return {
+        txHash: res.fillTx || '',
+        status: res.status === 'refunded' ? 'Refunded' : res.status === 'filled' ? 'Success' : 'Processing',
+      }
+    } catch (error) {
+      console.error('Error fetching transaction status:', error)
+      return {
+        txHash: '',
+        status: 'Processing',
+      }
     }
   }
 }

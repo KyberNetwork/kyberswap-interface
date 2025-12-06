@@ -874,75 +874,75 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
       }
 
       // Fallback to client-side adapter getQuote if streaming API failed
-      // if (!streamingApiSucceeded) {
-      //   console.log('Falling back to client-side adapter getQuote...')
+      if (!streamingApiSucceeded) {
+        console.log('Falling back to client-side adapter getQuote...')
 
-      //   // Use a fresh array for fallback quotes to avoid mixing with any partial streaming results
-      //   const fallbackQuotes: Quote[] = []
+        // Use a fresh array for fallback quotes to avoid mixing with any partial streaming results
+        const fallbackQuotes: Quote[] = []
 
-      //   let clientAdapters = registry.getAllAdapters().filter(a => !excludedSources.includes(a.getName()))
+        let clientAdapters = registry.getAllAdapters().filter(a => !excludedSources.includes(a.getName()))
 
-      //   if (clientAdapters.length === 0) {
-      //     // If user unchecked all, use all adapters
-      //     clientAdapters = registry.getAllAdapters()
-      //   }
+        if (clientAdapters.length === 0) {
+          // If user unchecked all, use all adapters
+          clientAdapters = registry.getAllAdapters()
+        }
 
-      //   // Filter adapters for cross-chain swaps (exclude KyberSwap which is for same-chain)
-      //   const adapters = clientAdapters.filter(
-      //     adapter =>
-      //       adapter.getName() !== 'KyberSwap' &&
-      //       adapter.getSupportedChains().includes(params.fromChain) &&
-      //       adapter.getSupportedChains().includes(params.toChain),
-      //   ) as SwapProvider[]
+        // Filter adapters for cross-chain swaps (exclude KyberSwap which is for same-chain)
+        const adapters = clientAdapters.filter(
+          adapter =>
+            adapter.getName() !== 'KyberSwap' &&
+            adapter.getSupportedChains().includes(params.fromChain) &&
+            adapter.getSupportedChains().includes(params.toChain),
+        ) as SwapProvider[]
 
-      //   // Map each adapter to a promise that can be cancelled
-      //   const quotePromises = adapters.map(async adapter => {
-      //     try {
-      //       // Check for cancellation before starting
-      //       if (signal.aborted) throw new Error('Cancelled')
+        // Map each adapter to a promise that can be cancelled
+        const quotePromises = adapters.map(async adapter => {
+          try {
+            // Check for cancellation before starting
+            if (signal.aborted) throw new Error('Cancelled')
 
-      //       // Skip adapter if it does not support the category
-      //       if (!adapter.canSupport(category, currencyIn, currencyOut)) {
-      //         // reason will be logged in adapter.canSupport for specific adapter
-      //         return
-      //       }
+            // Skip adapter if it does not support the category
+            if (!adapter.canSupport(category, currencyIn, currencyOut)) {
+              // reason will be logged in adapter.canSupport for specific adapter
+              return
+            }
 
-      //       // Race between the adapter quote and timeout
-      //       const quote = await Promise.race([adapter.getQuote(params), createTimeoutPromise(9_000)])
+            // Race between the adapter quote and timeout
+            const quote = await Promise.race([adapter.getQuote(params), createTimeoutPromise(9_000)])
 
-      //       // Check for cancellation after getting quote
-      //       if (signal.aborted) throw new Error('Cancelled')
+            // Check for cancellation after getting quote
+            if (signal.aborted) throw new Error('Cancelled')
 
-      //       fallbackQuotes.push({ adapter, quote })
-      //       const sortedQuotes = [...fallbackQuotes].sort((a, b) => {
-      //         const netA = getNetOutputAmount(a.quote)
-      //         const netB = getNetOutputAmount(b.quote)
-      //         return netA < netB ? 1 : -1
-      //       })
-      //       // Replace quotes with sorted fallback quotes (smooth transition)
-      //       setQuotes(sortedQuotes)
-      //       setLoading(false)
-      //     } catch (err) {
-      //       if ((err as Error).message === 'Cancelled' || signal.aborted) {
-      //         throw new Error('Cancelled')
-      //       }
-      //       console.error(`Failed to get quote from ${adapter.getName()}:`, err)
-      //     }
-      //   })
+            fallbackQuotes.push({ adapter, quote })
+            const sortedQuotes = [...fallbackQuotes].sort((a, b) => {
+              const netA = getNetOutputAmount(a.quote)
+              const netB = getNetOutputAmount(b.quote)
+              return netA < netB ? 1 : -1
+            })
+            // Replace quotes with sorted fallback quotes (smooth transition)
+            setQuotes(sortedQuotes)
+            setLoading(false)
+          } catch (err) {
+            if ((err as Error).message === 'Cancelled' || signal.aborted) {
+              throw new Error('Cancelled')
+            }
+            console.error(`Failed to get quote from ${adapter.getName()}:`, err)
+          }
+        })
 
-      //   await Promise.all(quotePromises)
+        await Promise.all(quotePromises)
 
-      //   if (fallbackQuotes.length === 0) {
-      //     throw new Error('No valid quotes found for the requested swap')
-      //   }
+        if (fallbackQuotes.length === 0) {
+          throw new Error('No valid quotes found for the requested swap')
+        }
 
-      //   // Sort by net output amount (after protocol fees)
-      //   fallbackQuotes.sort((a, b) => {
-      //     const netA = getNetOutputAmount(a.quote)
-      //     const netB = getNetOutputAmount(b.quote)
-      //     return netA < netB ? 1 : -1
-      //   })
-      // }
+        // Sort by net output amount (after protocol fees)
+        fallbackQuotes.sort((a, b) => {
+          const netA = getNetOutputAmount(a.quote)
+          const netB = getNetOutputAmount(b.quote)
+          return netA < netB ? 1 : -1
+        })
+      }
     }
 
     const adaptedWallet = adaptSolanaWallet(
