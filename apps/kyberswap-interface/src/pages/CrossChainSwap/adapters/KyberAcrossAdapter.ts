@@ -7,17 +7,16 @@ import {
   type TransactionReceipt,
   type Chain as ViemChain,
   WalletClient,
-  createPublicClient,
   encodeFunctionData,
-  http,
   maxUint256,
-  parseAbi,
+  parseAbi
 } from 'viem'
 import { arbitrum, base, blast, bsc, linea, mainnet, optimism, polygon, scroll, unichain, zksync } from 'viem/chains'
 
 import { monad, plasma } from 'components/Web3Provider'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 
+import { AcrossClient, createAcrossClient } from '@across-protocol/app-sdk'
 import { Quote } from '../registry'
 import {
   BaseSwapAdapter,
@@ -228,51 +227,50 @@ type FillMeta = {
 
 export type SwapAndBridgeProgress =
   | {
-      step: 'approve'
-      status: 'idle'
-    }
+    step: 'approve'
+    status: 'idle'
+  }
   | {
-      step: 'approve'
-      status: 'txPending'
-      txHash: Hash
-      meta: ApproveMeta
-    }
+    step: 'approve'
+    status: 'txPending'
+    txHash: Hash
+    meta: ApproveMeta
+  }
   | {
-      step: 'approve'
-      status: 'txSuccess'
-      txReceipt: TransactionReceipt
-      meta: ApproveMeta
-    }
+    step: 'approve'
+    status: 'txSuccess'
+    txReceipt: TransactionReceipt
+    meta: ApproveMeta
+  }
   | {
-      step: 'swapAndBridge'
-      status: 'txPending'
-      txHash: Hash
-      meta: SwapAndBridgeMeta
-    }
+    step: 'swapAndBridge'
+    status: 'txPending'
+    txHash: Hash
+    meta: SwapAndBridgeMeta
+  }
   | {
-      step: 'swapAndBridge'
-      status: 'txSuccess'
-      txReceipt: TransactionReceipt
-      depositId: bigint
-      meta: SwapAndBridgeMeta
-    }
+    step: 'swapAndBridge'
+    status: 'txSuccess'
+    txReceipt: TransactionReceipt
+    depositId: bigint
+    meta: SwapAndBridgeMeta
+  }
   | {
-      step: 'fill'
-      status: 'pending'
-      meta: FillMeta
-    }
+    step: 'fill'
+    status: 'pending'
+    meta: FillMeta
+  }
   | {
-      step: 'approve' | 'swapAndBridge' | 'fill'
-      status: 'error'
-      error: Error
-      meta: ProgressMeta
-    }
+    step: 'approve' | 'swapAndBridge' | 'fill'
+    status: 'error'
+    error: Error
+    meta: ProgressMeta
+  }
 
 export interface ExecuteSwapAndBridgeParams {
   // Wallet and clients
   walletClient: WalletClient
   originChain: ViemChain
-  rpcUrl: string
   // User address
   userAddress: Address
   // Swap and bridge data
@@ -345,201 +343,31 @@ function transformSwapAndDepositData(raw: any): SwapAndDepositData {
   }
 }
 
-/**
- * Executes a swap-and-bridge transaction by:
- * 1. Approving the SpokePoolPeriphery contract if necessary
- * 2. Executing the swapAndBridge transaction
- * 3. Parsing the deposit ID from transaction logs
- */
-async function executeSwapAndBridge(params: ExecuteSwapAndBridgeParams): Promise<ExecuteSwapAndBridgeResponse> {
-  const {
-    walletClient,
-    originChain,
-    rpcUrl,
-    userAddress,
-    swapAndDepositData,
-    spokePoolPeripheryAddress,
-    isNative = false,
-    infiniteApproval = false,
-    skipAllowanceCheck = false,
-    throwOnError = true,
-    onProgress,
-  } = params
-
-  const onProgressHandler = onProgress || ((progress: SwapAndBridgeProgress) => console.log('Progress:', progress))
-
-  let currentProgress: SwapAndBridgeProgress = {
-    status: 'idle',
-    step: 'approve',
-  }
-  let currentProgressMeta: ProgressMeta
-
-  try {
-    // Create public client for reading blockchain state
-    const originPublicClient = createPublicClient({
-      chain: originChain,
-      transport: http(rpcUrl),
-    })
-
-    // Step 1: Check and handle approval if necessary (skip for native ETH)
-    if (!skipAllowanceCheck && !isNative) {
-      const allowance = await originPublicClient.readContract({
-        address: swapAndDepositData.swapToken,
-        abi: parseAbi(['function allowance(address owner, address spender) public view returns (uint256)']),
-        functionName: 'allowance',
-        args: [userAddress, spokePoolPeripheryAddress],
-      })
-
-      if (swapAndDepositData.swapTokenAmount > allowance) {
-        const approvalAmount = infiniteApproval ? maxUint256 : swapAndDepositData.swapTokenAmount
-
-        currentProgressMeta = {
-          approvalAmount,
-          spender: spokePoolPeripheryAddress,
-        }
-
-        // Execute approval
-        const approveCalldata = encodeFunctionData({
-          abi: parseAbi(['function approve(address spender, uint256 value)']),
-          args: [spokePoolPeripheryAddress, approvalAmount],
-        })
-
-        const approveTxHash = await walletClient.sendTransaction({
-          account: walletClient.account!,
-          chain: originChain,
-          to: swapAndDepositData.swapToken,
-          data: approveCalldata,
-        })
-
-        currentProgress = {
-          step: 'approve',
-          status: 'txPending',
-          txHash: approveTxHash,
-          meta: currentProgressMeta,
-        }
-        onProgressHandler(currentProgress)
-
-        // Wait for approval confirmation
-        const approveTxReceipt = await originPublicClient.waitForTransactionReceipt({
-          hash: approveTxHash,
-        })
-
-        currentProgress = {
-          step: 'approve',
-          status: 'txSuccess',
-          txReceipt: approveTxReceipt,
-          meta: currentProgressMeta,
-        }
-        onProgressHandler(currentProgress)
-      }
-    }
-
-    // Step 2: Execute swapAndBridge
-    currentProgressMeta = {
-      swapAndDepositData,
-    }
-
-    // Encode the swapAndBridge call
-    const swapAndBridgeCalldata = encodeFunctionData({
-      abi: spokePoolPeripheryAbi,
-      functionName: 'swapAndBridge',
-      args: [
-        {
-          submissionFees: swapAndDepositData.submissionFees,
-          depositData: swapAndDepositData.depositData,
-          swapToken: swapAndDepositData.swapToken,
-          exchange: swapAndDepositData.exchange,
-          transferType: swapAndDepositData.transferType,
-          swapTokenAmount: swapAndDepositData.swapTokenAmount,
-          minExpectedInputTokenAmount: swapAndDepositData.minExpectedInputTokenAmount,
-          routerCalldata: swapAndDepositData.routerCalldata,
-          enableProportionalAdjustment: swapAndDepositData.enableProportionalAdjustment,
-          spokePool: swapAndDepositData.spokePool,
-          nonce: swapAndDepositData.nonce,
-        },
-      ],
-    })
-
-    // First simulate the transaction to catch revert errors with proper decoding
-    await originPublicClient.simulateContract({
-      address: spokePoolPeripheryAddress,
-      abi: spokePoolPeripheryAbi,
-      functionName: 'swapAndBridge',
-      args: [swapAndDepositData] as any,
-      account: userAddress,
-      value: isNative ? swapAndDepositData.swapTokenAmount : undefined,
-    })
-
-    const swapAndBridgeTxHash = await walletClient.sendTransaction({
-      account: walletClient.account!,
-      chain: originChain,
-      to: spokePoolPeripheryAddress,
-      data: swapAndBridgeCalldata,
-      value: isNative ? swapAndDepositData.swapTokenAmount : undefined,
-    })
-
-    currentProgress = {
-      step: 'swapAndBridge',
-      status: 'txPending',
-      txHash: swapAndBridgeTxHash,
-      meta: currentProgressMeta,
-    }
-    onProgressHandler(currentProgress)
-
-    // Wait for transaction confirmation
-    const swapAndBridgeTxReceipt = await originPublicClient.waitForTransactionReceipt({
-      hash: swapAndBridgeTxHash,
-    })
-
-    // Parse deposit ID from logs
-    const deposit = getDepositFromLogs(swapAndBridgeTxReceipt)
-    const depositId = deposit.depositId
-
-    currentProgress = {
-      step: 'swapAndBridge',
-      status: 'txSuccess',
-      txReceipt: swapAndBridgeTxReceipt,
-      depositId,
-      meta: currentProgressMeta,
-    }
-    onProgressHandler(currentProgress)
-
-    // Step 3: Notify about fill pending
-    currentProgressMeta = {
-      depositId,
-    }
-
-    currentProgress = {
-      step: 'fill',
-      status: 'pending',
-      meta: currentProgressMeta,
-    }
-    onProgressHandler(currentProgress)
-
-    return {
-      depositId,
-      swapAndBridgeTxReceipt,
-    }
-  } catch (error) {
-    currentProgress = {
-      ...currentProgress,
-      status: 'error',
-      error: error as Error,
-      meta: currentProgressMeta,
-    }
-    onProgressHandler(currentProgress)
-
-    if (!throwOnError) {
-      return { error: error as Error }
-    }
-
-    throw error
-  }
-}
-
 export class KyberAcrossAdapter extends BaseSwapAdapter {
+  private acrossClient: AcrossClient
+
   constructor() {
     super()
+    this.acrossClient = createAcrossClient({
+      integratorId: `0x008a`,
+      chains: [mainnet, arbitrum, bsc, optimism, linea, polygon, zksync, base, scroll, blast, unichain, plasma, monad],
+      rpcUrls: [
+        ChainId.MAINNET,
+        ChainId.ARBITRUM,
+        ChainId.BSCMAINNET,
+        ChainId.OPTIMISM,
+        ChainId.LINEA,
+        ChainId.MATIC,
+        ChainId.ZKSYNC,
+        ChainId.BASE,
+        ChainId.SCROLL,
+        ChainId.BLAST,
+        ChainId.UNICHAIN,
+        ChainId.MONAD,
+      ].reduce((acc, cur) => {
+        return { ...acc, [cur]: NETWORKS_INFO[cur].defaultRpcUrl }
+      }, {}),
+    })
   }
 
   getName(): string {
@@ -626,10 +454,9 @@ export class KyberAcrossAdapter extends BaseSwapAdapter {
     }
 
     return new Promise<NormalizedTxResponse>((resolve, reject) => {
-      executeSwapAndBridge({
+      this.executeSwapAndBridge({
         walletClient,
         originChain,
-        rpcUrl,
         userAddress,
         swapAndDepositData,
         spokePoolPeripheryAddress,
@@ -665,6 +492,194 @@ export class KyberAcrossAdapter extends BaseSwapAdapter {
         },
       }).catch(reject)
     })
+  }
+
+  /**
+ * Executes a swap-and-bridge transaction by:
+ * 1. Approving the SpokePoolPeriphery contract if necessary
+ * 2. Executing the swapAndBridge transaction
+ * 3. Parsing the deposit ID from transaction logs
+ */
+  async executeSwapAndBridge(params: ExecuteSwapAndBridgeParams): Promise<ExecuteSwapAndBridgeResponse> {
+    const {
+      walletClient,
+      originChain,
+      userAddress,
+      swapAndDepositData,
+      spokePoolPeripheryAddress,
+      isNative = false,
+      infiniteApproval = false,
+      skipAllowanceCheck = false,
+      throwOnError = true,
+      onProgress,
+    } = params
+
+    const onProgressHandler = onProgress || ((progress: SwapAndBridgeProgress) => console.log('Progress:', progress))
+
+    let currentProgress: SwapAndBridgeProgress = {
+      status: 'idle',
+      step: 'approve',
+    }
+    let currentProgressMeta: ProgressMeta
+
+    try {
+      // Create public client for reading blockchain state
+      const originClient = this.acrossClient.getPublicClient(originChain.id)
+
+      // Step 1: Check and handle approval if necessary (skip for native ETH)
+      if (!skipAllowanceCheck && !isNative) {
+        const allowance = await originClient.readContract({
+          address: swapAndDepositData.swapToken,
+          abi: parseAbi(['function allowance(address owner, address spender) public view returns (uint256)']),
+          functionName: 'allowance',
+          args: [userAddress, spokePoolPeripheryAddress],
+        })
+
+        if (swapAndDepositData.swapTokenAmount > allowance) {
+          const approvalAmount = infiniteApproval ? maxUint256 : swapAndDepositData.swapTokenAmount
+
+          currentProgressMeta = {
+            approvalAmount,
+            spender: spokePoolPeripheryAddress,
+          }
+
+          // Execute approval
+          const approveCalldata = encodeFunctionData({
+            abi: parseAbi(['function approve(address spender, uint256 value)']),
+            args: [spokePoolPeripheryAddress, approvalAmount],
+          })
+
+          const approveTxHash = await walletClient.sendTransaction({
+            account: walletClient.account!,
+            chain: originChain,
+            to: swapAndDepositData.swapToken,
+            data: approveCalldata,
+          })
+
+          currentProgress = {
+            step: 'approve',
+            status: 'txPending',
+            txHash: approveTxHash,
+            meta: currentProgressMeta,
+          }
+          onProgressHandler(currentProgress)
+
+          // Wait for approval confirmation
+          const approveTxReceipt = await originClient.waitForTransactionReceipt({
+            hash: approveTxHash,
+          })
+
+          currentProgress = {
+            step: 'approve',
+            status: 'txSuccess',
+            txReceipt: approveTxReceipt,
+            meta: currentProgressMeta,
+          }
+          onProgressHandler(currentProgress)
+        }
+      }
+
+      // Step 2: Execute swapAndBridge
+      currentProgressMeta = {
+        swapAndDepositData,
+      }
+
+      // Encode the swapAndBridge call
+      const swapAndBridgeCalldata = encodeFunctionData({
+        abi: spokePoolPeripheryAbi,
+        functionName: 'swapAndBridge',
+        args: [
+          {
+            submissionFees: swapAndDepositData.submissionFees,
+            depositData: swapAndDepositData.depositData,
+            swapToken: swapAndDepositData.swapToken,
+            exchange: swapAndDepositData.exchange,
+            transferType: swapAndDepositData.transferType,
+            swapTokenAmount: swapAndDepositData.swapTokenAmount,
+            minExpectedInputTokenAmount: swapAndDepositData.minExpectedInputTokenAmount,
+            routerCalldata: swapAndDepositData.routerCalldata,
+            enableProportionalAdjustment: swapAndDepositData.enableProportionalAdjustment,
+            spokePool: swapAndDepositData.spokePool,
+            nonce: swapAndDepositData.nonce,
+          },
+        ],
+      })
+
+      // First simulate the transaction to catch revert errors with proper decoding
+      await originClient.simulateContract({
+        address: spokePoolPeripheryAddress,
+        abi: spokePoolPeripheryAbi,
+        functionName: 'swapAndBridge',
+        args: [swapAndDepositData] as any,
+        account: userAddress,
+        value: isNative ? swapAndDepositData.swapTokenAmount : undefined,
+      })
+
+      const swapAndBridgeTxHash = await walletClient.sendTransaction({
+        account: walletClient.account!,
+        chain: originChain,
+        to: spokePoolPeripheryAddress,
+        data: swapAndBridgeCalldata,
+        value: isNative ? swapAndDepositData.swapTokenAmount : undefined,
+      })
+
+      currentProgress = {
+        step: 'swapAndBridge',
+        status: 'txPending',
+        txHash: swapAndBridgeTxHash,
+        meta: currentProgressMeta,
+      }
+      onProgressHandler(currentProgress)
+
+      // Wait for transaction confirmation
+      const swapAndBridgeTxReceipt = await originClient.waitForTransactionReceipt({
+        hash: swapAndBridgeTxHash,
+      })
+
+      // Parse deposit ID from logs
+      const deposit = getDepositFromLogs(swapAndBridgeTxReceipt)
+      const depositId = deposit.depositId
+
+      currentProgress = {
+        step: 'swapAndBridge',
+        status: 'txSuccess',
+        txReceipt: swapAndBridgeTxReceipt,
+        depositId,
+        meta: currentProgressMeta,
+      }
+      onProgressHandler(currentProgress)
+
+      // Step 3: Notify about fill pending
+      currentProgressMeta = {
+        depositId,
+      }
+
+      currentProgress = {
+        step: 'fill',
+        status: 'pending',
+        meta: currentProgressMeta,
+      }
+      onProgressHandler(currentProgress)
+
+      return {
+        depositId,
+        swapAndBridgeTxReceipt,
+      }
+    } catch (error) {
+      currentProgress = {
+        ...currentProgress,
+        status: 'error',
+        error: error as Error,
+        meta: currentProgressMeta,
+      }
+      onProgressHandler(currentProgress)
+
+      if (!throwOnError) {
+        return { error: error as Error }
+      }
+
+      throw error
+    }
   }
 
   // getTransactionStatus is empty for now - will be added later
