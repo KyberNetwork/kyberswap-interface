@@ -5,7 +5,7 @@ import { Trans } from '@lingui/macro';
 import { useTokenPrices } from '@kyber/hooks';
 import { defaultToken } from '@kyber/schema';
 import { Skeleton, TokenSymbol } from '@kyber/ui';
-import { formatDisplayNumber } from '@kyber/utils/number';
+import { formatDisplayNumber, formatNumber } from '@kyber/utils/number';
 
 import RevertPriceIcon from '@/assets/svg/ic_revert_price.svg';
 import { usePoolStore } from '@/stores/usePoolStore';
@@ -13,7 +13,7 @@ import { useWidgetStore } from '@/stores/useWidgetStore';
 
 const formatInputValue = (value: number | null) => {
   if (!Number.isFinite(value) || value === null) return '';
-  return formatDisplayNumber(value, { significantDigits: 8 }).replace(/,/g, '');
+  return formatNumber(value, 8).replace(/,/g, '');
 };
 
 const getNumericPrice = (value: unknown) => {
