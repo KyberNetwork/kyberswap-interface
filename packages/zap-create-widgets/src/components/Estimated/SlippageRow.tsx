@@ -8,7 +8,12 @@ import { cn } from '@kyber/utils/tailwind-helpers';
 import SlippageInput from '@/components/Setting/SlippageInput';
 import { useZapState } from '@/hooks/useZapState';
 
-export default function SlippageRow({ suggestedSlippage }: { suggestedSlippage: number }) {
+type Props = {
+  readonly?: boolean;
+  suggestedSlippage: number;
+};
+
+export default function SlippageRow({ readonly, suggestedSlippage }: Props) {
   const { slippage } = useZapState();
 
   const isHighSlippage = suggestedSlippage > 0 ? slippage && slippage > 2 * suggestedSlippage : false;
@@ -19,10 +24,17 @@ export default function SlippageRow({ suggestedSlippage }: { suggestedSlippage: 
 
   return (
     <div className="flex justify-between items-start mt-3 text-xs">
-      <Accordion type="single" collapsible className="w-full" value={slippageOpen ? 'item-1' : undefined}>
+      <Accordion
+        type="single"
+        disabled={readonly}
+        collapsible
+        className="w-full"
+        value={slippageOpen ? 'item-1' : undefined}
+      >
         <AccordionItem value="item-1">
           <AccordionTrigger
-            enableHighlight={!slippageOpen && suggestedSlippage > 0 && slippage !== suggestedSlippage}
+            enableHighlight={!readonly && !slippageOpen && suggestedSlippage > 0 && slippage !== suggestedSlippage}
+            iconClassName={readonly ? 'hidden' : ''}
             onClick={e => {
               e.preventDefault();
               setSlippageOpen(!slippageOpen);
@@ -42,7 +54,7 @@ export default function SlippageRow({ suggestedSlippage }: { suggestedSlippage: 
                   <Trans>Max Slippage</Trans>
                 </div>
               </MouseoverTooltip>
-              <div className={cn('mr-1', isSlippageWarning ? 'text-warning' : 'text-text')}>
+              <div className={cn(isSlippageWarning ? 'text-warning' : 'text-text', readonly ? 'mr-0' : 'mr-1')}>
                 {slippage ? `${((slippage * 100) / 10_000).toFixed(2)}%` : ''}
               </div>
             </div>

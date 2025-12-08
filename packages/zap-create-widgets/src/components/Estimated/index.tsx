@@ -13,7 +13,7 @@ import WarningMessage from '@/components/Estimated/WarningMessage';
 import useEstimated from '@/components/Estimated/useEstimated';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
-export default function Estimated() {
+export default function Estimated({ isPreview }: { isPreview?: boolean }) {
   const { source } = useWidgetStore(['source']);
   const {
     initializing,
@@ -50,7 +50,7 @@ export default function Estimated() {
   return (
     <>
       <div className="border border-stroke rounded-md py-3 px-4">
-        <div className="text-sm mb-1 flex justify-between">
+        <div className="text-sm mb-2 flex justify-between">
           <Trans>Est. Liquidity Value</Trans>
           {addedValueUsd > 0 && <span>{formatCurrency(addedValueUsd)}</span>}
         </div>
@@ -96,7 +96,7 @@ export default function Estimated() {
           hasRoute={!!zapInfo}
         />
 
-        <SlippageRow suggestedSlippage={suggestedSlippage} />
+        <SlippageRow readonly={isPreview} suggestedSlippage={suggestedSlippage} />
 
         <EstimatedRow
           initializing={initializing}

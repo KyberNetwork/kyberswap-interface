@@ -39,7 +39,6 @@ export default function PriceInfo({ flatten }: { flatten?: boolean }) {
                 <TokenSymbol symbol={token0.symbol} maxWidth={100} />
                 <span>=</span>
                 <span>{formatDisplayNumber(poolPrice, { significantDigits: 8 })}</span>
-
                 <TokenSymbol symbol={token1.symbol} maxWidth={100} />
               </>
             )}
