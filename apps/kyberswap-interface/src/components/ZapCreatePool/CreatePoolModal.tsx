@@ -79,7 +79,7 @@ const availableChains: number[] = [ChainId.Ethereum, ChainId.Bsc, ChainId.Base]
 const PROTOCOL_ALLOWLIST: Partial<Record<ChainId, Exchange[]>> = {
   [ChainId.Bsc]: [Exchange.DEX_UNISWAP_V4],
   [ChainId.Base]: [Exchange.DEX_UNISWAP_V4, Exchange.DEX_UNISWAP_V4_FAIRFLOW],
-  [ChainId.Ethereum]: [Exchange.DEX_UNISWAPV3, Exchange.DEX_UNISWAP_V4, Exchange.DEX_UNISWAP_V4_FAIRFLOW],
+  [ChainId.Ethereum]: [Exchange.DEX_UNISWAP_V4, Exchange.DEX_UNISWAP_V4_FAIRFLOW],
 }
 
 type Token = TokenSchema & { isFOT?: boolean }
