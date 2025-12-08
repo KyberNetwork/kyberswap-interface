@@ -1,7 +1,7 @@
 import { defineConfig } from 'tsup';
 
 export default defineConfig({
-  entry: { 'price-slider': 'src/index.ts' },
+  entry: { 'price-range-slider': 'src/index.ts' },
   format: ['esm', 'cjs'],
   outDir: 'dist',
   target: 'esnext',
@@ -13,7 +13,7 @@ export default defineConfig({
   external: ['react', 'react-dom'],
   noExternal: ['@kyber/utils', '@kyber/eslint-config', '@kyber/tailwind-config'],
   esbuildOptions(options) {
-    options.globalName = 'PriceSlider';
+    options.globalName = 'PriceRangeSlider';
     options.define = {
       global: 'globalThis',
     };

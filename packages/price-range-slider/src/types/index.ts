@@ -17,9 +17,9 @@ export interface PoolInfo {
 }
 
 /**
- * Props for the UniswapPriceSlider component
+ * Props for the PriceRangeSlider component
  */
-export interface UniswapPriceSliderProps {
+export interface PriceRangeSliderProps {
   pool: PoolInfo;
   invertPrice?: boolean;
   lowerTick?: number;

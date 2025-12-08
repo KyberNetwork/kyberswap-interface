@@ -4,8 +4,8 @@ import { UniV3Pool, univ3PoolNormalize } from '@kyber/schema';
 import { Skeleton } from '@kyber/ui';
 import { nearestUsableTick, priceToClosestTick } from '@kyber/utils/uniswapv3';
 
-import { UniswapPriceSlider } from '@kyberswap/price-slider';
-import '@kyberswap/price-slider/style.css';
+import { PriceRangeSlider } from '@kyberswap/price-range-slider';
+import '@kyberswap/price-range-slider/style.css';
 
 import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
@@ -41,7 +41,7 @@ const PriceSlider = () => {
 
   return (
     <div className="mt-4">
-      <UniswapPriceSlider
+      <PriceRangeSlider
         pool={poolInfo}
         invertPrice={revertPrice}
         lowerTick={tickLower ?? undefined}

@@ -3,20 +3,20 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { MAX_TICK, MIN_TICK, tickToPrice } from '@kyber/utils/dist/uniswapv3';
 
 import PriceAxis from '@/components/PriceAxis';
-import PriceSliderSkeleton from '@/components/Skeleton';
+import PriceRangeSliderSkeleton from '@/components/Skeleton';
 import { AUTO_CENTER_PADDING, EDGE_THRESHOLD, MIN_HANDLE_DISTANCE_MULTIPLIER } from '@/constants';
 import { useDebouncedTicks, useSmoothZoom, useTickPositionConverter } from '@/hooks';
-import type { HandleType, UniswapPriceSliderProps, ViewRange } from '@/types';
+import type { HandleType, PriceRangeSliderProps, ViewRange } from '@/types';
 import { brushHandlePath, formatDisplayNumber, getEdgeIntensity } from '@/utils';
 
-function UniswapPriceSlider({
+function PriceRangeSlider({
   pool,
   invertPrice,
   lowerTick,
   upperTick,
   setLowerTick,
   setUpperTick,
-}: UniswapPriceSliderProps) {
+}: PriceRangeSliderProps) {
   const { tickSpacing, token0Decimals, token1Decimals, currentTick } = pool;
 
   const [viewRange, setViewRange] = useState<ViewRange | null>(null);
@@ -293,7 +293,7 @@ function UniswapPriceSlider({
   }, [isDragging, handleMouseMove, handleMouseUp, handleTouchMove]);
 
   if (!ticksReady || !viewRange) {
-    return <PriceSliderSkeleton />;
+    return <PriceRangeSliderSkeleton />;
   }
 
   // Use internal ticks for smooth visual updates during dragging
@@ -325,7 +325,7 @@ function UniswapPriceSlider({
   const rightHandleType: 'lower' | 'upper' = isLowerOnLeft ? 'upper' : 'lower';
 
   return (
-    <div className="ks-ps-style" style={{ width: '100%' }}>
+    <div className="ks-prs-style" style={{ width: '100%' }}>
       {/* Slider Wrapper */}
       <div ref={sliderRef} className="relative w-full h-[60px] mt-1 overflow-hidden">
         {/* Track */}
@@ -412,4 +412,4 @@ function UniswapPriceSlider({
   );
 }
 
-export default UniswapPriceSlider;
+export default PriceRangeSlider;
