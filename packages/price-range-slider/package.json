@@ -1,18 +1,18 @@
 {
-  "name": "@kyberswap/price-slider",
+  "name": "@kyberswap/price-range-slider",
   "version": "1.0.0",
   "license": "MIT",
   "type": "module",
   "exports": {
     ".": {
-      "import": "./dist/price-slider.js",
-      "require": "./dist/price-slider.cjs"
+      "import": "./dist/price-range-slider.js",
+      "require": "./dist/price-range-slider.cjs"
     },
-    "./style.css": "./dist/price-slider.css"
+    "./style.css": "./dist/price-range-slider.css"
   },
-  "main": "./dist/price-slider.cjs",
-  "module": "./dist/price-slider.js",
-  "types": "./dist/price-slider.d.ts",
+  "main": "./dist/price-range-slider.cjs",
+  "module": "./dist/price-range-slider.js",
+  "types": "./dist/price-range-slider.d.ts",
   "files": [
     "dist"
   ],

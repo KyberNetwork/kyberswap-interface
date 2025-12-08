@@ -6,7 +6,7 @@ export default {
     'tailwindcss/nesting': {},
     tailwindcss: { config: 'tailwind.config.ts' },
     'postcss-prefix-selector': {
-      prefix: '.ks-ps-style',
+      prefix: '.ks-prs-style',
       transform(prefix, selector, prefixedSelector) {
         if (prefixOverrideList.includes(selector)) {
           return prefix;

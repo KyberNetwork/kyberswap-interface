@@ -8,9 +8,9 @@ import { SKELETON_AXIS_POSITIONS } from '@/constants';
  * Skeleton loading state for the price slider
  * Uses Skeleton component from @kyber/ui for shimmer animation
  */
-function PriceSliderSkeleton() {
+function PriceRangeSliderSkeleton() {
   return (
-    <div className="ks-ps-style" style={{ width: '100%', overflow: 'hidden' }}>
+    <div className="ks-prs-style" style={{ width: '100%', overflow: 'hidden' }}>
       {/* Slider Area */}
       <div className="relative w-full h-[60px] mt-1">
         {/* Track */}
@@ -81,4 +81,4 @@ function PriceSliderSkeleton() {
   );
 }
 
-export default React.memo(PriceSliderSkeleton);
+export default React.memo(PriceRangeSliderSkeleton);
