@@ -66,6 +66,11 @@ const PriceControl = () => {
     return ratio;
   }, [token0Price, token1Price, revertPrice]);
 
+  const isPoolPriceAtMarket = useMemo(() => {
+    if (!marketPrice || !poolPrice) return false;
+    return Math.abs(poolPrice - marketPrice) <= 0.0001;
+  }, [marketPrice, poolPrice]);
+
   useEffect(() => {
     if (marketPrice && poolPrice === null) {
       setPoolPrice(marketPrice);
@@ -168,7 +173,7 @@ const PriceControl = () => {
           type="button"
           className="ks-secondary-btn h-6 py-0 px-3 text-xs min-w-fit"
           onClick={handleUseMarketRate}
-          disabled={!marketPrice}
+          disabled={!marketPrice || isPoolPriceAtMarket}
         >
           <Trans>Use Market Rate</Trans>
         </button>
