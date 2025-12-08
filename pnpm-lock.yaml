@@ -16120,7 +16120,7 @@ packages:
       base32.js: 0.1.0
       bignumber.js: 9.3.0
       buffer: 6.0.3
-      sha.js: 2.4.11
+      sha.js: 2.4.12
       tweetnacl: 1.0.3
     optionalDependencies:
       sodium-native: 4.3.3
@@ -19217,7 +19217,7 @@ packages:
       '@typescript-eslint/type-utils': 6.21.0(eslint@8.57.0)(typescript@5.3.2)
       '@typescript-eslint/utils': 6.21.0(eslint@8.57.0)(typescript@5.3.2)
       '@typescript-eslint/visitor-keys': 6.21.0
-      debug: 4.4.3(supports-color@5.5.0)
+      debug: 4.4.0(supports-color@8.1.1)
       eslint: 8.57.0
       graphemer: 1.4.0
       ignore: 5.3.2
@@ -19343,7 +19343,7 @@ packages:
       '@typescript-eslint/types': 6.21.0
       '@typescript-eslint/typescript-estree': 6.21.0(typescript@5.3.2)
       '@typescript-eslint/visitor-keys': 6.21.0
-      debug: 4.4.3(supports-color@5.5.0)
+      debug: 4.4.0(supports-color@8.1.1)
       eslint: 8.57.0
       typescript: 5.3.2
     transitivePeerDependencies:

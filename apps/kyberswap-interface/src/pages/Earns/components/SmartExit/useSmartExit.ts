@@ -30,8 +30,6 @@ export interface UseSmartExitParams {
   selectedMetrics: SelectedMetric[]
   conditionType: ConditionType
   deadline: number
-  permitData?: string
-  signature?: string
 }
 
 export enum SmartExitState {
@@ -56,14 +54,7 @@ const POSITION_MANAGER_ABI = [
   'function getPositionLiquidity(uint256 tokenId) view returns (uint128 liquidity)', // V4
 ]
 
-export const useSmartExit = ({
-  position,
-  selectedMetrics,
-  conditionType,
-  deadline,
-  permitData,
-  signature,
-}: UseSmartExitParams) => {
+export const useSmartExit = ({ position, selectedMetrics, conditionType, deadline }: UseSmartExitParams) => {
   const { account } = useActiveWeb3React()
   const { library } = useWeb3React()
   const notify = useNotify()
@@ -159,7 +150,7 @@ export const useSmartExit = ({
 
   const createSmartExitOrder = useCallback(
     async (opts: { maxFeesPercentage: number[] }): Promise<boolean> => {
-      if (!account || !permitData || !signature || !library) {
+      if (!account || !library) {
         console.error('Missing required data for smart exit order')
         return false
       }
@@ -197,7 +188,6 @@ export const useSmartExit = ({
           positionId: position.id,
           removeLiquidity: liquidity,
           unwrap: position.token0.isNative || position.token1.isNative,
-          permitData,
           condition: buildConditions(),
           deadline,
           maxFeesPercentage: opts.maxFeesPercentage,
@@ -225,7 +215,6 @@ export const useSmartExit = ({
           positionId: position.id,
           removeLiquidity: liquidity,
           unwrap: false,
-          permitData,
           condition: buildConditions(),
           signature: orderSignature,
           deadline,
@@ -272,19 +261,7 @@ export const useSmartExit = ({
         return false
       }
     },
-    [
-      account,
-      permitData,
-      signature,
-      position,
-      buildConditions,
-      notify,
-      deadline,
-      library,
-      getSignMessage,
-      getDexType,
-      dexType,
-    ],
+    [account, position, buildConditions, notify, deadline, library, getSignMessage, getDexType, dexType],
   )
 
   const reset = useCallback(() => {

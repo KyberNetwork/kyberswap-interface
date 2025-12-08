@@ -31,7 +31,6 @@ export interface SmartExitFeeParams {
   positionId: string
   removeLiquidity: string
   unwrap: boolean
-  permitData: string
   condition: SmartExitCondition
   deadline: number
 }

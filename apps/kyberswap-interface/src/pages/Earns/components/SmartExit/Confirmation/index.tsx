@@ -1,10 +1,11 @@
 import { Trans } from '@lingui/macro'
+import { useState } from 'react'
 import { X } from 'react-feather'
 import { Flex, Text } from 'rebass'
 
 import { ButtonPrimary } from 'components/Button'
-import { useActiveWeb3React } from 'hooks'
-import { PermitNftState, usePermitNft } from 'hooks/usePermitNft'
+import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useNftApprovalAll } from 'hooks/useNftApprovalAll'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import Condition from 'pages/Earns/components/SmartExit/Confirmation/Condition'
@@ -14,6 +15,8 @@ import Success from 'pages/Earns/components/SmartExit/Confirmation/Success'
 import { useSmartExit } from 'pages/Earns/components/SmartExit/useSmartExit'
 import { SMART_EXIT_ADDRESS } from 'pages/Earns/constants'
 import { ConditionType, ParsedPosition, SelectedMetric } from 'pages/Earns/types'
+import { submitTransaction } from 'pages/Earns/utils'
+import { useKyberSwapConfig } from 'state/application/hooks'
 
 export default function Confirmation({
   selectedMetrics,
@@ -31,23 +34,30 @@ export default function Confirmation({
   onDismiss: () => void
 }) {
   const theme = useTheme()
-  const { chainId } = useActiveWeb3React()
+  const { chainId, account } = useActiveWeb3React()
+  const { library } = useWeb3React()
   const { changeNetwork } = useChangeNetwork()
+  const { rpc } = useKyberSwapConfig(position.chain.id)
 
-  const { permitState, signPermitNft, permitData } = usePermitNft({
-    contractAddress: position.id.split('-')[0],
-    tokenId: position.tokenId,
+  const { isApproved, approveAll, approvePendingTx } = useNftApprovalAll({
     spender: SMART_EXIT_ADDRESS,
-    deadline,
+    userAddress: account || '',
+    rpcUrl: rpc,
+    nftManagerContract: position.id.split('-')[0],
+    onSubmitTx: async (txData: { from: string; to: string; data: string; value: string; gasLimit: string }) => {
+      const res = await submitTransaction({ library, txData })
+      const { txHash, error } = res
+      if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
+      return txHash
+    },
   })
+  const [approveClicked, setApproveClicked] = useState(false)
 
   const { createSmartExitOrder, isCreating, isSuccess } = useSmartExit({
     position,
     selectedMetrics,
     conditionType,
     deadline,
-    permitData: permitData?.permitData,
-    signature: permitData?.signature,
   })
 
   if (isSuccess) return <Success onDismiss={onDismiss} />
@@ -73,34 +83,33 @@ export default function Confirmation({
       </Text>
 
       <ButtonPrimary
-        disabled={permitState === PermitNftState.SIGNING || isCreating || !maxFeesPercentage}
+        disabled={Boolean(approveClicked || approvePendingTx || isCreating || !maxFeesPercentage)}
         onClick={async () => {
-          if (!maxFeesPercentage) return
+          if (!maxFeesPercentage || approveClicked || approvePendingTx) return
           if (chainId !== position.chain.id) {
             changeNetwork(position.chain.id)
             return
           }
 
-          if (permitState === PermitNftState.SIGNED && permitData) {
+          if (isApproved) {
             // Create smart exit order
             await createSmartExitOrder({ maxFeesPercentage: [maxFeesPercentage, maxFeesPercentage] })
             return
           }
-          if (permitState === PermitNftState.READY_TO_SIGN) {
-            await signPermitNft()
-          }
+          setApproveClicked(true)
+          approveAll().finally(() => setApproveClicked(false))
         }}
       >
         {chainId !== position.chain.id ? (
           <Trans>Switch Network</Trans>
         ) : isCreating ? (
           <Trans>Creating Order...</Trans>
-        ) : permitState === PermitNftState.SIGNED ? (
+        ) : isApproved ? (
           <Trans>Confirm Smart Exit</Trans>
-        ) : permitState === PermitNftState.SIGNING ? (
-          <Trans>Signing...</Trans>
+        ) : approveClicked || approvePendingTx ? (
+          <Trans>Approving...</Trans>
         ) : (
-          <Trans>Permit NFT</Trans>
+          <Trans>Approve NFT</Trans>
         )}
       </ButtonPrimary>
     </>
