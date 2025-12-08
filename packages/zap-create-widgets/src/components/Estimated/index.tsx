@@ -162,8 +162,8 @@ export default function Estimated({ isPreview }: { isPreview?: boolean }) {
         />
       </div>
 
-      {remainingAmountWarning}
-      {zapImpactWarning}
+      {!isPreview && remainingAmountWarning}
+      {!isPreview && zapImpactWarning}
     </>
   );
 }

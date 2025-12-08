@@ -68,7 +68,7 @@ const PriceControl = () => {
 
   const isPoolPriceAtMarket = useMemo(() => {
     if (!marketPrice || !poolPrice) return false;
-    return Math.abs(poolPrice - marketPrice) <= 0.0001;
+    return formatInputValue(marketPrice) === formatInputValue(poolPrice);
   }, [marketPrice, poolPrice]);
 
   useEffect(() => {
