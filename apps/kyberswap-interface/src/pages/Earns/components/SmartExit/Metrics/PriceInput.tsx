@@ -1,7 +1,7 @@
 import { formatNumberBySignificantDigits } from '@kyber/utils/dist/number'
 import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick, tickToPrice } from '@kyber/utils/dist/uniswapv3'
-import UniswapPriceSlider from '@kyberswap/price-slider'
-import '@kyberswap/price-slider/style.css'
+import PriceRangeSlider from '@kyberswap/price-range-slider'
+import '@kyberswap/price-range-slider/style.css'
 import { Trans } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ChevronDown, Minus, Plus } from 'react-feather'
@@ -319,7 +319,7 @@ export default function PriceInput({
           overflow: 'hidden',
         }}
       >
-        <UniswapPriceSlider
+        <PriceRangeSlider
           pool={{
             tickSpacing: position.pool.tickSpacing,
             token0Decimals: position.token0.decimals,
