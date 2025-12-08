@@ -18,7 +18,6 @@ import PriceInput from '@/components/Content/PriceInput';
 import ZapSummary from '@/components/Content/ZapSummary';
 import Estimated from '@/components/Estimated';
 import Header from '@/components/Header';
-import LeftWarning from '@/components/LeftWarning';
 import Preview from '@/components/Preview';
 import PriceControl from '@/components/PriceControl';
 import PriceRange from '@/components/PriceRange';
@@ -117,7 +116,6 @@ export default function Widget() {
               <PriceInput type={PriceType.MinPrice} />
               <PriceInput type={PriceType.MaxPrice} />
             </div>
-            <LeftWarning />
           </div>
 
           <div className="w-[45%] max-sm:w-full">

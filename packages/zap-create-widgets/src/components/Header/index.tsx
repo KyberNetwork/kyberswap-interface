@@ -5,6 +5,7 @@ import { DEXES_INFO, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, PoolType, defaultToken
 import { InfoHelper, LoadingCounter, MouseoverTooltip, Skeleton, TokenLogo, TokenSymbol } from '@kyber/ui';
 import { shortenAddress } from '@kyber/utils/crypto';
 
+import IconBack from '@/assets/svg/arrow-left.svg';
 import SettingIcon from '@/assets/svg/setting.svg';
 import X from '@/assets/svg/x.svg';
 import { useZapState } from '@/hooks/useZapState';
@@ -12,7 +13,7 @@ import { usePoolStore } from '@/stores/usePoolStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
 const Header = () => {
-  const { chainId, onClose, poolType } = useWidgetStore(['chainId', 'onClose', 'poolType']);
+  const { theme, chainId, onClose, poolType } = useWidgetStore(['theme', 'chainId', 'onClose', 'poolType']);
   const { pool } = usePoolStore(['pool']);
 
   const { toggleSetting, uiState, loading: zapLoading, getZapRoute, zapRouteDisabled } = useZapState();
@@ -51,6 +52,7 @@ const Header = () => {
           <Skeleton className="w-[300px] h-7" />
         ) : (
           <div className="flex items-center flex-wrap gap-[6px]">
+            {onClose && <IconBack onClick={onClose} className="cursor-pointer text-subText" />}
             <Trans>Create New Pool</Trans>
             <div className="flex items-center gap-1">
               <TokenSymbol symbol={token0.symbol} />
@@ -159,6 +161,9 @@ const Header = () => {
             <SettingIcon />
           </div>
         </MouseoverTooltip>
+      </div>
+      <div className="py-2 px-4 text-sm rounded-md text-blue mt-3" style={{ backgroundColor: `${theme.blue}33` }}>
+        <Trans>This pool doesn't exist yet. You will initialize it.</Trans>
       </div>
     </>
   );
