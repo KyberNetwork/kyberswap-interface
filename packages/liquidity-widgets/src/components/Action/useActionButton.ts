@@ -194,7 +194,10 @@ export default function useActionButton({ approval, deadline }: { approval: Appr
         return { ...data, gasUsd };
       }
 
-      throw new Error('Invalid response from build route');
+      if (data && 'message' in data && typeof data.message === 'string') {
+        throw new Error(data.message);
+      }
+      throw new Error('Failed to build route');
     } catch (err) {
       setWidgetError(friendlyError(err as Error));
       console.error(err);
