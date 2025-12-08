@@ -16,7 +16,7 @@ import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
-export default function Estimated() {
+export default function Estimated({ isPreview }: { isPreview?: boolean }) {
   const { pool } = usePoolStore(['pool']);
   const { position } = usePositionStore(['position']);
   const { source } = useWidgetStore(['source']);
@@ -58,7 +58,7 @@ export default function Estimated() {
   return (
     <>
       <div className="border border-stroke rounded-md py-3 px-4">
-        <div className="text-sm mb-1 flex justify-between">
+        <div className="text-sm mb-2 flex justify-between">
           <Trans>Est. Liquidity Value</Trans>
           {addedValue}
         </div>
@@ -111,7 +111,7 @@ export default function Estimated() {
           hasRoute={!!route}
         />
 
-        <SlippageRow suggestedSlippage={suggestedSlippage} />
+        <SlippageRow readonly={isPreview} suggestedSlippage={suggestedSlippage} />
 
         <EstimatedRow
           initializing={initializing}
