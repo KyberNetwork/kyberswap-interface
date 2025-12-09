@@ -26,9 +26,11 @@ const SUPPORTED_CHAINS = [ChainId.BSCMAINNET, ChainId.BASE].map(chainId => ({
 
 const SUPPORTED_PROTOCOLS = [
   { label: 'All Protocols', value: '' },
-  { label: 'Uniswap V3', value: DexType.DexTypeUniswapV3 },
-  { label: 'Uniswap V4', value: DexType.DexTypeUniswapV4 },
   { label: 'Uniswap V4 FairFlow', value: DexType.DexTypeUniswapV4FairFlow },
+  { label: 'Uniswap V4', value: DexType.DexTypeUniswapV4 },
+  { label: 'Uniswap V3', value: DexType.DexTypeUniswapV3 },
+  { label: 'Pancake ∞ CL FairFlow', value: DexType.DexTypePancakeInfinityCLFairFlow },
+  { label: 'Pancake ∞ CL', value: DexType.DexTypePancakeInfinityCL },
   { label: 'PancakeSwap V3', value: DexType.DexTypePancakeV3 },
 ]
 
@@ -39,23 +41,7 @@ export default function Filter({
   filters: SmartExitFilter
   updateFilters: (key: keyof SmartExitFilter, value: string | number) => void
 }) {
-  // const [searchParams] = useSearchParams()
-  // const [search, setSearch] = useState('')
-  // const deboundedSearch = useDebounce(search, 300)
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
-
-  // useEffect(() => {
-  //   if (filters.q !== deboundedSearch) {
-  //     updateFilters('q', deboundedSearch || '')
-  //   }
-  // }, [deboundedSearch, filters.q, updateFilters])
-
-  // useEffect(() => {
-  //   if (searchParams.get('q') && !search) {
-  //     setSearch(searchParams.get('q') || '')
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [])
 
   useEffect(() => {
     if (
