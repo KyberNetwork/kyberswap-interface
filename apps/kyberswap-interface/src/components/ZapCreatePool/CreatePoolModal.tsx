@@ -74,13 +74,14 @@ const CATEGORY_FEE_PRESETS: Record<POOL_CATEGORY, FeePreset> = {
   [POOL_CATEGORY.HIGH_VOLATILITY_PAIR]: { defaultFee: 1, options: [0.3, 0.5, 1, 3] },
 }
 
-const availableChains: number[] = [ChainId.Ethereum, ChainId.Bsc, ChainId.Base]
-
 const PROTOCOL_ALLOWLIST: Partial<Record<ChainId, Exchange[]>> = {
   [ChainId.Bsc]: [Exchange.DEX_UNISWAP_V4, Exchange.DEX_PANCAKE_INFINITY_CL, Exchange.DEX_PANCAKE_INFINITY_CL_FAIRFLOW],
   [ChainId.Base]: [Exchange.DEX_UNISWAP_V4, Exchange.DEX_UNISWAP_V4_FAIRFLOW],
   [ChainId.Ethereum]: [Exchange.DEX_UNISWAP_V4, Exchange.DEX_UNISWAP_V4_FAIRFLOW],
+  [ChainId.Arbitrum]: [Exchange.DEX_UNISWAP_V4_FAIRFLOW],
 }
+
+const availableChains: ChainId[] = Object.keys(PROTOCOL_ALLOWLIST).map(Number)
 
 type Token = TokenSchema & { isFOT?: boolean }
 
@@ -119,7 +120,7 @@ const CreatePoolModal = ({ isOpen, filterChainId, onDismiss, onSubmit }: Props) 
   const chainOptions = useMemo(
     () =>
       supportedChains
-        .filter(chain => [ChainId.Ethereum, ChainId.Bsc, ChainId.Base].includes(chain.chainId))
+        .filter(chain => availableChains.includes(chain.chainId))
         .map(chain => ({
           label: chain.name,
           value: chain.chainId.toString(),
