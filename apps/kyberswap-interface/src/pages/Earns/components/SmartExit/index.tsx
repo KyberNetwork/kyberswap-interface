@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { X } from 'react-feather'
 import { Flex, Text } from 'rebass'
 
@@ -39,9 +39,12 @@ export const SmartExit = ({ position, onDismiss }: { position: ParsedPosition; o
   const deadline = useMemo(() => {
     const today = new Date()
     today.setUTCHours(0, 0, 0, 0)
-    const time = [7 * TIMES_IN_SECS.ONE_DAY, 30 * TIMES_IN_SECS.ONE_DAY, 90 * TIMES_IN_SECS.ONE_DAY].includes(
-      expireTime,
-    )
+    const time = [
+      7 * TIMES_IN_SECS.ONE_DAY,
+      30 * TIMES_IN_SECS.ONE_DAY,
+      90 * TIMES_IN_SECS.ONE_DAY,
+      36500 * TIMES_IN_SECS.ONE_DAY,
+    ].includes(expireTime)
       ? Math.floor(today.getTime()) + expireTime * 1000
       : expireTime
 
@@ -76,7 +79,6 @@ export const SmartExit = ({ position, onDismiss }: { position: ParsedPosition; o
   const [feeLoading, setFeeLoading] = useState(false)
   const [multiplier, setMultiplier] = useState<number>(2)
   const [customGasPercent, setCustomGasPercent] = useState<string>('')
-  const intervalRef = useRef<number | null>(null)
 
   const { estimateFee } = useSmartExit({
     position,
@@ -87,34 +89,32 @@ export const SmartExit = ({ position, onDismiss }: { position: ParsedPosition; o
 
   const disabled = invalidYieldCondition || invalidPriceCondition || invalidTimeCondition || !feeInfo || feeLoading
 
-  // Auto-estimate when metrics are valid
   useEffect(() => {
-    if (invalidYieldCondition || invalidPriceCondition || invalidTimeCondition) return
+    if (invalidYieldCondition || invalidPriceCondition || invalidTimeCondition) {
+      setFeeInfo(null)
+      return
+    }
+
+    let cancelled = false
 
     const call = async () => {
-      if (feeLoading || feeInfo) return
       setFeeLoading(true)
       try {
         const res = await estimateFee()
-        setFeeInfo(res)
+        if (!cancelled) setFeeInfo(res)
       } catch {
-        if (feeInfo) setFeeInfo(null)
+        if (!cancelled) setFeeInfo(null)
       } finally {
-        setFeeLoading(false)
+        if (!cancelled) setFeeLoading(false)
       }
     }
 
     call()
-    intervalRef.current = window.setInterval(call, 15000)
 
     return () => {
-      if (intervalRef.current) {
-        window.clearInterval(intervalRef.current)
-        intervalRef.current = null
-      }
+      cancelled = true
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [invalidYieldCondition || invalidPriceCondition || invalidTimeCondition])
+  }, [estimateFee, invalidYieldCondition, invalidPriceCondition, invalidTimeCondition])
 
   return (
     <Modal
