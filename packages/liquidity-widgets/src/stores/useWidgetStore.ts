@@ -43,6 +43,7 @@ const initState = {
   aggregatorOptions: undefined,
   feeConfig: undefined,
   referral: undefined,
+  fromCreatePoolFlow: undefined,
   initialTick: undefined,
   signTypedData: undefined,
   onClose: undefined,

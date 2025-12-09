@@ -15,10 +15,10 @@ export default function Warning() {
   const zapImpact = { ...rawZapImpact, msg: translateZapMessage(rawZapImpact.msg) };
 
   return (
-    <>
+    <div className="flex flex-col gap-4">
       {route && slippage && (slippage > 2 * suggestedSlippage || slippage < suggestedSlippage / 2) && (
         <div
-          className="rounded-md text-xs px-4 py-3 mt-4 font-normal text-warning"
+          className="rounded-md text-xs px-4 py-3 font-normal text-warning"
           style={{
             backgroundColor: `${theme.warning}33`,
           }}
@@ -31,7 +31,7 @@ export default function Warning() {
 
       {route && zapImpact.level !== PI_LEVEL.NORMAL && (
         <div
-          className={`rounded-md text-xs px-4 py-3 mt-4 font-normal ${zapImpact.level === PI_LEVEL.HIGH ? 'text-warning' : 'text-error'}`}
+          className={`rounded-md text-xs px-4 py-3 font-normal ${zapImpact.level === PI_LEVEL.HIGH ? 'text-warning' : 'text-error'}`}
           style={{
             backgroundColor: zapImpact.level === PI_LEVEL.HIGH ? `${theme.warning}33` : `${theme.error}33`,
           }}
@@ -39,12 +39,12 @@ export default function Warning() {
           {zapImpact.msg}
         </div>
       )}
-      <p className="text-[#737373] italic text-xs mt-4">
+      <p className="text-[#737373] italic text-xs">
         <Trans>
           The information is intended solely for your reference at the time you are viewing. It is your responsibility
           to verify all information before making decisions
         </Trans>
       </p>
-    </>
+    </div>
   );
 }

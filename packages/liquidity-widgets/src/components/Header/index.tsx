@@ -7,6 +7,7 @@ import { DEXES_INFO, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, defaultToken, univ3Typ
 import { InfoHelper, LoadingCounter, MouseoverTooltip, Skeleton, TokenLogo, TokenSymbol } from '@kyber/ui';
 import { shortenAddress } from '@kyber/utils/crypto';
 
+import IconBack from '@/assets/svg/arrow-left.svg';
 import SettingIcon from '@/assets/svg/setting.svg';
 import X from '@/assets/svg/x.svg';
 import { useZapState } from '@/hooks/useZapState';
@@ -15,12 +16,13 @@ import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
 const Header = () => {
-  const { theme, chainId, onClose, poolType, positionId } = useWidgetStore([
+  const { theme, chainId, onClose, poolType, positionId, fromCreatePoolFlow } = useWidgetStore([
     'theme',
     'chainId',
     'onClose',
     'poolType',
     'positionId',
+    'fromCreatePoolFlow',
   ]);
   const { pool, poolPrice } = usePoolStore(['pool', 'poolPrice']);
   const { position } = usePositionStore(['position']);
@@ -77,6 +79,7 @@ const Header = () => {
           <Skeleton className="w-[300px] h-7" />
         ) : (
           <div className="flex items-center flex-wrap gap-[6px]">
+            {onClose && fromCreatePoolFlow && <IconBack onClick={onClose} className="cursor-pointer text-subText" />}
             {positionId ? <Trans>Increase Liquidity</Trans> : <Trans>Add Liquidity</Trans>}
             <div className="flex items-center gap-1">
               <TokenSymbol symbol={token0.symbol} />
@@ -203,6 +206,12 @@ const Header = () => {
           </div>
         </MouseoverTooltip>
       </div>
+
+      {fromCreatePoolFlow && (
+        <div className="py-2 px-4 text-sm rounded-md text-blue mt-3" style={{ backgroundColor: `${theme.blue}33` }}>
+          <Trans>Pool already exists. You'll add a position via Zap.</Trans>
+        </div>
+      )}
     </>
   );
 };

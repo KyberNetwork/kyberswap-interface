@@ -211,11 +211,13 @@ export const {
   useExplorerLandingQuery,
   useSupportedProtocolsQuery,
   usePoolsExplorerQuery,
+  useLazyPoolsExplorerQuery,
   useUserPositionsQuery,
   usePositionHistoryQuery,
   useAddFavoriteMutation,
   useRemoveFavoriteMutation,
   usePoolDetailQuery,
+  useLazyPoolDetailQuery,
 } = zapEarnServiceApi
 
 export default zapEarnServiceApi

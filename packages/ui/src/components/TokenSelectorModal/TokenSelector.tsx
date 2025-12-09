@@ -62,6 +62,7 @@ export default function TokenSelector({
   selectedTokens,
   setTokensIn,
   setAmountsIn,
+  onTokenSelect,
   onConnectWallet,
   onOpenZapMigration,
   setSelectedTokens,
@@ -154,6 +155,7 @@ export default function TokenSelector({
 
   const handleClickToken = (newToken: CustomizeToken) => {
     if (mode === TOKEN_SELECT_MODE.SELECT) {
+      onTokenSelect?.(newToken);
       const index = tokensIn.findIndex((token: Token) => token.address === selectedTokenAddress);
       if (index > -1) {
         const clonedTokensIn = [...tokensIn];
