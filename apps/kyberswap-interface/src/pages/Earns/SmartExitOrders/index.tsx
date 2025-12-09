@@ -1,7 +1,8 @@
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
+import { rgba } from 'polished'
 import React, { useState } from 'react'
-import { Trash2, X } from 'react-feather'
+import { ExternalLink, Trash2, X } from 'react-feather'
 import { useNavigate } from 'react-router'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
@@ -31,12 +32,20 @@ import { EarnChain, Exchange } from 'pages/Earns/constants'
 import { OrderStatus, PositionStatus, SmartExitOrder } from 'pages/Earns/types'
 import { useNotify } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
-import { enumToArrayOfValues } from 'utils'
+import { enumToArrayOfValues, getEtherscanLink } from 'utils'
 import { friendlyError } from 'utils/errorMessage'
+import { formatDisplayNumber } from 'utils/numbers'
 
-const Trash = styled.div`
-  width: 20px;
-  height: 20px;
+const TrashWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: ${({ theme }) => theme.tableHeader};
+  border-radius: 12px;
+  width: 32px;
+  height: 32px;
+  padding: 4px;
+
   cursor: pointer;
   color: ${({ theme }) => theme.subText};
 
@@ -45,9 +54,26 @@ const Trash = styled.div`
   }
 `
 
+const ExternalLinkWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: ${({ theme }) => rgba(theme.text, 0.04)};
+  color: ${({ theme }) => theme.subText};
+  border-radius: 16px;
+  width: 24px;
+  height: 24px;
+  aspect-ratio: 1/1;
+  cursor: pointer;
+
+  :hover {
+    background-color: ${({ theme }) => rgba(theme.text, 0.08)};
+  }
+`
+
 const TableHeader = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr 0.5fr 40px;
+  grid-template-columns: 1fr 1fr 0.5fr 0.5fr 40px;
   color: ${({ theme }) => theme.subText};
   padding: 16px 0;
   gap: 1rem;
@@ -203,7 +229,10 @@ const SmartExit = () => {
             <Text>
               <Trans>Conditional</Trans>
             </Text>
-            <Text textAlign="center">
+            <Text textAlign="left">
+              <Trans>Max Gas</Trans>
+            </Text>
+            <Text textAlign="left">
               <Trans>Status</Trans>
             </Text>
             <div></div>
@@ -353,51 +382,61 @@ const SmartExit = () => {
                 })}
               </Flex>
             )
+
+            const maxGas = (
+              <Text textAlign="left" color={theme.subText} fontSize="14px">
+                {formatDisplayNumber(order.maxFeesPercentage[0], { significantDigits: 4 })}%
+              </Text>
+            )
+
             const status = (
-              <Badge
-                style={{ height: 'max-content' }}
-                type={
-                  order.status === OrderStatus.OrderStatusOpen
-                    ? BadgeType.PRIMARY
+              <Flex justifyContent="flex-start" alignItems="center" sx={{ gap: '4px' }}>
+                <Badge
+                  style={{ height: 'max-content' }}
+                  type={
+                    order.status === OrderStatus.OrderStatusOpen
+                      ? BadgeType.PRIMARY
+                      : order.status === OrderStatus.OrderStatusDone
+                      ? BadgeType.SECONDARY
+                      : order.status === OrderStatus.OrderStatusCancelled
+                      ? BadgeType.DISABLED
+                      : BadgeType.WARNING
+                  }
+                >
+                  {order.status === OrderStatus.OrderStatusOpen
+                    ? 'Active'
                     : order.status === OrderStatus.OrderStatusDone
-                    ? BadgeType.SECONDARY
+                    ? 'Executed'
                     : order.status === OrderStatus.OrderStatusCancelled
-                    ? BadgeType.DISABLED
-                    : BadgeType.WARNING
-                }
-              >
-                {order.status === OrderStatus.OrderStatusOpen
-                  ? 'Active'
-                  : order.status === OrderStatus.OrderStatusDone
-                  ? 'Executed'
-                  : order.status === OrderStatus.OrderStatusCancelled
-                  ? 'Cancelled'
-                  : order.status === OrderStatus.OrderStatusExpired
-                  ? 'Expired'
-                  : order.status}
-              </Badge>
+                    ? 'Cancelled'
+                    : order.status === OrderStatus.OrderStatusExpired
+                    ? 'Expired'
+                    : order.status}
+                </Badge>
+                {order.status === OrderStatus.OrderStatusDone && order.executions.length > 0 ? (
+                  <ExternalLinkWrapper
+                    onClick={() => {
+                      window.open(
+                        `${getEtherscanLink(order.chainId, order.executions[0].hash, 'transaction')}`,
+                        '_blank',
+                      )
+                    }}
+                  >
+                    <ExternalLink size={12} />
+                  </ExternalLinkWrapper>
+                ) : null}
+              </Flex>
             )
 
             const actionDelete = (
-              <Flex
-                sx={{
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  borderRadius: '8px',
-                  backgroundColor: theme.subText + '33',
-                  padding: '8px',
-                  width: '32px',
-                  height: '32px',
-                }}
+              <TrashWrapper
                 onClick={() => {
                   setShowCancelConfirm(order)
                 }}
                 role="button"
               >
-                <Trash>
-                  <Trash2 size={18} />
-                </Trash>
-              </Flex>
+                <Trash2 size={18} />
+              </TrashWrapper>
             )
 
             if (upToMedium)
@@ -412,6 +451,12 @@ const SmartExit = () => {
                 >
                   <div>{title}</div>
                   {condition}
+                  <Flex alignItems="center" sx={{ gap: '4px' }} justifyContent="flex-start" mt="-4px">
+                    <Text color={theme.subText} fontSize="14px">
+                      <Trans>Max Gas</Trans>:
+                    </Text>
+                    {maxGas}
+                  </Flex>
                   <Flex justifyContent="space-between" alignItems="center">
                     {status}
                     {order.status === OrderStatus.OrderStatusOpen ? actionDelete : <div />}
@@ -424,8 +469,8 @@ const SmartExit = () => {
                 <div>{title}</div>
 
                 {condition}
-
-                <Flex justifyContent="center">{status}</Flex>
+                {maxGas}
+                {status}
                 {order.status === OrderStatus.OrderStatusOpen ? actionDelete : <div />}
               </TableRow>
             )

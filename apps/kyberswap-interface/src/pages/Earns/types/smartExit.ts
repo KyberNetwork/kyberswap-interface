@@ -54,6 +54,10 @@ export interface SmartExitOrder {
   createdAt: number
   updatedAt: number
   deadline: number
+  executions: Array<{
+    hash: string
+  }>
+  maxFeesPercentage: number[]
 }
 
 export interface SelectedMetric {
