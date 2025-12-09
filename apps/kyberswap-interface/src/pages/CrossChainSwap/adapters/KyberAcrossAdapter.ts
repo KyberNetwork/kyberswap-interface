@@ -627,6 +627,23 @@ export class KyberAcrossAdapter extends BaseSwapAdapter {
       // Prepare the swapAndBridge args with updated nonce
       const swapAndBridgeArgs = { ...swapAndDepositData, nonce: BigInt(nonce) }
 
+      // Encode calldata for Tenderly simulation
+      const calldata = encodeFunctionData({
+        abi: spokePoolPeripheryAbi,
+        functionName: 'swapAndBridge',
+        args: [{ ...swapAndBridgeArgs }] as any,
+      })
+      const dataSuffix = getIntegratorDataSuffix(KYBERSWAP_INTEGRATOR_ID)
+      const fullCalldata = `${calldata}${dataSuffix.slice(2)}` as Hex // Remove 0x from suffix before concatenating
+
+      // Log for Tenderly simulation
+      console.log('🔵 🔵 🔵 🔵 🔵 🔵 🔵')
+      console.log('Contract Address:', spokePoolPeripheryAddress)
+      console.log('Sender (from):', userAddress)
+      console.log('Value (wei):', isNative ? swapAndDepositData.swapTokenAmount.toString() : '0')
+      console.log('Calldata:', fullCalldata)
+      console.log('Chain ID:', originChain.id)
+
       // Simulate the transaction to catch revert errors with proper decoding
       // and get the request object for execution
       const { request: txRequest } = await originClient.simulateContract({
@@ -634,7 +651,7 @@ export class KyberAcrossAdapter extends BaseSwapAdapter {
         abi: spokePoolPeripheryAbi,
         functionName: 'swapAndBridge',
         args: [{ ...swapAndBridgeArgs }] as any,
-        account: userAddress,
+        account: walletClient.account,
         value: isNative ? swapAndDepositData.swapTokenAmount : undefined,
         dataSuffix: getIntegratorDataSuffix(KYBERSWAP_INTEGRATOR_ID),
       })
