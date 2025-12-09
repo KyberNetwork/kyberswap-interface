@@ -8,11 +8,11 @@ import useTheme from 'hooks/useTheme'
 
 export default function MoreInfo({ deadline, protocolFee }: { deadline: number; protocolFee: number }) {
   const theme = useTheme()
-  const hundredYearsInSeconds = TIMES_IN_SECS.ONE_DAY * 36500
+  const fiftyYearsInSeconds = TIMES_IN_SECS.ONE_DAY * 365 * 50
   const nowInSeconds = Math.floor(Date.now() / 1000)
   const remainingSeconds = deadline - nowInSeconds
   const displayTime =
-    remainingSeconds >= hundredYearsInSeconds ? 'Forever' : dayjs(deadline * 1000).format('DD/MM/YYYY HH:mm:ss')
+    remainingSeconds >= fiftyYearsInSeconds ? 'Forever' : dayjs(deadline * 1000).format('DD/MM/YYYY HH:mm:ss')
 
   return (
     <>

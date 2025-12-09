@@ -35,7 +35,7 @@ export const SmartExit = ({ position, onDismiss }: { position: ParsedPosition; o
   ])
   const [conditionType, setConditionType] = useState<ConditionType>(ConditionType.And)
 
-  const [expireTime, setExpireTime] = useState(TIMES_IN_SECS.ONE_DAY * 36500)
+  const [expireTime, setExpireTime] = useState(TIMES_IN_SECS.ONE_DAY * 365 * 50)
   const deadline = useMemo(() => {
     const today = new Date()
     today.setUTCHours(0, 0, 0, 0)
@@ -43,7 +43,7 @@ export const SmartExit = ({ position, onDismiss }: { position: ParsedPosition; o
       7 * TIMES_IN_SECS.ONE_DAY,
       30 * TIMES_IN_SECS.ONE_DAY,
       90 * TIMES_IN_SECS.ONE_DAY,
-      36500 * TIMES_IN_SECS.ONE_DAY,
+      365 * 50 * TIMES_IN_SECS.ONE_DAY,
     ].includes(expireTime)
       ? Math.floor(today.getTime()) + expireTime * 1000
       : expireTime
