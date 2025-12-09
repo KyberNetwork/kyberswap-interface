@@ -35,7 +35,7 @@ export const SmartExit = ({ position, onDismiss }: { position: ParsedPosition; o
   ])
   const [conditionType, setConditionType] = useState<ConditionType>(ConditionType.And)
 
-  const [expireTime, setExpireTime] = useState(TIMES_IN_SECS.ONE_DAY * 30)
+  const [expireTime, setExpireTime] = useState(TIMES_IN_SECS.ONE_DAY * 36500)
   const deadline = useMemo(() => {
     const today = new Date()
     today.setUTCHours(0, 0, 0, 0)
@@ -150,14 +150,17 @@ export const SmartExit = ({ position, onDismiss }: { position: ParsedPosition; o
               <X onClick={onDismiss} />
             </Flex>
 
-            <PositionDetailHeader
-              style={{ flexDirection: 'row' }}
-              position={position}
-              showBackIcon={false}
-              isLoading={false}
-              initialLoading={false}
-              rightComponent={<></>}
-            />
+            <Flex justifyContent="space-between" alignItems="center">
+              <PositionDetailHeader
+                style={{ flexDirection: 'row' }}
+                position={position}
+                showBackIcon={false}
+                isLoading={false}
+                initialLoading={false}
+                rightComponent={<></>}
+              />
+              <ExpireSetting expireTime={expireTime} setExpireTime={setExpireTime} />
+            </Flex>
 
             <ContentWrapper>
               <Flex flexDirection="column" sx={{ gap: '1rem' }} flex={1}>
@@ -173,8 +176,6 @@ export const SmartExit = ({ position, onDismiss }: { position: ParsedPosition; o
                   conditionType={conditionType}
                   setConditionType={setConditionType}
                 />
-                <Divider my="1rem" />
-                <ExpireSetting expireTime={expireTime} setExpireTime={setExpireTime} />
                 <Divider my="1rem" />
                 <GasSetting
                   feeInfo={feeInfo}

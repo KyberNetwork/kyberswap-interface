@@ -96,3 +96,41 @@ export const CustomPriceInput = styled(Input)`
   flex: 1;
   text-align: center;
 `
+
+export const SettingContainer = styled.div`
+  position: relative;
+`
+
+export const SettingMenu = styled.div`
+  border-radius: 1rem;
+  background-color: ${({ theme }) => theme.tableHeader};
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+
+  position: absolute;
+  top: 44px;
+  right: 0;
+  z-index: 5;
+  min-width: 350px;
+`
+
+export const SettingButton = styled.button`
+  width: 36px;
+  height: 36px;
+  border-radius: 24px;
+  border: 1px solid ${({ theme }) => rgba(theme.text, 0.04)};
+  background-color: ${({ theme }) => rgba(theme.text, 0.08)};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(270deg);
+  cursor: pointer;
+  color: ${({ theme }) => rgba(theme.text, 0.6)};
+  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+
+  &:hover {
+    background-color: ${({ theme }) => rgba(theme.text, 0.12)};
+  }
+`

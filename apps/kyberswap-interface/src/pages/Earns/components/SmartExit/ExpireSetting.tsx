@@ -1,13 +1,15 @@
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
+import { Sliders } from 'react-feather'
 import { Flex, Text } from 'rebass'
 
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import DateTimePicker from 'components/swapv2/LimitOrder/ExpirePicker'
 import { TIMES_IN_SECS } from 'constants/index'
+import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
-import { CustomOption } from 'pages/Earns/components/SmartExit/styles'
+import { CustomOption, SettingButton, SettingContainer, SettingMenu } from 'pages/Earns/components/SmartExit/styles'
 import { formatTimeDuration } from 'utils/time'
 
 export const DEFAULT_TIME_OPTIONS = [
@@ -29,10 +31,16 @@ export default function ExpireSetting({
 }) {
   const theme = useTheme()
   const [openDatePicker, setOpenDatePicker] = useState(false)
+  const [openSetting, setOpenSetting] = useState(false)
+  const settingRef = useRef<HTMLDivElement>(null)
+
+  useOnClickOutside(settingRef, () => setOpenSetting(false))
 
   const displayTime = useMemo(
     () =>
-      expireTime % TIMES_IN_SECS.ONE_DAY === 0
+      expireTime === TIMES_IN_SECS.ONE_DAY * 36500
+        ? 'Forever'
+        : expireTime % TIMES_IN_SECS.ONE_DAY === 0
         ? `${expireTime / TIMES_IN_SECS.ONE_DAY}D`
         : dayjs(expireTime).format('DD/MM/YYYY HH:mm:ss'),
     [expireTime],
@@ -48,66 +56,76 @@ export default function ExpireSetting({
         expire={expireTime}
       />
 
-      <Flex alignItems="center" sx={{ gap: '4px' }} justifyContent="space-between">
-        <TextDashed
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            height: 'fit-content',
-          }}
-        >
-          <MouseoverTooltip
-            placement="right"
-            text={t`Once an order expires, it will be cancelled automatically. No gas fees will be charged.`}
-          >
-            <Trans>Expires in</Trans>
-          </MouseoverTooltip>
-        </TextDashed>
-
-        <Flex justifyContent="flex-end" sx={{ gap: '4px' }}>
-          {[
-            { label: '7D', value: TIMES_IN_SECS.ONE_DAY * 7 },
-            { label: '30D', value: TIMES_IN_SECS.ONE_DAY * 30 },
-            { label: '90D', value: TIMES_IN_SECS.ONE_DAY * 90 },
-            {
-              label: 'Custom',
-              onSelect: () => {
-                setOpenDatePicker(true)
-              },
-            },
-          ].map((item: any) => {
-            return (
-              <CustomOption
-                key={item.label}
-                onClick={() => {
-                  if (item.label === 'Custom') item.onSelect()
-                  else setExpireTime(item.value)
-                }}
-                isSelected={
-                  item.label === 'Custom' ? expireTime % TIMES_IN_SECS.ONE_DAY != 0 : item.value === expireTime
-                }
-              >
-                {item.label}
-              </CustomOption>
-            )
-          })}
+      <SettingContainer ref={settingRef}>
+        <Flex justifyContent="flex-end">
+          <SettingButton type="button" onClick={() => setOpenSetting(v => !v)} aria-label={t`Open settings`}>
+            <Sliders size={16} />
+          </SettingButton>
         </Flex>
-      </Flex>
 
-      <Flex marginTop="8px" justifyContent="flex-end">
-        <Text
-          sx={{
-            fontSize: '14px',
-            fontWeight: 500,
-            lineHeight: '1',
-            color: theme.text,
-          }}
-        >
-          <Text color={theme.text} fontSize={14}>
-            {displayTime}
-          </Text>
-        </Text>
-      </Flex>
+        {openSetting && (
+          <SettingMenu>
+            <Flex alignItems="center" justifyContent="space-between">
+              <TextDashed
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  height: 'fit-content',
+                }}
+              >
+                <MouseoverTooltip
+                  placement="right"
+                  text={t`Once an order expires, it will be cancelled automatically. No gas fees will be charged.`}
+                >
+                  <Trans>Expires In</Trans>
+                </MouseoverTooltip>
+              </TextDashed>
+              <Text
+                sx={{
+                  fontSize: '14px',
+                  fontWeight: 500,
+                  lineHeight: '1',
+                  color: theme.text,
+                }}
+              >
+                <Text color={theme.text} fontSize={14}>
+                  {displayTime}
+                </Text>
+              </Text>
+            </Flex>
+
+            <Flex justifyContent="flex-start" sx={{ gap: '8px', flexWrap: 'wrap' }}>
+              {[
+                { label: '7D', value: TIMES_IN_SECS.ONE_DAY * 7 },
+                { label: '30D', value: TIMES_IN_SECS.ONE_DAY * 30 },
+                { label: '90D', value: TIMES_IN_SECS.ONE_DAY * 90 },
+                { label: 'Forever', value: TIMES_IN_SECS.ONE_DAY * 36500 },
+                {
+                  label: 'Custom',
+                  onSelect: () => {
+                    setOpenDatePicker(true)
+                  },
+                },
+              ].map((item: any) => {
+                return (
+                  <CustomOption
+                    key={item.label}
+                    onClick={() => {
+                      if (item.label === 'Custom') item.onSelect()
+                      else setExpireTime(item.value)
+                    }}
+                    isSelected={
+                      item.label === 'Custom' ? expireTime % TIMES_IN_SECS.ONE_DAY != 0 : item.value === expireTime
+                    }
+                  >
+                    {item.label}
+                  </CustomOption>
+                )
+              })}
+            </Flex>
+          </SettingMenu>
+        )}
+      </SettingContainer>
     </>
   )
 }

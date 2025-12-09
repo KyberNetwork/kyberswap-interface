@@ -3,11 +3,15 @@ import dayjs from 'dayjs'
 import { Flex, Text } from 'rebass'
 
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
+import { TIMES_IN_SECS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 
 export default function MoreInfo({ deadline, protocolFee }: { deadline: number; protocolFee: number }) {
   const theme = useTheme()
-  const displayTime = dayjs(deadline * 1000).format('DD/MM/YYYY HH:mm:ss')
+  const displayTime =
+    deadline === (TIMES_IN_SECS.ONE_DAY * 36500) / 1000
+      ? 'Forever'
+      : dayjs(deadline * 1000).format('DD/MM/YYYY HH:mm:ss')
 
   return (
     <>
