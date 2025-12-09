@@ -27,13 +27,13 @@ export default function FeeYieldInput({
               // Only allow numbers and decimal point
               if (/^\d*\.?\d*$/.test(value)) {
                 const numValue = parseFloat(value)
-                // Limit to 1-100%
-                if (value === '' || numValue > 0) {
+                // Allow 0-100%
+                if (value === '' || (!Number.isNaN(numValue) && numValue >= 0 && numValue <= 100)) {
                   setMetric({ ...metric, condition: value })
                 }
               }
             }}
-            placeholder="0"
+            placeholder="Fee yield"
           />
           <Text
             sx={{

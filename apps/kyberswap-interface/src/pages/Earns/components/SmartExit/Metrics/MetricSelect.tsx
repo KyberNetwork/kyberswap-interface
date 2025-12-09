@@ -53,7 +53,7 @@ export default function MetricSelect({
             if (value === metric.metric) return
             const newMetric = value as Metric
             const condition = getDefaultCondition(newMetric)
-            if (!condition) return
+            if (condition === null) return
             setMetric({ metric: newMetric, condition })
           }}
           value={metric.metric}

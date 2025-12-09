@@ -1,6 +1,6 @@
 import { FeeYieldCondition, Metric, PriceCondition, TimeCondition } from 'pages/Earns/types'
 
-export const defaultFeeYieldCondition: FeeYieldCondition = '0'
+export const defaultFeeYieldCondition: FeeYieldCondition = ''
 const defaultPriceCondition: PriceCondition = { gte: '', lte: '' }
 const defaultTimeCondition: TimeCondition = { time: null, condition: 'after' }
 
