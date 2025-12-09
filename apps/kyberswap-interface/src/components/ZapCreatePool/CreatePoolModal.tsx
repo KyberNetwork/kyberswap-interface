@@ -77,7 +77,7 @@ const CATEGORY_FEE_PRESETS: Record<POOL_CATEGORY, FeePreset> = {
 const availableChains: number[] = [ChainId.Ethereum, ChainId.Bsc, ChainId.Base]
 
 const PROTOCOL_ALLOWLIST: Partial<Record<ChainId, Exchange[]>> = {
-  [ChainId.Bsc]: [Exchange.DEX_UNISWAP_V4],
+  [ChainId.Bsc]: [Exchange.DEX_UNISWAP_V4, Exchange.DEX_PANCAKE_INFINITY_CL, Exchange.DEX_PANCAKE_INFINITY_CL_FAIRFLOW],
   [ChainId.Base]: [Exchange.DEX_UNISWAP_V4, Exchange.DEX_UNISWAP_V4_FAIRFLOW],
   [ChainId.Ethereum]: [Exchange.DEX_UNISWAP_V4, Exchange.DEX_UNISWAP_V4_FAIRFLOW],
 }
