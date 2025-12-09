@@ -14,7 +14,7 @@ import { formatTime } from 'utils/time'
 
 export type PrivateAnnouncementProp<T extends AnnouncementTemplate = AnnouncementTemplate> = {
   announcement: PrivateAnnouncement<T>
-  onRead: (data: PrivateAnnouncement, statusMessage: string) => void
+  onRead: (data: PrivateAnnouncement, statusMessage: string) => void | Promise<void>
   style: CSSProperties
   time?: ReactNode
   title?: string

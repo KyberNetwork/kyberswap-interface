@@ -11,7 +11,6 @@ import AnnouncementItem from 'components/Announcement/AnnoucementItem'
 import InboxItem from 'components/Announcement/PrivateAnnoucement'
 import { Announcement, PrivateAnnouncement } from 'components/Announcement/type'
 import { useActiveWeb3React } from 'hooks'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 
 const ListAnnouncement = styled.div`
@@ -37,7 +36,7 @@ const ListAnnouncement = styled.div`
 
 export enum Tab {
   CATEGORY,
-  NOTI,
+  NOTIFICATIONS,
 }
 
 export enum Category {
@@ -52,6 +51,7 @@ type Props = {
   toggleNotificationCenter?: () => void
   showDetailAnnouncement?: (index: number) => void
   selectedCategory?: Category | null
+  onPrivateAnnouncementRead?: (announcement: PrivateAnnouncement, statusMessage: string) => void | Promise<void>
 }
 
 export default function AnnouncementView({
@@ -61,12 +61,12 @@ export default function AnnouncementView({
   toggleNotificationCenter,
   showDetailAnnouncement,
   selectedCategory,
+  onPrivateAnnouncementRead,
 }: Props) {
   const { account } = useActiveWeb3React()
   const scrollRef = useRef<HTMLDivElement>(null)
   const theme = useTheme()
 
-  const { mixpanelHandler } = useMixpanel()
   const list = announcements ?? []
   const total = totalAnnouncement ?? 0
   const handleLoadMore = loadMoreAnnouncements ?? (() => null)
@@ -76,20 +76,13 @@ export default function AnnouncementView({
 
   const onReadPrivateAnnouncement = (item: PrivateAnnouncement, statusMessage: string) => {
     if (!account) return
-    mixpanelHandler(MIXPANEL_TYPE.ANNOUNCEMENT_CLICK_INBOX_MESSAGE, {
-      message_status: statusMessage,
-      message_type: item.templateType,
-    })
+    onPrivateAnnouncementRead?.(item, statusMessage)
     handleToggle()
   }
 
   const onReadAnnouncement = (item: Announcement, index: number) => {
-    handleToggle()
-    const { templateBody } = item
     handleShowDetail(index)
-    mixpanelHandler(MIXPANEL_TYPE.ANNOUNCEMENT_CLICK_ANNOUNCEMENT_MESSAGE, {
-      message_title: templateBody.name,
-    })
+    handleToggle()
   }
 
   const hasMore = list.length !== total
