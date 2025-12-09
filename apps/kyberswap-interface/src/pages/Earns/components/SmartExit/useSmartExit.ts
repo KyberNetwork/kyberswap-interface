@@ -313,7 +313,21 @@ export const useSmartExit = ({ position, selectedMetrics, conditionType, deadlin
     } catch (e) {
       return null
     }
-  }, [account, dexType, position, getDexType, buildConditions, estimateFeeMutation, deadline])
+  }, [
+    account,
+    buildConditions,
+    deadline,
+    dexType,
+    estimateFeeMutation,
+    getDexType,
+    position.chain.id,
+    position.dex.id,
+    position.id,
+    position.pool.address,
+    position.token0.isNative,
+    position.token1.isNative,
+    position.tokenId,
+  ])
 
   return {
     state,

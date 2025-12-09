@@ -162,7 +162,6 @@ const SmartExit = () => {
   }, [userPosition])
 
   const filteredOrders = useMemo(() => orders.filter(order => positionsById[order.positionId]), [orders, positionsById])
-
   const handleDeleteRequest = useCallback((order: SmartExitOrder) => setShowCancelConfirm(order), [])
   const handleDismissModal = useCallback(() => setShowCancelConfirm(null), [])
   const handlePageChange = useCallback((page: number) => setCurrentPage(page), [])
