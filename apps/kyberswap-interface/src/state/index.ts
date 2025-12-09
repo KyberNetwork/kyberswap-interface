@@ -17,6 +17,7 @@ import kyberDAO from 'services/kyberDAO'
 import kyberdataServiceApi from 'services/kyberdata'
 import limitOrderApi from 'services/limitOrder'
 import marketOverviewApi from 'services/marketOverview'
+import notificationApi from 'services/notification'
 import priceAlertApi from 'services/priceAlert'
 import referralApi from 'services/referral'
 import rewardServiceApi from 'services/reward'
@@ -91,6 +92,7 @@ const store = configureStore({
     [aggregatorStatsApi.reducerPath]: aggregatorStatsApi.reducer,
     [announcementApi.reducerPath]: announcementApi.reducer,
     [publicAnnouncementApi.reducerPath]: publicAnnouncementApi.reducer,
+    [notificationApi.reducerPath]: notificationApi.reducer,
     [geckoTerminalApi.reducerPath]: geckoTerminalApi.reducer,
     [coingeckoApi.reducerPath]: coingeckoApi.reducer,
     [contractQuery.reducerPath]: contractQuery.reducer,
@@ -136,6 +138,7 @@ const store = configureStore({
       .concat(aggregatorStatsApi.middleware)
       .concat(announcementApi.middleware)
       .concat(publicAnnouncementApi.middleware)
+      .concat(notificationApi.middleware)
       .concat(kyberDAO.middleware)
       .concat(identifyApi.middleware)
       .concat(ksSettingApi.middleware)

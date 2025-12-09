@@ -13,8 +13,9 @@ export enum PrivateAnnouncementType {
   LIMIT_ORDER = 'LIMIT_ORDER',
   BRIDGE_ASSET = 'BRIDGE_ASSET',
   ELASTIC_POOLS = 'ELASTIC_POOLS',
+  EARN_POSITION = 'VERIFICATION',
   PRICE_ALERT = 'PRICE_ALERT',
-  DIRECT_MESSAGE = 'DIRECT_MESSAGE', // for some specific addresses
+  DIRECT_MESSAGE = 'DIRECT_MESSAGE',
 }
 
 export type PrivateAnnouncement<T extends AnnouncementTemplate = AnnouncementTemplate> = {
@@ -48,17 +49,18 @@ type LimitOrderAnnouncement = {
   chainId: string
 }
 
-type PoolPositionAnnouncement = {
-  token0LogoURL: string
-  token1LogoURL: string
+export type PoolPositionAnnouncement = {
+  positionId: string
+  chainId: string
   token0Symbol: string
   token1Symbol: string
-  minPrice: string
-  maxPrice: string
-  currentPrice: string
+  token0LogoURL: string
+  token1LogoURL: string
+  currentPrice: number
+  minPrice: number
+  maxPrice: number
   poolAddress: string
   type: 'OUT_OF_RANGE' | 'IN_RANGE'
-  chainId: string
 }
 
 export type AnnouncementTemplateLimitOrder = {

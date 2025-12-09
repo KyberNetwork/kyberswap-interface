@@ -1,27 +1,30 @@
+import { Trans } from '@lingui/macro'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { useMedia, usePrevious } from 'react-use'
-import {
-  ANNOUNCEMENT_TAGS,
-  useAckPrivateAnnouncementsByIdsMutation,
-  useLazyGetAnnouncementsQuery,
-  useLazyGetPrivateAnnouncementsQuery,
-} from 'services/announcement'
+import { useMedia } from 'react-use'
+import { useLazyGetAnnouncementsQuery } from 'services/announcement'
+import { useLazyGetNotificationsQuery } from 'services/notification'
 import styled, { css } from 'styled-components'
 
-import AnnouncementView, { Tab } from 'components/Announcement/AnnoucementView'
+import { ReactComponent as AnnouncementSvg } from 'assets/svg/ic_announcement.svg'
+import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
+import AnnouncementView, { Category, Tab } from 'components/Announcement/AnnoucementView'
+import CategoryItem from 'components/Announcement/CategoryItem'
 import DetailAnnouncementPopup from 'components/Announcement/Popups/DetailAnnouncementPopup'
 import { formatNumberOfUnread } from 'components/Announcement/helper'
-import { Announcement, PrivateAnnouncement } from 'components/Announcement/type'
+import {
+  Announcement,
+  AnnouncementTemplatePopup,
+  PoolPositionAnnouncement,
+  PrivateAnnouncement,
+} from 'components/Announcement/type'
 import NotificationIcon from 'components/Icons/NotificationIcon'
 import MenuFlyout from 'components/MenuFlyout'
 import Modal from 'components/Modal'
-import { RTK_QUERY_TAGS } from 'constants/index'
-import useInterval from 'hooks/useInterval'
-import { useInvalidateTagAnnouncement } from 'hooks/useInvalidateTags'
+import { RowBetween } from 'components/Row'
+import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
-import { ApplicationModal } from 'state/application/actions'
 import { useDetailAnnouncement, useModalOpen, useToggleNotificationCenter } from 'state/application/hooks'
-import { useSessionInfo } from 'state/authen/hooks'
+import { ApplicationModal } from 'state/application/types'
 import { MEDIA_WIDTHS } from 'theme'
 
 const StyledMenuButton = styled.button<{ active?: boolean }>`
@@ -79,12 +82,79 @@ const browserCustomStyle = css`
     bottom: 3.5rem;
   `};
 `
+
+const Wrapper = styled.div`
+  width: 380px;
+  display: flex;
+  flex-direction: column;
+  height: 600px;
+  max-height: 70vh;
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    width: 100%;
+    min-width: 380px;
+  `};
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    width: 100%;
+    height: unset;
+  `};
+`
+
+const Container = styled.div`
+  gap: 12px;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+`
+
+const TabItem = styled.div<{ active: boolean }>`
+  flex: 1;
+  background-color: ${({ theme }) => theme.buttonBlack};
+  border-radius: 20px;
+  padding: 6px 0px;
+  text-align: center;
+  font-weight: 500;
+  font-size: 14px;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  color: ${({ theme }) => theme.subText};
+  ${({ active }) =>
+    active &&
+    css`
+      background-color: ${({ theme }) => theme.tabActive};
+      color: ${({ theme }) => theme.text};
+    `};
+`
+
+const Title = styled.div`
+  font-size: 20px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+`
+
+const TabWrapper = styled.div`
+  background-color: ${({ theme }) => theme.buttonBlack};
+  border-radius: 20px;
+  display: flex;
+  padding: 4px;
+  gap: 10px;
+  justify-content: space-between;
+`
 const responseDefault = { numberOfUnread: 0, pagination: { totalItems: 0 }, notifications: [] }
 
 export default function AnnouncementComponent() {
-  const [activeTab, setActiveTab] = useState(Tab.ANNOUNCEMENT)
+  const [activeTab, setActiveTab] = useState(Tab.CATEGORY)
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null)
+  const [earnPreview, setEarnPreview] = useState<{ total: number; unread: number; first?: PrivateAnnouncement }>({
+    total: 0,
+    unread: 0,
+  })
+  const [announcementPreview, setAnnouncementPreview] = useState<{ total: number; first?: Announcement }>({ total: 0 })
   const { mixpanelHandler } = useMixpanel()
-  const scrollRef = useRef<HTMLDivElement>(null)
+  const { account } = useActiveWeb3React()
 
   const isOpenInbox = useModalOpen(ApplicationModal.NOTIFICATION_CENTER)
   const toggleNotificationCenter = useToggleNotificationCenter()
@@ -93,36 +163,50 @@ export default function AnnouncementComponent() {
   const [curPage, setPage] = useState(1)
 
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
-  const [privateAnnouncements, setPrivateAnnouncements] = useState<PrivateAnnouncement[]>([])
+  const [earnAnnouncements, setEarnAnnouncements] = useState<PrivateAnnouncement[]>([])
 
   const [fetchGeneralAnnouncement, { data: respAnnouncement = responseDefault }] = useLazyGetAnnouncementsQuery()
-  const [fetchPrivateAnnouncement, { data: respPrivateAnnouncement = responseDefault, isError }] =
-    useLazyGetPrivateAnnouncementsQuery()
+  const [fetchEarnNotifications, { data: respEarnNotification = responseDefault }] = useLazyGetNotificationsQuery()
 
-  const isMyInboxTab = activeTab === Tab.INBOX
+  const isCategoryTab = activeTab === Tab.CATEGORY
   const loadingAnnouncement = useRef(false)
 
+  const getEarnPosition = (announcement?: PrivateAnnouncement): PoolPositionAnnouncement | undefined => {
+    const body = announcement?.templateBody as unknown
+    if (body && typeof body === 'object' && 'position' in (body as { position?: PoolPositionAnnouncement })) {
+      return (body as { position?: PoolPositionAnnouncement }).position
+    }
+    return undefined
+  }
+
   const fetchAnnouncementsByTab = useCallback(
-    async (isReset = false, tab: Tab = activeTab) => {
+    async (isReset = false, tab: Tab = activeTab, category: Category | null = selectedCategory) => {
       try {
         if (loadingAnnouncement.current) return
-        const isMyInboxTab = tab === Tab.INBOX
         loadingAnnouncement.current = true
         const page = isReset ? 1 : curPage + 1
-        const promise = isMyInboxTab ? fetchPrivateAnnouncement({ page }) : fetchGeneralAnnouncement({ page })
+        if (tab === Tab.CATEGORY || !category) return
 
-        if (!promise) return
-        const { data } = await promise
-        const notifications = data?.notifications ?? []
-        setPage(page)
-        let newData
-        if (isMyInboxTab) {
-          newData = isReset ? notifications : [...privateAnnouncements, ...notifications]
-          setPrivateAnnouncements(newData as PrivateAnnouncement[])
-        } else {
-          newData = isReset ? notifications : [...announcements, ...notifications]
-          setAnnouncements(newData as Announcement[])
+        if (category === Category.EARN_POSITION) {
+          if (!account) return []
+          const { data } = await fetchEarnNotifications({
+            account,
+            templateIds: '1,2',
+            page,
+            pageSize: 10,
+          })
+          const notifications = (data?.notifications ?? []) as PrivateAnnouncement[]
+          setPage(page)
+          const newData = isReset ? notifications : [...earnAnnouncements, ...notifications]
+          setEarnAnnouncements(newData)
+          return newData
         }
+
+        const { data } = (await fetchGeneralAnnouncement({ page })) ?? {}
+        const notifications = (data?.notifications ?? []) as Announcement[]
+        setPage(page)
+        const newData = isReset ? notifications : [...announcements, ...notifications]
+        setAnnouncements(newData)
         return newData
       } catch (error) {
         console.error(error)
@@ -131,143 +215,110 @@ export default function AnnouncementComponent() {
       }
       return
     },
-    [announcements, privateAnnouncements, curPage, activeTab, fetchGeneralAnnouncement, fetchPrivateAnnouncement],
+    [
+      account,
+      activeTab,
+      announcements,
+      earnAnnouncements,
+      curPage,
+      fetchEarnNotifications,
+      fetchGeneralAnnouncement,
+      selectedCategory,
+    ],
   )
+
+  useEffect(() => {
+    if (!isOpenInbox) return
+    const fetchPreview = async () => {
+      try {
+        if (account) {
+          const { data } = await fetchEarnNotifications({ account, templateIds: '1,2', page: 1, pageSize: 1 })
+          const notifications = (data?.notifications ?? []) as PrivateAnnouncement[]
+          setEarnPreview({
+            total: data?.pagination?.totalItems ?? 0,
+            unread: data?.numberOfUnread ?? 0,
+            first: notifications[0],
+          })
+        }
+
+        const { data } = await fetchGeneralAnnouncement({ page: 1, pageSize: 1 })
+        setAnnouncementPreview({
+          total: data?.pagination?.totalItems ?? 0,
+          first: (data?.notifications ?? [])[0] as Announcement | undefined,
+        })
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
+    fetchPreview()
+  }, [account, fetchEarnNotifications, fetchGeneralAnnouncement, isOpenInbox])
 
   const {
     pagination: { totalItems: totalAnnouncement },
   } = respAnnouncement
 
-  const {
-    numberOfUnread,
-    pagination: { totalItems: totalPrivateAnnouncement },
-  } = isError ? responseDefault : respPrivateAnnouncement
-  const refreshAnnouncement = useCallback(() => {
-    fetchAnnouncementsByTab(true)
-  }, [fetchAnnouncementsByTab])
-
   const loadMoreAnnouncements = useCallback(() => {
-    fetchAnnouncementsByTab()
-  }, [fetchAnnouncementsByTab])
-
-  const trackingClickTab = useCallback(
-    (tab: Tab, mode: 'manual' | 'auto') => {
-      if (tab === Tab.INBOX)
-        mixpanelHandler(MIXPANEL_TYPE.ANNOUNCEMENT_CLICK_TAB_INBOX, {
-          mode,
-          total_unread_message_count: numberOfUnread,
-          total_message_count: totalPrivateAnnouncement,
-        })
-      else {
-        mixpanelHandler(MIXPANEL_TYPE.ANNOUNCEMENT_CLICK_TAB_ANNOUNCEMENT, {
-          mode,
-          total_message_count: totalAnnouncement,
-        })
-      }
-    },
-    [mixpanelHandler, numberOfUnread, totalAnnouncement, totalPrivateAnnouncement],
-  )
-  const trackingClickTabRef = useRef(trackingClickTab)
-  trackingClickTabRef.current = trackingClickTab
+    fetchAnnouncementsByTab(false, activeTab, selectedCategory)
+  }, [activeTab, fetchAnnouncementsByTab, selectedCategory])
 
   const onSetTab = (tab: Tab) => {
     setActiveTab(tab)
     setPage(1)
-    trackingClickTab(tab, 'manual')
-    tab !== activeTab && fetchAnnouncementsByTab(true, tab)
+    if (tab === Tab.CATEGORY) {
+      setSelectedCategory(null)
+    } else {
+      const nextCategory = selectedCategory ?? Category.ANNOUNCEMENTS
+      setSelectedCategory(nextCategory)
+      fetchAnnouncementsByTab(true, tab, nextCategory)
+    }
   }
 
-  const invalidateTag = useInvalidateTagAnnouncement()
-  const { userInfo } = useSessionInfo()
+  const onSelectCategory = (category: Category) => {
+    setSelectedCategory(category)
+    setActiveTab(Tab.NOTI)
+    setPage(1)
+    fetchAnnouncementsByTab(true, Tab.NOTI, category)
+  }
 
-  const prefetchPrivateAnnouncements = useCallback(async () => {
-    try {
-      if (!userInfo?.identityId) return []
-      const { data } = await fetchPrivateAnnouncement({ page: 1 })
-      const notifications = (data?.notifications ?? []) as PrivateAnnouncement[]
-      const hasNewMsg = data?.numberOfUnread !== numberOfUnread
-      if (hasNewMsg) {
-        invalidateTag(RTK_QUERY_TAGS.GET_PRIVATE_ANN_BY_ID)
-        invalidateTag(RTK_QUERY_TAGS.GET_TOTAL_UNREAD_PRIVATE_ANN)
-        if (scrollRef.current) scrollRef.current.scrollTop = 0
-      }
-      setPrivateAnnouncements(prevData => (hasNewMsg || !prevData.length ? notifications : prevData))
-      return notifications
-    } catch (error) {
-      setPrivateAnnouncements([])
-      return []
-    }
-  }, [fetchPrivateAnnouncement, invalidateTag, numberOfUnread, userInfo?.identityId])
-
-  const prevOpen = usePrevious(isOpenInbox)
-  useEffect(() => {
-    const justClosedPopup = prevOpen !== isOpenInbox && !isOpenInbox
-    if (justClosedPopup) return
-    // prefetch data
-    prefetchPrivateAnnouncements().then((data: PrivateAnnouncement[]) => {
-      const newTab = data.length ? Tab.INBOX : Tab.ANNOUNCEMENT
-      setActiveTab(newTab)
-      if (prevOpen !== isOpenInbox && isOpenInbox) {
-        trackingClickTabRef.current(newTab, 'auto')
-      }
-      if (isOpenInbox && newTab === Tab.ANNOUNCEMENT)
-        fetchGeneralAnnouncement({ page: 1 })
-          .then(({ data }) => {
-            setAnnouncements((data?.notifications ?? []) as Announcement[])
-          })
-          .catch(() => {
-            setAnnouncements([])
-          })
-    })
-  }, [prefetchPrivateAnnouncements, fetchGeneralAnnouncement, prevOpen, isOpenInbox])
-
-  useEffect(() => {
-    if (userInfo?.identityId) {
-      setPrivateAnnouncements([])
-      invalidateTag(ANNOUNCEMENT_TAGS)
-    }
-  }, [userInfo?.identityId, invalidateTag])
-
-  useInterval(prefetchPrivateAnnouncements, 10_000)
-
-  const [readAllAnnouncement] = useAckPrivateAnnouncementsByIdsMutation()
   const togglePopupWithAckAllMessage = () => {
     toggleNotificationCenter()
-    if (isOpenInbox && numberOfUnread) {
-      readAllAnnouncement({})
-    }
   }
+
+  const earnTotal = respEarnNotification?.pagination?.totalItems ?? 0
+
+  const currentAnnouncements = selectedCategory === Category.EARN_POSITION ? earnAnnouncements : announcements
+
+  const currentTotal = selectedCategory === Category.EARN_POSITION ? earnTotal : totalAnnouncement
+
+  const numberOfUnread = earnPreview.unread ?? respEarnNotification.numberOfUnread ?? 0
+  const totalForView =
+    selectedCategory === Category.EARN_POSITION
+      ? currentTotal || earnPreview.total
+      : selectedCategory === Category.ANNOUNCEMENTS
+      ? currentTotal || announcementPreview.total
+      : announcementPreview.total || currentTotal
+  const announcementCount = announcementPreview.total || totalForView
+  const previewPosition = getEarnPosition(earnPreview.first)
 
   const [, setAnnouncementDetail] = useDetailAnnouncement()
   const showDetailAnnouncement = (selectedIndex: number) => {
     setAnnouncementDetail({
-      announcements: announcements.map(e => e.templateBody),
+      announcements: currentAnnouncements.map(e => e.templateBody as AnnouncementTemplatePopup),
       selectedIndex,
-      hasMore: totalAnnouncement > announcements.length,
+      hasMore: currentTotal > currentAnnouncements.length,
     })
   }
 
   const fetchMoreAnnouncement = async () => {
-    const announcements = (await fetchAnnouncementsByTab(false, Tab.ANNOUNCEMENT)) as Announcement[]
+    if (selectedCategory !== Category.ANNOUNCEMENTS) return undefined
+    const announcements = (await fetchAnnouncementsByTab(false, Tab.NOTI, selectedCategory)) as Announcement[]
     return announcements
       ? {
           announcements: announcements.map(e => e.templateBody),
-          hasMore: totalAnnouncement > announcements.length,
+          hasMore: currentTotal > announcements.length,
         }
       : undefined
-  }
-
-  const props = {
-    numberOfUnread,
-    announcements: isMyInboxTab ? privateAnnouncements : announcements,
-    totalAnnouncement: isMyInboxTab ? totalPrivateAnnouncement : totalAnnouncement,
-    refreshAnnouncement,
-    loadMoreAnnouncements,
-    toggleNotificationCenter: togglePopupWithAckAllMessage,
-    isMyInboxTab,
-    onSetTab,
-    showDetailAnnouncement,
-    scrollRef,
   }
 
   const badgeText = numberOfUnread > 0 ? formatNumberOfUnread(numberOfUnread) : null
@@ -289,7 +340,58 @@ export default function AnnouncementComponent() {
         <>
           {bellIcon}
           <Modal isOpen={isOpenInbox} onDismiss={togglePopupWithAckAllMessage} minHeight={80}>
-            <AnnouncementView {...props} />
+            <Wrapper>
+              <Container>
+                <RowBetween alignItems="center" gap="10px">
+                  <Title>
+                    <NotificationIcon size={18} />
+                    <Trans>Notifications</Trans>
+                  </Title>
+                </RowBetween>
+
+                <TabWrapper>
+                  <TabItem active={isCategoryTab} onClick={() => onSetTab(Tab.CATEGORY)}>
+                    <Trans>Category</Trans>
+                  </TabItem>
+                  <TabItem active={!isCategoryTab} onClick={() => onSetTab(Tab.NOTI)}>
+                    <Trans>Notifications</Trans>
+                  </TabItem>
+                </TabWrapper>
+              </Container>
+
+              {isCategoryTab ? (
+                <div>
+                  <CategoryItem
+                    title="Earn Position"
+                    counter={numberOfUnread}
+                    subLine1={
+                      previewPosition ? `${previewPosition.token0Symbol}/${previewPosition.token1Symbol}` : undefined
+                    }
+                    subLine2={previewPosition?.positionId ? `#${previewPosition.positionId}` : undefined}
+                    icon={<FarmingIcon />}
+                    onClick={() => onSelectCategory(Category.EARN_POSITION)}
+                  />
+                  <CategoryItem
+                    title="Announcements"
+                    counter={announcementCount}
+                    subLine1={announcementPreview.first?.templateBody?.name}
+                    icon={<AnnouncementSvg />}
+                    onClick={() => onSelectCategory(Category.ANNOUNCEMENTS)}
+                  />
+                </div>
+              ) : (
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                  <AnnouncementView
+                    announcements={currentAnnouncements}
+                    totalAnnouncement={totalForView}
+                    loadMoreAnnouncements={loadMoreAnnouncements}
+                    toggleNotificationCenter={togglePopupWithAckAllMessage}
+                    showDetailAnnouncement={showDetailAnnouncement}
+                    selectedCategory={selectedCategory}
+                  />
+                </div>
+              )}
+            </Wrapper>
           </Modal>
         </>
       ) : (
@@ -299,7 +401,58 @@ export default function AnnouncementComponent() {
           isOpen={isOpenInbox}
           toggle={togglePopupWithAckAllMessage}
         >
-          <AnnouncementView {...props} />
+          <Wrapper>
+            <Container>
+              <RowBetween alignItems="center" gap="10px">
+                <Title>
+                  <NotificationIcon size={18} />
+                  <Trans>Notifications</Trans>
+                </Title>
+              </RowBetween>
+
+              <TabWrapper>
+                <TabItem active={isCategoryTab} onClick={() => onSetTab(Tab.CATEGORY)}>
+                  <Trans>Category</Trans>
+                </TabItem>
+                <TabItem active={!isCategoryTab} onClick={() => onSetTab(Tab.NOTI)}>
+                  <Trans>Notifications</Trans>
+                </TabItem>
+              </TabWrapper>
+            </Container>
+
+            {isCategoryTab ? (
+              <div>
+                <CategoryItem
+                  title="Earn Position"
+                  counter={numberOfUnread}
+                  subLine1={
+                    previewPosition ? `${previewPosition.token0Symbol}/${previewPosition.token1Symbol}` : undefined
+                  }
+                  subLine2={previewPosition?.positionId ? `#${previewPosition.positionId}` : undefined}
+                  icon={<FarmingIcon />}
+                  onClick={() => onSelectCategory(Category.EARN_POSITION)}
+                />
+                <CategoryItem
+                  title="Announcements"
+                  counter={announcementCount}
+                  subLine1={announcementPreview.first?.templateBody?.name}
+                  icon={<AnnouncementSvg />}
+                  onClick={() => onSelectCategory(Category.ANNOUNCEMENTS)}
+                />
+              </div>
+            ) : (
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                <AnnouncementView
+                  announcements={currentAnnouncements}
+                  totalAnnouncement={totalForView}
+                  loadMoreAnnouncements={loadMoreAnnouncements}
+                  toggleNotificationCenter={togglePopupWithAckAllMessage}
+                  showDetailAnnouncement={showDetailAnnouncement}
+                  selectedCategory={selectedCategory}
+                />
+              </div>
+            )}
+          </Wrapper>
         </MenuFlyout>
       )}
       <DetailAnnouncementPopup fetchMore={fetchMoreAnnouncement} />

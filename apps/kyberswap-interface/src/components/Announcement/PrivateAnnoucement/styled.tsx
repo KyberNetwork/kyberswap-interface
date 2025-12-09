@@ -5,7 +5,7 @@ export const InboxItemWrapper = styled.div<{ isRead: boolean }>`
   border-bottom: 1px solid ${({ theme }) => theme.border};
   background-color: ${({ theme }) => theme.background};
   font-size: 12px;
-  padding: 20px 18px;
+  padding: 20px 16px;
   gap: 8px;
   display: flex;
   flex-direction: column;
@@ -27,7 +27,7 @@ export const InboxItemWrapper = styled.div<{ isRead: boolean }>`
 `
 
 export const Title = styled.div<{ isRead: boolean }>`
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 500;
   color: ${({ theme, isRead }) => (isRead ? theme.text : theme.primary)};
 `
@@ -47,11 +47,21 @@ export const Dot = styled.span`
 `
 
 export const InboxItemRow = styled.div`
-  justify-content: space-between;
   display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
 `
 export const RowItem = styled.div`
   display: flex;
   align-items: center;
   gap: 6px;
+`
+
+export const StatusBadge = styled.div<{ color: string }>`
+  background-color: ${({ color }) => rgba(color, 0.1)};
+  color: ${({ color }) => color};
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 8px;
+  border-radius: 12px;
 `
