@@ -171,7 +171,8 @@ export const PositionActionWrapper = styled.div`
   margin-top: 16px;
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
-    gap: 16px;
+    gap: 8px;
+    flex-direction: column-reverse;
   `}
 `
 
@@ -297,6 +298,10 @@ export const RewardLink = styled(Link)`
 export const RemoveLiquidityDropdownWrapper = styled.div`
   position: relative;
   display: inline-block;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    width: 100%;
+  `}
 `
 
 export const DropdownButton = styled(PositionAction)<{ isOpen?: boolean }>`
@@ -318,6 +323,11 @@ export const DropdownMenu = styled.div<{ isOpen: boolean }>`
   width: max-content;
   z-index: 1000;
   box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.1);
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    right: 50%;
+    transform: translateX(50%);
+  `}
 `
 
 export const DropdownMenuItem = styled.button<{ disabled?: boolean }>`
@@ -344,8 +354,8 @@ export const DropdownMenuItem = styled.button<{ disabled?: boolean }>`
   ${({ disabled }) =>
     disabled &&
     `
-  cursor: not-allowed;
-  opacity: 0.5;
-  filter: brightness(0.6);
-`}
+      cursor: not-allowed;
+      opacity: 0.5;
+      filter: brightness(0.6);
+    `}
 `
