@@ -1,6 +1,7 @@
 import {
   AcrossClient,
   createAcrossClient,
+  getIntegratorDataSuffix,
   parseDepositLogs,
   parseFillLogs,
   waitForDepositTx,
@@ -12,6 +13,7 @@ import { Connection } from '@solana/web3.js'
 import {
   type Address,
   type Hash,
+  type Hex,
   type TransactionReceipt,
   type Chain as ViemChain,
   WalletClient,
@@ -33,6 +35,9 @@ import {
   QuoteParams,
   SwapStatus,
 } from './BaseSwapAdapter'
+
+// Integrator ID for Across tracking
+const KYBERSWAP_INTEGRATOR_ID: Hex = '0x008a'
 
 // Chain ID to viem Chain mapping
 const chainIdToViemChain: Record<number, ViemChain> = {
@@ -210,8 +215,20 @@ export type SwapAndBridgeProgress =
     }
   | {
       step: 'swapAndBridge'
+      status: 'simulationPending'
+      meta: SwapAndBridgeMeta
+    }
+  | {
+      step: 'swapAndBridge'
+      status: 'simulationSuccess'
+      txRequest: any
+      meta: SwapAndBridgeMeta
+    }
+  | {
+      step: 'swapAndBridge'
       status: 'txPending'
       txHash: Hash
+      txRequest?: any
       meta: SwapAndBridgeMeta
     }
   | {
@@ -312,7 +329,7 @@ export class KyberAcrossAdapter extends BaseSwapAdapter {
   constructor() {
     super()
     this.acrossClient = createAcrossClient({
-      integratorId: `0x008a`,
+      integratorId: KYBERSWAP_INTEGRATOR_ID,
       chains: [mainnet, arbitrum, bsc, optimism, linea, polygon, zksync, base, scroll, blast, unichain, plasma, monad],
       rpcUrls: [
         ChainId.MAINNET,
@@ -592,53 +609,53 @@ export class KyberAcrossAdapter extends BaseSwapAdapter {
       }
 
       // Step 2: Execute swapAndBridge
+      // 1. Simulate the swapAndBridge transaction
+      // 2. If successful, execute the swapAndBridge transaction
+      // 3. Wait for the transaction to be mined
       currentProgressMeta = {
         swapAndDepositData,
       }
 
-      // Encode the swapAndBridge call
-      const swapAndBridgeCalldata = encodeFunctionData({
-        abi: spokePoolPeripheryAbi,
-        functionName: 'swapAndBridge',
-        args: [
-          {
-            submissionFees: swapAndDepositData.submissionFees,
-            depositData: swapAndDepositData.depositData,
-            swapToken: swapAndDepositData.swapToken,
-            exchange: swapAndDepositData.exchange,
-            transferType: swapAndDepositData.transferType,
-            swapTokenAmount: swapAndDepositData.swapTokenAmount,
-            minExpectedInputTokenAmount: swapAndDepositData.minExpectedInputTokenAmount,
-            routerCalldata: swapAndDepositData.routerCalldata,
-            enableProportionalAdjustment: swapAndDepositData.enableProportionalAdjustment,
-            spokePool: swapAndDepositData.spokePool,
-            nonce: BigInt(nonce),
-          },
-        ],
-      })
+      // Report simulation pending status
+      currentProgress = {
+        step: 'swapAndBridge',
+        status: 'simulationPending',
+        meta: currentProgressMeta,
+      }
+      onProgressHandler(currentProgress)
 
-      // First simulate the transaction to catch revert errors with proper decoding
-      await originClient.simulateContract({
+      // Prepare the swapAndBridge args with updated nonce
+      const swapAndBridgeArgs = { ...swapAndDepositData, nonce: BigInt(nonce) }
+
+      // Simulate the transaction to catch revert errors with proper decoding
+      // and get the request object for execution
+      const { request: txRequest } = await originClient.simulateContract({
         address: spokePoolPeripheryAddress,
         abi: spokePoolPeripheryAbi,
         functionName: 'swapAndBridge',
-        args: [{ ...swapAndDepositData }] as any,
+        args: [{ ...swapAndBridgeArgs }] as any,
         account: userAddress,
         value: isNative ? swapAndDepositData.swapTokenAmount : undefined,
+        dataSuffix: getIntegratorDataSuffix(KYBERSWAP_INTEGRATOR_ID),
       })
 
-      const swapAndBridgeTxHash = await walletClient.sendTransaction({
-        account: walletClient.account!,
-        chain: originChain,
-        to: spokePoolPeripheryAddress,
-        data: swapAndBridgeCalldata,
-        value: isNative ? swapAndDepositData.swapTokenAmount : undefined,
-      })
+      // Report simulation success status
+      currentProgress = {
+        step: 'swapAndBridge',
+        status: 'simulationSuccess',
+        txRequest,
+        meta: currentProgressMeta,
+      }
+      onProgressHandler(currentProgress)
+
+      // Execute the transaction using writeContract with the simulated request
+      const swapAndBridgeTxHash = await walletClient.writeContract(txRequest)
 
       currentProgress = {
         step: 'swapAndBridge',
         status: 'txPending',
         txHash: swapAndBridgeTxHash,
+        txRequest,
         meta: currentProgressMeta,
       }
       onProgressHandler(currentProgress)
