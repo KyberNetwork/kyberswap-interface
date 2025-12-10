@@ -12,6 +12,8 @@ import { CustomInput, PriceInputIcon } from 'pages/Earns/components/SmartExit/st
 import { Metric, ParsedPosition, PriceCondition, SelectedMetric } from 'pages/Earns/types'
 import { formatDisplayNumber } from 'utils/numbers'
 
+import PositionSkeleton from '../../PositionSkeleton'
+
 export default function PriceInput({
   metric,
   setMetric,
@@ -315,18 +317,26 @@ export default function PriceInput({
         />
       </Box>
 
-      <Flex alignItems="center" justifyContent="space-between" sx={{ gap: '8px' }} flexWrap="wrap" mt="8px">
+      <Flex alignItems="center" justifyContent="space-between" sx={{ gap: '8px' }} flexWrap="wrap" mt="12px">
         <Text color={theme.subText} fontSize={12}>
           <Trans>Est. Balance</Trans>
         </Text>
         <Flex alignItems="center" sx={{ gap: '8px' }}>
-          <Text fontSize={14}>
-            {formatDisplayNumber(expectedAmounts?.amount0, { significantDigits: 4 })} {position.token0.symbol}
-          </Text>
+          {expectedAmounts ? (
+            <Text fontSize={14}>
+              {formatDisplayNumber(expectedAmounts.amount0, { significantDigits: 4 })} {position.token0.symbol}
+            </Text>
+          ) : (
+            <PositionSkeleton width={60} height={14} />
+          )}
           <Box width={'1px'} height={'12px'} bg={theme.border} />
-          <Text fontSize={14}>
-            {formatDisplayNumber(expectedAmounts?.amount1, { significantDigits: 4 })} {position.token1.symbol}
-          </Text>
+          {expectedAmounts ? (
+            <Text fontSize={14}>
+              {formatDisplayNumber(expectedAmounts.amount1, { significantDigits: 4 })} {position.token1.symbol}
+            </Text>
+          ) : (
+            <PositionSkeleton width={60} height={14} />
+          )}
         </Flex>
       </Flex>
     </>
