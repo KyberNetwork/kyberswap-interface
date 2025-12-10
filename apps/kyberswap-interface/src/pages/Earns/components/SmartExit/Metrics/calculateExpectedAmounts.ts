@@ -1,4 +1,4 @@
-import { ParsedPosition, PriceCondition } from 'pages/Earns/types'
+import { PriceCondition } from 'pages/Earns/types'
 
 interface ExpectedAmounts {
   amount0: number
@@ -24,10 +24,17 @@ interface ExpectedAmounts {
  * - amount1 = liquidity * (sqrt(priceUpper) - sqrt(priceLower))
  */
 export function calculateExpectedAmounts(
-  position: ParsedPosition,
+  position: { currentPrice: number; minPrice: number; maxPrice: number; token0Amount: number; token1Amount: number },
   priceCondition?: PriceCondition,
 ): ExpectedAmounts | null {
-  if (!priceCondition?.gte && !priceCondition?.lte) {
+  const { currentPrice, minPrice, maxPrice, token0Amount, token1Amount } = position
+  if (
+    (!priceCondition?.gte && !priceCondition?.lte) ||
+    minPrice <= 0 ||
+    maxPrice <= 0 ||
+    currentPrice <= 0 ||
+    minPrice > maxPrice
+  ) {
     return null
   }
 
@@ -37,40 +44,12 @@ export function calculateExpectedAmounts(
     return null
   }
 
-  // Get position's price range
-  const positionPriceLower = position.priceRange.min
-  const positionPriceUpper = position.priceRange.max
-  const currentPrice = position.priceRange.current
-
-  // Validate price range
-  if (positionPriceLower <= 0 || positionPriceUpper <= 0 || currentPrice <= 0) {
-    return null
-  }
-
-  if (positionPriceLower >= positionPriceUpper) {
-    return null
-  }
-
-  // Get current amounts in position (including fees)
-  const currentAmount0 = position.token0.totalProvide + position.token0.unclaimedAmount
-  const currentAmount1 = position.token1.totalProvide + position.token1.unclaimedAmount
-
-  // If position is out of range, handle special cases
-  const isOutOfRange = currentPrice < positionPriceLower || currentPrice > positionPriceUpper
-
   // Calculate liquidity from current amounts and price
   // Using the relationship: L = sqrt(amount0 * amount1 * P)
-  const liquidity = estimateLiquidity(
-    currentAmount0,
-    currentAmount1,
-    currentPrice,
-    positionPriceLower,
-    positionPriceUpper,
-    isOutOfRange,
-  )
+  const liquidity = estimateLiquidity(token0Amount, token1Amount, currentPrice, minPrice, maxPrice)
 
   // Calculate expected amounts at exit price
-  const { amount0, amount1 } = calculateAmountsAtPrice(exitPrice, positionPriceLower, positionPriceUpper, liquidity)
+  const { amount0, amount1 } = calculateAmountsAtPrice(exitPrice, minPrice, maxPrice, liquidity)
 
   return {
     amount0,
@@ -90,11 +69,12 @@ function estimateLiquidity(
   currentPrice: number,
   priceLower: number,
   priceUpper: number,
-  isOutOfRange: boolean,
 ): number {
   const sqrtPrice = Math.sqrt(currentPrice)
   const sqrtPriceLower = Math.sqrt(priceLower)
   const sqrtPriceUpper = Math.sqrt(priceUpper)
+
+  const isOutOfRange = currentPrice < priceLower || currentPrice > priceUpper
 
   if (isOutOfRange) {
     if (currentPrice < priceLower) {

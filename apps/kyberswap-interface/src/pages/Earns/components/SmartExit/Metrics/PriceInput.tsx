@@ -7,8 +7,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Box, Flex, Text } from 'rebass'
 
 import useTheme from 'hooks/useTheme'
+import { calculateExpectedAmounts } from 'pages/Earns/components/SmartExit/Metrics/calculateExpectedAmounts'
 import { CustomInput, PriceInputIcon } from 'pages/Earns/components/SmartExit/styles'
 import { Metric, ParsedPosition, PriceCondition, SelectedMetric } from 'pages/Earns/types'
+import { formatDisplayNumber } from 'utils/numbers'
 
 export default function PriceInput({
   metric,
@@ -235,6 +237,28 @@ export default function PriceInput({
     [currentTick, inputPrice, setMetric, tick],
   )
 
+  const expectedAmounts = useMemo(
+    () =>
+      calculateExpectedAmounts(
+        {
+          currentPrice: position.priceRange.current,
+          minPrice: position.priceRange.min,
+          maxPrice: position.priceRange.max,
+          token0Amount: position.token0.totalProvide + position.token0.unclaimedAmount,
+          token1Amount: position.token1.totalProvide + position.token1.unclaimedAmount,
+        },
+        priceCondition,
+      ),
+    [
+      position.priceRange,
+      position.token0.totalProvide,
+      position.token0.unclaimedAmount,
+      position.token1.totalProvide,
+      position.token1.unclaimedAmount,
+      priceCondition,
+    ],
+  )
+
   return (
     <>
       <Flex alignItems="center" sx={{ gap: '8px' }}>
@@ -290,6 +314,21 @@ export default function PriceInput({
           mode="range-to-infinite"
         />
       </Box>
+
+      <Flex alignItems="center" justifyContent="space-between" sx={{ gap: '8px' }} flexWrap="wrap" mt="8px">
+        <Text color={theme.subText} fontSize={12}>
+          <Trans>Est. Balance</Trans>
+        </Text>
+        <Flex alignItems="center" sx={{ gap: '8px' }}>
+          <Text fontSize={14}>
+            {formatDisplayNumber(expectedAmounts?.amount0, { significantDigits: 4 })} {position.token0.symbol}
+          </Text>
+          <Box width={'1px'} height={'12px'} bg={theme.border} />
+          <Text fontSize={14}>
+            {formatDisplayNumber(expectedAmounts?.amount1, { significantDigits: 4 })} {position.token1.symbol}
+          </Text>
+        </Flex>
+      </Flex>
     </>
   )
 }
