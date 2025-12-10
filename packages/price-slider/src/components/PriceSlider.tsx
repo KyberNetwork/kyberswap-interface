@@ -37,7 +37,7 @@ function PriceSlider({ pool, invertPrice, tick, setTick, comparator, mode }: Pri
 
   const { internalTick, debouncedSetTick, flushDebouncedValues, getTargetTick } = useDebouncedTick(
     tick,
-    setTick,
+    setTick ?? (() => {}),
     isDragging !== null,
   );
 
@@ -108,24 +108,26 @@ function PriceSlider({ pool, invertPrice, tick, setTick, comparator, mode }: Pri
 
   const handleMouseDown = useCallback(
     () => (e: React.MouseEvent) => {
+      if (!setTick) return;
       e.preventDefault();
       setIsDragging('price');
     },
-    [],
+    [setTick],
   );
 
   const handleTouchStart = useCallback(
     () => (e: React.TouchEvent) => {
+      if (!setTick) return;
       e.preventDefault();
       setIsDragging('price');
     },
-    [],
+    [setTick],
   );
 
   // Shared logic for handling drag movement (mouse or touch)
   const handleDragMove = useCallback(
     (clientX: number) => {
-      if (!isDragging || !sliderRef.current || !viewRange || tick === undefined) return;
+      if (!isDragging || !sliderRef.current || !viewRange || tick === undefined || !setTick) return;
 
       const rect = sliderRef.current.getBoundingClientRect();
       const x = clientX - rect.left;
@@ -373,7 +375,9 @@ function PriceSlider({ pool, invertPrice, tick, setTick, comparator, mode }: Pri
 
         {/* Price Handle */}
         <div
-          className="absolute top-0 translate-x-[-50%] translate-y-[1%] cursor-grab active:cursor-grabbing z-10 touch-none will-change-[left]"
+          className={`absolute top-0 translate-x-[-50%] translate-y-[1%] ${
+            setTick ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'
+          } z-10 touch-none will-change-[left]`}
           style={{ left: `${pricePosition}%` }}
           onMouseDown={handleMouseDown()}
           onTouchStart={handleTouchStart()}

@@ -23,7 +23,7 @@ export interface PriceSliderProps {
   pool: PoolInfo;
   invertPrice?: boolean;
   tick?: number;
-  setTick: (tick: number) => void;
+  setTick?: (tick: number) => void;
   comparator?: 'gte' | 'lte';
   mode?: 'range-to-infinite';
 }
