@@ -48,7 +48,7 @@ function AnnouncementComponent() {
   const { account } = useActiveWeb3React()
   const prevAccountRef = useRef<string | null | undefined>(account)
 
-  const isOpenInbox = useModalOpen(ApplicationModal.NOTIFICATION_CENTER) || true
+  const isOpenInbox = useModalOpen(ApplicationModal.NOTIFICATION_CENTER)
   const toggleNotificationCenter = useToggleNotificationCenter()
   const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
