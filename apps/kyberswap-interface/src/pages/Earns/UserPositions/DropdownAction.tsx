@@ -17,7 +17,7 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import { DexMapping } from 'pages/Earns/components/SmartExit/useSmartExit'
+import { DEX_TYPE_MAPPING } from 'pages/Earns/components/SmartExit/constants'
 import { EARN_CHAINS, EarnChain } from 'pages/Earns/constants'
 import { ParsedPosition, PositionStatus } from 'pages/Earns/types'
 import { MEDIA_WIDTHS } from 'theme'
@@ -244,7 +244,7 @@ const DropdownAction = ({
   const removeDisabled = position.status === PositionStatus.CLOSED
   const repositionDisabled = position.status === PositionStatus.CLOSED || position.pool.isUniv2
   const smartExitDisabled =
-    !Object.keys(DexMapping).includes(position.dex.id) ||
+    !Object.keys(DEX_TYPE_MAPPING).includes(position.dex.id) ||
     !EARN_CHAINS[position.chain.id as unknown as EarnChain].smartExitSupported ||
     position.status === PositionStatus.CLOSED ||
     (position.stakingOwner ? account !== position.stakingOwner : false)
@@ -315,7 +315,7 @@ const DropdownAction = ({
     {
       label: hasActiveSmartExitOrder ? t`View Smart Exit Orders` : t`Smart Exit`,
       disabled: smartExitDisabled,
-      disabledTooltip: !Object.keys(DexMapping).includes(position.dex.id)
+      disabledTooltip: !Object.keys(DEX_TYPE_MAPPING).includes(position.dex.id)
         ? t`Smart Exit is currently not supported on ${dexName}`
         : !EARN_CHAINS[position.chain.id as unknown as EarnChain].smartExitSupported
         ? t`Smart Exit is currently not supported on ${chainName}`

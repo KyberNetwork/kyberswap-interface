@@ -3,15 +3,6 @@ import { useSearchParams } from 'react-router-dom'
 
 import { SmartExitFilter } from 'pages/Earns/types'
 
-export enum DexType {
-  DexTypeUniswapV3 = 'DexTypeUniswapV3',
-  DexTypeUniswapV4 = 'DexTypeUniswapV4',
-  DexTypeUniswapV4FairFlow = 'DexTypeUniswapV4FairFlow',
-  DexTypePancakeV3 = 'DexTypePancakeV3',
-  DexTypePancakeInfinityCL = 'DexTypePancakeInfinityCL',
-  DexTypePancakeInfinityCLFairFlow = 'DexTypePancakeInfinityCLFairFlow',
-}
-
 export default function useSmartExitFilter() {
   const [searchParams, setSearchParams] = useSearchParams()
 
