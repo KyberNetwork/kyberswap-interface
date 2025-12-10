@@ -1,10 +1,8 @@
 import { ParsedPosition, PriceCondition } from 'pages/Earns/types'
 
 interface ExpectedAmounts {
-  minAmount0: number
-  maxAmount0: number
-  minAmount1: number
-  maxAmount1: number
+  amount0: number
+  amount1: number
 }
 
 /**
@@ -29,14 +27,13 @@ export function calculateExpectedAmounts(
   position: ParsedPosition,
   priceCondition?: PriceCondition,
 ): ExpectedAmounts | null {
-  if (!priceCondition?.gte || !priceCondition?.lte) {
+  if (!priceCondition?.gte && !priceCondition?.lte) {
     return null
   }
 
-  const minExitPrice = parseFloat(priceCondition.gte)
-  const maxExitPrice = parseFloat(priceCondition.lte)
+  const exitPrice = priceCondition.gte ? parseFloat(priceCondition.gte) : parseFloat(priceCondition.lte)
 
-  if (!minExitPrice || !maxExitPrice || minExitPrice > maxExitPrice || minExitPrice <= 0 || maxExitPrice <= 0) {
+  if (!exitPrice || exitPrice <= 0) {
     return null
   }
 
@@ -72,28 +69,12 @@ export function calculateExpectedAmounts(
     isOutOfRange,
   )
 
-  // Calculate expected amounts at min exit price
-  const { amount0: minPriceAmount0, amount1: minPriceAmount1 } = calculateAmountsAtPrice(
-    minExitPrice,
-    positionPriceLower,
-    positionPriceUpper,
-    liquidity,
-  )
+  // Calculate expected amounts at exit price
+  const { amount0, amount1 } = calculateAmountsAtPrice(exitPrice, positionPriceLower, positionPriceUpper, liquidity)
 
-  // Calculate expected amounts at max exit price
-  const { amount0: maxPriceAmount0, amount1: maxPriceAmount1 } = calculateAmountsAtPrice(
-    maxExitPrice,
-    positionPriceLower,
-    positionPriceUpper,
-    liquidity,
-  )
-
-  // Return min/max for each token across both price points
   return {
-    minAmount0: Math.min(minPriceAmount0, maxPriceAmount0),
-    maxAmount0: Math.max(minPriceAmount0, maxPriceAmount0),
-    minAmount1: Math.min(minPriceAmount1, maxPriceAmount1),
-    maxAmount1: Math.max(minPriceAmount1, maxPriceAmount1),
+    amount0,
+    amount1,
   }
 }
 

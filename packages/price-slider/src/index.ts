@@ -1,4 +1,4 @@
 import '@/styles.css';
 
-export { default } from '@/components/UniswapPriceSlider';
-export { default as UniswapPriceSlider } from '@/components/UniswapPriceSlider';
+export { default } from '@/components/PriceSlider';
+export { default as PriceSlider } from '@/components/PriceSlider';

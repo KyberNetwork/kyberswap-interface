@@ -1,15 +1,13 @@
 import { formatNumberBySignificantDigits } from '@kyber/utils/dist/number'
-import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick, tickToPrice } from '@kyber/utils/dist/uniswapv3'
-import PriceRangeSlider from '@kyberswap/price-range-slider'
-import '@kyberswap/price-range-slider/style.css'
+import { nearestUsableTick, priceToClosestTick, tickToPrice } from '@kyber/utils/dist/uniswapv3'
+import PriceSlider from '@kyberswap/price-slider'
+import '@kyberswap/price-slider/style.css'
 import { Trans } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { ChevronDown, Minus, Plus } from 'react-feather'
-import { Flex, Text } from 'rebass'
+import { Box, Flex, Text } from 'rebass'
 
-import { DropdownIcon } from 'components/SwapForm/SlippageSetting'
 import useTheme from 'hooks/useTheme'
-import { CustomPriceInput, PriceInputIcon, PriceInputWrapper } from 'pages/Earns/components/SmartExit/styles'
+import { CustomInput, PriceInputIcon } from 'pages/Earns/components/SmartExit/styles'
 import { Metric, ParsedPosition, PriceCondition, SelectedMetric } from 'pages/Earns/types'
 
 export default function PriceInput({
@@ -24,52 +22,14 @@ export default function PriceInput({
   const theme = useTheme()
   const priceCondition = metric.condition as PriceCondition
 
-  const [priceSliderExpanded, setPriceSliderExpanded] = useState(false)
-  const [lowerTick, setLowerTickState] = useState<number>()
-  const [upperTick, setUpperTickState] = useState<number>()
-
-  // Local input state for debouncing
-  const [inputMinPrice, setInputMinPrice] = useState(priceCondition?.gte ?? '')
-  const [inputMaxPrice, setInputMaxPrice] = useState(priceCondition?.lte ?? '')
+  const [tick, setTick] = useState<number>()
+  const [inputPrice, setInputPrice] = useState(priceCondition?.lte ?? priceCondition?.gte ?? '')
+  const [comparator, setComparator] = useState<'lte' | 'gte'>(priceCondition?.lte ? 'lte' : 'gte')
 
   // Track change source to prevent circular updates
   const changeSourceRef = useRef<'input' | 'slider' | null>(null)
-
-  // Sync local input with external price changes (from slider)
-  useEffect(() => {
-    if (changeSourceRef.current === 'slider' && priceCondition?.gte) {
-      setInputMinPrice(priceCondition.gte)
-    }
-  }, [priceCondition?.gte])
-
-  useEffect(() => {
-    if (changeSourceRef.current === 'slider' && priceCondition?.lte) {
-      setInputMaxPrice(priceCondition.lte)
-    }
-  }, [priceCondition?.lte])
-
-  // Debounce input price updates
-  useEffect(() => {
-    if (changeSourceRef.current === 'slider' || metric.metric !== Metric.PoolPrice) return
-    const timer = setTimeout(() => {
-      if (inputMinPrice !== priceCondition?.gte) {
-        setMetric({ ...metric, condition: { ...priceCondition, gte: inputMinPrice } })
-      }
-    }, 300)
-    return () => clearTimeout(timer)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inputMinPrice])
-
-  useEffect(() => {
-    if (changeSourceRef.current === 'slider' || metric.metric !== Metric.PoolPrice) return
-    const timer = setTimeout(() => {
-      if (inputMaxPrice !== priceCondition?.lte) {
-        setMetric({ ...metric, condition: { ...priceCondition, lte: inputMaxPrice } })
-      }
-    }, 300)
-    return () => clearTimeout(timer)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inputMaxPrice])
+  const lastSideRef = useRef<'below' | 'above' | null>(null)
+  const debounceTickFromInputRef = useRef<NodeJS.Timeout | null>(null)
 
   const currentTick = useMemo(
     () =>
@@ -95,243 +55,241 @@ export default function PriceInput({
     [position.pool.tickSpacing, position.token0.decimals, position.token1.decimals],
   )
 
+  // Sync comparator/input when condition changes externally (not via slider)
+  useEffect(() => {
+    if (changeSourceRef.current === 'slider') return
+    if (priceCondition) {
+      const nextComparator = priceCondition.lte ? 'lte' : 'gte'
+      setComparator(nextComparator)
+      const nextPrice = priceCondition.lte || priceCondition.gte || ''
+      setInputPrice(nextPrice)
+    }
+  }, [priceCondition])
+
+  const updateComparatorOnCross = useCallback(
+    (t: number | undefined, priceString: string): 'gte' | 'lte' => {
+      if (t === undefined) return comparator
+
+      const side: 'below' | 'above' = t >= currentTick ? 'above' : 'below'
+      const hasCrossed = lastSideRef.current !== null && lastSideRef.current !== side
+      lastSideRef.current = side
+
+      if (hasCrossed) {
+        const next = side === 'above' ? 'gte' : 'lte'
+        setComparator(next)
+        setMetric({
+          metric: Metric.PoolPrice,
+          condition: { gte: next === 'gte' ? priceString : '', lte: next === 'lte' ? priceString : '' },
+        })
+        return next
+      }
+
+      return comparator
+    },
+    [comparator, currentTick, setMetric],
+  )
+
+  // Keep side reference in sync with latest tick (without forcing comparator change)
+  useEffect(() => {
+    if (tick !== undefined) {
+      lastSideRef.current = tick >= currentTick ? 'above' : 'below'
+    }
+  }, [tick, currentTick])
+
+  // Debounce input price updates
+  useEffect(() => {
+    if (changeSourceRef.current === 'slider' || metric.metric !== Metric.PoolPrice) return
+    const timer = setTimeout(() => {
+      // Detect crossing on debounced input value
+      const typedTick = priceToTick(inputPrice)
+      let nextComparator = comparator
+      if (typedTick !== undefined) {
+        const side: 'below' | 'above' = typedTick >= currentTick ? 'above' : 'below'
+        const hasCrossed = lastSideRef.current !== null && lastSideRef.current !== side
+        if (hasCrossed) {
+          nextComparator = side === 'above' ? 'gte' : 'lte'
+        }
+        lastSideRef.current = side
+      }
+
+      if (nextComparator !== comparator) {
+        setComparator(nextComparator)
+      }
+
+      if (
+        (nextComparator === 'gte' && inputPrice !== priceCondition?.gte) ||
+        (nextComparator === 'lte' && inputPrice !== priceCondition?.lte)
+      ) {
+        setMetric({
+          metric: Metric.PoolPrice,
+          condition: {
+            gte: nextComparator === 'gte' ? inputPrice : '',
+            lte: nextComparator === 'lte' ? inputPrice : '',
+          },
+        })
+      }
+    }, 300)
+    return () => clearTimeout(timer)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inputPrice, comparator])
+
+  // Debounce tick updates from input typing to avoid jitter on the slider
+  useEffect(() => {
+    if (changeSourceRef.current === 'slider') return
+    if (debounceTickFromInputRef.current) {
+      clearTimeout(debounceTickFromInputRef.current)
+    }
+    debounceTickFromInputRef.current = setTimeout(() => {
+      const t = priceToTick(inputPrice)
+      if (t !== undefined && t !== tick) {
+        setTick(t)
+        lastSideRef.current = t >= currentTick ? 'above' : 'below'
+      }
+      debounceTickFromInputRef.current = null
+    }, 200)
+
+    return () => {
+      if (debounceTickFromInputRef.current) {
+        clearTimeout(debounceTickFromInputRef.current)
+        debounceTickFromInputRef.current = null
+      }
+    }
+  }, [currentTick, inputPrice, priceToTick, tick])
+
   // Wrapper to set tick from slider (updates price)
-  const setLowerTick = useCallback(
+  const setPriceTick = useCallback(
     (tick: number | undefined) => {
       changeSourceRef.current = 'slider'
-      setLowerTickState(tick)
+      setTick(tick)
       if (tick !== undefined) {
         const price = formatNumberBySignificantDigits(
           tickToPrice(tick, position.token0.decimals, position.token1.decimals, false),
           6,
         )
-        setMetric({ ...metric, condition: { ...priceCondition, gte: price.toString() } })
+        const nextComparator = updateComparatorOnCross(tick, price.toString())
+        setMetric({
+          metric: Metric.PoolPrice,
+          condition: {
+            gte: nextComparator === 'gte' ? price.toString() : '',
+            lte: nextComparator === 'lte' ? price.toString() : '',
+          },
+        })
+        setInputPrice(price.toString())
       }
       // Reset source after React batch update
       setTimeout(() => {
         changeSourceRef.current = null
       }, 0)
     },
-    [metric, priceCondition, position.token0.decimals, position.token1.decimals, setMetric],
-  )
-
-  const setUpperTick = useCallback(
-    (tick: number | undefined) => {
-      changeSourceRef.current = 'slider'
-      setUpperTickState(tick)
-      if (tick !== undefined) {
-        const price = formatNumberBySignificantDigits(
-          tickToPrice(tick, position.token0.decimals, position.token1.decimals, false),
-          6,
-        )
-        setMetric({ ...metric, condition: { ...priceCondition, lte: price.toString() } })
-      }
-      setTimeout(() => {
-        changeSourceRef.current = null
-      }, 0)
-    },
-    [metric, priceCondition, position.token0.decimals, position.token1.decimals, setMetric],
+    [position.token0.decimals, position.token1.decimals, setMetric, updateComparatorOnCross],
   )
 
   // Sync tick from price input (only when source is input, not slider)
   useEffect(() => {
     if (changeSourceRef.current === 'slider') return
-    if (priceCondition?.gte) {
-      const tick = priceToTick(priceCondition.gte)
-      if (tick !== undefined && tick !== lowerTick) {
-        setLowerTickState(tick)
+    if (priceCondition) {
+      const priceTick = priceToTick(priceCondition.gte ?? priceCondition.lte ?? '')
+      if (priceTick !== undefined && priceTick !== tick) {
+        setTick(priceTick)
+        // Update side reference but don't auto-switch comparator unless crossing
+        lastSideRef.current = priceTick >= currentTick ? 'above' : 'below'
+        // Keep comparator from condition if provided; else keep current
+        const conditionComparator = priceCondition.lte ? 'lte' : priceCondition.gte ? 'gte' : comparator
+        if (conditionComparator !== comparator) {
+          setComparator(conditionComparator)
+        }
       }
     }
-  }, [priceCondition?.gte, priceToTick, lowerTick])
+  }, [comparator, currentTick, priceCondition, priceToTick, tick])
 
-  useEffect(() => {
-    if (changeSourceRef.current === 'slider') return
-    if (priceCondition?.lte) {
-      const tick = priceToTick(priceCondition.lte)
-      if (tick !== undefined && tick !== upperTick) {
-        setUpperTickState(tick)
-      }
-    }
-  }, [priceCondition?.lte, priceToTick, upperTick])
-
-  const onDecreaseMinPrice = useCallback(() => {
-    if (lowerTick === undefined) return
-    const newLowerTick = lowerTick - position.pool.tickSpacing
-    if (newLowerTick < MIN_TICK) return
-    const price = formatNumberBySignificantDigits(
-      tickToPrice(newLowerTick, position.token0.decimals, position.token1.decimals, false),
-      6,
-    )
-    setMetric({ ...metric, condition: { ...priceCondition, gte: price.toString() } })
-    setInputMinPrice(price.toString())
-  }, [
-    lowerTick,
-    metric,
-    position.pool.tickSpacing,
-    position.token0.decimals,
-    position.token1.decimals,
-    priceCondition,
-    setMetric,
-  ])
-
-  const onIncreaseMinPrice = useCallback(() => {
-    if (lowerTick === undefined) return
-    const newLowerTick = lowerTick + position.pool.tickSpacing
-    if (newLowerTick > MAX_TICK) return
-    const price = formatNumberBySignificantDigits(
-      tickToPrice(newLowerTick, position.token0.decimals, position.token1.decimals, false),
-      6,
-    )
-    setMetric({ ...metric, condition: { ...priceCondition, gte: price.toString() } })
-    setInputMinPrice(price.toString())
-  }, [
-    lowerTick,
-    metric,
-    position.pool.tickSpacing,
-    position.token0.decimals,
-    position.token1.decimals,
-    priceCondition,
-    setMetric,
-  ])
-
-  const onDecreaseMaxPrice = useCallback(() => {
-    if (upperTick === undefined) return
-    const newUpperTick = upperTick - position.pool.tickSpacing
-    if (newUpperTick < MIN_TICK) return
-    const price = formatNumberBySignificantDigits(
-      tickToPrice(newUpperTick, position.token0.decimals, position.token1.decimals, false),
-      6,
-    )
-    setMetric({ ...metric, condition: { ...priceCondition, lte: price.toString() } })
-    setInputMaxPrice(price.toString())
-  }, [
-    upperTick,
-    metric,
-    position.pool.tickSpacing,
-    position.token0.decimals,
-    position.token1.decimals,
-    priceCondition,
-    setMetric,
-  ])
-
-  const onIncreaseMaxPrice = useCallback(() => {
-    if (upperTick === undefined) return
-    const newUpperTick = upperTick + position.pool.tickSpacing
-    if (newUpperTick > MAX_TICK) return
-    const price = formatNumberBySignificantDigits(
-      tickToPrice(newUpperTick, position.token0.decimals, position.token1.decimals, false),
-      6,
-    )
-    setMetric({ ...metric, condition: { ...priceCondition, lte: price.toString() } })
-    setInputMaxPrice(price.toString())
-  }, [
-    upperTick,
-    metric,
-    position.pool.tickSpacing,
-    position.token0.decimals,
-    position.token1.decimals,
-    priceCondition,
-    setMetric,
-  ])
-
-  const wrappedCorrectPrice = (value: string, type: 'lower' | 'upper') => {
+  const wrappedCorrectPrice = (value: string) => {
     const tick = priceToClosestTick(value, position.token0.decimals, position.token1.decimals, false)
     if (tick !== undefined) {
       const correctedTick =
         tick % position.pool.tickSpacing === 0 ? tick : nearestUsableTick(tick, position.pool.tickSpacing)
       const correctedPrice = tickToPrice(correctedTick, position.token0.decimals, position.token1.decimals, false)
-      if (type === 'lower') {
-        setInputMinPrice(formatNumberBySignificantDigits(correctedPrice, 6).toString())
-      } else {
-        setInputMaxPrice(formatNumberBySignificantDigits(correctedPrice, 6).toString())
-      }
+      const formatted = formatNumberBySignificantDigits(correctedPrice, 6).toString()
+      const nextComparator = updateComparatorOnCross(correctedTick, formatted)
+      setInputPrice(formatted)
+      setMetric({
+        metric: Metric.PoolPrice,
+        condition: { gte: nextComparator === 'gte' ? formatted : '', lte: nextComparator === 'lte' ? formatted : '' },
+      })
+      setTick(correctedTick)
     }
   }
 
+  const handleComparatorChange = useCallback(
+    (next: 'gte' | 'lte') => {
+      setComparator(next)
+      // Manual change should respect current tick side for future crossings
+      if (tick !== undefined) {
+        lastSideRef.current = tick >= currentTick ? 'above' : 'below'
+      }
+      const price = inputPrice
+      setMetric({
+        metric: Metric.PoolPrice,
+        condition: { gte: next === 'gte' ? price : '', lte: next === 'lte' ? price : '' },
+      })
+    },
+    [currentTick, inputPrice, setMetric, tick],
+  )
+
   return (
     <>
-      <Text>
-        <Trans>Exit when the pool price is between</Trans>
-      </Text>
-      <Flex sx={{ gap: '0.75rem' }} alignItems={'center'} mt="8px" mb="8px">
-        <PriceInputWrapper>
-          <PriceInputIcon onClick={onDecreaseMinPrice}>
-            <Minus color={theme.subText} size={16} />
-          </PriceInputIcon>
-          <CustomPriceInput
-            placeholder="Min price"
-            value={inputMinPrice}
-            onChange={e => {
-              const value = e.target.value
-              // Only allow numbers and decimal point
-              if (/^\d*\.?\d*$/.test(value)) {
-                setInputMinPrice(value)
-              }
-            }}
-            onBlur={e => wrappedCorrectPrice(e.target.value, 'lower')}
-          />
-          <PriceInputIcon>
-            <Plus color={theme.subText} size={16} onClick={onIncreaseMinPrice} />
-          </PriceInputIcon>
-        </PriceInputWrapper>
-
-        <PriceInputWrapper>
-          <PriceInputIcon onClick={onDecreaseMaxPrice}>
-            <Minus color={theme.subText} size={16} />
-          </PriceInputIcon>
-          <CustomPriceInput
-            placeholder="Max price"
-            value={inputMaxPrice}
-            onChange={e => {
-              const value = e.target.value
-              // Only allow numbers and decimal point
-              if (/^\d*\.?\d*$/.test(value)) {
-                setInputMaxPrice(value)
-              }
-            }}
-            onBlur={e => wrappedCorrectPrice(e.target.value, 'upper')}
-          />
-          <PriceInputIcon onClick={onIncreaseMaxPrice}>
-            <Plus color={theme.subText} size={16} />
-          </PriceInputIcon>
-        </PriceInputWrapper>
-      </Flex>
-
-      <Flex
-        justifyContent="center"
-        onClick={() => setPriceSliderExpanded(e => !e)}
-        marginTop={2}
-        style={{ cursor: 'default', position: 'relative', userSelect: 'none' }}
-      >
-        <Text color={theme.text} fontSize={14}>
-          {position.token1.symbol} <Trans>per</Trans> {position.token0.symbol}
+      <Flex alignItems="center" sx={{ gap: '8px' }}>
+        <Text>
+          <Trans>
+            Exit when {position.token0.symbol}/{position.token1.symbol}
+          </Trans>
         </Text>
-        <DropdownIcon data-flip={priceSliderExpanded} size={16} style={{ position: 'absolute', right: 0, top: 0 }}>
-          <ChevronDown />
-        </DropdownIcon>
+        <Flex
+          sx={{
+            display: 'inline-flex',
+            borderRadius: '12px',
+            overflow: 'hidden',
+            border: `1px solid ${theme.border}`,
+          }}
+        >
+          <PriceInputIcon onClick={() => handleComparatorChange('gte')} $active={comparator === 'gte'}>
+            ≥
+          </PriceInputIcon>
+          <PriceInputIcon onClick={() => handleComparatorChange('lte')} $active={comparator === 'lte'}>
+            ≤
+          </PriceInputIcon>
+        </Flex>
+        <CustomInput
+          placeholder={`${position.token0.symbol}/${position.token1.symbol}`}
+          value={inputPrice}
+          onChange={e => {
+            const value = e.target.value
+            // Only allow numbers and decimal point
+            if (/^\d*\.?\d*$/.test(value)) {
+              setInputPrice(value)
+              const typedTick = priceToTick(value)
+              if (typedTick !== undefined) {
+                updateComparatorOnCross(typedTick, value) // change comparator immediately on cross
+              }
+            }
+          }}
+          onBlur={e => wrappedCorrectPrice(e.target.value)}
+        />
       </Flex>
 
-      <Flex
-        sx={{
-          transition: 'all 200ms ease-in-out',
-          paddingTop: priceSliderExpanded ? '8px' : '0px',
-          height: priceSliderExpanded ? 'max-content' : '0px',
-          overflow: 'hidden',
-        }}
-      >
-        <PriceRangeSlider
+      <Box mt="8px">
+        <PriceSlider
           pool={{
             tickSpacing: position.pool.tickSpacing,
             token0Decimals: position.token0.decimals,
             token1Decimals: position.token1.decimals,
             currentTick,
           }}
-          lowerTick={lowerTick}
-          upperTick={upperTick}
-          setLowerTick={setLowerTick}
-          setUpperTick={setUpperTick}
+          priceTick={tick}
+          setPriceTick={setPriceTick}
+          comparator={comparator}
+          mode="range-to-infinite"
         />
-      </Flex>
+      </Box>
     </>
   )
 }

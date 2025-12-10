@@ -60,10 +60,7 @@ export const SmartExit = ({ position, onDismiss }: { position: ParsedPosition; o
   const invalidPriceCondition = useMemo(() => {
     const priceMetric = selectedMetrics.find(metric => metric.metric === Metric.PoolPrice)
     const priceCondition = priceMetric?.condition as PriceCondition
-    return (
-      priceMetric &&
-      (!priceCondition.gte || !priceCondition.lte || Number(priceCondition.gte) > Number(priceCondition.lte))
-    )
+    return priceMetric && !priceCondition.gte && !priceCondition.lte
   }, [selectedMetrics])
 
   const invalidTimeCondition = useMemo(() => {

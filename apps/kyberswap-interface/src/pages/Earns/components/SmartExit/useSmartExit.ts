@@ -100,13 +100,13 @@ export const useSmartExit = ({ position, selectedMetrics, conditionType, deadlin
           break
 
         case Metric.PoolPrice:
-          if (priceCondition.gte && priceCondition.lte) {
+          if (priceCondition.gte || priceCondition.lte) {
             conditions.push({
               field: {
                 type: Metric.PoolPrice,
                 value: {
-                  gte: parseFloat(priceCondition.gte),
-                  lte: parseFloat(priceCondition.lte),
+                  ...(priceCondition.gte ? { gte: parseFloat(priceCondition.gte) } : {}),
+                  ...(priceCondition.lte ? { lte: parseFloat(priceCondition.lte) } : {}),
                 },
               },
             })

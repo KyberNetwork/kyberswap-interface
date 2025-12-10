@@ -16,40 +16,13 @@ function PriceSliderSkeleton() {
         {/* Track */}
         <Skeleton className="absolute top-1/2 left-0 right-0 h-1 -translate-y-1/2 rounded-sm" />
 
-        {/* Range */}
-        <Skeleton className="absolute top-1/2 left-[25%] w-1/2 h-1 -translate-y-1/2" />
-
         {/* Current Price Marker */}
         <Skeleton className="absolute top-1/2 left-1/2 w-0.5 h-[15px] -translate-x-1/2 -translate-y-1/2" />
 
-        {/* Lower Price Label */}
+        {/* Handle */}
         <Skeleton
-          className="absolute top-1 w-[60px] h-3.5"
-          style={{
-            left: '25%',
-            transform: 'translateX(calc(-100% - 12px))',
-          }}
-        />
-
-        {/* Upper Price Label */}
-        <Skeleton
-          className="absolute top-1 w-[60px] h-3.5"
-          style={{
-            left: '75%',
-            transform: 'translateX(12px)',
-          }}
-        />
-
-        {/* Lower Handle */}
-        <Skeleton
-          className="absolute top-1/2 w-2 h-[35px] rounded-md -translate-x-1/2 -translate-y-1/2"
-          style={{ left: '25%' }}
-        />
-
-        {/* Upper Handle */}
-        <Skeleton
-          className="absolute top-1/2 w-2 h-[35px] rounded-md -translate-x-1/2 -translate-y-1/2"
-          style={{ left: '75%' }}
+          className="absolute top-1/2 w-1 h-[30px] rounded-md -translate-x-1/2 -translate-y-1/2"
+          style={{ left: '35%' }}
         />
       </div>
 

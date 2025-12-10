@@ -9,7 +9,6 @@ import { useNftApprovalAll } from 'hooks/useNftApprovalAll'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import Condition from 'pages/Earns/components/SmartExit/Confirmation/Condition'
-import ExpectedAmount from 'pages/Earns/components/SmartExit/Confirmation/ExpectedAmount'
 import MoreInfo from 'pages/Earns/components/SmartExit/Confirmation/MoreInfo'
 import Success from 'pages/Earns/components/SmartExit/Confirmation/Success'
 import { useSmartExit } from 'pages/Earns/components/SmartExit/useSmartExit'
@@ -72,7 +71,6 @@ export default function Confirmation({
       </Flex>
 
       <Condition position={position} selectedMetrics={selectedMetrics} conditionType={conditionType} />
-      <ExpectedAmount position={position} selectedMetrics={selectedMetrics} conditionType={conditionType} />
       <MoreInfo deadline={deadline} protocolFee={protocolFee} />
 
       <Text fontStyle="italic" fontSize={14} color={theme.subText} my="1rem">

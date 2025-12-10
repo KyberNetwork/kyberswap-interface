@@ -1,3 +1,3 @@
 export { useSmoothZoom } from '@/hooks/useSmoothZoom';
-export { useDebouncedTicks } from '@/hooks/useDebouncedTicks';
+export { useDebouncedTick } from '@/hooks/useDebouncedTick';
 export { useTickPositionConverter } from '@/hooks/useTickPositionConverter';

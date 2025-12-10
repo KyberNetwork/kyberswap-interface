@@ -63,38 +63,21 @@ export const CustomOption = styled(Box)<{ isSelected?: boolean }>`
   }
 `
 
-export const PriceInputWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  padding: 8px;
-  gap: 10px;
-  border-radius: 12px;
-  background-color: ${({ theme }) => rgba(theme.text, 0.04)};
-  cursor: pointer;
-  user-select: none;
-`
-
-export const PriceInputIcon = styled.div`
+export const PriceInputIcon = styled.div<{ $active: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
-  border-radius: 4px;
-  background-color: ${({ theme }) => rgba(theme.text, 0.08)};
-  user-select: none;
-`
+  padding: 4px 10px;
+  border-radius: 10px;
+  font-size: 20px;
+  background-color: ${({ theme, $active }) => ($active ? rgba(theme.primary, 0.2) : 'transparent')};
+  border: 1px solid ${({ theme, $active }) => ($active ? rgba(theme.primary, 0.2) : 'transparent')};
+  color: ${({ theme, $active }) => ($active ? theme.text : theme.subText)};
+  cursor: pointer;
 
-export const CustomPriceInput = styled(Input)`
-  border: none;
-  padding: 0;
-  border-radius: 0;
-  font-size: 16px;
-  color: ${({ theme }) => theme.text};
-  background-color: transparent;
-  flex: 1;
-  text-align: center;
+  &:hover {
+    background-color: ${({ theme, $active }) => ($active ? rgba(theme.primary, 0.2) : rgba(theme.text, 0.08))};
+  }
 `
 
 export const SettingContainer = styled.div`

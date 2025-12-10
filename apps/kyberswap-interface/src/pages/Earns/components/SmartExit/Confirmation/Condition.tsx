@@ -74,14 +74,10 @@ export default function Condition({
           </>
         )}
         {metric1.metric === Metric.PoolPrice && (
-          <>
-            <Text>
-              <Trans>Pool price is between</Trans>
-            </Text>
-            <Text>
-              {priceCondition1.gte} and {priceCondition1.lte} {position.token0.symbol}/{position.token1.symbol}
-            </Text>
-          </>
+          <Text>
+            <Trans>Pool price is</Trans> {priceCondition1.lte ? '≤' : '≥'} {priceCondition1.lte || priceCondition1.gte}{' '}
+            {position.token0.symbol}/{position.token1.symbol}
+          </Text>
         )}
         {metric2 && (
           <>
@@ -111,14 +107,10 @@ export default function Condition({
               </>
             )}
             {metric2.metric === Metric.PoolPrice && (
-              <>
-                <Text>
-                  <Trans>Pool price is between</Trans>
-                </Text>
-                <Text mt="6px">
-                  {priceCondition2.gte} and {priceCondition2.lte} {position.token0.symbol}/{position.token1.symbol}
-                </Text>
-              </>
+              <Text mt="6px">
+                <Trans>Pool price is</Trans> {priceCondition2.lte ? '≤' : '≥'}{' '}
+                {priceCondition2.lte || priceCondition2.gte} {position.token0.symbol}/{position.token1.symbol}
+              </Text>
             )}
           </>
         )}

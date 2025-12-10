@@ -17,15 +17,15 @@ export interface PoolInfo {
 }
 
 /**
- * Props for the UniswapPriceSlider component
+ * Props for the PriceSlider component
  */
-export interface UniswapPriceSliderProps {
+export interface PriceSliderProps {
   pool: PoolInfo;
   invertPrice?: boolean;
-  lowerTick?: number;
-  upperTick?: number;
-  setLowerTick: (tick: number) => void;
-  setUpperTick: (tick: number) => void;
+  priceTick?: number;
+  setPriceTick: (tick: number) => void;
+  comparator?: 'gte' | 'lte';
+  mode?: 'range-to-infinite';
 }
 
 /**
@@ -41,4 +41,4 @@ export interface PriceAxisProps {
 /**
  * Handle type for dragging state
  */
-export type HandleType = 'lower' | 'upper' | null;
+export type HandleType = 'price' | null;
