@@ -47,13 +47,14 @@ function PriceSlider({ pool, invertPrice, tick, setTick, comparator, mode }: Pri
 
   // Initialize View Range
   useEffect(() => {
-    if (isInitialized.current || !tickReady) return;
+    if (isInitialized.current) return;
 
-    const tickDistance = Math.abs(tick - currentTick);
+    const baseTick = tick ?? currentTick;
+    const tickDistance = tick !== undefined ? Math.abs(tick - currentTick) : tickSpacing * 50;
     const padding = Math.max(tickDistance * 0.5, tickSpacing * 50);
 
-    const minTick = Math.min(tick, currentTick);
-    const maxTick = Math.max(tick, currentTick);
+    const minTick = Math.min(baseTick, currentTick);
+    const maxTick = Math.max(baseTick, currentTick);
 
     setViewRange({
       min: Math.max(MIN_TICK, minTick - padding),
@@ -65,7 +66,7 @@ function PriceSlider({ pool, invertPrice, tick, setTick, comparator, mode }: Pri
   // Auto-adjust viewRange when tick change from outside (e.g., input fields)
   useEffect(() => {
     // Skip if not initialized, dragging, or tick not ready
-    if (!isInitialized.current || isDragging || !tickReady || !viewRange) return;
+    if (!isInitialized.current || isDragging || tick === undefined || !viewRange) return;
 
     // Skip if already adjusted for this exact tick value
     const lastAdjusted = lastAdjustedTickRef.current;
@@ -285,7 +286,7 @@ function PriceSlider({ pool, invertPrice, tick, setTick, comparator, mode }: Pri
     };
   }, [isDragging, handleMouseMove, handleMouseUp, handleTouchMove]);
 
-  if (!tickReady || !viewRange) {
+  if (!viewRange) {
     return <PriceSliderSkeleton />;
   }
 
@@ -293,19 +294,24 @@ function PriceSlider({ pool, invertPrice, tick, setTick, comparator, mode }: Pri
   const displayTick = internalTick ?? tick;
 
   // Calculate price
-  const price = tickToPrice(Math.round(displayTick), token0Decimals, token1Decimals, invertPrice);
+  const price =
+    displayTick !== undefined
+      ? tickToPrice(Math.round(displayTick), token0Decimals, token1Decimals, invertPrice)
+      : null;
   const currentPrice = tickToPrice(currentTick, token0Decimals, token1Decimals, invertPrice);
 
   // Calculate positions
-  const pricePosition = getPositionFromTick(displayTick);
+  const pricePosition = displayTick !== undefined ? getPositionFromTick(displayTick) : null;
   const currentPosition = getPositionFromTick(currentTick);
-  const isPriceLeftOfCurrent = pricePosition <= currentPosition;
+  const isPriceLeftOfCurrent =
+    pricePosition !== null && pricePosition !== undefined ? pricePosition <= currentPosition : true;
   const handleColor = isPriceLeftOfCurrent ? '#31CB9E' : '#7289DA';
   // Range highlight should follow the handle color to keep visual consistency
   const rangeColor = handleColor;
 
   // Highlight range to infinity (optional)
-  const shouldRenderInfiniteRange = mode === 'range-to-infinite' && comparator;
+  const shouldRenderInfiniteRange =
+    mode === 'range-to-infinite' && comparator && pricePosition !== null && pricePosition !== undefined;
   let highlightStart = 0;
   let highlightWidth = 0;
   if (shouldRenderInfiniteRange) {
@@ -317,7 +323,7 @@ function PriceSlider({ pool, invertPrice, tick, setTick, comparator, mode }: Pri
         : invertPrice
           ? 'right'
           : 'left';
-    const clampedPosition = Math.max(0, Math.min(100, pricePosition));
+    const clampedPosition = Math.max(0, Math.min(100, pricePosition ?? 0));
     if (direction === 'left') {
       highlightStart = 0;
       highlightWidth = clampedPosition;
@@ -350,18 +356,20 @@ function PriceSlider({ pool, invertPrice, tick, setTick, comparator, mode }: Pri
         </div>
 
         {/* Price Label */}
-        <div
-          className="absolute top-1 text-white text-xs font-medium whitespace-nowrap pointer-events-none will-change-[left,transform]"
-          style={{
-            left: `${pricePosition}%`,
-            transform: isPriceLeftOfCurrent ? 'translateX(calc(-100% - 8px))' : 'translateX(8px)',
-          }}
-        >
-          {formatDisplayNumber(price, { significantDigits: 6 })}
-        </div>
+        {pricePosition !== null && pricePosition !== undefined && price !== null && (
+          <div
+            className="absolute top-1 text-white text-xs font-medium whitespace-nowrap pointer-events-none will-change-[left,transform]"
+            style={{
+              left: `${pricePosition}%`,
+              transform: isPriceLeftOfCurrent ? 'translateX(calc(-100% - 8px))' : 'translateX(8px)',
+            }}
+          >
+            {formatDisplayNumber(price, { significantDigits: 6 })}
+          </div>
+        )}
 
         {/* Infinite range highlight */}
-        {shouldRenderInfiniteRange && highlightWidth > 0 && (
+        {pricePosition !== null && pricePosition !== undefined && shouldRenderInfiniteRange && highlightWidth > 0 && (
           <div
             className="absolute top-1/2 h-1 -translate-y-1/2 rounded-sm will-change-[left,width]"
             style={{
@@ -374,18 +382,20 @@ function PriceSlider({ pool, invertPrice, tick, setTick, comparator, mode }: Pri
         )}
 
         {/* Price Handle */}
-        <div
-          className={`absolute top-0 translate-x-[-50%] translate-y-[1%] ${
-            setTick ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'
-          } z-10 touch-none will-change-[left]`}
-          style={{ left: `${pricePosition}%` }}
-          onMouseDown={handleMouseDown()}
-          onTouchStart={handleTouchStart()}
-        >
-          <svg width="22" height="35" viewBox="-11 0 22 35" style={{ overflow: 'visible', display: 'block' }}>
-            <path d={brushHandlePath(35)} fill="transparent" stroke={handleColor} strokeWidth={1.5} />
-          </svg>
-        </div>
+        {pricePosition !== null && pricePosition !== undefined && (
+          <div
+            className={`absolute top-0 translate-x-[-50%] translate-y-[1%] ${
+              setTick ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'
+            } z-10 touch-none will-change-[left]`}
+            style={{ left: `${pricePosition}%` }}
+            onMouseDown={handleMouseDown()}
+            onTouchStart={handleTouchStart()}
+          >
+            <svg width="22" height="35" viewBox="-11 0 22 35" style={{ overflow: 'visible', display: 'block' }}>
+              <path d={brushHandlePath(35)} fill="transparent" stroke={handleColor} strokeWidth={1.5} />
+            </svg>
+          </div>
+        )}
       </div>
 
       <PriceAxis
