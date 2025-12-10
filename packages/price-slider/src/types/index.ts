@@ -26,6 +26,7 @@ export interface PriceSliderProps {
   setTick?: (tick: number) => void;
   comparator?: 'gte' | 'lte';
   mode?: 'range-to-infinite';
+  showStepButtons?: boolean;
 }
 
 /**

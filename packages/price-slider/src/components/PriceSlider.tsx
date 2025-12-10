@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-import { MAX_TICK, MIN_TICK, tickToPrice } from '@kyber/utils/dist/uniswapv3';
+import { MAX_TICK, MIN_TICK, nearestUsableTick, tickToPrice } from '@kyber/utils/dist/uniswapv3';
 
 import PriceAxis from '@/components/PriceAxis';
 import PriceSliderSkeleton from '@/components/Skeleton';
@@ -9,7 +9,7 @@ import { useDebouncedTick, useSmoothZoom, useTickPositionConverter } from '@/hoo
 import type { HandleType, PriceSliderProps, ViewRange } from '@/types';
 import { brushHandlePath, formatDisplayNumber, getEdgeIntensity } from '@/utils';
 
-function PriceSlider({ pool, invertPrice, tick, setTick, comparator, mode }: PriceSliderProps) {
+function PriceSlider({ pool, invertPrice, tick, setTick, comparator, mode, showStepButtons }: PriceSliderProps) {
   const { tickSpacing, token0Decimals, token1Decimals, currentTick } = pool;
 
   const [viewRange, setViewRange] = useState<ViewRange | null>(null);
@@ -336,72 +336,114 @@ function PriceSlider({ pool, invertPrice, tick, setTick, comparator, mode }: Pri
   return (
     <div className="ks-ps-style" style={{ width: '100%' }}>
       {/* Slider Wrapper */}
-      <div ref={sliderRef} className="relative w-full h-[60px] mt-1 overflow-hidden">
-        {/* Track */}
-        <div className="absolute top-1/2 left-0 right-0 h-1 bg-[#3a3a3a] -translate-y-1/2 rounded-sm" />
+      <div className="relative w-full h-[60px] mt-1 overflow-hidden">
+        {showStepButtons && (
+          <div className="absolute inset-0 flex items-center justify-between">
+            <button
+              type="button"
+              className="w-5 h-5 rounded bg-[#ffffff14] text-subText text-lg leading-none flex items-center justify-center disabled:opacity-50"
+              onClick={() => {
+                if (!setTick) return;
+                const base = tick ?? currentTick;
+                const next = nearestUsableTick(base - 1, tickSpacing);
+                const clamped = Math.max(MIN_TICK, Math.min(MAX_TICK, next));
+                setTick(clamped);
+              }}
+              disabled={!setTick}
+              aria-label="Decrease price tick"
+            >
+              –
+            </button>
+            <button
+              type="button"
+              className="w-5 h-5 rounded bg-[#ffffff14] text-subText text-lg leading-none flex items-center justify-center disabled:opacity-50"
+              onClick={() => {
+                if (!setTick) return;
+                const base = tick ?? currentTick;
+                const next = nearestUsableTick(base + 1, tickSpacing);
+                const clamped = Math.max(MIN_TICK, Math.min(MAX_TICK, next));
+                setTick(clamped);
+              }}
+              disabled={!setTick}
+              aria-label="Increase price tick"
+            >
+              +
+            </button>
+          </div>
+        )}
 
-        {/* Current Price Marker */}
+        {/* Inner slider area shrinks when buttons are shown */}
         <div
-          className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 z-[5] will-change-[left] group"
-          style={{ left: `${currentPosition}%` }}
+          ref={sliderRef}
+          className="relative h-full"
+          style={showStepButtons ? { marginLeft: 28, marginRight: 28 } : undefined}
         >
-          <div className="w-0.5 h-[15px] bg-[#888] rounded-sm cursor-pointer relative">
-            {/* Arrow indicator */}
-            <div className="absolute -top-[5px] left-1/2 -translate-x-1/2 w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[5px] border-t-[#888]" />
-          </div>
-          {/* Tooltip (always visible when tick is not provided) */}
+          {/* Track */}
+          <div className="absolute top-1/2 left-0 right-0 h-1 bg-[#3a3a3a] -translate-y-1/2 rounded-sm" />
+
+          {/* Current Price Marker */}
           <div
-            className={`absolute -top-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-xs font-medium text-white transition-all duration-150 pointer-events-none z-[100] ${
-              tick === undefined
-                ? 'opacity-100 visible'
-                : 'opacity-0 invisible group-hover:opacity-100 group-hover:visible'
-            }`}
+            className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 z-[5] will-change-[left] group"
+            style={{ left: `${currentPosition}%` }}
           >
-            {formatDisplayNumber(currentPrice, { significantDigits: 6 })}
+            <div className="w-0.5 h-[15px] bg-[#888] rounded-sm cursor-pointer relative">
+              {/* Arrow indicator */}
+              <div className="absolute -top-[5px] left-1/2 -translate-x-1/2 w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[5px] border-t-[#888]" />
+            </div>
+            {/* Tooltip (always visible when tick is not provided) */}
+            <div
+              className={`absolute -top-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-xs font-medium text-white transition-all duration-150 pointer-events-none z-[100] ${
+                tick === undefined
+                  ? 'opacity-100 visible'
+                  : 'opacity-0 invisible group-hover:opacity-100 group-hover:visible'
+              }`}
+            >
+              {formatDisplayNumber(currentPrice, { significantDigits: 6 })}
+            </div>
           </div>
+
+          {/* Price Label */}
+          {pricePosition !== null && pricePosition !== undefined && price !== null && (
+            <div
+              className="absolute top-1 text-white text-xs font-medium whitespace-nowrap pointer-events-none will-change-[left,transform]"
+              style={{
+                left: `${pricePosition}%`,
+                transform: isPriceLeftOfCurrent ? 'translateX(calc(-100% - 8px))' : 'translateX(8px)',
+              }}
+            >
+              {formatDisplayNumber(price, { significantDigits: 6 })}
+            </div>
+          )}
+
+          {/* Infinite range highlight */}
+          {pricePosition !== null && pricePosition !== undefined && shouldRenderInfiniteRange && highlightWidth > 0 && (
+            <div
+              className="absolute top-1/2 h-1 -translate-y-1/2 rounded-sm will-change-[left,width]"
+              style={{
+                left: `${highlightStart}%`,
+                width: `${highlightWidth}%`,
+                background: rangeColor,
+                opacity: 0.7,
+              }}
+            />
+          )}
+
+          {/* Price Handle */}
+          {pricePosition !== null && pricePosition !== undefined && (
+            <div
+              className={`absolute top-0 translate-x-[-50%] translate-y-[1%] ${
+                setTick ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'
+              } z-10 touch-none will-change-[left]`}
+              style={{ left: `${pricePosition}%` }}
+              onMouseDown={handleMouseDown()}
+              onTouchStart={handleTouchStart()}
+            >
+              <svg width="22" height="35" viewBox="-11 0 22 35" style={{ overflow: 'visible', display: 'block' }}>
+                <path d={brushHandlePath(35)} fill="transparent" stroke={handleColor} strokeWidth={1.5} />
+              </svg>
+            </div>
+          )}
         </div>
-
-        {/* Price Label */}
-        {pricePosition !== null && pricePosition !== undefined && price !== null && (
-          <div
-            className="absolute top-1 text-white text-xs font-medium whitespace-nowrap pointer-events-none will-change-[left,transform]"
-            style={{
-              left: `${pricePosition}%`,
-              transform: isPriceLeftOfCurrent ? 'translateX(calc(-100% - 8px))' : 'translateX(8px)',
-            }}
-          >
-            {formatDisplayNumber(price, { significantDigits: 6 })}
-          </div>
-        )}
-
-        {/* Infinite range highlight */}
-        {pricePosition !== null && pricePosition !== undefined && shouldRenderInfiniteRange && highlightWidth > 0 && (
-          <div
-            className="absolute top-1/2 h-1 -translate-y-1/2 rounded-sm will-change-[left,width]"
-            style={{
-              left: `${highlightStart}%`,
-              width: `${highlightWidth}%`,
-              background: rangeColor,
-              opacity: 0.7,
-            }}
-          />
-        )}
-
-        {/* Price Handle */}
-        {pricePosition !== null && pricePosition !== undefined && (
-          <div
-            className={`absolute top-0 translate-x-[-50%] translate-y-[1%] ${
-              setTick ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'
-            } z-10 touch-none will-change-[left]`}
-            style={{ left: `${pricePosition}%` }}
-            onMouseDown={handleMouseDown()}
-            onTouchStart={handleTouchStart()}
-          >
-            <svg width="22" height="35" viewBox="-11 0 22 35" style={{ overflow: 'visible', display: 'block' }}>
-              <path d={brushHandlePath(35)} fill="transparent" stroke={handleColor} strokeWidth={1.5} />
-            </svg>
-          </div>
-        )}
       </div>
 
       <PriceAxis

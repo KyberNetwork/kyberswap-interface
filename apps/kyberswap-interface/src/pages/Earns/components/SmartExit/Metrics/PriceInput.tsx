@@ -313,6 +313,7 @@ export default function PriceInput({
           setTick={setPriceTick}
           comparator={comparator}
           mode="range-to-infinite"
+          showStepButtons
         />
       </Box>
 
