@@ -95,7 +95,7 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   height: 600px;
-  max-height: 70vh;
+  max-height: 80vh;
   ${({ theme }) => theme.mediaWidth.upToMedium`
     width: 100%;
     min-width: 380px;
