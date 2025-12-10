@@ -1,8 +1,13 @@
 import { Trans } from '@lingui/macro'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { Check, ChevronLeft } from 'react-feather'
 import { useMedia } from 'react-use'
 import { useLazyGetAnnouncementsQuery } from 'services/announcement'
-import { useLazyGetNotificationsQuery, useReadNotificationsMutation } from 'services/notification'
+import {
+  useLazyGetNotificationsQuery,
+  useReadAllNotificationsMutation,
+  useReadNotificationsMutation,
+} from 'services/notification'
 import styled, { css } from 'styled-components'
 
 import { ReactComponent as AnnouncementSvg } from 'assets/svg/ic_announcement.svg'
@@ -109,27 +114,6 @@ const Container = styled.div`
   flex-direction: column;
 `
 
-const TabItem = styled.div<{ active: boolean }>`
-  flex: 1;
-  background-color: ${({ theme }) => theme.buttonBlack};
-  border-radius: 20px;
-  padding: 6px 0px;
-  text-align: center;
-  font-weight: 500;
-  font-size: 14px;
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  cursor: pointer;
-  color: ${({ theme }) => theme.subText};
-  ${({ active }) =>
-    active &&
-    css`
-      background-color: ${({ theme }) => theme.tabActive};
-      color: ${({ theme }) => theme.text};
-    `};
-`
-
 const Title = styled.div`
   font-size: 20px;
   font-weight: 500;
@@ -138,14 +122,53 @@ const Title = styled.div`
   gap: 6px;
 `
 
-const TabWrapper = styled.div`
-  background-color: ${({ theme }) => theme.buttonBlack};
-  border-radius: 20px;
+const ContentHeader = styled.div`
   display: flex;
-  padding: 4px;
-  gap: 10px;
+  align-items: center;
   justify-content: space-between;
+  gap: 8px;
+  padding: 8px 16px;
+  min-height: 48px;
+  border-bottom: 1px solid ${({ theme }) => theme.border};
+  background-color: ${({ theme }) => theme.background};
+  :hover {
+    background-color: ${({ theme }) => theme.buttonBlack};
+  }
 `
+
+const BackButton = styled.button`
+  display: inline-flex;
+  color: ${({ theme }) => theme.subText};
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  &:hover {
+    color: ${({ theme }) => theme.text};
+  }
+`
+
+const HeaderTitle = styled.div`
+  flex: 1;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 500;
+  color: ${({ theme }) => theme.text};
+  text-transform: uppercase;
+`
+
+const HeaderAction = styled.button`
+  display: inline-flex;
+  gap: 4px;
+  color: ${({ theme }) => theme.primary};
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+`
+
 const responseDefault = { numberOfUnread: 0, pagination: { totalItems: 0 }, notifications: [] }
 
 export default function AnnouncementComponent() {
@@ -173,6 +196,7 @@ export default function AnnouncementComponent() {
   const [fetchGeneralAnnouncement, { data: respAnnouncement = responseDefault }] = useLazyGetAnnouncementsQuery()
   const [fetchEarnNotifications, { data: respEarnNotification = responseDefault }] = useLazyGetNotificationsQuery()
   const [readNotifications] = useReadNotificationsMutation()
+  const [readAllNotifications, { isLoading: isReadingAll }] = useReadAllNotificationsMutation()
 
   const isCategoryTab = activeTab === Tab.CATEGORY
   const loadingAnnouncement = useRef(false)
@@ -350,6 +374,19 @@ export default function AnnouncementComponent() {
   const currentTotal = selectedCategory === Category.EARN_POSITION ? earnTotal : totalAnnouncement
 
   const numberOfUnread = earnPreview.unread ?? respEarnNotification.numberOfUnread ?? 0
+
+  const onMarkAllAsRead = async () => {
+    if (!account || selectedCategory !== Category.EARN_POSITION || numberOfUnread === 0) return
+    try {
+      const templateIds = earnTemplateIds || undefined
+      await readAllNotifications({ account, templateIds }).unwrap()
+      setEarnAnnouncements(prev => prev.map(item => ({ ...item, isRead: true })))
+      setEarnPreview(prev => ({ ...prev, unread: 0 }))
+    } catch (error) {
+      console.error('readAllNotifications', error)
+    }
+  }
+
   const totalForView =
     selectedCategory === Category.EARN_POSITION
       ? currentTotal || earnPreview.total
@@ -403,16 +440,24 @@ export default function AnnouncementComponent() {
             <Trans>Notifications</Trans>
           </Title>
         </RowBetween>
-
-        <TabWrapper>
-          <TabItem active={isCategoryTab} onClick={() => onSetTab(Tab.CATEGORY)}>
-            <Trans>Category</Trans>
-          </TabItem>
-          <TabItem active={!isCategoryTab} onClick={() => onSetTab(Tab.NOTIFICATIONS)}>
-            <Trans>Notifications</Trans>
-          </TabItem>
-        </TabWrapper>
       </Container>
+
+      {!isCategoryTab && (
+        <ContentHeader>
+          <BackButton onClick={() => onSetTab(Tab.CATEGORY)}>
+            <ChevronLeft size={16} />
+          </BackButton>
+          <HeaderTitle>
+            {selectedCategory === Category.EARN_POSITION ? <Trans>Earn Position</Trans> : <Trans>Announcements</Trans>}
+          </HeaderTitle>
+          {selectedCategory !== Category.ANNOUNCEMENTS && (
+            <HeaderAction onClick={onMarkAllAsRead} disabled={!account || isReadingAll || numberOfUnread === 0}>
+              <Check size={16} />
+              <Trans>Mark all read</Trans>
+            </HeaderAction>
+          )}
+        </ContentHeader>
+      )}
 
       {isCategoryTab ? (
         <div>
