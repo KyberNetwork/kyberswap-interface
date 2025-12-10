@@ -1,6 +1,53 @@
 import { rgba } from 'polished'
 import styled, { css } from 'styled-components'
 
+export const ItemActionWrapper = styled.div`
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 4px;
+  background: ${({ theme }) => rgba(theme.tableHeader, 0.9)};
+  border-radius: 8px;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 150ms ease-in-out, transform 150ms ease-in-out;
+`
+
+export const ItemActionButton = styled.button<{ $active?: boolean }>`
+  width: 16px;
+  height: 16px;
+  border: none;
+  background: transparent;
+  color: ${({ theme, $active }) => ($active ? theme.primary : theme.subText)};
+  padding: 0;
+  cursor: pointer;
+  &:hover {
+    color: ${({ theme, $active }) => ($active ? theme.primary : theme.text)};
+  }
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+`
+
+export const PinnedBadge = styled.div`
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  color: ${({ theme }) => theme.primary};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+`
+
 export const InboxItemWrapper = styled.div<{ isRead: boolean }>`
   border-bottom: 1px solid ${({ theme }) => theme.border};
   background-color: ${({ theme }) => theme.background};
@@ -11,6 +58,7 @@ export const InboxItemWrapper = styled.div<{ isRead: boolean }>`
   flex-direction: column;
   justify-content: space-between;
   cursor: pointer;
+  position: relative;
   ${({ isRead }) =>
     !isRead
       ? css`
@@ -24,6 +72,15 @@ export const InboxItemWrapper = styled.div<{ isRead: boolean }>`
             background-color: ${({ theme }) => theme.buttonBlack};
           }
         `};
+
+  &:hover ${ItemActionWrapper} {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+  &:hover ${PinnedBadge} {
+    opacity: 0;
+  }
 `
 
 export const Title = styled.div<{ isRead: boolean }>`

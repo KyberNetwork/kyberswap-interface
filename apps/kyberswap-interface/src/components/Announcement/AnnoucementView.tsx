@@ -52,6 +52,8 @@ type Props = {
   showDetailAnnouncement?: (index: number) => void
   selectedCategory?: Category | null
   onPrivateAnnouncementRead?: (announcement: PrivateAnnouncement, statusMessage: string) => void | Promise<void>
+  onPrivateAnnouncementPin?: (announcement: PrivateAnnouncement) => void | Promise<void>
+  onPrivateAnnouncementDelete?: (announcement: PrivateAnnouncement) => void | Promise<void>
 }
 
 export default function AnnouncementView({
@@ -62,6 +64,8 @@ export default function AnnouncementView({
   showDetailAnnouncement,
   selectedCategory,
   onPrivateAnnouncementRead,
+  onPrivateAnnouncementPin,
+  onPrivateAnnouncementDelete,
 }: Props) {
   const { account } = useActiveWeb3React()
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -136,6 +140,8 @@ export default function AnnouncementView({
                         key={item.id}
                         announcement={item as PrivateAnnouncement}
                         onRead={onReadPrivateAnnouncement}
+                        onPin={onPrivateAnnouncementPin}
+                        onDelete={onPrivateAnnouncementDelete}
                       />
                     ) : (
                       <AnnouncementItem

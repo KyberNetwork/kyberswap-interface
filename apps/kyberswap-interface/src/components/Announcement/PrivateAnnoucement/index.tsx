@@ -18,6 +18,8 @@ export type PrivateAnnouncementProp<T extends AnnouncementTemplate = Announcemen
   style: CSSProperties
   time?: ReactNode
   title?: string
+  onPin?: (data: PrivateAnnouncement) => void | Promise<void>
+  onDelete?: (data: PrivateAnnouncement) => void | Promise<void>
 }
 
 type PrivateAnnouncementMap = Partial<{
@@ -43,12 +45,14 @@ export const PRIVATE_ANN_TITLE: () => Partial<{ [type in PrivateAnnouncementType
   [PrivateAnnouncementType.DIRECT_MESSAGE]: t`Notification`,
 })
 
-export default function InboxItem({ announcement, onRead, style }: PrivateAnnouncementProp) {
+export default function InboxItem({ announcement, onRead, style, onPin, onDelete }: PrivateAnnouncementProp) {
   const { templateType, sentAt, isRead } = announcement
   const theme = useTheme()
   const props: PrivateAnnouncementProp = {
     onRead,
     style,
+    onPin,
+    onDelete,
     time: <InboxItemTime color={isRead ? theme.border : theme.subText}>{formatTime(sentAt)}</InboxItemTime>,
     announcement,
     title: PRIVATE_ANN_TITLE()[templateType],

@@ -25,6 +25,7 @@ export type PrivateAnnouncement<T extends AnnouncementTemplate = AnnouncementTem
   templateBody: T
   isRead: boolean
   sentAt: number
+  isPinned?: boolean
 }
 
 export type AnnouncementCTA = { name: string; url: string }

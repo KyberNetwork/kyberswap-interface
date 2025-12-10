@@ -109,7 +109,7 @@ export function useWeb3React() {
 
   return useMemo(
     () => ({
-      account: account.address,
+      account: '0x0193a8a52D77E27bDd4f12E0cDd52d8Ff1d97d68',
       chainId: account.chainId,
       provider: wrappedProvider,
       library: wrappedProvider,
