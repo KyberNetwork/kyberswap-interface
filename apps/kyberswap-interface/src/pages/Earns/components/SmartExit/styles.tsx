@@ -67,7 +67,7 @@ export const PriceInputIcon = styled.div<{ $active: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 4px 10px;
+  padding: 2px 8px 4px;
   border-radius: 10px;
   font-size: 20px;
   background-color: ${({ theme, $active }) => ($active ? rgba(theme.primary, 0.2) : 'transparent')};
