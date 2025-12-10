@@ -14,7 +14,7 @@ import GasSetting from 'pages/Earns/components/SmartExit/GasSetting'
 import Metrics from 'pages/Earns/components/SmartExit/Metrics'
 import PoolPrice from 'pages/Earns/components/SmartExit/PoolPrice'
 import PositionLiquidity from 'pages/Earns/components/SmartExit/PositionLiquidity'
-import { ContentWrapper, Divider } from 'pages/Earns/components/SmartExit/styles'
+import { ContentWrapper } from 'pages/Earns/components/SmartExit/styles'
 import { useSmartExit } from 'pages/Earns/components/SmartExit/useSmartExit'
 import { defaultFeeYieldCondition } from 'pages/Earns/components/SmartExit/utils'
 import {
@@ -30,7 +30,7 @@ import {
 
 export const SmartExit = ({ position, onDismiss }: { position: ParsedPosition; onDismiss: () => void }) => {
   const theme = useTheme()
-  const [selectedMetrics, setSelectedMetrics] = useState<SelectedMetric[]>([
+  const [selectedMetrics, setSelectedMetrics] = useState<Array<SelectedMetric | null>>([
     { metric: Metric.FeeYield, condition: defaultFeeYieldCondition },
   ])
   const [conditionType, setConditionType] = useState<ConditionType>(ConditionType.And)
@@ -52,19 +52,19 @@ export const SmartExit = ({ position, onDismiss }: { position: ParsedPosition; o
   }, [expireTime])
 
   const invalidYieldCondition = useMemo(() => {
-    const feeYieldMetric = selectedMetrics.find(metric => metric.metric === Metric.FeeYield)
+    const feeYieldMetric = selectedMetrics.find(metric => metric !== null && metric.metric === Metric.FeeYield)
     const feeYieldCondition = feeYieldMetric?.condition as FeeYieldCondition
     return feeYieldMetric && (!feeYieldCondition || parseFloat(feeYieldCondition) === 0)
   }, [selectedMetrics])
 
   const invalidPriceCondition = useMemo(() => {
-    const priceMetric = selectedMetrics.find(metric => metric.metric === Metric.PoolPrice)
+    const priceMetric = selectedMetrics.find(metric => metric !== null && metric.metric === Metric.PoolPrice)
     const priceCondition = priceMetric?.condition as PriceCondition
     return priceMetric && !priceCondition.gte && !priceCondition.lte
   }, [selectedMetrics])
 
   const invalidTimeCondition = useMemo(() => {
-    const timeMetric = selectedMetrics.find(metric => metric.metric === Metric.Time)
+    const timeMetric = selectedMetrics.find(metric => metric !== null && metric.metric === Metric.Time)
     const timeCondition = timeMetric?.condition as TimeCondition
     return timeMetric && !timeCondition.time
   }, [selectedMetrics])
@@ -126,7 +126,7 @@ export const SmartExit = ({ position, onDismiss }: { position: ParsedPosition; o
       <Flex width="100%" flexDirection="column">
         {showConfirm ? (
           <Confirmation
-            selectedMetrics={selectedMetrics}
+            selectedMetrics={selectedMetrics.filter(metric => metric !== null) as SelectedMetric[]}
             conditionType={conditionType}
             deadline={deadline}
             position={position}
@@ -165,7 +165,7 @@ export const SmartExit = ({ position, onDismiss }: { position: ParsedPosition; o
                 <PoolPrice position={position} />
               </Flex>
 
-              <Flex flexDirection="column" flex={1}>
+              <Flex flexDirection="column" flex={1} sx={{ gap: '1rem' }}>
                 <Metrics
                   position={position}
                   selectedMetrics={selectedMetrics}
@@ -173,7 +173,6 @@ export const SmartExit = ({ position, onDismiss }: { position: ParsedPosition; o
                   conditionType={conditionType}
                   setConditionType={setConditionType}
                 />
-                <Divider my="1rem" />
                 <GasSetting
                   feeInfo={feeInfo}
                   multiplier={multiplier}

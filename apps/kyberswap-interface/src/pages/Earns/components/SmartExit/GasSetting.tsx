@@ -33,8 +33,9 @@ export default function GasSetting({
     !feeSettingExpanded &&
     (customGasPercent ? parseFloat(customGasPercent) > feeInfo.gas.percentage : multiplier > 1)
 
+  if (!feeInfo) return null
   return (
-    <>
+    <Flex flexDirection="column" sx={{ gap: '4px' }}>
       <Flex alignItems="center" justifyContent="space-between">
         <Text>{t`Max Execution Gas`}:</Text>
         {!feeInfo ? (
@@ -138,6 +139,6 @@ export default function GasSetting({
           </Text>
         </Flex>
       </Flex>
-    </>
+    </Flex>
   )
 }

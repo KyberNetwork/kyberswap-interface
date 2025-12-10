@@ -18,7 +18,7 @@ export default function TimeInput({
 }: {
   metric: SelectedMetric
   setMetric: (value: SelectedMetric) => void
-  selectedMetric?: SelectedMetric
+  selectedMetric?: SelectedMetric | null
 }) {
   const theme = useTheme()
   const [openDatePicker, setOpenDatePicker] = useState(false)
@@ -58,7 +58,7 @@ export default function TimeInput({
           arrowColor={theme.border}
         />
       </Flex>
-      <Text mt="16px">
+      <Text>
         <Trans>Set Schedule</Trans>
       </Text>
       <Flex
@@ -68,7 +68,6 @@ export default function TimeInput({
           padding: '8px 12px',
           justifyContent: 'space-between',
           alignItems: 'center',
-          marginTop: '8px',
           cursor: 'pointer',
         }}
         role="button"

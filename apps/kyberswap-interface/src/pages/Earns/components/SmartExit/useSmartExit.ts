@@ -19,7 +19,7 @@ import { friendlyError } from 'utils/errorMessage'
 
 export interface UseSmartExitParams {
   position: ParsedPosition
-  selectedMetrics: SelectedMetric[]
+  selectedMetrics: Array<SelectedMetric | null>
   conditionType: ConditionType
   deadline: number
 }
@@ -69,7 +69,7 @@ export const useSmartExit = ({ position, selectedMetrics, conditionType, deadlin
       positionId: position.id,
       removeLiquidity: positionLiquidity,
       unwrap: position.token0.isNative || position.token1.isNative,
-      condition: buildConditions(selectedMetrics, conditionType),
+      condition: buildConditions(selectedMetrics.filter(metric => metric !== null) as SelectedMetric[], conditionType),
       deadline,
     }
   }, [

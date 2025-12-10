@@ -7,12 +7,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Box, Flex, Text } from 'rebass'
 
 import useTheme from 'hooks/useTheme'
+import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import { calculateExpectedAmounts } from 'pages/Earns/components/SmartExit/Metrics/calculateExpectedAmounts'
 import { CustomInput, PriceInputIcon } from 'pages/Earns/components/SmartExit/styles'
 import { Metric, ParsedPosition, PriceCondition, SelectedMetric } from 'pages/Earns/types'
 import { formatDisplayNumber } from 'utils/numbers'
-
-import PositionSkeleton from '../../PositionSkeleton'
 
 export default function PriceInput({
   metric,
@@ -263,7 +262,7 @@ export default function PriceInput({
 
   return (
     <>
-      <Flex alignItems="center" sx={{ gap: '8px' }}>
+      <Flex alignItems="center" sx={{ gap: '6px' }}>
         <Text>
           <Trans>
             Exit when {position.token0.symbol}/{position.token1.symbol}
@@ -302,7 +301,7 @@ export default function PriceInput({
         />
       </Flex>
 
-      <Box mt="8px">
+      <Box>
         <PriceSlider
           pool={{
             tickSpacing: position.pool.tickSpacing,
@@ -317,7 +316,7 @@ export default function PriceInput({
         />
       </Box>
 
-      <Flex alignItems="center" justifyContent="space-between" sx={{ gap: '8px' }} flexWrap="wrap" mt="12px">
+      <Flex alignItems="center" justifyContent="space-between" sx={{ gap: '8px' }} flexWrap="wrap">
         <Text color={theme.subText} fontSize={12}>
           <Trans>Est. Balance</Trans>
         </Text>

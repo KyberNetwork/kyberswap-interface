@@ -1,16 +1,11 @@
 import { Label, RadioGroup, RadioGroupItem } from '@kyber/ui'
 import { Trans } from '@lingui/macro'
-import { Trash2 } from 'react-feather'
-import { Flex } from 'rebass'
+import { Box, Flex } from 'rebass'
 
 import useTheme from 'hooks/useTheme'
 import MetricSelect from 'pages/Earns/components/SmartExit/Metrics/MetricSelect'
-import { Divider } from 'pages/Earns/components/SmartExit/styles'
-import { getDefaultCondition } from 'pages/Earns/components/SmartExit/utils'
 import { ConditionType, Metric, ParsedPosition, SelectedMetric, TimeCondition } from 'pages/Earns/types'
 import { ButtonText } from 'theme'
-
-const supportedMetrics = [Metric.FeeYield, Metric.PoolPrice, Metric.Time]
 
 export default function Metrics({
   position,
@@ -20,17 +15,22 @@ export default function Metrics({
   setConditionType,
 }: {
   position: ParsedPosition
-  selectedMetrics: SelectedMetric[]
-  setSelectedMetrics: (value: SelectedMetric[]) => void
+  selectedMetrics: Array<SelectedMetric | null>
+  setSelectedMetrics: (value: Array<SelectedMetric | null>) => void
   conditionType: ConditionType
   setConditionType: (v: ConditionType) => void
 }) {
   const theme = useTheme()
   const [metric1, metric2] = selectedMetrics
 
-  const onChangeMetric1 = (value: SelectedMetric) => setSelectedMetrics(metric2 ? [value, metric2] : [value])
-  const onChangeMetric2 = (value: SelectedMetric) => setSelectedMetrics([metric1, value])
+  const onChangeMetric1 = (value: SelectedMetric) =>
+    setSelectedMetrics(metric2 !== undefined ? [value, metric2] : [value])
+  const onChangeMetric2 = (value: SelectedMetric) => {
+    if (metric1 === null) return
+    setSelectedMetrics([{ ...metric1 }, value])
+  }
   const onRemoveMetric2 = () => {
+    if (metric1 === null) return
     let newMetric1 = metric1
     if (metric1.metric === Metric.Time && (metric1.condition as TimeCondition).condition === 'before') {
       newMetric1 = { ...metric1, condition: { ...(metric1.condition as TimeCondition), condition: 'after' } }
@@ -38,19 +38,16 @@ export default function Metrics({
     setSelectedMetrics([newMetric1])
   }
   const onAddMetric2 = () => {
-    const newMetric = supportedMetrics.filter(item => item !== metric1.metric)[0]
-    const newCondition = getDefaultCondition(newMetric)
-    if (!newCondition) return
-    setSelectedMetrics([metric1, { metric: newMetric, condition: newCondition }])
+    if (metric1 === null) return
+    setSelectedMetrics([{ ...metric1 }, null])
   }
 
   return (
     <Flex flexDirection="column">
       <MetricSelect metric={metric1} setMetric={onChangeMetric1} selectedMetric={metric2} position={position} />
-      <Divider my="1rem" />
-      {metric2 ? (
+      {metric2 !== undefined ? (
         <>
-          <Flex justifyContent="space-between" alignItems="center">
+          <Box py="1rem">
             <RadioGroup value={conditionType} onValueChange={v => setConditionType(v as ConditionType)}>
               <Flex sx={{ gap: '8px' }}>
                 <RadioGroupItem value={ConditionType.And} id={ConditionType.And} />
@@ -64,31 +61,27 @@ export default function Metrics({
                 </Label>
               </Flex>
             </RadioGroup>
-            <ButtonText
-              style={{
-                width: 'fit-content',
-                color: theme.red,
-                fontSize: '14px',
-                marginRight: '2px',
-              }}
-              onClick={onRemoveMetric2}
-            >
-              <Trash2 size={16} color={theme.subText} />
-            </ButtonText>
-          </Flex>
-          <Divider my="1rem" />
-          <MetricSelect metric={metric2} setMetric={onChangeMetric2} selectedMetric={metric1} position={position} />
+          </Box>
+          <MetricSelect
+            metric={metric2}
+            setMetric={onChangeMetric2}
+            selectedMetric={metric1}
+            position={position}
+            onRemove={onRemoveMetric2}
+          />
         </>
       ) : (
-        <ButtonText
-          style={{
-            width: 'fit-content',
-            color: theme.primary,
-          }}
-          onClick={onAddMetric2}
-        >
-          + <Trans>Add Condition 2</Trans>
-        </ButtonText>
+        <Box mt="1rem">
+          <ButtonText
+            style={{
+              width: 'fit-content',
+              color: theme.primary,
+            }}
+            onClick={onAddMetric2}
+          >
+            + <Trans>Add Condition 2</Trans>
+          </ButtonText>
+        </Box>
       )}
     </Flex>
   )

@@ -46,7 +46,7 @@ export default function FeeYieldInput({
           </Text>
         </Flex>
       </Flex>
-      <Flex justifyContent="flex-end" sx={{ gap: '4px' }} mt="8px">
+      <Flex justifyContent="flex-end" sx={{ gap: '4px' }}>
         {[5, 10, 15, 20].map(item => {
           const isSelected = metric.condition === item.toString()
 

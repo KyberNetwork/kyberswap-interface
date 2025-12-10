@@ -1,6 +1,7 @@
 import { Trans, t } from '@lingui/macro'
 import { useMemo } from 'react'
-import { Flex, Text } from 'rebass'
+import { X } from 'react-feather'
+import { Box, Flex, Text } from 'rebass'
 
 import useTheme from 'hooks/useTheme'
 import FeeYieldInput from 'pages/Earns/components/SmartExit/Metrics/FeeYieldInput'
@@ -15,11 +16,13 @@ export default function MetricSelect({
   setMetric,
   selectedMetric,
   position,
+  onRemove,
 }: {
-  metric: SelectedMetric
+  metric: SelectedMetric | null
   setMetric: (value: SelectedMetric) => void
-  selectedMetric?: SelectedMetric
+  selectedMetric?: SelectedMetric | null
   position: ParsedPosition
+  onRemove?: () => void
 }) {
   const theme = useTheme()
   const metricOptions = useMemo(
@@ -42,21 +45,31 @@ export default function MetricSelect({
   )
 
   return (
-    <>
-      <Flex alignItems="center" sx={{ gap: '1rem' }} justifyContent="space-between" mb="1rem">
+    <Flex
+      flexDirection="column"
+      p="1rem"
+      sx={{ borderRadius: '12px', border: `1px solid ${theme.tabActive}`, gap: '12px', position: 'relative' }}
+    >
+      {onRemove && (
+        <Box sx={{ position: 'absolute', top: '4px', right: '4px', cursor: 'pointer' }}>
+          <X onClick={onRemove} size={14} color={theme.subText} />
+        </Box>
+      )}
+      <Flex alignItems="center" sx={{ gap: '1rem' }} justifyContent="space-between">
         <Text>
           <Trans>Select Metric</Trans>
         </Text>
         <CustomSelect
           options={metricOptions}
           onChange={value => {
-            if (value === metric.metric) return
+            if (value === metric?.metric) return
             const newMetric = value as Metric
             const condition = getDefaultCondition(newMetric)
             if (condition === null) return
             setMetric({ metric: newMetric, condition })
           }}
-          value={metric.metric}
+          value={metric?.metric ?? null}
+          placeholder={<Trans>Select</Trans>}
           menuStyle={{ width: '250px', marginTop: '2px' }}
           arrow="chevron"
           arrowSize={16}
@@ -64,13 +77,15 @@ export default function MetricSelect({
         />
       </Flex>
 
-      {metric.metric === Metric.FeeYield && <FeeYieldInput metric={metric} setMetric={setMetric} />}
+      {metric !== null && metric.metric === Metric.FeeYield && <FeeYieldInput metric={metric} setMetric={setMetric} />}
 
-      {metric.metric === Metric.PoolPrice && <PriceInput metric={metric} setMetric={setMetric} position={position} />}
+      {metric !== null && metric.metric === Metric.PoolPrice && (
+        <PriceInput metric={metric} setMetric={setMetric} position={position} />
+      )}
 
-      {metric.metric === Metric.Time && (
+      {metric !== null && metric.metric === Metric.Time && (
         <TimeInput metric={metric} setMetric={setMetric} selectedMetric={selectedMetric} />
       )}
-    </>
+    </Flex>
   )
 }
