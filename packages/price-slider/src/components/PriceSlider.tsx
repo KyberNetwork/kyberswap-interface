@@ -349,8 +349,14 @@ function PriceSlider({ pool, invertPrice, tick, setTick, comparator, mode }: Pri
             {/* Arrow indicator */}
             <div className="absolute -top-[5px] left-1/2 -translate-x-1/2 w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[5px] border-t-[#888]" />
           </div>
-          {/* Tooltip */}
-          <div className="absolute -top-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-xs font-medium text-white opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 pointer-events-none z-[100]">
+          {/* Tooltip (always visible when tick is not provided) */}
+          <div
+            className={`absolute -top-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-xs font-medium text-white transition-all duration-150 pointer-events-none z-[100] ${
+              tick === undefined
+                ? 'opacity-100 visible'
+                : 'opacity-0 invisible group-hover:opacity-100 group-hover:visible'
+            }`}
+          >
             {formatDisplayNumber(currentPrice, { significantDigits: 6 })}
           </div>
         </div>
