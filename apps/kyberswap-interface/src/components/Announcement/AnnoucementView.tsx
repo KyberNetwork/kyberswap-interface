@@ -4,11 +4,11 @@ import { Info } from 'react-feather'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
 import InfiniteLoader from 'react-window-infinite-loader'
-import { Text } from 'rebass'
+import { Flex, Text } from 'rebass'
 import styled, { CSSProperties } from 'styled-components'
 
 import AnnouncementItem from 'components/Announcement/AnnoucementItem'
-import InboxItem from 'components/Announcement/PrivateAnnoucement'
+import InboxItem, { hasValidPrivateAnnouncementType } from 'components/Announcement/PrivateAnnoucement'
 import { Announcement, PrivateAnnouncement } from 'components/Announcement/type'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
@@ -67,12 +67,17 @@ export default function AnnouncementView({
   const scrollRef = useRef<HTMLDivElement>(null)
   const theme = useTheme()
 
-  const list = announcements ?? []
-  const total = totalAnnouncement ?? 0
   const handleLoadMore = loadMoreAnnouncements ?? (() => null)
   const handleToggle = toggleNotificationCenter ?? (() => null)
   const handleShowDetail = showDetailAnnouncement ?? (() => null)
   const currentCategory = selectedCategory ?? null
+
+  const rawList = (announcements as (PrivateAnnouncement | Announcement)[] | undefined) ?? []
+  const visibleList =
+    currentCategory !== Category.ANNOUNCEMENTS
+      ? (rawList as PrivateAnnouncement[]).filter(hasValidPrivateAnnouncementType)
+      : (rawList as Announcement[])
+  const total = totalAnnouncement ?? 0
 
   const onReadPrivateAnnouncement = (item: PrivateAnnouncement, statusMessage: string) => {
     if (!account) return
@@ -85,9 +90,9 @@ export default function AnnouncementView({
     handleToggle()
   }
 
-  const hasMore = list.length !== total
-  const isItemLoaded = (index: number) => !hasMore || index < list.length
-  const itemCount = hasMore ? list.length + 1 : list.length
+  const hasMore = rawList.length < total
+  const isItemLoaded = (index: number) => !hasMore || index < visibleList.length
+  const itemCount = hasMore ? visibleList.length + 1 : visibleList.length
 
   const node = scrollRef?.current
   useEffect(() => {
@@ -97,7 +102,15 @@ export default function AnnouncementView({
   }, [node])
 
   return (
-    <>
+    <Flex flexDirection="column" flex={1}>
+      {visibleList.length === 0 && (
+        <Flex flexDirection="column" justifyContent="center" alignItems="center" height="100%" style={{ gap: 8 }}>
+          <Info color={theme.subText} size={27} />
+          <Text color={theme.subText} textAlign="center">
+            <Trans>No notifications found</Trans>
+          </Text>
+        </Flex>
+      )}
       <ListAnnouncement>
         <AutoSizer>
           {({ height, width }) => (
@@ -116,7 +129,7 @@ export default function AnnouncementView({
                     if (!isItemLoaded(index)) {
                       return null
                     }
-                    const item = list[index]
+                    const item = visibleList[index]
                     return currentCategory === Category.EARN_POSITION ? (
                       <InboxItem
                         style={style}
@@ -139,22 +152,6 @@ export default function AnnouncementView({
           )}
         </AutoSizer>
       </ListAnnouncement>
-      {list.length === 0 && (
-        <div
-          style={{
-            alignItems: 'center',
-            margin: '24px 0px 32px 0px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 8,
-          }}
-        >
-          <Info color={theme.subText} size={27} />
-          <Text color={theme.subText} textAlign="center">
-            <Trans>No notifications found</Trans>
-          </Text>
-        </div>
-      )}
-    </>
+    </Flex>
   )
 }

@@ -97,6 +97,7 @@ const Wrapper = styled.div`
   `};
   ${({ theme }) => theme.mediaWidth.upToSmall`
     width: 100%;
+    min-width: 0px;
     height: unset;
   `};
 `
@@ -157,6 +158,7 @@ export default function AnnouncementComponent() {
   const [announcementPreview, setAnnouncementPreview] = useState<{ total: number; first?: Announcement }>({ total: 0 })
   const { mixpanelHandler } = useMixpanel()
   const { account } = useActiveWeb3React()
+  const prevAccountRef = useRef<string | null | undefined>(account)
 
   const isOpenInbox = useModalOpen(ApplicationModal.NOTIFICATION_CENTER)
   const toggleNotificationCenter = useToggleNotificationCenter()
@@ -232,36 +234,60 @@ export default function AnnouncementComponent() {
     ],
   )
 
-  useEffect(() => {
-    const fetchPreview = async () => {
-      try {
-        if (account) {
-          const { data } = await fetchEarnNotifications({
-            account,
-            templateIds: earnTemplateIds,
-            page: 1,
-            pageSize: 1,
-          })
-          const notifications = (data?.notifications ?? []) as PrivateAnnouncement[]
-          setEarnPreview({
-            total: data?.pagination?.totalItems ?? 0,
-            unread: data?.numberOfUnread ?? 0,
-            first: notifications[0],
-          })
-        }
-
-        const { data } = await fetchGeneralAnnouncement({ page: 1, pageSize: 1 })
-        setAnnouncementPreview({
-          total: data?.pagination?.totalItems ?? 0,
-          first: (data?.notifications ?? [])[0] as Announcement | undefined,
+  const fetchPreview = useCallback(async () => {
+    try {
+      if (account) {
+        const { data } = await fetchEarnNotifications({
+          account,
+          templateIds: earnTemplateIds,
+          page: 1,
+          pageSize: 1,
         })
-      } catch (error) {
-        console.error(error)
+        const notifications = (data?.notifications ?? []) as PrivateAnnouncement[]
+        setEarnPreview({
+          total: data?.pagination?.totalItems ?? 0,
+          unread: data?.numberOfUnread ?? 0,
+          first: notifications[0],
+        })
+      } else {
+        setEarnPreview({ total: 0, unread: 0 })
       }
-    }
 
-    fetchPreview()
+      const { data } = await fetchGeneralAnnouncement({ page: 1, pageSize: 1 })
+      setAnnouncementPreview({
+        total: data?.pagination?.totalItems ?? 0,
+        first: (data?.notifications ?? [])[0] as Announcement | undefined,
+      })
+    } catch (error) {
+      console.error(error)
+    }
   }, [account, earnTemplateIds, fetchEarnNotifications, fetchGeneralAnnouncement])
+
+  useEffect(() => {
+    fetchPreview()
+  }, [fetchPreview])
+
+  useEffect(() => {
+    if (prevAccountRef.current === account) return
+    prevAccountRef.current = account
+    setPage(1)
+    setAnnouncements([])
+    setEarnAnnouncements([])
+    if (activeTab === Tab.NOTIFICATIONS && selectedCategory) {
+      fetchAnnouncementsByTab(true, Tab.NOTIFICATIONS, selectedCategory)
+    }
+  }, [account, activeTab, fetchAnnouncementsByTab, selectedCategory])
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchPreview()
+      if (isOpenInbox && activeTab === Tab.NOTIFICATIONS && selectedCategory) {
+        fetchAnnouncementsByTab(true, Tab.NOTIFICATIONS, selectedCategory)
+      }
+    }, 10000)
+
+    return () => clearInterval(interval)
+  }, [activeTab, fetchAnnouncementsByTab, fetchPreview, isOpenInbox, selectedCategory])
 
   const onPrivateAnnouncementRead = useCallback(
     async (announcement: PrivateAnnouncement, _statusMessage: string) => {
@@ -354,6 +380,7 @@ export default function AnnouncementComponent() {
   }
 
   const badgeText = numberOfUnread > 0 ? formatNumberOfUnread(numberOfUnread) : null
+
   const bellIcon = (
     <StyledMenuButton
       active={isOpenInbox || numberOfUnread > 0}
@@ -366,65 +393,66 @@ export default function AnnouncementComponent() {
       {badgeText && <Badge isOverflow={badgeText.length >= 3}>{badgeText}</Badge>}
     </StyledMenuButton>
   )
+
+  const content = (
+    <Wrapper>
+      <Container>
+        <RowBetween alignItems="center" gap="10px">
+          <Title>
+            <NotificationIcon size={18} />
+            <Trans>Notifications</Trans>
+          </Title>
+        </RowBetween>
+
+        <TabWrapper>
+          <TabItem active={isCategoryTab} onClick={() => onSetTab(Tab.CATEGORY)}>
+            <Trans>Category</Trans>
+          </TabItem>
+          <TabItem active={!isCategoryTab} onClick={() => onSetTab(Tab.NOTIFICATIONS)}>
+            <Trans>Notifications</Trans>
+          </TabItem>
+        </TabWrapper>
+      </Container>
+
+      {isCategoryTab ? (
+        <div>
+          <CategoryItem
+            title="Earn Position"
+            counter={numberOfUnread}
+            subLine1={previewPosition ? `${previewPosition.token0Symbol}/${previewPosition.token1Symbol}` : undefined}
+            subLine2={previewPosition?.positionId ? `#${previewPosition.positionId}` : undefined}
+            icon={<FarmingIcon />}
+            onClick={() => onSelectCategory(Category.EARN_POSITION)}
+          />
+          <CategoryItem
+            title="Announcements"
+            counter={announcementCount}
+            subLine1={announcementPreview.first?.templateBody?.name}
+            icon={<AnnouncementSvg />}
+            onClick={() => onSelectCategory(Category.ANNOUNCEMENTS)}
+          />
+        </div>
+      ) : (
+        <AnnouncementView
+          announcements={currentAnnouncements}
+          totalAnnouncement={totalForView}
+          loadMoreAnnouncements={loadMoreAnnouncements}
+          toggleNotificationCenter={togglePopupWithAckAllMessage}
+          showDetailAnnouncement={showDetailAnnouncement}
+          selectedCategory={selectedCategory}
+          onPrivateAnnouncementRead={onPrivateAnnouncementRead}
+        />
+      )}
+    </Wrapper>
+  )
+
   return (
     <StyledMenu>
       {isMobile ? (
         <>
           {bellIcon}
           <Modal isOpen={isOpenInbox} onDismiss={togglePopupWithAckAllMessage} minHeight={80}>
-            <Wrapper>
-              <Container>
-                <RowBetween alignItems="center" gap="10px">
-                  <Title>
-                    <NotificationIcon size={18} />
-                    <Trans>Notifications</Trans>
-                  </Title>
-                </RowBetween>
-
-                <TabWrapper>
-                  <TabItem active={isCategoryTab} onClick={() => onSetTab(Tab.CATEGORY)}>
-                    <Trans>Category</Trans>
-                  </TabItem>
-                  <TabItem active={!isCategoryTab} onClick={() => onSetTab(Tab.NOTIFICATIONS)}>
-                    <Trans>Notifications</Trans>
-                  </TabItem>
-                </TabWrapper>
-              </Container>
-
-              {isCategoryTab ? (
-                <div>
-                  <CategoryItem
-                    title="Earn Position"
-                    counter={numberOfUnread}
-                    subLine1={
-                      previewPosition ? `${previewPosition.token0Symbol}/${previewPosition.token1Symbol}` : undefined
-                    }
-                    subLine2={previewPosition?.positionId ? `#${previewPosition.positionId}` : undefined}
-                    icon={<FarmingIcon />}
-                    onClick={() => onSelectCategory(Category.EARN_POSITION)}
-                  />
-                  <CategoryItem
-                    title="Announcements"
-                    counter={announcementCount}
-                    subLine1={announcementPreview.first?.templateBody?.name}
-                    icon={<AnnouncementSvg />}
-                    onClick={() => onSelectCategory(Category.ANNOUNCEMENTS)}
-                  />
-                </div>
-              ) : (
-                <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-                  <AnnouncementView
-                    announcements={currentAnnouncements}
-                    totalAnnouncement={totalForView}
-                    loadMoreAnnouncements={loadMoreAnnouncements}
-                    toggleNotificationCenter={togglePopupWithAckAllMessage}
-                    showDetailAnnouncement={showDetailAnnouncement}
-                    selectedCategory={selectedCategory}
-                    onPrivateAnnouncementRead={onPrivateAnnouncementRead}
-                  />
-                </div>
-              )}
-            </Wrapper>
+            {content}
           </Modal>
         </>
       ) : (
@@ -434,59 +462,7 @@ export default function AnnouncementComponent() {
           isOpen={isOpenInbox}
           toggle={togglePopupWithAckAllMessage}
         >
-          <Wrapper>
-            <Container>
-              <RowBetween alignItems="center" gap="10px">
-                <Title>
-                  <NotificationIcon size={18} />
-                  <Trans>Notifications</Trans>
-                </Title>
-              </RowBetween>
-
-              <TabWrapper>
-                <TabItem active={isCategoryTab} onClick={() => onSetTab(Tab.CATEGORY)}>
-                  <Trans>Category</Trans>
-                </TabItem>
-                <TabItem active={!isCategoryTab} onClick={() => onSetTab(Tab.NOTIFICATIONS)}>
-                  <Trans>Notifications</Trans>
-                </TabItem>
-              </TabWrapper>
-            </Container>
-
-            {isCategoryTab ? (
-              <div>
-                <CategoryItem
-                  title="Earn Position"
-                  counter={numberOfUnread}
-                  subLine1={
-                    previewPosition ? `${previewPosition.token0Symbol}/${previewPosition.token1Symbol}` : undefined
-                  }
-                  subLine2={previewPosition?.positionId ? `#${previewPosition.positionId}` : undefined}
-                  icon={<FarmingIcon />}
-                  onClick={() => onSelectCategory(Category.EARN_POSITION)}
-                />
-                <CategoryItem
-                  title="Announcements"
-                  counter={announcementCount}
-                  subLine1={announcementPreview.first?.templateBody?.name}
-                  icon={<AnnouncementSvg />}
-                  onClick={() => onSelectCategory(Category.ANNOUNCEMENTS)}
-                />
-              </div>
-            ) : (
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-                <AnnouncementView
-                  announcements={currentAnnouncements}
-                  totalAnnouncement={totalForView}
-                  loadMoreAnnouncements={loadMoreAnnouncements}
-                  toggleNotificationCenter={togglePopupWithAckAllMessage}
-                  showDetailAnnouncement={showDetailAnnouncement}
-                  selectedCategory={selectedCategory}
-                  onPrivateAnnouncementRead={onPrivateAnnouncementRead}
-                />
-              </div>
-            )}
-          </Wrapper>
+          {content}
         </MenuFlyout>
       )}
       <DetailAnnouncementPopup fetchMore={fetchMoreAnnouncement} />

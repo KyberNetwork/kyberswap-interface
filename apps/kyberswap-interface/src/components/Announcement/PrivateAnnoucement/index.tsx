@@ -32,6 +32,9 @@ const ANNOUNCEMENT_MAP: () => PrivateAnnouncementMap = () =>
     [PrivateAnnouncementType.DIRECT_MESSAGE]: InboxItemPrivateMessage,
   } as PrivateAnnouncementMap)
 
+export const hasValidPrivateAnnouncementType = (announcement: PrivateAnnouncement) =>
+  Boolean(announcement.templateType && ANNOUNCEMENT_MAP()[announcement.templateType])
+
 export const PRIVATE_ANN_TITLE: () => Partial<{ [type in PrivateAnnouncementType]: string }> = () => ({
   [PrivateAnnouncementType.ELASTIC_POOLS]: t`Elastic Liquidity Positions`,
   [PrivateAnnouncementType.EARN_POSITION]: t`Earn Position`,
