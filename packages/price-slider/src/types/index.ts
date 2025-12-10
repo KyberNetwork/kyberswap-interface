@@ -22,8 +22,8 @@ export interface PoolInfo {
 export interface PriceSliderProps {
   pool: PoolInfo;
   invertPrice?: boolean;
-  priceTick?: number;
-  setPriceTick: (tick: number) => void;
+  tick?: number;
+  setTick: (tick: number) => void;
   comparator?: 'gte' | 'lte';
   mode?: 'range-to-infinite';
 }

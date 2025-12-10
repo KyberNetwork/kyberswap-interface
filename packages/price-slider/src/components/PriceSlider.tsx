@@ -9,7 +9,7 @@ import { useDebouncedTick, useSmoothZoom, useTickPositionConverter } from '@/hoo
 import type { HandleType, PriceSliderProps, ViewRange } from '@/types';
 import { brushHandlePath, formatDisplayNumber, getEdgeIntensity } from '@/utils';
 
-function PriceSlider({ pool, invertPrice, priceTick, setPriceTick, comparator, mode }: PriceSliderProps) {
+function PriceSlider({ pool, invertPrice, tick, setTick, comparator, mode }: PriceSliderProps) {
   const { tickSpacing, token0Decimals, token1Decimals, currentTick } = pool;
 
   const [viewRange, setViewRange] = useState<ViewRange | null>(null);
@@ -23,10 +23,10 @@ function PriceSlider({ pool, invertPrice, priceTick, setPriceTick, comparator, m
 
   // Track side of current price to detect crossings
   useEffect(() => {
-    if (priceTick !== undefined) {
-      lastSideRef.current = priceTick >= currentTick ? 'above' : 'below';
+    if (tick !== undefined) {
+      lastSideRef.current = tick >= currentTick ? 'above' : 'below';
     }
-  }, [priceTick, currentTick]);
+  }, [tick, currentTick]);
 
   // Keep viewRangeRef in sync with viewRange state
   useEffect(() => {
@@ -36,31 +36,31 @@ function PriceSlider({ pool, invertPrice, priceTick, setPriceTick, comparator, m
   const { startSmoothZoom } = useSmoothZoom(viewRange, setViewRange);
 
   const { internalTick, debouncedSetTick, flushDebouncedValues, getTargetTick } = useDebouncedTick(
-    priceTick,
-    setPriceTick,
+    tick,
+    setTick,
     isDragging !== null,
   );
 
   const { getPositionFromTick, getTickFromPosition } = useTickPositionConverter(viewRange, tickSpacing, invertPrice);
 
-  const tickReady = priceTick !== undefined;
+  const tickReady = tick !== undefined;
 
   // Initialize View Range
   useEffect(() => {
     if (isInitialized.current || !tickReady) return;
 
-    const tickDistance = Math.abs(priceTick - currentTick);
+    const tickDistance = Math.abs(tick - currentTick);
     const padding = Math.max(tickDistance * 0.5, tickSpacing * 50);
 
-    const minTick = Math.min(priceTick, currentTick);
-    const maxTick = Math.max(priceTick, currentTick);
+    const minTick = Math.min(tick, currentTick);
+    const maxTick = Math.max(tick, currentTick);
 
     setViewRange({
       min: Math.max(MIN_TICK, minTick - padding),
       max: Math.min(MAX_TICK, maxTick + padding),
     });
     isInitialized.current = true;
-  }, [priceTick, currentTick, tickSpacing, tickReady]);
+  }, [tick, currentTick, tickSpacing, tickReady]);
 
   // Auto-adjust viewRange when tick change from outside (e.g., input fields)
   useEffect(() => {
@@ -69,10 +69,10 @@ function PriceSlider({ pool, invertPrice, priceTick, setPriceTick, comparator, m
 
     // Skip if already adjusted for this exact tick value
     const lastAdjusted = lastAdjustedTickRef.current;
-    if (lastAdjusted === priceTick) return;
+    if (lastAdjusted === tick) return;
 
     const currentRange = viewRange.max - viewRange.min;
-    const pricePos = ((priceTick - viewRange.min) / currentRange) * 100;
+    const pricePos = ((tick - viewRange.min) / currentRange) * 100;
     const currentPos = ((currentTick - viewRange.min) / currentRange) * 100;
 
     // Check if price handle is outside visible area
@@ -90,8 +90,8 @@ function PriceSlider({ pool, invertPrice, priceTick, setPriceTick, comparator, m
 
     // If adjustment needed, calculate new viewRange
     if (priceOutsideLeft || priceOutsideRight || spanTooSmall || spanTooLarge) {
-      const tickDistance = Math.abs(priceTick - currentTick);
-      const center = (priceTick + currentTick) / 2;
+      const tickDistance = Math.abs(tick - currentTick);
+      const center = (tick + currentTick) / 2;
 
       const idealPadding = tickDistance * (AUTO_CENTER_PADDING / (100 - 2 * AUTO_CENTER_PADDING));
       const minPadding = Math.max(tickDistance * 0.3, tickSpacing * 20);
@@ -101,10 +101,10 @@ function PriceSlider({ pool, invertPrice, priceTick, setPriceTick, comparator, m
       const targetMax = Math.min(MAX_TICK, center + tickDistance / 2 + padding);
 
       // Mark this tick as adjusted to prevent re-triggering
-      lastAdjustedTickRef.current = priceTick;
+      lastAdjustedTickRef.current = tick;
       startSmoothZoom(targetMin, targetMax);
     }
-  }, [priceTick, isDragging, tickReady, viewRange, tickSpacing, currentTick, startSmoothZoom]);
+  }, [tick, isDragging, tickReady, viewRange, tickSpacing, currentTick, startSmoothZoom]);
 
   const handleMouseDown = useCallback(
     () => (e: React.MouseEvent) => {
@@ -125,7 +125,7 @@ function PriceSlider({ pool, invertPrice, priceTick, setPriceTick, comparator, m
   // Shared logic for handling drag movement (mouse or touch)
   const handleDragMove = useCallback(
     (clientX: number) => {
-      if (!isDragging || !sliderRef.current || !viewRange || priceTick === undefined) return;
+      if (!isDragging || !sliderRef.current || !viewRange || tick === undefined) return;
 
       const rect = sliderRef.current.getBoundingClientRect();
       const x = clientX - rect.left;
@@ -135,7 +135,7 @@ function PriceSlider({ pool, invertPrice, priceTick, setPriceTick, comparator, m
       // Immediate update when crossing current price to allow comparator changes upstream
       const side: 'below' | 'above' = newTick >= currentTick ? 'above' : 'below';
       if (lastSideRef.current && lastSideRef.current !== side) {
-        setPriceTick(newTick);
+        setTick(newTick);
       }
       lastSideRef.current = side;
 
@@ -167,16 +167,7 @@ function PriceSlider({ pool, invertPrice, priceTick, setPriceTick, comparator, m
       // Update tick value
       debouncedSetTick(newTick);
     },
-    [
-      debouncedSetTick,
-      getTickFromPosition,
-      isDragging,
-      priceTick,
-      startSmoothZoom,
-      viewRange,
-      currentTick,
-      setPriceTick,
-    ],
+    [debouncedSetTick, getTickFromPosition, isDragging, tick, startSmoothZoom, viewRange, currentTick, setTick],
   );
 
   const handleMouseMove = useCallback(
@@ -204,7 +195,7 @@ function PriceSlider({ pool, invertPrice, priceTick, setPriceTick, comparator, m
     setIsDragging(null);
 
     // Use target tick for auto-center calculation
-    const finalTick = targetTick ?? priceTick;
+    const finalTick = targetTick ?? tick;
 
     if (finalTick === undefined) return;
 
@@ -258,7 +249,7 @@ function PriceSlider({ pool, invertPrice, priceTick, setPriceTick, comparator, m
         startSmoothZoom(targetMin, targetMax);
       }
     }, 50);
-  }, [flushDebouncedValues, getTargetTick, invertPrice, priceTick, currentTick, tickSpacing, startSmoothZoom]);
+  }, [flushDebouncedValues, getTargetTick, invertPrice, tick, currentTick, tickSpacing, startSmoothZoom]);
 
   useEffect(() => {
     if (!isDragging) return;
@@ -297,7 +288,7 @@ function PriceSlider({ pool, invertPrice, priceTick, setPriceTick, comparator, m
   }
 
   // Use internal tick for smooth visual updates during dragging
-  const displayTick = internalTick ?? priceTick;
+  const displayTick = internalTick ?? tick;
 
   // Calculate price
   const price = tickToPrice(Math.round(displayTick), token0Decimals, token1Decimals, invertPrice);

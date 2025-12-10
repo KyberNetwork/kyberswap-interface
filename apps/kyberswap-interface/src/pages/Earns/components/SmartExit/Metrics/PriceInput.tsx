@@ -309,8 +309,8 @@ export default function PriceInput({
             token1Decimals: position.token1.decimals,
             currentTick,
           }}
-          priceTick={tick}
-          setPriceTick={setPriceTick}
+          tick={tick}
+          setTick={setPriceTick}
           comparator={comparator}
           mode="range-to-infinite"
         />

@@ -13,22 +13,18 @@ import {
  * Hook for smooth tick updates with animation and debouncing for single price handle
  * Handles move slowly/smoothly towards target position
  */
-export const useDebouncedTick = (
-  priceTick: number | undefined,
-  setPriceTick: (tick: number) => void,
-  isDragging: boolean,
-) => {
+export const useDebouncedTick = (tick: number | undefined, setTick: (tick: number) => void, isDragging: boolean) => {
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const animationRef = useRef<number | null>(null);
 
   // Target tick (where user wants to go)
-  const targetTickRef = useRef<number | undefined>(priceTick);
+  const targetTickRef = useRef<number | undefined>(tick);
 
   // Current internal tick value (tracked via refs for animation loop)
-  const internalTickRef = useRef<number | undefined>(priceTick);
+  const internalTickRef = useRef<number | undefined>(tick);
 
   // Internal tick state for React rendering
-  const [internalTick, setInternalTick] = useState<number | undefined>(priceTick);
+  const [internalTick, setInternalTick] = useState<number | undefined>(tick);
 
   // Helper: calculate dynamic lerp factor based on distance
   const getDynamicLerp = useCallback((diff: number): number => {
@@ -80,11 +76,11 @@ export const useDebouncedTick = (
   // Sync internal state with props when not dragging
   useEffect(() => {
     if (!isDragging) {
-      targetTickRef.current = priceTick;
-      internalTickRef.current = priceTick;
-      setInternalTick(priceTick);
+      targetTickRef.current = tick;
+      internalTickRef.current = tick;
+      setInternalTick(tick);
     }
-  }, [priceTick, isDragging]);
+  }, [tick, isDragging]);
 
   // Smooth update function - set target and start animation
   const debouncedSetTick = useCallback(
@@ -96,10 +92,10 @@ export const useDebouncedTick = (
         clearTimeout(debounceTimerRef.current);
       }
       debounceTimerRef.current = setTimeout(() => {
-        setPriceTick(tick);
+        setTick(tick);
       }, DEBOUNCE_DELAY);
     },
-    [setPriceTick, startAnimation],
+    [setTick, startAnimation],
   );
 
   // Flush debounced values immediately
@@ -112,8 +108,8 @@ export const useDebouncedTick = (
     // Set final value from target
     const finalTick = targetTickRef.current;
 
-    if (finalTick !== undefined && finalTick !== priceTick) {
-      setPriceTick(finalTick);
+    if (finalTick !== undefined && finalTick !== tick) {
+      setTick(finalTick);
       internalTickRef.current = finalTick;
       setInternalTick(finalTick);
     }
@@ -123,7 +119,7 @@ export const useDebouncedTick = (
       cancelAnimationFrame(animationRef.current);
       animationRef.current = null;
     }
-  }, [priceTick, setPriceTick]);
+  }, [tick, setTick]);
 
   // Cleanup on unmount
   useEffect(() => {
