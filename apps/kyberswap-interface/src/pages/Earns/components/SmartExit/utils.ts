@@ -1,3 +1,5 @@
+import { nearestUsableTick, priceToClosestTick, tickToPrice } from '@kyber/utils/dist/uniswapv3'
+
 import { DEX_TYPE_MAPPING } from 'pages/Earns/components/SmartExit/constants'
 import {
   getFeeYieldCondition,
@@ -45,8 +47,13 @@ export const getDefaultCondition = (
         const gap =
           pairCategory === PAIR_CATEGORY.STABLE ? 0.0001 : pairCategory === PAIR_CATEGORY.CORRELATED ? 0.001 : 0.1
         const defaultPrice = position.priceRange.current * (1 + gap)
+        const tick = priceToClosestTick(defaultPrice.toString(), position.token0.decimals, position.token1.decimals)
+        if (tick === undefined) return defaultPriceCondition
+        const nearestTick = nearestUsableTick(tick, position.pool.tickSpacing)
+        const correctedPrice = tickToPrice(nearestTick, position.token0.decimals, position.token1.decimals)
+
         return {
-          gte: defaultPrice.toString(),
+          gte: correctedPrice,
           lte: '',
         }
       }
