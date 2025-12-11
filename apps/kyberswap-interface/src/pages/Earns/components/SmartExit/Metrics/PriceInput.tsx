@@ -9,7 +9,7 @@ import { Box, Flex, Text } from 'rebass'
 import useTheme from 'hooks/useTheme'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import { calculateExpectedAmounts } from 'pages/Earns/components/SmartExit/Metrics/calculateExpectedAmounts'
-import { CustomInput, PriceInputIcon } from 'pages/Earns/components/SmartExit/styles'
+import { PriceCustomInput, PriceInputIcon } from 'pages/Earns/components/SmartExit/styles'
 import { defaultPriceCondition } from 'pages/Earns/components/SmartExit/utils'
 import { getPriceCondition } from 'pages/Earns/components/SmartExit/utils/typeGuards'
 import { Metric, ParsedPosition, SelectedMetric } from 'pages/Earns/types'
@@ -264,7 +264,7 @@ export default function PriceInput({
 
   return (
     <>
-      <Flex alignItems="center" sx={{ gap: '6px' }}>
+      <Flex alignItems="center" sx={{ gap: '4px' }}>
         <Text>
           <Trans>
             Exit when {position.token0.symbol}/{position.token1.symbol}
@@ -285,7 +285,7 @@ export default function PriceInput({
             ≤
           </PriceInputIcon>
         </Flex>
-        <CustomInput
+        <PriceCustomInput
           placeholder={`${position.token0.symbol}/${position.token1.symbol}`}
           value={inputPrice}
           onChange={e => {

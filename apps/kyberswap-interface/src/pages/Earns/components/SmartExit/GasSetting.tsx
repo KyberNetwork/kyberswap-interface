@@ -46,7 +46,7 @@ export default function GasSetting({
             <Text color={isWarningGas ? rgba(theme.warning, 0.9) : theme.text}>
               {customGasPercent
                 ? customGasPercent
-                : formatDisplayNumber(feeInfo.gas.percentage * multiplier, { significantDigits: 2 })}
+                : formatDisplayNumber(feeInfo.gas.percentage * multiplier, { significantDigits: 4 })}
               %
             </Text>
             <Text color={isWarningGas ? rgba(theme.warning, 0.9) : theme.text} marginLeft={1.5}>

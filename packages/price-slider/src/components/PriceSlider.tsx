@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-import { MAX_TICK, MIN_TICK, nearestUsableTick, tickToPrice } from '@kyber/utils/dist/uniswapv3';
+import { MAX_TICK, MIN_TICK, tickToPrice } from '@kyber/utils/dist/uniswapv3';
 
 import PriceAxis from '@/components/PriceAxis';
 import PriceSliderSkeleton from '@/components/Skeleton';
@@ -345,7 +345,7 @@ function PriceSlider({ pool, invertPrice, tick, setTick, comparator, mode, showS
               onClick={() => {
                 if (!setTick) return;
                 const base = tick ?? currentTick;
-                const next = nearestUsableTick(base - 1, tickSpacing);
+                const next = base - tickSpacing;
                 const clamped = Math.max(MIN_TICK, Math.min(MAX_TICK, next));
                 setTick(clamped);
               }}
@@ -360,7 +360,7 @@ function PriceSlider({ pool, invertPrice, tick, setTick, comparator, mode, showS
               onClick={() => {
                 if (!setTick) return;
                 const base = tick ?? currentTick;
-                const next = nearestUsableTick(base + 1, tickSpacing);
+                const next = base + tickSpacing;
                 const clamped = Math.max(MIN_TICK, Math.min(MAX_TICK, next));
                 setTick(clamped);
               }}

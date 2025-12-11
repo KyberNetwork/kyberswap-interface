@@ -35,6 +35,10 @@ export const CustomInput = styled(Input)`
   flex: 1;
 `
 
+export const PriceCustomInput = styled(CustomInput)`
+  padding: 8px 12px;
+`
+
 export const CustomSelect = styled(Select)`
   width: 100%;
   padding: 10px 16px;
