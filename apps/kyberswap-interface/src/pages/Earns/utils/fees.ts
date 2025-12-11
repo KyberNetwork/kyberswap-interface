@@ -248,9 +248,12 @@ export const getUniv4CollectCallData = async ({
   const actions = ethers.utils.solidityPack(['uint8', 'uint8'], [DECREASE_LIQUIDITY, TAKE_PAIR])
 
   // Params for DECREASE_LIQUIDITY
+  // Format: [tokenId, liquidity, amount0Min, amount1Min, hookData]
+  // For collecting fees only: liquidity = 0, amount0Min = 0, amount1Min = 0
+  // This allows collecting all fees without decreasing liquidity
   const params0 = ethers.utils.defaultAbiCoder.encode(
-    ['uint256', 'uint256', 'uint128', 'uint128', 'bytes'],
-    [claimInfo.nftId, 0, 0, 0, '0x'], // 0 liquidity = just claim fees
+    ['uint256', 'uint128', 'uint256', 'uint256', 'bytes'],
+    [claimInfo.nftId, 0, 0, 0, '0x'], // 0 liquidity = just claim fees, 0 min amounts = collect all
   )
 
   // Params for TAKE_PAIR
@@ -263,18 +266,13 @@ export const getUniv4CollectCallData = async ({
   const unlockData = ethers.utils.defaultAbiCoder.encode(['bytes', 'bytes[]'], [actions, [params0, params1]])
 
   // Set deadline
-  const deadline = Math.floor(Date.now() / 1000) + 60
+  const deadline = Math.floor(Date.now() / 1000) + 5 * 60
 
   // Encode function data
   const data = contract.interface.encodeFunctionData('modifyLiquidities', [unlockData, deadline])
 
-  // Determine ETH value to send
-  // const value = 0
-
   return {
     to: contract.address,
     data,
-    // value,
-    // gasLimit: ethers.utils.hexlify(500_000), // safe upper bound
   }
 }
