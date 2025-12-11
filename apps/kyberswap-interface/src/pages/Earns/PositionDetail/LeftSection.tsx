@@ -216,7 +216,7 @@ const LeftSection = ({
                   onOpenClaimFees(position)
                 }
               >
-                {feesClaiming && <Loader size="14px" />}
+                {feesClaiming && <Loader size="14px" stroke={'#505050'} />}
                 {feesClaiming ? t`Claiming` : t`Claim`}
               </PositionAction>
             </Flex>
