@@ -9,8 +9,8 @@ export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
 export const API_URLS = {
   KYBERSWAP_SETTING_API: 'https://ks-setting.kyberswap.com/api',
-  ZAP_API: 'https://zap-api.kyberswap.com',
-  // ZAP_API: 'https://pre-zap-api.kyberengineering.io',
+  // ZAP_API: 'https://zap-api.kyberswap.com',
+  ZAP_API: 'https://pre-zap-api.kyberengineering.io',
   COINGECKO_API_URL: 'https://api.coingecko.com/api/v3',
   GO_PLUS_API: 'https://api.gopluslabs.io/api/v1/token_security',
   ZAP_EARN_API: 'https://zap-earn-service-v3.kyberengineering.io/api',
