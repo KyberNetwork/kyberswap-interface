@@ -7,14 +7,11 @@ import TokenLogo from 'components/TokenLogo'
 import useTheme from 'hooks/useTheme'
 import { Badge, ImageContainer } from 'pages/Earns/UserPositions/styles'
 import {
-  ConditionType,
-  FeeYieldCondition,
-  Metric,
-  ParsedPosition,
-  PriceCondition,
-  SelectedMetric,
-  TimeCondition,
-} from 'pages/Earns/types'
+  getFeeYieldCondition,
+  getPriceCondition,
+  getTimeCondition,
+} from 'pages/Earns/components/SmartExit/utils/typeGuards'
+import { ConditionType, Metric, ParsedPosition, SelectedMetric } from 'pages/Earns/types'
 
 export default function Condition({
   position,
@@ -29,12 +26,12 @@ export default function Condition({
 
   const [metric1, metric2] = selectedMetrics
 
-  const feeYieldCondition1 = metric1.condition as FeeYieldCondition
-  const priceCondition1 = metric1.condition as PriceCondition
-  const timeCondition1 = metric1.condition as TimeCondition
-  const feeYieldCondition2 = metric2?.condition as FeeYieldCondition
-  const priceCondition2 = metric2?.condition as PriceCondition
-  const timeCondition2 = metric2?.condition as TimeCondition
+  const feeYieldCondition1 = getFeeYieldCondition(metric1)
+  const priceCondition1 = getPriceCondition(metric1)
+  const timeCondition1 = getTimeCondition(metric1)
+  const feeYieldCondition2 = metric2 ? getFeeYieldCondition(metric2) : null
+  const priceCondition2 = metric2 ? getPriceCondition(metric2) : null
+  const timeCondition2 = metric2 ? getTimeCondition(metric2) : null
 
   return (
     <>
@@ -66,14 +63,16 @@ export default function Condition({
           marginTop: '1rem',
         }}
       >
-        {metric1.metric === Metric.FeeYield && <Trans>The fee yield ≥ {feeYieldCondition1}%</Trans>}
-        {metric1.metric === Metric.Time && (
+        {metric1.metric === Metric.FeeYield && feeYieldCondition1 && (
+          <Trans>The fee yield ≥ {feeYieldCondition1}%</Trans>
+        )}
+        {metric1.metric === Metric.Time && timeCondition1 && timeCondition1.time && (
           <>
             <Text>{timeCondition1.condition.charAt(0).toUpperCase() + timeCondition1.condition.slice(1)}</Text>
             <Text>{dayjs(timeCondition1.time).format('DD/MM/YYYY HH:mm:ss')}</Text>
           </>
         )}
-        {metric1.metric === Metric.PoolPrice && (
+        {metric1.metric === Metric.PoolPrice && priceCondition1 && (
           <Text>
             <Trans>Pool price is</Trans> {priceCondition1.lte ? '≤' : '≥'} {priceCondition1.lte || priceCondition1.gte}{' '}
             {position.token0.symbol}/{position.token1.symbol}
@@ -99,14 +98,16 @@ export default function Condition({
               />
             </Flex>
 
-            {metric2.metric === Metric.FeeYield && <Trans>The fee yield ≥ {feeYieldCondition2}%</Trans>}
-            {metric2.metric === Metric.Time && (
+            {metric2.metric === Metric.FeeYield && feeYieldCondition2 && (
+              <Trans>The fee yield ≥ {feeYieldCondition2}%</Trans>
+            )}
+            {metric2.metric === Metric.Time && timeCondition2 && timeCondition2.time && (
               <>
                 <Text>{timeCondition2.condition.charAt(0).toUpperCase() + timeCondition2.condition.slice(1)}</Text>
                 <Text mt="6px">{dayjs(timeCondition2.time).format('DD/MM/YYYY HH:mm:ss')}</Text>
               </>
             )}
-            {metric2.metric === Metric.PoolPrice && (
+            {metric2.metric === Metric.PoolPrice && priceCondition2 && (
               <Text mt="6px">
                 <Trans>Pool price is</Trans> {priceCondition2.lte ? '≤' : '≥'}{' '}
                 {priceCondition2.lte || priceCondition2.gte} {position.token0.symbol}/{position.token1.symbol}

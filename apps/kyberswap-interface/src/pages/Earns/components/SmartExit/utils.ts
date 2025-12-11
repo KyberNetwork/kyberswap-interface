@@ -1,4 +1,12 @@
 import { DEX_TYPE_MAPPING } from 'pages/Earns/components/SmartExit/constants'
+import {
+  getFeeYieldCondition,
+  getPriceCondition,
+  getTimeCondition,
+  isFeeYieldCondition,
+  isPriceCondition,
+  isTimeCondition,
+} from 'pages/Earns/components/SmartExit/utils/typeGuards'
 import { Exchange } from 'pages/Earns/constants'
 import {
   ConditionType,
@@ -11,9 +19,18 @@ import {
   TimeCondition,
 } from 'pages/Earns/types'
 
+export {
+  getFeeYieldCondition,
+  getPriceCondition,
+  getTimeCondition,
+  isFeeYieldCondition,
+  isPriceCondition,
+  isTimeCondition,
+}
+
 export const defaultFeeYieldCondition: FeeYieldCondition = ''
-const defaultPriceCondition: PriceCondition = { gte: '', lte: '' }
-const defaultTimeCondition: TimeCondition = { time: null, condition: 'after' }
+export const defaultPriceCondition: PriceCondition = { gte: '', lte: '' }
+export const defaultTimeCondition: TimeCondition = { time: null, condition: 'after' }
 
 export const getDefaultCondition = (
   metric: Metric,
@@ -50,12 +67,9 @@ export const buildConditions = (selectedMetrics: SelectedMetric[], conditionType
   }> = []
 
   selectedMetrics.forEach(metric => {
-    const feeYieldCondition = metric.condition as FeeYieldCondition
-    const priceCondition = metric.condition as PriceCondition
-    const timeCondition = metric.condition as TimeCondition
-
     switch (metric.metric) {
-      case Metric.FeeYield:
+      case Metric.FeeYield: {
+        const feeYieldCondition = getFeeYieldCondition(metric)
         if (feeYieldCondition) {
           conditions.push({
             field: {
@@ -67,9 +81,11 @@ export const buildConditions = (selectedMetrics: SelectedMetric[], conditionType
           })
         }
         break
+      }
 
-      case Metric.PoolPrice:
-        if (priceCondition.gte || priceCondition.lte) {
+      case Metric.PoolPrice: {
+        const priceCondition = getPriceCondition(metric)
+        if (priceCondition && (priceCondition.gte || priceCondition.lte)) {
           conditions.push({
             field: {
               type: Metric.PoolPrice,
@@ -81,9 +97,11 @@ export const buildConditions = (selectedMetrics: SelectedMetric[], conditionType
           })
         }
         break
+      }
 
-      case Metric.Time:
-        if (timeCondition.time) {
+      case Metric.Time: {
+        const timeCondition = getTimeCondition(metric)
+        if (timeCondition && timeCondition.time) {
           const timeValue = Math.floor(timeCondition.time / 1000)
           if (timeCondition.condition === 'before') {
             conditions.push({
@@ -106,6 +124,7 @@ export const buildConditions = (selectedMetrics: SelectedMetric[], conditionType
           }
         }
         break
+      }
     }
   })
 

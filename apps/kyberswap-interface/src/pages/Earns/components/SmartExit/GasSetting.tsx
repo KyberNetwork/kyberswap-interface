@@ -7,6 +7,7 @@ import { Flex, Text } from 'rebass'
 import Input from 'components/NumericalInput'
 import { DropdownIcon } from 'components/SwapForm/SlippageSetting'
 import useTheme from 'hooks/useTheme'
+import { GAS_MULTIPLIER_PRESETS } from 'pages/Earns/components/SmartExit/constants'
 import { CustomOption } from 'pages/Earns/components/SmartExit/styles'
 import { SmartExitFee } from 'pages/Earns/types'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -79,7 +80,7 @@ export default function GasSetting({
         }}
       >
         <Flex sx={{ gap: '6px', width: '100%' }}>
-          {[1, 1.5, 2, 3].map(item => {
+          {GAS_MULTIPLIER_PRESETS.map(item => {
             const isSelected = !customGasPercent && multiplier === item
             return (
               <CustomOption

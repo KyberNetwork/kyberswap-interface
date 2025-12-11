@@ -4,7 +4,8 @@ import { Box, Flex } from 'rebass'
 
 import useTheme from 'hooks/useTheme'
 import MetricSelect from 'pages/Earns/components/SmartExit/Metrics/MetricSelect'
-import { ConditionType, Metric, ParsedPosition, SelectedMetric, TimeCondition } from 'pages/Earns/types'
+import { getTimeCondition } from 'pages/Earns/components/SmartExit/utils/typeGuards'
+import { ConditionType, Metric, ParsedPosition, SelectedMetric } from 'pages/Earns/types'
 import { ButtonText } from 'theme'
 
 export default function Metrics({
@@ -32,8 +33,11 @@ export default function Metrics({
   const onRemoveMetric2 = () => {
     if (metric1 === null) return
     let newMetric1 = metric1
-    if (metric1.metric === Metric.Time && (metric1.condition as TimeCondition).condition === 'before') {
-      newMetric1 = { ...metric1, condition: { ...(metric1.condition as TimeCondition), condition: 'after' } }
+    if (metric1.metric === Metric.Time) {
+      const timeCondition = getTimeCondition(metric1)
+      if (timeCondition && timeCondition.condition === 'before') {
+        newMetric1 = { ...metric1, condition: { ...timeCondition, condition: 'after' } }
+      }
     }
     setSelectedMetrics([newMetric1])
   }

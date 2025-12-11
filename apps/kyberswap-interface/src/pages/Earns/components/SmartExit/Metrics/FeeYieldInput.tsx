@@ -1,8 +1,10 @@
 import { Trans } from '@lingui/macro'
 import { Flex, Text } from 'rebass'
 
+import { FEE_YIELD_PRESETS } from 'pages/Earns/components/SmartExit/constants'
 import { CustomInput, CustomOption } from 'pages/Earns/components/SmartExit/styles'
-import { FeeYieldCondition, SelectedMetric } from 'pages/Earns/types'
+import { getFeeYieldCondition } from 'pages/Earns/components/SmartExit/utils/typeGuards'
+import { SelectedMetric } from 'pages/Earns/types'
 
 export default function FeeYieldInput({
   metric,
@@ -11,7 +13,7 @@ export default function FeeYieldInput({
   metric: SelectedMetric
   setMetric: (value: SelectedMetric) => void
 }) {
-  const feeYieldCondition = metric.condition as FeeYieldCondition
+  const feeYieldCondition = getFeeYieldCondition(metric) || ''
 
   return (
     <>
@@ -47,7 +49,7 @@ export default function FeeYieldInput({
         </Flex>
       </Flex>
       <Flex justifyContent="flex-end" sx={{ gap: '4px' }}>
-        {[5, 10, 15, 20].map(item => {
+        {FEE_YIELD_PRESETS.map(item => {
           const isSelected = metric.condition === item.toString()
 
           return (

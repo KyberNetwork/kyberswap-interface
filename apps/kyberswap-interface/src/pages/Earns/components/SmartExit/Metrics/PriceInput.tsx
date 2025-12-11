@@ -10,7 +10,9 @@ import useTheme from 'hooks/useTheme'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import { calculateExpectedAmounts } from 'pages/Earns/components/SmartExit/Metrics/calculateExpectedAmounts'
 import { CustomInput, PriceInputIcon } from 'pages/Earns/components/SmartExit/styles'
-import { Metric, ParsedPosition, PriceCondition, SelectedMetric } from 'pages/Earns/types'
+import { defaultPriceCondition } from 'pages/Earns/components/SmartExit/utils'
+import { getPriceCondition } from 'pages/Earns/components/SmartExit/utils/typeGuards'
+import { Metric, ParsedPosition, SelectedMetric } from 'pages/Earns/types'
 import { formatDisplayNumber } from 'utils/numbers'
 
 export default function PriceInput({
@@ -23,7 +25,7 @@ export default function PriceInput({
   position: ParsedPosition
 }) {
   const theme = useTheme()
-  const priceCondition = metric.condition as PriceCondition
+  const priceCondition = useMemo(() => getPriceCondition(metric) || defaultPriceCondition, [metric])
 
   const [tick, setTick] = useState<number>()
   const [inputPrice, setInputPrice] = useState(priceCondition?.lte ?? priceCondition?.gte ?? '')

@@ -9,7 +9,9 @@ import DateTimePicker from 'components/swapv2/LimitOrder/ExpirePicker'
 import useTheme from 'hooks/useTheme'
 import { DEFAULT_TIME_OPTIONS } from 'pages/Earns/components/SmartExit/ExpireSetting'
 import { CustomSelect } from 'pages/Earns/components/SmartExit/styles'
-import { SelectedMetric, TimeCondition } from 'pages/Earns/types'
+import { defaultTimeCondition } from 'pages/Earns/components/SmartExit/utils'
+import { getTimeCondition } from 'pages/Earns/components/SmartExit/utils/typeGuards'
+import { SelectedMetric } from 'pages/Earns/types'
 
 export default function TimeInput({
   metric,
@@ -38,7 +40,7 @@ export default function TimeInput({
     ],
     [selectedMetric],
   )
-  const timeCondition = metric.condition as TimeCondition
+  const timeCondition = getTimeCondition(metric) || defaultTimeCondition
 
   return (
     <>

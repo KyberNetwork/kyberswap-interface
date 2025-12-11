@@ -9,6 +9,7 @@ import DateTimePicker from 'components/swapv2/LimitOrder/ExpirePicker'
 import { TIMES_IN_SECS } from 'constants/index'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
+import { EXPIRE_TIME_PRESETS, FOREVER_EXPIRE_TIME } from 'pages/Earns/components/SmartExit/constants'
 import { CustomOption, SettingButton, SettingContainer, SettingMenu } from 'pages/Earns/components/SmartExit/styles'
 import { formatTimeDuration } from 'utils/time'
 
@@ -38,7 +39,7 @@ export default function ExpireSetting({
 
   const displayTime = useMemo(
     () =>
-      expireTime === TIMES_IN_SECS.ONE_DAY * 365 * 50
+      expireTime === FOREVER_EXPIRE_TIME
         ? 'Forever'
         : expireTime % TIMES_IN_SECS.ONE_DAY === 0
         ? `${expireTime / TIMES_IN_SECS.ONE_DAY}D`
@@ -96,10 +97,10 @@ export default function ExpireSetting({
 
             <Flex justifyContent="flex-start" sx={{ gap: '8px', flexWrap: 'wrap' }}>
               {[
-                { label: '7D', value: TIMES_IN_SECS.ONE_DAY * 7 },
-                { label: '30D', value: TIMES_IN_SECS.ONE_DAY * 30 },
-                { label: '90D', value: TIMES_IN_SECS.ONE_DAY * 90 },
-                { label: 'Forever', value: TIMES_IN_SECS.ONE_DAY * 365 * 50 },
+                { label: '7D', value: EXPIRE_TIME_PRESETS.SEVEN_DAYS },
+                { label: '30D', value: EXPIRE_TIME_PRESETS.THIRTY_DAYS },
+                { label: '90D', value: EXPIRE_TIME_PRESETS.NINETY_DAYS },
+                { label: 'Forever', value: EXPIRE_TIME_PRESETS.FOREVER },
                 {
                   label: 'Custom',
                   onSelect: () => {

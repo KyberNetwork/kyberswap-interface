@@ -1,10 +1,9 @@
 import { Trans } from '@lingui/macro'
-import { useEffect, useMemo, useState } from 'react'
+import { useState } from 'react'
 import { X } from 'react-feather'
 import { Flex, Text } from 'rebass'
 
 import Modal from 'components/Modal'
-import { TIMES_IN_SECS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import PositionDetailHeader from 'pages/Earns/PositionDetail/Header'
 import Actions from 'pages/Earns/components/SmartExit/Actions'
@@ -14,19 +13,13 @@ import GasSetting from 'pages/Earns/components/SmartExit/GasSetting'
 import Metrics from 'pages/Earns/components/SmartExit/Metrics'
 import PoolPrice from 'pages/Earns/components/SmartExit/PoolPrice'
 import PositionLiquidity from 'pages/Earns/components/SmartExit/PositionLiquidity'
+import { FOREVER_EXPIRE_TIME } from 'pages/Earns/components/SmartExit/constants'
+import { useSmartExitDeadline } from 'pages/Earns/components/SmartExit/hooks/useSmartExitDeadline'
+import { useSmartExitFeeEstimation } from 'pages/Earns/components/SmartExit/hooks/useSmartExitFeeEstimation'
+import { useSmartExitValidation } from 'pages/Earns/components/SmartExit/hooks/useSmartExitValidation'
 import { ContentWrapper } from 'pages/Earns/components/SmartExit/styles'
-import { useSmartExit } from 'pages/Earns/components/SmartExit/useSmartExit'
 import { defaultFeeYieldCondition } from 'pages/Earns/components/SmartExit/utils'
-import {
-  ConditionType,
-  FeeYieldCondition,
-  Metric,
-  ParsedPosition,
-  PriceCondition,
-  SelectedMetric,
-  SmartExitFee,
-  TimeCondition,
-} from 'pages/Earns/types'
+import { ConditionType, Metric, ParsedPosition, SelectedMetric } from 'pages/Earns/types'
 
 export const SmartExit = ({ position, onDismiss }: { position: ParsedPosition; onDismiss: () => void }) => {
   const theme = useTheme()
@@ -34,84 +27,24 @@ export const SmartExit = ({ position, onDismiss }: { position: ParsedPosition; o
     { metric: Metric.FeeYield, condition: defaultFeeYieldCondition },
   ])
   const [conditionType, setConditionType] = useState<ConditionType>(ConditionType.And)
-
-  const [expireTime, setExpireTime] = useState(TIMES_IN_SECS.ONE_DAY * 365 * 50)
-  const deadline = useMemo(() => {
-    const today = new Date()
-    today.setUTCHours(0, 0, 0, 0)
-    const time = [
-      7 * TIMES_IN_SECS.ONE_DAY,
-      30 * TIMES_IN_SECS.ONE_DAY,
-      90 * TIMES_IN_SECS.ONE_DAY,
-      365 * 50 * TIMES_IN_SECS.ONE_DAY,
-    ].includes(expireTime)
-      ? Math.floor(today.getTime()) + expireTime * 1000
-      : expireTime
-
-    return Math.floor(time / 1000)
-  }, [expireTime])
-
-  const invalidYieldCondition = useMemo(() => {
-    const feeYieldMetric = selectedMetrics.find(metric => metric !== null && metric.metric === Metric.FeeYield)
-    const feeYieldCondition = feeYieldMetric?.condition as FeeYieldCondition
-    return feeYieldMetric && (!feeYieldCondition || parseFloat(feeYieldCondition) === 0)
-  }, [selectedMetrics])
-
-  const invalidPriceCondition = useMemo(() => {
-    const priceMetric = selectedMetrics.find(metric => metric !== null && metric.metric === Metric.PoolPrice)
-    const priceCondition = priceMetric?.condition as PriceCondition
-    return priceMetric && !priceCondition.gte && !priceCondition.lte
-  }, [selectedMetrics])
-
-  const invalidTimeCondition = useMemo(() => {
-    const timeMetric = selectedMetrics.find(metric => metric !== null && metric.metric === Metric.Time)
-    const timeCondition = timeMetric?.condition as TimeCondition
-    return timeMetric && !timeCondition.time
-  }, [selectedMetrics])
-
+  const [expireTime, setExpireTime] = useState(FOREVER_EXPIRE_TIME)
   const [showConfirm, setShowConfirm] = useState(false)
 
-  // Gas estimation + selection state
-  const [feeInfo, setFeeInfo] = useState<SmartExitFee | null>(null)
-  const [feeLoading, setFeeLoading] = useState(false)
   const [multiplier, setMultiplier] = useState<number>(2)
   const [customGasPercent, setCustomGasPercent] = useState<string>('')
 
-  const { estimateFee } = useSmartExit({
+  const deadline = useSmartExitDeadline(expireTime)
+  const { isValid } = useSmartExitValidation(selectedMetrics)
+
+  const { feeInfo, feeLoading } = useSmartExitFeeEstimation({
     position,
     selectedMetrics,
     conditionType,
     deadline,
+    isValid,
   })
 
-  const disabled = invalidYieldCondition || invalidPriceCondition || invalidTimeCondition || !feeInfo || feeLoading
-
-  useEffect(() => {
-    if (invalidYieldCondition || invalidPriceCondition || invalidTimeCondition) {
-      setFeeInfo(null)
-      return
-    }
-
-    let cancelled = false
-
-    const call = async () => {
-      setFeeLoading(true)
-      try {
-        const res = await estimateFee()
-        if (!cancelled) setFeeInfo(res)
-      } catch {
-        if (!cancelled) setFeeInfo(null)
-      } finally {
-        if (!cancelled) setFeeLoading(false)
-      }
-    }
-
-    call()
-
-    return () => {
-      cancelled = true
-    }
-  }, [estimateFee, invalidYieldCondition, invalidPriceCondition, invalidTimeCondition])
+  const disabled = !isValid || !feeInfo || feeLoading
 
   return (
     <Modal

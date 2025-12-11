@@ -5,6 +5,7 @@ import { Flex, Text } from 'rebass'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import { TIMES_IN_SECS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
+import { FOREVER_EXPIRE_TIME } from 'pages/Earns/components/SmartExit/constants'
 import { formatDisplayNumber } from 'utils/numbers'
 
 export default function MoreInfo({
@@ -17,11 +18,11 @@ export default function MoreInfo({
   maxGas: number
 }) {
   const theme = useTheme()
-  const fiftyYearsInSeconds = TIMES_IN_SECS.ONE_DAY * 365 * 49.5
   const nowInSeconds = Math.floor(Date.now() / 1000)
   const remainingSeconds = deadline - nowInSeconds
-  const displayTime =
-    remainingSeconds >= fiftyYearsInSeconds ? 'Forever' : dayjs(deadline * 1000).format('DD/MM/YYYY HH:mm:ss')
+  // Consider "Forever" if remaining time is close to FOREVER_EXPIRE_TIME (within 1 day tolerance)
+  const isForever = remainingSeconds >= FOREVER_EXPIRE_TIME - TIMES_IN_SECS.ONE_DAY
+  const displayTime = isForever ? 'Forever' : dayjs(deadline * 1000).format('DD/MM/YYYY HH:mm:ss')
 
   return (
     <>
