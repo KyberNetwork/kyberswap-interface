@@ -1,5 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
+import { useNavigate } from 'react-router'
 import { Flex } from 'rebass'
 
 import { PrivateAnnouncementProp } from 'components/Announcement/PrivateAnnoucement'
@@ -18,7 +19,6 @@ import { AnnouncementTemplatePoolPosition } from 'components/Announcement/type'
 import { DoubleCurrencyLogoV2 } from 'components/DoubleLogo'
 import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
-import { useNavigateToUrl } from 'utils/redirect'
 
 function InboxItemEarnPosition({
   announcement,
@@ -48,12 +48,12 @@ function InboxItemEarnPosition({
   const isInRange = currentPrice >= minPrice && currentPrice <= maxPrice
   const statusMessage = isInRange ? t`Back in range` : t`Out of range`
 
-  const navigate = useNavigateToUrl()
+  const navigate = useNavigate()
   const onClick = () => {
     const positionUrl = APP_PATHS.EARN_POSITION_DETAIL.replace(':positionId', positionId)
       .replace(':chainId', rawChain)
-      .replace(':exchange', 'uniswap-v4')
-    navigate(positionUrl, chainId)
+      .replace(':exchange', 'uniswap-v4') // TODO: dynamic exchange
+    navigate(positionUrl)
     onRead(announcement, statusMessage)
   }
 

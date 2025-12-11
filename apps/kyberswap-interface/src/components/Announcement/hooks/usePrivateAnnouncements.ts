@@ -7,9 +7,9 @@ import {
 } from 'services/notification'
 
 import {
-  getPinnedNotificationIds,
-  togglePinnedNotificationId,
-  updatePinnedNotificationIds,
+  getPinnedNotifications,
+  togglePinnedNotification,
+  updatePinnedNotifications,
 } from 'components/Announcement/helper/pinStorage'
 import { PrivateAnnouncement, PrivateAnnouncementType } from 'components/Announcement/type'
 import { getAnnouncementsTemplateIds } from 'constants/env'
@@ -17,11 +17,28 @@ import { useActiveWeb3React } from 'hooks'
 
 const responseDefault = { numberOfUnread: 0, pagination: { totalItems: 0 }, notifications: [] }
 
-const applyPinnedToList = (list: PrivateAnnouncement[], pinList: number[]) => {
-  if (!pinList?.length) return list.map(item => ({ ...item, isPinned: false }))
-  const pinnedSet = new Set(pinList)
-  return [...list]
-    .map(item => ({ ...item, isPinned: pinnedSet.has(item.id) }))
+const applyPinnedToList = (list: PrivateAnnouncement[], pinnedList: PrivateAnnouncement[]) => {
+  const pinnedMap = new Map(pinnedList.map(item => [item.id, item]))
+  if (!pinnedMap.size) {
+    return [...list]
+      .map(item => ({ ...item, isPinned: false }))
+      .sort((a, b) => {
+        const timeDiff = (b.sentAt || 0) - (a.sentAt || 0)
+        if (timeDiff) return timeDiff
+        return (b.id || 0) - (a.id || 0)
+      })
+  }
+
+  const merged = [...list]
+  pinnedList.forEach(item => {
+    if (!merged.some(current => current.id === item.id)) merged.push(item)
+  })
+
+  const normalized = merged
+    .map(item => {
+      const pinnedItem = pinnedMap.get(item.id)
+      return pinnedItem ? { ...item, ...pinnedItem, isPinned: true } : { ...item, isPinned: false }
+    })
     .sort((a, b) => {
       const pinDiff = Number(b.isPinned) - Number(a.isPinned)
       if (pinDiff) return pinDiff
@@ -29,6 +46,8 @@ const applyPinnedToList = (list: PrivateAnnouncement[], pinList: number[]) => {
       if (timeDiff) return timeDiff
       return (b.id || 0) - (a.id || 0)
     })
+
+  return normalized
 }
 
 export type PrivateAnnouncementPreview = { total: number; unread: number; first?: PrivateAnnouncement }
@@ -38,7 +57,7 @@ export const usePrivateAnnouncements = () => {
   const [page, setPage] = useState(1)
   const [announcements, setAnnouncements] = useState<PrivateAnnouncement[]>([])
   const [preview, setPreview] = useState<PrivateAnnouncementPreview>({ total: 0, unread: 0 })
-  const [pinnedIds, setPinnedIds] = useState<number[]>([])
+  const [pinnedNotifications, setPinnedNotifications] = useState<PrivateAnnouncement[]>([])
 
   const earnTemplateIds = useMemo(() => getAnnouncementsTemplateIds(PrivateAnnouncementType.EARN_POSITION), [])
   const [fetchNotifications, { data: respEarnNotification = responseDefault }] = useLazyGetNotificationsQuery()
@@ -72,8 +91,8 @@ export const usePrivateAnnouncements = () => {
   }, [account, earnTemplateIds, fetchNotifications])
 
   const loadPinnedIds = useCallback(() => {
-    const nextPinned = getPinnedNotificationIds(account)
-    setPinnedIds(nextPinned)
+    const nextPinned = getPinnedNotifications(account)
+    setPinnedNotifications(nextPinned)
     setAnnouncements(prev => applyPinnedToList(prev, nextPinned))
   }, [account])
 
@@ -95,8 +114,8 @@ export const usePrivateAnnouncements = () => {
         })
         const notifications = (data?.notifications ?? []) as PrivateAnnouncement[]
         setPage(nextPage)
-        const merged = isReset ? notifications : [...announcements, ...notifications]
-        const normalized = applyPinnedToList(merged, pinnedIds)
+        const baseList = isReset ? notifications : [...announcements, ...notifications]
+        const normalized = applyPinnedToList(baseList, pinnedNotifications)
         setAnnouncements(normalized)
         return normalized
       } catch (error) {
@@ -106,13 +125,18 @@ export const usePrivateAnnouncements = () => {
       }
       return []
     },
-    [account, announcements, earnTemplateIds, fetchNotifications, page, pinnedIds],
+    [account, announcements, earnTemplateIds, fetchNotifications, page, pinnedNotifications],
   )
 
   const markAsRead = useCallback(
     async (announcement: PrivateAnnouncement) => {
       if (!account || announcement.isRead) return
       setAnnouncements(prev => prev.map(item => (item.id === announcement.id ? { ...item, isRead: true } : item)))
+      setPinnedNotifications(current => {
+        const next = current.map(item => (item.id === announcement.id ? { ...item, isRead: true } : item))
+        updatePinnedNotifications(account, () => next)
+        return next
+      })
       setPreview(prev => ({
         ...prev,
         unread: Math.max((prev.unread ?? respEarnNotification.numberOfUnread ?? 0) - 1, 0),
@@ -134,6 +158,11 @@ export const usePrivateAnnouncements = () => {
       const templateIds = earnTemplateIds || undefined
       await readAllNotifications({ account, templateIds }).unwrap()
       setAnnouncements(prev => prev.map(item => ({ ...item, isRead: true })))
+      setPinnedNotifications(current => {
+        const next = current.map(item => ({ ...item, isRead: true }))
+        updatePinnedNotifications(account, () => next)
+        return next
+      })
       setPreview(prev => ({ ...prev, unread: 0 }))
     } catch (error) {
       console.error('readAllNotifications', error)
@@ -143,8 +172,8 @@ export const usePrivateAnnouncements = () => {
   const pinAnnouncement = useCallback(
     (announcement: PrivateAnnouncement) => {
       if (!account) return
-      const nextPinned = togglePinnedNotificationId(account, announcement.id)
-      setPinnedIds(nextPinned)
+      const nextPinned = togglePinnedNotification(account, announcement)
+      setPinnedNotifications(nextPinned)
       setAnnouncements(prev => applyPinnedToList(prev, nextPinned))
     },
     [account],
@@ -153,8 +182,10 @@ export const usePrivateAnnouncements = () => {
   const deleteAnnouncement = useCallback(
     async (announcement: PrivateAnnouncement) => {
       if (!account) return
-      const nextPinned = updatePinnedNotificationIds(account, current => current.filter(id => id !== announcement.id))
-      setPinnedIds(nextPinned)
+      const nextPinned = updatePinnedNotifications(account, current =>
+        current.filter(item => item.id !== announcement.id),
+      )
+      setPinnedNotifications(nextPinned)
       setAnnouncements(prev =>
         applyPinnedToList(
           prev.filter(item => item.id !== announcement.id),
