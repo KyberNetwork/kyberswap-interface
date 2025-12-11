@@ -58,7 +58,7 @@ export default function InboxItem({ announcement, onRead, style, onPin, onDelete
     title: PRIVATE_ANN_TITLE()[templateType],
   }
   try {
-    const component = ANNOUNCEMENT_MAP()[templateType]
+    const component = ANNOUNCEMENT_MAP()[templateType || PrivateAnnouncementType.EARN_POSITION]
     return component ? React.createElement(component, props) : null
   } catch (error) {
     return null

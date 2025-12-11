@@ -8,7 +8,7 @@ import { Flex, Text } from 'rebass'
 import styled, { CSSProperties } from 'styled-components'
 
 import AnnouncementItem from 'components/Announcement/AnnoucementItem'
-import InboxItem, { hasValidPrivateAnnouncementType } from 'components/Announcement/PrivateAnnoucement'
+import InboxItem from 'components/Announcement/PrivateAnnoucement'
 import { Announcement, PrivateAnnouncement } from 'components/Announcement/type'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
@@ -76,11 +76,7 @@ export default function AnnouncementView({
   const handleShowDetail = showDetailAnnouncement ?? (() => null)
   const currentCategory = selectedCategory ?? null
 
-  const rawList = (announcements as (PrivateAnnouncement | Announcement)[] | undefined) ?? []
-  const visibleList =
-    currentCategory !== Category.ANNOUNCEMENTS
-      ? (rawList as PrivateAnnouncement[]).filter(hasValidPrivateAnnouncementType)
-      : (rawList as Announcement[])
+  const visibleList = announcements ?? []
   const total = totalAnnouncement ?? 0
 
   const onReadPrivateAnnouncement = (item: PrivateAnnouncement, statusMessage: string) => {
@@ -94,7 +90,7 @@ export default function AnnouncementView({
     handleToggle()
   }
 
-  const hasMore = rawList.length < total
+  const hasMore = visibleList.length < total
   const isItemLoaded = (index: number) => !hasMore || index < visibleList.length
   const itemCount = hasMore ? visibleList.length + 1 : visibleList.length
 

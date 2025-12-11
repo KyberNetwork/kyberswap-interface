@@ -89,16 +89,14 @@ function AnnouncementComponent() {
   const fetchByCategory = useCallback(
     (category: Category, isReset = false) => {
       if (category === Category.EARN_POSITION) {
-        if (isReset) resetPrivateAnnouncements()
         return fetchPrivateAnnouncements(isReset)
       }
       if (category === Category.ANNOUNCEMENTS) {
-        if (isReset) resetGeneralAnnouncements()
         return fetchGeneralAnnouncements(isReset)
       }
       return undefined
     },
-    [fetchGeneralAnnouncements, fetchPrivateAnnouncements, resetGeneralAnnouncements, resetPrivateAnnouncements],
+    [fetchGeneralAnnouncements, fetchPrivateAnnouncements],
   )
 
   useEffect(() => {
