@@ -22,14 +22,14 @@ export default function Confirmation({
   position,
   deadline,
   conditionType,
-  feeSettings: { protocolFee, maxFeesPercentage },
+  feeSettings: { protocolFee, maxGas },
   onDismiss,
 }: {
   selectedMetrics: SelectedMetric[]
   position: ParsedPosition
   conditionType: ConditionType
   deadline: number
-  feeSettings: { protocolFee: number; maxFeesPercentage: number }
+  feeSettings: { protocolFee: number; maxGas: number }
   onDismiss: () => void
 }) {
   const theme = useTheme()
@@ -71,7 +71,7 @@ export default function Confirmation({
       </Flex>
 
       <Condition position={position} selectedMetrics={selectedMetrics} conditionType={conditionType} />
-      <MoreInfo deadline={deadline} protocolFee={protocolFee} />
+      <MoreInfo deadline={deadline} protocolFee={protocolFee} maxGas={maxGas} />
 
       <Text fontStyle="italic" fontSize={14} color={theme.subText} my="1rem">
         <Trans>
@@ -81,9 +81,9 @@ export default function Confirmation({
       </Text>
 
       <ButtonPrimary
-        disabled={Boolean(approveClicked || approvePendingTx || isCreating || !maxFeesPercentage)}
+        disabled={Boolean(approveClicked || approvePendingTx || isCreating || !maxGas)}
         onClick={async () => {
-          if (!maxFeesPercentage || approveClicked || approvePendingTx) return
+          if (!maxGas || approveClicked || approvePendingTx) return
           if (chainId !== position.chain.id) {
             changeNetwork(position.chain.id)
             return
@@ -91,7 +91,7 @@ export default function Confirmation({
 
           if (isApproved) {
             // Create smart exit order
-            await createSmartExitOrder({ maxFeesPercentage: [maxFeesPercentage, maxFeesPercentage] })
+            await createSmartExitOrder({ maxFeesPercentage: [maxGas + protocolFee, maxGas + protocolFee] })
             return
           }
           setApproveClicked(true)

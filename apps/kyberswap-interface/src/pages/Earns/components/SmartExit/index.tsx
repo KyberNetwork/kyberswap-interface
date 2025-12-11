@@ -133,9 +133,7 @@ export const SmartExit = ({ position, onDismiss }: { position: ParsedPosition; o
             onDismiss={() => setShowConfirm(false)}
             feeSettings={{
               protocolFee: feeInfo?.protocol.percentage || 0,
-              maxFeesPercentage:
-                (customGasPercent ? parseFloat(customGasPercent) : (feeInfo?.gas.percentage || 0) * multiplier) +
-                (feeInfo?.protocol.percentage || 0),
+              maxGas: customGasPercent ? parseFloat(customGasPercent) : (feeInfo?.gas.percentage || 0) * multiplier,
             }}
           />
         ) : (
