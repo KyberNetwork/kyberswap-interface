@@ -68,7 +68,7 @@ export const useSmartExit = ({ position, selectedMetrics, conditionType, deadlin
       poolId: position.pool.address,
       positionId: position.id,
       removeLiquidity: positionLiquidity,
-      unwrap: position.token0.isNative || position.token1.isNative,
+      unwrap: false,
       condition: buildConditions(selectedMetrics.filter(metric => metric !== null) as SelectedMetric[], conditionType),
       deadline,
     }
@@ -80,8 +80,6 @@ export const useSmartExit = ({ position, selectedMetrics, conditionType, deadlin
     position.chain.id,
     position.id,
     position.pool.address,
-    position.token0.isNative,
-    position.token1.isNative,
     positionLiquidity,
     selectedMetrics,
   ])
