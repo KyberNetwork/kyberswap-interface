@@ -4,6 +4,8 @@ import {
   ConditionType,
   FeeYieldCondition,
   Metric,
+  PAIR_CATEGORY,
+  ParsedPosition,
   PriceCondition,
   SelectedMetric,
   TimeCondition,
@@ -13,11 +15,24 @@ export const defaultFeeYieldCondition: FeeYieldCondition = ''
 const defaultPriceCondition: PriceCondition = { gte: '', lte: '' }
 const defaultTimeCondition: TimeCondition = { time: null, condition: 'after' }
 
-export const getDefaultCondition = (metric: Metric): FeeYieldCondition | PriceCondition | TimeCondition | null => {
+export const getDefaultCondition = (
+  metric: Metric,
+  position?: ParsedPosition,
+): FeeYieldCondition | PriceCondition | TimeCondition | null => {
   switch (metric) {
     case Metric.FeeYield:
       return defaultFeeYieldCondition
     case Metric.PoolPrice:
+      if (position) {
+        const pairCategory = position.pool.category
+        const gap =
+          pairCategory === PAIR_CATEGORY.STABLE ? 0.0001 : pairCategory === PAIR_CATEGORY.CORRELATED ? 0.001 : 0.1
+        const defaultPrice = position.priceRange.current * (1 + gap)
+        return {
+          gte: defaultPrice.toString(),
+          lte: '',
+        }
+      }
       return defaultPriceCondition
     case Metric.Time:
       return defaultTimeCondition
