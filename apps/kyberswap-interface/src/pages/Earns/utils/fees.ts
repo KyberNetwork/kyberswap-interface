@@ -265,8 +265,8 @@ export const getUniv4CollectCallData = async ({
   // Encode unlockData
   const unlockData = ethers.utils.defaultAbiCoder.encode(['bytes', 'bytes[]'], [actions, [params0, params1]])
 
-  // Set deadline - increase to 20 minutes to avoid simulation issues
-  const deadline = Math.floor(Date.now() / 1000) + 2 * 60
+  // Set deadline
+  const deadline = Math.floor(Date.now() / 1000) + 5 * 60
 
   // Encode function data
   const data = contract.interface.encodeFunctionData('modifyLiquidities', [unlockData, deadline])
