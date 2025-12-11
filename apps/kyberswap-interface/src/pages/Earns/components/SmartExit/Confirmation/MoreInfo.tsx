@@ -17,7 +17,7 @@ export default function MoreInfo({
   maxGas: number
 }) {
   const theme = useTheme()
-  const fiftyYearsInSeconds = TIMES_IN_SECS.ONE_DAY * 365 * 50
+  const fiftyYearsInSeconds = TIMES_IN_SECS.ONE_DAY * 365 * 49.5
   const nowInSeconds = Math.floor(Date.now() / 1000)
   const remainingSeconds = deadline - nowInSeconds
   const displayTime =
