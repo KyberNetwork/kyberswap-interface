@@ -26,6 +26,7 @@ export default function Confirmation({
   conditionType,
   feeSettings: { protocolFee, maxGas },
   onDismiss,
+  onCloseSmartExit,
 }: {
   selectedMetrics: SelectedMetric[]
   position: ParsedPosition
@@ -33,6 +34,7 @@ export default function Confirmation({
   deadline: number
   feeSettings: { protocolFee: number; maxGas: number }
   onDismiss: () => void
+  onCloseSmartExit: () => void
 }) {
   const theme = useTheme()
   const { chainId, account } = useActiveWeb3React()
@@ -62,7 +64,7 @@ export default function Confirmation({
   })
   const dexName = position.dex.name.replace('FairFlow', '').trim()
 
-  if (isSuccess) return <Success onDismiss={onDismiss} />
+  if (isSuccess) return <Success onDismiss={onDismiss} onCloseSmartExit={onCloseSmartExit} />
 
   return (
     <>

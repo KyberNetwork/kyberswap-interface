@@ -8,15 +8,21 @@ import { CheckCircle } from 'components/Icons'
 import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 
-export default function Success({ onDismiss }: { onDismiss: () => void }) {
+export default function Success({
+  onDismiss,
+  onCloseSmartExit,
+}: {
+  onDismiss: () => void
+  onCloseSmartExit: () => void
+}) {
   const theme = useTheme()
   const navigate = useNavigate()
 
   return (
     <>
       <Flex justifyContent="space-between" alignItems="center">
-        <div></div>
-        <X onClick={onDismiss} />
+        <div />
+        <X onClick={onCloseSmartExit} />
       </Flex>
 
       <Flex justifyContent="center" alignItems="center" sx={{ gap: '8px' }} fontSize={20} fontWeight={500}>

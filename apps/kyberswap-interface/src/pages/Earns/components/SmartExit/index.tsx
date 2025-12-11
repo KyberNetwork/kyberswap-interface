@@ -64,6 +64,7 @@ export const SmartExit = ({ position, onDismiss }: { position: ParsedPosition; o
             deadline={deadline}
             position={position}
             onDismiss={() => setShowConfirm(false)}
+            onCloseSmartExit={onDismiss}
             feeSettings={{
               protocolFee: feeInfo?.protocol.percentage || 0,
               maxGas: customGasPercent ? parseFloat(customGasPercent) : (feeInfo?.gas.percentage || 0) * multiplier,
