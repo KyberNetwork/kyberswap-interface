@@ -28,13 +28,8 @@ export function calculateExpectedAmounts(
   priceCondition?: PriceCondition,
 ): ExpectedAmounts | null {
   const { currentPrice, minPrice, maxPrice, token0Amount, token1Amount } = position
-  if (
-    (!priceCondition?.gte && !priceCondition?.lte) ||
-    minPrice <= 0 ||
-    maxPrice <= 0 ||
-    currentPrice <= 0 ||
-    minPrice > maxPrice
-  ) {
+
+  if ((!priceCondition?.gte && !priceCondition?.lte) || currentPrice <= 0 || minPrice > maxPrice) {
     return null
   }
 
