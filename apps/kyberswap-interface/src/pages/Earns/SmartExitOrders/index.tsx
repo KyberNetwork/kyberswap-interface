@@ -1,5 +1,5 @@
 import { Trans, t } from '@lingui/macro'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { X } from 'react-feather'
 import { useNavigate } from 'react-router'
 import { useMedia } from 'react-use'
@@ -24,11 +24,11 @@ import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
 import Filter from 'pages/Earns/SmartExitOrders/Filter'
 import OrderItem, { PositionDetail } from 'pages/Earns/SmartExitOrders/OrderItem'
 import useSmartExitFilter from 'pages/Earns/SmartExitOrders/useSmartExitFilter'
-import { EarnChain, Exchange } from 'pages/Earns/constants'
+import { DEX_TYPE_MAPPING, DexType } from 'pages/Earns/components/SmartExit/constants'
+import { Exchange } from 'pages/Earns/constants'
 import { SmartExitOrder } from 'pages/Earns/types'
 import { useNotify } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
-import { enumToArrayOfValues } from 'utils'
 import { friendlyError } from 'utils/errorMessage'
 
 const TableHeader = styled.div`
@@ -51,6 +51,9 @@ const SmartExit = () => {
   const [showCancelConfirm, setShowCancelConfirm] = useState<SmartExitOrder | null>(null)
   const [removing, setRemoving] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
+  const [pageLoading, setPageLoading] = useState(false)
+  const lastUserPositionsRef = useRef<typeof userPosition>()
+  const lastFilteredOrdersRef = useRef<SmartExitOrder[]>([])
 
   const pageSize = 10 // Fixed page size
 
@@ -115,7 +118,7 @@ const SmartExit = () => {
   const {
     data: ordersData,
     isLoading: smartExitLoading,
-    isFetching,
+    isFetching: smartExitFetching,
     error: ordersError,
   } = useGetSmartExitOrdersQuery(
     {
@@ -135,36 +138,82 @@ const SmartExit = () => {
   const orders = useMemo(() => ordersData?.orders || [], [ordersData])
   const totalItems = ordersData?.totalItems || 0
 
-  const earnSupportedChains = enumToArrayOfValues(EarnChain, 'number')
-  const earnSupportedExchanges = enumToArrayOfValues(Exchange)
-  const { data: userPosition, isLoading: userPosLoading } = useUserPositionsQuery(
+  const listUniqueChainIds = useMemo(() => [...new Set(orders.map(order => order.chainId))], [orders])
+  const listUniqueExchanges = useMemo(() => {
+    const dexTypeToExchange = Object.entries(DEX_TYPE_MAPPING).reduce((acc, [exchange, dexType]) => {
+      if (dexType) {
+        acc[dexType] = exchange as Exchange
+      }
+      return acc
+    }, {} as Record<DexType, Exchange>)
+
+    return [
+      ...new Set(
+        orders
+          .map(order => dexTypeToExchange[order.dexType as DexType])
+          .filter((exchange): exchange is Exchange => Boolean(exchange)),
+      ),
+    ]
+  }, [orders])
+  const listPositionIds = useMemo(() => [...new Set(orders.map(order => order.positionId))], [orders])
+
+  const {
+    data: userPosition,
+    isLoading: userPosLoading,
+    isFetching: userPosFetching,
+  } = useUserPositionsQuery(
     {
-      chainIds: earnSupportedChains.join(','),
+      chainIds: listUniqueChainIds.join(','),
       addresses: account || '',
-      protocols: earnSupportedExchanges.join(','),
+      protocols: listUniqueExchanges.join(','),
+      positionIds: listPositionIds.join(','),
       positionStatus: 'all',
     },
     {
       skip: !account,
-      pollingInterval: 15_000,
     },
   )
 
-  const loading = smartExitLoading || userPosLoading || isFetching
+  const isInitialOrdersLoading = smartExitLoading && !ordersData
+  const isInitialUserPosLoading = userPosLoading && !userPosition
+  const tableLoading = isInitialOrdersLoading || isInitialUserPosLoading
+  const overlayLoading = pageLoading && !tableLoading
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
+  useEffect(() => {
+    if (userPosition && userPosition.length) {
+      lastUserPositionsRef.current = userPosition
+    }
+  }, [userPosition])
+
+  useEffect(() => {
+    if (!pageLoading) return
+    if (!smartExitFetching && !userPosFetching) {
+      setPageLoading(false)
+    }
+  }, [pageLoading, smartExitFetching, userPosFetching])
+
   const positionsById = useMemo(() => {
-    if (!userPosition) return {}
-    return userPosition.reduce((acc, pos) => {
+    const positions = userPosition && userPosition.length ? userPosition : lastUserPositionsRef.current || []
+    return positions.reduce((acc, pos) => {
       acc[pos.id] = pos
       return acc
     }, {} as Record<string, PositionDetail>)
   }, [userPosition])
 
   const filteredOrders = useMemo(() => orders.filter(order => positionsById[order.positionId]), [orders, positionsById])
+
+  useEffect(() => {
+    if (filteredOrders.length) {
+      lastFilteredOrdersRef.current = filteredOrders
+    }
+  }, [filteredOrders])
   const handleDeleteRequest = useCallback((order: SmartExitOrder) => setShowCancelConfirm(order), [])
   const handleDismissModal = useCallback(() => setShowCancelConfirm(null), [])
-  const handlePageChange = useCallback((page: number) => setCurrentPage(page), [])
+  const handlePageChange = useCallback((page: number) => {
+    setPageLoading(true)
+    setCurrentPage(page)
+  }, [])
   const ordersEmptyMessage = useMemo(
     () => (ordersError ? friendlyError(ordersError as unknown as Error) : t`No smart exit orders found`),
     [ordersError],
@@ -186,7 +235,14 @@ const SmartExit = () => {
         }}
       />
 
-      <TableWrapper style={{ padding: '16px 20px 0', background: upToMedium ? 'transparent' : undefined }}>
+      <TableWrapper
+        style={{
+          padding: '16px 20px 0',
+          background: upToMedium ? 'transparent' : undefined,
+          position: 'relative',
+          overflow: 'hidden',
+        }}
+      >
         {!upToMedium && (
           <TableHeader>
             <Text>
@@ -205,16 +261,16 @@ const SmartExit = () => {
           </TableHeader>
         )}
 
-        {loading ? (
+        {tableLoading ? (
           <Flex justifyContent="center" padding="20px">
             <LocalLoader />
           </Flex>
-        ) : ordersError || filteredOrders.length === 0 ? (
+        ) : ordersError || (filteredOrders.length === 0 && !overlayLoading && !userPosFetching) ? (
           <Flex justifyContent="center" padding="20px">
             <Text color="subText">{ordersEmptyMessage}</Text>
           </Flex>
         ) : (
-          filteredOrders.map(order => {
+          (filteredOrders.length ? filteredOrders : lastFilteredOrdersRef.current).map(order => {
             const posDetail = positionsById[order.positionId]
             if (!posDetail) return null
 
@@ -230,9 +286,20 @@ const SmartExit = () => {
           })
         )}
 
+        {overlayLoading && (
+          <Flex
+            justifyContent="center"
+            alignItems="center"
+            backgroundColor="rgba(0, 0, 0, 0.4)"
+            sx={{ position: 'absolute', inset: 0, backdropFilter: 'blur(1px)' }}
+          >
+            <LocalLoader />
+          </Flex>
+        )}
+
         <Pagination
           onPageChange={handlePageChange}
-          totalCount={loading ? 0 : totalItems}
+          totalCount={tableLoading ? 0 : totalItems}
           currentPage={currentPage}
           pageSize={pageSize}
         />
