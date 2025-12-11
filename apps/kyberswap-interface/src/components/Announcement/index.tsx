@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Check, ChevronLeft } from 'react-feather'
 import { useMedia } from 'react-use'
 
@@ -88,13 +88,11 @@ function AnnouncementComponent() {
 
   const fetchByCategory = useCallback(
     (category: Category, isReset = false) => {
-      if (category === Category.EARN_POSITION) {
-        return fetchPrivateAnnouncements(isReset)
-      }
       if (category === Category.ANNOUNCEMENTS) {
         return fetchGeneralAnnouncements(isReset)
+      } else {
+        return fetchPrivateAnnouncements(isReset)
       }
-      return undefined
     },
     [fetchGeneralAnnouncements, fetchPrivateAnnouncements],
   )
@@ -148,18 +146,12 @@ function AnnouncementComponent() {
     fetchByCategory(category, true)
   }
 
-  const currentAnnouncements = useMemo(
-    () => (selectedCategory === Category.EARN_POSITION ? privateAnnouncements : generalAnnouncements),
-    [generalAnnouncements, privateAnnouncements, selectedCategory],
-  )
+  const isAnnouncementsCategory = selectedCategory === Category.ANNOUNCEMENTS
 
-  const currentTotal = selectedCategory === Category.EARN_POSITION ? privateTotal : generalTotal
-  const totalForView =
-    selectedCategory === Category.EARN_POSITION
-      ? currentTotal || privatePreview.total
-      : selectedCategory === Category.ANNOUNCEMENTS
-      ? currentTotal || generalPreview.total
-      : generalPreview.total || currentTotal
+  const [currentAnnouncements, currentTotal, totalForView] = isAnnouncementsCategory
+    ? [generalAnnouncements, generalTotal, generalPreview.total]
+    : [privateAnnouncements, privateTotal, privatePreview.total]
+
   const announcementCount = generalPreview.total || totalForView
   const previewPosition = getEarnPosition(privatePreview.first)
 
@@ -215,7 +207,7 @@ function AnnouncementComponent() {
             <ChevronLeft size={16} />
           </BackButton>
           <HeaderTitle>
-            {selectedCategory === Category.EARN_POSITION ? <Trans>Earn Position</Trans> : <Trans>Announcements</Trans>}
+            {isAnnouncementsCategory ? <Trans>Announcements</Trans> : <Trans>Earn Position</Trans>}
           </HeaderTitle>
           {selectedCategory !== Category.ANNOUNCEMENTS && (
             <HeaderAction onClick={onMarkAllPrivate} disabled={!account || isReadingAll || numberOfUnread === 0}>

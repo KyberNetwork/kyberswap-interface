@@ -22,7 +22,7 @@ const mapIcon: Partial<{ [type in PrivateAnnouncementType]: ReactNode }> = {
   [PrivateAnnouncementType.BRIDGE_ASSET]: <BridgeIcon />,
   [PrivateAnnouncementType.LIMIT_ORDER]: <LimitOrderIcon />,
   [PrivateAnnouncementType.ELASTIC_POOLS]: <LiquidityIcon />,
-  [PrivateAnnouncementType.EARN_POSITION]: <FarmingIcon style={{ width: 17, height: 17 }} />,
+  [PrivateAnnouncementType.POSITION_STATUS]: <FarmingIcon style={{ width: 17, height: 17 }} />,
   [PrivateAnnouncementType.PRICE_ALERT]: <AlarmIcon style={{ width: 17, height: 17 }} />,
   [PrivateAnnouncementType.DIRECT_MESSAGE]: <Bell style={{ width: 17, height: 17 }} />,
 }

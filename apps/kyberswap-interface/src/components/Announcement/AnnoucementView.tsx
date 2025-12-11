@@ -121,7 +121,7 @@ export default function AnnouncementView({
                   height={height}
                   width={width}
                   itemCount={itemCount}
-                  itemSize={currentCategory === Category.EARN_POSITION ? 120 : 126}
+                  itemSize={currentCategory === Category.ANNOUNCEMENTS ? 126 : 120}
                   onItemsRendered={onItemsRendered}
                   ref={ref}
                 >
@@ -130,7 +130,14 @@ export default function AnnouncementView({
                       return null
                     }
                     const item = visibleList[index]
-                    return currentCategory === Category.EARN_POSITION ? (
+                    return currentCategory === Category.ANNOUNCEMENTS ? (
+                      <AnnouncementItem
+                        key={item.id}
+                        style={style}
+                        announcement={item as Announcement}
+                        onRead={() => onReadAnnouncement(item as Announcement, index)}
+                      />
+                    ) : (
                       <InboxItem
                         style={style}
                         key={item.id}
@@ -138,13 +145,6 @@ export default function AnnouncementView({
                         onRead={onReadPrivateAnnouncement}
                         onPin={onPrivateAnnouncementPin}
                         onDelete={onPrivateAnnouncementDelete}
-                      />
-                    ) : (
-                      <AnnouncementItem
-                        key={item.id}
-                        style={style}
-                        announcement={item as Announcement}
-                        onRead={() => onReadAnnouncement(item as Announcement, index)}
                       />
                     )
                   }}

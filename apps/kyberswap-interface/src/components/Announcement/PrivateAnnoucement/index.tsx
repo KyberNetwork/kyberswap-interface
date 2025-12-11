@@ -28,7 +28,7 @@ type PrivateAnnouncementMap = Partial<{
 const ANNOUNCEMENT_MAP: () => PrivateAnnouncementMap = () =>
   ({
     [PrivateAnnouncementType.ELASTIC_POOLS]: InboxItemPoolPosition,
-    [PrivateAnnouncementType.EARN_POSITION]: InboxItemEarnPosition,
+    [PrivateAnnouncementType.POSITION_STATUS]: InboxItemEarnPosition,
     [PrivateAnnouncementType.LIMIT_ORDER]: InboxItemLO,
     [PrivateAnnouncementType.PRICE_ALERT]: InboxItemPriceAlert,
     [PrivateAnnouncementType.DIRECT_MESSAGE]: InboxItemPrivateMessage,
@@ -39,7 +39,7 @@ export const hasValidPrivateAnnouncementType = (announcement: PrivateAnnouncemen
 
 export const PRIVATE_ANN_TITLE: () => Partial<{ [type in PrivateAnnouncementType]: string }> = () => ({
   [PrivateAnnouncementType.ELASTIC_POOLS]: t`Elastic Liquidity Positions`,
-  [PrivateAnnouncementType.EARN_POSITION]: t`Earn Position`,
+  [PrivateAnnouncementType.POSITION_STATUS]: t`Earn Position`,
   [PrivateAnnouncementType.LIMIT_ORDER]: t`Limit Orders`,
   [PrivateAnnouncementType.PRICE_ALERT]: t`Price Alerts`,
   [PrivateAnnouncementType.DIRECT_MESSAGE]: t`Notification`,
@@ -58,7 +58,7 @@ export default function InboxItem({ announcement, onRead, style, onPin, onDelete
     title: PRIVATE_ANN_TITLE()[templateType],
   }
   try {
-    const component = ANNOUNCEMENT_MAP()[templateType || PrivateAnnouncementType.EARN_POSITION]
+    const component = ANNOUNCEMENT_MAP()[templateType]
     return component ? React.createElement(component, props) : null
   } catch (error) {
     return null

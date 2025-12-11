@@ -59,7 +59,7 @@ export const usePrivateAnnouncements = () => {
   const [preview, setPreview] = useState<PrivateAnnouncementPreview>({ total: 0, unread: 0 })
   const [pinnedNotifications, setPinnedNotifications] = useState<PrivateAnnouncement[]>([])
 
-  const earnTemplateIds = useMemo(() => getAnnouncementsTemplateIds(PrivateAnnouncementType.EARN_POSITION), [])
+  const earnTemplateIds = useMemo(() => getAnnouncementsTemplateIds(PrivateAnnouncementType.POSITION_STATUS), [])
   const [fetchNotifications, { data: respEarnNotification = responseDefault }] = useLazyGetNotificationsQuery()
   const [readNotifications] = useReadNotificationsMutation()
   const [readAllNotifications, { isLoading: isReadingAll }] = useReadAllNotificationsMutation()
