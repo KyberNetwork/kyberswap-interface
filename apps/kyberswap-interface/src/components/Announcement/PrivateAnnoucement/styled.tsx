@@ -7,6 +7,7 @@ export const ItemActionWrapper = styled.div`
   right: 4px;
   display: flex;
   align-items: center;
+  z-index: 2;
   gap: 12px;
   padding: 4px 4px;
   background: ${({ theme }) => rgba(theme.tableHeader, 0.9)};
