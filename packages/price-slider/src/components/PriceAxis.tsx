@@ -4,7 +4,7 @@ import { tickToPrice } from '@kyber/utils/dist/uniswapv3';
 
 import { MAX_AXIS_TICK_COUNT, MIN_AXIS_TICK_COUNT } from '@/constants';
 import type { PriceAxisProps } from '@/types';
-import { formatAxisPrice } from '@/utils';
+import { formatAxisPrice, formatDisplayNumber } from '@/utils';
 
 /**
  * Calculate the optimal number of ticks and minimum gap based on price range
@@ -123,6 +123,8 @@ const filterOverlappingTicks = (
  * Dynamically reduces tick count when price range is very large
  */
 function PriceAxis({ viewRange, token0Decimals, token1Decimals, invertPrice }: PriceAxisProps) {
+  const usedLabels = new Set<string>();
+
   const axisTicks = useMemo(() => {
     // Get min and max prices to determine optimal tick config
     const minPrice = +tickToPrice(Math.round(viewRange.min), token0Decimals, token1Decimals, invertPrice);
@@ -153,6 +155,13 @@ function PriceAxis({ viewRange, token0Decimals, token1Decimals, invertPrice }: P
         const isLast = index === axisTicks.length - 1;
         const alignClass = isFirst ? 'left-0' : isLast ? 'right-0' : '-translate-x-1/2';
 
+        // Ensure labels are differentiated when values are very close
+        let label = formatAxisPrice(price);
+        if (usedLabels.has(label)) {
+          label = formatDisplayNumber(price, { significantDigits: 6 });
+        }
+        usedLabels.add(label);
+
         return (
           <React.Fragment key={tick}>
             {/* Tick Mark */}
@@ -166,7 +175,7 @@ function PriceAxis({ viewRange, token0Decimals, token1Decimals, invertPrice }: P
                 className={`absolute top-2 text-[10px] text-[#888] whitespace-nowrap select-none will-change-[left] ${alignClass}`}
                 style={isFirst ? { left: 0 } : isLast ? { right: 0 } : { left: `${position}%` }}
               >
-                {formatAxisPrice(price)}
+                {label}
               </div>
             )}
           </React.Fragment>
