@@ -1,13 +1,15 @@
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { useState } from 'react'
 import { X } from 'react-feather'
 import { Flex, Text } from 'rebass'
 
 import { ButtonPrimary } from 'components/Button'
+import InfoHelper from 'components/InfoHelper'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useNftApprovalAll } from 'hooks/useNftApprovalAll'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
+import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
 import Condition from 'pages/Earns/components/SmartExit/Confirmation/Condition'
 import MoreInfo from 'pages/Earns/components/SmartExit/Confirmation/MoreInfo'
 import Success from 'pages/Earns/components/SmartExit/Confirmation/Success'
@@ -58,15 +60,19 @@ export default function Confirmation({
     conditionType,
     deadline,
   })
+  const dexName = position.dex.name.replace('FairFlow', '').trim()
 
   if (isSuccess) return <Success onDismiss={onDismiss} />
 
   return (
     <>
       <Flex justifyContent="space-between" alignItems="center">
-        <Text fontSize={20} fontWeight={500}>
-          <Trans>Confirmation</Trans>
-        </Text>
+        <Flex alignItems="center" sx={{ gap: '8px' }}>
+          <IconArrowLeft onClick={onDismiss} />
+          <Text fontSize={20} fontWeight={500}>
+            <Trans>Confirmation</Trans>
+          </Text>
+        </Flex>
         <X onClick={onDismiss} />
       </Flex>
 
@@ -107,7 +113,14 @@ export default function Confirmation({
         ) : approveClicked || approvePendingTx ? (
           <Trans>Approving...</Trans>
         ) : (
-          <Trans>Approve NFT</Trans>
+          <>
+            <Trans>Approve for all NFT</Trans>
+            <InfoHelper
+              text={t`You wish to give KyberSwap permission to manage all your positions from ${dexName} on this chain. You won’t need to approve again unless you revoke the permission in your wallet.`}
+              placement="top"
+              color={theme.textReverse}
+            />
+          </>
         )}
       </ButtonPrimary>
     </>

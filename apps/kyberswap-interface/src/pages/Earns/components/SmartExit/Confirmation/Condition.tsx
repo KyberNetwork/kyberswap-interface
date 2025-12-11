@@ -12,6 +12,7 @@ import {
   getTimeCondition,
 } from 'pages/Earns/components/SmartExit/utils/typeGuards'
 import { ConditionType, Metric, ParsedPosition, SelectedMetric } from 'pages/Earns/types'
+import { formatDisplayNumber } from 'utils/numbers'
 
 export default function Condition({
   position,
@@ -74,7 +75,8 @@ export default function Condition({
         )}
         {metric1.metric === Metric.PoolPrice && priceCondition1 && (
           <Text>
-            <Trans>Pool price is</Trans> {priceCondition1.lte ? '≤' : '≥'} {priceCondition1.lte || priceCondition1.gte}{' '}
+            <Trans>Pool price is</Trans> {priceCondition1.lte ? '≤' : '≥'}{' '}
+            {formatDisplayNumber(priceCondition1.lte || priceCondition1.gte, { significantDigits: 6 })}{' '}
             {position.token0.symbol}/{position.token1.symbol}
           </Text>
         )}
@@ -110,7 +112,8 @@ export default function Condition({
             {metric2.metric === Metric.PoolPrice && priceCondition2 && (
               <Text mt="6px">
                 <Trans>Pool price is</Trans> {priceCondition2.lte ? '≤' : '≥'}{' '}
-                {priceCondition2.lte || priceCondition2.gte} {position.token0.symbol}/{position.token1.symbol}
+                {formatDisplayNumber(priceCondition2.lte || priceCondition2.gte, { significantDigits: 6 })}{' '}
+                {position.token0.symbol}/{position.token1.symbol}
               </Text>
             )}
           </>
