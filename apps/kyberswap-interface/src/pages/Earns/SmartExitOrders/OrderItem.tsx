@@ -116,13 +116,9 @@ const ConditionContent = ({ logical }: { logical: ConditionLogical }) => {
         if (c.field.type === 'pool_price')
           return (
             <Text color={theme.subText} key={`${c.field.type}-${i}`}>
-              Pool price is between{' '}
+              Pool price is {c.field.value.lte ? '≤' : '≥'}{' '}
               <Text as="span" color={theme.text}>
-                {c.field.value.gte}
-              </Text>{' '}
-              and{' '}
-              <Text as="span" color={theme.text}>
-                {c.field.value.lte}
+                {formatDisplayNumber(c.field.value.gte || c.field.value.lte, { significantDigits: 6 })}
               </Text>{' '}
               {i !== conditions.length - 1 && (
                 <Text as="span" fontWeight={500} color={theme.text}>
