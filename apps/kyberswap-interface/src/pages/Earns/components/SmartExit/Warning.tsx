@@ -13,9 +13,20 @@ const WarningMessage = styled.div`
   max-width: 100%;
 `
 
-export default function Warning({ deadlineBeforeConditionTime }: { deadlineBeforeConditionTime: boolean }) {
+export default function Warning({
+  deadlineBeforeConditionTime,
+  timeBeforeNow,
+}: {
+  deadlineBeforeConditionTime: boolean
+  timeBeforeNow: boolean
+}) {
   return (
     <>
+      {timeBeforeNow && (
+        <WarningMessage>
+          <Trans>Condition time must be in the future</Trans>
+        </WarningMessage>
+      )}
       {deadlineBeforeConditionTime && (
         <WarningMessage>
           <Trans>Expire time must be later than the condition time</Trans>
