@@ -93,11 +93,12 @@ export const usePrivateAnnouncements = () => {
   const loadPinnedIds = useCallback(() => {
     const nextPinned = getPinnedNotifications(account)
     setPinnedNotifications(nextPinned)
-    setAnnouncements(prev => applyPinnedToList(prev, nextPinned))
+    return nextPinned
   }, [account])
 
   useEffect(() => {
-    loadPinnedIds()
+    const nextPinned = loadPinnedIds()
+    setAnnouncements(prev => applyPinnedToList(prev, nextPinned))
   }, [loadPinnedIds])
 
   const fetchList = useCallback(
@@ -115,7 +116,8 @@ export const usePrivateAnnouncements = () => {
         const notifications = (data?.notifications ?? []) as PrivateAnnouncement[]
         setPage(nextPage)
         const baseList = isReset ? notifications : [...announcements, ...notifications]
-        const normalized = applyPinnedToList(baseList, pinnedNotifications)
+        const pinnedForList = isReset ? loadPinnedIds() : pinnedNotifications
+        const normalized = applyPinnedToList(baseList, pinnedForList)
         setAnnouncements(normalized)
         return normalized
       } catch (error) {
@@ -125,7 +127,7 @@ export const usePrivateAnnouncements = () => {
       }
       return []
     },
-    [account, announcements, earnTemplateIds, fetchNotifications, page, pinnedNotifications],
+    [account, announcements, earnTemplateIds, fetchNotifications, loadPinnedIds, page, pinnedNotifications],
   )
 
   const markAsRead = useCallback(
