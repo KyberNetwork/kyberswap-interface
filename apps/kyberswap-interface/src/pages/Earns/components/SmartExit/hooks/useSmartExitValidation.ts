@@ -8,7 +8,7 @@ import { getFeeYieldCondition, getPriceCondition, getTimeCondition } from '../ut
  * Custom hook to validate Smart Exit conditions
  * Returns validation flags for each metric type
  */
-export const useSmartExitValidation = (selectedMetrics: Array<SelectedMetric | null>) => {
+export const useSmartExitValidation = (selectedMetrics: Array<SelectedMetric | null>, deadline?: number) => {
   const invalidYieldCondition = useMemo(() => {
     const feeYieldMetric = selectedMetrics.find(metric => metric !== null && metric.metric === Metric.FeeYield)
     if (!feeYieldMetric) return false
@@ -25,20 +25,28 @@ export const useSmartExitValidation = (selectedMetrics: Array<SelectedMetric | n
     return !priceCondition || (!priceCondition.gte && !priceCondition.lte)
   }, [selectedMetrics])
 
-  const invalidTimeCondition = useMemo(() => {
+  const { invalidTimeCondition, deadlineBeforeConditionTime } = useMemo(() => {
     const timeMetric = selectedMetrics.find(metric => metric !== null && metric.metric === Metric.Time)
-    if (!timeMetric) return false
+    if (!timeMetric) return { invalidTimeCondition: false, deadlineBeforeConditionTime: false }
 
     const timeCondition = getTimeCondition(timeMetric)
-    return !timeCondition || !timeCondition.time
-  }, [selectedMetrics])
+    if (!timeCondition || !timeCondition.time) return { invalidTimeCondition: true, deadlineBeforeConditionTime: false }
 
-  const isValid = !invalidYieldCondition && !invalidPriceCondition && !invalidTimeCondition
+    const deadlineMs = deadline ? deadline * 1000 : null
+    return {
+      invalidTimeCondition: false,
+      deadlineBeforeConditionTime: deadlineMs !== null && deadlineMs < timeCondition.time,
+    }
+  }, [deadline, selectedMetrics])
+
+  const isValid =
+    !invalidYieldCondition && !invalidPriceCondition && !invalidTimeCondition && !deadlineBeforeConditionTime
 
   return {
     invalidYieldCondition,
     invalidPriceCondition,
     invalidTimeCondition,
+    deadlineBeforeConditionTime,
     isValid,
   }
 }

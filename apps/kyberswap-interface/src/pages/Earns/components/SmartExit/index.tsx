@@ -13,6 +13,7 @@ import GasSetting from 'pages/Earns/components/SmartExit/GasSetting'
 import Metrics from 'pages/Earns/components/SmartExit/Metrics'
 import PoolPrice from 'pages/Earns/components/SmartExit/PoolPrice'
 import PositionLiquidity from 'pages/Earns/components/SmartExit/PositionLiquidity'
+import Warning from 'pages/Earns/components/SmartExit/Warning'
 import { FOREVER_EXPIRE_TIME } from 'pages/Earns/components/SmartExit/constants'
 import { useSmartExitDeadline } from 'pages/Earns/components/SmartExit/hooks/useSmartExitDeadline'
 import { useSmartExitFeeEstimation } from 'pages/Earns/components/SmartExit/hooks/useSmartExitFeeEstimation'
@@ -34,7 +35,7 @@ export const SmartExit = ({ position, onDismiss }: { position: ParsedPosition; o
   const [customGasPercent, setCustomGasPercent] = useState<string>('')
 
   const deadline = useSmartExitDeadline(expireTime)
-  const { isValid } = useSmartExitValidation(selectedMetrics)
+  const { isValid, deadlineBeforeConditionTime } = useSmartExitValidation(selectedMetrics, deadline)
 
   const { feeInfo, feeLoading } = useSmartExitFeeEstimation({
     position,
@@ -112,6 +113,7 @@ export const SmartExit = ({ position, onDismiss }: { position: ParsedPosition; o
                   customGasPercent={customGasPercent}
                   setCustomGasPercent={setCustomGasPercent}
                 />
+                <Warning deadlineBeforeConditionTime={deadlineBeforeConditionTime} />
               </Flex>
             </ContentWrapper>
 
