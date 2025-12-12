@@ -1,37 +1,20 @@
 import { useEffect, useRef, useState } from 'react'
 
 import { INPUT_DEBOUNCE_TIME } from 'constants/index'
-import { useSmartExit } from 'pages/Earns/components/SmartExit/useSmartExit'
-import { ConditionType, ParsedPosition, SelectedMetric, SmartExitFee } from 'pages/Earns/types'
+import { SmartExitFee } from 'pages/Earns/types'
 
 interface UseSmartExitFeeEstimationParams {
-  position: ParsedPosition
-  selectedMetrics: Array<SelectedMetric | null>
-  conditionType: ConditionType
-  deadline: number
   isValid: boolean
+  estimateFee: () => Promise<SmartExitFee | null>
 }
 
 /**
  * Custom hook to handle fee estimation with automatic retry on validation changes
  */
-export const useSmartExitFeeEstimation = ({
-  position,
-  selectedMetrics,
-  conditionType,
-  deadline,
-  isValid,
-}: UseSmartExitFeeEstimationParams) => {
+export const useSmartExitFeeEstimation = ({ isValid, estimateFee }: UseSmartExitFeeEstimationParams) => {
   const [feeInfo, setFeeInfo] = useState<SmartExitFee | null>(null)
   const [feeLoading, setFeeLoading] = useState(false)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
-
-  const { estimateFee } = useSmartExit({
-    position,
-    selectedMetrics,
-    conditionType,
-    deadline,
-  })
 
   useEffect(() => {
     if (!isValid) {

@@ -19,6 +19,7 @@ import { useSmartExitDeadline } from 'pages/Earns/components/SmartExit/hooks/use
 import { useSmartExitFeeEstimation } from 'pages/Earns/components/SmartExit/hooks/useSmartExitFeeEstimation'
 import { useSmartExitValidation } from 'pages/Earns/components/SmartExit/hooks/useSmartExitValidation'
 import { ContentWrapper } from 'pages/Earns/components/SmartExit/styles'
+import { useSmartExit } from 'pages/Earns/components/SmartExit/useSmartExit'
 import { defaultFeeYieldCondition } from 'pages/Earns/components/SmartExit/utils'
 import { ConditionType, Metric, ParsedPosition, SelectedMetric } from 'pages/Earns/types'
 
@@ -37,12 +38,16 @@ export const SmartExit = ({ position, onDismiss }: { position: ParsedPosition; o
   const deadline = useSmartExitDeadline(expireTime)
   const { isValid, deadlineBeforeConditionTime, timeBeforeNow } = useSmartExitValidation(selectedMetrics, deadline)
 
-  const { feeInfo, feeLoading } = useSmartExitFeeEstimation({
+  const smartExit = useSmartExit({
     position,
     selectedMetrics,
     conditionType,
     deadline,
+  })
+
+  const { feeInfo, feeLoading } = useSmartExitFeeEstimation({
     isValid,
+    estimateFee: smartExit.estimateFee,
   })
 
   const disabled = !isValid || !feeInfo || feeLoading
@@ -70,6 +75,9 @@ export const SmartExit = ({ position, onDismiss }: { position: ParsedPosition; o
               protocolFee: feeInfo?.protocol.percentage || 0,
               maxGas: customGasPercent ? parseFloat(customGasPercent) : (feeInfo?.gas.percentage || 0) * multiplier,
             }}
+            createSmartExitOrder={smartExit.createSmartExitOrder}
+            isCreating={smartExit.isCreating}
+            isSuccess={smartExit.isSuccess}
           />
         ) : (
           <>

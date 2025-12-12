@@ -13,7 +13,6 @@ import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
 import Condition from 'pages/Earns/components/SmartExit/Confirmation/Condition'
 import MoreInfo from 'pages/Earns/components/SmartExit/Confirmation/MoreInfo'
 import Success from 'pages/Earns/components/SmartExit/Confirmation/Success'
-import { useSmartExit } from 'pages/Earns/components/SmartExit/useSmartExit'
 import { SMART_EXIT_ADDRESS } from 'pages/Earns/constants'
 import { ConditionType, ParsedPosition, SelectedMetric } from 'pages/Earns/types'
 import { submitTransaction } from 'pages/Earns/utils'
@@ -27,6 +26,9 @@ export default function Confirmation({
   feeSettings: { protocolFee, maxGas },
   onDismiss,
   onCloseSmartExit,
+  createSmartExitOrder,
+  isCreating,
+  isSuccess,
 }: {
   selectedMetrics: SelectedMetric[]
   position: ParsedPosition
@@ -35,6 +37,9 @@ export default function Confirmation({
   feeSettings: { protocolFee: number; maxGas: number }
   onDismiss: () => void
   onCloseSmartExit: () => void
+  createSmartExitOrder: (opts: { maxGas: number }) => Promise<boolean>
+  isCreating: boolean
+  isSuccess: boolean
 }) {
   const theme = useTheme()
   const { chainId, account } = useActiveWeb3React()
@@ -56,12 +61,6 @@ export default function Confirmation({
   })
   const [approveClicked, setApproveClicked] = useState(false)
 
-  const { createSmartExitOrder, isCreating, isSuccess } = useSmartExit({
-    position,
-    selectedMetrics,
-    conditionType,
-    deadline,
-  })
   const dexName = position.dex.name.replace('FairFlow', '').trim()
 
   if (isSuccess) return <Success onDismiss={onDismiss} onCloseSmartExit={onCloseSmartExit} />
