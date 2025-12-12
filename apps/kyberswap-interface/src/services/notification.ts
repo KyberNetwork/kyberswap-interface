@@ -1,6 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 import { Announcement, PrivateAnnouncement } from 'components/Announcement/type'
+import { NOTIFICATION_API } from 'constants/env'
 
 type NotificationResponse<T extends PrivateAnnouncement | Announcement = Announcement> = {
   notifications: T[]
@@ -37,7 +38,7 @@ type Params = {
 const notificationApi = createApi({
   reducerPath: 'notificationApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: 'https://pre-notification.kyberengineering.io/api',
+    baseUrl: NOTIFICATION_API,
   }),
   endpoints: builder => ({
     getNotifications: builder.query<NotificationResponse<PrivateAnnouncement>, Params>({
