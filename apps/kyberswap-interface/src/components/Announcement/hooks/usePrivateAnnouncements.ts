@@ -222,6 +222,9 @@ export const usePrivateAnnouncements = () => {
   const reset = useCallback(() => {
     setPage(1)
     setAnnouncements([])
+    setPinnedNotifications([])
+    setPreview({ total: 0, unread: 0 })
+    loadingAnnouncement.current = false
   }, [])
 
   const total = useMemo(

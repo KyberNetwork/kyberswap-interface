@@ -53,6 +53,7 @@ type LimitOrderAnnouncement = {
 export type PoolPositionAnnouncement = {
   positionId: string
   chainId: string
+  exchange: string
   token0Symbol: string
   token1Symbol: string
   token0LogoURL: string

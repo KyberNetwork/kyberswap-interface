@@ -42,6 +42,7 @@ function InboxItemEarnPosition({
     token1LogoURL,
     token1Symbol,
     chainId: rawChain,
+    exchange,
   } = templateBody?.position || {}
 
   const chainId = Number(rawChain) as ChainId
@@ -52,7 +53,7 @@ function InboxItemEarnPosition({
   const onClick = () => {
     const positionUrl = APP_PATHS.EARN_POSITION_DETAIL.replace(':positionId', positionId)
       .replace(':chainId', rawChain)
-      .replace(':exchange', 'uniswap-v4') // TODO: dynamic exchange
+      .replace(':exchange', exchange)
     navigate(positionUrl)
     onRead(announcement, statusMessage)
   }
