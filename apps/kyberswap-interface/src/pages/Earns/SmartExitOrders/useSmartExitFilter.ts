@@ -21,6 +21,9 @@ export default function useSmartExitFilter() {
       const nextParams = new URLSearchParams(searchParams)
       if (!value) nextParams.delete(key)
       else nextParams.set(key, value.toString())
+      if (key === 'chainIds' || key === 'dexTypes' || key === 'status') {
+        nextParams.set('page', '1')
+      }
       setSearchParams(nextParams)
     },
     [searchParams, setSearchParams],
