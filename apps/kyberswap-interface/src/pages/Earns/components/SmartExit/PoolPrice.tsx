@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { useState } from 'react'
-import { Flex, Text } from 'rebass'
+import { Box, Flex, Text } from 'rebass'
 
 import { ReactComponent as RevertPriceIcon } from 'assets/svg/earn/ic_revert_price.svg'
 import InfoHelper from 'components/InfoHelper'
@@ -35,19 +35,22 @@ export default function PoolPrice({ position }: { position: ParsedPosition }) {
         </RevertIconWrapper>
       </Flex>
 
-      <PositionValueWrapper align="center">
-        <PriceRange
-          minPrice={position.priceRange.min}
-          maxPrice={position.priceRange.max}
-          currentPrice={position.priceRange.current}
-          tickSpacing={position.pool.tickSpacing}
-          token0Decimals={position.token0.decimals}
-          token1Decimals={position.token1.decimals}
-          dex={position.dex.id}
-        />
-      </PositionValueWrapper>
+      <Box mb="1.5rem" mt="0.5rem">
+        <PositionValueWrapper align="center">
+          <PriceRange
+            minPrice={position.priceRange.min}
+            maxPrice={position.priceRange.max}
+            currentPrice={position.priceRange.current}
+            tickSpacing={position.pool.tickSpacing}
+            token0Decimals={position.token0.decimals}
+            token1Decimals={position.token1.decimals}
+            dex={position.dex.id}
+            invertPrice={revertPrice}
+          />
+        </PositionValueWrapper>
+      </Box>
 
-      <Divider mt="1rem" />
+      <Divider />
 
       <Flex alignItems="center" mt="10px" justifyContent="space-between">
         <Text color={theme.subText} fontSize={14}>
