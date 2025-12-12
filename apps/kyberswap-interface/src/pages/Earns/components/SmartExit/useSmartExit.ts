@@ -86,7 +86,7 @@ export const useSmartExit = ({ position, selectedMetrics, conditionType, deadlin
   ])
 
   const createSmartExitOrder = useCallback(
-    async (opts: { maxFeesPercentage: number[] }): Promise<boolean> => {
+    async (opts: { maxGas: number }): Promise<boolean> => {
       if (!library || !baseParams || !account) return false
 
       setState(SmartExitState.CREATING)
@@ -94,7 +94,7 @@ export const useSmartExit = ({ position, selectedMetrics, conditionType, deadlin
         // Step 1: Get sign message from API
         const createSmartExitOrderParams = {
           ...baseParams,
-          maxFeesPercentage: opts.maxFeesPercentage,
+          maxGasPercentage: opts.maxGas,
         }
 
         const signMessageResult = await getSignMessage(createSmartExitOrderParams).unwrap()
@@ -108,7 +108,7 @@ export const useSmartExit = ({ position, selectedMetrics, conditionType, deadlin
         const orderSignature = await library.send('eth_signTypedData_v4', [account, JSON.stringify(typedData)])
 
         // Step 3: Create the order with both signatures
-        const orderParams: SmartExitFeeParams & { signature: string; maxFeesPercentage: number[] } = {
+        const orderParams: SmartExitFeeParams & { signature: string; maxGasPercentage: number } = {
           ...createSmartExitOrderParams,
           signature: orderSignature,
         }

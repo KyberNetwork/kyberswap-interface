@@ -98,8 +98,7 @@ export default function Confirmation({
           }
 
           if (isApproved) {
-            // Create smart exit order
-            await createSmartExitOrder({ maxFeesPercentage: [maxGas + protocolFee, maxGas + protocolFee] })
+            await createSmartExitOrder({ maxGas })
             return
           }
           setApproveClicked(true)
