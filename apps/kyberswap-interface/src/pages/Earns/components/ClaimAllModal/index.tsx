@@ -13,6 +13,8 @@ import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { ChainDetailInfo, ChainRewardItem, CustomRadio } from 'pages/Earns/components/ClaimAllModal/styles'
 import { ClaimInfoWrapper, ModalHeader, Wrapper, X } from 'pages/Earns/components/ClaimModal/styles'
+import { PositionStatus } from 'pages/Earns/components/PositionStatusControl'
+import { RewardsFilterSetting } from 'pages/Earns/components/RewardsFilterSetting'
 import { RewardInfo } from 'pages/Earns/types'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -37,6 +39,8 @@ export default function ClaimAllModal({
 
   const [autoClaim, setAutoClaim] = useState(false)
   const [selectedChainId, setSelectedChainId] = useState<number | null>(null)
+  const [thresholdValue, setThresholdValue] = useState(5)
+  const [statusValue, setStatusValue] = useState<PositionStatus>('all')
 
   const selectedChain = selectedChainId ? rewardInfo.chains.find(c => c.chainId === selectedChainId) : null
 
@@ -75,7 +79,7 @@ export default function ClaimAllModal({
   }, [setClaiming])
 
   return (
-    <Modal isOpen onDismiss={onClose}>
+    <Modal isOpen onDismiss={onClose} maxWidth={460}>
       <Wrapper>
         <ModalHeader>
           <Text fontSize={20} fontWeight={500}>
@@ -84,78 +88,87 @@ export default function ClaimAllModal({
           <X onClick={onClose} />
         </ModalHeader>
         <ClaimInfoWrapper>
-          <Flex alignItems={'center'} justifyContent={'space-between'}>
-            <Text>{t`Claimable Rewards`}</Text>
-            <Text>
-              {formatDisplayNumber(rewardInfo.claimableUsdValue, { significantDigits: 4, style: 'currency' })}
-            </Text>
-          </Flex>
+          <Flex flexDirection={'column'} sx={{ gap: 2 }}>
+            <Flex alignItems={'center'} justifyContent={'space-between'}>
+              <Text>{t`Claimable Rewards`}</Text>
+              <Text>
+                {formatDisplayNumber(rewardInfo.claimableUsdValue, { significantDigits: 4, style: 'currency' })}
+              </Text>
+            </Flex>
 
-          <Flex flexDirection={'column'} sx={{ gap: 1 }}>
-            {rewardInfo.chains
-              .sort((a, b) => b.claimableUsdValue - a.claimableUsdValue)
-              .map(chain => {
-                const isSelected = selectedChainId === chain.chainId
+            <Flex flexDirection={'column'} sx={{ gap: 1 }}>
+              {rewardInfo.chains
+                .sort((a, b) => b.claimableUsdValue - a.claimableUsdValue)
+                .map(chain => {
+                  const isSelected = selectedChainId === chain.chainId
 
-                return (
-                  <ChainRewardItem key={chain.chainId} isSelected={isSelected}>
-                    <Flex
-                      alignItems="center"
-                      justifyContent="space-between"
-                      style={{ cursor: 'pointer' }}
-                      paddingTop={12}
-                      paddingBottom={12}
-                      onClick={() => handleSelectChain(chain.chainId)}
-                    >
-                      <Flex alignItems="center" sx={{ gap: 2 }}>
-                        <CustomRadio
-                          type="radio"
-                          isSelected={isSelected}
-                          checked={isSelected}
-                          onChange={() => handleSelectChain(chain.chainId)}
-                        />
-                        <TokenLogo src={chain.chainLogo} size={16} alt={chain.chainName} />
-                        <Text>{chain.chainName}</Text>
+                  return (
+                    <ChainRewardItem key={chain.chainId} isSelected={isSelected}>
+                      <Flex
+                        alignItems="center"
+                        justifyContent="space-between"
+                        style={{ cursor: 'pointer' }}
+                        paddingTop={12}
+                        paddingBottom={12}
+                        onClick={() => handleSelectChain(chain.chainId)}
+                      >
+                        <Flex alignItems="center" sx={{ gap: 2 }}>
+                          <CustomRadio
+                            type="radio"
+                            isSelected={isSelected}
+                            checked={isSelected}
+                            onChange={() => handleSelectChain(chain.chainId)}
+                          />
+                          <TokenLogo src={chain.chainLogo} size={16} alt={chain.chainName} />
+                          <Text>{chain.chainName}</Text>
+                        </Flex>
+                        <Text fontSize={upToExtraSmall ? 16 : 18}>
+                          {formatDisplayNumber(chain.claimableUsdValue, { significantDigits: 4, style: 'currency' })}
+                        </Text>
                       </Flex>
-                      <Text fontSize={upToExtraSmall ? 16 : 18}>
-                        {formatDisplayNumber(chain.claimableUsdValue, { significantDigits: 4, style: 'currency' })}
-                      </Text>
-                    </Flex>
-                    <ChainDetailInfo isOpen={isSelected}>
-                      {chain.tokens
-                        .sort((a, b) => b.claimableUsdValue - a.claimableUsdValue)
-                        .map(token => (
-                          <Flex key={token.address} alignItems={'center'} justifyContent={'space-between'}>
-                            <Flex alignItems={'center'} sx={{ gap: 1 }}>
-                              <TokenLogo src={token.logo} size={16} alt={token.symbol} />
-                              <TokenLogo
-                                src={chain.chainLogo}
-                                size={10}
-                                alt={chain.chainName}
-                                translateLeft
-                                style={{ position: 'relative', top: 4, border: `1px solid ${theme.black}` }}
-                              />
-                              <Text marginLeft={1}>
-                                {formatDisplayNumber(token.claimableAmount, { significantDigits: 4 })}
+                      <ChainDetailInfo isOpen={isSelected}>
+                        {chain.tokens
+                          .sort((a, b) => b.claimableUsdValue - a.claimableUsdValue)
+                          .map(token => (
+                            <Flex key={token.address} alignItems={'center'} justifyContent={'space-between'}>
+                              <Flex alignItems={'center'} sx={{ gap: 1 }}>
+                                <TokenLogo src={token.logo} size={16} alt={token.symbol} />
+                                <TokenLogo
+                                  src={chain.chainLogo}
+                                  size={10}
+                                  alt={chain.chainName}
+                                  translateLeft
+                                  style={{ position: 'relative', top: 4, border: `1px solid ${theme.black}` }}
+                                />
+                                <Text marginLeft={1}>
+                                  {formatDisplayNumber(token.claimableAmount, { significantDigits: 4 })}
+                                </Text>
+                                <Text>{token.symbol}</Text>
+                              </Flex>
+                              <Text color={theme.subText}>
+                                {formatDisplayNumber(token.claimableUsdValue, {
+                                  significantDigits: 4,
+                                  style: 'currency',
+                                })}
                               </Text>
-                              <Text>{token.symbol}</Text>
                             </Flex>
-                            <Text color={theme.subText}>
-                              {formatDisplayNumber(token.claimableUsdValue, {
-                                significantDigits: 4,
-                                style: 'currency',
-                              })}
-                            </Text>
-                          </Flex>
-                        ))}
-                    </ChainDetailInfo>
-                  </ChainRewardItem>
-                )
-              })}
+                          ))}
+                      </ChainDetailInfo>
+                    </ChainRewardItem>
+                  )
+                })}
+            </Flex>
           </Flex>
+
+          <RewardsFilterSetting
+            thresholdValue={thresholdValue}
+            statusValue={statusValue}
+            onThresholdChange={setThresholdValue}
+            onStatusChange={setStatusValue}
+          />
 
           {selectedChain ? (
-            <Flex marginTop={2} flexWrap={'wrap'} color={theme.subText} alignItems={'center'} sx={{ gap: 1 }}>
+            <Flex flexWrap={'wrap'} color={theme.subText} alignItems={'center'} sx={{ gap: 1 }}>
               <Text>{t`You are currently claiming`}</Text>
               <Text color={theme.text}>
                 {formatDisplayNumber(selectedChain.claimableUsdValue, { significantDigits: 4, style: 'currency' })}
@@ -165,6 +178,7 @@ export default function ClaimAllModal({
             </Flex>
           ) : null}
         </ClaimInfoWrapper>
+
         <Row gap="16px" flexDirection={upToExtraSmall ? 'column-reverse' : 'row'}>
           <ButtonOutlined onClick={onClose}>{t`Cancel`}</ButtonOutlined>
           <ButtonPrimary gap="4px" disabled={claiming || !selectedChain} onClick={handleClaim}>

@@ -42,7 +42,7 @@ export const X = styled(Xsvg)`
 export const ClaimInfoWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 20px;
   width: 100%;
 `
 
