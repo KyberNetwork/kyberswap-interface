@@ -2,6 +2,7 @@ import { t } from '@lingui/macro'
 import React, { ReactNode } from 'react'
 import { CSSProperties } from 'styled-components'
 
+import InboxItemEarnPosition from 'components/Announcement/PrivateAnnoucement/InboxItemEarnPosition'
 import InboxItemLO from 'components/Announcement/PrivateAnnoucement/InboxItemLO'
 import InboxItemPoolPosition from 'components/Announcement/PrivateAnnoucement/InboxItemPoolPosition'
 import InboxItemPriceAlert from 'components/Announcement/PrivateAnnoucement/InboxItemPriceAlert'
@@ -13,10 +14,12 @@ import { formatTime } from 'utils/time'
 
 export type PrivateAnnouncementProp<T extends AnnouncementTemplate = AnnouncementTemplate> = {
   announcement: PrivateAnnouncement<T>
-  onRead: (data: PrivateAnnouncement, statusMessage: string) => void
+  onRead: (data: PrivateAnnouncement, statusMessage: string) => void | Promise<void>
   style: CSSProperties
   time?: ReactNode
   title?: string
+  onPin?: (data: PrivateAnnouncement) => void | Promise<void>
+  onDelete?: (data: PrivateAnnouncement) => void | Promise<void>
 }
 
 type PrivateAnnouncementMap = Partial<{
@@ -25,24 +28,31 @@ type PrivateAnnouncementMap = Partial<{
 const ANNOUNCEMENT_MAP: () => PrivateAnnouncementMap = () =>
   ({
     [PrivateAnnouncementType.ELASTIC_POOLS]: InboxItemPoolPosition,
+    [PrivateAnnouncementType.POSITION_STATUS]: InboxItemEarnPosition,
     [PrivateAnnouncementType.LIMIT_ORDER]: InboxItemLO,
     [PrivateAnnouncementType.PRICE_ALERT]: InboxItemPriceAlert,
     [PrivateAnnouncementType.DIRECT_MESSAGE]: InboxItemPrivateMessage,
   } as PrivateAnnouncementMap)
 
+export const hasValidPrivateAnnouncementType = (announcement: PrivateAnnouncement) =>
+  Boolean(announcement.templateType && ANNOUNCEMENT_MAP()[announcement.templateType])
+
 export const PRIVATE_ANN_TITLE: () => Partial<{ [type in PrivateAnnouncementType]: string }> = () => ({
+  [PrivateAnnouncementType.ELASTIC_POOLS]: t`Elastic Liquidity Positions`,
+  [PrivateAnnouncementType.POSITION_STATUS]: t`Earn Position`,
   [PrivateAnnouncementType.LIMIT_ORDER]: t`Limit Orders`,
   [PrivateAnnouncementType.PRICE_ALERT]: t`Price Alerts`,
-  [PrivateAnnouncementType.ELASTIC_POOLS]: t`Elastic Liquidity Positions`,
   [PrivateAnnouncementType.DIRECT_MESSAGE]: t`Notification`,
 })
 
-export default function InboxItem({ announcement, onRead, style }: PrivateAnnouncementProp) {
+export default function InboxItem({ announcement, onRead, style, onPin, onDelete }: PrivateAnnouncementProp) {
   const { templateType, sentAt, isRead } = announcement
   const theme = useTheme()
   const props: PrivateAnnouncementProp = {
     onRead,
     style,
+    onPin,
+    onDelete,
     time: <InboxItemTime color={isRead ? theme.border : theme.subText}>{formatTime(sentAt)}</InboxItemTime>,
     announcement,
     title: PRIVATE_ANN_TITLE()[templateType],

@@ -53,6 +53,7 @@ export const ELASTIC_POOL_TOPIC_ID = required('ELASTIC_POOL_TOPIC_ID')
 export const BUCKET_NAME = required('BUCKET_NAME')
 export const WALLETCONNECT_PROJECT_ID = required('WALLETCONNECT_PROJECT_ID')
 export const CAMPAIGN_URL = required('CAMPAIGN_URL')
+export const TELEGRAM_BOT_URL = optional('TELEGRAM_BOT_URL')
 export const REFERRAL_URL = required('REFERRAL_URL')
 export const TOKEN_API_URL = required('TOKEN_API_URL')
 export const AFFILIATE_SERVICE_URL = required('AFFILIATE_SERVICE')
@@ -127,6 +128,7 @@ const ANNOUNCEMENT_TEMPLATE_IDS: { [key in EnvKeys]: TemplateConfig } = {
     [PrivateAnnouncementType.LIMIT_ORDER]: '8,9,10,11,33,34,35,36',
     [PrivateAnnouncementType.BRIDGE_ASSET]: '37,38',
     [PrivateAnnouncementType.ELASTIC_POOLS]: '39,40',
+    [PrivateAnnouncementType.POSITION_STATUS]: '',
     [PrivateAnnouncementType.DIRECT_MESSAGE]: '',
     EXCLUDE: '2,29,1,47,50,44,45',
   },
@@ -135,6 +137,7 @@ const ANNOUNCEMENT_TEMPLATE_IDS: { [key in EnvKeys]: TemplateConfig } = {
     [PrivateAnnouncementType.LIMIT_ORDER]: '14,15,16,17,31',
     [PrivateAnnouncementType.BRIDGE_ASSET]: '12,13',
     [PrivateAnnouncementType.ELASTIC_POOLS]: '20,21',
+    [PrivateAnnouncementType.POSITION_STATUS]: '',
     [PrivateAnnouncementType.DIRECT_MESSAGE]: '',
     EXCLUDE: '2,11,1,28,29,22,23,27',
   },
@@ -143,6 +146,7 @@ const ANNOUNCEMENT_TEMPLATE_IDS: { [key in EnvKeys]: TemplateConfig } = {
     [PrivateAnnouncementType.LIMIT_ORDER]: '12,13,14,15,31',
     [PrivateAnnouncementType.BRIDGE_ASSET]: '10,11',
     [PrivateAnnouncementType.ELASTIC_POOLS]: '17,18',
+    [PrivateAnnouncementType.POSITION_STATUS]: '1,2',
     [PrivateAnnouncementType.DIRECT_MESSAGE]: '',
     EXCLUDE: '2,16,19,9,25,24,21,22,25,26,30',
   },

@@ -5,6 +5,7 @@ import styled from 'styled-components'
 
 import { ReactComponent as AlarmIcon } from 'assets/svg/alarm.svg'
 import { ReactComponent as BridgeIcon } from 'assets/svg/bridge_icon.svg'
+import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import { ReactComponent as LimitOrderIcon } from 'assets/svg/limit_order.svg'
 import { ReactComponent as LiquidityIcon } from 'assets/svg/liquidity_icon.svg'
 import { PrivateAnnouncementType } from 'components/Announcement/type'
@@ -21,6 +22,7 @@ const mapIcon: Partial<{ [type in PrivateAnnouncementType]: ReactNode }> = {
   [PrivateAnnouncementType.BRIDGE_ASSET]: <BridgeIcon />,
   [PrivateAnnouncementType.LIMIT_ORDER]: <LimitOrderIcon />,
   [PrivateAnnouncementType.ELASTIC_POOLS]: <LiquidityIcon />,
+  [PrivateAnnouncementType.POSITION_STATUS]: <FarmingIcon style={{ width: 17, height: 17 }} />,
   [PrivateAnnouncementType.PRICE_ALERT]: <AlarmIcon style={{ width: 17, height: 17 }} />,
   [PrivateAnnouncementType.DIRECT_MESSAGE]: <Bell style={{ width: 17, height: 17 }} />,
 }

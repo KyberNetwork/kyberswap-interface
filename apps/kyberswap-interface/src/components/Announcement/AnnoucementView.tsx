@@ -1,88 +1,17 @@
 import { Trans } from '@lingui/macro'
-import { RefObject, useEffect } from 'react'
-import { Info, X } from 'react-feather'
-import { useMedia } from 'react-use'
+import { useEffect, useRef } from 'react'
+import { Info } from 'react-feather'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
 import InfiniteLoader from 'react-window-infinite-loader'
 import { Flex, Text } from 'rebass'
-import { useAckPrivateAnnouncementsMutation } from 'services/announcement'
-import styled, { CSSProperties, css } from 'styled-components'
+import styled, { CSSProperties } from 'styled-components'
 
 import AnnouncementItem from 'components/Announcement/AnnoucementItem'
-import MenuMoreAction from 'components/Announcement/MoreAction'
 import InboxItem from 'components/Announcement/PrivateAnnoucement'
-import { formatNumberOfUnread } from 'components/Announcement/helper'
 import { Announcement, PrivateAnnouncement } from 'components/Announcement/type'
-import Column from 'components/Column'
-import NotificationIcon from 'components/Icons/NotificationIcon'
-import { RowBetween } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
-import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
-import { MEDIA_WIDTHS } from 'theme'
-
-const Wrapper = styled.div`
-  width: 380px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  height: 70vh;
-  padding-top: 20px;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    width: 100%;
-    min-width: 380px;
-  `};
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    width: 100%;
-    height: unset;
-  `};
-`
-const Container = styled.div`
-  gap: 12px;
-  padding-left: 16px;
-  display: flex;
-  flex-direction: column;
-  padding-right: 16px;
-`
-
-const TabItem = styled.div<{ active: boolean }>`
-  flex: 1;
-  background-color: ${({ theme }) => theme.buttonBlack};
-  border-radius: 20px;
-  padding: 6px 0px;
-  text-align: center;
-  font-weight: 500;
-  font-size: 14px;
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  cursor: pointer;
-  color: ${({ theme }) => theme.subText};
-  ${({ active }) =>
-    active &&
-    css`
-      background-color: ${({ theme }) => theme.tabActive};
-      color: ${({ theme }) => theme.text};
-    `};
-`
-
-const Title = styled.div`
-  font-size: 20px;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-`
-
-const TabWrapper = styled.div`
-  background-color: ${({ theme }) => theme.buttonBlack};
-  border-radius: 20px;
-  display: flex;
-  padding: 4px;
-  gap: 10px;
-  justify-content: space-between;
-`
 
 const ListAnnouncement = styled.div`
   display: flex;
@@ -105,113 +34,66 @@ const ListAnnouncement = styled.div`
   `};
 `
 
-const Badge = styled.div`
-  border-radius: 16px;
-  background-color: ${({ theme }) => theme.primary};
-  color: ${({ theme }) => theme.textReverse};
-  padding: 0px 4px;
-  font-weight: 500;
-  min-width: 20px;
-  text-align: center;
-`
 export enum Tab {
-  INBOX,
-  ANNOUNCEMENT,
+  CATEGORY,
+  NOTIFICATIONS,
+}
+
+export enum Category {
+  EARN_POSITION = 'EARN_POSITION',
+  LIMIT_ORDER = 'LIMIT_ORDER',
+  ANNOUNCEMENTS = 'ANNOUNCEMENTS',
 }
 
 type Props = {
-  numberOfUnread: number
-  totalAnnouncement: number
-  announcements: Announcement[] | PrivateAnnouncement[]
-  isMyInboxTab: boolean
-  onSetTab: (tab: Tab) => void
-  refreshAnnouncement: () => void
-  loadMoreAnnouncements: () => void
-  toggleNotificationCenter: () => void
-  showDetailAnnouncement: (index: number) => void
-  scrollRef: RefObject<HTMLDivElement>
+  totalAnnouncement?: number
+  announcements?: Announcement[] | PrivateAnnouncement[]
+  loadMoreAnnouncements?: () => void
+  toggleNotificationCenter?: () => void
+  showDetailAnnouncement?: (index: number) => void
+  selectedCategory?: Category | null
+  onPrivateAnnouncementRead?: (announcement: PrivateAnnouncement, statusMessage: string) => void | Promise<void>
+  onPrivateAnnouncementPin?: (announcement: PrivateAnnouncement) => void | Promise<void>
+  onPrivateAnnouncementDelete?: (announcement: PrivateAnnouncement) => void | Promise<void>
 }
 
 export default function AnnouncementView({
-  numberOfUnread,
   announcements,
   totalAnnouncement,
-  refreshAnnouncement,
   loadMoreAnnouncements,
   toggleNotificationCenter,
-  isMyInboxTab,
-  onSetTab,
   showDetailAnnouncement,
-  scrollRef,
+  selectedCategory,
+  onPrivateAnnouncementRead,
+  onPrivateAnnouncementPin,
+  onPrivateAnnouncementDelete,
 }: Props) {
   const { account } = useActiveWeb3React()
-
+  const scrollRef = useRef<HTMLDivElement>(null)
   const theme = useTheme()
 
-  const [ackAnnouncement] = useAckPrivateAnnouncementsMutation()
-  const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
-  const { mixpanelHandler } = useMixpanel()
+  const handleLoadMore = loadMoreAnnouncements ?? (() => null)
+  const handleToggle = toggleNotificationCenter ?? (() => null)
+  const handleShowDetail = showDetailAnnouncement ?? (() => null)
+  const currentCategory = selectedCategory ?? null
+
+  const visibleList = announcements ?? []
+  const total = totalAnnouncement ?? 0
 
   const onReadPrivateAnnouncement = (item: PrivateAnnouncement, statusMessage: string) => {
     if (!account) return
-    mixpanelHandler(MIXPANEL_TYPE.ANNOUNCEMENT_CLICK_INBOX_MESSAGE, {
-      message_status: statusMessage,
-      message_type: item.templateType,
-    })
-    if (item.isRead) {
-      toggleNotificationCenter()
-      return
-    }
-    ackAnnouncement({ action: 'read', ids: [item.id] })
-      .then(() => {
-        refreshAnnouncement()
-        toggleNotificationCenter()
-      })
-      .catch(err => {
-        console.error('ack noti error', err)
-      })
+    onPrivateAnnouncementRead?.(item, statusMessage)
+    handleToggle()
   }
 
   const onReadAnnouncement = (item: Announcement, index: number) => {
-    toggleNotificationCenter()
-    const { templateBody } = item
-    showDetailAnnouncement(index)
-    mixpanelHandler(MIXPANEL_TYPE.ANNOUNCEMENT_CLICK_ANNOUNCEMENT_MESSAGE, {
-      message_title: templateBody.name,
-    })
+    handleShowDetail(index)
+    handleToggle()
   }
 
-  const clearAll = () => {
-    if (!announcements.length || !account) return
-    ackAnnouncement({ action: 'clear-all' })
-      .then(() => {
-        refreshAnnouncement()
-      })
-      .catch(err => {
-        console.error('ack noti error', err)
-      })
-    mixpanelHandler(MIXPANEL_TYPE.ANNOUNCEMENT_CLICK_CLEAR_ALL_INBOXES, {
-      total_message_count: totalAnnouncement,
-    })
-  }
-
-  const hasMore = announcements.length !== totalAnnouncement
-  const isItemLoaded = (index: number) => !hasMore || index < announcements.length
-  const itemCount = hasMore ? announcements.length + 1 : announcements.length
-
-  const tabComponent = (
-    <TabWrapper>
-      <TabItem active={isMyInboxTab} onClick={() => onSetTab(Tab.INBOX)}>
-        <Trans>My Inbox</Trans>
-        {numberOfUnread > 0 && account && <Badge>{formatNumberOfUnread(numberOfUnread)}</Badge>}
-      </TabItem>
-      <TabItem active={!isMyInboxTab} onClick={() => onSetTab(Tab.ANNOUNCEMENT)}>
-        <Trans>General</Trans>
-      </TabItem>
-    </TabWrapper>
-  )
-
-  const showClearAll = account && isMyInboxTab && announcements.length > 0
+  const hasMore = visibleList.length < total
+  const isItemLoaded = (index: number) => !hasMore || index < visibleList.length
+  const itemCount = hasMore ? visibleList.length + 1 : visibleList.length
 
   const node = scrollRef?.current
   useEffect(() => {
@@ -221,76 +103,58 @@ export default function AnnouncementView({
   }, [node])
 
   return (
-    <Wrapper>
-      <Container>
-        <RowBetween gap="10px" height="28px">
-          <Title>
-            <NotificationIcon size={18} />
-            <Trans>Notifications</Trans>
-          </Title>
-          <Flex style={{ gap: '20px', alignItems: 'center' }}>
-            <MenuMoreAction
-              showClearAll={Boolean(showClearAll)}
-              clearAll={clearAll}
-              toggleModal={toggleNotificationCenter}
-            />
-            {isMobile && <X color={theme.subText} onClick={toggleNotificationCenter} cursor="pointer" />}
-          </Flex>
-        </RowBetween>
-
-        {tabComponent}
-      </Container>
-
-      {announcements.length ? (
-        <ListAnnouncement>
-          <AutoSizer>
-            {({ height, width }) => (
-              <InfiniteLoader isItemLoaded={isItemLoaded} itemCount={itemCount} loadMoreItems={loadMoreAnnouncements}>
-                {({ onItemsRendered, ref }) => (
-                  <FixedSizeList
-                    outerRef={scrollRef}
-                    height={height}
-                    width={width}
-                    itemCount={itemCount}
-                    itemSize={isMyInboxTab ? 120 : 126}
-                    onItemsRendered={onItemsRendered}
-                    ref={ref}
-                  >
-                    {({ index, style }: { index: number; style: CSSProperties }) => {
-                      if (!isItemLoaded(index)) {
-                        return null
-                      }
-                      const item = announcements[index]
-                      return isMyInboxTab ? (
-                        <InboxItem
-                          style={style}
-                          key={item.id}
-                          announcement={item as PrivateAnnouncement}
-                          onRead={onReadPrivateAnnouncement}
-                        />
-                      ) : (
-                        <AnnouncementItem
-                          key={item.id}
-                          style={style}
-                          announcement={item as Announcement}
-                          onRead={() => onReadAnnouncement(item as Announcement, index)}
-                        />
-                      )
-                    }}
-                  </FixedSizeList>
-                )}
-              </InfiniteLoader>
-            )}
-          </AutoSizer>
-        </ListAnnouncement>
-      ) : (
-        <Column style={{ alignItems: 'center', margin: '24px 0px 32px 0px' }} gap="8px">
+    <Flex flexDirection="column" flex={1}>
+      {visibleList.length === 0 && (
+        <Flex flexDirection="column" justifyContent="center" alignItems="center" height="100%" style={{ gap: 8 }}>
           <Info color={theme.subText} size={27} />
           <Text color={theme.subText} textAlign="center">
             <Trans>No notifications found</Trans>
           </Text>
-        </Column>
+        </Flex>
       )}
-    </Wrapper>
+      <ListAnnouncement>
+        <AutoSizer>
+          {({ height, width }) => (
+            <InfiniteLoader isItemLoaded={isItemLoaded} itemCount={itemCount} loadMoreItems={handleLoadMore}>
+              {({ onItemsRendered, ref }) => (
+                <FixedSizeList
+                  outerRef={scrollRef}
+                  height={height}
+                  width={width}
+                  itemCount={itemCount}
+                  itemSize={currentCategory === Category.ANNOUNCEMENTS ? 126 : 120}
+                  onItemsRendered={onItemsRendered}
+                  ref={ref}
+                >
+                  {({ index, style }: { index: number; style: CSSProperties }) => {
+                    if (!isItemLoaded(index)) {
+                      return null
+                    }
+                    const item = visibleList[index]
+                    return currentCategory === Category.ANNOUNCEMENTS ? (
+                      <AnnouncementItem
+                        key={item.id}
+                        style={style}
+                        announcement={item as Announcement}
+                        onRead={() => onReadAnnouncement(item as Announcement, index)}
+                      />
+                    ) : (
+                      <InboxItem
+                        style={style}
+                        key={item.id}
+                        announcement={item as PrivateAnnouncement}
+                        onRead={onReadPrivateAnnouncement}
+                        onPin={onPrivateAnnouncementPin}
+                        onDelete={onPrivateAnnouncementDelete}
+                      />
+                    )
+                  }}
+                </FixedSizeList>
+              )}
+            </InfiniteLoader>
+          )}
+        </AutoSizer>
+      </ListAnnouncement>
+    </Flex>
   )
 }

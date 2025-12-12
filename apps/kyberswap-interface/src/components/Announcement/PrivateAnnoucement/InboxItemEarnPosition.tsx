@@ -1,5 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
+import { useNavigate } from 'react-router'
 import { Flex } from 'rebass'
 
 import { PrivateAnnouncementProp } from 'components/Announcement/PrivateAnnoucement'
@@ -11,17 +12,15 @@ import {
   InboxItemWrapper,
   PrimaryText,
   RowItem,
+  StatusBadge,
   Title,
 } from 'components/Announcement/PrivateAnnoucement/styled'
 import { AnnouncementTemplatePoolPosition } from 'components/Announcement/type'
 import { DoubleCurrencyLogoV2 } from 'components/DoubleLogo'
-import { MoneyBag } from 'components/Icons'
 import { APP_PATHS } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
-import { useNavigateToUrl } from 'utils/redirect'
 
-function InboxItemBridge({
+function InboxItemEarnPosition({
   announcement,
   onRead,
   style,
@@ -34,6 +33,7 @@ function InboxItemBridge({
   const theme = useTheme()
 
   const {
+    positionId,
     currentPrice,
     maxPrice,
     minPrice,
@@ -41,18 +41,20 @@ function InboxItemBridge({
     token0Symbol,
     token1LogoURL,
     token1Symbol,
-    poolAddress,
-    type,
     chainId: rawChain,
+    exchange,
   } = templateBody?.position || {}
 
   const chainId = Number(rawChain) as ChainId
-  const isInRange = type === 'IN_RANGE'
+  const isInRange = currentPrice >= minPrice && currentPrice <= maxPrice
   const statusMessage = isInRange ? t`Back in range` : t`Out of range`
 
-  const navigate = useNavigateToUrl()
+  const navigate = useNavigate()
   const onClick = () => {
-    navigate(`${APP_PATHS.MY_POOLS}/${NETWORKS_INFO[chainId].route}?search=${poolAddress}`, chainId)
+    const positionUrl = APP_PATHS.EARN_POSITION_DETAIL.replace(':positionId', positionId)
+      .replace(':chainId', rawChain)
+      .replace(':exchange', exchange)
+    navigate(positionUrl)
     onRead(announcement, statusMessage)
   }
 
@@ -70,8 +72,7 @@ function InboxItemBridge({
           {!isRead && <Dot />}
         </RowItem>
         <RowItem>
-          <PrimaryText>{statusMessage}</PrimaryText>
-          <MoneyBag color={isInRange ? theme.apr : theme.warning} size={16} />
+          <StatusBadge color={isInRange ? theme.primary : theme.warning}>{statusMessage}</StatusBadge>
         </RowItem>
       </InboxItemRow>
 
@@ -81,13 +82,13 @@ function InboxItemBridge({
             style={{ marginRight: 10 }}
             logoUrl1={token0LogoURL}
             logoUrl2={token1LogoURL}
-            size={12}
+            size={16}
           />
-          <PrimaryText>
+          <PrimaryText style={{ fontSize: 14 }}>
             {token0Symbol}/{token1Symbol}
           </PrimaryText>
         </Flex>
-        <PrimaryText color={isInRange ? theme.primary : theme.warning}>
+        <PrimaryText>
           {currentPrice} {token0Symbol}/{token1Symbol}
         </PrimaryText>
       </InboxItemRow>
@@ -101,4 +102,5 @@ function InboxItemBridge({
     </InboxItemWrapper>
   )
 }
-export default InboxItemBridge
+
+export default InboxItemEarnPosition
