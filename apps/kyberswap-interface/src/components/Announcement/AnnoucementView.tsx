@@ -41,6 +41,7 @@ export enum Tab {
 
 export enum Category {
   EARN_POSITION = 'EARN_POSITION',
+  LIMIT_ORDER = 'LIMIT_ORDER',
   ANNOUNCEMENTS = 'ANNOUNCEMENTS',
 }
 

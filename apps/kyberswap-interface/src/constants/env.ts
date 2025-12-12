@@ -128,7 +128,7 @@ const ANNOUNCEMENT_TEMPLATE_IDS: { [key in EnvKeys]: TemplateConfig } = {
     [PrivateAnnouncementType.LIMIT_ORDER]: '8,9,10,11,33,34,35,36',
     [PrivateAnnouncementType.BRIDGE_ASSET]: '37,38',
     [PrivateAnnouncementType.ELASTIC_POOLS]: '39,40',
-    [PrivateAnnouncementType.POSITION_STATUS]: '1,2',
+    [PrivateAnnouncementType.POSITION_STATUS]: '',
     [PrivateAnnouncementType.DIRECT_MESSAGE]: '',
     EXCLUDE: '2,29,1,47,50,44,45',
   },
@@ -143,7 +143,7 @@ const ANNOUNCEMENT_TEMPLATE_IDS: { [key in EnvKeys]: TemplateConfig } = {
   },
   production: {
     [PrivateAnnouncementType.PRICE_ALERT]: '29',
-    [PrivateAnnouncementType.LIMIT_ORDER]: '12,13,14,15,31',
+    [PrivateAnnouncementType.LIMIT_ORDER]: '3,4,5,6,7',
     [PrivateAnnouncementType.BRIDGE_ASSET]: '10,11',
     [PrivateAnnouncementType.ELASTIC_POOLS]: '17,18',
     [PrivateAnnouncementType.POSITION_STATUS]: '1,2',
