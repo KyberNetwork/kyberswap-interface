@@ -1,10 +1,11 @@
-import { Trans } from '@lingui/macro'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { Trans, t } from '@lingui/macro'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Check, ChevronLeft } from 'react-feather'
 import { useMedia } from 'react-use'
 
 import { ReactComponent as AnnouncementSvg } from 'assets/svg/ic_announcement.svg'
 import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
+import { ReactComponent as LimitOrderIcon } from 'assets/svg/limit_order.svg'
 import AnnouncementView, { Category, Tab } from 'components/Announcement/AnnoucementView'
 import CategoryItem from 'components/Announcement/CategoryItem'
 import DetailAnnouncementPopup from 'components/Announcement/Popups/DetailAnnouncementPopup'
@@ -13,14 +14,17 @@ import { useGeneralAnnouncements } from 'components/Announcement/hooks/useGenera
 import { usePrivateAnnouncements } from 'components/Announcement/hooks/usePrivateAnnouncements'
 import {
   Announcement,
+  AnnouncementTemplateLimitOrder,
   AnnouncementTemplatePopup,
   PoolPositionAnnouncement,
   PrivateAnnouncement,
+  PrivateAnnouncementType,
 } from 'components/Announcement/type'
 import NotificationIcon from 'components/Icons/NotificationIcon'
 import MenuFlyout from 'components/MenuFlyout'
 import Modal from 'components/Modal'
 import { RowBetween } from 'components/Row'
+import { LimitOrderStatus } from 'components/swapv2/LimitOrder/type'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useDetailAnnouncement, useModalOpen, useToggleNotificationCenter } from 'state/application/hooks'
@@ -53,19 +57,34 @@ function AnnouncementComponent() {
   const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   const {
-    announcements: privateAnnouncements,
-    preview: privatePreview,
-    total: privateTotal,
-    unread: numberOfUnread,
-    isMarkAllLoading: isReadingAll,
-    fetchList: fetchPrivateAnnouncements,
-    fetchPreview: fetchPrivatePreview,
-    markAsRead: onPrivateAnnouncementRead,
-    markAllAsRead: onMarkAllPrivate,
-    pinAnnouncement: onPinPrivateAnnouncement,
-    deleteAnnouncement: onDeletePrivateAnnouncement,
-    reset: resetPrivateAnnouncements,
-  } = usePrivateAnnouncements()
+    announcements: earnAnnouncements,
+    preview: earnPreview,
+    total: earnTotal,
+    unread: earnUnread,
+    isMarkAllLoading: isReadingAllEarn,
+    fetchList: fetchEarnAnnouncements,
+    fetchPreview: fetchEarnPreview,
+    markAsRead: onEarnAnnouncementRead,
+    markAllAsRead: onMarkAllEarn,
+    pinAnnouncement: onPinEarnAnnouncement,
+    deleteAnnouncement: onDeleteEarnAnnouncement,
+    reset: resetEarnAnnouncements,
+  } = usePrivateAnnouncements(PrivateAnnouncementType.POSITION_STATUS)
+
+  const {
+    announcements: limitOrderAnnouncements,
+    preview: limitOrderPreview,
+    total: limitOrderTotal,
+    unread: limitOrderUnread,
+    isMarkAllLoading: isReadingAllLimitOrder,
+    fetchList: fetchLimitOrderAnnouncements,
+    fetchPreview: fetchLimitOrderPreview,
+    markAsRead: onLimitOrderAnnouncementRead,
+    markAllAsRead: onMarkAllLimitOrder,
+    pinAnnouncement: onPinLimitOrderAnnouncement,
+    deleteAnnouncement: onDeleteLimitOrderAnnouncement,
+    reset: resetLimitOrderAnnouncements,
+  } = usePrivateAnnouncements(PrivateAnnouncementType.LIMIT_ORDER)
 
   const {
     announcements: generalAnnouncements,
@@ -86,35 +105,125 @@ function AnnouncementComponent() {
     return undefined
   }
 
+  const getLimitOrderPreview = (announcement?: PrivateAnnouncement): { pair?: string; status?: string } | undefined => {
+    const body = announcement?.templateBody as AnnouncementTemplateLimitOrder | undefined
+    const order = body?.order
+    if (!order) return undefined
+    const pair =
+      order.makerAssetSymbol && order.takerAssetSymbol
+        ? `${order.makerAssetSymbol}/${order.takerAssetSymbol}`
+        : undefined
+    const isFilled = order.status === LimitOrderStatus.FILLED
+    const isPartialFilled = order.status === LimitOrderStatus.PARTIALLY_FILLED
+    const status = body?.isReorg
+      ? `Reverted ${order.increasedFilledPercent}`
+      : isFilled
+      ? t`100% Filled`
+      : isPartialFilled
+      ? `${order.filledPercent} Filled ${order.increasedFilledPercent}`
+      : `${order.filledPercent}% Filled | Expired`
+
+    return { pair, status }
+  }
+
+  const privateCategoryMap: Partial<Record<Category, ReturnType<typeof usePrivateAnnouncements>>> = useMemo(
+    () => ({
+      [Category.EARN_POSITION]: {
+        announcements: earnAnnouncements,
+        preview: earnPreview,
+        total: earnTotal,
+        unread: earnUnread,
+        isMarkAllLoading: isReadingAllEarn,
+        fetchList: fetchEarnAnnouncements,
+        fetchPreview: fetchEarnPreview,
+        markAsRead: onEarnAnnouncementRead,
+        markAllAsRead: onMarkAllEarn,
+        pinAnnouncement: onPinEarnAnnouncement,
+        deleteAnnouncement: onDeleteEarnAnnouncement,
+        reset: resetEarnAnnouncements,
+      },
+      [Category.LIMIT_ORDER]: {
+        announcements: limitOrderAnnouncements,
+        preview: limitOrderPreview,
+        total: limitOrderTotal,
+        unread: limitOrderUnread,
+        isMarkAllLoading: isReadingAllLimitOrder,
+        fetchList: fetchLimitOrderAnnouncements,
+        fetchPreview: fetchLimitOrderPreview,
+        markAsRead: onLimitOrderAnnouncementRead,
+        markAllAsRead: onMarkAllLimitOrder,
+        pinAnnouncement: onPinLimitOrderAnnouncement,
+        deleteAnnouncement: onDeleteLimitOrderAnnouncement,
+        reset: resetLimitOrderAnnouncements,
+      },
+    }),
+    [
+      earnAnnouncements,
+      earnPreview,
+      earnTotal,
+      earnUnread,
+      fetchEarnAnnouncements,
+      fetchEarnPreview,
+      isReadingAllEarn,
+      limitOrderAnnouncements,
+      limitOrderPreview,
+      limitOrderTotal,
+      limitOrderUnread,
+      fetchLimitOrderAnnouncements,
+      fetchLimitOrderPreview,
+      isReadingAllLimitOrder,
+      onDeleteEarnAnnouncement,
+      onDeleteLimitOrderAnnouncement,
+      onEarnAnnouncementRead,
+      onLimitOrderAnnouncementRead,
+      onMarkAllEarn,
+      onMarkAllLimitOrder,
+      onPinEarnAnnouncement,
+      onPinLimitOrderAnnouncement,
+      resetEarnAnnouncements,
+      resetLimitOrderAnnouncements,
+    ],
+  )
+
   const fetchByCategory = useCallback(
     (category: Category, isReset = false) => {
       if (category === Category.ANNOUNCEMENTS) {
         return fetchGeneralAnnouncements(isReset)
-      } else {
-        return fetchPrivateAnnouncements(isReset)
       }
+      return privateCategoryMap[category]?.fetchList(isReset)
     },
-    [fetchGeneralAnnouncements, fetchPrivateAnnouncements],
+    [fetchGeneralAnnouncements, privateCategoryMap],
   )
 
   useEffect(() => {
-    fetchPrivatePreview()
+    fetchEarnPreview()
+    fetchLimitOrderPreview()
     fetchGeneralPreview()
-  }, [fetchGeneralPreview, fetchPrivatePreview])
+  }, [fetchEarnPreview, fetchGeneralPreview, fetchLimitOrderPreview])
 
   useEffect(() => {
     if (prevAccountRef.current === account) return
     prevAccountRef.current = account
-    resetPrivateAnnouncements()
+    resetEarnAnnouncements()
+    resetLimitOrderAnnouncements()
     resetGeneralAnnouncements()
     if (activeTab === Tab.NOTIFICATIONS && selectedCategory) {
       fetchByCategory(selectedCategory, true)
     }
-  }, [account, activeTab, fetchByCategory, resetGeneralAnnouncements, resetPrivateAnnouncements, selectedCategory])
+  }, [
+    account,
+    activeTab,
+    fetchByCategory,
+    resetEarnAnnouncements,
+    resetGeneralAnnouncements,
+    resetLimitOrderAnnouncements,
+    selectedCategory,
+  ])
 
   useEffect(() => {
     const interval = setInterval(() => {
-      fetchPrivatePreview()
+      fetchEarnPreview()
+      fetchLimitOrderPreview()
       fetchGeneralPreview()
       if (isOpenInbox && activeTab === Tab.NOTIFICATIONS && selectedCategory) {
         fetchByCategory(selectedCategory, true)
@@ -122,7 +231,15 @@ function AnnouncementComponent() {
     }, 10000)
 
     return () => clearInterval(interval)
-  }, [activeTab, fetchByCategory, fetchGeneralPreview, fetchPrivatePreview, isOpenInbox, selectedCategory])
+  }, [
+    activeTab,
+    fetchByCategory,
+    fetchEarnPreview,
+    fetchGeneralPreview,
+    fetchLimitOrderPreview,
+    isOpenInbox,
+    selectedCategory,
+  ])
 
   const loadMoreAnnouncements = useCallback(() => {
     if (!selectedCategory) return undefined
@@ -147,13 +264,20 @@ function AnnouncementComponent() {
   }
 
   const isAnnouncementsCategory = selectedCategory === Category.ANNOUNCEMENTS
+  const selectedPrivateCategory =
+    selectedCategory && !isAnnouncementsCategory ? privateCategoryMap[selectedCategory] : undefined
 
   const [currentAnnouncements, currentTotal, totalForView] = isAnnouncementsCategory
-    ? [generalAnnouncements, generalTotal, generalPreview.total]
-    : [privateAnnouncements, privateTotal, privatePreview.total]
+    ? [generalAnnouncements, generalTotal ?? 0, generalPreview.total ?? generalTotal ?? 0]
+    : [
+        selectedPrivateCategory?.announcements ?? [],
+        selectedPrivateCategory?.total ?? 0,
+        selectedPrivateCategory?.preview.total ?? selectedPrivateCategory?.total ?? 0,
+      ]
 
-  const announcementCount = generalPreview.total || totalForView
-  const previewPosition = getEarnPosition(privatePreview.first)
+  const announcementCount = generalPreview.total ?? generalTotal ?? 0
+  const previewPosition = getEarnPosition(earnPreview.first)
+  const previewLimitOrder = getLimitOrderPreview(limitOrderPreview.first)
 
   const [, setAnnouncementDetail] = useDetailAnnouncement()
   const showDetailAnnouncement = (selectedIndex: number) => {
@@ -175,11 +299,12 @@ function AnnouncementComponent() {
       : undefined
   }
 
-  const badgeText = numberOfUnread > 0 ? formatNumberOfUnread(numberOfUnread) : null
+  const totalUnreadPrivate = (earnUnread ?? 0) + (limitOrderUnread ?? 0)
+  const badgeText = totalUnreadPrivate > 0 ? formatNumberOfUnread(totalUnreadPrivate) : null
 
   const bellIcon = (
     <StyledMenuButton
-      active={isOpenInbox || numberOfUnread > 0}
+      active={isOpenInbox || totalUnreadPrivate > 0}
       onClick={() => {
         toggleNotificationCenter()
         if (!isOpenInbox) mixpanelHandler(MIXPANEL_TYPE.ANNOUNCEMENT_CLICK_BELL_ICON_OPEN_POPUP)
@@ -207,10 +332,21 @@ function AnnouncementComponent() {
             <ChevronLeft size={16} />
           </BackButton>
           <HeaderTitle>
-            {isAnnouncementsCategory ? <Trans>Announcements</Trans> : <Trans>Earn Position</Trans>}
+            {isAnnouncementsCategory ? (
+              <Trans>Announcements</Trans>
+            ) : selectedCategory === Category.LIMIT_ORDER ? (
+              <Trans>Limit Orders</Trans>
+            ) : (
+              <Trans>Earn Position</Trans>
+            )}
           </HeaderTitle>
-          {selectedCategory !== Category.ANNOUNCEMENTS && (
-            <HeaderAction onClick={onMarkAllPrivate} disabled={!account || isReadingAll || numberOfUnread === 0}>
+          {selectedPrivateCategory && (
+            <HeaderAction
+              onClick={selectedPrivateCategory.markAllAsRead}
+              disabled={
+                !account || selectedPrivateCategory.isMarkAllLoading || (selectedPrivateCategory.unread || 0) === 0
+              }
+            >
               <Check size={16} />
               <Trans>Mark all read</Trans>
             </HeaderAction>
@@ -222,11 +358,19 @@ function AnnouncementComponent() {
         <div>
           <CategoryItem
             title="Earn Position"
-            counter={numberOfUnread}
+            counter={earnUnread}
             subLine1={previewPosition ? `${previewPosition.token0Symbol}/${previewPosition.token1Symbol}` : undefined}
             subLine2={previewPosition?.positionId ? `#${previewPosition.positionId}` : undefined}
             icon={<FarmingIcon />}
             onClick={() => onSelectCategory(Category.EARN_POSITION)}
+          />
+          <CategoryItem
+            title="Limit Orders"
+            counter={limitOrderUnread}
+            subLine1={previewLimitOrder?.pair}
+            subLine2={previewLimitOrder?.status}
+            icon={<LimitOrderIcon />}
+            onClick={() => onSelectCategory(Category.LIMIT_ORDER)}
           />
           <CategoryItem
             title="Announcements"
@@ -244,9 +388,9 @@ function AnnouncementComponent() {
           toggleNotificationCenter={toggleNotificationCenter}
           showDetailAnnouncement={showDetailAnnouncement}
           selectedCategory={selectedCategory}
-          onPrivateAnnouncementRead={onPrivateAnnouncementRead}
-          onPrivateAnnouncementPin={onPinPrivateAnnouncement}
-          onPrivateAnnouncementDelete={onDeletePrivateAnnouncement}
+          onPrivateAnnouncementRead={selectedPrivateCategory?.markAsRead}
+          onPrivateAnnouncementPin={selectedPrivateCategory?.pinAnnouncement}
+          onPrivateAnnouncementDelete={selectedPrivateCategory?.deleteAnnouncement}
         />
       )}
     </Wrapper>
