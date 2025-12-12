@@ -59,7 +59,10 @@ const useCollectFees = ({ refetchAfterCollect }: { refetchAfterCollect: () => vo
       ? await getUniv4CollectCallData({ claimInfo, recipient: account })
       : await getUniv3CollectCallData({ claimInfo, recipient: account })
 
-    if (!txData) return
+    if (!txData) {
+      setClaiming(false)
+      return
+    }
 
     let errorMessage = ''
 
@@ -71,7 +74,7 @@ const useCollectFees = ({ refetchAfterCollect }: { refetchAfterCollect: () => vo
         notify({
           title: t`Error`,
           type: NotificationType.ERROR,
-          summary: error.message,
+          summary: error.message.includes('user rejected transaction') ? 'User rejected transaction' : error.message,
         })
         setClaiming(false)
       },
@@ -82,7 +85,9 @@ const useCollectFees = ({ refetchAfterCollect }: { refetchAfterCollect: () => vo
         notify({
           title: t`Error`,
           type: NotificationType.ERROR,
-          summary: error?.message || 'Transaction failed',
+          summary: error?.message?.includes('user rejected transaction')
+            ? 'User rejected transaction'
+            : error?.message || 'Transaction failed',
         })
       throw new Error(error?.message || 'Transaction failed')
     }
