@@ -7,6 +7,9 @@ export const ChainRewardItem = styled.div<{ isSelected: boolean }>`
   border-radius: 12px;
   background-color: ${({ theme, isSelected }) => (isSelected ? rgba(49, 203, 158, 0.1) : rgba(theme.white, 0.04))};
   border: 1px solid ${({ theme, isSelected }) => (isSelected ? '#047855' : rgba(theme.white, 0.04))};
+  :hover {
+    background-color: ${({ theme, isSelected }) => (isSelected ? rgba(49, 203, 158, 0.15) : rgba(theme.white, 0.08))};
+  }
 `
 
 export const CustomRadio = styled.input<{ isSelected: boolean }>`

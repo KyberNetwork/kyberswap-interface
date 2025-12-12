@@ -35,12 +35,8 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
     data,
     refetch: refetchRewardInfo,
     isLoading: isLoadingRewardInfo,
-  } = useRewardInfoQuery(
-    {
-      owner: account || '',
-    },
-    { skip: !account, pollingInterval: 15_000 },
-  )
+  } = useRewardInfoQuery({ owner: account || '' }, { skip: !account, pollingInterval: 15_000 })
+
   const [batchClaimEncodeData] = useBatchClaimEncodeDataMutation()
   const [claimEncodeData] = useClaimEncodeDataMutation()
 
@@ -52,6 +48,9 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
   const [txHash, setTxHash] = useState<string | null>(null)
   const [position, setPosition] = useState<ParsedPosition | null>(null)
   const [rewardInfo, setRewardInfo] = useState<RewardInfo | null>(null)
+
+  const [thresholdValue, setThresholdValue] = useState<number | null>(null)
+  const [filteredRewardInfo, setFilteredRewardInfo] = useState<RewardInfo | null>(null)
 
   const onCloseClaim = useCallback(() => {
     setOpenClaimModal(false)
@@ -74,6 +73,17 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
       supportedChains: supportedChains.filter(chain => !chainIds?.length || chainIds.includes(chain.chainId)),
     })
   }, [data, tokens, supportedChains, filters.chainIds])
+
+  const parsedFilteredRewardInfo = useMemo(() => {
+    const chainIds = filters.chainIds?.split(',').filter(Boolean).map(Number)
+    return parseReward({
+      data,
+      tokens,
+      supportedChains: supportedChains.filter(chain => !chainIds?.length || chainIds.includes(chain.chainId)),
+      thresholdValue,
+    })
+  }, [data, filters.chainIds, supportedChains, thresholdValue, tokens])
+
   const isRewardInfoParsing = Object.keys(data || {}).length > 0 && !rewardInfo
 
   useEffect(() => {
@@ -83,7 +93,14 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
   }, [parsedRewardInfo])
 
   useEffect(() => {
+    if (parsedFilteredRewardInfo) {
+      setFilteredRewardInfo(parsedFilteredRewardInfo)
+    }
+  }, [parsedFilteredRewardInfo])
+
+  useEffect(() => {
     setRewardInfo(null)
+    setFilteredRewardInfo(null)
   }, [account])
 
   const handleClaim = useCallback(async () => {
@@ -154,12 +171,14 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
 
   const handleClaimAll = useCallback(async () => {
     if (!account || !EARN_CHAINS[chainId as unknown as EarnChain]?.farmingSupported) return
+
     setClaiming(true)
 
     const encodeData = await batchClaimEncodeData({
       owner: account,
       recipient: account,
       chainId,
+      tokenIds: filteredRewardInfo?.nfts.map(nft => nft.nftId),
     })
 
     if ('error' in encodeData) {
@@ -204,14 +223,14 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
       type: TRANSACTION_TYPE.CLAIM_REWARD,
       hash: txHash,
       extraInfo: {
-        summary: `rewards: ${rewardInfo?.chains
+        summary: `rewards: ${filteredRewardInfo?.chains
           ?.find(chain => chain.chainId === chainId)
           ?.tokens?.filter(token => token.claimableAmount > 0)
           .map(token => `${formatDisplayNumber(token.claimableAmount, { significantDigits: 4 })} ${token.symbol}`)
           .join(', ')}`,
       },
     })
-  }, [account, addTransactionWithType, batchClaimEncodeData, chainId, library, notify, rewardInfo?.chains])
+  }, [account, addTransactionWithType, batchClaimEncodeData, chainId, filteredRewardInfo, library, notify])
 
   const onOpenClaim = (position?: ParsedPosition) => {
     if (!position) return
@@ -254,6 +273,7 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
       return
     }
     setOpenClaimAllModal(true)
+    setThresholdValue(5)
   }
 
   useEffect(() => {
@@ -370,13 +390,16 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
     ) : null
 
   const claimAllRewardsModal =
-    openClaimAllModal && rewardInfo ? (
+    openClaimAllModal && rewardInfo && filteredRewardInfo ? (
       <ClaimAllModal
         rewardInfo={rewardInfo}
+        filteredRewardInfo={filteredRewardInfo}
         onClaimAll={handleClaimAll}
         onClose={() => setOpenClaimAllModal(false)}
         claiming={claiming}
         setClaiming={setClaiming}
+        thresholdValue={thresholdValue ?? undefined}
+        onThresholdChange={setThresholdValue}
       />
     ) : null
 

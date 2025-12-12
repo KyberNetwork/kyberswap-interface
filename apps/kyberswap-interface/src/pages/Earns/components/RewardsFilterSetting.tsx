@@ -1,0 +1,110 @@
+import { Trans } from '@lingui/macro'
+import { useState } from 'react'
+import { ChevronDown } from 'react-feather'
+import { Flex, Text } from 'rebass'
+import styled from 'styled-components'
+
+import ClaimThresholdControl from 'components/ClaimThresholdControl'
+import { formatThresholdValue } from 'components/ClaimThresholdControl/CustomClaimThresholdInput'
+import useTheme from 'hooks/useTheme'
+
+import PositionStatusControl, { POSITION_STATUS_OPTIONS, PositionStatus } from './PositionStatusControl'
+
+const DropdownIcon = styled.div`
+  height: 16px;
+  color: ${({ theme }) => theme.subText};
+  transition: all 0.2s ease-in-out;
+
+  &[data-flip='true'] {
+    transform: rotate(180deg);
+  }
+`
+
+type Props = {
+  thresholdValue?: number
+  statusValue?: PositionStatus
+  onThresholdChange?: (value: number) => void
+  onStatusChange?: (value: PositionStatus) => void
+}
+
+export const RewardsFilterSetting = ({ thresholdValue, statusValue, onThresholdChange, onStatusChange }: Props) => {
+  const theme = useTheme()
+  const [thresholdExpanded, setThresholdExpanded] = useState(false)
+  const [statusExpanded, setStatusExpanded] = useState(false)
+
+  const thresholdDisplayValue = formatThresholdValue(thresholdValue)
+
+  return (
+    <Flex sx={{ flexDirection: 'column' }}>
+      <Flex sx={{ alignItems: 'center', justifyContent: 'space-between', gap: '8px', flexWrap: 'wrap' }}>
+        <Flex
+          sx={{ alignItems: 'center', gap: '4px', cursor: 'pointer' }}
+          onClick={() => {
+            setStatusExpanded(val => {
+              const next = !val
+              if (next) setThresholdExpanded(false)
+              return next
+            })
+          }}
+        >
+          <Text fontSize={14} color={theme.subText}>
+            <Trans>Position Status</Trans>
+          </Text>
+          <Text fontSize={14} color={theme.text}>
+            {POSITION_STATUS_OPTIONS.find(option => option.value === statusValue)?.label || ''}
+          </Text>
+          <DropdownIcon data-flip={statusExpanded}>
+            <ChevronDown width={16} height={16} />
+          </DropdownIcon>
+        </Flex>
+
+        <Flex
+          sx={{ alignItems: 'center', gap: '4px', cursor: 'pointer' }}
+          onClick={() => {
+            setThresholdExpanded(prev => {
+              const next = !prev
+              if (next) setStatusExpanded(false)
+              return next
+            })
+          }}
+        >
+          <Text fontSize={14} color={theme.subText}>
+            <Trans>Claim threshold</Trans>
+          </Text>
+          <Text fontSize={14} color={theme.text}>
+            {thresholdDisplayValue}
+          </Text>
+          <DropdownIcon data-flip={thresholdExpanded}>
+            <ChevronDown width={16} height={16} />
+          </DropdownIcon>
+        </Flex>
+      </Flex>
+
+      <Flex
+        sx={{
+          transition: 'all 100ms linear',
+          marginTop: statusExpanded || thresholdExpanded ? '12px' : '0px',
+          height: statusExpanded || thresholdExpanded ? 'max-content' : '0px',
+          overflow: 'hidden',
+          flexDirection: 'column',
+          gap: '12px',
+        }}
+      >
+        {statusExpanded && <PositionStatusControl value={statusValue} onChange={onStatusChange} />}
+        {thresholdExpanded && (
+          <>
+            <Text fontSize={12} color={theme.subText}>
+              <Trans>
+                Only position with rewards above this estimated value will be included in the claim. Others will remain
+                unclaimed.
+              </Trans>
+            </Text>
+            <ClaimThresholdControl value={thresholdValue} onChange={onThresholdChange} />
+          </>
+        )}
+      </Flex>
+    </Flex>
+  )
+}
+
+export default RewardsFilterSetting
