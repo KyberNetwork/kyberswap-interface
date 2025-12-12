@@ -1,15 +1,11 @@
 import { Trans, t } from '@lingui/macro'
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { rgba } from 'polished'
+import React, { useCallback, useMemo, useState } from 'react'
 import { X } from 'react-feather'
 import { useNavigate } from 'react-router'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
-import {
-  useCancelSmartExitOrderMutation,
-  useGetSmartExitCancelSignMessageMutation,
-  useGetSmartExitOrdersQuery,
-} from 'services/smartExit'
-import { useUserPositionsQuery } from 'services/zapEarn'
+import { useCancelSmartExitOrderMutation, useGetSmartExitCancelSignMessageMutation } from 'services/smartExit'
 import styled from 'styled-components'
 
 import { NotificationType } from 'components/Announcement/type'
@@ -18,14 +14,14 @@ import LocalLoader from 'components/LocalLoader'
 import Modal from 'components/Modal'
 import Pagination from 'components/Pagination'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
+import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { PoolPageWrapper, TableWrapper } from 'pages/Earns/PoolExplorer/styles'
 import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
 import Filter from 'pages/Earns/SmartExitOrders/Filter'
-import OrderItem, { PositionDetail } from 'pages/Earns/SmartExitOrders/OrderItem'
+import OrderItem from 'pages/Earns/SmartExitOrders/OrderItem'
 import useSmartExitFilter from 'pages/Earns/SmartExitOrders/useSmartExitFilter'
-import { DEX_TYPE_MAPPING, DexType } from 'pages/Earns/components/SmartExit/constants'
-import { Exchange } from 'pages/Earns/constants'
+import { useSmartExitOrdersData } from 'pages/Earns/SmartExitOrders/useSmartExitOrdersData'
 import { SmartExitOrder } from 'pages/Earns/types'
 import { useNotify } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
@@ -40,7 +36,10 @@ const TableHeader = styled.div`
   border-bottom: 1px solid ${({ theme }) => theme.border};
 `
 
+const SMART_EXIT_ORDERS_PAGE_SIZE = 10
+
 const SmartExit = () => {
+  const theme = useTheme()
   const navigate = useNavigate()
   const { account, chainId } = useActiveWeb3React()
   const { library } = useWeb3React()
@@ -50,12 +49,6 @@ const SmartExit = () => {
 
   const [showCancelConfirm, setShowCancelConfirm] = useState<SmartExitOrder | null>(null)
   const [removing, setRemoving] = useState(false)
-  const [currentPage, setCurrentPage] = useState(1)
-  const [pageLoading, setPageLoading] = useState(false)
-  const lastUserPositionsRef = useRef<typeof userPosition>()
-  const lastFilteredOrdersRef = useRef<SmartExitOrder[]>([])
-
-  const pageSize = 10 // Fixed page size
 
   const [getCancelSignMsg] = useGetSmartExitCancelSignMessageMutation()
   const [cancelOrder] = useCancelSmartExitOrderMutation()
@@ -114,109 +107,46 @@ const SmartExit = () => {
     }
   }, [account, cancelOrder, changeNetwork, chainId, getCancelSignMsg, library, notify, showCancelConfirm])
 
-  // Fetch smart exit orders
   const {
-    data: ordersData,
-    isLoading: smartExitLoading,
-    isFetching: smartExitFetching,
-    error: ordersError,
-  } = useGetSmartExitOrdersQuery(
-    {
-      chainIds: filters.chainIds || undefined,
-      userWallet: account || '',
-      status: filters.status || undefined,
-      dexTypes: filters.dexTypes || undefined,
-      page: currentPage,
-      pageSize,
-    },
-    {
-      skip: !account,
-      pollingInterval: 30000, // Poll every 30 seconds
-    },
-  )
-
-  const orders = useMemo(() => ordersData?.orders || [], [ordersData])
-  const totalItems = ordersData?.totalItems || 0
-
-  const listUniqueChainIds = useMemo(() => [...new Set(orders.map(order => order.chainId))], [orders])
-  const listUniqueExchanges = useMemo(() => {
-    const dexTypeToExchange = Object.entries(DEX_TYPE_MAPPING).reduce((acc, [exchange, dexType]) => {
-      if (dexType) {
-        acc[dexType] = exchange as Exchange
-      }
-      return acc
-    }, {} as Record<DexType, Exchange>)
-
-    return [
-      ...new Set(
-        orders
-          .map(order => dexTypeToExchange[order.dexType as DexType])
-          .filter((exchange): exchange is Exchange => Boolean(exchange)),
-      ),
-    ]
-  }, [orders])
-  const listPositionIds = useMemo(() => [...new Set(orders.map(order => order.positionId))], [orders])
-
-  const {
-    data: userPosition,
-    isLoading: userPosLoading,
-    isFetching: userPosFetching,
-  } = useUserPositionsQuery(
-    {
-      chainIds: listUniqueChainIds.join(','),
-      addresses: account || '',
-      protocols: listUniqueExchanges.join(','),
-      positionIds: listPositionIds.join(','),
-      positionStatus: 'all',
-    },
-    {
-      skip: !account,
-    },
-  )
-
-  const isInitialOrdersLoading = smartExitLoading && !ordersData
-  const isInitialUserPosLoading = userPosLoading && !userPosition
-  const tableLoading = isInitialOrdersLoading || isInitialUserPosLoading
-  const overlayLoading = pageLoading && !tableLoading
+    currentPage,
+    totalItems,
+    tableLoading,
+    overlayLoading,
+    renderedOrders,
+    handlePageChange,
+    ordersEmptyMessage,
+    shouldShowEmptyState,
+  } = useSmartExitOrdersData({ account, filters, pageSize: SMART_EXIT_ORDERS_PAGE_SIZE, updateFilters })
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
-  useEffect(() => {
-    if (userPosition && userPosition.length) {
-      lastUserPositionsRef.current = userPosition
-    }
-  }, [userPosition])
-
-  useEffect(() => {
-    if (!pageLoading) return
-    if (!smartExitFetching && !userPosFetching) {
-      setPageLoading(false)
-    }
-  }, [pageLoading, smartExitFetching, userPosFetching])
-
-  const positionsById = useMemo(() => {
-    const positions = userPosition && userPosition.length ? userPosition : lastUserPositionsRef.current || []
-    return positions.reduce((acc, pos) => {
-      acc[pos.id] = pos
-      return acc
-    }, {} as Record<string, PositionDetail>)
-  }, [userPosition])
-
-  const filteredOrders = useMemo(() => orders.filter(order => positionsById[order.positionId]), [orders, positionsById])
-
-  useEffect(() => {
-    if (filteredOrders.length) {
-      lastFilteredOrdersRef.current = filteredOrders
-    }
-  }, [filteredOrders])
   const handleDeleteRequest = useCallback((order: SmartExitOrder) => setShowCancelConfirm(order), [])
   const handleDismissModal = useCallback(() => setShowCancelConfirm(null), [])
-  const handlePageChange = useCallback((page: number) => {
-    setPageLoading(true)
-    setCurrentPage(page)
-  }, [])
-  const ordersEmptyMessage = useMemo(
-    () => (ordersError ? friendlyError(ordersError as unknown as Error) : t`No smart exit orders found`),
-    [ordersError],
+
+  const tableWrapperStyle = useMemo(
+    () => ({
+      padding: '16px 20px 0',
+      background: upToMedium ? 'transparent' : undefined,
+      position: 'relative' as const,
+      overflow: 'hidden' as const,
+    }),
+    [upToMedium],
+  )
+
+  const overlayStyle = useMemo(
+    () => ({
+      position: 'absolute' as const,
+      inset: 0,
+      backdropFilter: overlayLoading ? 'blur(1px)' : 'none',
+      opacity: overlayLoading ? 1 : 0,
+      pointerEvents: overlayLoading ? ('auto' as const) : ('none' as const),
+      transition: 'opacity 150ms ease-in-out, background-color 150ms ease-in-out',
+    }),
+    [overlayLoading],
+  )
+
+  const overlayBackgroundColor = useMemo(
+    () => (overlayLoading ? rgba(theme.black, 0.4) : rgba(theme.black, 0)),
+    [overlayLoading, theme.black],
   )
 
   return (
@@ -228,21 +158,9 @@ const SmartExit = () => {
         </Text>
       </Flex>
 
-      <Filter
-        filters={filters}
-        updateFilters={(...args) => {
-          updateFilters(...args)
-        }}
-      />
+      <Filter filters={filters} updateFilters={updateFilters} />
 
-      <TableWrapper
-        style={{
-          padding: '16px 20px 0',
-          background: upToMedium ? 'transparent' : undefined,
-          position: 'relative',
-          overflow: 'hidden',
-        }}
-      >
+      <TableWrapper style={tableWrapperStyle}>
         {!upToMedium && (
           <TableHeader>
             <Text>
@@ -265,43 +183,25 @@ const SmartExit = () => {
           <Flex justifyContent="center" padding="20px">
             <LocalLoader />
           </Flex>
-        ) : ordersError || (filteredOrders.length === 0 && !overlayLoading && !userPosFetching) ? (
+        ) : shouldShowEmptyState ? (
           <Flex justifyContent="center" padding="20px">
             <Text color="subText">{ordersEmptyMessage}</Text>
           </Flex>
         ) : (
-          (filteredOrders.length ? filteredOrders : lastFilteredOrdersRef.current).map(order => {
-            const posDetail = positionsById[order.positionId]
-            if (!posDetail) return null
-
-            return (
-              <OrderItem
-                key={order.id}
-                order={order}
-                posDetail={posDetail}
-                upToMedium={upToMedium}
-                onDelete={handleDeleteRequest}
-              />
-            )
-          })
+          renderedOrders.map(order => (
+            <OrderItem key={order.id} order={order} upToMedium={upToMedium} onDelete={handleDeleteRequest} />
+          ))
         )}
 
-        {overlayLoading && (
-          <Flex
-            justifyContent="center"
-            alignItems="center"
-            backgroundColor="rgba(0, 0, 0, 0.4)"
-            sx={{ position: 'absolute', inset: 0, backdropFilter: 'blur(1px)' }}
-          >
-            <LocalLoader />
-          </Flex>
-        )}
+        <Flex justifyContent="center" alignItems="center" backgroundColor={overlayBackgroundColor} sx={overlayStyle}>
+          <LocalLoader />
+        </Flex>
 
         <Pagination
           onPageChange={handlePageChange}
           totalCount={tableLoading ? 0 : totalItems}
           currentPage={currentPage}
-          pageSize={pageSize}
+          pageSize={SMART_EXIT_ORDERS_PAGE_SIZE}
         />
       </TableWrapper>
 

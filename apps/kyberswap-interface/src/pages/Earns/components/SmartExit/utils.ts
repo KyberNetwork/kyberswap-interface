@@ -1,6 +1,5 @@
 import { nearestUsableTick, priceToClosestTick, tickToPrice } from '@kyber/utils/dist/uniswapv3'
 
-import { DEX_TYPE_MAPPING } from 'pages/Earns/components/SmartExit/constants'
 import {
   getFeeYieldCondition,
   getPriceCondition,
@@ -9,7 +8,6 @@ import {
   isPriceCondition,
   isTimeCondition,
 } from 'pages/Earns/components/SmartExit/utils/typeGuards'
-import { Exchange } from 'pages/Earns/constants'
 import {
   ConditionType,
   FeeYieldCondition,
@@ -142,5 +140,3 @@ export const buildConditions = (selectedMetrics: SelectedMetric[], conditionType
     },
   }
 }
-
-export const getDexType = (exchange: Exchange) => DEX_TYPE_MAPPING[exchange] || exchange

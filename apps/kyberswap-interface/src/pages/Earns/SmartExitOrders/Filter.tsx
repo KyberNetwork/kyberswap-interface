@@ -1,12 +1,12 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { useEffect } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useMedia } from 'react-use'
 import { Flex } from 'rebass'
 
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import DropdownMenu from 'pages/Earns/components/DropdownMenu'
-import { DexType } from 'pages/Earns/components/SmartExit/constants'
-import { AllChainsOption } from 'pages/Earns/hooks/useSupportedDexesAndChains'
+import { EARN_CHAINS, EARN_DEXES } from 'pages/Earns/constants'
+import { AllChainsOption, AllProtocolsOption } from 'pages/Earns/hooks/useSupportedDexesAndChains'
 import { OrderStatus, SmartExitFilter } from 'pages/Earns/types'
 import { MEDIA_WIDTHS } from 'theme'
 
@@ -18,21 +18,21 @@ const ORDER_STATUS = [
   { label: 'Cancelled', value: OrderStatus.OrderStatusCancelled },
 ]
 
-const SUPPORTED_CHAINS = [ChainId.BSCMAINNET, ChainId.BASE].map(chainId => ({
-  label: NETWORKS_INFO[chainId].name,
-  value: chainId.toString(),
-  icon: NETWORKS_INFO[chainId].icon,
-}))
+const supportedChains = Object.entries(EARN_CHAINS)
+  .filter(([_, chainInfo]) => chainInfo.smartExitSupported)
+  .map(([chainId, chainInfo]) => ({
+    label: NETWORKS_INFO[Number(chainId) as ChainId].name,
+    value: chainId,
+    icon: chainInfo.logo,
+  }))
 
-const SUPPORTED_PROTOCOLS = [
-  { label: 'All Protocols', value: '' },
-  { label: 'Uniswap V4 FairFlow', value: DexType.DexTypeUniswapV4FairFlow },
-  { label: 'Uniswap V4', value: DexType.DexTypeUniswapV4 },
-  { label: 'Uniswap V3', value: DexType.DexTypeUniswapV3 },
-  { label: 'Pancake ∞ CL FairFlow', value: DexType.DexTypePancakeInfinityCLFairFlow },
-  { label: 'Pancake ∞ CL', value: DexType.DexTypePancakeInfinityCL },
-  { label: 'PancakeSwap V3', value: DexType.DexTypePancakeV3 },
-]
+const supportedDexes = Object.entries(EARN_DEXES)
+  .filter(([_, dexInfo]) => dexInfo.smartExitDexType)
+  .map(([_, dexInfo]) => ({
+    label: dexInfo.name,
+    value: dexInfo.smartExitDexType as string,
+    icon: dexInfo.logo,
+  }))
 
 export default function Filter({
   filters,
@@ -43,10 +43,43 @@ export default function Filter({
 }) {
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
+  const chainOptions = useMemo(() => [AllChainsOption, ...supportedChains], [])
+  const dexOptions = useMemo(() => [AllProtocolsOption, ...supportedDexes], [])
+
+  const handleChainChange = useCallback(
+    (value: string | number) => {
+      const stringValue = String(value)
+      if (stringValue !== filters.chainIds) {
+        updateFilters('chainIds', stringValue)
+      }
+    },
+    [filters.chainIds, updateFilters],
+  )
+
+  const handleDexChange = useCallback(
+    (value: string | number) => {
+      const stringValue = String(value)
+      if (stringValue !== filters.dexTypes) {
+        updateFilters('dexTypes', stringValue)
+      }
+    },
+    [filters.dexTypes, updateFilters],
+  )
+
+  const handleStatusChange = useCallback(
+    (value: string | number) => {
+      const stringValue = String(value)
+      if (stringValue !== filters.status) {
+        updateFilters('status', stringValue)
+      }
+    },
+    [filters.status, updateFilters],
+  )
+
   useEffect(() => {
     if (
       filters.dexTypes &&
-      !SUPPORTED_PROTOCOLS.slice(1)
+      !supportedDexes
         .map(item => item.value)
         .filter(Boolean)
         .includes(filters.dexTypes)
@@ -67,24 +100,22 @@ export default function Filter({
           alignLeft
           mobileHalfWidth
           value={filters.chainIds || ''}
-          options={[AllChainsOption, ...SUPPORTED_CHAINS]}
-          onChange={value => value !== filters.chainIds && updateFilters('chainIds', value)}
+          options={chainOptions}
+          onChange={handleChainChange}
         />
         <DropdownMenu
           alignLeft
           mobileHalfWidth
           value={filters.dexTypes || ''}
-          options={SUPPORTED_PROTOCOLS}
-          onChange={value => value !== filters.dexTypes && updateFilters('dexTypes', value)}
+          options={dexOptions}
+          onChange={handleDexChange}
         />
         <DropdownMenu
           alignLeft
           mobileFullWidth
           options={ORDER_STATUS}
           value={filters.status || ''}
-          onChange={value => {
-            value !== filters.status && updateFilters('status', value)
-          }}
+          onChange={handleStatusChange}
         />
       </Flex>
     </Flex>

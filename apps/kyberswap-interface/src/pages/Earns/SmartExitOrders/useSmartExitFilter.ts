@@ -18,10 +18,10 @@ export default function useSmartExitFilter() {
 
   const updateFilters = useCallback(
     (key: keyof SmartExitFilter, value: string | number) => {
-      console.log(value, key)
-      if (!value) searchParams.delete(key)
-      else searchParams.set(key, value.toString())
-      setSearchParams(searchParams)
+      const nextParams = new URLSearchParams(searchParams)
+      if (!value) nextParams.delete(key)
+      else nextParams.set(key, value.toString())
+      setSearchParams(nextParams)
     },
     [searchParams, setSearchParams],
   )

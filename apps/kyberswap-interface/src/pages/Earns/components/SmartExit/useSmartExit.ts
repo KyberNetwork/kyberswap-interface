@@ -11,7 +11,8 @@ import { SMART_EXIT_API_URL } from 'constants/env'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useSuccessSound } from 'hooks/useSuccessSound'
 import { SmartExitState } from 'pages/Earns/components/SmartExit/constants'
-import { buildConditions, getDexType } from 'pages/Earns/components/SmartExit/utils'
+import { buildConditions } from 'pages/Earns/components/SmartExit/utils'
+import { EARN_DEXES } from 'pages/Earns/constants'
 import { ConditionType, ParsedPosition, SelectedMetric, SmartExitFee } from 'pages/Earns/types'
 import { getPositionLiquidity } from 'pages/Earns/utils/position'
 import { useNotify } from 'state/application/hooks'
@@ -34,7 +35,7 @@ export const useSmartExit = ({ position, selectedMetrics, conditionType, deadlin
   const [getSignMessage] = useGetSmartExitSignMessageMutation()
   const [estimateFeeMutation] = useEstimateSmartExitFeeMutation()
 
-  const dexType = getDexType(position.dex.id)
+  const dexType = EARN_DEXES[position.dex.id].smartExitDexType
 
   useEffect(() => {
     let cancelled = false
@@ -59,7 +60,7 @@ export const useSmartExit = ({ position, selectedMetrics, conditionType, deadlin
   }, [position.tokenId, position.chain.id, position.dex.id, position.pool.address])
 
   const baseParams = useMemo(() => {
-    if (!account || !positionLiquidity) return null
+    if (!account || !positionLiquidity || !dexType) return null
 
     return {
       chainId: position.chain.id,

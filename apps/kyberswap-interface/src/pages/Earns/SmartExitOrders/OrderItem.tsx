@@ -1,16 +1,24 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { rgba } from 'polished'
 import React from 'react'
 import { ExternalLink, Trash2 } from 'react-feather'
+import { Link } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
+import UnknownToken from 'assets/svg/kyber/unknown-token.svg'
 import TokenLogo from 'components/TokenLogo'
+import { APP_PATHS } from 'constants/index'
+import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
+import type { ParsedSmartExitOrder } from 'pages/Earns/SmartExitOrders/useSmartExitOrdersData'
 import { Badge, BadgeType, ImageContainer } from 'pages/Earns/UserPositions/styles'
-import { Exchange } from 'pages/Earns/constants'
+import { SmartExitDexType } from 'pages/Earns/components/SmartExit/constants'
+import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import { OrderStatus, PositionStatus, SmartExitOrder } from 'pages/Earns/types'
+import { getDexVersion } from 'pages/Earns/utils/position'
 import { getEtherscanLink } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -59,21 +67,12 @@ const TableRow = styled.div`
   align-items: center;
 `
 
-export type PositionDetail = {
-  id: string
-  currentAmounts: { token: { symbol: string; logo?: string } }[]
-  chainLogo?: string
-  pool: { exchange: Exchange; tickSpacing: number; projectLogo?: string }
-  status?: PositionStatus
-}
-
 type ConditionLogical = SmartExitOrder['condition']['logical']
 
 type OrderItemProps = {
-  order: SmartExitOrder
-  posDetail: PositionDetail
+  order: ParsedSmartExitOrder
   upToMedium: boolean
-  onDelete: (order: SmartExitOrder) => void
+  onDelete: (order: ParsedSmartExitOrder) => void
 }
 
 const getProtocolLabel = (exchange: Exchange) => {
@@ -89,6 +88,23 @@ const getProtocolLabel = (exchange: Exchange) => {
     default:
       return exchange
   }
+}
+
+// Map SmartExitDexType to Exchange - memoized once
+const DEX_TYPE_TO_EXCHANGE_MAP = Object.entries(EARN_DEXES).reduce((acc, [exchange, dexInfo]) => {
+  if (dexInfo.smartExitDexType) {
+    acc[dexInfo.smartExitDexType] = exchange as Exchange
+  }
+  return acc
+}, {} as Record<SmartExitDexType, Exchange>)
+
+// Map SmartExitDexType to Exchange and get dex info
+const getDexInfoFromDexType = (dexType: string) => {
+  const exchange = DEX_TYPE_TO_EXCHANGE_MAP[dexType as SmartExitDexType]
+  if (!exchange) return null
+
+  const dexInfo = EARN_DEXES[exchange]
+  return { exchange, dexInfo }
 }
 
 const ConditionContent = ({ logical }: { logical: ConditionLogical }) => {
@@ -199,36 +215,67 @@ const StatusContent = ({ order }: { order: SmartExitOrder }) => (
   </Flex>
 )
 
-const TitleContent = ({
-  posDetail,
-  token0,
-  token1,
-  tokenId,
-}: {
-  posDetail: PositionDetail
-  token0: { symbol: string; logo?: string }
-  token1: { symbol: string; logo?: string }
-  tokenId: string
-}) => {
+const TitleContent = ({ order, tokenId }: { order: ParsedSmartExitOrder; tokenId: string }) => {
   const theme = useTheme()
-  const protocol = getProtocolLabel(posDetail.pool.exchange)
+
+  if (!order.position) {
+    // Show placeholder with order info when position is not available
+    const chainInfo = NETWORKS_INFO[order.chainId as ChainId]
+    const dexMapping = getDexInfoFromDexType(order.dexType)
+    const dexVersion = dexMapping ? getDexVersion(dexMapping.exchange) : ''
+
+    return (
+      <>
+        <Flex alignItems="center" sx={{ opacity: 0.6 }}>
+          <ImageContainer>
+            <TokenLogo src={UnknownToken} size={24} style={{ opacity: 0.6 }} />
+            <TokenLogo src={UnknownToken} size={24} translateLeft style={{ opacity: 0.6 }} />
+            {chainInfo?.icon && (
+              <TokenLogo src={chainInfo.icon} size={12} translateLeft translateTop style={{ opacity: 0.6 }} />
+            )}
+          </ImageContainer>
+          <Text mr="8px" color={theme.subText} fontStyle="italic">
+            <Trans>Position</Trans> #{tokenId}
+          </Text>
+        </Flex>
+        <Flex alignItems="center" sx={{ gap: '4px', opacity: 0.6 }} mt="4px" ml="1rem">
+          {dexMapping?.dexInfo.logo && <TokenLogo src={dexMapping.dexInfo.logo} size={16} style={{ opacity: 0.6 }} />}
+          {dexVersion && (
+            <Text color={theme.subText} fontStyle="italic" fontSize={14}>
+              {dexVersion}
+            </Text>
+          )}
+        </Flex>
+      </>
+    )
+  }
+
+  const posDetail = order.position
+  const protocol = getProtocolLabel(posDetail.dex.id)
   const posStatus = posDetail.status || PositionStatus.IN_RANGE
+
+  // Build position detail URL
+  const positionDetailUrl = APP_PATHS.EARN_POSITION_DETAIL.replace(':positionId', order.positionId)
+    .replace(':chainId', order.chainId.toString())
+    .replace(':exchange', posDetail.dex.id)
 
   return (
     <>
       <Flex alignItems="center">
         <ImageContainer>
-          <TokenLogo src={token0.logo} />
-          <TokenLogo src={token1.logo} translateLeft />
-          <TokenLogo src={posDetail.chainLogo} size={12} translateLeft translateTop />
+          <TokenLogo src={posDetail.token0.logo} />
+          <TokenLogo src={posDetail.token1.logo} translateLeft />
+          <TokenLogo src={posDetail.chain.logo} size={12} translateLeft translateTop />
         </ImageContainer>
-        <Text mr="8px">
-          {token0.symbol}/{token1.symbol}
-        </Text>
-        <Badge>Fee {posDetail?.pool.tickSpacing / 10_0}%</Badge>
+        <Link to={positionDetailUrl} style={{ textDecoration: 'none', color: 'inherit' }}>
+          <Text mr="8px" sx={{ cursor: 'pointer', '&:hover': { opacity: 0.8 } }}>
+            {posDetail.token0.symbol}/{posDetail.token1.symbol}
+          </Text>
+        </Link>
+        <Badge>Fee {posDetail.poolFee}%</Badge>
       </Flex>
       <Flex alignItems="center" sx={{ gap: '4px' }} mt="4px" ml="1rem">
-        <TokenLogo src={posDetail.pool.projectLogo} size={16} />
+        <TokenLogo src={posDetail.dex.logo} size={16} />
         <Text color={theme.subText}>
           {protocol} #{tokenId}
         </Text>
@@ -253,15 +300,13 @@ const TitleContent = ({
   )
 }
 
-const OrderItem = ({ order, posDetail, upToMedium, onDelete }: OrderItemProps) => {
+const OrderItem = React.memo(({ order, upToMedium, onDelete }: OrderItemProps) => {
   const theme = useTheme()
-  const token0 = posDetail.currentAmounts[0].token
-  const token1 = posDetail.currentAmounts[1].token
   const tokenId = order.positionId.split('-')[1]
 
   const maxGas = (
     <Text textAlign="left" color={theme.subText} fontSize="14px">
-      {formatDisplayNumber(order.maxFeesPercentage[0], { significantDigits: 4 })}%
+      {formatDisplayNumber(order.maxGasPercentage, { significantDigits: 4 })}%
     </Text>
   )
 
@@ -281,7 +326,7 @@ const OrderItem = ({ order, posDetail, upToMedium, onDelete }: OrderItemProps) =
 
   const condition = <ConditionContent logical={order.condition.logical} />
   const status = <StatusContent order={order} />
-  const title = <TitleContent posDetail={posDetail} token0={token0} token1={token1} tokenId={tokenId} />
+  const title = <TitleContent order={order} tokenId={tokenId} />
 
   if (upToMedium)
     return (
@@ -317,6 +362,8 @@ const OrderItem = ({ order, posDetail, upToMedium, onDelete }: OrderItemProps) =
       {actionDelete}
     </TableRow>
   )
-}
+})
+
+OrderItem.displayName = 'OrderItem'
 
 export default OrderItem

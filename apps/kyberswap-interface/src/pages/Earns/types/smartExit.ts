@@ -57,7 +57,7 @@ export interface SmartExitOrder {
   executions: Array<{
     hash: string
   }>
-  maxFeesPercentage: number[]
+  maxGasPercentage: number
 }
 
 export interface SelectedMetric {

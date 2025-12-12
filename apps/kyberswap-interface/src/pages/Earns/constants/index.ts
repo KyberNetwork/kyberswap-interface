@@ -1,6 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { ContractInterface } from 'ethers'
 
+import { SmartExitDexType } from 'pages/Earns/components/SmartExit/constants'
 import arbitrum from 'pages/Earns/constants/chains/arbitrum'
 import avax from 'pages/Earns/constants/chains/avax'
 import base from 'pages/Earns/constants/chains/base'
@@ -33,6 +34,7 @@ export interface EarnDexInfo {
   isForkFrom: CoreProtocol
   showVersion: boolean
   farmingSupported: boolean
+  smartExitDexType?: SmartExitDexType
 }
 
 export enum Exchange {
@@ -50,7 +52,7 @@ export enum Exchange {
   DEX_PANCAKE_INFINITY_CL_FAIRFLOW = 'pancake-infinity-cl-fairflow',
 }
 
-export const EARN_DEXES_CONFIG: Record<Exchange, EarnDexInfo> = {
+const EARN_DEXES_CONFIG: Record<Exchange, EarnDexInfo> = {
   [Exchange.DEX_UNISWAPV2]: uniswapv2,
   [Exchange.DEX_UNISWAPV3]: uniswapv3,
   [Exchange.DEX_PANCAKESWAPV3]: pancakeswapv3,
@@ -64,12 +66,14 @@ export const EARN_DEXES_CONFIG: Record<Exchange, EarnDexInfo> = {
     ...uniswapv4,
     name: 'Uniswap V4 FairFlow',
     farmingSupported: true,
+    smartExitDexType: SmartExitDexType.DexTypeUniswapV4FairFlow,
   },
   [Exchange.DEX_PANCAKE_INFINITY_CL]: pancakeinfinitycl,
   [Exchange.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: {
     ...pancakeinfinitycl,
     name: 'Pancake ∞ CL FairFlow',
     farmingSupported: true,
+    smartExitDexType: SmartExitDexType.DexTypePancakeInfinityCLFairFlow,
   },
 }
 
@@ -84,6 +88,7 @@ const defaultConfig = {
   isForkFrom: CoreProtocol.UniswapV3,
   showVersion: false,
   farmingSupported: false,
+  smartExitDexType: undefined,
 }
 
 // Proxy helps fallback undefined Exchange by default dex info

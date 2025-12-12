@@ -2,6 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import pancakeLogo from 'assets/dexes/pancake.svg'
 import PancakeInfinityClNftManagerABI from 'constants/abis/earn/pancakeInfinityClNftManagerContract.json'
+import { SmartExitDexType } from 'pages/Earns/components/SmartExit/constants'
 import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 
 export default {
@@ -17,4 +18,5 @@ export default {
   isForkFrom: CoreProtocol.UniswapV4,
   showVersion: true,
   farmingSupported: false,
+  smartExitDexType: SmartExitDexType.DexTypePancakeInfinityCL,
 }
