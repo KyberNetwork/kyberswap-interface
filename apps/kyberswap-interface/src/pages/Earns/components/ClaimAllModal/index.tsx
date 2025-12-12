@@ -19,19 +19,27 @@ import { RewardInfo } from 'pages/Earns/types'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
-export default function ClaimAllModal({
-  rewardInfo,
-  onClose,
-  claiming,
-  setClaiming,
-  onClaimAll,
-}: {
+type Props = {
   rewardInfo: RewardInfo
+  filteredRewardInfo: RewardInfo
   onClose: () => void
   claiming: boolean
   setClaiming: (claiming: boolean) => void
   onClaimAll: () => void
-}) {
+  thresholdValue?: number
+  onThresholdChange?: (value: number) => void
+}
+
+export default function ClaimAllModal({
+  rewardInfo,
+  filteredRewardInfo,
+  onClose,
+  claiming,
+  setClaiming,
+  onClaimAll,
+  thresholdValue,
+  onThresholdChange,
+}: Props) {
   const theme = useTheme()
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
   const { library, chainId } = useWeb3React()
@@ -39,10 +47,11 @@ export default function ClaimAllModal({
 
   const [autoClaim, setAutoClaim] = useState(false)
   const [selectedChainId, setSelectedChainId] = useState<number | null>(null)
-  const [thresholdValue, setThresholdValue] = useState(5)
   const [statusValue, setStatusValue] = useState<PositionStatus>('all')
 
-  const selectedChain = selectedChainId ? rewardInfo.chains.find(c => c.chainId === selectedChainId) : null
+  const selectedRewardChain = selectedChainId
+    ? filteredRewardInfo.chains.find(c => c.chainId === selectedChainId)
+    : null
 
   const handleClaim = useCallback(async () => {
     if (!library || !selectedChainId) return
@@ -163,25 +172,28 @@ export default function ClaimAllModal({
           <RewardsFilterSetting
             thresholdValue={thresholdValue}
             statusValue={statusValue}
-            onThresholdChange={setThresholdValue}
+            onThresholdChange={onThresholdChange}
             onStatusChange={setStatusValue}
           />
 
-          {selectedChain ? (
+          {selectedRewardChain ? (
             <Flex flexWrap={'wrap'} color={theme.subText} alignItems={'center'} sx={{ gap: 1 }}>
               <Text>{t`You are currently claiming`}</Text>
               <Text color={theme.text}>
-                {formatDisplayNumber(selectedChain.claimableUsdValue, { significantDigits: 4, style: 'currency' })}
+                {formatDisplayNumber(selectedRewardChain.claimableUsdValue, {
+                  significantDigits: 4,
+                  style: 'currency',
+                })}
               </Text>
               <Text>{t`on`}</Text>
-              <Text>{selectedChain.chainName}</Text>
+              <Text>{selectedRewardChain.chainName}</Text>
             </Flex>
           ) : null}
         </ClaimInfoWrapper>
 
         <Row gap="16px" flexDirection={upToExtraSmall ? 'column-reverse' : 'row'}>
           <ButtonOutlined onClick={onClose}>{t`Cancel`}</ButtonOutlined>
-          <ButtonPrimary gap="4px" disabled={claiming || !selectedChain} onClick={handleClaim}>
+          <ButtonPrimary gap="4px" disabled={claiming || !selectedRewardChain} onClick={handleClaim}>
             {claiming && <Loader stroke={'#505050'} />}
             {claiming ? t`Claiming` : t`Claim`}
           </ButtonPrimary>
