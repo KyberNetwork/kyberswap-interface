@@ -68,6 +68,7 @@ const Earns = lazy(() => import('pages/Earns/Landing'))
 const EarnPoolExplorer = lazy(() => import('pages/Earns/PoolExplorer'))
 const EarnUserPositions = lazy(() => import('pages/Earns/UserPositions'))
 const EarnPositionDetail = lazy(() => import('pages/Earns/PositionDetail'))
+const SmartExit = lazy(() => import('pages/Earns/SmartExitOrders'))
 
 const AppWrapper = styled.div`
   display: flex;
@@ -358,6 +359,7 @@ export default function App() {
               <Route path={APP_PATHS.EARN_POOLS} element={<EarnPoolExplorer />} />
               <Route path={APP_PATHS.EARN_POSITIONS} element={<EarnUserPositions />} />
               <Route path={APP_PATHS.EARN_POSITION_DETAIL} element={<EarnPositionDetail />} />
+              <Route path={APP_PATHS.EARN_SMART_EXIT} element={<SmartExit />} />
 
               <Route path={APP_PATHS.EARNS} element={<Navigate to={APP_PATHS.EARN} replace />} />
               <Route path={APP_PATHS.EARNS_POOLS} element={<Navigate to={APP_PATHS.EARN_POOLS} replace />} />

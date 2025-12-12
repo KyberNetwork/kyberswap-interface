@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Info, Share2 } from 'react-feather'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { Flex, Text } from 'rebass'
+import { useGetSmartExitOrdersQuery } from 'services/smartExit'
 import { useUserPositionsQuery } from 'services/zapEarn'
 
 import { ReactComponent as IconEarnNotFound } from 'assets/svg/earn/ic_earn_not_found.svg'
@@ -46,7 +47,7 @@ import useForceLoading from 'pages/Earns/hooks/useForceLoading'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
 import useReduceFetchInterval from 'pages/Earns/hooks/useReduceFetchInterval'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
-import { FeeInfo, PAIR_CATEGORY, ParsedPosition, PositionStatus, SuggestedPool } from 'pages/Earns/types'
+import { FeeInfo, OrderStatus, PAIR_CATEGORY, ParsedPosition, PositionStatus, SuggestedPool } from 'pages/Earns/types'
 import { getNftManagerContract } from 'pages/Earns/utils'
 import { getUnclaimedFeesInfo } from 'pages/Earns/utils/fees'
 import { checkEarlyPosition, parsePosition } from 'pages/Earns/utils/position'
@@ -81,10 +82,25 @@ const PositionDetail = () => {
     },
     { skip: !account, pollingInterval: forceLoading || reduceFetchInterval ? 5_000 : 15_000 },
   )
+
   const { rewardInfo } = useKemRewards(refetch)
   const rewardInfoThisPosition = !userPositions
     ? undefined
     : rewardInfo?.nfts.find(item => item.nftId === userPositions?.[0]?.tokenId)
+
+  const { data: smartExitOrders } = useGetSmartExitOrdersQuery(
+    {
+      userWallet: account || '',
+      positionIds: positionId ? [positionId] : [],
+      status: OrderStatus.OrderStatusOpen,
+      page: 1,
+      pageSize: 1,
+    },
+    {
+      skip: !positionId || !account,
+    },
+  )
+  const hasActiveSmartExitOrder = !!smartExitOrders?.orders?.length && smartExitOrders.orders.length > 0
 
   const currentWalletAddress = useRef(account)
   const [aprInterval, setAprInterval] = useState<'24h' | '7d'>('24h')
@@ -500,6 +516,7 @@ const PositionDetail = () => {
                 isNotAccountOwner={isNotAccountOwner}
                 shareBtn={shareBtn}
                 refetchPositions={refetch}
+                hasActiveSmartExitOrder={hasActiveSmartExitOrder}
               />
               <RightSection
                 position={position}
@@ -514,6 +531,7 @@ const PositionDetail = () => {
                 setTriggerClose={setTriggerClose}
                 setReduceFetchInterval={setReduceFetchInterval}
                 onReposition={handleReposition}
+                hasActiveSmartExitOrder={hasActiveSmartExitOrder}
               />
             </PositionDetailWrapper>
           </>

@@ -1,0 +1,128 @@
+import { Trans, t } from '@lingui/macro'
+import { useState } from 'react'
+import { X } from 'react-feather'
+import { Flex, Text } from 'rebass'
+
+import { ButtonPrimary } from 'components/Button'
+import InfoHelper from 'components/InfoHelper'
+import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useNftApprovalAll } from 'hooks/useNftApprovalAll'
+import useTheme from 'hooks/useTheme'
+import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
+import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
+import Condition from 'pages/Earns/components/SmartExit/Confirmation/Condition'
+import MoreInfo from 'pages/Earns/components/SmartExit/Confirmation/MoreInfo'
+import Success from 'pages/Earns/components/SmartExit/Confirmation/Success'
+import { SMART_EXIT_ADDRESS } from 'pages/Earns/constants'
+import { ConditionType, ParsedPosition, SelectedMetric } from 'pages/Earns/types'
+import { submitTransaction } from 'pages/Earns/utils'
+import { useKyberSwapConfig } from 'state/application/hooks'
+
+export default function Confirmation({
+  selectedMetrics,
+  position,
+  deadline,
+  conditionType,
+  feeSettings: { protocolFee, maxGas },
+  onDismiss,
+  onCloseSmartExit,
+  createSmartExitOrder,
+  isCreating,
+  isSuccess,
+}: {
+  selectedMetrics: SelectedMetric[]
+  position: ParsedPosition
+  conditionType: ConditionType
+  deadline: number
+  feeSettings: { protocolFee: number; maxGas: number }
+  onDismiss: () => void
+  onCloseSmartExit: () => void
+  createSmartExitOrder: (opts: { maxGas: number }) => Promise<boolean>
+  isCreating: boolean
+  isSuccess: boolean
+}) {
+  const theme = useTheme()
+  const { chainId, account } = useActiveWeb3React()
+  const { library } = useWeb3React()
+  const { changeNetwork } = useChangeNetwork()
+  const { rpc } = useKyberSwapConfig(position.chain.id)
+
+  const { isApproved, approveAll, approvePendingTx } = useNftApprovalAll({
+    spender: SMART_EXIT_ADDRESS,
+    userAddress: account || '',
+    rpcUrl: rpc,
+    nftManagerContract: position.id.split('-')[0],
+    onSubmitTx: async (txData: { from: string; to: string; data: string; value: string; gasLimit: string }) => {
+      const res = await submitTransaction({ library, txData })
+      const { txHash, error } = res
+      if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
+      return txHash
+    },
+  })
+  const [approveClicked, setApproveClicked] = useState(false)
+
+  const dexName = position.dex.name.replace('FairFlow', '').trim()
+
+  if (isSuccess) return <Success onDismiss={onDismiss} onCloseSmartExit={onCloseSmartExit} />
+
+  return (
+    <>
+      <Flex justifyContent="space-between" alignItems="center">
+        <Flex alignItems="center" sx={{ gap: '8px' }}>
+          <IconArrowLeft onClick={onDismiss} />
+          <Text fontSize={20} fontWeight={500}>
+            <Trans>Confirmation</Trans>
+          </Text>
+        </Flex>
+        <X onClick={onDismiss} />
+      </Flex>
+
+      <Condition position={position} selectedMetrics={selectedMetrics} conditionType={conditionType} />
+      <MoreInfo deadline={deadline} protocolFee={protocolFee} maxGas={maxGas} />
+
+      <Text fontStyle="italic" fontSize={14} color={theme.subText} my="1rem">
+        <Trans>
+          The information is intended solely for your reference at the time you are viewing. It is your responsibility
+          to verify all information before making decisions
+        </Trans>
+      </Text>
+
+      <ButtonPrimary
+        disabled={Boolean(approveClicked || approvePendingTx || isCreating || !maxGas)}
+        onClick={async () => {
+          if (!maxGas || approveClicked || approvePendingTx) return
+          if (chainId !== position.chain.id) {
+            changeNetwork(position.chain.id)
+            return
+          }
+
+          if (isApproved) {
+            await createSmartExitOrder({ maxGas })
+            return
+          }
+          setApproveClicked(true)
+          approveAll().finally(() => setApproveClicked(false))
+        }}
+      >
+        {chainId !== position.chain.id ? (
+          <Trans>Switch Network</Trans>
+        ) : isCreating ? (
+          <Trans>Creating Order...</Trans>
+        ) : isApproved ? (
+          <Trans>Confirm Smart Exit</Trans>
+        ) : approveClicked || approvePendingTx ? (
+          <Trans>Approving...</Trans>
+        ) : (
+          <>
+            <Trans>Approve for all NFT</Trans>
+            <InfoHelper
+              text={t`You wish to give KyberSwap permission to manage all your positions from ${dexName} on this chain. You won’t need to approve again unless you revoke the permission in your wallet.`}
+              placement="top"
+              color={theme.textReverse}
+            />
+          </>
+        )}
+      </ButtonPrimary>
+    </>
+  )
+}
