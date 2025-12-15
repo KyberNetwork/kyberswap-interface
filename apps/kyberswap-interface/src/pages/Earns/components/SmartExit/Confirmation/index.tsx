@@ -1,12 +1,10 @@
-import { Trans, t } from '@lingui/macro'
-import { useState } from 'react'
+import { Trans } from '@lingui/macro'
 import { X } from 'react-feather'
 import { Flex, Text } from 'rebass'
 
 import { ButtonPrimary } from 'components/Button'
-import InfoHelper from 'components/InfoHelper'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
-import { useNftApprovalAll } from 'hooks/useNftApprovalAll'
+import { useActiveWeb3React } from 'hooks'
+import { PermitNftState, usePermitNft } from 'hooks/usePermitNft'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
@@ -15,8 +13,6 @@ import MoreInfo from 'pages/Earns/components/SmartExit/Confirmation/MoreInfo'
 import Success from 'pages/Earns/components/SmartExit/Confirmation/Success'
 import { SMART_EXIT_ADDRESS } from 'pages/Earns/constants'
 import { ConditionType, ParsedPosition, SelectedMetric } from 'pages/Earns/types'
-import { submitTransaction } from 'pages/Earns/utils'
-import { useKyberSwapConfig } from 'state/application/hooks'
 
 export default function Confirmation({
   selectedMetrics,
@@ -37,31 +33,19 @@ export default function Confirmation({
   feeSettings: { protocolFee: number; maxGas: number }
   onDismiss: () => void
   onCloseSmartExit: () => void
-  createSmartExitOrder: (opts: { maxGas: number }) => Promise<boolean>
+  createSmartExitOrder: (opts: { maxGas: number; permitData: string }) => Promise<boolean>
   isCreating: boolean
   isSuccess: boolean
 }) {
   const theme = useTheme()
-  const { chainId, account } = useActiveWeb3React()
-  const { library } = useWeb3React()
+  const { chainId } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
-  const { rpc } = useKyberSwapConfig(position.chain.id)
-
-  const { isApproved, approveAll, approvePendingTx } = useNftApprovalAll({
+  const { permitState, signPermitNft, permitData } = usePermitNft({
+    contractAddress: position.id.split('-')[0],
+    tokenId: position.tokenId,
     spender: SMART_EXIT_ADDRESS,
-    userAddress: account || '',
-    rpcUrl: rpc,
-    nftManagerContract: position.id.split('-')[0],
-    onSubmitTx: async (txData: { from: string; to: string; data: string; value: string; gasLimit: string }) => {
-      const res = await submitTransaction({ library, txData })
-      const { txHash, error } = res
-      if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
-      return txHash
-    },
+    deadline,
   })
-  const [approveClicked, setApproveClicked] = useState(false)
-
-  const dexName = position.dex.name.replace('FairFlow', '').trim()
 
   if (isSuccess) return <Success onDismiss={onDismiss} onCloseSmartExit={onCloseSmartExit} />
 
@@ -88,39 +72,32 @@ export default function Confirmation({
       </Text>
 
       <ButtonPrimary
-        disabled={Boolean(approveClicked || approvePendingTx || isCreating || !maxGas)}
+        disabled={Boolean(permitState === PermitNftState.SIGNING || isCreating || !maxGas)}
         onClick={async () => {
-          if (!maxGas || approveClicked || approvePendingTx) return
+          if (!maxGas) return
           if (chainId !== position.chain.id) {
             changeNetwork(position.chain.id)
             return
           }
 
-          if (isApproved) {
-            await createSmartExitOrder({ maxGas })
+          if (permitState !== PermitNftState.SIGNED || !permitData?.permitData) {
+            await signPermitNft()
             return
           }
-          setApproveClicked(true)
-          approveAll().finally(() => setApproveClicked(false))
+
+          await createSmartExitOrder({ maxGas, permitData: permitData.permitData })
         }}
       >
         {chainId !== position.chain.id ? (
           <Trans>Switch Network</Trans>
         ) : isCreating ? (
           <Trans>Creating Order...</Trans>
-        ) : isApproved ? (
+        ) : permitState === PermitNftState.SIGNED ? (
           <Trans>Confirm Smart Exit</Trans>
-        ) : approveClicked || approvePendingTx ? (
-          <Trans>Approving...</Trans>
+        ) : permitState === PermitNftState.SIGNING ? (
+          <Trans>Signing...</Trans>
         ) : (
-          <>
-            <Trans>Approve for all NFT</Trans>
-            <InfoHelper
-              text={t`You wish to give KyberSwap permission to manage all your positions from ${dexName} on this chain. You won’t need to approve again unless you revoke the permission in your wallet.`}
-              placement="top"
-              color={theme.textReverse}
-            />
-          </>
+          <Trans>Permit NFT</Trans>
         )}
       </ButtonPrimary>
     </>
