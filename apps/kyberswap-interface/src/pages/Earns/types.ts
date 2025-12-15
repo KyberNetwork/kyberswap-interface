@@ -45,6 +45,11 @@ export interface EarnPool {
     chainId: number
     isFavorite: boolean
   }
+  chain?: {
+    id: number
+    name: string
+    logoUrl: string
+  }
   category?: PAIR_CATEGORY
   programs?: Array<ProgramType>
   merklOpportunity?: MerklOpportunity

@@ -28,7 +28,8 @@ interface SupportedProtocolsResponse {
 }
 
 export interface PoolQueryParams {
-  chainId: ChainId
+  chainId?: number
+  chainIds?: string
   page?: number
   limit?: number
   interval: string

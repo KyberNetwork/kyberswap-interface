@@ -66,7 +66,7 @@ const DesktopTableRow = ({
     onOpenZapInWidget({
       pool: {
         dex: pool.exchange,
-        chainId: pool.chainId || filters.chainId,
+        chainId: (pool.chain?.id || pool.chainId) as number,
         address: pool.address,
       },
       initialTick:

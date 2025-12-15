@@ -93,7 +93,7 @@ const Filter = ({
   )
 
   const onChainChange = (newChainId: string | number) => {
-    updateFilters('chainId', newChainId.toString())
+    updateFilters('chainIds', newChainId.toString())
   }
   const onProtocolChange = (newProtocol: string | number) => {
     updateFilters('protocol', newProtocol.toString())
@@ -146,12 +146,7 @@ const Filter = ({
       </HeadSection>
       <Flex justifyContent="space-between" flexDirection={upToMedium ? 'column' : 'row'} sx={{ gap: '1rem' }}>
         <Flex sx={{ gap: '1rem' }} flexWrap="wrap">
-          <DropdownMenu
-            options={supportedChains}
-            value={filters.chainId.toString()}
-            alignLeft
-            onChange={onChainChange}
-          />
+          <DropdownMenu options={supportedChains} value={filters.chainIds || ''} alignLeft onChange={onChainChange} />
           <DropdownMenu
             width={100}
             options={supportedDexes}

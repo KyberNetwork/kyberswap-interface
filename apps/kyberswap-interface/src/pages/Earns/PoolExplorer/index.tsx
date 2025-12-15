@@ -218,7 +218,6 @@ const PoolExplorer = () => {
 
       <CreatePoolModal
         isOpen={isCreateModalOpen}
-        filterChainId={filters.chainId}
         onDismiss={() => setIsCreateModalOpen(false)}
         onSubmit={openZapCreatePoolWidget}
       />

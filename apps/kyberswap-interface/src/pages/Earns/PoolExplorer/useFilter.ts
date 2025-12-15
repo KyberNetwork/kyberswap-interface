@@ -15,15 +15,18 @@ export default function useFilter(setSearch?: (search: string) => void) {
   const [defaultChainId] = useState(chainId && EARN_CHAINS[chainId as unknown as EarnChain] ? chainId : ChainId.MAINNET)
 
   const filters: PoolQueryParams = useMemo(() => {
+    const farmingPoolDefaultChain = searchParams.get('tag') === FilterTag.FARMING_POOL
+    const hasChainIdsParam = searchParams.has('chainIds')
+    const chainIdsParam = searchParams.get('chainIds')
+    const fallbackChainId = farmingPoolDefaultChain
+      ? EARN_CHAINS[defaultChainId as unknown as EarnChain]?.farmingSupported
+        ? defaultChainId
+        : ChainId.MAINNET
+      : defaultChainId
+    const selectedChainIds = hasChainIdsParam ? chainIdsParam ?? '' : fallbackChainId.toString()
+
     return {
-      chainId: +(
-        searchParams.get('chainId') ||
-        (searchParams.get('tag') === FilterTag.FARMING_POOL
-          ? EARN_CHAINS[defaultChainId as unknown as EarnChain]?.farmingSupported
-            ? defaultChainId
-            : ChainId.MAINNET
-          : defaultChainId)
-      ),
+      chainIds: selectedChainIds,
       page: +(searchParams.get('page') || 1),
       limit: 10,
       interval: searchParams.get('interval') || (timings[0].value as string),
@@ -38,11 +41,11 @@ export default function useFilter(setSearch?: (search: string) => void) {
 
   const updateFilters = useCallback(
     (key: keyof PoolQueryParams, value: string) => {
-      if (!value) {
+      if (!value && key !== 'chainIds') {
         searchParams.delete(key)
       } else {
         searchParams.set(key, value)
-        if (key === 'chainId') searchParams.delete('protocol')
+        if (key === 'chainIds') searchParams.delete('protocol')
         if (key === 'tag') {
           searchParams.delete('sortBy')
           searchParams.delete('orderBy')
@@ -51,15 +54,15 @@ export default function useFilter(setSearch?: (search: string) => void) {
             searchParams.set('sortBy', SortBy.APR)
             searchParams.set('orderBy', Direction.DESC)
           } else if (value === FilterTag.FARMING_POOL) {
-            const currentFilteredChainId = searchParams.get('chainId')
+            const currentFilteredChainId = searchParams.get('chainIds')
+            const walletSupportedChain = EARN_CHAINS[chainId as unknown as EarnChain]?.farmingSupported ? chainId : null
 
-            if (
-              currentFilteredChainId &&
-              !EARN_CHAINS[currentFilteredChainId as unknown as EarnChain]?.farmingSupported
-            ) {
-              if (EARN_CHAINS[chainId as unknown as EarnChain]?.farmingSupported)
-                searchParams.set('chainId', chainId.toString())
-              else searchParams.set('chainId', ChainId.MAINNET.toString())
+            if (currentFilteredChainId) {
+              if (!EARN_CHAINS[currentFilteredChainId as unknown as EarnChain]?.farmingSupported) {
+                searchParams.set('chainIds', (walletSupportedChain || ChainId.MAINNET).toString())
+              }
+            } else {
+              searchParams.set('chainIds', (walletSupportedChain || ChainId.MAINNET).toString())
             }
 
             searchParams.delete('protocol')

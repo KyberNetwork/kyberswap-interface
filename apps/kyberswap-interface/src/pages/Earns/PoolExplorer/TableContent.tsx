@@ -30,32 +30,35 @@ const TableContent = ({
   const theme = useTheme()
 
   const allDexes = useAppSelector(state => state.customizeDexes.allDexes)
-  const dexList = useMemo(() => {
-    return allDexes[filters.chainId] || []
-  }, [allDexes, filters.chainId])
   const { data: poolData, refetch, isError } = usePoolsExplorerQuery(filters, { pollingInterval: POLLING_INTERVAL_MS })
-  const { handleFavorite, favoriteLoading } = useFavoritePool({ filters, refetch })
+  const { handleFavorite, favoriteLoading } = useFavoritePool({ refetch })
 
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
   // Create a dex lookup map for better performance
   const dexLookupMap = useMemo(() => {
-    const map = new Map<string, { logoURL: string; name: string }>()
-    dexList.forEach(dex => {
-      map.set(dex.id, { logoURL: dex.logoURL, name: dex.name })
+    const map = new Map<number, Map<string, { logoURL: string; name: string }>>()
+
+    Object.entries(allDexes || {}).forEach(([chainId, dexes]) => {
+      const dexMap = new Map<string, { logoURL: string; name: string }>()
+      dexes.forEach(dex => {
+        dexMap.set(dex.id, { logoURL: dex.logoURL, name: dex.name })
+      })
+      map.set(Number(chainId), dexMap)
     })
     return map
-  }, [dexList])
+  }, [allDexes])
 
   const tablePoolData = useMemo(() => {
     return (poolData?.data?.pools || []).map(pool => {
+      const poolChainId = pool.chain?.id ?? pool.chainId
       const dexKey = dexKeyMapping[pool.exchange] || pool.exchange
-      const dexInfo = dexLookupMap.get(dexKey) || { logoURL: '', name: '' }
+      const dexInfo = poolChainId ? dexLookupMap.get(poolChainId)?.get(dexKey) : undefined
 
       return {
         ...pool,
-        dexLogo: dexInfo.logoURL,
-        dexName: dexInfo.name,
+        dexLogo: dexInfo?.logoURL || '',
+        dexName: dexInfo?.name || pool.exchange,
         feeApr: pool.apr,
         apr: pool.apr + (pool.kemEGApr || 0) + (pool.kemLMApr || 0) + (pool.bonusApr || 0),
       }
@@ -94,7 +97,7 @@ const TableContent = ({
           ),
         )}
       </div>
-      <Updater customChainId={filters.chainId} />
+      <Updater />
     </>
   )
 }
