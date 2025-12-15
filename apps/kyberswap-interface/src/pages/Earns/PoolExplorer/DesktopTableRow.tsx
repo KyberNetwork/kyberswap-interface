@@ -89,9 +89,10 @@ const DesktopTableRow = ({
         <Text color={theme.subText}>{pool.dexName}</Text>
       </Flex>
       <Flex alignItems="center" sx={{ gap: 2 }}>
-        <Flex alignItems="center">
+        <Flex alignItems="flex-end" sx={{ position: 'relative' }}>
           <TokenLogo src={pool.tokens?.[0]?.logoURI} />
           <TokenLogo src={pool.tokens?.[1]?.logoURI} translateLeft />
+          {pool.chain?.logoUrl && <TokenLogo src={pool.chain.logoUrl} size={12} translateLeft translateTop />}
         </Flex>
         <SymbolText>
           {pool.tokens?.[0]?.symbol}/{pool.tokens?.[1]?.symbol}

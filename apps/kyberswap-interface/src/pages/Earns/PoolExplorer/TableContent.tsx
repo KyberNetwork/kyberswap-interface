@@ -35,10 +35,13 @@ const TableContent = ({
 
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
-  const filterChainIds = useMemo(
-    () => filters.chainIds?.split(',').filter(Boolean).map(Number) || [],
-    [filters.chainIds],
-  )
+  const visibleChainIds = useMemo(() => {
+    const filterChainIds = filters.chainIds?.split(',').filter(Boolean).map(Number) || []
+    if (filterChainIds.length) return filterChainIds
+
+    const poolChainIds = poolData?.data?.pools?.map(pool => pool.chain?.id ?? pool.chainId).filter(Boolean) || []
+    return Array.from(new Set(poolChainIds))
+  }, [filters.chainIds, poolData?.data?.pools])
 
   // Create a dex lookup map for better performance
   const dexLookupMap = useMemo(() => {
@@ -103,7 +106,8 @@ const TableContent = ({
         )}
       </div>
 
-      {filterChainIds.map(chainId => (
+      {/* Important to load dex info */}
+      {visibleChainIds.map(chainId => (
         <Updater key={chainId} customChainId={chainId} />
       ))}
     </>
