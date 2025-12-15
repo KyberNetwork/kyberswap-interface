@@ -101,8 +101,8 @@ export const PrimaryText = styled.div<{ color?: string }>`
   font-size: 12px;
   color: ${({ theme, color }) => color ?? theme.text};
 `
-export const InboxItemTime = styled.span<{ color: string }>`
-  color: ${({ theme, color }) => color ?? theme.border};
+export const InboxItemTime = styled.span<{ color?: string }>`
+  color: ${({ theme, color }) => color ?? theme.subText};
 `
 export const Dot = styled.span`
   background-color: ${({ theme }) => theme.primary};

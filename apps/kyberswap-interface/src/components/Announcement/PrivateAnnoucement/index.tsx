@@ -9,7 +9,6 @@ import InboxItemPriceAlert from 'components/Announcement/PrivateAnnoucement/Inbo
 import InboxItemPrivateMessage from 'components/Announcement/PrivateAnnoucement/InboxItemPrivateMessage'
 import { InboxItemTime } from 'components/Announcement/PrivateAnnoucement/styled'
 import { AnnouncementTemplate, PrivateAnnouncement, PrivateAnnouncementType } from 'components/Announcement/type'
-import useTheme from 'hooks/useTheme'
 import { formatTime } from 'utils/time'
 
 export type PrivateAnnouncementProp<T extends AnnouncementTemplate = AnnouncementTemplate> = {
@@ -46,14 +45,13 @@ export const PRIVATE_ANN_TITLE: () => Partial<{ [type in PrivateAnnouncementType
 })
 
 export default function InboxItem({ announcement, onRead, style, onPin, onDelete }: PrivateAnnouncementProp) {
-  const { templateType, sentAt, isRead } = announcement
-  const theme = useTheme()
+  const { templateType, sentAt } = announcement
   const props: PrivateAnnouncementProp = {
     onRead,
     style,
     onPin,
     onDelete,
-    time: <InboxItemTime color={isRead ? theme.border : theme.subText}>{formatTime(sentAt)}</InboxItemTime>,
+    time: <InboxItemTime>{formatTime(sentAt)}</InboxItemTime>,
     announcement,
     title: PRIVATE_ANN_TITLE()[templateType],
   }
