@@ -163,6 +163,16 @@ export const getAnnouncementsTemplateIds = (type: keyof TemplateConfig) => {
   return ANNOUNCEMENT_TEMPLATE_IDS[ENV_KEY]?.[type]
 }
 
+export const getAnnouncementTemplateType = (templateId?: number) => {
+  const entries = Object.entries(ANNOUNCEMENT_TEMPLATE_IDS[ENV_KEY] ?? {})
+  for (const [type, ids] of entries) {
+    if (ids.split(',').includes(templateId?.toString())) {
+      return type
+    }
+  }
+  return undefined
+}
+
 const mock = localStorage.getItem('mock')?.split(',') ?? []
 export const MOCK_ACCOUNT_EVM = isAddressString(mock[0]?.trim())
 

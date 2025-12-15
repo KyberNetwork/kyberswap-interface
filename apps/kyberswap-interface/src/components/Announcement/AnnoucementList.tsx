@@ -27,9 +27,9 @@ export enum Category {
 }
 
 const getViewHeight = (category: Category | null) => {
-  if (category === Category.EARN_POSITION) return 120
+  if (category === Category.EARN_POSITION) return 112
   if (category === Category.LIMIT_ORDER) return 148
-  return 126
+  return 128
 }
 
 type Props = {

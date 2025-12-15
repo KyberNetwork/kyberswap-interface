@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 import { Announcement, PrivateAnnouncement } from 'components/Announcement/type'
-import { NOTIFICATION_API } from 'constants/env'
+import { NOTIFICATION_API, getAnnouncementTemplateType } from 'constants/env'
 
 type NotificationResponse<T extends PrivateAnnouncement | Announcement = Announcement> = {
   notifications: T[]
@@ -15,13 +15,15 @@ const transformResponseAnnouncement = <T extends PrivateAnnouncement | Announcem
   const { metaMessages, notifications, ...rest } = data.data || {}
   return {
     ...rest,
-    notifications: (metaMessages ?? notifications ?? []).map((e: any) => {
+    notifications: (metaMessages ?? notifications ?? []).map((event: PrivateAnnouncement<any>) => {
       let templateBody = {}
       try {
-        templateBody = JSON.parse(e.templateBody ?? '{}')
+        templateBody = JSON.parse(event.templateBody ?? '{}')
       } catch (error) {}
+      const templateType = event.templateType || getAnnouncementTemplateType(event.templateId)
       return {
-        ...e,
+        ...event,
+        templateType,
         templateBody,
       }
     }),
