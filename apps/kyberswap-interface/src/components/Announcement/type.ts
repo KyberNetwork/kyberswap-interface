@@ -43,11 +43,14 @@ type LimitOrderAnnouncement = {
   makerAssetLogoURL: string
   takerAssetLogoURL: string
   kyberswapURL: string
-  status: LimitOrderStatus
+  status: LimitOrderStatus | string
   // for partial fill
   filledPercent: string
   increasedFilledPercent: string
   chainId: string
+  expiredAt?: number
+  requiredMakingAmount?: string
+  availableMakingAmount?: string
 }
 
 export type PoolPositionAnnouncement = {

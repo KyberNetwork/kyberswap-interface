@@ -146,7 +146,7 @@ const ANNOUNCEMENT_TEMPLATE_IDS: { [key in EnvKeys]: TemplateConfig } = {
     [PrivateAnnouncementType.LIMIT_ORDER]: '12,13,14,15,31',
     [PrivateAnnouncementType.BRIDGE_ASSET]: '10,11',
     [PrivateAnnouncementType.ELASTIC_POOLS]: '17,18',
-    [PrivateAnnouncementType.POSITION_STATUS]: '1,2',
+    [PrivateAnnouncementType.POSITION_STATUS]: '32,33',
     [PrivateAnnouncementType.DIRECT_MESSAGE]: '',
     EXCLUDE: '2,16,19,9,25,24,21,22,25,26,30',
   },

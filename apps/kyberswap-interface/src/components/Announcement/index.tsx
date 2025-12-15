@@ -1,49 +1,27 @@
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Check, ChevronLeft } from 'react-feather'
 import { useMedia } from 'react-use'
 
-import { ReactComponent as AnnouncementSvg } from 'assets/svg/ic_announcement.svg'
-import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
-import { ReactComponent as LimitOrderIcon } from 'assets/svg/limit_order.svg'
-import AnnouncementView, { Category, Tab } from 'components/Announcement/AnnoucementView'
-import CategoryItem from 'components/Announcement/CategoryItem'
+import AnnoucementList, { Category, Tab } from 'components/Announcement/AnnoucementList'
+import AnnouncementCategoryList from 'components/Announcement/AnnouncementCategoryList'
+import AnnouncementHeader from 'components/Announcement/AnnouncementHeader'
 import DetailAnnouncementPopup from 'components/Announcement/Popups/DetailAnnouncementPopup'
 import { formatNumberOfUnread } from 'components/Announcement/helper'
+import { getEarnPosition, getLimitOrderPreview } from 'components/Announcement/helpers'
 import { useGeneralAnnouncements } from 'components/Announcement/hooks/useGeneralAnnouncements'
 import { usePrivateAnnouncements } from 'components/Announcement/hooks/usePrivateAnnouncements'
-import {
-  Announcement,
-  AnnouncementTemplateLimitOrder,
-  AnnouncementTemplatePopup,
-  PoolPositionAnnouncement,
-  PrivateAnnouncement,
-  PrivateAnnouncementType,
-} from 'components/Announcement/type'
+import { Announcement, AnnouncementTemplatePopup, PrivateAnnouncementType } from 'components/Announcement/type'
 import NotificationIcon from 'components/Icons/NotificationIcon'
 import MenuFlyout from 'components/MenuFlyout'
 import Modal from 'components/Modal'
 import { RowBetween } from 'components/Row'
-import { LimitOrderStatus } from 'components/swapv2/LimitOrder/type'
 import { useActiveWeb3React } from 'hooks'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import { useDetailAnnouncement, useModalOpen, useToggleNotificationCenter } from 'state/application/hooks'
 import { ApplicationModal } from 'state/application/types'
 import { MEDIA_WIDTHS } from 'theme'
 
-import {
-  BackButton,
-  Badge,
-  Container,
-  ContentHeader,
-  HeaderAction,
-  HeaderTitle,
-  StyledMenu,
-  StyledMenuButton,
-  Title,
-  Wrapper,
-  browserCustomStyle,
-} from './styles'
+import { Badge, Container, StyledMenu, StyledMenuButton, Title, Wrapper, browserCustomStyle } from './styles'
 
 function AnnouncementComponent() {
   const [activeTab, setActiveTab] = useState(Tab.CATEGORY)
@@ -88,43 +66,14 @@ function AnnouncementComponent() {
 
   const {
     announcements: generalAnnouncements,
-    total: generalTotal,
     preview: generalPreview,
+    total: generalTotal,
     fetchList: fetchGeneralAnnouncements,
     fetchPreview: fetchGeneralPreview,
     reset: resetGeneralAnnouncements,
   } = useGeneralAnnouncements()
 
   const isCategoryTab = activeTab === Tab.CATEGORY
-
-  const getEarnPosition = (announcement?: PrivateAnnouncement): PoolPositionAnnouncement | undefined => {
-    const body = announcement?.templateBody as unknown
-    if (body && typeof body === 'object' && 'position' in (body as { position?: PoolPositionAnnouncement })) {
-      return (body as { position?: PoolPositionAnnouncement }).position
-    }
-    return undefined
-  }
-
-  const getLimitOrderPreview = (announcement?: PrivateAnnouncement): { pair?: string; status?: string } | undefined => {
-    const body = announcement?.templateBody as AnnouncementTemplateLimitOrder | undefined
-    const order = body?.order
-    if (!order) return undefined
-    const pair =
-      order.makerAssetSymbol && order.takerAssetSymbol
-        ? `${order.makerAssetSymbol}/${order.takerAssetSymbol}`
-        : undefined
-    const isFilled = order.status === LimitOrderStatus.FILLED
-    const isPartialFilled = order.status === LimitOrderStatus.PARTIALLY_FILLED
-    const status = body?.isReorg
-      ? `Reverted ${order.increasedFilledPercent}`
-      : isFilled
-      ? t`100% Filled`
-      : isPartialFilled
-      ? `${order.filledPercent} Filled ${order.increasedFilledPercent}`
-      : `${order.filledPercent}% Filled | Expired`
-
-    return { pair, status }
-  }
 
   const privateCategoryMap: Partial<Record<Category, ReturnType<typeof usePrivateAnnouncements>>> = useMemo(
     () => ({
@@ -157,31 +106,18 @@ function AnnouncementComponent() {
         reset: resetLimitOrderAnnouncements,
       },
     }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       earnAnnouncements,
       earnPreview,
       earnTotal,
       earnUnread,
-      fetchEarnAnnouncements,
-      fetchEarnPreview,
       isReadingAllEarn,
       limitOrderAnnouncements,
       limitOrderPreview,
       limitOrderTotal,
       limitOrderUnread,
-      fetchLimitOrderAnnouncements,
-      fetchLimitOrderPreview,
       isReadingAllLimitOrder,
-      onDeleteEarnAnnouncement,
-      onDeleteLimitOrderAnnouncement,
-      onEarnAnnouncementRead,
-      onLimitOrderAnnouncementRead,
-      onMarkAllEarn,
-      onMarkAllLimitOrder,
-      onPinEarnAnnouncement,
-      onPinLimitOrderAnnouncement,
-      resetEarnAnnouncements,
-      resetLimitOrderAnnouncements,
     ],
   )
 
@@ -199,7 +135,7 @@ function AnnouncementComponent() {
     fetchEarnPreview()
     fetchLimitOrderPreview()
     fetchGeneralPreview()
-  }, [fetchEarnPreview, fetchGeneralPreview, fetchLimitOrderPreview])
+  }, [fetchEarnPreview, fetchLimitOrderPreview, fetchGeneralPreview])
 
   useEffect(() => {
     if (prevAccountRef.current === account) return
@@ -326,62 +262,26 @@ function AnnouncementComponent() {
         </RowBetween>
       </Container>
 
-      {!isCategoryTab && (
-        <ContentHeader>
-          <BackButton onClick={() => onSetTab(Tab.CATEGORY)}>
-            <ChevronLeft size={16} />
-          </BackButton>
-          <HeaderTitle>
-            {isAnnouncementsCategory ? (
-              <Trans>Announcements</Trans>
-            ) : selectedCategory === Category.LIMIT_ORDER ? (
-              <Trans>Limit Orders</Trans>
-            ) : (
-              <Trans>Earn Position</Trans>
-            )}
-          </HeaderTitle>
-          {selectedPrivateCategory && (
-            <HeaderAction
-              onClick={selectedPrivateCategory.markAllAsRead}
-              disabled={
-                !account || selectedPrivateCategory.isMarkAllLoading || (selectedPrivateCategory.unread || 0) === 0
-              }
-            >
-              <Check size={16} />
-              <Trans>Mark all read</Trans>
-            </HeaderAction>
-          )}
-        </ContentHeader>
-      )}
+      <AnnouncementHeader
+        isCategoryTab={isCategoryTab}
+        selectedCategory={selectedCategory}
+        selectedPrivateCategory={selectedPrivateCategory}
+        account={account}
+        onBack={() => onSetTab(Tab.CATEGORY)}
+      />
 
       {isCategoryTab ? (
-        <div>
-          <CategoryItem
-            title="Earn Position"
-            counter={earnUnread}
-            subLine1={previewPosition ? `${previewPosition.token0Symbol}/${previewPosition.token1Symbol}` : undefined}
-            subLine2={previewPosition?.positionId ? `#${previewPosition.positionId}` : undefined}
-            icon={<FarmingIcon />}
-            onClick={() => onSelectCategory(Category.EARN_POSITION)}
-          />
-          <CategoryItem
-            title="Limit Orders"
-            counter={limitOrderUnread}
-            subLine1={previewLimitOrder?.pair}
-            subLine2={previewLimitOrder?.status}
-            icon={<LimitOrderIcon />}
-            onClick={() => onSelectCategory(Category.LIMIT_ORDER)}
-          />
-          <CategoryItem
-            title="Announcements"
-            counter={announcementCount}
-            subLine1={generalPreview.first?.templateBody?.name}
-            icon={<AnnouncementSvg />}
-            onClick={() => onSelectCategory(Category.ANNOUNCEMENTS)}
-          />
-        </div>
+        <AnnouncementCategoryList
+          earnUnread={earnUnread}
+          limitOrderUnread={limitOrderUnread}
+          announcementCount={announcementCount}
+          previewPosition={previewPosition}
+          previewLimitOrder={previewLimitOrder}
+          announcementName={generalPreview.first?.templateBody?.name}
+          onSelectCategory={onSelectCategory}
+        />
       ) : (
-        <AnnouncementView
+        <AnnoucementList
           announcements={currentAnnouncements}
           totalAnnouncement={totalForView}
           loadMoreAnnouncements={loadMoreAnnouncements}

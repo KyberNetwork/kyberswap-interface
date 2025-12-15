@@ -90,6 +90,13 @@ export const Title = styled.div<{ isRead: boolean }>`
   color: ${({ theme, isRead }) => (isRead ? theme.text : theme.primary)};
 `
 
+export const StatusTitle = styled(Title)<{ $color?: string }>`
+  color: ${({ theme, isRead, $color }) => $color ?? (isRead ? theme.text : theme.primary)};
+  display: flex;
+  align-items: center;
+  gap: 6px;
+`
+
 export const PrimaryText = styled.div<{ color?: string }>`
   font-size: 12px;
   color: ${({ theme, color }) => color ?? theme.text};
@@ -122,4 +129,47 @@ export const StatusBadge = styled.div<{ color: string }>`
   font-weight: 500;
   padding: 4px 8px;
   border-radius: 12px;
+`
+
+export const AmountRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  color: ${({ theme }) => theme.text};
+  font-size: 13px;
+  font-weight: 600;
+`
+
+export const AmountItem = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+`
+
+export const DetailList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+`
+
+export const DetailItem = styled.div`
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 12px;
+  color: ${({ theme }) => theme.subText};
+`
+
+export const DetailValue = styled.span`
+  color: ${({ theme }) => theme.text};
+  font-weight: 500;
+`
+
+export const MetaRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
 `

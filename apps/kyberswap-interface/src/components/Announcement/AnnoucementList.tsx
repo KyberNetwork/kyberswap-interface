@@ -5,7 +5,7 @@ import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
 import InfiniteLoader from 'react-window-infinite-loader'
 import { Flex, Text } from 'rebass'
-import styled, { CSSProperties } from 'styled-components'
+import { CSSProperties } from 'styled-components'
 
 import AnnouncementItem from 'components/Announcement/AnnoucementItem'
 import InboxItem from 'components/Announcement/PrivateAnnoucement'
@@ -13,26 +13,7 @@ import { Announcement, PrivateAnnouncement } from 'components/Announcement/type'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 
-const ListAnnouncement = styled.div`
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  overflow-y: auto;
-  overflow-x: hidden;
-  border-radius: 0px 0px 12px 12px;
-  .scrollbar {
-    &::-webkit-scrollbar {
-      display: block;
-      width: 4px;
-    }
-    &::-webkit-scrollbar-thumb {
-      background: ${({ theme }) => theme.border};
-    }
-  }
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    border-radius: 0;
-  `};
-`
+import { ListAnnouncement } from './styles'
 
 export enum Tab {
   CATEGORY,
@@ -43,6 +24,12 @@ export enum Category {
   EARN_POSITION = 'EARN_POSITION',
   LIMIT_ORDER = 'LIMIT_ORDER',
   ANNOUNCEMENTS = 'ANNOUNCEMENTS',
+}
+
+const getViewHeight = (category: Category | null) => {
+  if (category === Category.EARN_POSITION) return 120
+  if (category === Category.LIMIT_ORDER) return 148
+  return 126
 }
 
 type Props = {
@@ -57,7 +44,7 @@ type Props = {
   onPrivateAnnouncementDelete?: (announcement: PrivateAnnouncement) => void | Promise<void>
 }
 
-export default function AnnouncementView({
+export default function AnnoucementList({
   announcements,
   totalAnnouncement,
   loadMoreAnnouncements,
@@ -122,7 +109,7 @@ export default function AnnouncementView({
                   height={height}
                   width={width}
                   itemCount={itemCount}
-                  itemSize={currentCategory === Category.ANNOUNCEMENTS ? 126 : 120}
+                  itemSize={getViewHeight(currentCategory)}
                   onItemsRendered={onItemsRendered}
                   ref={ref}
                 >

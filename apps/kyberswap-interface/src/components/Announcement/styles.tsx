@@ -88,6 +88,27 @@ export const Title = styled.div`
   gap: 6px;
 `
 
+export const ListAnnouncement = styled.div`
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  border-radius: 0px 0px 12px 12px;
+  .scrollbar {
+    &::-webkit-scrollbar {
+      display: block;
+      width: 4px;
+    }
+    &::-webkit-scrollbar-thumb {
+      background: ${({ theme }) => theme.border};
+    }
+  }
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    border-radius: 0;
+  `};
+`
+
 export const ContentHeader = styled.div`
   display: flex;
   align-items: center;

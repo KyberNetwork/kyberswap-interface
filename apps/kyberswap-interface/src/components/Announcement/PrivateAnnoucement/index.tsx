@@ -3,7 +3,7 @@ import React, { ReactNode } from 'react'
 import { CSSProperties } from 'styled-components'
 
 import InboxItemEarnPosition from 'components/Announcement/PrivateAnnoucement/InboxItemEarnPosition'
-import InboxItemLO from 'components/Announcement/PrivateAnnoucement/InboxItemLO'
+import InboxItemLimitOrder from 'components/Announcement/PrivateAnnoucement/InboxItemLimitOrder'
 import InboxItemPoolPosition from 'components/Announcement/PrivateAnnoucement/InboxItemPoolPosition'
 import InboxItemPriceAlert from 'components/Announcement/PrivateAnnoucement/InboxItemPriceAlert'
 import InboxItemPrivateMessage from 'components/Announcement/PrivateAnnoucement/InboxItemPrivateMessage'
@@ -29,7 +29,7 @@ const ANNOUNCEMENT_MAP: () => PrivateAnnouncementMap = () =>
   ({
     [PrivateAnnouncementType.ELASTIC_POOLS]: InboxItemPoolPosition,
     [PrivateAnnouncementType.POSITION_STATUS]: InboxItemEarnPosition,
-    [PrivateAnnouncementType.LIMIT_ORDER]: InboxItemLO,
+    [PrivateAnnouncementType.LIMIT_ORDER]: InboxItemLimitOrder,
     [PrivateAnnouncementType.PRICE_ALERT]: InboxItemPriceAlert,
     [PrivateAnnouncementType.DIRECT_MESSAGE]: InboxItemPrivateMessage,
   } as PrivateAnnouncementMap)

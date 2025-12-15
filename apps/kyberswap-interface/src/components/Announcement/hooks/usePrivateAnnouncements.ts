@@ -15,40 +15,9 @@ import { PrivateAnnouncement, PrivateAnnouncementType } from 'components/Announc
 import { getAnnouncementsTemplateIds } from 'constants/env'
 import { useActiveWeb3React } from 'hooks'
 
+import { applyPinnedToList, filterByType, getListMeta } from './usePrivateAnnouncements.utils'
+
 const responseDefault = { numberOfUnread: 0, pagination: { totalItems: 0 }, notifications: [] }
-
-const applyPinnedToList = (list: PrivateAnnouncement[], pinnedList: PrivateAnnouncement[]) => {
-  const pinnedMap = new Map(pinnedList.map(item => [item.id, item]))
-  if (!pinnedMap.size) {
-    return [...list]
-      .map(item => ({ ...item, isPinned: false }))
-      .sort((a, b) => {
-        const timeDiff = (b.sentAt || 0) - (a.sentAt || 0)
-        if (timeDiff) return timeDiff
-        return (b.id || 0) - (a.id || 0)
-      })
-  }
-
-  const merged = [...list]
-  pinnedList.forEach(item => {
-    if (!merged.some(current => current.id === item.id)) merged.push(item)
-  })
-
-  const normalized = merged
-    .map(item => {
-      const pinnedItem = pinnedMap.get(item.id)
-      return pinnedItem ? { ...item, ...pinnedItem, isPinned: true } : { ...item, isPinned: false }
-    })
-    .sort((a, b) => {
-      const pinDiff = Number(b.isPinned) - Number(a.isPinned)
-      if (pinDiff) return pinDiff
-      const timeDiff = (b.sentAt || 0) - (a.sentAt || 0)
-      if (timeDiff) return timeDiff
-      return (b.id || 0) - (a.id || 0)
-    })
-
-  return normalized
-}
 
 export type PrivateAnnouncementPreview = { total: number; unread: number; first?: PrivateAnnouncement }
 
@@ -59,20 +28,20 @@ export const usePrivateAnnouncements = (
   const [page, setPage] = useState(1)
   const [announcements, setAnnouncements] = useState<PrivateAnnouncement[]>([])
   const [preview, setPreview] = useState<PrivateAnnouncementPreview>({ total: 0, unread: 0 })
+  const [meta, setMeta] = useState<{ totalItems: number; numberOfUnread: number }>({
+    totalItems: 0,
+    numberOfUnread: 0,
+  })
   const [pinnedNotifications, setPinnedNotifications] = useState<PrivateAnnouncement[]>([])
 
   const templateIds = useMemo(() => getAnnouncementsTemplateIds(announcementType), [announcementType])
+  const hasTemplateFilter = Boolean(templateIds)
   const [fetchNotifications, { data: respNotification = responseDefault }] = useLazyGetNotificationsQuery()
   const [readNotifications] = useReadNotificationsMutation()
   const [readAllNotifications, { isLoading: isReadingAll }] = useReadAllNotificationsMutation()
   const [clearNotifications] = useClearNotificationsMutation()
 
   const loadingAnnouncement = useRef(false)
-
-  const filterPinnedByType = useCallback(
-    (list: PrivateAnnouncement[]) => list.filter(item => item.templateType === announcementType),
-    [announcementType],
-  )
 
   const syncPinnedNotifications = useCallback(
     (nextForType: PrivateAnnouncement[]) =>
@@ -95,22 +64,28 @@ export const usePrivateAnnouncements = (
         page: 1,
         pageSize: 1,
       })
-      const notifications = (data?.notifications ?? []) as PrivateAnnouncement[]
+      const { notifications, unread, totalItems } = getListMeta(
+        (data?.notifications ?? []) as PrivateAnnouncement[],
+        announcementType,
+        hasTemplateFilter,
+        data,
+      )
       setPreview({
-        total: data?.pagination?.totalItems ?? 0,
-        unread: data?.numberOfUnread ?? 0,
+        total: totalItems,
+        unread,
         first: notifications[0],
       })
+      setMeta({ totalItems, numberOfUnread: unread })
     } catch (error) {
       console.error(error)
     }
-  }, [account, fetchNotifications, templateIds])
+  }, [account, announcementType, fetchNotifications, hasTemplateFilter, templateIds])
 
   const loadPinnedIds = useCallback(() => {
-    const nextPinned = filterPinnedByType(getPinnedNotifications(account))
+    const nextPinned = filterByType(getPinnedNotifications(account), announcementType)
     setPinnedNotifications(nextPinned)
     return nextPinned
-  }, [account, filterPinnedByType])
+  }, [account, announcementType])
 
   useEffect(() => {
     const nextPinned = loadPinnedIds()
@@ -129,12 +104,18 @@ export const usePrivateAnnouncements = (
           page: nextPage,
           pageSize: 10,
         })
-        const notifications = (data?.notifications ?? []) as PrivateAnnouncement[]
+        const { notifications, unread, totalItems } = getListMeta(
+          (data?.notifications ?? []) as PrivateAnnouncement[],
+          announcementType,
+          hasTemplateFilter,
+          data,
+        )
         setPage(nextPage)
         const baseList = isReset ? notifications : [...announcements, ...notifications]
         const pinnedForList = isReset ? loadPinnedIds() : pinnedNotifications
         const normalized = applyPinnedToList(baseList, pinnedForList)
         setAnnouncements(normalized)
+        setMeta({ totalItems, numberOfUnread: unread })
         return normalized
       } catch (error) {
         console.error(error)
@@ -143,7 +124,17 @@ export const usePrivateAnnouncements = (
       }
       return []
     },
-    [account, announcements, fetchNotifications, loadPinnedIds, page, pinnedNotifications, templateIds],
+    [
+      account,
+      announcements,
+      fetchNotifications,
+      hasTemplateFilter,
+      loadPinnedIds,
+      page,
+      pinnedNotifications,
+      templateIds,
+      announcementType,
+    ],
   )
 
   const markAsRead = useCallback(
@@ -157,8 +148,9 @@ export const usePrivateAnnouncements = (
       })
       setPreview(prev => ({
         ...prev,
-        unread: Math.max((prev.unread ?? respNotification.numberOfUnread ?? 0) - 1, 0),
+        unread: Math.max((prev.unread ?? meta.numberOfUnread ?? 0) - 1, 0),
       }))
+      setMeta(prev => ({ ...prev, numberOfUnread: Math.max((prev.numberOfUnread ?? 0) - 1, 0) }))
 
       try {
         const filterTemplateIds = templateIds || undefined
@@ -167,11 +159,11 @@ export const usePrivateAnnouncements = (
         console.error('readNotifications', error)
       }
     },
-    [account, readNotifications, respNotification.numberOfUnread, syncPinnedNotifications, templateIds],
+    [account, meta.numberOfUnread, readNotifications, syncPinnedNotifications, templateIds],
   )
 
   const markAllAsRead = useCallback(async () => {
-    if (!account || !preview.unread) return
+    if (!account || !(preview.unread || meta.numberOfUnread)) return
     try {
       const filterTemplateIds = templateIds || undefined
       await readAllNotifications({ account, templateIds: filterTemplateIds }).unwrap()
@@ -182,19 +174,20 @@ export const usePrivateAnnouncements = (
         return next
       })
       setPreview(prev => ({ ...prev, unread: 0 }))
+      setMeta(prev => ({ ...prev, numberOfUnread: 0 }))
     } catch (error) {
       console.error('readAllNotifications', error)
     }
-  }, [account, preview.unread, readAllNotifications, syncPinnedNotifications, templateIds])
+  }, [account, meta.numberOfUnread, preview.unread, readAllNotifications, syncPinnedNotifications, templateIds])
 
   const pinAnnouncement = useCallback(
     (announcement: PrivateAnnouncement) => {
       if (!account) return
-      const nextPinned = filterPinnedByType(togglePinnedNotification(account, announcement))
+      const nextPinned = filterByType(togglePinnedNotification(account, announcement), announcementType)
       setPinnedNotifications(nextPinned)
       setAnnouncements(prev => applyPinnedToList(prev, nextPinned))
     },
-    [account, filterPinnedByType],
+    [account, announcementType],
   )
 
   const deleteAnnouncement = useCallback(
@@ -203,7 +196,7 @@ export const usePrivateAnnouncements = (
       const persistedPins = updatePinnedNotifications(account, current =>
         current.filter(item => item.id !== announcement.id),
       )
-      const nextPinned = filterPinnedByType(persistedPins)
+      const nextPinned = filterByType(persistedPins, announcementType)
       setPinnedNotifications(nextPinned)
       setAnnouncements(prev =>
         applyPinnedToList(
@@ -213,14 +206,18 @@ export const usePrivateAnnouncements = (
       )
       setPreview(prev => {
         const unreadDelta = announcement.isRead ? 0 : 1
-        const currentTotal = prev.total ?? respNotification.pagination.totalItems ?? 0
-        const currentUnread = prev.unread ?? respNotification.numberOfUnread ?? 0
+        const currentTotal = prev.total ?? meta.totalItems ?? 0
+        const currentUnread = prev.unread ?? meta.numberOfUnread ?? 0
         return {
           ...prev,
           total: Math.max(currentTotal - 1, 0),
           unread: Math.max(currentUnread - unreadDelta, 0),
         }
       })
+      setMeta(prev => ({
+        totalItems: Math.max((prev.totalItems ?? 0) - 1, 0),
+        numberOfUnread: Math.max((prev.numberOfUnread ?? 0) - (announcement.isRead ? 0 : 1), 0),
+      }))
 
       try {
         const filterTemplateIds = templateIds || undefined
@@ -229,14 +226,7 @@ export const usePrivateAnnouncements = (
         console.error('clearNotifications', error)
       }
     },
-    [
-      account,
-      clearNotifications,
-      filterPinnedByType,
-      respNotification.numberOfUnread,
-      respNotification.pagination.totalItems,
-      templateIds,
-    ],
+    [account, clearNotifications, announcementType, meta.numberOfUnread, meta.totalItems, templateIds],
   )
 
   const reset = useCallback(() => {
@@ -244,11 +234,15 @@ export const usePrivateAnnouncements = (
     setAnnouncements([])
     setPinnedNotifications([])
     setPreview({ total: 0, unread: 0 })
+    setMeta({ totalItems: 0, numberOfUnread: 0 })
     loadingAnnouncement.current = false
   }, [])
 
-  const total = useMemo(() => respNotification?.pagination?.totalItems ?? 0, [respNotification?.pagination?.totalItems])
-  const unread = preview.unread ?? respNotification.numberOfUnread ?? 0
+  const total = useMemo(
+    () => (hasTemplateFilter ? respNotification?.pagination?.totalItems ?? 0 : meta.totalItems),
+    [hasTemplateFilter, meta.totalItems, respNotification?.pagination?.totalItems],
+  )
+  const unread = preview.unread ?? (hasTemplateFilter ? respNotification.numberOfUnread : meta.numberOfUnread) ?? 0
 
   return {
     announcements,
