@@ -163,7 +163,7 @@ export const DetailItem = styled.div`
 `
 
 export const DetailValue = styled.span`
-  color: ${({ theme }) => theme.text};
+  color: ${({ theme }) => rgba(theme.text, 0.8)};
   font-weight: 500;
 `
 
