@@ -35,6 +35,11 @@ const TableContent = ({
 
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
+  const filterChainIds = useMemo(
+    () => filters.chainIds?.split(',').filter(Boolean).map(Number) || [],
+    [filters.chainIds],
+  )
+
   // Create a dex lookup map for better performance
   const dexLookupMap = useMemo(() => {
     const map = new Map<number, Map<string, { logoURL: string; name: string }>>()
@@ -97,7 +102,10 @@ const TableContent = ({
           ),
         )}
       </div>
-      <Updater />
+
+      {filterChainIds.map(chainId => (
+        <Updater key={chainId} customChainId={chainId} />
+      ))}
     </>
   )
 }
