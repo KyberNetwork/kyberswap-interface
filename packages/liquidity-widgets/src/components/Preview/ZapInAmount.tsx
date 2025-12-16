@@ -13,7 +13,7 @@ export default function ZapInAmount() {
   const { initUsd } = useZapRoute();
 
   return (
-    <div className="ks-lw-card mt-4">
+    <div className="ks-lw-card">
       <div className="ks-lw-card-title">
         <p>{t`Zap-in Amount`}</p>
         <p className="text-text font-normal text-lg">

@@ -117,7 +117,7 @@ const ClaimModal = ({
               </Text>
             </Flex>
 
-            {claimInfo.tokens
+            {[...claimInfo.tokens]
               .sort((a, b) => b.value - a.value)
               .map((token, index) => (
                 <ClaimInfoRow

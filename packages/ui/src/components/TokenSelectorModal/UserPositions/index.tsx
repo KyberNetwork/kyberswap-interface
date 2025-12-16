@@ -55,7 +55,7 @@ const UserPositions = ({
   chainId: ChainId;
   account?: string;
   positionId?: string;
-  poolAddress: string;
+  poolAddress?: string;
   initialSlippage?: number;
   onConnectWallet: () => void;
   onOpenZapMigration: (

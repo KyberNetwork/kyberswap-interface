@@ -1,0 +1,185 @@
+import { useEffect, useMemo, useState } from 'react';
+
+import { Trans } from '@lingui/macro';
+
+import { useTokenPrices } from '@kyber/hooks';
+import { defaultToken } from '@kyber/schema';
+import { Skeleton, TokenSymbol } from '@kyber/ui';
+import { formatDisplayNumber, formatNumber } from '@kyber/utils/number';
+
+import RevertPriceIcon from '@/assets/svg/ic_revert_price.svg';
+import { usePoolStore } from '@/stores/usePoolStore';
+import { useWidgetStore } from '@/stores/useWidgetStore';
+
+const formatInputValue = (value: number | null) => {
+  if (!Number.isFinite(value) || value === null) return '';
+  return formatNumber(value, 8).replace(/,/g, '');
+};
+
+const getNumericPrice = (value: unknown) => {
+  if (typeof value === 'number') return value;
+  if (value && typeof value === 'object' && 'price' in (value as { price?: number })) {
+    return (value as { price?: number }).price;
+  }
+  return undefined;
+};
+
+const PriceControl = () => {
+  const { pool, poolPrice, revertPrice, toggleRevertPrice, setPoolPrice } = usePoolStore([
+    'pool',
+    'poolPrice',
+    'revertPrice',
+    'toggleRevertPrice',
+    'setPoolPrice',
+  ]);
+  const { chainId } = useWidgetStore(['chainId']);
+
+  const [inputValue, setInputValue] = useState('');
+
+  const tokenAddresses = useMemo(() => {
+    if (!pool) return [];
+    return [pool.token0.address.toLowerCase(), pool.token1.address.toLowerCase()];
+  }, [pool]);
+
+  const { prices: tokenPrices, loading } = useTokenPrices({
+    addresses: tokenAddresses,
+    chainId,
+  });
+
+  const token0Address = tokenAddresses[0];
+  const token1Address = tokenAddresses[1];
+  const token0Price = getNumericPrice(token0Address ? tokenPrices[token0Address] : undefined);
+  const token1Price = getNumericPrice(token1Address ? tokenPrices[token1Address] : undefined);
+  const invalidTokens = [
+    token0Price === 0 ? pool?.token0.symbol : null,
+    token1Price === 0 ? pool?.token1.symbol : null,
+  ].filter(Boolean);
+
+  const baseToken = pool ? (revertPrice ? pool.token1 : pool.token0) : defaultToken;
+  const quoteToken = pool ? (revertPrice ? pool.token0 : pool.token1) : defaultToken;
+
+  const marketPrice = useMemo(() => {
+    if (!token0Price || !token1Price) return null;
+    if (token0Price <= 0 || token1Price <= 0) return null;
+    const ratio = revertPrice ? token1Price / token0Price : token0Price / token1Price;
+    if (!Number.isFinite(ratio) || ratio <= 0) return null;
+    return ratio;
+  }, [token0Price, token1Price, revertPrice]);
+
+  const isPoolPriceAtMarket = useMemo(() => {
+    if (!marketPrice || !poolPrice) return false;
+    return formatInputValue(marketPrice) === formatInputValue(poolPrice);
+  }, [marketPrice, poolPrice]);
+
+  useEffect(() => {
+    if (marketPrice && poolPrice === null) {
+      setPoolPrice(marketPrice);
+    }
+  }, [marketPrice, poolPrice, setPoolPrice]);
+
+  useEffect(() => {
+    setInputValue(formatInputValue(poolPrice));
+  }, [poolPrice]);
+
+  const persistPrice = () => {
+    const trimmed = inputValue.trim();
+    if (!trimmed) {
+      setPoolPrice(null);
+      return;
+    }
+
+    const parsed = Number(trimmed);
+    if (!Number.isFinite(parsed) || parsed <= 0) {
+      setPoolPrice(null);
+      return;
+    }
+
+    setPoolPrice(parsed);
+  };
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const rawValue = event.target.value;
+    const normalized = rawValue.replace(/,/g, '.');
+
+    if (normalized === '' || normalized === '.') {
+      setInputValue(normalized);
+      return;
+    }
+
+    if (/^\d*\.?\d*$/.test(normalized)) {
+      setInputValue(normalized);
+    }
+  };
+
+  const handleUseMarketRate = () => {
+    if (!marketPrice) return;
+    setPoolPrice(marketPrice);
+  };
+
+  return (
+    <div className="flex flex-col gap-2">
+      <p className="text-base">
+        <Trans>Set the initiate pool price</Trans>
+      </p>
+
+      <div className="flex justify-between">
+        <div className="flex items-center justify-start gap-3 text-sm flex-wrap">
+          <span className="text-subText">
+            <Trans>Market Rate</Trans>
+          </span>
+          {loading ? (
+            <Skeleton className="w-20 h-5" />
+          ) : (
+            <div className="flex gap-1">
+              <span>1</span>
+              <TokenSymbol symbol={baseToken.symbol} maxWidth={100} />
+              <span>=</span>
+              <span>{formatDisplayNumber(marketPrice, { significantDigits: 8 })}</span>
+
+              <TokenSymbol symbol={quoteToken.symbol} maxWidth={100} />
+            </div>
+          )}
+        </div>
+
+        <div
+          className="flex items-center justify-center rounded-full bg-[#ffffff14] w-6 h-6"
+          onClick={toggleRevertPrice}
+        >
+          <RevertPriceIcon className="cursor-pointer" role="button" />
+        </div>
+      </div>
+
+      {!loading && (token0Price === 0 || token1Price === 0) ? (
+        <div className="text-xs rounded-2xl px-3 py-2 text-warning bg-warning-200">
+          <Trans>Zapping with {invalidTokens.join(', ')} is not supported</Trans>
+        </div>
+      ) : null}
+
+      <div className="flex items-center gap-3 px-4 py-2 border border-stroke rounded-md">
+        <input
+          className="flex-1 min-w-0 bg-transparent text-base text-text outline-none placeholder:text-subText"
+          value={inputValue}
+          onChange={handleInputChange}
+          onBlur={persistPrice}
+          inputMode="decimal"
+          autoComplete="off"
+          autoCorrect="off"
+          spellCheck="false"
+          type="text"
+          pattern="^[0-9]*[.,]?[0-9]*$"
+          placeholder="0.0"
+        />
+        <button
+          type="button"
+          className="ks-secondary-btn h-6 py-0 px-3 text-xs min-w-fit"
+          onClick={handleUseMarketRate}
+          disabled={!marketPrice || isPoolPriceAtMarket}
+        >
+          <Trans>Use Market Rate</Trans>
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default PriceControl;
