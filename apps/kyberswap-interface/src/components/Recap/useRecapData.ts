@@ -7,7 +7,7 @@ export default function useRecapData() {
   const data = useMemo(
     () => ({
       totalVolume: 80530000000,
-      totalUser: 2500000,
+      totalUsers: 2500000,
       tradingVolume: 26865,
       txCount: 1786,
       top: 20,

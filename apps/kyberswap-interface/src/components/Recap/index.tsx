@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { ArrowRight, X } from 'react-feather'
 
 import Modal from 'components/Modal'
+import RecapJourney from 'components/Recap/RecapJourney'
 import {
   BackgroundOverlay,
   CloseButton,
@@ -23,19 +24,23 @@ import { ApplicationModal } from 'state/application/types'
 import getShortenAddress from 'utils/getShortenAddress'
 
 const STORAGE_KEY = 'closed2025Recap'
+const NICKNAME_STORAGE_KEY = 'recapNickname'
+const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000
 
 export default function RecapSection() {
   const theme = useTheme()
   const { account } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
 
-  useRecapData()
+  const { data } = useRecapData()
 
   const isOpen = useModalOpen(ApplicationModal.RECAP)
   const closeRecapModal = useCloseModal(ApplicationModal.RECAP)
   const openRecapModal = useOpenModal(ApplicationModal.RECAP)
   const [nickname, setNickname] = useState('')
+  const [showJourney, setShowJourney] = useState(false)
   const hasCheckedStorageRef = useRef(false)
+  const hasLoadedNicknameRef = useRef(false)
 
   useEffect(() => {
     if (!hasCheckedStorageRef.current) {
@@ -46,6 +51,46 @@ export default function RecapSection() {
       hasCheckedStorageRef.current = true
     }
   }, [isOpen, openRecapModal])
+
+  // Load nickname from localStorage with expiry
+  useEffect(() => {
+    if (hasLoadedNicknameRef.current) return
+    const raw = localStorage.getItem(NICKNAME_STORAGE_KEY)
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw) as { value?: string; expiresAt?: number }
+        if (parsed?.value && parsed?.expiresAt && parsed.expiresAt > Date.now()) {
+          setNickname(parsed.value)
+        } else {
+          localStorage.removeItem(NICKNAME_STORAGE_KEY)
+        }
+      } catch {
+        localStorage.removeItem(NICKNAME_STORAGE_KEY)
+      }
+    }
+    hasLoadedNicknameRef.current = true
+  }, [])
+
+  // Persist nickname with 30-day expiry
+  useEffect(() => {
+    if (!hasLoadedNicknameRef.current) return
+    if (nickname) {
+      const payload = {
+        value: nickname,
+        expiresAt: Date.now() + THIRTY_DAYS_MS,
+      }
+      localStorage.setItem(NICKNAME_STORAGE_KEY, JSON.stringify(payload))
+    } else {
+      localStorage.removeItem(NICKNAME_STORAGE_KEY)
+    }
+  }, [nickname])
+
+  // Reset journey when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      setShowJourney(false)
+    }
+  }, [isOpen])
 
   const handleClose = () => {
     closeRecapModal()
@@ -59,8 +104,7 @@ export default function RecapSection() {
       toggleWalletModal()
       return
     }
-    // TODO: Implement navigation to journey page
-    console.log('View journey with nickname:', nickname || account)
+    setShowJourney(true)
   }
 
   const defaultAddress = account ? getShortenAddress(account) : ''
@@ -71,38 +115,49 @@ export default function RecapSection() {
       isOpen={isOpen}
       mobileFullWidth
       onDismiss={handleClose}
-      maxWidth={480}
-      borderRadius="20px"
-      bgColor={theme.background}
+      maxWidth={showJourney ? 640 : 480}
+      maxHeight={showJourney ? 640 : undefined}
+      width={showJourney ? '640px' : undefined}
+      height={showJourney ? '640px' : undefined}
+      borderRadius={showJourney ? '8px' : '20px'}
     >
-      <ModalContent>
-        <BackgroundOverlay />
-        <CloseButton onClick={handleClose}>
-          <X color={theme.subText} size={20} />
-        </CloseButton>
+      {showJourney ? (
+        <RecapJourney
+          nickname={nickname || defaultAddress}
+          totalVolume={data?.totalVolume || 0}
+          totalUsers={data?.totalUsers || 0}
+          onClose={handleClose}
+        />
+      ) : (
+        <ModalContent>
+          <BackgroundOverlay />
+          <CloseButton onClick={handleClose}>
+            <X color={theme.subText} size={20} />
+          </CloseButton>
 
-        <TitleWrapper>
-          <Title>
-            <Trans>✨ Your 2025 Journey is Ready</Trans>
-          </Title>
-          <Description>A personalized recap of how you moved the markets this year - via Kyberswap.</Description>
-        </TitleWrapper>
+          <TitleWrapper>
+            <Title>
+              <Trans>✨ Your 2025 Journey is Ready</Trans>
+            </Title>
+            <Description>A personalized recap of how you moved the markets this year - via Kyberswap.</Description>
+          </TitleWrapper>
 
-        <InputWrapper>
-          <InputLabel>Enter Nickname (optional)</InputLabel>
-          <StyledInput
-            type="text"
-            placeholder={defaultAddress}
-            value={nickname}
-            onChange={e => setNickname(e.target.value)}
-          />
-        </InputWrapper>
+          <InputWrapper>
+            <InputLabel>Enter Nickname (optional)</InputLabel>
+            <StyledInput
+              type="text"
+              placeholder={defaultAddress}
+              value={nickname}
+              onChange={e => setNickname(e.target.value)}
+            />
+          </InputWrapper>
 
-        <ViewButton onClick={handleViewJourney}>
-          {buttonText}
-          <ArrowRight size={18} />
-        </ViewButton>
-      </ModalContent>
+          <ViewButton onClick={handleViewJourney}>
+            {buttonText}
+            <ArrowRight size={18} />
+          </ViewButton>
+        </ModalContent>
+      )}
     </Modal>
   )
 }
