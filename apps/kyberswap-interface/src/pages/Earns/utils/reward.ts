@@ -210,27 +210,7 @@ export const parseReward = ({
   })
 
   const listNft = Array.from(nftMap.values())
-
-  const filteredNfts = listNft
-    .map(nft => {
-      if (!thresholdValue) return nft
-
-      const tokens = nft.tokens.filter(token => token.claimableUsdValue >= thresholdValue)
-      const egTokens = nft.egTokens.filter(token => token.claimableUsdValue >= thresholdValue)
-      const lmTokens = nft.lmTokens.filter(token => token.claimableUsdValue >= thresholdValue)
-      const claimableUsdValue = tokens.reduce((sum, token) => sum + token.claimableUsdValue, 0)
-      const unclaimedUsdValue = claimableUsdValue + nft.inProgressUsdValue
-
-      return {
-        ...nft,
-        tokens,
-        egTokens,
-        lmTokens,
-        claimableUsdValue,
-        unclaimedUsdValue,
-      }
-    })
-    .filter(nft => nft.claimableUsdValue > 0)
+  const filteredNfts = listNft.filter(nft => nft.claimableUsdValue > (thresholdValue || 0))
 
   // Calculate totals in single pass
   let totalUsdValue = 0
