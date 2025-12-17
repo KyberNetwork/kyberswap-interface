@@ -9,6 +9,7 @@ import fireworkBanner from 'assets/recap/firework-banner.png'
 import recapAnimation from 'assets/recap/recap-animation.mp4'
 import starsBanner2 from 'assets/recap/stars-banner-2.png'
 import starsBanner from 'assets/recap/stars-banner.png'
+import kemLmIcon from 'assets/svg/kyber/kemLm.svg'
 import {
   BackgroundImage,
   BadgeContainer,
@@ -20,15 +21,30 @@ import {
   CapitalHighlight,
   CeraFontFace,
   ContentContainer,
+  FairflowContainer,
+  FairflowEarned,
+  FairflowHighlight,
+  FairflowRewardLabel,
+  FairflowRewardLine,
+  FairflowRewardValue,
+  FairflowSubtext,
+  FairflowTitle,
   FireworkContentWrapper,
   FlowText,
   JourneyContainer,
+  KemLmIcon,
   LabelText,
   LogoContainer,
   LogoImage,
   MarkContainer,
   MarkHighlight,
   MarkText,
+  MevContainer,
+  MevFlowHighlight,
+  MevFlowLine,
+  MevOutsmarted,
+  MevText,
+  MevTextWrapper,
   NavigatedText,
   NavigatedWrapper,
   NicknameText,
@@ -36,6 +52,10 @@ import {
   ProgressBarContainer,
   ProgressSegment,
   ProgressSegmentFill,
+  SmarterBannerBg,
+  SmarterBannerText,
+  SmarterBannerWrapper,
+  SmarterBold,
   StatsContainer,
   StatsText,
   StormText,
@@ -84,6 +104,11 @@ type Scene =
   | 'capital-flow'
   | 'top-chains'
   | 'top-tokens'
+  | 'mev-bots'
+  | 'mev-flow'
+  | 'fairflow-rewards'
+  | 'liquidity-smarter'
+  | 'smarter-finale'
 
 interface TopChain {
   chainId: number
@@ -105,6 +130,7 @@ interface RecapJourneyProps {
   top: number
   topChains: TopChain[]
   topTokens: TopToken[]
+  totalRewards: number
   onClose?: () => void
 }
 
@@ -163,6 +189,7 @@ export default function RecapJourney({
   top,
   topChains,
   topTokens,
+  totalRewards,
 }: RecapJourneyProps) {
   const [scene, setScene] = useState<Scene>('firework-2025')
   const [startTime] = useState<number>(Date.now())
@@ -183,6 +210,11 @@ export default function RecapJourney({
       { scene: 'capital-flow' as Scene, delay: 27000 },
       { scene: 'top-chains' as Scene, delay: 30000 },
       { scene: 'top-tokens' as Scene, delay: 33000 },
+      { scene: 'mev-bots' as Scene, delay: 36000 },
+      { scene: 'mev-flow' as Scene, delay: 39000 },
+      { scene: 'fairflow-rewards' as Scene, delay: 42000 },
+      { scene: 'liquidity-smarter' as Scene, delay: 47000 },
+      { scene: 'smarter-finale' as Scene, delay: 50000 },
     ]
 
     const timers = timeline.map(({ scene: nextScene, delay }) =>
@@ -215,7 +247,12 @@ export default function RecapJourney({
     scene === 'badge' ||
     scene === 'capital-flow' ||
     scene === 'top-chains' ||
-    scene === 'top-tokens'
+    scene === 'top-tokens' ||
+    scene === 'mev-bots' ||
+    scene === 'mev-flow' ||
+    scene === 'fairflow-rewards' ||
+    scene === 'liquidity-smarter'
+  const isSmarterFinaleScene = scene === 'smarter-finale'
   const isMarkScene = scene === 'mark-on-market'
   const isTradingStatsScene = scene === 'trading-stats'
   const isTopPercentScene = scene === 'top-percent'
@@ -223,11 +260,16 @@ export default function RecapJourney({
   const isCapitalFlowScene = scene === 'capital-flow'
   const isTopChainsScene = scene === 'top-chains'
   const isTopTokensScene = scene === 'top-tokens'
+  const isMevBotsScene = scene === 'mev-bots'
+  const isMevFlowScene = scene === 'mev-flow'
+  const isFairflowRewardsScene = scene === 'fairflow-rewards'
+  const isLiquiditySmarterScene = scene === 'liquidity-smarter'
 
-  // Calculate current part (1, 2, or 3) and progress based on elapsed time
+  // Calculate current part (1, 2, 3, or 4) and progress based on elapsed time
   const PART1_DURATION = 17000 // 17 seconds (from start to mark-on-market)
   const PART2_DURATION = 10000 // 10 seconds (from mark-on-market to capital-flow)
-  const PART3_DURATION = 9000 // 9 seconds (from capital-flow to end)
+  const PART3_DURATION = 9000 // 9 seconds (from capital-flow to mev-bots)
+  const PART4_DURATION = 17000 // 17 seconds (from mev-bots to end)
 
   const part1Scenes: Scene[] = [
     'firework-2025',
@@ -239,13 +281,24 @@ export default function RecapJourney({
     'stars-stats',
   ]
   const part2Scenes: Scene[] = ['mark-on-market', 'trading-stats', 'top-percent', 'badge']
-  const currentPart = part1Scenes.includes(scene) ? 1 : part2Scenes.includes(scene) ? 2 : 3
+  const part3Scenes: Scene[] = ['capital-flow', 'top-chains', 'top-tokens']
+  const currentPart = part1Scenes.includes(scene)
+    ? 1
+    : part2Scenes.includes(scene)
+    ? 2
+    : part3Scenes.includes(scene)
+    ? 3
+    : 4
 
   const part1Progress = Math.min(elapsedTime / PART1_DURATION, 1)
   const part2Progress = elapsedTime > PART1_DURATION ? Math.min((elapsedTime - PART1_DURATION) / PART2_DURATION, 1) : 0
   const part3Progress =
     elapsedTime > PART1_DURATION + PART2_DURATION
       ? Math.min((elapsedTime - PART1_DURATION - PART2_DURATION) / PART3_DURATION, 1)
+      : 0
+  const part4Progress =
+    elapsedTime > PART1_DURATION + PART2_DURATION + PART3_DURATION
+      ? Math.min((elapsedTime - PART1_DURATION - PART2_DURATION - PART3_DURATION) / PART4_DURATION, 1)
       : 0
 
   return (
@@ -302,14 +355,14 @@ export default function RecapJourney({
           <LogoImage src={'/logo-dark.svg'} alt="logo" />
         </LogoContainer>
 
-        {(isVideoScene || isStarsScene) && (
+        {(isVideoScene || isStarsScene || isSmarterFinaleScene) && (
           <YearTag>
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: 'easeOut' }}
             >
-              <YearTagBanner>2025</YearTagBanner>
+              <YearTagBanner $isFinale={isSmarterFinaleScene}>2025</YearTagBanner>
             </motion.div>
           </YearTag>
         )}
@@ -631,7 +684,127 @@ export default function RecapJourney({
               </TopListItems>
             </TopListContainer>
           )}
+
+          {/* Part 4 Scene 1 & 2: MEV Bots + Flow */}
+          {(isMevBotsScene || isMevFlowScene) && (
+            <MevContainer
+              key="mev-combined"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8, ease: 'easeInOut' }}
+            >
+              <MevTextWrapper animate={{ y: isMevFlowScene ? -40 : 0 }} transition={{ duration: 0.6, ease: 'easeOut' }}>
+                <MevText
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, ease: 'easeOut' }}
+                >
+                  While others
+                </MevText>
+                <MevText
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3, duration: 0.8, ease: 'easeOut' }}
+                >
+                  fought MEV bots...
+                </MevText>
+              </MevTextWrapper>
+              <MevFlowLine
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: isMevFlowScene ? 1 : 0, y: isMevFlowScene ? 0 : 30 }}
+                transition={{ duration: 0.8, ease: 'easeOut' }}
+                style={{ visibility: isMevFlowScene ? 'visible' : 'hidden' }}
+              >
+                you <MevOutsmarted>outsmarted</MevOutsmarted> the <MevFlowHighlight>FLOW</MevFlowHighlight>
+              </MevFlowLine>
+            </MevContainer>
+          )}
+
+          {/* Part 4 Scene 3 & 4: FairFlow Rewards + Smarter Banner */}
+          {(isFairflowRewardsScene || isLiquiditySmarterScene) && (
+            <FairflowContainer
+              key="fairflow-combined"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8, ease: 'easeInOut' }}
+            >
+              <FairflowTitle
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, ease: 'easeOut' }}
+              >
+                Your <FairflowHighlight>FairFlow</FairflowHighlight> positions
+              </FairflowTitle>
+              <FairflowEarned
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.8, ease: 'easeOut' }}
+              >
+                earned
+              </FairflowEarned>
+              <FairflowRewardLine
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.6, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <KemLmIcon src={kemLmIcon} alt="reward" />
+                <FairflowRewardValue>${totalRewards.toLocaleString()}</FairflowRewardValue>
+                <FairflowRewardLabel>in Rewards</FairflowRewardLabel>
+              </FairflowRewardLine>
+              <FairflowSubtext
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.9, duration: 0.8, ease: 'easeOut' }}
+              >
+                Equilibrium Gain + Liquidity Mining
+              </FairflowSubtext>
+            </FairflowContainer>
+          )}
         </ContentContainer>
+
+        {/* Smarter Banner with expanding background */}
+        {(isLiquiditySmarterScene || isSmarterFinaleScene) && (
+          <SmarterBannerWrapper>
+            <SmarterBannerBg
+              initial={{
+                width: 'auto',
+                height: 'auto',
+                bottom: 40,
+                left: '50%',
+                x: '-50%',
+                borderRadius: 8,
+              }}
+              animate={
+                isSmarterFinaleScene
+                  ? {
+                      width: '100%',
+                      height: '100%',
+                      bottom: 0,
+                      left: '50%',
+                      x: '-50%',
+                      borderRadius: 0,
+                    }
+                  : {
+                      width: 'auto',
+                      height: 'auto',
+                      bottom: 40,
+                      left: '50%',
+                      x: '-50%',
+                      borderRadius: 8,
+                    }
+              }
+              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <SmarterBannerText
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1, scale: isSmarterFinaleScene ? 1.3 : 1 }}
+                transition={{ duration: 0.8, ease: isSmarterFinaleScene ? 'easeOut' : undefined }}
+              >
+                That&apos;s your liquidity working <SmarterBold>smarter</SmarterBold>
+              </SmarterBannerText>
+            </SmarterBannerBg>
+          </SmarterBannerWrapper>
+        )}
 
         {/* Progress Bar */}
         <ProgressBarContainer>
@@ -644,6 +817,9 @@ export default function RecapJourney({
             </ProgressSegment>
             <ProgressSegment $isActive={part3Progress > 0}>
               <ProgressSegmentFill $isActive={part3Progress > 0} style={{ width: `${part3Progress * 100}%` }} />
+            </ProgressSegment>
+            <ProgressSegment $isActive={part4Progress > 0}>
+              <ProgressSegmentFill $isActive={part4Progress > 0} style={{ width: `${part4Progress * 100}%` }} />
             </ProgressSegment>
           </ProgressBar>
         </ProgressBarContainer>

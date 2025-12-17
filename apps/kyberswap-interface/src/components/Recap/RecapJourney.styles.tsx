@@ -158,7 +158,7 @@ export const LogoContainer = styled.div`
   position: absolute;
   top: 24px;
   left: 24px;
-  z-index: 10;
+  z-index: 20;
   gap: 8px;
 
   @media screen and (max-width: 768px) {
@@ -176,15 +176,15 @@ export const YearTag = styled.div`
   position: absolute;
   top: 0;
   right: 32px;
-  z-index: 10;
+  z-index: 20;
 
   @media screen and (max-width: 768px) {
     right: 16px;
   }
 `
 
-export const YearTagBanner = styled.div`
-  background: ${({ theme }) => rgba(theme.primary, 0.2)};
+export const YearTagBanner = styled.div<{ $isFinale?: boolean }>`
+  background: ${({ theme, $isFinale }) => rgba(theme.primary, $isFinale ? 0.4 : 0.2)};
   padding: 30px 10px 32px;
   color: ${({ theme }) => theme.primary};
   font-family: 'Antonio', sans-serif;
@@ -194,6 +194,7 @@ export const YearTagBanner = styled.div`
   position: relative;
   clip-path: polygon(0 0, 100% 0, 100% 100%, 50% calc(100% - 20px), 0 100%);
   -webkit-clip-path: polygon(0 0, 100% 0, 100% 100%, 50% calc(100% - 20px), 0 100%);
+  transition: background 0.5s ease;
 
   @media screen and (max-width: 768px) {
     padding: 8px 14px 12px;
@@ -765,4 +766,198 @@ export const TopListName = styled.div`
   @media screen and (max-width: 768px) {
     font-size: 18px;
   }
+`
+
+// Part 4: MEV Bots
+export const MevContainer = styled(motion.div)`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+`
+
+export const MevText = styled(motion.div)`
+  font-size: 36px;
+  font-weight: 600;
+  color: ${({ theme }) => theme.text};
+  line-height: 1.3;
+
+  @media screen and (max-width: 768px) {
+    font-size: 24px;
+  }
+`
+
+export const MevTextWrapper = styled(motion.div)`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+`
+
+export const MevFlowLine = styled(motion.div)`
+  font-size: 32px;
+  font-weight: 400;
+  color: ${({ theme }) => theme.text};
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 24px;
+
+  @media screen and (max-width: 768px) {
+    font-size: 20px;
+    gap: 6px;
+    margin-top: 16px;
+  }
+`
+
+export const MevOutsmarted = styled.span`
+  color: ${({ theme }) => theme.primary};
+  font-weight: 500;
+`
+
+export const MevFlowHighlight = styled.span`
+  font-family: 'Antonio', sans-serif;
+  font-size: 48px;
+  font-weight: 700;
+  color: ${({ theme }) => theme.primary};
+
+  @media screen and (max-width: 768px) {
+    font-size: 32px;
+  }
+`
+
+// Part 4: FairFlow Rewards
+export const FairflowContainer = styled(motion.div)`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+  position: relative;
+  width: 100%;
+  height: 100%;
+`
+
+export const FairflowTitle = styled(motion.div)`
+  font-size: 36px;
+  font-weight: 400;
+  color: ${({ theme }) => theme.text};
+  line-height: 1.3;
+
+  @media screen and (max-width: 768px) {
+    font-size: 24px;
+  }
+`
+
+export const FairflowHighlight = styled.span`
+  color: #ff007a;
+  font-weight: 500;
+`
+
+export const FairflowEarned = styled(motion.div)`
+  font-size: 24px;
+  font-weight: 400;
+  color: ${({ theme }) => theme.text};
+  line-height: 1.3;
+
+  @media screen and (max-width: 768px) {
+    font-size: 18px;
+  }
+`
+
+export const FairflowRewardLine = styled(motion.div)`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 16px 0;
+
+  @media screen and (max-width: 768px) {
+    gap: 8px;
+    margin: 12px 0;
+  }
+`
+
+export const KemLmIcon = styled.img`
+  width: 48px;
+  height: 48px;
+
+  @media screen and (max-width: 768px) {
+    width: 32px;
+    height: 32px;
+  }
+`
+
+export const FairflowRewardValue = styled.span`
+  font-family: 'Antonio', sans-serif;
+  font-size: 56px;
+  font-weight: 700;
+  color: ${({ theme }) => theme.primary};
+
+  @media screen and (max-width: 768px) {
+    font-size: 36px;
+  }
+`
+
+export const FairflowRewardLabel = styled.span`
+  font-size: 32px;
+  font-weight: 400;
+  color: ${({ theme }) => theme.text};
+
+  @media screen and (max-width: 768px) {
+    font-size: 20px;
+  }
+`
+
+export const FairflowSubtext = styled(motion.div)`
+  font-size: 24px;
+  font-weight: 400;
+  font-style: italic;
+  color: ${({ theme }) => theme.text};
+  line-height: 1.3;
+
+  @media screen and (max-width: 768px) {
+    font-size: 16px;
+  }
+`
+
+export const SmarterBannerWrapper = styled(motion.div)`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 10;
+`
+
+export const SmarterBannerBg = styled(motion.div)`
+  position: absolute;
+  background: #09ae7d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+`
+
+export const SmarterBannerText = styled(motion.div)`
+  color: ${({ theme }) => theme.textReverse};
+  font-size: 20px;
+  font-weight: 500;
+  text-align: center;
+  white-space: nowrap;
+  margin: 16px 32px;
+
+  @media screen and (max-width: 768px) {
+    font-size: 14px;
+  }
+`
+
+export const SmarterBold = styled.span`
+  font-weight: 700;
 `
