@@ -961,3 +961,254 @@ export const SmarterBannerText = styled(motion.div)`
 export const SmarterBold = styled.span`
   font-weight: 700;
 `
+
+// Summary Scene (Part 5)
+export const SummaryContainer = styled(motion.div)`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  max-width: 700px;
+  padding: 20px;
+
+  @media screen and (max-width: 768px) {
+    padding: 16px;
+    gap: 12px;
+  }
+`
+
+export const SummaryNickname = styled.div`
+  font-size: 40px;
+  font-weight: 700;
+  color: ${({ theme }) => theme.text};
+  text-align: center;
+  margin-bottom: 8px;
+
+  @media screen and (max-width: 768px) {
+    font-size: 28px;
+  }
+`
+
+export const SummaryMainRow = styled.div`
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 24px;
+  width: 100%;
+  margin-top: 8px;
+
+  @media screen and (max-width: 768px) {
+    gap: 16px;
+  }
+`
+
+export const SummaryBadge = styled.img`
+  width: 200px;
+  height: auto;
+
+  @media screen and (max-width: 768px) {
+    width: 120px;
+  }
+`
+
+export const SummaryStatsColumn = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`
+
+export const SummaryStatsRow = styled.div`
+  display: grid;
+  grid-template-columns: auto auto;
+  grid-template-rows: auto auto auto;
+  gap: 4px 24px;
+
+  @media screen and (max-width: 768px) {
+    gap: 4px 12px;
+  }
+`
+
+export const SummaryVolumeColumn = styled.div`
+  display: contents;
+`
+
+export const SummaryTradesColumn = styled.div`
+  display: contents;
+`
+
+export const SummaryStatItem = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+`
+
+export const SummaryStatLabel = styled.div`
+  font-size: 16px;
+  font-weight: 600;
+  color: ${({ theme }) => theme.text};
+
+  @media screen and (max-width: 768px) {
+    font-size: 14px;
+  }
+`
+
+export const SummaryStatValue = styled.div`
+  font-family: 'Antonio', sans-serif;
+  font-size: 48px;
+  font-weight: 700;
+  color: ${({ theme }) => theme.primary};
+  line-height: 1.1;
+
+  @media screen and (max-width: 768px) {
+    font-size: 32px;
+  }
+`
+
+export const SummaryTradesValue = styled.div`
+  font-family: 'Antonio', sans-serif;
+  font-size: 48px;
+  font-weight: 700;
+  color: ${({ theme }) => theme.primary};
+  line-height: 1.1;
+
+  @media screen and (max-width: 768px) {
+    font-size: 32px;
+  }
+`
+
+export const SummaryTradesItem = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+`
+
+export const SummaryTradesLabel = styled.div`
+  font-size: 16px;
+  font-weight: 600;
+  color: ${({ theme }) => theme.text};
+
+  @media screen and (max-width: 768px) {
+    font-size: 14px;
+  }
+`
+
+export const SummaryTopBadge = styled.div`
+  background: ${({ theme }) => theme.primary};
+  color: ${({ theme }) => theme.textReverse};
+  padding: 8px 24px;
+  border-radius: 20px;
+  font-size: 16px;
+  font-weight: 600;
+  width: fit-content;
+
+  @media screen and (max-width: 768px) {
+    font-size: 14px;
+    padding: 6px 16px;
+  }
+`
+
+export const SummaryFavoritesRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 16px;
+  margin-top: 16px;
+
+  @media screen and (max-width: 768px) {
+    gap: 12px;
+  }
+`
+
+export const SummaryFavoriteItem = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: ${({ theme }) => theme.buttonBlack};
+  border: 1px solid ${({ theme }) => theme.border};
+  border-radius: 12px;
+  padding: 12px 24px;
+  gap: 8px;
+
+  @media screen and (max-width: 768px) {
+    padding: 8px 16px;
+    gap: 6px;
+  }
+`
+
+export const SummaryFavoriteLabel = styled.div`
+  font-size: 12px;
+  color: ${({ theme }) => theme.subText};
+`
+
+export const SummaryFavoriteValue = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 16px;
+  font-weight: 600;
+  color: ${({ theme }) => theme.text};
+
+  @media screen and (max-width: 768px) {
+    font-size: 14px;
+  }
+`
+
+export const SummaryFavoriteIcon = styled.img`
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+
+  @media screen and (max-width: 768px) {
+    width: 16px;
+    height: 16px;
+  }
+`
+
+export const SummaryRewardsSection = styled.div`
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+  gap: 12px;
+  margin-top: 16px;
+`
+
+export const SummaryRewardsValue = styled.div`
+  font-family: 'Antonio', sans-serif;
+  font-size: 48px;
+  font-weight: 700;
+  color: ${({ theme }) => theme.primary};
+  line-height: 1.1;
+
+  @media screen and (max-width: 768px) {
+    font-size: 36px;
+  }
+`
+
+export const SummaryRewardsLabel = styled.div`
+  font-size: 20px;
+  font-weight: 600;
+  color: ${({ theme }) => theme.text};
+
+  @media screen and (max-width: 768px) {
+    font-size: 16px;
+  }
+`
+
+export const SummaryFooter = styled.div`
+  position: absolute;
+  bottom: 24px;
+  left: 24px;
+  font-size: 14px;
+  color: ${({ theme }) => theme.text};
+
+  @media screen and (max-width: 768px) {
+    bottom: 16px;
+    left: 16px;
+    font-size: 12px;
+  }
+`
+
+export const SummaryFooterLink = styled.span`
+  color: ${({ theme }) => theme.primary};
+`
