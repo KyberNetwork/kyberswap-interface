@@ -198,7 +198,7 @@ function RecapJourney({
         )}
 
         {/* Controls */}
-        <ControlsContainer>
+        <ControlsContainer className="controls-container">
           <ControlButton onClick={goToPrevPart} aria-label="Previous part">
             <SkipBack />
           </ControlButton>

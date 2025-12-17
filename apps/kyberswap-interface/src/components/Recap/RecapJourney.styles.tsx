@@ -120,6 +120,10 @@ export const JourneyContainer = styled.div`
   overflow: hidden;
   background: #0f0f0f;
   font-family: 'Cera', sans-serif;
+
+  &:hover .controls-container {
+    opacity: 1;
+  }
 `
 
 export const BackgroundImage = styled.div<{ src: string }>`
@@ -605,6 +609,8 @@ export const ControlsContainer = styled.div`
   align-items: center;
   gap: 8px;
   z-index: 100;
+  opacity: 0;
+  transition: opacity 0.3s ease;
 
   @media screen and (max-width: 768px) {
     bottom: 16px;
