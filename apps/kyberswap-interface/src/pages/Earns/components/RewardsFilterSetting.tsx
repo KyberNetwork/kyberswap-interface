@@ -20,6 +20,15 @@ const DropdownIcon = styled.div`
   }
 `
 
+const Expandable = styled(Flex)<{ height: number; isOpen: boolean }>`
+  flex-direction: column;
+  gap: 12px;
+  padding-top: ${({ isOpen }) => (isOpen ? '12px' : '0')};
+  overflow: hidden;
+  height: ${({ height, isOpen }) => (isOpen ? `${height}px` : '0')};
+  transition: height 0.2s ease-in-out, padding 0.2s ease-in-out;
+`
+
 type Props = {
   thresholdValue?: number
   statusValue?: PositionStatus
@@ -33,6 +42,7 @@ export const RewardsFilterSetting = ({ thresholdValue, statusValue, onThresholdC
   const [statusExpanded, setStatusExpanded] = useState(false)
 
   const thresholdDisplayValue = formatThresholdValue(thresholdValue)
+  const isExpanded = statusExpanded || thresholdExpanded
 
   return (
     <Flex sx={{ flexDirection: 'column' }}>
@@ -80,16 +90,7 @@ export const RewardsFilterSetting = ({ thresholdValue, statusValue, onThresholdC
         </Flex>
       </Flex>
 
-      <Flex
-        sx={{
-          transition: 'all 100ms linear',
-          marginTop: statusExpanded || thresholdExpanded ? '12px' : '0px',
-          height: statusExpanded || thresholdExpanded ? 'max-content' : '0px',
-          overflow: 'hidden',
-          flexDirection: 'column',
-          gap: '12px',
-        }}
-      >
+      <Expandable height={statusExpanded ? 48 : thresholdExpanded ? 88 : 0} isOpen={isExpanded}>
         {statusExpanded && <PositionStatusControl value={statusValue} onChange={onStatusChange} />}
         {thresholdExpanded && (
           <>
@@ -102,7 +103,7 @@ export const RewardsFilterSetting = ({ thresholdValue, statusValue, onThresholdC
             <ClaimThresholdControl value={thresholdValue} onChange={onThresholdChange} />
           </>
         )}
-      </Flex>
+      </Expandable>
     </Flex>
   )
 }

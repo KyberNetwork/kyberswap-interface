@@ -1,5 +1,6 @@
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useState } from 'react'
+import { ChevronDown } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
@@ -11,7 +12,15 @@ import TokenLogo from 'components/TokenLogo'
 import { useWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import { ChainDetailInfo, ChainRewardItem, CustomRadio } from 'pages/Earns/components/ClaimAllModal/styles'
+import { TokenRewardRow } from 'pages/Earns/components/ClaimAllModal/TokenRewardRow'
+import {
+  ChainRewardItem,
+  ChainRewardTitle,
+  ChainRewardTokens,
+  CustomRadio,
+  FilteredChainTitle,
+  FilteredChainTokens,
+} from 'pages/Earns/components/ClaimAllModal/styles'
 import { ClaimInfoWrapper, ModalHeader, Wrapper, X } from 'pages/Earns/components/ClaimModal/styles'
 import { PositionStatus } from 'pages/Earns/components/PositionStatusControl'
 import { RewardsFilterSetting } from 'pages/Earns/components/RewardsFilterSetting'
@@ -48,6 +57,7 @@ export default function ClaimAllModal({
   const [autoClaim, setAutoClaim] = useState(false)
   const [selectedChainId, setSelectedChainId] = useState<number | null>(null)
   const [statusValue, setStatusValue] = useState<PositionStatus>('all')
+  const [selectedChainExpanded, setSelectedChainExpanded] = useState(false)
 
   const selectedRewardChain = selectedChainId
     ? filteredRewardInfo.chains.find(c => c.chainId === selectedChainId)
@@ -66,7 +76,9 @@ export default function ClaimAllModal({
   }, [chainId, changeNetwork, library, onClaimAll, selectedChainId])
 
   const handleSelectChain = (chainId: number) => {
-    if (chainId !== selectedChainId) setSelectedChainId(chainId)
+    if (chainId !== selectedChainId) {
+      setSelectedChainId(chainId)
+    }
   }
 
   useEffect(() => {
@@ -113,14 +125,7 @@ export default function ClaimAllModal({
 
                   return (
                     <ChainRewardItem key={chain.chainId} isSelected={isSelected}>
-                      <Flex
-                        alignItems="center"
-                        justifyContent="space-between"
-                        style={{ cursor: 'pointer' }}
-                        paddingTop={12}
-                        paddingBottom={12}
-                        onClick={() => handleSelectChain(chain.chainId)}
-                      >
+                      <ChainRewardTitle onClick={() => handleSelectChain(chain.chainId)}>
                         <Flex alignItems="center" sx={{ gap: 2 }}>
                           <CustomRadio
                             type="radio"
@@ -134,35 +139,19 @@ export default function ClaimAllModal({
                         <Text fontSize={upToExtraSmall ? 16 : 18}>
                           {formatDisplayNumber(chain.claimableUsdValue, { significantDigits: 4, style: 'currency' })}
                         </Text>
-                      </Flex>
-                      <ChainDetailInfo isOpen={isSelected}>
+                      </ChainRewardTitle>
+                      <ChainRewardTokens isOpen={isSelected}>
                         {chain.tokens
                           .sort((a, b) => b.claimableUsdValue - a.claimableUsdValue)
                           .map(token => (
-                            <Flex key={token.address} alignItems={'center'} justifyContent={'space-between'}>
-                              <Flex alignItems={'center'} sx={{ gap: 1 }}>
-                                <TokenLogo src={token.logo} size={16} alt={token.symbol} />
-                                <TokenLogo
-                                  src={chain.chainLogo}
-                                  size={10}
-                                  alt={chain.chainName}
-                                  translateLeft
-                                  style={{ position: 'relative', top: 4, border: `1px solid ${theme.black}` }}
-                                />
-                                <Text marginLeft={1}>
-                                  {formatDisplayNumber(token.claimableAmount, { significantDigits: 4 })}
-                                </Text>
-                                <Text>{token.symbol}</Text>
-                              </Flex>
-                              <Text color={theme.subText}>
-                                {formatDisplayNumber(token.claimableUsdValue, {
-                                  significantDigits: 4,
-                                  style: 'currency',
-                                })}
-                              </Text>
-                            </Flex>
+                            <TokenRewardRow
+                              key={token.address}
+                              token={token}
+                              chainLogo={chain.chainLogo}
+                              chainName={chain.chainName}
+                            />
                           ))}
-                      </ChainDetailInfo>
+                      </ChainRewardTokens>
                     </ChainRewardItem>
                   )
                 })}
@@ -176,19 +165,42 @@ export default function ClaimAllModal({
             onStatusChange={setStatusValue}
           />
 
-          {selectedRewardChain ? (
-            <Flex flexWrap={'wrap'} color={theme.subText} alignItems={'center'} sx={{ gap: 1 }}>
-              <Text>{t`You are currently claiming`}</Text>
-              <Text color={theme.text}>
-                {formatDisplayNumber(selectedRewardChain.claimableUsdValue, {
-                  significantDigits: 4,
-                  style: 'currency',
-                })}
-              </Text>
-              <Text>{t`on`}</Text>
-              <Text>{selectedRewardChain.chainName}</Text>
+          {!!selectedRewardChain && (
+            <Flex flexDirection="column">
+              <FilteredChainTitle onClick={() => setSelectedChainExpanded(expanded => !expanded)}>
+                <Text>{t`You are currently claiming`}</Text>
+                <Text color={theme.text}>
+                  {formatDisplayNumber(selectedRewardChain.claimableUsdValue, {
+                    significantDigits: 4,
+                    style: 'currency',
+                  })}
+                </Text>
+                <Text>{t`on`}</Text>
+                <Text>{selectedRewardChain.chainName}</Text>
+                <ChevronDown
+                  size={16}
+                  color={theme.subText}
+                  style={{
+                    transform: selectedChainExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                    transition: 'transform 0.2s ease',
+                  }}
+                />
+              </FilteredChainTitle>
+
+              <FilteredChainTokens isOpen={selectedChainExpanded}>
+                {selectedRewardChain.tokens
+                  .sort((a, b) => b.claimableUsdValue - a.claimableUsdValue)
+                  .map(token => (
+                    <TokenRewardRow
+                      key={token.address}
+                      token={token}
+                      chainLogo={selectedRewardChain.chainLogo}
+                      chainName={selectedRewardChain.chainName}
+                    />
+                  ))}
+              </FilteredChainTokens>
             </Flex>
-          ) : null}
+          )}
         </ClaimInfoWrapper>
 
         <Row gap="16px" flexDirection={upToExtraSmall ? 'column-reverse' : 'row'}>
