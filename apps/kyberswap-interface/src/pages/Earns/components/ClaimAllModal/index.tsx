@@ -205,7 +205,7 @@ export default function ClaimAllModal({
 
         <Row gap="16px" flexDirection={upToExtraSmall ? 'column-reverse' : 'row'}>
           <ButtonOutlined onClick={onClose}>{t`Cancel`}</ButtonOutlined>
-          <ButtonPrimary gap="4px" disabled={claiming || !selectedRewardChain} onClick={handleClaim}>
+          <ButtonPrimary gap="4px" disabled={claiming || !selectedRewardChain?.claimableUsdValue} onClick={handleClaim}>
             {claiming && <Loader stroke={'#505050'} />}
             {claiming ? t`Claiming` : t`Claim`}
           </ButtonPrimary>
