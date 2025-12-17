@@ -597,6 +597,52 @@ export const BadgeImage = styled.img`
 `
 
 // Progress Bar
+export const PauseButton = styled.button`
+  position: absolute;
+  bottom: 14px;
+  left: 18px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: ${({ theme }) => rgba(theme.black, 0.5)};
+  border: 1px solid ${({ theme }) => rgba(theme.white, 0.2)};
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
+
+  &:hover {
+    background: ${({ theme }) => rgba(theme.black, 0.7)};
+    border-color: ${({ theme }) => rgba(theme.white, 0.4)};
+    transform: scale(1.05);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  svg {
+    width: 14px;
+    height: 14px;
+    color: ${({ theme }) => theme.white};
+  }
+
+  @media screen and (max-width: 768px) {
+    width: 32px;
+    height: 32px;
+    bottom: 16px;
+    left: 16px;
+
+    svg {
+      width: 12px;
+      height: 12px;
+    }
+  }
+`
+
 export const ProgressBarContainer = styled.div`
   position: absolute;
   top: 24px;
