@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { memo, useMemo } from 'react'
+import { Pause, Play } from 'react-feather'
 
 import fireworkBanner from 'assets/recap/firework-banner.png'
 import recapAnimation from 'assets/recap/recap-animation.mp4'
@@ -12,6 +13,7 @@ import {
   JourneyContainer,
   LogoContainer,
   LogoImage,
+  PauseButton,
   ProgressBar,
   ProgressBarContainer,
   ProgressSegment,
@@ -50,7 +52,7 @@ function RecapJourney({
   topTokens,
   totalRewards,
 }: RecapJourneyProps) {
-  const { scene, currentPart, partProgress, sceneFlags } = useRecapTimeline()
+  const { scene, currentPart, partProgress, sceneFlags, isPaused, togglePause } = useRecapTimeline()
 
   const {
     isFireworkScene,
@@ -192,6 +194,11 @@ function RecapJourney({
         {(isLiquiditySmarterScene || isSmarterFinaleScene) && (
           <SmarterBannerScene isSmarterFinaleScene={isSmarterFinaleScene} />
         )}
+
+        {/* Pause/Play Button */}
+        <PauseButton onClick={togglePause} aria-label={isPaused ? 'Play' : 'Pause'}>
+          {isPaused ? <Play /> : <Pause />}
+        </PauseButton>
 
         {/* Progress Bar */}
         <ProgressBarContainer>

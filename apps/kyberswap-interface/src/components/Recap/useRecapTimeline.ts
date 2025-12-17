@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { PART_DURATIONS, PART_SCENES, Scene, TIMELINE } from 'components/Recap/types'
 
@@ -31,54 +31,93 @@ interface UseRecapTimelineReturn {
     isFairflowRewardsScene: boolean
     isLiquiditySmarterScene: boolean
   }
+  isPaused: boolean
+  togglePause: () => void
 }
 
 export default function useRecapTimeline(): UseRecapTimelineReturn {
   const [scene, setScene] = useState<Scene>('firework-2025')
-  const startTimeRef = useRef<number>(Date.now())
   const [elapsedTime, setElapsedTime] = useState<number>(0)
+  const [isPaused, setIsPaused] = useState(false)
+
+  // Refs for tracking time
+  const elapsedTimeRef = useRef<number>(0)
+  const pausedAtElapsedRef = useRef<number>(0)
+  const lastUpdateTimeRef = useRef<number>(Date.now())
+  const timersRef = useRef<NodeJS.Timeout[]>([])
+
+  // Keep elapsedTimeRef in sync
+  useEffect(() => {
+    elapsedTimeRef.current = elapsedTime
+  }, [elapsedTime])
+
+  const togglePause = useCallback(() => {
+    setIsPaused(prev => {
+      if (!prev) {
+        // Pausing - save current elapsed time
+        pausedAtElapsedRef.current = elapsedTimeRef.current
+        // Clear all pending timers
+        timersRef.current.forEach(timer => clearTimeout(timer))
+        timersRef.current = []
+      } else {
+        // Resuming - reset last update time to now
+        lastUpdateTimeRef.current = Date.now()
+
+        // Reschedule remaining timeline events based on saved elapsed time
+        const savedElapsed = pausedAtElapsedRef.current
+        TIMELINE.forEach(({ scene: nextScene, delay }) => {
+          const remainingDelay = delay - savedElapsed
+          if (remainingDelay > 0) {
+            const timer = setTimeout(() => {
+              setScene(nextScene)
+            }, remainingDelay)
+            timersRef.current.push(timer)
+          }
+        })
+      }
+      return !prev
+    })
+  }, [])
 
   // Setup timeline transitions
   useEffect(() => {
-    const timers = TIMELINE.map(({ scene: nextScene, delay }) =>
+    timersRef.current = TIMELINE.map(({ scene: nextScene, delay }) =>
       setTimeout(() => {
         setScene(nextScene)
       }, delay),
     )
 
     return () => {
-      timers.forEach(timer => clearTimeout(timer))
+      timersRef.current.forEach(timer => clearTimeout(timer))
     }
   }, [])
 
-  // Update elapsed time with requestAnimationFrame for better performance
+  // Update elapsed time
   useEffect(() => {
+    if (isPaused) return
+
     let animationFrameId: number
 
     const updateTime = () => {
-      setElapsedTime(Date.now() - startTimeRef.current)
+      const now = Date.now()
+      const delta = now - lastUpdateTimeRef.current
+      lastUpdateTimeRef.current = now
+
+      setElapsedTime(prev => prev + delta)
       animationFrameId = requestAnimationFrame(updateTime)
     }
 
-    // Start with a slower interval initially, then switch to RAF
-    const initialInterval = setInterval(() => {
-      setElapsedTime(Date.now() - startTimeRef.current)
-    }, 100)
+    // Initialize lastUpdateTimeRef when starting/resuming
+    lastUpdateTimeRef.current = Date.now()
 
-    // After 500ms, switch to RAF for smoother animation
-    const rafTimeout = setTimeout(() => {
-      clearInterval(initialInterval)
-      animationFrameId = requestAnimationFrame(updateTime)
-    }, 500)
+    animationFrameId = requestAnimationFrame(updateTime)
 
     return () => {
-      clearInterval(initialInterval)
-      clearTimeout(rafTimeout)
       if (animationFrameId) {
         cancelAnimationFrame(animationFrameId)
       }
     }
-  }, [])
+  }, [isPaused])
 
   // Memoize current part calculation
   const currentPart = useMemo((): 1 | 2 | 3 | 4 | 5 => {
@@ -145,5 +184,7 @@ export default function useRecapTimeline(): UseRecapTimelineReturn {
     currentPart,
     partProgress,
     sceneFlags,
+    isPaused,
+    togglePause,
   }
 }
