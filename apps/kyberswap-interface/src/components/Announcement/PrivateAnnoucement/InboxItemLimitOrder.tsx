@@ -152,7 +152,7 @@ function InboxItemLimitOrder({
 
   const detailItems: { label: string; value?: string }[] = []
   if ((isFilled || isPartialFilled || isCancelled || status === LimitOrderStatus.EXPIRED) && finalFill) {
-    detailItems.push({ label: t`Final fill:`, value: `${finalFill} (${filledPercentLabel})` })
+    detailItems.push({ label: t`Final fill:`, value: `${finalFill} ${filledPercent ? `(${filledPercentLabel})` : ''}` })
   }
   if (isInsufficient && makerAssetSymbol) {
     if (requiredMakingAmount) {
@@ -165,7 +165,7 @@ function InboxItemLimitOrder({
   if (priceText) {
     detailItems.push({ label: t`Price:`, value: priceText })
   }
-  if (createdAtLabel) {
+  if (createdAtLabel && status !== LimitOrderStatus.CANCELLED) {
     detailItems.push({ label: t`Created time:`, value: createdAtLabel })
   }
 
