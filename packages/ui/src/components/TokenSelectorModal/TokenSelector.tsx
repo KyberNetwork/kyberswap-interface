@@ -48,6 +48,8 @@ interface TokenSelectorProps extends TokenModalProps {
   setTokenToImport: (token: Token) => void;
 }
 
+const normalizeSpecialCharacters = (value: string) => value.replace(/₮/g, 'T');
+
 export default function TokenSelector({
   tokensIn,
   amountsIn,
@@ -144,14 +146,17 @@ export default function TokenSelector({
   );
 
   const filteredTokens = useMemo(() => {
-    const search = searchTerm.toLowerCase().trim();
+    const search = normalizeSpecialCharacters(searchTerm).toLowerCase().trim();
 
-    return listTokens.filter(
-      (item: CustomizeToken) =>
-        item.name?.toLowerCase().includes(search) ||
-        item.symbol?.toLowerCase().includes(search) ||
-        item.address?.toLowerCase().includes(search),
-    );
+    return listTokens.filter((item: CustomizeToken) => {
+      const normalizeName = normalizeSpecialCharacters(item.name || '').toLowerCase();
+      const normalizeSymbol = normalizeSpecialCharacters(item.symbol || '').toLowerCase();
+      return (
+        normalizeName.includes(search) ||
+        normalizeSymbol.includes(search) ||
+        item.address?.toLowerCase().includes(search)
+      );
+    });
   }, [listTokens, searchTerm]);
 
   const handleClickToken = (newToken: CustomizeToken) => {
