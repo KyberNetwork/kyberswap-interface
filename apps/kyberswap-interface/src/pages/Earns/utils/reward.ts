@@ -210,7 +210,9 @@ export const parseReward = ({
   })
 
   const listNft = Array.from(nftMap.values())
-  const filteredNfts = listNft.filter(nft => nft.claimableUsdValue > (thresholdValue || 0))
+  const filteredNfts = listNft.filter(nft =>
+    typeof thresholdValue === 'number' ? nft.claimableUsdValue > thresholdValue : true,
+  )
 
   // Calculate totals in single pass
   let totalUsdValue = 0
