@@ -1,214 +1,45 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { useEffect, useState } from 'react'
-import { Flex } from 'rebass'
+import { memo, useMemo } from 'react'
 
-import badgeDiamond from 'assets/recap/badge-diamond.png'
-import badgeMover from 'assets/recap/badge-mover.png'
-import badgeWhale from 'assets/recap/badge-whale.png'
 import fireworkBanner from 'assets/recap/firework-banner.png'
 import recapAnimation from 'assets/recap/recap-animation.mp4'
 import starsBanner2 from 'assets/recap/stars-banner-2.png'
 import starsBanner from 'assets/recap/stars-banner.png'
-import kemLmIcon from 'assets/svg/kyber/kemLm.svg'
 import {
   BackgroundImage,
-  BadgeContainer,
-  BadgeImage,
-  ButText,
-  ButYouWrapper,
-  CapitalFlowContainer,
-  CapitalFlowText,
-  CapitalHighlight,
   CeraFontFace,
   ContentContainer,
-  FairflowContainer,
-  FairflowEarned,
-  FairflowHighlight,
-  FairflowRewardLabel,
-  FairflowRewardLine,
-  FairflowRewardValue,
-  FairflowSubtext,
-  FairflowTitle,
-  FireworkContentWrapper,
-  FlowText,
   JourneyContainer,
-  KemLmIcon,
-  LabelText,
   LogoContainer,
   LogoImage,
-  MarkContainer,
-  MarkHighlight,
-  MarkText,
-  MevContainer,
-  MevFlowHighlight,
-  MevFlowLine,
-  MevOutsmarted,
-  MevText,
-  MevTextWrapper,
-  NavigatedText,
-  NavigatedWrapper,
-  NicknameHeader,
-  NicknameText,
   ProgressBar,
   ProgressBarContainer,
   ProgressSegment,
   ProgressSegmentFill,
-  SmarterBannerBg,
-  SmarterBannerText,
-  SmarterBannerWrapper,
-  SmarterBold,
-  StatsContainer,
-  StatsText,
-  StormText,
-  SummaryBadge,
-  SummaryContainer,
-  SummaryFavoriteChainIcon,
-  SummaryFavoriteIcon,
-  SummaryFavoriteIconWrapper,
-  SummaryFavoriteItem,
-  SummaryFavoriteLabel,
-  SummaryFavoriteValue,
-  SummaryFavoritesRow,
-  SummaryFooter,
-  SummaryFooterLink,
-  SummaryMainRow,
-  SummaryNickname,
-  SummaryRewardsLabel,
-  SummaryRewardsSection,
-  SummaryRewardsValue,
-  SummaryStatLabel,
-  SummaryStatValue,
-  SummaryStatsColumn,
-  SummaryStatsRow,
-  SummaryTopBadge,
-  SummaryTradesLabel,
-  SummaryTradesValue,
-  TextLine,
-  TopListChainIcon,
-  TopListContainer,
-  TopListIcon,
-  TopListIconWrapper,
-  TopListItem,
-  TopListItems,
-  TopListName,
-  TopListRank,
-  TopListTitle,
-  TopPercentContainer,
-  TopPercentText,
-  TopPercentValue,
-  TradingStatLabel,
-  TradingStatLabel2,
-  TradingStatLine,
-  TradingStatLine2,
-  TradingStatValue,
-  TradingStatValue2,
-  TradingStatsContainer,
-  UsersText,
   VideoBackground,
   VideoOverlay,
-  VideoTextWrapper,
-  VolumeText,
-  Year2025,
-  YearOfFlow,
   YearTag,
   YearTagBanner,
-  YouText,
 } from 'components/Recap/RecapJourney.styles'
+import {
+  CapitalFlowScene,
+  FairflowScene,
+  FireworkScene,
+  MarkScene,
+  MevScene,
+  SmarterBannerScene,
+  StatsScene,
+  SummaryScene,
+  TopChainsScene,
+  TopPercentBadgeScene,
+  TopTokensScene,
+  TradingStatsScene,
+  VideoScene,
+} from 'components/Recap/scenes'
+import { RecapJourneyProps } from 'components/Recap/types'
+import useRecapTimeline from 'components/Recap/useRecapTimeline'
 
-type Scene =
-  | 'firework-2025'
-  | 'year-of-flow'
-  | 'video-chaotic'
-  | 'video-you'
-  | 'video-nickname'
-  | 'video-navigated'
-  | 'stars-stats'
-  | 'mark-on-market'
-  | 'trading-stats'
-  | 'top-percent'
-  | 'badge'
-  | 'capital-flow'
-  | 'top-chains'
-  | 'top-tokens'
-  | 'mev-bots'
-  | 'mev-flow'
-  | 'fairflow-rewards'
-  | 'liquidity-smarter'
-  | 'smarter-finale'
-  | 'summary'
-
-interface TopChain {
-  chainId: number
-  name: string
-  icon: string
-}
-
-interface TopToken {
-  symbol: string
-  logo: string
-  chainLogo: string
-}
-
-interface RecapJourneyProps {
-  nickname: string
-  totalVolume: number
-  totalUsers: number
-  tradingVolume: number
-  txCount: number
-  top: number
-  topChains: TopChain[]
-  topTokens: TopToken[]
-  totalRewards: number
-  onClose?: () => void
-}
-
-const formatVolume = (volume: number): string => {
-  if (volume >= 1e9) {
-    return `$${(volume / 1e9).toFixed(2)}B`
-  }
-  if (volume >= 1e6) {
-    return `$${(volume / 1e6).toFixed(2)}M`
-  }
-  if (volume >= 1e3) {
-    return `$${(volume / 1e3).toFixed(2)}K`
-  }
-  return `$${volume.toFixed(2)}`
-}
-
-const formatUsers = (users: number): string => {
-  if (users >= 1e6) {
-    return `${(users / 1e6).toFixed(1)}M`
-  }
-  if (users >= 1e3) {
-    return `${(users / 1e3).toFixed(1)}K`
-  }
-  return users.toString()
-}
-
-const formatTradingVolume = (volume: number): string => {
-  if (volume >= 1e9) {
-    return `$${(volume / 1e9).toFixed(2)}B`
-  }
-  if (volume >= 1e6) {
-    return `$${(volume / 1e6).toFixed(2)}M`
-  }
-  if (volume >= 1e3) {
-    return `$${(volume / 1e3).toFixed(2)}K`
-  }
-  return `$${volume.toLocaleString()}`
-}
-
-const getBadgeImage = (top: number): string => {
-  if (top >= 1 && top <= 5) {
-    return badgeWhale
-  }
-  if (top >= 6 && top <= 20) {
-    return badgeDiamond
-  }
-  return badgeMover
-}
-
-export default function RecapJourney({
+function RecapJourney({
   nickname,
   totalVolume,
   totalUsers,
@@ -219,124 +50,29 @@ export default function RecapJourney({
   topTokens,
   totalRewards,
 }: RecapJourneyProps) {
-  const [scene, setScene] = useState<Scene>('firework-2025')
-  const [startTime] = useState<number>(Date.now())
-  const [elapsedTime, setElapsedTime] = useState<number>(0)
+  const { scene, currentPart, partProgress, sceneFlags } = useRecapTimeline()
 
-  useEffect(() => {
-    const timeline = [
-      { scene: 'year-of-flow' as Scene, delay: 1500 },
-      { scene: 'video-chaotic' as Scene, delay: 4000 },
-      { scene: 'video-you' as Scene, delay: 5500 },
-      { scene: 'video-nickname' as Scene, delay: 6000 },
-      { scene: 'video-navigated' as Scene, delay: 7500 },
-      { scene: 'stars-stats' as Scene, delay: 10500 },
-      { scene: 'mark-on-market' as Scene, delay: 17000 },
-      { scene: 'trading-stats' as Scene, delay: 19000 },
-      { scene: 'top-percent' as Scene, delay: 22000 },
-      { scene: 'badge' as Scene, delay: 24000 },
-      { scene: 'capital-flow' as Scene, delay: 27000 },
-      { scene: 'top-chains' as Scene, delay: 30000 },
-      { scene: 'top-tokens' as Scene, delay: 33000 },
-      { scene: 'mev-bots' as Scene, delay: 36000 },
-      { scene: 'mev-flow' as Scene, delay: 39000 },
-      { scene: 'fairflow-rewards' as Scene, delay: 42000 },
-      { scene: 'liquidity-smarter' as Scene, delay: 47000 },
-      { scene: 'smarter-finale' as Scene, delay: 50000 },
-      { scene: 'summary' as Scene, delay: 53000 },
-    ]
+  const {
+    isFireworkScene,
+    isVideoScene,
+    isStarsScene,
+    isSmarterFinaleScene,
+    isSummaryScene,
+    isMarkScene,
+    isTradingStatsScene,
+    isTopPercentScene,
+    isBadgeScene,
+    isCapitalFlowScene,
+    isTopChainsScene,
+    isTopTokensScene,
+    isMevBotsScene,
+    isMevFlowScene,
+    isFairflowRewardsScene,
+    isLiquiditySmarterScene,
+  } = sceneFlags
 
-    const timers = timeline.map(({ scene: nextScene, delay }) =>
-      setTimeout(() => {
-        setScene(nextScene)
-      }, delay),
-    )
-
-    return () => {
-      timers.forEach(timer => clearTimeout(timer))
-    }
-  }, [])
-
-  // Update elapsed time continuously for smooth progress
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setElapsedTime(Date.now() - startTime)
-    }, 50) // Update every 50ms for smooth animation
-
-    return () => clearInterval(interval)
-  }, [startTime])
-
-  const isFireworkScene = scene === 'firework-2025' || scene === 'year-of-flow'
-  const isVideoScene = scene.startsWith('video-')
-  const isStarsScene =
-    scene === 'stars-stats' ||
-    scene === 'mark-on-market' ||
-    scene === 'trading-stats' ||
-    scene === 'top-percent' ||
-    scene === 'badge' ||
-    scene === 'capital-flow' ||
-    scene === 'top-chains' ||
-    scene === 'top-tokens' ||
-    scene === 'mev-bots' ||
-    scene === 'mev-flow' ||
-    scene === 'fairflow-rewards' ||
-    scene === 'liquidity-smarter' ||
-    scene === 'summary'
-  const isSmarterFinaleScene = scene === 'smarter-finale'
-  const isSummaryScene = scene === 'summary'
-  const isMarkScene = scene === 'mark-on-market'
-  const isTradingStatsScene = scene === 'trading-stats'
-  const isTopPercentScene = scene === 'top-percent'
-  const isBadgeScene = scene === 'badge'
-  const isCapitalFlowScene = scene === 'capital-flow'
-  const isTopChainsScene = scene === 'top-chains'
-  const isTopTokensScene = scene === 'top-tokens'
-  const isMevBotsScene = scene === 'mev-bots'
-  const isMevFlowScene = scene === 'mev-flow'
-  const isFairflowRewardsScene = scene === 'fairflow-rewards'
-  const isLiquiditySmarterScene = scene === 'liquidity-smarter'
-
-  // Calculate current part (1, 2, 3, 4, or 5) and progress based on elapsed time
-  const PART1_DURATION = 17000 // 17 seconds (from start to mark-on-market)
-  const PART2_DURATION = 10000 // 10 seconds (from mark-on-market to capital-flow)
-  const PART3_DURATION = 9000 // 9 seconds (from capital-flow to mev-bots)
-  const PART4_DURATION = 14000 // 14 seconds (from mev-bots to summary)
-  const PART5_DURATION = 10000 // 10 seconds (summary)
-
-  const part1Scenes: Scene[] = [
-    'firework-2025',
-    'year-of-flow',
-    'video-chaotic',
-    'video-you',
-    'video-nickname',
-    'video-navigated',
-    'stars-stats',
-  ]
-  const part2Scenes: Scene[] = ['mark-on-market', 'trading-stats', 'top-percent', 'badge']
-  const part3Scenes: Scene[] = ['capital-flow', 'top-chains', 'top-tokens']
-  const part4Scenes: Scene[] = ['mev-bots', 'mev-flow', 'fairflow-rewards', 'liquidity-smarter', 'smarter-finale']
-  const currentPart = part1Scenes.includes(scene)
-    ? 1
-    : part2Scenes.includes(scene)
-    ? 2
-    : part3Scenes.includes(scene)
-    ? 3
-    : part4Scenes.includes(scene)
-    ? 4
-    : 5
-
-  const part1Progress = Math.min(elapsedTime / PART1_DURATION, 1)
-  const part2Progress = elapsedTime > PART1_DURATION ? Math.min((elapsedTime - PART1_DURATION) / PART2_DURATION, 1) : 0
-  const part3Progress =
-    elapsedTime > PART1_DURATION + PART2_DURATION
-      ? Math.min((elapsedTime - PART1_DURATION - PART2_DURATION) / PART3_DURATION, 1)
-      : 0
-  const part4Progress =
-    elapsedTime > PART1_DURATION + PART2_DURATION + PART3_DURATION
-      ? Math.min((elapsedTime - PART1_DURATION - PART2_DURATION - PART3_DURATION) / PART4_DURATION, 1)
-      : 0
-  const part5Start = PART1_DURATION + PART2_DURATION + PART3_DURATION + PART4_DURATION
-  const part5Progress = elapsedTime > part5Start ? Math.min((elapsedTime - part5Start) / PART5_DURATION, 1) : 0
+  // Memoize background image source
+  const starsBackgroundSrc = useMemo(() => (currentPart === 1 ? starsBanner : starsBanner2), [currentPart])
 
   return (
     <>
@@ -383,7 +119,7 @@ export default function RecapJourney({
               exit={{ opacity: 0 }}
               transition={{ duration: 0.8, ease: 'easeInOut' }}
             >
-              <BackgroundImage src={currentPart === 1 ? starsBanner : starsBanner2} />
+              <BackgroundImage src={starsBackgroundSrc} />
             </motion.div>
           )}
         </AnimatePresence>
@@ -406,566 +142,89 @@ export default function RecapJourney({
 
         <ContentContainer>
           {/* Firework scenes */}
-          {(scene === 'firework-2025' || scene === 'year-of-flow') && (
-            <FireworkContentWrapper>
-              <Year2025
-                key="2025"
-                initial={{ opacity: 0, scale: 0.5 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.6, duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
-              >
-                2025
-              </Year2025>
-              <YearOfFlow
-                key="year-of-flow"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{
-                  opacity: scene === 'year-of-flow' ? 1 : 0,
-                  y: scene === 'year-of-flow' ? 0 : 20,
-                }}
-                transition={{ delay: 0.5, duration: 0.8, ease: 'easeOut' }}
-                style={{ visibility: scene === 'year-of-flow' ? 'visible' : 'hidden' }}
-              >
-                Year of the <FlowText>FLOW</FlowText>
-              </YearOfFlow>
-            </FireworkContentWrapper>
-          )}
+          {(scene === 'firework-2025' || scene === 'year-of-flow') && <FireworkScene scene={scene} />}
 
           {/* Video scenes */}
-          {isVideoScene && (
-            <VideoTextWrapper>
-              <TextLine
-                key="chaotic"
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, ease: 'easeOut' }}
-              >
-                The market was chaotic
-              </TextLine>
-              <ButYouWrapper
-                key="you-line"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{
-                  opacity: scene === 'video-you' || scene === 'video-nickname' || scene === 'video-navigated' ? 1 : 0,
-                  y: scene === 'video-you' || scene === 'video-nickname' || scene === 'video-navigated' ? 0 : 20,
-                }}
-                transition={{ delay: 0.3, duration: 0.7, ease: 'easeOut' }}
-                style={{
-                  visibility:
-                    scene === 'video-you' || scene === 'video-nickname' || scene === 'video-navigated'
-                      ? 'visible'
-                      : 'hidden',
-                }}
-              >
-                <ButText>But</ButText>
-                <YouText>YOU</YouText>
-              </ButYouWrapper>
-              <NicknameText
-                key="nickname"
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{
-                  opacity: scene === 'video-nickname' || scene === 'video-navigated' ? 1 : 0,
-                  scale: scene === 'video-nickname' || scene === 'video-navigated' ? 1 : 0.8,
-                }}
-                transition={{ delay: 0.5, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                style={{
-                  visibility: scene === 'video-nickname' || scene === 'video-navigated' ? 'visible' : 'hidden',
-                }}
-              >
-                {nickname || 'Anonymous'}
-              </NicknameText>
-              <NavigatedWrapper
-                key="navigated"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{
-                  opacity: scene === 'video-navigated' ? 1 : 0,
-                  y: scene === 'video-navigated' ? 0 : 20,
-                }}
-                transition={{ delay: 0.6, duration: 0.7, ease: 'easeOut' }}
-                style={{ visibility: scene === 'video-navigated' ? 'visible' : 'hidden' }}
-              >
-                <NavigatedText>NAVIGATED</NavigatedText>
-                <StormText> the storm</StormText>
-              </NavigatedWrapper>
-            </VideoTextWrapper>
-          )}
+          {isVideoScene && <VideoScene scene={scene} nickname={nickname} />}
 
           {/* Stars scene */}
-          {scene === 'stars-stats' && (
-            <StatsContainer
-              key="stats"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.8, ease: 'easeInOut' }}
-            >
-              <StatsText
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, ease: 'easeOut' }}
-              >
-                You helped power KyberSwap to
-              </StatsText>
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1.6, duration: 0.7, ease: 'easeOut' }}
-              >
-                <VolumeText>{formatVolume(totalVolume)}</VolumeText>
-                <LabelText>volume</LabelText>
-              </motion.div>
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 2.8, duration: 0.7, ease: 'easeOut' }}
-              >
-                <LabelText>&</LabelText>
-                <UsersText>{formatUsers(totalUsers)}</UsersText>
-                <LabelText>users</LabelText>
-              </motion.div>
-            </StatsContainer>
-          )}
+          {scene === 'stars-stats' && <StatsScene totalVolume={totalVolume} totalUsers={totalUsers} />}
 
           {/* Scene 2: You made the MARK */}
-          {isMarkScene && (
-            <MarkContainer
-              key="mark"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.8, ease: 'easeInOut' }}
-            >
-              <MarkText
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, ease: 'easeOut' }}
-              >
-                You made your <MarkHighlight>MARK</MarkHighlight> on the market
-              </MarkText>
-            </MarkContainer>
-          )}
+          {isMarkScene && <MarkScene />}
 
           {/* Scene 3: Trading stats */}
-          {isTradingStatsScene && (
-            <TradingStatsContainer
-              key="trading-stats"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.8, ease: 'easeInOut' }}
-            >
-              <TradingStatLine
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, ease: 'easeOut' }}
-              >
-                <TradingStatLabel>You moved</TradingStatLabel>
-                <TradingStatValue>{formatTradingVolume(tradingVolume)}</TradingStatValue>
-              </TradingStatLine>
-              <TradingStatLine2
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1.2, duration: 0.7, ease: 'easeOut' }}
-              >
-                <Flex alignItems="flex-end" sx={{ gap: '6px' }}>
-                  <TradingStatLabel>Executed</TradingStatLabel>
-                  <TradingStatValue2>{txCount.toLocaleString()}</TradingStatValue2>
-                </Flex>
-                <TradingStatLabel2>specific trades</TradingStatLabel2>
-              </TradingStatLine2>
-            </TradingStatsContainer>
-          )}
+          {isTradingStatsScene && <TradingStatsScene tradingVolume={tradingVolume} txCount={txCount} />}
 
           {/* Scene 4 & 5: Top X% and Badge together */}
-          {(isTopPercentScene || isBadgeScene) && (
-            <motion.div
-              key="top-percent-badge"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.8, ease: 'easeInOut' }}
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignItems: 'center',
-                position: 'relative',
-                marginTop: isBadgeScene ? '-120px' : '0',
-              }}
-            >
-              <TopPercentContainer
-                animate={{
-                  opacity: 1,
-                  y: isBadgeScene ? -60 : 0,
-                }}
-                transition={{
-                  opacity: { duration: 0.8, ease: 'easeOut' },
-                  y: { duration: 0.6, ease: 'easeOut' },
-                }}
-              >
-                <TopPercentText>
-                  In the <TopPercentValue>Top {top}%</TopPercentValue> of KyberSwap Traders
-                </TopPercentText>
-              </TopPercentContainer>
-              <BadgeContainer
-                initial={{ opacity: 0, scale: 0.5, y: 50 }}
-                animate={{
-                  opacity: isBadgeScene ? 1 : 0,
-                  scale: isBadgeScene ? 1 : 0.5,
-                  y: isBadgeScene ? 0 : 50,
-                }}
-                transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                style={{
-                  position: 'absolute',
-                  top: '75%',
-                  pointerEvents: isBadgeScene ? 'auto' : 'none',
-                }}
-              >
-                <BadgeImage src={getBadgeImage(top)} alt="Achievement badge" />
-              </BadgeContainer>
-            </motion.div>
-          )}
+          {(isTopPercentScene || isBadgeScene) && <TopPercentBadgeScene top={top} isBadgeScene={isBadgeScene} />}
 
           {/* Part 3 Scene 1: Capital Flow */}
-          {isCapitalFlowScene && (
-            <CapitalFlowContainer
-              key="capital-flow"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.8, ease: 'easeInOut' }}
-            >
-              <CapitalFlowText
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, ease: 'easeOut' }}
-              >
-                Here&apos;s where your
-              </CapitalFlowText>
-              <CapitalHighlight
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.3, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-              >
-                capital
-              </CapitalHighlight>
-              <CapitalFlowText
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5, duration: 0.8, ease: 'easeOut' }}
-              >
-                truly flowed.
-              </CapitalFlowText>
-            </CapitalFlowContainer>
-          )}
+          {isCapitalFlowScene && <CapitalFlowScene />}
 
           {/* Part 3 Scene 2: Top Chains */}
-          {isTopChainsScene && (
-            <TopListContainer
-              key="top-chains"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.8, ease: 'easeInOut' }}
-            >
-              <NicknameHeader>{nickname}</NicknameHeader>
-              <TopListTitle
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, ease: 'easeOut' }}
-              >
-                Top Networks Traded
-              </TopListTitle>
-              <TopListItems>
-                {topChains.slice(0, 3).map((chain, index) => (
-                  <TopListItem
-                    key={chain.chainId}
-                    initial={{ opacity: 0, x: -30 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.3 + index * 0.2, duration: 0.6, ease: 'easeOut' }}
-                  >
-                    <TopListRank>{index + 1}</TopListRank>
-                    <Flex alignItems="center" sx={{ gap: '8px' }}>
-                      <TopListIcon src={chain.icon} alt={chain.name} />
-                      <TopListName>{chain.name}</TopListName>
-                    </Flex>
-                  </TopListItem>
-                ))}
-              </TopListItems>
-            </TopListContainer>
-          )}
+          {isTopChainsScene && <TopChainsScene nickname={nickname} topChains={topChains} />}
 
           {/* Part 3 Scene 3: Top Tokens */}
-          {isTopTokensScene && (
-            <TopListContainer
-              key="top-tokens"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.8, ease: 'easeInOut' }}
-            >
-              <NicknameHeader>{nickname}</NicknameHeader>
-              <TopListTitle
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, ease: 'easeOut' }}
-              >
-                Top Tokens Traded
-              </TopListTitle>
-              <TopListItems>
-                {topTokens.slice(0, 5).map((token, index) => (
-                  <TopListItem
-                    key={token.symbol}
-                    initial={{ opacity: 0, x: -30 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.3 + index * 0.15, duration: 0.6, ease: 'easeOut' }}
-                  >
-                    <TopListRank>{index + 1}</TopListRank>
-                    <Flex alignItems="center" sx={{ gap: '8px' }}>
-                      <TopListIconWrapper>
-                        <TopListIcon src={token.logo} alt={token.symbol} />
-                        {token.chainLogo && <TopListChainIcon src={token.chainLogo} alt="chain" />}
-                      </TopListIconWrapper>
-                      <TopListName>{token.symbol}</TopListName>
-                    </Flex>
-                  </TopListItem>
-                ))}
-              </TopListItems>
-            </TopListContainer>
-          )}
+          {isTopTokensScene && <TopTokensScene nickname={nickname} topTokens={topTokens} />}
 
           {/* Part 4 Scene 1 & 2: MEV Bots + Flow */}
-          {(isMevBotsScene || isMevFlowScene) && (
-            <MevContainer
-              key="mev-combined"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.8, ease: 'easeInOut' }}
-            >
-              <MevTextWrapper animate={{ y: isMevFlowScene ? -40 : 0 }} transition={{ duration: 0.6, ease: 'easeOut' }}>
-                <MevText
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, ease: 'easeOut' }}
-                >
-                  While others
-                </MevText>
-                <MevText
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3, duration: 0.8, ease: 'easeOut' }}
-                >
-                  fought MEV bots...
-                </MevText>
-              </MevTextWrapper>
-              <MevFlowLine
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: isMevFlowScene ? 1 : 0, y: isMevFlowScene ? 0 : 30 }}
-                transition={{ duration: 0.8, ease: 'easeOut' }}
-                style={{ visibility: isMevFlowScene ? 'visible' : 'hidden' }}
-              >
-                you <MevOutsmarted>outsmarted</MevOutsmarted> the <MevFlowHighlight>FLOW</MevFlowHighlight>
-              </MevFlowLine>
-            </MevContainer>
-          )}
+          {(isMevBotsScene || isMevFlowScene) && <MevScene isMevFlowScene={isMevFlowScene} />}
 
           {/* Part 4 Scene 3 & 4: FairFlow Rewards + Smarter Banner */}
-          {(isFairflowRewardsScene || isLiquiditySmarterScene) && (
-            <FairflowContainer
-              key="fairflow-combined"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.8, ease: 'easeInOut' }}
-            >
-              <FairflowTitle
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, ease: 'easeOut' }}
-              >
-                Your <FairflowHighlight>FairFlow</FairflowHighlight> positions
-              </FairflowTitle>
-              <FairflowEarned
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3, duration: 0.8, ease: 'easeOut' }}
-              >
-                earned
-              </FairflowEarned>
-              <FairflowRewardLine
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.6, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-              >
-                <KemLmIcon src={kemLmIcon} alt="reward" />
-                <FairflowRewardValue>${totalRewards.toLocaleString()}</FairflowRewardValue>
-                <FairflowRewardLabel>in Rewards</FairflowRewardLabel>
-              </FairflowRewardLine>
-              <FairflowSubtext
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.9, duration: 0.8, ease: 'easeOut' }}
-              >
-                Equilibrium Gain + Liquidity Mining
-              </FairflowSubtext>
-            </FairflowContainer>
-          )}
+          {(isFairflowRewardsScene || isLiquiditySmarterScene) && <FairflowScene totalRewards={totalRewards} />}
 
           {/* Summary Scene (Part 5) */}
           {isSummaryScene && (
-            <SummaryContainer
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, ease: 'easeOut' }}
-            >
-              <motion.div
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-              >
-                <SummaryNickname>{nickname}</SummaryNickname>
-              </motion.div>
-
-              <SummaryMainRow>
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.5, delay: 0.4 }}
-                >
-                  <SummaryBadge src={getBadgeImage(top)} alt="Badge" />
-                </motion.div>
-
-                <SummaryStatsColumn>
-                  <motion.div
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.5, delay: 0.6 }}
-                  >
-                    <SummaryStatsRow>
-                      {/* Row 1: Label */}
-                      <SummaryStatLabel>Total Volume</SummaryStatLabel>
-                      <div /> {/* Empty cell */}
-                      {/* Row 2: Values */}
-                      <SummaryStatValue>{formatTradingVolume(tradingVolume)}</SummaryStatValue>
-                      <SummaryTradesValue>{txCount.toLocaleString()}</SummaryTradesValue>
-                      {/* Row 3: Bottom labels */}
-                      <SummaryTopBadge>Top {top}%</SummaryTopBadge>
-                      <SummaryTradesLabel>Trades</SummaryTradesLabel>
-                    </SummaryStatsRow>
-                  </motion.div>
-
-                  <motion.div
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.5, delay: 0.8 }}
-                  >
-                    <SummaryFavoritesRow>
-                      <SummaryFavoriteItem>
-                        <SummaryFavoriteLabel>Favorite Asset</SummaryFavoriteLabel>
-                        <SummaryFavoriteValue>
-                          {topTokens[0] && (
-                            <>
-                              <SummaryFavoriteIconWrapper>
-                                <SummaryFavoriteIcon src={topTokens[0].logo} alt={topTokens[0].symbol} />
-                                <SummaryFavoriteChainIcon src={topTokens[0].chainLogo} alt="chain" />
-                              </SummaryFavoriteIconWrapper>
-                              {topTokens[0].symbol}
-                            </>
-                          )}
-                        </SummaryFavoriteValue>
-                      </SummaryFavoriteItem>
-                      <SummaryFavoriteItem>
-                        <SummaryFavoriteLabel>Favorite Chain</SummaryFavoriteLabel>
-                        <SummaryFavoriteValue>
-                          {topChains[0] && (
-                            <>
-                              <SummaryFavoriteIcon src={topChains[0].icon} alt={topChains[0].name} />
-                              {topChains[0].name}
-                            </>
-                          )}
-                        </SummaryFavoriteValue>
-                      </SummaryFavoriteItem>
-                    </SummaryFavoritesRow>
-                  </motion.div>
-
-                  <motion.div
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.5, delay: 1.0 }}
-                  >
-                    <SummaryRewardsSection>
-                      <SummaryRewardsValue>${totalRewards.toLocaleString()}</SummaryRewardsValue>
-                      <SummaryRewardsLabel>FairFlow Rewards</SummaryRewardsLabel>
-                    </SummaryRewardsSection>
-                  </motion.div>
-                </SummaryStatsColumn>
-              </SummaryMainRow>
-
-              <SummaryFooter
-                as={motion.div}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.5, delay: 1.2 }}
-              >
-                Watch your 2025 Journey 👇 <SummaryFooterLink>kyberswap.com/2025-journey</SummaryFooterLink>
-              </SummaryFooter>
-            </SummaryContainer>
+            <SummaryScene
+              nickname={nickname}
+              tradingVolume={tradingVolume}
+              txCount={txCount}
+              top={top}
+              topChains={topChains}
+              topTokens={topTokens}
+              totalRewards={totalRewards}
+            />
           )}
         </ContentContainer>
 
         {/* Smarter Banner with expanding background */}
         {(isLiquiditySmarterScene || isSmarterFinaleScene) && (
-          <SmarterBannerWrapper>
-            <SmarterBannerBg
-              initial={{
-                width: 'auto',
-                height: 'auto',
-                bottom: 40,
-                left: '50%',
-                x: '-50%',
-                borderRadius: 8,
-              }}
-              animate={
-                isSmarterFinaleScene
-                  ? {
-                      width: '100%',
-                      height: '100%',
-                      bottom: 0,
-                      left: '50%',
-                      x: '-50%',
-                      borderRadius: 0,
-                    }
-                  : {
-                      width: 'auto',
-                      height: 'auto',
-                      bottom: 40,
-                      left: '50%',
-                      x: '-50%',
-                      borderRadius: 8,
-                    }
-              }
-              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            >
-              <SmarterBannerText
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1, scale: isSmarterFinaleScene ? 1.3 : 1 }}
-                transition={{ duration: 0.8, ease: isSmarterFinaleScene ? 'easeOut' : undefined }}
-              >
-                That&apos;s your liquidity working <SmarterBold>smarter</SmarterBold>
-              </SmarterBannerText>
-            </SmarterBannerBg>
-          </SmarterBannerWrapper>
+          <SmarterBannerScene isSmarterFinaleScene={isSmarterFinaleScene} />
         )}
 
         {/* Progress Bar */}
         <ProgressBarContainer>
           <ProgressBar>
-            <ProgressSegment $isActive={part1Progress > 0}>
-              <ProgressSegmentFill $isActive={part1Progress > 0} style={{ width: `${part1Progress * 100}%` }} />
+            <ProgressSegment $isActive={partProgress.part1 > 0}>
+              <ProgressSegmentFill
+                $isActive={partProgress.part1 > 0}
+                style={{ width: `${partProgress.part1 * 100}%` }}
+              />
             </ProgressSegment>
-            <ProgressSegment $isActive={part2Progress > 0}>
-              <ProgressSegmentFill $isActive={part2Progress > 0} style={{ width: `${part2Progress * 100}%` }} />
+            <ProgressSegment $isActive={partProgress.part2 > 0}>
+              <ProgressSegmentFill
+                $isActive={partProgress.part2 > 0}
+                style={{ width: `${partProgress.part2 * 100}%` }}
+              />
             </ProgressSegment>
-            <ProgressSegment $isActive={part3Progress > 0}>
-              <ProgressSegmentFill $isActive={part3Progress > 0} style={{ width: `${part3Progress * 100}%` }} />
+            <ProgressSegment $isActive={partProgress.part3 > 0}>
+              <ProgressSegmentFill
+                $isActive={partProgress.part3 > 0}
+                style={{ width: `${partProgress.part3 * 100}%` }}
+              />
             </ProgressSegment>
-            <ProgressSegment $isActive={part4Progress > 0}>
-              <ProgressSegmentFill $isActive={part4Progress > 0} style={{ width: `${part4Progress * 100}%` }} />
+            <ProgressSegment $isActive={partProgress.part4 > 0}>
+              <ProgressSegmentFill
+                $isActive={partProgress.part4 > 0}
+                style={{ width: `${partProgress.part4 * 100}%` }}
+              />
             </ProgressSegment>
-            <ProgressSegment $isActive={part5Progress > 0}>
-              <ProgressSegmentFill $isActive={part5Progress > 0} style={{ width: `${part5Progress * 100}%` }} />
+            <ProgressSegment $isActive={partProgress.part5 > 0}>
+              <ProgressSegmentFill
+                $isActive={partProgress.part5 > 0}
+                style={{ width: `${partProgress.part5 * 100}%` }}
+              />
             </ProgressSegment>
           </ProgressBar>
         </ProgressBarContainer>
@@ -973,3 +232,5 @@ export default function RecapJourney({
     </>
   )
 }
+
+export default memo(RecapJourney)
