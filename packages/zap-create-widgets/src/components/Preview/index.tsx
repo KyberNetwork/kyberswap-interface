@@ -191,7 +191,6 @@ export default function Preview(props: PreviewProps) {
               <button
                 className="ks-outline-btn flex-1"
                 onClick={() => {
-                  onClose?.();
                   onDismiss();
                 }}
               >
