@@ -210,24 +210,27 @@ export const parseReward = ({
   })
 
   const listNft = Array.from(nftMap.values())
-  const filteredNfts = listNft.map(nft => {
-    if (!thresholdValue) return nft
 
-    const tokens = nft.tokens.filter(token => token.claimableUsdValue >= thresholdValue)
-    const egTokens = nft.egTokens.filter(token => token.claimableUsdValue >= thresholdValue)
-    const lmTokens = nft.lmTokens.filter(token => token.claimableUsdValue >= thresholdValue)
-    const claimableUsdValue = tokens.reduce((sum, token) => sum + token.claimableUsdValue, 0)
-    const unclaimedUsdValue = claimableUsdValue + nft.inProgressUsdValue
+  const filteredNfts = listNft
+    .map(nft => {
+      if (!thresholdValue) return nft
 
-    return {
-      ...nft,
-      tokens,
-      egTokens,
-      lmTokens,
-      claimableUsdValue,
-      unclaimedUsdValue,
-    }
-  })
+      const tokens = nft.tokens.filter(token => token.claimableUsdValue >= thresholdValue)
+      const egTokens = nft.egTokens.filter(token => token.claimableUsdValue >= thresholdValue)
+      const lmTokens = nft.lmTokens.filter(token => token.claimableUsdValue >= thresholdValue)
+      const claimableUsdValue = tokens.reduce((sum, token) => sum + token.claimableUsdValue, 0)
+      const unclaimedUsdValue = claimableUsdValue + nft.inProgressUsdValue
+
+      return {
+        ...nft,
+        tokens,
+        egTokens,
+        lmTokens,
+        claimableUsdValue,
+        unclaimedUsdValue,
+      }
+    })
+    .filter(nft => nft.claimableUsdValue > 0)
 
   // Calculate totals in single pass
   let totalUsdValue = 0
@@ -288,6 +291,19 @@ export const parseReward = ({
 
   // Build chains array
   const chainMap = new Map<number, ChainRewardInfo>()
+  const uniqChainIds = new Set(listNft.map(nft => nft.chainId))
+
+  uniqChainIds.forEach(chainId => {
+    const chain = chainLookup.get(chainId)
+    if (!chain) return
+    chainMap.set(chainId, {
+      chainId,
+      chainName: chain.name,
+      chainLogo: chain.icon,
+      claimableUsdValue: 0,
+      tokens: [],
+    })
+  })
 
   filteredNfts.forEach(nft => {
     const chain = chainLookup.get(nft.chainId)
@@ -321,7 +337,7 @@ export const parseReward = ({
     pendingUsdValue,
     vestingUsdValue,
     waitingUsdValue,
-    nfts: listNft,
+    nfts: filteredNfts,
     chains: Array.from(chainMap.values()),
     egTokens: Array.from(egTokenMap.values()),
     lmTokens: Array.from(lmTokenMap.values()),

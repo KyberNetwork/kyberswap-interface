@@ -37,8 +37,8 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
     isLoading: isLoadingRewardInfo,
   } = useRewardInfoQuery({ owner: account || '' }, { skip: !account, pollingInterval: 15_000 })
 
-  const [batchClaimEncodeData] = useBatchClaimEncodeDataMutation()
   const [claimEncodeData] = useClaimEncodeDataMutation()
+  const [batchClaimEncodeData] = useBatchClaimEncodeDataMutation()
 
   const [tokens, setTokens] = useState<TokenInfo[]>([])
   const [claimInfo, setClaimInfo] = useState<ClaimInfo | null>(null)
