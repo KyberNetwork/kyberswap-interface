@@ -25,7 +25,6 @@ import getShortenAddress from 'utils/getShortenAddress'
 
 const STORAGE_KEY = 'closed2025Recap'
 const NICKNAME_STORAGE_KEY = 'recapNickname'
-const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000
 
 export default function RecapSection() {
   const theme = useTheme()
@@ -60,34 +59,21 @@ export default function RecapSection() {
     }
   }, [isOpen, openRecapModal])
 
-  // Load nickname from localStorage with expiry
+  // Load nickname from localStorage
   useEffect(() => {
     if (hasLoadedNicknameRef.current) return
-    const raw = localStorage.getItem(NICKNAME_STORAGE_KEY)
-    if (raw) {
-      try {
-        const parsed = JSON.parse(raw) as { value?: string; expiresAt?: number }
-        if (parsed?.value && parsed?.expiresAt && parsed.expiresAt > Date.now()) {
-          setNickname(parsed.value)
-        } else {
-          localStorage.removeItem(NICKNAME_STORAGE_KEY)
-        }
-      } catch {
-        localStorage.removeItem(NICKNAME_STORAGE_KEY)
-      }
+    const saved = localStorage.getItem(NICKNAME_STORAGE_KEY)
+    if (saved) {
+      setNickname(saved)
     }
     hasLoadedNicknameRef.current = true
   }, [])
 
-  // Persist nickname with 30-day expiry
+  // Persist nickname
   useEffect(() => {
     if (!hasLoadedNicknameRef.current) return
     if (nickname) {
-      const payload = {
-        value: nickname,
-        expiresAt: Date.now() + THIRTY_DAYS_MS,
-      }
-      localStorage.setItem(NICKNAME_STORAGE_KEY, JSON.stringify(payload))
+      localStorage.setItem(NICKNAME_STORAGE_KEY, nickname)
     } else {
       localStorage.removeItem(NICKNAME_STORAGE_KEY)
     }
