@@ -190,6 +190,7 @@ export const APP_PATHS = {
   EARNS: '/earns',
   EARNS_POOLS: '/earns/pools',
   EARNS_POSITIONS: '/earns/positions',
+  RECAP_2025: '/2025-recap',
 } as const
 
 export const TERM_FILES_PATH = {

@@ -44,9 +44,17 @@ export default function RecapSection() {
 
   useEffect(() => {
     if (!hasCheckedStorageRef.current) {
-      const hasClosedBefore = localStorage.getItem(STORAGE_KEY) === 'true'
-      if (!hasClosedBefore && !isOpen) {
-        openRecapModal()
+      const forceOpen = localStorage.getItem('forceOpenRecap') === 'true'
+      if (forceOpen) {
+        localStorage.removeItem('forceOpenRecap')
+        if (!isOpen) {
+          openRecapModal()
+        }
+      } else {
+        const hasClosedBefore = localStorage.getItem(STORAGE_KEY) === 'true'
+        if (!hasClosedBefore && !isOpen) {
+          openRecapModal()
+        }
       }
       hasCheckedStorageRef.current = true
     }
