@@ -52,6 +52,7 @@ export default function TokenSelector({
   tokensIn,
   amountsIn,
   account,
+  title,
   selectedTokenAddress,
   mode,
   chainId,
@@ -312,7 +313,7 @@ export default function TokenSelector({
     <div className="w-full mx-auto text-white overflow-hidden">
       <div className="space-y-4">
         <div className="flex justify-between items-center p-6 pb-0">
-          <h2 className="text-xl">{i18n._('Select Liquidity Source')}</h2>
+          <h2 className="text-xl">{title || i18n._('Select Liquidity Source')}</h2>
           <div className="text-subText hover:text-white cursor-pointer" onClick={onClose}>
             <X className="h-6 w-6" />
           </div>

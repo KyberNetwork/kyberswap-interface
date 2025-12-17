@@ -1,6 +1,6 @@
 import { ChainId, POOL_CATEGORY, Token as TokenSchema } from '@kyber/schema'
 import { TOKEN_SELECT_MODE, TokenLogo, TokenSelectorModal } from '@kyber/ui'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import Portal from '@reach/portal'
 import { useQuery } from '@tanstack/react-query'
 import { useEffect, useMemo, useState } from 'react'
@@ -368,6 +368,7 @@ const CreatePoolModal = ({ isOpen, filterChainId, onDismiss, onSubmit }: Props) 
             chainId={selectedChainId}
             tokensIn={[]}
             amountsIn=""
+            title={t`Select a token`}
             account={account}
             mode={TOKEN_SELECT_MODE.SELECT}
             selectedTokenAddress={selectedTokenAddress}
