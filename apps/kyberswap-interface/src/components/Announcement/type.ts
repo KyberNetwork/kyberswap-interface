@@ -48,6 +48,7 @@ type LimitOrderAnnouncement = {
   filledPercent: string
   increasedFilledPercent: string
   chainId: string
+  createdAt?: number
   expiredAt?: number
   requiredMakingAmount?: string
   availableMakingAmount?: string

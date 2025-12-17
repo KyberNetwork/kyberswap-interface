@@ -51,6 +51,7 @@ function InboxItemLimitOrder({
     increasedFilledPercent,
     takingAmountRate,
     chainId: rawChainId,
+    createdAt,
     expiredAt,
     requiredMakingAmount,
     availableMakingAmount,
@@ -61,15 +62,10 @@ function InboxItemLimitOrder({
   const isFilled = status === LimitOrderStatus.FILLED
   const isPartialFilled = status === LimitOrderStatus.PARTIALLY_FILLED
   const isCancelled = status === LimitOrderStatus.CANCELLED || status === LimitOrderStatus.CLOSED
-  const isInsufficient = status === 'insufficient_funds'
-  const formatExpiryTime = (value?: number | string) => {
-    if (value === null || value === undefined) return undefined
-    if (typeof value === 'string' && value.includes('{{')) return undefined
-    const numericValue = Number(value)
-    if (Number.isNaN(numericValue)) return undefined
-    const date = numericValue > 1e12 ? dayjs(numericValue) : dayjs.unix(numericValue)
-    return date.isValid() ? date.format('h:mma DD/MM/YYYY') : undefined
-  }
+  const isInsufficient = status === LimitOrderStatus.INSUFFICIENT_FUNDS
+  const filledPercentLabel = (filledPercent || '0%').replace(/(\d+(?:\.\d+)?)(%*)/g, '$1%')
+
+  const createdAtLabel = formatExpiryTime(createdAt)
   const expiredAtLabel = formatExpiryTime(expiredAt)
 
   const statusMeta = (() => {
@@ -81,7 +77,6 @@ function InboxItemLimitOrder({
         message: increasedFilledPercent ? t`Reverted ${increasedFilledPercent}` : t`Order Reverted`,
       }
     }
-    const filledPercentLabel = filledPercent || '0%'
     switch (status) {
       case LimitOrderStatus.FILLED:
         return {
@@ -121,7 +116,7 @@ function InboxItemLimitOrder({
           icon: <XCircle color={theme.subText} size={14} />,
           message: t`Order Cancelled`,
         }
-      case 'insufficient_funds':
+      case LimitOrderStatus.INSUFFICIENT_FUNDS:
         return {
           label: t`Insufficient Funds`,
           color: theme.warning,
@@ -157,7 +152,7 @@ function InboxItemLimitOrder({
 
   const detailItems: { label: string; value?: string }[] = []
   if ((isFilled || isPartialFilled || isCancelled || status === LimitOrderStatus.EXPIRED) && finalFill) {
-    detailItems.push({ label: t`Final fill:`, value: finalFill })
+    detailItems.push({ label: t`Final fill:`, value: `${finalFill} (${filledPercentLabel})` })
   }
   if (isInsufficient && makerAssetSymbol) {
     if (requiredMakingAmount) {
@@ -170,8 +165,8 @@ function InboxItemLimitOrder({
   if (priceText) {
     detailItems.push({ label: t`Price:`, value: priceText })
   }
-  if (status === LimitOrderStatus.EXPIRED && expiredAtLabel) {
-    detailItems.push({ label: t`Expired time:`, value: expiredAtLabel })
+  if (createdAtLabel) {
+    detailItems.push({ label: t`Created time:`, value: createdAtLabel })
   }
 
   return (
@@ -221,9 +216,9 @@ function InboxItemLimitOrder({
       ) : null}
 
       <MetaRow>
-        {expiredAtLabel && status !== LimitOrderStatus.EXPIRED ? (
+        {expiredAtLabel ? (
           <DetailItem style={{ padding: 0 }}>
-            {t`Expire time:`} <DetailValue>{expiredAtLabel}</DetailValue>
+            {t`Expired time:`} <DetailValue>{expiredAtLabel}</DetailValue>
           </DetailItem>
         ) : (
           <span />
@@ -233,4 +228,14 @@ function InboxItemLimitOrder({
     </InboxItemWrapper>
   )
 }
+
 export default InboxItemLimitOrder
+
+const formatExpiryTime = (value?: number | string) => {
+  if (value === null || value === undefined) return undefined
+  if (typeof value === 'string' && value.includes('{{')) return undefined
+  const numericValue = Number(value)
+  if (Number.isNaN(numericValue)) return undefined
+  const date = numericValue > 1e12 ? dayjs(numericValue) : dayjs.unix(numericValue)
+  return date.isValid() ? date.format('h:mma DD/MM/YYYY') : undefined
+}

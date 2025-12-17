@@ -37,7 +37,7 @@ export const getLimitOrderPreview = (
       case LimitOrderStatus.CANCELLED:
       case LimitOrderStatus.CLOSED:
         return 'Order Cancelled'
-      case 'insufficient_funds':
+      case LimitOrderStatus.INSUFFICIENT_FUNDS:
         return 'Insufficient Funds'
       default:
         return 'Order Created'

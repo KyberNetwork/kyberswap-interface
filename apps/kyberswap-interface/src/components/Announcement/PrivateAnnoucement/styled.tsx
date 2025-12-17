@@ -57,7 +57,6 @@ export const InboxItemWrapper = styled.div<{ isRead: boolean }>`
   gap: 8px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   cursor: pointer;
   position: relative;
   ${({ isRead }) =>
@@ -150,7 +149,7 @@ export const AmountItem = styled.div`
 export const DetailList = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 `
 
 export const DetailItem = styled.div`
