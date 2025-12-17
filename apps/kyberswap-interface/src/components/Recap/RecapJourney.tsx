@@ -15,6 +15,9 @@ import {
   BadgeImage,
   ButText,
   ButYouWrapper,
+  CapitalFlowContainer,
+  CapitalFlowText,
+  CapitalHighlight,
   CeraFontFace,
   ContentContainer,
   FireworkContentWrapper,
@@ -37,6 +40,13 @@ import {
   StatsText,
   StormText,
   TextLine,
+  TopListContainer,
+  TopListIcon,
+  TopListItem,
+  TopListItems,
+  TopListName,
+  TopListRank,
+  TopListTitle,
   TopPercentContainer,
   TopPercentText,
   TopPercentValue,
@@ -71,6 +81,20 @@ type Scene =
   | 'trading-stats'
   | 'top-percent'
   | 'badge'
+  | 'capital-flow'
+  | 'top-chains'
+  | 'top-tokens'
+
+interface TopChain {
+  chainId: number
+  name: string
+  icon: string
+}
+
+interface TopToken {
+  symbol: string
+  logo: string
+}
 
 interface RecapJourneyProps {
   nickname: string
@@ -79,6 +103,8 @@ interface RecapJourneyProps {
   tradingVolume: number
   txCount: number
   top: number
+  topChains: TopChain[]
+  topTokens: TopToken[]
   onClose?: () => void
 }
 
@@ -135,6 +161,8 @@ export default function RecapJourney({
   tradingVolume,
   txCount,
   top,
+  topChains,
+  topTokens,
 }: RecapJourneyProps) {
   const [scene, setScene] = useState<Scene>('firework-2025')
   const [startTime] = useState<number>(Date.now())
@@ -152,6 +180,9 @@ export default function RecapJourney({
       { scene: 'trading-stats' as Scene, delay: 19000 },
       { scene: 'top-percent' as Scene, delay: 22000 },
       { scene: 'badge' as Scene, delay: 24000 },
+      { scene: 'capital-flow' as Scene, delay: 27000 },
+      { scene: 'top-chains' as Scene, delay: 30000 },
+      { scene: 'top-tokens' as Scene, delay: 33000 },
     ]
 
     const timers = timeline.map(({ scene: nextScene, delay }) =>
@@ -181,15 +212,22 @@ export default function RecapJourney({
     scene === 'mark-on-market' ||
     scene === 'trading-stats' ||
     scene === 'top-percent' ||
-    scene === 'badge'
+    scene === 'badge' ||
+    scene === 'capital-flow' ||
+    scene === 'top-chains' ||
+    scene === 'top-tokens'
   const isMarkScene = scene === 'mark-on-market'
   const isTradingStatsScene = scene === 'trading-stats'
   const isTopPercentScene = scene === 'top-percent'
   const isBadgeScene = scene === 'badge'
+  const isCapitalFlowScene = scene === 'capital-flow'
+  const isTopChainsScene = scene === 'top-chains'
+  const isTopTokensScene = scene === 'top-tokens'
 
-  // Calculate current part (1 or 2) and progress based on elapsed time
+  // Calculate current part (1, 2, or 3) and progress based on elapsed time
   const PART1_DURATION = 17000 // 17 seconds (from start to mark-on-market)
-  const PART2_DURATION = 6000 // 6 seconds (from mark-on-market to badge)
+  const PART2_DURATION = 10000 // 10 seconds (from mark-on-market to capital-flow)
+  const PART3_DURATION = 9000 // 9 seconds (from capital-flow to end)
 
   const part1Scenes: Scene[] = [
     'firework-2025',
@@ -200,10 +238,15 @@ export default function RecapJourney({
     'video-navigated',
     'stars-stats',
   ]
-  const currentPart = part1Scenes.includes(scene) ? 1 : 2
+  const part2Scenes: Scene[] = ['mark-on-market', 'trading-stats', 'top-percent', 'badge']
+  const currentPart = part1Scenes.includes(scene) ? 1 : part2Scenes.includes(scene) ? 2 : 3
 
   const part1Progress = Math.min(elapsedTime / PART1_DURATION, 1)
   const part2Progress = elapsedTime > PART1_DURATION ? Math.min((elapsedTime - PART1_DURATION) / PART2_DURATION, 1) : 0
+  const part3Progress =
+    elapsedTime > PART1_DURATION + PART2_DURATION
+      ? Math.min((elapsedTime - PART1_DURATION - PART2_DURATION) / PART3_DURATION, 1)
+      : 0
 
   return (
     <>
@@ -488,6 +531,106 @@ export default function RecapJourney({
               </BadgeContainer>
             </motion.div>
           )}
+
+          {/* Part 3 Scene 1: Capital Flow */}
+          {isCapitalFlowScene && (
+            <CapitalFlowContainer
+              key="capital-flow"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8, ease: 'easeInOut' }}
+            >
+              <CapitalFlowText
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, ease: 'easeOut' }}
+              >
+                Here&apos;s where your
+              </CapitalFlowText>
+              <CapitalHighlight
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.3, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+              >
+                capital
+              </CapitalHighlight>
+              <CapitalFlowText
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5, duration: 0.8, ease: 'easeOut' }}
+              >
+                truly flowed.
+              </CapitalFlowText>
+            </CapitalFlowContainer>
+          )}
+
+          {/* Part 3 Scene 2: Top Chains */}
+          {isTopChainsScene && (
+            <TopListContainer
+              key="top-chains"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8, ease: 'easeInOut' }}
+            >
+              <TopListTitle
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, ease: 'easeOut' }}
+              >
+                Top Networks Traded
+              </TopListTitle>
+              <TopListItems>
+                {topChains.slice(0, 3).map((chain, index) => (
+                  <TopListItem
+                    key={chain.chainId}
+                    initial={{ opacity: 0, x: -30 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.3 + index * 0.2, duration: 0.6, ease: 'easeOut' }}
+                  >
+                    <TopListRank>{index + 1}</TopListRank>
+                    <Flex alignItems="center" sx={{ gap: '8px' }}>
+                      <TopListIcon src={chain.icon} alt={chain.name} />
+                      <TopListName>{chain.name}</TopListName>
+                    </Flex>
+                  </TopListItem>
+                ))}
+              </TopListItems>
+            </TopListContainer>
+          )}
+
+          {/* Part 3 Scene 3: Top Tokens */}
+          {isTopTokensScene && (
+            <TopListContainer
+              key="top-tokens"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8, ease: 'easeInOut' }}
+            >
+              <TopListTitle
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, ease: 'easeOut' }}
+              >
+                Top Tokens Traded
+              </TopListTitle>
+              <TopListItems>
+                {topTokens.slice(0, 5).map((token, index) => (
+                  <TopListItem
+                    key={token.symbol}
+                    initial={{ opacity: 0, x: -30 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.3 + index * 0.15, duration: 0.6, ease: 'easeOut' }}
+                  >
+                    <TopListRank>{index + 1}</TopListRank>
+                    <Flex alignItems="center" sx={{ gap: '8px' }}>
+                      <TopListIcon src={token.logo} alt={token.symbol} />
+                      <TopListName>{token.symbol}</TopListName>
+                    </Flex>
+                  </TopListItem>
+                ))}
+              </TopListItems>
+            </TopListContainer>
+          )}
         </ContentContainer>
 
         {/* Progress Bar */}
@@ -498,6 +641,9 @@ export default function RecapJourney({
             </ProgressSegment>
             <ProgressSegment $isActive={part2Progress > 0}>
               <ProgressSegmentFill $isActive={part2Progress > 0} style={{ width: `${part2Progress * 100}%` }} />
+            </ProgressSegment>
+            <ProgressSegment $isActive={part3Progress > 0}>
+              <ProgressSegmentFill $isActive={part3Progress > 0} style={{ width: `${part3Progress * 100}%` }} />
             </ProgressSegment>
           </ProgressBar>
         </ProgressBarContainer>
