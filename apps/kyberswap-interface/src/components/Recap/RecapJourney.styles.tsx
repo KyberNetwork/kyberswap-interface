@@ -658,3 +658,111 @@ export const ProgressLabel = styled.div`
     font-size: 10px;
   }
 `
+
+// Part 3: Capital Flow
+export const CapitalFlowContainer = styled(motion.div)`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+`
+
+export const CapitalFlowText = styled(motion.div)`
+  font-size: 36px;
+  font-weight: 400;
+  color: ${({ theme }) => theme.text};
+  line-height: 1.3;
+
+  @media screen and (max-width: 768px) {
+    font-size: 24px;
+  }
+`
+
+export const CapitalHighlight = styled(motion.div)`
+  font-size: 42px;
+  font-weight: 500;
+  color: ${({ theme }) => theme.primary};
+  line-height: 1.3;
+
+  @media screen and (max-width: 768px) {
+    font-size: 24px;
+  }
+`
+
+// Part 3: Top Lists (Chains & Tokens)
+export const TopListContainer = styled(motion.div)`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+`
+
+export const TopListTitle = styled(motion.div)`
+  font-size: 36px;
+  font-weight: 600;
+  color: ${({ theme }) => theme.text};
+  text-align: center;
+
+  @media screen and (max-width: 768px) {
+    font-size: 24px;
+  }
+`
+
+export const TopListItems = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 320px;
+`
+
+export const TopListItem = styled(motion.div)`
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 0;
+`
+
+export const TopListRank = styled.div`
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: ${({ theme }) => rgba(theme.primary, 0.4)};
+  color: ${({ theme }) => theme.text};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 600;
+  font-family: 'Antonio', sans-serif;
+
+  @media screen and (max-width: 768px) {
+    width: 28px;
+    height: 28px;
+    font-size: 14px;
+  }
+`
+
+export const TopListIcon = styled.img`
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+
+  @media screen and (max-width: 768px) {
+    width: 28px;
+    height: 28px;
+  }
+`
+
+export const TopListName = styled.div`
+  font-size: 24px;
+  font-weight: 600;
+  color: ${({ theme }) => theme.text};
+
+  @media screen and (max-width: 768px) {
+    font-size: 18px;
+  }
+`

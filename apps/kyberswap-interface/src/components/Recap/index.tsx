@@ -129,6 +129,8 @@ export default function RecapSection() {
           tradingVolume={data?.tradingVolume || 0}
           txCount={data?.txCount || 0}
           top={data?.top || 20}
+          topChains={data?.topChains || []}
+          topTokens={data?.topTokens || []}
           onClose={handleClose}
         />
       ) : (
