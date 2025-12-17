@@ -126,6 +126,9 @@ export default function RecapSection() {
           nickname={nickname || defaultAddress}
           totalVolume={data?.totalVolume || 0}
           totalUsers={data?.totalUsers || 0}
+          tradingVolume={data?.tradingVolume || 0}
+          txCount={data?.txCount || 0}
+          top={data?.top || 20}
           onClose={handleClose}
         />
       ) : (

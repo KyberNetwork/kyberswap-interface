@@ -434,3 +434,227 @@ export const LabelText = styled.span`
     margin-left: 4px;
   }
 `
+
+// Scene 2: You made the MARK
+export const MarkContainer = styled(motion.div)`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+`
+
+export const MarkText = styled(motion.div)`
+  font-size: 40px;
+  font-weight: 400;
+  color: ${({ theme }) => theme.text};
+  text-align: center;
+  line-height: 1.15;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  white-space: normal;
+  max-width: 520px;
+
+  @media screen and (max-width: 768px) {
+    font-size: 26px;
+    gap: 6px;
+    max-width: 320px;
+  }
+`
+
+export const MarkHighlight = styled.span`
+  font-size: 52px;
+  font-weight: 500;
+  position: relative;
+  top: 4px;
+  color: ${({ theme }) => theme.primary};
+
+  @media screen and (max-width: 768px) {
+    font-size: 38px;
+  }
+`
+
+// Scene 3: You moved / Executed
+export const TradingStatsContainer = styled(motion.div)`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  min-height: 120px;
+`
+
+export const TradingStatLine = styled(motion.div)`
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  min-height: 48px;
+`
+
+export const TradingStatLine2 = styled(TradingStatLine)`
+  display: flex;
+  align-items: flex-end;
+  flex-direction: column;
+`
+
+export const TradingStatLabel = styled.span`
+  font-size: 36px;
+  font-weight: 400;
+  color: ${({ theme }) => theme.text};
+
+  @media screen and (max-width: 768px) {
+    font-size: 18px;
+  }
+`
+
+export const TradingStatLabel2 = styled(TradingStatLabel)`
+  font-size: 24px;
+
+  @media screen and (max-width: 768px) {
+    font-size: 16px;
+  }
+`
+
+export const TradingStatValue = styled.span`
+  font-size: 48px;
+  font-weight: 700;
+  color: ${({ theme }) => theme.primary};
+  font-family: 'Antonio', sans-serif;
+
+  @media screen and (max-width: 768px) {
+    font-size: 24px;
+  }
+`
+
+export const TradingStatValue2 = styled(TradingStatValue)`
+  color: ${({ theme }) => theme.blue3};
+`
+
+// Scene 4: Top X%
+export const TopPercentContainer = styled(motion.div)`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 60px;
+`
+
+export const TopPercentText = styled(motion.div)`
+  font-size: 36px;
+  font-weight: 400;
+  color: ${({ theme }) => theme.text};
+  text-align: center;
+  line-height: 1.2;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+
+  @media screen and (max-width: 768px) {
+    font-size: 18px;
+  }
+`
+
+export const TopPercentValue = styled.span`
+  font-family: 'Antonio', sans-serif;
+  font-size: 48px;
+  font-weight: 700;
+  color: ${({ theme }) => theme.primary};
+
+  @media screen and (max-width: 768px) {
+    font-size: 24px;
+  }
+`
+
+// Badge
+export const BadgeContainer = styled(motion.div)`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  width: 100%;
+
+  @media screen and (max-width: 768px) {
+    min-height: 120px;
+  }
+`
+
+export const BadgeImage = styled.img`
+  width: 240px;
+  height: auto;
+
+  @media screen and (max-width: 768px) {
+    width: 144px;
+  }
+`
+
+// Progress Bar
+export const ProgressBarContainer = styled.div`
+  position: absolute;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+
+  @media screen and (max-width: 768px) {
+    top: 16px;
+    gap: 6px;
+  }
+`
+
+export const ProgressBar = styled.div`
+  display: flex;
+  gap: 4px;
+  align-items: center;
+
+  @media screen and (max-width: 768px) {
+    gap: 3px;
+  }
+`
+
+export const ProgressSegment = styled.div<{ $isActive: boolean }>`
+  width: 120px;
+  height: 4px;
+  background: ${({ theme }) => theme.tableHeader};
+  border-radius: 2px;
+  position: relative;
+  overflow: hidden;
+
+  @media screen and (max-width: 768px) {
+    width: 80px;
+    height: 3px;
+  }
+`
+
+export const ProgressSegmentFill = styled(motion.div)<{ $isActive: boolean }>`
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: ${({ theme }) => theme.gray};
+  border-radius: 2px;
+  width: ${({ $isActive }) => ($isActive ? '100%' : '0%')};
+`
+
+export const ProgressLabel = styled.div`
+  font-size: 12px;
+  font-weight: 400;
+  color: ${({ theme }) => theme.primary};
+  text-transform: uppercase;
+  letter-spacing: 1px;
+
+  @media screen and (max-width: 768px) {
+    font-size: 10px;
+  }
+`
