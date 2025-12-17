@@ -2,6 +2,15 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { PART_DURATIONS, PART_SCENES, Scene, TIMELINE } from 'components/Recap/types'
 
+// Part start times in ms
+const PART_START_TIMES = {
+  1: 0,
+  2: PART_DURATIONS.PART1,
+  3: PART_DURATIONS.PART1 + PART_DURATIONS.PART2,
+  4: PART_DURATIONS.PART1 + PART_DURATIONS.PART2 + PART_DURATIONS.PART3,
+  5: PART_DURATIONS.PART1 + PART_DURATIONS.PART2 + PART_DURATIONS.PART3 + PART_DURATIONS.PART4,
+} as const
+
 interface UseRecapTimelineReturn {
   scene: Scene
   elapsedTime: number
@@ -33,6 +42,8 @@ interface UseRecapTimelineReturn {
   }
   isPaused: boolean
   togglePause: () => void
+  goToNextPart: () => void
+  goToPrevPart: () => void
 }
 
 export default function useRecapTimeline(): UseRecapTimelineReturn {
@@ -51,6 +62,34 @@ export default function useRecapTimeline(): UseRecapTimelineReturn {
     elapsedTimeRef.current = elapsedTime
   }, [elapsedTime])
 
+  // Helper to reschedule timers from a given elapsed time
+  const rescheduleTimers = useCallback((fromElapsed: number) => {
+    // Clear existing timers
+    timersRef.current.forEach(timer => clearTimeout(timer))
+    timersRef.current = []
+
+    // Find and set the correct scene for current elapsed time
+    let currentScene: Scene = 'firework-2025'
+    for (let i = TIMELINE.length - 1; i >= 0; i--) {
+      if (fromElapsed >= TIMELINE[i].delay) {
+        currentScene = TIMELINE[i].scene
+        break
+      }
+    }
+    setScene(currentScene)
+
+    // Schedule future scenes
+    TIMELINE.forEach(({ scene: nextScene, delay }) => {
+      const remainingDelay = delay - fromElapsed
+      if (remainingDelay > 0) {
+        const timer = setTimeout(() => {
+          setScene(nextScene)
+        }, remainingDelay)
+        timersRef.current.push(timer)
+      }
+    })
+  }, [])
+
   const togglePause = useCallback(() => {
     setIsPaused(prev => {
       if (!prev) {
@@ -62,22 +101,57 @@ export default function useRecapTimeline(): UseRecapTimelineReturn {
       } else {
         // Resuming - reset last update time to now
         lastUpdateTimeRef.current = Date.now()
-
-        // Reschedule remaining timeline events based on saved elapsed time
-        const savedElapsed = pausedAtElapsedRef.current
-        TIMELINE.forEach(({ scene: nextScene, delay }) => {
-          const remainingDelay = delay - savedElapsed
-          if (remainingDelay > 0) {
-            const timer = setTimeout(() => {
-              setScene(nextScene)
-            }, remainingDelay)
-            timersRef.current.push(timer)
-          }
-        })
+        rescheduleTimers(pausedAtElapsedRef.current)
       }
       return !prev
     })
-  }, [])
+  }, [rescheduleTimers])
+
+  const goToNextPart = useCallback(() => {
+    const current = elapsedTimeRef.current
+    let targetTime = current
+
+    // Find next part start time
+    if (current < PART_START_TIMES[2]) {
+      targetTime = PART_START_TIMES[2]
+    } else if (current < PART_START_TIMES[3]) {
+      targetTime = PART_START_TIMES[3]
+    } else if (current < PART_START_TIMES[4]) {
+      targetTime = PART_START_TIMES[4]
+    } else if (current < PART_START_TIMES[5]) {
+      targetTime = PART_START_TIMES[5]
+    }
+
+    if (targetTime !== current) {
+      setElapsedTime(targetTime)
+      elapsedTimeRef.current = targetTime
+      pausedAtElapsedRef.current = targetTime
+      lastUpdateTimeRef.current = Date.now()
+      rescheduleTimers(targetTime)
+    }
+  }, [rescheduleTimers])
+
+  const goToPrevPart = useCallback(() => {
+    const current = elapsedTimeRef.current
+    let targetTime = 0
+
+    // Find previous part start time
+    if (current >= PART_START_TIMES[5]) {
+      targetTime = PART_START_TIMES[4]
+    } else if (current >= PART_START_TIMES[4]) {
+      targetTime = PART_START_TIMES[3]
+    } else if (current >= PART_START_TIMES[3]) {
+      targetTime = PART_START_TIMES[2]
+    } else if (current >= PART_START_TIMES[2]) {
+      targetTime = PART_START_TIMES[1]
+    }
+
+    setElapsedTime(targetTime)
+    elapsedTimeRef.current = targetTime
+    pausedAtElapsedRef.current = targetTime
+    lastUpdateTimeRef.current = Date.now()
+    rescheduleTimers(targetTime)
+  }, [rescheduleTimers])
 
   // Setup timeline transitions
   useEffect(() => {
@@ -186,5 +260,7 @@ export default function useRecapTimeline(): UseRecapTimelineReturn {
     sceneFlags,
     isPaused,
     togglePause,
+    goToNextPart,
+    goToPrevPart,
   }
 }
