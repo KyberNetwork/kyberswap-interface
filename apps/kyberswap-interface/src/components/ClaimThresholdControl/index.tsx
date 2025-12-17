@@ -1,5 +1,5 @@
 import { rgba } from 'polished'
-import React, { useEffect } from 'react'
+import React from 'react'
 import styled, { css } from 'styled-components'
 
 import CustomClaimThresholdInput from './CustomClaimThresholdInput'
@@ -53,15 +53,11 @@ type Props = {
 }
 
 const ClaimThresholdControl: React.FC<Props> = ({ value, onChange, options = DEFAULT_CLAIM_THRESHOLD_OPTIONS }) => {
-  const [isCustom, setIsCustom] = React.useState(false)
+  const [isCustom, setIsCustom] = React.useState(!options.includes(value))
   const [internalValue, setInternalValue] = React.useState(0)
 
   const isControlled = value !== undefined
   const currentValue = isControlled ? value ?? null : internalValue
-
-  useEffect(() => {
-    setIsCustom(false)
-  }, [options])
 
   const handleValueChange = (next: number) => {
     setInternalValue(next)

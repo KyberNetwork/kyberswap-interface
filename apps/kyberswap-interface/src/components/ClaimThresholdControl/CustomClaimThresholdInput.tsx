@@ -101,6 +101,16 @@ const CustomClaimThresholdInput: React.FC<Props> = ({
     setText(formatThresholdValue(value))
   }, [isCustom, maxDecimalDigits, value])
 
+  const handleStep = (delta: number) => {
+    const base = value ?? 0
+    const next = Math.max(0, base + delta)
+    const nextText = next.toString()
+    if (!numberRegex.test(nextText)) return
+
+    setText(formatThresholdValue(next))
+    onChange(next)
+  }
+
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const next = event.target.value.replace(/^\$/, '')
 
@@ -122,6 +132,16 @@ const CustomClaimThresholdInput: React.FC<Props> = ({
         type="text"
         value={text}
         onChange={handleChange}
+        onKeyDown={event => {
+          if (event.key === 'ArrowUp') {
+            event.preventDefault()
+            handleStep(1)
+          }
+          if (event.key === 'ArrowDown') {
+            event.preventDefault()
+            handleStep(-1)
+          }
+        }}
         placeholder={placeholder}
         inputMode="decimal"
         step={1}
