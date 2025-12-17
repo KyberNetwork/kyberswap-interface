@@ -761,6 +761,17 @@ export const TopListRank = styled.div`
   }
 `
 
+export const TopListIconWrapper = styled.div`
+  position: relative;
+  width: 36px;
+  height: 36px;
+
+  @media screen and (max-width: 768px) {
+    width: 28px;
+    height: 28px;
+  }
+`
+
 export const TopListIcon = styled.img`
   width: 36px;
   height: 36px;
@@ -770,6 +781,24 @@ export const TopListIcon = styled.img`
   @media screen and (max-width: 768px) {
     width: 28px;
     height: 28px;
+  }
+`
+
+export const TopListChainIcon = styled.img`
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid ${({ theme }) => theme.background};
+
+  @media screen and (max-width: 768px) {
+    width: 14px;
+    height: 14px;
+    bottom: -3px;
+    right: -3px;
   }
 `
 
@@ -1169,6 +1198,17 @@ export const SummaryFavoriteValue = styled.div`
   }
 `
 
+export const SummaryFavoriteIconWrapper = styled.div`
+  position: relative;
+  width: 20px;
+  height: 20px;
+
+  @media screen and (max-width: 768px) {
+    width: 16px;
+    height: 16px;
+  }
+`
+
 export const SummaryFavoriteIcon = styled.img`
   width: 20px;
   height: 20px;
@@ -1177,6 +1217,23 @@ export const SummaryFavoriteIcon = styled.img`
   @media screen and (max-width: 768px) {
     width: 16px;
     height: 16px;
+  }
+`
+
+export const SummaryFavoriteChainIcon = styled.img`
+  position: absolute;
+  bottom: -3px;
+  right: -3px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1px solid ${({ theme }) => theme.background};
+
+  @media screen and (max-width: 768px) {
+    width: 8px;
+    height: 8px;
+    bottom: -2px;
+    right: -2px;
   }
 `
 

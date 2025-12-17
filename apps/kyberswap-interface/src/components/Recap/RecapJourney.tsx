@@ -62,7 +62,9 @@ import {
   StormText,
   SummaryBadge,
   SummaryContainer,
+  SummaryFavoriteChainIcon,
   SummaryFavoriteIcon,
+  SummaryFavoriteIconWrapper,
   SummaryFavoriteItem,
   SummaryFavoriteLabel,
   SummaryFavoriteValue,
@@ -82,8 +84,10 @@ import {
   SummaryTradesLabel,
   SummaryTradesValue,
   TextLine,
+  TopListChainIcon,
   TopListContainer,
   TopListIcon,
+  TopListIconWrapper,
   TopListItem,
   TopListItems,
   TopListName,
@@ -142,6 +146,7 @@ interface TopChain {
 interface TopToken {
   symbol: string
   logo: string
+  chainLogo: string
 }
 
 interface RecapJourneyProps {
@@ -710,7 +715,10 @@ export default function RecapJourney({
                   >
                     <TopListRank>{index + 1}</TopListRank>
                     <Flex alignItems="center" sx={{ gap: '8px' }}>
-                      <TopListIcon src={token.logo} alt={token.symbol} />
+                      <TopListIconWrapper>
+                        <TopListIcon src={token.logo} alt={token.symbol} />
+                        {token.chainLogo && <TopListChainIcon src={token.chainLogo} alt="chain" />}
+                      </TopListIconWrapper>
                       <TopListName>{token.symbol}</TopListName>
                     </Flex>
                   </TopListItem>
@@ -849,7 +857,10 @@ export default function RecapJourney({
                         <SummaryFavoriteValue>
                           {topTokens[0] && (
                             <>
-                              <SummaryFavoriteIcon src={topTokens[0].logo} alt={topTokens[0].symbol} />
+                              <SummaryFavoriteIconWrapper>
+                                <SummaryFavoriteIcon src={topTokens[0].logo} alt={topTokens[0].symbol} />
+                                <SummaryFavoriteChainIcon src={topTokens[0].chainLogo} alt="chain" />
+                              </SummaryFavoriteIconWrapper>
                               {topTokens[0].symbol}
                             </>
                           )}
