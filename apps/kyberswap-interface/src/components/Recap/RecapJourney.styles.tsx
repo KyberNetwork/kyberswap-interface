@@ -156,7 +156,7 @@ export const VideoOverlay = styled.div`
 
 export const LogoContainer = styled.div`
   position: absolute;
-  top: 24px;
+  top: 30px;
   left: 24px;
   z-index: 20;
   gap: 8px;
@@ -169,7 +169,7 @@ export const LogoContainer = styled.div`
 `
 
 export const LogoImage = styled.img`
-  width: 120px;
+  width: 124px;
 `
 
 export const YearTag = styled.div`
@@ -645,7 +645,7 @@ export const PauseButton = styled.button`
 
 export const ProgressBarContainer = styled.div`
   position: absolute;
-  top: 24px;
+  top: 12px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 10;
@@ -671,7 +671,7 @@ export const ProgressBar = styled.div`
 `
 
 export const ProgressSegment = styled.div<{ $isActive: boolean }>`
-  width: 120px;
+  width: 116px;
   height: 4px;
   background: ${({ theme }) => theme.tableHeader};
   border-radius: 2px;
