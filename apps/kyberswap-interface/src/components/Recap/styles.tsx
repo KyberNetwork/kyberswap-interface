@@ -16,6 +16,9 @@ export const ModalContent = styled(Flex)`
   position: relative;
   overflow: hidden;
   z-index: 1;
+  background: url(${kyberBanner});
+  background-size: cover;
+  background-repeat: no-repeat;
 `
 
 export const BackgroundOverlay = styled.div`
@@ -24,10 +27,7 @@ export const BackgroundOverlay = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(0deg, rgba(0, 0, 0, 0) 66.9%, #0f0f0f 99.98%), url(${kyberBanner}) lightgray 50%;
-  background-size: cover;
-  background-repeat: no-repeat;
-  opacity: 0.3;
+  background: ${({ theme }) => rgba(theme.black, 0.6)};
   z-index: 1;
   pointer-events: none;
 `
