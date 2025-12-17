@@ -178,7 +178,7 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
       owner: account,
       recipient: account,
       chainId,
-      tokenIds: filteredRewardInfo?.nfts.map(nft => nft.nftId),
+      tokenIds: filteredRewardInfo?.nfts.filter(nft => nft.chainId === chainId).map(nft => nft.nftId),
     })
 
     if ('error' in encodeData) {
