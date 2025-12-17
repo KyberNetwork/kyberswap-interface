@@ -131,6 +131,7 @@ export default function RecapSection() {
           top={data?.top || 20}
           topChains={data?.topChains || []}
           topTokens={data?.topTokens || []}
+          totalRewards={data?.totalRewards || 0}
           onClose={handleClose}
         />
       ) : (
