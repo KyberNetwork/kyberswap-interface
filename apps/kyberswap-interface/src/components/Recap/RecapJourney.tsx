@@ -59,6 +59,27 @@ import {
   StatsContainer,
   StatsText,
   StormText,
+  SummaryBadge,
+  SummaryContainer,
+  SummaryFavoriteIcon,
+  SummaryFavoriteItem,
+  SummaryFavoriteLabel,
+  SummaryFavoriteValue,
+  SummaryFavoritesRow,
+  SummaryFooter,
+  SummaryFooterLink,
+  SummaryMainRow,
+  SummaryNickname,
+  SummaryRewardsLabel,
+  SummaryRewardsSection,
+  SummaryRewardsValue,
+  SummaryStatLabel,
+  SummaryStatValue,
+  SummaryStatsColumn,
+  SummaryStatsRow,
+  SummaryTopBadge,
+  SummaryTradesLabel,
+  SummaryTradesValue,
   TextLine,
   TopListContainer,
   TopListIcon,
@@ -109,6 +130,7 @@ type Scene =
   | 'fairflow-rewards'
   | 'liquidity-smarter'
   | 'smarter-finale'
+  | 'summary'
 
 interface TopChain {
   chainId: number
@@ -197,24 +219,26 @@ export default function RecapJourney({
 
   useEffect(() => {
     const timeline = [
-      { scene: 'year-of-flow' as Scene, delay: 1500 },
-      { scene: 'video-chaotic' as Scene, delay: 4000 },
-      { scene: 'video-you' as Scene, delay: 5500 },
-      { scene: 'video-nickname' as Scene, delay: 6000 },
-      { scene: 'video-navigated' as Scene, delay: 7500 },
-      { scene: 'stars-stats' as Scene, delay: 10500 },
-      { scene: 'mark-on-market' as Scene, delay: 17000 },
-      { scene: 'trading-stats' as Scene, delay: 19000 },
-      { scene: 'top-percent' as Scene, delay: 22000 },
-      { scene: 'badge' as Scene, delay: 24000 },
-      { scene: 'capital-flow' as Scene, delay: 27000 },
-      { scene: 'top-chains' as Scene, delay: 30000 },
-      { scene: 'top-tokens' as Scene, delay: 33000 },
-      { scene: 'mev-bots' as Scene, delay: 36000 },
-      { scene: 'mev-flow' as Scene, delay: 39000 },
-      { scene: 'fairflow-rewards' as Scene, delay: 42000 },
-      { scene: 'liquidity-smarter' as Scene, delay: 47000 },
-      { scene: 'smarter-finale' as Scene, delay: 50000 },
+      // { scene: 'year-of-flow' as Scene, delay: 1500 },
+      // { scene: 'video-chaotic' as Scene, delay: 4000 },
+      // { scene: 'video-you' as Scene, delay: 5500 },
+      // { scene: 'video-nickname' as Scene, delay: 6000 },
+      // { scene: 'video-navigated' as Scene, delay: 7500 },
+      // { scene: 'stars-stats' as Scene, delay: 10500 },
+      // { scene: 'mark-on-market' as Scene, delay: 17000 },
+      // { scene: 'trading-stats' as Scene, delay: 19000 },
+      // { scene: 'top-percent' as Scene, delay: 22000 },
+      // { scene: 'badge' as Scene, delay: 24000 },
+      // { scene: 'capital-flow' as Scene, delay: 27000 },
+      // { scene: 'top-chains' as Scene, delay: 30000 },
+      // { scene: 'top-tokens' as Scene, delay: 33000 },
+      // { scene: 'mev-bots' as Scene, delay: 36000 },
+      // { scene: 'mev-flow' as Scene, delay: 39000 },
+      // { scene: 'fairflow-rewards' as Scene, delay: 42000 },
+      // { scene: 'liquidity-smarter' as Scene, delay: 47000 },
+      // { scene: 'smarter-finale' as Scene, delay: 50000 },
+      // { scene: 'summary' as Scene, delay: 53000 },
+      { scene: 'summary' as Scene, delay: 2000 },
     ]
 
     const timers = timeline.map(({ scene: nextScene, delay }) =>
@@ -251,8 +275,10 @@ export default function RecapJourney({
     scene === 'mev-bots' ||
     scene === 'mev-flow' ||
     scene === 'fairflow-rewards' ||
-    scene === 'liquidity-smarter'
+    scene === 'liquidity-smarter' ||
+    scene === 'summary'
   const isSmarterFinaleScene = scene === 'smarter-finale'
+  const isSummaryScene = scene === 'summary'
   const isMarkScene = scene === 'mark-on-market'
   const isTradingStatsScene = scene === 'trading-stats'
   const isTopPercentScene = scene === 'top-percent'
@@ -265,11 +291,12 @@ export default function RecapJourney({
   const isFairflowRewardsScene = scene === 'fairflow-rewards'
   const isLiquiditySmarterScene = scene === 'liquidity-smarter'
 
-  // Calculate current part (1, 2, 3, or 4) and progress based on elapsed time
+  // Calculate current part (1, 2, 3, 4, or 5) and progress based on elapsed time
   const PART1_DURATION = 17000 // 17 seconds (from start to mark-on-market)
   const PART2_DURATION = 10000 // 10 seconds (from mark-on-market to capital-flow)
   const PART3_DURATION = 9000 // 9 seconds (from capital-flow to mev-bots)
-  const PART4_DURATION = 17000 // 17 seconds (from mev-bots to end)
+  const PART4_DURATION = 14000 // 14 seconds (from mev-bots to summary)
+  const PART5_DURATION = 10000 // 10 seconds (summary)
 
   const part1Scenes: Scene[] = [
     'firework-2025',
@@ -282,13 +309,16 @@ export default function RecapJourney({
   ]
   const part2Scenes: Scene[] = ['mark-on-market', 'trading-stats', 'top-percent', 'badge']
   const part3Scenes: Scene[] = ['capital-flow', 'top-chains', 'top-tokens']
+  const part4Scenes: Scene[] = ['mev-bots', 'mev-flow', 'fairflow-rewards', 'liquidity-smarter', 'smarter-finale']
   const currentPart = part1Scenes.includes(scene)
     ? 1
     : part2Scenes.includes(scene)
     ? 2
     : part3Scenes.includes(scene)
     ? 3
-    : 4
+    : part4Scenes.includes(scene)
+    ? 4
+    : 5
 
   const part1Progress = Math.min(elapsedTime / PART1_DURATION, 1)
   const part2Progress = elapsedTime > PART1_DURATION ? Math.min((elapsedTime - PART1_DURATION) / PART2_DURATION, 1) : 0
@@ -300,6 +330,8 @@ export default function RecapJourney({
     elapsedTime > PART1_DURATION + PART2_DURATION + PART3_DURATION
       ? Math.min((elapsedTime - PART1_DURATION - PART2_DURATION - PART3_DURATION) / PART4_DURATION, 1)
       : 0
+  const part5Start = PART1_DURATION + PART2_DURATION + PART3_DURATION + PART4_DURATION
+  const part5Progress = elapsedTime > part5Start ? Math.min((elapsedTime - part5Start) / PART5_DURATION, 1) : 0
 
   return (
     <>
@@ -760,6 +792,104 @@ export default function RecapJourney({
               </FairflowSubtext>
             </FairflowContainer>
           )}
+
+          {/* Summary Scene (Part 5) */}
+          {isSummaryScene && (
+            <SummaryContainer
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, ease: 'easeOut' }}
+            >
+              <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+              >
+                <SummaryNickname>{nickname}</SummaryNickname>
+              </motion.div>
+
+              <SummaryMainRow>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5, delay: 0.4 }}
+                >
+                  <SummaryBadge src={getBadgeImage(top)} alt="Badge" />
+                </motion.div>
+
+                <SummaryStatsColumn>
+                  <motion.div
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5, delay: 0.6 }}
+                  >
+                    <SummaryStatsRow>
+                      {/* Row 1: Label */}
+                      <SummaryStatLabel>Total Volume</SummaryStatLabel>
+                      <div /> {/* Empty cell */}
+                      {/* Row 2: Values */}
+                      <SummaryStatValue>{formatTradingVolume(tradingVolume)}</SummaryStatValue>
+                      <SummaryTradesValue>{txCount.toLocaleString()}</SummaryTradesValue>
+                      {/* Row 3: Bottom labels */}
+                      <SummaryTopBadge>Top {top}%</SummaryTopBadge>
+                      <SummaryTradesLabel>Trades</SummaryTradesLabel>
+                    </SummaryStatsRow>
+                  </motion.div>
+
+                  <motion.div
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5, delay: 0.8 }}
+                  >
+                    <SummaryFavoritesRow>
+                      <SummaryFavoriteItem>
+                        <SummaryFavoriteLabel>Favorite Asset</SummaryFavoriteLabel>
+                        <SummaryFavoriteValue>
+                          {topTokens[0] && (
+                            <>
+                              <SummaryFavoriteIcon src={topTokens[0].logo} alt={topTokens[0].symbol} />
+                              {topTokens[0].symbol}
+                            </>
+                          )}
+                        </SummaryFavoriteValue>
+                      </SummaryFavoriteItem>
+                      <SummaryFavoriteItem>
+                        <SummaryFavoriteLabel>Favorite Chain</SummaryFavoriteLabel>
+                        <SummaryFavoriteValue>
+                          {topChains[0] && (
+                            <>
+                              <SummaryFavoriteIcon src={topChains[0].icon} alt={topChains[0].name} />
+                              {topChains[0].name}
+                            </>
+                          )}
+                        </SummaryFavoriteValue>
+                      </SummaryFavoriteItem>
+                    </SummaryFavoritesRow>
+                  </motion.div>
+
+                  <motion.div
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5, delay: 1.0 }}
+                  >
+                    <SummaryRewardsSection>
+                      <SummaryRewardsValue>${totalRewards.toLocaleString()}</SummaryRewardsValue>
+                      <SummaryRewardsLabel>FairFlow Rewards</SummaryRewardsLabel>
+                    </SummaryRewardsSection>
+                  </motion.div>
+                </SummaryStatsColumn>
+              </SummaryMainRow>
+
+              <SummaryFooter
+                as={motion.div}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5, delay: 1.2 }}
+              >
+                Watch your 2025 Journey 👇 <SummaryFooterLink>kyberswap.com/2025-journey</SummaryFooterLink>
+              </SummaryFooter>
+            </SummaryContainer>
+          )}
         </ContentContainer>
 
         {/* Smarter Banner with expanding background */}
@@ -820,6 +950,9 @@ export default function RecapJourney({
             </ProgressSegment>
             <ProgressSegment $isActive={part4Progress > 0}>
               <ProgressSegmentFill $isActive={part4Progress > 0} style={{ width: `${part4Progress * 100}%` }} />
+            </ProgressSegment>
+            <ProgressSegment $isActive={part5Progress > 0}>
+              <ProgressSegmentFill $isActive={part5Progress > 0} style={{ width: `${part5Progress * 100}%` }} />
             </ProgressSegment>
           </ProgressBar>
         </ProgressBarContainer>
