@@ -47,6 +47,7 @@ import {
   MevTextWrapper,
   NavigatedText,
   NavigatedWrapper,
+  NicknameHeader,
   NicknameText,
   ProgressBar,
   ProgressBarContainer,
@@ -656,6 +657,7 @@ export default function RecapJourney({
               animate={{ opacity: 1 }}
               transition={{ duration: 0.8, ease: 'easeInOut' }}
             >
+              <NicknameHeader>{nickname}</NicknameHeader>
               <TopListTitle
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -690,6 +692,7 @@ export default function RecapJourney({
               animate={{ opacity: 1 }}
               transition={{ duration: 0.8, ease: 'easeInOut' }}
             >
+              <NicknameHeader>{nickname}</NicknameHeader>
               <TopListTitle
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}

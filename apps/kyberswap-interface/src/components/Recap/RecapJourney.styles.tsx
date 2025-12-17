@@ -693,6 +693,21 @@ export const CapitalHighlight = styled(motion.div)`
 `
 
 // Part 3: Top Lists (Chains & Tokens)
+export const NicknameHeader = styled.div`
+  position: absolute;
+  top: 85px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 28px;
+  font-weight: 600;
+  color: #ffde69;
+
+  @media screen and (max-width: 768px) {
+    top: 65px;
+    font-size: 20px;
+  }
+`
+
 export const TopListContainer = styled(motion.div)`
   display: flex;
   flex-direction: column;
