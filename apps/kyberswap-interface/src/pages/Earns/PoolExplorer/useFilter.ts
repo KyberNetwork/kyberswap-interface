@@ -49,23 +49,10 @@ export default function useFilter(setSearch?: (search: string) => void) {
         if (key === 'tag') {
           searchParams.delete('sortBy')
           searchParams.delete('orderBy')
-          if (setSearch) setSearch('')
+          setSearch?.('')
           if (value === FilterTag.LOW_VOLATILITY) {
             searchParams.set('sortBy', SortBy.APR)
             searchParams.set('orderBy', Direction.DESC)
-          } else if (value === FilterTag.FARMING_POOL) {
-            const currentFilteredChainId = searchParams.get('chainIds')
-            const walletSupportedChain = EARN_CHAINS[chainId as unknown as EarnChain]?.farmingSupported ? chainId : null
-
-            if (currentFilteredChainId) {
-              if (!EARN_CHAINS[currentFilteredChainId as unknown as EarnChain]?.farmingSupported) {
-                searchParams.set('chainIds', (walletSupportedChain || ChainId.MAINNET).toString())
-              }
-            } else {
-              searchParams.set('chainIds', (walletSupportedChain || ChainId.MAINNET).toString())
-            }
-
-            searchParams.delete('protocol')
           }
         }
       }
@@ -73,7 +60,7 @@ export default function useFilter(setSearch?: (search: string) => void) {
 
       setSearchParams(searchParams)
     },
-    [setSearchParams, searchParams, setSearch, chainId],
+    [setSearchParams, searchParams, setSearch],
   )
 
   return {
