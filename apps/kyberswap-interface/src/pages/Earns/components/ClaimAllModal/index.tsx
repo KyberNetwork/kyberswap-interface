@@ -20,6 +20,7 @@ import {
   CustomRadio,
   FilteredChainTitle,
   FilteredChainTokens,
+  FilteredChainWrapper,
 } from 'pages/Earns/components/ClaimAllModal/styles'
 import { ClaimInfoWrapper, ModalHeader, Wrapper, X } from 'pages/Earns/components/ClaimModal/styles'
 import { PositionStatus } from 'pages/Earns/components/PositionStatusControl'
@@ -140,7 +141,12 @@ export default function ClaimAllModal({
                           {formatDisplayNumber(chain.claimableUsdValue, { significantDigits: 4, style: 'currency' })}
                         </Text>
                       </ChainRewardTitle>
-                      <ChainRewardTokens isOpen={isSelected}>
+                      <ChainRewardTokens
+                        data-open={isSelected ? 'true' : 'false'}
+                        data-signal={chain.tokens.length > 5 ? 'true' : 'false'}
+                        showArrow
+                        showBackground
+                      >
                         {chain.tokens
                           .sort((a, b) => b.claimableUsdValue - a.claimableUsdValue)
                           .map(token => (
@@ -166,7 +172,7 @@ export default function ClaimAllModal({
           />
 
           {!!selectedRewardChain && (
-            <Flex flexDirection="column">
+            <FilteredChainWrapper>
               <FilteredChainTitle onClick={() => setSelectedChainExpanded(expanded => !expanded)}>
                 <Text>{t`You are currently claiming`}</Text>
                 <Text color={theme.text}>
@@ -187,7 +193,11 @@ export default function ClaimAllModal({
                 />
               </FilteredChainTitle>
 
-              <FilteredChainTokens isOpen={selectedChainExpanded}>
+              <FilteredChainTokens
+                data-open={selectedChainExpanded ? 'true' : 'false'}
+                data-signal={selectedRewardChain.tokens.length > 5 ? 'true' : 'false'}
+                showBackground
+              >
                 {selectedRewardChain.tokens
                   .sort((a, b) => b.claimableUsdValue - a.claimableUsdValue)
                   .map(token => (
@@ -199,7 +209,7 @@ export default function ClaimAllModal({
                     />
                   ))}
               </FilteredChainTokens>
-            </Flex>
+            </FilteredChainWrapper>
           )}
         </ClaimInfoWrapper>
 
