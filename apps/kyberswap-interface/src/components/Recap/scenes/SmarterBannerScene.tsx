@@ -45,9 +45,12 @@ function SmarterBannerScene({ isSmarterFinaleScene }: SmarterBannerSceneProps) {
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
       >
         <SmarterBannerText
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1, scale: isSmarterFinaleScene ? 1.3 : 1 }}
-          transition={{ duration: 0.8, ease: isSmarterFinaleScene ? 'easeOut' : undefined }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0, scale: isSmarterFinaleScene ? 1.3 : 1 }}
+          transition={{
+            duration: 1,
+            ease: isSmarterFinaleScene ? [0.16, 1, 0.3, 1] : [0.25, 0.46, 0.45, 0.94],
+          }}
         >
           That&apos;s your liquidity working <SmarterBold>smarter</SmarterBold>
         </SmarterBannerText>
