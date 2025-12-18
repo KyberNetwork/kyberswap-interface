@@ -9,6 +9,7 @@ import moneyAirdrop from 'assets/recap/money-airdrop.png'
 import recapAnimation from 'assets/recap/recap-animation.mp4'
 import starsBanner2 from 'assets/recap/stars-banner-2.png'
 import starsBanner from 'assets/recap/stars-banner.png'
+import stars from 'assets/recap/stars.png'
 import xIcon from 'assets/recap/x.png'
 import {
   BackgroundImage,
@@ -205,7 +206,20 @@ function RecapJourney({
             </motion.div>
           )}
 
-          {isStarsScene && (
+          {scene === 'stars-stats' && (
+            <motion.div
+              key="stars-stats-bg"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3, ease: 'easeInOut' }}
+              style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: '#0f0f0f' }}
+            >
+              <BackgroundOverlayImage src={stars} alt="" />
+            </motion.div>
+          )}
+
+          {isStarsScene && scene !== 'stars-stats' && (
             <motion.div
               key="stars-bg"
               initial={{ opacity: 0 }}

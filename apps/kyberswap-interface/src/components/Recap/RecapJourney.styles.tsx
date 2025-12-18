@@ -517,16 +517,15 @@ export const StatsContainer = styled(motion.div)`
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 4px;
-  margin-top: -160px;
+  margin-top: 0;
 
   @media screen and (max-width: 640px) {
-    margin-top: -120px;
     gap: 3px;
   }
 
   @media screen and (max-width: 480px) {
-    margin-top: calc(-160 / 640 * 100vw);
     gap: calc(4 / 640 * 100vw);
   }
 `
@@ -591,6 +590,71 @@ export const LabelText = styled.span`
   @media screen and (max-width: 480px) {
     font-size: calc(32 / 640 * 100vw);
     margin-left: calc(8 / 640 * 100vw);
+  }
+`
+
+// Bar Chart for Stats Scene
+export const BarChartWrapper = styled(motion.div)`
+  width: 100%;
+  margin-top: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+
+  @media screen and (max-width: 640px) {
+    margin-top: 30px;
+  }
+
+  @media screen and (max-width: 480px) {
+    margin-top: calc(40 / 640 * 100vw);
+  }
+`
+
+export const BarChartContainer = styled.div`
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 4px;
+  height: 120px;
+  width: 100%;
+  max-width: 500px;
+  padding: 0 20px;
+
+  @media screen and (max-width: 640px) {
+    height: 90px;
+    gap: 3px;
+    max-width: 375px;
+    padding: 0 15px;
+  }
+
+  @media screen and (max-width: 480px) {
+    height: calc(120 / 640 * 100vw);
+    gap: calc(4 / 640 * 100vw);
+    max-width: calc(500 / 640 * 100vw);
+    padding: 0 calc(20 / 640 * 100vw);
+  }
+`
+
+export const ChartBar = styled(motion.div)<{ $height: number; $color: string }>`
+  flex: 1;
+  min-width: 8px;
+  max-width: 40px;
+  height: ${({ $height }) => $height}%;
+  background: ${({ $color }) => $color};
+  border-radius: 4px 4px 0 0;
+  position: relative;
+  overflow: hidden;
+
+  @media screen and (max-width: 640px) {
+    min-width: 6px;
+    max-width: 30px;
+    border-radius: 3px 3px 0 0;
+  }
+
+  @media screen and (max-width: 480px) {
+    min-width: calc(8 / 640 * 100vw);
+    max-width: calc(40 / 640 * 100vw);
+    border-radius: calc(4 / 640 * 100vw) calc(4 / 640 * 100vw) 0 0;
   }
 `
 
