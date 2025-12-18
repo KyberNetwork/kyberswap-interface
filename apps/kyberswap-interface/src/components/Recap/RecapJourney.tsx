@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { memo, useMemo } from 'react'
-import { Pause, Play, SkipBack, SkipForward } from 'react-feather'
+import { memo, useEffect, useMemo, useRef, useState } from 'react'
+import { Check, Copy, Download, Loader, Pause, Play, SkipBack, SkipForward } from 'react-feather'
 
 import confetti from 'assets/recap/confetti.png'
 import customizedKyber from 'assets/recap/customized-kyber.png'
@@ -23,6 +23,8 @@ import {
   ProgressBarContainer,
   ProgressSegment,
   ProgressSegmentFill,
+  ShareButton,
+  ShareButtonsContainer,
   VideoBackground,
   VideoOverlay,
   YearTag,
@@ -45,6 +47,7 @@ import {
 } from 'components/Recap/scenes'
 import { RecapJourneyProps } from 'components/Recap/types'
 import useRecapTimeline from 'components/Recap/useRecapTimeline'
+import { captureScreenshot, copyImageToClipboard, downloadImage } from 'components/Recap/utils'
 
 function RecapJourney({
   nickname,
@@ -82,10 +85,85 @@ function RecapJourney({
   // Memoize background image source
   const starsBackgroundSrc = useMemo(() => (currentPart === 1 ? starsBanner : starsBanner2), [currentPart])
 
+  // Ref for container to capture screenshot
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [isCapturing, setIsCapturing] = useState(false)
+  const [copyLoading, setCopyLoading] = useState(false)
+  const [copySuccess, setCopySuccess] = useState(false)
+  const [downloadLoading, setDownloadLoading] = useState(false)
+  const [downloadSuccess, setDownloadSuccess] = useState(false)
+
+  // Check if current scene should show share buttons
+  const shouldShowShareButtons = useMemo(() => {
+    return (
+      scene === 'stars-stats' ||
+      scene === 'badge' ||
+      scene === 'top-chains' ||
+      scene === 'top-tokens' ||
+      scene === 'fairflow-rewards' ||
+      scene === 'summary'
+    )
+  }, [scene])
+
+  // Handle copy image
+  const handleCopyImage = async () => {
+    if (!containerRef.current || isCapturing) return
+
+    try {
+      setIsCapturing(true)
+      setCopyLoading(true)
+      const dataUrl = await captureScreenshot(containerRef.current)
+      await copyImageToClipboard(dataUrl)
+      setCopyLoading(false)
+      setCopySuccess(true)
+      // Reset success state after 2 seconds
+      setTimeout(() => {
+        setCopySuccess(false)
+      }, 2000)
+    } catch (error) {
+      console.error('Failed to copy image:', error)
+      setCopyLoading(false)
+    } finally {
+      setIsCapturing(false)
+    }
+  }
+
+  // Handle download image
+  const handleDownloadImage = async () => {
+    if (!containerRef.current || isCapturing) return
+
+    try {
+      setIsCapturing(true)
+      setDownloadLoading(true)
+      const dataUrl = await captureScreenshot(containerRef.current)
+      const filename = `kyberswap-recap-${scene}-${Date.now()}.png`
+      downloadImage(dataUrl, filename)
+      setDownloadLoading(false)
+      setDownloadSuccess(true)
+      // Reset success state after 2 seconds
+      setTimeout(() => {
+        setDownloadSuccess(false)
+      }, 2000)
+    } catch (error) {
+      console.error('Failed to download image:', error)
+      setDownloadLoading(false)
+    } finally {
+      setIsCapturing(false)
+    }
+  }
+
+  // Reset success and loading states when scene changes
+  useEffect(() => {
+    setCopySuccess(false)
+    setCopyLoading(false)
+    setDownloadSuccess(false)
+    setDownloadLoading(false)
+  }, [scene])
+
   return (
     <>
       <CeraFontFace />
-      <JourneyContainer>
+      <JourneyContainer ref={containerRef}>
         {/* Preload video */}
         <video preload="auto" style={{ display: 'none' }}>
           <source src={recapAnimation} type="video/mp4" />
@@ -272,8 +350,32 @@ function RecapJourney({
           </ControlButton>
         </ControlsContainer>
 
+        {/* Share Buttons */}
+        {shouldShowShareButtons && (
+          <ShareButtonsContainer className="share-buttons-container">
+            <ShareButton
+              onClick={handleCopyImage}
+              aria-label="Copy image"
+              disabled={isCapturing}
+              $isSuccess={copySuccess}
+              $isLoading={copyLoading}
+            >
+              {copyLoading ? <Loader className="loading-spinner" /> : copySuccess ? <Check /> : <Copy />}
+            </ShareButton>
+            <ShareButton
+              onClick={handleDownloadImage}
+              aria-label="Download image"
+              disabled={isCapturing}
+              $isSuccess={downloadSuccess}
+              $isLoading={downloadLoading}
+            >
+              {downloadLoading ? <Loader className="loading-spinner" /> : downloadSuccess ? <Check /> : <Download />}
+            </ShareButton>
+          </ShareButtonsContainer>
+        )}
+
         {/* Progress Bar */}
-        <ProgressBarContainer>
+        <ProgressBarContainer className="progress-bar-container">
           <ProgressBar>
             <ProgressSegment $isActive={partProgress.part1 > 0}>
               <ProgressSegmentFill

@@ -919,6 +919,98 @@ export const ControlButton = styled.button`
   }
 `
 
+export const ShareButtonsContainer = styled.div`
+  position: absolute;
+  bottom: 14px;
+  right: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 100;
+  opacity: 1;
+
+  @media screen and (max-width: 640px) {
+    bottom: 10px;
+    right: 14px;
+    gap: 6px;
+  }
+
+  @media screen and (max-width: 480px) {
+    bottom: calc(14 / 640 * 100vw);
+    right: calc(18 / 640 * 100vw);
+    gap: calc(8 / 640 * 100vw);
+  }
+`
+
+export const ShareButton = styled.button<{ $isSuccess?: boolean; $isLoading?: boolean }>`
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: ${({ theme, $isSuccess, $isLoading }) =>
+    $isSuccess ? rgba(theme.primary, 0.2) : $isLoading ? rgba(34, 34, 34, 0.9) : rgba(34, 34, 34, 0.8)};
+  border: none;
+  cursor: ${({ $isLoading }) => ($isLoading ? 'wait' : 'pointer')};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(8px);
+
+  &:hover {
+    background: ${({ theme, $isSuccess, $isLoading }) =>
+      $isSuccess ? rgba(theme.primary, 0.3) : $isLoading ? rgba(34, 34, 34, 0.9) : rgba(34, 34, 34, 1)};
+    transform: ${({ $isLoading }) => ($isLoading ? 'none' : 'scale(1.05)')};
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  svg {
+    width: 14px;
+    height: 14px;
+    color: ${({ theme, $isSuccess }) => ($isSuccess ? theme.primary : theme.subText)};
+    transition: ${({ $isLoading }) => ($isLoading ? 'none' : 'color 0.3s ease')};
+  }
+
+  .loading-spinner {
+    animation: spin 0.8s linear infinite;
+    will-change: transform;
+    transform-origin: center center;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @media screen and (max-width: 640px) {
+    width: 27px;
+    height: 27px;
+
+    svg {
+      width: 10px;
+      height: 10px;
+    }
+  }
+
+  @media screen and (max-width: 480px) {
+    width: calc(36 / 640 * 100vw);
+    height: calc(36 / 640 * 100vw);
+
+    svg {
+      width: calc(14 / 640 * 100vw);
+      height: calc(14 / 640 * 100vw);
+    }
+  }
+`
+
 export const ProgressBarContainer = styled.div`
   position: absolute;
   top: 12px;
