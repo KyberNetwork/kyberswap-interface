@@ -125,6 +125,10 @@ export const JourneyContainer = styled.div`
     opacity: 1;
   }
 
+  &:hover .mute-button {
+    opacity: 1;
+  }
+
   @media screen and (max-width: 640px) {
     width: 480px;
     height: 480px;
@@ -1058,6 +1062,65 @@ export const ShareButtonsContainer = styled.div`
     bottom: calc(14 / 640 * 100vw);
     right: calc(18 / 640 * 100vw);
     gap: calc(8 / 640 * 100vw);
+  }
+`
+
+export const MuteButton = styled.button`
+  position: absolute;
+  top: 28px;
+  right: 18px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: ${({ theme }) => rgba(theme.black, 0.5)};
+  border: 1px solid ${({ theme }) => rgba(theme.white, 0.2)};
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
+  z-index: 100;
+  opacity: 0;
+
+  &:hover {
+    background: ${({ theme }) => rgba(theme.black, 0.7)};
+    border-color: ${({ theme }) => rgba(theme.white, 0.4)};
+    transform: scale(1.05);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  svg {
+    width: 16px;
+    height: 16px;
+    color: ${({ theme }) => theme.white};
+  }
+
+  @media screen and (max-width: 640px) {
+    top: 20px;
+    right: 14px;
+    width: 27px;
+    height: 27px;
+
+    svg {
+      width: 12px;
+      height: 12px;
+    }
+  }
+
+  @media screen and (max-width: 480px) {
+    top: calc(28 / 640 * 100vw);
+    right: calc(18 / 640 * 100vw);
+    width: calc(36 / 640 * 100vw);
+    height: calc(36 / 640 * 100vw);
+
+    svg {
+      width: calc(16 / 640 * 100vw);
+      height: calc(16 / 640 * 100vw);
+    }
   }
 `
 

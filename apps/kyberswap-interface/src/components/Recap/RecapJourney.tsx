@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { memo, useEffect, useMemo, useRef, useState } from 'react'
-import { Check, Copy, Download, Loader, Pause, Play, SkipBack, SkipForward } from 'react-feather'
+import { Check, Copy, Download, Loader, Pause, Play, SkipBack, SkipForward, Volume2, VolumeX } from 'react-feather'
 
 import confetti from 'assets/recap/confetti.png'
 import customizedKyber from 'assets/recap/customized-kyber.png'
@@ -21,6 +21,7 @@ import {
   JourneyContainer,
   LogoContainer,
   LogoImage,
+  MuteButton,
   ProgressBar,
   ProgressBarContainer,
   ProgressSegment,
@@ -86,6 +87,7 @@ function RecapJourney({
   // Ref for container to capture screenshot
   const containerRef = useRef<HTMLDivElement>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
+  const [isMuted, setIsMuted] = useState(true) // Default to muted
   const [isCapturing, setIsCapturing] = useState(false)
   const [copyLoading, setCopyLoading] = useState(false)
   const [copySuccess, setCopySuccess] = useState(false)
@@ -100,27 +102,27 @@ function RecapJourney({
     audio.volume = 0.5 // Set volume to 50%
     audioRef.current = audio
 
-    // Play audio when component mounts
-    const playAudio = async () => {
-      try {
-        await audio.play()
-      } catch (error) {
-        console.error('Failed to play audio:', error)
+    if (!isMuted) {
+      const playAudio = async () => {
+        try {
+          await audio.play()
+        } catch (error) {
+          console.error('Failed to play audio:', error)
+        }
       }
+      playAudio()
     }
-    playAudio()
 
-    // Cleanup on unmount
     return () => {
       audio.pause()
       audio.currentTime = 0
       audioRef.current = null
     }
-  }, [])
+  }, [isMuted])
 
   // Sync audio with pause/resume
   useEffect(() => {
-    if (!audioRef.current) return
+    if (!audioRef.current || isMuted) return
 
     if (isPaused) {
       audioRef.current.pause()
@@ -129,7 +131,23 @@ function RecapJourney({
         console.error('Failed to resume audio:', error)
       })
     }
-  }, [isPaused])
+  }, [isPaused, isMuted])
+
+  // Toggle mute/unmute
+  const handleToggleMute = () => {
+    if (!audioRef.current) return
+
+    const newMutedState = !isMuted
+    setIsMuted(newMutedState)
+
+    if (newMutedState) {
+      audioRef.current.pause()
+    } else {
+      audioRef.current.play().catch(error => {
+        console.error('Failed to play audio:', error)
+      })
+    }
+  }
 
   // Check if current scene should show share buttons
   const shouldShowShareButtons = useMemo(() => {
@@ -208,6 +226,11 @@ function RecapJourney({
     <>
       <CeraFontFace />
       <JourneyContainer ref={containerRef}>
+        {/* Mute Button */}
+        <MuteButton className="mute-button" onClick={handleToggleMute} aria-label={isMuted ? 'Unmute' : 'Mute'}>
+          {isMuted ? <VolumeX /> : <Volume2 />}
+        </MuteButton>
+
         {/* Preload video */}
         <video preload="auto" style={{ display: 'none' }}>
           <source src={recapAnimation} type="video/mp4" />
