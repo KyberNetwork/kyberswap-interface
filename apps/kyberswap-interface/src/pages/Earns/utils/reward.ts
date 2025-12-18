@@ -197,8 +197,6 @@ export const parseReward = ({
           lmTokens,
         }
 
-        if (tokenIds && !tokenIds.has(nftId)) return
-
         // Merge with existing NFT if present
         const existingNft = nftMap.get(nftId)
         if (existingNft) {
@@ -214,9 +212,9 @@ export const parseReward = ({
   })
 
   const listNft = Array.from(nftMap.values())
-  const filteredNfts = listNft.filter(nft =>
-    typeof thresholdValue === 'number' ? nft.claimableUsdValue > thresholdValue : true,
-  )
+  const filteredNfts = listNft
+    .filter(nft => (tokenIds ? tokenIds.has(nft.nftId) : true))
+    .filter(nft => (typeof thresholdValue === 'number' ? nft.claimableUsdValue > thresholdValue : true))
 
   // Calculate totals in single pass
   let totalUsdValue = 0
