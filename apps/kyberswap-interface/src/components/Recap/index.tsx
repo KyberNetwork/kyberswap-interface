@@ -45,6 +45,7 @@ export default function RecapSection() {
   const [showJourney, setShowJourney] = useState(false)
   const hasCheckedStorageRef = useRef(false)
   const hasLoadedNicknameRef = useRef(false)
+  const wasOpenBeforeWalletConnectRef = useRef(false)
 
   useEffect(() => {
     if (!hasCheckedStorageRef.current) {
@@ -95,7 +96,28 @@ export default function RecapSection() {
     }
   }, [isOpen])
 
+  // Track if modal was open before wallet connect, and re-open if it was closed
+  useEffect(() => {
+    if (isOpen) {
+      wasOpenBeforeWalletConnectRef.current = true
+    }
+  }, [isOpen])
+
+  // Re-open modal if it was closed after wallet connect
+  useEffect(() => {
+    if (account && wasOpenBeforeWalletConnectRef.current && !isOpen && !showJourney) {
+      // Small delay to ensure wallet modal is fully closed
+      const timer = setTimeout(() => {
+        openRecapModal()
+        wasOpenBeforeWalletConnectRef.current = false
+      }, 200)
+      return () => clearTimeout(timer)
+    }
+    return undefined
+  }, [account, isOpen, showJourney, openRecapModal])
+
   const handleClose = () => {
+    wasOpenBeforeWalletConnectRef.current = false
     closeRecapModal()
     if (localStorage.getItem(STORAGE_KEY) !== 'true') {
       localStorage.setItem(STORAGE_KEY, 'true')
@@ -104,6 +126,7 @@ export default function RecapSection() {
 
   const handleViewJourney = () => {
     if (!account) {
+      wasOpenBeforeWalletConnectRef.current = true
       toggleWalletModal()
       return
     }
