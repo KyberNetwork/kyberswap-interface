@@ -186,6 +186,7 @@ function RecapJourney({
 
         {(isVideoScene ||
           isStarsScene ||
+          isLiquiditySmarterScene ||
           isSmarterFinaleScene ||
           isMarkScene ||
           isTradingStatsScene ||

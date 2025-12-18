@@ -1,6 +1,7 @@
 import { Trans } from '@lingui/macro'
 import { useEffect, useRef, useState } from 'react'
 import { ArrowRight, X } from 'react-feather'
+import { useMedia } from 'react-use'
 
 import Modal from 'components/Modal'
 import RecapJourney from 'components/Recap/RecapJourney'
@@ -31,6 +32,9 @@ export default function RecapSection() {
   const { account } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
 
+  const upTo640 = useMedia('(max-width: 640px)')
+  const upTo480 = useMedia('(max-width: 480px)')
+
   const { data } = useRecapData()
 
   const isOpen = useModalOpen(ApplicationModal.RECAP)
@@ -59,7 +63,6 @@ export default function RecapSection() {
     }
   }, [isOpen, openRecapModal])
 
-  // Load nickname from localStorage
   useEffect(() => {
     if (hasLoadedNicknameRef.current) return
     const saved = localStorage.getItem(NICKNAME_STORAGE_KEY)
@@ -104,15 +107,59 @@ export default function RecapSection() {
   const defaultAddress = account ? getShortenAddress(account) : ''
   const buttonText = account ? 'View My Journey' : 'Connect wallet'
 
+  const getModalSize = () => {
+    if (!showJourney) {
+      if (upTo480) {
+        return {
+          maxWidth: '80vw',
+          maxHeight: undefined,
+          width: '80vw',
+          height: undefined,
+        }
+      }
+      return {
+        maxWidth: 480,
+        maxHeight: undefined,
+        width: undefined,
+        height: undefined,
+      }
+    }
+
+    if (upTo480) {
+      return {
+        maxWidth: '100vw',
+        maxHeight: '100vw',
+        width: '100vw',
+        height: '100vw',
+      }
+    } else if (upTo640) {
+      return {
+        maxWidth: 480,
+        maxHeight: 480,
+        width: '480px',
+        height: '480px',
+      }
+    } else {
+      return {
+        maxWidth: 640,
+        maxHeight: 640,
+        width: '640px',
+        height: '640px',
+      }
+    }
+  }
+
+  const modalSize = getModalSize()
+
   return (
     <Modal
       isOpen={isOpen}
       mobileFullWidth
       onDismiss={handleClose}
-      maxWidth={showJourney ? 640 : 480}
-      maxHeight={showJourney ? 640 : undefined}
-      width={showJourney ? '640px' : undefined}
-      height={showJourney ? '640px' : undefined}
+      maxWidth={modalSize.maxWidth}
+      maxHeight={modalSize.maxHeight}
+      width={modalSize.width}
+      height={modalSize.height}
       borderRadius={showJourney ? '8px' : '20px'}
     >
       {showJourney ? (

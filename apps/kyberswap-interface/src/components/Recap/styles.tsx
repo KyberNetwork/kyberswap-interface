@@ -10,8 +10,10 @@ import { ButtonText } from 'theme'
 export const ModalContent = styled(Flex)`
   flex-direction: column;
   align-items: flex-start;
+  justify-content: center;
   gap: 24px;
   width: 100%;
+  min-height: 100%;
   padding: 24px;
   position: relative;
   overflow: hidden;
@@ -19,6 +21,14 @@ export const ModalContent = styled(Flex)`
   background: url(${kyberBanner});
   background-size: cover;
   background-repeat: no-repeat;
+
+  @media screen and (max-width: 640px) {
+    padding: 16px;
+  }
+
+  @media screen and (max-width: 480px) {
+    padding: 12px;
+  }
 `
 
 export const BackgroundOverlay = styled.div`
@@ -115,4 +125,14 @@ export const CloseButton = styled(ButtonText)`
   right: 24px;
   z-index: 3;
   color: ${({ theme }) => theme.subText};
+
+  @media screen and (max-width: 640px) {
+    top: 16px;
+    right: 16px;
+  }
+
+  @media screen and (max-width: 480px) {
+    top: 12px;
+    right: 12px;
+  }
 `
