@@ -582,7 +582,7 @@ export const UsersText = styled(motion.span)`
 
 export const LabelText = styled.span`
   font-size: 32px;
-  font-weight: 400;
+  font-weight: 500;
   color: ${({ theme }) => theme.text};
   margin-left: 8px;
 
@@ -681,7 +681,7 @@ export const MarkContainer = styled(motion.div)`
 
 export const MarkText = styled(motion.div)`
   font-size: 40px;
-  font-weight: 400;
+  font-weight: 500;
   color: ${({ theme }) => theme.text};
   text-align: center;
   line-height: 1.15;
@@ -788,7 +788,7 @@ export const TradingStatLine2 = styled(TradingStatLine)`
 
 export const TradingStatLabel = styled.span`
   font-size: 36px;
-  font-weight: 400;
+  font-weight: 500;
   color: ${({ theme }) => theme.text};
 
   @media screen and (max-width: 640px) {
@@ -922,7 +922,7 @@ export const TopPercentNickname = styled(motion.div)`
 
 export const TopPercentText = styled(motion.div)`
   font-size: 36px;
-  font-weight: 400;
+  font-weight: 500;
   color: ${({ theme }) => theme.text};
   text-align: center;
   line-height: 1.2;
@@ -1371,7 +1371,7 @@ export const CapitalFlowContainer = styled(motion.div)`
 
 export const CapitalFlowText = styled(motion.div)`
   font-size: 36px;
-  font-weight: 400;
+  font-weight: 500;
   color: ${({ theme }) => theme.text};
   line-height: 1.3;
 
@@ -1637,7 +1637,7 @@ export const MevTextWrapper = styled(motion.div)`
 
 export const MevFlowLine = styled(motion.div)`
   font-size: 32px;
-  font-weight: 400;
+  font-weight: 500;
   color: ${({ theme }) => theme.text};
   display: flex;
   align-items: baseline;
@@ -1722,7 +1722,7 @@ export const FairflowContainer = styled(motion.div)`
 
 export const FairflowTitle = styled(motion.div)`
   font-size: 36px;
-  font-weight: 400;
+  font-weight: 500;
   color: ${({ theme }) => theme.text};
   line-height: 1.3;
 
@@ -1742,7 +1742,7 @@ export const FairflowHighlight = styled.span`
 
 export const FairflowEarned = styled(motion.div)`
   font-size: 24px;
-  font-weight: 400;
+  font-weight: 500;
   color: ${({ theme }) => theme.text};
   line-height: 1.3;
 
@@ -1805,7 +1805,7 @@ export const FairflowRewardValue = styled.span`
 
 export const FairflowRewardLabel = styled.span`
   font-size: 32px;
-  font-weight: 400;
+  font-weight: 500;
   color: ${({ theme }) => theme.text};
 
   @media screen and (max-width: 640px) {
