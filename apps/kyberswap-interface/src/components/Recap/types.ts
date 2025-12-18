@@ -65,7 +65,7 @@ export const TIMELINE: { scene: Scene; delay: number }[] = [
   { scene: 'fairflow-rewards', delay: 39000 },
   { scene: 'liquidity-smarter', delay: 42000 },
   { scene: 'smarter-finale', delay: 43000 },
-  { scene: 'summary', delay: 47000 },
+  { scene: 'summary', delay: 45000 },
 ]
 
 // Part durations for progress bar
@@ -73,7 +73,7 @@ export const PART_DURATIONS = {
   PART1: 16000, // 16 seconds (from start to mark-on-market)
   PART2: 10000, // 10 seconds (from mark-on-market to capital-flow)
   PART3: 9000, // 9 seconds (from capital-flow to mev-bots)
-  PART4: 12000, // 12 seconds (from mev-bots to summary, includes smarter-finale)
+  PART4: 10000, // 10 seconds (from mev-bots to summary, includes smarter-finale)
   PART5: 10000, // 10 seconds (summary only)
 } as const
 
