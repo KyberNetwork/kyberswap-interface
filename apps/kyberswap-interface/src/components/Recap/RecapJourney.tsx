@@ -7,6 +7,7 @@ import customizedKyber from 'assets/recap/customized-kyber.png'
 import fireworkBanner from 'assets/recap/firework-banner.png'
 import moneyAirdrop from 'assets/recap/money-airdrop.png'
 import recapAnimation from 'assets/recap/recap-animation.mp4'
+import sound from 'assets/recap/sound.mp3'
 import starsBanner from 'assets/recap/stars-banner.png'
 import stars from 'assets/recap/stars.png'
 import xIcon from 'assets/recap/x.png'
@@ -84,11 +85,51 @@ function RecapJourney({
 
   // Ref for container to capture screenshot
   const containerRef = useRef<HTMLDivElement>(null)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
   const [isCapturing, setIsCapturing] = useState(false)
   const [copyLoading, setCopyLoading] = useState(false)
   const [copySuccess, setCopySuccess] = useState(false)
   const [downloadLoading, setDownloadLoading] = useState(false)
   const [downloadSuccess, setDownloadSuccess] = useState(false)
+
+  // Initialize and control audio
+  useEffect(() => {
+    // Create audio element
+    const audio = new Audio(sound)
+    audio.loop = true
+    audio.volume = 0.5 // Set volume to 50%
+    audioRef.current = audio
+
+    // Play audio when component mounts
+    const playAudio = async () => {
+      try {
+        await audio.play()
+      } catch (error) {
+        console.error('Failed to play audio:', error)
+      }
+    }
+    playAudio()
+
+    // Cleanup on unmount
+    return () => {
+      audio.pause()
+      audio.currentTime = 0
+      audioRef.current = null
+    }
+  }, [])
+
+  // Sync audio with pause/resume
+  useEffect(() => {
+    if (!audioRef.current) return
+
+    if (isPaused) {
+      audioRef.current.pause()
+    } else {
+      audioRef.current.play().catch(error => {
+        console.error('Failed to resume audio:', error)
+      })
+    }
+  }, [isPaused])
 
   // Check if current scene should show share buttons
   const shouldShowShareButtons = useMemo(() => {
