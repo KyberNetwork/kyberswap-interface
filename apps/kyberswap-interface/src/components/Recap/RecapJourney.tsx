@@ -330,7 +330,9 @@ function RecapJourney({
           {isTopTokensScene && <TopTokensScene nickname={nickname} topTokens={topTokens} />}
 
           {/* Part 4 Scene 1 & 2: MEV Bots + Flow */}
-          {(isMevBotsScene || isMevFlowScene) && <MevScene isMevFlowScene={isMevFlowScene} />}
+          {(isMevBotsScene || isMevFlowScene) && (
+            <MevScene isMevFlowScene={isMevFlowScene} isFairflowRewardsScene={isFairflowRewardsScene} />
+          )}
 
           {/* Part 4 Scene 3 & 4: FairFlow Rewards + Smarter Banner */}
           {(isFairflowRewardsScene || isLiquiditySmarterScene) && <FairflowScene totalRewards={totalRewards} />}

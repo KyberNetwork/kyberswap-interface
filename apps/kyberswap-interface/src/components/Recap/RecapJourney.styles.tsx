@@ -1454,6 +1454,9 @@ export const MevContainer = styled(motion.div)`
   justify-content: center;
   gap: 8px;
   text-align: center;
+  position: relative;
+  width: 100%;
+  height: 100%;
 
   @media screen and (max-width: 640px) {
     gap: 6px;
@@ -1535,6 +1538,26 @@ export const MevFlowHighlight = styled.span`
 
   @media screen and (max-width: 480px) {
     font-size: calc(48 / 640 * 100vw);
+  }
+`
+
+export const FairflowImage = styled(motion.img)`
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: auto;
+  height: 60px;
+  object-fit: contain;
+
+  @media screen and (max-width: 640px) {
+    bottom: 30px;
+    height: 45px;
+  }
+
+  @media screen and (max-width: 480px) {
+    bottom: calc(40 / 640 * 100vw);
+    height: calc(60 / 640 * 100vw);
   }
 `
 
