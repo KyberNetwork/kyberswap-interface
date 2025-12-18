@@ -899,6 +899,27 @@ export const TopPercentContainer = styled(motion.div)`
   }
 `
 
+export const TopPercentNickname = styled(motion.div)`
+  font-size: 42px;
+  font-weight: 700;
+  color: #ffde69;
+  text-align: center;
+  line-height: 1.2;
+  font-family: 'Cera', sans-serif;
+
+  @media screen and (max-width: 640px) {
+    font-size: 32px;
+    margin-bottom: 9px;
+    margin-top: 32px;
+  }
+
+  @media screen and (max-width: 480px) {
+    font-size: calc(42 / 640 * 100vw);
+    margin-bottom: calc(12 / 640 * 100vw);
+    margin-top: 60px;
+  }
+`
+
 export const TopPercentText = styled(motion.div)`
   font-size: 36px;
   font-weight: 400;
@@ -910,15 +931,18 @@ export const TopPercentText = styled(motion.div)`
   justify-content: center;
   gap: 8px;
   flex-wrap: wrap;
+  margin-bottom: 40px;
 
   @media screen and (max-width: 640px) {
     font-size: 27px;
     gap: 6px;
+    margin-bottom: 30px;
   }
 
   @media screen and (max-width: 480px) {
     font-size: calc(36 / 640 * 100vw);
     gap: calc(8 / 640 * 100vw);
+    margin-bottom: calc(40 / 640 * 100vw);
   }
 `
 

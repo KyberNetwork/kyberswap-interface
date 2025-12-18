@@ -5,17 +5,19 @@ import {
   BadgeContainer,
   BadgeImage,
   TopPercentContainer,
+  TopPercentNickname,
   TopPercentText,
   TopPercentValue,
 } from 'components/Recap/RecapJourney.styles'
 import { getBadgeImage } from 'components/Recap/utils'
 
 interface TopPercentBadgeSceneProps {
+  nickname: string
   top: number
   isBadgeScene: boolean
 }
 
-function TopPercentBadgeScene({ top, isBadgeScene }: TopPercentBadgeSceneProps) {
+function TopPercentBadgeScene({ nickname, top, isBadgeScene }: TopPercentBadgeSceneProps) {
   return (
     <motion.div
       key="top-percent-badge"
@@ -28,7 +30,7 @@ function TopPercentBadgeScene({ top, isBadgeScene }: TopPercentBadgeSceneProps) 
         justifyContent: 'center',
         alignItems: 'center',
         position: 'relative',
-        marginTop: isBadgeScene ? '-120px' : '0',
+        marginTop: isBadgeScene ? '-100px' : '0',
       }}
     >
       <TopPercentContainer
@@ -41,6 +43,13 @@ function TopPercentBadgeScene({ top, isBadgeScene }: TopPercentBadgeSceneProps) 
           y: { duration: 0.6, ease: 'easeOut' },
         }}
       >
+        <TopPercentNickname
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
+        >
+          {nickname}
+        </TopPercentNickname>
         <TopPercentText>
           In the <TopPercentValue>Top {top}%</TopPercentValue> of KyberSwap Traders
         </TopPercentText>

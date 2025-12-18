@@ -515,7 +515,9 @@ kyberswap.com/2025-recap`
           {isTradingStatsScene && <TradingStatsScene tradingVolume={tradingVolume} txCount={txCount} />}
 
           {/* Scene 4 & 5: Top X% and Badge together */}
-          {(isTopPercentScene || isBadgeScene) && <TopPercentBadgeScene top={top} isBadgeScene={isBadgeScene} />}
+          {(isTopPercentScene || isBadgeScene) && (
+            <TopPercentBadgeScene nickname={nickname} top={top} isBadgeScene={isBadgeScene} />
+          )}
 
           {/* Part 3 Scene 1: Capital Flow */}
           {isCapitalFlowScene && <CapitalFlowScene />}
