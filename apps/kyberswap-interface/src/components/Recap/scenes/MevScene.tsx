@@ -1,6 +1,8 @@
 import { memo } from 'react'
 
+import fairflowImage from 'assets/recap/fairflow.png'
 import {
+  FairflowImage,
   MevContainer,
   MevFlowHighlight,
   MevFlowLine,
@@ -11,9 +13,10 @@ import {
 
 interface MevSceneProps {
   isMevFlowScene: boolean
+  isFairflowRewardsScene: boolean
 }
 
-function MevScene({ isMevFlowScene }: MevSceneProps) {
+function MevScene({ isMevFlowScene, isFairflowRewardsScene }: MevSceneProps) {
   return (
     <MevContainer
       key="mev-combined"
@@ -45,6 +48,24 @@ function MevScene({ isMevFlowScene }: MevSceneProps) {
       >
         you <MevOutsmarted>outsmarted</MevOutsmarted> the <MevFlowHighlight>FLOW</MevFlowHighlight>
       </MevFlowLine>
+      <FairflowImage
+        src={fairflowImage}
+        alt="FairFlow"
+        initial={{ opacity: 1 }}
+        animate={{
+          opacity: isFairflowRewardsScene ? 0 : [1, 0.65, 0.9, 0.5, 0.3, 0.15, 0.02],
+        }}
+        transition={
+          isFairflowRewardsScene
+            ? { duration: 1.5, ease: 'easeOut' } // Slower fade out
+            : {
+                duration: 4,
+                repeat: Infinity,
+                ease: [0.4, 0, 0.6, 1], // Smooth cubic-bezier easing
+                times: [0, 0.25, 0.5, 0.65, 0.85, 0.9, 1],
+              }
+        }
+      />
     </MevContainer>
   )
 }
