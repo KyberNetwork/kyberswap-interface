@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { Trans, t } from '@lingui/macro';
+import { Trans } from '@lingui/macro';
 import { useShallow } from 'zustand/shallow';
 
 import {
@@ -92,7 +92,7 @@ export default function ZapSummary() {
             Collect{' '}
             {collectFeesActions
               ?.map(item => `${formatDisplayNumber(item.amount, { significantDigits: 4 })} ${item.tokenName}`)
-              .join(t` and `)}{' '}
+              .join(' and ')}{' '}
             from <span className="font-medium text-text">{dexName}</span> via{' '}
             <span className="font-medium text-text">KyberSwap</span>
           </Trans>
