@@ -7,7 +7,6 @@ import customizedKyber from 'assets/recap/customized-kyber.png'
 import fireworkBanner from 'assets/recap/firework-banner.png'
 import moneyAirdrop from 'assets/recap/money-airdrop.png'
 import recapAnimation from 'assets/recap/recap-animation.mp4'
-import starsBanner2 from 'assets/recap/stars-banner-2.png'
 import starsBanner from 'assets/recap/stars-banner.png'
 import stars from 'assets/recap/stars.png'
 import xIcon from 'assets/recap/x.png'
@@ -62,8 +61,7 @@ function RecapJourney({
   topTokens,
   totalRewards,
 }: RecapJourneyProps) {
-  const { scene, currentPart, partProgress, sceneFlags, isPaused, togglePause, goToNextPart, goToPrevPart } =
-    useRecapTimeline()
+  const { scene, partProgress, sceneFlags, isPaused, togglePause, goToNextPart, goToPrevPart } = useRecapTimeline()
 
   const {
     isFireworkScene,
@@ -83,9 +81,6 @@ function RecapJourney({
     isFairflowRewardsScene,
     isLiquiditySmarterScene,
   } = sceneFlags
-
-  // Memoize background image source
-  const starsBackgroundSrc = useMemo(() => (currentPart === 1 ? starsBanner : starsBanner2), [currentPart])
 
   // Ref for container to capture screenshot
   const containerRef = useRef<HTMLDivElement>(null)
@@ -227,7 +222,7 @@ function RecapJourney({
               exit={{ opacity: 0 }}
               transition={{ duration: 0.8, ease: 'easeInOut' }}
             >
-              <BackgroundImage src={starsBackgroundSrc} />
+              <BackgroundImage src={starsBanner} />
             </motion.div>
           )}
 

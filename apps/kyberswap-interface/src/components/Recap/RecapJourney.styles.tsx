@@ -725,18 +725,35 @@ export const TradingStatsContainer = styled(motion.div)`
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 24px;
-  min-height: 120px;
+  justify-content: flex-start;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  padding-top: 120px;
 
   @media screen and (max-width: 640px) {
-    gap: 18px;
-    min-height: 90px;
+    padding-top: 90px;
   }
 
   @media screen and (max-width: 480px) {
-    gap: calc(24 / 640 * 100vw);
-    min-height: calc(120 / 640 * 100vw);
+    padding-top: calc(120 / 640 * 100vw);
+  }
+`
+
+export const TradingStatsTextWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex: 1;
+
+  @media screen and (max-width: 640px) {
+    gap: 12px;
+  }
+
+  @media screen and (max-width: 480px) {
+    gap: calc(16 / 640 * 100vw);
   }
 `
 
@@ -817,6 +834,44 @@ export const TradingStatValue2 = styled(TradingStatValue)`
 
   @media screen and (max-width: 480px) {
     top: calc(-4 / 640 * 100vw);
+  }
+`
+
+// Candlestick Chart for Trading Stats Scene
+export const CandlestickChartWrapper = styled(motion.div)`
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  margin-top: auto;
+  padding-bottom: 24px;
+
+  @media screen and (max-width: 640px) {
+    padding-bottom: 18px;
+  }
+
+  @media screen and (max-width: 480px) {
+    padding-bottom: calc(24 / 640 * 100vw);
+  }
+`
+
+export const CandlestickChartImage = styled(motion.img)`
+  width: 80%;
+  max-width: 480px;
+  height: auto;
+  max-height: 180px;
+  object-fit: contain;
+
+  @media screen and (max-width: 640px) {
+    width: 85%;
+    max-width: 360px;
+    max-height: 135px;
+  }
+
+  @media screen and (max-width: 480px) {
+    width: 85%;
+    max-width: calc(480 / 640 * 100vw);
+    max-height: calc(180 / 640 * 100vw);
   }
 `
 
