@@ -13,6 +13,8 @@ import Updater from 'state/customizeDexes/updater'
 import { useAppSelector } from 'state/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 
+import { EARN_DEXES_CONFIG } from '../constants'
+
 export const dexKeyMapping: { [key: string]: string } = {
   uniswapv2: 'uniswap',
   kodiakcl: 'kodiak-v3',
@@ -50,7 +52,8 @@ const TableContent = ({
   const tablePoolData = useMemo(() => {
     return (poolData?.data?.pools || []).map(pool => {
       const dexKey = dexKeyMapping[pool.exchange] || pool.exchange
-      const dexInfo = dexLookupMap.get(dexKey) || { logoURL: '', name: '' }
+      const dexConfig = EARN_DEXES_CONFIG[pool.exchange]
+      const dexInfo = dexLookupMap.get(dexKey) || { logoURL: dexConfig.logo || '', name: dexConfig.name || '' }
 
       return {
         ...pool,
