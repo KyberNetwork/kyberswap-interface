@@ -22,6 +22,8 @@ import {
   LogoContainer,
   LogoImage,
   MuteButton,
+  PauseResumeIcon,
+  PauseResumeOverlay,
   ProgressBar,
   ProgressBarContainer,
   ProgressSegment,
@@ -87,7 +89,11 @@ function RecapJourney({
   // Ref for container to capture screenshot
   const containerRef = useRef<HTMLDivElement>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
+  const isFirstMountRef = useRef(true)
+  const hasInitializedRef = useRef(false)
+  const prevIsPausedRef = useRef<boolean | null>(null)
   const [isMuted, setIsMuted] = useState(true) // Default to muted
+  const [showPauseResumeIcon, setShowPauseResumeIcon] = useState(false)
   const [isCapturing, setIsCapturing] = useState(false)
   const [copyLoading, setCopyLoading] = useState(false)
   const [copySuccess, setCopySuccess] = useState(false)
@@ -214,6 +220,79 @@ function RecapJourney({
     window.open(shareUrl, '_blank', 'noopener,noreferrer')
   }
 
+  // Handle click on screen to control recap
+  const handleScreenClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    // Prevent if clicking on interactive elements
+    const target = event.target as HTMLElement
+    if (
+      target.closest('.controls-container') ||
+      target.closest('.share-buttons-container') ||
+      target.closest('.mute-button') ||
+      target.closest('.progress-bar-container')
+    ) {
+      return
+    }
+
+    // Get click position
+    const container = containerRef.current
+    if (!container) return
+
+    const rect = container.getBoundingClientRect()
+    const relativeX = (event.clientX - rect.left) / rect.width
+
+    // Determine action based on position
+    if (relativeX < 0.3) {
+      // Left 30% - go to previous
+      goToPrevPart()
+    } else if (relativeX > 0.7) {
+      // Right 30% - go to next
+      goToNextPart()
+    } else {
+      // Center 40% - toggle pause/resume
+      togglePause()
+    }
+  }
+
+  // Handle touch on screen to control recap
+  const handleScreenTouch = (event: React.TouchEvent<HTMLDivElement>) => {
+    // Prevent if touching on interactive elements
+    const target = event.target as HTMLElement
+    if (
+      target.closest('.controls-container') ||
+      target.closest('.share-buttons-container') ||
+      target.closest('.mute-button') ||
+      target.closest('.progress-bar-container')
+    ) {
+      return
+    }
+
+    // Only handle single touch
+    if (event.touches.length !== 1) return
+
+    // Get touch position
+    const container = containerRef.current
+    if (!container) return
+
+    const rect = container.getBoundingClientRect()
+    const touch = event.touches[0]
+    const relativeX = (touch.clientX - rect.left) / rect.width
+
+    // Determine action based on position
+    if (relativeX < 0.3) {
+      // Left 30% - go to previous
+      event.preventDefault()
+      goToPrevPart()
+    } else if (relativeX > 0.7) {
+      // Right 30% - go to next
+      event.preventDefault()
+      goToNextPart()
+    } else {
+      // Center 40% - toggle pause/resume
+      event.preventDefault()
+      togglePause()
+    }
+  }
+
   // Reset success and loading states when scene changes
   useEffect(() => {
     setCopySuccess(false)
@@ -222,10 +301,45 @@ function RecapJourney({
     setDownloadLoading(false)
   }, [scene])
 
+  // Initialize prevIsPausedRef on first mount
+  useEffect(() => {
+    if (!hasInitializedRef.current) {
+      prevIsPausedRef.current = isPaused
+      hasInitializedRef.current = true
+      // Wait a bit before allowing icon to show (to avoid showing on initial mount)
+      setTimeout(() => {
+        isFirstMountRef.current = false
+      }, 500)
+    }
+  }, [isPaused])
+
+  // Show pause/resume icon when isPaused changes (but not on first mount or initial changes)
+  useEffect(() => {
+    // Skip showing icon on first mount or if still initializing
+    if (isFirstMountRef.current || !hasInitializedRef.current) {
+      prevIsPausedRef.current = isPaused
+      return undefined
+    }
+
+    // Only show icon if isPaused actually changed from previous value
+    if (prevIsPausedRef.current !== null && prevIsPausedRef.current !== isPaused) {
+      setShowPauseResumeIcon(true)
+      const timer = setTimeout(() => {
+        setShowPauseResumeIcon(false)
+      }, 1000) // Show for 1 second
+
+      prevIsPausedRef.current = isPaused
+      return () => clearTimeout(timer)
+    }
+
+    prevIsPausedRef.current = isPaused
+    return undefined
+  }, [isPaused])
+
   return (
     <>
       <CeraFontFace />
-      <JourneyContainer ref={containerRef}>
+      <JourneyContainer ref={containerRef} onClick={handleScreenClick} onTouchStart={handleScreenTouch}>
         {/* Mute Button */}
         <MuteButton className="mute-button" onClick={handleToggleMute} aria-label={isMuted ? 'Unmute' : 'Mute'}>
           {isMuted ? <VolumeX /> : <Volume2 />}
@@ -496,6 +610,27 @@ function RecapJourney({
             </ProgressSegment>
           </ProgressBar>
         </ProgressBarContainer>
+
+        {/* Pause/Resume Icon Overlay */}
+        <AnimatePresence>
+          {showPauseResumeIcon && (
+            <PauseResumeOverlay
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <PauseResumeIcon
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.8, opacity: 0 }}
+                transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+              >
+                {isPaused ? <Play /> : <Pause />}
+              </PauseResumeIcon>
+            </PauseResumeOverlay>
+          )}
+        </AnimatePresence>
       </JourneyContainer>
     </>
   )

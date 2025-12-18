@@ -1124,6 +1124,57 @@ export const MuteButton = styled.button`
   }
 `
 
+export const PauseResumeOverlay = styled(motion.div)`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  pointer-events: none;
+`
+
+export const PauseResumeIcon = styled(motion.div)`
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.7);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(8px);
+
+  svg {
+    width: 32px;
+    height: 32px;
+    color: ${({ theme }) => theme.white};
+  }
+
+  @media screen and (max-width: 640px) {
+    width: 60px;
+    height: 60px;
+
+    svg {
+      width: 24px;
+      height: 24px;
+    }
+  }
+
+  @media screen and (max-width: 480px) {
+    width: calc(80 / 640 * 100vw);
+    height: calc(80 / 640 * 100vw);
+
+    svg {
+      width: calc(32 / 640 * 100vw);
+      height: calc(32 / 640 * 100vw);
+    }
+  }
+`
+
 export const ShareButton = styled.button<{ $isSuccess?: boolean; $isLoading?: boolean }>`
   width: 36px;
   height: 36px;
