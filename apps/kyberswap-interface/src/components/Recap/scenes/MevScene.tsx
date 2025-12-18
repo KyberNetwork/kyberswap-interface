@@ -53,16 +53,16 @@ function MevScene({ isMevFlowScene, isFairflowRewardsScene }: MevSceneProps) {
         alt="FairFlow"
         initial={{ opacity: 1 }}
         animate={{
-          opacity: isFairflowRewardsScene ? 0 : [1, 0.65, 0.9, 0.5, 0.3, 0.15, 0.02],
+          opacity: isFairflowRewardsScene ? 0 : [1, 0.65, 0.9, 0.75, 0.55, 0.4, 0.25, 0.15, 0.08, 0.03, 0],
         }}
         transition={
           isFairflowRewardsScene
-            ? { duration: 1.5, ease: 'easeOut' } // Slower fade out
+            ? { duration: 1.5, ease: 'easeOut' }
             : {
-                duration: 4,
+                duration: 5,
                 repeat: Infinity,
-                ease: [0.4, 0, 0.6, 1], // Smooth cubic-bezier easing
-                times: [0, 0.25, 0.5, 0.65, 0.85, 0.9, 1],
+                ease: [0.25, 0.1, 0.25, 1],
+                times: [0, 0.15, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.88, 0.94, 1],
               }
         }
       />
