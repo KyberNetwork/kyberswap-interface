@@ -2,7 +2,9 @@ import { rgba } from 'polished'
 import React, { useState } from 'react'
 import styled, { css } from 'styled-components'
 
-export type PositionStatus = 'all' | 'in_range' | 'out_of_range' | 'closed'
+import { PositionStatus as EarnPositionStatus } from 'pages/Earns/types'
+
+export type PositionStatus = EarnPositionStatus | 'all'
 
 export type PositionStatusOption = {
   label: string
@@ -54,9 +56,9 @@ const OptionButton = styled.button`
 
 export const POSITION_STATUS_OPTIONS: PositionStatusOption[] = [
   { label: 'All', value: 'all' },
-  { label: 'In Range', value: 'in_range' },
-  { label: 'Out of Range', value: 'out_of_range' },
-  { label: 'Closed', value: 'closed' },
+  { label: 'In Range', value: EarnPositionStatus.IN_RANGE },
+  { label: 'Out of Range', value: EarnPositionStatus.OUT_RANGE },
+  { label: 'Closed', value: EarnPositionStatus.CLOSED },
 ]
 
 type Props = {

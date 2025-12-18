@@ -2,6 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useBatchClaimEncodeDataMutation, useClaimEncodeDataMutation, useRewardInfoQuery } from 'services/reward'
+import { useUserPositionsQuery } from 'services/zapEarn'
 
 import { NotificationType } from 'components/Announcement/type'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
@@ -10,7 +11,8 @@ import useChainsConfig from 'hooks/useChainsConfig'
 import useFilter from 'pages/Earns/UserPositions/useFilter'
 import ClaimAllModal from 'pages/Earns/components/ClaimAllModal'
 import ClaimModal, { ClaimInfo, ClaimType } from 'pages/Earns/components/ClaimModal'
-import { EARN_CHAINS, EarnChain } from 'pages/Earns/constants'
+import { PositionStatus } from 'pages/Earns/components/PositionStatusControl'
+import { EARN_CHAINS, EarnChain, Exchange } from 'pages/Earns/constants'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import useCompounding from 'pages/Earns/hooks/useCompounding'
 import { ParsedPosition, RewardInfo, TokenInfo } from 'pages/Earns/types'
@@ -19,6 +21,7 @@ import { parseReward } from 'pages/Earns/utils/reward'
 import { useNotify } from 'state/application/hooks'
 import { useAllTransactions, useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
+import { enumToArrayOfValues } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const useKemRewards = (refetchAfterCollect?: () => void) => {
@@ -31,11 +34,26 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
   const { supportedChains } = useChainsConfig()
   const { filters } = useFilter()
 
+  const [thresholdValue, setThresholdValue] = useState<number | null>(null)
+  const [positionStatus, setPositionStatus] = useState<PositionStatus | 'all'>()
+
   const {
     data,
     refetch: refetchRewardInfo,
     isLoading: isLoadingRewardInfo,
   } = useRewardInfoQuery({ owner: account || '' }, { skip: !account, pollingInterval: 15_000 })
+
+  const { data: userPositions, isLoading: isLoadingUserPositions } = useUserPositionsQuery(
+    {
+      addresses: account || '',
+      chainIds: enumToArrayOfValues(EarnChain, 'number').join(','),
+      protocols: enumToArrayOfValues(Exchange).join(','),
+      positionStatus: 'all',
+    },
+    {
+      skip: !account || thresholdValue === null,
+    },
+  )
 
   const [claimEncodeData] = useClaimEncodeDataMutation()
   const [batchClaimEncodeData] = useBatchClaimEncodeDataMutation()
@@ -48,9 +66,14 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
   const [txHash, setTxHash] = useState<string | null>(null)
   const [position, setPosition] = useState<ParsedPosition | null>(null)
   const [rewardInfo, setRewardInfo] = useState<RewardInfo | null>(null)
-
-  const [thresholdValue, setThresholdValue] = useState<number | null>(null)
   const [filteredRewardInfo, setFilteredRewardInfo] = useState<RewardInfo | null>(null)
+
+  const filteredTokenIds = useMemo(() => {
+    if (!userPositions?.length || positionStatus === 'all') return undefined
+    return new Set(
+      userPositions.filter(position => position.status === positionStatus).map(position => position.tokenId),
+    )
+  }, [positionStatus, userPositions])
 
   const onCloseClaim = useCallback(() => {
     setOpenClaimModal(false)
@@ -76,13 +99,15 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
 
   const parsedFilteredRewardInfo = useMemo(() => {
     const chainIds = filters.chainIds?.split(',').filter(Boolean).map(Number)
-    return parseReward({
+    const rewardInfo = parseReward({
       data,
       tokens,
       supportedChains: supportedChains.filter(chain => !chainIds?.length || chainIds.includes(chain.chainId)),
       thresholdValue,
+      tokenIds: filteredTokenIds,
     })
-  }, [data, filters.chainIds, supportedChains, thresholdValue, tokens])
+    return rewardInfo
+  }, [data, tokens, supportedChains, filters.chainIds, thresholdValue, filteredTokenIds])
 
   const isRewardInfoParsing = Object.keys(data || {}).length > 0 && !rewardInfo
 
@@ -274,6 +299,7 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
     }
     setOpenClaimAllModal(true)
     setThresholdValue(5)
+    setPositionStatus('all')
   }
 
   useEffect(() => {
@@ -398,8 +424,11 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
         onClose={() => setOpenClaimAllModal(false)}
         claiming={claiming}
         setClaiming={setClaiming}
+        isLoadingUserPositions={isLoadingUserPositions}
         thresholdValue={thresholdValue ?? undefined}
         onThresholdChange={setThresholdValue}
+        positionStatus={positionStatus}
+        onPositionStatusChange={setPositionStatus}
       />
     ) : null
 

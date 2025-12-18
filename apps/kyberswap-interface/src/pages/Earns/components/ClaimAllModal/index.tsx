@@ -1,6 +1,7 @@
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useState } from 'react'
 import { ChevronDown } from 'react-feather'
+import Skeleton from 'react-loading-skeleton'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
@@ -36,8 +37,11 @@ type Props = {
   claiming: boolean
   setClaiming: (claiming: boolean) => void
   onClaimAll: () => void
+  isLoadingUserPositions?: boolean
   thresholdValue?: number
   onThresholdChange?: (value: number) => void
+  positionStatus?: PositionStatus
+  onPositionStatusChange?: (value: PositionStatus) => void
 }
 
 export default function ClaimAllModal({
@@ -47,8 +51,11 @@ export default function ClaimAllModal({
   claiming,
   setClaiming,
   onClaimAll,
+  isLoadingUserPositions,
   thresholdValue,
   onThresholdChange,
+  positionStatus,
+  onPositionStatusChange,
 }: Props) {
   const theme = useTheme()
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
@@ -57,7 +64,6 @@ export default function ClaimAllModal({
 
   const [autoClaim, setAutoClaim] = useState(false)
   const [selectedChainId, setSelectedChainId] = useState<number | null>(null)
-  const [statusValue, setStatusValue] = useState<PositionStatus>('all')
   const [selectedChainExpanded, setSelectedChainExpanded] = useState(false)
 
   const selectedRewardChain = selectedChainId
@@ -166,21 +172,30 @@ export default function ClaimAllModal({
 
           <RewardsFilterSetting
             thresholdValue={thresholdValue}
-            statusValue={statusValue}
+            positionStatus={positionStatus}
             onThresholdChange={onThresholdChange}
-            onStatusChange={setStatusValue}
+            onPositionStatusChange={onPositionStatusChange}
           />
 
           {!!selectedRewardChain && (
             <FilteredChainWrapper>
               <FilteredChainTitle onClick={() => setSelectedChainExpanded(expanded => !expanded)}>
                 <Text>{t`You are currently claiming`}</Text>
-                <Text color={theme.text}>
-                  {formatDisplayNumber(selectedRewardChain.claimableUsdValue, {
-                    significantDigits: 4,
-                    style: 'currency',
-                  })}
-                </Text>
+                {isLoadingUserPositions ? (
+                  <Skeleton
+                    width={60}
+                    baseColor={theme.darkText}
+                    highlightColor={theme.disableText}
+                    borderRadius="1rem"
+                  />
+                ) : (
+                  <Text color={theme.text}>
+                    {formatDisplayNumber(selectedRewardChain.claimableUsdValue, {
+                      significantDigits: 4,
+                      style: 'currency',
+                    })}
+                  </Text>
+                )}
                 <Text>{t`on`}</Text>
                 <Text>{selectedRewardChain.chainName}</Text>
                 <ChevronDown

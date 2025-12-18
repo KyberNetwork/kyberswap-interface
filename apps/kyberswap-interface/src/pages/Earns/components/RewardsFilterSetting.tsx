@@ -31,12 +31,17 @@ const Expandable = styled(Flex)<{ height: number; isOpen: boolean }>`
 
 type Props = {
   thresholdValue?: number
-  statusValue?: PositionStatus
+  positionStatus?: PositionStatus
   onThresholdChange?: (value: number) => void
-  onStatusChange?: (value: PositionStatus) => void
+  onPositionStatusChange?: (value: PositionStatus) => void
 }
 
-export const RewardsFilterSetting = ({ thresholdValue, statusValue, onThresholdChange, onStatusChange }: Props) => {
+export const RewardsFilterSetting = ({
+  thresholdValue,
+  positionStatus,
+  onThresholdChange,
+  onPositionStatusChange,
+}: Props) => {
   const theme = useTheme()
   const [thresholdExpanded, setThresholdExpanded] = useState(false)
   const [statusExpanded, setStatusExpanded] = useState(false)
@@ -61,7 +66,7 @@ export const RewardsFilterSetting = ({ thresholdValue, statusValue, onThresholdC
             <Trans>Position Status</Trans>
           </Text>
           <Text fontSize={14} color={theme.text}>
-            {POSITION_STATUS_OPTIONS.find(option => option.value === statusValue)?.label || ''}
+            {POSITION_STATUS_OPTIONS.find(option => option.value === positionStatus)?.label || ''}
           </Text>
           <DropdownIcon data-flip={statusExpanded}>
             <ChevronDown width={16} height={16} />
@@ -91,7 +96,7 @@ export const RewardsFilterSetting = ({ thresholdValue, statusValue, onThresholdC
       </Flex>
 
       <Expandable height={statusExpanded ? 48 : thresholdExpanded ? 88 : 0} isOpen={isExpanded}>
-        {statusExpanded && <PositionStatusControl value={statusValue} onChange={onStatusChange} />}
+        {statusExpanded && <PositionStatusControl value={positionStatus} onChange={onPositionStatusChange} />}
         {thresholdExpanded && (
           <>
             <Text fontSize={12} color={theme.subText}>

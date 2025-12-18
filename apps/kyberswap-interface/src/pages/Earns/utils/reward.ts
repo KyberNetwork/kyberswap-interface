@@ -107,11 +107,13 @@ export const parseReward = ({
   tokens,
   supportedChains,
   thresholdValue,
+  tokenIds,
 }: {
   data: RewardData | undefined
   tokens: TokenInfo[]
   supportedChains: Array<NetworkInfo>
   thresholdValue?: number | null
+  tokenIds?: Set<string>
 }) => {
   if (!data || !tokens || !tokens.length) return null
 
@@ -194,6 +196,8 @@ export const parseReward = ({
           egTokens,
           lmTokens,
         }
+
+        if (tokenIds && !tokenIds.has(nftId)) return
 
         // Merge with existing NFT if present
         const existingNft = nftMap.get(nftId)
