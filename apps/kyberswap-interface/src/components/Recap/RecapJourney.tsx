@@ -215,8 +215,28 @@ function RecapJourney({
 
   // Handle share to X.com
   const handleShareToX = () => {
-    const shareText = encodeURIComponent('Watch your 2025 Journey 👇 kyberswap.com/2025-journey')
-    const shareUrl = `https://twitter.com/intent/tweet?text=${shareText}`
+    // Get top chain name (first chain in the array)
+    const topChainName = topChains && topChains.length > 0 ? topChains[0].name : 'Ethereum'
+
+    // Format total rewards as currency
+    const formattedRewards = totalRewards.toLocaleString('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    })
+
+    const shareText = `My 2025 on-chain story?
+
+🐋 Top ${top}% Trader on @KyberNetwork
+⛓️ Heavy hitter on ${topChainName}
+💸 ${formattedRewards} reclaimed via Uniswap v4 FairFlow.
+
+That's my liquidity working smarter. Watch your recap👇
+kyberswap.com/2025-recap`
+
+    const encodedText = encodeURIComponent(shareText)
+    const shareUrl = `https://twitter.com/intent/tweet?text=${encodedText}`
     window.open(shareUrl, '_blank', 'noopener,noreferrer')
   }
 
