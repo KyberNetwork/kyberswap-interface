@@ -143,7 +143,6 @@ function RecapJourney({
     )
   }, [scene])
 
-  // Handle copy image
   const handleCopyImage = async () => {
     if (!containerRef.current || isCapturing) return
 
