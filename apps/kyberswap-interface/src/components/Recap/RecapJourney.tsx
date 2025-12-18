@@ -5,6 +5,7 @@ import { Check, Copy, Download, Loader, Pause, Play, SkipBack, SkipForward } fro
 import confetti from 'assets/recap/confetti.png'
 import customizedKyber from 'assets/recap/customized-kyber.png'
 import fireworkBanner from 'assets/recap/firework-banner.png'
+import firework from 'assets/recap/firework.png'
 import moneyAirdrop from 'assets/recap/money-airdrop.png'
 import recapAnimation from 'assets/recap/recap-animation.mp4'
 import sound from 'assets/recap/sound.mp3'
@@ -254,7 +255,7 @@ function RecapJourney({
             </motion.div>
           )}
 
-          {isStarsScene && scene !== 'stars-stats' && (
+          {isStarsScene && scene !== 'stars-stats' && !isSummaryScene && (
             <motion.div
               key="stars-bg"
               initial={{ opacity: 0 }}
@@ -263,6 +264,30 @@ function RecapJourney({
               transition={{ duration: 0.8, ease: 'easeInOut' }}
             >
               <BackgroundImage src={starsBanner} />
+            </motion.div>
+          )}
+
+          {isSummaryScene && (
+            <motion.div
+              key="summary-bg"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5, ease: 'easeInOut' }}
+              style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: '#0f0f0f' }}
+            >
+              <BackgroundOverlayImage
+                src={firework}
+                alt=""
+                style={{
+                  top: '0',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  width: '100%',
+                  height: 'auto',
+                  objectFit: 'contain',
+                }}
+              />
             </motion.div>
           )}
 
