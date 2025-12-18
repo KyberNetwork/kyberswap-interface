@@ -13,6 +13,7 @@ export interface TokenModalProps {
   tokensIn: Token[];
   amountsIn: string;
   account?: string;
+  title?: string;
   chainId: ChainId;
   mode: TOKEN_SELECT_MODE;
   selectedTokenAddress?: string;
@@ -36,6 +37,7 @@ const TokenModal = ({
   tokensIn,
   amountsIn,
   account,
+  title,
   chainId,
   mode,
   selectedTokenAddress,
@@ -121,6 +123,7 @@ const TokenModal = ({
             setTokensIn={setTokensIn}
             setAmountsIn={setAmountsIn}
             account={account}
+            title={title}
             selectedTokenAddress={selectedTokenAddress}
             mode={mode}
             chainId={chainId}

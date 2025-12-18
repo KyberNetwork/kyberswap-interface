@@ -1,6 +1,6 @@
 import { ChainId, POOL_CATEGORY, Token as TokenSchema } from '@kyber/schema'
 import { TOKEN_SELECT_MODE, TokenLogo, TokenSelectorModal } from '@kyber/ui'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import Portal from '@reach/portal'
 import { useQuery } from '@tanstack/react-query'
 import { useEffect, useMemo, useState } from 'react'
@@ -74,13 +74,14 @@ const CATEGORY_FEE_PRESETS: Record<POOL_CATEGORY, FeePreset> = {
   [POOL_CATEGORY.HIGH_VOLATILITY_PAIR]: { defaultFee: 1, options: [0.3, 0.5, 1, 3] },
 }
 
-const availableChains: number[] = [ChainId.Ethereum, ChainId.Bsc, ChainId.Base]
-
 const PROTOCOL_ALLOWLIST: Partial<Record<ChainId, Exchange[]>> = {
-  [ChainId.Bsc]: [Exchange.DEX_UNISWAP_V4],
-  [ChainId.Base]: [Exchange.DEX_UNISWAP_V4, Exchange.DEX_UNISWAP_V4_FAIRFLOW],
-  [ChainId.Ethereum]: [Exchange.DEX_UNISWAP_V4, Exchange.DEX_UNISWAP_V4_FAIRFLOW],
+  [ChainId.Bsc]: [Exchange.DEX_PANCAKE_INFINITY_CL_FAIRFLOW, Exchange.DEX_PANCAKE_INFINITY_CL, Exchange.DEX_UNISWAP_V4],
+  [ChainId.Base]: [Exchange.DEX_UNISWAP_V4_FAIRFLOW, Exchange.DEX_UNISWAP_V4],
+  [ChainId.Ethereum]: [Exchange.DEX_UNISWAP_V4_FAIRFLOW, Exchange.DEX_UNISWAP_V4],
+  [ChainId.Arbitrum]: [Exchange.DEX_UNISWAP_V4_FAIRFLOW, Exchange.DEX_UNISWAP_V4],
 }
+
+const availableChains: ChainId[] = Object.keys(PROTOCOL_ALLOWLIST).map(Number)
 
 type Token = TokenSchema & { isFOT?: boolean }
 
@@ -119,7 +120,7 @@ const CreatePoolModal = ({ isOpen, filterChainId, onDismiss, onSubmit }: Props) 
   const chainOptions = useMemo(
     () =>
       supportedChains
-        .filter(chain => [ChainId.Ethereum, ChainId.Bsc, ChainId.Base].includes(chain.chainId))
+        .filter(chain => availableChains.includes(chain.chainId))
         .map(chain => ({
           label: chain.name,
           value: chain.chainId.toString(),
@@ -132,12 +133,26 @@ const CreatePoolModal = ({ isOpen, filterChainId, onDismiss, onSubmit }: Props) 
     if (!supportedProtocols?.data?.chains) return []
     const availableProtocols =
       Object.values(supportedProtocols.data.chains).find(chain => chain.chainId === selectedChainId)?.protocols || []
+    const allowedProtocols = PROTOCOL_ALLOWLIST[selectedChainId] || []
+
     return availableProtocols
-      .filter(protocol => PROTOCOL_ALLOWLIST[selectedChainId]?.includes(protocol.id))
+      .filter(protocol => allowedProtocols.includes(protocol.id))
       .map(protocol => ({
         label: protocol.name,
         value: protocol.id,
       }))
+      .sort((a, b) => {
+        const aIndex = allowedProtocols.indexOf(a.value as Exchange)
+        const bIndex = allowedProtocols.indexOf(b.value as Exchange)
+
+        // If both DEXes are in priority order, sort by their priority
+        if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex
+        // If only one DEX is in priority order, prioritize it
+        if (aIndex !== -1) return -1
+        if (bIndex !== -1) return 1
+        // If neither DEX is in priority order, sort alphabetically
+        return a.label.localeCompare(b.label)
+      })
   }, [selectedChainId, supportedProtocols])
 
   useEffect(() => {
@@ -353,6 +368,7 @@ const CreatePoolModal = ({ isOpen, filterChainId, onDismiss, onSubmit }: Props) 
             chainId={selectedChainId}
             tokensIn={[]}
             amountsIn=""
+            title={t`Select a token`}
             account={account}
             mode={TOKEN_SELECT_MODE.SELECT}
             selectedTokenAddress={selectedTokenAddress}
