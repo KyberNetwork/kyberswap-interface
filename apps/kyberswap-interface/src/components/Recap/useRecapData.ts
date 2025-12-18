@@ -6,8 +6,8 @@ import { NETWORKS_INFO } from 'constants/networks'
 export default function useRecapData() {
   const data = useMemo(
     () => ({
-      totalVolume: 80530000000,
-      totalUsers: 2500000,
+      totalVolume: 80530000000, // Got from report
+      totalUsers: 2500000, // Got from report
       tradingVolume: 26865,
       txCount: 1786,
       top: 20,
