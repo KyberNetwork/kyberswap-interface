@@ -27,6 +27,10 @@ function TopTokensScene({ nickname, topTokens }: TopTokensSceneProps) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.8, ease: 'easeInOut' }}
+      style={{
+        gap: '16px',
+        marginTop: '48px',
+      }}
     >
       <NicknameHeader>{nickname}</NicknameHeader>
       <TopListTitle
@@ -43,6 +47,9 @@ function TopTokensScene({ nickname, topTokens }: TopTokensSceneProps) {
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3 + index * 0.15, duration: 0.6, ease: 'easeOut' }}
+            style={{
+              paddingLeft: '20%',
+            }}
           >
             <TopListRank>{index + 1}</TopListRank>
             <Flex alignItems="center" sx={{ gap: '8px' }}>

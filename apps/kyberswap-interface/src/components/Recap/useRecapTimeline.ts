@@ -223,17 +223,9 @@ export default function useRecapTimeline(): UseRecapTimelineReturn {
       isVideoScene: scene.startsWith('video-'),
       isStarsScene:
         scene === 'stars-stats' ||
-        scene === 'mark-on-market' ||
-        scene === 'trading-stats' ||
-        scene === 'top-percent' ||
-        scene === 'badge' ||
         scene === 'capital-flow' ||
         scene === 'top-chains' ||
         scene === 'top-tokens' ||
-        scene === 'mev-bots' ||
-        scene === 'mev-flow' ||
-        scene === 'fairflow-rewards' ||
-        scene === 'liquidity-smarter' ||
         scene === 'summary',
       isSmarterFinaleScene: scene === 'smarter-finale',
       isSummaryScene: scene === 'summary',

@@ -138,6 +138,19 @@ export const BackgroundImage = styled.div<{ src: string }>`
   background-repeat: no-repeat;
 `
 
+export const BackgroundOverlayImage = styled.img`
+  position: absolute;
+  top: 5%;
+  left: 5%;
+  right: 5%;
+  bottom: 5%;
+  width: 90%;
+  height: 90%;
+  object-fit: contain;
+  pointer-events: none;
+  opacity: 0.3;
+`
+
 export const VideoBackground = styled.video`
   position: absolute;
   top: 0;
@@ -538,6 +551,8 @@ export const TradingStatValue = styled.span`
 
 export const TradingStatValue2 = styled(TradingStatValue)`
   color: ${({ theme }) => theme.blue3};
+  position: relative;
+  top: -4px;
 `
 
 // Scene 4: Top X%
@@ -911,12 +926,12 @@ export const MevFlowLine = styled(motion.div)`
   justify-content: center;
   gap: 10px;
   flex-wrap: wrap;
-  margin-top: 24px;
+  margin-top: 12px;
 
   @media screen and (max-width: 768px) {
     font-size: 20px;
     gap: 6px;
-    margin-top: 16px;
+    margin-top: 6px;
   }
 `
 
@@ -978,7 +993,7 @@ export const FairflowEarned = styled(motion.div)`
 
 export const FairflowRewardLine = styled(motion.div)`
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
   gap: 12px;
   margin: 16px 0;
@@ -1128,7 +1143,7 @@ export const SummaryStatsRow = styled.div`
   display: grid;
   grid-template-columns: auto auto;
   grid-template-rows: auto auto auto;
-  gap: 4px 24px;
+  gap: 12px 24px;
 
   @media screen and (max-width: 768px) {
     gap: 4px 12px;
@@ -1150,9 +1165,10 @@ export const SummaryStatItem = styled.div`
 `
 
 export const SummaryStatLabel = styled.div`
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 600;
   color: ${({ theme }) => theme.text};
+  margin-bottom: -10px;
 
   @media screen and (max-width: 768px) {
     font-size: 14px;
@@ -1164,7 +1180,7 @@ export const SummaryStatValue = styled.div`
   font-size: 48px;
   font-weight: 700;
   color: ${({ theme }) => theme.primary};
-  line-height: 1.1;
+  line-height: 1;
 
   @media screen and (max-width: 768px) {
     font-size: 32px;
@@ -1176,7 +1192,7 @@ export const SummaryTradesValue = styled.div`
   font-size: 48px;
   font-weight: 700;
   color: ${({ theme }) => theme.primary};
-  line-height: 1.1;
+  line-height: 1;
 
   @media screen and (max-width: 768px) {
     font-size: 32px;
@@ -1190,7 +1206,7 @@ export const SummaryTradesItem = styled.div`
 `
 
 export const SummaryTradesLabel = styled.div`
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 600;
   color: ${({ theme }) => theme.text};
 
@@ -1202,10 +1218,10 @@ export const SummaryTradesLabel = styled.div`
 export const SummaryTopBadge = styled.div`
   background: ${({ theme }) => theme.primary};
   color: ${({ theme }) => theme.textReverse};
-  padding: 8px 24px;
+  padding: 6px 24px;
   border-radius: 20px;
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 20px;
+  font-weight: 500;
   width: fit-content;
 
   @media screen and (max-width: 768px) {
@@ -1230,15 +1246,14 @@ export const SummaryFavoriteItem = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: ${({ theme }) => theme.buttonBlack};
-  border: 1px solid ${({ theme }) => theme.border};
+  background: rgba(34, 34, 34, 0.8);
   border-radius: 12px;
-  padding: 12px 24px;
-  gap: 8px;
+  padding: 12px 22px 10px;
+  gap: 4px;
 
   @media screen and (max-width: 768px) {
     padding: 8px 16px;
-    gap: 6px;
+    gap: 2px;
   }
 `
 
@@ -1251,7 +1266,7 @@ export const SummaryFavoriteValue = styled.div`
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 600;
   color: ${({ theme }) => theme.text};
 

@@ -18,7 +18,7 @@ function SmarterBannerScene({ isSmarterFinaleScene }: SmarterBannerSceneProps) {
         initial={{
           width: 'auto',
           height: 'auto',
-          bottom: 40,
+          bottom: 80,
           left: '50%',
           x: '-50%',
           borderRadius: 8,
@@ -36,7 +36,7 @@ function SmarterBannerScene({ isSmarterFinaleScene }: SmarterBannerSceneProps) {
             : {
                 width: 'auto',
                 height: 'auto',
-                bottom: 40,
+                bottom: 80,
                 left: '50%',
                 x: '-50%',
                 borderRadius: 8,

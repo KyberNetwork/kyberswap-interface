@@ -65,7 +65,7 @@ function VideoScene({ scene, nickname }: VideoSceneProps) {
           opacity: showNavigated ? 1 : 0,
           y: showNavigated ? 0 : 20,
         }}
-        transition={{ delay: 0.6, duration: 0.7, ease: 'easeOut' }}
+        transition={{ delay: 0.3, duration: 0.7, ease: 'easeOut' }}
         style={{ visibility: showNavigated ? 'visible' : 'hidden' }}
       >
         <NavigatedText>NAVIGATED</NavigatedText>

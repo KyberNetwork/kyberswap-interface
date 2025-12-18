@@ -51,30 +51,30 @@ export const TIMELINE: { scene: Scene; delay: number }[] = [
   { scene: 'video-chaotic', delay: 4000 },
   { scene: 'video-you', delay: 5500 },
   { scene: 'video-nickname', delay: 6000 },
-  { scene: 'video-navigated', delay: 7500 },
-  { scene: 'stars-stats', delay: 10500 },
-  { scene: 'mark-on-market', delay: 17000 },
-  { scene: 'trading-stats', delay: 19000 },
-  { scene: 'top-percent', delay: 22000 },
-  { scene: 'badge', delay: 24000 },
-  { scene: 'capital-flow', delay: 27000 },
-  { scene: 'top-chains', delay: 30000 },
-  { scene: 'top-tokens', delay: 33000 },
-  { scene: 'mev-bots', delay: 36000 },
-  { scene: 'mev-flow', delay: 39000 },
-  { scene: 'fairflow-rewards', delay: 42000 },
-  { scene: 'liquidity-smarter', delay: 47000 },
-  { scene: 'smarter-finale', delay: 50000 },
-  { scene: 'summary', delay: 53000 },
+  { scene: 'video-navigated', delay: 7000 },
+  { scene: 'stars-stats', delay: 9000 },
+  { scene: 'mark-on-market', delay: 16000 },
+  { scene: 'trading-stats', delay: 18000 },
+  { scene: 'top-percent', delay: 21000 },
+  { scene: 'badge', delay: 23000 },
+  { scene: 'capital-flow', delay: 26000 },
+  { scene: 'top-chains', delay: 29000 },
+  { scene: 'top-tokens', delay: 32000 },
+  { scene: 'mev-bots', delay: 35000 },
+  { scene: 'mev-flow', delay: 37000 },
+  { scene: 'fairflow-rewards', delay: 39000 },
+  { scene: 'liquidity-smarter', delay: 42000 },
+  { scene: 'smarter-finale', delay: 43000 },
+  { scene: 'summary', delay: 47000 },
 ]
 
 // Part durations for progress bar
 export const PART_DURATIONS = {
-  PART1: 17000, // 17 seconds (from start to mark-on-market)
+  PART1: 16000, // 16 seconds (from start to mark-on-market)
   PART2: 10000, // 10 seconds (from mark-on-market to capital-flow)
   PART3: 9000, // 9 seconds (from capital-flow to mev-bots)
-  PART4: 14000, // 14 seconds (from mev-bots to summary)
-  PART5: 10000, // 10 seconds (summary)
+  PART4: 12000, // 12 seconds (from mev-bots to summary, includes smarter-finale)
+  PART5: 10000, // 10 seconds (summary only)
 } as const
 
 // Scene groupings for parts
