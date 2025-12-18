@@ -2,12 +2,16 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { memo, useMemo } from 'react'
 import { Pause, Play, SkipBack, SkipForward } from 'react-feather'
 
+import confetti from 'assets/recap/confetti.png'
+import customizedKyber from 'assets/recap/customized-kyber.png'
 import fireworkBanner from 'assets/recap/firework-banner.png'
+import moneyAirdrop from 'assets/recap/money-airdrop.png'
 import recapAnimation from 'assets/recap/recap-animation.mp4'
 import starsBanner2 from 'assets/recap/stars-banner-2.png'
 import starsBanner from 'assets/recap/stars-banner.png'
 import {
   BackgroundImage,
+  BackgroundOverlayImage,
   CeraFontFace,
   ContentContainer,
   ControlButton,
@@ -126,13 +130,70 @@ function RecapJourney({
               <BackgroundImage src={starsBackgroundSrc} />
             </motion.div>
           )}
+
+          {(isMarkScene || isTradingStatsScene) && (
+            <motion.div
+              key="money-airdrop-bg"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5, ease: 'easeInOut' }}
+            >
+              <BackgroundOverlayImage src={moneyAirdrop} alt="" />
+            </motion.div>
+          )}
+
+          {(isTopPercentScene || isBadgeScene) && (
+            <motion.div
+              key="confetti-bg"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5, ease: 'easeInOut' }}
+            >
+              <BackgroundOverlayImage src={confetti} alt="" />
+            </motion.div>
+          )}
+
+          {(isMevBotsScene || isMevFlowScene || isFairflowRewardsScene || isLiquiditySmarterScene) && (
+            <motion.div
+              key="customized-kyber-bg"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5, ease: 'easeInOut' }}
+            >
+              <BackgroundOverlayImage
+                src={customizedKyber}
+                alt=""
+                style={{
+                  opacity: 0.05,
+                  top: '10%',
+                  left: '10%',
+                  right: '10%',
+                  bottom: '10%',
+                  width: '80%',
+                  height: '80%',
+                }}
+              />
+            </motion.div>
+          )}
         </AnimatePresence>
 
         <LogoContainer>
           <LogoImage src={'/logo-dark.svg'} alt="logo" />
         </LogoContainer>
 
-        {(isVideoScene || isStarsScene || isSmarterFinaleScene) && (
+        {(isVideoScene ||
+          isStarsScene ||
+          isSmarterFinaleScene ||
+          isMarkScene ||
+          isTradingStatsScene ||
+          isTopPercentScene ||
+          isBadgeScene ||
+          isMevBotsScene ||
+          isMevFlowScene ||
+          isFairflowRewardsScene) && (
           <YearTag>
             <motion.div
               initial={{ opacity: 0, y: -10 }}
