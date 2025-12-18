@@ -124,6 +124,16 @@ export const JourneyContainer = styled.div`
   &:hover .controls-container {
     opacity: 1;
   }
+
+  @media screen and (max-width: 640px) {
+    width: 480px;
+    height: 480px;
+  }
+
+  @media screen and (max-width: 480px) {
+    width: 100vw;
+    height: 100vw;
+  }
 `
 
 export const BackgroundImage = styled.div<{ src: string }>`
@@ -178,15 +188,29 @@ export const LogoContainer = styled.div`
   z-index: 20;
   gap: 8px;
 
-  @media screen and (max-width: 768px) {
-    top: 16px;
-    left: 16px;
+  @media screen and (max-width: 640px) {
+    top: 22px;
+    left: 18px;
     gap: 6px;
+  }
+
+  @media screen and (max-width: 480px) {
+    top: 16px;
+    left: 12px;
+    gap: 4px;
   }
 `
 
 export const LogoImage = styled.img`
   width: 124px;
+
+  @media screen and (max-width: 640px) {
+    width: 93px;
+  }
+
+  @media screen and (max-width: 480px) {
+    width: calc(124 / 640 * 100vw);
+  }
 `
 
 export const YearTag = styled.div`
@@ -195,8 +219,12 @@ export const YearTag = styled.div`
   right: 32px;
   z-index: 20;
 
-  @media screen and (max-width: 768px) {
-    right: 16px;
+  @media screen and (max-width: 640px) {
+    right: 24px;
+  }
+
+  @media screen and (max-width: 480px) {
+    right: calc(32 / 640 * 100vw);
   }
 `
 
@@ -213,9 +241,16 @@ export const YearTagBanner = styled.div<{ $isFinale?: boolean }>`
   -webkit-clip-path: polygon(0 0, 100% 0, 100% 100%, 50% calc(100% - 20px), 0 100%);
   transition: background 0.5s ease;
 
-  @media screen and (max-width: 768px) {
-    padding: 8px 14px 12px;
-    font-size: 16px;
+  @media screen and (max-width: 640px) {
+    padding: 22px 8px 24px;
+    font-size: 18px;
+    letter-spacing: -0.9px;
+  }
+
+  @media screen and (max-width: 480px) {
+    padding: calc(30 / 640 * 100vw) calc(10 / 640 * 100vw) calc(32 / 640 * 100vw);
+    font-size: calc(24 / 640 * 100vw);
+    letter-spacing: calc(-1.2 / 640 * 100vw);
   }
 `
 
@@ -231,6 +266,14 @@ export const ContentContainer = styled(motion.div)`
   justify-content: center;
   z-index: 5;
   padding: 24px;
+
+  @media screen and (max-width: 640px) {
+    padding: 18px;
+  }
+
+  @media screen and (max-width: 480px) {
+    padding: calc(24 / 640 * 100vw);
+  }
 `
 
 export const FireworkContentWrapper = styled.div`
@@ -250,8 +293,12 @@ export const Year2025 = styled(motion.h1)`
   margin: 0;
   line-height: 1;
 
-  @media screen and (max-width: 768px) {
-    font-size: 64px;
+  @media screen and (max-width: 640px) {
+    font-size: 84px;
+  }
+
+  @media screen and (max-width: 480px) {
+    font-size: calc(112 / 640 * 100vw);
   }
 `
 
@@ -267,9 +314,16 @@ export const YearOfFlow = styled(motion.h2)`
   justify-content: center;
   gap: 12px;
 
-  @media screen and (max-width: 768px) {
-    font-size: 28px;
-    margin: 16px 0 0 0;
+  @media screen and (max-width: 640px) {
+    font-size: 34px;
+    margin: 14px 0 0 0;
+    gap: 9px;
+  }
+
+  @media screen and (max-width: 480px) {
+    font-size: calc(46 / 640 * 100vw);
+    margin: calc(18 / 640 * 100vw) 0 0 0;
+    gap: calc(12 / 640 * 100vw);
   }
 `
 
@@ -280,6 +334,16 @@ export const FlowText = styled.span`
   color: ${({ theme }) => theme.primary};
   position: relative;
   top: -6px;
+
+  @media screen and (max-width: 640px) {
+    font-size: 46px;
+    top: -4px;
+  }
+
+  @media screen and (max-width: 480px) {
+    font-size: calc(62 / 640 * 100vw);
+    top: calc(-6 / 640 * 100vw);
+  }
 `
 
 export const TextLine = styled(motion.div)`
@@ -294,10 +358,16 @@ export const TextLine = styled(motion.div)`
   align-items: center;
   justify-content: center;
 
-  @media screen and (max-width: 768px) {
-    font-size: 32px;
-    margin: 8px 0;
-    min-height: 40px;
+  @media screen and (max-width: 640px) {
+    font-size: 36px;
+    margin: 9px 0;
+    min-height: 44px;
+  }
+
+  @media screen and (max-width: 480px) {
+    font-size: calc(48 / 640 * 100vw);
+    margin: calc(12 / 640 * 100vw) 0;
+    min-height: calc(58 / 640 * 100vw);
   }
 `
 
@@ -309,9 +379,14 @@ export const VideoTextWrapper = styled(motion.div)`
   min-height: 120px;
   justify-content: center;
 
-  @media screen and (max-width: 768px) {
-    min-height: 80px;
-    gap: 4px;
+  @media screen and (max-width: 640px) {
+    min-height: 90px;
+    gap: 6px;
+  }
+
+  @media screen and (max-width: 480px) {
+    min-height: calc(120 / 640 * 100vw);
+    gap: calc(8 / 640 * 100vw);
   }
 `
 
@@ -322,8 +397,14 @@ export const ButYouWrapper = styled(motion.div)`
   gap: 4px;
   min-height: 58px;
 
-  @media screen and (max-width: 768px) {
-    min-height: 40px;
+  @media screen and (max-width: 640px) {
+    min-height: 44px;
+    gap: 3px;
+  }
+
+  @media screen and (max-width: 480px) {
+    min-height: calc(58 / 640 * 100vw);
+    gap: calc(4 / 640 * 100vw);
   }
 `
 
@@ -333,8 +414,14 @@ export const ButText = styled(motion.span)`
   color: ${({ theme }) => theme.text};
   margin-right: 4px;
 
-  @media screen and (max-width: 768px) {
-    font-size: 24px;
+  @media screen and (max-width: 640px) {
+    font-size: 27px;
+    margin-right: 3px;
+  }
+
+  @media screen and (max-width: 480px) {
+    font-size: calc(36 / 640 * 100vw);
+    margin-right: calc(4 / 640 * 100vw);
   }
 `
 
@@ -345,8 +432,14 @@ export const YouText = styled(motion.span)`
   position: relative;
   top: 4px;
 
-  @media screen and (max-width: 768px) {
+  @media screen and (max-width: 640px) {
     font-size: 36px;
+    top: 3px;
+  }
+
+  @media screen and (max-width: 480px) {
+    font-size: calc(48 / 640 * 100vw);
+    top: calc(4 / 640 * 100vw);
   }
 `
 
@@ -361,9 +454,16 @@ export const NicknameText = styled(motion.p)`
   align-items: center;
   justify-content: center;
 
-  @media screen and (max-width: 768px) {
-    font-size: 24px;
-    min-height: 30px;
+  @media screen and (max-width: 640px) {
+    font-size: 36px;
+    margin: 9px 0 0;
+    min-height: 44px;
+  }
+
+  @media screen and (max-width: 480px) {
+    font-size: calc(48 / 640 * 100vw);
+    margin: calc(12 / 640 * 100vw) 0 0;
+    min-height: calc(58 / 640 * 100vw);
   }
 `
 
@@ -374,8 +474,14 @@ export const NavigatedWrapper = styled(motion.div)`
   gap: 10px;
   min-height: 58px;
 
-  @media screen and (max-width: 768px) {
-    min-height: 40px;
+  @media screen and (max-width: 640px) {
+    min-height: 44px;
+    gap: 7px;
+  }
+
+  @media screen and (max-width: 480px) {
+    min-height: calc(58 / 640 * 100vw);
+    gap: calc(10 / 640 * 100vw);
   }
 `
 
@@ -384,8 +490,12 @@ export const NavigatedText = styled(motion.span)`
   font-weight: 500;
   color: ${({ theme }) => theme.primary};
 
-  @media screen and (max-width: 768px) {
-    font-size: 24px;
+  @media screen and (max-width: 640px) {
+    font-size: 36px;
+  }
+
+  @media screen and (max-width: 480px) {
+    font-size: calc(48 / 640 * 100vw);
   }
 `
 
@@ -394,8 +504,12 @@ export const StormText = styled(motion.span)`
   font-weight: 500;
   color: ${({ theme }) => theme.text};
 
-  @media screen and (max-width: 768px) {
-    font-size: 24px;
+  @media screen and (max-width: 640px) {
+    font-size: 36px;
+  }
+
+  @media screen and (max-width: 480px) {
+    font-size: calc(48 / 640 * 100vw);
   }
 `
 
@@ -405,6 +519,16 @@ export const StatsContainer = styled(motion.div)`
   align-items: center;
   gap: 4px;
   margin-top: -160px;
+
+  @media screen and (max-width: 640px) {
+    margin-top: -120px;
+    gap: 3px;
+  }
+
+  @media screen and (max-width: 480px) {
+    margin-top: calc(-160 / 640 * 100vw);
+    gap: calc(4 / 640 * 100vw);
+  }
 `
 
 export const StatsText = styled(motion.div)`
@@ -414,8 +538,12 @@ export const StatsText = styled(motion.div)`
   text-align: center;
   line-height: 1.2;
 
-  @media screen and (max-width: 768px) {
-    font-size: 24px;
+  @media screen and (max-width: 640px) {
+    font-size: 36px;
+  }
+
+  @media screen and (max-width: 480px) {
+    font-size: calc(48 / 640 * 100vw);
   }
 `
 
@@ -425,8 +553,12 @@ export const VolumeText = styled(motion.span)`
   color: ${({ theme }) => theme.primary};
   font-family: 'Antonio', sans-serif;
 
-  @media screen and (max-width: 768px) {
-    font-size: 32px;
+  @media screen and (max-width: 640px) {
+    font-size: 48px;
+  }
+
+  @media screen and (max-width: 480px) {
+    font-size: calc(64 / 640 * 100vw);
   }
 `
 
@@ -436,8 +568,12 @@ export const UsersText = styled(motion.span)`
   color: ${({ theme }) => theme.primary};
   position: relative;
 
-  @media screen and (max-width: 768px) {
-    font-size: 32px;
+  @media screen and (max-width: 640px) {
+    font-size: 48px;
+  }
+
+  @media screen and (max-width: 480px) {
+    font-size: calc(64 / 640 * 100vw);
   }
 `
 
@@ -447,9 +583,14 @@ export const LabelText = styled.span`
   color: ${({ theme }) => theme.text};
   margin-left: 8px;
 
-  @media screen and (max-width: 768px) {
-    font-size: 16px;
-    margin-left: 4px;
+  @media screen and (max-width: 640px) {
+    font-size: 24px;
+    margin-left: 6px;
+  }
+
+  @media screen and (max-width: 480px) {
+    font-size: calc(32 / 640 * 100vw);
+    margin-left: calc(8 / 640 * 100vw);
   }
 `
 
@@ -460,6 +601,14 @@ export const MarkContainer = styled(motion.div)`
   align-items: center;
   justify-content: center;
   gap: 8px;
+
+  @media screen and (max-width: 640px) {
+    gap: 6px;
+  }
+
+  @media screen and (max-width: 480px) {
+    gap: calc(8 / 640 * 100vw);
+  }
 `
 
 export const MarkText = styled(motion.div)`
@@ -476,10 +625,16 @@ export const MarkText = styled(motion.div)`
   white-space: normal;
   max-width: 520px;
 
-  @media screen and (max-width: 768px) {
-    font-size: 26px;
-    gap: 6px;
-    max-width: 320px;
+  @media screen and (max-width: 640px) {
+    font-size: 30px;
+    gap: 7px;
+    max-width: 390px;
+  }
+
+  @media screen and (max-width: 480px) {
+    font-size: calc(40 / 640 * 100vw);
+    gap: calc(10 / 640 * 100vw);
+    max-width: calc(520 / 640 * 100vw);
   }
 `
 
@@ -490,8 +645,14 @@ export const MarkHighlight = styled.span`
   top: 4px;
   color: ${({ theme }) => theme.primary};
 
-  @media screen and (max-width: 768px) {
-    font-size: 38px;
+  @media screen and (max-width: 640px) {
+    font-size: 39px;
+    top: 3px;
+  }
+
+  @media screen and (max-width: 480px) {
+    font-size: calc(52 / 640 * 100vw);
+    top: calc(4 / 640 * 100vw);
   }
 `
 
@@ -503,6 +664,16 @@ export const TradingStatsContainer = styled(motion.div)`
   justify-content: center;
   gap: 24px;
   min-height: 120px;
+
+  @media screen and (max-width: 640px) {
+    gap: 18px;
+    min-height: 90px;
+  }
+
+  @media screen and (max-width: 480px) {
+    gap: calc(24 / 640 * 100vw);
+    min-height: calc(120 / 640 * 100vw);
+  }
 `
 
 export const TradingStatLine = styled(motion.div)`
@@ -512,6 +683,16 @@ export const TradingStatLine = styled(motion.div)`
   gap: 8px;
   flex-wrap: wrap;
   min-height: 48px;
+
+  @media screen and (max-width: 640px) {
+    gap: 6px;
+    min-height: 36px;
+  }
+
+  @media screen and (max-width: 480px) {
+    gap: calc(8 / 640 * 100vw);
+    min-height: calc(48 / 640 * 100vw);
+  }
 `
 
 export const TradingStatLine2 = styled(TradingStatLine)`
@@ -525,16 +706,24 @@ export const TradingStatLabel = styled.span`
   font-weight: 400;
   color: ${({ theme }) => theme.text};
 
-  @media screen and (max-width: 768px) {
-    font-size: 18px;
+  @media screen and (max-width: 640px) {
+    font-size: 27px;
+  }
+
+  @media screen and (max-width: 480px) {
+    font-size: calc(36 / 640 * 100vw);
   }
 `
 
 export const TradingStatLabel2 = styled(TradingStatLabel)`
   font-size: 24px;
 
-  @media screen and (max-width: 768px) {
-    font-size: 16px;
+  @media screen and (max-width: 640px) {
+    font-size: 18px;
+  }
+
+  @media screen and (max-width: 480px) {
+    font-size: calc(24 / 640 * 100vw);
   }
 `
 
@@ -544,8 +733,12 @@ export const TradingStatValue = styled.span`
   color: ${({ theme }) => theme.primary};
   font-family: 'Antonio', sans-serif;
 
-  @media screen and (max-width: 768px) {
-    font-size: 24px;
+  @media screen and (max-width: 640px) {
+    font-size: 36px;
+  }
+
+  @media screen and (max-width: 480px) {
+    font-size: calc(48 / 640 * 100vw);
   }
 `
 
@@ -553,6 +746,14 @@ export const TradingStatValue2 = styled(TradingStatValue)`
   color: ${({ theme }) => theme.blue3};
   position: relative;
   top: -4px;
+
+  @media screen and (max-width: 640px) {
+    top: -3px;
+  }
+
+  @media screen and (max-width: 480px) {
+    top: calc(-4 / 640 * 100vw);
+  }
 `
 
 // Scene 4: Top X%
@@ -563,6 +764,16 @@ export const TopPercentContainer = styled(motion.div)`
   justify-content: center;
   gap: 8px;
   min-height: 60px;
+
+  @media screen and (max-width: 640px) {
+    gap: 6px;
+    min-height: 45px;
+  }
+
+  @media screen and (max-width: 480px) {
+    gap: calc(8 / 640 * 100vw);
+    min-height: calc(60 / 640 * 100vw);
+  }
 `
 
 export const TopPercentText = styled(motion.div)`
@@ -577,8 +788,14 @@ export const TopPercentText = styled(motion.div)`
   gap: 8px;
   flex-wrap: wrap;
 
-  @media screen and (max-width: 768px) {
-    font-size: 18px;
+  @media screen and (max-width: 640px) {
+    font-size: 27px;
+    gap: 6px;
+  }
+
+  @media screen and (max-width: 480px) {
+    font-size: calc(36 / 640 * 100vw);
+    gap: calc(8 / 640 * 100vw);
   }
 `
 
@@ -588,8 +805,12 @@ export const TopPercentValue = styled.span`
   font-weight: 700;
   color: ${({ theme }) => theme.primary};
 
-  @media screen and (max-width: 768px) {
-    font-size: 24px;
+  @media screen and (max-width: 640px) {
+    font-size: 36px;
+  }
+
+  @media screen and (max-width: 480px) {
+    font-size: calc(48 / 640 * 100vw);
   }
 `
 
@@ -601,8 +822,12 @@ export const BadgeContainer = styled(motion.div)`
   min-height: 200px;
   width: 100%;
 
-  @media screen and (max-width: 768px) {
-    min-height: 120px;
+  @media screen and (max-width: 640px) {
+    min-height: 150px;
+  }
+
+  @media screen and (max-width: 480px) {
+    min-height: calc(200 / 640 * 100vw);
   }
 `
 
@@ -610,8 +835,12 @@ export const BadgeImage = styled.img`
   width: 240px;
   height: auto;
 
-  @media screen and (max-width: 768px) {
-    width: 144px;
+  @media screen and (max-width: 640px) {
+    width: 180px;
+  }
+
+  @media screen and (max-width: 480px) {
+    width: calc(240 / 640 * 100vw);
   }
 `
 
@@ -627,10 +856,16 @@ export const ControlsContainer = styled.div`
   opacity: 0;
   transition: opacity 0.3s ease;
 
-  @media screen and (max-width: 768px) {
-    bottom: 16px;
-    left: 16px;
+  @media screen and (max-width: 640px) {
+    bottom: 10px;
+    left: 14px;
     gap: 6px;
+  }
+
+  @media screen and (max-width: 480px) {
+    bottom: calc(14 / 640 * 100vw);
+    left: calc(18 / 640 * 100vw);
+    gap: calc(8 / 640 * 100vw);
   }
 `
 
@@ -663,13 +898,23 @@ export const ControlButton = styled.button`
     color: ${({ theme }) => theme.white};
   }
 
-  @media screen and (max-width: 768px) {
-    width: 32px;
-    height: 32px;
+  @media screen and (max-width: 640px) {
+    width: 27px;
+    height: 27px;
 
     svg {
-      width: 12px;
-      height: 12px;
+      width: 10px;
+      height: 10px;
+    }
+  }
+
+  @media screen and (max-width: 480px) {
+    width: calc(36 / 640 * 100vw);
+    height: calc(36 / 640 * 100vw);
+
+    svg {
+      width: calc(14 / 640 * 100vw);
+      height: calc(14 / 640 * 100vw);
     }
   }
 `
@@ -685,9 +930,14 @@ export const ProgressBarContainer = styled.div`
   align-items: center;
   gap: 8px;
 
-  @media screen and (max-width: 768px) {
-    top: 16px;
+  @media screen and (max-width: 640px) {
+    top: 9px;
     gap: 6px;
+  }
+
+  @media screen and (max-width: 480px) {
+    top: calc(12 / 640 * 100vw);
+    gap: calc(8 / 640 * 100vw);
   }
 `
 
@@ -696,8 +946,12 @@ export const ProgressBar = styled.div`
   gap: 4px;
   align-items: center;
 
-  @media screen and (max-width: 768px) {
+  @media screen and (max-width: 640px) {
     gap: 3px;
+  }
+
+  @media screen and (max-width: 480px) {
+    gap: calc(4 / 640 * 100vw);
   }
 `
 
@@ -709,9 +963,14 @@ export const ProgressSegment = styled.div<{ $isActive: boolean }>`
   position: relative;
   overflow: hidden;
 
-  @media screen and (max-width: 768px) {
-    width: 80px;
+  @media screen and (max-width: 640px) {
+    width: 87px;
     height: 3px;
+  }
+
+  @media screen and (max-width: 480px) {
+    width: calc(116 / 640 * 100vw);
+    height: calc(4 / 640 * 100vw);
   }
 `
 
@@ -732,8 +991,14 @@ export const ProgressLabel = styled.div`
   text-transform: uppercase;
   letter-spacing: 1px;
 
-  @media screen and (max-width: 768px) {
-    font-size: 10px;
+  @media screen and (max-width: 640px) {
+    font-size: 9px;
+    letter-spacing: 0.75px;
+  }
+
+  @media screen and (max-width: 480px) {
+    font-size: calc(12 / 640 * 100vw);
+    letter-spacing: calc(1 / 640 * 100vw);
   }
 `
 
@@ -745,6 +1010,14 @@ export const CapitalFlowContainer = styled(motion.div)`
   justify-content: center;
   gap: 8px;
   text-align: center;
+
+  @media screen and (max-width: 640px) {
+    gap: 6px;
+  }
+
+  @media screen and (max-width: 480px) {
+    gap: calc(8 / 640 * 100vw);
+  }
 `
 
 export const CapitalFlowText = styled(motion.div)`
@@ -753,8 +1026,12 @@ export const CapitalFlowText = styled(motion.div)`
   color: ${({ theme }) => theme.text};
   line-height: 1.3;
 
-  @media screen and (max-width: 768px) {
-    font-size: 24px;
+  @media screen and (max-width: 640px) {
+    font-size: 27px;
+  }
+
+  @media screen and (max-width: 480px) {
+    font-size: calc(36 / 640 * 100vw);
   }
 `
 
@@ -764,8 +1041,12 @@ export const CapitalHighlight = styled(motion.div)`
   color: ${({ theme }) => theme.primary};
   line-height: 1.3;
 
-  @media screen and (max-width: 768px) {
-    font-size: 24px;
+  @media screen and (max-width: 640px) {
+    font-size: 31px;
+  }
+
+  @media screen and (max-width: 480px) {
+    font-size: calc(42 / 640 * 100vw);
   }
 `
 
@@ -779,9 +1060,14 @@ export const NicknameHeader = styled.div`
   font-weight: 600;
   color: #ffde69;
 
-  @media screen and (max-width: 768px) {
-    top: 65px;
-    font-size: 20px;
+  @media screen and (max-width: 640px) {
+    top: 64px;
+    font-size: 21px;
+  }
+
+  @media screen and (max-width: 480px) {
+    top: calc(85 / 640 * 100vw);
+    font-size: calc(28 / 640 * 100vw);
   }
 `
 
@@ -790,6 +1076,14 @@ export const TopListContainer = styled(motion.div)`
   flex-direction: column;
   align-items: center;
   gap: 32px;
+
+  @media screen and (max-width: 640px) {
+    gap: 24px;
+  }
+
+  @media screen and (max-width: 480px) {
+    gap: calc(32 / 640 * 100vw);
+  }
 `
 
 export const TopListTitle = styled(motion.div)`
@@ -798,8 +1092,12 @@ export const TopListTitle = styled(motion.div)`
   color: ${({ theme }) => theme.text};
   text-align: center;
 
-  @media screen and (max-width: 768px) {
-    font-size: 24px;
+  @media screen and (max-width: 640px) {
+    font-size: 27px;
+  }
+
+  @media screen and (max-width: 480px) {
+    font-size: calc(36 / 640 * 100vw);
   }
 `
 
@@ -809,6 +1107,16 @@ export const TopListItems = styled.div`
   gap: 16px;
   width: 100%;
   max-width: 320px;
+
+  @media screen and (max-width: 640px) {
+    gap: 12px;
+    max-width: 240px;
+  }
+
+  @media screen and (max-width: 480px) {
+    gap: calc(16 / 640 * 100vw);
+    max-width: calc(320 / 640 * 100vw);
+  }
 `
 
 export const TopListItem = styled(motion.div)`
@@ -816,6 +1124,16 @@ export const TopListItem = styled(motion.div)`
   align-items: center;
   gap: 16px;
   padding: 8px 0;
+
+  @media screen and (max-width: 640px) {
+    gap: 12px;
+    padding: 6px 0;
+  }
+
+  @media screen and (max-width: 480px) {
+    gap: calc(16 / 640 * 100vw);
+    padding: calc(8 / 640 * 100vw) 0;
+  }
 `
 
 export const TopListRank = styled.div`
@@ -831,10 +1149,16 @@ export const TopListRank = styled.div`
   font-weight: 600;
   font-family: 'Antonio', sans-serif;
 
-  @media screen and (max-width: 768px) {
-    width: 28px;
-    height: 28px;
-    font-size: 14px;
+  @media screen and (max-width: 640px) {
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+  }
+
+  @media screen and (max-width: 480px) {
+    width: calc(32 / 640 * 100vw);
+    height: calc(32 / 640 * 100vw);
+    font-size: calc(16 / 640 * 100vw);
   }
 `
 
@@ -843,9 +1167,14 @@ export const TopListIconWrapper = styled.div`
   width: 36px;
   height: 36px;
 
-  @media screen and (max-width: 768px) {
-    width: 28px;
-    height: 28px;
+  @media screen and (max-width: 640px) {
+    width: 27px;
+    height: 27px;
+  }
+
+  @media screen and (max-width: 480px) {
+    width: calc(36 / 640 * 100vw);
+    height: calc(36 / 640 * 100vw);
   }
 `
 
@@ -855,9 +1184,14 @@ export const TopListIcon = styled.img`
   border-radius: 50%;
   object-fit: cover;
 
-  @media screen and (max-width: 768px) {
-    width: 28px;
-    height: 28px;
+  @media screen and (max-width: 640px) {
+    width: 27px;
+    height: 27px;
+  }
+
+  @media screen and (max-width: 480px) {
+    width: calc(36 / 640 * 100vw);
+    height: calc(36 / 640 * 100vw);
   }
 `
 
@@ -871,11 +1205,19 @@ export const TopListChainIcon = styled.img`
   object-fit: cover;
   border: 2px solid ${({ theme }) => theme.background};
 
-  @media screen and (max-width: 768px) {
-    width: 14px;
-    height: 14px;
+  @media screen and (max-width: 640px) {
+    width: 12px;
+    height: 12px;
     bottom: -3px;
     right: -3px;
+    border-width: 1.5px;
+  }
+
+  @media screen and (max-width: 480px) {
+    width: calc(16 / 640 * 100vw);
+    height: calc(16 / 640 * 100vw);
+    bottom: calc(-4 / 640 * 100vw);
+    right: calc(-4 / 640 * 100vw);
   }
 `
 
@@ -884,8 +1226,12 @@ export const TopListName = styled.div`
   font-weight: 600;
   color: ${({ theme }) => theme.text};
 
-  @media screen and (max-width: 768px) {
+  @media screen and (max-width: 640px) {
     font-size: 18px;
+  }
+
+  @media screen and (max-width: 480px) {
+    font-size: calc(24 / 640 * 100vw);
   }
 `
 
@@ -897,6 +1243,14 @@ export const MevContainer = styled(motion.div)`
   justify-content: center;
   gap: 8px;
   text-align: center;
+
+  @media screen and (max-width: 640px) {
+    gap: 6px;
+  }
+
+  @media screen and (max-width: 480px) {
+    gap: calc(8 / 640 * 100vw);
+  }
 `
 
 export const MevText = styled(motion.div)`
@@ -905,8 +1259,12 @@ export const MevText = styled(motion.div)`
   color: ${({ theme }) => theme.text};
   line-height: 1.3;
 
-  @media screen and (max-width: 768px) {
-    font-size: 24px;
+  @media screen and (max-width: 640px) {
+    font-size: 27px;
+  }
+
+  @media screen and (max-width: 480px) {
+    font-size: calc(36 / 640 * 100vw);
   }
 `
 
@@ -915,6 +1273,14 @@ export const MevTextWrapper = styled(motion.div)`
   flex-direction: column;
   align-items: center;
   gap: 8px;
+
+  @media screen and (max-width: 640px) {
+    gap: 6px;
+  }
+
+  @media screen and (max-width: 480px) {
+    gap: calc(8 / 640 * 100vw);
+  }
 `
 
 export const MevFlowLine = styled(motion.div)`
@@ -928,10 +1294,16 @@ export const MevFlowLine = styled(motion.div)`
   flex-wrap: wrap;
   margin-top: 12px;
 
-  @media screen and (max-width: 768px) {
-    font-size: 20px;
-    gap: 6px;
-    margin-top: 6px;
+  @media screen and (max-width: 640px) {
+    font-size: 24px;
+    gap: 7px;
+    margin-top: 9px;
+  }
+
+  @media screen and (max-width: 480px) {
+    font-size: calc(32 / 640 * 100vw);
+    gap: calc(10 / 640 * 100vw);
+    margin-top: calc(12 / 640 * 100vw);
   }
 `
 
@@ -946,8 +1318,12 @@ export const MevFlowHighlight = styled.span`
   font-weight: 700;
   color: ${({ theme }) => theme.primary};
 
-  @media screen and (max-width: 768px) {
-    font-size: 32px;
+  @media screen and (max-width: 640px) {
+    font-size: 36px;
+  }
+
+  @media screen and (max-width: 480px) {
+    font-size: calc(48 / 640 * 100vw);
   }
 `
 
@@ -962,6 +1338,14 @@ export const FairflowContainer = styled(motion.div)`
   position: relative;
   width: 100%;
   height: 100%;
+
+  @media screen and (max-width: 640px) {
+    gap: 6px;
+  }
+
+  @media screen and (max-width: 480px) {
+    gap: calc(8 / 640 * 100vw);
+  }
 `
 
 export const FairflowTitle = styled(motion.div)`
@@ -970,8 +1354,12 @@ export const FairflowTitle = styled(motion.div)`
   color: ${({ theme }) => theme.text};
   line-height: 1.3;
 
-  @media screen and (max-width: 768px) {
-    font-size: 24px;
+  @media screen and (max-width: 640px) {
+    font-size: 27px;
+  }
+
+  @media screen and (max-width: 480px) {
+    font-size: calc(36 / 640 * 100vw);
   }
 `
 
@@ -986,8 +1374,12 @@ export const FairflowEarned = styled(motion.div)`
   color: ${({ theme }) => theme.text};
   line-height: 1.3;
 
-  @media screen and (max-width: 768px) {
+  @media screen and (max-width: 640px) {
     font-size: 18px;
+  }
+
+  @media screen and (max-width: 480px) {
+    font-size: calc(24 / 640 * 100vw);
   }
 `
 
@@ -998,9 +1390,14 @@ export const FairflowRewardLine = styled(motion.div)`
   gap: 12px;
   margin: 16px 0;
 
-  @media screen and (max-width: 768px) {
-    gap: 8px;
+  @media screen and (max-width: 640px) {
+    gap: 9px;
     margin: 12px 0;
+  }
+
+  @media screen and (max-width: 480px) {
+    gap: calc(12 / 640 * 100vw);
+    margin: calc(16 / 640 * 100vw) 0;
   }
 `
 
@@ -1008,9 +1405,14 @@ export const KemLmIcon = styled.img`
   width: 48px;
   height: 48px;
 
-  @media screen and (max-width: 768px) {
-    width: 32px;
-    height: 32px;
+  @media screen and (max-width: 640px) {
+    width: 36px;
+    height: 36px;
+  }
+
+  @media screen and (max-width: 480px) {
+    width: calc(48 / 640 * 100vw);
+    height: calc(48 / 640 * 100vw);
   }
 `
 
@@ -1020,8 +1422,12 @@ export const FairflowRewardValue = styled.span`
   font-weight: 700;
   color: ${({ theme }) => theme.primary};
 
-  @media screen and (max-width: 768px) {
-    font-size: 36px;
+  @media screen and (max-width: 640px) {
+    font-size: 42px;
+  }
+
+  @media screen and (max-width: 480px) {
+    font-size: calc(56 / 640 * 100vw);
   }
 `
 
@@ -1030,8 +1436,12 @@ export const FairflowRewardLabel = styled.span`
   font-weight: 400;
   color: ${({ theme }) => theme.text};
 
-  @media screen and (max-width: 768px) {
-    font-size: 20px;
+  @media screen and (max-width: 640px) {
+    font-size: 24px;
+  }
+
+  @media screen and (max-width: 480px) {
+    font-size: calc(32 / 640 * 100vw);
   }
 `
 
@@ -1042,8 +1452,12 @@ export const FairflowSubtext = styled(motion.div)`
   color: ${({ theme }) => theme.text};
   line-height: 1.3;
 
-  @media screen and (max-width: 768px) {
-    font-size: 16px;
+  @media screen and (max-width: 640px) {
+    font-size: 18px;
+  }
+
+  @media screen and (max-width: 480px) {
+    font-size: calc(24 / 640 * 100vw);
   }
 `
 
@@ -1074,8 +1488,14 @@ export const SmarterBannerText = styled(motion.div)`
   white-space: nowrap;
   margin: 16px 32px;
 
-  @media screen and (max-width: 768px) {
-    font-size: 14px;
+  @media screen and (max-width: 640px) {
+    font-size: 15px;
+    margin: 12px 24px;
+  }
+
+  @media screen and (max-width: 480px) {
+    font-size: calc(20 / 640 * 100vw);
+    margin: calc(16 / 640 * 100vw) calc(32 / 640 * 100vw);
   }
 `
 
@@ -1093,9 +1513,16 @@ export const SummaryContainer = styled(motion.div)`
   max-width: 700px;
   padding: 20px;
 
-  @media screen and (max-width: 768px) {
-    padding: 16px;
+  @media screen and (max-width: 640px) {
+    padding: 15px;
     gap: 12px;
+    max-width: 525px;
+  }
+
+  @media screen and (max-width: 480px) {
+    padding: calc(20 / 640 * 100vw);
+    gap: calc(16 / 640 * 100vw);
+    max-width: calc(700 / 640 * 100vw);
   }
 `
 
@@ -1106,8 +1533,14 @@ export const SummaryNickname = styled.div`
   text-align: center;
   margin-bottom: 8px;
 
-  @media screen and (max-width: 768px) {
-    font-size: 28px;
+  @media screen and (max-width: 640px) {
+    font-size: 30px;
+    margin-bottom: 6px;
+  }
+
+  @media screen and (max-width: 480px) {
+    font-size: calc(40 / 640 * 100vw);
+    margin-bottom: calc(8 / 640 * 100vw);
   }
 `
 
@@ -1119,8 +1552,14 @@ export const SummaryMainRow = styled.div`
   width: 100%;
   margin-top: 8px;
 
-  @media screen and (max-width: 768px) {
-    gap: 16px;
+  @media screen and (max-width: 640px) {
+    gap: 18px;
+    margin-top: 6px;
+  }
+
+  @media screen and (max-width: 480px) {
+    gap: calc(24 / 640 * 100vw);
+    margin-top: calc(8 / 640 * 100vw);
   }
 `
 
@@ -1128,8 +1567,12 @@ export const SummaryBadge = styled.img`
   width: 200px;
   height: auto;
 
-  @media screen and (max-width: 768px) {
-    width: 120px;
+  @media screen and (max-width: 640px) {
+    width: 150px;
+  }
+
+  @media screen and (max-width: 480px) {
+    width: calc(200 / 640 * 100vw);
   }
 `
 
@@ -1137,6 +1580,14 @@ export const SummaryStatsColumn = styled.div`
   display: flex;
   flex-direction: column;
   gap: 8px;
+
+  @media screen and (max-width: 640px) {
+    gap: 6px;
+  }
+
+  @media screen and (max-width: 480px) {
+    gap: calc(8 / 640 * 100vw);
+  }
 `
 
 export const SummaryStatsRow = styled.div`
@@ -1145,8 +1596,12 @@ export const SummaryStatsRow = styled.div`
   grid-template-rows: auto auto auto;
   gap: 12px 24px;
 
-  @media screen and (max-width: 768px) {
-    gap: 4px 12px;
+  @media screen and (max-width: 640px) {
+    gap: 6px 18px;
+  }
+
+  @media screen and (max-width: 480px) {
+    gap: calc(12 / 640 * 100vw) calc(24 / 640 * 100vw);
   }
 `
 
@@ -1170,8 +1625,14 @@ export const SummaryStatLabel = styled.div`
   color: ${({ theme }) => theme.text};
   margin-bottom: -10px;
 
-  @media screen and (max-width: 768px) {
-    font-size: 14px;
+  @media screen and (max-width: 640px) {
+    font-size: 13px;
+    margin-bottom: -7px;
+  }
+
+  @media screen and (max-width: 480px) {
+    font-size: calc(18 / 640 * 100vw);
+    margin-bottom: calc(-10 / 640 * 100vw);
   }
 `
 
@@ -1182,8 +1643,12 @@ export const SummaryStatValue = styled.div`
   color: ${({ theme }) => theme.primary};
   line-height: 1;
 
-  @media screen and (max-width: 768px) {
-    font-size: 32px;
+  @media screen and (max-width: 640px) {
+    font-size: 36px;
+  }
+
+  @media screen and (max-width: 480px) {
+    font-size: calc(48 / 640 * 100vw);
   }
 `
 
@@ -1194,8 +1659,12 @@ export const SummaryTradesValue = styled.div`
   color: ${({ theme }) => theme.primary};
   line-height: 1;
 
-  @media screen and (max-width: 768px) {
-    font-size: 32px;
+  @media screen and (max-width: 640px) {
+    font-size: 36px;
+  }
+
+  @media screen and (max-width: 480px) {
+    font-size: calc(48 / 640 * 100vw);
   }
 `
 
@@ -1210,8 +1679,12 @@ export const SummaryTradesLabel = styled.div`
   font-weight: 600;
   color: ${({ theme }) => theme.text};
 
-  @media screen and (max-width: 768px) {
-    font-size: 14px;
+  @media screen and (max-width: 640px) {
+    font-size: 13px;
+  }
+
+  @media screen and (max-width: 480px) {
+    font-size: calc(18 / 640 * 100vw);
   }
 `
 
@@ -1224,9 +1697,16 @@ export const SummaryTopBadge = styled.div`
   font-weight: 500;
   width: fit-content;
 
-  @media screen and (max-width: 768px) {
-    font-size: 14px;
-    padding: 6px 16px;
+  @media screen and (max-width: 640px) {
+    font-size: 15px;
+    padding: 4px 18px;
+    border-radius: 15px;
+  }
+
+  @media screen and (max-width: 480px) {
+    font-size: calc(20 / 640 * 100vw);
+    padding: calc(6 / 640 * 100vw) calc(24 / 640 * 100vw);
+    border-radius: calc(20 / 640 * 100vw);
   }
 `
 
@@ -1237,8 +1717,14 @@ export const SummaryFavoritesRow = styled.div`
   gap: 16px;
   margin-top: 16px;
 
-  @media screen and (max-width: 768px) {
+  @media screen and (max-width: 640px) {
     gap: 12px;
+    margin-top: 12px;
+  }
+
+  @media screen and (max-width: 480px) {
+    gap: calc(16 / 640 * 100vw);
+    margin-top: calc(16 / 640 * 100vw);
   }
 `
 
@@ -1251,15 +1737,30 @@ export const SummaryFavoriteItem = styled.div`
   padding: 12px 22px 10px;
   gap: 4px;
 
-  @media screen and (max-width: 768px) {
-    padding: 8px 16px;
-    gap: 2px;
+  @media screen and (max-width: 640px) {
+    padding: 9px 16px 7px;
+    gap: 3px;
+    border-radius: 9px;
+  }
+
+  @media screen and (max-width: 480px) {
+    padding: calc(12 / 640 * 100vw) calc(22 / 640 * 100vw) calc(10 / 640 * 100vw);
+    gap: calc(4 / 640 * 100vw);
+    border-radius: calc(12 / 640 * 100vw);
   }
 `
 
 export const SummaryFavoriteLabel = styled.div`
   font-size: 12px;
   color: ${({ theme }) => theme.subText};
+
+  @media screen and (max-width: 640px) {
+    font-size: 9px;
+  }
+
+  @media screen and (max-width: 480px) {
+    font-size: calc(12 / 640 * 100vw);
+  }
 `
 
 export const SummaryFavoriteValue = styled.div`
@@ -1270,8 +1771,14 @@ export const SummaryFavoriteValue = styled.div`
   font-weight: 600;
   color: ${({ theme }) => theme.text};
 
-  @media screen and (max-width: 768px) {
-    font-size: 14px;
+  @media screen and (max-width: 640px) {
+    font-size: 13px;
+    gap: 4px;
+  }
+
+  @media screen and (max-width: 480px) {
+    font-size: calc(18 / 640 * 100vw);
+    gap: calc(6 / 640 * 100vw);
   }
 `
 
@@ -1280,9 +1787,14 @@ export const SummaryFavoriteIconWrapper = styled.div`
   width: 20px;
   height: 20px;
 
-  @media screen and (max-width: 768px) {
-    width: 16px;
-    height: 16px;
+  @media screen and (max-width: 640px) {
+    width: 15px;
+    height: 15px;
+  }
+
+  @media screen and (max-width: 480px) {
+    width: calc(20 / 640 * 100vw);
+    height: calc(20 / 640 * 100vw);
   }
 `
 
@@ -1291,9 +1803,14 @@ export const SummaryFavoriteIcon = styled.img`
   height: 20px;
   border-radius: 50%;
 
-  @media screen and (max-width: 768px) {
-    width: 16px;
-    height: 16px;
+  @media screen and (max-width: 640px) {
+    width: 15px;
+    height: 15px;
+  }
+
+  @media screen and (max-width: 480px) {
+    width: calc(20 / 640 * 100vw);
+    height: calc(20 / 640 * 100vw);
   }
 `
 
@@ -1306,11 +1823,18 @@ export const SummaryFavoriteChainIcon = styled.img`
   border-radius: 50%;
   border: 1px solid ${({ theme }) => theme.background};
 
-  @media screen and (max-width: 768px) {
-    width: 8px;
-    height: 8px;
+  @media screen and (max-width: 640px) {
+    width: 7px;
+    height: 7px;
     bottom: -2px;
     right: -2px;
+  }
+
+  @media screen and (max-width: 480px) {
+    width: calc(10 / 640 * 100vw);
+    height: calc(10 / 640 * 100vw);
+    bottom: calc(-3 / 640 * 100vw);
+    right: calc(-3 / 640 * 100vw);
   }
 `
 
@@ -1320,6 +1844,16 @@ export const SummaryRewardsSection = styled.div`
   justify-content: flex-start;
   gap: 12px;
   margin-top: 16px;
+
+  @media screen and (max-width: 640px) {
+    gap: 9px;
+    margin-top: 12px;
+  }
+
+  @media screen and (max-width: 480px) {
+    gap: calc(12 / 640 * 100vw);
+    margin-top: calc(16 / 640 * 100vw);
+  }
 `
 
 export const SummaryRewardsValue = styled.div`
@@ -1329,8 +1863,12 @@ export const SummaryRewardsValue = styled.div`
   color: ${({ theme }) => theme.primary};
   line-height: 1.1;
 
-  @media screen and (max-width: 768px) {
+  @media screen and (max-width: 640px) {
     font-size: 36px;
+  }
+
+  @media screen and (max-width: 480px) {
+    font-size: calc(48 / 640 * 100vw);
   }
 `
 
@@ -1339,8 +1877,12 @@ export const SummaryRewardsLabel = styled.div`
   font-weight: 600;
   color: ${({ theme }) => theme.text};
 
-  @media screen and (max-width: 768px) {
-    font-size: 16px;
+  @media screen and (max-width: 640px) {
+    font-size: 15px;
+  }
+
+  @media screen and (max-width: 480px) {
+    font-size: calc(20 / 640 * 100vw);
   }
 `
 
@@ -1351,10 +1893,16 @@ export const SummaryFooter = styled.div`
   font-size: 14px;
   color: ${({ theme }) => theme.text};
 
-  @media screen and (max-width: 768px) {
-    bottom: 16px;
-    left: 16px;
-    font-size: 12px;
+  @media screen and (max-width: 640px) {
+    bottom: 18px;
+    left: 18px;
+    font-size: 10px;
+  }
+
+  @media screen and (max-width: 480px) {
+    bottom: calc(24 / 640 * 100vw);
+    left: calc(24 / 640 * 100vw);
+    font-size: calc(14 / 640 * 100vw);
   }
 `
 
