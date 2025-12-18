@@ -3,6 +3,7 @@ import { useMedia } from 'react-use'
 import styled from 'styled-components'
 
 import { ReactComponent as RecapIcon } from 'assets/recap/2025.svg'
+import { isRecapAvailable } from 'components/Recap/utils'
 import { useRecapModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 
@@ -47,6 +48,8 @@ export default function RecapButton() {
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
   const upTo1515 = useMedia('(max-width: 1515px)')
   const upTo820 = useMedia('(max-width: 820px)')
+
+  if (!isRecapAvailable()) return null
 
   const btnText = !upTo1515 ? (
     '✨ 2025 Journey ✨'

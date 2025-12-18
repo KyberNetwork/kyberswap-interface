@@ -47,3 +47,23 @@ export const getBadgeImage = (top: number): string => {
   }
   return badgeMover
 }
+
+// Date constants for recap availability
+const AUTO_OPEN_END_DATE = new Date('2026-01-03T23:59:59.999Z') // End of Jan 3, 2026 UTC
+const RECAP_END_DATE = new Date('2026-01-10T23:59:59.999Z') // End of Jan 10, 2026 UTC
+
+/**
+ * Check if auto-open popup is still available (until Jan 3, 2026)
+ */
+export const isAutoOpenAvailable = (): boolean => {
+  const now = new Date()
+  return now <= AUTO_OPEN_END_DATE
+}
+
+/**
+ * Check if recap feature is still available (until Jan 10, 2026)
+ */
+export const isRecapAvailable = (): boolean => {
+  const now = new Date()
+  return now <= RECAP_END_DATE
+}

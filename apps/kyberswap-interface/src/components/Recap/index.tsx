@@ -18,6 +18,7 @@ import {
   ViewButton,
 } from 'components/Recap/styles'
 import useRecapData from 'components/Recap/useRecapData'
+import { isAutoOpenAvailable, isRecapAvailable } from 'components/Recap/utils'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useCloseModal, useModalOpen, useOpenModal, useWalletModalToggle } from 'state/application/hooks'
@@ -47,6 +48,11 @@ export default function RecapSection() {
 
   useEffect(() => {
     if (!hasCheckedStorageRef.current) {
+      if (!isAutoOpenAvailable()) {
+        hasCheckedStorageRef.current = true
+        return
+      }
+
       const forceOpen = localStorage.getItem('forceOpenRecap') === 'true'
       if (forceOpen) {
         localStorage.removeItem('forceOpenRecap')
@@ -102,6 +108,10 @@ export default function RecapSection() {
       return
     }
     setShowJourney(true)
+  }
+
+  if (!isRecapAvailable() && !isOpen) {
+    return null
   }
 
   const defaultAddress = account ? getShortenAddress(account) : ''

@@ -1,15 +1,15 @@
 import { useEffect } from 'react'
 import { Navigate } from 'react-router-dom'
 
+import { isRecapAvailable } from 'components/Recap/utils'
 import { useRecapModalToggle } from 'state/application/hooks'
 
 const Recap2025Redirect = () => {
   const toggleRecapModal = useRecapModalToggle()
 
   useEffect(() => {
-    // Set flag to force open recap modal
+    if (!isRecapAvailable()) return
     localStorage.setItem('forceOpenRecap', 'true')
-    // Open the modal
     toggleRecapModal()
   }, [toggleRecapModal])
 
