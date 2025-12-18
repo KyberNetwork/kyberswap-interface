@@ -9,6 +9,7 @@ import moneyAirdrop from 'assets/recap/money-airdrop.png'
 import recapAnimation from 'assets/recap/recap-animation.mp4'
 import starsBanner2 from 'assets/recap/stars-banner-2.png'
 import starsBanner from 'assets/recap/stars-banner.png'
+import xIcon from 'assets/recap/x.png'
 import {
   BackgroundImage,
   BackgroundOverlayImage,
@@ -150,6 +151,13 @@ function RecapJourney({
     } finally {
       setIsCapturing(false)
     }
+  }
+
+  // Handle share to X.com
+  const handleShareToX = () => {
+    const shareText = encodeURIComponent('Watch your 2025 Journey 👇 kyberswap.com/2025-journey')
+    const shareUrl = `https://twitter.com/intent/tweet?text=${shareText}`
+    window.open(shareUrl, '_blank', 'noopener,noreferrer')
   }
 
   // Reset success and loading states when scene changes
@@ -371,6 +379,11 @@ function RecapJourney({
             >
               {downloadLoading ? <Loader className="loading-spinner" /> : downloadSuccess ? <Check /> : <Download />}
             </ShareButton>
+            {scene === 'summary' && (
+              <ShareButton onClick={handleShareToX} aria-label="Share to X">
+                <img src={xIcon} alt="X" style={{ width: '14px', height: '14px' }} />
+              </ShareButton>
+            )}
           </ShareButtonsContainer>
         )}
 
