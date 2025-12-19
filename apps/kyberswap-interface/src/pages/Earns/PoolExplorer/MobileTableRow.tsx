@@ -41,7 +41,7 @@ const MobileTableRow = ({
     onOpenZapInWidget({
       pool: {
         dex: pool.exchange,
-        chainId: pool.chainId || filters.chainId,
+        chainId: (pool.chain?.id || pool.chainId) as number,
         address: pool.address,
       },
       initialTick:
@@ -64,6 +64,7 @@ const MobileTableRow = ({
           <Flex sx={{ position: 'relative', top: -1 }}>
             <TokenLogo src={pool.tokens?.[0]?.logoURI} />
             <TokenLogo src={pool.tokens?.[1]?.logoURI} translateLeft />
+            {pool.chain?.logoUrl && <TokenLogo src={pool.chain.logoUrl} size={12} translateLeft translateTop />}
           </Flex>
           <Flex flexDirection={'column'} sx={{ gap: 2 }}>
             <Flex sx={{ gap: 1 }}>
