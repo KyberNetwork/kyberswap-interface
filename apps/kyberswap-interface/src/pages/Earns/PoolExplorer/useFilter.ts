@@ -9,11 +9,11 @@ import { Direction } from 'pages/MarketOverview/SortIcon'
 
 export default function useFilter(setSearch?: (search: string) => void) {
   const [searchParams, setSearchParams] = useSearchParams()
-  const { account } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
 
   const filters: PoolQueryParams = useMemo(() => {
     return {
-      chainIds: searchParams.get('chainIds') || '',
+      chainIds: searchParams.get('chainIds') ?? String(chainId),
       page: +(searchParams.get('page') || 1),
       limit: 10,
       interval: searchParams.get('interval') || (timings[0].value as string),
@@ -24,7 +24,7 @@ export default function useFilter(setSearch?: (search: string) => void) {
       orderBy: searchParams.get('orderBy') || '',
       q: searchParams.get('q')?.trim() || '',
     }
-  }, [searchParams, account])
+  }, [searchParams, account, chainId])
 
   const updateFilters = useCallback(
     (key: keyof PoolQueryParams, value: string) => {

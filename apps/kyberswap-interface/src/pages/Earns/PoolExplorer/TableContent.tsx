@@ -4,6 +4,7 @@ import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import { PoolQueryParams, usePoolsExplorerQuery } from 'services/zapEarn'
 
+import LocalLoader from 'components/LocalLoader'
 import ProgressBar from 'components/ProgressBar'
 import useTheme from 'hooks/useTheme'
 import DesktopTableRow from 'pages/Earns/PoolExplorer/DesktopTableRow'
@@ -34,6 +35,7 @@ const TableContent = ({ onOpenZapInWidget, filters }: Props) => {
   const {
     data: poolData,
     refetch,
+    isLoading,
     isFetching,
     isError,
   } = usePoolsExplorerQuery(filters, { pollingInterval: POLLING_INTERVAL_MS })
@@ -79,7 +81,11 @@ const TableContent = ({ onOpenZapInWidget, filters }: Props) => {
     })
   }, [poolData?.data?.pools, dexLookupMap])
 
-  if (!tablePoolData?.length || isError) {
+  if (isLoading) {
+    return <LocalLoader />
+  }
+
+  if (poolData?.data?.pools.length === 0 || isError) {
     return (
       <Text color={theme.subText} margin="3rem" marginTop="4rem" textAlign="center">
         {t`No data found`}
