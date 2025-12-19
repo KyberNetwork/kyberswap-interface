@@ -93,6 +93,7 @@ function RecapJourney({
   const hasInitializedRef = useRef(false)
   const prevIsPausedRef = useRef<boolean | null>(null)
   const touchHandledRef = useRef(false)
+  const lastActionTimeRef = useRef(0)
   const [isMuted, setIsMuted] = useState(true) // Default to muted
   const [showPauseResumeIcon, setShowPauseResumeIcon] = useState(false)
   const [isCapturing, setIsCapturing] = useState(false)
@@ -267,6 +268,13 @@ kyberswap.com/2025-recap`
     const rect = container.getBoundingClientRect()
     const relativeX = (event.clientX - rect.left) / rect.width
 
+    // Prevent double action within 300ms
+    const now = Date.now()
+    if (now - lastActionTimeRef.current < 300) {
+      return
+    }
+    lastActionTimeRef.current = now
+
     // Determine action based on position
     if (relativeX < 0.3) {
       // Left 30% - go to previous
@@ -306,6 +314,14 @@ kyberswap.com/2025-recap`
 
     // Mark touch as handled to prevent click event
     touchHandledRef.current = true
+
+    // Prevent double action within 300ms
+    const now = Date.now()
+    if (now - lastActionTimeRef.current < 300) {
+      touchHandledRef.current = false
+      return
+    }
+    lastActionTimeRef.current = now
 
     // Determine action based on position
     if (relativeX < 0.3) {

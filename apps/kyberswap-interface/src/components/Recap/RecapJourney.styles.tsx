@@ -120,6 +120,28 @@ export const JourneyContainer = styled.div`
   overflow: hidden;
   background: #0f0f0f;
   font-family: 'Cera', sans-serif;
+  cursor: default;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+
+  /* Prevent text selection and cursor change on all children */
+  * {
+    cursor: default;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+  }
+
+  /* Allow pointer cursor only on interactive elements */
+  button,
+  .controls-container,
+  .share-buttons-container,
+  .mute-button {
+    cursor: pointer;
+  }
 
   &:hover .controls-container {
     opacity: 1;
@@ -127,6 +149,12 @@ export const JourneyContainer = styled.div`
 
   &:hover .mute-button {
     opacity: 1;
+  }
+
+  @media screen and (max-width: 480px) {
+    &:hover .mute-button {
+      opacity: 1;
+    }
   }
 
   @media screen and (max-width: 640px) {
@@ -1010,9 +1038,7 @@ export const ControlsContainer = styled.div`
   }
 
   @media screen and (max-width: 480px) {
-    bottom: calc(14 / 640 * 100vw);
-    left: calc(18 / 640 * 100vw);
-    gap: calc(8 / 640 * 100vw);
+    display: none;
   }
 `
 
@@ -1126,20 +1152,23 @@ export const MuteButton = styled.button`
   @media screen and (max-width: 640px) {
     top: 20px;
     right: 14px;
-    width: 27px;
-    height: 27px;
+    width: 32px;
+    height: 32px;
 
     svg {
-      width: 12px;
-      height: 12px;
+      width: 14px;
+      height: 14px;
     }
   }
 
   @media screen and (max-width: 480px) {
-    top: calc(28 / 640 * 100vw);
-    right: calc(18 / 640 * 100vw);
+    top: auto;
+    bottom: 14px;
+    left: 18px;
+    right: auto;
     width: 44px;
     height: 44px;
+    opacity: 1;
 
     svg {
       width: 20px;
