@@ -27,7 +27,7 @@ export const ModalContent = styled(Flex)`
   }
 
   @media screen and (max-width: 480px) {
-    padding: 12px;
+    padding: 14px;
   }
 `
 

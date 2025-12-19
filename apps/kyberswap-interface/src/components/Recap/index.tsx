@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { ArrowRight, X } from 'react-feather'
 import { useMedia } from 'react-use'
 
-import Modal from 'components/Modal'
+import { ModalCenter } from 'components/Modal'
 import RecapJourney from 'components/Recap/RecapJourney'
 import {
   BackgroundOverlay,
@@ -185,7 +185,7 @@ export default function RecapSection() {
   const modalSize = getModalSize()
 
   return (
-    <Modal
+    <ModalCenter
       isOpen={isOpen}
       mobileFullWidth
       onDismiss={handleClose}
@@ -226,7 +226,7 @@ export default function RecapSection() {
             <InputLabel>Enter Nickname (optional)</InputLabel>
             <StyledInput
               type="text"
-              placeholder={defaultAddress}
+              placeholder={defaultAddress || 'Enter your nickname'}
               value={nickname}
               onChange={e => setNickname(e.target.value)}
             />
@@ -238,6 +238,6 @@ export default function RecapSection() {
           </ViewButton>
         </ModalContent>
       )}
-    </Modal>
+    </ModalCenter>
   )
 }

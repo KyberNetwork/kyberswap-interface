@@ -92,6 +92,7 @@ function RecapJourney({
   const isFirstMountRef = useRef(true)
   const hasInitializedRef = useRef(false)
   const prevIsPausedRef = useRef<boolean | null>(null)
+  const touchHandledRef = useRef(false)
   const [isMuted, setIsMuted] = useState(true) // Default to muted
   const [showPauseResumeIcon, setShowPauseResumeIcon] = useState(false)
   const [isCapturing, setIsCapturing] = useState(false)
@@ -242,6 +243,12 @@ kyberswap.com/2025-recap`
 
   // Handle click on screen to control recap
   const handleScreenClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    // Skip click if touch was already handled (mobile)
+    if (touchHandledRef.current) {
+      touchHandledRef.current = false
+      return
+    }
+
     // Prevent if clicking on interactive elements
     const target = event.target as HTMLElement
     if (
@@ -297,6 +304,9 @@ kyberswap.com/2025-recap`
     const touch = event.touches[0]
     const relativeX = (touch.clientX - rect.left) / rect.width
 
+    // Mark touch as handled to prevent click event
+    touchHandledRef.current = true
+
     // Determine action based on position
     if (relativeX < 0.3) {
       // Left 30% - go to previous
@@ -311,6 +321,11 @@ kyberswap.com/2025-recap`
       event.preventDefault()
       togglePause()
     }
+
+    // Reset flag after a short delay to allow click event to be ignored
+    setTimeout(() => {
+      touchHandledRef.current = false
+    }, 300)
   }
 
   // Reset success and loading states when scene changes

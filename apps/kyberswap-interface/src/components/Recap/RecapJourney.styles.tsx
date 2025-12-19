@@ -1046,22 +1046,22 @@ export const ControlButton = styled.button`
   }
 
   @media screen and (max-width: 640px) {
-    width: 27px;
-    height: 27px;
+    width: 32px;
+    height: 32px;
 
     svg {
-      width: 10px;
-      height: 10px;
+      width: 12px;
+      height: 12px;
     }
   }
 
   @media screen and (max-width: 480px) {
-    width: calc(36 / 640 * 100vw);
-    height: calc(36 / 640 * 100vw);
+    width: 44px;
+    height: 44px;
 
     svg {
-      width: calc(14 / 640 * 100vw);
-      height: calc(14 / 640 * 100vw);
+      width: 18px;
+      height: 18px;
     }
   }
 `
@@ -1138,12 +1138,12 @@ export const MuteButton = styled.button`
   @media screen and (max-width: 480px) {
     top: calc(28 / 640 * 100vw);
     right: calc(18 / 640 * 100vw);
-    width: calc(36 / 640 * 100vw);
-    height: calc(36 / 640 * 100vw);
+    width: 44px;
+    height: 44px;
 
     svg {
-      width: calc(16 / 640 * 100vw);
-      height: calc(16 / 640 * 100vw);
+      width: 20px;
+      height: 20px;
     }
   }
 `
@@ -1248,22 +1248,22 @@ export const ShareButton = styled.button<{ $isSuccess?: boolean; $isLoading?: bo
   }
 
   @media screen and (max-width: 640px) {
-    width: 27px;
-    height: 27px;
+    width: 32px;
+    height: 32px;
 
     svg {
-      width: 10px;
-      height: 10px;
+      width: 12px;
+      height: 12px;
     }
   }
 
   @media screen and (max-width: 480px) {
-    width: calc(36 / 640 * 100vw);
-    height: calc(36 / 640 * 100vw);
+    width: 44px;
+    height: 44px;
 
     svg {
-      width: calc(14 / 640 * 100vw);
-      height: calc(14 / 640 * 100vw);
+      width: 18px;
+      height: 18px;
     }
   }
 `
