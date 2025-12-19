@@ -4,9 +4,11 @@ import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import { PoolQueryParams, usePoolsExplorerQuery } from 'services/zapEarn'
 
+import ProgressBar from 'components/ProgressBar'
 import useTheme from 'hooks/useTheme'
 import DesktopTableRow from 'pages/Earns/PoolExplorer/DesktopTableRow'
 import MobileTableRow from 'pages/Earns/PoolExplorer/MobileTableRow'
+import { ProgressBarWrapper } from 'pages/Earns/PoolExplorer/styles'
 import useFavoritePool from 'pages/Earns/PoolExplorer/useFavoritePool'
 import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import Updater from 'state/customizeDexes/updater'
@@ -20,17 +22,21 @@ export const dexKeyMapping: { [key: string]: string } = {
 
 const POLLING_INTERVAL_MS = 5 * 60_000
 
-const TableContent = ({
-  onOpenZapInWidget,
-  filters,
-}: {
+type Props = {
   onOpenZapInWidget: ({ pool }: ZapInInfo) => void
   filters: PoolQueryParams
-}) => {
+}
+
+const TableContent = ({ onOpenZapInWidget, filters }: Props) => {
   const theme = useTheme()
 
   const allDexes = useAppSelector(state => state.customizeDexes.allDexes)
-  const { data: poolData, refetch, isError } = usePoolsExplorerQuery(filters, { pollingInterval: POLLING_INTERVAL_MS })
+  const {
+    data: poolData,
+    refetch,
+    isFetching,
+    isError,
+  } = usePoolsExplorerQuery(filters, { pollingInterval: POLLING_INTERVAL_MS })
   const { handleFavorite, favoriteLoading } = useFavoritePool({ refetch })
 
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
@@ -73,15 +79,23 @@ const TableContent = ({
     })
   }, [poolData?.data?.pools, dexLookupMap])
 
-  if (!tablePoolData?.length || isError)
+  if (!tablePoolData?.length || isError) {
     return (
       <Text color={theme.subText} margin="3rem" marginTop="4rem" textAlign="center">
         {t`No data found`}
       </Text>
     )
+  }
+
+  const loadingProgress = (
+    <ProgressBarWrapper>
+      <ProgressBar loading height="3px" width="100%" />
+    </ProgressBarWrapper>
+  )
 
   return (
     <>
+      {isFetching && loadingProgress}
       <div>
         {tablePoolData.map((pool, index) =>
           upToMedium ? (
@@ -105,6 +119,7 @@ const TableContent = ({
           ),
         )}
       </div>
+      {isFetching && upToMedium && loadingProgress}
 
       {/* Important to load dex info */}
       {visibleChainIds.map(chainId => (
