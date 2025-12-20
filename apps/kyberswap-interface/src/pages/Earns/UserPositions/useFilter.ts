@@ -5,10 +5,10 @@ import { PositionFilter, PositionStatus } from 'pages/Earns/types'
 import { Direction } from 'pages/MarketOverview/SortIcon'
 
 export enum SortBy {
-  VALUE = 'value',
-  APR = 'apr',
-  UNCLAIMED_FEE = 'unclaimed_fees',
-  UNCLAIMED_REWARDS = 'unclaimed_rewards',
+  VALUE = 'valueUsd',
+  APR = 'apr24h',
+  UNCLAIMED_FEE = 'unclaimedFeeUsd',
+  UNCLAIMED_REWARDS = 'unclaimedRewardUsd',
 }
 
 export default function useFilter() {
@@ -18,12 +18,13 @@ export default function useFilter() {
     () => ({
       chainIds: searchParams.get('chainIds') || '',
       protocols: searchParams.get('protocols') || '',
-      status:
-        (searchParams.get('status') as PositionStatus) || `${PositionStatus.IN_RANGE},${PositionStatus.OUT_RANGE}`,
-      q: searchParams.get('q') || '',
+      statuses:
+        (searchParams.get('statuses') as PositionStatus) || `${PositionStatus.IN_RANGE},${PositionStatus.OUT_RANGE}`,
+      keyword: searchParams.get('keyword') || '',
       sortBy: searchParams.get('sortBy') || SortBy.VALUE,
       orderBy: searchParams.get('orderBy') || Direction.DESC,
       page: +(searchParams.get('page') || 1),
+      pageSize: +(searchParams.get('pageSize') || 10),
     }),
     [searchParams],
   )
@@ -43,7 +44,7 @@ export default function useFilter() {
         searchParams.delete('sortBy')
       }
 
-      if (key === 'status') {
+      if (key === 'statuses') {
         const arrValue = value.toString().split(',')
         if (
           arrValue.includes(PositionStatus.IN_RANGE) &&
