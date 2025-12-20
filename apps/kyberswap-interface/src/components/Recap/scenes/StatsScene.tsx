@@ -54,6 +54,7 @@ function StatsScene({ totalVolume, totalUsers }: StatsSceneProps) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1.6, duration: 0.7, ease: 'easeOut' }}
       >
+        <LabelText>~</LabelText>
         <VolumeText>{formatVolume(totalVolume)}</VolumeText>
         <LabelText>volume</LabelText>
       </motion.div>
@@ -62,7 +63,7 @@ function StatsScene({ totalVolume, totalUsers }: StatsSceneProps) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 2.8, duration: 0.7, ease: 'easeOut' }}
       >
-        <LabelText>&</LabelText>
+        <LabelText>~</LabelText>
         <UsersText>{formatUsers(totalUsers)}</UsersText>
         <LabelText>users</LabelText>
       </motion.div>

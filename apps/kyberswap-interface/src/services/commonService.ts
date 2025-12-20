@@ -1,6 +1,72 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
-import { COMMON_SERVICE_API } from 'constants/env'
+import { COMMON_SERVICE_API, TOKEN_API_URL } from 'constants/env'
+
+// Recap API types
+export interface AggregatedVolumeResponse {
+  code: number
+  message: string
+  data: {
+    pagination: { totalItems: number }
+    data: Array<{
+      chainId: number
+      totalVolume: number
+      totalTransactions: number
+      percentage?: number
+    }>
+    summary: {
+      totalVolume: number
+      totalTransactions: number
+      percentage?: number
+    }
+  }
+}
+
+export interface ChainVolumeResponse {
+  code: number
+  message: string
+  data: {
+    pagination: { totalItems: number }
+    data: Array<{
+      chainId: number
+      totalVolume: number
+    }>
+    total: {
+      totalVolume: number
+    }
+  }
+}
+
+export interface TokenVolumeResponse {
+  code: number
+  message: string
+  data: {
+    pagination: { totalItems: number }
+    data: Array<{
+      tokenAddress: string
+      tokenSymbol: string
+      totalVolume: number
+      totalTransactions: number
+      chainCount: number
+      chainId?: number // Optional
+    }>
+  }
+}
+
+export interface TokenInfoResponse {
+  code: number
+  message: string
+  data: {
+    pagination: { totalItems: number }
+    tokens: Array<{
+      chainId: number
+      address: string
+      symbol: string
+      logoURI: string
+      name: string
+    }>
+  }
+}
 
 const commonServiceApi = createApi({
   reducerPath: 'commonServiceApi',
@@ -30,9 +96,48 @@ const commonServiceApi = createApi({
         body: { walletAddress, signature, message },
       }),
     }),
+
+    // Recap API endpoints
+    getAggregatedVolume: builder.query<AggregatedVolumeResponse, string>({
+      query: walletAddress => ({
+        url: `v1/users/${walletAddress}/total-volume/aggregated`,
+      }),
+    }),
+
+    getChainVolume: builder.query<ChainVolumeResponse, string>({
+      query: walletAddress => ({
+        url: `v1/users/${walletAddress}/chain-volume/total`,
+      }),
+    }),
+
+    getTokenVolume: builder.query<TokenVolumeResponse, string>({
+      query: walletAddress => ({
+        url: `v1/users/${walletAddress}/token-volume/aggregated`,
+      }),
+    }),
+
+    getTokenInfo: builder.query<TokenInfoResponse, { chainIds: string; addresses: string }>({
+      queryFn: async ({ chainIds, addresses }) => {
+        try {
+          const response = await fetch(`${TOKEN_API_URL}/v1/tokens?chainIds=${chainIds}&addresses=${addresses}`)
+          const data = await response.json()
+          return { data }
+        } catch (error) {
+          return { error: { status: 'CUSTOM_ERROR', error: String(error) } }
+        }
+      },
+    }),
   }),
 })
 
-export const { useLazyGetAccessTokensQuery, useGetUserSelectedOptionQuery, useCreateOptionMutation } = commonServiceApi
+export const {
+  useLazyGetAccessTokensQuery,
+  useGetUserSelectedOptionQuery,
+  useCreateOptionMutation,
+  useGetAggregatedVolumeQuery,
+  useGetChainVolumeQuery,
+  useGetTokenVolumeQuery,
+  useLazyGetTokenInfoQuery,
+} = commonServiceApi
 
 export default commonServiceApi

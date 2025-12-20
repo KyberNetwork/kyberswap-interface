@@ -28,6 +28,7 @@ import {
 } from 'components/Recap/RecapJourney.styles'
 import { TopChain, TopToken } from 'components/Recap/types'
 import { formatTradingVolume, getBadgeImage } from 'components/Recap/utils'
+import { formatDisplayNumber } from 'utils/numbers'
 
 interface SummarySceneProps {
   nickname: string
@@ -123,7 +124,12 @@ function SummaryScene({
             transition={{ duration: 0.5, delay: 1.0 }}
           >
             <SummaryRewardsSection>
-              <SummaryRewardsValue>${totalRewards.toLocaleString()}</SummaryRewardsValue>
+              <SummaryRewardsValue>
+                {formatDisplayNumber(totalRewards, {
+                  significantDigits: totalRewards > 1000 ? 6 : 4,
+                  style: 'currency',
+                })}
+              </SummaryRewardsValue>
               <SummaryRewardsLabel>FairFlow Rewards</SummaryRewardsLabel>
             </SummaryRewardsSection>
           </motion.div>

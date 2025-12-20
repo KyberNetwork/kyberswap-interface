@@ -12,6 +12,7 @@ import {
   FairflowTitle,
   KemLmIcon,
 } from 'components/Recap/RecapJourney.styles'
+import { formatDisplayNumber } from 'utils/numbers'
 
 interface FairflowSceneProps {
   totalRewards: number
@@ -45,7 +46,9 @@ function FairflowScene({ totalRewards }: FairflowSceneProps) {
         transition={{ delay: 0.6, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
       >
         <KemLmIcon src={kemLmIcon} alt="reward" />
-        <FairflowRewardValue>${totalRewards.toLocaleString()}</FairflowRewardValue>
+        <FairflowRewardValue>
+          {formatDisplayNumber(totalRewards, { significantDigits: totalRewards > 1000 ? 6 : 4, style: 'currency' })}
+        </FairflowRewardValue>
         <FairflowRewardLabel>in Rewards</FairflowRewardLabel>
       </FairflowRewardLine>
       <FairflowSubtext
