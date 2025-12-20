@@ -141,6 +141,12 @@ export const JourneyContainer = styled.div`
   .share-buttons-container,
   .mute-button {
     cursor: pointer;
+
+    /* Ensure icons inside buttons also have pointer cursor */
+    svg,
+    img {
+      cursor: pointer;
+    }
   }
 
   &:hover .controls-container {
@@ -1191,39 +1197,36 @@ export const PauseResumeOverlay = styled(motion.div)`
 `
 
 export const PauseResumeIcon = styled(motion.div)`
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.7);
-  border: 2px solid rgba(255, 255, 255, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
-  backdrop-filter: blur(8px);
+  filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.8)) drop-shadow(0 0 40px rgba(255, 255, 255, 0.4));
 
   svg {
-    width: 32px;
-    height: 32px;
+    width: 64px;
+    height: 64px;
     color: ${({ theme }) => theme.white};
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.9));
   }
 
   @media screen and (max-width: 640px) {
-    width: 60px;
-    height: 60px;
+    filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.8)) drop-shadow(0 0 30px rgba(255, 255, 255, 0.4));
 
     svg {
-      width: 24px;
-      height: 24px;
+      width: 48px;
+      height: 48px;
+      filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.9));
     }
   }
 
   @media screen and (max-width: 480px) {
-    width: calc(80 / 640 * 100vw);
-    height: calc(80 / 640 * 100vw);
+    filter: drop-shadow(0 0 calc(15 / 640 * 100vw) rgba(255, 255, 255, 0.8))
+      drop-shadow(0 0 calc(30 / 640 * 100vw) rgba(255, 255, 255, 0.4));
 
     svg {
-      width: calc(32 / 640 * 100vw);
-      height: calc(32 / 640 * 100vw);
+      width: calc(64 / 640 * 100vw);
+      height: calc(64 / 640 * 100vw);
+      filter: drop-shadow(0 0 calc(8 / 640 * 100vw) rgba(255, 255, 255, 0.9));
     }
   }
 `
