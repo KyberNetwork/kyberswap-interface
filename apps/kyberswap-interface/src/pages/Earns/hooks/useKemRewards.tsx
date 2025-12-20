@@ -380,7 +380,7 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
         address: position.pool.address,
         dex: position.dex.id,
       },
-      positionId: position.tokenId,
+      positionId: position.tokenId?.toString(),
       initDepositTokens,
       initAmounts,
       compoundType: 'COMPOUND_TYPE_REWARD',

@@ -223,7 +223,7 @@ const useZapInWidget = ({
 
               updateUnfinalizedPosition({
                 ...DEFAULT_PARSED_POSITION,
-                id: !isUniv2 ? `${contract}-${nftId}` : data.position.pool.address,
+                positionId: !isUniv2 ? `${contract}-${nftId}` : data.position.pool.address,
                 tokenId: !isUniv2 ? nftId : '-1',
                 chain: {
                   id: chainId,
