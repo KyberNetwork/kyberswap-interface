@@ -68,23 +68,24 @@ const PositionDetail = () => {
   const { reduceFetchInterval, setReduceFetchInterval } = useReduceFetchInterval()
 
   const {
-    data: userPositions,
+    data: userPositionsData,
     isLoading,
     isFetching,
     refetch,
   } = useUserPositionsQuery(
     {
-      addresses: account || '',
-      positionId: positionId?.toLowerCase(),
+      wallet: account || '',
+      positionIds: positionId?.toLowerCase(),
       chainIds: chainId || '',
       protocols: exchange || '',
     },
     { skip: !account, pollingInterval: forceLoading || reduceFetchInterval ? 5_000 : 15_000 },
   )
   const { rewardInfo } = useKemRewards({ refetchAfterCollect: refetch })
-  const rewardInfoThisPosition = !userPositions
+  const userPositions = useMemo(() => userPositionsData?.positions || [], [userPositionsData?.positions])
+  const rewardInfoThisPosition = !userPositions.length
     ? undefined
-    : rewardInfo?.nfts.find(item => item.nftId === userPositions?.[0]?.tokenId)
+    : rewardInfo?.nfts.find(item => item.nftId === userPositions?.[0]?.tokenId?.toString())
 
   const currentWalletAddress = useRef(account)
   const [aprInterval, setAprInterval] = useState<'24h' | '7d'>('24h')
@@ -235,7 +236,7 @@ const PositionDetail = () => {
 
   useEffect(() => {
     if (!position || !forceLoading) return
-    if (position.pool.isUniv2 ? position.id === positionId : position.tokenId === positionId?.split('-')[1]) {
+    if (position.pool.isUniv2 ? position.positionId === positionId : position.tokenId === positionId?.split('-')[1]) {
       removeForceLoading()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
