@@ -298,7 +298,7 @@ export default function TableContent({
         {account && positions && positions.length > 0
           ? positions.map((position, index) => {
               const {
-                id,
+                positionId,
                 tokenId,
                 token0,
                 token1,
@@ -322,8 +322,8 @@ export default function TableContent({
               const isStablePair = pool.category === PAIR_CATEGORY.STABLE
               const isEarlyPosition = checkEarlyPosition(position)
               const isWaitingForRewards = pool.isFarming && rewards.totalUsdValue === 0 && isEarlyPosition
-              const merklRewards = rewardsByPosition?.[id]?.rewards || []
-              const merklRewardsTotalUsd = rewardsByPosition?.[id]?.totalUsdValue || 0
+              const merklRewards = rewardsByPosition?.[positionId]?.rewards || []
+              const merklRewardsTotalUsd = rewardsByPosition?.[positionId]?.totalUsdValue || 0
               const suggestedProtocolName = position.suggestionPool
                 ? EARN_DEXES[position.suggestionPool.poolExchange].name.replace('FairFlow', '').trim()
                 : ''
@@ -350,7 +350,7 @@ export default function TableContent({
               return (
                 <PositionRow
                   key={`${tokenId}-${pool.address}-${index}`}
-                  to={APP_PATHS.EARN_POSITION_DETAIL.replace(':positionId', !pool.isUniv2 ? id : pool.address)
+                  to={APP_PATHS.EARN_POSITION_DETAIL.replace(':positionId', !pool.isUniv2 ? positionId : pool.address)
                     .replace(':chainId', chain.id.toString())
                     .replace(':exchange', dex.id)}
                 >
