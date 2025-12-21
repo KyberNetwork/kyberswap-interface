@@ -18,8 +18,7 @@ export default function useFilter() {
     () => ({
       chainIds: searchParams.get('chainIds') || '',
       protocols: searchParams.get('protocols') || '',
-      statuses:
-        (searchParams.get('statuses') as PositionStatus) || `${PositionStatus.IN_RANGE},${PositionStatus.OUT_RANGE}`,
+      statuses: (searchParams.get('statuses') as string) || `${PositionStatus.IN_RANGE},${PositionStatus.OUT_RANGE}`,
       keyword: searchParams.get('keyword') || '',
       sortBy: searchParams.get('sortBy') || SortBy.VALUE,
       orderBy: searchParams.get('orderBy') || Direction.DESC,
@@ -42,17 +41,6 @@ export default function useFilter() {
       if (orderBy === Direction.DESC && sortBy === SortBy.VALUE) {
         searchParams.delete('orderBy')
         searchParams.delete('sortBy')
-      }
-
-      if (key === 'statuses') {
-        const arrValue = value.toString().split(',')
-        if (
-          arrValue.includes(PositionStatus.IN_RANGE) &&
-          arrValue.includes(PositionStatus.OUT_RANGE) &&
-          !arrValue.includes(PositionStatus.CLOSED)
-        ) {
-          searchParams.delete('status')
-        } else searchParams.set('status', value.toString())
       }
 
       setSearchParams(searchParams)
