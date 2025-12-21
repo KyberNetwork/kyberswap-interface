@@ -166,7 +166,6 @@ export interface TokenAmount {
     name: string
     decimals: number
     address: string
-    price?: number // For backward compatibility
   }
 }
 

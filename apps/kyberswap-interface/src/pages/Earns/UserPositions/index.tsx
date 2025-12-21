@@ -28,7 +28,6 @@ import {
 import useFilter, { SortBy } from 'pages/Earns/UserPositions/useFilter'
 import { default as MultiSelectDropdownMenu } from 'pages/Earns/components/DropdownMenu/MultiSelect'
 import { ItemIcon } from 'pages/Earns/components/DropdownMenu/styles'
-import { EarnChain, Exchange } from 'pages/Earns/constants'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import useClosedPositions from 'pages/Earns/hooks/useClosedPositions'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
@@ -41,8 +40,8 @@ import { parsePosition } from 'pages/Earns/utils/position'
 import { getUnfinalizedPositions } from 'pages/Earns/utils/unfinalizedPosition'
 import SortIcon, { Direction } from 'pages/MarketOverview/SortIcon'
 import { MEDIA_WIDTHS } from 'theme'
-import { enumToArrayOfValues } from 'utils'
 
+const POSITIONS_TABLE_LIMIT = 10
 const UserPositions = () => {
   const theme = useTheme()
   const navigate = useNavigate()
@@ -59,27 +58,17 @@ const UserPositions = () => {
   const { closedPositionsFromRpc, checkClosedPosition } = useClosedPositions()
 
   const positionQueryParams = useMemo(() => {
-    const statusFilter = filters.statuses.split(',')
-    const isFilterOnlyClosedPosition = statusFilter.length === 1 && statusFilter[0] === PositionStatus.CLOSED
-    const isFilterOnlyOpenPosition = !statusFilter.includes(PositionStatus.CLOSED)
-
-    const protocols = filters.protocols || enumToArrayOfValues(Exchange).join(',')
-    const earnSupportedChains = enumToArrayOfValues(EarnChain, 'number')
-
+    const protocols = filters.protocols
     return {
       wallet: account || '',
-      chainIds: earnSupportedChains.join(','),
+      chainIds: filters.chainIds,
       protocols,
-      statuses: isFilterOnlyClosedPosition
-        ? PositionStatus.CLOSED
-        : isFilterOnlyOpenPosition
-        ? [PositionStatus.IN_RANGE, PositionStatus.OUT_RANGE].join(',')
-        : '',
+      statuses: filters.statuses || '',
       keyword: filters.keyword,
       positionIds: filters.positionId,
       sorts: [filters.sortBy, filters.orderBy].filter(Boolean).join(':'),
       page: filters.page,
-      pageSize: filters.pageSize || 10,
+      pageSize: filters.pageSize,
     }
   }, [account, filters])
 
@@ -398,7 +387,7 @@ const UserPositions = () => {
               onPageChange={(newPage: number) => updateFilters('page', newPage)}
               totalCount={positionsStats.totalItems || 0}
               currentPage={filters.page}
-              pageSize={filters.pageSize || 10}
+              pageSize={filters.pageSize || POSITIONS_TABLE_LIMIT}
             />
           )}
         </PositionTableWrapper>
