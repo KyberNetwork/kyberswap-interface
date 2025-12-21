@@ -2,6 +2,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 import { COMMON_SERVICE_API, TOKEN_API_URL } from 'constants/env'
 
+// Recap API types
 export interface AggregatedVolumeResponse {
   code: number
   message: string
@@ -97,6 +98,7 @@ const commonServiceApi = createApi({
       }),
     }),
 
+    // Recap API endpoints
     getAggregatedVolume: builder.query<AggregatedVolumeResponse, string>({
       query: walletAddress => ({
         url: `v1/users/${walletAddress}/total-volume/aggregated`,
@@ -115,15 +117,10 @@ const commonServiceApi = createApi({
       }),
     }),
 
-    getTokenInfo: builder.query<
-      TokenInfoResponse,
-      { chainIds: string; addresses: string }
-    >({
+    getTokenInfo: builder.query<TokenInfoResponse, { chainIds: string; addresses: string }>({
       queryFn: async ({ chainIds, addresses }) => {
         try {
-          const response = await fetch(
-            `${TOKEN_API_URL}/v1/tokens?chainIds=${chainIds}&addresses=${addresses}`,
-          )
+          const response = await fetch(`${TOKEN_API_URL}/v1/tokens?chainIds=${chainIds}&addresses=${addresses}`)
           const data = await response.json()
           return { data }
         } catch (error) {
