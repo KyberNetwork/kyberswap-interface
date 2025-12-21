@@ -79,7 +79,6 @@ export interface ParsedEarnPool extends EarnPool {
   feeApr: number
 }
 
-// New API Response Types
 export interface UserPositionsApiResponse {
   code: number
   message: string
@@ -146,13 +145,7 @@ export interface PositionStats {
       claimed: TokenAmount[]
     }
     reward: any | null
-    // Legacy fields for backward compatibility
-    '24h'?: number
-    '7d'?: number
   }
-  // Legacy fields for backward compatibility
-  kemEGApr?: PoolAprInterval
-  kemLMApr?: PoolAprInterval
 }
 
 export interface TimeIntervalValues {
@@ -175,14 +168,6 @@ export interface TokenAmount {
     address: string
     price?: number // For backward compatibility
   }
-  // Legacy fields for backward compatibility
-  balance?: string
-  quotes?: {
-    usd: {
-      price: number
-      value: number
-    }
-  }
 }
 
 export interface PositionPool {
@@ -200,9 +185,6 @@ export interface PositionPool {
   }
   category: string
   hooks: string
-  // Legacy fields for backward compatibility
-  poolAddress?: string
-  projectLogo?: string
   merklOpportunity?: MerklOpportunity
 }
 
@@ -235,40 +217,6 @@ export interface EarnPosition {
     }
   }
   id: number
-
-  // Legacy fields for backward compatibility
-  /** @deprecated - use chain.name */
-  chainName?: string
-  /** @deprecated - use chain.id */
-  chainId?: number
-  /** @deprecated - use chain.logo */
-  chainLogo?: string
-  /** @deprecated - use extra.priceRange.min */
-  minPrice?: number
-  /** @deprecated - use extra.priceRange.maxPrice */
-  maxPrice?: number
-  /** @deprecated - use stats.earning.fee.unclaimed */
-  feePending?: Array<PositionAmount>
-  /** @deprecated - use stats.earning.fee.claimed */
-  feesClaimed?: Array<PositionAmount>
-  /** @deprecated - use positionCreatedTimestamp */
-  createdTime?: number
-  /** @deprecated */
-  apr?: number
-  /** @deprecated */
-  kemEGApr?: number
-  /** @deprecated */
-  kemLMApr?: number
-  /** @deprecated */
-  earning24h?: number
-  /** @deprecated */
-  earning7d?: number
-  /** @deprecated - use valueInUSD */
-  currentPositionValue?: number
-  /** @deprecated - use lastUpdatedAt */
-  latestBlock?: number
-  /** @deprecated - use positionCreatedBlock */
-  createdAtBlock?: number
 }
 
 export enum PAIR_CATEGORY {
@@ -499,7 +447,6 @@ export interface MerklOpportunity {
 
 export interface SuggestedPool {
   address: string
-  // chainId: number
   feeTier: number
   poolExchange: Exchange
   token0: {
@@ -528,29 +475,6 @@ interface Token {
   unclaimedAmount: number
   unclaimedBalance: number
   unclaimedValue: number
-}
-
-interface PositionAmount {
-  token: {
-    address: string
-    symbol: string
-    name: string
-    decimals: number
-    logo: string
-    price?: number
-  }
-  balance?: string
-  quotes?: {
-    usd: {
-      price: number
-      value: number
-    }
-  }
-  amount?: {
-    usdValue: number
-    priceUsd: number
-    amount: string
-  }
 }
 
 export interface FeeInfo {
