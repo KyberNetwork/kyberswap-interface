@@ -4,7 +4,6 @@ import {
   useGetAggregatedVolumeQuery,
   useGetChainVolumeQuery,
   useGetTokenVolumeQuery,
-  useLazyGetTokenInfoQuery,
 } from 'services/commonService'
 
 import { NETWORKS_INFO } from 'constants/networks'
@@ -20,7 +19,6 @@ interface TopToken {
 export default function useRecapData() {
   const { account } = useActiveWeb3React()
   const { rewardInfo } = useKemRewards()
-  const [fetchTokenInfo] = useLazyGetTokenInfoQuery()
 
   // Fetch aggregated volume data (tradingVolume, txCount, top)
   const { data: aggregatedData, isLoading: isLoadingAggregated } = useGetAggregatedVolumeQuery(account || '', {
@@ -73,83 +71,36 @@ export default function useRecapData() {
     return []
   }, [chainVolumeData])
 
-  // Fetch token info and process top tokens
+  // Process top tokens directly from tokenVolumeData without fetching additional info
   useEffect(() => {
     if (!tokenVolumeData?.data?.data?.length || !account) {
       setTopTokens([])
       return
     }
 
-    const processTopTokens = async () => {
-      try {
-        // Group tokens by chainId (if available)
-        const tokensByChain = new Map<number, Array<{ address: string; totalVolume: number }>>()
+    try {
+      // Directly map tokens data to TopToken format
+      const tokensWithInfo = tokenVolumeData.data.data.map(token => {
+        const chainId = token.chainId as ChainId;
+        const networkInfo = NETWORKS_INFO[chainId];
+        if (!networkInfo) return null; // Skip if network info is missing
 
-        tokenVolumeData.data.data.forEach(token => {
-          // If chainId is available, group by chainId
-          if (token.chainId) {
-            if (!tokensByChain.has(token.chainId)) {
-              tokensByChain.set(token.chainId, [])
-            }
-            const chainTokens = tokensByChain.get(token.chainId)
-            if (chainTokens) {
-              chainTokens.push({
-                address: token.tokenAddress,
-                totalVolume: token.totalVolume,
-              })
-            }
-          }
-          // Skip tokens without chainId for now
-        })
+        return {
+          symbol: token.tokenSymbol,
+          logo: token.logoUrl,
+          chainLogo: networkInfo.icon,
+          totalVolume: token.totalVolume,
+        };
+      }).filter((token): token is TopToken & { totalVolume: number } => token !== null); // Filter out null items
 
-        // Fetch token info for each chain and collect all tokens with info
-        const tokensWithInfo: Array<TopToken & { totalVolume: number }> = []
-
-        for (const [chainId, tokens] of tokensByChain.entries()) {
-          if (tokens.length === 0) continue
-
-          const addresses = tokens.map(t => t.address).join(',')
-          const chainIdStr = chainId.toString()
-
-          try {
-            const tokenInfoResult = await fetchTokenInfo({ chainIds: chainIdStr, addresses }).unwrap()
-
-            if (tokenInfoResult?.data?.tokens?.length) {
-              // Map token info to tokens with volume
-              tokens.forEach(token => {
-                const tokenInfo = tokenInfoResult.data.tokens.find(
-                  t => t.address.toLowerCase() === token.address.toLowerCase(),
-                )
-                if (tokenInfo) {
-                  const networkInfo = NETWORKS_INFO[chainId as ChainId]
-                  if (networkInfo) {
-                    tokensWithInfo.push({
-                      symbol: tokenInfo.symbol || '',
-                      logo: tokenInfo.logoURI || '',
-                      chainLogo: networkInfo.icon,
-                      totalVolume: token.totalVolume,
-                    })
-                  }
-                }
-              })
-            }
-          } catch (error) {
-            console.error(`Error fetching token info for chain ${chainId}:`, error)
-          }
-        }
-
-        // Sort by totalVolume descending and take top 5
-        const sortedTokens = tokensWithInfo.sort((a, b) => b.totalVolume - a.totalVolume).slice(0, 5)
-
-        setTopTokens(sortedTokens)
-      } catch (error) {
-        console.error('Error processing top tokens:', error)
-        setTopTokens([])
-      }
+      // Sort by totalVolume descending and take top 5
+      const sortedTokens = tokensWithInfo.sort((a, b) => b.totalVolume - a.totalVolume).slice(0, 5);
+      setTopTokens(sortedTokens);
+    } catch (error) {
+      console.error('Error processing top tokens:', error);
+      setTopTokens([]);
     }
-
-    processTopTokens()
-  }, [tokenVolumeData, account, fetchTokenInfo])
+  }, [tokenVolumeData, account]);
 
   // Get totalRewards from rewardInfo
   const totalRewards = useMemo(() => {
