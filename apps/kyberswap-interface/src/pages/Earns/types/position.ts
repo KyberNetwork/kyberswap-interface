@@ -79,7 +79,6 @@ export interface ParsedEarnPool extends EarnPool {
   feeApr: number
 }
 
-// New API Response Types
 export interface UserPositionsApiResponse {
   code: number
   message: string
@@ -146,13 +145,7 @@ export interface PositionStats {
       claimed: TokenAmount[]
     }
     reward: any | null
-    // Legacy fields for backward compatibility
-    '24h'?: number
-    '7d'?: number
   }
-  // Legacy fields for backward compatibility
-  kemEGApr?: PoolAprInterval
-  kemLMApr?: PoolAprInterval
 }
 
 export interface TimeIntervalValues {
@@ -175,14 +168,6 @@ export interface TokenAmount {
     address: string
     price?: number // For backward compatibility
   }
-  // Legacy fields for backward compatibility
-  balance?: string
-  quotes?: {
-    usd: {
-      price: number
-      value: number
-    }
-  }
 }
 
 export interface PositionPool {
@@ -200,9 +185,6 @@ export interface PositionPool {
   }
   category: string
   hooks: string
-  // Legacy fields for backward compatibility
-  poolAddress?: string
-  projectLogo?: string
   merklOpportunity?: MerklOpportunity
 }
 
@@ -235,40 +217,6 @@ export interface EarnPosition {
     }
   }
   id: number
-
-  // Legacy fields for backward compatibility
-  /** @deprecated - use chain.name */
-  chainName?: string
-  /** @deprecated - use chain.id */
-  chainId?: number
-  /** @deprecated - use chain.logo */
-  chainLogo?: string
-  /** @deprecated - use extra.priceRange.min */
-  minPrice?: number
-  /** @deprecated - use extra.priceRange.maxPrice */
-  maxPrice?: number
-  /** @deprecated - use stats.earning.fee.unclaimed */
-  feePending?: Array<PositionAmount>
-  /** @deprecated - use stats.earning.fee.claimed */
-  feesClaimed?: Array<PositionAmount>
-  /** @deprecated - use positionCreatedTimestamp */
-  createdTime?: number
-  /** @deprecated */
-  apr?: number
-  /** @deprecated */
-  kemEGApr?: number
-  /** @deprecated */
-  kemLMApr?: number
-  /** @deprecated */
-  earning24h?: number
-  /** @deprecated */
-  earning7d?: number
-  /** @deprecated - use valueInUSD */
-  currentPositionValue?: number
-  /** @deprecated - use lastUpdatedAt */
-  latestBlock?: number
-  /** @deprecated - use positionCreatedBlock */
-  createdAtBlock?: number
 }
 
 export enum PAIR_CATEGORY {
@@ -489,7 +437,6 @@ export interface EarnPosition {
 
 export interface SuggestedPool {
   address: string
-  // chainId: number
   feeTier: number
   poolExchange: Exchange
   token0: {
@@ -522,29 +469,79 @@ interface Token {
   unclaimedValue: number
 }
 
-interface PositionAmount {
-  token: {
-    address: string
-    symbol: string
-    name: string
-    decimals: number
-    logo: string
-    price?: number
-  }
-  balance?: string
-  quotes?: {
-    usd: {
-      price: number
-      value: number
-    }
-  }
-  amount?: {
-    usdValue: number
-    priceUsd: number
-    amount: string
-  }
+export interface FeeInfo {
+  balance0: string | number
+  balance1: string | number
+  amount0: string | number
+  amount1: string | number
+  value0: number
+  value1: number
+  totalValue: number
 }
 
-export enum PositionHistoryType {
-  DEPOSIT = 'DEPOSIT',
+export interface RewardInfo {
+  totalUsdValue: number
+  totalLmUsdValue: number
+  totalEgUsdValue: number
+  claimableUsdValue: number
+  claimedUsdValue: number
+  inProgressUsdValue: number
+  pendingUsdValue: number
+  vestingUsdValue: number
+  waitingUsdValue: number
+  nfts: Array<NftRewardInfo>
+  chains: Array<ChainRewardInfo>
+  tokens: Array<TokenRewardInfo>
+  egTokens: Array<TokenRewardInfo>
+  lmTokens: Array<TokenRewardInfo>
+}
+
+export interface ChainRewardInfo {
+  chainId: number
+  chainName: string
+  chainLogo: string
+  claimableUsdValue: number
+  tokens: Array<TokenRewardInfo>
+}
+
+export interface NftRewardInfo {
+  nftId: string
+  chainId: number
+  totalUsdValue: number
+  totalLmUsdValue: number
+  totalEgUsdValue: number
+  claimedUsdValue: number
+  inProgressUsdValue: number
+  pendingUsdValue: number
+  vestingUsdValue: number
+  waitingUsdValue: number
+  claimableUsdValue: number
+  unclaimedUsdValue: number
+
+  tokens: Array<TokenRewardInfo>
+  egTokens: Array<TokenRewardInfo>
+  lmTokens: Array<TokenRewardInfo>
+}
+
+export interface TokenRewardInfo {
+  symbol: string
+  logo: string
+  address: string
+  chainId: number
+
+  totalAmount: number
+  claimableAmount: number
+  unclaimedAmount: number
+  pendingAmount: number
+  vestingAmount: number
+  waitingAmount: number
+  claimableUsdValue: number
+}
+
+export interface TokenInfo {
+  address: string
+  symbol: string
+  logo: string
+  decimals: number
+  chainId: number
 }
