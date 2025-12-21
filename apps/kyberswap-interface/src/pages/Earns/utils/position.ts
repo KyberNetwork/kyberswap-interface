@@ -243,9 +243,14 @@ export const parsePosition = ({
   const egApr = position.stats?.apr?.reward ? convertToPoolAprInterval(position.stats?.apr?.reward?.eg) : undefined
   const lmApr = position.stats?.apr?.reward ? convertToPoolAprInterval(position.stats?.apr?.reward?.lm) : undefined
   const lpApr = position.stats?.apr ? convertToPoolAprInterval(position.stats?.apr?.lp) : undefined
+  const positionId = position.positionId?.toString()
+  //TODO: we we remove when api returns tokenId and tokenAddress in position object
+  const tmp = positionId.split('-')
+  const tokenId = position.tokenId ? position.tokenId.toString() : tmp.length > 1 ? tmp[1] : '0'
+  const tokenAddress = position.tokenAddress ? position.tokenAddress : tmp.length > 0 ? tmp[0] : ''
   return {
     positionId: position.positionId?.toString() || position.id?.toString(),
-    tokenId: position.tokenId?.toString(),
+    tokenId: tokenId,
     pool: {
       fee: pool.fees?.[0],
       address: pool.address,
@@ -298,7 +303,7 @@ export const parsePosition = ({
       logo: token0Data?.logo || '',
       symbol: token0Data?.symbol || '',
       decimals: token0Data?.decimals,
-      price: currentAmounts[0]?.token?.price || currentAmounts[0]?.amount?.priceUsd,
+      price: currentAmounts[0]?.amount?.priceUsd,
       isNative: isNativeToken(token0Address, chainId as keyof typeof WETH),
       totalProvide: token0TotalProvide,
       unclaimedAmount: forceClosed ? 0 : feeInfo ? Number(feeInfo.amount0) : token0PendingEarned,
@@ -310,7 +315,7 @@ export const parsePosition = ({
       logo: token1Data?.logo || '',
       symbol: token1Data?.symbol || '',
       decimals: token1Data?.decimals,
-      price: currentAmounts[1]?.token?.price || currentAmounts[1]?.amount?.priceUsd,
+      price: currentAmounts[1]?.amount?.priceUsd,
       isNative: isNativeToken(token1Address, chainId as keyof typeof WETH),
       totalProvide: token1TotalProvide,
       unclaimedAmount: forceClosed ? 0 : feeInfo ? Number(feeInfo.amount1) : token1PendingEarned,
@@ -318,7 +323,7 @@ export const parsePosition = ({
       unclaimedValue: forceClosed ? 0 : feeInfo ? Number(feeInfo.value1) : token1PendingQuote?.value || 0,
     },
     suggestionPool: position.suggestionPool,
-    tokenAddress: position.tokenAddress,
+    tokenAddress,
     apr: calcAprInterval(lpApr, egApr, lmApr),
     kemEGApr: calcAprInterval(egApr),
     kemLMApr: calcAprInterval(lmApr),
