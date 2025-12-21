@@ -24,8 +24,8 @@ import {
 import { LIMIT_TEXT_STYLES } from 'pages/Earns/constants'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
 import useMerklRewards from 'pages/Earns/hooks/useMerklRewards'
-import { ParsedPosition } from 'pages/Earns/types'
-import { aggregateFeeFromPositions } from 'pages/Earns/utils/position'
+import { ParsedPosition, UserPositionsStats } from 'pages/Earns/types'
+import { extractClaimedFeeStats } from 'pages/Earns/utils/position'
 import { defaultRewardInfo } from 'pages/Earns/utils/reward'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -54,10 +54,11 @@ export const BannerSkeleton = ({
 }
 
 export default function PositionBanner({
-  positions,
+  positionsStats,
   initialLoading,
 }: {
   positions: Array<ParsedPosition>
+  positionsStats?: UserPositionsStats
   initialLoading: boolean
 }) {
   const theme = useTheme()
@@ -86,11 +87,8 @@ export default function PositionBanner({
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
 
-  const {
-    totalValue: totalFeeValue,
-    totalEarnedFee,
-    totalUnclaimedFee,
-  } = useMemo(() => aggregateFeeFromPositions(positions), [positions])
+  const feeStats = useMemo(() => extractClaimedFeeStats(positionsStats), [positionsStats])
+  const { totalValueUsd, totalClaimedFeeUsd, totalUnclaimedFeeUsd } = feeStats
 
   const KemImageSize = upToSmall ? 20 : 24
 
@@ -148,10 +146,10 @@ export default function PositionBanner({
               ) : (
                 <Text
                   fontSize={24}
-                  color={totalFeeValue && totalFeeValue > 0 ? theme.primary : theme.text}
+                  color={totalValueUsd && totalValueUsd > 0 ? theme.primary : theme.text}
                   sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '140px' }}
                 >
-                  {formatDisplayNumber(totalFeeValue, { style: 'currency', significantDigits: 4 })}
+                  {formatDisplayNumber(totalValueUsd, { style: 'currency', significantDigits: 4 })}
                 </Text>
               )}
             </BannerDataItem>
@@ -163,7 +161,7 @@ export default function PositionBanner({
                 <BannerSkeleton width={90} height={28} />
               ) : (
                 <Text fontSize={24} sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '140px' }}>
-                  {formatDisplayNumber(totalEarnedFee, { style: 'currency', significantDigits: 4 })}
+                  {formatDisplayNumber(totalClaimedFeeUsd, { style: 'currency', significantDigits: 4 })}
                 </Text>
               )}
             </BannerDataItem>
@@ -175,7 +173,7 @@ export default function PositionBanner({
                 <BannerSkeleton width={90} height={28} />
               ) : (
                 <Text fontSize={24} sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '140px' }}>
-                  {formatDisplayNumber(totalUnclaimedFee, { style: 'currency', significantDigits: 4 })}
+                  {formatDisplayNumber(totalUnclaimedFeeUsd, { style: 'currency', significantDigits: 4 })}
                 </Text>
               )}
             </BannerDataItem>

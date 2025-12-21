@@ -32,7 +32,7 @@ const PositionHistory = ({ position }: { position?: ParsedPosition }) => {
   const { data: historyData } = usePositionHistoryQuery(
     {
       chainId: position?.chain.id || 0,
-      tokenAddress: position?.tokenAddress || '',
+      tokenAddress: position?.tokenAddress || position?.positionId || '',
       tokenId: position?.tokenId || '',
       userAddress: account,
     },

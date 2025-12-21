@@ -296,7 +296,13 @@ const UserPositions = () => {
           />
         </Flex>
 
-        {account && <PositionBanner positions={filteredPositions} initialLoading={initialLoading} />}
+        {account && (
+          <PositionBanner
+            positions={filteredPositions}
+            positionsStats={positionsStats}
+            initialLoading={initialLoading}
+          />
+        )}
 
         <Filter
           supportedChains={supportedChains}
@@ -392,7 +398,7 @@ const UserPositions = () => {
               onPageChange={(newPage: number) => updateFilters('page', newPage)}
               totalCount={positionsStats.totalItems || 0}
               currentPage={filters.page}
-              pageSize={filters.pageSize || 1}
+              pageSize={filters.pageSize || 10}
             />
           )}
         </PositionTableWrapper>
