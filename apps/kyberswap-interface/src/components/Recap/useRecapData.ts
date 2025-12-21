@@ -1,10 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useEffect, useMemo, useState } from 'react'
-import {
-  useGetAggregatedVolumeQuery,
-  useGetChainVolumeQuery,
-  useGetTokenVolumeQuery,
-} from 'services/commonService'
+import { useGetAggregatedVolumeQuery, useGetChainVolumeQuery, useGetTokenVolumeQuery } from 'services/commonService'
 
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
@@ -80,27 +76,29 @@ export default function useRecapData() {
 
     try {
       // Directly map tokens data to TopToken format
-      const tokensWithInfo = tokenVolumeData.data.data.map(token => {
-        const chainId = token.chainId as ChainId;
-        const networkInfo = NETWORKS_INFO[chainId];
-        if (!networkInfo) return null; // Skip if network info is missing
+      const tokensWithInfo = tokenVolumeData.data.data
+        .map(token => {
+          const chainId = token.chainId as ChainId
+          const networkInfo = NETWORKS_INFO[chainId]
+          if (!networkInfo) return null // Skip if network info is missing
 
-        return {
-          symbol: token.tokenSymbol,
-          logo: token.logoUrl,
-          chainLogo: networkInfo.icon,
-          totalVolume: token.totalVolume,
-        };
-      }).filter((token): token is TopToken & { totalVolume: number } => token !== null); // Filter out null items
+          return {
+            symbol: token.tokenSymbol,
+            logo: token.logoUrl,
+            chainLogo: networkInfo.icon,
+            totalVolume: token.totalVolume,
+          }
+        })
+        .filter((token): token is TopToken & { totalVolume: number } => token !== null) // Filter out null items
 
       // Sort by totalVolume descending and take top 5
-      const sortedTokens = tokensWithInfo.sort((a, b) => b.totalVolume - a.totalVolume).slice(0, 5);
-      setTopTokens(sortedTokens);
+      const sortedTokens = tokensWithInfo.sort((a, b) => b.totalVolume - a.totalVolume).slice(0, 5)
+      setTopTokens(sortedTokens)
     } catch (error) {
-      console.error('Error processing top tokens:', error);
-      setTopTokens([]);
+      console.error('Error processing top tokens:', error)
+      setTopTokens([])
     }
-  }, [tokenVolumeData, account]);
+  }, [tokenVolumeData, account])
 
   // Get totalRewards from rewardInfo
   const totalRewards = useMemo(() => {
@@ -114,8 +112,8 @@ export default function useRecapData() {
       tradingVolume,
       txCount,
       top,
-      topChains: topChains,
-      topTokens: topTokens,
+      topChains,
+      topTokens,
       totalRewards,
     }),
     [tradingVolume, txCount, top, topChains, topTokens, totalRewards],
