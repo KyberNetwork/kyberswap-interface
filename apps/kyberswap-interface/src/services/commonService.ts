@@ -1,113 +1,147 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
-import { useEffect, useMemo, useState } from 'react'
-import { useGetAggregatedVolumeQuery, useGetChainVolumeQuery, useGetTokenVolumeQuery } from 'services/commonService'
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
-import { NETWORKS_INFO } from 'constants/networks'
-import { useActiveWeb3React } from 'hooks'
-import useKemRewards from 'pages/Earns/hooks/useKemRewards'
+import { COMMON_SERVICE_API, TOKEN_API_URL } from 'constants/env'
 
-interface TopToken {
-  symbol: string
-  logo: string
-  chainLogo: string
+export interface AggregatedVolumeResponse {
+  code: number
+  message: string
+  data: {
+    pagination: { totalItems: number }
+    data: Array<{
+      chainId: number
+      totalVolume: number
+      totalTransactions: number
+      percentage?: number
+    }>
+    summary: {
+      totalVolume: number
+      totalTransactions: number
+      percentage?: number
+    }
+  }
 }
 
-export default function useRecapData() {
-  const { account } = useActiveWeb3React()
-  const { rewardInfo } = useKemRewards()
-
-  const { data: aggregatedData, isLoading: isLoadingAggregated } = useGetAggregatedVolumeQuery(account || '', {
-    skip: !account,
-  })
-
-  const { data: chainVolumeData, isLoading: isLoadingChainVolume } = useGetChainVolumeQuery(account || '', {
-    skip: !account,
-  })
-
-  const { data: tokenVolumeData, isLoading: isLoadingTokenVolume } = useGetTokenVolumeQuery(account || '', {
-    skip: !account,
-  })
-
-  const [topTokens, setTopTokens] = useState<TopToken[]>([])
-
-  const { tradingVolume, txCount, top } = useMemo(() => {
-    if (aggregatedData?.data?.summary) {
-      return {
-        tradingVolume: aggregatedData.data.summary.totalVolume || 0,
-        txCount: aggregatedData.data.summary.totalTransactions || 0,
-        top: aggregatedData.data.summary.percentage ?? 100,
-      }
+export interface ChainVolumeResponse {
+  code: number
+  message: string
+  data: {
+    pagination: { totalItems: number }
+    data: Array<{
+      chainId: number
+      totalVolume: number
+    }>
+    total: {
+      totalVolume: number
     }
-    return { tradingVolume: 0, txCount: 0, top: 100 }
-  }, [aggregatedData])
+  }
+}
 
-  const topChains = useMemo(() => {
-    if (chainVolumeData?.data?.data?.length) {
-      const sortedChains = [...chainVolumeData.data.data]
-        .sort((a, b) => b.totalVolume - a.totalVolume)
-        .slice(0, 3)
+export interface TokenVolumeResponse {
+  code: number
+  message: string
+  data: {
+    pagination: { totalItems: number }
+    data: Array<{
+      tokenAddress: string
+      tokenSymbol: string
+      totalVolume: number
+      totalTransactions: number
+      chainCount: number
+      chainId?: number
+      logoUrl: string
+    }>
+  }
+}
 
-      return sortedChains
-        .map(chain => {
-          const chainId = chain.chainId as ChainId
-          const networkInfo = NETWORKS_INFO[chainId]
-          if (!networkInfo) return null
-          return {
-            chainId,
-            name: networkInfo.name,
-            icon: networkInfo.icon,
-          }
-        })
-        .filter((chain): chain is NonNullable<typeof chain> => chain !== null)
-    }
-    return []
-  }, [chainVolumeData])
+export interface TokenInfoResponse {
+  code: number
+  message: string
+  data: {
+    pagination: { totalItems: number }
+    tokens: Array<{
+      chainId: number
+      address: string
+      symbol: string
+      logoURI: string
+      name: string
+    }>
+  }
+}
 
-  useEffect(() => {
-    if (!tokenVolumeData?.data?.data?.length || !account) {
-      setTopTokens([])
-      return
-    }
-
-    try {
-      const tokensWithInfo = tokenVolumeData.data.data
-        .map(token => {
-          const chainId = token.chainId as ChainId
-          const networkInfo = NETWORKS_INFO[chainId]
-          if (!networkInfo) return null
-
-          return {
-            symbol: token.tokenSymbol,
-            logo: token.logoUrl,
-            chainLogo: networkInfo.icon,
-            totalVolume: token.totalVolume,
-          }
-        })
-        .filter((token): token is TopToken & { totalVolume: number } => token !== null)
-
-      const sortedTokens = tokensWithInfo.sort((a, b) => b.totalVolume - a.totalVolume).slice(0, 5)
-      setTopTokens(sortedTokens)
-    } catch (error) {
-      console.error('Error processing top tokens:', error)
-      setTopTokens([])
-    }
-  }, [tokenVolumeData, account])
-
-  const totalRewards = useMemo(() => rewardInfo?.claimableUsdValue ?? 0, [rewardInfo])
-
-  const data = useMemo(
-    () => ({
-      totalVolume: 80530000000,
-      totalUsers: 2500000,
-      tradingVolume,
-      txCount,
-      top,
-      topChains,
-      topTokens,
-      totalRewards,
+const commonServiceApi = createApi({
+  reducerPath: 'commonServiceApi',
+  baseQuery: fetchBaseQuery({
+    baseUrl: COMMON_SERVICE_API,
+  }),
+  endpoints: builder => ({
+    getAccessTokens: builder.query<{ data: { accessToken: string } }, void>({
+      query: () => ({
+        url: `v1/treasury-grant/zkme-access-token`,
+      }),
     }),
-    [tradingVolume, txCount, top, topChains, topTokens, totalRewards],
-  )
 
-  return { data, loading: isLoadingAggregated || isLoadingChainVolume || isLoadingTokenVolume }
-}
+    getUserSelectedOption: builder.query<{ data: { option: string } }, string>({
+      query: walletAddress => ({
+        url: `v1/treasury-grant/options?walletAddress=${walletAddress}`,
+      }),
+    }),
+
+    createOption: builder.mutation<
+      { code: number; message: string },
+      { walletAddress: string; signature: string; message: string }
+    >({
+      query: ({ walletAddress, signature, message }) => ({
+        url: `v1/treasury-grant/options`,
+        method: 'POST',
+        body: { walletAddress, signature, message },
+      }),
+    }),
+
+    getAggregatedVolume: builder.query<AggregatedVolumeResponse, string>({
+      query: walletAddress => ({
+        url: `v1/users/${walletAddress}/total-volume/aggregated`,
+      }),
+    }),
+
+    getChainVolume: builder.query<ChainVolumeResponse, string>({
+      query: walletAddress => ({
+        url: `v1/users/${walletAddress}/chain-volume/total`,
+      }),
+    }),
+
+    getTokenVolume: builder.query<TokenVolumeResponse, string>({
+      query: walletAddress => ({
+        url: `v1/users/${walletAddress}/token-volume/aggregated`,
+      }),
+    }),
+
+    getTokenInfo: builder.query<
+      TokenInfoResponse,
+      { chainIds: string; addresses: string }
+    >({
+      queryFn: async ({ chainIds, addresses }) => {
+        try {
+          const response = await fetch(
+            `${TOKEN_API_URL}/v1/tokens?chainIds=${chainIds}&addresses=${addresses}`,
+          )
+          const data = await response.json()
+          return { data }
+        } catch (error) {
+          return { error: { status: 'CUSTOM_ERROR', error: String(error) } }
+        }
+      },
+    }),
+  }),
+})
+
+export const {
+  useLazyGetAccessTokensQuery,
+  useGetUserSelectedOptionQuery,
+  useCreateOptionMutation,
+  useGetAggregatedVolumeQuery,
+  useGetChainVolumeQuery,
+  useGetTokenVolumeQuery,
+  useLazyGetTokenInfoQuery,
+} = commonServiceApi
+
+export default commonServiceApi
