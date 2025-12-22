@@ -67,6 +67,7 @@ function RecapJourney({
   topTokens,
   totalRewards,
 }: RecapJourneyProps) {
+  const skipPart4 = totalRewards <= 0
   const {
     scene,
     elapsedTime,
@@ -78,7 +79,7 @@ function RecapJourney({
     goToNextPart,
     goToPrevPart,
     goToPartStart,
-  } = useRecapTimeline()
+  } = useRecapTimeline({ skipPart4 })
 
   const {
     isFireworkScene,
@@ -115,16 +116,24 @@ function RecapJourney({
   const [downloadLoading, setDownloadLoading] = useState(false)
   const [downloadSuccess, setDownloadSuccess] = useState(false)
 
-  const partStartTimes = useMemo(
-    () => ({
+  const partStartTimes = useMemo(() => {
+    if (skipPart4) {
+      return {
+        1: 0,
+        2: PART_DURATIONS.PART1,
+        3: PART_DURATIONS.PART1 + PART_DURATIONS.PART2,
+        4: PART_DURATIONS.PART1 + PART_DURATIONS.PART2 + PART_DURATIONS.PART3,
+        5: PART_DURATIONS.PART1 + PART_DURATIONS.PART2 + PART_DURATIONS.PART3 + PART_DURATIONS.PART5,
+      }
+    }
+    return {
       1: 0,
       2: PART_DURATIONS.PART1,
       3: PART_DURATIONS.PART1 + PART_DURATIONS.PART2,
       4: PART_DURATIONS.PART1 + PART_DURATIONS.PART2 + PART_DURATIONS.PART3,
       5: PART_DURATIONS.PART1 + PART_DURATIONS.PART2 + PART_DURATIONS.PART3 + PART_DURATIONS.PART4,
-    }),
-    [],
-  )
+    }
+  }, [skipPart4])
 
   // Initialize and control audio
   useEffect(() => {
@@ -629,7 +638,7 @@ kyberswap.com/2025-recap`
           {isTopTokensScene && <TopTokensScene nickname={nickname} topTokens={topTokens} />}
 
           {/* Part 4 Scene 1 & 2: MEV Bots + Flow */}
-          {(isMevBotsScene || isMevFlowScene) && (
+          {(isMevBotsScene || isMevFlowScene) && totalRewards > 0 && (
             <MevScene isMevFlowScene={isMevFlowScene} isFairflowRewardsScene={isFairflowRewardsScene} />
           )}
 
@@ -724,12 +733,14 @@ kyberswap.com/2025-recap`
                 style={{ width: `${partProgress.part4 * 100}%` }}
               />
             </ProgressSegment>
-            <ProgressSegment $isActive={partProgress.part5 > 0}>
-              <ProgressSegmentFill
-                $isActive={partProgress.part5 > 0}
-                style={{ width: `${partProgress.part5 * 100}%` }}
-              />
-            </ProgressSegment>
+            {!skipPart4 && (
+              <ProgressSegment $isActive={partProgress.part5 > 0}>
+                <ProgressSegmentFill
+                  $isActive={partProgress.part5 > 0}
+                  style={{ width: `${partProgress.part5 * 100}%` }}
+                />
+              </ProgressSegment>
+            )}
           </ProgressBar>
         </ProgressBarContainer>
 
