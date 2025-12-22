@@ -48,27 +48,33 @@ export default function RecapSection() {
   const wasOpenBeforeWalletConnectRef = useRef(false)
 
   useEffect(() => {
-    if (!hasCheckedStorageRef.current) {
-      if (!isAutoOpenAvailable()) {
-        hasCheckedStorageRef.current = true
-        return
-      }
+    if (hasCheckedStorageRef.current) return
 
-      const forceOpen = localStorage.getItem('forceOpenRecap') === 'true'
-      if (forceOpen) {
-        localStorage.removeItem('forceOpenRecap')
-        if (!isOpen) {
-          openRecapModal()
-        }
-      } else {
-        const hasClosedBefore = localStorage.getItem(STORAGE_KEY) === 'true'
-        if (!hasClosedBefore && !isOpen) {
-          openRecapModal()
-        }
+    if (!isAutoOpenAvailable()) {
+      hasCheckedStorageRef.current = true
+      return
+    }
+
+    const forceOpen = localStorage.getItem('forceOpenRecap') === 'true'
+    if (forceOpen) {
+      localStorage.removeItem('forceOpenRecap')
+      if (!isOpen) {
+        openRecapModal()
       }
       hasCheckedStorageRef.current = true
+      return
     }
-  }, [isOpen, openRecapModal])
+
+    if (!data) return
+
+    const hasClosedBefore = localStorage.getItem(STORAGE_KEY) === 'true'
+    const canAutoOpen = data.tradingVolume > 0 && data.txCount > 0
+    if (canAutoOpen && !hasClosedBefore && !isOpen) {
+      openRecapModal()
+    }
+
+    hasCheckedStorageRef.current = true
+  }, [data, isOpen, openRecapModal])
 
   useEffect(() => {
     if (hasLoadedNicknameRef.current) return
