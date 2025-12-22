@@ -5,6 +5,7 @@ import { useGetAggregatedVolumeQuery, useGetChainVolumeQuery, useGetTokenVolumeQ
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
+import useMerklRewards from 'pages/Earns/hooks/useMerklRewards'
 
 interface TopToken {
   symbol: string
@@ -15,6 +16,7 @@ interface TopToken {
 export default function useRecapData() {
   const { account } = useActiveWeb3React()
   const { rewardInfo } = useKemRewards()
+  const { totalUsdValue: totalMerklUsdValue } = useMerklRewards()
 
   const { data: aggregatedData, isLoading: isLoadingAggregated } = useGetAggregatedVolumeQuery(account || '', {
     skip: !account,
@@ -86,7 +88,10 @@ export default function useRecapData() {
     setTopTokens(sortedTokens)
   }, [tokenVolumeData])
 
-  const totalRewards = useMemo(() => rewardInfo?.claimableUsdValue ?? 0, [rewardInfo])
+  const totalRewards = useMemo(
+    () => (rewardInfo?.totalUsdValue ?? 0) + (totalMerklUsdValue ?? 0),
+    [rewardInfo, totalMerklUsdValue],
+  )
 
   const data = useMemo(
     () => ({

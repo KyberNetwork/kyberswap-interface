@@ -79,7 +79,7 @@ function SummaryScene({
               <div />
               <SummaryStatValue>{formatTradingVolume(tradingVolume)}</SummaryStatValue>
               <SummaryTradesValue>{txCount.toLocaleString()}</SummaryTradesValue>
-              <SummaryTopBadge>Top {top.toFixed(2)}%</SummaryTopBadge>
+              <SummaryTopBadge>Top {top}%</SummaryTopBadge>
               <SummaryTradesLabel>Trades</SummaryTradesLabel>
             </SummaryStatsRow>
           </motion.div>
