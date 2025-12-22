@@ -118,21 +118,23 @@ function SummaryScene({
             </SummaryFavoritesRow>
           </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 1.0 }}
-          >
-            <SummaryRewardsSection>
-              <SummaryRewardsValue>
-                {formatDisplayNumber(totalRewards, {
-                  significantDigits: totalRewards > 1000 ? 6 : 4,
-                  style: 'currency',
-                })}
-              </SummaryRewardsValue>
-              <SummaryRewardsLabel>FairFlow Rewards</SummaryRewardsLabel>
-            </SummaryRewardsSection>
-          </motion.div>
+          {totalRewards > 0 && (
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 1.0 }}
+            >
+              <SummaryRewardsSection>
+                <SummaryRewardsValue>
+                  {formatDisplayNumber(totalRewards, {
+                    significantDigits: totalRewards > 1000 ? 6 : 4,
+                    style: 'currency',
+                  })}
+                </SummaryRewardsValue>
+                <SummaryRewardsLabel>FairFlow Rewards</SummaryRewardsLabel>
+              </SummaryRewardsSection>
+            </motion.div>
+          )}
         </SummaryStatsColumn>
       </SummaryMainRow>
 
