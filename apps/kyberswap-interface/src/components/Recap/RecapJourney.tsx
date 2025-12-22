@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { memo, useEffect, useMemo, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Check, Copy, Download, Loader, Pause, Play, SkipBack, SkipForward, Volume2, VolumeX } from 'react-feather'
 
 import confetti from 'assets/recap/confetti.png'
@@ -266,7 +266,7 @@ kyberswap.com/2025-recap`
     window.open(shareUrl, '_blank', 'noopener,noreferrer')
   }
 
-  const handlePrevPartControl = () => {
+  const handlePrevPartControl = useCallback(() => {
     const partStartTime = partStartTimes[currentPart]
     const elapsedInPart = elapsedTime - partStartTime
     if (elapsedInPart > RESTART_PART_THRESHOLD_MS) {
@@ -274,7 +274,42 @@ kyberswap.com/2025-recap`
       return
     }
     goToPrevPart()
-  }
+  }, [currentPart, elapsedTime, goToPartStart, goToPrevPart, partStartTimes])
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null
+      if (
+        target &&
+        (target.tagName === 'INPUT' ||
+          target.tagName === 'TEXTAREA' ||
+          target.tagName === 'SELECT' ||
+          target.isContentEditable)
+      ) {
+        return
+      }
+
+      if (event.key === 'ArrowLeft') {
+        event.preventDefault()
+        handlePrevPartControl()
+        return
+      }
+
+      if (event.key === 'ArrowRight') {
+        event.preventDefault()
+        goToNextPart()
+        return
+      }
+
+      if (event.key === ' ' || event.code === 'Space') {
+        event.preventDefault()
+        togglePause()
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [goToNextPart, handlePrevPartControl, togglePause])
 
   // Handle click on screen to control recap
   const handleScreenClick = (event: React.MouseEvent<HTMLDivElement>) => {
