@@ -1,10 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useEffect, useMemo, useState } from 'react'
-import {
-  useGetAggregatedVolumeQuery,
-  useGetChainVolumeQuery,
-  useGetTokenVolumeQuery,
-} from 'services/commonService'
+import { useGetAggregatedVolumeQuery, useGetChainVolumeQuery, useGetTokenVolumeQuery } from 'services/commonService'
 
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
@@ -27,20 +23,17 @@ export default function useRecapData() {
   const { account } = useActiveWeb3React()
   const { rewardInfo } = useKemRewards()
 
-  const { data: aggregatedData, isLoading: isLoadingAggregated } =
-    useGetAggregatedVolumeQuery(account || '', {
-      skip: !account,
-    })
+  const { data: aggregatedData, isLoading: isLoadingAggregated } = useGetAggregatedVolumeQuery(account || '', {
+    skip: !account,
+  })
 
-  const { data: chainVolumeData, isLoading: isLoadingChainVolume } =
-    useGetChainVolumeQuery(account || '', {
-      skip: !account,
-    })
+  const { data: chainVolumeData, isLoading: isLoadingChainVolume } = useGetChainVolumeQuery(account || '', {
+    skip: !account,
+  })
 
-  const { data: tokenVolumeData, isLoading: isLoadingTokenVolume } =
-    useGetTokenVolumeQuery(account || '', {
-      skip: !account,
-    })
+  const { data: tokenVolumeData, isLoading: isLoadingTokenVolume } = useGetTokenVolumeQuery(account || '', {
+    skip: !account,
+  })
 
   const [topTokens, setTopTokens] = useState<TopToken[]>([])
 
@@ -57,9 +50,7 @@ export default function useRecapData() {
 
   const topChains = useMemo(() => {
     if (chainVolumeData?.data?.data?.length) {
-      const sortedChains = [...chainVolumeData.data.data]
-        .sort((a, b) => b.totalVolume - a.totalVolume)
-        .slice(0, 3)
+      const sortedChains = [...chainVolumeData.data.data].sort((a, b) => b.totalVolume - a.totalVolume).slice(0, 3)
 
       return sortedChains
         .map(chain => {
@@ -97,9 +88,7 @@ export default function useRecapData() {
             totalVolume: token.totalVolume,
           }
         })
-        .filter(
-          (token): token is TopToken & { totalVolume: number } => token !== null,
-        )
+        .filter((token): token is TopToken & { totalVolume: number } => token !== null)
 
       const sortedTokens = tokensWithInfo
         .sort(
