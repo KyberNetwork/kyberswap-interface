@@ -19,6 +19,7 @@ export const PositionFee = () => {
   ]);
 
   const [feeInfo, setFees] = useState<RemoveLiquidityAction | null>(null);
+
   useEffect(() => {
     fetch(
       `${API_URLS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/out/route?dexFrom=${poolType}&poolFrom.id=${poolAddress}&positionFrom.id=${positionId}`,

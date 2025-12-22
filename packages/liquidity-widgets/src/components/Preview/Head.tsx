@@ -1,13 +1,15 @@
 import { Trans } from '@lingui/macro';
 
-import { NETWORKS_INFO, Pool, univ3PoolNormalize } from '@kyber/schema';
+import { NETWORKS_INFO, univ3PoolNormalize } from '@kyber/schema';
 import { InfoHelper, TokenLogo, TokenSymbol } from '@kyber/ui';
 
 import Info from '@/assets/svg/info.svg';
 import { useZapState } from '@/hooks/useZapState';
+import { usePoolStore } from '@/stores/usePoolStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
-export default function Head({ pool }: { pool: Pool }) {
+export default function Head() {
+  const { pool } = usePoolStore(['pool']);
   const { positionId, chainId, theme } = useWidgetStore(['positionId', 'chainId', 'theme']);
   const { tickLower, tickUpper } = useZapState();
 
@@ -18,8 +20,8 @@ export default function Head({ pool }: { pool: Pool }) {
   return (
     <div className="flex items-center h-9 gap-4 mt-4 text-base">
       <div className="relative flex items-center">
-        <TokenLogo src={pool.token0.logo} size={36} className="border-2 border-layer1" />
-        <TokenLogo src={pool.token1.logo} size={36} className="border-2 border-layer1 relative -left-2" />
+        <TokenLogo src={pool?.token0.logo} size={36} className="border-2 border-layer1" />
+        <TokenLogo src={pool?.token1.logo} size={36} className="border-2 border-layer1 relative -left-2" />
         <TokenLogo
           src={NETWORKS_INFO[chainId].logo}
           size={18}
@@ -29,13 +31,13 @@ export default function Head({ pool }: { pool: Pool }) {
 
       <div>
         <div className="flex items-center gap-2">
-          <TokenSymbol symbol={pool.token0.symbol} maxWidth={100} />
+          <TokenSymbol symbol={pool?.token0.symbol || ''} maxWidth={100} />
           <span>/</span>
-          <TokenSymbol symbol={pool.token1.symbol} maxWidth={100} />
+          <TokenSymbol symbol={pool?.token1.symbol || ''} maxWidth={100} />
         </div>
         <div className="flex flex-wrap items-center gap-1 mt-[2px]">
           <div className="rounded-full text-xs leading-5 bg-layer2 px-2 py-0 h-max text-text flex items-center gap-1 brightness-75">
-            <Trans>Fee {pool.fee}%</Trans>
+            <Trans>Fee {pool?.fee || 0}%</Trans>
           </div>
           {positionId !== undefined && isUniV3 && (
             <div className="rounded-full text-xs px-2 py-0 h-max flex items-center gap-1 bg-transparent text-success relative before:content-[''] before:absolute before:top-0 before:left-0 before:w-full before:h-full before:opacity-20 before:bg-success before:rounded-full">

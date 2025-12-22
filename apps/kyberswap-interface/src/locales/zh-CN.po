@@ -58,7 +58,7 @@ msgstr "已更新"
 #: src/pages/Campaign/MyDashboard.tsx
 #: src/pages/Campaign/MyDashboard.tsx
 #: src/pages/Campaign/MyDashboard.tsx
-msgid "ENDED"
+msgid "Ended"
 msgstr "已结束"
 
 #: src/components/swapv2/LimitOrder/const.ts
@@ -6520,7 +6520,7 @@ msgid "Create Pool"
 msgstr "创建池子"
 
 #: src/pages/Campaign/MyDashboard.tsx
-msgid "NEW"
+msgid "New"
 msgstr "新"
 
 #: src/components/SwapForm/SwapModal/SwapDetails/index.tsx

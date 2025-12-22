@@ -4,6 +4,7 @@ import { Flex } from 'rebass'
 
 import { PrivateAnnouncementProp } from 'components/Announcement/PrivateAnnoucement'
 import InboxIcon from 'components/Announcement/PrivateAnnoucement/Icon'
+import InboxActions from 'components/Announcement/PrivateAnnoucement/InboxActions'
 import {
   Dot,
   InboxItemRow,
@@ -26,6 +27,8 @@ function InboxItemBridge({
   style,
   time,
   title,
+  onPin,
+  onDelete,
 }: PrivateAnnouncementProp<AnnouncementTemplatePoolPosition>) {
   const { templateBody, isRead, templateType } = announcement
   const theme = useTheme()
@@ -55,6 +58,11 @@ function InboxItemBridge({
 
   return (
     <InboxItemWrapper isRead={isRead} onClick={onClick} style={style}>
+      <InboxActions
+        isPinned={announcement.isPinned}
+        onPin={onPin ? () => onPin(announcement) : undefined}
+        onDelete={onDelete ? () => onDelete(announcement) : undefined}
+      />
       <InboxItemRow>
         <RowItem>
           <InboxIcon type={templateType} chainId={chainId} />

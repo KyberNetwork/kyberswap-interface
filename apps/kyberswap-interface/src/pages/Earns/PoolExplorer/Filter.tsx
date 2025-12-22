@@ -1,7 +1,7 @@
-import { t } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { useLingui } from '@lingui/react'
 import { useMemo } from 'react'
-import { Star } from 'react-feather'
+import { Plus, Star } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Flex } from 'rebass'
 import { PoolQueryParams } from 'services/zapEarn'
@@ -12,12 +12,19 @@ import { ReactComponent as IconLowVolatility } from 'assets/svg/earn/ic_pool_low
 import { ReactComponent as IconSolidEarningPool } from 'assets/svg/earn/ic_pool_solid_earning.svg'
 import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_earn_position.svg'
 import { ReactComponent as IconFarmingPool } from 'assets/svg/kyber/kem.svg'
+import { ButtonOutlined } from 'components/Button'
 import Search from 'components/Search'
 import { MouseoverTooltip, MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
+import useTheme from 'hooks/useTheme'
 import { HeadSection, NavigateButton, Tag, TagContainer } from 'pages/Earns/PoolExplorer/styles'
 import DropdownMenu, { MenuOption } from 'pages/Earns/components/DropdownMenu'
-import useSupportedDexesAndChains from 'pages/Earns/hooks/useSupportedDexesAndChains'
+import { default as MultiSelectDropdownMenu } from 'pages/Earns/components/DropdownMenu/MultiSelect'
+import { ItemIcon } from 'pages/Earns/components/DropdownMenu/styles'
+import useSupportedDexesAndChains, {
+  AllChainsOption,
+  AllProtocolsOption,
+} from 'pages/Earns/hooks/useSupportedDexesAndChains'
 import { MEDIA_WIDTHS } from 'theme'
 
 export enum FilterTag {
@@ -39,16 +46,47 @@ const Filter = ({
   updateFilters,
   search,
   setSearch,
+  onOpenCreatePool,
 }: {
   filters: PoolQueryParams
   updateFilters: (key: keyof PoolQueryParams, value: string) => void
   search: string
   setSearch: (value: string) => void
+  onOpenCreatePool?: () => void
 }) => {
+  const theme = useTheme()
   const { i18n } = useLingui()
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
   const { supportedDexes, supportedChains } = useSupportedDexesAndChains(filters)
+
+  const selectedChainsLabel = useMemo(() => {
+    const arrValue = filters.chainIds?.split(',').filter(Boolean)
+    const selectedChains = supportedChains.filter(option => arrValue?.includes(option.value))
+    if (selectedChains.length >= 1) {
+      return (
+        <Flex alignItems="center" sx={{ gap: '6px' }}>
+          <Flex>
+            {selectedChains.map((chain, index) => (
+              <ItemIcon key={chain.value} src={chain.icon} alt={chain.label} style={{ marginLeft: index ? -8 : 0 }} />
+            ))}
+          </Flex>
+          {selectedChains.length > 1 ? `Selected: ${selectedChains.length} chains` : selectedChains[0].label}
+        </Flex>
+      )
+    }
+    return AllChainsOption.label
+  }, [supportedChains, filters.chainIds])
+
+  const selectedProtocolsLabel = useMemo(() => {
+    const arrValue = filters.protocol?.split(',').filter(Boolean)
+    const selectedProtocols = supportedDexes.filter(option => arrValue?.includes(option.value))
+    if (selectedProtocols.length >= 2) {
+      return `Selected: ${selectedProtocols.length} protocols`
+    }
+    const option = selectedProtocols[0] || supportedDexes[0] || AllProtocolsOption
+    return option?.label || t`All Protocols`
+  }, [supportedDexes, filters.protocol])
 
   const filterTagOptions = useMemo(
     () => [
@@ -87,9 +125,6 @@ const Filter = ({
     [i18n.locale],
   )
 
-  const onChainChange = (newChainId: string | number) => {
-    updateFilters('chainId', newChainId.toString())
-  }
   const onProtocolChange = (newProtocol: string | number) => {
     updateFilters('protocol', newProtocol.toString())
   }
@@ -141,28 +176,47 @@ const Filter = ({
       </HeadSection>
       <Flex justifyContent="space-between" flexDirection={upToMedium ? 'column' : 'row'} sx={{ gap: '1rem' }}>
         <Flex sx={{ gap: '1rem' }} flexWrap="wrap">
-          <DropdownMenu
-            options={supportedChains}
-            value={filters.chainId.toString()}
+          <MultiSelectDropdownMenu
             alignLeft
-            onChange={onChainChange}
+            highlightOnSelect
+            label={selectedChainsLabel}
+            options={supportedChains.length ? supportedChains : [AllChainsOption]}
+            value={filters.chainIds || ''}
+            onChange={value => updateFilters('chainIds', value.toString())}
           />
-          <DropdownMenu
-            width={100}
+          <MultiSelectDropdownMenu
+            alignLeft
+            highlightOnSelect
+            label={selectedProtocolsLabel}
             options={supportedDexes}
             value={filters.protocol}
-            alignLeft
-            onChange={onProtocolChange}
+            onChange={value => onProtocolChange(value)}
           />
           <DropdownMenu width={30} options={timings} value={filters.interval} onChange={onIntervalChange} />
         </Flex>
-        <Search
-          placeholder={t`Search by token symbol or pool/token address`}
-          searchValue={search}
-          allowClear
-          onSearch={val => setSearch(val)}
-          style={{ height: '36px' }}
-        />
+        <Flex alignItems={upToMedium ? 'stretch' : 'center'} style={{ gap: '12px' }} flexWrap="wrap">
+          <Search
+            placeholder={t`Search by token symbol or pool/token address`}
+            searchValue={search}
+            allowClear
+            onSearch={val => setSearch(val)}
+            style={{ height: '36px', width: upToMedium ? '100%' : '280px' }}
+          />
+          <ButtonOutlined
+            color={theme.primary}
+            borderRadius="16px"
+            height="32px"
+            onClick={onOpenCreatePool}
+            style={{
+              width: upToMedium ? '100%' : 'fit-content',
+              gap: '4px',
+              padding: '0 16px',
+            }}
+          >
+            <Plus size={16} />
+            <Trans>Create Pool</Trans>
+          </ButtonOutlined>
+        </Flex>
       </Flex>
     </>
   )

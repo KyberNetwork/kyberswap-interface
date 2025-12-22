@@ -27,12 +27,18 @@ export default function TradePrice({ price, label, icon, style = {}, color }: Tr
     formattedPrice = formatDisplayNumber(showInverted ? price?.invert() : price, { fractionDigits: 4 })
   } catch (error) {}
 
+  const MAX_PRICE_LENGTH = 18
+  const displayPrice =
+    typeof formattedPrice === 'string' && formattedPrice.length > MAX_PRICE_LENGTH
+      ? `${formattedPrice.slice(0, MAX_PRICE_LENGTH)}…`
+      : formattedPrice
+
   const show = Boolean(price?.baseCurrency && price?.quoteCurrency && formattedPrice)
   const nativeQuote = useCurrencyConvertedToNative(price?.quoteCurrency)
   const nativeBase = useCurrencyConvertedToNative(price?.baseCurrency)
   const value = showInverted
-    ? `1 ${nativeQuote?.symbol} = ${formattedPrice} ${nativeBase?.symbol}`
-    : `1 ${nativeBase?.symbol} = ${formattedPrice} ${nativeQuote?.symbol}`
+    ? `1 ${nativeQuote?.symbol} = ${displayPrice} ${nativeBase?.symbol}`
+    : `1 ${nativeBase?.symbol} = ${displayPrice} ${nativeQuote?.symbol}`
 
   return (
     <Text

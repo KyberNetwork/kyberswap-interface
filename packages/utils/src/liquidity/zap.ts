@@ -25,7 +25,7 @@ export const parseZapInfo = ({
   zapInfo: ZapRouteDetail | undefined | null;
   token0: Token;
   token1: Token;
-  position: Position | undefined | null | 'loading';
+  position?: Position | undefined | null | 'loading';
 }) => {
   if (!zapInfo)
     return {
@@ -164,7 +164,10 @@ const defaultZapRoute = {
     value: 0,
     refunds: [],
   },
-  zapFee: 0,
+  zapFee: {
+    protocolFee: 0,
+    partnerFee: 0,
+  },
   suggestedSlippage: 0,
   initUsd: 0,
   finalAmountUsd: 0,
@@ -173,14 +176,21 @@ const defaultZapRoute = {
   swapActions: [],
 };
 
-export const parseZapRoute = (
-  route: ZapRouteDetail | null,
-  token0Address: string,
-  token1Address: string,
-  tokens: Token[],
-  dexName: string,
-  poolAddress: string,
-) => {
+export const parseZapRoute = ({
+  route,
+  token0Address,
+  token1Address,
+  tokens,
+  dexName,
+  poolAddress,
+}: {
+  route: ZapRouteDetail | null;
+  token0Address: string;
+  token1Address: string;
+  tokens: Token[];
+  dexName: string;
+  poolAddress: string;
+}) => {
   if (!route || !token0Address || !token1Address) return defaultZapRoute;
 
   const addedLiquidity = parseAddedLiquidity(route);
@@ -303,13 +313,15 @@ const parseRefund = (route: ZapRouteDetail, tokens: Token[]) => {
 };
 
 const parseZapFee = (route: ZapRouteDetail) => {
-  const feeInfo = route?.zapDetails.actions.find(item => item.type === ZapAction.PROTOCOL_FEE) as
-    | ProtocolFeeAction
-    | undefined;
+  const feeInfo = route.zapDetails.actions.find(item => item.type === ZapAction.PROTOCOL_FEE) as ProtocolFeeAction;
+  const partnerFeeInfo = route.zapDetails.actions.find(item => item.type === ZapAction.PARTNET_FEE) as PartnerFeeAction;
+  const protocolFee = ((feeInfo?.protocolFee.pcm || 0) / 100_000) * 100;
+  const partnerFee = ((partnerFeeInfo?.partnerFee.pcm || 0) / 100_000) * 100;
 
-  const zapFee = ((feeInfo?.protocolFee.pcm || 0) / 100_000) * 100;
-
-  return zapFee;
+  return {
+    protocolFee,
+    partnerFee,
+  };
 };
 
 const parseZapImpact = (pi: number | null | undefined, suggestedSlippage: number) => {

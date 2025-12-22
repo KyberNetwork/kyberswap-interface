@@ -6,16 +6,25 @@ import { Flex, Text } from 'rebass'
 import { useCycleConfigQuery } from 'services/kyberdata'
 
 import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
+import { ReactComponent as UniBonusIcon } from 'assets/svg/kyber/uni_bonus.svg'
 import InfoHelper from 'components/InfoHelper'
 import Loader from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
-import { NextDistribution, PositionAction, RewardDetailInfo, RewardsSection } from 'pages/Earns/PositionDetail/styles'
+import {
+  NextDistribution,
+  PositionAction,
+  RewardDetailInfo,
+  RewardLink,
+  RewardsSection,
+} from 'pages/Earns/PositionDetail/styles'
 import { HorizontalDivider } from 'pages/Earns/UserPositions/styles'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import RewardSyncing from 'pages/Earns/components/RewardSyncing'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
+import useMerklRewards from 'pages/Earns/hooks/useMerklRewards'
 import { ParsedPosition, PositionStatus, TokenRewardInfo } from 'pages/Earns/types'
 import { checkEarlyPosition } from 'pages/Earns/utils/position'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -50,6 +59,11 @@ const RewardSection = ({
     onOpenClaim: onOpenClaimRewards,
     claiming: rewardsClaiming,
   } = useKemRewards(refetchPositions)
+
+  const { rewardsByPosition } = useMerklRewards({ positions: position ? [position] : undefined })
+  const merklRewards = position ? rewardsByPosition[position.id]?.rewards || [] : []
+  const merklRewardsTotalUsd = position ? rewardsByPosition[position.id]?.totalUsdValue || 0 : 0
+
   const rewardInfoThisPosition = !position ? undefined : rewardInfo?.nfts.find(item => item.nftId === position.tokenId)
 
   const chain = position?.chain.id ? NETWORKS_INFO[position.chain.id as ChainId]?.route || '' : ''
@@ -83,6 +97,11 @@ const RewardSection = ({
         <Flex alignItems={'center'} justifyContent={'space-between'} sx={{ gap: '20px' }}>
           <Flex alignItems={'center'} sx={{ gap: 1 }}>
             <FarmingIcon width={20} height={20} />
+            {merklRewards.length > 0 && (
+              <MouseoverTooltip text={merklRewardTooltip(merklRewards, theme.text)} placement="top" width="160px">
+                <UniBonusIcon width={20} height={20} />
+              </MouseoverTooltip>
+            )}
             <Text fontSize={14} color={theme.subText} lineHeight={'20PX'}>
               {t`Total Rewards`}
             </Text>
@@ -96,7 +115,7 @@ const RewardSection = ({
           ) : (
             <Flex alignItems={'center'} sx={{ gap: 1 }}>
               <Text fontSize={20}>
-                {formatDisplayNumber(rewardInfoThisPosition?.totalUsdValue || 0, {
+                {formatDisplayNumber((rewardInfoThisPosition?.totalUsdValue || 0) + merklRewardsTotalUsd, {
                   significantDigits: 4,
                   style: 'currency',
                 })}
@@ -105,6 +124,7 @@ const RewardSection = ({
                 text={totalRewardTooltip({
                   lmTokens: rewardInfoThisPosition?.lmTokens || [],
                   egTokens: rewardInfoThisPosition?.egTokens || [],
+                  merklRewards,
                   textColor: theme.text,
                 })}
                 placement="top"
@@ -315,17 +335,35 @@ export const inProgressRewardTooltip = ({
   )
 }
 
+const merklRewardTooltip = (merklRewards: Array<TokenRewardInfo>, textColor: string) => (
+  <Flex flexDirection={'column'} sx={{ gap: 1 }}>
+    <Text lineHeight={'16px'} fontSize={12}>
+      {t`Uniswap Bonus:`}
+    </Text>
+    {merklRewards.map(token => (
+      <Flex alignItems={'center'} sx={{ gap: 1 }} flexWrap={'wrap'} key={token.address}>
+        <TokenLogo src={token.logo} size={16} />
+        <RewardLink href="https://app.uniswap.org/positions" target="_blank">
+          <Text color={textColor}>{formatDisplayNumber(token.totalAmount, { significantDigits: 4 })}</Text>
+          <Text color={textColor}>{token.symbol}</Text>
+        </RewardLink>
+      </Flex>
+    ))}
+  </Flex>
+)
+
 export const totalRewardTooltip = ({
   lmTokens,
   egTokens,
+  merklRewards,
   textColor,
 }: {
   lmTokens: Array<TokenRewardInfo>
   egTokens: Array<TokenRewardInfo>
+  merklRewards?: Array<TokenRewardInfo>
   textColor: string
 }) => (
   <Flex flexDirection={'column'} sx={{ gap: 1 }}>
-    <HorizontalDivider />
     <Text lineHeight={'16px'} fontSize={12}>
       {t`LM Reward:`}
       {!lmTokens.length ? ' 0' : ''}
@@ -337,6 +375,8 @@ export const totalRewardTooltip = ({
         <Text color={textColor}>{token.symbol}</Text>
       </Flex>
     ))}
+
+    <HorizontalDivider />
     <Text lineHeight={'16px'} fontSize={12}>
       {t`EG Sharing Reward:`}
       {!egTokens.length ? ' 0' : ''}
@@ -348,6 +388,13 @@ export const totalRewardTooltip = ({
         <Text color={textColor}>{token.symbol}</Text>
       </Flex>
     ))}
+
+    {!!merklRewards?.length && (
+      <>
+        <HorizontalDivider />
+        {merklRewardTooltip(merklRewards, textColor)}
+      </>
+    )}
   </Flex>
 )
 

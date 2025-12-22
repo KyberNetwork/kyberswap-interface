@@ -1,18 +1,13 @@
+import { useMemo } from 'react';
+
 import { Trans, t } from '@lingui/macro';
 
 import { useCopy } from '@kyber/hooks';
-import {
-  DEXES_INFO,
-  NATIVE_TOKEN_ADDRESS,
-  NETWORKS_INFO,
-  PoolType,
-  defaultToken,
-  univ3PoolNormalize,
-  univ3Position,
-} from '@kyber/schema';
+import { DEXES_INFO, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, defaultToken, univ3Types } from '@kyber/schema';
 import { InfoHelper, LoadingCounter, MouseoverTooltip, Skeleton, TokenLogo, TokenSymbol } from '@kyber/ui';
 import { shortenAddress } from '@kyber/utils/crypto';
 
+import IconBack from '@/assets/svg/arrow-left.svg';
 import SettingIcon from '@/assets/svg/setting.svg';
 import X from '@/assets/svg/x.svg';
 import { useZapState } from '@/hooks/useZapState';
@@ -21,17 +16,26 @@ import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
 const Header = () => {
-  const { theme, chainId, onClose, poolType, positionId } = useWidgetStore([
+  const { theme, chainId, onClose, poolType, positionId, fromCreatePoolFlow } = useWidgetStore([
     'theme',
     'chainId',
     'onClose',
     'poolType',
     'positionId',
+    'fromCreatePoolFlow',
   ]);
-  const { pool } = usePoolStore(['pool']);
+  const { pool, poolPrice } = usePoolStore(['pool', 'poolPrice']);
   const { position } = usePositionStore(['position']);
 
-  const { toggleSetting, uiState, loading: zapLoading, getZapRoute, zapRouteDisabled } = useZapState();
+  const {
+    toggleSetting,
+    uiState,
+    loading: zapLoading,
+    getZapRoute,
+    zapRouteDisabled,
+    minPrice,
+    maxPrice,
+  } = useZapState();
 
   const initializing = !pool;
   const poolAddress = initializing ? '' : pool.address;
@@ -51,16 +55,15 @@ const Header = () => {
   const isToken0Native = token0.address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase();
   const isToken1Native = token1.address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase();
 
-  const { icon: dexLogo, name: rawName } = DEXES_INFO[poolType as PoolType];
+  const { icon: dexLogo, name: rawName } = DEXES_INFO[poolType];
   const dexName = typeof rawName === 'string' ? rawName : rawName[chainId];
+  const isUniV3 = univ3Types.includes(poolType as any);
 
-  const { success, data } = univ3Position.safeParse(position);
-  const { success: isUniV3, data: univ3Pool } = univ3PoolNormalize.safeParse(pool);
+  const isOutOfRange = useMemo(() => {
+    if (!positionId || !isUniV3 || !poolPrice || minPrice === null || maxPrice === null) return false;
+    return poolPrice < +minPrice || poolPrice > +maxPrice;
+  }, [isUniV3, maxPrice, minPrice, poolPrice, positionId]);
 
-  const isOutOfRange =
-    !!positionId && position && success && isUniV3
-      ? univ3Pool.tick < data.tickLower || univ3Pool.tick >= data.tickUpper
-      : false;
   const isClosed = position !== null && position.liquidity.toString() === '0';
 
   const handleToggleSetting = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -76,6 +79,7 @@ const Header = () => {
           <Skeleton className="w-[300px] h-7" />
         ) : (
           <div className="flex items-center flex-wrap gap-[6px]">
+            {onClose && fromCreatePoolFlow && <IconBack onClick={onClose} className="cursor-pointer text-subText" />}
             {positionId ? <Trans>Increase Liquidity</Trans> : <Trans>Add Liquidity</Trans>}
             <div className="flex items-center gap-1">
               <TokenSymbol symbol={token0.symbol} />
@@ -202,6 +206,12 @@ const Header = () => {
           </div>
         </MouseoverTooltip>
       </div>
+
+      {fromCreatePoolFlow && (
+        <div className="py-2 px-4 text-sm rounded-md text-blue mt-3" style={{ backgroundColor: `${theme.blue}33` }}>
+          <Trans>Pool already exists. You'll add a position via Zap.</Trans>
+        </div>
+      )}
     </>
   );
 };

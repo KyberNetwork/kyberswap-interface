@@ -2,7 +2,9 @@ import { Trans } from '@lingui/macro';
 
 import { Token } from '@kyber/schema';
 import { Skeleton, TokenLogo, TokenSymbol } from '@kyber/ui';
-import { formatCurrency, formatNumber } from '@kyber/utils/number';
+import { formatCurrency } from '@kyber/utils/number';
+
+import { useZapState } from '@/hooks/useZapState';
 
 export default function EstimatedTokenRow({
   initializing,
@@ -14,11 +16,13 @@ export default function EstimatedTokenRow({
 }: {
   initializing: boolean;
   token: Token;
-  addedAmount: number;
+  addedAmount: string;
   addedValue: number;
-  previousAmount?: number;
+  previousAmount?: string;
   previousValue?: number;
 }) {
+  const { route } = useZapState();
+
   return (
     <div className="flex justify-between items-start mt-3 text-xs">
       <div className="text-subText mt-[2px] w-fit flex items-center gap-1">
@@ -28,18 +32,17 @@ export default function EstimatedTokenRow({
 
       {initializing ? (
         <Skeleton className="w-14 h-4" />
-      ) : addedAmount ? (
+      ) : addedAmount && route ? (
         <div>
           <div className="flex justify-end items-start gap-1">
             {token.logo && <TokenLogo src={token.logo} size={14} className="mt-[2px]" />}
             <div className="flex gap-1">
-              {formatNumber(previousAmount ? previousAmount : addedAmount)}{' '}
-              <TokenSymbol symbol={token.symbol} maxWidth={60} />
+              {previousAmount ? previousAmount : addedAmount} <TokenSymbol symbol={token.symbol} maxWidth={60} />
             </div>
           </div>
           {previousAmount && (
             <div className="flex justify-end items-center gap-1">
-              + {formatNumber(addedAmount)} <TokenSymbol symbol={token.symbol} maxWidth={60} />
+              + {addedAmount} <TokenSymbol symbol={token.symbol} maxWidth={60} />
             </div>
           )}
 

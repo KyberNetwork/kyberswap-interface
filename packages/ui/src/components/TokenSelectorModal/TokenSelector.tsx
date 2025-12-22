@@ -48,10 +48,13 @@ interface TokenSelectorProps extends TokenModalProps {
   setTokenToImport: (token: Token) => void;
 }
 
+const normalizeSpecialCharacters = (value: string) => value.replace(/₮/g, 'T');
+
 export default function TokenSelector({
   tokensIn,
   amountsIn,
   account,
+  title,
   selectedTokenAddress,
   mode,
   chainId,
@@ -62,6 +65,7 @@ export default function TokenSelector({
   selectedTokens,
   setTokensIn,
   setAmountsIn,
+  onTokenSelect,
   onConnectWallet,
   onOpenZapMigration,
   setSelectedTokens,
@@ -142,18 +146,22 @@ export default function TokenSelector({
   );
 
   const filteredTokens = useMemo(() => {
-    const search = searchTerm.toLowerCase().trim();
+    const search = normalizeSpecialCharacters(searchTerm).toLowerCase().trim();
 
-    return listTokens.filter(
-      (item: CustomizeToken) =>
-        item.name?.toLowerCase().includes(search) ||
-        item.symbol?.toLowerCase().includes(search) ||
-        item.address?.toLowerCase().includes(search),
-    );
+    return listTokens.filter((item: CustomizeToken) => {
+      const normalizeName = normalizeSpecialCharacters(item.name || '').toLowerCase();
+      const normalizeSymbol = normalizeSpecialCharacters(item.symbol || '').toLowerCase();
+      return (
+        normalizeName.includes(search) ||
+        normalizeSymbol.includes(search) ||
+        item.address?.toLowerCase().includes(search)
+      );
+    });
   }, [listTokens, searchTerm]);
 
   const handleClickToken = (newToken: CustomizeToken) => {
     if (mode === TOKEN_SELECT_MODE.SELECT) {
+      onTokenSelect?.(newToken);
       const index = tokensIn.findIndex((token: Token) => token.address === selectedTokenAddress);
       if (index > -1) {
         const clonedTokensIn = [...tokensIn];
@@ -310,7 +318,7 @@ export default function TokenSelector({
     <div className="w-full mx-auto text-white overflow-hidden">
       <div className="space-y-4">
         <div className="flex justify-between items-center p-6 pb-0">
-          <h2 className="text-xl">{i18n._('Select Liquidity Source')}</h2>
+          <h2 className="text-xl">{title || i18n._('Select Liquidity Source')}</h2>
           <div className="text-subText hover:text-white cursor-pointer" onClick={onClose}>
             <X className="h-6 w-6" />
           </div>

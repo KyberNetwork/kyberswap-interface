@@ -7,7 +7,7 @@ import { PoolQueryParams } from 'services/zapEarn'
 import CopyHelper from 'components/Copy'
 import TokenLogo from 'components/TokenLogo'
 import useTheme from 'hooks/useTheme'
-import { kemFarming } from 'pages/Earns/PoolExplorer/DesktopTableRow'
+import { kemFarming, uniReward } from 'pages/Earns/PoolExplorer/DesktopTableRow'
 import { FilterTag } from 'pages/Earns/PoolExplorer/Filter'
 import {
   Apr,
@@ -41,7 +41,7 @@ const MobileTableRow = ({
     onOpenZapInWidget({
       pool: {
         dex: pool.exchange,
-        chainId: pool.chainId || filters.chainId,
+        chainId: (pool.chain?.id || pool.chainId) as number,
         address: pool.address,
       },
       initialTick:
@@ -64,6 +64,7 @@ const MobileTableRow = ({
           <Flex sx={{ position: 'relative', top: -1 }}>
             <TokenLogo src={pool.tokens?.[0]?.logoURI} />
             <TokenLogo src={pool.tokens?.[1]?.logoURI} translateLeft />
+            {pool.chain?.logoUrl && <TokenLogo src={pool.chain.logoUrl} size={12} translateLeft translateTop />}
           </Flex>
           <Flex flexDirection={'column'} sx={{ gap: 2 }}>
             <Flex sx={{ gap: 1 }}>
@@ -82,6 +83,7 @@ const MobileTableRow = ({
           <Flex alignItems="center" sx={{ gap: '2px' }}>
             <Apr value={pool.apr}>{formatAprNumber(pool.apr)}%</Apr>
             {kemFarming(pool)}
+            {uniReward(pool)}
           </Flex>
           <Star
             size={16}

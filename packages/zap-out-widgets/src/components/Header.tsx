@@ -1,9 +1,12 @@
+import { useMemo } from 'react';
+
 import { Trans, t } from '@lingui/macro';
 
 import { useCopy } from '@kyber/hooks';
-import { DEXES_INFO, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, UniV3Pool, UniV3Position, univ3Types } from '@kyber/schema';
+import { DEXES_INFO, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, UniV3Position, univ3Types } from '@kyber/schema';
 import { InfoHelper, MouseoverTooltip, Skeleton, TokenLogo, TokenSymbol } from '@kyber/ui';
 import { cn } from '@kyber/utils/tailwind-helpers';
+import { tickToPrice } from '@kyber/utils/uniswapv3';
 
 import SettingIcon from '@/assets/svg/setting.svg';
 import X from '@/assets/svg/x.svg';
@@ -13,7 +16,9 @@ import { useZapOutContext } from '@/stores';
 import { useZapOutUserState } from '@/stores/state';
 
 export const Header = () => {
-  const { poolAddress, onClose, poolType, pool, position, positionId, theme, chainId } = useZapOutContext(s => s);
+  const { poolAddress, onClose, poolType, pool, position, positionId, theme, chainId, poolPrice } = useZapOutContext(
+    s => s,
+  );
   const isUniV3 = univ3Types.includes(poolType as any);
 
   const { degenMode, toggleSetting, mode } = useZapOutUserState();
@@ -30,11 +35,12 @@ export const Header = () => {
     text: loading ? '' : pool.token1.address,
   });
 
-  const isOutOfRange =
-    isUniV3 && !loading
-      ? (position as UniV3Position).tickLower > (pool as UniV3Pool).tick ||
-        (pool as UniV3Pool).tick >= (position as UniV3Position).tickUpper
-      : false;
+  const isOutOfRange = useMemo(() => {
+    if (loading || !isUniV3 || !poolPrice) return false;
+    const lowerPrice = +tickToPrice((position as UniV3Position).tickLower, pool.token0.decimals, pool.token1.decimals);
+    const upperPrice = +tickToPrice((position as UniV3Position).tickUpper, pool.token0.decimals, pool.token1.decimals);
+    return poolPrice < lowerPrice || poolPrice > upperPrice;
+  }, [isUniV3, loading, pool?.token0.decimals, pool?.token1.decimals, poolPrice, position]);
 
   const { icon: dexLogo, name: rawName } = DEXES_INFO[poolType];
   const dexName = typeof rawName === 'string' ? rawName : rawName[chainId];

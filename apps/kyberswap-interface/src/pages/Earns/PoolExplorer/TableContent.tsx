@@ -4,9 +4,12 @@ import { useMedia } from 'react-use'
 import { Text } from 'rebass'
 import { PoolQueryParams, usePoolsExplorerQuery } from 'services/zapEarn'
 
+import LocalLoader from 'components/LocalLoader'
+import ProgressBar from 'components/ProgressBar'
 import useTheme from 'hooks/useTheme'
 import DesktopTableRow from 'pages/Earns/PoolExplorer/DesktopTableRow'
 import MobileTableRow from 'pages/Earns/PoolExplorer/MobileTableRow'
+import { ProgressBarWrapper } from 'pages/Earns/PoolExplorer/styles'
 import useFavoritePool from 'pages/Earns/PoolExplorer/useFavoritePool'
 import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import Updater from 'state/customizeDexes/updater'
@@ -20,57 +23,85 @@ export const dexKeyMapping: { [key: string]: string } = {
 
 const POLLING_INTERVAL_MS = 5 * 60_000
 
-const TableContent = ({
-  onOpenZapInWidget,
-  filters,
-}: {
+type Props = {
   onOpenZapInWidget: ({ pool }: ZapInInfo) => void
   filters: PoolQueryParams
-}) => {
+}
+
+const TableContent = ({ onOpenZapInWidget, filters }: Props) => {
   const theme = useTheme()
 
   const allDexes = useAppSelector(state => state.customizeDexes.allDexes)
-  const dexList = useMemo(() => {
-    return allDexes[filters.chainId] || []
-  }, [allDexes, filters.chainId])
-  const { data: poolData, refetch, isError } = usePoolsExplorerQuery(filters, { pollingInterval: POLLING_INTERVAL_MS })
-  const { handleFavorite, favoriteLoading } = useFavoritePool({ filters, refetch })
+  const {
+    data: poolData,
+    refetch,
+    isLoading,
+    isFetching,
+    isError,
+  } = usePoolsExplorerQuery(filters, { pollingInterval: POLLING_INTERVAL_MS })
+  const { handleFavorite, favoriteLoading } = useFavoritePool({ refetch })
 
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
+  const visibleChainIds = useMemo(() => {
+    const filterChainIds = filters.chainIds?.split(',').filter(Boolean).map(Number) || []
+    if (filterChainIds.length) return filterChainIds
+
+    const poolChainIds = poolData?.data?.pools?.map(pool => pool.chain?.id ?? pool.chainId).filter(Boolean) || []
+    return Array.from(new Set(poolChainIds))
+  }, [filters.chainIds, poolData?.data?.pools])
+
   // Create a dex lookup map for better performance
   const dexLookupMap = useMemo(() => {
-    const map = new Map<string, { logoURL: string; name: string }>()
-    dexList.forEach(dex => {
-      map.set(dex.id, { logoURL: dex.logoURL, name: dex.name })
+    const map = new Map<number, Map<string, { logoURL: string; name: string }>>()
+
+    Object.entries(allDexes || {}).forEach(([chainId, dexes]) => {
+      const dexMap = new Map<string, { logoURL: string; name: string }>()
+      dexes.forEach(dex => {
+        dexMap.set(dex.id, { logoURL: dex.logoURL, name: dex.name })
+      })
+      map.set(Number(chainId), dexMap)
     })
     return map
-  }, [dexList])
+  }, [allDexes])
 
   const tablePoolData = useMemo(() => {
     return (poolData?.data?.pools || []).map(pool => {
+      const poolChainId = pool.chain?.id ?? pool.chainId
       const dexKey = dexKeyMapping[pool.exchange] || pool.exchange
-      const dexInfo = dexLookupMap.get(dexKey) || { logoURL: '', name: '' }
+      const dexInfo = poolChainId ? dexLookupMap.get(poolChainId)?.get(dexKey) : undefined
 
       return {
         ...pool,
-        dexLogo: dexInfo.logoURL,
-        dexName: dexInfo.name,
+        dexLogo: dexInfo?.logoURL || '',
+        dexName: dexInfo?.name || pool.exchange,
         feeApr: pool.apr,
-        apr: (pool.kemEGApr || 0) + (pool.kemLMApr || 0) + pool.apr,
+        apr: pool.apr + (pool.kemEGApr || 0) + (pool.kemLMApr || 0) + (pool.bonusApr || 0),
       }
     })
   }, [poolData?.data?.pools, dexLookupMap])
 
-  if (!tablePoolData?.length || isError)
+  if (isLoading) {
+    return <LocalLoader />
+  }
+
+  if (poolData?.data?.pools.length === 0 || isError) {
     return (
       <Text color={theme.subText} margin="3rem" marginTop="4rem" textAlign="center">
         {t`No data found`}
       </Text>
     )
+  }
+
+  const loadingProgress = (
+    <ProgressBarWrapper>
+      <ProgressBar loading height="3px" width="100%" />
+    </ProgressBarWrapper>
+  )
 
   return (
     <>
+      {isFetching && loadingProgress}
       <div>
         {tablePoolData.map((pool, index) =>
           upToMedium ? (
@@ -94,7 +125,12 @@ const TableContent = ({
           ),
         )}
       </div>
-      <Updater customChainId={filters.chainId} />
+      {isFetching && upToMedium && loadingProgress}
+
+      {/* Important to load dex info */}
+      {visibleChainIds.map(chainId => (
+        <Updater key={chainId} customChainId={chainId} />
+      ))}
     </>
   )
 }

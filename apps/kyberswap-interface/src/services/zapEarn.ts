@@ -28,7 +28,8 @@ interface SupportedProtocolsResponse {
 }
 
 export interface PoolQueryParams {
-  chainId: ChainId
+  chainId?: number
+  chainIds?: string
   page?: number
   limit?: number
   interval: string
@@ -210,11 +211,13 @@ export const {
   useExplorerLandingQuery,
   useSupportedProtocolsQuery,
   usePoolsExplorerQuery,
+  useLazyPoolsExplorerQuery,
   useUserPositionsQuery,
   usePositionHistoryQuery,
   useAddFavoriteMutation,
   useRemoveFavoriteMutation,
   usePoolDetailQuery,
+  useLazyPoolDetailQuery,
 } = zapEarnServiceApi
 
 export default zapEarnServiceApi

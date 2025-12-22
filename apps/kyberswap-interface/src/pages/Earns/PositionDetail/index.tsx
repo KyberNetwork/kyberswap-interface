@@ -12,6 +12,7 @@ import { ReactComponent as IconEarnNotFound } from 'assets/svg/earn/ic_earn_not_
 import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_earn_position.svg'
 import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import { ReactComponent as FarmingLmIcon } from 'assets/svg/kyber/kemLm.svg'
+import { ReactComponent as UniBonusIcon } from 'assets/svg/kyber/uni_bonus.svg'
 import { ReactComponent as RocketIcon } from 'assets/svg/rocket.svg'
 import { Loader2 } from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
@@ -360,7 +361,7 @@ const PositionDetail = () => {
             },
             position: {
               apr: {
-                total: position.apr[aprInterval],
+                total: position.apr[aprInterval] + position.bonusApr,
                 eg: position.kemEGApr[aprInterval],
                 lm: position.kemLMApr[aprInterval],
               },
@@ -384,9 +385,10 @@ const PositionDetail = () => {
         </Text>
         {position?.pool.isFarming && !isUnfinalized && (
           <AprDetailTooltip
-            feeApr={position?.feeApr[aprInterval] || 0}
-            egApr={position?.kemEGApr[aprInterval] || 0}
-            lmApr={position?.kemLMApr[aprInterval] || 0}
+            feeApr={position.feeApr[aprInterval] || 0}
+            egApr={position.kemEGApr[aprInterval] || 0}
+            lmApr={position.kemLMApr[aprInterval] || 0}
+            uniApr={position.bonusApr}
           >
             <Info color={theme.subText} size={16} />
           </AprDetailTooltip>
@@ -407,12 +409,13 @@ const PositionDetail = () => {
             ) : position?.pool.isFarming ? (
               <FarmingIcon width={20} height={20} />
             ) : null}
+            {position?.bonusApr ? <UniBonusIcon width={20} height={20} /> : null}
             <Text
               fontSize={20}
               marginRight={1}
               color={position?.apr && position.apr[aprInterval] > 0 ? theme.primary : theme.text}
             >
-              {formatAprNumber(position?.apr[aprInterval] || 0)}%
+              {formatAprNumber((position?.apr[aprInterval] || 0) + (position?.bonusApr || 0))}%
             </Text>
             {!initialLoading &&
               !isUnfinalized &&
