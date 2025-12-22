@@ -743,12 +743,13 @@ kyberswap.com/2025-recap`
               transition={{ duration: 0.2 }}
             >
               <PauseResumeIcon
-                initial={{ scale: 0.8, opacity: 0 }}
+                key={isPaused ? 'paused' : 'playing'}
+                initial={{ scale: 0.7, opacity: 0 }}
                 animate={{
-                  scale: [1, 1.1, 1],
+                  scale: [1, 1.35, 1.1],
                   opacity: 1,
                 }}
-                exit={{ scale: 0.8, opacity: 0 }}
+                exit={{ scale: 0.85, opacity: 0 }}
                 transition={{
                   duration: 0.5,
                   ease: [0.25, 0.46, 0.45, 0.94],
