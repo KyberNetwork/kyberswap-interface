@@ -50,9 +50,11 @@ import {
   TradingStatsScene,
   VideoScene,
 } from 'components/Recap/scenes'
-import { RecapJourneyProps } from 'components/Recap/types'
+import { PART_DURATIONS, RecapJourneyProps } from 'components/Recap/types'
 import useRecapTimeline from 'components/Recap/useRecapTimeline'
 import { captureScreenshot, copyImageToClipboard, downloadImage } from 'components/Recap/utils'
+
+const RESTART_PART_THRESHOLD_MS = 1500
 
 function RecapJourney({
   nickname,
@@ -65,7 +67,18 @@ function RecapJourney({
   topTokens,
   totalRewards,
 }: RecapJourneyProps) {
-  const { scene, partProgress, sceneFlags, isPaused, togglePause, goToNextPart, goToPrevPart } = useRecapTimeline()
+  const {
+    scene,
+    elapsedTime,
+    currentPart,
+    partProgress,
+    sceneFlags,
+    isPaused,
+    togglePause,
+    goToNextPart,
+    goToPrevPart,
+    goToPartStart,
+  } = useRecapTimeline()
 
   const {
     isFireworkScene,
@@ -101,6 +114,17 @@ function RecapJourney({
   const [copySuccess, setCopySuccess] = useState(false)
   const [downloadLoading, setDownloadLoading] = useState(false)
   const [downloadSuccess, setDownloadSuccess] = useState(false)
+
+  const partStartTimes = useMemo(
+    () => ({
+      1: 0,
+      2: PART_DURATIONS.PART1,
+      3: PART_DURATIONS.PART1 + PART_DURATIONS.PART2,
+      4: PART_DURATIONS.PART1 + PART_DURATIONS.PART2 + PART_DURATIONS.PART3,
+      5: PART_DURATIONS.PART1 + PART_DURATIONS.PART2 + PART_DURATIONS.PART3 + PART_DURATIONS.PART4,
+    }),
+    [],
+  )
 
   // Initialize and control audio
   useEffect(() => {
@@ -240,6 +264,16 @@ kyberswap.com/2025-recap`
     const encodedText = encodeURIComponent(shareText)
     const shareUrl = `https://twitter.com/intent/tweet?text=${encodedText}`
     window.open(shareUrl, '_blank', 'noopener,noreferrer')
+  }
+
+  const handlePrevPartControl = () => {
+    const partStartTime = partStartTimes[currentPart]
+    const elapsedInPart = elapsedTime - partStartTime
+    if (elapsedInPart > RESTART_PART_THRESHOLD_MS) {
+      goToPartStart(currentPart)
+      return
+    }
+    goToPrevPart()
   }
 
   // Handle click on screen to control recap
@@ -588,7 +622,7 @@ kyberswap.com/2025-recap`
 
         {/* Controls */}
         <ControlsContainer className="controls-container">
-          <ControlButton onClick={goToPrevPart} aria-label="Previous part">
+          <ControlButton onClick={handlePrevPartControl} aria-label="Previous part">
             <SkipBack />
           </ControlButton>
           <ControlButton onClick={togglePause} aria-label={isPaused ? 'Play' : 'Pause'}>

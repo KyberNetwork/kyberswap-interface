@@ -44,6 +44,7 @@ interface UseRecapTimelineReturn {
   togglePause: () => void
   goToNextPart: () => void
   goToPrevPart: () => void
+  goToPartStart: (part?: 1 | 2 | 3 | 4 | 5) => void
 }
 
 export default function useRecapTimeline(): UseRecapTimelineReturn {
@@ -107,6 +108,17 @@ export default function useRecapTimeline(): UseRecapTimelineReturn {
     })
   }, [rescheduleTimers])
 
+  const jumpToTime = useCallback(
+    (targetTime: number) => {
+      setElapsedTime(targetTime)
+      elapsedTimeRef.current = targetTime
+      pausedAtElapsedRef.current = targetTime
+      lastUpdateTimeRef.current = Date.now()
+      rescheduleTimers(targetTime)
+    },
+    [rescheduleTimers],
+  )
+
   const goToNextPart = useCallback(() => {
     const current = elapsedTimeRef.current
     let targetTime = current
@@ -123,13 +135,9 @@ export default function useRecapTimeline(): UseRecapTimelineReturn {
     }
 
     if (targetTime !== current) {
-      setElapsedTime(targetTime)
-      elapsedTimeRef.current = targetTime
-      pausedAtElapsedRef.current = targetTime
-      lastUpdateTimeRef.current = Date.now()
-      rescheduleTimers(targetTime)
+      jumpToTime(targetTime)
     }
-  }, [rescheduleTimers])
+  }, [jumpToTime])
 
   const goToPrevPart = useCallback(() => {
     const current = elapsedTimeRef.current
@@ -146,12 +154,28 @@ export default function useRecapTimeline(): UseRecapTimelineReturn {
       targetTime = PART_START_TIMES[1]
     }
 
-    setElapsedTime(targetTime)
-    elapsedTimeRef.current = targetTime
-    pausedAtElapsedRef.current = targetTime
-    lastUpdateTimeRef.current = Date.now()
-    rescheduleTimers(targetTime)
-  }, [rescheduleTimers])
+    jumpToTime(targetTime)
+  }, [jumpToTime])
+
+  // Memoize current part calculation
+  const currentPart = useMemo((): 1 | 2 | 3 | 4 | 5 => {
+    if (PART_SCENES.PART1.includes(scene)) return 1
+    if (PART_SCENES.PART2.includes(scene)) return 2
+    if (PART_SCENES.PART3.includes(scene)) return 3
+    if (PART_SCENES.PART4.includes(scene)) return 4
+    return 5
+  }, [scene])
+
+  const goToPartStart = useCallback(
+    (part?: 1 | 2 | 3 | 4 | 5) => {
+      const targetPart = part ?? currentPart
+      const targetTime = PART_START_TIMES[targetPart]
+      if (targetTime !== elapsedTimeRef.current) {
+        jumpToTime(targetTime)
+      }
+    },
+    [currentPart, jumpToTime],
+  )
 
   // Setup timeline transitions
   useEffect(() => {
@@ -192,15 +216,6 @@ export default function useRecapTimeline(): UseRecapTimelineReturn {
       }
     }
   }, [isPaused])
-
-  // Memoize current part calculation
-  const currentPart = useMemo((): 1 | 2 | 3 | 4 | 5 => {
-    if (PART_SCENES.PART1.includes(scene)) return 1
-    if (PART_SCENES.PART2.includes(scene)) return 2
-    if (PART_SCENES.PART3.includes(scene)) return 3
-    if (PART_SCENES.PART4.includes(scene)) return 4
-    return 5
-  }, [scene])
 
   // Memoize progress calculations
   const partProgress = useMemo(() => {
@@ -254,5 +269,6 @@ export default function useRecapTimeline(): UseRecapTimelineReturn {
     togglePause,
     goToNextPart,
     goToPrevPart,
+    goToPartStart,
   }
 }
