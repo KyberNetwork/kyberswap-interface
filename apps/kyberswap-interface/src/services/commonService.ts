@@ -42,14 +42,13 @@ export interface TokenVolumeResponse {
   message: string
   data: {
     pagination: { totalItems: number }
-    data: Array<{
-      tokenAddress: string
-      tokenSymbol: string
-      totalVolume: number
+    tokens: Array<{
+      address: string
+      chainId: number
+      logo: string
+      symbol: string
       totalTransactions: number
-      chainCount: number
-      chainId?: number
-      logoUrl: string
+      totalVolume: number
     }>
   }
 }

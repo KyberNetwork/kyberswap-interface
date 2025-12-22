@@ -12,13 +12,6 @@ interface TopToken {
   chainLogo: string
 }
 
-type TokenVolumeItem = {
-  tokenSymbol: string
-  totalVolume: number
-  chainId?: number
-  logoUrl: string
-}
-
 export default function useRecapData() {
   const { account } = useActiveWeb3React()
   const { rewardInfo } = useKemRewards()
@@ -69,41 +62,29 @@ export default function useRecapData() {
   }, [chainVolumeData])
 
   useEffect(() => {
-    if (!tokenVolumeData?.data?.data?.length || !account) {
-      setTopTokens([])
-      return
-    }
+    const tokensWithInfo = (tokenVolumeData?.data.tokens ?? [])
+      .map(token => {
+        const chainId = (token.chainId ?? 0) as ChainId
+        const networkInfo = NETWORKS_INFO[chainId]
+        if (!networkInfo) return null
 
-    try {
-      const tokensWithInfo = (tokenVolumeData.data.data as TokenVolumeItem[])
-        .map((token: TokenVolumeItem) => {
-          const chainId = (token.chainId ?? 0) as ChainId
-          const networkInfo = NETWORKS_INFO[chainId]
-          if (!networkInfo) return null
+        return {
+          symbol: token.symbol,
+          logo: token.logo,
+          chainLogo: networkInfo.icon,
+          totalVolume: token.totalVolume,
+        }
+      })
+      .filter((token): token is TopToken & { totalVolume: number } => token !== null)
 
-          return {
-            symbol: token.tokenSymbol,
-            logo: token.logoUrl,
-            chainLogo: networkInfo.icon,
-            totalVolume: token.totalVolume,
-          }
-        })
-        .filter((token): token is TopToken & { totalVolume: number } => token !== null)
+    const sortedTokens = tokensWithInfo
+      .sort(
+        (a: TopToken & { totalVolume: number }, b: TopToken & { totalVolume: number }) => b.totalVolume - a.totalVolume,
+      )
+      .slice(0, 5)
 
-      const sortedTokens = tokensWithInfo
-        .sort(
-          (a: TopToken & { totalVolume: number }, b: TopToken & { totalVolume: number }) =>
-            b.totalVolume - a.totalVolume,
-        )
-        .slice(0, 5)
-
-      setTopTokens(sortedTokens)
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error('Error processing top tokens:', error)
-      setTopTokens([])
-    }
-  }, [tokenVolumeData, account])
+    setTopTokens(sortedTokens)
+  }, [tokenVolumeData])
 
   const totalRewards = useMemo(() => rewardInfo?.claimableUsdValue ?? 0, [rewardInfo])
 
