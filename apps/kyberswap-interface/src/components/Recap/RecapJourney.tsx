@@ -268,7 +268,7 @@ function RecapJourney({
 💸 ${formattedRewards} reclaimed via Uniswap v4 FairFlow.
 
 That's my liquidity working smarter. Watch your recap👇
-kyberswap.com/2025-recap`
+kyberswap.com/2025-journey`
 
     const encodedText = encodeURIComponent(shareText)
     const shareUrl = `https://twitter.com/intent/tweet?text=${encodedText}`
