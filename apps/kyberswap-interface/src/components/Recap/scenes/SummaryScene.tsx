@@ -90,31 +90,35 @@ function SummaryScene({
             transition={{ duration: 0.5, delay: 0.8 }}
           >
             <SummaryFavoritesRow>
-              <SummaryFavoriteItem>
-                <SummaryFavoriteLabel>Favorite Asset</SummaryFavoriteLabel>
-                <SummaryFavoriteValue>
-                  {topTokens[0] && (
-                    <>
-                      <SummaryFavoriteIconWrapper>
-                        <SummaryFavoriteIcon src={topTokens[0].logo} alt={topTokens[0].symbol} />
-                        <SummaryFavoriteChainIcon src={topTokens[0].chainLogo} alt="chain" />
-                      </SummaryFavoriteIconWrapper>
-                      {topTokens[0].symbol}
-                    </>
-                  )}
-                </SummaryFavoriteValue>
-              </SummaryFavoriteItem>
-              <SummaryFavoriteItem>
-                <SummaryFavoriteLabel>Favorite Chain</SummaryFavoriteLabel>
-                <SummaryFavoriteValue>
-                  {topChains[0] && (
-                    <>
-                      <SummaryFavoriteIcon src={topChains[0].icon} alt={topChains[0].name} />
-                      {topChains[0].name}
-                    </>
-                  )}
-                </SummaryFavoriteValue>
-              </SummaryFavoriteItem>
+              {topTokens.length > 0 && (
+                <SummaryFavoriteItem>
+                  <SummaryFavoriteLabel>Favorite Asset</SummaryFavoriteLabel>
+                  <SummaryFavoriteValue>
+                    {topTokens[0] && (
+                      <>
+                        <SummaryFavoriteIconWrapper>
+                          <SummaryFavoriteIcon src={topTokens[0].logo} alt={topTokens[0].symbol} />
+                          <SummaryFavoriteChainIcon src={topTokens[0].chainLogo} alt="chain" />
+                        </SummaryFavoriteIconWrapper>
+                        {topTokens[0].symbol}
+                      </>
+                    )}
+                  </SummaryFavoriteValue>
+                </SummaryFavoriteItem>
+              )}
+              {topChains.length > 0 && (
+                <SummaryFavoriteItem>
+                  <SummaryFavoriteLabel>Favorite Chain</SummaryFavoriteLabel>
+                  <SummaryFavoriteValue>
+                    {topChains[0] && (
+                      <>
+                        <SummaryFavoriteIcon src={topChains[0].icon} alt={topChains[0].name} />
+                        {topChains[0].name}
+                      </>
+                    )}
+                  </SummaryFavoriteValue>
+                </SummaryFavoriteItem>
+              )}
             </SummaryFavoritesRow>
           </motion.div>
 

@@ -216,14 +216,14 @@ export default function RecapSection() {
       {showJourney ? (
         <RecapJourney
           nickname={nickname || defaultAddress}
-          totalVolume={data?.totalVolume || 0}
-          totalUsers={data?.totalUsers || 0}
-          tradingVolume={data?.tradingVolume || 0}
-          txCount={data?.txCount || 0}
-          top={data?.top || 20}
-          topChains={data?.topChains || []}
-          topTokens={data?.topTokens || []}
-          totalRewards={data?.totalRewards || 0}
+          totalVolume={data.totalVolume}
+          totalUsers={data.totalUsers}
+          tradingVolume={data.tradingVolume}
+          txCount={data.txCount}
+          top={data.top}
+          topChains={data.topChains}
+          topTokens={data.topTokens}
+          totalRewards={data.totalRewards}
           onClose={handleClose}
         />
       ) : (

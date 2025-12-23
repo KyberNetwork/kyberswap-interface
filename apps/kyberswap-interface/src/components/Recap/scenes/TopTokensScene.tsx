@@ -2,6 +2,7 @@ import { memo } from 'react'
 import { Flex } from 'rebass'
 
 import {
+  EmptyItem,
   NicknameHeader,
   TopListChainIcon,
   TopListContainer,
@@ -61,6 +62,7 @@ function TopTokensScene({ nickname, topTokens }: TopTokensSceneProps) {
             </Flex>
           </TopListItem>
         ))}
+        {topTokens.length === 0 && <EmptyItem>Empty</EmptyItem>}
       </TopListItems>
     </TopListContainer>
   )

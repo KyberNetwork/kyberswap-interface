@@ -1517,6 +1517,11 @@ export const TopListItem = styled(motion.div)`
   }
 `
 
+export const EmptyItem = styled.div`
+  text-align: center;
+  color: ${({ theme }) => theme.subText};
+`
+
 export const TopListRank = styled.div`
   width: 32px;
   height: 32px;
