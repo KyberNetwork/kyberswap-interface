@@ -2,6 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useEffect, useMemo, useState } from 'react'
 import { useGetAggregatedVolumeQuery, useGetChainVolumeQuery, useGetTokenVolumeQuery } from 'services/commonService'
 
+import { isRecapAvailable } from 'components/Recap/utils'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
@@ -18,16 +19,18 @@ export default function useRecapData() {
   const { rewardInfo } = useKemRewards()
   const { totalUsdValue: totalMerklUsdValue } = useMerklRewards()
 
+  const isAvailable = isRecapAvailable()
+
   const { data: aggregatedData, isLoading: isLoadingAggregated } = useGetAggregatedVolumeQuery(account || '', {
-    skip: !account,
+    skip: !account || !isAvailable,
   })
 
   const { data: chainVolumeData, isLoading: isLoadingChainVolume } = useGetChainVolumeQuery(account || '', {
-    skip: !account,
+    skip: !account || !isAvailable,
   })
 
   const { data: tokenVolumeData, isLoading: isLoadingTokenVolume } = useGetTokenVolumeQuery(account || '', {
-    skip: !account,
+    skip: !account || !isAvailable,
   })
 
   const [topTokens, setTopTokens] = useState<TopToken[]>([])
