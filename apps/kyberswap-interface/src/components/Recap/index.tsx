@@ -46,6 +46,7 @@ export default function RecapSection() {
   const hasCheckedStorageRef = useRef(false)
   const hasLoadedNicknameRef = useRef(false)
   const wasOpenBeforeWalletConnectRef = useRef(false)
+  const previousAccountRef = useRef<string | undefined>(undefined)
 
   useEffect(() => {
     if (hasCheckedStorageRef.current) return
@@ -94,6 +95,16 @@ export default function RecapSection() {
       localStorage.removeItem(NICKNAME_STORAGE_KEY)
     }
   }, [nickname])
+
+  // Reset nickname when switching between two accounts.
+  useEffect(() => {
+    const previousAccount = previousAccountRef.current
+    if (previousAccount && account && previousAccount !== account) {
+      setNickname('')
+      localStorage.removeItem(NICKNAME_STORAGE_KEY)
+    }
+    previousAccountRef.current = account
+  }, [account])
 
   // Reset journey when modal closes
   useEffect(() => {
