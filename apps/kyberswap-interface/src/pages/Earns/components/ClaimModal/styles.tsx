@@ -8,6 +8,7 @@ import { LIMIT_TEXT_STYLES } from 'pages/Earns/constants'
 import { formatDisplayNumber } from 'utils/numbers'
 
 export const Wrapper = styled.div`
+  height: fit-content;
   padding: 20px;
   border-radius: 20px;
   display: flex;
