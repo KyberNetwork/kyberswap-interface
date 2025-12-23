@@ -102,9 +102,10 @@ export default function RecapSection() {
     if (previousAccount && account && previousAccount !== account) {
       setNickname('')
       localStorage.removeItem(NICKNAME_STORAGE_KEY)
+      closeRecapModal()
     }
     previousAccountRef.current = account
-  }, [account])
+  }, [account, closeRecapModal])
 
   // Reset journey when modal closes
   useEffect(() => {
