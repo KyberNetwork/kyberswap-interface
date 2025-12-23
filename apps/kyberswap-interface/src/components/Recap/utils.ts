@@ -40,7 +40,7 @@ export const formatTradingVolume = (volume: number): string => {
 
 export const getBadgeImage = (top: number): string => {
   if (!top) return badgeDiamond
-  if (top < 3) {
+  if (top < 2) {
     return badgeWhale
   }
   if (top < 20) {
