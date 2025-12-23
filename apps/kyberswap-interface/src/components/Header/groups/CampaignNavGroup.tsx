@@ -39,12 +39,12 @@ const CampaignNavGroup = () => {
   const { pathname } = useLocation()
   const isActiveMayTrading = pathname.includes('/campaigns/may-trading')
   const isActive = pathname.includes('/campaigns') && !isActiveMayTrading
-  const upTo420 = useMedia('(max-width: 420px)')
+  // const upTo420 = useMedia('(max-width: 420px)')
   const upTo500 = useMedia('(max-width: 500px)')
 
   const [showStip, setShowStip] = useState(false)
 
-  if (upTo420) return null
+  if (upTo500) return null
 
   return (
     <>
