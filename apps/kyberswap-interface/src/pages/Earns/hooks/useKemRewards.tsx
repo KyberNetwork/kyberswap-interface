@@ -298,7 +298,7 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
       return
     }
     setOpenClaimAllModal(true)
-    setThresholdValue(5)
+    setThresholdValue(0)
     setPositionStatus('all')
   }
 
