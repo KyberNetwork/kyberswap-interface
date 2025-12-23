@@ -99,7 +99,7 @@ export const RewardsFilterSetting = ({
         </Flex>
       </Flex>
 
-      <Expandable height={statusExpanded ? 48 : thresholdExpanded ? 88 : 0} isOpen={isExpanded}>
+      <Expandable height={statusExpanded ? 48 : thresholdExpanded ? 90 : 0} isOpen={isExpanded}>
         {statusExpanded && <PositionStatusControl value={positionStatus} onChange={onPositionStatusChange} />}
         {thresholdExpanded && (
           <>
