@@ -40,7 +40,7 @@ export default function useRecapData() {
       return {
         tradingVolume: aggregatedData.data.summary.totalVolume || 0,
         txCount: aggregatedData.data.summary.totalTransactions || 0,
-        top: aggregatedData.data.summary.percentage ?? 100,
+        top: aggregatedData.data.summary.rankPercent,
       }
     }
     return { tradingVolume: 0, txCount: 0, top: 100 }

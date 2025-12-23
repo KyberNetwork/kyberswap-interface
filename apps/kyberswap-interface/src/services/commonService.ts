@@ -12,12 +12,11 @@ export interface AggregatedVolumeResponse {
       chainId: number
       totalVolume: number
       totalTransactions: number
-      percentage?: number
     }>
     summary: {
       totalVolume: number
       totalTransactions: number
-      percentage?: number
+      rankPercent: number
     }
   }
 }
