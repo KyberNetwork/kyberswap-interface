@@ -42,6 +42,7 @@ const optionButtonCSS = css`
 const OptionButton = styled.button`
   ${optionButtonCSS};
   flex: 1;
+  min-height: 32px;
 `
 
 const DEFAULT_CLAIM_THRESHOLD_OPTIONS = [0, 5, 10, 50]

@@ -27,6 +27,10 @@ const Expandable = styled(Flex)<{ height: number; isOpen: boolean }>`
   overflow: hidden;
   height: ${({ height, isOpen }) => (isOpen ? `${height}px` : '0')};
   transition: height 0.2s ease-in-out, padding 0.2s ease-in-out;
+
+  ${({ theme, isOpen }) => theme.mediaWidth.upToSmall`
+    min-height: ${isOpen ? 'fit-content' : '0'};
+  `}
 `
 
 type Props = {

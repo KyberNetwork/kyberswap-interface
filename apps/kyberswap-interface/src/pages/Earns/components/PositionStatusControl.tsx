@@ -47,6 +47,7 @@ const optionButtonCSS = css`
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     padding-inline: 12px;
+    font-size: 12px;
   `}
 `
 
