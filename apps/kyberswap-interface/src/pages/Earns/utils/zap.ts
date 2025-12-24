@@ -24,6 +24,9 @@ const getConfigHooksAddress = (poolType?: PoolType): string | undefined => {
   if (poolType === PoolType.DEX_UNISWAP_V4_FAIRFLOW) {
     return '0x4440854B2d02C57A0Dc5c58b7A884562D875c0c4'
   }
+  if (poolType === PoolType.DEX_PANCAKE_INFINITY_CL_FAIRFLOW) {
+    return '0x44428C6ce391915D51F963C0Dd395Cd0f95fdFD2'
+  }
   return undefined
 }
 

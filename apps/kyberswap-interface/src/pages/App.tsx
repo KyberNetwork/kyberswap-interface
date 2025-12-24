@@ -22,7 +22,7 @@ import SingaporeWarningPopup from 'components/SingaporeWarningPopup'
 import SupportButton from 'components/SupportButton'
 import { APP_PATHS, CHAINS_SUPPORT_CROSS_CHAIN, TERM_FILES_PATH } from 'constants/index'
 import { CLASSIC_NOT_SUPPORTED, ELASTIC_NOT_SUPPORTED, NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useActiveWeb3React } from 'hooks'
 import { useAutoLogin } from 'hooks/useLogin'
 import { useGlobalMixpanelEvents } from 'hooks/useMixpanel'
 import useSessionExpiredGlobal from 'hooks/useSessionExpire'
@@ -69,6 +69,8 @@ const EarnPoolExplorer = lazy(() => import('pages/Earns/PoolExplorer'))
 const EarnUserPositions = lazy(() => import('pages/Earns/UserPositions'))
 const EarnPositionDetail = lazy(() => import('pages/Earns/PositionDetail'))
 const SmartExit = lazy(() => import('pages/Earns/SmartExitOrders'))
+
+const Recap2025Redirect = lazy(() => import('pages/Recap2025Redirect'))
 
 const AppWrapper = styled.div`
   display: flex;
@@ -179,7 +181,6 @@ const RoutesWithNetworkPrefix = () => {
 
 export default function App() {
   const { account, chainId, networkInfo } = useActiveWeb3React()
-  const { isSmartConnector } = useWeb3React()
   const { pathname } = useLocation()
   useAutoLogin()
   const { online } = useNetwork()
@@ -281,10 +282,7 @@ export default function App() {
               )}
 
               {isSupportLimitOrder(chainId) && (
-                <Route
-                  path={`${APP_PATHS.LIMIT}/:network/:currency?`}
-                  element={!isSmartConnector ? <SwapPage /> : <RedirectPathToSwapV3Network />}
-                />
+                <Route path={`${APP_PATHS.LIMIT}/:network/:currency?`} element={<SwapPage />} />
               )}
 
               <Route path={`${APP_PATHS.FIND_POOL}`} element={<PoolFinder />} />
@@ -364,6 +362,8 @@ export default function App() {
               <Route path={APP_PATHS.EARNS} element={<Navigate to={APP_PATHS.EARN} replace />} />
               <Route path={APP_PATHS.EARNS_POOLS} element={<Navigate to={APP_PATHS.EARN_POOLS} replace />} />
               <Route path={APP_PATHS.EARNS_POSITIONS} element={<Navigate to={APP_PATHS.EARN_POSITIONS} replace />} />
+
+              <Route path={APP_PATHS.RECAP_2025} element={<Recap2025Redirect />} />
 
               <Route path="*" element={<RedirectPathToSwapV3Network />} />
             </Routes>

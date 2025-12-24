@@ -69,9 +69,12 @@ export function colors() {
     yellow1: '#FFE270',
     yellow2: '#F3841E',
 
+    gray: '#737373',
+
     blue: '#08A1E7',
     blue1: '#31cb9e',
     blue2: '#2c9ce4',
+    blue3: '#58b5ee',
     darkBlue: '#1183b7',
   } as const
 }

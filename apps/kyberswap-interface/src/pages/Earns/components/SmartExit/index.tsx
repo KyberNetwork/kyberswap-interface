@@ -95,7 +95,6 @@ export const SmartExit = ({ position, onDismiss }: { position: ParsedPosition; o
                 showBackIcon={false}
                 isLoading={false}
                 initialLoading={false}
-                rightComponent={<></>}
               />
               <ExpireSetting expireTime={expireTime} setExpireTime={setExpireTime} />
             </Flex>

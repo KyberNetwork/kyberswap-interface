@@ -106,10 +106,14 @@ export const parseReward = ({
   data,
   tokens,
   supportedChains,
+  thresholdValue,
+  tokenIds,
 }: {
   data: RewardData | undefined
   tokens: TokenInfo[]
   supportedChains: Array<NetworkInfo>
+  thresholdValue?: number | null
+  tokenIds?: Set<string>
 }) => {
   if (!data || !tokens || !tokens.length) return null
 
@@ -208,6 +212,9 @@ export const parseReward = ({
   })
 
   const listNft = Array.from(nftMap.values())
+  const filteredNfts = listNft
+    .filter(nft => (tokenIds ? tokenIds.has(nft.nftId) : true))
+    .filter(nft => (typeof thresholdValue === 'number' ? nft.claimableUsdValue > thresholdValue : true))
 
   // Calculate totals in single pass
   let totalUsdValue = 0
@@ -220,7 +227,7 @@ export const parseReward = ({
   let vestingUsdValue = 0
   let waitingUsdValue = 0
 
-  listNft.forEach(nft => {
+  filteredNfts.forEach(nft => {
     totalUsdValue += nft.totalUsdValue
     totalLmUsdValue += nft.totalLmUsdValue
     totalEgUsdValue += nft.totalEgUsdValue
@@ -237,7 +244,7 @@ export const parseReward = ({
   const lmTokenMap = new Map<string, TokenRewardInfo>()
   const tokenMap = new Map<string, TokenRewardInfo>()
 
-  listNft.forEach(nft => {
+  filteredNfts.forEach(nft => {
     nft.egTokens.forEach(token => {
       const existing = egTokenMap.get(token.symbol)
       if (existing) {
@@ -268,30 +275,41 @@ export const parseReward = ({
 
   // Build chains array
   const chainMap = new Map<number, ChainRewardInfo>()
+  const uniqChainIds = new Set(listNft.map(nft => nft.chainId))
 
-  listNft
-    .filter(nft => nft.claimableUsdValue > 0)
-    .forEach(nft => {
-      const chain = chainLookup.get(nft.chainId)
-      if (!chain) return
-
-      const existingChain = chainMap.get(nft.chainId)
-      if (existingChain) {
-        existingChain.claimableUsdValue += nft.claimableUsdValue
-        mergeTokenArrays(
-          existingChain.tokens,
-          nft.tokens.filter(token => token.claimableAmount > 0),
-        )
-      } else {
-        chainMap.set(nft.chainId, {
-          chainId: nft.chainId,
-          chainName: chain.name,
-          chainLogo: chain.icon,
-          claimableUsdValue: nft.claimableUsdValue,
-          tokens: nft.tokens.filter(token => token.claimableAmount > 0).map(token => deepClone(token)),
-        })
-      }
+  uniqChainIds.forEach(chainId => {
+    const chain = chainLookup.get(chainId)
+    if (!chain) return
+    chainMap.set(chainId, {
+      chainId,
+      chainName: chain.name,
+      chainLogo: chain.icon,
+      claimableUsdValue: 0,
+      tokens: [],
     })
+  })
+
+  filteredNfts.forEach(nft => {
+    const chain = chainLookup.get(nft.chainId)
+    if (!chain) return
+
+    const existingChain = chainMap.get(nft.chainId)
+    if (existingChain) {
+      existingChain.claimableUsdValue += nft.claimableUsdValue
+      mergeTokenArrays(
+        existingChain.tokens,
+        nft.tokens.filter(token => token.claimableAmount > 0),
+      )
+    } else {
+      chainMap.set(nft.chainId, {
+        chainId: nft.chainId,
+        chainName: chain.name,
+        chainLogo: chain.icon,
+        claimableUsdValue: nft.claimableUsdValue,
+        tokens: nft.tokens.filter(token => token.claimableAmount > 0).map(token => deepClone(token)),
+      })
+    }
+  })
 
   return {
     totalUsdValue,
@@ -303,7 +321,7 @@ export const parseReward = ({
     pendingUsdValue,
     vestingUsdValue,
     waitingUsdValue,
-    nfts: listNft,
+    nfts: filteredNfts,
     chains: Array.from(chainMap.values()),
     egTokens: Array.from(egTokenMap.values()),
     lmTokens: Array.from(lmTokenMap.values()),
