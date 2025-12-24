@@ -62,7 +62,9 @@ function TopTokensScene({ nickname, topTokens }: TopTokensSceneProps) {
             </Flex>
           </TopListItem>
         ))}
-        {topTokens.length === 0 && <EmptyItem>Empty</EmptyItem>}
+        {topTokens.length === 0 && (
+          <EmptyItem>No trades found for 2025 — make your first swap to start your Journey</EmptyItem>
+        )}
       </TopListItems>
     </TopListContainer>
   )
