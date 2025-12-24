@@ -57,6 +57,7 @@ export interface PositionQueryParams {
   addresses: string
   chainIds: string
   protocols: string
+  positionStatus?: string
   q?: string
   positionId?: string
 }
