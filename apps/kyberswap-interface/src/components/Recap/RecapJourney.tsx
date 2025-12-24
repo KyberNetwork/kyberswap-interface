@@ -470,9 +470,11 @@ kyberswap.com/2025-journey`
       <CeraFontFace />
       <JourneyContainer ref={containerRef} onClick={handleScreenClick} onTouchStart={handleScreenTouch}>
         {/* Mute Button */}
-        <MuteButton className="mute-button" onClick={handleToggleMute} aria-label={isMuted ? 'Unmute' : 'Mute'}>
-          {isMuted ? <VolumeX /> : <Volume2 />}
-        </MuteButton>
+        {!isCapturing && (
+          <MuteButton className="mute-button" onClick={handleToggleMute} aria-label={isMuted ? 'Unmute' : 'Mute'}>
+            {isMuted ? <VolumeX /> : <Volume2 />}
+          </MuteButton>
+        )}
 
         {/* Preload video */}
         <video preload="auto" style={{ display: 'none' }}>
