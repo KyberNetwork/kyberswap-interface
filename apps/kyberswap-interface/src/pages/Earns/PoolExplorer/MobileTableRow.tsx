@@ -81,7 +81,7 @@ const MobileTableRow = ({
         </Flex>
         <Flex alignItems="center" sx={{ gap: '12px' }}>
           <Flex alignItems="center" sx={{ gap: '2px' }}>
-            <Apr value={pool.apr}>{formatAprNumber(pool.apr)}%</Apr>
+            <Apr value={pool.allApr}>{formatAprNumber(pool.allApr)}%</Apr>
             {kemFarming(pool)}
             {uniReward(pool)}
           </Flex>
@@ -103,9 +103,7 @@ const MobileTableRow = ({
             <Text>
               {pool.maxAprInfo
                 ? formatAprNumber(
-                    Number(pool.maxAprInfo.apr || 0) +
-                      Number(pool.maxAprInfo.kemEGApr || 0) +
-                      Number(pool.maxAprInfo.kemLMApr || 0),
+                    Number(pool.maxAprInfo.apr) + Number(pool.maxAprInfo.kemEGApr) + Number(pool.maxAprInfo.kemLMApr),
                   ) + '%'
                 : '--'}
             </Text>
