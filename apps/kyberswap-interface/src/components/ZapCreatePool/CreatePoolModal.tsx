@@ -104,7 +104,7 @@ interface Props {
 
 const CreatePoolModal = ({ isOpen, filterChainId, onDismiss, onSubmit }: Props) => {
   const theme = useTheme()
-  const { account } = useActiveWeb3React()
+  const { account, chainId: activeChainId } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
 
   const { supportedChains } = useChainsConfig()
@@ -157,12 +157,13 @@ const CreatePoolModal = ({ isOpen, filterChainId, onDismiss, onSubmit }: Props) 
 
   useEffect(() => {
     if (!isOpen) return
-    setSelectedChainId(availableChains.includes(filterChainId) ? filterChainId : ChainId.Bsc)
+    const chainId = filterChainId || activeChainId
+    setSelectedChainId(availableChains.includes(chainId) ? chainId : ChainId.Bsc)
     setSelectedProtocol(Exchange.DEX_UNISWAP_V4_FAIRFLOW)
     setToken0(null)
     setToken1(null)
     setFee(null)
-  }, [isOpen, filterChainId])
+  }, [isOpen, filterChainId, activeChainId])
 
   useEffect(() => {
     setToken0(null)

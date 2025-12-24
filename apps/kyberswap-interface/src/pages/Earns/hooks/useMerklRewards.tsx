@@ -20,10 +20,7 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
   const [tokenLogos, setTokenLogos] = useState<Record<string, string>>({})
 
   const positionsKey = useMemo(
-    () =>
-      (options?.positions || [])
-        .map(position => `${position.id}-${position.pool.address}-${position.pool.isFarming}`)
-        .join('|'),
+    () => (options?.positions || []).map(position => `${position.id}-${position.pool.address}`).join('|'),
     [options?.positions],
   )
 
