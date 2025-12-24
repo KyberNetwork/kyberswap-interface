@@ -64,7 +64,7 @@ export default function ClaimAllModal({
 
   const [autoClaim, setAutoClaim] = useState(false)
   const [selectedChainId, setSelectedChainId] = useState<number | null>(null)
-  const [selectedChainExpanded, setSelectedChainExpanded] = useState(true)
+  const [selectedChainExpanded, setSelectedChainExpanded] = useState(false)
 
   const selectedRewardChain = selectedChainId
     ? filteredRewardInfo.chains.find(c => c.chainId === selectedChainId)
