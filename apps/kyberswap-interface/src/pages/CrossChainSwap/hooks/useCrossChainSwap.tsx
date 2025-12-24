@@ -517,21 +517,24 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
               return cat?.category || 'exoticPair'
             }),
         ])
-        if (
+        // Determine swap pair category based on token categories matrix:
+        // Priority: High-volatility > Exotic > Stable (both) > Common (stable/correlated/common combinations)
+        if (token0Cat === 'highVolatilityPair' || token1Cat === 'highVolatilityPair') {
+          setCategory('highVolatilityPair')
+          feeBps = 25
+        } else if (token0Cat === 'exoticPair' || token1Cat === 'exoticPair') {
+          setCategory('exoticPair')
+          feeBps = 15
+        } else if (
           (token0Cat === 'stablePair' && token1Cat === 'stablePair') ||
           ((currencyIn as any)?.wrapped?.isStable && (currencyOut as any)?.wrapped?.isStable)
         ) {
           setCategory('stablePair')
           feeBps = 5
-        } else if (token0Cat === 'commonPair' && token1Cat === 'commonPair') {
+        } else {
+          // All other combinations of stable/correlated/common tokens result in Common Pair
           setCategory('commonPair')
           feeBps = 10
-        } else if (token0Cat === 'highVolatilityPair' || token1Cat === 'highVolatilityPair') {
-          setCategory('highVolatilityPair')
-          feeBps = 25
-        } else {
-          setCategory('exoticPair')
-          feeBps = 15
         }
       }
     } else if (isFromNear || isToNear || isFromSolana || isToSolana) {
