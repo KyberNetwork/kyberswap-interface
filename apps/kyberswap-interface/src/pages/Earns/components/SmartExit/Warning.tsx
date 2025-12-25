@@ -3,8 +3,8 @@ import { rgba } from 'polished'
 import styled from 'styled-components'
 
 const WarningMessage = styled.div`
-  background-color: ${({ theme }) => rgba(theme.warning, 0.2)};
-  color: ${({ theme }) => theme.warning};
+  background-color: ${({ theme }) => rgba(theme.warning, 0.1)};
+  color: ${({ theme }) => theme.subText};
   font-size: 12px;
   text-align: left;
   padding: 8px 12px;
@@ -24,12 +24,12 @@ export default function Warning({
     <>
       {timeBeforeNow && (
         <WarningMessage>
-          <Trans>Condition time must be in the future</Trans>
+          <Trans>Trigger time must be in the future. Adjust the time settings accordingly.</Trans>
         </WarningMessage>
       )}
       {deadlineBeforeConditionTime && (
         <WarningMessage>
-          <Trans>Expire time must be later than the condition time</Trans>
+          <Trans>Trigger time must be before the order expires. Adjust the time settings accordingly.</Trans>
         </WarningMessage>
       )}
     </>

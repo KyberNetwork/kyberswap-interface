@@ -31,12 +31,14 @@ const PositionDetailHeader = ({
   initialLoading,
   showBackIcon = true,
   style = {},
+  hideRightComponent = false,
 }: {
   position?: ParsedPosition
   isLoading: boolean
   initialLoading: boolean
   showBackIcon?: boolean
   style?: React.CSSProperties
+  hideRightComponent?: boolean
 }) => {
   const theme = useTheme()
   const navigate = useNavigate()
@@ -190,28 +192,30 @@ const PositionDetailHeader = ({
         </Flex>
       </PositionHeader>
 
-      <Flex sx={{ gap: 3 }}>
-        <MouseoverTooltipDesktopOnly
-          text={t`Get notified via Telegram when this position moves out of range or back in range`}
-          width="300px"
-          placement="bottom"
-        >
-          <ButtonLight
-            width="36px"
-            height="36px"
-            style={{ padding: 0 }}
-            onClick={() => window.open(TELEGRAM_BOT_URL, '_blank')}
+      {!hideRightComponent && (
+        <Flex sx={{ gap: 3 }}>
+          <MouseoverTooltipDesktopOnly
+            text={t`Get notified via Telegram when this position moves out of range or back in range`}
+            width="300px"
+            placement="bottom"
           >
-            <IconAlert />
-          </ButtonLight>
-        </MouseoverTooltipDesktopOnly>
-        <NavigateButton
-          mobileFullWidth
-          icon={<IconUserEarnPosition />}
-          text={t`My Positions`}
-          to={APP_PATHS.EARN_POSITIONS}
-        />
-      </Flex>
+            <ButtonLight
+              width="36px"
+              height="36px"
+              style={{ padding: 0 }}
+              onClick={() => window.open(TELEGRAM_BOT_URL, '_blank')}
+            >
+              <IconAlert />
+            </ButtonLight>
+          </MouseoverTooltipDesktopOnly>
+          <NavigateButton
+            mobileFullWidth
+            icon={<IconUserEarnPosition />}
+            text={t`My Positions`}
+            to={APP_PATHS.EARN_POSITIONS}
+          />
+        </Flex>
+      )}
     </Flex>
   )
 }
