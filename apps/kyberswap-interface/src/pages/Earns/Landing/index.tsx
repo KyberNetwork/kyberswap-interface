@@ -46,7 +46,7 @@ const EarnLanding = () => {
   const farmingPools = (data?.data?.farmingPools || []).slice(0, upToSmall ? 5 : 9)
   const highlightedPools = (data?.data?.highlightedPools || []).slice(0, upToSmall ? 5 : 9)
   const highAprPool = (data?.data?.highAPR || []).slice(0, 5)
-  const lowVolatilityPool = [...(data?.data?.lowVolatility || [])].sort((a, b) => b.apr - a.apr).slice(0, 5)
+  const lowVolatilityPool = [...(data?.data?.lowVolatility || [])].sort((a, b) => b.lpApr - a.lpApr).slice(0, 5)
   const solidEarningPool = (data?.data?.solidEarning || []).slice(0, 5)
 
   useEffect(() => {

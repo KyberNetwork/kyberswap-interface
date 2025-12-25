@@ -85,10 +85,10 @@ export default function MigrationModal({
                       </SymbolText>
                       <FeeTier>{formatDisplayNumber(pool.feeTier, { significantDigits: 4 })}%</FeeTier>
                     </Flex>
-                    <Apr value={pool.apr}>
-                      {formatAprNumber(pool.apr)}%{' '}
+                    <Apr value={pool.allApr}>
+                      {formatAprNumber(pool.allApr)}%{' '}
                       {isFarming ? (
-                        <AprDetailTooltip feeApr={pool.apr || 0} egApr={pool.kemEGApr || 0} lmApr={pool.kemLMApr || 0}>
+                        <AprDetailTooltip feeApr={pool.lpApr} egApr={pool.kemEGApr} lmApr={pool.kemLMApr}>
                           {isFarmingLm ? (
                             <FarmingLmIcon width={20} height={20} />
                           ) : (
@@ -143,13 +143,9 @@ export default function MigrationModal({
                         </SymbolText>
                       </Flex>
                       <Flex alignItems="center" sx={{ gap: '2px' }}>
-                        <Apr value={pool.apr}>{formatAprNumber(pool.apr)}%</Apr>
+                        <Apr value={pool.allApr}>{formatAprNumber(pool.allApr)}%</Apr>
                         {isFarming ? (
-                          <AprDetailTooltip
-                            feeApr={pool.apr || 0}
-                            egApr={pool.kemEGApr || 0}
-                            lmApr={pool.kemLMApr || 0}
-                          >
+                          <AprDetailTooltip feeApr={pool.lpApr} egApr={pool.kemEGApr} lmApr={pool.kemLMApr}>
                             {isFarmingLm ? (
                               <FarmingLmIcon width={20} height={20} />
                             ) : (
