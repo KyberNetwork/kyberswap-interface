@@ -349,6 +349,7 @@ export const extractClaimedFeeStats = (stats?: UserPositionsStats) => {
   return {
     totalValueUsd: stats?.totalValueUsd || 0,
     totalClaimedFeeUsd: stats?.totalClaimedFeeUsd || 0,
+    totalEarnedFeeUsd: stats?.totalEarnedFeeUsd || 0,
     totalUnclaimedFeeUsd: stats?.totalUnclaimedFeeUsd || 0,
   }
 }

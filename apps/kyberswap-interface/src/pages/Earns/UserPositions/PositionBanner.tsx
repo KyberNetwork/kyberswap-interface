@@ -88,7 +88,7 @@ export default function PositionBanner({
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
 
   const feeStats = useMemo(() => extractClaimedFeeStats(positionsStats), [positionsStats])
-  const { totalValueUsd, totalClaimedFeeUsd, totalUnclaimedFeeUsd } = feeStats
+  const { totalValueUsd, totalEarnedFeeUsd, totalUnclaimedFeeUsd } = feeStats
 
   const KemImageSize = upToSmall ? 20 : 24
 
@@ -161,7 +161,7 @@ export default function PositionBanner({
                 <BannerSkeleton width={90} height={28} />
               ) : (
                 <Text fontSize={24} sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '140px' }}>
-                  {formatDisplayNumber(totalClaimedFeeUsd, { style: 'currency', significantDigits: 4 })}
+                  {formatDisplayNumber(totalEarnedFeeUsd, { style: 'currency', significantDigits: 4 })}
                 </Text>
               )}
             </BannerDataItem>

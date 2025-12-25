@@ -93,6 +93,7 @@ export interface UserPositionsStats {
   totalItems: number
   totalValueUsd: number
   totalClaimedFeeUsd: number
+  totalEarnedFeeUsd: number
   totalUnclaimedFeeUsd: number
   totalClaimedRewardUsd: number
   totalUnclaimedRewardUsd: number
