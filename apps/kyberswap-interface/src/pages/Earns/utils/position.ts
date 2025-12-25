@@ -15,7 +15,6 @@ import { NETWORKS_INFO } from 'constants/networks'
 import { EARN_CHAINS, EARN_DEXES, EarnChain, Exchange } from 'pages/Earns/constants'
 import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import {
-  EarnPosition,
   FeeInfo,
   NftRewardInfo,
   PAIR_CATEGORY,
@@ -24,6 +23,7 @@ import {
   PositionStatus,
   ProgramType,
   TimeIntervalValues,
+  UserPosition,
   UserPositionsStats,
 } from 'pages/Earns/types'
 import { getNftManagerContractAddress, isNativeToken, isUniswapExchange } from 'pages/Earns/utils'
@@ -61,7 +61,7 @@ export const parsePosition = ({
   nftRewardInfo,
   isClosedFromRpc,
 }: {
-  position: EarnPosition
+  position: UserPosition
   feeInfo?: FeeInfo
   nftRewardInfo?: NftRewardInfo
   isClosedFromRpc?: boolean
