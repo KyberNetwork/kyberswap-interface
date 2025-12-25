@@ -123,9 +123,15 @@ export default function GasSetting({
           </CustomOption>
         </Flex>
         <Flex flexDirection="column" sx={{ gap: '4px' }}>
-          <Text fontSize={12} color={theme.subText}>
-            {t`Current est. gas`} = {formatDisplayNumber(feeInfo?.gas.percentage || 0, { significantDigits: 2 })}%
-          </Text>
+          <Flex alignItems="center" sx={{ gap: '4px' }}>
+            <Text fontSize={12} color={theme.subText}>
+              {t`Current est. gas`} = {formatDisplayNumber(feeInfo?.gas.percentage || 0, { significantDigits: 2 })}%
+            </Text>
+            <Text fontSize={12} color={theme.subText}>
+              (~
+              {formatDisplayNumber(feeInfo.gas.usd, { significantDigits: 2, style: 'currency' })})
+            </Text>
+          </Flex>
           <Text fontSize={12} color={isWarningGas ? rgba(theme.warning, 0.9) : theme.subText}>
             <Trans>
               The buffer amount is recommended. The order will{' '}
