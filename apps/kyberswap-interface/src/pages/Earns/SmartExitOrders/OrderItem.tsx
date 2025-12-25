@@ -59,7 +59,7 @@ const ExternalLinkWrapper = styled.div`
 
 const TableRow = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr 0.5fr 0.5fr 40px;
+  grid-template-columns: 1fr 1fr 0.8fr 0.5fr 0.5fr 40px;
   color: ${({ theme }) => theme.text};
   padding: 16px 0;
   gap: 1rem;
@@ -304,6 +304,14 @@ const OrderItem = React.memo(({ order, upToMedium, onDelete }: OrderItemProps) =
   const theme = useTheme()
   const tokenId = order.positionId.split('-')[1]
 
+  const currentValue = (
+    <Text textAlign="left" color={theme.subText} fontSize="14px">
+      {order.position?.currentValue !== undefined
+        ? `$${formatDisplayNumber(order.position.currentValue, { significantDigits: 6 })}`
+        : '-'}
+    </Text>
+  )
+
   const maxGas = (
     <Text textAlign="left" color={theme.subText} fontSize="14px">
       {formatDisplayNumber(order.maxGasPercentage, { significantDigits: 4 })}%
@@ -340,7 +348,13 @@ const OrderItem = React.memo(({ order, upToMedium, onDelete }: OrderItemProps) =
       >
         <div>{title}</div>
         {condition}
-        <Flex alignItems="center" sx={{ gap: '4px' }} justifyContent="flex-start" mt="-4px">
+        <Flex alignItems="center" sx={{ gap: '4px' }} justifyContent="space-between" mt="-4px">
+          <Text color={theme.subText} fontSize="14px">
+            <Trans>Est. Liquidity & Earned Fee</Trans>:
+          </Text>
+          {currentValue}
+        </Flex>
+        <Flex alignItems="center" sx={{ gap: '4px' }} justifyContent="space-between" mt="-4px">
           <Text color={theme.subText} fontSize="14px">
             <Trans>Max Gas</Trans>:
           </Text>
@@ -357,6 +371,7 @@ const OrderItem = React.memo(({ order, upToMedium, onDelete }: OrderItemProps) =
     <TableRow key={order.id}>
       <div>{title}</div>
       {condition}
+      {currentValue}
       {maxGas}
       {status}
       {actionDelete}

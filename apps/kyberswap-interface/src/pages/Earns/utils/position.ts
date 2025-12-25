@@ -285,6 +285,7 @@ export const parsePosition = ({
     feeApr: calcAprInterval(position.stats.apr),
     bonusApr: parsedStatus === PositionStatus.IN_RANGE ? position.pool.merklOpportunity?.apr || 0 : 0,
     totalValue,
+    currentValue: position.currentPositionValue,
     totalProvidedValue,
     unclaimedFees,
     status: parsedStatus,

@@ -18,6 +18,7 @@ export type ParsedSmartExitOrder = SmartExitOrder & {
     dex: ParsedPosition['dex']
     poolFee: ParsedPosition['pool']['fee']
     status: ParsedPosition['status']
+    currentValue: ParsedPosition['currentValue']
   }
 }
 
@@ -165,6 +166,7 @@ export function useSmartExitOrdersData({ account, filters, pageSize, updateFilte
               dex: parsedPos.dex,
               poolFee: parsedPos.pool.fee,
               status: parsedPos.status,
+              currentValue: parsedPos.currentValue,
             }
           : undefined,
       }

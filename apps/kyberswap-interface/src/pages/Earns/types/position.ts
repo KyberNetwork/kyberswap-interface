@@ -110,6 +110,7 @@ export const DEFAULT_PARSED_POSITION: ParsedPosition = {
   bonusApr: 0,
   totalValue: 0,
   totalProvidedValue: 0,
+  currentValue: 0,
   status: PositionStatus.IN_RANGE,
   createdTime: 0,
   unclaimedFees: 0,
@@ -185,6 +186,7 @@ export interface ParsedPosition {
   feeApr: PoolAprInterval
   bonusApr: number
   totalValue: number
+  currentValue: number
   totalProvidedValue: number
   status: string
   createdTime: number
