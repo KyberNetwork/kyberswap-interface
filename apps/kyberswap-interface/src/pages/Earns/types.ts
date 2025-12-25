@@ -100,6 +100,7 @@ export interface UserPositionsStats {
 }
 
 export interface UserPosition {
+  [x: string]: any
   chain: {
     name: string
     logo: string
@@ -185,37 +186,6 @@ export interface PositionPool {
   category: string
   hooks: string
   merklOpportunity?: MerklOpportunity
-}
-
-export interface EarnPosition {
-  [x: string]: any
-  chain: {
-    name: string
-    logo: string
-    id: number
-  }
-  tokenId: number
-  tokenAddress: string
-  positionId: string
-  wallet: string
-  liquidity: string
-  status: string
-  stats: PositionStats
-  currentAmounts: TokenAmount[]
-  providedAmounts: TokenAmount[]
-  pool: PositionPool
-  suggestionPool: SuggestedPool | null
-  valueInUSD: number
-  positionCreatedTimestamp: number
-  positionCreatedBlock: number
-  lastUpdatedAt: number
-  extra: {
-    priceRange: {
-      min: number
-      maxPrice: number
-    }
-  }
-  id: number
 }
 
 export enum PAIR_CATEGORY {
