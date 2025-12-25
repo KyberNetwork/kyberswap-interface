@@ -343,7 +343,7 @@ const UserPositions = () => {
                   </Trans>
                 </Flex>
 
-                <PositionTableHeaderFlexItem>
+                <PositionTableHeaderItem>
                   <Trans>
                     <Flex alignItems={'flex-start'} sx={{ gap: '4px' }}>
                       <FarmingIcon width={24} height={24} />
@@ -353,7 +353,7 @@ const UserPositions = () => {
                       <Text>rewards</Text>
                     </Flex>
                   </Trans>
-                </PositionTableHeaderFlexItem>
+                </PositionTableHeaderItem>
 
                 {!upToCustomLarge && <div />}
 
