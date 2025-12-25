@@ -33,7 +33,6 @@ import {
 } from 'pages/Earns/PositionDetail/styles'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import { SmartExit } from 'pages/Earns/components/SmartExit'
-import SmartExitActiveBadge from 'pages/Earns/components/SmartExitActiveBadge'
 import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import { CheckClosedPositionParams } from 'pages/Earns/hooks/useClosedPositions'
@@ -318,8 +317,6 @@ const RightSection = ({
         )}
 
         {isUniv2 && <PositionHistory position={position} />}
-
-        {upToSmall && <SmartExitActiveBadge hasActiveSmartExitOrder={hasActiveSmartExitOrder} />}
 
         {!isUniv2 && (
           <PositionActionWrapper>

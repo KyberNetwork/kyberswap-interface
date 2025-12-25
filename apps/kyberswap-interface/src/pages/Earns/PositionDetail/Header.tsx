@@ -1,10 +1,12 @@
 import { shortenAddress } from '@kyber/utils/dist/crypto'
-import { t } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
+import { rgba } from 'polished'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
 import { ReactComponent as IconAlert } from 'assets/svg/earn/ic_alert.svg'
+import { ReactComponent as ListSmartExitIcon } from 'assets/svg/earn/ic_list_smart_exit.svg'
 import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_earn_position.svg'
 import { ButtonLight } from 'components/Button'
 import CopyHelper from 'components/Copy'
@@ -31,14 +33,16 @@ const PositionDetailHeader = ({
   initialLoading,
   showBackIcon = true,
   style = {},
-  hideRightComponent = false,
+  useFromSmartExit = false,
+  hasActiveSmartExitOrder = false,
 }: {
   position?: ParsedPosition
   isLoading: boolean
   initialLoading: boolean
   showBackIcon?: boolean
   style?: React.CSSProperties
-  hideRightComponent?: boolean
+  useFromSmartExit?: boolean
+  hasActiveSmartExitOrder?: boolean
 }) => {
   const theme = useTheme()
   const navigate = useNavigate()
@@ -152,6 +156,42 @@ const PositionDetailHeader = ({
               />
             </Badge>
           )}
+
+          {hasActiveSmartExitOrder && !useFromSmartExit && (
+            <MouseoverTooltipDesktopOnly
+              text={
+                <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
+                  <Trans>This position has an active Smart Exit order.</Trans>
+                  <br />
+                  <Trans>
+                    View or manage it in{' '}
+                    <Link to={APP_PATHS.EARN_SMART_EXIT} style={{ color: theme.subText, textDecoration: 'underline' }}>
+                      View Smart Exit Orders
+                    </Link>
+                    .
+                  </Trans>
+                </Text>
+              }
+              width="fit-content"
+              placement="bottom"
+            >
+              <Flex
+                alignItems="center"
+                justifyContent="center"
+                sx={{ cursor: 'pointer', borderRadius: '30px' }}
+                backgroundColor={rgba(theme.white, 0.04)}
+                width={32}
+                height={32}
+                onClick={(e: React.MouseEvent) => {
+                  e.stopPropagation()
+                  e.preventDefault()
+                  navigate(APP_PATHS.EARN_SMART_EXIT)
+                }}
+              >
+                <ListSmartExitIcon width={16} height={16} />
+              </Flex>
+            </MouseoverTooltipDesktopOnly>
+          )}
         </Flex>
         <Flex alignItems={'center'} sx={{ gap: '10px' }} flexWrap={'wrap'}>
           {!upToSmall &&
@@ -192,7 +232,7 @@ const PositionDetailHeader = ({
         </Flex>
       </PositionHeader>
 
-      {!hideRightComponent && (
+      {!useFromSmartExit && (
         <Flex sx={{ gap: 3 }}>
           <MouseoverTooltipDesktopOnly
             text={t`Get notified via Telegram when this position moves out of range or back in range`}

@@ -476,7 +476,12 @@ const PositionDetail = () => {
       <PositionPageWrapper>
         {!!position || initialLoading ? (
           <>
-            <PositionDetailHeader isLoading={loadingInterval} initialLoading={initialLoading} position={position} />
+            <PositionDetailHeader
+              isLoading={loadingInterval}
+              initialLoading={initialLoading}
+              position={position}
+              hasActiveSmartExitOrder={hasActiveSmartExitOrder}
+            />
 
             <Flex flexDirection={'column'} sx={{ gap: '12px' }}>
               {!position?.pool.isFarming &&
@@ -516,7 +521,6 @@ const PositionDetail = () => {
                 isNotAccountOwner={isNotAccountOwner}
                 shareBtn={shareBtn}
                 refetchPositions={refetch}
-                hasActiveSmartExitOrder={hasActiveSmartExitOrder}
               />
               <RightSection
                 position={position}

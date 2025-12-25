@@ -1,14 +1,16 @@
 import { formatAprNumber, toString } from '@kyber/utils/dist/number'
 import { MAX_TICK, MIN_TICK, priceToClosestTick } from '@kyber/utils/dist/uniswapv3'
 import { t } from '@lingui/macro'
+import { rgba } from 'polished'
 import { useCallback, useMemo, useState } from 'react'
 import { ArrowRight, ArrowRightCircle } from 'react-feather'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { useGetSmartExitOrdersQuery } from 'services/smartExit'
 
 import { ReactComponent as IconEarnNotFound } from 'assets/svg/earn/ic_earn_not_found.svg'
+import { ReactComponent as ListSmartExitIcon } from 'assets/svg/earn/ic_list_smart_exit.svg'
 import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import { InfoHelperWithDelay } from 'components/InfoHelper'
 import { Loader2 } from 'components/Loader'
@@ -75,6 +77,7 @@ export default function TableContent({
 }) {
   const { account } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
+  const navigate = useNavigate()
   const theme = useTheme()
   const upToCustomLarge = useMedia(`(max-width: ${1300}px)`)
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
@@ -385,6 +388,29 @@ export default function TableContent({
                         {token0.symbol}/{token1.symbol}
                       </Text>
                       <Badge>{pool.fee}%</Badge>
+                      {smartExitPosIds.includes(position.id) && (
+                        <MouseoverTooltipDesktopOnly
+                          text={t`Active Smart Exit Order`}
+                          width="fit-content"
+                          placement="bottom"
+                        >
+                          <Flex
+                            alignItems="center"
+                            justifyContent="center"
+                            sx={{ cursor: 'pointer', borderRadius: '30px' }}
+                            backgroundColor={rgba(theme.white, 0.04)}
+                            width={24}
+                            height={24}
+                            onClick={(e: React.MouseEvent) => {
+                              e.stopPropagation()
+                              e.preventDefault()
+                              navigate(APP_PATHS.EARN_SMART_EXIT)
+                            }}
+                          >
+                            <ListSmartExitIcon width={16} height={16} color={theme.primary} />
+                          </Flex>
+                        </MouseoverTooltipDesktopOnly>
+                      )}
                     </Flex>
                     <Flex flexWrap={'wrap'} alignItems={'center'} sx={{ gap: '6px' }}>
                       <Flex alignItems={'center'} sx={{ gap: 1 }}>
