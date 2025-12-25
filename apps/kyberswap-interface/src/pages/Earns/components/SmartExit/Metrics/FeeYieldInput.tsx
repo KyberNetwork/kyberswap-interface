@@ -1,6 +1,8 @@
 import { Trans } from '@lingui/macro'
 import { Flex, Text } from 'rebass'
+import { useTheme } from 'styled-components'
 
+import InfoHelper from 'components/InfoHelper'
 import { FEE_YIELD_PRESETS } from 'pages/Earns/components/SmartExit/constants'
 import { CustomInput, CustomOption } from 'pages/Earns/components/SmartExit/styles'
 import { getFeeYieldCondition } from 'pages/Earns/components/SmartExit/utils/typeGuards'
@@ -14,13 +16,55 @@ export default function FeeYieldInput({
   setMetric: (value: SelectedMetric) => void
 }) {
   const feeYieldCondition = getFeeYieldCondition(metric) || ''
+  const theme = useTheme()
 
   return (
     <>
       <Flex alignItems="center" sx={{ gap: '1rem' }} justifyContent="space-between">
-        <Text>
-          <Trans>Exit when fee yield ≥</Trans>
-        </Text>
+        <Flex alignItems="center" sx={{ gap: '4px' }}>
+          <Text>
+            <Trans>Exit when fee yield</Trans>
+          </Text>
+          <InfoHelper
+            text={
+              <Text fontSize="12px" lineHeight="16px" color={theme.subText}>
+                <Trans>
+                  Based on the amount of fee tokens your position has earned compared with your initial deposited token
+                  amounts.
+                </Trans>
+                <br />
+                <Trans>
+                  This calculation is{' '}
+                  <Text as="span" fontWeight={600} color={theme.text}>
+                    token-based
+                  </Text>
+                  ,{' '}
+                  <Text as="span" fontWeight={600} color={theme.text}>
+                    not USD-based
+                  </Text>
+                  , and does not change with price fluctuations.
+                </Trans>
+                <br />
+                <Text
+                  as="a"
+                  href="https://docs.kyberswap.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  color={theme.primary}
+                  sx={{ textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}
+                >
+                  <Trans>Details</Trans>
+                </Text>
+              </Text>
+            }
+            placement="bottom"
+            color={theme.text}
+            width="315px"
+            size={14}
+            style={{ marginLeft: 0 }}
+          />
+          <Text> ≥</Text>
+        </Flex>
         <Flex sx={{ position: 'relative' }} flex={1}>
           <CustomInput
             value={feeYieldCondition}
