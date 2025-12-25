@@ -343,7 +343,7 @@ const UserPositions = () => {
                   </Trans>
                 </Flex>
 
-                <PositionTableHeaderFlexItem role="button" onClick={() => onSortChange(SortBy.UNCLAIMED_REWARDS)}>
+                <PositionTableHeaderFlexItem>
                   <Trans>
                     <Flex alignItems={'flex-start'} sx={{ gap: '4px' }}>
                       <FarmingIcon width={24} height={24} />
@@ -351,11 +351,6 @@ const UserPositions = () => {
                     </Flex>
                     <Flex alignItems={'center'} sx={{ gap: '4px' }} paddingLeft={'28px'}>
                       <Text>rewards</Text>
-                      <SortIcon
-                        sorted={
-                          filters.sortBy === SortBy.UNCLAIMED_REWARDS ? (filters.orderBy as Direction) : undefined
-                        }
-                      />
                     </Flex>
                   </Trans>
                 </PositionTableHeaderFlexItem>
