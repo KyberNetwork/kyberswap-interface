@@ -82,14 +82,6 @@ const OutputCurrencyPanel: React.FC<Props> = ({
             highlightColor={theme.buttonGray}
             borderRadius="1rem"
           />
-          <Skeleton
-            height="16px"
-            width={upToSmall ? '50px' : '60px'}
-            baseColor={theme.background}
-            highlightColor={theme.buttonGray}
-            borderRadius="1rem"
-            style={{ marginLeft: upToSmall ? '8px' : '16px', marginTop: '2px' }}
-          />
         </Flex>
       )}
       <CurrencyInputPanel
