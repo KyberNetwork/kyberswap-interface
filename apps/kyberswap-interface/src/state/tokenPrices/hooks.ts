@@ -19,6 +19,16 @@ interface PriceResponse {
   data: { [chainId: string]: { [address: string]: { PriceBuy: number; PriceSell: number } } }
 }
 
+const chunkList = (list: string[], chunkSize: number) => {
+  const chunks: string[][] = []
+  for (let i = 0; i < list.length; i += chunkSize) {
+    chunks.push(list.slice(i, i + chunkSize))
+  }
+  return chunks
+}
+
+const CHUNK_SIZE = 100
+
 export const useTokenPricesWithLoading = (
   addresses: Array<string>,
   customChain?: ChainId,
@@ -56,34 +66,41 @@ export const useTokenPricesWithLoading = (
 
       try {
         setLoading(true)
-        const r: PriceResponse = await fetch(`${TOKEN_API_URL}/v1/public/tokens/prices`, {
-          method: 'POST',
-          body: JSON.stringify({
-            [chainId]: list,
-          }),
-        }).then(res => res.json())
+        const chunks = chunkList(list, CHUNK_SIZE)
+        const responses = await Promise.all(
+          chunks.map(chunk =>
+            fetch(`${TOKEN_API_URL}/v1/public/tokens/prices`, {
+              method: 'POST',
+              body: JSON.stringify({
+                [chainId]: chunk,
+              }),
+            }).then(res => res.json()),
+          ),
+        )
 
-        const prices: { address: string; price: number }[] = Object.keys(r?.data?.[chainId] || {}).map(address => ({
-          address,
-          price:
-            priceType === PriceType.Average
-              ? (r.data[chainId][address].PriceBuy + r.data[chainId][address].PriceSell) / 2
-              : r.data[chainId][address].PriceBuy,
-        }))
+        const prices: { address: string; price: number }[] = responses.flatMap((r: PriceResponse) =>
+          Object.keys(r?.data?.[chainId] || {}).map(address => ({
+            address,
+            price:
+              priceType === PriceType.Average
+                ? (r.data[chainId][address].PriceBuy + r.data[chainId][address].PriceSell) / 2
+                : r.data[chainId][address].PriceBuy,
+          })),
+        )
 
-        if (prices?.length) {
-          const formattedPrices = list.map(address => {
-            const price = prices.find(
-              (p: { address: string; price: number }) => p.address.toLowerCase() === address.toLowerCase(),
-            )
+        const formattedPrices = list.map(address => {
+          const price = prices.find(
+            (p: { address: string; price: number }) => p.address.toLowerCase() === address.toLowerCase(),
+          )
 
-            return {
-              address,
-              chainId: chainId,
-              price: price?.price || 0,
-            }
-          })
+          return {
+            address,
+            chainId: chainId,
+            price: price?.price || 0,
+          }
+        })
 
+        if (formattedPrices?.length) {
           dispatch(updatePrices(formattedPrices))
           return formattedPrices.reduce(
             (acc, cur) => ({

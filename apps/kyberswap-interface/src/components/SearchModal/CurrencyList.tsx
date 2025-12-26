@@ -68,6 +68,7 @@ const CurrencyRowWrapper = styled(RowBetween)<{ hoverColor?: string }>`
   display: flex;
   gap: 16px;
   cursor: pointer;
+  border-radius: 8px;
   &[data-selected='true'] {
     background: ${({ theme }) => rgba(theme.bg6, 0.15)};
   }
