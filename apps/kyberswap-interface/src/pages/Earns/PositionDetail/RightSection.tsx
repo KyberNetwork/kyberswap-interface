@@ -2,13 +2,14 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ChevronDown, PlusCircle } from 'react-feather'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 import { usePoolDetailQuery } from 'services/zapEarn'
 
 import { ReactComponent as IconReposition } from 'assets/svg/earn/ic_reposition.svg'
 import { ReactComponent as RevertPriceIcon } from 'assets/svg/earn/ic_revert_price.svg'
+import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
@@ -74,6 +75,7 @@ const RightSection = ({
   onReposition: (e: React.MouseEvent, position: ParsedPosition) => void
 }) => {
   const theme = useTheme()
+  const navigate = useNavigate()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const { exchange, chainId, positionId } = useParams()
 
@@ -350,24 +352,26 @@ const RightSection = ({
               }}
               isOpen={isDropdownOpen}
             >
-              {t`Remove Liquidity`}
+              {hasActiveSmartExitOrder ? t`View Smart Exit Orders` : t`Smart Exit`}
               <ChevronDown
                 size={16}
                 style={{ transform: isDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}
               />
             </DropdownButton>
             <DropdownMenu isOpen={isDropdownOpen}>
-              {!hasActiveSmartExitOrder && (
-                <DropdownMenuItem
-                  onClick={() => {
-                    if (removeDisabled) return
-                    setIsDropdownOpen(false)
-                    setOpenSmartExit(true)
-                  }}
-                >
-                  {t`Smart Exit`}
-                </DropdownMenuItem>
-              )}
+              <DropdownMenuItem
+                onClick={() => {
+                  if (removeDisabled) return
+                  if (hasActiveSmartExitOrder) {
+                    navigate(APP_PATHS.EARN_SMART_EXIT)
+                    return
+                  }
+                  setIsDropdownOpen(false)
+                  setOpenSmartExit(true)
+                }}
+              >
+                {hasActiveSmartExitOrder ? t`View Smart Exit Orders` : t`Smart Exit`}
+              </DropdownMenuItem>
               <DropdownMenuItem
                 disabled={removeDisabled}
                 onClick={() => {
