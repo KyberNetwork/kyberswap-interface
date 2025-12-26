@@ -13,23 +13,13 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/components/Preview/index.tsx
-
 #: src/components/Setting/index.tsx
 msgid "Please type the word <0>Confirm</0> below to enable Degen Mode"
 msgstr "Please type the word <0>Confirm</0> below to enable Degen Mode"
 
 #: src/components/Estimated/index.tsx
-#: src/components/Preview/index.tsx
 msgid "Zap Impact"
 msgstr "Zap Impact"
-
-#: src/components/Action/useActionButton.ts
-
-#: src/components/Header/index.tsx
-
-#: src/components/Header/index.tsx
-#: src/Widget.tsx
 
 #: src/components/Setting/index.tsx
 msgid "No, Go back"
@@ -39,15 +29,13 @@ msgstr "No, Go back"
 msgid "Est. Liquidity Value"
 msgstr "Est. Liquidity Value"
 
-#: src/Widget.tsx
-
-#: src/components/PositionApr.tsx
-
-#: src/components/Warning.tsx
-
 #: src/components/Preview/index.tsx
 msgid "Confirm this transaction in your wallet - Zapping {dexName} {0}/{1} {2}%"
 msgstr "Confirm this transaction in your wallet - Zapping {dexName} {0}/{1} {2}%"
+
+#: src/hooks/useZapState.tsx
+msgid "Zap Unavailable"
+msgstr "Zap Unavailable"
 
 #: src/components/Content/PriceInput.tsx
 msgid "<0/><1>per</1><2/>"
@@ -56,10 +44,6 @@ msgstr "<0/><1>per</1><2/>"
 #: src/components/Setting/index.tsx
 msgid "Degen Mode"
 msgstr "Degen Mode"
-
-#: src/components/Preview/index.tsx
-msgid "Est. Gas Fee"
-msgstr "Est. Gas Fee"
 
 #: src/components/Setting/index.tsx
 msgid "mins"
@@ -73,15 +57,9 @@ msgstr "Transaction Time Limit"
 msgid "Select token in"
 msgstr "Select token in"
 
-#: src/components/Preview/index.tsx
-
-#: src/components/Preview/PriceInfo.tsx
-
 #: src/components/Content/PriceInput.tsx
 msgid "Max price"
 msgstr "Max price"
-
-#: src/components/Preview/index.tsx
 
 #: src/components/Estimated/EstimatedTokenRow.tsx
 msgid "Est. Pooled"
@@ -91,18 +69,9 @@ msgstr "Est. Pooled"
 msgid "Are you sure?"
 msgstr "Are you sure?"
 
-#: src/components/Preview/index.tsx
-
 #: src/components/Setting/index.tsx
 msgid "Confirm"
 msgstr "Confirm"
-
-#: src/components/PositionPriceRange.tsx
-#: src/components/PositionPriceRange.tsx
-#: src/components/PositionPriceRange.tsx
-#: src/components/PositionPriceRange.tsx
-
-#: src/components/PositionPriceRange.tsx
 
 #: src/components/PriceRange/index.tsx
 msgid "Full Range"
@@ -111,8 +80,6 @@ msgstr "Full Range"
 #: src/components/Setting/SlippageInput.tsx
 msgid "Custom"
 msgstr "Custom"
-
-#: src/components/Header/index.tsx
 
 #: src/components/Preview/Head.tsx
 msgid "Fee {0}%"
@@ -132,17 +99,9 @@ msgstr "Turn this on to make trades with very high price impact or to set very h
 msgid "Max"
 msgstr "Max"
 
-#: src/components/Preview/index.tsx
-msgid "Estimated network fee for your transaction."
-msgstr "Estimated network fee for your transaction."
-
 #: src/components/Setting/index.tsx
 msgid "Transaction will revert if it is pending for longer than the indicated time."
 msgstr "Transaction will revert if it is pending for longer than the indicated time."
-
-#: src/components/Content/PriceInfo.tsx
-
-#: src/components/Preview/index.tsx
 
 #: src/components/Setting/SlippageInput.tsx
 msgid "Dynamic entry based on trading pair."
@@ -152,34 +111,21 @@ msgstr "Dynamic entry based on trading pair."
 msgid "Min price"
 msgstr "Min price"
 
-#: src/components/PositionApr.tsx
-
 #: src/components/Preview/PriceInfo.tsx
 msgid "Max Price"
 msgstr "Max Price"
-
-#: src/components/Content/PoolStat.tsx
 
 #: src/components/Content/ZapSummary.tsx
 msgid "Zap Summary"
 msgstr "Zap Summary"
 
 #: src/components/Estimated/index.tsx
-#: src/components/Preview/index.tsx
 msgid "Based on your price range settings, a portion of your liquidity will be automatically zapped into the pool, while the remaining amount will stay in your wallet."
 msgstr "Based on your price range settings, a portion of your liquidity will be automatically zapped into the pool, while the remaining amount will stay in your wallet."
-
-#: src/components/Preview/index.tsx
-
-#: src/components/PositionApr.tsx
 
 #: src/components/Content/ZapSummary.tsx
 msgid "Build LP using {0} {symbol0} and {1} {symbol1} on <0>{dexName}</0>"
 msgstr "Build LP using {0} {symbol0} and {1} {symbol1} on <0>{dexName}</0>"
-
-#: src/components/Content/PoolStat.tsx
-
-#: src/components/PositionApr.tsx
 
 #: src/components/Estimated/index.tsx
 msgid "{0}% Protocol Fee + {1}% Fee for {source}"
@@ -201,18 +147,13 @@ msgstr "Close & Refresh"
 msgid "+ Add Token(s)"
 msgstr "+ Add Token(s)"
 
-#: src/components/Content/PoolStat.tsx
-
 #: src/components/Estimated/index.tsx
-#: src/components/Preview/index.tsx
 msgid "Zap Fee"
 msgstr "Zap Fee"
 
 #: src/components/Content/ZapSummary.tsx
 msgid "Claim fee{0}{1}"
 msgstr "Claim fee{0}{1}"
-
-#: src/components/Preview/Head.tsx
 
 #: src/components/PriceControl/index.tsx
 msgid "Market Rate"
@@ -223,10 +164,6 @@ msgid "Add Liquidity"
 msgstr "Add Liquidity"
 
 #: src/components/Header/index.tsx
-
-#: src/components/Content/PoolStat.tsx
-
-#: src/components/Header/index.tsx
 msgid "Fee {fee}%"
 msgstr "Fee {fee}%"
 
@@ -234,25 +171,19 @@ msgstr "Fee {fee}%"
 msgid "Use Suggested Slippage"
 msgstr "Use Suggested Slippage"
 
-#: src/components/Content/PoolStat.tsx
-#: src/components/PositionApr.tsx
-
 #: src/Widget.tsx
 msgid "Failed to build zap route"
 msgstr "Failed to build zap route"
 
-#: src/components/LeftWarning.tsx
+#: src/components/PriceControl/index.tsx
+msgid "Zapping with {0} is not supported"
+msgstr "Zapping with {0} is not supported"
 
 #: src/components/Setting/utils.ts
 #: src/components/Setting/utils.ts
 #: src/components/Setting/utils.ts
 msgid "Enter a valid slippage percentage"
 msgstr "Enter a valid slippage percentage"
-
-#: src/components/Content/PoolStat.tsx
-#: src/components/PositionApr.tsx
-
-#: src/components/Preview/index.tsx
 
 #: src/components/Preview/ZapInAmount.tsx
 msgid "Zap-in Amount"
@@ -275,8 +206,6 @@ msgstr "To ensure you dont lose funds due to very high price impact, swap has be
 msgid "Swap {0} {1} for {2} {3} via {4}"
 msgstr "Swap {0} {1} for {2} {3} via {4}"
 
-#: src/components/LeftWarning.tsx
-
 #: src/components/Setting/SlippageInput.tsx
 msgid "Suggestion"
 msgstr "Suggestion"
@@ -284,8 +213,6 @@ msgstr "Suggestion"
 #: src/components/Action/useActionButton.ts
 msgid "Fetching Route"
 msgstr "Fetching Route"
-
-#: src/components/PositionFee.tsx
 
 #: src/components/Preview/index.tsx
 msgid "You have successfully created your Pool."
@@ -303,10 +230,6 @@ msgstr "Switch network"
 msgid "Set the initiate pool price"
 msgstr "Set the initiate pool price"
 
-#: src/Widget.tsx
-
-#: src/Widget.tsx
-
 #: src/components/Action/index.tsx
 msgid "Cancel"
 msgstr "Cancel"
@@ -315,8 +238,6 @@ msgstr "Cancel"
 msgid "Zap anyway"
 msgstr "Zap anyway"
 
-#: src/components/Content/PoolStat.tsx
-
 #: src/components/Preview/index.tsx
 msgid "Set Custom Slippage"
 msgstr "Set Custom Slippage"
@@ -324,10 +245,6 @@ msgstr "Set Custom Slippage"
 #: src/components/Header/index.tsx
 msgid "Pool Address:"
 msgstr "Pool Address:"
-
-#: src/components/PositionLiquidity/index.tsx
-
-#: src/components/Action/useActionButton.ts
 
 #: src/components/Action/useActionButton.ts
 msgid "Approve {0}"
@@ -380,28 +297,21 @@ msgid "Slippage Tolerance"
 msgstr "Slippage Tolerance"
 
 #: src/components/Estimated/index.tsx
-#: src/components/Preview/index.tsx
 msgid "The difference between input and estimated liquidity received (including remaining amount). Be careful with high value!"
 msgstr "The difference between input and estimated liquidity received (including remaining amount). Be careful with high value!"
 
-#: src/components/Content/PoolStat.tsx
-#: src/components/PositionApr.tsx
-
-#: src/components/Warning.tsx
+#: src/hooks/useZapState.tsx
+#: src/hooks/useZapState.tsx
+msgid "Something went wrong"
+msgstr "Something went wrong"
 
 #: src/components/Setting/index.tsx
 msgid "Advanced Setting"
 msgstr "Advanced Setting"
 
-#: src/components/Warning.tsx
-
 #: src/components/Estimated/index.tsx
 msgid "Est. Remaining Value"
 msgstr "Est. Remaining Value"
-
-#: src/components/Preview/index.tsx
-msgid "Remaining Amount"
-msgstr "Remaining Amount"
 
 #: src/components/Action/index.tsx
 msgid "You have turned on Degen Mode from settings. Trades with very high price impact can be executed"
@@ -423,7 +333,9 @@ msgstr "Enter min price"
 msgid "View position"
 msgstr "View position"
 
-#: src/components/PositionApr.tsx
+#: src/components/Header/index.tsx
+msgid "This pool doesn't exist yet. You will initialize it."
+msgstr "This pool doesn't exist yet. You will initialize it."
 
 #: src/components/Action/useActionButton.ts
 msgid "Estimating Gas"
@@ -435,7 +347,6 @@ msgid "Half"
 msgstr "Half"
 
 #: src/components/Estimated/index.tsx
-#: src/components/Preview/index.tsx
 msgid "Fees charged for automatically zapping into a liquidity pool. You still have to pay the standard gas fees. <0>More details.</0>"
 msgstr "Fees charged for automatically zapping into a liquidity pool. You still have to pay the standard gas fees. <0>More details.</0>"
 
@@ -444,13 +355,6 @@ msgstr "Fees charged for automatically zapping into a liquidity pool. You still 
 #: src/components/SlippageWarning/index.tsx
 msgid "Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price. Please use with caution!"
 msgstr "Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price. Please use with caution!"
-
-#: src/components/Preview/PooledAmount.tsx
-
-#: src/components/Preview/Head.tsx
-#: src/components/Warning.tsx
-
-#: src/components/Preview/Head.tsx
 
 #: src/components/Preview/index.tsx
 #: src/components/Preview/index.tsx
@@ -470,8 +374,6 @@ msgstr "Invalid input amount"
 #: src/components/PriceControl/index.tsx
 msgid "Use Market Rate"
 msgstr "Use Market Rate"
-
-#: src/components/Content/PoolStat.tsx
 
 #: src/components/Estimated/SlippageRow.tsx
 #: src/components/SlippageWarning/index.tsx
