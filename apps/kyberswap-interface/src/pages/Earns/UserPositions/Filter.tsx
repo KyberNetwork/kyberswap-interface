@@ -34,14 +34,14 @@ export default function Filter({
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   useEffect(() => {
-    if (filters.q !== deboundedSearch) {
-      updateFilters('q', deboundedSearch || '')
+    if (filters.keyword !== deboundedSearch) {
+      updateFilters('keyword', deboundedSearch || '')
     }
-  }, [deboundedSearch, filters.q, updateFilters])
+  }, [deboundedSearch, filters.keyword, updateFilters])
 
   useEffect(() => {
-    if (searchParams.get('q') && !search) {
-      setSearch(searchParams.get('q') || '')
+    if (searchParams.get('keyword') && !search) {
+      setSearch(searchParams.get('keyword') || '')
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -79,8 +79,8 @@ export default function Filter({
           mobileFullWidth
           label={t`Position status`}
           options={POSITION_STATUS as unknown as MenuOption[]}
-          value={filters.status || ''}
-          onChange={value => value !== filters.status && updateFilters('status', value)}
+          value={filters.statuses || ''}
+          onChange={value => value !== filters.statuses && updateFilters('statuses', value)}
         />
       </Flex>
       <Search

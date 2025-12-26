@@ -66,7 +66,8 @@ export interface ParsedEarnPool extends EarnPool {
 export interface PoolAprInterval {
   '7d': number
   '24h': number
-  all: number
+  '30d'?: number
+  all?: number // Legacy field for backward compatibility
 }
 
 export interface MerklOpportunity {
