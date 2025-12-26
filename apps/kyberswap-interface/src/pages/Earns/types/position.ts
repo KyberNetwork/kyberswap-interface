@@ -198,7 +198,6 @@ export interface ParsedPosition {
 }
 
 export interface EarnPosition {
-  [x: string]: any
   chainName: 'eth'
   chainId: number
   chainLogo: string
