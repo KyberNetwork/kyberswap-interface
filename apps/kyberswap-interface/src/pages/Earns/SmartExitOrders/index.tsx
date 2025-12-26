@@ -1,6 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
-import React, { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { X } from 'react-feather'
 import { useNavigate } from 'react-router'
 import { useMedia } from 'react-use'
@@ -8,15 +8,17 @@ import { Flex, Text } from 'rebass'
 import { useCancelSmartExitOrderMutation, useGetSmartExitCancelSignMessageMutation } from 'services/smartExit'
 import styled from 'styled-components'
 
+import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_earn_position.svg'
 import { NotificationType } from 'components/Announcement/type'
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import LocalLoader from 'components/LocalLoader'
 import Modal from 'components/Modal'
 import Pagination from 'components/Pagination'
+import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import { PoolPageWrapper, TableWrapper } from 'pages/Earns/PoolExplorer/styles'
+import { NavigateButton, PoolPageWrapper, TableWrapper } from 'pages/Earns/PoolExplorer/styles'
 import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
 import Filter from 'pages/Earns/SmartExitOrders/Filter'
 import OrderItem from 'pages/Earns/SmartExitOrders/OrderItem'
@@ -151,11 +153,19 @@ const SmartExit = () => {
 
   return (
     <PoolPageWrapper>
-      <Flex alignItems="center" sx={{ gap: 3 }}>
-        <IconArrowLeft onClick={() => navigate(-1)} />
-        <Text as="h1" fontSize={24} fontWeight="500">
-          <Trans>Smart Exit Orders</Trans>
-        </Text>
+      <Flex alignItems="center" justifyContent="space-between" flexWrap={'wrap'} sx={{ gap: 2 }}>
+        <Flex alignItems="center" sx={{ gap: 3 }}>
+          <IconArrowLeft onClick={() => navigate(-1)} />
+          <Text as="h1" fontSize={24} fontWeight="500">
+            <Trans>Smart Exit Orders</Trans>
+          </Text>
+        </Flex>
+        <NavigateButton
+          mobileFullWidth
+          icon={<IconUserEarnPosition />}
+          text={t`My Positions`}
+          to={APP_PATHS.EARN_POSITIONS}
+        />
       </Flex>
 
       <Filter filters={filters} updateFilters={updateFilters} />

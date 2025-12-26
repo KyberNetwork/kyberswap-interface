@@ -207,6 +207,7 @@ export interface EarnPosition {
   minPrice: number
   maxPrice: number
   currentAmounts: Array<PositionAmount>
+  providedAmounts: Array<PositionAmount> | null
   feePending: Array<PositionAmount>
   feesClaimed: Array<PositionAmount>
   createdTime: number
