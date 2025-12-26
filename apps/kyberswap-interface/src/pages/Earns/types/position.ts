@@ -234,9 +234,11 @@ export interface SuggestedPool {
   feeTier: number
   poolExchange: Exchange
   token0: {
+    address: string
     decimals: number
   }
   token1: {
+    address: string
     decimals: number
   }
 }
