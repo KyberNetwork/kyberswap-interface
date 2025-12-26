@@ -19,7 +19,7 @@ import useTheme from 'hooks/useTheme'
 import { useNativeBalance } from 'state/wallet/hooks'
 import { currencyId } from 'utils/currencyId'
 
-const tokenItemStyle = { paddingLeft: 0, paddingRight: 8 }
+const tokenItemStyle = { paddingLeft: 8, paddingRight: 8 }
 const Wrapper = styled.div`
   width: 100%;
   flex: 1 0 auto;
@@ -109,7 +109,7 @@ export default function MyAssets({
                   hideBalance={hideBalance}
                   showFavoriteIcon={false}
                   usdBalance={usdBalance}
-                  hoverColor="transparent"
+                  hoverColor={theme.bg3}
                 />
               )
             })}
