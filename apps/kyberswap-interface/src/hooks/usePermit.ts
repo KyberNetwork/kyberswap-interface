@@ -141,13 +141,13 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
       domain:
         overwritedPermitData && overwritedPermitData.type === PermitType.SALT
           ? {
-              name: tokenName.result?.[0],
+              name: tokenName.result?.[0] || currency.name,
               verifyingContract: currency.address,
               salt: hexZeroPad(hexlify(chainId), 32),
               version: overwritedPermitData.version,
             }
           : {
-              name: tokenName.result?.[0],
+              name: tokenName.result?.[0] || currency.name,
               verifyingContract: currency.address,
               version: overwritedPermitData.version,
               chainId,
