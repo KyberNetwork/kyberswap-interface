@@ -380,11 +380,10 @@ const RightSection = ({
                       poolAddress: position.pool.address,
                       id: isUniv2 ? account || '' : position.tokenId,
                     },
-                    mode: 'withdrawOnly',
                   })
                 }}
               >
-                {t`Remove Manually`}
+                {t`Zap Out to Any Token`}
               </DropdownMenuItem>
               <DropdownMenuItem
                 disabled={removeDisabled}
@@ -398,10 +397,11 @@ const RightSection = ({
                       poolAddress: position.pool.address,
                       id: isUniv2 ? account || '' : position.tokenId,
                     },
+                    mode: 'withdrawOnly',
                   })
                 }}
               >
-                {t`Zap Out to Any Token`}
+                {t`Remove Manually`}
               </DropdownMenuItem>
             </DropdownMenu>
           </RemoveLiquidityDropdownWrapper>
