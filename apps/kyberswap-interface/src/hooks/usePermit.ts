@@ -37,6 +37,7 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
   const notify = useNotify()
   const eipContract = useReadingContract(currency?.address, EIP_2612)
   const tokenNonceState = useSingleCallResult(eipContract, 'nonces', [account])
+  const tokenName = useSingleCallResult(eipContract, 'name')
 
   const permitData = usePermitData(currency?.address)
 
@@ -140,13 +141,13 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
       domain:
         overwritedPermitData && overwritedPermitData.type === PermitType.SALT
           ? {
-              name: currency.name,
+              name: tokenName.result?.[0] || currency.name,
               verifyingContract: currency.address,
               salt: hexZeroPad(hexlify(chainId), 32),
               version: overwritedPermitData.version,
             }
           : {
-              name: currency.name,
+              name: tokenName.result?.[0] || currency.name,
               verifyingContract: currency.address,
               version: overwritedPermitData.version,
               chainId,
@@ -189,15 +190,16 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
   }, [
     account,
     chainId,
-    library,
-    permitState,
-    routerAddress,
     currency,
     currencyAmount,
     dispatch,
-    tokenNonceState.result,
-    overwritedPermitData,
+    library,
     notify,
+    overwritedPermitData,
+    permitState,
+    routerAddress,
+    tokenName.result,
+    tokenNonceState.result,
   ])
 
   return { permitState, permitCallback: signPermitCallback, permitData }
