@@ -8,6 +8,7 @@ import { LIMIT_TEXT_STYLES } from 'pages/Earns/constants'
 import { formatDisplayNumber } from 'utils/numbers'
 
 export const Wrapper = styled.div`
+  min-height: fit-content;
   padding: 20px;
   border-radius: 20px;
   display: flex;
@@ -42,7 +43,7 @@ export const X = styled(Xsvg)`
 export const ClaimInfoWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 20px;
   width: 100%;
 `
 

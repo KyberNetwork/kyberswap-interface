@@ -69,6 +69,8 @@ const EarnPoolExplorer = lazy(() => import('pages/Earns/PoolExplorer'))
 const EarnUserPositions = lazy(() => import('pages/Earns/UserPositions'))
 const EarnPositionDetail = lazy(() => import('pages/Earns/PositionDetail'))
 
+const Recap2025Redirect = lazy(() => import('pages/Recap2025Redirect'))
+
 const AppWrapper = styled.div`
   display: flex;
   flex-flow: column;
@@ -358,6 +360,8 @@ export default function App() {
               <Route path={APP_PATHS.EARNS} element={<Navigate to={APP_PATHS.EARN} replace />} />
               <Route path={APP_PATHS.EARNS_POOLS} element={<Navigate to={APP_PATHS.EARN_POOLS} replace />} />
               <Route path={APP_PATHS.EARNS_POSITIONS} element={<Navigate to={APP_PATHS.EARN_POSITIONS} replace />} />
+
+              <Route path={APP_PATHS.RECAP_2025} element={<Recap2025Redirect />} />
 
               <Route path="*" element={<RedirectPathToSwapV3Network />} />
             </Routes>

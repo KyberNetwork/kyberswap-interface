@@ -4,12 +4,15 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
+import { ReactComponent as IconAlert } from 'assets/svg/earn/ic_alert.svg'
 import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_earn_position.svg'
+import { ButtonLight } from 'components/Button'
 import CopyHelper from 'components/Copy'
 import { InfoHelperWithDelay } from 'components/InfoHelper'
 import Loader from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
+import { TELEGRAM_BOT_URL } from 'constants/env'
 import { APP_PATHS } from 'constants/index'
 import useTheme from 'hooks/useTheme'
 import { NavigateButton } from 'pages/Earns/PoolExplorer/styles'
@@ -181,12 +184,29 @@ const PositionDetailHeader = ({
           {isLoading && !initialLoading && <Loader />}
         </Flex>
       </PositionHeader>
-      <NavigateButton
-        mobileFullWidth
-        icon={<IconUserEarnPosition />}
-        text={t`My Positions`}
-        to={APP_PATHS.EARN_POSITIONS}
-      />
+
+      <Flex sx={{ gap: 3 }}>
+        <MouseoverTooltipDesktopOnly
+          text={t`Get notified via Telegram when this position moves out of range or back in range`}
+          width="300px"
+          placement="bottom"
+        >
+          <ButtonLight
+            width="36px"
+            height="36px"
+            style={{ padding: 0 }}
+            onClick={() => window.open(TELEGRAM_BOT_URL, '_blank')}
+          >
+            <IconAlert />
+          </ButtonLight>
+        </MouseoverTooltipDesktopOnly>
+        <NavigateButton
+          mobileFullWidth
+          icon={<IconUserEarnPosition />}
+          text={t`My Positions`}
+          to={APP_PATHS.EARN_POSITIONS}
+        />
+      </Flex>
     </Flex>
   )
 }

@@ -112,18 +112,21 @@ const UserPositions = () => {
   })
 
   const selectedChainsLabel = useMemo(() => {
-    const arrValue = filters.chainIds?.split(',')
+    const arrValue = filters.chainIds?.split(',').filter(Boolean)
     const selectedChains = supportedChains.filter(option => arrValue?.includes(option.value))
-    if (selectedChains.length >= 2) {
-      return `Selected: ${selectedChains.length} chains`
+    if (selectedChains.length >= 1) {
+      return (
+        <Flex alignItems="center" sx={{ gap: '6px' }}>
+          <Flex>
+            {selectedChains.map((chain, index) => (
+              <ItemIcon key={chain.value} src={chain.icon} alt={chain.label} style={{ marginLeft: index ? -8 : 0 }} />
+            ))}
+          </Flex>
+          {selectedChains.length > 1 ? `Selected: ${selectedChains.length} chains` : selectedChains[0].label}
+        </Flex>
+      )
     }
-    const option = selectedChains[0] || supportedChains[0]
-    return (
-      <>
-        {option.icon && <ItemIcon src={option.icon} alt={option.label} />}
-        {option.label}
-      </>
-    )
+    return AllChainsOption.label
   }, [supportedChains, filters.chainIds])
 
   const parsedPositions: Array<ParsedPosition> = useMemo(
