@@ -77,10 +77,19 @@ export const EARN_DEXES_CONFIG: Record<Exchange, EarnDexInfo> = {
     name: 'Pancake ∞ CL FairFlow',
     farmingSupported: true,
   },
-  [Exchange.DEX_PANCAKE_INFINITY_CL_DYNAMIC]: pancakeinfinitycl,
-  [Exchange.DEX_PANCAKE_INFINITY_CL_ALPHA]: pancakeinfinitycl,
-  [Exchange.DEX_PANCAKE_INFINITY_CL_BREVIS]: pancakeinfinitycl,
-  [Exchange.DEX_PANCAKE_INFINITY_CL_LO]: pancakeinfinitycl,
+  [Exchange.DEX_PANCAKE_INFINITY_CL_DYNAMIC]: {
+    ...pancakeinfinitycl,
+    name: 'Pancake ∞ CL Dynamic',
+  },
+  [Exchange.DEX_PANCAKE_INFINITY_CL_ALPHA]: {
+    ...pancakeinfinitycl,
+    name: 'Pancake ∞ CL Alpha',
+  },
+  [Exchange.DEX_PANCAKE_INFINITY_CL_BREVIS]: {
+    ...pancakeinfinitycl,
+    name: 'Pancake ∞ CL Brevis',
+  },
+  [Exchange.DEX_PANCAKE_INFINITY_CL_LO]: { ...pancakeinfinitycl, name: 'Pancake ∞ CL LO' },
   [Exchange.DEX_AERODROMECL]: aerodrome,
 }
 
