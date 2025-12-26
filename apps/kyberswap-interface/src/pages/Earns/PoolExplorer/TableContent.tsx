@@ -16,6 +16,8 @@ import Updater from 'state/customizeDexes/updater'
 import { useAppSelector } from 'state/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 
+import { EARN_DEXES_CONFIG } from '../constants'
+
 export const dexKeyMapping: { [key: string]: string } = {
   uniswapv2: 'uniswap',
   kodiakcl: 'kodiak-v3',
@@ -68,8 +70,16 @@ const TableContent = ({ onOpenZapInWidget, filters }: Props) => {
   const tablePoolData = useMemo(() => {
     return (poolData?.data?.pools || []).map(pool => {
       const poolChainId = pool.chain?.id ?? pool.chainId
+
       const dexKey = dexKeyMapping[pool.exchange] || pool.exchange
-      const dexInfo = poolChainId ? dexLookupMap.get(poolChainId)?.get(dexKey) : undefined
+
+      const dexConfig = EARN_DEXES_CONFIG[pool.exchange]
+
+      const dexInfo = dexConfig
+        ? { logoURL: dexConfig.logo || '', name: dexConfig.name || '' }
+        : poolChainId
+        ? dexLookupMap.get(poolChainId)?.get(dexKey)
+        : undefined
 
       return {
         ...pool,
