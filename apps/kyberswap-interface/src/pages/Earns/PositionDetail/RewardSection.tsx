@@ -341,7 +341,7 @@ const merklRewardTooltip = (merklRewards: Array<TokenRewardInfo>, textColor: str
       {t`Uniswap Bonus:`}
     </Text>
     {merklRewards.map(token => (
-      <Flex alignItems={'center'} sx={{ gap: 1 }} flexWrap={'wrap'} key={token.address}>
+      <Flex alignItems={'center'} sx={{ gap: 1 }} flexWrap={'wrap'} key={`${token.address}-${token.symbol}`}>
         <TokenLogo src={token.logo} size={16} />
         <RewardLink href="https://app.uniswap.org/positions" target="_blank">
           <Text color={textColor}>{formatDisplayNumber(token.totalAmount, { significantDigits: 4 })}</Text>
@@ -369,7 +369,7 @@ export const totalRewardTooltip = ({
       {!lmTokens.length ? ' 0' : ''}
     </Text>
     {lmTokens.map(token => (
-      <Flex alignItems={'center'} sx={{ gap: 1 }} flexWrap={'wrap'} key={token.address}>
+      <Flex alignItems={'center'} sx={{ gap: 1 }} flexWrap={'wrap'} key={`${token.address}-${token.symbol}`}>
         <TokenLogo src={token.logo} size={16} />
         <Text color={textColor}>{formatDisplayNumber(token.totalAmount, { significantDigits: 4 })}</Text>
         <Text color={textColor}>{token.symbol}</Text>
@@ -382,7 +382,7 @@ export const totalRewardTooltip = ({
       {!egTokens.length ? ' 0' : ''}
     </Text>
     {egTokens.map(token => (
-      <Flex alignItems={'center'} sx={{ gap: 1 }} flexWrap={'wrap'} key={token.address}>
+      <Flex alignItems={'center'} sx={{ gap: 1 }} flexWrap={'wrap'} key={`${token.address}-${token.symbol}`}>
         <TokenLogo src={token.logo} size={16} />
         <Text color={textColor}>{formatDisplayNumber(token.totalAmount, { significantDigits: 4 })}</Text>
         <Text color={textColor}>{token.symbol}</Text>

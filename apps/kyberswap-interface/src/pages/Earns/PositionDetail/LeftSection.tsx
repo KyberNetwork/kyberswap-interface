@@ -19,20 +19,20 @@ import { formatDisplayNumber } from 'utils/numbers'
 
 const LeftSection = ({
   position,
-  onFetchUnclaimedFee,
   totalLiquiditySection,
   aprSection,
   initialLoading,
   isNotAccountOwner,
+  onFetchUnclaimedFee,
   shareBtn,
   refetchPositions,
 }: {
   position?: ParsedPosition
-  onFetchUnclaimedFee: () => void
   totalLiquiditySection: React.ReactNode
   aprSection: React.ReactNode
   initialLoading: boolean
   isNotAccountOwner: boolean
+  onFetchUnclaimedFee: () => void
   shareBtn: (size?: number) => React.ReactNode
   refetchPositions: () => void
 }) => {

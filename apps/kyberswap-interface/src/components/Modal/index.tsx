@@ -45,7 +45,7 @@ const StyledDialogContent = styled(
     margin: ${({ margin }) => margin || '0 0 2rem 0'};
     background-color: ${({ theme, bgColor }) => bgColor || theme.tableHeader};
     box-shadow: 0 4px 8px 0 ${({ theme }) => transparentize(0.95, theme.shadow1)};
-    padding: 0;
+    padding: ${({ padding }) => padding || '0'};
     width: ${({ width }) => width || '50vw'};
     height: ${({ height }) => height || 'auto'};
     overflow-y: scroll;
@@ -104,6 +104,7 @@ export interface ModalProps {
   bgColor?: string
   zindex?: number | string
   margin?: string
+  padding?: string
   enableInitialFocusInput?: boolean
   className?: string
   children?: React.ReactNode
@@ -121,6 +122,7 @@ export default function Modal({
   },
   minHeight = false,
   margin = '',
+  padding = '',
   maxHeight = 90,
   maxWidth = 420,
   width,
@@ -173,6 +175,7 @@ export default function Modal({
             maxHeight={maxHeight}
             maxWidth={maxWidth}
             margin={margin}
+            padding={padding}
             width={width}
             height={height}
             bgColor={bgColor}

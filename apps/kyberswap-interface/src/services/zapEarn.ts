@@ -60,6 +60,7 @@ export interface PositionQueryParams {
   positionStatus?: string
   q?: string
   positionId?: string
+  positionIds?: string
 }
 
 interface PositionHistoryParams {

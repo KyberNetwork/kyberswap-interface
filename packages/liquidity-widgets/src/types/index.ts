@@ -59,6 +59,7 @@ export interface WidgetProps {
   ) => Promise<string>;
   signTypedData?: (account: string, typedDataJson: string) => Promise<string>;
   onViewPosition?: (txHash: string) => void;
+  onSetUpSmartExit?: (position: any) => void; // Raw position from API
 }
 
 export interface OnSuccessProps {
