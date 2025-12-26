@@ -190,7 +190,6 @@ export interface ParsedPosition {
 }
 
 export interface EarnPosition {
-  [x: string]: any
   chainName: 'eth'
   chainId: number
   chainLogo: string
@@ -209,16 +208,6 @@ export interface EarnPosition {
     kemEGApr: PoolAprInterval
     earning: PoolAprInterval
   }
-  /** @deprecated */
-  apr: number
-  /** @deprecated */
-  kemEGApr: number
-  /** @deprecated */
-  kemLMApr: number
-  /** @deprecated */
-  earning24h: number
-  /** @deprecated */
-  earning7d: number
   currentPositionValue: number
   status: PositionStatus
   pool: {
