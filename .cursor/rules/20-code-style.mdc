@@ -1,0 +1,22 @@
+---
+description: Code style and architecture
+---
+
+TypeScript:
+
+- Use explicit types at boundaries (public hooks, exported utilities).
+- Avoid `any`. If unavoidable, isolate it and justify.
+
+React:
+
+- Prefer small composable components and hooks.
+- Avoid adding new state managers or heavy abstractions unless requested.
+- Keep UI behavior changes local; no cross-app refactors.
+
+Monorepo imports:
+
+- Prefer existing internal package entrypoints rather than deep relative imports across packages.
+
+Formatting:
+
+- Match surrounding file style. Do not reformat unrelated code.

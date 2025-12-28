@@ -1,0 +1,31 @@
+# dependencies
+**/node_modules/**
+
+# builds
+**/dist/**
+**/build/**
+**/.next/**
+**/.output/**
+**/out/**
+
+# caches
+**/.turbo/**
+**/.cache/**
+**/.vite/**
+**/.eslintcache
+**/*.tsbuildinfo
+
+# coverage & reports
+**/coverage/**
+**/.nyc_output/**
+
+# logs
+**/*.log
+
+# env
+**/.env
+**/.env.*
+!.env.example
+
+# misc
+**/.DS_Store

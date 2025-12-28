@@ -1,0 +1,21 @@
+---
+description: Scope control and safety
+---
+
+Scope:
+
+- Implement exactly what the task asks.
+- Do not perform “cleanup” refactors unless requested.
+
+Risk areas:
+
+- Wallet connection, approvals/permits, signing, network switching, slippage, transaction building.
+  In these areas:
+- Be extra conservative.
+- Prefer existing helper utilities and flows.
+- Add guardrails and clear error handling.
+
+Dependencies:
+
+- Do not add or upgrade dependencies unless explicitly requested.
+- Avoid modifying `pnpm-lock.yaml` unless dependency changes are necessary.
