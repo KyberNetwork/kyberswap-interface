@@ -17,22 +17,6 @@ pnpm --filter @kyberswap/zap-out-widgets build
 cd apps/zap-widgets-demo && pnpm dev
 ```
 
-## Directory Structure
-
-```
-src/
-├── components/          # React components
-│   ├── Widget/          # Main widget component
-│   ├── PositionSelector/# LP position selection
-│   └── ...
-├── hooks/               # Custom React hooks
-│   ├── useZapOut.ts     # Core zap out logic
-│   └── ...
-├── stores/              # Zustand state management
-├── types/               # TypeScript definitions
-└── index.ts             # Public exports
-```
-
 ## Key Files
 
 | File                              | Purpose                        |
@@ -58,7 +42,6 @@ interface ZapOutWidgetProps {
 ## Testing
 
 ```bash
-pnpm --filter @kyberswap/zap-out-widgets test
 pnpm --filter @kyberswap/zap-out-widgets type-check
 pnpm --filter @kyberswap/zap-out-widgets lint
 ```

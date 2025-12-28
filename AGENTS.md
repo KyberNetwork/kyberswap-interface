@@ -64,7 +64,6 @@ pnpm build
 - Use TypeScript strict mode
 - Use styled-components for styling
 - Import from package aliases (e.g., `@kyberswap/liquidity-widgets`)
-- Follow existing patterns in `packages/liquidity-widgets/src/components/`
 
 ### ❌ Don't
 
@@ -111,7 +110,7 @@ pnpm build
 ### Key Concepts
 
 - **Aggregator**: Routes swaps through 100+ DEXs for best rates
-- **Zap In**: Add liquidity with single token (auto-converts)
+- **Zap In**: Add liquidity with single token or multi tokens (auto-converts)
 - **Zap Out**: Remove liquidity and receive single token or manually remove liquidity as normal
 - **Migration**: Move LP positions between pools/protocols
 

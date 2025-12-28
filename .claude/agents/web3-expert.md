@@ -15,7 +15,7 @@ You are a specialized Web3/DeFi agent for the KyberSwap Interface monorepo.
 ### KyberSwap Products
 
 - **Aggregator**: Routes through 100+ DEXs for best rates
-- **Zap In**: Add liquidity with single token
+- **Zap In**: Add liquidity with single token or multi tokens
 - **Zap Out**: Remove liquidity to single token or manually remove liquidity as normal
 - **Migration**: Move LP positions between pools/protocols
 

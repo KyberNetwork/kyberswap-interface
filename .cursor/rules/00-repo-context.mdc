@@ -1,9 +1,0 @@
----
-description: KyberSwap Interface monorepo context
----
-
-You are in a pnpm workspace + turbo monorepo with `apps/` and `packages/`.
-
-Primary app: `apps/kyberswap-interface`.
-
-Before implementing, search for similar patterns in the repo and follow established conventions.

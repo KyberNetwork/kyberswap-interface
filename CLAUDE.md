@@ -109,7 +109,7 @@ import { LiquidityWidget } from '@kyberswap/liquidity-widgets'
 
 ### Zap (Liquidity Provision)
 
-- **Zap In**: Add liquidity with a single token (auto-converts to LP)
+- **Zap In**: Add liquidity with a single token or multi tokens (auto-converts to LP)
 - **Zap Out**: Remove liquidity and receive a single token or manually remove liquidity as normal
 - **Migration**: Move LP position between pools or protocols
 

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-PancakeSwap-specific Zap In widget for adding liquidity to PancakeSwap V3 pools using a single token. Customized for PancakeSwap's contracts, UI patterns, and specific requirements.
+PancakeSwap-specific Zap In widget for adding liquidity to PancakeSwap V3 pools using a single token or multi tokens. Customized for PancakeSwap's UI patterns, and specific requirements.
 
 ## Quick Start
 
@@ -14,42 +14,37 @@ pnpm build-package
 pnpm --filter @kyberswap/pancake-liquidity-widgets build
 ```
 
-## Directory Structure
-
-```
-src/
-├── components/          # React components (PancakeSwap themed)
-│   ├── Widget/          # Main widget component
-│   └── ...
-├── hooks/               # Custom React hooks
-│   ├── useZapIn.ts      # PancakeSwap-specific zap logic
-│   └── ...
-├── stores/              # Zustand state management
-├── types/               # TypeScript definitions
-├── constants/           # PancakeSwap contract addresses
-└── index.ts             # Public exports
-```
-
-## Key Differences from liquidity-widgets
-
-| Aspect           | liquidity-widgets   | pancake-liquidity-widgets |
-| ---------------- | ------------------- | ------------------------- |
-| Target Protocol  | KyberSwap Elastic   | PancakeSwap V3            |
-| Contract ABIs    | KyberSwap contracts | PancakeSwap contracts     |
-| Theming          | KyberSwap brand     | PancakeSwap brand         |
-| Supported Chains | Multi-chain         | BSC-focused               |
-
 ## Public API
 
 ```typescript
 import { PancakeLiquidityWidget } from "@kyberswap/pancake-liquidity-widgets";
 
 interface PancakeLiquidityWidgetProps {
+  theme?: Theme | "dark" | "light";
+  walletClient: WalletClient | undefined;
+  account: Address | undefined;
+  chainId: number;
+  networkChainId: number;
+  initTickLower?: number;
+  initTickUpper?: number;
   poolAddress: string;
-  chainId: number; // Primarily 56 (BSC)
-  theme?: "light" | "dark";
-  onClose?: () => void;
-  onSuccess?: (txHash: string) => void;
+  positionId?: string;
+  feeAddress?: string;
+  feePcm?: number;
+  source: string;
+  includedSources?: string;
+  excludedSources?: string;
+  initDepositTokens: string;
+  initAmounts: string;
+  poolType: PoolType;
+  onDismiss: () => void;
+  onTxSubmit?: (txHash: string) => void;
+  onConnectWallet: () => void;
+  onAddTokens: (tokenAddresses: string) => void;
+  onRemoveToken: (tokenAddress: string) => void;
+  onAmountChange: (tokenAddress: string, amount: string) => void;
+  onOpenTokenSelectModal: () => void;
+  farmContractAddresses?: string[];
 }
 ```
 
@@ -60,14 +55,9 @@ interface PancakeLiquidityWidgetProps {
 - BNB Smart Chain (56) - Primary
 - Ethereum (1) - Secondary
 
-### Contract Addresses
-
-See `src/constants/contracts.ts` for PancakeSwap-specific addresses.
-
 ## Testing
 
 ```bash
-pnpm --filter @kyberswap/pancake-liquidity-widgets test
 pnpm --filter @kyberswap/pancake-liquidity-widgets type-check
 pnpm --filter @kyberswap/pancake-liquidity-widgets lint
 ```

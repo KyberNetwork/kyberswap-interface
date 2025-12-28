@@ -25,15 +25,8 @@ pnpm build
 src/
 ├── components/          # Shared React components
 ├── pages/               # Route pages
-│   ├── Swap/            # Token swap interface
-│   ├── Pool/            # Liquidity pools
-│   ├── Farm/            # Yield farming
-│   └── ...
 ├── hooks/               # Custom React hooks
 ├── state/               # Redux state management
-│   ├── swap/            # Swap state slice
-│   ├── pools/           # Pool state slice
-│   └── ...
 ├── services/            # API services
 ├── utils/               # Utility functions
 ├── constants/           # App constants, chain configs
