@@ -1,43 +1,124 @@
-# KyberSwap Interface — Claude Code Guide
+# KyberSwap Interface
 
-You are working inside a pnpm-workspace + turbo monorepo.
+> The fastest and most efficient place to trade and earn on multi-chains
 
-## Repo shape
+## Overview
 
-- `apps/` contains runnable apps.
-- `packages/` contains shared libraries/widgets used by apps.
+KyberSwap Interface is the unified frontend monorepo for Kyber Network's DeFi products:
 
-Primary app:
+- **Aggregator**: Routes trades through 100+ DEXs across 16 chains for optimal rates
+- **Limit Orders**: Gasless, slippage-free, zero-fee trades
+- **Zap Widgets**: One-click liquidity provision with single token
+- **Cross-Chain Swaps**: Swap tokens across different chains in one transaction
 
-- `apps/kyberswap-interface`
+## Quick Start
 
-## How to run (local dev)
+```bash
+# Install dependencies
+pnpm i
 
-From repo root:
+# Build shared packages (REQUIRED before running apps)
+pnpm build-package
 
-- Install: `pnpm i`
-- Build shared packages (if needed): `pnpm build-package`
-- Run main app:
-  - `cd apps/kyberswap-interface && pnpm dev`
+# Run main interface
+cd apps/kyberswap-interface && pnpm dev
 
-Other apps exist under `apps/` and can be run with their own scripts.
+# Run widget demos
+cd apps/zap-widgets-demo && pnpm dev
+cd apps/swap-widgets-react-demo && pnpm dev
+cd apps/swap-widgets-nextjs-demo && pnpm dev
+```
 
-## Coding expectations
+## Development Commands
 
-- Prefer TypeScript and existing patterns in the codebase.
-- Keep changes minimal and consistent with the surrounding code.
-- Do NOT introduce new libraries unless absolutely necessary.
-- Avoid refactors unrelated to the requested change.
-- When unsure about conventions, search for similar patterns already used in the repo.
+| Command              | Purpose                        |
+| -------------------- | ------------------------------ |
+| `pnpm i`             | Install all dependencies       |
+| `pnpm build-package` | Build shared packages only     |
+| `pnpm build`         | Build everything               |
+| `pnpm lint`          | Run ESLint across all packages |
+| `pnpm type-check`    | TypeScript validation          |
 
-## Monorepo discipline
+## Verification Checklist
 
-- If you change a shared package, ensure all dependents still typecheck.
-- Avoid touching `pnpm-lock.yaml` unless dependency changes are explicitly required.
-- Avoid modifying build tooling (turbo/pnpm configs) unless the task is specifically about tooling.
+Before committing, always run:
 
-## PR hygiene
+```bash
+pnpm lint
+pnpm type-check
+pnpm build
+```
 
-- Provide a short change summary.
-- Include a quick manual test plan (what to click / what to verify).
-- Flag any risky area (wallet interactions, approvals/permits, signing flows, network switching).
+## Tech Stack
+
+- **Framework**: React 18 + TypeScript
+- **Build Tool**: Vite
+- **Package Manager**: pnpm (workspaces)
+- **Monorepo Tool**: Turborepo
+- **Styling**: styled-components
+- **State Management**: Redux Toolkit (RTK Query for API)
+- **Widget State**: zustand
+- **Web3**: ethers.js, wagmi, viem
+
+## Code Conventions
+
+### Component Structure
+
+- Functional components with hooks only
+- TypeScript strict mode enabled
+- Styled-components for styling (no CSS modules)
+
+### File Naming
+
+- Components: `PascalCase.tsx`
+- Hooks: `useCamelCase.ts`
+- Utils: `camelCase.ts`
+- Types: `types.ts` or `*.types.ts`
+
+### Import Order
+
+1. External libraries (react, ethers, etc.)
+2. Internal packages (@kyberswap/\*)
+3. Local imports (relative paths)
+4. Types
+5. Styles
+
+## Key Patterns
+
+### Widget Integration
+
+```typescript
+// Import from package
+import { LiquidityWidget } from '@kyberswap/liquidity-widgets'
+
+// Use with required props
+<LiquidityWidget
+  poolAddress="0x..."
+  chainId={1}
+  onClose={() => {}}
+/>
+```
+
+### State Management
+
+- Use Redux for global app state
+- Use RTK Query for API/server state
+- Use zustand for widget-local state
+
+## Domain Knowledge
+
+### Zap (Liquidity Provision)
+
+- **Zap In**: Add liquidity with a single token (auto-converts to LP)
+- **Zap Out**: Remove liquidity and receive a single token or manually remove liquidity as normal
+- **Migration**: Move LP position between pools or protocols
+
+## External Resources
+
+- Website: https://kyberswap.com/
+- Documentation: https://docs.kyberswap.com/
+- GitHub: https://github.com/KyberNetwork/kyberswap-interface
+
+## Contributing
+
+All pull requests should target the `main` branch. CI checks run automatically on PRs.
