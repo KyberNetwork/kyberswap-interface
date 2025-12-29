@@ -105,9 +105,7 @@ const PositionDetail = () => {
       return
     }
 
-    const isClosedFromRpc = closedPositionsFromRpc.some(
-      (closedPosition: { tokenId: string }) => closedPosition.tokenId === userPositions[0].tokenId,
-    )
+    const isClosedFromRpc = closedPositionsFromRpc.includes(userPositions[0].tokenId)
 
     const parsedPosition = parsePosition({
       position: userPositions[0],
