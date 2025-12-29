@@ -296,6 +296,10 @@ msgstr "你的滑点设置低于常规，增加了交易失败的风险。"
 msgid "Slippage Tolerance"
 msgstr "滑点容差"
 
+#: src/components/Action/useActionButton.ts
+msgid "Token not supported"
+msgstr "代币不支持"
+
 #: src/components/Estimated/index.tsx
 msgid "The difference between input and estimated liquidity received (including remaining amount). Be careful with high value!"
 msgstr "输入金额与预计获得的流动性（含剩余金额）之间的差额。数值过高时请谨慎！"

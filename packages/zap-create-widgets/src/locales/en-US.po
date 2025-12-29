@@ -296,6 +296,10 @@ msgstr "Your slippage is set lower than usual, increasing the risk of transactio
 msgid "Slippage Tolerance"
 msgstr "Slippage Tolerance"
 
+#: src/components/Action/useActionButton.ts
+msgid "Token not supported"
+msgstr "Token not supported"
+
 #: src/components/Estimated/index.tsx
 msgid "The difference between input and estimated liquidity received (including remaining amount). Be careful with high value!"
 msgstr "The difference between input and estimated liquidity received (including remaining amount). Be careful with high value!"
