@@ -16,7 +16,7 @@ import { FilterTag } from 'pages/Earns/PoolExplorer/Filter'
 import { MEDIA_WIDTHS } from 'theme'
 
 const EarnNavGroup = () => {
-  const upTo420 = useMedia('(max-width: 420px)')
+  const upTo430 = useMedia('(max-width: 430px)')
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   const { pathname, search } = useLocation()
@@ -30,7 +30,7 @@ const EarnNavGroup = () => {
 
   return (
     <NavGroup
-      dropdownAlign={upTo420 ? 'right' : 'left'}
+      dropdownAlign={upTo430 ? 'right' : 'left'}
       isActive={isActive}
       anchor={
         <DropdownTextAnchor>
