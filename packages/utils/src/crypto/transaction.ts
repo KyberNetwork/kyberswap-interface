@@ -1,4 +1,4 @@
-import { ChainId, NETWORKS_INFO, PoolType } from '@kyber/schema';
+import { ChainId, NETWORKS_INFO, PoolType, univ4Types } from '@kyber/schema';
 
 import { estimateGas, formatUnits, getCurrentGasPrice } from '.';
 import { friendlyError } from '../error';
@@ -80,21 +80,35 @@ export const getTokenIdFromTxHash = async ({
     if (!receipt || !receipt.logs) return null;
 
     // Check if it's UniV4 (FairFlow) - use Transfer event
-    const isUniV4 = poolType === PoolType.DEX_UNISWAP_V4 || poolType === PoolType.DEX_UNISWAP_V4_FAIRFLOW;
+    const isUniV4 = univ4Types.includes(poolType);
+
+    // Event signatures
+    // ModifyLiquidity (index_topic_1 bytes32 id, index_topic_2 address sender, int24 tickLower, int24 tickUpper, int256 liquidityDelta, bytes32 salt)
+    const MODIFY_LIQUIDITY_TOPIC = '0xf208f4912782fd25c7f114ca3723a2d5dd6f3bcc3ac8db5af63baa85f711d5ec';
+    // IncreaseLiquidity(uint256 indexed tokenId, uint128 liquidity, uint256 amount0, uint256 amount1)
+    const INCREASE_LIQUIDITY_TOPIC = '0x3067048beee31b25b2f1681f88dac838c8bba36af25bfb2b7cf7473a5847e35f';
 
     if (isUniV4) {
-      // For UniV4, look for Transfer events with 4 topics
-      const transferLogsWithTokenId = receipt.logs.filter((log: any) => log.topics.length === 4);
-      if (transferLogsWithTokenId.length > 0) {
-        const hexTokenId = transferLogsWithTokenId[transferLogsWithTokenId.length - 1].topics[3];
-        return hexTokenId ? BigInt(hexTokenId).toString() : null;
+      // For UniV4, look for ModifyLiquidity events
+      // tokenId is encoded in the 4th data field (salt) - bytes32 at offset 96 (3 * 32 bytes)
+      const modifyLiquidityLog = receipt.logs.find(
+        (log: any) => log.topics[0]?.toLowerCase() === MODIFY_LIQUIDITY_TOPIC.toLowerCase(),
+      );
+      if (modifyLiquidityLog && modifyLiquidityLog.data) {
+        // data format: tickLower (32 bytes) + tickUpper (32 bytes) + liquidityDelta (32 bytes) + salt (32 bytes)
+        // salt is at position 4, so we need to extract bytes 96-128 (0x prefix + 192 chars offset, 64 chars length)
+        const dataWithoutPrefix = modifyLiquidityLog.data.slice(2); // remove 0x
+        const saltHex = '0x' + dataWithoutPrefix.slice(192, 256); // bytes 96-128 (4th 32-byte slot)
+        return saltHex ? BigInt(saltHex).toString() : null;
       }
     } else {
-      // For other DEXes, look for IncreaseLiquidity events
-      // IncreaseLiquidity event has tokenId as first topic (index 1)
-      const increaseLidLogs = receipt.logs.filter((log: any) => log.topics.length >= 2);
-      if (increaseLidLogs.length > 0) {
-        const hexTokenId = increaseLidLogs[0]?.topics?.[1];
+      // For UniV3 and other DEXes, look for IncreaseLiquidity events
+      // tokenId is the second topic (topics[1])
+      const increaseLiquidityLog = receipt.logs.find(
+        (log: any) => log.topics[0]?.toLowerCase() === INCREASE_LIQUIDITY_TOPIC.toLowerCase(),
+      );
+      if (increaseLiquidityLog) {
+        const hexTokenId = increaseLiquidityLog.topics[1];
         return hexTokenId ? BigInt(hexTokenId).toString() : null;
       }
     }
