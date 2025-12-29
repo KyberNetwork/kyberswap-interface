@@ -63,12 +63,6 @@ export interface ParsedEarnPool extends EarnPool {
   feeApr: number
 }
 
-export interface PoolAprInterval {
-  '7d': number
-  '24h': number
-  all: number
-}
-
 export interface MerklOpportunity {
   type: string
   chainId: number

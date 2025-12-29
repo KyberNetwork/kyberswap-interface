@@ -1,5 +1,7 @@
 import { NativeToken } from 'constants/networks/type'
 import { Exchange } from 'pages/Earns/constants'
+import { MerklOpportunity, PAIR_CATEGORY, ProgramType } from 'pages/Earns/types/pool'
+import { TokenRewardInfo } from 'pages/Earns/types/reward'
 
 export enum PositionStatus {
   IN_RANGE = 'PositionStatusInRange',
@@ -9,11 +11,6 @@ export enum PositionStatus {
 
 export enum PositionHistoryType {
   DEPOSIT = 'DEPOSIT',
-}
-
-export enum ProgramType {
-  EG = 'eg',
-  LM = 'lm',
 }
 
 export interface PositionFilter {
@@ -27,56 +24,6 @@ export interface PositionFilter {
   orderBy?: string
   page: number
   pageSize?: number
-}
-
-export interface EarnPool {
-  address: string
-  earnFee: number
-  exchange: Exchange
-  type: string
-  feeTier: number
-  volume: number
-  apr: number
-  kemEGApr: number
-  bonusApr: number
-  kemLMApr: number
-  liquidity: number
-  tvl: number
-  chainId?: number
-  favorite?: {
-    chainId: number
-    isFavorite: boolean
-  }
-  chain?: {
-    id: number
-    name: string
-    logoUrl: string
-  }
-  category?: PAIR_CATEGORY
-  programs?: Array<ProgramType>
-  merklOpportunity?: MerklOpportunity
-  tokens: Array<{
-    address: string
-    logoURI: string
-    symbol: string
-    decimals: number
-  }>
-  maxAprInfo?: {
-    tickLower: number
-    tickUpper: number
-    minPrice: string
-    maxPrice: string
-    apr: string
-    kemEGApr: string
-    kemLMApr: string
-  }
-  egUsd?: number
-}
-
-export interface ParsedEarnPool extends EarnPool {
-  dexLogo: string
-  dexName: string
-  feeApr: number
 }
 
 export interface UserPositionsApiResponse {
@@ -187,14 +134,6 @@ export interface PositionPool {
   category: string
   hooks: string
   merklOpportunity?: MerklOpportunity
-}
-
-export enum PAIR_CATEGORY {
-  STABLE = 'stablePair',
-  CORRELATED = 'correlatedPair',
-  EXOTIC = 'exoticPair',
-  HIGH_VOLATILITY = 'highVolatilityPair',
-  DEFAULT_EMPTY = '', // For Krystal data
 }
 
 export const DEFAULT_PARSED_POSITION: ParsedPosition = {
@@ -375,9 +314,9 @@ export interface EarnPosition {
   tokenId: string
   minPrice: number
   maxPrice: number
-  currentAmounts: Array<PositionAmount>
-  feePending: Array<PositionAmount>
-  feesClaimed: Array<PositionAmount>
+  currentAmounts: Array<TokenAmount>
+  feePending: Array<TokenAmount>
+  feesClaimed: Array<TokenAmount>
   createdTime: number
   stats: {
     apr: PoolAprInterval
@@ -391,7 +330,7 @@ export interface EarnPosition {
     id: string
     poolAddress: string
     price: number
-    tokenAmounts: Array<PositionAmount>
+    tokenAmounts: Array<TokenAmount>
     fees: Array<number>
     tickSpacing: number
     exchange: Exchange
@@ -426,7 +365,7 @@ export interface PoolAprInterval {
   all?: number // Legacy field for backward compatibility
 }
 
-interface Token {
+export interface Token {
   address: string
   symbol: string
   decimals: number
@@ -437,81 +376,4 @@ interface Token {
   unclaimedAmount: number
   unclaimedBalance: number
   unclaimedValue: number
-}
-
-export interface FeeInfo {
-  balance0: string | number
-  balance1: string | number
-  amount0: string | number
-  amount1: string | number
-  value0: number
-  value1: number
-  totalValue: number
-}
-
-export interface RewardInfo {
-  totalUsdValue: number
-  totalLmUsdValue: number
-  totalEgUsdValue: number
-  claimableUsdValue: number
-  claimedUsdValue: number
-  inProgressUsdValue: number
-  pendingUsdValue: number
-  vestingUsdValue: number
-  waitingUsdValue: number
-  nfts: Array<NftRewardInfo>
-  chains: Array<ChainRewardInfo>
-  tokens: Array<TokenRewardInfo>
-  egTokens: Array<TokenRewardInfo>
-  lmTokens: Array<TokenRewardInfo>
-}
-
-export interface ChainRewardInfo {
-  chainId: number
-  chainName: string
-  chainLogo: string
-  claimableUsdValue: number
-  tokens: Array<TokenRewardInfo>
-}
-
-export interface NftRewardInfo {
-  nftId: string
-  chainId: number
-  totalUsdValue: number
-  totalLmUsdValue: number
-  totalEgUsdValue: number
-  claimedUsdValue: number
-  inProgressUsdValue: number
-  pendingUsdValue: number
-  vestingUsdValue: number
-  waitingUsdValue: number
-  claimableUsdValue: number
-  unclaimedUsdValue: number
-
-  tokens: Array<TokenRewardInfo>
-  egTokens: Array<TokenRewardInfo>
-  lmTokens: Array<TokenRewardInfo>
-}
-
-export interface TokenRewardInfo {
-  symbol: string
-  logo: string
-  address: string
-  chainId: number
-
-  totalAmount: number
-  claimableAmount: number
-  unclaimedAmount: number
-  pendingAmount: number
-  vestingAmount: number
-  waitingAmount: number
-  claimableUsdValue: number
-}
-
-export interface TokenInfo {
-  address: string
-  symbol: string
-  logo: string
-  decimals: number
-  chainId: number
 }
