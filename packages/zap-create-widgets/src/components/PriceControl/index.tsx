@@ -25,12 +25,13 @@ const getNumericPrice = (value: unknown) => {
 };
 
 const PriceControl = () => {
-  const { pool, poolPrice, revertPrice, toggleRevertPrice, setPoolPrice } = usePoolStore([
+  const { pool, poolPrice, revertPrice, toggleRevertPrice, setPoolPrice, setIncludeInvalidTokens } = usePoolStore([
     'pool',
     'poolPrice',
     'revertPrice',
     'toggleRevertPrice',
     'setPoolPrice',
+    'setIncludeInvalidTokens',
   ]);
   const { chainId } = useWidgetStore(['chainId']);
 
@@ -54,6 +55,7 @@ const PriceControl = () => {
     token0Price === 0 ? pool?.token0.symbol : null,
     token1Price === 0 ? pool?.token1.symbol : null,
   ].filter(Boolean);
+  const includeInvalidTokens = !loading && invalidTokens.length > 0;
 
   const baseToken = pool ? (revertPrice ? pool.token1 : pool.token0) : defaultToken;
   const quoteToken = pool ? (revertPrice ? pool.token0 : pool.token1) : defaultToken;
@@ -80,6 +82,10 @@ const PriceControl = () => {
   useEffect(() => {
     setInputValue(formatInputValue(poolPrice));
   }, [poolPrice]);
+
+  useEffect(() => {
+    setIncludeInvalidTokens(includeInvalidTokens);
+  }, [includeInvalidTokens, setIncludeInvalidTokens]);
 
   const persistPrice = () => {
     const trimmed = inputValue.trim();
@@ -149,7 +155,7 @@ const PriceControl = () => {
         </div>
       </div>
 
-      {!loading && (token0Price === 0 || token1Price === 0) ? (
+      {includeInvalidTokens ? (
         <div className="text-xs rounded-2xl px-3 py-2 text-warning bg-warning-200">
           <Trans>Zapping with {invalidTokens.join(', ')} is not supported</Trans>
         </div>
