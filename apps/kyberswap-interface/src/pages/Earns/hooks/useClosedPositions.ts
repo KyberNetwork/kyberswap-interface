@@ -1,5 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { Exchange } from 'pages/Earns/constants'
 import { getPositionLiquidity } from 'pages/Earns/utils/position'
@@ -12,12 +12,8 @@ export interface CheckClosedPositionParams {
 }
 
 const useClosedPositions = () => {
-  const [closedPositionsFromRpc, setClosedPositionsFromRpc] = useState<
-    Array<{
-      tokenId: string
-      timeRemaining: number
-    }>
-  >([])
+  const [closedPositionsFromRpc, setClosedPositionsFromRpc] = useState<Array<{ tokenId: string }>>([])
+  const clearTimersRef = useRef<Map<string, NodeJS.Timeout>>(new Map())
 
   const checkClosedPosition = async ({
     tokenId,
@@ -37,24 +33,27 @@ const useClosedPositions = () => {
       chainId,
     })
 
-    if (liquidity === BigInt(0)) setClosedPositionsFromRpc(prev => [...prev, { tokenId, timeRemaining: 60 * 3 }])
+    if (liquidity !== BigInt(0)) return
+
+    setClosedPositionsFromRpc(prev => (prev.some(item => item.tokenId === tokenId) ? prev : [...prev, { tokenId }]))
+
+    const existingTimeout = clearTimersRef.current.get(tokenId)
+    if (existingTimeout) clearTimeout(existingTimeout)
+
+    const timeout = setTimeout(() => {
+      setClosedPositionsFromRpc(prev => prev.filter(item => item.tokenId !== tokenId))
+      clearTimersRef.current.delete(tokenId)
+    }, 60 * 3 * 1000)
+
+    clearTimersRef.current.set(tokenId, timeout)
   }
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setClosedPositionsFromRpc(prev =>
-        prev
-          .filter(closedPosition => closedPosition.timeRemaining > 0)
-          .map(closedPosition => {
-            return {
-              ...closedPosition,
-              timeRemaining: closedPosition.timeRemaining - 1,
-            }
-          }),
-      )
-    }, 1000)
-
-    return () => clearInterval(interval)
+    const timers = clearTimersRef.current
+    return () => {
+      timers.forEach(timeout => clearTimeout(timeout))
+      timers.clear()
+    }
   }, [])
 
   return {
