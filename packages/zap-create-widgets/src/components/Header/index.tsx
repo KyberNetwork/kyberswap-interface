@@ -13,7 +13,13 @@ import { usePoolStore } from '@/stores/usePoolStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
 const Header = () => {
-  const { theme, chainId, onClose, poolType, dexId } = useWidgetStore(['theme', 'chainId', 'onClose', 'poolType', 'dexId']);
+  const { theme, chainId, onClose, poolType, dexId } = useWidgetStore([
+    'theme',
+    'chainId',
+    'onClose',
+    'poolType',
+    'dexId',
+  ]);
   const { pool } = usePoolStore(['pool']);
 
   const { toggleSetting, uiState, loading: zapLoading, getZapRoute, zapRouteDisabled } = useZapState();

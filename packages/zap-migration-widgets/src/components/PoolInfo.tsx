@@ -26,7 +26,12 @@ export enum PoolInfoType {
 }
 
 export function PoolInfo({ type }: { type: PoolInfoType }) {
-  const { theme, chainId, sourceDexId, targetDexId } = useWidgetStore(['theme', 'chainId', 'sourceDexId', 'targetDexId']);
+  const { theme, chainId, sourceDexId, targetDexId } = useWidgetStore([
+    'theme',
+    'chainId',
+    'sourceDexId',
+    'targetDexId',
+  ]);
   const { sourcePool, targetPool } = usePoolStore(['sourcePool', 'targetPool']);
   const { sourcePosition, targetPosition, sourcePositionId, targetPositionId } = usePositionStore([
     'sourcePosition',

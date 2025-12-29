@@ -4,15 +4,7 @@ import { useCopy } from '@kyber/hooks';
 import { ChainId, DEXES_INFO, NETWORKS_INFO, Pool, getDexName } from '@kyber/schema';
 import { TokenLogo, TokenSymbol } from '@kyber/ui';
 
-export default function PreviewPoolInfo({
-  pool,
-  chainId,
-  dexId,
-}: {
-  pool: Pool;
-  chainId: ChainId;
-  dexId?: string;
-}) {
+export default function PreviewPoolInfo({ pool, chainId, dexId }: { pool: Pool; chainId: ChainId; dexId?: string }) {
   const copy = useCopy({
     text: pool.address,
     copyClassName: 'text-subText w-4 h-4',
