@@ -1,27 +1,143 @@
 import { NativeToken } from 'constants/networks/type'
 import { Exchange } from 'pages/Earns/constants'
-import { MerklOpportunity, PAIR_CATEGORY, PoolAprInterval, ProgramType } from 'pages/Earns/types/pool'
+import { MerklOpportunity, PAIR_CATEGORY, ProgramType } from 'pages/Earns/types/pool'
 import { TokenRewardInfo } from 'pages/Earns/types/reward'
+
+export enum PositionStatus {
+  IN_RANGE = 'PositionStatusInRange',
+  OUT_RANGE = 'PositionStatusOutRange',
+  CLOSED = 'PositionStatusClosed',
+}
+
+export enum PositionHistoryType {
+  DEPOSIT = 'DEPOSIT',
+}
 
 export interface PositionFilter {
   chainIds?: string
   positionId?: string
   protocols?: string
-  status: string
-  q?: string
+  statuses: string
+  keyword?: string
+  sorts?: string
   sortBy?: string
   orderBy?: string
   page: number
+  pageSize?: number
 }
 
-export enum PositionStatus {
-  IN_RANGE = 'IN_RANGE',
-  OUT_RANGE = 'OUT_RANGE',
-  CLOSED = 'CLOSED',
+export interface UserPositionsApiResponse {
+  code: number
+  message: string
+  data: {
+    positions: UserPosition[]
+    stats: UserPositionsStats
+  }
+  requestId: string
+}
+
+export interface UserPositionsStats {
+  totalItems: number
+  totalValueUsd: number
+  totalClaimedFeeUsd: number
+  totalEarnedFeeUsd: number
+  totalUnclaimedFeeUsd: number
+  totalClaimedRewardUsd: number
+  totalUnclaimedRewardUsd: number
+  totalPendingRewardUsd: number
+}
+
+export interface UserPosition {
+  [x: string]: any
+  chain: {
+    name: string
+    logo: string
+    id: number
+  }
+  tokenId: number
+  tokenAddress: string
+  positionId: string
+  wallet: string
+  liquidity: string
+  status: string
+  stats: PositionStats
+  currentAmounts: TokenAmount[]
+  providedAmounts: TokenAmount[]
+  pool: PositionPool
+  suggestionPool: SuggestedPool | null
+  valueInUSD: number
+  positionCreatedTimestamp: number
+  positionCreatedBlock: number
+  lastUpdatedAt: number
+  extra: {
+    priceRange: {
+      min: number
+      maxPrice: number
+    }
+  }
+  id: number
+}
+
+export interface PositionStats {
+  apr: {
+    all: TimeIntervalValues
+    reward: {
+      lm: TimeIntervalValues
+      eg: TimeIntervalValues
+    }
+    lp: TimeIntervalValues
+  }
+  earning: {
+    totalUsd: TimeIntervalValues
+    fee: {
+      unclaimed: TokenAmount[]
+      claimed: TokenAmount[]
+    }
+    reward: any | null
+  }
+}
+
+export interface TimeIntervalValues {
+  '24h': number
+  '7d': number
+  '30d': number
+}
+
+export interface TokenAmount {
+  amount: {
+    usdValue: number
+    priceUsd: number
+    amount: string
+  }
+  token: {
+    logo: string
+    symbol: string
+    name: string
+    decimals: number
+    address: string
+  }
+}
+
+export interface PositionPool {
+  id: string
+  address: string
+  price: number
+  tokenAmounts: TokenAmount[]
+  fees: number[]
+  programs: string[]
+  tickSpacing: number
+  protocol: {
+    type: string
+    logo: string
+    name: string
+  }
+  category: string
+  hooks: string
+  merklOpportunity?: MerklOpportunity
 }
 
 export const DEFAULT_PARSED_POSITION: ParsedPosition = {
-  id: '',
+  positionId: '',
   tokenId: '',
   pool: {
     fee: 0,
@@ -100,10 +216,10 @@ export const DEFAULT_PARSED_POSITION: ParsedPosition = {
     unclaimedValue: 0,
   },
   tokenAddress: '',
-  apr: { '24h': 0, '7d': 0, all: 0 },
-  kemEGApr: { '24h': 0, '7d': 0, all: 0 },
-  kemLMApr: { '24h': 0, '7d': 0, all: 0 },
-  feeApr: { '24h': 0, '7d': 0, all: 0 },
+  apr: { '24h': 0, '7d': 0, '30d': 0, all: 0 },
+  kemEGApr: { '24h': 0, '7d': 0, '30d': 0, all: 0 },
+  kemLMApr: { '24h': 0, '7d': 0, '30d': 0, all: 0 },
+  feeApr: { '24h': 0, '7d': 0, '30d': 0, all: 0 },
   bonusApr: 0,
   totalValue: 0,
   totalProvidedValue: 0,
@@ -117,7 +233,7 @@ export const DEFAULT_PARSED_POSITION: ParsedPosition = {
 }
 
 export interface ParsedPosition {
-  id: string
+  positionId: string
   tokenId: string
   pool: {
     fee: number
@@ -198,9 +314,9 @@ export interface EarnPosition {
   tokenId: string
   minPrice: number
   maxPrice: number
-  currentAmounts: Array<PositionAmount>
-  feePending: Array<PositionAmount>
-  feesClaimed: Array<PositionAmount>
+  currentAmounts: Array<TokenAmount>
+  feePending: Array<TokenAmount>
+  feesClaimed: Array<TokenAmount>
   createdTime: number
   stats: {
     apr: PoolAprInterval
@@ -214,7 +330,7 @@ export interface EarnPosition {
     id: string
     poolAddress: string
     price: number
-    tokenAmounts: Array<PositionAmount>
+    tokenAmounts: Array<TokenAmount>
     fees: Array<number>
     tickSpacing: number
     exchange: Exchange
@@ -230,7 +346,6 @@ export interface EarnPosition {
 
 export interface SuggestedPool {
   address: string
-  // chainId: number
   feeTier: number
   poolExchange: Exchange
   token0: {
@@ -243,7 +358,14 @@ export interface SuggestedPool {
   }
 }
 
-interface Token {
+export interface PoolAprInterval {
+  '7d': number
+  '24h': number
+  '30d'?: number
+  all?: number // Legacy field for backward compatibility
+}
+
+export interface Token {
   address: string
   symbol: string
   decimals: number
@@ -254,26 +376,4 @@ interface Token {
   unclaimedAmount: number
   unclaimedBalance: number
   unclaimedValue: number
-}
-
-interface PositionAmount {
-  token: {
-    address: string
-    symbol: string
-    name: string
-    decimals: number
-    logo: string
-    price: number
-  }
-  balance: string
-  quotes: {
-    usd: {
-      price: number
-      value: number
-    }
-  }
-}
-
-export enum PositionHistoryType {
-  DEPOSIT = 'DEPOSIT',
 }

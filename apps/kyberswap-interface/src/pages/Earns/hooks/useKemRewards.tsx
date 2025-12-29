@@ -45,10 +45,10 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
 
   const { data: userPositions, isLoading: isLoadingUserPositions } = useUserPositionsQuery(
     {
-      addresses: account || '',
+      wallet: account || '',
       chainIds: enumToArrayOfValues(EarnChain, 'number').join(','),
       protocols: enumToArrayOfValues(Exchange).join(','),
-      positionStatus: 'all',
+      statuses: '',
     },
     {
       skip: !account || thresholdValue === null,
@@ -69,9 +69,12 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
   const [filteredRewardInfo, setFilteredRewardInfo] = useState<RewardInfo | null>(null)
 
   const filteredTokenIds = useMemo(() => {
-    if (!userPositions?.length || positionStatus === 'all') return undefined
+    if (!userPositions?.positions?.length || !positionStatus) return undefined
     return new Set(
-      userPositions.filter(position => position.status === positionStatus).map(position => position.tokenId),
+      userPositions.positions
+        .filter(position => position.status === positionStatus)
+        .map(position => position.tokenId?.toString())
+        .filter((tokenId): tokenId is string => !!tokenId),
     )
   }, [positionStatus, userPositions])
 
@@ -370,7 +373,7 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
         address: position.pool.address,
         dex: position.dex.id,
       },
-      positionId: position.tokenId,
+      positionId: position.tokenId?.toString(),
       initDepositTokens,
       initAmounts,
       compoundType: 'COMPOUND_TYPE_REWARD',

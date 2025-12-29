@@ -28,7 +28,6 @@ import {
 import useFilter, { SortBy } from 'pages/Earns/UserPositions/useFilter'
 import { default as MultiSelectDropdownMenu } from 'pages/Earns/components/DropdownMenu/MultiSelect'
 import { ItemIcon } from 'pages/Earns/components/DropdownMenu/styles'
-import { EarnChain, Exchange } from 'pages/Earns/constants'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import useClosedPositions from 'pages/Earns/hooks/useClosedPositions'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
@@ -41,10 +40,8 @@ import { parsePosition } from 'pages/Earns/utils/position'
 import { getUnfinalizedPositions } from 'pages/Earns/utils/unfinalizedPosition'
 import SortIcon, { Direction } from 'pages/MarketOverview/SortIcon'
 import { MEDIA_WIDTHS } from 'theme'
-import { enumToArrayOfValues } from 'utils'
 
 const POSITIONS_TABLE_LIMIT = 10
-
 const UserPositions = () => {
   const theme = useTheme()
   const navigate = useNavigate()
@@ -61,23 +58,22 @@ const UserPositions = () => {
   const { closedPositionsFromRpc, checkClosedPosition } = useClosedPositions()
 
   const positionQueryParams = useMemo(() => {
-    const statusFilter = filters.status.split(',')
-    const isFilterOnlyClosedPosition = statusFilter.length === 1 && statusFilter[0] === PositionStatus.CLOSED
-    const isFilterOnlyOpenPosition = !statusFilter.includes(PositionStatus.CLOSED)
-    const earnSupportedChains = enumToArrayOfValues(EarnChain, 'number')
-    const earnSupportedExchanges = enumToArrayOfValues(Exchange)
-
+    const protocols = filters.protocols
     return {
-      addresses: account || '',
-      chainIds: earnSupportedChains.join(','),
-      protocols: earnSupportedExchanges.join(','),
-      positionStatus: isFilterOnlyClosedPosition ? 'closed' : isFilterOnlyOpenPosition ? 'open' : 'all',
-      limit: 200,
+      wallet: account || '',
+      chainIds: filters.chainIds,
+      protocols,
+      statuses: filters.statuses || '',
+      keyword: filters.keyword,
+      positionIds: filters.positionId,
+      sorts: [filters.sortBy, filters.orderBy].filter(Boolean).join(':'),
+      page: filters.page,
+      pageSize: filters.pageSize,
     }
-  }, [account, filters.status])
+  }, [account, filters])
 
   const {
-    data: userPositions,
+    data: userPositionsData,
     isFetching,
     isError,
     refetch,
@@ -85,6 +81,7 @@ const UserPositions = () => {
     skip: !account,
     pollingInterval: 15_000,
   })
+  const positionsStats = userPositionsData?.stats
 
   const {
     widget: zapMigrationWidget,
@@ -129,126 +126,41 @@ const UserPositions = () => {
     return AllChainsOption.label
   }, [supportedChains, filters.chainIds])
 
-  const parsedPositions: Array<ParsedPosition> = useMemo(
-    () =>
-      [...(userPositions || [])].map(position => {
-        const feeInfo = feeInfoFromRpc.find(feeInfo => feeInfo.id === position.tokenId)
-        const nftRewardInfo = rewardInfo?.nfts.find(item => item.nftId === position.tokenId)
-        const isClosedFromRpc = closedPositionsFromRpc.some(
-          closedPosition => closedPosition.tokenId === position.tokenId,
-        )
+  const parsedPositions: Array<ParsedPosition> = useMemo(() => {
+    const userPositions = userPositionsData?.positions || []
+    return userPositions.map(position => {
+      const tokenId = position.tokenId?.toString()
+      const feeInfo = feeInfoFromRpc.find(feeInfo => feeInfo.id === tokenId)
+      const nftRewardInfo = rewardInfo?.nfts.find(item => item.nftId === tokenId)
+      const isClosedFromRpc = closedPositionsFromRpc.some(closedPosition => closedPosition.tokenId === tokenId)
 
-        return parsePosition({
-          position,
-          feeInfo,
-          nftRewardInfo,
-          isClosedFromRpc,
-        })
-      }),
-    [feeInfoFromRpc, rewardInfo?.nfts, userPositions, closedPositionsFromRpc],
-  )
-
-  const filteredPositionsByChains: Array<ParsedPosition> = useMemo(() => {
-    let result = [...parsedPositions]
-
-    if (filters.chainIds) {
-      result = result.filter(position => filters.chainIds?.split(',').includes(position.chain.id.toString()))
-    }
-
-    return result
-  }, [filters.chainIds, parsedPositions])
+      return parsePosition({
+        position,
+        feeInfo,
+        nftRewardInfo,
+        isClosedFromRpc,
+      })
+    })
+  }, [feeInfoFromRpc, rewardInfo?.nfts, userPositionsData?.positions, closedPositionsFromRpc])
 
   const filteredPositions: Array<ParsedPosition> = useMemo(() => {
-    let result = []
-
-    const positionsToCheckWithCache = [...filteredPositionsByChains]
-
-    let unfinalizedPositions = getUnfinalizedPositions(positionsToCheckWithCache)
-
-    const arrStatus = filters.status.split(',')
-    result = [...filteredPositionsByChains]
-      .filter(position => !unfinalizedPositions.some(p => p.tokenId === position.tokenId))
-      .filter(position => {
-        if (filters.status === PositionStatus.OUT_RANGE)
-          return !position.pool.isUniv2 && arrStatus.includes(position.status)
-
-        return arrStatus.includes(position.status)
-      })
-
-    if (filters.q) {
-      result = result.filter(position => {
-        return [
-          position.tokenId,
-          position.pool.address,
-          position.tokenAddress,
-          position.token0.address,
-          position.token0.symbol,
-          position.token1.address,
-          position.token1.symbol,
-        ].some(item => item.toLowerCase().includes(filters.q?.toLowerCase() || ''))
-      })
-    }
-
-    if (filters.protocols) {
-      result = result.filter(position => {
-        return filters.protocols?.split(',').includes(position.dex.id)
-      })
-    }
-
-    if (filters.sortBy) {
-      if (filters.sortBy === SortBy.VALUE) {
-        result.sort((a, b) => {
-          const aValue = a.totalValue
-          const bValue = b.totalValue
-
-          return filters.orderBy === Direction.ASC ? aValue - bValue : bValue - aValue
-        })
-      } else if (filters.sortBy === SortBy.APR) {
-        result.sort((a, b) => {
-          const aValue = a.apr['24h']
-          const bValue = b.apr['24h']
-
-          return filters.orderBy === Direction.ASC ? aValue - bValue : bValue - aValue
-        })
-      } else if (filters.sortBy === SortBy.UNCLAIMED_FEE) {
-        result.sort((a, b) => {
-          const aValue = a.unclaimedFees
-          const bValue = b.unclaimedFees
-
-          return filters.orderBy === Direction.ASC ? aValue - bValue : bValue - aValue
-        })
-      } else if (filters.sortBy === SortBy.UNCLAIMED_REWARDS) {
-        result.sort((a, b) => {
-          const aValue = a.rewards.unclaimedUsdValue
-          const bValue = b.rewards.unclaimedUsdValue
-
-          return filters.orderBy === Direction.ASC ? aValue - bValue : bValue - aValue
-        })
-      }
-    }
-
-    unfinalizedPositions = unfinalizedPositions.filter(
+    const unfinalizedPositions = getUnfinalizedPositions(parsedPositions)
+    const filteredUnfinalizedPositions = unfinalizedPositions.filter(
       position =>
         (filters.chainIds ? filters.chainIds.split(',').includes(position.chain.id.toString()) : true) &&
         (filters.protocols ? filters.protocols.split(',').includes(position.dex.id) : true) &&
-        (filters.status.includes(PositionStatus.IN_RANGE) || filters.status.includes(PositionStatus.OUT_RANGE)),
+        (filters.statuses.includes(PositionStatus.IN_RANGE) || filters.statuses.includes(PositionStatus.OUT_RANGE)),
     )
 
-    return [...result, ...unfinalizedPositions]
-  }, [
-    filters.chainIds,
-    filters.protocols,
-    filters.status,
-    filters.q,
-    filters.sortBy,
-    filters.orderBy,
-    filteredPositionsByChains,
-  ])
+    return [
+      ...parsedPositions,
+      ...filteredUnfinalizedPositions.filter(
+        unfinalizedPos => !parsedPositions.some(p => p.tokenId === unfinalizedPos.tokenId),
+      ),
+    ]
+  }, [parsedPositions, filters.chainIds, filters.protocols, filters.statuses])
 
-  const paginatedPositions: Array<ParsedPosition> = useMemo(() => {
-    if (filteredPositions.length <= POSITIONS_TABLE_LIMIT) return filteredPositions
-    return filteredPositions.slice((filters.page - 1) * POSITIONS_TABLE_LIMIT, filters.page * POSITIONS_TABLE_LIMIT)
-  }, [filteredPositions, filters.page])
+  const paginatedPositions: Array<ParsedPosition> = filteredPositions
 
   const onSortChange = (sortBy: string) => {
     if (!filters.sortBy || filters.sortBy !== sortBy) {
@@ -373,7 +285,13 @@ const UserPositions = () => {
           />
         </Flex>
 
-        {account && <PositionBanner positions={filteredPositionsByChains} initialLoading={initialLoading} />}
+        {account && (
+          <PositionBanner
+            positions={filteredPositions}
+            positionsStats={positionsStats}
+            initialLoading={initialLoading}
+          />
+        )}
 
         <Filter
           supportedChains={supportedChains}
@@ -425,7 +343,7 @@ const UserPositions = () => {
                   </Trans>
                 </Flex>
 
-                <PositionTableHeaderFlexItem role="button" onClick={() => onSortChange(SortBy.UNCLAIMED_REWARDS)}>
+                <PositionTableHeaderItem>
                   <Trans>
                     <Flex alignItems={'flex-start'} sx={{ gap: '4px' }}>
                       <FarmingIcon width={24} height={24} />
@@ -433,14 +351,9 @@ const UserPositions = () => {
                     </Flex>
                     <Flex alignItems={'center'} sx={{ gap: '4px' }} paddingLeft={'28px'}>
                       <Text>rewards</Text>
-                      <SortIcon
-                        sorted={
-                          filters.sortBy === SortBy.UNCLAIMED_REWARDS ? (filters.orderBy as Direction) : undefined
-                        }
-                      />
                     </Flex>
                   </Trans>
-                </PositionTableHeaderFlexItem>
+                </PositionTableHeaderItem>
 
                 {!upToCustomLarge && <div />}
 
@@ -467,13 +380,13 @@ const UserPositions = () => {
               />
             )}
           </ContentWrapper>
-          {!isError && (!isFetching || !loading) && (
+          {!isError && (!isFetching || !loading) && positionsStats && (
             <Pagination
               haveBg={false}
               onPageChange={(newPage: number) => updateFilters('page', newPage)}
-              totalCount={filteredPositions.length || 0}
+              totalCount={positionsStats.totalItems || 0}
               currentPage={filters.page}
-              pageSize={POSITIONS_TABLE_LIMIT}
+              pageSize={filters.pageSize || POSITIONS_TABLE_LIMIT}
             />
           )}
         </PositionTableWrapper>
