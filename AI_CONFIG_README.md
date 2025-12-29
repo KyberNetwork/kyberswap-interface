@@ -12,23 +12,17 @@ kyberswap-interface/
 │
 ├── .claude/
 │   ├── settings.json                  # Claude Code permissions
-│   ├── commands/                      # Slash commands
-│   │   ├── explore.md                 # /explore - Analyze codebase
-│   │   ├── gen-tests.md               # /gen-tests - Generate tests
-│   │   ├── plan.md                    # /plan - Plan features
-│   │   ├── review.md                  # /review - Code review
-│   │   └── refactor.md                # /refactor - Refactor code
-│   └── agents/                        # Subagents (specialists)
-│       ├── code-reviewer.md           # Code review specialist
-│       ├── test-generator.md          # Test generation specialist
-│       ├── refactorer.md              # Refactoring specialist
-│       ├── web3-expert.md             # Web3/DeFi specialist
+│   └── commands/                      # Slash commands
+│       ├── explore.md                 # /explore - Analyze codebase
+│       ├── gen-tests.md               # /gen-tests - Generate tests
+│       ├── plan.md                    # /plan - Plan features
+│       ├── review.md                  # /review - Code review
+│       └── refactor.md                # /refactor - Refactor code
 │
 ├── .cursor/
 │   └── rules/
 │       ├── kyberswap.mdc              # Project-wide rules
 │       ├── widgets.mdc                # Widget package rules
-│       ├── web3.mdc                   # Web3/blockchain rules
 │       └── personal/                  # Personal rules (gitignored)
 │
 ├── apps/

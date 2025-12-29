@@ -23,35 +23,11 @@ alwaysApply: true
 - Use hooks for all state and side effects
 - Destructure props in function signature
 
-```typescript
-// ✅ Good
-function TokenSelector({ tokens, onSelect }: TokenSelectorProps) {
-  const [search, setSearch] = useState("");
-  // ...
-}
-
-// ❌ Bad
-class TokenSelector extends React.Component {
-  // ...
-}
-```
-
 ## Styling
 
 - Use styled-components exclusively
 - No inline styles, CSS modules, or Tailwind
 - Theme values from `src/theme`
-
-```typescript
-// ✅ Good
-const Button = styled.button`
-  background: ${({ theme }) => theme.primary};
-  padding: 12px 24px;
-`
-
-// ❌ Bad
-<button style={{ background: 'blue' }}>
-```
 
 ## Imports
 

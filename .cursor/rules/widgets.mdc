@@ -14,8 +14,6 @@ Every widget package should follow this structure:
 packages/{widget-name}/
 ├── src/
 │   ├── components/      # React components
-│   │   ├── Widget/      # Main widget entry
-│   │   └── ...
 │   ├── hooks/           # Custom React hooks
 │   ├── stores/          # Zustand stores
 │   ├── types/           # TypeScript definitions
@@ -33,60 +31,6 @@ packages/{widget-name}/
 - Only export from `src/index.ts`
 - Keep internal modules private
 - Export types separately
-
-```typescript
-// src/index.ts
-export { Widget } from "./components/Widget";
-export type { WidgetProps } from "./types";
-```
-
-## Component Pattern
-
-```typescript
-// src/components/Widget/index.tsx
-import { type FC } from 'react'
-import styled from 'styled-components'
-import { useWidgetStore } from '../../stores/widget'
-import type { WidgetProps } from '../../types'
-
-const Container = styled.div`
-  // styles
-`
-
-export const Widget: FC<WidgetProps> = ({
-  poolAddress,
-  chainId,
-  theme = 'dark',
-  onClose,
-  onSuccess,
-}) => {
-  const { state, actions } = useWidgetStore()
-
-  return (
-    <Container>
-      {/* content */}
-    </Container>
-  )
-}
-```
-
-## Hook Pattern
-
-```typescript
-// src/hooks/useZapIn.ts
-import { useCallback, useMemo } from "react";
-import { useWidgetStore } from "../stores/widget";
-
-export function useZapIn() {
-  const { tokenIn, amount } = useWidgetStore();
-
-  const execute = useCallback(async () => {
-    // implementation
-  }, [tokenIn, amount]);
-
-  return { execute };
-}
-```
 
 ## Store Pattern (Zustand)
 
@@ -114,9 +58,6 @@ export const useWidgetStore = create<WidgetState>((set) => ({
 ## Testing
 
 ```bash
-# Test single package
-pnpm --filter @kyberswap/{package-name} test
-
 # Type check single package
 pnpm --filter @kyberswap/{package-name} type-check
 ```

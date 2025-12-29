@@ -34,16 +34,6 @@ src/
 └── App.tsx              # Root component
 ```
 
-## Key Pages
-
-| Route     | Page         | Purpose                       |
-| --------- | ------------ | ----------------------------- |
-| `/swap`   | Swap         | Token swapping via aggregator |
-| `/limit`  | Limit Orders | Gasless limit orders          |
-| `/pools`  | Pools        | View and manage liquidity     |
-| `/farms`  | Farms        | Yield farming                 |
-| `/bridge` | Bridge       | Cross-chain transfers         |
-
 ## State Management
 
 - **Redux Toolkit**: Global app state (user, wallet, swap)
@@ -104,18 +94,6 @@ function WalletButton() {
   const { connect, connectors } = useConnect()
   // ...
 }
-```
-
-## API Integration
-
-### KyberSwap Aggregator API
-
-```typescript
-// services/aggregator.ts
-const AGGREGATOR_API = 'https://aggregator-api.kyberswap.com'
-
-// Get swap route
-GET /api/v1/routes?tokenIn=...&tokenOut=...&amountIn=...
 ```
 
 ## Performance Considerations

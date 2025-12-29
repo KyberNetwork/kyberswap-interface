@@ -23,19 +23,60 @@ cd apps/zap-widgets-demo && pnpm dev
 import { MigrationWidget } from '@kyberswap/zap-migration-widgets';
 
 interface MigrationWidgetProps {
-  sourcePositionId: string;
-  chainId: number;
-  theme?: 'light' | 'dark';
-  onClose?: () => void;
-  onSuccess?: (txHash: string) => void;
+  theme?: Theme;
+  chainId: ChainId;
+  rpcUrl?: string;
+  className?: string;
+  from: {
+    poolType: PoolType;
+    poolAddress: string;
+    positionId: string;
+  };
+  to?: {
+    poolType: PoolType;
+    poolAddress: string;
+    positionId?: string;
+  };
+  initialSlippage?: number;
+  rePositionMode?: boolean;
+  initialTick?: {
+    tickLower: number;
+    tickUpper: number;
+  };
+  connectedAccount: {
+    address: string | undefined;
+    chainId: number;
+  };
+  aggregatorOptions?: {
+    includedSources?: string[];
+    excludedSources?: string[];
+  };
+  feeConfig?: {
+    feePcm: number;
+    feeAddress: string;
+  };
+  client: string;
+  referral?: string;
+  zapStatus?: Record<string, TxStatus>;
+  locale?: SupportedLocale;
+  onExplorePools?: () => void;
+  onConnectWallet: () => void;
+  onSwitchChain: () => void;
+  onSubmitTx: (
+    txData: { from: string; to: string; value: string; data: string; gasLimit: string },
+    additionalInfo?: {
+      sourcePool: string;
+      sourceDexLogo: string;
+      destinationPool: string;
+      destinationDexLogo: string;
+    },
+  ) => Promise<string>;
+  signTypedData?: (account: string, typedDataJson: string) => Promise<string>;
+  onViewPosition?: (txHash: string) => void;
+  onBack?: () => void;
+  onClose: () => void;
 }
 ```
-
-## Migration Types
-
-1. **Same Protocol Migration**: Move position to different price range
-2. **Cross Protocol Migration**: Move from KyberSwap to Uniswap V3 (or vice versa)
-3. **Pool Migration**: Move between different token pairs
 
 ## Testing
 
@@ -46,6 +87,5 @@ pnpm --filter @kyberswap/zap-migration-widgets lint
 
 ## Relationship with Other Packages
 
-- Combines logic from both `liquidity-widgets` (Zap In) and `zap-out-widgets` (Zap Out)
 - Shares types/utilities with sibling packages
 - More complex state management due to two-step operation

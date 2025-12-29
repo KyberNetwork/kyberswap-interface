@@ -17,25 +17,39 @@ pnpm --filter @kyberswap/zap-out-widgets build
 cd apps/zap-widgets-demo && pnpm dev
 ```
 
-## Key Files
-
-| File                              | Purpose                        |
-| --------------------------------- | ------------------------------ |
-| `src/components/Widget/index.tsx` | Main widget entry point        |
-| `src/hooks/useZapOut.ts`          | Core zap out transaction logic |
-| `src/hooks/usePositions.ts`       | Fetch user's LP positions      |
-
 ## Public API
 
 ```typescript
 import { ZapOutWidget } from '@kyberswap/zap-out-widgets';
 
 interface ZapOutWidgetProps {
+  theme?: Theme;
+  chainId: ChainId;
+  rpcUrl?: string;
+  poolAddress: string;
+  poolType: PoolType;
   positionId: string;
-  chainId: number;
-  theme?: 'light' | 'dark';
-  onClose?: () => void;
-  onSuccess?: (txHash: string) => void;
+  connectedAccount: {
+    address?: string | undefined;
+    chainId: number;
+  };
+  source: string;
+  referral?: string;
+  zapStatus?: Record<string, TxStatus>;
+  locale?: SupportedLocale;
+  onClose: () => void;
+  onConnectWallet: () => void;
+  onSwitchChain: () => void;
+  onSubmitTx: (
+    txData: { from: string; to: string; value: string; data: string; gasLimit: string },
+    additionalInfo?: {
+      pool: string;
+      dexLogo: string;
+      tokensOut: Array<{ symbol: string; amount: string; logoUrl?: string }>;
+    },
+  ) => Promise<string>;
+  onExplorePools?: () => void;
+  signTypedData?: (account: string, typedDataJson: string) => Promise<string>;
 }
 ```
 
