@@ -105,6 +105,7 @@ export default function useActionButton({
     { condition: addressToApprove, text: t`Approving` },
     { condition: zapLoading, text: t`Fetching Route` },
     { condition: gasLoading, text: t`Estimating Gas` },
+    { condition: includeInvalidTokens, text: t`Token not supported` },
     { condition: errors.length > 0, text: translateErrorMessage(errors[0]) },
     { condition: loading, text: t`Checking Allowance` },
     { condition: notApprove, text: t`Approve ${notApprove?.symbol ?? ''}` },

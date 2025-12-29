@@ -39,7 +39,7 @@ export default function Action({
         </button>
       )}
       <button
-        className={`ks-primary-btn min-w-[190px] capitalize w-fit ${
+        className={`ks-primary-btn min-w-[190px] w-fit ${
           !btnDisabled && Object.values(approvalStates).some(item => item !== APPROVAL_STATE.NOT_APPROVED)
             ? isVeryHighWarning
               ? 'bg-error border-solid border-error text-white'
