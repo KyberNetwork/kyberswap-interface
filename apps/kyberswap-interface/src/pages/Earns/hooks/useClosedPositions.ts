@@ -12,7 +12,7 @@ export interface CheckClosedPositionParams {
 }
 
 const useClosedPositions = () => {
-  const [closedPositionsFromRpc, setClosedPositionsFromRpc] = useState<Array<{ tokenId: string }>>([])
+  const [closedPositionsFromRpc, setClosedPositionsFromRpc] = useState<string[]>([])
   const clearTimersRef = useRef<Map<string, NodeJS.Timeout>>(new Map())
 
   const checkClosedPosition = useCallback(
@@ -31,13 +31,13 @@ const useClosedPositions = () => {
 
       if (liquidity !== BigInt(0)) return
 
-      setClosedPositionsFromRpc(prev => (prev.some(item => item.tokenId === tokenId) ? prev : [...prev, { tokenId }]))
+      setClosedPositionsFromRpc(prev => (prev.includes(tokenId) ? prev : [...prev, tokenId]))
 
       const existingTimeout = clearTimersRef.current.get(tokenId)
       if (existingTimeout) clearTimeout(existingTimeout)
 
       const timeout = setTimeout(() => {
-        setClosedPositionsFromRpc(prev => prev.filter(item => item.tokenId !== tokenId))
+        setClosedPositionsFromRpc(prev => prev.filter(item => item !== tokenId))
         clearTimersRef.current.delete(tokenId)
       }, 60 * 3 * 1000)
 
