@@ -134,9 +134,7 @@ const UserPositions = () => {
       [...(userPositions || [])].map(position => {
         const feeInfo = feeInfoFromRpc.find(feeInfo => feeInfo.id === position.tokenId)
         const nftRewardInfo = rewardInfo?.nfts.find(item => item.nftId === position.tokenId)
-        const isClosedFromRpc = closedPositionsFromRpc.some(
-          closedPosition => closedPosition.tokenId === position.tokenId,
-        )
+        const isClosedFromRpc = closedPositionsFromRpc.includes(position.tokenId)
 
         return parsePosition({
           position,
