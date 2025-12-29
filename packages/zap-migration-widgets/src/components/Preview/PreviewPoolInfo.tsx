@@ -1,10 +1,18 @@
 import { Trans } from '@lingui/macro';
 
 import { useCopy } from '@kyber/hooks';
-import { ChainId, DEXES_INFO, NETWORKS_INFO, Pool } from '@kyber/schema';
+import { ChainId, DEXES_INFO, NETWORKS_INFO, Pool, getDexName } from '@kyber/schema';
 import { TokenLogo, TokenSymbol } from '@kyber/ui';
 
-export default function PreviewPoolInfo({ pool, chainId }: { pool: Pool; chainId: ChainId }) {
+export default function PreviewPoolInfo({
+  pool,
+  chainId,
+  dexId,
+}: {
+  pool: Pool;
+  chainId: ChainId;
+  dexId?: string;
+}) {
   const copy = useCopy({
     text: pool.address,
     copyClassName: 'text-subText w-4 h-4',
@@ -12,7 +20,7 @@ export default function PreviewPoolInfo({ pool, chainId }: { pool: Pool; chainId
   });
 
   const dex = DEXES_INFO[pool.poolType];
-  const dexName = typeof dex.name === 'string' ? dex.name : dex.name[chainId];
+  const dexName = getDexName(pool.poolType, chainId, dexId);
 
   return (
     <div className="border border-stroke rounded-md p-4 flex gap-2 items-start">

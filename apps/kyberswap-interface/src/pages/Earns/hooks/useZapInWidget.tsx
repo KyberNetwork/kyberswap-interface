@@ -36,7 +36,7 @@ interface AddLiquidityPureParams {
   poolAddress: string
   chainId: ZapInChainId
   poolType: ZapInPoolType
-  exchange: Exchange
+  dexId: Exchange
   positionId?: string
   initialTick?: { tickUpper: number; tickLower: number }
 }
@@ -141,7 +141,7 @@ const useZapInWidget = ({
       poolType: dex,
       positionId,
       initialTick,
-      exchange: pool.dex,
+      dexId: pool.dex,
     })
   }
 
@@ -190,9 +190,9 @@ const useZapInWidget = ({
             zapStatus,
             locale,
             onViewPosition: (txHash: string) => {
-              const { chainId, exchange, poolAddress } = addLiquidityPureParams
+              const { chainId, dexId, poolAddress } = addLiquidityPureParams
               handleCloseZapInWidget()
-              handleNavigateToPosition(txHash, chainId, exchange, poolAddress)
+              handleNavigateToPosition(txHash, chainId, dexId, poolAddress)
             },
             connectedAccount: {
               address: account,

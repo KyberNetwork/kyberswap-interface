@@ -80,6 +80,7 @@ const useZapOutWidget = (
     poolType: ZapOutDex
     poolAddress: string
     chainId: ZapOutChainId
+    dexId: Exchange
   } | null>(null)
   const locale = useActiveLocale()
   const [zapTxHash, setZapTxHash] = useState<string[]>([])
@@ -209,6 +210,7 @@ const useZapOutWidget = (
       chainId: position.chainId as ZapOutChainId,
       poolAddress: position.poolAddress,
       positionId: position.id,
+      dexId: position.dex,
     })
   }
 

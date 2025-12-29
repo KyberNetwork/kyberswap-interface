@@ -9,6 +9,7 @@ import {
   NETWORKS_INFO,
   UniV3Position,
   defaultToken,
+  getDexName,
   univ3PoolNormalize,
 } from '@kyber/schema';
 import { InfoHelper, Skeleton, TokenLogo, TokenSymbol } from '@kyber/ui';
@@ -25,7 +26,7 @@ export enum PoolInfoType {
 }
 
 export function PoolInfo({ type }: { type: PoolInfoType }) {
-  const { theme, chainId } = useWidgetStore(['theme', 'chainId']);
+  const { theme, chainId, sourceDexId, targetDexId } = useWidgetStore(['theme', 'chainId', 'sourceDexId', 'targetDexId']);
   const { sourcePool, targetPool } = usePoolStore(['sourcePool', 'targetPool']);
   const { sourcePosition, targetPosition, sourcePositionId, targetPositionId } = usePositionStore([
     'sourcePosition',
@@ -75,10 +76,8 @@ export function PoolInfo({ type }: { type: PoolInfoType }) {
       </div>
     );
 
-  const dexName =
-    typeof DEXES_INFO[pool.poolType].name === 'string'
-      ? (DEXES_INFO[pool.poolType].name as string)
-      : DEXES_INFO[pool.poolType].name[chainId];
+  const dexId = type === PoolInfoType.Source ? sourceDexId : targetDexId;
+  const dexName = getDexName(pool.poolType, chainId, dexId);
 
   return (
     <div className="flex flex-col gap-2 rounded-md bg-[#ffffff0a] px-4 py-3 w-full">

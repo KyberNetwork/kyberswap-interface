@@ -41,6 +41,8 @@ interface MigrateLiquidityPureParams {
   initialTick?: { tickUpper: number; tickLower: number }
   initialSlippage?: number
   rePositionMode?: boolean
+  sourceDexId?: Exchange
+  targetDexId?: Exchange
 }
 
 interface MigrateLiquidityParams extends MigrateLiquidityPureParams {
@@ -187,6 +189,8 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
       initialTick,
       initialSlippage,
       rePositionMode,
+      sourceDexId: from.poolType,
+      targetDexId: to?.poolType,
     })
   }
 

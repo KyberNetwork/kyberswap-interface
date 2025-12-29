@@ -1,13 +1,13 @@
 import { useMemo } from 'react';
 
-import { DEXES_INFO, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO } from '@kyber/schema';
+import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, getDexName } from '@kyber/schema';
 import { parseZapRoute } from '@kyber/utils/liquidity/zap';
 
 import { useZapOutContext } from '@/stores';
 import { useZapOutUserState } from '@/stores/state';
 
 export default function useZapRoute() {
-  const { poolType, chainId, pool } = useZapOutContext(s => s);
+  const { poolType, chainId, pool, dexId } = useZapOutContext(s => s);
   const { route, tokenOut } = useZapOutUserState();
 
   const tokens = useMemo(() => {
@@ -28,8 +28,7 @@ export default function useZapRoute() {
   const token0Address = pool?.token0.address || '';
   const token1Address = pool?.token1.address || '';
   const poolAddress = pool?.address || '';
-  const dexNameObj = poolType ? DEXES_INFO[poolType].name : '';
-  const dexName = poolType ? (typeof dexNameObj === 'string' ? dexNameObj : dexNameObj[chainId]) : '';
+  const dexName = poolType ? getDexName(poolType, chainId, dexId) : '';
 
   const {
     removeLiquidity,

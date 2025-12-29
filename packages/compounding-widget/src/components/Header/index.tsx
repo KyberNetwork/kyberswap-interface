@@ -1,7 +1,15 @@
 import { Trans, t } from '@lingui/macro';
 import { useShallow } from 'zustand/shallow';
 
-import { DEXES_INFO, NETWORKS_INFO, PoolType, defaultToken, univ3PoolNormalize, univ3Position } from '@kyber/schema';
+import {
+  DEXES_INFO,
+  NETWORKS_INFO,
+  PoolType,
+  defaultToken,
+  getDexName,
+  univ3PoolNormalize,
+  univ3Position,
+} from '@kyber/schema';
 import { MouseoverTooltip, Skeleton, TokenLogo } from '@kyber/ui';
 
 import IconBack from '@/assets/svg/arrow-left.svg';
@@ -13,13 +21,14 @@ import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
 const Header = () => {
-  const { theme, chainId, onClose, poolType, positionId } = useWidgetStore(
+  const { theme, chainId, onClose, poolType, positionId, dexId } = useWidgetStore(
     useShallow(s => ({
       theme: s.theme,
       chainId: s.chainId,
       onClose: s.onClose,
       poolType: s.poolType,
       positionId: s.positionId,
+      dexId: s.dexId,
     })),
   );
   const { pool } = usePoolStore(
@@ -39,8 +48,8 @@ const Header = () => {
 
   const { token0 = defaultToken, token1 = defaultToken, fee = 0 } = !initializing ? pool : {};
 
-  const { icon: dexLogo, name: rawName } = DEXES_INFO[poolType as PoolType];
-  const dexName = typeof rawName === 'string' ? rawName : rawName[chainId];
+  const { icon: dexLogo } = DEXES_INFO[poolType as PoolType];
+  const dexName = getDexName(poolType as PoolType, chainId, dexId);
 
   const { success, data } = univ3Position.safeParse(position);
   const { success: isUniV3, data: univ3Pool } = univ3PoolNormalize.safeParse(pool);

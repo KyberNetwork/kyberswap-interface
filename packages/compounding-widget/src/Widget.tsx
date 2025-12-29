@@ -4,7 +4,7 @@ import { Trans, t } from '@lingui/macro';
 import { useShallow } from 'zustand/shallow';
 
 import { useNftApproval } from '@kyber/hooks';
-import { API_URLS, CHAIN_ID_TO_CHAIN, DEXES_INFO, NETWORKS_INFO, defaultToken, univ3Types } from '@kyber/schema';
+import { API_URLS, CHAIN_ID_TO_CHAIN, DEXES_INFO, NETWORKS_INFO, defaultToken, getDexName, univ3Types } from '@kyber/schema';
 import { translateFriendlyErrorMessage } from '@kyber/ui';
 import { friendlyError, getNftManagerContractAddress } from '@kyber/utils';
 import { calculateGasMargin, estimateGas } from '@kyber/utils/crypto';
@@ -34,7 +34,7 @@ import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
 export default function Widget() {
-  const { poolType, chainId, rpcUrl, connectedAccount, onClose, positionId, onSubmitTx, onViewPosition } =
+  const { poolType, chainId, rpcUrl, connectedAccount, onClose, positionId, onSubmitTx, onViewPosition, dexId } =
     useWidgetStore(
       useShallow(s => ({
         poolType: s.poolType,
@@ -45,6 +45,7 @@ export default function Widget() {
         positionId: s.positionId,
         onSubmitTx: s.onSubmitTx,
         onViewPosition: s.onViewPosition,
+        dexId: s.dexId,
       })),
     );
   const { poolError, pool } = usePoolStore(
@@ -75,8 +76,7 @@ export default function Widget() {
   const isUniV3 = univ3Types.includes(poolType as any);
   const { token0 = defaultToken, token1 = defaultToken, fee: poolFee = 0 } = snapshotState ? snapshotState.pool : {};
 
-  const dexName =
-    typeof DEXES_INFO[poolType].name === 'string' ? DEXES_INFO[poolType].name : DEXES_INFO[poolType].name[chainId];
+  const dexName = getDexName(poolType, chainId, dexId);
 
   const [txHash, setTxHash] = useState('');
   const [attempTx, setAttempTx] = useState(false);

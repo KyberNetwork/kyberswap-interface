@@ -18,11 +18,13 @@ export interface ZapMigrationProps {
     poolType: PoolType;
     poolAddress: string;
     positionId: string;
+    dexId?: string;
   };
   to?: {
     poolType: PoolType;
     poolAddress: string;
     positionId?: string;
+    dexId?: string;
   };
   initialSlippage?: number;
   rePositionMode?: boolean;

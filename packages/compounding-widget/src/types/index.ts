@@ -13,6 +13,7 @@ export interface WidgetProps {
   poolAddress: string;
   positionId: string;
   poolType: PoolType;
+  dexId?: string;
   chainId: ChainId;
   rpcUrl?: string;
   connectedAccount: {

@@ -65,6 +65,20 @@ export const DEXES_INFO: Record<PoolType, DexInfo> = {
 
 export const defaultDexInfo = { icon: '', name: '' };
 
+// Override display names for specific dex variants
+export const dexVariantNames: Record<string, string> = {
+  'pancake-infinity-cl-alpha': 'Pancake ∞ CL Alpha',
+  'pancake-infinity-cl-dynamic': 'Pancake ∞ CL Dynamic',
+  'pancake-infinity-cl-lo': 'Pancake ∞ CL LO',
+  'pancake-infinity-cl-brevis': 'Pancake ∞ CL Brevis',
+};
+
+export const getDexName = (poolType: PoolType, chainId: number, dexId?: string): string => {
+  if (dexId && dexVariantNames[dexId]) return dexVariantNames[dexId];
+  const rawName = DEXES_INFO[poolType]?.name ?? '';
+  return typeof rawName === 'string' ? rawName : rawName[chainId] ?? '';
+};
+
 export const dexMapping: Record<PoolType, readonly string[]> = {
   [PoolType.DEX_UNISWAP_V4]: ['uniswap-v4'],
   [PoolType.DEX_UNISWAP_V4_FAIRFLOW]: ['uniswap-v4-fairflow'],
