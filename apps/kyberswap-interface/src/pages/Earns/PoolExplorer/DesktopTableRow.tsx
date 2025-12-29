@@ -17,6 +17,7 @@ import { Apr, FeeTier, SymbolText, TableRow } from 'pages/Earns/PoolExplorer/sty
 import AprDetailTooltip from 'pages/Earns/components/AprDetailTooltip'
 import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import { ParsedEarnPool, ProgramType } from 'pages/Earns/types'
+import { isUniswapExchange } from 'pages/Earns/utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
 export const kemFarming = (pool: ParsedEarnPool) => {
@@ -36,7 +37,7 @@ export const kemFarming = (pool: ParsedEarnPool) => {
 }
 
 export const uniReward = (pool: ParsedEarnPool) => {
-  const hasReward = pool.bonusApr && pool.bonusApr > 0
+  const hasReward = isUniswapExchange(pool.exchange) && pool.bonusApr && pool.bonusApr > 0
 
   return hasReward ? (
     <AprDetailTooltip uniApr={pool.bonusApr}>
