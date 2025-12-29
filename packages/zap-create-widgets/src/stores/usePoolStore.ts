@@ -45,19 +45,25 @@ interface PoolState {
   poolError: string;
   pool: Pool | null;
   poolPrice: number | null;
+  includeInvalidTokens: boolean;
   revertPrice: boolean;
   setPoolPrice: (price: number | null) => void;
+  setIncludeInvalidTokens: (value: boolean) => void;
   toggleRevertPrice: () => void;
   getPool: (props: getPoolProps) => void;
   setCreatePool: (config: CreatePoolConfig, poolType: PoolType) => void;
   reset: () => void;
 }
 
-const initState: Omit<PoolState, 'getPool' | 'setCreatePool' | 'toggleRevertPrice' | 'reset' | 'setPoolPrice'> = {
+const initState: Omit<
+  PoolState,
+  'getPool' | 'setCreatePool' | 'toggleRevertPrice' | 'reset' | 'setPoolPrice' | 'setIncludeInvalidTokens'
+> = {
   poolLoading: false,
   pool: null,
   poolError: '',
   poolPrice: null,
+  includeInvalidTokens: false,
   revertPrice: false,
 };
 
@@ -89,10 +95,18 @@ const usePoolRawStore = create<PoolState>((set, get) => ({
     set({ poolLoading: false });
   },
   setCreatePool: (config: CreatePoolConfig, poolType: PoolType) => {
-    set({ pool: buildSyntheticPool(config, poolType), poolPrice: null });
+    set({
+      pool: buildSyntheticPool(config, poolType),
+      poolPrice: null,
+      includeInvalidTokens: false,
+      revertPrice: false,
+    });
   },
   setPoolPrice: (price: number | null) => {
     set({ poolPrice: price });
+  },
+  setIncludeInvalidTokens: (value: boolean) => {
+    set({ includeInvalidTokens: value });
   },
   toggleRevertPrice: () => {
     set(state => {

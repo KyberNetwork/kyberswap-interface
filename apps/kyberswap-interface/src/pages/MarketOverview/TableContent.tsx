@@ -6,7 +6,7 @@ import { Box, Flex, Text } from 'rebass'
 import {
   AssetToken,
   useAddFavoriteMutation,
-  useGetPricesMutation,
+  useGetPricesQuery,
   useGetQuoteByChainQuery,
   useMarketOverviewQuery,
   useRemoveFavoriteMutation,
@@ -70,14 +70,12 @@ export default function TableContent({
     [tokensFromApi],
   )
 
-  const [getPrices, { data: priceData }] = useGetPricesMutation()
-  useEffect(() => {
-    const i = setInterval(async () => {
-      await getPrices(allTokenAddressByChain)
-    }, 10_000)
+  const shouldFetchPrices = Object.keys(allTokenAddressByChain).length > 0
 
-    return () => clearInterval(i)
-  }, [allTokenAddressByChain, getPrices])
+  const { data: priceData } = useGetPricesQuery(allTokenAddressByChain, {
+    pollingInterval: 10_000,
+    skip: !shouldFetchPrices,
+  })
 
   // filter undefined, keep last value
   const latestPrices = useRef(priceData)

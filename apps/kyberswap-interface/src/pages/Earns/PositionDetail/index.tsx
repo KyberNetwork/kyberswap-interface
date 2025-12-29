@@ -154,15 +154,17 @@ const PositionDetail = () => {
     const targetToken0Decimals = targetPool.token0.decimals
     const targetToken1Decimals = targetPool.token1.decimals
 
-    const dontNeedRevert =
-      sourcePosition.token0.decimals === targetToken0Decimals && sourcePosition.token1.decimals === targetToken1Decimals
+    // Check if tokens are in the same order by comparing addresses
+    const isTokenOrderSame =
+      sourcePosition.token0.address.toLowerCase() === targetPool.token0.address.toLowerCase() &&
+      sourcePosition.token1.address.toLowerCase() === targetPool.token1.address.toLowerCase()
 
     const isMinPrice = sourcePosition.priceRange.isMinPrice
     const isMaxPrice = sourcePosition.priceRange.isMaxPrice
 
     const tickLower = sourcePosition.pool.isUniv2
       ? undefined
-      : dontNeedRevert
+      : isTokenOrderSame
       ? isMinPrice
         ? MIN_TICK
         : priceToClosestTick(toString(sourceMinPrice), targetToken0Decimals, targetToken1Decimals)
@@ -172,13 +174,15 @@ const PositionDetail = () => {
 
     const tickUpper = sourcePosition.pool.isUniv2
       ? undefined
-      : dontNeedRevert
+      : isTokenOrderSame
       ? isMaxPrice
         ? MAX_TICK
         : priceToClosestTick(toString(sourceMaxPrice), targetToken0Decimals, targetToken1Decimals)
       : isMinPrice
       ? MIN_TICK
       : priceToClosestTick(toString(1 / sourceMinPrice), targetToken0Decimals, targetToken1Decimals)
+
+    const isOutRange = sourcePosition.status === PositionStatus.OUT_RANGE
 
     handleOpenZapMigration({
       chainId: sourcePosition.chain.id,
@@ -192,7 +196,7 @@ const PositionDetail = () => {
         poolAddress: targetPool.address,
       },
       initialTick:
-        tickLower !== undefined && tickUpper !== undefined
+        tickLower !== undefined && tickUpper !== undefined && !isOutRange
           ? {
               tickLower: tickLower,
               tickUpper: tickUpper,
