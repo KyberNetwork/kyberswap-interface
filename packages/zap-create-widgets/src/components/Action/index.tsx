@@ -48,7 +48,7 @@ export default function Action({
                 : ''
             : ''
         }`}
-        disabled={!!btnDisabled}
+        disabled={btnDisabled}
         onClick={hanldeClick}
       >
         {btnText}

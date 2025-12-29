@@ -32,7 +32,7 @@ export default function useActionButton({
     'onSubmitTx',
     'source',
   ]);
-  const { pool } = usePoolStore(['pool']);
+  const { pool, includeInvalidTokens } = usePoolStore(['pool', 'includeInvalidTokens']);
   const {
     zapInfo,
     errors,
@@ -89,6 +89,7 @@ export default function useActionButton({
     loading ||
     zapLoading ||
     gasLoading ||
+    includeInvalidTokens ||
     (errors.length > 0 && !isWrongNetwork && !isNotConnected) ||
     Object.values(approvalStates).some(item => item === APPROVAL_STATE.PENDING);
 
