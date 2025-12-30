@@ -16,6 +16,7 @@ import {
   linea,
   mantle,
   matic,
+  megaeth,
   monad,
   optimism,
   plasma,
@@ -52,6 +53,7 @@ const NETWORKS_INFO_CONFIG: NETWORKS_INFO_CONFIG_TYPE = {
   [ChainId.PLASMA]: plasma,
   [ChainId.ETHERLINK]: etherlink,
   [ChainId.MONAD]: monad,
+  [ChainId.MEGAETH]: megaeth,
 } as const
 
 //this Proxy helps fallback undefined ChainId by Ethereum info
@@ -87,6 +89,7 @@ export const MAINNET_NETWORKS = [
   ChainId.ETHERLINK,
   ChainId.PLASMA,
   ChainId.MONAD,
+  ChainId.MEGAETH,
 ] as const
 
 // These option of walletconnect is not support by wallets properly
