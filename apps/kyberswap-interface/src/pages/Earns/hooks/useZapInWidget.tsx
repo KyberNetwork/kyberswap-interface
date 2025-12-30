@@ -155,17 +155,18 @@ const useZapInWidget = ({
 
       const dex = getDexFromPoolType(addLiquidityPureParams.poolType)
       if (!dex) return
-
       onOpenZapMigration({
         from: {
           poolType: position.exchange as Exchange,
           poolAddress: position.poolId,
           positionId: position.positionId.toString(),
+          dexId: position.exchange as Exchange,
         },
         to: {
           poolAddress: addLiquidityPureParams.poolAddress,
           positionId: addLiquidityPureParams.positionId,
           poolType: dex,
+          dexId: addLiquidityPureParams.dexId,
         },
         chainId: addLiquidityPureParams.chainId,
         initialTick,

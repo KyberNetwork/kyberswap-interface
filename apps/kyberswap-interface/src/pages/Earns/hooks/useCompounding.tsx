@@ -31,6 +31,7 @@ interface CompoundingPureParams {
   initDepositTokens: string
   initAmounts: string
   compoundType?: 'COMPOUND_TYPE_REWARD'
+  dexId: Exchange
 }
 
 interface CompoundingParams extends CompoundingPureParams {
@@ -156,6 +157,7 @@ const useCompounding = ({
         initDepositTokens,
         initAmounts,
         compoundType,
+        dexId: pool.dex,
       })
     },
     [notify],

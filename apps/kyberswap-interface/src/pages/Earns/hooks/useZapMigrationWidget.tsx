@@ -31,18 +31,18 @@ interface MigrateLiquidityPureParams {
     poolType: ZapMigrationDex
     poolAddress: string
     positionId: string
+    dexId: Exchange
   }
   to?: {
     poolType: ZapMigrationDex
     poolAddress: string
     positionId?: string
+    dexId: Exchange
   }
   chainId: ZapMigrationChainId
   initialTick?: { tickUpper: number; tickLower: number }
   initialSlippage?: number
   rePositionMode?: boolean
-  sourceDexId?: Exchange
-  targetDexId?: Exchange
 }
 
 interface MigrateLiquidityParams extends MigrateLiquidityPureParams {
@@ -64,11 +64,13 @@ export interface ZapMigrationInfo {
     poolType: Exchange
     poolAddress: string
     positionId: string
+    dexId: Exchange
   }
   to?: {
     poolType: Exchange
     poolAddress: string
     positionId?: string
+    dexId: Exchange
   }
   chainId: number
   initialTick?: { tickUpper: number; tickLower: number }
@@ -177,20 +179,20 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
         poolType: sourceDex,
         poolAddress: from.poolAddress,
         positionId: from.positionId,
+        dexId: from.dexId,
       },
       to: to
         ? {
             poolType: targetDex,
             poolAddress: to.poolAddress,
             positionId: to.positionId,
+            dexId: to.dexId,
           }
         : undefined,
       chainId: chainId as ZapMigrationChainId,
       initialTick,
       initialSlippage,
       rePositionMode,
-      sourceDexId: from.poolType,
-      targetDexId: to?.poolType,
     })
   }
 

@@ -11,12 +11,11 @@ import DesktopTableRow from 'pages/Earns/PoolExplorer/DesktopTableRow'
 import MobileTableRow from 'pages/Earns/PoolExplorer/MobileTableRow'
 import { ProgressBarWrapper } from 'pages/Earns/PoolExplorer/styles'
 import useFavoritePool from 'pages/Earns/PoolExplorer/useFavoritePool'
+import { EARN_DEXES_CONFIG } from 'pages/Earns/constants'
 import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import Updater from 'state/customizeDexes/updater'
 import { useAppSelector } from 'state/hooks'
 import { MEDIA_WIDTHS } from 'theme'
-
-import { EARN_DEXES_CONFIG } from '../constants'
 
 export const dexKeyMapping: { [key: string]: string } = {
   uniswapv2: 'uniswap',
