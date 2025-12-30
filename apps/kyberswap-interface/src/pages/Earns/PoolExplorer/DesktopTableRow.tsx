@@ -17,6 +17,7 @@ import { Apr, FeeTier, SymbolText, TableRow } from 'pages/Earns/PoolExplorer/sty
 import AprDetailTooltip from 'pages/Earns/components/AprDetailTooltip'
 import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import { ParsedEarnPool, ProgramType } from 'pages/Earns/types'
+import { isUniswapExchange } from 'pages/Earns/utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
 export const kemFarming = (pool: ParsedEarnPool) => {
@@ -25,7 +26,7 @@ export const kemFarming = (pool: ParsedEarnPool) => {
   const isFarmingLm = programs.includes(ProgramType.LM)
 
   return isFarming ? (
-    <AprDetailTooltip feeApr={pool.feeApr || 0} egApr={pool.kemEGApr || 0} lmApr={pool.kemLMApr || 0}>
+    <AprDetailTooltip feeApr={pool.lpApr} egApr={pool.kemEGApr} lmApr={pool.kemLMApr}>
       {isFarmingLm ? (
         <FarmingLmIcon width={24} height={24} style={{ marginLeft: 4 }} />
       ) : (
@@ -36,7 +37,7 @@ export const kemFarming = (pool: ParsedEarnPool) => {
 }
 
 export const uniReward = (pool: ParsedEarnPool) => {
-  const hasReward = pool.bonusApr > 0
+  const hasReward = isUniswapExchange(pool.exchange) && pool.bonusApr && pool.bonusApr > 0
 
   return hasReward ? (
     <AprDetailTooltip uniApr={pool.bonusApr}>
@@ -99,8 +100,8 @@ const DesktopTableRow = ({
         </SymbolText>
         <FeeTier>{formatDisplayNumber(pool.feeTier, { significantDigits: 4 })}%</FeeTier>
       </Flex>
-      <Apr value={pool.apr}>
-        {formatAprNumber(pool.apr)}% {kemFarming(pool)} {uniReward(pool)}
+      <Apr value={pool.allApr}>
+        {formatAprNumber(pool.allApr)}% {kemFarming(pool)} {uniReward(pool)}
       </Apr>
       {isFarmingFiltered && (
         <Flex justifyContent="flex-end" onClick={e => handleOpenZapInWidget(e, true)}>
@@ -127,9 +128,7 @@ const DesktopTableRow = ({
           >
             {pool.maxAprInfo
               ? formatAprNumber(
-                  Number(pool.maxAprInfo.apr || 0) +
-                    Number(pool.maxAprInfo.kemEGApr || 0) +
-                    Number(pool.maxAprInfo.kemLMApr || 0),
+                  Number(pool.maxAprInfo.apr) + Number(pool.maxAprInfo.kemEGApr) + Number(pool.maxAprInfo.kemLMApr),
                 ) + '%'
               : ''}
           </MouseoverTooltipDesktopOnly>

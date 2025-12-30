@@ -20,10 +20,11 @@ export interface EarnPool {
   type: string
   feeTier: number
   volume: number
-  apr: number
+  allApr: number
+  lpApr: number
   kemEGApr: number
-  bonusApr: number
   kemLMApr: number
+  bonusApr?: number
   liquidity: number
   tvl: number
   chainId?: number
@@ -60,7 +61,6 @@ export interface EarnPool {
 export interface ParsedEarnPool extends EarnPool {
   dexLogo: string
   dexName: string
-  feeApr: number
 }
 
 export interface PoolAprInterval {

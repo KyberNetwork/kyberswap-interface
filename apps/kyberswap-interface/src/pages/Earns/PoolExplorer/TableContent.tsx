@@ -84,8 +84,6 @@ const TableContent = ({ onOpenZapInWidget, filters }: Props) => {
         ...pool,
         dexLogo: dexInfo?.logoURL || '',
         dexName: dexInfo?.name || pool.exchange,
-        feeApr: pool.apr,
-        apr: pool.apr + (pool.kemEGApr || 0) + (pool.kemLMApr || 0) + (pool.bonusApr || 0),
       }
     })
   }, [poolData?.data?.pools, dexLookupMap])
