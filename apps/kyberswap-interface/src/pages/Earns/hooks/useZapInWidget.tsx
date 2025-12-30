@@ -36,6 +36,7 @@ interface AddLiquidityPureParams {
   poolAddress: string
   chainId: ZapInChainId
   poolType: ZapInPoolType
+  dexId: Exchange
   positionId?: string
   initialTick?: { tickUpper: number; tickLower: number }
 }
@@ -114,11 +115,8 @@ const useZapInWidget = ({
   }, [searchParams, setSearchParams])
 
   const handleNavigateToPosition = useCallback(
-    async (txHash: string, chainId: number, poolType: ZapInPoolType, poolId: string) => {
+    async (txHash: string, chainId: number, dex: Exchange, poolId: string) => {
       if (!library) return
-
-      const dex = getDexFromPoolType(poolType)
-      if (!dex) return
 
       navigateToPositionAfterZap(library, txHash, chainId, dex, poolId, navigate)
     },
@@ -143,6 +141,7 @@ const useZapInWidget = ({
       poolType: dex,
       positionId,
       initialTick,
+      dexId: pool.dex,
     })
   }
 
@@ -156,17 +155,18 @@ const useZapInWidget = ({
 
       const dex = getDexFromPoolType(addLiquidityPureParams.poolType)
       if (!dex) return
-
       onOpenZapMigration({
         from: {
           poolType: position.exchange as Exchange,
           poolAddress: position.poolId,
           positionId: position.positionId.toString(),
+          dexId: position.exchange as Exchange,
         },
         to: {
           poolAddress: addLiquidityPureParams.poolAddress,
           positionId: addLiquidityPureParams.positionId,
           poolType: dex,
+          dexId: addLiquidityPureParams.dexId,
         },
         chainId: addLiquidityPureParams.chainId,
         initialTick,
@@ -191,9 +191,9 @@ const useZapInWidget = ({
             zapStatus,
             locale,
             onViewPosition: (txHash: string) => {
-              const { chainId, poolType, poolAddress } = addLiquidityPureParams
+              const { chainId, dexId, poolAddress } = addLiquidityPureParams
               handleCloseZapInWidget()
-              handleNavigateToPosition(txHash, chainId, poolType, poolAddress)
+              handleNavigateToPosition(txHash, chainId, dexId, poolAddress)
             },
             connectedAccount: {
               address: account,

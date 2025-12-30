@@ -3,8 +3,7 @@ import { z } from 'zod';
 import { ChainId } from '@/schema/chain';
 
 export enum Exchange {
-  DEX_UNISWAP_V4 = 'uniswap-v4',
-  DEX_UNISWAP_V4_FAIRFLOW = 'uniswap-v4-fairflow',
+  DEX_UNISWAPV2 = 'uniswapv2',
   DEX_UNISWAPV3 = 'uniswapv3',
   DEX_PANCAKESWAPV3 = 'pancake-v3',
   DEX_SUSHISWAPV3 = 'sushiswap-v3',
@@ -12,9 +11,15 @@ export enum Exchange {
   DEX_CAMELOTV3 = 'camelot-v3',
   DEX_THENAFUSION = 'thena-fusion',
   DEX_KODIAK_V3 = 'kodiakcl',
-  DEX_UNISWAPV2 = 'uniswapv2',
+  DEX_UNISWAP_V4 = 'uniswap-v4',
+  DEX_UNISWAP_V4_FAIRFLOW = 'uniswap-v4-fairflow',
   DEX_PANCAKE_INFINITY_CL = 'pancake-infinity-cl',
   DEX_PANCAKE_INFINITY_CL_FAIRFLOW = 'pancake-infinity-cl-fairflow',
+  DEX_PANCAKE_INFINITY_CL_DYNAMIC = 'pancake-infinity-cl-dynamic',
+  DEX_PANCAKE_INFINITY_CL_ALPHA = 'pancake-infinity-cl-alpha',
+  DEX_PANCAKE_INFINITY_CL_BREVIS = 'pancake-infinity-cl-brevis',
+  DEX_PANCAKE_INFINITY_CL_LO = 'pancake-infinity-cl-lo',
+  DEX_AERODROMECL = 'aerodromecl',
 }
 
 export const DEX_NAME: Record<Exchange, string> = {
@@ -30,6 +35,11 @@ export const DEX_NAME: Record<Exchange, string> = {
   [Exchange.DEX_UNISWAPV2]: 'Uniswap V2',
   [Exchange.DEX_PANCAKE_INFINITY_CL]: 'Pancake ∞ CL',
   [Exchange.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: 'Pancake ∞ CL FairFlow',
+  [Exchange.DEX_PANCAKE_INFINITY_CL_ALPHA]: 'Pancake ∞ CL',
+  [Exchange.DEX_PANCAKE_INFINITY_CL_LO]: 'Pancake ∞ CL',
+  [Exchange.DEX_PANCAKE_INFINITY_CL_BREVIS]: 'Pancake ∞ CL',
+  [Exchange.DEX_PANCAKE_INFINITY_CL_DYNAMIC]: 'Pancake ∞ CL',
+  [Exchange.DEX_AERODROMECL]: 'Aerodrome Concentrated',
 };
 
 export enum EarnChain {
@@ -59,5 +69,10 @@ const univ3Dexes = [
   Exchange.DEX_UNISWAP_V4_FAIRFLOW,
   Exchange.DEX_PANCAKE_INFINITY_CL,
   Exchange.DEX_PANCAKE_INFINITY_CL_FAIRFLOW,
+  Exchange.DEX_PANCAKE_INFINITY_CL_ALPHA,
+  Exchange.DEX_PANCAKE_INFINITY_CL_DYNAMIC,
+  Exchange.DEX_PANCAKE_INFINITY_CL_LO,
+  Exchange.DEX_PANCAKE_INFINITY_CL_BREVIS,
+  Exchange.DEX_AERODROMECL,
 ] as const;
 export const Univ3EarnDex = z.enum(univ3Dexes);

@@ -31,11 +31,13 @@ interface MigrateLiquidityPureParams {
     poolType: ZapMigrationDex
     poolAddress: string
     positionId: string
+    dexId: Exchange
   }
   to?: {
     poolType: ZapMigrationDex
     poolAddress: string
     positionId?: string
+    dexId: Exchange
   }
   chainId: ZapMigrationChainId
   initialTick?: { tickUpper: number; tickLower: number }
@@ -62,11 +64,13 @@ export interface ZapMigrationInfo {
     poolType: Exchange
     poolAddress: string
     positionId: string
+    dexId: Exchange
   }
   to?: {
     poolType: Exchange
     poolAddress: string
     positionId?: string
+    dexId: Exchange
   }
   chainId: number
   initialTick?: { tickUpper: number; tickLower: number }
@@ -87,6 +91,11 @@ const zapMigrationDexMapping: Record<Exchange, ZapMigrationDex | null> = {
   [Exchange.DEX_UNISWAP_V4_FAIRFLOW]: ZapMigrationDex.DEX_UNISWAP_V4_FAIRFLOW,
   [Exchange.DEX_PANCAKE_INFINITY_CL]: ZapMigrationDex.DEX_PANCAKE_INFINITY_CL,
   [Exchange.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: ZapMigrationDex.DEX_PANCAKE_INFINITY_CL_FAIRFLOW,
+  [Exchange.DEX_PANCAKE_INFINITY_CL_ALPHA]: ZapMigrationDex.DEX_PANCAKE_INFINITY_CL,
+  [Exchange.DEX_PANCAKE_INFINITY_CL_DYNAMIC]: ZapMigrationDex.DEX_PANCAKE_INFINITY_CL,
+  [Exchange.DEX_PANCAKE_INFINITY_CL_BREVIS]: ZapMigrationDex.DEX_PANCAKE_INFINITY_CL,
+  [Exchange.DEX_PANCAKE_INFINITY_CL_LO]: ZapMigrationDex.DEX_PANCAKE_INFINITY_CL,
+  [Exchange.DEX_AERODROMECL]: ZapMigrationDex.DEX_AERODROMECL,
 }
 
 const getDexFromPoolType = (poolType: ZapMigrationDex) => {
@@ -170,12 +179,14 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
         poolType: sourceDex,
         poolAddress: from.poolAddress,
         positionId: from.positionId,
+        dexId: from.dexId,
       },
       to: to
         ? {
             poolType: targetDex,
             poolAddress: to.poolAddress,
             positionId: to.positionId,
+            dexId: to.dexId,
           }
         : undefined,
       chainId: chainId as ZapMigrationChainId,

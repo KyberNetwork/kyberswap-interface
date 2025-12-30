@@ -31,6 +31,7 @@ interface CompoundingPureParams {
   initDepositTokens: string
   initAmounts: string
   compoundType?: 'COMPOUND_TYPE_REWARD'
+  dexId: Exchange
 }
 
 interface CompoundingParams extends CompoundingPureParams {
@@ -72,6 +73,11 @@ const compoundingDexMapping: Record<Exchange, CompoundingPoolType> = {
   [Exchange.DEX_UNISWAP_V4_FAIRFLOW]: CompoundingPoolType.DEX_UNISWAP_V4_FAIRFLOW,
   [Exchange.DEX_PANCAKE_INFINITY_CL]: CompoundingPoolType.DEX_PANCAKE_INFINITY_CL,
   [Exchange.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: CompoundingPoolType.DEX_PANCAKE_INFINITY_CL_FAIRFLOW,
+  [Exchange.DEX_PANCAKE_INFINITY_CL_LO]: CompoundingPoolType.DEX_PANCAKE_INFINITY_CL,
+  [Exchange.DEX_PANCAKE_INFINITY_CL_BREVIS]: CompoundingPoolType.DEX_PANCAKE_INFINITY_CL,
+  [Exchange.DEX_PANCAKE_INFINITY_CL_ALPHA]: CompoundingPoolType.DEX_PANCAKE_INFINITY_CL,
+  [Exchange.DEX_PANCAKE_INFINITY_CL_DYNAMIC]: CompoundingPoolType.DEX_PANCAKE_INFINITY_CL,
+  [Exchange.DEX_AERODROMECL]: CompoundingPoolType.DEX_AERODROMECL,
 }
 
 const useCompounding = ({
@@ -151,6 +157,7 @@ const useCompounding = ({
         initDepositTokens,
         initAmounts,
         compoundType,
+        dexId: pool.dex,
       })
     },
     [notify],

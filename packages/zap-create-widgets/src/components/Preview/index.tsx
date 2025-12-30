@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 import { Trans, t } from '@lingui/macro';
 
-import { API_URLS, CHAIN_ID_TO_CHAIN, DEXES_INFO, NETWORKS_INFO, Pool } from '@kyber/schema';
+import { API_URLS, CHAIN_ID_TO_CHAIN, DEXES_INFO, NETWORKS_INFO, Pool, getDexName } from '@kyber/schema';
 import {
   Dialog,
   DialogContent,
@@ -43,16 +43,18 @@ export default function Preview(props: PreviewProps) {
     onDismiss,
   } = props;
 
-  const { chainId, rpcUrl, poolType, connectedAccount, onSubmitTx, onViewPosition, source, onClose } = useWidgetStore([
-    'chainId',
-    'rpcUrl',
-    'poolType',
-    'connectedAccount',
-    'onSubmitTx',
-    'onViewPosition',
-    'source',
-    'onClose',
-  ]);
+  const { chainId, rpcUrl, poolType, connectedAccount, onSubmitTx, onViewPosition, source, onClose, dexId } =
+    useWidgetStore([
+      'chainId',
+      'rpcUrl',
+      'poolType',
+      'connectedAccount',
+      'onSubmitTx',
+      'onViewPosition',
+      'source',
+      'onClose',
+      'dexId',
+    ]);
   const { setSlippage, slippage, tokensIn, amountsIn } = useZapState();
 
   const [txHash, setTxHash] = useState('');
@@ -138,8 +140,7 @@ export default function Preview(props: PreviewProps) {
   };
 
   if (attempTx || txHash || txError) {
-    const dexName =
-      typeof DEXES_INFO[poolType].name === 'string' ? DEXES_INFO[poolType].name : DEXES_INFO[poolType].name[chainId];
+    const dexName = getDexName(poolType, chainId, dexId);
     const errorMessage = txError ? friendlyError(txError) || txError.message || JSON.stringify(txError) : '';
     const translatedErrorMessage = translateFriendlyErrorMessage(errorMessage);
 

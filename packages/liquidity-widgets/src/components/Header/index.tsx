@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import { Trans, t } from '@lingui/macro';
 
 import { useCopy } from '@kyber/hooks';
-import { DEXES_INFO, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, defaultToken, univ3Types } from '@kyber/schema';
+import { DEXES_INFO, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, defaultToken, getDexName, univ3Types } from '@kyber/schema';
 import { InfoHelper, LoadingCounter, MouseoverTooltip, Skeleton, TokenLogo, TokenSymbol } from '@kyber/ui';
 import { shortenAddress } from '@kyber/utils/crypto';
 
@@ -16,13 +16,14 @@ import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
 const Header = () => {
-  const { theme, chainId, onClose, poolType, positionId, fromCreatePoolFlow } = useWidgetStore([
+  const { theme, chainId, onClose, poolType, positionId, fromCreatePoolFlow, dexId } = useWidgetStore([
     'theme',
     'chainId',
     'onClose',
     'poolType',
     'positionId',
     'fromCreatePoolFlow',
+    'dexId',
   ]);
   const { pool, poolPrice } = usePoolStore(['pool', 'poolPrice']);
   const { position } = usePositionStore(['position']);
@@ -55,8 +56,8 @@ const Header = () => {
   const isToken0Native = token0.address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase();
   const isToken1Native = token1.address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase();
 
-  const { icon: dexLogo, name: rawName } = DEXES_INFO[poolType];
-  const dexName = typeof rawName === 'string' ? rawName : rawName[chainId];
+  const { icon: dexLogo } = DEXES_INFO[poolType];
+  const dexName = getDexName(poolType, chainId, dexId);
   const isUniV3 = univ3Types.includes(poolType as any);
 
   const isOutOfRange = useMemo(() => {

@@ -10,6 +10,7 @@ import ethereum from 'pages/Earns/constants/chains/ethereum'
 import matic from 'pages/Earns/constants/chains/matic'
 import optimism from 'pages/Earns/constants/chains/optimism'
 import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
+import aerodrome from 'pages/Earns/constants/dexes/aerodrome'
 import camelotv3 from 'pages/Earns/constants/dexes/camelotv3'
 import kodiakv3 from 'pages/Earns/constants/dexes/kodiakv3'
 import pancakeinfinitycl from 'pages/Earns/constants/dexes/pancakeInfinityCl'
@@ -48,6 +49,11 @@ export enum Exchange {
   DEX_UNISWAP_V4_FAIRFLOW = 'uniswap-v4-fairflow',
   DEX_PANCAKE_INFINITY_CL = 'pancake-infinity-cl',
   DEX_PANCAKE_INFINITY_CL_FAIRFLOW = 'pancake-infinity-cl-fairflow',
+  DEX_PANCAKE_INFINITY_CL_DYNAMIC = 'pancake-infinity-cl-dynamic',
+  DEX_PANCAKE_INFINITY_CL_ALPHA = 'pancake-infinity-cl-alpha',
+  DEX_PANCAKE_INFINITY_CL_BREVIS = 'pancake-infinity-cl-brevis',
+  DEX_PANCAKE_INFINITY_CL_LO = 'pancake-infinity-cl-lo',
+  DEX_AERODROMECL = 'aerodromecl',
 }
 
 export const EARN_DEXES_CONFIG: Record<Exchange, EarnDexInfo> = {
@@ -71,6 +77,20 @@ export const EARN_DEXES_CONFIG: Record<Exchange, EarnDexInfo> = {
     name: 'Pancake ∞ CL FairFlow',
     farmingSupported: true,
   },
+  [Exchange.DEX_PANCAKE_INFINITY_CL_DYNAMIC]: {
+    ...pancakeinfinitycl,
+    name: 'Pancake ∞ CL Dynamic',
+  },
+  [Exchange.DEX_PANCAKE_INFINITY_CL_ALPHA]: {
+    ...pancakeinfinitycl,
+    name: 'Pancake ∞ CL Alpha',
+  },
+  [Exchange.DEX_PANCAKE_INFINITY_CL_BREVIS]: {
+    ...pancakeinfinitycl,
+    name: 'Pancake ∞ CL Brevis',
+  },
+  [Exchange.DEX_PANCAKE_INFINITY_CL_LO]: { ...pancakeinfinitycl, name: 'Pancake ∞ CL LO' },
+  [Exchange.DEX_AERODROMECL]: aerodrome,
 }
 
 const defaultConfig = {

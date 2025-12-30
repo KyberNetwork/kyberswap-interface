@@ -4,13 +4,13 @@ import { Trans } from '@lingui/macro';
 
 import {
   AddLiquidityAction,
-  DEXES_INFO,
   NETWORKS_INFO,
   PoolType,
   RemoveLiquidityAction,
   Token,
   ZapAction,
   defaultToken,
+  getDexName,
 } from '@kyber/schema';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@kyber/ui';
 import { formatTokenAmount, formatWei } from '@kyber/utils/number';
@@ -21,7 +21,7 @@ import { usePoolStore } from '@/stores/usePoolStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
 export default function ZapSummary() {
-  const { chainId, poolType } = useWidgetStore(['chainId', 'poolType']);
+  const { chainId, poolType, dexId } = useWidgetStore(['chainId', 'poolType', 'dexId']);
   const { zapInfo } = useZapState();
   const { pool } = usePoolStore(['pool']);
   const [expanded, setExpanded] = useState(false);
@@ -31,8 +31,7 @@ export default function ZapSummary() {
   const { symbol: symbol0 } = initializing ? defaultToken : pool.token0;
   const { symbol: symbol1 } = initializing ? defaultToken : pool.token1;
 
-  const dexNameObj = DEXES_INFO[poolType as PoolType].name;
-  const dexName = !dexNameObj ? '' : typeof dexNameObj === 'string' ? dexNameObj : dexNameObj[chainId];
+  const dexName = getDexName(poolType as PoolType, chainId, dexId);
 
   const onExpand = () => setExpanded(prev => !prev);
 

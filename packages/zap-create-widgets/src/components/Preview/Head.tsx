@@ -1,15 +1,15 @@
 import { Trans } from '@lingui/macro';
 
-import { DEXES_INFO, NETWORKS_INFO, Pool, PoolType } from '@kyber/schema';
+import { DEXES_INFO, NETWORKS_INFO, Pool, PoolType, getDexName } from '@kyber/schema';
 import { TokenLogo, TokenSymbol } from '@kyber/ui';
 
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
 export default function Head({ pool }: { pool: Pool }) {
-  const { poolType, chainId } = useWidgetStore(['poolType', 'chainId', 'theme']);
+  const { poolType, chainId, dexId } = useWidgetStore(['poolType', 'chainId', 'theme', 'dexId']);
 
-  const { icon: dexLogo, name: rawName } = DEXES_INFO[poolType as PoolType];
-  const dexName = typeof rawName === 'string' ? rawName : rawName[chainId];
+  const { icon: dexLogo } = DEXES_INFO[poolType as PoolType];
+  const dexName = getDexName(poolType as PoolType, chainId, dexId);
 
   return (
     <div className="flex items-center gap-4 text-base">

@@ -41,6 +41,11 @@ const zapOutDexMapping: Record<Exchange, ZapOutDex> = {
   [Exchange.DEX_UNISWAP_V4_FAIRFLOW]: ZapOutDex.DEX_UNISWAP_V4_FAIRFLOW,
   [Exchange.DEX_PANCAKE_INFINITY_CL]: ZapOutDex.DEX_PANCAKE_INFINITY_CL,
   [Exchange.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: ZapOutDex.DEX_PANCAKE_INFINITY_CL_FAIRFLOW,
+  [Exchange.DEX_PANCAKE_INFINITY_CL_ALPHA]: ZapOutDex.DEX_PANCAKE_INFINITY_CL,
+  [Exchange.DEX_PANCAKE_INFINITY_CL_DYNAMIC]: ZapOutDex.DEX_PANCAKE_INFINITY_CL,
+  [Exchange.DEX_PANCAKE_INFINITY_CL_BREVIS]: ZapOutDex.DEX_PANCAKE_INFINITY_CL,
+  [Exchange.DEX_PANCAKE_INFINITY_CL_LO]: ZapOutDex.DEX_PANCAKE_INFINITY_CL,
+  [Exchange.DEX_AERODROMECL]: ZapOutDex.DEX_AERODROMECL,
 }
 
 const getDexFromPoolType = (poolType: ZapOutDex) => {
@@ -75,6 +80,7 @@ const useZapOutWidget = (
     poolType: ZapOutDex
     poolAddress: string
     chainId: ZapOutChainId
+    dexId: Exchange
   } | null>(null)
   const locale = useActiveLocale()
   const [zapTxHash, setZapTxHash] = useState<string[]>([])
@@ -204,6 +210,7 @@ const useZapOutWidget = (
       chainId: position.chainId as ZapOutChainId,
       poolAddress: position.poolAddress,
       positionId: position.id,
+      dexId: position.dex,
     })
   }
 

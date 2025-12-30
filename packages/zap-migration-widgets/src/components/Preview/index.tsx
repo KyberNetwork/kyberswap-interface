@@ -48,12 +48,14 @@ export function Preview({
   onViewPosition?: (txHash: string) => void;
   onExplorePools?: () => void;
 }) {
-  const { chainId, rpcUrl, connectedAccount, rePositionMode, onClose } = useWidgetStore([
+  const { chainId, rpcUrl, connectedAccount, rePositionMode, onClose, sourceDexId, targetDexId } = useWidgetStore([
     'chainId',
     'rpcUrl',
     'connectedAccount',
     'rePositionMode',
     'onClose',
+    'sourceDexId',
+    'targetDexId',
   ]);
   const { route, slippage, setSlippage, buildData, setBuildData } = useZapStore([
     'route',
@@ -214,14 +216,14 @@ export function Preview({
             </div>
 
             <div className="mt-4 flex flex-col gap-2">
-              <PreviewPoolInfo pool={sourcePool} chainId={chainId} />
+              <PreviewPoolInfo pool={sourcePool} chainId={chainId} dexId={sourceDexId} />
 
               {rePositionMode ? null : (
                 <>
                   <div className="w-full flex justify-center">
                     <CircleChevronDown className="text-stroke w-5 h-5" />
                   </div>
-                  <PreviewPoolInfo pool={targetPool} chainId={chainId} />
+                  <PreviewPoolInfo pool={targetPool} chainId={chainId} dexId={targetDexId} />
                 </>
               )}
             </div>
