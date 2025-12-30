@@ -1,0 +1,51 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+.turbo/
+
+# Lock files (large, not useful for AI context)
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+bun.lock
+
+# Cache
+.cache/
+.eslintcache
+.parcel-cache/
+*.tsbuildinfo
+
+# Test coverage
+coverage/
+
+# IDE / Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment files (security)
+.env
+.env.local
+.env.*.local
+
+# Personal cursor rules
+.cursor/rules/personal/
+
+# Generated files
+*.generated.ts
+*.generated.tsx
+
+# Logs
+*.log
+npm-debug.log*
