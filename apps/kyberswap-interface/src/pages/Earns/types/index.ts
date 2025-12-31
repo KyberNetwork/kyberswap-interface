@@ -1,6 +1,7 @@
-export * from 'pages/Earns/types/reward'
-export * from 'pages/Earns/types/pool'
+export * from 'pages/Earns/types/smartExit'
 export * from 'pages/Earns/types/position'
+export * from 'pages/Earns/types/pool'
+export * from 'pages/Earns/types/reward'
 
 export interface FeeInfo {
   balance0: string | number

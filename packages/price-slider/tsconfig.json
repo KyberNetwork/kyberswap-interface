@@ -1,0 +1,14 @@
+{
+  "extends": "@kyber/typescript-config/react-library.json",
+  "compilerOptions": {
+    "target": "ES2020",
+    "outDir": "dist",
+    "jsx": "react-jsx",
+    "paths": {
+      "@/*": ["./src/*"],
+      "react": ["./node_modules/@types/react"]
+    }
+  },
+  "include": ["src", ".eslintrc.cjs"],
+  "exclude": ["node_modules", "dist"]
+}

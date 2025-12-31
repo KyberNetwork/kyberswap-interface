@@ -23,10 +23,13 @@ export enum PositionStatus {
 export const DEFAULT_PARSED_POSITION: ParsedPosition = {
   id: '',
   tokenId: '',
+  stakingOwner: undefined,
+  earningFeeYield: 0,
   pool: {
     fee: 0,
     address: '',
     isUniv2: false,
+    isUniv4: false,
     isFarming: false,
     isFarmingLm: false,
     nativeToken: {
@@ -107,6 +110,7 @@ export const DEFAULT_PARSED_POSITION: ParsedPosition = {
   bonusApr: 0,
   totalValue: 0,
   totalProvidedValue: 0,
+  currentValue: 0,
   status: PositionStatus.IN_RANGE,
   createdTime: 0,
   unclaimedFees: 0,
@@ -119,10 +123,13 @@ export const DEFAULT_PARSED_POSITION: ParsedPosition = {
 export interface ParsedPosition {
   id: string
   tokenId: string
+  stakingOwner?: string
+  earningFeeYield: number
   pool: {
     fee: number
     address: string
     isUniv2: boolean
+    isUniv4: boolean
     isFarming: boolean
     isFarmingLm: boolean
     nativeToken: NativeToken
@@ -179,6 +186,7 @@ export interface ParsedPosition {
   feeApr: PoolAprInterval
   bonusApr: number
   totalValue: number
+  currentValue: number
   totalProvidedValue: number
   status: string
   createdTime: number
@@ -199,6 +207,7 @@ export interface EarnPosition {
   minPrice: number
   maxPrice: number
   currentAmounts: Array<PositionAmount>
+  providedAmounts: Array<PositionAmount> | null
   feePending: Array<PositionAmount>
   feesClaimed: Array<PositionAmount>
   createdTime: number
