@@ -11,6 +11,8 @@ interface WidgetProps {
   theme: Theme;
   sourcePoolType?: PoolType;
   targetPoolType?: PoolType;
+  sourceDexId?: string;
+  targetDexId?: string;
   rePositionMode?: boolean;
   client: string;
   referral?: string;
@@ -38,6 +40,8 @@ const initState = {
   rpcUrl: NETWORKS_INFO[ChainId.Ethereum].defaultRpc,
   sourcePoolType: undefined,
   targetPoolType: undefined,
+  sourceDexId: undefined,
+  targetDexId: undefined,
   rePositionMode: false,
   client: '',
   referral: undefined,
@@ -61,6 +65,8 @@ const useWidgetRawStore = create<WidgetState>((set, _get) => ({
     rePositionMode,
     sourcePoolType,
     targetPoolType,
+    sourceDexId,
+    targetDexId,
     client,
     referral,
     connectedAccount,
@@ -84,6 +90,8 @@ const useWidgetRawStore = create<WidgetState>((set, _get) => ({
       rePositionMode,
       sourcePoolType,
       targetPoolType,
+      sourceDexId,
+      targetDexId,
       client,
       referral,
       connectedAccount,

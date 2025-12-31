@@ -28,6 +28,7 @@ const initState = {
   poolAddress: '',
   positionId: '',
   poolType: PoolType.DEX_UNISWAPV3,
+  dexId: undefined,
   chainId: ChainId.Ethereum,
   rpcUrl: NETWORKS_INFO[ChainId.Ethereum].defaultRpc,
   connectedAccount: {

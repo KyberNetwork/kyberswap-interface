@@ -121,9 +121,7 @@ const PositionDetail = () => {
       return
     }
 
-    const isClosedFromRpc = closedPositionsFromRpc.some(
-      (closedPosition: { tokenId: string }) => closedPosition.tokenId === userPositions[0].tokenId,
-    )
+    const isClosedFromRpc = closedPositionsFromRpc.includes(userPositions[0].tokenId)
 
     const parsedPosition = parsePosition({
       position: userPositions[0],
@@ -206,10 +204,12 @@ const PositionDetail = () => {
         poolType: sourcePosition.dex.id,
         poolAddress: sourcePosition.pool.address,
         positionId: sourcePosition.pool.isUniv2 ? account || '' : sourcePosition.tokenId,
+        dexId: sourcePosition.dex.id,
       },
       to: {
         poolType: targetPool.poolExchange,
         poolAddress: targetPool.address,
+        dexId: targetPool.poolExchange,
       },
       initialTick:
         tickLower !== undefined && tickUpper !== undefined && !isOutRange
@@ -231,6 +231,7 @@ const PositionDetail = () => {
           poolType: position.dex.id,
           poolAddress: position.pool.address,
           positionId: position.pool.isUniv2 ? account || '' : position.tokenId,
+          dexId: position.dex.id,
         },
         rePositionMode: true,
       })
@@ -467,9 +468,7 @@ const PositionDetail = () => {
         onClose={() => setPositionToMigrate(null)}
       />
     ) : null
-  const suggestedProtocolName = position?.suggestionPool
-    ? EARN_DEXES[position.suggestionPool.poolExchange].name.replace('FairFlow', '').trim()
-    : ''
+  const suggestedProtocolName = position?.suggestionPool ? EARN_DEXES[position.suggestionPool.poolExchange].name : ''
 
   return (
     <>
@@ -497,7 +496,7 @@ const PositionDetail = () => {
                       {!!position.suggestionPool
                         ? position.pool.fee === position.suggestionPool.feeTier
                           ? t`Earn extra rewards with exact same pair and fee tier on ${suggestedProtocolName} hook.`
-                          : t`We found a pool with the same pair offering extra rewards. Migrate to this pool on ${suggestedProtocolName} hook to start earning farming rewards.`
+                          : t`We found a pool with the same pair offering extra rewards. Migrate to this pool on ${suggestedProtocolName} to start earning farming rewards.`
                         : t`We found other stable pools offering extra rewards. Explore and migrate to start earning.`}
                     </Text>
                     <Text color={theme.primary} sx={{ cursor: 'pointer' }} onClick={handleMigrateToKem}>

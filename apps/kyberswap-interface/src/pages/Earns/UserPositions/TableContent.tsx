@@ -254,10 +254,12 @@ export default function TableContent({
         poolType: sourcePosition.dex.id,
         poolAddress: sourcePosition.pool.address,
         positionId: sourcePosition.pool.isUniv2 ? account || '' : sourcePosition.tokenId,
+        dexId: sourcePosition.dex.id,
       },
       to: {
         poolType: targetPool.poolExchange,
         poolAddress: targetPool.address,
+        dexId: targetPool.poolExchange,
       },
       initialTick:
         tickLower !== undefined && tickUpper !== undefined && !isOutRange
@@ -278,6 +280,7 @@ export default function TableContent({
         poolType: position.dex.id,
         poolAddress: position.pool.address,
         positionId: position.pool.isUniv2 ? account || '' : position.tokenId,
+        dexId: position.dex.id,
       },
       rePositionMode: true,
     })

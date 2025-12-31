@@ -15,6 +15,7 @@ export interface ZapOutProps {
   rpcUrl?: string;
   poolAddress: string;
   poolType: PoolType;
+  dexId?: string;
   positionId: string;
   connectedAccount: {
     address?: string | undefined;

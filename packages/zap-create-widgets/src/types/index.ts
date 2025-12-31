@@ -21,6 +21,7 @@ export interface WidgetProps {
   chainId: ChainId;
   rpcUrl?: string;
   poolType: PoolType;
+  dexId?: string;
   createPoolConfig: CreatePoolConfig;
   source: string;
   connectedAccount: { address?: string | undefined; chainId: number };

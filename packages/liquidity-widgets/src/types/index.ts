@@ -16,6 +16,7 @@ export interface WidgetProps {
   poolAddress: string;
   positionId?: string;
   poolType: PoolType;
+  dexId?: string;
   connectedAccount: {
     address?: string | undefined;
     chainId: number;
