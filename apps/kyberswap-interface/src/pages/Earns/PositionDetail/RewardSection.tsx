@@ -80,8 +80,8 @@ const RewardSection = ({
     rewardInfo,
     claimModal: claimRewardsModal,
     onOpenClaim: onOpenClaimRewards,
-    claiming: rewardsClaiming,
-  } = useKemRewards(refetchPositions)
+    pendingClaimKeys: pendingRewardClaimKeys,
+  } = useKemRewards({ refetchAfterCollect: refetchPositions })
 
   const { rewardsByPosition } = useMerklRewards({ positions: position ? [position] : undefined })
   const merklRewards = position ? rewardsByPosition[position.id]?.rewards || [] : []
@@ -98,6 +98,8 @@ const RewardSection = ({
   const isUnfinalized = position?.isUnfinalized
   const isEarlyPosition = !!position && checkEarlyPosition(position)
   const isWaitingForRewards = position?.pool.isFarming && position.rewards.totalUsdValue === 0 && isEarlyPosition
+  const claimKey = position ? `${position.chain.id}:${position.tokenId}` : ''
+  const isRewardsClaiming = claimKey ? pendingRewardClaimKeys.includes(claimKey) : false
 
   return (
     <>
@@ -240,17 +242,19 @@ const RewardSection = ({
             small
             outline
             mobileAutoWidth
-            disabled={initialLoading || isUnfinalized || !rewardInfoThisPosition?.claimableUsdValue || rewardsClaiming}
+            disabled={
+              initialLoading || isUnfinalized || !rewardInfoThisPosition?.claimableUsdValue || isRewardsClaiming
+            }
             onClick={() =>
               !initialLoading &&
               !isUnfinalized &&
               rewardInfoThisPosition?.claimableUsdValue &&
-              !rewardsClaiming &&
+              !isRewardsClaiming &&
               onOpenClaimRewards(position)
             }
           >
-            {rewardsClaiming && <Loader size="14px" />}
-            {rewardsClaiming ? t`Claiming` : t`Claim`}
+            {isRewardsClaiming && <Loader size="14px" />}
+            {isRewardsClaiming ? t`Claiming` : t`Claim`}
           </PositionAction>
         </RewardDetailInfo>
       </RewardsSection>

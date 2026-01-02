@@ -43,7 +43,7 @@ const LeftSection = ({
   const {
     claimModal: claimFeesModal,
     onOpenClaim: onOpenClaimFees,
-    claiming: feesClaiming,
+    pendingClaimKeys: pendingFeeClaimKeys,
   } = useCollectFees({
     refetchAfterCollect: () => onFetchUnclaimedFee(),
   })
@@ -53,6 +53,8 @@ const LeftSection = ({
   const nativeToken = chainId ? NETWORKS_INFO[Number(chainId) as keyof typeof NETWORKS_INFO]?.nativeToken : undefined
 
   const isUnfinalized = position?.isUnfinalized
+  const claimKey = position ? `${position.chain.id}:${position.tokenId}` : ''
+  const isFeesClaiming = claimKey ? pendingFeeClaimKeys.includes(claimKey) : false
 
   return (
     <>
@@ -203,21 +205,25 @@ const LeftSection = ({
                 small
                 outline
                 mobileAutoWidth
-                load={feesClaiming}
+                load={isFeesClaiming}
                 disabled={
-                  initialLoading || isNotAccountOwner || isUnfinalized || position?.unclaimedFees === 0 || feesClaiming
+                  initialLoading ||
+                  isNotAccountOwner ||
+                  isUnfinalized ||
+                  position?.unclaimedFees === 0 ||
+                  isFeesClaiming
                 }
                 onClick={() =>
                   !initialLoading &&
                   !isUnfinalized &&
                   position?.unclaimedFees &&
                   position?.unclaimedFees > 0 &&
-                  !feesClaiming &&
+                  !isFeesClaiming &&
                   onOpenClaimFees(position)
                 }
               >
-                {feesClaiming && <Loader size="14px" stroke={'#505050'} />}
-                {feesClaiming ? t`Claiming` : t`Claim`}
+                {isFeesClaiming && <Loader size="14px" stroke={'#505050'} />}
+                {isFeesClaiming ? t`Claiming` : t`Claim`}
               </PositionAction>
             </Flex>
           </InfoSection>
