@@ -30,14 +30,12 @@ const useCollectFees = ({ refetchAfterCollect }: UseCollectFeesProps) => {
 
   const [claimInfo, setClaimInfo] = useState<ClaimInfo | null>(null)
   const [openClaimModal, setOpenClaimModal] = useState(false)
-  const [claiming, setClaiming] = useState(false)
   const [pendingClaims, setPendingClaims] = useState<Array<{ txHash: string; claimKey: string }>>([])
 
   const [position, setPosition] = useState<ParsedPosition | null>(null)
 
   const onCloseClaim = useCallback(() => {
     setOpenClaimModal(false)
-    setClaiming(false)
     setClaimInfo(null)
     setPosition(null)
   }, [])
@@ -57,17 +55,12 @@ const useCollectFees = ({ refetchAfterCollect }: UseCollectFeesProps) => {
     const token1 = claimInfo.tokens[1]
     if (!token0.address || !token1.address) return
 
-    setClaiming(true)
-
     const isUniv4 = EARN_DEXES[claimInfo.dex as Exchange]?.isForkFrom === CoreProtocol.UniswapV4
     const txData = isUniv4
       ? await getUniv4CollectCallData({ claimInfo, recipient: account })
       : await getUniv3CollectCallData({ claimInfo, recipient: account })
 
-    if (!txData) {
-      setClaiming(false)
-      return
-    }
+    if (!txData) return
 
     let errorMessage = ''
 
@@ -81,7 +74,6 @@ const useCollectFees = ({ refetchAfterCollect }: UseCollectFeesProps) => {
           type: NotificationType.ERROR,
           summary: error.message.includes('user rejected transaction') ? 'User rejected transaction' : error.message,
         })
-        setClaiming(false)
       },
     })
     const { txHash, error } = res
@@ -211,14 +203,12 @@ const useCollectFees = ({ refetchAfterCollect }: UseCollectFeesProps) => {
   useAccountChanged(onCloseClaim)
 
   const pendingClaimKeys = pendingClaims.map(item => item.claimKey)
-  const isCurrentClaimPending = !!claimInfo && pendingClaimKeys.includes(`${claimInfo.chainId}:${claimInfo.nftId}`)
 
   const claimModal =
     openClaimModal && claimInfo ? (
       <>
         <ClaimModal
           claimType={ClaimType.FEES}
-          claiming={claiming || isCurrentClaimPending}
           claimInfo={claimInfo}
           compoundable
           onCompound={onCompound}
