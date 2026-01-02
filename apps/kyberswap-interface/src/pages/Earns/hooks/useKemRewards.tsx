@@ -24,7 +24,11 @@ import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { enumToArrayOfValues } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
-const useKemRewards = (refetchAfterCollect?: () => void) => {
+type UseKemRewardsProps = {
+  refetchAfterCollect?: () => void
+}
+
+const useKemRewards = (props?: UseKemRewardsProps) => {
   const notify = useNotify()
   const addTransactionWithType = useTransactionAdder()
   const allTransactions = useAllTransactions(true)
@@ -33,6 +37,7 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
   const { library } = useWeb3React()
   const { supportedChains } = useChainsConfig()
   const { filters } = useFilter()
+  const { refetchAfterCollect } = props ?? {}
 
   const [thresholdValue, setThresholdValue] = useState<number | null>(null)
   const [positionStatus, setPositionStatus] = useState<PositionStatus | 'all'>()
@@ -62,8 +67,10 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
   const [claimInfo, setClaimInfo] = useState<ClaimInfo | null>(null)
   const [openClaimModal, setOpenClaimModal] = useState(false)
   const [openClaimAllModal, setOpenClaimAllModal] = useState(false)
-  const [claiming, setClaiming] = useState(false)
-  const [txHash, setTxHash] = useState<string | null>(null)
+  const [claimingSingle, setClaimingSingle] = useState(false)
+  const [claimingAll, setClaimingAll] = useState(false)
+  const [pendingClaims, setPendingClaims] = useState<Array<{ txHash: string; claimKey: string }>>([])
+
   const [position, setPosition] = useState<ParsedPosition | null>(null)
   const [rewardInfo, setRewardInfo] = useState<RewardInfo | null>(null)
   const [filteredRewardInfo, setFilteredRewardInfo] = useState<RewardInfo | null>(null)
@@ -77,6 +84,7 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
 
   const onCloseClaim = useCallback(() => {
     setOpenClaimModal(false)
+    setClaimingSingle(false)
     setClaimInfo(null)
   }, [])
 
@@ -135,7 +143,7 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
     const positionManagerContract = getNftManagerContractAddress(claimInfo.dex, chainId)
     if (!positionManagerContract) return
 
-    setClaiming(true)
+    setClaimingSingle(true)
     const encodeData = await claimEncodeData({
       recipient: account,
       chainId,
@@ -157,7 +165,7 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
             ? encodeData.error.error
             : 'An error occurred while processing your request',
       })
-      setClaiming(false)
+      setClaimingSingle(false)
       setOpenClaimModal(false)
       return
     }
@@ -176,13 +184,17 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
           type: NotificationType.ERROR,
           summary: error.message,
         })
-        setClaiming(false)
+        setClaimingSingle(false)
         setOpenClaimModal(false)
       },
     })
     const { txHash, error } = res
     if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
-    setTxHash(txHash)
+    setPendingClaims(prev => {
+      const claimKey = `${claimInfo.chainId}:${claimInfo.nftId}`
+      if (prev.some(item => item.txHash === txHash)) return prev
+      return [...prev, { txHash, claimKey }]
+    })
     addTransactionWithType({
       type: TRANSACTION_TYPE.CLAIM_REWARD,
       hash: txHash,
@@ -197,7 +209,7 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
   const handleClaimAll = useCallback(async () => {
     if (!account || !EARN_CHAINS[chainId as unknown as EarnChain]?.farmingSupported) return
 
-    setClaiming(true)
+    setClaimingAll(true)
 
     const encodeData = await batchClaimEncodeData({
       owner: account,
@@ -220,7 +232,7 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
             ? encodeData.error.error
             : 'An error occurred while processing your request',
       })
-      setClaiming(false)
+      setClaimingAll(false)
       return
     }
 
@@ -238,12 +250,16 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
           type: NotificationType.ERROR,
           summary: error.message,
         })
-        setClaiming(false)
+        setClaimingAll(false)
       },
     })
     const { txHash, error } = res
     if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
-    setTxHash(txHash)
+    setPendingClaims(prev => {
+      const claimKey = `all:${chainId}`
+      if (prev.some(item => item.txHash === txHash)) return prev
+      return [...prev, { txHash, claimKey }]
+    })
     addTransactionWithType({
       type: TRANSACTION_TYPE.CLAIM_REWARD,
       hash: txHash,
@@ -378,17 +394,38 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
   }, [handleOpenCompounding, position])
 
   useEffect(() => {
-    if (txHash && allTransactions && allTransactions[txHash]) {
-      const tx = allTransactions[txHash]
-      if (tx?.[0].receipt && tx?.[0].receipt.status === 1) {
-        setClaiming(false)
-        setTxHash(null)
-        setOpenClaimModal(false)
-        setOpenClaimAllModal(false)
+    if (!pendingClaims.length || !allTransactions) return
+    const resolvedTxHashes: string[] = []
+    let shouldCloseClaim = false
+    let shouldCloseClaimAll = false
+
+    pendingClaims.forEach(claim => {
+      const tx = allTransactions[claim.txHash]
+      const receipt = tx?.[0].receipt
+      if (!receipt) return
+      resolvedTxHashes.push(claim.txHash)
+      if (receipt.status === 1) {
+        if (claimInfo && `${claimInfo.chainId}:${claimInfo.nftId}` === claim.claimKey) {
+          shouldCloseClaim = true
+        }
+        if (claim.claimKey.startsWith('all:')) {
+          shouldCloseClaimAll = true
+        }
         refetchRewardInfo()
       }
+    })
+
+    if (resolvedTxHashes.length) {
+      setPendingClaims(prev => prev.filter(item => !resolvedTxHashes.includes(item.txHash)))
     }
-  }, [allTransactions, refetchRewardInfo, txHash])
+    if (shouldCloseClaim) {
+      onCloseClaim()
+    }
+    if (shouldCloseClaimAll) {
+      setOpenClaimAllModal(false)
+      setClaimingAll(false)
+    }
+  }, [allTransactions, claimInfo, onCloseClaim, pendingClaims, refetchRewardInfo])
 
   useEffect(() => {
     if (!rewardInfo?.chains.length) setOpenClaimAllModal(false)
@@ -399,12 +436,15 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
     setOpenClaimAllModal(false)
   })
 
+  const pendingClaimKeys = pendingClaims.map(item => item.claimKey)
+  const isCurrentClaimPending = !!claimInfo && pendingClaimKeys.includes(`${claimInfo.chainId}:${claimInfo.nftId}`)
+
   const claimModal =
     openClaimModal && claimInfo ? (
       <>
         <ClaimModal
           claimType={ClaimType.REWARDS}
-          claiming={claiming}
+          claiming={claimingSingle || isCurrentClaimPending}
           claimInfo={claimInfo}
           compoundable
           onClaim={handleClaim}
@@ -422,8 +462,8 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
         filteredRewardInfo={filteredRewardInfo}
         onClaimAll={handleClaimAll}
         onClose={() => setOpenClaimAllModal(false)}
-        claiming={claiming}
-        setClaiming={setClaiming}
+        claiming={claimingAll}
+        setClaiming={setClaimingAll}
         isLoadingUserPositions={isLoadingUserPositions}
         thresholdValue={thresholdValue ?? undefined}
         onThresholdChange={setThresholdValue}
@@ -436,10 +476,10 @@ const useKemRewards = (refetchAfterCollect?: () => void) => {
     rewardInfo,
     claimModal,
     onOpenClaim,
-    claiming,
     claimAllRewardsModal,
     onOpenClaimAllRewards,
     isLoadingRewardInfo: isLoadingRewardInfo || isRewardInfoParsing,
+    pendingClaimKeys,
   }
 }
 
