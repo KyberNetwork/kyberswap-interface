@@ -12,7 +12,10 @@ export const Container = styled.div<{ minWidth?: string }>`
   position: relative;
   background-color: ${({ theme }) => theme.background};
   border-radius: 999px;
-  min-width: ${({ minWidth }) => minWidth || '360px'};
+
+  @media screen and (min-width: 480px) {
+    min-width: ${({ minWidth }) => minWidth || '320px'};
+  }
 
   @media screen and (max-width: 768px) {
     width: 100%;

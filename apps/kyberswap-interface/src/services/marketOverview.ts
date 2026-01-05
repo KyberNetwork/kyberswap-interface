@@ -4,10 +4,6 @@ import { TOKEN_API_URL } from 'constants/env'
 import { PAIR_CATEGORY } from 'constants/index'
 
 export interface QueryParams {
-  // name?: string
-  // symbol?: string
-  // address?: string
-  // addresses?: string
   search?: string
   user?: string
   isFavorite?: boolean
