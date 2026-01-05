@@ -19,7 +19,7 @@ export default function useFilter() {
       tags: (searchParams.get('tags') || '').split(',').filter(Boolean),
       sort: searchParams.get('sort') || '',
       page: +(searchParams.get('page') || '1'),
-      pageSize: +(searchParams.get('pageSize') || 20),
+      pageSize: +(searchParams.get('pageSize') || 10),
     }
   }, [searchParams, account])
 
