@@ -17,6 +17,7 @@ import { calculateGasMargin, estimateGas } from '@kyber/utils/crypto';
 import { formatDisplayNumber } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
+import Estimated from '@/components/Estimated';
 import Head from '@/components/Preview/Head';
 import PriceInfo from '@/components/Preview/PriceInfo';
 import Warning from '@/components/Preview/Warning';
@@ -28,8 +29,6 @@ import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 import { parseTokensAndAmounts } from '@/utils';
-
-import Estimated from '../Estimated';
 
 export default function Preview({ onDismiss }: { onDismiss: () => void }) {
   const { chainId, rpcUrl, poolType, connectedAccount, onSubmitTx, onViewPosition, positionId, onClose } =
@@ -50,12 +49,15 @@ export default function Preview({ onDismiss }: { onDismiss: () => void }) {
   const [txHash, setTxHash] = useState('');
   const [attempTx, setAttempTx] = useState(false);
   const [txError, setTxError] = useState<Error | null>(null);
-  const { txStatus } = useTxStatus({ txHash });
+  const { txStatus, currentTxHash } = useTxStatus({ txHash });
+
+  // Use currentTxHash (which tracks replacements) for displaying to user
+  const displayTxHash = currentTxHash || txHash;
 
   const { success: isUniV3 } = univ3PoolNormalize.safeParse(pool);
 
   useOnSuccess({
-    txHash,
+    txHash: displayTxHash,
     txStatus,
   });
 
@@ -147,7 +149,7 @@ export default function Preview({ onDismiss }: { onDismiss: () => void }) {
             : undefined
         }
         errorMessage={txError ? translatedErrorMessage : undefined}
-        transactionExplorerUrl={txHash ? `${NETWORKS_INFO[chainId].scanLink}/tx/${txHash}` : undefined}
+        transactionExplorerUrl={displayTxHash ? `${NETWORKS_INFO[chainId].scanLink}/tx/${displayTxHash}` : undefined}
         action={
           <>
             <button
@@ -161,7 +163,7 @@ export default function Preview({ onDismiss }: { onDismiss: () => void }) {
             </button>
             {txStatus === 'success' ? (
               onViewPosition ? (
-                <button className="ks-primary-btn flex-1" onClick={() => onViewPosition(txHash)}>
+                <button className="ks-primary-btn flex-1" onClick={() => onViewPosition(displayTxHash)}>
                   <Trans>View position</Trans>
                 </button>
               ) : null

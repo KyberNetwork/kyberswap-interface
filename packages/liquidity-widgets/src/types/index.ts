@@ -36,6 +36,7 @@ export interface WidgetProps {
   fromCreatePoolFlow?: boolean;
   initialTick?: { tickLower: number; tickUpper: number };
   zapStatus?: Record<string, TxStatus>;
+  txHashMapping?: Record<string, string>;
   locale?: SupportedLocale;
   onClose?: () => void;
   onConnectWallet: () => void;

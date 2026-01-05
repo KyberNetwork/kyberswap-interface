@@ -8,7 +8,7 @@ import {
   PoolType as ZapInPoolType,
 } from '@kyberswap/liquidity-widgets'
 import '@kyberswap/liquidity-widgets/dist/style.css'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import { NotificationType } from 'components/Announcement/type'
@@ -91,19 +91,122 @@ const useZapInWidget = ({
 
   const [addLiquidityPureParams, setAddLiquidityPureParams] = useState<AddLiquidityPureParams | null>(null)
   const [zapTxHash, setZapTxHash] = useState<string[]>([])
+  // Track original hash -> current hash mapping for replacements
+  const [originalToCurrentHash, setOriginalToCurrentHash] = useState<Record<string, string>>({})
+  const prevAllTransactionsRef = useRef<typeof allTransactions>()
   const { rpc: zapInRpcUrl } = useKyberSwapConfig(addLiquidityPureParams?.chainId as ChainId | undefined)
+
+  // Handle transaction replacement (speed up, cancel)
+  useEffect(() => {
+    if (!allTransactions || zapTxHash.length === 0) {
+      prevAllTransactionsRef.current = allTransactions
+      return
+    }
+
+    // Skip if allTransactions hasn't actually changed (same reference)
+    if (prevAllTransactionsRef.current === allTransactions) {
+      return
+    }
+
+    const prevTxs = prevAllTransactionsRef.current
+    if (!prevTxs) {
+      prevAllTransactionsRef.current = allTransactions
+      return
+    }
+
+    const prevTxKeys = new Set(Object.keys(prevTxs))
+    const currentTxKeys = new Set(Object.keys(allTransactions))
+
+    // Check if any tracked hash is missing (potentially replaced)
+    const needsUpdate = zapTxHash.some(hash => !currentTxKeys.has(hash))
+
+    if (!needsUpdate) {
+      // No replacement detected, just update ref for next comparison
+      prevAllTransactionsRef.current = allTransactions
+      return
+    }
+
+    // Find new keys that weren't in previous state
+    const newKeys = [...currentTxKeys].filter(key => !prevTxKeys.has(key))
+
+    const updatedHashes = zapTxHash.map(trackedHash => {
+      // If still exists, no change
+      if (currentTxKeys.has(trackedHash)) {
+        return trackedHash
+      }
+
+      // Hash disappeared from keys, check if it was replaced
+      // Check each new key to see if it's related to our tracked hash
+      for (const newKey of newKeys) {
+        const txGroup = allTransactions[newKey]
+        const oldTxGroup = prevTxs[trackedHash]
+
+        if (!txGroup || !oldTxGroup) continue
+
+        // Compare transaction metadata to identify if this is the same tx
+        // (same nonce, from, to, data means same transaction)
+        const newTx = txGroup[0]
+        const oldTx = oldTxGroup[0]
+
+        if (
+          newTx &&
+          oldTx &&
+          newTx.from === oldTx.from &&
+          newTx.to === oldTx.to &&
+          newTx.nonce === oldTx.nonce &&
+          newTx.data === oldTx.data
+        ) {
+          return newKey
+        }
+      }
+
+      // Not replaced, keep the old hash
+      return trackedHash
+    })
+
+    const hasChange = updatedHashes.some((hash, index) => hash !== zapTxHash[index])
+
+    if (hasChange) {
+      setZapTxHash(updatedHashes)
+
+      // Update original->current hash mapping for widget compatibility
+      const newMapping: Record<string, string> = { ...originalToCurrentHash }
+      zapTxHash.forEach((originalHash, index) => {
+        const currentHash = updatedHashes[index]
+        if (originalHash !== currentHash) {
+          // Find the original hash that this chain started from
+          const rootOriginal = Object.entries(newMapping).find(([, v]) => v === originalHash)?.[0] || originalHash
+          newMapping[rootOriginal] = currentHash
+        }
+      })
+      setOriginalToCurrentHash(newMapping)
+    }
+
+    // Update ref AFTER all logic to avoid desync
+    prevAllTransactionsRef.current = allTransactions
+  }, [allTransactions, zapTxHash, originalToCurrentHash])
 
   const zapStatus = useMemo(() => {
     if (!allTransactions || !zapTxHash.length) return {}
 
-    return zapTxHash.reduce((acc: Record<string, TxStatus>, txHash) => {
+    const status = zapTxHash.reduce((acc: Record<string, TxStatus>, txHash) => {
       const zapTx = allTransactions[txHash]
       if (zapTx?.[0].receipt) {
-        acc[txHash as keyof typeof acc] = zapTx?.[0].receipt.status === 1 ? TxStatus.SUCCESS : TxStatus.FAILED
-      } else acc[txHash as keyof typeof acc] = TxStatus.PENDING
+        acc[txHash] = zapTx?.[0].receipt.status === 1 ? TxStatus.SUCCESS : TxStatus.FAILED
+      } else acc[txHash] = TxStatus.PENDING
       return acc
     }, {})
-  }, [allTransactions, zapTxHash])
+
+    // Also include original hashes pointing to their replacement's status
+    // This allows the widget to look up status by the original hash it received
+    Object.entries(originalToCurrentHash).forEach(([originalHash, currentHash]) => {
+      if (status[currentHash] !== undefined && originalHash !== currentHash) {
+        status[originalHash] = status[currentHash]
+      }
+    })
+
+    return status
+  }, [allTransactions, zapTxHash, originalToCurrentHash])
 
   const handleCloseZapInWidget = useCallback(() => {
     searchParams.delete('exchange')
@@ -112,6 +215,7 @@ const useZapInWidget = ({
     setSearchParams(searchParams)
     setAddLiquidityPureParams(null)
     setZapTxHash([])
+    setOriginalToCurrentHash({})
   }, [searchParams, setSearchParams])
 
   const handleNavigateToPosition = useCallback(
@@ -189,6 +293,7 @@ const useZapInWidget = ({
               : undefined,
             referral: refCode,
             zapStatus,
+            txHashMapping: originalToCurrentHash,
             locale,
             onViewPosition: (txHash: string) => {
               const { chainId, dexId, poolAddress } = addLiquidityPureParams
@@ -316,6 +421,7 @@ const useZapInWidget = ({
       zapInRpcUrl,
       refCode,
       zapStatus,
+      originalToCurrentHash,
       account,
       chainId,
       toggleWalletModal,
