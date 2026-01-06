@@ -2,61 +2,73 @@ import { rgba } from 'polished'
 import { Box, Flex } from 'rebass'
 import styled, { css, keyframes } from 'styled-components'
 
-export const TableWrapper = styled.div`
-  background: ${({ theme }) => rgba(theme.background, 0.8)};
-  border-radius: 16px;
-  overflow: hidden;
+import { TableHeader, TableWrapper } from 'pages/Earns/PoolExplorer/styles'
 
+export const FilterRow = styled(Flex)`
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+`
+
+export const TagList = styled(Flex)`
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+
+  ${({ theme }) => theme.mediaWidth.upToSmall`
+    flex: 1 1 100%;
+  `}
+`
+
+export const MarketTableWrapper = styled(TableWrapper)`
   ${({ theme }) => theme.mediaWidth.upToMedium`
     margin: 0 -16px;
+    border-radius: 0;
   `}
 `
 
-export const ContentWrapper = styled.div`
-  padding: 24px;
+export const ContentWrapper = styled.div``
+
+export const MarketTableHeader = styled(TableHeader)`
+  grid-template-columns: 1fr 1fr 0.7fr 0.7fr 0.6fr 0.6fr 100px;
+  font-size: 14px;
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
-    padding: 16px;
+    display: none;
   `}
 `
 
-export const Tag = styled.div<{ active: boolean }>`
-  background: ${({ theme, active }) => (active ? rgba(theme.primary, 0.2) : theme.tableHeader)};
-  border: 1px solid ${({ theme, active }) => (active ? theme.primary : 'transparent')};
-  border-radius: 12px;
-  padding: 8px 16px;
-  font-size: 14px;
-  cursor: pointer;
-  color: ${({ theme, active }) => (active ? theme.text : theme.subText)};
-  font-weight: ${({ active }) => (active ? '500' : '400')};
-`
-
-export const TableHeader = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 2fr 1.2fr 100px;
+export const SortableHeader = styled(Flex)`
   align-items: center;
-`
-
-export const TableRow = styled(TableHeader)`
-  grid-template-columns: 1fr 0.5fr 0.5fr 0.5fr 0.5fr 0.6fr 0.6fr 100px;
-  border-bottom: none;
+  gap: 4px;
+  width: fit-content;
   cursor: pointer;
 
-  &:hover {
-    background: ${({ theme }) => theme.buttonBlack};
+  &:hover svg path {
+    stroke: ${({ theme }) => theme.text};
   }
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    grid-template-columns: 1fr 1fr 1fr;
-  `}
 `
 
-export const SubHeaderRow = styled(TableRow)`
-  font-size: 14px;
-  color: ${({ theme }) => theme.subText};
+export const TableRow = styled(MarketTableHeader)`
+  border-bottom: none;
+
   &:hover {
-    background: none;
+    cursor: pointer;
+    background: #31cb9e1a;
   }
+`
+
+export const MobileTableRow = styled.div`
+  padding: 20px 24px 20px;
+  cursor: pointer;
+  border-bottom: 1px solid ${({ theme }) => theme.tableHeader};
+`
+
+export const MobileTableBottomRow = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-top: 16px;
+  gap: 12px;
 `
 
 export const InnerGrid = styled(Box)`
