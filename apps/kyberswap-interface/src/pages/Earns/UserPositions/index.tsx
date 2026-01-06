@@ -338,21 +338,10 @@ const UserPositions = () => {
 
                 <Flex sx={{ gap: '4px' }}>
                   <FarmingIcon width={24} height={24} />
-                  <PositionTableHeaderFlexItem
-                    flexDirection="column"
-                    role="button"
-                    onClick={() => onSortChange(SortBy.UNCLAIMED_REWARDS)}
-                  >
+                  <PositionTableHeaderFlexItem flexDirection="column">
                     <Trans>
                       <Text>Unclaimed</Text>
-                      <Flex alignItems={'center'} sx={{ gap: '4px' }}>
-                        <Text>rewards</Text>
-                        <SortIcon
-                          sorted={
-                            filters.sortBy === SortBy.UNCLAIMED_REWARDS ? (filters.orderBy as Direction) : undefined
-                          }
-                        />
-                      </Flex>
+                      <Text>rewards</Text>
                     </Trans>
                   </PositionTableHeaderFlexItem>
                 </Flex>
