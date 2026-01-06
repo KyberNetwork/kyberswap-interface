@@ -24,6 +24,7 @@ export interface ZapOutProps {
   source: string;
   referral?: string;
   zapStatus?: Record<string, TxStatus>;
+  txHashMapping?: Record<string, string>;
   locale?: SupportedLocale;
   onClose: () => void;
   onConnectWallet: () => void;

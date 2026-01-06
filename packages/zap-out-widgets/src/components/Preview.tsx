@@ -52,7 +52,10 @@ export const Preview = () => {
 
   const [showProcessing, setShowProcessing] = useState(false);
   const [txHash, setTxHash] = useState<string | null>(null);
-  const { txStatus } = useTxStatus({ txHash: txHash || undefined });
+  const { txStatus, currentTxHash } = useTxStatus({ txHash: txHash || undefined });
+
+  // Use currentTxHash (which tracks replacements) for displaying to user
+  const displayTxHash = currentTxHash || txHash;
 
   if (!pool || !position || !tokenOut || !route) return null;
 
@@ -92,7 +95,7 @@ export const Preview = () => {
             ? StatusDialogType.SUCCESS
             : txStatus === 'failed' || error
               ? StatusDialogType.ERROR
-              : txHash
+              : displayTxHash
                 ? StatusDialogType.PROCESSING
                 : StatusDialogType.WAITING
         }
@@ -100,14 +103,14 @@ export const Preview = () => {
           txStatus === 'success' ? (mode === 'zapOut' ? t`Zap Out Success!` : t`Remove Liquidity Success!`) : undefined
         }
         description={
-          txStatus !== 'success' && txStatus !== 'failed' && !error && !txHash
+          txStatus !== 'success' && txStatus !== 'failed' && !error && !displayTxHash
             ? t`Confirm this transaction in your wallet`
             : txStatus === 'success'
               ? t`You have successfully removed your liquidity`
               : undefined
         }
         errorMessage={error ? translatedErrorMessage : undefined}
-        transactionExplorerUrl={txHash ? `${NETWORKS_INFO[chainId].scanLink}/tx/${txHash}` : undefined}
+        transactionExplorerUrl={displayTxHash ? `${NETWORKS_INFO[chainId].scanLink}/tx/${displayTxHash}` : undefined}
         action={
           <>
             <button className="ks-outline-btn flex-1" onClick={onCloseStatusDialog}>
