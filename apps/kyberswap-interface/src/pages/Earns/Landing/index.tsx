@@ -203,6 +203,7 @@ const EarnLanding = () => {
             alignItems: 'center',
             padding: '1rem 2rem',
             width: 'fit-content',
+            ':hover': { background: rgba(theme.primary, 0.25) },
           }}
         >
           {t`EXPLORE POOLS`}

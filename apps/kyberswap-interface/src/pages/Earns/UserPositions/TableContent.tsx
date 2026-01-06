@@ -535,7 +535,7 @@ export default function TableContent({
 
                   {/* Unclaimed fees info */}
                   <PositionValueWrapper align={upToCustomLarge ? 'flex-end' : ''}>
-                    <PositionValueLabel>{t`Unclaimed Fee`}</PositionValueLabel>
+                    <PositionValueLabel>{t`Unclaimed fees`}</PositionValueLabel>
 
                     {isUnfinalized ? (
                       <PositionSkeleton width={80} height={19} text={t`Finalizing...`} />
