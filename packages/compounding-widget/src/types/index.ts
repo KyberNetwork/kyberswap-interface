@@ -24,6 +24,7 @@ export interface WidgetProps {
   initAmounts?: string;
   compoundType?: 'COMPOUND_TYPE_REWARD';
   zapStatus?: Record<string, TxStatus>;
+  txHashMapping?: Record<string, string>;
   locale?: SupportedLocale;
   onClose: () => void;
   onConnectWallet: () => void;

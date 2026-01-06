@@ -7,7 +7,7 @@ import {
 } from '@kyberswap/compounding-widget'
 import '@kyberswap/compounding-widget/dist/style.css'
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { NotificationType } from 'components/Announcement/type'
@@ -99,23 +99,127 @@ const useCompounding = ({
 
   const [compoundingPureParams, setCompoundingPureParams] = useState<CompoundingPureParams | null>(null)
   const [compoundingTxHash, setCompoundingTxHash] = useState<string[]>([])
+  // Track original hash -> current hash mapping for replacements
+  const [originalToCurrentHash, setOriginalToCurrentHash] = useState<Record<string, string>>({})
+  const prevAllTransactionsRef = useRef<typeof allTransactions>()
   const { rpc: compoundingRpcUrl } = useKyberSwapConfig(compoundingPureParams?.chainId as ChainId | undefined)
+
+  // Handle transaction replacement (speed up, cancel)
+  useEffect(() => {
+    if (!allTransactions || compoundingTxHash.length === 0) {
+      prevAllTransactionsRef.current = allTransactions
+      return
+    }
+
+    // Skip if allTransactions hasn't actually changed (same reference)
+    if (prevAllTransactionsRef.current === allTransactions) {
+      return
+    }
+
+    const prevTxs = prevAllTransactionsRef.current
+    if (!prevTxs) {
+      prevAllTransactionsRef.current = allTransactions
+      return
+    }
+
+    const prevTxKeys = new Set(Object.keys(prevTxs))
+    const currentTxKeys = new Set(Object.keys(allTransactions))
+
+    // Check if any tracked hash is missing (potentially replaced)
+    const needsUpdate = compoundingTxHash.some(hash => !currentTxKeys.has(hash))
+
+    if (!needsUpdate) {
+      // No replacement detected, just update ref for next comparison
+      prevAllTransactionsRef.current = allTransactions
+      return
+    }
+
+    // Find new keys that weren't in previous state
+    const newKeys = [...currentTxKeys].filter(key => !prevTxKeys.has(key))
+
+    const updatedHashes = compoundingTxHash.map(trackedHash => {
+      // If still exists, no change
+      if (currentTxKeys.has(trackedHash)) {
+        return trackedHash
+      }
+
+      // Hash disappeared from keys, check if it was replaced
+      // Check each new key to see if it's related to our tracked hash
+      for (const newKey of newKeys) {
+        const txGroup = allTransactions[newKey]
+        const oldTxGroup = prevTxs[trackedHash]
+
+        if (!txGroup || !oldTxGroup) continue
+
+        // Compare transaction metadata to identify if this is the same tx
+        // (same nonce, from, to, data means same transaction)
+        const newTx = txGroup[0]
+        const oldTx = oldTxGroup[0]
+
+        if (
+          newTx &&
+          oldTx &&
+          newTx.from === oldTx.from &&
+          newTx.to === oldTx.to &&
+          newTx.nonce === oldTx.nonce &&
+          newTx.data === oldTx.data
+        ) {
+          return newKey
+        }
+      }
+
+      // Not replaced, keep the old hash
+      return trackedHash
+    })
+
+    const hasChange = updatedHashes.some((hash, index) => hash !== compoundingTxHash[index])
+
+    if (hasChange) {
+      setCompoundingTxHash(updatedHashes)
+
+      // Update original->current hash mapping for widget compatibility
+      const newMapping: Record<string, string> = { ...originalToCurrentHash }
+      compoundingTxHash.forEach((originalHash, index) => {
+        const currentHash = updatedHashes[index]
+        if (originalHash !== currentHash) {
+          // Find the original hash that this chain started from
+          const rootOriginal = Object.entries(newMapping).find(([, v]) => v === originalHash)?.[0] || originalHash
+          newMapping[rootOriginal] = currentHash
+        }
+      })
+      setOriginalToCurrentHash(newMapping)
+    }
+
+    // Update ref AFTER all logic to avoid desync
+    prevAllTransactionsRef.current = allTransactions
+  }, [allTransactions, compoundingTxHash, originalToCurrentHash])
 
   const compoundingStatus = useMemo(() => {
     if (!allTransactions || !compoundingTxHash.length) return {}
 
-    return compoundingTxHash.reduce((acc: Record<string, TxStatus>, txHash) => {
+    const status = compoundingTxHash.reduce((acc: Record<string, TxStatus>, txHash) => {
       const zapTx = allTransactions[txHash]
       if (zapTx?.[0].receipt) {
-        acc[txHash as keyof typeof acc] = zapTx?.[0].receipt.status === 1 ? TxStatus.SUCCESS : TxStatus.FAILED
-      } else acc[txHash as keyof typeof acc] = TxStatus.PENDING
+        acc[txHash] = zapTx?.[0].receipt.status === 1 ? TxStatus.SUCCESS : TxStatus.FAILED
+      } else acc[txHash] = TxStatus.PENDING
       return acc
     }, {})
-  }, [allTransactions, compoundingTxHash])
+
+    // Also include original hashes pointing to their replacement's status
+    // This allows the widget to look up status by the original hash it received
+    Object.entries(originalToCurrentHash).forEach(([originalHash, currentHash]) => {
+      if (status[currentHash] !== undefined && originalHash !== currentHash) {
+        status[originalHash] = status[currentHash]
+      }
+    })
+
+    return status
+  }, [allTransactions, compoundingTxHash, originalToCurrentHash])
 
   const handleCloseCompounding = useCallback(() => {
     setCompoundingPureParams(null)
     setCompoundingTxHash([])
+    setOriginalToCurrentHash({})
   }, [])
 
   const handleNavigateToPosition = useCallback(
@@ -176,6 +280,7 @@ const useCompounding = ({
             },
             onConnectWallet: toggleWalletModal,
             zapStatus: compoundingStatus,
+            txHashMapping: originalToCurrentHash,
             onSwitchChain: () => changeNetwork(compoundingPureParams.chainId as number),
             onViewPosition: (txHash: string) => {
               const { chainId, poolType, poolAddress, positionId } = compoundingPureParams
@@ -228,6 +333,8 @@ const useCompounding = ({
               }
 
               setCompoundingTxHash(prev => [...prev, txHash])
+              // Initialize mapping: original hash points to itself (no replacement yet)
+              setOriginalToCurrentHash(prev => ({ ...prev, [txHash]: txHash }))
               return txHash
             },
           }
@@ -247,6 +354,7 @@ const useCompounding = ({
       onCloseClaimModal,
       addTransactionWithType,
       compoundingStatus,
+      originalToCurrentHash,
     ],
   )
 

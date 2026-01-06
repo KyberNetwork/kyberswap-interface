@@ -9,21 +9,45 @@ import { useWidgetStore } from '@/stores/useWidgetStore';
 import { TxStatus } from '@/types/index';
 
 export default function useTxStatus({ txHash }: { txHash?: string }) {
-  const { chainId, rpcUrl, zapStatus } = useWidgetStore(
+  const { chainId, rpcUrl, zapStatus, txHashMapping } = useWidgetStore(
     useShallow(s => ({
       chainId: s.chainId,
       rpcUrl: s.rpcUrl,
       zapStatus: s.zapStatus,
+      txHashMapping: s.txHashMapping,
     })),
   );
   const [txStatus, setTxStatus] = useState<'success' | 'failed' | ''>('');
 
+  // Get the current tx hash (might be different if tx was replaced/sped up)
+  const currentTxHash = txHash ? (txHashMapping?.[txHash] ?? txHash) : undefined;
+
+  // Reset status when txHash changes
   useEffect(() => {
-    if (zapStatus) return;
+    setTxStatus('');
+  }, [txHash]);
+
+  // When zapStatus is provided (from app), use it directly
+  useEffect(() => {
+    if (!zapStatus || !txHash) return;
+
+    const status = zapStatus[txHash];
+    if (status === TxStatus.SUCCESS) {
+      setTxStatus('success');
+    } else if (status === TxStatus.FAILED) {
+      setTxStatus('failed');
+    } else {
+      setTxStatus('');
+    }
+  }, [zapStatus, txHash]);
+
+  // Fallback: Poll RPC when zapStatus is not provided (standalone widget usage)
+  useEffect(() => {
+    if (zapStatus || !currentTxHash) return;
 
     const checkTxStatus = () => {
-      if (txStatus !== '' || !txHash) return;
-      isTransactionSuccessful(rpcUrl, txHash).then(res => {
+      if (txStatus !== '') return;
+      isTransactionSuccessful(rpcUrl, currentTxHash).then(res => {
         if (!res) return;
 
         if (res.status) {
@@ -32,30 +56,13 @@ export default function useTxStatus({ txHash }: { txHash?: string }) {
       });
     };
 
-    if (txHash) {
-      checkTxStatus();
-      const i = setInterval(checkTxStatus, chainId === ChainId.Ethereum ? 10_000 : 5_000);
+    checkTxStatus();
+    const interval = setInterval(checkTxStatus, chainId === ChainId.Ethereum ? 10_000 : 5_000);
 
-      return () => {
-        clearInterval(i);
-      };
-    }
-  }, [chainId, rpcUrl, txHash, txStatus, zapStatus]);
+    return () => {
+      clearInterval(interval);
+    };
+  }, [chainId, rpcUrl, currentTxHash, txStatus, zapStatus]);
 
-  useEffect(() => {
-    setTxStatus('');
-  }, [txHash]);
-
-  useEffect(() => {
-    if (!zapStatus) return;
-    if (!txHash || !zapStatus[txHash]) {
-      setTxStatus('');
-      return;
-    }
-    if (zapStatus[txHash] === TxStatus.SUCCESS || zapStatus[txHash] === TxStatus.FAILED) {
-      setTxStatus(zapStatus[txHash] as 'success' | 'failed');
-    } else setTxStatus('');
-  }, [zapStatus, txHash]);
-
-  return { txStatus };
+  return { txStatus, currentTxHash };
 }

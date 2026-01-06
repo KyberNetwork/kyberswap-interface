@@ -89,7 +89,10 @@ export default function Widget() {
   const [txHash, setTxHash] = useState('');
   const [attempTx, setAttempTx] = useState(false);
   const [txError, setTxError] = useState<Error | null>(null);
-  const { txStatus } = useTxStatus({ txHash: txHash || undefined });
+  const { txStatus, currentTxHash } = useTxStatus({ txHash: txHash || undefined });
+
+  // Use currentTxHash (which tracks replacements) for displaying to user
+  const displayTxHash = currentTxHash || txHash;
 
   const handleClick = useCallback(async () => {
     if (!snapshotState || attempTx || txError || pool === 'loading' || !position || position === 'loading') return;
@@ -159,7 +162,7 @@ export default function Widget() {
   }, [handleClick]);
 
   let txStatusText = '';
-  if (txHash) {
+  if (displayTxHash) {
     if (txStatus === 'success') txStatusText = t`Compound Completed`;
     else if (txStatus === 'failed' || txError) txStatusText = t`Transaction failed`;
     else txStatusText = t`Processing transaction`;
@@ -190,7 +193,7 @@ export default function Widget() {
           </div>
         </Modal>
       )}
-      {(attempTx || txHash) && (
+      {(attempTx || displayTxHash) && (
         <Modal isOpen onClick={onCloseConfirm}>
           <div className="mt-4 gap-4 flex flex-col justify-center items-center text-base font-medium">
             <div className="flex justify-center gap-3 flex-col items-center flex-1">
@@ -215,27 +218,27 @@ export default function Widget() {
                   </Trans>
                 </div>
               )}
-              {txHash && txStatus === '' && !txError && (
+              {displayTxHash && txStatus === '' && !txError && (
                 <div className="text-sm text-subText">
                   <Trans>It may take a few minutes to proceed.</Trans>
                 </div>
               )}
-              {txHash && txStatus === 'success' && (
+              {displayTxHash && txStatus === 'success' && (
                 <div className="text-sm text-subText">
                   <Trans>You have successfully added liquidity!</Trans>
                 </div>
               )}
-              {txHash && (txStatus === 'failed' || txError) && (
+              {displayTxHash && (txStatus === 'failed' || txError) && (
                 <div className="text-sm text-subText">
                   <Trans>An error occurred during the liquidity migration.</Trans>
                 </div>
               )}
             </div>
 
-            {txHash && (
+            {displayTxHash && (
               <a
                 className="flex justify-end items-center text-accent text-sm gap-1"
-                href={`${NETWORKS_INFO[chainId].scanLink}/tx/${txHash}`}
+                href={`${NETWORKS_INFO[chainId].scanLink}/tx/${displayTxHash}`}
                 target="_blank"
                 rel="noopener norefferer noreferrer"
               >
@@ -261,7 +264,7 @@ export default function Widget() {
                   <Trans>Close</Trans>
                 </button>
                 {txStatus === 'success' && onViewPosition && (
-                  <button className="ks-primary-btn flex-1" onClick={() => onViewPosition(txHash)}>
+                  <button className="ks-primary-btn flex-1" onClick={() => onViewPosition(displayTxHash)}>
                     <Trans>View position</Trans>
                   </button>
                 )}

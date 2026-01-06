@@ -63,13 +63,14 @@ export const useWidgetStore = create<WidgetState>((set, _get) => ({
   ...initState,
   reset: () => set(initState),
   setInitiaWidgetState: (props: WidgetProps, resetStore: () => void) => {
-    const { onClose, chainId, rpcUrl } = props;
+    const { onClose, chainId, rpcUrl, txHashMapping } = props;
 
     const wrappedNativeToken = NETWORKS_INFO[chainId].wrappedToken;
 
     set({
       ...props,
       rpcUrl: rpcUrl ?? NETWORKS_INFO[chainId].defaultRpc,
+      txHashMapping,
       onClose: () => {
         resetStore();
         onClose();
