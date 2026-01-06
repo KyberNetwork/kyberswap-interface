@@ -73,7 +73,10 @@ export function Preview({
   const [showProcessing, setShowProcessing] = useState(false);
   const [txHash, setTxHash] = useState<string | null>(null);
   const [error, setError] = useState<Error | undefined>();
-  const { txStatus } = useTxStatus({ txHash: txHash || undefined });
+  const { txStatus, currentTxHash } = useTxStatus({ txHash: txHash || undefined });
+
+  // Use currentTxHash (which tracks replacements) for displaying to user
+  const displayTxHash = currentTxHash || txHash;
 
   if (route === null || !sourcePool || !targetPool || !account || !buildData) return null;
 
@@ -153,7 +156,7 @@ export function Preview({
               : undefined
         }
         errorMessage={error ? translatedErrorMessage : undefined}
-        transactionExplorerUrl={txHash ? `${NETWORKS_INFO[chainId].scanLink}/tx/${txHash}` : undefined}
+        transactionExplorerUrl={displayTxHash ? `${NETWORKS_INFO[chainId].scanLink}/tx/${displayTxHash}` : undefined}
         action={
           <>
             {txStatus === 'success' && onExplorePools && rePositionMode ? (
@@ -166,8 +169,8 @@ export function Preview({
               </button>
             )}
             {txStatus === 'success' ? (
-              onViewPosition && txHash ? (
-                <button className="ks-primary-btn flex-1" onClick={() => onViewPosition(txHash)}>
+              onViewPosition && displayTxHash ? (
+                <button className="ks-primary-btn flex-1" onClick={() => onViewPosition(displayTxHash)}>
                   {t`View position`}
                 </button>
               ) : null

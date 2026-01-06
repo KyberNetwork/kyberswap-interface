@@ -21,6 +21,7 @@ interface WidgetProps {
     chainId: number;
   };
   zapStatus?: Record<string, TxStatus>;
+  txHashMapping?: Record<string, string>;
   onClose: () => void;
   onSubmitTx: (txData: { from: string; to: string; value: string; data: string; gasLimit: string }) => Promise<string>;
   signTypedData?: (account: string, typedDataJson: string) => Promise<string>;
@@ -71,6 +72,7 @@ const useWidgetRawStore = create<WidgetState>((set, _get) => ({
     referral,
     connectedAccount,
     zapStatus,
+    txHashMapping,
     onClose,
     onSubmitTx,
     signTypedData,
@@ -96,6 +98,7 @@ const useWidgetRawStore = create<WidgetState>((set, _get) => ({
       referral,
       connectedAccount,
       zapStatus,
+      txHashMapping,
       onClose,
       onSubmitTx,
       signTypedData,
