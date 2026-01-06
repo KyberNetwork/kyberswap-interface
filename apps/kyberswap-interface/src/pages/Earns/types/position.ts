@@ -1,6 +1,6 @@
 import { NativeToken } from 'constants/networks/type'
 import { Exchange } from 'pages/Earns/constants'
-import { MerklOpportunity, PAIR_CATEGORY, ProgramType } from 'pages/Earns/types/pool'
+import { MerklOpportunity, PAIR_CATEGORY } from 'pages/Earns/types/pool'
 import { TokenRewardInfo } from 'pages/Earns/types/reward'
 
 export enum PositionStatus {
@@ -48,7 +48,6 @@ export interface UserPositionsStats {
 }
 
 export interface UserPosition {
-  [x: string]: any
   chain: {
     name: string
     logo: string
@@ -66,9 +65,10 @@ export interface UserPosition {
   pool: PositionPool
   suggestionPool: SuggestedPool | null
   valueInUSD: number
-  positionCreatedTimestamp: number
-  positionCreatedBlock: number
+  createdAtTime: number
   lastUpdatedAt: number
+  createdAtBlock: number
+  latestBlock: number
   extra: {
     priceRange: {
       min: number
@@ -303,45 +303,6 @@ export interface ParsedPosition {
   isUnfinalized: boolean
   isValueUpdating: boolean
   txHash?: string
-}
-
-export interface EarnPosition {
-  chainName: 'eth'
-  chainId: number
-  chainLogo: string
-  id: string
-  tokenAddress: string
-  tokenId: string
-  minPrice: number
-  maxPrice: number
-  currentAmounts: Array<TokenAmount>
-  feePending: Array<TokenAmount>
-  feesClaimed: Array<TokenAmount>
-  createdTime: number
-  stats: {
-    apr: PoolAprInterval
-    kemLMApr: PoolAprInterval
-    kemEGApr: PoolAprInterval
-    earning: PoolAprInterval
-  }
-  currentPositionValue: number
-  status: PositionStatus
-  pool: {
-    id: string
-    poolAddress: string
-    price: number
-    tokenAmounts: Array<TokenAmount>
-    fees: Array<number>
-    tickSpacing: number
-    exchange: Exchange
-    projectLogo: string
-    category: PAIR_CATEGORY
-    programs?: Array<ProgramType>
-    merklOpportunity?: MerklOpportunity
-  }
-  suggestionPool: SuggestedPool | null
-  latestBlock: number
-  createdAtBlock: number
 }
 
 export interface SuggestedPool {

@@ -1,7 +1,7 @@
 import { ShareModal, ShareModalProps, ShareType } from '@kyber/ui'
 import { t } from '@lingui/macro'
 import { rgba } from 'polished'
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { Share2 } from 'react-feather'
 import Skeleton from 'react-loading-skeleton'
 import { useMedia } from 'react-use'
@@ -87,8 +87,7 @@ export default function PositionBanner({
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
 
-  const feeStats = useMemo(() => extractClaimedFeeStats(positionsStats), [positionsStats])
-  const { totalValueUsd, totalEarnedFeeUsd, totalUnclaimedFeeUsd } = feeStats
+  const { totalValueUsd, totalEarnedFeeUsd, totalUnclaimedFeeUsd } = extractClaimedFeeStats(positionsStats)
 
   const KemImageSize = upToSmall ? 20 : 24
 

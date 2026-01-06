@@ -87,9 +87,7 @@ const RewardSection = ({
   const merklRewards = position ? rewardsByPosition[position.positionId]?.rewards || [] : []
   const merklRewardsTotalUsd = position ? rewardsByPosition[position.positionId]?.totalUsdValue || 0 : 0
 
-  const rewardInfoThisPosition = !position
-    ? undefined
-    : rewardInfo?.nfts.find(item => item.nftId === position.tokenId?.toString())
+  const rewardInfoThisPosition = rewardInfo?.nfts.find(item => item.nftId === position?.tokenId.toString())
 
   const chain = position?.chain.id ? NETWORKS_INFO[position.chain.id as ChainId]?.route || '' : ''
   const { data: cycleConfig } = useCycleConfigQuery(

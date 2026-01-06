@@ -82,10 +82,9 @@ const PositionDetail = () => {
     { skip: !account, pollingInterval: forceLoading || reduceFetchInterval ? 5_000 : 15_000 },
   )
   const { rewardInfo } = useKemRewards({ refetchAfterCollect: refetch })
+
   const userPositions = useMemo(() => userPositionsData?.positions || [], [userPositionsData?.positions])
-  const rewardInfoThisPosition = !userPositions.length
-    ? undefined
-    : rewardInfo?.nfts.find(item => item.nftId === userPositions?.[0]?.tokenId?.toString())
+  const rewardInfoThisPosition = rewardInfo?.nfts.find(item => item.nftId === userPositions[0]?.tokenId.toString())
 
   const currentWalletAddress = useRef(account)
   const [aprInterval, setAprInterval] = useState<'24h' | '7d'>('24h')

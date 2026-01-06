@@ -155,7 +155,7 @@ export const parsePosition = ({
   const token1EarnedAmount = token1PendingEarned + token1ClaimedEarned
 
   const nftUnclaimedUsdValue = nftRewardInfo?.unclaimedUsdValue || 0
-  const totalValue = (forceClosed ? 0 : position.currentPositionValue || position.valueInUSD) + nftUnclaimedUsdValue
+  const totalValue = (forceClosed ? 0 : position.valueInUSD) + nftUnclaimedUsdValue
   const unclaimedFees = forceClosed
     ? 0
     : feeInfo?.totalValue ?? feePending.reduce((sum, fee) => sum + (fee.amount?.usdValue || 0), 0)
@@ -204,13 +204,9 @@ export const parsePosition = ({
   }
 
   const now = Date.now()
-  const createdTime = position.positionCreatedTimestamp * 1000
+  const createdTime = position.createdAtTime * 1000
   const isNewPosition = createdTime >= now - 2 * 60 * 1000
-  const isUnfinalized =
-    isNewPosition &&
-    (position.lastUpdatedAt || position.latestBlock || 0) -
-      (position.createdAtBlock || position.positionCreatedBlock || 0) <=
-      10
+  const isUnfinalized = isNewPosition && position.latestBlock - position.createdAtBlock <= 10
 
   const totalEarnedFees =
     feePending.reduce((sum, fee) => sum + (fee.amount?.usdValue || 0), 0) +

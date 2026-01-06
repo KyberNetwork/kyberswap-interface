@@ -41,7 +41,6 @@ import { getUnfinalizedPositions } from 'pages/Earns/utils/unfinalizedPosition'
 import SortIcon, { Direction } from 'pages/MarketOverview/SortIcon'
 import { MEDIA_WIDTHS } from 'theme'
 
-const POSITIONS_TABLE_LIMIT = 10
 const UserPositions = () => {
   const theme = useTheme()
   const navigate = useNavigate()
@@ -58,12 +57,11 @@ const UserPositions = () => {
   const { closedPositionsFromRpc, checkClosedPosition } = useClosedPositions()
 
   const positionQueryParams = useMemo(() => {
-    const protocols = filters.protocols
     return {
       wallet: account || '',
       chainIds: filters.chainIds,
-      protocols,
-      statuses: filters.statuses || '',
+      protocols: filters.protocols,
+      statuses: filters.statuses,
       keyword: filters.keyword,
       positionIds: filters.positionId,
       sorts: [filters.sortBy, filters.orderBy].filter(Boolean).join(':'),
@@ -81,6 +79,7 @@ const UserPositions = () => {
     skip: !account,
     pollingInterval: 15_000,
   })
+
   const positionsStats = userPositionsData?.stats
 
   const {
@@ -127,9 +126,8 @@ const UserPositions = () => {
   }, [supportedChains, filters.chainIds])
 
   const parsedPositions: Array<ParsedPosition> = useMemo(() => {
-    const userPositions = userPositionsData?.positions || []
-    return userPositions.map(position => {
-      const tokenId = position.tokenId?.toString()
+    return (userPositionsData?.positions || []).map(position => {
+      const tokenId = position.tokenId.toString()
       const feeInfo = feeInfoFromRpc.find(feeInfo => feeInfo.id === tokenId)
       const nftRewardInfo = rewardInfo?.nfts.find(item => item.nftId === tokenId)
       const isClosedFromRpc = closedPositionsFromRpc.includes(tokenId)
@@ -141,7 +139,7 @@ const UserPositions = () => {
         isClosedFromRpc,
       })
     })
-  }, [feeInfoFromRpc, rewardInfo?.nfts, userPositionsData?.positions, closedPositionsFromRpc])
+  }, [feeInfoFromRpc, rewardInfo?.nfts, userPositionsData, closedPositionsFromRpc])
 
   const filteredPositions: Array<ParsedPosition> = useMemo(() => {
     const unfinalizedPositions = getUnfinalizedPositions(parsedPositions)
@@ -376,7 +374,7 @@ const UserPositions = () => {
               onPageChange={(newPage: number) => updateFilters('page', newPage)}
               totalCount={positionsStats.totalItems || 0}
               currentPage={filters.page}
-              pageSize={filters.pageSize || POSITIONS_TABLE_LIMIT}
+              pageSize={filters.pageSize || 10}
             />
           )}
         </PositionTableWrapper>

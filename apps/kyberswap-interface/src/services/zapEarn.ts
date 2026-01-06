@@ -1,7 +1,13 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
-import { EarnPool, PositionHistoryType, UserPosition, UserPositionsApiResponse } from 'pages/Earns/types'
+import {
+  EarnPool,
+  PositionHistoryType,
+  UserPosition,
+  UserPositionsApiResponse,
+  UserPositionsStats,
+} from 'pages/Earns/types'
 
 interface LandingResponse {
   data: {
@@ -156,7 +162,7 @@ const zapEarnServiceApi = createApi({
         }
       },
     }),
-    userPositions: builder.query<{ positions: Array<UserPosition>; stats: any }, PositionQueryParams>({
+    userPositions: builder.query<{ positions: Array<UserPosition>; stats?: UserPositionsStats }, PositionQueryParams>({
       query: params => ({
         url: `/v1/positions`,
         params,
@@ -169,7 +175,7 @@ const zapEarnServiceApi = createApi({
         try {
           await queryFulfilled
         } catch {
-          dispatch(zapEarnServiceApi.util.upsertQueryData('userPositions', agr, { positions: [], stats: null }))
+          dispatch(zapEarnServiceApi.util.upsertQueryData('userPositions', agr, { positions: [], stats: undefined }))
         }
       },
     }),
