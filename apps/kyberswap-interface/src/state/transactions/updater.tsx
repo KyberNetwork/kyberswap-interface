@@ -183,6 +183,8 @@ export default function Updater(): null {
     uniqueTransactions
       .filter(hash => shouldCheck(lastBlockNumber, findTx(transactions, hash)))
       .forEach(hash => {
+        let txHash = hash
+
         // Check if tx was replaced
         readProvider
           .getTransaction(hash)
@@ -206,6 +208,7 @@ export default function Updater(): null {
               })
                 .then(newTx => {
                   if (newTx) {
+                    txHash = newTx.hash
                     dispatch(
                       replaceTx({
                         chainId,
@@ -226,14 +229,14 @@ export default function Updater(): null {
 
         if (connector?.id === CONNECTION.SAFE_CONNECTOR_ID) {
           appsSdk.txs
-            .getBySafeTxHash(hash)
+            .getBySafeTxHash(txHash)
             .then(receipt => {
               handleTransactionReceipt(
-                hash,
+                txHash,
                 receipt
                   ? {
                       ...receipt,
-                      transactionHash: hash,
+                      transactionHash: txHash,
                       blockHash: '',
                       status: receipt.txStatus === SafeTransactionStatus.SUCCESS ? 1 : 0,
                     }
@@ -241,16 +244,16 @@ export default function Updater(): null {
               )
             })
             .catch((error: any) => {
-              console.error(`failed to check transaction hash: ${hash}`, error)
+              console.error(`failed to check transaction hash: ${txHash}`, error)
             })
         } else {
           readProvider
-            .getTransactionReceipt(hash)
+            .getTransactionReceipt(txHash)
             .then(receipt => {
-              handleTransactionReceipt(hash, receipt)
+              handleTransactionReceipt(txHash, receipt)
             })
             .catch((error: any) => {
-              console.error(`failed to check transaction hash: ${hash}`, error)
+              console.error(`failed to check transaction hash: ${txHash}`, error)
             })
         }
       })
