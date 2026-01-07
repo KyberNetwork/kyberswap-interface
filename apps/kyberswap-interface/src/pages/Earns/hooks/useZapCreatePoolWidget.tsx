@@ -92,18 +92,26 @@ const useZapCreatePoolWidget = () => {
         onSwitchChain: () => changeNetwork(config.chainId),
         onSubmitTx: async (
           txData: { from: string; to: string; data: string; value: string; gasLimit: string },
-          additionalInfo?: {
-            tokensIn: Array<{ symbol: string; amount: string; logoUrl?: string }>
-            pool: string
-            dexLogo: string
-          },
+          additionalInfo?:
+            | {
+                type: 'zap'
+                tokensIn: Array<{ symbol: string; amount: string; logoUrl?: string }>
+                pool: string
+                dexLogo: string
+              }
+            | {
+                type: 'erc20_approval'
+                tokenAddress: string
+                tokenSymbol?: string
+                dexName?: string
+              },
         ) => {
           const res = await submitTransaction({ library, txData })
           const { txHash, error } = res
 
           if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
 
-          if (config && additionalInfo) {
+          if (additionalInfo?.type === 'zap' && config) {
             addTransactionWithType({
               hash: txHash,
               type: TRANSACTION_TYPE.EARN_ADD_LIQUIDITY,
@@ -112,6 +120,15 @@ const useZapCreatePoolWidget = () => {
                 tokensIn: additionalInfo.tokensIn,
                 dexLogoUrl: additionalInfo.dexLogo,
                 dex: config.protocol,
+              },
+            })
+          } else if (additionalInfo?.type === 'erc20_approval') {
+            addTransactionWithType({
+              hash: txHash,
+              type: TRANSACTION_TYPE.APPROVE,
+              extraInfo: {
+                tokenAddress: additionalInfo.tokenAddress,
+                summary: additionalInfo.tokenSymbol,
               },
             })
           }
