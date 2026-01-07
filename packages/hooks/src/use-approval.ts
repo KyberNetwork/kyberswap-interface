@@ -129,7 +129,7 @@ export const useErc20Approvals = ({
         ...prev,
         [addressToApprove]: APPROVAL_STATE.APPROVED,
       }));
-    } else if (status === TxStatus.FAILED) {
+    } else if (status === TxStatus.FAILED || status === TxStatus.CANCELLED) {
       setPendingTx('');
       setApprovalStates(prev => ({
         ...prev,

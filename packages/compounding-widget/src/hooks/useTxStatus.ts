@@ -22,7 +22,7 @@ export default function useTxStatus({ txHash }: { txHash?: string }) {
       txHashMapping: s.txHashMapping,
     })),
   );
-  const [txStatus, setTxStatus] = useState<'success' | 'failed' | ''>('');
+  const [txStatus, setTxStatus] = useState<'success' | 'failed' | 'cancelled' | ''>('');
 
   // Get the current tx hash (might be different if tx was replaced/sped up)
   const currentTxHash = txHash ? (txHashMapping?.[txHash] ?? txHash) : undefined;
@@ -41,6 +41,8 @@ export default function useTxStatus({ txHash }: { txHash?: string }) {
       setTxStatus('success');
     } else if (status === TxStatus.FAILED) {
       setTxStatus('failed');
+    } else if (status === TxStatus.CANCELLED) {
+      setTxStatus('cancelled');
     } else {
       setTxStatus('');
     }

@@ -158,11 +158,13 @@ export default function Preview(props: PreviewProps) {
         type={
           txStatus === 'success'
             ? StatusDialogType.SUCCESS
-            : txStatus === 'failed' || txError
-              ? StatusDialogType.ERROR
-              : txHash
-                ? StatusDialogType.PROCESSING
-                : StatusDialogType.WAITING
+            : txStatus === 'cancelled'
+              ? StatusDialogType.CANCELLED
+              : txStatus === 'failed' || txError
+                ? StatusDialogType.ERROR
+                : txHash
+                  ? StatusDialogType.PROCESSING
+                  : StatusDialogType.WAITING
         }
         description={
           txStatus === 'success'

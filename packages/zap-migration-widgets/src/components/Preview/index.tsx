@@ -143,11 +143,13 @@ export function Preview({
         type={
           txStatus === 'success'
             ? StatusDialogType.SUCCESS
-            : txStatus === 'failed' || error
-              ? StatusDialogType.ERROR
-              : txHash
-                ? StatusDialogType.PROCESSING
-                : StatusDialogType.WAITING
+            : txStatus === 'cancelled'
+              ? StatusDialogType.CANCELLED
+              : txStatus === 'failed' || error
+                ? StatusDialogType.ERROR
+                : txHash
+                  ? StatusDialogType.PROCESSING
+                  : StatusDialogType.WAITING
         }
         title={txStatus === 'success' && rePositionMode ? t`Reposition Completed` : undefined}
         description={

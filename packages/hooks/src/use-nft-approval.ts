@@ -80,7 +80,7 @@ export function useNftApproval({
     if (status === TxStatus.SUCCESS) {
       setApprovelPendingTx('');
       setIsApproved(true);
-    } else if (status === TxStatus.FAILED) {
+    } else if (status === TxStatus.FAILED || status === TxStatus.CANCELLED) {
       setApprovelPendingTx('');
       setIsApproved(false);
     }

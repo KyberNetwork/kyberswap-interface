@@ -13,6 +13,7 @@ export default function useTransactionReplacement() {
 
   const [trackedTxHash, setTrackedTxHash] = useState<string[]>([])
   const [originalToCurrentHash, setOriginalToCurrentHash] = useState<Record<string, string>>({})
+  const [cancelledTxHashes, setCancelledTxHashes] = useState<Set<string>>(new Set())
   const prevAllTransactionsRef = useRef<typeof allTransactions>()
 
   // Handle transaction replacement (speed up, cancel)
@@ -48,6 +49,7 @@ export default function useTransactionReplacement() {
     // Find new keys that weren't in previous state
     const newKeys = [...currentTxKeys].filter(key => !prevTxKeys.has(key))
 
+    const newCancelledHashes = new Set(cancelledTxHashes)
     const updatedHashes = trackedTxHash.map(trackedHash => {
       // If still exists, no change
       if (currentTxKeys.has(trackedHash)) {
@@ -79,9 +81,19 @@ export default function useTransactionReplacement() {
         }
       }
 
+      // Hash disappeared and no replacement found - transaction was cancelled
+      if (prevTxKeys.has(trackedHash) && !currentTxKeys.has(trackedHash)) {
+        newCancelledHashes.add(trackedHash)
+      }
+
       // Not replaced, keep the old hash
       return trackedHash
     })
+
+    // Update cancelled hashes if changed
+    if (newCancelledHashes.size !== cancelledTxHashes.size) {
+      setCancelledTxHashes(newCancelledHashes)
+    }
 
     const hasChange = updatedHashes.some((hash, index) => hash !== trackedTxHash[index])
 
@@ -103,13 +115,19 @@ export default function useTransactionReplacement() {
 
     // Update ref AFTER all logic to avoid desync
     prevAllTransactionsRef.current = allTransactions
-  }, [allTransactions, trackedTxHash, originalToCurrentHash])
+  }, [allTransactions, trackedTxHash, originalToCurrentHash, cancelledTxHashes])
 
   // Compute transaction statuses
   const txStatus = useMemo(() => {
     if (!allTransactions || !trackedTxHash.length) return {}
 
     const status = trackedTxHash.reduce((acc: Record<string, TxStatus>, txHash) => {
+      // Check if tx was cancelled first
+      if (cancelledTxHashes.has(txHash)) {
+        acc[txHash] = TxStatus.CANCELLED
+        return acc
+      }
+
       const tx = allTransactions[txHash]
       if (tx?.[0].receipt) {
         acc[txHash] = tx?.[0].receipt.status === 1 ? TxStatus.SUCCESS : TxStatus.FAILED
@@ -120,13 +138,16 @@ export default function useTransactionReplacement() {
     // Also include original hashes pointing to their replacement's status
     // This allows the widget to look up status by the original hash it received
     Object.entries(originalToCurrentHash).forEach(([originalHash, currentHash]) => {
-      if (status[currentHash] !== undefined && originalHash !== currentHash) {
+      // Check if the current hash was cancelled
+      if (cancelledTxHashes.has(currentHash)) {
+        status[originalHash] = TxStatus.CANCELLED
+      } else if (status[currentHash] !== undefined && originalHash !== currentHash) {
         status[originalHash] = status[currentHash]
       }
     })
 
     return status
-  }, [allTransactions, trackedTxHash, originalToCurrentHash])
+  }, [allTransactions, trackedTxHash, originalToCurrentHash, cancelledTxHashes])
 
   // Add a transaction hash to tracking
   const addTrackedTxHash = useCallback((txHash: string) => {
@@ -139,6 +160,7 @@ export default function useTransactionReplacement() {
   const clearTracking = useCallback(() => {
     setTrackedTxHash([])
     setOriginalToCurrentHash({})
+    setCancelledTxHashes(new Set())
   }, [])
 
   return {

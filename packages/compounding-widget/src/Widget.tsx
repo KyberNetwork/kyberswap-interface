@@ -185,6 +185,7 @@ export default function Widget() {
   let txStatusText = '';
   if (displayTxHash) {
     if (txStatus === 'success') txStatusText = t`Compound Completed`;
+    else if (txStatus === 'cancelled') txStatusText = t`Transaction cancelled`;
     else if (txStatus === 'failed' || txError) txStatusText = t`Transaction failed`;
     else txStatusText = t`Processing transaction`;
   } else {
@@ -221,7 +222,7 @@ export default function Widget() {
               <div className="flex items-center justify-center gap-2 text-xl font-medium">
                 {txStatus === 'success' ? (
                   <SuccessIcon className="w-6 h-6" />
-                ) : txStatus === 'failed' || txError ? (
+                ) : txStatus === 'failed' || txStatus === 'cancelled' || txError ? (
                   <ErrorIcon className="w-6 h-6" />
                 ) : (
                   <Spinner className="w-6 h-6 animate-spin-reverse" />

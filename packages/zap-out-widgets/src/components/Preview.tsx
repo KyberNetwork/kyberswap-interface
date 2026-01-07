@@ -93,11 +93,13 @@ export const Preview = () => {
         type={
           txStatus === 'success'
             ? StatusDialogType.SUCCESS
-            : txStatus === 'failed' || error
-              ? StatusDialogType.ERROR
-              : displayTxHash
-                ? StatusDialogType.PROCESSING
-                : StatusDialogType.WAITING
+            : txStatus === 'cancelled'
+              ? StatusDialogType.CANCELLED
+              : txStatus === 'failed' || error
+                ? StatusDialogType.ERROR
+                : displayTxHash
+                  ? StatusDialogType.PROCESSING
+                  : StatusDialogType.WAITING
         }
         title={
           txStatus === 'success' ? (mode === 'zapOut' ? t`Zap Out Success!` : t`Remove Liquidity Success!`) : undefined

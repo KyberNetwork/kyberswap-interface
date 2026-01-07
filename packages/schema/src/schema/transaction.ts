@@ -3,4 +3,5 @@ export enum TxStatus {
   PENDING = 'pending',
   SUCCESS = 'success',
   FAILED = 'failed',
+  CANCELLED = 'cancelled',
 }

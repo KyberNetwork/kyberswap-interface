@@ -2,7 +2,7 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import SafeAppsSDK, { TransactionStatus as SafeTransactionStatus } from '@safe-global/safe-apps-sdk'
 import { ethers } from 'ethers'
-import { findReplacementTx } from 'find-replacement-tx'
+import { TxValidationError, findReplacementTx } from 'find-replacement-tx'
 import { useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -13,10 +13,15 @@ import useMixpanel, { MIXPANEL_TYPE, NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES } fro
 import { useBlockNumber, useKyberSwapConfig, useTransactionNotify } from 'state/application/hooks'
 import { AppDispatch, AppState } from 'state/index'
 import { revokePermit } from 'state/swap/actions'
+import {
+  checkedTransaction,
+  finalizeTransaction,
+  modifyTransaction,
+  removeTx,
+  replaceTx,
+} from 'state/transactions/actions'
+import { SerializableTransactionReceipt, TRANSACTION_TYPE, TransactionDetails } from 'state/transactions/type'
 import { findTx } from 'utils'
-
-import { checkedTransaction, finalizeTransaction, modifyTransaction, removeTx, replaceTx } from './actions'
-import { SerializableTransactionReceipt, TRANSACTION_TYPE, TransactionDetails } from './type'
 
 const appsSdk = new SafeAppsSDK()
 
@@ -218,8 +223,13 @@ export default function Updater(): null {
                     )
                   }
                 })
-                .catch(() => {
-                  checkRemoveTxs()
+                .catch((error: unknown) => {
+                  // Transaction was canceled (sent 0 ETH to self with empty data)
+                  if (error instanceof TxValidationError && error.message === 'Transaction canceled.') {
+                    dispatch(removeTx({ chainId, hash }))
+                  } else {
+                    checkRemoveTxs()
+                  }
                 })
             else {
               checkRemoveTxs()
