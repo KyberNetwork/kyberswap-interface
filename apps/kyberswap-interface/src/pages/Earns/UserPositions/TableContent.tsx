@@ -237,9 +237,9 @@ export default function TableContent({
         dexId: sourcePosition.dex.id,
       },
       to: {
-        poolType: targetPool.poolExchange,
+        poolType: targetPool.exchange,
         poolAddress: targetPool.address,
-        dexId: targetPool.poolExchange,
+        dexId: targetPool.exchange,
       },
       initialTick:
         tickLower !== undefined && tickUpper !== undefined && !isOutRange
@@ -325,7 +325,7 @@ export default function TableContent({
               const merklRewards = rewardsByPosition?.[positionId]?.rewards || []
               const merklRewardsTotalUsd = rewardsByPosition?.[positionId]?.totalUsdValue || 0
               const suggestedProtocolName = position.suggestionPool
-                ? EARN_DEXES[position.suggestionPool.poolExchange].name.replace('FairFlow', '').trim()
+                ? EARN_DEXES[position.suggestionPool.exchange].name.replace('FairFlow', '').trim()
                 : ''
 
               const actions = (

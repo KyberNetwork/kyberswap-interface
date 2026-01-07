@@ -191,9 +191,9 @@ const PositionDetail = () => {
         dexId: sourcePosition.dex.id,
       },
       to: {
-        poolType: targetPool.poolExchange,
+        poolType: targetPool.exchange,
         poolAddress: targetPool.address,
-        dexId: targetPool.poolExchange,
+        dexId: targetPool.exchange,
       },
       initialTick:
         tickLower !== undefined && tickUpper !== undefined && !isOutRange
@@ -452,7 +452,7 @@ const PositionDetail = () => {
         onClose={() => setPositionToMigrate(null)}
       />
     ) : null
-  const suggestedProtocolName = position?.suggestionPool ? EARN_DEXES[position.suggestionPool.poolExchange].name : ''
+  const suggestedProtocolName = position?.suggestionPool ? EARN_DEXES[position.suggestionPool.exchange].name : ''
 
   return (
     <>

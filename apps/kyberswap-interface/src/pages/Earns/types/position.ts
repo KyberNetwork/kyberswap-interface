@@ -308,7 +308,7 @@ export interface ParsedPosition {
 export interface SuggestedPool {
   address: string
   feeTier: number
-  poolExchange: Exchange
+  exchange: Exchange
   token0: {
     address: string
     decimals: number
