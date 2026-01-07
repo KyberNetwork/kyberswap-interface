@@ -48,7 +48,17 @@ export interface ApprovalState {
 }
 
 export default function useApproval() {
-  const { chainId, rpcUrl, poolType, connectedAccount, positionId, onSubmitTx, signTypedData } = useWidgetStore([
+  const {
+    chainId,
+    rpcUrl,
+    poolType,
+    connectedAccount,
+    positionId,
+    onSubmitTx,
+    signTypedData,
+    txStatus,
+    txHashMapping,
+  } = useWidgetStore([
     'chainId',
     'rpcUrl',
     'poolType',
@@ -56,6 +66,8 @@ export default function useApproval() {
     'positionId',
     'onSubmitTx',
     'signTypedData',
+    'txStatus',
+    'txHashMapping',
   ]);
   const { route, tokensIn, amountsIn } = useZapState();
   const [nftApprovalType, setNftApprovalType] = useState<'single' | 'all'>('all');
@@ -65,6 +77,7 @@ export default function useApproval() {
     isApproved: nftApproved,
     approve: approveNft,
     approvePendingTx: nftApprovePendingTx,
+    currentApprovePendingTx: currentNftApprovePendingTx,
     checkApproval: checkNftApproval,
     isChecking: isCheckingNftApproval,
   } = useNftApproval({
@@ -74,12 +87,15 @@ export default function useApproval() {
     rpcUrl,
     nftManagerContract,
     onSubmitTx: onSubmitTx,
+    txStatus: txStatus as Record<string, 'pending' | 'success' | 'failed'> | undefined,
+    txHashMapping,
   });
 
   const {
     isApproved: nftApprovedAll,
     approveAll: approveNftAll,
     approvePendingTx: nftApprovePendingTxAll,
+    currentApprovePendingTx: currentNftApprovePendingTxAll,
     checkApprovalAll: checkNftApprovalAll,
     isChecking: isCheckingNftApprovalAll,
   } = useNftApprovalAll({
@@ -88,6 +104,8 @@ export default function useApproval() {
     rpcUrl,
     nftManagerContract,
     onSubmitTx: onSubmitTx,
+    txStatus: txStatus as Record<string, 'pending' | 'success' | 'failed'> | undefined,
+    txHashMapping,
   });
 
   const { permitState, signPermitNft, permitData } = usePermitNft({
@@ -114,7 +132,7 @@ export default function useApproval() {
     .filter((_, index) => Number(amountsInWei[index]) > 0)
     .map(token => token?.address || '');
   const amountsToApprove = amountsInWei.filter(amount => Number(amount) > 0);
-  const { loading, approvalStates, approve, addressToApprove } = useErc20Approvals({
+  const { loading, approvalStates, approve, addressToApprove, currentPendingTx } = useErc20Approvals({
     amounts: amountsToApprove,
     addreses: tokenAddressesToApprove,
     owner: connectedAccount?.address || '',
@@ -122,6 +140,8 @@ export default function useApproval() {
     spender:
       permitData?.permitData && route?.routerPermitAddress ? route.routerPermitAddress : route?.routerAddress || '',
     onSubmitTx: onSubmitTx,
+    txStatus: txStatus as Record<string, 'pending' | 'success' | 'failed'> | undefined,
+    txHashMapping,
   });
 
   return {
@@ -129,6 +149,7 @@ export default function useApproval() {
     setNftApprovalType,
     nftApproval: {
       pendingTx: nftApprovePendingTx,
+      currentPendingTx: currentNftApprovePendingTx,
       isChecking: isCheckingNftApproval,
       isApproved: nftApproved,
       approve: approveNft,
@@ -136,6 +157,7 @@ export default function useApproval() {
     },
     nftApprovalAll: {
       pendingTx: nftApprovePendingTxAll,
+      currentPendingTx: currentNftApprovePendingTxAll,
       isChecking: isCheckingNftApprovalAll,
       isApproved: nftApprovedAll,
       approve: approveNftAll,
@@ -151,6 +173,7 @@ export default function useApproval() {
       states: approvalStates,
       approve,
       addressToApprove,
+      currentPendingTx,
     },
   };
 }

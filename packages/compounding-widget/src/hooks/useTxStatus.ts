@@ -9,11 +9,11 @@ import { useWidgetStore } from '@/stores/useWidgetStore';
 import { TxStatus } from '@/types/index';
 
 export default function useTxStatus({ txHash }: { txHash?: string }) {
-  const { chainId, rpcUrl, zapStatus, txHashMapping } = useWidgetStore(
+  const { chainId, rpcUrl, txStatus: txStatusFromApp, txHashMapping } = useWidgetStore(
     useShallow(s => ({
       chainId: s.chainId,
       rpcUrl: s.rpcUrl,
-      zapStatus: s.zapStatus,
+      txStatus: s.txStatus,
       txHashMapping: s.txHashMapping,
     })),
   );
@@ -27,11 +27,11 @@ export default function useTxStatus({ txHash }: { txHash?: string }) {
     setTxStatus('');
   }, [txHash]);
 
-  // When zapStatus is provided (from app), use it directly
+  // When txStatus is provided (from app), use it directly
   useEffect(() => {
-    if (!zapStatus || !txHash) return;
+    if (!txStatusFromApp || !txHash) return;
 
-    const status = zapStatus[txHash];
+    const status = txStatusFromApp[txHash];
     if (status === TxStatus.SUCCESS) {
       setTxStatus('success');
     } else if (status === TxStatus.FAILED) {
@@ -39,11 +39,11 @@ export default function useTxStatus({ txHash }: { txHash?: string }) {
     } else {
       setTxStatus('');
     }
-  }, [zapStatus, txHash]);
+  }, [txStatusFromApp, txHash]);
 
-  // Fallback: Poll RPC when zapStatus is not provided (standalone widget usage)
+  // Fallback: Poll RPC when txStatus is not provided (standalone widget usage)
   useEffect(() => {
-    if (zapStatus || !currentTxHash) return;
+    if (txStatusFromApp || !currentTxHash) return;
 
     const checkTxStatus = () => {
       if (txStatus !== '') return;
@@ -62,7 +62,7 @@ export default function useTxStatus({ txHash }: { txHash?: string }) {
     return () => {
       clearInterval(interval);
     };
-  }, [chainId, rpcUrl, currentTxHash, txStatus, zapStatus]);
+  }, [chainId, rpcUrl, currentTxHash, txStatus, txStatusFromApp]);
 
   return { txStatus, currentTxHash };
 }

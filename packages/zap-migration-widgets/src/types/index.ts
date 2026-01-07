@@ -46,7 +46,7 @@ export interface ZapMigrationProps {
   };
   client: string;
   referral?: string;
-  zapStatus?: Record<string, TxStatus>;
+  txStatus?: Record<string, TxStatus>;
   txHashMapping?: Record<string, string>;
   locale?: SupportedLocale;
   onExplorePools?: () => void;

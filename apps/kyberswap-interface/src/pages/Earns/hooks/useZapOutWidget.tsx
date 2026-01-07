@@ -83,7 +83,7 @@ const useZapOutWidget = (
     dexId: Exchange
   } | null>(null)
   const locale = useActiveLocale()
-  const [zapTxHash, setZapTxHash] = useState<string[]>([])
+  const [trackedTxHash, setTrackedTxHash] = useState<string[]>([])
   // Track original hash -> current hash mapping for replacements
   const [originalToCurrentHash, setOriginalToCurrentHash] = useState<Record<string, string>>({})
   const prevAllTransactionsRef = useRef<typeof allTransactions>()
@@ -91,7 +91,7 @@ const useZapOutWidget = (
 
   // Handle transaction replacement (speed up, cancel)
   useEffect(() => {
-    if (!allTransactions || zapTxHash.length === 0) {
+    if (!allTransactions || trackedTxHash.length === 0) {
       prevAllTransactionsRef.current = allTransactions
       return
     }
@@ -111,7 +111,7 @@ const useZapOutWidget = (
     const currentTxKeys = new Set(Object.keys(allTransactions))
 
     // Check if any tracked hash is missing (potentially replaced)
-    const needsUpdate = zapTxHash.some(hash => !currentTxKeys.has(hash))
+    const needsUpdate = trackedTxHash.some(hash => !currentTxKeys.has(hash))
 
     if (!needsUpdate) {
       // No replacement detected, just update ref for next comparison
@@ -122,7 +122,7 @@ const useZapOutWidget = (
     // Find new keys that weren't in previous state
     const newKeys = [...currentTxKeys].filter(key => !prevTxKeys.has(key))
 
-    const updatedHashes = zapTxHash.map(trackedHash => {
+    const updatedHashes = trackedTxHash.map(trackedHash => {
       // If still exists, no change
       if (currentTxKeys.has(trackedHash)) {
         return trackedHash
@@ -157,14 +157,14 @@ const useZapOutWidget = (
       return trackedHash
     })
 
-    const hasChange = updatedHashes.some((hash, index) => hash !== zapTxHash[index])
+    const hasChange = updatedHashes.some((hash, index) => hash !== trackedTxHash[index])
 
     if (hasChange) {
-      setZapTxHash(updatedHashes)
+      setTrackedTxHash(updatedHashes)
 
       // Update original->current hash mapping for widget compatibility
       const newMapping: Record<string, string> = { ...originalToCurrentHash }
-      zapTxHash.forEach((originalHash, index) => {
+      trackedTxHash.forEach((originalHash, index) => {
         const currentHash = updatedHashes[index]
         if (originalHash !== currentHash) {
           // Find the original hash that this chain started from
@@ -177,15 +177,15 @@ const useZapOutWidget = (
 
     // Update ref AFTER all logic to avoid desync
     prevAllTransactionsRef.current = allTransactions
-  }, [allTransactions, zapTxHash, originalToCurrentHash])
+  }, [allTransactions, trackedTxHash, originalToCurrentHash])
 
-  const zapStatus = useMemo(() => {
-    if (!allTransactions || !zapTxHash.length) return {}
+  const txStatus = useMemo(() => {
+    if (!allTransactions || !trackedTxHash.length) return {}
 
-    const status = zapTxHash.reduce((acc: Record<string, TxStatus>, txHash) => {
-      const zapTx = allTransactions[txHash]
-      if (zapTx?.[0].receipt) {
-        acc[txHash] = zapTx?.[0].receipt.status === 1 ? TxStatus.SUCCESS : TxStatus.FAILED
+    const status = trackedTxHash.reduce((acc: Record<string, TxStatus>, txHash) => {
+      const tx = allTransactions[txHash]
+      if (tx?.[0].receipt) {
+        acc[txHash] = tx?.[0].receipt.status === 1 ? TxStatus.SUCCESS : TxStatus.FAILED
       } else acc[txHash] = TxStatus.PENDING
       return acc
     }, {})
@@ -199,7 +199,7 @@ const useZapOutWidget = (
     })
 
     return status
-  }, [allTransactions, zapTxHash, originalToCurrentHash])
+  }, [allTransactions, trackedTxHash, originalToCurrentHash])
 
   const zapOutParams = useMemo(
     () =>
@@ -217,7 +217,7 @@ const useZapOutWidget = (
               address: account,
               chainId: chainId as unknown as ZapOutChainId,
             },
-            zapStatus,
+            txStatus,
             txHashMapping: originalToCurrentHash,
             locale,
             onClose: () => {
@@ -237,7 +237,7 @@ const useZapOutWidget = (
                 })
               }, 500)
               setZapOutPureParams(null)
-              setZapTxHash([])
+              setTrackedTxHash([])
               setOriginalToCurrentHash({})
             },
             onConnectWallet: toggleWalletModal,
@@ -269,9 +269,8 @@ const useZapOutWidget = (
                 })
               }
 
-              setZapTxHash(prev => [...prev, txHash])
-              // Initialize mapping: original hash points to itself (no replacement yet)
-              setOriginalToCurrentHash(prev => ({ ...prev, [txHash]: txHash }))
+              // Track all transactions for replacement detection
+              setTrackedTxHash(prev => [...prev, txHash])
               return txHash
             },
             onExplorePools: explorePoolsEnabled
@@ -292,7 +291,7 @@ const useZapOutWidget = (
       refCode,
       onRefreshPosition,
       addTransactionWithType,
-      zapStatus,
+      txStatus,
       originalToCurrentHash,
       locale,
       navigate,
@@ -324,7 +323,7 @@ const useZapOutWidget = (
 
   useAccountChanged(() => {
     setZapOutPureParams(null)
-    setZapTxHash([])
+    setTrackedTxHash([])
     setOriginalToCurrentHash({})
   })
 
@@ -336,7 +335,7 @@ const useZapOutWidget = (
       width={'760px'}
       onDismiss={() => {
         setZapOutPureParams(null)
-        setZapTxHash([])
+        setTrackedTxHash([])
         setOriginalToCurrentHash({})
       }}
     >

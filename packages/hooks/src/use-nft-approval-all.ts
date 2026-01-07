@@ -8,12 +8,16 @@ export function useNftApprovalAll({
   spender,
   userAddress,
   onSubmitTx,
+  txStatus,
+  txHashMapping,
 }: {
   rpcUrl: string;
   nftManagerContract: string;
   spender?: string;
   userAddress: string;
   onSubmitTx: (txData: { from: string; to: string; value: string; data: string; gasLimit: string }) => Promise<string>;
+  txStatus?: Record<string, 'pending' | 'success' | 'failed'>;
+  txHashMapping?: Record<string, string>;
 }) {
   const [isChecking, setIsChecking] = useState(false);
   const [isApproved, setIsApproved] = useState(false);
@@ -42,22 +46,40 @@ export function useNftApprovalAll({
     setApprovePendingTx(txHash);
   }, [nftManagerContract, onSubmitTx, rpcUrl, spender, userAddress]);
 
-  useEffect(() => {
-    if (approvePendingTx) {
-      const i = setInterval(() => {
-        isTransactionSuccessful(rpcUrl, approvePendingTx).then(res => {
-          if (res) {
-            setApprovePendingTx('');
-            setIsApproved(res.status);
-          }
-        });
-      }, 8_000);
+  // Get the current tx hash (might be different if tx was replaced/sped up)
+  const currentApprovePendingTx = approvePendingTx ? (txHashMapping?.[approvePendingTx] ?? approvePendingTx) : '';
 
-      return () => {
-        clearInterval(i);
-      };
+  // When txStatus is provided (from app), use it directly
+  useEffect(() => {
+    if (!txStatus || !approvePendingTx) return;
+
+    const status = txStatus[approvePendingTx];
+    if (status === 'success') {
+      setApprovePendingTx('');
+      setIsApproved(true);
+    } else if (status === 'failed') {
+      setApprovePendingTx('');
+      setIsApproved(false);
     }
-  }, [approvePendingTx, rpcUrl]);
+  }, [txStatus, approvePendingTx]);
+
+  // Fallback: Poll RPC when txStatus is not provided (standalone widget usage)
+  useEffect(() => {
+    if (txStatus || !currentApprovePendingTx) return;
+
+    const i = setInterval(() => {
+      isTransactionSuccessful(rpcUrl, currentApprovePendingTx).then(res => {
+        if (res) {
+          setApprovePendingTx('');
+          setIsApproved(res.status);
+        }
+      });
+    }, 8_000);
+
+    return () => {
+      clearInterval(i);
+    };
+  }, [currentApprovePendingTx, rpcUrl, txStatus]);
 
   const checkApprovalAll = useCallback(async () => {
     if (!spender || !userAddress || approvePendingTx) return;
@@ -110,6 +132,7 @@ export function useNftApprovalAll({
     isApproved,
     approveAll,
     approvePendingTx,
+    currentApprovePendingTx,
     checkApprovalAll,
   };
 }

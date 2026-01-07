@@ -42,20 +42,33 @@ import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
 export default function Widget() {
-  const { poolType, chainId, rpcUrl, connectedAccount, onClose, positionId, onSubmitTx, onViewPosition, dexId } =
-    useWidgetStore(
-      useShallow(s => ({
-        poolType: s.poolType,
-        chainId: s.chainId,
-        rpcUrl: s.rpcUrl,
-        connectedAccount: s.connectedAccount,
-        onClose: s.onClose,
-        positionId: s.positionId,
-        onSubmitTx: s.onSubmitTx,
-        onViewPosition: s.onViewPosition,
-        dexId: s.dexId,
-      })),
-    );
+  const {
+    poolType,
+    chainId,
+    rpcUrl,
+    connectedAccount,
+    onClose,
+    positionId,
+    onSubmitTx,
+    onViewPosition,
+    dexId,
+    txStatusFromApp,
+    txHashMapping,
+  } = useWidgetStore(
+    useShallow(s => ({
+      poolType: s.poolType,
+      chainId: s.chainId,
+      rpcUrl: s.rpcUrl,
+      connectedAccount: s.connectedAccount,
+      onClose: s.onClose,
+      positionId: s.positionId,
+      onSubmitTx: s.onSubmitTx,
+      onViewPosition: s.onViewPosition,
+      dexId: s.dexId,
+      txStatusFromApp: s.txStatus,
+      txHashMapping: s.txHashMapping,
+    })),
+  );
   const { poolError, pool } = usePoolStore(
     useShallow(s => ({
       poolError: s.poolError,
@@ -70,6 +83,7 @@ export default function Widget() {
     isApproved: nftApproved,
     approve: approveNft,
     approvePendingTx: nftApprovePendingTx,
+    currentApprovePendingTx: nftCurrentApprovePendingTx,
     checkApproval: checkNftApproval,
   } = useNftApproval({
     tokenId: +positionId,
@@ -78,7 +92,12 @@ export default function Widget() {
     rpcUrl,
     nftManagerContract,
     onSubmitTx: onSubmitTx,
+    txStatus: txStatusFromApp as Record<string, 'pending' | 'success' | 'failed'> | undefined,
+    txHashMapping,
   });
+
+  // Use currentApprovePendingTx (which tracks replacements) for displaying to user
+  const displayNftApprovePendingTx = nftCurrentApprovePendingTx || nftApprovePendingTx;
 
   const { address: account } = connectedAccount;
   const isUniV3 = univ3Types.includes(poolType as any);
@@ -292,7 +311,7 @@ export default function Widget() {
             <ZapSummary />
           </div>
         </div>
-        <Action nftApproved={nftApproved} nftApprovePendingTx={nftApprovePendingTx} approveNft={approveNft} />
+        <Action nftApproved={nftApproved} nftApprovePendingTx={displayNftApprovePendingTx} approveNft={approveNft} />
       </div>
       <Setting />
     </div>

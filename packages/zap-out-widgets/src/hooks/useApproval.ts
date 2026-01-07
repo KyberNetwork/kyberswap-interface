@@ -7,8 +7,18 @@ import { useZapOutContext } from '@/stores';
 import { useZapOutUserState } from '@/stores/state';
 
 export function useApproval() {
-  const { onSubmitTx, connectedAccount, poolType, poolAddress, positionId, rpcUrl, chainId, signTypedData } =
-    useZapOutContext(s => s);
+  const {
+    onSubmitTx,
+    connectedAccount,
+    poolType,
+    poolAddress,
+    positionId,
+    rpcUrl,
+    chainId,
+    signTypedData,
+    txStatus,
+    txHashMapping,
+  } = useZapOutContext(s => s);
   const { address: account, chainId: walletChainId } = connectedAccount;
   const { liquidityOut, mode, route } = useZapOutUserState();
 
@@ -23,6 +33,7 @@ export function useApproval() {
     approve: approveErc20,
     loading: erc20ApprovalLoading,
     pendingTx: erc20ApprovalPendingTx,
+    currentPendingTx: erc20CurrentPendingTx,
   } = useErc20Approvals({
     amounts: isUniV2 ? [liquidityOut?.toString() || '0'] : [],
     addreses: isUniV2 ? [poolAddress] : [],
@@ -30,12 +41,15 @@ export function useApproval() {
     spender: route?.routerAddress || '',
     rpcUrl,
     onSubmitTx,
+    txStatus: txStatus as Record<string, 'pending' | 'success' | 'failed'> | undefined,
+    txHashMapping,
   });
 
   const {
     isApproved: nftApproved,
     approve: approveNft,
     approvePendingTx: nftApprovePendingTx,
+    currentApprovePendingTx: nftCurrentPendingTx,
     isChecking: isCheckingNftApproval,
   } = useNftApproval({
     tokenId: positionId ? +positionId : undefined,
@@ -44,12 +58,15 @@ export function useApproval() {
     rpcUrl,
     nftManagerContract,
     onSubmitTx: onSubmitTx,
+    txStatus: txStatus as Record<string, 'pending' | 'success' | 'failed'> | undefined,
+    txHashMapping,
   });
 
   const {
     isApproved: nftApprovedAll,
     approveAll: approveNftAll,
     approvePendingTx: nftApprovePendingTxAll,
+    currentApprovePendingTx: nftCurrentPendingTxAll,
     isChecking: isCheckingNftApprovalAll,
   } = useNftApprovalAll({
     spender: route?.routerAddress || '',
@@ -57,6 +74,8 @@ export function useApproval() {
     rpcUrl,
     nftManagerContract,
     onSubmitTx: onSubmitTx,
+    txStatus: txStatus as Record<string, 'pending' | 'success' | 'failed'> | undefined,
+    txHashMapping,
   });
 
   const { permitState, signPermitNft, permitData } = usePermitNft({
@@ -101,12 +120,23 @@ export function useApproval() {
           ? nftApprovePendingTx
           : nftApprovePendingTxAll;
 
+  // Current pending tx hash (tracks replacements)
+  const currentPendingTx =
+    mode === 'withdrawOnly'
+      ? ''
+      : isUniV2
+        ? erc20CurrentPendingTx
+        : nftApprovalType === 'single'
+          ? nftCurrentPendingTx
+          : nftCurrentPendingTxAll;
+
   return {
     approval: {
       isChecking,
       isApproved,
       approve,
       pendingTx,
+      currentPendingTx,
       nftApprovalType,
       setNftApprovalType,
     },

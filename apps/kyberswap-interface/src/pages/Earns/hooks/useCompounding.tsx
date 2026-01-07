@@ -98,7 +98,7 @@ const useCompounding = ({
   const { changeNetwork } = useChangeNetwork()
 
   const [compoundingPureParams, setCompoundingPureParams] = useState<CompoundingPureParams | null>(null)
-  const [compoundingTxHash, setCompoundingTxHash] = useState<string[]>([])
+  const [trackedTxHash, setTrackedTxHash] = useState<string[]>([])
   // Track original hash -> current hash mapping for replacements
   const [originalToCurrentHash, setOriginalToCurrentHash] = useState<Record<string, string>>({})
   const prevAllTransactionsRef = useRef<typeof allTransactions>()
@@ -106,7 +106,7 @@ const useCompounding = ({
 
   // Handle transaction replacement (speed up, cancel)
   useEffect(() => {
-    if (!allTransactions || compoundingTxHash.length === 0) {
+    if (!allTransactions || trackedTxHash.length === 0) {
       prevAllTransactionsRef.current = allTransactions
       return
     }
@@ -126,7 +126,7 @@ const useCompounding = ({
     const currentTxKeys = new Set(Object.keys(allTransactions))
 
     // Check if any tracked hash is missing (potentially replaced)
-    const needsUpdate = compoundingTxHash.some(hash => !currentTxKeys.has(hash))
+    const needsUpdate = trackedTxHash.some(hash => !currentTxKeys.has(hash))
 
     if (!needsUpdate) {
       // No replacement detected, just update ref for next comparison
@@ -137,7 +137,7 @@ const useCompounding = ({
     // Find new keys that weren't in previous state
     const newKeys = [...currentTxKeys].filter(key => !prevTxKeys.has(key))
 
-    const updatedHashes = compoundingTxHash.map(trackedHash => {
+    const updatedHashes = trackedTxHash.map(trackedHash => {
       // If still exists, no change
       if (currentTxKeys.has(trackedHash)) {
         return trackedHash
@@ -172,14 +172,14 @@ const useCompounding = ({
       return trackedHash
     })
 
-    const hasChange = updatedHashes.some((hash, index) => hash !== compoundingTxHash[index])
+    const hasChange = updatedHashes.some((hash, index) => hash !== trackedTxHash[index])
 
     if (hasChange) {
-      setCompoundingTxHash(updatedHashes)
+      setTrackedTxHash(updatedHashes)
 
       // Update original->current hash mapping for widget compatibility
       const newMapping: Record<string, string> = { ...originalToCurrentHash }
-      compoundingTxHash.forEach((originalHash, index) => {
+      trackedTxHash.forEach((originalHash, index) => {
         const currentHash = updatedHashes[index]
         if (originalHash !== currentHash) {
           // Find the original hash that this chain started from
@@ -192,15 +192,15 @@ const useCompounding = ({
 
     // Update ref AFTER all logic to avoid desync
     prevAllTransactionsRef.current = allTransactions
-  }, [allTransactions, compoundingTxHash, originalToCurrentHash])
+  }, [allTransactions, trackedTxHash, originalToCurrentHash])
 
-  const compoundingStatus = useMemo(() => {
-    if (!allTransactions || !compoundingTxHash.length) return {}
+  const txStatus = useMemo(() => {
+    if (!allTransactions || !trackedTxHash.length) return {}
 
-    const status = compoundingTxHash.reduce((acc: Record<string, TxStatus>, txHash) => {
-      const zapTx = allTransactions[txHash]
-      if (zapTx?.[0].receipt) {
-        acc[txHash] = zapTx?.[0].receipt.status === 1 ? TxStatus.SUCCESS : TxStatus.FAILED
+    const status = trackedTxHash.reduce((acc: Record<string, TxStatus>, txHash) => {
+      const tx = allTransactions[txHash]
+      if (tx?.[0].receipt) {
+        acc[txHash] = tx?.[0].receipt.status === 1 ? TxStatus.SUCCESS : TxStatus.FAILED
       } else acc[txHash] = TxStatus.PENDING
       return acc
     }, {})
@@ -214,11 +214,11 @@ const useCompounding = ({
     })
 
     return status
-  }, [allTransactions, compoundingTxHash, originalToCurrentHash])
+  }, [allTransactions, trackedTxHash, originalToCurrentHash])
 
   const handleCloseCompounding = useCallback(() => {
     setCompoundingPureParams(null)
-    setCompoundingTxHash([])
+    setTrackedTxHash([])
     setOriginalToCurrentHash({})
   }, [])
 
@@ -279,7 +279,7 @@ const useCompounding = ({
               chainId: chainId,
             },
             onConnectWallet: toggleWalletModal,
-            zapStatus: compoundingStatus,
+            txStatus,
             txHashMapping: originalToCurrentHash,
             onSwitchChain: () => changeNetwork(compoundingPureParams.chainId as number),
             onViewPosition: (txHash: string) => {
@@ -332,7 +332,7 @@ const useCompounding = ({
                 }
               }
 
-              setCompoundingTxHash(prev => [...prev, txHash])
+              setTrackedTxHash(prev => [...prev, txHash])
               // Initialize mapping: original hash points to itself (no replacement yet)
               setOriginalToCurrentHash(prev => ({ ...prev, [txHash]: txHash }))
               return txHash
@@ -353,7 +353,7 @@ const useCompounding = ({
       toggleWalletModal,
       onCloseClaimModal,
       addTransactionWithType,
-      compoundingStatus,
+      txStatus,
       originalToCurrentHash,
     ],
   )

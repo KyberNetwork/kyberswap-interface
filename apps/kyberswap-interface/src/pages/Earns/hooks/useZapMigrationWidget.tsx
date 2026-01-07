@@ -124,7 +124,7 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
   const { changeNetwork } = useChangeNetwork()
 
   const [migrateLiquidityPureParams, setMigrateLiquidityPureParams] = useState<MigrateLiquidityPureParams | null>(null)
-  const [zapTxHash, setZapTxHash] = useState<string[]>([])
+  const [trackedTxHash, setTrackedTxHash] = useState<string[]>([])
   const [triggerClose, setTriggerClose] = useState(false)
   // Track original hash -> current hash mapping for replacements
   const [originalToCurrentHash, setOriginalToCurrentHash] = useState<Record<string, string>>({})
@@ -133,7 +133,7 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
 
   // Handle transaction replacement (speed up, cancel)
   useEffect(() => {
-    if (!allTransactions || zapTxHash.length === 0) {
+    if (!allTransactions || trackedTxHash.length === 0) {
       prevAllTransactionsRef.current = allTransactions
       return
     }
@@ -153,7 +153,7 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
     const currentTxKeys = new Set(Object.keys(allTransactions))
 
     // Check if any tracked hash is missing (potentially replaced)
-    const needsUpdate = zapTxHash.some(hash => !currentTxKeys.has(hash))
+    const needsUpdate = trackedTxHash.some(hash => !currentTxKeys.has(hash))
 
     if (!needsUpdate) {
       // No replacement detected, just update ref for next comparison
@@ -164,7 +164,7 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
     // Find new keys that weren't in previous state
     const newKeys = [...currentTxKeys].filter(key => !prevTxKeys.has(key))
 
-    const updatedHashes = zapTxHash.map(trackedHash => {
+    const updatedHashes = trackedTxHash.map(trackedHash => {
       // If still exists, no change
       if (currentTxKeys.has(trackedHash)) {
         return trackedHash
@@ -199,14 +199,14 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
       return trackedHash
     })
 
-    const hasChange = updatedHashes.some((hash, index) => hash !== zapTxHash[index])
+    const hasChange = updatedHashes.some((hash, index) => hash !== trackedTxHash[index])
 
     if (hasChange) {
-      setZapTxHash(updatedHashes)
+      setTrackedTxHash(updatedHashes)
 
       // Update original->current hash mapping for widget compatibility
       const newMapping: Record<string, string> = { ...originalToCurrentHash }
-      zapTxHash.forEach((originalHash, index) => {
+      trackedTxHash.forEach((originalHash, index) => {
         const currentHash = updatedHashes[index]
         if (originalHash !== currentHash) {
           // Find the original hash that this chain started from
@@ -219,15 +219,15 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
 
     // Update ref AFTER all logic to avoid desync
     prevAllTransactionsRef.current = allTransactions
-  }, [allTransactions, zapTxHash, originalToCurrentHash])
+  }, [allTransactions, trackedTxHash, originalToCurrentHash])
 
-  const zapStatus = useMemo(() => {
-    if (!allTransactions || !zapTxHash.length) return {}
+  const txStatus = useMemo(() => {
+    if (!allTransactions || !trackedTxHash.length) return {}
 
-    const status = zapTxHash.reduce((acc: Record<string, TxStatus>, txHash) => {
-      const zapTx = allTransactions[txHash]
-      if (zapTx?.[0].receipt) {
-        acc[txHash] = zapTx?.[0].receipt.status === 1 ? TxStatus.SUCCESS : TxStatus.FAILED
+    const status = trackedTxHash.reduce((acc: Record<string, TxStatus>, txHash) => {
+      const tx = allTransactions[txHash]
+      if (tx?.[0].receipt) {
+        acc[txHash] = tx?.[0].receipt.status === 1 ? TxStatus.SUCCESS : TxStatus.FAILED
       } else acc[txHash] = TxStatus.PENDING
       return acc
     }, {})
@@ -241,7 +241,7 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
     })
 
     return status
-  }, [allTransactions, zapTxHash, originalToCurrentHash])
+  }, [allTransactions, trackedTxHash, originalToCurrentHash])
 
   const handleNavigateToPosition = useCallback(
     async (txHash: string, chainId: number, targetDex: ZapMigrationDex, targetPoolId: string) => {
@@ -311,7 +311,7 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
                   library.send('eth_signTypedData_v4', [account.toLowerCase(), typedDataJson])
               : undefined,
             referral: refCode,
-            zapStatus,
+            txStatus,
             txHashMapping: originalToCurrentHash,
             locale,
             connectedAccount: {
@@ -324,20 +324,20 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
                 migrateLiquidityPureParams.to || migrateLiquidityPureParams.from
               setTriggerClose(true)
               setMigrateLiquidityPureParams(null)
-              setZapTxHash([])
+              setTrackedTxHash([])
               setOriginalToCurrentHash({})
               handleNavigateToPosition(txHash, chainId, targetDex, targetPoolId)
             },
             onClose: () => {
               setTriggerClose(true)
               setMigrateLiquidityPureParams(null)
-              setZapTxHash([])
+              setTrackedTxHash([])
               setOriginalToCurrentHash({})
               onRefreshPosition?.()
             },
             onBack: () => {
               setMigrateLiquidityPureParams(null)
-              setZapTxHash([])
+              setTrackedTxHash([])
               setOriginalToCurrentHash({})
             },
             onConnectWallet: toggleWalletModal,
@@ -376,9 +376,8 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
                   },
                 })
               }
-              setZapTxHash(prev => [...prev, txHash])
-              // Initialize mapping: original hash points to itself (no replacement yet)
-              setOriginalToCurrentHash(prev => ({ ...prev, [txHash]: txHash }))
+              // Track all transactions for replacement detection
+              setTrackedTxHash(prev => [...prev, txHash])
               return txHash
             },
             onExplorePools: () => {
@@ -399,7 +398,7 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
       onRefreshPosition,
       navigate,
       addTransactionWithType,
-      zapStatus,
+      txStatus,
       originalToCurrentHash,
       locale,
     ],
@@ -410,14 +409,14 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
   useEffect(() => {
     if (account && previousAccount) {
       setMigrateLiquidityPureParams(null)
-      setZapTxHash([])
+      setTrackedTxHash([])
       setOriginalToCurrentHash({})
     }
   }, [account, previousAccount])
 
   useAccountChanged(() => {
     setMigrateLiquidityPureParams(null)
-    setZapTxHash([])
+    setTrackedTxHash([])
     setOriginalToCurrentHash({})
   })
 
@@ -429,7 +428,7 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
       width={'832px'}
       onDismiss={() => {
         setMigrateLiquidityPureParams(null)
-        setZapTxHash([])
+        setTrackedTxHash([])
         setOriginalToCurrentHash({})
       }}
       zindex={1001}

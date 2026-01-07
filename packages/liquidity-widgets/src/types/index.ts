@@ -35,7 +35,7 @@ export interface WidgetProps {
   referral?: string;
   fromCreatePoolFlow?: boolean;
   initialTick?: { tickLower: number; tickUpper: number };
-  zapStatus?: Record<string, TxStatus>;
+  txStatus?: Record<string, TxStatus>;
   txHashMapping?: Record<string, string>;
   locale?: SupportedLocale;
   onClose?: () => void;

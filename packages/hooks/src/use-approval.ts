@@ -24,6 +24,8 @@ export const useErc20Approvals = ({
   spender,
   rpcUrl,
   onSubmitTx,
+  txStatus,
+  txHashMapping,
 }: {
   amounts: string[];
   addreses: string[];
@@ -31,6 +33,8 @@ export const useErc20Approvals = ({
   spender: string;
   rpcUrl: string;
   onSubmitTx: (txData: { from: string; to: string; value: string; data: string; gasLimit: string }) => Promise<string>;
+  txStatus?: Record<string, 'pending' | 'success' | 'failed'>;
+  txHashMapping?: Record<string, string>;
 }) => {
   const [loading, setLoading] = useState(false);
   const [approvalStates, setApprovalStates] = useState<{
@@ -84,26 +88,51 @@ export const useErc20Approvals = ({
     }
   };
 
-  useEffect(() => {
-    if (pendingTx) {
-      const i = setInterval(() => {
-        isTransactionSuccessful(rpcUrl, pendingTx).then(res => {
-          if (res) {
-            setPendingTx('');
-            if (res.status) setAddressToApprove('');
-            setApprovalStates({
-              ...approvalStates,
-              [addressToApprove]: res.status ? APPROVAL_STATE.APPROVED : APPROVAL_STATE.NOT_APPROVED,
-            });
-          }
-        });
-      }, 8_000);
+  // Get the current tx hash (might be different if tx was replaced/sped up)
+  const currentPendingTx = pendingTx ? (txHashMapping?.[pendingTx] ?? pendingTx) : '';
 
-      return () => {
-        clearInterval(i);
-      };
+  // When txStatus is provided (from app), use it directly
+  useEffect(() => {
+    if (!txStatus || !pendingTx || !addressToApprove) return;
+
+    const status = txStatus[pendingTx];
+    if (status === 'success') {
+      setPendingTx('');
+      setAddressToApprove('');
+      setApprovalStates(prev => ({
+        ...prev,
+        [addressToApprove]: APPROVAL_STATE.APPROVED,
+      }));
+    } else if (status === 'failed') {
+      setPendingTx('');
+      setApprovalStates(prev => ({
+        ...prev,
+        [addressToApprove]: APPROVAL_STATE.NOT_APPROVED,
+      }));
     }
-  }, [pendingTx, rpcUrl, addressToApprove, approvalStates]);
+  }, [txStatus, pendingTx, addressToApprove]);
+
+  // Fallback: Poll RPC when txStatus is not provided (standalone widget usage)
+  useEffect(() => {
+    if (txStatus || !currentPendingTx || !addressToApprove) return;
+
+    const i = setInterval(() => {
+      isTransactionSuccessful(rpcUrl, currentPendingTx).then(res => {
+        if (res) {
+          setPendingTx('');
+          if (res.status) setAddressToApprove('');
+          setApprovalStates(prev => ({
+            ...prev,
+            [addressToApprove]: res.status ? APPROVAL_STATE.APPROVED : APPROVAL_STATE.NOT_APPROVED,
+          }));
+        }
+      });
+    }, 8_000);
+
+    return () => {
+      clearInterval(i);
+    };
+  }, [currentPendingTx, rpcUrl, addressToApprove, txStatus]);
 
   useEffect(() => {
     if (owner && spender && addreses.length === amounts.length) {
@@ -163,5 +192,6 @@ export const useErc20Approvals = ({
     approve,
     loading,
     pendingTx,
+    currentPendingTx,
   };
 };

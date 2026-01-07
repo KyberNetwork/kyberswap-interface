@@ -90,7 +90,7 @@ const useZapInWidget = ({
   const [searchParams, setSearchParams] = useSearchParams()
 
   const [addLiquidityPureParams, setAddLiquidityPureParams] = useState<AddLiquidityPureParams | null>(null)
-  const [zapTxHash, setZapTxHash] = useState<string[]>([])
+  const [trackedTxHash, setTrackedTxHash] = useState<string[]>([])
   // Track original hash -> current hash mapping for replacements
   const [originalToCurrentHash, setOriginalToCurrentHash] = useState<Record<string, string>>({})
   const prevAllTransactionsRef = useRef<typeof allTransactions>()
@@ -98,7 +98,7 @@ const useZapInWidget = ({
 
   // Handle transaction replacement (speed up, cancel)
   useEffect(() => {
-    if (!allTransactions || zapTxHash.length === 0) {
+    if (!allTransactions || trackedTxHash.length === 0) {
       prevAllTransactionsRef.current = allTransactions
       return
     }
@@ -118,7 +118,7 @@ const useZapInWidget = ({
     const currentTxKeys = new Set(Object.keys(allTransactions))
 
     // Check if any tracked hash is missing (potentially replaced)
-    const needsUpdate = zapTxHash.some(hash => !currentTxKeys.has(hash))
+    const needsUpdate = trackedTxHash.some(hash => !currentTxKeys.has(hash))
 
     if (!needsUpdate) {
       // No replacement detected, just update ref for next comparison
@@ -129,7 +129,7 @@ const useZapInWidget = ({
     // Find new keys that weren't in previous state
     const newKeys = [...currentTxKeys].filter(key => !prevTxKeys.has(key))
 
-    const updatedHashes = zapTxHash.map(trackedHash => {
+    const updatedHashes = trackedTxHash.map(trackedHash => {
       // If still exists, no change
       if (currentTxKeys.has(trackedHash)) {
         return trackedHash
@@ -164,14 +164,14 @@ const useZapInWidget = ({
       return trackedHash
     })
 
-    const hasChange = updatedHashes.some((hash, index) => hash !== zapTxHash[index])
+    const hasChange = updatedHashes.some((hash, index) => hash !== trackedTxHash[index])
 
     if (hasChange) {
-      setZapTxHash(updatedHashes)
+      setTrackedTxHash(updatedHashes)
 
       // Update original->current hash mapping for widget compatibility
       const newMapping: Record<string, string> = { ...originalToCurrentHash }
-      zapTxHash.forEach((originalHash, index) => {
+      trackedTxHash.forEach((originalHash, index) => {
         const currentHash = updatedHashes[index]
         if (originalHash !== currentHash) {
           // Find the original hash that this chain started from
@@ -184,15 +184,15 @@ const useZapInWidget = ({
 
     // Update ref AFTER all logic to avoid desync
     prevAllTransactionsRef.current = allTransactions
-  }, [allTransactions, zapTxHash, originalToCurrentHash])
+  }, [allTransactions, trackedTxHash, originalToCurrentHash])
 
-  const zapStatus = useMemo(() => {
-    if (!allTransactions || !zapTxHash.length) return {}
+  const txStatus = useMemo(() => {
+    if (!allTransactions || !trackedTxHash.length) return {}
 
-    const status = zapTxHash.reduce((acc: Record<string, TxStatus>, txHash) => {
-      const zapTx = allTransactions[txHash]
-      if (zapTx?.[0].receipt) {
-        acc[txHash] = zapTx?.[0].receipt.status === 1 ? TxStatus.SUCCESS : TxStatus.FAILED
+    const status = trackedTxHash.reduce((acc: Record<string, TxStatus>, txHash) => {
+      const tx = allTransactions[txHash]
+      if (tx?.[0].receipt) {
+        acc[txHash] = tx?.[0].receipt.status === 1 ? TxStatus.SUCCESS : TxStatus.FAILED
       } else acc[txHash] = TxStatus.PENDING
       return acc
     }, {})
@@ -206,7 +206,7 @@ const useZapInWidget = ({
     })
 
     return status
-  }, [allTransactions, zapTxHash, originalToCurrentHash])
+  }, [allTransactions, trackedTxHash, originalToCurrentHash])
 
   const handleCloseZapInWidget = useCallback(() => {
     searchParams.delete('exchange')
@@ -214,7 +214,7 @@ const useZapInWidget = ({
     searchParams.delete('poolAddress')
     setSearchParams(searchParams)
     setAddLiquidityPureParams(null)
-    setZapTxHash([])
+    setTrackedTxHash([])
     setOriginalToCurrentHash({})
   }, [searchParams, setSearchParams])
 
@@ -292,7 +292,7 @@ const useZapInWidget = ({
                   library.send('eth_signTypedData_v4', [account.toLowerCase(), typedDataJson])
               : undefined,
             referral: refCode,
-            zapStatus,
+            txStatus,
             txHashMapping: originalToCurrentHash,
             locale,
             onViewPosition: (txHash: string) => {
@@ -411,7 +411,8 @@ const useZapInWidget = ({
                 })
               }
 
-              setZapTxHash(prev => [...prev, txHash])
+              // Track all transactions for replacement detection
+              setTrackedTxHash(prev => [...prev, txHash])
               return txHash
             },
           }
@@ -420,7 +421,7 @@ const useZapInWidget = ({
       addLiquidityPureParams,
       zapInRpcUrl,
       refCode,
-      zapStatus,
+      txStatus,
       originalToCurrentHash,
       account,
       chainId,

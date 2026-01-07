@@ -24,6 +24,7 @@ export default function useInitWidget(widgetProps: ZapMigrationProps) {
     onClose,
     onSubmitTx,
     signTypedData,
+    txStatus,
     txHashMapping,
   } = widgetProps;
 
@@ -90,6 +91,7 @@ export default function useInitWidget(widgetProps: ZapMigrationProps) {
       onClose,
       onSubmitTx,
       signTypedData,
+      txStatus,
       txHashMapping,
     });
   }, [
@@ -109,6 +111,7 @@ export default function useInitWidget(widgetProps: ZapMigrationProps) {
     onClose,
     onSubmitTx,
     signTypedData,
+    txStatus,
     txHashMapping,
   ]);
 
