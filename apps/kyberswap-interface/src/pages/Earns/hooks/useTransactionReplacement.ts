@@ -1,12 +1,7 @@
+import { TxStatus } from '@kyber/schema'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useAllTransactions } from 'state/transactions/hooks'
-
-export enum TxStatus {
-  PENDING = 'pending',
-  SUCCESS = 'success',
-  FAILED = 'failed',
-}
 
 /**
  * Hook to track transaction replacements (speed up, cancel) and compute transaction statuses.

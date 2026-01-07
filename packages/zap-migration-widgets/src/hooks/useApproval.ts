@@ -78,7 +78,7 @@ export function useApproval({ type, spender }: { type: 'source' | 'target'; spen
     spender: routerAddress,
     rpcUrl,
     onSubmitTx,
-    txStatus: txStatus as Record<string, 'pending' | 'success' | 'failed'> | undefined,
+    txStatus,
     txHashMapping,
     tokenSymbols: isFromUniV2 ? [lpTokenSymbol] : [],
     dexName,
@@ -97,7 +97,7 @@ export function useApproval({ type, spender }: { type: 'source' | 'target'; spen
     rpcUrl,
     nftManagerContract: nftManagerContract || '',
     onSubmitTx: onSubmitTx,
-    txStatus: txStatus as Record<string, 'pending' | 'success' | 'failed'> | undefined,
+    txStatus,
     txHashMapping,
     dexName,
   });
@@ -114,7 +114,7 @@ export function useApproval({ type, spender }: { type: 'source' | 'target'; spen
     rpcUrl,
     nftManagerContract: nftManagerContract || '',
     onSubmitTx: onSubmitTx,
-    txStatus: txStatus as Record<string, 'pending' | 'success' | 'failed'> | undefined,
+    txStatus,
     txHashMapping,
     dexName,
   });

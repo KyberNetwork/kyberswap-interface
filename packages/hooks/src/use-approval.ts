@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { NATIVE_TOKEN_ADDRESS } from '@kyber/schema';
+import { NATIVE_TOKEN_ADDRESS, TxStatus } from '@kyber/schema';
 import {
   calculateGasMargin,
   checkApproval,
@@ -45,7 +45,7 @@ export const useErc20Approvals = ({
     txData: { from: string; to: string; value: string; data: string; gasLimit: string },
     additionalInfo?: ApprovalAdditionalInfo,
   ) => Promise<string>;
-  txStatus?: Record<string, 'pending' | 'success' | 'failed'>;
+  txStatus?: Record<string, TxStatus>;
   txHashMapping?: Record<string, string>;
   tokenSymbols?: string[];
   dexName?: string;
@@ -122,14 +122,14 @@ export const useErc20Approvals = ({
     if (!txStatus || !pendingTx || !addressToApprove) return;
 
     const status = txStatus[pendingTx];
-    if (status === 'success') {
+    if (status === TxStatus.SUCCESS) {
       setPendingTx('');
       setAddressToApprove('');
       setApprovalStates(prev => ({
         ...prev,
         [addressToApprove]: APPROVAL_STATE.APPROVED,
       }));
-    } else if (status === 'failed') {
+    } else if (status === TxStatus.FAILED) {
       setPendingTx('');
       setApprovalStates(prev => ({
         ...prev,

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
+import { TxStatus } from '@kyber/schema';
 import {
   calculateGasMargin,
   decodeAddress,
@@ -8,7 +9,7 @@ import {
   isTransactionSuccessful,
 } from '@kyber/utils/crypto';
 
-import { ApprovalAdditionalInfo } from '@/use-approval';
+import { ApprovalAdditionalInfo } from './use-approval';
 
 export function useNftApproval({
   rpcUrl,
@@ -30,7 +31,7 @@ export function useNftApproval({
     txData: { from: string; to: string; value: string; data: string; gasLimit: string },
     additionalInfo?: ApprovalAdditionalInfo,
   ) => Promise<string>;
-  txStatus?: Record<string, 'pending' | 'success' | 'failed'>;
+  txStatus?: Record<string, TxStatus>;
   txHashMapping?: Record<string, string>;
   dexName?: string;
 }) {
@@ -76,10 +77,10 @@ export function useNftApproval({
     if (!txStatus || !approvePendingTx) return;
 
     const status = txStatus[approvePendingTx];
-    if (status === 'success') {
+    if (status === TxStatus.SUCCESS) {
       setApprovelPendingTx('');
       setIsApproved(true);
-    } else if (status === 'failed') {
+    } else if (status === TxStatus.FAILED) {
       setApprovelPendingTx('');
       setIsApproved(false);
     }

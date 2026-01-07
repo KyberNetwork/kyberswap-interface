@@ -94,7 +94,7 @@ export default function Widget() {
     rpcUrl,
     nftManagerContract,
     onSubmitTx: onSubmitTx,
-    txStatus: txStatusFromApp as Record<string, 'pending' | 'success' | 'failed'> | undefined,
+    txStatus: txStatusFromApp,
     txHashMapping,
     dexName,
   });

@@ -1,14 +1,9 @@
 import { ApprovalAdditionalInfo } from '@kyber/hooks';
-import { ChainId, PoolType, Theme } from '@kyber/schema';
+import { ChainId, PoolType, Theme, TxStatus } from '@kyber/schema';
 
 import { SupportedLocale } from '@/i18n';
 
-export enum TxStatus {
-  INIT = 'init',
-  PENDING = 'pending',
-  SUCCESS = 'success',
-  FAILED = 'failed',
-}
+export { TxStatus };
 
 export interface ZapMigrationProps {
   theme?: Theme;

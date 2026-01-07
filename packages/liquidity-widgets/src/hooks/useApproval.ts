@@ -91,7 +91,7 @@ export default function useApproval() {
     rpcUrl,
     nftManagerContract,
     onSubmitTx: onSubmitTx,
-    txStatus: txStatus as Record<string, 'pending' | 'success' | 'failed'> | undefined,
+    txStatus,
     txHashMapping,
     dexName,
   });
@@ -109,7 +109,7 @@ export default function useApproval() {
     rpcUrl,
     nftManagerContract,
     onSubmitTx: onSubmitTx,
-    txStatus: txStatus as Record<string, 'pending' | 'success' | 'failed'> | undefined,
+    txStatus,
     txHashMapping,
     dexName,
   });
@@ -146,7 +146,7 @@ export default function useApproval() {
     spender:
       permitData?.permitData && route?.routerPermitAddress ? route.routerPermitAddress : route?.routerAddress || '',
     onSubmitTx: onSubmitTx,
-    txStatus: txStatus as Record<string, 'pending' | 'success' | 'failed'> | undefined,
+    txStatus,
     txHashMapping,
     tokenSymbols: tokenSymbolsToApprove,
     dexName,
