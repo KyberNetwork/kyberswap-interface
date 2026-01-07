@@ -39,6 +39,7 @@ export function Preview({
   onSubmitTx: (
     txData: { from: string; to: string; value: string; data: string; gasLimit: string },
     additionalInfo?: {
+      type: 'zap';
       sourcePool: string;
       sourceDexLogo: string;
       destinationPool: string;
@@ -118,6 +119,7 @@ export function Preview({
           gasLimit: calculateGasMargin(gas),
         },
         {
+          type: 'zap',
           sourcePool: `${sourcePool.token0.symbol}/${sourcePool.token1.symbol}`,
           sourceDexLogo: DEXES_INFO[sourcePool.poolType].icon,
           destinationPool: `${targetPool.token0.symbol}/${targetPool.token1.symbol}`,

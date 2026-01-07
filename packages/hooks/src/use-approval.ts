@@ -17,6 +17,13 @@ export enum APPROVAL_STATE {
   NOT_APPROVED = 'not_approved',
 }
 
+export interface ApprovalAdditionalInfo {
+  type: 'erc20_approval' | 'nft_approval' | 'nft_approval_all';
+  tokenAddress: string;
+  tokenSymbol?: string;
+  dexName?: string;
+}
+
 export const useErc20Approvals = ({
   amounts,
   addreses,
@@ -26,15 +33,22 @@ export const useErc20Approvals = ({
   onSubmitTx,
   txStatus,
   txHashMapping,
+  tokenSymbols,
+  dexName,
 }: {
   amounts: string[];
   addreses: string[];
   owner: string;
   spender: string;
   rpcUrl: string;
-  onSubmitTx: (txData: { from: string; to: string; value: string; data: string; gasLimit: string }) => Promise<string>;
+  onSubmitTx: (
+    txData: { from: string; to: string; value: string; data: string; gasLimit: string },
+    additionalInfo?: ApprovalAdditionalInfo,
+  ) => Promise<string>;
   txStatus?: Record<string, 'pending' | 'success' | 'failed'>;
   txHashMapping?: Record<string, string>;
+  tokenSymbols?: string[];
+  dexName?: string;
 }) => {
   const [loading, setLoading] = useState(false);
   const [approvalStates, setApprovalStates] = useState<{
@@ -73,10 +87,22 @@ export const useErc20Approvals = ({
     try {
       const gasEstimation = await estimateGas(rpcUrl, txData);
 
-      const txHash = await onSubmitTx({
-        ...txData,
-        gasLimit: calculateGasMargin(gasEstimation),
-      });
+      // Find token symbol from the addresses array
+      const tokenIndex = addreses.findIndex(addr => addr.toLowerCase() === address.toLowerCase());
+      const tokenSymbol = tokenIndex >= 0 && tokenSymbols ? tokenSymbols[tokenIndex] : undefined;
+
+      const txHash = await onSubmitTx(
+        {
+          ...txData,
+          gasLimit: calculateGasMargin(gasEstimation),
+        },
+        {
+          type: 'erc20_approval',
+          tokenAddress: address,
+          tokenSymbol,
+          dexName,
+        },
+      );
       setApprovalStates({
         ...approvalStates,
         [address]: APPROVAL_STATE.PENDING,

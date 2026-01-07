@@ -177,17 +177,25 @@ const useCompounding = ({
             },
             onSubmitTx: async (
               txData: { from: string; to: string; data: string; value: string; gasLimit: string },
-              additionalInfo?: {
-                tokensIn: Array<{ symbol: string; amount: string; logoUrl?: string }>
-                pool: string
-                dexLogo: string
-              },
+              additionalInfo?:
+                | {
+                    type: 'zap'
+                    tokensIn: Array<{ symbol: string; amount: string; logoUrl?: string }>
+                    pool: string
+                    dexLogo: string
+                  }
+                | {
+                    type: 'erc20_approval' | 'nft_approval' | 'nft_approval_all'
+                    tokenAddress: string
+                    tokenSymbol?: string
+                    dexName?: string
+                  },
             ) => {
               const res = await submitTransaction({ library, txData })
               const { txHash, error } = res
               if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
 
-              if (additionalInfo) {
+              if (additionalInfo?.type === 'zap') {
                 const dexIndex = Object.values(compoundingDexMapping).findIndex(
                   (item, index) =>
                     item === compoundingPureParams.poolType &&
@@ -205,14 +213,32 @@ const useCompounding = ({
                         ? TRANSACTION_TYPE.EARN_COMPOUND_REWARD
                         : TRANSACTION_TYPE.EARN_COMPOUND_FEE,
                     extraInfo: {
-                      pool: additionalInfo?.pool || '',
+                      pool: additionalInfo.pool || '',
                       positionId: compoundingPureParams.positionId || '',
-                      tokensIn: additionalInfo?.tokensIn || [],
-                      dexLogoUrl: additionalInfo?.dexLogo,
+                      tokensIn: additionalInfo.tokensIn || [],
+                      dexLogoUrl: additionalInfo.dexLogo,
                       dex,
                     },
                   })
                 }
+              } else if (additionalInfo?.type === 'erc20_approval') {
+                addTransactionWithType({
+                  hash: txHash,
+                  type: TRANSACTION_TYPE.APPROVE,
+                  extraInfo: {
+                    tokenAddress: additionalInfo.tokenAddress,
+                    summary: additionalInfo.tokenSymbol,
+                  },
+                })
+              } else if (additionalInfo?.type === 'nft_approval' || additionalInfo?.type === 'nft_approval_all') {
+                addTransactionWithType({
+                  hash: txHash,
+                  type: TRANSACTION_TYPE.APPROVE,
+                  extraInfo: {
+                    tokenAddress: additionalInfo.tokenAddress,
+                    summary: additionalInfo.dexName || EARN_DEXES[compoundingPureParams.dexId].name,
+                  },
+                })
               }
 
               addTrackedTxHash(txHash)

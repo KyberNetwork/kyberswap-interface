@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 
+import { ApprovalAdditionalInfo } from '@kyber/hooks';
 import {
   ChainId,
   NATIVE_TOKEN_ADDRESS,
@@ -47,11 +48,14 @@ const initState = {
   onSwitchChain: () => {},
   onSubmitTx: (
     _txData: { from: string; to: string; value: string; data: string; gasLimit: string },
-    _additionalInfo?: {
-      tokensIn: Array<{ symbol: string; amount: string; logoUrl?: string }>;
-      pool: string;
-      dexLogo: string;
-    },
+    _additionalInfo?:
+      | {
+          type: 'zap';
+          tokensIn: Array<{ symbol: string; amount: string; logoUrl?: string }>;
+          pool: string;
+          dexLogo: string;
+        }
+      | ApprovalAdditionalInfo,
   ) => Promise.resolve(''),
   onOpenZapMigration: undefined,
   onViewPosition: undefined,

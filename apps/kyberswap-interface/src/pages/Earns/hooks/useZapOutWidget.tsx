@@ -128,18 +128,26 @@ const useZapOutWidget = (
             onSwitchChain: () => changeNetwork(zapOutPureParams.chainId as number),
             onSubmitTx: async (
               txData: { from: string; to: string; value: string; data: string },
-              additionalInfo?: {
-                pool: string
-                dexLogo: string
-                tokensOut: Array<{ symbol: string; amount: string; logoUrl?: string }>
-              },
+              additionalInfo?:
+                | {
+                    type: 'zap'
+                    pool: string
+                    dexLogo: string
+                    tokensOut: Array<{ symbol: string; amount: string; logoUrl?: string }>
+                  }
+                | {
+                    type: 'erc20_approval' | 'nft_approval' | 'nft_approval_all'
+                    tokenAddress: string
+                    tokenSymbol?: string
+                    dexName?: string
+                  },
             ) => {
               const res = await submitTransaction({ library, txData })
               const { txHash, error } = res
               if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
 
               const dex = getDexFromPoolType(zapOutPureParams.poolType)
-              if (additionalInfo && dex) {
+              if (additionalInfo?.type === 'zap' && dex) {
                 addTransactionWithType({
                   hash: txHash,
                   type: TRANSACTION_TYPE.EARN_REMOVE_LIQUIDITY,
@@ -149,6 +157,24 @@ const useZapOutWidget = (
                     positionId: zapOutPureParams.positionId,
                     tokensOut: additionalInfo.tokensOut || [],
                     dex,
+                  },
+                })
+              } else if (additionalInfo?.type === 'erc20_approval') {
+                addTransactionWithType({
+                  hash: txHash,
+                  type: TRANSACTION_TYPE.APPROVE,
+                  extraInfo: {
+                    tokenAddress: additionalInfo.tokenAddress,
+                    summary: additionalInfo.tokenSymbol,
+                  },
+                })
+              } else if (additionalInfo?.type === 'nft_approval' || additionalInfo?.type === 'nft_approval_all') {
+                addTransactionWithType({
+                  hash: txHash,
+                  type: TRANSACTION_TYPE.APPROVE,
+                  extraInfo: {
+                    tokenAddress: additionalInfo.tokenAddress,
+                    summary: additionalInfo.dexName || EARN_DEXES[zapOutPureParams.dexId].name,
                   },
                 })
               }

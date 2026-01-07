@@ -1,3 +1,4 @@
+import { ApprovalAdditionalInfo } from '@kyber/hooks';
 import { ChainId, PoolType, Theme } from '@kyber/schema';
 
 import { SupportedLocale } from '@/i18n';
@@ -54,12 +55,15 @@ export interface ZapMigrationProps {
   onSwitchChain: () => void;
   onSubmitTx: (
     txData: { from: string; to: string; value: string; data: string; gasLimit: string },
-    additionalInfo?: {
-      sourcePool: string;
-      sourceDexLogo: string;
-      destinationPool: string;
-      destinationDexLogo: string;
-    },
+    additionalInfo?:
+      | {
+          type: 'zap';
+          sourcePool: string;
+          sourceDexLogo: string;
+          destinationPool: string;
+          destinationDexLogo: string;
+        }
+      | ApprovalAdditionalInfo,
   ) => Promise<string>;
   signTypedData?: (account: string, typedDataJson: string) => Promise<string>;
   onViewPosition?: (txHash: string) => void;

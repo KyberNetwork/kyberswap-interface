@@ -79,6 +79,8 @@ export default function Widget() {
   const { position } = usePositionStore(useShallow(s => ({ position: s.position })));
 
   const nftManagerContract = getNftManagerContractAddress(poolType, chainId);
+  const dexName = getDexName(poolType, chainId, dexId);
+
   const {
     isApproved: nftApproved,
     approve: approveNft,
@@ -94,6 +96,7 @@ export default function Widget() {
     onSubmitTx: onSubmitTx,
     txStatus: txStatusFromApp as Record<string, 'pending' | 'success' | 'failed'> | undefined,
     txHashMapping,
+    dexName,
   });
 
   // Use currentApprovePendingTx (which tracks replacements) for displaying to user
@@ -102,8 +105,6 @@ export default function Widget() {
   const { address: account } = connectedAccount;
   const isUniV3 = univ3Types.includes(poolType as any);
   const { token0 = defaultToken, token1 = defaultToken, fee: poolFee = 0 } = snapshotState ? snapshotState.pool : {};
-
-  const dexName = getDexName(poolType, chainId, dexId);
 
   const [txHash, setTxHash] = useState('');
   const [attempTx, setAttempTx] = useState(false);
@@ -150,6 +151,7 @@ export default function Widget() {
                 gasLimit: calculateGasMargin(gasEstimation),
               },
               {
+                type: 'zap',
                 tokensIn: [
                   {
                     symbol: pool.token0.symbol,

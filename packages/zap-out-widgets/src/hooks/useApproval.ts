@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 import { useErc20Approvals, useNftApproval, useNftApprovalAll, usePermitNft } from '@kyber/hooks';
-import { DEXES_INFO, univ2Types } from '@kyber/schema';
+import { DEXES_INFO, getDexName, univ2Types } from '@kyber/schema';
 
 import { useZapOutContext } from '@/stores';
 import { useZapOutUserState } from '@/stores/state';
@@ -18,6 +18,8 @@ export function useApproval() {
     signTypedData,
     txStatus,
     txHashMapping,
+    dexId,
+    pool,
   } = useZapOutContext(s => s);
   const { address: account, chainId: walletChainId } = connectedAccount;
   const { liquidityOut, mode, route } = useZapOutUserState();
@@ -27,6 +29,8 @@ export function useApproval() {
 
   const nftManager = DEXES_INFO[poolType].nftManagerContract;
   const nftManagerContract = typeof nftManager === 'string' ? nftManager : nftManager[chainId];
+  const dexName = getDexName(poolType, chainId, dexId);
+  const lpTokenSymbol = pool ? `${pool.token0.symbol}-${pool.token1.symbol} LP` : '';
 
   const {
     approvalStates: erc20ApprovalStates,
@@ -43,6 +47,8 @@ export function useApproval() {
     onSubmitTx,
     txStatus: txStatus as Record<string, 'pending' | 'success' | 'failed'> | undefined,
     txHashMapping,
+    tokenSymbols: isUniV2 ? [lpTokenSymbol] : [],
+    dexName,
   });
 
   const {
@@ -60,6 +66,7 @@ export function useApproval() {
     onSubmitTx: onSubmitTx,
     txStatus: txStatus as Record<string, 'pending' | 'success' | 'failed'> | undefined,
     txHashMapping,
+    dexName,
   });
 
   const {
@@ -76,6 +83,7 @@ export function useApproval() {
     onSubmitTx: onSubmitTx,
     txStatus: txStatus as Record<string, 'pending' | 'success' | 'failed'> | undefined,
     txHashMapping,
+    dexName,
   });
 
   const { permitState, signPermitNft, permitData } = usePermitNft({

@@ -1,3 +1,4 @@
+import { ApprovalAdditionalInfo } from '@kyber/hooks';
 import { ChainId, PoolType, Theme } from '@kyber/schema';
 
 import { SupportedLocale } from '@/i18n';
@@ -53,11 +54,14 @@ export interface WidgetProps {
   onSuccess?: ({ txHash, position }: OnSuccessProps) => void;
   onSubmitTx: (
     txData: { from: string; to: string; value: string; data: string; gasLimit: string },
-    additionalInfo?: {
-      tokensIn: Array<{ symbol: string; amount: string; logoUrl?: string }>;
-      pool: string;
-      dexLogo: string;
-    },
+    additionalInfo?:
+      | {
+          type: 'zap';
+          tokensIn: Array<{ symbol: string; amount: string; logoUrl?: string }>;
+          pool: string;
+          dexLogo: string;
+        }
+      | ApprovalAdditionalInfo,
   ) => Promise<string>;
   signTypedData?: (account: string, typedDataJson: string) => Promise<string>;
   onViewPosition?: (txHash: string) => void;

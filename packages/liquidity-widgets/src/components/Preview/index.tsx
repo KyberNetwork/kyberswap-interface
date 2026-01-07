@@ -94,6 +94,7 @@ export default function Preview({ onDismiss }: { onDismiss: () => void }) {
           gasLimit: calculateGasMargin(gasEstimation),
         },
         {
+          type: 'zap',
           tokensIn: parsedTokensIn,
           pool: `${pool.token0.symbol}/${pool.token1.symbol}`,
           dexLogo: DEXES_INFO[poolType].icon,

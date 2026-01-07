@@ -8,6 +8,8 @@ import {
   isTransactionSuccessful,
 } from '@kyber/utils/crypto';
 
+import { ApprovalAdditionalInfo } from '@/use-approval';
+
 export function useNftApproval({
   rpcUrl,
   nftManagerContract,
@@ -17,15 +19,20 @@ export function useNftApproval({
   onSubmitTx,
   txStatus,
   txHashMapping,
+  dexName,
 }: {
   rpcUrl: string;
   nftManagerContract: string;
   tokenId?: number;
   spender?: string;
   userAddress: string;
-  onSubmitTx: (txData: { from: string; to: string; value: string; data: string; gasLimit: string }) => Promise<string>;
+  onSubmitTx: (
+    txData: { from: string; to: string; value: string; data: string; gasLimit: string },
+    additionalInfo?: ApprovalAdditionalInfo,
+  ) => Promise<string>;
   txStatus?: Record<string, 'pending' | 'success' | 'failed'>;
   txHashMapping?: Record<string, string>;
+  dexName?: string;
 }) {
   const [isChecking, setIsChecking] = useState(false);
   const [isApproved, setIsApproved] = useState(false);
@@ -47,12 +54,19 @@ export function useNftApproval({
     };
 
     const gasEstimation = await estimateGas(rpcUrl, txData);
-    const txHash = await onSubmitTx({
-      ...txData,
-      gasLimit: calculateGasMargin(gasEstimation),
-    });
+    const txHash = await onSubmitTx(
+      {
+        ...txData,
+        gasLimit: calculateGasMargin(gasEstimation),
+      },
+      {
+        type: 'nft_approval',
+        tokenAddress: nftManagerContract,
+        dexName,
+      },
+    );
     setApprovelPendingTx(txHash);
-  }, [nftManagerContract, onSubmitTx, rpcUrl, spender, tokenId, userAddress]);
+  }, [dexName, nftManagerContract, onSubmitTx, rpcUrl, spender, tokenId, userAddress]);
 
   // Get the current tx hash (might be different if tx was replaced/sped up)
   const currentApprovePendingTx = approvePendingTx ? (txHashMapping?.[approvePendingTx] ?? approvePendingTx) : '';

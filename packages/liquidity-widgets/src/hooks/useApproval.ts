@@ -9,6 +9,7 @@ import {
   useNftApprovalAll,
   usePermitNft,
 } from '@kyber/hooks';
+import { getDexName } from '@kyber/schema';
 import { getNftManagerContractAddress } from '@kyber/utils';
 import { parseUnits } from '@kyber/utils/crypto';
 
@@ -58,6 +59,7 @@ export default function useApproval() {
     signTypedData,
     txStatus,
     txHashMapping,
+    dexId,
   } = useWidgetStore([
     'chainId',
     'rpcUrl',
@@ -68,11 +70,13 @@ export default function useApproval() {
     'signTypedData',
     'txStatus',
     'txHashMapping',
+    'dexId',
   ]);
   const { route, tokensIn, amountsIn } = useZapState();
   const [nftApprovalType, setNftApprovalType] = useState<'single' | 'all'>('all');
 
   const nftManagerContract = getNftManagerContractAddress(poolType, chainId);
+  const dexName = getDexName(poolType, chainId, dexId);
   const {
     isApproved: nftApproved,
     approve: approveNft,
@@ -89,6 +93,7 @@ export default function useApproval() {
     onSubmitTx: onSubmitTx,
     txStatus: txStatus as Record<string, 'pending' | 'success' | 'failed'> | undefined,
     txHashMapping,
+    dexName,
   });
 
   const {
@@ -106,6 +111,7 @@ export default function useApproval() {
     onSubmitTx: onSubmitTx,
     txStatus: txStatus as Record<string, 'pending' | 'success' | 'failed'> | undefined,
     txHashMapping,
+    dexName,
   });
 
   const { permitState, signPermitNft, permitData } = usePermitNft({
@@ -128,9 +134,9 @@ export default function useApproval() {
     [tokensIn, amountsIn],
   );
 
-  const tokenAddressesToApprove = tokensIn
-    .filter((_, index) => Number(amountsInWei[index]) > 0)
-    .map(token => token?.address || '');
+  const tokensToApprove = tokensIn.filter((_, index) => Number(amountsInWei[index]) > 0);
+  const tokenAddressesToApprove = tokensToApprove.map(token => token?.address || '');
+  const tokenSymbolsToApprove = tokensToApprove.map(token => token?.symbol || '');
   const amountsToApprove = amountsInWei.filter(amount => Number(amount) > 0);
   const { loading, approvalStates, approve, addressToApprove, currentPendingTx } = useErc20Approvals({
     amounts: amountsToApprove,
@@ -142,6 +148,8 @@ export default function useApproval() {
     onSubmitTx: onSubmitTx,
     txStatus: txStatus as Record<string, 'pending' | 'success' | 'failed'> | undefined,
     txHashMapping,
+    tokenSymbols: tokenSymbolsToApprove,
+    dexName,
   });
 
   return {

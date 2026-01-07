@@ -166,6 +166,7 @@ export const Preview = () => {
           gasLimit: calculateGasMargin(gas),
         },
         {
+          type: 'zap',
           pool: `${pool.token0.symbol}/${pool.token1.symbol}`,
           dexLogo: DEXES_INFO[poolType].icon,
           tokensOut:

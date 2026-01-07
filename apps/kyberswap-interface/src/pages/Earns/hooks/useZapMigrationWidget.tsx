@@ -225,12 +225,20 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
             onSwitchChain: () => changeNetwork(migrateLiquidityPureParams.chainId as number),
             onSubmitTx: async (
               txData: { from: string; to: string; value: string; data: string },
-              additionalInfo?: {
-                sourcePool: string
-                sourceDexLogo: string
-                destinationPool: string
-                destinationDexLogo: string
-              },
+              additionalInfo?:
+                | {
+                    type: 'zap'
+                    sourcePool: string
+                    sourceDexLogo: string
+                    destinationPool: string
+                    destinationDexLogo: string
+                  }
+                | {
+                    type: 'erc20_approval' | 'nft_approval' | 'nft_approval_all'
+                    tokenAddress: string
+                    tokenSymbol?: string
+                    dexName?: string
+                  },
             ) => {
               const res = await submitTransaction({ library, txData })
               const { txHash, error } = res
@@ -240,7 +248,7 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
               const destinationDex = getDexFromPoolType(
                 migrateLiquidityPureParams.to?.poolType || migrateLiquidityPureParams.from.poolType,
               )
-              if (additionalInfo && sourceDex && destinationDex) {
+              if (additionalInfo?.type === 'zap' && sourceDex && destinationDex) {
                 addTransactionWithType({
                   hash: txHash,
                   type: migrateLiquidityPureParams.rePositionMode
@@ -254,6 +262,24 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
                     destinationDexLogoUrl: additionalInfo.destinationDexLogo,
                     destinationDex: destinationDex,
                     positionId: migrateLiquidityPureParams.from.positionId,
+                  },
+                })
+              } else if (additionalInfo?.type === 'erc20_approval') {
+                addTransactionWithType({
+                  hash: txHash,
+                  type: TRANSACTION_TYPE.APPROVE,
+                  extraInfo: {
+                    tokenAddress: additionalInfo.tokenAddress,
+                    summary: additionalInfo.tokenSymbol,
+                  },
+                })
+              } else if (additionalInfo?.type === 'nft_approval' || additionalInfo?.type === 'nft_approval_all') {
+                addTransactionWithType({
+                  hash: txHash,
+                  type: TRANSACTION_TYPE.APPROVE,
+                  extraInfo: {
+                    tokenAddress: additionalInfo.tokenAddress,
+                    summary: additionalInfo.dexName,
                   },
                 })
               }

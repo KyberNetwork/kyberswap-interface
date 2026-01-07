@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 import { useErc20Approvals, useNftApproval, useNftApprovalAll, usePermitNft } from '@kyber/hooks';
-import { DEXES_INFO, ZERO_ADDRESS, univ2Types, univ4Types } from '@kyber/schema';
+import { DEXES_INFO, ZERO_ADDRESS, getDexName, univ2Types, univ4Types } from '@kyber/schema';
 
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
@@ -19,6 +19,8 @@ export function useApproval({ type, spender }: { type: 'source' | 'target'; spen
     signTypedData,
     txStatus,
     txHashMapping,
+    sourceDexId,
+    targetDexId,
   } = useWidgetStore([
     'chainId',
     'connectedAccount',
@@ -29,6 +31,8 @@ export function useApproval({ type, spender }: { type: 'source' | 'target'; spen
     'signTypedData',
     'txStatus',
     'txHashMapping',
+    'sourceDexId',
+    'targetDexId',
   ]);
   const { sourcePool, targetPool } = usePoolStore(['sourcePool', 'targetPool']);
   const { sourcePositionId, targetPositionId, targetPosition } = usePositionStore([
@@ -41,6 +45,7 @@ export function useApproval({ type, spender }: { type: 'source' | 'target'; spen
   const pool = type === 'source' ? sourcePool : targetPool;
   const nftId = type === 'source' ? +sourcePositionId : targetPositionId ? +targetPositionId : undefined;
   const poolType = type === 'source' ? sourcePoolType : targetPoolType;
+  const dexId = type === 'source' ? sourceDexId : targetDexId;
   const { address: account, chainId: walletChainId } = connectedAccount;
   const nftManager = poolType ? DEXES_INFO[poolType].nftManagerContract : undefined;
   const nftManagerContract = nftManager
@@ -48,6 +53,8 @@ export function useApproval({ type, spender }: { type: 'source' | 'target'; spen
       ? nftManager
       : nftManager[chainId]
     : undefined;
+  const dexName = poolType ? getDexName(poolType, chainId, dexId) : '';
+  const lpTokenSymbol = pool ? `${pool.token0.symbol}-${pool.token1.symbol} LP` : '';
 
   const [nftApprovalType, setNftApprovalType] = useState<'single' | 'all'>('all');
   const isFromUniV2 = type === 'source' && pool && univ2Types.includes(pool.poolType as any);
@@ -73,6 +80,8 @@ export function useApproval({ type, spender }: { type: 'source' | 'target'; spen
     onSubmitTx,
     txStatus: txStatus as Record<string, 'pending' | 'success' | 'failed'> | undefined,
     txHashMapping,
+    tokenSymbols: isFromUniV2 ? [lpTokenSymbol] : [],
+    dexName,
   });
 
   const {
@@ -90,6 +99,7 @@ export function useApproval({ type, spender }: { type: 'source' | 'target'; spen
     onSubmitTx: onSubmitTx,
     txStatus: txStatus as Record<string, 'pending' | 'success' | 'failed'> | undefined,
     txHashMapping,
+    dexName,
   });
 
   const {
@@ -106,6 +116,7 @@ export function useApproval({ type, spender }: { type: 'source' | 'target'; spen
     onSubmitTx: onSubmitTx,
     txStatus: txStatus as Record<string, 'pending' | 'success' | 'failed'> | undefined,
     txHashMapping,
+    dexName,
   });
 
   const { permitState, signPermitNft, permitData } = usePermitNft({
