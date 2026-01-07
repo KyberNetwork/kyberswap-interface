@@ -39,7 +39,7 @@ const useZapCreatePoolWidget = () => {
   const addTransactionWithType = useTransactionAdder()
 
   const [config, setConfig] = useState<CreateConfig | null>(null)
-  const { originalToCurrentHash, txStatus, clearTracking } = useTransactionReplacement()
+  const { originalToCurrentHash, txStatus, addTrackedTxHash, clearTracking } = useTransactionReplacement()
 
   const { rpc: defaultRpc } = useKyberSwapConfig(config?.chainId)
 
@@ -116,6 +116,9 @@ const useZapCreatePoolWidget = () => {
 
           if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
 
+          // Track this tx hash for status updates
+          addTrackedTxHash(txHash)
+
           if (additionalInfo?.type === 'zap' && config) {
             addTransactionWithType({
               hash: txHash,
@@ -150,6 +153,7 @@ const useZapCreatePoolWidget = () => {
     }
   }, [
     account,
+    addTrackedTxHash,
     addTransactionWithType,
     changeNetwork,
     config,
