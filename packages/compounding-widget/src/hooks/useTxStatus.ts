@@ -9,7 +9,12 @@ import { useWidgetStore } from '@/stores/useWidgetStore';
 import { TxStatus } from '@/types/index';
 
 export default function useTxStatus({ txHash }: { txHash?: string }) {
-  const { chainId, rpcUrl, txStatus: txStatusFromApp, txHashMapping } = useWidgetStore(
+  const {
+    chainId,
+    rpcUrl,
+    txStatus: txStatusFromApp,
+    txHashMapping,
+  } = useWidgetStore(
     useShallow(s => ({
       chainId: s.chainId,
       rpcUrl: s.rpcUrl,
