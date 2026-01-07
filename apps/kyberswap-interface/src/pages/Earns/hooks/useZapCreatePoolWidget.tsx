@@ -12,6 +12,7 @@ import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { Exchange } from 'pages/Earns/constants'
 import { ZAPIN_DEX_MAPPING, getDexFromPoolType } from 'pages/Earns/constants/dexMappings'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
+import useTransactionReplacement from 'pages/Earns/hooks/useTransactionReplacement'
 import { submitTransaction } from 'pages/Earns/utils'
 import { fetchExistingPoolAddress, navigateToPositionAfterZap, sortTokensByAddress } from 'pages/Earns/utils/zap'
 import { useKyberSwapConfig, useWalletModalToggle } from 'state/application/hooks'
@@ -38,12 +39,14 @@ const useZapCreatePoolWidget = () => {
   const addTransactionWithType = useTransactionAdder()
 
   const [config, setConfig] = useState<CreateConfig | null>(null)
+  const { originalToCurrentHash, txStatus, clearTracking } = useTransactionReplacement()
 
   const { rpc: defaultRpc } = useKyberSwapConfig(config?.chainId)
 
   const handleClose = useCallback(() => {
     setConfig(null)
-  }, [])
+    clearTracking()
+  }, [clearTracking])
 
   useAccountChanged(handleClose)
 
@@ -81,6 +84,8 @@ const useZapCreatePoolWidget = () => {
         rpcUrl: defaultRpc,
         source: 'kyberswap-earn',
         locale,
+        txStatus,
+        txHashMapping: originalToCurrentHash,
         onViewPosition: (txHash: string) => {
           handleNavigateToPosition(txHash, config)
           handleClose()
@@ -154,7 +159,9 @@ const useZapCreatePoolWidget = () => {
     handleNavigateToPosition,
     library,
     locale,
+    originalToCurrentHash,
     toggleWalletModal,
+    txStatus,
   ])
 
   const widget = widgetProps ? (
