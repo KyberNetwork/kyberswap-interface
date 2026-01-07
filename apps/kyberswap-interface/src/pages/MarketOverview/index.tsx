@@ -13,6 +13,7 @@ import { PoolsPageWrapper } from 'pages/Pools/styleds'
 import Filter from './Filter'
 import SortIcon, { Direction } from './SortIcon'
 import TableContent from './TableContent'
+import MarketMoodGauge from './components/MarketMoodGauge'
 import { ContentWrapper, MarketTableHeader, MarketTableWrapper, PriceSelectionField, SortableHeader } from './styles'
 import useFilter from './useFilter'
 
@@ -48,8 +49,22 @@ export default function MarketOverview() {
   const [buyPriceSelectedField, setBuyPriceSelectedField] = useState<'1h' | '24h' | '7d'>('24h')
   const [sellPriceSelectedField, setSellPriceSelectedField] = useState<'1h' | '24h' | '7d'>('24h')
 
+  const [marketPieValue, setMarketPieValue] = useState(() => Math.floor(Math.random() * 101))
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setMarketPieValue(Math.floor(Math.random() * 101))
+    }, 3000)
+    return () => clearInterval(intervalId)
+  }, [])
+
   return (
     <PoolsPageWrapper>
+      <Flex style={{ marginBottom: 120, alignItems: 'flex-end' }}>
+        <MarketMoodGauge size={240} value={marketPieValue} />
+        <MarketMoodGauge size={320} value={marketPieValue} />
+        <MarketMoodGauge size={400} value={marketPieValue} />
+      </Flex>
       <div>
         <Text as="h1" fontSize={24} fontWeight="500">
           <Trans>Market Overview</Trans>
