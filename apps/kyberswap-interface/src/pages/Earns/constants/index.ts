@@ -84,16 +84,23 @@ const EARN_DEXES_CONFIG: Record<Exchange, EarnDexInfo> = {
   [Exchange.DEX_PANCAKE_INFINITY_CL_DYNAMIC]: {
     ...pancakeinfinitycl,
     name: 'Pancake ∞ CL Dynamic',
+    smartExitDexType: undefined,
   },
   [Exchange.DEX_PANCAKE_INFINITY_CL_ALPHA]: {
     ...pancakeinfinitycl,
     name: 'Pancake ∞ CL Alpha',
+    smartExitDexType: undefined,
   },
   [Exchange.DEX_PANCAKE_INFINITY_CL_BREVIS]: {
     ...pancakeinfinitycl,
     name: 'Pancake ∞ CL Brevis',
+    smartExitDexType: undefined,
   },
-  [Exchange.DEX_PANCAKE_INFINITY_CL_LO]: { ...pancakeinfinitycl, name: 'Pancake ∞ CL LO' },
+  [Exchange.DEX_PANCAKE_INFINITY_CL_LO]: {
+    ...pancakeinfinitycl,
+    name: 'Pancake ∞ CL LO',
+    smartExitDexType: undefined,
+  },
   [Exchange.DEX_AERODROMECL]: aerodrome,
 }
 
