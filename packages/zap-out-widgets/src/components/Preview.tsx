@@ -220,8 +220,7 @@ export const Preview = () => {
       <DialogContent className="ks-lw-style max-h-[85vh] max-w-[480px] overflow-auto" aria-describedby={undefined}>
         <DialogTitle>{mode === 'zapOut' ? t`Remove Liquidity via Zap` : t`Remove Liquidity`}</DialogTitle>
         <div>
-          {' '}
-          <div className="flex gap-3 items-center mt-4">
+          <div className="flex gap-3 items-center">
             <div className="flex items-end">
               <TokenLogo src={pool.token0.logo} size={36} alt={pool.token0.symbol} />
               <TokenLogo src={pool.token1.logo} size={36} alt={pool.token1.symbol} className="-ml-2" />
@@ -234,7 +233,7 @@ export const Preview = () => {
             </div>
 
             <div>
-              <div className="text-base flex items-center">
+              <div className="text-base flex items-center gap-1">
                 <TokenSymbol symbol={pool.token0.symbol} maxWidth={80} />/
                 <TokenSymbol symbol={pool.token1.symbol} maxWidth={80} /> {isUniV3 ? `#${positionId}` : ''}
               </div>
@@ -438,7 +437,7 @@ export const Preview = () => {
         <DialogFooter>
           <button
             className={cn(
-              'ks-primary-btn w-full mt-4',
+              'ks-primary-btn w-full',
               pi.piVeryHigh
                 ? 'bg-error border-solid border-error text-white'
                 : pi.piHigh
