@@ -163,7 +163,7 @@ export type TransactionPayload = TransactionHistory & {
 export enum TRANSACTION_TYPE {
   WRAP_TOKEN = 'Wrap Token',
   UNWRAP_TOKEN = 'Unwrap Token',
-  APPROVE = 'Approve',
+  APPROVE = 'Approved',
   SWAP = 'Swap',
 
   CLASSIC_CREATE_POOL = 'Classic Create Pool',

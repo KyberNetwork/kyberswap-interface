@@ -1,13 +1,9 @@
-import { ChainId, PoolType, Theme } from '@kyber/schema';
+import { ApprovalAdditionalInfo } from '@kyber/hooks';
+import { ChainId, PoolType, Theme, TxStatus } from '@kyber/schema';
 
 import { SupportedLocale } from '@/i18n';
 
-export enum TxStatus {
-  INIT = 'init',
-  PENDING = 'pending',
-  SUCCESS = 'success',
-  FAILED = 'failed',
-}
+export { TxStatus };
 
 export interface ZapMigrationProps {
   theme?: Theme;
@@ -18,11 +14,13 @@ export interface ZapMigrationProps {
     poolType: PoolType;
     poolAddress: string;
     positionId: string;
+    dexId?: string;
   };
   to?: {
     poolType: PoolType;
     poolAddress: string;
     positionId?: string;
+    dexId?: string;
   };
   initialSlippage?: number;
   rePositionMode?: boolean;
@@ -44,19 +42,23 @@ export interface ZapMigrationProps {
   };
   client: string;
   referral?: string;
-  zapStatus?: Record<string, TxStatus>;
+  txStatus?: Record<string, TxStatus>;
+  txHashMapping?: Record<string, string>;
   locale?: SupportedLocale;
   onExplorePools?: () => void;
   onConnectWallet: () => void;
   onSwitchChain: () => void;
   onSubmitTx: (
     txData: { from: string; to: string; value: string; data: string; gasLimit: string },
-    additionalInfo?: {
-      sourcePool: string;
-      sourceDexLogo: string;
-      destinationPool: string;
-      destinationDexLogo: string;
-    },
+    additionalInfo?:
+      | {
+          type: 'zap';
+          sourcePool: string;
+          sourceDexLogo: string;
+          destinationPool: string;
+          destinationDexLogo: string;
+        }
+      | ApprovalAdditionalInfo,
   ) => Promise<string>;
   signTypedData?: (account: string, typedDataJson: string) => Promise<string>;
   onViewPosition?: (txHash: string) => void;

@@ -11,6 +11,8 @@ interface WidgetProps {
   theme: Theme;
   sourcePoolType?: PoolType;
   targetPoolType?: PoolType;
+  sourceDexId?: string;
+  targetDexId?: string;
   rePositionMode?: boolean;
   client: string;
   referral?: string;
@@ -18,7 +20,8 @@ interface WidgetProps {
     address: string | undefined;
     chainId: number;
   };
-  zapStatus?: Record<string, TxStatus>;
+  txStatus?: Record<string, TxStatus>;
+  txHashMapping?: Record<string, string>;
   onClose: () => void;
   onSubmitTx: (txData: { from: string; to: string; value: string; data: string; gasLimit: string }) => Promise<string>;
   signTypedData?: (account: string, typedDataJson: string) => Promise<string>;
@@ -38,6 +41,8 @@ const initState = {
   rpcUrl: NETWORKS_INFO[ChainId.Ethereum].defaultRpc,
   sourcePoolType: undefined,
   targetPoolType: undefined,
+  sourceDexId: undefined,
+  targetDexId: undefined,
   rePositionMode: false,
   client: '',
   referral: undefined,
@@ -61,10 +66,13 @@ const useWidgetRawStore = create<WidgetState>((set, _get) => ({
     rePositionMode,
     sourcePoolType,
     targetPoolType,
+    sourceDexId,
+    targetDexId,
     client,
     referral,
     connectedAccount,
-    zapStatus,
+    txStatus,
+    txHashMapping,
     onClose,
     onSubmitTx,
     signTypedData,
@@ -84,10 +92,13 @@ const useWidgetRawStore = create<WidgetState>((set, _get) => ({
       rePositionMode,
       sourcePoolType,
       targetPoolType,
+      sourceDexId,
+      targetDexId,
       client,
       referral,
       connectedAccount,
-      zapStatus,
+      txStatus,
+      txHashMapping,
       onClose,
       onSubmitTx,
       signTypedData,

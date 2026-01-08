@@ -2,7 +2,6 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import {
   OnSuccessProps,
   SupportedLocale,
-  TxStatus,
   LiquidityWidget as ZapIn,
   ChainId as ZapInChainId,
   PoolType as ZapInPoolType,
@@ -21,6 +20,7 @@ import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import { ZAPIN_DEX_MAPPING, getDexFromPoolType } from 'pages/Earns/constants/dexMappings'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
+import useTransactionReplacement from 'pages/Earns/hooks/useTransactionReplacement'
 import { ZapMigrationInfo } from 'pages/Earns/hooks/useZapMigrationWidget'
 import { DEFAULT_PARSED_POSITION } from 'pages/Earns/types'
 import { getNftManagerContractAddress, getTokenId, submitTransaction } from 'pages/Earns/utils'
@@ -28,7 +28,7 @@ import { getDexVersion } from 'pages/Earns/utils/position'
 import { updateUnfinalizedPosition } from 'pages/Earns/utils/unfinalizedPosition'
 import { navigateToPositionAfterZap } from 'pages/Earns/utils/zap'
 import { useKyberSwapConfig, useNotify, useWalletModalToggle } from 'state/application/hooks'
-import { useAllTransactions, useTransactionAdder } from 'state/transactions/hooks'
+import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { getCookieValue } from 'utils'
 
@@ -36,6 +36,7 @@ interface AddLiquidityPureParams {
   poolAddress: string
   chainId: ZapInChainId
   poolType: ZapInPoolType
+  dexId: Exchange
   positionId?: string
   initialTick?: { tickUpper: number; tickLower: number }
 }
@@ -78,7 +79,6 @@ const useZapInWidget = ({
 }) => {
   const locale = useActiveLocale()
   const addTransactionWithType = useTransactionAdder()
-  const allTransactions = useAllTransactions()
   const toggleWalletModal = useWalletModalToggle()
   const notify = useNotify()
   const navigate = useNavigate()
@@ -89,20 +89,8 @@ const useZapInWidget = ({
   const [searchParams, setSearchParams] = useSearchParams()
 
   const [addLiquidityPureParams, setAddLiquidityPureParams] = useState<AddLiquidityPureParams | null>(null)
-  const [zapTxHash, setZapTxHash] = useState<string[]>([])
+  const { originalToCurrentHash, txStatus, addTrackedTxHash, clearTracking } = useTransactionReplacement()
   const { rpc: zapInRpcUrl } = useKyberSwapConfig(addLiquidityPureParams?.chainId as ChainId | undefined)
-
-  const zapStatus = useMemo(() => {
-    if (!allTransactions || !zapTxHash.length) return {}
-
-    return zapTxHash.reduce((acc: Record<string, TxStatus>, txHash) => {
-      const zapTx = allTransactions[txHash]
-      if (zapTx?.[0].receipt) {
-        acc[txHash as keyof typeof acc] = zapTx?.[0].receipt.status === 1 ? TxStatus.SUCCESS : TxStatus.FAILED
-      } else acc[txHash as keyof typeof acc] = TxStatus.PENDING
-      return acc
-    }, {})
-  }, [allTransactions, zapTxHash])
 
   const handleCloseZapInWidget = useCallback(() => {
     searchParams.delete('exchange')
@@ -110,15 +98,12 @@ const useZapInWidget = ({
     searchParams.delete('poolAddress')
     setSearchParams(searchParams)
     setAddLiquidityPureParams(null)
-    setZapTxHash([])
-  }, [searchParams, setSearchParams])
+    clearTracking()
+  }, [searchParams, setSearchParams, clearTracking])
 
   const handleNavigateToPosition = useCallback(
-    async (txHash: string, chainId: number, poolType: ZapInPoolType, poolId: string) => {
+    async (txHash: string, chainId: number, dex: Exchange, poolId: string) => {
       if (!library) return
-
-      const dex = getDexFromPoolType(poolType)
-      if (!dex) return
 
       navigateToPositionAfterZap(library, txHash, chainId, dex, poolId, navigate)
     },
@@ -143,6 +128,7 @@ const useZapInWidget = ({
       poolType: dex,
       positionId,
       initialTick,
+      dexId: pool.dex,
     })
   }
 
@@ -156,17 +142,18 @@ const useZapInWidget = ({
 
       const dex = getDexFromPoolType(addLiquidityPureParams.poolType)
       if (!dex) return
-
       onOpenZapMigration({
         from: {
           poolType: position.exchange as Exchange,
           poolAddress: position.poolId,
           positionId: position.positionId.toString(),
+          dexId: position.exchange as Exchange,
         },
         to: {
           poolAddress: addLiquidityPureParams.poolAddress,
           positionId: addLiquidityPureParams.positionId,
           poolType: dex,
+          dexId: addLiquidityPureParams.dexId,
         },
         chainId: addLiquidityPureParams.chainId,
         initialTick,
@@ -188,12 +175,13 @@ const useZapInWidget = ({
                   library.send('eth_signTypedData_v4', [account.toLowerCase(), typedDataJson])
               : undefined,
             referral: refCode,
-            zapStatus,
+            txStatus,
+            txHashMapping: originalToCurrentHash,
             locale,
             onViewPosition: (txHash: string) => {
-              const { chainId, poolType, poolAddress } = addLiquidityPureParams
+              const { chainId, dexId, poolAddress } = addLiquidityPureParams
               handleCloseZapInWidget()
-              handleNavigateToPosition(txHash, chainId, poolType, poolAddress)
+              handleNavigateToPosition(txHash, chainId, dexId, poolAddress)
             },
             connectedAccount: {
               address: account,
@@ -278,11 +266,19 @@ const useZapInWidget = ({
             },
             onSubmitTx: async (
               txData: { from: string; to: string; data: string; value: string; gasLimit: string },
-              additionalInfo?: {
-                tokensIn: Array<{ symbol: string; amount: string; logoUrl?: string }>
-                pool: string
-                dexLogo: string
-              },
+              additionalInfo?:
+                | {
+                    type: 'zap'
+                    tokensIn: Array<{ symbol: string; amount: string; logoUrl?: string }>
+                    pool: string
+                    dexLogo: string
+                  }
+                | {
+                    type: 'erc20_approval' | 'nft_approval' | 'nft_approval_all'
+                    tokenAddress: string
+                    tokenSymbol?: string
+                    dexName?: string
+                  },
             ) => {
               const res = await submitTransaction({ library, txData })
               const { txHash, error } = res
@@ -290,23 +286,42 @@ const useZapInWidget = ({
               if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
 
               const dex = getDexFromPoolType(addLiquidityPureParams.poolType)
-              if (additionalInfo && dex) {
+              if (additionalInfo?.type === 'zap' && dex) {
                 addTransactionWithType({
                   hash: txHash,
                   type: addLiquidityPureParams.positionId
                     ? TRANSACTION_TYPE.EARN_INCREASE_LIQUIDITY
                     : TRANSACTION_TYPE.EARN_ADD_LIQUIDITY,
                   extraInfo: {
-                    pool: additionalInfo?.pool || '',
+                    pool: additionalInfo.pool || '',
                     positionId: addLiquidityPureParams.positionId || '',
-                    tokensIn: additionalInfo?.tokensIn || [],
-                    dexLogoUrl: additionalInfo?.dexLogo,
+                    tokensIn: additionalInfo.tokensIn || [],
+                    dexLogoUrl: additionalInfo.dexLogo,
                     dex,
+                  },
+                })
+              } else if (additionalInfo?.type === 'erc20_approval') {
+                addTransactionWithType({
+                  hash: txHash,
+                  type: TRANSACTION_TYPE.APPROVE,
+                  extraInfo: {
+                    tokenAddress: additionalInfo.tokenAddress,
+                    summary: additionalInfo.tokenSymbol,
+                  },
+                })
+              } else if (additionalInfo?.type === 'nft_approval' || additionalInfo?.type === 'nft_approval_all') {
+                addTransactionWithType({
+                  hash: txHash,
+                  type: TRANSACTION_TYPE.APPROVE,
+                  extraInfo: {
+                    tokenAddress: additionalInfo.tokenAddress,
+                    summary: additionalInfo.dexName || EARN_DEXES[addLiquidityPureParams.dexId].name,
                   },
                 })
               }
 
-              setZapTxHash(prev => [...prev, txHash])
+              // Track all transactions for replacement detection
+              addTrackedTxHash(txHash)
               return txHash
             },
           }
@@ -315,7 +330,8 @@ const useZapInWidget = ({
       addLiquidityPureParams,
       zapInRpcUrl,
       refCode,
-      zapStatus,
+      txStatus,
+      originalToCurrentHash,
       account,
       chainId,
       toggleWalletModal,
@@ -327,6 +343,7 @@ const useZapInWidget = ({
       library,
       addTransactionWithType,
       locale,
+      addTrackedTxHash,
     ],
   )
 

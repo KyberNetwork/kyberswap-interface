@@ -77,26 +77,28 @@ export default function TableContent({
   const upToCustomLarge = useMedia(`(max-width: ${1300}px)`)
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
-  const [positionThatClaimingFees, setPositionThatClaimingFees] = useState<ParsedPosition | null>(null)
-  const [positionThatClaimingRewards, setPositionThatClaimingRewards] = useState<ParsedPosition | null>(null)
   const [positionToMigrate, setPositionToMigrate] = useState<ParsedPosition | null>(null)
 
   const {
     claimModal: claimFeesModal,
     onOpenClaim: onOpenClaimFees,
-    claiming: feesClaiming,
+    pendingClaimKeys: pendingFeeClaimKeys,
   } = useCollectFees({
-    refetchAfterCollect: () => {
-      handleFetchUnclaimedFee(positionThatClaimingFees)
-      setPositionThatClaimingFees(null)
+    refetchAfterCollect: claimKey => {
+      if (!claimKey) return
+      const [claimChainId, claimTokenId] = claimKey.split(':')
+      const position = positions.find(
+        item => item.chain.id === Number(claimChainId) && String(item.tokenId) === claimTokenId,
+      )
+      handleFetchUnclaimedFee(position || null)
     },
   })
 
   const {
     claimModal: claimRewardsModal,
     onOpenClaim: onOpenClaimRewards,
-    claiming: rewardsClaiming,
-  } = useKemRewards(refetchPositions)
+    pendingClaimKeys: pendingRewardClaimKeys,
+  } = useKemRewards({ refetchAfterCollect: refetchPositions })
 
   const { rewardsByPosition } = useMerklRewards({ positions })
 
@@ -166,16 +168,14 @@ export default function TableContent({
   const handleClaimFees = (e: React.MouseEvent, position: ParsedPosition) => {
     e.stopPropagation()
     e.preventDefault()
-    if (position.pool.isUniv2 || feesClaiming || position.unclaimedFees === 0) return
-    setPositionThatClaimingFees(position)
+    if (position.pool.isUniv2 || position.unclaimedFees === 0) return
     onOpenClaimFees(position)
   }
 
   const handleClaimRewards = (e: React.MouseEvent, position: ParsedPosition) => {
     e.stopPropagation()
     e.preventDefault()
-    if (rewardsClaiming || position.rewards.unclaimedUsdValue === 0) return
-    setPositionThatClaimingRewards(position)
+    if (position.rewards.unclaimedUsdValue === 0) return
     onOpenClaimRewards(position)
   }
 
@@ -234,10 +234,12 @@ export default function TableContent({
         poolType: sourcePosition.dex.id,
         poolAddress: sourcePosition.pool.address,
         positionId: sourcePosition.pool.isUniv2 ? account || '' : sourcePosition.tokenId,
+        dexId: sourcePosition.dex.id,
       },
       to: {
         poolType: targetPool.poolExchange,
         poolAddress: targetPool.address,
+        dexId: targetPool.poolExchange,
       },
       initialTick:
         tickLower !== undefined && tickUpper !== undefined && !isOutRange
@@ -258,6 +260,7 @@ export default function TableContent({
         poolType: position.dex.id,
         poolAddress: position.pool.address,
         positionId: position.pool.isUniv2 ? account || '' : position.tokenId,
+        dexId: position.dex.id,
       },
       rePositionMode: true,
     })
@@ -311,8 +314,11 @@ export default function TableContent({
                 rewards,
                 isUnfinalized,
               } = position
-              const feesClaimDisabled = !EARN_DEXES[dex.id].collectFeeSupported || unclaimedFees === 0 || feesClaiming
-              const rewardsClaimDisabled = rewardsClaiming || position.rewards.claimableUsdValue === 0
+              const claimKey = `${chain.id}:${tokenId}`
+              const isFeeClaiming = pendingFeeClaimKeys.includes(claimKey)
+              const isRewardClaiming = pendingRewardClaimKeys.includes(claimKey)
+              const feesClaimDisabled = !EARN_DEXES[dex.id].collectFeeSupported || unclaimedFees === 0 || isFeeClaiming
+              const rewardsClaimDisabled = position.rewards.claimableUsdValue === 0 || isRewardClaiming
               const isStablePair = pool.category === PAIR_CATEGORY.STABLE
               const isEarlyPosition = checkEarlyPosition(position)
               const isWaitingForRewards = pool.isFarming && rewards.totalUsdValue === 0 && isEarlyPosition
@@ -331,14 +337,12 @@ export default function TableContent({
                   claimFees={{
                     onClaimFee: handleClaimFees,
                     feesClaimDisabled,
-                    feesClaiming,
-                    positionThatClaimingFees,
+                    feesClaiming: isFeeClaiming,
                   }}
                   claimRewards={{
                     onClaimRewards: handleClaimRewards,
                     rewardsClaimDisabled,
-                    rewardsClaiming,
-                    positionThatClaimingRewards,
+                    rewardsClaiming: isRewardClaiming,
                   }}
                 />
               )
@@ -531,7 +535,7 @@ export default function TableContent({
 
                   {/* Unclaimed fees info */}
                   <PositionValueWrapper align={upToCustomLarge ? 'flex-end' : ''}>
-                    <PositionValueLabel>{t`Unclaimed Fee`}</PositionValueLabel>
+                    <PositionValueLabel>{t`Unclaimed fees`}</PositionValueLabel>
 
                     {isUnfinalized ? (
                       <PositionSkeleton width={80} height={19} text={t`Finalizing...`} />
