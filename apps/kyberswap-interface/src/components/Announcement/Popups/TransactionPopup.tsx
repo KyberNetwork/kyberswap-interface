@@ -140,6 +140,7 @@ const summaryTypeOnly = (txs: TransactionDetails) => `${txs.type}`
 
 const summaryEarnAddLiquidity = (txs: TransactionDetails) => {
   const { tokensIn, pool } = (txs.extraInfo || {}) as EarnAddLiquidityExtraInfo
+  if (!tokensIn) return `${txs.type}`
   const tokensText = tokensIn.map(token => `${token.amount} ${token.symbol}`).join(', ')
   return {
     success: `Added ${tokensText} to the ${pool} pool.`,
@@ -149,6 +150,7 @@ const summaryEarnAddLiquidity = (txs: TransactionDetails) => {
 
 const summaryEarnIncreaseLiquidity = (txs: TransactionDetails) => {
   const { tokensIn, pool, positionId } = (txs.extraInfo || {}) as EarnAddLiquidityExtraInfo
+  if (!tokensIn) return `${txs.type}`
   return {
     success: `Increased liquidity by ${tokensIn
       .map(token => `${token.amount} ${token.symbol}`)
@@ -161,6 +163,7 @@ const summaryEarnIncreaseLiquidity = (txs: TransactionDetails) => {
 
 const summaryEarnRemoveLiquidity = (txs: TransactionDetails) => {
   const { tokensOut, pool, positionId } = (txs.extraInfo || {}) as EarnRemoveLiquidityExtraInfo
+  if (!tokensOut) return `${txs.type}`
   const tokensText = tokensOut.map(token => `${token.amount} ${token.symbol}`).join(', ')
   return {
     success: `Removed ${tokensText} from position ${pool} #${positionId}.`,
@@ -186,6 +189,7 @@ const summaryEarnReposition = (txs: TransactionDetails) => {
 
 const summaryEarnCompound = (txs: TransactionDetails) => {
   const { pool, positionId, tokensIn } = (txs.extraInfo || {}) as EarnAddLiquidityExtraInfo
+  if (!tokensIn) return `${txs.type}`
   const tokensText = tokensIn.map(token => `${token.amount} ${token.symbol}`).join(', ')
   return {
     success: `Compounded ${tokensText} for position ${pool} #${positionId}.`,

@@ -3,7 +3,6 @@ import {
   PoolType as CompoundingPoolType,
   CompoundingWidget,
   SupportedLocale,
-  TxStatus,
 } from '@kyberswap/compounding-widget'
 import '@kyberswap/compounding-widget/dist/style.css'
 import { ChainId } from '@kyberswap/ks-sdk-core'
@@ -17,10 +16,11 @@ import { useActiveLocale } from 'hooks/useActiveLocale'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
+import useTransactionReplacement from 'pages/Earns/hooks/useTransactionReplacement'
 import { submitTransaction } from 'pages/Earns/utils'
 import { navigateToPositionAfterZap } from 'pages/Earns/utils/zap'
 import { useKyberSwapConfig, useNotify, useWalletModalToggle } from 'state/application/hooks'
-import { useAllTransactions, useTransactionAdder } from 'state/transactions/hooks'
+import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 
 interface CompoundingPureParams {
@@ -89,7 +89,6 @@ const useCompounding = ({
 }) => {
   const locale = useActiveLocale()
   const addTransactionWithType = useTransactionAdder()
-  const allTransactions = useAllTransactions()
   const toggleWalletModal = useWalletModalToggle()
   const notify = useNotify()
   const navigate = useNavigate()
@@ -98,25 +97,13 @@ const useCompounding = ({
   const { changeNetwork } = useChangeNetwork()
 
   const [compoundingPureParams, setCompoundingPureParams] = useState<CompoundingPureParams | null>(null)
-  const [compoundingTxHash, setCompoundingTxHash] = useState<string[]>([])
+  const { originalToCurrentHash, txStatus, addTrackedTxHash, clearTracking } = useTransactionReplacement()
   const { rpc: compoundingRpcUrl } = useKyberSwapConfig(compoundingPureParams?.chainId as ChainId | undefined)
-
-  const compoundingStatus = useMemo(() => {
-    if (!allTransactions || !compoundingTxHash.length) return {}
-
-    return compoundingTxHash.reduce((acc: Record<string, TxStatus>, txHash) => {
-      const zapTx = allTransactions[txHash]
-      if (zapTx?.[0].receipt) {
-        acc[txHash as keyof typeof acc] = zapTx?.[0].receipt.status === 1 ? TxStatus.SUCCESS : TxStatus.FAILED
-      } else acc[txHash as keyof typeof acc] = TxStatus.PENDING
-      return acc
-    }, {})
-  }, [allTransactions, compoundingTxHash])
 
   const handleCloseCompounding = useCallback(() => {
     setCompoundingPureParams(null)
-    setCompoundingTxHash([])
-  }, [])
+    clearTracking()
+  }, [clearTracking])
 
   const handleNavigateToPosition = useCallback(
     async (txHash: string, chainId: number, poolType: CompoundingPoolType, poolId: string, tokenId: number) => {
@@ -175,7 +162,8 @@ const useCompounding = ({
               chainId: chainId,
             },
             onConnectWallet: toggleWalletModal,
-            zapStatus: compoundingStatus,
+            txStatus,
+            txHashMapping: originalToCurrentHash,
             onSwitchChain: () => changeNetwork(compoundingPureParams.chainId as number),
             onViewPosition: (txHash: string) => {
               const { chainId, poolType, poolAddress, positionId } = compoundingPureParams
@@ -189,17 +177,25 @@ const useCompounding = ({
             },
             onSubmitTx: async (
               txData: { from: string; to: string; data: string; value: string; gasLimit: string },
-              additionalInfo?: {
-                tokensIn: Array<{ symbol: string; amount: string; logoUrl?: string }>
-                pool: string
-                dexLogo: string
-              },
+              additionalInfo?:
+                | {
+                    type: 'zap'
+                    tokensIn: Array<{ symbol: string; amount: string; logoUrl?: string }>
+                    pool: string
+                    dexLogo: string
+                  }
+                | {
+                    type: 'erc20_approval' | 'nft_approval' | 'nft_approval_all'
+                    tokenAddress: string
+                    tokenSymbol?: string
+                    dexName?: string
+                  },
             ) => {
               const res = await submitTransaction({ library, txData })
               const { txHash, error } = res
               if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
 
-              if (additionalInfo) {
+              if (additionalInfo?.type === 'zap') {
                 const dexIndex = Object.values(compoundingDexMapping).findIndex(
                   (item, index) =>
                     item === compoundingPureParams.poolType &&
@@ -217,17 +213,35 @@ const useCompounding = ({
                         ? TRANSACTION_TYPE.EARN_COMPOUND_REWARD
                         : TRANSACTION_TYPE.EARN_COMPOUND_FEE,
                     extraInfo: {
-                      pool: additionalInfo?.pool || '',
+                      pool: additionalInfo.pool || '',
                       positionId: compoundingPureParams.positionId || '',
-                      tokensIn: additionalInfo?.tokensIn || [],
-                      dexLogoUrl: additionalInfo?.dexLogo,
+                      tokensIn: additionalInfo.tokensIn || [],
+                      dexLogoUrl: additionalInfo.dexLogo,
                       dex,
                     },
                   })
                 }
+              } else if (additionalInfo?.type === 'erc20_approval') {
+                addTransactionWithType({
+                  hash: txHash,
+                  type: TRANSACTION_TYPE.APPROVE,
+                  extraInfo: {
+                    tokenAddress: additionalInfo.tokenAddress,
+                    summary: additionalInfo.tokenSymbol,
+                  },
+                })
+              } else if (additionalInfo?.type === 'nft_approval' || additionalInfo?.type === 'nft_approval_all') {
+                addTransactionWithType({
+                  hash: txHash,
+                  type: TRANSACTION_TYPE.APPROVE,
+                  extraInfo: {
+                    tokenAddress: additionalInfo.tokenAddress,
+                    summary: additionalInfo.dexName || EARN_DEXES[compoundingPureParams.dexId].name,
+                  },
+                })
               }
 
-              setCompoundingTxHash(prev => [...prev, txHash])
+              addTrackedTxHash(txHash)
               return txHash
             },
           }
@@ -246,7 +260,9 @@ const useCompounding = ({
       toggleWalletModal,
       onCloseClaimModal,
       addTransactionWithType,
-      compoundingStatus,
+      txStatus,
+      originalToCurrentHash,
+      addTrackedTxHash,
     ],
   )
 

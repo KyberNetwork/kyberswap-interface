@@ -88,8 +88,10 @@ For a more detailed example, refer to the demo component in this repository: [Za
 | onSubmitTx       | Submit the provided transaction object and return the tx hash. A `gasLimit` value is provided.                     | `(txData: { from: string; to: string; value: string; data: string; gasLimit: string }) => Promise<string>` | Required           |
 | onClose          | Called when the widget is closed                                                                                   | `() => void`                                                                                               | Required           |
 | zapStatus        | Controls the widget's transaction state; pass a map of `txHash -> TxStatus`, or omit to let the widget poll itself | `Record<string, TxStatus>`                                                                                 | Optional           |
+| txHashMapping    | Maps original tx hash to current tx hash (for speed up/cancel replacements). Used to track transaction replacements when user speeds up or cancels a transaction | `Record<string, string>`                                                                                   | Optional           |
 
 - `PoolType` enumerates supported protocols (e.g. Uniswap V3, PancakeSwap V3, Sushi V3, Algebra forks, Uniswap V2, Uniswap V4, etc.). Import it from this package and pick the one matching your pools.
+- `txHashMapping`: When a user speeds up or cancels a transaction, the original transaction hash is replaced with a new one. Pass a mapping object where keys are original tx hashes and values are the current (replaced) tx hashes. The widget will use the current hash for status checks and display. Example: `{ '0xabc...': '0xdef...' }` means the original tx `0xabc...` was replaced by `0xdef...`.
 
 ### Styling
 

@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 
+import { ApprovalAdditionalInfo } from '@kyber/hooks';
 import {
   ChainId,
   NATIVE_TOKEN_ADDRESS,
@@ -47,11 +48,14 @@ const initState = {
   onSwitchChain: () => {},
   onSubmitTx: (
     _txData: { from: string; to: string; value: string; data: string; gasLimit: string },
-    _additionalInfo?: {
-      tokensIn: Array<{ symbol: string; amount: string; logoUrl?: string }>;
-      pool: string;
-      dexLogo: string;
-    },
+    _additionalInfo?:
+      | {
+          type: 'zap';
+          tokensIn: Array<{ symbol: string; amount: string; logoUrl?: string }>;
+          pool: string;
+          dexLogo: string;
+        }
+      | ApprovalAdditionalInfo,
   ) => Promise.resolve(''),
   onOpenZapMigration: undefined,
   onViewPosition: undefined,
@@ -63,13 +67,14 @@ export const useWidgetStore = create<WidgetState>((set, _get) => ({
   ...initState,
   reset: () => set(initState),
   setInitiaWidgetState: (props: WidgetProps, resetStore: () => void) => {
-    const { onClose, chainId, rpcUrl } = props;
+    const { onClose, chainId, rpcUrl, txHashMapping } = props;
 
     const wrappedNativeToken = NETWORKS_INFO[chainId].wrappedToken;
 
     set({
       ...props,
       rpcUrl: rpcUrl ?? NETWORKS_INFO[chainId].defaultRpc,
+      txHashMapping,
       onClose: () => {
         resetStore();
         onClose();
