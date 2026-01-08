@@ -218,7 +218,7 @@ export default function Preview({ onDismiss }: { onDismiss: () => void }) {
               )}
             </button>
             {txStatus === 'success' ? (
-              onViewPosition ? (
+              onViewPosition && !onSetUpSmartExit ? (
                 <button className="ks-primary-btn flex-1" onClick={() => onViewPosition(displayTxHash)}>
                   <Trans>View position</Trans>
                 </button>
