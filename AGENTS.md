@@ -22,7 +22,7 @@ cd apps/kyberswap-interface && pnpm dev   # Run main app
 | `apps/zap-widgets-demo/`              | Widget demonstration app                   |
 | `apps/swap-widgets-react-demo/`       | React widget integration example           |
 | `apps/swap-widgets-nextjs-demo/`      | Next.js widget integration example         |
-| `packages/liquidity-widgets/`         | Zap In widget (add LP with single token)   |
+| `packages/liquidity-widgets/`         | Zap In widget (add LP with any token)      |
 | `packages/zap-out-widgets/`           | Zap Out widget (remove LP to single token) |
 | `packages/zap-migration-widgets/`     | LP position migration widget               |
 | `packages/pancake-liquidity-widgets/` | PancakeSwap-specific Zap In                |

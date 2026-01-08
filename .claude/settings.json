@@ -1,5 +1,5 @@
 {
-  "$schema": "https://raw.githubusercontent.com/anthropics/claude-code/main/settings-schema.json",
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "permissions": {
     "allow": [
       "Read",
@@ -9,20 +9,20 @@
       "Bash(pnpm type-check:*)",
       "Bash(pnpm test:*)",
       "Bash(pnpm build-package)",
-      "Bash(cat *)",
-      "Bash(ls *)",
-      "Bash(grep *)",
-      "Bash(find *)",
-      "Bash(head *)",
-      "Bash(tail *)"
+      "Bash(cat :*)",
+      "Bash(ls :*)",
+      "Bash(grep :*)",
+      "Bash(find :*)",
+      "Bash(head :*)",
+      "Bash(tail :*)"
     ],
     "deny": [
-      "Bash(rm -rf *)",
-      "Bash(git push *)",
-      "Bash(pnpm publish *)",
-      "Bash(npm publish *)",
-      "Bash(chmod *)",
-      "Bash(sudo *)"
+      "Bash(rm -rf :*)",
+      "Bash(git push :*)",
+      "Bash(pnpm publish :*)",
+      "Bash(npm publish :*)",
+      "Bash(chmod :*)",
+      "Bash(sudo :*)"
     ]
   }
 }
