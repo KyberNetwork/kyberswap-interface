@@ -13,9 +13,61 @@ import { PoolsPageWrapper } from 'pages/Pools/styleds'
 import Filter from './Filter'
 import SortIcon, { Direction } from './SortIcon'
 import TableContent from './TableContent'
+import BubbleTokens, { type BubbleToken } from './components/BubbleTokens'
 import MarketMoodGauge from './components/MarketMoodGauge'
 import { ContentWrapper, MarketTableHeader, MarketTableWrapper, PriceSelectionField, SortableHeader } from './styles'
 import useFilter from './useFilter'
+
+const bubbleTokenPool: BubbleToken[] = [
+  { id: 'doge-1', symbol: 'DOGE', change: 132.8, size: 'xl', tone: 'bull', score: 13 },
+  { id: 'shib', symbol: 'SHIB', change: -132.8, size: 'lg', tone: 'bear', score: 64 },
+  { id: 'fun', symbol: 'FUN', change: 86.8, size: 'lg', tone: 'bull', score: 13 },
+  { id: 'bq', symbol: 'BQ', change: -86.8, size: 'lg', tone: 'bear', score: 64 },
+  { id: 'doge-2', symbol: 'DOGE', change: 132.8, size: 'lg', tone: 'bull', score: 13 },
+  { id: 'usdc', symbol: 'USDC', change: 0, size: 'md', tone: 'neutral', score: 86 },
+  { id: 'enj-1', symbol: 'ENJ', change: 34.8, size: 'md', tone: 'bull', score: 37 },
+  { id: 'tron', symbol: 'TRON', change: -13.2, size: 'md', tone: 'bear', score: 1 },
+  { id: 'usdt-1', symbol: 'USDT', change: 0, size: 'sm', tone: 'neutral', score: 37 },
+  { id: 'usdt-2', symbol: 'USDT', change: 0, size: 'sm', tone: 'neutral', score: 37 },
+  { id: 'bnb-1', symbol: 'BNB', change: 5.76, size: 'sm', tone: 'bull', score: 37 },
+  { id: 'bnb-2', symbol: 'BNB', change: 5.76, size: 'sm', tone: 'bull', score: 37 },
+  { id: 'bnb-3', symbol: 'BNB', change: 5.76, size: 'sm', tone: 'bull', score: 37 },
+  { id: 'bnb-4', symbol: 'BNB', change: 5.76, size: 'sm', tone: 'bull', score: 37 },
+  { id: 'xrp-1', symbol: 'XRP', change: -8.54, size: 'sm', tone: 'bear', score: 64 },
+  { id: 'xrp-2', symbol: 'XRP', change: -8.54, size: 'sm', tone: 'bear', score: 64 },
+  { id: 'enj-2', symbol: 'ENJ', change: 34.8, size: 'sm', tone: 'bull', score: 37 },
+  { id: 'bnb-5', symbol: 'BNB', change: 5.76, size: 'sm', tone: 'bull', score: 37 },
+  { id: 'btc', symbol: 'BTC', change: 2.15, size: 'md', tone: 'bull', score: 71 },
+  { id: 'eth', symbol: 'ETH', change: -1.25, size: 'md', tone: 'bear', score: 42 },
+  { id: 'sol', symbol: 'SOL', change: 9.12, size: 'sm', tone: 'bull', score: 55 },
+  { id: 'ada', symbol: 'ADA', change: -4.21, size: 'sm', tone: 'bear', score: 28 },
+  { id: 'matic', symbol: 'MATIC', change: 3.84, size: 'sm', tone: 'bull', score: 63 },
+  { id: 'avax', symbol: 'AVAX', change: -6.9, size: 'sm', tone: 'bear', score: 47 },
+]
+
+const pickRandomTokens = (pool: BubbleToken[], count: number) => {
+  const shuffled = [...pool]
+  for (let i = shuffled.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+  }
+  return shuffled.slice(0, count)
+}
+
+const randomizeToken = (token: BubbleToken): BubbleToken => {
+  const isNeutral = Math.random() < 0.15
+  const change = isNeutral ? 0 : Number((Math.random() * 300 - 150).toFixed(2))
+  const sizes: BubbleToken['size'][] = ['sm', 'md', 'lg', 'xl']
+  const size = sizes[Math.floor(Math.random() * sizes.length)]
+  const score = Math.random() < 0.15 ? undefined : Math.floor(Math.random() * 99) + 1
+  return {
+    ...token,
+    change,
+    size,
+    score,
+    tone: isNeutral ? 'neutral' : change > 0 ? 'bull' : 'bear',
+  }
+}
 
 export default function MarketOverview() {
   const theme = useTheme()
@@ -50,6 +102,10 @@ export default function MarketOverview() {
   const [sellPriceSelectedField, setSellPriceSelectedField] = useState<'1h' | '24h' | '7d'>('24h')
 
   const [marketPieValue, setMarketPieValue] = useState(() => Math.floor(Math.random() * 101))
+  const [bubbleTokens, setBubbleTokens] = useState<BubbleToken[]>(() =>
+    pickRandomTokens(bubbleTokenPool, 20).map(randomizeToken),
+  )
+  const [bubbleSeed, setBubbleSeed] = useState(0)
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -58,8 +114,19 @@ export default function MarketOverview() {
     return () => clearInterval(intervalId)
   }, [])
 
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setBubbleTokens(pickRandomTokens(bubbleTokenPool, 20).map(randomizeToken))
+      setBubbleSeed(seed => seed + 1)
+    }, 5000)
+    return () => clearInterval(intervalId)
+  }, [])
+
   return (
     <PoolsPageWrapper>
+      <div style={{ marginBottom: 48 }}>
+        <BubbleTokens tokens={bubbleTokens} randomizeKey={bubbleSeed} />
+      </div>
       <Flex style={{ marginBottom: 120, alignItems: 'flex-end' }}>
         <MarketMoodGauge size={240} value={marketPieValue} />
         <MarketMoodGauge size={320} value={marketPieValue} />
