@@ -58,7 +58,12 @@ export const SmartExit = ({ position, onDismiss, isLoading = false }: SmartExitP
 
   // Position is loading or not available yet
   const positionLoading = isLoading || !position
-  const disabled = positionLoading || !isValid || !feeInfo || feeLoading
+
+  // Calculate max gas percentage
+  const maxGasPercent = customGasPercent ? parseFloat(customGasPercent) : (feeInfo?.gas.percentage || 0) * multiplier
+  const isGasTooHigh = maxGasPercent >= 100
+
+  const disabled = positionLoading || !isValid || !feeInfo || feeLoading || isGasTooHigh
 
   return (
     <Modal
