@@ -5,7 +5,7 @@ import styled from 'styled-components'
 
 import useTheme from 'hooks/useTheme'
 
-type MarketPieProps = {
+type MarketMoodGaugeProps = {
   value?: number
   size?: number
   leftLabel?: string
@@ -15,12 +15,12 @@ type MarketPieProps = {
 const totalSegments = 48
 const segmentsPerQuadrant = 20
 
-export default function MarketPie({
+export default function MarketMoodGauge({
   value,
   size = 320,
   leftLabel = 'Bearish',
   rightLabel = 'Bullish',
-}: MarketPieProps) {
+}: MarketMoodGaugeProps) {
   const theme = useTheme()
 
   const segmentAngle = 90 / segmentsPerQuadrant

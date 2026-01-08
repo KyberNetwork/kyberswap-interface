@@ -13,7 +13,7 @@ import { PoolsPageWrapper } from 'pages/Pools/styleds'
 import Filter from './Filter'
 import SortIcon, { Direction } from './SortIcon'
 import TableContent from './TableContent'
-import MarketPie from './components/MarketPie'
+import MarketMoodGauge from './components/MarketMoodGauge'
 import { ContentWrapper, MarketTableHeader, MarketTableWrapper, PriceSelectionField, SortableHeader } from './styles'
 import useFilter from './useFilter'
 
@@ -61,9 +61,9 @@ export default function MarketOverview() {
   return (
     <PoolsPageWrapper>
       <Flex style={{ marginBottom: 120, alignItems: 'flex-end' }}>
-        <MarketPie size={240} value={marketPieValue} />
-        <MarketPie size={320} value={marketPieValue} />
-        <MarketPie size={400} value={marketPieValue} />
+        <MarketMoodGauge size={240} value={marketPieValue} />
+        <MarketMoodGauge size={320} value={marketPieValue} />
+        <MarketMoodGauge size={400} value={marketPieValue} />
       </Flex>
       <div>
         <Text as="h1" fontSize={24} fontWeight="500">
