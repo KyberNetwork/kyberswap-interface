@@ -75,11 +75,9 @@ const PoolItem = ({ pool }: { pool: EarnPool }) => {
       </Flex>
 
       <Flex alignItems="center" sx={{ gap: '4px' }}>
-        <Text color={theme.primary}>
-          {formatAprNumber((pool.apr || 0) + (pool.kemEGApr || 0) + (pool.kemLMApr || 0))}%
-        </Text>
+        <Text color={theme.primary}>{formatAprNumber(pool.allApr)}%</Text>
         {isFarming ? (
-          <AprDetailTooltip feeApr={pool.apr || 0} egApr={pool.kemEGApr || 0} lmApr={pool.kemLMApr || 0}>
+          <AprDetailTooltip feeApr={pool.lpApr} egApr={pool.kemEGApr} lmApr={pool.kemLMApr}>
             {isFarmingLm ? <FarmingLmIcon width={20} height={20} /> : <FarmingIcon width={20} height={20} />}
           </AprDetailTooltip>
         ) : null}

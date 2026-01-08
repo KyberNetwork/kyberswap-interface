@@ -24,6 +24,8 @@ export default function useInitWidget(widgetProps: ZapMigrationProps) {
     onClose,
     onSubmitTx,
     signTypedData,
+    txStatus,
+    txHashMapping,
   } = widgetProps;
 
   const [hasReseted, setHasReseted] = useState(false);
@@ -89,6 +91,8 @@ export default function useInitWidget(widgetProps: ZapMigrationProps) {
       onClose,
       onSubmitTx,
       signTypedData,
+      txStatus,
+      txHashMapping,
     });
   }, [
     themeProps,
@@ -107,6 +111,8 @@ export default function useInitWidget(widgetProps: ZapMigrationProps) {
     onClose,
     onSubmitTx,
     signTypedData,
+    txStatus,
+    txHashMapping,
   ]);
 
   useEffect(() => {

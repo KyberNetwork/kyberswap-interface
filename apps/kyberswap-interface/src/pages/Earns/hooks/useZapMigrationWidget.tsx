@@ -1,7 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import {
   SupportedLocale,
-  TxStatus,
   ZapMigration,
   ChainId as ZapMigrationChainId,
   PoolType as ZapMigrationDex,
@@ -19,10 +18,11 @@ import { useActiveLocale } from 'hooks/useActiveLocale'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
+import useTransactionReplacement from 'pages/Earns/hooks/useTransactionReplacement'
 import { submitTransaction } from 'pages/Earns/utils'
 import { navigateToPositionAfterZap } from 'pages/Earns/utils/zap'
 import { useKyberSwapConfig, useNotify, useWalletModalToggle } from 'state/application/hooks'
-import { useAllTransactions, useTransactionAdder } from 'state/transactions/hooks'
+import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { getCookieValue } from 'utils'
 
@@ -114,7 +114,6 @@ const getDexFromPoolType = (poolType: ZapMigrationDex) => {
 const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
   const locale = useActiveLocale()
   const addTransactionWithType = useTransactionAdder()
-  const allTransactions = useAllTransactions()
   const toggleWalletModal = useWalletModalToggle()
   const notify = useNotify()
   const navigate = useNavigate()
@@ -124,21 +123,9 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
   const { changeNetwork } = useChangeNetwork()
 
   const [migrateLiquidityPureParams, setMigrateLiquidityPureParams] = useState<MigrateLiquidityPureParams | null>(null)
-  const [zapTxHash, setZapTxHash] = useState<string[]>([])
   const [triggerClose, setTriggerClose] = useState(false)
+  const { originalToCurrentHash, txStatus, addTrackedTxHash, clearTracking } = useTransactionReplacement()
   const { rpc: zapMigrationRpcUrl } = useKyberSwapConfig(migrateLiquidityPureParams?.chainId as ChainId | undefined)
-
-  const zapStatus = useMemo(() => {
-    if (!allTransactions || !zapTxHash.length) return {}
-
-    return zapTxHash.reduce((acc: Record<string, TxStatus>, txHash) => {
-      const zapTx = allTransactions[txHash]
-      if (zapTx?.[0].receipt) {
-        acc[txHash as keyof typeof acc] = zapTx?.[0].receipt.status === 1 ? TxStatus.SUCCESS : TxStatus.FAILED
-      } else acc[txHash as keyof typeof acc] = TxStatus.PENDING
-      return acc
-    }, {})
-  }, [allTransactions, zapTxHash])
 
   const handleNavigateToPosition = useCallback(
     async (txHash: string, chainId: number, targetDex: ZapMigrationDex, targetPoolId: string) => {
@@ -208,7 +195,8 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
                   library.send('eth_signTypedData_v4', [account.toLowerCase(), typedDataJson])
               : undefined,
             referral: refCode,
-            zapStatus,
+            txStatus,
+            txHashMapping: originalToCurrentHash,
             locale,
             connectedAccount: {
               address: account,
@@ -220,29 +208,37 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
                 migrateLiquidityPureParams.to || migrateLiquidityPureParams.from
               setTriggerClose(true)
               setMigrateLiquidityPureParams(null)
-              setZapTxHash([])
+              clearTracking()
               handleNavigateToPosition(txHash, chainId, targetDex, targetPoolId)
             },
             onClose: () => {
               setTriggerClose(true)
               setMigrateLiquidityPureParams(null)
-              setZapTxHash([])
+              clearTracking()
               onRefreshPosition?.()
             },
             onBack: () => {
               setMigrateLiquidityPureParams(null)
-              setZapTxHash([])
+              clearTracking()
             },
             onConnectWallet: toggleWalletModal,
             onSwitchChain: () => changeNetwork(migrateLiquidityPureParams.chainId as number),
             onSubmitTx: async (
               txData: { from: string; to: string; value: string; data: string },
-              additionalInfo?: {
-                sourcePool: string
-                sourceDexLogo: string
-                destinationPool: string
-                destinationDexLogo: string
-              },
+              additionalInfo?:
+                | {
+                    type: 'zap'
+                    sourcePool: string
+                    sourceDexLogo: string
+                    destinationPool: string
+                    destinationDexLogo: string
+                  }
+                | {
+                    type: 'erc20_approval' | 'nft_approval' | 'nft_approval_all'
+                    tokenAddress: string
+                    tokenSymbol?: string
+                    dexName?: string
+                  },
             ) => {
               const res = await submitTransaction({ library, txData })
               const { txHash, error } = res
@@ -252,7 +248,7 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
               const destinationDex = getDexFromPoolType(
                 migrateLiquidityPureParams.to?.poolType || migrateLiquidityPureParams.from.poolType,
               )
-              if (additionalInfo && sourceDex && destinationDex) {
+              if (additionalInfo?.type === 'zap' && sourceDex && destinationDex) {
                 addTransactionWithType({
                   hash: txHash,
                   type: migrateLiquidityPureParams.rePositionMode
@@ -268,8 +264,27 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
                     positionId: migrateLiquidityPureParams.from.positionId,
                   },
                 })
+              } else if (additionalInfo?.type === 'erc20_approval') {
+                addTransactionWithType({
+                  hash: txHash,
+                  type: TRANSACTION_TYPE.APPROVE,
+                  extraInfo: {
+                    tokenAddress: additionalInfo.tokenAddress,
+                    summary: additionalInfo.tokenSymbol,
+                  },
+                })
+              } else if (additionalInfo?.type === 'nft_approval' || additionalInfo?.type === 'nft_approval_all') {
+                addTransactionWithType({
+                  hash: txHash,
+                  type: TRANSACTION_TYPE.APPROVE,
+                  extraInfo: {
+                    tokenAddress: additionalInfo.tokenAddress,
+                    summary: additionalInfo.dexName,
+                  },
+                })
               }
-              setZapTxHash(prev => [...prev, txHash])
+              // Track all transactions for replacement detection
+              addTrackedTxHash(txHash)
               return txHash
             },
             onExplorePools: () => {
@@ -290,8 +305,11 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
       onRefreshPosition,
       navigate,
       addTransactionWithType,
-      zapStatus,
+      txStatus,
+      originalToCurrentHash,
       locale,
+      addTrackedTxHash,
+      clearTracking,
     ],
   )
 
@@ -300,13 +318,13 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
   useEffect(() => {
     if (account && previousAccount) {
       setMigrateLiquidityPureParams(null)
-      setZapTxHash([])
+      clearTracking()
     }
-  }, [account, previousAccount])
+  }, [account, previousAccount, clearTracking])
 
   useAccountChanged(() => {
     setMigrateLiquidityPureParams(null)
-    setZapTxHash([])
+    clearTracking()
   })
 
   const widget = migrateLiquidityParams ? (
@@ -317,7 +335,7 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
       width={'832px'}
       onDismiss={() => {
         setMigrateLiquidityPureParams(null)
-        setZapTxHash([])
+        clearTracking()
       }}
       zindex={1001}
     >

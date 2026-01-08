@@ -23,7 +23,7 @@ import {
   PositionStatus,
   ProgramType,
 } from 'pages/Earns/types'
-import { getNftManagerContractAddress, isNativeToken } from 'pages/Earns/utils'
+import { getNftManagerContractAddress, isNativeToken, isUniswapExchange } from 'pages/Earns/utils'
 
 export const getDexVersion = (dex: Exchange) => {
   if (!EARN_DEXES[dex].showVersion) return ''
@@ -124,6 +124,7 @@ export const parsePosition = ({
   const dex = pool.exchange || ''
   const isUniv2 = EARN_DEXES[dex].isForkFrom === CoreProtocol.UniswapV2
   const isUniv4 = EARN_DEXES[dex].isForkFrom === CoreProtocol.UniswapV4
+  const isUniswap = isUniswapExchange(dex)
 
   const programs = pool.programs || []
   const isFarming = programs.includes(ProgramType.EG) || programs.includes(ProgramType.LM)
@@ -199,6 +200,9 @@ export const parsePosition = ({
 
   const [id, stakingOwner] = position.id.split('_')
   const parsedStatus = forceClosed ? PositionStatus.CLOSED : isUniv2 ? PositionStatus.IN_RANGE : position.status
+
+  const isPositionInRange = parsedStatus === PositionStatus.IN_RANGE
+  const bonusApr = isPositionInRange && isUniswap ? position.pool.merklOpportunity?.apr || 0 : 0
 
   return {
     id,
@@ -283,7 +287,7 @@ export const parsePosition = ({
     kemEGApr: calcAprInterval(position.stats.kemEGApr),
     kemLMApr: calcAprInterval(position.stats.kemLMApr),
     feeApr: calcAprInterval(position.stats.apr),
-    bonusApr: parsedStatus === PositionStatus.IN_RANGE ? position.pool.merklOpportunity?.apr || 0 : 0,
+    bonusApr,
     totalValue,
     currentValue: position.currentPositionValue,
     totalProvidedValue,

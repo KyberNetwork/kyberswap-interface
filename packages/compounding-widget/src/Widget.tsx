@@ -42,20 +42,33 @@ import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
 export default function Widget() {
-  const { poolType, chainId, rpcUrl, connectedAccount, onClose, positionId, onSubmitTx, onViewPosition, dexId } =
-    useWidgetStore(
-      useShallow(s => ({
-        poolType: s.poolType,
-        chainId: s.chainId,
-        rpcUrl: s.rpcUrl,
-        connectedAccount: s.connectedAccount,
-        onClose: s.onClose,
-        positionId: s.positionId,
-        onSubmitTx: s.onSubmitTx,
-        onViewPosition: s.onViewPosition,
-        dexId: s.dexId,
-      })),
-    );
+  const {
+    poolType,
+    chainId,
+    rpcUrl,
+    connectedAccount,
+    onClose,
+    positionId,
+    onSubmitTx,
+    onViewPosition,
+    dexId,
+    txStatusFromApp,
+    txHashMapping,
+  } = useWidgetStore(
+    useShallow(s => ({
+      poolType: s.poolType,
+      chainId: s.chainId,
+      rpcUrl: s.rpcUrl,
+      connectedAccount: s.connectedAccount,
+      onClose: s.onClose,
+      positionId: s.positionId,
+      onSubmitTx: s.onSubmitTx,
+      onViewPosition: s.onViewPosition,
+      dexId: s.dexId,
+      txStatusFromApp: s.txStatus,
+      txHashMapping: s.txHashMapping,
+    })),
+  );
   const { poolError, pool } = usePoolStore(
     useShallow(s => ({
       poolError: s.poolError,
@@ -66,10 +79,13 @@ export default function Widget() {
   const { position } = usePositionStore(useShallow(s => ({ position: s.position })));
 
   const nftManagerContract = getNftManagerContractAddress(poolType, chainId);
+  const dexName = getDexName(poolType, chainId, dexId);
+
   const {
     isApproved: nftApproved,
     approve: approveNft,
     approvePendingTx: nftApprovePendingTx,
+    currentApprovePendingTx: nftCurrentApprovePendingTx,
     checkApproval: checkNftApproval,
   } = useNftApproval({
     tokenId: +positionId,
@@ -78,18 +94,25 @@ export default function Widget() {
     rpcUrl,
     nftManagerContract,
     onSubmitTx: onSubmitTx,
+    txStatus: txStatusFromApp,
+    txHashMapping,
+    dexName,
   });
+
+  // Use currentApprovePendingTx (which tracks replacements) for displaying to user
+  const displayNftApprovePendingTx = nftCurrentApprovePendingTx || nftApprovePendingTx;
 
   const { address: account } = connectedAccount;
   const isUniV3 = univ3Types.includes(poolType as any);
   const { token0 = defaultToken, token1 = defaultToken, fee: poolFee = 0 } = snapshotState ? snapshotState.pool : {};
 
-  const dexName = getDexName(poolType, chainId, dexId);
-
   const [txHash, setTxHash] = useState('');
   const [attempTx, setAttempTx] = useState(false);
   const [txError, setTxError] = useState<Error | null>(null);
-  const { txStatus } = useTxStatus({ txHash: txHash || undefined });
+  const { txStatus, currentTxHash } = useTxStatus({ txHash: txHash || undefined });
+
+  // Use currentTxHash (which tracks replacements) for displaying to user
+  const displayTxHash = currentTxHash || txHash;
 
   const handleClick = useCallback(async () => {
     if (!snapshotState || attempTx || txError || pool === 'loading' || !position || position === 'loading') return;
@@ -128,6 +151,7 @@ export default function Widget() {
                 gasLimit: calculateGasMargin(gasEstimation),
               },
               {
+                type: 'zap',
                 tokensIn: [
                   {
                     symbol: pool.token0.symbol,
@@ -159,8 +183,9 @@ export default function Widget() {
   }, [handleClick]);
 
   let txStatusText = '';
-  if (txHash) {
+  if (displayTxHash) {
     if (txStatus === 'success') txStatusText = t`Compound Completed`;
+    else if (txStatus === 'cancelled') txStatusText = t`Transaction cancelled`;
     else if (txStatus === 'failed' || txError) txStatusText = t`Transaction failed`;
     else txStatusText = t`Processing transaction`;
   } else {
@@ -190,14 +215,14 @@ export default function Widget() {
           </div>
         </Modal>
       )}
-      {(attempTx || txHash) && (
+      {(attempTx || displayTxHash) && (
         <Modal isOpen onClick={onCloseConfirm}>
           <div className="mt-4 gap-4 flex flex-col justify-center items-center text-base font-medium">
             <div className="flex justify-center gap-3 flex-col items-center flex-1">
               <div className="flex items-center justify-center gap-2 text-xl font-medium">
                 {txStatus === 'success' ? (
                   <SuccessIcon className="w-6 h-6" />
-                ) : txStatus === 'failed' || txError ? (
+                ) : txStatus === 'failed' || txStatus === 'cancelled' || txError ? (
                   <ErrorIcon className="w-6 h-6" />
                 ) : (
                   <Spinner className="w-6 h-6 animate-spin-reverse" />
@@ -215,27 +240,27 @@ export default function Widget() {
                   </Trans>
                 </div>
               )}
-              {txHash && txStatus === '' && !txError && (
+              {displayTxHash && txStatus === '' && !txError && (
                 <div className="text-sm text-subText">
                   <Trans>It may take a few minutes to proceed.</Trans>
                 </div>
               )}
-              {txHash && txStatus === 'success' && (
+              {displayTxHash && txStatus === 'success' && (
                 <div className="text-sm text-subText">
                   <Trans>You have successfully added liquidity!</Trans>
                 </div>
               )}
-              {txHash && (txStatus === 'failed' || txError) && (
+              {displayTxHash && (txStatus === 'failed' || txError) && (
                 <div className="text-sm text-subText">
                   <Trans>An error occurred during the liquidity migration.</Trans>
                 </div>
               )}
             </div>
 
-            {txHash && (
+            {displayTxHash && (
               <a
                 className="flex justify-end items-center text-accent text-sm gap-1"
-                href={`${NETWORKS_INFO[chainId].scanLink}/tx/${txHash}`}
+                href={`${NETWORKS_INFO[chainId].scanLink}/tx/${displayTxHash}`}
                 target="_blank"
                 rel="noopener norefferer noreferrer"
               >
@@ -261,7 +286,7 @@ export default function Widget() {
                   <Trans>Close</Trans>
                 </button>
                 {txStatus === 'success' && onViewPosition && (
-                  <button className="ks-primary-btn flex-1" onClick={() => onViewPosition(txHash)}>
+                  <button className="ks-primary-btn flex-1" onClick={() => onViewPosition(displayTxHash)}>
                     <Trans>View position</Trans>
                   </button>
                 )}
@@ -289,7 +314,7 @@ export default function Widget() {
             <ZapSummary />
           </div>
         </div>
-        <Action nftApproved={nftApproved} nftApprovePendingTx={nftApprovePendingTx} approveNft={approveNft} />
+        <Action nftApproved={nftApproved} nftApprovePendingTx={displayNftApprovePendingTx} approveNft={approveNft} />
       </div>
       <Setting />
     </div>

@@ -391,54 +391,51 @@ const UserPositions = () => {
 
                 <PositionTableHeaderFlexItem role="button" onClick={() => onSortChange(SortBy.VALUE)}>
                   {t`Value`}
-                  <SortIcon
-                    sorted={filters.sortBy === SortBy.VALUE ? (filters.orderBy as Direction) : undefined}
-                    style={{ position: 'relative', top: '5px' }}
-                  />
+                  <SortIcon sorted={filters.sortBy === SortBy.VALUE ? (filters.orderBy as Direction) : undefined} />
                 </PositionTableHeaderFlexItem>
 
                 <PositionTableHeaderFlexItem role="button" onClick={() => onSortChange(SortBy.APR)}>
-                  {t`est. APR`}
-                  <SortIcon
-                    sorted={filters.sortBy === SortBy.APR ? (filters.orderBy as Direction) : undefined}
-                    style={{ position: 'relative', top: '4px' }}
-                  />
+                  {t`Est. APR`}
+                  <SortIcon sorted={filters.sortBy === SortBy.APR ? (filters.orderBy as Direction) : undefined} />
                 </PositionTableHeaderFlexItem>
 
-                <Flex
-                  flexDirection={'column'}
-                  justifyContent={'flex-start'}
-                  sx={{ height: '100%', gap: '9px', cursor: 'pointer' }}
+                <PositionTableHeaderFlexItem
+                  flexDirection="column"
+                  alignItems="flex-start"
                   role="button"
                   onClick={() => onSortChange(SortBy.UNCLAIMED_FEE)}
                 >
                   <Trans>
                     <Text>Unclaimed</Text>
                     <Flex alignItems={'center'} sx={{ gap: '4px' }}>
-                      fees
+                      <Text>fees</Text>
                       <SortIcon
                         sorted={filters.sortBy === SortBy.UNCLAIMED_FEE ? (filters.orderBy as Direction) : undefined}
                       />
                     </Flex>
                   </Trans>
-                </Flex>
-
-                <PositionTableHeaderFlexItem role="button" onClick={() => onSortChange(SortBy.UNCLAIMED_REWARDS)}>
-                  <Trans>
-                    <Flex alignItems={'flex-start'} sx={{ gap: '4px' }}>
-                      <FarmingIcon width={24} height={24} />
-                      <Text>Unclaimed</Text>
-                    </Flex>
-                    <Flex alignItems={'center'} sx={{ gap: '4px' }} paddingLeft={'28px'}>
-                      <Text>rewards</Text>
-                      <SortIcon
-                        sorted={
-                          filters.sortBy === SortBy.UNCLAIMED_REWARDS ? (filters.orderBy as Direction) : undefined
-                        }
-                      />
-                    </Flex>
-                  </Trans>
                 </PositionTableHeaderFlexItem>
+
+                <Flex sx={{ gap: '4px' }}>
+                  <FarmingIcon width={24} height={24} />
+                  <PositionTableHeaderFlexItem
+                    flexDirection="column"
+                    role="button"
+                    onClick={() => onSortChange(SortBy.UNCLAIMED_REWARDS)}
+                  >
+                    <Trans>
+                      <Text>Unclaimed</Text>
+                      <Flex alignItems={'center'} sx={{ gap: '4px' }}>
+                        <Text>rewards</Text>
+                        <SortIcon
+                          sorted={
+                            filters.sortBy === SortBy.UNCLAIMED_REWARDS ? (filters.orderBy as Direction) : undefined
+                          }
+                        />
+                      </Flex>
+                    </Trans>
+                  </PositionTableHeaderFlexItem>
+                </Flex>
 
                 {!upToCustomLarge && <div />}
 
@@ -467,7 +464,6 @@ const UserPositions = () => {
           </ContentWrapper>
           {!isError && (!isFetching || !loading) && (
             <Pagination
-              haveBg={false}
               onPageChange={(newPage: number) => updateFilters('page', newPage)}
               totalCount={filteredPositions.length || 0}
               currentPage={filters.page}

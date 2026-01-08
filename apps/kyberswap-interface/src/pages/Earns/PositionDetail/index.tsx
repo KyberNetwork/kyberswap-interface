@@ -82,8 +82,7 @@ const PositionDetail = () => {
     },
     { skip: !account, pollingInterval: forceLoading || reduceFetchInterval ? 5_000 : 15_000 },
   )
-
-  const { rewardInfo } = useKemRewards(refetch)
+  const { rewardInfo } = useKemRewards({ refetchAfterCollect: refetch })
   const rewardInfoThisPosition = !userPositions
     ? undefined
     : rewardInfo?.nfts.find(item => item.nftId === userPositions?.[0]?.tokenId)

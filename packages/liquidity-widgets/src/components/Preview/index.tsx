@@ -61,12 +61,15 @@ export default function Preview({ onDismiss }: { onDismiss: () => void }) {
   const [attempTx, setAttempTx] = useState(false);
   const [txError, setTxError] = useState<Error | null>(null);
   const [loadingPosition, setLoadingPosition] = useState(false);
-  const { txStatus } = useTxStatus({ txHash });
+  const { txStatus, currentTxHash } = useTxStatus({ txHash });
+
+  // Use currentTxHash (which tracks replacements) for displaying to user
+  const displayTxHash = currentTxHash || txHash;
 
   const { success: isUniV3 } = univ3PoolNormalize.safeParse(pool);
 
   useOnSuccess({
-    txHash,
+    txHash: displayTxHash,
     txStatus,
   });
 
@@ -103,6 +106,7 @@ export default function Preview({ onDismiss }: { onDismiss: () => void }) {
           gasLimit: calculateGasMargin(gasEstimation),
         },
         {
+          type: 'zap',
           tokensIn: parsedTokensIn,
           pool: `${pool.token0.symbol}/${pool.token1.symbol}`,
           dexLogo: DEXES_INFO[poolType].icon,
@@ -169,11 +173,13 @@ export default function Preview({ onDismiss }: { onDismiss: () => void }) {
         type={
           txStatus === 'success'
             ? StatusDialogType.SUCCESS
-            : txStatus === 'failed' || txError
-              ? StatusDialogType.ERROR
-              : txHash
-                ? StatusDialogType.PROCESSING
-                : StatusDialogType.WAITING
+            : txStatus === 'cancelled'
+              ? StatusDialogType.CANCELLED
+              : txStatus === 'failed' || txError
+                ? StatusDialogType.ERROR
+                : txHash
+                  ? StatusDialogType.PROCESSING
+                  : StatusDialogType.WAITING
         }
         description={
           txStatus !== 'success' && txStatus !== 'failed' && !txError && !txHash
@@ -192,7 +198,7 @@ export default function Preview({ onDismiss }: { onDismiss: () => void }) {
           ) : undefined
         }
         errorMessage={txError ? translatedErrorMessage : undefined}
-        transactionExplorerUrl={txHash ? `${NETWORKS_INFO[chainId].scanLink}/tx/${txHash}` : undefined}
+        transactionExplorerUrl={displayTxHash ? `${NETWORKS_INFO[chainId].scanLink}/tx/${displayTxHash}` : undefined}
         action={
           <>
             <button
@@ -212,8 +218,8 @@ export default function Preview({ onDismiss }: { onDismiss: () => void }) {
               )}
             </button>
             {txStatus === 'success' ? (
-              onViewPosition && !onSetUpSmartExit ? (
-                <button className="ks-primary-btn flex-1" onClick={() => onViewPosition(txHash)}>
+              onViewPosition ? (
+                <button className="ks-primary-btn flex-1" onClick={() => onViewPosition(displayTxHash)}>
                   <Trans>View position</Trans>
                 </button>
               ) : onSetUpSmartExit ? (

@@ -123,8 +123,8 @@ const DropdownAction = ({
   onOpenZapOut,
   onOpenSmartExit,
   onOpenReposition,
-  claimFees: { onClaimFee, feesClaimDisabled, feesClaiming, positionThatClaimingFees },
-  claimRewards: { onClaimRewards, rewardsClaimDisabled, rewardsClaiming, positionThatClaimingRewards },
+  claimFees: { onClaimFee, feesClaimDisabled, feesClaiming },
+  claimRewards: { onClaimRewards, rewardsClaimDisabled, rewardsClaiming },
   hasActiveSmartExitOrder,
 }: {
   position: ParsedPosition
@@ -136,13 +136,11 @@ const DropdownAction = ({
     onClaimFee: (e: React.MouseEvent, position: ParsedPosition) => void
     feesClaimDisabled: boolean
     feesClaiming: boolean
-    positionThatClaimingFees: ParsedPosition | null
   }
   claimRewards: {
     onClaimRewards: (e: React.MouseEvent, position: ParsedPosition) => void
     rewardsClaimDisabled: boolean
     rewardsClaiming: boolean
-    positionThatClaimingRewards: ParsedPosition | null
   }
   hasActiveSmartExitOrder: boolean
 }) => {
@@ -274,12 +272,7 @@ const DropdownAction = ({
     {
       label: t`Claim Fees`,
       disabled: feesClaimDisabled,
-      icon:
-        feesClaiming && positionThatClaimingFees && positionThatClaimingFees.tokenId === position.tokenId ? (
-          <Loader size={'16px'} stroke={'#7a7a7a'} />
-        ) : (
-          <IconClaimFees width={16} />
-        ),
+      icon: feesClaiming ? <Loader size={'16px'} stroke={'#7a7a7a'} /> : <IconClaimFees width={16} />,
       onClick: (e: React.MouseEvent) => {
         e.stopPropagation()
         if (!feesClaimDisabled) handleAction(e, onClaimFee)
@@ -289,12 +282,11 @@ const DropdownAction = ({
     {
       label: t`Claim Rewards`,
       disabled: rewardsClaimDisabled,
-      icon:
-        rewardsClaiming && positionThatClaimingRewards && positionThatClaimingRewards.tokenId === position.tokenId ? (
-          <Loader size={'16px'} stroke={'#7a7a7a'} />
-        ) : (
-          <IconClaimRewards width={14} style={{ marginRight: '2px' }} />
-        ),
+      icon: rewardsClaiming ? (
+        <Loader size={'16px'} stroke={'#7a7a7a'} />
+      ) : (
+        <IconClaimRewards width={14} style={{ marginRight: '2px' }} />
+      ),
       onClick: (e: React.MouseEvent) => {
         e.stopPropagation()
         if (!rewardsClaimDisabled) handleAction(e, onClaimRewards)

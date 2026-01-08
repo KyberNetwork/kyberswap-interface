@@ -22,7 +22,17 @@ export default function useActionButton({
   setWidgetError: (_value: string | undefined) => void;
   setZapSnapshotState: (_value: ZapSnapshotState | null) => void;
 }) {
-  const { chainId, rpcUrl, connectedAccount, onConnectWallet, onSwitchChain, onSubmitTx, source } = useWidgetStore([
+  const {
+    chainId,
+    rpcUrl,
+    connectedAccount,
+    onConnectWallet,
+    onSwitchChain,
+    onSubmitTx,
+    source,
+    txStatus,
+    txHashMapping,
+  } = useWidgetStore([
     'chainId',
     'rpcUrl',
     'poolType',
@@ -31,6 +41,8 @@ export default function useActionButton({
     'onSwitchChain',
     'onSubmitTx',
     'source',
+    'txStatus',
+    'txHashMapping',
   ]);
   const { pool, includeInvalidTokens } = usePoolStore(['pool', 'includeInvalidTokens']);
   const {
@@ -70,7 +82,9 @@ export default function useActionButton({
     owner: connectedAccount?.address || '',
     rpcUrl,
     spender: zapInfo?.routerAddress || '',
-    onSubmitTx: onSubmitTx,
+    onSubmitTx,
+    txStatus,
+    txHashMapping,
   });
 
   const notApprove = useMemo(

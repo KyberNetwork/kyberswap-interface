@@ -15,6 +15,7 @@ export enum StatusDialogType {
   PROCESSING = 'PROCESSING',
   SUCCESS = 'SUCCESS',
   ERROR = 'ERROR',
+  CANCELLED = 'CANCELLED',
 }
 
 export interface StatusDialogProps {
@@ -46,7 +47,7 @@ export default function StatusDialog({
   const statusIcon =
     type === StatusDialogType.SUCCESS ? (
       <SuccessIcon className="w-6 h-6" />
-    ) : type === StatusDialogType.ERROR ? (
+    ) : type === StatusDialogType.ERROR || type === StatusDialogType.CANCELLED ? (
       <ErrorIcon className="w-6 h-6" />
     ) : (
       <Loading className="w-6 h-6 text-accent" />

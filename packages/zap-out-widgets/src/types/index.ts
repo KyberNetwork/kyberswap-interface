@@ -1,13 +1,9 @@
-import { ChainId, PoolType, Theme } from '@kyber/schema';
+import { ApprovalAdditionalInfo } from '@kyber/hooks';
+import { ChainId, PoolType, Theme, TxStatus } from '@kyber/schema';
 
 import { SupportedLocale } from '@/i18n';
 
-export enum TxStatus {
-  INIT = 'init',
-  PENDING = 'pending',
-  SUCCESS = 'success',
-  FAILED = 'failed',
-}
+export { TxStatus };
 
 export interface ZapOutProps {
   theme?: Theme;
@@ -23,7 +19,8 @@ export interface ZapOutProps {
   };
   source: string;
   referral?: string;
-  zapStatus?: Record<string, TxStatus>;
+  txStatus?: Record<string, TxStatus>;
+  txHashMapping?: Record<string, string>;
   locale?: SupportedLocale;
   mode?: 'zapOut' | 'withdrawOnly';
   onClose: () => void;
@@ -31,11 +28,14 @@ export interface ZapOutProps {
   onSwitchChain: () => void;
   onSubmitTx: (
     txData: { from: string; to: string; value: string; data: string; gasLimit: string },
-    additionalInfo?: {
-      pool: string;
-      dexLogo: string;
-      tokensOut: Array<{ symbol: string; amount: string; logoUrl?: string }>;
-    },
+    additionalInfo?:
+      | {
+          type: 'zap';
+          pool: string;
+          dexLogo: string;
+          tokensOut: Array<{ symbol: string; amount: string; logoUrl?: string }>;
+        }
+      | ApprovalAdditionalInfo,
   ) => Promise<string>;
   onExplorePools?: () => void;
   signTypedData?: (account: string, typedDataJson: string) => Promise<string>;
