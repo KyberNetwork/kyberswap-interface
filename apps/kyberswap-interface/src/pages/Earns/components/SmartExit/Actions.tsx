@@ -10,11 +10,13 @@ export default function Actions({
   onPreview,
   disabled,
   feeLoading,
+  positionLoading,
 }: {
   onDismiss: () => void
   onPreview: () => void
   disabled: boolean
   feeLoading: boolean
+  positionLoading: boolean
 }) {
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
@@ -27,7 +29,13 @@ export default function Actions({
       </ButtonOutlined>
       <ButtonPrimary width="188px" disabled={disabled} onClick={onPreview}>
         <Text fontSize={14} lineHeight="20px">
-          {feeLoading ? <Trans>Estimating fee...</Trans> : <Trans>Preview</Trans>}
+          {positionLoading ? (
+            <Trans>Loading position...</Trans>
+          ) : feeLoading ? (
+            <Trans>Estimating fee...</Trans>
+          ) : (
+            <Trans>Preview</Trans>
+          )}
         </Text>
       </ButtonPrimary>
     </Flex>

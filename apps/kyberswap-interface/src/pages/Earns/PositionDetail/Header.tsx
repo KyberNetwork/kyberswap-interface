@@ -36,7 +36,7 @@ const PositionDetailHeader = ({
   useFromSmartExit = false,
   hasActiveSmartExitOrder = false,
 }: {
-  position?: ParsedPosition
+  position?: ParsedPosition | null
   isLoading: boolean
   initialLoading: boolean
   showBackIcon?: boolean

@@ -1,5 +1,4 @@
 import {
-  API_URLS,
   ChainId,
   NATIVE_TOKEN_ADDRESS,
   NETWORKS_INFO,
@@ -7,12 +6,10 @@ import {
   PoolType,
   Token,
   dexMapping,
-  univ2Types,
   univ3PoolNormalize,
 } from '@kyber/schema';
-import { fetchTokenPrice, friendlyError, getNftManagerContractAddress } from '@kyber/utils';
+import { fetchTokenPrice, friendlyError } from '@kyber/utils';
 import { estimateGas, getCurrentGasPrice } from '@kyber/utils/crypto';
-import { getTokenIdFromTxHash } from '@kyber/utils/crypto/transaction';
 import { formatUnits } from '@kyber/utils/number';
 
 import { ERROR_MESSAGE } from '@/constants';
@@ -208,70 +205,4 @@ export const estimateGasForTx = async ({
 export const poolTypeToDex = (poolType: PoolType): string => {
   const dexNames = dexMapping[poolType];
   return dexNames?.[0] || String(poolType).toLowerCase();
-};
-
-// Fetch position from API with retry logic
-export const fetchPositionFromApi = async ({
-  txHash,
-  rpcUrl,
-  poolType,
-  chainId,
-  account,
-  retries = 3,
-  delay = 3000,
-}: {
-  txHash: string;
-  rpcUrl: string;
-  poolType: PoolType;
-  chainId: ChainId;
-  account: string;
-  retries?: number;
-  delay?: number;
-}): Promise<any | null> => {
-  if (!account) return null;
-
-  const tokenId = await getTokenIdFromTxHash({ rpcUrl, txHash, poolType });
-
-  // For UniV2, we don't support smart exit
-  const isUniV2 = univ2Types.includes(poolType as any);
-  if (isUniV2 || !tokenId) return null;
-
-  // Get nftManagerContract address and format positionId as: nftContract-tokenId
-  const nftContract = getNftManagerContractAddress(poolType, chainId);
-  const positionId = `${nftContract}-${tokenId}`;
-
-  const dex = poolTypeToDex(poolType);
-  const baseApiUrl = API_URLS.ZAP_EARN_API;
-
-  for (let i = 0; i < retries; i++) {
-    try {
-      const response = await fetch(
-        `${baseApiUrl}/v1/userPositions?` +
-          new URLSearchParams({
-            addresses: account,
-            chainIds: chainId.toString(),
-            protocols: dex,
-            positionId: positionId,
-          }).toString(),
-      );
-
-      const data = await response.json();
-      const positions: any[] = data?.data?.positions || [];
-
-      if (positions.length > 0) {
-        return positions[0];
-      }
-
-      // If no position found and not last retry, wait and retry
-      if (i < retries - 1) {
-        await new Promise(resolve => setTimeout(resolve, delay));
-      }
-    } catch (error) {
-      console.error('Error fetching position:', error);
-      if (i < retries - 1) {
-        await new Promise(resolve => setTimeout(resolve, delay));
-      }
-    }
-  }
-  return null;
 };

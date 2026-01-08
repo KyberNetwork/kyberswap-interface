@@ -8,14 +8,49 @@ import useTheme from 'hooks/useTheme'
 import { RevertIconWrapper } from 'pages/Earns/PositionDetail/styles'
 import PriceRange from 'pages/Earns/UserPositions/PriceRange'
 import { PositionValueWrapper } from 'pages/Earns/UserPositions/styles'
+import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import { CustomBox, Divider } from 'pages/Earns/components/SmartExit/styles'
 import { ParsedPosition } from 'pages/Earns/types'
 import { ExternalLink } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
-export default function PoolPrice({ position }: { position: ParsedPosition }) {
+interface PoolPriceProps {
+  position: ParsedPosition | null
+  isLoading?: boolean
+}
+
+export default function PoolPrice({ position, isLoading = false }: PoolPriceProps) {
   const theme = useTheme()
   const [revertPrice, setRevertPrice] = useState(false)
+
+  if (isLoading || !position) {
+    return (
+      <CustomBox>
+        <Flex alignItems="center" flexWrap="wrap" sx={{ gap: '4px' }} mb="1rem">
+          <Text color={theme.subText} fontSize={14}>
+            <Trans>Current Price</Trans>
+          </Text>
+          <PositionSkeleton width={150} height={20} />
+          <PositionSkeleton width={20} height={20} style={{ borderRadius: '50%' }} />
+        </Flex>
+
+        <Box mb="1.5rem" mt="0.5rem">
+          <PositionValueWrapper align="center">
+            <PositionSkeleton width="100%" height={60} />
+          </PositionValueWrapper>
+        </Box>
+
+        <Divider />
+
+        <Flex alignItems="center" mt="10px" justifyContent="space-between">
+          <Text color={theme.subText} fontSize={14}>
+            <Trans>Earning Fee Yield</Trans>
+          </Text>
+          <PositionSkeleton width={50} height={20} />
+        </Flex>
+      </CustomBox>
+    )
+  }
 
   return (
     <CustomBox>

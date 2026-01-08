@@ -7,10 +7,20 @@ import { Flex, Text } from 'rebass'
 import Input from 'components/NumericalInput'
 import { DropdownIcon } from 'components/SwapForm/SlippageSetting'
 import useTheme from 'hooks/useTheme'
+import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import { GAS_MULTIPLIER_PRESETS } from 'pages/Earns/components/SmartExit/constants'
 import { CustomOption } from 'pages/Earns/components/SmartExit/styles'
 import { SmartExitFee } from 'pages/Earns/types'
 import { formatDisplayNumber } from 'utils/numbers'
+
+interface GasSettingProps {
+  feeInfo: SmartExitFee | null
+  multiplier: number
+  setMultiplier: (value: number) => void
+  customGasPercent: string
+  setCustomGasPercent: (value: string) => void
+  isLoading?: boolean
+}
 
 export default function GasSetting({
   feeInfo,
@@ -18,13 +28,8 @@ export default function GasSetting({
   setMultiplier,
   customGasPercent,
   setCustomGasPercent,
-}: {
-  feeInfo: SmartExitFee | null
-  multiplier: number
-  setMultiplier: (value: number) => void
-  customGasPercent: string
-  setCustomGasPercent: (value: string) => void
-}) {
+  isLoading = false,
+}: GasSettingProps) {
   const theme = useTheme()
   const [feeSettingExpanded, setFeeSettingExpanded] = useState(false)
 
@@ -33,6 +38,17 @@ export default function GasSetting({
     feeInfo &&
     !feeSettingExpanded &&
     (customGasPercent ? parseFloat(customGasPercent) > feeInfo.gas.percentage : multiplier > 1)
+
+  if (isLoading) {
+    return (
+      <Flex flexDirection="column" sx={{ gap: '4px' }}>
+        <Flex alignItems="center" justifyContent="space-between">
+          <PositionSkeleton width={120} height={20} />
+          <PositionSkeleton width={100} height={20} />
+        </Flex>
+      </Flex>
+    )
+  }
 
   if (!feeInfo) return null
   return (

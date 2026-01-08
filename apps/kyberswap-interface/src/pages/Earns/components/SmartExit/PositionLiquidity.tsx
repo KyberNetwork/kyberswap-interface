@@ -3,12 +3,51 @@ import { Flex, Text } from 'rebass'
 
 import TokenLogo from 'components/TokenLogo'
 import useTheme from 'hooks/useTheme'
+import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import { CustomBox } from 'pages/Earns/components/SmartExit/styles'
 import { ParsedPosition } from 'pages/Earns/types'
 import { formatDisplayNumber } from 'utils/numbers'
 
-export default function PositionLiquidity({ position }: { position: ParsedPosition }) {
+interface PositionLiquidityProps {
+  position: ParsedPosition | null
+  isLoading?: boolean
+}
+
+export default function PositionLiquidity({ position, isLoading = false }: PositionLiquidityProps) {
   const theme = useTheme()
+
+  if (isLoading || !position) {
+    return (
+      <CustomBox>
+        <Flex alignItems="center" justifyContent="space-between">
+          <Text color={theme.subText} fontSize={14}>
+            <Trans>Your Position Liquidity</Trans>
+          </Text>
+          <PositionSkeleton width={80} height={20} />
+        </Flex>
+        <Flex justifyContent="space-between" alignItems="flex-start">
+          <Flex alignItems="center" sx={{ gap: '4px' }}>
+            <PositionSkeleton width={16} height={16} style={{ borderRadius: '50%' }} />
+            <PositionSkeleton width={40} height={16} />
+          </Flex>
+          <Flex flexDirection="column" sx={{ gap: '4px' }} alignItems="flex-end">
+            <PositionSkeleton width={60} height={16} />
+            <PositionSkeleton width={50} height={12} />
+          </Flex>
+        </Flex>
+        <Flex justifyContent="space-between" alignItems="flex-start">
+          <Flex alignItems="center" sx={{ gap: '4px' }}>
+            <PositionSkeleton width={16} height={16} style={{ borderRadius: '50%' }} />
+            <PositionSkeleton width={40} height={16} />
+          </Flex>
+          <Flex flexDirection="column" sx={{ gap: '4px' }} alignItems="flex-end">
+            <PositionSkeleton width={60} height={16} />
+            <PositionSkeleton width={50} height={12} />
+          </Flex>
+        </Flex>
+      </CustomBox>
+    )
+  }
 
   return (
     <CustomBox>

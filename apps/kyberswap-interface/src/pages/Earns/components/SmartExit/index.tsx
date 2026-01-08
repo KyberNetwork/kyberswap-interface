@@ -23,7 +23,13 @@ import { useSmartExit } from 'pages/Earns/components/SmartExit/useSmartExit'
 import { defaultFeeYieldCondition } from 'pages/Earns/components/SmartExit/utils'
 import { ConditionType, Metric, ParsedPosition, SelectedMetric } from 'pages/Earns/types'
 
-export const SmartExit = ({ position, onDismiss }: { position: ParsedPosition; onDismiss: () => void }) => {
+interface SmartExitProps {
+  position: ParsedPosition | null
+  onDismiss: () => void
+  isLoading?: boolean
+}
+
+export const SmartExit = ({ position, onDismiss, isLoading = false }: SmartExitProps) => {
   const theme = useTheme()
   const [selectedMetrics, setSelectedMetrics] = useState<Array<SelectedMetric | null>>([
     { metric: Metric.FeeYield, condition: defaultFeeYieldCondition },
@@ -50,7 +56,9 @@ export const SmartExit = ({ position, onDismiss }: { position: ParsedPosition; o
     estimateFee: smartExit.estimateFee,
   })
 
-  const disabled = !isValid || !feeInfo || feeLoading
+  // Position is loading or not available yet
+  const positionLoading = isLoading || !position
+  const disabled = positionLoading || !isValid || !feeInfo || feeLoading
 
   return (
     <Modal
@@ -63,7 +71,7 @@ export const SmartExit = ({ position, onDismiss }: { position: ParsedPosition; o
       padding="20px"
     >
       <Flex width="100%" flexDirection="column">
-        {showConfirm ? (
+        {showConfirm && position ? (
           <Confirmation
             selectedMetrics={selectedMetrics.filter(metric => metric !== null) as SelectedMetric[]}
             conditionType={conditionType}
@@ -85,7 +93,7 @@ export const SmartExit = ({ position, onDismiss }: { position: ParsedPosition; o
               <Text fontSize={20} fontWeight={500}>
                 <Trans>Set Up Smart Exit</Trans>
               </Text>
-              <X onClick={onDismiss} />
+              <X onClick={onDismiss} style={{ cursor: 'pointer' }} />
             </Flex>
 
             <Flex justifyContent="space-between" alignItems="center">
@@ -93,8 +101,8 @@ export const SmartExit = ({ position, onDismiss }: { position: ParsedPosition; o
                 style={{ flexDirection: 'row' }}
                 position={position}
                 showBackIcon={false}
-                isLoading={false}
-                initialLoading={false}
+                isLoading={positionLoading}
+                initialLoading={positionLoading}
                 useFromSmartExit
               />
               <ExpireSetting expireTime={expireTime} setExpireTime={setExpireTime} />
@@ -102,8 +110,8 @@ export const SmartExit = ({ position, onDismiss }: { position: ParsedPosition; o
 
             <ContentWrapper>
               <Flex flexDirection="column" sx={{ gap: '1rem' }} flex={1}>
-                <PositionLiquidity position={position} />
-                <PoolPrice position={position} />
+                <PositionLiquidity position={position} isLoading={positionLoading} />
+                <PoolPrice position={position} isLoading={positionLoading} />
               </Flex>
 
               <Flex flexDirection="column" flex={1} sx={{ gap: '1rem' }}>
@@ -113,6 +121,7 @@ export const SmartExit = ({ position, onDismiss }: { position: ParsedPosition; o
                   setSelectedMetrics={setSelectedMetrics}
                   conditionType={conditionType}
                   setConditionType={setConditionType}
+                  isLoading={positionLoading}
                 />
                 <GasSetting
                   feeInfo={feeInfo}
@@ -120,6 +129,7 @@ export const SmartExit = ({ position, onDismiss }: { position: ParsedPosition; o
                   setMultiplier={setMultiplier}
                   customGasPercent={customGasPercent}
                   setCustomGasPercent={setCustomGasPercent}
+                  isLoading={positionLoading}
                 />
                 <Warning deadlineBeforeConditionTime={deadlineBeforeConditionTime} timeBeforeNow={timeBeforeNow} />
               </Flex>
@@ -130,6 +140,7 @@ export const SmartExit = ({ position, onDismiss }: { position: ParsedPosition; o
               onPreview={() => !disabled && setShowConfirm(true)}
               disabled={disabled}
               feeLoading={feeLoading}
+              positionLoading={positionLoading}
             />
           </>
         )}

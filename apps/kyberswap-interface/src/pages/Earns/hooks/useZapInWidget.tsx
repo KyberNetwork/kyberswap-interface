@@ -21,10 +21,11 @@ import { EARN_CHAINS, EARN_DEXES, EarnChain, Exchange } from 'pages/Earns/consta
 import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import { ZAPIN_DEX_MAPPING, getDexFromPoolType } from 'pages/Earns/constants/dexMappings'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
+import { SmartExitParams } from 'pages/Earns/hooks/useSmartExitWidget'
 import { ZapMigrationInfo } from 'pages/Earns/hooks/useZapMigrationWidget'
-import { DEFAULT_PARSED_POSITION, EarnPosition, ParsedPosition } from 'pages/Earns/types'
+import { DEFAULT_PARSED_POSITION, ParsedPosition } from 'pages/Earns/types'
 import { getNftManagerContractAddress, getTokenId, submitTransaction } from 'pages/Earns/utils'
-import { getDexVersion, parsePosition } from 'pages/Earns/utils/position'
+import { getDexVersion } from 'pages/Earns/utils/position'
 import { updateUnfinalizedPosition } from 'pages/Earns/utils/unfinalizedPosition'
 import { navigateToPositionAfterZap } from 'pages/Earns/utils/zap'
 import { useKyberSwapConfig, useNotify, useWalletModalToggle } from 'state/application/hooks'
@@ -77,7 +78,7 @@ const useZapInWidget = ({
   onRefreshPosition?: () => void
   triggerClose?: boolean
   setTriggerClose?: (value: boolean) => void
-  onOpenSmartExit?: (position: ParsedPosition | undefined) => void
+  onOpenSmartExit?: (params: SmartExitParams | ParsedPosition | undefined) => void
 }) => {
   const locale = useActiveLocale()
   const addTransactionWithType = useTransactionAdder()
@@ -213,29 +214,19 @@ const useZapInWidget = ({
             },
             onSetUpSmartExit:
               isSmartExitSupported && onOpenSmartExit
-                ? (position: EarnPosition | undefined) => {
-                    if (!position) {
+                ? (params: { tokenId: string; chainId: ZapInChainId; poolType: ZapInPoolType } | undefined) => {
+                    if (!params) {
                       onOpenSmartExit(undefined)
                       return
                     }
 
-                    try {
-                      const parsedPosition = parsePosition({
-                        position,
-                      })
-                      onOpenSmartExit(parsedPosition)
-                      handleCloseZapInWidget()
-                    } catch (error) {
-                      console.error('Error parsing position:', error)
-                      notify(
-                        {
-                          title: 'Failed to set up smart exit',
-                          type: NotificationType.ERROR,
-                        },
-                        5_000,
-                      )
-                      onOpenSmartExit(undefined)
-                    }
+                    // Pass SmartExitParams to open modal immediately with loading state
+                    onOpenSmartExit({
+                      tokenId: params.tokenId,
+                      chainId: params.chainId,
+                      poolType: params.poolType,
+                    })
+                    handleCloseZapInWidget()
                   }
                 : undefined,
             connectedAccount: {
@@ -355,24 +346,23 @@ const useZapInWidget = ({
           }
         : null,
     [
-      addLiquidityPureParams,
-      zapInRpcUrl,
-      refCode,
-      zapStatus,
       account,
+      addLiquidityPureParams,
+      addTransactionWithType,
       chainId,
-      toggleWalletModal,
-      handleOpenZapMigration,
+      changeNetwork,
       handleCloseZapInWidget,
       handleNavigateToPosition,
-      onRefreshPosition,
-      changeNetwork,
-      library,
-      addTransactionWithType,
-      locale,
-      notify,
-      onOpenSmartExit,
+      handleOpenZapMigration,
       isSmartExitSupported,
+      library,
+      locale,
+      onOpenSmartExit,
+      onRefreshPosition,
+      refCode,
+      toggleWalletModal,
+      zapInRpcUrl,
+      zapStatus,
     ],
   )
 

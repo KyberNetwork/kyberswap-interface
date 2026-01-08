@@ -19,7 +19,7 @@ import { useNotify } from 'state/application/hooks'
 import { friendlyError } from 'utils/errorMessage'
 
 export interface UseSmartExitParams {
-  position: ParsedPosition
+  position: ParsedPosition | null
   selectedMetrics: Array<SelectedMetric | null>
   conditionType: ConditionType
   deadline: number
@@ -35,9 +35,14 @@ export const useSmartExit = ({ position, selectedMetrics, conditionType, deadlin
   const [getSignMessage] = useGetSmartExitSignMessageMutation()
   const [estimateFeeMutation] = useEstimateSmartExitFeeMutation()
 
-  const dexType = EARN_DEXES[position.dex.id].smartExitDexType
+  const dexType = position ? EARN_DEXES[position.dex.id]?.smartExitDexType : undefined
 
   useEffect(() => {
+    if (!position) {
+      setPositionLiquidity(null)
+      return
+    }
+
     let cancelled = false
 
     const getLiquidity = async () => {
@@ -57,10 +62,10 @@ export const useSmartExit = ({ position, selectedMetrics, conditionType, deadlin
     return () => {
       cancelled = true
     }
-  }, [position.tokenId, position.chain.id, position.dex.id, position.pool.address])
+  }, [position])
 
   const baseParams = useMemo(() => {
-    if (!account || !positionLiquidity || !dexType) return null
+    if (!account || !positionLiquidity || !dexType || !position) return null
 
     return {
       chainId: position.chain.id,
@@ -73,17 +78,7 @@ export const useSmartExit = ({ position, selectedMetrics, conditionType, deadlin
       condition: buildConditions(selectedMetrics.filter(metric => metric !== null) as SelectedMetric[], conditionType),
       deadline,
     }
-  }, [
-    account,
-    conditionType,
-    deadline,
-    dexType,
-    position.chain.id,
-    position.id,
-    position.pool.address,
-    positionLiquidity,
-    selectedMetrics,
-  ])
+  }, [account, conditionType, deadline, dexType, position, positionLiquidity, selectedMetrics])
 
   const createSmartExitOrder = useCallback(
     async (opts: { maxGas: number; permitData: string }): Promise<boolean> => {

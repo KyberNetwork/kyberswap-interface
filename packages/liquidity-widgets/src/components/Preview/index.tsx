@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 import { Trans, t } from '@lingui/macro';
 
-import { DEXES_INFO, NETWORKS_INFO, univ3PoolNormalize } from '@kyber/schema';
+import { DEXES_INFO, NETWORKS_INFO, univ2Types, univ3PoolNormalize } from '@kyber/schema';
 import {
   Dialog,
   DialogContent,
@@ -14,6 +14,7 @@ import {
 } from '@kyber/ui';
 import { PI_LEVEL, friendlyError } from '@kyber/utils';
 import { calculateGasMargin, estimateGas } from '@kyber/utils/crypto';
+import { getTokenIdFromTxHash } from '@kyber/utils/crypto/transaction';
 import { formatDisplayNumber } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
@@ -28,7 +29,7 @@ import useZapRoute from '@/hooks/useZapRoute';
 import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
-import { fetchPositionFromApi, parseTokensAndAmounts } from '@/utils';
+import { parseTokensAndAmounts } from '@/utils';
 
 export default function Preview({ onDismiss }: { onDismiss: () => void }) {
   const {
@@ -127,28 +128,23 @@ export default function Preview({ onDismiss }: { onDismiss: () => void }) {
   const handleSetUpSmartExit = async () => {
     if (!txHash || !onSetUpSmartExit) return;
 
-    const { address: account } = connectedAccount;
-    if (!account) {
+    // UniV2 doesn't support smart exit
+    const isUniV2 = univ2Types.includes(poolType as any);
+    if (isUniV2) {
       onSetUpSmartExit(undefined);
       return;
     }
 
     setLoadingPosition(true);
     try {
-      const position = await fetchPositionFromApi({
-        txHash,
-        rpcUrl,
-        poolType,
-        chainId,
-        account,
-      });
-      if (position) {
-        onSetUpSmartExit(position);
+      const tokenId = await getTokenIdFromTxHash({ rpcUrl, txHash, poolType });
+      if (tokenId) {
+        onSetUpSmartExit({ tokenId, chainId, poolType });
       } else {
         onSetUpSmartExit(undefined);
       }
     } catch (error) {
-      console.error('Error setting up smart exit:', error);
+      console.error('Error getting tokenId for smart exit:', error);
       onSetUpSmartExit(undefined);
     } finally {
       setLoadingPosition(false);

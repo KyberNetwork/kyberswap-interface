@@ -3,10 +3,21 @@ import { Trans } from '@lingui/macro'
 import { Box, Flex } from 'rebass'
 
 import useTheme from 'hooks/useTheme'
+import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import MetricSelect from 'pages/Earns/components/SmartExit/Metrics/MetricSelect'
+import { CustomBox } from 'pages/Earns/components/SmartExit/styles'
 import { getTimeCondition } from 'pages/Earns/components/SmartExit/utils/typeGuards'
 import { ConditionType, Metric, ParsedPosition, SelectedMetric } from 'pages/Earns/types'
 import { ButtonText } from 'theme'
+
+interface MetricsProps {
+  position: ParsedPosition | null
+  selectedMetrics: Array<SelectedMetric | null>
+  setSelectedMetrics: (value: Array<SelectedMetric | null>) => void
+  conditionType: ConditionType
+  setConditionType: (v: ConditionType) => void
+  isLoading?: boolean
+}
 
 export default function Metrics({
   position,
@@ -14,13 +25,8 @@ export default function Metrics({
   setSelectedMetrics,
   conditionType,
   setConditionType,
-}: {
-  position: ParsedPosition
-  selectedMetrics: Array<SelectedMetric | null>
-  setSelectedMetrics: (value: Array<SelectedMetric | null>) => void
-  conditionType: ConditionType
-  setConditionType: (v: ConditionType) => void
-}) {
+  isLoading = false,
+}: MetricsProps) {
   const theme = useTheme()
   const [metric1, metric2] = selectedMetrics
 
@@ -44,6 +50,26 @@ export default function Metrics({
   const onAddMetric2 = () => {
     if (metric1 === null) return
     setSelectedMetrics([{ ...metric1 }, null])
+  }
+
+  if (isLoading || !position) {
+    return (
+      <Flex flexDirection="column">
+        <CustomBox>
+          <Flex alignItems="center" justifyContent="space-between" mb="12px">
+            <PositionSkeleton width={120} height={20} />
+            <PositionSkeleton width={80} height={32} />
+          </Flex>
+          <PositionSkeleton width="100%" height={40} />
+          <Box mt="12px">
+            <PositionSkeleton width="100%" height={60} />
+          </Box>
+        </CustomBox>
+        <Box mt="1rem">
+          <PositionSkeleton width={120} height={20} />
+        </Box>
+      </Flex>
+    )
   }
 
   return (
