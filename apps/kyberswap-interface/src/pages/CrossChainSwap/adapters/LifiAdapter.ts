@@ -220,6 +220,9 @@ export class LifiAdapter extends BaseSwapAdapter {
       txHash: p.sourceTxHash,
     })
 
+    // Extract actual output amount from receiving data if available
+    const actualAmountOut = (res as any)?.receiving?.value
+
     return {
       txHash: (res as any)?.receiving?.txHash || '',
       status:
@@ -230,6 +233,7 @@ export class LifiAdapter extends BaseSwapAdapter {
           : res.status === 'FAILED'
           ? 'Failed'
           : 'Processing',
+      amountOut: actualAmountOut ? String(actualAmountOut) : undefined,
     }
   }
 }
