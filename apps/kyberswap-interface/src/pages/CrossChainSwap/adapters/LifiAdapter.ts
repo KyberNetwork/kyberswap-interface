@@ -221,7 +221,10 @@ export class LifiAdapter extends BaseSwapAdapter {
     })
 
     // Extract actual output amount from receiving data if available
-    const actualAmountOut = (res as any)?.receiving?.value
+    // Prefer value (actual received after gas), fallback to amount if value is 0
+    const receivingData = (res as any)?.receiving
+    const actualAmountOut =
+      receivingData?.value && receivingData.value !== '0' ? receivingData.value : receivingData?.amount
 
     return {
       txHash: (res as any)?.receiving?.txHash || '',
