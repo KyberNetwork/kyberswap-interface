@@ -42,7 +42,7 @@ const PositionHistory = ({ position }: { position?: ParsedPosition }) => {
   const createdTime = useMemo(() => {
     if (!position?.createdTime) return ''
 
-    const data = new Date(position.createdTime * 1000)
+    const data = new Date(position.createdTime)
     const hours = formatDateTime(data.getHours())
     const minutes = formatDateTime(data.getMinutes())
     const seconds = formatDateTime(data.getSeconds())
