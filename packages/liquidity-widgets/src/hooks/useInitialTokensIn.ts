@@ -70,15 +70,19 @@ export default function useInitialTokensIn({
         const nativeTokenBalance = formatWei(pairBalance[nativeToken.address]?.toString() || '0', nativeToken.decimals);
         if (parseFloat(token0Balance) > 0) {
           tokensToSet.push(pool.token0);
-          amountsToSet.push(+token0Balance >= 1 ? 1 : +token0Balance > 0 ? +token0Balance * 0.99 : '');
+          amountsToSet.push((+token0Balance >= 1 ? 1 : +token0Balance * 0.99).toFixed(pool.token0.decimals));
         }
         if (parseFloat(token1Balance) > 0) {
           tokensToSet.push(pool.token1);
-          amountsToSet.push(+token1Balance >= 1 ? 1 : +token1Balance > 0 ? +token1Balance * 0.99 : '');
+          amountsToSet.push((+token1Balance >= 1 ? 1 : +token1Balance * 0.99).toFixed(pool.token1.decimals));
         }
         if (!tokensToSet.length) {
           tokensToSet.push(nativeToken);
-          amountsToSet.push(+nativeTokenBalance >= 1 ? 1 : +nativeTokenBalance > 0 ? +nativeTokenBalance * 0.99 : '');
+          amountsToSet.push(
+            (+nativeTokenBalance >= 1 ? 1 : +nativeTokenBalance > 0 ? +nativeTokenBalance * 0.99 : 1).toFixed(
+              nativeToken.decimals,
+            ),
+          );
         }
 
         setTokensIn(tokensToSet as Token[]);
