@@ -10,7 +10,6 @@ export interface OnSuccessProps {
   position: {
     positionId?: string;
     chainId: number;
-    poolType: PoolType;
     dexLogo: string;
     token0: {
       address: string;

@@ -197,9 +197,7 @@ const useZapInWidget = ({
             onSuccess: async (data: OnSuccessProps) => {
               if (!library) return
 
-              const dex = getDexFromPoolType(data.position.poolType)
-              if (!dex) return
-
+              const dex = addLiquidityPureParams.dexId
               const isUniv2 = EARN_DEXES[dex as Exchange]?.isForkFrom === CoreProtocol.UniswapV2
 
               const nftId =
