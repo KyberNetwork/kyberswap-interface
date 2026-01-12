@@ -55,22 +55,34 @@ export default function useInitialTokensIn({
       // with balance
       if (!initDepositTokens && account) {
         const tokensToSet = [];
+        const amountsToSet = [];
 
         const token0Address = pool.token0.address.toLowerCase();
         const token1Address = pool.token1.address.toLowerCase();
         const pairBalance = await getTokenBalances({
-          tokenAddresses: [token0Address, token1Address],
+          tokenAddresses: [token0Address, token1Address, nativeToken.address],
           chainId,
           account,
         });
 
         const token0Balance = formatWei(pairBalance[token0Address]?.toString() || '0', pool.token0.decimals);
         const token1Balance = formatWei(pairBalance[token1Address]?.toString() || '0', pool.token1.decimals);
-        if (parseFloat(token0Balance) > 0) tokensToSet.push(pool.token0);
-        if (parseFloat(token1Balance) > 0) tokensToSet.push(pool.token1);
-        if (!tokensToSet.length) tokensToSet.push(nativeToken);
+        const nativeTokenBalance = formatWei(pairBalance[nativeToken.address]?.toString() || '0', nativeToken.decimals);
+        if (parseFloat(token0Balance) > 0) {
+          tokensToSet.push(pool.token0);
+          amountsToSet.push(+token0Balance >= 1 ? 1 : +token0Balance > 0 ? +token0Balance * 0.99 : '');
+        }
+        if (parseFloat(token1Balance) > 0) {
+          tokensToSet.push(pool.token1);
+          amountsToSet.push(+token1Balance >= 1 ? 1 : +token1Balance > 0 ? +token1Balance * 0.99 : '');
+        }
+        if (!tokensToSet.length) {
+          tokensToSet.push(nativeToken);
+          amountsToSet.push(+nativeTokenBalance >= 1 ? 1 : +nativeTokenBalance > 0 ? +nativeTokenBalance * 0.99 : '');
+        }
 
         setTokensIn(tokensToSet as Token[]);
+        setAmountsIn(amountsToSet.join(','));
       }
     };
 
