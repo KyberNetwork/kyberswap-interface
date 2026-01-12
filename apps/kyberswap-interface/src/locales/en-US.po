@@ -867,8 +867,6 @@ msgstr "All-Time Low"
 msgid "Search by token name or pool address"
 msgstr "Search by token name or pool address"
 
-#: src/pages/Campaign/index.tsx
-
 #: src/components/WalletPopup/type.ts
 #: src/components/WalletPopup/WalletView.tsx
 msgid "Transactions"
@@ -899,8 +897,6 @@ msgstr "Cross-Chain"
 msgid "All data used in this process (transaction hashes and Bitcoin block hash) are publicly verifiable on-chain."
 msgstr "All data used in this process (transaction hashes and Bitcoin block hash) are publicly verifiable on-chain."
 
-#: src/pages/Earns/UserPositions/index.tsx
-
 #: src/pages/Campaign/components/Information/campaignInfos/mayTrading.tsx
 msgid "For $1 in trading volume, you earn 1 point"
 msgstr "For $1 in trading volume, you earn 1 point"
@@ -928,7 +924,6 @@ msgstr "Reward Allocation Mechanism"
 
 #: src/components/swapv2/TokenInfo/utils.ts
 #: src/pages/MarketOverview/DetailModal.tsx
-#: src/pages/MarketOverview/index.tsx
 #: src/pages/MarketOverview/TableContent.tsx
 msgid "Market Cap"
 msgstr "Market Cap"
@@ -1092,6 +1087,8 @@ msgid "Voting power"
 msgstr "Voting power"
 
 #: src/pages/MarketOverview/index.tsx
+msgid "Market cap"
+msgstr "Market cap"
 
 #: src/components/SwapForm/SwapModal/SwapModalAreYouSure.tsx
 #: src/components/TransactionSettings/AdvanceModeModal.tsx
@@ -1978,8 +1975,6 @@ msgstr "Hard Cancel Instead"
 #: src/pages/Earns/UserPositions/index.tsx
 msgid "Remove liquidity from this position by zapping out to any token(s)."
 msgstr "Remove liquidity from this position by zapping out to any token(s)."
-
-#: src/pages/Earns/UserPositions/index.tsx
 
 #: src/pages/Campaign/components/Information/campaignInfos/mayTrading.tsx
 msgid "You may freely trade any pair composed of <0>eligible tokens</0>, excluding WETH-ETH, WETH-USDC, and ETH-USDC."
@@ -2878,6 +2873,7 @@ msgid "Do I have to pay any fee to claim the rewards?"
 msgstr "Do I have to pay any fee to claim the rewards?"
 
 #: src/pages/MarketOverview/index.tsx
+#: src/pages/MarketOverview/index.tsx
 msgid "Market cap & 24h volume data sourced from Coingecko"
 msgstr "Market cap & 24h volume data sourced from Coingecko"
 
@@ -2900,10 +2896,6 @@ msgstr "Removing {0} {1} and {2} {3}{4}{5}"
 #: src/components/Tutorial/TutorialSwap/constant.ts
 msgid "Select tokens to swap and start trading"
 msgstr "Select tokens to swap and start trading"
-
-#: src/pages/MarketOverview/Filter.tsx
-msgid "Game"
-msgstr "Game"
 
 #: src/pages/NotificationCenter/Profile/ImportAccountModal/UserEnterPasscodeContent.tsx
 msgid "Your import token"
@@ -3097,7 +3089,7 @@ msgstr "Insufficient Balance"
 #: src/components/WalletPopup/Transactions/index.tsx
 #: src/pages/Earns/PositionDetail/LeftSection.tsx
 #: src/pages/KyberDAO/Vote/SelectProposalStatus.tsx
-#: src/pages/MarketOverview/Filter.tsx
+#: src/pages/MarketOverview/index.tsx
 msgid "All"
 msgstr "All"
 
@@ -3281,10 +3273,6 @@ msgstr "Phase 1"
 #: src/components/Header/web3/NetworkModal/index.tsx
 msgid "Please connect to the appropriate chain."
 msgstr "Please connect to the appropriate chain."
-
-#: src/pages/MarketOverview/Filter.tsx
-msgid "Defi"
-msgstr "Defi"
 
 #: src/pages/AddLiquidityV2/constants.ts
 #: src/pages/AddLiquidityV2/constants.ts
@@ -4573,8 +4561,6 @@ msgstr "Alert Conditions"
 msgid "TOTAL CLAIMABLE REWARDS"
 msgstr "TOTAL CLAIMABLE REWARDS"
 
-#: src/pages/Campaign/index.tsx
-
 #: src/pages/ProAmmPool/PositionListItem.tsx
 msgid "You have zero liquidity to remove"
 msgstr "You have zero liquidity to remove"
@@ -4864,7 +4850,6 @@ msgid "All Protocols"
 msgstr "All Protocols"
 
 #: src/components/swapv2/TokenInfo/utils.ts
-#: src/pages/MarketOverview/index.tsx
 msgid "Price"
 msgstr "Price"
 
@@ -4912,8 +4897,6 @@ msgstr "EVM ↔ Bitcoin L1"
 #: src/pages/Campaign/components/Information/campaignInfos/raffle.tsx
 msgid "Because your swap might fall under excluded cases - such as wrapping or unwrapping native tokens (e.g., ETH ↔ WETH, BNB ↔ WBNB…), cross-chain swaps, or limit orders during the campaign period."
 msgstr "Because your swap might fall under excluded cases - such as wrapping or unwrapping native tokens (e.g., ETH ↔ WETH, BNB ↔ WBNB…), cross-chain swaps, or limit orders during the campaign period."
-
-#: src/pages/Earns/UserPositions/index.tsx
 
 #: src/pages/ProAmmPool/index.tsx
 msgid "Farming Positions"
@@ -5181,8 +5164,6 @@ msgstr "Logging out"
 msgid "Reward Center"
 msgstr "Reward Center"
 
-#: src/components/Header/groups/EarnNavGroup.tsx
-
 #: src/components/swapv2/TokenInfo/SecurityInfo/index.tsx
 msgid "Trading Security"
 msgstr "Trading Security"
@@ -5427,8 +5408,6 @@ msgstr "View transaction"
 msgid "Total Value"
 msgstr "Total Value"
 
-#: src/pages/Campaign/index.tsx
-
 #: src/components/ClassicElasticTab.tsx
 msgid "Classic Pools"
 msgstr "Classic Pools"
@@ -5527,10 +5506,6 @@ msgstr "a guest profile"
 #: src/pages/KyberDAO/KNCUtility/FAQ.tsx
 msgid "No. You have to stake a minimum of 500 KNC in KyberDAO (on Ethereum) <0>here</0>, and meet the eligibility criteria by completing swap(s) on KyberSwap, with a minimum trading volume of ≥$200 per swap."
 msgstr "No. You have to stake a minimum of 500 KNC in KyberDAO (on Ethereum) <0>here</0>, and meet the eligibility criteria by completing swap(s) on KyberSwap, with a minimum trading volume of ≥$200 per swap."
-
-#: src/pages/MarketOverview/index.tsx
-msgid "Buy Change"
-msgstr "Buy Change"
 
 #: src/pages/Campaign/components/Information/campaignInfos/raffle.tsx
 msgid "Take the last 4 hex digits from each eligible transaction hash."
@@ -6019,8 +5994,6 @@ msgstr "Notifications"
 msgid "Unable to access wallet"
 msgstr "Unable to access wallet"
 
-#: src/pages/Earns/PoolExplorer/index.tsx
-
 #: src/components/Tutorial/TutorialSwap/CustomPopup.tsx
 msgid "Back"
 msgstr "Back"
@@ -6111,10 +6084,6 @@ msgstr "Current Market Price is {currentPrice} {token0Symbol} per {token1Symbol}
 #: src/components/swapv2/LimitOrder/ListOrder/index.tsx
 msgid "Note: Your existing order will be automatically cancelled and a new order will be created."
 msgstr "Note: Your existing order will be automatically cancelled and a new order will be created."
-
-#: src/pages/MarketOverview/Filter.tsx
-msgid "RWA"
-msgstr "RWA"
 
 #: src/components/swapv2/LimitOrder/ListOrder/SummaryNotify.tsx
 msgid "Your order to pay {mainMsg} was successfully filled"
@@ -6267,10 +6236,6 @@ msgstr "All pools"
 msgid "View"
 msgstr "View"
 
-#: src/pages/MarketOverview/Filter.tsx
-msgid "AI"
-msgstr "AI"
-
 #: src/pages/MarketOverview/TableContent.tsx
 #: src/pages/MarketOverview/TableContent.tsx
 msgid "Remove failed"
@@ -6280,6 +6245,7 @@ msgstr "Remove failed"
 msgid "Gas fees is very high. You will lose your funds."
 msgstr "Gas fees is very high. You will lose your funds."
 
+#: src/pages/MarketOverview/index.tsx
 #: src/pages/MarketOverview/index.tsx
 #: src/pages/MarketOverview/index.tsx
 msgid "Market Overview"
@@ -6311,8 +6277,6 @@ msgstr "Staking {inputValue} KNC to KyberDAO"
 msgid "Ex: USDC <> USDT; FRAX <> DAI; LUSD <> MIM"
 msgstr "Ex: USDC <> USDT; FRAX <> DAI; LUSD <> MIM"
 
-#: src/components/Announcement/PrivateAnnoucement/InboxItemLO.tsx
-
 #: src/pages/NotificationCenter/Profile/ImportAccountModal/index.tsx
 msgid "Imported unsuccessfully"
 msgstr "Imported unsuccessfully"
@@ -6320,8 +6284,6 @@ msgstr "Imported unsuccessfully"
 #: src/hooks/useLogin.tsx
 msgid "Signed out all accounts successfully"
 msgstr "Signed out all accounts successfully"
-
-#: src/components/Footer/Footer.tsx
 
 #: src/components/Announcement/Popups/SimplePopup.tsx
 msgid "See here"
@@ -6553,10 +6515,6 @@ msgstr "Suitable for pairs with low price volatility. Anticipating price to fluc
 msgid "Liquidity Sources"
 msgstr "Liquidity Sources"
 
-#: src/pages/MarketOverview/Filter.tsx
-msgid "Meme"
-msgstr "Meme"
-
 #: src/pages/KyberDAO/StakeKNC/StakeKNCComponent.tsx
 msgid "In this default delegation method, your delegate is responsible for voting on your behalf and distributing your KNC rewards to you, though only you can withdraw/unstake your own KNC"
 msgstr "In this default delegation method, your delegate is responsible for voting on your behalf and distributing your KNC rewards to you, though only you can withdraw/unstake your own KNC"
@@ -6631,6 +6589,7 @@ msgid "You have chosen option C for KyberSwap Elastic Exploit Treasury Grant Pro
 msgstr "You have chosen option C for KyberSwap Elastic Exploit Treasury Grant Program"
 
 #: src/pages/MarketOverview/DetailModal.tsx
+#: src/pages/MarketOverview/index.tsx
 #: src/pages/MarketOverview/index.tsx
 msgid "On-chain Price"
 msgstr "On-chain Price"
@@ -6738,10 +6697,6 @@ msgstr "After your first week of Limit-Order activities (from Monday 0:00 UTC to
 msgid "Select a Chain"
 msgstr "Select a Chain"
 
-#: src/pages/MarketOverview/index.tsx
-msgid "Sell Change"
-msgstr "Sell Change"
-
 #: src/pages/Campaign/components/Information/campaignInfos/nearIntents.tsx
 msgid "Go to <0>KyberSwap Cross-Chain</0> feature."
 msgstr "Go to <0>KyberSwap Cross-Chain</0> feature."
@@ -6829,9 +6784,6 @@ msgstr "The price of this pool is outside of your selected price range. Currentl
 #: src/pages/SwapV3/Header.tsx
 msgid "Swap between tokens on different chains"
 msgstr "Swap between tokens on different chains"
-
-#: src/components/Header/groups/SwapNavGroup.tsx
-#: src/pages/SwapV3/Tabs/LimitTab.tsx
 
 #: src/pages/Campaign/components/CampaignStats/index.tsx
 #: src/pages/Campaign/MyDashboard.tsx
@@ -7021,6 +6973,7 @@ msgid "Connected successfully with Guest Profile."
 msgstr "Connected successfully with Guest Profile."
 
 #: src/pages/MarketOverview/DetailModal.tsx
+#: src/pages/MarketOverview/index.tsx
 #: src/pages/MarketOverview/TableContent.tsx
 msgid "Sell Price"
 msgstr "Sell Price"
@@ -7078,8 +7031,6 @@ msgstr "KNC"
 #: src/components/swapv2/SwapSettingsPanel/CrossChainSourceSetting.tsx
 msgid "{0} out of {1} selected"
 msgstr "{0} out of {1} selected"
-
-#: src/components/Announcement/AnnoucementView.tsx
 
 #: src/pages/KyberDAO/Vote/index.tsx
 msgid "In Progress: Epoch {0}"
@@ -7181,6 +7132,7 @@ msgid "{0} out of {numberOfDEXes} selected"
 msgstr "{0} out of {numberOfDEXes} selected"
 
 #: src/pages/MarketOverview/DetailModal.tsx
+#: src/pages/MarketOverview/index.tsx
 #: src/pages/MarketOverview/TableContent.tsx
 msgid "Buy Price"
 msgstr "Buy Price"
@@ -7208,8 +7160,6 @@ msgstr "Total Vested Amount (USDC)"
 #: src/components/CurrencyInputPanel/TokenInfo.tsx
 #: src/components/WalletPopup/AccountInfo/ActionButtonGroup.tsx
 #: src/pages/MarketOverview/DetailModal.tsx
-#: src/pages/MarketOverview/index.tsx
-#: src/pages/MarketOverview/TableContent.tsx
 msgid "Buy"
 msgstr "Buy"
 
@@ -7271,7 +7221,7 @@ msgstr "Past 24 hours"
 msgid "Claming {amount} KNC"
 msgstr "Claming {amount} KNC"
 
-#: src/pages/MarketOverview/Filter.tsx
+#: src/pages/MarketOverview/index.tsx
 msgid "Search by token name, symbol or address"
 msgstr "Search by token name, symbol or address"
 
@@ -8039,8 +7989,6 @@ msgstr "Tier {0}"
 
 #: src/components/CurrencyInputPanel/TokenInfo.tsx
 #: src/pages/MarketOverview/DetailModal.tsx
-#: src/pages/MarketOverview/index.tsx
-#: src/pages/MarketOverview/TableContent.tsx
 msgid "Sell"
 msgstr "Sell"
 

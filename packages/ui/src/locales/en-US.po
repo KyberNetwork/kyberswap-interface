@@ -412,6 +412,11 @@ msgstr "Trading Volume (24H)"
 
 #. js-lingui-explicit-id
 #: src/components/StatusDialog/utils.ts
+msgid "Transaction cancelled"
+msgstr "Transaction cancelled"
+
+#. js-lingui-explicit-id
+#: src/components/StatusDialog/utils.ts
 msgid "Transaction failed"
 msgstr "Transaction failed"
 
@@ -498,6 +503,11 @@ msgstr "You have reached the maximum token selection limit. Please deselect one 
 #: src/components/TokenSelectorModal/TokenSelector.tsx
 msgid "Your Position(s)"
 msgstr "Your Position(s)"
+
+#. js-lingui-explicit-id
+#: src/components/StatusDialog/utils.ts
+msgid "Your transaction has been cancelled"
+msgstr "Your transaction has been cancelled"
 
 #. js-lingui-explicit-id
 #: src/components/StatusDialog/utils.ts
