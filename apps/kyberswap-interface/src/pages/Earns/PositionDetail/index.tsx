@@ -99,7 +99,7 @@ const PositionDetail = () => {
   const position: ParsedPosition | undefined = useMemo(() => {
     const tokenId = positionId?.split('-')[1]
     if (!userPositions || !userPositions.length) {
-      const unfinalizedPositions = getUnfinalizedPositions([])
+      const unfinalizedPositions = getUnfinalizedPositions([], account || undefined)
       if (unfinalizedPositions.length > 0 && Number(tokenId) === Number(unfinalizedPositions[0].tokenId))
         return unfinalizedPositions[0]
       return
@@ -114,13 +114,13 @@ const PositionDetail = () => {
       isClosedFromRpc,
     })
 
-    const unfinalizedPositions = getUnfinalizedPositions([parsedPosition])
+    const unfinalizedPositions = getUnfinalizedPositions([parsedPosition], account || undefined)
 
     if (unfinalizedPositions.length > 0 && Number(tokenId) === Number(unfinalizedPositions[0].tokenId))
       return unfinalizedPositions[0]
 
     return parsedPosition
-  }, [feeInfoFromRpc, userPositions, rewardInfoThisPosition, closedPositionsFromRpc, positionId])
+  }, [account, feeInfoFromRpc, userPositions, rewardInfoThisPosition, closedPositionsFromRpc, positionId])
 
   const farmingPoolsByChain = useFarmingStablePools({ chainIds: position ? [position.chain.id] : [] })
 

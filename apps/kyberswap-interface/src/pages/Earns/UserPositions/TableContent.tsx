@@ -353,6 +353,7 @@ export default function TableContent({
                   to={APP_PATHS.EARN_POSITION_DETAIL.replace(':positionId', !pool.isUniv2 ? positionId : pool.address)
                     .replace(':chainId', chain.id.toString())
                     .replace(':exchange', dex.id)}
+                  isUnfinalized={isUnfinalized}
                 >
                   {/* Overview info */}
                   <PositionOverview>

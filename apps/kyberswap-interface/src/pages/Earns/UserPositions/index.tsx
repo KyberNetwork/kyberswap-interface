@@ -142,23 +142,19 @@ const UserPositions = () => {
   }, [feeInfoFromRpc, rewardInfo?.nfts, userPositionsData, closedPositionsFromRpc])
 
   const filteredPositions: Array<ParsedPosition> = useMemo(() => {
-    const unfinalizedPositions = getUnfinalizedPositions(parsedPositions)
-    const filteredUnfinalizedPositions = unfinalizedPositions.filter(
-      position =>
-        (filters.chainIds ? filters.chainIds.split(',').includes(position.chain.id.toString()) : true) &&
-        (filters.protocols ? filters.protocols.split(',').includes(position.dex.id) : true) &&
-        (filters.statuses.includes(PositionStatus.IN_RANGE) || filters.statuses.includes(PositionStatus.OUT_RANGE)),
-    )
+    let unfinalizedPositions: ParsedPosition[] = []
+    if (filters.page && filters.page === 1) {
+      const rawUnfinalizedPositions = getUnfinalizedPositions(parsedPositions, account || undefined)
+      unfinalizedPositions = rawUnfinalizedPositions.filter(
+        position =>
+          (filters.chainIds ? filters.chainIds.split(',').includes(position.chain.id.toString()) : true) &&
+          (filters.protocols ? filters.protocols.split(',').includes(position.dex.id) : true) &&
+          (filters.statuses.includes(PositionStatus.IN_RANGE) || filters.statuses.includes(PositionStatus.OUT_RANGE)),
+      )
+    }
 
-    return [
-      ...parsedPositions,
-      ...filteredUnfinalizedPositions.filter(
-        unfinalizedPos => !parsedPositions.some(p => p.tokenId === unfinalizedPos.tokenId),
-      ),
-    ]
-  }, [parsedPositions, filters.chainIds, filters.protocols, filters.statuses])
-
-  const paginatedPositions: Array<ParsedPosition> = filteredPositions
+    return [...unfinalizedPositions, ...parsedPositions]
+  }, [account, filters.chainIds, filters.page, filters.protocols, filters.statuses, parsedPositions])
 
   const onSortChange = (sortBy: string) => {
     if (!filters.sortBy || filters.sortBy !== sortBy) {
@@ -303,7 +299,7 @@ const UserPositions = () => {
 
         <PositionTableWrapper>
           <ContentWrapper>
-            {!upToCustomLarge && paginatedPositions && paginatedPositions.length > 0 && (
+            {!upToCustomLarge && filteredPositions && filteredPositions.length > 0 && (
               <PositionTableHeader>
                 <PositionTableHeaderItem>{t`Position`}</PositionTableHeaderItem>
 
@@ -360,7 +356,7 @@ const UserPositions = () => {
               <LocalLoader />
             ) : (
               <TableContent
-                positions={paginatedPositions}
+                positions={filteredPositions}
                 feeInfoFromRpc={feeInfoFromRpc}
                 setFeeInfoFromRpc={setFeeInfoFromRpc}
                 onOpenZapInWidget={handleOpenZapIn}
