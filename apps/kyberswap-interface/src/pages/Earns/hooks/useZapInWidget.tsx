@@ -286,7 +286,7 @@ const useZapInWidget = ({
 
               if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
 
-              const dex = getDexFromPoolType(addLiquidityPureParams.poolType)
+              const dex = addLiquidityPureParams.dexId
               if (additionalInfo?.type === 'zap' && dex) {
                 addTransactionWithType({
                   hash: txHash,

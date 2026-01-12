@@ -250,10 +250,8 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
               const { txHash, error } = res
               if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
 
-              const sourceDex = getDexFromPoolType(migrateLiquidityPureParams.from.poolType)
-              const destinationDex = getDexFromPoolType(
-                migrateLiquidityPureParams.to?.poolType || migrateLiquidityPureParams.from.poolType,
-              )
+              const sourceDex = migrateLiquidityPureParams.from.dexId
+              const destinationDex = migrateLiquidityPureParams.to?.dexId || sourceDex
               if (additionalInfo?.type === 'zap' && sourceDex && destinationDex) {
                 addTransactionWithType({
                   hash: txHash,
