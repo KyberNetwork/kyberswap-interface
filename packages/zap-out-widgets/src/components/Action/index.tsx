@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Trans, t } from '@lingui/macro';
 
 import { PermitNftState } from '@kyber/hooks';
-import { DEXES_INFO } from '@kyber/schema';
+import { getDexName } from '@kyber/schema';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, InfoHelper } from '@kyber/ui';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
@@ -89,10 +89,9 @@ function ApprovalButton({
   isUniV2: boolean;
 }) {
   const [openDropdown, setOpenDropdown] = useState(false);
-  const { theme, poolType, chainId } = useZapOutContext(s => s);
+  const { theme, poolType, chainId, dexId } = useZapOutContext(s => s);
 
-  const rawName = DEXES_INFO[poolType].name;
-  const dexName = typeof rawName === 'string' ? rawName : rawName[chainId];
+  const dexName = getDexName(poolType, chainId, dexId);
   const dexNameWithoutFairFlow = dexName.replace('FairFlow', '').trim();
 
   return (

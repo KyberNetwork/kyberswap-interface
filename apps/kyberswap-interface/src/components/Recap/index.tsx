@@ -237,7 +237,7 @@ export default function RecapSection() {
             <Title>
               <Trans>✨ Your 2025 Journey is Ready</Trans>
             </Title>
-            <Description>A personalized recap of how you moved the markets this year - via Kyberswap.</Description>
+            <Description>A personalized recap of how you moved the markets this year - via KyberSwap.</Description>
           </TitleWrapper>
 
           <InputWrapper>

@@ -39,6 +39,7 @@ export function Preview({
   onSubmitTx: (
     txData: { from: string; to: string; value: string; data: string; gasLimit: string },
     additionalInfo?: {
+      type: 'zap';
       sourcePool: string;
       sourceDexLogo: string;
       destinationPool: string;
@@ -48,12 +49,14 @@ export function Preview({
   onViewPosition?: (txHash: string) => void;
   onExplorePools?: () => void;
 }) {
-  const { chainId, rpcUrl, connectedAccount, rePositionMode, onClose } = useWidgetStore([
+  const { chainId, rpcUrl, connectedAccount, rePositionMode, onClose, sourceDexId, targetDexId } = useWidgetStore([
     'chainId',
     'rpcUrl',
     'connectedAccount',
     'rePositionMode',
     'onClose',
+    'sourceDexId',
+    'targetDexId',
   ]);
   const { route, slippage, setSlippage, buildData, setBuildData } = useZapStore([
     'route',
@@ -71,7 +74,10 @@ export function Preview({
   const [showProcessing, setShowProcessing] = useState(false);
   const [txHash, setTxHash] = useState<string | null>(null);
   const [error, setError] = useState<Error | undefined>();
-  const { txStatus } = useTxStatus({ txHash: txHash || undefined });
+  const { txStatus, currentTxHash } = useTxStatus({ txHash: txHash || undefined });
+
+  // Use currentTxHash (which tracks replacements) for displaying to user
+  const displayTxHash = currentTxHash || txHash;
 
   if (route === null || !sourcePool || !targetPool || !account || !buildData) return null;
 
@@ -113,6 +119,7 @@ export function Preview({
           gasLimit: calculateGasMargin(gas),
         },
         {
+          type: 'zap',
           sourcePool: `${sourcePool.token0.symbol}/${sourcePool.token1.symbol}`,
           sourceDexLogo: DEXES_INFO[sourcePool.poolType].icon,
           destinationPool: `${targetPool.token0.symbol}/${targetPool.token1.symbol}`,
@@ -136,11 +143,13 @@ export function Preview({
         type={
           txStatus === 'success'
             ? StatusDialogType.SUCCESS
-            : txStatus === 'failed' || error
-              ? StatusDialogType.ERROR
-              : txHash
-                ? StatusDialogType.PROCESSING
-                : StatusDialogType.WAITING
+            : txStatus === 'cancelled'
+              ? StatusDialogType.CANCELLED
+              : txStatus === 'failed' || error
+                ? StatusDialogType.ERROR
+                : txHash
+                  ? StatusDialogType.PROCESSING
+                  : StatusDialogType.WAITING
         }
         title={txStatus === 'success' && rePositionMode ? t`Reposition Completed` : undefined}
         description={
@@ -151,7 +160,7 @@ export function Preview({
               : undefined
         }
         errorMessage={error ? translatedErrorMessage : undefined}
-        transactionExplorerUrl={txHash ? `${NETWORKS_INFO[chainId].scanLink}/tx/${txHash}` : undefined}
+        transactionExplorerUrl={displayTxHash ? `${NETWORKS_INFO[chainId].scanLink}/tx/${displayTxHash}` : undefined}
         action={
           <>
             {txStatus === 'success' && onExplorePools && rePositionMode ? (
@@ -164,8 +173,8 @@ export function Preview({
               </button>
             )}
             {txStatus === 'success' ? (
-              onViewPosition && txHash ? (
-                <button className="ks-primary-btn flex-1" onClick={() => onViewPosition(txHash)}>
+              onViewPosition && displayTxHash ? (
+                <button className="ks-primary-btn flex-1" onClick={() => onViewPosition(displayTxHash)}>
                   {t`View position`}
                 </button>
               ) : null
@@ -214,14 +223,14 @@ export function Preview({
             </div>
 
             <div className="mt-4 flex flex-col gap-2">
-              <PreviewPoolInfo pool={sourcePool} chainId={chainId} />
+              <PreviewPoolInfo pool={sourcePool} chainId={chainId} dexId={sourceDexId} />
 
               {rePositionMode ? null : (
                 <>
                   <div className="w-full flex justify-center">
                     <CircleChevronDown className="text-stroke w-5 h-5" />
                   </div>
-                  <PreviewPoolInfo pool={targetPool} chainId={chainId} />
+                  <PreviewPoolInfo pool={targetPool} chainId={chainId} dexId={targetDexId} />
                 </>
               )}
             </div>

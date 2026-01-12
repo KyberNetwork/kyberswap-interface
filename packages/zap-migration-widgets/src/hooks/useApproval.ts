@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 import { useErc20Approvals, useNftApproval, useNftApprovalAll, usePermitNft } from '@kyber/hooks';
-import { DEXES_INFO, ZERO_ADDRESS, univ2Types, univ4Types } from '@kyber/schema';
+import { DEXES_INFO, ZERO_ADDRESS, getDexName, univ2Types, univ4Types } from '@kyber/schema';
 
 import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
@@ -9,16 +9,31 @@ import { useWidgetStore } from '@/stores/useWidgetStore';
 import { useZapStore } from '@/stores/useZapStore';
 
 export function useApproval({ type, spender }: { type: 'source' | 'target'; spender?: string }) {
-  const { chainId, connectedAccount, rpcUrl, onSubmitTx, sourcePoolType, targetPoolType, signTypedData } =
-    useWidgetStore([
-      'chainId',
-      'connectedAccount',
-      'rpcUrl',
-      'onSubmitTx',
-      'sourcePoolType',
-      'targetPoolType',
-      'signTypedData',
-    ]);
+  const {
+    chainId,
+    connectedAccount,
+    rpcUrl,
+    onSubmitTx,
+    sourcePoolType,
+    targetPoolType,
+    signTypedData,
+    txStatus,
+    txHashMapping,
+    sourceDexId,
+    targetDexId,
+  } = useWidgetStore([
+    'chainId',
+    'connectedAccount',
+    'rpcUrl',
+    'onSubmitTx',
+    'sourcePoolType',
+    'targetPoolType',
+    'signTypedData',
+    'txStatus',
+    'txHashMapping',
+    'sourceDexId',
+    'targetDexId',
+  ]);
   const { sourcePool, targetPool } = usePoolStore(['sourcePool', 'targetPool']);
   const { sourcePositionId, targetPositionId, targetPosition } = usePositionStore([
     'sourcePositionId',
@@ -30,6 +45,7 @@ export function useApproval({ type, spender }: { type: 'source' | 'target'; spen
   const pool = type === 'source' ? sourcePool : targetPool;
   const nftId = type === 'source' ? +sourcePositionId : targetPositionId ? +targetPositionId : undefined;
   const poolType = type === 'source' ? sourcePoolType : targetPoolType;
+  const dexId = type === 'source' ? sourceDexId : targetDexId;
   const { address: account, chainId: walletChainId } = connectedAccount;
   const nftManager = poolType ? DEXES_INFO[poolType].nftManagerContract : undefined;
   const nftManagerContract = nftManager
@@ -37,6 +53,8 @@ export function useApproval({ type, spender }: { type: 'source' | 'target'; spen
       ? nftManager
       : nftManager[chainId]
     : undefined;
+  const dexName = poolType ? getDexName(poolType, chainId, dexId) : '';
+  const lpTokenSymbol = pool ? `${pool.token0.symbol}-${pool.token1.symbol} LP` : '';
 
   const [nftApprovalType, setNftApprovalType] = useState<'single' | 'all'>('all');
   const isFromUniV2 = type === 'source' && pool && univ2Types.includes(pool.poolType as any);
@@ -52,6 +70,7 @@ export function useApproval({ type, spender }: { type: 'source' | 'target'; spen
     approve: approveErc20,
     loading: erc20ApprovalLoading,
     pendingTx: erc20ApprovalPendingTx,
+    currentPendingTx: erc20CurrentPendingTx,
   } = useErc20Approvals({
     amounts: isFromUniV2 ? [liquidityOut?.toString() || '0'] : [],
     addreses: isFromUniV2 && pool ? [pool.address] : [],
@@ -59,12 +78,17 @@ export function useApproval({ type, spender }: { type: 'source' | 'target'; spen
     spender: routerAddress,
     rpcUrl,
     onSubmitTx,
+    txStatus,
+    txHashMapping,
+    tokenSymbols: isFromUniV2 ? [lpTokenSymbol] : [],
+    dexName,
   });
 
   const {
     isApproved: nftApproved,
     approve: approveNft,
     approvePendingTx: nftApprovePendingTx,
+    currentApprovePendingTx: nftCurrentPendingTx,
     isChecking: isCheckingNftApproval,
   } = useNftApproval({
     tokenId: nftId,
@@ -73,12 +97,16 @@ export function useApproval({ type, spender }: { type: 'source' | 'target'; spen
     rpcUrl,
     nftManagerContract: nftManagerContract || '',
     onSubmitTx: onSubmitTx,
+    txStatus,
+    txHashMapping,
+    dexName,
   });
 
   const {
     isApproved: nftApprovedAll,
     approveAll: approveNftAll,
     approvePendingTx: nftApprovePendingTxAll,
+    currentApprovePendingTx: nftCurrentPendingTxAll,
     isChecking: isCheckingNftApprovalAll,
   } = useNftApprovalAll({
     spender: routerAddress,
@@ -86,6 +114,9 @@ export function useApproval({ type, spender }: { type: 'source' | 'target'; spen
     rpcUrl,
     nftManagerContract: nftManagerContract || '',
     onSubmitTx: onSubmitTx,
+    txStatus,
+    txHashMapping,
+    dexName,
   });
 
   const { permitState, signPermitNft, permitData } = usePermitNft({
@@ -127,8 +158,17 @@ export function useApproval({ type, spender }: { type: 'source' | 'target'; spen
         : nftApprovePendingTxAll
       : '';
 
+  // Current pending tx hash (tracks replacements)
+  const currentPendingTx = isFromUniV2
+    ? erc20CurrentPendingTx
+    : type === 'source' || (isToUniV4 && targetPosition)
+      ? nftApprovalType === 'single'
+        ? nftCurrentPendingTx
+        : nftCurrentPendingTxAll
+      : '';
+
   return {
-    approval: { isChecking, isApproved, approve, pendingTx, nftApprovalType, setNftApprovalType },
+    approval: { isChecking, isApproved, approve, pendingTx, currentPendingTx, nftApprovalType, setNftApprovalType },
     permit: {
       state: permitState,
       data: permitData,

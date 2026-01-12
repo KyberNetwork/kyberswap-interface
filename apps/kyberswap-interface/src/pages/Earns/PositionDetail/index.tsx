@@ -81,7 +81,7 @@ const PositionDetail = () => {
     },
     { skip: !account, pollingInterval: forceLoading || reduceFetchInterval ? 5_000 : 15_000 },
   )
-  const { rewardInfo } = useKemRewards(refetch)
+  const { rewardInfo } = useKemRewards({ refetchAfterCollect: refetch })
   const rewardInfoThisPosition = !userPositions
     ? undefined
     : rewardInfo?.nfts.find(item => item.nftId === userPositions?.[0]?.tokenId)
@@ -105,9 +105,7 @@ const PositionDetail = () => {
       return
     }
 
-    const isClosedFromRpc = closedPositionsFromRpc.some(
-      (closedPosition: { tokenId: string }) => closedPosition.tokenId === userPositions[0].tokenId,
-    )
+    const isClosedFromRpc = closedPositionsFromRpc.includes(userPositions[0].tokenId)
 
     const parsedPosition = parsePosition({
       position: userPositions[0],
@@ -154,15 +152,17 @@ const PositionDetail = () => {
     const targetToken0Decimals = targetPool.token0.decimals
     const targetToken1Decimals = targetPool.token1.decimals
 
-    const dontNeedRevert =
-      sourcePosition.token0.decimals === targetToken0Decimals && sourcePosition.token1.decimals === targetToken1Decimals
+    // Check if tokens are in the same order by comparing addresses
+    const isTokenOrderSame =
+      sourcePosition.token0.address.toLowerCase() === targetPool.token0.address.toLowerCase() &&
+      sourcePosition.token1.address.toLowerCase() === targetPool.token1.address.toLowerCase()
 
     const isMinPrice = sourcePosition.priceRange.isMinPrice
     const isMaxPrice = sourcePosition.priceRange.isMaxPrice
 
     const tickLower = sourcePosition.pool.isUniv2
       ? undefined
-      : dontNeedRevert
+      : isTokenOrderSame
       ? isMinPrice
         ? MIN_TICK
         : priceToClosestTick(toString(sourceMinPrice), targetToken0Decimals, targetToken1Decimals)
@@ -172,7 +172,7 @@ const PositionDetail = () => {
 
     const tickUpper = sourcePosition.pool.isUniv2
       ? undefined
-      : dontNeedRevert
+      : isTokenOrderSame
       ? isMaxPrice
         ? MAX_TICK
         : priceToClosestTick(toString(sourceMaxPrice), targetToken0Decimals, targetToken1Decimals)
@@ -180,19 +180,23 @@ const PositionDetail = () => {
       ? MIN_TICK
       : priceToClosestTick(toString(1 / sourceMinPrice), targetToken0Decimals, targetToken1Decimals)
 
+    const isOutRange = sourcePosition.status === PositionStatus.OUT_RANGE
+
     handleOpenZapMigration({
       chainId: sourcePosition.chain.id,
       from: {
         poolType: sourcePosition.dex.id,
         poolAddress: sourcePosition.pool.address,
         positionId: sourcePosition.pool.isUniv2 ? account || '' : sourcePosition.tokenId,
+        dexId: sourcePosition.dex.id,
       },
       to: {
         poolType: targetPool.poolExchange,
         poolAddress: targetPool.address,
+        dexId: targetPool.poolExchange,
       },
       initialTick:
-        tickLower !== undefined && tickUpper !== undefined
+        tickLower !== undefined && tickUpper !== undefined && !isOutRange
           ? {
               tickLower: tickLower,
               tickUpper: tickUpper,
@@ -211,6 +215,7 @@ const PositionDetail = () => {
           poolType: position.dex.id,
           poolAddress: position.pool.address,
           positionId: position.pool.isUniv2 ? account || '' : position.tokenId,
+          dexId: position.dex.id,
         },
         rePositionMode: true,
       })
@@ -447,9 +452,7 @@ const PositionDetail = () => {
         onClose={() => setPositionToMigrate(null)}
       />
     ) : null
-  const suggestedProtocolName = position?.suggestionPool
-    ? EARN_DEXES[position.suggestionPool.poolExchange].name.replace('FairFlow', '').trim()
-    : ''
+  const suggestedProtocolName = position?.suggestionPool ? EARN_DEXES[position.suggestionPool.poolExchange].name : ''
 
   return (
     <>
@@ -472,7 +475,7 @@ const PositionDetail = () => {
                       {!!position.suggestionPool
                         ? position.pool.fee === position.suggestionPool.feeTier
                           ? t`Earn extra rewards with exact same pair and fee tier on ${suggestedProtocolName} hook.`
-                          : t`We found a pool with the same pair offering extra rewards. Migrate to this pool on ${suggestedProtocolName} hook to start earning farming rewards.`
+                          : t`We found a pool with the same pair offering extra rewards. Migrate to this pool on ${suggestedProtocolName} to start earning farming rewards.`
                         : t`We found other stable pools offering extra rewards. Explore and migrate to start earning.`}
                     </Text>
                     <Text color={theme.primary} sx={{ cursor: 'pointer' }} onClick={handleMigrateToKem}>

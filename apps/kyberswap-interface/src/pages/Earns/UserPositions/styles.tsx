@@ -1,5 +1,6 @@
 import { rgba } from 'polished'
 import { Link } from 'react-router-dom'
+import { Flex } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as IconCurrentPrice } from 'assets/svg/earn/ic_position_current_price.svg'
@@ -342,22 +343,21 @@ export const PositionTableHeaderItem = styled.div`
   height: 100%;
 `
 
-export const PositionTableHeaderFlexItem = styled.div`
-  display: flex;
-  align-items: flex-start;
+export const PositionTableHeaderFlexItem = styled(Flex)`
   flex-wrap: wrap;
-  height: 100%;
+  align-items: center;
+  align-self: flex-start;
   gap: 4px;
+  width: fit-content;
   cursor: pointer;
+
+  &:hover svg path {
+    stroke: ${({ theme }) => theme.text};
+  }
 `
 
 export const PositionTableWrapper = styled(TableWrapper)`
   overflow: hidden;
-
-  @media (max-width: 1300px) {
-    background: transparent;
-    margin: 0;
-  }
 `
 
 export const PriceRangeWrapper = styled.div<{ outOfRange: boolean }>`

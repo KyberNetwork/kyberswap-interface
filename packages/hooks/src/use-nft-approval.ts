@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
+import { TxStatus } from '@kyber/schema';
 import {
   calculateGasMargin,
   decodeAddress,
@@ -8,6 +9,8 @@ import {
   isTransactionSuccessful,
 } from '@kyber/utils/crypto';
 
+import { ApprovalAdditionalInfo } from './use-approval';
+
 export function useNftApproval({
   rpcUrl,
   nftManagerContract,
@@ -15,13 +18,22 @@ export function useNftApproval({
   spender,
   userAddress,
   onSubmitTx,
+  txStatus,
+  txHashMapping,
+  dexName,
 }: {
   rpcUrl: string;
   nftManagerContract: string;
   tokenId?: number;
   spender?: string;
   userAddress: string;
-  onSubmitTx: (txData: { from: string; to: string; value: string; data: string; gasLimit: string }) => Promise<string>;
+  onSubmitTx: (
+    txData: { from: string; to: string; value: string; data: string; gasLimit: string },
+    additionalInfo?: ApprovalAdditionalInfo,
+  ) => Promise<string>;
+  txStatus?: Record<string, TxStatus>;
+  txHashMapping?: Record<string, string>;
+  dexName?: string;
 }) {
   const [isChecking, setIsChecking] = useState(false);
   const [isApproved, setIsApproved] = useState(false);
@@ -43,29 +55,54 @@ export function useNftApproval({
     };
 
     const gasEstimation = await estimateGas(rpcUrl, txData);
-    const txHash = await onSubmitTx({
-      ...txData,
-      gasLimit: calculateGasMargin(gasEstimation),
-    });
+    const txHash = await onSubmitTx(
+      {
+        ...txData,
+        gasLimit: calculateGasMargin(gasEstimation),
+      },
+      {
+        type: 'nft_approval',
+        tokenAddress: nftManagerContract,
+        dexName,
+      },
+    );
     setApprovelPendingTx(txHash);
-  }, [nftManagerContract, onSubmitTx, rpcUrl, spender, tokenId, userAddress]);
+  }, [dexName, nftManagerContract, onSubmitTx, rpcUrl, spender, tokenId, userAddress]);
 
+  // Get the current tx hash (might be different if tx was replaced/sped up)
+  const currentApprovePendingTx = approvePendingTx ? (txHashMapping?.[approvePendingTx] ?? approvePendingTx) : '';
+
+  // When txStatus is provided (from app), use it directly
   useEffect(() => {
-    if (approvePendingTx) {
-      const i = setInterval(() => {
-        isTransactionSuccessful(rpcUrl, approvePendingTx).then(res => {
-          if (res) {
-            setApprovelPendingTx('');
-            setIsApproved(res.status);
-          }
-        });
-      }, 8_000);
+    if (!txStatus || !approvePendingTx) return;
 
-      return () => {
-        clearInterval(i);
-      };
+    const status = txStatus[approvePendingTx];
+    if (status === TxStatus.SUCCESS) {
+      setApprovelPendingTx('');
+      setIsApproved(true);
+    } else if (status === TxStatus.FAILED || status === TxStatus.CANCELLED) {
+      setApprovelPendingTx('');
+      setIsApproved(false);
     }
-  }, [approvePendingTx, rpcUrl]);
+  }, [txStatus, approvePendingTx]);
+
+  // Fallback: Poll RPC when txStatus is not provided (standalone widget usage)
+  useEffect(() => {
+    if (txStatus || !currentApprovePendingTx) return;
+
+    const i = setInterval(() => {
+      isTransactionSuccessful(rpcUrl, currentApprovePendingTx).then(res => {
+        if (res) {
+          setApprovelPendingTx('');
+          setIsApproved(res.status);
+        }
+      });
+    }, 8_000);
+
+    return () => {
+      clearInterval(i);
+    };
+  }, [currentApprovePendingTx, rpcUrl, txStatus]);
 
   const checkApproval = useCallback(async () => {
     if (!spender || !userAddress || !tokenId || approvePendingTx) return;
@@ -108,5 +145,5 @@ export function useNftApproval({
     checkApproval();
   }, [checkApproval]);
 
-  return { isChecking, isApproved, approve, approvePendingTx, checkApproval };
+  return { isChecking, isApproved, approve, approvePendingTx, currentApprovePendingTx, checkApproval };
 }

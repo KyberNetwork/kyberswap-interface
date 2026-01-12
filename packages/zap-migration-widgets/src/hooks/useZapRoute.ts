@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { DEXES_INFO, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO } from '@kyber/schema';
+import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, getDexName } from '@kyber/schema';
 import { parseZapRoute } from '@kyber/utils/liquidity/zap';
 
 import { usePoolStore } from '@/stores/usePoolStore';
@@ -8,7 +8,7 @@ import { useWidgetStore } from '@/stores/useWidgetStore';
 import { useZapStore } from '@/stores/useZapStore';
 
 export default function useZapRoute() {
-  const { chainId, targetPoolType } = useWidgetStore(['chainId', 'targetPoolType']);
+  const { chainId, targetPoolType, targetDexId } = useWidgetStore(['chainId', 'targetPoolType', 'targetDexId']);
   const { sourcePool, targetPool } = usePoolStore(['sourcePool', 'targetPool']);
   const { route, fetchingRoute } = useZapStore(['route', 'fetchingRoute']);
 
@@ -30,8 +30,7 @@ export default function useZapRoute() {
   const sourceToken0Address = sourcePool?.token0.address || '';
   const sourceToken1Address = sourcePool?.token1.address || '';
   const poolAddress = targetPool?.address || '';
-  const dexNameObj = targetPoolType ? DEXES_INFO[targetPoolType].name : '';
-  const dexName = targetPoolType ? (typeof dexNameObj === 'string' ? dexNameObj : dexNameObj[chainId]) : '';
+  const dexName = targetPoolType ? getDexName(targetPoolType, chainId, targetDexId) : '';
 
   const {
     addedLiquidity,

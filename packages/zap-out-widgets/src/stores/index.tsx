@@ -126,6 +126,7 @@ export function ZapOutProvider({ children, ...props }: ZapOutProviderState) {
     store.setState({
       ...props,
       rpcUrl: props.rpcUrl ?? NETWORKS_INFO[props.chainId].defaultRpc,
+      txHashMapping: props.txHashMapping,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props]);

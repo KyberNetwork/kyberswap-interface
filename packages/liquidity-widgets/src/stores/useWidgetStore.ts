@@ -33,6 +33,7 @@ const initState = {
   poolAddress: '',
   positionId: undefined,
   poolType: PoolType.DEX_UNISWAPV3,
+  dexId: undefined,
   connectedAccount: {
     address: '',
     chainId: ChainId.Ethereum,

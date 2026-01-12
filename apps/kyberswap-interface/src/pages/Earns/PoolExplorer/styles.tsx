@@ -1,6 +1,6 @@
 import { rgba } from 'polished'
 import { useNavigate } from 'react-router-dom'
-import { Text } from 'rebass'
+import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 export const PoolPageWrapper = styled.div`
@@ -55,6 +55,12 @@ export const Tag = styled.div<{ active: boolean }>`
   flex: 0 0 auto;
   line-height: 28px;
   height: 42px;
+  transition: background-color 200ms ease, border-color 200ms ease;
+
+  &[role='button']:hover {
+    background: ${({ theme, active }) => (active ? rgba(theme.primary, 0.3) : rgba(theme.primary, 0.1))};
+    border-color: ${({ theme, active }) => (active ? theme.primary : rgba(theme.primary, 0.5))};
+  }
 
   ${({ theme }) => theme.mediaWidth.upToMedium`
     height: 38px;
@@ -131,9 +137,18 @@ export const TableHeader = styled.div<{ expandColumn?: boolean }>`
   align-items: center;
   color: ${({ theme }) => theme.subText};
   border-bottom: 1px solid ${({ theme }) => theme.tableHeader};
-  padding-bottom: 24px;
-  margin: 24px;
-  margin-bottom: 0;
+  padding: 24px;
+`
+
+export const SortableHeader = styled(Flex)`
+  align-items: center;
+  gap: 4px;
+  width: fit-content;
+  cursor: pointer;
+
+  &:hover svg path {
+    stroke: ${({ theme }) => theme.text};
+  }
 `
 
 export const MigrateTableHeader = styled(TableHeader)`

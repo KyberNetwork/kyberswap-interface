@@ -16,7 +16,11 @@ import { useAllTransactions, useTransactionAdder } from 'state/transactions/hook
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { formatDisplayNumber } from 'utils/numbers'
 
-const useCollectFees = ({ refetchAfterCollect }: { refetchAfterCollect: () => void }) => {
+type UseCollectFeesProps = {
+  refetchAfterCollect?: (claimKey?: string) => void
+}
+
+const useCollectFees = ({ refetchAfterCollect }: UseCollectFeesProps) => {
   const notify = useNotify()
   const addTransactionWithType = useTransactionAdder()
   const allTransactions = useAllTransactions(true)
@@ -26,8 +30,7 @@ const useCollectFees = ({ refetchAfterCollect }: { refetchAfterCollect: () => vo
 
   const [claimInfo, setClaimInfo] = useState<ClaimInfo | null>(null)
   const [openClaimModal, setOpenClaimModal] = useState(false)
-  const [claiming, setClaiming] = useState(false)
-  const [txHash, setTxHash] = useState<string | null>(null)
+  const [pendingClaims, setPendingClaims] = useState<Array<{ txHash: string; claimKey: string }>>([])
 
   const [position, setPosition] = useState<ParsedPosition | null>(null)
 
@@ -52,17 +55,12 @@ const useCollectFees = ({ refetchAfterCollect }: { refetchAfterCollect: () => vo
     const token1 = claimInfo.tokens[1]
     if (!token0.address || !token1.address) return
 
-    setClaiming(true)
-
     const isUniv4 = EARN_DEXES[claimInfo.dex as Exchange]?.isForkFrom === CoreProtocol.UniswapV4
     const txData = isUniv4
       ? await getUniv4CollectCallData({ claimInfo, recipient: account })
       : await getUniv3CollectCallData({ claimInfo, recipient: account })
 
-    if (!txData) {
-      setClaiming(false)
-      return
-    }
+    if (!txData) return
 
     let errorMessage = ''
 
@@ -76,7 +74,6 @@ const useCollectFees = ({ refetchAfterCollect }: { refetchAfterCollect: () => vo
           type: NotificationType.ERROR,
           summary: error.message.includes('user rejected transaction') ? 'User rejected transaction' : error.message,
         })
-        setClaiming(false)
       },
     })
     const { txHash, error } = res
@@ -92,7 +89,11 @@ const useCollectFees = ({ refetchAfterCollect }: { refetchAfterCollect: () => vo
       throw new Error(error?.message || 'Transaction failed')
     }
 
-    setTxHash(txHash)
+    setPendingClaims(prev => {
+      const claimKey = `${claimInfo.chainId}:${claimInfo.nftId}`
+      if (prev.some(item => item.txHash === txHash)) return prev
+      return [...prev, { txHash, claimKey }]
+    })
 
     addTransactionWithType({
       type: TRANSACTION_TYPE.COLLECT_FEE,
@@ -174,25 +175,40 @@ const useCollectFees = ({ refetchAfterCollect }: { refetchAfterCollect: () => vo
   }, [handleOpenCompounding, position])
 
   useEffect(() => {
-    if (txHash && allTransactions && allTransactions[txHash]) {
-      const tx = allTransactions[txHash]
-      if (tx?.[0].receipt && tx?.[0].receipt.status === 1) {
-        setClaiming(false)
-        setTxHash(null)
-        setOpenClaimModal(false)
-        refetchAfterCollect()
+    if (!pendingClaims.length || !allTransactions) return
+    const resolvedTxHashes: string[] = []
+    let shouldCloseClaim = false
+
+    pendingClaims.forEach(claim => {
+      const tx = allTransactions[claim.txHash]
+      const receipt = tx?.[0].receipt
+      if (!receipt) return
+      resolvedTxHashes.push(claim.txHash)
+      if (receipt.status === 1) {
+        if (claimInfo && `${claimInfo.chainId}:${claimInfo.nftId}` === claim.claimKey) {
+          shouldCloseClaim = true
+        }
+        refetchAfterCollect?.(claim.claimKey)
       }
+    })
+
+    if (resolvedTxHashes.length) {
+      setPendingClaims(prev => prev.filter(item => !resolvedTxHashes.includes(item.txHash)))
     }
-  }, [allTransactions, refetchAfterCollect, txHash])
+    if (shouldCloseClaim) {
+      onCloseClaim()
+    }
+  }, [allTransactions, claimInfo, onCloseClaim, pendingClaims, refetchAfterCollect])
 
   useAccountChanged(onCloseClaim)
+
+  const pendingClaimKeys = pendingClaims.map(item => item.claimKey)
 
   const claimModal =
     openClaimModal && claimInfo ? (
       <>
         <ClaimModal
           claimType={ClaimType.FEES}
-          claiming={claiming}
           claimInfo={claimInfo}
           compoundable
           onCompound={onCompound}
@@ -203,7 +219,7 @@ const useCollectFees = ({ refetchAfterCollect }: { refetchAfterCollect: () => vo
       </>
     ) : null
 
-  return { claiming, claimModal, onOpenClaim }
+  return { claimModal, onOpenClaim, pendingClaimKeys }
 }
 
 export default useCollectFees

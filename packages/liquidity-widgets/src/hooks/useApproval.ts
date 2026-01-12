@@ -9,6 +9,7 @@ import {
   useNftApprovalAll,
   usePermitNft,
 } from '@kyber/hooks';
+import { getDexName } from '@kyber/schema';
 import { getNftManagerContractAddress } from '@kyber/utils';
 import { parseUnits } from '@kyber/utils/crypto';
 
@@ -48,7 +49,18 @@ export interface ApprovalState {
 }
 
 export default function useApproval() {
-  const { chainId, rpcUrl, poolType, connectedAccount, positionId, onSubmitTx, signTypedData } = useWidgetStore([
+  const {
+    chainId,
+    rpcUrl,
+    poolType,
+    connectedAccount,
+    positionId,
+    onSubmitTx,
+    signTypedData,
+    txStatus,
+    txHashMapping,
+    dexId,
+  } = useWidgetStore([
     'chainId',
     'rpcUrl',
     'poolType',
@@ -56,15 +68,20 @@ export default function useApproval() {
     'positionId',
     'onSubmitTx',
     'signTypedData',
+    'txStatus',
+    'txHashMapping',
+    'dexId',
   ]);
   const { route, tokensIn, amountsIn } = useZapState();
   const [nftApprovalType, setNftApprovalType] = useState<'single' | 'all'>('all');
 
   const nftManagerContract = getNftManagerContractAddress(poolType, chainId);
+  const dexName = getDexName(poolType, chainId, dexId);
   const {
     isApproved: nftApproved,
     approve: approveNft,
     approvePendingTx: nftApprovePendingTx,
+    currentApprovePendingTx: currentNftApprovePendingTx,
     checkApproval: checkNftApproval,
     isChecking: isCheckingNftApproval,
   } = useNftApproval({
@@ -74,12 +91,16 @@ export default function useApproval() {
     rpcUrl,
     nftManagerContract,
     onSubmitTx: onSubmitTx,
+    txStatus,
+    txHashMapping,
+    dexName,
   });
 
   const {
     isApproved: nftApprovedAll,
     approveAll: approveNftAll,
     approvePendingTx: nftApprovePendingTxAll,
+    currentApprovePendingTx: currentNftApprovePendingTxAll,
     checkApprovalAll: checkNftApprovalAll,
     isChecking: isCheckingNftApprovalAll,
   } = useNftApprovalAll({
@@ -88,6 +109,9 @@ export default function useApproval() {
     rpcUrl,
     nftManagerContract,
     onSubmitTx: onSubmitTx,
+    txStatus,
+    txHashMapping,
+    dexName,
   });
 
   const { permitState, signPermitNft, permitData } = usePermitNft({
@@ -110,11 +134,11 @@ export default function useApproval() {
     [tokensIn, amountsIn],
   );
 
-  const tokenAddressesToApprove = tokensIn
-    .filter((_, index) => Number(amountsInWei[index]) > 0)
-    .map(token => token?.address || '');
+  const tokensToApprove = tokensIn.filter((_, index) => Number(amountsInWei[index]) > 0);
+  const tokenAddressesToApprove = tokensToApprove.map(token => token?.address || '');
+  const tokenSymbolsToApprove = tokensToApprove.map(token => token?.symbol || '');
   const amountsToApprove = amountsInWei.filter(amount => Number(amount) > 0);
-  const { loading, approvalStates, approve, addressToApprove } = useErc20Approvals({
+  const { loading, approvalStates, approve, addressToApprove, currentPendingTx } = useErc20Approvals({
     amounts: amountsToApprove,
     addreses: tokenAddressesToApprove,
     owner: connectedAccount?.address || '',
@@ -122,6 +146,10 @@ export default function useApproval() {
     spender:
       permitData?.permitData && route?.routerPermitAddress ? route.routerPermitAddress : route?.routerAddress || '',
     onSubmitTx: onSubmitTx,
+    txStatus,
+    txHashMapping,
+    tokenSymbols: tokenSymbolsToApprove,
+    dexName,
   });
 
   return {
@@ -129,6 +157,7 @@ export default function useApproval() {
     setNftApprovalType,
     nftApproval: {
       pendingTx: nftApprovePendingTx,
+      currentPendingTx: currentNftApprovePendingTx,
       isChecking: isCheckingNftApproval,
       isApproved: nftApproved,
       approve: approveNft,
@@ -136,6 +165,7 @@ export default function useApproval() {
     },
     nftApprovalAll: {
       pendingTx: nftApprovePendingTxAll,
+      currentPendingTx: currentNftApprovePendingTxAll,
       isChecking: isCheckingNftApprovalAll,
       isApproved: nftApprovedAll,
       approve: approveNftAll,
@@ -151,6 +181,7 @@ export default function useApproval() {
       states: approvalStates,
       approve,
       addressToApprove,
+      currentPendingTx,
     },
   };
 }

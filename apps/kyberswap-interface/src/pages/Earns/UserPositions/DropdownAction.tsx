@@ -115,8 +115,8 @@ const DropdownAction = ({
   onOpenIncreaseLiquidityWidget,
   onOpenZapOut,
   onOpenReposition,
-  claimFees: { onClaimFee, feesClaimDisabled, feesClaiming, positionThatClaimingFees },
-  claimRewards: { onClaimRewards, rewardsClaimDisabled, rewardsClaiming, positionThatClaimingRewards },
+  claimFees: { onClaimFee, feesClaimDisabled, feesClaiming },
+  claimRewards: { onClaimRewards, rewardsClaimDisabled, rewardsClaiming },
 }: {
   position: ParsedPosition
   onOpenIncreaseLiquidityWidget: (e: React.MouseEvent, position: ParsedPosition) => void
@@ -126,13 +126,11 @@ const DropdownAction = ({
     onClaimFee: (e: React.MouseEvent, position: ParsedPosition) => void
     feesClaimDisabled: boolean
     feesClaiming: boolean
-    positionThatClaimingFees: ParsedPosition | null
   }
   claimRewards: {
     onClaimRewards: (e: React.MouseEvent, position: ParsedPosition) => void
     rewardsClaimDisabled: boolean
     rewardsClaiming: boolean
-    positionThatClaimingRewards: ParsedPosition | null
   }
 }) => {
   const theme = useTheme()
@@ -256,11 +254,7 @@ const DropdownAction = ({
           } else e.preventDefault()
         }}
       >
-        {feesClaiming && positionThatClaimingFees && positionThatClaimingFees.tokenId === position.tokenId ? (
-          <Loader size={'16px'} stroke={'#7a7a7a'} />
-        ) : (
-          <IconClaimFees width={16} />
-        )}
+        {feesClaiming ? <Loader size={'16px'} stroke={'#7a7a7a'} /> : <IconClaimFees width={16} />}
         <Text>{t`Claim Fees`}</Text>
       </DropdownContentItem>
       <DropdownContentItem
@@ -272,7 +266,7 @@ const DropdownAction = ({
           } else e.preventDefault()
         }}
       >
-        {rewardsClaiming && positionThatClaimingRewards && positionThatClaimingRewards.tokenId === position.tokenId ? (
+        {rewardsClaiming ? (
           <Loader size={'16px'} stroke={'#7a7a7a'} />
         ) : (
           <IconClaimRewards width={14} style={{ marginRight: '2px' }} />

@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import { Trans, t } from '@lingui/macro';
 
 import { useCopy } from '@kyber/hooks';
-import { DEXES_INFO, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, UniV3Position, univ3Types } from '@kyber/schema';
+import { DEXES_INFO, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, UniV3Position, getDexName, univ3Types } from '@kyber/schema';
 import { InfoHelper, MouseoverTooltip, Skeleton, TokenLogo, TokenSymbol } from '@kyber/ui';
 import { cn } from '@kyber/utils/tailwind-helpers';
 import { tickToPrice } from '@kyber/utils/uniswapv3';
@@ -16,9 +16,8 @@ import { useZapOutContext } from '@/stores';
 import { useZapOutUserState } from '@/stores/state';
 
 export const Header = () => {
-  const { poolAddress, onClose, poolType, pool, position, positionId, theme, chainId, poolPrice } = useZapOutContext(
-    s => s,
-  );
+  const { poolAddress, onClose, poolType, pool, position, positionId, theme, chainId, poolPrice, dexId } =
+    useZapOutContext(s => s);
   const isUniV3 = univ3Types.includes(poolType as any);
 
   const { degenMode, toggleSetting, mode } = useZapOutUserState();
@@ -42,8 +41,8 @@ export const Header = () => {
     return poolPrice < lowerPrice || poolPrice > upperPrice;
   }, [isUniV3, loading, pool?.token0.decimals, pool?.token1.decimals, poolPrice, position]);
 
-  const { icon: dexLogo, name: rawName } = DEXES_INFO[poolType];
-  const dexName = typeof rawName === 'string' ? rawName : rawName[chainId];
+  const { icon: dexLogo } = DEXES_INFO[poolType];
+  const dexName = getDexName(poolType, chainId, dexId);
 
   const isToken0Native = !pool ? false : pool.token0.address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase();
   const isToken1Native = !pool ? false : pool.token1.address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase();

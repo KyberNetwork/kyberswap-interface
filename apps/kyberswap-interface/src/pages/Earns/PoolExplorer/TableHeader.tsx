@@ -6,7 +6,7 @@ import { PoolQueryParams } from 'services/zapEarn'
 import InfoHelper from 'components/InfoHelper'
 import { SortBy } from 'pages/Earns/PoolExplorer'
 import { FilterTag } from 'pages/Earns/PoolExplorer/Filter'
-import { TableHeader as TableHeaderComponent } from 'pages/Earns/PoolExplorer/styles'
+import { SortableHeader, TableHeader as TableHeaderComponent } from 'pages/Earns/PoolExplorer/styles'
 import SortIcon, { Direction } from 'pages/MarketOverview/SortIcon'
 import { MEDIA_WIDTHS } from 'theme'
 
@@ -24,15 +24,10 @@ const TableHeader = ({
     <TableHeaderComponent expandColumn={isFarmingFiltered}>
       <Text>{t`Protocol`}</Text>
       <Text>{t`Pair`}</Text>
-      <Flex
-        justifyContent="flex-start"
-        sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
-        role="button"
-        onClick={() => onSortChange(SortBy.APR)}
-      >
+      <SortableHeader role="button" onClick={() => onSortChange(SortBy.APR)}>
         {t`APR`}
         <SortIcon sorted={filters.sortBy === SortBy.APR ? (filters.orderBy as Direction) : undefined} />
-      </Flex>
+      </SortableHeader>
       {isFarmingFiltered && (
         <Flex justifyContent="flex-end" sx={{ gap: '4px', alignItems: 'center' }} role="button">
           {t`Max APR`}
@@ -55,34 +50,19 @@ const TableHeader = ({
           />
         </Flex>
       ) : (
-        <Flex
-          justifyContent="flex-end"
-          sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
-          role="button"
-          onClick={() => onSortChange(SortBy.EARN_FEE)}
-        >
+        <SortableHeader sx={{ justifySelf: 'end' }} role="button" onClick={() => onSortChange(SortBy.EARN_FEE)}>
           {t`Earn Fees`}
           <SortIcon sorted={filters.sortBy === SortBy.EARN_FEE ? (filters.orderBy as Direction) : undefined} />
-        </Flex>
+        </SortableHeader>
       )}
-      <Flex
-        justifyContent="flex-end"
-        sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
-        role="button"
-        onClick={() => onSortChange(SortBy.TVL)}
-      >
+      <SortableHeader sx={{ justifySelf: 'end' }} role="button" onClick={() => onSortChange(SortBy.TVL)}>
         {t`TVL`}
         <SortIcon sorted={filters.sortBy === SortBy.TVL ? (filters.orderBy as Direction) : undefined} />
-      </Flex>
-      <Flex
-        justifyContent="flex-end"
-        sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
-        role="button"
-        onClick={() => onSortChange(SortBy.VOLUME)}
-      >
+      </SortableHeader>
+      <SortableHeader sx={{ justifySelf: 'end' }} role="button" onClick={() => onSortChange(SortBy.VOLUME)}>
         {t`Volume`}
         <SortIcon sorted={filters.sortBy === SortBy.VOLUME ? (filters.orderBy as Direction) : undefined} />
-      </Flex>
+      </SortableHeader>
       <div />
     </TableHeaderComponent>
   ) : null

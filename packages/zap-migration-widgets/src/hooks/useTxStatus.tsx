@@ -7,15 +7,45 @@ import { useWidgetStore } from '@/stores/useWidgetStore';
 import { TxStatus } from '@/types/index';
 
 export default function useTxStatus({ txHash }: { txHash?: string }) {
-  const { chainId, rpcUrl, zapStatus } = useWidgetStore(['chainId', 'rpcUrl', 'zapStatus']);
-  const [txStatus, setTxStatus] = useState<'success' | 'failed' | ''>('');
+  const {
+    chainId,
+    rpcUrl,
+    txStatus: txStatusFromApp,
+    txHashMapping,
+  } = useWidgetStore(['chainId', 'rpcUrl', 'txStatus', 'txHashMapping']);
+  const [txStatus, setTxStatus] = useState<'success' | 'failed' | 'cancelled' | ''>('');
 
+  // Get the current tx hash (might be different if tx was replaced/sped up)
+  const currentTxHash = txHash ? (txHashMapping?.[txHash] ?? txHash) : undefined;
+
+  // Reset status when txHash changes
   useEffect(() => {
-    if (zapStatus) return;
+    setTxStatus('');
+  }, [txHash]);
+
+  // When txStatus is provided (from app), use it directly
+  useEffect(() => {
+    if (!txStatusFromApp || !txHash) return;
+
+    const status = txStatusFromApp[txHash];
+    if (status === TxStatus.SUCCESS) {
+      setTxStatus('success');
+    } else if (status === TxStatus.FAILED) {
+      setTxStatus('failed');
+    } else if (status === TxStatus.CANCELLED) {
+      setTxStatus('cancelled');
+    } else {
+      setTxStatus('');
+    }
+  }, [txStatusFromApp, txHash]);
+
+  // Fallback: Poll RPC when txStatus is not provided (standalone widget usage)
+  useEffect(() => {
+    if (txStatusFromApp || !currentTxHash) return;
 
     const checkTxStatus = () => {
-      if (txStatus !== '' || !txHash) return;
-      isTransactionSuccessful(rpcUrl, txHash).then(res => {
+      if (txStatus !== '') return;
+      isTransactionSuccessful(rpcUrl, currentTxHash).then(res => {
         if (!res) return;
 
         if (res.status) {
@@ -24,30 +54,13 @@ export default function useTxStatus({ txHash }: { txHash?: string }) {
       });
     };
 
-    if (txHash) {
-      checkTxStatus();
-      const i = setInterval(checkTxStatus, chainId === ChainId.Ethereum ? 10_000 : 5_000);
+    checkTxStatus();
+    const interval = setInterval(checkTxStatus, chainId === ChainId.Ethereum ? 10_000 : 5_000);
 
-      return () => {
-        clearInterval(i);
-      };
-    }
-  }, [txHash, chainId, rpcUrl, zapStatus, txStatus]);
+    return () => {
+      clearInterval(interval);
+    };
+  }, [chainId, rpcUrl, currentTxHash, txStatus, txStatusFromApp]);
 
-  useEffect(() => {
-    setTxStatus('');
-  }, [txHash]);
-
-  useEffect(() => {
-    if (!zapStatus) return;
-    if (!txHash || !zapStatus[txHash]) {
-      setTxStatus('');
-      return;
-    }
-    if (zapStatus[txHash] === TxStatus.SUCCESS || zapStatus[txHash] === TxStatus.FAILED) {
-      setTxStatus(zapStatus[txHash] as 'success' | 'failed');
-    } else setTxStatus('');
-  }, [zapStatus, txHash]);
-
-  return { txStatus };
+  return { txStatus, currentTxHash };
 }

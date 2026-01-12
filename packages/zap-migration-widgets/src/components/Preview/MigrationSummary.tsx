@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 import { Trans, t } from '@lingui/macro';
 
-import { DEXES_INFO, NETWORKS_INFO } from '@kyber/schema';
+import { NETWORKS_INFO, getDexName } from '@kyber/schema';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@kyber/ui';
 import { formatTokenAmount } from '@kyber/utils/number';
 
@@ -11,7 +11,13 @@ import { usePoolStore } from '@/stores/usePoolStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
 export function MigrationSummary() {
-  const { chainId, sourcePoolType, targetPoolType } = useWidgetStore(['chainId', 'sourcePoolType', 'targetPoolType']);
+  const { chainId, sourcePoolType, targetPoolType, sourceDexId, targetDexId } = useWidgetStore([
+    'chainId',
+    'sourcePoolType',
+    'targetPoolType',
+    'sourceDexId',
+    'targetDexId',
+  ]);
   const { sourcePool, targetPool } = usePoolStore(['sourcePool', 'targetPool']);
   const { swapActions, addedLiquidity, removeLiquidity } = useZapRoute();
 
@@ -20,15 +26,8 @@ export function MigrationSummary() {
 
   if (!sourcePool || !targetPool || !sourcePoolType || !targetPoolType) return null;
 
-  const sourceDexName =
-    typeof DEXES_INFO[sourcePoolType].name === 'string'
-      ? DEXES_INFO[sourcePoolType].name
-      : DEXES_INFO[sourcePoolType].name[chainId];
-
-  const targetDexName =
-    typeof DEXES_INFO[targetPoolType].name === 'string'
-      ? DEXES_INFO[targetPoolType].name
-      : DEXES_INFO[targetPoolType].name[chainId];
+  const sourceDexName = getDexName(sourcePoolType, chainId, sourceDexId);
+  const targetDexName = getDexName(targetPoolType, chainId, targetDexId);
 
   return (
     <Accordion type="single" collapsible className="w-full" value={expanded ? 'item-1' : ''}>

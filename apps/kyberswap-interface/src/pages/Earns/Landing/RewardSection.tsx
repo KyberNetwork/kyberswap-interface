@@ -10,6 +10,7 @@ import { RewardsNavigateButton } from 'pages/Earns/Landing/styles'
 import { FilterTag } from 'pages/Earns/PoolExplorer/Filter'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
+import useMerklRewards from 'pages/Earns/hooks/useMerklRewards'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -21,8 +22,9 @@ const RewardSection = () => {
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   const { rewardInfo, isLoadingRewardInfo } = useKemRewards()
+  const { totalUsdValue: merklRewardUsdValue } = useMerklRewards()
 
-  const totalRewardUsdValue = rewardInfo?.totalUsdValue || 0
+  const totalRewardUsdValue = (rewardInfo?.totalUsdValue || 0) + (merklRewardUsdValue || 0)
 
   const btnPath = !account
     ? '#'

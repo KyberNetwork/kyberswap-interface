@@ -5,3 +5,4 @@ export * from '@/schema/tick';
 export * from '@/schema/token';
 export * from '@/schema/chain';
 export * from '@/schema/earn';
+export * from '@/schema/transaction';

@@ -4,7 +4,7 @@ import type { MessageDescriptor } from '@lingui/core';
 import { msg, t } from '@lingui/macro';
 
 import { PermitNftState } from '@kyber/hooks';
-import { DEXES_INFO, univ2Types, univ4Types } from '@kyber/schema';
+import { getDexName, univ2Types, univ4Types } from '@kyber/schema';
 import { PI_LEVEL, friendlyError } from '@kyber/utils';
 import { estimateGasForTx } from '@kyber/utils/crypto/transaction';
 
@@ -81,6 +81,8 @@ export function useActionButton({ onConnectWallet, onSwitchChain }: UseActionBut
     connectedAccount,
     sourcePoolType,
     targetPoolType,
+    sourceDexId,
+    targetDexId,
     client,
     setWidgetError,
     referral,
@@ -91,6 +93,8 @@ export function useActionButton({ onConnectWallet, onSwitchChain }: UseActionBut
     'connectedAccount',
     'sourcePoolType',
     'targetPoolType',
+    'sourceDexId',
+    'targetDexId',
     'client',
     'setWidgetError',
     'referral',
@@ -115,11 +119,8 @@ export function useActionButton({ onConnectWallet, onSwitchChain }: UseActionBut
   const isTargetUniV2 = targetPoolType ? univ2Types.includes(targetPoolType as any) : false;
   const isTargetUniV4 = targetPoolType ? univ4Types.includes(targetPoolType as any) : false;
 
-  const rawSourceDexName = sourcePoolType ? DEXES_INFO[sourcePoolType].name : '';
-  const sourceDexName = typeof rawSourceDexName === 'string' ? rawSourceDexName : rawSourceDexName[chainId];
-
-  const rawTargetDexName = targetPoolType ? DEXES_INFO[targetPoolType].name : '';
-  const targetDexName = typeof rawTargetDexName === 'string' ? rawTargetDexName : rawTargetDexName[chainId];
+  const sourceDexName = sourcePoolType ? getDexName(sourcePoolType, chainId, sourceDexId) : '';
+  const targetDexName = targetPoolType ? getDexName(targetPoolType, chainId, targetDexId) : '';
 
   const [isUsePermit, setIsUsePermit] = useState(false);
 

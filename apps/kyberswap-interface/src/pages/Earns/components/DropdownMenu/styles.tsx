@@ -3,22 +3,6 @@ import styled from 'styled-components'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 
-export const DropdownWrapper = styled.div<{
-  mobileFullWidth: boolean
-  mobileHalfWidth: boolean
-  fullWidth?: boolean
-}>`
-  position: relative;
-  width: ${({ fullWidth }) => (fullWidth ? '100%' : 'fit-content')};
-  flex: ${({ fullWidth }) => (fullWidth ? '1 1 0%' : 'initial')};
-  min-width: ${({ fullWidth }) => (fullWidth ? '0' : 'auto')};
-
-  ${({ theme, mobileFullWidth, mobileHalfWidth }) => theme.mediaWidth.upToSmall`
-    ${mobileFullWidth && 'width: 100%;'}
-    ${mobileHalfWidth && 'width: calc(50% - 4px);'}
-  `}
-`
-
 export const DropdownTitleWrapper = styled.div<{ flatten?: boolean; highlight?: boolean }>`
   width: 100%;
   background: ${({ theme, highlight, flatten }) =>
@@ -33,6 +17,27 @@ export const DropdownTitleWrapper = styled.div<{ flatten?: boolean; highlight?: 
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: filter 200ms ease;
+`
+
+export const DropdownWrapper = styled.div<{
+  mobileFullWidth: boolean
+  mobileHalfWidth: boolean
+  fullWidth?: boolean
+}>`
+  position: relative;
+  width: ${({ fullWidth }) => (fullWidth ? '100%' : 'fit-content')};
+  flex: ${({ fullWidth }) => (fullWidth ? '1 1 0%' : 'initial')};
+  min-width: ${({ fullWidth }) => (fullWidth ? '0' : 'auto')};
+
+  &:hover ${DropdownTitleWrapper} {
+    filter: brightness(1.2);
+  }
+
+  ${({ theme, mobileFullWidth, mobileHalfWidth }) => theme.mediaWidth.upToSmall`
+    ${mobileFullWidth && 'width: 100%;'}
+    ${mobileHalfWidth && 'width: calc(50% - 4px);'}
+  `}
 `
 
 export const DropdownTitle = styled.div<{ width?: number; justifyContent?: string; fullWidth?: boolean }>`

@@ -2,7 +2,7 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import SafeAppsSDK, { TransactionStatus as SafeTransactionStatus } from '@safe-global/safe-apps-sdk'
 import { ethers } from 'ethers'
-import { findReplacementTx } from 'find-replacement-tx'
+import { TxValidationError, findReplacementTx } from 'find-replacement-tx'
 import { useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -13,10 +13,15 @@ import useMixpanel, { MIXPANEL_TYPE, NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES } fro
 import { useBlockNumber, useKyberSwapConfig, useTransactionNotify } from 'state/application/hooks'
 import { AppDispatch, AppState } from 'state/index'
 import { revokePermit } from 'state/swap/actions'
+import {
+  checkedTransaction,
+  finalizeTransaction,
+  modifyTransaction,
+  removeTx,
+  replaceTx,
+} from 'state/transactions/actions'
+import { SerializableTransactionReceipt, TRANSACTION_TYPE, TransactionDetails } from 'state/transactions/type'
 import { findTx } from 'utils'
-
-import { checkedTransaction, finalizeTransaction, modifyTransaction, removeTx, replaceTx } from './actions'
-import { SerializableTransactionReceipt, TRANSACTION_TYPE, TransactionDetails } from './type'
 
 const appsSdk = new SafeAppsSDK()
 
@@ -183,6 +188,8 @@ export default function Updater(): null {
     uniqueTransactions
       .filter(hash => shouldCheck(lastBlockNumber, findTx(transactions, hash)))
       .forEach(hash => {
+        let txHash = hash
+
         // Check if tx was replaced
         readProvider
           .getTransaction(hash)
@@ -206,6 +213,7 @@ export default function Updater(): null {
               })
                 .then(newTx => {
                   if (newTx) {
+                    txHash = newTx.hash
                     dispatch(
                       replaceTx({
                         chainId,
@@ -215,8 +223,13 @@ export default function Updater(): null {
                     )
                   }
                 })
-                .catch(() => {
-                  checkRemoveTxs()
+                .catch((error: unknown) => {
+                  // Transaction was canceled (sent 0 ETH to self with empty data)
+                  if (error instanceof TxValidationError && error.message === 'Transaction canceled.') {
+                    dispatch(removeTx({ chainId, hash }))
+                  } else {
+                    checkRemoveTxs()
+                  }
                 })
             else {
               checkRemoveTxs()
@@ -226,14 +239,14 @@ export default function Updater(): null {
 
         if (connector?.id === CONNECTION.SAFE_CONNECTOR_ID) {
           appsSdk.txs
-            .getBySafeTxHash(hash)
+            .getBySafeTxHash(txHash)
             .then(receipt => {
               handleTransactionReceipt(
-                hash,
+                txHash,
                 receipt
                   ? {
                       ...receipt,
-                      transactionHash: hash,
+                      transactionHash: txHash,
                       blockHash: '',
                       status: receipt.txStatus === SafeTransactionStatus.SUCCESS ? 1 : 0,
                     }
@@ -241,16 +254,16 @@ export default function Updater(): null {
               )
             })
             .catch((error: any) => {
-              console.error(`failed to check transaction hash: ${hash}`, error)
+              console.error(`failed to check transaction hash: ${txHash}`, error)
             })
         } else {
           readProvider
-            .getTransactionReceipt(hash)
+            .getTransactionReceipt(txHash)
             .then(receipt => {
-              handleTransactionReceipt(hash, receipt)
+              handleTransactionReceipt(txHash, receipt)
             })
             .catch((error: any) => {
-              console.error(`failed to check transaction hash: ${hash}`, error)
+              console.error(`failed to check transaction hash: ${txHash}`, error)
             })
         }
       })

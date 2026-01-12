@@ -122,9 +122,7 @@ export default function FarmingPoolBanner() {
                       <PoolPairText>
                         {pool.tokens[0].symbol}/{pool.tokens[1].symbol}
                       </PoolPairText>
-                      <FarmingAprBadge>
-                        {formatAprNumber((pool.apr || 0) + (pool.kemEGApr || 0) + (pool.kemLMApr || 0))}%
-                      </FarmingAprBadge>
+                      <FarmingAprBadge>{formatAprNumber(pool.allApr)}%</FarmingAprBadge>
                     </FarmingPool>
                   ))}
                 </FarmingPoolWrapper>

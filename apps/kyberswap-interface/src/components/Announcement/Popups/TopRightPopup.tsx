@@ -5,6 +5,9 @@ import { X } from 'react-feather'
 import { Flex } from 'rebass'
 import styled, { DefaultTheme, keyframes } from 'styled-components'
 
+import getPopupTopRightDescriptionByType from 'components/Announcement/Popups/PopupTopRightDescriptions'
+import SimplePopup from 'components/Announcement/Popups/SimplePopup'
+import TransactionPopup from 'components/Announcement/Popups/TransactionPopup'
 import {
   NotificationType,
   PopupContentAnnouncement,
@@ -16,10 +19,6 @@ import {
 import { useSuccessSound } from 'hooks/useSuccessSound'
 import useTheme from 'hooks/useTheme'
 import { useRemovePopup } from 'state/application/hooks'
-
-import getPopupTopRightDescriptionByType from './PopupTopRightDescriptions'
-import SimplePopup from './SimplePopup'
-import TransactionPopup from './TransactionPopup'
 
 const StyledClose = styled(X)`
   margin-left: 10px;

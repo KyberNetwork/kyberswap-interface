@@ -22,7 +22,17 @@ export default function useActionButton({
   setWidgetError: (_value: string | undefined) => void;
   setZapSnapshotState: (_value: ZapSnapshotState | null) => void;
 }) {
-  const { chainId, rpcUrl, connectedAccount, onConnectWallet, onSwitchChain, onSubmitTx, source } = useWidgetStore([
+  const {
+    chainId,
+    rpcUrl,
+    connectedAccount,
+    onConnectWallet,
+    onSwitchChain,
+    onSubmitTx,
+    source,
+    txStatus,
+    txHashMapping,
+  } = useWidgetStore([
     'chainId',
     'rpcUrl',
     'poolType',
@@ -31,8 +41,10 @@ export default function useActionButton({
     'onSwitchChain',
     'onSubmitTx',
     'source',
+    'txStatus',
+    'txHashMapping',
   ]);
-  const { pool } = usePoolStore(['pool']);
+  const { pool, includeInvalidTokens } = usePoolStore(['pool', 'includeInvalidTokens']);
   const {
     zapInfo,
     errors,
@@ -70,7 +82,9 @@ export default function useActionButton({
     owner: connectedAccount?.address || '',
     rpcUrl,
     spender: zapInfo?.routerAddress || '',
-    onSubmitTx: onSubmitTx,
+    onSubmitTx,
+    txStatus,
+    txHashMapping,
   });
 
   const notApprove = useMemo(
@@ -89,6 +103,7 @@ export default function useActionButton({
     loading ||
     zapLoading ||
     gasLoading ||
+    includeInvalidTokens ||
     (errors.length > 0 && !isWrongNetwork && !isNotConnected) ||
     Object.values(approvalStates).some(item => item === APPROVAL_STATE.PENDING);
 
@@ -104,6 +119,7 @@ export default function useActionButton({
     { condition: addressToApprove, text: t`Approving` },
     { condition: zapLoading, text: t`Fetching Route` },
     { condition: gasLoading, text: t`Estimating Gas` },
+    { condition: includeInvalidTokens, text: t`Token not supported` },
     { condition: errors.length > 0, text: translateErrorMessage(errors[0]) },
     { condition: loading, text: t`Checking Allowance` },
     { condition: notApprove, text: t`Approve ${notApprove?.symbol ?? ''}` },
