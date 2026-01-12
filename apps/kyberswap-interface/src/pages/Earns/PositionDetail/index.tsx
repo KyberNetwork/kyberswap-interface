@@ -78,6 +78,7 @@ const PositionDetail = () => {
       positionIds: positionId?.toLowerCase(),
       chainIds: chainId || '',
       protocols: exchange || '',
+      useOnFly: true,
     },
     { skip: !account, pollingInterval: forceLoading || reduceFetchInterval ? 5_000 : 15_000 },
   )

@@ -70,6 +70,7 @@ export interface PositionQueryParams {
   orderBy?: string
   page?: number
   pageSize?: number
+  useOnFly?: boolean
 }
 
 interface PositionHistoryParams {
