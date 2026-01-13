@@ -1,5 +1,6 @@
 import { formatAprNumber, toString } from '@kyber/utils/dist/number'
 import { MAX_TICK, MIN_TICK, priceToClosestTick } from '@kyber/utils/dist/uniswapv3'
+import { WETH } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useCallback, useMemo, useState } from 'react'
 import { ArrowRight, ArrowRightCircle } from 'react-feather'
@@ -13,7 +14,7 @@ import { InfoHelperWithDelay } from 'components/InfoHelper'
 import { Loader2 } from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
-import { APP_PATHS, PAIR_CATEGORY } from 'constants/index'
+import { APP_PATHS, ETHER_ADDRESS, PAIR_CATEGORY } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { PositionAction as PositionActionBtn } from 'pages/Earns/PositionDetail/styles'
@@ -198,10 +199,26 @@ export default function TableContent({
     const targetToken0Decimals = targetPool.token0.decimals
     const targetToken1Decimals = targetPool.token1.decimals
 
-    // Check if tokens are in the same order by comparing addresses
+    const isSameTokenAddress = (address1: string, address2: string, chainId: number): boolean => {
+      const addr1Lower = address1.toLowerCase()
+      const addr2Lower = address2.toLowerCase()
+
+      if (addr1Lower === addr2Lower) return true
+
+      const chainIdKey = chainId as keyof typeof WETH
+      const nativeAddress = ETHER_ADDRESS.toLowerCase()
+      const wrappedNativeAddress = WETH[chainIdKey].address.toLowerCase()
+      return (
+        (addr1Lower === nativeAddress && addr2Lower === wrappedNativeAddress) ||
+        (addr1Lower === wrappedNativeAddress && addr2Lower === nativeAddress)
+      )
+    }
+
+    // Check if tokens are in the same order by comparing addresses (considering WETH/ETH equivalence)
+    const chainId = sourcePosition.chain.id
     const isTokenOrderSame =
-      sourcePosition.token0.address.toLowerCase() === targetPool.token0.address.toLowerCase() &&
-      sourcePosition.token1.address.toLowerCase() === targetPool.token1.address.toLowerCase()
+      isSameTokenAddress(sourcePosition.token0.address, targetPool.token0.address, chainId) &&
+      isSameTokenAddress(sourcePosition.token1.address, targetPool.token1.address, chainId)
 
     const isMinPrice = sourcePosition.priceRange.isMinPrice
     const isMaxPrice = sourcePosition.priceRange.isMaxPrice

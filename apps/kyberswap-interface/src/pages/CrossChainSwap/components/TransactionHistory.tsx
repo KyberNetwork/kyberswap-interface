@@ -94,13 +94,16 @@ export const TransactionHistory = () => {
 
             try {
               const result = await adapter.getTransactionStatus(tx)
-              const { txHash, status } = result || {
+              const { txHash, status, amountOut } = result || {
                 txHash: '',
                 status: 'Processing',
+                amountOut: undefined,
               }
 
               // Only update if we have meaningful changes
-              if ((txHash && txHash !== tx.targetTxHash) || status !== tx.status) {
+              // Check if actual amountOut is available and different from estimated
+              const hasActualAmountOut = amountOut && amountOut !== '0' && amountOut !== tx.outputAmount
+              if ((txHash && txHash !== tx.targetTxHash) || status !== tx.status || hasActualAmountOut) {
                 const txIndex = updatedTransactions.findIndex(t => t.id === tx.id)
 
                 if (txIndex !== -1) {
@@ -109,6 +112,13 @@ export const TransactionHistory = () => {
                     ...updatedTransactions[txIndex],
                     targetTxHash: txHash || updatedTransactions[txIndex].targetTxHash,
                     status: status || updatedTransactions[txIndex].status,
+                    // Update outputAmount with actual amount if available
+                    // Store original outputAmount as estimatedAmountOut for debugging (in local storage)
+                    ...(hasActualAmountOut && {
+                      outputAmount: amountOut,
+                      estimatedAmountOut:
+                        updatedTransactions[txIndex].estimatedAmountOut || updatedTransactions[txIndex].outputAmount,
+                    }),
                   }
 
                   // Fire specific GA events for success/failure
