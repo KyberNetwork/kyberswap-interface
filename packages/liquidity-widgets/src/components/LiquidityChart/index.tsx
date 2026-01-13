@@ -123,35 +123,33 @@ export default function LiquidityChart() {
   );
 
   return (
-    <div className="mt-4">
-      <LiquidityChartRangeInput
-        id="zap-widget-liquidity-chart"
-        pool={{
-          fee,
-          tickCurrent,
-          tickSpacing,
-          ticks,
-          liquidity,
-          token0,
-          token1,
-          category,
-        }}
-        price={{
-          current: poolPrice ?? undefined,
-          lower: minPrice,
-          upper: maxPrice,
-        }}
-        ticksAtLimit={ticksAtLimit}
-        revertPrice={revertPrice}
-        onBrushDomainChange={onBrushDomainChange}
-        zoomPosition={{
-          top: '0px',
-          left: undefined,
-          right: '0px',
-          bottom: undefined,
-          gap: '8px',
-        }}
-      />
-    </div>
+    <LiquidityChartRangeInput
+      id="zap-widget-liquidity-chart"
+      pool={{
+        fee,
+        tickCurrent,
+        tickSpacing,
+        ticks,
+        liquidity,
+        token0,
+        token1,
+        category,
+      }}
+      price={{
+        current: poolPrice ?? undefined,
+        lower: minPrice,
+        upper: maxPrice,
+      }}
+      ticksAtLimit={ticksAtLimit}
+      revertPrice={revertPrice}
+      onBrushDomainChange={onBrushDomainChange}
+      zoomPosition={{
+        top: '0px',
+        left: undefined,
+        right: '0px',
+        bottom: undefined,
+        gap: '8px',
+      }}
+    />
   );
 }

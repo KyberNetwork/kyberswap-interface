@@ -100,7 +100,9 @@ export default function LiquidityToAdd({
           }}
         >
           <WalletIcon />
-          {token?.decimals ? formatUnits(balanceInWei, token.decimals, 8) : ''}
+          {token?.decimals
+            ? formatDisplayNumber(formatUnits(balanceInWei, token.decimals, 18), { significantDigits: 8 })
+            : ''}
         </div>
       </div>
 

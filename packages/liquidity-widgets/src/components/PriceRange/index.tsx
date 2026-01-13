@@ -138,7 +138,7 @@ const PriceRange = () => {
   if (!isUniv3) return null;
 
   return (
-    <div className="flex mt-6 gap-[6px] my-[10px] border border-stroke rounded-md">
+    <div className="flex mt-2 gap-[6px] border border-stroke rounded-md">
       {initializing ? (
         <>
           <Button variant="outline" className="flex-1 !border-none !text-icon">
