@@ -19,6 +19,28 @@ export const countDecimals = (value: string | number) => {
   return value.toString().split('.')[1].length || 0;
 };
 
+/**
+ * Formats a number to a string with maximum decimals, removing trailing zeros.
+ * Uses Math.floor() to truncate (not round) to ensure it never exceeds the original value.
+ * Handles scientific notation (e.g., 1e-18) and converts to human-readable decimal format.
+ */
+export const formatAmountWithDecimals = (amount: string | number, decimals: number): string => {
+  const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+  if (isNaN(numAmount) || numAmount <= 0) return '0';
+
+  // Use Math.floor to truncate (not round) to ensure we never exceed the balance
+  const factor = Math.pow(10, decimals);
+  const truncated = Math.floor(numAmount * factor) / factor;
+
+  // toFixed() with sufficient decimals will always return decimal format (not scientific notation)
+  // For example: (1e-18).toFixed(18) returns "0.000000000000000001"
+  const formatted = truncated.toFixed(decimals);
+
+  // Remove trailing zeros and the decimal point if not needed
+  // This handles cases like "1.000000" -> "1" and "0.500000" -> "0.5"
+  return formatted.replace(/\.?0+$/, '') || '0';
+};
+
 export const checkDeviated = (price: number | null, newPrice: number | undefined | null) =>
   !!price && !!newPrice && Math.abs(price / newPrice - 1) > 0.02;
 
