@@ -85,7 +85,7 @@ export default function useInitialTokensIn({
         }
         if (!tokensToSet.length) {
           tokensToSet.push(nativeToken);
-          const amount = +nativeTokenBalance >= 1 ? 1 : +nativeTokenBalance > 0 ? +nativeTokenBalance : 1;
+          const amount = +nativeTokenBalance >= 1 ? 1 : +nativeTokenBalance > 0 ? +nativeTokenBalance * 0.95 : 1;
           amountsToSet.push(formatAmountWithDecimals(amount, nativeToken.decimals));
         }
 
