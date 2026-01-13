@@ -34,7 +34,7 @@ import {
 } from 'pages/Earns/PositionDetail/styles'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import { SmartExit } from 'pages/Earns/components/SmartExit'
-import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
+import { EARN_CHAINS, EARN_DEXES, EarnChain, Exchange } from 'pages/Earns/constants'
 import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import { CheckClosedPositionParams } from 'pages/Earns/hooks/useClosedPositions'
 import useZapInWidget from 'pages/Earns/hooks/useZapInWidget'
@@ -157,6 +157,11 @@ const RightSection = ({
   const increaseDisabled = initialLoading || (isUniV4 && isClosed)
   const removeDisabled = initialLoading || isNotAccountOwner || isClosed || !position
   const subActionDisabled = isClosed || (!isOutRange ? repositionDisabled : increaseDisabled)
+
+  const isSmartExitSupported =
+    position &&
+    !!EARN_DEXES[position.dex.id].smartExitDexType &&
+    !!EARN_CHAINS[position.chain.id as unknown as EarnChain].smartExitSupported
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -352,26 +357,32 @@ const RightSection = ({
               }}
               isOpen={isDropdownOpen}
             >
-              {hasActiveSmartExitOrder ? t`View Smart Exit Orders` : t`Smart Exit`}
+              {isSmartExitSupported
+                ? hasActiveSmartExitOrder
+                  ? t`View Smart Exit Orders`
+                  : t`Smart Exit`
+                : t`Remove Liquidity`}
               <ChevronDown
                 size={16}
                 style={{ transform: isDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}
               />
             </DropdownButton>
             <DropdownMenu isOpen={isDropdownOpen}>
-              <DropdownMenuItem
-                onClick={() => {
-                  if (removeDisabled) return
-                  if (hasActiveSmartExitOrder) {
-                    navigate(APP_PATHS.EARN_SMART_EXIT)
-                    return
-                  }
-                  setIsDropdownOpen(false)
-                  setOpenSmartExit(true)
-                }}
-              >
-                {hasActiveSmartExitOrder ? t`View Smart Exit Orders` : t`Smart Exit`}
-              </DropdownMenuItem>
+              {isSmartExitSupported && (
+                <DropdownMenuItem
+                  onClick={() => {
+                    if (removeDisabled) return
+                    if (hasActiveSmartExitOrder) {
+                      navigate(APP_PATHS.EARN_SMART_EXIT)
+                      return
+                    }
+                    setIsDropdownOpen(false)
+                    setOpenSmartExit(true)
+                  }}
+                >
+                  {hasActiveSmartExitOrder ? t`View Smart Exit Orders` : t`Smart Exit`}
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem
                 disabled={removeDisabled}
                 onClick={() => {
