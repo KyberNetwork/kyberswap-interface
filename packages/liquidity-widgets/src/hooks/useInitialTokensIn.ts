@@ -75,12 +75,14 @@ export default function useInitialTokensIn({
         );
         if (parseFloat(token0Balance) > 0) {
           tokensToSet.push(pool.token0);
-          const amount = +token0Balance >= 1 ? 1 : +token0Balance;
+          const amount =
+            +token0Balance >= 1 ? 1 : token0Address === nativeToken.address ? +token0Balance * 0.95 : +token0Balance;
           amountsToSet.push(formatAmountWithDecimals(amount, pool.token0.decimals));
         }
         if (parseFloat(token1Balance) > 0) {
           tokensToSet.push(pool.token1);
-          const amount = +token1Balance >= 1 ? 1 : +token1Balance;
+          const amount =
+            +token1Balance >= 1 ? 1 : token1Address === nativeToken.address ? +token1Balance * 0.95 : +token1Balance;
           amountsToSet.push(formatAmountWithDecimals(amount, pool.token1.decimals));
         }
         if (!tokensToSet.length) {
