@@ -20,19 +20,19 @@ const Wrapper = styled.div<{ height: string; width: string; background?: string 
   background: ${({ background }) => background || 'rgba(182, 182, 182, 0.2)'};
   position: relative;
 `
-const Bar = styled.div<{ percent: number; color?: string; loading?: boolean }>`
+const Bar = styled.div<{ percent: number; color?: string; $loading?: boolean }>`
   border-radius: 999px;
   height: 100%;
-  background: ${({ theme, color, loading }) => (loading ? theme.tableHeader : color || theme.primary)};
-  width: ${({ percent, loading }) => (loading ? '100%' : percent + '%')};
-  ${({ percent, loading }) => !loading && percent !== 0 && 'min-width: 8px;'};
+  background: ${({ theme, color, $loading }) => ($loading ? theme.tableHeader : color || theme.primary)};
+  width: ${({ percent, $loading }) => ($loading ? '100%' : percent + '%')};
+  ${({ percent, $loading }) => !$loading && percent !== 0 && 'min-width: 8px;'};
   position: absolute;
   left: 0;
   top: 0;
   overflow: hidden;
 
-  ${({ loading, theme }) =>
-    loading
+  ${({ $loading, theme }) =>
+    $loading
       ? css`
           ::after {
             content: '';
@@ -80,7 +80,7 @@ export default function ProgressBar({
         </Flex>
       ) : null}
       <Wrapper height={height} width={width ?? 'unset'} background={backgroundColor}>
-        <Bar loading={loading} percent={loading ? 0 : normalizedPercent < 0.5 ? 0 : normalizedPercent} color={color} />
+        <Bar $loading={loading} percent={loading ? 0 : normalizedPercent < 0.5 ? 0 : normalizedPercent} color={color} />
       </Wrapper>
     </Flex>
   )
