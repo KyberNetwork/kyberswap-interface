@@ -95,13 +95,17 @@ const TokenModal = ({
     tokensIn,
   ]);
 
+  const isSelectorView = !tokenToShow && !tokenToImport;
+
   return (
     <Dialog onOpenChange={onClose} open={true}>
       <DialogContent
         containerClassName="ks-ui-style"
-        className={`bg-layer2 p-0 !max-h-[80vh] ${
-          tokenToShow || tokenToImport ? '' : 'pb-6'
-        } ${tokenToImport ? 'max-w-[420px]' : 'max-w-[435px]'} overflow-y-auto`}
+        className={
+          `bg-layer2 p-0 !max-h-[min(80vh,640px)] ` +
+          `${isSelectorView ? 'h-[80vh] pb-6 overflow-hidden ' : 'overflow-y-auto '}` +
+          `${tokenToImport ? 'max-w-[420px]' : 'max-w-[435px]'}`
+        }
         skipClose
         aria-describedby={undefined}
       >

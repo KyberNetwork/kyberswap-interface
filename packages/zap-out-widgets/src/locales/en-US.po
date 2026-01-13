@@ -21,6 +21,10 @@ msgstr "Please type the word <0>Confirm</0> below to enable Degen Mode"
 msgid "Zap Impact"
 msgstr "Zap Impact"
 
+#: src/components/Action/useActionButton.ts
+msgid "Approve NFT"
+msgstr "Approve NFT"
+
 #: src/components/Header.tsx
 msgid "● In range"
 msgstr "● In range"
@@ -66,9 +70,17 @@ msgstr "Remove Liquidity"
 msgid "Est. Received Value"
 msgstr "Est. Received Value"
 
+#: src/components/Action/index.tsx
+msgid "Signing..."
+msgstr "Signing..."
+
 #: src/components/Setting/index.tsx
 msgid "Are you sure?"
 msgstr "Are you sure?"
+
+#: src/components/Action/useActionButton.ts
+msgid "Switch Network"
+msgstr "Switch Network"
 
 #: src/components/Setting/index.tsx
 msgid "Confirm"
@@ -86,6 +98,10 @@ msgstr "Custom"
 #: src/components/Preview.tsx
 msgid "Fee {0}%"
 msgstr "Fee {0}%"
+
+#: src/components/Action/useActionButton.ts
+msgid "Fetching Route..."
+msgstr "Fetching Route..."
 
 #: src/components/Setting/index.tsx
 #: src/components/Setting/index.tsx
@@ -140,9 +156,18 @@ msgstr "Zap Out"
 msgid "Collecting Fees"
 msgstr "Collecting Fees"
 
+#: src/components/Action/index.tsx
+msgid "Authorize this position for ZapRouter by signing off-chain. No gas fee."
+msgstr "Authorize this position for ZapRouter by signing off-chain. No gas fee."
+
 #: src/components/ZapSummary.tsx
 msgid "Receive {0} {1}"
 msgstr "Receive {0} {1}"
+
+#: src/components/Action/index.tsx
+#: src/components/Action/index.tsx
+msgid "Approve this position"
+msgstr "Approve this position"
 
 #: src/components/WidgetError.tsx
 msgid "Failed to load pool"
@@ -191,7 +216,7 @@ msgstr "Fees to Claim"
 msgid "EG Sharing Reward: {0}%"
 msgstr "EG Sharing Reward: {0}%"
 
-#: src/components/Action.tsx
+#: src/components/Action/useActionButton.ts
 msgid "Remove anyway"
 msgstr "Remove anyway"
 
@@ -202,6 +227,10 @@ msgstr "Failed to build zap route"
 #: src/components/HoneypotWarning.tsx
 msgid "{0} is a Fee-On-Transfer token with a {1}% transaction fee applied on every transfer, please beware before triggering trades with this token."
 msgstr "{0} is a Fee-On-Transfer token with a {1}% transaction fee applied on every transfer, please beware before triggering trades with this token."
+
+#: src/components/Action/index.tsx
+msgid "Permit NFT"
+msgstr "Permit NFT"
 
 #: src/components/ZapSummary.tsx
 msgid "<0>Swap {0} {1} for {2} </0>{3}"
@@ -217,7 +246,7 @@ msgstr "Enter a valid slippage percentage"
 msgid "LM Reward: {0}%"
 msgstr "LM Reward: {0}%"
 
-#: src/components/Action.tsx
+#: src/components/Action/useActionButton.ts
 msgid "Your position is in farming"
 msgstr "Your position is in farming"
 
@@ -226,7 +255,7 @@ msgstr "Your position is in farming"
 msgid "Native token"
 msgstr "Native token"
 
-#: src/components/Action.tsx
+#: src/components/Action/useActionButton.ts
 msgid "Connect wallet"
 msgstr "Connect wallet"
 
@@ -238,15 +267,15 @@ msgstr "Receiving Amount"
 msgid "Our security checks detected that {honeypotTokensNames} may be a honeypot token (cannot be sold or carries extremely high sell fee). Please research carefully before adding liquidity or trading."
 msgstr "Our security checks detected that {honeypotTokensNames} may be a honeypot token (cannot be sold or carries extremely high sell fee). Please research carefully before adding liquidity or trading."
 
+#: src/components/Action/useActionButton.ts
+msgid "Approving..."
+msgstr "Approving..."
+
 #: src/components/Setting/SlippageInput.tsx
 msgid "Suggestion"
 msgstr "Suggestion"
 
-#: src/components/Action.tsx
-msgid "Fetching Route"
-msgstr "Fetching Route"
-
-#: src/components/Action.tsx
+#: src/components/Action/useActionButton.ts
 msgid "Approve"
 msgstr "Approve"
 
@@ -254,15 +283,11 @@ msgstr "Approve"
 msgid "Remove Liquidity Success!"
 msgstr "Remove Liquidity Success!"
 
-#: src/components/Action.tsx
-msgid "Switch network"
-msgstr "Switch network"
-
-#: src/components/Action.tsx
+#: src/components/Action/useActionButton.ts
 msgid "Estimate Gas Failed"
 msgstr "Estimate Gas Failed"
 
-#: src/components/Action.tsx
+#: src/components/Action/index.tsx
 msgid "Cancel"
 msgstr "Cancel"
 
@@ -273,6 +298,11 @@ msgstr "24h Fees"
 #: src/components/Preview.tsx
 msgid "Set Custom Slippage"
 msgstr "Set Custom Slippage"
+
+#: src/components/Action/index.tsx
+#: src/components/Action/index.tsx
+msgid "Approve for all"
+msgstr "Approve for all"
 
 #: src/components/Header.tsx
 msgid "Pool Address:"
@@ -286,13 +316,13 @@ msgstr "Liquidity To Remove"
 msgid "Your Position Liquidity"
 msgstr "Your Position Liquidity"
 
-#: src/components/Action.tsx
+#: src/components/Action/useActionButton.ts
 msgid "Not the position owner"
 msgstr "Not the position owner"
 
-#: src/components/Action.tsx
-msgid "Approving"
-msgstr "Approving"
+#: src/components/Action/useActionButton.ts
+msgid "Estimating Gas..."
+msgstr "Estimating Gas..."
 
 #: src/components/PositionPriceRange.tsx
 msgid "Min Price"
@@ -305,10 +335,6 @@ msgstr "Current Price"
 #: src/components/Header.tsx
 msgid "Degen Mode is turned on!"
 msgstr "Degen Mode is turned on!"
-
-#: src/components/Action.tsx
-msgid "Checking Approval"
-msgstr "Checking Approval"
 
 #: src/components/ZapSummary.tsx
 msgid "The actual Zap Routes could be adjusted with on-chain states"
@@ -336,11 +362,19 @@ msgstr "Advanced Setting"
 msgid "Confirm this transaction in your wallet"
 msgstr "Confirm this transaction in your wallet"
 
+#: src/components/Action/useActionButton.ts
+msgid "Checking Approval..."
+msgstr "Checking Approval..."
+
 #: src/components/Preview.tsx
 msgid "You have successfully removed your liquidity"
 msgstr "You have successfully removed your liquidity"
 
-#: src/components/Action.tsx
+#: src/components/Preview.tsx
+msgid "Explore Pools"
+msgstr "Explore Pools"
+
+#: src/components/Action/useActionButton.ts
 msgid "No route found"
 msgstr "No route found"
 
@@ -353,13 +387,9 @@ msgstr "The information is intended solely for your reference at the time you ar
 msgid "{baseTokenSymbol} per {quoteTokenSymbol}"
 msgstr "{baseTokenSymbol} per {quoteTokenSymbol}"
 
-#: src/components/Action.tsx
+#: src/components/Action/useActionButton.ts
 msgid "Preview"
 msgstr "Preview"
-
-#: src/components/Action.tsx
-msgid "Estimating Gas"
-msgstr "Estimating Gas"
 
 #: src/components/Estimated/index.tsx
 #: src/components/Preview.tsx
@@ -406,6 +436,10 @@ msgstr "Manually"
 #: src/components/Preview.tsx
 msgid "Zap-out Amount"
 msgstr "Zap-out Amount"
+
+#: src/components/Action/index.tsx
+msgid "Authorize ZapRouter through an on-chain approval. Choose whether to approve once or all positions."
+msgstr "Authorize ZapRouter through an on-chain approval. Choose whether to approve once or all positions."
 
 #: src/components/Setting/SlippageInput.tsx
 msgid "Enter a smaller slippage percentage"
