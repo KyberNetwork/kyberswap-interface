@@ -530,6 +530,9 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
   async getTransactionStatus(p: NormalizedTxResponse): Promise<SwapStatus> {
     const res = await OneClickService.getExecutionStatus(p.id)
 
+    // Extract actual output amount from swapDetails if available
+    const actualAmountOut = res.swapDetails?.amountOut
+
     return {
       txHash: res.swapDetails?.destinationChainTxHashes[0]?.hash || '',
       status:
@@ -540,6 +543,7 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
           : res.status === 'REFUNDED'
           ? 'Refunded'
           : 'Processing',
+      amountOut: actualAmountOut ? String(actualAmountOut) : undefined,
     }
   }
 }

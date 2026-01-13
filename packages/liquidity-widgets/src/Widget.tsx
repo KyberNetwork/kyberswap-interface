@@ -55,24 +55,26 @@ export default function Widget() {
         <div className="mt-5 flex gap-5 max-sm:flex-col">
           <div className="w-[55%] max-sm:w-full">
             <PoolStat />
-            <PriceInfo />
-            {!positionId && isUniV3 && (initializing ? <LiquidityChartSkeleton /> : <LiquidityChart />)}
-            {positionId ? <PositionPriceRange /> : <PriceRange />}
-            {!positionId ? (
-              isUniV3 && (
-                <div className="flex gap-4 w-full">
-                  <PriceInput type={PriceType.MinPrice} />
-                  <PriceInput type={PriceType.MaxPrice} />
-                </div>
-              )
-            ) : (
-              <>
-                <PositionLiquidity />
-                {isUniv4 && <PositionFee />}
-              </>
-            )}
-            {!isUniV3 && <TokenInput className="mt-4" />}
-            <PositionApr />
+            <div className="flex flex-col gap-4 border border-stroke rounded-md px-4 py-3">
+              <PriceInfo />
+              {!positionId && isUniV3 && (initializing ? <LiquidityChartSkeleton /> : <LiquidityChart />)}
+              {positionId ? <PositionPriceRange /> : <PriceRange />}
+              {!positionId ? (
+                isUniV3 && (
+                  <div className="flex gap-4 w-full">
+                    <PriceInput type={PriceType.MinPrice} />
+                    <PriceInput type={PriceType.MaxPrice} />
+                  </div>
+                )
+              ) : (
+                <>
+                  <PositionLiquidity />
+                  {isUniv4 && <PositionFee />}
+                </>
+              )}
+              {!isUniV3 && <TokenInput className="mt-4" />}
+              <PositionApr />
+            </div>
             <LeftWarning />
           </div>
 

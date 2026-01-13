@@ -390,8 +390,8 @@ export const totalRewardTooltip = ({
       {t`EG Sharing Reward:`}
       {!egTokens.length ? ' 0' : ''}
     </Text>
-    {egTokens.map(token => (
-      <Flex alignItems={'center'} sx={{ gap: 1 }} flexWrap={'wrap'} key={token.address}>
+    {egTokens.map((token, index) => (
+      <Flex alignItems={'center'} sx={{ gap: 1 }} flexWrap={'wrap'} key={`${token.address}-${index}`}>
         <TokenLogo src={token.logo} size={16} />
         <Text color={textColor}>{formatDisplayNumber(token.totalAmount, { significantDigits: 4 })}</Text>
         <Text color={textColor}>{token.symbol}</Text>

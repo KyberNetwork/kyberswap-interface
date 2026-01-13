@@ -95,6 +95,10 @@ msgid "Custom"
 msgstr "自定义"
 
 #: src/Widget.tsx
+msgid "Transaction cancelled"
+msgstr "交易已取消"
+
+#: src/Widget.tsx
 msgid "An error occurred during the liquidity migration."
 msgstr "流动性迁移过程中发生错误。"
 
@@ -122,10 +126,6 @@ msgstr "您已成功添加流动性！"
 #: src/components/Content/EstLiqValue.tsx
 msgid "Based on your price range settings, a portion of your liquidity will be automatically zapped into the pool, while the remaining amount will stay in your wallet."
 msgstr "根据您的价格区间设置，部分流动性会自动 Zap 到池中，剩余金额将保留在您的钱包中。"
-
-#: src/components/Content/ZapSummary.tsx
-msgid "and"
-msgstr "和"
 
 #: src/hooks/useZapState.tsx
 msgid "useZapState must be used within a ZapContextProvider"

@@ -5,7 +5,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 3.0\n"
-"Language: zh_CN\n"
+"Language: zh-CN\n"
 "Project-Id-Version: \n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
@@ -177,8 +177,6 @@ msgstr "成交量"
 #: src/components/Tutorial/TutorialSwap/index.tsx
 msgid "Select from over thousands of tokens and start trading. KyberSwap finds you superior prices across multiple exchanges & combines them into one trade!"
 msgstr "从数千种代币中选择并开始交易。KyberSwap 会在多个交易所中为您寻找更优价格，并将其组合成一笔交易！"
-
-#: src/pages/Earns/UserPositions/TableContent.tsx
 
 #: src/components/Menu/index.tsx
 msgid "Roadmap"
@@ -869,8 +867,6 @@ msgstr "历史最低价"
 msgid "Search by token name or pool address"
 msgstr "按代币名称或池地址搜索"
 
-#: src/pages/Campaign/index.tsx
-
 #: src/components/WalletPopup/type.ts
 #: src/components/WalletPopup/WalletView.tsx
 msgid "Transactions"
@@ -901,8 +897,6 @@ msgstr "跨链"
 msgid "All data used in this process (transaction hashes and Bitcoin block hash) are publicly verifiable on-chain."
 msgstr "本流程使用的所有数据（交易哈希和比特币区块哈希）均可在链上公开验证。"
 
-#: src/pages/Earns/UserPositions/index.tsx
-
 #: src/pages/Campaign/components/Information/campaignInfos/mayTrading.tsx
 msgid "For $1 in trading volume, you earn 1 point"
 msgstr "每 1 美元的交易量可获得 1 积分"
@@ -930,7 +924,6 @@ msgstr "奖励分配机制"
 
 #: src/components/swapv2/TokenInfo/utils.ts
 #: src/pages/MarketOverview/DetailModal.tsx
-#: src/pages/MarketOverview/index.tsx
 #: src/pages/MarketOverview/TableContent.tsx
 msgid "Market Cap"
 msgstr "市值"
@@ -1094,6 +1087,8 @@ msgid "Voting power"
 msgstr "投票权"
 
 #: src/pages/MarketOverview/index.tsx
+msgid "Market cap"
+msgstr "市值"
 
 #: src/components/SwapForm/SwapModal/SwapModalAreYouSure.tsx
 #: src/components/TransactionSettings/AdvanceModeModal.tsx
@@ -1980,8 +1975,6 @@ msgstr "改为强制取消"
 #: src/pages/Earns/UserPositions/index.tsx
 msgid "Remove liquidity from this position by zapping out to any token(s)."
 msgstr "通过 Zap 到任意代币，从该仓位移出流动性。"
-
-#: src/pages/Earns/UserPositions/index.tsx
 
 #: src/pages/Campaign/components/Information/campaignInfos/mayTrading.tsx
 msgid "You may freely trade any pair composed of <0>eligible tokens</0>, excluding WETH-ETH, WETH-USDC, and ETH-USDC."
@@ -2880,6 +2873,7 @@ msgid "Do I have to pay any fee to claim the rewards?"
 msgstr "领取奖励需要支付费用吗？"
 
 #: src/pages/MarketOverview/index.tsx
+#: src/pages/MarketOverview/index.tsx
 msgid "Market cap & 24h volume data sourced from Coingecko"
 msgstr "市值与 24 小时成交量数据来自 Coingecko"
 
@@ -2902,10 +2896,6 @@ msgstr "正在移除 {0} {1} 和 {2} {3}{4}{5}"
 #: src/components/Tutorial/TutorialSwap/constant.ts
 msgid "Select tokens to swap and start trading"
 msgstr "选择要兑换的代币并开始交易"
-
-#: src/pages/MarketOverview/Filter.tsx
-msgid "Game"
-msgstr "游戏"
 
 #: src/pages/NotificationCenter/Profile/ImportAccountModal/UserEnterPasscodeContent.tsx
 msgid "Your import token"
@@ -3099,7 +3089,7 @@ msgstr "余额不足"
 #: src/components/WalletPopup/Transactions/index.tsx
 #: src/pages/Earns/PositionDetail/LeftSection.tsx
 #: src/pages/KyberDAO/Vote/SelectProposalStatus.tsx
-#: src/pages/MarketOverview/Filter.tsx
+#: src/pages/MarketOverview/index.tsx
 msgid "All"
 msgstr "全部"
 
@@ -3283,10 +3273,6 @@ msgstr "第一阶段"
 #: src/components/Header/web3/NetworkModal/index.tsx
 msgid "Please connect to the appropriate chain."
 msgstr "请连接到相应的链。"
-
-#: src/pages/MarketOverview/Filter.tsx
-msgid "Defi"
-msgstr "DeFi"
 
 #: src/pages/AddLiquidityV2/constants.ts
 #: src/pages/AddLiquidityV2/constants.ts
@@ -4575,8 +4561,6 @@ msgstr "提醒条件"
 msgid "TOTAL CLAIMABLE REWARDS"
 msgstr "可领取奖励总计"
 
-#: src/pages/Campaign/index.tsx
-
 #: src/pages/ProAmmPool/PositionListItem.tsx
 msgid "You have zero liquidity to remove"
 msgstr "您没有可移除的流动性"
@@ -4866,7 +4850,6 @@ msgid "All Protocols"
 msgstr "所有协议"
 
 #: src/components/swapv2/TokenInfo/utils.ts
-#: src/pages/MarketOverview/index.tsx
 msgid "Price"
 msgstr "价格"
 
@@ -4914,8 +4897,6 @@ msgstr "EVM ↔ Bitcoin L1"
 #: src/pages/Campaign/components/Information/campaignInfos/raffle.tsx
 msgid "Because your swap might fall under excluded cases - such as wrapping or unwrapping native tokens (e.g., ETH ↔ WETH, BNB ↔ WBNB…), cross-chain swaps, or limit orders during the campaign period."
 msgstr "因为您的兑换可能属于排除情形，例如原生代币的包装或解包（如 ETH ↔ WETH、BNB ↔ WBNB…）、跨链兑换，或活动期间的限价单。"
-
-#: src/pages/Earns/UserPositions/index.tsx
 
 #: src/pages/ProAmmPool/index.tsx
 msgid "Farming Positions"
@@ -5183,8 +5164,6 @@ msgstr "正在登出"
 msgid "Reward Center"
 msgstr "奖励中心"
 
-#: src/components/Header/groups/EarnNavGroup.tsx
-
 #: src/components/swapv2/TokenInfo/SecurityInfo/index.tsx
 msgid "Trading Security"
 msgstr "交易安全"
@@ -5429,8 +5408,6 @@ msgstr "查看交易"
 msgid "Total Value"
 msgstr "总价值"
 
-#: src/pages/Campaign/index.tsx
-
 #: src/components/ClassicElasticTab.tsx
 msgid "Classic Pools"
 msgstr "经典池"
@@ -5529,10 +5506,6 @@ msgstr "访客资料"
 #: src/pages/KyberDAO/KNCUtility/FAQ.tsx
 msgid "No. You have to stake a minimum of 500 KNC in KyberDAO (on Ethereum) <0>here</0>, and meet the eligibility criteria by completing swap(s) on KyberSwap, with a minimum trading volume of ≥$200 per swap."
 msgstr "不可以。您需在 KyberDAO（以太坊）<0>此处</0>至少质押 500 枚 KNC，并在 KyberSwap 上完成兑换、每笔交易额至少 ≥200 美元，方符合资格。"
-
-#: src/pages/MarketOverview/index.tsx
-msgid "Buy Change"
-msgstr "买入变动"
 
 #: src/pages/Campaign/components/Information/campaignInfos/raffle.tsx
 msgid "Take the last 4 hex digits from each eligible transaction hash."
@@ -6021,8 +5994,6 @@ msgstr "通知"
 msgid "Unable to access wallet"
 msgstr "无法访问钱包"
 
-#: src/pages/Earns/PoolExplorer/index.tsx
-
 #: src/components/Tutorial/TutorialSwap/CustomPopup.tsx
 msgid "Back"
 msgstr "返回"
@@ -6113,10 +6084,6 @@ msgstr "当前市场价格为每 {token1Symbol} {currentPrice} {token0Symbol}"
 #: src/components/swapv2/LimitOrder/ListOrder/index.tsx
 msgid "Note: Your existing order will be automatically cancelled and a new order will be created."
 msgstr "注意：您现有订单将自动取消并生成新订单。"
-
-#: src/pages/MarketOverview/Filter.tsx
-msgid "RWA"
-msgstr "RWA"
 
 #: src/components/swapv2/LimitOrder/ListOrder/SummaryNotify.tsx
 msgid "Your order to pay {mainMsg} was successfully filled"
@@ -6269,10 +6236,6 @@ msgstr "全部池子"
 msgid "View"
 msgstr "查看"
 
-#: src/pages/MarketOverview/Filter.tsx
-msgid "AI"
-msgstr "AI"
-
 #: src/pages/MarketOverview/TableContent.tsx
 #: src/pages/MarketOverview/TableContent.tsx
 msgid "Remove failed"
@@ -6282,6 +6245,7 @@ msgstr "移除失败"
 msgid "Gas fees is very high. You will lose your funds."
 msgstr "Gas 费用非常高，您将损失资金。"
 
+#: src/pages/MarketOverview/index.tsx
 #: src/pages/MarketOverview/index.tsx
 #: src/pages/MarketOverview/index.tsx
 msgid "Market Overview"
@@ -6313,8 +6277,6 @@ msgstr "正在将 {inputValue} KNC 质押到 KyberDAO"
 msgid "Ex: USDC <> USDT; FRAX <> DAI; LUSD <> MIM"
 msgstr "示例：USDC <> USDT；FRAX <> DAI；LUSD <> MIM"
 
-#: src/components/Announcement/PrivateAnnoucement/InboxItemLO.tsx
-
 #: src/pages/NotificationCenter/Profile/ImportAccountModal/index.tsx
 msgid "Imported unsuccessfully"
 msgstr "导入失败"
@@ -6322,8 +6284,6 @@ msgstr "导入失败"
 #: src/hooks/useLogin.tsx
 msgid "Signed out all accounts successfully"
 msgstr "已成功登出所有账户"
-
-#: src/components/Footer/Footer.tsx
 
 #: src/components/Announcement/Popups/SimplePopup.tsx
 msgid "See here"
@@ -6555,10 +6515,6 @@ msgstr "适合价格波动较低的交易对。预计价格波动约为 30%，�
 msgid "Liquidity Sources"
 msgstr "流动性来源"
 
-#: src/pages/MarketOverview/Filter.tsx
-msgid "Meme"
-msgstr "Meme"
-
 #: src/pages/KyberDAO/StakeKNC/StakeKNCComponent.tsx
 msgid "In this default delegation method, your delegate is responsible for voting on your behalf and distributing your KNC rewards to you, though only you can withdraw/unstake your own KNC"
 msgstr "在默认委托方式下，受托人将代您投票并向您分发 KNC 奖励，但只有您本人可以提取/解除质押 KNC。"
@@ -6633,6 +6589,7 @@ msgid "You have chosen option C for KyberSwap Elastic Exploit Treasury Grant Pro
 msgstr "您已选择 KyberSwap Elastic 漏洞国库资助计划的选项 C"
 
 #: src/pages/MarketOverview/DetailModal.tsx
+#: src/pages/MarketOverview/index.tsx
 #: src/pages/MarketOverview/index.tsx
 msgid "On-chain Price"
 msgstr "链上价格"
@@ -6740,10 +6697,6 @@ msgstr "在您完成首周限价单活动（周一 0:00 UTC 至周日 23:59 UTC�
 msgid "Select a Chain"
 msgstr "选择链"
 
-#: src/pages/MarketOverview/index.tsx
-msgid "Sell Change"
-msgstr "卖出变动"
-
 #: src/pages/Campaign/components/Information/campaignInfos/nearIntents.tsx
 msgid "Go to <0>KyberSwap Cross-Chain</0> feature."
 msgstr "前往 <0>KyberSwap 跨链</0> 功能。"
@@ -6831,9 +6784,6 @@ msgstr "该资金池价格已超出您选择的区间，当前仓位无法获取
 #: src/pages/SwapV3/Header.tsx
 msgid "Swap between tokens on different chains"
 msgstr "在不同链之间兑换代币"
-
-#: src/components/Header/groups/SwapNavGroup.tsx
-#: src/pages/SwapV3/Tabs/LimitTab.tsx
 
 #: src/pages/Campaign/components/CampaignStats/index.tsx
 #: src/pages/Campaign/MyDashboard.tsx
@@ -7023,6 +6973,7 @@ msgid "Connected successfully with Guest Profile."
 msgstr "已成功连接到访客资料。"
 
 #: src/pages/MarketOverview/DetailModal.tsx
+#: src/pages/MarketOverview/index.tsx
 #: src/pages/MarketOverview/TableContent.tsx
 msgid "Sell Price"
 msgstr "卖出价"
@@ -7080,8 +7031,6 @@ msgstr "KNC"
 #: src/components/swapv2/SwapSettingsPanel/CrossChainSourceSetting.tsx
 msgid "{0} out of {1} selected"
 msgstr "已选择 {0}/{1}"
-
-#: src/components/Announcement/AnnoucementView.tsx
 
 #: src/pages/KyberDAO/Vote/index.tsx
 msgid "In Progress: Epoch {0}"
@@ -7183,6 +7132,7 @@ msgid "{0} out of {numberOfDEXes} selected"
 msgstr "已选择 {numberOfDEXes} 个中的 {0} 个"
 
 #: src/pages/MarketOverview/DetailModal.tsx
+#: src/pages/MarketOverview/index.tsx
 #: src/pages/MarketOverview/TableContent.tsx
 msgid "Buy Price"
 msgstr "买入价"
@@ -7210,8 +7160,6 @@ msgstr "总归属金额（USDC）"
 #: src/components/CurrencyInputPanel/TokenInfo.tsx
 #: src/components/WalletPopup/AccountInfo/ActionButtonGroup.tsx
 #: src/pages/MarketOverview/DetailModal.tsx
-#: src/pages/MarketOverview/index.tsx
-#: src/pages/MarketOverview/TableContent.tsx
 msgid "Buy"
 msgstr "购买"
 
@@ -7273,7 +7221,7 @@ msgstr "过去 24 小时"
 msgid "Claming {amount} KNC"
 msgstr "正在领取 {amount} KNC"
 
-#: src/pages/MarketOverview/Filter.tsx
+#: src/pages/MarketOverview/index.tsx
 msgid "Search by token name, symbol or address"
 msgstr "按代币名称、符号或地址搜索"
 
@@ -8041,8 +7989,6 @@ msgstr "等级 {0}"
 
 #: src/components/CurrencyInputPanel/TokenInfo.tsx
 #: src/pages/MarketOverview/DetailModal.tsx
-#: src/pages/MarketOverview/index.tsx
-#: src/pages/MarketOverview/TableContent.tsx
 msgid "Sell"
 msgstr "卖出"
 
