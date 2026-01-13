@@ -58,7 +58,7 @@ export interface UserPosition {
   positionId: string
   wallet: string
   liquidity: string
-  status: string
+  status: PositionStatus
   stats: PositionStats
   currentAmounts: TokenAmount[]
   providedAmounts: TokenAmount[]
@@ -127,7 +127,7 @@ export interface PositionPool {
   programs: string[]
   tickSpacing: number
   protocol: {
-    type: string
+    type: Exchange
     logo: string
     name: string
   }
