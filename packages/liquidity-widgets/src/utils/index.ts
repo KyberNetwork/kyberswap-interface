@@ -10,6 +10,24 @@ export const countDecimals = (value: string | number) => {
   return value.toString().split('.')[1].length || 0;
 };
 
+/**
+ * Formats a number to a string with maximum decimals, removing trailing zeros.
+ * Uses Math.floor() to truncate (not round) to ensure it never exceeds the original value.
+ */
+export const formatAmountWithDecimals = (amount: string | number, decimals: number): string => {
+  const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+  if (isNaN(numAmount) || numAmount <= 0) return '0';
+
+  // Use Math.floor to truncate (not round) to ensure we never exceed the balance
+  const factor = Math.pow(10, decimals);
+  const truncated = Math.floor(numAmount * factor) / factor;
+
+  // Format with toFixed to ensure we don't exceed decimals, then remove trailing zeros
+  const formatted = truncated.toFixed(decimals);
+  // Remove trailing zeros and the decimal point if not needed
+  return parseFloat(formatted).toString();
+};
+
 export const checkDeviated = (price: number | null, newPrice: number | undefined | null) =>
   !!price && !!newPrice && Math.abs(price / newPrice - 1) > 0.02;
 

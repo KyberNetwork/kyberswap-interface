@@ -4,7 +4,9 @@ import { useDebounce } from '@kyber/hooks';
 import { ChainId, Pool, Token } from '@kyber/schema';
 import { fetchTokens } from '@kyber/utils';
 import { getTokenBalances } from '@kyber/utils/crypto';
-import { formatWei } from '@kyber/utils/number';
+import { formatUnits } from '@kyber/utils/number';
+
+import { formatAmountWithDecimals } from '@/utils';
 
 export default function useInitialTokensIn({
   pool,
@@ -65,24 +67,26 @@ export default function useInitialTokensIn({
           account,
         });
 
-        const token0Balance = formatWei(pairBalance[token0Address]?.toString() || '0', pool.token0.decimals);
-        const token1Balance = formatWei(pairBalance[token1Address]?.toString() || '0', pool.token1.decimals);
-        const nativeTokenBalance = formatWei(pairBalance[nativeToken.address]?.toString() || '0', nativeToken.decimals);
+        const token0Balance = formatUnits(BigInt(pairBalance[token0Address]).toString(), pool.token0.decimals);
+        const token1Balance = formatUnits(BigInt(pairBalance[token1Address]).toString(), pool.token1.decimals);
+        const nativeTokenBalance = formatUnits(
+          BigInt(pairBalance[nativeToken.address]).toString(),
+          nativeToken.decimals,
+        );
         if (parseFloat(token0Balance) > 0) {
           tokensToSet.push(pool.token0);
-          amountsToSet.push((+token0Balance >= 1 ? 1 : +token0Balance * 0.99).toFixed(pool.token0.decimals));
+          const amount = +token0Balance >= 1 ? 1 : +token0Balance;
+          amountsToSet.push(formatAmountWithDecimals(amount, pool.token0.decimals));
         }
         if (parseFloat(token1Balance) > 0) {
           tokensToSet.push(pool.token1);
-          amountsToSet.push((+token1Balance >= 1 ? 1 : +token1Balance * 0.99).toFixed(pool.token1.decimals));
+          const amount = +token1Balance >= 1 ? 1 : +token1Balance;
+          amountsToSet.push(formatAmountWithDecimals(amount, pool.token1.decimals));
         }
         if (!tokensToSet.length) {
           tokensToSet.push(nativeToken);
-          amountsToSet.push(
-            (+nativeTokenBalance >= 1 ? 1 : +nativeTokenBalance > 0 ? +nativeTokenBalance * 0.99 : 1).toFixed(
-              nativeToken.decimals,
-            ),
-          );
+          const amount = +nativeTokenBalance >= 1 ? 1 : +nativeTokenBalance > 0 ? +nativeTokenBalance : 1;
+          amountsToSet.push(formatAmountWithDecimals(amount, nativeToken.decimals));
         }
 
         setTokensIn(tokensToSet as Token[]);
