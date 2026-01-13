@@ -315,8 +315,8 @@ export default function TokenSelector({
   }, [tokensIn, amountsIn]);
 
   return (
-    <div className="w-full mx-auto text-white overflow-hidden">
-      <div className="space-y-4">
+    <div className="w-full mx-auto text-white overflow-hidden flex flex-col h-full">
+      <div className="space-y-4 flex flex-col flex-1 min-h-0">
         <div className="flex justify-between items-center p-6 pb-0">
           <h2 className="text-xl">{title || i18n._('Select Liquidity Source')}</h2>
           <div className="text-subText hover:text-white cursor-pointer" onClick={onClose}>
@@ -393,9 +393,7 @@ export default function TokenSelector({
           />
         )}
 
-        <div
-          className={`token-scroll-container !mt-0 ${modalTabSelected === MODAL_TAB.TOKENS ? 'h-[280px]' : 'h-[356px]'} overflow-y-auto`}
-        >
+        <div className="token-scroll-container !mt-0 flex-1 min-h-0 overflow-y-auto">
           {modalTabSelected === MODAL_TAB.TOKENS && (
             <>
               {tabSelected === TOKEN_TAB.ALL &&
