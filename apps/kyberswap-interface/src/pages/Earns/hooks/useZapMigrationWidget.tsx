@@ -104,19 +104,6 @@ const zapMigrationDexMapping: Record<Exchange, ZapMigrationDex | null> = {
   [Exchange.DEX_AERODROMECL]: ZapMigrationDex.DEX_AERODROMECL,
 }
 
-const getDexFromPoolType = (poolType: ZapMigrationDex) => {
-  const dexIndex = Object.values(zapMigrationDexMapping).findIndex(
-    (item, index) => item === poolType && EARN_DEXES[Object.keys(zapMigrationDexMapping)[index] as Exchange],
-  )
-  if (dexIndex === -1) {
-    console.error('Cannot find dex')
-    return
-  }
-  const dex = Object.keys(zapMigrationDexMapping)[dexIndex] as Exchange
-
-  return dex
-}
-
 const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
   const locale = useActiveLocale()
   const addTransactionWithType = useTransactionAdder()
@@ -134,11 +121,8 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
   const { rpc: zapMigrationRpcUrl } = useKyberSwapConfig(migrateLiquidityPureParams?.chainId as ChainId | undefined)
 
   const handleNavigateToPosition = useCallback(
-    async (txHash: string, chainId: number, targetDex: ZapMigrationDex, targetPoolId: string) => {
+    async (txHash: string, chainId: number, dex: Exchange, targetPoolId: string) => {
       if (!library) return
-
-      const dex = getDexFromPoolType(targetDex)
-      if (!dex) return
 
       navigateToPositionAfterZap(library, txHash, chainId, dex, targetPoolId, navigate)
     },
@@ -210,8 +194,9 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
             },
             onViewPosition: (txHash: string) => {
               const { chainId } = migrateLiquidityPureParams
-              const { poolType: targetDex, poolAddress: targetPoolId } =
+              const { dexId: targetDex, poolAddress: targetPoolId } =
                 migrateLiquidityPureParams.to || migrateLiquidityPureParams.from
+
               setTriggerClose(true)
               setMigrateLiquidityPureParams(null)
               clearTracking()

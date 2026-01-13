@@ -18,7 +18,7 @@ import { useActiveLocale } from 'hooks/useActiveLocale'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
-import { ZAPIN_DEX_MAPPING, getDexFromPoolType } from 'pages/Earns/constants/dexMappings'
+import { ZAPIN_DEX_MAPPING } from 'pages/Earns/constants/dexMappings'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import useTransactionReplacement from 'pages/Earns/hooks/useTransactionReplacement'
 import { ZapMigrationInfo } from 'pages/Earns/hooks/useZapMigrationWidget'
@@ -140,8 +140,7 @@ const useZapInWidget = ({
     ) => {
       if (!addLiquidityPureParams) return
 
-      const dex = getDexFromPoolType(addLiquidityPureParams.poolType)
-      if (!dex) return
+      const dex = addLiquidityPureParams.dexId
       onOpenZapMigration({
         from: {
           poolType: position.exchange as Exchange,
