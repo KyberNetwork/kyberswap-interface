@@ -27,6 +27,39 @@ const formatWithCommas = (num: number, decimals = 0): string => {
   return parts.join('.');
 };
 
+const subscriptMap: { [key: string]: string } = {
+  '0': '₀',
+  '1': '₁',
+  '2': '₂',
+  '3': '₃',
+  '4': '₄',
+  '5': '₅',
+  '6': '₆',
+  '7': '₇',
+  '8': '₈',
+  '9': '₉',
+};
+
+/**
+ * Format very small numbers using subscript notation (e.g., 0.0₇251)
+ */
+const formatSmallNumber = (price: number, significantDigits = 3): string => {
+  const numberOfLeadingZeros = -Math.floor(Math.log10(price) + 1);
+  const decimal = price.toFixed(numberOfLeadingZeros + significantDigits).split('.')[1] || '0';
+  const slicedDecimal = decimal.replace(/^0+/, '').slice(0, significantDigits).replace(/0+$/, '');
+
+  if (numberOfLeadingZeros > 3) {
+    const subscripts = numberOfLeadingZeros
+      .toString()
+      .split('')
+      .map(item => subscriptMap[item])
+      .join('');
+    return `0.0${subscripts}${slicedDecimal}`;
+  }
+
+  return `0.${'0'.repeat(numberOfLeadingZeros)}${slicedDecimal}`;
+};
+
 /**
  * Format price for axis display - user-friendly format
  * Shows more detail for smaller ranges, uses abbreviations for large numbers
@@ -90,11 +123,8 @@ export const formatAxisPrice = (price: number): string => {
   if (price >= 0.0001) {
     return price.toFixed(5);
   }
-  // For extremely small numbers, show a floor display
-  if (price < 1e-8) {
-    return '<0.00001';
-  }
-  return price.toPrecision(3);
+  // For extremely small numbers, use subscript notation
+  return formatSmallNumber(price);
 };
 
 /**
@@ -123,6 +153,11 @@ export const formatDisplayNumber = (value: number | string, options?: { signific
   if (num === 0) return '0';
   if (Math.abs(num) < 1e-10) return '<0.0000001';
   if (Math.abs(num) >= 1e15) return num.toExponential(2);
+
+  // For small numbers, use subscript notation to avoid scientific notation
+  if (Math.abs(num) < 0.0001) {
+    return formatSmallNumber(Math.abs(num), significantDigits);
+  }
 
   return num.toPrecision(significantDigits).replace(/\.?0+$/, '');
 };

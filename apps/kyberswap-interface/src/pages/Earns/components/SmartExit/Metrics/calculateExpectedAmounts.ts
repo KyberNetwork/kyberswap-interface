@@ -1,4 +1,5 @@
 import { PriceCondition } from 'pages/Earns/types'
+import { toString } from 'utils/numbers'
 
 interface ExpectedAmounts {
   amount0: number
@@ -24,10 +25,17 @@ interface ExpectedAmounts {
  * - amount1 = liquidity * (sqrt(priceUpper) - sqrt(priceLower))
  */
 export function calculateExpectedAmounts(
-  position: { currentPrice: number; minPrice: number; maxPrice: number; token0Amount: number; token1Amount: number },
+  position: {
+    currentPrice: string | number
+    minPrice: number
+    maxPrice: number
+    token0Amount: number
+    token1Amount: number
+  },
   priceCondition?: PriceCondition,
 ): ExpectedAmounts | null {
-  const { currentPrice, minPrice, maxPrice, token0Amount, token1Amount } = position
+  const { currentPrice: rawCurrentPrice, minPrice, maxPrice, token0Amount, token1Amount } = position
+  const currentPrice = parseFloat(toString(+rawCurrentPrice))
 
   if ((!priceCondition?.gte && !priceCondition?.lte) || currentPrice <= 0 || minPrice > maxPrice) {
     return null

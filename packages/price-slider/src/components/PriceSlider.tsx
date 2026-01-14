@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
+import { formatDisplayNumber } from '@kyber/utils';
 import { MAX_TICK, MIN_TICK, tickToPrice } from '@kyber/utils/dist/uniswapv3';
 
 import PriceAxis from '@/components/PriceAxis';
@@ -7,7 +8,7 @@ import PriceSliderSkeleton from '@/components/Skeleton';
 import { AUTO_CENTER_PADDING, EDGE_THRESHOLD } from '@/constants';
 import { useDebouncedTick, useSmoothZoom, useTickPositionConverter } from '@/hooks';
 import type { HandleType, PriceSliderProps, ViewRange } from '@/types';
-import { brushHandlePath, formatDisplayNumber, getEdgeIntensity } from '@/utils';
+import { brushHandlePath, getEdgeIntensity } from '@/utils';
 
 function PriceSlider({ pool, invertPrice, tick, setTick, comparator, mode, showStepButtons }: PriceSliderProps) {
   const { tickSpacing, token0Decimals, token1Decimals, currentTick } = pool;

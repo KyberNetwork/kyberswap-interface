@@ -13,7 +13,7 @@ import { PriceCustomInput, PriceInputIcon } from 'pages/Earns/components/SmartEx
 import { defaultPriceCondition } from 'pages/Earns/components/SmartExit/utils'
 import { getPriceCondition } from 'pages/Earns/components/SmartExit/utils/typeGuards'
 import { Metric, ParsedPosition, SelectedMetric } from 'pages/Earns/types'
-import { formatDisplayNumber } from 'utils/numbers'
+import { formatDisplayNumber, toString } from 'utils/numbers'
 
 export default function PriceInput({
   metric,
@@ -39,11 +39,8 @@ export default function PriceInput({
   const currentTick = useMemo(
     () =>
       nearestUsableTick(
-        priceToClosestTick(
-          position.priceRange.current.toString(),
-          position.token0.decimals,
-          position.token1.decimals,
-        ) || 0,
+        priceToClosestTick(toString(position.priceRange.current), position.token0.decimals, position.token1.decimals) ||
+          0,
         position.pool.tickSpacing,
       ),
     [position.pool.tickSpacing, position.priceRange, position.token0.decimals, position.token1.decimals],
@@ -167,19 +164,21 @@ export default function PriceInput({
       changeSourceRef.current = 'slider'
       setTick(tick)
       if (tick !== undefined) {
-        const price = formatNumberBySignificantDigits(
-          tickToPrice(tick, position.token0.decimals, position.token1.decimals, false),
-          6,
+        const price = toString(
+          formatNumberBySignificantDigits(
+            tickToPrice(tick, position.token0.decimals, position.token1.decimals, false),
+            6,
+          ),
         )
-        const nextComparator = updateComparatorOnCross(tick, price.toString())
+        const nextComparator = updateComparatorOnCross(tick, price)
         setMetric({
           metric: Metric.PoolPrice,
           condition: {
-            gte: nextComparator === 'gte' ? price.toString() : '',
-            lte: nextComparator === 'lte' ? price.toString() : '',
+            gte: nextComparator === 'gte' ? price : '',
+            lte: nextComparator === 'lte' ? price : '',
           },
         })
-        setInputPrice(price.toString())
+        setInputPrice(price)
       }
       // Reset source after React batch update
       setTimeout(() => {
@@ -213,7 +212,7 @@ export default function PriceInput({
       const correctedTick =
         tick % position.pool.tickSpacing === 0 ? tick : nearestUsableTick(tick, position.pool.tickSpacing)
       const correctedPrice = tickToPrice(correctedTick, position.token0.decimals, position.token1.decimals, false)
-      const formatted = formatNumberBySignificantDigits(correctedPrice, 6).toString()
+      const formatted = toString(formatNumberBySignificantDigits(correctedPrice, 6))
       const nextComparator = updateComparatorOnCross(correctedTick, formatted)
       setInputPrice(formatted)
       setMetric({
@@ -244,7 +243,7 @@ export default function PriceInput({
     () =>
       calculateExpectedAmounts(
         {
-          currentPrice: position.priceRange.current,
+          currentPrice: toString(position.priceRange.current),
           minPrice: position.priceRange.min,
           maxPrice: position.priceRange.max,
           token0Amount: position.token0.totalProvide + position.token0.unclaimedAmount,
