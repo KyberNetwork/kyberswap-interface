@@ -41,7 +41,13 @@ export function calculateExpectedAmounts(
     return null
   }
 
-  const exitPrice = priceCondition.gte ? parseFloat(priceCondition.gte) : parseFloat(priceCondition.lte)
+  const exitPrice = priceCondition.gte
+    ? currentPrice >= parseFloat(priceCondition.gte)
+      ? currentPrice
+      : parseFloat(priceCondition.gte)
+    : currentPrice <= parseFloat(priceCondition.lte)
+    ? currentPrice
+    : parseFloat(priceCondition.lte)
 
   if (!exitPrice || exitPrice <= 0) {
     return null
