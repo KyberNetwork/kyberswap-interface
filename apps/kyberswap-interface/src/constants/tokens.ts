@@ -125,8 +125,9 @@ export const SUPER_STABLE_COINS_ADDRESS: { [chainId in ChainId]: string[] } = {
     '0xe7cd86e13AC4309349F30B3435a9d337750fC82D', // USDT0
   ],
   [ChainId.MEGAETH]: [
-    '0x796Ea11Fa2dD751eD01b53C372fFDB4AAa8f00F9', // USDC
-    '0x2C03058C8AFC06713be23e58D2febC8337dbfE6A', // USDT
+    '0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb', // USDT0
+    '0xFAfDdbb3FC7688494971a79cc65DCa3EF82079E7', // USDm
+    '0xcccc62962d17b8914c62d74ffb843d73b2a3cccc', // cUSD
   ],
 }
 
@@ -461,7 +462,7 @@ export const DEFAULT_OUTPUT_TOKEN_BY_CHAIN: Partial<Record<ChainId, Token>> = {
   [ChainId.ETHERLINK]: new Token(ChainId.ETHERLINK, '0x796Ea11Fa2dD751eD01b53C372fFDB4AAa8f00F9', 6, 'USDC', 'USDC'),
   [ChainId.PLASMA]: new Token(ChainId.PLASMA, '0xB8CE59FC3717ada4C02eaDF9682A9e934F625ebb', 6, 'USDT0', 'USDT0'),
   [ChainId.MONAD]: new Token(ChainId.MONAD, '0x754704Bc059F8C67012fEd69BC8A327a5aafb603', 6, 'USDC', 'USDC'),
-  [ChainId.MEGAETH]: new Token(ChainId.MEGAETH, '0x796Ea11Fa2dD751eD01b53C372fFDB4AAa8f00F9', 6, 'USDC', 'USDC'),
+  [ChainId.MEGAETH]: new Token(ChainId.MEGAETH, '0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb', 6, 'USDT0', 'USDT0'),
 }
 
 export const DEFAULT_SWAP_FEE_STABLE_PAIRS = 4
