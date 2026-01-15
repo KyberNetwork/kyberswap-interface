@@ -9,6 +9,7 @@ import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 import { formatUnits } from 'viem'
 
+import { ReactComponent as NoTransactionIcon } from 'assets/svg/no_transaction.svg'
 import CopyHelper from 'components/Copy'
 import Divider from 'components/Divider'
 import Pagination from 'components/Pagination'
@@ -267,9 +268,12 @@ export const TransactionHistory = () => {
         </TableHeader>
       )}
       {transactions.length === 0 && (
-        <Text color={theme.subText} padding="36px" textAlign="center">
-          {t`No transaction found`}
-        </Text>
+        <Flex flexDirection="column" alignItems="center">
+          <NoTransactionIcon width="120px" />
+          <Text color={theme.subText} padding="36px" textAlign="center" fontStyle="italic">
+            {t`No historical data available.`}
+          </Text>
+        </Flex>
       )}
       {transactions.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE).map(tx => {
         const sourceChainLogo = [NonEvmChain.Near, NonEvmChain.Bitcoin, NonEvmChain.Solana].includes(tx.sourceChain)
