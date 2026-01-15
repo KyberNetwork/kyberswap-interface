@@ -2,8 +2,8 @@ import { useCallback, useState } from 'react';
 
 import { cn } from '@kyber/utils/tailwind-helpers';
 
-import CircleCheckBig from './assets/svg/circle-check-big.svg';
-import IconCopy from './assets/svg/copy.svg';
+import CircleCheckBig from './assets/svg/circle-check-big.svg?react';
+import IconCopy from './assets/svg/copy.svg?react';
 
 const COPY_TIMEOUT = 2000;
 
@@ -29,10 +29,16 @@ export function useCopy({
   }, [text]);
 
   return !copied ? (
-    <IconCopy
-      className={cn('w-[14px] h-[14px] text-subText hover:text-text cursor-pointer', copyClassName)}
+    <button
+      type="button"
       onClick={copy}
-    />
+      className={cn(
+        'inline-flex items-center justify-center border-none bg-transparent outline-none cursor-pointer',
+        copyClassName,
+      )}
+    >
+      <IconCopy className={cn('w-[14px] h-[14px] text-subText hover:text-text')} />
+    </button>
   ) : (
     <CircleCheckBig className={cn('w-[14px] h-[14px] text-accent', successClassName)} />
   );

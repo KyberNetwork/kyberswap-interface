@@ -48,12 +48,11 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
     isLoading: isLoadingRewardInfo,
   } = useRewardInfoQuery({ owner: account || '' }, { skip: !account, pollingInterval: 15_000 })
 
-  const { data: userPositions, isLoading: isLoadingUserPositions } = useUserPositionsQuery(
+  const { data: userPositionsData, isLoading: isLoadingUserPositions } = useUserPositionsQuery(
     {
-      addresses: account || '',
+      wallet: account || '',
       chainIds: enumToArrayOfValues(EarnChain, 'number').join(','),
       protocols: enumToArrayOfValues(Exchange).join(','),
-      positionStatus: 'all',
     },
     {
       skip: !account || thresholdValue === null,
@@ -74,11 +73,13 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
   const [filteredRewardInfo, setFilteredRewardInfo] = useState<RewardInfo | null>(null)
 
   const filteredTokenIds = useMemo(() => {
-    if (!userPositions?.length || positionStatus === 'all') return undefined
+    if (!userPositionsData?.positions?.length || positionStatus === 'all') return undefined
     return new Set(
-      userPositions.filter(position => position.status === positionStatus).map(position => position.tokenId),
+      userPositionsData.positions
+        .filter(position => position.status === positionStatus)
+        .map(position => position.tokenId.toString()),
     )
-  }, [positionStatus, userPositions])
+  }, [positionStatus, userPositionsData])
 
   const onCloseClaim = useCallback(() => {
     setOpenClaimModal(false)

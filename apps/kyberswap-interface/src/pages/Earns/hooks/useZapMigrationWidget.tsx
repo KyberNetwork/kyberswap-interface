@@ -1,5 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import {
+  OnSuccessProps,
   SupportedLocale,
   ZapMigration,
   ChainId as ZapMigrationChainId,
@@ -13,13 +14,18 @@ import { usePreviousDistinct } from 'react-use'
 import { NotificationType } from 'components/Announcement/type'
 import Modal from 'components/Modal'
 import { APP_PATHS } from 'constants/index'
+import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useActiveLocale } from 'hooks/useActiveLocale'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
+import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import useTransactionReplacement from 'pages/Earns/hooks/useTransactionReplacement'
-import { submitTransaction } from 'pages/Earns/utils'
+import { DEFAULT_PARSED_POSITION } from 'pages/Earns/types'
+import { getNftManagerContractAddress, getTokenId, submitTransaction } from 'pages/Earns/utils'
+import { getDexVersion } from 'pages/Earns/utils/position'
+import { updateUnfinalizedPosition } from 'pages/Earns/utils/unfinalizedPosition'
 import { navigateToPositionAfterZap } from 'pages/Earns/utils/zap'
 import { useKyberSwapConfig, useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
@@ -98,19 +104,6 @@ const zapMigrationDexMapping: Record<Exchange, ZapMigrationDex | null> = {
   [Exchange.DEX_AERODROMECL]: ZapMigrationDex.DEX_AERODROMECL,
 }
 
-const getDexFromPoolType = (poolType: ZapMigrationDex) => {
-  const dexIndex = Object.values(zapMigrationDexMapping).findIndex(
-    (item, index) => item === poolType && EARN_DEXES[Object.keys(zapMigrationDexMapping)[index] as Exchange],
-  )
-  if (dexIndex === -1) {
-    console.error('Cannot find dex')
-    return
-  }
-  const dex = Object.keys(zapMigrationDexMapping)[dexIndex] as Exchange
-
-  return dex
-}
-
 const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
   const locale = useActiveLocale()
   const addTransactionWithType = useTransactionAdder()
@@ -128,11 +121,8 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
   const { rpc: zapMigrationRpcUrl } = useKyberSwapConfig(migrateLiquidityPureParams?.chainId as ChainId | undefined)
 
   const handleNavigateToPosition = useCallback(
-    async (txHash: string, chainId: number, targetDex: ZapMigrationDex, targetPoolId: string) => {
+    async (txHash: string, chainId: number, dex: Exchange, targetPoolId: string) => {
       if (!library) return
-
-      const dex = getDexFromPoolType(targetDex)
-      if (!dex) return
 
       navigateToPositionAfterZap(library, txHash, chainId, dex, targetPoolId, navigate)
     },
@@ -204,8 +194,9 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
             },
             onViewPosition: (txHash: string) => {
               const { chainId } = migrateLiquidityPureParams
-              const { poolType: targetDex, poolAddress: targetPoolId } =
+              const { dexId: targetDex, poolAddress: targetPoolId } =
                 migrateLiquidityPureParams.to || migrateLiquidityPureParams.from
+
               setTriggerClose(true)
               setMigrateLiquidityPureParams(null)
               clearTracking()
@@ -244,10 +235,8 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
               const { txHash, error } = res
               if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
 
-              const sourceDex = getDexFromPoolType(migrateLiquidityPureParams.from.poolType)
-              const destinationDex = getDexFromPoolType(
-                migrateLiquidityPureParams.to?.poolType || migrateLiquidityPureParams.from.poolType,
-              )
+              const sourceDex = migrateLiquidityPureParams.from.dexId
+              const destinationDex = migrateLiquidityPureParams.to?.dexId || sourceDex
               if (additionalInfo?.type === 'zap' && sourceDex && destinationDex) {
                 addTransactionWithType({
                   hash: txHash,
@@ -289,6 +278,76 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
             },
             onExplorePools: () => {
               navigate(APP_PATHS.EARN_POOLS)
+            },
+            onSuccess: async (data: OnSuccessProps) => {
+              if (!library) return
+
+              const dex = migrateLiquidityPureParams.to?.dexId || migrateLiquidityPureParams.from.dexId
+              const isUniv2 = EARN_DEXES[dex as Exchange]?.isForkFrom === CoreProtocol.UniswapV2
+
+              const nftId =
+                data.position.positionId ||
+                (isUniv2 ? account || '' : ((await getTokenId(library, data.txHash, dex)) || '').toString())
+
+              const dexVersion = getDexVersion(dex)
+              const contract = getNftManagerContractAddress(dex, chainId)
+
+              updateUnfinalizedPosition(
+                {
+                  ...DEFAULT_PARSED_POSITION,
+                  positionId: !isUniv2 ? `${contract}-${nftId}` : data.position.pool.address,
+                  tokenId: data.position.positionId || '',
+                  chain: {
+                    id: chainId,
+                    name: NETWORKS_INFO[chainId].name,
+                    logo: NETWORKS_INFO[chainId].icon,
+                  },
+                  dex: {
+                    id: dex,
+                    name: EARN_DEXES[dex].name,
+                    logo: data.position.dexLogo,
+                    version: dexVersion,
+                  },
+                  pool: {
+                    ...DEFAULT_PARSED_POSITION.pool,
+                    address: data.position.pool.address,
+                    fee: data.position.pool.fee,
+                  },
+                  token0: {
+                    ...DEFAULT_PARSED_POSITION.token0,
+                    address: data.position.token0.address,
+                    totalProvide: data.position.token0.amount,
+                    logo: data.position.token0.logo,
+                    symbol: data.position.token0.symbol,
+                  },
+                  token1: {
+                    ...DEFAULT_PARSED_POSITION.token1,
+                    address: data.position.token1.address,
+                    totalProvide: data.position.token1.amount,
+                    logo: data.position.token1.logo,
+                    symbol: data.position.token1.symbol,
+                  },
+                  totalValueTokens: [
+                    {
+                      address: data.position.token0.address,
+                      symbol: data.position.token0.symbol,
+                      amount: data.position.token0.amount,
+                    },
+                    {
+                      address: data.position.token1.address,
+                      symbol: data.position.token1.symbol,
+                      amount: data.position.token1.amount,
+                    },
+                  ],
+                  totalProvidedValue: data.position.value,
+                  totalValue: data.position.value,
+                  createdTime: data.position.createdAt,
+                  txHash: data.txHash,
+                  isUnfinalized: true,
+                  isValueUpdating: !!migrateLiquidityPureParams.to?.positionId,
+                },
+                account,
+              )
             },
           }
         : null,

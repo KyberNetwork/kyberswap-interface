@@ -8,6 +8,7 @@ import styled from 'styled-components'
 
 import ArbitrumDark from 'assets/images/Arbitrum_HorizontalLogo-dark.svg'
 import KNCGraphic from 'assets/images/knc-graphic.png'
+import megaEthIcon from 'assets/networks/megaeth.svg'
 import monadIcon from 'assets/networks/monad.svg'
 import AboutAvalanche from 'assets/svg/about_icon_avalanche.svg'
 import BSC from 'assets/svg/about_icon_bsc.svg'
@@ -23,10 +24,7 @@ import { useActiveWeb3React } from 'hooks'
 import useChainsConfig from 'hooks/useChainsConfig'
 import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
-import { ExternalLink, MEDIA_WIDTHS, StyledInternalLink } from 'theme'
-import { formatBigLiquidity } from 'utils/formatBalance'
-
-import KyberSwapGeneralIntro from '../KyberSwapGeneralIntro'
+import KyberSwapGeneralIntro from 'pages/About/KyberSwapGeneralIntro'
 import {
   AboutKNC,
   AboutPage,
@@ -43,7 +41,9 @@ import {
   SupportedChain,
   VerticalDivider,
   Wrapper,
-} from '../styleds'
+} from 'pages/About/styleds'
+import { ExternalLink, MEDIA_WIDTHS, StyledInternalLink } from 'theme'
+import { formatBigLiquidity } from 'utils/formatBalance'
 
 // import MeetTheTeam from './MeetTheTeam'
 
@@ -366,6 +366,10 @@ function AboutKyberSwap() {
               <Flex sx={{ gap: '12px', width: 'auto' }} alignItems="center">
                 <img src={monadIcon} alt="Monad" width="80px" />
                 <Text>Monad</Text>
+              </Flex>
+              <Flex sx={{ gap: '12px', width: 'auto' }} alignItems="center">
+                <img src={megaEthIcon} alt="MegaETH" width="80px" />
+                <Text>MegaETH</Text>
               </Flex>
             </Powered>
           </Text>

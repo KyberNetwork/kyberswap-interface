@@ -1,11 +1,17 @@
 import { ParsedPosition } from 'pages/Earns/types'
 
-const CACHE_EXPIRY_MS = 4 * 60 * 1000 // 4 minutes
-const CACHE_KEY = 'kyber_earn_unfinalized_positions'
+const CACHE_EXPIRY_MS = 5 * 60 * 1000 // 5 minutes
+const CACHE_KEY_PREFIX = 'kyber_earn_unfinalized_positions'
 
-export const updateUnfinalizedPosition = (data: ParsedPosition) => {
+const getCacheKey = (owner?: string) => {
+  if (!owner) return CACHE_KEY_PREFIX
+  return `${CACHE_KEY_PREFIX}_${owner.toLowerCase()}`
+}
+
+export const updateUnfinalizedPosition = (data: ParsedPosition, owner?: string) => {
   try {
-    const storedData = localStorage.getItem(CACHE_KEY)
+    const cacheKey = getCacheKey(owner)
+    const storedData = localStorage.getItem(cacheKey)
     let positions: ParsedPosition[] = []
 
     if (storedData) {
@@ -22,7 +28,7 @@ export const updateUnfinalizedPosition = (data: ParsedPosition) => {
 
     const now = Date.now()
 
-    // Remove expired positions (older than 2 minutes)
+    // Remove expired positions (older than 5 minutes)
     positions = positions.filter(position => {
       const isExpired = now - position.createdTime > CACHE_EXPIRY_MS
       return !isExpired
@@ -37,15 +43,16 @@ export const updateUnfinalizedPosition = (data: ParsedPosition) => {
       positions.push(data)
     }
 
-    localStorage.setItem(CACHE_KEY, JSON.stringify(positions))
+    localStorage.setItem(cacheKey, JSON.stringify(positions))
   } catch (error) {
     console.error('Failed to update unfinalized position:', error)
   }
 }
 
-export const getUnfinalizedPositions = (positionsFromData: ParsedPosition[]): ParsedPosition[] => {
+export const getUnfinalizedPositions = (positionsFromData: ParsedPosition[], owner?: string): ParsedPosition[] => {
   try {
-    const storedData = localStorage.getItem(CACHE_KEY)
+    const cacheKey = getCacheKey(owner)
+    const storedData = localStorage.getItem(cacheKey)
     if (!storedData) {
       return []
     }
@@ -107,7 +114,7 @@ export const getUnfinalizedPositions = (positionsFromData: ParsedPosition[]): Pa
 
     // If we filtered out some positions, update localStorage
     if (validPositions.length !== positions.length) {
-      localStorage.setItem(CACHE_KEY, JSON.stringify(validPositions))
+      localStorage.setItem(cacheKey, JSON.stringify(validPositions))
     }
 
     return validPositions.reverse()
