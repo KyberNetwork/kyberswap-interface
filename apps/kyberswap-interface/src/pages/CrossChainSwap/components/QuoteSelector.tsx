@@ -75,7 +75,7 @@ const Row = styled.div<{ selected: boolean }>`
   border-radius: 16px;
   border: 1px solid ${({ selected, theme }) => (selected ? theme.darkGreen : theme.border)};
   cursor: pointer;
-  hover {
+  &:hover {
     background-color: ${({ theme }) => rgba(theme.primary, 0.1)};
   }
 `
@@ -274,6 +274,7 @@ export const QuoteSelector = ({
         alignItems: 'center',
         justifyContent: 'center',
         fontWeight: 500,
+        '&:hover': { backgroundColor: rgba(theme.subText, 0.12) },
       }}
     >
       <RouteIcon />
