@@ -15,13 +15,16 @@ import { NETWORKS_INFO } from 'constants/networks'
 import { EARN_CHAINS, EARN_DEXES, EarnChain, Exchange } from 'pages/Earns/constants'
 import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import {
-  EarnPosition,
   FeeInfo,
   NftRewardInfo,
+  PAIR_CATEGORY,
   ParsedPosition,
   PoolAprInterval,
   PositionStatus,
   ProgramType,
+  TimeIntervalValues,
+  UserPosition,
+  UserPositionsStats,
 } from 'pages/Earns/types'
 import { getNftManagerContractAddress, isNativeToken, isUniswapExchange } from 'pages/Earns/utils'
 
@@ -32,24 +35,44 @@ export const getDexVersion = (dex: Exchange) => {
   return dexStringSplit.length > 0 ? dexStringSplit.slice(1).join(' ') : ''
 }
 
+const convertToPoolAprInterval = (newFormat: TimeIntervalValues | any): PoolAprInterval | undefined => {
+  if (!newFormat) return undefined
+  return {
+    '24h': newFormat['24h'] || 0,
+    '7d': newFormat['7d'] || 0,
+    '30d': newFormat['30d'] || 0,
+    all: newFormat['30d'] || newFormat['all'] || 0, // Use 30d as fallback for 'all'
+  }
+}
+
+const calcAprInterval = (...stats: (PoolAprInterval | undefined)[]): PoolAprInterval => {
+  const validStats = stats.filter(Boolean) as PoolAprInterval[]
+  return {
+    '24h': validStats.reduce((sum, apr) => sum + (apr['24h'] || 0), 0),
+    '7d': validStats.reduce((sum, apr) => sum + (apr['7d'] || 0), 0),
+    '30d': validStats.reduce((sum, apr) => sum + (apr['30d'] || 0), 0),
+    all: validStats.reduce((sum, apr) => sum + (apr['all'] || apr['30d'] || 0), 0),
+  }
+}
+
 export const parsePosition = ({
   position,
   feeInfo,
   nftRewardInfo,
   isClosedFromRpc,
 }: {
-  position: EarnPosition
+  position: UserPosition
   feeInfo?: FeeInfo
   nftRewardInfo?: NftRewardInfo
   isClosedFromRpc?: boolean
 }): ParsedPosition => {
   const forceClosed = isClosedFromRpc && position.status !== PositionStatus.CLOSED
 
-  const currentAmounts = position.currentAmounts
-  const feePending = position.feePending
-  const feesClaimed = position.feesClaimed
+  const currentAmounts = position.currentAmounts || []
+  const feePending = position.stats?.earning?.fee?.unclaimed || []
+  const feesClaimed = position.stats?.earning?.fee?.claimed || []
   const pool = position.pool
-  const tokenAmounts = pool.tokenAmounts
+  const tokenAmounts = pool.tokenAmounts || []
   const token0Data = tokenAmounts[0]?.token
   const token1Data = tokenAmounts[1]?.token
 
@@ -61,70 +84,88 @@ export const parsePosition = ({
   const feesClaimed0 = feesClaimed[0]
   const feesClaimed1 = feesClaimed[1]
 
-  const token0CurrentQuote = currentAmount0?.quotes.usd
-  const token1CurrentQuote = currentAmount1?.quotes.usd
-  const token0PendingQuote = feePending0?.quotes.usd
-  const token1PendingQuote = feePending1?.quotes.usd
-  const token0ClaimedQuote = feesClaimed0?.quotes.usd
-  const token1ClaimedQuote = feesClaimed1?.quotes.usd
+  const token0CurrentQuote = {
+    price: currentAmount0?.amount?.priceUsd || 0,
+    value: currentAmount0?.amount?.usdValue || 0,
+  }
+  const token1CurrentQuote = {
+    price: currentAmount1?.amount?.priceUsd || 0,
+    value: currentAmount1?.amount?.usdValue || 0,
+  }
+  const token0PendingQuote = {
+    price: feePending0?.amount?.priceUsd || 0,
+    value: feePending0?.amount?.usdValue || 0,
+  }
+  const token1PendingQuote = {
+    price: feePending1?.amount?.priceUsd || 0,
+    value: feePending1?.amount?.usdValue || 0,
+  }
+  const token0ClaimedQuote = {
+    price: feesClaimed0?.amount?.priceUsd || 0,
+    value: feesClaimed0?.amount?.usdValue || 0,
+  }
+  const token1ClaimedQuote = {
+    price: feesClaimed1?.amount?.priceUsd || 0,
+    value: feesClaimed1?.amount?.usdValue || 0,
+  }
 
   const token0TotalProvide = forceClosed
     ? 0
-    : Number(currentAmount0?.balance || 0) && token0Data?.decimals
-    ? Number(currentAmount0?.balance) / 10 ** token0Data?.decimals
+    : Number(currentAmount0?.amount?.amount || 0) && token0Data?.decimals
+    ? Number(currentAmount0?.amount?.amount) / 10 ** token0Data?.decimals
     : token0CurrentQuote
-    ? token0CurrentQuote.value / token0CurrentQuote.price
+    ? token0CurrentQuote.value / (token0CurrentQuote.price || 1)
     : 0
 
   const token1TotalProvide = forceClosed
     ? 0
-    : Number(currentAmount1?.balance || 0) && token1Data?.decimals
-    ? Number(currentAmount1?.balance) / 10 ** token1Data?.decimals
+    : Number(currentAmount1?.amount?.amount || 0) && token1Data?.decimals
+    ? Number(currentAmount1?.amount?.amount) / 10 ** token1Data?.decimals
     : token1CurrentQuote
-    ? token1CurrentQuote.value / token1CurrentQuote.price
+    ? token1CurrentQuote.value / (token1CurrentQuote.price || 1)
     : 0
 
   const token0PendingEarned =
-    Number(feePending0?.balance || 0) && token0Data?.decimals
-      ? Number(feePending0?.balance) / 10 ** token0Data?.decimals
+    Number(feePending0?.amount?.amount || 0) && token0Data?.decimals
+      ? Number(feePending0?.amount?.amount) / 10 ** token0Data?.decimals
       : token0PendingQuote
-      ? token0PendingQuote.value / token0PendingQuote.price
+      ? token0PendingQuote.value / (token0PendingQuote.price || 1)
       : 0
   const token1PendingEarned =
-    Number(feePending1?.balance || 0) && token1Data?.decimals
-      ? Number(feePending1?.balance) / 10 ** token1Data?.decimals
+    Number(feePending1?.amount?.amount || 0) && token1Data?.decimals
+      ? Number(feePending1?.amount?.amount) / 10 ** token1Data?.decimals
       : token1PendingQuote
-      ? token1PendingQuote.value / token1PendingQuote.price
+      ? token1PendingQuote.value / (token1PendingQuote.price || 1)
       : 0
 
   const token0ClaimedEarned =
-    Number(feesClaimed0?.balance || 0) && token0Data?.decimals
-      ? Number(feesClaimed0?.balance) / 10 ** token0Data?.decimals
+    Number(feesClaimed0?.amount?.amount || 0) && token0Data?.decimals
+      ? Number(feesClaimed0?.amount?.amount) / 10 ** token0Data?.decimals
       : token0ClaimedQuote
-      ? token0ClaimedQuote.value / token0ClaimedQuote.price
+      ? token0ClaimedQuote.value / (token0ClaimedQuote.price || 1)
       : 0
   const token1ClaimedEarned =
-    Number(feesClaimed1?.balance || 0) && token1Data?.decimals
-      ? Number(feesClaimed1?.balance) / 10 ** token1Data?.decimals
+    Number(feesClaimed1?.amount?.amount || 0) && token1Data?.decimals
+      ? Number(feesClaimed1?.amount?.amount) / 10 ** token1Data?.decimals
       : token1ClaimedQuote
-      ? token1ClaimedQuote.value / token1ClaimedQuote.price
+      ? token1ClaimedQuote.value / (token1ClaimedQuote.price || 1)
       : 0
 
   const token0EarnedAmount = token0PendingEarned + token0ClaimedEarned
   const token1EarnedAmount = token1PendingEarned + token1ClaimedEarned
 
   const nftUnclaimedUsdValue = nftRewardInfo?.unclaimedUsdValue || 0
-  const totalValue = (forceClosed ? 0 : position.currentPositionValue) + nftUnclaimedUsdValue
+  const totalValue = (forceClosed ? 0 : position.valueInUSD) + nftUnclaimedUsdValue
   const unclaimedFees = forceClosed
     ? 0
-    : feeInfo?.totalValue ?? feePending.reduce((sum, fee) => sum + fee.quotes.usd.value, 0)
-  const totalProvidedValue = forceClosed ? 0 : position.currentPositionValue - unclaimedFees
+    : feeInfo?.totalValue ?? feePending.reduce((sum, fee) => sum + (fee.amount?.usdValue || 0), 0)
+  const totalProvidedValue = forceClosed ? 0 : (position.valueInUSD || 0) - unclaimedFees
 
   const token0Address = token0Data?.address || ''
   const token1Address = token1Data?.address || ''
 
-  const dex = pool.exchange || ''
-  const isUniv2 = EARN_DEXES[dex].isForkFrom === CoreProtocol.UniswapV2
+  const dex = (pool?.protocol?.type || '') as Exchange
+  const isUniv2 = EARN_DEXES[dex]?.isForkFrom === CoreProtocol.UniswapV2
   const isUniswap = isUniswapExchange(dex)
 
   const programs = pool.programs || []
@@ -134,7 +175,7 @@ export const parsePosition = ({
   const unclaimedRewardTokens = nftRewardInfo?.tokens.filter(token => token.unclaimedAmount > 0) || []
 
   const totalValueTokens =
-    position.currentPositionValue && !forceClosed
+    position.valueInUSD && !forceClosed
       ? [
           {
             address: token0Address,
@@ -163,28 +204,31 @@ export const parsePosition = ({
   }
 
   const now = Date.now()
-  const isNewPosition = position.createdTime >= now - 2 * 60 * 1000
-  const isUnfinalized = isNewPosition && (position.latestBlock || 0) - (position.createdAtBlock || 0) <= 10
+  const createdTime = position.createdAtTime * 1000
+  const isNewPosition = createdTime >= now - 2 * 60 * 1000
+  const isUnfinalized = isNewPosition && position.latestBlock - position.createdAtBlock <= 10
 
   const totalEarnedFees =
-    feePending.reduce((sum, fee) => sum + fee.quotes.usd.value, 0) +
-    feesClaimed.reduce((sum, fee) => sum + fee.quotes.usd.value, 0)
+    feePending.reduce((sum, fee) => sum + (fee.amount?.usdValue || 0), 0) +
+    feesClaimed.reduce((sum, fee) => sum + (fee.amount?.usdValue || 0), 0)
 
-  const chainId = position.chainId as keyof typeof NETWORKS_INFO
+  const chainId = position.chain?.id as keyof typeof NETWORKS_INFO
   const nativeToken = NETWORKS_INFO[chainId]?.nativeToken
 
+  const minPrice = position.extra?.priceRange?.min || 0
+  const maxPrice = position.extra?.priceRange?.maxPrice || 0
   const tickLower =
     pool.tickSpacing === 0 || isUniv2
       ? undefined
       : nearestUsableTick(
-          priceToClosestTick(toString(position.minPrice), token0Data?.decimals, token1Data?.decimals) || 0,
+          priceToClosestTick(toString(minPrice), token0Data?.decimals, token1Data?.decimals) || 0,
           pool.tickSpacing,
         )
   const tickUpper =
     pool.tickSpacing === 0 || isUniv2
       ? undefined
       : nearestUsableTick(
-          priceToClosestTick(toString(position.maxPrice), token0Data?.decimals, token1Data?.decimals) || 0,
+          priceToClosestTick(toString(maxPrice), token0Data?.decimals, token1Data?.decimals) || 0,
           pool.tickSpacing,
         )
 
@@ -193,18 +237,28 @@ export const parsePosition = ({
 
   const parsedStatus = forceClosed ? PositionStatus.CLOSED : isUniv2 ? PositionStatus.IN_RANGE : position.status
 
+  const egApr = position.stats?.apr?.reward ? convertToPoolAprInterval(position.stats?.apr?.reward?.eg) : undefined
+  const lmApr = position.stats?.apr?.reward ? convertToPoolAprInterval(position.stats?.apr?.reward?.lm) : undefined
+  const lpApr = position.stats?.apr ? convertToPoolAprInterval(position.stats?.apr?.lp) : undefined
+
+  const positionId = position.positionId?.toString()
+  // TODO: Remove when api returns tokenId and tokenAddress in position object
+  const tmp = positionId.split('-')
+  const tokenId = position.tokenId ? position.tokenId.toString() : tmp.length > 1 ? tmp[1] : '0'
+  const tokenAddress = position.tokenAddress ? position.tokenAddress : tmp.length > 0 ? tmp[0] : ''
+
   const isPositionInRange = parsedStatus === PositionStatus.IN_RANGE
   const bonusApr = isPositionInRange && isUniswap ? position.pool.merklOpportunity?.apr || 0 : 0
 
   return {
-    id: position.id,
-    tokenId: position.tokenId,
+    positionId: position.positionId?.toString() || position.id?.toString(),
+    tokenId: tokenId,
     pool: {
       fee: pool.fees?.[0],
-      address: pool.poolAddress,
+      address: pool.address,
       nativeToken,
       tickSpacing: pool.tickSpacing,
-      category: pool.category,
+      category: pool.category as PAIR_CATEGORY,
       isFarming,
       isFarmingLm,
       isUniv2,
@@ -212,25 +266,25 @@ export const parsePosition = ({
     dex: {
       id: dex,
       name: EARN_DEXES[dex].name,
-      logo: EARN_DEXES[dex].logo ?? pool.projectLogo,
+      logo: EARN_DEXES[dex].logo ?? pool.protocol?.logo,
       version: getDexVersion(dex),
     },
     chain: {
-      id: position.chainId,
-      name: position.chainName,
-      logo: EARN_CHAINS[position.chainId as EarnChain]?.logo ?? position.chainLogo,
+      id: position.chain?.id,
+      name: position.chain?.name,
+      logo: EARN_CHAINS[position.chain?.id as EarnChain]?.logo ?? position.chain?.logo,
     },
     priceRange: {
-      min: position.minPrice || 0,
-      max: position.maxPrice || 0,
+      min: minPrice,
+      max: maxPrice,
       isMinPrice: tickLower === minTick,
-      isMaxPrice: position.maxPrice === 0 ? true : tickUpper === maxTick,
+      isMaxPrice: maxPrice === 0 ? true : tickUpper === maxTick,
       current: pool.price || 0,
     },
     earning: {
       earned: totalEarnedFees,
-      in7d: position.stats.earning['7d'] || 0,
-      in24h: position.stats.earning['24h'] || 0,
+      in7d: position.stats?.earning?.totalUsd?.['7d'] || 0,
+      in24h: position.stats?.earning?.totalUsd?.['24h'] || 0,
     },
     rewards: {
       totalUsdValue: nftRewardInfo?.totalUsdValue || 0,
@@ -251,11 +305,11 @@ export const parsePosition = ({
       logo: token0Data?.logo || '',
       symbol: token0Data?.symbol || '',
       decimals: token0Data?.decimals,
-      price: currentAmounts[0]?.token.price,
+      price: currentAmounts[0]?.amount?.priceUsd,
       isNative: isNativeToken(token0Address, chainId as keyof typeof WETH),
       totalProvide: token0TotalProvide,
       unclaimedAmount: forceClosed ? 0 : feeInfo ? Number(feeInfo.amount0) : token0PendingEarned,
-      unclaimedBalance: forceClosed ? 0 : feeInfo ? Number(feeInfo.balance0) : Number(feePending0?.balance || 0),
+      unclaimedBalance: forceClosed ? 0 : feeInfo ? Number(feeInfo.balance0) : Number(feePending0?.amount?.amount || 0),
       unclaimedValue: forceClosed ? 0 : feeInfo ? Number(feeInfo.value0) : token0PendingQuote?.value || 0,
     },
     token1: {
@@ -263,53 +317,36 @@ export const parsePosition = ({
       logo: token1Data?.logo || '',
       symbol: token1Data?.symbol || '',
       decimals: token1Data?.decimals,
-      price: currentAmounts[1]?.token.price,
+      price: currentAmounts[1]?.amount?.priceUsd,
       isNative: isNativeToken(token1Address, chainId as keyof typeof WETH),
       totalProvide: token1TotalProvide,
       unclaimedAmount: forceClosed ? 0 : feeInfo ? Number(feeInfo.amount1) : token1PendingEarned,
-      unclaimedBalance: forceClosed ? 0 : feeInfo ? Number(feeInfo.balance1) : Number(feePending1?.balance || 0),
+      unclaimedBalance: forceClosed ? 0 : feeInfo ? Number(feeInfo.balance1) : Number(feePending1?.amount?.amount || 0),
       unclaimedValue: forceClosed ? 0 : feeInfo ? Number(feeInfo.value1) : token1PendingQuote?.value || 0,
     },
     suggestionPool: position.suggestionPool,
-    tokenAddress: position.tokenAddress,
-    apr: calcAprInterval(position.stats.apr, position.stats.kemEGApr, position.stats.kemLMApr),
-    kemEGApr: calcAprInterval(position.stats.kemEGApr),
-    kemLMApr: calcAprInterval(position.stats.kemLMApr),
-    feeApr: calcAprInterval(position.stats.apr),
+    tokenAddress,
+    apr: calcAprInterval(lpApr, egApr, lmApr),
+    kemEGApr: calcAprInterval(egApr),
+    kemLMApr: calcAprInterval(lmApr),
+    feeApr: calcAprInterval(lpApr),
     bonusApr,
     totalValue,
     totalProvidedValue,
     unclaimedFees,
     status: parsedStatus,
-    createdTime: position.createdTime,
+    createdTime: createdTime,
     isUnfinalized,
     isValueUpdating: false,
   }
 }
 
-const calcAprInterval = (...stats: PoolAprInterval[]): PoolAprInterval => {
+export const extractClaimedFeeStats = (stats?: UserPositionsStats) => {
   return {
-    '24h': stats.reduce((sum, apr) => sum + (apr['24h'] || 0), 0),
-    '7d': stats.reduce((sum, apr) => sum + (apr['7d'] || 0), 0),
-    all: stats.reduce((sum, apr) => sum + (apr['all'] || 0), 0),
-  }
-}
-
-export const aggregateFeeFromPositions = (positions: Array<ParsedPosition>) => {
-  let totalValue = 0
-  let totalEarnedFee = 0
-  let totalUnclaimedFee = 0
-
-  positions.forEach(position => {
-    totalValue += position.totalValue
-    totalEarnedFee += position.earning.earned
-    totalUnclaimedFee += position.unclaimedFees
-  })
-
-  return {
-    totalValue,
-    totalEarnedFee,
-    totalUnclaimedFee,
+    totalValueUsd: stats?.totalValueUsd || 0,
+    totalClaimedFeeUsd: stats?.totalClaimedFeeUsd || 0,
+    totalEarnedFeeUsd: stats?.totalEarnedFeeUsd || 0,
+    totalUnclaimedFeeUsd: stats?.totalUnclaimedFeeUsd || 0,
   }
 }
 
