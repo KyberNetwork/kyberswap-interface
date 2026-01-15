@@ -29,6 +29,7 @@ import { TokenLogoWithChain } from 'pages/CrossChainSwap/components/TokenLogoWit
 import { TokenPanel } from 'pages/CrossChainSwap/components/TokenPanel'
 import useAcceptTermAndPolicy from 'pages/CrossChainSwap/hooks/useAcceptTermAndPolicy'
 import { CrossChainSwapRegistryProvider, useCrossChainSwap } from 'pages/CrossChainSwap/hooks/useCrossChainSwap'
+import { Quote } from 'pages/CrossChainSwap/registry'
 import { NearToken, SolanaToken } from 'state/crossChainSwap'
 import { isEvmChain } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -39,7 +40,11 @@ const Wrapper = styled.div`
   gap: 1rem;
 `
 
-function CrossChainSwap() {
+type CrossChainSwapProps = {
+  onQuoteChange?: (quote: Quote) => void
+}
+
+export function CrossChainSwap({ onQuoteChange }: CrossChainSwapProps) {
   const {
     amount,
     setAmount,
@@ -113,6 +118,12 @@ function CrossChainSwap() {
   const isToEvm = toChainId && isEvmChain(toChainId)
   const isToSolana = toChainId === NonEvmChain.Solana
   const networkName = isToNear ? 'NEAR' : isToBtc ? 'Bitcoin' : isToSolana ? 'Solana' : 'EVM'
+
+  useEffect(() => {
+    if (selectedQuote) {
+      onQuoteChange?.(selectedQuote)
+    }
+  }, [onQuoteChange, selectedQuote])
 
   useEffect(() => {
     if (isEvmChain(fromChainId) && isToEvm && !showEvmRecipient) {
@@ -353,6 +364,7 @@ function CrossChainSwap() {
               selectedQuote={selectedQuote}
               onChange={newSelectedQuote => {
                 setSelectedAdapter(newSelectedQuote.adapter.getName())
+                onQuoteChange?.(newSelectedQuote)
               }}
               tokenOut={currencyOut}
             />
@@ -386,10 +398,10 @@ function CrossChainSwap() {
   )
 }
 
-export default function CrossChainSwapPage() {
+export default function CrossChainSwapPage(props: CrossChainSwapProps) {
   return (
     <CrossChainSwapRegistryProvider>
-      <CrossChainSwap />
+      <CrossChainSwap {...props} />
     </CrossChainSwapRegistryProvider>
   )
 }

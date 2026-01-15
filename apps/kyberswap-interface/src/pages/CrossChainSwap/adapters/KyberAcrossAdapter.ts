@@ -579,7 +579,7 @@ export class KyberAcrossAdapter extends BaseSwapAdapter {
           })
 
           const approveTxHash = await walletClient.sendTransaction({
-            account: walletClient.account!,
+            account: walletClient.account || ('0x0' as Address),
             chain: originChain,
             to: swapAndDepositData.swapToken,
             data: approveCalldata,
