@@ -40,6 +40,31 @@ import { isSupportedChainId } from 'constants/networks'
 import { useAppDispatch } from 'state/hooks'
 import { updateChainId } from 'state/user/actions'
 
+export const megaeth = defineChain({
+  id: ChainId.MEGAETH,
+  name: 'MegaETH',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'Ethereum',
+    symbol: 'ETH',
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://mainnet.megaeth.com/rpc'],
+      webSocket: ['wss://mainnet.megaeth.com/rpc'],
+    },
+  },
+  blockExplorers: {
+    default: { name: 'Explorer', url: 'https://megaeth.blockscout.com/' },
+  },
+  contracts: {
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 1,
+    },
+  },
+})
+
 export const monad = defineChain({
   id: ChainId.MONAD,
   name: 'Monad',
@@ -313,6 +338,7 @@ const wagmiChains = [
   etherlink,
   plasma,
   monad,
+  megaeth,
 ] as const
 
 export const wagmiConfig = createConfig({
