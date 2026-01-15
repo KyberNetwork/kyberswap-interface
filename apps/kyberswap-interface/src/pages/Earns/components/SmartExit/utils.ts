@@ -18,6 +18,7 @@ import {
   SelectedMetric,
   TimeCondition,
 } from 'pages/Earns/types'
+import { toString } from 'utils/numbers'
 
 export {
   getFeeYieldCondition,
@@ -45,7 +46,7 @@ export const getDefaultCondition = (
         const gap =
           pairCategory === PAIR_CATEGORY.STABLE ? 0.0001 : pairCategory === PAIR_CATEGORY.CORRELATED ? 0.001 : 0.1
         const defaultPrice = position.priceRange.current * (1 + gap)
-        const tick = priceToClosestTick(defaultPrice.toString(), position.token0.decimals, position.token1.decimals)
+        const tick = priceToClosestTick(toString(defaultPrice), position.token0.decimals, position.token1.decimals)
         if (tick === undefined) return defaultPriceCondition
         const nearestTick = nearestUsableTick(tick, position.pool.tickSpacing)
         const correctedPrice = tickToPrice(nearestTick, position.token0.decimals, position.token1.decimals)
