@@ -1,14 +1,22 @@
 import { useEffect, useMemo, useState } from 'react';
 
+import type { I18n } from '@lingui/core';
+
 import { API_URLS, ChainId } from '@kyber/schema';
 
 import { SecurityInfo, getSecurityTokenInfo } from '@/components/TokenSelectorModal/TokenInfo/utils';
 
-export default function useSecurityTokenInfo({ tokenAddress, chainId }: { tokenAddress: string; chainId: ChainId }) {
+interface UseSecurityTokenInfoParams {
+  tokenAddress: string;
+  chainId: ChainId;
+  i18n: I18n;
+}
+
+export default function useSecurityTokenInfo({ tokenAddress, chainId, i18n }: UseSecurityTokenInfoParams) {
   const [securityRawInfo, setSecurityRawInfo] = useState<SecurityInfo | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
-  const parsedSecurityInfo = useMemo(() => getSecurityTokenInfo(securityRawInfo), [securityRawInfo]);
+  const parsedSecurityInfo = useMemo(() => getSecurityTokenInfo(securityRawInfo, i18n), [securityRawInfo, i18n]);
 
   const handleFetchSecurityData = () => {
     setLoading(true);

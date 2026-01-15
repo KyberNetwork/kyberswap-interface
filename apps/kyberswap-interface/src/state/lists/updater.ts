@@ -10,7 +10,6 @@ import { isAddress } from 'utils'
 import { getFormattedAddress } from 'utils/tokenInfo'
 
 import { setTokenList } from './actions'
-import hyperTokens from './hyperevm.json'
 import { TokenInfo, WrappedTokenInfo } from './wrappedTokenInfo'
 
 function listToTokenMap(list: TokenInfo[], chainId: ChainId): TokenMap {
@@ -45,9 +44,6 @@ export default function Updater(): null {
           const tokensResponse = data?.data.tokens ?? []
           tokens = tokens.concat(tokensResponse)
           if (tokensResponse.length < pageSize || page >= maximumPage) break // out of tokens, and prevent infinity loop
-        }
-        if (chainId === ChainId.HYPEREVM && !tokens.length) {
-          tokens = hyperTokens
         }
 
         const tokenList = listToTokenMap(tokens, chainId)

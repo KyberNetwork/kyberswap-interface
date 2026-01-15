@@ -2,8 +2,8 @@ import { z } from 'zod';
 
 import { dexMapping } from '@/constants';
 import { PoolType, univ2Types, univ3Types } from '@/schema/dex';
-import { univ2PoolNormalize, univ2RawPool } from '@/schema/pools/uniswapv2';
-import { univ3PoolNormalize, univ3RawPool } from '@/schema/pools/uniswapv3';
+import { UniV2Pool, univ2PoolNormalize, univ2RawPool } from '@/schema/pools/uniswapv2';
+import { UniV3Pool, univ3PoolNormalize, univ3RawPool } from '@/schema/pools/uniswapv3';
 
 type Univ2PoolType = (typeof univ2Types)[number];
 type Univ3PoolType = (typeof univ3Types)[number];
@@ -57,4 +57,12 @@ export const poolResponse = z.discriminatedUnion('poolType', [
   ),
 ]);
 
-export { univ2RawPool, univ2PoolNormalize, univ3RawPool, univ3PoolNormalize, dexMapping };
+export {
+  univ2RawPool,
+  univ2PoolNormalize,
+  type UniV2Pool,
+  univ3RawPool,
+  univ3PoolNormalize,
+  type UniV3Pool,
+  dexMapping,
+};

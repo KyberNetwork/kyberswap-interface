@@ -18,6 +18,7 @@ import Loader from 'components/LocalLoader'
 import Modal from 'components/Modal'
 import ModalsGlobal from 'components/ModalsGlobal'
 import ProtectedRoute from 'components/ProtectedRoute'
+import SingaporeWarningPopup from 'components/SingaporeWarningPopup'
 import SupportButton from 'components/SupportButton'
 import { APP_PATHS, CHAINS_SUPPORT_CROSS_CHAIN, TERM_FILES_PATH } from 'constants/index'
 import { CLASSIC_NOT_SUPPORTED, ELASTIC_NOT_SUPPORTED, NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
@@ -67,6 +68,8 @@ const Earns = lazy(() => import('pages/Earns/Landing'))
 const EarnPoolExplorer = lazy(() => import('pages/Earns/PoolExplorer'))
 const EarnUserPositions = lazy(() => import('pages/Earns/UserPositions'))
 const EarnPositionDetail = lazy(() => import('pages/Earns/PositionDetail'))
+
+const Recap2025Redirect = lazy(() => import('pages/Recap2025Redirect'))
 
 const AppWrapper = styled.div`
   display: flex;
@@ -244,6 +247,7 @@ export default function App() {
           */}
 
           <BodyWrapper>
+            <SingaporeWarningPopup />
             {isInSafeApp && !safeAppAcceptedTermOfUse && (
               <Modal isOpen>
                 <Flex width="100%" padding="32px 24px" flexDirection="column" sx={{ gap: '24px' }} alignItems="center">
@@ -340,6 +344,7 @@ export default function App() {
               <Route path={APP_PATHS.ELASTIC_SNAPSHOT} element={<ElasticSnapshot />} />
               <Route path={APP_PATHS.MARKET_OVERVIEW} element={<MarketOverview />} />
 
+              <Route path={APP_PATHS.RAFFLE_CAMPAIGN} element={<Campaign />} />
               <Route path={APP_PATHS.NEAR_INTENTS_CAMPAIGN} element={<Campaign />} />
               <Route path={APP_PATHS.MAY_TRADING_CAMPAIGN} element={<Campaign />} />
               <Route path={APP_PATHS.AGGREGATOR_CAMPAIGN} element={<Campaign />} />
@@ -355,6 +360,8 @@ export default function App() {
               <Route path={APP_PATHS.EARNS} element={<Navigate to={APP_PATHS.EARN} replace />} />
               <Route path={APP_PATHS.EARNS_POOLS} element={<Navigate to={APP_PATHS.EARN_POOLS} replace />} />
               <Route path={APP_PATHS.EARNS_POSITIONS} element={<Navigate to={APP_PATHS.EARN_POSITIONS} replace />} />
+
+              <Route path={APP_PATHS.RECAP_2025} element={<Recap2025Redirect />} />
 
               <Route path="*" element={<RedirectPathToSwapV3Network />} />
             </Routes>

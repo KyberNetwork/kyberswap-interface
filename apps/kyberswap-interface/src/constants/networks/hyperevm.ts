@@ -1,5 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
+import hyperevmIcon from 'assets/networks/hyperevm.svg'
 import { NetworkInfo } from 'constants/networks/type'
 
 const EMPTY_ARRAY: any[] = []
@@ -12,7 +13,7 @@ const hyperevmInfo: NetworkInfo = {
   priceRoute: 'hyperevm',
   aggregatorRoute: 'hyperevm',
   name: 'HyperEVM',
-  icon: 'https://storage.googleapis.com/ks-setting-1d682dca/5735d731-d5da-4ba4-af94-2e945110130c1750316953655.png',
+  icon: hyperevmIcon,
 
   iconSelected: NOT_SUPPORT,
 
@@ -22,7 +23,7 @@ const hyperevmInfo: NetworkInfo = {
   nativeToken: {
     symbol: 'HYPE',
     name: 'HYPE',
-    logo: 'https://storage.googleapis.com/ks-setting-1d682dca/5735d731-d5da-4ba4-af94-2e945110130c1750316953655.png',
+    logo: hyperevmIcon,
     decimal: 18,
   },
   defaultRpcUrl: 'https://rpc.hyperliquid.xyz/evm',

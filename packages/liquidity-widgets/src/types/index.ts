@@ -1,11 +1,18 @@
-import { ChainId, PoolType, Theme, ZapRouteDetail } from '@kyber/schema';
+import { ApprovalAdditionalInfo } from '@kyber/hooks';
+import { ChainId, PoolType, Theme, TxStatus } from '@kyber/schema';
+
+import { SupportedLocale } from '@/i18n';
+
+export { TxStatus };
 
 export interface WidgetProps {
   theme?: Theme;
+  chainId: ChainId;
+  rpcUrl?: string;
   poolAddress: string;
   positionId?: string;
   poolType: PoolType;
-  chainId: ChainId;
+  dexId?: string;
   connectedAccount: {
     address?: string | undefined;
     chainId: number;
@@ -22,7 +29,11 @@ export interface WidgetProps {
     feeAddress: string;
   };
   referral?: string;
+  fromCreatePoolFlow?: boolean;
   initialTick?: { tickLower: number; tickUpper: number };
+  txStatus?: Record<string, TxStatus>;
+  txHashMapping?: Record<string, string>;
+  locale?: SupportedLocale;
   onClose?: () => void;
   onConnectWallet: () => void;
   onSwitchChain: () => void;
@@ -36,7 +47,18 @@ export interface WidgetProps {
     initialSlippage?: number,
   ) => void;
   onSuccess?: ({ txHash, position }: OnSuccessProps) => void;
-  onSubmitTx: (txData: { from: string; to: string; value: string; data: string; gasLimit: string }) => Promise<string>;
+  onSubmitTx: (
+    txData: { from: string; to: string; value: string; data: string; gasLimit: string },
+    additionalInfo?:
+      | {
+          type: 'zap';
+          tokensIn: Array<{ symbol: string; amount: string; logoUrl?: string }>;
+          pool: string;
+          dexLogo: string;
+        }
+      | ApprovalAdditionalInfo,
+  ) => Promise<string>;
+  signTypedData?: (account: string, typedDataJson: string) => Promise<string>;
   onViewPosition?: (txHash: string) => void;
 }
 
@@ -45,7 +67,6 @@ export interface OnSuccessProps {
   position: {
     positionId?: string;
     chainId: number;
-    poolType: PoolType;
     dexLogo: string;
     token0: {
       address: string;
@@ -73,8 +94,9 @@ export enum PriceType {
   MaxPrice = 'MaxPrice',
 }
 
-export interface ZapSnapshotState {
-  zapInfo: ZapRouteDetail;
-  deadline: number;
+export interface BuildDataWithGas {
+  callData: string;
+  routerAddress: string;
+  value: string;
   gasUsd: number;
 }

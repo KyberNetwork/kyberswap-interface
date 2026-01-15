@@ -1,5 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
+import ethereumIcon from 'assets/networks/ethereum.svg'
+import unichainIcon from 'assets/networks/unichain.svg'
 import { NetworkInfo } from 'constants/networks/type'
 
 const EMPTY_ARRAY: any[] = []
@@ -12,7 +14,7 @@ const unichain: NetworkInfo = {
   priceRoute: 'unichain',
   aggregatorRoute: 'unichain',
   name: 'Unichain',
-  icon: 'https://storage.googleapis.com/ks-setting-1d682dca/46e9f21b-a26d-4705-89b0-17dc32a6f2061744986062950.png',
+  icon: unichainIcon,
 
   iconSelected: NOT_SUPPORT,
 
@@ -22,7 +24,7 @@ const unichain: NetworkInfo = {
   nativeToken: {
     symbol: 'ETH',
     name: 'ETH',
-    logo: 'https://storage.googleapis.com/ks-setting-1d682dca/9412b9e7-161f-472e-94b2-a62d2c386ab7.png',
+    logo: ethereumIcon,
     decimal: 18,
   },
   defaultRpcUrl: 'https://mainnet.unichain.org',

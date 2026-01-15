@@ -33,6 +33,7 @@ import {
   Binance,
   Bithumb,
   Bitrue,
+  ChangeNow,
   Coinbase,
   Etoro,
   Gate,
@@ -44,7 +45,6 @@ import {
   KyberSwap,
   Mexc,
   Okx,
-  TokyoCrypto,
   Upbit,
 } from 'components/ExchangeIcons'
 import { FooterSocialLink } from 'components/Footer/Footer'
@@ -85,7 +85,7 @@ const LIST_EXCHANGES = [
   { name: 'Bithumb', logo: <Bithumb /> },
   { name: 'Gemini', logo: <Gemini /> },
   { name: 'Okx', logo: <Okx /> },
-  { name: 'TokyoCrypto', logo: <TokyoCrypto /> },
+  { name: 'ChangeNow', logo: <ChangeNow /> },
   { name: 'Bitrue', logo: <Bitrue /> },
 ]
 

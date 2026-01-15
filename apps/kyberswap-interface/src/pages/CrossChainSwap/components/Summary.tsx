@@ -1,3 +1,4 @@
+import { Trans, t } from '@lingui/macro'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 import { formatUnits } from 'viem'
@@ -44,7 +45,7 @@ export const Summary = ({ quote, tokenOut, full }: { quote?: Quote; tokenOut?: C
     <Wrapper>
       {full && (
         <Flex justifyContent="space-between">
-          <Text color={theme.subText}>Current price</Text>
+          <Text color={theme.subText}>{t`Current price`}</Text>
           <Text>
             1 {currencyIn?.symbol} = {formatDisplayNumber(quote?.quote.rate, { significantDigits: 8 })}{' '}
             {tokenOut?.symbol}
@@ -53,9 +54,9 @@ export const Summary = ({ quote, tokenOut, full }: { quote?: Quote; tokenOut?: C
       )}
 
       <Flex justifyContent="space-between">
-        <MouseoverTooltip text="You will receive at least this amount or your transaction will revert.">
+        <MouseoverTooltip text={t`You will receive at least this amount or your transaction will revert.`}>
           <Text color={theme.subText} sx={{ borderBottom: `1px dotted ${theme.border}` }}>
-            Minimum Received
+            {t`Minimum Received`}
           </Text>
         </MouseoverTooltip>
         <Text>
@@ -63,18 +64,18 @@ export const Summary = ({ quote, tokenOut, full }: { quote?: Quote; tokenOut?: C
         </Text>
       </Flex>
       <Flex justifyContent="space-between">
-        <MouseoverTooltip text="Estimated processing time for your transaction.">
+        <MouseoverTooltip text={t`Estimated processing time for your transaction.`}>
           <Text color={theme.subText} sx={{ borderBottom: `1px dotted ${theme.border}` }}>
-            Estimated Processing Time
+            {t`Estimated Processing Time`}
           </Text>
         </MouseoverTooltip>
         <Text>{quote ? `~${formatTime(quote.quote.timeEstimate)}` : '--'}</Text>
       </Flex>
 
       <Flex justifyContent="space-between">
-        <MouseoverTooltip text="Estimated change in price due to the size of your transaction.">
+        <MouseoverTooltip text={t`Estimated change in price due to the size of your transaction.`}>
           <Text color={theme.subText} sx={{ borderBottom: `1px dotted ${theme.border}` }}>
-            Price Impact
+            {t`Price Impact`}
           </Text>
         </MouseoverTooltip>
         <Text
@@ -96,9 +97,9 @@ export const Summary = ({ quote, tokenOut, full }: { quote?: Quote; tokenOut?: C
 
       {quote && quote.quote.protocolFee > 0 && (
         <Flex justifyContent="space-between">
-          <MouseoverTooltip text={`Additional fee charged by ${quote.adapter.getName()}`}>
+          <MouseoverTooltip text={<Trans>Additional fee charged by {quote.adapter.getName()}</Trans>}>
             <Text color={theme.subText} sx={{ borderBottom: `1px dotted ${theme.border}` }}>
-              Protocol Fee
+              {t`Protocol Fee`}
             </Text>
           </MouseoverTooltip>
           <Text>{formatDisplayNumber(quote.quote.protocolFee, { style: 'currency', fractionDigits: 2 })}</Text>
@@ -109,15 +110,17 @@ export const Summary = ({ quote, tokenOut, full }: { quote?: Quote; tokenOut?: C
         <MouseoverTooltip
           text={
             <Text>
-              Check more details{' '}
-              <ExternalLink href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-interface/user-guides/cross-chain-swap">
-                here
-              </ExternalLink>
+              <Trans>
+                Check more details{' '}
+                <ExternalLink href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-interface/user-guides/cross-chain-swap">
+                  here
+                </ExternalLink>
+              </Trans>
             </Text>
           }
         >
           <Text color={theme.subText} sx={{ borderBottom: `1px dotted ${theme.border}` }}>
-            Platform Fee
+            {t`Platform Fee`}
           </Text>
         </MouseoverTooltip>
         <Text>{quote ? `${quote.quote.platformFeePercent.toFixed(2)}%` : '--'}</Text>
@@ -141,17 +144,19 @@ export const Summary = ({ quote, tokenOut, full }: { quote?: Quote; tokenOut?: C
           placement="right"
           text={
             <Text>
-              During your swap if the price changes by more than this %, your transaction will revert. Read more{' '}
-              <ExternalLink
-                href={'https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/slippage'}
-              >
-                here ↗
-              </ExternalLink>
+              <Trans>
+                During your swap if the price changes by more than this %, your transaction will revert. Read more{' '}
+                <ExternalLink
+                  href={'https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/slippage'}
+                >
+                  here ↗
+                </ExternalLink>
+              </Trans>
             </Text>
           }
         >
           <Text color={theme.subText} sx={{ borderBottom: `1px dotted ${theme.border}` }}>
-            Max Slippage
+            {t`Max Slippage`}
           </Text>
         </MouseoverTooltip>
 

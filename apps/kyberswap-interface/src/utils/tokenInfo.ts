@@ -38,8 +38,8 @@ export const getTokenSymbolWithHardcode = (
   return symbolHardCode || defaultSymbol || ''
 }
 
-export const getProxyTokenLogo = (logoUrl: string | undefined) =>
-  logoUrl ? `https://proxy.kyberswap.com/token-logo?url=${logoUrl}` : ''
+export const getProxyTokenLogo = (logoUrl: string | undefined): string =>
+  logoUrl ? (logoUrl.startsWith('data:') ? logoUrl : `https://proxy.kyberswap.com/token-logo?url=${logoUrl}`) : ''
 
 // ex: `"BTT_b"` => BTT_b
 export const escapeQuoteString = (str: string) =>

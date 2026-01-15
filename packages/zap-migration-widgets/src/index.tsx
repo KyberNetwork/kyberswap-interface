@@ -1,221 +1,194 @@
 import { useEffect } from 'react';
 
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@kyber/ui';
+import { t } from '@lingui/macro';
+
+import { useDebounce } from '@kyber/hooks';
+import { ChainId, PoolType, ZERO_ADDRESS } from '@kyber/schema';
+import { StatusDialog, StatusDialogType, translateFriendlyErrorMessage } from '@kyber/ui';
 import '@kyber/ui/styles.css';
-import { fetchTokenPrice } from '@kyber/utils';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
-import CircleChevronRight from '@/assets/icons/circle-chevron-right.svg';
+import ArrowRight from '@/assets/icons/ic_right_arrow.svg';
 import { Action } from '@/components/Action';
-import { FromPool } from '@/components/FromPool';
+import AmountToMigrate from '@/components/AmountToMigrate';
+import { Estimated } from '@/components/Estimated';
 import { Header } from '@/components/Header';
-import { PoolInfo } from '@/components/PoolInfo';
+import { PoolInfo, PoolInfoType } from '@/components/PoolInfo';
+import PoolPriceWithRange, { RangeType } from '@/components/PoolPriceWithRange';
+import PositionToMigrate from '@/components/PositionToMigrate';
 import { Preview } from '@/components/Preview';
-import { SourcePoolState } from '@/components/SourcePoolState';
-import { TargetPoolState } from '@/components/TargetPoolState';
-import { ToPool } from '@/components/ToPool';
-import useSlippageManager from '@/hooks/useSlippageManager';
-import { ChainId, Dex, DexFrom, DexTo } from '@/schema';
-import { usePoolsStore } from '@/stores/usePoolsStore';
+import RangeInput from '@/components/RangeInput';
+import TargetPosition from '@/components/TargetPosition';
+import Warning from '@/components/Warning';
+import useInitWidget from '@/hooks/useInitWidget';
+import { WidgetI18nProvider } from '@/i18n';
+import '@/index.css';
+import '@/index.scss';
+import { usePoolStore } from '@/stores/usePoolStore';
 import { usePositionStore } from '@/stores/usePositionStore';
-import { useZapStateStore } from '@/stores/useZapStateStore';
-import { Theme, defaultTheme } from '@/theme';
+import { useWidgetStore } from '@/stores/useWidgetStore';
+import { useZapStore } from '@/stores/useZapStore';
+import { OnSuccessProps, TxStatus, ZapMigrationProps } from '@/types/index';
 
-import './index.css';
-import './index.scss';
+export { ChainId, PoolType, TxStatus, type OnSuccessProps, type ZapMigrationProps };
+export type { SupportedLocale } from '@/i18n';
 
-export { Dex, ChainId };
-
-export interface ZapMigrationProps {
-  theme?: Theme;
-  chainId: ChainId;
-  className?: string;
-  from: DexFrom;
-  to: DexTo;
-  aggregatorOptions?: {
-    includedSources?: string[];
-    excludedSources?: string[];
-  };
-  feeConfig?: {
-    feePcm: number;
-    feeAddress: string;
-  };
-  onClose: () => void;
-  client: string;
-  connectedAccount: {
-    address: string | undefined; // check if account is connected
-    chainId: number; // check if wrong network
-  };
-  onConnectWallet: () => void;
-  onSwitchChain: () => void;
-  onSubmitTx: (txData: { from: string; to: string; value: string; data: string; gasLimit: string }) => Promise<string>;
-  onViewPosition?: (txHash: string) => void;
-  onBack?: () => void;
-  initialTick?: {
-    tickLower: number;
-    tickUpper: number;
-  };
-  referral?: string;
-  initialSlippage?: number;
-}
-
-// createModalRoot.js
-const createModalRoot = () => {
-  let modalRoot = document.getElementById('ks-lw-migration-modal-root');
-  if (!modalRoot) {
-    modalRoot = document.createElement('div');
-    modalRoot.id = 'ks-lw-migration-modal-root';
-    modalRoot.className = 'ks-lw-migration-style';
-    document.body.appendChild(modalRoot);
-  }
-};
-
-createModalRoot();
-
-export const ZapMigration = (props: ZapMigrationProps) => {
+export const ZapMigration = (widgetProps: ZapMigrationProps) => {
   const {
-    client,
-    className,
-    chainId,
-    from,
-    to,
     onClose: rawClose,
-    connectedAccount,
-    onConnectWallet,
-    onSwitchChain,
-    onSubmitTx,
-    theme,
-    onViewPosition,
+    className,
     onBack,
     initialTick,
-    referral,
-    initialSlippage,
-    //aggregatorOptions,
-    //feeConfig,
-  } = props;
+    onSubmitTx,
+    onConnectWallet,
+    onSwitchChain,
+    connectedAccount,
+    client,
+    onViewPosition,
+    rePositionMode,
+    to,
+    chainId,
+    onExplorePools,
+    locale,
+  } = widgetProps;
 
-  const { getPools, error: poolError, setTheme, pools, reset: resetPools } = usePoolsStore();
-  const { reset } = useZapStateStore();
-  const { reset: resetPos, toPosition } = usePositionStore();
+  const {
+    reset: resetWidgetStore,
+    widgetError,
+    setWidgetError,
+  } = useWidgetStore(['reset', 'widgetError', 'setWidgetError']);
+  const {
+    sourcePool,
+    targetPool,
+    error: poolError,
+    reset: resetPoolStore,
+  } = usePoolStore(['sourcePool', 'targetPool', 'error', 'reset']);
+  const {
+    sourcePosition,
+    targetPosition,
+    targetPositionId,
+    error: positionError,
+    reset: resetPositionStore,
+  } = usePositionStore(['sourcePosition', 'targetPosition', 'targetPositionId', 'error', 'reset']);
+  const { reset, buildData, fetchZapRoute, liquidityOut, tickUpper, tickLower } = useZapStore([
+    'reset',
+    'buildData',
+    'fetchZapRoute',
+    'liquidityOut',
+    'tickUpper',
+    'tickLower',
+  ]);
+
+  useInitWidget(widgetProps);
+
+  const debounceLiquidityOut = useDebounce(liquidityOut, 500);
+  const debouncedTickUpper = useDebounce(tickUpper, 500);
+  const debouncedTickLower = useDebounce(tickLower, 500);
+
+  useEffect(() => {
+    if (buildData) return;
+    fetchZapRoute(chainId, client, connectedAccount?.address || ZERO_ADDRESS);
+  }, [
+    sourcePool,
+    targetPool,
+    sourcePosition,
+    targetPosition,
+    fetchZapRoute,
+    debouncedTickUpper,
+    debouncedTickLower,
+    debounceLiquidityOut,
+    buildData,
+    connectedAccount?.address,
+    chainId,
+    client,
+  ]);
 
   const onClose = () => {
-    resetPos();
-    resetPools();
+    resetWidgetStore();
+    resetPoolStore();
+    resetPositionStore();
     reset();
     rawClose();
   };
 
-  const { fetchPosition, error: posError, setToPositionNull } = usePositionStore();
+  const onCloseErrorDialog = () => {
+    if (poolError || positionError) onClose();
+    else {
+      setWidgetError('');
+      fetchZapRoute(chainId, client, connectedAccount?.address || ZERO_ADDRESS);
+    }
+  };
 
-  const { showPreview } = useZapStateStore();
-  useSlippageManager({ chainId, initialSlippage });
-
-  useEffect(() => {
-    if (!theme) return;
-    const themeToApply = {
-      ...defaultTheme,
-      ...theme,
-    };
-    setTheme(themeToApply);
-    const r = document.querySelector<HTMLElement>(':root');
-    Object.keys(themeToApply).forEach(key => {
-      r?.style.setProperty(`--ks-lw-${key}`, themeToApply[key as keyof Theme]);
-    });
-  }, [setTheme, theme]);
-
-  // fetch pool on load
-  useEffect(() => {
-    resetPos();
-    resetPools();
-    reset();
-
-    fetchPosition(from.dex, chainId, from.positionId, from.poolId, true);
-    if (to.positionId) fetchPosition(to.dex, chainId, to.positionId, to.poolId, false);
-    else setToPositionNull();
-
-    const params = {
-      chainId,
-      poolFrom: from.poolId,
-      poolTo: to.poolId,
-      dexFrom: from.dex,
-      dexTo: to.dex,
-      fetchPrices: fetchTokenPrice,
-    };
-    getPools(params);
-
-    // refresh pools every 10s
-    const interval = setInterval(() => {
-      getPools(params);
-      fetchPosition(from.dex, chainId, from.positionId, from.poolId, true);
-    }, 15_000);
-
-    return () => clearInterval(interval);
-  }, [chainId, from.poolId, to.poolId, from.dex, to.dex, getPools]);
+  const errorDialog =
+    poolError || positionError || widgetError ? (
+      <StatusDialog
+        className="z-[1003]"
+        overlayClassName="z-[1003]"
+        type={StatusDialogType.ERROR}
+        title={
+          poolError
+            ? t`Failed to load pool`
+            : positionError
+              ? t`Failed to load position`
+              : widgetError
+                ? t`Failed to load zap route`
+                : ''
+        }
+        description={translateFriendlyErrorMessage(poolError || positionError || widgetError)}
+        onClose={onCloseErrorDialog}
+        action={
+          <button className="ks-outline-btn flex-1" onClick={onCloseErrorDialog}>
+            {poolError || positionError ? t`Close` : t`Close & Refresh`}
+          </button>
+        }
+      />
+    ) : null;
 
   return (
-    <div className="ks-lw-migration-style" style={{ width: '100%', height: '100%' }}>
-      <Dialog onOpenChange={onClose} open={Boolean(poolError || posError)}>
-        <DialogContent containerClassName="ks-lw-migration-style">
-          <DialogHeader>
-            <DialogTitle>Error</DialogTitle>
-            <DialogDescription className="text-red-500 mt-4">{poolError || posError}</DialogDescription>
-          </DialogHeader>
-        </DialogContent>
-      </Dialog>
+    <WidgetI18nProvider locale={locale}>
+      <div className="ks-lw-migration-style" style={{ width: '100%', height: '100%' }}>
+        {errorDialog}
 
-      <div
-        className={cn(
-          'bg-background w-full h-full max-w-[800px] border rounded-md p-6 border-stroke',
-          'text-text',
-          className,
-        )}
-      >
-        <Header onClose={onClose} onBack={onBack} chainId={chainId} />
+        <div
+          className={cn(
+            'bg-background text-text w-full h-full border rounded-md p-6 border-stroke',
+            className,
+            buildData && 'hidden',
+          )}
+        >
+          <Header onClose={onClose} onBack={onBack} />
 
-        <div className="flex gap-3 items-center mt-5">
-          <FromPool />
-          <div className="hidden md:block">
-            <CircleChevronRight className="text-primary w-8 h-8 p-1" />
+          <div className="grid md:grid-cols-2 grid-cols-1 gap-4 md:gap-14 mt-4">
+            <div className="flex flex-col gap-4">
+              <PositionToMigrate />
+              {rePositionMode && <PoolPriceWithRange type={RangeType.Source} />}
+              <AmountToMigrate />
+              {!targetPositionId && <Estimated />}
+            </div>
+
+            <div className="block md:hidden rotate-90 w-fit mx-auto">
+              <ArrowRight className="text-primary w-6 h-6" />
+            </div>
+
+            <div className="flex flex-col gap-4">
+              <div className="block md:hidden mb-4">
+                <PoolInfo type={PoolInfoType.Target} />
+              </div>
+              <TargetPosition />
+              <RangeInput initialTick={initialTick} />
+              {!rePositionMode && to?.positionId && <PoolPriceWithRange type={RangeType.Target} showPrice />}
+              {targetPositionId && <Estimated />}
+              <Warning />
+            </div>
           </div>
-          <ToPool className="hidden md:block" />
+
+          <Action onConnectWallet={onConnectWallet} onSwitchChain={onSwitchChain} onClose={onClose} onBack={onBack} />
         </div>
 
-        <div className="flex flex-col md:!flex-row gap-4 md:!gap-12 mt-4">
-          <SourcePoolState />
-
-          <div className="block md:!hidden">
-            <CircleChevronRight className="text-primary w-8 h-8 p-1 rotate-90 mx-auto mb-4" />
-            <PoolInfo pool={pools === 'loading' ? 'loading' : pools[1]} chainId={chainId} position={toPosition} />
-          </div>
-
-          <ToPool className="block md:!hidden" />
-
-          <TargetPoolState initialTick={initialTick} chainId={chainId} />
-        </div>
-
-        <Action
-          client={client}
-          chainId={chainId}
-          connectedAccount={connectedAccount}
-          onConnectWallet={onConnectWallet}
-          onSwitchChain={onSwitchChain}
-          onClose={onClose}
-          onBack={onBack}
-          onSubmitTx={onSubmitTx}
-        />
-
-        {showPreview && (
-          <Preview
-            chainId={chainId}
-            onSubmitTx={onSubmitTx}
-            account={connectedAccount.address}
-            client={client}
-            onClose={onClose}
-            onViewPosition={onViewPosition}
-            referral={referral}
-          />
+        {buildData && (
+          <Preview onSubmitTx={onSubmitTx} onViewPosition={onViewPosition} onExplorePools={onExplorePools} />
         )}
       </div>
-    </div>
+    </WidgetI18nProvider>
   );
 };

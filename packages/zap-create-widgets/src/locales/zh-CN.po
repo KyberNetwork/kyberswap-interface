@@ -1,0 +1,399 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2025-10-16 07:26+0700\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: zh-CN\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Plural-Forms: \n"
+
+#: src/components/Setting/index.tsx
+msgid "Please type the word <0>Confirm</0> below to enable Degen Mode"
+msgstr "请在下方输入 <0>Confirm</0> 以启用 Degen 模式"
+
+#: src/components/Estimated/index.tsx
+msgid "Zap Impact"
+msgstr "Zap 影响"
+
+#: src/components/Setting/index.tsx
+msgid "No, Go back"
+msgstr "不，返回"
+
+#: src/components/Estimated/index.tsx
+msgid "Est. Liquidity Value"
+msgstr "预计流动性价值"
+
+#: src/components/Preview/index.tsx
+msgid "Confirm this transaction in your wallet - Zapping {dexName} {0}/{1} {2}%"
+msgstr "在钱包中确认此笔交易 - 正在对 {dexName} {0}/{1} {2}% 进行 Zap"
+
+#: src/hooks/useZapState.tsx
+msgid "Zap Unavailable"
+msgstr "Zap 不可用"
+
+#: src/components/Content/PriceInput.tsx
+msgid "<0/><1>per</1><2/>"
+msgstr "<0/><1>每</1><2/>"
+
+#: src/components/Setting/index.tsx
+msgid "Degen Mode"
+msgstr "Degen 模式"
+
+#: src/components/Setting/index.tsx
+msgid "mins"
+msgstr "分钟"
+
+#: src/components/Setting/index.tsx
+msgid "Transaction Time Limit"
+msgstr "交易时间限制"
+
+#: src/constants/index.ts
+msgid "Select token in"
+msgstr "选择输入代币"
+
+#: src/components/Content/PriceInput.tsx
+msgid "Max price"
+msgstr "最高价格"
+
+#: src/components/Estimated/EstimatedTokenRow.tsx
+msgid "Est. Pooled"
+msgstr "预计注入"
+
+#: src/components/Setting/index.tsx
+msgid "Are you sure?"
+msgstr "确定吗？"
+
+#: src/components/Setting/index.tsx
+msgid "Confirm"
+msgstr "确认"
+
+#: src/components/PriceRange/index.tsx
+msgid "Full Range"
+msgstr "全范围"
+
+#: src/components/Setting/SlippageInput.tsx
+msgid "Custom"
+msgstr "自定义"
+
+#: src/components/Preview/Head.tsx
+msgid "Fee {0}%"
+msgstr "手续费 {0}%"
+
+#: src/components/Header/index.tsx
+msgid "Create New Pool"
+msgstr "创建新池子"
+
+#: src/components/Setting/index.tsx
+#: src/components/Setting/index.tsx
+msgid "Turn this on to make trades with very high price impact or to set very high slippage tolerance. This can result in bad rates and loss of funds. Be cautious."
+msgstr "开启此选项可在极高价格影响或滑点下完成交易，可能导致糟糕的价格和资金损失，请谨慎操作。"
+
+#: src/components/Content/LiquidityToAdd.tsx
+#: src/components/Content/LiquidityToAdd.tsx
+msgid "Max"
+msgstr "最大"
+
+#: src/components/Setting/index.tsx
+msgid "Transaction will revert if it is pending for longer than the indicated time."
+msgstr "如果交易等待时间超过设定时限，将会回滚。"
+
+#: src/components/Setting/SlippageInput.tsx
+msgid "Dynamic entry based on trading pair."
+msgstr "根据交易对动态设定。"
+
+#: src/components/Content/PriceInput.tsx
+msgid "Min price"
+msgstr "最低价格"
+
+#: src/components/Preview/PriceInfo.tsx
+msgid "Max Price"
+msgstr "最高价格"
+
+#: src/components/Content/ZapSummary.tsx
+msgid "Zap Summary"
+msgstr "Zap 摘要"
+
+#: src/components/Estimated/index.tsx
+msgid "Based on your price range settings, a portion of your liquidity will be automatically zapped into the pool, while the remaining amount will stay in your wallet."
+msgstr "根据你设置的价格区间，部分流动性会自动 Zap 入池，其余金额将保留在你的钱包中。"
+
+#: src/components/Content/ZapSummary.tsx
+msgid "Build LP using {0} {symbol0} and {1} {symbol1} on <0>{dexName}</0>"
+msgstr "在 <0>{dexName}</0> 上使用 {0} {symbol0} 和 {1} {symbol1} 构建 LP"
+
+#: src/components/Estimated/index.tsx
+msgid "{0}% Protocol Fee + {1}% Fee for {source}"
+msgstr "{0}% 协议费用 + {1}% {source} 费用"
+
+#: src/constants/index.ts
+msgid "Enter amount"
+msgstr "输入金额"
+
+#: src/Widget.tsx
+msgid "Failed to load pool"
+msgstr "加载池失败"
+
+#: src/Widget.tsx
+msgid "Close & Refresh"
+msgstr "关闭并刷新"
+
+#: src/Widget.tsx
+msgid "+ Add Token(s)"
+msgstr "+ 添加代币"
+
+#: src/components/Estimated/index.tsx
+msgid "Zap Fee"
+msgstr "Zap 费用"
+
+#: src/components/Content/ZapSummary.tsx
+msgid "Claim fee{0}{1}"
+msgstr "领取手续费{0}{1}"
+
+#: src/components/PriceControl/index.tsx
+msgid "Market Rate"
+msgstr "市场价格"
+
+#: src/Widget.tsx
+msgid "Add Liquidity"
+msgstr "添加流动性"
+
+#: src/components/Header/index.tsx
+msgid "Fee {fee}%"
+msgstr "手续费 {fee}%"
+
+#: src/components/Preview/index.tsx
+msgid "Use Suggested Slippage"
+msgstr "使用建议滑点"
+
+#: src/Widget.tsx
+msgid "Failed to build zap route"
+msgstr "构建 Zap 路线失败"
+
+#: src/components/PriceControl/index.tsx
+msgid "Zapping with {0} is not supported"
+msgstr "不支持使用 {0} 进行 Zap"
+
+#: src/components/Setting/utils.ts
+#: src/components/Setting/utils.ts
+#: src/components/Setting/utils.ts
+msgid "Enter a valid slippage percentage"
+msgstr "请输入有效的滑点百分比"
+
+#: src/components/Preview/ZapInAmount.tsx
+msgid "Zap-in Amount"
+msgstr "Zap 金额"
+
+#: src/components/Header/index.tsx
+#: src/components/Header/index.tsx
+msgid "Native token"
+msgstr "原生代币"
+
+#: src/constants/index.ts
+msgid "Connect wallet"
+msgstr "连接钱包"
+
+#: src/components/Action/index.tsx
+msgid "To ensure you dont lose funds due to very high price impact, swap has been disabled for this trade. If you still wish to continue, you can turn on Degen Mode from Settings."
+msgstr "为确保你不会因为极高价格影响而损失资金，此笔交易的兑换已被禁用。如仍希望继续，可在设置中开启 Degen 模式。"
+
+#: src/components/Content/ZapSummary.tsx
+msgid "Swap {0} {1} for {2} {3} via {4}"
+msgstr "通过 {4} 将 {0} {1} 兑换为 {2} {3}"
+
+#: src/components/Setting/SlippageInput.tsx
+msgid "Suggestion"
+msgstr "建议"
+
+#: src/components/Action/useActionButton.ts
+msgid "Fetching Route"
+msgstr "获取路线"
+
+#: src/components/Preview/index.tsx
+msgid "You have successfully created your Pool."
+msgstr "你已成功创建池子。"
+
+#: src/constants/index.ts
+msgid "Enter max price"
+msgstr "输入最高价格"
+
+#: src/constants/index.ts
+msgid "Switch network"
+msgstr "切换网络"
+
+#: src/components/PriceControl/index.tsx
+msgid "Set the initiate pool price"
+msgstr "设置池子初始价格"
+
+#: src/components/Action/index.tsx
+msgid "Cancel"
+msgstr "取消"
+
+#: src/components/Action/useActionButton.ts
+msgid "Zap anyway"
+msgstr "仍然 Zap"
+
+#: src/components/Preview/index.tsx
+msgid "Set Custom Slippage"
+msgstr "设置自定义滑点"
+
+#: src/components/Header/index.tsx
+msgid "Pool Address:"
+msgstr "池地址："
+
+#: src/components/Action/useActionButton.ts
+msgid "Approve {0}"
+msgstr "批准 {0}"
+
+#: src/components/Action/useActionButton.ts
+msgid "Checking Allowance"
+msgstr "检查授权"
+
+#: src/components/Action/useActionButton.ts
+msgid "Approving"
+msgstr "正在批准"
+
+#: src/components/Preview/PriceInfo.tsx
+msgid "Min Price"
+msgstr "最低价格"
+
+#: src/components/Content/PriceInfo.tsx
+msgid "Current Price"
+msgstr "当前价格"
+
+#: src/components/Header/index.tsx
+msgid "Degen Mode is turned on!"
+msgstr "Degen 模式已开启！"
+
+#: src/constants/index.ts
+msgid "Invalid price range"
+msgstr "无效的价格区间"
+
+#: src/components/Estimated/index.tsx
+msgid "{0}% remains unused and will be returned to your wallet. Refresh or change your amount to get updated routes."
+msgstr "{0}% 将不会使用并会退回你的钱包。刷新或调整金额以获取最新路线。"
+
+#: src/components/Content/PriceInfo.tsx
+msgid "Unable to get the market price. Please be cautious!"
+msgstr "无法获取市场价格，请务必谨慎！"
+
+#: src/components/Content/ZapSummary.tsx
+msgid "The actual Zap Routes could be adjusted with on-chain states"
+msgstr "实际 Zap 路线可能会根据链上状态调整"
+
+#: src/components/Preview/Warning.tsx
+#: src/components/Setting/utils.ts
+#: src/components/SlippageWarning/index.tsx
+msgid "Your slippage is set lower than usual, increasing the risk of transaction failure."
+msgstr "你的滑点设置低于常规，增加了交易失败的风险。"
+
+#: src/components/Setting/index.tsx
+msgid "Slippage Tolerance"
+msgstr "滑点容差"
+
+#: src/components/Action/useActionButton.ts
+msgid "Token not supported"
+msgstr "代币不支持"
+
+#: src/components/Estimated/index.tsx
+msgid "The difference between input and estimated liquidity received (including remaining amount). Be careful with high value!"
+msgstr "输入金额与预计获得的流动性（含剩余金额）之间的差额。数值过高时请谨慎！"
+
+#: src/hooks/useZapState.tsx
+#: src/hooks/useZapState.tsx
+msgid "Something went wrong"
+msgstr "出了点问题"
+
+#: src/components/Setting/index.tsx
+msgid "Advanced Setting"
+msgstr "高级设置"
+
+#: src/components/Estimated/index.tsx
+msgid "Est. Remaining Value"
+msgstr "预计剩余价值"
+
+#: src/components/Action/index.tsx
+msgid "You have turned on Degen Mode from settings. Trades with very high price impact can be executed"
+msgstr "你已在设置中开启 Degen 模式，可执行高价格影响的交易"
+
+#: src/components/Preview/Warning.tsx
+msgid "The information is intended solely for your reference at the time you are viewing. It is your responsibility to verify all information before making decisions"
+msgstr "此信息仅供你查看时参考。做出决策前请自行核实所有信息。"
+
+#: src/components/Action/useActionButton.ts
+msgid "Preview"
+msgstr "预览"
+
+#: src/constants/index.ts
+msgid "Enter min price"
+msgstr "输入最低价格"
+
+#: src/components/Preview/index.tsx
+msgid "View position"
+msgstr "查看头寸"
+
+#: src/components/Header/index.tsx
+msgid "This pool doesn't exist yet. You will initialize it."
+msgstr "该池尚不存在。你将初始化它。"
+
+#: src/components/Action/useActionButton.ts
+msgid "Estimating Gas"
+msgstr "估算 Gas"
+
+#: src/components/Content/LiquidityToAdd.tsx
+#: src/components/Content/LiquidityToAdd.tsx
+msgid "Half"
+msgstr "一半"
+
+#: src/components/Estimated/index.tsx
+msgid "Fees charged for automatically zapping into a liquidity pool. You still have to pay the standard gas fees. <0>More details.</0>"
+msgstr "自动 Zap 进池所收取的费用，你仍需支付标准 Gas 费。<0>了解更多。</0>"
+
+#: src/components/Estimated/SlippageRow.tsx
+#: src/components/Setting/index.tsx
+#: src/components/SlippageWarning/index.tsx
+msgid "Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price. Please use with caution!"
+msgstr "应用于每一步 Zap。较高的滑点容差有助于交易成功，但可能带来较差价格，请谨慎使用！"
+
+#: src/components/Preview/index.tsx
+#: src/components/Preview/index.tsx
+msgid "Create Pool with Zap"
+msgstr "使用 Zap 创建池子"
+
+#: src/components/Preview/Warning.tsx
+#: src/components/Setting/utils.ts
+#: src/components/SlippageWarning/index.tsx
+msgid "Your slippage is set higher than usual, which may cause unexpected losses."
+msgstr "你的滑点设置高于常规，可能导致意外损失。"
+
+#: src/constants/index.ts
+msgid "Invalid input amount"
+msgstr "无效的输入金额"
+
+#: src/components/PriceControl/index.tsx
+msgid "Use Market Rate"
+msgstr "使用市场价格"
+
+#: src/components/Estimated/SlippageRow.tsx
+#: src/components/SlippageWarning/index.tsx
+msgid "Max Slippage"
+msgstr "最大滑点"
+
+#: src/components/Setting/utils.ts
+msgid "Enter a smaller slippage percentage"
+msgstr "请输入更低的滑点百分比"
+
+#: src/components/Preview/index.tsx
+#: src/components/Preview/index.tsx
+#: src/Widget.tsx
+msgid "Close"
+msgstr "关闭"
+
+#: src/constants/index.ts
+msgid "Insufficient balance"
+msgstr "余额不足"

@@ -20,7 +20,7 @@ import {
   Wrapper,
   X,
 } from 'pages/Earns/components/ClaimModal/styles'
-import { EarnDex, LIMIT_TEXT_STYLES } from 'pages/Earns/constants'
+import { Exchange, LIMIT_TEXT_STYLES } from 'pages/Earns/constants'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -30,7 +30,7 @@ export enum ClaimType {
 }
 
 export interface ClaimInfo {
-  dex?: EarnDex
+  dex?: Exchange
   nftId: string
   chainId: number
   tokens: Array<{
@@ -48,7 +48,6 @@ export interface ClaimInfo {
 
 const ClaimModal = ({
   claimType,
-  claiming,
   claimInfo,
   compoundable,
   onClaim,
@@ -56,10 +55,9 @@ const ClaimModal = ({
   onClose,
 }: {
   claimType: ClaimType
-  claiming: boolean
   claimInfo: ClaimInfo
   compoundable?: boolean
-  onClaim: () => void
+  onClaim: () => Promise<void>
   onCompound?: () => void
   onClose: () => void
 }) => {
@@ -70,6 +68,7 @@ const ClaimModal = ({
   const { changeNetwork } = useChangeNetwork()
 
   const [autoClaim, setAutoClaim] = useState(false)
+  const [isClaiming, setIsClaiming] = useState(false)
 
   const handleClaim = useCallback(async () => {
     if (!library) return
@@ -80,7 +79,12 @@ const ClaimModal = ({
       return
     }
 
-    onClaim()
+    setIsClaiming(true)
+    try {
+      await onClaim()
+    } finally {
+      setIsClaiming(false)
+    }
   }, [library, chainId, claimInfo.chainId, onClaim, changeNetwork])
 
   useEffect(() => {
@@ -97,16 +101,18 @@ const ClaimModal = ({
       <Wrapper>
         <ModalHeader>
           <Text fontSize={20} fontWeight={500}>
-            {t`Claim ${claimType}`}
+            {claimType === ClaimType.FEES
+              ? t`Claim Fees`
+              : claimType === ClaimType.REWARDS
+              ? t`Claim Rewards`
+              : t`Claim`}
           </Text>
           <X onClick={onClose} />
         </ModalHeader>
         <ClaimInfoWrapper>
-          <Text
-            fontSize={14}
-            color={theme.subText}
-            marginBottom={2}
-          >{t`Choose to reinvest your earnings back into this position or send them to your wallet.`}</Text>
+          <Text fontSize={14} color={theme.subText} marginBottom={2}>
+            {t`Choose to reinvest your earnings back into this position or send them to your wallet.`}
+          </Text>
           <ClaimInfo>
             <Flex alignItems={'center'} justifyContent={'space-between'}>
               <Text fontSize={14} color={theme.subText}>{t`Total Value`}</Text>
@@ -115,7 +121,7 @@ const ClaimModal = ({
               </Text>
             </Flex>
 
-            {claimInfo.tokens
+            {[...claimInfo.tokens]
               .sort((a, b) => b.value - a.value)
               .map((token, index) => (
                 <ClaimInfoRow
@@ -131,15 +137,15 @@ const ClaimModal = ({
         </ClaimInfoWrapper>
         <Row gap="16px" flexDirection={upToExtraSmall ? 'column-reverse' : 'row'}>
           {compoundable && onCompound ? (
-            <ButtonOutlined color={theme.primary} gap="4px" disabled={claiming} onClick={onCompound}>
+            <ButtonOutlined color={theme.primary} gap="4px" disabled={isClaiming} onClick={onCompound}>
               {t`Compound`}
             </ButtonOutlined>
           ) : (
             <ButtonOutlined onClick={onClose}>{t`Cancel`}</ButtonOutlined>
           )}
-          <ButtonPrimary gap="4px" disabled={claiming} onClick={handleClaim}>
-            {claiming && <Loader stroke={'#505050'} />}
-            {claiming ? t`Claiming` : t`Claim only`}
+          <ButtonPrimary gap="4px" disabled={isClaiming} onClick={handleClaim}>
+            {isClaiming && <Loader stroke={'#505050'} />}
+            {isClaiming ? t`Claiming` : t`Claim only`}
           </ButtonPrimary>
         </Row>
       </Wrapper>

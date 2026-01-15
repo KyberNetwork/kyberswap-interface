@@ -1,56 +1,60 @@
 import { rgba } from 'polished'
 import { Link } from 'react-router-dom'
+import { Flex } from 'rebass'
 import styled from 'styled-components'
 
 import { ReactComponent as IconCurrentPrice } from 'assets/svg/earn/ic_position_current_price.svg'
-import { PoolPageWrapper, TableBody, TableHeader, TableWrapper } from 'pages/Earns/PoolExplorer/styles'
+import { PoolPageWrapper, TableHeader, TableWrapper } from 'pages/Earns/PoolExplorer/styles'
 
 export const PositionPageWrapper = styled(PoolPageWrapper)`
   padding: 24px 6rem 62px;
 
-  ${({ theme }) => theme.mediaWidth.upToLarge`
+  @media (max-width: 1300px) {
     padding: 24px 6rem 60px;
-  `}
+  }
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     padding: 24px 16px 100px;
   `}
 `
 
-export const PositionRow = styled(Link)`
+export const PositionRow = styled(Link)<{ $isUnfinalized?: boolean }>`
   display: grid;
   grid-template-columns:
-    minmax(260px, 2.2fr) /* Position */
-    minmax(80px, 1fr) /* Value */
-    minmax(90px, 1fr) /* est. APR */
+    minmax(260px, 2.6fr) /* Position */
+    minmax(80px, 0.8fr) /* Value */
+    minmax(90px, 0.8fr) /* est. APR */
     minmax(100px, 1fr) /* Unclaimed fees */
     minmax(120px, 1fr) /* Unclaimed rewards */
     24px /* Spacer column for better visual separation */
-    minmax(150px, 1.5fr) /* Balance */
-    minmax(160px, 1.5fr) /* Price range */
+    minmax(150px, 0.4fr) /* Balance */
+    minmax(160px, 1.8fr) /* Price range */
     minmax(75px, auto); /* Actions */
   grid-template-rows: 1fr;
   padding: 16px 28px;
   row-gap: 8px;
   text-decoration: none;
   color: inherit !important;
+  background: ${({ $isUnfinalized, theme }) => ($isUnfinalized ? rgba(theme.tableHeader, 0.4) : 'transparent')};
 
-  ${({ theme }) => theme.mediaWidth.upToLarge`
+  @media (max-width: 1300px) {
     justify-content: flex-start;
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: 1fr 1fr;
     border-radius: 20px;
-    background: ${rgba(theme.background, 0.8)};
+    background: ${({ theme, $isUnfinalized }) =>
+      $isUnfinalized ? rgba(theme.tableHeader, 0.7) : rgba(theme.background, 0.8)};
     margin-bottom: 16px;
-  `}
+  }
 
-  ${({ theme }) => theme.mediaWidth.upToSmall`
+  ${({ $isUnfinalized, theme }) => theme.mediaWidth.upToSmall`
     display: flex;
     flex-direction: column;
     row-gap: 16px;
     padding: 16px;
-    background: ${rgba(theme.background, 0.8)} !important;
+    background: ${$isUnfinalized ? rgba(theme.tableHeader, 0.7) : rgba(theme.background, 0.8)} !important;
     position: relative;
+    border-radius: 0;
   `}
 
   &:last-child {
@@ -68,23 +72,14 @@ export const PositionOverview = styled.div`
   flex-direction: column;
   gap: 8px;
 
-  ${({ theme }) => theme.mediaWidth.upToLarge`
+  @media (max-width: 1300px) {
     grid-column: span 2;
-  `}
+  }
 `
 
 export const ImageContainer = styled.div`
   position: relative;
   top: 2px;
-`
-
-export const ChainImage = styled.img`
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  position: relative;
-  left: -8px;
-  top: 4px;
 `
 
 export enum BadgeType {
@@ -169,9 +164,9 @@ export const PositionValueLabel = styled.p`
   top: 1px;
   display: none;
 
-  ${({ theme }) => theme.mediaWidth.upToLarge`
+  @media (max-width: 1300px) {
     display: block;
-  `}
+  }
 
   ${({ theme }) => theme.mediaWidth.upToSmall`
     font-size: 16px;
@@ -335,14 +330,14 @@ export const BannerDataItem = styled.div`
 
 export const PositionTableHeader = styled(TableHeader)`
   grid-template-columns:
-    minmax(260px, 2.2fr) /* Position */
-    minmax(80px, 1fr) /* Value */
-    minmax(90px, 1fr) /* est. APR */
+    minmax(260px, 2.6fr) /* Position */
+    minmax(80px, 0.8fr) /* Value */
+    minmax(90px, 0.8fr) /* est. APR */
     minmax(100px, 1fr) /* Unclaimed fees */
     minmax(120px, 1fr) /* Unclaimed rewards */
     24px /* Spacer column for better visual separation */
-    minmax(150px, 1.5fr) /* Balance */
-    minmax(160px, 1.5fr) /* Price range */
+    minmax(150px, 0.4fr) /* Balance */
+    minmax(160px, 1.8fr) /* Price range */
     minmax(75px, auto); /* Actions */
   overflow: hidden;
 `
@@ -351,26 +346,25 @@ export const PositionTableHeaderItem = styled.div`
   height: 100%;
 `
 
-export const PositionTableHeaderFlexItem = styled.div`
-  display: flex;
-  align-items: flex-start;
+export const PositionTableHeaderFlexItem = styled(Flex)`
   flex-wrap: wrap;
-  height: 100%;
+  align-items: center;
+  align-self: flex-start;
   gap: 4px;
+  width: fit-content;
   cursor: pointer;
+
+  &:hover svg path {
+    stroke: ${({ theme }) => theme.text};
+  }
 `
 
 export const PositionTableWrapper = styled(TableWrapper)`
   overflow: hidden;
 
-  ${({ theme }) => theme.mediaWidth.upToLarge`
+  @media (max-width: 1300px) {
     background: transparent;
-    margin: 0;
-  `}
-`
-
-export const PositionTableBody = styled(TableBody)`
-  max-height: unset;
+  }
 `
 
 export const PriceRangeWrapper = styled.div<{ outOfRange: boolean }>`

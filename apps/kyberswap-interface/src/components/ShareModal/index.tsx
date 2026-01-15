@@ -226,8 +226,8 @@ export default function ShareModal({
         <InputWrapper>
           <input type="text" value={shareUrl} onChange={noop} />
           <ButtonPrimary onClick={handleCopyClick} fontSize={14} padding="8px 12px" width="auto">
-            Copy Link
-            <AlertMessage className={isCopied ? 'show' : ''}>Copied!</AlertMessage>
+            {t`Copy Link`}
+            <AlertMessage className={isCopied ? 'show' : ''}>{t`Copied!`}</AlertMessage>
           </ButtonPrimary>
         </InputWrapper>
       </Flex>

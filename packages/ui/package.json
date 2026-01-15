@@ -25,19 +25,25 @@
     "./tabs": "./src/components/ui/tabs.tsx",
     "./card": "./src/components/ui/card.tsx",
     "./radio-group": "./src/components/ui/radio-group.tsx",
-    "./token-logo": "./src/components/token-logo.tsx"
+    "./token-logo": "./src/components/token-logo.tsx",
+    "./dropdown-menu": "./src/components/ui/dropdown-menu.tsx",
+    "./locales/*": "./src/locales/*"
   },
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "tsup && node build-css.mjs",
-    "type-check": "tsc --noEmit"
+    "build": "pnpm run i18n:compile && tsup && node build-css.mjs",
+    "type-check": "tsc --noEmit",
+    "i18n": "pnpm run i18n:extract && pnpm run i18n:compile",
+    "i18n:extract": "lingui extract",
+    "i18n:compile": "lingui compile"
   },
   "dependencies": {
     "@popperjs/core": "^2.11.8",
     "@radix-ui/react-accordion": "^1.2.1",
     "@radix-ui/react-dialog": "^1.1.2",
+    "@radix-ui/react-dropdown-menu": "^2.1.16",
     "@radix-ui/react-label": "^2.1.2",
     "@radix-ui/react-radio-group": "^1.2.3",
     "@radix-ui/react-scroll-area": "^1.1.0",
@@ -51,6 +57,9 @@
     "react-popper": "^2.3.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.26.0",
+    "@babel/preset-react": "^7.25.9",
+    "@babel/preset-typescript": "^7.26.0",
     "@kyber/eslint-config": "workspace:*",
     "@kyber/hooks": "workspace:^",
     "@kyber/schema": "workspace:^",
@@ -58,15 +67,21 @@
     "@kyber/tailwind-config": "workspace:^",
     "@kyber/typescript-config": "workspace:*",
     "@kyber/utils": "workspace:^",
+    "@lingui/cli": "^4.6.0",
+    "@lingui/core": "^4.6.0",
+    "@lingui/macro": "^4.6.0",
+    "@lingui/react": "^4.6.0",
     "@trivago/prettier-plugin-sort-imports": "^4.2.0",
-    "@types/numeral": "^2.0.5",
     "@types/eslint": "^8.56.5",
     "@types/node": "^20.11.24",
+    "@types/numeral": "^2.0.5",
     "@types/react": "^18.0.17",
     "@types/react-dom": "^18.0.6",
     "@typescript-eslint/eslint-plugin": "^6.14.0",
     "@typescript-eslint/parser": "^6.14.0",
     "autoprefixer": "^10.4.20",
+    "babel-plugin-macros": "^3.1.0",
+    "esbuild-plugin-babel": "^0.2.3",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.4.0",
@@ -81,6 +96,8 @@
     "typescript": "5.3.2"
   },
   "peerDependencies": {
+    "@lingui/core": ">=4.0.0",
+    "@lingui/react": ">=4.0.0",
     "react": ">=16.8.0",
     "react-dom": ">=16.8.0"
   }

@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 
+import { Trans } from '@lingui/macro';
+
 import { univ3PoolNormalize } from '@kyber/schema';
-import { Skeleton, TokenSymbol } from '@kyber/ui';
+import { Skeleton } from '@kyber/ui';
 import { formatNumber } from '@kyber/utils/number';
 import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick } from '@kyber/utils/uniswapv3';
 
@@ -18,14 +20,14 @@ export default function PriceInput({ type }: { type: PriceType }) {
   const [localValue, setLocalValue] = useState('');
 
   const pool = useMemo(() => {
-    if (rawPool === 'loading') return rawPool;
+    if (rawPool === null) return rawPool;
     const { success, data } = univ3PoolNormalize.safeParse(rawPool);
     if (success) return data;
 
-    return 'loading';
+    return null;
   }, [rawPool]);
 
-  const initializing = pool === 'loading';
+  const initializing = !pool;
 
   const isMinTick = !initializing && tickLower === pool.minTick;
   const isMaxTick = !initializing && tickUpper === pool.maxTick;
@@ -64,7 +66,7 @@ export default function PriceInput({ type }: { type: PriceType }) {
   };
 
   const wrappedCorrectPrice = (value: string) => {
-    if (pool === 'loading') return;
+    if (!pool) return;
     const tick = priceToClosestTick(value, pool.token0?.decimals, pool.token1?.decimals, revertPrice);
     if (tick !== undefined) {
       const t = tick % pool.tickSpacing === 0 ? tick : nearestUsableTick(tick, pool.tickSpacing);
@@ -87,7 +89,7 @@ export default function PriceInput({ type }: { type: PriceType }) {
   };
 
   useEffect(() => {
-    if (pool === 'loading') return;
+    if (!pool) return;
     if (type === PriceType.MinPrice && (!revertPrice ? isMinTick : isMaxTick)) {
       setLocalValue('0');
     } else if (type === PriceType.MaxPrice && (!revertPrice ? isMaxTick : isMinTick)) {
@@ -104,60 +106,54 @@ export default function PriceInput({ type }: { type: PriceType }) {
   }, [isMaxTick, isMinTick, maxPrice, minPrice, pool, positionId, revertPrice, type]);
 
   return (
-    <div className="mt-[0.6rem] w-1/2 p-3 border rounded-md border-stroke flex flex-col gap-1 items-center">
-      <div className="flex justify-between items-end gap-1">
-        <button
-          className="w-6 h-6 rounded-[4px] border border-stroke bg-layer2 text-subText flex items-center justify-center cursor-pointer hover:enabled:brightness-150 active:enabled:scale-95 disabled:cursor-not-allowed disabled:opacity-60 outline-none"
-          role="button"
-          onClick={handleDecreasePrice}
-          disabled={isFullRange || positionId !== undefined}
-        >
-          -
-        </button>
+    <div className="w-full flex items-center justify-center gap-2 rounded-sm px-2 bg-[#ffffff0a] flex-1 min-w-0">
+      <button
+        className="w-6 h-6 !rounded-[4px] border border-stroke bg-layer2 text-subText flex items-center justify-center cursor-pointer hover:enabled:brightness-150 active:enabled:scale-95 disabled:cursor-not-allowed disabled:opacity-60 outline-none"
+        role="button"
+        onClick={handleDecreasePrice}
+        disabled={isFullRange || positionId !== undefined}
+      >
+        -
+      </button>
 
-        <div className="flex flex-col items-center gap-[6px] w-fit text-sm font-medium text-subText">
-          <span>{type === PriceType.MinPrice ? 'Min' : PriceType.MaxPrice ? 'Max' : ''} price</span>
-          {initializing ? (
-            <Skeleton className="w-20 h-6 mx-4" />
-          ) : (
-            <input
-              className="bg-transparent w-[110px] text-center text-text text-base p-0 border-none outline-none disabled:cursor-not-allowed disabled:opacity-60"
-              value={localValue}
-              autoFocus={false}
-              onChange={onPriceChange}
-              onBlur={e => wrappedCorrectPrice(e.target.value)}
-              inputMode="decimal"
-              autoComplete="off"
-              autoCorrect="off"
-              disabled={positionId !== undefined}
-              type="text"
-              pattern="^[0-9]*[.,]?[0-9]*$"
-              placeholder="0.0"
-              minLength={1}
-              maxLength={79}
-              spellCheck="false"
-            />
-          )}
-        </div>
-
-        <button
-          className="w-6 h-6 rounded-[4px] border border-stroke bg-layer2 text-subText flex items-center justify-center cursor-pointer hover:enabled:brightness-150 active:enabled:scale-95 disabled:cursor-not-allowed disabled:opacity-60 outline-none"
-          onClick={handleIncreasePrice}
-          disabled={isFullRange || positionId !== undefined}
-        >
-          +
-        </button>
+      <div className="flex flex-col items-center py-2 flex-1 min-w-0 gap-1">
+        <p className="text-sm text-subText whitespace-nowrap">
+          {type === PriceType.MinPrice ? (
+            <Trans>Min price</Trans>
+          ) : type === PriceType.MaxPrice ? (
+            <Trans>Max price</Trans>
+          ) : null}
+        </p>
+        {initializing ? (
+          <Skeleton className="w-20 h-6 mx-4" />
+        ) : (
+          <input
+            className="bg-transparent text-text text-center border-none outline-none max-w-[200px] md:max-w-[80px] w-full"
+            value={localValue}
+            autoFocus={false}
+            onChange={onPriceChange}
+            onBlur={e => wrappedCorrectPrice(e.target.value)}
+            inputMode="decimal"
+            autoComplete="off"
+            autoCorrect="off"
+            disabled={positionId !== undefined}
+            type="text"
+            pattern="^[0-9]*[.,]?[0-9]*$"
+            placeholder="0.0"
+            minLength={1}
+            maxLength={79}
+            spellCheck="false"
+          />
+        )}
       </div>
 
-      {initializing ? (
-        <Skeleton className="w-24 h-5 mt-1" />
-      ) : (
-        <div className="w-max text-sm font-medium text-subText flex items-center gap-1">
-          <TokenSymbol symbol={!revertPrice ? pool.token1.symbol : pool.token0.symbol} maxWidth={80} />
-          <span>per</span>
-          <TokenSymbol symbol={!revertPrice ? pool.token0.symbol : pool.token1.symbol} maxWidth={80} />
-        </div>
-      )}
+      <button
+        className="w-6 h-6 !rounded-[4px] border border-stroke bg-layer2 text-subText flex items-center justify-center cursor-pointer hover:enabled:brightness-150 active:enabled:scale-95 disabled:cursor-not-allowed disabled:opacity-60 outline-none"
+        onClick={handleIncreasePrice}
+        disabled={isFullRange || positionId !== undefined}
+      >
+        +
+      </button>
     </div>
   );
 }

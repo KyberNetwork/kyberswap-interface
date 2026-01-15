@@ -40,7 +40,6 @@ import {
   TrendingWrapper,
 } from 'pages/SwapV3/styles'
 import useCurrenciesByPage from 'pages/SwapV3/useCurrenciesByPage'
-import { useTutorialSwapGuide } from 'state/tutorial/hooks'
 import { useShowTradeRoutes } from 'state/user/hooks'
 import { DetailedRouteSummary } from 'types/route'
 import { getTradeComposition } from 'utils/aggregationRouting'
@@ -73,7 +72,6 @@ export default function Swap() {
   const theme = useTheme()
   const { currencies, currencyIn, currencyOut } = useCurrenciesByPage()
   const qs = useParsedQueryString<{ highlightBox: string }>()
-  const [{ show: isShowTutorial = false }] = useTutorialSwapGuide()
   const [routeSummary, setRouteSummary] = useState<DetailedRouteSummary>()
 
   const { pathname } = useLocation()
@@ -142,7 +140,7 @@ export default function Swap() {
       <PageWrapper>
         <Banner />
         <Container>
-          <SwapFormWrapper isShowTutorial={isShowTutorial}>
+          <SwapFormWrapper>
             <Header activeTab={activeTab} setActiveTab={setActiveTab} />
 
             <AppBodyWrapped

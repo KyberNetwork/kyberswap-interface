@@ -16,7 +16,7 @@ export default function useTickPrice({
   token1?: Token;
   revertPrice: boolean;
   initialTick?: { tickLower: number; tickUpper: number };
-  position: 'loading' | Position | null;
+  position: Position | null;
 }) {
   const [tickLower, setTickLower] = useState<number | null>(null);
   const [tickUpper, setTickUpper] = useState<number | null>(null);
@@ -42,7 +42,7 @@ export default function useTickPrice({
 
   // set tick if position exists
   useEffect(() => {
-    if (position) {
+    if (position !== null) {
       const { success: isUniV3Position, data } = univ3Position.safeParse(position);
 
       if (isUniV3Position && data.tickUpper !== undefined && data.tickLower !== undefined) {

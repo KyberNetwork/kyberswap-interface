@@ -1,11 +1,14 @@
 import ReactDOM from "react-dom";
 import { ReactElement } from "react";
+import { cn } from "@kyber/utils/tailwind-helpers";
 
 const Modal = ({
   children,
+  className,
   onClose,
 }: {
   children: React.ReactNode;
+  className?: string;
   onClose?: () => void;
 }) => {
   return ReactDOM.createPortal(
@@ -14,7 +17,10 @@ const Modal = ({
       onClick={onClose}
     >
       <div
-        className={`ks-zap-demo-modal-content max-w-[800px] max-h-[90%] overflow-auto rounded-md bg-transparent border-none outline-none p-0 [&::-webkit-scrollbar]:w-0 relative overflow-y-scroll w-full text-text transition-all duration-200`}
+        className={cn(
+          "ks-zap-demo-modal-content max-w-[800px] max-h-[90%] overflow-auto rounded-md bg-transparent border-none outline-none p-0 [&::-webkit-scrollbar]:w-0 relative overflow-y-scroll w-full text-text transition-all duration-200",
+          className
+        )}
         onClick={(e) => e.stopPropagation()}
       >
         {children}

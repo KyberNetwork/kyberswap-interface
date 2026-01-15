@@ -57,7 +57,7 @@ export default function Setting() {
 
           <div className="flex gap-1 mt-6">
             <button
-              className="ks-outline-btn flex-1"
+              className="pcs-outline-btn flex-1"
               onClick={() => {
                 setShowConfirm(false);
                 setConfirm("");
@@ -66,7 +66,7 @@ export default function Setting() {
               No, Go back
             </button>
             <button
-              className="ks-primary-btn flex-1"
+              className="pcs-primary-btn flex-1"
               onClick={() => {
                 if (confirm.toLowerCase() === "confirm") {
                   setDegenMode(true);

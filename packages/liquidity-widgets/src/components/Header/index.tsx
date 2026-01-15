@@ -1,30 +1,13 @@
-import { useState } from 'react';
+import { useMemo } from 'react';
+
+import { Trans, t } from '@lingui/macro';
 
 import { useCopy } from '@kyber/hooks';
-import {
-  DEXES_INFO,
-  NATIVE_TOKEN_ADDRESS,
-  NETWORKS_INFO,
-  PoolType,
-  defaultToken,
-  dexMapping,
-  univ3PoolNormalize,
-  univ3Position,
-} from '@kyber/schema';
-import {
-  InfoHelper,
-  LoadingCounter,
-  MouseoverTooltip,
-  ShareModal,
-  ShareType,
-  Skeleton,
-  TokenLogo,
-  TokenSymbol,
-} from '@kyber/ui';
+import { DEXES_INFO, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, defaultToken, getDexName, univ3Types } from '@kyber/schema';
+import { InfoHelper, LoadingCounter, MouseoverTooltip, Skeleton, TokenLogo, TokenSymbol } from '@kyber/ui';
 import { shortenAddress } from '@kyber/utils/crypto';
-import { cn } from '@kyber/utils/tailwind-helpers';
 
-import ShareIcon from '@/assets/svg/ic_share.svg';
+import IconBack from '@/assets/svg/arrow-left.svg';
 import SettingIcon from '@/assets/svg/setting.svg';
 import X from '@/assets/svg/x.svg';
 import { useZapState } from '@/hooks/useZapState';
@@ -33,20 +16,29 @@ import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
 const Header = () => {
-  const { theme, chainId, onClose, poolType, positionId } = useWidgetStore([
+  const { theme, chainId, onClose, poolType, positionId, fromCreatePoolFlow, dexId } = useWidgetStore([
     'theme',
     'chainId',
     'onClose',
     'poolType',
     'positionId',
+    'fromCreatePoolFlow',
+    'dexId',
   ]);
-  const { pool } = usePoolStore(['pool']);
+  const { pool, poolPrice } = usePoolStore(['pool', 'poolPrice']);
   const { position } = usePositionStore(['position']);
-  const [openShare, setOpenShare] = useState(false);
 
-  const { toggleSetting, uiState, loading: zapLoading, getZapRoute, zapRouteDisabled } = useZapState();
+  const {
+    toggleSetting,
+    uiState,
+    loading: zapLoading,
+    getZapRoute,
+    zapRouteDisabled,
+    minPrice,
+    maxPrice,
+  } = useZapState();
 
-  const initializing = pool === 'loading' || !pool || position === 'loading';
+  const initializing = !pool;
   const poolAddress = initializing ? '' : pool.address;
 
   const PoolCopy = useCopy({
@@ -64,17 +56,16 @@ const Header = () => {
   const isToken0Native = token0.address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase();
   const isToken1Native = token1.address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase();
 
-  const { icon: dexLogo, name: rawName } = DEXES_INFO[poolType as PoolType];
-  const dexName = typeof rawName === 'string' ? rawName : rawName[chainId];
+  const { icon: dexLogo } = DEXES_INFO[poolType];
+  const dexName = getDexName(poolType, chainId, dexId);
+  const isUniV3 = univ3Types.includes(poolType as any);
 
-  const { success, data } = univ3Position.safeParse(position);
-  const { success: isUniV3, data: univ3Pool } = univ3PoolNormalize.safeParse(pool);
+  const isOutOfRange = useMemo(() => {
+    if (!positionId || !isUniV3 || !poolPrice || minPrice === null || maxPrice === null) return false;
+    return poolPrice < +minPrice || poolPrice > +maxPrice;
+  }, [isUniV3, maxPrice, minPrice, poolPrice, positionId]);
 
-  const isOutOfRange =
-    !!positionId && position && success && isUniV3
-      ? univ3Pool.tick < data.tickLower || univ3Pool.tick >= data.tickUpper
-      : false;
-  const isClosed = !!position && position !== 'loading' && position.liquidity.toString() === '0';
+  const isClosed = position !== null && position.liquidity.toString() === '0';
 
   const handleToggleSetting = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
@@ -82,55 +73,15 @@ const Header = () => {
     toggleSetting();
   };
 
-  const shareButton = (className?: string) => (
-    <div
-      className={cn(
-        'flex items-center justify-center cursor-pointer w-6 h-6 rounded-full text-primary bg-primary-200',
-        className,
-      )}
-      onClick={() => setOpenShare(true)}
-    >
-      <ShareIcon />
-    </div>
-  );
-
   return (
     <>
-      {openShare && !initializing && (
-        <ShareModal
-          isFarming={pool?.isFarming}
-          onClose={() => setOpenShare(false)}
-          type={ShareType.POOL_INFO}
-          pool={{
-            feeTier: fee,
-            address: pool.address,
-            chainId,
-            chainLogo: NETWORKS_INFO[chainId].logo,
-            dexLogo,
-            dexName,
-            exchange: dexMapping[poolType]?.[0] || '',
-            token0: {
-              symbol: token0.symbol,
-              logo: token0.logo || '',
-            },
-            token1: {
-              symbol: token1.symbol,
-              logo: token1.logo || '',
-            },
-            apr: {
-              fees: pool?.stats?.apr || 0,
-              eg: pool?.stats?.kemEGApr || 0,
-              lm: pool?.stats?.kemLMApr || 0,
-            },
-          }}
-        />
-      )}
       <div className="flex text-xl font-medium justify-between items-start">
         {initializing ? (
           <Skeleton className="w-[300px] h-7" />
         ) : (
           <div className="flex items-center flex-wrap gap-[6px]">
-            {positionId ? 'Increase Liquidity' : 'Add Liquidity'}
+            {onClose && fromCreatePoolFlow && <IconBack onClick={onClose} className="cursor-pointer text-subText" />}
+            {positionId ? <Trans>Increase Liquidity</Trans> : <Trans>Add Liquidity</Trans>}
             <div className="flex items-center gap-1">
               <TokenSymbol symbol={token0.symbol} />
               <span>/</span>
@@ -145,7 +96,13 @@ const Header = () => {
                     background: `${isClosed ? theme.icons : isOutOfRange ? theme.warning : theme.accent}33`,
                   }}
                 >
-                  {isClosed ? '● Closed' : isOutOfRange ? '● Out of range' : '● In range'}
+                  {isClosed ? (
+                    <Trans>● Closed</Trans>
+                  ) : isOutOfRange ? (
+                    <Trans>● Out of range</Trans>
+                  ) : (
+                    <Trans>● In range</Trans>
+                  )}
                 </div>
               </>
             )}
@@ -192,10 +149,10 @@ const Header = () => {
               <TokenSymbol symbol={token1.symbol} />
             </div>
 
-            {shareButton('sm:!hidden ml-1')}
-
             <div className="flex flex-wrap ml-[2px] gap-[6px] text-subText items-center">
-              <div className="rounded-full text-xs bg-layer2 text-subText px-[14px] py-1">Fee {fee}%</div>
+              <div className="rounded-full text-xs bg-layer2 text-subText px-[14px] py-1">
+                <Trans>Fee {fee}%</Trans>
+              </div>
               <div className="flex items-center justify-center px-2 py-1 bg-layer2 rounded-full">
                 <InfoHelper
                   placement="top"
@@ -207,16 +164,18 @@ const Header = () => {
                     <div className="flex flex-col text-xs text-subText gap-2">
                       <div className="flex items-center gap-3">
                         <span>{token0.symbol}: </span>
-                        <span>{isToken0Native ? 'Native token' : shortenAddress(token0.address, 4)}</span>
+                        <span>{isToken0Native ? <Trans>Native token</Trans> : shortenAddress(token0.address, 4)}</span>
                         {!isToken0Native && <span>{Token0Copy}</span>}
                       </div>
                       <div className="flex items-center gap-1">
                         <span>{token1.symbol}: </span>
-                        <span>{isToken1Native ? 'Native token' : shortenAddress(token1.address, 4)}</span>
+                        <span>{isToken1Native ? <Trans>Native token</Trans> : shortenAddress(token1.address, 4)}</span>
                         {!isToken1Native && <span>{Token1Copy}</span>}
                       </div>
                       <div className="flex items-center gap-1">
-                        <span>Pool Address: </span>
+                        <span>
+                          <Trans>Pool Address:</Trans>{' '}
+                        </span>
                         <span>{shortenAddress(poolAddress, 4)}</span>
                         <span>{PoolCopy}</span>
                       </div>
@@ -228,14 +187,13 @@ const Header = () => {
                 <TokenLogo src={dexLogo} size={16} />
                 <span>{dexName}</span>
               </div>
-              {shareButton('hidden sm:flex')}
             </div>
           </div>
         )}
 
         <MouseoverTooltip
           className="top-16 right-5 sm:right-6 max-sm:absolute"
-          text={uiState.degenMode ? 'Degen Mode is turned on!' : ''}
+          text={uiState.degenMode ? t`Degen Mode is turned on!` : ''}
         >
           <div
             className={`setting w-9 h-9 flex items-center justify-center rounded-full cursor-pointer bg-layer2 hover:brightness-125 active:scale-95 ${
@@ -249,6 +207,12 @@ const Header = () => {
           </div>
         </MouseoverTooltip>
       </div>
+
+      {fromCreatePoolFlow && (
+        <div className="py-2 px-4 text-sm rounded-md text-blue mt-3" style={{ backgroundColor: `${theme.blue}33` }}>
+          <Trans>Pool already exists. You'll add a position via Zap.</Trans>
+        </div>
+      )}
     </>
   );
 };

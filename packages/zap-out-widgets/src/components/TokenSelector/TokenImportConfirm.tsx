@@ -1,15 +1,15 @@
+import { useCopy } from '@kyber/hooks';
+import { ChainId, Token } from '@kyber/schema';
 import { Button, TokenLogo } from '@kyber/ui';
+import { getEtherscanLink } from '@kyber/utils';
 
 import IconAlertTriangle from '@/assets/svg/alert-triangle.svg';
 import IconBack from '@/assets/svg/arrow-left.svg';
 import IconExternalLink from '@/assets/svg/external-link.svg';
 import X from '@/assets/svg/x.svg';
-import { shortenAddress } from '@/components/TokenInfo/utils';
-import useCopy from '@/hooks/useCopy';
+import { shortenAddress } from '@/components/TokenSelector/TokenInfo/utils';
 import { useTokenList } from '@/hooks/useTokenList';
-import { ChainId, Token } from '@/schema';
 import { useZapOutUserState } from '@/stores/state';
-import { getEtherscanLink } from '@/utils';
 
 const TokenImportConfirm = ({
   token,

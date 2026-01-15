@@ -18,17 +18,22 @@ interface WidgetState extends WidgetProps {
   theme: Theme;
   nativeToken: Token;
   wrappedNativeToken: Token;
+  rpcUrl: string;
+  error: string | undefined;
   reset: () => void;
   setPositionId: (positionId: string) => void;
   setInitiaWidgetState: (props: WidgetProps, resetStore: () => void) => void;
+  setError: (error: string | undefined) => void;
 }
 
 const initState = {
   theme: defaultTheme,
+  chainId: ChainId.Ethereum,
+  rpcUrl: NETWORKS_INFO[ChainId.Ethereum].defaultRpc,
   poolAddress: '',
   positionId: undefined,
   poolType: PoolType.DEX_UNISWAPV3,
-  chainId: ChainId.Ethereum,
+  dexId: undefined,
   connectedAccount: {
     address: '',
     chainId: ChainId.Ethereum,
@@ -39,24 +44,27 @@ const initState = {
   aggregatorOptions: undefined,
   feeConfig: undefined,
   referral: undefined,
+  fromCreatePoolFlow: undefined,
   initialTick: undefined,
+  signTypedData: undefined,
   onClose: undefined,
-  onConnectWallet: () => {},
-  onSwitchChain: () => {},
-  onSubmitTx: (_txData: { from: string; to: string; value: string; data: string; gasLimit: string }) =>
-    Promise.resolve(''),
   onOpenZapMigration: undefined,
   onSuccess: undefined,
   onViewPosition: undefined,
   nativeToken: defaultToken,
   wrappedNativeToken: defaultToken,
+  error: undefined,
+  onConnectWallet: () => {},
+  onSwitchChain: () => {},
+  onSubmitTx: (_txData: { from: string; to: string; value: string; data: string; gasLimit: string }) =>
+    Promise.resolve(''),
 };
 
 const useWidgetRawStore = create<WidgetState>((set, _get) => ({
   ...initState,
   reset: () => set(initState),
   setInitiaWidgetState: (props: WidgetProps, resetStore: () => void) => {
-    const { theme, onClose, chainId } = props;
+    const { theme, onClose, chainId, rpcUrl } = props;
     const themeToApply =
       theme && typeof theme === 'object'
         ? {
@@ -69,6 +77,7 @@ const useWidgetRawStore = create<WidgetState>((set, _get) => ({
 
     set({
       ...props,
+      rpcUrl: rpcUrl ?? NETWORKS_INFO[chainId].defaultRpc,
       theme: themeToApply,
       onClose: onClose
         ? () => {
@@ -91,6 +100,7 @@ const useWidgetRawStore = create<WidgetState>((set, _get) => ({
     });
   },
   setPositionId: (positionId: string) => set({ positionId }),
+  setError: (error: string | undefined) => set({ error }),
 }));
 
 type WidgetStoreKeys = keyof ReturnType<typeof useWidgetRawStore.getState>;

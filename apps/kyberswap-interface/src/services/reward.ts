@@ -5,6 +5,7 @@ interface BatchClaimEncodeParams {
   chainId: ChainId
   owner: string
   recipient: string
+  tokenIds?: Array<string | number>
 }
 
 interface ClaimEncodeParams {
@@ -27,11 +28,13 @@ interface TokenReward {
   claimedUSDValue: string
   claimableUSDValue: string
   vestingUSDValue: string
+  waitingUSDValue: string
 
   claimedAmounts: { [tokenAddress: string]: string }
   merkleAmounts: { [tokenAddress: string]: string }
   pendingAmounts: { [tokenAddress: string]: string }
   vestingAmounts: { [tokenAddress: string]: string }
+  waitingAmounts: { [tokenAddress: string]: string }
   claimableAmounts: { [tokenAddress: string]: string }
 
   claimableUSDValues: { [tokenAddress: string]: string }
@@ -66,10 +69,17 @@ const rewardServiceApi = createApi({
   keepUnusedDataFor: 1,
   endpoints: builder => ({
     batchClaimEncodeData: builder.mutation<ClaimResponse, BatchClaimEncodeParams>({
-      query: params => ({
-        url: `/kem/batch-claim/erc721`,
-        params,
-      }),
+      query: params => {
+        const searchParams = new URLSearchParams()
+        searchParams.set('chainId', params.chainId.toString())
+        searchParams.set('owner', params.owner)
+        searchParams.set('recipient', params.recipient)
+        params.tokenIds?.forEach(tokenId => searchParams.append('tokenIds', tokenId.toString()))
+
+        return {
+          url: `/kem/batch-claim/erc721?${searchParams.toString()}`,
+        }
+      },
       transformResponse: (response: { data: ClaimResponse }) => response.data,
     }),
     claimEncodeData: builder.mutation<ClaimResponse, ClaimEncodeParams>({

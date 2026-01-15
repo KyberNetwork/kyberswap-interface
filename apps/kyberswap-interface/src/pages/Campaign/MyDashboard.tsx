@@ -1,4 +1,5 @@
 import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
+import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { useState } from 'react'
 import { MoreHorizontal } from 'react-feather'
@@ -20,13 +21,14 @@ import useTheme from 'hooks/useTheme'
 import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
 import { ButtonIcon } from 'pages/Pools/styleds'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
-import { MEDIA_WIDTHS, StyledInternalLink } from 'theme'
+import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 import { useNavigateToUrl } from 'utils/redirect'
 
 import ClaimBtn from './components/ClaimBtn'
-import { MyNearIntentDashboard } from './components/MyNearIntentDashboard'
-import MyReferralDashboard from './components/MyReferralDashboard'
+import MyNearIntentDashboard from './components/MyDashboard/MyNearIntentDashboard'
+import MyRaffleDashboard from './components/MyDashboard/MyRaffleDashboard'
+import MyReferralDashboard from './components/MyDashboard/MyReferralDashboard'
 import { CampaignType, campaignConfig } from './constants'
 import { useNearIntentCampaignReward } from './hooks/useNearIntentCampaignReward'
 import { Tab, Tabs, Wrapper } from './styles'
@@ -36,7 +38,7 @@ const TableHeader = styled.div`
   grid-template-columns: 1.5fr 1fr 1fr 1.25fr 100px;
   font-size: 12px;
   color: ${({ theme }) => theme.subText};
-  padding: 1rem;
+  padding: 1rem 0;
   gap: 1rem;
   font-weight: 500;
 `
@@ -59,18 +61,29 @@ export function getDateOfWeek(w: number, y: number) {
   return new Date(y, 0, d)
 }
 
+const NEW_CAMPAIGN = CampaignType.Raffle
+
 const MyDashboard = () => {
   const { account } = useActiveWeb3React()
   const navigate = useNavigateToUrl()
   const theme = useTheme()
   const [searchParams, setSearchParams] = useSearchParams()
-  const tab: CampaignType = (searchParams.get('tab') || CampaignType.NearIntents) as CampaignType
+  const tab: CampaignType = (searchParams.get('tab') || NEW_CAMPAIGN) as CampaignType
   const changeTab = (t: CampaignType) => {
     searchParams.set('tab', t)
     setSearchParams(searchParams)
   }
 
   const { reward, baseWeek, banner } = campaignConfig[tab]
+
+  const campaignLabelMap: Record<CampaignType, string> = {
+    [CampaignType.Raffle]: t`Weekly Rewards`,
+    [CampaignType.NearIntents]: t`Cross Chain`,
+    [CampaignType.MayTrading]: t`May Trading`,
+    [CampaignType.Aggregator]: t`Trading`,
+    [CampaignType.LimitOrder]: t`Limit Order`,
+    [CampaignType.Referrals]: t`Referral`,
+  }
 
   const mockToken = new Token(1, ZERO_ADDRESS, 18, 'mock')
 
@@ -214,52 +227,60 @@ const MyDashboard = () => {
 
   const endedCampaigns = [
     {
+      type: CampaignType.NearIntents,
+      label: campaignLabelMap[CampaignType.NearIntents],
+    },
+    {
       type: CampaignType.MayTrading,
-      label: 'May Trading',
+      label: campaignLabelMap[CampaignType.MayTrading],
     },
     {
       type: CampaignType.Aggregator,
-      label: 'Trading',
+      label: campaignLabelMap[CampaignType.Aggregator],
     },
     {
       type: CampaignType.LimitOrder,
-      label: 'Limit Order',
+      label: campaignLabelMap[CampaignType.LimitOrder],
     },
     {
       type: CampaignType.Referrals,
-      label: 'Referral',
+      label: campaignLabelMap[CampaignType.Referrals],
     },
-  ].filter(
-    item =>
-      (item.type === CampaignType.MayTrading && Number(mayTrading?.data?.totalClaimableReward || '0') > 0) ||
-      (item.type === CampaignType.Aggregator && Number(stipTrading?.data?.totalClaimableReward || '0') > 0) ||
-      (item.type === CampaignType.LimitOrder && Number(stipLoData?.data?.totalClaimableReward || '0') > 0) ||
-      (item.type === CampaignType.Referrals && Number(referralReward || '0') > 0),
-  )
+  ]
+
+  const endedCampaignsHaveRewards = endedCampaigns.filter(item => {
+    if (item.type === tab) {
+      return true
+    }
+    if (item.type === CampaignType.NearIntents) {
+      return totalNearCampaignReward > 0n
+    }
+    if (item.type === CampaignType.MayTrading) {
+      return Number(mayTrading?.data?.totalClaimableReward || '0') > 0
+    }
+    if (item.type === CampaignType.Aggregator) {
+      return Number(stipTrading?.data?.totalClaimableReward || '0') > 0
+    }
+    if (item.type === CampaignType.LimitOrder) {
+      return Number(stipLoData?.data?.totalClaimableReward || '0') > 0
+    }
+    if (item.type === CampaignType.Referrals) {
+      return Number(referralReward || '0') > 0
+    }
+    return false
+  })
 
   const infor = (
     <InfoHelper
       text={
-        <Text>
+        <Trans>
           The Estimated Rewards will vary based on the points earned by you and all campaign participants during the
           week. Check out how they are calculated in the{' '}
-          <StyledInternalLink
-            to={
-              tab === CampaignType.NearIntents
-                ? '/campaigns/near-intents?tab=information'
-                : tab === CampaignType.MayTrading
-                ? '/campaigns/may-trading?tab=information'
-                : tab === CampaignType.Aggregator
-                ? '/campaigns/aggregator?tab=information'
-                : CampaignType.LimitOrder === tab
-                ? '/campaigns/limit-order?tab=information'
-                : '/campaigns/referrals?tab=information'
-            }
-          >
+          <Text as="span" fontWeight="500" color={theme.primary}>
             Information
-          </StyledInternalLink>{' '}
+          </Text>{' '}
           tab.
-        </Text>
+        </Trans>
       }
     />
   )
@@ -273,7 +294,7 @@ const MyDashboard = () => {
           onClick={() => navigate(APP_PATHS.NEAR_INTENTS_CAMPAIGN)}
         />
         <Text fontSize={24} fontWeight="500">
-          My Dashboard
+          <Trans>My Dashboard</Trans>
         </Text>
       </Flex>
 
@@ -287,7 +308,9 @@ const MyDashboard = () => {
           }}
         >
           <Flex justifyContent="space-between" alignItems="center">
-            <Text>My Est. Rewards {infor}</Text>
+            <Text>
+              <Trans>My Est. Rewards</Trans> {infor}
+            </Text>
           </Flex>
           {account && stipTradingRw?.greaterThan('0') && (
             <Flex alignItems="center" sx={{ gap: '4px' }} fontSize={24} marginTop="0.5rem">
@@ -319,7 +342,7 @@ const MyDashboard = () => {
             </Flex>
           )}
           <Text fontStyle="italic" color={theme.subText} mt="12px">
-            The current rewards are based on your current rank. See Information for details.
+            <Trans>The current rewards are based on your current rank. See Information for details.</Trans>
           </Text>
         </Box>
 
@@ -331,7 +354,9 @@ const MyDashboard = () => {
             flex: 1,
           }}
         >
-          <Text>My claim-able rewards</Text>
+          <Text>
+            <Trans>My claim-able rewards</Trans>
+          </Text>
 
           {account && stipTradingRw?.greaterThan('0') && (
             <Flex alignItems="center" sx={{ gap: '4px' }} fontSize={24} marginTop="0.5rem">
@@ -355,102 +380,83 @@ const MyDashboard = () => {
           </Flex>
 
           <Text fontStyle="italic" color={theme.subText} mt="12px">
-            Total final rewards that you can claim for the campaign.
+            <Trans>Total final rewards that you can claim for the campaign.</Trans>
           </Text>
         </Box>
       </Flex>
 
       <Tabs>
-        <Tab
-          role="button"
-          active={tab === CampaignType.NearIntents}
-          onClick={() => changeTab(CampaignType.NearIntents)}
-        >
+        <Tab role="button" active={tab === NEW_CAMPAIGN} onClick={() => changeTab(NEW_CAMPAIGN)}>
           <Flex>
-            Cross Chain <NewLabel>NEW</NewLabel>
+            {campaignLabelMap[NEW_CAMPAIGN]}{' '}
+            <NewLabel>
+              <Trans>New</Trans>
+            </NewLabel>
           </Flex>
         </Tab>
-        {!upToSmall ? (
-          <>
+        {endedCampaignsHaveRewards.slice(0, upToSmall ? 1 : undefined).map(campaign => (
+          <Tab
+            key={campaign.type}
+            role="button"
+            active={tab === campaign.type}
+            onClick={() => changeTab(campaign.type)}
+          >
+            <Flex>
+              {campaign.label}
+              <ELabel>
+                <Trans>Ended</Trans>
+              </ELabel>
+            </Flex>
+          </Tab>
+        ))}
+        <Flex justifyContent="flex-end" flex={1}>
+          <ButtonIcon onClick={() => setShowModal(true)}>
+            <MoreHorizontal size={16} />
+          </ButtonIcon>
+        </Flex>
+        <Modal
+          isOpen={showModal}
+          onDismiss={() => setShowModal(false)}
+          maxHeight={90}
+          maxWidth={600}
+          bypassScrollLock={true}
+          bypassFocusLock={true}
+          zindex={99999}
+          width="240px"
+        >
+          <Flex width="100%" flexDirection="column" padding="24px" sx={{ gap: '24px' }}>
             {endedCampaigns.map(campaign => (
               <Tab
                 key={campaign.type}
                 role="button"
                 active={tab === campaign.type}
-                onClick={() => changeTab(campaign.type)}
+                onClick={() => {
+                  changeTab(campaign.type)
+                  setShowModal(false)
+                }}
               >
                 <Flex>
                   {campaign.label}
-                  <ELabel>ENDED</ELabel>
+                  <ELabel>
+                    <Trans>Ended</Trans>
+                  </ELabel>
                 </Flex>
               </Tab>
             ))}
-          </>
-        ) : (
-          <Flex justifyContent="space-between" sx={{ gap: '8px' }} flex={1}>
-            <Tab
-              active={tab !== CampaignType.NearIntents}
-              onClick={() => {
-                //
-              }}
-            >
-              <Flex>
-                {tab === CampaignType.Referrals
-                  ? 'Referral'
-                  : tab === CampaignType.Aggregator
-                  ? 'Trading'
-                  : tab === CampaignType.LimitOrder
-                  ? 'Limit Order'
-                  : endedCampaigns?.[0]?.label || ''}
-                {endedCampaigns.length > 0 && <ELabel>ENDED</ELabel>}
-              </Flex>
-            </Tab>
-            {endedCampaigns.length > 0 && (
-              <ButtonIcon onClick={() => setShowModal(true)}>
-                <MoreHorizontal size={16} />
-              </ButtonIcon>
-            )}
-            <Modal
-              isOpen={showModal}
-              onDismiss={() => setShowModal(false)}
-              maxHeight={90}
-              maxWidth={600}
-              bypassScrollLock={true}
-              bypassFocusLock={true}
-              zindex={99999}
-              width="240px"
-            >
-              <Flex width="100%" flexDirection="column" padding="24px" sx={{ gap: '24px' }}>
-                {endedCampaigns.map(campaign => (
-                  <Tab
-                    key={campaign.type}
-                    role="button"
-                    active={tab === campaign.type}
-                    onClick={() => {
-                      changeTab(campaign.type)
-                      setShowModal(false)
-                    }}
-                  >
-                    <Flex>
-                      {campaign.label}
-                      <ELabel>ENDED</ELabel>
-                    </Flex>
-                  </Tab>
-                ))}
-              </Flex>
-            </Modal>
           </Flex>
-        )}
+        </Modal>
       </Tabs>
 
       {tab === CampaignType.NearIntents ? (
-        <MyNearIntentDashboard reward={reward} />
+        <MyNearIntentDashboard />
       ) : !account ? (
         <Text marginTop="30px" textAlign="center" color={theme.subText}>
-          Please connect wallet to view your Dashboard
+          <Trans>Please connect wallet to view your Dashboard</Trans>
         </Text>
       ) : tab === CampaignType.Referrals ? (
         <MyReferralDashboard price={stipRewardPrice} infor={infor} />
+      ) : tab === CampaignType.Raffle ? (
+        <MyRaffleDashboard />
       ) : (
         <Box marginTop="1.25rem" sx={{ borderRadius: '20px', background: theme.background }} padding="1.5rem">
           <Box
@@ -458,17 +464,21 @@ const MyDashboard = () => {
               display: 'grid',
               gap: '1rem',
               gridTemplateColumns: upToSmall ? '1fr' : '1fr 1fr 1fr',
-              marginBottom: '28px',
+              marginBottom: '24px',
             }}
           >
             <div>
-              <Text color={theme.subText}>Total point earned</Text>
+              <Text color={theme.subText}>
+                <Trans>Total point earned</Trans>
+              </Text>
               <Text marginTop="8px" fontSize={18} fontWeight="500">
                 {formatDisplayNumber(Math.floor(data?.data?.totalPoint || 0), { significantDigits: 4 })}
               </Text>
             </div>
             <div>
-              <Text color={theme.subText}>Total est. rewards {infor}</Text>
+              <Text color={theme.subText}>
+                <Trans>Total est. rewards</Trans> {infor}
+              </Text>
               <Flex sx={{ gap: '4px' }} marginTop="8px" alignItems="center">
                 <img
                   src={rewardTokenLogo}
@@ -489,7 +499,9 @@ const MyDashboard = () => {
               </Flex>
             </div>
             <div>
-              <Text color={theme.subText}>Total Claim-able rewards</Text>
+              <Text color={theme.subText}>
+                <Trans>Total Claim-able rewards</Trans>
+              </Text>
               <Flex sx={{ gap: '4px' }} marginTop="8px" alignItems="center">
                 <img
                   src={rewardTokenLogo}
@@ -516,19 +528,28 @@ const MyDashboard = () => {
           <Divider />
 
           {!upToSmall && (
-            <TableHeader>
-              <Text>WEEK</Text>
-              <Text textAlign="right">POINTS EARNED</Text>
-              <Text textAlign="right">ESTIMATED REWARDS {infor}</Text>
-              <Text textAlign="right">TOTAL CLAIMABLE REWARDS</Text>
-            </TableHeader>
+            <>
+              <TableHeader>
+                <Text>
+                  <Trans>WEEK</Trans>
+                </Text>
+                <Text textAlign="right">
+                  <Trans>POINTS EARNED</Trans>
+                </Text>
+                <Text textAlign="right">
+                  <Trans>ESTIMATED REWARDS</Trans> {infor}
+                </Text>
+                <Text textAlign="right">
+                  <Trans>TOTAL CLAIMABLE REWARDS</Trans>
+                </Text>
+              </TableHeader>
+              <Divider />
+            </>
           )}
-
-          <Divider />
 
           {!data?.data?.weeklyRewards?.length && (
             <Text color={theme.subText} textAlign="center" marginTop="24px">
-              No data found
+              <Trans>No data found</Trans>
             </Text>
           )}
           {data?.data?.weeklyRewards?.map((item, idx) => {
@@ -548,11 +569,12 @@ const MyDashboard = () => {
                 <Box paddingY="1rem" sx={{ borderBottom: `1px solid ${theme.border}` }} key={idx}>
                   <Flex justifyContent="space-between" alignItems="center">
                     <Text color={theme.subText}>
-                      Week {item.week - baseWeek}: {dayjs(date).format('MMM DD')} - {dayjs(end).format('MMM DD')}
+                      <Trans>Week {item.week - baseWeek}:</Trans> {dayjs(date).format('MMM DD')} -{' '}
+                      {dayjs(end).format('MMM DD')}
                     </Text>
                     {!canClaim ? (
                       <ButtonOutlined width="88px" height="32px" disabled>
-                        {item.isClaimed ? 'Claimed' : 'Claim'}
+                        {item.isClaimed ? <Trans>Claimed</Trans> : <Trans>Claim</Trans>}
                       </ButtonOutlined>
                     ) : (
                       <ClaimBtn info={item.claimInfo} />
@@ -561,7 +583,7 @@ const MyDashboard = () => {
 
                   <Flex justifyContent="space-between" alignItems="center" mt="1rem">
                     <Text color={theme.subText} fontSize={12} fontWeight={500}>
-                      POINTS EARNED
+                      <Trans>POINTS EARNED</Trans>
                     </Text>
                     <Text textAlign="right">
                       {formatDisplayNumber(Math.floor(item.point), { significantDigits: 4 })}
@@ -570,7 +592,7 @@ const MyDashboard = () => {
 
                   <Flex justifyContent="space-between" alignItems="center" mt="0.5rem">
                     <Text color={theme.subText} fontSize={12} fontWeight={500}>
-                      ESTIMATED REWARDS {infor}
+                      <Trans>ESTIMATED REWARDS</Trans> {infor}
                     </Text>
                     <Flex justifyContent="flex-end" alignItems="flex-end" flexDirection="column">
                       <Text>
@@ -586,7 +608,7 @@ const MyDashboard = () => {
                   </Flex>
                   <Flex justifyContent="space-between" alignItems="center" mt="0.5rem">
                     <Text color={theme.subText} fontSize={12} fontWeight={500}>
-                      CLAIMABLE REWARDS
+                      <Trans>CLAIMABLE REWARDS</Trans>
                     </Text>
                     <Flex justifyContent="flex-end" alignItems="flex-end" flexDirection="column">
                       <Text>
@@ -606,7 +628,8 @@ const MyDashboard = () => {
             return (
               <TableRow key={`${item.year}-${item.week}`}>
                 <Text color={theme.subText}>
-                  Week {item.week - baseWeek}: {dayjs(date).format('MMM DD')} - {dayjs(end).format('MMM DD')}
+                  <Trans>Week {item.week - baseWeek}:</Trans> {dayjs(date).format('MMM DD')} -{' '}
+                  {dayjs(end).format('MMM DD')}
                 </Text>
                 <Text textAlign="right">
                   {formatDisplayNumber(Math.floor(item.point * 10) / 10, { significantDigits: 4 })}
@@ -638,7 +661,7 @@ const MyDashboard = () => {
                 <Flex justifyContent="flex-end">
                   {!canClaim ? (
                     <ButtonOutlined width="88px" height="32px" disabled>
-                      {item.isClaimed ? 'Claimed' : 'Claim'}
+                      {item.isClaimed ? <Trans>Claimed</Trans> : <Trans>Claim</Trans>}
                     </ButtonOutlined>
                   ) : (
                     <ClaimBtn info={item.claimInfo} />

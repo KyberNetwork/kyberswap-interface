@@ -8,6 +8,8 @@ import { TransactionFlowState } from 'types/TransactionFlowState'
 import * as ENV from './env'
 import { MAINNET_NETWORKS, NETWORKS_INFO, SUPPORTED_NETWORKS } from './networks'
 
+export const KYBERSWAP_DOMAIN = 'kyberswap.com'
+
 export const EMPTY_OBJECT: any = {}
 export const EMPTY_ARRAY: any[] = []
 export const EMPTY_FUNCTION = () => {
@@ -173,6 +175,7 @@ export const APP_PATHS = {
   ELASTIC_SNAPSHOT: '/elastic-snapshot',
   MARKET_OVERVIEW: '/market-overview',
 
+  RAFFLE_CAMPAIGN: '/campaigns/weekly-rewards',
   NEAR_INTENTS_CAMPAIGN: '/campaigns/near-intents',
   MAY_TRADING_CAMPAIGN: '/campaigns/may-trading',
   AGGREGATOR_CAMPAIGN: '/campaigns/aggregator',
@@ -183,10 +186,11 @@ export const APP_PATHS = {
   EARN: '/earn',
   EARN_POOLS: '/earn/pools',
   EARN_POSITIONS: '/earn/positions',
-  EARN_POSITION_DETAIL: '/earn/position/:positionId/:chainId/:protocol',
+  EARN_POSITION_DETAIL: '/earn/position/:positionId/:chainId/:exchange',
   EARNS: '/earns',
   EARNS_POOLS: '/earns/pools',
   EARNS_POSITIONS: '/earns/positions',
+  RECAP_2025: '/2025-journey',
 } as const
 
 export const TERM_FILES_PATH = {
@@ -348,6 +352,10 @@ export const SAFE_APP_CLIENT_ID = 'app.safe.global'
 
 export const CROSS_CHAIN_FEE_RECEIVER = '0x0891617fe27647731d6f1e764092b2f9f06130A0'
 export const CROSS_CHAIN_FEE_RECEIVER_SOLANA = 'D6tN4c5vpMqh4eFdHBUCEo7QLiw6DQy8f4NwqABZuJEf'
+export const CROSS_CHAIN_FEE_RECEIVER_SUI = 'intentionally-empty-for-now'
 // use a fake address in case user wallet is not connected. will reject if sign tx with this address
 export const BTC_DEFAULT_RECEIVER = 'bc1qmzgkj3hznt8heh4vp33v2cr2mvsyhc3lmfzz9p'
 export const SOLANA_NATIVE = '11111111111111111111111111111111'
+
+export const BUNGEE_AFFILIATE_ID =
+  '609913096e183f62cecd07e9c13f82e04ffbbdceb5fef75aad43e6cbff367039708902197e0b2b78b1d76cb0837ad0b318baedceb5fef75aad43e6cb'

@@ -3,6 +3,7 @@ import { ReactNode } from 'react'
 import styled, { CSSProperties } from 'styled-components'
 
 import { TokenLogoWithChain, TokenLogoWithShadow } from 'components/Logo'
+import TokenLogo from 'components/TokenLogo'
 import { PrimaryText } from 'components/WalletPopup/Transactions/TransactionItem'
 import { getTokenLogo } from 'components/WalletPopup/Transactions/helper'
 import useTheme from 'hooks/useTheme'
@@ -49,6 +50,35 @@ const DeltaTokenAmount = ({
         ))}
       <PrimaryText style={{ color }}>
         {sign} {amount} {symbol}
+      </PrimaryText>
+    </TokenAmountWrapper>
+  )
+}
+
+export const DeltaNft = ({
+  poolName,
+  logoUrl,
+  nftId,
+  plus,
+  hideSign,
+  style,
+}: {
+  poolName: string
+  logoUrl?: string
+  nftId: string
+  plus: boolean
+  hideSign?: boolean
+  style?: CSSProperties
+}) => {
+  const theme = useTheme()
+  const color = plus ? theme.primary : theme.red
+  const sign = hideSign ? '' : plus ? '+' : '-'
+
+  return (
+    <TokenAmountWrapper style={{ gap: '6px', ...style }}>
+      {logoUrl && <TokenLogo src={logoUrl} size={14} />}
+      <PrimaryText style={{ color }}>
+        {sign} {poolName.length > 10 ? poolName.slice(0, 10) + '...' : poolName} {nftId}
       </PrimaryText>
     </TokenAmountWrapper>
   )

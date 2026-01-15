@@ -14,7 +14,7 @@ const config = {
   formatOptions: {
     lineNumbers: false,
   },
-  locales: ['en-US', 'ko-KR', 'tr-TR', 'vi-VN', 'zh-CN', 'tl-PH'],
+  locales: ['en-US', 'zh-CN'],
   orderBy: 'messageId',
   rootDir: '.',
   runtimeConfigModule: ['@lingui/core', 'i18n'],

@@ -1,3 +1,4 @@
+import { t } from '@lingui/macro'
 import { useEffect, useRef, useState } from 'react'
 import styled, { css } from 'styled-components'
 
@@ -74,8 +75,8 @@ export default function ProChartToggle({
   id,
   activeName = 'pro',
   buttons = [
-    { name: 'basic', title: 'Basic' },
-    { name: 'pro', title: 'Pro' },
+    { name: 'basic', title: t`Basic` },
+    { name: 'pro', title: t`Pro` },
   ],
   toggle,
   size = 'sm',

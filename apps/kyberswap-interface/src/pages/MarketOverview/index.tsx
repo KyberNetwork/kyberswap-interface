@@ -1,4 +1,4 @@
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { useEffect, useState } from 'react'
 import { Star } from 'react-feather'
@@ -104,15 +104,17 @@ export default function MarketOverview() {
           <Trans>Market Overview</Trans>
         </Text>
         <Text color={theme.subText} marginTop="8px">
-          The first-ever aggregated on-chain price platform, offering the most real-time, trade-able, and reliable price
-          data.
+          <Trans>
+            The first-ever aggregated on-chain price platform, offering the most real-time, trade-able, and reliable
+            price data.
+          </Trans>
         </Text>
       </div>
 
       <Flex justifyContent="space-between" flexDirection={upToSmall ? 'column' : 'row'} sx={{ gap: '1rem' }}>
         <Flex sx={{ gap: '1rem' }} flexWrap="wrap">
           <Tag active={!tags.length} onClick={() => updateFilters('tags', '')} role="button">
-            All
+            <Trans>All</Trans>
           </Tag>
           <Tag
             active={!!isFavorite}
@@ -153,7 +155,7 @@ export default function MarketOverview() {
           ))}
         </Flex>
         <Search
-          placeholder="Search by token name, symbol or address"
+          placeholder={t`Search by token name, symbol or address`}
           searchValue={input}
           allowClear
           onSearch={val => setInput(val)}
@@ -166,7 +168,7 @@ export default function MarketOverview() {
           {!upToMedium ? (
             <TableHeader>
               <Text color={theme.text} fontSize={14} height="100%" paddingX="12px" display="flex" alignItems="center">
-                Name
+                <Trans>Name</Trans>
               </Text>
               <Flex
                 padding="8px 16px"
@@ -177,26 +179,29 @@ export default function MarketOverview() {
                 alignItems="flex-start"
                 justifyContent="flex-end"
               >
-                <Text sx={{ lineHeight: '24px', whiteSpace: 'nowrap', minWidth: 'max-content' }}>On-chain Price</Text>
+                <Text sx={{ lineHeight: '24px', whiteSpace: 'nowrap', minWidth: 'max-content' }}>
+                  <Trans>On-chain Price</Trans>
+                </Text>
                 <Flex flexWrap="wrap" alignItems="center" justifyContent="flex-end">
                   {chainSelector}
                 </Flex>
               </Flex>
 
               <Text textAlign="right" fontSize="14px" padding="8px 0px 8px 16px">
-                Market Overview <InfoHelper text="Market cap & 24h volume data sourced from Coingecko" />
+                <Trans>Market Overview</Trans>{' '}
+                <InfoHelper text={t`Market cap & 24h volume data sourced from Coingecko`} />
               </Text>
             </TableHeader>
           ) : (
             <>
               <Tabs>
                 <Tab role="button" active={!showMarketInfo} onClick={() => setShowMarketInfo(false)}>
-                  On-chain Price
+                  <Trans>On-chain Price</Trans>
                 </Tab>
                 <span>|</span>
                 <Tab role="button" active={showMarketInfo} onClick={() => setShowMarketInfo(true)}>
-                  Market Overview
-                  <InfoHelper text="Market cap & 24h volume data sourced from Coingecko" />
+                  <Trans>Market Overview</Trans>
+                  <InfoHelper text={t`Market cap & 24h volume data sourced from Coingecko`} />
                 </Tab>
               </Tabs>
 
@@ -216,7 +221,7 @@ export default function MarketOverview() {
                   role="button"
                   onClick={() => updateSort('price_buy')}
                 >
-                  Buy Price
+                  <Trans>Buy Price</Trans>
                   <SortIcon sorted={sortCol.startsWith('price_buy-') ? (sortDirection as Direction) : undefined} />
                 </Flex>
                 <Flex
@@ -236,7 +241,7 @@ export default function MarketOverview() {
                             }
                           }}
                         >
-                          1H
+                          <Trans>1H</Trans>
                         </PriceSelectionField>
                         <PriceSelectionField
                           active={buyPriceSelectedField === '24h'}
@@ -247,7 +252,7 @@ export default function MarketOverview() {
                             }
                           }}
                         >
-                          24H
+                          <Trans>24H</Trans>
                         </PriceSelectionField>
                         <PriceSelectionField
                           onClick={() => {
@@ -258,7 +263,7 @@ export default function MarketOverview() {
                           }}
                           active={buyPriceSelectedField === '7d'}
                         >
-                          7D
+                          <Trans>7D</Trans>
                         </PriceSelectionField>
                       </Flex>
                     }
@@ -297,7 +302,7 @@ export default function MarketOverview() {
                   role="button"
                   onClick={() => updateSort('price_sell')}
                 >
-                  Sell Price
+                  <Trans>Sell Price</Trans>
                   <SortIcon sorted={sortCol.startsWith('price_sell-') ? (sortDirection as Direction) : undefined} />
                 </Flex>
 
@@ -319,7 +324,7 @@ export default function MarketOverview() {
                             }
                           }}
                         >
-                          1H
+                          <Trans>1H</Trans>
                         </PriceSelectionField>
                         <PriceSelectionField
                           active={sellPriceSelectedField === '24h'}
@@ -330,7 +335,7 @@ export default function MarketOverview() {
                             }
                           }}
                         >
-                          24H
+                          <Trans>24H</Trans>
                         </PriceSelectionField>
                         <PriceSelectionField
                           onClick={() => {
@@ -341,7 +346,7 @@ export default function MarketOverview() {
                           }}
                           active={sellPriceSelectedField === '7d'}
                         >
-                          7D
+                          <Trans>7D</Trans>
                         </PriceSelectionField>
                       </Flex>
                     }
@@ -380,7 +385,7 @@ export default function MarketOverview() {
                   role="button"
                   onClick={() => updateSort('volume_24h', false)}
                 >
-                  24h Volume
+                  <Trans>24h Volume</Trans>
                   <SortIcon sorted={sortCol === 'volume_24h' ? (sortDirection as Direction) : undefined} />
                 </Flex>
 
@@ -390,7 +395,7 @@ export default function MarketOverview() {
                   role="button"
                   onClick={() => updateSort('market_cap', false)}
                 >
-                  Market cap
+                  <Trans>Market cap</Trans>
                   <SortIcon sorted={sortCol === 'market_cap' ? (sortDirection as Direction) : undefined} />
                 </Flex>
               </SubHeaderRow>
@@ -414,8 +419,10 @@ export default function MarketOverview() {
       </TableWrapper>
 
       <Text color={theme.subText} textAlign="center" fontStyle="italic" fontSize={14}>
-        Data and information on Kyberswap.com is for informational purposes only, neither recommendation nor investment
-        advice is provided.
+        <Trans>
+          Data and information on KyberSwap.com is for informational purposes only, neither recommendation nor
+          investment advice is provided.
+        </Trans>
       </Text>
     </PoolsPageWrapper>
   )

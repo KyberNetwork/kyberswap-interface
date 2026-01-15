@@ -1,6 +1,8 @@
 import { sassPlugin } from 'esbuild-sass-plugin';
 import { defineConfig } from 'tsup';
 
+// @ts-expect-error esbuild-plugin-babel does not provide TypeScript types
+import babelPlugin from 'esbuild-plugin-babel';
 import { svgrPlugin } from '@kyber/svgr-esbuild-plugin';
 
 export default defineConfig({
@@ -14,14 +16,29 @@ export default defineConfig({
   sourcemap: true,
   onSuccess: 'tsc --noEmit',
   external: ['react', 'react-dom'], // Externals
-  noExternal: ['@kyber/ui', '@kyber/utils', '@kyber/hooks'],
+  noExternal: ['@kyber/ui', '@kyber/utils', '@kyber/hooks', '@kyber/schema'],
   loader: {
     '.png': 'dataurl',
   },
 
-  esbuildPlugins: [svgrPlugin(), sassPlugin()],
+  esbuildPlugins: [
+    svgrPlugin(),
+    sassPlugin(),
+    babelPlugin({
+      filter: /\.[jt]sx?$/,
+      config: {
+        babelrc: false,
+        configFile: false,
+        presets: [
+          ['@babel/preset-typescript', { allowDeclareFields: true, allExtensions: true, isTSX: true }],
+          ['@babel/preset-react', { runtime: 'automatic' }],
+        ],
+        plugins: ['babel-plugin-macros'],
+      },
+    }),
+  ],
   esbuildOptions(options) {
-    options.globalName = 'Widgets';
+    options.globalName = 'ZapOutWidget';
     options.define = {
       global: 'globalThis',
     };

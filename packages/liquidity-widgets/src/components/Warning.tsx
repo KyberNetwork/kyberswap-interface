@@ -1,5 +1,7 @@
 import { useMemo } from 'react';
 
+import { Trans, t } from '@lingui/macro';
+
 import { usePositionOwner } from '@kyber/hooks';
 import {
   Pool,
@@ -32,9 +34,9 @@ export default function Warning() {
   ]);
   const { position } = usePositionStore(['position']);
   const { pool, poolPrice, revertPrice } = usePoolStore(['pool', 'poolPrice', 'revertPrice']);
-  const { zapInfo, tickLower, tickUpper } = useZapState();
+  const { route, tickLower, tickUpper } = useZapState();
 
-  const initializing = pool === 'loading';
+  const initializing = !pool;
   const isUniV4 = univ4Types.includes(poolType);
   const { token0 = defaultToken, token1 = defaultToken } = !initializing ? pool : {};
 
@@ -51,26 +53,26 @@ export default function Warning() {
     const isUniV3PoolType = univ3Types.includes(poolType as any);
     const isUniV2PoolType = univ2Types.includes(poolType as any);
 
-    if (zapInfo) {
+    if (route) {
       if (isUniV3 && isUniV3PoolType) {
-        const newInfo = zapInfo?.poolDetails.uniswapV3 || zapInfo?.poolDetails.algebraV1;
+        const newInfo = route?.poolDetails.uniswapV3 || route?.poolDetails.algebraV1;
         return {
           ...univ3PoolInfo,
           poolType: poolType as Univ3PoolType,
           sqrtRatioX96: newInfo?.newSqrtP,
           tick: newInfo.newTick,
-          liquidity: (BigInt(univ3PoolInfo.liquidity) + BigInt(zapInfo.positionDetails.addedLiquidity)).toString(),
+          liquidity: (BigInt(univ3PoolInfo.liquidity) + BigInt(route.positionDetails.addedLiquidity)).toString(),
         };
       }
       if (isUniV2 && isUniV2PoolType)
         return {
           ...uniV2PoolInfo,
           poolType: poolType as Univ2PoolType,
-          reverses: [zapInfo.poolDetails.uniswapV2.newReserve0, zapInfo.poolDetails.uniswapV2.newReserve1],
+          reverses: [route.poolDetails.uniswapV2.newReserve0, route.poolDetails.uniswapV2.newReserve1],
         };
     }
     return null;
-  }, [pool, poolType, zapInfo]);
+  }, [pool, poolType, route]);
 
   const isOutOfRangeAfterZap = useMemo(() => {
     const { success, data } = univ3Position.safeParse(position);
@@ -106,8 +108,10 @@ export default function Warning() {
             backgroundColor: `${theme.blue}33`,
           }}
         >
-          Your liquidity is outside the current market range and will not be used/earn fees until the market price
-          enters your specified range.
+          <Trans>
+            Your liquidity is outside the current market range and will not be used/earn fees until the market price
+            enters your specified range.
+          </Trans>
         </div>
       )}
       {isFullRange && (
@@ -117,8 +121,10 @@ export default function Warning() {
             backgroundColor: `${theme.blue}33`,
           }}
         >
-          Your liquidity is active across the full price range. However, this may result in a lower APR than estimated
-          due to less concentration of liquidity.
+          <Trans>
+            Your liquidity is active across the full price range. However, this may result in a lower APR than estimated
+            due to less concentration of liquidity.
+          </Trans>
         </div>
       )}
       {isDeviated && (
@@ -127,18 +133,21 @@ export default function Warning() {
           style={{ backgroundColor: `${theme.warning}33` }}
         >
           <div className="italic text-text">
-            The pool's estimated price after zapping of{' '}
-            <span className="font-medium text-warning not-italic ml-[2px]">
-              1 {revertPrice ? token1.symbol : token0.symbol} ={' '}
-              {formatDisplayNumber(newPoolPrice, { significantDigits: 6 })}{' '}
-              {revertPrice ? token0.symbol : token1.symbol}
-            </span>{' '}
-            deviates from the market price{' '}
-            <span className="font-medium text-warning not-italic">
-              (1 {revertPrice ? token1.symbol : token0.symbol} ={' '}
-              {formatDisplayNumber(poolPrice, { significantDigits: 6 })} {revertPrice ? token0.symbol : token1.symbol})
-            </span>
-            . You might have high impermanent loss after you add liquidity to this pool
+            <Trans>
+              The pool&apos;s estimated price after zapping of{' '}
+              <span className="font-medium text-warning not-italic ml-[2px]">
+                1 {revertPrice ? token1.symbol : token0.symbol} ={' '}
+                {formatDisplayNumber(newPoolPrice, { significantDigits: 6 })}{' '}
+                {revertPrice ? token0.symbol : token1.symbol}
+              </span>{' '}
+              deviates from the market price{' '}
+              <span className="font-medium text-warning not-italic">
+                (1 {revertPrice ? token1.symbol : token0.symbol} ={' '}
+                {formatDisplayNumber(poolPrice, { significantDigits: 6 })} {revertPrice ? token0.symbol : token1.symbol}
+                )
+              </span>
+              . You might have high impermanent loss after you add liquidity to this pool
+            </Trans>
           </div>
         </div>
       )}
@@ -148,7 +157,7 @@ export default function Warning() {
           className="py-3 px-4 text-subText text-sm rounded-md mt-4 font-normal"
           style={{ backgroundColor: `${theme.warning}33` }}
         >
-          You are not the current owner of the position #{positionId}, please double check before proceeding
+          {t`You are not the current owner of the position #${positionId}, please double check before proceeding`}
         </div>
       )}
     </>

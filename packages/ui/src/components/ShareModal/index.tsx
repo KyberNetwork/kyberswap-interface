@@ -1,5 +1,7 @@
 import { useRef, useState } from 'react';
 
+import { useLingui } from '@lingui/react';
+
 import KyberLogo from '@/assets/icons/kyber_logo.svg?react';
 import ShareBanner from '@/assets/images/share-banner.png';
 import Actions from '@/components/ShareModal/Actions';
@@ -8,7 +10,7 @@ import { DEFAULT_SHARE_OPTION } from '@/components/ShareModal/constants';
 import { ShareModalProps, ShareOption, ShareType } from '@/components/ShareModal/types';
 import {
   formatTimeDurationFromTimestamp,
-  getProxyImage,
+  getShareOptionLabel,
   getValueByOption,
   renderStaggeredNumber,
 } from '@/components/ShareModal/utils';
@@ -27,6 +29,7 @@ export default function ShareModal({
   defaultOptions,
   onClose,
 }: ShareModalProps) {
+  const { i18n } = useLingui();
   const isPoolSharing = type === ShareType.POOL_INFO;
   const isPositionSharing = type === ShareType.POSITION_INFO;
   const isRewardSharing = type === ShareType.REWARD_INFO;
@@ -39,11 +42,14 @@ export default function ShareModal({
 
   const banner = (bannerRef?: React.RefObject<HTMLDivElement>, forDownload = false) => {
     const options = [...selectedOptions];
-    const option1Label = options[0];
-    const option2Label = options[1];
+    const option1 = options[0];
+    const option2 = options[1];
 
-    const option1Value = getValueByOption({ type, option: option1Label, pool, position, reward });
-    const option2Value = getValueByOption({ type, option: option2Label, pool, position, reward });
+    const option1Label = option1 ? getShareOptionLabel(i18n, option1) : '';
+    const option2Label = option2 ? getShareOptionLabel(i18n, option2) : '';
+
+    const option1Value = getValueByOption({ type, option: option1, pool, position, reward });
+    const option2Value = getValueByOption({ type, option: option2, pool, position, reward });
 
     return (
       <div
@@ -64,7 +70,7 @@ export default function ShareModal({
           <div
             className={`flex items-center gap-1 text-sm ${forDownload ? 'flex-row' : 'flex-col sm:flex-row items-start sm:items-center gap-0 sm:gap-1'}`}
           >
-            <p>Explore details: </p>
+            <p>{i18n._('Explore details:')}</p>
             <p
               className="text-primary cursor-pointer"
               onClick={() => window.open('https://kyberswap.com/earn/', '_blank')}
@@ -79,23 +85,27 @@ export default function ShareModal({
           className={`flex flex-col ${forDownload ? 'ml-10' : 'ml-4 sm:ml-10'} ${forDownload ? 'gap-5' : 'gap-3 sm:gap-5'}`}
           style={{ height: 'calc(100% - 48px)' }}
         >
-          <div className="flex items-center gap-1">
-            <TokenLogo
-              className={forDownload ? 'h-5 w-5' : 'h-[18px] sm:h-5 w-[18px] sm:w-5'}
-              src={getProxyImage(pool.dexLogo)}
-            />
-            <p className={forDownload ? 'text-lg' : 'text-base sm:text-lg'}>{pool.dexName}</p>
-          </div>
+          {pool ? (
+            <div className="flex items-center gap-1">
+              <TokenLogo
+                className={forDownload ? 'h-5 w-5' : 'h-[18px] sm:h-5 w-[18px] sm:w-5'}
+                src={pool.dexLogo}
+                fallbackWithProxy
+              />
+              <p className={forDownload ? 'text-lg' : 'text-base sm:text-lg'}>{pool.dexName}</p>
+            </div>
+          ) : null}
           <div className="flex flex-col gap-3">
-            {!isRewardSharing ? (
+            {!isRewardSharing && pool ? (
               <div className="flex items-center">
                 <div className="flex items-center">
-                  <TokenLogo size={22} src={getProxyImage(pool.token0?.logo)} />
-                  <TokenLogo size={22} className="-ml-2" src={getProxyImage(pool.token1?.logo)} />
+                  <TokenLogo size={22} src={pool.token0?.logo} fallbackWithProxy />
+                  <TokenLogo size={22} className="-ml-2" src={pool.token1?.logo} fallbackWithProxy />
                   <TokenLogo
                     size={12}
                     className="relative -left-[6px] -bottom-[6px]"
-                    src={getProxyImage(pool.chainLogo)}
+                    src={pool.chainLogo}
+                    fallbackWithProxy
                   />
                 </div>
                 <p className={forDownload ? 'text-2xl' : 'text-[22px] sm:text-2xl'}>
@@ -108,7 +118,7 @@ export default function ShareModal({
                 )}
               </div>
             ) : (
-              <div className="h-[12px]" />
+              <div className="h-[18px]" />
             )}
             {selectedOptions.size === 1 ? (
               isPoolSharing || isRewardSharing ? (
@@ -131,7 +141,9 @@ export default function ShareModal({
                     </p>
                   </div>
                   <p className={forDownload ? 'text-xl' : 'text-lg sm:text-xl'}>
-                    Position age: {formatTimeDurationFromTimestamp(position?.createdTime || 0)}
+                    {i18n._('Position age: {duration}', {
+                      duration: formatTimeDurationFromTimestamp(position?.createdTime || 0),
+                    })}
                   </p>
                 </div>
               ) : null
@@ -163,7 +175,7 @@ export default function ShareModal({
     <Dialog onOpenChange={onClose} open={true}>
       <DialogContent containerClassName="ks-ui-style" className="w-[680px] max-w-[100%]" aria-describedby={undefined}>
         <DialogHeader>
-          <DialogTitle className="text-left">Share this with your friends!</DialogTitle>
+          <DialogTitle className="text-left">{i18n._('Share this with your friends!')}</DialogTitle>
         </DialogHeader>
 
         <div className="bg-[#00000014]">

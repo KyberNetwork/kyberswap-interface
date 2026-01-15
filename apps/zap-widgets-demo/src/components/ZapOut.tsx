@@ -39,11 +39,11 @@ const ZapOut = () => {
     poolAddress: string;
     poolType: ZapOutDex;
   }>({
-    chainId: ChainId.Base.toString(),
-    positionId: "35636",
+    chainId: ChainId.Bsc.toString(),
+    positionId: "24853",
     poolAddress:
-      "0x96d4b53a38337a5733179751781178a2613306063c511b78cd02684739288c0a",
-    poolType: ZapOutDex.DEX_UNISWAP_V4,
+      "0x752e76950f6167b8dbb0495b957d264d61724dfa26e3dd6fad1ba820862ce9cf",
+    poolType: ZapOutDex.DEX_PANCAKE_INFINITY_CL,
   });
 
   const widgetProps = {
@@ -145,32 +145,36 @@ const ZapOut = () => {
             <Label>Protocols</Label>
             <RadioGroup
               className="grid grid-cols-3 gap-2 max-md:grid-cols-2"
-              value={params.poolType}
+              value={params.poolType.toString()}
               onValueChange={(value) =>
                 setParams((p) => ({
                   ...p,
-                  poolType: value as ZapOutDex,
+                  poolType: Number(value) as ZapOutDex,
                 }))
               }
             >
-              {Object.keys(ZapOutDex).map((key, index) => (
-                <div className="flex items-center space-x-2" key={key}>
-                  <RadioGroupItem
-                    value={ZapOutDex[key as keyof typeof ZapOutDex]}
-                    id={`${index + 1}`}
-                  />
-                  <Label className="text-xs" htmlFor={`${index + 1}`}>
-                    {ZapOutDex[key as keyof typeof ZapOutDex] in
-                    zapOutDexMapping
-                      ? zapOutDexMapping[
-                          ZapOutDex[
-                            key as keyof typeof ZapOutDex
-                          ] as keyof typeof zapOutDexMapping
-                        ]
-                      : ZapOutDex[key as keyof typeof ZapOutDex]}
-                  </Label>
-                </div>
-              ))}
+              {Object.keys(ZapOutDex)
+                .filter((key) => isNaN(Number(key)))
+                .map((key: string, index: number) => (
+                  <div className="flex items-center space-x-2" key={key}>
+                    <RadioGroupItem
+                      value={ZapOutDex[
+                        key as keyof typeof ZapOutDex
+                      ].toString()}
+                      id={`${index + 1}`}
+                    />
+                    <Label className="text-xs" htmlFor={`${index + 1}`}>
+                      {ZapOutDex[key as keyof typeof ZapOutDex] in
+                      zapOutDexMapping
+                        ? zapOutDexMapping[
+                            ZapOutDex[
+                              key as keyof typeof ZapOutDex
+                            ] as keyof typeof zapOutDexMapping
+                          ]
+                        : ZapOutDex[key as keyof typeof ZapOutDex]}
+                    </Label>
+                  </div>
+                ))}
             </RadioGroup>
           </div>
         </CardContent>

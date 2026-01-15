@@ -275,7 +275,7 @@ export default function Profile() {
                 maxLength={50}
                 value={nickname}
                 onChange={e => onChangeNickname(e.target.value)}
-                placeholder="Your nickname"
+                placeholder={t`Your nickname`}
               />
             </FormGroup>
 
@@ -324,7 +324,7 @@ export default function Profile() {
               }}
             >
               <LogOut size={16} style={{ marginRight: '4px' }} />
-              Sign Out
+              <Trans>Sign Out</Trans>
             </ButtonLogout>
           )}
         </ActionsWrapper>

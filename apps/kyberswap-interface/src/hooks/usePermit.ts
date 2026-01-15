@@ -32,11 +32,12 @@ export enum PermitState {
 export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddress?: string) => {
   const currency = currencyAmount?.currency.wrapped
   const { account, chainId } = useActiveWeb3React()
-  const { library } = useWeb3React()
+  const { library, isSmartConnector } = useWeb3React()
   const dispatch = useDispatch()
   const notify = useNotify()
   const eipContract = useReadingContract(currency?.address, EIP_2612)
   const tokenNonceState = useSingleCallResult(eipContract, 'nonces', [account])
+  const tokenName = useSingleCallResult(eipContract, 'name')
 
   const permitData = usePermitData(currency?.address)
 
@@ -53,6 +54,10 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
   )
 
   const permitState = useMemo(() => {
+    // Do not allow permit when connected with smart connector
+    if (isSmartConnector) {
+      return PermitState.NOT_APPLICABLE
+    }
     if (!overwritedPermitData) {
       return PermitState.NOT_APPLICABLE
     }
@@ -68,7 +73,7 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
       return PermitState.SIGNED
     }
     return PermitState.NOT_SIGNED
-  }, [permitData, currencyAmount, overwritedPermitData])
+  }, [permitData, currencyAmount, overwritedPermitData, isSmartConnector])
   const prevErrorCount = usePrevious(permitData?.errorCount)
   useEffect(() => {
     if (prevErrorCount === 2 && permitData?.errorCount === 3) {
@@ -136,13 +141,13 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
       domain:
         overwritedPermitData && overwritedPermitData.type === PermitType.SALT
           ? {
-              name: currency.name,
+              name: tokenName.result?.[0] || currency.name,
               verifyingContract: currency.address,
               salt: hexZeroPad(hexlify(chainId), 32),
               version: overwritedPermitData.version,
             }
           : {
-              name: currency.name,
+              name: tokenName.result?.[0] || currency.name,
               verifyingContract: currency.address,
               version: overwritedPermitData.version,
               chainId,
@@ -185,15 +190,16 @@ export const usePermit = (currencyAmount?: CurrencyAmount<Currency>, routerAddre
   }, [
     account,
     chainId,
-    library,
-    permitState,
-    routerAddress,
     currency,
     currencyAmount,
     dispatch,
-    tokenNonceState.result,
-    overwritedPermitData,
+    library,
     notify,
+    overwritedPermitData,
+    permitState,
+    routerAddress,
+    tokenName.result,
+    tokenNonceState.result,
   ])
 
   return { permitState, permitCallback: signPermitCallback, permitData }

@@ -1,13 +1,13 @@
 import { ShareModal, ShareModalProps, ShareType } from '@kyber/ui'
 import { t } from '@lingui/macro'
 import { rgba } from 'polished'
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { Share2 } from 'react-feather'
 import Skeleton from 'react-loading-skeleton'
 import { useMedia } from 'react-use'
 import { Flex, Text } from 'rebass'
 
-import { ReactComponent as IconKem } from 'assets/svg/kyber/kem.svg'
+import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import InfoHelper from 'components/InfoHelper'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
@@ -23,8 +23,9 @@ import {
 } from 'pages/Earns/UserPositions/styles'
 import { LIMIT_TEXT_STYLES } from 'pages/Earns/constants'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
-import { ParsedPosition } from 'pages/Earns/types'
-import { aggregateFeeFromPositions } from 'pages/Earns/utils/position'
+import useMerklRewards from 'pages/Earns/hooks/useMerklRewards'
+import { ParsedPosition, UserPositionsStats } from 'pages/Earns/types'
+import { extractClaimedFeeStats } from 'pages/Earns/utils/position'
 import { defaultRewardInfo } from 'pages/Earns/utils/reward'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -53,45 +54,47 @@ export const BannerSkeleton = ({
 }
 
 export default function PositionBanner({
-  positions,
+  positionsStats,
   initialLoading,
 }: {
   positions: Array<ParsedPosition>
+  positionsStats?: UserPositionsStats
   initialLoading: boolean
 }) {
   const theme = useTheme()
-  const { claimAllRewardsModal, onOpenClaimAllRewards, rewardInfo } = useKemRewards()
+  const { claimAllRewardsModal, onOpenClaimAllRewards, rewardInfo, isLoadingRewardInfo } = useKemRewards()
+  const { rewards: merklRewards, totalUsdValue: totalMerklUsdValue } = useMerklRewards()
   const [shareInfo, setShareInfo] = useState<ShareModalProps | undefined>()
 
   const {
-    totalUsdValue,
+    totalUsdValue: totalKemUsdValue,
     totalLmUsdValue,
     totalEgUsdValue,
     claimedUsdValue,
     inProgressUsdValue,
     pendingUsdValue,
     vestingUsdValue,
+    waitingUsdValue,
     claimableUsdValue,
     tokens,
     egTokens,
     lmTokens,
   } = rewardInfo || defaultRewardInfo
 
+  const isLoadingKemRewards = initialLoading || isLoadingRewardInfo
+  const totalUsdValue = totalKemUsdValue + totalMerklUsdValue
+
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
 
-  const {
-    totalValue: totalFeeValue,
-    totalEarnedFee,
-    totalUnclaimedFee,
-  } = useMemo(() => aggregateFeeFromPositions(positions), [positions])
+  const { totalValueUsd, totalEarnedFeeUsd, totalUnclaimedFeeUsd } = extractClaimedFeeStats(positionsStats)
 
   const KemImageSize = upToSmall ? 20 : 24
 
   const claimRewardButton = (
     <MouseoverTooltipDesktopOnly text={t`Claim all available farming rewards`} width="fit-content" placement="bottom">
       <PositionAction
-        disabled={!claimableUsdValue || initialLoading}
+        disabled={!claimableUsdValue || initialLoading || isLoadingRewardInfo}
         mobileAutoWidth
         outline
         onClick={onOpenClaimAllRewards}
@@ -108,11 +111,6 @@ export default function PositionBanner({
         setShareInfo({
           type: ShareType.REWARD_INFO,
           onClose: () => setShareInfo(undefined),
-          pool: {
-            dexLogo:
-              'https://storage.googleapis.com/ks-setting-1d682dca/c044ba9d-9bff-4f4a-b8b5-fad07861d5561738568061182.png',
-            dexName: 'Uniswap V4 FairFlow',
-          },
           reward: {
             total: totalUsdValue,
             lm: totalLmUsdValue,
@@ -147,10 +145,10 @@ export default function PositionBanner({
               ) : (
                 <Text
                   fontSize={24}
-                  color={totalFeeValue && totalFeeValue > 0 ? theme.primary : theme.text}
+                  color={totalValueUsd && totalValueUsd > 0 ? theme.primary : theme.text}
                   sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '140px' }}
                 >
-                  {formatDisplayNumber(totalFeeValue, { style: 'currency', significantDigits: 4 })}
+                  {formatDisplayNumber(totalValueUsd, { style: 'currency', significantDigits: 4 })}
                 </Text>
               )}
             </BannerDataItem>
@@ -162,7 +160,7 @@ export default function PositionBanner({
                 <BannerSkeleton width={90} height={28} />
               ) : (
                 <Text fontSize={24} sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '140px' }}>
-                  {formatDisplayNumber(totalEarnedFee, { style: 'currency', significantDigits: 4 })}
+                  {formatDisplayNumber(totalEarnedFeeUsd, { style: 'currency', significantDigits: 4 })}
                 </Text>
               )}
             </BannerDataItem>
@@ -174,7 +172,7 @@ export default function PositionBanner({
                 <BannerSkeleton width={90} height={28} />
               ) : (
                 <Text fontSize={24} sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '140px' }}>
-                  {formatDisplayNumber(totalUnclaimedFee, { style: 'currency', significantDigits: 4 })}
+                  {formatDisplayNumber(totalUnclaimedFeeUsd, { style: 'currency', significantDigits: 4 })}
                 </Text>
               )}
             </BannerDataItem>
@@ -187,12 +185,12 @@ export default function PositionBanner({
                   sx={{ borderTop: `1px solid ${rgba(theme.white, 0.08)}` }}
                 >
                   <Flex alignItems="center" sx={{ gap: 1 }}>
-                    <IconKem width={KemImageSize} height={KemImageSize} />
+                    <FarmingIcon width={KemImageSize} height={KemImageSize} />
                     <Text color={theme.subText} marginRight={1}>{t`Total Rewards`}</Text>
                     {shareBtn}
                   </Flex>
 
-                  {initialLoading ? (
+                  {isLoadingKemRewards ? (
                     <BannerSkeleton width={90} height={28} />
                   ) : (
                     <Text fontSize={24}>
@@ -204,7 +202,7 @@ export default function PositionBanner({
                   <BannerDataItem>
                     <Text fontSize={14} color={theme.subText}>{t`Claimed`}</Text>
 
-                    {initialLoading ? (
+                    {isLoadingKemRewards ? (
                       <BannerSkeleton width={80} height={24} />
                     ) : (
                       <Text fontSize={20}>
@@ -220,6 +218,7 @@ export default function PositionBanner({
                         text={inProgressRewardTooltip({
                           pendingUsdValue,
                           vestingUsdValue,
+                          waitingUsdValue,
                           tokens,
                         })}
                         size={16}
@@ -228,7 +227,7 @@ export default function PositionBanner({
                       />
                     </Flex>
 
-                    {initialLoading ? (
+                    {isLoadingKemRewards ? (
                       <BannerSkeleton width={80} height={24} />
                     ) : (
                       <Text fontSize={20}>
@@ -241,7 +240,7 @@ export default function PositionBanner({
                     <Flex flexDirection={'column'} alignItems={'flex-start'} sx={{ gap: 2 }}>
                       <Text fontSize={14} color={theme.subText}>{t`Claimable`}</Text>
 
-                      {initialLoading ? (
+                      {isLoadingKemRewards ? (
                         <BannerSkeleton width={80} height={24} />
                       ) : (
                         <Text fontSize={20}>
@@ -262,11 +261,11 @@ export default function PositionBanner({
             <RewardBannerWrapper>
               <Flex alignItems={'center'} sx={{ gap: 3 }}>
                 <Flex alignItems={'center'} sx={{ gap: 2 }}>
-                  <IconKem width={KemImageSize} height={KemImageSize} style={{ position: 'relative', top: 2 }} />
+                  <FarmingIcon width={KemImageSize} height={KemImageSize} style={{ position: 'relative', top: 2 }} />
                   <Text color={theme.subText}>{t`Total Rewards`}</Text>
                 </Flex>
 
-                {initialLoading ? (
+                {isLoadingKemRewards ? (
                   <BannerSkeleton width={110} height={28} />
                 ) : (
                   <Flex alignItems={'center'} sx={{ gap: 1 }}>
@@ -277,6 +276,7 @@ export default function PositionBanner({
                       text={totalRewardTooltip({
                         lmTokens,
                         egTokens,
+                        merklRewards,
                         textColor: theme.text,
                       })}
                       placement="bottom"
@@ -293,7 +293,7 @@ export default function PositionBanner({
                 <BannerDataItem>
                   <Text fontSize={14} color={theme.subText}>{t`Claimed`}</Text>
 
-                  {initialLoading ? (
+                  {isLoadingKemRewards ? (
                     <BannerSkeleton width={80} height={24} />
                   ) : (
                     <Text fontSize={20}>
@@ -309,6 +309,7 @@ export default function PositionBanner({
                       text={inProgressRewardTooltip({
                         pendingUsdValue,
                         vestingUsdValue,
+                        waitingUsdValue,
                         tokens,
                       })}
                       size={16}
@@ -317,7 +318,7 @@ export default function PositionBanner({
                     />
                   </Flex>
 
-                  {initialLoading ? (
+                  {isLoadingKemRewards ? (
                     <BannerSkeleton width={80} height={24} />
                   ) : (
                     <Text fontSize={20}>
@@ -329,7 +330,7 @@ export default function PositionBanner({
                 <BannerDataItem>
                   <Text fontSize={14} color={theme.subText}>{t`Claimable`}</Text>
 
-                  {initialLoading ? (
+                  {isLoadingKemRewards ? (
                     <BannerSkeleton width={80} height={24} />
                   ) : (
                     <Text fontSize={20}>

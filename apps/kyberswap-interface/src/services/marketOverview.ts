@@ -96,7 +96,7 @@ const marketOverviewServiceApi = createApi({
       }),
     }),
 
-    getPrices: builder.mutation<
+    getPrices: builder.query<
       { data: { [chainId: string]: { [address: string]: { PriceBuy: number; PriceSell: number } } } },
       { [chainId: number]: string[] }
     >({
@@ -134,7 +134,7 @@ export const {
   useMarketOverviewQuery,
   useAddFavoriteMutation,
   useRemoveFavoriteMutation,
-  useGetPricesMutation,
+  useGetPricesQuery,
   useGetQuoteByChainQuery,
   useCheckPairQuery,
 } = marketOverviewServiceApi

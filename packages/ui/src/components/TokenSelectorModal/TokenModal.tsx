@@ -13,16 +13,18 @@ export interface TokenModalProps {
   tokensIn: Token[];
   amountsIn: string;
   account?: string;
+  title?: string;
   chainId: ChainId;
   mode: TOKEN_SELECT_MODE;
   selectedTokenAddress?: string;
   positionId?: string;
-  poolAddress: string;
+  poolAddress?: string;
   token0Address: string;
   token1Address: string;
   initialSlippage?: number;
   setTokensIn: (tokens: Token[]) => void;
   setAmountsIn: (amounts: string) => void;
+  onTokenSelect?: (token: Token) => void;
   onConnectWallet: () => void;
   onOpenZapMigration?: (
     position: { exchange: string; poolId: string; positionId: string | number },
@@ -35,6 +37,7 @@ const TokenModal = ({
   tokensIn,
   amountsIn,
   account,
+  title,
   chainId,
   mode,
   selectedTokenAddress,
@@ -44,6 +47,7 @@ const TokenModal = ({
   token1Address,
   setTokensIn,
   setAmountsIn,
+  onTokenSelect,
   onConnectWallet,
   onOpenZapMigration,
   onClose,
@@ -91,13 +95,17 @@ const TokenModal = ({
     tokensIn,
   ]);
 
+  const isSelectorView = !tokenToShow && !tokenToImport;
+
   return (
     <Dialog onOpenChange={onClose} open={true}>
       <DialogContent
         containerClassName="ks-ui-style"
-        className={`bg-layer2 p-0 !max-h-[80vh] ${
-          tokenToShow || tokenToImport ? '' : 'pb-6'
-        } ${tokenToImport ? 'max-w-[420px]' : 'max-w-[435px]'}`}
+        className={
+          `bg-layer2 p-0 !max-h-[min(80vh,640px)] ` +
+          `${isSelectorView ? 'h-[80vh] pb-6 overflow-hidden ' : 'overflow-y-auto '}` +
+          `${tokenToImport ? 'max-w-[420px]' : 'max-w-[435px]'}`
+        }
         skipClose
         aria-describedby={undefined}
       >
@@ -119,6 +127,7 @@ const TokenModal = ({
             setTokensIn={setTokensIn}
             setAmountsIn={setAmountsIn}
             account={account}
+            title={title}
             selectedTokenAddress={selectedTokenAddress}
             mode={mode}
             chainId={chainId}
@@ -126,6 +135,7 @@ const TokenModal = ({
             token0Address={token0Address}
             token1Address={token1Address}
             poolAddress={poolAddress}
+            onTokenSelect={onTokenSelect}
             onConnectWallet={onConnectWallet}
             onOpenZapMigration={onOpenZapMigration}
             selectedTokens={selectedTokens}

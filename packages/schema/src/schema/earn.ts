@@ -2,22 +2,8 @@ import { z } from 'zod';
 
 import { ChainId } from '@/schema/chain';
 
-export enum EarnDex {
-  DEX_UNISWAP_V4 = 'Uniswap V4',
-  DEX_UNISWAP_V4_FAIRFLOW = 'Uniswap V4 FairFlow',
-  DEX_UNISWAPV3 = 'Uniswap V3',
-  DEX_PANCAKESWAPV3 = 'PancakeSwap V3',
-  DEX_SUSHISWAPV3 = 'SushiSwap V3',
-  DEX_QUICKSWAPV3ALGEBRA = 'QuickSwap V3',
-  DEX_CAMELOTV3 = 'Camelot V3',
-  DEX_THENAFUSION = 'THENA',
-  DEX_KODIAK_V3 = 'Kodiak Concentrated',
-  DEX_UNISWAPV2 = 'Uniswap V2',
-}
-
 export enum Exchange {
-  DEX_UNISWAP_V4 = 'uniswap-v4',
-  DEX_UNISWAP_V4_FAIRFLOW = 'uniswap-v4-fairflow',
+  DEX_UNISWAPV2 = 'uniswapv2',
   DEX_UNISWAPV3 = 'uniswapv3',
   DEX_PANCAKESWAPV3 = 'pancake-v3',
   DEX_SUSHISWAPV3 = 'sushiswap-v3',
@@ -25,8 +11,36 @@ export enum Exchange {
   DEX_CAMELOTV3 = 'camelot-v3',
   DEX_THENAFUSION = 'thena-fusion',
   DEX_KODIAK_V3 = 'kodiakcl',
-  DEX_UNISWAPV2 = 'uniswapv2',
+  DEX_UNISWAP_V4 = 'uniswap-v4',
+  DEX_UNISWAP_V4_FAIRFLOW = 'uniswap-v4-fairflow',
+  DEX_PANCAKE_INFINITY_CL = 'pancake-infinity-cl',
+  DEX_PANCAKE_INFINITY_CL_FAIRFLOW = 'pancake-infinity-cl-fairflow',
+  DEX_PANCAKE_INFINITY_CL_DYNAMIC = 'pancake-infinity-cl-dynamic',
+  DEX_PANCAKE_INFINITY_CL_ALPHA = 'pancake-infinity-cl-alpha',
+  DEX_PANCAKE_INFINITY_CL_BREVIS = 'pancake-infinity-cl-brevis',
+  DEX_PANCAKE_INFINITY_CL_LO = 'pancake-infinity-cl-lo',
+  DEX_AERODROMECL = 'aerodromecl',
 }
+
+export const DEX_NAME: Record<Exchange, string> = {
+  [Exchange.DEX_UNISWAP_V4]: 'Uniswap V4',
+  [Exchange.DEX_UNISWAP_V4_FAIRFLOW]: 'Uniswap V4 FairFlow',
+  [Exchange.DEX_UNISWAPV3]: 'Uniswap V3',
+  [Exchange.DEX_PANCAKESWAPV3]: 'PancakeSwap V3',
+  [Exchange.DEX_SUSHISWAPV3]: 'SushiSwap V3',
+  [Exchange.DEX_QUICKSWAPV3ALGEBRA]: 'QuickSwap V3',
+  [Exchange.DEX_CAMELOTV3]: 'Camelot V3',
+  [Exchange.DEX_THENAFUSION]: 'THENA',
+  [Exchange.DEX_KODIAK_V3]: 'Kodiak Concentrated',
+  [Exchange.DEX_UNISWAPV2]: 'Uniswap V2',
+  [Exchange.DEX_PANCAKE_INFINITY_CL]: 'Pancake ∞ CL',
+  [Exchange.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: 'Pancake ∞ CL FairFlow',
+  [Exchange.DEX_PANCAKE_INFINITY_CL_ALPHA]: 'Pancake ∞ CL',
+  [Exchange.DEX_PANCAKE_INFINITY_CL_LO]: 'Pancake ∞ CL',
+  [Exchange.DEX_PANCAKE_INFINITY_CL_BREVIS]: 'Pancake ∞ CL',
+  [Exchange.DEX_PANCAKE_INFINITY_CL_DYNAMIC]: 'Pancake ∞ CL',
+  [Exchange.DEX_AERODROMECL]: 'Aerodrome Concentrated',
+};
 
 export enum EarnChain {
   MAINNET = ChainId.Ethereum,
@@ -39,19 +53,26 @@ export enum EarnChain {
   BERA = ChainId.Berachain,
 }
 
-const univ2Dexes = [EarnDex.DEX_UNISWAPV2] as const;
+const univ2Dexes = [Exchange.DEX_UNISWAPV2] as const;
 export const Univ2EarnDex = z.enum(univ2Dexes);
 
 const univ3Dexes = [
-  EarnDex.DEX_UNISWAPV3,
-  EarnDex.DEX_PANCAKESWAPV3,
-  EarnDex.DEX_SUSHISWAPV3,
-  EarnDex.DEX_KODIAK_V3,
-  EarnDex.DEX_THENAFUSION,
-  EarnDex.DEX_CAMELOTV3,
-  EarnDex.DEX_QUICKSWAPV3ALGEBRA,
+  Exchange.DEX_UNISWAPV3,
+  Exchange.DEX_PANCAKESWAPV3,
+  Exchange.DEX_SUSHISWAPV3,
+  Exchange.DEX_KODIAK_V3,
+  Exchange.DEX_THENAFUSION,
+  Exchange.DEX_CAMELOTV3,
+  Exchange.DEX_QUICKSWAPV3ALGEBRA,
 
-  EarnDex.DEX_UNISWAP_V4,
-  EarnDex.DEX_UNISWAP_V4_FAIRFLOW,
+  Exchange.DEX_UNISWAP_V4,
+  Exchange.DEX_UNISWAP_V4_FAIRFLOW,
+  Exchange.DEX_PANCAKE_INFINITY_CL,
+  Exchange.DEX_PANCAKE_INFINITY_CL_FAIRFLOW,
+  Exchange.DEX_PANCAKE_INFINITY_CL_ALPHA,
+  Exchange.DEX_PANCAKE_INFINITY_CL_DYNAMIC,
+  Exchange.DEX_PANCAKE_INFINITY_CL_LO,
+  Exchange.DEX_PANCAKE_INFINITY_CL_BREVIS,
+  Exchange.DEX_AERODROMECL,
 ] as const;
 export const Univ3EarnDex = z.enum(univ3Dexes);

@@ -18,7 +18,6 @@ const PoolSection = ({
   isLoading,
   size = 'small',
   listPools,
-  isFarming = false,
   styles,
 }: {
   title: string
@@ -28,7 +27,6 @@ const PoolSection = ({
   isLoading: boolean
   size?: 'small' | 'large'
   listPools: any[]
-  isFarming?: boolean
   styles?: React.CSSProperties
 }) => {
   const navigate = useNavigate()
@@ -78,7 +76,7 @@ const PoolSection = ({
         ) : (
           <Box sx={poolItemContainerStyles}>
             {listPools.map(pool => (
-              <PoolItem pool={pool} key={pool.address} isFarming={isFarming} />
+              <PoolItem pool={pool} key={pool.address} />
             ))}
           </Box>
         )}

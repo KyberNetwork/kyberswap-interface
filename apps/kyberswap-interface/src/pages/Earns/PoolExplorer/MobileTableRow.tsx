@@ -7,7 +7,7 @@ import { PoolQueryParams } from 'services/zapEarn'
 import CopyHelper from 'components/Copy'
 import TokenLogo from 'components/TokenLogo'
 import useTheme from 'hooks/useTheme'
-import { kemFarming } from 'pages/Earns/PoolExplorer/DesktopTableRow'
+import { kemFarming, uniReward } from 'pages/Earns/PoolExplorer/DesktopTableRow'
 import { FilterTag } from 'pages/Earns/PoolExplorer/Filter'
 import {
   Apr,
@@ -41,11 +41,14 @@ const MobileTableRow = ({
     onOpenZapInWidget({
       pool: {
         dex: pool.exchange,
-        chainId: pool.chainId || filters.chainId,
+        chainId: (pool.chain?.id || pool.chainId) as number,
         address: pool.address,
       },
       initialTick:
-        withPriceRange && pool.maxAprInfo && pool.maxAprInfo.tickLower && pool.maxAprInfo.tickUpper
+        withPriceRange &&
+        pool.maxAprInfo &&
+        pool.maxAprInfo.tickLower !== undefined &&
+        pool.maxAprInfo.tickUpper !== undefined
           ? {
               tickLower: pool.maxAprInfo.tickLower,
               tickUpper: pool.maxAprInfo.tickUpper,
@@ -61,6 +64,7 @@ const MobileTableRow = ({
           <Flex sx={{ position: 'relative', top: -1 }}>
             <TokenLogo src={pool.tokens?.[0]?.logoURI} />
             <TokenLogo src={pool.tokens?.[1]?.logoURI} translateLeft />
+            {pool.chain?.logoUrl && <TokenLogo src={pool.chain.logoUrl} size={12} translateLeft translateTop />}
           </Flex>
           <Flex flexDirection={'column'} sx={{ gap: 2 }}>
             <Flex sx={{ gap: 1 }}>
@@ -77,8 +81,9 @@ const MobileTableRow = ({
         </Flex>
         <Flex alignItems="center" sx={{ gap: '12px' }}>
           <Flex alignItems="center" sx={{ gap: '2px' }}>
-            <Apr value={pool.apr}>{formatAprNumber(pool.apr)}%</Apr>
+            <Apr value={pool.allApr}>{formatAprNumber(pool.allApr)}%</Apr>
             {kemFarming(pool)}
+            {uniReward(pool)}
           </Flex>
           <Star
             size={16}
@@ -87,35 +92,38 @@ const MobileTableRow = ({
             role="button"
             cursor="pointer"
             onClick={e => handleFavorite(e, pool)}
-            aria-label={pool.favorite?.isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+            aria-label={pool.favorite?.isFavorite ? t`Remove from favorites` : t`Add to favorites`}
           />
         </Flex>
       </Flex>
       <MobileTableBottomRow withoutBorder={withoutBorder}>
         {isFarmingFiltered && (
           <Flex justifyContent="space-between" sx={{ gap: 1 }} onClick={e => handleOpenZapInWidget(e, true)}>
-            <Text color={theme.subText}>Max APR</Text>
+            <Text color={theme.subText}>{t`Max APR`}</Text>
             <Text>
               {pool.maxAprInfo
                 ? formatAprNumber(
-                    Number(pool.maxAprInfo.apr || 0) +
-                      Number(pool.maxAprInfo.kemEGApr || 0) +
-                      Number(pool.maxAprInfo.kemLMApr || 0),
+                    Number(pool.maxAprInfo.apr) + Number(pool.maxAprInfo.kemEGApr) + Number(pool.maxAprInfo.kemLMApr),
                   ) + '%'
                 : '--'}
             </Text>
           </Flex>
         )}
         <Flex justifyContent="space-between" sx={{ gap: 1 }}>
-          <Text color={theme.subText}>{t`Earn Fees`}</Text>
-          <Text>{formatDisplayNumber(pool.earnFee, { style: 'currency', significantDigits: 6 })}</Text>
+          <Text color={theme.subText}>{isFarmingFiltered ? t`EG Sharing` : t`Earn Fees`}</Text>
+          <Text>
+            {formatDisplayNumber(isFarmingFiltered ? pool.egUsd : pool.earnFee, {
+              style: 'currency',
+              significantDigits: 6,
+            })}
+          </Text>
         </Flex>
         <Flex justifyContent="space-between" sx={{ gap: 1 }}>
-          <Text color={theme.subText}>TVL</Text>
+          <Text color={theme.subText}>{t`TVL`}</Text>
           <Text>{formatDisplayNumber(pool.tvl, { style: 'currency', significantDigits: 6 })}</Text>
         </Flex>
         <Flex justifyContent="space-between" sx={{ gap: 1 }}>
-          <Text color={theme.subText}>Volume</Text>
+          <Text color={theme.subText}>{t`Volume`}</Text>
           <Text>{formatDisplayNumber(pool.volume, { style: 'currency', significantDigits: 6 })}</Text>
         </Flex>
       </MobileTableBottomRow>

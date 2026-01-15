@@ -8,6 +8,7 @@ import { usePoolsExplorerQuery } from 'services/zapEarn'
 import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_earn_position.svg'
 import { NotificationType } from 'components/Announcement/type'
 import Pagination from 'components/Pagination'
+import CreatePoolModal from 'components/ZapCreatePool/CreatePoolModal'
 import { BFF_API } from 'constants/env'
 import { APP_PATHS } from 'constants/index'
 import useDebounce from 'hooks/useDebounce'
@@ -24,7 +25,8 @@ import {
 } from 'pages/Earns/PoolExplorer/styles'
 import useFilter from 'pages/Earns/PoolExplorer/useFilter'
 import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
-import { EarnDex, Exchange, protocolGroupNameToExchangeMapping } from 'pages/Earns/constants'
+import { Exchange } from 'pages/Earns/constants'
+import useZapCreatePoolWidget from 'pages/Earns/hooks/useZapCreatePoolWidget'
 import useZapInWidget, { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import { Direction } from 'pages/MarketOverview/SortIcon'
@@ -55,7 +57,9 @@ const PoolExplorer = () => {
     triggerClose,
     setTriggerClose,
   })
+  const { widget: zapCreatePoolWidget, open: openZapCreatePoolWidget } = useZapCreatePoolWidget()
   const { data: poolData, isError } = usePoolsExplorerQuery(filters, { pollingInterval: POLLING_INTERVAL })
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
 
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
 
@@ -145,18 +149,13 @@ const PoolExplorer = () => {
     ;(async () => {
       const pool = await handleFetchPoolData({ chainId: Number(chainId), address })
 
-      if (
-        pool &&
-        (pool.exchange === dex ||
-          pool.exchange === dexKeyMapping[dex] ||
-          pool.exchange === protocolGroupNameToExchangeMapping[dex as EarnDex])
-      )
+      if (pool && (pool.exchange === dex || pool.exchange === dexKeyMapping[dex]))
         handleOpenZapIn({ pool: { dex: dex as Exchange, chainId: Number(chainId), address: pool.address } })
       else {
         notify(
           {
             title: t`Open pool detail failed`,
-            summary: `Invalid pool info`,
+            summary: t`Invalid pool info`,
             type: NotificationType.ERROR,
           },
           5000,
@@ -171,6 +170,7 @@ const PoolExplorer = () => {
     <PoolPageWrapper>
       {zapInWidget}
       {zapMigrationWidget}
+      {zapCreatePoolWidget}
 
       <div>
         <Flex alignItems="center" sx={{ gap: 3 }}>
@@ -180,11 +180,17 @@ const PoolExplorer = () => {
           </Text>
         </Flex>
         <Text color={theme.subText} marginTop="8px" fontStyle={'italic'}>
-          {t`Kyberswap Zap: Instantly and easily add liquidity to high-APY pools using any token or a combination of tokens.`}
+          {t`KyberSwap Zap: Instantly and easily add liquidity to high-APY pools using any token or a combination of tokens.`}
         </Text>
       </div>
 
-      <Filter filters={filters} updateFilters={updateFilters} search={search} setSearch={setSearch} />
+      <Filter
+        filters={filters}
+        updateFilters={updateFilters}
+        search={search}
+        setSearch={setSearch}
+        onOpenCreatePool={() => setIsCreateModalOpen(true)}
+      />
 
       {upToLarge && (
         <NavigateButton
@@ -209,6 +215,12 @@ const PoolExplorer = () => {
           />
         )}
       </TableWrapper>
+
+      <CreatePoolModal
+        isOpen={isCreateModalOpen}
+        onDismiss={() => setIsCreateModalOpen(false)}
+        onSubmit={openZapCreatePoolWidget}
+      />
 
       <Disclaimer>{t`KyberSwap provides tools for tracking & adding liquidity to third-party Protocols. For any pool-related concerns, please contact the respective Liquidity Protocol directly.`}</Disclaimer>
     </PoolPageWrapper>

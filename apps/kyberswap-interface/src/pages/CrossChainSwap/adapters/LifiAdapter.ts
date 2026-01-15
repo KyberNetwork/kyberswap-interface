@@ -7,6 +7,7 @@ import { WalletClient, formatUnits } from 'viem'
 import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
 import { MAINNET_NETWORKS } from 'constants/networks'
 import { SolanaToken } from 'state/crossChainSwap'
+import { toBigIntSafe } from 'utils/bigint'
 
 import { Quote } from '../registry'
 import {
@@ -67,8 +68,11 @@ export class LifiAdapter extends BaseSwapAdapter {
 
     //const inputUsd = Number(r.estimate.fromAmountUSD || '0')
     //const outputUsd = Number(r.estimate.toAmountUSD || '0')
-    const formattedOutputAmount = formatUnits(BigInt(r.estimate.toAmount), params.toToken.decimals)
-    const formattedInputAmount = formatUnits(BigInt(params.amount), params.fromToken.decimals)
+    const outputAmount = toBigIntSafe(r.estimate.toAmount)
+    const inputAmount = toBigIntSafe(params.amount)
+
+    const formattedOutputAmount = formatUnits(outputAmount, params.toToken.decimals)
+    const formattedInputAmount = formatUnits(inputAmount, params.fromToken.decimals)
 
     const inputUsd = NOT_SUPPORTED_CHAINS_PRICE_SERVICE.includes(params.fromChain)
       ? Number(r.estimate.fromAmountUSD)
@@ -79,8 +83,8 @@ export class LifiAdapter extends BaseSwapAdapter {
 
     return {
       quoteParams: params,
-      outputAmount: BigInt(r.estimate.toAmount),
-      formattedOutputAmount: formatUnits(BigInt(r.estimate.toAmount), params.toToken.decimals),
+      outputAmount,
+      formattedOutputAmount,
       inputUsd,
       outputUsd,
 
@@ -113,7 +117,7 @@ export class LifiAdapter extends BaseSwapAdapter {
       // Try to deserialize as VersionedTransaction first
       let transaction
       try {
-        transaction = VersionedTransaction.deserialize(txBuffer)
+        transaction = VersionedTransaction.deserialize(txBuffer as any)
         console.log('Parsed as VersionedTransaction')
       } catch (versionedError) {
         console.log('Failed to parse as VersionedTransaction, trying legacy Transaction')
@@ -173,6 +177,10 @@ export class LifiAdapter extends BaseSwapAdapter {
         sourceToken: quote.quoteParams.fromToken,
         targetToken: quote.quoteParams.toToken,
         timestamp: new Date().getTime(),
+        amountInUsd: quote.inputUsd,
+        amountOutUsd: quote.outputUsd,
+        platformFeePercent: quote.platformFeePercent,
+        recipient: quote.quoteParams.recipient,
       }
     }
 
@@ -198,6 +206,10 @@ export class LifiAdapter extends BaseSwapAdapter {
       sourceToken: quote.quoteParams.fromToken,
       targetToken: quote.quoteParams.toToken,
       timestamp: new Date().getTime(),
+      amountInUsd: quote.inputUsd,
+      amountOutUsd: quote.outputUsd,
+      platformFeePercent: quote.platformFeePercent,
+      recipient: quote.quoteParams.recipient,
     }
   }
 
@@ -207,6 +219,12 @@ export class LifiAdapter extends BaseSwapAdapter {
       toChain: p.targetChain === 'solana' ? 'SOL' : +p.targetChain,
       txHash: p.sourceTxHash,
     })
+
+    // Extract actual output amount from receiving data if available
+    // Prefer value (actual received after gas), fallback to amount if value is 0
+    const receivingData = (res as any)?.receiving
+    const actualAmountOut =
+      receivingData?.value && receivingData.value !== '0' ? receivingData.value : receivingData?.amount
 
     return {
       txHash: (res as any)?.receiving?.txHash || '',
@@ -218,6 +236,7 @@ export class LifiAdapter extends BaseSwapAdapter {
           : res.status === 'FAILED'
           ? 'Failed'
           : 'Processing',
+      amountOut: actualAmountOut ? String(actualAmountOut) : undefined,
     }
   }
 }

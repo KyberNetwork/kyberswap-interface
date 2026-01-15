@@ -13,6 +13,7 @@ const Wrapper = styled.div`
   flex-direction: column;
   border-radius: 20px;
   border: 1px solid ${({ theme }) => theme.border};
+  overflow: hidden;
   ${({ theme }) => theme.mediaWidth.upToSmall`
     margin-left: -16px;
     width: 100vw;

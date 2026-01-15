@@ -1,3 +1,5 @@
+import { t } from '@lingui/macro';
+
 export const validateDeadlineString = (str: string): boolean => {
   const value = Number.parseInt(str, 10);
 
@@ -35,7 +37,7 @@ export const validateSlippageInput = (
   if (!str.match(numberRegex)) {
     return {
       isValid: false,
-      message: `Enter a valid slippage percentage`,
+      message: t`Enter a valid slippage percentage`,
     };
   }
 
@@ -44,30 +46,30 @@ export const validateSlippageInput = (
   if (Number.isNaN(rawSlippage)) {
     return {
       isValid: false,
-      message: `Enter a valid slippage percentage`,
+      message: t`Enter a valid slippage percentage`,
     };
   }
 
   if (rawSlippage < 0) {
     return {
       isValid: false,
-      message: `Enter a valid slippage percentage`,
+      message: t`Enter a valid slippage percentage`,
     };
   } else if (rawSlippage < suggestedSlippage / 2) {
     return {
       isValid: true,
-      message: `Your slippage is set lower than usual, increasing the risk of transaction failure.`,
+      message: t`Your slippage is set lower than usual, increasing the risk of transaction failure.`,
     };
     // max slippage
   } else if (rawSlippage > 5000) {
     return {
       isValid: false,
-      message: `Enter a smaller slippage percentage`,
+      message: t`Enter a smaller slippage percentage`,
     };
   } else if (rawSlippage > 2 * suggestedSlippage) {
     return {
       isValid: true,
-      message: `Your slippage is set higher than usual, which may cause unexpected losses.`,
+      message: t`Your slippage is set higher than usual, which may cause unexpected losses.`,
     };
   }
 

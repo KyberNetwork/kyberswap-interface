@@ -91,7 +91,26 @@ const MinReceiveLabel = () => {
     <TextDashed fontSize={12} fontWeight={400} color={theme.subText} minWidth="max-content">
       <MouseoverTooltip
         width="200px"
-        text={<Trans>You will receive at least this amount or your transaction will revert.</Trans>}
+        text={
+          <>
+            <Text>
+              <Trans>You will receive at least this amount, or your transaction will revert.</Trans>
+            </Text>
+            <Text>
+              <Trans>
+                Any{' '}
+                <a
+                  href="https://docs.kyberswap.com/kyberswap-solutions/kyberswap-aggregator/aggregator-api-specification/evm-swaps#kyberswap-positive-slippage-surplus-collection"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  positive slippage
+                </a>{' '}
+                will accrue to KyberSwap.
+              </Trans>
+            </Text>
+          </>
+        }
         placement="right"
       >
         <Trans>Minimum Received</Trans>

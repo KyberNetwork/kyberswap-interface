@@ -3,7 +3,21 @@ import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
 import { WalletAdapterProps } from '@solana/wallet-adapter-base'
 import { Connection } from '@solana/web3.js'
 import { WalletClient, formatUnits } from 'viem'
-import { arbitrum, base, blast, bsc, linea, mainnet, optimism, polygon, scroll, unichain, zksync } from 'viem/chains'
+import {
+  arbitrum,
+  base,
+  blast,
+  bsc,
+  linea,
+  mainnet,
+  monad,
+  optimism,
+  plasma,
+  polygon,
+  scroll,
+  unichain,
+  zksync,
+} from 'viem/chains'
 
 import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
@@ -11,6 +25,7 @@ import { SolanaToken } from 'state/crossChainSwap'
 import { isEvmChain } from 'utils'
 
 import { Quote } from '../registry'
+import { isNativeToken, isWrappedToken } from '../utils'
 import {
   BaseSwapAdapter,
   Chain,
@@ -32,7 +47,7 @@ export class AcrossAdapter extends BaseSwapAdapter {
     super()
     this.acrossClient = createAcrossClient({
       integratorId: `0x008a`,
-      chains: [mainnet, arbitrum, bsc, optimism, linea, polygon, zksync, base, scroll, blast, unichain],
+      chains: [mainnet, arbitrum, bsc, optimism, linea, polygon, zksync, base, scroll, blast, unichain, plasma, monad],
       rpcUrls: [
         ChainId.MAINNET,
         ChainId.ARBITRUM,
@@ -45,6 +60,7 @@ export class AcrossAdapter extends BaseSwapAdapter {
         ChainId.SCROLL,
         ChainId.BLAST,
         ChainId.UNICHAIN,
+        ChainId.MONAD,
       ].reduce((acc, cur) => {
         return { ...acc, [cur]: NETWORKS_INFO[cur].defaultRpcUrl }
       }, {}),
@@ -57,6 +73,28 @@ export class AcrossAdapter extends BaseSwapAdapter {
   getIcon(): string {
     return 'https://across.to/favicon.ico'
   }
+
+  canSupport(category: string, tokenIn?: Currency, tokenOut?: Currency): boolean {
+    if (!tokenIn || !tokenOut) {
+      return false
+    }
+
+    if (category === 'stablePair') {
+      return true
+    }
+
+    const isTokenInNativeOrWrapped = isNativeToken(tokenIn) || isWrappedToken(tokenIn)
+    const isTokenOutNativeOrWrapped = isNativeToken(tokenOut) || isWrappedToken(tokenOut)
+
+    if (isTokenInNativeOrWrapped && isTokenOutNativeOrWrapped) {
+      return true
+    }
+
+    console.warn(`Across does not support swap from ${tokenIn.symbol || 'unknown'} to ${tokenOut.symbol || 'unknown'}`)
+
+    return false
+  }
+
   getSupportedChains(): Chain[] {
     return [
       ChainId.MAINNET,
@@ -70,6 +108,8 @@ export class AcrossAdapter extends BaseSwapAdapter {
       ChainId.BLAST,
       ChainId.UNICHAIN,
       ChainId.BSCMAINNET,
+      ChainId.PLASMA,
+      ChainId.MONAD,
       // NonEvmChain.Solana,
     ]
   }
@@ -106,7 +146,7 @@ export class AcrossAdapter extends BaseSwapAdapter {
           amount: params.amount,
           appFee: params.feeBps / 10_000,
           appFeeRecipient: CROSS_CHAIN_FEE_RECEIVER,
-          slippage: (params.slippage * 100) / 10_000,
+          slippage: params.slippage / 10_000, // https://docs.across.to/reference/api-reference#get-swap-approval
           depositor: params.sender,
         })
       }
@@ -180,6 +220,10 @@ export class AcrossAdapter extends BaseSwapAdapter {
                 sourceToken: quote.quote.quoteParams.fromToken,
                 targetToken: quote.quote.quoteParams.toToken,
                 timestamp: new Date().getTime(),
+                amountInUsd: quote.quote.inputUsd,
+                amountOutUsd: quote.quote.outputUsd,
+                platformFeePercent: quote.quote.platformFeePercent,
+                recipient: quote.quote.quoteParams.recipient,
               })
             }
           },

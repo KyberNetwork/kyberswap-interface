@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { PoolQueryParams, useAddFavoriteMutation, useRemoveFavoriteMutation } from 'services/zapEarn'
+import { useAddFavoriteMutation, useRemoveFavoriteMutation } from 'services/zapEarn'
 
 import { NotificationType } from 'components/Announcement/type'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
@@ -11,7 +11,7 @@ const FAVORITE_EXPIRE_DAYS = 7
 const LOCAL_STORAGE_KEY_PREFIX = 'poolExplorer_'
 const FAVORITE_MESSAGE_TEMPLATE = `Click sign to add favorite pools at Kyberswap.com without logging in.\nThis request won’t trigger any blockchain transaction or cost any gas fee. Expires in ${FAVORITE_EXPIRE_DAYS} days. \n\nIssued at: {issuedAt}`
 
-const useFavoritePool = ({ filters, refetch }: { filters: PoolQueryParams; refetch: () => void }) => {
+const useFavoritePool = ({ refetch }: { refetch?: () => void }) => {
   const { account } = useActiveWeb3React()
   const { library } = useWeb3React()
   const [addFavorite] = useAddFavoriteMutation()
@@ -46,7 +46,7 @@ const useFavoritePool = ({ filters, refetch }: { filters: PoolQueryParams; refet
       setDelayFavorite(true)
 
       const result = await (isPoolFavorite ? removeFavorite : addFavorite)({
-        chainId: filters.chainId,
+        chainId: (pool.chain?.id || pool.chainId) as number,
         userAddress: account,
         poolAddress: pool.address,
         message: msg,
@@ -57,13 +57,13 @@ const useFavoritePool = ({ filters, refetch }: { filters: PoolQueryParams; refet
         throw new Error((result as any).error.data.message || 'Something went wrong')
       }
 
-      await refetch()
+      refetch?.()
     } catch (error) {
       const action = pool.favorite?.isFavorite ? 'Remove' : 'Add'
       notify(
         {
           title: `${action} failed`,
-          summary: error instanceof Error ? error.message : 'Something went wrong',
+          summary: error?.message || 'Something went wrong',
           type: NotificationType.ERROR,
         },
         8000,

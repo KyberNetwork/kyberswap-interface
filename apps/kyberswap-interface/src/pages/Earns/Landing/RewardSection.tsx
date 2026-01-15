@@ -8,7 +8,9 @@ import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { RewardsNavigateButton } from 'pages/Earns/Landing/styles'
 import { FilterTag } from 'pages/Earns/PoolExplorer/Filter'
+import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
+import useMerklRewards from 'pages/Earns/hooks/useMerklRewards'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -19,9 +21,10 @@ const RewardSection = () => {
   const theme = useTheme()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
-  const { rewardInfo } = useKemRewards()
+  const { rewardInfo, isLoadingRewardInfo } = useKemRewards()
+  const { totalUsdValue: merklRewardUsdValue } = useMerklRewards()
 
-  const totalRewardUsdValue = rewardInfo?.totalUsdValue || 0
+  const totalRewardUsdValue = (rewardInfo?.totalUsdValue || 0) + (merklRewardUsdValue || 0)
 
   const btnPath = !account
     ? '#'
@@ -50,15 +53,19 @@ const RewardSection = () => {
         >
           {t`Total rewards`}
         </Text>
-        <Text fontSize={28}>
-          {formatDisplayNumber(totalRewardUsdValue, { significantDigits: 6, style: 'currency' })}
-        </Text>
+        {isLoadingRewardInfo ? (
+          <PositionSkeleton width={120} height={32} />
+        ) : (
+          <Text fontSize={28}>
+            {formatDisplayNumber(totalRewardUsdValue, { significantDigits: 6, style: 'currency' })}
+          </Text>
+        )}
       </Flex>
       <RewardsNavigateButton to={btnPath} onClick={handleClickBtn}>
         <Text fontSize={14} color={theme.primary} fontWeight={500} sx={{ textTransform: 'uppercase' }}>
           {btnText}
         </Text>
-        <img src={PlayIcon} alt="play" width={36} height={36} />
+        <img src={PlayIcon} alt={t`Play icon`} width={36} height={36} />
       </RewardsNavigateButton>
     </Flex>
   )

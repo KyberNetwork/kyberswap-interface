@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
+import { useLingui } from '@lingui/react';
+
 import { useDebounce } from '@kyber/hooks';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
@@ -82,6 +84,7 @@ export default function LoadingCounter({
   onRefresh: () => void;
   color?: string;
 }) {
+  const { i18n } = useLingui();
   const [countdown, setCountdown] = useState(0);
   const disableManualRefresh = useRef(false);
 
@@ -120,10 +123,6 @@ export default function LoadingCounter({
     };
   }, [countdown, onRefresh, disableRefresh]);
 
-  useEffect(() => {
-    onRefresh();
-  }, [onRefresh]);
-
   return (
     <div
       className={cn('ks-ui-style flex items-center relative w-fit', clickable && 'cursor-pointer')}
@@ -131,7 +130,7 @@ export default function LoadingCounter({
       onClick={handleManualRefresh}
     >
       <MouseoverTooltip
-        text={clickable ? 'Click to refresh, occur once per second.' : null}
+        text={clickable ? i18n._('Click to refresh, occur once per second.') : null}
         placement="top"
         width="auto"
       >

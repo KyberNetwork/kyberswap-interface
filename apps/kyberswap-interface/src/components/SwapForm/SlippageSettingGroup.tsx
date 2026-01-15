@@ -10,6 +10,7 @@ import styled from 'styled-components'
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import { Shield } from 'components/Icons'
 import InfoHelper from 'components/InfoHelper'
+import AddMEVProtectionModal, { KYBER_SWAP_RPC } from 'components/SwapForm/AddMEVProtectionModal'
 import SlippageSetting from 'components/SwapForm/SlippageSetting'
 import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
@@ -18,8 +19,6 @@ import useMixpanel, { MIXPANEL_TYPE } from 'hooks/useMixpanel'
 import useTheme from 'hooks/useTheme'
 import { usePaymentToken, useSlippageSettingByPage } from 'state/user/hooks'
 import { MEDIA_WIDTHS } from 'theme'
-
-import AddMEVProtectionModal from './AddMEVProtectionModal'
 
 export const PriceAlertButton = styled.div`
   background: ${({ theme }) => rgba(theme.subText, 0.2)};
@@ -61,12 +60,12 @@ export default function SlippageSettingGroup({
   const { isSlippageControlPinned } = useSlippageSettingByPage()
   const isPartnerSwap = window.location.pathname.startsWith(APP_PATHS.PARTNER_SWAP)
   let rightButton =
-    [ChainId.MAINNET].includes(chainId) && active && !isPartnerSwap && !isMobile && !isTablet ? (
+    KYBER_SWAP_RPC[chainId] && active && !isPartnerSwap && !isMobile && !isTablet ? (
       <PriceAlertButton onClick={addMevProtectionHandler}>
         <Shield size={14} color={theme.subText} />
         <Text color={theme.subText} style={{ whiteSpace: 'nowrap' }}>
           {upToXXSmall ? <Trans>MEV Protection</Trans> : <Trans>Add MEV Protection</Trans>}
-          <InfoHelper size={14} text="Add MEV Protection to safeguard you from front-running attacks." />
+          <InfoHelper size={14} text={<Trans>Add MEV Protection to safeguard you from front-running attacks.</Trans>} />
         </Text>
       </PriceAlertButton>
     ) : null
@@ -81,7 +80,7 @@ export default function SlippageSettingGroup({
           />
         </svg>
 
-        <MouseoverTooltip text="Pay network fees in the token of your choice." placement="top">
+        <MouseoverTooltip text={<Trans>Pay network fees in the token of your choice.</Trans>} placement="top">
           <TextDashed marginLeft="6px" lineHeight="16px" fontWeight="500" marginTop="2px">
             <Trans>Gas Token</Trans>
           </TextDashed>
