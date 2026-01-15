@@ -1,6 +1,15 @@
 import useThrottle from 'hooks/useThrottle'
 import { Dex } from 'state/customizeDexes'
 
+const findDexById = (exchangeId: string, allDexes?: Dex[]): Dex | undefined => {
+  if (!allDexes) return undefined
+  return allDexes.find(
+    dex =>
+      dex.id === exchangeId ||
+      ((exchangeId === 'kyberswap' || exchangeId === 'kyberswap-static') && dex.id === 'kyberswapv1'), // Mapping for kyberswap classic dex
+  )
+}
+
 export const getDexInfoByPool = (exchange: string, allDexes?: Dex[]) => {
   if (exchange === '1inch') {
     return { name: '1inch', logoURL: 'https://s2.coinmarketcap.com/static/img/coins/64x64/8104.png' }
@@ -14,11 +23,31 @@ export const getDexInfoByPool = (exchange: string, allDexes?: Dex[]) => {
     return { name: '0x', logoURL: 'https://s2.coinmarketcap.com/static/img/coins/64x64/1896.png' }
   }
 
-  return allDexes?.find(
-    dex =>
-      dex.id === exchange ||
-      ((exchange === 'kyberswap' || exchange === 'kyberswap-static') && dex.id === 'kyberswapv1'), // Mapping for kyberswap classic dex
-  )
+  // Try to find in allDexes first
+  const foundDex = findDexById(exchange, allDexes)
+  if (foundDex) {
+    return foundDex
+  }
+
+  // If not found, check if exchange contains '/' (format 'exchange/exchange')
+  if (exchange.includes('/')) {
+    const parts = exchange.split('/')
+    if (parts.length === 2) {
+      const [firstPart, secondPart] = parts
+      const firstDex = findDexById(firstPart, allDexes)
+      const secondDex = findDexById(secondPart, allDexes)
+
+      // If both parts are found as dexes, return 'name/name' format
+      if (firstDex && secondDex) {
+        return { name: `${firstDex.name}/${secondDex.name}`, logoURL: '' }
+      }
+    }
+
+    // If one or neither is found, return original exchange with empty logoURL
+    return { name: exchange, logoURL: '' }
+  }
+
+  return undefined
 }
 
 export const getSwapPercent = (percent?: number, routeNumber = 0): string | null => {
