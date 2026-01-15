@@ -357,19 +357,19 @@ export const SCAN_LINK: { [chainId: number]: string } = {
 }
 
 export const DefaultRpcUrl: { [chainId: number]: string } = {
-  1: 'https://ethereum.kyberengineering.io',
+  1: 'https://ethereum-rpc.kyberswap.com',
   137: 'https://polygon-rpc.com',
-  56: 'https://bsc.kyberengineering.io',
+  56: 'https://bsc-rpc.kyberswap.com',
   43114: 'https://avalanche.kyberengineering.io',
   250: 'https://rpc.fantom.network',
   25: '', // cronos deprecated
-  42161: 'https://arbitrum.kyberengineering.io',
+  42161: 'https://arbitrum-rpc.kyberswap.com',
   199: '', // deprecated bttc
   10: 'https://mainnet.optimism.io',
   59144: 'https://rpc.linea.build',
   1101: 'https://zkevm-rpc.com',
   324: 'https://mainnet.era.zksync.io',
-  8453: 'https://base.kyberengineering.io',
+  8453: 'https://base-rpc.kyberswap.com',
   81457: 'https://rpc.blast.io',
   5000: 'https://rpc.mantle.xyz',
   80094: 'https://rpc.berachain.com',

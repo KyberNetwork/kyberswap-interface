@@ -36,7 +36,7 @@ export const NetworkInfo: {
       "https://storage.googleapis.com/ks-setting-1d682dca/8fca1ea5-2637-48bc-bb08-c734065442fe1693634037115.png",
     scanLink: "https://etherscan.io",
     multiCall: "0x5BA1e12693Dc8F9c48aAD8770482f4739bEeD696",
-    defaultRpc: "https://ethereum.kyberengineering.io",
+    defaultRpc: "https://ethereum-rpc.kyberswap.com",
     wrappedToken: {
       chainId: 1,
       name: "WETH",
@@ -86,7 +86,7 @@ export const NetworkInfo: {
       "https://storage.googleapis.com/ks-setting-1d682dca/8fca1ea5-2637-48bc-bb08-c734065442fe1693634037115.png",
     scanLink: "https://arbiscan.io",
     multiCall: "0xcA11bde05977b3631167028862bE2a173976CA11",
-    defaultRpc: "https://arbitrum.kyberengineering.io",
+    defaultRpc: "https://arbitrum-rpc.kyberswap.com",
     wrappedToken: {
       chainId: 42161,
       name: "WETH",
@@ -119,7 +119,7 @@ export const NetworkInfo: {
       "https://storage.googleapis.com/ks-setting-1d682dca/8fca1ea5-2637-48bc-bb08-c734065442fe1693634037115.png",
     scanLink: "https://basescan.org",
     multiCall: "0xcA11bde05977b3631167028862bE2a173976CA11",
-    defaultRpc: "https://base.kyberengineering.io",
+    defaultRpc: "https://base-rpc.kyberswap.com",
     wrappedToken: {
       chainId: 8453,
       name: "ETH",

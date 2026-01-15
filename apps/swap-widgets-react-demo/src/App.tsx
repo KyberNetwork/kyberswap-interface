@@ -38,7 +38,7 @@ init({
       id: "0x1",
       token: "ETH",
       label: "Ethereum Mainnet",
-      rpcUrl: "https://ethereum.kyberengineering.io",
+      rpcUrl: "https://ethereum-rpc.kyberswap.com",
     },
     {
       id: "0xa4b1", // 42161 in hex
