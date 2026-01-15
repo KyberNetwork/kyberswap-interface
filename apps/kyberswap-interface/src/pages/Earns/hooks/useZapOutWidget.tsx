@@ -49,19 +49,6 @@ const zapOutDexMapping: Record<Exchange, ZapOutDex> = {
   [Exchange.DEX_AERODROMECL]: ZapOutDex.DEX_AERODROMECL,
 }
 
-const getDexFromPoolType = (poolType: ZapOutDex) => {
-  const dexIndex = Object.values(zapOutDexMapping).findIndex(
-    (item, index) => item === poolType && EARN_DEXES[Object.keys(zapOutDexMapping)[index] as Exchange],
-  )
-  if (dexIndex === -1) {
-    console.error('Cannot find dex')
-    return
-  }
-  const dex = Object.keys(zapOutDexMapping)[dexIndex] as Exchange
-
-  return dex
-}
-
 const useZapOutWidget = (
   onRefreshPosition?: (props: CheckClosedPositionParams) => void,
   explorePoolsEnabled?: boolean,
@@ -146,7 +133,7 @@ const useZapOutWidget = (
               const { txHash, error } = res
               if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
 
-              const dex = getDexFromPoolType(zapOutPureParams.poolType)
+              const dex = zapOutPureParams.dexId
               if (additionalInfo?.type === 'zap' && dex) {
                 addTransactionWithType({
                   hash: txHash,

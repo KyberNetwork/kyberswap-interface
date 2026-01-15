@@ -413,12 +413,11 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
   }, [balance])
 
   const handleMaxInput = useCallback(() => {
-    if (!parsedActiveOrderMakingAmount || !maxAmountInput || !currencyIn) return
+    if (!maxAmountInput) return
     try {
-      const rest = maxAmountInput.subtract(parsedActiveOrderMakingAmount)
-      onSetInput(rest.greaterThan(CurrencyAmount.fromRawAmount(currencyIn, 0)) ? rest?.toExact() : '0')
+      onSetInput(maxAmountInput.toExact())
     } catch (error) {}
-  }, [maxAmountInput, onSetInput, parsedActiveOrderMakingAmount, currencyIn])
+  }, [maxAmountInput, onSetInput])
 
   const missingAllowance = useMemo(() => {
     if (currentAllowance?.equalTo(0)) return true
@@ -448,7 +447,7 @@ const LimitOrderForm = forwardRef<LimitOrderFormHandle, Props>(function LimitOrd
     outputAmount,
     balance,
     displayRate,
-    parsedActiveOrderMakingAmount,
+    parsedActiveOrderMakingAmount: undefined,
     currencyIn,
     wrapInputError,
     showWrap,
