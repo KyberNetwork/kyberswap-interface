@@ -360,7 +360,7 @@ export const DefaultRpcUrl: { [chainId: number]: string } = {
   1: 'https://ethereum-rpc.kyberswap.com',
   137: 'https://polygon-rpc.com',
   56: 'https://bsc-rpc.kyberswap.com',
-  43114: 'https://avalanche.kyberengineering.io',
+  43114: 'https://avalanche-rpc.kyberswap.com',
   250: 'https://rpc.fantom.network',
   25: '', // cronos deprecated
   42161: 'https://arbitrum-rpc.kyberswap.com',
