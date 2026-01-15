@@ -20,7 +20,7 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
   const [tokenLogos, setTokenLogos] = useState<Record<string, string>>({})
 
   const positionsKey = useMemo(
-    () => (options?.positions || []).map(position => `${position.id}-${position.pool.address}`).join('|'),
+    () => (options?.positions || []).map(position => `${position.positionId}-${position.pool.address}`).join('|'),
     [options?.positions],
   )
 
@@ -113,7 +113,7 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
             const breakdownClaimableAmount = Math.max(breakdownTotalAmount - breakdownClaimedAmount, 0)
 
             matchedPositions.forEach(position => {
-              const key = position.id
+              const key = position.positionId
               const tokenKey = `${reward.token.chainId}-${reward.token.address.toLowerCase()}`
               const existing = perPositionRewards[key]?.[tokenKey]
               const next: TokenRewardInfo = {

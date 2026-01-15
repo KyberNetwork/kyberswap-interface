@@ -5,7 +5,7 @@ import { useUserPositionsQuery } from 'services/zapEarn'
 
 import { SmartExitDexType } from 'pages/Earns/components/SmartExit/constants'
 import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
-import { EarnPosition, ParsedPosition, SmartExitFilter, SmartExitOrder } from 'pages/Earns/types'
+import { ParsedPosition, PositionStatus, SmartExitFilter, SmartExitOrder, UserPosition } from 'pages/Earns/types'
 import { parsePosition } from 'pages/Earns/utils/position'
 import { friendlyError } from 'utils/errorMessage'
 
@@ -101,10 +101,10 @@ export function useSmartExitOrdersData({ account, filters, pageSize, updateFilte
   } = useUserPositionsQuery(
     {
       chainIds: chainIdsParam,
-      addresses: account || '',
+      wallet: account || '',
       protocols: protocolsParam,
       positionIds: positionIdsParam,
-      positionStatus: 'all',
+      statuses: `${PositionStatus.IN_RANGE},${PositionStatus.OUT_RANGE},${PositionStatus.CLOSED}`,
     },
     {
       skip: shouldSkipUserPositions,
@@ -134,9 +134,9 @@ export function useSmartExitOrdersData({ account, filters, pageSize, updateFilte
   }, [filters, account])
 
   const parsedPositionsById = useMemo(() => {
-    if (!userPosition || !userPosition.length) return {}
+    if (!userPosition || !userPosition.positions.length) return {}
 
-    return userPosition.reduce((acc: Record<string, ParsedPosition>, pos: EarnPosition) => {
+    return userPosition.positions.reduce((acc: Record<string, ParsedPosition>, pos: UserPosition) => {
       try {
         const parsedPos = parsePosition({
           position: pos,
@@ -144,7 +144,7 @@ export function useSmartExitOrdersData({ account, filters, pageSize, updateFilte
           nftRewardInfo: undefined,
           isClosedFromRpc: false,
         })
-        acc[pos.id.toLowerCase()] = parsedPos
+        acc[pos.positionId.toLowerCase()] = parsedPos
       } catch (error) {
         console.error('Error parsing position:', error, pos)
       }

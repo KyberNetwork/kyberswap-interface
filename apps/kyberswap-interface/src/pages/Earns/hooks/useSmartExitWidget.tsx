@@ -6,7 +6,7 @@ import { useUserPositionsQuery } from 'services/zapEarn'
 import { useActiveWeb3React } from 'hooks'
 import { SmartExit } from 'pages/Earns/components/SmartExit'
 import { Exchange } from 'pages/Earns/constants'
-import { EarnPosition, ParsedPosition } from 'pages/Earns/types'
+import { ParsedPosition, UserPosition } from 'pages/Earns/types'
 import { parsePosition } from 'pages/Earns/utils/position'
 
 // Map PoolType from widget to Exchange
@@ -46,12 +46,12 @@ export default function useSmartExitWidget(): {
 
   const exchange = smartExitParams ? poolTypeToExchange[smartExitParams.poolType] : undefined
 
-  const { data: positions, isLoading } = useUserPositionsQuery(
+  const { data: userPositionsData, isLoading } = useUserPositionsQuery(
     {
-      addresses: account || '',
+      wallet: account || '',
       chainIds: smartExitParams?.chainId.toString() || '',
       protocols: exchange || '',
-      positionId: positionId,
+      positionIds: positionId,
     },
     {
       skip: !smartExitParams || !positionId || !exchange,
@@ -61,12 +61,12 @@ export default function useSmartExitWidget(): {
 
   // Parse position when data arrives
   useEffect(() => {
-    if (positions && positions.length > 0 && !smartExitPosition) {
-      const rawPosition = positions[0] as EarnPosition
+    if (userPositionsData && userPositionsData.positions.length > 0 && !smartExitPosition) {
+      const rawPosition = userPositionsData.positions[0] as UserPosition
       const parsed = parsePosition({ position: rawPosition })
       setSmartExitPosition(parsed)
     }
-  }, [positions, smartExitPosition])
+  }, [userPositionsData, smartExitPosition])
 
   const onOpenSmartExit = useCallback((params: SmartExitParams | ParsedPosition | undefined) => {
     if (!params) {

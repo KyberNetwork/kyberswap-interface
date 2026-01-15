@@ -41,7 +41,7 @@ export default function Confirmation({
   const { chainId } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
   const { permitState, signPermitNft, permitData } = usePermitNft({
-    contractAddress: position.id.split('-')[0],
+    contractAddress: position.positionId.split('-')[0],
     tokenId: position.tokenId,
     spender: SMART_EXIT_ADDRESS,
     deadline,

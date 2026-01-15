@@ -173,7 +173,7 @@
     "use-sound": "^5.0.0",
     "util": "^0.12.5",
     "uuid": "^11.1.0",
-    "viem": "^2.40.3",
+    "viem": "^2.43.1",
     "vite-plugin-env-compatible": "^1.1.1",
     "wagmi": "^2.14.11",
     "walktour": "^5.2.0",

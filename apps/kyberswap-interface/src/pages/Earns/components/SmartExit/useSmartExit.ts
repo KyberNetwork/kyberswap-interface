@@ -72,7 +72,7 @@ export const useSmartExit = ({ position, selectedMetrics, conditionType, deadlin
       userWallet: account,
       dexType,
       poolId: position.pool.address,
-      positionId: position.id,
+      positionId: position.positionId,
       removeLiquidity: positionLiquidity,
       unwrap: false,
       condition: buildConditions(selectedMetrics.filter(metric => metric !== null) as SelectedMetric[], conditionType),

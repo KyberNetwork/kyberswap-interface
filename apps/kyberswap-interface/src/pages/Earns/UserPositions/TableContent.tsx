@@ -89,7 +89,7 @@ export default function TableContent({
   const { data: smartExitOrders } = useGetSmartExitOrdersQuery(
     {
       userWallet: account || '',
-      positionIds: positions?.map(pos => pos.id) || [],
+      positionIds: positions?.map(pos => pos.positionId) || [],
       status: OrderStatus.OrderStatusOpen,
       page: 1,
       pageSize: positions?.length || 10,
@@ -274,9 +274,9 @@ export default function TableContent({
         dexId: sourcePosition.dex.id,
       },
       to: {
-        poolType: targetPool.poolExchange,
+        poolType: targetPool.exchange,
         poolAddress: targetPool.address,
-        dexId: targetPool.poolExchange,
+        dexId: targetPool.exchange,
       },
       initialTick:
         tickLower !== undefined && tickUpper !== undefined && !isOutRange
@@ -336,7 +336,7 @@ export default function TableContent({
         {account && positions && positions.length > 0
           ? positions.map((position, index) => {
               const {
-                id,
+                positionId,
                 tokenId,
                 token0,
                 token1,
@@ -360,16 +360,16 @@ export default function TableContent({
               const isStablePair = pool.category === PAIR_CATEGORY.STABLE
               const isEarlyPosition = checkEarlyPosition(position)
               const isWaitingForRewards = pool.isFarming && rewards.totalUsdValue === 0 && isEarlyPosition
-              const merklRewards = rewardsByPosition?.[id]?.rewards || []
-              const merklRewardsTotalUsd = rewardsByPosition?.[id]?.totalUsdValue || 0
+              const merklRewards = rewardsByPosition?.[positionId]?.rewards || []
+              const merklRewardsTotalUsd = rewardsByPosition?.[positionId]?.totalUsdValue || 0
               const suggestedProtocolName = position.suggestionPool
-                ? EARN_DEXES[position.suggestionPool.poolExchange].name.replace('FairFlow', '').trim()
+                ? EARN_DEXES[position.suggestionPool.exchange].name.replace('FairFlow', '').trim()
                 : ''
 
               const actions = (
                 <DropdownAction
                   position={position}
-                  hasActiveSmartExitOrder={smartExitPosIds.includes(position.id)}
+                  hasActiveSmartExitOrder={smartExitPosIds.includes(position.tokenId)}
                   onOpenIncreaseLiquidityWidget={handleOpenIncreaseLiquidityWidget}
                   onOpenZapOut={handleOpenZapOut}
                   onOpenSmartExit={(_e: React.MouseEvent, position: ParsedPosition) => {
@@ -392,9 +392,10 @@ export default function TableContent({
               return (
                 <PositionRow
                   key={`${tokenId}-${pool.address}-${index}`}
-                  to={APP_PATHS.EARN_POSITION_DETAIL.replace(':positionId', !pool.isUniv2 ? id : pool.address)
+                  to={APP_PATHS.EARN_POSITION_DETAIL.replace(':positionId', !pool.isUniv2 ? positionId : pool.address)
                     .replace(':chainId', chain.id.toString())
                     .replace(':exchange', dex.id)}
+                  $isUnfinalized={isUnfinalized}
                 >
                   {/* Overview info */}
                   <PositionOverview>
@@ -413,7 +414,7 @@ export default function TableContent({
                         {token0.symbol}/{token1.symbol}
                       </Text>
                       <Badge>{pool.fee}%</Badge>
-                      {smartExitPosIds.includes(position.id) && (
+                      {smartExitPosIds.includes(position.positionId) && (
                         <MouseoverTooltipDesktopOnly
                           text={t`Active Smart Exit Order`}
                           width="fit-content"
