@@ -1,7 +1,7 @@
 import { t } from '@lingui/macro'
 import { rgba } from 'polished'
 import { Fragment, useMemo, useState } from 'react'
-import { ChevronDown, ChevronRight, ChevronUp } from 'react-feather'
+import { ChevronDown, ChevronUp } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import styled from 'styled-components'
 import { formatUnits } from 'viem'
@@ -11,6 +11,7 @@ import { Chain, SwapProvider } from 'pages/CrossChainSwap/adapters'
 import { registry } from 'pages/CrossChainSwap/hooks/useCrossChainSwap'
 import { Quote } from 'pages/CrossChainSwap/registry'
 import { getNetworkInfo } from 'pages/CrossChainSwap/utils'
+import { MEDIA_WIDTHS } from 'theme'
 import { getNativeTokenLogo, getTokenLogoURL, isEvmChain } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -206,41 +207,34 @@ const QuoteStepCard = ({ step, stepToken, quoteSlippage, bridgeFeePct, platformF
   const [open, setOpen] = useState(false)
   return (
     <>
-      <Flex height="36px" alignItems="center">
-        <ChevronRight size={14} color={theme.subText} />
-      </Flex>
-      <StepCard>
-        <StepTitle onClick={() => setOpen(prev => !prev)}>
-          <StepTitleLeft>
-            <Text color={theme.subText}>{step.label}</Text>
-            <img src={step.adapter.getIcon()} alt={step.adapter.getName()} width={16} height={16} />
-            <Text>{step.adapter.getName()}</Text>
-          </StepTitleLeft>
-          {open ? <ChevronUp size={14} color={theme.subText} /> : <ChevronDown size={14} color={theme.subText} />}
-        </StepTitle>
-        <StepDetails data-open={open ? 'true' : 'false'}>
-          <StepDetailRow>
-            <Text>{step.type === 'sourceswap' ? t`Max Slippage` : step.type === 'bridge' ? t`Fee` : t`Info`}</Text>
-            <Text>
-              {step.type === 'sourceswap'
-                ? formatSlippage(step.slippage ?? quoteSlippage)
-                : step.type === 'bridge'
-                ? bridgeFeePct
-                  ? formatFeePctFromBridge(bridgeFeePct)
-                  : formatFeePercent(step.feePercent ?? platformFeePercent, step.feeBps)
-                : '--'}
-            </Text>
-          </StepDetailRow>
-        </StepDetails>
-      </StepCard>
-      {stepToken && (
-        <>
-          <Flex height="36px" alignItems="center">
-            <ChevronRight size={14} color={theme.subText} />
-          </Flex>
-          <QuoteTokenNode token={stepToken.token} amount={stepToken.amount} chainId={stepToken.chainId} />
-        </>
-      )}
+      <ArrowTrack>
+        <ArrowLine />
+        <StepCard>
+          <StepTitle onClick={() => setOpen(prev => !prev)}>
+            <StepTitleLeft>
+              <Text color={theme.subText}>{step.label}</Text>
+              <img src={step.adapter.getIcon()} alt={step.adapter.getName()} width={16} height={16} />
+              <Text>{step.adapter.getName()}</Text>
+            </StepTitleLeft>
+            {open ? <ChevronUp size={14} color={theme.subText} /> : <ChevronDown size={14} color={theme.subText} />}
+          </StepTitle>
+          <StepDetails data-open={open ? 'true' : 'false'}>
+            <StepDetailRow>
+              <Text>{step.type === 'sourceswap' ? t`Max Slippage` : step.type === 'bridge' ? t`Fee` : t`Info`}</Text>
+              <Text>
+                {step.type === 'sourceswap'
+                  ? formatSlippage(step.slippage ?? quoteSlippage)
+                  : step.type === 'bridge'
+                  ? bridgeFeePct
+                    ? formatFeePctFromBridge(bridgeFeePct)
+                    : formatFeePercent(step.feePercent ?? platformFeePercent, step.feeBps)
+                  : '--'}
+              </Text>
+            </StepDetailRow>
+          </StepDetails>
+        </StepCard>
+      </ArrowTrack>
+      {stepToken && <QuoteTokenNode token={stepToken.token} amount={stepToken.amount} chainId={stepToken.chainId} />}
     </>
   )
 }
@@ -343,8 +337,13 @@ const FlowRow = styled(Flex)`
   align-items: flex-start;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 12px;
+  padding: 0 8px;
   margin-bottom: 12px;
+
+  @media (max-width: ${MEDIA_WIDTHS.upToSmall}px) {
+    flex-direction: column;
+  }
 `
 
 const TokenNode = styled(Flex)`
@@ -383,7 +382,9 @@ const StepCard = styled.div`
   min-width: 200px;
   padding: 10px 12px;
   border-radius: 16px;
-  background: ${({ theme }) => rgba(theme.subText, 0.08)};
+  background: ${({ theme }) => theme.background};
+  position: relative;
+  z-index: 1;
 `
 
 const StepTitle = styled(Flex)`
@@ -418,5 +419,38 @@ const StepDetails = styled.div`
     max-height: 80px;
     opacity: 1;
     padding-top: 4px;
+  }
+`
+
+const ArrowTrack = styled.div`
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+`
+
+const ArrowLine = styled.div`
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 18px;
+  height: 2px;
+  background: ${({ theme }) => theme.border};
+  opacity: 0.65;
+  &::after {
+    content: '';
+    position: absolute;
+    right: -2px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-left: 6px solid ${({ theme }) => theme.border};
+    border-top: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+    opacity: 0.65;
+  }
+
+  @media (max-width: ${MEDIA_WIDTHS.upToSmall}px) {
+    display: none;
   }
 `
