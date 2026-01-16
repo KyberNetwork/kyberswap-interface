@@ -38,7 +38,7 @@ init({
       id: "0x1",
       token: "ETH",
       label: "Ethereum Mainnet",
-      rpcUrl: "https://ethereum.kyberengineering.io",
+      rpcUrl: "https://ethereum-rpc.kyberswap.com",
       namespace: "evm",
     },
     {
@@ -115,17 +115,17 @@ function App() {
     if (!connectedWallets.length) return;
 
     const connectedWalletsLabelArray = connectedWallets.map(
-      ({ label }) => label,
+      ({ label }) => label
     );
     window.localStorage.setItem(
       "connectedWallets",
-      JSON.stringify(connectedWalletsLabelArray),
+      JSON.stringify(connectedWalletsLabelArray)
     );
   }, [connectedWallets, wallet]);
 
   useEffect(() => {
     const previouslyConnectedWallets = JSON.parse(
-      window.localStorage.getItem("connectedWallets") || "[]",
+      window.localStorage.getItem("connectedWallets") || "[]"
     );
 
     if (previouslyConnectedWallets?.length) {
