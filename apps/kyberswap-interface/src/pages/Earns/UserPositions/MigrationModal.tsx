@@ -65,7 +65,7 @@ export default function MigrationModal({
                       onOpenMigration(positionToMigrate, {
                         address: pool.address,
                         feeTier: pool.feeTier,
-                        exchange: pool.exchange,
+                        poolExchange: pool.exchange,
                         token0: {
                           address: pool.tokens?.[0]?.address || '',
                           decimals: pool.tokens?.[0]?.decimals || 0,
@@ -124,7 +124,7 @@ export default function MigrationModal({
                       onOpenMigration(positionToMigrate, {
                         address: pool.address,
                         feeTier: pool.feeTier,
-                        exchange: pool.exchange,
+                        poolExchange: pool.exchange,
                         token0: {
                           address: pool.tokens?.[0]?.address || '',
                           decimals: pool.tokens?.[0]?.decimals || 0,

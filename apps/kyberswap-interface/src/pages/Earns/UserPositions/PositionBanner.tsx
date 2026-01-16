@@ -1,7 +1,7 @@
 import { ShareModal, ShareModalProps, ShareType } from '@kyber/ui'
 import { t } from '@lingui/macro'
 import { rgba } from 'polished'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Share2 } from 'react-feather'
 import Skeleton from 'react-loading-skeleton'
 import { useMedia } from 'react-use'
@@ -24,8 +24,8 @@ import {
 import { LIMIT_TEXT_STYLES } from 'pages/Earns/constants'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
 import useMerklRewards from 'pages/Earns/hooks/useMerklRewards'
-import { ParsedPosition, UserPositionsStats } from 'pages/Earns/types'
-import { extractClaimedFeeStats } from 'pages/Earns/utils/position'
+import { ParsedPosition } from 'pages/Earns/types'
+import { aggregateFeeFromPositions } from 'pages/Earns/utils/position'
 import { defaultRewardInfo } from 'pages/Earns/utils/reward'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -54,11 +54,10 @@ export const BannerSkeleton = ({
 }
 
 export default function PositionBanner({
-  positionsStats,
+  positions,
   initialLoading,
 }: {
   positions: Array<ParsedPosition>
-  positionsStats?: UserPositionsStats
   initialLoading: boolean
 }) {
   const theme = useTheme()
@@ -87,7 +86,11 @@ export default function PositionBanner({
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
 
-  const { totalValueUsd, totalEarnedFeeUsd, totalUnclaimedFeeUsd } = extractClaimedFeeStats(positionsStats)
+  const {
+    totalValue: totalFeeValue,
+    totalEarnedFee,
+    totalUnclaimedFee,
+  } = useMemo(() => aggregateFeeFromPositions(positions), [positions])
 
   const KemImageSize = upToSmall ? 20 : 24
 
@@ -145,10 +148,10 @@ export default function PositionBanner({
               ) : (
                 <Text
                   fontSize={24}
-                  color={totalValueUsd && totalValueUsd > 0 ? theme.primary : theme.text}
+                  color={totalFeeValue && totalFeeValue > 0 ? theme.primary : theme.text}
                   sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '140px' }}
                 >
-                  {formatDisplayNumber(totalValueUsd, { style: 'currency', significantDigits: 4 })}
+                  {formatDisplayNumber(totalFeeValue, { style: 'currency', significantDigits: 4 })}
                 </Text>
               )}
             </BannerDataItem>
@@ -160,7 +163,7 @@ export default function PositionBanner({
                 <BannerSkeleton width={90} height={28} />
               ) : (
                 <Text fontSize={24} sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '140px' }}>
-                  {formatDisplayNumber(totalEarnedFeeUsd, { style: 'currency', significantDigits: 4 })}
+                  {formatDisplayNumber(totalEarnedFee, { style: 'currency', significantDigits: 4 })}
                 </Text>
               )}
             </BannerDataItem>
@@ -172,7 +175,7 @@ export default function PositionBanner({
                 <BannerSkeleton width={90} height={28} />
               ) : (
                 <Text fontSize={24} sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '140px' }}>
-                  {formatDisplayNumber(totalUnclaimedFeeUsd, { style: 'currency', significantDigits: 4 })}
+                  {formatDisplayNumber(totalUnclaimedFee, { style: 'currency', significantDigits: 4 })}
                 </Text>
               )}
             </BannerDataItem>

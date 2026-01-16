@@ -34,6 +34,7 @@ export default function useOnSuccess({ txHash, txStatus }: { txHash: string; txS
       position: {
         positionId,
         chainId,
+        poolType,
         dexLogo,
         token0: {
           address: pool.token0.address,

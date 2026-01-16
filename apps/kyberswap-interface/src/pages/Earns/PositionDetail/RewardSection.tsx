@@ -84,10 +84,10 @@ const RewardSection = ({
   } = useKemRewards({ refetchAfterCollect: refetchPositions })
 
   const { rewardsByPosition } = useMerklRewards({ positions: position ? [position] : undefined })
-  const merklRewards = position ? rewardsByPosition[position.positionId]?.rewards || [] : []
-  const merklRewardsTotalUsd = position ? rewardsByPosition[position.positionId]?.totalUsdValue || 0 : 0
+  const merklRewards = position ? rewardsByPosition[position.id]?.rewards || [] : []
+  const merklRewardsTotalUsd = position ? rewardsByPosition[position.id]?.totalUsdValue || 0 : 0
 
-  const rewardInfoThisPosition = rewardInfo?.nfts.find(item => item.nftId === position?.tokenId.toString())
+  const rewardInfoThisPosition = !position ? undefined : rewardInfo?.nfts.find(item => item.nftId === position.tokenId)
 
   const chain = position?.chain.id ? NETWORKS_INFO[position.chain.id as ChainId]?.route || '' : ''
   const { data: cycleConfig } = useCycleConfigQuery(

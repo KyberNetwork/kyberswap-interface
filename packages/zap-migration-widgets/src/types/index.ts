@@ -5,33 +5,6 @@ import { SupportedLocale } from '@/i18n';
 
 export { TxStatus };
 
-export interface OnSuccessProps {
-  txHash: string;
-  position: {
-    positionId?: string;
-    chainId: number;
-    dexLogo: string;
-    token0: {
-      address: string;
-      symbol: string;
-      logo: string;
-      amount: number;
-    };
-    token1: {
-      address: string;
-      symbol: string;
-      logo: string;
-      amount: number;
-    };
-    pool: {
-      address: string;
-      fee: number;
-    };
-    value: number;
-    createdAt: number;
-  };
-}
-
 export interface ZapMigrationProps {
   theme?: Theme;
   chainId: ChainId;
@@ -89,7 +62,6 @@ export interface ZapMigrationProps {
   ) => Promise<string>;
   signTypedData?: (account: string, typedDataJson: string) => Promise<string>;
   onViewPosition?: (txHash: string) => void;
-  onSuccess?: (props: OnSuccessProps) => void;
   onBack?: () => void;
   onClose: () => void;
 }

@@ -3,7 +3,7 @@ import { useShallow } from 'zustand/shallow';
 
 import { ChainId, NETWORKS_INFO, PoolType, Theme, defaultTheme } from '@kyber/schema';
 
-import { OnSuccessProps, TxStatus } from '@/types/index';
+import { TxStatus } from '@/types/index';
 
 interface WidgetProps {
   chainId: ChainId;
@@ -25,7 +25,6 @@ interface WidgetProps {
   onClose: () => void;
   onSubmitTx: (txData: { from: string; to: string; value: string; data: string; gasLimit: string }) => Promise<string>;
   signTypedData?: (account: string, typedDataJson: string) => Promise<string>;
-  onSuccess?: (props: OnSuccessProps) => void;
 }
 
 interface WidgetState extends WidgetProps {
@@ -55,7 +54,6 @@ const initState = {
   onClose: () => {},
   onSubmitTx: async () => '',
   signTypedData: undefined,
-  onSuccess: undefined,
 };
 
 const useWidgetRawStore = create<WidgetState>((set, _get) => ({
@@ -78,7 +76,6 @@ const useWidgetRawStore = create<WidgetState>((set, _get) => ({
     onClose,
     onSubmitTx,
     signTypedData,
-    onSuccess,
   }: WidgetProps) => {
     const themeToApply =
       theme && typeof theme === 'object'
@@ -105,7 +102,6 @@ const useWidgetRawStore = create<WidgetState>((set, _get) => ({
       onClose,
       onSubmitTx,
       signTypedData,
-      onSuccess,
     });
   },
   setWidgetError: (error: string) => set({ widgetError: error }),
