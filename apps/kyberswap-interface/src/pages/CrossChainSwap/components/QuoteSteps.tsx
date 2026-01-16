@@ -7,7 +7,7 @@ import styled from 'styled-components'
 import { formatUnits } from 'viem'
 
 import useTheme from 'hooks/useTheme'
-import { Chain, SwapProvider } from 'pages/CrossChainSwap/adapters'
+import { Chain, KyberSwapAdapter, SwapProvider } from 'pages/CrossChainSwap/adapters'
 import { registry } from 'pages/CrossChainSwap/hooks/useCrossChainSwap'
 import { Quote } from 'pages/CrossChainSwap/registry'
 import { getNetworkInfo } from 'pages/CrossChainSwap/utils'
@@ -96,7 +96,6 @@ type QuoteStepCardProps = {
   stepToken: QuoteStepToken | null
   quoteSlippage?: number
   bridgeFeePct?: string
-  platformFeePercent?: number
 }
 
 const getTokenInfoFromCurrency = (token?: CurrencyLike): TokenInfo | null => {
@@ -133,15 +132,6 @@ const formatTokenAmount = (amount: string | number | undefined, decimals?: numbe
 const formatSlippage = (value?: number) => {
   if (value === undefined || value === null) return '--'
   return formatDisplayNumber(value / 10_000, { style: 'percent', significantDigits: 3 })
-}
-
-const formatFeePercent = (feePercent?: number, feeBps?: number) => {
-  if (feeBps !== undefined && feeBps !== null) {
-    return formatDisplayNumber(feeBps / 10_000, { style: 'percent', significantDigits: 3 })
-  }
-  if (feePercent === undefined || feePercent === null) return '--'
-  const normalized = feePercent > 1 ? feePercent / 100 : feePercent
-  return formatDisplayNumber(normalized, { style: 'percent', significantDigits: 3 })
 }
 
 const formatFeePctFromBridge = (pct?: string) => {
@@ -202,7 +192,7 @@ const QuoteTokenNode = ({
   )
 }
 
-const QuoteStepCard = ({ step, stepToken, quoteSlippage, bridgeFeePct, platformFeePercent }: QuoteStepCardProps) => {
+const QuoteStepCard = ({ step, stepToken, quoteSlippage, bridgeFeePct }: QuoteStepCardProps) => {
   const theme = useTheme()
   const [open, setOpen] = useState(false)
   return (
@@ -227,7 +217,7 @@ const QuoteStepCard = ({ step, stepToken, quoteSlippage, bridgeFeePct, platformF
                   : step.type === 'bridge'
                   ? bridgeFeePct
                     ? formatFeePctFromBridge(bridgeFeePct)
-                    : formatFeePercent(step.feePercent ?? platformFeePercent, step.feeBps)
+                    : '--'
                   : '--'}
               </Text>
             </StepDetailRow>
@@ -290,6 +280,7 @@ export default function QuoteSteps({ quote }: { quote?: Quote | null }) {
   }, [rawQuote])
 
   if (quoteSteps.length === 0) return null
+  if (!quoteSteps.some(step => step.adapter instanceof KyberSwapAdapter)) return null
 
   const quoteParams = quote?.quote?.quoteParams
   const fallbackFromToken = getTokenInfoFromCurrency(quoteParams?.fromToken)
@@ -324,7 +315,6 @@ export default function QuoteSteps({ quote }: { quote?: Quote | null }) {
               stepToken={stepToken}
               quoteSlippage={quoteParams?.slippage}
               bridgeFeePct={bridgeFeePct}
-              platformFeePercent={quote?.quote?.platformFeePercent}
             />
           </Fragment>
         )
@@ -451,6 +441,21 @@ const ArrowLine = styled.div`
   }
 
   @media (max-width: ${MEDIA_WIDTHS.upToSmall}px) {
-    display: none;
+    left: 24px;
+    right: auto;
+    top: -12px;
+    width: 2px;
+    height: calc(100% + 24px);
+    &::after {
+      right: auto;
+      left: 50%;
+      top: auto;
+      bottom: -2px;
+      transform: translateX(-50%);
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-top: 6px solid ${({ theme }) => theme.border};
+      border-bottom: 0;
+    }
   }
 `
