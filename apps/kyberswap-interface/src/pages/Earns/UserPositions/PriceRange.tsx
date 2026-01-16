@@ -24,6 +24,7 @@ export default function PriceRange({
   token0Decimals,
   token1Decimals,
   dex,
+  invertPrice,
 }: {
   minPrice: number
   maxPrice: number
@@ -32,9 +33,20 @@ export default function PriceRange({
   token0Decimals: number
   token1Decimals: number
   dex: Exchange
+  invertPrice?: boolean
 }) {
+  const isInvertPrice = !!invertPrice
+
+  const priceLower = isInvertPrice ? (maxPrice === 0 ? 0 : 1 / maxPrice) : minPrice
+  const priceUpper = isInvertPrice ? (minPrice === 0 ? Number.MAX_SAFE_INTEGER : 1 / minPrice) : maxPrice
+  const displayedCurrentPrice =
+    isInvertPrice && currentPrice !== 0 ? 1 / currentPrice : isInvertPrice ? Number.MAX_SAFE_INTEGER : currentPrice
+
   const isUniv2 = EARN_DEXES[dex as Exchange]?.isForkFrom === CoreProtocol.UniswapV2
-  const outOfRange = isUniv2 ? false : currentPrice < minPrice || (currentPrice > maxPrice && maxPrice !== 0)
+  const outOfRange = isUniv2
+    ? false
+    : displayedCurrentPrice < priceLower ||
+      (displayedCurrentPrice > priceUpper && priceUpper !== 0 && priceUpper !== Number.MAX_SAFE_INTEGER)
 
   const ticksAtLimit: { lower: boolean; upper: boolean } | undefined = useMemo(() => {
     if (isUniv2) return { lower: true, upper: true }
@@ -62,35 +74,52 @@ export default function PriceRange({
 
     if (usableTickLower === undefined || usableTickUpper === undefined) return
 
-    return {
-      lower: usableTickLower === minTick,
-      upper: usableTickUpper === maxTick,
+    const lowerAtMin = usableTickLower === minTick
+    const upperAtMax = usableTickUpper === maxTick
+
+    if (lowerAtMin && upperAtMax) {
+      return { lower: true, upper: true }
     }
-  }, [isUniv2, maxPrice, minPrice, tickSpacing, token0Decimals, token1Decimals])
+
+    return {
+      lower: isInvertPrice ? upperAtMax : lowerAtMin,
+      upper: isInvertPrice ? lowerAtMin : upperAtMax,
+    }
+  }, [isInvertPrice, isUniv2, maxPrice, minPrice, tickSpacing, token0Decimals, token1Decimals])
 
   if (!ticksAtLimit) return null
+
+  const priceRange = priceUpper - priceLower
+  const priceLeftPosition =
+    priceRange === 0 || Number.isNaN(priceRange) ? undefined : (displayedCurrentPrice - priceLower) / priceRange
 
   return (
     <PriceRangeWrapper outOfRange={outOfRange}>
       {outOfRange && (
-        <CurrentPriceIndicator lower={currentPrice < minPrice} currentPrice={currentPrice} color="#fbb324" />
+        <CurrentPriceIndicator
+          lower={displayedCurrentPrice < priceLower}
+          currentPrice={displayedCurrentPrice}
+          color="#fbb324"
+        />
       )}
       <PriceRangeEl isLowestPrice={ticksAtLimit.lower} isHighestPrice={ticksAtLimit.upper} outOfRange={outOfRange}>
         {!outOfRange && (
           <CurrentPriceIndicator
-            currentPrice={currentPrice}
-            color={isUniv2 || maxPrice - currentPrice > (maxPrice - minPrice) / 2 ? '#09ae7d' : '#6368f1'}
-            left={isUniv2 ? 0.2 : (currentPrice - minPrice) / (maxPrice - minPrice)}
+            currentPrice={displayedCurrentPrice}
+            color={
+              isUniv2 || priceUpper - displayedCurrentPrice > (priceUpper - priceLower) / 2 ? '#09ae7d' : '#6368f1'
+            }
+            left={isUniv2 ? 0.2 : priceLeftPosition}
           />
         )}
         <LowerPriceIndicator outOfRange={outOfRange}>
           <IndicatorLabel>
-            {ticksAtLimit.lower ? '0' : formatDisplayNumber(minPrice, { significantDigits: 8 })}
+            {ticksAtLimit.lower ? '0' : formatDisplayNumber(priceLower, { significantDigits: 8 })}
           </IndicatorLabel>
         </LowerPriceIndicator>
         <UpperPriceIndicator outOfRange={outOfRange}>
           <IndicatorLabel>
-            {ticksAtLimit.upper ? '∞' : formatDisplayNumber(maxPrice, { significantDigits: 8 })}
+            {ticksAtLimit.upper ? '∞' : formatDisplayNumber(priceUpper, { significantDigits: 8 })}
           </IndicatorLabel>
         </UpperPriceIndicator>
       </PriceRangeEl>

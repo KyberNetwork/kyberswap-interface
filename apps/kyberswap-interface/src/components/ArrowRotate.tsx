@@ -1,3 +1,4 @@
+import { ChevronDown } from 'react-feather'
 import styled, { CSSProperties, css } from 'styled-components'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
@@ -65,14 +66,16 @@ export const DropdownArrowIcon = ({
   rotate,
   size = 24,
   color,
+  arrow = 'arrow',
 }: {
   rotate?: boolean
   size?: number
   color?: string
+  arrow?: 'chevron' | 'arrow'
 }) => {
   return (
     <StyledIcon $rotate={rotate} style={{ width: size, height: size }} color={color}>
-      <DropdownSVG width={size} />
+      {arrow === 'chevron' ? <ChevronDown width={size} height={size} color={color} /> : <DropdownSVG width={size} />}
     </StyledIcon>
   )
 }

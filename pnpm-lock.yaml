@@ -98,6 +98,12 @@ importers:
       '@kyberswap/oauth2':
         specifier: 1.0.2
         version: 1.0.2
+      '@kyberswap/price-range-slider':
+        specifier: workspace:*
+        version: link:../../packages/price-range-slider
+      '@kyberswap/price-slider':
+        specifier: workspace:*
+        version: link:../../packages/price-slider
       '@kyberswap/zap-create-widgets':
         specifier: workspace:*
         version: link:../../packages/zap-create-widgets
@@ -1379,6 +1385,82 @@ importers:
         version: 5.3.2
 
   packages/price-range-slider:
+    dependencies:
+      '@kyber/ui':
+        specifier: workspace:^
+        version: link:../ui
+      react:
+        specifier: '>=16.8.0'
+        version: 18.3.1
+    devDependencies:
+      '@kyber/eslint-config':
+        specifier: workspace:*
+        version: link:../config-eslint
+      '@kyber/tailwind-config':
+        specifier: workspace:^
+        version: link:../config-tailwind
+      '@kyber/typescript-config':
+        specifier: workspace:*
+        version: link:../config-typescript
+      '@kyber/utils':
+        specifier: workspace:^
+        version: link:../utils
+      '@trivago/prettier-plugin-sort-imports':
+        specifier: ^3.3.1
+        version: 3.4.0(prettier@3.5.3)
+      '@types/eslint':
+        specifier: ^8.56.5
+        version: 8.56.12
+      '@types/node':
+        specifier: ^20.11.24
+        version: 20.19.25
+      '@types/react':
+        specifier: ^18.0.17
+        version: 18.3.12
+      '@types/react-dom':
+        specifier: ^18.0.6
+        version: 18.3.1
+      '@typescript-eslint/eslint-plugin':
+        specifier: ^6.14.0
+        version: 6.21.0(@typescript-eslint/parser@6.21.0)(eslint@8.57.0)(typescript@5.3.2)
+      '@typescript-eslint/parser':
+        specifier: ^6.14.0
+        version: 6.21.0(eslint@8.57.0)(typescript@5.3.2)
+      autoprefixer:
+        specifier: ^10.4.20
+        version: 10.4.20(postcss@8.4.49)
+      eslint:
+        specifier: ^8.57.0
+        version: 8.57.0
+      eslint-config-prettier:
+        specifier: ^9.1.0
+        version: 9.1.0(eslint@8.57.0)
+      eslint-plugin-prettier:
+        specifier: ^5.4.0
+        version: 5.4.0(@types/eslint@8.56.12)(eslint-config-prettier@9.1.0)(eslint@8.57.0)(prettier@3.5.3)
+      eslint-plugin-react:
+        specifier: ^7.33.2
+        version: 7.37.2(eslint@8.57.0)
+      eslint-plugin-react-hooks:
+        specifier: ^4.6.0
+        version: 4.6.2(eslint@8.57.0)
+      postcss:
+        specifier: ^8.4.47
+        version: 8.4.49
+      prettier:
+        specifier: ^3.5.3
+        version: 3.5.3
+      tailwindcss:
+        specifier: ^3.4.13
+        version: 3.4.14
+      tsup:
+        specifier: ^8.3.0
+        version: 8.3.5(postcss@8.4.49)(typescript@5.3.2)
+      typescript:
+        specifier: 5.3.2
+        version: 5.3.2
+
+  packages/price-slider:
     dependencies:
       '@kyber/ui':
         specifier: workspace:^
@@ -22155,6 +22237,14 @@ packages:
       acorn: ^6.0.0 || ^7.0.0 || ^8.0.0
     dependencies:
       acorn: 8.14.0
+    dev: true
+
+  /acorn-jsx@5.3.2(acorn@8.15.0):
+    resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
+    peerDependencies:
+      acorn: ^6.0.0 || ^7.0.0 || ^8.0.0
+    dependencies:
+      acorn: 8.15.0
 
   /acorn-walk@7.2.0:
     resolution: {integrity: sha512-OPdCF6GsMIP+Az+aWfAAOEt2/+iVDKE7oy6lJ098aoe59oAmK76qV6Gw60SbZ8jHuG2wH058GF4pLFbYamYrVA==}
@@ -22178,6 +22268,7 @@ packages:
     resolution: {integrity: sha512-cl669nCJTZBsL97OF4kUQm5g5hC2uihk0NxY3WENAC0TYdILVkAyHymAntgxGkl7K+t0cXIrH5siy5S4XkFycA==}
     engines: {node: '>=0.4.0'}
     hasBin: true
+    dev: true
 
   /acorn@8.15.0:
     resolution: {integrity: sha512-NZyJarBfL7nWwIq+FDL6Zp/yHEhePMNnnJ0y3qfieCrmNvYct8uvtiV41UvlSe6apAfk0fY1FbWx+NwfmpvtTg==}
@@ -27582,8 +27673,8 @@ packages:
     resolution: {integrity: sha512-oruZaFkjorTpF32kDSI5/75ViwGeZginGGy2NoOSg3Q9bnwlnmDm4HLnkl0RE3n+njDXR037aY1+x58Z/zFdwQ==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     dependencies:
-      acorn: 8.14.0
-      acorn-jsx: 5.3.2(acorn@8.14.0)
+      acorn: 8.15.0
+      acorn-jsx: 5.3.2(acorn@8.15.0)
       eslint-visitor-keys: 3.4.3
 
   /esprima@4.0.1:

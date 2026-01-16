@@ -26,6 +26,7 @@ import {
 import useFilter from 'pages/Earns/PoolExplorer/useFilter'
 import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
 import { Exchange } from 'pages/Earns/constants'
+import useSmartExitWidget from 'pages/Earns/hooks/useSmartExitWidget'
 import useZapCreatePoolWidget from 'pages/Earns/hooks/useZapCreatePoolWidget'
 import useZapInWidget, { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
@@ -52,10 +53,12 @@ const PoolExplorer = () => {
   const notify = useNotify()
   const { filters, updateFilters } = useFilter(setSearch)
   const { widget: zapMigrationWidget, handleOpenZapMigration, triggerClose, setTriggerClose } = useZapMigrationWidget()
+  const { onOpenSmartExit, smartExitWidget } = useSmartExitWidget()
   const { widget: zapInWidget, handleOpenZapIn } = useZapInWidget({
     onOpenZapMigration: handleOpenZapMigration,
     triggerClose,
     setTriggerClose,
+    onOpenSmartExit,
   })
   const { widget: zapCreatePoolWidget, open: openZapCreatePoolWidget } = useZapCreatePoolWidget()
   const { data: poolData, isError } = usePoolsExplorerQuery(filters, { pollingInterval: POLLING_INTERVAL })
@@ -171,6 +174,7 @@ const PoolExplorer = () => {
       {zapInWidget}
       {zapMigrationWidget}
       {zapCreatePoolWidget}
+      {smartExitWidget}
 
       <div>
         <Flex alignItems="center" sx={{ gap: 3 }}>

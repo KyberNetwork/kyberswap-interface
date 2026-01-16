@@ -22,6 +22,7 @@ export interface StatusDialogProps {
   type: StatusDialogType;
   title?: string;
   description?: string;
+  subDescription?: string | React.ReactNode;
   transactionExplorerUrl?: string;
   errorMessage?: string;
   className?: string;
@@ -34,6 +35,7 @@ export default function StatusDialog({
   type,
   title,
   description,
+  subDescription,
   transactionExplorerUrl,
   errorMessage,
   className,
@@ -83,6 +85,10 @@ export default function StatusDialog({
                 <ArrowUpRightIcon className="w-4 h-4" />
               </a>
             </div>
+          ) : null}
+
+          {subDescription && type === StatusDialogType.SUCCESS ? (
+            <div className="text-sm text-subText text-center pb-1">{subDescription}</div>
           ) : null}
 
           {errorMessage && type === StatusDialogType.ERROR ? (

@@ -76,13 +76,13 @@ export const parsePosition = ({
   const token0Data = tokenAmounts[0]?.token
   const token1Data = tokenAmounts[1]?.token
 
-  const currentAmount0 = currentAmounts[0]
-  const currentAmount1 = currentAmounts[1]
+  const token0Address = token0Data?.address || ''
+  const token1Address = token1Data?.address || ''
 
-  const feePending0 = feePending[0]
-  const feePending1 = feePending[1]
-  const feesClaimed0 = feesClaimed[0]
-  const feesClaimed1 = feesClaimed[1]
+  const [currentAmount0, currentAmount1] = currentAmounts
+
+  const [feePending0, feePending1] = feePending
+  const [feesClaimed0, feesClaimed1] = feesClaimed
 
   const token0CurrentQuote = {
     price: currentAmount0?.amount?.priceUsd || 0,
@@ -161,11 +161,9 @@ export const parsePosition = ({
     : feeInfo?.totalValue ?? feePending.reduce((sum, fee) => sum + (fee.amount?.usdValue || 0), 0)
   const totalProvidedValue = forceClosed ? 0 : (position.valueInUSD || 0) - unclaimedFees
 
-  const token0Address = token0Data?.address || ''
-  const token1Address = token1Data?.address || ''
-
   const dex = (pool?.protocol?.type || '') as Exchange
   const isUniv2 = EARN_DEXES[dex]?.isForkFrom === CoreProtocol.UniswapV2
+  const isUniv4 = EARN_DEXES[dex]?.isForkFrom === CoreProtocol.UniswapV4
   const isUniswap = isUniswapExchange(dex)
 
   const programs = pool.programs || []
@@ -250,6 +248,14 @@ export const parsePosition = ({
   const isPositionInRange = parsedStatus === PositionStatus.IN_RANGE
   const bonusApr = isPositionInRange && isUniswap ? position.pool.merklOpportunity?.apr || 0 : 0
 
+  //  %Yield = [(f₀ + f₁/P) / (t₀ + t₁/P)] × 100
+  const f0 = token0PendingEarned
+  const f1 = token1PendingEarned
+  const p = pool.price
+  const t0 = token0TotalProvide
+  const t1 = token1TotalProvide
+  const earningFeeYield = (100 * (f0 + f1 / p)) / (t0 + t1 / p)
+
   return {
     positionId: position.positionId?.toString() || position.id?.toString(),
     tokenId: tokenId,
@@ -262,6 +268,7 @@ export const parsePosition = ({
       isFarming,
       isFarmingLm,
       isUniv2,
+      isUniv4,
     },
     dex: {
       id: dex,
@@ -332,12 +339,14 @@ export const parsePosition = ({
     feeApr: calcAprInterval(lpApr),
     bonusApr,
     totalValue,
+    currentValue: position.valueInUSD,
     totalProvidedValue,
     unclaimedFees,
     status: parsedStatus,
     createdTime: createdTime,
     isUnfinalized,
     isValueUpdating: false,
+    earningFeeYield,
   }
 }
 

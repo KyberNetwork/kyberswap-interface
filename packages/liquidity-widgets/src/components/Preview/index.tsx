@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 import { Trans, t } from '@lingui/macro';
 
-import { DEXES_INFO, NETWORKS_INFO, univ3PoolNormalize } from '@kyber/schema';
+import { DEXES_INFO, NETWORKS_INFO, univ2Types, univ3PoolNormalize } from '@kyber/schema';
 import {
   Dialog,
   DialogContent,
@@ -14,6 +14,7 @@ import {
 } from '@kyber/ui';
 import { PI_LEVEL, friendlyError } from '@kyber/utils';
 import { calculateGasMargin, estimateGas } from '@kyber/utils/crypto';
+import { getTokenIdFromTxHash } from '@kyber/utils/crypto/transaction';
 import { formatDisplayNumber } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
@@ -31,17 +32,27 @@ import { useWidgetStore } from '@/stores/useWidgetStore';
 import { parseTokensAndAmounts } from '@/utils';
 
 export default function Preview({ onDismiss }: { onDismiss: () => void }) {
-  const { chainId, rpcUrl, poolType, connectedAccount, onSubmitTx, onViewPosition, positionId, onClose } =
-    useWidgetStore([
-      'chainId',
-      'rpcUrl',
-      'poolType',
-      'connectedAccount',
-      'onSubmitTx',
-      'onViewPosition',
-      'positionId',
-      'onClose',
-    ]);
+  const {
+    chainId,
+    rpcUrl,
+    poolType,
+    connectedAccount,
+    onSubmitTx,
+    onViewPosition,
+    positionId,
+    onClose,
+    onSetUpSmartExit,
+  } = useWidgetStore([
+    'chainId',
+    'rpcUrl',
+    'poolType',
+    'connectedAccount',
+    'onSubmitTx',
+    'onViewPosition',
+    'positionId',
+    'onClose',
+    'onSetUpSmartExit',
+  ]);
   const { pool } = usePoolStore(['pool']);
   const { setSlippage, slippage, tokensIn, amountsIn, buildData } = useZapState();
   const { zapImpact, suggestedSlippage } = useZapRoute();
@@ -49,6 +60,7 @@ export default function Preview({ onDismiss }: { onDismiss: () => void }) {
   const [txHash, setTxHash] = useState('');
   const [attempTx, setAttempTx] = useState(false);
   const [txError, setTxError] = useState<Error | null>(null);
+  const [loadingPosition, setLoadingPosition] = useState(false);
   const { txStatus, currentTxHash } = useTxStatus({ txHash });
 
   // Use currentTxHash (which tracks replacements) for displaying to user
@@ -114,6 +126,33 @@ export default function Preview({ onDismiss }: { onDismiss: () => void }) {
     setTxHash('');
     setTxError(null);
     setAttempTx(false);
+    setLoadingPosition(false);
+  };
+
+  const handleSetUpSmartExit = async () => {
+    if (!txHash || !onSetUpSmartExit) return;
+
+    // UniV2 doesn't support smart exit
+    const isUniV2 = univ2Types.includes(poolType as any);
+    if (isUniV2) {
+      onSetUpSmartExit(undefined);
+      return;
+    }
+
+    setLoadingPosition(true);
+    try {
+      const tokenId = await getTokenIdFromTxHash({ rpcUrl, txHash, poolType });
+      if (tokenId) {
+        onSetUpSmartExit({ tokenId, chainId, poolType });
+      } else {
+        onSetUpSmartExit(undefined);
+      }
+    } catch (error) {
+      console.error('Error getting tokenId for smart exit:', error);
+      onSetUpSmartExit(undefined);
+    } finally {
+      setLoadingPosition(false);
+    }
   };
 
   if (!buildData || !pool) return null;
@@ -151,6 +190,13 @@ export default function Preview({ onDismiss }: { onDismiss: () => void }) {
                 : t`${dexName} ${pool.token0.symbol}/${pool.token1.symbol} ${pool.fee}%`)
             : undefined
         }
+        subDescription={
+          onSetUpSmartExit ? (
+            <Trans>
+              Set up the <b>Smart Exit</b> to auto-remove your position based on price, time, or earnings conditions.
+            </Trans>
+          ) : undefined
+        }
         errorMessage={txError ? translatedErrorMessage : undefined}
         transactionExplorerUrl={displayTxHash ? `${NETWORKS_INFO[chainId].scanLink}/tx/${displayTxHash}` : undefined}
         action={
@@ -158,16 +204,27 @@ export default function Preview({ onDismiss }: { onDismiss: () => void }) {
             <button
               className="ks-outline-btn flex-1"
               onClick={() => {
-                if (txStatus === 'success' && onClose) onClose();
+                if (txStatus === 'success') {
+                  if (onViewPosition && onSetUpSmartExit) onViewPosition(txHash);
+                  else if (onClose) onClose();
+                }
                 onWrappedDismiss();
               }}
             >
-              <Trans>Close</Trans>
+              {txStatus === 'success' && onViewPosition && onSetUpSmartExit ? (
+                <Trans>View position</Trans>
+              ) : (
+                <Trans>Close</Trans>
+              )}
             </button>
             {txStatus === 'success' ? (
-              onViewPosition ? (
+              onViewPosition && !onSetUpSmartExit ? (
                 <button className="ks-primary-btn flex-1" onClick={() => onViewPosition(displayTxHash)}>
                   <Trans>View position</Trans>
+                </button>
+              ) : onSetUpSmartExit ? (
+                <button className="ks-primary-btn flex-1" onClick={handleSetUpSmartExit} disabled={loadingPosition}>
+                  {loadingPosition ? <Trans>Loading position...</Trans> : <Trans>Set up smart exit</Trans>}
                 </button>
               ) : null
             ) : errorMessage.includes('slippage') ? (

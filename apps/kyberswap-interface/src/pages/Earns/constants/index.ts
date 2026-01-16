@@ -1,6 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { ContractInterface } from 'ethers'
 
+import { SmartExitDexType } from 'pages/Earns/components/SmartExit/constants'
 import arbitrum from 'pages/Earns/constants/chains/arbitrum'
 import avax from 'pages/Earns/constants/chains/avax'
 import base from 'pages/Earns/constants/chains/base'
@@ -34,6 +35,7 @@ export interface EarnDexInfo {
   isForkFrom: CoreProtocol
   showVersion: boolean
   farmingSupported: boolean
+  smartExitDexType?: SmartExitDexType
 }
 
 export enum Exchange {
@@ -56,7 +58,7 @@ export enum Exchange {
   DEX_AERODROMECL = 'aerodromecl',
 }
 
-export const EARN_DEXES_CONFIG: Record<Exchange, EarnDexInfo> = {
+const EARN_DEXES_CONFIG: Record<Exchange, EarnDexInfo> = {
   [Exchange.DEX_UNISWAPV2]: uniswapv2,
   [Exchange.DEX_UNISWAPV3]: uniswapv3,
   [Exchange.DEX_PANCAKESWAPV3]: pancakeswapv3,
@@ -70,26 +72,35 @@ export const EARN_DEXES_CONFIG: Record<Exchange, EarnDexInfo> = {
     ...uniswapv4,
     name: 'Uniswap V4 FairFlow',
     farmingSupported: true,
+    smartExitDexType: SmartExitDexType.DexTypeUniswapV4FairFlow,
   },
   [Exchange.DEX_PANCAKE_INFINITY_CL]: pancakeinfinitycl,
   [Exchange.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: {
     ...pancakeinfinitycl,
     name: 'Pancake ∞ CL FairFlow',
     farmingSupported: true,
+    smartExitDexType: SmartExitDexType.DexTypePancakeInfinityCLFairFlow,
   },
   [Exchange.DEX_PANCAKE_INFINITY_CL_DYNAMIC]: {
     ...pancakeinfinitycl,
     name: 'Pancake ∞ CL Dynamic',
+    smartExitDexType: undefined,
   },
   [Exchange.DEX_PANCAKE_INFINITY_CL_ALPHA]: {
     ...pancakeinfinitycl,
     name: 'Pancake ∞ CL Alpha',
+    smartExitDexType: undefined,
   },
   [Exchange.DEX_PANCAKE_INFINITY_CL_BREVIS]: {
     ...pancakeinfinitycl,
     name: 'Pancake ∞ CL Brevis',
+    smartExitDexType: undefined,
   },
-  [Exchange.DEX_PANCAKE_INFINITY_CL_LO]: { ...pancakeinfinitycl, name: 'Pancake ∞ CL LO' },
+  [Exchange.DEX_PANCAKE_INFINITY_CL_LO]: {
+    ...pancakeinfinitycl,
+    name: 'Pancake ∞ CL LO',
+    smartExitDexType: undefined,
+  },
   [Exchange.DEX_AERODROMECL]: aerodrome,
 }
 
@@ -104,6 +115,7 @@ const defaultConfig = {
   isForkFrom: CoreProtocol.UniswapV3,
   showVersion: false,
   farmingSupported: false,
+  smartExitDexType: undefined,
 }
 
 // Proxy helps fallback undefined Exchange by default dex info
@@ -119,6 +131,7 @@ export const EARN_DEXES = new Proxy(EARN_DEXES_CONFIG as any, {
 export interface EarnChainInfo {
   nativeAddress: string
   farmingSupported: boolean
+  smartExitSupported: boolean
   univ4StateViewContract: string | null
   logo: string
 }
@@ -150,3 +163,5 @@ export const LIMIT_TEXT_STYLES = {
   overflow: 'hidden',
   whiteSpace: 'nowrap',
 }
+
+export const SMART_EXIT_ADDRESS = '0x52ee3c8dd099ccb542c6227855d68c79e3e956f9'
