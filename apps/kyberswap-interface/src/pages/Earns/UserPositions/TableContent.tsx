@@ -254,9 +254,9 @@ export default function TableContent({
         dexId: sourcePosition.dex.id,
       },
       to: {
-        poolType: targetPool.exchange,
+        poolType: targetPool.poolExchange,
         poolAddress: targetPool.address,
-        dexId: targetPool.exchange,
+        dexId: targetPool.poolExchange,
       },
       initialTick:
         tickLower !== undefined && tickUpper !== undefined && !isOutRange
@@ -315,7 +315,7 @@ export default function TableContent({
         {account && positions && positions.length > 0
           ? positions.map((position, index) => {
               const {
-                positionId,
+                id,
                 tokenId,
                 token0,
                 token1,
@@ -339,10 +339,10 @@ export default function TableContent({
               const isStablePair = pool.category === PAIR_CATEGORY.STABLE
               const isEarlyPosition = checkEarlyPosition(position)
               const isWaitingForRewards = pool.isFarming && rewards.totalUsdValue === 0 && isEarlyPosition
-              const merklRewards = rewardsByPosition?.[positionId]?.rewards || []
-              const merklRewardsTotalUsd = rewardsByPosition?.[positionId]?.totalUsdValue || 0
+              const merklRewards = rewardsByPosition?.[id]?.rewards || []
+              const merklRewardsTotalUsd = rewardsByPosition?.[id]?.totalUsdValue || 0
               const suggestedProtocolName = position.suggestionPool
-                ? EARN_DEXES[position.suggestionPool.exchange].name.replace('FairFlow', '').trim()
+                ? EARN_DEXES[position.suggestionPool.poolExchange].name.replace('FairFlow', '').trim()
                 : ''
 
               const actions = (
@@ -367,10 +367,9 @@ export default function TableContent({
               return (
                 <PositionRow
                   key={`${tokenId}-${pool.address}-${index}`}
-                  to={APP_PATHS.EARN_POSITION_DETAIL.replace(':positionId', !pool.isUniv2 ? positionId : pool.address)
+                  to={APP_PATHS.EARN_POSITION_DETAIL.replace(':positionId', !pool.isUniv2 ? id : pool.address)
                     .replace(':chainId', chain.id.toString())
                     .replace(':exchange', dex.id)}
-                  $isUnfinalized={isUnfinalized}
                 >
                   {/* Overview info */}
                   <PositionOverview>

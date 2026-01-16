@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { API_URLS, ChainId, EarnChain, Exchange } from '@kyber/schema';
 import { enumToArrayOfValues } from '@kyber/utils';
+import { isAddress } from '@kyber/utils/crypto';
 
 import { EarnPosition, PositionStatus } from '@/components/TokenSelectorModal/types';
 
@@ -17,8 +18,8 @@ const sortPositions = (positions: EarnPosition[]) => {
     if (a.status === PositionStatus.IN_RANGE && b.status === PositionStatus.OUT_RANGE) {
       return 1; // b (OUT_RANGE) comes before a (IN_RANGE)
     }
-
-    return 0;
+    // If status is the same, sort by currentPositionValue (descending)
+    return b.currentPositionValue - a.currentPositionValue;
   });
 };
 
@@ -41,28 +42,55 @@ export default function usePositions({
   const positions = useMemo(() => {
     const positions = positionId
       ? userPositions.filter((position: EarnPosition) =>
-          position.pool.protocol.type !== Exchange.DEX_UNISWAPV2
-            ? position.tokenId.toString() !== positionId
-            : position.pool.address !== poolAddress,
+          position.pool.exchange !== Exchange.DEX_UNISWAPV2
+            ? position.tokenId !== positionId
+            : position.pool.poolAddress !== poolAddress,
         )
       : userPositions;
-    return sortPositions(positions);
-  }, [poolAddress, positionId, userPositions]);
+    if (!search) return sortPositions(positions);
+
+    return sortPositions(
+      positions.filter((position: EarnPosition) => {
+        const poolAddress = position.pool.poolAddress.toLowerCase();
+        const token0Symbol = position.pool.tokenAmounts[0]?.token.symbol.toLowerCase();
+        const token1Symbol = position.pool.tokenAmounts[1]?.token.symbol.toLowerCase();
+        const token0Name = position.pool.tokenAmounts[0]?.token.name.toLowerCase();
+        const token1Name = position.pool.tokenAmounts[1]?.token.name.toLowerCase();
+        const token0Address = position.pool.tokenAmounts[0]?.token.address.toLowerCase();
+        const token1Address = position.pool.tokenAmounts[1]?.token.address.toLowerCase();
+        const positionId = position.tokenId;
+
+        return isAddress(search)
+          ? poolAddress.includes(search.toLowerCase()) ||
+              token0Address.includes(search.toLowerCase()) ||
+              token1Address.includes(search.toLowerCase())
+          : token0Symbol.includes(search.toLowerCase()) ||
+              token1Symbol.includes(search.toLowerCase()) ||
+              token0Name.includes(search.toLowerCase()) ||
+              token1Name.includes(search.toLowerCase()) ||
+              positionId === search.toLowerCase();
+      }),
+    );
+  }, [poolAddress, positionId, search, userPositions]);
 
   const handleGetUserPositions = useCallback(async () => {
     if (!account || !earnSupportedChains.includes(chainId)) return;
     setLoading(true);
     try {
-      const params: Record<string, string> = {
-        wallet: account,
-        chainIds: chainId.toString(),
-        statuses: 'PositionStatusInRange,PositionStatusOutRange',
-        sorts: 'valueUsd:desc',
-      };
-      if (search) {
-        params.keyword = search;
-      }
-      const response = await fetch(`${API_URLS.ZAP_EARN_API}/v1/positions?${new URLSearchParams(params).toString()}`);
+      const response = await fetch(
+        `${API_URLS.ZAP_EARN_API}/v1/userPositions` +
+          '?' +
+          new URLSearchParams({
+            addresses: account,
+            chainIds: chainId.toString(),
+            protocols: earnSupportedExchanges.join(','),
+            quoteSymbol: 'usd',
+            offset: '0',
+            orderBy: 'liquidity',
+            orderASC: 'false',
+            positionStatus: 'open',
+          }).toString(),
+      );
       const data = await response.json();
       if (data?.data?.positions) {
         setUserPositions(data.data.positions);
@@ -72,7 +100,7 @@ export default function usePositions({
     } finally {
       setLoading(false);
     }
-  }, [account, chainId, search]);
+  }, [account, chainId]);
 
   useEffect(() => {
     handleGetUserPositions();

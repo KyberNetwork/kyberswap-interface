@@ -63,6 +63,12 @@ export interface ParsedEarnPool extends EarnPool {
   dexName: string
 }
 
+export interface PoolAprInterval {
+  '7d': number
+  '24h': number
+  all: number
+}
+
 export interface MerklOpportunity {
   type: string
   chainId: number

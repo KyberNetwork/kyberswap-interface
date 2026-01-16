@@ -18,7 +18,7 @@ export const PositionPageWrapper = styled(PoolPageWrapper)`
   `}
 `
 
-export const PositionRow = styled(Link)<{ $isUnfinalized?: boolean }>`
+export const PositionRow = styled(Link)`
   display: grid;
   grid-template-columns:
     minmax(260px, 2.6fr) /* Position */
@@ -35,26 +35,23 @@ export const PositionRow = styled(Link)<{ $isUnfinalized?: boolean }>`
   row-gap: 8px;
   text-decoration: none;
   color: inherit !important;
-  background: ${({ $isUnfinalized, theme }) => ($isUnfinalized ? rgba(theme.tableHeader, 0.4) : 'transparent')};
 
   @media (max-width: 1300px) {
     justify-content: flex-start;
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: 1fr 1fr;
     border-radius: 20px;
-    background: ${({ theme, $isUnfinalized }) =>
-      $isUnfinalized ? rgba(theme.tableHeader, 0.7) : rgba(theme.background, 0.8)};
+    background: ${({ theme }) => rgba(theme.background, 0.8)};
     margin-bottom: 16px;
   }
 
-  ${({ $isUnfinalized, theme }) => theme.mediaWidth.upToSmall`
+  ${({ theme }) => theme.mediaWidth.upToSmall`
     display: flex;
     flex-direction: column;
     row-gap: 16px;
     padding: 16px;
-    background: ${$isUnfinalized ? rgba(theme.tableHeader, 0.7) : rgba(theme.background, 0.8)} !important;
+    background: ${rgba(theme.background, 0.8)} !important;
     position: relative;
-    border-radius: 0;
   `}
 
   &:last-child {
@@ -361,10 +358,6 @@ export const PositionTableHeaderFlexItem = styled(Flex)`
 
 export const PositionTableWrapper = styled(TableWrapper)`
   overflow: hidden;
-
-  @media (max-width: 1300px) {
-    background: transparent;
-  }
 `
 
 export const PriceRangeWrapper = styled.div<{ outOfRange: boolean }>`

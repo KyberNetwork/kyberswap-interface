@@ -18,7 +18,7 @@ import { useActiveLocale } from 'hooks/useActiveLocale'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
-import { ZAPIN_DEX_MAPPING } from 'pages/Earns/constants/dexMappings'
+import { ZAPIN_DEX_MAPPING, getDexFromPoolType } from 'pages/Earns/constants/dexMappings'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import useTransactionReplacement from 'pages/Earns/hooks/useTransactionReplacement'
 import { ZapMigrationInfo } from 'pages/Earns/hooks/useZapMigrationWidget'
@@ -140,7 +140,8 @@ const useZapInWidget = ({
     ) => {
       if (!addLiquidityPureParams) return
 
-      const dex = addLiquidityPureParams.dexId
+      const dex = getDexFromPoolType(addLiquidityPureParams.poolType)
+      if (!dex) return
       onOpenZapMigration({
         from: {
           poolType: position.exchange as Exchange,
@@ -196,7 +197,9 @@ const useZapInWidget = ({
             onSuccess: async (data: OnSuccessProps) => {
               if (!library) return
 
-              const dex = addLiquidityPureParams.dexId
+              const dex = getDexFromPoolType(data.position.poolType)
+              if (!dex) return
+
               const isUniv2 = EARN_DEXES[dex as Exchange]?.isForkFrom === CoreProtocol.UniswapV2
 
               const nftId =
@@ -206,63 +209,60 @@ const useZapInWidget = ({
               const dexVersion = getDexVersion(dex)
               const contract = getNftManagerContractAddress(dex, chainId)
 
-              updateUnfinalizedPosition(
-                {
-                  ...DEFAULT_PARSED_POSITION,
-                  positionId: !isUniv2 ? `${contract}-${nftId}` : data.position.pool.address,
-                  tokenId: !isUniv2 ? nftId : '-1',
-                  chain: {
-                    id: chainId,
-                    name: NETWORKS_INFO[chainId].name,
-                    logo: NETWORKS_INFO[chainId].icon,
-                  },
-                  dex: {
-                    id: dex,
-                    name: EARN_DEXES[dex].name,
-                    logo: data.position.dexLogo,
-                    version: dexVersion,
-                  },
-                  pool: {
-                    ...DEFAULT_PARSED_POSITION.pool,
-                    address: data.position.pool.address,
-                    fee: data.position.pool.fee,
-                    isUniv2: isUniv2,
-                  },
-                  token0: {
-                    ...DEFAULT_PARSED_POSITION.token0,
-                    address: data.position.token0.address,
-                    totalProvide: data.position.token0.amount,
-                    logo: data.position.token0.logo,
-                    symbol: data.position.token0.symbol,
-                  },
-                  token1: {
-                    ...DEFAULT_PARSED_POSITION.token1,
-                    address: data.position.token1.address,
-                    totalProvide: data.position.token1.amount,
-                    logo: data.position.token1.logo,
-                    symbol: data.position.token1.symbol,
-                  },
-                  totalValueTokens: [
-                    {
-                      address: data.position.token0.address,
-                      symbol: data.position.token0.symbol,
-                      amount: data.position.token0.amount,
-                    },
-                    {
-                      address: data.position.token1.address,
-                      symbol: data.position.token1.symbol,
-                      amount: data.position.token1.amount,
-                    },
-                  ],
-                  totalProvidedValue: data.position.value,
-                  totalValue: data.position.value,
-                  createdTime: data.position.createdAt,
-                  txHash: data.txHash,
-                  isUnfinalized: true,
-                  isValueUpdating: !!data.position.positionId,
+              updateUnfinalizedPosition({
+                ...DEFAULT_PARSED_POSITION,
+                id: !isUniv2 ? `${contract}-${nftId}` : data.position.pool.address,
+                tokenId: !isUniv2 ? nftId : '-1',
+                chain: {
+                  id: chainId,
+                  name: NETWORKS_INFO[chainId].name,
+                  logo: NETWORKS_INFO[chainId].icon,
                 },
-                account,
-              )
+                dex: {
+                  id: dex,
+                  name: EARN_DEXES[dex].name,
+                  logo: data.position.dexLogo,
+                  version: dexVersion,
+                },
+                pool: {
+                  ...DEFAULT_PARSED_POSITION.pool,
+                  address: data.position.pool.address,
+                  fee: data.position.pool.fee,
+                  isUniv2: isUniv2,
+                },
+                token0: {
+                  ...DEFAULT_PARSED_POSITION.token0,
+                  address: data.position.token0.address,
+                  totalProvide: data.position.token0.amount,
+                  logo: data.position.token0.logo,
+                  symbol: data.position.token0.symbol,
+                },
+                token1: {
+                  ...DEFAULT_PARSED_POSITION.token1,
+                  address: data.position.token1.address,
+                  totalProvide: data.position.token1.amount,
+                  logo: data.position.token1.logo,
+                  symbol: data.position.token1.symbol,
+                },
+                totalValueTokens: [
+                  {
+                    address: data.position.token0.address,
+                    symbol: data.position.token0.symbol,
+                    amount: data.position.token0.amount,
+                  },
+                  {
+                    address: data.position.token1.address,
+                    symbol: data.position.token1.symbol,
+                    amount: data.position.token1.amount,
+                  },
+                ],
+                totalProvidedValue: data.position.value,
+                totalValue: data.position.value,
+                createdTime: data.position.createdAt,
+                txHash: data.txHash,
+                isUnfinalized: true,
+                isValueUpdating: !!data.position.positionId,
+              })
             },
             onSubmitTx: async (
               txData: { from: string; to: string; data: string; value: string; gasLimit: string },
@@ -285,7 +285,7 @@ const useZapInWidget = ({
 
               if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
 
-              const dex = addLiquidityPureParams.dexId
+              const dex = getDexFromPoolType(addLiquidityPureParams.poolType)
               if (additionalInfo?.type === 'zap' && dex) {
                 addTransactionWithType({
                   hash: txHash,
