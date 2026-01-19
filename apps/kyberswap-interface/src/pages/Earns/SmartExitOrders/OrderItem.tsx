@@ -59,7 +59,7 @@ const ExternalLinkWrapper = styled.div`
 
 const TableRow = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr 0.8fr 0.5fr 0.5fr 40px;
+  grid-template-columns: 1.2fr 1fr 0.6fr 0.5fr 0.5fr 0.5fr 40px;
   color: ${({ theme }) => theme.text};
   padding: 16px 0;
   gap: 1rem;
@@ -73,21 +73,6 @@ type OrderItemProps = {
   order: ParsedSmartExitOrder
   upToMedium: boolean
   onDelete: (order: ParsedSmartExitOrder) => void
-}
-
-const getProtocolLabel = (exchange: Exchange) => {
-  switch (exchange) {
-    case Exchange.DEX_UNISWAPV3:
-    case Exchange.DEX_PANCAKESWAPV3:
-      return 'V3'
-    case Exchange.DEX_UNISWAP_V4:
-      return 'V4'
-    case Exchange.DEX_UNISWAP_V4_FAIRFLOW:
-    case Exchange.DEX_PANCAKE_INFINITY_CL_FAIRFLOW:
-      return 'FairFlow'
-    default:
-      return exchange
-  }
 }
 
 // Map SmartExitDexType to Exchange - memoized once
@@ -251,7 +236,7 @@ const TitleContent = ({ order, tokenId }: { order: ParsedSmartExitOrder; tokenId
   }
 
   const posDetail = order.position
-  const protocol = getProtocolLabel(posDetail.dex.id)
+  const protocol = getDexVersion(posDetail.dex.id)
   const posStatus = posDetail.status || PositionStatus.IN_RANGE
 
   // Build position detail URL
@@ -303,13 +288,33 @@ const TitleContent = ({ order, tokenId }: { order: ParsedSmartExitOrder; tokenId
 const OrderItem = React.memo(({ order, upToMedium, onDelete }: OrderItemProps) => {
   const theme = useTheme()
   const tokenId = order.positionId.split('-')[1]
+  const executedAmounts = order.executions[0]?.extraData?.executedAmounts
+  const receivedAmounts = order.executions[0]?.extraData?.receivedAmounts
 
   const currentValue = (
     <Text textAlign="left" color={theme.subText} fontSize="14px">
-      {order.position?.currentValue !== undefined
-        ? `$${formatDisplayNumber(order.position.currentValue, { significantDigits: 6 })}`
+      {executedAmounts
+        ? formatDisplayNumber((+executedAmounts[0]?.amountUsd || 0) + (+executedAmounts[1]?.amountUsd || 0), {
+            significantDigits: 6,
+            style: 'currency',
+          })
+        : order.position?.currentValue !== undefined
+        ? formatDisplayNumber(order.position.currentValue, { significantDigits: 6, style: 'currency' })
         : '-'}
     </Text>
+  )
+
+  const receivedAmount = receivedAmounts ? (
+    <Flex flexDirection={'column'} sx={{ gap: '4px' }} alignItems={upToMedium ? 'flex-end' : 'flex-start'}>
+      <Text color={'#05966B'} fontSize="14px">
+        + {formatDisplayNumber(receivedAmounts[0]?.amount, { significantDigits: 6 })}
+      </Text>
+      <Text color={'#05966B'} fontSize="14px">
+        + {formatDisplayNumber(receivedAmounts[1]?.amount, { significantDigits: 6 })}
+      </Text>
+    </Flex>
+  ) : (
+    <div />
   )
 
   const maxGas = (
@@ -350,13 +355,21 @@ const OrderItem = React.memo(({ order, upToMedium, onDelete }: OrderItemProps) =
         {condition}
         <Flex alignItems="center" sx={{ gap: '4px' }} justifyContent="space-between" mt="-4px">
           <Text color={theme.subText} fontSize="14px">
-            <Trans>Est. Liquidity & Earned Fee</Trans>:
+            <Trans>Est. liquidity & earned fee</Trans>:
           </Text>
           {currentValue}
         </Flex>
+        {receivedAmounts ? (
+          <Flex alignItems="center" sx={{ gap: '4px' }} justifyContent="space-between" mt="-4px">
+            <Text color={theme.subText} fontSize="14px">
+              <Trans>Received amount</Trans>:
+            </Text>
+            {receivedAmount}
+          </Flex>
+        ) : null}
         <Flex alignItems="center" sx={{ gap: '4px' }} justifyContent="space-between" mt="-4px">
           <Text color={theme.subText} fontSize="14px">
-            <Trans>Max Gas</Trans>:
+            <Trans>Max gas</Trans>:
           </Text>
           {maxGas}
         </Flex>
@@ -372,6 +385,7 @@ const OrderItem = React.memo(({ order, upToMedium, onDelete }: OrderItemProps) =
       <div>{title}</div>
       {condition}
       {currentValue}
+      {receivedAmount}
       {maxGas}
       {status}
       {actionDelete}

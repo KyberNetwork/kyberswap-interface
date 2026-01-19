@@ -56,6 +56,10 @@ export interface SmartExitOrder {
   deadline: number
   executions: Array<{
     hash: string
+    extraData?: {
+      executedAmounts: Array<{ amount: string; amountUsd: string; amountWei: number }>
+      receivedAmounts: Array<{ amount: string; amountUsd: string; amountWei: number }>
+    }
   }>
   maxGasPercentage: number
 }

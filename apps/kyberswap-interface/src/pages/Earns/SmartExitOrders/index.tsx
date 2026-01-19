@@ -31,7 +31,7 @@ import { friendlyError } from 'utils/errorMessage'
 
 const TableHeader = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr 0.8fr 0.5fr 0.5fr 40px;
+  grid-template-columns: 1.2fr 1fr 0.6fr 0.5fr 0.5fr 0.5fr 40px;
   color: ${({ theme }) => theme.subText};
   padding: 16px 0;
   gap: 1rem;
@@ -179,11 +179,18 @@ const SmartExit = () => {
             <Text>
               <Trans>Conditional</Trans>
             </Text>
-            <Text textAlign="left">
-              <Trans>Est. Liquidity & Earned Fee</Trans>
+            <Text textAlign="left" lineHeight="1.45">
+              <Trans>
+                Est. liquidity & <br /> earned fee
+              </Trans>
+            </Text>
+            <Text textAlign="left" lineHeight="1.45">
+              <Trans>
+                Received <br /> amount
+              </Trans>
             </Text>
             <Text textAlign="left">
-              <Trans>Max Gas</Trans>
+              <Trans>Max gas</Trans>
             </Text>
             <Text textAlign="left">
               <Trans>Status</Trans>
