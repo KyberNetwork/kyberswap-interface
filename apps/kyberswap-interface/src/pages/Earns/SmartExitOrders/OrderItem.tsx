@@ -59,7 +59,7 @@ const ExternalLinkWrapper = styled.div`
 
 const TableRow = styled.div`
   display: grid;
-  grid-template-columns: 1.2fr 1fr 0.6fr 0.5fr 0.5fr 0.5fr 40px;
+  grid-template-columns: 1.2fr 1fr 0.6fr 0.7fr 0.5fr 0.5fr 40px;
   color: ${({ theme }) => theme.text};
   padding: 16px 0;
   gap: 1rem;
@@ -290,6 +290,7 @@ const OrderItem = React.memo(({ order, upToMedium, onDelete }: OrderItemProps) =
   const tokenId = order.positionId.split('-')[1]
   const executedAmounts = order.executions[0]?.extraData?.executedAmounts
   const receivedAmounts = order.executions[0]?.extraData?.receivedAmounts
+  const tokensInfo = order.executions[0]?.extraData?.tokensInfo
 
   const currentValue = (
     <Text textAlign="left" color={theme.subText} fontSize="14px">
@@ -307,10 +308,10 @@ const OrderItem = React.memo(({ order, upToMedium, onDelete }: OrderItemProps) =
   const receivedAmount = receivedAmounts ? (
     <Flex flexDirection={'column'} sx={{ gap: '4px' }} alignItems={upToMedium ? 'flex-end' : 'flex-start'}>
       <Text color={'#05966B'} fontSize="14px">
-        + {formatDisplayNumber(receivedAmounts[0]?.amount, { significantDigits: 6 })}
+        + {formatDisplayNumber(receivedAmounts[0]?.amount, { significantDigits: 6 })} {tokensInfo?.[0]?.symbol}
       </Text>
       <Text color={'#05966B'} fontSize="14px">
-        + {formatDisplayNumber(receivedAmounts[1]?.amount, { significantDigits: 6 })}
+        + {formatDisplayNumber(receivedAmounts[1]?.amount, { significantDigits: 6 })} {tokensInfo?.[1]?.symbol}
       </Text>
     </Flex>
   ) : (

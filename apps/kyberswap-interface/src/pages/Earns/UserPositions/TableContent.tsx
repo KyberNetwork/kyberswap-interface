@@ -369,7 +369,7 @@ export default function TableContent({
               const actions = (
                 <DropdownAction
                   position={position}
-                  hasActiveSmartExitOrder={smartExitPosIds.includes(position.tokenId)}
+                  hasActiveSmartExitOrder={smartExitPosIds.includes(position.positionId)}
                   onOpenIncreaseLiquidityWidget={handleOpenIncreaseLiquidityWidget}
                   onOpenZapOut={handleOpenZapOut}
                   onOpenSmartExit={(_e: React.MouseEvent, position: ParsedPosition) => {

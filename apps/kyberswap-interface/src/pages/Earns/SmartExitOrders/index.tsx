@@ -31,7 +31,7 @@ import { friendlyError } from 'utils/errorMessage'
 
 const TableHeader = styled.div`
   display: grid;
-  grid-template-columns: 1.2fr 1fr 0.6fr 0.5fr 0.5fr 0.5fr 40px;
+  grid-template-columns: 1.2fr 1fr 0.6fr 0.7fr 0.5fr 0.5fr 40px;
   color: ${({ theme }) => theme.subText};
   padding: 16px 0;
   gap: 1rem;

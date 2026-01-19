@@ -59,6 +59,7 @@ export interface SmartExitOrder {
     extraData?: {
       executedAmounts: Array<{ amount: string; amountUsd: string; amountWei: number }>
       receivedAmounts: Array<{ amount: string; amountUsd: string; amountWei: number }>
+      tokensInfo: Array<{ address: string; symbol: string; decimals: number; priceUsd: string }>
     }
   }>
   maxGasPercentage: number
