@@ -70,6 +70,7 @@ export const parsePosition = ({
   const forceClosed = isClosedFromRpc && position.status !== PositionStatus.CLOSED
 
   const currentAmounts = position.currentAmounts || []
+  const providedAmounts = position.providedAmounts || []
   const feePending = position.stats?.earning?.fee?.unclaimed || []
   const feesClaimed = position.stats?.earning?.fee?.claimed || []
   const pool = position.pool
@@ -81,6 +82,7 @@ export const parsePosition = ({
   const token1Address = token1Data?.address || ''
 
   const [currentAmount0, currentAmount1] = currentAmounts
+  const [providedAmount0, providedAmount1] = providedAmounts
 
   const [feePending0, feePending1] = feePending
   const [feesClaimed0, feesClaimed1] = feesClaimed
@@ -112,16 +114,16 @@ export const parsePosition = ({
 
   const token0TotalProvide = forceClosed
     ? 0
-    : Number(currentAmount0?.amount?.amount || 0) && token0Data?.decimals
-    ? Number(currentAmount0?.amount?.amount) / 10 ** token0Data?.decimals
+    : Number(providedAmount0?.amount?.amount || 0) && token0Data?.decimals
+    ? Number(providedAmount0?.amount?.amount) / 10 ** token0Data?.decimals
     : token0CurrentQuote
     ? token0CurrentQuote.value / (token0CurrentQuote.price || 1)
     : 0
 
   const token1TotalProvide = forceClosed
     ? 0
-    : Number(currentAmount1?.amount?.amount || 0) && token1Data?.decimals
-    ? Number(currentAmount1?.amount?.amount) / 10 ** token1Data?.decimals
+    : Number(providedAmount1?.amount?.amount || 0) && token1Data?.decimals
+    ? Number(providedAmount1?.amount?.amount) / 10 ** token1Data?.decimals
     : token1CurrentQuote
     ? token1CurrentQuote.value / (token1CurrentQuote.price || 1)
     : 0

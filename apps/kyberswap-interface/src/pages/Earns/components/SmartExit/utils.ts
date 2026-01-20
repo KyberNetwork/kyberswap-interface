@@ -64,7 +64,11 @@ export const getDefaultCondition = (
   }
 }
 
-export const buildConditions = (selectedMetrics: SelectedMetric[], conditionType: ConditionType) => {
+export const buildConditions = (
+  selectedMetrics: SelectedMetric[],
+  conditionType: ConditionType,
+  providedAmounts?: number[],
+) => {
   const conditions: Array<{
     field: {
       type: Metric
@@ -82,6 +86,7 @@ export const buildConditions = (selectedMetrics: SelectedMetric[], conditionType
               type: Metric.FeeYield,
               value: {
                 gte: parseFloat(feeYieldCondition),
+                ...(providedAmounts ? { initialTokenAmounts: providedAmounts } : {}),
               },
             },
           })

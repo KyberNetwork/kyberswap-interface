@@ -75,7 +75,10 @@ export const useSmartExit = ({ position, selectedMetrics, conditionType, deadlin
       positionId: position.positionId,
       removeLiquidity: positionLiquidity,
       unwrap: false,
-      condition: buildConditions(selectedMetrics.filter(metric => metric !== null) as SelectedMetric[], conditionType),
+      condition: buildConditions(selectedMetrics.filter(metric => metric !== null) as SelectedMetric[], conditionType, [
+        Math.floor(position.token0.totalProvide * 10 ** position.token0.decimals),
+        Math.floor(position.token1.totalProvide * 10 ** position.token1.decimals),
+      ]),
       deadline,
     }
   }, [account, conditionType, deadline, dexType, position, positionLiquidity, selectedMetrics])
