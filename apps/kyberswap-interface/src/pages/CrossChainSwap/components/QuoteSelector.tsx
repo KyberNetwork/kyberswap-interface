@@ -16,37 +16,14 @@ import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { CampaignType, campaignConfig } from 'pages/Campaign/constants'
 // import { GasStation } from 'components/Icons'
-import { Currency, SwapProvider } from 'pages/CrossChainSwap/adapters'
+import { Currency } from 'pages/CrossChainSwap/adapters'
+import { QuoteProviderName } from 'pages/CrossChainSwap/components/QuoteProviderName'
 import { formatTime } from 'pages/CrossChainSwap/components/Summary'
 import { TokenLogoWithChain } from 'pages/CrossChainSwap/components/TokenLogoWithChain'
 import { registry, useCrossChainSwap } from 'pages/CrossChainSwap/hooks/useCrossChainSwap'
 import { Quote } from 'pages/CrossChainSwap/registry'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
-
-export const Tag = styled.div`
-  background-color: ${({ theme }) => theme.subText + '33'};
-  color: ${({ theme }) => theme.text};
-  border-radius: 999px;
-  margin-left: 4px;
-  font-size: 10px;
-  padding: 2px 6px;
-`
-
-const getStepProviders = (quote: Quote): SwapProvider[] => {
-  if (quote.adapter.getName().toLowerCase() !== 'kyberacross') return []
-
-  const steps = quote.quote.rawQuote?.steps
-  if (!Array.isArray(steps)) return []
-
-  return steps
-    .map(step => {
-      const providerName = typeof step?.provider === 'string' ? step.provider : null
-      const providerAdapter = registry.getAdapter(providerName)
-      return providerAdapter
-    })
-    .filter((provider): provider is SwapProvider => Boolean(provider))
-}
 
 const Wrapper = styled.div`
   display: flex;
@@ -131,7 +108,6 @@ export const QuoteSelector = ({
         <ListRoute data-open="true" showArrow>
           {quotes.map((quote, index) => {
             const ongoingTag = nearIntentCampaignOnGoing && quote.adapter.getName() === 'Near Intents'
-            const stepProviders = getStepProviders(quote)
             return (
               <Row
                 key={quote.adapter.getName()}
@@ -211,23 +187,7 @@ export const QuoteSelector = ({
                   )}
                 </Flex>
                 <Flex marginTop="8px" alignItems="center" color={theme.subText} fontSize="14px">
-                  {stepProviders.length > 0 ? (
-                    <>
-                      {stepProviders.map((provider, index) => (
-                        <React.Fragment key={provider.getName()}>
-                          {index > 0 && <Text mx="4px">+</Text>}
-                          <img src={provider.getIcon()} alt={provider.getName()} width={14} height={14} />
-                          <Text ml="4px">{provider.getName()}</Text>
-                        </React.Fragment>
-                      ))}
-                    </>
-                  ) : (
-                    <>
-                      <img src={quote.adapter.getIcon()} alt={quote.adapter.getName()} width={14} height={14} />
-                      <Text ml="4px">{quote.adapter.getName()}</Text>
-                      {quote.adapter.getName() === 'Optimex' && <Tag>{t`Beta`}</Tag>}
-                    </>
-                  )}
+                  <QuoteProviderName quote={quote} />
                   <Text mx="8px">|</Text>
                   <Clock size={14} />
                   <Text ml="4px" mr="8px">
