@@ -20,7 +20,8 @@ import useTheme from 'hooks/useTheme'
 import { NonEvmChain } from 'pages/CrossChainSwap/adapters'
 import { BitcoinConnectModal } from 'pages/CrossChainSwap/components/BitcoinConnectModal'
 import { PiWarning } from 'pages/CrossChainSwap/components/PiWarning'
-import { QuoteSelector, Tag } from 'pages/CrossChainSwap/components/QuoteSelector'
+import { QuoteProviderName } from 'pages/CrossChainSwap/components/QuoteProviderName'
+import { QuoteSelector } from 'pages/CrossChainSwap/components/QuoteSelector'
 import { Summary } from 'pages/CrossChainSwap/components/Summary'
 import { SwapAction } from 'pages/CrossChainSwap/components/SwapAction'
 import { TokenLogoWithChain } from 'pages/CrossChainSwap/components/TokenLogoWithChain'
@@ -341,13 +342,11 @@ export function CrossChainSwap({ onQuoteChange }: CrossChainSwapProps) {
       <Summary quote={selectedQuote || undefined} tokenOut={currencyOut} />
 
       {selectedQuote && (
-        <Text fontStyle="italic" color={'#737373'} fontSize={12} display="flex">
-          <Trans>Routed via {selectedQuote.adapter.getName()}</Trans>
-          {selectedQuote.adapter.getName() === 'Optimex' && (
-            <Tag>
-              <Trans>Beta</Trans>
-            </Tag>
-          )}
+        <Text fontStyle="italic" color={'#737373'} fontSize={12} display="flex" alignItems="center">
+          <Text as="span" mr="4px">
+            <Trans>Routed via</Trans>
+          </Text>
+          <QuoteProviderName quote={selectedQuote} />
         </Text>
       )}
 
