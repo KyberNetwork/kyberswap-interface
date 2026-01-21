@@ -252,8 +252,8 @@ export const parsePosition = ({
   const bonusApr = isPositionInRange && isUniswap ? position.pool.merklOpportunity?.apr || 0 : 0
 
   //  %Yield = [(f₀ + f₁/P) / (t₀ + t₁/P)] × 100
-  const f0 = token0PendingEarned
-  const f1 = token1PendingEarned
+  const f0 = token0EarnedAmount
+  const f1 = token1EarnedAmount
   const p = pool.price
   const t0 = token0TotalProvide
   const t1 = token1TotalProvide
