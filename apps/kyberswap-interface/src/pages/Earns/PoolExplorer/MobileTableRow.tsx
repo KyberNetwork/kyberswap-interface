@@ -34,6 +34,7 @@ const MobileTableRow = ({
 }) => {
   const theme = useTheme()
   const isFarmingFiltered = filters.tag === FilterTag.FARMING_POOL
+  const rewardsTotalUsd = pool.merklOpportunity?.rewardsRecord?.total || 0
 
   const handleOpenZapInWidget = (e: React.MouseEvent<HTMLDivElement>, withPriceRange?: boolean) => {
     e.stopPropagation()
@@ -119,6 +120,12 @@ const MobileTableRow = ({
               style: 'currency',
               significantDigits: 6,
             })}
+          </Text>
+        </Flex>
+        <Flex justifyContent="space-between" sx={{ gap: 1 }}>
+          <Text color={theme.subText}>{t`Rewards`}</Text>
+          <Text>
+            {formatDisplayNumber((pool.egUsd || 0) + rewardsTotalUsd, { style: 'currency', significantDigits: 4 })}
           </Text>
         </Flex>
         <Flex justifyContent="space-between" sx={{ gap: 1 }}>

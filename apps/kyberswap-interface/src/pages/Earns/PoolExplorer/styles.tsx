@@ -131,7 +131,7 @@ export const ContentWrapper = styled.div``
 export const TableHeader = styled.div<{ expandColumn?: boolean }>`
   display: grid;
   grid-template-columns: ${({ expandColumn }) =>
-    expandColumn ? '2fr 0.6fr 0.9fr 0.9fr 0.9fr 0.9fr 80px' : '2fr 0.6fr 0.9fr 1fr 1fr 80px'};
+    expandColumn ? '2fr 0.6fr 0.9fr 0.9fr 0.9fr 0.9fr 0.9fr 80px' : '2fr 0.6fr 0.9fr 0.9fr 1fr 1fr 80px'};
   align-items: center;
   color: ${({ theme }) => theme.subText};
   border-bottom: 1px solid ${({ theme }) => theme.tableHeader};
