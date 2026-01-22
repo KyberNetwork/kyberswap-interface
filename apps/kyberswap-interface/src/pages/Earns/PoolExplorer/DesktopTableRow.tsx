@@ -1,6 +1,7 @@
 import { formatAprNumber } from '@kyber/utils/dist/number'
 import { MAX_TICK } from '@kyber/utils/dist/uniswapv3'
 import { t } from '@lingui/macro'
+import { useMemo } from 'react'
 import { Star } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import { PoolQueryParams } from 'services/zapEarn'
@@ -13,8 +14,9 @@ import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import useTheme from 'hooks/useTheme'
 import { FilterTag } from 'pages/Earns/PoolExplorer/Filter'
-import { Apr, FeeTier, SymbolText, TableRow } from 'pages/Earns/PoolExplorer/styles'
+import { Apr, FeeTier, RowItem, SymbolText, TableRow } from 'pages/Earns/PoolExplorer/styles'
 import AprDetailTooltip from 'pages/Earns/components/AprDetailTooltip'
+import MerklAprInfo from 'pages/Earns/components/MerklAprInfo'
 import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import { ParsedEarnPool, ProgramType } from 'pages/Earns/types'
 import { isUniswapExchange } from 'pages/Earns/utils'
@@ -36,6 +38,7 @@ export const kemFarming = (pool: ParsedEarnPool) => {
   ) : null
 }
 
+/** @deprecated TODO: Remove when completely integrate merklOpportunity */
 export const uniReward = (pool: ParsedEarnPool) => {
   const hasReward = isUniswapExchange(pool.exchange) && pool.bonusApr && pool.bonusApr > 0
 
@@ -83,9 +86,16 @@ const DesktopTableRow = ({
     })
   }
 
+  const activeCampaigns = useMemo(() => {
+    const currentTimestamp = Date.now() / 1000
+    return (pool.merklOpportunity?.campaigns ?? []).filter(
+      campaign => campaign.startTimestamp <= currentTimestamp && campaign.endTimestamp >= currentTimestamp,
+    )
+  }, [pool])
+
   return (
     <TableRow expandColumn={isFarmingFiltered} onClick={e => handleOpenZapInWidget(e)}>
-      <Flex flexDirection="column" sx={{ gap: 2 }}>
+      <RowItem>
         <Flex alignItems="center" sx={{ gap: 2 }}>
           <Flex alignItems="flex-end" sx={{ position: 'relative' }}>
             <TokenLogo src={pool.tokens?.[0]?.logoURI} />
@@ -95,18 +105,27 @@ const DesktopTableRow = ({
           <SymbolText>
             {pool.tokens?.[0]?.symbol}/{pool.tokens?.[1]?.symbol}
           </SymbolText>
-          <FeeTier>{formatDisplayNumber(pool.feeTier, { significantDigits: 4 })}%</FeeTier>
+          <MouseoverTooltipDesktopOnly
+            text={activeCampaigns.length > 0 ? `${t`Active Incentive Campaigns:`} ${activeCampaigns.length}` : ''}
+            width="fit-content"
+            placement="bottom"
+          >
+            <FeeTier>{formatDisplayNumber(pool.feeTier, { significantDigits: 4 })}%</FeeTier>
+          </MouseoverTooltipDesktopOnly>
         </Flex>
-        <Flex fontSize={14} alignItems="center" sx={{ gap: 1 }}>
+        <Flex alignItems="center" fontSize={14} sx={{ gap: 1 }}>
           <TokenLogo src={pool.dexLogo} size={18} />
           <Text color={theme.subText}>{pool.dexName}</Text>
         </Flex>
-      </Flex>
-      <Apr value={pool.allApr}>
-        {formatAprNumber(pool.allApr)}% {kemFarming(pool)} {uniReward(pool)}
-      </Apr>
+      </RowItem>
+      <RowItem>
+        <Apr value={pool.allApr}>
+          {formatAprNumber(pool.allApr)}% {kemFarming(pool)}
+        </Apr>
+        <MerklAprInfo pool={pool} />
+      </RowItem>
       {isFarmingFiltered && (
-        <Flex justifyContent="flex-end" onClick={e => handleOpenZapInWidget(e, true)}>
+        <RowItem alignItems="flex-end" onClick={e => handleOpenZapInWidget(e, true)}>
           <MouseoverTooltipDesktopOnly
             text={
               pool.maxAprInfo
@@ -134,21 +153,21 @@ const DesktopTableRow = ({
                 ) + '%'
               : ''}
           </MouseoverTooltipDesktopOnly>
-        </Flex>
+        </RowItem>
       )}
-      <Flex justifyContent="flex-end">
+      <RowItem alignItems="flex-end">
         {formatDisplayNumber(isFarmingFiltered ? pool.egUsd : pool.earnFee, {
           style: 'currency',
           significantDigits: 6,
         })}
-      </Flex>
-      <Flex justifyContent="flex-end">
+      </RowItem>
+      <RowItem alignItems="flex-end">
         {formatDisplayNumber(pool.tvl, { style: 'currency', significantDigits: 6 })}
-      </Flex>
-      <Flex justifyContent="flex-end">
+      </RowItem>
+      <RowItem alignItems="flex-end">
         {formatDisplayNumber(pool.volume, { style: 'currency', significantDigits: 6 })}
-      </Flex>
-      <Flex justifyContent="center">
+      </RowItem>
+      <RowItem alignItems="flex-end">
         {favoriteLoading.includes(pool.address) ? (
           <Loader />
         ) : (
@@ -161,7 +180,7 @@ const DesktopTableRow = ({
             onClick={e => handleFavorite(e, pool)}
           />
         )}
-      </Flex>
+      </RowItem>
     </TableRow>
   )
 }
