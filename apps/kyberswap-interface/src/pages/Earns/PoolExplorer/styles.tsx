@@ -131,7 +131,7 @@ export const ContentWrapper = styled.div``
 export const TableHeader = styled.div<{ expandColumn?: boolean }>`
   display: grid;
   grid-template-columns: ${({ expandColumn }) =>
-    expandColumn ? '1.2fr 1.4fr 0.5fr 0.8fr 0.9fr 0.9fr 0.9fr 80px' : '1.2fr 1.4fr 0.5fr 0.8fr 1fr 1fr 80px'};
+    expandColumn ? '2fr 0.6fr 0.9fr 0.9fr 0.9fr 0.9fr 80px' : '2fr 0.6fr 0.9fr 1fr 1fr 80px'};
   align-items: center;
   color: ${({ theme }) => theme.subText};
   border-bottom: 1px solid ${({ theme }) => theme.tableHeader};
@@ -180,13 +180,29 @@ export const MigrateTableRow = styled(MigrateTableHeader)`
   }
 `
 
-export const FeeTier = styled.div`
+export const RowItem = styled(Flex)<{ justifyContent?: string; alignItems?: string }>`
+  height: 100%;
+  flex-direction: column;
+  justify-content: ${({ justifyContent }) => justifyContent || 'flex-start'};
+  align-items: ${({ alignItems }) => alignItems || 'flex-start'};
+  gap: 8px;
+`
+
+export const Badge = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
   border-radius: 30px;
-  padding: 4px 8px;
+  padding: 4px 6px 4px 4px;
   font-size: 12px;
-  background: ${({ theme }) => rgba(theme.white, 0.04)};
+  background: ${({ theme }) => rgba(theme.white, 0.08)};
   color: ${({ theme }) => theme.subText};
   width: fit-content;
+`
+
+export const FeeTier = styled(Badge)`
+  padding: 4px 8px;
+  background: ${({ theme }) => rgba(theme.white, 0.04)};
 
   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
     font-size: 14px;

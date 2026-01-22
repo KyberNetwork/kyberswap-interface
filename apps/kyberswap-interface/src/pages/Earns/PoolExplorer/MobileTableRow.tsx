@@ -8,7 +8,7 @@ import CopyHelper from 'components/Copy'
 import TokenLogo from 'components/TokenLogo'
 import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
-import { kemFarming, uniReward } from 'pages/Earns/PoolExplorer/DesktopTableRow'
+import { kemFarming } from 'pages/Earns/PoolExplorer/DesktopTableRow'
 import { FilterTag } from 'pages/Earns/PoolExplorer/Filter'
 import {
   Apr,
@@ -17,6 +17,7 @@ import {
   MobileTableRow as MobileTableRowComponent,
   SymbolText,
 } from 'pages/Earns/PoolExplorer/styles'
+import MerklAprInfo from 'pages/Earns/components/MerklAprInfo'
 import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import { ParsedEarnPool } from 'pages/Earns/types'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -75,7 +76,7 @@ const MobileTableRow = ({
             <TokenLogo src={pool.tokens?.[1]?.logoURI} translateLeft />
             {pool.chain?.logoUrl && <TokenLogo src={pool.chain.logoUrl} size={12} translateLeft translateTop />}
           </Flex>
-          <Flex flexDirection={'column'} sx={{ gap: 2 }}>
+          <Flex flexDirection="column" sx={{ gap: '8px' }}>
             <Flex sx={{ gap: 1 }}>
               <SymbolText>
                 {pool.tokens?.[0]?.symbol}/{pool.tokens?.[1]?.symbol}
@@ -88,21 +89,25 @@ const MobileTableRow = ({
             </Flex>
           </Flex>
         </Flex>
-        <Flex alignItems="center" sx={{ gap: '12px' }}>
-          <Flex alignItems="center" sx={{ gap: '2px' }}>
-            <Apr value={pool.allApr}>{formatAprNumber(pool.allApr)}%</Apr>
-            {kemFarming(pool)}
-            {uniReward(pool)}
+        <Flex alignItems="flex-start" sx={{ gap: '12px' }}>
+          <Flex flexDirection="column" alignItems="flex-end" sx={{ gap: '4px' }}>
+            <Flex alignItems="center" sx={{ gap: '2px' }}>
+              <Apr value={pool.allApr}>{formatAprNumber(pool.allApr)}%</Apr>
+              {kemFarming(pool)}
+            </Flex>
+            <MerklAprInfo pool={pool} />
           </Flex>
-          <Star
-            size={16}
-            color={pool.favorite?.isFavorite ? theme.primary : theme.subText}
-            fill={pool.favorite?.isFavorite ? theme.primary : 'none'}
-            role="button"
-            cursor="pointer"
-            onClick={e => handleFavorite(e, pool)}
-            aria-label={pool.favorite?.isFavorite ? t`Remove from favorites` : t`Add to favorites`}
-          />
+          <Flex alignItems="center" height={24}>
+            <Star
+              size={16}
+              color={pool.favorite?.isFavorite ? theme.primary : theme.subText}
+              fill={pool.favorite?.isFavorite ? theme.primary : 'none'}
+              role="button"
+              cursor="pointer"
+              onClick={e => handleFavorite(e, pool)}
+              aria-label={pool.favorite?.isFavorite ? t`Remove from favorites` : t`Add to favorites`}
+            />
+          </Flex>
         </Flex>
       </Flex>
       <MobileTableBottomRow>
@@ -119,7 +124,7 @@ const MobileTableRow = ({
           </Flex>
         )}
         <Flex justifyContent="space-between" sx={{ gap: 1 }}>
-          <Text color={theme.subText}>{isFarmingFiltered ? t`EG Sharing` : t`Earn Fees`}</Text>
+          <Text color={theme.subText}>{isFarmingFiltered ? t`EG Sharing` : t`Fee`}</Text>
           <Text>
             {formatDisplayNumber(isFarmingFiltered ? pool.egUsd : pool.earnFee, {
               style: 'currency',
