@@ -22,7 +22,6 @@ const TableHeader = ({
 
   return !upToMedium ? (
     <TableHeaderComponent expandColumn={isFarmingFiltered}>
-      <Text>{t`Protocol`}</Text>
       <Text>{t`Pair`}</Text>
       <SortableHeader role="button" onClick={() => onSortChange(SortBy.APR)}>
         {t`APR`}
