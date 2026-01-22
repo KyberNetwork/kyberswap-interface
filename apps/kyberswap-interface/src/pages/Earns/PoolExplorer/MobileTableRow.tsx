@@ -26,13 +26,11 @@ const MobileTableRow = ({
   filters,
   onOpenZapInWidget,
   handleFavorite,
-  withoutBorder,
 }: {
   pool: ParsedEarnPool
   filters: PoolQueryParams
   onOpenZapInWidget: ({ pool, initialTick }: ZapInInfo) => void
   handleFavorite: (e: React.MouseEvent<SVGElement, MouseEvent>, pool: ParsedEarnPool) => Promise<void>
-  withoutBorder: boolean
 }) => {
   const theme = useTheme()
   const { trackingHandler } = useTracking()
@@ -107,7 +105,7 @@ const MobileTableRow = ({
           />
         </Flex>
       </Flex>
-      <MobileTableBottomRow withoutBorder={withoutBorder}>
+      <MobileTableBottomRow>
         {isFarmingFiltered && (
           <Flex justifyContent="space-between" sx={{ gap: 1 }} onClick={e => handleOpenZapInWidget(e, true)}>
             <Text color={theme.subText}>{t`Max APR`}</Text>

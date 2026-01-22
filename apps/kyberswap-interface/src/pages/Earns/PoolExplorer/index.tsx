@@ -22,7 +22,7 @@ import {
   Disclaimer,
   NavigateButton,
   PoolPageWrapper,
-  TableWrapper,
+  PoolTableWrapper,
 } from 'pages/Earns/PoolExplorer/styles'
 import useFilter from 'pages/Earns/PoolExplorer/useFilter'
 import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
@@ -229,7 +229,7 @@ const PoolExplorer = () => {
         />
       )}
 
-      <TableWrapper>
+      <PoolTableWrapper>
         <ContentWrapper>
           <TableHeader onSortChange={onSortChange} filters={filters} />
           <TableContent onOpenZapInWidget={handleOpenZapInWithParams} filters={filters} />
@@ -242,7 +242,7 @@ const PoolExplorer = () => {
             pageSize={filters.limit || 10}
           />
         )}
-      </TableWrapper>
+      </PoolTableWrapper>
 
       <CreatePoolModal
         isOpen={isCreateModalOpen}
