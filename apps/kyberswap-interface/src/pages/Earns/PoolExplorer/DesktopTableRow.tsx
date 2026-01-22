@@ -85,20 +85,22 @@ const DesktopTableRow = ({
 
   return (
     <TableRow expandColumn={isFarmingFiltered} onClick={e => handleOpenZapInWidget(e)}>
-      <Flex fontSize={14} alignItems="center" sx={{ gap: 1 }}>
-        <TokenLogo src={pool.dexLogo} size={20} />
-        <Text color={theme.subText}>{pool.dexName}</Text>
-      </Flex>
-      <Flex alignItems="center" sx={{ gap: 2 }}>
-        <Flex alignItems="flex-end" sx={{ position: 'relative' }}>
-          <TokenLogo src={pool.tokens?.[0]?.logoURI} />
-          <TokenLogo src={pool.tokens?.[1]?.logoURI} translateLeft />
-          {pool.chain?.logoUrl && <TokenLogo src={pool.chain.logoUrl} size={12} translateLeft translateTop />}
+      <Flex flexDirection="column" sx={{ gap: 2 }}>
+        <Flex alignItems="center" sx={{ gap: 2 }}>
+          <Flex alignItems="flex-end" sx={{ position: 'relative' }}>
+            <TokenLogo src={pool.tokens?.[0]?.logoURI} />
+            <TokenLogo src={pool.tokens?.[1]?.logoURI} translateLeft />
+            {pool.chain?.logoUrl && <TokenLogo src={pool.chain.logoUrl} size={12} translateLeft translateTop />}
+          </Flex>
+          <SymbolText>
+            {pool.tokens?.[0]?.symbol}/{pool.tokens?.[1]?.symbol}
+          </SymbolText>
+          <FeeTier>{formatDisplayNumber(pool.feeTier, { significantDigits: 4 })}%</FeeTier>
         </Flex>
-        <SymbolText>
-          {pool.tokens?.[0]?.symbol}/{pool.tokens?.[1]?.symbol}
-        </SymbolText>
-        <FeeTier>{formatDisplayNumber(pool.feeTier, { significantDigits: 4 })}%</FeeTier>
+        <Flex fontSize={14} alignItems="center" sx={{ gap: 1 }}>
+          <TokenLogo src={pool.dexLogo} size={18} />
+          <Text color={theme.subText}>{pool.dexName}</Text>
+        </Flex>
       </Flex>
       <Apr value={pool.allApr}>
         {formatAprNumber(pool.allApr)}% {kemFarming(pool)} {uniReward(pool)}
