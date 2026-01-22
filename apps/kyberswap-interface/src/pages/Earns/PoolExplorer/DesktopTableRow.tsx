@@ -1,7 +1,6 @@
 import { formatAprNumber } from '@kyber/utils/dist/number'
 import { MAX_TICK } from '@kyber/utils/dist/uniswapv3'
 import { t } from '@lingui/macro'
-import { useMemo } from 'react'
 import { Star } from 'react-feather'
 import { Flex, Text } from 'rebass'
 import { PoolQueryParams } from 'services/zapEarn'
@@ -17,6 +16,7 @@ import { FilterTag } from 'pages/Earns/PoolExplorer/Filter'
 import { Apr, FeeTier, RowItem, SymbolText, TableRow } from 'pages/Earns/PoolExplorer/styles'
 import AprDetailTooltip from 'pages/Earns/components/AprDetailTooltip'
 import MerklAprInfo from 'pages/Earns/components/MerklAprInfo'
+import MerklRewardsRecord from 'pages/Earns/components/MerklRewardsRecord'
 import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import { ParsedEarnPool, ProgramType } from 'pages/Earns/types'
 import { isUniswapExchange } from 'pages/Earns/utils'
@@ -64,6 +64,7 @@ const DesktopTableRow = ({
 }) => {
   const theme = useTheme()
   const isFarmingFiltered = filters.tag === FilterTag.FARMING_POOL
+  const rewardsTotalUsd = pool.merklOpportunity?.rewardsRecord?.total || 0
 
   const handleOpenZapInWidget = (e: React.MouseEvent<HTMLDivElement>, withPriceRange?: boolean) => {
     e.stopPropagation()
@@ -86,13 +87,6 @@ const DesktopTableRow = ({
     })
   }
 
-  const activeCampaigns = useMemo(() => {
-    const currentTimestamp = Date.now() / 1000
-    return (pool.merklOpportunity?.campaigns ?? []).filter(
-      campaign => campaign.startTimestamp <= currentTimestamp && campaign.endTimestamp >= currentTimestamp,
-    )
-  }, [pool])
-
   return (
     <TableRow expandColumn={isFarmingFiltered} onClick={e => handleOpenZapInWidget(e)}>
       <RowItem>
@@ -106,7 +100,11 @@ const DesktopTableRow = ({
             {pool.tokens?.[0]?.symbol}/{pool.tokens?.[1]?.symbol}
           </SymbolText>
           <MouseoverTooltipDesktopOnly
-            text={activeCampaigns.length > 0 ? `${t`Active Incentive Campaigns:`} ${activeCampaigns.length}` : ''}
+            text={
+              pool.merklOpportunity?.liveCampaigns
+                ? `${t`Active Incentive Campaigns:`} ${pool.merklOpportunity.liveCampaigns}`
+                : ''
+            }
             width="fit-content"
             placement="bottom"
           >
@@ -123,6 +121,12 @@ const DesktopTableRow = ({
           {formatAprNumber(pool.allApr)}% {kemFarming(pool)}
         </Apr>
         <MerklAprInfo pool={pool} />
+      </RowItem>
+      <RowItem alignItems="flex-end">
+        <Text>
+          {formatDisplayNumber((pool.egUsd || 0) + rewardsTotalUsd, { style: 'currency', significantDigits: 4 })}
+        </Text>
+        <MerklRewardsRecord pool={pool} />
       </RowItem>
       {isFarmingFiltered && (
         <RowItem alignItems="flex-end" onClick={e => handleOpenZapInWidget(e, true)}>

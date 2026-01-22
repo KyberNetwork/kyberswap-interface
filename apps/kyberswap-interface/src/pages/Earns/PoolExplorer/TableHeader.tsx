@@ -27,6 +27,7 @@ const TableHeader = ({
         {t`APR`}
         <SortIcon sorted={filters.sortBy === SortBy.APR ? (filters.orderBy as Direction) : undefined} />
       </SortableHeader>
+      <Text sx={{ justifySelf: 'end' }}>{t`Rewards`}</Text>
       {isFarmingFiltered && (
         <Flex justifyContent="flex-end" sx={{ gap: '4px', alignItems: 'center' }} role="button">
           {t`Max APR`}
