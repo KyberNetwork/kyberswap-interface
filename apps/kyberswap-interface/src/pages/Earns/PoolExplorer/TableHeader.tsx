@@ -50,7 +50,7 @@ const TableHeader = ({
         </Flex>
       ) : (
         <SortableHeader sx={{ justifySelf: 'end' }} role="button" onClick={() => onSortChange(SortBy.EARN_FEE)}>
-          {t`Earn Fees`}
+          {t`Fee`}
           <SortIcon sorted={filters.sortBy === SortBy.EARN_FEE ? (filters.orderBy as Direction) : undefined} />
         </SortableHeader>
       )}
